@@ -1,0 +1,4 @@
+LIBRARY     GraphicsEngine
+
+EXPORTS
+	DllCreateInstance	PRIVATE

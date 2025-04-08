@@ -1,0 +1,216 @@
+﻿#include "pch.h"
+
+Transform::Transform(GameObject& owner)
+    :
+    gameObject(owner),
+    _root(nullptr),
+    _parent(nullptr),
+
+    _isDirty(true),
+    _position(),
+    _rotation(),
+    _scale(1,1,1)
+{
+
+}
+Transform::~Transform()
+{
+    EraseParent();
+    std::vector<Transform*> transformStack;
+    for (auto& transform : _childsList)
+    {
+        transformStack.push_back(transform);
+    }
+    this->DetachChildren();
+    while (!_childsList.empty())
+    {
+        Transform* currTr = transformStack.back();
+        transformStack.pop_back();
+        for (auto& transform : currTr->_childsList)
+        {
+            transformStack.push_back(transform);
+        }
+        currTr->DetachChildren();
+    }
+}
+
+void Transform::DetachChildren()
+{
+    for (auto& child : _childsList)
+    {
+        child->SetParent(nullptr);
+    }
+}
+
+void Transform::SetParent(Transform* p)
+{
+    if (p == nullptr)
+    {
+        EraseParent();
+    }
+    else //부모 관계 변경
+    {
+        if (p == this || p == _parent || IsDescendantOf(this))
+        {
+            return;
+        }
+        EraseParent();
+        {
+            _parent = p;
+
+            if (p->_root)
+                _root = p->_root;
+            else
+                _root = _parent;
+
+            p->_childsList.push_back(this);
+            SetChildsRootParent(_root);
+        }
+    }
+    _isDirty = true;
+}
+
+void Transform::SetParent(Transform& p)
+{
+    SetParent(&p);
+}
+
+
+void Transform::EraseParent()
+{
+    bool isParent = this->_parent != nullptr;
+    if (isParent)
+    {
+        if (!_parent->_childsList.empty())
+        {
+            std::erase(_parent->_childsList, this); //부모의 자식 항목에 자신을 제거
+        }
+        _root = nullptr;
+        _parent = nullptr;
+        SetChildsRootParent(this);
+    }
+}
+
+bool Transform::IsDescendantOf(Transform* potentialAncestor) const
+{
+    Transform* currentParent = _parent;
+    while (currentParent)
+    {
+        if (currentParent == potentialAncestor)
+            return true;
+        currentParent = currentParent->_parent;
+    }
+    return false;
+}
+
+void Transform::DrawImGuiEditor()
+{
+    ImGui::PushID(this);
+    {
+        //position
+        Vector3 posTemp = Position;
+        bool isEdit = ImGui::DragFloat3(
+            "Position",
+            &posTemp.x,
+            ImGuiSetting::v_speed,
+            ImGuiSetting::v_min,
+            ImGuiSetting::v_max,
+            ImGuiSetting::format.c_str(),
+            ImGuiSetting::flags
+        );
+        if (isEdit && ImGui::IsItemDeactivatedAfterEdit)
+        {
+            Position = posTemp;
+        }
+
+        //rotation
+        Vector3 rotTemp = _eulerAngle;
+        isEdit = ImGui::DragFloat3(
+            "Rotation",
+            &rotTemp.x,
+            ImGuiSetting::v_speed,
+            ImGuiSetting::v_min,
+            ImGuiSetting::v_max,
+            ImGuiSetting::format.c_str(),
+            ImGuiSetting::flags
+        );
+        if (isEdit && ImGui::IsItemDeactivatedAfterEdit)
+        {
+            _eulerAngle = rotTemp;
+            const Quaternion& newRotation = Quaternion::CreateFromYawPitchRoll(_eulerAngle * Mathf::Deg2Rad);
+            _isDirty = true;
+            _rotation = newRotation;
+        }
+
+        //scale
+        Vector3 scaleTemp = Scale;
+        isEdit = ImGui::DragFloat3(
+            "Scale",
+            &scaleTemp.x,
+            ImGuiSetting::v_speed,
+            ImGuiSetting::v_min,
+            ImGuiSetting::v_max,
+            ImGuiSetting::format.c_str(),
+            ImGuiSetting::flags
+        );
+        if (isEdit && ImGui::IsItemDeactivatedAfterEdit)
+        {
+            Scale = scaleTemp;
+        }
+    }
+    ImGui::PopID();
+}
+
+void Transform::SerializedReflectEvent()
+{
+    std::memcpy(ReflectionFields->position.data(), & _position.x, sizeof(ReflectionFields->position));
+    std::memcpy(ReflectionFields->rotation.data(), &_rotation.x, sizeof(ReflectionFields->rotation));
+    std::memcpy(ReflectionFields->eulerAngle.data(), &_eulerAngle.x, sizeof(ReflectionFields->eulerAngle));
+    std::memcpy(ReflectionFields->scale.data(), &_scale.x, sizeof(ReflectionFields->scale));
+}
+
+void Transform::DeserializedReflectEvent()
+{
+    _position = Vector3(ReflectionFields->position.data());
+    _rotation = Quaternion(ReflectionFields->rotation.data());
+    _eulerAngle = Vector3(ReflectionFields->eulerAngle.data());
+    _scale = Vector3(ReflectionFields->scale.data());
+
+    _isDirty = true;
+}
+
+void Transform::SetChildsRootParent(Transform* _root)
+{
+    std::vector<Transform*> transformStack;
+    for (auto& tr : _childsList)
+    {
+        transformStack.push_back(tr);
+    }
+    while (!transformStack.empty())
+    {
+        Transform* curr = transformStack.back();
+        transformStack.pop_back();
+
+        curr->_root = _root;
+        for (auto& tr : curr->_childsList)
+        {
+            transformStack.push_back(tr);
+        }
+    }
+}
+
+Transform* Transform::Find(std::string_view name) const
+{
+    for (int i = 0; i < ChildCount; i++)
+    {
+        if (Transform* child = GetChild(i))
+        {
+            GameObject& obj = child->gameObject;
+            if (obj.Name == name)
+            {
+                return child;
+            }     
+        }
+    }
+    return nullptr;
+}
