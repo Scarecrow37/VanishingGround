@@ -520,4 +520,4 @@ FodyWeavers.xsd
 # Project
 Resource/
 update_repo.bat
-*/imgui.ini
+imgui.ini
