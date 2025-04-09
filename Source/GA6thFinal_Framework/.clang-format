@@ -1,0 +1,14 @@
+﻿---
+BasedOnStyle: Microsoft
+ColumnLimit: 80
+AlwaysBreakTemplateDeclarations: Yes
+AllowShortBlocksOnASingleLine: Empty
+AllowShortFunctionsOnASingleLine: Inline
+PointerAlignment: Left
+ReferenceAlignment: Left
+IndentWidth: 4
+TabWidth: 4
+AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: true
+NamespaceIndentation: All
+AccessModifierOffset: -4

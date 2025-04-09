@@ -156,6 +156,7 @@
     <ClInclude Include="Source\Engine\AppModule\EngineCoresModule.h" />
     <ClInclude Include="Source\Engine\AppModule\ImGuiDX11Module.h" />
     <ClInclude Include="Source\Engine\AppModule\Interface\IAppModule.h" />
+    <ClInclude Include="Source\Engine\Utility\LogLevel.h" />
     <ClInclude Include="Source\Engine\Utility\Mathf.h" />
     <ClInclude Include="Source\Engine\Utility\stlHelper.h" />
     <ClInclude Include="Source\Engine\ClassCore\ReflectHelper.h" />

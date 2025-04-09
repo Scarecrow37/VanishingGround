@@ -149,6 +149,19 @@ public:
     }
     PROPERTY(Rotation)
 
+    SETTER(const Vector3&, EulerAngle)
+    {
+         _isDirty = true;
+         _eulerAngle = value;
+         Quaternion newRotation = Quaternion::CreateFromYawPitchRoll(_eulerAngle * Mathf::Deg2Rad);
+         _rotation = newRotation;
+    }
+    GETTER(const Vector3&, EulerAngle)
+    {
+        return _eulerAngle;
+    }
+    PROPERTY(EulerAngle)
+
     SETTER(const Vector3&, Scale)
     {
         _isDirty = true;
@@ -159,7 +172,11 @@ public:
         return _scale;
     }
     PROPERTY(Scale)
-
+    
+    REFLECT_PROPERTY(
+        Position, 
+        EulerAngle,
+        Scale)
 public:
     /// <summary>
     /// <para> https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Transform.Rotate.html </para>
@@ -185,16 +202,6 @@ public:
         Rotation = normalize;
     }
 
-    //ImGui에서 값 변경 편하게
-    struct ImGuiSetting
-    {
-        inline static float v_speed = 0.1f;
-        inline static float v_min = 0.f;
-        inline static float v_max = 0.f;
-        inline static std::string format = "%.3f";
-        inline static ImGuiSliderFlags flags = 0;
-    };
-    void DrawImGuiEditor();
 protected:
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
     std::array<float, 3> position{};

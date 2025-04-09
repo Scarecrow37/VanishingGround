@@ -3,7 +3,7 @@ struct IReflectProperty
 {
     IReflectProperty() = default;
     virtual ~IReflectProperty() = default;
-    virtual void imgui_draw_property_fields() {} //프로퍼티 맴버들의 순회를 위한 함수입니다.
+    virtual void ImGuiDrawPropertys() {} //프로퍼티 맴버들의 순회를 위한 함수입니다.
 };
 
 //프로퍼티 사용시 1회 포함
@@ -46,45 +46,7 @@ SETTER(type, property_name)
 TProperty<property_class_type, property_name##_property_getter_struct, property_name##_property_setter_struct> property_name{this};                \
 using property_name##_property_t = TProperty<property_class_type, property_name##_property_getter_struct, property_name##_property_setter_struct>; \
 friend property_name##_property_t;                                                                                                                 
-
-//에디터 편집을 허용할 프로퍼티들을 등록합니다. Get, Set 함수가 모두 존재하는 프로퍼티만 편집 가능합니다.
-#define REFLECT_PROPERTY(...)                                                                                                 \
-virtual void imgui_draw_property_fields()                                                                                     \
-{                                                                                                                             \
-    __super::imgui_draw_property_fields();                                                                                    \
-    auto fields = std::tie(__VA_ARGS__);                                                                                      \
-    static std::unordered_set<void*> reflectionFieldsSet;                                                                     \
-    reflectionFieldsSet.clear();                                                                                              \
-                                                                                                                              \
-    ImGui::PushID(this);                                                                                                      \
-    StdHelper::for_each_tuple(                                                                                                \
-    fields,                                                                                                                   \
-    [&](auto& field)                                                                                                          \
-    {                                                                                                                         \
-        using FieldType = std::remove_cvref_t<decltype(field)>;                                                               \
-        if constexpr (PropertyUtils::is_TProperty_v<FieldType>)                                                               \
-        {                                                                                                                     \
-            static_assert(FieldType::is_getter, "This property does not have a getter.");                                     \
-            static_assert(FieldType::is_setter, "This property does not have a setter.");                                     \
-            ReflectHelper::ImGuiDraw::Private::InputAuto(field);                                                              \
-        }                                                                                                                     \
-        else                                                                                                                  \
-        {                                                                                                                     \
-            reflectionFieldsSet.insert(&field);                                                                               \
-        }                                                                                                                     \
-    });                                                                                                                       \
-    const auto view = rfl::to_view(*ReflectionFields.Get());                                                                  \
-    view.apply(                                                                                                               \
-    [&](auto& rflField)                                                                                                       \
-    {                                                                                                                         \
-        if (reflectionFieldsSet.find(rflField.value()) != reflectionFieldsSet.end())                                          \
-        {                                                                                                                     \
-            ReflectHelper::ImGuiDraw::Private::InputAuto(rflField);                                                           \
-        }                                                                                                                     \
-    });                                                                                                                       \
-    ImGui::PopID();                                                                                                           \
-}                                                                                                                             
-
+                                                                                                                            
 struct property_void_type
 {
     using Type = void;

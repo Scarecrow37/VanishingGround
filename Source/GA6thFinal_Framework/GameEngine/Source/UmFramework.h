@@ -56,6 +56,7 @@ constexpr bool IS_SCRIPTS_PROJECT = false;
 #include "Engine/Imgui/imgui_internal.h"
 
 //Utility
+#include "Engine/Utility/LogLevel.h"
 #include "Engine/Utility/utfHelper.h"
 #include "Engine/Utility/DumpUtility.h"
 #include "Engine/Utility/dllUtility.h"

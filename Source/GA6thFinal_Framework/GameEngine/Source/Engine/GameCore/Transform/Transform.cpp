@@ -11,6 +11,7 @@ Transform::Transform(GameObject& owner)
     _rotation(),
     _scale(1,1,1)
 {
+   
 
 }
 Transform::~Transform()
@@ -101,64 +102,6 @@ bool Transform::IsDescendantOf(Transform* potentialAncestor) const
         currentParent = currentParent->_parent;
     }
     return false;
-}
-
-void Transform::DrawImGuiEditor()
-{
-    ImGui::PushID(this);
-    {
-        //position
-        Vector3 posTemp = Position;
-        bool isEdit = ImGui::DragFloat3(
-            "Position",
-            &posTemp.x,
-            ImGuiSetting::v_speed,
-            ImGuiSetting::v_min,
-            ImGuiSetting::v_max,
-            ImGuiSetting::format.c_str(),
-            ImGuiSetting::flags
-        );
-        if (isEdit && ImGui::IsItemDeactivatedAfterEdit)
-        {
-            Position = posTemp;
-        }
-
-        //rotation
-        Vector3 rotTemp = _eulerAngle;
-        isEdit = ImGui::DragFloat3(
-            "Rotation",
-            &rotTemp.x,
-            ImGuiSetting::v_speed,
-            ImGuiSetting::v_min,
-            ImGuiSetting::v_max,
-            ImGuiSetting::format.c_str(),
-            ImGuiSetting::flags
-        );
-        if (isEdit && ImGui::IsItemDeactivatedAfterEdit)
-        {
-            _eulerAngle = rotTemp;
-            const Quaternion& newRotation = Quaternion::CreateFromYawPitchRoll(_eulerAngle * Mathf::Deg2Rad);
-            _isDirty = true;
-            _rotation = newRotation;
-        }
-
-        //scale
-        Vector3 scaleTemp = Scale;
-        isEdit = ImGui::DragFloat3(
-            "Scale",
-            &scaleTemp.x,
-            ImGuiSetting::v_speed,
-            ImGuiSetting::v_min,
-            ImGuiSetting::v_max,
-            ImGuiSetting::format.c_str(),
-            ImGuiSetting::flags
-        );
-        if (isEdit && ImGui::IsItemDeactivatedAfterEdit)
-        {
-            Scale = scaleTemp;
-        }
-    }
-    ImGui::PopID();
 }
 
 void Transform::SerializedReflectEvent()

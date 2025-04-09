@@ -1,5 +1,5 @@
 ﻿#include "TestComponent.h"
-TestComponent::TestComponent() = default;
+TestComponent::TestComponent()  = default;
 TestComponent::~TestComponent() = default;
 
 using namespace Global;
@@ -9,8 +9,7 @@ void TestComponent::Update()
 {
     ImGui::Begin(u8"테스트 컴포넌트 업데이트 호출중!!!"_c_str);
     {
-        
-    }   
+    }
     ImGui::End();
 }
 
@@ -51,10 +50,12 @@ void TestComponent::OnDisable()
 
 void TestComponent::SerializedReflectEvent()
 {
-    engineCore->EngineLogger.Log(LogLevel::LEVEL_DEBUG, "SerializedReflectEvent");
+    engineCore->EngineLogger.Log(LogLevel::LEVEL_DEBUG,
+                                 "SerializedReflectEvent");
 }
 
 void TestComponent::DeserializedReflectEvent()
 {
-    engineCore->EngineLogger.Log(LogLevel::LEVEL_DEBUG, "DeserializedReflectEvent");
+    engineCore->EngineLogger.Log(LogLevel::LEVEL_DEBUG,
+                                 "DeserializedReflectEvent");
 }

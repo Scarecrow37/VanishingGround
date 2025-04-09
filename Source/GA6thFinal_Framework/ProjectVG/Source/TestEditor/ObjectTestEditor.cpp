@@ -61,17 +61,17 @@ void ObjectTestEditor::OnFrame()
                 ImGui::PushID(obj.get());
                 {
                     ImGui::Text("%s", obj->ToString().data());
-                    obj->transform.DrawImGuiEditor();                    
+                    obj->transform.ImGuiDrawPropertys();                    
 
                     static std::string transformData;
                     if (ImGui::Button("save"))
                     {
-                        transformData = obj->transform.serialized_reflect_fields();
+                        transformData = obj->transform.SerializedReflectFields();
                     }
                     ImGui::SameLine();
                     if (ImGui::Button("load"))
                     {
-                        obj->transform.deserialized_reflect_fields(transformData);
+                        obj->transform.DeserializedReflectFields(transformData);
                     }
                     ImGui::SameLine();
                     ImGui::Text(transformData.c_str());
@@ -86,7 +86,7 @@ void ObjectTestEditor::OnFrame()
                     {
                         GameObject::Destroy(obj.get());
                     }
-                    obj->imgui_draw_property_fields();
+                    obj->ImGuiDrawPropertys();
 
                     for (size_t i = 0; i < obj->GetComponentCount(); i++)
                     {
@@ -98,19 +98,19 @@ void ObjectTestEditor::OnFrame()
                             ImGui::Separator();
                             {     
                                 ImGui::Text("%s", component->ClassName());
-                                component->imgui_draw_property_fields();
+                                component->ImGuiDrawPropertys();
                                 if (ImGui::Button("Destroy"))
                                 {
                                     GameObject::Destroy(component.get());
                                 }
                                 if (ImGui::Button("save"))
                                 {
-                                    componentData = component->serialized_reflect_fields();
+                                    componentData = component->SerializedReflectFields();
                                 }
                                 ImGui::SameLine();
                                 if (ImGui::Button("load"))
                                 {
-                                    component->deserialized_reflect_fields(componentData);
+                                    component->DeserializedReflectFields(componentData);
                                 }
                                 ImGui::SameLine();
                                 ImGui::Text(componentData.c_str());
