@@ -52,7 +52,6 @@ struct property_void_type
     using Type = void;
 };
 
-//Set, Get 함수 선언 도움을 위한 헬퍼 템플릿 클래스
 template <typename owner_type, class getter, class setter>
 class TProperty
 {
