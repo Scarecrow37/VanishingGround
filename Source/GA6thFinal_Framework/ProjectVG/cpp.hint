@@ -2,50 +2,120 @@
 // 해석하는 데 도움이 됩니다.
 // 자세한 내용은 다음을 참조하세요. https://go.microsoft.com/fwlink/?linkid=865984
 
-#define REFLECT_FIELDS_BEGIN(BASE)							                            \
-using Base = BASE;										                                \
-protected:                                                                              \
-struct reflect_fields_struct                                            	            \
-{														                                \
-	rfl::Flatten<Base::reflect_fields_struct> Basefields{};	                         
-                                                                             
-#define REFLECT_FIELDS_END(CLASS)	                                                    \
-};                                                                                      \
-protected:                                                                              \
-virtual void make_reflect_fields(void*& fields, unsigned long long& size)               \
-{                                                                                       \
-    size_t size_of = sizeof(CLASS##::reflect_fields_struct);                            \
-    fields = malloc(size_of);                                                           \
-    size = size_of;                                                                     \
-    new(fields)CLASS##::reflect_fields_struct();                                        \
-}                                                                                       \
-CLASS##::reflect_fields_struct& reflection()                                            \
-{                                                                                       \
-    return *reinterpret_cast<CLASS##::reflect_fields_struct*>(get_reflect_fields());    \
-}                                                                                       \
-public:                                                                                 \
-virtual std::string serialized_reflect_fields()                                         \
-{                                                                                       \
-    serialized_reflect_event_recursive();                                               \
-    return ReflectHelper::json::SerializedObjet(reflection());                          \
-}                                                                                       \
-virtual bool deserialized_reflect_fields(std::string_view data)                         \
-{                                                                                       \
-    bool result = ReflectHelper::json::DeserializedObjet(reflection(), data);           \
-    deserialized_reflect_event_recursive();                                             \
-    return result;                                                                      \
-}                                                                                       \
-virtual void serialized_reflect_event_recursive()                                       \
-{                                                                                       \
-    Base::SerializedEvent();                                                            \
-    Base::serialized_reflect_event_recursive();                                         \
-}                                                                                       \
-virtual void deserialized_reflect_event_recursive()                                     \
-{                                                                                       \
-    Base::DeserializedEvent();                                                          \
-    Base::deserialized_reflect_event_recursive();                                       \
-}
+//ReflectHelper Start
+#define REFLECT_FIELDS_BEGIN(BASE)                                             \
+    using Base = BASE;                                                         \
+    struct reflect_fields_struct                                               \
+    {                                                                          \
+        rfl::Flatten<Base::reflect_fields_struct> Basefields{};
 
+#define REFLECT_FIELDS_END(CLASS)                                              \
+    }                                                                          \
+    ;                                                                          \
+    struct reflection_safe_ptr                                                 \
+    {                                                                          \
+        reflection_safe_ptr(CLASS##* owner)                                    \
+        {                                                                      \
+            _owner = owner;                                                    \
+        }                                                                      \
+        ~reflection_safe_ptr() = default;                                      \
+        reflect_fields_struct* operator->()                                    \
+        {                                                                      \
+            return Get();                                                      \
+        }                                                                      \
+        reflect_fields_struct& operator*()                                     \
+        {                                                                      \
+            return *Get();                                                     \
+        }                                                                      \
+        reflect_fields_struct* Get()                                           \
+        {                                                                      \
+            if (_reflection == nullptr)                                        \
+            {                                                                  \
+                _reflection =                                                  \
+                    reinterpret_cast<CLASS## ::reflect_fields_struct*>(        \
+                        _owner->get_reflect_fields());                         \
+            }                                                                  \
+            return _reflection;                                                \
+        }                                                                      \
+                                                                               \
+    private:                                                                   \
+        CLASS## ::reflect_fields_struct* _reflection = nullptr;                \
+        CLASS##*                         _owner      = nullptr;                \
+    };                                                                         \
+    reflection_safe_ptr ReflectionFields{this};                                \
+                                                                               \
+public:                                                                        \
+    virtual std::string SerializedReflectFields()                              \
+    {                                                                          \
+        serialized_reflect_event_recursive();                                  \
+        return ReflectHelper::json::SerializedObjet(*ReflectionFields);        \
+    }                                                                          \
+    virtual bool DeserializedReflectFields(std::string_view data)              \
+    {                                                                          \
+        bool result =                                                          \
+            ReflectHelper::json::DeserializedObjet(*ReflectionFields, data);   \
+        deserialized_reflect_event_recursive();                                \
+        return result;                                                         \
+    }                                                                          \
+                                                                               \
+protected:                                                                     \
+    virtual void make_reflect_fields(void*& fields, unsigned long long& size)  \
+    {                                                                          \
+        size_t size_of = sizeof(CLASS## ::reflect_fields_struct);              \
+        fields         = malloc(size_of);                                      \
+        size           = size_of;                                              \
+        new (fields) CLASS## ::reflect_fields_struct();                        \
+    }                                                                          \
+    virtual void serialized_reflect_event_recursive()                          \
+    {                                                                          \
+        Base::SerializedReflectEvent();                                        \
+        Base::serialized_reflect_event_recursive();                            \
+    }                                                                          \
+    virtual void deserialized_reflect_event_recursive()                        \
+    {                                                                          \
+        Base::DeserializedReflectEvent();                                      \
+        Base::deserialized_reflect_event_recursive();                          \
+    }
+
+// 에디터 편집을 허용할 프로퍼티들을 등록합니다. Get, Set 함수가 모두 존재하는
+// 프로퍼티만 편집 가능합니다.
+#define REFLECT_PROPERTY(...)                                                  \
+    virtual void ImGuiDrawPropertys()                                          \
+    {                                                                          \
+        __super::ImGuiDrawPropertys();                                         \
+        auto                             fields = std::tie(__VA_ARGS__);       \
+        static std::unordered_set<void*> reflectionFieldsSet;                  \
+        reflectionFieldsSet.clear();                                           \
+                                                                               \
+        ImGui::PushID(this);                                                   \
+        StdHelper::for_each_tuple(fields, [&](auto& field) {                   \
+            using FieldType = std::remove_cvref_t<decltype(field)>;            \
+            if constexpr (PropertyUtils::is_TProperty_v<FieldType>)            \
+            {                                                                  \
+                static_assert(FieldType::is_getter,                            \
+                              "This property does not have a getter.");        \
+                static_assert(FieldType::is_setter,                            \
+                              "This property does not have a setter.");        \
+                ReflectHelper::ImGuiDraw::Private::InputAuto(field);           \
+            }                                                                  \
+            else                                                               \
+            {                                                                  \
+                reflectionFieldsSet.insert(&field);                            \
+            }                                                                  \
+        });                                                                    \
+        const auto view = rfl::to_view(*ReflectionFields.Get());               \
+        view.apply([&](auto& rflField) {                                       \
+            if (reflectionFieldsSet.find(rflField.value()) !=                  \
+                reflectionFieldsSet.end())                                     \
+            {                                                                  \
+                ReflectHelper::ImGuiDraw::Private::InputAuto(rflField);        \
+            }                                                                  \
+        });                                                                    \
+        ImGui::PopID();                                                        \
+    }
+//ReflectHelper End
+
+//TProperty Start
 #define USING_PROPERTY(class_name)                                                             \
 using property_class_type = class_name;                                                                           
 
@@ -66,12 +136,12 @@ struct property_name##_property_setter_struct                                   
 {                                                                                              \
     using Type = type;                                                                         \
     static constexpr const char* name = #property_name;                                        \
-    inline void operator()(property_class_type* _this, const type& value)                      \
+    inline void operator()(property_class_type* _this, const std::remove_cvref_t<type>& value) \
     {                                                                                          \
         _this->property_name##_property_setter(value);                                         \
     }                                                                                          \
 };                                                                                             \
-void property_name##_property_setter(const type& value)
+void property_name##_property_setter(const std::remove_cvref_t<type>& value)
 
 #define GETTER_ONLY(type, property_name)                                                       \
 using property_name##_property_setter_struct = property_void_type;                             \
@@ -85,41 +155,9 @@ SETTER(type, property_name)
 TProperty<property_class_type, property_name##_property_getter_struct, property_name##_property_setter_struct> property_name{this};                \
 using property_name##_property_t = TProperty<property_class_type, property_name##_property_getter_struct, property_name##_property_setter_struct>; \
 friend property_name##_property_t;                                                                                                                 
-
-//에디터 편집을 허용할 프로퍼티들을 등록합니다. Get, Set 함수가 모두 존재하는 프로퍼티만 편집 가능합니다.
-#define REFLECT_PROPERTY(...)                                                                                                 \
-virtual void imgui_draw_property_fields()                                                                                     \
-{                                                                                                                             \
-    __super::imgui_draw_property_fields();                                                                                    \
-    auto fields = std::tie(__VA_ARGS__);                                                                                      \
-    static std::unordered_set<void*> reflectionFieldsSet;                                                                     \
-    reflectionFieldsSet.clear();                                                                                              \
-                                                                                                                              \
-    ImGui::PushID(this);                                                                                                      \
-    StdHelper::for_each_tuple(                                                                                                \
-    fields,                                                                                                                   \
-    [&](auto& field)                                                                                                          \
-    {                                                                                                                         \
-        using FieldType = std::remove_cvref_t<decltype(field)>;                                                               \
-        if constexpr (PropertyUtils::is_TProperty_v<FieldType>)                                                               \
-        {                                                                                                                     \
-            static_assert(FieldType::is_getter, "This property does not have a getter.");                                     \
-            static_assert(FieldType::is_setter, "This property does not have a setter.");                                     \
-            ReflectHelper::ImGuiDraw::Private::InputAuto(field);                                                              \
-        }                                                                                                                     \
-        else                                                                                                                  \
-        {                                                                                                                     \
-            reflectionFieldsSet.insert(&field);                                                                               \
-        }                                                                                                                     \
-    });                                                                                                                       \
-    const auto view = rfl::to_view(reflection());                                                                             \
-    view.apply(                                                                                                               \
-    [&](auto& rflField)                                                                                                       \
-    {                                                                                                                         \
-        if (reflectionFieldsSet.find(rflField.value()) != reflectionFieldsSet.end())                                          \
-        {                                                                                                                     \
-            ReflectHelper::ImGuiDraw::Private::InputAuto(rflField);                                                           \
-        }                                                                                                                     \
-    });                                                                                                                       \
-    ImGui::PopID();                                                                                                           \
-}
+                                                                                                                            
+struct property_void_type
+{
+    using Type = void;
+};
+//TProperty End

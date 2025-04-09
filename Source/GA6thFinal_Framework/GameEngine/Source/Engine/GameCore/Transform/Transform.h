@@ -1,22 +1,23 @@
 ﻿#pragma once
 using namespace DirectX::SimpleMath;
 
-//씬그래프, position, rotation, scale을 제어하는 Transform 코어클래스
-class Transform :
-    public ReflectSerializer
+// 씬그래프, position, rotation, scale을 제어하는 Transform 코어클래스
+class Transform : public ReflectSerializer
 {
     friend class ESceneManager;
+
 public:
     /*Transform의 좌표계 공간을 나타내는 enum class*/
     enum class Space
     {
-        WORLD,  //월드
-        LOCAL   //로컬
+        WORLD, // 월드
+        LOCAL  // 로컬
     };
 
     Transform(GameObject& owner);
     ~Transform();
     GameObject& gameObject;
+
 public:
     /// <summary>
     /// 오일러 각으로 쿼터니언을 만듭니다. 매개변수의 단위는 디그리드 입니다.
@@ -30,22 +31,27 @@ public:
 
 public:
     /// <summary>
-    /// <para> https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Transform.DetachChildren.html </para>
-    /// <para> 자식오브젝트들을 전부 분리해 root로 만들어버립니다.                                             </para>
+    /// <para>
+    /// https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Transform.DetachChildren.html
+    /// </para> <para> 자식오브젝트들을 전부 분리해 root로 만들어버립니다.
+    /// </para>
     /// </summary>
     void DetachChildren();
 
     /// <summary>
-    /// <para> https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Transform.SetParent.html  </para>
-    /// <para> Transform의 부모를 설정합니다. nullptr 전달시 이 Transform을 root로 만듭니다.               </para>
+    /// <para>
+    /// https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Transform.SetParent.html
+    /// </para> <para> Transform의 부모를 설정합니다. nullptr 전달시 이
+    /// Transform을 root로 만듭니다.               </para>
     /// </summary>
     /// <param name="p :">부모로 설정할 대상</param>
     void SetParent(Transform* p);
     void SetParent(Transform& p);
 
     /// <summary>
-    /// <para> https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Transform.GetChild.html </para>
-    /// <para> 인덱스로 자식을 가져옵니다.                                                             </para>
+    /// <para>
+    /// https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Transform.GetChild.html
+    /// </para> <para> 인덱스로 자식을 가져옵니다. </para>
     /// </summary>
     /// <param name="index :">자식의 인덱스</param>
     /// <returns>성공시 해당 자식의 포인터. 실패시 nullptr</returns>
@@ -61,20 +67,22 @@ public:
 
     /// <summary>
     /// https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Transform.Find.html
-    /// <para> 이름으로 child를 찾아 반환합니다.                                                                                               </para>
-    /// <para> 이름이 있는 자식을 찾을 수 없으면 null이 반환됩니다.'/' 문자가 포함된 경우 경로 이름처럼 계층 구조에서 Transform에 액세스합니다.      </para>
-    /// <para> 참고: GameObject 이름에 '/'가 있는 경우 Find가 제대로 작동하지 않습니다.                                                          </para>
-    /// <para> 참고 : Find는 Transform 계층 구조에서 재귀적으로 내려가지 않습니다.                                                               </para>
-    /// <para> 참고 : Find는 비활성화된 GameObject의 Transform을 찾을 수 있습니다.                                                              </para>
-    /// <para> 참고 : 동일한 이름이 존재하면 첫번째 오브젝트를 반환합니다.                                                                        </para>
+    /// <para> 이름으로 child를 찾아 반환합니다. </para> <para> 이름이 있는
+    /// 자식을 찾을 수 없으면 null이 반환됩니다.'/' 문자가 포함된 경우 경로
+    /// 이름처럼 계층 구조에서 Transform에 액세스합니다.      </para> <para>
+    /// 참고: GameObject 이름에 '/'가 있는 경우 Find가 제대로 작동하지 않습니다.
+    /// </para> <para> 참고 : Find는 Transform 계층 구조에서 재귀적으로 내려가지
+    /// 않습니다. </para> <para> 참고 : Find는 비활성화된 GameObject의
+    /// Transform을 찾을 수 있습니다. </para> <para> 참고 : 동일한 이름이
+    /// 존재하면 첫번째 오브젝트를 반환합니다. </para>
     /// </summary>
     /// <param name="name :">찾을 오브젝트 이름</param>
     /// <returns></returns>
     Transform* Find(std::string_view name) const;
 
 private:
-    Transform* _root;
-    Transform* _parent;
+    Transform*              _root;
+    Transform*              _parent;
     std::vector<Transform*> _childsList;
 
 private:
@@ -98,96 +106,76 @@ private:
 
 public:
     USING_PROPERTY(Transform);
-    GETTER_ONLY(int, ChildCount)
-    {
-        return _childsList.size();
-    }
+    GETTER_ONLY(int, ChildCount) { return _childsList.size(); }
     // https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Transform-childCount.html
-    //get : 자식의 개수를 반환합니다. 
-    //return : int
+    // get : 자식의 개수를 반환합니다.
+    // return : int
     PROPERTY(ChildCount);
 
-    GETTER_ONLY(Transform*, Root)
-    {
-        return _root;
-    }
+    GETTER_ONLY(Transform*, Root) { return _root; }
     // https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Transform-root.html
-    //get : 최상위 부모를 반환합니다.
-    //return : Transform*
+    // get : 최상위 부모를 반환합니다.
+    // return : Transform*
     PROPERTY(Root);
 
-    GETTER_ONLY(Transform*, Parent)
-    {
-        return _parent;
-    }
+    GETTER_ONLY(Transform*, Parent) { return _parent; }
     // https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Transform-parent.html
-    //get : 부모를 반환합니다.
-    //return : Transform*
+    // get : 부모를 반환합니다.
+    // return : Transform*
     PROPERTY(Parent);
 
 public:
     SETTER(const Vector3&, Position)
     {
-        _isDirty = true;
+        _isDirty  = true;
         _position = value;
     }
-    GETTER(const Vector3&, Position)
-    {      
-        return _position;
-    }
+    GETTER(const Vector3&, Position) { return _position; }
     PROPERTY(Position)
 
     SETTER(const Quaternion&, Rotation)
     {
-        _isDirty = true;
-        _rotation = value;
+        _isDirty    = true;
+        _rotation   = value;
         _eulerAngle = _rotation.ToEuler() * Mathf::Rad2Deg;
     }
-    GETTER(const Quaternion&, Rotation)
-    {
-        return _rotation;
-    }
+    GETTER(const Quaternion&, Rotation) { return _rotation; }
     PROPERTY(Rotation)
 
     SETTER(const Vector3&, EulerAngle)
     {
-         _isDirty = true;
-         _eulerAngle = value;
-         Quaternion newRotation = Quaternion::CreateFromYawPitchRoll(_eulerAngle * Mathf::Deg2Rad);
-         _rotation = newRotation;
+        _isDirty    = true;
+        _eulerAngle = value;
+        Quaternion newRotation =
+            Quaternion::CreateFromYawPitchRoll(_eulerAngle * Mathf::Deg2Rad);
+        _rotation = newRotation;
     }
-    GETTER(const Vector3&, EulerAngle)
-    {
-        return _eulerAngle;
-    }
+    GETTER(const Vector3&, EulerAngle) { return _eulerAngle; }
     PROPERTY(EulerAngle)
 
     SETTER(const Vector3&, Scale)
     {
         _isDirty = true;
-        _scale = value;
+        _scale   = value;
     }
-    GETTER(const Vector3&, Scale)
-    {
-        return _scale;
-    }
+    GETTER(const Vector3&, Scale) { return _scale; }
     PROPERTY(Scale)
-    
-    REFLECT_PROPERTY(
-        Position, 
-        EulerAngle,
-        Scale)
+
+    REFLECT_PROPERTY(Position, EulerAngle, Scale)
 public:
     /// <summary>
-    /// <para> https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Transform.Rotate.html </para>
-    /// <para> Transform을 특정 축으로 회전시킵니다. </para>
+    /// <para>
+    /// https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Transform.Rotate.html
+    /// </para> <para> Transform을 특정 축으로 회전시킵니다. </para>
     /// </summary>
     /// <param name="axis :">회전시킬 축</param>
     /// <param name="angle :">각도. 단위 : 디그리드</param>
     /// <param name="relativeTo :">기준 축</param>
-    inline void Rotate(const Vector3& axis, float angle, Space relativeTo = Space::LOCAL)
+    inline void Rotate(const Vector3& axis, float angle,
+                       Space relativeTo = Space::LOCAL)
     {
-        Quaternion delta = Quaternion::CreateFromAxisAngle(axis, angle * Mathf::Deg2Rad);
+        Quaternion delta =
+            Quaternion::CreateFromAxisAngle(axis, angle * Mathf::Deg2Rad);
 
         if (relativeTo == Space::LOCAL)
         {
@@ -214,14 +202,14 @@ protected:
     void SerializedReflectEvent() override;
     /*역직렬화 후 호출되는 함수*/
     void DeserializedReflectEvent() override;
+
 private:
-    bool _isDirty;
-    Vector3 _position;
+    bool       _isDirty;
+    Vector3    _position;
     Quaternion _rotation;
-    Vector3 _eulerAngle;
-    Vector3 _scale;
+    Vector3    _eulerAngle;
+    Vector3    _scale;
 
     Matrix _worldMatrix;
     Matrix _localMatrix;
 };
-
