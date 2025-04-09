@@ -1,0 +1,78 @@
+Checks: 'readability-identifier-naming'
+CheckOptions:
+
+  - key:             readability-identifier-naming.MacroDefinitionCase
+    value:           UPPER_CASE
+  - key:             readability-identifier-naming.ConstexprVariableCase
+    value:           UPPER_CASE
+  - key:             readability-identifier-naming.GlobalVariableCase
+    value:           camelCase
+  - key:             readability-identifier-naming.ConceptCase
+    value:           CamelCase
+  - key:             readability-identifier-naming.NamespaceCase
+    value:           CamelCase
+
+# Function
+  - key:             readability-identifier-naming.FunctionCase
+    value:           CamelCase
+  - key:             readability-identifier-naming.ConstantParameterCase
+    value:           camelCase
+  - key:             readability-identifier-naming.ParameterCase
+    value:           camelCase
+  - key:             readability-identifier-naming.ParameterPackCase
+    value:           camelCase
+  - key:             readability-identifier-naming.PointerParameterCase
+    value:           camelCase
+  - key:             readability-identifier-naming.LocalVariableCase
+    value:           camelCase
+  # Exclude from scanning
+  - key:             readability-identifier-naming.FunctionIgnoredRegexp
+    value:           "main"
+
+
+# Struct
+  - key:             readability-identifier-naming.StructCase
+    value:           CamelCase
+
+# Template
+  - key:             readability-identifier-naming.TemplateParameterCase
+    value:           CamelCase
+
+# Enum
+  - key:             readability-identifier-naming.EnumCase
+    value:           CamelCase
+  - key:             readability-identifier-naming.EnumConstantCase
+    value:           UPPER_CASE
+
+# Union
+  - key:             readability-identifier-naming.UnionCase
+    value:           CamelCase
+
+# Typedef
+  - key:             readability-identifier-naming.TypeAliasCase
+    value:           CamelCase
+  - key:             readability-identifier-naming.TypedefCase
+    value:           CamelCase
+
+# Class
+  - key:             readability-identifier-naming.AbstractClassCase
+    value:           CamelCase
+  - key:             readability-identifier-naming.AbstractClassPrefix
+    value:           I
+  - key:             readability-identifier-naming.ClassCase
+    value:           CamelCase
+  - key:             readability-identifier-naming.ClassConstantCase    # Class static const
+    value:           UPPER_CASE
+  - key:             readability-identifier-naming.ClassMemberCase
+    value:           CamelCase
+  - key:             readability-identifier-naming.PrivateMemberCase
+    value:           camelCase
+  - key:             readability-identifier-naming.PrivateMemberPrefix
+    value:           _
+  - key:             readability-identifier-naming.ConstantMemberCase
+    value:           UPPER_CASE
+  - key:             readability-identifier-naming.ClassMethodCase
+    value:           CamelCase
+
+  - key:             readability-identifier-naming.IgnoreMainLikeFunctions
+    value:           1
