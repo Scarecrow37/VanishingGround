@@ -44,15 +44,13 @@ SETTER(type, property_name)
 
 #define PROPERTY(property_name)                                                                \
 TProperty<property_class_type, property_name##_property_getter_struct, property_name##_property_setter_struct> property_name{this};                \
-using property_name##_property_t = TProperty<property_class_type, property_name##_property_getter_struct, property_name##_property_setter_struct>; \
-friend property_name##_property_t;                                                                                                                 
+using property_name##_property_t = TProperty<property_class_type, property_name##_property_getter_struct, property_name##_property_setter_struct>;                                                                                                               
                                                                                                                             
 struct property_void_type
 {
     using Type = void;
 };
 
-//Set, Get 함수 선언 도움을 위한 헬퍼 템플릿 클래스
 template <typename owner_type, class getter, class setter>
 class TProperty
 {
@@ -87,11 +85,11 @@ private:
     setterType _setter{};
     const type_info& type_id;
 
-    field_type Getter() const
+    field_type Getter() const requires(is_getter)
     {
         return _getter(_propertyOwner);
     }
-    void Setter(const field_type& rhs)
+    void Setter(const field_type& rhs) requires(is_setter)
     {
         _setter(_propertyOwner, rhs);
     }
