@@ -44,8 +44,7 @@ SETTER(type, property_name)
 
 #define PROPERTY(property_name)                                                                \
 TProperty<property_class_type, property_name##_property_getter_struct, property_name##_property_setter_struct> property_name{this};                \
-using property_name##_property_t = TProperty<property_class_type, property_name##_property_getter_struct, property_name##_property_setter_struct>; \
-friend property_name##_property_t;                                                                                                                 
+using property_name##_property_t = TProperty<property_class_type, property_name##_property_getter_struct, property_name##_property_setter_struct>;                                                                                                               
                                                                                                                             
 struct property_void_type
 {
