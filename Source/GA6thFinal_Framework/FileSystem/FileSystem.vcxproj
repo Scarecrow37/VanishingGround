@@ -146,13 +146,21 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Core\FileObserver.h" />
-    <ClInclude Include="FileSystem.h" />
+    <ClInclude Include="Core\FileSystem.h" />
+    <ClInclude Include="Extra\FileContext.h" />
+    <ClInclude Include="Type\FileDataType.h" />
+    <ClInclude Include="Extra\FileEventProcesser.h" />
+    <ClInclude Include="FileHelper.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Core\FileObserver.cpp" />
-    <ClCompile Include="FileSystem.cpp" />
+    <ClCompile Include="Core\FileSystem.cpp" />
+    <ClCompile Include="Extra\FileContext.cpp" />
+    <ClCompile Include="Type\FileDataType.cpp" />
+    <ClCompile Include="Extra\FileEventProcesser.cpp" />
+    <ClCompile Include="FileHelper.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

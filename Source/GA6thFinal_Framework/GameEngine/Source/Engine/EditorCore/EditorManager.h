@@ -1,15 +1,19 @@
 ﻿#pragma once
+#include "../FileSystem/framework.h"
 
 class EditorTool;
 class EditorManager;
+class EditorMenuBar;
+
+class File::FileSystem;
 #ifndef SCRIPTS_PROJECT
 namespace Global
 {
     extern EditorManager* editorManager;
+    extern File::FileSystem* fileSystem;
 }
 
 #endif
-class EditorMenuBar;
 
 template <typename T>
 concept IsEditorBase = std::is_base_of_v<EditorBase, T>;
@@ -19,7 +23,6 @@ concept IsEditorTool = IsEditorBase<T> && std::is_base_of_v<EditorTool, T>;
 
 template <typename T>
 concept IsEditorMenu = IsEditorBase<T> && std::is_base_of_v<EditorMenu, T>;
-
 
  class EditorManager : public IAppModule
  {
