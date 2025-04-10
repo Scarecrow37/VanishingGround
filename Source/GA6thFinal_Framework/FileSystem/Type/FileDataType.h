@@ -2,8 +2,9 @@
 
 namespace File
 {
-    namespace fs  = std::filesystem;
-    using FString = fs::path;
+    // stdfs
+    namespace stdfs = std::filesystem;
+    using FString = stdfs::path;
 
     class Path;
     class Guid;
@@ -48,6 +49,7 @@ namespace File
         bool Create(const Path& path);
         bool Load(const Path& path);
         bool Move(const Path& path);
+        bool Remove();
         bool IsNull();
     public:
         inline const Guid& GetFileGuid() const { return _fileGuid; }

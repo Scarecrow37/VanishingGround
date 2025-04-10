@@ -56,6 +56,8 @@ namespace File
 
     void FileContext::OnFileRemoved(const Path& path) 
     {
+        _meta.Remove();
+
         if (nullptr != _eventProcessor)
         {
             _eventProcessor->OnFileRemoved(path);

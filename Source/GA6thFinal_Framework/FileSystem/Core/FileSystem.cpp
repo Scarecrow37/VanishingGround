@@ -6,7 +6,7 @@ namespace File
 {
     void FileSystem::Initialize() 
     {
-        _ignoreExtTable.insert(MetaData::EXTANSTION);
+        IDMapper::_ignoreExtTable.insert(MetaData::EXTANSTION);
 
         ReadDiectory(_rootPath);
 
@@ -30,20 +30,20 @@ namespace File
     }
     void FileSystem::ReadDiectory(const Path& path)
     {
-        if (false == fs::is_directory(path))
+        if (false == stdfs::is_directory(path))
         {
             return;
         }
 
-        for (const auto& entry : fs::recursive_directory_iterator(path))
+        for (const auto& entry : stdfs::recursive_directory_iterator(path))
         {
             Path gPath = entry.path().generic_string();
-            if (true == fs::is_regular_file(gPath) &&
-                true == IsVaildExtension(gPath.extension()))
+            if (true == stdfs::is_regular_file(gPath) &&
+                true == IDMapper::IsVaildExtension(gPath.extension()))
             {
                 IDMapper::AddedFile(gPath);
             }
-            if (true == fs::is_directory(entry))
+            if (true == stdfs::is_directory(entry))
             {
                 ReadDiectory(gPath);
             }
@@ -89,11 +89,6 @@ namespace File
         }
 
         _eventQueue.clear();
-    }
-
-    bool FileSystem::IsVaildExtension(const Path& path)
-    {
-        return _ignoreExtTable.find(path) == _ignoreExtTable.end();
     }
 
     const Path& FileSystem::GetRootPath() const
@@ -145,6 +140,11 @@ namespace File
         return _guidToPathTable.find(guid) != _guidToPathTable.end();
     }
 
+    bool IDMapper::IsVaildExtension(const File::Path& path)
+    {
+        return _ignoreExtTable.find(path) == _ignoreExtTable.end();
+    }
+
     void IDMapper::Clear() 
     {
         for (auto& context : _pathToGuidTable)
@@ -158,7 +158,9 @@ namespace File
     void IDMapper::AddedFile(const File::Path& path) 
     {
         // 파일이 없으면 return;
-        if (false == fs::exists(path))
+        if (false == stdfs::exists(path))
+            return;
+        if (false == IsVaildExtension(path.extension()))
             return;
 
         FileContext* context = GetFileContext(path);

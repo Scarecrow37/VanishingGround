@@ -45,7 +45,7 @@ namespace File
         if (true == path.empty())
             return false;
 
-        if (false == fs::exists(path))
+        if (false == stdfs::exists(path))
             return false;
 
         YAML::Node node = YAML::LoadFile(path.string());
@@ -63,9 +63,22 @@ namespace File
     }
     bool MetaData::Move(const Path& path)
     {
-        if (true == fs::exists(_filePath))
+        if (true == stdfs::exists(_filePath))
         {
-            fs::rename(_filePath, path);
+            stdfs::rename(_filePath, path);
+            _filePath = path;
+            return true;
+        }
+        return false;
+    }
+    bool MetaData::Remove()
+    {
+        if (true == stdfs::exists(_filePath))
+        {
+            stdfs::remove(_filePath);
+            _filePath    = "";
+            _fileGuid    = NULL_GUID;
+            _projectGuid = NULL_GUID;
             return true;
         }
         return false;

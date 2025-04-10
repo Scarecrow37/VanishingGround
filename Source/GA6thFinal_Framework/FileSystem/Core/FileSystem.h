@@ -30,7 +30,7 @@ namespace File
         /* 파일 이벤트 처리 */
         void ProcessEventQueue(); 
 
-        bool IsVaildExtension(const Path& path);
+        
 
         const Path& GetRootPath() const;
     private:
@@ -41,7 +41,7 @@ namespace File
         std::mutex _mutex;
         std::vector<FileEventData> _eventQueue; // 이벤트 큐
 
-        std::unordered_set<FString> _ignoreExtTable; // 무시할 확장자 테이블
+       
     };
 
     class IDMapper
@@ -55,14 +55,19 @@ namespace File
         static FileContext* GetFileContext(const File::Path& path);
 
         static bool IsVaildGuid(const File::Guid& guid);
+        static bool IsVaildExtension(const File::Path& path);
+
     private:
         static void Clear();
         static void AddedFile(const File::Path& path);
         static void RemovedFile(const File::Path& path);
         static void ModifiedFile(const File::Path& path);
         static void MovedFile(const File::Path& oldPath, const File::Path& newPath);
+
     private:
         inline static std::unordered_map<File::Path, FileContext*> _pathToGuidTable; // 파일 경로를 통해 ID를 찾는 테이블
         inline static std::unordered_map<File::Guid, FileContext*> _guidToPathTable; // ID를 통해 파일 경로를 찾는 테이블
+
+        inline static std::unordered_set<FString> _ignoreExtTable; // 무시할 확장자 테이블
     };
 } // namespace File
