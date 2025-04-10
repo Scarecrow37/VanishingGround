@@ -10,6 +10,30 @@
 // 자동 직렬화 및 REFLECT_PROPERTY를 사용하기 위한 클래스
 struct ReflectSerializer
 {
+protected:
+    /*
+    직렬화 직전 자동으로 호출되는 이벤트 함수입니다.
+    */
+    virtual void SerializedReflectEvent() {}
+    /*
+    역직렬화 이후 자동으로 호출되는 이벤트 함수 입니다.
+    */
+    virtual void DeserializedReflectEvent() {}
+public:
+    virtual void ImGuiDrawPropertys() {
+    } // REFLECT_PROPERTY() 매크로를 통해 자동으로 override 됩니다. 
+
+    virtual std::string SerializedReflectFields()
+    {
+        assert(!"REFLECT_FIELDS가 정의되지 않았습니다.");
+        return "{}";
+    } // REFLECT_FIELDS_END() 매크로를 통해 자동으로 override 됩니다.
+    virtual bool DeserializedReflectFields(std::string_view data)
+    {
+        assert(!"REFLECT_FIELDS가 정의되지 않았습니다.");
+        return false;
+    } // REFLECT_FIELDS_END() 매크로를 통해 자동으로 override 됩니다.
+
     ReflectSerializer() = default;
     virtual ~ReflectSerializer()
     {
@@ -19,29 +43,6 @@ struct ReflectSerializer
             _reflectFields = nullptr;
         }
     }
-protected:
-    /*
-    직렬화 직전 호출되는 이벤트 함수입니다.
-    */
-    virtual void SerializedReflectEvent() {}
-    /*
-    역직렬화 이후 호출되는 이벤트 입니다.
-    */
-    virtual void DeserializedReflectEvent() {}
-
-public:
-    virtual void ImGuiDrawPropertys() {
-    } // 프로퍼티 맴버들의 순회를 위한 가상함수입니다.
-    virtual std::string SerializedReflectFields()
-    {
-        assert(!"REFLECT_FIELDS가 정의되지 않았습니다.");
-        return "{}";
-    } // 자동 직렬화를 위한 가상함수입니다.
-    virtual bool DeserializedReflectFields(std::string_view data)
-    {
-        assert(!"REFLECT_FIELDS가 정의되지 않았습니다.");
-        return false;
-    } // 자동 역직렬화를 위한 가상함수입니다.
 
 private:
     void*              _reflectFields = nullptr;
