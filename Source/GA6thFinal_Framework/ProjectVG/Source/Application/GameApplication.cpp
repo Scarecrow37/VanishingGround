@@ -27,9 +27,9 @@ int APIENTRY wWinMain(
     UNREFERENCED_PARAMETER(lpCmdLine);
 
     GameApplication app;
-    app.Initialize(hInstance);
-    app.Run();
-    app.UnInitialize();
+    Application::MainEntry::Initialize(hInstance);
+    Application::MainEntry::Run();
+    Application::MainEntry::UnInitialize();
     return 0;
 }
 

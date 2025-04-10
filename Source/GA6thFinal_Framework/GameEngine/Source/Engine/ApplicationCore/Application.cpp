@@ -235,3 +235,18 @@ void Application::UnInitModules()
     }
     _appModuleList.clear();
 }
+
+void Application::MainEntry::Initialize(HINSTANCE hInstance) 
+{
+    Application::App->Initialize(hInstance);
+}
+
+void Application::MainEntry::UnInitialize() 
+{
+    Application::App->UnInitialize();
+}
+
+void Application::MainEntry::Run() 
+{
+    Application::App->Run();
+}

@@ -32,12 +32,15 @@ UMREALSCRIPTS_DECLSPEC void CreateUmrealcSriptFile(const char* fileName)
     filePath.replace_extension(L".h");
     if (std::filesystem::exists(filePath))
     {
-        MessageBox(NULL, L"이미 존재하는 스크립트 파일입니다.", L"스크립트 생성 오류", NULL);
+        MessageBox(engineCore->App.GetHwnd(),
+                   L"이미 존재하는 스크립트 파일입니다.", L"스크립트 생성 오류",
+                   NULL);
         return;
     }
     else if (engineCore->ComponentFactory.HasComponent(typeIdName))
     {
-        MessageBox(NULL, L"이미 존재하는 컴포넌트 이름입니다.",
+        MessageBox(engineCore->App.GetHwnd(),
+                   L"이미 존재하는 컴포넌트 이름입니다.",
                    L"스크립트 생성 오류", NULL);
     }
     else

@@ -38,7 +38,7 @@ void ImGuiDX11Module::ModuleInitialize()
     ImFontConfig fontConfig{};
     ImFont* mainFont = io.Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\malgun.ttf", 20.0f, &fontConfig, io.Fonts->GetGlyphRangesKorean());
 
-    ImGui_ImplWin32_Init(Application::GetHwnd());
+    ImGui_ImplWin32_Init(Global::engineCore->App.GetHwnd());
     ImGui_ImplDX11_Init(device.Get(), device_context.Get());
 }
 

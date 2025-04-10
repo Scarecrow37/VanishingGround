@@ -218,7 +218,8 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
     auto find = _buildScnes.find(sceneName.data());
     if (find == _buildScnes.end())
     {
-        MessageBox(Application::GetHwnd(), L"존재하지 않는 씬입니다.", L"씬 로드 실패.", MB_OK);
+        MessageBox(Global::engineCore->App.GetHwnd(), L"존재하지 않는 씬입니다.",
+                   L"씬 로드 실패.", MB_OK);
         return;
     }
     if (find->second._isLoaded)
@@ -387,7 +388,7 @@ void ESceneManager::ObjectsMatrixUpdate()
 
 void ESceneManager::ObjectsApplicationQuit()
 {
-    if (Application::IsQuit())
+    if (Global::engineCore->App.IsQuit())
     {
         for (auto& obj : _runtimeObjects)
         {
