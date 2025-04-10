@@ -1,6 +1,8 @@
 ﻿#include "UmFramework.h"
 #include "UmrealScriptCore.h"
 
+using namespace Global;
+
 UMREALSCRIPTS_DECLSPEC void InitalizeUmrealScript(const std::shared_ptr<EngineCores> engineCores, ImGuiContext* ImguiContext)
 {
     Global::engineCore = engineCores;  //코어 동기화
@@ -24,6 +26,7 @@ UMREALSCRIPTS_DECLSPEC void CreateUmrealcSriptFile(const char* fileName)
     include /= fileName;
     std::filesystem::path filePath = scriptPorjectPath / include;
     std::wstring ClassName = include.filename();
+    std::string  typeIdName = "class " + include.filename().string();
     std::wstring ScriptsHeaderData = std::format(L"#include \"{}.h\"", include.c_str());
     std::wstring UmrealScriptsHeaderData = std::format(L"UMREAL_COMPONENT({})", ClassName.c_str());
     filePath.replace_extension(L".h");
@@ -31,6 +34,11 @@ UMREALSCRIPTS_DECLSPEC void CreateUmrealcSriptFile(const char* fileName)
     {
         MessageBox(NULL, L"이미 존재하는 스크립트 파일입니다.", L"스크립트 생성 오류", NULL);
         return;
+    }
+    else if (engineCore->ComponentFactory.HasComponent(typeIdName))
+    {
+        MessageBox(NULL, L"이미 존재하는 컴포넌트 이름입니다.",
+                   L"스크립트 생성 오류", NULL);
     }
     else
     {
@@ -54,6 +62,9 @@ UMREALSCRIPTS_DECLSPEC void CreateUmrealcSriptFile(const char* fileName)
             wofs <<   std::format(L"class {} : public Component", ClassName)                        << L"\n";
             wofs <<             LR"({)"                                                             << L"\n";
             wofs <<   std::format(L"    USING_PROPERTY({})", ClassName)                             << L"\n";
+            wofs <<             LR"(public:)"                                                       << L"\n";
+            wofs <<             LR"(REFLECT_PROPERTY())"                                            << L"\n";
+            wofs <<             LR"()"                                                              << L"\n";
             wofs <<             LR"(public:)"                                                       << L"\n";
             wofs <<   std::format(L"    {}();", ClassName)                                          << L"\n";
             wofs <<   std::format(L"    virtual ~{}();", ClassName)                                 << L"\n";
