@@ -13,10 +13,12 @@ struct ReflectSerializer
 protected:
     /*
     직렬화 직전 자동으로 호출되는 이벤트 함수입니다.
+    직접 override 해서 사용합니다.
     */
     virtual void SerializedReflectEvent() {}
     /*
     역직렬화 이후 자동으로 호출되는 이벤트 함수 입니다.
+    직접 override 해서 사용합니다.
     */
     virtual void DeserializedReflectEvent() {}
 public:
