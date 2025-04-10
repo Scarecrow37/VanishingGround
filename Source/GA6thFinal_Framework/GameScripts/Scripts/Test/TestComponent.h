@@ -9,6 +9,8 @@ public:
 
 public:
     REFLECT_PROPERTY(
+        ReflectionFields->doubleArray,
+        ReflectionFields->floatVector
         )
 
 protected:
