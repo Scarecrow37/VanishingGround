@@ -36,11 +36,10 @@ void ESceneManager::SceneUpdate()
     }
     ObjectsUpdate();
     ObjectsLateUpdate();
-    ObjectsMatrixUpdate();
-
     ObjectsApplicationQuit();
     ObjectsOnDisable();
     ObjectsDestroy();
+    ObjectsMatrixUpdate();
 }
 
 void ESceneManager::Engine::AddGameObjectToLifeCycle(std::shared_ptr<GameObject> gameObject)
