@@ -1,12 +1,4 @@
-﻿//REFLECT_PROPERTY 사용용 인터페이스. 최상위 부모만 상속 받으면 됨.
-struct IReflectProperty
-{
-    IReflectProperty() = default;
-    virtual ~IReflectProperty() = default;
-    virtual void ImGuiDrawPropertys() {} //프로퍼티 맴버들의 순회를 위한 함수입니다.
-};
-
-//프로퍼티 사용시 1회 포함
+﻿//프로퍼티 사용시 1회 포함
 #define USING_PROPERTY(class_name)                                                             \
 using property_class_type = class_name;                                                                           
 

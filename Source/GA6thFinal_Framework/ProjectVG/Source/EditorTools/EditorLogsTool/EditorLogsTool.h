@@ -29,7 +29,7 @@ protected:
 private:
     void ResetLogColor();
     void ResetLogFilter();
-    void PrintLog(const std::tuple<int, std::string, std::source_location>& log);
+    void PrintLog(const std::tuple<int, std::string, LogLocation>& log);
     void ShowFilter();
 
     std::unordered_map<int, ImVec4> LogColorTable;
