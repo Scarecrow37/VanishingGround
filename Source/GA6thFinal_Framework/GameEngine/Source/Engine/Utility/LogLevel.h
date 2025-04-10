@@ -70,3 +70,49 @@ namespace LogLevel
         return LogLevel::LEVEL_TRACE <= logLevel && logLevel <= LogLevel::LEVEL_FATAL;
     }
 }
+
+// 로그 함수를 호출한 파일 정보를 저장하기 위한 구조체 (source_location 깊은 복사 용)
+struct LogLocation
+{
+    LogLocation(const std::source_location& location)
+    {
+        _line     = location.line();
+        _column   = location.column();
+        _file     = location.file_name();
+        _function = location.function_name();
+    }
+    LogLocation(const LogLocation& rhs) 
+    { 
+        *this = rhs;
+    }
+    LogLocation& operator=(const LogLocation& rhs)
+    {
+        if (this == &rhs)
+            return *this;
+
+        _line     = rhs._line;
+        _column   = rhs._column;
+        _file     = rhs._file;
+        _function = rhs._function;
+
+        return *this;
+    }
+
+    ~LogLocation() = default;
+    constexpr uint_least32_t         line() const noexcept { return _line; }
+    constexpr uint_least32_t         column() const noexcept { return _column; }
+    _NODISCARD constexpr const char* file_name() const noexcept
+    {
+        return _file.c_str();
+    }
+    _NODISCARD constexpr const char* function_name() const noexcept
+    {
+        return _function.c_str();
+    }
+
+private:
+    uint_least32_t _line{};
+    uint_least32_t _column{};
+    std::string    _file     = "";
+    std::string    _function = "";
+};
