@@ -7,6 +7,15 @@
 // reflect-cpp 라이브러리 docs https://rfl.getml.com/docs-readme/#the-basics
 // reflect-cpp github https://github.com/getml/reflect-cpp
 
+// REFLECT_PROPERTY 사용용 인터페이스. 최상위 부모만 상속 받으면 됨.
+struct IReflectProperty
+{
+    IReflectProperty()          = default;
+    virtual ~IReflectProperty() = default;
+    virtual void ImGuiDrawPropertys() {
+    } // 프로퍼티 맴버들의 순회를 위한 함수입니다.
+};
+
 // 자동 직렬화 사용하기 위한 클래스
 struct ReflectSerializer : public IReflectProperty
 {
