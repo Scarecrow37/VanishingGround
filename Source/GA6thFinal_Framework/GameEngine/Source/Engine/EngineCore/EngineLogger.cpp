@@ -5,7 +5,8 @@ static std::pair<std::string, std::string> GetCurrentTimestamp()
     using namespace std::chrono;
     auto now        = system_clock::now();
     auto time_t_now = system_clock::to_time_t(now);
-    auto local_tm   = *std::localtime(&time_t_now);
+    tm   local_tm{};
+    localtime_s(&local_tm, &time_t_now);
 
     return std::make_pair(std::format("{:02}_{:02}_{:02}",
                                       local_tm.tm_year % 100, // yy
