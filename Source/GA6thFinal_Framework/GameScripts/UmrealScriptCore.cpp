@@ -12,8 +12,8 @@ UMREALSCRIPTS_DECLSPEC void InitalizeUmrealScript(const std::shared_ptr<EngineCo
 UMREALSCRIPTS_DECLSPEC void CreateUmrealcSriptFile(const char* fileName)
 {
     using namespace std::string_literals;
-    constexpr const wchar_t* scriptPorjectPath   = L"..\\UmrealScripts";
-    constexpr const wchar_t* UmrealScriptsHeader = L"..\\UmrealScripts\\UmrealScripts.h";
+    constexpr const wchar_t* scriptPorjectPath   = L"..\\GameScripts";
+    constexpr const wchar_t* UmrealScriptsHeader = L"..\\GameScripts\\UmrealScripts.h";
     if (!std::filesystem::exists(scriptPorjectPath) || 
         !std::filesystem::exists(UmrealScriptsHeader)
         )
