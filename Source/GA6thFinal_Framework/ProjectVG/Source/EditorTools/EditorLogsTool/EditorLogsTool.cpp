@@ -80,7 +80,7 @@ void EditorLogsTool::ResetLogFilter()
     LogFilterTable[LogLevel::LEVEL_FATAL] = true;
 }
 
-void EditorLogsTool::PrintLog(const std::tuple<int, std::string, std::source_location>& log)
+void EditorLogsTool::PrintLog(const std::tuple<int, std::string, LogLocation>& log)
 {
     auto& [level, message, location] = log;
     if (LogFilterTable[level] == true)
