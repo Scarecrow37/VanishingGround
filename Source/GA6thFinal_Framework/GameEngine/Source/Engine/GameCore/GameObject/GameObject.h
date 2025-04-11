@@ -16,7 +16,8 @@ std::weak_ptr<TObject> NewGameObject(
 
 //함수는 일단 선언만. 구현은 나중에. 
 class GameObject : 
-    public ReflectSerializer
+    public ReflectSerializer,
+    public IEditorObject
 {
     friend class EGameObjectFactory;
     friend class EComponentFactory;
@@ -133,6 +134,12 @@ public:
 
 public:
     /// <summary>
+    /// 이 게임오브젝트의 weak_ptr을 반환합니다.
+    /// </summary>
+    /// <returns>weak_ptr this</returns>
+    std::weak_ptr<GameObject> GetWeakPtr() const;
+
+    /// <summary>
     /// <para> 전달받은 GameObject가 속해있는 Scene을 반환합니다. </para>
     /// </summary>
     /// <returns>Scene 정보</returns>
@@ -198,6 +205,14 @@ public:
     /// </summary>
     /// <returns>이 오브젝트에 부착된 컴포넌트 개수.</returns>
     inline size_t GetComponentCount() { return _components.size(); }
+
+    
+    //IEditorObject에서 상속
+ private:
+    /* InspectorView에 SetFocus 될 때 호출 구현 X */
+    virtual void OnFocusInspectorView();
+    /* InspectorView의 Draw단계에 호출 */
+    virtual void OnDrawInspectorView();
 
 
 //프로퍼티
