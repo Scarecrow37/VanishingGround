@@ -2,14 +2,14 @@
 // 해석하는 데 도움이 됩니다.
 // 자세한 내용은 다음을 참조하세요. https://go.microsoft.com/fwlink/?linkid=865984
 
-#define REFLECT_FIELDS_BEGIN(BASE) {
-#define REFLECT_FIELDS_END(CLASS)  }
+#define REFLECT_FIELDS_BEGIN(BASE)          {
+#define REFLECT_FIELDS_END(CLASS)           }
 #define REFLECT_PROPERTY(...)
 
-#define USING_PROPERTY(class_name)            
-#define GETTER(type, property_name)     
-#define SETTER(type, property_name)
-#define GETTER_ONLY(type, property_name)     
-#define SETTER_ONLY(type, property_name)  
-#define PROPERTY(property_name)    
+#define USING_PROPERTY(class_name)          ;          
+#define GETTER(type, property_name)         ;     
+#define SETTER(type, property_name)         ;
+#define GETTER_ONLY(type, property_name)    ;  
+#define SETTER_ONLY(type, property_name)    ;
+#define PROPERTY(property_name)             ;
 
