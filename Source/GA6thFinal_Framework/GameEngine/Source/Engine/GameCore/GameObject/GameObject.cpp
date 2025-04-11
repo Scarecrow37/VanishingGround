@@ -3,7 +3,7 @@ using namespace Global;
 
 void GameObject::DontDestroyOnLoad(GameObject& gameObject)
 {
-
+    ESceneManager::Engine::DontDestroyOnLoadObject(gameObject);
 }
 
 void GameObject::Instantiate(GameObject& gameObject)

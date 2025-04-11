@@ -1,5 +1,8 @@
 ﻿#include "pch.h"
 using namespace Global;
+using namespace u8_literals;
+
+static constexpr const char* DONT_DESTROY_ON_LOAD_SCENE_NAME = "DontDestroyOnLoad";
 
 bool Scene::RootGameObjectsFilter(GameObject* obj) const
 {
@@ -199,18 +202,42 @@ void ESceneManager::Engine::DestroyObject(GameObject& gameObject)
     DestroyObject(&gameObject);
 }
 
-void ESceneManager::CreateScene(std::string_view sceneName)
+void ESceneManager::Engine::DontDestroyOnLoadObject(GameObject* gameObject)
+{
+    ESceneManager& SceneManager = engineCore->SceneManager;
+
+    auto find = SceneManager._buildScnes.find(DONT_DESTROY_ON_LOAD_SCENE_NAME);
+    Scene* pDontDestroyScene = nullptr;
+    if (find == SceneManager._buildScnes.end())
+    {
+        pDontDestroyScene = &SceneManager.CreateScene(DONT_DESTROY_ON_LOAD_SCENE_NAME);
+    }
+    else
+    {
+        pDontDestroyScene = &find->second;
+    }
+    pDontDestroyScene->_isLoaded = true;
+    gameObject->_ownerScene      = DONT_DESTROY_ON_LOAD_SCENE_NAME;
+}
+
+void ESceneManager::Engine::DontDestroyOnLoadObject(GameObject& gameObject)
+{
+    DontDestroyOnLoadObject(&gameObject);
+}
+
+Scene& ESceneManager::CreateScene(std::string_view sceneName)
 {
     auto find = _buildScnes.find(sceneName.data());
     if(find != _buildScnes.end())
     {
         assert(!"이미 존재하는 씬 입니다.");
-        return;
+        return find->second;
     }
 
     Scene& newScene = _buildScnes[sceneName.data()];
     newScene.ReflectFields->_filePath = sceneName.data();
     newScene.ReflectFields->_filePath.replace_extension(L".UmScene");
+    return newScene;
 }
 
 void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
@@ -222,19 +249,17 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
                    L"씬 로드 실패.", MB_OK);
         return;
     }
-    if (find->second._isLoaded)
-    {
-        //이미 로드된 씬
-        return;
-    }
 
-    if (mode != LoadSceneMode::ADDITIVE)
+    if (mode == LoadSceneMode::SINGLE)
     {
         _addComponentsQueue.clear();
         _addGameObjectsQueue.clear();
 
         for (auto& [name, scene] : _buildScnes)
         {
+            if (name == DONT_DESTROY_ON_LOAD_SCENE_NAME)
+                continue;
+
             scene._isLoaded = false;
             auto objects = scene.GetRootGameObjects();
             for (auto& obj : objects)
@@ -243,6 +268,16 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
             }
         }
         _mainScene = sceneName;
+    }
+    else
+    {
+        if (find->second._isLoaded)
+        {
+            engineCore->EngineLogger.Log(
+                LogLevel::LEVEL_ERROR,
+                u8"이미 로드된 씬은 추가 로드가 불가능합니다."_c_str);
+            return;
+        }
     }
 
     auto& [name, scene] = *find;

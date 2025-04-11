@@ -40,6 +40,11 @@ void ObjectTestEditor::OnPreFrame()
 
 void ObjectTestEditor::OnFrame()
 {
+    if (ImGui::Button(u8"Empty Scene Load"_c_str))
+    {
+        engineCore->SceneManager.LoadScene("EmptyScene");
+    }
+
     static GameObject* selectObj = nullptr;
     if (ImGui::Button(u8"오브젝트 만들기"_c_str))
     {
@@ -61,8 +66,12 @@ void ObjectTestEditor::OnFrame()
                 ImGui::PushID(obj.get());
                 {
                     ImGui::Text("%s", obj->ToString().data());
-                    obj->transform.ImGuiDrawPropertys();                    
+                    if (ImGui::Button("DontDestroy"))
+                    {
+                        GameObject::DontDestroyOnLoad(obj.get());
+                    }
 
+                    obj->transform.ImGuiDrawPropertys();                    
                     static std::string transformData;
                     if (ImGui::Button("save"))
                     {

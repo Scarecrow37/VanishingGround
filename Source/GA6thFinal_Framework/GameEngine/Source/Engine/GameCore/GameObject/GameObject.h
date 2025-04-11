@@ -97,14 +97,12 @@ public:
         Destroy(*gameObject, t);
     }
 
-    /// <summary>
-    /// <para>구현 X                                                         </para>
+    /// <summary>                                                           </para>
     /// <para>전달받은 오브젝트가 다른 Scene을 로드 할 때 파괴되지 않도록 합니다.</para>
     /// </summary>
     /// <param name="Object :">대상 오브젝트</param>
     static void DontDestroyOnLoad(GameObject& gameObject);
-    /// <summary>
-    /// <para>구현 X                                                         </para>
+    /// <summary>                                                           </para>
     /// <para>전달받은 오브젝트가 다른 Scene을 로드 할 때 파괴하지 않도록 합니다.</para>
     /// </summary>
     /// <param name="Object :">대상 오브젝트</param>
