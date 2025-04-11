@@ -91,10 +91,13 @@ void GameObject::OnDrawInspectorView()
 
         if (selectObject)
         {
-            if (ImGui::BeginPopupModal("Select Component", nullptr,
+            if (ImGui::BeginPopupModal("Select Component", 
+                                       nullptr,
                                        ImGuiWindowFlags_AlwaysAutoResize))
             {
-                ImGui::BeginChild("ScrollRegion", ImVec2(300, 200), 0,
+                ImGui::BeginChild("ScrollRegion", 
+                                  ImVec2(300, 200), 
+                                  0,
                                   ImGuiWindowFlags_HorizontalScrollbar);
                 for (auto& key :
                      engineCore->ComponentFactory.GetNewComponentKeyList())
@@ -102,7 +105,8 @@ void GameObject::OnDrawInspectorView()
                     if (ImGui::Button(key.c_str()))
                     {
                         engineCore->ComponentFactory.AddComponentToObject(
-                            selectObject, key);
+                            selectObject, 
+                            key);
                         ImGui::CloseCurrentPopup();
                     }
                 }

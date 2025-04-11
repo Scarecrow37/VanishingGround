@@ -6,8 +6,9 @@ using namespace Global;
 
 static void TransformTreeNode(const Transform& node)
 {
-    ImGui::PushID(node.gameObject.GetInstanceID());
-    if (ImGui::TreeNode(node.gameObject.ToString().data()))
+    ImGui::PushID(&node);
+    if (ImGui::TreeNodeEx(node.gameObject.ToString().data(),
+                          ImGuiTreeNodeFlags_OpenOnArrow))
     {
         for (int i = 0; i < node.ChildCount; i++)
         {
@@ -27,7 +28,7 @@ static void TransformTreeNode(const Transform& node)
 ObjectTestEditor::ObjectTestEditor()
 {
     using namespace u8_literals;
-    SetLabel(u8"오브젝트 테스트용"_c_str);
+    SetLabel(u8"하이러키 테스트용"_c_str);
 }
 
 ObjectTestEditor::~ObjectTestEditor()
