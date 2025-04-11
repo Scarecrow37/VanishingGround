@@ -25,6 +25,8 @@ class EditorAssetBrowser
         ShowMetaFile,
         FlagSize,
     };
+    using wpForderContext = std::weak_ptr<File::ForderContext>;
+    using spForderContext = std::shared_ptr<File::ForderContext>;
 public:
     EditorAssetBrowser();
     virtual ~EditorAssetBrowser();
@@ -67,10 +69,7 @@ public:
     virtual void OnDrawInspectorView() override;
 
 public:
-    void SetContext(std::weak_ptr<File::Context> context)
-    {
-        _context = context;
-    }
+    void SetContext(std::weak_ptr<File::Context> context);
 
 private:
     std::weak_ptr<File::Context> _context;
