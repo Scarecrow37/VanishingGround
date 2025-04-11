@@ -51,6 +51,14 @@ body:
       required: true
       
   - type: textarea
+    id: screenshot
+    attributes:
+      label: 📷 스크린샷 첨부 (screenshot)
+      description: 문제의 설명에 도움이 될 스크린샷이 있다면 첨부해 주세요.
+    validations:
+      required: false
+      
+  - type: textarea
     id: hardware
     attributes:
       label: 🖥️ 하드웨어 정보 (Hardware)
