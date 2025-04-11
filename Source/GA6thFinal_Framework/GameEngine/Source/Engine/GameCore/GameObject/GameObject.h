@@ -266,7 +266,7 @@ public:
 public:
     Transform transform;
 private:
-    REFLECT_FIELDS_BEGIN(GameObject)
+    REFLECT_FIELDS_BEGIN(ReflectSerializer)
     std::string                              _name = "null";
     bool                                     _activeSelf = true;
     bool                                     _isStatic = false;
