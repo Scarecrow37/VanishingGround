@@ -29,7 +29,7 @@ private:
 class Application
 {
     friend class EngineCores;
-    friend class SafeEngineCoresPtr;
+    friend struct SafeEngineCoresPtr;
     inline static Application* App = nullptr;
     static LRESULT CALLBACK    WndProc(HWND hwnd, UINT msg, WPARAM wParam,
                                        LPARAM lParam);
