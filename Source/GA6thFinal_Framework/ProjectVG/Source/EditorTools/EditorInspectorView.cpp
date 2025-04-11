@@ -27,6 +27,7 @@ void  EditorInspectorView::OnFrame()
         auto spFocusedObject = _focusedObject.lock();
         spFocusedObject->OnDrawInspectorView();
     }
+    TestGui();
     return void();
 }
 
@@ -37,12 +38,6 @@ void  EditorInspectorView::OnPostFrame()
 
 void EditorInspectorView::OnFocus()
 {
-    Global::engineCore->EngineLogger.Log(LogLevel::LEVEL_TRACE, "Focus");
-    Global::engineCore->EngineLogger.Log(LogLevel::LEVEL_DEBUG, "Focus");
-    Global::engineCore->EngineLogger.Log(LogLevel::LEVEL_INFO, "Focus");
-    Global::engineCore->EngineLogger.Log(LogLevel::LEVEL_WARNING, "Focus");
-    Global::engineCore->EngineLogger.Log(LogLevel::LEVEL_ERROR, "Focus");
-    Global::engineCore->EngineLogger.Log(LogLevel::LEVEL_FATAL, "Focus");
 }
 
 void EditorInspectorView::TestGui()

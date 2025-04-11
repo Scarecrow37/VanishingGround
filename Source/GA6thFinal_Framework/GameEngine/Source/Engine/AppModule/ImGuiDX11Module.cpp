@@ -37,6 +37,13 @@ void ImGuiDX11Module::ModuleInitialize()
 
     ImFontConfig fontConfig{};
     ImFont* mainFont = io.Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\malgun.ttf", 20.0f, &fontConfig, io.Fonts->GetGlyphRangesKorean());
+    
+    static const ImWchar icons_ranges[] = {0xf000, 0xf3ff, 0}; // FontAwesome 유니코드 범위
+    ImFontConfig         config;
+    config.MergeMode = true; // 기존 폰트와 병합
+    ImFont* iconFont = io.Fonts->AddFontFromFileTTF(
+        "Assets/Font Awesome 6 Free-Regular-400.ttf", 15.0f, &config, icons_ranges);
+    io.Fonts->Build();
 
     ImGui_ImplWin32_Init(Application::GetHwnd());
     ImGui_ImplDX11_Init(device.Get(), device_context.Get());

@@ -42,6 +42,7 @@ namespace File
         else
         {
             _filePath = path;
+            SetFileAttributesW(_filePath.c_str(), FILE_ATTRIBUTE_HIDDEN);
             CreateGuid(_fileGuid);
             CreateGuid(_projectGuid);
             YAML::Node node;
