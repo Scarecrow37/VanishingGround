@@ -20,33 +20,7 @@ void ReflectTestEditor::OnStartGui()
 
 void ReflectTestEditor::OnPreFrame() 
 {
-    static MyBaseClass testClass;
-    
-    MyFunc();
-    
-    ImGui::PushID(this);
-    ImGui::Begin("My Reflect Test");
-    {
-        testClass.ImGuiDrawPropertys();        
-    }
-    ImGui::End();
 
-    ImGui::Begin("My Reflect Test Setting");
-    {
-        static std::string saveData{};
-        ImGui::Text(saveData.c_str());
-        if (ImGui::Button("save"))
-        {
-            saveData = testClass.SerializedReflectFields();
-        }
-        ImGui::SameLine();
-        if (ImGui::Button("Load"))
-        {
-            testClass.DeserializedReflectFields(saveData);
-        }
-    }
-    ImGui::End();
-    ImGui::PopID();
 }
 
 void ReflectTestEditor::OnFrame() 
@@ -81,23 +55,3 @@ void ReflectTestEditor::OnFrame()
         }
     }
 }
-
-void MyBaseClass::SerializedReflectEvent() 
-{
-    std::memcpy(ReflectionFields->position.data(), &_position.x, sizeof(_position));
-}
-
-void MyBaseClass::DeserializedReflectEvent() 
-{
-    _position = Vector3(ReflectionFields->position.data());
-}
-
-void MyFunc()
-{
-    MyBaseClass base;
-
-    base._position = Vector3{5.f, 5.f, 5.f};
-    std::string serializedData = base.SerializedReflectFields(); //SerializedReflectEvent() 호출된 뒤 직렬화 반환함.
-    base.DeserializedReflectFields(serializedData);              //역직렬화 이후 DeserializedReflectEvent() 호출.
-}
-
