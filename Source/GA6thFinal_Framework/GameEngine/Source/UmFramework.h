@@ -46,6 +46,8 @@ constexpr bool IS_SCRIPTS_PROJECT = false;
 #include <stack>
 
 //ThirdParty
+#include <pugixml.hpp>
+
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include "Engine/Imgui/imgui.h"
 #include "Engine/Imgui/imgui_stdlib.h"

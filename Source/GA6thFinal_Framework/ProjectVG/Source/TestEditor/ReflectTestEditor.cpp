@@ -1,8 +1,6 @@
 ﻿#include "ReflectTestEditor.h"
 using namespace u8_literals;
 
-void MyFunc();
-
 ReflectTestEditor::ReflectTestEditor() 
 {
 
