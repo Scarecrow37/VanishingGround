@@ -15,7 +15,7 @@ protected:
     virtual void OnPreFrame() override;
 
     /* Begin 호출 성공 시 호출 */
-    virtual void OnFrame() override {};
+    virtual void OnFrame() override;
 
     /* End 호출 후에 항상 호출 (Begin성공 유무 상관 X) */
     virtual void OnPostFrame() override {};
@@ -28,10 +28,9 @@ public:
     MyTestClass() = default;
     virtual ~MyTestClass() override = default;
 
-    REFLECT_PROPERTY(ReflectionFields->fptr)
-protected:
+    REFLECT_PROPERTY()
+public:
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
-    std::shared_ptr<float> fptr{};
     REFLECT_FIELDS_END(MyTestClass)
 };
 
