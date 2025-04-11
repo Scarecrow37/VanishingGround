@@ -44,7 +44,7 @@ void ESceneManager::SceneUpdate()
 
 void ESceneManager::Engine::AddGameObjectToLifeCycle(std::shared_ptr<GameObject> gameObject)
 {
-    auto [iter, result] = Global::engineCore->SceneManager._runtimeObjectsUnorderedMap[gameObject->ReflectionFields->_name].insert(gameObject);
+    auto [iter, result] = Global::engineCore->SceneManager._runtimeObjectsUnorderedMap[gameObject->ReflectFields->_name].insert(gameObject);
     if (result == false)
     {
         assert(!"이미 추가한 게임 오브젝트 입니다.");
@@ -64,14 +64,14 @@ void ESceneManager::Engine::SetGameObjectActive(int instanceID, bool value)
 {
     if (auto& gameObject = Global::engineCore->SceneManager._runtimeObjects[instanceID])
     {
-        if (gameObject->ReflectionFields->_activeSelf != value)
+        if (gameObject->ReflectFields->_activeSelf != value)
         {
             //컴포넌트들의 On__able 함수를 호출하도록 합니다.
             auto& [WaitSet, WaitVec, WaitValue] = value ? Global::engineCore->SceneManager._onEnableQueue : Global::engineCore->SceneManager._onDisableQueue;
-            WaitValue.emplace_back(&gameObject->ReflectionFields->_activeSelf);
+            WaitValue.emplace_back(&gameObject->ReflectFields->_activeSelf);
             for (auto& component : gameObject->_components)
             {
-                if (component->_initFlags.IsAwake() && component->ReflectionFields->_enable)
+                if (component->_initFlags.IsAwake() && component->ReflectFields->_enable)
                 {
                     auto [iter, result] = WaitSet.insert(component.get());
                     if (result)
@@ -86,12 +86,12 @@ void ESceneManager::Engine::SetGameObjectActive(int instanceID, bool value)
 
 void ESceneManager::Engine::SetComponentEnable(Component* component, bool value)
 {
-    if (component && component->ReflectionFields->_enable != value)
+    if (component && component->ReflectFields->_enable != value)
     {
         //컴포넌트의 On__able 함수를 호출하도록 합니다.
         auto& [WaitSet, WaitVec, WaitValue] = value ? engineCore->SceneManager._onEnableQueue : engineCore->SceneManager._onDisableQueue;
-        WaitValue.emplace_back(&component->ReflectionFields->_enable);
-        if (component->gameObect->ReflectionFields->_activeSelf)
+        WaitValue.emplace_back(&component->ReflectFields->_enable);
+        if (component->gameObect->ReflectFields->_activeSelf)
         {
             auto [iter, result] = WaitSet.insert(component);
             if (result)
@@ -132,10 +132,10 @@ void ESceneManager::Engine::RenameGameObject(GameObject* gameObject, std::string
     if (gameObject == nullptr)
         return;
 
-    if (gameObject->ReflectionFields->_name != newName)
+    if (gameObject->ReflectFields->_name != newName)
     {
         auto& ObjectsNameMap = engineCore->SceneManager._runtimeObjectsUnorderedMap;
-        auto mapIter = ObjectsNameMap.find(gameObject->ReflectionFields->_name);
+        auto mapIter = ObjectsNameMap.find(gameObject->ReflectFields->_name);
         if (mapIter != ObjectsNameMap.end())
         {
             const std::shared_ptr<GameObject>* sptr = nullptr;
@@ -152,7 +152,7 @@ void ESceneManager::Engine::RenameGameObject(GameObject* gameObject, std::string
             {
                 ObjectsNameMap[newName.data()].insert(*sptr);
                 set.erase(*sptr);
-                gameObject->ReflectionFields->_name = newName;
+                gameObject->ReflectFields->_name = newName;
                 if (set.empty())
                 {
                     ObjectsNameMap.erase(mapIter);
@@ -209,8 +209,8 @@ void ESceneManager::CreateScene(std::string_view sceneName)
     }
 
     Scene& newScene = _buildScnes[sceneName.data()];
-    newScene.ReflectionFields->_filePath = sceneName.data();
-    newScene.ReflectionFields->_filePath.replace_extension(L".UmScene");
+    newScene.ReflectFields->_filePath = sceneName.data();
+    newScene.ReflectFields->_filePath.replace_extension(L".UmScene");
 }
 
 void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
@@ -269,7 +269,7 @@ void ESceneManager::ObjectsAwake()
         {
             component->Awake();
             component->_initFlags.SetAwake();
-            if (component->ReflectionFields->_enable)
+            if (component->ReflectFields->_enable)
             {
                 component->OnEnable();
             }
@@ -287,7 +287,7 @@ void ESceneManager::ObjectsStart()
     {
         if (component->_gameObect->ActiveInHierarchy_property_getter())
         {
-            if (component->ReflectionFields->_enable)
+            if (component->ReflectFields->_enable)
             {
                 component->Start();
                 component->_initFlags.SetStart();
@@ -487,7 +487,7 @@ void ESceneManager::ObjectsDestroy()
         //오브젝트 삭제
         int instanceID = destroyObject->GetInstanceID();
         std::shared_ptr<GameObject>& pObject = _runtimeObjects[instanceID];
-        auto findIter = _runtimeObjectsUnorderedMap.find(destroyObject->ReflectionFields->_name);
+        auto findIter = _runtimeObjectsUnorderedMap.find(destroyObject->ReflectFields->_name);
         if (findIter == _runtimeObjectsUnorderedMap.end())
         {
             assert(!"유효하지 않는 오브젝트 이름입니다.");

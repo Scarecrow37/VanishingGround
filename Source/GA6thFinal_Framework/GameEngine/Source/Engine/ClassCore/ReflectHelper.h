@@ -115,18 +115,18 @@ protected:
         CLASS## ::reflect_fields_struct* _reflection = nullptr;                \
         CLASS##*                         _owner      = nullptr;                \
     };                                                                         \
-    reflection_safe_ptr ReflectionFields{this};                                \
+    reflection_safe_ptr ReflectFields{this};                                   \
                                                                                \
 public:                                                                        \
     virtual std::string SerializedReflectFields()                              \
     {                                                                          \
         serialized_reflect_event_recursive();                                  \
-        return ReflectHelper::json::SerializedObjet(*ReflectionFields);        \
+        return ReflectHelper::json::SerializedObjet(*ReflectFields);           \
     }                                                                          \
     virtual bool DeserializedReflectFields(std::string_view data)              \
     {                                                                          \
         bool result =                                                          \
-            ReflectHelper::json::DeserializedObjet(*ReflectionFields, data);   \
+            ReflectHelper::json::DeserializedObjet(*ReflectFields, data);      \
         deserialized_reflect_event_recursive();                                \
         return result;                                                         \
     }                                                                          \
@@ -188,7 +188,7 @@ protected:                                                                     \
                 reflectionFieldsSet.insert(&field);                            \
             }                                                                  \
         });                                                                    \
-        const auto view = rfl::to_view(*ReflectionFields.Get());               \
+        const auto view = rfl::to_view(*ReflectFields.Get());               \
         view.apply([&](auto& rflField) {                                       \
             if (reflectionFieldsSet.find(rflField.value()) !=                  \
                 reflectionFieldsSet.end())                                     \
