@@ -127,32 +127,33 @@ bool IncludeInProject(const std::filesystem::path& filePath)
 
      pugi::xml_node projectNode = doc.child("Project");
 
-     // 찾기: </ItemDefinitionGroup> 바로 뒤에 있는 <ItemGroup> 들
-     pugi::xml_node itemDefinitionGroupEnd =
-         projectNode.find_child_by_attribute("ItemDefinitionGroup", nullptr);
-     if (!itemDefinitionGroupEnd)
-     {
-         return false;
-     }
-
-     // <ItemGroup> 목록 중에서 ClInclude, ClCompile 분리
      pugi::xml_node clIncludeGroup;
      pugi::xml_node clCompileGroup;
-     for (pugi::xml_node node = itemDefinitionGroupEnd.next_sibling(); node;
-          node                = node.next_sibling())
-     {
-         if (std::string(node.name()) != "ItemGroup")
-             continue;
 
-         if (!clIncludeGroup &&
-             node.find_child_by_attribute("ClInclude", "Include"))
+    for (pugi::xml_node node : projectNode.children("ItemGroup"))
+     {
+         if (!clIncludeGroup)
          {
-             clIncludeGroup = node;
+             for (pugi::xml_node child : node.children("ClInclude"))
+             {
+                 if (child.attribute("Include"))
+                 {
+                     clIncludeGroup = node;
+                     break;
+                 }
+             }
          }
-         else if (!clCompileGroup &&
-                  node.find_child_by_attribute("ClCompile", "Include"))
+
+         if (!clCompileGroup)
          {
-             clCompileGroup = node;
+             for (pugi::xml_node child : node.children("ClCompile"))
+             {
+                 if (child.attribute("Include"))
+                 {
+                     clCompileGroup = node;
+                     break;
+                 }
+             }
          }
 
          if (clIncludeGroup && clCompileGroup)
@@ -174,11 +175,11 @@ bool IncludeInProject(const std::filesystem::path& filePath)
 
      std::filesystem::path newHeader{filePath};
      newHeader.replace_extension(".h");
-     std::filesystem::relative(newHeader, projectPath);
+     newHeader = std::filesystem::relative(newHeader, SCRIPT_PROJECT_PATH);
 
      std::filesystem::path newCpp{filePath};
      newCpp.replace_extension(".cpp");
-     std::filesystem::relative(newCpp, projectPath);
+     newCpp = std::filesystem::relative(newCpp, SCRIPT_PROJECT_PATH);
 
      if (clIncludeGroup)
      {
