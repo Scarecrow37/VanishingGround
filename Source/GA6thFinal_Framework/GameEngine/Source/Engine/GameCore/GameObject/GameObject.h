@@ -266,12 +266,10 @@ public:
 public:
     Transform transform;
 private:
-    using Base = ReflectSerializer; struct reflect_fields_struct 
-    {
-        rfl::Flatten<Base::reflect_fields_struct> Basefields{};
-        std::string                              _name = "null";
-        bool                                     _activeSelf = true;
-        bool                                     _isStatic = false;
+    REFLECT_FIELDS_BEGIN(GameObject)
+    std::string                              _name = "null";
+    bool                                     _activeSelf = true;
+    bool                                     _isStatic = false;
     REFLECT_FIELDS_END(GameObject)
 
 private:
