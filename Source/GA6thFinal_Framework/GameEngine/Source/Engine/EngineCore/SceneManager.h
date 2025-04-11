@@ -171,6 +171,13 @@ public:
         /// </summary>
         static void DontDestroyOnLoadObject(GameObject* gameObject);
         static void DontDestroyOnLoadObject(GameObject& gameObject);
+
+        /// <summary>
+        /// 인스턴스 아이디에 해당하는 오브젝트의 weak_ptr을 반환합니다.
+        /// </summary>
+        /// <param name="instanceID :">대상 instanceID</param>
+        /// <returns>weak_ptr<GameObject></returns>
+        static std::weak_ptr<GameObject> GetRuntimeObjectWeakPtr(int instanceID);
     };
 
 public:

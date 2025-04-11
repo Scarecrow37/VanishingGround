@@ -225,6 +225,22 @@ void ESceneManager::Engine::DontDestroyOnLoadObject(GameObject& gameObject)
     DontDestroyOnLoadObject(&gameObject);
 }
 
+std::weak_ptr<GameObject> 
+ESceneManager::Engine::GetRuntimeObjectWeakPtr(
+    int instanceID)
+{
+    ESceneManager& SceneManager = engineCore->SceneManager;
+    std::weak_ptr<GameObject> weakPtr{}; 
+    if (0 <= instanceID && instanceID < SceneManager._runtimeObjects.size())
+    {
+        if (SceneManager._runtimeObjects[instanceID])
+        {
+            weakPtr = SceneManager._runtimeObjects[instanceID];
+        }
+    }
+   return weakPtr;
+}
+
 Scene& ESceneManager::CreateScene(std::string_view sceneName)
 {
     auto find = _buildScnes.find(sceneName.data());
