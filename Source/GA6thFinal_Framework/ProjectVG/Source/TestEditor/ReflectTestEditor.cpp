@@ -1,6 +1,8 @@
 ﻿#include "ReflectTestEditor.h"
 using namespace u8_literals;
 
+void MyFunc();
+
 ReflectTestEditor::ReflectTestEditor() 
 {
 
@@ -18,8 +20,10 @@ void ReflectTestEditor::OnStartGui()
 
 void ReflectTestEditor::OnPreFrame() 
 {
-    static MyTestClass testClass;
-
+    static MyBaseClass testClass;
+    
+    MyFunc();
+    
     ImGui::PushID(this);
     ImGui::Begin("My Reflect Test");
     {
@@ -78,6 +82,22 @@ void ReflectTestEditor::OnFrame()
     }
 }
 
+void MyBaseClass::SerializedReflectEvent() 
+{
+    std::memcpy(ReflectionFields->position.data(), &_position.x, sizeof(_position));
+}
 
+void MyBaseClass::DeserializedReflectEvent() 
+{
+    _position = Vector3(ReflectionFields->position.data());
+}
 
+void MyFunc()
+{
+    MyBaseClass base;
+
+    base._position = Vector3{5.f, 5.f, 5.f};
+    std::string serializedData = base.SerializedReflectFields(); //SerializedReflectEvent() 호출된 뒤 직렬화 반환함.
+    base.DeserializedReflectFields(serializedData);              //역직렬화 이후 DeserializedReflectEvent() 호출.
+}
 

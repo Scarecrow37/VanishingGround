@@ -371,8 +371,7 @@ namespace ReflectHelper
                         }
                     }
                     else if constexpr (isProperty &&
-                                       std::is_same_v<OriginType,
-                                                      std::string_view>)
+                                       std::is_same_v<OriginType, std::string_view>)
                     {
                         static std::string input;
                         input  = val;
@@ -387,9 +386,7 @@ namespace ReflectHelper
                         }
                     }
                     else if constexpr (isProperty &&
-                                       std::is_same_v<
-                                           OriginType,
-                                           DirectX::SimpleMath::Vector2>)
+                                       std::is_same_v<OriginType, DirectX::SimpleMath::Vector2>)
                     {
                         DirectX::SimpleMath::Vector2 input = val;
                         isEdit                             = ImGui::DragFloat2(
@@ -405,9 +402,7 @@ namespace ReflectHelper
                         }
                     }
                     else if constexpr (isProperty &&
-                                       std::is_same_v<
-                                           OriginType,
-                                           DirectX::SimpleMath::Vector3>)
+                                       std::is_same_v<OriginType, DirectX::SimpleMath::Vector3>)
                     {
                         DirectX::SimpleMath::Vector3 input = val;
                         isEdit                             = ImGui::DragFloat3(
@@ -423,9 +418,7 @@ namespace ReflectHelper
                         }
                     }
                     else if constexpr (isProperty &&
-                                       std::is_same_v<
-                                           OriginType,
-                                           DirectX::SimpleMath::Vector4>)
+                                       std::is_same_v<OriginType, DirectX::SimpleMath::Vector4>)
                     {
                         DirectX::SimpleMath::Vector4 input = val;
                         isEdit                             = ImGui::DragFloat4(
