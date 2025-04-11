@@ -12,13 +12,13 @@ namespace File
     /*
     Observer클래스는 해당 파일 디렉터리를 관찰하여 발생하는 이벤트를 수집해 콜백 함수를 통해 알려주는 객체입니다.
     */
-    class Observer
+    class FileObserver
     {
         using CallBackFunc = std::function<void(const FileEventData&)>;
         using EventQueue   = std::deque<std::pair<Path, DWORD>>;
     public:
-        Observer();
-        ~Observer();
+        FileObserver();
+        ~FileObserver();
     public:
         bool Start(const std::wstring& path, const CallBackFunc& callback);
         void Stop();
@@ -45,13 +45,13 @@ namespace File
         EventQueue      _recievedEventQueue;
         EventQueue      _sendEventQueue;
     private:
-        BYTE            _recievedBytes[1024];         // 이벤트를 통해 받은 데이터
-        DWORD           _bytesReturned;               // 받은 데이터의 크기
+        BYTE            _recievedBytes[1024];   // 이벤트를 통해 받은 데이터
+        DWORD           _bytesReturned;         // 받은 데이터의 크기
 
         HANDLE          _hDirectory;            // 파일 디렉터리에 접근하는 커널 핸들
         OVERLAPPED      _overlapped;            // 비동기 IO작업을 위한 오버랩 구조체
-        std::thread     _eventProcessingThread; //큐에 쌓인 이벤트를 하나씩 콜백
-        std::thread     _eventObservingThread;  //디렉터리 이벤트를 관찰해 큐에 수집
+        std::thread     _eventProcessingThread; // 큐에 쌓인 이벤트를 콜백
+        std::thread     _eventObservingThread;  // 디렉터리 이벤트를 관찰해 큐에 수집
 
         std::condition_variable _cv;
         std::mutex              _mutex;

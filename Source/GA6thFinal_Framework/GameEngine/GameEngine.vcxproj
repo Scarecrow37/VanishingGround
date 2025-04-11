@@ -290,6 +290,11 @@
     <None Include="Source\Engine\Imgui\imgui_extra_math.inl" />
     <None Include="Source\Engine\Imgui\imgui_node_editor_internal.inl" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FileSystem\FileSystem.vcxproj">
+      <Project>{ae54bba5-ecd5-4665-bfd1-f654aa0af719}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
