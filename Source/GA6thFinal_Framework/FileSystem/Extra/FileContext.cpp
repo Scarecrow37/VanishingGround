@@ -3,26 +3,23 @@
 
 namespace File
 {
-    FileContext::FileContext(const File::Path& path) 
-        : _path(path), _meta({}), _eventProcessor(nullptr)
+    Context::Context(const Path& path) 
+        : _path(path), _meta({})
     {
-        LoadMeta();
-    }
-
-    FileContext::~FileContext()
-    {
-        if (nullptr != _eventProcessor)
+        if (true == LoadMeta())
         {
-            delete _eventProcessor;
-            _eventProcessor = nullptr;
         }
     }
 
-    bool FileContext::LoadMeta()
+    Context::~Context() 
+    {
+    }
+
+    bool Context::LoadMeta()
     {
         // 파일과 메타의 경로(확장자)를 헷갈리지 말자
         File::Path metaPath = _path;
-        metaPath.replace_extension(MetaData::EXTANSTION);
+        metaPath.replace_extension(MetaData::EXTENSION);
 
         // 처음엔 어차피 Null이므로 false가 반환된다.
         if (false == _meta.Move(metaPath))
@@ -35,7 +32,22 @@ namespace File
         }
 
         // 마지막으로 Null여부를 반환
-        return _meta.IsNull();
+        return (false == _meta.IsNull());
+    }
+
+
+    FileContext::FileContext(const File::Path& path) 
+        : Context(path), _eventProcessor(nullptr)
+    {
+    }
+
+    FileContext::~FileContext()
+    {
+        if (nullptr != _eventProcessor)
+        {
+            delete _eventProcessor;
+            _eventProcessor = nullptr;
+        }
     }
 
     void FileContext::OnFileAdded(const Path& path) 
@@ -88,4 +100,68 @@ namespace File
         }
     }
 
-}
+    ForderContext::ForderContext(const File::Path& path) 
+    : Context(path)
+    {
+
+    }
+    
+    ForderContext::~ForderContext() 
+    {
+    
+    }
+
+    void ForderContext::OnFileAdded(const Path& path) 
+    {
+    }
+
+    void ForderContext::OnFileModified(const Path& path) 
+    {
+    }
+
+    void ForderContext::OnFileRemoved(const Path& path) 
+    {
+        _meta.Remove();
+
+        for (auto& [name, wpContext] : _contextTable)
+        {
+            if (false == wpContext.expired())
+            {
+                IDMapper::RemovedFile(wpContext.lock()->GetPath());
+            }
+        }
+    }
+
+    void ForderContext::OnFileRenamed(const Path& oldPath, const Path& newPath)
+    {
+        _path = newPath;
+
+        for (auto& [name, wpContext] : _contextTable)
+        {
+            if (false == wpContext.expired())
+            {
+                auto        spContext      = wpContext.lock();
+                const Path& oldContextPath = spContext->GetPath();
+                const Path& newContextPath = _path / spContext->GetPath().filename();
+                IDMapper::MovedFile(oldContextPath, newContextPath);
+            }
+        }
+    }
+
+    void ForderContext::OnFileMoved(const Path& oldPath, const Path& newPath) 
+    {
+        _path = newPath;
+
+        for (auto& [name, wpContext] : _contextTable)
+        {
+            if (false == wpContext.expired())
+            {
+                auto        spContext      = wpContext.lock();
+                const Path& oldContextPath = spContext->GetPath();
+                const Path& newContextPath = _path / spContext->GetPath().filename();
+                IDMapper::MovedFile(oldContextPath, newContextPath);
+            }
+        }
+    }
+
+} // namespace File

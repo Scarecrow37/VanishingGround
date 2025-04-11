@@ -1,4 +1,6 @@
 ﻿#include "EditorAssetBrowser.h"
+#include "EditorInspectorView.h"
+#include "../FileSystem/Extra/FileContext.h"
 
 namespace fs = std::filesystem;
 
@@ -8,6 +10,7 @@ EditorAssetBrowser::EditorAssetBrowser()
     SetInitialDockSpaceArea(DockSpaceArea::DOWN);
 
     mShowType = List;
+    _selectedContext = std::make_shared<EditorFileObject>();
     //mFocusFolderPath = Asset::System::GetRootAssetPath();
 }
 
@@ -23,26 +26,65 @@ void EditorAssetBrowser::OnPreFrame()
 {
 }
 
-// 왼쪽: 폴더 트리 표시 (재귀)
-void EditorAssetBrowser::ShowFolderHierarchy(const Path& folderPath)
+void EditorAssetBrowser::OnFrame()
 {
-    for (const auto& entry : fs::directory_iterator(folderPath))
+    BeginColum();
+
+    // 왼쪽: 폴더 트리
+    ImGui::BeginChild("FolderHierarchyView", ImVec2(0, 0), true);
+    ShowFolderHierarchy(Global::fileSystem->GetRootPath());
+    ImGui::EndChild();
+
+    ImGui::NextColumn();
+
+    // 오른쪽: 선택한 폴더의 파일 목록
+    ImGui::BeginChild("ContentsView", ImVec2(0, 0), true);
+    ShowFolderContents();
+    ImGui::EndChild();
+
+    EndColum();
+}
+
+void EditorAssetBrowser::OnPostFrame()
+{
+}
+
+// 왼쪽: 폴더 트리 표시 (재귀)
+void EditorAssetBrowser::ShowFolderHierarchy(const File::Path& folderPath)
+{
+    auto wpContext = File::IDMapper::GetContext<File::ForderContext>(folderPath);
+    if (false == wpContext.expired())
     {
-        if (entry.is_directory()) 
+        auto spForderContext = wpContext.lock();
+        for (auto itr = spForderContext->begin(); itr != spForderContext->end();
+             ++itr)
         {
-            std::string id = entry.path().filename().string() + "##" + entry.path().string();
-            
-            bool isOpen = ImGui::TreeNodeEx(id.c_str(), ImGuiTreeNodeFlags_OpenOnArrow);
-            //auto flags = ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersOuterH | ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg | ImGuiTableFlags_NoBordersInBody;
-            //bool isOpen = ImGui::BeginTable("3ways", 3, flags);
-            if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
+            auto& [name, wpFileContext] = *itr;
+            if (false == wpFileContext.expired())
             {
-                mFocusFolderPath = entry.path();
-            }
-            if (isOpen)
-            {
-                ShowFolderHierarchy(entry.path()); // 재귀적으로 하위 폴더 표시
-                ImGui::TreePop();
+                auto spFileContext = wpFileContext.lock();
+                if (true == spFileContext->IsDirectory())
+                {
+                    std::string id =
+                        spFileContext->GetPath().filename().string() + "##" +
+                        spFileContext->GetPath().string();
+
+                    bool isOpen = ImGui::TreeNodeEx(
+                        id.c_str(), ImGuiTreeNodeFlags_OpenOnArrow);
+                    if (ImGui::IsItemHovered() &&
+                        ImGui::IsMouseDoubleClicked(0))
+                    {
+                        _focusForder =
+                            File::IDMapper::GetContext<File::ForderContext>(
+                                spFileContext->GetPath());
+                    }
+                    if (isOpen)
+                    {
+                        ShowFolderHierarchy(
+                            spFileContext->GetPath()); // 재귀적으로 하위 폴더 표시
+                        ImGui::TreePop();
+                    }
+                }
             }
         }
     }
@@ -64,66 +106,45 @@ void EditorAssetBrowser::ShowFolderContents()
     }
 }
 
-void EditorAssetBrowser::OnFrame()
-{
-    BeginColum();
-
-    // 왼쪽: 폴더 트리
-    ImGui::BeginChild("FolderHierarchyView", ImVec2(0, 0), true);
-    ShowFolderHierarchy("Assets");
-    ImGui::EndChild();
-
-    ImGui::NextColumn();
-
-    // 오른쪽: 선택한 폴더의 파일 목록
-    ImGui::BeginChild("ContentsView", ImVec2(0, 0), true);
-    ShowFolderContents();
-    ImGui::EndChild();
-
-    EndColum();
-}
-
-void EditorAssetBrowser::OnPostFrame()
-{
-}
-
 void EditorAssetBrowser::ShowContentsToList()
 {
-    //for (const auto& entry : fs::directory_iterator(mFocusFolderPath))
-    //{
-    //    std::string id = entry.path().filename().string() + "##" + entry.path().string();
-    //    // 파일이 유효한 확장자일 경우 표시
-    //    if (entry.is_regular_file())
-    //    {
-    //        if (mAssetBrowserFlags[ShowMetaFile] == true ||
-    //            (mAssetBrowserFlags[ShowMetaFile] == false && !Asset::System::IsMetaFile(entry.path())))
-    //        {
-    //            if (ImGui::Selectable(id.c_str()))
-    //            {
-    //                mSelectedEntry = entry.path();
-    //            }
-    //            // 더블 클릭시 파일 열기
-    //            if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
-    //            {
-    //                ShellExecute(NULL, L"open", mSelectedEntry.wstring().c_str(), NULL, NULL, SW_SHOW);
-    //            }
-    //        }
-    //    }
-    //    // 폴더인 경우 누를 시 그 경로로 이동
-    //    if (entry.is_directory())
-    //    {
-    //        if (ImGui::Selectable(id.c_str()))
-    //        {
-    //            mSelectedEntry = entry.path();
-    //        }
-    //        // 더블 클릭시 폴더 열기
-    //        if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
-    //        {
-    //            mFocusFolderPath = entry.path();
-    //            //ImGui::IMGUI_DEMO_MARKER("Examples/Assets Browser");
-    //        }
-    //    }
-    //}
+    // 참조 포인터가 살아있을 때
+    if (false == _focusForder.expired())
+    {
+        auto spFocusContext = _focusForder.lock();
+
+        for (auto itr = spFocusContext->begin(); itr != spFocusContext->end(); ++itr)
+        {
+            auto& [name, wpFileContext] = *itr;
+            if (false == wpFileContext.expired())
+            {
+                auto spFileContext = wpFileContext.lock();
+
+                File::Path  path = spFileContext->GetPath();
+                std::string id   = name.string() + "##" + path.string();
+
+                bool isMeta = path.extension() == File::MetaData::EXTENSION;
+
+                if (true == mAssetBrowserFlags[ShowMetaFile] ||
+                    (false == mAssetBrowserFlags[ShowMetaFile] &&
+                     false == isMeta))
+                {
+                    if (ImGui::Selectable(id.c_str()))
+                    {
+                        _selectedContext->SetContext(spFileContext);
+                        EditorInspectorView::SetFocusObject(_selectedContext);
+                    }
+                    // 더블 클릭시 파일 열기
+                    if (ImGui::IsItemHovered() &&
+                        ImGui::IsMouseDoubleClicked(0))
+                    {
+                        ShellExecute(NULL, L"open", path.wstring().c_str(),
+                                     NULL, NULL, SW_SHOW);
+                    }
+                }
+            }
+        }
+    }
 }
 
 void EditorAssetBrowser::ShowContentsToIcon()
@@ -146,4 +167,17 @@ void EditorAssetBrowser::EndColum()
     //} 
 
     ImGui::Columns(1); // 컬럼 종료
+}
+
+void EditorFileObject::OnDrawInspectorView()
+{
+    if (false == _context.expired())
+    {
+        auto spContext = _context.lock();
+        const File::MetaData& meta = spContext->GetMeta();
+
+        ImGui::Text("Path: %s", spContext->GetPath().string().c_str());
+        ImGui::Text("Guid: %s", meta.GetFileGuid().string().c_str());
+        ImGui::Separator();
+    }
 }

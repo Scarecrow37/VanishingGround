@@ -15,6 +15,18 @@ namespace File
     {
         return ToGuid();
     }
+    File::Path Path::operator+(const File::FString& v)
+    {
+        return string() + v.string();
+    }
+
+    File::Path Path::operator/(const File::FString& v)
+    {
+        File::Path path = string();
+        path /= v;
+        return path.generic_string();
+    }
+
     File::Guid Path::ToGuid() const
     {
         return IDMapper::GetGuidFromPath(native());

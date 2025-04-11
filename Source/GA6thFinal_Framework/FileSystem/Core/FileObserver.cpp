@@ -262,11 +262,11 @@ namespace File
         if (q.empty())
             return EventType::UNKNOWN;
 
-        auto [firstPath, firstEvent] = q[0];
+        auto& [firstPath, firstEvent] = q[0];
 
         if (_sendEventQueue.size() >= 2)
         {
-            auto [secondPath, secondEvent] = q[1];
+            auto& [secondPath, secondEvent] = q[1];
 
             bool checkFile = firstPath.filename() == secondPath.filename();
 

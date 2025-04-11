@@ -35,6 +35,8 @@ namespace File
         File::Guid ToGuid() const;
     public:
         operator File::Guid() const;
+        File::Path operator+(const File::FString& v);
+        File::Path operator/(const File::FString& v);
     };
 
     /*
@@ -62,7 +64,7 @@ namespace File
         inline static const char* FILE_GUID_HEADER = "File Guid";
         inline static const char* PROJ_GUID_HEADER = "Project Guid";
     public:
-        inline static const char* EXTANSTION = ".META";
+        inline static const char* EXTENSION = ".META";
     };
 
 } // namespace File

@@ -6,7 +6,12 @@ namespace File
 {
     void FileSystem::Initialize() 
     {
-        IDMapper::_ignoreExtTable.insert(MetaData::EXTANSTION);
+        IDMapper::_ignoreExtTable.insert(MetaData::EXTENSION);
+
+        if (false == stdfs::is_directory(_rootPath))
+        {
+            OutputLog(L"System RootPath Is Not Directory");
+        }
 
         ReadDiectory(_rootPath);
 
@@ -30,26 +35,21 @@ namespace File
     }
     void FileSystem::ReadDiectory(const Path& path)
     {
-        if (false == stdfs::is_directory(path))
-        {
-            return;
-        }
+        IDMapper::AddedFile(path);
 
-        for (const auto& entry : stdfs::recursive_directory_iterator(path))
+        if (true == stdfs::is_directory(path))
         {
-            Path gPath = entry.path().generic_string();
-            if (true == stdfs::is_regular_file(gPath) &&
-                true == IDMapper::IsVaildExtension(gPath.extension()))
+            for (const auto& entry : stdfs::recursive_directory_iterator(path))
             {
-                IDMapper::AddedFile(gPath);
-            }
-            if (true == stdfs::is_directory(entry))
-            {
-                ReadDiectory(gPath);
+                // 경로를 재네릭화
+                Path gPath = entry.path().generic_string();
+                if (true == IDMapper::IsVaildExtension(gPath.extension()))
+                {
+                    ReadDiectory(gPath);
+                }
             }
         }
     }
-
     void FileSystem::RecieveFileEvents(const FileEventData& data) 
     {
         std::lock_guard<std::mutex> lock(_mutex);
@@ -96,132 +96,182 @@ namespace File
         return _rootPath;
     }
 
-
+    bool IDMapper::IsVaildGuid(const File::Guid& guid)
+    {
+        return _guidToPathTable.find(guid) != _guidToPathTable.end();
+    }
+    bool IDMapper::IsVaildExtension(const File::Path& path)
+    {
+        return _ignoreExtTable.find(path) == _ignoreExtTable.end();
+    }
     const File::Path& IDMapper::GetPathFromGuid(const File::Guid& guid)
     {
-        FileContext* context = GetFileContext(guid);
-        if (nullptr != context)
+        auto wpContext = GetContext(guid);
+        if (false == wpContext.expired())
         {
-            return context->GetPath();
+            return wpContext.lock()->GetPath();
         }
         return "";
     }
     const File::Guid& IDMapper::GetGuidFromPath(const File::Path& path)
     {
-        FileContext* context = GetFileContext(path);
-        if (nullptr != context)
+        auto wpContext = GetContext(path);
+        if (false == wpContext.expired())
         {
-            const MetaData& meta = context->GetMeta();
+            const MetaData& meta = wpContext.lock()->GetMeta();
             return meta.GetFileGuid();
         }
         return NULL_GUID;
     }
-    FileContext* IDMapper::GetFileContext(const File::Guid& guid)
+    std::weak_ptr<Context> IDMapper::GetContext(const File::Guid& guid)
     {
         auto itr = _guidToPathTable.find(guid);
         if (itr != _guidToPathTable.end())
         {
-            return itr->second;
+            return itr->second; 
         }
-        return nullptr;
+        else
+        {
+            return std::weak_ptr<Context>();
+        }
+        
     }
-    FileContext* IDMapper::GetFileContext(const File::Path& path)
+    std::weak_ptr<Context> IDMapper::GetContext(const File::Path& path)
     {
         auto itr = _pathToGuidTable.find(path);
         if (itr != _pathToGuidTable.end())
         {
-            return itr->second;
+            return itr->second; 
         }
-        return nullptr;
-    }
-
-    bool IDMapper::IsVaildGuid(const File::Guid& guid)
-    {
-        return _guidToPathTable.find(guid) != _guidToPathTable.end();
-    }
-
-    bool IDMapper::IsVaildExtension(const File::Path& path)
-    {
-        return _ignoreExtTable.find(path) == _ignoreExtTable.end();
+        else
+        {
+            return std::weak_ptr<Context>();
+        }
     }
 
     void IDMapper::Clear() 
-    {
-        for (auto& context : _pathToGuidTable)
-        {
-            delete context.second;
-        }
+    {        
         _pathToGuidTable.clear();
         _guidToPathTable.clear();
+        _contextTable.clear();
     }
 
     void IDMapper::AddedFile(const File::Path& path) 
     {
-        // 파일이 없으면 return;
+        // 파일이 없으면 return
         if (false == stdfs::exists(path))
             return;
+        // 유효한 확장자가 아니면 return
         if (false == IsVaildExtension(path.extension()))
             return;
 
-        FileContext* context = GetFileContext(path);
-        if (nullptr == context)
+        auto find = GetContext(path);
+
+        if (false != GetContext(path).expired())
         {
-            context = new FileContext(path);
+            std::shared_ptr<Context> context;
 
-            const MetaData& meta    = context->GetMeta();
-            File::Guid      guid    = meta.GetFileGuid();
+            if (true == stdfs::is_regular_file(path))
+            {
+                context = std::make_shared<FileContext>(path);
+            }
+            else if (true == stdfs::is_directory(path))
+            {
+                context = std::make_shared<ForderContext>(path);
+            }
+            else
+            {
+                return;
+            }
 
-            IDMapper::_pathToGuidTable[path] = context;
-            IDMapper::_guidToPathTable[guid] = context;
+            // 부모 폴더에서 자신을 추가한다.
+            File::Path parentPath = path.parent_path().generic_string();
+            auto parentContext = IDMapper::GetContext<ForderContext>(parentPath);
+            if (false == parentContext.expired())
+            {
+                parentContext.lock()->_contextTable[path.filename()] = context;
+            }
 
-            context->OnFileAdded(path);
+            const MetaData& meta = context->GetMeta();
+            File::Guid      guid = meta.GetFileGuid();
+
+            _pathToGuidTable[path] = context;
+            _guidToPathTable[guid] = context;
+            _contextTable.insert(context);
+
+            context->OnFileAdded(path);      
         }
     }
 
     void IDMapper::RemovedFile(const File::Path& path) 
     {
-        FileContext* context = GetFileContext(path);
-        if (nullptr != context)
+        auto wpContext = GetContext(path);
+        if (false == wpContext.expired())
         {
-             File::Guid guid = context->GetMeta().GetFileGuid();
+            auto            spContext = wpContext.lock();
+            const MetaData& meta      = spContext->GetMeta();
+            File::Guid      guid = meta.GetFileGuid();
 
-             _pathToGuidTable.erase(path);
-             _guidToPathTable.erase(guid);
+            spContext->OnFileRemoved(path);
 
-             context->OnFileRemoved(path);
+            _pathToGuidTable.erase(path);
+            _guidToPathTable.erase(guid);
+            _contextTable.erase(spContext);
 
-             delete context;
+            // 부모 폴더에서 자신을 제거한다.
+            File::Path parentPath = path.parent_path().generic_string();
+            auto wpForderContext = IDMapper::GetContext<ForderContext>(parentPath);
+            if (false == wpForderContext.expired())
+            {
+                wpForderContext.lock()->_contextTable.erase(path.filename());
+            }
         }
     }
 
     void IDMapper::ModifiedFile(const File::Path& path)
     {
-        FileContext* context = GetFileContext(path);
-        if (nullptr != context)
+        auto wpContext = GetContext(path);
+        if (false == wpContext.expired())
         {
-            context->OnFileModified(path);
+            wpContext.lock()->OnFileModified(path);
         }
     }
 
-    void IDMapper::MovedFile(const File::Path& oldPath, const File::Path& newPath) 
+    void IDMapper::MovedFile(const File::Path& oldPath,
+                                const File::Path& newPath) 
     {
         // 이전 경로에서 컨텍스트를 찾아 새 경로로 옮기기
-        FileContext* context = GetFileContext(oldPath);
-        if (nullptr != context)
+        auto wpContext = GetContext(oldPath);
+        if (false == wpContext.expired())
         {
             _pathToGuidTable.erase(oldPath);
-            _pathToGuidTable[newPath] = context;
+            _pathToGuidTable[newPath] = wpContext;
             // Guid는 동일하므로 안지워도 된다.
 
             if (oldPath.parent_path() == newPath.parent_path())
             {
                 // 같은 폴더 내에서 이름만 변경
-                context->OnFileRenamed(oldPath, newPath);
+                wpContext.lock()->OnFileRenamed(oldPath, newPath);
             }
             else
             {
                 // 다른 폴더로 이동
-                context->OnFileMoved(oldPath, newPath);
+                wpContext.lock()->OnFileMoved(oldPath, newPath);
+            }
+
+            // 폴더 컨텍스트에게도 알려준다.
+            File::Path oldForderPath = oldPath.parent_path().generic_string();
+            File::Path newForderPath = newPath.parent_path().generic_string();
+
+            auto oldForderContext =
+                IDMapper::GetContext<ForderContext>(oldForderPath);
+            auto newForderContext =
+                IDMapper::GetContext<ForderContext>(newForderPath);
+
+            if (false == oldForderContext.expired() && false == newForderContext.expired())
+            {
+                oldForderContext.lock()->_contextTable.erase(oldPath.filename());
+                newForderContext.lock()->_contextTable[newPath.filename()] = wpContext;
             }
         }
     }
