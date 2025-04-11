@@ -83,8 +83,7 @@ protected:
         rfl::Flatten<Base::reflect_fields_struct> Basefields{};
 
 #define REFLECT_FIELDS_END(CLASS)                                              \
-    }                                                                          \
-    ;                                                                          \
+    };                                                                         \
     struct reflection_safe_ptr                                                 \
     {                                                                          \
         reflection_safe_ptr(CLASS##* owner)                                    \
