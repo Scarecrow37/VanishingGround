@@ -3,18 +3,20 @@
 
 namespace File
 {
-    Observer::Observer() 
+    FileObserver::FileObserver() 
         : _isStart(false), _isObserving(false), _request(false),
           _recievedBytes({}), _bytesReturned(0), _hDirectory(NULL),
           _overlapped({})
     {
     }
 
-    Observer::~Observer() 
+    FileObserver::~FileObserver() 
     {
+        Stop();
     }
 
-    bool Observer::Start(const std::wstring& path, const CallBackFunc& callback)
+    bool FileObserver::Start(const std::wstring& path,
+                             const CallBackFunc& callback)
     {
         if (nullptr == callback)
             return false;
@@ -31,9 +33,9 @@ namespace File
         return false;
     }
 
-    void Observer::Stop()
+    void FileObserver::Stop()
     {
-        if (true == _isStart && true == _isObserving)
+        if (true == _isStart)
         {
             _isStart = false;
             _eventProcessingThread.join();
@@ -41,7 +43,7 @@ namespace File
         }
     }
 
-    void Observer::SetHandles()
+    void FileObserver::SetHandles()
     {
         if (std::filesystem::exists(_path) &&
             std::filesystem::is_directory(_path))
@@ -70,7 +72,7 @@ namespace File
         }
     }
 
-    void Observer::SetThread()
+    void FileObserver::SetThread()
     {
         // 스레드 초기화
         _eventProcessingThread = std::thread([this]() {
@@ -94,7 +96,7 @@ namespace File
         });
     }
 
-    void Observer::EventProcessingThread()
+    void FileObserver::EventProcessingThread()
     {
         while (true == _isStart)
         {
@@ -142,7 +144,7 @@ namespace File
         }
     }
 
-    void Observer::EventObservingThread()
+    void FileObserver::EventObservingThread()
     {
         std::vector<BYTE> buffer(BUFFER_SIZE);
         DWORD             bytesReturned = 0;
@@ -174,7 +176,7 @@ namespace File
         _cv.notify_all();
     }
 
-    bool Observer::SetEventListener()
+    bool FileObserver::SetEventListener()
     {
         /*
         ReadDirectoryChangesExW는 문서가 너무 없어서 그냥 안전하게 기존 래거시 함수 사용.
@@ -184,7 +186,7 @@ namespace File
                                      &_overlapped, NULL);
     }
 
-    void Observer::RecieveFileEvents()
+    void FileObserver::RecieveFileEvents()
     {
         static bool listen = false;
         DWORD       bytes  = {};
@@ -198,8 +200,7 @@ namespace File
             }
 
             // 변경이 감지되어 이벤트를 처리 중이면
-            if (TRUE == GetOverlappedResultEx(_hDirectory, &_overlapped, &bytes,
-                                              0, FALSE))
+            if (TRUE == GetOverlappedResultEx(_hDirectory, &_overlapped, &bytes, 0, FALSE))
             {
                 // IO작업이 진행중이면 기다림
                 if (ERROR_IO_INCOMPLETE == GetLastError())
@@ -235,6 +236,9 @@ namespace File
                             fileInfo->NextEntryOffset);
                     }
 
+                    std::this_thread::sleep_for(
+                        std::chrono::milliseconds(3)); 
+
                     _request = true;
                 }
             }
@@ -253,16 +257,16 @@ namespace File
     실제로는 복사 → 삭제이므로, CREATE + DELETE 외부에서 파일 던지기 (예:
     탐색기에서 드래그)	CREATE만 감지됨 (삭제는 외부 시스템 이벤트라 감지 못함)
     */
-    EventType Observer::CheckEvent(const EventQueue& q)
+    EventType FileObserver::CheckEvent(const EventQueue& q)
     {
         if (q.empty())
             return EventType::UNKNOWN;
 
-        auto [firstPath, firstEvent] = q[0];
+        auto& [firstPath, firstEvent] = q[0];
 
         if (_sendEventQueue.size() >= 2)
         {
-            auto [secondPath, secondEvent] = q[1];
+            auto& [secondPath, secondEvent] = q[1];
 
             bool checkFile = firstPath.filename() == secondPath.filename();
 
@@ -296,12 +300,12 @@ namespace File
         return EventType::UNKNOWN;
     }
 
-    void Observer::ProcessUnKnown()
+    void FileObserver::ProcessUnKnown()
     {
         _sendEventQueue.erase(_sendEventQueue.begin());
     }
 
-    void Observer::ProcessAdded()
+    void FileObserver::ProcessAdded()
     {
         const auto& [path, event] = _sendEventQueue[0];
 
@@ -310,7 +314,7 @@ namespace File
         _eventCallback(data);
         _sendEventQueue.erase(_sendEventQueue.begin());
     }
-    void Observer::ProcessRemoved()
+    void FileObserver::ProcessRemoved()
     {
         const auto& [path, event] = _sendEventQueue[0];
 
@@ -319,7 +323,7 @@ namespace File
         _eventCallback(data);
         _sendEventQueue.erase(_sendEventQueue.begin());
     }
-    void Observer::ProcessModified()
+    void FileObserver::ProcessModified()
     {
         const auto& [path, event] = _sendEventQueue[0];
 
@@ -328,11 +332,13 @@ namespace File
         _eventCallback(data);
         _sendEventQueue.erase(_sendEventQueue.begin());
     }
-    void Observer::ProcessRenamed()
+    void FileObserver::ProcessRenamed()
     {
         const auto& [firstPath, firstEvent]   = _sendEventQueue[0];
         const auto& [secondPath, secondEvent] = _sendEventQueue[1];
 
+        // lParam: 이전 이름
+        // rParam: 새 이름
         FileEventData data = {firstPath.generic_wstring(),
                               secondPath.generic_wstring(), EventType::RENAMED};
 
@@ -341,11 +347,13 @@ namespace File
 
         _eventCallback(data);
     }
-    void Observer::ProcessMoved()
+    void FileObserver::ProcessMoved()
     {
         const auto& [firstPath, firstEvent]   = _sendEventQueue[0];
         const auto& [secondPath, secondEvent] = _sendEventQueue[1];
 
+        // lParam: 이전 경로
+        // rParam: 새 경로
         FileEventData data = {firstPath.generic_wstring(),
                               secondPath.generic_wstring(), EventType::MOVED};
 

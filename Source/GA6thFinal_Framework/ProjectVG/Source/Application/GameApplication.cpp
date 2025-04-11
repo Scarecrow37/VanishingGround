@@ -43,6 +43,7 @@ GameApplication::GameApplication()
     //에디터 매니저 등록
     _editorManager = AddModule<EditorManager>();
 
+
     //추가할 에디터 작성
     /* Tool */
     _editorManager->RegisterEditorObject<EditorDebugView>();

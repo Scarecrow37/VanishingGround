@@ -37,7 +37,6 @@ void EditorLogsTool::OnFrame()
 
     ImGui::SameLine();
     
-   
     float windowWidth = ImGui::GetWindowContentRegionMax().x;
     ImGui::SetCursorPosX(windowWidth - buttonSize.x);
     if (ImGui::Button("Clear", buttonSize))
