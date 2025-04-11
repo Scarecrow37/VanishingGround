@@ -62,3 +62,8 @@ void EGameObjectFactory::Engine::ReturnInstanceID(int id)
             return a > b; //내림차순 정렬
         });
 }
+
+const std::vector<std::string>& EGameObjectFactory::Engine::GetGameObjectKeys()
+{
+    return engineCore->GameObjectFactory._NewGameObjectKeyVec;
+}
