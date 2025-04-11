@@ -19,7 +19,7 @@ body:
     attributes:
       label: 🌳 브랜치명 (Branch)
       description: 영어로 브랜치명을 작성해주세요
-      placeholder: feature_
+      placeholder: fix_
     validations:
       required: true
       
