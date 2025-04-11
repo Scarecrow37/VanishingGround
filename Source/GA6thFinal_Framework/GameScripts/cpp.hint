@@ -8,6 +8,7 @@
 
 #define USING_PROPERTY(class_name)            
 #define GETTER(type, property_name)     
+#define SETTER(type, property_name)
 #define GETTER_ONLY(type, property_name)     
 #define SETTER_ONLY(type, property_name)  
 #define PROPERTY(property_name)    
