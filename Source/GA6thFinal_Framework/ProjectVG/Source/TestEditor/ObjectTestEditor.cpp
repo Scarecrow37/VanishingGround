@@ -131,7 +131,8 @@ void ObjectTestEditor::OnFrame()
         if (ImGui::BeginPopupModal("Select Component", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
         {
             ImGui::BeginChild("ScrollRegion", ImVec2(300, 200), 0, ImGuiWindowFlags_HorizontalScrollbar);
-            for (auto& key : engineCore->ComponentFactory.GetNewComponentFuncList())
+            for (auto& key :
+                 engineCore->ComponentFactory.GetNewComponentKeyList())
             {
                 if (ImGui::Button(key.c_str()))
                 {

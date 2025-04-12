@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 using namespace Global;
+using namespace u8_literals;
 
 EComponentFactory::EComponentFactory()
 {
@@ -167,7 +168,15 @@ bool EComponentFactory::AddComponentToObject(GameObject* ownerObject, std::strin
 
 void EComponentFactory::MakeScriptFile(const char* fileName) const
 {
-    MakeScriptFunc(fileName);
+    if (m_scriptsDll != NULL)
+    {
+        MakeScriptFunc(fileName);
+    }
+    else
+    {
+        engineCore->EngineLogger.Log(LogLevel::LEVEL_ERROR,
+                                     u8"Script DLL을 빌드해주세요!"_c_str);
+    }
 }
 
 std::shared_ptr<Component> EComponentFactory::NewComponent(std::string_view typeid_name)

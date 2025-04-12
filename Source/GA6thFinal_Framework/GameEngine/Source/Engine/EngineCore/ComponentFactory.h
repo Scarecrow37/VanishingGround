@@ -54,9 +54,24 @@ public:
     /// 스크립트 DLL의 모든 컴포넌트 생성 키들을 반환합니다.
     /// </summary>
     /// <returns></returns>
-    const std::vector<std::string>& GetNewComponentFuncList()
+    const std::vector<std::string>& GetNewComponentKeyList()
     {
         return m_NewScriptsKeyVec;
+    }
+
+    /// <summary>
+    /// 컴포넌트 존재 유무를 확인합니다.
+    /// </summary>
+    /// <param name="typeid_name :">확인할 컴포넌트 typeid_name</param>
+    /// <returns></returns>
+    bool HasComponent(std::string_view typeid_name)
+    {
+        auto findIter = m_NewScriptsFunctionMap.find(typeid_name.data());
+        if (findIter != m_NewScriptsFunctionMap.end())
+        {
+            return true;
+        }
+        return false;
     }
 
     /// <summary>

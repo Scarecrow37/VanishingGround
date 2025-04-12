@@ -159,7 +159,7 @@ public:
     /// <para> 이 GameObject의 이름을 반환합니다. </para>
     /// </summary>
     /// <returns>std::string_view 오브젝트의 이름</returns>
-    std::string_view ToString() { return ReflectionFields->_name; }
+    std::string_view ToString() { return ReflectFields->_name; }
 
     /// <summary>
     /// 컴포넌트를 추가합니다.
@@ -209,7 +209,7 @@ public:
         Transform* curr = &transform;
         while (curr != nullptr)
         {
-            if (!curr->gameObject.ReflectionFields->_activeSelf)
+            if (!curr->gameObject.ReflectFields->_activeSelf)
                 return false;
 
             curr = curr->Parent;
@@ -225,7 +225,7 @@ public:
     }
     GETTER(bool, ActiveSelf)
     {
-        return ReflectionFields->_activeSelf;
+        return ReflectFields->_activeSelf;
     }
     // get, set :
     //  자신의 local active 여부 (실제 활성화 여부)
@@ -233,11 +233,11 @@ public:
    
     GETTER(bool, IsStatic)
     {
-        return ReflectionFields->_isStatic;
+        return ReflectFields->_isStatic;
     }
     SETTER(bool, IsStatic)
     {
-        ReflectionFields->_isStatic = value;
+        ReflectFields->_isStatic = value;
     }
     // get, set :
     //  게임 오브젝트에 대해 IsStatic 플래그가 설정되어 있는지 여부.
@@ -246,7 +246,7 @@ public:
 
     GETTER(std::string_view, Name)
     {
-        return ReflectionFields->_name;
+        return ReflectFields->_name;
     }
     SETTER(std::string_view, Name)
     {
@@ -266,12 +266,10 @@ public:
 public:
     Transform transform;
 private:
-    using Base = ReflectSerializer; struct reflect_fields_struct 
-    {
-        rfl::Flatten<Base::reflect_fields_struct> Basefields{};
-        std::string                              _name = "null";
-        bool                                     _activeSelf = true;
-        bool                                     _isStatic = false;
+    REFLECT_FIELDS_BEGIN(ReflectSerializer)
+    std::string                              _name = "null";
+    bool                                     _activeSelf = true;
+    bool                                     _isStatic = false;
     REFLECT_FIELDS_END(GameObject)
 
 private:

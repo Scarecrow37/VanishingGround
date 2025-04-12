@@ -18,7 +18,7 @@ public:
     USING_PROPERTY(Scene)
     GETTER_ONLY(size_t, buildIndex)
     {
-        return ReflectionFields->_buildIndex;
+        return ReflectFields->_buildIndex;
     }
     //get : 빌드 설정에서의 Scene 인덱스를 반환합니다. 포함안된 씬들은 -1을 반환합니다.
     PROPERTY(buildIndex);
@@ -32,14 +32,14 @@ public:
 
     GETTER_ONLY(std::string, name)
     {
-        return ReflectionFields->_filePath.stem().string();
+        return ReflectFields->_filePath.stem().string();
     }
     //get : 이 씬의 이름을 반환합니다.
     PROPERTY(name);
 
     GETTER_ONLY(std::string, path)
     {
-        return ReflectionFields->_filePath.string();
+        return ReflectFields->_filePath.string();
     }
     //get : 이 씬 파일의 상대 경로를 반환합니다.
     PROPERTY(path);

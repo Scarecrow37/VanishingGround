@@ -31,7 +31,6 @@ void EditorLogsTool::OnFrame()
 
     if (ImGui::BeginPopup("FilterPopup"))
     {
-        engineCore->EngineLogger.LogMessagesClear();
         ShowFilter();
         ImGui::EndPopup();
     }

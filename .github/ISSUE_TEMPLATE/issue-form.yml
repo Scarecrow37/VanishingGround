@@ -1,0 +1,40 @@
+name: 자유 형식 이슈 생성
+description: 생성된 이슈는 Jira와 연동되며, branch가 자동으로 생성됩니다.
+title: "[TAG] 태그와 이슈 이름을 작성해주세요."
+body:
+  - type: input
+    id: parentKey
+    attributes:
+      label: 🎟️ 상위 에픽 (Ticket Number)
+      description: 상위 에픽의 Ticket Number를 기입해주세요
+      placeholder: VG-00
+    validations:
+      required: true
+
+  - type: input
+    id: branch
+    attributes:
+      label: 🌳 브랜치명 (Branch)
+      description: 영어로 브랜치명을 작성해주세요
+      placeholder: feature_
+    validations:
+      required: true
+      
+  - type: textarea
+    id: description
+    attributes:
+      label: 📎 설명 (Description)
+      description: 어떤 이슈인가요?
+    validations:
+      required: true
+
+  - type: textarea
+    id: subtasks
+    attributes:
+      label: ✅ 체크리스트(Subtasks)
+      description: 해당 기능에 대해 필요한 작업목록을 작성해주세요.
+      value: |
+        - [ ] Task1
+        - [ ] Task2
+    validations:
+      required: true

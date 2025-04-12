@@ -4,7 +4,7 @@
 class EngineCores
 {
 public:
-    EngineCores();
+    EngineCores(Application& app);
     ~EngineCores();
 
     ETimeSystem Time;
@@ -12,6 +12,7 @@ public:
     EGameObjectFactory GameObjectFactory;
     EComponentFactory ComponentFactory;
     EEngineLogger EngineLogger;
+    Application&  App;
 };
 
 //안전한 접근 및 DLL에서 엔진 코어를 접근하기 위한 Wrapper 구조체

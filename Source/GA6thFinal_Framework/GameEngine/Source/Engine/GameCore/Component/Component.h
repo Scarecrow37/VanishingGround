@@ -79,7 +79,7 @@ public:
 
     GETTER(bool, Enable)
     {
-        return ReflectionFields->_enable;
+        return ReflectFields->_enable;
     }
     SETTER(bool, Enable)
     {

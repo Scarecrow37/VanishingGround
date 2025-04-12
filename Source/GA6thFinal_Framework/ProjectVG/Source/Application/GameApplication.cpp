@@ -7,12 +7,14 @@
 #include "Source/EditorTools/EditorSceneView.h"
 #include "Source/EditorTools/EditorAssetBrowser.h"
 #include "Source/EditorTools/NodeEditor/EditorShaderGraph.h"
-#include "Source/TestEditor/ObjectTestEditor.h"
 #include "Source/EditorTools/EditorLogsTool/EditorLogsTool.h"
 
 #include "Source/EditorTools/EditorMenu/EditorProjectMenu.h"
 #include "Source/EditorTools/EditorMenu/EditorWindowMenu.h"
 #include "Source/EditorTools/EditorMenu/EditorSettingMenu.h"
+
+#include "Source/TestEditor/ObjectTestEditor.h"
+#include "Source/TestEditor/ReflectTestEditor.h"
 
 int APIENTRY wWinMain(
     _In_ HINSTANCE hInstance,
@@ -25,9 +27,9 @@ int APIENTRY wWinMain(
     UNREFERENCED_PARAMETER(lpCmdLine);
 
     GameApplication app;
-    app.Initialize(hInstance);
-    app.Run();
-    app.UnInitialize();
+    Application::MainEntry::Initialize(hInstance);
+    Application::MainEntry::Run();
+    Application::MainEntry::UnInitialize();
     return 0;
 }
 
@@ -53,6 +55,7 @@ GameApplication::GameApplication()
 
     //김시우 테스트용
     _editorManager->RegisterEditorObject<ObjectTestEditor>();
+    _editorManager->RegisterEditorObject<ReflectTestEditor>();
 
     //블루프린트 버그있음
     //_editorManager->RegisterEditorObject<EditorShaderGraph>();

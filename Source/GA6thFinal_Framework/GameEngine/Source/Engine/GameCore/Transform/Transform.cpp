@@ -106,18 +106,18 @@ bool Transform::IsDescendantOf(Transform* potentialAncestor) const
 
 void Transform::SerializedReflectEvent()
 {
-    std::memcpy(ReflectionFields->position.data(), & _position.x, sizeof(ReflectionFields->position));
-    std::memcpy(ReflectionFields->rotation.data(), &_rotation.x, sizeof(ReflectionFields->rotation));
-    std::memcpy(ReflectionFields->eulerAngle.data(), &_eulerAngle.x, sizeof(ReflectionFields->eulerAngle));
-    std::memcpy(ReflectionFields->scale.data(), &_scale.x, sizeof(ReflectionFields->scale));
+    std::memcpy(ReflectFields->position.data(), & _position.x, sizeof(ReflectFields->position));
+    std::memcpy(ReflectFields->rotation.data(), &_rotation.x, sizeof(ReflectFields->rotation));
+    std::memcpy(ReflectFields->eulerAngle.data(), &_eulerAngle.x, sizeof(ReflectFields->eulerAngle));
+    std::memcpy(ReflectFields->scale.data(), &_scale.x, sizeof(ReflectFields->scale));
 }
 
 void Transform::DeserializedReflectEvent()
 {
-    _position = Vector3(ReflectionFields->position.data());
-    _rotation = Quaternion(ReflectionFields->rotation.data());
-    _eulerAngle = Vector3(ReflectionFields->eulerAngle.data());
-    _scale = Vector3(ReflectionFields->scale.data());
+    _position = Vector3(ReflectFields->position.data());
+    _rotation = Quaternion(ReflectFields->rotation.data());
+    _eulerAngle = Vector3(ReflectFields->eulerAngle.data());
+    _scale = Vector3(ReflectFields->scale.data());
 
     _isDirty = true;
 }
@@ -157,3 +157,4 @@ Transform* Transform::Find(std::string_view name) const
     }
     return nullptr;
 }
+

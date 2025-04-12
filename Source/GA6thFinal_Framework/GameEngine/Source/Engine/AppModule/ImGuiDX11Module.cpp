@@ -45,7 +45,7 @@ void ImGuiDX11Module::ModuleInitialize()
         "Assets/Font Awesome 6 Free-Regular-400.ttf", 15.0f, &config, icons_ranges);
     io.Fonts->Build();
 
-    ImGui_ImplWin32_Init(Application::GetHwnd());
+    ImGui_ImplWin32_Init(Global::engineCore->App.GetHwnd());
     ImGui_ImplDX11_Init(device.Get(), device_context.Get());
 }
 
