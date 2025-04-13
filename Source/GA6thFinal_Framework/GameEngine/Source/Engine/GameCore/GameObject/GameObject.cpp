@@ -81,7 +81,6 @@ void GameObject::OnDrawInspectorView()
                 ImGui::Separator();
                 ImGui::Text(component->ClassName());
                 component->ImGuiDrawPropertys();
-                ImGui::SameLine();
                 if (ImGui::Button("Destroy Component"))
                 {
                     GameObject::Destroy(component.get());
