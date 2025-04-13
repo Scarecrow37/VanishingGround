@@ -190,11 +190,17 @@ void ESceneManager::Engine::DestroyObject(Component& component)
 void ESceneManager::Engine::DestroyObject(GameObject* gameObject)
 {
     auto& [set, vec] = engineCore->SceneManager._destroyObjectsQueue;
-    auto [iter, result] = set.insert(gameObject);
-    if (result)
-    {
-        vec.push_back(gameObject);
-    }
+
+   Transform::Foreach(
+        gameObject->transform, 
+        [&set, &vec](Transform* pTransform) 
+        {
+            auto [iter, result] = set.insert(&pTransform->gameObject);
+            if (result)
+            {
+                vec.push_back(&pTransform->gameObject);
+            }
+        });
 }
 
 void ESceneManager::Engine::DestroyObject(GameObject& gameObject)
