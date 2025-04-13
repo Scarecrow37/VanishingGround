@@ -4,9 +4,10 @@
 using namespace u8_literals;
 using namespace Global;
 
-static void TransformTreeNode(const Transform& node)
+static void TransformTreeNode(Transform& node)
 {
-    auto TreeDoubleClick = [&node]() {
+    auto TreeDoubleClickEvent = [&node]() 
+    {
         bool result = ImGui::IsMouseDoubleClicked(0) && ImGui::IsItemHovered();
         if (result)
         {
@@ -15,10 +16,58 @@ static void TransformTreeNode(const Transform& node)
         return result;
     };
 
+    auto TreeDragDropEvent = [&node]() 
+    {
+        static Transform* pDragNode = nullptr;
+        if (ImGui::BeginDragDropSource())
+        {
+            pDragNode = &node;
+            ImGui::SetDragDropPayload("Drag Node", &pDragNode, sizeof(Transform*));
+            ImGui::EndDragDropSource();
+        }
+
+        if (ImGui::BeginDragDropTarget())
+        {
+            if (const ImGuiPayload* payload =
+                    ImGui::AcceptDragDropPayload("Drag Node"))
+            {
+                pDragNode->SetParent(node);
+            }
+            ImGui::EndDragDropTarget();
+        }
+    };
+
+    auto TreeRightClickEvent = [&node]() 
+    {
+        if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
+            ImGui::OpenPopup("NodeContextMenu");
+
+        if (ImGui::BeginPopup("NodeContextMenu"))
+        {
+            if (ImGui::MenuItem("Set Root Object"))
+            {
+                node.SetParent(nullptr);
+            }
+            if (ImGui::MenuItem("Detach Children"))
+            {
+                node.DetachChildren();
+            }
+            if (ImGui::MenuItem("Destroy"))
+            {
+                GameObject::Destroy(node.gameObject);
+            }
+            ImGui::EndPopup();
+        }
+    };
+
     ImGui::PushID(&node);
     if (ImGui::TreeNodeEx(node.gameObject.ToString().data(),
                           ImGuiTreeNodeFlags_OpenOnArrow))
     {
+        TreeDoubleClickEvent();
+        TreeRightClickEvent();
+        TreeDragDropEvent();
+
         for (int i = 0; i < node.ChildCount; i++)
         {
             Transform* child = node.GetChild(i);
@@ -26,14 +75,14 @@ static void TransformTreeNode(const Transform& node)
             {
                 TransformTreeNode(*child); // 재귀 호출
             }      
-        }
-      
-        TreeDoubleClick();
+        }  
         ImGui::TreePop();
     }
     else
     {
-        TreeDoubleClick();
+        TreeDoubleClickEvent();
+        TreeRightClickEvent();
+        TreeDragDropEvent();
     }
     ImGui::PopID();
 }
