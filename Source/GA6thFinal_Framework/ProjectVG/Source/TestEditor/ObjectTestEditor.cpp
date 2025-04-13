@@ -164,6 +164,7 @@ void ObjectTestEditor::OnFrame()
         std::string name  = MakeCountName("Game Object");
         NewGameObject<GameObject>(name);
     }
+    ImGui::Separator();
 
     const auto& scenes = engineCore->SceneManager.GetBuildScenes();
     for (auto& [sceneName, scenes] : scenes)
@@ -172,7 +173,7 @@ void ObjectTestEditor::OnFrame()
             continue;
 
         std::string sName = sceneName;
-        if (ImGui::CollapsingHeader(sName.c_str()))
+        if (ImGui::CollapsingHeader(sName.c_str(), ImGuiTreeNodeFlags_::ImGuiTreeNodeFlags_DefaultOpen))
         {
             auto rootObjects = scenes.GetRootGameObjects();
             std::shared_ptr<GameObject> focusObject = HierarchyFocusObjWeak.lock();
