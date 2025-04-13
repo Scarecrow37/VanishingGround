@@ -402,8 +402,7 @@ void ESceneManager::ObjectsMatrixUpdate()
     static std::unordered_set<Transform*> updateCheckSet;
     for (auto& obj : _runtimeObjects)
     {
-        if (obj->transform._isDirty == true &&
-            IsRuntimeActive(obj))
+        if (IsRuntimeActive(obj) && obj->transform._isDirty == true)
         {
             updateStackVec.clear();
             updateCheckSet.clear();
