@@ -55,6 +55,7 @@ void EditorLogsTool::OnFrame()
             PrintLog(logMessages[i]);
         }
     }
+
     if (prevLogCount < logMessages.size())
     {
         ImGui::SetScrollHereY(1.0f);
