@@ -74,12 +74,37 @@ namespace LogLevel
 // 로그 함수를 호출한 파일 정보를 저장하기 위한 구조체 (source_location 깊은 복사 용)
 struct LogLocation
 {
+private:
+    // 중복 메모리 생성 방지용
+    inline static std::unordered_set<std::string>    fileInfoSet;
+    inline static std::unordered_set<std::string>    functionInfoSet;
+    inline static std::unordered_set<uint_least32_t> lineInfoSet;
+    inline static std::unordered_set<uint_least32_t> columnInfoSet;
+
+public:
+
     LogLocation(const std::source_location& location)
     {
-        _line     = location.line();
-        _column   = location.column();
-        _file     = location.file_name();
-        _function = location.function_name();
+        {
+            auto [iter, result] = lineInfoSet.insert(location.line());
+            const uint_least32_t& value = *iter;
+            _line                       = &value;
+        }
+        {
+            auto [iter, result] = columnInfoSet.insert(location.column());
+            const uint_least32_t& value = *iter;
+            _column                     = &value;
+        }
+        {
+            auto [iter, result]      = fileInfoSet.insert(location.file_name());
+            const std::string& value = *iter;
+            _file                    = &value;
+        }
+        {
+            auto [iter, result] = functionInfoSet.insert(location.function_name());
+            const std::string& value = *iter;
+            _function                = &value;         
+        }
     }
     LogLocation(const LogLocation& rhs) 
     { 
@@ -99,20 +124,20 @@ struct LogLocation
     }
 
     ~LogLocation() = default;
-    constexpr uint_least32_t         line() const noexcept { return _line; }
-    constexpr uint_least32_t         column() const noexcept { return _column; }
+    constexpr uint_least32_t         line() const noexcept { return *_line; }
+    constexpr uint_least32_t         column() const noexcept { return *_column; }
     _NODISCARD constexpr const char* file_name() const noexcept
     {
-        return _file.c_str();
+        return _file->c_str();
     }
     _NODISCARD constexpr const char* function_name() const noexcept
     {
-        return _function.c_str();
+        return _function->c_str();
     }
 
 private:
-    uint_least32_t _line{};
-    uint_least32_t _column{};
-    std::string    _file     = "";
-    std::string    _function = "";
+    const uint_least32_t* _line     = nullptr;
+    const uint_least32_t* _column   = nullptr;
+    const std::string*    _file     = nullptr;
+    const std::string*    _function = nullptr;
 };

@@ -11,39 +11,11 @@ class ESceneManager;
 struct Scene :
     public ReflectSerializer
 {
+    USING_PROPERTY(Scene)
     friend class ESceneManager;
     Scene() = default;
     ~Scene() = default;
 public:
-    USING_PROPERTY(Scene)
-    GETTER_ONLY(size_t, buildIndex)
-    {
-        return ReflectFields->_buildIndex;
-    }
-    //get : 빌드 설정에서의 Scene 인덱스를 반환합니다. 포함안된 씬들은 -1을 반환합니다.
-    PROPERTY(buildIndex);
-
-    GETTER_ONLY(bool, isLoaded)
-    {
-        return _isLoaded;
-    }
-    //get : 이 씬의 로드 여부를 반환합니다.
-    PROPERTY(isLoaded);
-
-    GETTER_ONLY(std::string, name)
-    {
-        return ReflectFields->_filePath.stem().string();
-    }
-    //get : 이 씬의 이름을 반환합니다.
-    PROPERTY(name);
-
-    GETTER_ONLY(std::string, path)
-    {
-        return ReflectFields->_filePath.string();
-    }
-    //get : 이 씬 파일의 상대 경로를 반환합니다.
-    PROPERTY(path);
-
     /// <summary>
     /// <para> 씬에 속한 Root GameObject들을 반환합니다. (자식 오브젝트는 포함하지 않습니다.)   </para>
     /// </summary>
@@ -66,6 +38,26 @@ public:
     {
         return (std::string)path == (std::string)other.path;
     }
+
+    GETTER_ONLY(size_t, buildIndex) { return ReflectFields->_buildIndex; }
+    // get : 빌드 설정에서의 Scene 인덱스를 반환합니다. 포함안된 씬들은 -1을
+    // 반환합니다.
+    PROPERTY(buildIndex)
+
+    GETTER_ONLY(bool, isLoaded) { return _isLoaded; }
+    // get : 이 씬의 로드 여부를 반환합니다.
+    PROPERTY(isLoaded)
+
+    GETTER_ONLY(std::string, name)
+    {
+        return ReflectFields->_filePath.stem().string();
+    }
+    // get : 이 씬의 이름을 반환합니다.
+    PROPERTY(name)
+
+    GETTER_ONLY(std::string, path) { return ReflectFields->_filePath.string(); }
+    // get : 이 씬 파일의 상대 경로를 반환합니다.
+    PROPERTY(path)
 private:
     //필터용 함수
     bool RootGameObjectsFilter(GameObject* obj) const;
@@ -173,6 +165,19 @@ public:
         static void DestroyObject(Component& component);
         static void DestroyObject(GameObject* gameObject);
         static void DestroyObject(GameObject& gameObject);
+
+        /// <summary>
+        /// 씬이 새로 로드되도 파괴되지 않는 오브젝트로 만듭니다.
+        /// </summary>
+        static void DontDestroyOnLoadObject(GameObject* gameObject);
+        static void DontDestroyOnLoadObject(GameObject& gameObject);
+
+        /// <summary>
+        /// 인스턴스 아이디에 해당하는 오브젝트의 weak_ptr을 반환합니다.
+        /// </summary>
+        /// <param name="instanceID :">대상 instanceID</param>
+        /// <returns>weak_ptr<GameObject></returns>
+        static std::weak_ptr<GameObject> GetRuntimeObjectWeakPtr(int instanceID);
     };
 
 public:
@@ -213,7 +218,7 @@ public:
     /// <summary>
     /// 씬을 생성합니다. 만든 씬은 로드되는게 아니라 buildScnes 항목에만 추가됩니다.
     /// </summary>
-    void CreateScene(std::string_view sceneName);
+    Scene& CreateScene(std::string_view sceneName);
 
     /// <summary>
     /// 씬을 로드합니다.

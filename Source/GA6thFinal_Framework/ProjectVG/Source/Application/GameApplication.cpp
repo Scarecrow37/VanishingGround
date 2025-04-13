@@ -14,7 +14,7 @@
 #include "Source/EditorTools/EditorMenu/EditorSettingMenu.h"
 
 #include "Source/TestEditor/ObjectTestEditor.h"
-#include "Source/TestEditor/ReflectTestEditor.h"
+#include "Source/TestEditor/ScriptTestEditor.h"
 
 int APIENTRY wWinMain(
     _In_ HINSTANCE hInstance,
@@ -55,7 +55,7 @@ GameApplication::GameApplication()
 
     //김시우 테스트용
     _editorManager->RegisterEditorObject<ObjectTestEditor>();
-    _editorManager->RegisterEditorObject<ReflectTestEditor>();
+    _editorManager->RegisterEditorObject<ScriptTestEditor>();
 
     //블루프린트 버그있음
     //_editorManager->RegisterEditorObject<EditorShaderGraph>();

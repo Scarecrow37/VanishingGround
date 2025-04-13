@@ -16,30 +16,30 @@ Transform::Transform(GameObject& owner)
 }
 Transform::~Transform()
 {
+    DetachChildren();
     EraseParent();
-    std::vector<Transform*> transformStack;
-    for (auto& transform : _childsList)
-    {
-        transformStack.push_back(transform);
-    }
-    this->DetachChildren();
-    while (!_childsList.empty())
-    {
-        Transform* currTr = transformStack.back();
-        transformStack.pop_back();
-        for (auto& transform : currTr->_childsList)
-        {
-            transformStack.push_back(transform);
-        }
-        currTr->DetachChildren();
-    }
 }
 
 void Transform::DetachChildren()
 {
     for (auto& child : _childsList)
     {
-        child->SetParent(nullptr);
+        bool isParent = child->_parent != nullptr;
+        if (isParent)
+        {
+            child->_root = nullptr;
+            child->_parent = nullptr;
+            SetChildsRootParent(this);
+        }
+    }
+    if (_childsList.empty() == false)
+    {
+        std::erase_if(
+            _childsList,
+            [](Transform* child)
+            { 
+                return child->_parent == nullptr;
+            }); 
     }
 }
 
@@ -51,7 +51,7 @@ void Transform::SetParent(Transform* p)
     }
     else //부모 관계 변경
     {
-        if (p == this || p == _parent || IsDescendantOf(this))
+        if (p == this || p == _parent || p->IsDescendantOf(this))
         {
             return;
         }
@@ -122,23 +122,16 @@ void Transform::DeserializedReflectEvent()
     _isDirty = true;
 }
 
-void Transform::SetChildsRootParent(Transform* _root)
+void Transform::SetChildsRootParent(Transform* root)
 {
-    std::vector<Transform*> transformStack;
-    for (auto& tr : _childsList)
+    for (auto& child : _childsList)
     {
-        transformStack.push_back(tr);
-    }
-    while (!transformStack.empty())
-    {
-        Transform* curr = transformStack.back();
-        transformStack.pop_back();
-
-        curr->_root = _root;
-        for (auto& tr : curr->_childsList)
-        {
-            transformStack.push_back(tr);
-        }
+        Transform::Foreach(
+            *child, 
+            [root](Transform* pTransform) 
+            { 
+                pTransform->_root = root; 
+            });
     }
 }
 

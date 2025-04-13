@@ -29,6 +29,15 @@ public:
         return Quaternion::CreateFromYawPitchRoll(degAngle * Mathf::Deg2Rad);
     }
 
+    /// <summary>
+    /// Tansform를 DFS로 자신 부터 모든 자식들을 순회하면서 함수를 호출해줍니다.
+    /// </summary>
+    /// <typeparam name="Func">실행할 함수</typeparam>
+    /// <param name="root :">DFS 시작할 루트</param>
+    /// <param name="func : 실행할 함수"></param>
+    template<typename Func>
+    inline static void Foreach(Transform& root, Func func);
+
 public:
     /// <summary>
     /// <para>
@@ -122,7 +131,7 @@ private:
     /// 대상의 모든 자식을 순회하면서 root를 변경합니다.
     /// </summary>
     /// <param name="target :">루트</param>
-    void SetChildsRootParent(Transform* Root);
+    void SetChildsRootParent(Transform* root);
 
     /// <summary>
     /// 모든 부모를 확인하면서 전달받은 Transform이 존재하는지 확인합니다.
@@ -138,7 +147,7 @@ protected:
     void DeserializedReflectEvent() override;
 
 public:
-    GETTER_ONLY(int, ChildCount) { return _childsList.size(); }
+    GETTER_ONLY(int, ChildCount) { return (int)_childsList.size(); }
     // https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Transform-childCount.html
     // get : 자식의 개수를 반환합니다.
     // return : int
@@ -224,3 +233,22 @@ private:
     Matrix _worldMatrix;
     Matrix _localMatrix;
 };
+
+template <typename Func>
+inline void Transform::Foreach(Transform& root, Func func)
+{
+    static std::vector<Transform*> trStack;
+    trStack.clear();
+
+    trStack.push_back(&root);
+    while (!trStack.empty())
+    {
+        Transform* currTr = trStack.back();
+        trStack.pop_back();
+        func(currTr);
+        for (auto& transform : currTr->_childsList)
+        {
+            trStack.push_back(transform);
+        }
+    }
+}

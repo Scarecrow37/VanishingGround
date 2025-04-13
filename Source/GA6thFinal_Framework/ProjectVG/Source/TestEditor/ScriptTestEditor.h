@@ -1,11 +1,11 @@
 ﻿#pragma once
 #include "UmFramework.h"
 
-class ReflectTestEditor : public EditorTool
+class ScriptTestEditor : public EditorTool
 {
 public:
-    ReflectTestEditor();
-    virtual ~ReflectTestEditor() override;
+    ScriptTestEditor();
+    virtual ~ScriptTestEditor() override;
 
     /* ImGui시스템이 초기화된 후 한번 호출 */
     virtual void OnStartGui() override;

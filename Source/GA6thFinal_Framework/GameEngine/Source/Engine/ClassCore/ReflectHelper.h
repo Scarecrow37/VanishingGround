@@ -38,18 +38,29 @@ public:
     } // REFLECT_FIELDS_END() 매크로를 통해 자동으로 override 됩니다.
 
     ReflectSerializer() = default;
-    virtual ~ReflectSerializer()
+    virtual ~ReflectSerializer() 
+    { 
+        FreeReflectFields();
+    }
+
+    ReflectSerializer(const ReflectSerializer& rhs) = delete;
+    ReflectSerializer& operator=(const ReflectSerializer& rhs) = delete;
+
+private:
+    void*              _reflectFields = nullptr;
+    unsigned long long _fieldsSize    = 0;
+
+private:
+    void FreeReflectFields()
     {
         if (_reflectFields != nullptr)
         {
             free(_reflectFields);
             _reflectFields = nullptr;
+            _fieldsSize    = 0;
         }
     }
 
-private:
-    void*              _reflectFields = nullptr;
-    unsigned long long _fieldsSize    = 0;
 #pragma region 매크로가 생성하는 가상함수들.
 protected:
     struct reflect_fields_struct
@@ -83,8 +94,7 @@ protected:
         rfl::Flatten<Base::reflect_fields_struct> Basefields{};
 
 #define REFLECT_FIELDS_END(CLASS)                                              \
-    }                                                                          \
-    ;                                                                          \
+    };                                                                         \
     struct reflection_safe_ptr                                                 \
     {                                                                          \
         reflection_safe_ptr(CLASS##* owner)                                    \
