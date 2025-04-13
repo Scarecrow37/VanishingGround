@@ -6,21 +6,34 @@ using namespace Global;
 
 static void TransformTreeNode(const Transform& node)
 {
+    auto TreeDoubleClick = [&node]() {
+        bool result = ImGui::IsMouseDoubleClicked(0) && ImGui::IsItemHovered();
+        if (result)
+        {
+            EditorInspectorView::SetFocusObject(node.gameObject.GetWeakPtr());
+        }
+        return result;
+    };
+
     ImGui::PushID(&node);
     if (ImGui::TreeNodeEx(node.gameObject.ToString().data(),
                           ImGuiTreeNodeFlags_OpenOnArrow))
     {
         for (int i = 0; i < node.ChildCount; i++)
         {
-            Transform& child = *node.GetChild(i);
-            TransformTreeNode(child); // 재귀 호출
+            Transform* child = node.GetChild(i);
+            if (child)
+            {
+                TransformTreeNode(*child); // 재귀 호출
+            }      
         }
+      
+        TreeDoubleClick();
         ImGui::TreePop();
     }
-    ImGui::SameLine();
-    if (ImGui::Button("Select Inspector"))
+    else
     {
-        EditorInspectorView::SetFocusObject(node.gameObject.GetWeakPtr());
+        TreeDoubleClick();
     }
     ImGui::PopID();
 }

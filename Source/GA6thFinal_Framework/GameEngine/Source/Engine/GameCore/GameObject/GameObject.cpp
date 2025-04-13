@@ -53,6 +53,8 @@ void GameObject::OnFocusInspectorView()
 
 void GameObject::OnDrawInspectorView() 
 {
+    using namespace u8_literals;
+
     static GameObject* selectObject = nullptr;
     ImGui::PushID(this);
     {
@@ -111,9 +113,8 @@ void GameObject::OnDrawInspectorView()
                     }
                 }
                 ImGui::EndChild();
-                if (ImGui::Button("Cancel") ||
-                    engineCore->ComponentFactory.GetNewComponentKeyList()
-                        .empty())
+
+                if (ImGui::Button("Cancel"))
                 {
                     ImGui::CloseCurrentPopup();
                 }
