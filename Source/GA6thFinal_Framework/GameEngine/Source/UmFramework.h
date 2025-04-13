@@ -93,7 +93,7 @@ constexpr bool IS_SCRIPTS_PROJECT = false;
 #include "Engine/EditorCore/EditorTool.h"
 #include "Engine/EditorCore/EditorMenuBar.h"
 #include "Engine/EditorCore/EditorDockSpace.h"
-#include "Engine/EditorCore/EditorManager.h"
+#include "Engine/EditorCore/EditorModule.h"
 
 //Game Core
 #include "Engine/GameCore/Transform/Transform.h"

@@ -90,16 +90,16 @@ void Application::Run()
         }
         else
         {
+            _filesystemModule->Update();
+
             ETimeSystem::Engine::TimeSystemUpdate();
             float deltaTime = engineCore->Time.deltaTime();
-
-            _filesystemModule->Update();
 
             _imguiDX11Module->ImguiBegin();
             {
                 if (Global::editorManager)
                 {
-                    Global::editorManager->OnDrawGui();
+                    Global::editorManager->Update();
                 }
                 ESceneManager::Engine::SceneUpdate();
 

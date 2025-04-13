@@ -5,7 +5,7 @@
 */
 class EditorTool : public EditorBase
 {
-    friend class EditorManager;
+    friend class EditorModule;
 public:
     EditorTool() = default;
     virtual ~EditorTool() = default;

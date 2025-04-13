@@ -1,11 +1,11 @@
 ﻿#include "pch.h"
-#include "EditorManager.h"
+#include "EditorModule.h"
 #include "EditorBase.h"
 #include "EditorMenuBar.h"
 
-EditorManager* Global::editorManager = nullptr;
+EditorModule* Global::editorManager = nullptr;
 
-EditorManager::EditorManager() 
+EditorModule::EditorModule() 
     : _isDebugMode(false)
 {
     Global::editorManager = this;
@@ -13,13 +13,13 @@ EditorManager::EditorManager()
     _mainDockSpace = new EditorDockSpace;
 }
 
-EditorManager::~EditorManager()
+EditorModule::~EditorModule()
 {
     delete _mainMenuBar;
     delete _mainDockSpace;
 }
 
-void EditorManager::ModuleInitialize()
+void EditorModule::ModuleInitialize()
 {
     //모듈 등록시 1회 호출
     SetGuiThemeStyle();
@@ -27,14 +27,14 @@ void EditorManager::ModuleInitialize()
     _mainDockSpace->OnStartGui();
 }
 
-void EditorManager::ModuleUnInitialize()
+void EditorModule::ModuleUnInitialize()
 { 
     //파괴 직전 함수 필요하면 추가
     _mainMenuBar->OnEndGui();
     _mainDockSpace->OnEndGui();
 }
 
-void EditorManager::OnDrawGui()
+void EditorModule::Update()
 {
     /* ========GUI Update======== */ 
     _mainMenuBar->OnDrawGui();
@@ -42,7 +42,7 @@ void EditorManager::OnDrawGui()
     /* =========================== */
 }
 
-void EditorManager::SetGuiThemeStyle()
+void EditorModule::SetGuiThemeStyle()
 {
     ImVec4 Colors[ImGuiCol_COUNT];
     auto& colors = ImGui::GetStyle().Colors;
