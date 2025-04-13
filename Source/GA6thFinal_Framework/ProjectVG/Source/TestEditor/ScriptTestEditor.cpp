@@ -1,27 +1,27 @@
-﻿#include "ReflectTestEditor.h"
+﻿#include "ScriptTestEditor.h"
 using namespace u8_literals;
 
-ReflectTestEditor::ReflectTestEditor() 
+ScriptTestEditor::ScriptTestEditor() 
 {
 
 }
 
-ReflectTestEditor::~ReflectTestEditor() 
+ScriptTestEditor::~ScriptTestEditor() 
 {
 
 }
 
-void ReflectTestEditor::OnStartGui() 
+void ScriptTestEditor::OnStartGui() 
 {
     SetLabel(u8"스크립트 만들기"_c_str);
 }
 
-void ReflectTestEditor::OnPreFrame() 
+void ScriptTestEditor::OnPreFrame() 
 {
 
 }
 
-void ReflectTestEditor::OnFrame() 
+void ScriptTestEditor::OnFrame() 
 {
     // 새 스크립트 파일 만들기 테스트용
     {
