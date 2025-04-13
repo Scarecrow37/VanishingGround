@@ -4,14 +4,16 @@
 using namespace u8_literals;
 using namespace Global;
 
-static void TransformTreeNode(Transform& node)
+static std::weak_ptr<GameObject> HierarchyFocusObjWeak;
+static void TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>& focusObject)
 {
     auto TreeDoubleClickEvent = [&node]() 
     {
         bool result = ImGui::IsMouseDoubleClicked(0) && ImGui::IsItemHovered();
         if (result)
         {
-            EditorInspectorView::SetFocusObject(node.gameObject.GetWeakPtr());
+            HierarchyFocusObjWeak = node.gameObject.GetWeakPtr();
+            EditorInspectorView::SetFocusObject(HierarchyFocusObjWeak);
         }
         return result;
     };
@@ -60,10 +62,38 @@ static void TransformTreeNode(Transform& node)
         }
     };
 
+    auto PushFocusStyle = [&node](GameObject* pFocusObject) 
+    {
+        if (&pFocusObject->transform == &node)
+        {           
+            ImGui::PushStyleColor(ImGuiCol_Text,
+                                  ImVec4(0.4f, 0.75f, 1.0f, 1.0f)); // 글자색
+            ImGui::PushStyleColor(ImGuiCol_HeaderHovered,
+                                  ImVec4(0.2f, 0.45f, 0.8f, 1.0f)); // 포커스시
+            ImGui::PushStyleColor(ImGuiCol_HeaderActive,
+                                  ImVec4(0.25f, 0.55f, 0.9f, 1.0f)); // 클릭시
+            return true;
+        }
+        return false;
+    };
+    auto PopFocusStyle = [&node](GameObject* pFocusObject) 
+    {
+        if (&pFocusObject->transform == &node)
+        {
+            ImGui::PopStyleColor(3);
+
+            return true;
+        }
+        return false;
+    };
+
+
     ImGui::PushID(&node);
+    PushFocusStyle(focusObject.get());
     if (ImGui::TreeNodeEx(node.gameObject.ToString().data(),
                           ImGuiTreeNodeFlags_OpenOnArrow))
     {
+        PopFocusStyle(focusObject.get());
         TreeDoubleClickEvent();
         TreeRightClickEvent();
         TreeDragDropEvent();
@@ -73,13 +103,14 @@ static void TransformTreeNode(Transform& node)
             Transform* child = node.GetChild(i);
             if (child)
             {
-                TransformTreeNode(*child); // 재귀 호출
+                TransformTreeNode(*child, focusObject);
             }      
         }  
         ImGui::TreePop();
     }
     else
     {
+        PopFocusStyle(focusObject.get());
         TreeDoubleClickEvent();
         TreeRightClickEvent();
         TreeDragDropEvent();
@@ -129,11 +160,12 @@ void ObjectTestEditor::OnFrame()
         if (ImGui::CollapsingHeader(sName.c_str()))
         {
             auto rootObjects = scenes.GetRootGameObjects();
+            std::shared_ptr<GameObject> focusObject = HierarchyFocusObjWeak.lock();
             for (auto& obj : rootObjects)
             {
                 ImGui::PushID(obj.get());
                 {      
-                    TransformTreeNode(obj->transform);
+                    TransformTreeNode(obj->transform, focusObject);
                 }
                 ImGui::PopID();
             }
