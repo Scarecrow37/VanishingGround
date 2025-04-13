@@ -126,7 +126,7 @@ void Transform::SetChildsRootParent(Transform* root)
 {
     for (auto& child : _childsList)
     {
-        Transform::ForEach(
+        Transform::Foreach(
             *child, 
             [root](Transform* pTransform) 
             { 

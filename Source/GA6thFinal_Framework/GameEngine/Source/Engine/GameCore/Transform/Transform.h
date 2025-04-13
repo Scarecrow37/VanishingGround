@@ -36,7 +36,7 @@ public:
     /// <param name="root :">DFS 시작할 루트</param>
     /// <param name="func : 실행할 함수"></param>
     template<typename Func>
-    inline static void ForEach(Transform& root, Func func);
+    inline static void Foreach(Transform& root, Func func);
 
 public:
     /// <summary>
@@ -235,7 +235,7 @@ private:
 };
 
 template <typename Func>
-inline void Transform::ForEach(Transform& root, Func func)
+inline void Transform::Foreach(Transform& root, Func func)
 {
     static std::vector<Transform*> trStack;
     trStack.clear();
