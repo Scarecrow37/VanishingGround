@@ -127,7 +127,7 @@ namespace File
         {
             if (false == wpContext.expired())
             {
-                IDMapper::RemovedFile(wpContext.lock()->GetPath());
+                FileSystem::RemovedFile(wpContext.lock()->GetPath());
             }
         }
     }
@@ -143,7 +143,7 @@ namespace File
                 auto        spContext      = wpContext.lock();
                 const Path& oldContextPath = spContext->GetPath();
                 const Path& newContextPath = _path / spContext->GetPath().filename();
-                IDMapper::MovedFile(oldContextPath, newContextPath);
+                FileSystem::MovedFile(oldContextPath, newContextPath);
             }
         }
     }
@@ -159,7 +159,7 @@ namespace File
                 auto        spContext      = wpContext.lock();
                 const Path& oldContextPath = spContext->GetPath();
                 const Path& newContextPath = _path / spContext->GetPath().filename();
-                IDMapper::MovedFile(oldContextPath, newContextPath);
+                FileSystem::MovedFile(oldContextPath, newContextPath);
             }
         }
     }

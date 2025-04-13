@@ -1,6 +1,5 @@
 ﻿#include "EditorAssetBrowser.h"
 #include "EditorInspectorView.h"
-#include "../FileSystem/Extra/FileContext.h"
 
 namespace fs = std::filesystem;
 
@@ -9,9 +8,9 @@ EditorAssetBrowser::EditorAssetBrowser()
     SetLabel("AssetBrowser");
     SetInitialDockSpaceArea(DockSpaceArea::DOWN);
 
-    mShowType = List;
     _selectedContext = std::make_shared<EditorFileObject>();
-    //mFocusFolderPath = Asset::System::GetRootAssetPath();
+
+    mShowType = List;
 }
 
 EditorAssetBrowser::~EditorAssetBrowser()
@@ -20,7 +19,7 @@ EditorAssetBrowser::~EditorAssetBrowser()
 
 void EditorAssetBrowser::OnStartGui()
 {
-    _focusForder = File::IDMapper::GetContext<File::ForderContext>(
+    _focusForder = File::FileSystem::GetContext<File::ForderContext>(
         Global::fileSystem->GetRootPath());
 }
 
@@ -58,10 +57,11 @@ void EditorAssetBrowser::ShowFolderHierarchy(const File::Path& folderPath)
         folderPath.filename().string() + "##" + folderPath.string();
 
     bool isOpen = ImGui::TreeNodeEx(id.c_str(), ImGuiTreeNodeFlags_OpenOnArrow);
+    
     if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
     {
         _focusForder =
-            File::IDMapper::GetContext<File::ForderContext>(folderPath);
+            File::FileSystem::GetContext<File::ForderContext>(folderPath);
     }
     if (isOpen)
     {
@@ -73,40 +73,7 @@ void EditorAssetBrowser::ShowFolderHierarchy(const File::Path& folderPath)
             }
         }
         ImGui::TreePop();
-    
     }
-    // auto wpForderContext =
-    //     File::IDMapper::GetContext<File::ForderContext>(folderPath);
-    // if (false == wpForderContext.expired())
-    //{
-    //     auto        spForderContext = wpForderContext.lock();
-    //     std::string id = spForderContext->GetPath().filename().string() +
-    //     "##" +
-    //                      spForderContext->GetPath().string();
-    //
-    //     bool isOpen = ImGui::TreeNodeEx(id.c_str(),
-    //     ImGuiTreeNodeFlags_OpenOnArrow);
-    //
-    //     if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
-    //     {
-    //         _focusForder = File::IDMapper::GetContext<File::ForderContext>(
-    //             spForderContext->GetPath());
-    //     }
-    //     if (isOpen)
-    //     {
-    //         for (auto itr = spForderContext->begin();
-    //              itr != spForderContext->end(); ++itr)
-    //         {
-    //             auto& [name, wpChildContext] = *itr;
-    //             if (false == wpChildContext.expired())
-    //             {
-    //                 auto spChildContext = wpChildContext.lock();
-    //                 spChildContext
-    //             }
-    //         }
-    //     }
-    //     ImGui::TreePop();
-    // }
 }
 
 // 오른쪽: 선택된 폴더의 파일 목록

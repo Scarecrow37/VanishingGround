@@ -151,6 +151,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Engine\FileSystem\FileSystemModule.h" />
     <ClInclude Include="Source\Engine\EditorCore\EditorTool.h" />
     <ClInclude Include="Source\Engine\EditorCore\EditorDockSpace.h" />
     <ClInclude Include="Source\Engine\AppModule\EngineCoresModule.h" />
@@ -200,6 +201,7 @@
     <ClInclude Include="Source\Engine\Utility\DumpUtility.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Engine\FileSystem\FileSystemModule.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\EditorTool.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\EditorDockSpace.cpp" />
     <ClCompile Include="Source\Engine\AppModule\EngineCoresModule.cpp" />

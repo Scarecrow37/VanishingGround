@@ -37,6 +37,7 @@ constexpr bool IS_SCRIPTS_PROJECT = false;
 #include <type_traits>
 #include <functional> 
 #include <unordered_map>
+#include <unordered_set>
 #include <source_location>
 #include <any>
 #include <typeinfo>
@@ -73,6 +74,10 @@ constexpr bool IS_SCRIPTS_PROJECT = false;
 //Application Core
 #include "Engine/AppModule/Interface/IAppModule.h"
 #include "Engine/ApplicationCore/Application.h"
+
+// FileSystem Module
+#include "../FileSystem/framework.h"
+#include "Engine/FileSystem/FileSystemModule.h"
 
 //Engine Core
 #include "Engine/EngineCore/EngineLogger.h"

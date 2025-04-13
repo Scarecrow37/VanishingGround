@@ -40,9 +40,9 @@ GameApplication::GameApplication()
     _clientSize = { 1920, 1080 };
     _windowName = L"Umreal Engine";
     
+
     //에디터 매니저 등록
     _editorManager = AddModule<EditorManager>();
-
 
     //추가할 에디터 작성
     /* Tool */

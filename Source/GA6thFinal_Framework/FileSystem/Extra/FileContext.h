@@ -53,6 +53,7 @@ namespace File
     public:
         inline virtual bool IsDirectory() override { return false; }
         inline virtual bool IsRegularFile() override { return true; }
+
     public:
 
         void SetEventProcessor(IFileEventProcesser* eventProcessor)
@@ -86,6 +87,7 @@ namespace File
     public:
         inline virtual bool IsDirectory() override { return true; }
         inline virtual bool IsRegularFile() override { return false; }
+
     public:
         virtual void OnFileAdded(const Path& path) override;
         virtual void OnFileModified(const Path& path) override;
@@ -93,14 +95,6 @@ namespace File
         virtual void OnFileRenamed(const Path& oldPath, const Path& newPath) override;
         virtual void OnFileMoved(const Path& oldPath, const Path& newPath) override;
 
-    public:
-
-    public:
-        /* 이름에 맞는 폴더를 생성합니다. */
-        bool CreateFolder(const Path& name);
-
-        /* 폴더, 파일을 삭제합니다. */
-        bool RemoveContext(const Path& name);
     public:
         std::unordered_map<FString, std::weak_ptr<Context>> _contextTable;
         auto begin() { return _contextTable.begin(); }

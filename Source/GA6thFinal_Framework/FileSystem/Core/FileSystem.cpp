@@ -4,107 +4,17 @@
 
 namespace File
 {
-    void FileSystem::Initialize() 
-    {
-        IDMapper::_ignoreExtTable.insert(MetaData::EXTENSION);
-
-        if (false == stdfs::is_directory(_rootPath))
-        {
-            OutputLog(L"System RootPath Is Not Directory");
-        }
-
-        ReadDiectory(_rootPath);
-
-        _observer = new FileObserver();
-        _observer->Start(_rootPath, [this](const FileEventData& event) {
-            RecieveFileEvents(event);
-        });
-    }
-    void FileSystem::DeInitialize() 
-    {
-        if (nullptr != _observer)
-        {
-            _observer->Stop();
-            delete _observer;
-            _observer = nullptr;
-        }
-    }
-    void FileSystem::Update()
-    {
-        ProcessEventQueue();
-    }
-    void FileSystem::ReadDiectory(const Path& path)
-    {
-        IDMapper::AddedFile(path);
-
-        if (true == stdfs::is_directory(path))
-        {
-            for (const auto& entry : stdfs::recursive_directory_iterator(path))
-            {
-                // 경로를 재네릭화
-                Path gPath = entry.path().generic_string();
-                if (true == IDMapper::IsVaildExtension(gPath.extension()))
-                {
-                    ReadDiectory(gPath);
-                }
-            }
-        }
-    }
-    void FileSystem::RecieveFileEvents(const FileEventData& data) 
-    {
-        std::lock_guard<std::mutex> lock(_mutex);
-        _eventQueue.push_back(data);
-    }
-    void FileSystem::ProcessEventQueue() 
-    {
-        std::lock_guard<std::mutex> lock(_mutex);
-
-        for (const FileEventData& event : _eventQueue)
-        {
-            const auto& [lParam, rParam, eventType] = event;
-
-            Path lp = (_rootPath / lParam).generic_string();
-            Path rp = (_rootPath / rParam).generic_string();
-
-            switch (eventType)
-            {
-            case EventType::ADDED:
-                IDMapper::AddedFile(lp);
-                break;
-            case EventType::REMOVED:
-                IDMapper::RemovedFile(lp);
-                break;
-            case EventType::MODIFIED:
-                IDMapper::ModifiedFile(lp);
-                break;
-            case EventType::RENAMED:
-                IDMapper::MovedFile(lp, rp);
-                break;
-            case EventType::MOVED:
-                IDMapper::MovedFile(lp, rp);
-                break;
-            default:
-                break;
-            }
-        }
-
-        _eventQueue.clear();
-    }
-
-    const Path& FileSystem::GetRootPath() const
-    {
-        return _rootPath;
-    }
-
-    bool IDMapper::IsVaildGuid(const File::Guid& guid)
+    bool FileSystem::IsVaildGuid(const File::Guid& guid)
     {
         return _guidToPathTable.find(guid) != _guidToPathTable.end();
     }
-    bool IDMapper::IsVaildExtension(const File::Path& path)
+
+    bool FileSystem::IsValidExtension(const File::FString& ext)
     {
-        return _ignoreExtTable.find(path) == _ignoreExtTable.end();
+        return (ext == "") || (_notifierTable.find(ext) != _notifierTable.end());
     }
-    const File::Path& IDMapper::GetPathFromGuid(const File::Guid& guid)
+
+    const File::Path& FileSystem::GetPathFromGuid(const File::Guid& guid)
     {
         auto wpContext = GetContext(guid);
         if (false == wpContext.expired())
@@ -113,7 +23,7 @@ namespace File
         }
         return "";
     }
-    const File::Guid& IDMapper::GetGuidFromPath(const File::Path& path)
+    const File::Guid& FileSystem::GetGuidFromPath(const File::Path& path)
     {
         auto wpContext = GetContext(path);
         if (false == wpContext.expired())
@@ -123,7 +33,7 @@ namespace File
         }
         return NULL_GUID;
     }
-    std::weak_ptr<Context> IDMapper::GetContext(const File::Guid& guid)
+    std::weak_ptr<Context> FileSystem::GetContext(const File::Guid& guid)
     {
         auto itr = _guidToPathTable.find(guid);
         if (itr != _guidToPathTable.end())
@@ -136,7 +46,7 @@ namespace File
         }
         
     }
-    std::weak_ptr<Context> IDMapper::GetContext(const File::Path& path)
+    std::weak_ptr<Context> FileSystem::GetContext(const File::Path& path)
     {
         auto itr = _pathToGuidTable.find(path);
         if (itr != _pathToGuidTable.end())
@@ -149,20 +59,76 @@ namespace File
         }
     }
 
-    void IDMapper::Clear() 
+    std::unordered_set<File::FileEventNotifier*> FileSystem::GetNotifiers(
+        const File::FString& ext)
+    {
+        auto itr = _notifierTable.find(ext);
+        if (itr != _notifierTable.end())
+        {
+            return itr->second;
+        }
+        return std::unordered_set<File::FileEventNotifier*>();
+    }
+
+    void FileSystem::RegisterFileEventNotifier(FileEventNotifier* notifier) 
+    {
+        const std::vector<FString> exts = notifier->GetTriggerExtensions();
+        for (const auto& ext : exts)
+        {
+            _notifierTable[ext].insert(notifier);
+        }
+    }
+
+    void FileSystem::UnRegisterFileEventNotifier(FileEventNotifier* notifier) 
+    {
+        const std::vector<FString> exts = notifier->GetTriggerExtensions();
+
+         for (const auto& ext : exts)
+        {
+             auto itr = _notifierTable.find(ext);
+            if (itr != _notifierTable.end())
+            {
+                auto& notifierSet = itr->second;
+                notifierSet.erase(notifier);
+                if (notifierSet.empty())
+                {
+                    _notifierTable.erase(itr);
+                }
+            }
+        }
+    }
+
+    void FileSystem::Clear() 
     {        
         _pathToGuidTable.clear();
         _guidToPathTable.clear();
         _contextTable.clear();
+        _notifierTable.clear();
     }
 
-    void IDMapper::AddedFile(const File::Path& path) 
+    void FileSystem::ReadDirectory(const File::Path& path) 
+    {
+        File::FileSystem::AddedFile(path);
+
+        if (true == std::filesystem::is_directory(path))
+        {
+            for (const auto& entry :
+                 std::filesystem::recursive_directory_iterator(path))
+            {
+                // 경로를 재네릭화
+                File::Path genericPath = entry.path().generic_string();
+                if (true == IsValidExtension(genericPath.extension()))
+                {
+                    ReadDirectory(genericPath);
+                }
+            }
+        }
+    }
+
+    void FileSystem::AddedFile(const File::Path& path) 
     {
         // 파일이 없으면 return
         if (false == stdfs::exists(path))
-            return;
-        // 유효한 확장자가 아니면 return
-        if (false == IsVaildExtension(path.extension()))
             return;
 
         auto find = GetContext(path);
@@ -186,7 +152,7 @@ namespace File
 
             // 부모 폴더에서 자신을 추가한다.
             File::Path parentPath = path.parent_path().generic_string();
-            auto parentContext = IDMapper::GetContext<ForderContext>(parentPath);
+            auto parentContext = FileSystem::GetContext<ForderContext>(parentPath);
             if (false == parentContext.expired())
             {
                 parentContext.lock()->_contextTable[path.filename()] = context;
@@ -203,7 +169,7 @@ namespace File
         }
     }
 
-    void IDMapper::RemovedFile(const File::Path& path) 
+    void FileSystem::RemovedFile(const File::Path& path) 
     {
         auto wpContext = GetContext(path);
         if (false == wpContext.expired())
@@ -220,7 +186,7 @@ namespace File
 
             // 부모 폴더에서 자신을 제거한다.
             File::Path parentPath = path.parent_path().generic_string();
-            auto wpForderContext = IDMapper::GetContext<ForderContext>(parentPath);
+            auto wpForderContext = FileSystem::GetContext<ForderContext>(parentPath);
             if (false == wpForderContext.expired())
             {
                 wpForderContext.lock()->_contextTable.erase(path.filename());
@@ -228,7 +194,7 @@ namespace File
         }
     }
 
-    void IDMapper::ModifiedFile(const File::Path& path)
+    void FileSystem::ModifiedFile(const File::Path& path)
     {
         auto wpContext = GetContext(path);
         if (false == wpContext.expired())
@@ -237,7 +203,7 @@ namespace File
         }
     }
 
-    void IDMapper::MovedFile(const File::Path& oldPath,
+    void FileSystem::MovedFile(const File::Path& oldPath,
                                 const File::Path& newPath) 
     {
         // 이전 경로에서 컨텍스트를 찾아 새 경로로 옮기기
@@ -264,9 +230,9 @@ namespace File
             File::Path newForderPath = newPath.parent_path().generic_string();
 
             auto oldForderContext =
-                IDMapper::GetContext<ForderContext>(oldForderPath);
+                FileSystem::GetContext<ForderContext>(oldForderPath);
             auto newForderContext =
-                IDMapper::GetContext<ForderContext>(newForderPath);
+                FileSystem::GetContext<ForderContext>(newForderPath);
 
             if (false == oldForderContext.expired() && false == newForderContext.expired())
             {

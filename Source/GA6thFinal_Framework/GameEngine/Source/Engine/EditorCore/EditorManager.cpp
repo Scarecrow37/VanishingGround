@@ -4,12 +4,11 @@
 #include "EditorMenuBar.h"
 
 EditorManager* Global::editorManager = nullptr;
-File::FileSystem* Global::fileSystem = nullptr;
 
-EditorManager::EditorManager()
+EditorManager::EditorManager() 
+    : _isDebugMode(false)
 {
     Global::editorManager = this;
-    Global::fileSystem    = new File::FileSystem;
     _mainMenuBar = new EditorMenuBar;
     _mainDockSpace = new EditorDockSpace;
 }
@@ -26,8 +25,6 @@ void EditorManager::ModuleInitialize()
     SetGuiThemeStyle();
     _mainMenuBar->OnStartGui();
     _mainDockSpace->OnStartGui();
-
-    Global::fileSystem->Initialize();
 }
 
 void EditorManager::ModuleUnInitialize()
@@ -39,7 +36,6 @@ void EditorManager::ModuleUnInitialize()
 
 void EditorManager::OnDrawGui()
 {
-    Global::fileSystem->Update();
     /* ========GUI Update======== */ 
     _mainMenuBar->OnDrawGui();
     _mainDockSpace->OnDrawGui();

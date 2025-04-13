@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "Application.h"
+
 using namespace Global;
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -46,8 +47,10 @@ Application::Application()
 
     //필수 모듈들
     AddModule<EngineCoresModule>();
+
     _graphicsModule = AddModule<GraphicsModule>();
     _imguiDX11Module = AddModule<ImGuiDX11Module>();
+    _filesystemModule = AddModule<FileSystemModule>();
 }
 
 void Application::Initialize(HINSTANCE hInstance)
@@ -89,6 +92,8 @@ void Application::Run()
         {
             ETimeSystem::Engine::TimeSystemUpdate();
             float deltaTime = engineCore->Time.deltaTime();
+
+            _filesystemModule->Update();
 
             _imguiDX11Module->ImguiBegin();
             {

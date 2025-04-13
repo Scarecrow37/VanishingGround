@@ -1,16 +1,13 @@
 ﻿#pragma once
-#include "../FileSystem/framework.h"
 
 class EditorTool;
 class EditorManager;
 class EditorMenuBar;
 
-class File::FileSystem;
 #ifndef SCRIPTS_PROJECT
 namespace Global
 {
     extern EditorManager* editorManager;
-    extern File::FileSystem* fileSystem;
 }
 
 #endif

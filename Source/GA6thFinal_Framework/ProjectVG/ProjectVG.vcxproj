@@ -141,6 +141,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ProjectReference Include="..\FileSystem\FileSystem.vcxproj">
+      <Project>{ae54bba5-ecd5-4665-bfd1-f654aa0af719}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\GameEngine\GameEngine.vcxproj">
       <Project>{84fd41b3-de6f-4849-b1f4-6ea34a891299}</Project>
     </ProjectReference>

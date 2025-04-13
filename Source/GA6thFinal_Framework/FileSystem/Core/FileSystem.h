@@ -2,6 +2,7 @@
 
 namespace File
 {
+    class FileEventNotifier;
     class FileObserver;
     class Context;
     class FileContext;
@@ -9,56 +10,13 @@ namespace File
 
     class FileSystem
     {
+         using NotifierSet = std::unordered_set<File::FileEventNotifier*>;
     public:
-        FileSystem()                                = default;
-        ~FileSystem()                               = default;
-        FileSystem(const FileSystem&)               = delete;
-        FileSystem& operator=(const FileSystem&)    = delete;
-        FileSystem(FileSystem&&)                    = delete;
-        FileSystem& operator=(FileSystem&&)         = delete;
-
-    public:
-        void Initialize();
-        void DeInitialize();
-
-    public:
-        void Update();
-
-    public:
-        /* 폴더를 순회하며 파일 탐색 */
-        void ReadDiectory(const Path& path);
-
-    public:
-        /* 파일 이벤트를 받아옴 */
-        void RecieveFileEvents(const FileEventData& data);
-
-        /* 파일 이벤트 처리 */
-        void ProcessEventQueue(); 
-
-        /* Root 패스 반환 */
-        const Path& GetRootPath() const;
-
-    private:
-        const Path _rootPath = "Assets";
-
-        FileObserver* _observer; // 파일 디렉터리 이벤트를 감시하는 옵저버.
-
-        std::mutex _mutex;
-        std::vector<FileEventData> _eventQueue; // 이벤트 큐
-    };
-
-    class IDMapper
-    {
-        friend class FileSystem;
-    public:
-        static bool              IsVaildGuid(const File::Guid& guid);
-        static bool              IsVaildExtension(const File::Path& path);
+        static bool IsVaildGuid(const File::Guid& guid);
+        static bool IsValidExtension(const File::FString& ext);
 
         static const File::Path& GetPathFromGuid(const File::Guid& guid);
         static const File::Guid& GetGuidFromPath(const File::Path& path);
-
-        static std::weak_ptr<Context> GetContext(const File::Guid& guid);
-        static std::weak_ptr<Context> GetContext(const File::Path& path);
 
         template <typename T>
         static std::weak_ptr<T> GetContext(const File::Guid& guid)
@@ -81,6 +39,8 @@ namespace File
             }
             return std::weak_ptr<T>();
         }
+        static std::weak_ptr<Context> GetContext(const File::Guid& guid);
+
         template <typename T>
         static std::weak_ptr<T> GetContext(const File::Path& path)
         {
@@ -100,20 +60,27 @@ namespace File
             }
             return std::weak_ptr<T>();
         }
+        static std::weak_ptr<Context> GetContext(const File::Path& path);
+
+        static NotifierSet GetNotifiers(const File::FString& ext);
+    public:
+        static void RegisterFileEventNotifier(FileEventNotifier* notifier);
+        static void UnRegisterFileEventNotifier(FileEventNotifier* notifier);
 
     public:
         static void Clear();
+        static void ReadDirectory(const File::Path& path);
         static void AddedFile(const File::Path& path);
         static void RemovedFile(const File::Path& path);
         static void ModifiedFile(const File::Path& path);
         static void MovedFile(const File::Path& oldPath, const File::Path& newPath);
 
     private:
+        inline static std::unordered_set<std::shared_ptr<Context>> _contextTable; // 원본 컨텍스트 포인터를 관리하는 테이블
+        
         inline static std::unordered_map<File::Path, std::weak_ptr<Context>> _pathToGuidTable; // 파일 경로를 통해 ID를 찾는 테이블
         inline static std::unordered_map<File::Guid, std::weak_ptr<Context>> _guidToPathTable; // ID를 통해 파일 경로를 찾는 테이블
-
-        inline static std::unordered_set<std::shared_ptr<Context>> _contextTable; // 원본 포인터를 관리하는 테이블
-
-        inline static std::unordered_set<FString> _ignoreExtTable; // 무시할 확장자 테이블
+    
+        inline static std::unordered_map<FString, NotifierSet> _notifierTable;
     };
 } // namespace File

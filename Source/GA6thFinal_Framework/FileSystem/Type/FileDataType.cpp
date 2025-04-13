@@ -9,7 +9,7 @@ namespace File
     }
     File::Path Guid::ToPath() const
     {
-        return IDMapper::GetPathFromGuid(native());
+        return FileSystem::GetPathFromGuid(native());
     }
     Path::operator File::Guid() const
     {
@@ -29,7 +29,7 @@ namespace File
 
     File::Guid Path::ToGuid() const
     {
-        return IDMapper::GetGuidFromPath(native());
+        return FileSystem::GetGuidFromPath(native());
     }
     bool MetaData::Create(const Path& path)
     {

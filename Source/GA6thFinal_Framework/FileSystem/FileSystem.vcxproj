@@ -148,6 +148,7 @@
     <ClInclude Include="Core\FileObserver.h" />
     <ClInclude Include="Core\FileSystem.h" />
     <ClInclude Include="Extra\FileContext.h" />
+    <ClInclude Include="Extra\FileEventNotifier.h" />
     <ClInclude Include="Type\FileDataType.h" />
     <ClInclude Include="Extra\FileEventProcesser.h" />
     <ClInclude Include="FileHelper.h" />
@@ -158,6 +159,7 @@
     <ClCompile Include="Core\FileObserver.cpp" />
     <ClCompile Include="Core\FileSystem.cpp" />
     <ClCompile Include="Extra\FileContext.cpp" />
+    <ClCompile Include="Extra\FileEventNotifier.cpp" />
     <ClCompile Include="Type\FileDataType.cpp" />
     <ClCompile Include="Extra\FileEventProcesser.cpp" />
     <ClCompile Include="FileHelper.cpp" />

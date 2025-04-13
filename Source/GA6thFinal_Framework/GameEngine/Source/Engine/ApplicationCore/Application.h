@@ -6,7 +6,7 @@
 struct MessageHandler
 {
     friend class Application;
-    using Handle =
+    using Handle = 
         std::function<bool(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)>;
     MessageHandler(const Handle& handle, long messageOrder)
         : _handle(handle), _messageOrder(messageOrder)
@@ -100,8 +100,9 @@ private:
     void UnInitModules();
 
 private:
-    class ImGuiDX11Module* _imguiDX11Module = nullptr;
-    class GraphicsModule*  _graphicsModule  = nullptr;
+    class ImGuiDX11Module*  _imguiDX11Module = nullptr;
+    class GraphicsModule*   _graphicsModule  = nullptr;
+    class FileSystemModule* _filesystemModule = nullptr;
 
 protected:
     /// <summary>
