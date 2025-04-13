@@ -46,9 +46,14 @@ void EditorLogsTool::OnFrame()
     
     ImGui::BeginChild("LogScroll", ImGui::GetContentRegionAvail(), true, ImGuiWindowFlags_HorizontalScrollbar);
     const auto& logMessages = engineCore->EngineLogger.GetLogMessages();
-    for (const auto& log : logMessages)
+    ImGuiListClipper clipper;
+    clipper.Begin(static_cast<int>(logMessages.size()));
+    while (clipper.Step())
     {
-        PrintLog(log);
+        for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; ++i)
+        {
+            PrintLog(logMessages[i]);
+        }
     }
     if (prevLogCount < logMessages.size())
     {
