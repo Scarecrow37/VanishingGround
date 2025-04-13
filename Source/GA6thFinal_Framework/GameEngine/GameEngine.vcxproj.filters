@@ -141,9 +141,6 @@
     <ClInclude Include="Source\Engine\EditorCore\EditorEnum.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\EditorCore\EditorModule.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\EditorCore\EditorMenuBar.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -163,6 +160,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\FileSystem\FileSystemModule.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\EditorCore\EditorModule.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -266,9 +266,6 @@
     <ClCompile Include="Source\Engine\EditorCore\EditorEnum.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\EditorCore\EditorModule.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\EditorCore\EditorMenuBar.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -285,6 +282,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\FileSystem\FileSystemModule.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\EditorCore\EditorModule.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

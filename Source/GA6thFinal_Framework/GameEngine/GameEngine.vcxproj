@@ -164,7 +164,7 @@
     <ClInclude Include="Source\Engine\EditorCore\EditorBase.h" />
     <ClInclude Include="Source\Engine\EditorCore\EditorEnum.h" />
     <ClInclude Include="Source\Engine\EditorCore\EditorMenuBar.h" />
-    <ClInclude Include="Source\Engine\EditorCore\EditorManager.h" />
+    <ClInclude Include="Source\Engine\EditorCore\EditorModule.h" />
     <ClInclude Include="Source\Engine\EngineCore\ComponentFactory.h" />
     <ClInclude Include="Source\Engine\EngineCore\EngineCores.h" />
     <ClInclude Include="Source\Engine\EngineCore\EngineLogger.h" />
@@ -210,7 +210,7 @@
     <ClCompile Include="Source\Engine\EditorCore\EditorBase.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\EditorEnum.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\EditorMenuBar.cpp" />
-    <ClCompile Include="Source\Engine\EditorCore\EditorManager.cpp" />
+    <ClCompile Include="Source\Engine\EditorCore\EditorModule.cpp" />
     <ClCompile Include="Source\Engine\EngineCore\ComponentFactory.cpp" />
     <ClCompile Include="Source\Engine\EngineCore\EngineCores.cpp" />
     <ClCompile Include="Source\Engine\EngineCore\EngineLogger.cpp" />
