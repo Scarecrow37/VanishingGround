@@ -138,6 +138,19 @@ void ObjectTestEditor::OnPreFrame()
 
 }
 
+static std::string MakeCountName(std::string_view baseName)
+{
+    size_t                    count   = 0;
+    std::string               name    = baseName.data();
+    std::weak_ptr<GameObject> pObject = GameObject::Find(name);
+    while (pObject.expired() == false)
+    {
+        name    = std::format("{} ({})", baseName.data(), count++);
+        pObject = GameObject::Find(name);
+    }
+    return name;
+}
+
 void ObjectTestEditor::OnFrame()
 {
     if (ImGui::Button(u8"Empty Scene Load"_c_str))
@@ -147,7 +160,9 @@ void ObjectTestEditor::OnFrame()
 
     if (ImGui::Button(u8"오브젝트 만들기"_c_str))
     {
-        NewGameObject<GameObject>("Game Object");
+        int count = 0;
+        std::string name  = MakeCountName("Game Object");
+        NewGameObject<GameObject>(name);
     }
 
     const auto& scenes = engineCore->SceneManager.GetBuildScenes();
