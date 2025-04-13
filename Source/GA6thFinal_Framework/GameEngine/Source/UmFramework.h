@@ -37,6 +37,7 @@ constexpr bool IS_SCRIPTS_PROJECT = false;
 #include <type_traits>
 #include <functional> 
 #include <unordered_map>
+#include <unordered_set>
 #include <source_location>
 #include <any>
 #include <typeinfo>
