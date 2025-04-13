@@ -51,7 +51,7 @@ void Transform::SetParent(Transform* p)
     }
     else //부모 관계 변경
     {
-        if (p == this || p == _parent || IsDescendantOf(this))
+        if (p == this || p == _parent || p->IsDescendantOf(this))
         {
             return;
         }
