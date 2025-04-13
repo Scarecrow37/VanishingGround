@@ -1,0 +1,65 @@
+name: 기능 요청
+description: 필요한 기능을 요청합니다. 생성된 이슈는 Jira와 연동되며, branch가 자동으로 생성됩니다.
+title: "[FEATURE] 이슈 이름을 작성해주세요."
+labels: ["enhancement"]
+body:
+  - type: input
+    id: parentKey
+    attributes:
+      label: 🎟️ 상위 에픽 (Ticket Number)
+      description: 상위 에픽의 Ticket Number를 기입해주세요
+      placeholder: VG-00
+    validations:
+      required: true
+
+  - type: input
+    id: branch
+    attributes:
+      label: 🌳 브랜치명 (Branch)
+      description: 영어로 브랜치명을 작성해주세요
+      placeholder: feature_
+    validations:
+      required: true
+      
+  - type: input
+    id: purpose
+    attributes:
+      label: 📢 이유 (Purpose)
+      description: 이 기능이 필요한 이유를 작성해주세요.
+    validations:
+      required: true
+      
+  - type: input
+    id: goal
+    attributes:
+      label: 🎯 목표 (Goal)
+      description: 이 기능이 어떠한 동작을 하면 좋을지 작성해주세요.
+    validations:
+      required: true
+      
+  - type: input
+    id: idea
+    attributes:
+      label: 💡 방법 (Idea)
+      description: 이 기능을 만들기 위한 방법을 고려해본 적 있다면 작성해주세요.
+    validations:
+      required: false
+      
+  - type: input
+    id: additional
+    attributes:
+      label: 📝 추가 사항 (Additional)
+      description: 기능 요청에 대한 추가 사항이 존재하면 작성해주세요.
+    validations:
+      required: false
+
+  - type: textarea
+    id: subtasks
+    attributes:
+      label: ✅ 체크리스트(Subtasks)
+      description: 해당 기능에 대해 필요한 작업목록을 작성해주세요.
+      value: |
+        - [ ] Task1
+        - [ ] Task2
+    validations:
+      required: true
