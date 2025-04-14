@@ -155,6 +155,7 @@
     <ClInclude Include="Source\EditorTools\EditorMenu\EditorProjectMenu.h" />
     <ClInclude Include="Source\EditorTools\EditorAssetBrowser.h" />
     <ClInclude Include="Source\EditorTools\EditorLogsTool\EditorLogsTool.h" />
+    <ClInclude Include="Source\EditorTools\EditorMenu\EditorSceneMenu.h" />
     <ClInclude Include="Source\EditorTools\EditorMenu\EditorSettingMenu.h" />
     <ClInclude Include="Source\EditorTools\EditorMenu\EditorWindowMenu.h" />
     <ClInclude Include="Source\Application\GameApplication.h" />
@@ -174,6 +175,7 @@
     <ClCompile Include="Source\EditorTools\EditorMenu\EditorProjectMenu.cpp" />
     <ClCompile Include="Source\EditorTools\EditorAssetBrowser.cpp" />
     <ClCompile Include="Source\EditorTools\EditorLogsTool\EditorLogsTool.cpp" />
+    <ClCompile Include="Source\EditorTools\EditorMenu\EditorSceneMenu.cpp" />
     <ClCompile Include="Source\EditorTools\EditorMenu\EditorSettingMenu.cpp" />
     <ClCompile Include="Source\EditorTools\EditorMenu\EditorWindowMenu.cpp" />
     <ClCompile Include="Source\Application\GameApplication.cpp" />

@@ -72,16 +72,39 @@ void ESceneManager::Engine::SetGameObjectActive(int instanceID, bool value)
             //컴포넌트들의 On__able 함수를 호출하도록 합니다.
             auto& [WaitSet, WaitVec, WaitValue] = value ? Global::engineCore->SceneManager._onEnableQueue : Global::engineCore->SceneManager._onDisableQueue;
             WaitValue.emplace_back(&gameObject->ReflectFields->_activeSelf);
-            for (auto& component : gameObject->_components)
+                           
+            if (value == true)
             {
-                if (component->_initFlags.IsAwake() && component->ReflectFields->_enable)
+                gameObject->ReflectFields->_activeSelf = true; //ActiveInHierarchy 검증용                        
+            }
+
+            Transform::Foreach(gameObject->transform, 
+            [&](Transform* curr) 
+            {
+                if (curr->gameObject.ActiveInHierarchy == true)
                 {
-                    auto [iter, result] = WaitSet.insert(component.get());
-                    if (result)
+                    for (auto& component : curr->gameObject._components)
                     {
-                        WaitVec.emplace_back(component.get());
+                        if (component->_initFlags.IsAwake()   == true &&
+                            component->ReflectFields->_enable == true)
+                        {
+
+                            {
+                                auto [iter, result] =
+                                    WaitSet.insert(component.get());
+                                if (result)
+                                {
+                                    WaitVec.emplace_back(component.get());
+                                }
+                            }
+                        }
                     }
-                }
+                }                   
+            });  
+
+            if (value == true)
+            {
+                gameObject->ReflectFields->_activeSelf = false; //ActiveInHierarchy 검증용
             }
         }
     }
@@ -94,7 +117,7 @@ void ESceneManager::Engine::SetComponentEnable(Component* component, bool value)
         //컴포넌트의 On__able 함수를 호출하도록 합니다.
         auto& [WaitSet, WaitVec, WaitValue] = value ? engineCore->SceneManager._onEnableQueue : engineCore->SceneManager._onDisableQueue;
         WaitValue.emplace_back(&component->ReflectFields->_enable);
-        if (component->gameObect->ReflectFields->_activeSelf)
+        if (component->gameObect->ActiveInHierarchy == true)
         {
             auto [iter, result] = WaitSet.insert(component);
             if (result)
