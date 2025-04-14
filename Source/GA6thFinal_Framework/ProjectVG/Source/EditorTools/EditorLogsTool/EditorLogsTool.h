@@ -18,8 +18,11 @@ protected:
     /* ImGui가 초기화된 후 한번 호출 */
     virtual void OnStartGui() override;
 
+    /*반드시 호출*/
+    virtual void OnTickGui() override;
+
     /* Begin 호출 전에 항상 호출 (Begin성공 유무 상관 X) */
-    virtual void OnPreFrame() override {};
+    virtual void OnPreFrame() override;
 
     /* Begin 호출 성공 시 호출 */
     virtual void OnFrame() override;
@@ -32,6 +35,12 @@ private:
     void PrintLog(const std::tuple<int, std::string, LogLocation>& log);
     void ShowFilter();
 
+private:
+    size_t prevLogCount = 0;
+    bool   _isMessagePush     = false;
+    bool   _editFilter  = false;
+    std::vector<std::tuple<int, std::string, LogLocation>> _drawLogList;
+private:
     std::unordered_map<int, ImVec4> LogColorTable;
     std::unordered_map<int, bool> LogFilterTable;
 };

@@ -29,6 +29,7 @@ protected:
     virtual void OnEnable() override;
     virtual void OnDisable() override;
     virtual void Update() override;
+    virtual void FixedUpdate() override;
     virtual void OnDestroy() override;
     virtual void OnApplicationQuit() override;
 

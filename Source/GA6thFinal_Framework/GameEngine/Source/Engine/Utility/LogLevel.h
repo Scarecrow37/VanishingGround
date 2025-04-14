@@ -74,38 +74,17 @@ namespace LogLevel
 // 로그 함수를 호출한 파일 정보를 저장하기 위한 구조체 (source_location 깊은 복사 용)
 struct LogLocation
 {
-private:
-    // 중복 메모리 생성 방지용
-    inline static std::unordered_set<std::string>    fileInfoSet;
-    inline static std::unordered_set<std::string>    functionInfoSet;
-    inline static std::unordered_set<uint_least32_t> lineInfoSet;
-    inline static std::unordered_set<uint_least32_t> columnInfoSet;
-
 public:
-
-    LogLocation(const std::source_location& location)
+    // 중복 메모리 생성 방지용
+    struct EngineLocationInfo
     {
-        {
-            auto [iter, result] = lineInfoSet.insert(location.line());
-            const uint_least32_t& value = *iter;
-            _line                       = &value;
-        }
-        {
-            auto [iter, result] = columnInfoSet.insert(location.column());
-            const uint_least32_t& value = *iter;
-            _column                     = &value;
-        }
-        {
-            auto [iter, result]      = fileInfoSet.insert(location.file_name());
-            const std::string& value = *iter;
-            _file                    = &value;
-        }
-        {
-            auto [iter, result] = functionInfoSet.insert(location.function_name());
-            const std::string& value = *iter;
-            _function                = &value;         
-        }
-    }
+        std::unordered_set<std::string>    fileInfoSet;
+        std::unordered_set<std::string>    functionInfoSet;
+        std::unordered_set<uint_least32_t> lineInfoSet;
+        std::unordered_set<uint_least32_t> columnInfoSet;
+    };
+   
+    LogLocation(const std::source_location& location);
     LogLocation(const LogLocation& rhs) 
     { 
         *this = rhs;

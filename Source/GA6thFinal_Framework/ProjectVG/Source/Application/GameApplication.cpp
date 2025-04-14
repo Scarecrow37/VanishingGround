@@ -13,7 +13,6 @@
 #include "Source/EditorTools/EditorMenu/EditorWindowMenu.h"
 #include "Source/EditorTools/EditorMenu/EditorSettingMenu.h"
 
-#include "Source/TestEditor/ObjectTestEditor.h"
 #include "Source/TestEditor/ScriptTestEditor.h"
 
 int APIENTRY wWinMain(
@@ -54,7 +53,6 @@ GameApplication::GameApplication()
     _editorManager->RegisterEditorObject<EditorLogsTool>();
 
     //김시우 테스트용
-    _editorManager->RegisterEditorObject<ObjectTestEditor>();
     _editorManager->RegisterEditorObject<ScriptTestEditor>();
 
     //블루프린트 버그있음

@@ -17,12 +17,38 @@ EditorLogsTool::~EditorLogsTool()
 
 void EditorLogsTool::OnStartGui()
 {
-  
+    
+}
+
+void EditorLogsTool::OnTickGui() 
+{
+    const auto& logMessages = engineCore->EngineLogger.GetLogMessages();
+    if (prevLogCount < logMessages.size())
+    {
+        for (size_t i = prevLogCount; i < logMessages.size(); i++)
+        {
+            auto& [level, message, location] = logMessages[i];
+            if (LogFilterTable[level] == true)
+            {
+                _drawLogList.emplace_back(level, message, location);   
+            }            
+        }
+        prevLogCount = logMessages.size();
+        _isMessagePush = true;
+        if (GetVisible() == false)
+        {
+            SetVisible(true);
+        }
+    }
+}
+
+void EditorLogsTool::OnPreFrame() 
+{
+
 }
 
 void EditorLogsTool::OnFrame()
 {
-    static size_t prevLogCount = 0;
     static ImVec2 buttonSize = ImVec2(50, 26);
     static ImVec2 buttonPadding = ImVec2(10, 0);
 
@@ -36,30 +62,46 @@ void EditorLogsTool::OnFrame()
     }
 
     ImGui::SameLine();
-    
     float windowWidth = ImGui::GetWindowContentRegionMax().x;
     ImGui::SetCursorPosX(windowWidth - buttonSize.x);
     if (ImGui::Button("Clear", buttonSize))
     {
+        _editFilter = true;
+        _drawLogList.clear();
         engineCore->EngineLogger.LogMessagesClear();
+        prevLogCount = 0;
     }
-    
-    ImGui::BeginChild("LogScroll", ImGui::GetContentRegionAvail(), true, ImGuiWindowFlags_HorizontalScrollbar);
-    const auto& logMessages = engineCore->EngineLogger.GetLogMessages();
+
+    if (_editFilter)
+    {
+        _drawLogList.clear();
+        const auto& logMessages = engineCore->EngineLogger.GetLogMessages();
+        for (auto& [level, message, location] : logMessages)
+        {
+            if (LogFilterTable[level] == true)
+            {
+                _drawLogList.emplace_back(level, message, location);
+            }
+        }
+        _isMessagePush = true;
+        _editFilter    = false;
+    }
+
+    ImGui::BeginChild("LogScroll", ImGui::GetContentRegionAvail(), true,ImGuiWindowFlags_HorizontalScrollbar);
     ImGuiListClipper clipper;
-    clipper.Begin(static_cast<int>(logMessages.size()));
+    clipper.Begin(_drawLogList.size());
     while (clipper.Step())
     {
         for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; ++i)
         {
-            PrintLog(logMessages[i]);
+            PrintLog(_drawLogList[i]);
+            ImGui::Text("");
         }
     }
-
-    if (prevLogCount < logMessages.size())
+    if (_isMessagePush)
     {
         ImGui::SetScrollHereY(1.0f);
-        prevLogCount = logMessages.size();
+        _isMessagePush = false;
     }
     ImGui::EndChild();
 }
@@ -87,14 +129,10 @@ void EditorLogsTool::ResetLogFilter()
 void EditorLogsTool::PrintLog(const std::tuple<int, std::string, LogLocation>& log)
 {
     auto& [level, message, location] = log;
-    if (LogFilterTable[level] == true)
-    {
-        ImGui::PushStyleColor(ImGuiCol_Text, LogColorTable[level]);
-        ImGui::TextUnformatted(message.c_str());
-        ImGui::Text(std::format("{}, line : {}", location.function_name(), location.line()).c_str());
-        ImGui::Text("");
-        ImGui::PopStyleColor();
-    }
+    ImGui::PushStyleColor(ImGuiCol_Text, LogColorTable[level]);
+    ImGui::TextUnformatted(message.c_str());
+    ImGui::Text(std::format("{}, line : {}", location.function_name(), location.line()).c_str());
+    ImGui::PopStyleColor();
 }
 
 void EditorLogsTool::ShowFilter()
@@ -106,7 +144,10 @@ void EditorLogsTool::ShowFilter()
         ImGui::ColorEdit4("##edit", (float*)&LogColorTable[i + 1], ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
         ImGui::Text(LogLevel::LogLevelTo_c_str(i + 1));
         ImGui::SetCursorPosX(100.0f);
-        ImGui::Checkbox("##checkbox", &LogFilterTable[i + 1]);
+        if (ImGui::Checkbox("##checkbox", &LogFilterTable[i + 1]))
+        {
+            _editFilter = true;
+        }
         ImGuiHelper::PopStyleCompact();
         ImGui::EndHorizontal();
     }
