@@ -21,7 +21,7 @@ public:
         if (itr == _editorToolTable.end())
         {
             T* instance = new T;
-            _editorToolTable[typeName] = instance;
+            _editorToolTable[typeName].reset(instance);
         }
         return GetTool<T>();
     }
@@ -34,12 +34,12 @@ public:
         auto itr = _editorToolTable.find(typeid(T).name());
         if (itr == _editorToolTable.end())
             return nullptr;
-        return dynamic_cast<T*>(itr->second);
+        return dynamic_cast<T*>(itr->second.get());
     }
 
     inline const auto& GetRefToolTable() { return _editorToolTable; }
 private:
-    std::map<std::string, EditorTool*> _editorToolTable;    /* 에디터 툴 컨테이너 */
+    std::unordered_map<std::string, std::unique_ptr<EditorTool>> _editorToolTable;    /* 에디터 툴 컨테이너 */
     bool _isFullSpace = true;                               /* DockSpace가 화면 전체를 차지하는지 여부 */
     bool _isPadding = false;                                /* DockSpace가 Padding을 할지 여부 */
     ImGuiDockNodeFlags _dockNodeFlags;                      /* DockSpace 플래그 값 */

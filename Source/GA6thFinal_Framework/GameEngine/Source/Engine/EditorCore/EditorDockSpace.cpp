@@ -12,7 +12,7 @@ EditorDockSpace::EditorDockSpace()
 
 EditorDockSpace::~EditorDockSpace()
 {
-   
+    _editorToolTable.clear();
 }
 
 void EditorDockSpace::OnTickGui()
@@ -44,7 +44,7 @@ void EditorDockSpace::OnDrawGui()
     {
         if (nullptr != tool)
         {
-            ImGui::PushID(reinterpret_cast<uintptr_t>(tool));
+            ImGui::PushID(reinterpret_cast<uintptr_t>(tool.get()));
             tool->OnDrawGui();
             ImGui::PopID();
         }
