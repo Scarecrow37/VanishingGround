@@ -4,11 +4,13 @@
 EditorMenuBar::EditorMenuBar()
 {
     _root = new EditorMenuNode;
-    _pathTable[""] = _root;
+    _nodeTable[""].reset(_root);
 }
 
 EditorMenuBar::~EditorMenuBar()
 {
+    _nodeTable.clear();
+    _menuTable.clear();
 }
 
 void EditorMenuBar::OnTickGui()
@@ -17,7 +19,7 @@ void EditorMenuBar::OnTickGui()
 
 void EditorMenuBar::OnStartGui()
 {
-    for (auto& [key, menu] : _nameTable)
+    for (auto& [key, menu] : _menuTable)
     {
         if (nullptr != menu)
             menu->OnStartGui();
@@ -28,7 +30,7 @@ void EditorMenuBar::OnDrawGui()
 {
     ImGui::BeginMainMenuBar();
 
-    for (auto& [key, menu] : _nameTable)
+    for (auto& [key, menu] : _menuTable)
     {
         if (nullptr != menu)
             menu->OnTickGui();
@@ -45,7 +47,7 @@ void EditorMenuBar::OnDrawGui()
 
 void EditorMenuBar::OnEndGui()
 {
-    for (auto& [key, menu] : _nameTable)
+    for (auto& [key, menu] : _menuTable)
     {
         if (nullptr != menu)
             menu->OnEndGui();
@@ -54,11 +56,15 @@ void EditorMenuBar::OnEndGui()
 
 EditorMenuNode* EditorMenuBar::GetMenuFromPath(Path path)
 {
-    auto itr = _pathTable.find(path);
+    auto itr = _nodeTable.find(path);
     // 없으면 만들어 줌
-    if (itr != _pathTable.end())
+    if (itr != _nodeTable.end())
     {
-        return itr->second;
+        if (itr->second->IsNode())
+        {
+            if (true == itr->second->IsNode())
+                return static_cast<EditorMenuNode*>(itr->second.get());
+        }
     }
     return nullptr;
 }
@@ -77,22 +83,21 @@ EditorMenuNode* EditorMenuBar::BuildMenuNode(Path path)
         curPath /= entry;
         curPath = curPath.generic_string();
 
-        auto itr = _pathTable.find(curPath);
-        if (itr == _pathTable.end())
+        auto itr = _nodeTable.find(curPath);
+        if (itr == _nodeTable.end())
         {
-            EditorMenuNode* parent = GetMenuFromPath(curPath.parent_path());
-            EditorMenuNode* instance = new EditorMenuNode;
-            instance->SetMenuPath(curPath.parent_path());
-            instance->SetLabel(curPath.filename().string());
+            _nodeTable[curPath].reset(new EditorMenuNode);
+            auto& instance = _nodeTable[curPath];
+            instance->SetLabel(curPath.string());
 
-            parent->_MenuNodeVec.push_back(instance);
-            _pathTable[curPath] = instance;
+            EditorMenuNode* parent = GetMenuFromPath(curPath.parent_path());
+            parent->_MenuNodeVec.push_back(instance.get());
 
             Sort(parent);
         }
     }
 
-    return _pathTable[path];
+    return _nodeTable[path].get();
 }
 
 void EditorMenuBar::Sort(EditorMenuNode* root)
@@ -104,15 +109,16 @@ void EditorMenuBar::Sort(EditorMenuNode* root)
     std::sort(
         root->_MenuNodeVec.begin(),
         root->_MenuNodeVec.end(),
-        [](EditorMenu* a, EditorMenu* b) {
+              [](EditorMenuBase* a, EditorMenuBase* b) {
             return a->GetCallOrder() > b->GetCallOrder();
         });
 
-    for (auto& node : root->_MenuNodeVec)
+    for (auto& instance : root->_MenuNodeVec)
     {
-        auto* instance = dynamic_cast<EditorMenuNode*>(node);
-        if(instance)
-            Sort(instance);
+        if (true == instance->IsNode())
+        {
+            Sort(static_cast<EditorMenuNode*>(instance));
+        }
     }
 }
 
@@ -120,15 +126,11 @@ void EditorMenuNode::OnDrawGui()
 {
     if (GetVisible())
     {
-        OnPreMenu();
-
         ImGui::PushID(this);
 
         std::string label = GetLabel();
         if (ImGui::BeginMenu(label.c_str(), GetActive()))
         {
-            OnMenu();
-
             for (auto& node : _MenuNodeVec)
             {
                 if(nullptr != node)
@@ -136,32 +138,18 @@ void EditorMenuNode::OnDrawGui()
             }
             ImGui::EndMenu();
         }
-
-        OnPostMenu();
-
         ImGui::PopID();
     }
 }
-
-void EditorMenuNode::Sort()
+void EditorMenu::OnDrawGui()
 {
-    std::sort(_MenuNodeVec.begin(), _MenuNodeVec.end(),
-        [](EditorMenu* a, EditorMenu* b) {
-            return a->GetCallOrder() < b->GetCallOrder();
-        });
-}
+    OnTickGui();
 
-void EditorMenuLeaf::OnDrawGui()
-{
     if (true == GetVisible())
     {
         ImGui::PushID(this);
 
-        std::string label = GetLabel();
-        if (ImGui::MenuItem(label.c_str(), GetShortcut().c_str(), GetToggleValue(), GetActive()))
-        {
-            OnSelected();
-        }
+        OnMenu();
 
         ImGui::PopID();
     }
