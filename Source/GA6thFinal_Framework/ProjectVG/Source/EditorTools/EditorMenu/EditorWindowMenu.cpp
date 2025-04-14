@@ -5,8 +5,7 @@ void EditorMenuTools::OnMenu()
     if (ImGui::BeginMenu("Tools"))
     {
         EditorDockSpace* dockSpace = Global::editorManager->GetMainDockSpace();
-        const std::map<std::string, EditorTool*>& toolTable =
-            dockSpace->GetRefToolTable();
+        const auto& toolTable = dockSpace->GetRefToolTable();
         for (auto& [key, tool] : toolTable)
         {
             bool active = tool->GetVisible();
