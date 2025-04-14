@@ -197,5 +197,10 @@ void EditorLogsTool::ShowFilter()
         ImGuiHelper::PopStyleCompact();
         ImGui::EndHorizontal();
     }
+    if (ImGui::Button("Reset"))
+    {
+        ResetLogColor();
+        ResetLogFilter();
+    }
 }
 
