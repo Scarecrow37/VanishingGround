@@ -53,16 +53,4 @@ void EditorDebugView::OnPostFrame()
 
 void EditorDebugView::OnPopup() 
 {
-    ImGui::Separator();
-
-    if (ImGui::MenuItem("Custom Item1"))
-    {
-        EEngineLogger& logger = Global::engineCore->EngineLogger;
-        logger.Log(LogLevel::LEVEL_TRACE, "Custom Item1 Selected!");
-    }
-    if (ImGui::MenuItem("Custom Item2"))
-    {
-        EEngineLogger& logger = Global::engineCore->EngineLogger;
-        logger.Log(LogLevel::LEVEL_TRACE, "Custom Item1 Selected2");
-    }
 }

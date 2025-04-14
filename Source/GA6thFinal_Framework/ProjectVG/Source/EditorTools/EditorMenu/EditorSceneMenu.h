@@ -4,7 +4,7 @@
 /*
  게임 오브젝트 생성 메뉴
 */
-class EditorSceneMenu : public EditorMenu
+class EditorSceneMenuGameObject : public EditorMenu
 {
 public:
     EditorSceneMenuGameObject()
@@ -18,7 +18,7 @@ public:
     virtual void OnMenu() override;
 };
 
-class EditorSceneMenuScenes : public EditorMenuNode
+class EditorSceneMenuScenes : public EditorMenu
 {
 public:
     EditorSceneMenuScenes()

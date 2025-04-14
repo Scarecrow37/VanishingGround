@@ -28,14 +28,6 @@ void  EditorInspectorView::OnFrame()
         auto spFocusedObject = _focusedObject.lock();
         spFocusedObject->OnDrawInspectorView();
     }
-    if (ImGui::Button("Focus Logger"))
-    {
-        EditorLogsTool* tool =
-            Global::editorManager->GetEditorObject<EditorLogsTool>();
-        const char* label = tool->GetLabel().c_str();
-        ImGui::SetWindowFocus(label);
-    }
-    return void();
 }
 
 void  EditorInspectorView::OnPostFrame()
@@ -45,8 +37,6 @@ void  EditorInspectorView::OnPostFrame()
 
 void EditorInspectorView::OnFocus()
 {
-    EEngineLogger& logger = Global::engineCore->EngineLogger;
-    logger.Log(LogLevel::LEVEL_TRACE, "EditorInspectorView Focused!");
 }
 
 void EditorInspectorView::TestGui()

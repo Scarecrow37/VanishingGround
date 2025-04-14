@@ -104,7 +104,7 @@ void EditorMenuBar::Sort(EditorMenuNode* root)
     std::sort(
         root->_MenuNodeVec.begin(),
         root->_MenuNodeVec.end(),
-        [](EditorMenu* a, EditorMenu* b) {
+              [](EditorMenuBase* a, EditorMenuBase* b) {
             return a->GetCallOrder() > b->GetCallOrder();
         });
 
