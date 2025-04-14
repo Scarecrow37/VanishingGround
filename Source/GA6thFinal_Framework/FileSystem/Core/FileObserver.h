@@ -39,6 +39,9 @@ namespace File
         void        EventObservingThread();
         bool        SetEventListener();
         void        RecieveFileEvents();
+
+        void        EventDataToWStr(FileEventData& data, std::wstring& wstr);
+        void        LastFileEventLog(FileEventData& event);
     private:
         Path            _path;
         CallBackFunc    _eventCallback;

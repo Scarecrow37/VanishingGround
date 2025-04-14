@@ -6,8 +6,6 @@ namespace File
 {
     namespace fs = std::filesystem;
 
-    // filesystem::path
-
     enum class EventType
     {
         UNKNOWN = 0, // 에러
@@ -23,6 +21,7 @@ namespace File
     {
 #ifdef _DEBUG
         std::wstring debugMsg = L"FileSystem: " + msg + L'\n';
+        /* 해당 함수는 스레드 세이프 함. */
         OutputDebugString(debugMsg.c_str());
 #endif
     }

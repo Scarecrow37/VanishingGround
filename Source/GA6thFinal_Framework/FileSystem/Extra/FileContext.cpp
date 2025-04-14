@@ -8,11 +8,21 @@ namespace File
     {
         if (true == LoadMeta())
         {
+            if (FileSystem::GetDebugLevel() >= 2)
+                OutputLog(L"Failed to load meta: " +
+                          _meta.GetFileGuid().wstring());
         }
+        if (FileSystem::GetDebugLevel() >= 3)
+            OutputLog(L"Create Context: " + _path.wstring());
     }
 
     Context::~Context() 
     {
+#ifdef _DEBUG
+        if (FileSystem::GetDebugLevel() >= 3)
+            OutputLog(L"Destroy Context: " + _path.wstring());
+#endif // DEBUG
+
     }
 
     bool Context::LoadMeta()

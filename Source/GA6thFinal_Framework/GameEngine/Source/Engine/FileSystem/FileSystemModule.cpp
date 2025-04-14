@@ -10,6 +10,7 @@ FileSystemModule::FileSystemModule()
     Global::fileSystem = this;
     sampleNotifier     = new SampleFileEventNotifier({".txt", ".png", ".dds"});
 
+    File::FileSystem::SetDebugLevel(1);
     File::FileSystem::RegisterFileEventNotifier(sampleNotifier);
 }
 
