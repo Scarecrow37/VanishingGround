@@ -122,6 +122,8 @@ void EditorMenuNode::OnDrawGui()
     {
         OnPreMenu();
 
+        ImGui::PushID(this);
+
         std::string label = GetLabel();
         if (ImGui::BeginMenu(label.c_str(), GetActive()))
         {
@@ -136,6 +138,8 @@ void EditorMenuNode::OnDrawGui()
         }
 
         OnPostMenu();
+
+        ImGui::PopID();
     }
 }
 
@@ -143,7 +147,7 @@ void EditorMenuNode::Sort()
 {
     std::sort(_MenuNodeVec.begin(), _MenuNodeVec.end(),
         [](EditorMenu* a, EditorMenu* b) {
-            return a->GetCallOrder() > b->GetCallOrder();
+            return a->GetCallOrder() < b->GetCallOrder();
         });
 }
 
@@ -151,11 +155,15 @@ void EditorMenuLeaf::OnDrawGui()
 {
     if (true == GetVisible())
     {
+        ImGui::PushID(this);
+
         std::string label = GetLabel();
         if (ImGui::MenuItem(label.c_str(), GetShortcut().c_str(), GetToggleValue(), GetActive()))
         {
             OnSelected();
         }
+
+        ImGui::PopID();
     }
 }
 
