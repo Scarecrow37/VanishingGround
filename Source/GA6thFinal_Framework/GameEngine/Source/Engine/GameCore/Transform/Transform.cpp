@@ -167,6 +167,7 @@ void Transform::UpdateMatrix()
             curr->_worldMatrix =
                 curr->_localMatrix * curr->_parent->_worldMatrix;
         }
+        curr->_inversWorldMatrix = curr->_worldMatrix.Invert();
         curr->_hasChanged = false;
     });
 }

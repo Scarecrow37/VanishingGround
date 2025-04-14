@@ -121,11 +121,19 @@ public:
     /// </summary>
     /// <returns></returns>
     const Matrix& GetWorldMatrix() { return _worldMatrix; }
+
+    /// <summary>
+    /// 로컬 행렬 입니다. 
+    /// </summary>
+    /// <returns></returns>
+    const Matrix& GetLocalMatrix() { return _localMatrix; }
+
     /// <summary>
     /// 월드 역행렬 입니다.
     /// </summary>
     /// <returns></returns>
     const Matrix& GetInversWorldMatrix() { return _inversWorldMatrix; };
+
 
 private:
     Transform*              _root;
@@ -175,6 +183,43 @@ public:
     // get : 부모를 반환합니다.
     // return : Transform*
     PROPERTY(Parent)
+
+    GETTER_ONLY(bool, HasChanged)
+    { 
+        return _hasChanged;
+    }
+    // get : Transform의 이번 프레임 변경 여부를 확인합니다. true면 이번 프레임에 행렬 계산 대상이 됩니다.
+    PROPERTY(HasChanged)
+
+    GETTER_ONLY(const Matrix&, LocalToWorldMatrix)
+    { 
+        return GetWorldMatrix();
+    }
+    /* 
+    get : 로컬 정점을 World 행렬로 변환하는 행렬입니다.
+    (Transform의 World Matrix 입니다).
+    */
+    PROPERTY(LocalToWorldMatrix)
+
+    GETTER_ONLY(const Matrix&, WorldToLocalMatrix)
+    {
+        return GetInversWorldMatrix();
+    }
+    /*
+    get : 월드 행렬을 로컬 행렬로 변환하는 행렬입니다.
+    (Transform의 World Invers Matrix 입니다.) 
+    */
+    PROPERTY(WorldToLocalMatrix)
+
+    GETTER_ONLY(const Matrix&, LocalToLocalMatrix) 
+    { 
+        return GetLocalMatrix();
+    }
+    /*
+    get : 로컬 정점을 LocalMatrix 행렬로 변환하는 행렬입니다.
+    (Transform의 Local Matrix 입니다.)
+    */
+    PROPERTY(LocalToLocalMatrix)
 
     SETTER(const Vector3&, Position)
     {
