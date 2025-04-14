@@ -105,7 +105,7 @@ void EditorMenuBar::Sort(EditorMenuNode* root)
         root->_MenuNodeVec.begin(),
         root->_MenuNodeVec.end(),
         [](EditorMenu* a, EditorMenu* b) {
-            return a->GetCallOrder() > b->GetCallOrder();
+            return a->GetCallOrder() < b->GetCallOrder();
         });
 
     for (auto& node : root->_MenuNodeVec)

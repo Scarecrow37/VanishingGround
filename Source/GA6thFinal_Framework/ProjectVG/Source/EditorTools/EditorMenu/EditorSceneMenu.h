@@ -9,7 +9,7 @@ class EditorSceneMenuGameObject : public EditorMenuNode
 public:
     EditorSceneMenuGameObject()
     {
-        SetCallOrder(0);
+        SetCallOrder(1);
         SetMenuPath("Scene");
         SetLabel("Game Object");
     }
@@ -24,12 +24,12 @@ class EditorSceneMenuScenes : public EditorMenuNode
 public:
     EditorSceneMenuScenes()
     {
-        SetCallOrder(1);
+        SetCallOrder(0);
         SetMenuPath("Scene");
         SetLabel("Scene");
     }
     virtual ~EditorSceneMenuScenes() = default;
 
-    public:
+public:
     virtual void OnMenu() override;
 };

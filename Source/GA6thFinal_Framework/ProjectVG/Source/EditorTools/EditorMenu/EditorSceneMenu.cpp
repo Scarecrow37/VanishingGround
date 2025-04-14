@@ -19,7 +19,7 @@ void EditorSceneMenuGameObject::OnMenu()
 
 void EditorSceneMenuScenes::OnMenu() 
 {
-    ImGui::MenuItem("New Empty Scene");
+    if(ImGui::MenuItem("New Empty Scene"))
     {
         engineCore->SceneManager.LoadScene("Empty Scene");
     }
