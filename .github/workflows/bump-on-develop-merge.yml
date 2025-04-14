@@ -5,29 +5,29 @@ on:
     types: [closed]
     branches:
       - develop
-      
+
 jobs:
   bump-version:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
-  
+
     steps:
     - name: Checkout
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
-        
+
     - name: Set up Git identity
       run: |
         git config user.name "github-actions"
         git config user.email "actions@github.com"
-        
+
     - name: Decide version bump type
       id: bump
       run: |
         BRANCH_NAME="${{ github.event.pull_request.head.ref }}"
-        echo "Source branch: %BRANCH_NAME"
-        
+        echo "Source branch: $BRANCH_NAME"
+
         if [[ "$BRANCH_NAME" == feature/* ]]; then
           echo "version=minor" >> $GITHUB_OUTPUT
         elif [[ "$BRANCH_NAME" == fix/* || "$BRANCH_NAME" == hotfix/* ]]; then
@@ -35,7 +35,7 @@ jobs:
         else
           echo "version=none" >> $GITHUB_OUTPUT
         fi
-        
+
     - name: Calculate new version
       id: version
       run: |
