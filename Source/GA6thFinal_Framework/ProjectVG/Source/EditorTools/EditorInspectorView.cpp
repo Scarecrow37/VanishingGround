@@ -1,4 +1,5 @@
 ﻿#include "EditorInspectorView.h"
+#include "EditorLogsTool/EditorLogsTool.h"
 
 EditorInspectorView::EditorInspectorView()
 {
@@ -68,8 +69,15 @@ void EditorInspectorView::TestGui()
     ImGui::Text("Section 2");
 
     ImGui::Text("Label: %s", GetLabel().c_str());
-    ImGui::Text("Flag: %d", _windowFlags);
+    ImGui::Text("Flag: %d", GetWindowFlag());
     ImGui::Text("DockID: %d", ImGui::GetWindowDockID());
+
+    if (ImGui::Button("Focus Logger"))
+    {
+        EditorLogsTool* tool = Global::editorManager->GetEditorObject<EditorLogsTool>();
+        const char* label = tool->GetLabel().c_str();
+        ImGui::SetWindowFocus(label);
+    }
 
     if (ImGui::TreeNode("Reorderable, hideable, with headers"))
     {

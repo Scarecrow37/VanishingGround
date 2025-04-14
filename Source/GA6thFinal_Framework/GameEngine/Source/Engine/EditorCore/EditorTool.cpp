@@ -25,9 +25,10 @@ void EditorTool::OnDrawGui()
     {
         OnPreFrame();
 
-        ImGui::Begin(GetLabel().c_str(), &_isVisible, _windowFlags | ImGuiWindowFlags_NoCollapse);
+        std::string label = GetLabel();
+        ImGui::Begin(label.c_str(), &_isVisible, _windowFlags | ImGuiWindowFlags_NoCollapse);
 
-        if (true == ImGui::IsWindowFocused()) 
+        if (true == ImGui::IsWindowFocused())
         {
             OnFocus();
         }

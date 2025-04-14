@@ -11,7 +11,7 @@ MenuLeaf = 실제 동작을 위한 객체 (EditorMenu를 상속받은 사용자 
 */
 class EditorMenuBar : public EditorBase
 {
-    using Path = std::filesystem::path;
+    using Path = File::FString;
     using Name = std::string;
 public:
     EditorMenuBar();
@@ -69,7 +69,6 @@ private:
 */
 class EditorMenu : public EditorBase
 {
-    using Path = std::filesystem::path;
 public:
     EditorMenu() = default;
     virtual ~EditorMenu() = default;
@@ -80,14 +79,14 @@ public:
     virtual void    OnEndGui() override {};
 public:
     /* 메뉴 경로를 설정 */
-    inline void         SetMenuPath(const Path& path) { _menuPath = path; }
+    inline void         SetMenuPath(const File::FString& path) { _menuPath = path; }
     inline const auto&  GetMenuPath() { return _menuPath; }
     /* 클릭 활성화 여부를 설정 */
     inline void         SetActive(bool v) { _isActive = v; }
     inline bool         GetActive() { return _isActive; }
 private:
-    Path _menuPath = "";    /* 메뉴 경로 (ex. "Project/Setting/" + "#Label" */
-    bool _isActive = true;  /* 클릭을 비활성화 함 (회색 표시) */
+    File::FString       _menuPath = "";    /* 메뉴 경로 (ex. "Project/Setting/" + "#Label" */
+    bool                _isActive = true;  /* 클릭을 비활성화 함 (회색 표시) */
 };
 
 /*
@@ -131,40 +130,7 @@ public:
     /* 토글 가능 여부를 설정 */
     inline void         SetToggleValue(bool* pValue) { _toggleValue = pValue; }
     inline const bool*  GetToggleValue() const { return _toggleValue; }
-protected:
+private:
     std::string _shortcut = "-";
     bool*       _toggleValue = nullptr;
-};
-
-
-
-class SampleMenu1 : public EditorMenuLeaf
-{
-public:
-    SampleMenu1() {
-        SetCallOrder(2);
-        SetMenuPath("Project/Setting");
-        SetLabel("SampleMenu1");
-    }
-    virtual ~SampleMenu1() = default;
-};
-class SampleMenu2 : public EditorMenuLeaf
-{
-public:
-    SampleMenu2() {
-        SetCallOrder(4);
-        SetMenuPath("Project/Setting");
-        SetLabel("SampleMenu2");
-    }
-    virtual ~SampleMenu2() = default;
-};
-class SampleMenu3 : public EditorMenuLeaf
-{
-public:
-    SampleMenu3() {
-        SetCallOrder(3);
-        SetMenuPath("Project/Setting");
-        SetLabel("SampleMenu3");
-    }
-    virtual ~SampleMenu3() = default;
 };

@@ -44,10 +44,6 @@ void EditorDebugView::OnFrame()
     ImGui::Text("fixedUnscaledDeltaTime %f", engineCore->Time.fixedUnscaledDeltaTime());
 
     ImGui::InputDouble("maximumDeltaTime", &engineCore->Time.MaximumDeltaTime);
-
-    ImGui::Text("Label: %s", GetLabel().c_str());
-    ImGui::Text("Flag: %d", _windowFlags);
-    ImGui::Text("DockID: %d", ImGui::GetWindowDockID());
 }
 
 void EditorDebugView::OnPostFrame()

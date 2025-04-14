@@ -27,10 +27,6 @@ void DragDropFunc()
 
 void  EditorSceneView::OnFrame()
 {
-    ImGui::Text("Label: %s", GetLabel().c_str());
-    ImGui::Text("Flag: %d", _windowFlags);
-    ImGui::Text("DockID: %d", ImGui::GetWindowDockID());
-
     static int a = 1;
     static int b = 0;
 

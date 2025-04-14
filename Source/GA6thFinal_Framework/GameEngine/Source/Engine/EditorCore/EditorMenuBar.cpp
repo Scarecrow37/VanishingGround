@@ -17,10 +17,10 @@ void EditorMenuBar::OnTickGui()
 
 void EditorMenuBar::OnStartGui()
 {
-    for (auto& node : _root->_MenuNodeVec)
+    for (auto& [key, menu] : _nameTable)
     {
-        if (nullptr != node)
-            node->OnStartGui();
+        if (nullptr != menu)
+            menu->OnStartGui();
     }
 }
 
@@ -45,10 +45,10 @@ void EditorMenuBar::OnDrawGui()
 
 void EditorMenuBar::OnEndGui()
 {
-    for (auto& node : _root->_MenuNodeVec)
+    for (auto& [key, menu] : _nameTable)
     {
-        if (nullptr != node)
-            node->OnEndGui();
+        if (nullptr != menu)
+            menu->OnEndGui();
     }
 }
 
@@ -82,7 +82,8 @@ EditorMenuNode* EditorMenuBar::BuildMenuNode(Path path)
         {
             EditorMenuNode* parent = GetMenuFromPath(curPath.parent_path());
             EditorMenuNode* instance = new EditorMenuNode;
-            instance->SetMenuPath(curPath);
+            instance->SetMenuPath(curPath.parent_path());
+            instance->SetLabel(curPath.filename().string());
 
             parent->_MenuNodeVec.push_back(instance);
             _pathTable[curPath] = instance;
@@ -121,7 +122,7 @@ void EditorMenuNode::OnDrawGui()
     {
         OnPreMenu();
 
-        std::string label = GetMenuPath().filename().string();
+        std::string label = GetLabel();
         if (ImGui::BeginMenu(label.c_str(), GetActive()))
         {
             OnMenu();
@@ -150,7 +151,8 @@ void EditorMenuLeaf::OnDrawGui()
 {
     if (true == GetVisible())
     {
-        if (ImGui::MenuItem(GetLabel().c_str(), GetShortcut().c_str(), GetToggleValue(), GetActive()))
+        std::string label = GetLabel();
+        if (ImGui::MenuItem(label.c_str(), GetShortcut().c_str(), GetToggleValue(), GetActive()))
         {
             OnSelected();
         }

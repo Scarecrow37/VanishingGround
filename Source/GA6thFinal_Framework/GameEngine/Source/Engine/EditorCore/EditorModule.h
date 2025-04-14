@@ -36,6 +36,7 @@ concept IsEditorMenu = IsEditorBase<T> && std::is_base_of_v<EditorMenu, T>;
      void ModuleUnInitialize() override;
  public:
      /* InitImGui 직후 호출 */
+
      void Update();
  public:
      /* 툴을 등록합니다. */

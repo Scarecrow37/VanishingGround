@@ -38,7 +38,7 @@ public:
     virtual void    OnEndGui() = 0;
 public:
     /* 이름 설정 (기본적으로 중복을 비허용.) */
-    inline void         SetLabel(std::string_view label) { _label = label; }
+    inline void         SetLabel(const std::string& label) { _label = label; }
     inline const auto&  GetLabel() { return _label; }
     /* 활성화 여부 설정 */
     inline void         SetVisible(bool v) { _isVisible = v; }
