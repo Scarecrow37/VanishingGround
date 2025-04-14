@@ -40,6 +40,7 @@ namespace File
             _isStart = false;
             _eventProcessingThread.join();
             _eventObservingThread.join();
+            OutputLog(L"FileObserver thread is joined");
         }
     }
 
@@ -146,7 +147,6 @@ namespace File
 
     void FileObserver::EventObservingThread()
     {
-        std::vector<BYTE> buffer(BUFFER_SIZE);
         DWORD             bytesReturned = 0;
 
         ZeroMemory(&_overlapped, sizeof(_overlapped));
@@ -168,7 +168,7 @@ namespace File
             }
         } while (true == _isStart);
 
-        CancelIo(_hDirectory);
+        CancelIoEx(_hDirectory, &_overlapped);
         GetOverlappedResult(_hDirectory, &_overlapped, &bytesReturned, TRUE);
         CloseHandle(_overlapped.hEvent);
 
@@ -181,7 +181,7 @@ namespace File
         /*
         ReadDirectoryChangesExW는 문서가 너무 없어서 그냥 안전하게 기존 래거시 함수 사용.
         */
-        return ReadDirectoryChangesW(_hDirectory, &_recievedBytes, BUFFER_SIZE,
+        return ReadDirectoryChangesW(_hDirectory, _recievedBytes, sizeof(_recievedBytes),
                                      TRUE, NOTIFY_FILTERS, &_bytesReturned,
                                      &_overlapped, NULL);
     }
@@ -196,7 +196,15 @@ namespace File
             // 파일 디렉터리 변경을 감지함
             if (false == listen)
             {
-                listen = SetEventListener();
+                if (true == SetEventListener())
+                {
+                    listen = true;
+                }
+                else
+                {
+                    listen = false;
+                    break;
+                }
             }
 
             // 변경이 감지되어 이벤트를 처리 중이면
