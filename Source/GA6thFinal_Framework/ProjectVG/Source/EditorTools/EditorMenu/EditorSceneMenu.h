@@ -24,7 +24,6 @@ public:
     EditorSceneMenuScenes()
     {
         SetCallOrder(0);
-        SetMenuPath("Scene");
         SetLabel("Scene");
     }
     virtual ~EditorSceneMenuScenes() = default;
