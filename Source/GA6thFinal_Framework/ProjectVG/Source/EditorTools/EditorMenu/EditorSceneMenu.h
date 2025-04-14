@@ -4,14 +4,13 @@
 /*
 에디터 툴을 끄고 키는 메뉴
 */
-class EditorSceneMenu : public EditorMenuNode
+class EditorSceneMenu : public EditorMenu
 {
 public:
     EditorSceneMenu()
     {
         SetCallOrder(1);
-        SetMenuPath("Scene");
-        SetLabel("GameObject");
+        SetLabel("Scene");
     }
     virtual ~EditorSceneMenu() = default;
 

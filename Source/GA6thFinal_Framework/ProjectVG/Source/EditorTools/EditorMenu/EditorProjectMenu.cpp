@@ -1,6 +1,9 @@
 ﻿#include "EditorProjectMenu.h"
 
-void EditorMenuScriptBuilder::OnSelected()
+void EditorMenuScriptBuilder::OnMenu()
 {
-    Global::engineCore->ComponentFactory.InitalizeComponentFactory();
+    if (ImGui::MenuItem("Script Build", ""))
+    {
+        Global::engineCore->ComponentFactory.InitalizeComponentFactory();
+    }
 }

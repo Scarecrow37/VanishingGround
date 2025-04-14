@@ -4,38 +4,35 @@
 /*
 에디터 툴을 끄고 키는 메뉴
 */
-class EditorMenuDebug : public EditorMenuLeaf
+class EditorMenuDebug : public EditorMenu
 {
 public:
     EditorMenuDebug() 
     {
         SetCallOrder(0);
-        SetMenuPath("Setting/Editor");
-        SetLabel("Debug");
+        SetLabel("Setting/Editor");
 
-        SetToggleValue(&_isDebugMode);
+        _isDebugMode = Global::editorManager->IsDebugMode();
     }
     virtual ~EditorMenuDebug() = default;
 public:
-    virtual void OnSelected() override;
+    virtual void OnMenu() override;
+
 private:
     bool _isDebugMode = false;
 };
 
-class EditorMenuStyleEditor : public EditorMenuLeaf
+class EditorMenuStyleEditor : public EditorMenu
 {
 public:
     EditorMenuStyleEditor()
     {
         SetCallOrder(0);
-        SetMenuPath("Setting/Editor");
-        SetLabel("Style");
-
-        SetToggleValue(&_isOpenStyleEditor);
+        SetLabel("Setting/Editor");
     }
     virtual ~EditorMenuStyleEditor() = default;
 public:
-    virtual void OnSelected() override;
+    virtual void OnMenu() override;
     virtual void OnTickGui() override;
 private:
     bool _isOpenStyleEditor = false;
