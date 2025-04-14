@@ -1,10 +1,6 @@
 ﻿#include "EditorProjectMenu.h"
 
-void EditorMenuScriptBuilder::OnMenu()
+void EditorMenuScriptBuilder::OnSelected()
 {
-    std::string label = GetLabel();
-    if (ImGui::MenuItem(label.c_str(), ""))
-    {
-        Global::engineCore->ComponentFactory.InitalizeComponentFactory();
-    }
+    Global::engineCore->ComponentFactory.InitalizeComponentFactory();
 }

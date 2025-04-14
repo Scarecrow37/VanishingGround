@@ -4,13 +4,14 @@
 /*
 에디터 툴을 끄고 키는 메뉴
 */
-class EditorMenuTools : public EditorMenu
+class EditorMenuTools : public EditorMenuNode
 {
 public:
     EditorMenuTools()
     {
         SetCallOrder(0);
-        SetLabel("Window/Tools");
+        SetMenuPath("Window");
+        SetLabel("Tools");
     }
     virtual ~EditorMenuTools() = default;
 
