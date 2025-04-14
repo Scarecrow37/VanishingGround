@@ -27,32 +27,38 @@ void DragDropFunc()
 
 void  EditorSceneView::OnFrame()
 {
-    static int a = 1;
-    static int b = 0;
-
-    ImGui::Button("a", ImVec2(60, 60));
-    if (ImGuiHelper::DragDrop::SendDragDropEvent<int>("AtoB", &a, DragDropFunc))
+    ImGui::Text("Test Text");
+    ImGui::Button("Test Button");
+    ImGui::BeginChild("Child", ImVec2(200, 200), true, ImGuiWindowFlags_None);
+    if (ImGui::TreeNodeEx("TreeNode", ImGuiTreeNodeFlags_DefaultOpen))
     {
-        Global::engineCore->EngineLogger.Log(LogLevel::LEVEL_DEBUG, "AtoB Dragging");
+        ImGui::Text("Test Text");
+        ImGui::Button("Test Button");
+        ImGui::TreePop();
     }
-    if (ImGuiHelper::DragDrop::RecieveDragDropEvent<int>("BtoA", &a))
-    {
-        Global::engineCore->EngineLogger.Log(LogLevel::LEVEL_DEBUG, "Drag BtoA Stop");
-    }
-
-    ImGui::SameLine();
-    ImGui::Button("b", ImVec2(60, 60));
-   
-    if (ImGuiHelper::DragDrop::SendDragDropEvent<int>("BtoA", &b, DragDropFunc))
-    {
-        Global::engineCore->EngineLogger.Log(LogLevel::LEVEL_DEBUG, "BtoA Dragging");
-    }
-    if (ImGuiHelper::DragDrop::RecieveDragDropEvent<int>("AtoB", &b))
-    {
-        Global::engineCore->EngineLogger.Log(LogLevel::LEVEL_DEBUG, "Drag AtoB Stop");
-    }
-
-    return void ();
+    ImGui::EndChild();
+    //static int a = 0;
+    //static int b = 0;
+    //
+    //ImGui::Button("a", ImVec2(60, 60));
+    //if (ImGuiHelper::DragDrop::SendDragDropEvent<int>("AtoB", &a, DragDropFunc))
+    //{
+    //}
+    //if (ImGuiHelper::DragDrop::RecieveDragDropEvent<int>("BtoA", &a))
+    //{
+    //    Global::engineCore->EngineLogger.Log(LogLevel::LEVEL_DEBUG, "DragDrop BtoA");
+    //}
+    //
+    //ImGui::SameLine();
+    //ImGui::Button("b", ImVec2(60, 60));
+    //
+    //if (ImGuiHelper::DragDrop::SendDragDropEvent<int>("BtoA", &b, DragDropFunc))
+    //{
+    //}
+    //if (ImGuiHelper::DragDrop::RecieveDragDropEvent<int>("AtoB", &b))
+    //{
+    //    Global::engineCore->EngineLogger.Log(LogLevel::LEVEL_DEBUG, "DragDrop AtoB");
+    //}
 }
 
 void  EditorSceneView::OnPostFrame()

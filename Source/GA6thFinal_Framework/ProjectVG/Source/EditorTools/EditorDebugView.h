@@ -17,5 +17,7 @@ private:
     virtual void OnFrame() override;
 
     virtual void OnPostFrame() override;
+
+    virtual void OnPopup() override;
 };
 
