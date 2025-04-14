@@ -15,7 +15,7 @@ void TestComponent::Update()
 
 void TestComponent::FixedUpdate() 
 {
-    engineCore->EngineLogger.Log(LogLevel::LEVEL_DEBUG, "Fixed Update!");
+    //engineCore->EngineLogger.Log(LogLevel::LEVEL_DEBUG, "Fixed Update!");
 }
 
 void TestComponent::OnDestroy()

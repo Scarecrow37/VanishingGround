@@ -12,6 +12,7 @@
 #include "Source/EditorTools/EditorMenu/EditorProjectMenu.h"
 #include "Source/EditorTools/EditorMenu/EditorWindowMenu.h"
 #include "Source/EditorTools/EditorMenu/EditorSettingMenu.h"
+#include "Source/EditorTools/EditorMenu/EditorSceneMenu.h"
 
 #include "Source/TestEditor/ScriptTestEditor.h"
 
@@ -66,6 +67,9 @@ GameApplication::GameApplication()
     // Setting
     _editorManager->RegisterEditorObject<EditorMenuDebug>();
     _editorManager->RegisterEditorObject<EditorMenuStyleEditor>();
+    // Scene
+    _editorManager->RegisterEditorObject<EditorSceneMenu>();
+
 }
 
 GameApplication::~GameApplication()
