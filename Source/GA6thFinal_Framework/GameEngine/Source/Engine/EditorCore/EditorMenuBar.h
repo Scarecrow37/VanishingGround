@@ -122,7 +122,6 @@ public:
 public:
     virtual void OnTickGui() override {};
     virtual void OnSelected() {};
-    virtual void OnMenu() {};
 public:
     /* 메뉴 아이템의 숏컷(키보드 단축키) 설정 */
     inline void         SetShortcut(std::string_view path) { _shortcut = path; }
