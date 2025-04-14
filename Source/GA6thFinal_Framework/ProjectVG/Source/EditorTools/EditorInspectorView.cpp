@@ -27,7 +27,7 @@ void  EditorInspectorView::OnFrame()
         auto spFocusedObject = _focusedObject.lock();
         spFocusedObject->OnDrawInspectorView();
     }
-    TestGui();
+    //TestGui();
     return void();
 }
 
