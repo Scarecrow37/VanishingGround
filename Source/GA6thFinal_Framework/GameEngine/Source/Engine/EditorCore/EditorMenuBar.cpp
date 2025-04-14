@@ -156,7 +156,6 @@ void EditorMenuLeaf::OnDrawGui()
         {
             OnSelected();
         }
-        OnMenu();
     }
 }
 
