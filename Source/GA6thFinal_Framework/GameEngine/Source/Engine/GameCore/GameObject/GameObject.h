@@ -26,6 +26,16 @@ class GameObject :
 
     //public static 함수
 public:
+    struct Helper
+    {
+        /// <summary>
+        /// 고유한 이름을 만들어줍니다. baseName (i) 형식으로 만듭니다.
+        /// </summary>
+        /// <param name="baseName"></param>
+        /// <returns>생성된 이름</returns>
+        static std::string GenerateUniqueName(std::string_view baseName);
+    };
+
     /// <summary>
     /// <para> 매개변수와 같은 이름을 가진 GameObject를 찾아 반환합니다. </para>
     /// <para> 같은 이름의 GameObject가 없으면 nullptr를 반환합니다.    </para>

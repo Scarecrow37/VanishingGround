@@ -125,4 +125,15 @@ void GameObject::OnDrawInspectorView()
     ImGui::PopID();
 }
 
-
+std::string GameObject::Helper::GenerateUniqueName(std::string_view baseName)
+{
+    size_t                    count   = 0;
+    std::string               name    = baseName.data();
+    std::weak_ptr<GameObject> pObject = GameObject::Find(name);
+    while (pObject.expired() == false)
+    {
+        name    = std::format("{} ({})", baseName.data(), count++);
+        pObject = GameObject::Find(name);
+    }
+    return name;
+}

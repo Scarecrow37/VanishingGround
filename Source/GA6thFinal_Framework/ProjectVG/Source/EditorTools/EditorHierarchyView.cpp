@@ -135,34 +135,8 @@ void  EditorHierarchyView::OnPreFrame()
     
 }
 
-static std::string MakeCountName(std::string_view baseName)
-{
-    size_t                    count   = 0;
-    std::string               name    = baseName.data();
-    std::weak_ptr<GameObject> pObject = GameObject::Find(name);
-    while (pObject.expired() == false)
-    {
-        name    = std::format("{} ({})", baseName.data(), count++);
-        pObject = GameObject::Find(name);
-    }
-    return name;
-}
-
 void  EditorHierarchyView::OnFrame()
 {
-    if (ImGui::Button(u8"Empty Scene Load"_c_str))
-    {
-        engineCore->SceneManager.LoadScene("EmptyScene");
-    }
-
-    if (ImGui::Button(u8"오브젝트 만들기"_c_str))
-    {
-        int         count = 0;
-        std::string name  = MakeCountName("Game Object");
-        NewGameObject<GameObject>(name);
-    }
-    ImGui::Separator();
-
     const auto& scenes = engineCore->SceneManager.GetBuildScenes();
     for (auto& [sceneName, scenes] : scenes)
     {
