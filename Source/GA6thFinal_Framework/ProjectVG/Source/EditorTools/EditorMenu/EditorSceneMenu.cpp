@@ -2,11 +2,25 @@
 
 using namespace Global;
 
-void EditorSceneMenu::OnMenu() 
+void EditorSceneMenuGameObject::OnMenu() 
 {
     const auto& objectKeys = EGameObjectFactory::Engine::GetGameObjectKeys();
-    for (auto& i : objectKeys)
+    for (auto& key : objectKeys)
     {
-        //ImGui::MenuItem();
+        const char* name = key.c_str() + 6;
+        const std::string& labal = std::format("New {}", name);
+        if (ImGui::MenuItem(labal.c_str()))
+        {
+            engineCore->GameObjectFactory.NewGameObject(key, 
+                GameObject::Helper::GenerateUniqueName(name));
+        }
+    }
+}
+
+void EditorSceneMenuScenes::OnMenu() 
+{
+    ImGui::MenuItem("New Empty Scene");
+    {
+        engineCore->SceneManager.LoadScene("Empty Scene");
     }
 }
