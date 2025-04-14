@@ -226,3 +226,11 @@ namespace ImGuiHelper
         }
     };
 }
+
+
+//김시우가 만듬
+namespace ImGuiHelper
+{
+    std::array<float, 4> ImVec4ToArray(const ImVec4& vec4);
+    ImVec4               ArrayToImVec4(const std::array<float, 4>& array);
+}
