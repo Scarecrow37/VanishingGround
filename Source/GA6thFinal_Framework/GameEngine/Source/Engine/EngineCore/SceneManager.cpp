@@ -404,39 +404,17 @@ void ESceneManager::ObjectsLateUpdate()
 
 void ESceneManager::ObjectsMatrixUpdate()
 {
-    static std::vector<Transform*> updateStackVec;
     static std::unordered_set<Transform*> updateCheckSet;
     for (auto& obj : _runtimeObjects)
     {
-        if (IsRuntimeActive(obj) && obj->transform._isDirty == true)
+        if (IsRuntimeActive(obj) && obj->transform._hasChanged == true)
         {
-            updateStackVec.clear();
             updateCheckSet.clear();
             Transform* root = obj->transform._root ? obj->transform._root : &obj->transform;
             auto [iter, result] = updateCheckSet.insert(root);
             if (result == true)
             {
-                updateStackVec.push_back(root);
-                while (!updateStackVec.empty())
-                {
-                    Transform* curr = updateStackVec.back();
-                    updateStackVec.pop_back();
-
-                    curr->_localMatrix =
-                        Matrix::CreateScale(curr->_scale) *
-                        Matrix::CreateFromQuaternion(curr->_rotation) *
-                        Matrix::CreateTranslation(curr->_position);
-
-                    if (curr->_parent == nullptr)
-                    {
-                        curr->_worldMatrix = curr->_localMatrix;
-                    }
-                    else
-                    {
-                        curr->_worldMatrix = curr->_localMatrix * curr->_parent->_worldMatrix;
-                    }
-                    curr->_isDirty = false;
-                }
+                root->UpdateMatrix();
             }
         }
     }

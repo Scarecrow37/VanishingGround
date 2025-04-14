@@ -116,6 +116,17 @@ public:
         Rotation = normalize;
     }
 
+    /// <summary>
+    /// 월드 행렬 입니다.
+    /// </summary>
+    /// <returns></returns>
+    const Matrix& GetWorldMatrix() { return _worldMatrix; }
+    /// <summary>
+    /// 월드 역행렬 입니다.
+    /// </summary>
+    /// <returns></returns>
+    const Matrix& GetInversWorldMatrix() { return _inversWorldMatrix; };
+
 private:
     Transform*              _root;
     Transform*              _parent;
@@ -170,7 +181,7 @@ public:
         if (_position == value)
             return;
 
-        _isDirty  = true;
+        _hasChanged  = true;
         _position = value;
     }
     GETTER(const Vector3&, Position) { return _position; }
@@ -181,7 +192,7 @@ public:
         if (_rotation == value)
             return;
 
-        _isDirty    = true;
+        _hasChanged    = true;
         _rotation   = value;
         _eulerAngle = _rotation.ToEuler() * Mathf::Rad2Deg;
     }
@@ -193,7 +204,7 @@ public:
         if (_eulerAngle == value)
             return;
 
-        _isDirty    = true;
+        _hasChanged    = true;
         _eulerAngle = value;
         Quaternion newRotation =
             Quaternion::CreateFromYawPitchRoll(_eulerAngle * Mathf::Deg2Rad);
@@ -207,7 +218,7 @@ public:
         if (_scale == value)
             return;
 
-        _isDirty = true;
+        _hasChanged = true;
         _scale   = value;
     }
     GETTER(const Vector3&, Scale) { return _scale; }
@@ -224,14 +235,23 @@ protected:
     REFLECT_FIELDS_END(Transform)
 
 private:
-    bool       _isDirty;
+    bool       _hasChanged;
     Vector3    _position;
     Quaternion _rotation;
     Vector3    _eulerAngle;
     Vector3    _scale;
 
     Matrix _worldMatrix;
+    Matrix _inversWorldMatrix;
     Matrix _localMatrix;
+
+private:
+    /// <summary>
+    /// 월드 행렬을 계산합니다.
+    /// </summary>
+    void UpdateMatrix();
+
+
 };
 
 template <typename Func>

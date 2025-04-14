@@ -168,7 +168,6 @@
     <ClInclude Include="Source\EditorTools\NodeEditor\utilities\builders.h" />
     <ClInclude Include="Source\EditorTools\NodeEditor\utilities\drawing.h" />
     <ClInclude Include="Source\EditorTools\NodeEditor\utilities\widgets.h" />
-    <ClInclude Include="Source\TestEditor\ObjectTestEditor.h" />
     <ClInclude Include="Source\TestEditor\ScriptTestEditor.h" />
   </ItemGroup>
   <ItemGroup>
@@ -187,7 +186,6 @@
     <ClCompile Include="Source\EditorTools\NodeEditor\utilities\builders.cpp" />
     <ClCompile Include="Source\EditorTools\NodeEditor\utilities\drawing.cpp" />
     <ClCompile Include="Source\EditorTools\NodeEditor\utilities\widgets.cpp" />
-    <ClCompile Include="Source\TestEditor\ObjectTestEditor.cpp" />
     <ClCompile Include="Source\TestEditor\ScriptTestEditor.cpp" />
   </ItemGroup>
   <ItemGroup>

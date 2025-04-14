@@ -12,7 +12,6 @@
     <ClCompile Include="Source\EditorTools\NodeEditor\utilities\builders.cpp" />
     <ClCompile Include="Source\EditorTools\NodeEditor\utilities\drawing.cpp" />
     <ClCompile Include="Source\EditorTools\NodeEditor\utilities\widgets.cpp" />
-    <ClCompile Include="Source\TestEditor\ObjectTestEditor.cpp" />
     <ClCompile Include="Source\EditorTools\EditorMenu\EditorSettingMenu.cpp" />
     <ClCompile Include="Source\EditorTools\EditorAssetBrowser.cpp" />
     <ClCompile Include="Source\EditorTools\EditorMenu\EditorProjectMenu.cpp" />
@@ -32,7 +31,6 @@
     <ClInclude Include="Source\EditorTools\NodeEditor\utilities\builders.h" />
     <ClInclude Include="Source\EditorTools\NodeEditor\utilities\drawing.h" />
     <ClInclude Include="Source\EditorTools\NodeEditor\utilities\widgets.h" />
-    <ClInclude Include="Source\TestEditor\ObjectTestEditor.h" />
     <ClInclude Include="Source\EditorTools\EditorMenu\EditorSettingMenu.h" />
     <ClInclude Include="Source\EditorTools\EditorAssetBrowser.h" />
     <ClInclude Include="Source\EditorTools\EditorMenu\EditorProjectMenu.h" />

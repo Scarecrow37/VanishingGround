@@ -6,7 +6,7 @@ Transform::Transform(GameObject& owner)
     _root(nullptr),
     _parent(nullptr),
 
-    _isDirty(true),
+    _hasChanged(true),
     _position(),
     _rotation(),
     _scale(1,1,1)
@@ -68,7 +68,7 @@ void Transform::SetParent(Transform* p)
             SetChildsRootParent(_root);
         }
     }
-    _isDirty = true;
+    _hasChanged = true;
 }
 
 void Transform::SetParent(Transform& p)
@@ -119,7 +119,7 @@ void Transform::DeserializedReflectEvent()
     _eulerAngle = Vector3(ReflectFields->eulerAngle.data());
     _scale = Vector3(ReflectFields->scale.data());
 
-    _isDirty = true;
+    _hasChanged = true;
 }
 
 void Transform::SetChildsRootParent(Transform* root)
@@ -151,3 +151,22 @@ Transform* Transform::Find(std::string_view name) const
     return nullptr;
 }
 
+void Transform::UpdateMatrix()
+{
+    Foreach(*this, [](Transform* curr) 
+    {
+        curr->_localMatrix = Matrix::CreateScale(curr->_scale) *
+                             Matrix::CreateFromQuaternion(curr->_rotation) *
+                             Matrix::CreateTranslation(curr->_position);
+        if (curr->_parent == nullptr)
+        {
+            curr->_worldMatrix = curr->_localMatrix;
+        }
+        else
+        {
+            curr->_worldMatrix =
+                curr->_localMatrix * curr->_parent->_worldMatrix;
+        }
+        curr->_hasChanged = false;
+    });
+}
