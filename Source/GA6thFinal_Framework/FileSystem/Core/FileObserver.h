@@ -60,7 +60,6 @@ namespace File
         std::atomic<bool>       _isStart;       // Start 호출 여부
         std::atomic<bool>       _isObserving;   // 옵저버 스레드의 시작 여부
     private:
-        constexpr static UINT  BUFFER_SIZE = {1024 * 256};
         constexpr static DWORD NOTIFY_FILTERS =
             FILE_NOTIFY_CHANGE_SECURITY | FILE_NOTIFY_CHANGE_CREATION |
             FILE_NOTIFY_CHANGE_LAST_ACCESS | FILE_NOTIFY_CHANGE_LAST_WRITE |

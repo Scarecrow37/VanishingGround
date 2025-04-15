@@ -23,7 +23,7 @@ namespace File
     {
 #ifdef _DEBUG
         std::wstring debugMsg = L"FileSystem: " + msg + L'\n';
-        OutputDebugString(msg.c_str());
+        OutputDebugString(debugMsg.c_str());
 #endif
     }
 
