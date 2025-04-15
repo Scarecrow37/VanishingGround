@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 // 도킹 영역
-enum class DockSpaceArea
+enum class DockLayout
 {
     NONE = -1,
     LEFT = 0,

@@ -4,7 +4,7 @@ using namespace Global;
 EditorDebugView::EditorDebugView()
 {
     SetLabel("Debug");
-    SetInitialDockSpaceArea(DockSpaceArea::DOWN);
+    SetInitialDockLayout(DockLayout::DOWN);
 }
 
 EditorDebugView::~EditorDebugView()

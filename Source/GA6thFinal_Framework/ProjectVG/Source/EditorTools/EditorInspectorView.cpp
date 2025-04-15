@@ -4,7 +4,7 @@
 EditorInspectorView::EditorInspectorView()
 {
     SetLabel("InspectorView");
-    SetInitialDockSpaceArea(DockSpaceArea::RIGHT);
+    SetInitialDockLayout(DockLayout::RIGHT);
 }
 
 EditorInspectorView::~EditorInspectorView()

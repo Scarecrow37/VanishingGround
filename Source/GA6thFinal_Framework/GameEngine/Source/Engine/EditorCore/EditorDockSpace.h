@@ -2,6 +2,7 @@
 
 class EditorDockSpace : public EditorBase
 {
+    using ToolTable = std::unordered_map<std::string, std::unique_ptr<EditorTool>>;
 public:
     EditorDockSpace();
     virtual ~EditorDockSpace();
@@ -22,6 +23,7 @@ public:
         {
             T* instance = new T;
             _editorToolTable[typeName].reset(instance);
+            _editorToolList.push_back(instance);
         }
         return GetTool<T>();
     }
@@ -39,17 +41,18 @@ public:
 
     inline const auto& GetRefToolTable() { return _editorToolTable; }
 private:
-    std::unordered_map<std::string, std::unique_ptr<EditorTool>> _editorToolTable;    /* 에디터 툴 컨테이너 */
-    bool _isFullSpace = true;                               /* DockSpace가 화면 전체를 차지하는지 여부 */
-    bool _isPadding = false;                                /* DockSpace가 Padding을 할지 여부 */
-    ImGuiDockNodeFlags _dockNodeFlags;                      /* DockSpace 플래그 값 */
-    ImGuiWindowFlags _dockWindowFlag;                       /* DockWindow 플래그 값 */
-    ImGuiID _dockSpaceMainID;                               /* 메인 도킹영역 ID값 */
-    ImGuiID _dockSpaceAreaID[(INT)DockSpaceArea::SIZE];     /* 도킹 영역에 대한 ID값 */
-    const char* _dockAreaInitalData;                        /* (미구현) 초기 도킹 세팅 저장 값 */
+    ToolTable _editorToolTable;                     /* 검색용 툴 컨테이너 */
+    std::vector<EditorTool*> _editorToolList;       /* 순회용 툴 리스트 */
+    bool _isFullSpace = true;                       /* DockSpace가 화면 전체를 차지하는지 여부 */
+    bool _isPadding = false;                        /* DockSpace가 Padding을 할지 여부 */
+    ImGuiDockNodeFlags _dockNodeFlags;              /* DockSpace 플래그 값 */
+    ImGuiWindowFlags _dockWindowFlag;               /* DockWindow 플래그 값 */
+    ImGuiID _dockSpaceMainID;                       /* 메인 도킹영역 ID값 */
+    ImGuiID _dockLayoutID[(INT)DockLayout::SIZE];   /* 도킹 영역에 대한 ID값 */
+    const char* _dockAreaInitalData;                /* (미구현) 초기 도킹 세팅 저장 값 */
 private:
     /* 최초로 에디터를 킬 경우 초기 툴의 DockSpace 공간 지정 */
-    void InitDockSpaceArea();
+    void InitDockLayout();
     /* DockSpace를 현재의 Flag, Style 기반으로 등록 */
     void SubmitDockSpace();
     /* DockWindow Flag 업데이트 (SubmitDockSpace 이전에 호출해야 함) */
@@ -72,6 +75,6 @@ public:
     /* 메인 DockSpace의 ID 반환 */
     inline ImGuiID GetDockSpaceID() { return _dockSpaceMainID; }
     /* 메인 DockSpace의 특정 영역 ID 반환 */
-    inline ImGuiID GetDockSpaceAreaID(DockSpaceArea area) { return _dockSpaceAreaID[(INT)area]; }
+    inline ImGuiID GetDockLayoutID(DockLayout area) { return _dockLayoutID[(INT)area]; }
 };
 

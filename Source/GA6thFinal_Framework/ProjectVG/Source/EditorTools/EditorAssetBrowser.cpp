@@ -6,7 +6,7 @@ namespace fs = std::filesystem;
 EditorAssetBrowser::EditorAssetBrowser()
 {
     SetLabel("AssetBrowser");
-    SetInitialDockSpaceArea(DockSpaceArea::DOWN);
+    SetInitialDockLayout(DockLayout::DOWN);
 
     _selectedContext = std::make_shared<EditorFileObject>();
 
