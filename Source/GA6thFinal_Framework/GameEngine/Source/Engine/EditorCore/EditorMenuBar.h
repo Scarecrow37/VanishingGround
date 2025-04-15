@@ -28,7 +28,7 @@ public:
         static_assert(std::is_base_of_v<EditorMenu, T>, "T is not a EditorMenu.");
         const char* typeName = typeid(T).name();
         T menu;
-        Path fullPath = menu.GetLabel();
+        Path fullPath = menu.GetPath();
         fullPath = fullPath.generic_string();
 
         auto itr = _menuTable.find(typeName);
@@ -40,7 +40,7 @@ public:
             EditorMenuNode* parent = BuildMenuNode(fullPath);
             if (nullptr != parent)
             {
-                parent->_menuList.push_back(instance);
+                parent->_menuList[instance->GetLabel()].push_back(instance);
                 Sort(parent);
             }
         }
@@ -70,7 +70,7 @@ private:
 class EditorMenuBase : public EditorBase
 {
 public:
-    EditorMenuBase(std::string_view path);
+    EditorMenuBase();
     virtual ~EditorMenuBase();
 
 public:
@@ -106,14 +106,14 @@ class EditorMenuNode : public EditorMenuBase
     friend class EditorMenuBar;
 
 public:
-    EditorMenuNode(std::string_view path);
+    EditorMenuNode();
     virtual ~EditorMenuNode();
 
 public:
     virtual void OnDrawGui() override final;
 
 private:
-    std::vector<EditorMenuBase*> _menuList;
+    std::unordered_map<std::string, std::vector<EditorMenuBase*>> _menuList;
 };
 
 /*
@@ -141,7 +141,8 @@ public:
     SampleMenu()
     {
         SetCallOrder(-1);
-        SetLabel("Scene/Sample");
+        SetPath("Scene/Sample");
+        SetLabel("Temp");
     }
     virtual ~SampleMenu() = default;
 
@@ -149,6 +150,27 @@ public:
     virtual void OnMenu() override
     {
         if (ImGui::MenuItem("Sample1"))
+        {
+        }
+    }
+};
+
+
+class SampleMenu2 : public EditorMenu
+{
+public:
+    SampleMenu2()
+    {
+        SetCallOrder(-1);
+        SetPath("Scene/Sample");
+        SetLabel("Temp1");
+    }
+    virtual ~SampleMenu2() = default;
+
+public:
+    virtual void OnMenu() override
+    {
+        if (ImGui::MenuItem("Sample2"))
         {
         }
     }

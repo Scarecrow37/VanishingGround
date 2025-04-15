@@ -10,6 +10,7 @@ public:
     EditorSceneMenuGameObject()
     {
         SetCallOrder(1);
+        SetPath("Scene");
         SetLabel("Scene");
     }
     virtual ~EditorSceneMenuGameObject() = default;
@@ -24,6 +25,7 @@ public:
     EditorSceneMenuScenes()
     {
         SetCallOrder(0);
+        SetPath("Scene");
         SetLabel("Scene");
     }
     virtual ~EditorSceneMenuScenes() = default;

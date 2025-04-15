@@ -10,7 +10,8 @@ public:
     EditorMenuTools()
     {
         SetCallOrder(0);
-        SetLabel("Window");
+        SetPath("Window");
+        SetLabel("");
     }
     virtual ~EditorMenuTools() = default;
 
