@@ -71,6 +71,8 @@ GameApplication::GameApplication()
     _editorManager->RegisterEditorObject<EditorSceneMenuGameObject>();
     _editorManager->RegisterEditorObject<EditorSceneMenuScenes>();
 
+    _editorManager->RegisterEditorObject<SampleMenu>();
+
 }
 
 GameApplication::~GameApplication()

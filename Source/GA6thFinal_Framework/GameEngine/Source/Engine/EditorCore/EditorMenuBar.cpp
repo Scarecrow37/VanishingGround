@@ -36,7 +36,7 @@ void EditorMenuBar::OnDrawGui()
             menu->OnTickGui();
     }
 
-    for (auto& node : _root->_MenuNodeVec)
+    for (auto& node : _root->_menuList)
     {
         if(nullptr != node)
             node->OnDrawGui();
@@ -87,7 +87,7 @@ EditorMenuNode* EditorMenuBar::BuildMenuNode(Path path)
             instance->SetLabel(curPath.string());
 
             EditorMenuNode* parent = GetMenuFromPath(curPath.parent_path());
-            parent->_MenuNodeVec.push_back(instance);
+            parent->_menuList.push_back(instance);
 
             Sort(parent);
         }
@@ -98,17 +98,15 @@ EditorMenuNode* EditorMenuBar::BuildMenuNode(Path path)
 
 void EditorMenuBar::Sort(EditorMenuNode* root)
 {
-    if (root->_MenuNodeVec.empty())
+    if (root->_menuList.empty())
         return;
 
-    std::sort(
-        root->_MenuNodeVec.begin(),
-        root->_MenuNodeVec.end(),
-              [](EditorMenuBase* a, EditorMenuBase* b) {
+    std::sort(root->_menuList.begin(), root->_menuList.end(),
+        [](EditorBase* a, EditorBase* b) {
             return a->GetCallOrder() > b->GetCallOrder();
         });
 
-    for (auto& instance : root->_MenuNodeVec)
+    for (auto& instance : root->_menuList)
     {
         auto* node = dynamic_cast<EditorMenuNode*>(instance);
         if (node)
@@ -118,10 +116,34 @@ void EditorMenuBar::Sort(EditorMenuNode* root)
     }
 }
 
-EditorMenuNode::EditorMenuNode(std::string_view name)
-    : _name(name)
+EditorMenuBase::EditorMenuBase(std::string_view path) 
+    : _path(path)
+{
+
+}
+
+EditorMenuBase::~EditorMenuBase() 
 {
 }
+
+void EditorMenuBase::DefaultDebugFrame()
+{
+    static char tooltip[256];
+
+    snprintf(tooltip, sizeof(tooltip), "GuiID: 0x%08X\nOrder: %d",
+             ImGui::GetID(""), _callOrder);
+
+    if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
+    {
+        ImGui::BeginTooltip();
+        ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+        ImGui::TextUnformatted(tooltip);
+        ImGui::PopTextWrapPos();
+        ImGui::EndTooltip();
+    }
+}
+
+EditorMenuNode::EditorMenuNode(std::string_view path) : EditorMenuBase(path) {}
 
 EditorMenuNode::~EditorMenuNode() 
 {
@@ -133,9 +155,13 @@ void EditorMenuNode::OnDrawGui()
     {
         ImGui::PushID(this);
 
-        if (ImGui::BeginMenu(_name.c_str(), GetActive()))
+        if (ImGui::BeginMenu(GetPath().c_str(), GetActive()))
         {
-            for (auto& node : _MenuNodeVec)
+            if (true == Global::editorManager->IsDebugMode())
+            {
+                DefaultDebugFrame();
+            }
+            for (auto& node : _menuList)
             {
                 node->OnDrawGui();
             }
@@ -144,6 +170,11 @@ void EditorMenuNode::OnDrawGui()
         ImGui::PopID();
     }
 }
+
+EditorMenu::EditorMenu() : EditorMenuBase("") {}
+
+EditorMenu::~EditorMenu() {}
+
 void EditorMenu::OnDrawGui()
 {
     OnTickGui();
@@ -153,8 +184,11 @@ void EditorMenu::OnDrawGui()
         ImGui::PushID(this);
 
         OnMenu();
+        if (true == Global::editorManager->IsDebugMode())
+        {
+            DefaultDebugFrame();
+        }
 
         ImGui::PopID();
     }
 }
-

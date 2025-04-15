@@ -31,21 +31,20 @@ protected:
     virtual void OnPopup();
 public:
     /*                      초기 도킹 영역을 지정 */
-    inline void             SetInitialDockSpaceArea(DockSpaceArea area) { _dockSpaceArea = area; }
-    inline DockSpaceArea    GetInitialDockSapceArea() { return _dockSpaceArea; }
+    inline void             SetDockLayout(DockLayout layout) { _dockLayout = layout; }
+    inline DockLayout       GetDockLayout() { return _dockLayout; }
     /*                      플래그 설정 */
     inline void             SetWindowFlag(ImGuiWindowFlags flag) { _windowFlags = flag; }
     inline void             AddWindowFlag(ImGuiWindowFlags flag) { _windowFlags |= flag; }
     inline ImGuiWindowFlags GetWindowFlag() { return _windowFlags; }
-
     /*                      툴 잠금 설정 */
     inline void             SetLock(bool v) { _isLock = v; }
-    inline bool             GetLock() { return _isLock; }
+    inline bool             IsLock() { return _isLock; }
     inline void             ToggleLock() { _isLock = _isLock == true ? false : true; }
 private:
-    DockSpaceArea _dockSpaceArea = DockSpaceArea::NONE;     // 초기 DockSpace영역 (초기 도킹빌드시에만 사용하고 이후엔 사용 X)
-    ImGuiWindowFlags _windowFlags = ImGuiWindowFlags_None;  // ImGui윈도우 플래그 (ImGuiWindowFlags_NoCollapse는 항상 활성화)
-    bool _isLock = false;                                   // 해당 탭에 대한 입력을 막을지에 대한 여부
+    DockLayout          _dockLayout = DockLayout::NONE;         // 초기 Dock영역 (초기 도킹빌드시에만 사용하고 이후엔 사용 X)
+    ImGuiWindowFlags    _windowFlags = ImGuiWindowFlags_None;   // ImGui윈도우 플래그 (ImGuiWindowFlags_NoCollapse는 항상 활성화)
+    bool                _isLock = false;                        // 해당 탭에 대한 입력을 막을지에 대한 여부
     // + 추가할 것: 오프셋 등
 private:
     void DefaultPopupFrame();

@@ -30,16 +30,17 @@ public:
         T menu;
         Path fullPath = menu.GetLabel();
         fullPath = fullPath.generic_string();
+
         auto itr = _menuTable.find(typeName);
         if (itr == _menuTable.end())
         {
             T* instance = new T();
             _menuTable[typeName].reset(instance);
-            // ex) Project/Setting = O (경로에 Leaf를 포함하지 말것)
+            // ex) Project/Setting = O (경로에 filename를 포함하지 말것)
             EditorMenuNode* parent = BuildMenuNode(fullPath);
             if (nullptr != parent)
             {
-                parent->_MenuNodeVec.push_back(instance);
+                parent->_menuList.push_back(instance);
                 Sort(parent);
             }
         }
@@ -69,8 +70,8 @@ private:
 class EditorMenuBase : public EditorBase
 {
 public:
-    EditorMenuBase() = default;
-    virtual ~EditorMenuBase() = default;
+    EditorMenuBase(std::string_view path);
+    virtual ~EditorMenuBase();
 
 public:
     virtual void OnTickGui() override {};
@@ -80,11 +81,18 @@ public:
 
 public:
     /* 클릭 활성화 여부를 설정 */
-    inline void  SetActive(bool v) { _isActive = v; }
-    inline bool  GetActive() { return _isActive; }
+    inline void SetActive(bool v) { _isActive = v; }
+    inline bool GetActive() { return _isActive; }
+
+    inline void SetPath(std::string_view path) { _path = path; }
+    inline const auto& GetPath() { return _path; }
+
+protected:
+    void DefaultDebugFrame();
 
 private:
-    bool            _isActive = true;  /* 클릭을 비활성화 함 (회색 표시) */
+    std::string _path;
+    bool _isActive = true;  /* 클릭을 비활성화 함 (회색 표시) */
 };
 
 /*
@@ -98,15 +106,14 @@ class EditorMenuNode : public EditorMenuBase
     friend class EditorMenuBar;
 
 public:
-    EditorMenuNode(std::string_view name);
+    EditorMenuNode(std::string_view path);
     virtual ~EditorMenuNode();
 
 public:
     virtual void OnDrawGui() override final;
 
 private:
-    std::string                  _name; /* 메뉴의 경로를 나타내는 객체 */
-    std::vector<EditorMenuBase*> _MenuNodeVec;
+    std::vector<EditorMenuBase*> _menuList;
 };
 
 /*
@@ -117,9 +124,32 @@ EditorMenu:
 class EditorMenu : public EditorMenuBase
 {
 public:
+    EditorMenu();
+    virtual ~EditorMenu();
+
+public:
     virtual void OnDrawGui() override;
 
 public:
     virtual void OnTickGui() override {};
     virtual void OnMenu() = 0;
+};
+
+class SampleMenu : public EditorMenu
+{
+public:
+    SampleMenu()
+    {
+        SetCallOrder(-1);
+        SetLabel("Scene/Sample");
+    }
+    virtual ~SampleMenu() = default;
+
+public:
+    virtual void OnMenu() override
+    {
+        if (ImGui::MenuItem("Sample1"))
+        {
+        }
+    }
 };

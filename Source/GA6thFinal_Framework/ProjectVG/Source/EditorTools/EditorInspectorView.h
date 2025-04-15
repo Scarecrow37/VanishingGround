@@ -18,8 +18,6 @@ private:
 
     virtual void OnFocus() override;
 
-    void         TestGui();
-
 public:
     static void SetFocusObject(std::weak_ptr<IEditorObject> obj)
     {
