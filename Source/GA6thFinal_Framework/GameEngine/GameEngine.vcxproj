@@ -151,6 +151,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Editor\DragDropTypes\DragDropTransform.h" />
     <ClInclude Include="Source\Engine\FileSystem\FileSystemModule.h" />
     <ClInclude Include="Source\Engine\EditorCore\EditorTool.h" />
     <ClInclude Include="Source\Engine\EditorCore\EditorDockSpace.h" />

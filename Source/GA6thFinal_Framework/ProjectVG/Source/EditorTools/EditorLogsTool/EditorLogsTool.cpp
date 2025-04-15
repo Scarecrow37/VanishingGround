@@ -5,7 +5,7 @@ using namespace Global;
 
 static std::filesystem::path GetSettingFilePath()
 {
-    constexpr const wchar_t* LOG_SETTING_FILE_NAME = L"EditorLogSetting.setting.json";
+    constexpr const wchar_t* LOG_SETTING_FILE_NAME = L"EditorLog.setting.json";
     std::filesystem::path settingPath = PROJECT_SETTING_PATH;
     settingPath /= LOG_SETTING_FILE_NAME;
     return settingPath;

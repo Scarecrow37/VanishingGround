@@ -17,7 +17,6 @@ public:
     Transform(GameObject& owner);
     ~Transform();
     GameObject& gameObject;
-
 public:
     /// <summary>
     /// 오일러 각으로 쿼터니언을 만듭니다. 매개변수의 단위는 디그리드 입니다.
