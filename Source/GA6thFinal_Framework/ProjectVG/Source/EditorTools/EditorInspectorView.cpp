@@ -13,12 +13,10 @@ EditorInspectorView::~EditorInspectorView()
 
 void  EditorInspectorView::OnStartGui()
 {
-    return void();
 }
 
 void  EditorInspectorView::OnPreFrame()
 {
-    return void();
 }
 
 void  EditorInspectorView::OnFrame()
@@ -32,24 +30,8 @@ void  EditorInspectorView::OnFrame()
 
 void  EditorInspectorView::OnPostFrame()
 {
-    return void();
 }
 
 void EditorInspectorView::OnFocus()
 {
-    EEngineLogger& logger = Global::engineCore->EngineLogger;
-    //logger.Log(LogLevel::LEVEL_TRACE, "EditorInspectorView Focused!");
-}
-
-void EditorInspectorView::TestGui()
-{
-    //ImGui::TextUnformatted("\xef\x85\x9b"); // FILE 아이콘 (FontAwesome 6)
-    ImFont* font = ImGui::GetFont();
-   
-    if (ImGui::Button("Focus Logger"))
-    {
-        EditorLogsTool* tool = Global::editorManager->GetEditorObject<EditorLogsTool>();
-        const char* label = tool->GetLabel().c_str();
-        ImGui::SetWindowFocus(label);
-    }
 }
