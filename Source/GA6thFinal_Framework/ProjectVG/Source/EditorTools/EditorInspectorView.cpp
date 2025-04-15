@@ -46,7 +46,7 @@ void  EditorInspectorView::OnPostFrame()
 void EditorInspectorView::OnFocus()
 {
     EEngineLogger& logger = Global::engineCore->EngineLogger;
-    logger.Log(LogLevel::LEVEL_TRACE, "EditorInspectorView Focused!");
+    //logger.Log(LogLevel::LEVEL_TRACE, "EditorInspectorView Focused!");
 }
 
 void EditorInspectorView::TestGui()
