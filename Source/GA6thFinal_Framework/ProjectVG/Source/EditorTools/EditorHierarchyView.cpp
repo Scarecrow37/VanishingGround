@@ -19,21 +19,27 @@ static void                      TransformTreeNode(Transform&                   
     };
 
     auto TreeDragDropEvent = [&node]() {
-        static Transform* pDragNode = nullptr;
+        using Data = DragDropTransform::Data;
+        constexpr const char* key = DragDropTransform::key;
         if (ImGui::BeginDragDropSource())
         {
-            pDragNode = &node;
-            ImGui::SetDragDropPayload("Drag Node", &pDragNode,
-                                      sizeof(Transform*));
+            Data data{};
+            data.pTransform = &node;
+            //data.serializedFunc = 
+
+            ImGui::SetDragDropPayload(key, 
+                                      &data, 
+                                      sizeof(Data));
             ImGui::EndDragDropSource();
         }
 
         if (ImGui::BeginDragDropTarget())
         {
-            if (const ImGuiPayload* payload =
-                    ImGui::AcceptDragDropPayload("Drag Node"))
+            if (const ImGuiPayload* payload = 
+                ImGui::AcceptDragDropPayload(key))
             {
-                pDragNode->SetParent(node);
+                Data* data = (Data*)payload->Data;
+                data->pTransform->SetParent(node);
             }
             ImGui::EndDragDropTarget();
         }
@@ -135,8 +141,24 @@ void  EditorHierarchyView::OnPreFrame()
     
 }
 
+void EditorHierarchyView::HierarchyDropEvent()
+{
+    ImGuiWindow* window = ImGui::FindWindowByName(GetLabel().c_str());
+    ImRect       rect   = window->Rect();
+    if (ImGui::BeginDragDropTargetCustom(rect, window->ID))
+    {
+        if (const ImGuiPayload* payload =
+                ImGui::AcceptDragDropPayload("Asset"))
+        {
+
+        }
+        ImGui::EndDragDropTarget();
+    }
+}
+
 void  EditorHierarchyView::OnFrame()
 {
+    HierarchyDropEvent();
     const auto& scenes = engineCore->SceneManager.GetBuildScenes();
     for (auto& [sceneName, scenes] : scenes)
     {
