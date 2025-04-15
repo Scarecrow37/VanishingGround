@@ -18,6 +18,9 @@ protected:
     /* ImGui가 초기화된 후 한번 호출 */
     virtual void OnStartGui() override;
 
+    /* ImGui가 종료될때 한번 호출 */
+    virtual void OnEndGui() override;
+
     /*반드시 호출*/
     virtual void OnTickGui() override;
 
@@ -40,7 +43,11 @@ private:
     bool   _isMessagePush     = false;
     bool   _editFilter  = false;
     std::vector<std::tuple<int, std::string, LogLocation>> _drawLogList;
-private:
-    std::unordered_map<int, ImVec4> LogColorTable;
+
+protected:
+    REFLECT_FIELDS_BEGIN(EditorTool)
+    std::unordered_map<int, std::array<float, 4>> LogColorTable;
     std::unordered_map<int, bool> LogFilterTable;
+    REFLECT_FIELDS_END(EditorLogsTool)
+
 };

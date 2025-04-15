@@ -19,8 +19,12 @@ public:
 /*
 에디터에 출력되는 창(프레임) 단위의 객체에 상속하기 위한 객체
 */
-class EditorBase
+class EditorBase : public ReflectSerializer
 {
+protected:
+    REFLECT_FIELDS_BEGIN(ReflectSerializer)
+    REFLECT_FIELDS_END(EditorBase)
+
 public:
     EditorBase() = default;
     virtual ~EditorBase() = default;

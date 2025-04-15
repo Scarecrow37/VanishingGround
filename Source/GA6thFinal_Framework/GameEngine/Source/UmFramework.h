@@ -3,10 +3,12 @@
 //constexpr
 #ifdef UMREALSCRIPTS_EXPORT
 #define SCRIPTS_PROJECT true;
-constexpr bool IS_SCRIPTS_PROJECT = true;
+constexpr bool IS_SCRIPTS_PROJECT = true; 
 #else
 constexpr bool IS_SCRIPTS_PROJECT = false;
 #endif 
+
+constexpr const wchar_t* PROJECT_SETTING_PATH = L"ProjectSetting"; // 프로젝트 설정 파일들 모아두는 폴더
 
 //WINDOW SDK
 #include <Windows.h>
@@ -23,7 +25,7 @@ constexpr bool IS_SCRIPTS_PROJECT = false;
 
 //CRT
 #include <tchar.h>
-
+    
 //STL
 #include <filesystem>
 #include <iostream>
