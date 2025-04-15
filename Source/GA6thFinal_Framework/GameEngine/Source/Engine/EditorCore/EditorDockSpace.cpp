@@ -3,7 +3,7 @@
 
 EditorDockSpace::EditorDockSpace()
     : _dockSpaceMainID()
-    , _dockSpaceAreaID()
+    , _dockLayoutID()
     , _dockNodeFlags(ImGuiDockNodeFlags_NoCloseButton | ImGuiDockNodeFlags_NoWindowMenuButton)
     , _dockWindowFlag(ImGuiWindowFlags_None)
 {
@@ -12,7 +12,8 @@ EditorDockSpace::EditorDockSpace()
 
 EditorDockSpace::~EditorDockSpace()
 {
-   
+    _editorToolTable.clear();
+    _editorToolList.clear();
 }
 
 void EditorDockSpace::OnTickGui()
@@ -28,6 +29,10 @@ void EditorDockSpace::OnStartGui()
             tool->OnStartGui();
         }
     }
+    std::sort(_editorToolList.begin(), _editorToolList.end(),
+        [](EditorBase* a, EditorBase* b) {
+            return a->GetCallOrder() > b->GetCallOrder();
+        });
 }
 
 void EditorDockSpace::OnDrawGui()
@@ -40,7 +45,7 @@ void EditorDockSpace::OnDrawGui()
     SubmitDockSpace();      // Submit Dock
     PopDockStyle();         // Dock Style Pop
 
-    for (auto& [key, tool] : _editorToolTable)
+    for (auto& tool : _editorToolList)
     {
         if (nullptr != tool)
         {
@@ -64,7 +69,7 @@ void EditorDockSpace::OnEndGui()
     }
 }
 
-void EditorDockSpace::InitDockSpaceArea()
+void EditorDockSpace::InitDockLayout()
 {
     if (NULL == ImGui::DockBuilderGetNode(_dockSpaceMainID))
     {
@@ -73,23 +78,23 @@ void EditorDockSpace::InitDockSpaceArea()
 
         ImGuiID dock_main_id = _dockSpaceMainID; // This variable will track the document node, however we are not using it here as we aren't docking anything into it.
         // 오른쪽 20%
-        _dockSpaceAreaID[(INT)DockSpaceArea::RIGHT] = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Right, 0.25f, NULL, &dock_main_id);
+        _dockLayoutID[(INT)DockLayout::RIGHT] = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Right, 0.25f, NULL, &dock_main_id);
         // 아래쪽 25%
-        _dockSpaceAreaID[(INT)DockSpaceArea::DOWN] = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Down, 0.40f, NULL, &dock_main_id);
+        _dockLayoutID[(INT)DockLayout::DOWN] = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Down, 0.40f, NULL, &dock_main_id);
         // 왼쪽 20%
-        _dockSpaceAreaID[(INT)DockSpaceArea::LEFT] = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Left, 0.30f, NULL, &dock_main_id);
+        _dockLayoutID[(INT)DockLayout::LEFT] = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Left, 0.30f, NULL, &dock_main_id);
         // 위쪽 25%
-        _dockSpaceAreaID[(INT)DockSpaceArea::UP] = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Up, 0.50f, NULL, &dock_main_id);
+        _dockLayoutID[(INT)DockLayout::UP] = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Up, 0.50f, NULL, &dock_main_id);
         // 나머지 가운데
-        _dockSpaceAreaID[(INT)DockSpaceArea::CENTER] = dock_main_id;
+        _dockLayoutID[(INT)DockLayout::CENTER] = dock_main_id;
 
         for (auto& [key, tool] : _editorToolTable)
         {
-            if (tool && tool->GetInitialDockSapceArea() != DockSpaceArea::NONE)
+            if (tool && tool->GetDockLayout() != DockLayout::NONE)
             {
                 ImGui::DockBuilderDockWindow(
                     tool->GetLabel().c_str(),
-                    GetDockSpaceAreaID(tool->GetInitialDockSapceArea())
+                    GetDockLayoutID(tool->GetDockLayout())
                 );
             }
         }
@@ -109,7 +114,7 @@ void EditorDockSpace::SubmitDockSpace()
     if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
     {
         _dockSpaceMainID = ImGui::GetID(GetLabel().c_str());
-        InitDockSpaceArea();
+        InitDockLayout();
         ImGui::DockSpace(_dockSpaceMainID, ImVec2(0.0f, 0.0f), _dockNodeFlags);
     }
     style.WindowMinSize.x = minWinSizeX;

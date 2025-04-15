@@ -12,11 +12,12 @@
     <ClCompile Include="Source\EditorTools\NodeEditor\utilities\builders.cpp" />
     <ClCompile Include="Source\EditorTools\NodeEditor\utilities\drawing.cpp" />
     <ClCompile Include="Source\EditorTools\NodeEditor\utilities\widgets.cpp" />
-    <ClCompile Include="Source\TestEditor\ObjectTestEditor.cpp" />
     <ClCompile Include="Source\EditorTools\EditorMenu\EditorSettingMenu.cpp" />
     <ClCompile Include="Source\EditorTools\EditorAssetBrowser.cpp" />
     <ClCompile Include="Source\EditorTools\EditorMenu\EditorProjectMenu.cpp" />
     <ClCompile Include="Source\EditorTools\EditorLogsTool\EditorLogsTool.cpp" />
+    <ClCompile Include="Source\TestEditor\ScriptTestEditor.cpp" />
+    <ClCompile Include="Source\EditorTools\EditorMenu\EditorSceneMenu.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\EditorTools\EditorMenu\EditorWindowMenu.h" />
@@ -31,11 +32,12 @@
     <ClInclude Include="Source\EditorTools\NodeEditor\utilities\builders.h" />
     <ClInclude Include="Source\EditorTools\NodeEditor\utilities\drawing.h" />
     <ClInclude Include="Source\EditorTools\NodeEditor\utilities\widgets.h" />
-    <ClInclude Include="Source\TestEditor\ObjectTestEditor.h" />
     <ClInclude Include="Source\EditorTools\EditorMenu\EditorSettingMenu.h" />
     <ClInclude Include="Source\EditorTools\EditorAssetBrowser.h" />
     <ClInclude Include="Source\EditorTools\EditorMenu\EditorProjectMenu.h" />
     <ClInclude Include="Source\EditorTools\EditorLogsTool\EditorLogsTool.h" />
+    <ClInclude Include="Source\TestEditor\ScriptTestEditor.h" />
+    <ClInclude Include="Source\EditorTools\EditorMenu\EditorSceneMenu.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

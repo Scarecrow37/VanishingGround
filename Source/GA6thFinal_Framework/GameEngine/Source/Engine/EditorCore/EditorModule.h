@@ -1,15 +1,16 @@
 ﻿#pragma once
 
 class EditorTool;
-class EditorManager;
+class EditorModule;
+class EditorMenuBar;
+
 #ifndef SCRIPTS_PROJECT
 namespace Global
 {
-    extern EditorManager* editorManager;
+    extern EditorModule* editorManager;
 }
 
 #endif
-class EditorMenuBar;
 
 template <typename T>
 concept IsEditorBase = std::is_base_of_v<EditorBase, T>;
@@ -20,14 +21,13 @@ concept IsEditorTool = IsEditorBase<T> && std::is_base_of_v<EditorTool, T>;
 template <typename T>
 concept IsEditorMenu = IsEditorBase<T> && std::is_base_of_v<EditorMenu, T>;
 
-
- class EditorManager : public IAppModule
+ class EditorModule : public IAppModule
  {
      friend class Application;
      friend class EditorTool;
  private:
-     EditorManager();
-     ~EditorManager();
+     EditorModule();
+     ~EditorModule();
  public:
      void PreInitialize() override {}
      void ModuleInitialize() override;
@@ -36,7 +36,8 @@ concept IsEditorMenu = IsEditorBase<T> && std::is_base_of_v<EditorMenu, T>;
      void ModuleUnInitialize() override;
  public:
      /* InitImGui 직후 호출 */
-     void OnDrawGui();
+
+     void Update();
  public:
      /* 툴을 등록합니다. */
      template <IsEditorBase T>

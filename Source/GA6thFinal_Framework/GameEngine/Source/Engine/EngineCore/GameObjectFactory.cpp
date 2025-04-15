@@ -35,9 +35,9 @@ void EGameObjectFactory::ResetGameObject(
     std::string_view name)
 {
     ownerObject->_ownerScene = engineCore->SceneManager.GetMainScene().name;
-    ownerObject->ReflectionFields->_name = name;
-    ownerObject->ReflectionFields->_isStatic = false;
-    ownerObject->ReflectionFields->_activeSelf = true;
+    ownerObject->ReflectFields->_name = name;
+    ownerObject->ReflectFields->_isStatic = false;
+    ownerObject->ReflectFields->_activeSelf = true;
   
     //인스턴스 아이디 부여
     int instanceID = -1;
@@ -61,4 +61,9 @@ void EGameObjectFactory::Engine::ReturnInstanceID(int id)
         {
             return a > b; //내림차순 정렬
         });
+}
+
+const std::vector<std::string>& EGameObjectFactory::Engine::GetGameObjectKeys()
+{
+    return engineCore->GameObjectFactory._NewGameObjectKeyVec;
 }

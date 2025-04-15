@@ -4,15 +4,14 @@
 /*
 스크립트 빌드
 */
-class EditorMenuScriptBuilder : public EditorMenuLeaf
+class EditorMenuScriptBuilder : public EditorMenu
 {
 public:
     EditorMenuScriptBuilder() {
         SetCallOrder(0);
-        SetMenuPath("Project/Build");
-        SetLabel("Script Build");
+        SetLabel("Project/Build");
     }
     virtual ~EditorMenuScriptBuilder() = default;
 public:
-    virtual void OnSelected() override;
+    virtual void OnMenu() override;
 };

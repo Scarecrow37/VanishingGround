@@ -1,14 +1,16 @@
 ﻿#include "EditorSettingMenu.h"
 
-void EditorMenuDebug::OnSelected()
+void EditorMenuDebug::OnMenu()
 {
-    _isDebugMode = true == _isDebugMode ? false : true;
-    Global::editorManager->SetDebugMode(_isDebugMode);
+    if (ImGui::MenuItem("Debug", "", &_isDebugMode))
+    {
+        Global::editorManager->SetDebugMode(_isDebugMode);
+    }
 }
 
-void EditorMenuStyleEditor::OnSelected()
+void EditorMenuStyleEditor::OnMenu()
 {
-    _isOpenStyleEditor = true == _isOpenStyleEditor ? false : true;
+    ImGui::MenuItem("Style", "", &_isOpenStyleEditor);
 }
 
 void EditorMenuStyleEditor::OnTickGui()

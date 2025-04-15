@@ -3,7 +3,7 @@
 EditorSceneView::EditorSceneView()
 {
     SetLabel("SceneView");
-    SetInitialDockSpaceArea(DockSpaceArea::UP);
+    SetDockLayout(DockLayout::UP);
 }
 
 EditorSceneView::~EditorSceneView()
@@ -27,36 +27,6 @@ void DragDropFunc()
 
 void  EditorSceneView::OnFrame()
 {
-    ImGui::Text("Label: %s", GetLabel().c_str());
-    ImGui::Text("Flag: %d", _windowFlags);
-    ImGui::Text("DockID: %d", ImGui::GetWindowDockID());
-
-    static int a = 1;
-    static int b = 0;
-
-    ImGui::Button("a", ImVec2(60, 60));
-    if (ImGuiHelper::DragDrop::SendDragDropEvent<int>("AtoB", &a, DragDropFunc))
-    {
-        Global::engineCore->EngineLogger.Log(LogLevel::LEVEL_DEBUG, "AtoB Dragging");
-    }
-    if (ImGuiHelper::DragDrop::RecieveDragDropEvent<int>("BtoA", &a))
-    {
-        Global::engineCore->EngineLogger.Log(LogLevel::LEVEL_DEBUG, "Drag BtoA Stop");
-    }
-
-    ImGui::SameLine();
-    ImGui::Button("b", ImVec2(60, 60));
-   
-    if (ImGuiHelper::DragDrop::SendDragDropEvent<int>("BtoA", &b, DragDropFunc))
-    {
-        Global::engineCore->EngineLogger.Log(LogLevel::LEVEL_DEBUG, "BtoA Dragging");
-    }
-    if (ImGuiHelper::DragDrop::RecieveDragDropEvent<int>("AtoB", &b))
-    {
-        Global::engineCore->EngineLogger.Log(LogLevel::LEVEL_DEBUG, "Drag AtoB Stop");
-    }
-
-    return void ();
 }
 
 void  EditorSceneView::OnPostFrame()

@@ -151,6 +151,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Engine\FileSystem\FileSystemModule.h" />
     <ClInclude Include="Source\Engine\EditorCore\EditorTool.h" />
     <ClInclude Include="Source\Engine\EditorCore\EditorDockSpace.h" />
     <ClInclude Include="Source\Engine\AppModule\EngineCoresModule.h" />
@@ -163,7 +164,7 @@
     <ClInclude Include="Source\Engine\EditorCore\EditorBase.h" />
     <ClInclude Include="Source\Engine\EditorCore\EditorEnum.h" />
     <ClInclude Include="Source\Engine\EditorCore\EditorMenuBar.h" />
-    <ClInclude Include="Source\Engine\EditorCore\EditorManager.h" />
+    <ClInclude Include="Source\Engine\EditorCore\EditorModule.h" />
     <ClInclude Include="Source\Engine\EngineCore\ComponentFactory.h" />
     <ClInclude Include="Source\Engine\EngineCore\EngineCores.h" />
     <ClInclude Include="Source\Engine\EngineCore\EngineLogger.h" />
@@ -200,6 +201,7 @@
     <ClInclude Include="Source\Engine\Utility\DumpUtility.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Engine\FileSystem\FileSystemModule.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\EditorTool.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\EditorDockSpace.cpp" />
     <ClCompile Include="Source\Engine\AppModule\EngineCoresModule.cpp" />
@@ -208,7 +210,7 @@
     <ClCompile Include="Source\Engine\EditorCore\EditorBase.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\EditorEnum.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\EditorMenuBar.cpp" />
-    <ClCompile Include="Source\Engine\EditorCore\EditorManager.cpp" />
+    <ClCompile Include="Source\Engine\EditorCore\EditorModule.cpp" />
     <ClCompile Include="Source\Engine\EngineCore\ComponentFactory.cpp" />
     <ClCompile Include="Source\Engine\EngineCore\EngineCores.cpp" />
     <ClCompile Include="Source\Engine\EngineCore\EngineLogger.cpp" />
@@ -273,6 +275,7 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Utility\dllUtility.cpp" />
     <ClCompile Include="Source\Engine\Utility\ImguiHelper.cpp" />
+    <ClCompile Include="Source\Engine\Utility\LogLevel.cpp" />
     <ClCompile Include="Source\Engine\Utility\Mathf.cpp" />
     <ClCompile Include="Source\Engine\Utility\utfHelper.cpp" />
     <ClCompile Include="Source\Engine\ApplicationCore\Application.cpp" />
@@ -289,6 +292,11 @@
     <None Include="Source\Engine\Imgui\imgui_bezier_math.inl" />
     <None Include="Source\Engine\Imgui\imgui_extra_math.inl" />
     <None Include="Source\Engine\Imgui\imgui_node_editor_internal.inl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FileSystem\FileSystem.vcxproj">
+      <Project>{ae54bba5-ecd5-4665-bfd1-f654aa0af719}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
