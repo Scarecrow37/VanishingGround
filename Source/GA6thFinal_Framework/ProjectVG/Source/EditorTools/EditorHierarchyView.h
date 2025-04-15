@@ -17,5 +17,7 @@ private:
     virtual void OnPostFrame() override;
 
     virtual void OnPopup() override;
+
+    void HierarchyDropEvent();
 };
 
