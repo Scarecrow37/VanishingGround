@@ -4,6 +4,16 @@
 
 namespace File
 {
+    void FileSystem::SetDebugLevel(int level) 
+    {
+        _debugLevel = level;
+    }
+
+    int FileSystem::GetDebugLevel()
+    {
+        return _debugLevel;
+    }
+
     bool FileSystem::IsVaildGuid(const File::Guid& guid)
     {
         return _guidToPathTable.find(guid) != _guidToPathTable.end();

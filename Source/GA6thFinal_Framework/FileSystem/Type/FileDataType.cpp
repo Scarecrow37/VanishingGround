@@ -49,6 +49,7 @@ namespace File
             node[FILE_GUID_HEADER] = _fileGuid.string();
             node[PROJ_GUID_HEADER] = _projectGuid.string();
             fout << node;
+
             return true;
         }
         return false;
@@ -70,6 +71,9 @@ namespace File
             _filePath    = path;
             _fileGuid    = node[FILE_GUID_HEADER].as<std::string>();
             _projectGuid = node[PROJ_GUID_HEADER].as<std::string>();
+
+            if (FileSystem::GetDebugLevel() >= 2)
+                OutputLog(L"Load MetaFile: " + _filePath.wstring());
             return true;
         }   
         return false;

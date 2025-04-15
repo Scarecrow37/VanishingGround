@@ -258,6 +258,75 @@ namespace File
         }
     }
 
+    void FileObserver::EventDataToWStr(FileEventData& data, std::wstring& wstr)
+    {
+        switch (data._eventType)
+        {
+        case File::EventType::UNKNOWN: {
+            wstr = L"(EventType: UNKNOWN";
+            wstr += L", lParam: ";
+            wstr += data._lParam;
+            wstr += L", rParam: ";
+            wstr += data._rParam;
+            wstr += L")";
+            break;
+        }
+        case File::EventType::ADDED: {
+            wstr = L"(EventType: ADDED";
+            wstr += L", lParam: ";
+            wstr += data._lParam;
+            wstr += L")";
+            break;
+        }
+        case File::EventType::REMOVED: {
+            wstr = L"(EventType: REMOVED";
+            wstr += L", lParam: ";
+            wstr += data._lParam;
+            wstr += L")";
+            break;
+        }
+        case File::EventType::MODIFIED: {
+            wstr = L"(EventType: MODIFIED";
+            wstr += L", lParam: ";
+            wstr += data._lParam;
+            wstr += L")";
+            break;
+        }
+        case File::EventType::RENAMED: {
+            wstr = L"(EventType: RENAMED";
+            wstr += L", lParam: ";
+            wstr += data._lParam;
+            wstr += L", rParam: ";
+            wstr += data._rParam;
+            wstr += L")";
+            break;
+        }
+        case File::EventType::MOVED: {
+            wstr = L"(EventType: MOVED";
+            wstr += L", lParam: ";
+            wstr += data._lParam;
+            wstr += L", rParam: ";
+            wstr += data._rParam;
+            wstr += L")";
+            break;
+        }
+        default:
+            break;
+        }
+    }
+
+    void FileObserver::LastFileEventLog(FileEventData& event) 
+    {
+#ifdef _DEBUG
+        if (FileSystem::GetDebugLevel() >= 1)
+        {
+            std::wstring wstr;
+            EventDataToWStr(event, wstr);
+            OutputLog(L"FileObserver send file event " + wstr);
+        }
+#endif
+    }
+
     /*
     같은 디렉터리 내 이름 변경					FILE_ACTION_RENAMED_OLD_NAME +
     FILE_ACTION_RENAMED_NEW_NAME 다른 디렉터리로 이동
@@ -310,7 +379,8 @@ namespace File
 
     void FileObserver::ProcessUnKnown()
     {
-        _sendEventQueue.erase(_sendEventQueue.begin());
+        FileEventData data = {"", "", EventType::UNKNOWN};
+        _sendEventQueue.pop_front();
     }
 
     void FileObserver::ProcessAdded()
@@ -318,27 +388,30 @@ namespace File
         const auto& [path, event] = _sendEventQueue[0];
 
         FileEventData data = {path.generic_wstring(), "", EventType::ADDED};
+        LastFileEventLog(data);
 
         _eventCallback(data);
-        _sendEventQueue.erase(_sendEventQueue.begin());
+        _sendEventQueue.pop_front();
     }
     void FileObserver::ProcessRemoved()
     {
         const auto& [path, event] = _sendEventQueue[0];
 
         FileEventData data = {path.generic_wstring(), "", EventType::REMOVED};
+        LastFileEventLog(data);
 
         _eventCallback(data);
-        _sendEventQueue.erase(_sendEventQueue.begin());
+        _sendEventQueue.pop_front();
     }
     void FileObserver::ProcessModified()
     {
         const auto& [path, event] = _sendEventQueue[0];
 
         FileEventData data = {path.generic_wstring(), "", EventType::MODIFIED};
+        LastFileEventLog(data);
 
         _eventCallback(data);
-        _sendEventQueue.erase(_sendEventQueue.begin());
+        _sendEventQueue.pop_front();
     }
     void FileObserver::ProcessRenamed()
     {
@@ -349,11 +422,11 @@ namespace File
         // rParam: 새 이름
         FileEventData data = {firstPath.generic_wstring(),
                               secondPath.generic_wstring(), EventType::RENAMED};
-
-        _sendEventQueue.pop_front();
-        _sendEventQueue.pop_front();
+        LastFileEventLog(data);
 
         _eventCallback(data);
+        _sendEventQueue.pop_front();
+        _sendEventQueue.pop_front();
     }
     void FileObserver::ProcessMoved()
     {
@@ -364,10 +437,10 @@ namespace File
         // rParam: 새 경로
         FileEventData data = {firstPath.generic_wstring(),
                               secondPath.generic_wstring(), EventType::MOVED};
-
-        _sendEventQueue.pop_front();
-        _sendEventQueue.pop_front();
+        LastFileEventLog(data);
 
         _eventCallback(data);
+        _sendEventQueue.pop_front();
+        _sendEventQueue.pop_front();
     }
 } // namespace File

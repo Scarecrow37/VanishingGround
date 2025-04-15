@@ -12,6 +12,9 @@ namespace File
     {
          using NotifierSet = std::unordered_set<File::FileEventNotifier*>;
     public:
+        static void SetDebugLevel(int level);
+        static int  GetDebugLevel();
+
         static bool IsVaildGuid(const File::Guid& guid);
         static bool IsValidExtension(const File::FString& ext);
 
@@ -82,5 +85,7 @@ namespace File
         inline static std::unordered_map<File::Guid, std::weak_ptr<Context>> _guidToPathTable; // ID를 통해 파일 경로를 찾는 테이블
     
         inline static std::unordered_map<FString, NotifierSet> _notifierTable;
+
+        inline static int _debugLevel = 0;
     };
 } // namespace File
