@@ -31,7 +31,7 @@ namespace File
         {
             return wpContext.lock()->GetPath();
         }
-        return "";
+        return NULL_PATH;
     }
     const File::Guid& FileSystem::GetGuidFromPath(const File::Path& path)
     {

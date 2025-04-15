@@ -9,8 +9,6 @@ namespace File
     class Path;
     class Guid;
 
-    constexpr const char* NULL_GUID = "";
-
     // Guid와 Path는 내부적으로 std::filesystem::path으로 구현되어 있습니다.
     // Operator를 통해 Guid -> Path 전환이 지원됩니다.
     class Guid : public FString
@@ -39,13 +37,16 @@ namespace File
         File::Path operator/(const File::FString& v);
     };
 
+    inline static const File::Guid NULL_GUID;
+    inline static const File::Path NULL_PATH;
+
     /*
     MetaData는 파일의 메타데이터를 만들거나, 불러와서 사용하는 구조체입니다.
     */
     class MetaData
     {
     public:
-        MetaData() : _filePath(""), _fileGuid(NULL_GUID), _projectGuid(NULL_GUID) {}
+        MetaData() : _filePath(""), _fileGuid(""), _projectGuid("") {}
         ~MetaData() = default;
     public:
         bool Create(const Path& path);
