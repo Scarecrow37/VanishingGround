@@ -1,8 +1,9 @@
 name: Bump Version on PR to Develop
 
 on:
-  pull_request:
-    types: [closed]
+  pull_request:    
+    types:
+      - closed
     branches:
       - develop
 
