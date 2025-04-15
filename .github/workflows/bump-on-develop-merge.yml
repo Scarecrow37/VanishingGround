@@ -38,6 +38,7 @@ jobs:
         fi
 
     - name: Calculate new version
+      if: steps.bump.outputs.version != 'none'
       id: version
       run: |
         chmod +x ./scripts/bump-${{ steps.bump.outputs.version }}.sh
