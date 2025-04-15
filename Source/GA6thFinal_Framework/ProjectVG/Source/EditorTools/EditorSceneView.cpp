@@ -3,7 +3,7 @@
 EditorSceneView::EditorSceneView()
 {
     SetLabel("SceneView");
-    SetInitialDockLayout(DockLayout::UP);
+    SetDockLayout(DockLayout::UP);
 }
 
 EditorSceneView::~EditorSceneView()

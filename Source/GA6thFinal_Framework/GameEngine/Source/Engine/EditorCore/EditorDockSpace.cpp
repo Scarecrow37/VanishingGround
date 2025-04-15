@@ -90,11 +90,11 @@ void EditorDockSpace::InitDockLayout()
 
         for (auto& [key, tool] : _editorToolTable)
         {
-            if (tool && tool->GetInitialDockLayout() != DockLayout::NONE)
+            if (tool && tool->GetDockLayout() != DockLayout::NONE)
             {
                 ImGui::DockBuilderDockWindow(
                     tool->GetLabel().c_str(),
-                    GetDockLayoutID(tool->GetInitialDockLayout())
+                    GetDockLayoutID(tool->GetDockLayout())
                 );
             }
         }

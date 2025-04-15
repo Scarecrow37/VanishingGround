@@ -118,7 +118,7 @@ static void                      TransformTreeNode(Transform&                   
 EditorHierarchyView::EditorHierarchyView()
 {
     SetLabel("HierarchyView");
-    SetInitialDockLayout(DockLayout::LEFT);
+    SetDockLayout(DockLayout::LEFT);
 }
 
 EditorHierarchyView::~EditorHierarchyView()

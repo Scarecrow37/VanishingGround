@@ -3,11 +3,11 @@
 // 도킹 영역
 enum class DockLayout
 {
-    NONE = -1,
-    LEFT = 0,
-    RIGHT = 1,
-    UP = 2,
-    DOWN = 3,
-    CENTER = 4,
-    SIZE,
+    NONE   = 0,
+    LEFT   = 1,
+    RIGHT  = 2,
+    UP     = 3,
+    DOWN   = 4,
+    CENTER = 5,
+    END,
 };

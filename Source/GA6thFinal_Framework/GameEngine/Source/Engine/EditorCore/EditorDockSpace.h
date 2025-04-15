@@ -48,7 +48,7 @@ private:
     ImGuiDockNodeFlags _dockNodeFlags;              /* DockSpace 플래그 값 */
     ImGuiWindowFlags _dockWindowFlag;               /* DockWindow 플래그 값 */
     ImGuiID _dockSpaceMainID;                       /* 메인 도킹영역 ID값 */
-    ImGuiID _dockLayoutID[(INT)DockLayout::SIZE];   /* 도킹 영역에 대한 ID값 */
+    ImGuiID _dockLayoutID[(INT)DockLayout::END];   /* 도킹 영역에 대한 ID값 */
     const char* _dockAreaInitalData;                /* (미구현) 초기 도킹 세팅 저장 값 */
 private:
     /* 최초로 에디터를 킬 경우 초기 툴의 DockSpace 공간 지정 */
