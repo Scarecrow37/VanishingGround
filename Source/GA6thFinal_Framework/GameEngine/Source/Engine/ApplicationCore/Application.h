@@ -79,6 +79,11 @@ public:
                   });
     }
 
+    inline const SIZE& GetClientSize()
+    { 
+        return _clientSize;
+    }
+
 public:
     Application();
     virtual ~Application() = default;
