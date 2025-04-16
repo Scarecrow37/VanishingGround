@@ -9,10 +9,10 @@ namespace File
     class IFileEventProcesser
     {
     public:
-        virtual void OnFileAdded(const Path& path) {};
-        virtual void OnFileModified(const Path& path) {};
-        virtual void OnFileRemoved(const Path& path) {};
-        virtual void OnFileRenamed(const Path& oldPath, const Path& newPath) {};
-        virtual void OnFileMoved(const Path& oldPath, const Path& newPath) {};
+        virtual void OnFileAdded(const Path& path) = 0;
+        virtual void OnFileModified(const Path& path) = 0;
+        virtual void OnFileRemoved(const Path& path) = 0;
+        virtual void OnFileRenamed(const Path& oldPath, const Path& newPath) = 0;
+        virtual void OnFileMoved(const Path& oldPath, const Path& newPath) = 0;
     };
 }
