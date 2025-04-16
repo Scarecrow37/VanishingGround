@@ -42,13 +42,38 @@ jobs:
 
             ${{ github.event.issue.body }}
           mode: md2jira
-
-      - name: Create Issue
-        id: create
+          
+      - name: Get parent issue type
+        id: parent-type
+        run: |
+          response=$(curl -s -u ${{ secrets.JIRA_USER_EMAIL }}:${{ secrets.JIRA_API_TOKEN }} \
+            -X GET "${{ secrets.JIRA_BASE_URL }}/rest/api/3/issue/${{ steps.issue-parser.outputs.issueparser_parentKey }}")
+          type=$(echo $response | jq -r '.fields.issuetype.name')
+          echo "parent_type=$type" >> $GITHUB_OUTPUT
+          
+      - name: Create Task under Epic
+        if: steps.parent-type.outputs.parent_type == 'Epic'
+        id: create-task
         uses: atlassian/gajira-create@v3
         with:
           project: VG
           issuetype: Task
+          summary: '${{ github.event.issue.title }}'
+          description: '${{ steps.md2jira.outputs.output-text }}'
+          fields: |
+            {
+              "parent": {
+                "key": "${{ steps.issue-parser.outputs.issueparser_parentKey }}"
+              }
+            }
+            
+      - name: Create Sub-task under Task
+        if: steps.parent-type.outputs.parent_type == 'Task'
+        id: create-subtask
+        uses: atlassian/gajira-create@v3
+        with:
+          project: VG
+          issuetype: Sub-task
           summary: '${{ github.event.issue.title }}'
           description: '${{ steps.md2jira.outputs.output-text }}'
           fields: |
