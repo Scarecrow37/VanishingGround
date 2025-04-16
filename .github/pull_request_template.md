@@ -1,5 +1,5 @@
 ## 🎯 반영 브랜치
-feature/feature_name -> develop
+develop <- feature/VG-/feature_name
 
 ---
 
