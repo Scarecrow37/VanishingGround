@@ -3,13 +3,8 @@
 
 namespace File
 {
-    FileEventNotifier::FileEventNotifier(
-        const std::initializer_list<std::string>& exts)
+    FileEventNotifier::FileEventNotifier()
     {
-        for (const auto& ext : exts)
-        {
-            _triggerExtTable.insert(ext);
-        }
     }
 
     FileEventNotifier::~FileEventNotifier() 

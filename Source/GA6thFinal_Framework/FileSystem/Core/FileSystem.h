@@ -11,6 +11,7 @@ namespace File
     class FileSystem
     {
          using NotifierSet = std::unordered_set<File::FileEventNotifier*>;
+
     public:
         static void SetDebugLevel(int level);
         static int  GetDebugLevel();
@@ -66,8 +67,10 @@ namespace File
         static std::weak_ptr<Context> GetContext(const File::Path& path);
 
         static NotifierSet GetNotifiers(const File::FString& ext);
+
     public:
-        static void RegisterFileEventNotifier(FileEventNotifier* notifier);
+        static void RegisterFileEventNotifier(FileEventNotifier* notifier,
+            const std::initializer_list<std::string>& exts);
         static void UnRegisterFileEventNotifier(FileEventNotifier* notifier);
 
     public:

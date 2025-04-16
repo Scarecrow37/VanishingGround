@@ -80,11 +80,16 @@ namespace File
         return std::unordered_set<File::FileEventNotifier*>();
     }
 
-    void FileSystem::RegisterFileEventNotifier(FileEventNotifier* notifier) 
+    void FileSystem::RegisterFileEventNotifier(
+        FileEventNotifier*                        notifier,
+        const std::initializer_list<std::string>& exts)
     {
-        const std::vector<FString> exts = notifier->GetTriggerExtensions();
+        if (notifier == nullptr)
+            return;
+
         for (const auto& ext : exts)
         {
+            notifier->_triggerExtTable.insert(ext);
             _notifierTable[ext].insert(notifier);
         }
     }

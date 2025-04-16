@@ -14,6 +14,7 @@ namespace File
     public:
     virtual bool IsDirectory() = 0;
     virtual bool IsRegularFile() = 0;
+
     public:
         bool LoadMeta();
         template <typename T>
@@ -55,20 +56,11 @@ namespace File
         inline virtual bool IsRegularFile() override { return true; }
 
     public:
-
-        void SetEventProcessor(IFileEventProcesser* eventProcessor)
-        {
-            _eventProcessor = eventProcessor;
-        }
-
-    public:
         virtual void OnFileAdded(const Path& path) override;
         virtual void OnFileModified(const Path& path) override;
         virtual void OnFileRemoved(const Path& path) override;
         virtual void OnFileRenamed(const Path& oldPath, const Path& newPath) override;
         virtual void OnFileMoved(const Path& oldPath, const Path& newPath) override;
-    private:
-        IFileEventProcesser*    _eventProcessor;  
     };
 
     class ForderContext
