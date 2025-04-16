@@ -78,7 +78,7 @@ void ESceneManager::Engine::SetGameObjectActive(int instanceID, bool value)
                 gameObject->ReflectFields->_activeSelf = true; //ActiveInHierarchy 검증용                        
             }
 
-            Transform::Foreach(gameObject->transform, 
+            Transform::ForeachDFS(gameObject->transform, 
             [&](Transform* curr) 
             {
                 if (curr->gameObject.ActiveInHierarchy == true)
@@ -214,7 +214,7 @@ void ESceneManager::Engine::DestroyObject(GameObject* gameObject)
 {
     auto& [set, vec] = engineCore->SceneManager._destroyObjectsQueue;
 
-   Transform::Foreach(
+   Transform::ForeachDFS(
         gameObject->transform, 
         [&set, &vec](Transform* pTransform) 
         {

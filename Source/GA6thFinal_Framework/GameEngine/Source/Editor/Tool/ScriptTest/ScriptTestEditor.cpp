@@ -24,6 +24,9 @@ void ScriptTestEditor::OnPreFrame()
 
 void ScriptTestEditor::OnFrame() 
 {
+    using namespace Global;
+    using namespace u8_literals;
+
     // 새 스크립트 파일 만들기 테스트용
     {
         static ImVec2      popupPos{};
@@ -43,7 +46,7 @@ void ScriptTestEditor::OnFrame()
             ImGui::InputText("##new_script_file_name", &inputBuffer);
             if (ImGui::Button("OK"))
             {
-                Global::engineCore->ComponentFactory.MakeScriptFile(
+                UmComponentFactory.MakeScriptFile(
                     inputBuffer.c_str());
                 ImGui::CloseCurrentPopup();
             }
@@ -53,6 +56,35 @@ void ScriptTestEditor::OnFrame()
                 ImGui::CloseCurrentPopup();
             }
             ImGui::EndPopup();
+        }
+    }
+
+    {
+        constexpr const char* testPath = "TestObjectSerialized.yaml";
+        ImGui::Text(u8"직렬화 테스트"_c_str);
+        if (ImGui::BeginDragDropTarget())
+        {
+            if (const ImGuiPayload* payLoad =
+                    ImGui::AcceptDragDropPayload(DragDropTransform::key))
+            {
+                using Data      = DragDropTransform::Data;
+                Data*      data = (Data*)payLoad->Data;
+                YAML::Node node = UmGameObjectFactory.SerializeToYaml(
+                    &data->pTransform->gameObject);
+
+                std::ofstream ofs(testPath, std::ios::trunc);
+                if (ofs.is_open())
+                {
+                    ofs << node;
+                }
+                ofs.close();
+            }
+            ImGui::EndDragDropTarget();
+        }
+        if (ImGui::Button(u8"역직렬화 테스트"_c_str))
+        {
+            YAML::Node node =  YAML::LoadFile(testPath);
+            UmGameObjectFactory.DeserializeToYaml(&node);
         }
     }
 }
