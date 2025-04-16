@@ -15,6 +15,12 @@ public:
     {
         //SceneManager에서 오브젝트를 Destroy 할때 Instance ID를 반납하기 위한 함수입니다.
         static void ReturnInstanceID(int id);
+
+        /// <summary>
+        /// 모든 게임 오브젝트의 키들을 반환합니다.
+        /// </summary>
+        /// <returns></returns>
+        static const std::vector<std::string>& GetGameObjectKeys();
     };
 
 

@@ -13,6 +13,11 @@ void TestComponent::Update()
     ImGui::End();
 }
 
+void TestComponent::FixedUpdate() 
+{
+    //engineCore->EngineLogger.Log(LogLevel::LEVEL_DEBUG, "Fixed Update!");
+}
+
 void TestComponent::OnDestroy()
 {
     engineCore->EngineLogger.Log(LogLevel::LEVEL_DEBUG, "OnDestroy!");
@@ -31,6 +36,11 @@ void TestComponent::Reset()
 void TestComponent::Awake()
 {
     engineCore->EngineLogger.Log(LogLevel::LEVEL_DEBUG, "Awake!");
+
+    for (int i = LogLevel::LEVEL_TRACE; i <= LogLevel::LEVEL_FATAL; i++)
+    {
+        engineCore->EngineLogger.Log(i, LogLevel::LogLevelTo_c_str(i));
+    }
 }
 
 void TestComponent::Start()
