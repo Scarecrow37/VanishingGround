@@ -89,6 +89,19 @@ public:
     /// </summary>
     /// <param name="fileName :">사용할 파일 이름</param>
     void MakeScriptFile(const char* fileName) const;
+
+    /// <summary>
+    /// 컴포넌트를 YAML로 직렬화합니다.
+    /// </summary>
+    YAML::Node SerializeToYaml(Component* component);
+
+    /// <summary>
+    /// Yaml 형식으로 직렬화된 컴포넌트를 오브젝트에 추가합니다.
+    /// </summary>
+    /// <param name="node"></param>
+    /// <returns></returns>
+    bool DeserializeToYaml(GameObject* ownerObject, YAML::Node* componentNode);
+
 private:
     using InitScripts = void(*)(const std::shared_ptr<EngineCores>, ImGuiContext*);
     using MakeUmScriptsFile = void(*)(const char* fileName);
@@ -110,5 +123,10 @@ private:
     //초기화 후 컴포넌트의 Reset을 호출합니다.
     void ResetComponent(GameObject* ownerObject, Component* component);
 
+    //컴포넌트를 Yaml로 직렬화
+    YAML::Node MakeYamlToComponent(Component* component);
+
+    //Yaml로 컴포넌트 생성 Reset도 호출함.
+    std::shared_ptr<Component> MakeComponentToYaml(GameObject* ownerObject, YAML::Node* componentNode);
 
 };

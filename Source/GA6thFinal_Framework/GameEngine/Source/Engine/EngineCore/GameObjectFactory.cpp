@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 using namespace Global;
+using namespace u8_literals;
 
 EGameObjectFactory::EGameObjectFactory()
 {
@@ -20,6 +21,13 @@ std::shared_ptr<GameObject> EGameObjectFactory::NewGameObject(std::string_view t
 
 YAML::Node EGameObjectFactory::SerializeToYaml(GameObject* gameObject)
 {
+    if (UmComponentFactory.HasScript() == false)
+    {
+        UmEngineLogger.Log(LogLevel::LEVEL_ERROR,
+                           u8"스크립트 빌드를 해주세요."_c_str);
+        return YAML::Node();
+    }
+
     YAML::Node nodes;
     std::map<Transform*, int> transformParentLevelMap;
     int parentIndex = 0;
@@ -27,14 +35,22 @@ YAML::Node EGameObjectFactory::SerializeToYaml(GameObject* gameObject)
         gameObject->transform, 
         [&](Transform* curr) 
         {
+            //오브젝트 직렬화
             YAML::Node objectNode = MakeYamlToGameObject(&curr->gameObject);
+            //컴포넌트들 직렬화
+            for (auto& component : curr->gameObject._components)
+            {
+                YAML::Node componentNode = UmComponentFactory.SerializeToYaml(component.get());
+                objectNode["Components"].push_back(componentNode);
+            }
+            //Transform 직렬화
             transformParentLevelMap[curr] = parentIndex;
             YAML::Node transformNode = objectNode["Transform"].as<YAML::Node>();
             transformNode["TransformIndex"] = parentIndex;
             if (curr->Parent != nullptr)
             {
                 transformNode["ParentIndex"] = transformParentLevelMap[curr->Parent];
-            }           
+            }                     
             ++parentIndex;
             nodes.push_back(objectNode);
         });
@@ -43,14 +59,35 @@ YAML::Node EGameObjectFactory::SerializeToYaml(GameObject* gameObject)
 
 bool EGameObjectFactory::DeserializeToYaml(YAML::Node* pGameObjectNode)
 {
+    if (UmComponentFactory.HasScript() == false)
+    {
+        UmEngineLogger.Log(LogLevel::LEVEL_ERROR,
+                           u8"스크립트 빌드를 해주세요."_c_str);
+        return false;
+    }
+
     YAML::Node& nodes = *pGameObjectNode;
     std::map<int, Transform*> transformParentLevelMap;
     for (auto node : nodes)
     {
+        //오브젝트 생성
         YAML::Node& currNode = node;
         YAML::Node transformNode = currNode["Transform"].as<YAML::Node>();
         std::shared_ptr<GameObject> gameObject = MakeGameObjectToYaml(&currNode);
 
+        //컴포넌트들 역직렬화
+        if (currNode["Components"])
+        {
+            YAML::Node componentNodes = currNode["Components"].as<YAML::Node>();
+            for (auto componentNode : componentNodes)
+            {
+                YAML::Node& currComponentNode = componentNode;
+                UmComponentFactory.DeserializeToYaml(gameObject.get(),
+                                                     &currComponentNode);
+            }
+        }
+
+        //Transform 역직렬화
         int TransformIndex = transformNode["TransformIndex"].as<int>();
         transformParentLevelMap[TransformIndex] = &gameObject->transform;
         if (transformNode["ParentIndex"])
@@ -107,14 +144,15 @@ YAML::Node EGameObjectFactory::MakeYamlToGameObject(GameObject* gameObject)
         YAML::Node objectNode;
         objectNode["SerializeVersion"] = 0;
         objectNode["Type"]             = typeid(GameObject).name();
-
         objectNode["ReflectFields"] = gameObject->SerializedReflectFields();
         {
             YAML::Node transformNode;
-            transformNode["ReflectFields"] =
-                gameObject->transform.SerializedReflectFields();
+            transformNode["ReflectFields"] = gameObject->transform.SerializedReflectFields();
             objectNode["Transform"] = transformNode;
         }
+        {
+            
+        }   
         return objectNode;
     }
     else
@@ -145,8 +183,9 @@ std::shared_ptr<GameObject> EGameObjectFactory::MakeGameObjectToYaml(YAML::Node*
         std::string ReflectFields = transformNode["ReflectFields"].as<std::string>();
         object->transform.DeserializedReflectFields(ReflectFields);
     }
+    {
 
-
+    }
     return object;
 }
 

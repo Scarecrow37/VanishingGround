@@ -117,7 +117,7 @@ void ESceneManager::Engine::SetComponentEnable(Component* component, bool value)
         //컴포넌트의 On__able 함수를 호출하도록 합니다.
         auto& [WaitSet, WaitVec, WaitValue] = value ? engineCore->SceneManager._onEnableQueue : engineCore->SceneManager._onDisableQueue;
         WaitValue.emplace_back(&component->ReflectFields->_enable);
-        if (component->gameObect->ActiveInHierarchy == true)
+        if (component->gameObject->ActiveInHierarchy == true)
         {
             auto [iter, result] = WaitSet.insert(component);
             if (result)

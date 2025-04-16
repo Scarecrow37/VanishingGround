@@ -180,6 +180,38 @@ void EComponentFactory::MakeScriptFile(const char* fileName) const
     }
 }
 
+YAML::Node EComponentFactory::SerializeToYaml(Component* component)
+{
+    if (UmComponentFactory.HasScript() == false)
+    {
+        UmEngineLogger.Log(LogLevel::LEVEL_ERROR,
+                           u8"스크립트 빌드를 해주세요."_c_str);
+        return YAML::Node();
+    }
+    return MakeYamlToComponent(component);
+}
+
+bool EComponentFactory::DeserializeToYaml(GameObject* ownerObject,
+                                          YAML::Node* componentNode)
+{
+    if (UmComponentFactory.HasScript() == false)
+    {
+        UmEngineLogger.Log(LogLevel::LEVEL_ERROR,
+                           u8"스크립트 빌드를 해주세요."_c_str);
+        return false;
+    }
+    if (std::shared_ptr<Component> component = MakeComponentToYaml(ownerObject, componentNode))
+    {
+        ownerObject->_components.emplace_back(component); // 오브젝트에 추가
+        ESceneManager::Engine::AddComponentToLifeCycle(component); // 씬에 등록
+    }
+    else
+    {
+        return false;
+    }
+    return true;
+}
+
 std::shared_ptr<Component> EComponentFactory::NewComponent(std::string_view typeid_name)
 {
     std::shared_ptr<Component> newComponent;
@@ -202,4 +234,23 @@ void EComponentFactory::ResetComponent(GameObject* ownerObject, Component* compo
 
     component->Reset();
     //end
+}
+
+YAML::Node EComponentFactory::MakeYamlToComponent(Component* component)
+{
+    YAML::Node node;
+    node["Type"] = typeid(*component).name();
+    node["ReflectFields"] = component->SerializedReflectFields();
+    return node;
+}
+
+std::shared_ptr<Component> EComponentFactory::MakeComponentToYaml(GameObject* ownerObject, YAML::Node* pComponentNode)
+{
+    YAML::Node& node = *pComponentNode;
+    std::string Type = node["Type"].as<std::string>();
+    std::shared_ptr<Component> component = NewComponent(Type);
+    ResetComponent(ownerObject, component.get());
+    std::string ReflectFields = node["ReflectFields"].as<std::string>();
+    component->DeserializedReflectFields(ReflectFields);
+    return component;
 }
