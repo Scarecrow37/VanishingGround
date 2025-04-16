@@ -94,30 +94,30 @@ jobs:
       - name: Install GitHub CLI
         run: sudo apt-get install gh
           
-#      - name: Update issue title
-#        uses: actions-cool/issues-helper@v3
-#        with:
-#          actions: 'update-issue'
-#          token: ${{ secrets.GITHUB_TOKEN }}
-#          title: |
-#            ${{ github.event.issue.title }} | placeholder
-#        env:
-#          ISSUE_NUMBER: ${{ github.event.issue.number }}
-#        run: |
-#          TITLE="${{ github.event.issue.title }}"
-#          ISSUE_KEY="${{ steps.create.outputs.issue }}"
-#          
-#          # extract tag inside brackets, e.g., [BUG], [FEATURE], etc.
-#          if [[ "$TITLE" =~ ^\[([A-Z]+)\]\ (.+)$ ]]; then
-#            TYPE="${BASH_REMATCH[1]}"
-#            REST="${BASH_REMATCH[2]}"
-#            NEW_TITLE="[${TYPE}/${ISSUE_KEY}] ${REST}"
-#          else
-#            NEW_TITLE="[${ISSUE_KEY}] $TITLE"
-#          fi
-#
-#          gh issue edit $ISSUE_NUMBER --title "$NEW_TITLE"
-#
+      - name: Update issue title
+        uses: actions-cool/issues-helper@v3
+        with:
+          actions: 'update-issue'
+          token: ${{ secrets.GITHUB_TOKEN }}
+          title: |
+            ${{ github.event.issue.title }} | placeholder
+        env:
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          TITLE="${{ github.event.issue.title }}"
+          ISSUE_KEY="${{ steps.create.outputs.issue }}"
+          
+          # extract tag inside brackets, e.g., [BUG], [FEATURE], etc.
+          if [[ "$TITLE" =~ ^\[([A-Z]+)\]\ (.+)$ ]]; then
+            TYPE="${BASH_REMATCH[1]}"
+            REST="${BASH_REMATCH[2]}"
+            NEW_TITLE="[${TYPE}/${ISSUE_KEY}] ${REST}"
+          else
+            NEW_TITLE="[${ISSUE_KEY}] $TITLE"
+          fi
+
+          gh issue edit $ISSUE_NUMBER --title "$NEW_TITLE"
+
       - name: Add comment with Jira issue link
         uses: actions-cool/issues-helper@v3
         with:
