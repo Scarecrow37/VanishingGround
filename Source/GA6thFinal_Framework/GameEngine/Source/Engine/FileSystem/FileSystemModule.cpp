@@ -123,19 +123,3 @@ void FileSystemModule::DispatchFileEvent()
         _eventQueue.pop();
     }
 }
-
-void SampleFileEventNotifier::OnFileAdded(const File::Path& path) {}
-
-void SampleFileEventNotifier::OnFileModified(const File::Path& path) {}
-
-void SampleFileEventNotifier::OnFileRemoved(const File::Path& path) {}
-
-void SampleFileEventNotifier::OnFileRenamed(const File::Path& oldPath,
-                                            const File::Path& newPath)
-{
-}
-
-void SampleFileEventNotifier::OnFileMoved(const File::Path& oldPath,
-                                          const File::Path& newPath)
-{
-}

@@ -53,6 +53,4 @@ private:
 
     std::mutex          _mutex;
     std::queue<Event>   _eventQueue; // 이벤트 큐
-
-    SampleFileEventNotifier* sampleNotifier;
 };
