@@ -519,5 +519,6 @@ FodyWeavers.xsd
 
 # Project
 Resource/
+ProjectSetting/
 update_repo.bat
 imgui.ini

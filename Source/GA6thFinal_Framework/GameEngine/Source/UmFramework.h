@@ -1,13 +1,14 @@
 ﻿#pragma once
-#define _CRT_SECURE_NO_WARNINGS 1
 
 //constexpr
 #ifdef UMREALSCRIPTS_EXPORT
 #define SCRIPTS_PROJECT true;
-constexpr bool IS_SCRIPTS_PROJECT = true;
+constexpr bool IS_SCRIPTS_PROJECT = true; 
 #else
 constexpr bool IS_SCRIPTS_PROJECT = false;
 #endif 
+
+constexpr const wchar_t* PROJECT_SETTING_PATH = L"ProjectSetting"; // 프로젝트 설정 파일들 모아두는 폴더
 
 //WINDOW SDK
 #include <Windows.h>
@@ -24,7 +25,7 @@ constexpr bool IS_SCRIPTS_PROJECT = false;
 
 //CRT
 #include <tchar.h>
-
+    
 //STL
 #include <filesystem>
 #include <iostream>
@@ -38,6 +39,8 @@ constexpr bool IS_SCRIPTS_PROJECT = false;
 #include <type_traits>
 #include <functional> 
 #include <unordered_map>
+#include <unordered_set>
+#include <source_location>
 #include <any>
 #include <typeinfo>
 #include <ranges>
@@ -46,6 +49,8 @@ constexpr bool IS_SCRIPTS_PROJECT = false;
 #include <stack>
 
 //ThirdParty
+#include <pugixml.hpp>
+
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include "Engine/Imgui/imgui.h"
 #include "Engine/Imgui/imgui_stdlib.h"
@@ -72,6 +77,10 @@ constexpr bool IS_SCRIPTS_PROJECT = false;
 #include "Engine/AppModule/Interface/IAppModule.h"
 #include "Engine/ApplicationCore/Application.h"
 
+// FileSystem Module
+#include "../FileSystem/framework.h"
+#include "Engine/FileSystem/FileSystemModule.h"
+
 //Engine Core
 #include "Engine/EngineCore/EngineLogger.h"
 #include "Engine/EngineCore/TimeSystem.h"
@@ -86,7 +95,8 @@ constexpr bool IS_SCRIPTS_PROJECT = false;
 #include "Engine/EditorCore/EditorTool.h"
 #include "Engine/EditorCore/EditorMenuBar.h"
 #include "Engine/EditorCore/EditorDockSpace.h"
-#include "Engine/EditorCore/EditorManager.h"
+#include "Engine/EditorCore/EditorModule.h"
+//#include "Editor/Tool/AssetBrowser/"
 
 //Game Core
 #include "Engine/GameCore/Transform/Transform.h"
@@ -97,3 +107,24 @@ constexpr bool IS_SCRIPTS_PROJECT = false;
 #include "Engine/AppModule/EngineCoresModule.h"
 #include "Engine/Graphics/GraphicsModule.h"
 #include "Engine/AppModule/ImGuiDX11Module.h"
+
+//DragDropTypes
+#include "Editor/DragDropTypes/DragDropTransform.h"
+
+//컴포넌트는 접근 안하는 헤더들
+#ifndef SCRIPTS_PROJECT
+//Editor Tools
+#include "Editor/Tool/Debug/EditorDebugTool.h"
+#include "Editor/Tool/AssetBrowser/EditorAssetBrowserTool.h"
+#include "Editor/Tool/Hierarchy/EditorHierarchyTool.h"
+#include "Editor/Tool/Inspector/EditorInspectorTool.h"
+#include "Editor/Tool/Scene/EditorSceneTool.h"
+#include "Editor/Tool/Log/EditorLogsTool.h"
+#include "Editor/Tool/ScriptTest/ScriptTestEditor.h"    // 테스트용. 추후 제거 필요
+
+// Editor Menu
+#include "Editor/Menu/Project/EditorProjectMenu.h"
+#include "Editor/Menu/Window/EditorWindowMenu.h"
+#include "Editor/Menu/Setting/EditorSettingMenu.h"
+#include "Editor/Menu/Scene/EditorSceneMenu.h"
+#endif

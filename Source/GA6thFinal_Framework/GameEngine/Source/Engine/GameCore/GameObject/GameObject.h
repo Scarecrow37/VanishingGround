@@ -16,7 +16,8 @@ std::weak_ptr<TObject> NewGameObject(
 
 //함수는 일단 선언만. 구현은 나중에. 
 class GameObject : 
-    public ReflectSerializer
+    public ReflectSerializer,
+    public IEditorObject
 {
     friend class EGameObjectFactory;
     friend class EComponentFactory;
@@ -25,6 +26,16 @@ class GameObject :
 
     //public static 함수
 public:
+    struct Helper
+    {
+        /// <summary>
+        /// 고유한 이름을 만들어줍니다. baseName (i) 형식으로 만듭니다.
+        /// </summary>
+        /// <param name="baseName"></param>
+        /// <returns>생성된 이름</returns>
+        static std::string GenerateUniqueName(std::string_view baseName);
+    };
+
     /// <summary>
     /// <para> 매개변수와 같은 이름을 가진 GameObject를 찾아 반환합니다. </para>
     /// <para> 같은 이름의 GameObject가 없으면 nullptr를 반환합니다.    </para>
@@ -97,14 +108,12 @@ public:
         Destroy(*gameObject, t);
     }
 
-    /// <summary>
-    /// <para>구현 X                                                         </para>
+    /// <summary>                                                           </para>
     /// <para>전달받은 오브젝트가 다른 Scene을 로드 할 때 파괴되지 않도록 합니다.</para>
     /// </summary>
     /// <param name="Object :">대상 오브젝트</param>
     static void DontDestroyOnLoad(GameObject& gameObject);
-    /// <summary>
-    /// <para>구현 X                                                         </para>
+    /// <summary>                                                           </para>
     /// <para>전달받은 오브젝트가 다른 Scene을 로드 할 때 파괴하지 않도록 합니다.</para>
     /// </summary>
     /// <param name="Object :">대상 오브젝트</param>
@@ -135,6 +144,12 @@ public:
 
 public:
     /// <summary>
+    /// 이 게임오브젝트의 weak_ptr을 반환합니다.
+    /// </summary>
+    /// <returns>weak_ptr this</returns>
+    std::weak_ptr<GameObject> GetWeakPtr() const;
+
+    /// <summary>
     /// <para> 전달받은 GameObject가 속해있는 Scene을 반환합니다. </para>
     /// </summary>
     /// <returns>Scene 정보</returns>
@@ -159,7 +174,7 @@ public:
     /// <para> 이 GameObject의 이름을 반환합니다. </para>
     /// </summary>
     /// <returns>std::string_view 오브젝트의 이름</returns>
-    std::string_view ToString() { return ReflectionFields->_name; }
+    std::string_view ToString() { return ReflectFields->_name; }
 
     /// <summary>
     /// 컴포넌트를 추가합니다.
@@ -201,6 +216,14 @@ public:
     /// <returns>이 오브젝트에 부착된 컴포넌트 개수.</returns>
     inline size_t GetComponentCount() { return _components.size(); }
 
+    
+    //IEditorObject에서 상속
+ private:
+    /* InspectorView에 SetFocus 될 때 호출 구현 X */
+    virtual void OnFocusInspectorView();
+    /* InspectorView의 Draw단계에 호출 */
+    virtual void OnDrawInspectorView();
+
 
 //프로퍼티
 public:
@@ -209,7 +232,7 @@ public:
         Transform* curr = &transform;
         while (curr != nullptr)
         {
-            if (!curr->gameObject.ReflectionFields->_activeSelf)
+            if (!curr->gameObject.ReflectFields->_activeSelf)
                 return false;
 
             curr = curr->Parent;
@@ -225,7 +248,7 @@ public:
     }
     GETTER(bool, ActiveSelf)
     {
-        return ReflectionFields->_activeSelf;
+        return ReflectFields->_activeSelf;
     }
     // get, set :
     //  자신의 local active 여부 (실제 활성화 여부)
@@ -233,11 +256,11 @@ public:
    
     GETTER(bool, IsStatic)
     {
-        return ReflectionFields->_isStatic;
+        return ReflectFields->_isStatic;
     }
     SETTER(bool, IsStatic)
     {
-        ReflectionFields->_isStatic = value;
+        ReflectFields->_isStatic = value;
     }
     // get, set :
     //  게임 오브젝트에 대해 IsStatic 플래그가 설정되어 있는지 여부.
@@ -246,7 +269,7 @@ public:
 
     GETTER(std::string_view, Name)
     {
-        return ReflectionFields->_name;
+        return ReflectFields->_name;
     }
     SETTER(std::string_view, Name)
     {
@@ -266,12 +289,10 @@ public:
 public:
     Transform transform;
 private:
-    using Base = ReflectSerializer; struct reflect_fields_struct 
-    {
-        rfl::Flatten<Base::reflect_fields_struct> Basefields{};
-        std::string                              _name = "null";
-        bool                                     _activeSelf = true;
-        bool                                     _isStatic = false;
+    REFLECT_FIELDS_BEGIN(ReflectSerializer)
+    std::string                              _name = "null";
+    bool                                     _activeSelf = true;
+    bool                                     _isStatic = false;
     REFLECT_FIELDS_END(GameObject)
 
 private:
@@ -301,7 +322,7 @@ inline TComponent& GameObject::AddComponent()
     bool result = factory.AddComponentToObject(this, typeid(TComponent).name());
     if (result)
     {
-        return *(this->_components.back());
+        return static_cast<TComponent&>(*this->_components.back());
     }
     else
     {

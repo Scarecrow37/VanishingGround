@@ -25,9 +25,15 @@ void EditorTool::OnDrawGui()
     {
         OnPreFrame();
 
-        ImGui::Begin(GetLabel().c_str(), &_isVisible, _windowFlags | ImGuiWindowFlags_NoCollapse);
+        std::string label = GetLabel();
+        ImGui::Begin(label.c_str(), &_isVisible, _windowFlags | ImGuiWindowFlags_NoCollapse);
 
-        if (true == ImGui::IsWindowFocused()) 
+        if (true == Global::editorManager->IsDebugMode())
+        {
+            DefaultDebugFrame();
+        }
+
+        if (true == ImGui::IsWindowFocused())
         {
             OnFocus();
         }
@@ -37,11 +43,6 @@ void EditorTool::OnDrawGui()
             DefaultPopupFrame();
             OnPopup();
             ImGui::EndPopup();
-        }
-
-        if (true == Global::editorManager->IsDebugMode())
-        {
-            DefaultDebugFrame();
         }
 
         if (true == _isLock)
@@ -92,15 +93,22 @@ void EditorTool::DefaultPopupFrame()
 
 void EditorTool::DefaultDebugFrame()
 {
-    const char* mark = "(ToolDebug)";
-    char tooltip[256];
+    static char tooltip[256];
 
     snprintf(tooltip, sizeof(tooltip), 
-        "ID: 0x%08X\nFlag: %d\nDockID: %d",
+        "GuiID: 0x%08X\nDockID: %d\nFlag: %d\nOrder: %d",
         ImGui::GetID(""),
+        ImGui::GetWindowDockID(), 
         _windowFlags, 
-        ImGui::GetWindowDockID()
+        _callOrder
     );
-    ImGuiHelper::TooltipMarker(tooltip, mark);
-    ImGuiHelper::Separator(0.0f);
+
+    if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
+    {
+        ImGui::BeginTooltip();
+        ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+        ImGui::TextUnformatted(tooltip);
+        ImGui::PopTextWrapPos();
+        ImGui::EndTooltip();
+    }
 }

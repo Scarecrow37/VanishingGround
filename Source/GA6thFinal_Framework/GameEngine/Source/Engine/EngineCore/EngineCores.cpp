@@ -1,6 +1,11 @@
 ﻿#include "pch.h"
 
-EngineCores::EngineCores() = default;
+EngineCores::EngineCores(Application& app) 
+    : 
+    App(app)
+{
+
+}
 EngineCores::~EngineCores() = default;
 
 namespace Global
@@ -15,7 +20,7 @@ void SafeEngineCoresPtr::Engine::CreateEngineCores()
         assert(!"엔진 코어가 이미 존재합니다.");
         return;
     }
-    Global::engineCore = std::make_shared<EngineCores>();
+    Global::engineCore = std::make_shared<EngineCores>(*Application::App);
 }
 
 void SafeEngineCoresPtr::Engine::DestroyEngineCores()
