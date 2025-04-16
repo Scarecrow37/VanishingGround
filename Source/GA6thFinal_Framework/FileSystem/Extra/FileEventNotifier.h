@@ -5,8 +5,9 @@ namespace File
     class FileEventNotifier 
         : public IFileEventProcesser
     {
+        friend class FileSystem;
     public:
-        FileEventNotifier(const std::initializer_list<std::string>& exts);
+        FileEventNotifier();
         virtual ~FileEventNotifier();
 
     public:

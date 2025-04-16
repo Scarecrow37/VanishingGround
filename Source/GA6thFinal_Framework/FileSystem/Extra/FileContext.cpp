@@ -47,43 +47,25 @@ namespace File
 
 
     FileContext::FileContext(const File::Path& path) 
-        : Context(path), _eventProcessor(nullptr)
+        : Context(path)
     {
     }
 
     FileContext::~FileContext()
     {
-        if (nullptr != _eventProcessor)
-        {
-            delete _eventProcessor;
-            _eventProcessor = nullptr;
-        }
     }
 
     void FileContext::OnFileAdded(const Path& path) 
     {
-        if (nullptr != _eventProcessor)
-        {
-            _eventProcessor->OnFileAdded(path);
-        }
     }
 
     void FileContext::OnFileModified(const Path& path) 
     {
-        if (nullptr != _eventProcessor)
-        {
-            _eventProcessor->OnFileModified(path);
-        }
     }
 
     void FileContext::OnFileRemoved(const Path& path) 
     {
         _meta.Remove();
-
-        if (nullptr != _eventProcessor)
-        {
-            _eventProcessor->OnFileRemoved(path);
-        }
     }
 
     void FileContext::OnFileRenamed(const Path& oldPath, const Path& newPath) 
@@ -91,11 +73,6 @@ namespace File
         _path = newPath;
         
         LoadMeta();
-
-        if (nullptr != _eventProcessor)
-        {
-            _eventProcessor->OnFileRenamed(oldPath, newPath);
-        }
     }
 
     void FileContext::OnFileMoved(const Path& oldPath, const Path& newPath) 
@@ -103,11 +80,6 @@ namespace File
         _path = newPath;
 
         LoadMeta();
-
-        if (nullptr != _eventProcessor)
-        {
-            _eventProcessor->OnFileMoved(oldPath, newPath);
-        }
     }
 
     ForderContext::ForderContext(const File::Path& path) 

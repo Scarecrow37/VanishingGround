@@ -30,9 +30,6 @@
     <ClInclude Include="FileHelper.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Extra\FileEventProcesser.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Type\FileDataType.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -40,6 +37,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Extra\FileEventNotifier.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Extra\FileEventProcesser.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -56,9 +56,6 @@
     <ClCompile Include="FileHelper.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Extra\FileEventProcesser.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Type\FileDataType.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -66,6 +63,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Extra\FileEventNotifier.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Extra\FileEventProcesser.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
