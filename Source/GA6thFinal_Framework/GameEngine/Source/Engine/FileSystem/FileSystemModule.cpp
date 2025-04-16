@@ -1,17 +1,13 @@
 ﻿#include "pch.h"
 #include "FileSystemModule.h"
 
-FileSystemModule* Global::fileSystem = nullptr;
-
 FileSystemModule::FileSystemModule()
     : _observer(nullptr)
 {
-    Global::fileSystem = this;
 }
 
 FileSystemModule::~FileSystemModule() 
 {
-    Global::fileSystem = nullptr;
 }
 
 void FileSystemModule::PreInitialize()
@@ -27,7 +23,8 @@ void FileSystemModule::ModuleInitialize()
     UmFileSystem.ReadDirectory(_rootPath);
 
     _observer = new File::FileObserver();
-    _observer->Start(_rootPath, [this](const Event& event) { 
+    _observer->Start(_rootPath,
+                     [this](const Event& event) { 
         RecieveFileEvent(event);
     });
 }
