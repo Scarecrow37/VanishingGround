@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "Shader.h"
 
 class Sampler;
@@ -29,7 +29,7 @@ public:
 	void SetPixelShader();
 	void SetShaderResource(TextureType type, ID3D11ShaderResourceView* pShaderResourece);
 
-	// ResourceÀ»(¸¦) ÅëÇØ »ó¼ÓµÊ
+	// Resourceì„(ë¥¼) í†µí•´ ìƒì†ë¨
 	HRESULT LoadResource(const std::filesystem::path& filePath) override;
 
 private:

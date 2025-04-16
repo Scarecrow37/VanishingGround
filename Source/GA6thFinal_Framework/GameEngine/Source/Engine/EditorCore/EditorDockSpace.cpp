@@ -20,6 +20,15 @@ EditorDockSpace::~EditorDockSpace()
 
 void EditorDockSpace::OnTickGui()
 {
+    for (auto& tool : _editorToolList)
+    {
+        if (nullptr != tool)
+        {
+            ImGui::PushID(tool);
+            tool->OnTickGui();
+            ImGui::PopID();
+        }
+    }
 }
 
 void EditorDockSpace::OnStartGui()

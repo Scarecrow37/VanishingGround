@@ -37,6 +37,8 @@ void EditorModule::ModuleUnInitialize()
 void EditorModule::Update()
 {
     /* ========GUI Update======== */ 
+    _mainMenuBar->OnTickGui();
+    _mainDockSpace->OnTickGui();
     _mainMenuBar->OnDrawGui();
     _mainDockSpace->OnDrawGui();
     /* =========================== */

@@ -10,7 +10,7 @@ void EngineCoresModule::PreInitialize()
     engineCore->SceneManager.LoadScene("Empty Scene");
 }
 
-void EngineCoresModule::PreUnInitialize()
+void EngineCoresModule::ModuleUnInitialize()
 {
     ESceneManager::Engine::CleanupSceneManager();
     engineCore->ComponentFactory.UninitalizeComponentFactory();

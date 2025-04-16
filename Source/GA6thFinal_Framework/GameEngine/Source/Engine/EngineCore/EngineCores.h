@@ -13,6 +13,7 @@ public:
     EGameObjectFactory GameObjectFactory;
     EComponentFactory ComponentFactory;
     EEngineLogger EngineLogger;
+    EFileSystem FileSystem;
     Application&  App;
 private:
     LogLocation::EngineLocationInfo LocationInfo;
@@ -75,3 +76,4 @@ namespace Global
 #define UmGameObjectFactory UmCore->GameObjectFactory
 #define UmComponentFactory UmCore->ComponentFactory
 #define UmApplication UmCore->App
+#define UmFileSystem UmCore->FileSystem

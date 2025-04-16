@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "Resource.h"
 
 class Animation : public Resource
@@ -24,11 +24,11 @@ public:
 
 public:
 	void LoadAnimation(const aiScene* paiScene);
-	// ResourceÀ»(¸¦) ÅëÇØ »ó¼ÓµÊ
+	// Resourceì„(ë¥¼) í†µí•´ ìƒì†ë¨
 	HRESULT LoadResource(const std::filesystem::path& filePath) override;
 
 private:
-	// ResourceÀ»(¸¦) ÅëÇØ »ó¼ÓµÊ
+	// Resourceì„(ë¥¼) í†µí•´ ìƒì†ë¨
 	void Free() override;
 
 private:

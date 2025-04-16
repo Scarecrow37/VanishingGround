@@ -14,8 +14,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ProjectVG", "ProjectVG\Proj
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GraphicsEngine", "GraphicsEngine\GraphicsEngine.vcxproj", "{430787D0-E854-42B2-B20B-FEB0DA87A60A}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FileSystem", "FileSystem\FileSystem.vcxproj", "{AE54BBA5-ECD5-4665-BFD1-F654AA0AF719}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -48,16 +46,11 @@ Global
 		{430787D0-E854-42B2-B20B-FEB0DA87A60A}.Release|x64.Build.0 = Release|x64
 		{430787D0-E854-42B2-B20B-FEB0DA87A60A}.Release|x86.ActiveCfg = Release|Win32
 		{430787D0-E854-42B2-B20B-FEB0DA87A60A}.Release|x86.Build.0 = Release|Win32
-		{AE54BBA5-ECD5-4665-BFD1-F654AA0AF719}.Debug|x64.ActiveCfg = Debug|x64
-		{AE54BBA5-ECD5-4665-BFD1-F654AA0AF719}.Debug|x64.Build.0 = Debug|x64
-		{AE54BBA5-ECD5-4665-BFD1-F654AA0AF719}.Debug|x86.ActiveCfg = Debug|Win32
-		{AE54BBA5-ECD5-4665-BFD1-F654AA0AF719}.Debug|x86.Build.0 = Debug|Win32
-		{AE54BBA5-ECD5-4665-BFD1-F654AA0AF719}.Release|x64.ActiveCfg = Release|x64
-		{AE54BBA5-ECD5-4665-BFD1-F654AA0AF719}.Release|x64.Build.0 = Release|x64
-		{AE54BBA5-ECD5-4665-BFD1-F654AA0AF719}.Release|x86.ActiveCfg = Release|Win32
-		{AE54BBA5-ECD5-4665-BFD1-F654AA0AF719}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B4644428-6DCA-4D0E-82B3-7C42C4F1F5AD}
 	EndGlobalSection
 EndGlobal

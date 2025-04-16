@@ -73,7 +73,6 @@ constexpr const wchar_t* PROJECT_SETTING_PATH = L"ProjectSetting"; // 프로젝�
 #include "Engine/Utility/ImGuiHelper.h"
 #include "Engine/Utility/stlHelper.h"
 #include "Engine/Utility/Mathf.h"
-#include "Engine/Utility/FileHelper.h"
 
 //Class Core
 #include "Engine/ClassCore/TProperty.hpp"
@@ -85,11 +84,12 @@ constexpr const wchar_t* PROJECT_SETTING_PATH = L"ProjectSetting"; // 프로젝�
 
 // FileSystem Module
 #include "Engine/FileSystem/Type/FileDataType.h"
+#include "Engine/Utility/FileHelper.h"
 #include "Engine/FileSystem/Interface/IFileEventProcesser.h"
-#include "Engine/FileSystem/Extra/FileEventNotifier.h"
 #include "Engine/FileSystem/Extra/FileObserver.h"
 #include "Engine/FileSystem/Extra/FileContext.h"
 #include "Engine/FileSystem/System/FileSystem.h"
+#include "Engine/FileSystem/Extra/FileEventNotifier.h"
 #include "Engine/FileSystem/FileSystemModule.h"
 
 //Engine Core

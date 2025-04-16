@@ -318,7 +318,7 @@ namespace File
     void FileObserver::LastFileEventLog(FileEventData& event) 
     {
 #ifdef _DEBUG
-        if (FileSystem::GetDebugLevel() >= 1)
+        if (UmFileSystem.GetDebugLevel() >= 1)
         {
             std::wstring wstr;
             EventDataToWStr(event, wstr);

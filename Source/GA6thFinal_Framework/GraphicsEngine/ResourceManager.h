@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "Resource.h"
 
 class Resource;
@@ -31,7 +31,7 @@ public:
 	}	
 
 private:
-	// BaseÀ»(¸¦) ÅëÇØ »ó¼ÓµÊ
+	// Baseì„(ë¥¼) í†µí•´ ìƒì†ë¨
 	void Free() override;
 
 private:

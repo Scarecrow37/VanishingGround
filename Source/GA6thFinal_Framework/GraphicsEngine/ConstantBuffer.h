@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "Base.h"
 
 class ConstantBuffer : public Base
@@ -18,7 +18,7 @@ public:
     void UpdateConstantBuffer(const wchar_t* name, const void* pData);
 
 private:
-    // DXBaseÀ»(¸¦) ÅëÇØ »ó¼ÓµÊ
+    // DXBaseì„(ë¥¼) í†µí•´ ìƒì†ë¨
     void Free() override;
 
 private:

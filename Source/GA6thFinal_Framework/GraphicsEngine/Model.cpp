@@ -1,4 +1,4 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "Model.h"
 #include "Mesh.h"
 #include "Skeleton.h"
@@ -25,12 +25,12 @@ HRESULT Model::LoadFBX(const std::filesystem::path& filePath, bool isStaticMesh)
     impoter.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, 0);
 
     unsigned int importFlags =
-        aiProcess_Triangulate |         // vertex »ï°¢Çü À¸·Î Ãâ·Â
-        aiProcess_GenNormals |          // Normal Á¤º¸ »ı¼º  
-        aiProcess_GenUVCoords |         // ÅØ½ºÃ³ ÁÂÇ¥ »ı¼º
-        aiProcess_CalcTangentSpace |    // ÅºÁ¨Æ® º¤ÅÍ »ı¼º
-        aiProcess_LimitBoneWeights |    // º» weight Á¦ÇÑ
-        aiProcess_ConvertToLeftHanded;  // DX¿ë ¿Ş¼ÕÁÂÇ¥°è º¯È¯
+        aiProcess_Triangulate |         // vertex ì‚¼ê°í˜• ìœ¼ë¡œ ì¶œë ¥
+        aiProcess_GenNormals |          // Normal ì •ë³´ ìƒì„±  
+        aiProcess_GenUVCoords |         // í…ìŠ¤ì²˜ ì¢Œí‘œ ìƒì„±
+        aiProcess_CalcTangentSpace |    // íƒ„ì  íŠ¸ ë²¡í„° ìƒì„±
+        aiProcess_LimitBoneWeights |    // ë³¸ weight ì œí•œ
+        aiProcess_ConvertToLeftHanded;  // DXìš© ì™¼ì†ì¢Œí‘œê³„ ë³€í™˜
 
     if (isStaticMesh) importFlags |= aiProcess_PreTransformVertices;
 
@@ -134,7 +134,7 @@ void Model::LoadMesh(aiNode* paiNode,
         }
     }        
 
-    // ÇØ´ç º»ÀÌ ¾î´À ¹öÅØ½º¿¡ ¿µÇâÀ» ÁÖ´ÂÁö¿¡ ´ëÇÑ ¼¼ÆÃ
+    // í•´ë‹¹ ë³¸ì´ ì–´ëŠ ë²„í…ìŠ¤ì— ì˜í–¥ì„ ì£¼ëŠ”ì§€ì— ëŒ€í•œ ì„¸íŒ…
     for (unsigned int i = 0; i < paiMesh->mNumBones; i++)
     {
         aiBone* paiBone = paiMesh->mBones[i];
@@ -169,7 +169,7 @@ void Model::LoadMesh(aiNode* paiNode,
         }
     }
 
-    // Weight Á¤±ÔÈ­
+    // Weight ì •ê·œí™”
     for (auto& vertex : vertices)
     {
         float totalWeight = 0.f;
@@ -225,7 +225,7 @@ void Model::FindMissingBone(aiNode* paiNode, std::unordered_map<std::string, std
 {
     if (boneInfo.find(paiNode->mName.C_Str()) == boneInfo.end())
     {
-        boneInfo[paiNode->mName.C_Str()] = { -1, XMMatrixIdentity()};  // -1·Î Ã³¸®ÇÏ¿© º»ÀÌ ¾Æ´ÔÀ» Ç¥½Ã
+        boneInfo[paiNode->mName.C_Str()] = { -1, XMMatrixIdentity()};  // -1ë¡œ ì²˜ë¦¬í•˜ì—¬ ë³¸ì´ ì•„ë‹˜ì„ í‘œì‹œ
     }
     
     for (unsigned int i = 0; i < paiNode->mNumChildren; i++)

@@ -19,7 +19,7 @@ EditorAssetBrowserTool::~EditorAssetBrowserTool()
 
 void EditorAssetBrowserTool::OnStartGui()
 {
-    _focusForder = File::FileSystem::GetContext<File::ForderContext>(
+    _focusForder = UmFileSystem.GetContext<File::ForderContext>(
         Global::fileSystem->GetRootPath());
 }
 
@@ -61,7 +61,7 @@ void EditorAssetBrowserTool::ShowFolderHierarchy(const File::Path& folderPath)
     if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
     {
         _focusForder =
-            File::FileSystem::GetContext<File::ForderContext>(folderPath);
+            UmFileSystem.GetContext<File::ForderContext>(folderPath);
     }
     if (isOpen)
     {
