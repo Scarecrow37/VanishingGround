@@ -56,16 +56,3 @@ private:
 
     SampleFileEventNotifier* sampleNotifier;
 };
-
-class SampleFileEventNotifier : public File::FileEventNotifier
-{
-public:
-    using::File::FileEventNotifier::FileEventNotifier;
-
-public:
-    void OnFileAdded(const File::Path& path) override;
-    void OnFileModified(const File::Path& path) override;
-    void OnFileRemoved(const File::Path& path) override;
-    void OnFileRenamed(const File::Path& oldPath, const File::Path& newPath) override;
-    void OnFileMoved(const File::Path& oldPath, const File::Path& newPath) override;
-};
