@@ -51,7 +51,7 @@ void Transform::SetParent(Transform* p)
     }
     else //부모 관계 변경
     {
-        if (p == this || p == _parent || p->IsDescendantOf(this))
+        if (p == this || p->IsDescendantOf(this))
         {
             return;
         }
@@ -126,7 +126,7 @@ void Transform::SetChildsRootParent(Transform* root)
 {
     for (auto& child : _childsList)
     {
-        Transform::Foreach(
+        Transform::ForeachDFS(
             *child, 
             [root](Transform* pTransform) 
             { 
@@ -153,7 +153,7 @@ Transform* Transform::Find(std::string_view name) const
 
 void Transform::UpdateMatrix()
 {
-    Foreach(*this, [](Transform* curr) 
+    ForeachDFS(*this, [](Transform* curr) 
     {
         curr->_localMatrix = Matrix::CreateScale(curr->_scale) *
                              Matrix::CreateFromQuaternion(curr->_rotation) *
