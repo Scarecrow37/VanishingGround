@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include "UmFramework.h"
 
 class ScriptTestEditor : public EditorTool
 {

@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include "UmFramework.h"
 
 /*
  게임 오브젝트 생성 메뉴

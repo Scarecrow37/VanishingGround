@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include "UmFramework.h"
 
 constexpr ImVec4 DEBUG_COLOR_TRACE = ImVec4(0.63f, 0.63f, 0.63f, 1.0f);  // 연한 회색
 constexpr ImVec4 DEBUG_COLOR_DEBUG = ImVec4(0.0f, 0.75f, 1.0f, 1.0f);    // 밝은 파랑
