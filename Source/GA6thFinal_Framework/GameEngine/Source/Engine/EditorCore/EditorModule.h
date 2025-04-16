@@ -9,7 +9,6 @@ namespace Global
 {
     extern EditorModule* editorManager;
 }
-
 #endif
 
 template <typename T>

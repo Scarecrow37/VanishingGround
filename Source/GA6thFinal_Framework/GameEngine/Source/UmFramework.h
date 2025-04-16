@@ -111,6 +111,8 @@ constexpr const wchar_t* PROJECT_SETTING_PATH = L"ProjectSetting"; // 프로젝�
 //DragDropTypes
 #include "Editor/DragDropTypes/DragDropTransform.h"
 
+//컴포넌트는 접근 안하는 헤더들
+#ifndef SCRIPTS_PROJECT
 //Editor Tools
 #include "Editor/Tool/Debug/EditorDebugTool.h"
 #include "Editor/Tool/AssetBrowser/EditorAssetBrowserTool.h"
@@ -125,3 +127,4 @@ constexpr const wchar_t* PROJECT_SETTING_PATH = L"ProjectSetting"; // 프로젝�
 #include "Editor/Menu/Window/EditorWindowMenu.h"
 #include "Editor/Menu/Setting/EditorSettingMenu.h"
 #include "Editor/Menu/Scene/EditorSceneMenu.h"
+#endif
