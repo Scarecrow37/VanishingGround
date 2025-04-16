@@ -1,4 +1,5 @@
-﻿#include "ScriptTestEditor.h"
+﻿#include "pch.h"
+#include "ScriptTestEditor.h"
 using namespace u8_literals;
 
 ScriptTestEditor::ScriptTestEditor() 

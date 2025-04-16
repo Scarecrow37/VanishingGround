@@ -1,12 +1,12 @@
 ﻿#pragma once
 #include "UmFramework.h"
 
-class EditorInspectorView
+class EditorInspectorTool
     : public EditorTool
 {
 public:
-    EditorInspectorView();
-    virtual ~EditorInspectorView();
+    EditorInspectorTool();
+    virtual ~EditorInspectorTool();
 private:
     virtual void OnStartGui() override;
 

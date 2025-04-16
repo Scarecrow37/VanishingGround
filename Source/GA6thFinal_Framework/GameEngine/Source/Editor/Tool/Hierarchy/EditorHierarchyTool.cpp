@@ -1,5 +1,5 @@
-﻿#include "EditorHierarchyView.h"
-#include "EditorInspectorView.h"
+﻿#include "pch.h"
+#include "EditorHierarchyTool.h"
 
 using namespace u8_literals;
 using namespace Global;
@@ -13,7 +13,7 @@ static void                      TransformTreeNode(Transform&                   
         if (result)
         {
             HierarchyFocusObjWeak = node.gameObject.GetWeakPtr();
-            EditorInspectorView::SetFocusObject(HierarchyFocusObjWeak);
+            EditorInspectorTool::SetFocusObject(HierarchyFocusObjWeak);
         }
         return result;
     };
@@ -121,27 +121,27 @@ static void                      TransformTreeNode(Transform&                   
 }
 
 
-EditorHierarchyView::EditorHierarchyView()
+EditorHierarchyTool::EditorHierarchyTool()
 {
     SetLabel("HierarchyView");
     SetDockLayout(DockLayout::LEFT);
 }
 
-EditorHierarchyView::~EditorHierarchyView()
+EditorHierarchyTool::~EditorHierarchyTool()
 {
 }
 
-void  EditorHierarchyView::OnStartGui()
+void  EditorHierarchyTool::OnStartGui()
 {
    
 }
 
-void  EditorHierarchyView::OnPreFrame()
+void  EditorHierarchyTool::OnPreFrame()
 {
     
 }
 
-void EditorHierarchyView::HierarchyDropEvent()
+void EditorHierarchyTool::HierarchyDropEvent()
 {
     ImGuiWindow* window = ImGui::FindWindowByName(GetLabel().c_str());
     ImRect       rect   = window->Rect();
@@ -156,7 +156,7 @@ void EditorHierarchyView::HierarchyDropEvent()
     }
 }
 
-void  EditorHierarchyView::OnFrame()
+void  EditorHierarchyTool::OnFrame()
 {
     HierarchyDropEvent();
     const auto& scenes = engineCore->SceneManager.GetBuildScenes();
@@ -185,12 +185,12 @@ void  EditorHierarchyView::OnFrame()
     }
 }
 
-void  EditorHierarchyView::OnPostFrame()
+void  EditorHierarchyTool::OnPostFrame()
 {
     
 }
 
-void EditorHierarchyView::OnPopup()
+void EditorHierarchyTool::OnPopup()
 {
   
 }

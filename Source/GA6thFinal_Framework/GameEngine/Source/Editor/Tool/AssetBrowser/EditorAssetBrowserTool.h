@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "UmFramework.h"
 
-class EditorInspectorView;
+class EditorInspectorTool;
 
 namespace File
 {
@@ -12,7 +12,7 @@ namespace File
 
 class EditorFileObject;
 
-class EditorAssetBrowser
+class EditorAssetBrowserTool
     : public EditorTool
 {
     enum ShowType
@@ -28,8 +28,8 @@ class EditorAssetBrowser
     using wpForderContext = std::weak_ptr<File::ForderContext>;
     using spForderContext = std::shared_ptr<File::ForderContext>;
 public:
-    EditorAssetBrowser();
-    virtual ~EditorAssetBrowser();
+    EditorAssetBrowserTool();
+    virtual ~EditorAssetBrowserTool();
 
 private:
     virtual void OnStartGui() override;

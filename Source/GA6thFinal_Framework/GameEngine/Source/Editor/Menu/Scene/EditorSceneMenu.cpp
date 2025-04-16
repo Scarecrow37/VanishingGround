@@ -1,4 +1,5 @@
-﻿#include "EditorSceneMenu.h"
+﻿#include "pch.h"
+#include "EditorSceneMenu.h"
 
 using namespace Global;
 

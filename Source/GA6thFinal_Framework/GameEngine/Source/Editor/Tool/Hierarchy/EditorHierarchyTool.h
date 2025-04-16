@@ -1,12 +1,12 @@
 ﻿#pragma once
 #include "UmFramework.h"
 
-class EditorHierarchyView
+class EditorHierarchyTool
     : public EditorTool
 {
 public:
-    EditorHierarchyView();
-    virtual ~EditorHierarchyView();
+    EditorHierarchyTool();
+    virtual ~EditorHierarchyTool();
 private:
     virtual void OnStartGui() override;
 

@@ -152,6 +152,17 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Source\Editor\DragDropTypes\DragDropTransform.h" />
+    <ClInclude Include="Source\Editor\Menu\Project\EditorProjectMenu.h" />
+    <ClInclude Include="Source\Editor\Menu\Scene\EditorSceneMenu.h" />
+    <ClInclude Include="Source\Editor\Menu\Setting\EditorSettingMenu.h" />
+    <ClInclude Include="Source\Editor\Menu\Window\EditorWindowMenu.h" />
+    <ClInclude Include="Source\Editor\Tool\AssetBrowser\EditorAssetBrowserTool.h" />
+    <ClInclude Include="Source\Editor\Tool\Debug\EditorDebugTool.h" />
+    <ClInclude Include="Source\Editor\Tool\Hierarchy\EditorHierarchyTool.h" />
+    <ClInclude Include="Source\Editor\Tool\Inspector\EditorInspectorTool.h" />
+    <ClInclude Include="Source\Editor\Tool\Log\EditorLogsTool.h" />
+    <ClInclude Include="Source\Editor\Tool\Scene\EditorSceneTool.h" />
+    <ClInclude Include="Source\Editor\Tool\ScriptTest\ScriptTestEditor.h" />
     <ClInclude Include="Source\Engine\FileSystem\FileSystemModule.h" />
     <ClInclude Include="Source\Engine\EditorCore\EditorTool.h" />
     <ClInclude Include="Source\Engine\EditorCore\EditorDockSpace.h" />
@@ -202,6 +213,17 @@
     <ClInclude Include="Source\Engine\Utility\DumpUtility.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Editor\Menu\Project\EditorProjectMenu.cpp" />
+    <ClCompile Include="Source\Editor\Menu\Scene\EditorSceneMenu.cpp" />
+    <ClCompile Include="Source\Editor\Menu\Setting\EditorSettingMenu.cpp" />
+    <ClCompile Include="Source\Editor\Menu\Window\EditorWindowMenu.cpp" />
+    <ClCompile Include="Source\Editor\Tool\AssetBrowser\EditorAssetBrowserTool.cpp" />
+    <ClCompile Include="Source\Editor\Tool\Debug\EditorDebugTool.cpp" />
+    <ClCompile Include="Source\Editor\Tool\Hierarchy\EditorHierarchyTool.cpp" />
+    <ClCompile Include="Source\Editor\Tool\Inspector\EditorInspectorTool.cpp" />
+    <ClCompile Include="Source\Editor\Tool\Log\EditorLogsTool.cpp" />
+    <ClCompile Include="Source\Editor\Tool\Scene\EditorSceneTool.cpp" />
+    <ClCompile Include="Source\Editor\Tool\ScriptTest\ScriptTestEditor.cpp" />
     <ClCompile Include="Source\Engine\FileSystem\FileSystemModule.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\EditorTool.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\EditorDockSpace.cpp" />

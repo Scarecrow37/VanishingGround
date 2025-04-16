@@ -1,9 +1,9 @@
-﻿#include "EditorAssetBrowser.h"
-#include "EditorInspectorView.h"
+﻿#include "pch.h"
+#include "EditorAssetBrowserTool.h"
 
 namespace fs = std::filesystem;
 
-EditorAssetBrowser::EditorAssetBrowser()
+EditorAssetBrowserTool::EditorAssetBrowserTool()
 {
     SetLabel("AssetBrowser");
     SetDockLayout(DockLayout::DOWN);
@@ -13,21 +13,21 @@ EditorAssetBrowser::EditorAssetBrowser()
     mShowType = List;
 }
 
-EditorAssetBrowser::~EditorAssetBrowser()
+EditorAssetBrowserTool::~EditorAssetBrowserTool()
 {
 }
 
-void EditorAssetBrowser::OnStartGui()
+void EditorAssetBrowserTool::OnStartGui()
 {
     _focusForder = File::FileSystem::GetContext<File::ForderContext>(
         Global::fileSystem->GetRootPath());
 }
 
-void EditorAssetBrowser::OnPreFrame()
+void EditorAssetBrowserTool::OnPreFrame()
 {
 }
 
-void EditorAssetBrowser::OnFrame()
+void EditorAssetBrowserTool::OnFrame()
 {
     BeginColum();
 
@@ -46,12 +46,12 @@ void EditorAssetBrowser::OnFrame()
     EndColum();
 }
 
-void EditorAssetBrowser::OnPostFrame()
+void EditorAssetBrowserTool::OnPostFrame()
 {
 }
 
 // 왼쪽: 폴더 트리 표시 (재귀)
-void EditorAssetBrowser::ShowFolderHierarchy(const File::Path& folderPath)
+void EditorAssetBrowserTool::ShowFolderHierarchy(const File::Path& folderPath)
 {
     std::string id =
         folderPath.filename().string() + "##" + folderPath.string();
@@ -77,14 +77,14 @@ void EditorAssetBrowser::ShowFolderHierarchy(const File::Path& folderPath)
 }
 
 // 오른쪽: 선택된 폴더의 파일 목록
-void EditorAssetBrowser::ShowFolderContents()
+void EditorAssetBrowserTool::ShowFolderContents()
 {
     switch (mShowType)
     {
-    case EditorAssetBrowser::List:
+    case EditorAssetBrowserTool::List:
         ShowContentsToList();
         break;
-    case EditorAssetBrowser::Icon:
+    case EditorAssetBrowserTool::Icon:
         ShowContentsToIcon();
         break;
     default:
@@ -92,7 +92,7 @@ void EditorAssetBrowser::ShowFolderContents()
     }
 }
 
-void EditorAssetBrowser::ShowContentsToList()
+void EditorAssetBrowserTool::ShowContentsToList()
 {
     // 참조 포인터가 살아있을 때
     if (false == _focusForder.expired())
@@ -118,7 +118,7 @@ void EditorAssetBrowser::ShowContentsToList()
                     if (ImGui::Selectable(id.c_str()))
                     {
                         _selectedContext->SetContext(spFileContext);
-                        EditorInspectorView::SetFocusObject(_selectedContext);
+                        EditorInspectorTool::SetFocusObject(_selectedContext);
                     }
                     // 더블 클릭시 파일 열기
                     if (ImGui::IsItemHovered() &&
@@ -133,18 +133,18 @@ void EditorAssetBrowser::ShowContentsToList()
     }
 }
 
-void EditorAssetBrowser::ShowContentsToIcon()
+void EditorAssetBrowserTool::ShowContentsToIcon()
 {
 }
 
 
-void EditorAssetBrowser::BeginColum()
+void EditorAssetBrowserTool::BeginColum()
 {
     ImGui::Columns(2, "AssetBrowser", true);
     //ImGui::SetColumnWidth(0, mPanelWidth);
 }
 
-void EditorAssetBrowser::EndColum()
+void EditorAssetBrowserTool::EndColum()
 {
     // 크기 변경 감지 & 저장
     //if (mPanelWidth != ImGui::GetColumnWidth(0))

@@ -1,4 +1,5 @@
-﻿#include "EditorWindowMenu.h"
+﻿#include "pch.h"
+#include "EditorWindowMenu.h"
 
 void EditorMenuTools::OnMenu()
 {

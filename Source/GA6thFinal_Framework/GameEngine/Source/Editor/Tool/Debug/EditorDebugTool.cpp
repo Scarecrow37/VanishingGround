@@ -1,31 +1,32 @@
-﻿#include "EditorDebugView.h"
+﻿#include "pch.h"
+#include "EditorDebugTool.h"
 using namespace Global;
 
-EditorDebugView::EditorDebugView()
+EditorDebugTool::EditorDebugTool()
 {
     SetLabel("Debug");
     SetDockLayout(DockLayout::DOWN);
 }
 
-EditorDebugView::~EditorDebugView()
+EditorDebugTool::~EditorDebugTool()
 {
 }
 
-void EditorDebugView::OnTickGui()
+void EditorDebugTool::OnTickGui()
 {
 }
 
-void EditorDebugView::OnStartGui()
-{
-    return void ();
-}
-
-void EditorDebugView::OnPreFrame()
+void EditorDebugTool::OnStartGui()
 {
     return void ();
 }
 
-void EditorDebugView::OnFrame()
+void EditorDebugTool::OnPreFrame()
+{
+    return void ();
+}
+
+void EditorDebugTool::OnFrame()
 {
     ImGui::InputDouble("time scale", &engineCore->Time.TimeScale);
 
@@ -46,11 +47,11 @@ void EditorDebugView::OnFrame()
     ImGui::InputDouble("maximumDeltaTime", &engineCore->Time.MaximumDeltaTime);
 }
 
-void EditorDebugView::OnPostFrame()
+void EditorDebugTool::OnPostFrame()
 {
     return void ();
 }
 
-void EditorDebugView::OnPopup() 
+void EditorDebugTool::OnPopup() 
 {
 }
