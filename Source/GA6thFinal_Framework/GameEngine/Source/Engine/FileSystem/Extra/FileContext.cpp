@@ -8,18 +8,18 @@ namespace File
     {
         if (true == LoadMeta())
         {
-            if (FileSystem::GetDebugLevel() >= 2)
+            if (UmFileSystem.GetDebugLevel() >= 2)
                 OutputLog(L"Failed to load meta: " +
                           _meta.GetFileGuid().wstring());
         }
-        if (FileSystem::GetDebugLevel() >= 3)
+        if (UmFileSystem.GetDebugLevel() >= 3)
             OutputLog(L"Create Context: " + _path.wstring());
     }
 
     Context::~Context() 
     {
 #ifdef _DEBUG
-        if (FileSystem::GetDebugLevel() >= 3)
+        if (UmFileSystem.GetDebugLevel() >= 3)
             OutputLog(L"Destroy Context: " + _path.wstring());
 #endif // DEBUG
 
@@ -109,7 +109,7 @@ namespace File
         {
             if (false == wpContext.expired())
             {
-                FileSystem::RemovedFile(wpContext.lock()->GetPath());
+                UmFileSystem.RemovedFile(wpContext.lock()->GetPath());
             }
         }
     }
@@ -125,7 +125,7 @@ namespace File
                 auto        spContext      = wpContext.lock();
                 const Path& oldContextPath = spContext->GetPath();
                 const Path& newContextPath = _path / spContext->GetPath().filename();
-                FileSystem::MovedFile(oldContextPath, newContextPath);
+                UmFileSystem.MovedFile(oldContextPath, newContextPath);
             }
         }
     }
@@ -141,7 +141,7 @@ namespace File
                 auto        spContext      = wpContext.lock();
                 const Path& oldContextPath = spContext->GetPath();
                 const Path& newContextPath = _path / spContext->GetPath().filename();
-                FileSystem::MovedFile(oldContextPath, newContextPath);
+                UmFileSystem.MovedFile(oldContextPath, newContextPath);
             }
         }
     }

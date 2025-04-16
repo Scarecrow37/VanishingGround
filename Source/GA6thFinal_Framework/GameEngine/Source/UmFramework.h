@@ -47,6 +47,11 @@ constexpr const wchar_t* PROJECT_SETTING_PATH = L"ProjectSetting"; // 프로젝�
 #include <concepts>
 #include <queue>
 #include <stack>
+#include <atomic>
+#include <condition_variable>
+#include <mutex>
+#include <thread>
+#include <system_error>
 
 //ThirdParty
 #include <pugixml.hpp>
@@ -78,7 +83,13 @@ constexpr const wchar_t* PROJECT_SETTING_PATH = L"ProjectSetting"; // 프로젝�
 #include "Engine/ApplicationCore/Application.h"
 
 // FileSystem Module
-#include "../FileSystem/framework.h"
+#include "Engine/FileSystem/Type/FileDataType.h"
+#include "Engine/Utility/FileHelper.h"
+#include "Engine/FileSystem/Interface/IFileEventProcesser.h"
+#include "Engine/FileSystem/Extra/FileObserver.h"
+#include "Engine/FileSystem/Extra/FileContext.h"
+#include "Engine/FileSystem/System/FileSystem.h"
+#include "Engine/FileSystem/Extra/FileEventNotifier.h"
 #include "Engine/FileSystem/FileSystemModule.h"
 
 //Engine Core

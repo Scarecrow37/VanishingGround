@@ -5,7 +5,7 @@ namespace File
     class FileEventNotifier 
         : public IFileEventProcesser
     {
-        friend class FileSystem;
+        friend class EFileSystem;
     public:
         FileEventNotifier();
         virtual ~FileEventNotifier();

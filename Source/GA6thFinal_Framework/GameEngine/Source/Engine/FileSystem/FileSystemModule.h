@@ -53,19 +53,25 @@ private:
 
     std::mutex          _mutex;
     std::queue<Event>   _eventQueue; // 이벤트 큐
-
-    SampleFileEventNotifier* sampleNotifier;
 };
 
-class SampleFileEventNotifier : public File::FileEventNotifier
+/* 테스트용 클래스. 추후 제거해야함 */
+class SampleNotifier : public File::FileEventNotifier
 {
 public:
-    using::File::FileEventNotifier::FileEventNotifier;
+    SampleNotifier() {}
+    virtual ~SampleNotifier() {}
 
 public:
-    void OnFileAdded(const File::Path& path) override;
-    void OnFileModified(const File::Path& path) override;
-    void OnFileRemoved(const File::Path& path) override;
-    void OnFileRenamed(const File::Path& oldPath, const File::Path& newPath) override;
-    void OnFileMoved(const File::Path& oldPath, const File::Path& newPath) override;
+    void OnFileAdded(const File::Path& path) override {}
+    void OnFileModified(const File::Path& path) override {}
+    void OnFileRemoved(const File::Path& path) override {}
+    void OnFileRenamed(const File::Path& oldPath,
+                       const File::Path& newPath) override
+    {
+    }
+    void OnFileMoved(const File::Path& oldPath,
+                     const File::Path& newPath) override
+    {
+    }
 };

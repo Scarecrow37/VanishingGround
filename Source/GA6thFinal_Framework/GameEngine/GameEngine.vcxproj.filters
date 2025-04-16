@@ -201,6 +201,27 @@
     <ClInclude Include="Source\Editor\Menu\Window\EditorWindowMenu.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\FileSystem\Extra\FileObserver.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\FileSystem\System\FileSystem.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\FileSystem\Extra\FileContext.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\FileSystem\Extra\FileEventNotifier.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\FileSystem\Interface\IFileEventProcesser.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\FileSystem\Type\FileDataType.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Utility\FileHelper.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\pch.cpp">
@@ -357,6 +378,27 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Editor\Menu\Window\EditorWindowMenu.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\FileSystem\Extra\FileObserver.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\FileSystem\System\FileSystem.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\FileSystem\Extra\FileContext.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\FileSystem\Extra\FileEventNotifier.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\FileSystem\Interface\IFileEventProcesser.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\FileSystem\Type\FileDataType.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Utility\FileHelper.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

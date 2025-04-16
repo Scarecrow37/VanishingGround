@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "Base.h"
 
 class Resource abstract : public Base

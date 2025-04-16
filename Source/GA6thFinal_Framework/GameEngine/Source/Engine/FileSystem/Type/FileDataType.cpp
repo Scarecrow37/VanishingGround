@@ -9,7 +9,7 @@ namespace File
     }
     File::Path Guid::ToPath() const
     {
-        return FileSystem::GetPathFromGuid(native());
+        return UmFileSystem.GetPathFromGuid(native());
     }
     Path::operator File::Guid() const
     {
@@ -29,7 +29,7 @@ namespace File
 
     File::Guid Path::ToGuid() const
     {
-        return FileSystem::GetGuidFromPath(native());
+        return UmFileSystem.GetGuidFromPath(native());
     }
     bool MetaData::Create(const Path& path)
     {
@@ -72,7 +72,7 @@ namespace File
             _fileGuid    = node[FILE_GUID_HEADER].as<std::string>();
             _projectGuid = node[PROJ_GUID_HEADER].as<std::string>();
 
-            if (FileSystem::GetDebugLevel() >= 2)
+            if (UmFileSystem.GetDebugLevel() >= 2)
                 OutputLog(L"Load MetaFile: " + _filePath.wstring());
             return true;
         }   

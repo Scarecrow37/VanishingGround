@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "Base.h"
 
 class StructuredBuffer : public Base
@@ -19,7 +19,7 @@ public:
 	void UpdateStructuredBuffer(const wchar_t* name, const void* pData);
 
 private:
-	// BaseÀ»(¸¦) ÅëÇØ »ó¼ÓµÊ
+	// Baseì„(ë¥¼) í†µí•´ ìƒì†ë¨
 	void Free() override;
 	
 private:

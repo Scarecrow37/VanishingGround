@@ -16,6 +16,12 @@ EditorMenuBar::~EditorMenuBar()
 
 void EditorMenuBar::OnTickGui()
 {
+    // 메뉴바가 그려지기 전 호출
+    for (auto& [key, menu] : _menuTable)
+    {
+        if (nullptr != menu)
+            menu->OnTickGui();
+    }
 }
 
 void EditorMenuBar::OnStartGui()
@@ -156,8 +162,6 @@ EditorMenuNode::~EditorMenuNode()
 
 void EditorMenuNode::OnDrawGui()
 {
-    OnTickGui();
-
     if (GetVisible())
     {
         bool isOpen = false;
@@ -211,8 +215,6 @@ EditorMenu::~EditorMenu()
 
 void EditorMenu::OnDrawGui()
 {
-    OnTickGui();
-
     if (true == GetVisible())
     {
         ImGui::PushID(this);

@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "Resource.h"
 
 class Texture : public Resource
@@ -13,7 +13,7 @@ public:
     Vector2 GetSize() const { return _size; }
 
 private:
-    // ResourceÀ»(¸¦) ÅëÇØ »ó¼ÓµÊ
+    // Resourceì„(ë¥¼) í†µí•´ ìƒì†ë¨
     void Free() override;
 
 private:
