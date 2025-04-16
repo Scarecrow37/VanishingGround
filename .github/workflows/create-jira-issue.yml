@@ -49,12 +49,8 @@ jobs:
           response=$(curl -s -u ${{ secrets.JIRA_USER_EMAIL }}:${{ secrets.JIRA_API_TOKEN }} \
             -X GET "${{ secrets.JIRA_BASE_URL }}/rest/api/3/issue/${{ steps.issue-parser.outputs.issueparser_parentKey }}")
           type=$(echo $response | jq -r '.fields.issuetype.name')
+          echo "Detected parent type is: $type"
           echo "parent_type=$type" >> $GITHUB_OUTPUT
-          
-      - name: Log parent_type
-        run: echo "Detected parent type is: $PARENT_TYPE"
-        env:
-          PARENT_TYPE: ${{ steps.parent-type.outputs.parent_type }}
   
       - name: Create Task under Epic
         if: steps.parent-type.outputs.parent_type == '에픽'
