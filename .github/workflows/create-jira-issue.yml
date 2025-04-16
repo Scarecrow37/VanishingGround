@@ -51,6 +51,9 @@ jobs:
           type=$(echo $response | jq -r '.fields.issuetype.name')
           echo "parent_type=$type" >> $GITHUB_OUTPUT
           
+      - name: Log parent_type
+        run: echo "Detected parent type is: ${{ steps.parent-type.outputs.parent_type }}"
+  
       - name: Create Task under Epic
         if: steps.parent-type.outputs.parent_type == '에픽'
         id: create-task
