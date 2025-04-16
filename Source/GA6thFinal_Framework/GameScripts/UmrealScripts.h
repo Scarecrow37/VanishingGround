@@ -25,3 +25,6 @@ UMREALSCRIPT_NEWCOMPONENT(CLASS_NAME)
 
 #include "Scripts\Test\TestComponent.h"
 UMREAL_COMPONENT(TestComponent)
+
+#include "Scripts\Graphics\StaticMeshRenderer.h"
+UMREAL_COMPONENT(StaticMeshRenderer)

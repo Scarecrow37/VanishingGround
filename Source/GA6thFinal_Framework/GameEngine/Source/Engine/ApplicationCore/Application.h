@@ -100,8 +100,8 @@ private:
     void UnInitModules();
 
 private:
-    class ImGuiDX11Module*  _imguiDX11Module = nullptr;
-    class GraphicsModule*   _graphicsModule  = nullptr;
+    class ImGuiDX12Module*  _imguiDX12Module = nullptr;
+    //class GraphicsModule*   _graphicsModule  = nullptr;
     class FileSystemModule* _filesystemModule = nullptr;
 
 protected:

@@ -19,6 +19,75 @@
     <Filter Include="소스 파일\imgui">
       <UniqueIdentifier>{9f4da9ab-ce48-4179-ac8c-0d31af6f01e0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GraphicsCore">
+      <UniqueIdentifier>{7ee76fe4-b5c3-4628-be71-cb1e070427af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsCore\Mesh">
+      <UniqueIdentifier>{507098b5-2d2e-4d2f-8362-337252a3091e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsCore\Resource">
+      <UniqueIdentifier>{bdfe6f32-dff4-4937-b704-842a8d4b8fb2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsCore\Manager">
+      <UniqueIdentifier>{09a21ef3-ad3d-402d-9971-9643a6232f1f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsCore\Mesh\Geometry">
+      <UniqueIdentifier>{5e602853-f0cc-418d-b1a2-520e825cbb17}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsCore\Camera">
+      <UniqueIdentifier>{026c3fa8-67ae-4474-b607-f2549b0a5daa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsCore\Headers">
+      <UniqueIdentifier>{cb5020ed-6b69-48bc-9084-1dd626dc60d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsCore\Device">
+      <UniqueIdentifier>{a585e09c-c565-4a08-8f0b-42dac91ce98f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsCore\FBXImporter">
+      <UniqueIdentifier>{ccfbddb1-8952-4c6d-a33c-4a7c05ae6581}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsCore\Font">
+      <UniqueIdentifier>{0721e0cf-8e7c-4922-9926-38eb0513b6f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsCore\FrameResource">
+      <UniqueIdentifier>{4cefd1b9-bda8-4c4d-aaf0-30cfc83fcf9c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsCore\FX">
+      <UniqueIdentifier>{488fd3c4-b8c0-46c1-af6b-bbc2223243c9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsCore\RenderTarget">
+      <UniqueIdentifier>{df1afd56-b568-44be-8cca-f234f362ab94}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsCore\Renderer">
+      <UniqueIdentifier>{efcc3221-3a70-478c-a67b-5bbb11f8706e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsCore\Shader">
+      <UniqueIdentifier>{9278a8f9-45d5-41a1-b3c4-12fb4088616f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsCore\ImGui">
+      <UniqueIdentifier>{d750d661-0287-4a20-87de-8ea281d76872}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsCore\Skeleton">
+      <UniqueIdentifier>{735deb03-881f-4282-8293-e48808ceb724}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsCore\Resource\Texture">
+      <UniqueIdentifier>{e613624d-48ce-49f7-b1fc-e308b8d9ba3b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsCore\Resource\Model">
+      <UniqueIdentifier>{23a11d16-627e-4103-bbc0-56e1b23c28f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsCore\Resource\Animation">
+      <UniqueIdentifier>{10d76cf7-ce92-4ebc-b14e-43b6bccafc1a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsCore\VIBuffer">
+      <UniqueIdentifier>{76ef463e-5622-4f1d-a307-537e80137e5c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsCore\StructuredBuffer">
+      <UniqueIdentifier>{baa45bd7-71fc-4ad4-9e7a-d3a2107318c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsCore\Module">
+      <UniqueIdentifier>{a63d94b8-ab29-418c-9b51-30ec5e81ea26}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\pch.h">
@@ -120,13 +189,7 @@
     <ClInclude Include="Source\Engine\ApplicationCore\Application.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\AppModule\ImGuiDX11Module.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\AppModule\Interface\IAppModule.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\GraphicsModule.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\AppModule\EngineCoresModule.h">
@@ -164,6 +227,117 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\EditorCore\EditorModule.h">
       <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\GraphicsCore.h">
+      <Filter>GraphicsCore</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\TempObject.h">
+      <Filter>GraphicsCore</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\Animation.h">
+      <Filter>GraphicsCore\Resource\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\BaseMesh.h">
+      <Filter>GraphicsCore\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\Box.h">
+      <Filter>GraphicsCore\Mesh\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\Camera.h">
+      <Filter>GraphicsCore\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\Cylinder.h">
+      <Filter>GraphicsCore\Mesh\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\Defines.h">
+      <Filter>GraphicsCore\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\DX12Practice.h">
+      <Filter>GraphicsCore\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\Enums.h">
+      <Filter>GraphicsCore\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\Externs.h">
+      <Filter>GraphicsCore\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\Structs.h">
+      <Filter>GraphicsCore\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\Device.h">
+      <Filter>GraphicsCore\Device</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\FBXImporter.h">
+      <Filter>GraphicsCore\FBXImporter</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\Font.h">
+      <Filter>GraphicsCore\Font</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\FrameResource.h">
+      <Filter>GraphicsCore\FrameResource</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\FX.h">
+      <Filter>GraphicsCore\FX</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\GeometryGenerator.h">
+      <Filter>GraphicsCore\Mesh\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\GeoSphere.h">
+      <Filter>GraphicsCore\Mesh\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\Grid.h">
+      <Filter>GraphicsCore\Mesh\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\Model.h">
+      <Filter>GraphicsCore\Resource\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\Quad.h">
+      <Filter>GraphicsCore\Mesh\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\FontManager.h">
+      <Filter>GraphicsCore\Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\MultiRenderTargetManager.h">
+      <Filter>GraphicsCore\Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\ResourceManager.h">
+      <Filter>GraphicsCore\Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\ViewManager.h">
+      <Filter>GraphicsCore\Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\Resource.h">
+      <Filter>GraphicsCore\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\RenderTarget.h">
+      <Filter>GraphicsCore\RenderTarget</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\Renderer.h">
+      <Filter>GraphicsCore\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\Shader.h">
+      <Filter>GraphicsCore\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\AppModule\ImGuiDX12Module.h">
+      <Filter>GraphicsCore\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\Skeleton.h">
+      <Filter>GraphicsCore\Skeleton</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\Sphere.h">
+      <Filter>GraphicsCore\Mesh\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\Texture.h">
+      <Filter>GraphicsCore\Resource\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\StructuredBuffer.h">
+      <Filter>GraphicsCore\StructuredBuffer</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\VIBuffer.h">
+      <Filter>GraphicsCore\VIBuffer</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\GraphicsModule.h">
+      <Filter>GraphicsCore\Module</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -248,12 +422,6 @@
     <ClCompile Include="Source\Engine\ApplicationCore\Application.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\AppModule\ImGuiDX11Module.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\GraphicsModule.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\AppModule\EngineCoresModule.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -288,6 +456,102 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Utility\LogLevel.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\GraphicsCore.cpp">
+      <Filter>GraphicsCore</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\TempObject.cpp">
+      <Filter>GraphicsCore</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\Animation.cpp">
+      <Filter>GraphicsCore\Resource\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\BaseMesh.cpp">
+      <Filter>GraphicsCore\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\Box.cpp">
+      <Filter>GraphicsCore\Mesh\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\Camera.cpp">
+      <Filter>GraphicsCore\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\Cylinder.cpp">
+      <Filter>GraphicsCore\Mesh\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\Device.cpp">
+      <Filter>GraphicsCore\Device</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\FBXImporter.cpp">
+      <Filter>GraphicsCore\FBXImporter</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\Font.cpp">
+      <Filter>GraphicsCore\Font</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\FrameResource.cpp">
+      <Filter>GraphicsCore\FrameResource</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\FX.cpp">
+      <Filter>GraphicsCore\FX</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\GeometryGenerator.cpp">
+      <Filter>GraphicsCore\Mesh\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\GeoSphere.cpp">
+      <Filter>GraphicsCore\Mesh\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\Grid.cpp">
+      <Filter>GraphicsCore\Mesh\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\Model.cpp">
+      <Filter>GraphicsCore\Resource\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\Quad.cpp">
+      <Filter>GraphicsCore\Mesh\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\FontManager.cpp">
+      <Filter>GraphicsCore\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\MultiRenderTargetManager.cpp">
+      <Filter>GraphicsCore\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\ResourceManager.cpp">
+      <Filter>GraphicsCore\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\ViewManager.cpp">
+      <Filter>GraphicsCore\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\RenderTarget.cpp">
+      <Filter>GraphicsCore\RenderTarget</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\Renderer.cpp">
+      <Filter>GraphicsCore\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\Shader.cpp">
+      <Filter>GraphicsCore\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\AppModule\ImGuiDX12Module.cpp">
+      <Filter>GraphicsCore\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\Skeleton.cpp">
+      <Filter>GraphicsCore\Skeleton</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\Sphere.cpp">
+      <Filter>GraphicsCore\Mesh\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\Texture.cpp">
+      <Filter>GraphicsCore\Resource\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\StructuredBuffer.cpp">
+      <Filter>GraphicsCore\StructuredBuffer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\VIBuffer.cpp">
+      <Filter>GraphicsCore\VIBuffer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\GraphicsModule.cpp">
+      <Filter>GraphicsCore\Module</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\Resource.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

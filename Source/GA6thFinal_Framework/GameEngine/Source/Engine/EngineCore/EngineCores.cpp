@@ -20,6 +20,7 @@ void SafeEngineCoresPtr::Engine::CreateEngineCores()
         assert(!"엔진 코어가 이미 존재합니다.");
         return;
     }
+    std::make_shared<int>();
     Global::engineCore = std::make_shared<EngineCores>(*Application::App);
 }
 

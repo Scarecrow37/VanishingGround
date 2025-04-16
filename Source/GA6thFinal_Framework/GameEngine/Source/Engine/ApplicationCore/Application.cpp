@@ -48,8 +48,8 @@ Application::Application()
     //필수 모듈들
     AddModule<EngineCoresModule>();
 
-    _graphicsModule = AddModule<GraphicsModule>();
-    _imguiDX11Module = AddModule<ImGuiDX11Module>();
+    //_graphicsModule = AddModule<GraphicsModule>();
+    //_imguiDX12Module = AddModule<ImGuiDX12Module>();
     _filesystemModule = AddModule<FileSystemModule>();
 }
 
@@ -95,19 +95,23 @@ void Application::Run()
             ETimeSystem::Engine::TimeSystemUpdate();
             float deltaTime = engineCore->Time.deltaTime();
 
-            _imguiDX11Module->ImguiBegin();
+            //_imguiDX12Module->ImguiBegin();
             {
                 if (Global::editorManager)
                 {
                     Global::editorManager->Update();
                 }
-                ESceneManager::Engine::SceneUpdate();
 
-                //_graphicsModule->PreUpdate(deltaTime);
-                //_graphicsModule->PostUpdate(deltaTime);
+                // AnimationUpdate
+                Global::engineCore->Graphics.UpdateAnimation(deltaTime);
+                
+                ESceneManager::Engine::SceneUpdate();
+                // CameraUpdate, RenderQueueUpdate, Render
+                Global::engineCore->Graphics.Update();
+                Global::engineCore->Graphics.Render();
             }
-            _imguiDX11Module->ImguiEnd();
-            _graphicsModule->Render();
+            //_imguiDX12Module->ImguiEnd();
+            //_graphicsModule->Render();
         }
     }
 }

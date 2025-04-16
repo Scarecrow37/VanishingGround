@@ -14,6 +14,9 @@ public:
     EComponentFactory ComponentFactory;
     EEngineLogger EngineLogger;
     Application&  App;
+
+    GraphicsCore Graphics;
+
 private:
     LogLocation::EngineLocationInfo LocationInfo;
 };

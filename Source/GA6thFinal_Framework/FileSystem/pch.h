@@ -13,6 +13,7 @@
 #include <functional>
 #include <windows.h>
 
+#include <queue>
 #include <deque>
 #include <unordered_map>
 #include <unordered_set>

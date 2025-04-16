@@ -149,12 +149,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Scripts\Graphics\Animator.h" />
+    <ClInclude Include="Scripts\Graphics\MeshRenderer.h" />
+    <ClInclude Include="Scripts\Graphics\SkeletalMeshRenderer.h" />
+    <ClInclude Include="Scripts\Graphics\StaticMeshRenderer.h" />
     <ClInclude Include="Scripts\Test\TestComponent.h" />
     <ClInclude Include="UmrealScriptCore.h" />
     <ClInclude Include="UmrealScripts.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="Scripts\Graphics\Animator.cpp" />
+    <ClCompile Include="Scripts\Graphics\SkeletalMeshRenderer.cpp" />
+    <ClCompile Include="Scripts\Graphics\StaticMeshRenderer.cpp" />
     <ClCompile Include="Scripts\Test\TestComponent.cpp" />
     <ClCompile Include="UmrealScriptCore.cpp" />
     <ClCompile Include="UmrealScripts.cpp" />
