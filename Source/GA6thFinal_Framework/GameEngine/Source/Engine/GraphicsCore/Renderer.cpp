@@ -64,7 +64,7 @@ void Renderer::Initialize()
 void Renderer::Update()
 {
     // 비활성된 컴포넌트 제거
-    auto first = std::remove_if(_components.begin(), _components.end(), [](const auto& ptr) { return (!ptr->Enable || !ptr->gameObect->ActiveInHierarchy); });
+    auto first = std::remove_if(_components.begin(), _components.end(), [](const auto& ptr) { return (!ptr->Enable || !ptr->gameObject->ActiveInHierarchy); });
     _components.erase(first, _components.end());
 
     UmMainCamera.Update();
@@ -195,8 +195,8 @@ void Renderer::UpdateFrameResource()
         auto& model     = component->GetModel();
         auto& meshes    = model->GetMeshes();
         auto& materials = model->GetMaterials();
-
-        XMMATRIX world = XMMatrixTranspose(component->gameObect->transform.GetWorldMatrix());
+        
+        XMMATRIX world = XMMatrixTranspose(component->gameObject->transform.GetWorldMatrix());
         UINT size = (UINT)meshes.size();
 
         for (UINT i = 0; i < size; i++)
