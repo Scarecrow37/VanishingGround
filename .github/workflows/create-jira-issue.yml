@@ -52,7 +52,7 @@ jobs:
           echo "parent_type=$type" >> $GITHUB_OUTPUT
           
       - name: Create Task under Epic
-        if: steps.parent-type.outputs.parent_type == 'Epic'
+        if: steps.parent-type.outputs.parent_type == '에픽'
         id: create-task
         uses: atlassian/gajira-create@v3
         with:
@@ -68,7 +68,7 @@ jobs:
             }
             
       - name: Create Sub-task under Task
-        if: steps.parent-type.outputs.parent_type == 'Task'
+        if: steps.parent-type.outputs.parent_type == '작업'
         id: create-subtask
         uses: atlassian/gajira-create@v3
         with:
