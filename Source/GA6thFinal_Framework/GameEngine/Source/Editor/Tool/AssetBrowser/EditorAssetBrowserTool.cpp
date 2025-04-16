@@ -19,8 +19,8 @@ EditorAssetBrowserTool::~EditorAssetBrowserTool()
 
 void EditorAssetBrowserTool::OnStartGui()
 {
-    _focusForder = UmFileSystem.GetContext<File::ForderContext>(
-        Global::fileSystem->GetRootPath());
+    _focusForder =
+        UmFileSystem.GetContext<File::ForderContext>(FileSystemModule::_rootPath);
 }
 
 void EditorAssetBrowserTool::OnPreFrame()
@@ -33,7 +33,7 @@ void EditorAssetBrowserTool::OnFrame()
 
     // 왼쪽: 폴더 트리
     ImGui::BeginChild("FolderHierarchyView", ImVec2(0, 0), true);
-    ShowFolderHierarchy(Global::fileSystem->GetRootPath());
+    ShowFolderHierarchy(FileSystemModule::_rootPath);
     ImGui::EndChild();
 
     ImGui::NextColumn();
