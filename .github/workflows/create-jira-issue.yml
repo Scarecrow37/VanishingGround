@@ -91,8 +91,8 @@ jobs:
         with:
           ref: develop
        
-      - name: Setup GitHub CLI
-        uses: cli/cli-action@v2
+      - name: Install GitHub CLI
+        run: sudo apt-get install gh
 
       - name: Update issue title
         env:
