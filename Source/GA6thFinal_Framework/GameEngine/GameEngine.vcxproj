@@ -151,12 +151,31 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Editor\DragDropTypes\DragDropTransform.h" />
+    <ClInclude Include="Source\Editor\Menu\Project\EditorProjectMenu.h" />
+    <ClInclude Include="Source\Editor\Menu\Scene\EditorSceneMenu.h" />
+    <ClInclude Include="Source\Editor\Menu\Setting\EditorSettingMenu.h" />
+    <ClInclude Include="Source\Editor\Menu\Window\EditorWindowMenu.h" />
+    <ClInclude Include="Source\Editor\Tool\AssetBrowser\EditorAssetBrowserTool.h" />
+    <ClInclude Include="Source\Editor\Tool\Debug\EditorDebugTool.h" />
+    <ClInclude Include="Source\Editor\Tool\Hierarchy\EditorHierarchyTool.h" />
+    <ClInclude Include="Source\Editor\Tool\Inspector\EditorInspectorTool.h" />
+    <ClInclude Include="Source\Editor\Tool\Log\EditorLogsTool.h" />
+    <ClInclude Include="Source\Editor\Tool\Scene\EditorSceneTool.h" />
+    <ClInclude Include="Source\Editor\Tool\ScriptTest\ScriptTestEditor.h" />
+    <ClInclude Include="Source\Engine\FileSystem\Extra\FileObserver.h" />
+    <ClInclude Include="Source\Engine\FileSystem\System\FileSystem.h" />
+    <ClInclude Include="Source\Engine\FileSystem\Extra\FileContext.h" />
+    <ClInclude Include="Source\Engine\FileSystem\Extra\FileEventNotifier.h" />
+    <ClInclude Include="Source\Engine\FileSystem\Interface\IFileEventProcesser.h" />
     <ClInclude Include="Source\Engine\FileSystem\FileSystemModule.h" />
     <ClInclude Include="Source\Engine\EditorCore\EditorTool.h" />
     <ClInclude Include="Source\Engine\EditorCore\EditorDockSpace.h" />
     <ClInclude Include="Source\Engine\AppModule\EngineCoresModule.h" />
     <ClInclude Include="Source\Engine\AppModule\ImGuiDX12Module.h" />
     <ClInclude Include="Source\Engine\AppModule\Interface\IAppModule.h" />
+    <ClInclude Include="Source\Engine\FileSystem\Type\FileDataType.h" />
+    <ClInclude Include="Source\Engine\Utility\FileHelper.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Animation.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\BaseMesh.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Box.h" />
@@ -236,6 +255,22 @@
     <ClInclude Include="Source\Engine\Utility\DumpUtility.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Editor\Menu\Project\EditorProjectMenu.cpp" />
+    <ClCompile Include="Source\Editor\Menu\Scene\EditorSceneMenu.cpp" />
+    <ClCompile Include="Source\Editor\Menu\Setting\EditorSettingMenu.cpp" />
+    <ClCompile Include="Source\Editor\Menu\Window\EditorWindowMenu.cpp" />
+    <ClCompile Include="Source\Editor\Tool\AssetBrowser\EditorAssetBrowserTool.cpp" />
+    <ClCompile Include="Source\Editor\Tool\Debug\EditorDebugTool.cpp" />
+    <ClCompile Include="Source\Editor\Tool\Hierarchy\EditorHierarchyTool.cpp" />
+    <ClCompile Include="Source\Editor\Tool\Inspector\EditorInspectorTool.cpp" />
+    <ClCompile Include="Source\Editor\Tool\Log\EditorLogsTool.cpp" />
+    <ClCompile Include="Source\Editor\Tool\Scene\EditorSceneTool.cpp" />
+    <ClCompile Include="Source\Editor\Tool\ScriptTest\ScriptTestEditor.cpp" />
+    <ClCompile Include="Source\Engine\FileSystem\Extra\FileObserver.cpp" />
+    <ClCompile Include="Source\Engine\FileSystem\System\FileSystem.cpp" />
+    <ClCompile Include="Source\Engine\FileSystem\Extra\FileContext.cpp" />
+    <ClCompile Include="Source\Engine\FileSystem\Extra\FileEventNotifier.cpp" />
+    <ClCompile Include="Source\Engine\FileSystem\Interface\IFileEventProcesser.cpp" />
     <ClCompile Include="Source\Engine\FileSystem\FileSystemModule.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\EditorTool.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\EditorDockSpace.cpp" />
@@ -252,6 +287,7 @@
     <ClCompile Include="Source\Engine\EngineCore\GameObjectFactory.cpp" />
     <ClCompile Include="Source\Engine\EngineCore\SceneManager.cpp" />
     <ClCompile Include="Source\Engine\EngineCore\TimeSystem.cpp" />
+    <ClCompile Include="Source\Engine\FileSystem\Type\FileDataType.cpp" />
     <ClCompile Include="Source\Engine\GameCore\Component\Component.cpp" />
     <ClCompile Include="Source\Engine\GameCore\GameObject\GameObject.cpp" />
     <ClCompile Include="Source\Engine\GameCore\Transform\Transform.cpp" />
@@ -339,6 +375,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Source\Engine\Utility\dllUtility.cpp" />
+    <ClCompile Include="Source\Engine\Utility\FileHelper.cpp" />
     <ClCompile Include="Source\Engine\Utility\ImguiHelper.cpp" />
     <ClCompile Include="Source\Engine\Utility\LogLevel.cpp" />
     <ClCompile Include="Source\Engine\Utility\Mathf.cpp" />
@@ -357,11 +394,6 @@
     <None Include="Source\Engine\Imgui\imgui_bezier_math.inl" />
     <None Include="Source\Engine\Imgui\imgui_extra_math.inl" />
     <None Include="Source\Engine\Imgui\imgui_node_editor_internal.inl" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\FileSystem\FileSystem.vcxproj">
-      <Project>{ae54bba5-ecd5-4665-bfd1-f654aa0af719}</Project>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -40,6 +40,20 @@ public:
         std::string_view typeid_name,
         std::string_view name);
 
+    /// <summary>
+    /// 게임 오브젝트를 Yaml 형식으로 직렬화합니다.
+    /// </summary>
+    /// <param name="gameObject :">직렬화할 오브젝트</param>
+    /// <returns></returns>
+    YAML::Node SerializeToYaml(GameObject* gameObject);
+
+    /// <summary>
+    /// Yaml 형식으로 직렬화된 오브젝트를 씬에 추가합니다.
+    /// </summary>
+    /// <param name="node"></param>
+    /// <returns></returns>
+    bool DeserializeToYaml(YAML::Node* gameObjectNode);
+
 private:
     //컴포넌트를 동적할당후 shared_ptr로 반환합니다.
     //매개변수로 생성할 컴포넌트 typeid().name()을 전달해야합니다.
@@ -50,6 +64,11 @@ private:
         GameObject* ownerObject,
         std::string_view name);
     
+   //게임 오브젝트를 Yaml로 반환
+   YAML::Node MakeYamlToGameObject(GameObject* gameObject);
+   //Yaml을 오브젝트로 반환. Reset도 해줌.
+   std::shared_ptr<GameObject> MakeGameObjectToYaml(YAML::Node* objectNode);
+
 
 private:
     std::map<std::string, std::function<GameObject* ()>> _NewGameObjectFuncMap;    //생성용 맵

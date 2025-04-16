@@ -2,10 +2,12 @@
 #include "EditorDockSpace.h"
 
 EditorDockSpace::EditorDockSpace()
-    : _dockSpaceMainID()
+    : _isFullSpace(true)
+    , _isPadding(false)
+    , _dockSpaceMainID()
     , _dockLayoutID()
     , _dockNodeFlags(ImGuiDockNodeFlags_NoCloseButton | ImGuiDockNodeFlags_NoWindowMenuButton)
-    , _dockWindowFlag(ImGuiWindowFlags_None)
+    , _dockWindowFlags(ImGuiWindowFlags_None)
 {
     SetLabel("DockSpace");
 }
@@ -18,6 +20,15 @@ EditorDockSpace::~EditorDockSpace()
 
 void EditorDockSpace::OnTickGui()
 {
+    for (auto& tool : _editorToolList)
+    {
+        if (nullptr != tool)
+        {
+            ImGui::PushID(tool);
+            tool->OnTickGui();
+            ImGui::PopID();
+        }
+    }
 }
 
 void EditorDockSpace::OnStartGui()
@@ -40,7 +51,7 @@ void EditorDockSpace::OnDrawGui()
     UpdateWindowFlag();     // DockWindow Flag
     PushDockStyle();        // Dock Style Push
     
-    ImGui::Begin(GetLabel().c_str(), nullptr, _dockWindowFlag);
+    ImGui::Begin(GetLabel().c_str(), nullptr, _dockWindowFlags);
 
     SubmitDockSpace();      // Submit Dock
     PopDockStyle();         // Dock Style Pop
@@ -49,7 +60,7 @@ void EditorDockSpace::OnDrawGui()
     {
         if (nullptr != tool)
         {
-            ImGui::PushID(reinterpret_cast<uintptr_t>(tool));
+            ImGui::PushID(tool);
             tool->OnDrawGui();
             ImGui::PopID();
         }
@@ -124,10 +135,10 @@ void EditorDockSpace::UpdateWindowFlag()
 {
     // We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
     // because it would be confusing to have two docking targets within each others.
-    _dockWindowFlag = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+    _dockWindowFlags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
     if (_isFullSpace)
     {
-        _dockWindowFlag |=
+        _dockWindowFlags |=
             ImGuiWindowFlags_NoTitleBar |
             ImGuiWindowFlags_NoCollapse |
             ImGuiWindowFlags_NoResize |
@@ -138,7 +149,7 @@ void EditorDockSpace::UpdateWindowFlag()
     // When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background
     // and handle the pass-thru hole, so we ask Begin() to not render a background.
     if (_dockNodeFlags & ImGuiDockNodeFlags_PassthruCentralNode)
-        _dockWindowFlag |= ImGuiWindowFlags_NoBackground;
+        _dockWindowFlags |= ImGuiWindowFlags_NoBackground;
 }
 
 void EditorDockSpace::PushDockStyle()

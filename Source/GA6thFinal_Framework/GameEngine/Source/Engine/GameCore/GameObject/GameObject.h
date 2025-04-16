@@ -322,7 +322,7 @@ inline TComponent& GameObject::AddComponent()
     bool result = factory.AddComponentToObject(this, typeid(TComponent).name());
     if (result)
     {
-        return static_cast<TComponent&>(*_components.back());
+        return static_cast<TComponent&>(*this->_components.back());
     }
     else
     {

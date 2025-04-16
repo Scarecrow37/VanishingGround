@@ -13,6 +13,7 @@ public:
     EGameObjectFactory GameObjectFactory;
     EComponentFactory ComponentFactory;
     EEngineLogger EngineLogger;
+    EFileSystem FileSystem;
     Application&  App;
 
     GraphicsCore Graphics;
@@ -71,4 +72,11 @@ namespace Global
     extern SafeEngineCoresPtr engineCore; //스크립트에서 엔진 접근을 위한 전역 변수.
 }
 
-
+#define UmCore Global::engineCore
+#define UmTime UmCore->Time
+#define UmSceneManager UmCore->SceneManager
+#define UmEngineLogger UmCore->EngineLogger
+#define UmGameObjectFactory UmCore->GameObjectFactory
+#define UmComponentFactory UmCore->ComponentFactory
+#define UmApplication UmCore->App
+#define UmFileSystem UmCore->FileSystem

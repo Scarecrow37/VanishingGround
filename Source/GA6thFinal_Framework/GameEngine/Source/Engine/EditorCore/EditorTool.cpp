@@ -19,8 +19,6 @@ void EditorTool::OnDrawGui()
 {
     ImGuiIO& io = ImGui::GetIO();
 
-    OnTickGui();
-
     if (GetVisible())
     {
         OnPreFrame();

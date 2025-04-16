@@ -2,21 +2,6 @@
 #include "UmFramework.h"
 #include "../GameScripts/UmrealScripts.h"
 
-#include "Source/EditorTools/EditorDebugView.h"
-#include "Source/EditorTools/EditorHierarchyView.h"
-#include "Source/EditorTools/EditorInspectorView.h"
-#include "Source/EditorTools/EditorSceneView.h"
-#include "Source/EditorTools/EditorAssetBrowser.h"
-#include "Source/EditorTools/NodeEditor/EditorShaderGraph.h"
-#include "Source/EditorTools/EditorLogsTool/EditorLogsTool.h"
-
-#include "Source/EditorTools/EditorMenu/EditorProjectMenu.h"
-#include "Source/EditorTools/EditorMenu/EditorWindowMenu.h"
-#include "Source/EditorTools/EditorMenu/EditorSettingMenu.h"
-#include "Source/EditorTools/EditorMenu/EditorSceneMenu.h"
-
-#include "Source/TestEditor/ScriptTestEditor.h"
-
 int APIENTRY wWinMain(
     _In_ HINSTANCE hInstance,
     _In_opt_ HINSTANCE hPrevInstance,
@@ -42,37 +27,35 @@ GameApplication::GameApplication()
     _windowName = L"Umreal Engine";
     
 
-    ////에디터 매니저 등록
-    ////_editorManager = AddModule<EditorModule>();
-    //
-    ////추가할 에디터 작성
-    ///* Tool */
-    //_editorManager->RegisterEditorObject<EditorDebugView>();
-    //_editorManager->RegisterEditorObject<EditorHierarchyView>();
-    //_editorManager->RegisterEditorObject<EditorInspectorView>();
-    //_editorManager->RegisterEditorObject<EditorSceneView>();
-    //_editorManager->RegisterEditorObject<EditorAssetBrowser>();
-    //_editorManager->RegisterEditorObject<EditorLogsTool>();
-    //
-    ////김시우 테스트용
-    //_editorManager->RegisterEditorObject<ScriptTestEditor>();
-    //
-    ////블루프린트 버그있음
-    ////_editorManager->RegisterEditorObject<EditorShaderGraph>();
-    //
-    ///* Menu */
-    ////Project
-    //_editorManager->RegisterEditorObject<EditorMenuScriptBuilder>();
-    //// Window
-    //_editorManager->RegisterEditorObject<EditorMenuTools>();
-    //// Setting
-    //_editorManager->RegisterEditorObject<EditorMenuDebug>();
-    //_editorManager->RegisterEditorObject<EditorMenuStyleEditor>();
-    //// Scene
-    //_editorManager->RegisterEditorObject<EditorSceneMenuGameObject>();
-    //_editorManager->RegisterEditorObject<EditorSceneMenuScenes>();
-    //
-    //_editorManager->RegisterEditorObject<SampleMenu>();    
+    //에디터 매니저 등록
+    _editorManager = AddModule<EditorModule>();
+
+    //추가할 에디터 작성
+    /* Tool */
+    _editorManager->RegisterEditorObject<EditorDebugTool>();
+    _editorManager->RegisterEditorObject<EditorHierarchyTool>();
+    _editorManager->RegisterEditorObject<EditorInspectorTool>();
+    _editorManager->RegisterEditorObject<EditorSceneTool>();
+    _editorManager->RegisterEditorObject<EditorAssetBrowserTool>();
+    _editorManager->RegisterEditorObject<EditorLogsTool>();
+
+    //김시우 테스트용
+    _editorManager->RegisterEditorObject<ScriptTestEditor>();
+
+    //블루프린트 버그있음
+    //_editorManager->RegisterEditorObject<EditorShaderGraph>();
+
+    /* Menu */
+    //Project
+    _editorManager->RegisterEditorObject<EditorMenuScriptBuilder>();
+    // Window
+    _editorManager->RegisterEditorObject<EditorMenuTools>();
+    // Setting
+    _editorManager->RegisterEditorObject<EditorMenuDebug>();
+    _editorManager->RegisterEditorObject<EditorMenuStyleEditor>();
+    // Scene
+    _editorManager->RegisterEditorObject<EditorSceneMenuGameObject>();
+    _editorManager->RegisterEditorObject<EditorSceneMenuScenes>();
 }
 
 GameApplication::~GameApplication()

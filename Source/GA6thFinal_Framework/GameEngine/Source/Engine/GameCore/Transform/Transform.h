@@ -6,6 +6,8 @@ class Transform : public ReflectSerializer
 {
     friend class ESceneManager;
     USING_PROPERTY(Transform);
+    inline static std::vector<Transform*> trStack; //순회용 stack (Foreach에서 씀)
+    inline static std::queue<Transform*> trQueue; //순회용 queue (Foreach에서 씀)
 public:
     /*Transform의 좌표계 공간을 나타내는 enum class*/
     enum class Space
@@ -17,7 +19,6 @@ public:
     Transform(GameObject& owner);
     ~Transform();
     GameObject& gameObject;
-
 public:
     /// <summary>
     /// 오일러 각으로 쿼터니언을 만듭니다. 매개변수의 단위는 디그리드 입니다.
@@ -30,13 +31,23 @@ public:
     }
 
     /// <summary>
-    /// Tansform를 DFS로 자신 부터 모든 자식들을 순회하면서 함수를 호출해줍니다.
+    /// Tansform를 DFS로 root부터 모든 자식들을 순회하면서 함수를 호출해줍니다.
     /// </summary>
     /// <typeparam name="Func">실행할 함수</typeparam>
     /// <param name="root :">DFS 시작할 루트</param>
     /// <param name="func : 실행할 함수"></param>
     template<typename Func>
-    inline static void Foreach(Transform& root, Func func);
+    inline static void ForeachDFS(Transform& root, Func func);
+
+
+    /// <summary>
+    /// Tansform를 BFS로 root부터 모든 자식들을 순회하면서 함수를 호출해줍니다.
+    /// </summary>
+    /// <typeparam name="Func">실행할 함수</typeparam>
+    /// <param name="root">BFS 시작할 루트</param>
+    /// <param name="func">실행할 함수</param>
+    template<typename Func>
+    inline static void ForeachBFS(Transform& root, Func func); 
 
 public:
     /// <summary>
@@ -300,13 +311,10 @@ private:
 };
 
 template <typename Func>
-inline void Transform::Foreach(Transform& root, Func func)
+inline void Transform::ForeachDFS(Transform& root, Func func)
 {
-    static std::vector<Transform*> trStack;
-    trStack.clear();
-
     trStack.push_back(&root);
-    while (!trStack.empty())
+    while (trStack.empty() == false)
     {
         Transform* currTr = trStack.back();
         trStack.pop_back();
@@ -314,6 +322,22 @@ inline void Transform::Foreach(Transform& root, Func func)
         for (auto& transform : currTr->_childsList)
         {
             trStack.push_back(transform);
+        }
+    }
+}
+
+template <typename Func>
+inline void Transform::ForeachBFS(Transform& root, Func func)
+{
+    trQueue.push(&root);
+    while (trQueue.empty() == false)
+    {
+        Transform* currTr = trQueue.front();
+        trQueue.pop();
+        func(currTr);
+        for (auto& transform : currTr->_childsList)
+        {
+            trQueue.push(transform);
         }
     }
 }

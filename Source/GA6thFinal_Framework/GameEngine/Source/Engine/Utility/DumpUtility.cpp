@@ -1,30 +1,30 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 
 void CreateMiniDump(_EXCEPTION_POINTERS* pExceptionPointers, int MINIDUMP_TYPE)
 {
     constexpr wchar_t dumpPath[] = L"dumps/";
     namespace fs = std::filesystem;
-    // ÇöÀç ½Ã°£ °¡Á®¿À±â
+    // í˜„ì¬ ì‹œê°„ ê°€ì ¸ì˜¤ê¸°
     SYSTEMTIME localTime;   
     GetLocalTime(&localTime);
 
-    // ½ÇÇà ÆÄÀÏ ÀÌ¸§ °¡Á®¿À±â
+    // ì‹¤í–‰ íŒŒì¼ ì´ë¦„ ê°€ì ¸ì˜¤ê¸°
     TCHAR moduleName[MAX_PATH];
     GetModuleFileName(nullptr, moduleName, MAX_PATH);
     TCHAR* baseName = _tcsrchr(moduleName, _T('\\'));
-    baseName = (baseName != nullptr) ? (baseName + 1) : moduleName; // ÆÄÀÏ¸í ÃßÃâ
+    baseName = (baseName != nullptr) ? (baseName + 1) : moduleName; // íŒŒì¼ëª… ì¶”ì¶œ
     TCHAR* extension = _tcsrchr(baseName, _T('.'));
     if (extension) {
-        *extension = _T('\0'); // È®ÀåÀÚ Á¦°Å
+        *extension = _T('\0'); // í™•ì¥ì ì œê±°
     }
  
-    // µğ·ºÅä¸® Á¸Àç È®ÀÎ ÈÄ, ¾øÀ¸¸é »ı¼º
+    // ë””ë ‰í† ë¦¬ ì¡´ì¬ í™•ì¸ í›„, ì—†ìœ¼ë©´ ìƒì„±
     if (!fs::exists(dumpPath)) 
     {
-         fs::create_directories(dumpPath);  // µğ·ºÅä¸® »ı¼º
+         fs::create_directories(dumpPath);  // ë””ë ‰í† ë¦¬ ìƒì„±
     }
 
-    //´ıÇÁ ÆÄÀÏ ÀÌ¸§ »ı¼º (¾Û ÀÌ¸§ + ³¯Â¥ + ½Ã°£)
+    //ë¤í”„ íŒŒì¼ ì´ë¦„ ìƒì„± (ì•± ì´ë¦„ + ë‚ ì§œ + ì‹œê°„)
     TCHAR dumpFileName[MAX_PATH];
     _stprintf_s(dumpFileName, _T("%s%s_%04d-%02d-%02d_%02d-%02d-%02d.dmp"),
         dumpPath,
@@ -32,7 +32,7 @@ void CreateMiniDump(_EXCEPTION_POINTERS* pExceptionPointers, int MINIDUMP_TYPE)
         localTime.wYear, localTime.wMonth, localTime.wDay,
         localTime.wHour, localTime.wMinute, localTime.wSecond);
 
-    // ´ıÇÁ ÆÄÀÏ »ı¼º
+    // ë¤í”„ íŒŒì¼ ìƒì„±
     HANDLE hFile = CreateFile(dumpFileName, GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
     if (hFile != INVALID_HANDLE_VALUE) 
     {
@@ -53,14 +53,14 @@ void CreateMiniDump(_EXCEPTION_POINTERS* pExceptionPointers, int MINIDUMP_TYPE)
 
         if (!success) 
         {
-            //´ıÇÁ »ı¼º ½ÇÆĞ½Ã
+            //ë¤í”„ ìƒì„± ì‹¤íŒ¨ì‹œ
 
         }
         CloseHandle(hFile);
     }
     else 
     {
-        //´ıÇÁ »ı¼º ½ÇÆĞ½Ã
+        //ë¤í”„ ìƒì„± ì‹¤íŒ¨ì‹œ
 
     }
 }
@@ -69,7 +69,7 @@ __callback LONG WINAPI CustomUnhandledExceptionFilter(_In_ _EXCEPTION_POINTERS* 
 {
 #ifdef _DEBUG
     CreateMiniDump(pExceptionPointers, MiniDumpWithFullMemory | MiniDumpWithThreadInfo);
-#else //¸±¸®Áî
+#else //ë¦´ë¦¬ì¦ˆ
     CreateMiniDump(pExceptionPointers, MiniDumpWithDataSegs | MiniDumpWithThreadInfo);
 #endif
     return EXCEPTION_EXECUTE_HANDLER;

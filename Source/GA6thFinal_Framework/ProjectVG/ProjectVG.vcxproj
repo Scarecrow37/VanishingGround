@@ -141,51 +141,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ProjectReference Include="..\FileSystem\FileSystem.vcxproj">
-      <Project>{ae54bba5-ecd5-4665-bfd1-f654aa0af719}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\GameEngine\GameEngine.vcxproj">
       <Project>{84fd41b3-de6f-4849-b1f4-6ea34a891299}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\EditorTools\EditorMenu\EditorProjectMenu.h" />
-    <ClInclude Include="Source\EditorTools\EditorAssetBrowser.h" />
-    <ClInclude Include="Source\EditorTools\EditorLogsTool\EditorLogsTool.h" />
-    <ClInclude Include="Source\EditorTools\EditorMenu\EditorSceneMenu.h" />
-    <ClInclude Include="Source\EditorTools\EditorMenu\EditorSettingMenu.h" />
-    <ClInclude Include="Source\EditorTools\EditorMenu\EditorWindowMenu.h" />
     <ClInclude Include="Source\Application\GameApplication.h" />
-    <ClInclude Include="Source\EditorTools\EditorDebugView.h" />
-    <ClInclude Include="Source\EditorTools\EditorHierarchyView.h" />
-    <ClInclude Include="Source\EditorTools\EditorInspectorView.h" />
-    <ClInclude Include="Source\EditorTools\EditorSceneView.h" />
-    <ClInclude Include="Source\EditorTools\NodeEditor\blueprint.h" />
-    <ClInclude Include="Source\EditorTools\NodeEditor\EditorShaderGraph.h" />
-    <ClInclude Include="Source\EditorTools\NodeEditor\NodeEditor.h" />
-    <ClInclude Include="Source\EditorTools\NodeEditor\utilities\builders.h" />
-    <ClInclude Include="Source\EditorTools\NodeEditor\utilities\drawing.h" />
-    <ClInclude Include="Source\EditorTools\NodeEditor\utilities\widgets.h" />
-    <ClInclude Include="Source\TestEditor\ScriptTestEditor.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\EditorTools\EditorMenu\EditorProjectMenu.cpp" />
-    <ClCompile Include="Source\EditorTools\EditorAssetBrowser.cpp" />
-    <ClCompile Include="Source\EditorTools\EditorLogsTool\EditorLogsTool.cpp" />
-    <ClCompile Include="Source\EditorTools\EditorMenu\EditorSceneMenu.cpp" />
-    <ClCompile Include="Source\EditorTools\EditorMenu\EditorSettingMenu.cpp" />
-    <ClCompile Include="Source\EditorTools\EditorMenu\EditorWindowMenu.cpp" />
     <ClCompile Include="Source\Application\GameApplication.cpp" />
-    <ClCompile Include="Source\EditorTools\EditorDebugView.cpp" />
-    <ClCompile Include="Source\EditorTools\EditorHierarchyView.cpp" />
-    <ClCompile Include="Source\EditorTools\EditorInspectorView.cpp" />
-    <ClCompile Include="Source\EditorTools\EditorSceneView.cpp" />
-    <ClCompile Include="Source\EditorTools\NodeEditor\blueprint.cpp" />
-    <ClCompile Include="Source\EditorTools\NodeEditor\EditorShaderGraph.cpp" />
-    <ClCompile Include="Source\EditorTools\NodeEditor\utilities\builders.cpp" />
-    <ClCompile Include="Source\EditorTools\NodeEditor\utilities\drawing.cpp" />
-    <ClCompile Include="Source\EditorTools\NodeEditor\utilities\widgets.cpp" />
-    <ClCompile Include="Source\TestEditor\ScriptTestEditor.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

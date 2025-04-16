@@ -58,6 +58,11 @@ using namespace Microsoft::WRL;
 #include <concepts>
 #include <queue>
 #include <stack>
+#include <atomic>
+#include <condition_variable>
+#include <mutex>
+#include <thread>
+#include <system_error>
 #include <typeindex>
 #include <string_view>
 
@@ -93,7 +98,13 @@ using namespace Microsoft::WRL;
 #include "Engine/ApplicationCore/Application.h"
 
 // FileSystem Module
-#include "../FileSystem/framework.h"
+#include "Engine/FileSystem/Type/FileDataType.h"
+#include "Engine/Utility/FileHelper.h"
+#include "Engine/FileSystem/Interface/IFileEventProcesser.h"
+#include "Engine/FileSystem/Extra/FileObserver.h"
+#include "Engine/FileSystem/Extra/FileContext.h"
+#include "Engine/FileSystem/System/FileSystem.h"
+#include "Engine/FileSystem/Extra/FileEventNotifier.h"
 #include "Engine/FileSystem/FileSystemModule.h"
 
 //Graphics
@@ -114,6 +125,7 @@ using namespace Microsoft::WRL;
 #include "Engine/EditorCore/EditorMenuBar.h"
 #include "Engine/EditorCore/EditorDockSpace.h"
 #include "Engine/EditorCore/EditorModule.h"
+//#include "Editor/Tool/AssetBrowser/"
 
 //Game Core
 #include "Engine/GameCore/Transform/Transform.h"
@@ -122,4 +134,27 @@ using namespace Microsoft::WRL;
 
 //Application Module
 #include "Engine/AppModule/EngineCoresModule.h"
+#include "Engine/Graphics/GraphicsModule.h"
+#include "Engine/AppModule/ImGuiDX11Module.h"
+
+//DragDropTypes
+#include "Editor/DragDropTypes/DragDropTransform.h"
+
+//컴포넌트는 접근 안하는 헤더들
+#ifndef SCRIPTS_PROJECT
+//Editor Tools
+#include "Editor/Tool/Debug/EditorDebugTool.h"
+#include "Editor/Tool/AssetBrowser/EditorAssetBrowserTool.h"
+#include "Editor/Tool/Hierarchy/EditorHierarchyTool.h"
+#include "Editor/Tool/Inspector/EditorInspectorTool.h"
+#include "Editor/Tool/Scene/EditorSceneTool.h"
+#include "Editor/Tool/Log/EditorLogsTool.h"
+#include "Editor/Tool/ScriptTest/ScriptTestEditor.h"    // 테스트용. 추후 제거 필요
+
+// Editor Menu
+#include "Editor/Menu/Project/EditorProjectMenu.h"
+#include "Editor/Menu/Window/EditorWindowMenu.h"
+#include "Editor/Menu/Setting/EditorSettingMenu.h"
+#include "Editor/Menu/Scene/EditorSceneMenu.h"
+#endif
 #include "Engine/AppModule/ImGuiDX12Module.h"

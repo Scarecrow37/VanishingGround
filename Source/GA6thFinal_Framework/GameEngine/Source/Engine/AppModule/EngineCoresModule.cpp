@@ -15,7 +15,7 @@ void EngineCoresModule::PreInitialize()
     auto& test = gameObject->AddComponent<StaticMeshRenderer>();*/
 }
 
-void EngineCoresModule::PreUnInitialize()
+void EngineCoresModule::ModuleUnInitialize()
 {
     ESceneManager::Engine::CleanupSceneManager();
     engineCore->ComponentFactory.UninitalizeComponentFactory();

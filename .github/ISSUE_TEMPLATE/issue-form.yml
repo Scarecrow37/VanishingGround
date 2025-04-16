@@ -5,18 +5,9 @@ body:
   - type: input
     id: parentKey
     attributes:
-      label: 🎟️ 상위 에픽 (Ticket Number)
-      description: 상위 에픽의 Ticket Number를 기입해주세요
+      label: 🎟️ 상위 에픽(작업) (Ticket Number)
+      description: 상위 에픽(작업)의 Ticket Number를 기입해주세요
       placeholder: VG-00
-    validations:
-      required: true
-
-  - type: input
-    id: branch
-    attributes:
-      label: 🌳 브랜치명 (Branch)
-      description: 영어로 브랜치명을 작성해주세요
-      placeholder: feature_
     validations:
       required: true
       

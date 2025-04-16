@@ -1,22 +1,13 @@
 ﻿#include "pch.h"
 #include "FileSystemModule.h"
-#include "../FileSystem/framework.h"
-
-FileSystemModule* Global::fileSystem = nullptr;
 
 FileSystemModule::FileSystemModule()
     : _observer(nullptr)
 {
-    Global::fileSystem = this;
-    sampleNotifier     = new SampleFileEventNotifier({".txt", ".png", ".dds"});
-
-    File::FileSystem::SetDebugLevel(1);
-    File::FileSystem::RegisterFileEventNotifier(sampleNotifier);
 }
 
 FileSystemModule::~FileSystemModule() 
 {
-    Global::fileSystem = nullptr;
 }
 
 void FileSystemModule::PreInitialize()
@@ -25,10 +16,15 @@ void FileSystemModule::PreInitialize()
 
 void FileSystemModule::ModuleInitialize()
 {
-    File::FileSystem::ReadDirectory(_rootPath);
+    UmFileSystem.RegisterFileEventNotifier(new SampleNotifier,
+                                           {".txt", ".png", ".dds"});
+    UmFileSystem.SetDebugLevel(1);
+
+    UmFileSystem.ReadDirectory(_rootPath);
 
     _observer = new File::FileObserver();
-    _observer->Start(_rootPath, [this](const Event& event) { 
+    _observer->Start(_rootPath,
+                     [this](const Event& event) { 
         RecieveFileEvent(event);
     });
 }
@@ -45,11 +41,12 @@ void FileSystemModule::ModuleUnInitialize()
         delete _observer;
         _observer = nullptr;
     }
-    File::FileSystem::Clear();
+    UmFileSystem.Clear();
 }
 
 void FileSystemModule::Update() 
 {
+    auto& filesystem = UmFileSystem;
     DispatchFileEvent();
 }
 
@@ -73,48 +70,48 @@ void FileSystemModule::DispatchFileEvent()
         File::Path lp = (_rootPath / lParam).generic_string();
         File::Path rp = (_rootPath / rParam).generic_string();
 
-        if (true == File::FileSystem::IsValidExtension(lp.extension()))
+        if (true == UmFileSystem.IsValidExtension(lp.extension()))
         {
             std::unordered_set<File::FileEventNotifier*> notifiers;
 
             if (std::filesystem::is_regular_file(lp))
             {
-                notifiers = File::FileSystem::GetNotifiers(lp.extension());
+                notifiers = UmFileSystem.GetNotifiers(lp.extension());
             }
 
             switch (eventType)
             {
             case File::EventType::ADDED:
             {
-                File::FileSystem::AddedFile(lp);
+                UmFileSystem.AddedFile(lp);
                 for (auto& notifier : notifiers)
                     notifier->OnFileAdded(lp);
                 break;
             }
             case File::EventType::REMOVED:
             {
-                File::FileSystem::RemovedFile(lp);
+                UmFileSystem.RemovedFile(lp);
                 for (auto& notifier : notifiers)
                     notifier->OnFileRemoved(lp);
                 break;
             }
             case File::EventType::MODIFIED:
             {
-                File::FileSystem::ModifiedFile(lp);
+                UmFileSystem.ModifiedFile(lp);
                 for (auto& notifier : notifiers)
                     notifier->OnFileModified(lp);
                 break;
             }
             case File::EventType::RENAMED:
             {
-                File::FileSystem::MovedFile(lp, rp);
+                UmFileSystem.MovedFile(lp, rp);
                 for (auto& notifier : notifiers)
                     notifier->OnFileRenamed(lp, rp);
                 break;
             }
             case File::EventType::MOVED:
             {
-                File::FileSystem::MovedFile(lp, rp);
+                UmFileSystem.MovedFile(lp, rp);
                 for (auto& notifier : notifiers)
                     notifier->OnFileMoved(lp, rp);
                 break;
@@ -125,20 +122,4 @@ void FileSystemModule::DispatchFileEvent()
         }
         _eventQueue.pop();
     }
-}
-
-void SampleFileEventNotifier::OnFileAdded(const File::Path& path) {}
-
-void SampleFileEventNotifier::OnFileModified(const File::Path& path) {}
-
-void SampleFileEventNotifier::OnFileRemoved(const File::Path& path) {}
-
-void SampleFileEventNotifier::OnFileRenamed(const File::Path& oldPath,
-                                            const File::Path& newPath)
-{
-}
-
-void SampleFileEventNotifier::OnFileMoved(const File::Path& oldPath,
-                                          const File::Path& newPath)
-{
 }
