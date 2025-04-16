@@ -6,6 +6,7 @@ class Transform : public ReflectSerializer
 {
     friend class ESceneManager;
     USING_PROPERTY(Transform);
+    inline static std::vector<Transform*> trStack; //순회용 stack (Foreach에서 씀)
 public:
     /*Transform의 좌표계 공간을 나타내는 enum class*/
     enum class Space
@@ -301,7 +302,6 @@ private:
 template <typename Func>
 inline void Transform::Foreach(Transform& root, Func func)
 {
-    static std::vector<Transform*> trStack;
     trStack.clear();
 
     trStack.push_back(&root);
