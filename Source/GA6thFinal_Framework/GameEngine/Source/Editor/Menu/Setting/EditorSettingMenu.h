@@ -1,6 +1,4 @@
 ﻿#pragma once
-#include "UmFramework.h"
-
 /*
 에디터 툴을 끄고 키는 메뉴
 */

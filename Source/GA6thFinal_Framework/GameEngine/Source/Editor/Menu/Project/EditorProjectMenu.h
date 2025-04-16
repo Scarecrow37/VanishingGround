@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include "UmFramework.h"
 
 /*
 스크립트 빌드
