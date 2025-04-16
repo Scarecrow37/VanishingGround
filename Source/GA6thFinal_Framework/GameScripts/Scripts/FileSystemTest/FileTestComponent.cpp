@@ -3,14 +3,14 @@
 
 void FileTestComponent::Update()
 {
-    File::Guid guid = File::Path(L"Assets/Textures/AO_Noise.png");
+    File::Guid guid = File::Path(ReflectFields->filePath);
     if (!guid.empty())
     {
-        UmEngineLogger.Log(LogLevel::LEVEL_DEBUG, guid.string().c_str());
+        ReflectFields->fileGuid = guid.string();
     }
     else
     {
-        UmEngineLogger.Log(LogLevel::LEVEL_DEBUG, "filePath Error.");
+        ReflectFields->fileGuid = "null";
     }
 }
 FileTestComponent::FileTestComponent()  = default;
