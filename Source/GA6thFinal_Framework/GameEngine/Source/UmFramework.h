@@ -112,3 +112,16 @@ constexpr const wchar_t* PROJECT_SETTING_PATH = L"ProjectSetting"; // 프로젝�
 #include "Editor/DragDropTypes/DragDropTransform.h"
 
 //Editor Tools
+#include "Editor/Tool/Debug/EditorDebugTool.h"
+#include "Editor/Tool/AssetBrowser/EditorAssetBrowserTool.h"
+#include "Editor/Tool/Hierarchy/EditorHierarchyTool.h"
+#include "Editor/Tool/Inspector/EditorInspectorTool.h"
+#include "Editor/Tool/Scene/EditorSceneTool.h"
+#include "Editor/Tool/Log/EditorLogsTool.h"
+#include "Editor/Tool/ScriptTest/ScriptTestEditor.h"    // 테스트용. 추후 제거 필요
+
+// Editor Menu
+#include "Editor/Menu/Project/EditorProjectMenu.h"
+#include "Editor/Menu/Window/EditorWindowMenu.h"
+#include "Editor/Menu/Setting/EditorSettingMenu.h"
+#include "Editor/Menu/Scene/EditorSceneMenu.h"

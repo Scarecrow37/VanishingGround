@@ -1,4 +1,5 @@
-﻿#include "EditorProjectMenu.h"
+﻿#include "pch.h"
+#include "EditorProjectMenu.h"
 
 void EditorMenuScriptBuilder::OnMenu()
 {

@@ -1,12 +1,12 @@
 ﻿#pragma once
 #include "UmFramework.h"
 
-class EditorDebugView
+class EditorDebugTool
     : public EditorTool
 {
 public:
-    EditorDebugView();
-    virtual ~EditorDebugView();
+    EditorDebugTool();
+    virtual ~EditorDebugTool();
 private:
     virtual void OnTickGui() override;
 

@@ -1,4 +1,5 @@
-﻿#include "EditorLogsTool.h"
+﻿#include "pch.h"
+#include "EditorLogsTool.h"
 
 using namespace u8_literals;
 using namespace Global;

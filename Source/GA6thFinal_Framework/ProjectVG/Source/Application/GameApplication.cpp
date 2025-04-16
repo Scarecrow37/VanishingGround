@@ -1,21 +1,6 @@
 ﻿#include "GameApplication.h"
 #include "UmFramework.h"
 
-#include "Source/EditorTools/EditorDebugView.h"
-#include "Source/EditorTools/EditorHierarchyView.h"
-#include "Source/EditorTools/EditorInspectorView.h"
-#include "Source/EditorTools/EditorSceneView.h"
-#include "Source/EditorTools/EditorAssetBrowser.h"
-#include "Source/EditorTools/NodeEditor/EditorShaderGraph.h"
-#include "Source/EditorTools/EditorLogsTool/EditorLogsTool.h"
-
-#include "Source/EditorTools/EditorMenu/EditorProjectMenu.h"
-#include "Source/EditorTools/EditorMenu/EditorWindowMenu.h"
-#include "Source/EditorTools/EditorMenu/EditorSettingMenu.h"
-#include "Source/EditorTools/EditorMenu/EditorSceneMenu.h"
-
-#include "Source/TestEditor/ScriptTestEditor.h"
-
 int APIENTRY wWinMain(
     _In_ HINSTANCE hInstance,
     _In_opt_ HINSTANCE hPrevInstance,
@@ -46,11 +31,11 @@ GameApplication::GameApplication()
 
     //추가할 에디터 작성
     /* Tool */
-    _editorManager->RegisterEditorObject<EditorDebugView>();
-    _editorManager->RegisterEditorObject<EditorHierarchyView>();
-    _editorManager->RegisterEditorObject<EditorInspectorView>();
-    _editorManager->RegisterEditorObject<EditorSceneView>();
-    _editorManager->RegisterEditorObject<EditorAssetBrowser>();
+    _editorManager->RegisterEditorObject<EditorDebugTool>();
+    _editorManager->RegisterEditorObject<EditorHierarchyTool>();
+    _editorManager->RegisterEditorObject<EditorInspectorTool>();
+    _editorManager->RegisterEditorObject<EditorSceneTool>();
+    _editorManager->RegisterEditorObject<EditorAssetBrowserTool>();
     _editorManager->RegisterEditorObject<EditorLogsTool>();
 
     //김시우 테스트용
