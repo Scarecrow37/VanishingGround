@@ -42,13 +42,39 @@ jobs:
 
             ${{ github.event.issue.body }}
           mode: md2jira
-
-      - name: Create Issue
-        id: create
+          
+      - name: Get parent issue type
+        id: parent-type
+        run: |
+          response=$(curl -s -u ${{ secrets.JIRA_USER_EMAIL }}:${{ secrets.JIRA_API_TOKEN }} \
+            -X GET "${{ secrets.JIRA_BASE_URL }}/rest/api/3/issue/${{ steps.issue-parser.outputs.issueparser_parentKey }}")
+          type=$(echo $response | jq -r '.fields.issuetype.name')
+          echo "Detected parent type is: $type"
+          echo "parent_type=$type" >> $GITHUB_OUTPUT
+  
+      - name: Create Task under Epic
+        if: steps.parent-type.outputs.parent_type == '에픽'
+        id: create-task
         uses: atlassian/gajira-create@v3
         with:
           project: VG
-          issuetype: Task
+          issuetype: 작업
+          summary: '${{ github.event.issue.title }}'
+          description: '${{ steps.md2jira.outputs.output-text }}'
+          fields: |
+            {
+              "parent": {
+                "key": "${{ steps.issue-parser.outputs.issueparser_parentKey }}"
+              }
+            }
+            
+      - name: Create Sub-task under Task
+        if: steps.parent-type.outputs.parent_type == '작업'
+        id: create-subtask
+        uses: atlassian/gajira-create@v3
+        with:
+          project: VG
+          issuetype: 하위 작업
           summary: '${{ github.event.issue.title }}'
           description: '${{ steps.md2jira.outputs.output-text }}'
           fields: |
@@ -65,21 +91,30 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: develop
-
-      - name: Create branch with Ticket number
-        run: |
-          ISSUE_NUMBER="${{ steps.create.outputs.issue }}"
-          ISSUE_TITLE="${{ steps.issue-parser.outputs.issueparser_branch}}"
-          BRANCH_NAME="${ISSUE_NUMBER}-$(echo ${ISSUE_TITLE} | sed 's/ /-/g')"
-          git checkout -b "${BRANCH_NAME}"
-          git push origin "${BRANCH_NAME}"
+       
+      - name: Install GitHub CLI
+        run: sudo apt-get install gh
 
       - name: Update issue title
-        uses: actions-cool/issues-helper@v3
-        with:
-          actions: 'update-issue'
-          token: ${{ secrets.GITHUB_TOKEN }}
-          title: '[${{ steps.create.outputs.issue }}] ${{ github.event.issue.title }}'
+        env:
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_KEY: ${{ steps.create-task.outputs.issue || steps.create-subtask.outputs.issue }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "TITLE: $ISSUE_TITLE"
+          echo "ISSUE_KEY: $ISSUE_KEY"
+
+          if [[ "$ISSUE_TITLE" =~ ^\[([A-Z]+)\]\ (.+)$ ]]; then
+            TYPE="${BASH_REMATCH[1]}"
+            REST="${BASH_REMATCH[2]}"
+            NEW_TITLE="[${TYPE}/${ISSUE_KEY}] ${REST}"
+          else
+            NEW_TITLE="[${ISSUE_KEY}] $ISSUE_TITLE"
+          fi
+
+          echo "New title: $NEW_TITLE"
+          gh issue edit "$ISSUE_NUMBER" --title "$NEW_TITLE"
 
       - name: Add comment with Jira issue link
         uses: actions-cool/issues-helper@v3
