@@ -60,6 +60,15 @@ public:
     }
 
     /// <summary>
+    /// 스크립트 DLL 여부를 확인합니다.
+    /// </summary>
+    /// <returns></returns>
+    inline bool HasScript() const
+    { 
+        return (m_scriptsDll != NULL) ? true : false;
+    }
+
+    /// <summary>
     /// 컴포넌트 존재 유무를 확인합니다.
     /// </summary>
     /// <param name="typeid_name :">확인할 컴포넌트 typeid_name</param>

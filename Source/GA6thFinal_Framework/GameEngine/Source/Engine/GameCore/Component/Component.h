@@ -70,12 +70,12 @@ protected:
     virtual void OnApplicationQuit() {};
 
 public:
-    GETTER_ONLY(GameObject&, gameObect)
+    GETTER_ONLY(GameObject&, gameObject)
     {
         return *_gameObect;
     }
     //get : 이 컴포넌트가 부착된 게임 오브젝트입니다. 컴포넌트는 항상 게임 오브젝트에 부착됩니다.
-    PROPERTY(gameObect);
+    PROPERTY(gameObject);
 
     GETTER(bool, Enable)
     {
