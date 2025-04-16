@@ -9,7 +9,8 @@ class EditorMenuScriptBuilder : public EditorMenu
 public:
     EditorMenuScriptBuilder() {
         SetCallOrder(0);
-        SetLabel("Project/Build");
+        SetPath("Project/Build");
+        SetLabel("");
     }
     virtual ~EditorMenuScriptBuilder() = default;
 public:

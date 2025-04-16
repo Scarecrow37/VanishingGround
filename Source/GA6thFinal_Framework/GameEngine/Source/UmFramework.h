@@ -96,6 +96,7 @@ constexpr const wchar_t* PROJECT_SETTING_PATH = L"ProjectSetting"; // 프로젝�
 #include "Engine/EditorCore/EditorMenuBar.h"
 #include "Engine/EditorCore/EditorDockSpace.h"
 #include "Engine/EditorCore/EditorModule.h"
+//#include "Editor/Tool/AssetBrowser/"
 
 //Game Core
 #include "Engine/GameCore/Transform/Transform.h"

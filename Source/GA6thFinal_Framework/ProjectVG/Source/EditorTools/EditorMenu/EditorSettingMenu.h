@@ -10,7 +10,8 @@ public:
     EditorMenuDebug() 
     {
         SetCallOrder(0);
-        SetLabel("Setting/Editor");
+        SetPath("Setting/Editor");
+        SetLabel("");
 
         _isDebugMode = Global::editorManager->IsDebugMode();
     }
@@ -28,7 +29,8 @@ public:
     EditorMenuStyleEditor()
     {
         SetCallOrder(0);
-        SetLabel("Setting/Editor");
+        SetPath("Setting/Editor");
+        SetLabel("");
     }
     virtual ~EditorMenuStyleEditor() = default;
 public:
