@@ -82,6 +82,7 @@ public:
     void UnRegisterFileEventNotifier(File::FileEventNotifier* notifier);
 
 public:
+    void Reload();
     void Clear();
     void ReadDirectory(const File::Path& path);
     void AddedFile(const File::Path& path);

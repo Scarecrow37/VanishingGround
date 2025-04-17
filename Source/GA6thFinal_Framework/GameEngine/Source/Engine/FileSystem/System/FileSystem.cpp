@@ -26,6 +26,7 @@ bool EFileSystem::LoadSetting(const File::Path& path)
     else
     {
         _setting = setting.value();
+        Reload(); 
         return true;
     }
 }
@@ -171,7 +172,16 @@ void EFileSystem::UnRegisterFileEventNotifier(FileEventNotifier* notifier)
     }
 }
 
-void EFileSystem::Clear() 
+void EFileSystem::Reload() 
+{
+    _pathToGuidTable.clear();
+    _guidToPathTable.clear();
+    _contextTable.clear();
+
+    ReadDirectory(_setting.RootPath);
+}
+
+void EFileSystem::Clear()
 {        
     _pathToGuidTable.clear();
     _guidToPathTable.clear();

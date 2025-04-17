@@ -23,13 +23,13 @@ void FileSystemModule::ModuleInitialize()
     UmFileSystem.RegisterFileEventNotifier(new SampleNotifier,
                                            {".txt", ".png", ".dds"});
 
-    UmFileSystem.ReadDirectory(UmFileSystem.GetRootPath());
-
     _observer = new File::FileObserver();
     _observer->Start(UmFileSystem.GetRootPath(),
                      [this](const Event& event) { 
         RecieveFileEvent(event);
     });
+
+    UmFileSystem.Reload();
 }
 
 void FileSystemModule::PreUnInitialize() 
