@@ -12,16 +12,27 @@ constexpr const wchar_t* PROJECT_SETTING_PATH = L"ProjectSetting"; // 프로젝�
 
 //WINDOW SDK
 #include <Windows.h>
-#include <wrl.h>
-#include <d3d11.h>
 #include <dbghelp.h>
+#include <directx/d3dx12.h>
 #include <dxgi1_4.h>
-#include <directxtk/simplemath.h>
+#include <dxgi1_6.h>
+#include <d3dcompiler.h>
 
-#pragma comment(lib, "d3d11.lib")
-#pragma comment(lib, "dxgi.lib")
-#pragma comment(lib, "d3dcompiler.lib")
+#include <DirectXMath.h>
+#include <directxtk12/SimpleMath.h>
+#include <directxtk12/SpriteBatch.h>
+#include <directxtk12/SpriteFont.h>
+#include <directxtk12/ResourceUploadBatch.h>
+#include <wrl.h>
+
+#pragma comment(lib, "d3d12")
+#pragma comment(lib, "dxgi")
+#pragma comment(lib, "d3dcompiler")
 #pragma comment(lib, "Dbghelp.lib")
+
+using namespace DirectX;
+using namespace DirectX::SimpleMath;
+using namespace Microsoft::WRL;
 
 //CRT
 #include <tchar.h>
@@ -52,15 +63,19 @@ constexpr const wchar_t* PROJECT_SETTING_PATH = L"ProjectSetting"; // 프로젝�
 #include <mutex>
 #include <thread>
 #include <system_error>
+#include <typeindex>
+#include <string_view>
 
 //ThirdParty
 #include <pugixml.hpp>
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
 
+#include <assimp/postprocess.h>
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include "Engine/Imgui/imgui.h"
 #include "Engine/Imgui/imgui_stdlib.h"
 #include "Engine/Imgui/imgui_impl_win32.h"
-#include "Engine/Imgui/imgui_impl_dx11.h"
 #include "Engine/Imgui/imgui_impl_dx12.h"
 #include "Engine/Imgui/imgui_node_editor.h"
 #include "Engine/Imgui/imgui_internal.h"
@@ -93,6 +108,9 @@ constexpr const wchar_t* PROJECT_SETTING_PATH = L"ProjectSetting"; // 프로젝�
 #include "Engine/FileSystem/Extra/FileEventNotifier.h"
 #include "Engine/FileSystem/FileSystemModule.h"
 
+//Graphics
+#include "Engine/GraphicsCore/GraphicsCore.h"
+
 //Engine Core
 #include "Engine/EngineCore/EngineLogger.h"
 #include "Engine/EngineCore/TimeSystem.h"
@@ -118,8 +136,7 @@ constexpr const wchar_t* PROJECT_SETTING_PATH = L"ProjectSetting"; // 프로젝�
 
 //Application Module
 #include "Engine/AppModule/EngineCoresModule.h"
-#include "Engine/Graphics/GraphicsModule.h"
-#include "Engine/AppModule/ImGuiDX11Module.h"
+//#include "Engine/AppModule/ImGuiDX12Module.h"
 
 //DragDropTypes
 #include "Editor/DragDropTypes/DragDropTransform.h"
@@ -142,3 +159,4 @@ constexpr const wchar_t* PROJECT_SETTING_PATH = L"ProjectSetting"; // 프로젝�
 #include "Editor/Menu/Setting/EditorSettingMenu.h"
 #include "Editor/Menu/Scene/EditorSceneMenu.h"
 #endif
+#include "Engine/AppModule/ImGuiDX12Module.h"

@@ -28,3 +28,6 @@ UMREAL_COMPONENT(TestComponent)
 
 #include "Scripts\FileSystemTest/FileTestComponent.h"
 UMREAL_COMPONENT(FileTestComponent)
+
+#include "Scripts\Graphics\StaticMeshRenderer.h"
+UMREAL_COMPONENT(StaticMeshRenderer)

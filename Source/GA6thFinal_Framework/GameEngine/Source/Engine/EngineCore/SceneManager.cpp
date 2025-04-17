@@ -32,6 +32,7 @@ void ESceneManager::SceneUpdate()
     ObjectsAddRuntime();
     ObjectsOnEnable();
     ObjectsAwake();
+    UmResourceManager.Update();
     ObjectsStart();
     while (ETimeSystem::Engine::TimeSystemFixedUpdate())
     {

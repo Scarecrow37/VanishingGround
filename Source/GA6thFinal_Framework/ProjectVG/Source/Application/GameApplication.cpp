@@ -1,5 +1,6 @@
 ﻿#include "GameApplication.h"
 #include "UmFramework.h"
+#include "../GameScripts/UmrealScripts.h"
 
 int APIENTRY wWinMain(
     _In_ HINSTANCE hInstance,

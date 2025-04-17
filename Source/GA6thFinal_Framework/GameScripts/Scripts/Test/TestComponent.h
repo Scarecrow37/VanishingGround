@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "UmFramework.h"
+
 class TestComponent : public Component
 {
     USING_PROPERTY(TestComponent)
