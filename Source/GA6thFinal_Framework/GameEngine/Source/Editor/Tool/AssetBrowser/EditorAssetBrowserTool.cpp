@@ -60,12 +60,16 @@ void EditorAssetBrowserTool::ShowFolderHierarchy(const File::Path& folderPath)
     if (false == fs::exists(folderPath))
         return;
 
-    std::string icon = EditorIcon::ICON_FORDER;
+    bool isOpen = ImGui::TreeNodeEx(("##" + folderPath.string()).c_str(), ImGuiTreeNodeFlags_OpenOnArrow);
 
+    std::string icon = isOpen ? EditorIcon::ICON_FORDER_OPEN : EditorIcon::ICON_FORDER;
     std::string name = icon + " " + folderPath.filename().string();
+    ImGui::SameLine();
+    auto flags = ImGuiSelectableFlags_AllowDoubleClick;
+    if (ImGui::Selectable((name).c_str(), isOpen, flags))
+    {
+    }
 
-    bool isOpen = ImGui::TreeNodeEx(name.c_str(), ImGuiTreeNodeFlags_OpenOnArrow);
-    
     if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
     {
         _focusForder =
@@ -73,15 +77,13 @@ void EditorAssetBrowserTool::ShowFolderHierarchy(const File::Path& folderPath)
     }
     if (isOpen)
     {
+        icon = EditorIcon::ICON_FORDER_OPEN; // 트리 노드가 열렸을 때 아이콘을 오픈으로 변경
+
         for (const auto& entry : fs::directory_iterator(folderPath))
         {
             if (entry.is_directory())
             {
-                ImGui::PushID(folderPath.c_str());
-
                 ShowFolderHierarchy(entry.path());
-
-                ImGui::PopID();
             }
         }
         ImGui::TreePop();
@@ -94,23 +96,17 @@ void EditorAssetBrowserTool::ShowFolderContents()
     ImGuiWindow* window = ImGui::GetCurrentWindow();
     ImRect       rect   = window->Rect(); // 윈도우 전체 영역
 
-    if (ImGui::BeginDragDropTargetCustom(rect, window->ID))
+    DragDropTransform::Data data;
+    if (ImGuiHelper::DragDrop::RecieveFrameDragDropEvent(DragDropTransform::key, &data))
     {
-        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(DragDropTransform::key))
+        if (false == _focusForder.expired())
         {
-            DragDropTransform::Data* data = (DragDropTransform::Data*)payload->Data;
-
-            if (false == _focusForder.expired())
+            if (data.serializedFunc)
             {
                 std::string path = _focusForder.lock()->GetPath().string();
-                if (data->serializedFunc)
-                {
-                    std::string path = _focusForder.lock()->GetPath().string();
-                    data->serializedFunc(path);
-                }
+                data.serializedFunc(path);
             }
         }
-        ImGui::EndDragDropTarget();
     }
 
     if (ImGui::BeginPopupContextItem())
@@ -177,7 +173,9 @@ void EditorAssetBrowserTool::ShowItemToList(spContext context)
     {
         ImGui::PushID(context.get());
 
-        ImGui::Selectable(name.c_str());
+        bool isSelected = _selectedContext->GetContext().lock() == context;
+
+        ImGui::Selectable(name.c_str(), isSelected);
 
         if (ImGui::BeginPopupContextItem())
         {
@@ -256,9 +254,4 @@ void EditorFileObject::OnDrawInspectorView()
         ImGui::Text("Guid: %s", meta.GetFileGuid().string().c_str());
         ImGui::Separator();
     }
-}
-
-void EditorFileObject::SetContext(std::weak_ptr<File::Context> context) 
-{
-    _context = context;
 }

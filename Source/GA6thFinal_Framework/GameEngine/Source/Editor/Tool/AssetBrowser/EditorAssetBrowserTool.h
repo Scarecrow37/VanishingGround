@@ -78,7 +78,8 @@ public:
     virtual void OnDrawInspectorView() override;
 
 public:
-    void SetContext(std::weak_ptr<File::Context> context);
+    inline auto GetContext() { return _context; }
+    inline void SetContext(std::weak_ptr<File::Context> context) { _context = context; }
 
 private:
     std::weak_ptr<File::Context> _context;
