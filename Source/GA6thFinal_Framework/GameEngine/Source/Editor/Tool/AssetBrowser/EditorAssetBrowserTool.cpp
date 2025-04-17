@@ -29,6 +29,8 @@ void EditorAssetBrowserTool::OnPreFrame()
 
 void EditorAssetBrowserTool::OnFrame()
 {
+    ImGui::PushID(this);
+
     BeginColum();
 
     // 왼쪽: 폴더 트리
@@ -44,6 +46,8 @@ void EditorAssetBrowserTool::OnFrame()
     ImGui::EndChild();
 
     EndColum();
+
+    ImGui::PopID();
 }
 
 void EditorAssetBrowserTool::OnPostFrame()
@@ -87,6 +91,28 @@ void EditorAssetBrowserTool::ShowFolderHierarchy(const File::Path& folderPath)
 // 오른쪽: 선택된 폴더의 파일 목록
 void EditorAssetBrowserTool::ShowFolderContents()
 {
+    ImGuiWindow* window = ImGui::GetCurrentWindow();
+    ImRect       rect   = window->Rect(); // 윈도우 전체 영역
+
+    if (ImGui::BeginDragDropTargetCustom(rect, window->ID))
+    {
+        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(DragDropTransform::key))
+        {
+            DragDropTransform::Data* data = (DragDropTransform::Data*)payload->Data;
+
+            if (false == _focusForder.expired())
+            {
+                std::string path = _focusForder.lock()->GetPath().string();
+                if (data->serializedFunc)
+                {
+                    std::string path = _focusForder.lock()->GetPath().string();
+                    data->serializedFunc(path);
+                }
+            }
+        }
+        ImGui::EndDragDropTarget();
+    }
+
     if (ImGui::BeginPopupContextItem())
     {
         ImGui::MenuItem("Show in explorer");

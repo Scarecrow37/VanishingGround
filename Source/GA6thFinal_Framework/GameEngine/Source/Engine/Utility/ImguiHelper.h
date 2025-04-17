@@ -186,11 +186,35 @@ namespace ImGuiHelper
             return false;
         }
 
-        /* 드래그앤드롭 데이터를 받습니다. */
+        /* 현재 아이템 기준으로 드래그앤드롭 데이터를 받습니다. */
         template <typename T>
         static bool RecieveDragDropEvent(EventID id, T* targetData)
         {
             if (ImGui::BeginDragDropTarget())
+            {
+                if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(id))
+                {
+                    // 데이터 크기가 일치하는지 확인
+                    if (payload->DataSize == sizeof(T))
+                    {
+                        memcpy(targetData, payload->Data, sizeof(T));
+                        ImGui::EndDragDropTarget();
+                        return true;
+                    }
+                }
+                ImGui::EndDragDropTarget();
+            }
+            return false;
+        }
+
+        /* 현재 프레임 대상으로 드래그앤드롭을 데이터를 받습니다. */
+        template <typename T>
+        static bool RecieveFrameDragDropEvent(EventID id, T* targetData)
+        {
+            ImGuiWindow* window = ImGui::GetCurrentWindow();
+            ImRect       rect   = window->Rect(); // 윈도우 전체 영역
+
+            if (ImGui::BeginDragDropTargetCustom(rect, window->ID))
             {
                 if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(id))
                 {
