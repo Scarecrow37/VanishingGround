@@ -18,7 +18,110 @@ public:
 
     Transform(GameObject& owner);
     ~Transform();
-    GameObject& gameObject;
+
+    GETTER_ONLY(GameObject&, gameObject)
+    { 
+        return _gameObject;
+    }
+    //get : owner GameObject
+    PROPERTY(gameObject)
+
+        GETTER_ONLY(int, ChildCount) { return (int)_childsList.size(); }
+    // https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Transform-childCount.html
+    // get : 자식의 개수를 반환합니다.
+    // return : int
+    PROPERTY(ChildCount)
+
+    GETTER_ONLY(Transform*, Root) { return _root; }
+    // https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Transform-root.html
+    // get : 최상위 부모를 반환합니다.
+    // return : Transform*
+    PROPERTY(Root)
+
+    GETTER_ONLY(Transform*, Parent) { return _parent; }
+    // https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Transform-parent.html
+    // get : 부모를 반환합니다.
+    // return : Transform*
+    PROPERTY(Parent)
+
+    GETTER_ONLY(bool, HasChanged) { return _hasChanged; }
+    // get : Transform의 이번 프레임 변경 여부를 확인합니다. true면 이번
+    // 프레임에 행렬 계산 대상이 됩니다.
+    PROPERTY(HasChanged)
+
+    GETTER_ONLY(const Matrix&, LocalToWorldMatrix) { return GetWorldMatrix(); }
+    /*
+    get : 로컬 정점을 World 행렬로 변환하는 행렬입니다.
+    (Transform의 World Matrix 입니다).
+    */
+    PROPERTY(LocalToWorldMatrix)
+
+    GETTER_ONLY(const Matrix&, WorldToLocalMatrix)
+    {
+        return GetInversWorldMatrix();
+    }
+    /*
+    get : 월드 행렬을 로컬 행렬로 변환하는 행렬입니다.
+    (Transform의 World Invers Matrix 입니다.)
+    */
+    PROPERTY(WorldToLocalMatrix)
+
+    GETTER_ONLY(const Matrix&, LocalToLocalMatrix) { return GetLocalMatrix(); }
+    /*
+    get : 로컬 정점을 LocalMatrix 행렬로 변환하는 행렬입니다.
+    (Transform의 Local Matrix 입니다.)
+    */
+    PROPERTY(LocalToLocalMatrix)
+
+    SETTER(const Vector3&, Position)
+    {
+        if (_position == value)
+            return;
+
+        _hasChanged = true;
+        _position   = value;
+    }
+    GETTER(const Vector3&, Position) { return _position; }
+    PROPERTY(Position)
+
+    SETTER(const Quaternion&, Rotation)
+    {
+        if (_rotation == value)
+            return;
+
+        _hasChanged = true;
+        _rotation   = value;
+        _eulerAngle = _rotation.ToEuler() * Mathf::Rad2Deg;
+    }
+    GETTER(const Quaternion&, Rotation) { return _rotation; }
+    PROPERTY(Rotation)
+
+    SETTER(const Vector3&, EulerAngle)
+    {
+        if (_eulerAngle == value)
+            return;
+
+        _hasChanged = true;
+        _eulerAngle = value;
+        Quaternion newRotation =
+            Quaternion::CreateFromYawPitchRoll(_eulerAngle * Mathf::Deg2Rad);
+        _rotation = newRotation;
+    }
+    GETTER(const Vector3&, EulerAngle) { return _eulerAngle; }
+    PROPERTY(EulerAngle)
+
+    SETTER(const Vector3&, Scale)
+    {
+        if (_scale == value)
+            return;
+
+        _hasChanged = true;
+        _scale      = value;
+    }
+    GETTER(const Vector3&, Scale) { return _scale; }
+    PROPERTY(Scale)
+
+    REFLECT_PROPERTY(Position, EulerAngle, Scale)  
 public:
     /// <summary>
     /// 오일러 각으로 쿼터니언을 만듭니다. 매개변수의 단위는 디그리드 입니다.
@@ -145,6 +248,8 @@ public:
     /// <returns></returns>
     const Matrix& GetInversWorldMatrix() { return _inversWorldMatrix; };
 
+private:
+    GameObject& _gameObject;
 
 private:
     Transform*              _root;
@@ -175,112 +280,6 @@ protected:
     void SerializedReflectEvent() override;
     /*역직렬화 후 호출되는 함수*/
     void DeserializedReflectEvent() override;
-
-public:
-    GETTER_ONLY(int, ChildCount) { return (int)_childsList.size(); }
-    // https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Transform-childCount.html
-    // get : 자식의 개수를 반환합니다.
-    // return : int
-    PROPERTY(ChildCount)
-
-    GETTER_ONLY(Transform*, Root) { return _root; }
-    // https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Transform-root.html
-    // get : 최상위 부모를 반환합니다.
-    // return : Transform*
-    PROPERTY(Root)
-
-    GETTER_ONLY(Transform*, Parent) { return _parent; }
-    // https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Transform-parent.html
-    // get : 부모를 반환합니다.
-    // return : Transform*
-    PROPERTY(Parent)
-
-    GETTER_ONLY(bool, HasChanged)
-    { 
-        return _hasChanged;
-    }
-    // get : Transform의 이번 프레임 변경 여부를 확인합니다. true면 이번 프레임에 행렬 계산 대상이 됩니다.
-    PROPERTY(HasChanged)
-
-    GETTER_ONLY(const Matrix&, LocalToWorldMatrix)
-    { 
-        return GetWorldMatrix();
-    }
-    /* 
-    get : 로컬 정점을 World 행렬로 변환하는 행렬입니다.
-    (Transform의 World Matrix 입니다).
-    */
-    PROPERTY(LocalToWorldMatrix)
-
-    GETTER_ONLY(const Matrix&, WorldToLocalMatrix)
-    {
-        return GetInversWorldMatrix();
-    }
-    /*
-    get : 월드 행렬을 로컬 행렬로 변환하는 행렬입니다.
-    (Transform의 World Invers Matrix 입니다.) 
-    */
-    PROPERTY(WorldToLocalMatrix)
-
-    GETTER_ONLY(const Matrix&, LocalToLocalMatrix) 
-    { 
-        return GetLocalMatrix();
-    }
-    /*
-    get : 로컬 정점을 LocalMatrix 행렬로 변환하는 행렬입니다.
-    (Transform의 Local Matrix 입니다.)
-    */
-    PROPERTY(LocalToLocalMatrix)
-
-    SETTER(const Vector3&, Position)
-    {
-        if (_position == value)
-            return;
-
-        _hasChanged  = true;
-        _position = value;
-    }
-    GETTER(const Vector3&, Position) { return _position; }
-    PROPERTY(Position)
-
-    SETTER(const Quaternion&, Rotation)
-    {
-        if (_rotation == value)
-            return;
-
-        _hasChanged    = true;
-        _rotation   = value;
-        _eulerAngle = _rotation.ToEuler() * Mathf::Rad2Deg;
-    }
-    GETTER(const Quaternion&, Rotation) { return _rotation; }
-    PROPERTY(Rotation)
-
-    SETTER(const Vector3&, EulerAngle)
-    {
-        if (_eulerAngle == value)
-            return;
-
-        _hasChanged    = true;
-        _eulerAngle = value;
-        Quaternion newRotation =
-            Quaternion::CreateFromYawPitchRoll(_eulerAngle * Mathf::Deg2Rad);
-        _rotation = newRotation;
-    }
-    GETTER(const Vector3&, EulerAngle) { return _eulerAngle; }
-    PROPERTY(EulerAngle)
-
-    SETTER(const Vector3&, Scale)
-    {
-        if (_scale == value)
-            return;
-
-        _hasChanged = true;
-        _scale   = value;
-    }
-    GETTER(const Vector3&, Scale) { return _scale; }
-    PROPERTY(Scale)
-
-    REFLECT_PROPERTY(Position, EulerAngle, Scale)  
 
 protected:
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
@@ -319,9 +318,9 @@ inline void Transform::ForeachDFS(Transform& root, Func func)
         Transform* currTr = trStack.back();
         trStack.pop_back();
         func(currTr);
-        for (auto& transform : currTr->_childsList)
+        for (auto& _transform : currTr->_childsList)
         {
-            trStack.push_back(transform);
+            trStack.push_back(_transform);
         }
     }
 }
@@ -335,9 +334,9 @@ inline void Transform::ForeachBFS(Transform& root, Func func)
         Transform* currTr = trQueue.front();
         trQueue.pop();
         func(currTr);
-        for (auto& transform : currTr->_childsList)
+        for (auto& _transform : currTr->_childsList)
         {
-            trQueue.push(transform);
+            trQueue.push(_transform);
         }
     }
 }
