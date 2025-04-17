@@ -185,21 +185,21 @@ public:
 
     /// <summary>
     /// <para> TComponent 타입의 컴포넌트를 찾아서 반환합니다. </para>
-    /// <para> 실패시 empty를 반환합니다.                     </para>
+    /// <para> 실패시 nullptr를 반환합니다.                     </para>
     /// </summary>
     /// <typeparam name="TComponent :">검색할 컴포넌트 타입</typeparam>
-    /// <returns>해당 타입 컴포넌트의 weak_ptr</returns>
+    /// <returns>해당 타입 컴포넌트의 ptr</returns>
     template<IS_BASE_COMPONENT_C TComponent>
-    inline std::weak_ptr<TComponent> GetComponent();
+    inline TComponent* GetComponent();
 
     /// <summary>
     /// 전달받은 인덱스의 컴포넌트를 TComponent 타입으로 dynamic_cast를 시도해 반환합니다.
     /// </summary>
     /// <typeparam name="TComponent :">캐스팅할 컴포넌트 타입</typeparam>
     /// <param name="index :">컴포넌트 인덱스</param>
-    /// <returns>해당 타입 컴포넌트의 weak_ptr</returns>
+    /// <returns>해당 타입 컴포넌트의 ptr</returns>
     template<IS_BASE_COMPONENT_C TComponent>
-    inline std::weak_ptr<TComponent> GetComponentAtIndex(size_t index);
+    inline TComponent* GetComponentAtIndex(size_t index);
 
     /// <summary>
     /// <para> TComponent 타입의 컴포넌트를 전부 찾아서 반환합니다. </para>
@@ -208,7 +208,7 @@ public:
     /// <typeparam name="TComponent"></typeparam>
     /// <returns>찾은 모든 컴포넌트에 대한 배열</returns>
     template<IS_BASE_COMPONENT_C TComponent>
-    inline std::vector<std::weak_ptr<TComponent>> GetComponents();
+    inline std::vector<TComponent*> GetComponents();
 
     /// <summary>
     /// 이 오브젝트에 부착된 컴포넌트 개수를 반환합니다.
@@ -229,10 +229,10 @@ public:
 public:
     GETTER_ONLY(bool, ActiveInHierarchy)
     {
-        Transform* curr = &transform;
+        Transform* curr = &_transform;
         while (curr != nullptr)
         {
-            if (!curr->gameObject.ReflectFields->_activeSelf)
+            if (!curr->gameObject->ReflectFields->_activeSelf)
                 return false;
 
             curr = curr->Parent;
@@ -241,6 +241,13 @@ public:
     }
     // get : 실제 활성화 여부 (부모가 false면 false)
     PROPERTY(ActiveInHierarchy);
+
+    GETTER_ONLY(Transform&, transform)
+    { 
+        return _transform;
+    }
+    //get : object Transform
+    PROPERTY(transform)
     
     SETTER(bool, ActiveSelf)
     {
@@ -285,9 +292,8 @@ public:
         ActiveSelf,
         IsStatic
     )
-
-public:
-    Transform transform;
+private:
+    Transform _transform;
 private:
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
     std::string                              _name = "null";
@@ -332,14 +338,14 @@ inline TComponent& GameObject::AddComponent()
 }
 
 template<IS_BASE_COMPONENT_C TComponent>
-inline std::weak_ptr<TComponent> GameObject::GetComponent()
+inline TComponent* GameObject::GetComponent()
 {
-    std::weak_ptr<TComponent> result;
+    TComponent* result = nullptr;
     for (auto& component : _components)
     {
         if (typeid(TComponent) == typeid(*component))
         {
-            result = std::static_pointer_cast<TComponent>(component);
+            result = static_cast<TComponent*>(component.get());
             break;
         }
     }
@@ -347,29 +353,29 @@ inline std::weak_ptr<TComponent> GameObject::GetComponent()
 }
 
 template<IS_BASE_COMPONENT_C TComponent>
-inline std::weak_ptr<TComponent> GameObject::GetComponentAtIndex(size_t index)
+inline TComponent* GameObject::GetComponentAtIndex(size_t index)
 {
-    std::weak_ptr<TComponent> result;
+    TComponent* result = nullptr;
     if (index >= _components.size())
     {
         return result;
     }
     else
     {
-        result = std::dynamic_pointer_cast<TComponent>(_components[index]);
+        result = static_cast<TComponent*>(_components[index].get());
         return result;
     }
 }
 
 template<IS_BASE_COMPONENT_C TComponent>
-inline std::vector<std::weak_ptr<TComponent>> GameObject::GetComponents()
+inline std::vector<TComponent*> GameObject::GetComponents()
 {
-    std::vector<std::weak_ptr<TComponent>> result;
+    std::vector<TComponent*> result;
     for (auto& component : _components)
     {
         if (typeid(TComponent) == typeid(*component))
         {
-            result.emplace_back(std::static_pointer_cast<TComponent>(component));
+            result.emplace_back(static_cast<TComponent*>(component));
         }
     }
     return result;

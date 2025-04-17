@@ -32,13 +32,13 @@ YAML::Node EGameObjectFactory::SerializeToYaml(GameObject* gameObject)
     std::map<Transform*, int> transformParentLevelMap;
     int parentIndex = 0;
     Transform::ForeachBFS(
-        gameObject->transform, 
+        gameObject->_transform, 
         [&](Transform* curr) 
         {
             //오브젝트 직렬화
             YAML::Node objectNode = MakeYamlToGameObject(&curr->gameObject);
             //컴포넌트들 직렬화
-            for (auto& component : curr->gameObject._components)
+            for (auto& component : curr->gameObject->_components)
             {
                 YAML::Node componentNode = UmComponentFactory.SerializeToYaml(component.get());
                 objectNode["Components"].push_back(componentNode);
@@ -89,12 +89,12 @@ bool EGameObjectFactory::DeserializeToYaml(YAML::Node* pGameObjectNode)
 
         //Transform 역직렬화
         int TransformIndex = transformNode["TransformIndex"].as<int>();
-        transformParentLevelMap[TransformIndex] = &gameObject->transform;
+        transformParentLevelMap[TransformIndex] = &gameObject->_transform;
         if (transformNode["ParentIndex"])
         {
             int        ParentIndex = transformNode["ParentIndex"].as<int>();
             Transform* pParent     = transformParentLevelMap[ParentIndex];
-            gameObject->transform.SetParent(pParent);
+            gameObject->_transform.SetParent(pParent);
         }
         ESceneManager::Engine::AddGameObjectToLifeCycle(gameObject);
     }
@@ -147,7 +147,7 @@ YAML::Node EGameObjectFactory::MakeYamlToGameObject(GameObject* gameObject)
         objectNode["ReflectFields"] = gameObject->SerializedReflectFields();
         {
             YAML::Node transformNode;
-            transformNode["ReflectFields"] = gameObject->transform.SerializedReflectFields();
+            transformNode["ReflectFields"] = gameObject->_transform.SerializedReflectFields();
             objectNode["Transform"] = transformNode;
         }
         {
@@ -181,7 +181,7 @@ std::shared_ptr<GameObject> EGameObjectFactory::MakeGameObjectToYaml(YAML::Node*
     {
         YAML::Node transformNode = objectNode["Transform"].as<YAML::Node>();
         std::string ReflectFields = transformNode["ReflectFields"].as<std::string>();
-        object->transform.DeserializedReflectFields(ReflectFields);
+        object->_transform.DeserializedReflectFields(ReflectFields);
     }
     {
 

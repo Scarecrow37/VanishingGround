@@ -111,7 +111,7 @@ public:
     }
 
     //Read
-    inline operator auto() const requires(is_getter)
+    inline operator field_type() const requires(is_getter)
     { 
         return this->Getter();
     }
@@ -122,6 +122,11 @@ public:
     }
     inline auto* operator->() requires (!std::is_pointer_v<owner_type> && std::is_reference_v<field_type> && is_getter)
     { 
+        return &this->Getter();
+    }
+
+    inline auto* operator&() requires(!std::is_pointer_v<owner_type> && std::is_reference_v<field_type> && is_getter)
+    {
         return &this->Getter();
     }
 

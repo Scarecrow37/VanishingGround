@@ -1,4 +1,5 @@
 ﻿#include "TestComponent.h"
+#include "Scripts/FileSystemTest/FileTestComponent.h"
 TestComponent::TestComponent()  = default;
 TestComponent::~TestComponent() = default;
 
@@ -9,13 +10,23 @@ void TestComponent::Update()
 {
     ImGui::Begin(u8"테스트 컴포넌트 업데이트 호출중!!!"_c_str);
     {
+        transform->ImGuiDrawPropertys();
     }
     ImGui::End();
+    static float currTime = 0.f;
+    constexpr float addTime  = 1.f;
+
+    currTime += UmTime.deltaTime();
+    while (addTime <= currTime)
+    {
+        AddComponent<FileTestComponent>();
+        currTime -= addTime;
+    }
 }
 
 void TestComponent::FixedUpdate() 
 {
-    //engineCore->EngineLogger.Log(LogLevel::LEVEL_DEBUG, "Fixed Update!");
+    //engineCore->EngineLogger.Log(LogLevel::LEVEL_DEBUG, "Fixed Update!");    
 }
 
 void TestComponent::OnDestroy()
