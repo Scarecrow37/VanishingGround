@@ -131,6 +131,7 @@ constexpr const wchar_t* PROJECT_SETTING_PATH = L"ProjectSetting"; // 프로젝�
 #include "Editor/Tool/Inspector/EditorInspectorTool.h"
 #include "Editor/Tool/Scene/EditorSceneTool.h"
 #include "Editor/Tool/Log/EditorLogsTool.h"
+
 #include "Editor/Tool/ScriptTest/ScriptTestEditor.h"    // 테스트용. 추후 제거 필요
 
 // Editor Menu

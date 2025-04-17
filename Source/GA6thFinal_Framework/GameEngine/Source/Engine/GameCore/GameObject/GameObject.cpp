@@ -23,7 +23,7 @@ void GameObject::Destroy(GameObject& gameObject, float t)
 
 GameObject::GameObject()
     : 
-    transform(*this),
+    _transform(*this),
     _ownerScene("null"),
     _components(),
     _instanceID(-1)
@@ -59,7 +59,7 @@ void GameObject::OnDrawInspectorView()
     ImGui::PushID(this);
     {
         ImGuiDrawPropertys();
-        transform.ImGuiDrawPropertys();
+        _transform.ImGuiDrawPropertys();
         if (ImGui::Button("AddComponent"))
         {
             selectObject = this;

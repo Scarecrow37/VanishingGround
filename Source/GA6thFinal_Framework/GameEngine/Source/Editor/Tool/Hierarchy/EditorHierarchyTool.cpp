@@ -12,7 +12,7 @@ static void                      TransformTreeNode(Transform&                   
         bool result = ImGui::IsMouseDoubleClicked(0) && ImGui::IsItemHovered();
         if (result)
         {
-            HierarchyFocusObjWeak = node.gameObject.GetWeakPtr();
+            HierarchyFocusObjWeak = node.gameObject->GetWeakPtr();
             EditorInspectorTool::SetFocusObject(HierarchyFocusObjWeak);
         }
         return result;
@@ -61,38 +61,50 @@ static void                      TransformTreeNode(Transform&                   
             }
             if (ImGui::MenuItem("Destroy"))
             {
-                GameObject::Destroy(node.gameObject);
+                GameObject::Destroy(&node.gameObject);
             }
             ImGui::EndPopup();
         }
     };
 
     auto PushFocusStyle = [&node](GameObject* pFocusObject) {
-        if (&pFocusObject->transform == &node)
+        if (pFocusObject)
         {
-            ImGui::PushStyleColor(ImGuiCol_Text,
-                                  ImVec4(0.4f, 0.75f, 1.0f, 1.0f)); // 글자색
-            ImGui::PushStyleColor(ImGuiCol_HeaderHovered,
-                                  ImVec4(0.2f, 0.45f, 0.8f, 1.0f)); // 포커스시
-            ImGui::PushStyleColor(ImGuiCol_HeaderActive,
-                                  ImVec4(0.25f, 0.55f, 0.9f, 1.0f)); // 클릭시
-            return true;
+            Transform* curr = &pFocusObject->transform;
+
+            if (curr == &node)
+            {
+                ImGui::PushStyleColor(
+                    ImGuiCol_Text, ImVec4(0.4f, 0.75f, 1.0f, 1.0f)); // 글자색
+                ImGui::PushStyleColor(
+                    ImGuiCol_HeaderHovered,
+                    ImVec4(0.2f, 0.45f, 0.8f, 1.0f)); // 포커스시
+                ImGui::PushStyleColor(
+                    ImGuiCol_HeaderActive,
+                    ImVec4(0.25f, 0.55f, 0.9f, 1.0f)); // 클릭시
+                return true;
+            }
         }
         return false;
     };
-    auto PopFocusStyle = [&node](GameObject* pFocusObject) {
-        if (&pFocusObject->transform == &node)
-        {
-            ImGui::PopStyleColor(3);
 
-            return true;
+    auto PopFocusStyle = [&node](GameObject* pFocusObject) {
+        if (pFocusObject)
+        {
+            Transform* curr = &pFocusObject->transform;
+            if (curr == &node)
+            {
+                ImGui::PopStyleColor(3);
+
+                return true;
+            }
         }
         return false;
     };
 
     ImGui::PushID(&node);
     PushFocusStyle(focusObject.get());
-    if (ImGui::TreeNodeEx(node.gameObject.ToString().data(),
+    if (ImGui::TreeNodeEx(node.gameObject->ToString().data(),
                           ImGuiTreeNodeFlags_OpenOnArrow))
     {
         PopFocusStyle(focusObject.get());

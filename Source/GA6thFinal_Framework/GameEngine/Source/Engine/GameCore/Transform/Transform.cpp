@@ -2,7 +2,7 @@
 
 Transform::Transform(GameObject& owner)
     :
-    gameObject(owner),
+    _gameObject(owner),
     _root(nullptr),
     _parent(nullptr),
 
