@@ -16,7 +16,7 @@ void FileSystemModule::PreInitialize()
 
 void FileSystemModule::ModuleInitialize()
 {
-    File::Path filename  = L"fileSystem.setting";
+    File::Path filename  = L"filesystem.setting";
     File::Path directory = PROJECT_SETTING_PATH;
     UmFileSystem.LoadSetting(directory / filename);
 

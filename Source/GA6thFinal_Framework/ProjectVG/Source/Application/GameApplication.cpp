@@ -56,6 +56,10 @@ GameApplication::GameApplication()
     // Scene
     _editorManager->RegisterEditorObject<EditorSceneMenuGameObject>();
     _editorManager->RegisterEditorObject<EditorSceneMenuScenes>();
+
+    // TestMenu. 추후 삭제 필요
+    _editorManager->RegisterEditorObject<SampleMenu>();
+    _editorManager->RegisterEditorObject<SampleMenu2>();
 }
 
 GameApplication::~GameApplication()
