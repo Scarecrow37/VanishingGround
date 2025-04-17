@@ -225,4 +225,10 @@ namespace PropertyUtils
     //field_type이 존재하면 해당 타입을 없으면 원본 타입 사용.
     template <typename T>
     using get_field_type_t = typename get_field_type<T>::type;
+
+    template <typename T>
+    concept is_setter = requires 
+    {
+        { T::is_setter } -> std::convertible_to<bool>;
+    } && T::is_setter;
 }

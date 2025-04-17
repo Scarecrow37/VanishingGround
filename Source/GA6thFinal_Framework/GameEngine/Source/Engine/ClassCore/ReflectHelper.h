@@ -190,8 +190,6 @@ protected:                                                                     \
             {                                                                  \
                 static_assert(FieldType::is_getter,                            \
                               "This property does not have a getter.");        \
-                static_assert(FieldType::is_setter,                            \
-                              "This property does not have a setter.");        \
                 ReflectHelper::ImGuiDraw::Private::InputAuto(field);           \
             }                                                                  \
             else                                                               \
@@ -312,9 +310,16 @@ namespace ReflectHelper
                         PropertyUtils::get_field_type_t<value_type>>;
                     constexpr bool isProperty =
                         PropertyUtils::is_TProperty_v<value_type>;
+                    constexpr bool isSetter = PropertyUtils::is_setter<value_type>;
+                    constexpr bool isLock = isProperty == true && isSetter == false;
 
                     bool  isEdit = false;
                     auto& val    = *value;
+
+                    if constexpr (isLock == true)
+                    {
+                        ImGui::BeginDisabled();
+                    }
 
                     if constexpr (std::is_same_v<OriginType, int>)
                     {
@@ -324,9 +329,12 @@ namespace ReflectHelper
                             InputAutoSetting::Int::step_fast,
                             InputAutoSetting::Int::flags);
 
-                        if (isEdit && ImGui::IsItemDeactivatedAfterEdit())
+                        if constexpr (isProperty == false || isSetter == true)
                         {
-                            val = input;
+                            if (isEdit && ImGui::IsItemDeactivatedAfterEdit())
+                            {
+                                val = input;
+                            }
                         }
                     }
                     else if constexpr (std::is_same_v<OriginType, float>)
@@ -338,9 +346,12 @@ namespace ReflectHelper
                             InputAutoSetting::Float::format.c_str(),
                             InputAutoSetting::Float::flags);
 
-                        if (isEdit && ImGui::IsItemDeactivatedAfterEdit())
+                        if constexpr (isProperty == false || isSetter == true)
                         {
-                            val = input;
+                            if (isEdit && ImGui::IsItemDeactivatedAfterEdit())
+                            {
+                                val = input;
+                            }
                         }
                     }
                     else if constexpr (std::is_same_v<OriginType, double>)
@@ -352,19 +363,25 @@ namespace ReflectHelper
                             InputAutoSetting::Double::format.c_str(),
                             InputAutoSetting::Double::flags);
 
-                        if (isEdit && ImGui::IsItemDeactivatedAfterEdit())
+                        if constexpr (isProperty == false || isSetter == true)
                         {
-                            val = input;
-                        }
+                            if (isEdit && ImGui::IsItemDeactivatedAfterEdit())
+                            {
+                                val = input;
+                            }
+                        }                      
                     }
                     else if constexpr (std::is_same_v<OriginType, bool>)
                     {
                         bool input = val;
                         isEdit     = ImGui::Checkbox(name, &input);
 
-                        if (isEdit && ImGui::IsItemDeactivatedAfterEdit())
+                        if constexpr (isProperty == false || isSetter == true)
                         {
-                            val = input;
+                            if (isEdit && ImGui::IsItemDeactivatedAfterEdit())
+                            {
+                                val = input;
+                            }
                         }
                     }
                     else if constexpr (std::is_same_v<OriginType, std::string>)
@@ -376,13 +393,15 @@ namespace ReflectHelper
                             InputAutoSetting::String::callback,
                             InputAutoSetting::String::user_data);
 
-                        if (isEdit && ImGui::IsItemDeactivatedAfterEdit())
+                        if constexpr (isProperty == false || isSetter == true)
                         {
-                            val = input;
+                            if (isEdit && ImGui::IsItemDeactivatedAfterEdit())
+                            {
+                                val = input;
+                            }
                         }
                     }
-                    else if constexpr (isProperty &&
-                                       std::is_same_v<OriginType, std::string_view>)
+                    else if constexpr (isProperty && std::is_same_v<OriginType, std::string_view>)
                     {
                         static std::string input;
                         input  = val;
@@ -391,13 +410,15 @@ namespace ReflectHelper
                             InputAutoSetting::String::callback,
                             InputAutoSetting::String::user_data);
 
-                        if (isEdit && ImGui::IsItemDeactivatedAfterEdit())
+                        if constexpr (isProperty == false || isSetter == true)
                         {
-                            val = input;
+                            if (isEdit && ImGui::IsItemDeactivatedAfterEdit())
+                            {
+                                val = input;
+                            }
                         }
                     }
-                    else if constexpr (isProperty &&
-                                       std::is_same_v<OriginType, DirectX::SimpleMath::Vector2>)
+                    else if constexpr (isProperty && std::is_same_v<OriginType, DirectX::SimpleMath::Vector2>)
                     {
                         DirectX::SimpleMath::Vector2 input = val;
                         isEdit                             = ImGui::DragFloat2(
@@ -407,13 +428,15 @@ namespace ReflectHelper
                             InputAutoSetting::Vector2::format.c_str(),
                             InputAutoSetting::Vector2::flags);
 
-                        if (isEdit)
+                        if constexpr (isProperty == false || isSetter == true)
                         {
-                            val = input;
+                            if (isEdit)
+                            {
+                                val = input;
+                            }
                         }
                     }
-                    else if constexpr (isProperty &&
-                                       std::is_same_v<OriginType, DirectX::SimpleMath::Vector3>)
+                    else if constexpr (isProperty && std::is_same_v<OriginType, DirectX::SimpleMath::Vector3>)
                     {
                         DirectX::SimpleMath::Vector3 input = val;
                         isEdit                             = ImGui::DragFloat3(
@@ -423,13 +446,15 @@ namespace ReflectHelper
                             InputAutoSetting::Vector3::format.c_str(),
                             InputAutoSetting::Vector3::flags);
 
-                        if (isEdit)
+                        if constexpr (isProperty == false || isSetter == true)
                         {
-                            val = input;
+                            if (isEdit)
+                            {
+                                val = input;
+                            }
                         }
                     }
-                    else if constexpr (isProperty &&
-                                       std::is_same_v<OriginType, DirectX::SimpleMath::Vector4>)
+                    else if constexpr (isProperty && std::is_same_v<OriginType, DirectX::SimpleMath::Vector4>)
                     {
                         DirectX::SimpleMath::Vector4 input = val;
                         isEdit                             = ImGui::DragFloat4(
@@ -439,9 +464,12 @@ namespace ReflectHelper
                             InputAutoSetting::Vector4::format.c_str(),
                             InputAutoSetting::Vector4::flags);
 
-                        if (isEdit)
+                        if constexpr (isProperty == false || isSetter == true)
                         {
-                            val = input;
+                            if (isEdit)
+                            {
+                                val = input;
+                            }
                         }
                     }
                     else
@@ -457,6 +485,10 @@ namespace ReflectHelper
                                 .c_str());
                     }
 
+                    if constexpr (isLock == true)
+                    {
+                        ImGui::EndDisabled();
+                    }
                     return isEdit;
                 };
 

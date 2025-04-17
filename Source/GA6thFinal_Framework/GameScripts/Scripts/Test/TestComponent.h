@@ -7,8 +7,14 @@ public:
     TestComponent();
     virtual ~TestComponent();
 
+    GETTER_ONLY(int, Inttttt)
+    { 
+        return iii;
+    }
+    PROPERTY(Inttttt)
 public:
     REFLECT_PROPERTY(
+        Inttttt,
         ReflectFields->doubleArray, 
         ReflectFields->floatVector
         )
@@ -21,6 +27,8 @@ protected:
     std::array<int, 10> doubleArray{1,2,3,4,5,6,7,8,9, 10};
     std::vector<float> floatVector{};
     REFLECT_FIELDS_END(TestComponent)
+
+    int iii = 0;
 
 protected:
     virtual void Reset() override;
