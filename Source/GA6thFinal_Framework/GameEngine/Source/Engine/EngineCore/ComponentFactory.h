@@ -21,6 +21,8 @@ public:
         static constexpr const wchar_t* SCRIPTS_DLL_PATH = L"..\\GameScripts\\bin\\Release";
         static constexpr const wchar_t* BUILD_BATCH_PATH = L"..\\GameScripts\\build_release.bat";
 #endif
+
+        
     };
 
 private:

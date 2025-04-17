@@ -23,13 +23,14 @@ public:
         static const std::vector<std::string>& GetGameObjectKeys();
     };
 
-
+#ifndef SCRIPTS_PROJECT
     /// <summary>
     /// 게임 오브젝트 클래스를 팩토리에서 생성 가능하도록 등록합니다.
     /// </summary>
     /// <typeparam name="TGameObject :">등록할 타입 파라미터</typeparam>
     template<IS_BASE_GAMEOBJECT_C TGameObject>
     void RegisterGameObject();
+#endif 
 
     /// <summary>
     /// 게임 오브젝트를 생성합니다. 생성된 오브젝트는 자동으로 씬에 등록됩니다.
@@ -83,6 +84,7 @@ private:
     instanceIDManager;
 };
 
+#ifndef SCRIPTS_PROJECT
 template<IS_BASE_GAMEOBJECT_C TGameObject>
 inline void EGameObjectFactory::RegisterGameObject()
 {
@@ -101,3 +103,5 @@ inline void EGameObjectFactory::RegisterGameObject()
         assert(!"This key is already registered.");
     }
 }
+#endif
+
