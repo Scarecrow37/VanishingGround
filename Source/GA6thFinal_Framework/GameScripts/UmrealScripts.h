@@ -25,3 +25,7 @@ UMREALSCRIPT_NEWCOMPONENT(CLASS_NAME)
 
 #include "Scripts\Test\TestComponent.h"
 UMREAL_COMPONENT(TestComponent)
+
+
+#include "Scripts\FileSystemTest/FileTestComponent.h"
+UMREAL_COMPONENT(FileTestComponent)

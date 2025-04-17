@@ -6,11 +6,11 @@ void EngineCoresModule::PreInitialize()
 {
     SafeEngineCoresPtr::Engine::CreateEngineCores();
     //engineCore->ComponentFactory.InitalizeComponentFactory();
-    engineCore->SceneManager.CreateScene("EmptyScene");
-    engineCore->SceneManager.LoadScene("EmptyScene");
+    engineCore->SceneManager.CreateScene("Empty Scene");
+    engineCore->SceneManager.LoadScene("Empty Scene");
 }
 
-void EngineCoresModule::PreUnInitialize()
+void EngineCoresModule::ModuleUnInitialize()
 {
     ESceneManager::Engine::CleanupSceneManager();
     engineCore->ComponentFactory.UninitalizeComponentFactory();

@@ -1,7 +1,7 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "PixelShader.h"
 #include "Sampler.h"
-#include <initguid.h> // GUID ÃÊ±âÈ­ ¸ÅÅ©·Î ÇÊ¿ä
+#include <initguid.h> // GUID ì´ˆê¸°í™” ë§¤í¬ë¡œ í•„ìš”
 
 DEFINE_GUID(IID_ID3D11ShaderReflection,
 	0x8d536ca1, 0x0cca, 0x4956, 0xa8, 0x37, 0x78, 0x69, 0x63, 0x75, 0x55, 0x84);
@@ -41,7 +41,7 @@ HRESULT PixelShader::LoadResource(const std::filesystem::path& filePath)
 	ID3D11Device* pDevice = g_pGraphicDevice->GetDevice();
 
 #ifdef _DEBUG
-	// ÄÄÆÄÀÏµÈ cso ÆÄÀÏ·ÎºÎÅÍ ½¦ÀÌ´õ Á¤º¸¸¦ ºÒ·¯¿È
+	// ì»´íŒŒì¼ëœ cso íŒŒì¼ë¡œë¶€í„° ì‰ì´ë” ì •ë³´ë¥¼ ë¶ˆëŸ¬ì˜´
 	std::vector<uint8_t> pixelShaderData;
 	CompileShader(pixelShaderData, filePath, "main", "ps_5_0");
 #else

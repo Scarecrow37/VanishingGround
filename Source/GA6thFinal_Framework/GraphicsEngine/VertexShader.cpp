@@ -1,4 +1,4 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "VertexShader.h"
 
 VertexShader::~VertexShader()
@@ -22,7 +22,7 @@ HRESULT VertexShader::LoadResource(const std::filesystem::path& filePath)
 	ID3D11Device* pDevice = g_pGraphicDevice->GetDevice();
 
 #ifdef _DEBUG
-	// ÄÄÆÄÀÏµÈ cso ÆÄÀÏ·ÎºÎÅÍ ½¦ÀÌ´õ Á¤º¸¸¦ ºÒ·¯¿È
+	// ì»´íŒŒì¼ëœ cso íŒŒì¼ë¡œë¶€í„° ì‰ì´ë” ì •ë³´ë¥¼ ë¶ˆëŸ¬ì˜´
 	std::vector<uint8_t> vertexShaderData;
 	CompileShader(vertexShaderData, filePath, "main", "vs_5_0");
 #else
@@ -34,7 +34,7 @@ HRESULT VertexShader::LoadResource(const std::filesystem::path& filePath)
 	}
 #endif
 
-	// ·ÎµåÇÑ ½¦ÀÌ´õ ÆÄÀÏÀÇ input semantic À» ÀĞ¾î¼­ ÀÎÇ² ·¹ÀÌ¾Æ¿ô ÀÚµ¿ »ı¼º
+	// ë¡œë“œí•œ ì‰ì´ë” íŒŒì¼ì˜ input semantic ì„ ì½ì–´ì„œ ì¸í’‹ ë ˆì´ì•„ì›ƒ ìë™ ìƒì„±
 	ID3D11ShaderReflection* pReflector = nullptr;
 	D3DReflect(vertexShaderData.data(), vertexShaderData.size(), IID_ID3D11ShaderReflection, (void**)&pReflector);
 

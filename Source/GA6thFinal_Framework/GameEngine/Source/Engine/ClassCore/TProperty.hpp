@@ -1,12 +1,4 @@
-﻿//REFLECT_PROPERTY 사용용 인터페이스. 최상위 부모만 상속 받으면 됨.
-struct IReflectProperty
-{
-    IReflectProperty() = default;
-    virtual ~IReflectProperty() = default;
-    virtual void ImGuiDrawPropertys() {} //프로퍼티 맴버들의 순회를 위한 함수입니다.
-};
-
-//프로퍼티 사용시 1회 포함
+﻿//프로퍼티 사용시 1회 포함
 #define USING_PROPERTY(class_name)                                                             \
 using property_class_type = class_name;                                                                           
 
@@ -44,15 +36,13 @@ SETTER(type, property_name)
 
 #define PROPERTY(property_name)                                                                \
 TProperty<property_class_type, property_name##_property_getter_struct, property_name##_property_setter_struct> property_name{this};                \
-using property_name##_property_t = TProperty<property_class_type, property_name##_property_getter_struct, property_name##_property_setter_struct>; \
-friend property_name##_property_t;                                                                                                                 
+using property_name##_property_t = TProperty<property_class_type, property_name##_property_getter_struct, property_name##_property_setter_struct>;                                                                                                               
                                                                                                                             
 struct property_void_type
 {
     using Type = void;
 };
 
-//Set, Get 함수 선언 도움을 위한 헬퍼 템플릿 클래스
 template <typename owner_type, class getter, class setter>
 class TProperty
 {
@@ -87,11 +77,11 @@ private:
     setterType _setter{};
     const type_info& type_id;
 
-    field_type Getter() const
+    field_type Getter() const requires(is_getter)
     {
         return _getter(_propertyOwner);
     }
-    void Setter(const field_type& rhs)
+    void Setter(const field_type& rhs) requires(is_setter)
     {
         _setter(_propertyOwner, rhs);
     }

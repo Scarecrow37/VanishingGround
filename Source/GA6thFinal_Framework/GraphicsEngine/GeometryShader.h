@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "Shader.h"
 
 class GeometryShader : public Shader
@@ -17,7 +17,7 @@ public:
 	void SetGeometryShader();
 
 public:
-	// ResourceÀ»(¸¦) ÅëÇØ »ó¼ÓµÊ
+	// Resourceì„(ë¥¼) í†µí•´ ìƒì†ë¨
 	HRESULT LoadResource(const std::filesystem::path& filePath) override;
 
 private:

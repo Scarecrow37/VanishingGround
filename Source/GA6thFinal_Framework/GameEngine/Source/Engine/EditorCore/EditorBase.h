@@ -19,8 +19,12 @@ public:
 /*
 에디터에 출력되는 창(프레임) 단위의 객체에 상속하기 위한 객체
 */
-class EditorBase
+class EditorBase : public ReflectSerializer
 {
+protected:
+    REFLECT_FIELDS_BEGIN(ReflectSerializer)
+    REFLECT_FIELDS_END(EditorBase)
+
 public:
     EditorBase() = default;
     virtual ~EditorBase() = default;
@@ -38,7 +42,7 @@ public:
     virtual void    OnEndGui() = 0;
 public:
     /* 이름 설정 (기본적으로 중복을 비허용.) */
-    inline void         SetLabel(std::string_view label) { _label = label; }
+    inline void         SetLabel(const std::string& label) { _label = label; }
     inline const auto&  GetLabel() { return _label; }
     /* 활성화 여부 설정 */
     inline void         SetVisible(bool v) { _isVisible = v; }

@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 using namespace Global;
+using namespace u8_literals;
 
 EComponentFactory::EComponentFactory()
 {
@@ -10,7 +11,7 @@ EComponentFactory::~EComponentFactory() = default;
 bool EComponentFactory::InitalizeComponentFactory()
 {
     //복구해야할 컴포넌트 항목들
-    static std::vector<std::tuple<GameObject*, std::string, int>> addList;
+    static std::vector<std::tuple<GameObject*, std::string, int, std::string>> addList;
     addList.clear();
 
     DWORD exitCodeOut{};
@@ -28,7 +29,7 @@ bool EComponentFactory::InitalizeComponentFactory()
             if (auto component = wptr.lock())
             {
                 int index = component->GetComponentIndex();
-                addList.emplace_back(component->_gameObect, key, index);
+                addList.emplace_back(component->_gameObect, key, index, component->SerializedReflectFields());
                 component->_gameObect->_components[index].reset(); //컴포넌트 파괴
             }
         }
@@ -107,22 +108,23 @@ bool EComponentFactory::InitalizeComponentFactory()
     }
 
     //파괴된 컴포넌트 재생성 및 복구
-    for (auto& [gameObject, key, index] : addList)
+    for (auto& [gameObject, key, index, reflectData] : addList)
     {
         auto findIter = m_NewScriptsFunctionMap.find(key);
         if (findIter != m_NewScriptsFunctionMap.end())
         {
             //컴포넌트 존재하면 다시 생성
             std::shared_ptr<Component> newComponent = NewComponent(key);
-            ResetComponent(gameObject, newComponent.get()); //엔진에서 사용하기 위해 초기화
-            newComponent->_initFlags.SetAwake();            //초기화 플래그 설정
-            newComponent->_initFlags.SetStart();            //초기화 플래그 설정
-            newComponent->_index = index;                  //인덱스 제대로 재설정
-            gameObject->_components[index] = newComponent;
+            ResetComponent(gameObject, newComponent.get());       //엔진에서 사용하기 위해 초기화
+            newComponent->_initFlags.SetAwake();                  //초기화 플래그 설정
+            newComponent->_initFlags.SetStart();                  //초기화 플래그 설정
+            newComponent->_index = index;                         //인덱스 제대로 재설정
+            newComponent->DeserializedReflectFields(reflectData); //데이터 복구
+            gameObject->_components[index] = newComponent;  
         }
     }
     //존재 안하는거는 전부 제거
-    for (auto& [gameObject, key, index] : addList)
+    for (auto& [gameObject, key, index, reflectData] : addList)
     {
         std::erase_if(gameObject->_components, [](auto& sptr)
             {
@@ -167,7 +169,47 @@ bool EComponentFactory::AddComponentToObject(GameObject* ownerObject, std::strin
 
 void EComponentFactory::MakeScriptFile(const char* fileName) const
 {
-    MakeScriptFunc(fileName);
+    if (m_scriptsDll != NULL)
+    {
+        MakeScriptFunc(fileName);
+    }
+    else
+    {
+        engineCore->EngineLogger.Log(LogLevel::LEVEL_ERROR,
+                                     u8"Script DLL을 빌드해주세요!"_c_str);
+    }
+}
+
+YAML::Node EComponentFactory::SerializeToYaml(Component* component)
+{
+    if (UmComponentFactory.HasScript() == false)
+    {
+        UmEngineLogger.Log(LogLevel::LEVEL_ERROR,
+                           u8"스크립트 빌드를 해주세요."_c_str);
+        return YAML::Node();
+    }
+    return MakeYamlToComponent(component);
+}
+
+bool EComponentFactory::DeserializeToYaml(GameObject* ownerObject,
+                                          YAML::Node* componentNode)
+{
+    if (UmComponentFactory.HasScript() == false)
+    {
+        UmEngineLogger.Log(LogLevel::LEVEL_ERROR,
+                           u8"스크립트 빌드를 해주세요."_c_str);
+        return false;
+    }
+    if (std::shared_ptr<Component> component = MakeComponentToYaml(ownerObject, componentNode))
+    {
+        ownerObject->_components.emplace_back(component); // 오브젝트에 추가
+        ESceneManager::Engine::AddComponentToLifeCycle(component); // 씬에 등록
+    }
+    else
+    {
+        return false;
+    }
+    return true;
 }
 
 std::shared_ptr<Component> EComponentFactory::NewComponent(std::string_view typeid_name)
@@ -192,4 +234,23 @@ void EComponentFactory::ResetComponent(GameObject* ownerObject, Component* compo
 
     component->Reset();
     //end
+}
+
+YAML::Node EComponentFactory::MakeYamlToComponent(Component* component)
+{
+    YAML::Node node;
+    node["Type"] = typeid(*component).name();
+    node["ReflectFields"] = component->SerializedReflectFields();
+    return node;
+}
+
+std::shared_ptr<Component> EComponentFactory::MakeComponentToYaml(GameObject* ownerObject, YAML::Node* pComponentNode)
+{
+    YAML::Node& node = *pComponentNode;
+    std::string Type = node["Type"].as<std::string>();
+    std::shared_ptr<Component> component = NewComponent(Type);
+    ResetComponent(ownerObject, component.get());
+    std::string ReflectFields = node["ReflectFields"].as<std::string>();
+    component->DeserializedReflectFields(ReflectFields);
+    return component;
 }

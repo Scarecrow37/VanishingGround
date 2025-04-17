@@ -6,7 +6,7 @@ Transform::Transform(GameObject& owner)
     _root(nullptr),
     _parent(nullptr),
 
-    _isDirty(true),
+    _hasChanged(true),
     _position(),
     _rotation(),
     _scale(1,1,1)
@@ -16,30 +16,30 @@ Transform::Transform(GameObject& owner)
 }
 Transform::~Transform()
 {
+    DetachChildren();
     EraseParent();
-    std::vector<Transform*> transformStack;
-    for (auto& transform : _childsList)
-    {
-        transformStack.push_back(transform);
-    }
-    this->DetachChildren();
-    while (!_childsList.empty())
-    {
-        Transform* currTr = transformStack.back();
-        transformStack.pop_back();
-        for (auto& transform : currTr->_childsList)
-        {
-            transformStack.push_back(transform);
-        }
-        currTr->DetachChildren();
-    }
 }
 
 void Transform::DetachChildren()
 {
     for (auto& child : _childsList)
     {
-        child->SetParent(nullptr);
+        bool isParent = child->_parent != nullptr;
+        if (isParent)
+        {
+            child->_root = nullptr;
+            child->_parent = nullptr;
+            SetChildsRootParent(this);
+        }
+    }
+    if (_childsList.empty() == false)
+    {
+        std::erase_if(
+            _childsList,
+            [](Transform* child)
+            { 
+                return child->_parent == nullptr;
+            }); 
     }
 }
 
@@ -51,7 +51,7 @@ void Transform::SetParent(Transform* p)
     }
     else //부모 관계 변경
     {
-        if (p == this || p == _parent || IsDescendantOf(this))
+        if (p == this || p->IsDescendantOf(this))
         {
             return;
         }
@@ -68,7 +68,7 @@ void Transform::SetParent(Transform* p)
             SetChildsRootParent(_root);
         }
     }
-    _isDirty = true;
+    _hasChanged = true;
 }
 
 void Transform::SetParent(Transform& p)
@@ -106,39 +106,32 @@ bool Transform::IsDescendantOf(Transform* potentialAncestor) const
 
 void Transform::SerializedReflectEvent()
 {
-    std::memcpy(ReflectionFields->position.data(), & _position.x, sizeof(ReflectionFields->position));
-    std::memcpy(ReflectionFields->rotation.data(), &_rotation.x, sizeof(ReflectionFields->rotation));
-    std::memcpy(ReflectionFields->eulerAngle.data(), &_eulerAngle.x, sizeof(ReflectionFields->eulerAngle));
-    std::memcpy(ReflectionFields->scale.data(), &_scale.x, sizeof(ReflectionFields->scale));
+    std::memcpy(ReflectFields->position.data(), & _position.x, sizeof(ReflectFields->position));
+    std::memcpy(ReflectFields->rotation.data(), &_rotation.x, sizeof(ReflectFields->rotation));
+    std::memcpy(ReflectFields->eulerAngle.data(), &_eulerAngle.x, sizeof(ReflectFields->eulerAngle));
+    std::memcpy(ReflectFields->scale.data(), &_scale.x, sizeof(ReflectFields->scale));
 }
 
 void Transform::DeserializedReflectEvent()
 {
-    _position = Vector3(ReflectionFields->position.data());
-    _rotation = Quaternion(ReflectionFields->rotation.data());
-    _eulerAngle = Vector3(ReflectionFields->eulerAngle.data());
-    _scale = Vector3(ReflectionFields->scale.data());
+    _position = Vector3(ReflectFields->position.data());
+    _rotation = Quaternion(ReflectFields->rotation.data());
+    _eulerAngle = Vector3(ReflectFields->eulerAngle.data());
+    _scale = Vector3(ReflectFields->scale.data());
 
-    _isDirty = true;
+    _hasChanged = true;
 }
 
-void Transform::SetChildsRootParent(Transform* _root)
+void Transform::SetChildsRootParent(Transform* root)
 {
-    std::vector<Transform*> transformStack;
-    for (auto& tr : _childsList)
+    for (auto& child : _childsList)
     {
-        transformStack.push_back(tr);
-    }
-    while (!transformStack.empty())
-    {
-        Transform* curr = transformStack.back();
-        transformStack.pop_back();
-
-        curr->_root = _root;
-        for (auto& tr : curr->_childsList)
-        {
-            transformStack.push_back(tr);
-        }
+        Transform::ForeachDFS(
+            *child, 
+            [root](Transform* pTransform) 
+            { 
+                pTransform->_root = root; 
+            });
     }
 }
 
@@ -156,4 +149,25 @@ Transform* Transform::Find(std::string_view name) const
         }
     }
     return nullptr;
+}
+
+void Transform::UpdateMatrix()
+{
+    ForeachDFS(*this, [](Transform* curr) 
+    {
+        curr->_localMatrix = Matrix::CreateScale(curr->_scale) *
+                             Matrix::CreateFromQuaternion(curr->_rotation) *
+                             Matrix::CreateTranslation(curr->_position);
+        if (curr->_parent == nullptr)
+        {
+            curr->_worldMatrix = curr->_localMatrix;
+        }
+        else
+        {
+            curr->_worldMatrix =
+                curr->_localMatrix * curr->_parent->_worldMatrix;
+        }
+        curr->_inversWorldMatrix = curr->_worldMatrix.Invert();
+        curr->_hasChanged = false;
+    });
 }
