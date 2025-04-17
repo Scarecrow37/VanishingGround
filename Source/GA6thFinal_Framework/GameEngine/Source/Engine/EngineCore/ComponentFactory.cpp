@@ -114,21 +114,48 @@ bool EComponentFactory::InitalizeComponentFactory()
     }
 
     //파괴된 컴포넌트 재생성 및 복구
+    MissingComponent missingTemp;
     for (auto& [gameObject, key, index, reflectData] : addList)
     {
+        bool isMissing = false;
+        if (key == typeid(MissingComponent).name())
+        {
+            missingTemp.DeserializedReflectFields(reflectData);
+            key = missingTemp.ReflectFields->typeName;
+            isMissing = true;
+        }
+        std::shared_ptr<Component> newComponent;
         auto findIter = _newScriptsFunctionMap.find(key);
-        if (findIter != _newScriptsFunctionMap.end())
+        bool isFind   = findIter != _newScriptsFunctionMap.end();
+        if (isFind)
         {
             //컴포넌트 존재하면 다시 생성
-            std::shared_ptr<Component> newComponent = NewComponent(key);
-            ResetComponent(gameObject, newComponent.get());       //엔진에서 사용하기 위해 초기화
-            newComponent->_initFlags.SetAwake();                  //초기화 플래그 설정
-            newComponent->_initFlags.SetStart();                  //초기화 플래그 설정
-            newComponent->_index = index;                         //인덱스 제대로 재설정
-            newComponent->DeserializedReflectFields(reflectData); //데이터 복구
-            gameObject->_components[index] = newComponent;  
+            newComponent = NewComponent(key);
         }
+        else
+        {
+            std::shared_ptr<MissingComponent> missing = NewMissingComponent();
+            missing->ReflectFields->typeName = key;
+            missing->ReflectFields->reflectData = reflectData;
+            newComponent = std::move(missing);
+        }
+        ResetComponent(gameObject, newComponent.get());       // 엔진에서 사용하기 위해 초기화
+        newComponent->_initFlags.SetAwake();                  // 초기화 플래그 설정
+        newComponent->_initFlags.SetStart();                  // 초기화 플래그 설정
+        gameObject->_components[index] = newComponent;  
+        if (isFind == true)
+        {
+            if (isMissing == true)
+            {
+                reflectData = missingTemp.ReflectFields->reflectData;
+            }
+            if (reflectData.empty() == false)
+            {
+                newComponent->DeserializedReflectFields(reflectData); // 데이터 복구
+            }          
+        }     
     }
+
     //존재 안하는거는 전부 제거
     for (auto& [gameObject, key, index, reflectData] : addList)
     {
@@ -236,6 +263,13 @@ std::shared_ptr<Component> EComponentFactory::NewComponent(std::string_view type
         _componentInstanceVec.emplace_back(name, newComponent);   //추적용 weak_ptr 생성 
     }
     return newComponent;
+}
+
+std::shared_ptr<MissingComponent> EComponentFactory::NewMissingComponent()
+{
+    std::shared_ptr<MissingComponent> missing = std::make_shared<MissingComponent>();
+    _componentInstanceVec.emplace_back(typeid(MissingComponent).name(), missing);
+    return missing;
 }
 
 void EComponentFactory::ResetComponent(GameObject* ownerObject, Component* component)

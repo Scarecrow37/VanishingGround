@@ -1,6 +1,7 @@
 ﻿#pragma once
 class GameObject;
 class Component;
+class MissingComponent;
 class EngineCores;
 
 template<typename T>
@@ -135,6 +136,9 @@ private:
     //컴포넌트를 동적할당후 shared_ptr로 반환합니다.
     //매개변수로 생성할 컴포넌트 typeid().name()을 전달해야합니다.
     std::shared_ptr<Component> NewComponent(std::string_view typeid_name);
+
+    //내부에서 사용하는 Missing Component 생성용 함수
+    std::shared_ptr<MissingComponent> NewMissingComponent();
 
     //컴포넌트를 엔진에 사용하기 위해 초기화합니다.
     //초기화 후 컴포넌트의 Reset을 호출합니다.

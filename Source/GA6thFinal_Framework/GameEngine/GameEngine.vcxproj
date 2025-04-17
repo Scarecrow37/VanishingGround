@@ -175,6 +175,7 @@
     <ClInclude Include="Source\Engine\AppModule\ImGuiDX11Module.h" />
     <ClInclude Include="Source\Engine\AppModule\Interface\IAppModule.h" />
     <ClInclude Include="Source\Engine\FileSystem\Type\FileDataType.h" />
+    <ClInclude Include="Source\Engine\GameCore\Component\MissingComponent.h" />
     <ClInclude Include="Source\Engine\Utility\FileHelper.h" />
     <ClInclude Include="Source\Engine\Utility\LogLevel.h" />
     <ClInclude Include="Source\Engine\Utility\Mathf.h" />
@@ -254,6 +255,7 @@
     <ClCompile Include="Source\Engine\EngineCore\TimeSystem.cpp" />
     <ClCompile Include="Source\Engine\FileSystem\Type\FileDataType.cpp" />
     <ClCompile Include="Source\Engine\GameCore\Component\Component.cpp" />
+    <ClCompile Include="Source\Engine\GameCore\Component\MissingComponent.cpp" />
     <ClCompile Include="Source\Engine\GameCore\GameObject\GameObject.cpp" />
     <ClCompile Include="Source\Engine\GameCore\Transform\Transform.cpp" />
     <ClCompile Include="Source\Engine\Graphics\GraphicsModule.cpp" />

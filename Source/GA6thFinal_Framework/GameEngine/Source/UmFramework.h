@@ -113,6 +113,7 @@ constexpr const wchar_t* PROJECT_SETTING_PATH = L"ProjectSetting"; // 프로젝�
 #include "Engine/GameCore/Transform/Transform.h"
 #include "Engine/GameCore/GameObject/GameObject.h"
 #include "Engine/GameCore/Component/Component.h"
+#include "Engine/GameCore/Component/MissingComponent.h"
 
 //Application Module
 #include "Engine/AppModule/EngineCoresModule.h"
