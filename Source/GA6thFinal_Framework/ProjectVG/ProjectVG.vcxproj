@@ -144,9 +144,6 @@
     <ProjectReference Include="..\GameEngine\GameEngine.vcxproj">
       <Project>{84fd41b3-de6f-4849-b1f4-6ea34a891299}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\GraphicsEngine\GraphicsEngine.vcxproj">
-      <Project>{430787d0-e854-42b2-b20b-feb0da87a60a}</Project>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Application\GameApplication.h" />

@@ -152,6 +152,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Source\Engine\Utility\EditorHelper.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\RenderPass.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\RenderTechnique.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\RenderScene.h" />
     <ClInclude Include="Source\Editor\DragDropTypes\DragDropTransform.h" />
     <ClInclude Include="Source\Editor\Menu\Project\EditorProjectMenu.h" />
     <ClInclude Include="Source\Editor\Menu\Scene\EditorSceneMenu.h" />
@@ -173,10 +176,46 @@
     <ClInclude Include="Source\Engine\EditorCore\EditorTool.h" />
     <ClInclude Include="Source\Engine\EditorCore\EditorDockSpace.h" />
     <ClInclude Include="Source\Engine\AppModule\EngineCoresModule.h" />
-    <ClInclude Include="Source\Engine\AppModule\ImGuiDX11Module.h" />
+    <ClInclude Include="Source\Engine\AppModule\ImGuiDX12Module.h" />
     <ClInclude Include="Source\Engine\AppModule\Interface\IAppModule.h" />
     <ClInclude Include="Source\Engine\FileSystem\Type\FileDataType.h" />
     <ClInclude Include="Source\Engine\Utility\FileHelper.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\Animation.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\BaseMesh.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\Box.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\Camera.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\Cylinder.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\Defines.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\Device.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\DX12Practice.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\Enums.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\Externs.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\FBXImporter.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\Font.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\FontManager.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\FrameResource.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\FX.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\GeometryGenerator.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\GeoSphere.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\GraphicsCore.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\GraphicsModule.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\Grid.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\Model.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\MultiRenderTargetManager.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\Quad.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\Renderer.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\RenderTarget.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\Resource.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\ResourceManager.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\Shader.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\Skeleton.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\Sphere.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\Structs.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\StructuredBuffer.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\TempObject.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\Texture.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\VIBuffer.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\ViewManager.h" />
     <ClInclude Include="Source\Engine\Utility\LogLevel.h" />
     <ClInclude Include="Source\Engine\Utility\Mathf.h" />
     <ClInclude Include="Source\Engine\Utility\stlHelper.h" />
@@ -194,7 +233,6 @@
     <ClInclude Include="Source\Engine\GameCore\Component\Component.h" />
     <ClInclude Include="Source\Engine\GameCore\GameObject\GameObject.h" />
     <ClInclude Include="Source\Engine\GameCore\Transform\Transform.h" />
-    <ClInclude Include="Source\Engine\Graphics\GraphicsModule.h" />
     <ClInclude Include="Source\Engine\Imgui\crude_json.h" />
     <ClInclude Include="Source\Engine\Imgui\imgui_bezier_math.h" />
     <ClInclude Include="Source\Engine\Imgui\imgui_canvas.h" />
@@ -222,6 +260,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Engine\Utility\EditorHelper.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\RenderPass.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\RenderTechnique.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\RenderScene.cpp" />
     <ClCompile Include="Source\Editor\Menu\Project\EditorProjectMenu.cpp" />
     <ClCompile Include="Source\Editor\Menu\Scene\EditorSceneMenu.cpp" />
     <ClCompile Include="Source\Editor\Menu\Setting\EditorSettingMenu.cpp" />
@@ -242,7 +283,7 @@
     <ClCompile Include="Source\Engine\EditorCore\EditorTool.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\EditorDockSpace.cpp" />
     <ClCompile Include="Source\Engine\AppModule\EngineCoresModule.cpp" />
-    <ClCompile Include="Source\Engine\AppModule\ImGuiDX11Module.cpp" />
+    <ClCompile Include="Source\Engine\AppModule\ImGuiDX12Module.cpp" />
     <ClCompile Include="Source\Engine\ClassCore\ReflectHelper.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\EditorBase.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\EditorEnum.cpp" />
@@ -258,7 +299,37 @@
     <ClCompile Include="Source\Engine\GameCore\Component\Component.cpp" />
     <ClCompile Include="Source\Engine\GameCore\GameObject\GameObject.cpp" />
     <ClCompile Include="Source\Engine\GameCore\Transform\Transform.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\GraphicsModule.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\Animation.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\BaseMesh.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\Box.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\Camera.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\Cylinder.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\Device.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\FBXImporter.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\Font.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\FontManager.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\FrameResource.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\FX.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\GeometryGenerator.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\GeoSphere.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\GraphicsCore.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\GraphicsModule.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\Grid.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\Model.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\MultiRenderTargetManager.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\Quad.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\Renderer.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\RenderTarget.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\Resource.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\ResourceManager.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\Shader.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\Skeleton.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\Sphere.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\StructuredBuffer.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\TempObject.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\Texture.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\VIBuffer.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\ViewManager.cpp" />
     <ClCompile Include="Source\Engine\Imgui\crude_json.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
