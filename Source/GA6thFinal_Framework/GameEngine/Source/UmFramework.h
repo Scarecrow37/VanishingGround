@@ -10,6 +10,8 @@ constexpr bool IS_SCRIPTS_PROJECT = false;
 
 constexpr const wchar_t* PROJECT_SETTING_PATH = L"ProjectSetting"; // 프로젝트 설정 파일들 모아두는 폴더
 
+#define DIRECTX_TOOLKIT_IMPORT
+
 //WINDOW SDK
 #include <Windows.h>
 #include <dbghelp.h>
