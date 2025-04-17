@@ -19,8 +19,8 @@ EditorAssetBrowserTool::~EditorAssetBrowserTool()
 
 void EditorAssetBrowserTool::OnStartGui()
 {
-    _focusForder =
-        UmFileSystem.GetContext<File::ForderContext>(FileSystemModule::_rootPath);
+    _focusForder = UmFileSystem.GetContext<File::ForderContext>(
+        File::Path(UmFileSystem.GetRootPath()));
 }
 
 void EditorAssetBrowserTool::OnPreFrame()
@@ -33,7 +33,7 @@ void EditorAssetBrowserTool::OnFrame()
 
     // 왼쪽: 폴더 트리
     ImGui::BeginChild("FolderHierarchyView", ImVec2(0, 0), true);
-    ShowFolderHierarchy(FileSystemModule::_rootPath);
+    ShowFolderHierarchy(UmFileSystem.GetRootPath());
     ImGui::EndChild();
 
     ImGui::NextColumn();
@@ -53,6 +53,9 @@ void EditorAssetBrowserTool::OnPostFrame()
 // 왼쪽: 폴더 트리 표시 (재귀)
 void EditorAssetBrowserTool::ShowFolderHierarchy(const File::Path& folderPath)
 {
+    if (false == fs::exists(folderPath))
+        return;
+
     std::string id =
         folderPath.filename().string() + "##" + folderPath.string();
 
@@ -109,7 +112,7 @@ void EditorAssetBrowserTool::ShowContentsToList()
                 File::Path  path = spFileContext->GetPath();
                 std::string id   = name.string() + "##" + path.string();
 
-                bool isMeta = path.extension() == File::MetaData::EXTENSION;
+                bool isMeta = path.extension() == UmFileSystem.GetMetaExt();
 
                 if (true == mAssetBrowserFlags[ShowMetaFile] ||
                     (false == mAssetBrowserFlags[ShowMetaFile] &&

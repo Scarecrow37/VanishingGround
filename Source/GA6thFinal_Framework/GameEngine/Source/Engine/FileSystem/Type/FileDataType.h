@@ -65,9 +65,14 @@ namespace File
         inline static const char* FILE_GUID_HEADER = "File Guid";
         inline static const char* PROJ_GUID_HEADER = "Project Guid";
     public:
-        inline static const char* EXTENSION = ".META";
     };
 
+    struct SystemSetting
+    {
+        int         DebugLevel = 0; // 디버그 레벨
+        std::string RootPath   = "Assets";
+        std::string MetaExt    = ".META";
+    };
 } // namespace File
 
 namespace std

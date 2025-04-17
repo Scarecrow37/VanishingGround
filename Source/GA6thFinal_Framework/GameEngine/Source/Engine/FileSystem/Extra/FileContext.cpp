@@ -29,7 +29,7 @@ namespace File
     {
         // 파일과 메타의 경로(확장자)를 헷갈리지 말자
         File::Path metaPath = _path;
-        metaPath.replace_extension(MetaData::EXTENSION);
+        metaPath.replace_extension(UmFileSystem.GetMetaExt());
 
         // 처음엔 어차피 Null이므로 false가 반환된다.
         if (false == _meta.Move(metaPath))
