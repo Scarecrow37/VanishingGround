@@ -23,9 +23,6 @@ class FileSystemModule : public IAppModule
     using NotifierSet = std::unordered_set<File::FileEventNotifier*>;
 
 public:
-    inline static const File::Path _rootPath = "Assets";
-
-public:
     FileSystemModule();
     ~FileSystemModule();
 public:

@@ -35,5 +35,24 @@ public:
     virtual void OnMenu() override;
     virtual void OnTickGui() override;
 private:
-    bool _isOpenStyleEditor = false;
+    bool _isOpenGui = false;
+};
+
+class EditorMenuFileSystemSetting : public EditorMenu
+{
+public:
+    EditorMenuFileSystemSetting()
+    {
+        SetCallOrder(0);
+        SetPath("Setting/FileSystem");
+        SetLabel("");
+    }
+    virtual ~EditorMenuFileSystemSetting() = default;
+
+public:
+    virtual void OnMenu() override;
+    virtual void OnTickGui() override;
+
+private:
+    bool _isOpenGui = false;
 };

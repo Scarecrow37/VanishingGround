@@ -11,15 +11,36 @@ void EditorMenuDebug::OnMenu()
 
 void EditorMenuStyleEditor::OnMenu()
 {
-    ImGui::MenuItem("Style", "", &_isOpenStyleEditor);
+    if (ImGui::MenuItem("Style", ""))
+    {
+        _isOpenGui = !_isOpenGui;
+    }
 }
 
 void EditorMenuStyleEditor::OnTickGui()
 {
-    if (true == _isOpenStyleEditor)
+    if (true == _isOpenGui)
     {
-        ImGui::Begin("StyleEditor", &_isOpenStyleEditor, ImGuiWindowFlags_NoDocking);
+        ImGui::Begin("StyleEditor", &_isOpenGui, ImGuiWindowFlags_NoDocking);
         ImGui::ShowStyleEditor();
+        ImGui::End();
+    }
+}
+
+void EditorMenuFileSystemSetting::OnMenu() 
+{
+    if (ImGui::MenuItem("Setting", ""))
+    {
+        _isOpenGui = !_isOpenGui;
+    }
+}
+
+void EditorMenuFileSystemSetting::OnTickGui() 
+{
+    if (true == _isOpenGui)
+    {
+        ImGui::Begin("FileSystemSetting", &_isOpenGui, ImGuiWindowFlags_NoDocking);
+        UmFileSystem.DrawGuiSettingEditor();
         ImGui::End();
     }
 }
