@@ -21,7 +21,7 @@ namespace File
         FileObserver();
         ~FileObserver();
     public:
-        bool Start(const std::wstring& path, const CallBackFunc& callback);
+        bool Start(const File::Path& path, const CallBackFunc& callback);
         void Stop();
     private:
         void SetHandles();

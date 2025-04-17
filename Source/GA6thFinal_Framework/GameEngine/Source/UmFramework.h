@@ -72,6 +72,7 @@ constexpr const wchar_t* PROJECT_SETTING_PATH = L"ProjectSetting"; // 프로젝�
 #include "Engine/Utility/dllUtility.h"
 #include "Engine/Utility/ImGuiHelper.h"
 #include "Engine/Utility/stlHelper.h"
+#include "Engine/Utility/EditorHelper.h"
 #include "Engine/Utility/Mathf.h"
 
 //Class Core

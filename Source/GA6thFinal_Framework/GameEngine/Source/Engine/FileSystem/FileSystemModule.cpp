@@ -16,17 +16,20 @@ void FileSystemModule::PreInitialize()
 
 void FileSystemModule::ModuleInitialize()
 {
+    File::Path filename  = L"filesystem.setting";
+    File::Path directory = PROJECT_SETTING_PATH;
+    UmFileSystem.LoadSetting(directory / filename);
+
     UmFileSystem.RegisterFileEventNotifier(new SampleNotifier,
                                            {".txt", ".png", ".dds"});
-    UmFileSystem.SetDebugLevel(1);
-
-    UmFileSystem.ReadDirectory(_rootPath);
 
     _observer = new File::FileObserver();
-    _observer->Start(_rootPath,
+    _observer->Start(UmFileSystem.GetRootPath(),
                      [this](const Event& event) { 
         RecieveFileEvent(event);
     });
+
+    UmFileSystem.Reload();
 }
 
 void FileSystemModule::PreUnInitialize() 
@@ -67,8 +70,10 @@ void FileSystemModule::DispatchFileEvent()
     {
         const auto& [lParam, rParam, eventType] = _eventQueue.front();
 
-        File::Path lp = (_rootPath / lParam).generic_string();
-        File::Path rp = (_rootPath / rParam).generic_string();
+        const File::Path& rootPath = UmFileSystem.GetRootPath();
+
+        File::Path lp = (rootPath / lParam).generic_string();
+        File::Path rp = (rootPath / rParam).generic_string();
 
         if (true == UmFileSystem.IsValidExtension(lp.extension()))
         {

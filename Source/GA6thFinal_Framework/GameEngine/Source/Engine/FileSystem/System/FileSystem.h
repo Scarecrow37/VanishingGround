@@ -14,8 +14,12 @@ class EFileSystem
     using NotifierSet = std::unordered_set<File::FileEventNotifier*>;
 
 public:
-    void SetDebugLevel(int level);
-    int  GetDebugLevel();
+    bool SaveSetting(const File::Path& path);
+    bool LoadSetting(const File::Path& path);
+
+    inline int         GetDebugLevel() const { return _setting.DebugLevel; }
+    inline const auto& GetRootPath() const { return _setting.RootPath; }
+    inline const auto& GetMetaExt() const { return _setting.MetaExt; }
 
     bool IsVaildGuid(const File::Guid& guid);
     bool IsValidExtension(const File::FString& ext);
@@ -69,6 +73,8 @@ public:
 
     NotifierSet GetNotifiers(const File::FString& ext);
 
+    void DrawGuiSettingEditor();
+
 public:
     void RegisterFileEventNotifier(
         File::FileEventNotifier*                  notifier,
@@ -76,6 +82,7 @@ public:
     void UnRegisterFileEventNotifier(File::FileEventNotifier* notifier);
 
 public:
+    void Reload();
     void Clear();
     void ReadDirectory(const File::Path& path);
     void AddedFile(const File::Path& path);
@@ -84,6 +91,8 @@ public:
     void MovedFile(const File::Path& oldPath, const File::Path& newPath);
 
 private:
+    File::SystemSetting _setting;   // 세팅 정보
+
     std::unordered_set<std::shared_ptr<File::Context>>
         _contextTable; // 원본 컨텍스트 포인터를 관리하는 테이블
     std::unordered_map<File::Path, std::weak_ptr<File::Context>>
@@ -92,6 +101,4 @@ private:
         _guidToPathTable; // ID를 통해 파일 경로를 찾는 테이블
     std::unordered_map<File::FString, NotifierSet>
         _notifierTable; // Notifier 테이블
-
-    int _debugLevel = 0;
 };
