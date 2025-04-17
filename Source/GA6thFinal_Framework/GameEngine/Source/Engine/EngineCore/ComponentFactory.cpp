@@ -120,6 +120,7 @@ bool EComponentFactory::InitalizeComponentFactory()
         bool isMissing = false;
         if (key == typeid(MissingComponent).name())
         {
+            //Missing 컴포넌트면 데이터 복구
             missingTemp.DeserializedReflectFields(reflectData);
             key = missingTemp.ReflectFields->typeName;
             isMissing = true;
@@ -134,6 +135,7 @@ bool EComponentFactory::InitalizeComponentFactory()
         }
         else
         {
+            //없어진 컴포넌트면 Missing으로 대체
             std::shared_ptr<MissingComponent> missing = NewMissingComponent();
             missing->ReflectFields->typeName = key;
             missing->ReflectFields->reflectData = reflectData;
@@ -147,6 +149,7 @@ bool EComponentFactory::InitalizeComponentFactory()
         {
             if (isMissing == true)
             {
+                //Missing 컴포넌트면 데이터 복구
                 reflectData = missingTemp.ReflectFields->reflectData;
             }
             if (reflectData.empty() == false)
