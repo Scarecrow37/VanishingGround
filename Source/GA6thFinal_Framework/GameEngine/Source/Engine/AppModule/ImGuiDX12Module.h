@@ -2,7 +2,7 @@
 
 class ImGuiDX12Module : public IAppModule
 {
-    inline static ComPtr<ID3D12Device>        device;
+    inline static ComPtr<ID3D12Device> device;
 
 public:
     static void SetDevice(ImGuiDX12Module* device);
@@ -18,4 +18,7 @@ public:
 
     void ImguiBegin();
     void ImguiEnd();
+
+private:
+    ComPtr<ID3D12DescriptorHeap> _imguiDescriptorHeap = nullptr;
 };

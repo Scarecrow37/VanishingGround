@@ -396,6 +396,15 @@
     <ClInclude Include="Source\Engine\GraphicsCore\GraphicsModule.h">
       <Filter>GraphicsCore\Module</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\RenderScene.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\RenderPass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\RenderTechnique.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\pch.cpp">
@@ -663,6 +672,15 @@
       <Filter>GraphicsCore\Module</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\Resource.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\RenderScene.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\RenderPass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\RenderTechnique.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

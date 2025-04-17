@@ -49,7 +49,7 @@ Application::Application()
     AddModule<EngineCoresModule>();
 
     //_graphicsModule = AddModule<GraphicsModule>();
-    //_imguiDX12Module = AddModule<ImGuiDX12Module>();
+    _imguiDX12Module = AddModule<ImGuiDX12Module>();
     _filesystemModule = AddModule<FileSystemModule>();
 }
 
@@ -95,7 +95,7 @@ void Application::Run()
             ETimeSystem::Engine::TimeSystemUpdate();
             float deltaTime = engineCore->Time.deltaTime();
 
-            //_imguiDX12Module->ImguiBegin();
+            _imguiDX12Module->ImguiBegin();
             {
                 if (Global::editorManager)
                 {
@@ -108,9 +108,9 @@ void Application::Run()
                 ESceneManager::Engine::SceneUpdate();
                 // CameraUpdate, RenderQueueUpdate, Render
                 Global::engineCore->Graphics.Update();
+                _imguiDX12Module->ImguiEnd();
                 Global::engineCore->Graphics.Render();
             }
-            //_imguiDX12Module->ImguiEnd();
             //_graphicsModule->Render();
         }
     }

@@ -151,6 +151,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Engine\GraphicsCore\RenderPass.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\RenderTechnique.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\RenderScene.h" />
     <ClInclude Include="Source\Editor\DragDropTypes\DragDropTransform.h" />
     <ClInclude Include="Source\Editor\Menu\Project\EditorProjectMenu.h" />
     <ClInclude Include="Source\Editor\Menu\Scene\EditorSceneMenu.h" />
@@ -255,6 +258,9 @@
     <ClInclude Include="Source\Engine\Utility\DumpUtility.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Engine\GraphicsCore\RenderPass.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\RenderTechnique.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\RenderScene.cpp" />
     <ClCompile Include="Source\Editor\Menu\Project\EditorProjectMenu.cpp" />
     <ClCompile Include="Source\Editor\Menu\Scene\EditorSceneMenu.cpp" />
     <ClCompile Include="Source\Editor\Menu\Setting\EditorSettingMenu.cpp" />

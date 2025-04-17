@@ -71,12 +71,11 @@ void Renderer::Update()
 
 	UmDevice.ResetCommands();
 	UpdateFrameResource();
+	UmDevice.ClearBackBuffer(D3D12_CLEAR_FLAG_DEPTH, { 0.5f, 0.5f, 0.5f, 1.f });
 }
 
 void Renderer::Render()
 {
-	UmDevice.ClearBackBuffer(D3D12_CLEAR_FLAG_DEPTH, { 0.5f, 0.5f, 0.5f, 1.f });
-
 	ComPtr<ID3D12GraphicsCommandList> commandList = UmDevice.GetCommandList();
 	ComPtr<ID3D12RootSignature> rootSignature = _shader->GetRootSignature();
 
