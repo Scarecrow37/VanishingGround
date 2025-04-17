@@ -194,8 +194,8 @@ void Renderer::UpdateFrameResource()
         auto& model     = component->GetModel();
         auto& meshes    = model->GetMeshes();
         auto& materials = model->GetMaterials();
-        
-        XMMATRIX world = XMMatrixTranspose(component->gameObject->transform.GetWorldMatrix());
+         
+        XMMATRIX world = XMMatrixTranspose(component->gameObject->transform->GetWorldMatrix());
         UINT size = (UINT)meshes.size();
 
         for (UINT i = 0; i < size; i++)
