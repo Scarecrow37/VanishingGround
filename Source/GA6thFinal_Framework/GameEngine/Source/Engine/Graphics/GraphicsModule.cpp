@@ -45,7 +45,7 @@ void GraphicsModule::PreInitialize()
 
     const GE::RENDERER_DESC desc
     {
-        .hWnd = Application::GetHwnd(),
+        .hWnd = Global::engineCore->App.GetHwnd(),
         .shaderRootPath = L"../Shaders/",
         .width = 1920,
         .height = 1080,

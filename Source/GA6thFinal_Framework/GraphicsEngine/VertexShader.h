@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "Shader.h"
 
 class VertexShader : public Shader
@@ -20,7 +20,7 @@ public:
     void SetVertexShader();
 
 public:
-    // ResourceÀ»(¸¦) ÅëÇØ »ó¼ÓµÊ
+    // Resourceì„(ë¥¼) í†µí•´ ìƒì†ë¨
     HRESULT LoadResource(const std::filesystem::path& filePath) override;
 
 private:

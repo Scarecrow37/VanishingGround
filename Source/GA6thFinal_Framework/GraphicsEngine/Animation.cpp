@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "Animation.h"
 
 void Animation::LoadAnimation(const aiScene* paiScene)

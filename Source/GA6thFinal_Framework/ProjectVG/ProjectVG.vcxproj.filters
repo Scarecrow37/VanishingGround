@@ -1,41 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="Source\EditorTools\EditorMenu\EditorWindowMenu.cpp" />
     <ClCompile Include="Source\Application\GameApplication.cpp" />
-    <ClCompile Include="Source\EditorTools\EditorDebugView.cpp" />
-    <ClCompile Include="Source\EditorTools\EditorHierarchyView.cpp" />
-    <ClCompile Include="Source\EditorTools\EditorInspectorView.cpp" />
-    <ClCompile Include="Source\EditorTools\EditorSceneView.cpp" />
-    <ClCompile Include="Source\EditorTools\NodeEditor\blueprint.cpp" />
-    <ClCompile Include="Source\EditorTools\NodeEditor\EditorShaderGraph.cpp" />
-    <ClCompile Include="Source\EditorTools\NodeEditor\utilities\builders.cpp" />
-    <ClCompile Include="Source\EditorTools\NodeEditor\utilities\drawing.cpp" />
-    <ClCompile Include="Source\EditorTools\NodeEditor\utilities\widgets.cpp" />
-    <ClCompile Include="Source\TestEditor\ObjectTestEditor.cpp" />
-    <ClCompile Include="Source\EditorTools\EditorMenu\EditorSettingMenu.cpp" />
-    <ClCompile Include="Source\EditorTools\EditorAssetBrowser.cpp" />
-    <ClCompile Include="Source\EditorTools\EditorMenu\EditorProjectMenu.cpp" />
-    <ClCompile Include="Source\EditorTools\EditorLogsTool\EditorLogsTool.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\EditorTools\EditorMenu\EditorWindowMenu.h" />
     <ClInclude Include="Source\Application\GameApplication.h" />
-    <ClInclude Include="Source\EditorTools\EditorDebugView.h" />
-    <ClInclude Include="Source\EditorTools\EditorHierarchyView.h" />
-    <ClInclude Include="Source\EditorTools\EditorInspectorView.h" />
-    <ClInclude Include="Source\EditorTools\EditorSceneView.h" />
-    <ClInclude Include="Source\EditorTools\NodeEditor\blueprint.h" />
-    <ClInclude Include="Source\EditorTools\NodeEditor\EditorShaderGraph.h" />
-    <ClInclude Include="Source\EditorTools\NodeEditor\NodeEditor.h" />
-    <ClInclude Include="Source\EditorTools\NodeEditor\utilities\builders.h" />
-    <ClInclude Include="Source\EditorTools\NodeEditor\utilities\drawing.h" />
-    <ClInclude Include="Source\EditorTools\NodeEditor\utilities\widgets.h" />
-    <ClInclude Include="Source\TestEditor\ObjectTestEditor.h" />
-    <ClInclude Include="Source\EditorTools\EditorMenu\EditorSettingMenu.h" />
-    <ClInclude Include="Source\EditorTools\EditorAssetBrowser.h" />
-    <ClInclude Include="Source\EditorTools\EditorMenu\EditorProjectMenu.h" />
-    <ClInclude Include="Source\EditorTools\EditorLogsTool\EditorLogsTool.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

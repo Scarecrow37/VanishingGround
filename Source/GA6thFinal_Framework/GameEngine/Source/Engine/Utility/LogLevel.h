@@ -70,3 +70,53 @@ namespace LogLevel
         return LogLevel::LEVEL_TRACE <= logLevel && logLevel <= LogLevel::LEVEL_FATAL;
     }
 }
+
+// 로그 함수를 호출한 파일 정보를 저장하기 위한 구조체 (source_location 깊은 복사 용)
+struct LogLocation
+{
+public:
+    // 중복 메모리 생성 방지용
+    struct EngineLocationInfo
+    {
+        std::unordered_set<std::string>    fileInfoSet;
+        std::unordered_set<std::string>    functionInfoSet;
+        std::unordered_set<uint_least32_t> lineInfoSet;
+        std::unordered_set<uint_least32_t> columnInfoSet;
+    };
+   
+    LogLocation(const std::source_location& location);
+    LogLocation(const LogLocation& rhs) 
+    { 
+        *this = rhs;
+    }
+    LogLocation& operator=(const LogLocation& rhs)
+    {
+        if (this == &rhs)
+            return *this;
+
+        _line     = rhs._line;
+        _column   = rhs._column;
+        _file     = rhs._file;
+        _function = rhs._function;
+
+        return *this;
+    }
+
+    ~LogLocation() = default;
+    constexpr uint_least32_t         line() const noexcept { return *_line; }
+    constexpr uint_least32_t         column() const noexcept { return *_column; }
+    _NODISCARD constexpr const char* file_name() const noexcept
+    {
+        return _file->c_str();
+    }
+    _NODISCARD constexpr const char* function_name() const noexcept
+    {
+        return _function->c_str();
+    }
+
+private:
+    const uint_least32_t* _line     = nullptr;
+    const uint_least32_t* _column   = nullptr;
+    const std::string*    _file     = nullptr;
+    const std::string*    _function = nullptr;
+};

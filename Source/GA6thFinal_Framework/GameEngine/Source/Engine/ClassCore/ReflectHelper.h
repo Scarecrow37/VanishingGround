@@ -3,44 +3,65 @@
 #undef min
 #include <rfl.hpp>
 #include <rfl/json.hpp>
+#include <rfl/yaml.hpp>
 
 // reflect-cpp 라이브러리 docs https://rfl.getml.com/docs-readme/#the-basics
 // reflect-cpp github https://github.com/getml/reflect-cpp
 
-// 자동 직렬화 사용하기 위한 클래스
-struct ReflectSerializer : public IReflectProperty
+// 자동 직렬화 및 REFLECT_PROPERTY를 사용하기 위한 클래스
+struct ReflectSerializer
 {
-    ReflectSerializer() = default;
-    virtual ~ReflectSerializer()
+protected:
+    /*
+    직렬화 직전 자동으로 호출되는 이벤트 함수입니다.
+    직접 override 해서 사용합니다.
+    */
+    virtual void SerializedReflectEvent() {}
+    /*
+    역직렬화 이후 자동으로 호출되는 이벤트 함수 입니다.
+    직접 override 해서 사용합니다.
+    */
+    virtual void DeserializedReflectEvent() {}
+
+public:
+    virtual void ImGuiDrawPropertys() {
+    } // REFLECT_PROPERTY() 매크로를 통해 자동으로 override 됩니다.
+
+    virtual std::string SerializedReflectFields()
     {
-        if (_reflectFields != nullptr)
-        {
-            free(_reflectFields);
-            _reflectFields = nullptr;
-        }
+        assert(!"REFLECT_FIELDS가 정의되지 않았습니다.");
+        return "{}";
+    } // REFLECT_FIELDS_END() 매크로를 통해 자동으로 override 됩니다.
+    virtual bool DeserializedReflectFields(std::string_view data)
+    {
+        assert(!"REFLECT_FIELDS가 정의되지 않았습니다.");
+        return false;
+    } // REFLECT_FIELDS_END() 매크로를 통해 자동으로 override 됩니다.
+
+    ReflectSerializer() = default;
+    virtual ~ReflectSerializer() 
+    { 
+        FreeReflectFields();
     }
 
-protected:
-    /*직렬화 직전 호출되는 이벤트 함수입니다.*/
-    virtual void SerializedReflectEvent() {}
-    /*역직렬화 이후 호출되는 이벤트 입니다.*/
-    virtual void DeserializedReflectEvent() {}
+    ReflectSerializer(const ReflectSerializer& rhs) = delete;
+    ReflectSerializer& operator=(const ReflectSerializer& rhs) = delete;
 
 private:
     void*              _reflectFields = nullptr;
     unsigned long long _fieldsSize    = 0;
 
-public:
-    virtual std::string SerializedReflectFields()
+private:
+    void FreeReflectFields()
     {
-        assert(!"REFLECT_FIELDS가 정의되지 않았습니다.");
-        return "{}";
+        if (_reflectFields != nullptr)
+        {
+            free(_reflectFields);
+            _reflectFields = nullptr;
+            _fieldsSize    = 0;
+        }
     }
-    virtual bool DeserializedReflectFields(std::string_view data)
-    {
-        assert(!"REFLECT_FIELDS가 정의되지 않았습니다.");
-        return false;
-    }
+
 #pragma region 매크로가 생성하는 가상함수들.
 protected:
     struct reflect_fields_struct
@@ -54,14 +75,8 @@ protected:
         new (fields) ReflectSerializer::reflect_fields_struct();
         size = size_of;
     }
-    virtual void serialized_reflect_event_recursive()
-    {
-        SerializedReflectEvent();
-    }
-    virtual void deserialized_reflect_event_recursive()
-    {
-        DeserializedReflectEvent();
-    }
+    virtual void  serialized_reflect_event_recursive() {}
+    virtual void  deserialized_reflect_event_recursive() {}
     virtual void* get_reflect_fields() final
     {
         if (_reflectFields == nullptr)
@@ -80,8 +95,7 @@ protected:
         rfl::Flatten<Base::reflect_fields_struct> Basefields{};
 
 #define REFLECT_FIELDS_END(CLASS)                                              \
-    }                                                                          \
-    ;                                                                          \
+    };                                                                         \
     struct reflection_safe_ptr                                                 \
     {                                                                          \
         reflection_safe_ptr(CLASS##* owner)                                    \
@@ -112,18 +126,18 @@ protected:
         CLASS## ::reflect_fields_struct* _reflection = nullptr;                \
         CLASS##*                         _owner      = nullptr;                \
     };                                                                         \
-    reflection_safe_ptr ReflectionFields{this};                                \
+    reflection_safe_ptr ReflectFields{this};                                   \
                                                                                \
 public:                                                                        \
     virtual std::string SerializedReflectFields()                              \
     {                                                                          \
         serialized_reflect_event_recursive();                                  \
-        return ReflectHelper::json::SerializedObjet(*ReflectionFields);        \
+        return ReflectHelper::json::SerializedObjet(*ReflectFields);           \
     }                                                                          \
     virtual bool DeserializedReflectFields(std::string_view data)              \
     {                                                                          \
         bool result =                                                          \
-            ReflectHelper::json::DeserializedObjet(*ReflectionFields, data);   \
+            ReflectHelper::json::DeserializedObjet(*ReflectFields, data);      \
         deserialized_reflect_event_recursive();                                \
         return result;                                                         \
     }                                                                          \
@@ -138,13 +152,25 @@ protected:                                                                     \
     }                                                                          \
     virtual void serialized_reflect_event_recursive()                          \
     {                                                                          \
-        Base::SerializedReflectEvent();                                        \
         Base::serialized_reflect_event_recursive();                            \
+        if constexpr (std::is_same_v<                                          \
+                          decltype(Base::SerializedReflectEvent),              \
+                          decltype(CLASS## ::SerializedReflectEvent)> ==       \
+                      false)                                                   \
+        {                                                                      \
+            CLASS## ::SerializedReflectEvent();                                \
+        }                                                                      \
     }                                                                          \
     virtual void deserialized_reflect_event_recursive()                        \
     {                                                                          \
-        Base::DeserializedReflectEvent();                                      \
         Base::deserialized_reflect_event_recursive();                          \
+        if constexpr (std::is_same_v<                                          \
+                          decltype(Base::DeserializedReflectEvent),            \
+                          decltype(CLASS## ::DeserializedReflectEvent)> ==     \
+                      false)                                                   \
+        {                                                                      \
+            CLASS## ::DeserializedReflectEvent();                              \
+        }                                                                      \
     }
 
 // 에디터 편집을 허용할 프로퍼티들을 등록합니다. Get, Set 함수가 모두 존재하는
@@ -173,7 +199,7 @@ protected:                                                                     \
                 reflectionFieldsSet.insert(&field);                            \
             }                                                                  \
         });                                                                    \
-        const auto view = rfl::to_view(*ReflectionFields.Get());               \
+        const auto view = rfl::to_view(*ReflectFields.Get());               \
         view.apply([&](auto& rflField) {                                       \
             if (reflectionFieldsSet.find(rflField.value()) !=                  \
                 reflectionFieldsSet.end())                                     \
@@ -356,8 +382,7 @@ namespace ReflectHelper
                         }
                     }
                     else if constexpr (isProperty &&
-                                       std::is_same_v<OriginType,
-                                                      std::string_view>)
+                                       std::is_same_v<OriginType, std::string_view>)
                     {
                         static std::string input;
                         input  = val;
@@ -372,9 +397,7 @@ namespace ReflectHelper
                         }
                     }
                     else if constexpr (isProperty &&
-                                       std::is_same_v<
-                                           OriginType,
-                                           DirectX::SimpleMath::Vector2>)
+                                       std::is_same_v<OriginType, DirectX::SimpleMath::Vector2>)
                     {
                         DirectX::SimpleMath::Vector2 input = val;
                         isEdit                             = ImGui::DragFloat2(
@@ -390,9 +413,7 @@ namespace ReflectHelper
                         }
                     }
                     else if constexpr (isProperty &&
-                                       std::is_same_v<
-                                           OriginType,
-                                           DirectX::SimpleMath::Vector3>)
+                                       std::is_same_v<OriginType, DirectX::SimpleMath::Vector3>)
                     {
                         DirectX::SimpleMath::Vector3 input = val;
                         isEdit                             = ImGui::DragFloat3(
@@ -408,9 +429,7 @@ namespace ReflectHelper
                         }
                     }
                     else if constexpr (isProperty &&
-                                       std::is_same_v<
-                                           OriginType,
-                                           DirectX::SimpleMath::Vector4>)
+                                       std::is_same_v<OriginType, DirectX::SimpleMath::Vector4>)
                     {
                         DirectX::SimpleMath::Vector4 input = val;
                         isEdit                             = ImGui::DragFloat4(
@@ -427,10 +446,14 @@ namespace ReflectHelper
                     }
                     else
                     {
-                        assert(!"처리되지 않는 InputAuto 타입입니다.");
                         EngineLog(
                             LogLevel::LEVEL_WARNING,
-                            std::format("{}, {}", typeid(val).name(), name)
+                            std::format(
+                                "{}, {} - {}", 
+                                (const char*)u8"정의되지 않은 InputAuto 타입입니다.",
+                                typeid(val).name(), 
+                                name
+                                )
                                 .c_str());
                     }
 
@@ -535,6 +558,7 @@ namespace ReflectHelper
             else
             {
                 assert(!"역직렬화 실패.");
+                return false;
             }
             return true;
         }

@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "Model.h"
 
 class StaticMesh : public Model
@@ -8,6 +8,6 @@ public:
     virtual ~StaticMesh() = default;
 
 public:
-    // ModelÀ»(¸¦) ÅëÇØ »ó¼ÓµÊ
+    // Modelì„(ë¥¼) í†µí•´ ìƒì†ë¨
     HRESULT LoadResource(const std::filesystem::path& filePath) override { return LoadFBX(filePath, true); }
 };
