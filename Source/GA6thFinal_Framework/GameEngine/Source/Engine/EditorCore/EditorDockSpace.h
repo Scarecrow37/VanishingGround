@@ -42,7 +42,7 @@ public:
     inline const auto& GetRefToolTable() { return _editorToolTable; }
 private:
     ToolTable _editorToolTable;                     /* 검색용 툴 컨테이너 */
-    std::vector<EditorTool*> _editorToolList;       /* 순회용 툴 리스트 */
+    std::vector<EditorBase*> _editorToolList;       /* 순회용 툴 리스트 */
     bool _isFullSpace;                              /* DockSpace가 화면 전체를 차지하는지 여부 */
     bool _isPadding;                                /* DockSpace가 Padding을 할지 여부 */
     ImGuiDockNodeFlags _dockNodeFlags;              /* DockSpace 플래그 값 */

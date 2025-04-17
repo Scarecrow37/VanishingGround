@@ -9,12 +9,13 @@ class EditorTool : public EditorBase
 public:
     EditorTool() = default;
     virtual ~EditorTool() = default;
-public:
+private:
     virtual void OnTickGui() override {}
     virtual void OnStartGui() override {};
     virtual void OnDrawGui() override;
     virtual void OnEndGui() override {};
-protected:
+
+private:
     /* Begin 호출 전에 호출 */
     virtual void OnPreFrame();
 
@@ -29,6 +30,7 @@ protected:
 
     /* PopUp창 호출 성공 시 호출 (Begin 후에 호출) */
     virtual void OnPopup();
+
 public:
     /*                      초기 도킹 영역을 지정 */
     inline void             SetDockLayout(DockLayout layout) { _dockLayout = layout; }
@@ -41,13 +43,16 @@ public:
     inline void             SetLock(bool v) { _isLock = v; }
     inline bool             IsLock() { return _isLock; }
     inline void             ToggleLock() { _isLock = _isLock == true ? false : true; }
+
 private:
     DockLayout          _dockLayout = DockLayout::NONE;         // 초기 Dock영역 (초기 도킹빌드시에만 사용하고 이후엔 사용 X)
     ImGuiWindowFlags    _windowFlags = ImGuiWindowFlags_None;   // ImGui윈도우 플래그 (ImGuiWindowFlags_NoCollapse는 항상 활성화)
     bool                _isLock = false;                        // 해당 탭에 대한 입력을 막을지에 대한 여부
     // + 추가할 것: 오프셋 등
+
 private:
     void DefaultPopupFrame();
     void DefaultDebugFrame();
+
 };
 

@@ -33,7 +33,7 @@ void EditorDockSpace::OnTickGui()
 
 void EditorDockSpace::OnStartGui()
 {
-    for (auto& [key, tool] : _editorToolTable)
+    for (auto& tool : _editorToolList)
     {
         if (nullptr != tool)
         {
@@ -71,7 +71,7 @@ void EditorDockSpace::OnDrawGui()
 
 void EditorDockSpace::OnEndGui()
 {
-    for (auto& [key, tool] : _editorToolTable)
+    for (auto& tool : _editorToolList)
     {
         if (nullptr != tool)
         {

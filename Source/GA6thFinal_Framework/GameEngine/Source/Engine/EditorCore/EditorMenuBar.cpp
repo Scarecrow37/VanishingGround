@@ -16,21 +16,12 @@ EditorMenuBar::~EditorMenuBar()
 
 void EditorMenuBar::OnTickGui()
 {
-    // 메뉴바가 그려지기 전 호출
-    for (auto& [key, menu] : _menuTable)
-    {
-        if (nullptr != menu)
-            menu->OnTickGui();
-    }
+     _root->OnTickGui();
 }
 
 void EditorMenuBar::OnStartGui()
 {
-    for (auto& [key, menu] : _menuTable)
-    {
-        if (nullptr != menu)
-            menu->OnStartGui();
-    }
+    _root->OnStartGui();
 }
 
 void EditorMenuBar::OnDrawGui()
@@ -44,27 +35,12 @@ void EditorMenuBar::OnDrawGui()
 
 void EditorMenuBar::OnEndGui()
 {
-    for (auto& [key, menu] : _menuTable)
-    {
-        if (nullptr != menu)
-            menu->OnEndGui();
-    }
+    _root->OnEndGui();
 }
 
-EditorMenuNode* EditorMenuBar::GetMenuFromPath(Path path)
-{
-    auto itr = _nodeTable.find(path);
-    // 없으면 만들어 줌
-    if (itr != _nodeTable.end())
-    {
-        return itr->second.get();
-    }
-    return nullptr;
-}
-
-/* 
+/*
 인자로 받은 경로에 따라 메뉴Node를 만들고 최상위 부모Node를 반환합니다.
-*/ 
+*/
 EditorMenuNode* EditorMenuBar::BuildMenuNode(Path path)
 {
     if (true == path.empty())
@@ -105,10 +81,7 @@ void EditorMenuBar::Sort(EditorMenuNode* root)
             continue;
 
         std::sort(group.begin(), group.end(),
-            [](EditorBase* a, EditorBase* b) {
-                return a->GetCallOrder() < b->GetCallOrder();
-            }
-        );
+                  [](EditorBase* a, EditorBase* b) { return a->GetCallOrder() < b->GetCallOrder(); });
 
         for (auto& node : group)
         {
@@ -119,6 +92,17 @@ void EditorMenuBar::Sort(EditorMenuNode* root)
             }
         }
     }
+}
+
+EditorMenuNode* EditorMenuBar::GetMenuFromPath(Path path)
+{
+    auto itr = _nodeTable.find(path);
+    // 없으면 만들어 줌
+    if (itr != _nodeTable.end())
+    {
+        return itr->second.get();
+    }
+    return nullptr;
 }
 
 EditorMenuBase::EditorMenuBase()
@@ -158,6 +142,32 @@ EditorMenuNode::EditorMenuNode()
 
 EditorMenuNode::~EditorMenuNode() 
 {
+}
+
+void EditorMenuNode::OnTickGui() 
+{
+    for (auto itr = _menuList.begin(); itr != _menuList.end(); ++itr)
+    {
+        auto& [key, group] = *itr;
+
+        for (auto& node : group)
+        {
+            node->OnTickGui();
+        }
+    }
+}
+
+void EditorMenuNode::OnStartGui() 
+{
+    for (auto itr = _menuList.begin(); itr != _menuList.end(); ++itr)
+    {
+        auto& [key, group] = *itr;
+
+        for (auto& node : group)
+        {
+            node->OnStartGui();
+        }
+    }
 }
 
 void EditorMenuNode::OnDrawGui()
@@ -202,6 +212,19 @@ void EditorMenuNode::OnDrawGui()
             }
         }
         ImGui::PopID();
+    }
+}
+
+void EditorMenuNode::OnEndGui() 
+{
+    for (auto itr = _menuList.begin(); itr != _menuList.end(); ++itr)
+    {
+        auto& [key, group] = *itr;
+
+        for (auto& node : group)
+        {
+            node->OnEndGui();
+        }
     }
 }
 

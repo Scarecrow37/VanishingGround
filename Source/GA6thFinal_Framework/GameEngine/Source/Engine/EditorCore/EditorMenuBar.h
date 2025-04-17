@@ -74,12 +74,6 @@ public:
     virtual ~EditorMenuBase();
 
 public:
-    virtual void OnTickGui() override {};
-    virtual void OnStartGui() override {};
-    virtual void OnDrawGui() override {};
-    virtual void OnEndGui() override {};
-
-public:
     /* 클릭 활성화 여부를 설정 */
     inline void SetActive(bool v) { _isActive = v; }
     inline bool GetActive() { return _isActive; }
@@ -109,8 +103,11 @@ public:
     EditorMenuNode();
     virtual ~EditorMenuNode();
 
-public:
+private:
+    virtual void OnTickGui() override final;
+    virtual void OnStartGui() override final;
     virtual void OnDrawGui() override final;
+    virtual void OnEndGui() override final;
 
 private:
     std::unordered_map<std::string, std::vector<EditorMenuBase*>> _menuList;
@@ -127,11 +124,14 @@ public:
     EditorMenu();
     virtual ~EditorMenu();
 
-public:
-    virtual void OnDrawGui() override;
+private:
+    virtual void OnDrawGui() override final;
 
-public:
+private:
+    /* 재정의 가능 */
     virtual void OnTickGui() override {};
+    virtual void OnStartGui() override {};
+    virtual void OnEndGui() override {};
     virtual void OnMenu() = 0;
 };
 
