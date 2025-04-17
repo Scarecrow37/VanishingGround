@@ -15,6 +15,9 @@ public:
     EEngineLogger EngineLogger;
     EFileSystem FileSystem;
     Application&  App;
+
+    GraphicsCore Graphics;
+
 private:
     LogLocation::EngineLocationInfo LocationInfo;
 };
