@@ -25,7 +25,6 @@ static void                      TransformTreeNode(Transform&                   
         {
             Data data{};
             data.pTransform = &node;
-            //data.serializedFunc = 
 
             ImGui::SetDragDropPayload(key, 
                                       &data, 

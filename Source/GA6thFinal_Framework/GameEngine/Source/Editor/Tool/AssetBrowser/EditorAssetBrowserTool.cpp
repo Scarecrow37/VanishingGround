@@ -103,11 +103,7 @@ void EditorAssetBrowserTool::ShowFolderContents()
             if (false == _focusForder.expired())
             {
                 std::string path = _focusForder.lock()->GetPath().string();
-                if (data->serializedFunc)
-                {
-                    std::string path = _focusForder.lock()->GetPath().string();
-                    data->serializedFunc(path);
-                }
+                DragDropTransform::WriteGameObjectFile(data->pTransform, path);
             }
         }
         ImGui::EndDragDropTarget();

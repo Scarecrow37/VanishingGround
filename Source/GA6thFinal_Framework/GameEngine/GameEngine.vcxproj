@@ -222,6 +222,7 @@
     <ClInclude Include="Source\Engine\Utility\DumpUtility.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Editor\DragDropTypes\DragDropTransform.cpp" />
     <ClCompile Include="Source\Engine\Utility\EditorHelper.cpp" />
     <ClCompile Include="Source\Editor\Menu\Project\EditorProjectMenu.cpp" />
     <ClCompile Include="Source\Editor\Menu\Scene\EditorSceneMenu.cpp" />
