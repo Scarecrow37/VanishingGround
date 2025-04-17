@@ -87,6 +87,7 @@ using namespace Microsoft::WRL;
 #include "Engine/Utility/dllUtility.h"
 #include "Engine/Utility/ImGuiHelper.h"
 #include "Engine/Utility/stlHelper.h"
+#include "Engine/Utility/EditorHelper.h"
 #include "Engine/Utility/Mathf.h"
 
 //Class Core
@@ -148,6 +149,7 @@ using namespace Microsoft::WRL;
 #include "Editor/Tool/Inspector/EditorInspectorTool.h"
 #include "Editor/Tool/Scene/EditorSceneTool.h"
 #include "Editor/Tool/Log/EditorLogsTool.h"
+
 #include "Editor/Tool/ScriptTest/ScriptTestEditor.h"    // 테스트용. 추후 제거 필요
 
 // Editor Menu

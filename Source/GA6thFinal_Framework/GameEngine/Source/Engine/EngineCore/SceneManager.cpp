@@ -6,7 +6,7 @@ static constexpr const char* DONT_DESTROY_ON_LOAD_SCENE_NAME = "DontDestroyOnLoa
 
 bool Scene::RootGameObjectsFilter(GameObject* obj) const
 {
-    return &obj->GetScene() == this && obj->transform.Parent == nullptr;
+    return &obj->GetScene() == this && obj->transform->Parent == nullptr;
 }
 
 ESceneManager::ESceneManager() = default;
@@ -79,12 +79,12 @@ void ESceneManager::Engine::SetGameObjectActive(int instanceID, bool value)
                 gameObject->ReflectFields->_activeSelf = true; //ActiveInHierarchy 검증용                        
             }
 
-            Transform::ForeachDFS(gameObject->transform, 
+            Transform::ForeachDFS(gameObject->_transform, 
             [&](Transform* curr) 
             {
-                if (curr->gameObject.ActiveInHierarchy == true)
+                if (curr->gameObject->ActiveInHierarchy == true)
                 {
-                    for (auto& component : curr->gameObject._components)
+                    for (auto& component : curr->gameObject->_components)
                     {
                         if (component->_initFlags.IsAwake()   == true &&
                             component->ReflectFields->_enable == true)
@@ -216,7 +216,7 @@ void ESceneManager::Engine::DestroyObject(GameObject* gameObject)
     auto& [set, vec] = engineCore->SceneManager._destroyObjectsQueue;
 
    Transform::ForeachDFS(
-        gameObject->transform, 
+        gameObject->_transform, 
         [&set, &vec](Transform* pTransform) 
         {
             auto [iter, result] = set.insert(&pTransform->gameObject);
@@ -431,10 +431,10 @@ void ESceneManager::ObjectsMatrixUpdate()
     static std::unordered_set<Transform*> updateCheckSet;
     for (auto& obj : _runtimeObjects)
     {
-        if (IsRuntimeActive(obj) && obj->transform._hasChanged == true)
+        if (IsRuntimeActive(obj) && obj->_transform._hasChanged == true)
         {
             updateCheckSet.clear();
-            Transform* root = obj->transform._root ? obj->transform._root : &obj->transform;
+            Transform* root = obj->_transform._root ? obj->_transform._root : &obj->_transform;
             auto [iter, result] = updateCheckSet.insert(root);
             if (result == true)
             {
@@ -588,6 +588,8 @@ void ESceneManager::ObjectsAddRuntime()
 
     for (auto& component : _addComponentsQueue)
     {
+        component->_index = component->_gameObect->_components.size();
+        component->_gameObect->_components.emplace_back(component);
         _waitAwakeVec.push_back(component);
         _waitStartVec.push_back(component);
     }

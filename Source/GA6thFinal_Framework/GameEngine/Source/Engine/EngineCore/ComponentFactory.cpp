@@ -28,7 +28,7 @@ bool EComponentFactory::InitalizeComponentFactory()
         {
             if (auto component = wptr.lock())
             {
-                int index = component->GetComponentIndex();
+                int index = component->GetIndex();
                 addList.emplace_back(component->_gameObect, key, index, component->SerializedReflectFields());
                 component->_gameObect->_components[index].reset(); //컴포넌트 파괴
             }
@@ -144,7 +144,7 @@ void EComponentFactory::UninitalizeComponentFactory()
         {
             if (auto component = wptr.lock())
             {
-                int index = component->GetComponentIndex();
+                int index = component->GetIndex();
                 component->_gameObect->_components[index].reset(); //컴포넌트 파괴
             }
         }
@@ -160,7 +160,6 @@ bool EComponentFactory::AddComponentToObject(GameObject* ownerObject, std::strin
     {
         const char* name = typeid_name.data();
         ResetComponent(ownerObject, sptr_component.get());
-        ownerObject->_components.emplace_back(sptr_component);  //오브젝트에 추가
         ESceneManager::Engine::AddComponentToLifeCycle(sptr_component); //씬에 등록
         return true;
     }
@@ -202,7 +201,6 @@ bool EComponentFactory::DeserializeToYaml(GameObject* ownerObject,
     }
     if (std::shared_ptr<Component> component = MakeComponentToYaml(ownerObject, componentNode))
     {
-        ownerObject->_components.emplace_back(component); // 오브젝트에 추가
         ESceneManager::Engine::AddComponentToLifeCycle(component); // 씬에 등록
     }
     else
@@ -230,7 +228,6 @@ void EComponentFactory::ResetComponent(GameObject* ownerObject, Component* compo
     //여긴 엔진에서 사용하기 위한 초기화 코드 
     component->_className = (typeid(*component).name() + 5);
     component->_gameObect = ownerObject;
-    component->_index = (int)ownerObject->_components.size();
 
     component->Reset();
     //end

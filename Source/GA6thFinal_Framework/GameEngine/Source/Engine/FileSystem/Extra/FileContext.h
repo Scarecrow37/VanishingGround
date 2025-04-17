@@ -33,9 +33,11 @@ namespace File
             return nullptr;
         }
     public:
-        inline const Path&     GetPath() const { return _path; }
-        inline const MetaData& GetMeta() const { return _meta; }
+        inline const std::string&   GetName() const { return _name; }
+        inline const Path&          GetPath() const { return _path; }
+        inline const MetaData&      GetMeta() const { return _meta; }
     protected:
+        std::string _name;
         Path _path;
         MetaData _meta;
     };

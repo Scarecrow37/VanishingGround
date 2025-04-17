@@ -15,7 +15,7 @@ namespace File
         Stop();
     }
 
-    bool FileObserver::Start(const std::wstring& path,
+    bool FileObserver::Start(const File::Path& path,
                              const CallBackFunc& callback)
     {
         if (nullptr == callback)

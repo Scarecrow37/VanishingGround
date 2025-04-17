@@ -151,6 +151,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Engine\Utility\EditorHelper.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\RenderPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\RenderTechnique.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\RenderScene.h" />
@@ -258,6 +259,7 @@
     <ClInclude Include="Source\Engine\Utility\DumpUtility.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Engine\Utility\EditorHelper.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\RenderPass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\RenderTechnique.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\RenderScene.cpp" />

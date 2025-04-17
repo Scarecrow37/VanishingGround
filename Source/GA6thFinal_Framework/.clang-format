@@ -1,6 +1,5 @@
 ﻿---
 BasedOnStyle: Microsoft
-#ColumnLimit: 80
 AlwaysBreakTemplateDeclarations: Yes
 AllowShortBlocksOnASingleLine: Empty
 AllowShortFunctionsOnASingleLine: Inline

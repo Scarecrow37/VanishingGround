@@ -3,14 +3,32 @@
 
 using namespace File;
 
-void EFileSystem::SetDebugLevel(int level) 
+bool EFileSystem::SaveSetting(const File::Path& path)
 {
-    _debugLevel = level;
+    auto setting = rfl::yaml::save(path.string(), _setting);
+    if (false == setting)
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
 }
 
-int EFileSystem::GetDebugLevel()
+bool EFileSystem::LoadSetting(const File::Path& path) 
 {
-    return _debugLevel;
+    auto setting = rfl::yaml::load<File::SystemSetting>(path.string());
+    if (false == setting)
+    {
+        return false;
+    }
+    else
+    {
+        _setting = setting.value();
+        Reload(); 
+        return true;
+    }
 }
 
 bool EFileSystem::IsVaildGuid(const File::Guid& guid)
@@ -79,6 +97,48 @@ std::unordered_set<File::FileEventNotifier*> EFileSystem::GetNotifiers(
     return std::unordered_set<File::FileEventNotifier*>();
 }
 
+void EFileSystem::DrawGuiSettingEditor() 
+{
+    if (ImGui::Button("Save"))
+    {
+        File::Path filename  = L"fileSystem.setting";
+        File::Path directory = PROJECT_SETTING_PATH;
+        SaveSetting(directory / filename);
+    }
+
+    ImGui::SameLine();
+
+    if (ImGui::Button("Load"))
+    {
+        File::Path filename  = L"fileSystem.setting";
+        File::Path directory = PROJECT_SETTING_PATH;
+        LoadSetting(directory / filename);
+    }
+
+    ImGui::Separator();
+
+    ImGui::Text("FileSystem Setting");
+
+    ImGui::Text("Debug Level: ");
+    ImGui::DragInt("##DragDebuglevel", &_setting.DebugLevel, 0, 3);
+
+    static char path[128] = "";
+    strcpy_s(path, _setting.RootPath.c_str());
+    ImGui::Text("Save Path: ");
+    if (ImGui::InputText("##InputRootPath", path, IM_ARRAYSIZE(path)))
+    {
+        _setting.RootPath = path;
+    }
+
+    static char metaExt[128] = "";
+    strcpy_s(metaExt, _setting.MetaExt.c_str());
+    ImGui::Text("Medta Extension: ");
+    if (ImGui::InputText("##InputMetaExt", metaExt, IM_ARRAYSIZE(metaExt)))
+    {
+        _setting.MetaExt = metaExt;
+    }
+}
+
 void EFileSystem::RegisterFileEventNotifier(
     FileEventNotifier*                        notifier,
     const std::initializer_list<std::string>& exts)
@@ -112,7 +172,16 @@ void EFileSystem::UnRegisterFileEventNotifier(FileEventNotifier* notifier)
     }
 }
 
-void EFileSystem::Clear() 
+void EFileSystem::Reload() 
+{
+    _pathToGuidTable.clear();
+    _guidToPathTable.clear();
+    _contextTable.clear();
+
+    ReadDirectory(_setting.RootPath);
+}
+
+void EFileSystem::Clear()
 {        
     _pathToGuidTable.clear();
     _guidToPathTable.clear();
