@@ -188,7 +188,7 @@ public:
     /// <typeparam name="TComponent :">검색할 컴포넌트 타입</typeparam>
     /// <returns>해당 타입 컴포넌트의 ptr</returns>
     template<IS_BASE_COMPONENT_C TComponent>
-    inline TComponent* GetComponent();
+    inline TComponent* GetComponent() const;
 
     /// <summary>
     /// 전달받은 인덱스의 컴포넌트를 TComponent 타입으로 dynamic_cast를 시도해 반환합니다.
@@ -197,7 +197,7 @@ public:
     /// <param name="index :">컴포넌트 인덱스</param>
     /// <returns>해당 타입 컴포넌트의 ptr</returns>
     template<IS_BASE_COMPONENT_C TComponent>
-    inline TComponent* GetComponentAtIndex(size_t index);
+    inline TComponent* GetComponentAtIndex(size_t index) const;
 
     /// <summary>
     /// <para> TComponent 타입의 컴포넌트를 전부 찾아서 반환합니다. </para>
@@ -206,15 +206,21 @@ public:
     /// <typeparam name="TComponent"></typeparam>
     /// <returns>찾은 모든 컴포넌트에 대한 배열</returns>
     template<IS_BASE_COMPONENT_C TComponent>
-    inline std::vector<TComponent*> GetComponents();
+    inline std::vector<TComponent*> GetComponents() const;
 
     /// <summary>
     /// 이 오브젝트에 부착된 컴포넌트 개수를 반환합니다.
     /// </summary>
     /// <returns>이 오브젝트에 부착된 컴포넌트 개수.</returns>
-    inline size_t GetComponentCount() { return _components.size(); }
+    inline size_t GetComponentCount() const { return _components.size(); }
 
-    
+    /// <summary>
+    /// <para> 전달받은 컴포넌트가 이 오브젝트에 존재하면 인덱스를 반환합니다.</para>
+    /// <para> 실패시 -1을 반환합니다.                         </para>
+    /// </summary>
+    inline int GetComponentIndex(const Component* pComponent) const;
+
+
     //IEditorObject에서 상속
  private:
     /* InspectorView에 SetFocus 될 때 호출 구현 X */
@@ -336,7 +342,7 @@ inline TComponent& GameObject::AddComponent()
 }
 
 template<IS_BASE_COMPONENT_C TComponent>
-inline TComponent* GameObject::GetComponent()
+inline TComponent* GameObject::GetComponent() const
 {
     TComponent* result = nullptr;
     for (auto& component : _components)
@@ -351,7 +357,7 @@ inline TComponent* GameObject::GetComponent()
 }
 
 template<IS_BASE_COMPONENT_C TComponent>
-inline TComponent* GameObject::GetComponentAtIndex(size_t index)
+inline TComponent* GameObject::GetComponentAtIndex(size_t index) const
 {
     TComponent* result = nullptr;
     if (index >= _components.size())
@@ -366,7 +372,7 @@ inline TComponent* GameObject::GetComponentAtIndex(size_t index)
 }
 
 template<IS_BASE_COMPONENT_C TComponent>
-inline std::vector<TComponent*> GameObject::GetComponents()
+inline std::vector<TComponent*> GameObject::GetComponents() const
 {
     std::vector<TComponent*> result;
     for (auto& component : _components)
@@ -377,4 +383,16 @@ inline std::vector<TComponent*> GameObject::GetComponents()
         }
     }
     return result;
+}
+
+inline int GameObject::GetComponentIndex(const Component* pComponent) const
+{
+    for (int i = 0; i < _components.size(); ++i)
+    {
+        if (_components[i].get() == pComponent)
+        {
+            return i;
+        }
+    }
+    return -1;
 }

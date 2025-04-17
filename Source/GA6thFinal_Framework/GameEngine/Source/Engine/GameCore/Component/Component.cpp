@@ -19,15 +19,5 @@ Component::InitFlags::~InitFlags() = default;
 
 int Component::GetIndex() const 
 {
-    for (size_t i = 0; i < GetComponentCount(); i++)
-    {
-        if (Component* curr = GetComponentAtIndex<Component>(i))
-        {
-            if (curr == this)
-            {
-                return i;
-            }
-        }
-    }
-    return -1;
+    return gameObject->GetComponentIndex(this);
 }

@@ -47,8 +47,7 @@ std::weak_ptr<GameObject> GameObject::GetWeakPtr() const
     return ESceneManager::Engine::GetRuntimeObjectWeakPtr(_instanceID);
 }
 
-void GameObject::OnFocusInspectorView() 
-{
+void GameObject::OnFocusInspectorView() {
 
 }
 
