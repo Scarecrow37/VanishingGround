@@ -24,6 +24,10 @@ class EditorAssetBrowserTool
         ShowMetaFile,
         FlagSize,
     };
+    using wpContext = std::weak_ptr<File::Context>;
+    using spContext = std::shared_ptr<File::Context>;
+    using wpFileContext = std::weak_ptr<File::FileContext>;
+    using spFileContext = std::shared_ptr<File::FileContext>;
     using wpForderContext = std::weak_ptr<File::ForderContext>;
     using spForderContext = std::shared_ptr<File::ForderContext>;
 public:
@@ -46,6 +50,11 @@ private:
 
     void ShowContentsToList();
     void ShowContentsToIcon();
+
+    void ShowItemToList(spContext context);
+    void ShowItemToIcon(spContext context);
+
+    void ItemClickedAction(spContext context);
 
     void BeginColum();
     void EndColum();

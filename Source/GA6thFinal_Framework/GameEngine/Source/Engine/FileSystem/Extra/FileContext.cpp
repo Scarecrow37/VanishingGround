@@ -4,7 +4,7 @@
 namespace File
 {
     Context::Context(const Path& path) 
-        : _path(path), _meta({})
+        : _name(path.filename().string()), _path(path), _meta({})
     {
         if (true == LoadMeta())
         {
