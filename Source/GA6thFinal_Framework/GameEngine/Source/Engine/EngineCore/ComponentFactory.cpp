@@ -10,6 +10,8 @@ EComponentFactory::~EComponentFactory() = default;
 
 bool EComponentFactory::InitalizeComponentFactory()
 {
+    SetDllDirectory(EComponentFactory::Engine::SCRIPTS_DLL_PATH);
+
     //복구해야할 컴포넌트 항목들
     static std::vector<std::tuple<GameObject*, std::string, int, std::string>> addList;
     addList.clear();
@@ -24,7 +26,7 @@ bool EComponentFactory::InitalizeComponentFactory()
     if (m_scriptsDll != NULL)
     {
         //모든 컴포넌트 자원 회수
-        for (auto& [key, wptr] : m_ComponentInstanceVec)
+        for (auto& [key, wptr] : _componentInstanceVec)
         {
             if (auto component = wptr.lock())
             {
@@ -33,13 +35,13 @@ bool EComponentFactory::InitalizeComponentFactory()
                 component->_gameObect->_components[index].reset(); //컴포넌트 파괴
             }
         }
-        m_ComponentInstanceVec.clear();
+        _componentInstanceVec.clear();
 
         FreeLibrary(m_scriptsDll);
         m_scriptsDll = NULL;
     }
 
-    m_NewScriptsFunctionMap.clear();
+    _newScriptsFunctionMap.clear();
     m_NewScriptsKeyVec.clear();
     m_scriptsDll = LoadLibraryW(L"GameScripts.dll");
     if (m_scriptsDll == NULL)
@@ -71,6 +73,7 @@ bool EComponentFactory::InitalizeComponentFactory()
         }
     }
 
+    //스크립트 파일 생성 함수 등록
     std::vector<std::string> funcList = dllUtility::GetDLLFuntionNameList(m_scriptsDll);
     MakeScriptFunc = (MakeUmScriptsFile)GetProcAddress(m_scriptsDll, funcList[0].c_str());
     if (funcList[0] != "CreateUmrealcSriptFile")
@@ -81,6 +84,7 @@ bool EComponentFactory::InitalizeComponentFactory()
         return false;
     }
 
+    //스크립트 초기화 함수 등록
     if (funcList[1] != "InitalizeUmrealScript")
     {
         FreeLibrary(m_scriptsDll);
@@ -93,6 +97,8 @@ bool EComponentFactory::InitalizeComponentFactory()
         engineCore,
         ImGui::GetCurrentContext());
 
+    //스크립트 생성자들 등록
+    AddEngineComponentsToScripts();
     for (size_t i = 0; i < funcList.size(); i++)
     {
         std::string& funcName = funcList[i];
@@ -101,28 +107,58 @@ bool EComponentFactory::InitalizeComponentFactory()
             auto NewComponentFunc = (NewScripts)GetProcAddress(m_scriptsDll, funcName.c_str());
             Component* component = NewComponentFunc();
             const char* key = typeid(*component).name();
-            m_NewScriptsFunctionMap[key] = NewComponentFunc;
+            _newScriptsFunctionMap[key] = NewComponentFunc;
             m_NewScriptsKeyVec.emplace_back(key);
             delete component;
         }
     }
 
     //파괴된 컴포넌트 재생성 및 복구
+    MissingComponent missingTemp;
     for (auto& [gameObject, key, index, reflectData] : addList)
     {
-        auto findIter = m_NewScriptsFunctionMap.find(key);
-        if (findIter != m_NewScriptsFunctionMap.end())
+        bool isMissing = false;
+        if (key == typeid(MissingComponent).name())
+        {
+            //Missing 컴포넌트면 데이터 복구
+            missingTemp.DeserializedReflectFields(reflectData);
+            key = missingTemp.ReflectFields->typeName;
+            isMissing = true;
+        }
+        std::shared_ptr<Component> newComponent;
+        auto findIter = _newScriptsFunctionMap.find(key);
+        bool isFind   = findIter != _newScriptsFunctionMap.end();
+        if (isFind)
         {
             //컴포넌트 존재하면 다시 생성
-            std::shared_ptr<Component> newComponent = NewComponent(key);
-            ResetComponent(gameObject, newComponent.get());       //엔진에서 사용하기 위해 초기화
-            newComponent->_initFlags.SetAwake();                  //초기화 플래그 설정
-            newComponent->_initFlags.SetStart();                  //초기화 플래그 설정
-            newComponent->_index = index;                         //인덱스 제대로 재설정
-            newComponent->DeserializedReflectFields(reflectData); //데이터 복구
-            gameObject->_components[index] = newComponent;  
+            newComponent = NewComponent(key);
         }
+        else
+        {
+            //없어진 컴포넌트면 Missing으로 대체
+            std::shared_ptr<MissingComponent> missing = NewMissingComponent();
+            missing->ReflectFields->typeName = key;
+            missing->ReflectFields->reflectData = reflectData;
+            newComponent = std::move(missing);
+        }
+        ResetComponent(gameObject, newComponent.get());       // 엔진에서 사용하기 위해 초기화
+        newComponent->_initFlags.SetAwake();                  // 초기화 플래그 설정
+        newComponent->_initFlags.SetStart();                  // 초기화 플래그 설정
+        gameObject->_components[index] = newComponent;  
+        if (isFind == true)
+        {
+            if (isMissing == true)
+            {
+                //Missing 컴포넌트면 데이터 복구
+                reflectData = missingTemp.ReflectFields->reflectData;
+            }
+            if (reflectData.empty() == false)
+            {
+                newComponent->DeserializedReflectFields(reflectData); // 데이터 복구
+            }          
+        }     
     }
+
     //존재 안하는거는 전부 제거
     for (auto& [gameObject, key, index, reflectData] : addList)
     {
@@ -140,7 +176,7 @@ void EComponentFactory::UninitalizeComponentFactory()
     if (m_scriptsDll != NULL)
     {
         //모든 컴포넌트 자원 회수
-        for (auto& [key, wptr] : m_ComponentInstanceVec)
+        for (auto& [key, wptr] : _componentInstanceVec)
         {
             if (auto component = wptr.lock())
             {
@@ -148,7 +184,7 @@ void EComponentFactory::UninitalizeComponentFactory()
                 component->_gameObect->_components[index].reset(); //컴포넌트 파괴
             }
         }
-        m_ComponentInstanceVec.clear();
+        _componentInstanceVec.clear();
         FreeLibrary(m_scriptsDll);
         m_scriptsDll = NULL;
     }
@@ -210,17 +246,33 @@ bool EComponentFactory::DeserializeToYaml(GameObject* ownerObject,
     return true;
 }
 
+void EComponentFactory::AddEngineComponentsToScripts() 
+{
+    for (auto& [key, func] : _engineComponets)
+    {
+        _newScriptsFunctionMap[key] = func;
+        m_NewScriptsKeyVec.emplace_back(key);
+    }
+}
+
 std::shared_ptr<Component> EComponentFactory::NewComponent(std::string_view typeid_name)
 {
     std::shared_ptr<Component> newComponent;
-    auto findIter = m_NewScriptsFunctionMap.find(typeid_name.data());
-    if (findIter != m_NewScriptsFunctionMap.end())
+    auto findIter = _newScriptsFunctionMap.find(typeid_name.data());
+    if (findIter != _newScriptsFunctionMap.end())
     {
         auto& [name, func] = *findIter;
         newComponent.reset(func());                                //컴포넌트 생성
-        m_ComponentInstanceVec.emplace_back(name, newComponent);   //추적용 weak_ptr 생성 
+        _componentInstanceVec.emplace_back(name, newComponent);   //추적용 weak_ptr 생성 
     }
     return newComponent;
+}
+
+std::shared_ptr<MissingComponent> EComponentFactory::NewMissingComponent()
+{
+    std::shared_ptr<MissingComponent> missing = std::make_shared<MissingComponent>();
+    _componentInstanceVec.emplace_back(typeid(MissingComponent).name(), missing);
+    return missing;
 }
 
 void EComponentFactory::ResetComponent(GameObject* ownerObject, Component* component)

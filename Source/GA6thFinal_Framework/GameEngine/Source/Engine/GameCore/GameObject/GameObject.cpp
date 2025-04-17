@@ -8,7 +8,8 @@ void GameObject::DontDestroyOnLoad(GameObject& gameObject)
 
 void GameObject::Instantiate(GameObject& gameObject)
 {
-
+    YAML::Node node = UmGameObjectFactory.SerializeToYaml(&gameObject);
+    UmGameObjectFactory.DeserializeToYaml(&node);
 }
 
 void GameObject::Destroy(Component& component, float t)
@@ -46,8 +47,7 @@ std::weak_ptr<GameObject> GameObject::GetWeakPtr() const
     return ESceneManager::Engine::GetRuntimeObjectWeakPtr(_instanceID);
 }
 
-void GameObject::OnFocusInspectorView() 
-{
+void GameObject::OnFocusInspectorView() {
 
 }
 
@@ -92,24 +92,54 @@ void GameObject::OnDrawInspectorView()
 
         if (selectObject)
         {
-            if (ImGui::BeginPopupModal("Select Component", 
-                                       nullptr,
-                                       ImGuiWindowFlags_AlwaysAutoResize))
+            if (ImGui::BeginPopupModal("Select Component", nullptr))
             {
-                ImGui::BeginChild("ScrollRegion", 
-                                  ImVec2(300, 200), 
+                ImGui::BeginChild("Component Child", 
+                                  ImVec2{0, ImGui::GetContentRegionAvail().y - 40.0f}, 
                                   0,
                                   ImGuiWindowFlags_HorizontalScrollbar);
-                for (auto& key :
-                     engineCore->ComponentFactory.GetNewComponentKeyList())
+                if (UmComponentFactory.HasScript() == true)
                 {
-                    if (ImGui::Button(key.c_str()))
+                    static ImVec2      popupPos{};
+                    static std::string inputBuffer{};
+                    if (ImGui::Button(u8"스크립트 파일 만들기"_c_str))
                     {
-                        engineCore->ComponentFactory.AddComponentToObject(
-                            selectObject, 
-                            key);
-                        ImGui::CloseCurrentPopup();
+                        popupPos = ImGui::GetMousePos();
+                        inputBuffer.clear();
+                        ImGui::OpenPopup(u8"스크립트 생성 팝업"_c_str);
                     }
+
+                    if (ImGui::BeginPopup(u8"스크립트 생성 팝업"_c_str))
+                    {
+                        ImGui::SetNextWindowPos(popupPos, ImGuiCond_Appearing);
+                        ImGui::Text(u8"컴포넌트 이름을 입력하세요."_c_str);
+                        ImGui::Text(u8"예) MyTest/MyFirstComponent"_c_str);
+                        ImGui::InputText("##new_script_file_name", &inputBuffer);
+                        if (ImGui::Button("OK"))
+                        {
+                            UmComponentFactory.MakeScriptFile(inputBuffer.c_str());
+                            ImGui::CloseCurrentPopup();
+                        }
+                        ImGui::SameLine();
+                        if (ImGui::Button("Cancel"))
+                        {
+                            ImGui::CloseCurrentPopup();
+                        }
+                        ImGui::EndPopup();
+                    }
+
+                    for (auto& key : engineCore->ComponentFactory.GetNewComponentKeyList())
+                    {
+                        if (ImGui::Button(key.c_str()))
+                        {
+                            engineCore->ComponentFactory.AddComponentToObject(selectObject, key);
+                            ImGui::CloseCurrentPopup();
+                        }
+                    }
+                }
+                else
+                {
+                    ImGui::Text(u8"스크립트를 Build 해주세요. :("_c_str);
                 }
                 ImGui::EndChild();
 

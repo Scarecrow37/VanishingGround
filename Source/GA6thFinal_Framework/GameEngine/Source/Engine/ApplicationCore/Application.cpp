@@ -48,7 +48,6 @@ Application::Application()
     //필수 모듈들
     AddModule<EngineCoresModule>();
 
-    //_graphicsModule = AddModule<GraphicsModule>();
     _imguiDX12Module = AddModule<ImGuiDX12Module>();
     _filesystemModule = AddModule<FileSystemModule>();
 }
@@ -111,7 +110,6 @@ void Application::Run()
                 _imguiDX12Module->ImguiEnd();
                 Global::engineCore->Graphics.Render();
             }
-            //_graphicsModule->Render();
         }
     }
 }
