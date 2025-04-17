@@ -8,7 +8,8 @@ void GameObject::DontDestroyOnLoad(GameObject& gameObject)
 
 void GameObject::Instantiate(GameObject& gameObject)
 {
-
+    YAML::Node node = UmGameObjectFactory.SerializeToYaml(&gameObject);
+    UmGameObjectFactory.DeserializeToYaml(&node);
 }
 
 void GameObject::Destroy(Component& component, float t)

@@ -61,7 +61,7 @@ void ScriptTestEditor::OnFrame()
 
     {
         constexpr const char* testPath = "TestObjectSerialized.yaml";
-        ImGui::Text(u8"직렬화 테스트"_c_str);
+        ImGui::TextColored({0,0,1,1}, u8"직렬화 테스트"_c_str);
         if (ImGui::BeginDragDropTarget())
         {
             if (const ImGuiPayload* payLoad =
@@ -85,6 +85,18 @@ void ScriptTestEditor::OnFrame()
         {
             YAML::Node node =  YAML::LoadFile(testPath);
             UmGameObjectFactory.DeserializeToYaml(&node);
+        }
+
+        ImGui::TextColored({0,0,1,1}, u8"Instantiate"_c_str);
+        if (ImGui::BeginDragDropTarget())
+        {
+            if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropTransform::key))
+            {
+                using Data      = DragDropTransform::Data;
+                Data*      data = (Data*)payLoad->Data;
+                GameObject::Instantiate(data->pTransform->gameObject);
+            }
+            ImGui::EndDragDropTarget();
         }
     }
 }
