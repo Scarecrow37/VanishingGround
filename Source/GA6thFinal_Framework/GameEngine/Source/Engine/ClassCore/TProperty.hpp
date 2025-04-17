@@ -61,6 +61,7 @@ private:
     using setterType = std::conditional_t<is_setter, setter, char>;
 public:
     using field_type = std::conditional_t<is_getter, typename getter::Type, typename setter::Type>;
+    using remove_cvref_field_type = std::remove_cvref_t<field_type>;
     TProperty(
         owner_type* _this
     ) 
@@ -81,7 +82,7 @@ private:
     {
         return _getter(_propertyOwner);
     }
-    void Setter(const field_type& rhs) requires(is_setter)
+    void Setter(const remove_cvref_field_type& rhs) requires(is_setter)
     {
         _setter(_propertyOwner, rhs);
     }
@@ -116,11 +117,11 @@ public:
         return this->Getter();
     }
 
-    inline auto* operator->() requires ( std::is_pointer_v<owner_type> && is_getter)
+    inline auto* operator->() const requires(std::is_pointer_v<owner_type>&& is_getter)
     { 
         return this->Getter();
     }
-    inline auto* operator->() requires (!std::is_pointer_v<owner_type> && std::is_reference_v<field_type> && is_getter)
+    inline auto* operator->()const requires(!std::is_pointer_v<owner_type> && std::is_reference_v<field_type> && is_getter)
     { 
         return &this->Getter();
     }
@@ -139,7 +140,7 @@ public:
         }
         return *this;
     }
-    inline TProperty& operator=(const field_type& rhs) requires (is_setter)
+    inline TProperty& operator=(const remove_cvref_field_type& rhs) requires (is_setter)
     {
         this->Setter(rhs);
         return *this;
@@ -153,7 +154,7 @@ public:
         }
         return *this;
     }
-    inline TProperty& operator+=(const field_type& rhs) requires (is_setter)
+    inline TProperty& operator+=(const remove_cvref_field_type& rhs) requires (is_setter)
     {
         this->Setter(this->Getter() + rhs);
         return *this;
@@ -167,7 +168,7 @@ public:
         }
         return *this;
     }
-    inline TProperty& operator-=(const field_type& rhs) requires (is_setter)
+    inline TProperty& operator-=(const remove_cvref_field_type& rhs) requires (is_setter)
     {
         this->Setter(this->Getter() - rhs);
         return *this;
@@ -181,7 +182,7 @@ public:
         }
         return *this;
     }
-    inline TProperty& operator*=(const field_type& rhs) requires (is_setter)
+    inline TProperty& operator*=(const remove_cvref_field_type& rhs) requires (is_setter)
     {
         this->Setter(this->Getter() * rhs);
         return *this;
@@ -195,7 +196,7 @@ public:
         }
         return *this;
     }
-    inline TProperty& operator/=(const field_type& rhs) requires (is_setter)
+    inline TProperty& operator/=(const remove_cvref_field_type& rhs) requires (is_setter)
     {
         this->Setter(this->Getter() / rhs);
         return *this;
