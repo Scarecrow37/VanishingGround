@@ -190,16 +190,16 @@ void EComponentFactory::UninitalizeComponentFactory()
     }
 }
 
-bool EComponentFactory::AddComponentToObject(GameObject* ownerObject, std::string_view typeid_name)
+Component* EComponentFactory::AddComponentToObject(GameObject* ownerObject, std::string_view typeid_name)
 {
     if(std::shared_ptr<Component> sptr_component = NewComponent(typeid_name))
     {
         const char* name = typeid_name.data();
         ResetComponent(ownerObject, sptr_component.get());
         ESceneManager::Engine::AddComponentToLifeCycle(sptr_component); //씬에 등록
-        return true;
+        return sptr_component.get();
     }
-    return false;
+    return nullptr;
 }
 
 void EComponentFactory::MakeScriptFile(const char* fileName) const

@@ -61,7 +61,7 @@ public:
     /// <param name="ownerObject :">컴포넌트를 추가할 오브젝트</param>
     /// <param name="typeid_name :">컴포넌트 typeid().name()</param>
     /// <returns>성공 여부</returns>
-    bool AddComponentToObject(GameObject* ownerObject, std::string_view typeid_name);
+    Component* AddComponentToObject(GameObject* ownerObject, std::string_view typeid_name);
 
     /// <summary>
     /// 스크립트 DLL의 모든 컴포넌트 생성 키들을 반환합니다.
