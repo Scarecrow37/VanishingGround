@@ -61,6 +61,9 @@ GameApplication::GameApplication()
     // TestMenu. 추후 삭제 필요
     _editorManager->RegisterEditorObject<SampleMenu>();
     _editorManager->RegisterEditorObject<SampleMenu2>();
+
+    // 만든 EditorModule에 MySampleEditorTool 등록
+    _editorManager->RegisterEditorObject<MySampleEditorTool>();
 }
 
 GameApplication::~GameApplication()
@@ -68,3 +71,34 @@ GameApplication::~GameApplication()
 
 }
 
+MySampleEditorTool::MySampleEditorTool()
+{
+    /* 필수 구현 항목*/
+    SetLabel("MySampleTool"); // 툴 이름
+
+    /* 선택적 옵션 */
+    SetSize(ImVec2(500, 300));            // 초기 사이즈
+    SetPos(ImVec2(300, 100));             // 초기 위치
+    SetCallOrder(0);                      // 호출 순서 (0일시 생략 가능)
+    SetWindowFlag(ImGuiWindowFlags_None); // 윈도우 플래그 (ImGuiWindowFlags_NoCollapse는 항상 활성화)
+}
+
+// MySampleEditorTool.cpp
+void MySampleEditorTool::OnFrame()
+{
+    ImGuiHelper::TooltipMarker("MySampleTool");
+    ImGui::Text("Hello, World!");
+    ImGuiHelper::LoadingSpinner(10.0f, ImVec4(1.0f, 1.0f, 0.0f, 1.0f));
+}
+
+void MySampleEditorTool::OnPopup()
+{
+    if (ImGui::MenuItem("Sample1"))
+    {
+        UmEngineLogger.Log(LogLevel::LEVEL_DEBUG, "Clicked Sample1");
+    }
+    if (ImGui::MenuItem("Sample2"))
+    {
+        UmEngineLogger.Log(LogLevel::LEVEL_DEBUG, "Clicked Sample2");
+    }
+}

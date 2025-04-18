@@ -18,20 +18,21 @@ Popup창도 OpenPopup을 할 필요가 없다. 그냥 BeginPopupContextItem만 �
 void EditorTool::OnDrawGui()
 {
     ImGuiIO& io = ImGui::GetIO();
-
+    
     if (GetVisible())
     {
         OnPreFrame();
 
         if (true == _size.first)
         {
-            ImGui::SetWindowSize(_size.second, ImGuiCond_FirstUseEver);
+            ImGui::SetNextWindowSize(_size.second, ImGuiCond_FirstUseEver);
             _size.first = false;
         }
 
         if (true == _pos.first)
         {
-            ImGui::SetWindowPos(_pos.second, ImGuiCond_FirstUseEver);
+            ImVec2 clientPos = ImGui::GetMainViewport()->Pos;
+            ImGui::SetNextWindowPos(clientPos + _pos.second, ImGuiCond_FirstUseEver);
             _pos.first = false;
         }
 

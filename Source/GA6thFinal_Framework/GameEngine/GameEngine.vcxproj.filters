@@ -198,7 +198,7 @@
     <ClInclude Include="Source\Engine\Utility\ImGuiHelper.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\EditorCore\EditorBase.h">
+    <ClInclude Include="Source\Engine\EditorCore\EditorGui.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\EditorCore\EditorEnum.h">
@@ -283,9 +283,6 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Utility\FileHelper.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GameCore\Component\MissingComponent.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Utility\EditorHelper.h">
@@ -503,7 +500,7 @@
     <ClCompile Include="Source\Engine\Utility\ImGuiHelper.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\EditorCore\EditorBase.cpp">
+    <ClCompile Include="Source\Engine\EditorCore\EditorGui.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\EditorCore\EditorEnum.cpp">
@@ -587,13 +584,7 @@
     <ClCompile Include="Source\Engine\Utility\FileHelper.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\GameCore\Component\MissingComponent.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\Utility\EditorHelper.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Editor\DragDropTypes\DragDropTransform.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\GraphicsCore.cpp">

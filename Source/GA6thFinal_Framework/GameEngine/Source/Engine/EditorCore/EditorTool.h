@@ -53,13 +53,14 @@ public:
     inline ImVec2           GetPos() { return _pos.second; }
 
 private:
-    DockLayout          _dockLayout = DockLayout::NONE;         // 초기 Dock영역 (초기 도킹빌드시에만 사용하고 이후엔 사용 X)
-    ImGuiWindowFlags    _windowFlags = ImGuiWindowFlags_None;   // ImGui윈도우 플래그 (ImGuiWindowFlags_NoCollapse는 항상 활성화)
-    bool                _isLock = false;                        // 해당 탭에 대한 입력을 막을지에 대한 여부
+    DockLayout              _dockLayout = DockLayout::NONE;         // 초기 Dock영역 (초기 도킹빌드시에만 사용하고 이후엔 사용 X)
+    ImGuiWindowFlags        _windowFlags = ImGuiWindowFlags_None;   // ImGui윈도우 플래그 (ImGuiWindowFlags_NoCollapse는 항상 활성화)
+    bool                    _isLock = false;                        // 해당 탭에 대한 입력을 막을지에 대한 여부
     std::pair<bool, ImVec2> _size   = {false, ImVec2(0, 0)};    // 사이즈 조정 여부와 사이즈
     std::pair<bool, ImVec2> _pos    = {false, ImVec2(0, 0)};    // 위치 조정 여부와 위치
 private:
     void DefaultPopupFrame();
     void DefaultDebugFrame();
+
 };
 
