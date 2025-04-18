@@ -249,6 +249,12 @@ void EFileSystem::AddedFile(const File::Path& path)
         _contextTable.insert(context);
 
         context->OnFileAdded(path);      
+
+        auto notifierSet = GetNotifiers(path.extension());
+        for (auto& notifier : notifierSet)
+        {
+            notifier->OnFileAdded(path);
+        } 
     }
 }
 
@@ -274,6 +280,12 @@ void EFileSystem::RemovedFile(const File::Path& path)
         {
             wpForderContext.lock()->_contextTable.erase(path.filename());
         }
+
+        auto notifierSet = GetNotifiers(path.extension());
+        for (auto& notifier : notifierSet)
+        {
+            notifier->OnFileRemoved(path);
+        } 
     }
 }
 
@@ -283,6 +295,12 @@ void EFileSystem::ModifiedFile(const File::Path& path)
     if (false == wpContext.expired())
     {
         wpContext.lock()->OnFileModified(path);
+
+        auto notifierSet = GetNotifiers(path.extension());
+        for (auto& notifier : notifierSet)
+        {
+            notifier->OnFileModified(path);
+        } 
     }
 }
 
@@ -321,6 +339,32 @@ void EFileSystem::MovedFile(const File::Path& oldPath,
         {
             oldForderContext.lock()->_contextTable.erase(oldPath.filename());
             newForderContext.lock()->_contextTable[newPath.filename()] = wpContext;
+        }
+
+        if (oldPath.parent_path() == newPath.parent_path())
+        {
+            {
+                auto notifierSet = GetNotifiers(oldPath.extension());
+                for (auto& notifier : notifierSet)
+                {
+                    notifier->OnFileRenamed(oldPath, newPath);
+                } 
+            }
+            {
+                auto notifierSet = GetNotifiers(newPath.extension());
+                for (auto& notifier : notifierSet)
+                {
+                    notifier->OnFileMoved(oldPath, newPath);
+                } 
+            }
+        }
+        else
+        {
+            auto notifierSet = GetNotifiers(newPath.extension());
+            for (auto& notifier : notifierSet)
+            {
+                notifier->OnFileRenamed(oldPath, newPath);
+            } 
         }
     }
 }
