@@ -3,7 +3,7 @@
 
 EditorInspectorTool::EditorInspectorTool()
 {
-    SetLabel("InspectorView");
+    SetLabel("Inspector");
     SetDockLayout(DockLayout::RIGHT);
 }
 

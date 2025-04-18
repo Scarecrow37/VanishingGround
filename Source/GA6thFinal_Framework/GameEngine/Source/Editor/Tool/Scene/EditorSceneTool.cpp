@@ -3,7 +3,7 @@
 
 EditorSceneTool::EditorSceneTool()
 {
-    SetLabel("SceneView");
+    SetLabel("Scene");
     SetDockLayout(DockLayout::UP);
 }
 
@@ -19,11 +19,6 @@ void  EditorSceneTool::OnStartGui()
 void  EditorSceneTool::OnPreFrame()
 {
     return void ();
-}
-
-void DragDropFunc()
-{
-    ImGui::Text("Dragging");
 }
 
 void  EditorSceneTool::OnFrame()
