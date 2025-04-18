@@ -30,13 +30,14 @@ public:
 
 		return sharedResource;
 	}
+
     template <typename T> requires(std::is_base_of_v<Resource, T>)
     void AddResource(std::wstring_view filePath, std::shared_ptr<T> resource)
     {
         auto iter = _resources.find(filePath.data());
         if (iter != _resources.end())
         {
-            ASSERT(false, L"Already register resource");
+            //ASSERT(false, L"Already register resource");
             return;
         }
 
