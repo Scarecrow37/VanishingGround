@@ -588,7 +588,6 @@ void ESceneManager::ObjectsAddRuntime()
 
     for (auto& component : _addComponentsQueue)
     {
-        component->_index = component->_gameObect->_components.size();
         component->_gameObect->_components.emplace_back(component);
         _waitAwakeVec.push_back(component);
         _waitStartVec.push_back(component);

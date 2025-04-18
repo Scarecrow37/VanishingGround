@@ -10,6 +10,28 @@ class EGameObjectFactory
 private:
     EGameObjectFactory();
     ~EGameObjectFactory();
+
+#ifndef SCRIPTS_PROJECT
+    /// <summary>
+    /// 게임 오브젝트 클래스를 팩토리에서 생성 가능하도록 등록합니다. 생성자에서 호출 해야합니다.
+    /// </summary>
+    /// <typeparam name="TGameObject :">등록할 타입 파라미터</typeparam>
+    template <IS_BASE_GAMEOBJECT_C TGameObject>
+    inline void RegisterGameObject()
+    {
+        const char* key      = typeid(TGameObject).name();
+        auto        findIter = _NewGameObjectFuncMap.find(key);
+        if (findIter == _NewGameObjectFuncMap.end())
+        {
+            _NewGameObjectFuncMap[key] = [] { return new TGameObject; };
+            _NewGameObjectKeyVec.emplace_back(key);
+        }
+        else
+        {
+            assert(!"This key is already registered.");
+        }
+    }
+#endif 
 public:
     struct Engine 
     {
@@ -22,14 +44,6 @@ public:
         /// <returns></returns>
         static const std::vector<std::string>& GetGameObjectKeys();
     };
-
-
-    /// <summary>
-    /// 게임 오브젝트 클래스를 팩토리에서 생성 가능하도록 등록합니다.
-    /// </summary>
-    /// <typeparam name="TGameObject :">등록할 타입 파라미터</typeparam>
-    template<IS_BASE_GAMEOBJECT_C TGameObject>
-    void RegisterGameObject();
 
     /// <summary>
     /// 게임 오브젝트를 생성합니다. 생성된 오브젝트는 자동으로 씬에 등록됩니다.
@@ -82,22 +96,3 @@ private:
     }
     instanceIDManager;
 };
-
-template<IS_BASE_GAMEOBJECT_C TGameObject>
-inline void EGameObjectFactory::RegisterGameObject()
-{
-    const char* key = typeid(TGameObject).name();
-    auto findIter = _NewGameObjectFuncMap.find(key);
-    if (findIter == _NewGameObjectFuncMap.end())
-    {
-        _NewGameObjectFuncMap[key] = []
-            {
-                return new TGameObject;
-            };
-        _NewGameObjectKeyVec.emplace_back(key);
-    }
-    else
-    {
-        assert(!"This key is already registered.");
-    }
-}

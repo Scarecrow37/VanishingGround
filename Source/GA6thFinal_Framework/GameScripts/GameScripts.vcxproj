@@ -154,8 +154,8 @@
     <ClInclude Include="Scripts\Graphics\SkeletalMeshRenderer.h" />
     <ClInclude Include="Scripts\Graphics\StaticMeshRenderer.h" />
     <ClInclude Include="Scripts\Test\TestComponent.h" />
-    <ClInclude Include="UmrealScriptCore.h" />
-    <ClInclude Include="UmrealScripts.h" />
+    <ClInclude Include="UmScriptCore.h" />
+    <ClInclude Include="UmScripts.h" />
     <ClInclude Include="Scripts\FileSystemTest\FileTestComponent.h" />
   </ItemGroup>
   <ItemGroup>
@@ -164,8 +164,8 @@
     <ClCompile Include="Scripts\Graphics\SkeletalMeshRenderer.cpp" />
     <ClCompile Include="Scripts\Graphics\StaticMeshRenderer.cpp" />
     <ClCompile Include="Scripts\Test\TestComponent.cpp" />
-    <ClCompile Include="UmrealScriptCore.cpp" />
-    <ClCompile Include="UmrealScripts.cpp" />
+    <ClCompile Include="UmScriptCore.cpp" />
+    <ClCompile Include="UmScripts.cpp" />
     <ClCompile Include="Scripts\FileSystemTest\FileTestComponent.cpp" />
   </ItemGroup>
   <ItemGroup>

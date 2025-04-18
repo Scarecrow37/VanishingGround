@@ -179,6 +179,7 @@
     <ClInclude Include="Source\Engine\AppModule\ImGuiDX12Module.h" />
     <ClInclude Include="Source\Engine\AppModule\Interface\IAppModule.h" />
     <ClInclude Include="Source\Engine\FileSystem\Type\FileDataType.h" />
+    <ClInclude Include="Source\Engine\GameCore\Component\MissingComponent.h" />
     <ClInclude Include="Source\Engine\Utility\FileHelper.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Animation.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\BaseMesh.h" />
@@ -257,8 +258,10 @@
     <ClInclude Include="Source\UmFramework.h" />
     <ClInclude Include="Source\pch.h" />
     <ClInclude Include="Source\Engine\Utility\DumpUtility.h" />
+    <ClInclude Include="Source\UmScripts.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Editor\DragDropTypes\DragDropTransform.cpp" />
     <ClCompile Include="Source\Engine\Utility\EditorHelper.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\RenderPass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\RenderTechnique.cpp" />
@@ -297,6 +300,7 @@
     <ClCompile Include="Source\Engine\EngineCore\TimeSystem.cpp" />
     <ClCompile Include="Source\Engine\FileSystem\Type\FileDataType.cpp" />
     <ClCompile Include="Source\Engine\GameCore\Component\Component.cpp" />
+    <ClCompile Include="Source\Engine\GameCore\Component\MissingComponent.cpp" />
     <ClCompile Include="Source\Engine\GameCore\GameObject\GameObject.cpp" />
     <ClCompile Include="Source\Engine\GameCore\Transform\Transform.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\Animation.cpp" />

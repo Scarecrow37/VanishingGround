@@ -5,8 +5,7 @@ using namespace u8_literals;
 using namespace Global;
 
 static std::weak_ptr<GameObject> HierarchyFocusObjWeak;
-static void                      TransformTreeNode(Transform&                         node,
-                                                   const std::shared_ptr<GameObject>& focusObject)
+static void TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>& focusObject)
 {
     auto TreeDoubleClickEvent = [&node]() {
         bool result = ImGui::IsMouseDoubleClicked(0) && ImGui::IsItemHovered();
@@ -25,7 +24,6 @@ static void                      TransformTreeNode(Transform&                   
         {
             Data data{};
             data.pTransform = &node;
-            //data.serializedFunc = 
 
             ImGui::SetDragDropPayload(key, 
                                       &data, 

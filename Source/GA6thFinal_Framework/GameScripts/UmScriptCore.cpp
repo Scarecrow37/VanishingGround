@@ -1,5 +1,5 @@
 ﻿#include "UmFramework.h"
-#include "UmrealScriptCore.h"
+#include "UmScriptCore.h"
 
 using namespace Global;
 
@@ -74,7 +74,7 @@ UMREALSCRIPTS_DECLSPEC void CreateUmrealcSriptFile(const char* fileName)
             wofs <<             LR"({)"                                                             << L"\n";
             wofs <<   std::format(L"    USING_PROPERTY({})", ClassName)                             << L"\n";
             wofs <<             LR"(public:)"                                                       << L"\n";
-            wofs <<             LR"(REFLECT_PROPERTY())"                                            << L"\n";
+            wofs <<             LR"(    REFLECT_PROPERTY())"                                        << L"\n";
             wofs <<             LR"()"                                                              << L"\n";
             wofs <<             LR"(public:)"                                                       << L"\n";
             wofs <<   std::format(L"    {}();", ClassName)                                          << L"\n";

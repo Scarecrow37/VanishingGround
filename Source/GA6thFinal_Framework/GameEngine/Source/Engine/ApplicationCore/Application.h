@@ -106,7 +106,6 @@ private:
 
 private:
     class ImGuiDX12Module*  _imguiDX12Module = nullptr;
-    //class GraphicsModule*   _graphicsModule  = nullptr;
     class FileSystemModule* _filesystemModule = nullptr;
 
 protected:

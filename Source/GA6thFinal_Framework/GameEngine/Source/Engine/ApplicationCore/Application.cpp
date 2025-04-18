@@ -1,6 +1,4 @@
 ﻿#include "pch.h"
-#include "Application.h"
-
 using namespace Global;
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -48,7 +46,6 @@ Application::Application()
     //필수 모듈들
     AddModule<EngineCoresModule>();
 
-    //_graphicsModule = AddModule<GraphicsModule>();
     _imguiDX12Module = AddModule<ImGuiDX12Module>();
     _filesystemModule = AddModule<FileSystemModule>();
 }
@@ -111,7 +108,6 @@ void Application::Run()
                 _imguiDX12Module->ImguiEnd();
                 Global::engineCore->Graphics.Render();
             }
-            //_graphicsModule->Render();
         }
     }
 }

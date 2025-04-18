@@ -5,7 +5,7 @@ using namespace Global;
 void EngineCoresModule::PreInitialize()
 {
     SafeEngineCoresPtr::Engine::CreateEngineCores();
-    engineCore->ComponentFactory.InitalizeComponentFactory();
+    //engineCore->ComponentFactory.InitalizeComponentFactory();
     engineCore->Graphics.Initialize(engineCore->App.GetHwnd(), 1920, 1080, FEATURE_LEVEL::LEVEL_12_0);
 
     engineCore->SceneManager.CreateScene("Empty Scene");

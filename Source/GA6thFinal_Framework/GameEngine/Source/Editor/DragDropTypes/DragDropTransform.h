@@ -1,11 +1,14 @@
 ﻿#pragma once
 
-struct DragDropTransform
+class Transform;
+class DragDropTransform
 {
+public:
+    static constexpr const char* PREFAB_EXTENSION = ".UmPrefab";
+    static void WriteGameObjectFile(Transform* transform, std::string_view outPath);
     static constexpr const char* key = "Transform";
     struct Data
     {
-        Transform*                            pTransform;
-        std::function<void(std::string_view)> serializedFunc;
+        Transform* pTransform;
     };
 };

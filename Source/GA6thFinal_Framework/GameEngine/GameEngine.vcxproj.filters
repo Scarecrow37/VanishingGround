@@ -285,6 +285,9 @@
     <ClInclude Include="Source\Engine\Utility\FileHelper.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\GameCore\Component\MissingComponent.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Engine\Utility\EditorHelper.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -406,6 +409,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\GraphicsCore\RenderTechnique.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\UmScripts.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -581,7 +587,13 @@
     <ClCompile Include="Source\Engine\Utility\FileHelper.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\GameCore\Component\MissingComponent.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Engine\Utility\EditorHelper.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\DragDropTypes\DragDropTransform.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\GraphicsCore.cpp">

@@ -10,9 +10,14 @@ public:
 
 public:
     REFLECT_PROPERTY(
-        ReflectFields->doubleArray, 
-        ReflectFields->floatVector
+        ObjectDrop
         )
+
+    GETTER_ONLY(std::string_view, ObjectDrop)
+    { 
+        return ReflectFields->objectName;
+    }
+    PROPERTY(ObjectDrop)
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)
@@ -21,8 +26,8 @@ protected:
     std::string testString = "asdas";
     std::array<int, 10> doubleArray{1,2,3,4,5,6,7,8,9, 10};
     std::vector<float> floatVector{};
+    std::string         objectName = "";
     REFLECT_FIELDS_END(TestComponent)
-
 protected:
     virtual void Reset() override;
     virtual void Awake() override;

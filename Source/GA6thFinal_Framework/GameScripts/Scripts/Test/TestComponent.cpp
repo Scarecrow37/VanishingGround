@@ -1,6 +1,18 @@
 ﻿#include "TestComponent.h"
 #include "Scripts/FileSystemTest/FileTestComponent.h"
-TestComponent::TestComponent()  = default;
+TestComponent::TestComponent()
+{
+    ObjectDrop.SetDragDropFunc([this]
+    {
+        if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropTransform::key))
+        {
+            using Data = DragDropTransform::Data;
+            Data* data = (Data*)payLoad->Data;
+            ReflectFields->objectName = data->pTransform->gameObject->Name;
+        }
+    });
+
+}
 TestComponent::~TestComponent() = default;
 
 using namespace Global;
@@ -16,12 +28,12 @@ void TestComponent::Update()
     static float currTime = 0.f;
     constexpr float addTime  = 1.f;
 
-    currTime += UmTime.deltaTime();
-    while (addTime <= currTime)
-    {
-        AddComponent<FileTestComponent>();
-        currTime -= addTime;
-    }
+    //currTime += UmTime.deltaTime();
+    //while (addTime <= currTime)
+    //{
+    //    AddComponent<FileTestComponent>();
+    //    currTime -= addTime;
+    //}
 }
 
 void TestComponent::FixedUpdate() 
