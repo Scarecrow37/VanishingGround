@@ -96,7 +96,7 @@ void EditorAssetBrowserTool::ShowFolderContents()
 
     if (ImGui::BeginDragDropTargetCustom(rect, window->ID))
     {
-        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(DragDropTransform::key))
+        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(DragDropTransform::KEY))
         {
             DragDropTransform::Data* data = (DragDropTransform::Data*)payload->Data;
 
@@ -174,6 +174,15 @@ void EditorAssetBrowserTool::ShowItemToList(spContext context)
         ImGui::PushID(context.get());
 
         ImGui::Selectable(name.c_str());
+
+        //2025_04_18 드래그 이벤트 추가
+        if (ImGui::BeginDragDropSource())
+        {
+            DragDropAsset::Data data;
+            data.Path = context->GetPath();
+            ImGui::SetDragDropPayload(DragDropAsset::KEY, &data, sizeof(DragDropAsset::Data));
+            ImGui::EndDragDropSource();
+        }
 
         if (ImGui::BeginPopupContextItem())
         {

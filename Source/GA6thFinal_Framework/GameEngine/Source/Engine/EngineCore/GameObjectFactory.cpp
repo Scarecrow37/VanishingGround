@@ -2,11 +2,47 @@
 using namespace Global;
 using namespace u8_literals;
 
-EGameObjectFactory::EGameObjectFactory()
+void EGameObjectFactory::RegisterGameObjects()
 {
     //엔진에 존재하는 모든 오브젝트 타입들을 등록해야합니다.
     RegisterGameObject<GameObject>();
+}
 
+void EGameObjectFactory::Engine::RegisterFileEvents()
+{
+    UmFileSystem.RegisterFileEventNotifier(&UmGameObjectFactory, {DragDropTransform::PREFAB_EXTENSION});
+}
+
+void EGameObjectFactory::OnFileAdded(const File::Path& path) 
+{
+    std::string message = std::format("Add Prefab : {}", path.ToGuid().string());
+    UmEngineLogger.Log(LogLevel::LEVEL_TRACE, message.c_str());
+}
+
+void EGameObjectFactory::OnFileModified(const File::Path& path) 
+{
+    std::string message = std::format("Add Prefab : {}", path.ToGuid().string());
+    UmEngineLogger.Log(LogLevel::LEVEL_TRACE, message.c_str());
+}
+
+void EGameObjectFactory::OnFileRemoved(const File::Path& path) 
+{
+    UmEngineLogger.Log(LogLevel::LEVEL_TRACE, "Removed UmPrefab!");
+}
+
+void EGameObjectFactory::OnFileRenamed(const File::Path& oldPath, const File::Path& newPath) 
+{
+    UmEngineLogger.Log(LogLevel::LEVEL_TRACE, "Renamed UmPrefab!");
+}
+
+void EGameObjectFactory::OnFileMoved(const File::Path& oldPath, const File::Path& newPath) 
+{
+    UmEngineLogger.Log(LogLevel::LEVEL_TRACE, "Moved UmPrefab!");
+}
+
+EGameObjectFactory::EGameObjectFactory()
+{
+    RegisterGameObjects();
 }
 
 EGameObjectFactory::~EGameObjectFactory() = default;
@@ -203,3 +239,4 @@ const std::vector<std::string>& EGameObjectFactory::Engine::GetGameObjectKeys()
 {
     return engineCore->GameObjectFactory._NewGameObjectKeyVec;
 }
+
