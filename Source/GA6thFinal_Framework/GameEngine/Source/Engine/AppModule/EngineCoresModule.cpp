@@ -10,9 +10,6 @@ void EngineCoresModule::PreInitialize()
 
     engineCore->SceneManager.CreateScene("Empty Scene");
     engineCore->SceneManager.LoadScene("Empty Scene");
-
-    auto gameObject = NewGameObject<GameObject>("Test").lock();
-    auto& test = gameObject->AddComponent<StaticMeshRenderer>();
 }
 
 void EngineCoresModule::ModuleUnInitialize()
