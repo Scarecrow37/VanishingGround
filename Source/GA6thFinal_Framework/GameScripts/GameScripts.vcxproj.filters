@@ -33,10 +33,10 @@
     <ClInclude Include="Scripts\Graphics\MeshRenderer.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Scripts\Graphics\SkeletalMeshRenderer.h">
+    <ClInclude Include="Scripts\Graphics\StaticMeshRenderer.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Scripts\Graphics\StaticMeshRenderer.h">
+    <ClInclude Include="Scripts\Graphics\SkeletalMeshRenderer.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -59,10 +59,10 @@
     <ClCompile Include="Scripts\Graphics\Animator.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\Graphics\SkeletalMeshRenderer.cpp">
+    <ClCompile Include="Scripts\Graphics\StaticMeshRenderer.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\Graphics\StaticMeshRenderer.cpp">
+    <ClCompile Include="Scripts\Graphics\SkeletalMeshRenderer.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

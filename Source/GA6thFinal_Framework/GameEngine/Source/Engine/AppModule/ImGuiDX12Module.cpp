@@ -46,8 +46,9 @@ void ImGuiDX12Module::PreInitialize()
 void ImGuiDX12Module::ModuleInitialize()
 {
     UmComponentFactory.InitalizeComponentFactory();
-    auto  gameObject = NewGameObject<GameObject>("Test").lock();
-    auto& test       = gameObject->AddComponent<StaticMeshRenderer>();
+
+    /*auto  gameObject = NewGameObject<GameObject>("Test").lock();
+    auto& test       = gameObject->AddComponent<StaticMeshRenderer>();*/
 }
 
 void ImGuiDX12Module::PreUnInitialize()

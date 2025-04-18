@@ -12,7 +12,7 @@ UMREALSCRIPTS_DECLSPEC void InitalizeUmrealScript(const std::shared_ptr<EngineCo
 static bool IncludeInProject(const std::filesystem::path& filePath);
 
 constexpr const wchar_t* SCRIPT_PROJECT_PATH   = L"..\\GameScripts";
-constexpr const wchar_t* UMREAL_SCRIPTS_HEADER = L"..\\GameScripts\\UmrealScripts.h";
+constexpr const wchar_t* UMREAL_SCRIPTS_HEADER = L"..\\GameScripts\\UmScripts.h";
 
 UMREALSCRIPTS_DECLSPEC void CreateUmrealcSriptFile(const char* fileName)
 {
