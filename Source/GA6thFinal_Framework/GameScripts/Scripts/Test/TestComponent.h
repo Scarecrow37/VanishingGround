@@ -10,20 +10,14 @@ public:
 
 public:
     REFLECT_PROPERTY(
-        ProGuid,
-        ReflectFields->guid
+        ObjectDrop
         )
 
-    GETTER(std::string_view, ProGuid)
+    GETTER_ONLY(std::string_view, ObjectDrop)
     { 
-        return ReflectFields->guid;
+        return ReflectFields->objectName;
     }
-    SETTER(std::string_view, ProGuid)
-    { 
-        ReflectFields->guid = value;
-        //LoadResource();
-    }
-    PROPERTY(ProGuid)
+    PROPERTY(ObjectDrop)
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)
@@ -32,7 +26,7 @@ protected:
     std::string testString = "asdas";
     std::array<int, 10> doubleArray{1,2,3,4,5,6,7,8,9, 10};
     std::vector<float> floatVector{};
-    std::string         guid = "";
+    std::string         objectName = "";
     REFLECT_FIELDS_END(TestComponent)
 protected:
     virtual void Reset() override;
