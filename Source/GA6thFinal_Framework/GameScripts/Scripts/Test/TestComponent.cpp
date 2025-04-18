@@ -16,12 +16,12 @@ void TestComponent::Update()
     static float currTime = 0.f;
     constexpr float addTime  = 1.f;
 
-    currTime += UmTime.deltaTime();
-    while (addTime <= currTime)
-    {
-        AddComponent<FileTestComponent>();
-        currTime -= addTime;
-    }
+    //currTime += UmTime.deltaTime();
+    //while (addTime <= currTime)
+    //{
+    //    AddComponent<FileTestComponent>();
+    //    currTime -= addTime;
+    //}
 }
 
 void TestComponent::FixedUpdate() 
