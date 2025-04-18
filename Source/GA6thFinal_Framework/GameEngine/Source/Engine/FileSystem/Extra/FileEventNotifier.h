@@ -8,7 +8,7 @@ namespace File
     해당 이벤트 함수를 호출한다.
     */
     class FileEventNotifier 
-        : public IFileEventProcesser
+        : public Interface::IFileEventProcesser
     {
         friend class EFileSystem;
     public:
