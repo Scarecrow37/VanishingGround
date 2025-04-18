@@ -39,14 +39,14 @@ GameApplication::GameApplication()
     _editorManager->RegisterEditorObject<EditorAssetBrowserTool>();
     _editorManager->RegisterEditorObject<EditorLogsTool>();
 
-    //김시우 테스트용
+    // 김시우 테스트용
     _editorManager->RegisterEditorObject<ScriptTestEditor>();
 
-    //블루프린트 버그있음
+    // 블루프린트 버그있음
     //_editorManager->RegisterEditorObject<EditorShaderGraph>();
 
     /* Menu */
-    //Project
+    // Project
     _editorManager->RegisterEditorObject<EditorMenuScriptBuilder>();
     // Window
     _editorManager->RegisterEditorObject<EditorMenuTools>();

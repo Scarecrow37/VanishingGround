@@ -411,6 +411,9 @@
     <ClInclude Include="Source\Engine\GraphicsCore\RenderTechnique.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\PBRPass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\pch.cpp">
@@ -592,7 +595,7 @@
     </ClCompile>
     <ClCompile Include="Source\Editor\DragDropTypes\DragDropTransform.cpp">
       <Filter>소스 파일</Filter>
-	</ClCompile>
+    </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\GraphicsCore.cpp">
       <Filter>GraphicsCore</Filter>
     </ClCompile>
@@ -696,6 +699,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\RenderTechnique.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\PBRPass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

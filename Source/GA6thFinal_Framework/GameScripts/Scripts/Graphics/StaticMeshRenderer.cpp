@@ -5,12 +5,12 @@ void StaticMeshRenderer::Reset() {}
 
 void StaticMeshRenderer::Awake()
 {
-    //UmResourceManager.RegisterLoadQueue({L"../TestAssets/Zelda/zelda.fbx", RESOURCE_TYPE::MODEL});
+    UmResourceManager.RegisterLoadQueue({L"../../../Resource/TestAssets/Zelda/zelda.fbx", RESOURCE_TYPE::MODEL});
 }
 
 void StaticMeshRenderer::Start()
 {
-    //_model = UmResourceManager.LoadResource<Model>(L"../TestAssets/Zelda/zelda.fbx");
+    _model = UmResourceManager.LoadResource<Model>(L"../../../Resource/TestAssets/Zelda/zelda.fbx");
 }
 
 void StaticMeshRenderer::OnEnable()
