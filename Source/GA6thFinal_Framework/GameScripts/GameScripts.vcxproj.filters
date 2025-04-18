@@ -15,10 +15,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="UmrealScriptCore.h">
+    <ClInclude Include="UmScriptCore.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="UmrealScripts.h">
+    <ClInclude Include="UmScripts.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Scripts\Test\TestComponent.h">
@@ -44,10 +44,10 @@
     <ClCompile Include="dllmain.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="UmrealScriptCore.cpp">
+    <ClCompile Include="UmScriptCore.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="UmrealScripts.cpp">
+    <ClCompile Include="UmScripts.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Scripts\Test\TestComponent.cpp">

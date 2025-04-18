@@ -484,10 +484,17 @@ namespace ReflectHelper
                                 )
                                 .c_str());
                     }
-
                     if constexpr (isLock == true)
                     {
                         ImGui::EndDisabled();
+                    }
+                    if constexpr (isProperty == true)
+                    {
+                        if(ImGui::BeginDragDropTarget())
+                        {
+                            val.InvokeDragDropFunc();
+                            ImGui::EndDragDropTarget();
+                        }                   
                     }
                     return isEdit;
                 };
