@@ -328,15 +328,14 @@ template<IS_BASE_COMPONENT_C TComponent >
 inline TComponent& GameObject::AddComponent()
 {
     EComponentFactory& factory = Global::engineCore->ComponentFactory;
-
-    bool result = factory.AddComponentToObject(this, typeid(TComponent).name());
-    if (result)
+    Component* component = factory.AddComponentToObject(this, typeid(TComponent).name());
+    if (component)
     {
-        return static_cast<TComponent&>(*this->_components.back());
+        return static_cast<TComponent&>(*component);
     }
     else
     {
-        //존재하지 않는 컴포넌트.
+        //컴포넌트 생성 실패
         __debugbreak();
     } 
 }
