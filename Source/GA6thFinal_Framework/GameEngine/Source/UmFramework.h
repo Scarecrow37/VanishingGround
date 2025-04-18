@@ -82,6 +82,12 @@ using namespace Microsoft::WRL;
 #include "Engine/Imgui/imgui_node_editor.h"
 #include "Engine/Imgui/imgui_internal.h"
 
+#include "Engine/Imgui/imGuizmo/ImGuizmo.h"
+#include "Engine/Imgui/imGuizmo/ImSequencer.h"
+#include "Engine/Imgui/imGuizmo/ImZoomSlider.h"
+#include "Engine/Imgui/imGuizmo/ImCurveEdit.h"
+#include "Engine/Imgui/imGuizmo/GraphEditor.h"
+
 //Utility
 #include "Engine/Utility/LogLevel.h"
 #include "Engine/Utility/utfHelper.h"
