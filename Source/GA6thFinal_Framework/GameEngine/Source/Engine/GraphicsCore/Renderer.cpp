@@ -3,6 +3,7 @@
 #include "Shader.h"
 #include "FrameResource.h"
 #include "Model.h"
+#include "UmScripts.h"
 
 #define SeongU01
 #ifdef SeongU01

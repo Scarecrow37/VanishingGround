@@ -50,6 +50,31 @@ public:
     static constexpr bool is_getter = !std::is_same_v<getter::Type, void>;
     static constexpr bool is_setter = !std::is_same_v<setter::Type, void>;
 
+    /// <summary>
+    /// <para> 이 프로퍼티의 에디터 창에서 AcceptDragDropPayload를 호출하는 함수를 설정합니다. </para>
+    /// <para> 프로퍼티를 맴버로 사용하는 클래스의 생성자에서 사용해야합니다. </para>
+    /// <para> if (ImGui::BeginDragDropTarget())후 호출해줍니다. </para>
+    /// </summary>
+    inline void SetDragDropFunc(const std::function<void()>& func) 
+    {
+        if (dragDropTargetFunc)
+        {
+            assert(!"이미 설정된 함수입니다.");
+        }
+        else
+        {
+            dragDropTargetFunc = func;
+        }
+    }
+
+    inline void InvokeDragDropFunc()
+    {
+        if (dragDropTargetFunc)
+        {
+            dragDropTargetFunc();
+        }
+    }
+
 private:
     static_assert(is_getter || is_setter, "TProperty must have either a getter or a setter.");
 
@@ -77,6 +102,7 @@ private:
     getterType _getter{};
     setterType _setter{};
     const type_info& type_id;
+    std::function<void()> dragDropTargetFunc;
 
     field_type Getter() const requires(is_getter)
     {
