@@ -12,13 +12,13 @@ namespace Global
 #endif
 
 template <typename T>
-concept IsEditorBase = std::is_base_of_v<EditorBase, T>;
+concept IsEditorGui = std::is_base_of_v<EditorGui, T>;
 
 template <typename T>
-concept IsEditorTool = IsEditorBase<T> && std::is_base_of_v<EditorTool, T>;
+concept IsEditorTool = IsEditorGui<T> && std::is_base_of_v<EditorTool, T>;
 
 template <typename T>
-concept IsEditorMenu = IsEditorBase<T> && std::is_base_of_v<EditorMenu, T>;
+concept IsEditorMenu = IsEditorGui<T> && std::is_base_of_v<EditorMenu, T>;
 
  class EditorModule : public IAppModule
  {
@@ -39,7 +39,7 @@ concept IsEditorMenu = IsEditorBase<T> && std::is_base_of_v<EditorMenu, T>;
      void Update();
  public:
      /* 툴을 등록합니다. */
-     template <IsEditorBase T>
+     template <IsEditorGui T>
      void RegisterEditorObject()
      {
          if constexpr (IsEditorTool<T>)
@@ -53,7 +53,7 @@ concept IsEditorMenu = IsEditorBase<T> && std::is_base_of_v<EditorMenu, T>;
      }
 
      /* 툴을 가져옵니다. */
-     template <IsEditorBase T>
+     template <IsEditorGui T>
      T* GetEditorObject()
      {
          if constexpr (IsEditorTool<T>)

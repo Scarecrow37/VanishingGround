@@ -75,7 +75,7 @@ private:
 class EditorFileObject : public IEditorObject
 {
 public:
-    virtual void OnDrawInspectorView() override;
+    virtual void OnInspectorStay() override;
 
 public:
     inline auto GetContext() { return _context; }

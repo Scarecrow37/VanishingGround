@@ -1,6 +1,6 @@
 ﻿#include "pch.h"
 #include "EditorModule.h"
-#include "EditorBase.h"
+#include "EditorGui.h"
 #include "EditorMenuBar.h"
 
 EditorModule* Global::editorManager = nullptr;

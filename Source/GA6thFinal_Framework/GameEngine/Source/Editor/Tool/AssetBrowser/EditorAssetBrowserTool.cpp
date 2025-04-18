@@ -243,7 +243,7 @@ void EditorAssetBrowserTool::EndColum()
     ImGui::Columns(1); // 컬럼 종료
 }
 
-void EditorFileObject::OnDrawInspectorView()
+void EditorFileObject::OnInspectorStay()
 {
     if (false == _context.expired())
     {

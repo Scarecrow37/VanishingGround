@@ -24,7 +24,7 @@ void  EditorInspectorTool::OnFrame()
     if (false == _focusedObject.expired())
     {
         auto spFocusedObject = _focusedObject.lock();
-        spFocusedObject->OnDrawInspectorView();
+        spFocusedObject->OnInspectorStay();
     }
 
     ImGui::Button("EventA");

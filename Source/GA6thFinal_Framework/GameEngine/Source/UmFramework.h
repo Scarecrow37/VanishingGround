@@ -121,7 +121,7 @@ using namespace Microsoft::WRL;
 
 //Editor Core
 #include "Engine/EditorCore/EditorEnum.h"
-#include "Engine/EditorCore/EditorBase.h"
+#include "Engine/EditorCore/EditorGui.h"
 #include "Engine/EditorCore/EditorTool.h"
 #include "Engine/EditorCore/EditorMenuBar.h"
 #include "Engine/EditorCore/EditorDockSpace.h"

@@ -3,7 +3,7 @@
 /*
 도킹이 가능한 에디터 윈도우를 생성할 수 있는 객체
 */
-class EditorTool : public EditorBase
+class EditorTool : public EditorGui
 {
     friend class EditorModule;
 public:
@@ -44,15 +44,22 @@ public:
     inline bool             IsLock() { return _isLock; }
     inline void             ToggleLock() { _isLock = _isLock == true ? false : true; }
 
+    /*                      사이즈 조정 설정 */
+    inline void             SetSize(const ImVec2& size) { _size = {true, size}; }
+    inline ImVec2           GetSize() { return _size.second; }
+
+    /*                      위치 조정 설정 */
+    inline void             SetPos(const ImVec2& pos) { _pos = {true, pos}; }
+    inline ImVec2           GetPos() { return _pos.second; }
+
 private:
     DockLayout          _dockLayout = DockLayout::NONE;         // 초기 Dock영역 (초기 도킹빌드시에만 사용하고 이후엔 사용 X)
     ImGuiWindowFlags    _windowFlags = ImGuiWindowFlags_None;   // ImGui윈도우 플래그 (ImGuiWindowFlags_NoCollapse는 항상 활성화)
     bool                _isLock = false;                        // 해당 탭에 대한 입력을 막을지에 대한 여부
-    // + 추가할 것: 오프셋 등
-
+    std::pair<bool, ImVec2> _size   = {false, ImVec2(0, 0)};    // 사이즈 조정 여부와 사이즈
+    std::pair<bool, ImVec2> _pos    = {false, ImVec2(0, 0)};    // 위치 조정 여부와 위치
 private:
     void DefaultPopupFrame();
     void DefaultDebugFrame();
-
 };
 

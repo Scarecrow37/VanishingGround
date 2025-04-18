@@ -81,7 +81,7 @@ void EditorMenuBar::Sort(EditorMenuNode* root)
             continue;
 
         std::sort(group.begin(), group.end(),
-                  [](EditorBase* a, EditorBase* b) { return a->GetCallOrder() < b->GetCallOrder(); });
+                  [](EditorGui* a, EditorGui* b) { return a->GetCallOrder() < b->GetCallOrder(); });
 
         for (auto& node : group)
         {

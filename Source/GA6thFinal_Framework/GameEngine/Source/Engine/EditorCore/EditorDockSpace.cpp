@@ -41,7 +41,7 @@ void EditorDockSpace::OnStartGui()
         }
     }
     std::sort(_editorToolList.begin(), _editorToolList.end(),
-        [](EditorBase* a, EditorBase* b) {
+        [](EditorGui* a, EditorGui* b) {
             return a->GetCallOrder() > b->GetCallOrder();
         });
 }

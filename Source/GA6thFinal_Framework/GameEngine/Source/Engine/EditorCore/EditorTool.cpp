@@ -23,6 +23,18 @@ void EditorTool::OnDrawGui()
     {
         OnPreFrame();
 
+        if (true == _size.first)
+        {
+            ImGui::SetWindowSize(_size.second, ImGuiCond_FirstUseEver);
+            _size.first = false;
+        }
+
+        if (true == _pos.first)
+        {
+            ImGui::SetWindowPos(_pos.second, ImGuiCond_FirstUseEver);
+            _pos.first = false;
+        }
+
         std::string label = GetLabel();
         ImGui::Begin(label.c_str(), &_isVisible, _windowFlags | ImGuiWindowFlags_NoCollapse);
 

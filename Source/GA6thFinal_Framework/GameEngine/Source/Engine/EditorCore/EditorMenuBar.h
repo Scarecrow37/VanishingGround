@@ -9,7 +9,7 @@ Menu를 출력하기 위한 컨테이너
 MenuNode = 경로를 이어주기 위한 객체 (EditorMenu)
 MenuLeaf = 실제 동작을 위한 객체 (EditorMenu를 상속받은 사용자 정의 객체)
 */
-class EditorMenuBar : public EditorBase
+class EditorMenuBar : public EditorGui
 {
     using Path = File::FString;
     using Name = std::string;
@@ -67,7 +67,7 @@ private:
     void Sort(EditorMenuNode* root);
 };
 
-class EditorMenuBase : public EditorBase
+class EditorMenuBase : public EditorGui
 {
 public:
     EditorMenuBase();
