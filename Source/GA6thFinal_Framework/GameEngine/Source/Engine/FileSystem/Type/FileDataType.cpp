@@ -41,8 +41,9 @@ namespace File
         }
         else
         {
+            // 숨김 설정
+            // SetFileAttributesW(path.c_str(), FILE_ATTRIBUTE_HIDDEN);
             _filePath = path;
-            SetFileAttributesW(_filePath.c_str(), FILE_ATTRIBUTE_HIDDEN);
             CreateGuid(_fileGuid);
             CreateGuid(_projectGuid);
             YAML::Node node;

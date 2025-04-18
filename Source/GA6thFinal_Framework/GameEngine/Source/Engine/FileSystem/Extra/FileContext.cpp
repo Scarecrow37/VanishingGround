@@ -118,6 +118,8 @@ namespace File
     {
         _path = newPath;
 
+        LoadMeta();
+
         for (auto& [name, wpContext] : _contextTable)
         {
             if (false == wpContext.expired())
@@ -133,6 +135,8 @@ namespace File
     void ForderContext::OnFileMoved(const Path& oldPath, const Path& newPath) 
     {
         _path = newPath;
+
+        LoadMeta();
 
         for (auto& [name, wpContext] : _contextTable)
         {
