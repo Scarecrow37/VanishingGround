@@ -19,6 +19,8 @@ public:
     }
     PROPERTY(ObjectDrop)
 
+    const std::vector<float>& GetfloatVector() const { return ReflectFields->floatVector; }
+
 protected:
     REFLECT_FIELDS_BEGIN(Component)
     int testint = 10;
