@@ -79,46 +79,31 @@ void FileSystemModule::DispatchFileEvent()
         {
             std::unordered_set<File::FileEventNotifier*> notifiers;
 
-            if (std::filesystem::is_regular_file(lp))
-            {
-                notifiers = UmFileSystem.GetNotifiers(lp.extension());
-            }
-
             switch (eventType)
             {
             case File::EventType::ADDED:
             {
                 UmFileSystem.AddedFile(lp);
-                for (auto& notifier : notifiers)
-                    notifier->OnFileAdded(lp);
                 break;
             }
             case File::EventType::REMOVED:
             {
                 UmFileSystem.RemovedFile(lp);
-                for (auto& notifier : notifiers)
-                    notifier->OnFileRemoved(lp);
                 break;
             }
             case File::EventType::MODIFIED:
             {
                 UmFileSystem.ModifiedFile(lp);
-                for (auto& notifier : notifiers)
-                    notifier->OnFileModified(lp);
                 break;
             }
             case File::EventType::RENAMED:
             {
                 UmFileSystem.MovedFile(lp, rp);
-                for (auto& notifier : notifiers)
-                    notifier->OnFileRenamed(lp, rp);
                 break;
             }
             case File::EventType::MOVED:
             {
                 UmFileSystem.MovedFile(lp, rp);
-                for (auto& notifier : notifiers)
-                    notifier->OnFileMoved(lp, rp);
                 break;
             }
             default:
