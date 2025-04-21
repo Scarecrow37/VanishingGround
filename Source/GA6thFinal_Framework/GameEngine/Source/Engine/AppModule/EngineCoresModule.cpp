@@ -5,8 +5,11 @@ using namespace Global;
 void EngineCoresModule::PreInitialize()
 {
     SafeEngineCoresPtr::Engine::CreateEngineCores();
+    ESceneManager::Engine::RegisterFileEvents();
     EGameObjectFactory::Engine::RegisterFileEvents();
-    engineCore->Graphics.Initialize(engineCore->App.GetHwnd(), 1920, 1080, FEATURE_LEVEL::LEVEL_12_0);
+
+    const SIZE& clientSize = UmApplication.GetClientSize();
+    engineCore->Graphics.Initialize(engineCore->App.GetHwnd(), clientSize.cx, clientSize.cy, FEATURE_LEVEL::LEVEL_12_0);
 
     engineCore->SceneManager.CreateScene("Empty Scene");
     engineCore->SceneManager.LoadScene("Empty Scene");
