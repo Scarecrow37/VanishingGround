@@ -4,16 +4,11 @@
 EditorSceneTool::EditorSceneTool() 
     : _useSnap(false)
     , _manipulateOperation(ImGuizmo::TRANSLATE)
-    , _manipulateMode(ImGuizmo::MODE::WORLD),
-      _temMatrix(Matrix::Identity), _view(Matrix::Identity)
-    , _cameraSpeed(10.f)
+    , _manipulateMode(ImGuizmo::MODE::WORLD)
+    , _tempMatrix(Matrix::Identity), _view(Matrix::Identity)
 {
     SetLabel("Scene");
     SetDockLayout(DockLayout::UP);
-
-    _camera = new Camera();
-    _camera->SetupPerspective(_fovDegree, _aspect, _nearZ, _farZ);
-    _camera->SetPosition(Vector3(0.f, 0.f, -10.f));
 }
 
 EditorSceneTool::~EditorSceneTool()
@@ -23,7 +18,8 @@ EditorSceneTool::~EditorSceneTool()
 
 void EditorSceneTool::OnStartGui()
 {
-
+    _camera = new Camera();
+    _position = Vector3(0.f, 0.f, -10.f);
 }
 
 void EditorSceneTool::OnPreFrame()
@@ -31,21 +27,41 @@ void EditorSceneTool::OnPreFrame()
     
 }
 
-static const float identityMatrix[16] = {1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f,
-                                         0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f};
-
-
 void EditorSceneTool::OnFrame()
 {
+    //_aspect = ImGui::GetWindowHeight() / ImGui::GetWindowWidth();
+    _camera->SetupPerspective(_fovDegree, _aspect, _nearZ, _farZ);
+
+    ImGuiIO& io                      = ImGui::GetIO();
+    ImVec2 value_raw                 = ImGui::GetMouseDragDelta(0, 0.0f);
+    ImVec2 value_with_lock_threshold = ImGui::GetMouseDragDelta(0);
+    ImVec2 mouse_delta               = io.MouseDelta;
+
+    ImGui::Text("GetMouseDragDelta(0):");
+    ImGui::Text("  w/ default threshold: (%.1f, %.1f)", value_with_lock_threshold.x, value_with_lock_threshold.y);
+    ImGui::Text("  w/ zero threshold: (%.1f, %.1f)", value_raw.x, value_raw.y);
+    ImGui::Text("io.MouseDelta: (%.1f, %.1f)", mouse_delta.x, mouse_delta.y);
+
     ImGuizmo::SetDrawlist();
+
+    if (ImGui::IsMouseDown(ImGuiMouseButton_Right))
+    {
+        ProcessMove();
+    }
+    else
+    {
+        ProcessMode();
+    }
+
+    _camera->SetRotation(_rotation.ToEuler());
+    _camera->SetPosition(_position);
+    _camera->Update();
 
     const Matrix& cameraView       = _camera->GetViewMatrix();
     const Matrix& cameraProjection = _camera->GetProjectionMatrix();
 
-    ProcessInput();
-
-    ImGuizmo::DrawGrid(*cameraView.m, *cameraProjection.m, identityMatrix, _farZ);
-    ImGuizmo::DrawCubes(*cameraView.m, *cameraProjection.m, *_temMatrix.m, 1);
+    ImGuizmo::DrawGrid(*cameraView.m, *cameraProjection.m, *Matrix::Identity.m, _farZ);
+    ImGuizmo::DrawCubes(*cameraView.m, *cameraProjection.m, *_tempMatrix.m, 1);
 
     ProcessViewManipulate();
     ProcessManipulate();
@@ -53,49 +69,84 @@ void EditorSceneTool::OnFrame()
 
 void EditorSceneTool::OnPostFrame()
 {
-    
 }
 
 void EditorSceneTool::OnFocus()
-{}
-
-void EditorSceneTool::ProcessInput() 
 {
-    float speed = _cameraSpeed * UmTime.deltaTime();
+}
 
+void EditorSceneTool::ProcessMove()
+{
+    ImGuiIO& io = ImGui::GetIO();
+    float    delta = UmTime.deltaTime();
+    float    moveSpeed = _moveSpeed * delta;
+    float    rotateSpeed = _rotateSpeed * delta;
+
+    auto foward = -_rotation.Forward();
+    auto right = -_rotation.Right();
+    auto up = -_rotation.Up();
 
     if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_W))
     {
-        _camera->AddPosition(Vector3(0.f, 0.f, speed));
+        _position += foward * moveSpeed;
     }
     if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_S))
     {
-        _camera->AddPosition(Vector3(0.f, 0.f, -speed));
+        _position += -foward * moveSpeed;
+    }
+
+    if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_A))
+    {
+        _position += right * moveSpeed;
+    }
+    if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_D))
+    {
+        _position += -right * moveSpeed;
     }
 
     if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_Q))
     {
-        _camera->AddPosition(Vector3(0.f, speed, 0.f));
+        _position += up * moveSpeed;
     }
     if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_E))
     {
-        _camera->AddPosition(Vector3(0.f, -speed, 0.f));
+        _position += -up * moveSpeed;
     }
 
-    if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_D))
+    ImVec2 mouseDelta = io.MouseDelta;
+    if (mouseDelta.x != 0.f || mouseDelta.y != 0.f)
     {
-        _camera->AddPosition(Vector3(speed, 0.f, 0.f));
+        float deltaX = mouseDelta.x * rotateSpeed;
+        float deltaY = mouseDelta.y * rotateSpeed;
+        _diretion += Vector3(deltaX, deltaY, 0.f);
+        _rotation = XMMatrixRotationRollPitchYaw(_diretion.y, _diretion.x, 0.f);
     }
-    if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_A))
-    {
-        _camera->AddPosition(Vector3(-speed, 0.f, 0.f));
-    }
+}
+
+void EditorSceneTool::ProcessMode() 
+{
+    if (ImGui::IsKeyPressed(ImGuiKey_T))
+        _manipulateOperation = ImGuizmo::TRANSLATE;
+    if (ImGui::IsKeyPressed(ImGuiKey_E))
+        _manipulateOperation = ImGuizmo::ROTATE;
+    if (ImGui::IsKeyPressed(ImGuiKey_R)) // r Key
+        _manipulateOperation = ImGuizmo::SCALE;
 }
 
 void EditorSceneTool::ProcessViewManipulate() 
 {
-    float viewManipulateRight = ImGui::GetWindowPos().x + ImGui::GetWindowWidth();
-    float viewManipulateTop   = ImGui::GetWindowPos().y;
+    float windowRight = ImGui::GetWindowPos().x + ImGui::GetWindowWidth();
+    float windowTop   = ImGui::GetWindowPos().y;
+
+    ImVec2 viewManipulateOffset = ImVec2(10, 10);
+    ImVec2 viewManipulateSize   = ImVec2(128, 128);
+
+    float viewManipulateRight = windowRight - viewManipulateSize.x + viewManipulateOffset.x;
+    float viewManipulateTop   = windowTop + viewManipulateOffset.y;
+
+    ImVec2 viewManipulatePos = ImVec2(viewManipulateRight, viewManipulateTop);
+
+    _view = _camera->GetViewMatrix();
 
     ImGuizmo::SetRect(
         ImGui::GetWindowPos().x,
@@ -104,16 +155,18 @@ void EditorSceneTool::ProcessViewManipulate()
         ImGui::GetWindowHeight()
     );
 
-    ImGuizmo::ViewManipulate(
-        *_view.m, 
-        _setaDistance,
-        ImVec2(viewManipulateRight - 128, viewManipulateTop),
-        ImVec2(128, 128),
-        0x10101010
-    );
+    ImGuizmo::ViewManipulate(*_view.m, _setDistance, viewManipulatePos, viewManipulateSize, 0x10101010);
 
-    _camera->SetRotation(_view.ToEuler());
-    _camera->Update();
+    // 각 성분 행렬만 추출
+    Matrix     world = _view.Invert();
+    Vector3    scale;
+    Quaternion rotationQuat;
+    Vector3    translation;
+    world.Decompose(scale, rotationQuat, translation);
+
+    // 회전 행렬
+    _rotation = Matrix::CreateFromQuaternion(rotationQuat);
+
 }
 
 void EditorSceneTool::ProcessManipulate() 
@@ -133,7 +186,7 @@ void EditorSceneTool::ProcessManipulate()
         *cameraProjection.m,
         _manipulateOperation,
         _manipulateMode,
-        *_temMatrix.m,
+        *_tempMatrix.m,
         NULL,
         _useSnap ? &_snap[0] : NULL
     );
