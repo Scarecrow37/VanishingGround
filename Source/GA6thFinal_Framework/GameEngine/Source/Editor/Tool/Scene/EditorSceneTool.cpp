@@ -32,16 +32,6 @@ void EditorSceneTool::OnFrame()
     //_aspect = ImGui::GetWindowHeight() / ImGui::GetWindowWidth();
     _camera->SetupPerspective(_fovDegree, _aspect, _nearZ, _farZ);
 
-    ImGuiIO& io                      = ImGui::GetIO();
-    ImVec2 value_raw                 = ImGui::GetMouseDragDelta(0, 0.0f);
-    ImVec2 value_with_lock_threshold = ImGui::GetMouseDragDelta(0);
-    ImVec2 mouse_delta               = io.MouseDelta;
-
-    ImGui::Text("GetMouseDragDelta(0):");
-    ImGui::Text("  w/ default threshold: (%.1f, %.1f)", value_with_lock_threshold.x, value_with_lock_threshold.y);
-    ImGui::Text("  w/ zero threshold: (%.1f, %.1f)", value_raw.x, value_raw.y);
-    ImGui::Text("io.MouseDelta: (%.1f, %.1f)", mouse_delta.x, mouse_delta.y);
-
     ImGuizmo::SetDrawlist();
 
     if (ImGui::IsMouseDown(ImGuiMouseButton_Right))
@@ -129,14 +119,18 @@ void EditorSceneTool::ProcessMode()
         _manipulateOperation = ImGuizmo::TRANSLATE;
     if (ImGui::IsKeyPressed(ImGuiKey_E))
         _manipulateOperation = ImGuizmo::ROTATE;
-    if (ImGui::IsKeyPressed(ImGuiKey_R)) // r Key
+    if (ImGui::IsKeyPressed(ImGuiKey_R))
         _manipulateOperation = ImGuizmo::SCALE;
 }
 
 void EditorSceneTool::ProcessViewManipulate() 
 {
-    float windowRight = ImGui::GetWindowPos().x + ImGui::GetWindowWidth();
-    float windowTop   = ImGui::GetWindowPos().y;
+    float windowWidth  = ImGui::GetWindowWidth();
+    float windowHeight = ImGui::GetWindowHeight();
+    float windowLeft  = ImGui::GetWindowPos().x;
+    float windowRight  = windowLeft + windowWidth;
+    float windowTop    = ImGui::GetWindowPos().y;
+    float windowBottom = windowTop + windowHeight;
 
     ImVec2 viewManipulateOffset = ImVec2(10, 10);
     ImVec2 viewManipulateSize   = ImVec2(128, 128);
@@ -146,14 +140,9 @@ void EditorSceneTool::ProcessViewManipulate()
 
     ImVec2 viewManipulatePos = ImVec2(viewManipulateRight, viewManipulateTop);
 
-    _view = _camera->GetViewMatrix();
+    ImGuizmo::SetRect(windowLeft, windowTop, windowWidth, windowHeight);
 
-    ImGuizmo::SetRect(
-        ImGui::GetWindowPos().x,
-        ImGui::GetWindowPos().y,
-        ImGui::GetWindowWidth(),
-        ImGui::GetWindowHeight()
-    );
+    _view = _camera->GetViewMatrix();
 
     ImGuizmo::ViewManipulate(*_view.m, _setDistance, viewManipulatePos, viewManipulateSize, 0x10101010);
 
@@ -166,17 +155,16 @@ void EditorSceneTool::ProcessViewManipulate()
 
     // 회전 행렬
     _rotation = Matrix::CreateFromQuaternion(rotationQuat);
-
 }
 
 void EditorSceneTool::ProcessManipulate() 
 {
-    ImGuizmo::SetRect(
-        ImGui::GetWindowPos().x,
-        ImGui::GetWindowPos().y,
-        ImGui::GetWindowWidth(),
-        ImGui::GetWindowWidth()
-    );
+    float windowWidth  = ImGui::GetWindowWidth();
+    float windowHeight = ImGui::GetWindowHeight();
+    float windowLeft   = ImGui::GetWindowPos().x;
+    float windowTop    = ImGui::GetWindowPos().y;
+
+    ImGuizmo::SetRect(windowLeft, windowTop, windowWidth, windowHeight);
 
     const Matrix& cameraView       = _camera->GetViewMatrix();
     const Matrix& cameraProjection = _camera->GetProjectionMatrix();

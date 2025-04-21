@@ -31,7 +31,6 @@ private:
 
     // Camera
     Vector3 _position = Vector3::Zero;
-    Matrix  _world    = Matrix::Identity;
     Vector3 _diretion = Vector3::Forward;
     Matrix  _rotation = Matrix::Identity;
     Matrix _view;

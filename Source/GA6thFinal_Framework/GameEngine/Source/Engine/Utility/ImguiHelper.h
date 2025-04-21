@@ -165,6 +165,21 @@ namespace ImGuiHelper
         return colorChanged;
     }
 
+    static void DrawFillRect(const ImVec2& leftTop, const ImVec2& rightBottom, const ImU32& color, float round = 0.0f,
+                             ImDrawFlags flag = 0)
+    {
+        ImDrawList* drawlist = ImGui::GetWindowDrawList();
+        ImVec2      offset   = ImGui::GetCursorScreenPos();
+        ImVec2      size     = rightBottom - leftTop;        // 크기 계산
+        ImVec2      a        = offset;                       // 왼쪽 위
+        ImVec2      b        = offset + size;                // 오른쪽 아래
+        ImU32       col      = color;                        // 노란색
+        float       rounding = round;                        // 모서리 라운딩 반경
+        ImDrawFlags flags    = flag;                         // 모든 모서리 라운딩
+
+        drawlist->AddRectFilled(a, b, col, rounding, flags);
+    }
+
     class DragDrop
     {
         using EventID = const char*;

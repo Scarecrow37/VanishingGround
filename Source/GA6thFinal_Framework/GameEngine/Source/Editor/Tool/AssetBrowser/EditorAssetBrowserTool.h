@@ -44,7 +44,16 @@ private:
     virtual void OnPostFrame() override;
 
 private:
-    void ShowFolderHierarchy(const File::Path& folderPath);
+    void ShowBrowserMenu();
+
+    void ShowUpperFrame();
+
+    void BeginColumn();
+    void EndColumn();
+    void ShowColumnPlitter();
+
+    void ShowFolderHierarchy();
+    void ShowFolderHierarchy(spForderContext forderContext);
 
     void ShowFolderContents();
 
@@ -56,8 +65,7 @@ private:
 
     void ItemClickedAction(spContext context);
 
-    void BeginColum();
-    void EndColum();
+    
 
 private:
     /* 브라우저에서 보여질 유형 (List, Icon) */
@@ -70,6 +78,10 @@ private:
     float mPanelWidth = 200.0f;
     /* 각종 플래그 */
     std::array<bool, FlagSize> mAssetBrowserFlags = {false, };
+
+    float _upperHeight = 30.0f;
+    float _columWidth = 250.f;
+    float _columHeight = 0.0f;
 };
 
 class EditorFileObject : public IEditorObject

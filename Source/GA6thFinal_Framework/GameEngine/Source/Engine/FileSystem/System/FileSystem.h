@@ -23,6 +23,7 @@ public:
 
     bool IsVaildGuid(const File::Guid& guid);
     bool IsValidExtension(const File::FString& ext);
+    bool IsSameContext(std::weak_ptr<File::Context> left, std::weak_ptr<File::Context> right);
 
     const File::Path& GetPathFromGuid(const File::Guid& guid);
     const File::Guid& GetGuidFromPath(const File::Path& path);

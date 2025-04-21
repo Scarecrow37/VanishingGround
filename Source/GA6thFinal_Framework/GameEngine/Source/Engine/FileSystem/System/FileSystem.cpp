@@ -41,6 +41,20 @@ bool EFileSystem::IsValidExtension(const File::FString& ext)
     return (ext == "") || (_notifierTable.find(ext) != _notifierTable.end());
 }
 
+bool EFileSystem::IsSameContext(std::weak_ptr<File::Context> left, std::weak_ptr<File::Context> right)
+{
+    if (false == left.expired() && false == right.expired())
+    {
+        auto spLeft  = left.lock();
+        auto spRight = right.lock();
+        if (spLeft == spRight)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 const File::Path& EFileSystem::GetPathFromGuid(const File::Guid& guid)
 {
     auto wpContext = GetContext(guid);
@@ -254,7 +268,7 @@ void EFileSystem::AddedFile(const File::Path& path)
         for (auto& notifier : notifierSet)
         {
             notifier->OnFileAdded(path);
-        } 
+        }
     }
 }
 
