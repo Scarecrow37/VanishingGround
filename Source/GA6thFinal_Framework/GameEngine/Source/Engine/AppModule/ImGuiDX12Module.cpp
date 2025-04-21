@@ -47,9 +47,22 @@ void ImGuiDX12Module::ModuleInitialize()
 {
     UmComponentFactory.InitalizeComponentFactory();
 
-    auto  gameObject = NewGameObject<GameObject>("Test").lock();
-    auto& test       = gameObject->AddComponent<StaticMeshRenderer>();
-    test.ReflectFields->FilePath = "../../../Resource/TestAssets/Zelda/zelda.fbx";
+    auto  gameObject                  = NewGameObject<GameObject>("OBJ1").lock();
+    gameObject->AddComponent<StaticMeshRenderer>().ReflectFields->FilePath = "Box";
+
+    gameObject                                                             = NewGameObject<GameObject>("OBJ2").lock();
+    gameObject->AddComponent<StaticMeshRenderer>().ReflectFields->FilePath = "Box";
+
+    gameObject                                                             = NewGameObject<GameObject>("OBJ3").lock();
+    gameObject->AddComponent<StaticMeshRenderer>().ReflectFields->FilePath = "Box";
+
+    gameObject = NewGameObject<GameObject>("OBJ4").lock();
+    gameObject->AddComponent<StaticMeshRenderer>().ReflectFields->FilePath = "../../../Resource/TestAssets/Zelda/zelda.fbx";
+
+    gameObject = NewGameObject<GameObject>("OBJ5").lock();
+    gameObject->AddComponent<StaticMeshRenderer>().ReflectFields->FilePath = "../../../Resource/TestAssets/Zelda/zelda.fbx";
+
+    //test.ReflectFields->FilePath = "../../../Resource/TestAssets/Zelda/zelda.fbx";
 }
 
 void ImGuiDX12Module::PreUnInitialize()

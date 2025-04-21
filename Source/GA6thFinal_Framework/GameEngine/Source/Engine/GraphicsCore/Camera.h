@@ -19,10 +19,13 @@ public:
 	void Update();
 
 private:
-    Matrix  _world;
-    Matrix  _view;
-    Matrix  _projection;
-    Matrix  _projectionInverse;
-	Vector3 _position;
-	Vector3 _rotation;
+    void Input();
+
+private:
+    Matrix        _world;
+    Matrix        _view;
+    Matrix        _projection;
+    Matrix        _projectionInverse;
+    Vector3       _position;
+    Vector3       _rotation;
 };

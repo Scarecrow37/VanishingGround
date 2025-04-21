@@ -49,8 +49,8 @@ public:
     //std::shared_ptr<Resource> MakeShared(std::string_view type, std::wstring_view path, size_t size);
 
 private:
-	std::unordered_map<std::wstring, std::weak_ptr<Resource>> _resources;
-    std::list<std::pair<std::wstring, RESOURCE_TYPE>>         _loadQueue;
+    std::unordered_map<std::wstring, std::weak_ptr<Resource>> _resources;
+    std::set<std::pair<std::wstring, RESOURCE_TYPE>>          _loadQueue;
     std::list<std::shared_ptr<Resource>>                      _tempResource;
 };
 

@@ -206,7 +206,7 @@ void Renderer::UpdateFrameResource()
 
             for (UINT j = 0; j < 4; j++)
             {
-                if (nullptr == materials[i][j])
+                if (materials.empty() || nullptr == materials[i][j])
                     continue;
 
                 auto iter = materialPair.find(materials[i][j]->GetHandle().ptr);
