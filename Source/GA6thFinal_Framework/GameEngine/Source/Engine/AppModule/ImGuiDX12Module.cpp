@@ -63,7 +63,7 @@ void ImGuiDX12Module::ImguiBegin()
     ImGui_ImplDX12_NewFrame();
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
-    IMGUIZMO_NAMESPACE::BeginFrame();
+    ImGuizmo::BeginFrame();
 }
 
 void ImGuiDX12Module::ImguiEnd()
