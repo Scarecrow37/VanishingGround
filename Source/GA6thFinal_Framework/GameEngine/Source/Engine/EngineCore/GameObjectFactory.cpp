@@ -36,12 +36,14 @@ void EGameObjectFactory::OnFileRemoved(const File::Path& path)
 
 void EGameObjectFactory::OnFileRenamed(const File::Path& oldPath, const File::Path& newPath) 
 {
-    UmEngineLogger.Log(LogLevel::LEVEL_TRACE, "Renamed UmPrefab");
+    std::string message = std::format("Renamed UmPrefab {} to {}", oldPath.string(), newPath.string());
+    UmEngineLogger.Log(LogLevel::LEVEL_TRACE, message.c_str());
 }
 
 void EGameObjectFactory::OnFileMoved(const File::Path& oldPath, const File::Path& newPath) 
 {
-    UmEngineLogger.Log(LogLevel::LEVEL_TRACE, "Moved UmPrefab");
+    std::string message = std::format("Moved UmPrefab {} to {}", oldPath.string(), newPath.string());
+    UmEngineLogger.Log(LogLevel::LEVEL_TRACE, message.c_str());
 }
 
 EGameObjectFactory::EGameObjectFactory()
