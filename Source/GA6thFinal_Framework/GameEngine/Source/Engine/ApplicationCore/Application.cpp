@@ -87,8 +87,6 @@ void Application::Run()
         }
         else
         {
-            _filesystemModule->Update();
-
             ETimeSystem::Engine::TimeSystemUpdate();
             float deltaTime = engineCore->Time.deltaTime();
 
@@ -96,6 +94,7 @@ void Application::Run()
             {
                 if (Global::editorManager)
                 {
+                    _filesystemModule->Update();
                     Global::editorManager->Update();
                 }
 
