@@ -1,5 +1,6 @@
 ﻿#pragma once
 class GameObject;
+class Transform;
 
 template<typename T>
 concept IS_BASE_GAMEOBJECT_C = std::is_base_of_v<GameObject, T>;
@@ -33,6 +34,7 @@ private:
     }
 #endif 
 public:
+    static constexpr const char* PREFAB_EXTENSION = ".UmPrefab";
     struct Engine 
     {
         //SceneManager에서 오브젝트를 Destroy 할때 Instance ID를 반납하기 위한 함수입니다.
@@ -46,7 +48,6 @@ public:
 
         static void RegisterFileEvents();
     };
-
     /// <summary>
     /// 게임 오브젝트를 생성합니다. 생성된 오브젝트는 자동으로 씬에 등록됩니다.
     /// </summary>
@@ -70,6 +71,12 @@ public:
     /// <returns></returns>
     bool DeserializeToYaml(YAML::Node* gameObjectNode);
 
+    /// <summary>
+    /// 게임 오브젝트를 UmPrefab파일로 저장합니다.
+    /// </summary>
+    /// <param name="transform"></param>
+    /// <param name="outPath"></param>
+    void WriteGameObjectFile(Transform* transform, std::string_view outPath);
 private:
     //컴포넌트를 동적할당후 shared_ptr로 반환합니다.
     //매개변수로 생성할 컴포넌트 typeid().name()을 전달해야합니다.

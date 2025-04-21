@@ -162,7 +162,7 @@ void EditorHierarchyTool::HierarchyDropEvent()
             ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
         {
             DragDropAsset::Data* data = (DragDropAsset::Data*)payload->Data;           
-            if (data->Path.extension() == DragDropTransform::PREFAB_EXTENSION)
+            if (data->Path.extension() == EGameObjectFactory::PREFAB_EXTENSION)
             {
                 YAML::Node node = YAML::LoadFile(data->Path.string());
                 UmGameObjectFactory.DeserializeToYaml(&node);
