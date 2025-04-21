@@ -15,7 +15,7 @@ void EGameObjectFactory::Engine::RegisterFileEvents()
 
 void EGameObjectFactory::OnFileAdded(const File::Path& path) 
 {
-    std::string message = std::format("Add Prefab : {}", path.ToGuid().string());
+    std::string message = std::format("Add Prefab : {}", path.string());
     UmEngineLogger.Log(LogLevel::LEVEL_TRACE, message.c_str());
 }
 
