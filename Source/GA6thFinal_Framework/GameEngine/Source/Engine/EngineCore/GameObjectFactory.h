@@ -46,6 +46,9 @@ public:
         /// <returns></returns>
         static const std::vector<std::string>& GetGameObjectKeys();
 
+        /// <summary>
+        /// Prefab FileEventNotifier를 등록합니다. 
+        /// </summary>
         static void RegisterFileEvents();
     };
     /// <summary>
