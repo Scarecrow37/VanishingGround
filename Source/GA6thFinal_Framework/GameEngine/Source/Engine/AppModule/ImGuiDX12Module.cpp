@@ -47,8 +47,9 @@ void ImGuiDX12Module::ModuleInitialize()
 {
     UmComponentFactory.InitalizeComponentFactory();
 
-    /*auto  gameObject = NewGameObject<GameObject>("Test").lock();
-    auto& test       = gameObject->AddComponent<StaticMeshRenderer>();*/
+    auto  gameObject = NewGameObject<GameObject>("Test").lock();
+    auto& test       = gameObject->AddComponent<StaticMeshRenderer>();
+    test.ReflectFields->FilePath = "../../../Resource/TestAssets/Zelda/zelda.fbx";
 }
 
 void ImGuiDX12Module::PreUnInitialize()

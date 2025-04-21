@@ -35,7 +35,7 @@ void ResourceManager::Update()
     _loadQueue.clear();
 }
 
-void ResourceManager::RegisterLoadQueue(const std::pair<std::wstring, RESOURCE_TYPE>& data)
+void ResourceManager::RegisterLoadQueue(const std::pair<std::filesystem::path, RESOURCE_TYPE>& data)
 {
     _loadQueue.emplace_back(data);
 }

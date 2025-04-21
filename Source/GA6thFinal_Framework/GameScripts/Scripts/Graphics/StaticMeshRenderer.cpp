@@ -8,12 +8,12 @@ void StaticMeshRenderer::Reset()
 
 void StaticMeshRenderer::Awake()
 {
-    UmResourceManager.RegisterLoadQueue({L"../../../Resource/TestAssets/Zelda/zelda.fbx", RESOURCE_TYPE::MODEL});
+    UmResourceManager.RegisterLoadQueue({ReflectFields->FilePath, RESOURCE_TYPE::MODEL});
 }
 
 void StaticMeshRenderer::Start()
 {
-    _model = UmResourceManager.LoadResource<Model>(L"../../../Resource/TestAssets/Zelda/zelda.fbx");
+    _model = UmResourceManager.LoadResource<Model>(ReflectFields->FilePath);
 }
 
 void StaticMeshRenderer::OnEnable()
