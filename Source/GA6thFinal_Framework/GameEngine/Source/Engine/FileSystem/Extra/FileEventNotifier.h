@@ -20,8 +20,8 @@ namespace File
         virtual void OnFileAdded(const File::Path& path) override                     = 0;
         virtual void OnFileModified(const File::Path& path) override                  = 0;
         virtual void OnFileRemoved(const File::Path& path) override                    = 0;
-        virtual void OnFileRenamed(const File::Path& oldPath, const Path& newPath) override = 0;
-        virtual void OnFileMoved(const File::Path& oldPath, const Path& newPath) override   = 0;
+        virtual void OnFileRenamed(const File::Path& oldPath, const File::Path& newPath) override = 0;
+        virtual void OnFileMoved(const File::Path& oldPath, const File::Path& newPath) override   = 0;
 
     public:
         bool IsTriggerExtension(const File::FString& ext);

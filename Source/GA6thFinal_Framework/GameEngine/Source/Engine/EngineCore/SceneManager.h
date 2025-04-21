@@ -28,7 +28,7 @@ public:
     /// <returns>비교 결과</returns>
     bool operator!=(const Scene& other)
     {
-        return (std::string)path != (std::string)other.path;
+        return (std::string)Path != (std::string)other.Path;
     }
     /// <summary>
     /// 같은 Scene인지 경로를 비교합니다.
@@ -36,28 +36,38 @@ public:
     /// <returns>비교 결과</returns>
     bool operator==(const Scene& other)
     {
-        return (std::string)path == (std::string)other.path;
+        return (std::string)Path == (std::string)other.Path;
     }
 
-    GETTER_ONLY(size_t, buildIndex) { return ReflectFields->_buildIndex; }
+    GETTER_ONLY(size_t, BuildIndex) { return ReflectFields->BuildIndex; }
     // get : 빌드 설정에서의 Scene 인덱스를 반환합니다. 포함안된 씬들은 -1을
     // 반환합니다.
-    PROPERTY(buildIndex)
+    PROPERTY(BuildIndex)
 
     GETTER_ONLY(bool, isLoaded) { return _isLoaded; }
     // get : 이 씬의 로드 여부를 반환합니다.
     PROPERTY(isLoaded)
 
-    GETTER_ONLY(std::string, name)
+    GETTER_ONLY(std::string, Name)
     {
-        return ReflectFields->_filePath.stem().string();
+        return ReflectFields->SceneName;
     }
     // get : 이 씬의 이름을 반환합니다.
-    PROPERTY(name)
+    PROPERTY(Name)
 
-    GETTER_ONLY(std::string, path) { return ReflectFields->_filePath.string(); }
+    GETTER_ONLY(std::string, Path)
+    {
+        int buildIndex = ReflectFields->BuildIndex;
+        if (buildIndex > -1)
+        {
+            File::Guid guid = ReflectFields->SceneGUID;
+            return guid.ToPath().string();
+        }
+        return "Null";
+    }
     // get : 이 씬 파일의 상대 경로를 반환합니다.
-    PROPERTY(path)
+    PROPERTY(Path)
+
 private:
     //필터용 함수
     bool RootGameObjectsFilter(GameObject* obj) const;
@@ -66,8 +76,9 @@ private:
     bool _isLoaded = false;
 
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
-    int _buildIndex = -1;
-    std::filesystem::path _filePath; //파일 경로
+    int BuildIndex = -1;
+    std::string SceneGUID = "Null";
+    std::string SceneName = "Null";
     REFLECT_FIELDS_END(Scene)
 };
 
@@ -83,7 +94,8 @@ enum class LoadSceneMode
 };
 
 //함수는 일단 선언만. 구현은 나중에.
-class ESceneManager
+class ESceneManager 
+    : File::FileEventNotifier
 {
     friend class EngineCores;
     ESceneManager();
@@ -93,6 +105,8 @@ public:
     //엔진 접근용 네임스페이스
     struct Engine
     {
+        static void InitFileNotifier();
+
         /// <summary>
         /// 씬 매니저가 관리하는 오브젝트를 전부 정리합니다.
         /// </summary>
@@ -184,9 +198,9 @@ public:
     /// <summary>
     /// 등록된 모든 씬들을 반환합니다. 씬 이름이 key로 Scene 객체가 value로 저장되어있습니다.
     /// </summary>
-    inline const std::unordered_map<std::string, Scene>& GetBuildScenes()
+    inline const std::unordered_map<std::string, Scene>& GetScenesMap()
     {
-        return _buildScnes;
+        return _scenesMap;
     }
 
     /// <summary>
@@ -196,7 +210,7 @@ public:
     inline size_t LoadedSceneCount()
     {
         size_t count = 0;
-        for (auto& [name, scene] : _buildScnes)
+        for (auto& [name, scene] : _scenesMap)
         {
             if (scene._isLoaded)
             {
@@ -212,7 +226,7 @@ public:
     /// <returns></returns>
     inline size_t SceneCount()
     {
-        return _buildScnes.size();
+        return _scenesMap.size();
     }
 
     /// <summary>
@@ -235,7 +249,7 @@ public:
     /// <returns>Main Scene</returns>
     Scene& GetMainScene()
     {
-        return _buildScnes[_mainScene];
+        return _scenesMap[_mainScene];
     }
 
     /// <summary>
@@ -292,10 +306,17 @@ private:
     std::tuple<std::unordered_set<Component*>, std::vector<Component*>, std::vector<bool*>> _onDisableQueue;
 
 private:
-    //생성한 씬 파일들 입니다. key : 파일 확장자를 제외한 파일 이름, value : 해당 씬의 정보 
-    std::unordered_map<std::string, Scene> _buildScnes;
     //현재 Single로 로드된 씬 이름입니다. NewGameObject를 하면 이 씬에 오브젝트가 생성됩니다.
     std::string _mainScene = "Null";
+    //생성한 씬 입니다. key : 파일 확장자를 제외한 파일 이름, value : 해당 씬의 정보 
+    std::unordered_map<std::string, Scene> _scenesMap;
+
+    // FileEventNotifier을(를) 통해 상속됨
+    void OnFileAdded(const File::Path& path) override;
+    void OnFileModified(const File::Path& path) override;
+    void OnFileRemoved(const File::Path& path) override;
+    void OnFileRenamed(const File::Path& oldPath, const File::Path& newPath) override;
+    void OnFileMoved(const File::Path& oldPath, const File::Path& newPath) override;
 };
 
 inline auto Scene::GetRootGameObjects() const

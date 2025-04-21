@@ -3,14 +3,26 @@ using namespace Global;
 using namespace u8_literals;
 
 static constexpr const char* DONT_DESTROY_ON_LOAD_SCENE_NAME = "DontDestroyOnLoad";
+static constexpr const char* BUILD_SCENES_SETTING_FILE_NAME  = "BuildScenes.setting.json";
 
 bool Scene::RootGameObjectsFilter(GameObject* obj) const
 {
     return &obj->GetScene() == this && obj->transform->Parent == nullptr;
 }
 
-ESceneManager::ESceneManager() = default;
-ESceneManager::~ESceneManager() = default;
+ESceneManager::ESceneManager() 
+{
+  
+}
+ESceneManager::~ESceneManager()
+{
+   
+}
+
+void ESceneManager::Engine::InitFileNotifier() 
+{
+    UmFileSystem.RegisterFileEventNotifier(&UmSceneManager, {".UmSCcene"});
+}
 
 void ESceneManager::Engine::CleanupSceneManager()
 {
@@ -236,9 +248,9 @@ void ESceneManager::Engine::DontDestroyOnLoadObject(GameObject* gameObject)
 {
     ESceneManager& SceneManager = engineCore->SceneManager;
 
-    auto find = SceneManager._buildScnes.find(DONT_DESTROY_ON_LOAD_SCENE_NAME);
+    auto find = SceneManager._scenesMap.find(DONT_DESTROY_ON_LOAD_SCENE_NAME);
     Scene* pDontDestroyScene = nullptr;
-    if (find == SceneManager._buildScnes.end())
+    if (find == SceneManager._scenesMap.end())
     {
         pDontDestroyScene = &SceneManager.CreateScene(DONT_DESTROY_ON_LOAD_SCENE_NAME);
     }
@@ -273,23 +285,22 @@ ESceneManager::Engine::GetRuntimeObjectWeakPtr(
 
 Scene& ESceneManager::CreateScene(std::string_view sceneName)
 {
-    auto find = _buildScnes.find(sceneName.data());
-    if(find != _buildScnes.end())
+    auto find = _scenesMap.find(sceneName.data());
+    if(find != _scenesMap.end())
     {
         assert(!"이미 존재하는 씬 입니다.");
         return find->second;
     }
 
-    Scene& newScene = _buildScnes[sceneName.data()];
-    newScene.ReflectFields->_filePath = sceneName.data();
-    newScene.ReflectFields->_filePath.replace_extension(L".UmScene");
+    Scene& newScene = _scenesMap[sceneName.data()];
+    newScene.ReflectFields->SceneName = sceneName;
     return newScene;
 }
 
 void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
 {
-    auto find = _buildScnes.find(sceneName.data());
-    if (find == _buildScnes.end())
+    auto find = _scenesMap.find(sceneName.data());
+    if (find == _scenesMap.end())
     {
         MessageBox(Global::engineCore->App.GetHwnd(), L"존재하지 않는 씬입니다.",
                    L"씬 로드 실패.", MB_OK);
@@ -301,7 +312,7 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
         _addComponentsQueue.clear();
         _addGameObjectsQueue.clear();
 
-        for (auto& [name, scene] : _buildScnes)
+        for (auto& [name, scene] : _scenesMap)
         {
             if (name == DONT_DESTROY_ON_LOAD_SCENE_NAME)
                 continue;
@@ -329,13 +340,13 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
     auto& [name, scene] = *find;
     scene._isLoaded = true;
     //역직렬화 추가해야함
-
+    
 }
 
 Scene* ESceneManager::GetSceneByName(std::string_view name)
 {
-    auto find = _buildScnes.find(name.data());
-    if (find != _buildScnes.end())
+    auto find = _scenesMap.find(name.data());
+    if (find != _scenesMap.end())
     {
         return &find->second;
     }
@@ -624,5 +635,38 @@ void ESceneManager::NotInitDestroyComponentEraseToWaitVec(Component* destroyComp
         );
     }
 
+}
+
+void ESceneManager::OnFileAdded(const File::Path& path) 
+{
+
+}
+
+void ESceneManager::OnFileModified(const File::Path& path) 
+{
+
+}
+
+void ESceneManager::OnFileRemoved(const File::Path& path) 
+{
+
+}
+
+void ESceneManager::OnFileRenamed(const File::Path& oldPath, const File::Path& newPath) 
+{
+
+}
+
+void ESceneManager::OnFileMoved(const File::Path& oldPath, const File::Path& newPath) 
+{
+
+}
+
+static std::filesystem::path GetBuildScenesSettingPath()
+{
+    namespace fs         = std::filesystem;
+    fs::path settingPath = PROJECT_SETTING_PATH;
+    settingPath /= BUILD_SCENES_SETTING_FILE_NAME;
+    return settingPath;
 }
 
