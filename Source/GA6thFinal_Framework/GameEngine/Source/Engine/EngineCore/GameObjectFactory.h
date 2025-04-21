@@ -71,6 +71,14 @@ public:
     /// <returns></returns>
     bool DeserializeToYaml(YAML::Node* gameObjectNode);
 
+
+    /// <summary>
+    /// GUID를 통해 파일을 읽어 오브젝트를 씬에 추가합니다.
+    /// </summary>
+    /// <param name="guid">생성할 프리팹 GUID</param>
+    /// <returns></returns>
+    bool DeserializeToGuid(const File::Guid& guid);
+
     /// <summary>
     /// 게임 오브젝트를 UmPrefab파일로 저장합니다.
     /// </summary>
@@ -105,10 +113,14 @@ private:
     }
     instanceIDManager;
 
+private:
     // FileEventNotifier을(를) 통해 상속됨
     void OnFileAdded(const File::Path& path) override;
     void OnFileModified(const File::Path& path) override;
     void OnFileRemoved(const File::Path& path) override;
     void OnFileRenamed(const File::Path& oldPath, const File::Path& newPath) override;
     void OnFileMoved(const File::Path& oldPath, const File::Path& newPath) override;
+
+    //프리팹 직렬화 데이터 모아두는 맵
+    std::unordered_map<File::Guid, YAML::Node> _prefabDataMap;
 };

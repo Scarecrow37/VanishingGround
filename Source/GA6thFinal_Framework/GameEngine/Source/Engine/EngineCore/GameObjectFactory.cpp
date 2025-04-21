@@ -15,29 +15,33 @@ void EGameObjectFactory::Engine::RegisterFileEvents()
 
 void EGameObjectFactory::OnFileAdded(const File::Path& path) 
 {
-    std::string message = std::format("Add Prefab : {}", path.string());
+    _prefabDataMap[path.ToGuid()] = YAML::LoadFile(path.string().c_str());
+    std::string message = std::format("Prefab Added : {}", path.string());
     UmEngineLogger.Log(LogLevel::LEVEL_TRACE, message.c_str());
 }
 
 void EGameObjectFactory::OnFileModified(const File::Path& path) 
 {
-    std::string message = std::format("Add Prefab : {}", path.ToGuid().string());
+    _prefabDataMap[path.ToGuid()] = YAML::LoadFile(path.string().c_str());
+    std::string message = std::format("Prefab Modified : {}", path.string());
     UmEngineLogger.Log(LogLevel::LEVEL_TRACE, message.c_str());
 }
 
 void EGameObjectFactory::OnFileRemoved(const File::Path& path) 
 {
-    UmEngineLogger.Log(LogLevel::LEVEL_TRACE, "Removed UmPrefab!");
+    _prefabDataMap.erase(path.ToGuid());
+    std::string message = std::format("Removed UmPrefab : {}", path.string());
+    UmEngineLogger.Log(LogLevel::LEVEL_TRACE, message.c_str());
 }
 
 void EGameObjectFactory::OnFileRenamed(const File::Path& oldPath, const File::Path& newPath) 
 {
-    UmEngineLogger.Log(LogLevel::LEVEL_TRACE, "Renamed UmPrefab!");
+    UmEngineLogger.Log(LogLevel::LEVEL_TRACE, "Renamed UmPrefab");
 }
 
 void EGameObjectFactory::OnFileMoved(const File::Path& oldPath, const File::Path& newPath) 
 {
-    UmEngineLogger.Log(LogLevel::LEVEL_TRACE, "Moved UmPrefab!");
+    UmEngineLogger.Log(LogLevel::LEVEL_TRACE, "Moved UmPrefab");
 }
 
 EGameObjectFactory::EGameObjectFactory()
@@ -137,6 +141,20 @@ bool EGameObjectFactory::DeserializeToYaml(YAML::Node* pGameObjectNode)
     return true;
 }
 
+bool EGameObjectFactory::DeserializeToGuid(const File::Guid& guid)
+{
+    auto iter = _prefabDataMap.find(guid);
+    if (iter == _prefabDataMap.end())
+    {
+        std::string message = std::format("{} {}", u8"존재하지 않는 프리팹입니다."_c_str, guid.ToPath().string());
+        UmEngineLogger.Log(LogLevel::LEVEL_ERROR, message);
+        return false;
+    }
+
+    DeserializeToYaml(&iter->second);
+    return true;
+}
+
 void EGameObjectFactory::WriteGameObjectFile(Transform* transform, std::string_view outPath)
 {
     namespace fs     = std::filesystem;
@@ -144,7 +162,7 @@ void EGameObjectFactory::WriteGameObjectFile(Transform* transform, std::string_v
     fsPath writePath = outPath;
     writePath /= transform->gameObject->ToString();
     writePath.replace_extension(PREFAB_EXTENSION);
-    if (fs::exists(outPath) == false)
+    if (fs::exists(outPath) == true)
     {
         int result = MessageBox(UmApplication.GetHwnd(), L"파일이 이미 존재합니다. 덮어쓰겠습니까?",
                                 L"파일이 존재합니다.", MB_YESNO);
