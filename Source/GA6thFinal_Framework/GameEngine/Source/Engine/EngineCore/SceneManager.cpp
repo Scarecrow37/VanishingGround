@@ -3,7 +3,6 @@ using namespace Global;
 using namespace u8_literals;
 
 static constexpr const char* DONT_DESTROY_ON_LOAD_SCENE_NAME = "DontDestroyOnLoad";
-static constexpr const char* BUILD_SCENES_SETTING_FILE_NAME  = "BuildScenes.setting.json";
 
 bool Scene::RootGameObjectsFilter(GameObject* obj) const
 {
@@ -19,9 +18,9 @@ ESceneManager::~ESceneManager()
    
 }
 
-void ESceneManager::Engine::InitFileNotifier() 
+void ESceneManager::Engine::RegisterFileEvents() 
 {
-    UmFileSystem.RegisterFileEventNotifier(&UmSceneManager, {".UmSCcene"});
+    UmFileSystem.RegisterFileEventNotifier(&UmSceneManager, {SCENE_EXTENSION});
 }
 
 void ESceneManager::Engine::CleanupSceneManager()
@@ -661,12 +660,3 @@ void ESceneManager::OnFileMoved(const File::Path& oldPath, const File::Path& new
 {
 
 }
-
-static std::filesystem::path GetBuildScenesSettingPath()
-{
-    namespace fs         = std::filesystem;
-    fs::path settingPath = PROJECT_SETTING_PATH;
-    settingPath /= BUILD_SCENES_SETTING_FILE_NAME;
-    return settingPath;
-}
-

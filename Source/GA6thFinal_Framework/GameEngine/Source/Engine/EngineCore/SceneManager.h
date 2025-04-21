@@ -102,10 +102,15 @@ class ESceneManager
     ~ESceneManager();
     USING_PROPERTY(ESceneManager)
 public:
+    static constexpr const char* SCENE_EXTENSION = ".UmScene";
+
     //엔진 접근용 네임스페이스
     struct Engine
     {
-        static void InitFileNotifier();
+        /// <summary>
+        /// Scene FileEventNotifier를 등록합니다.
+        /// </summary>
+        static void RegisterFileEvents();
 
         /// <summary>
         /// 씬 매니저가 관리하는 오브젝트를 전부 정리합니다.
