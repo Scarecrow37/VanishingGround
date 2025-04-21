@@ -1,4 +1,5 @@
 ﻿#include "SkeletalMeshRenderer.h"
+
 SkeletalMeshRenderer::SkeletalMeshRenderer() = default;
 SkeletalMeshRenderer::~SkeletalMeshRenderer() = default;
 

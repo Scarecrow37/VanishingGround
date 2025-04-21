@@ -1,7 +1,10 @@
 ﻿#include "StaticMeshRenderer.h"
 #include "Engine/GraphicsCore/Model.h"
 
-void StaticMeshRenderer::Reset() {}
+void StaticMeshRenderer::Reset()
+{
+    ReflectFields->Type = MeshRenderer::RENDER_TYPE::STATIC;
+}
 
 void StaticMeshRenderer::Awake()
 {

@@ -10,7 +10,7 @@ public:
 
 public:
     const std::shared_ptr<Model>& GetModel() const { return _model; }
-    RENDER_TYPE                   GetType() { return ReflectFields->Type; }
+    RENDER_TYPE                   GetType() const { return ReflectFields->Type; }
 
 public:
     REFLECT_PROPERTY(FilePath)
