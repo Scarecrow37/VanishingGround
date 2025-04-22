@@ -18,11 +18,17 @@ std::filesystem::path ESceneManager::GetSettingFilePath()
 
 ESceneManager::ESceneManager() 
 {
-    LoadSettingFile();
+    if (Global::editorManager)
+    {
+        LoadSettingFile();
+    } 
 }
 ESceneManager::~ESceneManager()
 {
-    SaveSettingFile();
+    if (Global::editorManager)
+    {
+        SaveSettingFile();
+    } 
 }
 
 void ESceneManager::LoadSettingFile() 
