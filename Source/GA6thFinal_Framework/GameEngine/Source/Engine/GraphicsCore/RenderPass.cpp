@@ -88,7 +88,8 @@ void RenderPass::End(ComPtr<ID3D12GraphicsCommandList> commandList)
         {
             barrier =
                 CD3DX12_RESOURCE_BARRIER::Transition(_descriptor.RenderTargetResources[i].Get(),
-                                                     D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+                                                           D3D12_RESOURCE_STATE_RENDER_TARGET,
+                                                           D3D12_RESOURCE_STATE_RESOLVE_SOURCE);
             commandList->ResourceBarrier(1, &barrier);
         }
     }

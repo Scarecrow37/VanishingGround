@@ -44,8 +44,8 @@ void Device::Initialize()
 {
     HRESULT hr = S_OK;
 
-    hr = UmViewManager.AddDescriptorHeap(ViewManager::Type::RENDER_TARGET, SWAPCHAIN_BUFFER_COUNT,
-                                               _renderTargetHandles);
+    hr =
+        UmViewManager.AddDescriptorHeap(ViewManager::Type::RENDER_TARGET, SWAPCHAIN_BUFFER_COUNT, _renderTargetHandles);
     FAILED_CHECK_BREAK(hr);
 
     hr = UmViewManager.AddDescriptorHeap(ViewManager::Type::DEPTH_STENCIL, _depthStencilHandle);
@@ -120,8 +120,8 @@ void Device::CreateDeviceAndSwapChain(HWND hwnd, D3D_FEATURE_LEVEL feature)
     msQualityLevels.NumQualityLevels = 0;
     FAILED_CHECK_BREAK(_device->CheckFeatureSupport(D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS, &msQualityLevels,
                                                     sizeof(msQualityLevels)));
-    _4xMsaaQuality = msQualityLevels.NumQualityLevels;
-    assert(_4xMsaaQuality > 0 && "Unexpected MSAA quality level");
+    _4xMSAAQuality = msQualityLevels.NumQualityLevels;
+    assert(_4xMSAAQuality > 0 && "Unexpected MSAA quality level");
 
     CreateCommandQueue();
     CreateSyncObject();
@@ -131,8 +131,8 @@ void Device::CreateDeviceAndSwapChain(HWND hwnd, D3D_FEATURE_LEVEL feature)
     sd.Width              = _mode.Width;
     sd.Height             = _mode.Height;
     sd.Format             = _backBufferFormat;
-    sd.SampleDesc.Count   = _4xMsaaState ? 4 : 1;
-    sd.SampleDesc.Quality = _4xMsaaState ? (_4xMsaaQuality - 1) : 0;
+    sd.SampleDesc.Count   = 1;
+    sd.SampleDesc.Quality = 0;
     sd.BufferUsage        = DXGI_USAGE_RENDER_TARGET_OUTPUT; // 후면 버퍼의 속성
     sd.BufferCount        = SWAPCHAIN_BUFFER_COUNT;
     sd.SwapEffect         = DXGI_SWAP_EFFECT_FLIP_DISCARD;
@@ -201,8 +201,8 @@ void Device::CreateDepthStencil()
     rd.DepthOrArraySize      = 1;
     rd.MipLevels             = 1;
     rd.Format                = DXGI_FORMAT_R24G8_TYPELESS;
-    rd.SampleDesc.Count      = _4xMsaaState ? 4 : 1;
-    rd.SampleDesc.Quality    = _4xMsaaState ? (_4xMsaaQuality - 1) : 0;
+    rd.SampleDesc.Count      = 1;
+    rd.SampleDesc.Quality    = 0;
     rd.Layout                = D3D12_TEXTURE_LAYOUT_UNKNOWN;
     rd.Flags                 = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
     D3D12_CLEAR_VALUE cv     = {};
@@ -301,6 +301,14 @@ void Device::ResetCommands()
     _commandList->Reset(_commandAllocator.Get(), _currentPipelineState.Get());
 }
 
+void Device::ResolveBackBuffer(ComPtr<ID3D12Resource> source)
+{
+    _commandList->ResolveSubresource(_swapChainBuffer[_renderTargetIndex].Get(), 0, source.Get(), 0, _mode.Format);
+    auto br = CD3DX12_RESOURCE_BARRIER::Transition(_swapChainBuffer[_renderTargetIndex].Get(),
+                                             D3D12_RESOURCE_STATE_RESOLVE_DEST, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    _commandList->ResourceBarrier(1, &br);
+}
+
 HRESULT Device::UpdateBuffer(ComPtr<ID3D12Resource>& buffer, void* data, UINT size)
 {
     HRESULT hr = S_OK;
@@ -341,6 +349,7 @@ HRESULT Device::ClearBackBuffer(UINT flag, XMVECTOR color, float depth, UINT ste
 
     // 렌더타겟 상태 전환
     //<리소스 베리어> 각 리소스의 상태관리 인터페이스. 리소스의 운용 충돌(Resource Hazard) 방지용.
+
     auto br = CD3DX12_RESOURCE_BARRIER::Transition(_swapChainBuffer[_renderTargetIndex].Get(),
                                                    D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
     _commandList->ResourceBarrier(1, &br);
@@ -348,6 +357,9 @@ HRESULT Device::ClearBackBuffer(UINT flag, XMVECTOR color, float depth, UINT ste
     _commandList->OMSetRenderTargets(1, &_renderTargetHandles[_renderTargetIndex], FALSE, &_depthStencilHandle);
     _commandList->ClearRenderTargetView(_renderTargetHandles[_renderTargetIndex], (float*)&color, 0, nullptr);
     _commandList->ClearDepthStencilView(_depthStencilHandle, (D3D12_CLEAR_FLAGS)flag, depth, stencil, 0, nullptr);
+    //br = CD3DX12_RESOURCE_BARRIER::Transition(_swapChainBuffer[_renderTargetIndex].Get(),
+    //                                          D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_RESOLVE_DEST);
+    //_commandList->ResourceBarrier(1, &br);
 
     return 0;
 }

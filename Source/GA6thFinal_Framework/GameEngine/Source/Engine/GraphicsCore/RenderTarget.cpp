@@ -10,7 +10,8 @@ HRESULT RenderTarget::Initialize()
                               .DepthOrArraySize = 1,
                               .MipLevels        = 1,
                               .Format           = DXGI_FORMAT_R32G32B32A32_FLOAT,
-                              .SampleDesc{.Count = 1},
+                              .SampleDesc{.Count   = UmDevice.GetMSAAState() ? (UINT)4 : (UINT)1,
+                                          .Quality = UmDevice.GetMSAAState() ? UmDevice.GetMSAAQuality() - 1 : (UINT)0},
                               .Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN,
                               .Flags  = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET};
 
@@ -39,7 +40,7 @@ D3D12_CPU_DESCRIPTOR_HANDLE RenderTarget::CreateShaderResourceView()
     // Srv 생성하기(RenderTarget에 대한)
     D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
     srvDesc.Format                          = DXGI_FORMAT_R32G32B32A32_FLOAT;
-    srvDesc.ViewDimension                   = D3D12_SRV_DIMENSION_TEXTURE2D;
+    srvDesc.ViewDimension                   = D3D12_SRV_DIMENSION_TEXTURE2DMS;
     srvDesc.Texture2D.MostDetailedMip       = 0;
     srvDesc.Texture2D.MipLevels             = 1;
     srvDesc.Shader4ComponentMapping         = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;

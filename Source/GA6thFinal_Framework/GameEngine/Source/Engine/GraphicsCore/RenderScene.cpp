@@ -111,8 +111,8 @@ void RenderScene::InitializeRenderScene(UINT renderTargetCount)
                                   .DepthOrArraySize = 1,
                                   .MipLevels        = 1,
                                   .Format           = DXGI_FORMAT_R24G8_TYPELESS,
-                                  .SampleDesc{.Count   = UmDevice.GetMsaaState() ? (UINT)4 : (UINT)1,
-                                              .Quality = UmDevice.GetMsaaState() ? (UmDevice.GetMsaaQuality() - 1) : 0},
+                                  .SampleDesc{.Count   = UmDevice.GetMSAAState() ? (UINT)4 : (UINT)1,
+                                              .Quality = UmDevice.GetMSAAState() ? (UmDevice.GetMSAAQuality() - 1) : 0},
                                   .Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN,
                                   .Flags  = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL};
 
@@ -123,23 +123,52 @@ void RenderScene::InitializeRenderScene(UINT renderTargetCount)
                                                        IID_PPV_ARGS(_depthStencilBuffer.GetAddressOf()));
 
     D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc{.Format        = UmDevice.GetDepthStencilFormat(),
-                                          .ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D,
+                                          .ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2DMS,
                                           .Flags         = D3D12_DSV_FLAG_NONE};
 
     UmDevice.GetDevice()->CreateDepthStencilView(_depthStencilBuffer.Get(), &dsvDesc, _depthStencilHandle);
 
     // Srv 생성하기(RenderTarget에 대한)
-    D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-    srvDesc.Format                          = DXGI_FORMAT_R32G32B32A32_FLOAT;
-    srvDesc.ViewDimension                   = D3D12_SRV_DIMENSION_TEXTURE2D;
-    srvDesc.Texture2D.MostDetailedMip       = 0;
-    srvDesc.Texture2D.MipLevels             = 1;
-    srvDesc.Shader4ComponentMapping         = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-
     for (UINT i = 0; i < renderTargetCount; ++i)
     {
         _renderTargetSRVHandles[i] = _renderTargetPool[i]->CreateShaderResourceView();
     }
+
+    // non mass 텍스쳐에 대한 rt와 srv 생성
+    ComPtr<ID3D12Device> device = UmDevice.GetDevice();
+    D3D12_RESOURCE_DESC  desc{.Dimension        = D3D12_RESOURCE_DIMENSION_TEXTURE2D,
+                              .Width            = UmDevice.GetMode().Width,
+                              .Height           = UmDevice.GetMode().Height,
+                              .DepthOrArraySize = 1,
+                              .MipLevels        = 1,
+                              .Format           = DXGI_FORMAT_R32G32B32A32_FLOAT,
+                              .SampleDesc       = {1,0},
+                              .Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN,
+                              .Flags  = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET};
+
+
+    D3D12_CLEAR_VALUE clearValue{
+        .Format = DXGI_FORMAT_R32G32B32A32_FLOAT,
+        .Color  = {0.f, 0.f, 0.f, 1.f},
+    };
+    // committedReosurce로 임시로 생성
+    UmDevice.GetDevice()->CreateCommittedResource(&property, D3D12_HEAP_FLAG_NONE, &desc, D3D12_RESOURCE_STATE_PRESENT,
+                                                  &clearValue, IID_PPV_ARGS(_nonMSAATexture.GetAddressOf()));
+
+    hr = S_OK;
+
+    hr = UmViewManager.AddDescriptorHeap(ViewManager::Type::RENDER_TARGET, _nonMSAARtHandle);
+    FAILED_CHECK_BREAK(hr);
+    UmDevice.GetDevice()->CreateRenderTargetView(_nonMSAATexture.Get(), nullptr, _nonMSAARtHandle);
+
+    D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+    srvDesc.Format                          = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    srvDesc.ViewDimension                   = D3D12_SRV_DIMENSION_TEXTURE2D;
+    srvDesc.Texture2D.MipLevels             = 1;
+    srvDesc.Shader4ComponentMapping         = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+    UmViewManager.AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _nonMSAASrvHandle);
+    device->CreateShaderResourceView(_nonMSAATexture.Get(), &srvDesc, _nonMSAASrvHandle);
+
 
     // Frame Resource만들기
     _frameResources.resize(SWAPCHAIN_BUFFER_COUNT);
@@ -177,8 +206,7 @@ void RenderScene::Excute(ComPtr<ID3D12GraphicsCommandList> commandList)
     {
         tech->Execute(commandList);
     }
-
-
+    CopyMSAATexture(commandList);
     RenderOnBackBuffer(commandList);
 }
 
@@ -189,9 +217,9 @@ void RenderScene::RenderOnBackBuffer(ComPtr<ID3D12GraphicsCommandList> commandLi
     commandList->SetGraphicsRootSignature(_frameShader->GetRootSignature().Get());
     auto dest = _srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 
-    D3D12_CPU_DESCRIPTOR_HANDLE src = _renderTargetSRVHandles[0];
+    D3D12_CPU_DESCRIPTOR_HANDLE src = _nonMSAASrvHandle;
 
-    UmDevice.GetDevice()->CopyDescriptorsSimple(2, dest, src, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+    UmDevice.GetDevice()->CopyDescriptorsSimple(1, dest, src, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
     ID3D12DescriptorHeap* dh[] = {_srvDescriptorHeap.Get()};
     commandList->SetDescriptorHeaps(_countof(dh), dh);
@@ -234,4 +262,21 @@ void RenderScene::CreateDescriptorHeap()
     HRESULT hr                 = S_OK;
     hr = UmDevice.GetDevice()->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(_srvDescriptorHeap.GetAddressOf()));
     FAILED_CHECK_BREAK(hr);
+}
+
+void RenderScene::CopyMSAATexture(ComPtr<ID3D12GraphicsCommandList> commandList)
+{
+    auto br = CD3DX12_RESOURCE_BARRIER::Transition(_nonMSAATexture.Get(), D3D12_RESOURCE_STATE_PRESENT,
+                                                   D3D12_RESOURCE_STATE_RESOLVE_DEST);  
+    commandList->ResourceBarrier(1, &br);
+    commandList->ResolveSubresource(_nonMSAATexture.Get(), 0, _renderTargetPool[0]->GetResource().Get(), 0,
+                                    DXGI_FORMAT_R32G32B32A32_FLOAT);
+    br = CD3DX12_RESOURCE_BARRIER::Transition(_renderTargetPool[0]->GetResource().Get(),
+                                              D3D12_RESOURCE_STATE_RESOLVE_SOURCE,
+                                              D3D12_RESOURCE_STATE_PRESENT);  
+    commandList->ResourceBarrier(1, &br);
+    br = CD3DX12_RESOURCE_BARRIER::Transition(_nonMSAATexture.Get(), D3D12_RESOURCE_STATE_RESOLVE_DEST,
+                                              D3D12_RESOURCE_STATE_PRESENT);
+    commandList->ResourceBarrier(1, &br);
+
 }

@@ -29,6 +29,7 @@ public:
 private:
     void CreatePso();
     void CreateDescriptorHeap();
+    void CopyMSAATexture(ComPtr<ID3D12GraphicsCommandList> commandList);
 
 public:
     std::vector<MeshRenderer*>                  _renderQueue;
@@ -54,4 +55,9 @@ public:
 
     // 임시
     std::unique_ptr<Shader> _frameShader;
+
+private:
+    ComPtr<ID3D12Resource> _nonMSAATexture;
+    D3D12_CPU_DESCRIPTOR_HANDLE _nonMSAARtHandle;
+    D3D12_CPU_DESCRIPTOR_HANDLE _nonMSAASrvHandle;
 };

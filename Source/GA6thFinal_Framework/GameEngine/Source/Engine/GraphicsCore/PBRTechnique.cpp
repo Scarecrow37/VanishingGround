@@ -43,7 +43,8 @@ void PBRTechnique::InitalizePBRLightPass()
     psd.NumRenderTargets      = 1;
     psd.RTVFormats[0]         = DXGI_FORMAT_R32G32B32A32_FLOAT;
     psd.DSVFormat             = DXGI_FORMAT_D24_UNORM_S8_UINT;
-    psd.SampleDesc            = {1, 0}; // AA 설정.
+    psd.SampleDesc            = {.Count = UmDevice.GetMSAAState() ? (UINT)4 : (UINT)1,
+                                 .Quality = UmDevice.GetMSAAState() ? UmDevice.GetMSAAQuality()-1:0 }; // AA 설정.
     UmDevice.GetDevice()->CreateGraphicsPipelineState(&psd, IID_PPV_ARGS(pso.GetAddressOf()));
     pbrPass->SetPipelineState(pso);
     pbrPass->SetShader(pbrShader);
