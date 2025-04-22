@@ -158,7 +158,7 @@ void EditorAssetBrowserTool::ShowFolderHierarchy(spFolderContext FolderContext)
 
     if (true == isHovered && true == isMouseDeoubleClicked)
     {
-        _focusFolder = FolderContext;
+        SetFocusFolder(FolderContext);
     }
 
     // ==== Text출력 ====
