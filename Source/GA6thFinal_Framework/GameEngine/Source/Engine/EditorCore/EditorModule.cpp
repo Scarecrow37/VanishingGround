@@ -41,7 +41,7 @@ void EditorModule::ModuleUnInitialize()
 
     File::Path filename  = L"editor.setting";
     File::Path directory = PROJECT_SETTING_PATH;
-
+    
     SaveSetting(directory / filename);
 }
 

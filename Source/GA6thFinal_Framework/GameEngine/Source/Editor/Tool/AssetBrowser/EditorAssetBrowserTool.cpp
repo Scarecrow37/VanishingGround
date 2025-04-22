@@ -82,7 +82,9 @@ void EditorAssetBrowserTool::ShowBrowserMenu()
     }
 }
 
-void EditorAssetBrowserTool::ShowUpperFrame() {}
+void EditorAssetBrowserTool::ShowUpperFrame() 
+{
+}
 
 void EditorAssetBrowserTool::BeginColumn()
 {
