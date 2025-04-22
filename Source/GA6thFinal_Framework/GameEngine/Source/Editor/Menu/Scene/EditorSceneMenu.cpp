@@ -20,8 +20,13 @@ void EditorSceneMenuGameObject::OnMenu()
 
 void EditorSceneMenuScenes::OnMenu() 
 {
-    if(ImGui::MenuItem("New Empty Scene"))
+    if(ImGui::MenuItem("New EmptyScene"))
     {
-        engineCore->SceneManager.LoadScene("Empty Scene");
+        Scene* emptyScene = engineCore->SceneManager.GetSceneByName(UmSceneManager.EMPTY_SCENE_NAME);
+        if (emptyScene == nullptr)
+        {
+            UmSceneManager.CreateScene(UmSceneManager.EMPTY_SCENE_NAME);
+        }
+        engineCore->SceneManager.LoadScene(UmSceneManager.EMPTY_SCENE_NAME);
     }
 }

@@ -10,9 +10,6 @@ void EngineCoresModule::PreInitialize()
 
     const SIZE& clientSize = UmApplication.GetClientSize();
     engineCore->Graphics.Initialize(engineCore->App.GetHwnd(), clientSize.cx, clientSize.cy, FEATURE_LEVEL::LEVEL_12_0);
-
-    engineCore->SceneManager.CreateScene("Empty Scene");
-    engineCore->SceneManager.LoadScene("Empty Scene");
 }
 
 void EngineCoresModule::ModuleUnInitialize()

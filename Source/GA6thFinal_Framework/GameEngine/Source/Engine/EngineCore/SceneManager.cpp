@@ -9,17 +9,58 @@ bool Scene::RootGameObjectsFilter(GameObject* obj) const
     return &obj->GetScene() == this && obj->transform->Parent == nullptr;
 }
 
+std::filesystem::path ESceneManager::GetSettingFilePath()
+{
+    std::filesystem::path path = PROJECT_SETTING_PATH;
+    path /= SETTING_FILE_NAME;
+    return path;
+}
+
 ESceneManager::ESceneManager() 
 {
-  
+    LoadSettingFile();
 }
 ESceneManager::~ESceneManager()
 {
-   
+    SaveSettingFile();
 }
 
-void ESceneManager::Engine::RegisterFileEvents() 
+void ESceneManager::LoadSettingFile() 
 {
+    std::string data;
+    std::ifstream ifs(GetSettingFilePath());
+    if (ifs.is_open() == true)
+    {
+        data = std::string(std::istreambuf_iterator<char>(ifs), {});
+        auto result = rfl::json::read<decltype(_setting)>(data);
+        if (result)
+        {
+            _setting = result.value();
+        }
+    }  
+    ifs.close();
+}
+
+void ESceneManager::SaveSettingFile() const 
+{
+    std::filesystem::path settingPath = GetSettingFilePath();
+    if (std::filesystem::exists(settingPath) == false)
+    {
+        std::filesystem::create_directories(settingPath.parent_path());
+    }
+
+    std::string data = rfl::json::write(_setting);
+    std::ofstream ofs(settingPath, std::ios::trunc);
+    if (ofs.is_open() == true)
+    {
+        ofs << data;
+    }
+    ofs.close();
+}
+
+void ESceneManager::Engine::RegisterFileEvents()
+{
+    //파일 관리자 등록
     UmFileSystem.RegisterFileEventNotifier(&UmSceneManager, {SCENE_EXTENSION});
 }
 
@@ -266,22 +307,6 @@ void ESceneManager::Engine::DontDestroyOnLoadObject(GameObject& gameObject)
     DontDestroyOnLoadObject(&gameObject);
 }
 
-std::weak_ptr<GameObject> 
-ESceneManager::Engine::GetRuntimeObjectWeakPtr(
-    int instanceID)
-{
-    ESceneManager& SceneManager = engineCore->SceneManager;
-    std::weak_ptr<GameObject> weakPtr{}; 
-    if (0 <= instanceID && instanceID < SceneManager._runtimeObjects.size())
-    {
-        if (SceneManager._runtimeObjects[instanceID])
-        {
-            weakPtr = SceneManager._runtimeObjects[instanceID];
-        }
-    }
-   return weakPtr;
-}
-
 Scene& ESceneManager::CreateScene(std::string_view sceneName)
 {
     auto find = _scenesMap.find(sceneName.data());
@@ -292,7 +317,7 @@ Scene& ESceneManager::CreateScene(std::string_view sceneName)
     }
 
     Scene& newScene = _scenesMap[sceneName.data()];
-    newScene.ReflectFields->SceneName = sceneName;
+    newScene._name = sceneName;
     return newScene;
 }
 
@@ -301,8 +326,8 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
     auto find = _scenesMap.find(sceneName.data());
     if (find == _scenesMap.end())
     {
-        MessageBox(Global::engineCore->App.GetHwnd(), L"존재하지 않는 씬입니다.",
-                   L"씬 로드 실패.", MB_OK);
+        std::string message = std::format("{}{}", sceneName, u8"은 존재하지 않는 씬입니다."_c_str);
+        UmEngineLogger.Log(LogLevel::LEVEL_ERROR, message);
         return;
     }
 
@@ -323,7 +348,7 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
                 GameObject::Destroy(obj.get());
             }
         }
-        _mainScene = sceneName;
+        _setting.MainScene = sceneName;
     }
     else
     {
@@ -338,8 +363,54 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
 
     auto& [name, scene] = *find;
     scene._isLoaded = true;
-    //역직렬화 추가해야함
-    
+    File::Path path = scene._guid.ToPath();
+    if (path.empty() == true)
+    {
+        std::string message = std::format("{}{}", sceneName, u8"은 저장하지 않은 씬입니다."_c_str);
+        YAML::Node  node    = SerializeToYaml(scene);
+        DeserializeToYaml(&node);
+        UmEngineLogger.Log(LogLevel::LEVEL_WARNING, message);
+    }
+    else
+    {
+        if (DeserializeToGuid(scene._guid) == false)
+        {
+            __debugbreak(); // 씬 로드 실패....
+        }
+    }
+}
+
+void ESceneManager::UnloadScene(std::string_view sceneName) 
+{
+    auto find = _scenesMap.find(sceneName.data());
+    if (find == _scenesMap.end())
+    {
+        std::string message = std::format("{}{}", sceneName, u8"은 존재하지 않는 씬 입니다."_c_str);
+        UmEngineLogger.Log(LogLevel::LEVEL_ERROR, message);
+        return;
+    }
+
+    Scene& scene = find->second;
+    if (scene._isLoaded == false)
+    {
+        std::string message = std::format("{}{}", sceneName, u8"은 로드되지 않은 씬 입니다."_c_str);
+        UmEngineLogger.Log(LogLevel::LEVEL_ERROR, message);
+        return;
+    }
+
+    if (scene == GetMainScene())
+    {
+        std::string message = std::format("{}{}", sceneName, u8"은 메인 씬 이므로 언로드 할 수 없습니다."_c_str);
+        UmEngineLogger.Log(LogLevel::LEVEL_ERROR, message);
+        return;
+    }
+
+    scene._isLoaded = false;
+    auto objects    = scene.GetRootGameObjects();
+    for (auto& obj : objects)
+    {
+        GameObject::Destroy(obj.get());
+    }
 }
 
 Scene* ESceneManager::GetSceneByName(std::string_view name)
@@ -636,24 +707,131 @@ void ESceneManager::NotInitDestroyComponentEraseToWaitVec(Component* destroyComp
 
 }
 
-void ESceneManager::OnFileAdded(const File::Path& path) 
+YAML::Node ESceneManager::SerializeToYaml(const Scene& scene)
+{
+    Scene& targetScene = const_cast<Scene&>(scene);
+    YAML::Node sceneNode;
+    sceneNode["SerializeVersion"] = 0;
+    sceneNode["Name"] = scene._name;
+
+    auto rootObjects = scene.GetRootGameObjects();
+    for (auto& object : rootObjects)
+    {
+        YAML::Node objectNode = UmGameObjectFactory.SerializeToYaml(object.get());
+        sceneNode["GameObjects"].push_back(objectNode);
+    }
+    return sceneNode;
+}
+
+bool ESceneManager::DeserializeToYaml(YAML::Node* _sceneNode)
 {
 
+    YAML::Node& sceneNode = *_sceneNode;
+    int SerializeVersion = sceneNode["SerializeVersion"].as<int>();
+    std::string Name = sceneNode["Name"].as<std::string>();
+
+    YAML::Node rootObjects = sceneNode["GameObjects"].as<YAML::Node>();
+    for (auto object : rootObjects)
+    {
+        YAML::Node objectNode = object;
+        auto newObject = UmGameObjectFactory.DeserializeToYaml(&objectNode);
+        Transform::ForeachDFS(newObject->_transform,
+        [&Name](Transform* curr) 
+        {
+            curr->_gameObject._ownerScene = Name;
+        });
+    }
+    return true;
+}
+
+bool ESceneManager::DeserializeToGuid(const File::Guid& guid)
+{
+    auto findIter = _sceneDataMap.find(guid);
+    if (findIter == _sceneDataMap.end())
+    {
+        std::string messgae = std::format("{} : {}", u8"존재하지 않는 파일입니다."_c_str, guid.ToPath().string());
+        UmEngineLogger.Log(LogLevel::LEVEL_ERROR, messgae);
+        return false;
+    }
+    return DeserializeToYaml(&findIter->second);
+}
+
+void ESceneManager::WriteSceneToFile(const Scene& scene, std::string_view outPath) 
+{
+    std::string_view sceneName = scene._name;
+    namespace fs     = std::filesystem;
+    using fsPath     = std::filesystem::path;
+    fsPath writePath = outPath;
+    writePath /= sceneName;
+    writePath.replace_extension(SCENE_EXTENSION);
+    if (fs::exists(writePath) == true)
+    {
+        int result = MessageBox(UmApplication.GetHwnd(), L"파일이 이미 존재합니다. 덮어쓰겠습니까?",
+                                L"파일이 존재합니다.", MB_YESNO);
+        if (result != IDYES)
+        {
+            return;
+        }
+    }
+    fs::create_directories(writePath.parent_path());
+    YAML::Node node = SerializeToYaml(scene);
+    if (node.IsNull() == false)
+    {
+        std::ofstream ofs(writePath, std::ios::trunc);
+        if (ofs.is_open())
+        {
+            ofs << node;
+        }
+        ofs.close();
+    }
+}
+
+void ESceneManager::OnFileAdded(const File::Path& path)
+{
+    File::Guid guid = path.ToGuid();
+    _sceneDataMap[guid] = YAML::LoadFile(path.string());
+    std::string sceneName = path.stem().string();
+    
+    CreateScene(sceneName);
+    Scene& scene     = _scenesMap[sceneName];
+    scene._guid = guid;
+    if (scene.isLoaded == false && sceneName == _setting.MainScene)
+    {      
+        LoadScene(sceneName);
+    }
 }
 
 void ESceneManager::OnFileModified(const File::Path& path) 
 {
-
+    _sceneDataMap[path.ToGuid()] = YAML::LoadFile(path.string());
 }
 
 void ESceneManager::OnFileRemoved(const File::Path& path) 
 {
-
+    Scene& currScene = _scenesMap[path.stem().string()];
+    currScene._guid.clear();
+    _sceneDataMap.erase(path.ToGuid());
 }
 
 void ESceneManager::OnFileRenamed(const File::Path& oldPath, const File::Path& newPath) 
 {
-
+    std::string oldName = oldPath.stem().string();
+    std::string newName = newPath.stem().string();
+    Scene& oldScene = _scenesMap[oldName];
+    bool isLoaded = oldScene.isLoaded;
+    if (isLoaded)
+    {
+        auto rootObjects = oldScene.GetRootGameObjects();
+        for (auto& object : rootObjects)
+        {
+            object->_ownerScene = newName;
+        }
+    }
+    Scene& newScene = CreateScene(newName);
+    newScene._isLoaded  = oldScene._isLoaded;
+    newScene._guid = oldScene._guid;
+    newScene._name = newName;
+    _scenesMap.erase(oldName);
 }
 
 void ESceneManager::OnFileMoved(const File::Path& oldPath, const File::Path& newPath) 
