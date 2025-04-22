@@ -743,6 +743,9 @@
     <ClCompile Include="Source\Engine\EditorCore\PopupBox\EditorPopupBox.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Editor\DragDropTypes\DragDropTransform.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

@@ -322,11 +322,11 @@ void EditorAssetBrowserTool::ShowFolderDirectoryPath(spFolderContext context)
 void EditorAssetBrowserTool::ContentsFrameEventAction(spFolderContext context)
 {
     DragDropTransform::Data data;
-    if (ImGuiHelper::DragDrop::RecieveFrameDragDropEvent(DragDropTransform::key, &data))
+    if (ImGuiHelper::DragDrop::RecieveFrameDragDropEvent(DragDropTransform::KEY, &data))
     {
         if (nullptr != context)
         {
-            // DragDropTransform::WriteGameObjectFile(data.pTransform, _focusFolder.lock()->GetPath().string());
+            DragDropTransform::WriteGameObjectFile(data.pTransform, context->GetPath().string());
         }
     }
 
@@ -473,7 +473,7 @@ void EditorAssetBrowserTool::ItemEventAction(spContext context)
     if (true == context->IsRegularFile())
     {
         DragDropAsset::Data data;
-        const char* eventID = DragDropAsset::key;
+        const char* eventID = DragDropAsset::KEY;
         data.context = std::static_pointer_cast<File::FileContext>(context);
 
         std::function<void()> func = [&context]() {

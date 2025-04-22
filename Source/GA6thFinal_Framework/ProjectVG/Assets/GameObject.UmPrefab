@@ -1,0 +1,6 @@
+- SerializeVersion: 0
+  Type: class GameObject
+  ReflectFields: "{\"_name\":\"GameObject\",\"_activeSelf\":true,\"_isStatic\":false}"
+  Transform:
+    ReflectFields: "{\"position\":[0.0,0.0,0.0],\"rotation\":[0.0,0.0,0.0,1.0],\"eulerAngle\":[0.0,0.0,0.0],\"scale\":[1.0,1.0,1.0]}"
+    TransformIndex: 0

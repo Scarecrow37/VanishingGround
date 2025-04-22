@@ -356,27 +356,18 @@ void EFileSystem::MovedFile(const File::Path& oldPath,
 
         if (oldPath.parent_path() == newPath.parent_path())
         {
+            auto notifierSet = GetNotifiers(oldPath.extension());
+            for (auto& notifier : notifierSet)
             {
-                auto notifierSet = GetNotifiers(oldPath.extension());
-                for (auto& notifier : notifierSet)
-                {
-                    notifier->OnFileRenamed(oldPath, newPath);
-                } 
-            }
-            {
-                auto notifierSet = GetNotifiers(newPath.extension());
-                for (auto& notifier : notifierSet)
-                {
-                    notifier->OnFileMoved(oldPath, newPath);
-                } 
-            }
+                notifier->OnFileRenamed(oldPath, newPath);
+            } 
         }
         else
         {
             auto notifierSet = GetNotifiers(newPath.extension());
             for (auto& notifier : notifierSet)
             {
-                notifier->OnFileRenamed(oldPath, newPath);
+                notifier->OnFileMoved(oldPath, newPath);
             } 
         }
     }

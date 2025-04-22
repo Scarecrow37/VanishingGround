@@ -158,14 +158,18 @@ void EditorHierarchyTool::HierarchyDropEvent()
     ImRect       rect   = window->Rect();
     if (ImGui::BeginDragDropTargetCustom(rect, window->ID))
     {
-        if (const ImGuiPayload* payload = 
-            ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
+        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
         {
-            DragDropAsset::Data* data = (DragDropAsset::Data*)payload->Data;           
-            if (data->Path.extension() == DragDropTransform::PREFAB_EXTENSION)
+            DragDropAsset::Data* data = (DragDropAsset::Data*)payload->Data;      
+            if (false == data->context.expired())
             {
-                YAML::Node node = YAML::LoadFile(data->Path.string());
-                UmGameObjectFactory.DeserializeToYaml(&node);
+                auto              context = data->context.lock();
+                const File::Path& path    = context->GetPath();
+                if (path.extension() == DragDropTransform::PREFAB_EXTENSION)
+                {
+                    YAML::Node node = YAML::LoadFile(path.string());
+                    UmGameObjectFactory.DeserializeToYaml(&node);
+                }
             }
         }
         ImGui::EndDragDropTarget();
