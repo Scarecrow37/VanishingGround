@@ -38,13 +38,26 @@ void EditorModule::ModuleUnInitialize()
 
 void EditorModule::Update()
 {
+    bool isLock = IsLock();
+    if (true == isLock)
+        ImGui::BeginDisabled();
+
     /* ========GUI Update======== */ 
     _mainMenuBar->OnTickGui();
     _mainDockSpace->OnTickGui();
     _mainMenuBar->OnDrawGui();
     _mainDockSpace->OnDrawGui();
-    _PopupBox->OnDrawGui(); // 모달 팝업창 
     /* =========================== */
+
+    if (true == isLock)
+        ImGui::EndDisabled();
+
+    _PopupBox->OnDrawGui(); // 모달 팝업창 
+}
+
+bool EditorModule::IsLock()
+{
+    return (false == _PopupBox->IsEmpty());
 }
 
 void EditorModule::SetGuiThemeStyle()

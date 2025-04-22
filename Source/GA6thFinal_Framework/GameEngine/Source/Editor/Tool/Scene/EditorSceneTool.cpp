@@ -48,7 +48,7 @@ void EditorSceneTool::OnFrame()
     ImGuizmo::DrawGrid(*cameraView.m, *cameraProjection.m, *Matrix::Identity.m, _farZ);
     ImGuizmo::DrawCubes(*cameraView.m, *cameraProjection.m, *_tempMatrix.m, 1);
 
-    if (false == IsLock())
+    if (false == IsLock() && false == Global::editorModule->IsLock())
     {
         ProcessViewManipulate();
         ProcessManipulate();
@@ -61,7 +61,7 @@ void EditorSceneTool::OnPostFrame()
 
 void EditorSceneTool::OnFocus()
 {
-    if (false == IsLock())
+    if (false == IsLock() && false == Global::editorModule->IsLock())
     {
         if (ImGui::IsMouseDown(ImGuiMouseButton_Right))
         {

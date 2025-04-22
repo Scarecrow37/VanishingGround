@@ -6,7 +6,7 @@ namespace File
     class FileObserver;
     class Context;
     class FileContext;
-    class ForderContext;
+    class FolderContext;
 } // namespace File
 
 class EFileSystem
@@ -36,7 +36,7 @@ public:
         {
             auto& path = GetPathFromGuid(guid);
 
-            if constexpr (std::is_same_v<T, File::ForderContext>)
+            if constexpr (std::is_same_v<T, File::FolderContext>)
             {
                 if (std::filesystem::is_directory(path))
                     return std::static_pointer_cast<T>(context.lock());
@@ -57,7 +57,7 @@ public:
         auto context = GetContext(path);
         if (false == context.expired())
         {
-            if constexpr (std::is_same_v<T, File::ForderContext>)
+            if constexpr (std::is_same_v<T, File::FolderContext>)
             {
                 if (std::filesystem::is_directory(path))
                     return std::static_pointer_cast<T>(context.lock());

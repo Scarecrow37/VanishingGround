@@ -26,11 +26,12 @@ namespace File
             return S_OK;
         }
     }
-    void CreateFolder(const File::Path& _path) 
+    bool CreateFolder(const File::Path& _path) 
     {
         if (false == std::filesystem::exists(_path))
         {
-            if (true == std::filesystem::create_directory(_path))
+            bool check = std::filesystem::create_directory(_path);
+            if (true == check)
             {
                 OutputLog(L"Succeed Create Folder (" + _path.wstring() + L')');
             }
@@ -38,8 +39,42 @@ namespace File
             {
                 OutputLog(L"Failed Created Folder: (" + _path.wstring() + L')');
             }
+            return check;
+        }
+        return false;
+    }
+
+    bool CreateFolderEx(const File::Path& _path, bool processDup) 
+    {
+        if (false == std::filesystem::exists(_path))
+        {
+            return CreateFolder(_path);
+        }
+        else if (true == processDup)
+        {
+            // 중복일 시 뒤에 () 붙여서 생성
+            File::Path name         = _path.stem();
+            File::Path parent       = _path.parent_path();
+            File::Path extension    = _path.extension();
+            int index = 2;
+            while (true)
+            {
+                std::string tail    = " (" + std::to_string(index) + ")";
+                File::Path  newPath = parent / (name + tail + extension);
+
+                if (false == std::filesystem::exists(newPath))
+                {
+                    return CreateFolder(newPath);
+                }
+                if (index++ > 100)
+                {
+                    OutputLog(L"Failed Create Folder: (" + _path.wstring() + L')');
+                    return false;
+                }
+            }
         }
     }
+
     bool OpenFile(const File::Path& path)
     {
         File::Path AbsPath = std::filesystem::absolute(path);
@@ -75,6 +110,39 @@ namespace File
             else
             {
                 return std::filesystem::remove(path); // 파일 삭제
+            }
+        }
+        return false;
+    }
+    bool CopyPathToClipBoard(const File::Path& path)
+    {
+        // 클립보드 열고 비우기
+        if (TRUE == OpenClipboard(nullptr) && TRUE == EmptyClipboard())
+        {
+            if (TRUE == EmptyClipboard())
+            {
+                auto str  = path.string(); // UTF-8 문자열로 변환
+                auto size = (str.size() + 1) * sizeof(char);
+
+                // 사용자 정의 포맷 등록 (고유 문자열 사용)
+                UINT format = RegisterClipboardFormatA("MyApp_CustomDataFormat");
+
+                // 글로벌 메모리 할당
+                HGLOBAL hGlob = GlobalAlloc(GMEM_MOVEABLE, size);
+                if (NULL == hGlob)
+                {
+                    CloseClipboard();
+                    return false;
+                }
+
+                void* pData = GlobalLock(hGlob);
+                memcpy(pData, str.c_str(), size);
+                GlobalUnlock(hGlob);
+
+                // CF_TEXT는 ANSI지만, UTF-8도 보통 잘 작동함
+                SetClipboardData(CF_TEXT, hGlob);
+
+                CloseClipboard();
             }
         }
         return false;

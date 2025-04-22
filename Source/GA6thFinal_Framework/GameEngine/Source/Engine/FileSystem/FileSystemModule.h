@@ -6,7 +6,7 @@ namespace File
     class FileObserver;
     class Context;
     class FileContext;
-    class ForderContext;
+    class FolderContext;
     struct FileEventData;
 } // namespace File
 

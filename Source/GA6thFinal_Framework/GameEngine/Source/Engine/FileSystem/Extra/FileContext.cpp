@@ -108,8 +108,8 @@ namespace File
 
         //File::Path oldParentPath    = oldPath.parent_path().generic_string();
         //File::Path newParentPath    = newPath.parent_path().generic_string();
-        //auto       oldParentContext = UmFileSystem.GetContext<File::ForderContext>(oldParentPath);
-        //auto       newParentContext = UmFileSystem.GetContext<File::ForderContext>(newParentPath);
+        //auto       oldParentContext = UmFileSystem.GetContext<File::FolderContext>(oldParentPath);
+        //auto       newParentContext = UmFileSystem.GetContext<File::FolderContext>(newParentPath);
         //
         //if (false == oldParentContext.expired() && false == newParentContext.expired())
         //{
@@ -129,8 +129,8 @@ namespace File
 
         //File::Path oldParentPath    = oldPath.parent_path().generic_string();
         //File::Path newParentPath    = newPath.parent_path().generic_string();
-        //auto       oldParentContext = UmFileSystem.GetContext<File::ForderContext>(oldParentPath);
-        //auto       newParentContext = UmFileSystem.GetContext<File::ForderContext>(newParentPath);
+        //auto       oldParentContext = UmFileSystem.GetContext<File::FolderContext>(oldParentPath);
+        //auto       newParentContext = UmFileSystem.GetContext<File::FolderContext>(newParentPath);
         //
         //if (false == oldParentContext.expired() && false == newParentContext.expired())
         //{
@@ -141,26 +141,26 @@ namespace File
         //}
     }
 
-    ForderContext::ForderContext(const File::Path& path) 
+    FolderContext::FolderContext(const File::Path& path) 
     : Context(path)
     {
 
     }
     
-    ForderContext::~ForderContext() 
+    FolderContext::~FolderContext() 
     {
     
     }
 
-    void ForderContext::OnFileAdded(const Path& path) 
+    void FolderContext::OnFileAdded(const Path& path) 
     {
     }
 
-    void ForderContext::OnFileModified(const Path& path) 
+    void FolderContext::OnFileModified(const Path& path) 
     {
     }
 
-    void ForderContext::OnFileRemoved(const Path& path) 
+    void FolderContext::OnFileRemoved(const Path& path) 
     {
         _meta.Remove();
 
@@ -173,7 +173,7 @@ namespace File
         }
     }
 
-    void ForderContext::OnFileRenamed(const Path& oldPath, const Path& newPath)
+    void FolderContext::OnFileRenamed(const Path& oldPath, const Path& newPath)
     {
         _path = newPath;
         _name = newPath.filename().string();
@@ -192,7 +192,7 @@ namespace File
         }
     }
 
-    void ForderContext::OnFileMoved(const Path& oldPath, const Path& newPath) 
+    void FolderContext::OnFileMoved(const Path& oldPath, const Path& newPath) 
     {
         _path = newPath;
         _name = newPath.filename().string();

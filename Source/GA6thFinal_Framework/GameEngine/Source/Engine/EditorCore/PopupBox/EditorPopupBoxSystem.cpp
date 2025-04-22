@@ -24,6 +24,28 @@ void EditorPopupBoxSystem::OpenPopupBox(const std::string& name, std::function<v
     _popupBoxStack.push_back(_popupBoxTable[name]);
 }
 
+bool EditorPopupBoxSystem::IsExistPopupBox(const std::string& name)
+{
+    bool isExist = _popupBoxTable.find(name) != _popupBoxTable.end();
+    return isExist;
+}
+
+bool EditorPopupBoxSystem::IsPopupBoxOpened(const std::string& name)
+{
+    auto itr = _popupBoxTable.find(name);
+    if (itr != _popupBoxTable.end())
+    {
+        return itr->second->IsOpen();
+    }
+    return false;
+}
+
+bool EditorPopupBoxSystem::IsEmpty()
+{
+    bool isEmpty = _popupBoxStack.empty();
+    return isEmpty;
+}
+
 void EditorPopupBoxSystem::OnDrawGui()
 {
     if (_popupBoxStack.empty())

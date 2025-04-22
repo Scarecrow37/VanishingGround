@@ -37,6 +37,8 @@ concept IsEditorMenu = IsEditorGui<T> && std::is_base_of_v<EditorMenu, T>;
  public:
      void Update();
 
+     bool IsLock();
+
  public:
      /* 툴을 등록합니다. */
      template <IsEditorGui T>
@@ -85,8 +87,8 @@ concept IsEditorMenu = IsEditorGui<T> && std::is_base_of_v<EditorMenu, T>;
  private:
      void SetGuiThemeStyle();
  private:
-     bool _isDebugMode;                                         // 에디터 디버그 모드 여부(에디터관련 정보 출력)
-     EditorPopupBoxSystem*    _PopupBox;                            // 에디터 모달 팝업
-     EditorMenuBar*             _mainMenuBar;                           // 에디터 메뉴 바
-     EditorDockSpace*           _mainDockSpace;                         // 에디터 도킹 스페이스
+     bool                   _isDebugMode;                       // 에디터 디버그 모드 여부(에디터관련 정보 출력)
+     EditorPopupBoxSystem*  _PopupBox;                          // 에디터 모달 팝업
+     EditorMenuBar*         _mainMenuBar;                       // 에디터 메뉴 바
+     EditorDockSpace*       _mainDockSpace;                     // 에디터 도킹 스페이스
 };

@@ -3,7 +3,7 @@
 namespace File
 {
     class FileContext;
-    class ForderContext;
+    class FolderContext;
 
     class Context : public Interface::IFileEventProcesser
     {
@@ -27,10 +27,10 @@ namespace File
         template <typename T>
         T* SafeCast()
         {
-            if constexpr (std::is_same_v<T, ForderContext>)
+            if constexpr (std::is_same_v<T, FolderContext>)
             {
                 if (true == IsDirectory())
-                    return static_cast<ForderContext*>(this);
+                    return static_cast<FolderContext*>(this);
             }
             else if constexpr (std::is_same_v<T, FileContext>)
             {
@@ -74,18 +74,18 @@ namespace File
         virtual void OnFileMoved(const Path& oldPath, const Path& newPath) override;
     };
 
-    class ForderContext
+    class FolderContext
         : public Context
     {
         friend class Context; 
         friend class FileContext; 
     public:
-        ForderContext(const File::Path& path);
-        virtual ~ForderContext();
-        ForderContext(const ForderContext&)            = delete;
-        ForderContext& operator=(const ForderContext&) = delete;
-        ForderContext(ForderContext&&)                 = delete;
-        ForderContext& operator=(ForderContext&&)      = delete;
+        FolderContext(const File::Path& path);
+        virtual ~FolderContext();
+        FolderContext(const FolderContext&)            = delete;
+        FolderContext& operator=(const FolderContext&) = delete;
+        FolderContext(FolderContext&&)                 = delete;
+        FolderContext& operator=(FolderContext&&)      = delete;
 
     public:
         inline virtual bool IsDirectory() override { return true; }

@@ -33,9 +33,14 @@ namespace File
 
     HRESULT CreateGuid(File::Guid& _id);
 
-    void CreateFolder(const File::Path& _path);
+    bool CreateFolder(const File::Path& _path);
+    bool CreateFolderEx(const File::Path& _path, /* 경로 */
+        bool processDup = false /* 중복 처리 */
+    );
 
     bool OpenFile(const File::Path& path);
 
     bool RemoveFile(const File::Path& path);
+
+    bool CopyPathToClipBoard(const File::Path& path);
 } // namespace File
