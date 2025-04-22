@@ -38,6 +38,8 @@ public:
             return nullptr;
         return dynamic_cast<T*>(itr->second.get());
     }
+    EditorTool* GetTool(const std::string& name);
+   
 
     inline const auto& GetRefToolTable() { return _editorToolTable; }
 private:

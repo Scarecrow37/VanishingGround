@@ -47,7 +47,7 @@ public:
     inline const auto&  GetLabel() { return _label; }
     /* 활성화 여부 설정 */
     inline void         SetVisible(bool v) { _isVisible = v; }
-    inline bool         GetVisible() { return _isVisible; }
+    inline bool         IsVisible() { return _isVisible; }
     inline void         ToggleVisible() { _isVisible = _isVisible == true ? false : true; }
     /* 호출 순서 설정 */
     inline void         SetCallOrder(int i) { _callOrder = i; }

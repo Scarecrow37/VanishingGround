@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "Setting/EditorSetting.h"
 
 class EditorTool;
 class EditorModule;
@@ -34,6 +35,11 @@ concept IsEditorMenu = IsEditorGui<T> && std::is_base_of_v<EditorMenu, T>;
 
      void PreUnInitialize() override {}
      void ModuleUnInitialize() override;
+
+ private:
+     bool SaveSetting(const File::Path& path);
+     bool LoadSetting(const File::Path& path);
+
  public:
      void Update();
 
@@ -87,6 +93,8 @@ concept IsEditorMenu = IsEditorGui<T> && std::is_base_of_v<EditorMenu, T>;
  private:
      void SetGuiThemeStyle();
  private:
+     EditorSetting _setting;
+
      bool                   _isDebugMode;                       // 에디터 디버그 모드 여부(에디터관련 정보 출력)
      EditorPopupBoxSystem*  _PopupBox;                          // 에디터 모달 팝업
      EditorMenuBar*         _mainMenuBar;                       // 에디터 메뉴 바

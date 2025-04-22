@@ -80,6 +80,14 @@ void EditorDockSpace::OnEndGui()
     }
 }
 
+EditorTool* EditorDockSpace::GetTool(const std::string& name)
+{
+    auto itr = _editorToolTable.find(name);
+    if (itr == _editorToolTable.end())
+        return nullptr;
+    return itr->second.get();
+}
+
 void EditorDockSpace::InitDockLayout()
 {
     if (NULL == ImGui::DockBuilderGetNode(_dockSpaceMainID))

@@ -172,7 +172,7 @@ void EditorMenuNode::OnStartGui()
 
 void EditorMenuNode::OnDrawGui()
 {
-    if (GetVisible())
+    if (IsVisible())
     {
         bool isOpen = false;
 
@@ -238,7 +238,7 @@ EditorMenu::~EditorMenu()
 
 void EditorMenu::OnDrawGui()
 {
-    if (true == GetVisible())
+    if (true == IsVisible())
     {
         ImGui::PushID(this);
 
