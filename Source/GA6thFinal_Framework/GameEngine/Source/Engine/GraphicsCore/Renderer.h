@@ -39,4 +39,7 @@ private:
     std::unordered_map<std::string, std::shared_ptr<RenderScene>> _renderScenes;
     ComPtr<ID3D12Resource>         _cameraBuffer;
     UINT                           _currnetState;
+
+    ComPtr<ID3D12CommandAllocator> _commandAllocator;
+    ComPtr<ID3D12GraphicsCommandList> _commandList;
 };

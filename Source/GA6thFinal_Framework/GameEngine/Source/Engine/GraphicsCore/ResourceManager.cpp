@@ -21,10 +21,10 @@ void ResourceManager::Update()
         switch (type)
         {
         case RESOURCE_TYPE::TEXTURE:
-            _tempResource.push_back(UmResourceManager.LoadResource<Texture>(filePath));
+            _tempResource.push_back(LoadResource<Texture>(filePath));
             break;
         case RESOURCE_TYPE::MODEL:
-            _tempResource.push_back(UmResourceManager.LoadResource<Model>(filePath));
+            _tempResource.push_back(LoadResource<Model>(filePath));
             break;
         case RESOURCE_TYPE::ANIMATION:
             //_tempResource.push_back(UmResourceManager.LoadResource<Animation>(filePath));
@@ -35,9 +35,10 @@ void ResourceManager::Update()
     _loadQueue.clear();
 }
 
-void ResourceManager::RegisterLoadQueue(const std::pair<std::wstring, RESOURCE_TYPE>& data)
+void ResourceManager::RegisterLoadQueue(const std::pair<std::filesystem::path, RESOURCE_TYPE>& data)
 {
-    _loadQueue.emplace_back(data);
+    if (_resources[data.first].expired())
+        _loadQueue.emplace(data);
 }
 
 void ResourceManager::Clear()

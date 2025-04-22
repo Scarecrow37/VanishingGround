@@ -52,6 +52,10 @@ public:
     HRESULT CreateConstantBuffer(void* data, UINT size,  ComPtr<ID3D12Resource>& buffer);
     HRESULT CreateDefaultBuffer(UINT size,  ComPtr<ID3D12Resource>& buffer);
 
+    HRESULT CreateCommandList(ComPtr<ID3D12CommandAllocator>& allocator, 
+                              ComPtr<ID3D12GraphicsCommandList>& commandList,
+                              COMMAND_TYPE type);
+
 private:
     void    SetViewPort();
     void    CreateDeviceAndSwapChain(HWND hwnd, D3D_FEATURE_LEVEL feature);

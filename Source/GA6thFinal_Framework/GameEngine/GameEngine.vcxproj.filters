@@ -88,6 +88,9 @@
     <Filter Include="GraphicsCore\Module">
       <UniqueIdentifier>{a63d94b8-ab29-418c-9b51-30ec5e81ea26}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GraphicsCore\Animator">
+      <UniqueIdentifier>{80ba6ad3-2eb0-450c-92d5-8aac33e067f8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\pch.h">
@@ -423,6 +426,9 @@
     <ClInclude Include="Source\Engine\GraphicsCore\PBRTechnique.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\Animator.h">
+      <Filter>GraphicsCore\Animator</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\pch.cpp">
@@ -711,9 +717,6 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\PBRPass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\PBRTechnique.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
