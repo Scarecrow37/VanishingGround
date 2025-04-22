@@ -18,10 +18,11 @@ static void TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>
     };
 
     auto TreeDragDropEvent = [&node]() {
-        using Data = DragDropTransform::Data;
-        constexpr const char* key = DragDropTransform::key;
         if (ImGui::BeginDragDropSource())
         {
+            using Data                = DragDropTransform::Data;
+            constexpr const char* key = DragDropTransform::KEY;
+
             Data data{};
             data.pTransform = &node;
 
@@ -34,9 +35,9 @@ static void TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>
         if (ImGui::BeginDragDropTarget())
         {
             if (const ImGuiPayload* payload = 
-                ImGui::AcceptDragDropPayload(key))
+                ImGui::AcceptDragDropPayload(DragDropTransform::KEY))
             {
-                Data* data = (Data*)payload->Data;
+                DragDropTransform::Data* data = (DragDropTransform::Data*)payload->Data;
                 data->pTransform->SetParent(node);
             }
             ImGui::EndDragDropTarget();
@@ -157,10 +158,15 @@ void EditorHierarchyTool::HierarchyDropEvent()
     ImRect       rect   = window->Rect();
     if (ImGui::BeginDragDropTargetCustom(rect, window->ID))
     {
-        if (const ImGuiPayload* payload =
-                ImGui::AcceptDragDropPayload("Asset"))
+        if (const ImGuiPayload* payload = 
+            ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
         {
-
+            DragDropAsset::Data* data = (DragDropAsset::Data*)payload->Data;           
+            if (data->Path.extension() == DragDropTransform::PREFAB_EXTENSION)
+            {
+                YAML::Node node = YAML::LoadFile(data->Path.string());
+                UmGameObjectFactory.DeserializeToYaml(&node);
+            }
         }
         ImGui::EndDragDropTarget();
     }

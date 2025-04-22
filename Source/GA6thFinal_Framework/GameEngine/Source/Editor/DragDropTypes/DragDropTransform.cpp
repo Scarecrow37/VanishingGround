@@ -17,10 +17,13 @@ void DragDropTransform::WriteGameObjectFile(Transform* transform, std::string_vi
     }   
     fs::create_directories(writePath.parent_path());
     YAML::Node node = UmGameObjectFactory.SerializeToYaml(&transform->gameObject);
-    std::ofstream ofs(writePath, std::ios::trunc);
-    if (ofs.is_open())
+    if (node.IsNull() == false)
     {
-        ofs << node;
+        std::ofstream ofs(writePath, std::ios::trunc);
+        if (ofs.is_open())
+        {
+            ofs << node;
+        }
+        ofs.close();
     }
-    ofs.close();
 }
