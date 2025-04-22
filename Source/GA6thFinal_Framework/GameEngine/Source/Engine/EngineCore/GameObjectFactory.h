@@ -72,7 +72,7 @@ public:
     /// </summary>
     /// <param name="node"></param>
     /// <returns></returns>
-    bool DeserializeToYaml(YAML::Node* gameObjectNode);
+    std::shared_ptr<GameObject> DeserializeToYaml(YAML::Node* gameObjectNode);
 
 
     /// <summary>
@@ -80,7 +80,7 @@ public:
     /// </summary>
     /// <param name="guid">생성할 프리팹 GUID</param>
     /// <returns></returns>
-    bool DeserializeToGuid(const File::Guid& guid);
+    std::shared_ptr<GameObject> DeserializeToGuid(const File::Guid& guid);
 
     /// <summary>
     /// 게임 오브젝트를 UmPrefab파일로 저장합니다.
