@@ -151,6 +151,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Engine\EditorCore\Setting\EditorSetting.h" />
     <ClInclude Include="Source\Engine\EditorCore\PopupBox\EditorPopupBox.h" />
     <ClInclude Include="Source\Engine\EditorCore\PopupBox\EditorPopupBoxSystem.h" />
     <ClInclude Include="Source\Editor\DragDropTypes\DragDropAsset.h" />
@@ -269,6 +270,7 @@
     <ClInclude Include="Source\UmScripts.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Engine\EditorCore\Setting\EditorSetting.cpp" />
     <ClCompile Include="Source\Editor\DragDropTypes\DragDropTransform.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\PopupBox\EditorPopupBox.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\PopupBox\EditorPopupBoxSystem.cpp" />

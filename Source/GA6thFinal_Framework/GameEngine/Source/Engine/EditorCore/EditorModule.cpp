@@ -23,10 +23,14 @@ EditorModule::~EditorModule()
 
 void EditorModule::ModuleInitialize()
 {
-    //모듈 등록시 1회 호출
+    // 모듈 등록시 1회 호출
     SetGuiThemeStyle();
     _mainMenuBar->OnStartGui();
     _mainDockSpace->OnStartGui();
+
+    File::Path filename  = L"editor.setting";
+    File::Path directory = PROJECT_SETTING_PATH;
+    LoadSetting(directory / filename);
 }
 
 void EditorModule::ModuleUnInitialize()
@@ -34,6 +38,62 @@ void EditorModule::ModuleUnInitialize()
     //파괴 직전 함수 필요하면 추가
     _mainMenuBar->OnEndGui();
     _mainDockSpace->OnEndGui();
+
+    File::Path filename  = L"editor.setting";
+    File::Path directory = PROJECT_SETTING_PATH;
+
+    SaveSetting(directory / filename);
+}
+
+bool EditorModule::SaveSetting(const File::Path& path)
+{
+    _setting.ToolStatus.clear();
+    for (auto& [key, tool] : _mainDockSpace->GetRefToolTable())
+    {
+        EditorTool* editorTool = tool.get();
+        if (nullptr != editorTool)
+        {
+            EditorToolStatus status;
+            status.name      = key;
+            status.IsVisible = editorTool->IsVisible();
+            status.IsLock    = editorTool->IsLock();
+            _setting.ToolStatus.push_back(status);
+        }
+    }
+
+    auto setting = rfl::yaml::save(path.string(), _setting);
+    if (false == setting)
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
+
+bool EditorModule::LoadSetting(const File::Path& path)
+{
+    auto setting = rfl::yaml::load<EditorSetting>(path.string());
+    if (false == setting)
+    {
+        return false;
+    }
+    else
+    {
+        _setting = setting.value();
+
+        for (auto& status : _setting.ToolStatus)
+        {
+            EditorTool* tool = _mainDockSpace->GetTool(status.name);
+            if (nullptr != tool)
+            {
+                tool->SetVisible(status.IsVisible);
+                tool->SetLock(status.IsLock);
+            }
+        }
+        return true;
+    }
 }
 
 void EditorModule::Update()
