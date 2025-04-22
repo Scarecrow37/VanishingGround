@@ -203,7 +203,15 @@ void EGameObjectFactory::ResetGameObject(
     GameObject* ownerObject, 
     std::string_view name)
 {
-    ownerObject->_ownerScene = engineCore->SceneManager.GetMainScene().Name;
+    Scene* mainScene = engineCore->SceneManager.GetMainScene();
+    if (mainScene != nullptr)
+    {
+        ownerObject->_ownerScene = mainScene->Name;
+    }
+    else
+    {
+        ownerObject->_ownerScene = NULL_STR;
+    }   
     ownerObject->ReflectFields->_name = name;
     ownerObject->ReflectFields->_isStatic = false;
     ownerObject->ReflectFields->_activeSelf = true;
