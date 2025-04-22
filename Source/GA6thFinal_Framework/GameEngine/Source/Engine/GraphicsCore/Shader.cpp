@@ -175,7 +175,7 @@ HRESULT Shader::CreateRootSignature()
 				std::string_view name = bindDesc.Name;
 				if (name.find("textures") != std::string::npos)
 				{
-					descriptorRange.NumDescriptors = 50;
+					descriptorRange.NumDescriptors = -1;
 				}
 
 				descriptorRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;

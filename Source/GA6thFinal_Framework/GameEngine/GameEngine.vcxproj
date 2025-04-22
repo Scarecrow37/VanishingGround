@@ -153,6 +153,8 @@
   <ItemGroup>
     <ClInclude Include="Source\Editor\DragDropTypes\DragDropAsset.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Animator.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\M_Default.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\Material.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\PBRPass.h" />
     <ClInclude Include="Source\Engine\Utility\EditorHelper.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\RenderPass.h" />
@@ -265,6 +267,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Engine\GraphicsCore\Animator.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\M_Default.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\Material.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\PBRPass.cpp" />
     <ClCompile Include="Source\Editor\DragDropTypes\DragDropTransform.cpp" />
     <ClCompile Include="Source\Engine\Utility\EditorHelper.cpp" />
