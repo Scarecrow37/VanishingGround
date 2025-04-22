@@ -28,11 +28,23 @@ void EditorSceneTool::OnStartGui()
 
 void EditorSceneTool::OnPreFrame()
 {
-    
+    // 프레임에 대한 호버링 중이면 No_Move플래그를 설정
+    if (true == _isHorverdScene)
+    {
+        SetWindowFlag(ImGuiWindowFlags_NoMove);
+    }
+    else
+    {
+        SetWindowFlag(ImGuiWindowFlags_None);
+    }
 }
 
 void EditorSceneTool::OnFrame()
 {
+    auto window = ImGui::GetCurrentWindow();
+    auto rect   = window->Rect();
+    _isHorverdScene = ImGui::IsMouseHoveringRect(rect.Min, rect.Max);
+
     //_aspect = ImGui::GetWindowHeight() / ImGui::GetWindowWidth();
     _camera->SetupPerspective(_fovDegree, _aspect, _nearZ, _farZ);
 

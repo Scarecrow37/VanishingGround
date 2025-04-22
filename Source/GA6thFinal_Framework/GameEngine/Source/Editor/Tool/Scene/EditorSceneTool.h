@@ -27,6 +27,8 @@ private:
     void ProcessManipulate();
 
 private:
+    bool _isHorverdScene = false;
+
     Camera* _camera = nullptr;
 
     // Camera
