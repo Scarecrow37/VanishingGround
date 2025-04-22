@@ -1,4 +1,4 @@
-﻿#include "pch.h"
+#include "pch.h"
 #include "EditorHierarchyTool.h"
 
 using namespace u8_literals;
@@ -165,7 +165,7 @@ void EditorHierarchyTool::HierarchyDropEvent()
             {
                 auto              context = data->context.lock();
                 const File::Path& path    = context->GetPath();
-                if (path.extension() == DragDropTransform::PREFAB_EXTENSION)
+                if (path.extension() == UmGameObjectFactory.PREFAB_EXTENSION)
                 {
                     YAML::Node node = YAML::LoadFile(path.string());
                     UmGameObjectFactory.DeserializeToYaml(&node);

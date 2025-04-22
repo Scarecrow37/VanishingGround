@@ -1,4 +1,4 @@
-﻿#include "pch.h"
+#include "pch.h"
 #include "EditorAssetBrowserTool.h"
 
 namespace fs = std::filesystem;
@@ -326,7 +326,7 @@ void EditorAssetBrowserTool::ContentsFrameEventAction(spFolderContext context)
     {
         if (nullptr != context)
         {
-            DragDropTransform::WriteGameObjectFile(data.pTransform, context->GetPath().string());
+            UmGameObjectFactory.WriteGameObjectFile(data.pTransform, context->GetPath().string());
         }
     }
 

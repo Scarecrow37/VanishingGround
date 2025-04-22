@@ -1,4 +1,4 @@
-﻿#include "pch.h"
+#include "pch.h"
 
 static std::pair<std::string, std::string> GetCurrentTimestamp()
 {
@@ -30,8 +30,7 @@ void EEngineLogger::Log(int logLevel,
 {
     auto [day, time] = GetCurrentTimestamp();
     std::string logMessage =
-        std::format("[{}] {}: {}", time, LogLevel::LogLevelTo_c_str(logLevel),
-                    message.data());
+        std::format("[{}] {}: {}", time, LogLevel::LogLevelTo_c_str(logLevel), message.data());
 
     if (LogLevel::IsLogLevel(logLevel))
     {

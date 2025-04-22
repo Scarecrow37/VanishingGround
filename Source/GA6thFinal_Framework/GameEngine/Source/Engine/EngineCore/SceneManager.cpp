@@ -1,4 +1,4 @@
-﻿#include "pch.h"
+#include "pch.h"
 using namespace Global;
 using namespace u8_literals;
 
@@ -18,14 +18,14 @@ std::filesystem::path ESceneManager::GetSettingFilePath()
 
 ESceneManager::ESceneManager() 
 {
-    if (Global::editorManager)
+    //if (UmApplication.IsEditor()) //에디터 모드일때만 해야함
     {
         LoadSettingFile();
     } 
 }
 ESceneManager::~ESceneManager()
 {
-    if (Global::editorManager)
+    //if (UmApplication.IsEditor()) //에디터 모드일때만 해야함
     {
         SaveSettingFile();
     } 
@@ -373,6 +373,7 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
     if (path.empty() == true)
     {
         std::string message = std::format("{}{}", sceneName, u8"은 저장하지 않은 씬입니다."_c_str);
+
         YAML::Node  node    = SerializeToYaml(scene);
         DeserializeToYaml(&node);
         UmEngineLogger.Log(LogLevel::LEVEL_WARNING, message);
