@@ -419,13 +419,13 @@ HRESULT Shader::CompileShader(std::wstring_view filePath, std::string_view entry
 							shader.GetAddressOf(),				//[출력] 컴파일된 셰이더 코드.
 							error.GetAddressOf());				//[출력] 컴파일 에러 코드.
 	
-	FAILED_CHECK_BREAK(hr);
-
 	if (nullptr != error)
 	{
 		std::filesystem::path errorMessage = static_cast<const char*>(error->GetBufferPointer());
-		ASSERT(FAILED(hr), errorMessage.c_str());
+		ASSERT(SUCCEEDED(hr), errorMessage.c_str());
 	}
+
+	FAILED_CHECK_BREAK(hr);
 
 	return hr;
 }

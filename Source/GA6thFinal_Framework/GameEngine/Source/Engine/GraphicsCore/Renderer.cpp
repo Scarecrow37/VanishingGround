@@ -13,6 +13,8 @@
 #include "Cylinder.h"
 #include "Grid.h"
 #include "Quad.h"
+#include "RenderScene.h"
+#include "PBRTechnique.h"
 #endif
 
 Renderer::Renderer()
@@ -37,29 +39,41 @@ void Renderer::RegisterRenderQueue(MeshRenderer* component)
     }
 
     _components.push_back(component);
+    // test code
+    for (auto& meshRenerComps : _components)
+    {
+        _renderScenes["TEST PBR"]->RegisterOnRenderQueue(meshRenerComps);
+    }
 }
 
 void Renderer::Initialize()
 {
-	_shader->BeginBuild();
-	_shader->LoadShader(L"../Shaders/vs_fr.hlsl", Shader::Type::VS);
-	_shader->LoadShader(L"../Shaders/ps_fr.hlsl", Shader::Type::PS);
-	_shader->EndBuild();
+    //TODO : 바로 오자마자 확인 -> render scene 추가 ->pbr tech 추가
+	//_shader->BeginBuild();
+	//_shader->LoadShader(L"../Shaders/vs_fr.hlsl", Shader::Type::VS);
+	//_shader->LoadShader(L"../Shaders/ps_fr.hlsl", Shader::Type::PS);
+	//_shader->EndBuild();
 
-	CreatePipelineState();
+	//CreatePipelineState();
 
-	UmDevice.SetCurrentPipelineState(_pipelineState[_currnetState]);
+	//UmDevice.SetCurrentPipelineState(_pipelineState[_currnetState]);
 
-	// 임시
-	_frameResource->Initialize(100, 50);
+	//// 임시
+	//_frameResource->Initialize(100, 50);
 
-	CameraData cameraData
-	{
-		.View = UmMainCamera.GetViewMatrix(),
-		.Projection = UmMainCamera.GetProjectionMatrix(),
-	};
+	//CameraData cameraData
+	//{
+	//	.View = UmMainCamera.GetViewMatrix(),
+	//	.Projection = UmMainCamera.GetProjectionMatrix(),
+	//};
 
-	UmDevice.CreateConstantBuffer(&cameraData, sizeof(CameraData), _cameraBuffer);
+	//UmDevice.CreateConstantBuffer(&cameraData, sizeof(CameraData), _cameraBuffer);
+    std::shared_ptr<RenderScene> testRenderScene = std::make_shared<RenderScene>();
+    testRenderScene->InitializeRenderScene(1);
+    std::shared_ptr<PBRTechnique> pbrTech = std::make_shared<PBRTechnique>();
+    testRenderScene->AddRenderTechnique("PBR", pbrTech);
+
+    _renderScenes["TEST PBR"]                    = testRenderScene;
 }
 
 void Renderer::Update()
@@ -71,51 +85,22 @@ void Renderer::Update()
     UmMainCamera.Update();
 
 	UmDevice.ResetCommands();
-	UpdateFrameResource();
+	//UpdateFrameResource();
 	UmDevice.ClearBackBuffer(D3D12_CLEAR_FLAG_DEPTH, { 0.5f, 0.5f, 0.5f, 1.f });
+    for (auto& renderScene : _renderScenes)
+    {
+        renderScene.second->UpdateRenderScene();
+    } 
 }
 
 void Renderer::Render()
 {
 	ComPtr<ID3D12GraphicsCommandList> commandList = UmDevice.GetCommandList();
-	ComPtr<ID3D12RootSignature> rootSignature = _shader->GetRootSignature();
 
-	commandList->SetPipelineState(_pipelineState[_currnetState].Get());
-	commandList->SetGraphicsRootSignature(rootSignature.Get());
-	
-	ComPtr<ID3D12DescriptorHeap> dh = _frameResource->GetDescriptorHeap();
-	ID3D12DescriptorHeap* hps[] = { dh.Get(), };
-
-	//디스크립터-힙 설정.
-	commandList->SetDescriptorHeaps(_countof(hps), hps);
-
-	//디스크립터-힙에서 첫번째 디스크립터 (배열)주소 획득.
-	D3D12_GPU_DESCRIPTOR_HANDLE textures = dh->GetGPUDescriptorHandleForHeapStart();
-	
-	//ID3DR
-	// 현재 타겟의 카메라 버퍼 설정	
-	commandList->SetGraphicsRootConstantBufferView(_shader->GetRootSignatureIndex("cameraData"), _cameraBuffer->GetGPUVirtualAddress());
-
-	commandList->SetGraphicsRootDescriptorTable(_shader->GetRootSignatureIndex("objectData"), textures);
-	textures.ptr += UmDevice.GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-
-	commandList->SetGraphicsRootDescriptorTable(_shader->GetRootSignatureIndex("material"), textures);
-	textures.ptr += UmDevice.GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-
-	commandList->SetGraphicsRootDescriptorTable(_shader->GetRootSignatureIndex("textures"), textures);
-
-	UINT ID = 0;
-    for (auto& component : _components)
+    for (auto& renderScene : _renderScenes)
     {
-        const auto& model = component->GetModel();
-        
-        for (auto& mesh : model->GetMeshes())
-        {
-            commandList->SetGraphicsRoot32BitConstant(_shader->GetRootSignatureIndex("bit32_object"), ID++, 0);
-            mesh->Render(commandList.Get());
-        }
+        renderScene.second->Excute(commandList);
     }
-	
 	UmDevice.Flip();
 }
 
@@ -129,9 +114,17 @@ HRESULT Renderer::CreatePipelineState()
 	//rd.FrontCounterClockwise = false;
 	rd.DepthClipEnable = TRUE;
 
-	D3D12_BLEND_DESC bd = {};
-	bd.RenderTarget[0].BlendEnable = FALSE;
-	bd.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+D3D12_BLEND_DESC bd                      = {};
+    bd.AlphaToCoverageEnable                 = FALSE;
+    bd.IndependentBlendEnable                = FALSE;
+    bd.RenderTarget[0].BlendEnable           = TRUE; // 알파 블렌딩 활성화
+    bd.RenderTarget[0].SrcBlend              = D3D12_BLEND_SRC_ALPHA;
+    bd.RenderTarget[0].DestBlend             = D3D12_BLEND_INV_SRC_ALPHA;
+    bd.RenderTarget[0].BlendOp               = D3D12_BLEND_OP_ADD;
+    bd.RenderTarget[0].SrcBlendAlpha         = D3D12_BLEND_ONE;
+    bd.RenderTarget[0].DestBlendAlpha        = D3D12_BLEND_ZERO;
+    bd.RenderTarget[0].BlendOpAlpha          = D3D12_BLEND_OP_ADD;
+    bd.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 
 	D3D12_DEPTH_STENCIL_DESC  dsd = {};
 	dsd.DepthEnable = TRUE;
@@ -161,6 +154,8 @@ HRESULT Renderer::CreatePipelineState()
 	//psd.CachedPSO 		= nullptr;
 	//psd.Flags 			= D3D12_PIPELINE_STATE_FLAG_NONE;
 	
+
+
 	//첫번째 렌더링 상태 객체 : "Solid" (기본상태)
 	ComPtr<ID3D12Device> device = UmDevice.GetDevice();
 

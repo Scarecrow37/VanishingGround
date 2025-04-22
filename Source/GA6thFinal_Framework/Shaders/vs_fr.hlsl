@@ -19,6 +19,7 @@ struct VSOutput
     float3 tangent      : TANGENT;
     float3 biTangent    : BINORMAL;
     float2 uv           : TEXCOORD;
+    float4 worldPosition : POSITION;
 };
 
 #define object bit32_object
@@ -28,6 +29,7 @@ VSOutput vs_main(VSInput input)
     VSOutput output = (VSOutput) 0;
 
     output.position = mul(input.position, objectData[object.ID].World);
+    output.worldPosition = output.position;
     output.position = mul(output.position, cameraData.View);
     output.position = mul(output.position, cameraData.Projection);
 

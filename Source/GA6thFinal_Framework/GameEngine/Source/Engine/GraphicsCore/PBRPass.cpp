@@ -4,6 +4,9 @@
 #include "RenderScene.h"
 #include "Shader.h"
 #include "TempObject.h" 
+#include "Model.h"
+#include "UmScripts.h"
+#include "BaseMesh.h"
 
 PBRPass::~PBRPass() {}
 
@@ -50,9 +53,14 @@ void PBRPass::Draw(ComPtr<ID3D12GraphicsCommandList> commandList)
     commandList->SetGraphicsRootDescriptorTable(_shader->GetRootSignatureIndex("textures"), textures);
 
     UINT ID = 0;
-    for (auto& object : _ownerScene->_renderQueue)
+    for (auto& component : _ownerScene->_renderQueue)
     {
-        commandList->SetGraphicsRoot32BitConstant(_shader->GetRootSignatureIndex("bit32_object"), ID++, 0);
-        object->Render(commandList.Get());
+        const auto& model = component->GetModel();
+
+        for (auto& mesh : model->GetMeshes())
+        {
+            commandList->SetGraphicsRoot32BitConstant(_shader->GetRootSignatureIndex("bit32_object"), ID++, 0);
+            mesh->Render(commandList.Get());
+        }
     }
 }

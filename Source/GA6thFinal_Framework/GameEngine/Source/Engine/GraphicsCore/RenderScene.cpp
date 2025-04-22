@@ -1,18 +1,19 @@
 ﻿#include "pch.h"
 #include "RenderScene.h"
 #include "FrameResource.h"
+#include "Model.h"
 #include "Quad.h"
 #include "RenderPass.h"
 #include "RenderTarget.h"
 #include "RenderTechnique.h"
 #include "Shader.h"
-#include "TempObject.h"
+#include "UmScripts.h"
 
 RenderScene::RenderScene() : _frameQuad{std::make_unique<Quad>()}, _frameShader{std::make_unique<Shader>()} {}
 
 void RenderScene::UpdateRenderScene()
 {
-    _currentFrameIndex =UmDevice.GetCurrentBackBufferIndex();
+    _currentFrameIndex = UmDevice.GetCurrentBackBufferIndex();
 
     CameraData cameraData{
         .View       = XMMatrixTranspose(UmMainCamera.GetViewMatrix()),
@@ -23,43 +24,51 @@ void RenderScene::UpdateRenderScene()
 
     std::unordered_map<size_t, UINT>         materialPair;
     std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> handles;
-    std::vector<ObjectData>                  objectDatas;
+    std::vector<XMMATRIX>                    worldMatrixes;
     std::vector<MaterialData>                materialDatas;
     UINT                                     materialID = 0;
 
-    for (auto& object : _renderQueue)
+    for (auto& component : _renderQueue)
     {
-        ObjectData objectData = object->GetObjectData();
-        objectData.World      = XMMatrixTranspose(objectData.World);
-        objectDatas.emplace_back(objectData);
+        auto& model     = component->GetModel();
+        auto& meshes    = model->GetMeshes();
+        auto& materials = model->GetMaterials();
 
-        MaterialData materialData{};
-        // 임시로 4장의 텍스쳐만 테스트
-        for (UINT i = 0; i < 4; i++)
+        XMMATRIX world = XMMatrixTranspose(component->gameObject->transform->GetWorldMatrix());
+        UINT     size  = (UINT)meshes.size();
+
+        for (UINT i = 0; i < size; i++)
         {
-            auto iter = materialPair.find(object->GetShaderResourceCPU(i).ptr);
+            worldMatrixes.emplace_back(world);
+            MaterialData materialData{};
 
-            if (iter == materialPair.end())
+            for (UINT j = 0; j < 4; j++)
             {
-                materialPair.emplace(object->GetShaderResourceCPU(i).ptr, materialID);
-                materialData.ID[i] = materialID++;
-                handles.push_back(object->GetShaderResourceCPU(i));
+                if (nullptr == materials[i][j])
+                    continue;
+
+                auto iter = materialPair.find(materials[i][j]->GetHandle().ptr);
+                if (iter == materialPair.end())
+                {
+                    materialPair.emplace(materials[i][j]->GetHandle().ptr, materialID);
+                    materialData.ID[j] = materialID++;
+                    handles.push_back(materials[i][j]->GetHandle());
+                }
+                else
+                {
+                    materialData.ID[j] = iter->second;
+                }
             }
-            else
-            {
-                materialData.ID[i] = iter->second;
-            }
+
+            materialDatas.push_back(materialData);
         }
-        materialDatas.push_back(materialData);
     }
 
-    UINT size = static_cast<UINT>(objectDatas.size());
-    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(UmDevice.GetCommandList().Get(), objectDatas.data(),
-                                                              size * sizeof(ObjectData),
-                                                              FrameResource::Type::TRANSFORM);
-    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(UmDevice.GetCommandList().Get(),
-                                                              materialDatas.data(), size * sizeof(MaterialData),
-                                                              FrameResource::Type::MATERIAL);
+    UINT size = static_cast<UINT>(worldMatrixes.size());
+    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(UmDevice.GetCommandList().Get(), worldMatrixes.data(),
+                                         size * sizeof(ObjectData), FrameResource::Type::TRANSFORM);
+    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(UmDevice.GetCommandList().Get(), materialDatas.data(),
+                                         size * sizeof(MaterialData), FrameResource::Type::MATERIAL);
     _frameResources[_currentFrameIndex]->CopyDescriptors(handles);
 }
 
@@ -76,8 +85,8 @@ void RenderScene::InitializeRenderScene(UINT renderTargetCount)
     // 화면 크기만한 quad만들기. NDC 좌표계로
     _frameQuad->Initialize(-1.f, 1.f, 2.f, 2.f, 0.f);
     _frameShader->BeginBuild();
-    _frameShader->LoadShader(L"../Shaders/quad_vs.hlsl", Shader::Type::VS);
-    _frameShader->LoadShader(L"../Shaders/quad_frame_ps.hlsl", Shader::Type::PS);
+    _frameShader->LoadShader(L"../Shaders/vs_quad.hlsl", Shader::Type::VS);
+    _frameShader->LoadShader(L"../Shaders/ps_quad_frame.hlsl", Shader::Type::PS);
     _frameShader->EndBuild();
     CreatePso();
     CreateDescriptorHeap();
@@ -95,31 +104,29 @@ void RenderScene::InitializeRenderScene(UINT renderTargetCount)
     hr         = UmViewManager.AddDescriptorHeap(ViewManager::Type::DEPTH_STENCIL, _depthStencilHandle);
     FAILED_CHECK_BREAK(hr);
 
-    D3D12_RESOURCE_DESC depthDesc{
-        .Dimension        = D3D12_RESOURCE_DIMENSION_TEXTURE2D,
-        .Alignment        = 0,
-        .Width            =UmDevice.GetMode().Width,
-        .Height           =UmDevice.GetMode().Height,
-        .DepthOrArraySize = 1,
-        .MipLevels        = 1,
-        .Format           = DXGI_FORMAT_R24G8_TYPELESS,
-        .SampleDesc{.Count   =UmDevice.GetMsaaState() ? (UINT)4 : (UINT)1,
-                    .Quality =UmDevice.GetMsaaState() ? (UmDevice.GetMsaaQuality() - 1) : 0},
-        .Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN,
-        .Flags  = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL};
+    D3D12_RESOURCE_DESC depthDesc{.Dimension        = D3D12_RESOURCE_DIMENSION_TEXTURE2D,
+                                  .Alignment        = 0,
+                                  .Width            = UmDevice.GetMode().Width,
+                                  .Height           = UmDevice.GetMode().Height,
+                                  .DepthOrArraySize = 1,
+                                  .MipLevels        = 1,
+                                  .Format           = DXGI_FORMAT_R24G8_TYPELESS,
+                                  .SampleDesc{.Count   = UmDevice.GetMsaaState() ? (UINT)4 : (UINT)1,
+                                              .Quality = UmDevice.GetMsaaState() ? (UmDevice.GetMsaaQuality() - 1) : 0},
+                                  .Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN,
+                                  .Flags  = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL};
 
-    D3D12_CLEAR_VALUE       optClear{.Format =UmDevice.GetDepthStencilFormat(),
-                                     .DepthStencil{.Depth = 1.f, .Stencil = 0}};
+    D3D12_CLEAR_VALUE optClear{.Format = UmDevice.GetDepthStencilFormat(), .DepthStencil{.Depth = 1.f, .Stencil = 0}};
     CD3DX12_HEAP_PROPERTIES property(D3D12_HEAP_TYPE_DEFAULT);
-    hr =UmDevice.GetDevice()->CreateCommittedResource(&property, D3D12_HEAP_FLAG_NONE, &depthDesc,
-                                                             D3D12_RESOURCE_STATE_PRESENT, &optClear,
-                                                             IID_PPV_ARGS(_depthStencilBuffer.GetAddressOf()));
+    hr = UmDevice.GetDevice()->CreateCommittedResource(&property, D3D12_HEAP_FLAG_NONE, &depthDesc,
+                                                       D3D12_RESOURCE_STATE_PRESENT, &optClear,
+                                                       IID_PPV_ARGS(_depthStencilBuffer.GetAddressOf()));
 
-    D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc{.Format        =UmDevice.GetDepthStencilFormat(),
+    D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc{.Format        = UmDevice.GetDepthStencilFormat(),
                                           .ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D,
                                           .Flags         = D3D12_DSV_FLAG_NONE};
 
-   UmDevice.GetDevice()->CreateDepthStencilView(_depthStencilBuffer.Get(), &dsvDesc, _depthStencilHandle);
+    UmDevice.GetDevice()->CreateDepthStencilView(_depthStencilBuffer.Get(), &dsvDesc, _depthStencilHandle);
 
     // Srv 생성하기(RenderTarget에 대한)
     D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
@@ -149,13 +156,12 @@ void RenderScene::InitializeRenderScene(UINT renderTargetCount)
         .Projection = UmMainCamera.GetProjectionMatrix(),
     };
 
-   UmDevice.CreateConstantBuffer(&cameraData, sizeof(CameraData), _cameraBuffer);
+    UmDevice.CreateConstantBuffer(&cameraData, sizeof(CameraData), _cameraBuffer);
 }
-void RenderScene::RegisterOnRenderQueue(std::shared_ptr<TempObject> renderable)
+void RenderScene::RegisterOnRenderQueue(MeshRenderer* renderable)
 {
     _renderQueue.push_back(renderable);
 }
-void RenderScene::SetSinglePass(std::shared_ptr<RenderPass> pass) {}
 
 void RenderScene::AddRenderTechnique(const std::string& name, std::shared_ptr<RenderTechnique> technique)
 {
@@ -166,33 +172,26 @@ void RenderScene::AddRenderTechnique(const std::string& name, std::shared_ptr<Re
 
 void RenderScene::Excute(ComPtr<ID3D12GraphicsCommandList> commandList)
 {
-    if (_singlePass)
+
+    for (auto& [name, tech] : _techniques)
     {
-        _singlePass->Begin(commandList);
-        _singlePass->Draw(commandList);
-        _singlePass->End(commandList);
+        tech->Execute(commandList);
     }
-    else
-    {
-        for (auto& [name, tech] : _techniques)
-        {
-            tech->Execute(commandList);
-        }
-    }
+
 
     RenderOnBackBuffer(commandList);
 }
 
 void RenderScene::RenderOnBackBuffer(ComPtr<ID3D12GraphicsCommandList> commandList)
 {
-   UmDevice.SetBackBuffer();
+    UmDevice.SetBackBuffer();
     commandList->SetPipelineState(_framePSO.Get());
     commandList->SetGraphicsRootSignature(_frameShader->GetRootSignature().Get());
     auto dest = _srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 
     D3D12_CPU_DESCRIPTOR_HANDLE src = _renderTargetSRVHandles[0];
 
-   UmDevice.GetDevice()->CopyDescriptorsSimple(2, dest, src, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+    UmDevice.GetDevice()->CopyDescriptorsSimple(2, dest, src, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
     ID3D12DescriptorHeap* dh[] = {_srvDescriptorHeap.Get()};
     commandList->SetDescriptorHeaps(_countof(dh), dh);
@@ -213,13 +212,13 @@ void RenderScene::CreatePso()
     psodesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
     psodesc.InputLayout           = _frameShader->GetInputLayout();
     psodesc.NumRenderTargets      = 1;
-    psodesc.RTVFormats[0]         =UmDevice.GetMode().Format;
+    psodesc.RTVFormats[0]         = UmDevice.GetMode().Format;
     psodesc.DSVFormat             = DXGI_FORMAT_D24_UNORM_S8_UINT;
     psodesc.pRootSignature        = _frameShader->GetRootSignature().Get();
     psodesc.SampleDesc            = {1, 0};
     psodesc.VS                    = _frameShader->GetShaderByteCode(Shader::Type::VS);
     psodesc.PS                    = _frameShader->GetShaderByteCode(Shader::Type::PS);
-    ComPtr<ID3D12Device> device   =UmDevice.GetDevice();
+    ComPtr<ID3D12Device> device   = UmDevice.GetDevice();
 
     hr = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(_framePSO.GetAddressOf()));
     FAILED_CHECK_BREAK(hr);
@@ -233,7 +232,6 @@ void RenderScene::CreateDescriptorHeap()
     srvHeapDesc.Type           = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
     srvHeapDesc.Flags          = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
     HRESULT hr                 = S_OK;
-    hr =
-       UmDevice.GetDevice()->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(_srvDescriptorHeap.GetAddressOf()));
+    hr = UmDevice.GetDevice()->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(_srvDescriptorHeap.GetAddressOf()));
     FAILED_CHECK_BREAK(hr);
 }

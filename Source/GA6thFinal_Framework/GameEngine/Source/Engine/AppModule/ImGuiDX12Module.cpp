@@ -47,8 +47,11 @@ void ImGuiDX12Module::ModuleInitialize()
 {
     UmComponentFactory.InitalizeComponentFactory();
 
-    /*auto  gameObject = NewGameObject<GameObject>("Test").lock();
-    auto& test       = gameObject->AddComponent<StaticMeshRenderer>();*/
+    auto  gameObject = NewGameObject<GameObject>("Test").lock();
+    auto& test       = gameObject->AddComponent<StaticMeshRenderer>();
+    gameObject->transform->Scale    = {0.03f, 0.03f, 0.03f};
+    gameObject->transform->Position    = {-1.f,0.f,0.f};
+    gameObject->transform->Rotation = Quaternion::CreateFromAxisAngle({0.f,1.f,0.f},XM_PIDIV2);
 }
 
 void ImGuiDX12Module::PreUnInitialize()

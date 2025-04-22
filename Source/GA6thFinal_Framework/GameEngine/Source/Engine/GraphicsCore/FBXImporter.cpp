@@ -261,7 +261,7 @@ void FBXImporter::LoadMaterials(const aiScene* paiScene,
         textures[i].push_back(LoadTexture(filePath, texturePath, material, aiTextureType_NORMALS));
         textures[i].push_back(LoadTexture(filePath, texturePath, material, aiTextureType_SHININESS)); // RMA
         textures[i].push_back(LoadTexture(filePath, texturePath, material, aiTextureType_EMISSIVE));
-        textures[i].push_back(LoadTexture(filePath, texturePath, material, aiTextureType_OPACITY));
+        //textures[i].push_back(LoadTexture(filePath, texturePath, material, aiTextureType_OPACITY));
     }
 }
 

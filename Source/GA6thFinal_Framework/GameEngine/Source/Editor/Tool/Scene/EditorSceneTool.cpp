@@ -28,6 +28,7 @@ void DragDropFunc()
 
 void  EditorSceneTool::OnFrame()
 {
+
 }
 
 void  EditorSceneTool::OnPostFrame()
