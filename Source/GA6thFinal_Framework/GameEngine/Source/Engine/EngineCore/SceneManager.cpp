@@ -106,6 +106,12 @@ void ESceneManager::SceneUpdate()
 
 void ESceneManager::Engine::AddGameObjectToLifeCycle(std::shared_ptr<GameObject> gameObject)
 {
+    if (UmSceneManager.GetMainScene() == nullptr)
+    {
+        UmEngineLogger.Log(LogLevel::LEVEL_WARNING, u8"씬을 먼저 로드해주세요."_c_str);
+        return;
+    }
+
     auto [iter, result] = Global::engineCore->SceneManager._runtimeObjectsUnorderedMap[gameObject->ReflectFields->_name].insert(gameObject);
     if (result == false)
     {
@@ -405,11 +411,14 @@ void ESceneManager::UnloadScene(std::string_view sceneName)
         return;
     }
 
-    if (scene == GetMainScene())
+    if (Scene* mainScene = GetMainScene())
     {
-        std::string message = std::format("{}{}", sceneName, u8"은 메인 씬 이므로 언로드 할 수 없습니다."_c_str);
-        UmEngineLogger.Log(LogLevel::LEVEL_ERROR, message);
-        return;
+        if (scene == *mainScene)
+        {
+            std::string message = std::format("{}{}", sceneName, u8"은 메인 씬 이므로 언로드 할 수 없습니다."_c_str);
+            UmEngineLogger.Log(LogLevel::LEVEL_ERROR, message);
+            return;
+        }
     }
 
     scene._isLoaded = false;

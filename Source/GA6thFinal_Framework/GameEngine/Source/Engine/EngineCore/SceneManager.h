@@ -62,8 +62,8 @@ private:
 
 private:
     bool _isLoaded = false;
-    File::Guid _guid = "Null";
-    std::string _name = "Null";
+    File::Guid _guid = NULL_STR;
+    std::string _name = NULL_STR;
 };
 
 /// <summary>
@@ -242,9 +242,14 @@ public:
     /// <para> NewGameObject로 런타임 도중에 생성되는 모든 오브젝트들은 이 Main Scene 에 추가됩니다. </para>
     /// </summary>
     /// <returns>Main Scene</returns>
-    Scene& GetMainScene()
+    Scene* GetMainScene()
     {
-        return _scenesMap[_setting.MainScene];
+        auto findIter = _scenesMap.find(_setting.MainScene);
+        if (findIter != _scenesMap.end())
+        {
+            return &findIter->second;
+        }
+        return nullptr;
     }
 
     /// <summary>
@@ -311,7 +316,7 @@ private:
     struct
     {
        // 현재 Single로 로드된 씬 이름입니다. NewGameObject를 하면 이 씬에 오브젝트가 생성됩니다.
-       std::string MainScene = EMPTY_SCENE_NAME;
+       std::string MainScene = NULL_STR;
     } _setting;
 
     //생성한 씬 입니다. key : 파일 확장자를 제외한 파일 이름, value : 해당 씬의 정보 
