@@ -1,10 +1,11 @@
 ﻿#pragma once
 
-struct DragDropAsset
+class DragDropAsset
 {
-    static constexpr const char* KEY = "DragDropAsset";
+public:
+    static constexpr const char* KEY = "Asset";
     struct Data
     {
-        inline static File::Path Path;
+        std::weak_ptr<File::FileContext> context;
     };
 };

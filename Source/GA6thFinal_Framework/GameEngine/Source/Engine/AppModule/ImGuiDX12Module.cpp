@@ -63,20 +63,13 @@ void ImGuiDX12Module::ImguiBegin()
     ImGui_ImplDX12_NewFrame();
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
+    ImGuizmo::BeginFrame();
 }
 
 void ImGuiDX12Module::ImguiEnd()
 {
     ImGuiIO& io = ImGui::GetIO();
 
-    //RECT rect;
-    //if (GetClientRect(Application::GetHwnd(), &rect)) 
-    //{
-    //    POINT size;
-    //    size.x = rect.right - rect.left;
-    //    size.y = rect.bottom - rect.top;
-    //    io.DisplaySize = ImVec2((float)size.x, size.y);
-    //}
     ImGui::Render();
 
     ID3D12DescriptorHeap* descriptorHeaps[] = {_imguiDescriptorHeap.Get()};

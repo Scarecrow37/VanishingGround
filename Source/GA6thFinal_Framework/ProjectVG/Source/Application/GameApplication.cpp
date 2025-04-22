@@ -28,39 +28,42 @@ GameApplication::GameApplication()
     
 
     //에디터 매니저 등록
-    _editorManager = AddModule<EditorModule>();
+    _editorModule = AddModule<EditorModule>();
 
     //추가할 에디터 작성
     /* Tool */
-    _editorManager->RegisterEditorObject<EditorDebugTool>();
-    _editorManager->RegisterEditorObject<EditorHierarchyTool>();
-    _editorManager->RegisterEditorObject<EditorInspectorTool>();
-    _editorManager->RegisterEditorObject<EditorSceneTool>();
-    _editorManager->RegisterEditorObject<EditorAssetBrowserTool>();
-    _editorManager->RegisterEditorObject<EditorLogsTool>();
+    _editorModule->RegisterEditorObject<EditorDebugTool>();
+    _editorModule->RegisterEditorObject<EditorHierarchyTool>();
+    _editorModule->RegisterEditorObject<EditorInspectorTool>();
+    _editorModule->RegisterEditorObject<EditorSceneTool>();
+    _editorModule->RegisterEditorObject<EditorAssetBrowserTool>();
+    _editorModule->RegisterEditorObject<EditorLogsTool>();
 
     //김시우 테스트용
-    _editorManager->RegisterEditorObject<ScriptTestEditor>();
+    _editorModule->RegisterEditorObject<ScriptTestEditor>();
 
     //블루프린트 버그있음
-    //_editorManager->RegisterEditorObject<EditorShaderGraph>();
+    //_editorModule->RegisterEditorObject<EditorShaderGraph>();
 
     /* Menu */
     //Project
-    _editorManager->RegisterEditorObject<EditorMenuScriptBuilder>();
+    _editorModule->RegisterEditorObject<EditorMenuScriptBuilder>();
     // Window
-    _editorManager->RegisterEditorObject<EditorMenuTools>();
+    _editorModule->RegisterEditorObject<EditorMenuTools>();
     // Setting
-    _editorManager->RegisterEditorObject<EditorMenuDebug>();
-    _editorManager->RegisterEditorObject<EditorMenuStyleEditor>();
-    _editorManager->RegisterEditorObject<EditorMenuFileSystemSetting>();
+    _editorModule->RegisterEditorObject<EditorMenuDebug>();
+    _editorModule->RegisterEditorObject<EditorMenuStyleEditor>();
+    _editorModule->RegisterEditorObject<EditorMenuFileSystemSetting>();
     // Scene
-    _editorManager->RegisterEditorObject<EditorSceneMenuGameObject>();
-    _editorManager->RegisterEditorObject<EditorSceneMenuScenes>();
+    _editorModule->RegisterEditorObject<EditorSceneMenuGameObject>();
+    _editorModule->RegisterEditorObject<EditorSceneMenuScenes>();
 
     // TestMenu. 추후 삭제 필요
-    _editorManager->RegisterEditorObject<SampleMenu>();
-    _editorManager->RegisterEditorObject<SampleMenu2>();
+    _editorModule->RegisterEditorObject<SampleMenu>();
+    _editorModule->RegisterEditorObject<SampleMenu2>();
+
+    // 만든 EditorModule에 MySampleEditorTool 등록
+    _editorModule->RegisterEditorObject<MySampleEditorTool>();
 }
 
 GameApplication::~GameApplication()
@@ -68,3 +71,34 @@ GameApplication::~GameApplication()
 
 }
 
+MySampleEditorTool::MySampleEditorTool()
+{
+    /* 필수 구현 항목*/
+    SetLabel("MySampleTool"); // 툴 이름
+
+    /* 선택적 옵션 */
+    SetSize(ImVec2(500, 300));            // 초기 사이즈
+    SetPos(ImVec2(300, 100));             // 초기 위치
+    SetCallOrder(0);                      // 호출 순서 (0일시 생략 가능)
+    SetWindowFlag(ImGuiWindowFlags_None); // 윈도우 플래그 (ImGuiWindowFlags_NoCollapse는 항상 활성화)
+}
+
+// MySampleEditorTool.cpp
+void MySampleEditorTool::OnFrame()
+{
+    ImGuiHelper::TooltipMarker("MySampleTool");
+    ImGui::Text("Hello, World!");
+    ImGuiHelper::LoadingSpinner(10.0f, ImVec4(1.0f, 1.0f, 0.0f, 1.0f));
+}
+
+void MySampleEditorTool::OnPopup()
+{
+    if (ImGui::MenuItem("Sample1"))
+    {
+        UmEngineLogger.Log(LogLevel::LEVEL_DEBUG, "Clicked Sample1");
+    }
+    if (ImGui::MenuItem("Sample2"))
+    {
+        UmEngineLogger.Log(LogLevel::LEVEL_DEBUG, "Clicked Sample2");
+    }
+}

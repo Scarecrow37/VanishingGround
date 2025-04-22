@@ -45,6 +45,37 @@ namespace File
         return (false == _meta.IsNull());
     }
 
+    bool Context::Open() 
+    {
+        if (false == _path.empty())
+        {
+            return File::OpenFile(_path);
+        }
+        return false;
+    }
+
+    bool Context::Remove() 
+    {
+        if (false == _path.empty())
+        {
+            // 차후 동작은 이벤트로 처리하므로 파일만 변경
+            return File::RemoveFile(_path);
+        }
+        return false;
+    }
+
+    bool Context::Move(const File::Path& newPath)
+    {
+        if (false == _path.empty())
+        {
+            if (newPath != _path)
+            {
+                // 차후 동작은 이벤트로 처리하므로 파일만 변경
+                return MoveFileExW(_path.wstring().c_str(), newPath.wstring().c_str(), MOVEFILE_REPLACE_EXISTING);
+            }
+        }
+        return false;
+    }
 
     FileContext::FileContext(const File::Path& path) 
         : Context(path)
@@ -71,37 +102,65 @@ namespace File
     void FileContext::OnFileRenamed(const Path& oldPath, const Path& newPath) 
     {
         _path = newPath;
+        _name = newPath.filename().string();
         
         LoadMeta();
+
+        //File::Path oldParentPath    = oldPath.parent_path().generic_string();
+        //File::Path newParentPath    = newPath.parent_path().generic_string();
+        //auto       oldParentContext = UmFileSystem.GetContext<File::FolderContext>(oldParentPath);
+        //auto       newParentContext = UmFileSystem.GetContext<File::FolderContext>(newParentPath);
+        //
+        //if (false == oldParentContext.expired() && false == newParentContext.expired())
+        //{
+        //    auto spOldContext = oldParentContext.lock();
+        //    auto spNewContext = newParentContext.lock();
+        //    spOldContext->_contextTable.erase(oldPath.filename());
+        //    spNewContext->_contextTable[newPath.filename()] = UmFileSystem.GetContext(GetPath());
+        //}
     }
 
     void FileContext::OnFileMoved(const Path& oldPath, const Path& newPath) 
     {
         _path = newPath;
+        _name = newPath.filename().string();
 
         LoadMeta();
+
+        //File::Path oldParentPath    = oldPath.parent_path().generic_string();
+        //File::Path newParentPath    = newPath.parent_path().generic_string();
+        //auto       oldParentContext = UmFileSystem.GetContext<File::FolderContext>(oldParentPath);
+        //auto       newParentContext = UmFileSystem.GetContext<File::FolderContext>(newParentPath);
+        //
+        //if (false == oldParentContext.expired() && false == newParentContext.expired())
+        //{
+        //    auto spOldContext = oldParentContext.lock();
+        //    auto spNewContext = newParentContext.lock();
+        //    spOldContext->_contextTable.erase(oldPath.filename());
+        //    spNewContext->_contextTable[newPath.filename()] = UmFileSystem.GetContext(GetPath());
+        //}
     }
 
-    ForderContext::ForderContext(const File::Path& path) 
+    FolderContext::FolderContext(const File::Path& path) 
     : Context(path)
     {
 
     }
     
-    ForderContext::~ForderContext() 
+    FolderContext::~FolderContext() 
     {
     
     }
 
-    void ForderContext::OnFileAdded(const Path& path) 
+    void FolderContext::OnFileAdded(const Path& path) 
     {
     }
 
-    void ForderContext::OnFileModified(const Path& path) 
+    void FolderContext::OnFileModified(const Path& path) 
     {
     }
 
-    void ForderContext::OnFileRemoved(const Path& path) 
+    void FolderContext::OnFileRemoved(const Path& path) 
     {
         _meta.Remove();
 
@@ -114,9 +173,10 @@ namespace File
         }
     }
 
-    void ForderContext::OnFileRenamed(const Path& oldPath, const Path& newPath)
+    void FolderContext::OnFileRenamed(const Path& oldPath, const Path& newPath)
     {
         _path = newPath;
+        _name = newPath.filename().string();
 
         LoadMeta();
 
@@ -126,15 +186,16 @@ namespace File
             {
                 auto        spContext      = wpContext.lock();
                 const Path& oldContextPath = spContext->GetPath();
-                const Path& newContextPath = _path / spContext->GetPath().filename();
-                UmFileSystem.MovedFile(oldContextPath, newContextPath);
+                const Path& newContextPath = newPath / spContext->GetPath().filename();
+                UmFileSystem.MovedFile(oldContextPath.generic_string(), newContextPath.generic_string());
             }
         }
     }
 
-    void ForderContext::OnFileMoved(const Path& oldPath, const Path& newPath) 
+    void FolderContext::OnFileMoved(const Path& oldPath, const Path& newPath) 
     {
         _path = newPath;
+        _name = newPath.filename().string();
 
         LoadMeta();
 
@@ -144,7 +205,7 @@ namespace File
             {
                 auto        spContext      = wpContext.lock();
                 const Path& oldContextPath = spContext->GetPath();
-                const Path& newContextPath = _path / spContext->GetPath().filename();
+                const Path& newContextPath = newPath / spContext->GetPath().filename();
                 UmFileSystem.MovedFile(oldContextPath, newContextPath);
             }
         }

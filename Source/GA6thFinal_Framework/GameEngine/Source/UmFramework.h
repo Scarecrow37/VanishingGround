@@ -82,6 +82,12 @@ using namespace Microsoft::WRL;
 #include "Engine/Imgui/imgui_node_editor.h"
 #include "Engine/Imgui/imgui_internal.h"
 
+#include "Engine/Imgui/ImGuizmo.h"
+#include "Engine/Imgui/ImSequencer.h"
+#include "Engine/Imgui/ImZoomSlider.h"
+#include "Engine/Imgui/ImCurveEdit.h"
+#include "Engine/Imgui/GraphEditor.h"
+
 //Utility
 #include "Engine/Utility/LogLevel.h"
 #include "Engine/Utility/utfHelper.h"
@@ -123,12 +129,12 @@ using namespace Microsoft::WRL;
 
 //Editor Core
 #include "Engine/EditorCore/EditorEnum.h"
-#include "Engine/EditorCore/EditorBase.h"
+#include "Engine/EditorCore/EditorGui.h"
 #include "Engine/EditorCore/EditorTool.h"
 #include "Engine/EditorCore/EditorMenuBar.h"
 #include "Engine/EditorCore/EditorDockSpace.h"
+#include "Engine/EditorCore/PopupBox/EditorPopupBoxSystem.h"
 #include "Engine/EditorCore/EditorModule.h"
-//#include "Editor/Tool/AssetBrowser/"
 
 //Game Core
 #include "Engine/GameCore/Transform/Transform.h"

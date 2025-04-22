@@ -41,6 +41,20 @@ bool EFileSystem::IsValidExtension(const File::FString& ext)
     return (ext == "") || (_notifierTable.find(ext) != _notifierTable.end());
 }
 
+bool EFileSystem::IsSameContext(std::weak_ptr<File::Context> left, std::weak_ptr<File::Context> right)
+{
+    if (false == left.expired() && false == right.expired())
+    {
+        auto spLeft  = left.lock();
+        auto spRight = right.lock();
+        if (spLeft == spRight)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 const File::Path& EFileSystem::GetPathFromGuid(const File::Guid& guid)
 {
     auto wpContext = GetContext(guid);
@@ -195,8 +209,7 @@ void EFileSystem::ReadDirectory(const File::Path& path)
 
     if (true == std::filesystem::is_directory(path))
     {
-        for (const auto& entry :
-             std::filesystem::recursive_directory_iterator(path))
+        for (const auto& entry : fs::recursive_directory_iterator(path))
         {
             // 경로를 재네릭화
             File::Path genericPath = entry.path().generic_string();
@@ -226,7 +239,7 @@ void EFileSystem::AddedFile(const File::Path& path)
         }
         else if (true == stdfs::is_directory(path))
         {
-            context = std::make_shared<ForderContext>(path);
+            context = std::make_shared<FolderContext>(path);
         }
         else
         {
@@ -235,7 +248,7 @@ void EFileSystem::AddedFile(const File::Path& path)
 
         // 부모 폴더에서 자신을 추가한다.
         File::Path parentPath = path.parent_path().generic_string();
-        auto parentContext = UmFileSystem.GetContext<ForderContext>(parentPath);
+        auto parentContext = UmFileSystem.GetContext<FolderContext>(parentPath);
         if (false == parentContext.expired())
         {
             parentContext.lock()->_contextTable[path.filename()] = context;
@@ -254,7 +267,7 @@ void EFileSystem::AddedFile(const File::Path& path)
         for (auto& notifier : notifierSet)
         {
             notifier->OnFileAdded(path);
-        } 
+        }
     }
 }
 
@@ -265,7 +278,7 @@ void EFileSystem::RemovedFile(const File::Path& path)
     {
         auto            spContext = wpContext.lock();
         const MetaData& meta      = spContext->GetMeta();
-        File::Guid      guid = meta.GetFileGuid();
+        File::Guid      guid      = meta.GetFileGuid();
 
         spContext->OnFileRemoved(path);
 
@@ -275,10 +288,10 @@ void EFileSystem::RemovedFile(const File::Path& path)
 
         // 부모 폴더에서 자신을 제거한다.
         File::Path parentPath = path.parent_path().generic_string();
-        auto wpForderContext = EFileSystem::GetContext<ForderContext>(parentPath);
-        if (false == wpForderContext.expired())
+        auto wpFolderContext = EFileSystem::GetContext<FolderContext>(parentPath);
+        if (false == wpFolderContext.expired())
         {
-            wpForderContext.lock()->_contextTable.erase(path.filename());
+            wpFolderContext.lock()->_contextTable.erase(path.filename());
         }
 
         auto notifierSet = GetNotifiers(path.extension());
@@ -327,43 +340,34 @@ void EFileSystem::MovedFile(const File::Path& oldPath,
         }
 
         // 폴더 컨텍스트에게도 알려준다.
-        File::Path oldForderPath = oldPath.parent_path().generic_string();
-        File::Path newForderPath = newPath.parent_path().generic_string();
+        File::Path oldFolderPath = oldPath.parent_path().generic_string();
+        File::Path newFolderPath = newPath.parent_path().generic_string();
 
-        auto oldForderContext =
-            UmFileSystem.GetContext<ForderContext>(oldForderPath);
-        auto newForderContext =
-            UmFileSystem.GetContext<ForderContext>(newForderPath);
+        auto oldFolderContext =
+            UmFileSystem.GetContext<FolderContext>(oldFolderPath);
+        auto newFolderContext =
+            UmFileSystem.GetContext<FolderContext>(newFolderPath);
 
-        if (false == oldForderContext.expired() && false == newForderContext.expired())
+        if (false == oldFolderContext.expired() && false == newFolderContext.expired())
         {
-            oldForderContext.lock()->_contextTable.erase(oldPath.filename());
-            newForderContext.lock()->_contextTable[newPath.filename()] = wpContext;
+            oldFolderContext.lock()->_contextTable.erase(oldPath.filename());
+            newFolderContext.lock()->_contextTable[newPath.filename()] = wpContext;
         }
 
         if (oldPath.parent_path() == newPath.parent_path())
         {
+            auto notifierSet = GetNotifiers(oldPath.extension());
+            for (auto& notifier : notifierSet)
             {
-                auto notifierSet = GetNotifiers(oldPath.extension());
-                for (auto& notifier : notifierSet)
-                {
-                    notifier->OnFileRenamed(oldPath, newPath);
-                } 
-            }
-            {
-                auto notifierSet = GetNotifiers(newPath.extension());
-                for (auto& notifier : notifierSet)
-                {
-                    notifier->OnFileMoved(oldPath, newPath);
-                } 
-            }
+                notifier->OnFileRenamed(oldPath, newPath);
+            } 
         }
         else
         {
             auto notifierSet = GetNotifiers(newPath.extension());
             for (auto& notifier : notifierSet)
             {
-                notifier->OnFileRenamed(oldPath, newPath);
+                notifier->OnFileMoved(oldPath, newPath);
             } 
         }
     }

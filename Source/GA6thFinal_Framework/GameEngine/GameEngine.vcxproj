@@ -151,7 +151,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Engine\EditorCore\PopupBox\EditorPopupBox.h" />
+    <ClInclude Include="Source\Engine\EditorCore\PopupBox\EditorPopupBoxSystem.h" />
     <ClInclude Include="Source\Editor\DragDropTypes\DragDropAsset.h" />
+    <ClInclude Include="Source\Engine\Imgui\GraphEditor.h" />
+    <ClInclude Include="Source\Engine\Imgui\ImCurveEdit.h" />
+    <ClInclude Include="Source\Engine\Imgui\ImGradient.h" />
+    <ClInclude Include="Source\Engine\Imgui\ImGuizmo.h" />
+    <ClInclude Include="Source\Engine\Imgui\ImSequencer.h" />
+    <ClInclude Include="Source\Engine\Imgui\ImZoomSlider.h" />
     <ClInclude Include="Source\Engine\Utility\EditorHelper.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\RenderPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\RenderTechnique.h" />
@@ -180,7 +188,6 @@
     <ClInclude Include="Source\Engine\AppModule\ImGuiDX12Module.h" />
     <ClInclude Include="Source\Engine\AppModule\Interface\IAppModule.h" />
     <ClInclude Include="Source\Engine\FileSystem\Type\FileDataType.h" />
-    <ClInclude Include="Source\Engine\GameCore\Component\MissingComponent.h" />
     <ClInclude Include="Source\Engine\Utility\FileHelper.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Animation.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\BaseMesh.h" />
@@ -222,7 +229,7 @@
     <ClInclude Include="Source\Engine\Utility\Mathf.h" />
     <ClInclude Include="Source\Engine\Utility\stlHelper.h" />
     <ClInclude Include="Source\Engine\ClassCore\ReflectHelper.h" />
-    <ClInclude Include="Source\Engine\EditorCore\EditorBase.h" />
+    <ClInclude Include="Source\Engine\EditorCore\EditorGui.h" />
     <ClInclude Include="Source\Engine\EditorCore\EditorEnum.h" />
     <ClInclude Include="Source\Engine\EditorCore\EditorMenuBar.h" />
     <ClInclude Include="Source\Engine\EditorCore\EditorModule.h" />
@@ -263,6 +270,29 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Editor\DragDropTypes\DragDropTransform.cpp" />
+    <ClCompile Include="Source\Engine\EditorCore\PopupBox\EditorPopupBox.cpp" />
+    <ClCompile Include="Source\Engine\EditorCore\PopupBox\EditorPopupBoxSystem.cpp" />
+    <ClCompile Include="Source\Editor\DragDropTypes\DragDropAsset.cpp" />
+    <ClCompile Include="Source\Engine\Imgui\GraphEditor.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Imgui\ImCurveEdit.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Imgui\ImGradient.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Imgui\ImGuizmo.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Imgui\ImSequencer.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="Source\Engine\Utility\EditorHelper.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\RenderPass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\RenderTechnique.cpp" />
@@ -289,7 +319,7 @@
     <ClCompile Include="Source\Engine\AppModule\EngineCoresModule.cpp" />
     <ClCompile Include="Source\Engine\AppModule\ImGuiDX12Module.cpp" />
     <ClCompile Include="Source\Engine\ClassCore\ReflectHelper.cpp" />
-    <ClCompile Include="Source\Engine\EditorCore\EditorBase.cpp" />
+    <ClCompile Include="Source\Engine\EditorCore\EditorGui.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\EditorEnum.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\EditorMenuBar.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\EditorModule.cpp" />
@@ -301,7 +331,6 @@
     <ClCompile Include="Source\Engine\EngineCore\TimeSystem.cpp" />
     <ClCompile Include="Source\Engine\FileSystem\Type\FileDataType.cpp" />
     <ClCompile Include="Source\Engine\GameCore\Component\Component.cpp" />
-    <ClCompile Include="Source\Engine\GameCore\Component\MissingComponent.cpp" />
     <ClCompile Include="Source\Engine\GameCore\GameObject\GameObject.cpp" />
     <ClCompile Include="Source\Engine\GameCore\Transform\Transform.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\Animation.cpp" />

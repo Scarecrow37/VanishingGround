@@ -224,9 +224,9 @@ public:
     //IEditorObject에서 상속
  private:
     /* InspectorView에 SetFocus 될 때 호출 구현 X */
-    virtual void OnFocusInspectorView();
+    virtual void OnInspectorViewEnter();
     /* InspectorView의 Draw단계에 호출 */
-    virtual void OnDrawInspectorView();
+    virtual void OnInspectorStay();
 
 
 //프로퍼티

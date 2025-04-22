@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-class EditorDockSpace : public EditorBase
+class EditorDockSpace : public EditorGui
 {
     using ToolTable = std::unordered_map<std::string, std::unique_ptr<EditorTool>>;
 public:
@@ -32,7 +32,7 @@ public:
     template <typename T>
     T* GetTool()
     {
-        static_assert(std::is_base_of_v<EditorTool, T>, "T is not a EditorBase.");
+        static_assert(std::is_base_of_v<EditorTool, T>, "T is not a EditorGui.");
         auto itr = _editorToolTable.find(typeid(T).name());
         if (itr == _editorToolTable.end())
             return nullptr;
@@ -42,7 +42,7 @@ public:
     inline const auto& GetRefToolTable() { return _editorToolTable; }
 private:
     ToolTable _editorToolTable;                     /* 검색용 툴 컨테이너 */
-    std::vector<EditorTool*> _editorToolList;       /* 순회용 툴 리스트 */
+    std::vector<EditorGui*> _editorToolList;       /* 순회용 툴 리스트 */
     bool _isFullSpace;                              /* DockSpace가 화면 전체를 차지하는지 여부 */
     bool _isPadding;                                /* DockSpace가 Padding을 할지 여부 */
     ImGuiDockNodeFlags _dockNodeFlags;              /* DockSpace 플래그 값 */

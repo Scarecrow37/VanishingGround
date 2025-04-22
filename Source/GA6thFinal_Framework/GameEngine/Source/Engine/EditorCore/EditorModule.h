@@ -3,22 +3,23 @@
 class EditorTool;
 class EditorModule;
 class EditorMenuBar;
+class EditorPopupBoxSystem;
 
 #ifndef SCRIPTS_PROJECT
 namespace Global
 {
-    extern EditorModule* editorManager;
+    extern EditorModule* editorModule;
 }
 #endif
 
 template <typename T>
-concept IsEditorBase = std::is_base_of_v<EditorBase, T>;
+concept IsEditorGui = std::is_base_of_v<EditorGui, T>;
 
 template <typename T>
-concept IsEditorTool = IsEditorBase<T> && std::is_base_of_v<EditorTool, T>;
+concept IsEditorTool = IsEditorGui<T> && std::is_base_of_v<EditorTool, T>;
 
 template <typename T>
-concept IsEditorMenu = IsEditorBase<T> && std::is_base_of_v<EditorMenu, T>;
+concept IsEditorMenu = IsEditorGui<T> && std::is_base_of_v<EditorMenu, T>;
 
  class EditorModule : public IAppModule
  {
@@ -34,12 +35,13 @@ concept IsEditorMenu = IsEditorBase<T> && std::is_base_of_v<EditorMenu, T>;
      void PreUnInitialize() override {}
      void ModuleUnInitialize() override;
  public:
-     /* InitImGui 직후 호출 */
-
      void Update();
+
+     bool IsLock();
+
  public:
      /* 툴을 등록합니다. */
-     template <IsEditorBase T>
+     template <IsEditorGui T>
      void RegisterEditorObject()
      {
          if constexpr (IsEditorTool<T>)
@@ -53,7 +55,7 @@ concept IsEditorMenu = IsEditorBase<T> && std::is_base_of_v<EditorMenu, T>;
      }
 
      /* 툴을 가져옵니다. */
-     template <IsEditorBase T>
+     template <IsEditorGui T>
      T* GetEditorObject()
      {
          if constexpr (IsEditorTool<T>)
@@ -65,6 +67,11 @@ concept IsEditorMenu = IsEditorBase<T> && std::is_base_of_v<EditorMenu, T>;
              return _mainMenuBar->GetMenu<T>();
          }
          return nullptr;
+     }
+
+     void OpenPopupBox(const std::string& name, std::function<void()> content) 
+     {
+         _PopupBox->OpenPopupBox(name, content); 
      }
 
  public:
@@ -80,7 +87,8 @@ concept IsEditorMenu = IsEditorBase<T> && std::is_base_of_v<EditorMenu, T>;
  private:
      void SetGuiThemeStyle();
  private:
-     bool _isDebugMode;                                         // 에디터 디버그 모드 여부(에디터관련 정보 출력)
-     EditorMenuBar* _mainMenuBar;                               // 에디터 메뉴 바
-     EditorDockSpace* _mainDockSpace;                           // 에디터 도킹 스페이스
+     bool                   _isDebugMode;                       // 에디터 디버그 모드 여부(에디터관련 정보 출력)
+     EditorPopupBoxSystem*  _PopupBox;                          // 에디터 모달 팝업
+     EditorMenuBar*         _mainMenuBar;                       // 에디터 메뉴 바
+     EditorDockSpace*       _mainDockSpace;                     // 에디터 도킹 스페이스
 };
