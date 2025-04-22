@@ -145,12 +145,14 @@ void Device::CreateDeviceAndSwapChain(HWND hwnd, D3D_FEATURE_LEVEL feature)
 
 void Device::CreateCommandQueue()
 {
-    D3D12_COMMAND_QUEUE_DESC desc{
+    D3D12_COMMAND_QUEUE_DESC desc
+    {
         .Type     = D3D12_COMMAND_LIST_TYPE_DIRECT,
         .Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL,
         .Flags    = D3D12_COMMAND_QUEUE_FLAG_NONE,
         .NodeMask = 0,
     };
+
     FAILED_CHECK_BREAK(_device->CreateCommandQueue(&desc, IID_PPV_ARGS(_commandQueue.GetAddressOf())));
     FAILED_CHECK_BREAK(_device->CreateCommandAllocator(desc.Type, IID_PPV_ARGS(_commandAllocator.GetAddressOf())));
     FAILED_CHECK_BREAK(_device->CreateCommandList(desc.NodeMask, desc.Type, _commandAllocator.Get(), nullptr,
@@ -463,4 +465,36 @@ HRESULT Device::CreateDefaultBuffer(UINT size, ComPtr<ID3D12Resource>& buffer)
                                                         D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
                                                         IID_PPV_ARGS(buffer.GetAddressOf())));
     return 0;
+}
+
+HRESULT Device::CreateCommandList(ComPtr<ID3D12CommandAllocator>&    allocator,
+                                  ComPtr<ID3D12GraphicsCommandList>& commandList,
+                                  COMMAND_TYPE type)
+{
+    D3D12_COMMAND_QUEUE_DESC desc
+    {
+        .Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL,
+        .Flags    = D3D12_COMMAND_QUEUE_FLAG_NONE,
+        .NodeMask = 0,
+    };
+
+    switch (type)
+    {
+    case COMMAND_TYPE::DIRECT:
+        desc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+        break;
+    case COMMAND_TYPE::BUNDLE:
+        desc.Type = D3D12_COMMAND_LIST_TYPE_BUNDLE;
+        break;
+    case COMMAND_TYPE::COMPUTE:
+        desc.Type = D3D12_COMMAND_LIST_TYPE_COMPUTE;
+        break;
+    }
+
+    FAILED_CHECK_BREAK(_device->CreateCommandAllocator(desc.Type, IID_PPV_ARGS(allocator.GetAddressOf())));
+    FAILED_CHECK_BREAK(_device->CreateCommandList(desc.NodeMask, desc.Type, allocator.Get(), nullptr,
+                                                  IID_PPV_ARGS(commandList.GetAddressOf())));
+    commandList->Close();
+
+    return S_OK;
 }

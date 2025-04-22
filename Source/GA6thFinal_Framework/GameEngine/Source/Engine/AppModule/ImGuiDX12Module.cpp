@@ -52,15 +52,21 @@ void ImGuiDX12Module::ModuleInitialize()
 
     gameObject                                                             = NewGameObject<GameObject>("OBJ2").lock();
     gameObject->AddComponent<StaticMeshRenderer>().ReflectFields->FilePath = "Box";
+    gameObject->transform->Position                                        = {-2.f, 0.f, 0.f};
 
     gameObject                                                             = NewGameObject<GameObject>("OBJ3").lock();
     gameObject->AddComponent<StaticMeshRenderer>().ReflectFields->FilePath = "Box";
+    gameObject->transform->Position                                        = {2.f, 0.f, 0.f};
 
     gameObject = NewGameObject<GameObject>("OBJ4").lock();
     gameObject->AddComponent<StaticMeshRenderer>().ReflectFields->FilePath = "../../../Resource/TestAssets/Zelda/zelda.fbx";
+    gameObject->transform->Position = {0.f, 0.f, 2.f};
+    gameObject->transform->Scale = {0.1f, 0.1f, 0.1f};
 
     gameObject = NewGameObject<GameObject>("OBJ5").lock();
     gameObject->AddComponent<StaticMeshRenderer>().ReflectFields->FilePath = "../../../Resource/TestAssets/Zelda/zelda.fbx";
+    gameObject->transform->Position = {0.f, 0.f, -2.f};
+    gameObject->transform->Scale    = {0.1f, 0.1f, 0.1f};
 
     //test.ReflectFields->FilePath = "../../../Resource/TestAssets/Zelda/zelda.fbx";
 }

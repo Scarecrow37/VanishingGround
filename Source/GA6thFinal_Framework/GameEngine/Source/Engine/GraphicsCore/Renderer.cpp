@@ -60,6 +60,37 @@ void Renderer::Initialize()
 	};
 
 	UmDevice.CreateConstantBuffer(&cameraData, sizeof(CameraData), _cameraBuffer);
+
+    UmDevice.CreateCommandList(_commandAllocator, _commandList, COMMAND_TYPE::BUNDLE);
+
+    {
+        _commandAllocator->Reset();
+        _commandList->Reset(_commandAllocator.Get(), nullptr);
+
+        ComPtr<ID3D12RootSignature> rootSignature = _shader->GetRootSignature();
+
+        _commandList->SetPipelineState(_pipelineState[_currnetState].Get());
+        _commandList->SetGraphicsRootSignature(rootSignature.Get());
+
+        ComPtr<ID3D12DescriptorHeap> dh    = _frameResource->GetDescriptorHeap();
+        ID3D12DescriptorHeap*        hps[] = { dh.Get(), };
+        
+        _commandList->SetDescriptorHeaps(_countof(hps), hps);
+
+        _commandList->SetGraphicsRootConstantBufferView(_shader->GetRootSignatureIndex("cameraData"),
+                                                        _cameraBuffer->GetGPUVirtualAddress());
+
+        D3D12_GPU_DESCRIPTOR_HANDLE textures = dh->GetGPUDescriptorHandleForHeapStart();
+
+        _commandList->SetGraphicsRootDescriptorTable(_shader->GetRootSignatureIndex("objectData"), textures);
+        textures.ptr += UmDevice.GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
+        _commandList->SetGraphicsRootDescriptorTable(_shader->GetRootSignatureIndex("material"), textures);
+        textures.ptr += UmDevice.GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
+        _commandList->SetGraphicsRootDescriptorTable(_shader->GetRootSignatureIndex("textures"), textures);
+        _commandList->Close();        
+    }
 }
 
 void Renderer::Update()
@@ -77,45 +108,64 @@ void Renderer::Update()
 
 void Renderer::Render()
 {
-	ComPtr<ID3D12GraphicsCommandList> commandList = UmDevice.GetCommandList();
-	ComPtr<ID3D12RootSignature> rootSignature = _shader->GetRootSignature();
+	//ComPtr<ID3D12GraphicsCommandList> commandList = UmDevice.GetCommandList();
+	//ComPtr<ID3D12RootSignature> rootSignature = _shader->GetRootSignature();
 
-	commandList->SetPipelineState(_pipelineState[_currnetState].Get());
-	commandList->SetGraphicsRootSignature(rootSignature.Get());
+	//commandList->SetPipelineState(_pipelineState[_currnetState].Get());
+	//commandList->SetGraphicsRootSignature(rootSignature.Get());
+	//
+	//ComPtr<ID3D12DescriptorHeap> dh = _frameResource->GetDescriptorHeap();
+	//ID3D12DescriptorHeap* hps[] = { dh.Get(), };
+
+	////디스크립터-힙 설정.
+	//commandList->SetDescriptorHeaps(_countof(hps), hps);
+
+	////디스크립터-힙에서 첫번째 디스크립터 (배열)주소 획득.
+	//D3D12_GPU_DESCRIPTOR_HANDLE textures = dh->GetGPUDescriptorHandleForHeapStart();
+	//
+	////ID3DR
+	//// 현재 타겟의 카메라 버퍼 설정	
+	//commandList->SetGraphicsRootConstantBufferView(_shader->GetRootSignatureIndex("cameraData"), _cameraBuffer->GetGPUVirtualAddress());
+
+	//commandList->SetGraphicsRootDescriptorTable(_shader->GetRootSignatureIndex("objectData"), textures);
+	//textures.ptr += UmDevice.GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
+	//commandList->SetGraphicsRootDescriptorTable(_shader->GetRootSignatureIndex("material"), textures);
+	//textures.ptr += UmDevice.GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
+	//commandList->SetGraphicsRootDescriptorTable(_shader->GetRootSignatureIndex("textures"), textures);
+
+	//UINT ID = 0;
+ //   for (auto& component : _components)
+ //   {
+ //       const auto& model = component->GetModel();
+ //       
+ //       for (auto& mesh : model->GetMeshes())
+ //       {
+ //           commandList->SetGraphicsRoot32BitConstant(_shader->GetRootSignatureIndex("bit32_object"), ID++, 0);
+ //           mesh->Render(commandList.Get());
+ //       }
+ //   }
 	
-	ComPtr<ID3D12DescriptorHeap> dh = _frameResource->GetDescriptorHeap();
-	ID3D12DescriptorHeap* hps[] = { dh.Get(), };
+    ComPtr<ID3D12GraphicsCommandList> commandList = UmDevice.GetCommandList();
+    ComPtr<ID3D12DescriptorHeap>      dh          = _frameResource->GetDescriptorHeap();
+    ID3D12DescriptorHeap*             hps[]       = { dh.Get(), };
 
-	//디스크립터-힙 설정.
-	commandList->SetDescriptorHeaps(_countof(hps), hps);
+    commandList->SetDescriptorHeaps(_countof(hps), hps);
+    commandList->ExecuteBundle(_commandList.Get());
 
-	//디스크립터-힙에서 첫번째 디스크립터 (배열)주소 획득.
-	D3D12_GPU_DESCRIPTOR_HANDLE textures = dh->GetGPUDescriptorHandleForHeapStart();
-	
-	//ID3DR
-	// 현재 타겟의 카메라 버퍼 설정	
-	commandList->SetGraphicsRootConstantBufferView(_shader->GetRootSignatureIndex("cameraData"), _cameraBuffer->GetGPUVirtualAddress());
-
-	commandList->SetGraphicsRootDescriptorTable(_shader->GetRootSignatureIndex("objectData"), textures);
-	textures.ptr += UmDevice.GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-
-	commandList->SetGraphicsRootDescriptorTable(_shader->GetRootSignatureIndex("material"), textures);
-	textures.ptr += UmDevice.GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-
-	commandList->SetGraphicsRootDescriptorTable(_shader->GetRootSignatureIndex("textures"), textures);
-
-	UINT ID = 0;
+    UINT ID = 0;
     for (auto& component : _components)
     {
         const auto& model = component->GetModel();
-        
+
         for (auto& mesh : model->GetMeshes())
         {
             commandList->SetGraphicsRoot32BitConstant(_shader->GetRootSignatureIndex("bit32_object"), ID++, 0);
             mesh->Render(commandList.Get());
         }
     }
-	
+
 	UmDevice.Flip();
 }
 

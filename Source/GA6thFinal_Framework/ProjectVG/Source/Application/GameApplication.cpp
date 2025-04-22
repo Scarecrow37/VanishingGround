@@ -24,8 +24,7 @@ GameApplication::GameApplication()
     //클라이언트 기본 초기화 함수.
     SetStyleToWindowed();
     _clientSize = { 1920, 1080 };
-    _windowName = L"Umreal Engine";
-    
+    _windowName = L"Umreal Engine";    
 
     ////에디터 매니저 등록
     //_editorManager = AddModule<EditorModule>();
