@@ -6,7 +6,7 @@ namespace File
 {
     class Context;
     class FileContext;
-    class ForderContext;
+    class FolderContext;
 }
 
 class EditorFileObject;
@@ -21,15 +21,19 @@ class EditorAssetBrowserTool
     };
     enum Flags
     {
-        ShowMetaFile,
-        FlagSize,
+        RENAME_IS_RENAME = 0,   // 리네임 여부 플래그
+        RENAME_SET_FOCUS_ONCE,  // 리네임 시 인풋 텍스트를 한번 포커싱해주기 위한 플래그
+
+        META_IS_SHOW,           // 메타파일 보여줄지 여부 플래그
+
+        FALGS_SIZE,
     };
     using wpContext = std::weak_ptr<File::Context>;
     using spContext = std::shared_ptr<File::Context>;
     using wpFileContext = std::weak_ptr<File::FileContext>;
     using spFileContext = std::shared_ptr<File::FileContext>;
-    using wpForderContext = std::weak_ptr<File::ForderContext>;
-    using spForderContext = std::shared_ptr<File::ForderContext>;
+    using wpFolderContext = std::weak_ptr<File::FolderContext>;
+    using spFolderContext = std::shared_ptr<File::FolderContext>;
 public:
     EditorAssetBrowserTool();
     virtual ~EditorAssetBrowserTool();
@@ -44,41 +48,84 @@ private:
     virtual void OnPostFrame() override;
 
 private:
-    void ShowFolderHierarchy(const File::Path& folderPath);
+    /* 브라우저 메뉴바 */
+    void ShowBrowserMenu();
 
+    /* 메뉴바 - 콜럼 사이 어퍼프레임 */
+    void ShowUpperFrame();
+
+    /*  */
+    void BeginColumn();         // Begin
+    void EndColumn();           // End
+    void ShowColumnPlitter();   // 콜럼 사이 리사이징바
+
+    /* 폴더 계층 뷰 콜럼 */
+    void ShowFolderHierarchy();
+    void ShowFolderHierarchy(spFolderContext FolderContext);
+
+     /* 콘텐츠 뷰 콜럼 */
     void ShowFolderContents();
 
-    void ShowContentsToList();
-    void ShowContentsToIcon();
+    void ShowFolderDirectoryPath(spFolderContext context);  // 콘텐츠 뷰 상단 주소 출력
+    void ContentsFrameEventAction(spFolderContext context); // 콘텐츠 뷰 프레임 이벤트 액션
 
-    void ShowItemToList(spContext context);
-    void ShowItemToIcon(spContext context);
+    void ShowContentsToList(); // 콘텐츠 뷰 출력 타입 - 리스트
+    void ShowContentsToIcon(); // 콘텐츠 뷰 출력 타입 - 아이콘
 
-    void ItemClickedAction(spContext context);
+    void ShowItemToList(spContext context); // 콘텐츠 뷰 아이템 출력 - 리스트 
+    void ShowItemToIcon(spContext context); // 콘텐츠 뷰 아이템 출력 - 아이콘 
 
-    void BeginColum();
-    void EndColum();
+    void ItemInputText(spContext context);  // 콘텐츠 뷰 이름 변경 인풋 텍스트
+
+    void ItemEventAction(spContext context);    // 콘텐츠 뷰 아이템 이벤트 액션
+    void ItemMouseAction(spContext context);    // 콘텐츠 뷰 아이템 마우스 액션
+    void ItemKeyBoardAction(spContext context); // 콘텐츠 뷰 아이템 키보드 액션
+    void ItemPopupAction(spContext context);    // 콘텐츠 뷰 아이템 팝업 액션
+
+    /* 팝업 박스 메서드 */
+    void ShowDeletePopupBox(wpContext context);
+
+private:
+    bool SetFocusFolder(wpFolderContext context); // 선택된 폴더 or 파일 포커싱
+    void SetFocusParentFolder(spFolderContext context);
+    void SetFocusFromUndoPath();
+    void SetFocusFromRedoPath();
 
 private:
     /* 브라우저에서 보여질 유형 (List, Icon) */
     ShowType mShowType;
-    /* 현재 포커싱 폴더 */ 
-    std::weak_ptr<File::ForderContext> _focusForder;
+    /* 현재 포커싱 폴더 */
+    File::Path       _focusFolderPath;
+    wpFolderContext  _focusFolder;
     /* 현재 선택된 폴더 or 파일 */
     std::shared_ptr<EditorFileObject> _selectedContext;
     /* 패널 위치 저장용 */
     float mPanelWidth = 200.0f;
-    /* 각종 플래그 */
-    std::array<bool, FlagSize> mAssetBrowserFlags = {false, };
+    /* 이름 바꾸기 모드 여부 */
+    std::bitset<FALGS_SIZE> browserFlags;
+
+    float _upperHeight  = 30.0f;
+    float _columWidth   = 250.f;
+    float _columHeight  = 0.0f;
+
+    std::vector<File::Path> _directoryUndoStack;
+    std::vector<File::Path> _directoryRedoStack;
 };
 
 class EditorFileObject : public IEditorObject
 {
 public:
-    virtual void OnDrawInspectorView() override;
+    virtual void OnInspectorStay() override;
 
 public:
-    void SetContext(std::weak_ptr<File::Context> context);
+    inline auto GetContext() 
+    {
+        return _context; 
+    }
+    inline void SetContext(std::weak_ptr<File::Context> context) 
+    {
+        _context = context; 
+    }
 
 private:
     std::weak_ptr<File::Context> _context;

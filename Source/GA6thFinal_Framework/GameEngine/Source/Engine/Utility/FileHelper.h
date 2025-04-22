@@ -31,42 +31,16 @@ namespace File
         throw std::system_error(GetLastError(), std::system_category());
     }
 
-    static HRESULT CreateGuid(File::Guid& _id)
-    {
-        RPC_STATUS  status;
-        UUID        uuid;
-        const char* charID;
+    HRESULT CreateGuid(File::Guid& _id);
 
-        status = UuidCreate(&uuid);
-        if (RPC_S_OK != status)
-        {
-            return E_FAIL;
-        }
+    bool CreateFolder(const File::Path& _path);
+    bool CreateFolderEx(const File::Path& _path, /* 경로 */
+        bool processDup = false /* 중복 처리 */
+    );
 
-        status = UuidToStringA(&uuid, (RPC_CSTR*)&charID);
-        if (RPC_S_OK != status)
-        {
-            return E_FAIL;
-        }
-        else
-        {
-            _id = charID;
-            return S_OK;
-        }
-    }
+    bool OpenFile(const File::Path& path);
 
-    static void CreateFolder(File::Path _path)
-    {
-        if (false == std::filesystem::exists(_path))
-        {
-            if (true == std::filesystem::create_directory(_path))
-            {
-                OutputLog(L"Succeed Create Folder (" + _path.wstring() + L')');
-            }
-            else
-            {
-                OutputLog(L"Failed Created Folder: (" + _path.wstring() + L')');
-            }
-        }
-    }
+    bool RemoveFile(const File::Path& path);
+
+    bool CopyPathToClipBoard(const File::Path& path);
 } // namespace File

@@ -30,7 +30,7 @@ LRESULT CALLBACK Application::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 
 bool Application::IsEditor()
 {
-    return Global::editorManager != nullptr;
+    return Global::editorModule != nullptr;
 }
 
 Application::Application()
@@ -92,7 +92,7 @@ void Application::Run()
 
             _imguiDX12Module->ImguiBegin();
             {
-                if (Global::editorManager)
+                if (Global::editorModule)
                 {
                     _filesystemModule->Update();
                     Global::editorManager->Update();

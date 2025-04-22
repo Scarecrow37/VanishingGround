@@ -47,12 +47,12 @@ std::weak_ptr<GameObject> GameObject::GetWeakPtr() const
     return _weakPtr;
 }
 
-void GameObject::OnFocusInspectorView() 
+void GameObject::OnInspectorViewEnter() 
 {
 
 }
 
-void GameObject::OnDrawInspectorView() 
+void GameObject::OnInspectorStay() 
 {
     using namespace u8_literals;
 
