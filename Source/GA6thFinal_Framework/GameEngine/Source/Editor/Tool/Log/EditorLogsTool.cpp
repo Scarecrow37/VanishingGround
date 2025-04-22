@@ -79,7 +79,7 @@ void EditorLogsTool::OnTickGui()
         }
         prevLogCount = logMessages.size();
         _isMessagePush = true;
-        if (GetVisible() == false)
+        if (IsVisible() == false)
         {
             SetVisible(true);
         }
