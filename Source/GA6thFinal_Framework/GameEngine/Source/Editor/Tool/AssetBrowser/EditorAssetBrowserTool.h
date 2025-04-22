@@ -108,8 +108,9 @@ private:
     float _columWidth   = 250.f;
     float _columHeight  = 0.0f;
 
-    std::vector<File::Path> _directoryUndoStack;
-    std::vector<File::Path> _directoryRedoStack;
+    int                    _maxUndoStack = 20; // Undo Stack 최대 개수
+    std::deque<File::Path> _directoryUndoStack;
+    std::deque<File::Path> _directoryRedoStack;
 };
 
 class EditorFileObject : public IEditorObject

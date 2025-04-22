@@ -638,6 +638,10 @@ bool EditorAssetBrowserTool::SetFocusFolder(wpFolderContext context)
         {
             const File::Path& path = _focusFolder.lock()->GetPath();
             _directoryUndoStack.push_back(path);
+            if (_directoryUndoStack.size() > _maxUndoStack)
+            {
+                _directoryUndoStack.pop_front();
+            }
         }
         _directoryRedoStack.clear();
         _focusFolder = spContext;
