@@ -8,7 +8,7 @@ namespace File
     해당 이벤트 함수를 호출한다.
     */
     class FileEventNotifier 
-        : public IFileEventProcesser
+        : public Interface::IFileEventProcesser
     {
         friend class EFileSystem;
     public:
@@ -17,14 +17,14 @@ namespace File
 
     public:
         /* 콜백 파일 이벤트. */
-        virtual void OnFileAdded(const Path& path) override = 0;
-        virtual void OnFileModified(const Path& path) override = 0;
-        virtual void OnFileRemoved(const Path& path) override  = 0;
-        virtual void OnFileRenamed(const Path& oldPath, const Path& newPath) override = 0;
-        virtual void OnFileMoved(const Path& oldPath, const Path& newPath) override = 0;
+        virtual void OnFileAdded(const File::Path& path) override                     = 0;
+        virtual void OnFileModified(const File::Path& path) override                  = 0;
+        virtual void OnFileRemoved(const File::Path& path) override                    = 0;
+        virtual void OnFileRenamed(const File::Path& oldPath, const Path& newPath) override = 0;
+        virtual void OnFileMoved(const File::Path& oldPath, const Path& newPath) override   = 0;
 
     public:
-        bool IsTriggerExtension(const FString& ext);
+        bool IsTriggerExtension(const File::FString& ext);
         std::vector<FString> GetTriggerExtensions() const;
 
     private:

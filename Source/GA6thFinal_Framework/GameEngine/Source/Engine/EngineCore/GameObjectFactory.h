@@ -4,7 +4,7 @@ class GameObject;
 template<typename T>
 concept IS_BASE_GAMEOBJECT_C = std::is_base_of_v<GameObject, T>;
 
-class EGameObjectFactory
+class EGameObjectFactory : public File::FileEventNotifier
 {
     friend class EngineCores;
 private:
@@ -43,6 +43,8 @@ public:
         /// </summary>
         /// <returns></returns>
         static const std::vector<std::string>& GetGameObjectKeys();
+
+        static void RegisterFileEvents();
     };
 
     /// <summary>
@@ -83,7 +85,7 @@ private:
    //Yaml을 오브젝트로 반환. Reset도 해줌.
    std::shared_ptr<GameObject> MakeGameObjectToYaml(YAML::Node* objectNode);
 
-
+   void RegisterGameObjects();
 private:
     std::map<std::string, std::function<GameObject* ()>> _NewGameObjectFuncMap;    //생성용 맵
     std::vector<std::string>                             _NewGameObjectKeyVec;     //키 항목 모음
@@ -95,4 +97,11 @@ private:
         std::vector<int> EmptyID;
     }
     instanceIDManager;
+
+    // FileEventNotifier을(를) 통해 상속됨
+    void OnFileAdded(const File::Path& path) override;
+    void OnFileModified(const File::Path& path) override;
+    void OnFileRemoved(const File::Path& path) override;
+    void OnFileRenamed(const File::Path& oldPath, const File::Path& newPath) override;
+    void OnFileMoved(const File::Path& oldPath, const File::Path& newPath) override;
 };

@@ -5,7 +5,7 @@ namespace File
     class FileContext;
     class ForderContext;
 
-    class Context : public IFileEventProcesser
+    class Context : public Interface::IFileEventProcesser
     {
     public:
         Context(const Path& path);

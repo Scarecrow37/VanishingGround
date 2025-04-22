@@ -414,6 +414,9 @@
     <ClInclude Include="Source\UmScripts.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Editor\DragDropTypes\DragDropAsset.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Engine\GraphicsCore\PBRPass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>

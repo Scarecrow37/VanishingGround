@@ -4,7 +4,7 @@ TestComponent::TestComponent()
 {
     ObjectDrop.SetDragDropFunc([this]
     {
-        if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropTransform::key))
+        if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropTransform::KEY))
         {
             using Data = DragDropTransform::Data;
             Data* data = (Data*)payLoad->Data;

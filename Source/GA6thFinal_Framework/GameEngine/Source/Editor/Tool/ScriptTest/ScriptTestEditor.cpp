@@ -32,7 +32,7 @@ void ScriptTestEditor::OnFrame()
         if (ImGui::BeginDragDropTarget())
         {
             if (const ImGuiPayload* payLoad =
-                    ImGui::AcceptDragDropPayload(DragDropTransform::key))
+                ImGui::AcceptDragDropPayload(DragDropTransform::KEY))
             {
                 using Data      = DragDropTransform::Data;
                 Data*      data = (Data*)payLoad->Data;
@@ -57,7 +57,7 @@ void ScriptTestEditor::OnFrame()
         ImGui::TextColored({0,0,1,1}, u8"Instantiate"_c_str);
         if (ImGui::BeginDragDropTarget())
         {
-            if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropTransform::key))
+            if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropTransform::KEY))
             {
                 using Data      = DragDropTransform::Data;
                 Data*      data = (Data*)payLoad->Data;
