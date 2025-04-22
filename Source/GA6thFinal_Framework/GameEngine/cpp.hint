@@ -25,19 +25,33 @@
         {                                                                      \
             return *Get();                                                     \
         }                                                                      \
+        const reflect_fields_struct* operator->() const                        \
+        {                                                                      \
+            return Get();                                                      \
+        }                                                                      \
+        const reflect_fields_struct& operator*() const                         \
+        {                                                                      \
+            return *Get();                                                     \
+        }                                                                      \
         reflect_fields_struct* Get()                                           \
         {                                                                      \
             if (_reflection == nullptr)                                        \
             {                                                                  \
-                _reflection =                                                  \
-                    reinterpret_cast<CLASS## ::reflect_fields_struct*>(        \
-                        _owner->get_reflect_fields());                         \
+                _reflection = reinterpret_cast<CLASS## ::reflect_fields_struct*>(_owner->get_reflect_fields()); \
+            }                                                                  \
+            return _reflection;                                                \
+        }                                                                      \
+        const reflect_fields_struct* Get() const                               \
+        {                                                                      \
+            if (_reflection == nullptr)                                        \
+            {                                                                  \
+                _reflection = reinterpret_cast<CLASS## ::reflect_fields_struct*>(_owner->get_reflect_fields()); \
             }                                                                  \
             return _reflection;                                                \
         }                                                                      \
                                                                                \
     private:                                                                   \
-        CLASS## ::reflect_fields_struct* _reflection = nullptr;                \
+        mutable CLASS## ::reflect_fields_struct* _reflection = nullptr;        \
         CLASS##*                         _owner      = nullptr;                \
     };                                                                         \
     reflection_safe_ptr ReflectFields{this};                                   \
@@ -86,7 +100,6 @@ protected:                                                                     \
             CLASS## ::DeserializedReflectEvent();                              \
         }                                                                      \
     }
-
 
 #define REFLECT_PROPERTY(...)              
 
