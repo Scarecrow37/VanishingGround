@@ -13,12 +13,11 @@ RenderScene::RenderScene() : _frameQuad{std::make_unique<Quad>()}, _frameShader{
 
 void RenderScene::UpdateRenderScene()
 {
-    _currentFrameIndex = UmDevice.GetCurrentBackBufferIndex();
-
-    CameraData cameraData{
-        .View       = XMMatrixTranspose(UmMainCamera.GetViewMatrix()),
-        .Projection = XMMatrixTranspose(UmMainCamera.GetProjectionMatrix()),
-    };
+    _currentFrameIndex   = UmDevice.GetCurrentBackBufferIndex();
+    Vector4    cameraPos = Vector4(UmMainCamera.GetWorldMatrix().Translation());
+    CameraData cameraData{.View       = XMMatrixTranspose(UmMainCamera.GetViewMatrix()),
+                          .Projection = XMMatrixTranspose(UmMainCamera.GetProjectionMatrix()),
+                          .Position   = cameraPos};
 
     UmDevice.UpdateBuffer(_cameraBuffer, &cameraData, sizeof(CameraData));
 
@@ -66,9 +65,11 @@ void RenderScene::UpdateRenderScene()
 
     UINT size = static_cast<UINT>(worldMatrixes.size());
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(UmDevice.GetCommandList().Get(), worldMatrixes.data(),
-                                         size * sizeof(ObjectData), FrameResource::Type::TRANSFORM);
+                                                              size * sizeof(ObjectData),
+                                                              FrameResource::Type::TRANSFORM);
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(UmDevice.GetCommandList().Get(), materialDatas.data(),
-                                         size * sizeof(MaterialData), FrameResource::Type::MATERIAL);
+                                                              size * sizeof(MaterialData),
+                                                              FrameResource::Type::MATERIAL);
     _frameResources[_currentFrameIndex]->CopyDescriptors(handles);
 }
 
@@ -142,10 +143,9 @@ void RenderScene::InitializeRenderScene(UINT renderTargetCount)
                               .DepthOrArraySize = 1,
                               .MipLevels        = 1,
                               .Format           = DXGI_FORMAT_R32G32B32A32_FLOAT,
-                              .SampleDesc       = {1,0},
-                              .Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN,
-                              .Flags  = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET};
-
+                              .SampleDesc       = {1, 0},
+                              .Layout           = D3D12_TEXTURE_LAYOUT_UNKNOWN,
+                              .Flags            = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET};
 
     D3D12_CLEAR_VALUE clearValue{
         .Format = DXGI_FORMAT_R32G32B32A32_FLOAT,
@@ -168,7 +168,6 @@ void RenderScene::InitializeRenderScene(UINT renderTargetCount)
     srvDesc.Shader4ComponentMapping         = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
     UmViewManager.AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _nonMSAASrvHandle);
     device->CreateShaderResourceView(_nonMSAATexture.Get(), &srvDesc, _nonMSAASrvHandle);
-
 
     // Frame Resource만들기
     _frameResources.resize(SWAPCHAIN_BUFFER_COUNT);
@@ -267,16 +266,14 @@ void RenderScene::CreateDescriptorHeap()
 void RenderScene::CopyMSAATexture(ComPtr<ID3D12GraphicsCommandList> commandList)
 {
     auto br = CD3DX12_RESOURCE_BARRIER::Transition(_nonMSAATexture.Get(), D3D12_RESOURCE_STATE_PRESENT,
-                                                   D3D12_RESOURCE_STATE_RESOLVE_DEST);  
+                                                   D3D12_RESOURCE_STATE_RESOLVE_DEST);
     commandList->ResourceBarrier(1, &br);
     commandList->ResolveSubresource(_nonMSAATexture.Get(), 0, _renderTargetPool[0]->GetResource().Get(), 0,
                                     DXGI_FORMAT_R32G32B32A32_FLOAT);
     br = CD3DX12_RESOURCE_BARRIER::Transition(_renderTargetPool[0]->GetResource().Get(),
-                                              D3D12_RESOURCE_STATE_RESOLVE_SOURCE,
-                                              D3D12_RESOURCE_STATE_PRESENT);  
+                                              D3D12_RESOURCE_STATE_RESOLVE_SOURCE, D3D12_RESOURCE_STATE_PRESENT);
     commandList->ResourceBarrier(1, &br);
     br = CD3DX12_RESOURCE_BARRIER::Transition(_nonMSAATexture.Get(), D3D12_RESOURCE_STATE_RESOLVE_DEST,
                                               D3D12_RESOURCE_STATE_PRESENT);
     commandList->ResourceBarrier(1, &br);
-
 }

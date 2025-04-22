@@ -22,7 +22,7 @@ void GraphicsCore::Initialize(HWND hwnd, UINT width, UINT height, FEATURE_LEVEL 
     Device.ExecuteCommand();
     Device.GPUSync();
 
-    MainCamera.SetupPerspective(45.f, static_cast<float>(width) / height, 0.1f, 100.f);
+    MainCamera.SetupPerspective(45.f, static_cast<float>(width) / height, 0.01f, 10000.f);
     MainCamera.SetPosition({0.f, 0.f, -5.f});
 
     InitializeDefaultGeometry();

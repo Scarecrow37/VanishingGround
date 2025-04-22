@@ -8,3 +8,9 @@ charset = utf-8-bom
 # Xml files
 [*.xml]
 indent_size = 2
+
+[*.hlsl]
+charset = utf-8
+
+[*.hlsli]
+charset = utf-8

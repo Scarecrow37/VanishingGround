@@ -1,15 +1,15 @@
 #include "CommonData.hlsli"
 
-float3 FresnelFactor(float cosTheta, float3 F0)
+float3 FresnelFactor(float VDotH, float3 F0)
 {
-    return F0 + (1 - F0) * pow(1 - cosTheta, 5);
+    return F0 + (1.0 - F0) * pow(1 - VDotH, 5.0);
 }
 
 float NormalDistributionFunction(float3 N, float3 Lh, float roughness)
 {
     float alpha = pow(roughness, 2);
     float alphaSq = alpha * alpha;
-    float denominator = PI * pow(pow(dot(N, Lh), 2) * (alphaSq - 1) + 1, 2);
+    float denominator = PI * pow(pow(saturate(dot(N, Lh)), 2) * (alphaSq - 1) + 1, 2);
     return alphaSq / denominator;
 }
 float GSchlickGGX(float3 Vector, float3 N, float roughness)
@@ -35,6 +35,7 @@ struct PSInput
 };
 
 #define Fdielectric  0.04
+
 
 #define DIFFUSE 0
 #define NORMAL 1
@@ -63,26 +64,29 @@ float4 ps_main(PSInput input) : SV_Target
     uint ORMID = material[object.ID].ID[ORM];
     uint emissiveID = material[object.ID].ID[EMISSIVE];
     
-    float3 albedo = textures[diffuseID].Sample(samLinear_wrap, input.uv).xyz;
+    float4 baseColor = textures[diffuseID].Sample(samLinear_wrap, input.uv);
+    float3 albedo = baseColor.xyz;
     albedo = pow(albedo, 2.2);
+    
     float3 Normal = textures[normalID].Sample(samLinear_wrap, input.uv).xyz;
-    Normal = normalize(Normal);
+    
     Normal = (Normal * 2.f) - 1.f;
-    input.normal = normalize(input.normal);
-    input.tangent = normalize(input.tangent);
-    input.biTangent = normalize(input.biTangent);
-    float3x3 TBN = float3x3(input.tangent, input.biTangent, input.normal);
-    float3 N = normalize(mul(Normal, TBN));
+    Normal = normalize(Normal);
+    float3 T = input.tangent;
+    float3 B = input.biTangent;
+    float3 N = input.normal;
+    float3x3 TBN = float3x3(T,B,N);
+    N = normalize(mul(Normal, TBN));
    
     float ao = textures[ORMID].Sample(samLinear_wrap, input.uv).r;
-    float roughness = textures[ORMID].Sample(samLinear_wrap, input.uv).b;
-    float metallic = textures[ORMID].Sample(samLinear_wrap, input.uv).g;
+    float roughness = textures[ORMID].Sample(samLinear_wrap, input.uv).g;
+    float metallic = textures[ORMID].Sample(samLinear_wrap, input.uv).b;
     
     float3 f0 = lerp(Fdielectric, albedo, metallic);
     float3 directLighting = 0.f;
     float3 ambientLighting = 1.f;
     
-    float3 L = -normalize(tempLight);
+    float3 L = normalize(-tempLight);
     float3 V = normalize(cameraData.Position.xyz - input.worldPosition.xyz);
     float NdotV = max(0,dot(N, V));
     float3 H = normalize(L + V);
@@ -90,22 +94,24 @@ float4 ps_main(PSInput input) : SV_Target
     float NdotH = max(0, dot(N, H));
     
     float3 F = FresnelFactor(max(0.0, dot(H, V)), f0);
-    float D = NormalDistributionFunction(N, H, max(0.01, roughness));
+    float D = NormalDistributionFunction(N, H, max(0.045, roughness));
     float G = GAFDirect(N, V, L, roughness);
     float3 kd = lerp(float3(1, 1, 1) - F, float3(0, 0, 0), metallic);
     
     // PBR
-    float3 diffuseBRDF = kd * albedo / 3.141592;
-    float3 specularBRDF = (F * D * G) / max(0.0001, (4 * NdotL * NdotV));
+    float3 diffuseBRDF = kd * albedo / PI;
+    float3 specularBRDF = (F * D * G) / max(Epsilon, (4 * NdotL * NdotV));
     directLighting += (diffuseBRDF + specularBRDF) * NdotL;
+    
+    //directLighting += ( specularBRDF*10) * NdotL;
     // TODO : ibl ????????????
-    ambientLighting = ambientLighting * ao;
+    //ambientLighting = ambientLighting * ao;
  
-    float alpha = textures[diffuseID].Sample(samLinear_wrap, input.uv).a;
+    float alpha = baseColor.a;
     
     float4 finalColor;
-    finalColor = float4(directLighting , alpha);
+    finalColor = float4(directLighting , 1);
     finalColor.xyz = pow(finalColor.xyz, 1 / 2.2);
-    //return float4(albedo, 1.f);
+    //return float4(albedo, 1.f) * NdotL;
     return finalColor;
 }
