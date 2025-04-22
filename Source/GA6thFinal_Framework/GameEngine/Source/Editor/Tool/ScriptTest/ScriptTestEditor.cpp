@@ -36,6 +36,11 @@ void ScriptTestEditor::OnFrame()
             ImGui::Text("isLoaded : %s", scene.isLoaded ? "true" : "false");
             std::string scenePath = scene.Path;
             ImGui::Text("Path : %s", scenePath.c_str());
+            if (ImGui::Button(u8"씬 저장 테스트"_c_str))
+            {
+                constexpr const char* TEST_SCENE_FOLDER = "Assets/Scenes";
+                UmSceneManager.WriteSceneToFile(scene, TEST_SCENE_FOLDER);
+            }
             ImGui::PopID();
         }
     }
