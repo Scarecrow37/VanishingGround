@@ -20,6 +20,10 @@ void EditorSceneTool::OnStartGui()
 {
     _camera = new Camera();
     _position = Vector3(0.f, 0.f, -10.f);
+
+    _camera->SetRotation(_rotation.ToEuler());
+    _camera->SetPosition(_position);
+    _camera->Update();
 }
 
 void EditorSceneTool::OnPreFrame()
@@ -34,15 +38,6 @@ void EditorSceneTool::OnFrame()
 
     ImGuizmo::SetDrawlist();
 
-    if (ImGui::IsMouseDown(ImGuiMouseButton_Right))
-    {
-        ProcessMove();
-    }
-    else
-    {
-        ProcessMode();
-    }
-
     _camera->SetRotation(_rotation.ToEuler());
     _camera->SetPosition(_position);
     _camera->Update();
@@ -53,8 +48,11 @@ void EditorSceneTool::OnFrame()
     ImGuizmo::DrawGrid(*cameraView.m, *cameraProjection.m, *Matrix::Identity.m, _farZ);
     ImGuizmo::DrawCubes(*cameraView.m, *cameraProjection.m, *_tempMatrix.m, 1);
 
-    ProcessViewManipulate();
-    ProcessManipulate();
+    if (false == IsLock())
+    {
+        ProcessViewManipulate();
+        ProcessManipulate();
+    }
 }
 
 void EditorSceneTool::OnPostFrame()
@@ -63,6 +61,17 @@ void EditorSceneTool::OnPostFrame()
 
 void EditorSceneTool::OnFocus()
 {
+    if (false == IsLock())
+    {
+        if (ImGui::IsMouseDown(ImGuiMouseButton_Right))
+        {
+            ProcessMove();
+        }
+        else
+        {
+            ProcessMode();
+        }
+    }
 }
 
 void EditorSceneTool::ProcessMove()

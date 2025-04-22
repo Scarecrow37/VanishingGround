@@ -1,5 +1,5 @@
-﻿#include "EditorAssetBrowserTool.h"
-#include "pch.h"
+﻿#include "pch.h"
+#include "EditorAssetBrowserTool.h"
 
 namespace fs = std::filesystem;
 
@@ -191,11 +191,16 @@ void EditorAssetBrowserTool::ShowFolderHierarchy(spForderContext forderContext)
 // 오른쪽: 선택된 폴더의 파일 목록
 void EditorAssetBrowserTool::ShowFolderContents()
 {
-    std::string focuspath = EditorIcon::ICON_FORDER_OPEN + std::string(" ");
+    spForderContext spForcusForder;
     if (false == _focusForder.expired())
     {
+        spForcusForder = _focusForder.lock();
+    }
+    std::string focuspath = EditorIcon::ICON_FORDER_OPEN + std::string(" ");
+    if (nullptr != spForcusForder)
+    {
         ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(200, 230, 200, 255));
-        focuspath += _focusForder.lock()->GetPath().string();
+        focuspath += spForcusForder->GetPath().string();
     }
     else
     {
@@ -209,9 +214,23 @@ void EditorAssetBrowserTool::ShowFolderContents()
     DragDropTransform::Data data;
     if (ImGuiHelper::DragDrop::RecieveFrameDragDropEvent(DragDropTransform::key, &data))
     {
-        if (false == _focusForder.expired())
+        if (nullptr != spForcusForder)
         {
             // DragDropTransform::WriteGameObjectFile(data.pTransform, _focusForder.lock()->GetPath().string());
+        }
+    }
+
+    if (true == ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_Backspace, false))
+    {
+        if (false == _renameFlags[RENAME_IS_RENAME])
+        {
+            auto&      curPath       = spForcusForder->GetPath();
+            File::Path parentPath    = curPath.parent_path();
+            auto       parentContext = UmFileSystem.GetContext<File::ForderContext>(parentPath);
+            if (false == parentContext.expired())
+            {
+                _focusForder = parentContext.lock();
+            }
         }
     }
 
@@ -268,29 +287,38 @@ void EditorAssetBrowserTool::ShowContentsToIcon() {}
 
 void EditorAssetBrowserTool::ShowItemToList(spContext context)
 {
-    const File::Path& path = context->GetPath();
-    const std::string icon = context->IsDirectory() ? EditorIcon::ICON_FORDER : EditorIcon::ICON_FILE;
-    const std::string name = icon + " " + context->GetName();
+    const File::Path&  path = context->GetPath();
+    const std::string  icon = context->IsDirectory() ? EditorIcon::ICON_FORDER : EditorIcon::ICON_FILE;
+    const std::string& name = context->GetName();
 
     bool isMeta = path.extension() == UmFileSystem.GetMetaExt();
+    bool isSelected = UmFileSystem.IsSameContext(_selectedContext->GetContext(), context);
 
     if (true == mAssetBrowserFlags[ShowMetaFile] || (false == mAssetBrowserFlags[ShowMetaFile] && false == isMeta))
     {
         ImGui::PushID(context.get());
 
-        bool isSelected = UmFileSystem.IsSameContext(_selectedContext->GetContext(), context);
-
-        ImGui::Selectable(name.c_str(), isSelected);
-
-        if (ImGui::BeginPopupContextItem())
+        ImGui::Selectable("##Selectable", isSelected, 0);
         {
-            ImGui::MenuItem("Open##1");
-            ImGui::MenuItem("Delete##2");
-            // 팝업 내용
-            ImGui::EndPopup();
+            ItemEventAction(context);
+            ItemMouseAction(context);
+            ItemKeyBoardAction(context);
+
+            ImGui::SameLine(ImGui::GetCursorPosX());
+            ImGui::Text((icon + " ").c_str());
+            ImGui::SameLine();
         }
 
-        ItemClickedAction(context);
+        if (true == isSelected && true == _renameFlags[RENAME_IS_RENAME])
+        {
+            ItemInputText(context);
+        }
+        else
+        {
+            ImGui::Text(name.c_str());
+        }
+
+        ItemPopupAction(context);
 
         ImGui::PopID();
     }
@@ -298,7 +326,59 @@ void EditorAssetBrowserTool::ShowItemToList(spContext context)
 
 void EditorAssetBrowserTool::ShowItemToIcon(spContext context) {}
 
-void EditorAssetBrowserTool::ItemClickedAction(spContext context)
+void EditorAssetBrowserTool::ItemInputText(spContext context)
+{
+    static char        buffer[128] = "";
+
+    const std::string&  name = context->GetName();
+    const File::Path&   path = context->GetPath();
+    ImGuiInputTextFlags flags = ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_AutoSelectAll;
+
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.f, 0.f)); // Y 패딩만 약간 줘서 커서 보이게
+    ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0, 0, 0, 0));       // 투명 배경
+
+    if (true == _renameFlags[RENAME_SET_FOCUS_ONCE])
+    {
+        ImGui::SetKeyboardFocusHere();
+        strcpy_s(buffer, name.c_str());
+        _renameFlags[RENAME_SET_FOCUS_ONCE] = false;
+    }
+
+    ImGui::InputText("##InputText", buffer, IM_ARRAYSIZE(buffer), flags);
+
+    if (ImGui::IsItemDeactivated())
+    {
+        std::filesystem::path newPath = path;
+        newPath.replace_filename(buffer);
+        context->Move(newPath);
+        _renameFlags[RENAME_IS_RENAME] = false;
+    }
+
+    ImGui::PopStyleColor();
+    ImGui::PopStyleVar();
+}
+
+void EditorAssetBrowserTool::ItemEventAction(spContext context) 
+{
+    if (true == context->IsRegularFile())
+    {
+        DragDropAsset::Data data;
+        const char* eventID = DragDropAsset::key;
+        data.context = std::static_pointer_cast<File::FileContext>(context);
+
+        std::function<void()> func = [&context]() {
+            File::Path path = context->GetPath();
+            ImGui::Text(path.string().c_str());
+        };
+
+        if (ImGuiHelper::DragDrop::SendDragDropEvent(eventID, &data, func))
+        {
+            // Dragging
+        }
+    }
+}
+
+void EditorAssetBrowserTool::ItemMouseAction(spContext context)
 {
     if (ImGui::IsItemHovered())
     {
@@ -313,6 +393,7 @@ void EditorAssetBrowserTool::ItemClickedAction(spContext context)
             // 파일일 시
             else
             {
+                context->Open();
             }
         }
         // 일반 클릭 시
@@ -325,6 +406,98 @@ void EditorAssetBrowserTool::ItemClickedAction(spContext context)
         {
             // ImGui::OpenPopup("RightClickPopup");
         }
+    }
+}
+
+void EditorAssetBrowserTool::ItemKeyBoardAction(spContext context) 
+{
+    bool isSelected = UmFileSystem.IsSameContext(_selectedContext->GetContext(), context);
+    bool isLocked   = IsLock();
+
+    if (true == isSelected && false == isLocked)
+    {
+        if (true == _renameFlags[RENAME_IS_RENAME])
+        {
+            if (true == ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_Escape, false))
+            {
+                _renameFlags[RENAME_IS_RENAME]      = false;
+                _renameFlags[RENAME_SET_FOCUS_ONCE] = false;
+            }
+        }
+        else if (false == _renameFlags[RENAME_IS_RENAME])
+        {
+            if (true == ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_F2, false))
+            {
+                _renameFlags[RENAME_IS_RENAME]      = true;
+                _renameFlags[RENAME_SET_FOCUS_ONCE] = true;
+            }
+
+            if (true == ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_Enter, false))
+            {
+                _focusForder = std::static_pointer_cast<File::ForderContext>(context);
+                _selectedContext->SetContext(context);
+                EditorInspectorTool::SetFocusObject(_selectedContext);
+            }
+
+            if (true == ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_Delete, false))
+            {
+                Global::editorModule->OpenPopupBox("RemoveAsset", [&, context]() { ShowDeletePopupBox(context); });
+            }
+        }
+    }
+}
+
+void EditorAssetBrowserTool::ItemPopupAction(spContext context) 
+{
+    if (ImGui::BeginPopupContextItem("ItemPopup"))
+    {
+        _selectedContext->SetContext(context);
+        if (ImGui::MenuItem("Open##"))
+        {
+            context->Open();
+            ImGui::CloseCurrentPopup(); // 팝업 닫기
+        }
+        if (ImGui::MenuItem("Delete##"))
+        {
+            Global::editorModule->OpenPopupBox("RemoveAsset", [&, context]() { ShowDeletePopupBox(context); });
+            ImGui::CloseCurrentPopup(); // 팝업 닫기
+        }
+        if (ImGui::MenuItem("Rename##"))
+        {
+            _renameFlags[RENAME_IS_RENAME]      = true;
+            _renameFlags[RENAME_SET_FOCUS_ONCE] = true;
+            ImGui::CloseCurrentPopup(); // 팝업 닫기
+        }
+        ImGui::EndPopup();
+    }
+}
+
+void EditorAssetBrowserTool::ShowDeletePopupBox(wpContext context)
+{
+    ImGui::Text("정말 삭제하시겠습니까?");
+
+    if (false == context.expired())
+    {
+        auto spContext = context.lock();    
+        File::Path path = spContext->GetPath();
+        ImGui::Text("경로: ");
+        ImGui::SameLine();
+        ImGui::Text(path.string().c_str());
+
+        ImGui::PushID(this);
+
+        if (ImGui::Button("OK##") || ImGui::IsKeyReleased(ImGuiKey::ImGuiKey_Enter))
+        {
+            spContext->Remove();
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("NO##"))
+        {
+            ImGui::CloseCurrentPopup();
+        }
+
+        ImGui::PopID();
     }
 }
 

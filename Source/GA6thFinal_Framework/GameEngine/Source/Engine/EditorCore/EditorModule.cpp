@@ -3,20 +3,22 @@
 #include "EditorGui.h"
 #include "EditorMenuBar.h"
 
-EditorModule* Global::editorManager = nullptr;
+EditorModule* Global::editorModule = nullptr;
 
 EditorModule::EditorModule() 
     : _isDebugMode(false)
 {
-    Global::editorManager = this;
+    Global::editorModule = this;
     _mainMenuBar = new EditorMenuBar;
     _mainDockSpace = new EditorDockSpace;
+    _PopupBox = new EditorPopupBoxSystem;
 }
 
 EditorModule::~EditorModule()
 {
     delete _mainMenuBar;
     delete _mainDockSpace;
+    delete _PopupBox;
 }
 
 void EditorModule::ModuleInitialize()
@@ -41,6 +43,7 @@ void EditorModule::Update()
     _mainDockSpace->OnTickGui();
     _mainMenuBar->OnDrawGui();
     _mainDockSpace->OnDrawGui();
+    _PopupBox->OnDrawGui(); // 모달 팝업창 
     /* =========================== */
 }
 

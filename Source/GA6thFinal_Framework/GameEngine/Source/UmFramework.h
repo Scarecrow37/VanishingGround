@@ -133,8 +133,8 @@ using namespace Microsoft::WRL;
 #include "Engine/EditorCore/EditorTool.h"
 #include "Engine/EditorCore/EditorMenuBar.h"
 #include "Engine/EditorCore/EditorDockSpace.h"
+#include "Engine/EditorCore/PopupBox/EditorPopupBoxSystem.h"
 #include "Engine/EditorCore/EditorModule.h"
-//#include "Editor/Tool/AssetBrowser/"
 
 //Game Core
 #include "Engine/GameCore/Transform/Transform.h"
@@ -148,6 +148,7 @@ using namespace Microsoft::WRL;
 
 //DragDropTypes
 #include "Editor/DragDropTypes/DragDropTransform.h"
+#include "Editor/DragDropTypes/DragDropAsset.h"
 
 //컴포넌트는 접근 안하는 헤더들
 #ifndef SCRIPTS_PROJECT

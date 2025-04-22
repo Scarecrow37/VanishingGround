@@ -3,11 +3,12 @@
 class EditorTool;
 class EditorModule;
 class EditorMenuBar;
+class EditorPopupBoxSystem;
 
 #ifndef SCRIPTS_PROJECT
 namespace Global
 {
-    extern EditorModule* editorManager;
+    extern EditorModule* editorModule;
 }
 #endif
 
@@ -34,9 +35,8 @@ concept IsEditorMenu = IsEditorGui<T> && std::is_base_of_v<EditorMenu, T>;
      void PreUnInitialize() override {}
      void ModuleUnInitialize() override;
  public:
-     /* InitImGui 직후 호출 */
-
      void Update();
+
  public:
      /* 툴을 등록합니다. */
      template <IsEditorGui T>
@@ -67,6 +67,11 @@ concept IsEditorMenu = IsEditorGui<T> && std::is_base_of_v<EditorMenu, T>;
          return nullptr;
      }
 
+     void OpenPopupBox(const std::string& name, std::function<void()> content) 
+     {
+         _PopupBox->OpenPopupBox(name, content); 
+     }
+
  public:
      /* */
      inline EditorMenuBar* GetMainMenuBar() { return _mainMenuBar; }
@@ -81,6 +86,7 @@ concept IsEditorMenu = IsEditorGui<T> && std::is_base_of_v<EditorMenu, T>;
      void SetGuiThemeStyle();
  private:
      bool _isDebugMode;                                         // 에디터 디버그 모드 여부(에디터관련 정보 출력)
-     EditorMenuBar* _mainMenuBar;                               // 에디터 메뉴 바
-     EditorDockSpace* _mainDockSpace;                           // 에디터 도킹 스페이스
+     EditorPopupBoxSystem*    _PopupBox;                            // 에디터 모달 팝업
+     EditorMenuBar*             _mainMenuBar;                           // 에디터 메뉴 바
+     EditorDockSpace*           _mainDockSpace;                         // 에디터 도킹 스페이스
 };

@@ -39,7 +39,7 @@ void EditorTool::OnDrawGui()
         std::string label = GetLabel();
         ImGui::Begin(label.c_str(), &_isVisible, _windowFlags | ImGuiWindowFlags_NoCollapse);
 
-        if (true == Global::editorManager->IsDebugMode())
+        if (true == Global::editorModule->IsDebugMode())
         {
             DefaultDebugFrame();
         }

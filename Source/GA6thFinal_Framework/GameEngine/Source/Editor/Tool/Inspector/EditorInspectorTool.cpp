@@ -55,6 +55,15 @@ void  EditorInspectorTool::OnFrame()
     {
         UmEngineLogger.Log(LogLevel::LEVEL_DEBUG, "EventB received");
     }
+    {
+        const char* eventID = DragDropAsset::key;
+        DragDropAsset::Data data;
+        if (ImGuiHelper::DragDrop::RecieveItemDragDropEvent<DragDropAsset::Data>(eventID, &data))
+        {
+            UmEngineLogger.Log(LogLevel::LEVEL_DEBUG, data.context.lock()->GetPath().string().c_str());
+        }
+    }
+    
 }
 
 void  EditorInspectorTool::OnPostFrame()

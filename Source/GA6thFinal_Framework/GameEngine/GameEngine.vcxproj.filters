@@ -429,6 +429,15 @@
     <ClInclude Include="Source\Engine\Imgui\ImZoomSlider.h">
       <Filter>헤더 파일\imgui</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Editor\DragDropTypes\DragDropAsset.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\EditorCore\PopupBox\EditorPopupBoxSystem.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\EditorCore\PopupBox\EditorPopupBox.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\pch.cpp">
@@ -724,6 +733,15 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Imgui\ImSequencer.cpp">
       <Filter>소스 파일\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\DragDropTypes\DragDropAsset.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\EditorCore\PopupBox\EditorPopupBoxSystem.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\EditorCore\PopupBox\EditorPopupBox.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

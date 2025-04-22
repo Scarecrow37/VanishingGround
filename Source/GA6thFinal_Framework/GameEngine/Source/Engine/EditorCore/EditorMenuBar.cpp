@@ -184,7 +184,7 @@ void EditorMenuNode::OnDrawGui()
         }
         if (true == isOpen || true == GetLabel().empty())
         {
-            if (true == Global::editorManager->IsDebugMode())
+            if (true == Global::editorModule->IsDebugMode())
             {
                 DefaultDebugFrame();
             }
@@ -244,7 +244,7 @@ void EditorMenu::OnDrawGui()
 
         OnMenu();
 
-        if (true == Global::editorManager->IsDebugMode())
+        if (true == Global::editorModule->IsDebugMode())
         {
             DefaultDebugFrame();
         }
