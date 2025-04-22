@@ -91,6 +91,9 @@
     <Filter Include="GraphicsCore\Animator">
       <UniqueIdentifier>{80ba6ad3-2eb0-450c-92d5-8aac33e067f8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GraphicsCore\Material">
+      <UniqueIdentifier>{cc2e0fd2-4be0-475a-989a-1b89bb9ef427}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\pch.h">
@@ -429,6 +432,12 @@
     <ClInclude Include="Source\Engine\GraphicsCore\Animator.h">
       <Filter>GraphicsCore\Animator</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\Material.h">
+      <Filter>GraphicsCore\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\M_Default.h">
+      <Filter>GraphicsCore\Material</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\pch.cpp">
@@ -718,6 +727,15 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\PBRPass.cpp">
       <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\Animator.cpp">
+      <Filter>GraphicsCore\Animator</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\Material.cpp">
+      <Filter>GraphicsCore\Material</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\M_Default.cpp">
+      <Filter>GraphicsCore\Material</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

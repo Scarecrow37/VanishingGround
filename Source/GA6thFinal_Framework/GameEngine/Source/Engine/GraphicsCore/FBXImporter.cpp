@@ -109,7 +109,7 @@ void FBXImporter::LoadMesh(aiNode* node,
                                                                transform);
 
                 
-                vertices[i].Normal = XMVector3TransformCoord(XMVectorSet(mesh->mNormals[i].x, 
+                vertices[i].Normal = XMVector3TransformNormal(XMVectorSet(mesh->mNormals[i].x, 
                                                                          mesh->mNormals[i].y, 
                                                                          mesh->mNormals[i].z, 
                                                                          0.f), 
