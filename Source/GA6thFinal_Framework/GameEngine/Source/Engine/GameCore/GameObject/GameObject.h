@@ -306,6 +306,7 @@ private:
     REFLECT_FIELDS_END(GameObject)
 
 private:
+    std::weak_ptr<GameObject>                _weakPtr;
     std::string                              _ownerScene;
     std::vector<std::shared_ptr<Component>>  _components;
     int                                      _instanceID;

@@ -15,14 +15,14 @@ void EGameObjectFactory::Engine::RegisterFileEvents()
 
 void EGameObjectFactory::OnFileAdded(const File::Path& path) 
 {
-    _prefabDataMap[path.ToGuid()] = YAML::LoadFile(path.string().c_str());
+    _prefabDataMap[path.ToGuid()] = YAML::LoadFile(path.string());
     std::string message = std::format("Prefab Added : {}", path.string());
     UmEngineLogger.Log(LogLevel::LEVEL_TRACE, message.c_str());
 }
 
 void EGameObjectFactory::OnFileModified(const File::Path& path) 
 {
-    _prefabDataMap[path.ToGuid()] = YAML::LoadFile(path.string().c_str());
+    _prefabDataMap[path.ToGuid()] = YAML::LoadFile(path.string());
     std::string message = std::format("Prefab Modified : {}", path.string());
     UmEngineLogger.Log(LogLevel::LEVEL_TRACE, message.c_str());
 }
@@ -99,23 +99,24 @@ YAML::Node EGameObjectFactory::SerializeToYaml(GameObject* gameObject)
     return nodes;
 }
 
-bool EGameObjectFactory::DeserializeToYaml(YAML::Node* pGameObjectNode)
+std::shared_ptr<GameObject> EGameObjectFactory::DeserializeToYaml(YAML::Node* pGameObjectNode)
 {
     if (UmComponentFactory.HasScript() == false)
     {
         UmEngineLogger.Log(LogLevel::LEVEL_ERROR,
                            u8"스크립트 빌드를 해주세요."_c_str);
-        return false;
+        return nullptr;
     }
 
     YAML::Node& nodes = *pGameObjectNode;
     std::map<int, Transform*> transformParentLevelMap;
+    std::shared_ptr<GameObject> currObject;
     for (auto node : nodes)
     {
         //오브젝트 생성
         YAML::Node& currNode = node;
         YAML::Node transformNode = currNode["Transform"].as<YAML::Node>();
-        std::shared_ptr<GameObject> gameObject = MakeGameObjectToYaml(&currNode);
+        currObject = MakeGameObjectToYaml(&currNode);
 
         //컴포넌트들 역직렬화
         if (currNode["Components"])
@@ -124,37 +125,35 @@ bool EGameObjectFactory::DeserializeToYaml(YAML::Node* pGameObjectNode)
             for (auto componentNode : componentNodes)
             {
                 YAML::Node& currComponentNode = componentNode;
-                UmComponentFactory.DeserializeToYaml(gameObject.get(),
+                UmComponentFactory.DeserializeToYaml(currObject.get(),
                                                      &currComponentNode);
             }
         }
 
         //Transform 역직렬화
         int TransformIndex = transformNode["TransformIndex"].as<int>();
-        transformParentLevelMap[TransformIndex] = &gameObject->_transform;
+        transformParentLevelMap[TransformIndex] = &currObject->_transform;
         if (transformNode["ParentIndex"])
         {
             int        ParentIndex = transformNode["ParentIndex"].as<int>();
             Transform* pParent     = transformParentLevelMap[ParentIndex];
-            gameObject->_transform.SetParent(pParent);
+            currObject->_transform.SetParent(pParent);
         }
-        ESceneManager::Engine::AddGameObjectToLifeCycle(gameObject);
+        ESceneManager::Engine::AddGameObjectToLifeCycle(currObject);
     }
-    return true;
+    return transformParentLevelMap[0]->gameObject->GetWeakPtr().lock();
 }
 
-bool EGameObjectFactory::DeserializeToGuid(const File::Guid& guid)
+std::shared_ptr<GameObject> EGameObjectFactory::DeserializeToGuid(const File::Guid& guid)
 {
     auto iter = _prefabDataMap.find(guid);
     if (iter == _prefabDataMap.end())
     {
         std::string message = std::format("{} {}", u8"존재하지 않는 프리팹입니다."_c_str, guid.ToPath().string());
         UmEngineLogger.Log(LogLevel::LEVEL_ERROR, message);
-        return false;
+        return nullptr;
     }
-
-    DeserializeToYaml(&iter->second);
-    return true;
+    return DeserializeToYaml(&iter->second);
 }
 
 void EGameObjectFactory::WriteGameObjectFile(Transform* transform, std::string_view outPath)
@@ -196,6 +195,7 @@ std::shared_ptr<GameObject> EGameObjectFactory::MakeGameObject(
         auto& [key, NewObjectFunc] = *findIter;
         newObject.reset(NewObjectFunc());
     }
+    newObject->_weakPtr = newObject;
     return newObject;
 }
 
@@ -267,9 +267,6 @@ std::shared_ptr<GameObject> EGameObjectFactory::MakeGameObjectToYaml(YAML::Node*
         YAML::Node transformNode = objectNode["Transform"].as<YAML::Node>();
         std::string ReflectFields = transformNode["ReflectFields"].as<std::string>();
         object->_transform.DeserializedReflectFields(ReflectFields);
-    }
-    {
-
     }
     return object;
 }
