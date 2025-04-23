@@ -49,6 +49,7 @@ void ImGuiDX12Module::ModuleInitialize()
 
     auto  gameObject = NewGameObject<GameObject>("Test").lock();
     auto& test       = gameObject->AddComponent<StaticMeshRenderer>();
+    test.ReflectFields->FilePath       = "../../../Resource/TestAssets/Cerberus/pbrGun.fbx";
     gameObject->transform->Scale    = {0.03f, 0.03f, 0.03f};
     gameObject->transform->Position    = {-1.f,0.f,0.f};
     gameObject->transform->Rotation = Quaternion::CreateFromAxisAngle({0.f,1.f,0.f},XM_PIDIV2);

@@ -24,6 +24,7 @@ public:
     void Initialize();
     void Update();
     void Render();
+    void Flip();
 
 private:
     HRESULT CreatePipelineState();

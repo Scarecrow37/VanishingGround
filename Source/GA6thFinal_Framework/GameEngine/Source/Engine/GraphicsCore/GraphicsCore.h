@@ -29,6 +29,7 @@ public:
     void UpdateAnimation(const float deltaTime);
     void Update();
     void Render();
+    void Flip();
 
 private:
     void InitializeDefaultGeometry();

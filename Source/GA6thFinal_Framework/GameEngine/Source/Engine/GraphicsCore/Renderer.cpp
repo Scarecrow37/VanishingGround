@@ -101,7 +101,12 @@ void Renderer::Render()
     {
         renderScene.second->Excute(commandList);
     }
-	UmDevice.Flip();
+
+}
+
+void Renderer::Flip()
+{
+    UmDevice.Flip();
 }
 
 HRESULT Renderer::CreatePipelineState()

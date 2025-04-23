@@ -42,6 +42,12 @@ void GraphicsCore::Render()
     Renderer.Render();
 }
 
+void GraphicsCore::Flip()
+{
+    Renderer.Flip();
+}
+
+
 void GraphicsCore::InitializeDefaultGeometry()
 {
     std::unique_ptr<Box> box = std::make_unique<Box>();
