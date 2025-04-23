@@ -72,7 +72,11 @@ public:
     }
     std::weak_ptr<File::Context> GetContext(const File::Path& path);
 
+
     NotifierSet GetNotifiers(const File::FString& ext);
+    void RequestOpenFile(const File::Path& path);
+    void RequestCopyFile(const File::Path& path);
+    void RequestPasteFile(const File::Path& path);
 
     void DrawGuiSettingEditor();
 

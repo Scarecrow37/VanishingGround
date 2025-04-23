@@ -111,6 +111,33 @@ std::unordered_set<File::FileEventNotifier*> EFileSystem::GetNotifiers(
     return std::unordered_set<File::FileEventNotifier*>();
 }
 
+void EFileSystem::RequestOpenFile(const File::Path& path) 
+{
+    NotifierSet notifierSet = GetNotifiers(path.extension());
+    for (auto& notifier : notifierSet)
+    {
+        notifier->OnRequestedOpen(path);
+    }
+}
+
+void EFileSystem::RequestCopyFile(const File::Path& path) 
+{
+    NotifierSet notifierSet = GetNotifiers(path.extension());
+    for (auto& notifier : notifierSet)
+    {
+        notifier->OnRequestedCopy(path);
+    }
+}
+
+void EFileSystem::RequestPasteFile(const File::Path& path) 
+{
+    NotifierSet notifierSet = GetNotifiers(path.extension());
+    for (auto& notifier : notifierSet)
+    {
+        notifier->OnRequestedPaste(path);
+    }
+}
+
 void EFileSystem::DrawGuiSettingEditor() 
 {
     if (ImGui::Button("Save"))
