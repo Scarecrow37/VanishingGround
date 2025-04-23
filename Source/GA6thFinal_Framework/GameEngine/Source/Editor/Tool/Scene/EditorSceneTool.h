@@ -54,5 +54,13 @@ private:
     
     // tempObject
     Matrix _tempMatrix;
+
+protected:
+    //REFLECT_FIELDS_BEGIN(EditorTool)
+    //std::array<float, 3> position{};
+    //std::array<float, 4> rotation{};
+    //std::array<float, 3> eulerAngle{};
+    //std::array<float, 3> scale{};
+    //REFLECT_FIELDS_END(EditorSceneTool)
 };
 

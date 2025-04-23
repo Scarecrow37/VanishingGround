@@ -17,11 +17,13 @@ namespace File
 
     public:
         /* 콜백 파일 이벤트. */
-        virtual void OnFileAdded(const File::Path& path) override                     = 0;
-        virtual void OnFileModified(const File::Path& path) override                  = 0;
-        virtual void OnFileRemoved(const File::Path& path) override                    = 0;
+        virtual void OnFileAdded(const File::Path& path) override                           = 0;
+        virtual void OnFileModified(const File::Path& path) override                        = 0;
+        virtual void OnFileRemoved(const File::Path& path) override                         = 0;
         virtual void OnFileRenamed(const File::Path& oldPath, const Path& newPath) override = 0;
         virtual void OnFileMoved(const File::Path& oldPath, const Path& newPath) override   = 0;
+
+        virtual void OnRequestedDoubleClick(const File::Path& path) = 0;
 
     public:
         bool IsTriggerExtension(const File::FString& ext);

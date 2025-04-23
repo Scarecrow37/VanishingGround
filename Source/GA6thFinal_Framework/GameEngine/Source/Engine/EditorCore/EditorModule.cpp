@@ -47,17 +47,18 @@ void EditorModule::ModuleUnInitialize()
 
 bool EditorModule::SaveSetting(const File::Path& path)
 {
-    _setting.ToolStatus.clear();
+    _setting.ToolData.clear();
     for (auto& [key, tool] : _mainDockSpace->GetRefToolTable())
     {
         EditorTool* editorTool = tool.get();
         if (nullptr != editorTool)
         {
-            EditorToolStatus status;
-            status.name      = key;
-            status.IsVisible = editorTool->IsVisible();
-            status.IsLock    = editorTool->IsLock();
-            _setting.ToolStatus.push_back(status);
+            EditorToolSerializeData data;
+            data.name       = key;
+            data.IsVisible  = editorTool->IsVisible();
+            data.IsLock     = editorTool->IsLock();
+            data.ReflectionField = editorTool->SerializedReflectFields();
+            _setting.ToolData.push_back(data);
         }
     }
 
@@ -83,13 +84,14 @@ bool EditorModule::LoadSetting(const File::Path& path)
     {
         _setting = setting.value();
 
-        for (auto& status : _setting.ToolStatus)
+        for (auto& status : _setting.ToolData)
         {
             EditorTool* tool = _mainDockSpace->GetTool(status.name);
             if (nullptr != tool)
             {
                 tool->SetVisible(status.IsVisible);
                 tool->SetLock(status.IsLock);
+                tool->DeserializedReflectFields(status.ReflectionField);
             }
         }
         return true;
