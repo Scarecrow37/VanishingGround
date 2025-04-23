@@ -48,26 +48,6 @@ void Renderer::RegisterRenderQueue(MeshRenderer* component)
 
 void Renderer::Initialize()
 {
-    //TODO : 바로 오자마자 확인 -> render scene 추가 ->pbr tech 추가
-	//_shader->BeginBuild();
-	//_shader->LoadShader(L"../Shaders/vs_fr.hlsl", Shader::Type::VS);
-	//_shader->LoadShader(L"../Shaders/ps_fr.hlsl", Shader::Type::PS);
-	//_shader->EndBuild();
-
-	//CreatePipelineState();
-
-	//UmDevice.SetCurrentPipelineState(_pipelineState[_currnetState]);
-
-	//// 임시
-	//_frameResource->Initialize(100, 50);
-
-	//CameraData cameraData
-	//{
-	//	.View = UmMainCamera.GetViewMatrix(),
-	//	.Projection = UmMainCamera.GetProjectionMatrix(),
-	//};
-
-	//UmDevice.CreateConstantBuffer(&cameraData, sizeof(CameraData), _cameraBuffer);
     std::shared_ptr<RenderScene> testRenderScene = std::make_shared<RenderScene>();
     testRenderScene->InitializeRenderScene(1);
     std::shared_ptr<PBRTechnique> pbrTech = std::make_shared<PBRTechnique>();
