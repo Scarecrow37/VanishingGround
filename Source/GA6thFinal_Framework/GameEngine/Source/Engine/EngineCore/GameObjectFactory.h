@@ -126,4 +126,7 @@ private:
 
     //프리팹 직렬화 데이터 모아두는 맵
     std::unordered_map<File::Guid, YAML::Node> _prefabDataMap;
+    void OnRequestedOpen(const File::Path& path) override {}
+    void OnRequestedCopy(const File::Path& path) override {}
+    void OnRequestedPaste(const File::Path& path) override {}
 };
