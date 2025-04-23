@@ -1,15 +1,19 @@
 ﻿#pragma once
 
-struct EditorToolStatus
+struct EditorToolSerializeData
 {
-    std::string name        = "";
-    bool        IsVisible   = false;
-    bool        IsLock      = false;
+    std::string name                = "";
+    bool        IsVisible           = false;
+    bool        IsLock              = false;
+    std::string ReflectionField     = "";
 };
 
 struct EditorSetting
 {
-    bool                          IsDebugMode;  // 에디터 디버그 모드 여부(에디터관련 정보 출력)
+    using ToolDataList = std::vector<EditorToolSerializeData>;
 
-    std::vector<EditorToolStatus> ToolStatus;   // 툴 상태
+public:
+    bool IsDebugMode;       // 에디터 디버그 모드 여부(에디터관련 정보 출력)
+
+    ToolDataList ToolData;  // 툴 상태
 };

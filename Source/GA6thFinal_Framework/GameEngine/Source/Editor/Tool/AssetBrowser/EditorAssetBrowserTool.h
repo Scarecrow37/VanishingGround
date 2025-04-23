@@ -21,12 +21,12 @@ class EditorAssetBrowserTool
     };
     enum Flags
     {
-        RENAME_IS_RENAME = 0,   // 리네임 여부 플래그
+        FLAG_IS_RENAME = 0,     // 리네임 중인지 여부
         RENAME_SET_FOCUS_ONCE,  // 리네임 시 인풋 텍스트를 한번 포커싱해주기 위한 플래그
 
-        META_IS_SHOW,           // 메타파일 보여줄지 여부 플래그
+        FLAG_IS_SHOW_META,      // 메타파일 보여줄지 여부 플래그
 
-        FALGS_SIZE,
+        FALG_SIZE,
     };
     using wpContext = std::weak_ptr<File::Context>;
     using spContext = std::shared_ptr<File::Context>;
@@ -92,6 +92,11 @@ private:
     void SetFocusFromRedoPath();
 
 private:
+
+    bool IsKeyDownCopy();
+    bool IsKeyDownPaste();
+
+private:
     /* 브라우저에서 보여질 유형 (List, Icon) */
     ShowType mShowType;
     /* 현재 포커싱 폴더 */
@@ -102,7 +107,7 @@ private:
     /* 패널 위치 저장용 */
     float mPanelWidth = 200.0f;
     /* 이름 바꾸기 모드 여부 */
-    std::bitset<FALGS_SIZE> browserFlags;
+    std::bitset<FALG_SIZE> browserFlags;
 
     float _upperHeight  = 30.0f;
     float _columWidth   = 250.f;
@@ -112,6 +117,9 @@ private:
     int                    _maxUndoStack = 20; // Undo Stack 최대 개수
     std::deque<File::Path> _directoryUndoStack;
     std::deque<File::Path> _directoryRedoStack;
+
+    /* Copy&Paste */
+    File::Path _copyPath;
 };
 
 class EditorFileObject : public IEditorObject

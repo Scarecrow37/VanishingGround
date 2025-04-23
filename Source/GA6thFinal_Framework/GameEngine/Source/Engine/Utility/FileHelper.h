@@ -33,8 +33,8 @@ namespace File
 
     HRESULT CreateGuid(File::Guid& _id);
 
-    bool CreateFolder(const File::Path& _path);
-    bool CreateFolderEx(const File::Path& _path, /* 경로 */
+    bool CreateFolder(const File::Path& path);
+    bool CreateFolderEx(const File::Path& path, /* 경로 */
         bool processDup = false /* 중복 처리 */
     );
 
@@ -43,4 +43,6 @@ namespace File
     bool RemoveFile(const File::Path& path);
 
     bool CopyPathToClipBoard(const File::Path& path);
+
+    File::Path GenerateUniquePath(const File::Path& path, unsigned int maxIndex = 999);
 } // namespace File

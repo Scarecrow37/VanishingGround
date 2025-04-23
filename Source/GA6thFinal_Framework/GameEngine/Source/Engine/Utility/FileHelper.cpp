@@ -26,52 +26,33 @@ namespace File
             return S_OK;
         }
     }
-    bool CreateFolder(const File::Path& _path) 
+    bool CreateFolder(const File::Path& path) 
     {
-        if (false == std::filesystem::exists(_path))
+        if (false == std::filesystem::exists(path))
         {
-            bool check = std::filesystem::create_directory(_path);
+            bool check = std::filesystem::create_directory(path);
             if (true == check)
             {
-                OutputLog(L"Succeed Create Folder (" + _path.wstring() + L')');
+                OutputLog(L"Succeed Create Folder (" + path.wstring() + L')');
             }
             else
             {
-                OutputLog(L"Failed Created Folder: (" + _path.wstring() + L')');
+                OutputLog(L"Failed Created Folder: (" + path.wstring() + L')');
             }
             return check;
         }
         return false;
     }
 
-    bool CreateFolderEx(const File::Path& _path, bool processDup) 
+    bool CreateFolderEx(const File::Path& path, bool processDup) 
     {
-        if (false == std::filesystem::exists(_path))
+        if (false == std::filesystem::exists(path))
         {
-            return CreateFolder(_path);
+            return CreateFolder(path);
         }
         else if (true == processDup)
         {
-            // 중복일 시 뒤에 () 붙여서 생성
-            File::Path name         = _path.stem();
-            File::Path parent       = _path.parent_path();
-            File::Path extension    = _path.extension();
-            int index = 2;
-            while (true)
-            {
-                std::string tail    = " (" + std::to_string(index) + ")";
-                File::Path  newPath = parent / (name + tail + extension);
-
-                if (false == std::filesystem::exists(newPath))
-                {
-                    return CreateFolder(newPath);
-                }
-                if (index++ > 100)
-                {
-                    OutputLog(L"Failed Create Folder: (" + _path.wstring() + L')');
-                    return false;
-                }
-            }
+            return CreateFolder(GenerateUniquePath(path));
         }
     }
 
@@ -146,5 +127,32 @@ namespace File
             }
         }
         return false;
+    }
+    File::Path GenerateUniquePath(const File::Path& path, unsigned int maxIndex)
+    {
+        // 중복일 시 뒤에 () 붙여서 생성
+        File::Path name      = path.stem();
+        File::Path parent    = path.parent_path();
+        File::Path extension = path.extension();
+       
+        if (false == std::filesystem::exists(path))
+        {
+            return path;
+        }
+        else
+        {
+            File::Path newPath = path;
+            std::string tail;
+            for (int index = 2; index <= maxIndex; ++index)
+            {
+                tail = " (" + std::to_string(index) + ")";
+                newPath = parent / (name + tail + extension);
+                if (false == std::filesystem::exists(newPath))
+                {
+                    break;
+                }
+            }
+            return newPath;
+        }
     }
 }
