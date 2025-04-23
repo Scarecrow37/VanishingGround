@@ -460,7 +460,7 @@ void EditorAssetBrowserTool::ItemInputText(spContext context)
 
     if (ImGui::IsItemDeactivated())
     {
-        std::filesystem::path newPath = path;
+        fs::path newPath = path;
         newPath.replace_filename(buffer);
         context->Move(newPath);
         browserFlags[RENAME_IS_RENAME] = false;
@@ -492,7 +492,7 @@ void EditorAssetBrowserTool::ItemEventAction(spContext context)
 
 void EditorAssetBrowserTool::ItemMouseAction(spContext context)
 {
-    if (true ==ImGui::IsItemHovered())
+    if (true == ImGui::IsItemHovered())
     {
         // 더블 클릭 시 (이거 먼저 확인해야함!)
         if (true == ImGui::IsMouseDoubleClicked(0))
