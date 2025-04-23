@@ -2,6 +2,7 @@
 #include "EditorSceneMenu.h"
 
 using namespace Global;
+using namespace u8_literals;
 
 void EditorSceneMenuGameObject::OnMenu() 
 {
@@ -20,13 +21,30 @@ void EditorSceneMenuGameObject::OnMenu()
 
 void EditorSceneMenuScenes::OnMenu() 
 {
+    EditorModule& editor = *Global::editorModule;
     if(ImGui::MenuItem("New EmptyScene"))
     {
-        Scene* emptyScene = engineCore->SceneManager.GetSceneByName(UmSceneManager.EMPTY_SCENE_NAME);
-        if (emptyScene == nullptr)
-        {
-            UmSceneManager.CreateScene(UmSceneManager.EMPTY_SCENE_NAME);
-        }
-        engineCore->SceneManager.LoadScene(UmSceneManager.EMPTY_SCENE_NAME);
+        static std::string inputBuff;
+        editor.OpenPopupBox(u8"씬 이름을 입력하세요"_c_str, 
+        [&]()
+        { 
+            ImGui::PushID(this);
+            {
+                ImGui::InputText(u8"이름"_c_str, &inputBuff);
+                if (ImGui::Button(u8"확인"_c_str))
+                {
+                    std::filesystem::path outPath = UmFileSystem.GetRootPath();
+                    outPath /= "Scenes";
+                    UmSceneManager.WriteEmptySceneToFile(inputBuff, outPath.string());
+                    ImGui::CloseCurrentPopup();
+                }
+                ImGui::SameLine();
+                if (ImGui::Button(u8"취소"_c_str))
+                {
+                    ImGui::CloseCurrentPopup();
+                }
+            } 
+            ImGui::PopID();
+        });  
     }
 }
