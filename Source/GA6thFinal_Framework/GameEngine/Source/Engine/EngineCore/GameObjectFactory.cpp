@@ -206,7 +206,7 @@ void EGameObjectFactory::ResetGameObject(
     Scene* mainScene = engineCore->SceneManager.GetMainScene();
     if (mainScene != nullptr)
     {
-        ownerObject->_ownerScene = mainScene->Name;
+        ownerObject->_ownerScene = mainScene->Path;
     }
     else
     {
