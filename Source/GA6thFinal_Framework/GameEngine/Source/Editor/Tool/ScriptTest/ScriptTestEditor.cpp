@@ -27,8 +27,8 @@ void ScriptTestEditor::OnFrame()
     using namespace Global;
     using namespace u8_literals;
     {
-        auto& sceneMap = UmSceneManager.GetScenesMap();
-        for (auto& [name, scene] : sceneMap)
+        auto& scenesMap = UmSceneManager.GetScenesMap();
+        for (auto& [guid, scene] : scenesMap)
         {
             ImGui::PushID(&scene);
             ImGui::Separator();
