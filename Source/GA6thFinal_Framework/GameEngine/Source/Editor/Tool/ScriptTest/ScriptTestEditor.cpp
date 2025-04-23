@@ -14,7 +14,7 @@ ScriptTestEditor::~ScriptTestEditor()
 
 void ScriptTestEditor::OnStartGui() 
 {
-    SetLabel(u8"스크립트 만들기"_c_str);
+    SetLabel(u8"테스트 에디터"_c_str);
 }
 
 void ScriptTestEditor::OnPreFrame() 
@@ -27,43 +27,37 @@ void ScriptTestEditor::OnFrame()
     using namespace Global;
     using namespace u8_literals;
     {
-        constexpr const char* testPath = "TestObjectSerialized.yaml";
-        ImGui::TextColored({0,0,1,1}, u8"직렬화 테스트"_c_str);
-        if (ImGui::BeginDragDropTarget())
+        auto& scenesMap = UmSceneManager.GetScenesMap();
+        for (auto& [guid, scene] : scenesMap)
         {
-            if (const ImGuiPayload* payLoad =
-                ImGui::AcceptDragDropPayload(DragDropTransform::KEY))
+            ImGui::PushID(&scene);
+            ImGui::Separator();
+            std::string sceneName = scene.Name;
+            ImGui::Text("Name : %s", sceneName.c_str());
+            ImGui::Text("isLoaded : %s", scene.isLoaded ? "true" : "false");
+            std::string scenePath = scene.Path;
+            ImGui::Text("Path : %s", scenePath.c_str());
+            if (ImGui::Button(u8"씬 저장"_c_str))
             {
-                using Data      = DragDropTransform::Data;
-                Data*      data = (Data*)payLoad->Data;
-                YAML::Node node = UmGameObjectFactory.SerializeToYaml(
-                    &data->pTransform->gameObject);
-
-                std::ofstream ofs(testPath, std::ios::trunc);
-                if (ofs.is_open())
-                {
-                    ofs << node;
-                }
-                ofs.close();
+                constexpr const char* TEST_SCENE_FOLDER = "Assets/Scenes";
+                UmSceneManager.WriteSceneToFile(scene, TEST_SCENE_FOLDER, true);
             }
-            ImGui::EndDragDropTarget();
-        }
-        if (ImGui::Button(u8"역직렬화 테스트"_c_str))
-        {
-            YAML::Node node =  YAML::LoadFile(testPath);
-            UmGameObjectFactory.DeserializeToYaml(&node);
-        }
-
-        ImGui::TextColored({0,0,1,1}, u8"Instantiate"_c_str);
-        if (ImGui::BeginDragDropTarget())
-        {
-            if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropTransform::KEY))
+            ImGui::SameLine();
+            if (ImGui::Button(u8"씬 로드"_c_str))
             {
-                using Data      = DragDropTransform::Data;
-                Data*      data = (Data*)payLoad->Data;
-                GameObject::Instantiate(data->pTransform->gameObject);
+                UmSceneManager.LoadScene(scenePath);
             }
-            ImGui::EndDragDropTarget();
+            ImGui::SameLine();
+            if (ImGui::Button(u8"씬 추가"_c_str))
+            {
+                UmSceneManager.LoadScene(scenePath, LoadSceneMode::ADDITIVE);
+            }
+            ImGui::SameLine();
+            if (ImGui::Button(u8"씬 언로드"_c_str))
+            {
+                UmSceneManager.UnloadScene(scenePath);
+            }
+            ImGui::PopID();
         }
     }
 }

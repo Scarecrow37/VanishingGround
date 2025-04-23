@@ -7,7 +7,7 @@ class Component;
 
 //오브젝트 생성용 전역함수
 template<IS_BASE_GAMEOBJECT_C TObject>
-std::weak_ptr<TObject> NewGameObject(
+std::shared_ptr<TObject> NewGameObject(
     std::string_view name)
 {
     std::shared_ptr<GameObject> shared_object = Global::engineCore->GameObjectFactory.NewGameObject(typeid(TObject).name(), name);
@@ -306,6 +306,7 @@ private:
     REFLECT_FIELDS_END(GameObject)
 
 private:
+    std::weak_ptr<GameObject>                _weakPtr;
     std::string                              _ownerScene;
     std::vector<std::shared_ptr<Component>>  _components;
     int                                      _instanceID;

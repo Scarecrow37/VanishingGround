@@ -1,4 +1,4 @@
-﻿#include "pch.h"
+#include "pch.h"
 using namespace Global;
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -87,15 +87,14 @@ void Application::Run()
         }
         else
         {
-            _filesystemModule->Update();
-
             ETimeSystem::Engine::TimeSystemUpdate();
             float deltaTime = engineCore->Time.deltaTime();
 
             _imguiDX12Module->ImguiBegin();
             {
-                if (Global::editorModule)
+                if (UmApplication.IsEditor())
                 {
+                    _filesystemModule->Update();
                     Global::editorModule->Update();
                 }
 
