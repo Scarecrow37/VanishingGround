@@ -113,3 +113,18 @@ void FileSystemModule::DispatchFileEvent()
         _eventQueue.pop();
     }
 }
+
+void SampleNotifier::OnRequestedOpen(const File::Path& path) 
+{
+    File::OpenFile(path);
+}
+
+void SampleNotifier::OnRequestedCopy(const File::Path& path) 
+{
+    UmEngineLogger.Log(1, "Copy File");
+}
+
+void SampleNotifier::OnRequestedPaste(const File::Path& path) 
+{
+    UmEngineLogger.Log(1, "Paste File");
+}

@@ -66,16 +66,7 @@ public:
     {
     }
 
-    virtual void OnRequestedOpen(const File::Path& path) override
-    { 
-        File::OpenFile(path);
-    }
-    virtual void OnRequestedCopy(const File::Path& path) override 
-    {
-        //File::CopyFile(path);
-    }
-    virtual void OnRequestedPaste(const File::Path& path) override 
-    {
-        //File::PasteFile(path);
-    }
+    virtual void OnRequestedOpen(const File::Path& path) override;
+    virtual void OnRequestedCopy(const File::Path& path) override;
+    virtual void OnRequestedPaste(const File::Path& path) override;
 };

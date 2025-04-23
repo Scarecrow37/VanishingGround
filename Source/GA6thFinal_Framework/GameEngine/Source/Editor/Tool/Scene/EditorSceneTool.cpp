@@ -28,7 +28,17 @@ void EditorSceneTool::OnStartGui()
 
 void EditorSceneTool::OnPreFrame()
 {
-    
+    // 프레임에 대한 호버링 중이면 No_Move플래그를 설정
+    if (true == _isHorverdScene)
+    {
+        SetWindowFlag(ImGuiWindowFlags_NoMove);
+        //UmEngineLogger.Log(1, "SceneTool is Hovered");
+    }
+    else
+    {
+        SetWindowFlag(ImGuiWindowFlags_None);
+        //UmEngineLogger.Log(1, "SceneTool is UnHovered");
+    }
 }
 
 void EditorSceneTool::OnFrame()
@@ -61,6 +71,10 @@ void EditorSceneTool::OnPostFrame()
 
 void EditorSceneTool::OnFocus()
 {
+    auto window     = ImGui::GetCurrentWindow();
+    auto rect       = window->Rect();
+    _isHorverdScene = ImGui::IsMouseHoveringRect(rect.Min, rect.Max);
+
     if (false == IsLock() && false == Global::editorModule->IsLock())
     {
         if (ImGui::IsMouseDown(ImGuiMouseButton_Right))
