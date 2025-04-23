@@ -23,8 +23,6 @@ namespace File
         virtual void OnFileRenamed(const File::Path& oldPath, const Path& newPath) override = 0;
         virtual void OnFileMoved(const File::Path& oldPath, const Path& newPath) override   = 0;
 
-        virtual void OnRequestedDoubleClick(const File::Path& path) = 0;
-
     public:
         bool IsTriggerExtension(const File::FString& ext);
         std::vector<FString> GetTriggerExtensions() const;
