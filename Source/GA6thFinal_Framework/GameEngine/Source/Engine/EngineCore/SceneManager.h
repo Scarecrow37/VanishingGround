@@ -57,10 +57,6 @@ public:
     PROPERTY(Path)
 
 private:
-    //필터용 함수
-    bool RootGameObjectsFilter(GameObject* obj) const;
-
-private:
     bool _isLoaded = false;
     File::Guid _guid = STR_NULL;
 };
@@ -88,6 +84,17 @@ private:
 
     void LoadSettingFile();
     void SaveSettingFile() const;
+public:
+    /// <summary>
+    /// 전달받은 경로의 씬 파일을 통해 로드된 RootGameObjects를 반환합니다.
+    /// </summary>
+    /// <param name="sceneName"></param>
+    /// <returns></returns>
+    static inline auto GetRootGameObjectsByPath(std::string_view path);
+private:
+    //필터용 함수
+    static bool RootGameObjectsFilter(GameObject* obj, std::string_view scenePath);
+
 public:
     static constexpr const char* SCENE_EXTENSION = ".UmScene";
     static constexpr const char* SETTING_FILE_NAME = "SceneManager.setting.json";
@@ -184,6 +191,14 @@ public:
 
 public:
     /// <summary>
+    /// 로드된 모든 씬들을 반환합니다. 로드된 순서를 보장합니다.
+    /// </summary>
+    inline const std::vector<Scene*>& GetLoadedScenes()
+    { 
+        return _lodedSceneList;
+    }
+
+    /// <summary>
     /// 등록된 모든 씬들을 반환합니다. 씬 이름이 key로 Scene 객체가 value로 저장되어있습니다.
     /// </summary>
     inline const std::unordered_map<File::Guid, Scene>& GetScenesMap()
@@ -195,17 +210,9 @@ public:
     /// 실제 로드된 씬의 개수를 반환합니다.
     /// </summary>
     /// <returns></returns>
-    inline size_t LoadedSceneCount()
-    {
-        size_t count = 0;
-        for (auto& [name, scene] : _scenesMap)
-        {
-            if (scene._isLoaded)
-            {
-                count++;
-            }
-        }
-        return count;
+    inline size_t LoadedSceneCount() const
+    { 
+        return _lodedSceneList.size();
     }
 
     /// <summary>
@@ -324,6 +331,8 @@ private:
     //생성된 씬 맵(GUID)
     std::unordered_map<File::Guid, Scene> _scenesMap;
 
+    //로드된 씬 항목
+    std::vector<Scene*> _lodedSceneList;
 protected:
     /// <summary>
     /// 씬을 Yaml 형식으로 직렬화합니다.
@@ -347,29 +356,40 @@ protected:
     bool DeserializeToGuid(const File::Guid& guid);
 
     // FileEventNotifier을(를) 통해 상속됨
-    void OnFileAdded(const File::Path& path) override;
-    void OnFileModified(const File::Path& path) override;
-    void OnFileRemoved(const File::Path& path) override;
-    void OnFileRenamed(const File::Path& oldPath, const File::Path& newPath) override;
-    void OnFileMoved(const File::Path& oldPath, const File::Path& newPath) override;
+    virtual void OnFileAdded(const File::Path& path) override;
+    virtual void OnFileModified(const File::Path& path) override;
+    virtual void OnFileRemoved(const File::Path& path) override;
+    virtual void OnFileRenamed(const File::Path& oldPath, const File::Path& newPath) override;
+    virtual void OnFileMoved(const File::Path& oldPath, const File::Path& newPath) override;
 
-    virtual void OnRequestedOpen(const File::Path& path) {};
-    virtual void OnRequestedCopy(const File::Path& path) {};
-    virtual void OnRequestedPaste(const File::Path& path) {};
+    virtual void OnRequestedOpen(const File::Path& path);
+    virtual void OnRequestedCopy(const File::Path& path);
+    virtual void OnRequestedPaste(const File::Path& path);
+
+    //관리하는 씬 파일 파괴시 호출
+    void EraseSceneGUID(std::string_view sceneName, const File::Guid guid);
 
     //직렬화된 씬들 캐싱용
     std::unordered_map<File::Guid, YAML::Node> _sceneDataMap;
 };
 
-inline auto Scene::GetRootGameObjects() const
+inline auto ESceneManager::GetRootGameObjectsByPath(std::string_view path) 
 {
     const auto& objectsList = ESceneManager::Engine::GetRuntimeObjects();
-    auto rootObjects = objectsList | std::ranges::views::filter([this](auto& obj)
-        {
-            if (obj == nullptr)
-                return false;
+    std::string scenePath = path.data();
+    auto rootObjects = objectsList | std::ranges::views::filter(
+    [scenePath](auto& obj)
+    {
+        if (obj == nullptr)
+            return false;
 
-            return RootGameObjectsFilter(obj.get());
-        });
+        return RootGameObjectsFilter(obj.get(), scenePath);
+    });
     return rootObjects;
+}
+
+inline auto Scene::GetRootGameObjects() const
+{
+    std::string path = Path;
+    return ESceneManager::GetRootGameObjectsByPath(path);
 }
