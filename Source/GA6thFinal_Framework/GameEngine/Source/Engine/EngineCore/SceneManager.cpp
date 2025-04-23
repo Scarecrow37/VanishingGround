@@ -1,12 +1,11 @@
 ﻿#include "pch.h"
 using namespace Global;
 using namespace u8_literals;
-
 static constexpr const char* DONT_DESTROY_ON_LOAD_SCENE_NAME = "DontDestroyOnLoad";
 
-bool Scene::RootGameObjectsFilter(GameObject* obj) const
+bool ESceneManager::RootGameObjectsFilter(GameObject* obj, std::string_view scenePath)
 {
-    return &obj->GetScene() == this && obj->transform->Parent == nullptr;
+    return obj->_ownerScene == scenePath.data() && obj->transform->Parent == nullptr;
 }
 
 std::filesystem::path ESceneManager::GetSettingFilePath()
@@ -331,6 +330,7 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
     {
         _addComponentsQueue.clear();
         _addGameObjectsQueue.clear();
+        _lodedSceneList.clear();
 
         for (auto& [guid, scene] : _scenesMap)
         {
@@ -357,12 +357,12 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
         }
     }
 
-    scene->_isLoaded = true;
-    File::Path path = scene->_guid.ToPath();
     if (DeserializeToGuid(scene->_guid) == false)
     {
-        __debugbreak(); // 씬 로드 실패....
+        return;
     }
+    scene->_isLoaded = true;
+    _lodedSceneList.push_back(scene);
 }
 
 void ESceneManager::UnloadScene(std::string_view sceneName) 
@@ -393,11 +393,12 @@ void ESceneManager::UnloadScene(std::string_view sceneName)
     }
 
     scene->_isLoaded = false;
-    auto objects    = scene->GetRootGameObjects();
+    auto objects = scene->GetRootGameObjects();
     for (auto& obj : objects)
     {
         GameObject::Destroy(obj.get());
     }
+    std::erase(_lodedSceneList, scene);
 }
 
 Scene* ESceneManager::GetSceneByName(std::string_view name)
@@ -837,7 +838,7 @@ void ESceneManager::OnFileAdded(const File::Path& path)
     scene._guid = guid;
     _scenesFindMap[scene.Name].insert(guid);
     std::string nodeGuid = node["Guid"].as<std::string>();
-    if (nodeGuid == STR_NULL)
+    if (nodeGuid != guid)
     {
         WriteSceneToFile(scene, path.parent_path().string(), true);
     }
@@ -859,22 +860,28 @@ void ESceneManager::OnFileModified(const File::Path& path)
 void ESceneManager::OnFileRemoved(const File::Path& path) 
 {
     File::Guid guid = path.ToGuid();
-    Scene& currScene = _scenesMap[guid];
-    std::string sceneName = currScene.Name;
-
-    _scenesFindMap[sceneName].erase(guid);
-    _scenesMap.erase(guid);
-    _sceneDataMap.erase(guid);
+    Scene& scene = _scenesMap[guid];
+    std::string sceneName = scene.Name;
+    EraseSceneGUID(sceneName, guid);
 }
 
 void ESceneManager::OnFileRenamed(const File::Path& oldPath, const File::Path& newPath) 
 {
-    File::Guid  guid  = newPath.ToGuid();
-    Scene&      scene = _scenesMap[guid];
+    File::Guid guid = newPath.ToGuid();
+    Scene& scene = _scenesMap[guid];
+    std::string oldName = oldPath.stem().string();
+    std::string newName = scene.Name;
+    _scenesFindMap[oldName].erase(guid);
+    if (_scenesFindMap[oldName].empty() == true)
+    {
+        _scenesFindMap.erase(oldName);
+    }
+    _scenesFindMap[newName].insert(guid);
+
     bool isLoaded = scene.isLoaded;
     if (isLoaded)
     {
-        auto rootObjects = scene.GetRootGameObjects();
+        auto rootObjects = GetRootGameObjectsByPath(oldPath.string());
         for (auto& object : rootObjects)
         {
             object->_ownerScene = newPath.string();
@@ -885,4 +892,37 @@ void ESceneManager::OnFileRenamed(const File::Path& oldPath, const File::Path& n
 void ESceneManager::OnFileMoved(const File::Path& oldPath, const File::Path& newPath) 
 {
 
+}
+
+void ESceneManager::OnRequestedOpen(const File::Path& path) 
+{
+    LoadScene(path.string());
+}
+
+void ESceneManager::OnRequestedCopy(const File::Path& path) 
+{
+
+}
+
+void ESceneManager::OnRequestedPaste(const File::Path& path) 
+{
+
+}
+
+void ESceneManager::EraseSceneGUID(std::string_view sceneName, const File::Guid guid) 
+{
+    Scene* pScene = &_scenesMap[guid];
+    auto objects = pScene->GetRootGameObjects();
+    for (auto& obj : objects)
+    {
+        GameObject::Destroy(obj.get());
+    }
+    std::erase(_lodedSceneList, pScene);
+    _scenesFindMap[sceneName.data()].erase(guid);
+    if (_scenesFindMap[sceneName.data()].empty() == true)
+    {
+        _scenesFindMap.erase(sceneName.data());
+    }
+    _scenesMap.erase(guid);
+    _sceneDataMap.erase(guid);
 }
