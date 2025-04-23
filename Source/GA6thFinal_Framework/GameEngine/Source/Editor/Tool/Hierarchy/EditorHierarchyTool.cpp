@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "EditorHierarchyTool.h"
 
 using namespace u8_literals;
@@ -180,17 +180,17 @@ void  EditorHierarchyTool::OnFrame()
 {
     HierarchyDropEvent();
     const auto& scenes = engineCore->SceneManager.GetScenesMap();
-    for (auto& [sceneName, scenes] : scenes)
+    for (auto& [sceneName, scene] : scenes)
     {
-        if (scenes.isLoaded == false)
+        if (scene.isLoaded == false)
             continue;
 
-        std::string sName = sceneName;
+        std::string sName = scene.Name;
         if (ImGui::CollapsingHeader(
                 sName.c_str(),
                 ImGuiTreeNodeFlags_::ImGuiTreeNodeFlags_DefaultOpen))
         {
-            auto rootObjects = scenes.GetRootGameObjects();
+            auto rootObjects = scene.GetRootGameObjects();
             std::shared_ptr<GameObject> focusObject =
                 HierarchyFocusObjWeak.lock();
             for (auto& obj : rootObjects)
