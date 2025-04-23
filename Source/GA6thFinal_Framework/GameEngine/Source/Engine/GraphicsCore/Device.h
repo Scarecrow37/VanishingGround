@@ -84,7 +84,7 @@ private:
     D3D12_VIEWPORT _mainViewport;
     D3D12_RECT     _mainrRect;
 
-    bool _4xMSAAState = true; // 4X MSAA enabled
+    bool _4xMSAAState = false; // 4X MSAA enabled
 
     UINT _4xMSAAQuality           = 0; // quality level of 4X MSAA
     UINT _rtvDescriptorSize       = 0;

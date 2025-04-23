@@ -359,9 +359,6 @@ HRESULT Device::ClearBackBuffer(UINT flag, XMVECTOR color, float depth, UINT ste
     _commandList->OMSetRenderTargets(1, &_renderTargetHandles[_renderTargetIndex], FALSE, &_depthStencilHandle);
     _commandList->ClearRenderTargetView(_renderTargetHandles[_renderTargetIndex], (float*)&color, 0, nullptr);
     _commandList->ClearDepthStencilView(_depthStencilHandle, (D3D12_CLEAR_FLAGS)flag, depth, stencil, 0, nullptr);
-    //br = CD3DX12_RESOURCE_BARRIER::Transition(_swapChainBuffer[_renderTargetIndex].Get(),
-    //                                          D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_RESOLVE_DEST);
-    //_commandList->ResourceBarrier(1, &br);
 
     return 0;
 }

@@ -25,8 +25,12 @@ public:
     void Excute(ComPtr<ID3D12GraphicsCommandList> commandList);
     UINT GetCurrentRendertarget() { return _currnetRederTarget; }
     void RenderOnBackBuffer(ComPtr<ID3D12GraphicsCommandList> commandList);
+    void RenderOnEditor(ComPtr<ID3D12GraphicsCommandList> commandList);
 
 private:
+    void CreateRenderTargetPool(UINT renderTargetCount);
+    void CreateFrameDepthStencil();
+    void CreateMSAARenderTarget();
     void CreatePso();
     void CreateDescriptorHeap();
     void CopyMSAATexture(ComPtr<ID3D12GraphicsCommandList> commandList);
