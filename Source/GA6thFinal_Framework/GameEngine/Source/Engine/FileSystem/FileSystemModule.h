@@ -54,15 +54,28 @@ public:
     virtual ~SampleNotifier() {}
 
 public:
-    void OnFileAdded(const File::Path& path) override {}
-    void OnFileModified(const File::Path& path) override {}
-    void OnFileRemoved(const File::Path& path) override {}
-    void OnFileRenamed(const File::Path& oldPath,
+    virtual void OnFileAdded(const File::Path& path) override {}
+    virtual void OnFileModified(const File::Path& path) override {}
+    virtual void OnFileRemoved(const File::Path& path) override {}
+    virtual void OnFileRenamed(const File::Path& oldPath,
                        const File::Path& newPath) override
     {
     }
-    void OnFileMoved(const File::Path& oldPath,
+    virtual void OnFileMoved(const File::Path& oldPath,
                      const File::Path& newPath) override
     {
+    }
+
+    virtual void OnRequestedOpen(const File::Path& path) override
+    { 
+        File::OpenFile(path);
+    }
+    virtual void OnRequestedCopy(const File::Path& path) override 
+    {
+        //File::CopyFile(path);
+    }
+    virtual void OnRequestedPaste(const File::Path& path) override 
+    {
+        //File::PasteFile(path);
     }
 };
