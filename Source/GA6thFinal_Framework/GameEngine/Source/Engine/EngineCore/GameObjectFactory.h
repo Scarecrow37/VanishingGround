@@ -104,4 +104,7 @@ private:
     void OnFileRemoved(const File::Path& path) override;
     void OnFileRenamed(const File::Path& oldPath, const File::Path& newPath) override;
     void OnFileMoved(const File::Path& oldPath, const File::Path& newPath) override;
+    void OnRequestedOpen(const File::Path& path) override {}
+    void OnRequestedCopy(const File::Path& path) override {}
+    void OnRequestedPaste(const File::Path& path) override {}
 };

@@ -111,6 +111,33 @@ std::unordered_set<File::FileEventNotifier*> EFileSystem::GetNotifiers(
     return std::unordered_set<File::FileEventNotifier*>();
 }
 
+void EFileSystem::RequestOpenFile(const File::Path& path) 
+{
+    NotifierSet notifierSet = GetNotifiers(path.extension());
+    for (auto& notifier : notifierSet)
+    {
+        notifier->OnRequestedOpen(path);
+    }
+}
+
+void EFileSystem::RequestCopyFile(const File::Path& path) 
+{
+    NotifierSet notifierSet = GetNotifiers(path.extension());
+    for (auto& notifier : notifierSet)
+    {
+        notifier->OnRequestedCopy(path);
+    }
+}
+
+void EFileSystem::RequestPasteFile(const File::Path& path) 
+{
+    NotifierSet notifierSet = GetNotifiers(path.extension());
+    for (auto& notifier : notifierSet)
+    {
+        notifier->OnRequestedPaste(path);
+    }
+}
+
 void EFileSystem::DrawGuiSettingEditor() 
 {
     if (ImGui::Button("Save"))
@@ -280,11 +307,13 @@ void EFileSystem::RemovedFile(const File::Path& path)
         const MetaData& meta      = spContext->GetMeta();
         File::Guid      guid      = meta.GetFileGuid();
 
-        spContext->OnFileRemoved(path);
+        auto notifierSet = GetNotifiers(path.extension());
+        for (auto& notifier : notifierSet)
+        {
+            notifier->OnFileRemoved(path);
+        } 
 
-        _pathToGuidTable.erase(path);
-        _guidToPathTable.erase(guid);
-        _contextTable.erase(spContext);
+        spContext->OnFileRemoved(path);
 
         // 부모 폴더에서 자신을 제거한다.
         File::Path parentPath = path.parent_path().generic_string();
@@ -293,12 +322,6 @@ void EFileSystem::RemovedFile(const File::Path& path)
         {
             wpFolderContext.lock()->_contextTable.erase(path.filename());
         }
-
-        auto notifierSet = GetNotifiers(path.extension());
-        for (auto& notifier : notifierSet)
-        {
-            notifier->OnFileRemoved(path);
-        } 
     }
 }
 

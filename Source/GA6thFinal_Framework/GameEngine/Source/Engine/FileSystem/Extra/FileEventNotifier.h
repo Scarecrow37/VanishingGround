@@ -23,6 +23,13 @@ namespace File
         virtual void OnFileRenamed(const File::Path& oldPath, const Path& newPath) override = 0;
         virtual void OnFileMoved(const File::Path& oldPath, const Path& newPath) override   = 0;
 
+        /* 파일을 여는 요청을 처리할 동작을 구현 */
+        virtual void OnRequestedOpen(const File::Path& path) = 0;
+        /* 파일을 복사했을 때 처리할 동작을 구현 */
+        virtual void OnRequestedCopy(const File::Path& path) = 0;
+        /* 파일을 붙여넣었을 때 처리할 동작을 구현 */
+        virtual void OnRequestedPaste(const File::Path& path) = 0;
+
     public:
         bool IsTriggerExtension(const File::FString& ext);
         std::vector<FString> GetTriggerExtensions() const;
