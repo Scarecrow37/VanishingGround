@@ -58,8 +58,11 @@ namespace File
     {
         if (false == _path.empty())
         {
-            // 차후 동작은 이벤트로 처리하므로 파일만 변경
-            return File::RemoveFile(_path);
+            if (true == fs::exists(_path))
+            {
+                // 차후 동작은 이벤트로 처리하므로 파일만 변경
+                return File::RemoveFile(_path);
+            }
         }
         return false;
     }
@@ -86,7 +89,11 @@ namespace File
     {
     }
 
-    void FileContext::OnFileAdded(const Path& path) 
+    void FileContext::OnFileRegistered(const File::Path& path) 
+    {
+    }
+
+    void FileContext::OnFileUnregistered(const File::Path& path) 
     {
     }
 
@@ -105,19 +112,6 @@ namespace File
         _name = newPath.filename().string();
         
         LoadMeta();
-
-        //File::Path oldParentPath    = oldPath.parent_path().generic_string();
-        //File::Path newParentPath    = newPath.parent_path().generic_string();
-        //auto       oldParentContext = UmFileSystem.GetContext<File::FolderContext>(oldParentPath);
-        //auto       newParentContext = UmFileSystem.GetContext<File::FolderContext>(newParentPath);
-        //
-        //if (false == oldParentContext.expired() && false == newParentContext.expired())
-        //{
-        //    auto spOldContext = oldParentContext.lock();
-        //    auto spNewContext = newParentContext.lock();
-        //    spOldContext->_contextTable.erase(oldPath.filename());
-        //    spNewContext->_contextTable[newPath.filename()] = UmFileSystem.GetContext(GetPath());
-        //}
     }
 
     void FileContext::OnFileMoved(const Path& oldPath, const Path& newPath) 
@@ -126,19 +120,6 @@ namespace File
         _name = newPath.filename().string();
 
         LoadMeta();
-
-        //File::Path oldParentPath    = oldPath.parent_path().generic_string();
-        //File::Path newParentPath    = newPath.parent_path().generic_string();
-        //auto       oldParentContext = UmFileSystem.GetContext<File::FolderContext>(oldParentPath);
-        //auto       newParentContext = UmFileSystem.GetContext<File::FolderContext>(newParentPath);
-        //
-        //if (false == oldParentContext.expired() && false == newParentContext.expired())
-        //{
-        //    auto spOldContext = oldParentContext.lock();
-        //    auto spNewContext = newParentContext.lock();
-        //    spOldContext->_contextTable.erase(oldPath.filename());
-        //    spNewContext->_contextTable[newPath.filename()] = UmFileSystem.GetContext(GetPath());
-        //}
     }
 
     FolderContext::FolderContext(const File::Path& path) 
@@ -152,7 +133,11 @@ namespace File
     
     }
 
-    void FolderContext::OnFileAdded(const Path& path) 
+    void FolderContext::OnFileRegistered(const File::Path& path)
+    {
+    }
+
+    void FolderContext::OnFileUnregistered(const File::Path& path) 
     {
     }
 
@@ -168,7 +153,7 @@ namespace File
         {
             if (false == wpContext.expired())
             {
-                UmFileSystem.RemovedFile(wpContext.lock()->GetPath());
+                UmFileSystem.ProcessRemovedFile(wpContext.lock()->GetPath());
             }
         }
     }
@@ -187,7 +172,7 @@ namespace File
                 auto        spContext      = wpContext.lock();
                 const Path& oldContextPath = spContext->GetPath();
                 const Path& newContextPath = newPath / spContext->GetPath().filename();
-                UmFileSystem.MovedFile(oldContextPath.generic_string(), newContextPath.generic_string());
+                UmFileSystem.ProcessMovedFile(oldContextPath.generic_string(), newContextPath.generic_string());
             }
         }
     }
@@ -206,7 +191,7 @@ namespace File
                 auto        spContext      = wpContext.lock();
                 const Path& oldContextPath = spContext->GetPath();
                 const Path& newContextPath = newPath / spContext->GetPath().filename();
-                UmFileSystem.MovedFile(oldContextPath, newContextPath);
+                UmFileSystem.ProcessMovedFile(oldContextPath, newContextPath);
             }
         }
     }

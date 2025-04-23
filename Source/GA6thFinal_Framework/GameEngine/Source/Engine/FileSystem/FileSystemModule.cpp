@@ -29,7 +29,7 @@ void FileSystemModule::ModuleInitialize()
         RecieveFileEvent(event);
     });
 
-    UmFileSystem.Reload();
+    UmFileSystem.ReadDirectory();
 }
 
 void FileSystemModule::PreUnInitialize() 
@@ -83,27 +83,27 @@ void FileSystemModule::DispatchFileEvent()
             {
             case File::EventType::ADDED:
             {
-                UmFileSystem.AddedFile(lp);
+                UmFileSystem.RegisterContext(lp);
                 break;
             }
             case File::EventType::REMOVED:
             {
-                UmFileSystem.RemovedFile(lp);
+                UmFileSystem.ProcessRemovedFile(lp);
                 break;
             }
             case File::EventType::MODIFIED:
             {
-                UmFileSystem.ModifiedFile(lp);
+                UmFileSystem.ProcessModifiedFile(lp);
                 break;
             }
             case File::EventType::RENAMED:
             {
-                UmFileSystem.MovedFile(lp, rp);
+                UmFileSystem.ProcessMovedFile(lp, rp);
                 break;
             }
             case File::EventType::MOVED:
             {
-                UmFileSystem.MovedFile(lp, rp);
+                UmFileSystem.ProcessMovedFile(lp, rp);
                 break;
             }
             default:
@@ -114,7 +114,43 @@ void FileSystemModule::DispatchFileEvent()
     }
 }
 
-void SampleNotifier::OnRequestedOpen(const File::Path& path) 
+void SampleNotifier::OnFileRegistered(const File::Path& path) 
+{
+    std::wstring log = L"Register File: " + path.generic_wstring();
+    File::OutputLog(log);
+}
+
+void SampleNotifier::OnFileUnregistered(const File::Path& path) 
+{
+    std::wstring log = L"Unregister File: " + path.generic_wstring();
+    File::OutputLog(log);
+}
+
+void SampleNotifier::OnFileModified(const File::Path& path) 
+{
+    std::wstring log = L"Modified File: " + path.generic_wstring();
+    File::OutputLog(log);
+}
+
+void SampleNotifier::OnFileRemoved(const File::Path& path) 
+{
+    std::wstring log = L"Removed File: " + path.generic_wstring();
+    File::OutputLog(log);
+}
+
+void SampleNotifier::OnFileRenamed(const File::Path& oldPath, const File::Path& newPath) 
+{
+    std::wstring log = L"Renamed File: " + oldPath.generic_wstring() + L" to " + newPath.generic_wstring();
+    File::OutputLog(log);
+}
+
+void SampleNotifier::OnFileMoved(const File::Path& oldPath, const File::Path& newPath) 
+{
+    std::wstring log = L"Moved File: " + oldPath.generic_wstring() + L" to " + newPath.generic_wstring();
+    File::OutputLog(log);
+}
+
+void SampleNotifier::OnRequestedOpen(const File::Path& path)
 {
     File::OpenFile(path);
 }

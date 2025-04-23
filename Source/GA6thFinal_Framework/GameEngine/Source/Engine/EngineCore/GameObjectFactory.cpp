@@ -13,15 +13,19 @@ void EGameObjectFactory::Engine::RegisterFileEvents()
     UmFileSystem.RegisterFileEventNotifier(&UmGameObjectFactory, {DragDropTransform::PREFAB_EXTENSION});
 }
 
-void EGameObjectFactory::OnFileAdded(const File::Path& path) 
+void EGameObjectFactory::OnFileRegistered(const File::Path& path) 
 {
     std::string message = std::format("Add Prefab : {}", path.ToGuid().string());
     UmEngineLogger.Log(LogLevel::LEVEL_TRACE, message.c_str());
 }
 
-void EGameObjectFactory::OnFileModified(const File::Path& path) 
+void EGameObjectFactory::OnFileUnregistered(const File::Path& path) 
 {
-    std::string message = std::format("Add Prefab : {}", path.ToGuid().string());
+}
+
+void EGameObjectFactory::OnFileModified(const File::Path& path)
+{
+    std::string message = std::format("Modified Prefab : {}", path.ToGuid().string());
     UmEngineLogger.Log(LogLevel::LEVEL_TRACE, message.c_str());
 }
 

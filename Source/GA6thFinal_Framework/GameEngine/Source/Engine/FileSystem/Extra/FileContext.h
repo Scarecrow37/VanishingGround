@@ -67,7 +67,8 @@ namespace File
         inline virtual bool IsRegularFile() override { return true; }
 
     public:
-        virtual void OnFileAdded(const Path& path) override;
+        virtual void OnFileRegistered(const File::Path& path) override;
+        virtual void OnFileUnregistered(const File::Path& path) override;
         virtual void OnFileModified(const Path& path) override;
         virtual void OnFileRemoved(const Path& path) override;
         virtual void OnFileRenamed(const Path& oldPath, const Path& newPath) override;
@@ -92,7 +93,8 @@ namespace File
         inline virtual bool IsRegularFile() override { return false; }
 
     public:
-        virtual void OnFileAdded(const Path& path) override;
+        virtual void OnFileRegistered(const File::Path& path) override;
+        virtual void OnFileUnregistered(const File::Path& path) override;
         virtual void OnFileModified(const Path& path) override;
         virtual void OnFileRemoved(const Path& path) override;
         virtual void OnFileRenamed(const Path& oldPath, const Path& newPath) override;

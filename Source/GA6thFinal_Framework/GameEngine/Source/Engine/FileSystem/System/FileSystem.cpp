@@ -26,7 +26,7 @@ bool EFileSystem::LoadSetting(const File::Path& path)
     else
     {
         _setting = setting.value();
-        Reload(); 
+        ReadDirectory(); 
         return true;
     }
 }
@@ -213,34 +213,56 @@ void EFileSystem::UnRegisterFileEventNotifier(FileEventNotifier* notifier)
     }
 }
 
-void EFileSystem::Reload() 
-{
-    _pathToGuidTable.clear();
-    _guidToPathTable.clear();
-    _contextTable.clear();
-
-    ReadDirectory(_setting.RootPath);
-}
-
 void EFileSystem::Clear()
 {        
+    ClearContext();
+    ClearNotifier();
+}
+
+void EFileSystem::ClearContext()
+{
+    
+    for (auto& context : _contextTable)
+    {
+        if (nullptr != context.get())
+        {
+            auto& path = context->GetPath();
+            File::Path  extension   = path.extension();
+            NotifierSet notifierSet = GetNotifiers(extension);
+            for (auto& notifier : notifierSet)
+            {
+                notifier->OnFileUnregistered(path);
+            }
+        }
+    }
     _pathToGuidTable.clear();
     _guidToPathTable.clear();
     _contextTable.clear();
+}
+
+void EFileSystem::ClearNotifier() 
+{
     _notifierTable.clear();
+}
+
+void EFileSystem::ReadDirectory() 
+{
+    ClearContext();
+    ReadDirectory(_setting.RootPath);
 }
 
 void EFileSystem::ReadDirectory(const File::Path& path) 
 {
-    AddedFile(path);
+    RegisterContext(path);
 
-    if (true == std::filesystem::is_directory(path))
+    if (true == fs::is_directory(path))
     {
         for (const auto& entry : fs::recursive_directory_iterator(path))
         {
             // 경로를 재네릭화
             File::Path genericPath = entry.path().generic_string();
-            if (true == IsValidExtension(genericPath.extension()))
+            File::Path extesion    = genericPath.extension();
+            if (true == IsValidExtension(extesion))
             {
                 ReadDirectory(genericPath);
             }
@@ -248,57 +270,81 @@ void EFileSystem::ReadDirectory(const File::Path& path)
     }
 }
 
-void EFileSystem::AddedFile(const File::Path& path) 
+void EFileSystem::RegisterContext(const File::Path& path) 
 {
     // 파일이 없으면 return
     if (false == stdfs::exists(path))
         return;
 
-    auto find = GetContext(path);
+     auto find = GetContext(path);
 
-    if (false != GetContext(path).expired())
+     if (false != find.expired())
+     {
+         std::shared_ptr<Context> context;
+
+         if (true == stdfs::is_regular_file(path))
+         {
+             context = std::make_shared<FileContext>(path);
+         }
+         else if (true == stdfs::is_directory(path))
+         {
+             context = std::make_shared<FolderContext>(path);
+         }
+         else
+         {
+             return;
+         }
+
+         auto& meta = context->GetMeta();
+         auto& guid = meta.GetFileGuid();
+
+         _pathToGuidTable[path] = context;
+         _guidToPathTable[guid] = context;
+         _contextTable.insert(context);
+
+         // 부모 폴더에서 자신을 추가한다.
+         File::Path parentPath    = path.parent_path().generic_string();
+         auto       parentContext = UmFileSystem.GetContext<FolderContext>(parentPath);
+         if (false == parentContext.expired())
+         {
+             parentContext.lock()->_contextTable[path.filename()] = context;
+         }
+
+         context->OnFileRegistered(path);
+
+         File::Path extension    = path.extension();
+         NotifierSet notifierSet = GetNotifiers(extension);
+         for (auto& notifier : notifierSet)
+         {
+             notifier->OnFileRegistered(path);
+         }
+     }
+}
+
+void EFileSystem::UnregisterContext(const File::Path& path) 
+{
+    auto wpContext = GetContext(path);
+
+    if (false == wpContext.expired())
     {
-        std::shared_ptr<Context> context;
+        auto spContext  = wpContext.lock();
+        auto& meta      = spContext->GetMeta();
+        auto& guid      = meta.GetFileGuid();
 
-        if (true == stdfs::is_regular_file(path))
-        {
-            context = std::make_shared<FileContext>(path);
-        }
-        else if (true == stdfs::is_directory(path))
-        {
-            context = std::make_shared<FolderContext>(path);
-        }
-        else
-        {
-            return;
-        }
-
-        // 부모 폴더에서 자신을 추가한다.
-        File::Path parentPath = path.parent_path().generic_string();
-        auto parentContext = UmFileSystem.GetContext<FolderContext>(parentPath);
-        if (false == parentContext.expired())
-        {
-            parentContext.lock()->_contextTable[path.filename()] = context;
-        }
-
-        const MetaData& meta = context->GetMeta();
-        File::Guid      guid = meta.GetFileGuid();
-
-        _pathToGuidTable[path] = context;
-        _guidToPathTable[guid] = context;
-        _contextTable.insert(context);
-
-        context->OnFileAdded(path);      
-
-        auto notifierSet = GetNotifiers(path.extension());
+        File::Path  extension   = path.extension();
+        NotifierSet notifierSet = GetNotifiers(extension);
         for (auto& notifier : notifierSet)
         {
-            notifier->OnFileAdded(path);
+            notifier->OnFileUnregistered(path);
         }
+
+        _contextTable.erase(spContext);
+        _pathToGuidTable.erase(path);
+        _guidToPathTable.erase(guid);
     }
 }
 
-void EFileSystem::RemovedFile(const File::Path& path) 
+void EFileSystem::ProcessRemovedFile(const File::Path& path)
 {
     auto wpContext = GetContext(path);
     if (false == wpContext.expired())
@@ -311,7 +357,8 @@ void EFileSystem::RemovedFile(const File::Path& path)
         for (auto& notifier : notifierSet)
         {
             notifier->OnFileRemoved(path);
-        } 
+        }
+        UmFileSystem.UnregisterContext(path);
 
         spContext->OnFileRemoved(path);
 
@@ -325,7 +372,7 @@ void EFileSystem::RemovedFile(const File::Path& path)
     }
 }
 
-void EFileSystem::ModifiedFile(const File::Path& path)
+void EFileSystem::ProcessModifiedFile(const File::Path& path)
 {
     auto wpContext = GetContext(path);
     if (false == wpContext.expired())
@@ -340,7 +387,7 @@ void EFileSystem::ModifiedFile(const File::Path& path)
     }
 }
 
-void EFileSystem::MovedFile(const File::Path& oldPath,
+void EFileSystem::ProcessMovedFile(const File::Path& oldPath,
                             const File::Path& newPath) 
 {
     // 이전 경로에서 컨텍스트를 찾아 새 경로로 옮기기

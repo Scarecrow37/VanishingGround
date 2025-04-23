@@ -87,13 +87,19 @@ public:
     void UnRegisterFileEventNotifier(File::FileEventNotifier* notifier);
 
 public:
-    void Reload();
     void Clear();
+    void ReadDirectory();
+
+    void RegisterContext(const File::Path& path);
+    void UnregisterContext(const File::Path& path);
+    void ProcessRemovedFile(const File::Path& path);
+    void ProcessModifiedFile(const File::Path& path);
+    void ProcessMovedFile(const File::Path& oldPath, const File::Path& newPath);
+
+private:
+    void ClearContext();
+    void ClearNotifier();
     void ReadDirectory(const File::Path& path);
-    void AddedFile(const File::Path& path);
-    void RemovedFile(const File::Path& path);
-    void ModifiedFile(const File::Path& path);
-    void MovedFile(const File::Path& oldPath, const File::Path& newPath);
 
 private:
     File::SystemSetting _setting;   // 세팅 정보

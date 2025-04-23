@@ -21,6 +21,12 @@ namespace File
         if (nullptr == callback)
             return false;
 
+        if (true == _eventProcessingThread.joinable())
+            _eventProcessingThread.join();
+
+        if (true == _eventObservingThread.joinable())
+            _eventObservingThread.join();
+
         if (false == _isStart)
         {
             _isStart       = true;
