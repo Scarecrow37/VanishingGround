@@ -307,11 +307,13 @@ void EFileSystem::RemovedFile(const File::Path& path)
         const MetaData& meta      = spContext->GetMeta();
         File::Guid      guid      = meta.GetFileGuid();
 
-        spContext->OnFileRemoved(path);
+        auto notifierSet = GetNotifiers(path.extension());
+        for (auto& notifier : notifierSet)
+        {
+            notifier->OnFileRemoved(path);
+        } 
 
-        _pathToGuidTable.erase(path);
-        _guidToPathTable.erase(guid);
-        _contextTable.erase(spContext);
+        spContext->OnFileRemoved(path);
 
         // 부모 폴더에서 자신을 제거한다.
         File::Path parentPath = path.parent_path().generic_string();
@@ -320,12 +322,6 @@ void EFileSystem::RemovedFile(const File::Path& path)
         {
             wpFolderContext.lock()->_contextTable.erase(path.filename());
         }
-
-        auto notifierSet = GetNotifiers(path.extension());
-        for (auto& notifier : notifierSet)
-        {
-            notifier->OnFileRemoved(path);
-        } 
     }
 }
 
