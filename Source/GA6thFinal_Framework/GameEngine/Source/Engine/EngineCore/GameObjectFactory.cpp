@@ -210,7 +210,7 @@ void EGameObjectFactory::ResetGameObject(
     }
     else
     {
-        ownerObject->_ownerScene = NULL_STR;
+        ownerObject->_ownerScene = STR_NULL;
     }   
     ownerObject->ReflectFields->_name = name;
     ownerObject->ReflectFields->_isStatic = false;

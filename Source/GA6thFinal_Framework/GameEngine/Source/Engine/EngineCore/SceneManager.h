@@ -44,7 +44,7 @@ public:
 
     GETTER_ONLY(std::string, Name)
     { 
-        return _name;
+        return _guid.ToPath().stem().string();
     }
     // get : 이 씬의 이름을 반환합니다.
     PROPERTY(Name)
@@ -62,8 +62,7 @@ private:
 
 private:
     bool _isLoaded = false;
-    File::Guid _guid = NULL_STR;
-    std::string _name = NULL_STR;
+    File::Guid _guid = STR_NULL;
 };
 
 /// <summary>
@@ -187,7 +186,7 @@ public:
     /// <summary>
     /// 등록된 모든 씬들을 반환합니다. 씬 이름이 key로 Scene 객체가 value로 저장되어있습니다.
     /// </summary>
-    inline const std::unordered_map<std::string, Scene>& GetScenesMap()
+    inline const std::unordered_map<File::Guid, Scene>& GetScenesMap()
     {
         return _scenesMap;
     }
@@ -219,11 +218,6 @@ public:
     }
 
     /// <summary>
-    /// 씬을 생성합니다. 만든 씬은 로드되는게 아니라 buildScnes 항목에만 추가됩니다.
-    /// </summary>
-    Scene& CreateScene(std::string_view sceneName);
-
-    /// <summary>
     /// 씬을 로드합니다.
     /// </summary>
     /// <param name="sceneName :">로드할 씬의 이름 </param>
@@ -244,12 +238,7 @@ public:
     /// <returns>Main Scene</returns>
     Scene* GetMainScene()
     {
-        auto findIter = _scenesMap.find(_setting.MainScene);
-        if (findIter != _scenesMap.end())
-        {
-            return &findIter->second;
-        }
-        return nullptr;
+        return GetSceneByName(_setting.MainScene);
     }
 
     /// <summary>
@@ -263,7 +252,17 @@ public:
     /// </summary>
     /// <param name="scene :">저장할 파일</param>
     /// <param name="outPath :">저장할 경로</param>
-    void WriteSceneToFile(const Scene& scene, std::string_view outPath);
+    /// <param name="isOverride :">덮어쓰기 안내문구 스킵 여부</param>
+    void WriteSceneToFile(const Scene& scene, std::string_view outPath, bool isOverride = false);
+
+    /// <summary>
+    /// 빈 씬을 UmScene파일로 저장합니다.
+    /// </summary>
+    /// <param name="name :">파일 이름</param>
+    /// <param name="outPath :">저장할 경로</param>
+    /// <param name="isOverride :">덮어쓰기 안내문구 스킵 여부</param>
+    void WriteEmptySceneToFile(std::string_view name, std::string_view outPath, bool isOverride = false);
+
 private:
     //Life cycle 을 수행. 클라에서 매틱 호출해야함.
     void SceneUpdate();
@@ -316,11 +315,14 @@ private:
     struct
     {
        // 현재 Single로 로드된 씬 이름입니다. NewGameObject를 하면 이 씬에 오브젝트가 생성됩니다.
-       std::string MainScene = NULL_STR;
+       std::string MainScene = STR_NULL;
     } _setting;
 
-    //생성한 씬 입니다. key : 파일 확장자를 제외한 파일 이름, value : 해당 씬의 정보 
-    std::unordered_map<std::string, Scene> _scenesMap;
+    //생성한 씬을 찾기 위한 맵입다. key : 파일 확장자를 제외한 파일 이름 
+    std::unordered_map<std::string, std::unordered_set<File::Guid>> _scenesFindMap;
+
+    //생성된 씬 맵(GUID)
+    std::unordered_map<File::Guid, Scene> _scenesMap;
 
 protected:
     /// <summary>
