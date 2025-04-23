@@ -179,9 +179,10 @@ void EditorHierarchyTool::HierarchyDropEvent()
 void  EditorHierarchyTool::OnFrame()
 {
     HierarchyDropEvent();
-    const auto& scenes = engineCore->SceneManager.GetScenesMap();
-    for (auto& [sceneName, scene] : scenes)
+    const auto& scenes = engineCore->SceneManager.GetLoadedScenes();
+    for (auto& pScene : scenes)
     {
+        Scene& scene = *pScene;
         if (scene.isLoaded == false)
             continue;
 
