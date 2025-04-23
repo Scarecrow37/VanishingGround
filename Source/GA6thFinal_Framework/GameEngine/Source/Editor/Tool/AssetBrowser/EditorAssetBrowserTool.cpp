@@ -323,6 +323,8 @@ void EditorAssetBrowserTool::ShowFolderDirectoryPath(spFolderContext context)
 
 void EditorAssetBrowserTool::ContentsFrameEventAction(spFolderContext context)
 {
+    const File::Path& curPath = context->GetPath();
+
     DragDropTransform::Data data;
     if (ImGuiHelper::DragDrop::RecieveFrameDragDropEvent(DragDropTransform::KEY, &data))
     {
@@ -332,11 +334,27 @@ void EditorAssetBrowserTool::ContentsFrameEventAction(spFolderContext context)
         }
     }
 
-    if (true == ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_Backspace, false))
+    if (false == browserFlags[FLAG_IS_RENAME])
     {
-        if (false == browserFlags[RENAME_IS_RENAME])
+        if (true == ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_Backspace, false))
         {
             SetFocusParentFolder(context);
+        }
+        if (true == IsKeyDownPaste())
+        {
+            if (true == fs::exists(_copyPath))
+            {
+                File::Path from = _copyPath;
+                File::Path to   = (curPath / from.filename());
+
+                to = File::GenerateUniquePath(to.generic_string());
+
+                if (false == fs::is_directory(from))
+                {
+                    fs::copy_file(from, to);
+                }
+            }
+            UmFileSystem.RequestPasteFile(curPath);
         }
     }
 
@@ -357,13 +375,13 @@ void EditorAssetBrowserTool::ContentsFrameEventAction(spFolderContext context)
         {
             if (ImGui::MenuItem("Folder"))
             {
-                File::CreateFolderEx(context->GetPath() / "New Folder", true);
+                File::CreateFolderEx(curPath / "New Folder", true);
             }
             ImGui::EndMenu();
         }
         if (ImGui::MenuItem("Copy Path"))
         {
-            File::CopyPathToClipBoard(context->GetPath());
+            File::CopyPathToClipBoard(curPath);
         }
         ImGui::EndPopup();
     }
@@ -390,7 +408,8 @@ void EditorAssetBrowserTool::ShowContentsToList()
 
                 bool isMeta = path.extension() == UmFileSystem.GetMetaExt();
 
-                if (true == browserFlags[META_IS_SHOW] || (false == browserFlags[META_IS_SHOW] && false == isMeta))
+                if (true == browserFlags[FLAG_IS_SHOW_META] ||
+                    (false == browserFlags[FLAG_IS_SHOW_META] && false == isMeta))
                 {
                     ShowItemToList(spFileCtx);
                 }
@@ -422,7 +441,7 @@ void EditorAssetBrowserTool::ShowItemToList(spContext context)
         ImGui::SameLine();
     }
 
-    if (true == isSelected && true == browserFlags[RENAME_IS_RENAME])
+    if (true == isSelected && true == browserFlags[FLAG_IS_RENAME])
     {
         ItemInputText(context);
     }
@@ -463,7 +482,7 @@ void EditorAssetBrowserTool::ItemInputText(spContext context)
         fs::path newPath = path;
         newPath.replace_filename(buffer);
         context->Move(newPath);
-        browserFlags[RENAME_IS_RENAME] = false;
+        browserFlags[FLAG_IS_RENAME] = false;
     }
 
     ImGui::PopStyleColor();
@@ -506,7 +525,7 @@ void EditorAssetBrowserTool::ItemMouseAction(spContext context)
             // 파일일 시
             else
             {
-                context->Open();
+                UmFileSystem.RequestOpenFile(context->GetPath());
             }
         }
         // 일반 클릭 시
@@ -529,19 +548,19 @@ void EditorAssetBrowserTool::ItemKeyBoardAction(spContext context)
 
     if (true == isSelected && false == isLocked)
     {
-        if (true == browserFlags[RENAME_IS_RENAME])
+        if (true == browserFlags[FLAG_IS_RENAME])
         {
             if (true == ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_Escape, false))
             {
-                browserFlags[RENAME_IS_RENAME]      = false;
+                browserFlags[FLAG_IS_RENAME] = false;
                 browserFlags[RENAME_SET_FOCUS_ONCE] = false;
             }
         }
-        else if (false == browserFlags[RENAME_IS_RENAME])
+        else if (false == browserFlags[FLAG_IS_RENAME])
         {
             if (true == ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_F2, false))
             {
-                browserFlags[RENAME_IS_RENAME]      = true;
+                browserFlags[FLAG_IS_RENAME] = true;
                 browserFlags[RENAME_SET_FOCUS_ONCE] = true;
             }
 
@@ -549,7 +568,7 @@ void EditorAssetBrowserTool::ItemKeyBoardAction(spContext context)
             {
                 if (true == context->IsRegularFile())
                 {
-                    context->Open();
+                    UmFileSystem.RequestOpenFile(context->GetPath());
                 }
                 else if (true == context->IsDirectory())
                 {
@@ -561,6 +580,13 @@ void EditorAssetBrowserTool::ItemKeyBoardAction(spContext context)
             if (true == ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_Delete, false))
             {
                 Global::editorModule->OpenPopupBox("RemoveAsset", [&, context]() { ShowDeletePopupBox(context); });
+            }
+
+            if (true == IsKeyDownCopy())
+            {
+                auto& path  = context->GetPath();
+                _copyPath   = path;
+                UmFileSystem.RequestCopyFile(path);
             }
         }
     }
@@ -592,7 +618,7 @@ void EditorAssetBrowserTool::ItemPopupAction(spContext context)
         }
         if (ImGui::MenuItem("Rename##"))
         {
-            browserFlags[RENAME_IS_RENAME]      = true;
+            browserFlags[FLAG_IS_RENAME]      = true;
             browserFlags[RENAME_SET_FOCUS_ONCE] = true;
             ImGui::CloseCurrentPopup(); // 팝업 닫기
         }
@@ -706,6 +732,20 @@ void EditorAssetBrowserTool::SetFocusFromRedoPath()
         }
         _directoryRedoStack.pop_back();
     }
+}
+
+bool EditorAssetBrowserTool::IsKeyDownCopy()
+{
+    bool ctrl = ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftCtrl);
+    bool c    = ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_C, false);
+    return true == ctrl && true == c;
+}
+
+bool EditorAssetBrowserTool::IsKeyDownPaste()
+{
+    bool ctrl = ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftCtrl);
+    bool v    = ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_V, false);
+    return true == ctrl && true == v;
 }
 
 void EditorFileObject::OnInspectorStay()
