@@ -353,6 +353,10 @@ protected:
     void OnFileRenamed(const File::Path& oldPath, const File::Path& newPath) override;
     void OnFileMoved(const File::Path& oldPath, const File::Path& newPath) override;
 
+    virtual void OnRequestedOpen(const File::Path& path) {};
+    virtual void OnRequestedCopy(const File::Path& path) {};
+    virtual void OnRequestedPaste(const File::Path& path) {};
+
     //직렬화된 씬들 캐싱용
     std::unordered_map<File::Guid, YAML::Node> _sceneDataMap;
 };
