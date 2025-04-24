@@ -18,5 +18,10 @@ private:
     virtual void OnPostFrame() override;
 
     virtual void OnPopup() override;
+
+    void UpdateFPS();
+    float _elpasedTime;
+    int   _frameCount;
+    int   _fps;
 };
 
