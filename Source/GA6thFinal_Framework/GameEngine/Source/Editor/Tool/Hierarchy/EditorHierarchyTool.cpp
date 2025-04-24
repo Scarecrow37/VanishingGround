@@ -154,6 +154,7 @@ void  EditorHierarchyTool::OnPreFrame()
 
 void EditorHierarchyTool::HierarchyDropEvent()
 {
+    namespace fs = std::filesystem;
     ImGuiWindow* window = ImGui::FindWindowByName(GetLabel().c_str());
     ImRect       rect   = window->Rect();
     if (ImGui::BeginDragDropTargetCustom(rect, window->ID))
@@ -161,15 +162,20 @@ void EditorHierarchyTool::HierarchyDropEvent()
         if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
         {
             DragDropAsset::Data* data = (DragDropAsset::Data*)payload->Data;      
-            if (false == data->context.expired())
+            if (data->context.expired() == false)
             {
-                auto              context = data->context.lock();
-                const File::Path& path    = context->GetPath();
-                if (path.extension() == UmGameObjectFactory.PREFAB_EXTENSION)
+                auto context = data->context.lock();
+                const File::Path& path = context->GetPath();
+                fs::path extension = path.extension();
+                if (extension == UmGameObjectFactory.PREFAB_EXTENSION)
                 {
                     YAML::Node node = YAML::LoadFile(path.string());
                     UmGameObjectFactory.DeserializeToYaml(&node);
                 }
+                else if (extension == UmSceneManager.SCENE_EXTENSION)
+                {
+                    UmSceneManager.LoadScene(path.string(), LoadSceneMode::ADDITIVE);
+                }        
             }
         }
         ImGui::EndDragDropTarget();
@@ -191,6 +197,22 @@ void  EditorHierarchyTool::OnFrame()
                 sName.c_str(),
                 ImGuiTreeNodeFlags_::ImGuiTreeNodeFlags_DefaultOpen))
         {
+            if (ImGui::BeginPopupContextItem("RightClick"))
+            {
+                if (ImGui::Button("Save Scene"))
+                {
+                    std::string path = scene.Path;
+                    std::filesystem::path writePath = std::filesystem::relative(path, UmFileSystem.GetRootPath()).parent_path();
+                    UmSceneManager.WriteSceneToFile(scene, writePath.string());
+                }
+                if (ImGui::Button("Unload Scene"))
+                {
+                    std::string path = scene.Path;
+                    UmSceneManager.UnloadScene(path);
+                }
+                ImGui::EndPopup();
+            }
+
             auto rootObjects = scene.GetRootGameObjects();
             std::shared_ptr<GameObject> focusObject =
                 HierarchyFocusObjWeak.lock();
