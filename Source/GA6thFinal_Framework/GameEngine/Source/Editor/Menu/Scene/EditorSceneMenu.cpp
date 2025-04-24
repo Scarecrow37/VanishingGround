@@ -7,7 +7,7 @@ using namespace u8_literals;
 void EditorSceneMenuScenes::OnMenu() 
 {
     EditorModule& editor = *Global::editorModule;
-    if (ImGui::BeginMenu("Scene"))
+    if (ImGui::BeginMenu("New Scene File"))
     {
         if (ImGui::MenuItem("New EmptyScene"))
         {
