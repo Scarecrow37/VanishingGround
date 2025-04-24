@@ -12,7 +12,7 @@ private:
     EGameObjectFactory();
     ~EGameObjectFactory();
 
-#ifndef SCRIPTS_PROJECT
+#ifndef _SCRIPTS_PROJECT
     /// <summary>
     /// 게임 오브젝트 클래스를 팩토리에서 생성 가능하도록 등록합니다. 생성자에서 호출 해야합니다.
     /// </summary>
