@@ -17,14 +17,11 @@ std::filesystem::path ESceneManager::GetSettingFilePath()
 
 ESceneManager::ESceneManager() 
 {
-    if constexpr (Application::IsEditor()) //에디터 모드일때만 해야함
-    {
-        LoadSettingFile();
-    } 
+    LoadSettingFile();
 }
 ESceneManager::~ESceneManager()
 {
-    if constexpr (Application::IsEditor()) // 에디터 모드일때만 해야함
+    if constexpr (Application::IsEditor())
     {
         SaveSettingFile();
     } 
@@ -332,19 +329,23 @@ void ESceneManager::CreateEmptySceneAndLoad(std::string_view name, std::string_v
             return;
         }
     }
-    std::filesystem::path writePath = outPath;
+    File::Path writePath = UmFileSystem.GetRootPath();
+    writePath /= outPath;
     writePath /= name;
     writePath.replace_extension(SCENE_EXTENSION);
 
     if (std::filesystem::exists(writePath))
     {
         LoadScene(writePath.string());
-        loadEvent();
+        if (loadEvent)
+        {
+            loadEvent();
+        }
     }
     else
     {
         WriteEmptySceneToFile(name, outPath);
-        _setting.MainScene = writePath.string();
+        _setting.MainScene = writePath.generic_string();
         _loadFuncEvent     = loadEvent;
     }
 }
@@ -834,7 +835,8 @@ void ESceneManager::WriteEmptySceneToFile(std::string_view name, std::string_vie
     Scene scene;
     namespace fs     = std::filesystem;
     using fsPath     = std::filesystem::path;
-    fsPath writePath = outPath;
+    fsPath writePath = UmFileSystem.GetRootPath();
+    writePath /= outPath;
     writePath /= name;
     writePath.replace_extension(SCENE_EXTENSION);
     if (fs::exists(writePath) == true && isOverride == false)
