@@ -798,7 +798,7 @@ void ESceneManager::WriteSceneToFile(const Scene& scene, std::string_view outPat
     }
 }
 
-void ESceneManager::WriteEmptySceneToFile(std::string_view name, std::string_view outPath, bool isOverride) 
+void ESceneManager::WriteEmptySceneToFile(std::string_view name, std::string_view outPath, bool isOverride)
 {
     Scene scene;
     namespace fs     = std::filesystem;
@@ -828,6 +828,19 @@ void ESceneManager::WriteEmptySceneToFile(std::string_view name, std::string_vie
     }
 }
 
+//test 나중에 지울게요
+#include "UmScripts.h"
+
+static void SeongUTestCode()
+{
+    auto  obj                     = NewGameObject<GameObject>("cerberus");
+    auto& comps                   = obj->AddComponent<StaticMeshRenderer>();
+    comps.ReflectFields->FilePath = "../../../Resource/TestAssets/Cerberus/pbrGun.fbx";
+    obj->transform->Scale         = {0.3f, 0.3f, 0.3f};
+    obj->transform->EulerAngle    = {0, 90.f, 0};
+}
+
+
 void ESceneManager::OnFileAdded(const File::Path& path)
 {
     File::Guid guid = path.ToGuid();
@@ -849,6 +862,7 @@ void ESceneManager::OnFileAdded(const File::Path& path)
             UmComponentFactory.InitalizeComponentFactory();
         }
         LoadScene(path.string());
+        SeongUTestCode();
     }
 }
 
