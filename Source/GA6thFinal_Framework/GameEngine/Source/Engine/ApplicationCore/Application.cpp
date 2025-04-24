@@ -3,6 +3,11 @@ using namespace Global;
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
+constexpr bool Application::IsEditor()
+{
+    return IS_EDITOR;
+}
+
 LRESULT CALLBACK Application::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     if (ImGui_ImplWin32_WndProcHandler(hwnd, msg, wParam, lParam))
@@ -26,11 +31,6 @@ LRESULT CALLBACK Application::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
         }
     }
     return DefWindowProc(hwnd, msg, wParam, lParam);
-}
-
-bool Application::IsEditor()
-{
-    return Global::editorModule != nullptr;
 }
 
 Application::Application()
