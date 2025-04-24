@@ -380,6 +380,14 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
     }
     else
     {
+        Scene* mainScene = GetMainScene();
+        if (mainScene == nullptr)
+        {
+            engineCore->Logger.Log(
+                LogLevel::LEVEL_WARNING, 
+                u8"메인 씬을 먼저 로드해주세요."_c_str);
+            return;
+        }
         if (scene->_isLoaded)
         {
             engineCore->Logger.Log(

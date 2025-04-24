@@ -244,9 +244,6 @@ YAML::Node EGameObjectFactory::MakeYamlToGameObject(GameObject* gameObject)
             transformNode["ReflectFields"] = gameObject->_transform.SerializedReflectFields();
             objectNode["Transform"] = transformNode;
         }
-        {
-            
-        }   
         return objectNode;
     }
     else
