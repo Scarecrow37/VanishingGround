@@ -270,7 +270,7 @@ public:
     Scene* GetSceneByName(std::string_view name);
 
     /// <summary>
-    /// 씬을 UmScene파일로 저장합니다.
+    /// 씬을 UmScene파일로 저장합니다. FileSystem의 RootPath 기준으로 저장합니다. 
     /// </summary>
     /// <param name="scene :">저장할 파일</param>
     /// <param name="outPath :">저장할 경로</param>
@@ -278,7 +278,7 @@ public:
     void WriteSceneToFile(const Scene& scene, std::string_view outPath, bool isOverride = false);
 
     /// <summary>
-    /// <para> 빈 씬을 UmScene파일로 저장합니다. </para>
+    /// <para> 빈 씬을 UmScene파일로 저장합니다. FileSystem의 RootPath 기준으로 저장합니다. </para>
     /// </summary>
     /// <param name="name :">파일 이름</param>
     /// <param name="outPath :">저장할 경로</param>
@@ -374,6 +374,18 @@ protected:
     /// <param name="guid">생성할 프리팹 GUID</param>
     /// <returns></returns>
     bool DeserializeToGuid(const File::Guid& guid);
+
+    /// <summary>
+    /// RootPath 기준으로 씬 파일을 작성합니다.
+    /// </summary>
+    /// <param name="sceneName"></param>
+    /// <param name="outPath"></param>
+    /// <returns></returns>
+    bool WriteUmSceneFile(
+        const Scene& scene, 
+        std::string_view sceneName, 
+        std::string_view outPath,
+        bool isOverride = false);
 
     // FileEventNotifier을(를) 통해 상속됨
     virtual void OnFileAdded(const File::Path& path) override;

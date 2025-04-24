@@ -810,50 +810,34 @@ bool ESceneManager::DeserializeToGuid(const File::Guid& guid)
 
 void ESceneManager::WriteSceneToFile(const Scene& scene, std::string_view outPath, bool isOverride)
 {
-    std::string sceneName = scene._guid.ToPath().stem().string();
-    namespace fs     = std::filesystem;
-    using fsPath     = std::filesystem::path;
-    fsPath writePath = outPath;
-    writePath /= sceneName;
-    writePath.replace_extension(SCENE_EXTENSION);
-    if (fs::exists(writePath) == true && isOverride == false)
-    {
-        int result = MessageBox(UmApplication.GetHwnd(), L"파일이 이미 존재합니다. 덮어쓰겠습니까?",
-                                L"파일이 존재합니다.", MB_YESNO);
-        if (result != IDYES)
-        {
-            return;
-        }
-    }
-    fs::create_directories(writePath.parent_path());
-    YAML::Node node = SerializeToYaml(scene);
-    if (node.IsNull() == false)
-    {
-        std::ofstream ofs(writePath, std::ios::trunc);
-        if (ofs.is_open())
-        {
-            ofs << node;
-        }
-        ofs.close();
-    }
+    namespace fs = std::filesystem;
+    std::string sceneName = scene.Name;
+    bool result = WriteUmSceneFile(scene, sceneName, outPath, isOverride);
 }
 
 void ESceneManager::WriteEmptySceneToFile(std::string_view name, std::string_view outPath, bool isOverride) 
 {
+    namespace fs = std::filesystem;
     Scene scene;
+    bool result = WriteUmSceneFile(scene, name, outPath, isOverride);
+}
+
+bool ESceneManager::WriteUmSceneFile(const Scene& scene, std::string_view sceneName, std::string_view outPath, bool isOverride)
+{
     namespace fs     = std::filesystem;
     using fsPath     = std::filesystem::path;
     fsPath writePath = UmFileSystem.GetRootPath();
     writePath /= outPath;
-    writePath /= name;
+    writePath /= sceneName;
     writePath.replace_extension(SCENE_EXTENSION);
+   
     if (fs::exists(writePath) == true && isOverride == false)
     {
         int result = MessageBox(UmApplication.GetHwnd(), L"파일이 이미 존재합니다. 덮어쓰겠습니까?",
                                 L"파일이 존재합니다.", MB_YESNO);
         if (result != IDYES)
         {
-            return;
+            return false;
         }
     }
     fs::create_directories(writePath.parent_path());
