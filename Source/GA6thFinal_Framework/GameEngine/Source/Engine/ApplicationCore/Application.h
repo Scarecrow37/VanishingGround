@@ -49,7 +49,7 @@ public:
     /// <summary>
     /// 에디터 모드 여부를 확인합니다.
     /// </summary>
-    static constexpr bool IsEditor() 
+    inline static constexpr bool IsEditor() 
     { 
         return IS_EDITOR; 
     }
