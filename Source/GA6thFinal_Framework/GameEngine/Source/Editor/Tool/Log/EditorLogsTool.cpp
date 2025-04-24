@@ -103,12 +103,14 @@ void EditorLogsTool::OnFrame()
     }
     if (_isMessagePush)
     {
-        ImGui::SetScrollHereY(1.0f);
-        _isMessagePush = false;
-
         if (ImGui::IsWindowFocused() == false)
         {
             ImGui::SetWindowFocus();
+        }
+        else
+        {
+            ImGui::SetScrollHereY(1.0f);
+            _isMessagePush = false;
         }
     }
     ImGui::EndChild();
