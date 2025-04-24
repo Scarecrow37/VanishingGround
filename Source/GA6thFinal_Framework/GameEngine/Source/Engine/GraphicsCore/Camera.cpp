@@ -39,7 +39,7 @@ void Camera::Update()
 
 void Camera::Input()
 {
-    const float deltaTime = UmTime.deltaTime();
+    const float deltaTime = UmTime.DeltaTime();
     const float moveSpeed   = 10.f;
     const float mouseSpped  = 5.f;
     const float rotateSpeed = 1.f;

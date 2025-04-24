@@ -842,7 +842,7 @@ void ESceneManager::OnFileAdded(const File::Path& path)
     {
         WriteSceneToFile(scene, path.parent_path().string(), true);
     }
-    if (scene.isLoaded == false && scene._guid.ToPath() == _setting.MainScene)
+    if (scene.isLoaded == false && path == _setting.MainScene)
     {
         if (UmComponentFactory.HasScript() == false)
         {

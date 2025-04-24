@@ -2,7 +2,7 @@
 
 //constexpr
 #ifdef UMREALSCRIPTS_EXPORT
-#define _SCRIPTS_PROJECT;
+#define _SCRIPTS_PROJECT
 constexpr bool IS_SCRIPTS_PROJECT = true; 
 #else
 constexpr bool IS_SCRIPTS_PROJECT = false;
