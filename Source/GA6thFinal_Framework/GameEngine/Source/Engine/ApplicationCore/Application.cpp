@@ -58,12 +58,18 @@ void Application::Initialize(HINSTANCE hInstance)
 
     //모듈 초기화
     InitModules();
+
+    //초기화 완료
+    OnStartupComplete();
 }
 
 void Application::UnInitialize()
 {
     //모듈 해제
     UnInitModules();
+
+    //해제 완료
+    OnShutdownComplete();
 }
 
 void Application::Run()
