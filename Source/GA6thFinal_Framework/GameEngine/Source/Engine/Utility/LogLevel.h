@@ -58,7 +58,7 @@ namespace LogLevel
         case LEVEL_FATAL:
             return "Fatal";
         default:
-            return "Null";
+            return STR_NULL;
         }
     }
 

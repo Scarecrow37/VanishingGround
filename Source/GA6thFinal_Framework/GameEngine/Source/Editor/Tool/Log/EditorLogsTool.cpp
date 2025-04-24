@@ -25,7 +25,7 @@ void EditorLogsTool::OnEndGui()
 
 void EditorLogsTool::OnTickGui() 
 {
-    const auto& logMessages = engineCore->EngineLogger.GetLogMessages();
+    const auto& logMessages = engineCore->Logger.GetLogMessages();
     if (prevLogCount < logMessages.size())
     {
         for (size_t i = prevLogCount; i < logMessages.size(); i++)
@@ -71,14 +71,14 @@ void EditorLogsTool::OnFrame()
     {
         _editFilter = true;
         _drawLogList.clear();
-        engineCore->EngineLogger.LogMessagesClear();
+        engineCore->Logger.LogMessagesClear();
         prevLogCount = 0;
     }
 
     if (_editFilter)
     {
         _drawLogList.clear();
-        const auto& logMessages = engineCore->EngineLogger.GetLogMessages();
+        const auto& logMessages = engineCore->Logger.GetLogMessages();
         for (auto& [level, message, location] : logMessages)
         {
             if (ReflectFields->LogFilterTable[level] == true)

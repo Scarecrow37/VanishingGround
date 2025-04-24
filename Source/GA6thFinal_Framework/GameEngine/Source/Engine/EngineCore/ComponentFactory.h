@@ -28,7 +28,7 @@ private:
     EComponentFactory();
     ~EComponentFactory();
 
-#ifndef SCRIPTS_PROJECT
+#ifndef _SCRIPTS_PROJECT
     /// <summary>
     /// 엔진 컴포넌트를 등록하는 함수입니다. 생성자에서 호출해야 합니다.
     /// </summary>

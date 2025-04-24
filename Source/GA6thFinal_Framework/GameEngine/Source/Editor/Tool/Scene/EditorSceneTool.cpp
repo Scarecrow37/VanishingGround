@@ -32,12 +32,12 @@ void EditorSceneTool::OnPreFrame()
     if (true == _isHorverdScene)
     {
         SetWindowFlag(ImGuiWindowFlags_NoMove);
-        //UmEngineLogger.Log(1, "SceneTool is Hovered");
+        //UmLogger.Log(1, "SceneTool is Hovered");
     }
     else
     {
         SetWindowFlag(ImGuiWindowFlags_None);
-        //UmEngineLogger.Log(1, "SceneTool is UnHovered");
+        //UmLogger.Log(1, "SceneTool is UnHovered");
     }
 }
 
@@ -91,7 +91,7 @@ void EditorSceneTool::OnFocus()
 void EditorSceneTool::ProcessMove()
 {
     ImGuiIO& io = ImGui::GetIO();
-    float    delta = UmTime.deltaTime();
+    float    delta = UmTime.DeltaTime();
     float    moveSpeed = _moveSpeed * delta;
     float    rotateSpeed = _rotateSpeed * delta;
 

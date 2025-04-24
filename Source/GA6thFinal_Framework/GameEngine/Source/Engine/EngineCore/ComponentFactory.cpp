@@ -19,7 +19,7 @@ bool EComponentFactory::InitalizeComponentFactory()
     DWORD exitCodeOut{};
     if (!dllUtility::RunBatchFile(Engine::BUILD_BATCH_PATH, &exitCodeOut))
     {
-        engineCore->EngineLogger.Log(LogLevel::LEVEL_ERROR, "Scripts build Fail!");
+        engineCore->Logger.Log(LogLevel::LEVEL_ERROR, "Scripts build Fail!");
         return false;
     }
       
@@ -210,7 +210,7 @@ void EComponentFactory::MakeScriptFile(const char* fileName) const
     }
     else
     {
-        engineCore->EngineLogger.Log(LogLevel::LEVEL_ERROR,
+        engineCore->Logger.Log(LogLevel::LEVEL_ERROR,
                                      u8"Script DLL을 빌드해주세요!"_c_str);
     }
 }
@@ -219,7 +219,7 @@ YAML::Node EComponentFactory::SerializeToYaml(Component* component)
 {
     if (UmComponentFactory.HasScript() == false)
     {
-        UmEngineLogger.Log(LogLevel::LEVEL_ERROR,
+        UmLogger.Log(LogLevel::LEVEL_ERROR,
                            u8"스크립트 빌드를 해주세요."_c_str);
         return YAML::Node();
     }
@@ -231,7 +231,7 @@ bool EComponentFactory::DeserializeToYaml(GameObject* ownerObject,
 {
     if (UmComponentFactory.HasScript() == false)
     {
-        UmEngineLogger.Log(LogLevel::LEVEL_ERROR,
+        UmLogger.Log(LogLevel::LEVEL_ERROR,
                            u8"스크립트 빌드를 해주세요."_c_str);
         return false;
     }

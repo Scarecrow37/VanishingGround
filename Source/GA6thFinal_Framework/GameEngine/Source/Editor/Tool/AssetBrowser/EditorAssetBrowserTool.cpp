@@ -359,7 +359,7 @@ void EditorAssetBrowserTool::ContentsFrameEventAction(spFolderContext context)
     {
         if (nullptr != context)
         {
-            DragDropTransform::WriteGameObjectFile(data.pTransform, context->GetPath().string());
+            UmGameObjectFactory.WriteGameObjectFile(data.pTransform, context->GetPath().string());
         }
     }
 

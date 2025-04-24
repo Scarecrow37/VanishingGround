@@ -20,18 +20,17 @@ static std::pair<std::string, std::string> GetCurrentTimestamp()
     );
 }
 
-EEngineLogger::EEngineLogger() {}
+ELogger::ELogger() {}
 
-EEngineLogger::~EEngineLogger() = default;
+ELogger::~ELogger() = default;
 
-void EEngineLogger::Log(int logLevel, 
+void ELogger::Log(int logLevel, 
                         std::string_view message,
                         const LogLocation location)
 {
     auto [day, time] = GetCurrentTimestamp();
     std::string logMessage =
-        std::format("[{}] {}: {}", time, LogLevel::LogLevelTo_c_str(logLevel),
-                    message.data());
+        std::format("[{}] {}: {}", time, LogLevel::LogLevelTo_c_str(logLevel), message.data());
 
     if (LogLevel::IsLogLevel(logLevel))
     {
@@ -39,7 +38,7 @@ void EEngineLogger::Log(int logLevel,
     }
 }
 
-void EEngineLogger::LogMessagesClear(int logLevel)
+void ELogger::LogMessagesClear(int logLevel)
 {
     using namespace LogLevel;
     if (logLevel == NULL)

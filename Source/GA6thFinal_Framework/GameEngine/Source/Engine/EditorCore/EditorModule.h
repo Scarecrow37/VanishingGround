@@ -6,7 +6,7 @@ class EditorModule;
 class EditorMenuBar;
 class EditorPopupBoxSystem;
 
-#ifndef SCRIPTS_PROJECT
+#ifndef _SCRIPTS_PROJECT
 namespace Global
 {
     extern EditorModule* editorModule;

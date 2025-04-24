@@ -2,13 +2,28 @@
 
 //constexpr
 #ifdef UMREALSCRIPTS_EXPORT
-#define SCRIPTS_PROJECT true;
+#define _SCRIPTS_PROJECT;
 constexpr bool IS_SCRIPTS_PROJECT = true; 
 #else
 constexpr bool IS_SCRIPTS_PROJECT = false;
 #endif 
 
-constexpr const wchar_t* PROJECT_SETTING_PATH = L"ProjectSetting"; // 프로젝트 설정 파일들 모아두는 폴더
+#ifdef _DEBUG
+constexpr bool IS_DEBUG = true;
+#else
+constexpr bool IS_DEBUG = false;
+#endif
+
+#ifdef _UMEDITOR
+constexpr bool IS_EDITOR = true;
+#else
+constexpr bool IS_EDITOR = false;
+#endif
+
+// 프로젝트 설정 파일들 모아두는 폴더
+constexpr const wchar_t* PROJECT_SETTING_PATH = L"ProjectSetting"; 
+// 문자열 null을 명시적으로 표시하기 위한 값
+constexpr const char* STR_NULL = "null";
 
 #define DIRECTX_TOOLKIT_IMPORT
 
@@ -151,7 +166,7 @@ using namespace Microsoft::WRL;
 #include "Editor/DragDropTypes/DragDropAsset.h"
 
 //컴포넌트는 접근 안하는 헤더들
-#ifndef SCRIPTS_PROJECT
+#ifndef _SCRIPTS_PROJECT
 //Editor Tools
 #include "Editor/Tool/Debug/EditorDebugTool.h"
 #include "Editor/Tool/AssetBrowser/EditorAssetBrowserTool.h"

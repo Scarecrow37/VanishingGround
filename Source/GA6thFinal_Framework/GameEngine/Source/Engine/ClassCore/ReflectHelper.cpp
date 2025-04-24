@@ -49,5 +49,5 @@ ImGuiSliderFlags InputAutoSetting::Vector4::flags = 0;
 
 void ReflectHelper::ImGuiDraw::Private::EngineLog(int logLevel, std::string_view message, std::source_location location)
 {
-    Global::engineCore->EngineLogger.Log(logLevel, message, location);
+    Global::engineCore->Logger.Log(logLevel, message, location);
 }

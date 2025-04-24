@@ -87,15 +87,14 @@ void Application::Run()
         }
         else
         {
-            _filesystemModule->Update();
-
             ETimeSystem::Engine::TimeSystemUpdate();
-            float deltaTime = engineCore->Time.deltaTime();
+            float deltaTime = engineCore->Time.DeltaTime();
 
             _imguiDX12Module->ImguiBegin();
             {
-                if (Global::editorModule)
+                if (UmApplication.IsEditor())
                 {
+                    _filesystemModule->Update();
                     Global::editorModule->Update();
                 }
 

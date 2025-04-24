@@ -165,7 +165,7 @@ void EditorHierarchyTool::HierarchyDropEvent()
             {
                 auto              context = data->context.lock();
                 const File::Path& path    = context->GetPath();
-                if (path.extension() == DragDropTransform::PREFAB_EXTENSION)
+                if (path.extension() == UmGameObjectFactory.PREFAB_EXTENSION)
                 {
                     YAML::Node node = YAML::LoadFile(path.string());
                     UmGameObjectFactory.DeserializeToYaml(&node);
@@ -179,18 +179,19 @@ void EditorHierarchyTool::HierarchyDropEvent()
 void  EditorHierarchyTool::OnFrame()
 {
     HierarchyDropEvent();
-    const auto& scenes = engineCore->SceneManager.GetBuildScenes();
-    for (auto& [sceneName, scenes] : scenes)
+    const auto& scenes = engineCore->SceneManager.GetLoadedScenes();
+    for (auto& pScene : scenes)
     {
-        if (scenes.isLoaded == false)
+        Scene& scene = *pScene;
+        if (scene.isLoaded == false)
             continue;
 
-        std::string sName = sceneName;
+        std::string sName = scene.Name;
         if (ImGui::CollapsingHeader(
                 sName.c_str(),
                 ImGuiTreeNodeFlags_::ImGuiTreeNodeFlags_DefaultOpen))
         {
-            auto rootObjects = scenes.GetRootGameObjects();
+            auto rootObjects = scene.GetRootGameObjects();
             std::shared_ptr<GameObject> focusObject =
                 HierarchyFocusObjWeak.lock();
             for (auto& obj : rootObjects)
