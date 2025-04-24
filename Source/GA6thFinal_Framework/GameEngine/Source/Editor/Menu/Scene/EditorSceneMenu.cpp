@@ -13,8 +13,7 @@ void EditorSceneMenuGameObject::OnMenu()
         const std::string& labal = std::format("New {}", name);
         if (ImGui::MenuItem(labal.c_str()))
         {
-            engineCore->GameObjectFactory.NewGameObject(key, 
-                GameObject::Helper::GenerateUniqueName(name));
+            UmGameObjectFactory.NewGameObject(key, GameObject::Helper::GenerateUniqueName(name));
         }
     }
 }

@@ -38,57 +38,57 @@ void TestComponent::Update()
 
 void TestComponent::FixedUpdate() 
 {
-    //engineCore->EngineLogger.Log(LogLevel::LEVEL_DEBUG, "Fixed Update!");    
+    //UmLogger.Log(LogLevel::LEVEL_DEBUG, "Fixed Update!");    
 }
 
 void TestComponent::OnDestroy()
 {
-    engineCore->EngineLogger.Log(LogLevel::LEVEL_DEBUG, "OnDestroy!");
+    UmLogger.Log(LogLevel::LEVEL_DEBUG, "OnDestroy!");
 }
 
 void TestComponent::OnApplicationQuit()
 {
-    engineCore->EngineLogger.Log(LogLevel::LEVEL_DEBUG, "OnApplicationQuit!");
+    UmLogger.Log(LogLevel::LEVEL_DEBUG, "OnApplicationQuit!");
 }
 
 void TestComponent::Reset()
 {
-    engineCore->EngineLogger.Log(LogLevel::LEVEL_DEBUG, "Reset!");
+    UmLogger.Log(LogLevel::LEVEL_DEBUG, "Reset!");
 }
 
 void TestComponent::Awake()
 {
-    engineCore->EngineLogger.Log(LogLevel::LEVEL_DEBUG, "Awake!");
+    UmLogger.Log(LogLevel::LEVEL_DEBUG, "Awake!");
 
     for (int i = LogLevel::LEVEL_TRACE; i <= LogLevel::LEVEL_FATAL; i++)
     {
-        engineCore->EngineLogger.Log(i, LogLevel::LogLevelTo_c_str(i));
+        UmLogger.Log(i, LogLevel::LogLevelTo_c_str(i));
     }
 }
 
 void TestComponent::Start()
 {
-    engineCore->EngineLogger.Log(LogLevel::LEVEL_DEBUG, "Start!");
+    UmLogger.Log(LogLevel::LEVEL_DEBUG, "Start!");
 }
 
 void TestComponent::OnEnable()
 {
-    engineCore->EngineLogger.Log(LogLevel::LEVEL_DEBUG, "OnEnable!");
+    UmLogger.Log(LogLevel::LEVEL_DEBUG, "OnEnable!");
 }
 
 void TestComponent::OnDisable()
 {
-    engineCore->EngineLogger.Log(LogLevel::LEVEL_DEBUG, "OnDisable!");
+    UmLogger.Log(LogLevel::LEVEL_DEBUG, "OnDisable!");
 }
 
 void TestComponent::SerializedReflectEvent()
 {
-    engineCore->EngineLogger.Log(LogLevel::LEVEL_DEBUG,
+    UmLogger.Log(LogLevel::LEVEL_DEBUG,
                                  "SerializedReflectEvent");
 }
 
 void TestComponent::DeserializedReflectEvent()
 {
-    engineCore->EngineLogger.Log(LogLevel::LEVEL_DEBUG,
+    UmLogger.Log(LogLevel::LEVEL_DEBUG,
                                  "DeserializedReflectEvent");
 }
