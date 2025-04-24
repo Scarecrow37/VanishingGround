@@ -79,6 +79,18 @@ void RenderPass::Begin(ComPtr<ID3D12GraphicsCommandList> commandList)
         commandList->SetPipelineState(_pipelineState.Get());
 }
 
+//void RenderPass::Begin(ComPtr<ID3D12GraphicsCommandList> commandList)
+//{
+//    UINT currentRenderTarget = _ownerScene->_currnetRederTarget;
+//    UINT endTarget           = currentRenderTarget + _descriptor.RenderTagetCount;
+//
+//    CD3DX12_RESOURCE_BARRIER br;
+//    for (UINT i = currentRenderTarget; i < endTarget; ++i)
+//    {
+//        if ()
+//    }
+//}
+
 void RenderPass::End(ComPtr<ID3D12GraphicsCommandList> commandList)
 {
     CD3DX12_RESOURCE_BARRIER barrier;
