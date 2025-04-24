@@ -91,7 +91,7 @@ void EditorSceneTool::OnFocus()
 void EditorSceneTool::ProcessMove()
 {
     ImGuiIO& io = ImGui::GetIO();
-    float    delta = UmTime.deltaTime();
+    float    delta = UmTime.DeltaTime();
     float    moveSpeed = _moveSpeed * delta;
     float    rotateSpeed = _rotateSpeed * delta;
 

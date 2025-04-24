@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 using namespace Global;
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -88,7 +88,7 @@ void Application::Run()
         else
         {
             ETimeSystem::Engine::TimeSystemUpdate();
-            float deltaTime = engineCore->Time.deltaTime();
+            float deltaTime = engineCore->Time.DeltaTime();
 
             _imguiDX12Module->ImguiBegin();
             {
