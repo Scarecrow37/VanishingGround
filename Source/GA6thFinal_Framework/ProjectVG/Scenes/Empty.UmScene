@@ -1,0 +1,10 @@
+SerializeVersion: 0
+Guid: b1586565-fdee-4804-a3f7-832c8ca0fc78
+GameObjects:
+  -
+    - SerializeVersion: 0
+      Type: class GameObject
+      ReflectFields: "{\"_name\":\"GameObject\",\"_activeSelf\":true,\"_isStatic\":false}"
+      Transform:
+        ReflectFields: "{\"position\":[0.0,0.0,0.0],\"rotation\":[0.0,0.0,0.0,1.0],\"eulerAngle\":[0.0,0.0,0.0],\"scale\":[1.0,1.0,1.0]}"
+        TransformIndex: 0
