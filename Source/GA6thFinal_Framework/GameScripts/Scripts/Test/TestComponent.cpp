@@ -59,11 +59,6 @@ void TestComponent::Reset()
 void TestComponent::Awake()
 {
     UmLogger.Log(LogLevel::LEVEL_DEBUG, "Awake!");
-
-    for (int i = LogLevel::LEVEL_TRACE; i <= LogLevel::LEVEL_FATAL; i++)
-    {
-        UmLogger.Log(i, LogLevel::LogLevelTo_c_str(i));
-    }
 }
 
 void TestComponent::Start()
