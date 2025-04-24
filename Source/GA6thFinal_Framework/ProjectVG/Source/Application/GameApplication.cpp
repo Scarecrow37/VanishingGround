@@ -63,3 +63,13 @@ GameApplication::~GameApplication()
 {
 
 }
+
+void GameApplication::OnStartupComplete() 
+{
+
+}
+
+void GameApplication::OnShutdownComplete() 
+{
+
+}

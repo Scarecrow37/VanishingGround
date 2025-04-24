@@ -28,6 +28,17 @@ private:
 
 class Application
 {
+public:
+    Application();
+    virtual ~Application() = default;
+
+protected:
+    /*모듈 초기화 끝난 후 호출되는 함수*/
+    virtual void OnStartupComplete() {};
+    /*모듈 초기화 해제 끝난 후 호출되는 함수*/
+    virtual void OnShutdownComplete() {};
+
+private:
     friend class EngineCores;
     friend struct SafeEngineCoresPtr;
     inline static Application* App = nullptr;
@@ -77,7 +88,8 @@ public:
         _messageHandleList.emplace_back(handle);
         std::sort(App->_messageHandleList.begin(),
                   App->_messageHandleList.end(),
-                  [](MessageHandler& handleA, MessageHandler& HandleB) {
+                  [](MessageHandler& handleA, MessageHandler& HandleB) 
+                  {
                       return handleA < HandleB;
                   });
     }
@@ -88,9 +100,6 @@ public:
     }
 
 public:
-    Application();
-    virtual ~Application() = default;
-
     struct MainEntry
     {
         static void Initialize(HINSTANCE hInstance);
