@@ -18,8 +18,7 @@ void EditorSceneMenuScenes::OnMenu()
                     ImGui::InputText(u8"이름"_c_str, &inputBuff);
                     if (ImGui::Button(u8"확인"_c_str))
                     {
-                        std::filesystem::path outPath = UmFileSystem.GetRootPath();
-                        outPath /= "Scenes";
+                        std::filesystem::path outPath = "Scenes";
                         UmSceneManager.WriteEmptySceneToFile(inputBuff, outPath.string());
                         ImGui::CloseCurrentPopup();
                     }
