@@ -22,9 +22,6 @@ class EditorAssetBrowserTool
     enum Flags
     {
         FLAG_IS_RENAME = 0,     // 리네임 중인지 여부
-        RENAME_SET_FOCUS_ONCE,  // 리네임 시 인풋 텍스트를 한번 포커싱해주기 위한 플래그
-
-        FLAG_IS_SHOW_META,      // 메타파일 보여줄지 여부 플래그
 
         FALG_SIZE,
     };
@@ -46,6 +43,8 @@ private:
     virtual void OnFrame() override;
 
     virtual void OnPostFrame() override;
+
+    virtual void OnFocus() override;
 
 private:
     /* 브라우저 메뉴바 */
@@ -99,20 +98,14 @@ private:
 
 private:
     /* 브라우저에서 보여질 유형 (List, Icon) */
-    ShowType mShowType;
+    ShowType _showType;
     /* 현재 포커싱 폴더 */
     File::Path       _focusFolderPath;
     wpFolderContext  _focusFolder;
     /* 현재 선택된 폴더 or 파일 */
     std::shared_ptr<EditorFileObject> _selectedContext;
-    /* 패널 위치 저장용 */
-    float mPanelWidth = 200.0f;
     /* 이름 바꾸기 모드 여부 */
     std::bitset<FALG_SIZE> browserFlags;
-
-    float _upperHeight  = 30.0f;
-    float _columWidth   = 250.f;
-    float _columHeight  = 0.0f;
 
     /* Undo, Redo 스택 */ 
     int                    _maxUndoStack = 20; // Undo Stack 최대 개수
@@ -121,6 +114,14 @@ private:
 
     /* Copy&Paste */
     File::Path _copyPath;
+    
+    // ReflectFields
+    REFLECT_FIELDS_BEGIN(EditorTool)
+    bool IsShowMeta = false; // 메타파일 보여줄지 여부
+    float UpperHeight = 40.0f;
+    float ColumWidth  = 250.f;
+    float ColumHeight = 0.0f;
+    REFLECT_FIELDS_END(EditorAssetBrowserTool)
 };
 
 class EditorFileObject : public IEditorObject

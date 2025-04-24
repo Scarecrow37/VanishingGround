@@ -8,11 +8,11 @@ EditorAssetBrowserTool::EditorAssetBrowserTool()
 {
     SetLabel("AssetBrowser");
     SetDockLayout(DockLayout::DOWN);
-    SetWindowFlag(ImGuiWindowFlags_MenuBar);    // 메뉴바 사용
+    //SetWindowFlag(ImGuiWindowFlags_MenuBar);    // 메뉴바 사용
 
     _selectedContext = std::make_shared<EditorFileObject>();
 
-    mShowType = List;
+    _showType = List;
 }
 
 EditorAssetBrowserTool::~EditorAssetBrowserTool() 
@@ -24,16 +24,21 @@ void EditorAssetBrowserTool::OnStartGui()
     _focusFolder = UmFileSystem.GetContext<File::FolderContext>(File::Path(UmFileSystem.GetRootPath()));
 }
 
-void EditorAssetBrowserTool::OnPreFrame() {}
+void EditorAssetBrowserTool::OnPreFrame() 
+{
+}
 
 void EditorAssetBrowserTool::OnFrame()
 {
     ImGui::PushID(this);
 
-    // 메뉴 창
-    ShowBrowserMenu();
+    ImGuiChildFlags flags = ImGuiChildFlags_Border;
 
-    ImGui::BeginChild("UpperFrame", ImVec2(0, _upperHeight), true);
+    // 메뉴 창
+    //ShowBrowserMenu();
+
+    //ImGui::BeginChild("UpperFrame", ImVec2(0, ReflectFields->UpperHeight), true);
+    ImGui::BeginChild("UpperFrame", ImVec2(0, ReflectFields->UpperHeight), flags);
     {
         ShowUpperFrame();
     }
@@ -42,8 +47,9 @@ void EditorAssetBrowserTool::OnFrame()
     // Left, Right 구분 창
     BeginColumn();
     {
+        
         // 왼쪽: 폴더 트리
-        ImGui::BeginChild("FolderHierarchyFrame", ImVec2(_columWidth, _columHeight), true);
+        ImGui::BeginChild("FolderHierarchyFrame", ImVec2(ReflectFields->ColumWidth, ReflectFields->ColumHeight), flags);
         {
             ShowFolderHierarchy();
         }
@@ -53,7 +59,7 @@ void EditorAssetBrowserTool::OnFrame()
         ImGui::SameLine();
 
         // 오른쪽: 선택한 폴더의 파일 목록
-        ImGui::BeginChild("ContentsFrame", ImVec2(0, _columHeight), true);
+        ImGui::BeginChild("ContentsFrame", ImVec2(0, ReflectFields->ColumHeight), flags);
         {
             ShowFolderContents();
         }
@@ -64,7 +70,13 @@ void EditorAssetBrowserTool::OnFrame()
     ImGui::PopID();
 }
 
-void EditorAssetBrowserTool::OnPostFrame() {}
+void EditorAssetBrowserTool::OnPostFrame() 
+{
+}
+
+void EditorAssetBrowserTool::OnFocus() 
+{
+}
 
 void EditorAssetBrowserTool::ShowBrowserMenu() 
 {
@@ -84,21 +96,17 @@ void EditorAssetBrowserTool::ShowBrowserMenu()
 
 void EditorAssetBrowserTool::ShowUpperFrame() 
 {
+    ImGui::Text("Show Meta");
+    ImGui::SameLine();
+    ImGui::Checkbox("##ShowMeta", &ReflectFields->IsShowMeta);
 }
 
 void EditorAssetBrowserTool::BeginColumn()
 {
-    ImGuiWindow* window      = GImGui->CurrentWindow;
-    ImRect       rect        = window->Rect();
     ImDrawList*  draw_list   = ImGui::GetWindowDrawList();
-    float        columWidth  = rect.Max.x - rect.Min.x;
-    float        columHeight = rect.Max.y - rect.Min.y;
 
-    _columHeight = ImGui::GetWindowContentRegionMax().y - ImGui::GetCursorPosY();
-
-    _columWidth  = ImClamp(_columWidth, 200.0f, columWidth - 100.0f);
-    _columHeight = ImMax(_columHeight, 1.0f);
-
+    ReflectFields->ColumHeight = ImGui::GetWindowContentRegionMax().y - ImGui::GetCursorPosY();
+    ReflectFields->ColumHeight = ImMax(ReflectFields->ColumHeight, 1.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
     ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 3.0f);  // 라운딩 적용
     ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 1.0f); // 경계 두께 설정
@@ -118,11 +126,12 @@ void EditorAssetBrowserTool::ShowColumnPlitter()
     static float padding     = 8.0f;
 
     ImGui::SameLine();
-    ImGui::InvisibleButton("##AssetBrowserPlitter", ImVec2(padding, _columHeight));
+    ImGui::InvisibleButton("##AssetBrowserPlitter", ImVec2(padding, ReflectFields->ColumHeight));
     if (true == ImGui::IsItemActive())
     {
         float center = ImGui::GetIO().MousePos.x - rect.Min.x - (padding * 1.5f);
-        _columWidth  = center;
+        ReflectFields->ColumWidth  = center;
+        ReflectFields->ColumWidth  = ImClamp(ReflectFields->ColumWidth, 200.0f, columWidth - 200.0f);
     }
 }
 
@@ -211,7 +220,7 @@ void EditorAssetBrowserTool::ShowFolderContents()
         // 팝업 내용
         ImGui::EndPopup();
     }
-    switch (mShowType)
+    switch (_showType)
     {
     case EditorAssetBrowserTool::List:
         ShowContentsToList();
@@ -325,6 +334,26 @@ void EditorAssetBrowserTool::ContentsFrameEventAction(spFolderContext context)
 {
     const File::Path& curPath = context->GetPath();
 
+    bool isSelected   = UmFileSystem.IsSameContext(_selectedContext->GetContext(), context);
+    bool isRename     = browserFlags[FLAG_IS_RENAME];
+    bool isItemActive = ImGui::IsItemActive();  // 셀렉터블이 눌렸는지
+    bool isHovered    = ImGui::IsItemHovered(); // 셀렉터블이 호버링 되었는지
+
+    bool isClickedLeft  = isHovered && ImGui::IsMouseClicked(0); // 마우스 왼 클릭
+    bool isClickedRight = isHovered && ImGui::IsMouseClicked(1); // 마우스 오른 클릭
+
+    bool isMouseDouble  = ImGui::IsMouseDoubleClicked(0);              // 마우스 더블 클릭
+    bool iskeyEnter     = ImGui::IsKeyPressed(ImGuiKey_Enter, false);  // 엔터키 눌림
+    bool isKeyBackSpace = ImGui::IsKeyPressed(ImGuiKey_Backspace, false); // 백스페이스 눌림
+    bool isKeyEscape    = ImGui::IsKeyPressed(ImGuiKey_Escape, false); // ESC키 눌림
+    bool isKeyDelete    = ImGui::IsKeyPressed(ImGuiKey_Delete, false); // DEL키 눌림
+
+    bool ctrl       = ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftCtrl);
+    bool c          = ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_C, false);
+    bool v          = ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_V, false);
+    bool isKeyCopy  = ctrl && c; // Ctrl + C
+    bool isKeyPaste = ctrl && v; // Ctrl + V
+
     DragDropTransform::Data data;
     if (ImGuiHelper::DragDrop::RecieveFrameDragDropEvent(DragDropTransform::KEY, &data))
     {
@@ -334,27 +363,21 @@ void EditorAssetBrowserTool::ContentsFrameEventAction(spFolderContext context)
         }
     }
 
-    if (false == browserFlags[FLAG_IS_RENAME])
+    if (false == isRename)
     {
-        if (true == ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_Backspace, false))
+        if (true == isKeyBackSpace)
         {
             SetFocusParentFolder(context);
         }
-        if (true == IsKeyDownPaste())
+        if (true == isKeyPaste)
         {
             if (true == fs::exists(_copyPath))
             {
                 File::Path from = _copyPath;
                 File::Path to   = (curPath / from.filename());
 
-                to = File::GenerateUniquePath(to.generic_string());
-
-                if (false == fs::is_directory(from))
-                {
-                    fs::copy_file(from, to);
-                }
+                File::CopyFileFromTo(from, to);
             }
-            UmFileSystem.RequestPasteFile(curPath);
         }
     }
 
@@ -407,9 +430,9 @@ void EditorAssetBrowserTool::ShowContentsToList()
                 std::string id   = name.string() + "##" + path.string();
 
                 bool isMeta = path.extension() == UmFileSystem.GetMetaExt();
-
-                if (true == browserFlags[FLAG_IS_SHOW_META] ||
-                    (false == browserFlags[FLAG_IS_SHOW_META] && false == isMeta))
+                
+                if (true == ReflectFields->IsShowMeta ||
+                    (false == ReflectFields->IsShowMeta && false == isMeta))
                 {
                     ShowItemToList(spFileCtx);
                 }
@@ -458,7 +481,8 @@ void EditorAssetBrowserTool::ShowItemToIcon(spContext context) {}
 
 void EditorAssetBrowserTool::ItemInputText(spContext context)
 {
-    static char        buffer[128] = "";
+    static char buffer[128] = "";
+    static bool init = false;
 
     const std::string&  name = context->GetName();
     const File::Path&   path = context->GetPath();
@@ -467,21 +491,25 @@ void EditorAssetBrowserTool::ItemInputText(spContext context)
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.f, 0.f)); // Y 패딩만 약간 줘서 커서 보이게
     ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0, 0, 0, 0));       // 투명 배경
 
-    if (true == browserFlags[RENAME_SET_FOCUS_ONCE])
+    if (false == init)
     {
         ImGui::SetKeyboardFocusHere();
         strcpy_s(buffer, name.c_str());
-        browserFlags[RENAME_SET_FOCUS_ONCE] = false;
+        init = true;
     }
 
-    ImGui::InputText("##InputText", buffer, IM_ARRAYSIZE(buffer), flags);
-
-    if (ImGui::IsItemDeactivated())
+    if (ImGui::InputText("##InputText", buffer, IM_ARRAYSIZE(buffer), flags))
     {
         fs::path newPath = path;
         newPath.replace_filename(buffer);
         context->Move(newPath);
         browserFlags[FLAG_IS_RENAME] = false;
+    }
+
+    if (ImGui::IsItemDeactivated())
+    {
+        browserFlags[FLAG_IS_RENAME] = false;
+        init = false;
     }
 
     ImGui::PopStyleColor();
@@ -537,29 +565,23 @@ void EditorAssetBrowserTool::ItemInputAction(spContext context)
         ProcessEnterAction(context);
     }
 
-    if (true == isClickedLeft || true == isFocused)
+    if (true == isClickedLeft || true == isClickedRight || true == isFocused)
     {
         SetFocusInspector(context);
-    }
-    else if (true == isClickedRight)
-    {
-        // ImGui::OpenPopup("RightClickPopup");
     }
 
     if (true == isRename)
     {
         if (true == isKeyEscape)
         {
-            browserFlags[FLAG_IS_RENAME]        = false;
-            browserFlags[RENAME_SET_FOCUS_ONCE] = false;
+            browserFlags[FLAG_IS_RENAME] = false;
         }
     }
     else if (false == isRename)
     {
         if (true == isKeyF2)
         {
-            browserFlags[FLAG_IS_RENAME]        = true;
-            browserFlags[RENAME_SET_FOCUS_ONCE] = true;
+            browserFlags[FLAG_IS_RENAME] = true;
         }
 
         if (true == isKeyDelete)
@@ -567,7 +589,7 @@ void EditorAssetBrowserTool::ItemInputAction(spContext context)
             Global::editorModule->OpenPopupBox("RemoveAsset", [&, context]() { ShowDeletePopupBox(context); });
         }
 
-        if (true == IsKeyDownCopy())
+        if (true == isKeyCopy)
         {
             auto& path = context->GetPath();
             _copyPath  = path;
@@ -593,8 +615,7 @@ void EditorAssetBrowserTool::ItemPopupAction(spContext context)
         }
         if (ImGui::MenuItem("Rename##"))
         {
-            browserFlags[FLAG_IS_RENAME]        = true;
-            browserFlags[RENAME_SET_FOCUS_ONCE] = true;
+            browserFlags[FLAG_IS_RENAME] = true;
             ImGui::CloseCurrentPopup(); // 팝업 닫기
         }
         ImGui::EndPopup();

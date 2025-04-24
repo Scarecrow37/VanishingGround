@@ -21,6 +21,8 @@ void EditorTool::OnDrawGui()
     
     if (IsVisible())
     {
+        static bool isFirstTick = true;
+
         OnPreFrame();
 
         if (true == _size.first)
@@ -44,7 +46,7 @@ void EditorTool::OnDrawGui()
             DefaultDebugFrame();
         }
 
-        if (true == ImGui::IsWindowFocused())
+        if (false == isFirstTick && true == ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows))
         {
             OnFocus();
         }
@@ -71,6 +73,8 @@ void EditorTool::OnDrawGui()
         ImGui::End();
 
         OnPostFrame();
+
+        isFirstTick = false;
     }
 }
 
