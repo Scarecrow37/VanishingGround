@@ -10,24 +10,25 @@ public:
     IEditorObject() = default;
     virtual ~IEditorObject() = default;
 public:
-    /* InspectorView에 SetFocus 될 때 호출 */
-    virtual void OnFocusInspectorView() {};
-    /* InspectorView의 Draw단계에 호출 */
-    virtual void OnDrawInspectorView() {};
+    virtual void OnInspectorViewEnter() {};
+
+    virtual void OnInspectorStay() {};
+
+    virtual void OnInspectorExit() {};
 };
 
 /*
 에디터에 출력되는 창(프레임) 단위의 객체에 상속하기 위한 객체
 */
-class EditorBase : public ReflectSerializer
+class EditorGui : public ReflectSerializer
 {
 protected:
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
-    REFLECT_FIELDS_END(EditorBase)
+    REFLECT_FIELDS_END(EditorGui)
 
 public:
-    EditorBase() = default;
-    virtual ~EditorBase() = default;
+    EditorGui() = default;
+    virtual ~EditorGui() = default;
 public:
     /* 항상 계층에 상관없이 매 틱마다 호출 */
     virtual void    OnTickGui() = 0;
@@ -46,7 +47,7 @@ public:
     inline const auto&  GetLabel() { return _label; }
     /* 활성화 여부 설정 */
     inline void         SetVisible(bool v) { _isVisible = v; }
-    inline bool         GetVisible() { return _isVisible; }
+    inline bool         IsVisible() { return _isVisible; }
     inline void         ToggleVisible() { _isVisible = _isVisible == true ? false : true; }
     /* 호출 순서 설정 */
     inline void         SetCallOrder(int i) { _callOrder = i; }

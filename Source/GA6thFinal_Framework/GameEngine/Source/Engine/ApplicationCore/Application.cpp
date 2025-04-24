@@ -30,7 +30,7 @@ LRESULT CALLBACK Application::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 
 bool Application::IsEditor()
 {
-    return Global::editorManager != nullptr;
+    return Global::editorModule != nullptr;
 }
 
 Application::Application()
@@ -87,16 +87,15 @@ void Application::Run()
         }
         else
         {
-            _filesystemModule->Update();
-
             ETimeSystem::Engine::TimeSystemUpdate();
-            float deltaTime = engineCore->Time.deltaTime();
+            float deltaTime = engineCore->Time.DeltaTime();
 
             _imguiDX12Module->ImguiBegin();
             {
-                if (Global::editorManager)
+                if (UmApplication.IsEditor())
                 {
-                    Global::editorManager->Update();
+                    _filesystemModule->Update();
+                    Global::editorModule->Update();
                 }
 
                 // AnimationUpdate

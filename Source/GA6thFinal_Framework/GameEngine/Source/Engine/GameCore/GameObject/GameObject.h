@@ -7,7 +7,7 @@ class Component;
 
 //오브젝트 생성용 전역함수
 template<IS_BASE_GAMEOBJECT_C TObject>
-std::weak_ptr<TObject> NewGameObject(
+std::shared_ptr<TObject> NewGameObject(
     std::string_view name)
 {
     std::shared_ptr<GameObject> shared_object = Global::engineCore->GameObjectFactory.NewGameObject(typeid(TObject).name(), name);
@@ -224,9 +224,9 @@ public:
     //IEditorObject에서 상속
  private:
     /* InspectorView에 SetFocus 될 때 호출 구현 X */
-    virtual void OnFocusInspectorView();
+    virtual void OnInspectorViewEnter();
     /* InspectorView의 Draw단계에 호출 */
-    virtual void OnDrawInspectorView();
+    virtual void OnInspectorStay();
 
 
 //프로퍼티
@@ -306,6 +306,7 @@ private:
     REFLECT_FIELDS_END(GameObject)
 
 private:
+    std::weak_ptr<GameObject>                _weakPtr;
     std::string                              _ownerScene;
     std::vector<std::shared_ptr<Component>>  _components;
     int                                      _instanceID;

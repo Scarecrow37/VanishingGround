@@ -1,5 +1,6 @@
 ﻿#pragma once
 class GameObject;
+class Transform;
 
 template<typename T>
 concept IS_BASE_GAMEOBJECT_C = std::is_base_of_v<GameObject, T>;
@@ -11,7 +12,7 @@ private:
     EGameObjectFactory();
     ~EGameObjectFactory();
 
-#ifndef SCRIPTS_PROJECT
+#ifndef _SCRIPTS_PROJECT
     /// <summary>
     /// 게임 오브젝트 클래스를 팩토리에서 생성 가능하도록 등록합니다. 생성자에서 호출 해야합니다.
     /// </summary>
@@ -33,6 +34,7 @@ private:
     }
 #endif 
 public:
+    static constexpr const char* PREFAB_EXTENSION = ".UmPrefab";
     struct Engine 
     {
         //SceneManager에서 오브젝트를 Destroy 할때 Instance ID를 반납하기 위한 함수입니다.
@@ -44,9 +46,11 @@ public:
         /// <returns></returns>
         static const std::vector<std::string>& GetGameObjectKeys();
 
+        /// <summary>
+        /// Prefab FileEventNotifier를 등록합니다. 
+        /// </summary>
         static void RegisterFileEvents();
     };
-
     /// <summary>
     /// 게임 오브젝트를 생성합니다. 생성된 오브젝트는 자동으로 씬에 등록됩니다.
     /// </summary>
@@ -68,8 +72,22 @@ public:
     /// </summary>
     /// <param name="node"></param>
     /// <returns></returns>
-    bool DeserializeToYaml(YAML::Node* gameObjectNode);
+    std::shared_ptr<GameObject> DeserializeToYaml(YAML::Node* gameObjectNode);
 
+
+    /// <summary>
+    /// GUID를 통해 파일을 읽어 오브젝트를 씬에 추가합니다.
+    /// </summary>
+    /// <param name="guid">생성할 프리팹 GUID</param>
+    /// <returns></returns>
+    std::shared_ptr<GameObject> DeserializeToGuid(const File::Guid& guid);
+
+    /// <summary>
+    /// 게임 오브젝트를 UmPrefab파일로 저장합니다.
+    /// </summary>
+    /// <param name="transform"></param>
+    /// <param name="outPath"></param>
+    void WriteGameObjectFile(Transform* transform, std::string_view outPath);
 private:
     //컴포넌트를 동적할당후 shared_ptr로 반환합니다.
     //매개변수로 생성할 컴포넌트 typeid().name()을 전달해야합니다.
@@ -98,10 +116,18 @@ private:
     }
     instanceIDManager;
 
+private:
     // FileEventNotifier을(를) 통해 상속됨
     void OnFileAdded(const File::Path& path) override;
     void OnFileModified(const File::Path& path) override;
     void OnFileRemoved(const File::Path& path) override;
     void OnFileRenamed(const File::Path& oldPath, const File::Path& newPath) override;
     void OnFileMoved(const File::Path& oldPath, const File::Path& newPath) override;
+
+    void OnRequestedOpen(const File::Path& path) override {}
+    void OnRequestedCopy(const File::Path& path) override {}
+    void OnRequestedPaste(const File::Path& path) override {}
+
+    //프리팹 직렬화 데이터 모아두는 맵
+    std::unordered_map<File::Guid, YAML::Node> _prefabDataMap;
 };

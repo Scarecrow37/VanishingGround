@@ -8,8 +8,7 @@ class ESceneManager;
 
 //이 구조체는 단순히 씬의 정보를 나열한 구조체에 불과함.
 //일단 선언만. 구현은 나중에.
-struct Scene :
-    public ReflectSerializer
+struct Scene
 {
     USING_PROPERTY(Scene)
     friend class ESceneManager;
@@ -28,7 +27,7 @@ public:
     /// <returns>비교 결과</returns>
     bool operator!=(const Scene& other)
     {
-        return (std::string)path != (std::string)other.path;
+        return (std::string)Path != (std::string)other.Path;
     }
     /// <summary>
     /// 같은 Scene인지 경로를 비교합니다.
@@ -36,39 +35,30 @@ public:
     /// <returns>비교 결과</returns>
     bool operator==(const Scene& other)
     {
-        return (std::string)path == (std::string)other.path;
+        return (std::string)Path == (std::string)other.Path;
     }
-
-    GETTER_ONLY(size_t, buildIndex) { return ReflectFields->_buildIndex; }
-    // get : 빌드 설정에서의 Scene 인덱스를 반환합니다. 포함안된 씬들은 -1을
-    // 반환합니다.
-    PROPERTY(buildIndex)
 
     GETTER_ONLY(bool, isLoaded) { return _isLoaded; }
     // get : 이 씬의 로드 여부를 반환합니다.
     PROPERTY(isLoaded)
 
-    GETTER_ONLY(std::string, name)
-    {
-        return ReflectFields->_filePath.stem().string();
+    GETTER_ONLY(std::string, Name)
+    { 
+        return _guid.ToPath().stem().string();
     }
     // get : 이 씬의 이름을 반환합니다.
-    PROPERTY(name)
+    PROPERTY(Name)
 
-    GETTER_ONLY(std::string, path) { return ReflectFields->_filePath.string(); }
+    GETTER_ONLY(std::string, Path)
+    {
+        return _guid.ToPath().string();
+    }
     // get : 이 씬 파일의 상대 경로를 반환합니다.
-    PROPERTY(path)
-private:
-    //필터용 함수
-    bool RootGameObjectsFilter(GameObject* obj) const;
+    PROPERTY(Path)
 
 private:
     bool _isLoaded = false;
-
-    REFLECT_FIELDS_BEGIN(ReflectSerializer)
-    int _buildIndex = -1;
-    std::filesystem::path _filePath; //파일 경로
-    REFLECT_FIELDS_END(Scene)
+    File::Guid _guid = STR_NULL;
 };
 
 /// <summary>
@@ -83,16 +73,42 @@ enum class LoadSceneMode
 };
 
 //함수는 일단 선언만. 구현은 나중에.
-class ESceneManager
+class ESceneManager 
+    : File::FileEventNotifier
 {
+private:
     friend class EngineCores;
     ESceneManager();
     ~ESceneManager();
     USING_PROPERTY(ESceneManager)
+
+    void LoadSettingFile();
+    void SaveSettingFile() const;
 public:
+    /// <summary>
+    /// 전달받은 경로의 씬 파일을 통해 로드된 RootGameObjects를 반환합니다.
+    /// </summary>
+    /// <param name="sceneName"></param>
+    /// <returns></returns>
+    static inline auto GetRootGameObjectsByPath(std::string_view path);
+private:
+    //필터용 함수
+    static bool RootGameObjectsFilter(GameObject* obj, std::string_view scenePath);
+
+public:
+    static constexpr const char* SCENE_EXTENSION = ".UmScene";
+    static constexpr const char* SETTING_FILE_NAME = "SceneManager.setting.json";
+    static constexpr const char* EMPTY_SCENE_NAME  = "EmptyScene";
+    static std::filesystem::path GetSettingFilePath();
+
     //엔진 접근용 네임스페이스
     struct Engine
     {
+        /// <summary>
+        /// Scene FileEventNotifier를 등록합니다.
+        /// </summary>
+        static void RegisterFileEvents();
+
         /// <summary>
         /// 씬 매니저가 관리하는 오브젝트를 전부 정리합니다.
         /// </summary>
@@ -171,39 +187,32 @@ public:
         /// </summary>
         static void DontDestroyOnLoadObject(GameObject* gameObject);
         static void DontDestroyOnLoadObject(GameObject& gameObject);
-
-        /// <summary>
-        /// 인스턴스 아이디에 해당하는 오브젝트의 weak_ptr을 반환합니다.
-        /// </summary>
-        /// <param name="instanceID :">대상 instanceID</param>
-        /// <returns>weak_ptr<GameObject></returns>
-        static std::weak_ptr<GameObject> GetRuntimeObjectWeakPtr(int instanceID);
     };
 
 public:
     /// <summary>
+    /// 로드된 모든 씬들을 반환합니다. 로드된 순서를 보장합니다.
+    /// </summary>
+    inline const std::vector<Scene*>& GetLoadedScenes()
+    { 
+        return _lodedSceneList;
+    }
+
+    /// <summary>
     /// 등록된 모든 씬들을 반환합니다. 씬 이름이 key로 Scene 객체가 value로 저장되어있습니다.
     /// </summary>
-    inline const std::unordered_map<std::string, Scene>& GetBuildScenes()
+    inline const std::unordered_map<File::Guid, Scene>& GetScenesMap()
     {
-        return _buildScnes;
+        return _scenesMap;
     }
 
     /// <summary>
     /// 실제 로드된 씬의 개수를 반환합니다.
     /// </summary>
     /// <returns></returns>
-    inline size_t LoadedSceneCount()
-    {
-        size_t count = 0;
-        for (auto& [name, scene] : _buildScnes)
-        {
-            if (scene._isLoaded)
-            {
-                count++;
-            }
-        }
-        return count;
+    inline size_t LoadedSceneCount() const
+    { 
+        return _lodedSceneList.size();
     }
 
     /// <summary>
@@ -212,20 +221,21 @@ public:
     /// <returns></returns>
     inline size_t SceneCount()
     {
-        return _buildScnes.size();
+        return _scenesMap.size();
     }
-
-    /// <summary>
-    /// 씬을 생성합니다. 만든 씬은 로드되는게 아니라 buildScnes 항목에만 추가됩니다.
-    /// </summary>
-    Scene& CreateScene(std::string_view sceneName);
 
     /// <summary>
     /// 씬을 로드합니다.
     /// </summary>
-    /// <param name="sceneName :">로드한 씬의 이름 </param>
+    /// <param name="sceneName :">로드할 씬의 이름 </param>
     /// <param name="mode :">로드 방식             </param>
     void LoadScene(std::string_view sceneName, LoadSceneMode mode = LoadSceneMode::SINGLE);
+
+    /// <summary>
+    /// 씬을 언로드합니다. ADDITIVE로 로드한 씬만 Unload 할 수 있습니다.
+    /// </summary>
+    /// <param name="sceneName :">로드할 씬의 이름 </param>
+    void UnloadScene(std::string_view sceneName);
 
     /// <summary>
     /// 기준이되는 Scene 을 반환합니다.
@@ -233,9 +243,9 @@ public:
     /// <para> NewGameObject로 런타임 도중에 생성되는 모든 오브젝트들은 이 Main Scene 에 추가됩니다. </para>
     /// </summary>
     /// <returns>Main Scene</returns>
-    Scene& GetMainScene()
+    Scene* GetMainScene()
     {
-        return _buildScnes[_mainScene];
+        return GetSceneByName(_setting.MainScene);
     }
 
     /// <summary>
@@ -243,6 +253,23 @@ public:
     /// </summary>
     /// <returns>성공시 Scene 의 주소, 실패시 nullptr</returns>
     Scene* GetSceneByName(std::string_view name);
+
+    /// <summary>
+    /// 씬을 UmScene파일로 저장합니다.
+    /// </summary>
+    /// <param name="scene :">저장할 파일</param>
+    /// <param name="outPath :">저장할 경로</param>
+    /// <param name="isOverride :">덮어쓰기 안내문구 스킵 여부</param>
+    void WriteSceneToFile(const Scene& scene, std::string_view outPath, bool isOverride = false);
+
+    /// <summary>
+    /// 빈 씬을 UmScene파일로 저장합니다.
+    /// </summary>
+    /// <param name="name :">파일 이름</param>
+    /// <param name="outPath :">저장할 경로</param>
+    /// <param name="isOverride :">덮어쓰기 안내문구 스킵 여부</param>
+    void WriteEmptySceneToFile(std::string_view name, std::string_view outPath, bool isOverride = false);
+
 private:
     //Life cycle 을 수행. 클라에서 매틱 호출해야함.
     void SceneUpdate();
@@ -292,21 +319,77 @@ private:
     std::tuple<std::unordered_set<Component*>, std::vector<Component*>, std::vector<bool*>> _onDisableQueue;
 
 private:
-    //생성한 씬 파일들 입니다. key : 파일 확장자를 제외한 파일 이름, value : 해당 씬의 정보 
-    std::unordered_map<std::string, Scene> _buildScnes;
-    //현재 Single로 로드된 씬 이름입니다. NewGameObject를 하면 이 씬에 오브젝트가 생성됩니다.
-    std::string _mainScene = "Null";
+    struct
+    {
+       // 현재 Single로 로드된 씬 이름입니다. NewGameObject를 하면 이 씬에 오브젝트가 생성됩니다.
+       std::string MainScene = STR_NULL;
+    } _setting;
+
+    //생성한 씬을 찾기 위한 맵입다. key : 파일 확장자를 제외한 파일 이름 
+    std::unordered_map<std::string, std::unordered_set<File::Guid>> _scenesFindMap;
+
+    //생성된 씬 맵(GUID)
+    std::unordered_map<File::Guid, Scene> _scenesMap;
+
+    //로드된 씬 항목
+    std::vector<Scene*> _lodedSceneList;
+protected:
+    /// <summary>
+    /// 씬을 Yaml 형식으로 직렬화합니다.
+    /// </summary>
+    /// <param name="scene :">직렬화할 씬</param>
+    /// <returns></returns>
+    YAML::Node SerializeToYaml(const Scene& scene);
+
+    /// <summary>
+    /// Yaml 형식으로 직렬화된 씬을 로드합니다.
+    /// </summary>
+    /// <param name="sceneNode :"></param>
+    /// <returns></returns>
+    bool DeserializeToYaml(YAML::Node* sceneNode);
+
+    /// <summary>
+    /// GUID를 통해 파일을 읽어 씬을 로드합니다..
+    /// </summary>
+    /// <param name="guid">생성할 프리팹 GUID</param>
+    /// <returns></returns>
+    bool DeserializeToGuid(const File::Guid& guid);
+
+    // FileEventNotifier을(를) 통해 상속됨
+    virtual void OnFileAdded(const File::Path& path) override;
+    virtual void OnFileModified(const File::Path& path) override;
+    virtual void OnFileRemoved(const File::Path& path) override;
+    virtual void OnFileRenamed(const File::Path& oldPath, const File::Path& newPath) override;
+    virtual void OnFileMoved(const File::Path& oldPath, const File::Path& newPath) override;
+
+    virtual void OnRequestedOpen(const File::Path& path);
+    virtual void OnRequestedCopy(const File::Path& path);
+    virtual void OnRequestedPaste(const File::Path& path);
+
+    //관리하는 씬 파일 파괴시 호출
+    void EraseSceneGUID(std::string_view sceneName, const File::Guid guid);
+
+    //직렬화된 씬들 캐싱용
+    std::unordered_map<File::Guid, YAML::Node> _sceneDataMap;
 };
+
+inline auto ESceneManager::GetRootGameObjectsByPath(std::string_view path) 
+{
+    const auto& objectsList = ESceneManager::Engine::GetRuntimeObjects();
+    std::string scenePath = path.data();
+    auto rootObjects = objectsList | std::ranges::views::filter(
+    [scenePath](auto& obj)
+    {
+        if (obj == nullptr)
+            return false;
+
+        return RootGameObjectsFilter(obj.get(), scenePath);
+    });
+    return rootObjects;
+}
 
 inline auto Scene::GetRootGameObjects() const
 {
-    const auto& objectsList = ESceneManager::Engine::GetRuntimeObjects();
-    auto rootObjects = objectsList | std::ranges::views::filter([this](auto& obj)
-        {
-            if (obj == nullptr)
-                return false;
-
-            return RootGameObjectsFilter(obj.get());
-        });
-    return rootObjects;
+    std::string path = Path;
+    return ESceneManager::GetRootGameObjectsByPath(path);
 }

@@ -165,6 +165,21 @@ namespace ImGuiHelper
         return colorChanged;
     }
 
+    static void DrawFillRect(const ImVec2& leftTop, const ImVec2& rightBottom, const ImU32& color, float round = 0.0f,
+                             ImDrawFlags flag = 0)
+    {
+        ImDrawList* drawlist = ImGui::GetWindowDrawList();
+        ImVec2      offset   = ImGui::GetCursorScreenPos();
+        ImVec2      size     = rightBottom - leftTop;        // 크기 계산
+        ImVec2      a        = offset;                       // 왼쪽 위
+        ImVec2      b        = offset + size;                // 오른쪽 아래
+        ImU32       col      = color;                        // 노란색
+        float       rounding = round;                        // 모서리 라운딩 반경
+        ImDrawFlags flags    = flag;                         // 모든 모서리 라운딩
+
+        drawlist->AddRectFilled(a, b, col, rounding, flags);
+    }
+
     class DragDrop
     {
         using EventID = const char*;
@@ -188,19 +203,18 @@ namespace ImGuiHelper
 
         /* 현재 아이템 기준으로 드래그앤드롭 데이터를 받습니다. */
         template <typename T>
-        static bool RecieveDragDropEvent(EventID id, T* targetData)
+        static bool RecieveItemDragDropEvent(EventID id, T* outData)
         {
             if (ImGui::BeginDragDropTarget())
             {
                 if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(id))
                 {
-                    // 데이터 크기가 일치하는지 확인
-                    if (payload->DataSize == sizeof(T))
+                    if (nullptr != outData)
                     {
-                        memcpy(targetData, payload->Data, sizeof(T));
-                        ImGui::EndDragDropTarget();
-                        return true;
+                        memcpy(outData, payload->Data, sizeof(T));
                     }
+                    ImGui::EndDragDropTarget();
+                    return true;
                 }
                 ImGui::EndDragDropTarget();
             }
@@ -209,7 +223,7 @@ namespace ImGuiHelper
 
         /* 현재 프레임 대상으로 드래그앤드롭을 데이터를 받습니다. */
         template <typename T>
-        static bool RecieveFrameDragDropEvent(EventID id, T* targetData)
+        static bool RecieveFrameDragDropEvent(EventID id, T* outData)
         {
             ImGuiWindow* window = ImGui::GetCurrentWindow();
             ImRect       rect   = window->Rect(); // 윈도우 전체 영역
@@ -219,9 +233,13 @@ namespace ImGuiHelper
                 if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(id))
                 {
                     // 데이터 크기가 일치하는지 확인
-                    if (payload->DataSize == sizeof(T))
+                    int size = sizeof(T);
+                    if (payload->DataSize == size)
                     {
-                        memcpy(targetData, payload->Data, sizeof(T));
+                        if (nullptr != outData)
+                        {
+                            memcpy(outData, payload->Data, sizeof(T));
+                        }
                         ImGui::EndDragDropTarget();
                         return true;
                     }

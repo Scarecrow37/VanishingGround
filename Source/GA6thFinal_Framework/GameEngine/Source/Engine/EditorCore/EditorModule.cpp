@@ -1,30 +1,36 @@
 ﻿#include "pch.h"
 #include "EditorModule.h"
-#include "EditorBase.h"
+#include "EditorGui.h"
 #include "EditorMenuBar.h"
 
-EditorModule* Global::editorManager = nullptr;
+EditorModule* Global::editorModule = nullptr;
 
 EditorModule::EditorModule() 
     : _isDebugMode(false)
 {
-    Global::editorManager = this;
+    Global::editorModule = this;
     _mainMenuBar = new EditorMenuBar;
     _mainDockSpace = new EditorDockSpace;
+    _PopupBox = new EditorPopupBoxSystem;
 }
 
 EditorModule::~EditorModule()
 {
     delete _mainMenuBar;
     delete _mainDockSpace;
+    delete _PopupBox;
 }
 
 void EditorModule::ModuleInitialize()
 {
-    //모듈 등록시 1회 호출
+    // 모듈 등록시 1회 호출
     SetGuiThemeStyle();
     _mainMenuBar->OnStartGui();
     _mainDockSpace->OnStartGui();
+
+    File::Path filename  = L"editor.setting";
+    File::Path directory = PROJECT_SETTING_PATH;
+    LoadSetting(directory / filename);
 }
 
 void EditorModule::ModuleUnInitialize()
@@ -32,16 +38,88 @@ void EditorModule::ModuleUnInitialize()
     //파괴 직전 함수 필요하면 추가
     _mainMenuBar->OnEndGui();
     _mainDockSpace->OnEndGui();
+
+    File::Path filename  = L"editor.setting";
+    File::Path directory = PROJECT_SETTING_PATH;
+    
+    SaveSetting(directory / filename);
+}
+
+bool EditorModule::SaveSetting(const File::Path& path)
+{
+    _setting.ToolData.clear();
+    for (auto& [key, tool] : _mainDockSpace->GetRefToolTable())
+    {
+        EditorTool* editorTool = tool.get();
+        if (nullptr != editorTool)
+        {
+            EditorToolSerializeData data;
+            data.name       = key;
+            data.IsVisible  = editorTool->IsVisible();
+            data.IsLock     = editorTool->IsLock();
+            data.ReflectionField = editorTool->SerializedReflectFields();
+            _setting.ToolData.push_back(data);
+        }
+    }
+
+    auto setting = rfl::yaml::save(path.string(), _setting);
+    if (false == setting)
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
+
+bool EditorModule::LoadSetting(const File::Path& path)
+{
+    auto setting = rfl::yaml::load<EditorSetting>(path.string());
+    if (false == setting)
+    {
+        return false;
+    }
+    else
+    {
+        _setting = setting.value();
+
+        for (auto& status : _setting.ToolData)
+        {
+            EditorTool* tool = _mainDockSpace->GetTool(status.name);
+            if (nullptr != tool)
+            {
+                tool->SetVisible(status.IsVisible);
+                tool->SetLock(status.IsLock);
+                tool->DeserializedReflectFields(status.ReflectionField);
+            }
+        }
+        return true;
+    }
 }
 
 void EditorModule::Update()
 {
+    bool isLock = IsLock();
+    if (true == isLock)
+        ImGui::BeginDisabled();
+
     /* ========GUI Update======== */ 
     _mainMenuBar->OnTickGui();
     _mainDockSpace->OnTickGui();
     _mainMenuBar->OnDrawGui();
     _mainDockSpace->OnDrawGui();
     /* =========================== */
+
+    if (true == isLock)
+        ImGui::EndDisabled();
+
+    _PopupBox->OnDrawGui(); // 모달 팝업창 
+}
+
+bool EditorModule::IsLock()
+{
+    return (false == _PopupBox->IsEmpty());
 }
 
 void EditorModule::SetGuiThemeStyle()

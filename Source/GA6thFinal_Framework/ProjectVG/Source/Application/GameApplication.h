@@ -7,5 +7,5 @@ public:
     GameApplication();
     virtual ~GameApplication() override;
 
-    EditorModule* _editorManager = nullptr;
+    EditorModule* _editorModule = nullptr;
 };

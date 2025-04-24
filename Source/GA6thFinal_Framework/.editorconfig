@@ -1,7 +1,13 @@
-root = true
+﻿root = true
 
-# All files
-[*]
+#cpp, h
+[*.hpp]
+indent_style = space
+charset = utf-8-bom
+[*.h]
+indent_style = space
+charset = utf-8-bom
+[*.cpp]
 indent_style = space
 charset = utf-8-bom
 
