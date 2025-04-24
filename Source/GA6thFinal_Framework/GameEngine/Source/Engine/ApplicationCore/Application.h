@@ -77,7 +77,8 @@ public:
         _messageHandleList.emplace_back(handle);
         std::sort(App->_messageHandleList.begin(),
                   App->_messageHandleList.end(),
-                  [](MessageHandler& handleA, MessageHandler& HandleB) {
+                  [](MessageHandler& handleA, MessageHandler& HandleB) 
+                  {
                       return handleA < HandleB;
                   });
     }
