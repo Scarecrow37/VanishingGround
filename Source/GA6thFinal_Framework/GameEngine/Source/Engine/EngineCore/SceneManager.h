@@ -330,8 +330,11 @@ private:
 private:
     struct
     {
-       // 현재 Single로 로드된 씬 이름입니다. NewGameObject를 하면 이 씬에 오브젝트가 생성됩니다.
+       //현재 Single로 로드된 씬 이름입니다. NewGameObject를 하면 이 씬에 오브젝트가 생성됩니다.
        std::string MainScene = STR_NULL;
+
+       //에디터가 아닌 상태에서 처음으로 로드할 씬
+       std::string StartScene = STR_NULL;
     } 
     _setting;
     std::function<void()> _loadFuncEvent;

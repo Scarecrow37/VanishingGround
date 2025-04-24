@@ -17,14 +17,14 @@ std::filesystem::path ESceneManager::GetSettingFilePath()
 
 ESceneManager::ESceneManager() 
 {
-    //if (UmApplication.IsEditor()) //에디터 모드일때만 해야함
+    if constexpr (Application::IsEditor()) //에디터 모드일때만 해야함
     {
         LoadSettingFile();
     } 
 }
 ESceneManager::~ESceneManager()
 {
-    //if (UmApplication.IsEditor()) //에디터 모드일때만 해야함
+    if constexpr (Application::IsEditor()) // 에디터 모드일때만 해야함
     {
         SaveSettingFile();
     } 
@@ -868,14 +868,16 @@ void ESceneManager::OnFileAdded(const File::Path& path)
     {
         WriteSceneToFile(scene, path.parent_path().string(), true);
     }
-    if (scene.isLoaded == false && scene._guid.ToPath() == _setting.MainScene)
+    
+    std::string& loadScene = Application::IsEditor() ? _setting.MainScene : _setting.StartScene; 
+    if (scene.isLoaded == false && path.string() == loadScene)
     {
         if (UmComponentFactory.HasScript() == false)
         {
             if (UmComponentFactory.InitalizeComponentFactory() == false)
             {
                 return;
-            }       
+            }
         }
         LoadScene(path.string());
         if (_loadFuncEvent)
