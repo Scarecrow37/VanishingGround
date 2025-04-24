@@ -28,11 +28,6 @@ LRESULT CALLBACK Application::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
     return DefWindowProc(hwnd, msg, wParam, lParam);
 }
 
-bool Application::IsEditor()
-{
-    return Global::editorModule != nullptr;
-}
-
 Application::Application()
 {
     if (App)
