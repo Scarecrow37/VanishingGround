@@ -124,11 +124,14 @@ void RenderScene::Excute(ComPtr<ID3D12GraphicsCommandList> commandList)
     }
     // if you want msaa->안하기로함.
     // CopyMSAATexture(commandList);
-    bool isEditor = UmApplication.IsEditor();
+
+    // editor game 분기 처리
+    /*bool isEditor = UmApplication.IsEditor();
     if (!isEditor)
         RenderOnBackBuffer(commandList);
     else
-        RenderOnEditor(commandList);
+        RenderOnEditor(commandList);*/
+        RenderOnBackBuffer(commandList);
 }
 
 void RenderScene::RenderOnBackBuffer(ComPtr<ID3D12GraphicsCommandList> commandList)
