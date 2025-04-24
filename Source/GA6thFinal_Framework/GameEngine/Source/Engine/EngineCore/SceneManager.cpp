@@ -107,7 +107,7 @@ void ESceneManager::Engine::AddGameObjectToLifeCycle(std::shared_ptr<GameObject>
 {
     if (gameObject->_ownerScene == STR_NULL)
     {
-        UmEngineLogger.Log(LogLevel::LEVEL_WARNING, u8"씬을 먼저 로드해주세요."_c_str);
+        UmLogger.Log(LogLevel::LEVEL_WARNING, u8"씬을 먼저 로드해주세요."_c_str);
         return;
     }
 
@@ -350,7 +350,7 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
     {
         if (scene->_isLoaded)
         {
-            engineCore->EngineLogger.Log(
+            engineCore->Logger.Log(
                 LogLevel::LEVEL_WARNING,
                 u8"이미 로드된 씬은 추가 로드가 불가능합니다."_c_str);
             return;
@@ -371,14 +371,14 @@ void ESceneManager::UnloadScene(std::string_view sceneName)
     if (scene == nullptr)
     {
         std::string message = std::format("{}{}", sceneName, u8"은 존재하지 않는 씬 입니다."_c_str);
-        UmEngineLogger.Log(LogLevel::LEVEL_WARNING, message);
+        UmLogger.Log(LogLevel::LEVEL_WARNING, message);
         return;
     }
 
     if (scene->_isLoaded == false)
     {
         std::string message = std::format("{}{}", sceneName, u8"은 로드되지 않은 씬 입니다."_c_str);
-        UmEngineLogger.Log(LogLevel::LEVEL_WARNING, message);
+        UmLogger.Log(LogLevel::LEVEL_WARNING, message);
         return;
     }
 
@@ -387,7 +387,7 @@ void ESceneManager::UnloadScene(std::string_view sceneName)
         if (*scene == *mainScene)
         {
             std::string message = std::format("{}{}", sceneName, u8"은 메인 씬 이므로 언로드 할 수 없습니다."_c_str);
-            UmEngineLogger.Log(LogLevel::LEVEL_WARNING, message);
+            UmLogger.Log(LogLevel::LEVEL_WARNING, message);
             return;
         }
     }
@@ -420,7 +420,7 @@ Scene* ESceneManager::GetSceneByName(std::string_view name)
         }
     }
     std::string message = std::format("{}{}", name, u8"은 존재하지 않는 씬입니다."_c_str);
-    UmEngineLogger.Log(LogLevel::LEVEL_WARNING, message);
+    UmLogger.Log(LogLevel::LEVEL_WARNING, message);
     return nullptr;
 }
 
@@ -712,7 +712,7 @@ YAML::Node ESceneManager::SerializeToYaml(const Scene& scene)
 {
     if (UmComponentFactory.HasScript() == false)
     {
-        UmEngineLogger.Log(LogLevel::LEVEL_WARNING, u8"스크립트를 빌드해주세요. :("_c_str);
+        UmLogger.Log(LogLevel::LEVEL_WARNING, u8"스크립트를 빌드해주세요. :("_c_str);
         return YAML::Node();
     }
 
@@ -734,7 +734,7 @@ bool ESceneManager::DeserializeToYaml(YAML::Node* _sceneNode)
 {
     if (UmComponentFactory.HasScript() == false)
     {
-        UmEngineLogger.Log(LogLevel::LEVEL_WARNING, u8"스크립트를 빌드해주세요. :("_c_str);
+        UmLogger.Log(LogLevel::LEVEL_WARNING, u8"스크립트를 빌드해주세요. :("_c_str);
         return false;
     }
 
@@ -762,7 +762,7 @@ bool ESceneManager::DeserializeToGuid(const File::Guid& guid)
     if (findIter == _sceneDataMap.end())
     {
         std::string messgae = std::format("{} : {}", u8"존재하지 않는 파일입니다."_c_str, guid.ToPath().string());
-        UmEngineLogger.Log(LogLevel::LEVEL_ERROR, messgae);
+        UmLogger.Log(LogLevel::LEVEL_ERROR, messgae);
         return false;
     }
     return DeserializeToYaml(&findIter->second);

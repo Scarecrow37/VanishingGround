@@ -17,33 +17,33 @@ void EGameObjectFactory::OnFileAdded(const File::Path& path)
 {
     _prefabDataMap[path.ToGuid()] = YAML::LoadFile(path.string());
     std::string message = std::format("Prefab Added : {}", path.string());
-    UmEngineLogger.Log(LogLevel::LEVEL_TRACE, message.c_str());
+    UmLogger.Log(LogLevel::LEVEL_TRACE, message.c_str());
 }
 
 void EGameObjectFactory::OnFileModified(const File::Path& path) 
 {
     _prefabDataMap[path.ToGuid()] = YAML::LoadFile(path.string());
     std::string message = std::format("Prefab Modified : {}", path.string());
-    UmEngineLogger.Log(LogLevel::LEVEL_TRACE, message.c_str());
+    UmLogger.Log(LogLevel::LEVEL_TRACE, message.c_str());
 }
 
 void EGameObjectFactory::OnFileRemoved(const File::Path& path) 
 {
     _prefabDataMap.erase(path.ToGuid());
     std::string message = std::format("Removed UmPrefab : {}", path.string());
-    UmEngineLogger.Log(LogLevel::LEVEL_TRACE, message.c_str());
+    UmLogger.Log(LogLevel::LEVEL_TRACE, message.c_str());
 }
 
 void EGameObjectFactory::OnFileRenamed(const File::Path& oldPath, const File::Path& newPath) 
 {
     std::string message = std::format("Renamed UmPrefab {} to {}", oldPath.string(), newPath.string());
-    UmEngineLogger.Log(LogLevel::LEVEL_TRACE, message.c_str());
+    UmLogger.Log(LogLevel::LEVEL_TRACE, message.c_str());
 }
 
 void EGameObjectFactory::OnFileMoved(const File::Path& oldPath, const File::Path& newPath) 
 {
     std::string message = std::format("Moved UmPrefab {} to {}", oldPath.string(), newPath.string());
-    UmEngineLogger.Log(LogLevel::LEVEL_TRACE, message.c_str());
+    UmLogger.Log(LogLevel::LEVEL_TRACE, message.c_str());
 }
 
 EGameObjectFactory::EGameObjectFactory()
@@ -65,7 +65,7 @@ YAML::Node EGameObjectFactory::SerializeToYaml(GameObject* gameObject)
 {
     if (UmComponentFactory.HasScript() == false)
     {
-        UmEngineLogger.Log(LogLevel::LEVEL_ERROR,
+        UmLogger.Log(LogLevel::LEVEL_ERROR,
                            u8"스크립트 빌드를 해주세요."_c_str);
         return YAML::Node();
     }
@@ -103,7 +103,7 @@ std::shared_ptr<GameObject> EGameObjectFactory::DeserializeToYaml(YAML::Node* pG
 {
     if (UmComponentFactory.HasScript() == false)
     {
-        UmEngineLogger.Log(LogLevel::LEVEL_ERROR,
+        UmLogger.Log(LogLevel::LEVEL_ERROR,
                            u8"스크립트 빌드를 해주세요."_c_str);
         return nullptr;
     }
@@ -150,7 +150,7 @@ std::shared_ptr<GameObject> EGameObjectFactory::DeserializeToGuid(const File::Gu
     if (iter == _prefabDataMap.end())
     {
         std::string message = std::format("{} {}", u8"존재하지 않는 프리팹입니다."_c_str, guid.ToPath().string());
-        UmEngineLogger.Log(LogLevel::LEVEL_ERROR, message);
+        UmLogger.Log(LogLevel::LEVEL_ERROR, message);
         return nullptr;
     }
     return DeserializeToYaml(&iter->second);

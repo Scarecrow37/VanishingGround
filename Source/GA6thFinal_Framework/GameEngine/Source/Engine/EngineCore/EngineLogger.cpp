@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 
 static std::pair<std::string, std::string> GetCurrentTimestamp()
 {
@@ -20,11 +20,11 @@ static std::pair<std::string, std::string> GetCurrentTimestamp()
     );
 }
 
-EEngineLogger::EEngineLogger() {}
+ELogger::ELogger() {}
 
-EEngineLogger::~EEngineLogger() = default;
+ELogger::~ELogger() = default;
 
-void EEngineLogger::Log(int logLevel, 
+void ELogger::Log(int logLevel, 
                         std::string_view message,
                         const LogLocation location)
 {
@@ -38,7 +38,7 @@ void EEngineLogger::Log(int logLevel,
     }
 }
 
-void EEngineLogger::LogMessagesClear(int logLevel)
+void ELogger::LogMessagesClear(int logLevel)
 {
     using namespace LogLevel;
     if (logLevel == NULL)
