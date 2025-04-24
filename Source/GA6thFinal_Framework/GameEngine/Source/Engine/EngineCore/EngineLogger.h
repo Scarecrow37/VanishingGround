@@ -1,10 +1,10 @@
 ﻿#pragma once
 
-class EEngineLogger
+class ELogger
 {
     friend class EngineCores;
-    EEngineLogger();
-    ~EEngineLogger();
+    ELogger();
+    ~ELogger();
 
 public:
     /// <summary>
@@ -47,7 +47,7 @@ private:
         _logMessages;
 };
 
-inline auto EEngineLogger::GetLogMessages(int logLevelFilter)
+inline auto ELogger::GetLogMessages(int logLevelFilter)
 {
     auto filter =
         _logMessages |

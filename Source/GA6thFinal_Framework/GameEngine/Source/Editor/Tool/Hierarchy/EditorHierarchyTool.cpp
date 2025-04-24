@@ -134,7 +134,7 @@ static void TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>
 
 EditorHierarchyTool::EditorHierarchyTool()
 {
-    SetLabel("HierarchyView");
+    SetLabel("Hierarchy");
     SetDockLayout(DockLayout::LEFT);
 }
 
@@ -158,14 +158,18 @@ void EditorHierarchyTool::HierarchyDropEvent()
     ImRect       rect   = window->Rect();
     if (ImGui::BeginDragDropTargetCustom(rect, window->ID))
     {
-        if (const ImGuiPayload* payload = 
-            ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
+        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
         {
-            DragDropAsset::Data* data = (DragDropAsset::Data*)payload->Data;           
-            if (data->Path.extension() == DragDropTransform::PREFAB_EXTENSION)
+            DragDropAsset::Data* data = (DragDropAsset::Data*)payload->Data;      
+            if (false == data->context.expired())
             {
-                YAML::Node node = YAML::LoadFile(data->Path.string());
-                UmGameObjectFactory.DeserializeToYaml(&node);
+                auto              context = data->context.lock();
+                const File::Path& path    = context->GetPath();
+                if (path.extension() == UmGameObjectFactory.PREFAB_EXTENSION)
+                {
+                    YAML::Node node = YAML::LoadFile(path.string());
+                    UmGameObjectFactory.DeserializeToYaml(&node);
+                }
             }
         }
         ImGui::EndDragDropTarget();
@@ -175,18 +179,19 @@ void EditorHierarchyTool::HierarchyDropEvent()
 void  EditorHierarchyTool::OnFrame()
 {
     HierarchyDropEvent();
-    const auto& scenes = engineCore->SceneManager.GetBuildScenes();
-    for (auto& [sceneName, scenes] : scenes)
+    const auto& scenes = engineCore->SceneManager.GetLoadedScenes();
+    for (auto& pScene : scenes)
     {
-        if (scenes.isLoaded == false)
+        Scene& scene = *pScene;
+        if (scene.isLoaded == false)
             continue;
 
-        std::string sName = sceneName;
+        std::string sName = scene.Name;
         if (ImGui::CollapsingHeader(
                 sName.c_str(),
                 ImGuiTreeNodeFlags_::ImGuiTreeNodeFlags_DefaultOpen))
         {
-            auto rootObjects = scenes.GetRootGameObjects();
+            auto rootObjects = scene.GetRootGameObjects();
             std::shared_ptr<GameObject> focusObject =
                 HierarchyFocusObjWeak.lock();
             for (auto& obj : rootObjects)

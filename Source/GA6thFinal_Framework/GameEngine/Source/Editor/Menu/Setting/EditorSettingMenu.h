@@ -11,7 +11,7 @@ public:
         SetPath("Setting/Editor");
         SetLabel("");
 
-        _isDebugMode = Global::editorManager->IsDebugMode();
+        _isDebugMode = Global::editorModule->IsDebugMode();
     }
     virtual ~EditorMenuDebug() = default;
 public:

@@ -27,14 +27,21 @@ void ImGuiDX12Module::PreInitialize()
     }
 
     ImFontConfig fontConfig{};
-    ImFont*      mainFont = io.Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\malgun.ttf", 20.0f, &fontConfig,
-                                                         io.Fonts->GetGlyphRangesKorean());
+    ImFont* mainFont = io.Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\malgun.ttf", 20.0f, &fontConfig, io.Fonts->GetGlyphRangesKorean());
+    
+    std::string fontFileName = "Font Awesome 6 Free-Regular-400.ttf";
+    File::Path  fontPath     = UmFileSystem.GetRootPath();
+    fontPath /= fontFileName;
+    if (true == std::filesystem::exists(fontPath.generic_string()))
+    {
+        const ImWchar icons_ranges[] = {0xf000, 0xf3ff, 0}; // FontAwesome 유니코드 범위
 
-    static const ImWchar icons_ranges[] = {0xf000, 0xf3ff, 0}; // FontAwesome 유니코드 범위
-    ImFontConfig         config;
-    config.MergeMode = true; // 기존 폰트와 병합
-    ImFont* iconFont =
-        io.Fonts->AddFontFromFileTTF("Assets/Font Awesome 6 Free-Regular-400.ttf", 15.0f, &config, icons_ranges);
+        ImFontConfig config;
+        config.MergeMode = true; // 기존 폰트와 병합
+      
+        ImFontAtlas* atlas = io.Fonts;
+        ImFont* iconFont = atlas->AddFontFromFileTTF(fontPath.string().c_str(), 15.0f, &config, icons_ranges);
+    }
     io.Fonts->Build();
     auto cpuHandle = _imguiDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
     auto gpuHandle = _imguiDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
@@ -45,14 +52,11 @@ void ImGuiDX12Module::PreInitialize()
 
 void ImGuiDX12Module::ModuleInitialize()
 {
-    UmComponentFactory.InitalizeComponentFactory();
+    //UmComponentFactory.InitalizeComponentFactory();
 
-    auto  gameObject = NewGameObject<GameObject>("Test").lock();
-    auto& test       = gameObject->AddComponent<StaticMeshRenderer>();
-    test.ReflectFields->FilePath       = "../../../Resource/TestAssets/Cerberus/pbrGun.fbx";
-    gameObject->transform->Scale    = {0.03f, 0.03f, 0.03f};
-    gameObject->transform->Position    = {-1.f,0.f,0.f};
-    gameObject->transform->Rotation = Quaternion::CreateFromAxisAngle({0.f,1.f,0.f},XM_PIDIV2);
+    /*std::filesystem::path outPath = UmFileSystem.GetRootPath();
+    outPath /= "Scenes";
+    UmSceneManager.WriteEmptySceneToFile("EmptyScene", outPath.string());*/
 }
 
 void ImGuiDX12Module::PreUnInitialize()
@@ -71,20 +75,13 @@ void ImGuiDX12Module::ImguiBegin()
     ImGui_ImplDX12_NewFrame();
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
+    ImGuizmo::BeginFrame();
 }
 
 void ImGuiDX12Module::ImguiEnd()
 {
     ImGuiIO& io = ImGui::GetIO();
 
-    // RECT rect;
-    // if (GetClientRect(Application::GetHwnd(), &rect))
-    //{
-    //     POINT size;
-    //     size.x = rect.right - rect.left;
-    //     size.y = rect.bottom - rect.top;
-    //     io.DisplaySize = ImVec2((float)size.x, size.y);
-    // }
     ImGui::Render();
 
     ID3D12DescriptorHeap* descriptorHeaps[] = {_imguiDescriptorHeap.Get()};

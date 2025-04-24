@@ -33,7 +33,7 @@ void EditorDockSpace::OnTickGui()
 
 void EditorDockSpace::OnStartGui()
 {
-    for (auto& [key, tool] : _editorToolTable)
+    for (auto& tool : _editorToolList)
     {
         if (nullptr != tool)
         {
@@ -41,7 +41,7 @@ void EditorDockSpace::OnStartGui()
         }
     }
     std::sort(_editorToolList.begin(), _editorToolList.end(),
-        [](EditorBase* a, EditorBase* b) {
+        [](EditorGui* a, EditorGui* b) {
             return a->GetCallOrder() > b->GetCallOrder();
         });
 }
@@ -71,13 +71,21 @@ void EditorDockSpace::OnDrawGui()
 
 void EditorDockSpace::OnEndGui()
 {
-    for (auto& [key, tool] : _editorToolTable)
+    for (auto& tool : _editorToolList)
     {
         if (nullptr != tool)
         {
             tool->OnEndGui();
         }
     }
+}
+
+EditorTool* EditorDockSpace::GetTool(const std::string& name)
+{
+    auto itr = _editorToolTable.find(name);
+    if (itr == _editorToolTable.end())
+        return nullptr;
+    return itr->second.get();
 }
 
 void EditorDockSpace::InitDockLayout()

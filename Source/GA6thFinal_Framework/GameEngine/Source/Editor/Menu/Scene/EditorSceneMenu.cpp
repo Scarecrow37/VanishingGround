@@ -2,26 +2,53 @@
 #include "EditorSceneMenu.h"
 
 using namespace Global;
-
-void EditorSceneMenuGameObject::OnMenu() 
-{
-    const auto& objectKeys = EGameObjectFactory::Engine::GetGameObjectKeys();
-    for (auto& key : objectKeys)
-    {
-        const char* name = key.c_str() + 6;
-        const std::string& labal = std::format("New {}", name);
-        if (ImGui::MenuItem(labal.c_str()))
-        {
-            engineCore->GameObjectFactory.NewGameObject(key, 
-                GameObject::Helper::GenerateUniqueName(name));
-        }
-    }
-}
+using namespace u8_literals;
 
 void EditorSceneMenuScenes::OnMenu() 
 {
-    if(ImGui::MenuItem("New Empty Scene"))
+    EditorModule& editor = *Global::editorModule;
+    if (ImGui::BeginMenu("Scene"))
     {
-        engineCore->SceneManager.LoadScene("Empty Scene");
+        if (ImGui::MenuItem("New EmptyScene"))
+        {
+            static std::string inputBuff;
+            editor.OpenPopupBox(u8"씬 이름을 입력하세요"_c_str, [&]() {
+                ImGui::PushID(this);
+                {
+                    ImGui::InputText(u8"이름"_c_str, &inputBuff);
+                    if (ImGui::Button(u8"확인"_c_str))
+                    {
+                        std::filesystem::path outPath = UmFileSystem.GetRootPath();
+                        outPath /= "Scenes";
+                        UmSceneManager.WriteEmptySceneToFile(inputBuff, outPath.string());
+                        ImGui::CloseCurrentPopup();
+                    }
+                    ImGui::SameLine();
+                    if (ImGui::Button(u8"취소"_c_str))
+                    {
+                        ImGui::CloseCurrentPopup();
+                    }
+                }
+                ImGui::PopID();
+            });
+        }
+        ImGui::EndMenu();
+    }
+}
+
+void EditorSceneMenuGameObject::OnMenu()
+{
+    if (ImGui::BeginMenu("New GameObject"))
+    {
+        const auto& objectKeys = EGameObjectFactory::Engine::GetGameObjectKeys();
+        for (auto& key : objectKeys)
+        {
+            const char* name  = key.c_str() + 6;
+            if (ImGui::MenuItem(name))
+            {
+                UmGameObjectFactory.NewGameObject(key, GameObject::Helper::GenerateUniqueName(name));
+            }
+        }
+        ImGui::EndMenu();
     }
 }

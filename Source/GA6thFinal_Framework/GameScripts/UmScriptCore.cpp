@@ -99,7 +99,7 @@ UMREALSCRIPTS_DECLSPEC void CreateUmrealcSriptFile(const char* fileName)
 
         if (IncludeInProject(filePath) == false)
         {
-            engineCore->EngineLogger.Log(
+            UmLogger.Log(
                 LogLevel::LEVEL_WARNING,
                 (const char*)u8"프로젝트 XML 파싱 실패. 직접 프로젝트에 추가해주세요.");
         }

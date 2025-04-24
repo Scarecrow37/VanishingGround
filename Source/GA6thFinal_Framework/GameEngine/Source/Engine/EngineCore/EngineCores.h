@@ -12,9 +12,9 @@ public:
     ESceneManager SceneManager;
     EGameObjectFactory GameObjectFactory;
     EComponentFactory ComponentFactory;
-    EEngineLogger EngineLogger;
+    ELogger Logger;
     EFileSystem FileSystem;
-    Application&  App;
+    Application& App;
 
     GraphicsCore Graphics;
 
@@ -75,7 +75,7 @@ namespace Global
 #define UmCore Global::engineCore
 #define UmTime UmCore->Time
 #define UmSceneManager UmCore->SceneManager
-#define UmEngineLogger UmCore->EngineLogger
+#define UmLogger UmCore->Logger
 #define UmGameObjectFactory UmCore->GameObjectFactory
 #define UmComponentFactory UmCore->ComponentFactory
 #define UmApplication UmCore->App

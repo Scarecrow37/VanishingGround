@@ -71,7 +71,7 @@ namespace File
     {
         int         DebugLevel = 0; // 디버그 레벨
         std::string RootPath   = "Assets";
-        std::string MetaExt    = ".META";
+        std::string MetaExt    = ".UmMeta";
     };
 } // namespace File
 

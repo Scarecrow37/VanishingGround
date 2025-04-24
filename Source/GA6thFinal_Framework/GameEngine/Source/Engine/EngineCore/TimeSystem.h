@@ -36,62 +36,55 @@ public:
 
 public:
     /*델타 타임. 단위 : 초 */
-    inline float deltaTime() const
+    inline float DeltaTime() const
     {
         return (float)_deltaTime;
     }
 
     /*Time Scale 영향 안받는 DeltaTime*/
-    inline float unscaledDeltaTime() const
+    inline float UnscaledDeltaTime() const
     {
         return (float)_unscaledDeltaTime;
     }
 
     /*Fixed DeltaTime 주기*/
-    inline float fixedDeltaTime() const
+    inline float FixedDeltaTime() const
     {
         return (float)_fixedDeltaTime;
     }
 
     /*Time Scale 영향 받는 실제 주기*/
-    inline float fixedUnscaledDeltaTime() const
+    inline float FixedUnscaledDeltaTime() const
     {
         return (float)_fixedUnscaledDeltaTime;
     }
 
     /*게임이 시작된 이후의 총 프레임 수.*/
-    inline unsigned long long frameCount() const
+    inline unsigned long long FrameCount() const
     {
         return _frameCount;
     }
 
-    /*DeltaTime으로 FPS를 계산*/
-    inline const int frameRate() const
-    {
-        double fps = 1.0 / _unscaledDeltaTime;
-        return static_cast<int>(std::clamp(fps, 0.0, fps));
-    }
-
     /*프로그램 시작 후 경과한 실제 시간을 초 단위로 반환합니다.*/
-    inline float realtimeSinceStartup() const
+    inline float RealtimeSinceStartup() const
     {
         return float(_realtimeSinceStartup) / float(_frequency.QuadPart);
     }
 
     /*프로그램 시작 후 경과한 실제 시간을 초 단위로 반환합니다. (정밀도 double)*/
-    inline double realtimeSinceStartupAsDouble() const
+    inline double RealtimeSinceStartupAsDouble() const
     {
         return double(_realtimeSinceStartup) / double(_frequency.QuadPart);
     }
 
     /*프로그램 시작 후 경과한 시간을 초 단위로 반환합니다. (TimeScale 영향 받습니다.)*/
-    inline float time() const
+    inline float Time() const
     {
         return float(_time) / float(_frequency.QuadPart);
     }
 
     /*프로그램 시작 후 경과한 시간을 초 단위로 반환합니다. (정밀도 double)*/
-    inline double timeAsDouble() const
+    inline double TimeAsDouble() const
     {
         return double(_time) / double(_frequency.QuadPart);
     }

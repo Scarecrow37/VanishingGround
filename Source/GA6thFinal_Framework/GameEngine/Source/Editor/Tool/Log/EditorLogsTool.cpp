@@ -4,41 +4,6 @@
 using namespace u8_literals;
 using namespace Global;
 
-static std::filesystem::path GetSettingFilePath()
-{
-    constexpr const wchar_t* LOG_SETTING_FILE_NAME = L"EditorLog.setting.json";
-    std::filesystem::path settingPath = PROJECT_SETTING_PATH;
-    settingPath /= LOG_SETTING_FILE_NAME;
-    return settingPath;
-}
-
-static std::string ReadSettingFile()
-{
-    std::string data;
-    std::ifstream ifs(GetSettingFilePath());
-    if (ifs.is_open() == true)
-    {
-        data = std::string(std::istreambuf_iterator<char>(ifs), {});
-    }
-    ifs.close();
-    return data;
-}
-
-static void WriteSettingFile(std::string_view data)
-{
-    auto settingPath = GetSettingFilePath();
-    if (std::filesystem::exists(settingPath) == false)
-    {
-        std::filesystem::create_directories(settingPath.parent_path());
-    }
-    std::ofstream ofs(settingPath, std::ios::trunc);
-    if (ofs.is_open() == true)
-    {
-        ofs << data;
-    }
-    ofs.close();
-}
-
 EditorLogsTool::EditorLogsTool()
 {
     SetLabel(u8"로그"_c_str);
@@ -52,21 +17,15 @@ EditorLogsTool::~EditorLogsTool()
 
 void EditorLogsTool::OnStartGui()
 {
-    std::string setting = ReadSettingFile();
-    if (setting.empty() == false)
-    {
-        DeserializedReflectFields(setting);
-    }
 }
 
 void EditorLogsTool::OnEndGui() 
 {
-    WriteSettingFile(SerializedReflectFields());
 }
 
 void EditorLogsTool::OnTickGui() 
 {
-    const auto& logMessages = engineCore->EngineLogger.GetLogMessages();
+    const auto& logMessages = engineCore->Logger.GetLogMessages();
     if (prevLogCount < logMessages.size())
     {
         for (size_t i = prevLogCount; i < logMessages.size(); i++)
@@ -79,7 +38,7 @@ void EditorLogsTool::OnTickGui()
         }
         prevLogCount = logMessages.size();
         _isMessagePush = true;
-        if (GetVisible() == false)
+        if (IsVisible() == false)
         {
             SetVisible(true);
         }
@@ -112,14 +71,14 @@ void EditorLogsTool::OnFrame()
     {
         _editFilter = true;
         _drawLogList.clear();
-        engineCore->EngineLogger.LogMessagesClear();
+        engineCore->Logger.LogMessagesClear();
         prevLogCount = 0;
     }
 
     if (_editFilter)
     {
         _drawLogList.clear();
-        const auto& logMessages = engineCore->EngineLogger.GetLogMessages();
+        const auto& logMessages = engineCore->Logger.GetLogMessages();
         for (auto& [level, message, location] : logMessages)
         {
             if (ReflectFields->LogFilterTable[level] == true)

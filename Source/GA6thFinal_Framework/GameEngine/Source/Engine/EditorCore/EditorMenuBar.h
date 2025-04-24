@@ -9,7 +9,7 @@ Menu를 출력하기 위한 컨테이너
 MenuNode = 경로를 이어주기 위한 객체 (EditorMenu)
 MenuLeaf = 실제 동작을 위한 객체 (EditorMenu를 상속받은 사용자 정의 객체)
 */
-class EditorMenuBar : public EditorBase
+class EditorMenuBar : public EditorGui
 {
     using Path = File::FString;
     using Name = std::string;
@@ -67,17 +67,11 @@ private:
     void Sort(EditorMenuNode* root);
 };
 
-class EditorMenuBase : public EditorBase
+class EditorMenuBase : public EditorGui
 {
 public:
     EditorMenuBase();
     virtual ~EditorMenuBase();
-
-public:
-    virtual void OnTickGui() override {};
-    virtual void OnStartGui() override {};
-    virtual void OnDrawGui() override {};
-    virtual void OnEndGui() override {};
 
 public:
     /* 클릭 활성화 여부를 설정 */
@@ -109,8 +103,11 @@ public:
     EditorMenuNode();
     virtual ~EditorMenuNode();
 
-public:
+private:
+    virtual void OnTickGui() override final;
+    virtual void OnStartGui() override final;
     virtual void OnDrawGui() override final;
+    virtual void OnEndGui() override final;
 
 private:
     std::unordered_map<std::string, std::vector<EditorMenuBase*>> _menuList;
@@ -127,51 +124,13 @@ public:
     EditorMenu();
     virtual ~EditorMenu();
 
-public:
-    virtual void OnDrawGui() override;
+private:
+    virtual void OnDrawGui() override final;
 
-public:
+private:
+    /* 재정의 가능 */
     virtual void OnTickGui() override {};
+    virtual void OnStartGui() override {};
+    virtual void OnEndGui() override {};
     virtual void OnMenu() = 0;
-};
-
-class SampleMenu : public EditorMenu
-{
-public:
-    SampleMenu()
-    {
-        SetCallOrder(-1);
-        SetPath("Scene/Sample");
-        SetLabel("Temp");
-    }
-    virtual ~SampleMenu() = default;
-
-public:
-    virtual void OnMenu() override
-    {
-        if (ImGui::MenuItem("Sample1"))
-        {
-        }
-    }
-};
-
-
-class SampleMenu2 : public EditorMenu
-{
-public:
-    SampleMenu2()
-    {
-        SetCallOrder(-1);
-        SetPath("Scene/Sample");
-        SetLabel("Temp1");
-    }
-    virtual ~SampleMenu2() = default;
-
-public:
-    virtual void OnMenu() override
-    {
-        if (ImGui::MenuItem("Sample2"))
-        {
-        }
-    }
 };

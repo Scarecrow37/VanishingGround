@@ -5,7 +5,7 @@ void EditorMenuDebug::OnMenu()
 {
     if (ImGui::MenuItem("Debug", "", &_isDebugMode))
     {
-        Global::editorManager->SetDebugMode(_isDebugMode);
+        Global::editorModule->SetDebugMode(_isDebugMode);
     }
 }
 
