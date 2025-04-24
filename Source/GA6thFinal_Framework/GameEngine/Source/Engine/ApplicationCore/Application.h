@@ -28,6 +28,17 @@ private:
 
 class Application
 {
+public:
+    Application();
+    virtual ~Application() = default;
+
+protected:
+    /*모듈 초기화 끝난 후 호출되는 함수*/
+    virtual void OnStartupComplete() {};
+    /*모듈 초기화 해제 끝난 후 호출되는 함수*/
+    virtual void OnShutdownComplete() {};
+
+private:
     friend class EngineCores;
     friend struct SafeEngineCoresPtr;
     inline static Application* App = nullptr;
@@ -49,7 +60,10 @@ public:
     /// <summary>
     /// 에디터 모드 여부를 확인합니다.
     /// </summary>
-    bool IsEditor();
+    inline static constexpr bool IsEditor() 
+    { 
+        return IS_EDITOR; 
+    }
 
     /// <summary>
     /// 현재 실행중인 클라이언트의 HINSTANCE를 반환합니다.
@@ -74,7 +88,8 @@ public:
         _messageHandleList.emplace_back(handle);
         std::sort(App->_messageHandleList.begin(),
                   App->_messageHandleList.end(),
-                  [](MessageHandler& handleA, MessageHandler& HandleB) {
+                  [](MessageHandler& handleA, MessageHandler& HandleB) 
+                  {
                       return handleA < HandleB;
                   });
     }
@@ -85,9 +100,6 @@ public:
     }
 
 public:
-    Application();
-    virtual ~Application() = default;
-
     struct MainEntry
     {
         static void Initialize(HINSTANCE hInstance);

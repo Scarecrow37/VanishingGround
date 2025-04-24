@@ -224,6 +224,15 @@ public:
         return _scenesMap.size();
     }
 
+    // <summary>
+    /// <para> 빈 씬을 UmScene파일로 저장후 로드합니다. </para>
+    /// <para> 로드된 이후 매개변수로 등록한 함수를 호출해줍니다. </para>
+    /// </summary>
+    /// <param name="name :">파일 이름</param>
+    /// <param name="outPath :">저장할 경로</param>
+    /// <param name="isOverride :">덮어쓰기 안내문구 스킵 여부</param>
+    void CreateEmptySceneAndLoad(std::string_view name, std::string_view outPath, const std::function<void()>& loadEvent = std::function<void()>());
+
     /// <summary>
     /// 씬을 로드합니다.
     /// </summary>
@@ -263,13 +272,13 @@ public:
     void WriteSceneToFile(const Scene& scene, std::string_view outPath, bool isOverride = false);
 
     /// <summary>
-    /// 빈 씬을 UmScene파일로 저장합니다.
+    /// <para> 빈 씬을 UmScene파일로 저장합니다. </para>
     /// </summary>
     /// <param name="name :">파일 이름</param>
     /// <param name="outPath :">저장할 경로</param>
     /// <param name="isOverride :">덮어쓰기 안내문구 스킵 여부</param>
     void WriteEmptySceneToFile(std::string_view name, std::string_view outPath, bool isOverride = false);
-
+    
 private:
     //Life cycle 을 수행. 클라에서 매틱 호출해야함.
     void SceneUpdate();
@@ -323,7 +332,9 @@ private:
     {
        // 현재 Single로 로드된 씬 이름입니다. NewGameObject를 하면 이 씬에 오브젝트가 생성됩니다.
        std::string MainScene = STR_NULL;
-    } _setting;
+    } 
+    _setting;
+    std::function<void()> _loadFuncEvent;
 
     //생성한 씬을 찾기 위한 맵입다. key : 파일 확장자를 제외한 파일 이름 
     std::unordered_map<std::string, std::unordered_set<File::Guid>> _scenesFindMap;
