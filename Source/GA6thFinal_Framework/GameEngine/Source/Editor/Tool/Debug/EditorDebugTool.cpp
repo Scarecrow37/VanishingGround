@@ -2,7 +2,11 @@
 #include "EditorDebugTool.h"
 using namespace Global;
 
-EditorDebugTool::EditorDebugTool()
+EditorDebugTool::EditorDebugTool() 
+    : 
+    _frameCount(),
+    _elpasedTime(),
+    _fps()
 {
     SetLabel("Debug");
     SetDockLayout(DockLayout::DOWN);
@@ -28,21 +32,23 @@ void EditorDebugTool::OnPreFrame()
 
 void EditorDebugTool::OnFrame()
 {
-    ImGui::InputDouble("time scale", &engineCore->Time.TimeScale);
+    ImGui::InputDouble("Time scale", &engineCore->Time.TimeScale);
 
-    ImGui::Text("time : %f", engineCore->Time.time());
-    ImGui::Text("realtimeSinceStartup : %f", engineCore->Time.realtimeSinceStartup());
+    ImGui::Text("Time : %f", engineCore->Time.Time());
+    ImGui::Text("RealtimeSinceStartup : %f", engineCore->Time.RealtimeSinceStartup());
 
-    ImGui::Text("frameCount : %llu", engineCore->Time.frameCount());
+    ImGui::Text("FrameCount : %llu", engineCore->Time.FrameCount());
 
-    ImGui::Text("FPS : %d", engineCore->Time.frameRate());
-    ImGui::Text("DeltaTime : %f", engineCore->Time.deltaTime());
+    UpdateFPS();
+    ImGui::Text("FPS : %d", _fps);
 
-    ImGui::Text("unscaledDeltaTime : %f", engineCore->Time.unscaledDeltaTime());
+    ImGui::Text("DeltaTime : %f", engineCore->Time.DeltaTime());
+
+    ImGui::Text("UnscaledDeltaTime : %f", engineCore->Time.UnscaledDeltaTime());
 
     ImGui::InputDouble("Fixed Time Step", &engineCore->Time.FixedTimeStep);
-    ImGui::Text("fixedDeltaTime %f", engineCore->Time.fixedDeltaTime());
-    ImGui::Text("fixedUnscaledDeltaTime %f", engineCore->Time.fixedUnscaledDeltaTime());
+    ImGui::Text("FixedDeltaTime %f", engineCore->Time.FixedDeltaTime());
+    ImGui::Text("FixedUnscaledDeltaTime %f", engineCore->Time.FixedUnscaledDeltaTime());
 
     ImGui::InputDouble("maximumDeltaTime", &engineCore->Time.MaximumDeltaTime);
 }
@@ -54,4 +60,17 @@ void EditorDebugTool::OnPostFrame()
 
 void EditorDebugTool::OnPopup() 
 {
+
+}
+
+void EditorDebugTool::UpdateFPS() 
+{
+    ++_frameCount;
+    _elpasedTime += UmTime.DeltaTime();
+    if (_elpasedTime >= 0.5f)
+    {
+        _fps         = _frameCount / _elpasedTime;
+        _frameCount  = 0;
+        _elpasedTime = 0.0;
+    }
 }
