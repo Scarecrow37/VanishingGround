@@ -20,7 +20,7 @@ constexpr bool IS_EDITOR = true;
 constexpr bool IS_EDITOR = false;
 #endif
 
-// 프로젝트 설정 파일들 모아두는 폴더
+// 프로젝트 설정 파일들 모아두는 폴더s
 constexpr const wchar_t* PROJECT_SETTING_PATH = L"ProjectSetting"; 
 // 문자열 null을 명시적으로 표시하기 위한 값
 constexpr const char* STR_NULL = "null";
