@@ -318,6 +318,11 @@ void ESceneManager::Engine::DontDestroyOnLoadObject(GameObject& gameObject)
     DontDestroyOnLoadObject(&gameObject);
 }
 
+std::string& ESceneManager::Engine::GetStartSceneSetting()
+{
+    return UmSceneManager._setting.StartScene;
+}
+
 void ESceneManager::CreateEmptySceneAndLoad(std::string_view name, std::string_view outPath, const std::function<void()>& loadEvent) 
 {
     if (UmComponentFactory.HasScript() == false)

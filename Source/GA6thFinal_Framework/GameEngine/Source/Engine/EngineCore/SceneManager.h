@@ -187,6 +187,12 @@ public:
         /// </summary>
         static void DontDestroyOnLoadObject(GameObject* gameObject);
         static void DontDestroyOnLoadObject(GameObject& gameObject);
+
+        /// <summary>
+        /// 시작 씬 설정을 가져옵니다.
+        /// </summary>
+        /// <returns></returns>
+        static std::string& GetStartSceneSetting();
     };
 
 public:
@@ -199,7 +205,7 @@ public:
     }
 
     /// <summary>
-    /// 등록된 모든 씬들을 반환합니다. 씬 이름이 key로 Scene 객체가 value로 저장되어있습니다.
+    /// 등록된 모든 씬들을 반환합니다. 씬 GUID가 key로 Scene 객체가 value로 저장되어있습니다.
     /// </summary>
     inline const std::unordered_map<File::Guid, Scene>& GetScenesMap()
     {
