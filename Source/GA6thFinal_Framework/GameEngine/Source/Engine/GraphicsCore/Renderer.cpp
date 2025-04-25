@@ -14,7 +14,7 @@
 #include "Grid.h"
 #include "Quad.h"
 #include "RenderScene.h"
-#include "PBRTechnique.h"
+#include "PBRLitTechnique.h"
 #endif
 
 Renderer::Renderer()
@@ -42,18 +42,30 @@ void Renderer::RegisterRenderQueue(MeshRenderer* component)
     // test code
     for (auto& meshRenerComps : _components)
     {
-        _renderScenes["TEST PBR"]->RegisterOnRenderQueue(meshRenerComps);
+        _renderScenes["Test"]->RegisterOnRenderQueue(meshRenerComps);
     }
 }
 
 void Renderer::Initialize()
 {
-    std::shared_ptr<RenderScene> testRenderScene = std::make_shared<RenderScene>();
-    testRenderScene->InitializeRenderScene(1);
-    std::shared_ptr<PBRTechnique> pbrTech = std::make_shared<PBRTechnique>();
-    testRenderScene->AddRenderTechnique("PBR", pbrTech);
+    /*if (IS_EDITOR)
+    {
+    }
+    else
+    {
+    }*/
+    //std::shared_ptr<RenderScene> testRenderScene = std::make_shared<RenderScene>();
+    //testRenderScene->InitializeRenderScene(1);
+    //std::shared_ptr<PBRTechnique> pbrTech = std::make_shared<PBRTechnique>();
+    //testRenderScene->AddRenderTechnique("PBR", pbrTech);
 
-    _renderScenes["TEST PBR"]                    = testRenderScene;
+    //_renderScenes["TEST PBR"] = testRenderScene;
+    std::shared_ptr<RenderScene> testRenderScene = std::make_shared<RenderScene>();
+    testRenderScene->InitializeRenderScene();
+    std::shared_ptr<PBRLitTechnique> pbrTech = std::make_shared<PBRLitTechnique>();
+    testRenderScene->AddRenderTechnique("PBRLIT", pbrTech);
+    _renderScenes["Test"] = testRenderScene;
+
 }
 
 void Renderer::Update()
@@ -79,7 +91,7 @@ void Renderer::Render()
 
     for (auto& renderScene : _renderScenes)
     {
-        renderScene.second->Excute(commandList);
+        renderScene.second->Execute(commandList.Get());
     }
 
 }

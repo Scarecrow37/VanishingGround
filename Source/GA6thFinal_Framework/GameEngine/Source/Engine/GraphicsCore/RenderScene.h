@@ -11,6 +11,18 @@ class TempObject;
 class RenderScene
 {
 public:
+    enum GBuffer
+    {
+        BASECOLOR,
+        NORMAL,
+        ORM,
+        EMISSIVE,
+        DEPTH,
+        COSTOMDEPTH,
+        END
+    };
+
+public :
     RenderScene();
     ~RenderScene() = default;
 
@@ -18,64 +30,43 @@ public:
     void UpdateRenderScene();
 
 public:
-    void InitializeRenderScene(UINT renderTargetCount);
-    void RegisterOnRenderQueue(MeshRenderer* renderable);
-    // Set Decriptor랑 Set OnwerPass는 해줌.
-    void AddRenderTechnique(const std::string& name, std::shared_ptr<RenderTechnique> technique);
-    void Excute(ComPtr<ID3D12GraphicsCommandList> commandList);
-    UINT GetCurrentRendertarget() { return _currnetRederTarget; }
-    void RenderOnBackBuffer(ComPtr<ID3D12GraphicsCommandList> commandList);
-    void RenderOnEditor(ComPtr<ID3D12GraphicsCommandList> commandList);
+    void RenderOnBackBuffer(ID3D12GraphicsCommandList* commandList);
+    void RenderOnEditor(ID3D12GraphicsCommandList* commandList);
 
-private:
-    void CreateRenderTargetPool(UINT renderTargetCount);
-    void CreateFrameDepthStencil();
-    void CreateMSAARenderTarget();
-    void CreatePso();
-    void CreateDescriptorHeap();
-    void CopyMSAATexture(ComPtr<ID3D12GraphicsCommandList> commandList);
-
-public:
-
-    std::vector<std::shared_ptr<RenderTarget>> _renderTargetPool;
-    std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>   _renderTargetHandles;
-    std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>   _renderTargetSRVHandles;
-    UINT                                       _currnetRederTarget = 0;
-
-
-    UINT _currentFrameIndex=0;
-
-
-    // 250425
-public:
+    // 렌더신 시작시 한번만 호출
     void InitializeRenderScene();
+    // 렌더할 메쉬 등록
+    void RegisterOnRenderQueue(MeshRenderer* renderable);
+    // 렌더큐에서 삭제된건?? 물어봐야함.
+
+    // 렌더 기술 등록
+    void AddRenderTechnique(const std::string& name, std::shared_ptr<RenderTechnique> technique);
+    // 실행
+    void Execute(ID3D12GraphicsCommandList* commandList);
 
 private:
     // 사용할 gbuffer와 render target pool 생성
     void CreateRenderTarget();
-    
     // 한 frame에 사용할 depth stencil 생성하기(1개)->늘어나야하는가?
     // 각 테크 별로 필요하면 만들어쓰기. 이거는 사용하지 않도록
     void CreateDepthStencil();
-    
     // 화면에 찍어낼 용도의 quad mesh와 frame shader 만들기.
     void CreateFrameQuadAndFrameShader();
-
     // frame에서 사용할 pso 만들어주기
     void CreateFramePSO();
-
     // frame에서 사용할 SRV descriptor Heap 만들어주기.
     void CreateSrvDescriptorHeap();
-
     // frame Resource Backbuffer 갯수만큼 생성해주기.
     void CreateFrameResource();
 
+
 public:
+    UINT _currentFrameIndex = 0;
     // 가지고있는 technique들
     std::unordered_map<std::string, std::shared_ptr<RenderTechnique>> _techniques;
 
-    // 0: albedo, 1: normal ,2:ORM , 3:emissive, 4: depth, 5: costom depth(bit mask,후처리용)
-    UINT                              _gbufferCount = 6;
+    // 0: basecolor, 1: normal ,2:ORM , 3:emissive, 4: depth, 5: costom depth(bit mask,후처리용)
+    UINT                              _gBufferCount = 6;
     std::vector<std::shared_ptr<RenderTarget>> _gBuffer;
     std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _gBufferSrvHandles;
 
