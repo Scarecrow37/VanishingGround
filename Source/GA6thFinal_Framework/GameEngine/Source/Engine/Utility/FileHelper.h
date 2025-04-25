@@ -42,6 +42,8 @@ namespace File
 
     bool RemoveFile(const File::Path& path);
 
+    bool CopyFileFromTo(const File::Path& from, File::Path to);
+
     bool CopyPathToClipBoard(const File::Path& path);
 
     File::Path GenerateUniquePath(const File::Path& path, unsigned int maxIndex = 999);
