@@ -36,30 +36,75 @@ private:
     void CopyMSAATexture(ComPtr<ID3D12GraphicsCommandList> commandList);
 
 public:
-    std::vector<MeshRenderer*>                  _renderQueue;
-    std::vector<std::shared_ptr<FrameResource>> _frameResources;
-    ComPtr<ID3D12Resource>                      _cameraBuffer;
+
 
 public:
-    std::unordered_map<std::string, std::shared_ptr<RenderTechnique>> _techniques;
 
     std::vector<std::shared_ptr<RenderTarget>> _renderTargetPool;
     std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>   _renderTargetHandles;
     std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>   _renderTargetSRVHandles;
     UINT                                       _currnetRederTarget = 0;
 
-    D3D12_CPU_DESCRIPTOR_HANDLE _depthStencilHandle;
-    ComPtr<ID3D12Resource>      _depthStencilBuffer;
 
     UINT _currentFrameIndex=0;
 
+
+    // 250425
+public:
+    void InitializeRenderScene();
+
+private:
+    // 사용할 gbuffer와 render target pool 생성
+    void CreateRenderTarget();
+    
+    // 한 frame에 사용할 depth stencil 생성하기(1개)->늘어나야하는가?
+    // 각 테크 별로 필요하면 만들어쓰기. 이거는 사용하지 않도록
+    void CreateDepthStencil();
+    
+    // 화면에 찍어낼 용도의 quad mesh와 frame shader 만들기.
+    void CreateFrameQuadAndFrameShader();
+
+    // frame에서 사용할 pso 만들어주기
+    void CreateFramePSO();
+
+    // frame에서 사용할 SRV descriptor Heap 만들어주기.
+    void CreateSrvDescriptorHeap();
+
+    // frame Resource Backbuffer 갯수만큼 생성해주기.
+    void CreateFrameResource();
+
+public:
+    // 가지고있는 technique들
+    std::unordered_map<std::string, std::shared_ptr<RenderTechnique>> _techniques;
+
+    // 0: albedo, 1: normal ,2:ORM , 3:emissive, 4: depth, 5: costom depth(bit mask,후처리용)
+    UINT                              _gbufferCount = 6;
+    std::vector<std::shared_ptr<RenderTarget>> _gBuffer;
+    std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _gBufferSrvHandles;
+
+    // 후처리시 사용할 rt pool 혹은 각 테크별로 돌려서 쓸?
+    UINT _renderTargetPoolCount = 3;
+    std::vector<std::shared_ptr<RenderTarget>> _renderTargets;
+    std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>  _renderTargetSrvHandles;
+
+    // frame단위로 사용하는 depth stencil buffer
+    D3D12_CPU_DESCRIPTOR_HANDLE _depthStencilHandle;
+    ComPtr<ID3D12Resource>      _depthStencilBuffer;
+
+    // 렌더링할 목록
+    std::vector<MeshRenderer*>                  _renderQueue;
+    
+    //frame resource와 카메라 리소스.
+    std::vector<std::shared_ptr<FrameResource>> _frameResources;
+    ComPtr<ID3D12Resource>                      _cameraBuffer;
+
+private:
     std::unique_ptr<Quad>        _frameQuad;
+    std::unique_ptr<Shader>      _frameShader;
     ComPtr<ID3D12PipelineState>  _framePSO;
     ComPtr<ID3D12DescriptorHeap> _srvDescriptorHeap;
 
-    // 임시
-    std::unique_ptr<Shader> _frameShader;
-
+    // 폐기 목록? msaa
 private:
     ComPtr<ID3D12Resource> _nonMSAATexture;
     D3D12_CPU_DESCRIPTOR_HANDLE _nonMSAARtHandle;

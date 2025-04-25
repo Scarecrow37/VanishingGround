@@ -93,8 +93,9 @@ bool EComponentFactory::InitalizeComponentFactory()
         return false;
     }
     auto InitDLLCores = (InitScripts)GetProcAddress(m_scriptsDll, funcList[1].c_str());
+    std::shared_ptr<EngineCores> cores = engineCore;
     InitDLLCores(
-        engineCore,
+        cores,
         ImGui::GetCurrentContext());
 
     //스크립트 생성자들 등록

@@ -318,6 +318,32 @@ void ESceneManager::Engine::DontDestroyOnLoadObject(GameObject& gameObject)
     DontDestroyOnLoadObject(&gameObject);
 }
 
+void ESceneManager::CreateEmptySceneAndLoad(std::string_view name, std::string_view outPath, const std::function<void()>& loadEvent) 
+{
+    if (UmComponentFactory.HasScript() == false)
+    {
+        if (UmComponentFactory.InitalizeComponentFactory() == false)
+        {
+            return;
+        }
+    }
+    std::filesystem::path writePath = outPath;
+    writePath /= name;
+    writePath.replace_extension(SCENE_EXTENSION);
+
+    if (std::filesystem::exists(writePath))
+    {
+        LoadScene(writePath.string());
+        loadEvent();
+    }
+    else
+    {
+        WriteEmptySceneToFile(name, outPath);
+        _setting.MainScene = writePath.string();
+        _loadFuncEvent     = loadEvent;
+    }
+}
+
 void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
 {
     Scene* scene = GetSceneByName(sceneName);
@@ -846,9 +872,17 @@ void ESceneManager::OnFileAdded(const File::Path& path)
     {
         if (UmComponentFactory.HasScript() == false)
         {
-            UmComponentFactory.InitalizeComponentFactory();
+            if (UmComponentFactory.InitalizeComponentFactory() == false)
+            {
+                return;
+            }       
         }
         LoadScene(path.string());
+        if (_loadFuncEvent)
+        {
+            _loadFuncEvent();
+            _loadFuncEvent = nullptr;
+        }
     }
 }
 
