@@ -307,7 +307,8 @@ void EFileSystem::RegisterContext(const File::Path& path)
          auto       parentContext = UmFileSystem.GetContext<FolderContext>(parentPath);
          if (false == parentContext.expired())
          {
-             parentContext.lock()->_contextTable[path.filename()] = context;
+             File::Path filename = path.filename();
+             parentContext.lock()->_contextTable[filename] = context;
          }
 
          context->OnFileRegistered(path);
@@ -377,7 +378,9 @@ void EFileSystem::ProcessModifiedFile(const File::Path& path)
     auto wpContext = GetContext(path);
     if (false == wpContext.expired())
     {
-        wpContext.lock()->OnFileModified(path);
+        auto spContext = wpContext.lock();
+
+        spContext->OnFileModified(path);
 
         auto notifierSet = GetNotifiers(path.extension());
         for (auto& notifier : notifierSet)
@@ -387,31 +390,33 @@ void EFileSystem::ProcessModifiedFile(const File::Path& path)
     }
 }
 
-void EFileSystem::ProcessMovedFile(const File::Path& oldPath,
-                            const File::Path& newPath) 
+void EFileSystem::ProcessMovedFile(const File::Path& oldPath, const File::Path& newPath) 
 {
     // 이전 경로에서 컨텍스트를 찾아 새 경로로 옮기기
     auto wpContext = GetContext(oldPath);
     if (false == wpContext.expired())
     {
+        auto spContext = wpContext.lock();
+
+        File::Path oldFileName = oldPath.filename();
+        File::Path oldFolderPath = oldPath.parent_path().generic_string();
+        File::Path oldExtension  = oldPath.extension();
+        File::Path newFileName = newPath.filename();
+        File::Path newFolderPath = newPath.parent_path().generic_string();
+        File::Path newExtension  = newPath.extension();
+
         _pathToGuidTable.erase(oldPath);
-        _pathToGuidTable[newPath] = wpContext;
+        _pathToGuidTable[newPath] = spContext;
         // Guid는 동일하므로 안지워도 된다.
 
-        if (oldPath.parent_path() == newPath.parent_path())
-        {
-            // 같은 폴더 내에서 이름만 변경
-            wpContext.lock()->OnFileRenamed(oldPath, newPath);
+        if (oldFolderPath == newFolderPath)
+        {   // 같은 폴더 내에서 이름만 변경
+            spContext->OnFileRenamed(oldPath, newPath);
         }
         else
-        {
-            // 다른 폴더로 이동
-            wpContext.lock()->OnFileMoved(oldPath, newPath);
+        {   // 다른 폴더로 이동
+            spContext->OnFileMoved(oldPath, newPath);
         }
-
-        // 폴더 컨텍스트에게도 알려준다.
-        File::Path oldFolderPath = oldPath.parent_path().generic_string();
-        File::Path newFolderPath = newPath.parent_path().generic_string();
 
         auto oldFolderContext =
             UmFileSystem.GetContext<FolderContext>(oldFolderPath);
@@ -420,13 +425,15 @@ void EFileSystem::ProcessMovedFile(const File::Path& oldPath,
 
         if (false == oldFolderContext.expired() && false == newFolderContext.expired())
         {
-            oldFolderContext.lock()->_contextTable.erase(oldPath.filename());
-            newFolderContext.lock()->_contextTable[newPath.filename()] = wpContext;
+            FString oldFileName = oldPath.filename();
+            FString newFileName = newPath.filename();
+            oldFolderContext.lock()->_contextTable.erase(oldFileName);
+            newFolderContext.lock()->_contextTable[newFileName] = spContext;
         }
 
-        if (oldPath.parent_path() == newPath.parent_path())
+        if (oldFolderPath == newFolderPath)
         {
-            auto notifierSet = GetNotifiers(oldPath.extension());
+            auto notifierSet = GetNotifiers(newExtension);
             for (auto& notifier : notifierSet)
             {
                 notifier->OnFileRenamed(oldPath, newPath);
@@ -434,7 +441,7 @@ void EFileSystem::ProcessMovedFile(const File::Path& oldPath,
         }
         else
         {
-            auto notifierSet = GetNotifiers(newPath.extension());
+            auto notifierSet = GetNotifiers(newExtension);
             for (auto& notifier : notifierSet)
             {
                 notifier->OnFileMoved(oldPath, newPath);

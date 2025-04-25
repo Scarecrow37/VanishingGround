@@ -356,7 +356,8 @@ protected:
     bool DeserializeToGuid(const File::Guid& guid);
 
     // FileEventNotifier을(를) 통해 상속됨
-    virtual void OnFileAdded(const File::Path& path) override;
+    virtual void OnFileRegistered(const File::Path& path) override;
+    virtual void OnFileUnregistered(const File::Path& path) override;
     virtual void OnFileModified(const File::Path& path) override;
     virtual void OnFileRemoved(const File::Path& path) override;
     virtual void OnFileRenamed(const File::Path& oldPath, const File::Path& newPath) override;

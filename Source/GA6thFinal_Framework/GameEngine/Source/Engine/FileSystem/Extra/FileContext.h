@@ -22,7 +22,10 @@ namespace File
 
         bool Remove();
 
+        /* 매개 변수: 폴더 경로X, 최종 경로O */
         bool Move(const File::Path& newPath);
+
+        std::weak_ptr<FolderContext> GetParentContext();
 
         template <typename T>
         T* SafeCast()
@@ -89,8 +92,15 @@ namespace File
         FolderContext& operator=(FolderContext&&)      = delete;
 
     public:
+        auto begin() { return _contextTable.begin(); }
+        auto end() { return _contextTable.end(); }
+
+    public:
         inline virtual bool IsDirectory() override { return true; }
         inline virtual bool IsRegularFile() override { return false; }
+
+    public:
+        void MoveContext(std::weak_ptr<Context> context);
 
     public:
         virtual void OnFileRegistered(const File::Path& path) override;
@@ -102,7 +112,6 @@ namespace File
 
     public:
         std::unordered_map<FString, std::weak_ptr<Context>> _contextTable;
-        auto begin() { return _contextTable.begin(); }
-        auto end() { return _contextTable.end(); }
+        
     };
 }

@@ -85,10 +85,11 @@ private:
 
 private:
     void ProcessEnterAction(spContext context);
-    
+    void ProcessMoveAction(wpContext srcContext, wpFolderContext dstContext);
+
     void SetFocusInspector(wpContext context);
     bool SetFocusFolder(wpFolderContext context); // 선택된 폴더 or 파일 포커싱
-    void SetFocusParentFolder(spFolderContext context);
+    void SetFocusParentFolder(spContext context);
     void SetFocusFromUndoPath();
     void SetFocusFromRedoPath();
 
@@ -100,8 +101,9 @@ private:
     /* 브라우저에서 보여질 유형 (List, Icon) */
     ShowType _showType;
     /* 현재 포커싱 폴더 */
-    File::Path       _focusFolderPath;
-    wpFolderContext  _focusFolder;
+    File::Path      _currFocusFolderPath;
+    wpFolderContext _currFocusFolderContext;
+    wpFolderContext _nextFocusFolderContext;
     /* 현재 선택된 폴더 or 파일 */
     std::shared_ptr<EditorFileObject> _selectedContext;
     /* 이름 바꾸기 모드 여부 */
@@ -115,9 +117,11 @@ private:
     /* Copy&Paste */
     File::Path _copyPath;
     
+    /* EventProcessing */
+    std::vector<std::function<void()>> _eventFunc; 
+
     // ReflectFields
     REFLECT_FIELDS_BEGIN(EditorTool)
-    bool IsShowMeta = false; // 메타파일 보여줄지 여부
     float UpperHeight = 40.0f;
     float ColumWidth  = 250.f;
     float ColumHeight = 0.0f;

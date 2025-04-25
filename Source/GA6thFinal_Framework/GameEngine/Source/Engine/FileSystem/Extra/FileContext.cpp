@@ -73,11 +73,20 @@ namespace File
         {
             if (newPath != _path)
             {
-                // 차후 동작은 이벤트로 처리하므로 파일만 변경
-                return MoveFileExW(_path.wstring().c_str(), newPath.wstring().c_str(), MOVEFILE_REPLACE_EXISTING);
+                File::Path from = _path;
+                File::Path to = GenerateUniquePath(newPath);
+                fs::rename(from, to);
+                return true;
             }
         }
         return false;
+    }
+
+    std::weak_ptr<FolderContext> Context::GetParentContext()
+    {
+        File::Path parentPath = _path.parent_path();
+        auto       context    = UmFileSystem.GetContext<FolderContext>(parentPath);
+        return context;
     }
 
     FileContext::FileContext(const File::Path& path) 
@@ -109,7 +118,7 @@ namespace File
     void FileContext::OnFileRenamed(const Path& oldPath, const Path& newPath) 
     {
         _path = newPath;
-        _name = newPath.filename().string();
+        _name = _path.filename().string();
         
         LoadMeta();
     }
@@ -117,7 +126,7 @@ namespace File
     void FileContext::OnFileMoved(const Path& oldPath, const Path& newPath) 
     {
         _path = newPath;
-        _name = newPath.filename().string();
+        _name = _path.filename().string();
 
         LoadMeta();
     }
@@ -131,6 +140,28 @@ namespace File
     FolderContext::~FolderContext() 
     {
     
+    }
+
+    void FolderContext::MoveContext(std::weak_ptr<Context> context) 
+    {
+        //if (false == context.expired())
+        //{
+        //    auto spContext = context.lock();
+        //    auto parentContext = spContext->GetParentContext();
+        //    if (false == parentContext.expired())
+        //    {
+        //        auto spParentContext = parentContext.lock();
+        //        
+        //        spParentContext->_contextTable.find
+        //        File::Path name = spContext->GetPath().filename();
+        //        _contextTable[name] = context;
+        //    }
+        //
+        //    const Path& oldPath                 = spContext->GetPath();
+        //    const Path  newPath                 = _path / spContext->GetPath().filename();
+        //    _contextTable[spContext->GetName()] = context;
+        //    spContext->Move(newPath);
+        //}
     }
 
     void FolderContext::OnFileRegistered(const File::Path& path)
@@ -161,9 +192,11 @@ namespace File
     void FolderContext::OnFileRenamed(const Path& oldPath, const Path& newPath)
     {
         _path = newPath;
-        _name = newPath.filename().string();
+        _name = _path.filename().string();
 
         LoadMeta();
+
+        std::vector<std::pair<FString, FString>>  table;
 
         for (auto& [name, wpContext] : _contextTable)
         {
@@ -171,18 +204,24 @@ namespace File
             {
                 auto        spContext      = wpContext.lock();
                 const Path& oldContextPath = spContext->GetPath();
-                const Path& newContextPath = newPath / spContext->GetPath().filename();
-                UmFileSystem.ProcessMovedFile(oldContextPath.generic_string(), newContextPath.generic_string());
+                const Path newContextPath = _path / spContext->GetPath().filename();
+                table.push_back(std::make_pair(oldContextPath.generic_string(), newContextPath.generic_string()));
             }
+        }
+        for (auto& [oldPath, newPath] : table)
+        {
+            UmFileSystem.ProcessMovedFile(oldPath, newPath);
         }
     }
 
     void FolderContext::OnFileMoved(const Path& oldPath, const Path& newPath) 
     {
         _path = newPath;
-        _name = newPath.filename().string();
+        _name = _path.filename().string();
 
         LoadMeta();
+
+        std::vector<std::pair<FString, FString>> table;
 
         for (auto& [name, wpContext] : _contextTable)
         {
@@ -190,9 +229,13 @@ namespace File
             {
                 auto        spContext      = wpContext.lock();
                 const Path& oldContextPath = spContext->GetPath();
-                const Path& newContextPath = newPath / spContext->GetPath().filename();
-                UmFileSystem.ProcessMovedFile(oldContextPath, newContextPath);
+                const Path newContextPath = _path / spContext->GetPath().filename();
+                table.push_back(std::make_pair(oldContextPath.generic_string(), newContextPath.generic_string()));
             }
+        }
+        for (auto& [oldPath, newPath] : table)
+        {
+            UmFileSystem.ProcessMovedFile(oldPath, newPath);
         }
     }
 

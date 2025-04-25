@@ -52,8 +52,8 @@ namespace File
 
     void FileObserver::SetHandles()
     {
-        if (std::filesystem::exists(_path) &&
-            std::filesystem::is_directory(_path))
+        if (true == std::filesystem::exists(_path) &&
+            true == std::filesystem::is_directory(_path))
         {
             auto fileInfo = GetFileAttributesW(_path.c_str());
             if (fileInfo == INVALID_FILE_ATTRIBUTES)
@@ -251,7 +251,7 @@ namespace File
                     }
 
                     std::this_thread::sleep_for(
-                        std::chrono::milliseconds(3)); 
+                        std::chrono::milliseconds(30)); 
 
                     _request = true;
                 }

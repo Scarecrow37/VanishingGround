@@ -89,6 +89,7 @@ public:
 public:
     void Clear();
     void ReadDirectory();
+    void ReadDirectory(const File::Path& path);
 
     void RegisterContext(const File::Path& path);
     void UnregisterContext(const File::Path& path);
@@ -99,8 +100,7 @@ public:
 private:
     void ClearContext();
     void ClearNotifier();
-    void ReadDirectory(const File::Path& path);
-
+   
 private:
     File::SystemSetting _setting;   // 세팅 정보
 
