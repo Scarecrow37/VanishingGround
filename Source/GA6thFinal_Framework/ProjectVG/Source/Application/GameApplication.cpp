@@ -63,9 +63,19 @@ GameApplication::~GameApplication()
 
 }
 
+static void SeongUTestCode()
+{
+    auto  obj                     = NewGameObject<GameObject>("cerberus");
+    auto& comps                   = obj->AddComponent<StaticMeshRenderer>();
+    comps.ReflectFields->FilePath = "../../../Resource/TestAssets/Cerberus/pbrGun.fbx";
+    obj->transform->Scale         = {0.3f, 0.3f, 0.3f};
+    obj->transform->EulerAngle    = {0, 90.f, 0};
+}
+
+
 void GameApplication::OnStartupComplete() 
 {
-
+    UmSceneManager.CreateEmptySceneAndLoad("testScene", "Assets/Scenes", SeongUTestCode);
 }
 
 void GameApplication::OnShutdownComplete() 
