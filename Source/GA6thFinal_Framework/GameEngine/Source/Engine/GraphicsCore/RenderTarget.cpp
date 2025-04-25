@@ -1,15 +1,16 @@
 ﻿#include "pch.h"
 #include "RenderTarget.h"
 
-HRESULT RenderTarget::Initialize()
+HRESULT RenderTarget::Initialize(DXGI_FORMAT format)
 {
+    _format                     = format;
     ComPtr<ID3D12Device> device = UmDevice.GetDevice();
     D3D12_RESOURCE_DESC  desc{.Dimension        = D3D12_RESOURCE_DIMENSION_TEXTURE2D,
                               .Width            = UmDevice.GetMode().Width,
                               .Height           = UmDevice.GetMode().Height,
                               .DepthOrArraySize = 1,
                               .MipLevels        = 1,
-                              .Format           = DXGI_FORMAT_R32G32B32A32_FLOAT,
+                              .Format           = _format,
                               .SampleDesc{.Count   = UmDevice.GetMSAAState() ? (UINT)4 : (UINT)1,
                                           .Quality = UmDevice.GetMSAAState() ? UmDevice.GetMSAAQuality() - 1 : (UINT)0},
                               .Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN,
@@ -18,7 +19,7 @@ HRESULT RenderTarget::Initialize()
     CD3DX12_HEAP_PROPERTIES property(D3D12_HEAP_TYPE_DEFAULT);
 
     D3D12_CLEAR_VALUE clearValue{
-        .Format = DXGI_FORMAT_R32G32B32A32_FLOAT,
+        .Format = _format,
         .Color  = {0.f, 0.f, 0.f, 1.f},
     };
     // committedReosurce로 임시로 생성
@@ -39,7 +40,7 @@ D3D12_CPU_DESCRIPTOR_HANDLE RenderTarget::CreateShaderResourceView()
 {
     // Srv 생성하기(RenderTarget에 대한)
     D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-    srvDesc.Format                          = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    srvDesc.Format                          = _format;
     srvDesc.ViewDimension                   = D3D12_SRV_DIMENSION_TEXTURE2D;
     srvDesc.Texture2D.MostDetailedMip       = 0;
     srvDesc.Texture2D.MipLevels             = 1;
