@@ -610,22 +610,27 @@ void EditorAssetBrowserTool::ItemEventAction(spContext context, const char* mode
 
 void EditorAssetBrowserTool::ItemInputAction(spContext context, const char* mode)
 {
+    auto& io = ImGui::GetIO();
+
     bool isParent       = (0 == strcmp(mode, "parent"));
     bool isSelected     = UmFileSystem.IsSameContext(_selectedContext->GetContext(), context);
     bool isRename       = browserFlags[FLAG_IS_RENAME];
-    bool isFrameFocused = ImGui::IsWindowFocused();                         // 윈도우 포커스 여부
-    bool isItemActive   = ImGui::IsItemActive();                            // 셀렉터블이 눌렸는지
-    bool isItemHovered  = ImGui::IsItemHovered();                           // 셀렉터블이 호버링 되었는지
-    bool isItemFocused  = ImGui::IsItemFocused();                           // 셀렉터블이 포커스 되었는지
+    bool isFrameFocused = ImGui::IsWindowFocused();                             // 윈도우 포커스 여부
+    bool isItemActive   = ImGui::IsItemActive();                                // 셀렉터블이 눌렸는지
+    bool isItemHovered  = ImGui::IsItemHovered();                               // 셀렉터블이 호버링 되었는지
+    bool isItemFocused  = ImGui::IsItemFocused() && io.NavActive;               // 셀렉터블이 포커스 되었는지
 
-    bool isClickedLeft  = isItemHovered && ImGui::IsMouseClicked(0); // 마우스 왼 클릭
-    bool isClickedRight = isItemHovered && ImGui::IsMouseClicked(1); // 마우스 오른 클릭    
+    bool isClickedLeft  = isItemHovered && ImGui::IsMouseReleased(0); // 마우스 왼 클릭
+    bool isClickedRight = isItemHovered && ImGui::IsMouseReleased(1); // 마우스 오른 클릭    
    
     bool isMouseDouble  = isItemFocused && ImGui::IsMouseDoubleClicked(0);              // 마우스 더블 클릭
     bool iskeyEnter     = isItemFocused && ImGui::IsKeyPressed(ImGuiKey_Enter, false);  // 엔터키 눌림
     bool isKeyEscape    = isItemFocused && ImGui::IsKeyPressed(ImGuiKey_Escape, false); // ESC키 눌림
     bool isKeyDelete    = isItemFocused && ImGui::IsKeyPressed(ImGuiKey_Delete, false); // DEL키 눌림
     bool isKeyF2        = isItemFocused && ImGui::IsKeyPressed(ImGuiKey_F2, false);     // 백스페이스 눌림
+    bool isKeyArrowDown = isItemFocused && ImGui::IsKeyDown(ImGuiKey_DownArrow); 
+    bool isKeyArrowUp   = isItemFocused && ImGui::IsKeyDown(ImGuiKey_UpArrow); 
+    bool isKeyArrow     = isKeyArrowDown || isKeyArrowUp;
 
     bool ctrl           = ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftCtrl);
     bool c              = ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_C, false);
@@ -633,41 +638,42 @@ void EditorAssetBrowserTool::ItemInputAction(spContext context, const char* mode
     bool isKeyCopy      = ctrl && c; // Ctrl + C
     bool isKeyPaste     = ctrl && v; // Ctrl + V
     
-
-    if (true == isMouseDouble || true == iskeyEnter)
+    if (true == isItemFocused)
     {
-        ProcessEnterAction(context);
-    }
-
-    if (true == isClickedLeft || true == isClickedRight || true == isItemFocused)
-    {
-        SetFocusInspector(context);
-    }
-    if (false == isParent)
-    {
-        if (true == isRename)
+        if (true == isMouseDouble || true == iskeyEnter)
         {
-            if (true == isKeyEscape)
-            {
-                browserFlags[FLAG_IS_RENAME] = false;
-            }
+            ProcessEnterAction(context);
         }
-        else if (false == isRename)
+        if (true == isClickedLeft || true == isClickedRight || true == isKeyArrow)
         {
-            if (true == isKeyF2)
+            SetFocusInspector(context);
+        }
+        if (false == isParent)
+        {
+            if (true == isRename)
             {
-                browserFlags[FLAG_IS_RENAME] = true;
+                if (true == isKeyEscape)
+                {
+                    browserFlags[FLAG_IS_RENAME] = false;
+                }
             }
-
-            if (true == isKeyDelete)
+            else if (false == isRename)
             {
-                Global::editorModule->OpenPopupBox("RemoveAsset", [&, context]() { ShowDeletePopupBox(context); });
-            }
+                if (true == isKeyF2)
+                {
+                    browserFlags[FLAG_IS_RENAME] = true;
+                }
 
-            if (true == isKeyCopy)
-            {
-                _copyPath = context->GetPath();
-                UmFileSystem.RequestCopyFile(_copyPath);
+                if (true == isKeyDelete)
+                {
+                    Global::editorModule->OpenPopupBox("RemoveAsset", [&, context]() { ShowDeletePopupBox(context); });
+                }
+
+                if (true == isKeyCopy)
+                {
+                    _copyPath = context->GetPath();
+                    UmFileSystem.RequestCopyFile(_copyPath);
+                }
             }
         }
     }
