@@ -12,5 +12,5 @@ public:
 
 private:
     void InitGBufferPass();
-
+    void InitDeferredPass();
 };

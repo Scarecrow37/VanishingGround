@@ -32,3 +32,8 @@ void PBRLitTechnique::InitGBufferPass()
     gBufferPass->Initialize(viewport, scissor);
     AddRenderPass(gBufferPass);
 }
+
+void PBRLitTechnique::InitDeferredPass() 
+{
+
+}

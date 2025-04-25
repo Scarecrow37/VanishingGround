@@ -285,6 +285,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Engine\GraphicsCore\DeferredPBRLitPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\GBufferPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\PBRLitTechnique.h" />
     <ClInclude Include="Source\Engine\EditorCore\Setting\EditorSetting.h" />
@@ -300,7 +301,6 @@
     <ClInclude Include="Source\Engine\GraphicsCore\Animator.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\M_Default.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Material.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\PBRPass.h" />
     <ClInclude Include="Source\Engine\Utility\EditorHelper.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\RenderPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\RenderTechnique.h" />
@@ -410,12 +410,12 @@
     <ClInclude Include="Source\UmScripts.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Engine\GraphicsCore\DeferredPBRLitPass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\GBufferPass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\PBRLitTechnique.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\Animator.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\M_Default.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\Material.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\PBRPass.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\Setting\EditorSetting.cpp" />
     <ClCompile Include="Source\Editor\DragDropTypes\DragDropTransform.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\PopupBox\EditorPopupBox.cpp" />
