@@ -25,7 +25,18 @@ public:
     void Update();
     void Render();
     void Flip();
+    D3D12_GPU_DESCRIPTOR_HANDLE GetRenderSceneImage(std::string_view renderSceneName);
 
+public:
+    //imgui 관련 함수
+    void InitializeImgui();
+    void PreUnInitializeImgui();
+    void ImguiBegin();
+    void ImguiEnd();
+
+private:
+    // imgui 전용 descriptor heap
+    ComPtr<ID3D12DescriptorHeap>                                  _imguiDescriptorHeap = nullptr;
 private:
     std::vector<MeshRenderer*>     _components;
     std::unordered_map<std::string, std::shared_ptr<RenderScene>> _renderScenes;
