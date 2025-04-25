@@ -30,3 +30,16 @@ public:
     inline static const char* ICON_CIRCLE_ARROW_UP    = "\xef\x8d\x9b"; // f35b
     inline static const char* ICON_CIRCLE_ARROW_DOWN  = "\xef\x8d\x9c"; // f35c
 };
+
+
+
+//에디터에서 사용되는 프로세스들을 도와주는 이벤트 함수입니다.
+struct ProcessHelper
+{
+    /// <summary>
+    /// 비주얼 스튜디오의 실행 여부를 확인합니다.
+    /// </summary>
+    /// <param name="outExeFilePath :">비주얼 스튜디오 exe 파일 경로</param>
+    /// <returns>실행 여부</returns>
+    static bool IsVisualStudio(std::string& outExeFilePath);
+};
