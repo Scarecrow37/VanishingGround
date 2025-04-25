@@ -450,9 +450,6 @@
     <ClInclude Include="Source\Engine\GraphicsCore\PBRPass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\PBRTechnique.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\GraphicsCore\Animator.h">
       <Filter>GraphicsCore\Animator</Filter>
     </ClInclude>
@@ -461,6 +458,12 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\GraphicsCore\M_Default.h">
       <Filter>GraphicsCore\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\PBRLitTechnique.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\GBufferPass.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -784,6 +787,12 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\M_Default.cpp">
       <Filter>GraphicsCore\Material</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\PBRLitTechnique.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\GBufferPass.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
