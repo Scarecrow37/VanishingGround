@@ -27,10 +27,10 @@ void FBXImporter::CreateModel(const std::filesystem::path& filePath, bool isStat
         aiProcess_LimitBoneWeights |    // 본 weight 제한
         aiProcess_ConvertToLeftHanded;  // DX용 왼손좌표계 변환
 
-    //if (isStaticMesh) importFlags |= aiProcess_PreTransformVertices;
-    //_isStaticMesh = isStaticMesh;
-    _isStaticMesh        = true;
     const aiScene* scene = _impoter.ReadFile(filePath.string(), importFlags);
+
+    if (scene->HasAnimations())
+        _isStaticMesh = false;
 
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
     {

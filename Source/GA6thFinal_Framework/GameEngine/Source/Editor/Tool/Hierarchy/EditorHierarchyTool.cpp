@@ -162,9 +162,9 @@ void EditorHierarchyTool::HierarchyDropEvent()
         if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
         {
             DragDropAsset::Data* data = (DragDropAsset::Data*)payload->Data;      
-            if (data->context.expired() == false)
+            if (data->context->expired() == false)
             {
-                auto context = data->context.lock();
+                auto context = data->context->lock();
                 const File::Path& path = context->GetPath();
                 fs::path extension = path.extension();
                 if (extension == UmGameObjectFactory.PREFAB_EXTENSION)
