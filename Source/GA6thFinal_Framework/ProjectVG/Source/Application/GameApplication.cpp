@@ -26,36 +26,36 @@ GameApplication::GameApplication()
     _clientSize = { 1920, 1080 };
     _windowName = L"Umreal Engine";
     
-    ////에디터 매니저 등록
-    //_editorModule = AddModule<EditorModule>();
+    //에디터 매니저 등록
+    _editorModule = AddModule<EditorModule>();
 
-    ////추가할 에디터 작성
-    ///* Tool */
-    //_editorModule->RegisterEditorObject<EditorDebugTool>();
-    //_editorModule->RegisterEditorObject<EditorHierarchyTool>();
-    //_editorModule->RegisterEditorObject<EditorInspectorTool>();
-    //_editorModule->RegisterEditorObject<EditorSceneTool>();
-    //_editorModule->RegisterEditorObject<EditorAssetBrowserTool>();
-    //_editorModule->RegisterEditorObject<EditorLogsTool>();
+    //추가할 에디터 작성
+    /* Tool */
+    _editorModule->RegisterEditorObject<EditorDebugTool>();
+    _editorModule->RegisterEditorObject<EditorHierarchyTool>();
+    _editorModule->RegisterEditorObject<EditorInspectorTool>();
+    _editorModule->RegisterEditorObject<EditorSceneTool>();
+    _editorModule->RegisterEditorObject<EditorAssetBrowserTool>();
+    _editorModule->RegisterEditorObject<EditorLogsTool>();
 
-    //// 김시우 테스트용
-    //_editorModule->RegisterEditorObject<ScriptTestEditor>();
+    // 김시우 테스트용
+    _editorModule->RegisterEditorObject<ScriptTestEditor>();
 
-    //// 블루프린트 버그있음
-    ////_editorModule->RegisterEditorObject<EditorShaderGraph>();
+    // 블루프린트 버그있음
+    //_editorModule->RegisterEditorObject<EditorShaderGraph>();
 
-    ///* Menu */
-    //// Project
-    //_editorModule->RegisterEditorObject<EditorMenuScriptBuilder>();
-    //// Window
-    //_editorModule->RegisterEditorObject<EditorMenuTools>();
-    //// Setting
-    //_editorModule->RegisterEditorObject<EditorMenuDebug>();
-    //_editorModule->RegisterEditorObject<EditorMenuStyleEditor>();
-    //_editorModule->RegisterEditorObject<EditorMenuFileSystemSetting>();
-    //// Scene
-    //_editorModule->RegisterEditorObject<EditorSceneMenuGameObject>();
-    //_editorModule->RegisterEditorObject<EditorSceneMenuScenes>();
+    /* Menu */
+    // Project
+    _editorModule->RegisterEditorObject<EditorMenuScriptBuilder>();
+    // Window
+    _editorModule->RegisterEditorObject<EditorMenuTools>();
+    // Setting
+    _editorModule->RegisterEditorObject<EditorMenuDebug>();
+    _editorModule->RegisterEditorObject<EditorMenuStyleEditor>();
+    _editorModule->RegisterEditorObject<EditorMenuFileSystemSetting>();
+    // Scene
+    _editorModule->RegisterEditorObject<EditorSceneMenuGameObject>();
+    _editorModule->RegisterEditorObject<EditorSceneMenuScenes>();
 }
 
 GameApplication::~GameApplication()
@@ -63,19 +63,8 @@ GameApplication::~GameApplication()
 
 }
 
-static void SeongUTestCode()
-{
-    auto  obj                     = NewGameObject<GameObject>("cerberus");
-    auto& comps                   = obj->AddComponent<StaticMeshRenderer>();
-    comps.ReflectFields->FilePath = "../../../Resource/TestAssets/Cerberus/pbrGun.fbx";
-    obj->transform->Scale         = {0.3f, 0.3f, 0.3f};
-    obj->transform->EulerAngle    = {0, 90.f, 0};
-}
-
-
 void GameApplication::OnStartupComplete() 
 {
-    UmSceneManager.CreateEmptySceneAndLoad("testScene", "Assets/Scenes", SeongUTestCode);
 }
 
 void GameApplication::OnShutdownComplete() 

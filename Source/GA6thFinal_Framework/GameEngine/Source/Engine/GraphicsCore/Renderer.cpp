@@ -90,7 +90,7 @@ void Renderer::Render()
     {
         renderScene.second->Execute(commandList.Get());
     }
-
+    if constexpr(IS_EDITOR) UmDevice.SetBackBuffer();
 }
 
 void Renderer::Flip()
