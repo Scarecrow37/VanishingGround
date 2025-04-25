@@ -47,6 +47,7 @@ GameApplication::GameApplication()
     /* Menu */
     // Project
     _editorModule->RegisterEditorObject<EditorMenuScriptBuilder>();
+    _editorModule->RegisterEditorObject<EditorBuildSettingMenu>();
     // Window
     _editorModule->RegisterEditorObject<EditorMenuTools>();
     // Setting
