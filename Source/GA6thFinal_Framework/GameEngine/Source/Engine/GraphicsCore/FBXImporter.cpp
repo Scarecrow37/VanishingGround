@@ -61,13 +61,21 @@ void FBXImporter::CreateModel(const std::filesystem::path& filePath, bool isStat
 
     model->InitMaterials((UINT)materialIndex.size());
 
-    for (size_t i = 0; i < materialIndex.size(); i++)
+    size_t size = materialIndex.size();
+    Material material{
+        .shadingModel = Material::ShadingModel::DEFAULTLIT,
+        .blendMode    = Material::BlendMode::OPAQUE,
+        .isTwoSided   = false,
+    };
+
+    for (size_t i = 0; i < size; i++)
     {
         auto& texture = textures[materialIndex[i]];
+        model->BindMaterial(i, material);
 
         for (auto& j : texture)
         {
-            model->BindMaterial(i, j);
+            model->BindTexture(i, j);
         }
     }
 }
@@ -249,8 +257,9 @@ void FBXImporter::LoadMaterials(const aiScene* paiScene,
     textures.resize(paiScene->mNumMaterials);
 
     for (unsigned int i = 0; i < paiScene->mNumMaterials; i++)
-    {
+    {        
         aiMaterial* material = paiScene->mMaterials[i];
+        //material->Get("", 0, 0, 0);
         aiColor3D color{};
         material->Get(AI_MATKEY_COLOR_DIFFUSE, color);
 

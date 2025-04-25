@@ -94,6 +94,9 @@
     <Filter Include="GraphicsCore\Material">
       <UniqueIdentifier>{cc2e0fd2-4be0-475a-989a-1b89bb9ef427}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GraphicsCore\HLSL">
+      <UniqueIdentifier>{251bdcbd-e631-47f2-b689-75383dec618b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\pch.h">
@@ -459,7 +462,7 @@
     <ClInclude Include="Source\Engine\GraphicsCore\Material.h">
       <Filter>GraphicsCore\Material</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\M_Default.h">
+    <ClInclude Include="Source\Engine\GraphicsCore\M_PBR.h">
       <Filter>GraphicsCore\Material</Filter>
     </ClInclude>
   </ItemGroup>
@@ -731,9 +734,6 @@
     <ClCompile Include="Source\Engine\GraphicsCore\GraphicsModule.cpp">
       <Filter>GraphicsCore\Module</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\Resource.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\RenderScene.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -782,8 +782,11 @@
     <ClCompile Include="Source\Engine\GraphicsCore\Material.cpp">
       <Filter>GraphicsCore\Material</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\M_Default.cpp">
+    <ClCompile Include="Source\Engine\GraphicsCore\M_PBR.cpp">
       <Filter>GraphicsCore\Material</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\PBRTechnique.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -797,5 +800,31 @@
     <None Include="Source\Engine\Imgui\imgui_bezier_math.inl">
       <Filter>소스 파일\imgui</Filter>
     </None>
+    <None Include="..\Shaders\CommonData.hlsli">
+      <Filter>GraphicsCore\HLSL</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\Shaders\ps.hlsl">
+      <Filter>GraphicsCore\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ps_fr.hlsl">
+      <Filter>GraphicsCore\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ps_pbr.hlsl">
+      <Filter>GraphicsCore\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ps_quad_frame.hlsl">
+      <Filter>GraphicsCore\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\vs.hlsl">
+      <Filter>GraphicsCore\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\vs_fr.hlsl">
+      <Filter>GraphicsCore\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\vs_quad.hlsl">
+      <Filter>GraphicsCore\HLSL</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

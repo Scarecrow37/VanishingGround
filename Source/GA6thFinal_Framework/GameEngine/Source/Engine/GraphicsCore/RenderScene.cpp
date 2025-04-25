@@ -29,9 +29,9 @@ void RenderScene::UpdateRenderScene()
 
     for (auto& component : _renderQueue)
     {
-        auto& model     = component->GetModel();
-        auto& meshes    = model->GetMeshes();
-        auto& materials = model->GetMaterials();
+        auto& model    = component->GetModel();
+        auto& meshes   = model->GetMeshes();
+        auto& textures = model->GetTextures();
 
         XMMATRIX world = XMMatrixTranspose(component->gameObject->transform->GetWorldMatrix());
         UINT     size  = (UINT)meshes.size();
@@ -43,15 +43,15 @@ void RenderScene::UpdateRenderScene()
 
             for (UINT j = 0; j < 4; j++)
             {
-                if (nullptr == materials[i][j])
+                if (nullptr == textures[i][j])
                     continue;
 
-                auto iter = materialPair.find(materials[i][j]->GetHandle().ptr);
+                auto iter = materialPair.find(textures[i][j]->GetHandle().ptr);
                 if (iter == materialPair.end())
                 {
-                    materialPair.emplace(materials[i][j]->GetHandle().ptr, materialID);
+                    materialPair.emplace(textures[i][j]->GetHandle().ptr, materialID);
                     materialData.ID[j] = materialID++;
-                    handles.push_back(materials[i][j]->GetHandle());
+                    handles.push_back(textures[i][j]->GetHandle());
                 }
                 else
                 {

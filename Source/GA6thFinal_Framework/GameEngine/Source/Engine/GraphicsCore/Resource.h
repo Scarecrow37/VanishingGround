@@ -10,7 +10,7 @@ public:
 	const D3D12_CPU_DESCRIPTOR_HANDLE GetHandle() const { return _handle; }
 
 public:
-    virtual HRESULT LoadResource(const std::filesystem::path& filePath);
+    virtual HRESULT LoadResource(const std::filesystem::path& filePath) = 0;
 
 protected:
 	ComPtr<ID3D12Resource> _resource;

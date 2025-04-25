@@ -24,5 +24,5 @@ public:
     REFLECT_FIELDS_END(MeshRenderer)
 
 protected:
-    std::shared_ptr<Model> _model;
+    std::shared_ptr<Model>    _model;
 };

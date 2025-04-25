@@ -1,8 +1,3 @@
-﻿#include "pch.h"
-#include "M_Default.h"
-
-void M_Default::Initialize()
-{    
     //D3D12_RASTERIZER_DESC rd = {};
     //rd.FillMode              = D3D12_FILL_MODE_SOLID;
     //rd.CullMode              = D3D12_CULL_MODE_BACK;
