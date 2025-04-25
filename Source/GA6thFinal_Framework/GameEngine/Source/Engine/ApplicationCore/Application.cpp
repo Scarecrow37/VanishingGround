@@ -93,7 +93,7 @@ void Application::Run()
 
             _imguiDX12Module->ImguiBegin();
             {
-                if (UmApplication.IsEditor())
+                if constexpr(Application::IsEditor())
                 {
                     _filesystemModule->Update();
                     Global::editorModule->Update();

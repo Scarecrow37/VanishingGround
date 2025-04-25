@@ -11,7 +11,8 @@ namespace File
         class IFileEventProcesser
         {
         public:
-            virtual void OnFileAdded(const Path& path)                           = 0;
+            virtual void OnFileRegistered(const File::Path& path)                = 0;
+            virtual void OnFileUnregistered(const File::Path& path)              = 0;
             virtual void OnFileModified(const Path& path)                        = 0;
             virtual void OnFileRemoved(const Path& path)                         = 0;
             virtual void OnFileRenamed(const Path& oldPath, const Path& newPath) = 0;

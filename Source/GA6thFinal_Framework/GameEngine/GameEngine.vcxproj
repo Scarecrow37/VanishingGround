@@ -285,6 +285,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Editor\Menu\Project\EditorBuildSettingMenu.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\DeferredPBRLitPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\GBufferPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\PBRLitTechnique.h" />
@@ -410,6 +411,7 @@
     <ClInclude Include="Source\UmScripts.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Editor\Menu\Project\EditorBuildSettingMenu.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\DeferredPBRLitPass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\GBufferPass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\PBRLitTechnique.cpp" />

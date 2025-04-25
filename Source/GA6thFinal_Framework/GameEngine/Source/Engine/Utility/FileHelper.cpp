@@ -95,6 +95,19 @@ namespace File
         }
         return false;
     }
+
+    bool CopyFileFromTo(const File::Path& from, File::Path to)
+    {
+        to = File::GenerateUniquePath(to.generic_string());
+
+        // 디렉터리 복사는 버그때문에 안하기로 함.
+        // (폴더 내의 파일은 이벤트가 발생하지 않기 때문)
+        if (false == fs::is_directory(from))
+        {
+            fs::copy_file(from, to);
+        }
+        return false;
+    }
     bool CopyPathToClipBoard(const File::Path& path)
     {
         // 클립보드 열고 비우기
