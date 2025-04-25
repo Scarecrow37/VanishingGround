@@ -61,6 +61,7 @@ public:
     virtual void OnFileRenamed(const File::Path& oldPath, const File::Path& newPath) override;
     virtual void OnFileMoved(const File::Path& oldPath, const File::Path& newPath) override;
 
+    virtual void OnRequestedInspect(const File::Path& path) override;
     virtual void OnRequestedOpen(const File::Path& path) override;
     virtual void OnRequestedCopy(const File::Path& path) override;
     virtual void OnRequestedPaste(const File::Path& path) override;

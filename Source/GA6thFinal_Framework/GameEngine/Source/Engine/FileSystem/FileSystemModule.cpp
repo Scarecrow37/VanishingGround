@@ -150,6 +150,11 @@ void SampleNotifier::OnFileMoved(const File::Path& oldPath, const File::Path& ne
     File::OutputLog(log);
 }
 
+void SampleNotifier::OnRequestedInspect(const File::Path& path) 
+{
+    ImGui::Text("TestInspect");
+}
+
 void SampleNotifier::OnRequestedOpen(const File::Path& path)
 {
     File::OpenFile(path);

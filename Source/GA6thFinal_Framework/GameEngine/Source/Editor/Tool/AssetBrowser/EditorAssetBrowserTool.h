@@ -9,7 +9,7 @@ namespace File
     class FolderContext;
 }
 
-class EditorFileObject;
+class EditorAssetObject;
 
 class EditorAssetBrowserTool
     : public EditorTool
@@ -71,17 +71,18 @@ private:
     void ShowContentsToList(); // 콘텐츠 뷰 출력 타입 - 리스트
     void ShowContentsToIcon(); // 콘텐츠 뷰 출력 타입 - 아이콘
 
-    void ShowItemToList(spContext context); // 콘텐츠 뷰 아이템 출력 - 리스트 
-    void ShowItemToIcon(spContext context); // 콘텐츠 뷰 아이템 출력 - 아이콘 
+    void ShowItemToList(spContext context, const char* mode = ""); // 콘텐츠 뷰 아이템 출력 - 리스트 
+    void ShowItemToIcon(spContext context, const char* mode = ""); // 콘텐츠 뷰 아이템 출력 - 아이콘 
 
     void ItemInputText(spContext context);  // 콘텐츠 뷰 이름 변경 인풋 텍스트
 
-    void ItemEventAction(spContext context);    // 콘텐츠 뷰 아이템 이벤트 액션
-    void ItemInputAction(spContext context);    // 콘텐츠 뷰 아이템 인풋 액션
-    void ItemPopupAction(spContext context);    // 콘텐츠 뷰 아이템 팝업 액션
+    void ItemEventAction(spContext context, const char* mode = "");    // 콘텐츠 뷰 아이템 이벤트 액션
+    void ItemInputAction(spContext context, const char* mode = "");    // 콘텐츠 뷰 아이템 인풋 액션
+    void ItemPopupAction(spContext context, const char* mode = "");    // 콘텐츠 뷰 아이템 팝업 액션
 
     /* 팝업 박스 메서드 */
     void ShowDeletePopupBox(wpContext context);
+    void ShowSameFilePopupBox();
 
 private:
     void ProcessEnterAction(spContext context);
@@ -105,7 +106,7 @@ private:
     wpFolderContext _currFocusFolderContext;
     wpFolderContext _nextFocusFolderContext;
     /* 현재 선택된 폴더 or 파일 */
-    std::shared_ptr<EditorFileObject> _selectedContext;
+    std::shared_ptr<EditorAssetObject> _selectedContext;
     /* 이름 바꾸기 모드 여부 */
     std::bitset<FALG_SIZE> browserFlags;
 
@@ -128,7 +129,7 @@ private:
     REFLECT_FIELDS_END(EditorAssetBrowserTool)
 };
 
-class EditorFileObject : public IEditorObject
+class EditorAssetObject : public IEditorObject
 {
 public:
     virtual void OnInspectorStay() override;
