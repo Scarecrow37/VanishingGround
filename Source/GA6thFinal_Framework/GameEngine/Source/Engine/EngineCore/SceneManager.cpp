@@ -865,7 +865,15 @@ void ESceneManager::OnFileAdded(const File::Path& path)
     std::string nodeGuid = node["Guid"].as<std::string>();
     if (nodeGuid != guid)
     {
-        WriteSceneToFile(scene, path.parent_path().string(), true);
+        if (UmComponentFactory.HasScript() == false)
+        {
+            if (UmComponentFactory.InitalizeComponentFactory() == false)
+            {
+                return;
+            }
+        }    
+        std::filesystem::path relativeRootPath = std::filesystem::relative(path, UmFileSystem.GetRootPath());
+        WriteSceneToFile(scene, relativeRootPath.parent_path().string(), true);
     }
     
     std::string& loadScene = Application::IsEditor() ? _setting.MainScene : _setting.StartScene; 
