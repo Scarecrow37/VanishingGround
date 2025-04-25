@@ -28,11 +28,6 @@ LRESULT CALLBACK Application::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
     return DefWindowProc(hwnd, msg, wParam, lParam);
 }
 
-bool Application::IsEditor()
-{
-    return Global::editorModule != nullptr;
-}
-
 Application::Application()
 {
     if (App)
@@ -63,12 +58,18 @@ void Application::Initialize(HINSTANCE hInstance)
 
     //모듈 초기화
     InitModules();
+
+    //초기화 완료
+    OnStartupComplete();
 }
 
 void Application::UnInitialize()
 {
     //모듈 해제
     UnInitModules();
+
+    //해제 완료
+    OnShutdownComplete();
 }
 
 void Application::Run()
@@ -92,7 +93,7 @@ void Application::Run()
 
             _imguiDX12Module->ImguiBegin();
             {
-                if (UmApplication.IsEditor())
+                if constexpr(Application::IsEditor())
                 {
                     _filesystemModule->Update();
                     Global::editorModule->Update();

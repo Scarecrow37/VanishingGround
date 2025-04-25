@@ -83,7 +83,7 @@ public:
     std::shared_ptr<GameObject> DeserializeToGuid(const File::Guid& guid);
 
     /// <summary>
-    /// 게임 오브젝트를 UmPrefab파일로 저장합니다.
+    /// 게임 오브젝트를 UmPrefab파일로 저장합니다. FileSystem의 RootPath 기준으로 저장합니다. 
     /// </summary>
     /// <param name="transform"></param>
     /// <param name="outPath"></param>

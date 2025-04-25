@@ -9,20 +9,25 @@ EComponentFactory::EComponentFactory()
 EComponentFactory::~EComponentFactory() = default;
 
 bool EComponentFactory::InitalizeComponentFactory()
-{
-    SetDllDirectory(EComponentFactory::Engine::SCRIPTS_DLL_PATH);
-
-    //복구해야할 컴포넌트 항목들
-    static std::vector<std::tuple<GameObject*, std::string, int, std::string>> addList;
+{  
+    static std::vector<std::tuple<GameObject*, std::string, int, std::string>> addList; //복구해야할 컴포넌트 항목들
     addList.clear();
 
-    DWORD exitCodeOut{};
-    if (!dllUtility::RunBatchFile(Engine::BUILD_BATCH_PATH, &exitCodeOut))
+    if constexpr (Application::IsEditor())
     {
-        engineCore->Logger.Log(LogLevel::LEVEL_ERROR, "Scripts build Fail!");
-        return false;
+        DWORD exitCodeOut{};
+        if (!dllUtility::RunBatchFile(Engine::BUILD_BATCH_PATH, &exitCodeOut))
+        {
+            engineCore->Logger.Log(LogLevel::LEVEL_ERROR, "Scripts build Fail!");
+            return false;
+        }
     }
-      
+    else
+    {
+        if (m_scriptsDll != NULL)
+            return false;
+    }
+   
     if (m_scriptsDll != NULL)
     {
         //모든 컴포넌트 자원 회수
@@ -43,10 +48,12 @@ bool EComponentFactory::InitalizeComponentFactory()
 
     _newScriptsFunctionMap.clear();
     m_NewScriptsKeyVec.clear();
+    SetDllDirectory(EComponentFactory::Engine::SCRIPTS_DLL_PATH);
     m_scriptsDll = LoadLibraryW(L"GameScripts.dll");
     if (m_scriptsDll == NULL)
     {
-        assert(!"DLL Load Fail");
+        //DLL Load Fail
+        __debugbreak();
         return false;
     }
 
@@ -93,8 +100,9 @@ bool EComponentFactory::InitalizeComponentFactory()
         return false;
     }
     auto InitDLLCores = (InitScripts)GetProcAddress(m_scriptsDll, funcList[1].c_str());
+    std::shared_ptr<EngineCores> cores = engineCore;
     InitDLLCores(
-        engineCore,
+        cores,
         ImGui::GetCurrentContext());
 
     //스크립트 생성자들 등록

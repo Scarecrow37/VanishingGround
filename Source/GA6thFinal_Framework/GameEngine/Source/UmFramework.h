@@ -20,7 +20,7 @@ constexpr bool IS_EDITOR = true;
 constexpr bool IS_EDITOR = false;
 #endif
 
-// 프로젝트 설정 파일들 모아두는 폴더
+// 프로젝트 설정 파일들 모아두는 폴더s
 constexpr const wchar_t* PROJECT_SETTING_PATH = L"ProjectSetting"; 
 // 문자열 null을 명시적으로 표시하기 위한 값
 constexpr const char* STR_NULL = "null";
@@ -159,7 +159,7 @@ using namespace Microsoft::WRL;
 
 //Application Module
 #include "Engine/AppModule/EngineCoresModule.h"
-//#include "Engine/AppModule/ImGuiDX12Module.h"
+#include "Engine/AppModule/ImGuiDX12Module.h"
 
 //DragDropTypes
 #include "Editor/DragDropTypes/DragDropTransform.h"
@@ -182,5 +182,5 @@ using namespace Microsoft::WRL;
 #include "Editor/Menu/Window/EditorWindowMenu.h"
 #include "Editor/Menu/Setting/EditorSettingMenu.h"
 #include "Editor/Menu/Scene/EditorSceneMenu.h"
+#include "Editor/Menu/Project/EditorBuildSettingMenu.h"
 #endif
-#include "Engine/AppModule/ImGuiDX12Module.h"
