@@ -330,7 +330,9 @@ void EditorAssetBrowserTool::ContentsFrameEventAction(spFolderContext context)
     {
         if (nullptr != context)
         {
-            UmGameObjectFactory.WriteGameObjectFile(data.pTransform, context->GetPath().string());
+            File::Path path = context->GetPath();
+            path = std::filesystem::relative(path, UmFileSystem.GetRootPath());
+            UmGameObjectFactory.WriteGameObjectFile(data.pTransform, path.string());
         }
     }
 

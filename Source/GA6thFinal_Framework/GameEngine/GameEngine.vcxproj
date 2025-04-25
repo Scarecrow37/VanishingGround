@@ -285,6 +285,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Editor\Menu\Project\EditorBuildSettingMenu.h" />
     <ClInclude Include="Source\Engine\EditorCore\Setting\EditorSetting.h" />
     <ClInclude Include="Source\Engine\EditorCore\PopupBox\EditorPopupBox.h" />
     <ClInclude Include="Source\Engine\EditorCore\PopupBox\EditorPopupBoxSystem.h" />
@@ -409,6 +410,7 @@
     <ClInclude Include="Source\UmScripts.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Editor\Menu\Project\EditorBuildSettingMenu.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\Animator.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\M_Default.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\Material.cpp" />

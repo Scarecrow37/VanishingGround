@@ -7,7 +7,7 @@ using namespace u8_literals;
 void EditorSceneMenuScenes::OnMenu() 
 {
     EditorModule& editor = *Global::editorModule;
-    if (ImGui::BeginMenu("Scene"))
+    if (ImGui::BeginMenu("New Scene File"))
     {
         if (ImGui::MenuItem("New EmptyScene"))
         {
@@ -18,10 +18,12 @@ void EditorSceneMenuScenes::OnMenu()
                     ImGui::InputText(u8"이름"_c_str, &inputBuff);
                     if (ImGui::Button(u8"확인"_c_str))
                     {
-                        std::filesystem::path outPath = UmFileSystem.GetRootPath();
-                        outPath /= "Scenes";
-                        UmSceneManager.WriteEmptySceneToFile(inputBuff, outPath.string());
-                        ImGui::CloseCurrentPopup();
+                        if (inputBuff.empty() == false)
+                        {
+                            std::filesystem::path outPath = "Scenes";
+                            UmSceneManager.WriteEmptySceneToFile(inputBuff, outPath.string());
+                            ImGui::CloseCurrentPopup();
+                        }
                     }
                     ImGui::SameLine();
                     if (ImGui::Button(u8"취소"_c_str))

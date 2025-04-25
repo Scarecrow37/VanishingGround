@@ -83,7 +83,7 @@ public:
     std::shared_ptr<GameObject> DeserializeToGuid(const File::Guid& guid);
 
     /// <summary>
-    /// 게임 오브젝트를 UmPrefab파일로 저장합니다.
+    /// 게임 오브젝트를 UmPrefab파일로 저장합니다. FileSystem의 RootPath 기준으로 저장합니다. 
     /// </summary>
     /// <param name="transform"></param>
     /// <param name="outPath"></param>
@@ -130,4 +130,7 @@ private:
 
     //프리팹 직렬화 데이터 모아두는 맵
     std::unordered_map<File::Guid, YAML::Node> _prefabDataMap;
+
+    // 인스턴스화된 프리팹 추적용
+    std::unordered_map<File::Guid, std::vector<std::weak_ptr<GameObject>>>  _PrefavInstanceList;      
 };

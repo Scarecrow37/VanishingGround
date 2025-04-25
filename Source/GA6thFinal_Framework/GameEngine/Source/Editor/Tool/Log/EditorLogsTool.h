@@ -39,8 +39,10 @@ private:
 
 private:
     size_t prevLogCount = 0;
-    bool   _isMessagePush     = false;
-    bool   _editFilter  = false;
+    size_t notReadCount = 0;
+    bool _isMessagePush = false;
+    bool _editFilter  = false;
+    bool _isFocused = false;
     std::vector<std::tuple<int, std::string, LogLocation>> _drawLogList;
 
 protected:

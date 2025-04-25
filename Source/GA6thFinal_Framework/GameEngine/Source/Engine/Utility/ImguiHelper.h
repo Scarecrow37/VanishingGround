@@ -275,4 +275,23 @@ namespace ImGuiHelper
 {
     std::array<float, 4> ImVec4ToArray(const ImVec4& vec4);
     ImVec4               ArrayToImVec4(const std::array<float, 4>& array);
+
+    /// <summary>
+    /// 이전 아이템에 마우스가 올라가면 툴팁을 출력합니다.
+    /// </summary>
+    /// <param name="toolTip :">출력할 내용</param>
+    /// <returns>마우스 Hovered 여부</returns>
+    bool HoveredToolTip(std::string_view toolTip);
+
+    /// <summary>
+    /// ImVec4를 선형보간합니다.
+    /// </summary>
+    /// <param name="a"></param>
+    /// <param name="b"></param>
+    /// <param name="t"></param>
+    /// <returns></returns>
+    inline constexpr ImVec4 ImVec4Lerp(const ImVec4& a, const ImVec4& b, float t)
+    {
+        return ImVec4(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t, a.z + (b.z - a.z) * t, a.w + (b.w - a.w) * t);
+    }
 }

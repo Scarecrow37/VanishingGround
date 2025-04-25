@@ -146,6 +146,12 @@ std::shared_ptr<GameObject> EGameObjectFactory::DeserializeToYaml(YAML::Node* pG
 
 std::shared_ptr<GameObject> EGameObjectFactory::DeserializeToGuid(const File::Guid& guid)
 {
+    if (UmComponentFactory.HasScript() == false)
+    {
+        UmLogger.Log(LogLevel::LEVEL_ERROR, u8"스크립트 빌드를 해주세요."_c_str);
+        return nullptr;
+    }
+
     auto iter = _prefabDataMap.find(guid);
     if (iter == _prefabDataMap.end())
     {
@@ -153,14 +159,22 @@ std::shared_ptr<GameObject> EGameObjectFactory::DeserializeToGuid(const File::Gu
         UmLogger.Log(LogLevel::LEVEL_ERROR, message);
         return nullptr;
     }
-    return DeserializeToYaml(&iter->second);
+    auto pObject = DeserializeToYaml(&iter->second);
+    std::vector<std::weak_ptr<GameObject>>& instanceList = _PrefavInstanceList[guid];
+    instanceList.emplace_back(pObject);
+    std::erase_if(instanceList, [](std::weak_ptr<GameObject>& weakObject)
+    { 
+        return weakObject.expired();
+    });
+    return pObject;
 }
 
 void EGameObjectFactory::WriteGameObjectFile(Transform* transform, std::string_view outPath)
 {
     namespace fs     = std::filesystem;
     using fsPath     = std::filesystem::path;
-    fsPath writePath = outPath;
+    fsPath writePath = UmFileSystem.GetRootPath();
+    writePath /= outPath;
     writePath /= transform->gameObject->ToString();
     writePath.replace_extension(PREFAB_EXTENSION);
     if (fs::exists(outPath) == true)
@@ -185,8 +199,7 @@ void EGameObjectFactory::WriteGameObjectFile(Transform* transform, std::string_v
     }
 }
 
-std::shared_ptr<GameObject> EGameObjectFactory::MakeGameObject(
-    std::string_view typeid_name)
+std::shared_ptr<GameObject> EGameObjectFactory::MakeGameObject(std::string_view typeid_name)
 {
     std::shared_ptr<GameObject> newObject;
     auto findIter = _NewGameObjectFuncMap.find(typeid_name.data());
@@ -243,9 +256,6 @@ YAML::Node EGameObjectFactory::MakeYamlToGameObject(GameObject* gameObject)
             transformNode["ReflectFields"] = gameObject->_transform.SerializedReflectFields();
             objectNode["Transform"] = transformNode;
         }
-        {
-            
-        }   
         return objectNode;
     }
     else

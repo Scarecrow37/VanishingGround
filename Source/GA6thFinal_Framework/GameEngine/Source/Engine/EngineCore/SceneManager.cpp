@@ -17,14 +17,11 @@ std::filesystem::path ESceneManager::GetSettingFilePath()
 
 ESceneManager::ESceneManager() 
 {
-    //if (UmApplication.IsEditor()) //에디터 모드일때만 해야함
-    {
-        LoadSettingFile();
-    } 
+    LoadSettingFile();
 }
 ESceneManager::~ESceneManager()
 {
-    //if (UmApplication.IsEditor()) //에디터 모드일때만 해야함
+    if constexpr (Application::IsEditor())
     {
         SaveSettingFile();
     } 
@@ -318,6 +315,11 @@ void ESceneManager::Engine::DontDestroyOnLoadObject(GameObject& gameObject)
     DontDestroyOnLoadObject(&gameObject);
 }
 
+std::string& ESceneManager::Engine::GetStartSceneSetting()
+{
+    return UmSceneManager._setting.StartScene;
+}
+
 void ESceneManager::CreateEmptySceneAndLoad(std::string_view name, std::string_view outPath, const std::function<void()>& loadEvent) 
 {
     if (UmComponentFactory.HasScript() == false)
@@ -327,19 +329,23 @@ void ESceneManager::CreateEmptySceneAndLoad(std::string_view name, std::string_v
             return;
         }
     }
-    std::filesystem::path writePath = outPath;
+    File::Path writePath = UmFileSystem.GetRootPath();
+    writePath /= outPath;
     writePath /= name;
     writePath.replace_extension(SCENE_EXTENSION);
 
     if (std::filesystem::exists(writePath))
     {
         LoadScene(writePath.string());
-        loadEvent();
+        if (loadEvent)
+        {
+            loadEvent();
+        }
     }
     else
     {
         WriteEmptySceneToFile(name, outPath);
-        _setting.MainScene = writePath.string();
+        _setting.MainScene = writePath.generic_string();
         _loadFuncEvent     = loadEvent;
     }
 }
@@ -374,6 +380,14 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
     }
     else
     {
+        Scene* mainScene = GetMainScene();
+        if (mainScene == nullptr)
+        {
+            engineCore->Logger.Log(
+                LogLevel::LEVEL_WARNING, 
+                u8"메인 씬을 먼저 로드해주세요."_c_str);
+            return;
+        }
         if (scene->_isLoaded)
         {
             engineCore->Logger.Log(
@@ -796,49 +810,34 @@ bool ESceneManager::DeserializeToGuid(const File::Guid& guid)
 
 void ESceneManager::WriteSceneToFile(const Scene& scene, std::string_view outPath, bool isOverride)
 {
-    std::string sceneName = scene._guid.ToPath().stem().string();
-    namespace fs     = std::filesystem;
-    using fsPath     = std::filesystem::path;
-    fsPath writePath = outPath;
-    writePath /= sceneName;
-    writePath.replace_extension(SCENE_EXTENSION);
-    if (fs::exists(writePath) == true && isOverride == false)
-    {
-        int result = MessageBox(UmApplication.GetHwnd(), L"파일이 이미 존재합니다. 덮어쓰겠습니까?",
-                                L"파일이 존재합니다.", MB_YESNO);
-        if (result != IDYES)
-        {
-            return;
-        }
-    }
-    fs::create_directories(writePath.parent_path());
-    YAML::Node node = SerializeToYaml(scene);
-    if (node.IsNull() == false)
-    {
-        std::ofstream ofs(writePath, std::ios::trunc);
-        if (ofs.is_open())
-        {
-            ofs << node;
-        }
-        ofs.close();
-    }
+    namespace fs = std::filesystem;
+    std::string sceneName = scene.Name;
+    bool result = WriteUmSceneFile(scene, sceneName, outPath, isOverride);
 }
 
 void ESceneManager::WriteEmptySceneToFile(std::string_view name, std::string_view outPath, bool isOverride) 
 {
+    namespace fs = std::filesystem;
     Scene scene;
+    bool result = WriteUmSceneFile(scene, name, outPath, isOverride);
+}
+
+bool ESceneManager::WriteUmSceneFile(const Scene& scene, std::string_view sceneName, std::string_view outPath, bool isOverride)
+{
     namespace fs     = std::filesystem;
     using fsPath     = std::filesystem::path;
-    fsPath writePath = outPath;
-    writePath /= name;
+    fsPath writePath = UmFileSystem.GetRootPath();
+    writePath /= outPath;
+    writePath /= sceneName;
     writePath.replace_extension(SCENE_EXTENSION);
+   
     if (fs::exists(writePath) == true && isOverride == false)
     {
         int result = MessageBox(UmApplication.GetHwnd(), L"파일이 이미 존재합니다. 덮어쓰겠습니까?",
                                 L"파일이 존재합니다.", MB_YESNO);
         if (result != IDYES)
         {
-            return;
+            return false;
         }
     }
     fs::create_directories(writePath.parent_path());
@@ -866,16 +865,26 @@ void ESceneManager::OnFileAdded(const File::Path& path)
     std::string nodeGuid = node["Guid"].as<std::string>();
     if (nodeGuid != guid)
     {
-        WriteSceneToFile(scene, path.parent_path().string(), true);
+        if (UmComponentFactory.HasScript() == false)
+        {
+            if (UmComponentFactory.InitalizeComponentFactory() == false)
+            {
+                return;
+            }
+        }    
+        std::filesystem::path relativeRootPath = std::filesystem::relative(path, UmFileSystem.GetRootPath());
+        WriteSceneToFile(scene, relativeRootPath.parent_path().string(), true);
     }
-    if (scene.isLoaded == false && path == _setting.MainScene)
+    
+    std::string& loadScene = Application::IsEditor() ? _setting.MainScene : _setting.StartScene; 
+    if (scene.isLoaded == false && path.string() == loadScene)
     {
         if (UmComponentFactory.HasScript() == false)
         {
             if (UmComponentFactory.InitalizeComponentFactory() == false)
             {
                 return;
-            }       
+            }
         }
         LoadScene(path.string());
         if (_loadFuncEvent)

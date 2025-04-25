@@ -13,3 +13,13 @@ ImVec4 ImGuiHelper::ArrayToImVec4(const std::array<float, 4>& array)
     std::memcpy(&vec4.x, array.data(), sizeof(array));
     return vec4;
 }
+
+bool ImGuiHelper::HoveredToolTip(std::string_view toolTip)
+{
+    bool isHovered = ImGui::IsItemHovered();
+    if (isHovered)
+    {
+        ImGui::SetTooltip(toolTip.data());
+    }
+    return isHovered;
+}
