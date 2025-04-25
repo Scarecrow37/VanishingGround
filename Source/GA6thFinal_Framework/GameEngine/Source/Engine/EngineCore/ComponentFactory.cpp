@@ -27,7 +27,7 @@ bool EComponentFactory::InitalizeComponentFactory()
         if (m_scriptsDll != NULL)
             return false;
     }
-   
+    SetForegroundWindow(UmApplication.GetHwnd());
     if (m_scriptsDll != NULL)
     {
         //모든 컴포넌트 자원 회수

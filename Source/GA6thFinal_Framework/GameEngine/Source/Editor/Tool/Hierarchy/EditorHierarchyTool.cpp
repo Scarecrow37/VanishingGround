@@ -169,8 +169,7 @@ void EditorHierarchyTool::HierarchyDropEvent()
                 fs::path extension = path.extension();
                 if (extension == UmGameObjectFactory.PREFAB_EXTENSION)
                 {
-                    YAML::Node node = YAML::LoadFile(path.string());
-                    UmGameObjectFactory.DeserializeToYaml(&node);
+                    UmGameObjectFactory.DeserializeToGuid(path.ToGuid());
                 }
                 else if (extension == UmSceneManager.SCENE_EXTENSION)
                 {
