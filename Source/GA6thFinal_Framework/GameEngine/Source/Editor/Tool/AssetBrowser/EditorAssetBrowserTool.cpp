@@ -318,10 +318,10 @@ void EditorAssetBrowserTool::ShowFolderDirectoryPath(spFolderContext context)
 
             if (ImGuiHelper::DragDrop::RecieveItemDragDropEvent<DragDropAsset::Data>(eventID, &data))
             {
-                if (false == data.context.expired())
+                if (false == data.context->expired())
                 {
                     _eventFunc.emplace_back([=]() { 
-                        ProcessMoveAction(data.context, spFolderContext); 
+                        ProcessMoveAction(*data.context, spFolderContext); 
                         });
                 }
             }
@@ -581,10 +581,11 @@ void EditorAssetBrowserTool::ItemEventAction(spContext context, const char* mode
         const char*         eventID = DragDropAsset::KEY;
         if (ImGuiHelper::DragDrop::RecieveItemDragDropEvent<DragDropAsset::Data>(eventID, &data))
         {
-            if (false == data.context.expired())
+            std::shared_ptr<File::Context> ptr = data.context->lock();
+            if (nullptr != ptr)
             {
                 _eventFunc.emplace_back([=]() {
-                    ProcessMoveAction(data.context, spFolderContext);
+                    ProcessMoveAction(*data.context, spFolderContext);
                     });
             }
         }
@@ -593,16 +594,25 @@ void EditorAssetBrowserTool::ItemEventAction(spContext context, const char* mode
     {
         DragDropAsset::Data data;
         const char* eventID = DragDropAsset::KEY;
-        std::function<void()> func = [&context]() 
+        std::function<void()> func = [&context, &data]() 
         {
+            static std::weak_ptr<File::Context> wptr;
             File::Path path = context->GetPath();
             ImGui::Text(path.string().c_str());
+
+            wptr         = context;
+            data.context = &wptr;  
         };
 
-        if (ImGuiHelper::DragDrop::SendDragDropEvent(eventID, &data, func))
+        if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
         {
-            // Dragging
-            data.context = context;
+            static std::weak_ptr<File::Context> wptr;
+            File::Path path = context->GetPath();
+            ImGui::Text(path.string().c_str());
+            wptr = context;
+            data.context = &wptr;  
+            ImGui::SetDragDropPayload(DragDropAsset::KEY, &data.context, sizeof(data.context));
+            ImGui::EndDragDropSource();
         }
     }
    
