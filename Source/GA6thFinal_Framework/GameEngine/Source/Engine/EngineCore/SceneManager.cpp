@@ -802,7 +802,7 @@ bool ESceneManager::DeserializeToGuid(const File::Guid& guid)
     if (findIter == _sceneDataMap.end())
     {
         std::string messgae = std::format("{} : {}", u8"존재하지 않는 파일입니다."_c_str, guid.ToPath().string());
-        UmLogger.Log(LogLevel::LEVEL_ERROR, messgae);
+        UmLogger.Log(LogLevel::LEVEL_WARNING, messgae);
         return false;
     }
     return DeserializeToYaml(&findIter->second);
