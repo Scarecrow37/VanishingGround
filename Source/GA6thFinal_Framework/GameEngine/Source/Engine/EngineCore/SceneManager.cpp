@@ -853,14 +853,14 @@ bool ESceneManager::WriteUmSceneFile(const Scene& scene, std::string_view sceneN
     }
 }
 
-void ESceneManager::OnFileAdded(const File::Path& path)
+void ESceneManager::OnFileRegistered(const File::Path& path) 
 {
-    File::Guid guid = path.ToGuid();
+    File::Guid guid     = path.ToGuid();
     _sceneDataMap[guid] = YAML::LoadFile(path.string());
-    YAML::Node& node = _sceneDataMap[guid];
+    YAML::Node& node    = _sceneDataMap[guid];
 
     Scene& scene = _scenesMap[path.ToGuid()];
-    scene._guid = guid;
+    scene._guid  = guid;
     _scenesFindMap[scene.Name].insert(guid);
     std::string nodeGuid = node["Guid"].as<std::string>();
     if (nodeGuid != guid)
@@ -895,7 +895,12 @@ void ESceneManager::OnFileAdded(const File::Path& path)
     }
 }
 
-void ESceneManager::OnFileModified(const File::Path& path) 
+void ESceneManager::OnFileUnregistered(const File::Path& path) 
+{
+
+}
+
+void ESceneManager::OnFileModified(const File::Path& path)
 {
     _sceneDataMap[path.ToGuid()] = YAML::LoadFile(path.string());
 }

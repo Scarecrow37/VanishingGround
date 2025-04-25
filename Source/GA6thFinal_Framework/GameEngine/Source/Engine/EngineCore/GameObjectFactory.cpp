@@ -13,14 +13,18 @@ void EGameObjectFactory::Engine::RegisterFileEvents()
     UmFileSystem.RegisterFileEventNotifier(&UmGameObjectFactory, {EGameObjectFactory::PREFAB_EXTENSION});
 }
 
-void EGameObjectFactory::OnFileAdded(const File::Path& path) 
+void EGameObjectFactory::OnFileRegistered(const File::Path& path) 
 {
     _prefabDataMap[path.ToGuid()] = YAML::LoadFile(path.string());
     std::string message = std::format("Prefab Added : {}", path.string());
     UmLogger.Log(LogLevel::LEVEL_TRACE, message.c_str());
 }
 
-void EGameObjectFactory::OnFileModified(const File::Path& path) 
+void EGameObjectFactory::OnFileUnregistered(const File::Path& path) 
+{
+}
+
+void EGameObjectFactory::OnFileModified(const File::Path& path)
 {
     _prefabDataMap[path.ToGuid()] = YAML::LoadFile(path.string());
     std::string message = std::format("Prefab Modified : {}", path.string());

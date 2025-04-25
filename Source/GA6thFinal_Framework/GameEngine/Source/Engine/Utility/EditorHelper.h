@@ -29,6 +29,12 @@ public:
     inline static const char* ICON_CIRCLE_ARROW_RIGHT = "\xef\x8d\x9a"; // f35a
     inline static const char* ICON_CIRCLE_ARROW_UP    = "\xef\x8d\x9b"; // f35b
     inline static const char* ICON_CIRCLE_ARROW_DOWN  = "\xef\x8d\x9c"; // f35c
+
+    inline static const char* ICON_HELP     = "\xef\x81\x99"; // f059
+    inline static const char* ICON_QUESTION = "\xef\x81\x99"; // f059
+
+    inline static const char* ICON_BELL_ON  = "\xef\x83\xb3"; // f0f3
+    inline static const char* ICON_BELL_OFF = "\xef\x87\xb6"; // f1f6
 };
 
 
