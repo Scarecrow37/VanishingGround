@@ -45,6 +45,7 @@ PSOutput ps_main(PSInput input)
     
     // 0. baseColor
     output.baseColor = textures[diffuseID].Sample(samLinear_wrap, input.uv);
+    output.baseColor.rgb = pow(output.baseColor.rgb, 2.2);
     // 1. normal
     float3 normal = textures[normalID].Sample(samLinear_wrap, input.uv).xyz;
     normal = (normal * 2.f) - 1.f;
