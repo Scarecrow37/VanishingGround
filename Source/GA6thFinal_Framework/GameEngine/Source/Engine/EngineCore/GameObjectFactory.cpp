@@ -160,7 +160,8 @@ void EGameObjectFactory::WriteGameObjectFile(Transform* transform, std::string_v
 {
     namespace fs     = std::filesystem;
     using fsPath     = std::filesystem::path;
-    fsPath writePath = outPath;
+    fsPath writePath = UmFileSystem.GetRootPath();
+    writePath /= outPath;
     writePath /= transform->gameObject->ToString();
     writePath.replace_extension(PREFAB_EXTENSION);
     if (fs::exists(outPath) == true)
@@ -243,9 +244,6 @@ YAML::Node EGameObjectFactory::MakeYamlToGameObject(GameObject* gameObject)
             transformNode["ReflectFields"] = gameObject->_transform.SerializedReflectFields();
             objectNode["Transform"] = transformNode;
         }
-        {
-            
-        }   
         return objectNode;
     }
     else

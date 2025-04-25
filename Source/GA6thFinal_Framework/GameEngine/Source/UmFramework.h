@@ -159,7 +159,7 @@ using namespace Microsoft::WRL;
 
 //Application Module
 #include "Engine/AppModule/EngineCoresModule.h"
-//#include "Engine/AppModule/ImGuiDX12Module.h"
+#include "Engine/AppModule/ImGuiDX12Module.h"
 
 //DragDropTypes
 #include "Editor/DragDropTypes/DragDropTransform.h"
@@ -182,5 +182,5 @@ using namespace Microsoft::WRL;
 #include "Editor/Menu/Window/EditorWindowMenu.h"
 #include "Editor/Menu/Setting/EditorSettingMenu.h"
 #include "Editor/Menu/Scene/EditorSceneMenu.h"
+#include "Editor/Menu/Project/EditorBuildSettingMenu.h"
 #endif
-#include "Engine/AppModule/ImGuiDX12Module.h"
