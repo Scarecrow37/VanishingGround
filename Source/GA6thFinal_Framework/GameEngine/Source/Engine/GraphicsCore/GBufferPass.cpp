@@ -23,8 +23,8 @@ void GBufferPass::Begin(ID3D12GraphicsCommandList* commandList)
     {
         ComPtr<ID3D12Resource> gbuffer = _ownerScene->_gBuffer[i]->GetResource();
 
-        CD3DX12_RESOURCE_BARRIER br = CD3DX12_RESOURCE_BARRIER::Transition(gbuffer.Get(), D3D12_RESOURCE_STATE_PRESENT,
-                                                                           D3D12_RESOURCE_STATE_RENDER_TARGET);
+        CD3DX12_RESOURCE_BARRIER br = CD3DX12_RESOURCE_BARRIER::Transition(
+            gbuffer.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,D3D12_RESOURCE_STATE_RENDER_TARGET);
         commandList->ResourceBarrier(1, &br);
 
         Color                       clearColor = {0.f, 0.f, 0.f, 1.f};
@@ -61,7 +61,7 @@ void GBufferPass::End(ID3D12GraphicsCommandList* commandList)
     {
         ComPtr<ID3D12Resource> gbuffer = _ownerScene->_gBuffer[i]->GetResource();
         br = CD3DX12_RESOURCE_BARRIER::Transition(gbuffer.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET,
-                                                  D3D12_RESOURCE_STATE_PRESENT);
+                                                  D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
         commandList->ResourceBarrier(1, &br);
     }
     br = CD3DX12_RESOURCE_BARRIER::Transition(_ownerScene->_depthStencilBuffer.Get(), D3D12_RESOURCE_STATE_DEPTH_WRITE,

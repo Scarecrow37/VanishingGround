@@ -39,7 +39,7 @@ void Renderer::RegisterRenderQueue(MeshRenderer* component)
     // test code
     for (auto& meshRenerComps : _components)
     {
-        _renderScenes["Test"]->RegisterOnRenderQueue(meshRenerComps);
+        _renderScenes["Editor"]->RegisterOnRenderQueue(meshRenerComps);
     }
 }
 
@@ -61,7 +61,7 @@ void Renderer::Initialize()
     testRenderScene->InitializeRenderScene();
     std::shared_ptr<PBRLitTechnique> pbrTech = std::make_shared<PBRLitTechnique>();
     testRenderScene->AddRenderTechnique("PBRLIT", pbrTech);
-    _renderScenes["Test"] = testRenderScene;
+    _renderScenes["Editor"] = testRenderScene;
 
 }
 
@@ -103,8 +103,8 @@ D3D12_GPU_DESCRIPTOR_HANDLE Renderer::GetRenderSceneImage(std::string_view rende
     auto iter = _renderScenes.find(std::string(renderSceneName));
     if (iter != _renderScenes.end())
     {
-        auto& scene = iter->second;
-        return scene->GetFinalImage();
+        auto scene = iter->second;
+        return SceneView(scene.get());
     }
     else
     {
@@ -193,5 +193,19 @@ void Renderer::ImguiEnd()
         ImGui::UpdatePlatformWindows();
         ImGui::RenderPlatformWindowsDefault(nullptr, nullptr);
     }
+}
+
+// SWTODO : 수정해야함. 너무 임시야. 임구이에서 어떻게 해당이미지의 gpu handle을 반환할지?
+//          뭐가 반환될지 어떻게 알지?
+D3D12_GPU_DESCRIPTOR_HANDLE Renderer::SceneView(RenderScene* scene)
+{
+    auto dest = _imguiDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+    UINT offset = UmDevice.GetCBVSRVUAVDescriptorSize();
+    dest.ptr += offset;
+    auto src  = scene->GetFinalImage();
+    UmDevice.GetDevice()->CopyDescriptorsSimple(1, dest, src, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+    D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = _imguiDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
+    gpuHandle.ptr += offset;
+    return gpuHandle;
 }
 
