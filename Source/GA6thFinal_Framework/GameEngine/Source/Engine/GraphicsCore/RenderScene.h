@@ -44,6 +44,9 @@ public:
     // 실행
     void Execute(ID3D12GraphicsCommandList* commandList);
 
+    // Scene view 용 최종 렌더 이미지 얻기
+    D3D12_CPU_DESCRIPTOR_HANDLE GetFinalImage();
+
 private:
     // 사용할 gbuffer와 render target pool 생성
     void CreateRenderTarget();
@@ -58,7 +61,6 @@ private:
     void CreateSrvDescriptorHeap();
     // frame Resource Backbuffer 갯수만큼 생성해주기.
     void CreateFrameResource();
-
 
 public:
     UINT _currentFrameIndex = 0;

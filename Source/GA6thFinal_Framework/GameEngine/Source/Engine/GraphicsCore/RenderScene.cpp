@@ -86,6 +86,11 @@ void RenderScene::Execute(ID3D12GraphicsCommandList* commandList)
     }
 }
 
+D3D12_CPU_DESCRIPTOR_HANDLE RenderScene::GetFinalImage()
+{
+    return _gBufferSrvHandles[BASECOLOR];
+}
+
 void RenderScene::AddRenderTechnique(const std::string& name, std::shared_ptr<RenderTechnique> technique)
 {
     technique->SetOwnerScene(this);
