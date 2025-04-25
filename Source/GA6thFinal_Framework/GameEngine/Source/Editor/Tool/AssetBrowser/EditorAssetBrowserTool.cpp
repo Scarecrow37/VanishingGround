@@ -898,11 +898,6 @@ void EditorAssetObject::OnInspectorStay()
         ImGui::Separator();
 
         auto& path = spContext->GetPath();
-        File::Path extension = path.extension();
-        auto notifierSet = UmFileSystem.GetNotifiers(extension);
-        for (auto& notifier : notifierSet)
-        {
-            notifier->OnRequestedInspect(path);
-        }
+        UmFileSystem.RequestInspectFile(path);
     }
 }

@@ -111,6 +111,15 @@ std::unordered_set<File::FileEventNotifier*> EFileSystem::GetNotifiers(
     return std::unordered_set<File::FileEventNotifier*>();
 }
 
+void EFileSystem::RequestInspectFile(const File::Path& path) 
+{
+    NotifierSet notifierSet = GetNotifiers(path.extension());
+    for (auto& notifier : notifierSet)
+    {
+        notifier->OnRequestedInspect(path);
+    }
+}
+
 void EFileSystem::RequestOpenFile(const File::Path& path) 
 {
     NotifierSet notifierSet = GetNotifiers(path.extension());

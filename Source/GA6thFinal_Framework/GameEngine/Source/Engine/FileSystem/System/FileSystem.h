@@ -74,6 +74,7 @@ public:
 
 
     NotifierSet GetNotifiers(const File::FString& ext);
+    void RequestInspectFile(const File::Path& path);
     void RequestOpenFile(const File::Path& path);
     void RequestCopyFile(const File::Path& path);
     void RequestPasteFile(const File::Path& path);
