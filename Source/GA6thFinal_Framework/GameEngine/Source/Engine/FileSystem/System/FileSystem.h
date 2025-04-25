@@ -74,6 +74,7 @@ public:
 
 
     NotifierSet GetNotifiers(const File::FString& ext);
+    void RequestInspectFile(const File::Path& path);
     void RequestOpenFile(const File::Path& path);
     void RequestCopyFile(const File::Path& path);
     void RequestPasteFile(const File::Path& path);
@@ -87,14 +88,20 @@ public:
     void UnRegisterFileEventNotifier(File::FileEventNotifier* notifier);
 
 public:
-    void Reload();
     void Clear();
+    void ReadDirectory();
     void ReadDirectory(const File::Path& path);
-    void AddedFile(const File::Path& path);
-    void RemovedFile(const File::Path& path);
-    void ModifiedFile(const File::Path& path);
-    void MovedFile(const File::Path& oldPath, const File::Path& newPath);
 
+    void RegisterContext(const File::Path& path);
+    void UnregisterContext(const File::Path& path);
+    void ProcessRemovedFile(const File::Path& path);
+    void ProcessModifiedFile(const File::Path& path);
+    void ProcessMovedFile(const File::Path& oldPath, const File::Path& newPath);
+
+private:
+    void ClearContext();
+    void ClearNotifier();
+   
 private:
     File::SystemSetting _setting;   // 세팅 정보
 
