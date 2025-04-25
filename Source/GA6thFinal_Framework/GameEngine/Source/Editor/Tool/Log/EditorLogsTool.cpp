@@ -6,7 +6,8 @@ using namespace Global;
 
 EditorLogsTool::EditorLogsTool()
 {
-    SetLabel(u8"로그"_c_str);
+    SetLabel(u8"로그###로그"_c_str);
+    SetDockLayout(DockLayout::DOWN);
     ResetLogColor();
     ResetLogFilter();
 }
@@ -34,7 +35,12 @@ void EditorLogsTool::OnTickGui()
             if (ReflectFields->LogFilterTable[level] == true)
             {
                 _drawLogList.emplace_back(level, message, location);   
-            }            
+            }          
+
+            if (_isFocused == false)
+            {
+                notReadCount++;
+            }
         }
         prevLogCount = logMessages.size();
         _isMessagePush = true;
@@ -47,11 +53,50 @@ void EditorLogsTool::OnTickGui()
 
 void EditorLogsTool::OnPreFrame() 
 {
-
+    std::string lable = u8"로그###로그"_c_str;
+    if (notReadCount > 0)
+    {
+        static float    elapsedTime   = 0.f;
+        static bool     reverse       = false;
+        constexpr float animationTime = 1.f;
+        elapsedTime += UmTime.UnscaledDeltaTime();
+        float t = elapsedTime / animationTime;
+        if (elapsedTime >= animationTime)
+        {
+            elapsedTime = 0.f;
+            reverse     = !reverse;
+        }
+        ImVec4&          defaultTextColor = ImGui::GetStyle().Colors[ImGuiCol_Text];
+        auto& [level, message, location]  = _drawLogList.back();
+        ImVec4 logTextColor = ImGuiHelper::ArrayToImVec4(ReflectFields->LogColorTable[level]);
+        ImVec4 lerpColor = reverse ? ImGuiHelper::ImVec4Lerp(logTextColor, defaultTextColor, t)
+                                   : ImGuiHelper::ImVec4Lerp(defaultTextColor, logTextColor, t);
+        ImGui::PushStyleColor(ImGuiCol_Text, lerpColor);
+        lable = std::format("{} +{}###{}", u8"로그"_c_str, std::min(notReadCount, (size_t)999), u8"로그"_c_str);
+    }
+    SetLabel(lable.c_str());
 }
 
 void EditorLogsTool::OnFrame()
 {
+    _isFocused = ImGui::IsWindowFocused();
+    if (notReadCount > 0)
+    {
+        ImGui::PopStyleColor();
+        if (_isFocused == true)
+        {
+            static bool once = false;
+            if (once == true)
+            {
+                notReadCount   = 0;
+                _isMessagePush = true;
+            }
+            else
+            {
+                once = true;
+            }
+        }
+    } 
     static ImVec2 buttonSize = ImVec2(50, 26);
     static ImVec2 buttonPadding = ImVec2(10, 0);
 
@@ -90,28 +135,31 @@ void EditorLogsTool::OnFrame()
         _editFilter    = false;
     }
 
-    ImGui::BeginChild("LogScroll", ImGui::GetContentRegionAvail(), true,ImGuiWindowFlags_HorizontalScrollbar);
+    ImVec2 regionAvail = ImGui::GetContentRegionAvail();
+    ImGui::BeginChild("LogScroll", regionAvail, true, ImGuiWindowFlags_HorizontalScrollbar);
     ImGuiListClipper clipper;
     clipper.Begin(_drawLogList.size());
     while (clipper.Step())
     {
+        std::string logText;
         for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; ++i)
         {
-            PrintLog(_drawLogList[i]);
-            ImGui::Text("");
-        }
+            logText.clear();
+            auto& [level, message, location] = _drawLogList[i];
+            ImGui::PushID(message.c_str());
+            logText += message;
+            logText += std::format("\n{}, line : {}", location.function_name(), location.line());
+            ImGui::PushStyleColor(ImGuiCol_Text, ImGuiHelper::ArrayToImVec4(ReflectFields->LogColorTable[level]));
+            ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4());
+            ImGui::InputTextMultiline("##message", &logText, {regionAvail.x, 50}, ImGuiInputTextFlags_ReadOnly);
+            ImGui::PopStyleColor(2);
+            ImGui::PopID();
+        }   
     }
     if (_isMessagePush)
     {
-        if (ImGui::IsWindowFocused() == false)
-        {
-            ImGui::SetWindowFocus();
-        }
-        else
-        {
-            ImGui::SetScrollHereY(1.0f);
-            _isMessagePush = false;
-        }
+        ImGui::SetScrollHereY(1.0f);
+        _isMessagePush = false;
     }
     ImGui::EndChild();
 }
@@ -138,11 +186,7 @@ void EditorLogsTool::ResetLogFilter()
 
 void EditorLogsTool::PrintLog(const std::tuple<int, std::string, LogLocation>& log)
 {
-    auto& [level, message, location] = log;
-    ImGui::PushStyleColor(ImGuiCol_Text, ImGuiHelper::ArrayToImVec4(ReflectFields->LogColorTable[level]));
-    ImGui::TextUnformatted(message.c_str());
-    ImGui::Text(std::format("{}, line : {}", location.function_name(), location.line()).c_str());
-    ImGui::PopStyleColor();
+
 }
 
 void EditorLogsTool::ShowFilter()
