@@ -93,6 +93,8 @@ void GameObject::OnInspectorStay()
 
         if (selectObject)
         {
+            constexpr ImVec2 popupSize(400, 300);
+            ImGui::SetNextWindowSize(popupSize, ImGuiCond_FirstUseEver); 
             if (ImGui::BeginPopupModal("Select Component", nullptr))
             {
                 ImGui::BeginChild("Component Child", 
