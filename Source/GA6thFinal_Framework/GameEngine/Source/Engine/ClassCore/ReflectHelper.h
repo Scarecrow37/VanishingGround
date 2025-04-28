@@ -211,7 +211,7 @@ protected:                                                                     \
                 reflectionFieldsSet.insert(&field);                            \
             }                                                                  \
         });                                                                    \
-        const auto view = rfl::to_view(*ReflectFields.Get());               \
+        const auto view = rfl::to_view(*ReflectFields.Get());                  \
         view.apply([&](auto& rflField) {                                       \
             if (reflectionFieldsSet.find(rflField.value()) !=                  \
                 reflectionFieldsSet.end())                                     \
@@ -580,7 +580,9 @@ namespace ReflectHelper
         void InputReflectFields(T& obj)
         {
             const auto view = rfl::to_view(obj);
-            view.apply([](auto& f) { ImGuiDraw::Private::InputAuto(f); });
+            view.apply([](auto& f) { 
+                ImGuiDraw::Private::InputAuto(f); 
+                });
         }
     } // namespace ImGuiDraw
 
