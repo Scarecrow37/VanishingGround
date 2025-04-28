@@ -44,8 +44,8 @@ void Device::Initialize()
 {
     HRESULT hr = S_OK;
 
-    hr = UmViewManager.AddDescriptorHeap(ViewManager::Type::RENDER_TARGET, SWAPCHAIN_BUFFER_COUNT,
-                                               _renderTargetHandles);
+    hr =
+        UmViewManager.AddDescriptorHeap(ViewManager::Type::RENDER_TARGET, SWAPCHAIN_BUFFER_COUNT, _renderTargetHandles);
     FAILED_CHECK_BREAK(hr);
 
     hr = UmViewManager.AddDescriptorHeap(ViewManager::Type::DEPTH_STENCIL, _depthStencilHandle);
@@ -120,8 +120,8 @@ void Device::CreateDeviceAndSwapChain(HWND hwnd, D3D_FEATURE_LEVEL feature)
     msQualityLevels.NumQualityLevels = 0;
     FAILED_CHECK_BREAK(_device->CheckFeatureSupport(D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS, &msQualityLevels,
                                                     sizeof(msQualityLevels)));
-    _4xMsaaQuality = msQualityLevels.NumQualityLevels;
-    assert(_4xMsaaQuality > 0 && "Unexpected MSAA quality level");
+    _4xMSAAQuality = msQualityLevels.NumQualityLevels;
+    assert(_4xMSAAQuality > 0 && "Unexpected MSAA quality level");
 
     CreateCommandQueue();
     CreateSyncObject();
@@ -131,8 +131,8 @@ void Device::CreateDeviceAndSwapChain(HWND hwnd, D3D_FEATURE_LEVEL feature)
     sd.Width              = _mode.Width;
     sd.Height             = _mode.Height;
     sd.Format             = _backBufferFormat;
-    sd.SampleDesc.Count   = _4xMsaaState ? 4 : 1;
-    sd.SampleDesc.Quality = _4xMsaaState ? (_4xMsaaQuality - 1) : 0;
+    sd.SampleDesc.Count   = 1;
+    sd.SampleDesc.Quality = 0;
     sd.BufferUsage        = DXGI_USAGE_RENDER_TARGET_OUTPUT; // 후면 버퍼의 속성
     sd.BufferCount        = SWAPCHAIN_BUFFER_COUNT;
     sd.SwapEffect         = DXGI_SWAP_EFFECT_FLIP_DISCARD;
@@ -145,12 +145,14 @@ void Device::CreateDeviceAndSwapChain(HWND hwnd, D3D_FEATURE_LEVEL feature)
 
 void Device::CreateCommandQueue()
 {
-    D3D12_COMMAND_QUEUE_DESC desc{
+    D3D12_COMMAND_QUEUE_DESC desc
+    {
         .Type     = D3D12_COMMAND_LIST_TYPE_DIRECT,
         .Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL,
         .Flags    = D3D12_COMMAND_QUEUE_FLAG_NONE,
         .NodeMask = 0,
     };
+
     FAILED_CHECK_BREAK(_device->CreateCommandQueue(&desc, IID_PPV_ARGS(_commandQueue.GetAddressOf())));
     FAILED_CHECK_BREAK(_device->CreateCommandAllocator(desc.Type, IID_PPV_ARGS(_commandAllocator.GetAddressOf())));
     FAILED_CHECK_BREAK(_device->CreateCommandList(desc.NodeMask, desc.Type, _commandAllocator.Get(), nullptr,
@@ -201,8 +203,8 @@ void Device::CreateDepthStencil()
     rd.DepthOrArraySize      = 1;
     rd.MipLevels             = 1;
     rd.Format                = DXGI_FORMAT_R24G8_TYPELESS;
-    rd.SampleDesc.Count      = _4xMsaaState ? 4 : 1;
-    rd.SampleDesc.Quality    = _4xMsaaState ? (_4xMsaaQuality - 1) : 0;
+    rd.SampleDesc.Count      = 1;
+    rd.SampleDesc.Quality    = 0;
     rd.Layout                = D3D12_TEXTURE_LAYOUT_UNKNOWN;
     rd.Flags                 = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
     D3D12_CLEAR_VALUE cv     = {};
@@ -301,6 +303,14 @@ void Device::ResetCommands()
     _commandList->Reset(_commandAllocator.Get(), _currentPipelineState.Get());
 }
 
+void Device::ResolveBackBuffer(ComPtr<ID3D12Resource> source)
+{
+    _commandList->ResolveSubresource(_swapChainBuffer[_renderTargetIndex].Get(), 0, source.Get(), 0, _mode.Format);
+    auto br = CD3DX12_RESOURCE_BARRIER::Transition(_swapChainBuffer[_renderTargetIndex].Get(),
+                                             D3D12_RESOURCE_STATE_RESOLVE_DEST, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    _commandList->ResourceBarrier(1, &br);
+}
+
 HRESULT Device::UpdateBuffer(ComPtr<ID3D12Resource>& buffer, void* data, UINT size)
 {
     HRESULT hr = S_OK;
@@ -341,6 +351,7 @@ HRESULT Device::ClearBackBuffer(UINT flag, XMVECTOR color, float depth, UINT ste
 
     // 렌더타겟 상태 전환
     //<리소스 베리어> 각 리소스의 상태관리 인터페이스. 리소스의 운용 충돌(Resource Hazard) 방지용.
+
     auto br = CD3DX12_RESOURCE_BARRIER::Transition(_swapChainBuffer[_renderTargetIndex].Get(),
                                                    D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
     _commandList->ResourceBarrier(1, &br);
@@ -463,4 +474,36 @@ HRESULT Device::CreateDefaultBuffer(UINT size, ComPtr<ID3D12Resource>& buffer)
                                                         D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
                                                         IID_PPV_ARGS(buffer.GetAddressOf())));
     return 0;
+}
+
+HRESULT Device::CreateCommandList(ComPtr<ID3D12CommandAllocator>&    allocator,
+                                  ComPtr<ID3D12GraphicsCommandList>& commandList,
+                                  COMMAND_TYPE type)
+{
+    D3D12_COMMAND_QUEUE_DESC desc
+    {
+        .Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL,
+        .Flags    = D3D12_COMMAND_QUEUE_FLAG_NONE,
+        .NodeMask = 0,
+    };
+
+    switch (type)
+    {
+    case COMMAND_TYPE::DIRECT:
+        desc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+        break;
+    case COMMAND_TYPE::BUNDLE:
+        desc.Type = D3D12_COMMAND_LIST_TYPE_BUNDLE;
+        break;
+    case COMMAND_TYPE::COMPUTE:
+        desc.Type = D3D12_COMMAND_LIST_TYPE_COMPUTE;
+        break;
+    }
+
+    FAILED_CHECK_BREAK(_device->CreateCommandAllocator(desc.Type, IID_PPV_ARGS(allocator.GetAddressOf())));
+    FAILED_CHECK_BREAK(_device->CreateCommandList(desc.NodeMask, desc.Type, allocator.Get(), nullptr,
+                                                  IID_PPV_ARGS(commandList.GetAddressOf())));
+    commandList->Close();
+
+    return S_OK;
 }

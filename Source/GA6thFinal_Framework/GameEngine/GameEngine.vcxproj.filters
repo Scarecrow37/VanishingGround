@@ -88,6 +88,12 @@
     <Filter Include="GraphicsCore\Module">
       <UniqueIdentifier>{a63d94b8-ab29-418c-9b51-30ec5e81ea26}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GraphicsCore\Animator">
+      <UniqueIdentifier>{80ba6ad3-2eb0-450c-92d5-8aac33e067f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsCore\Material">
+      <UniqueIdentifier>{cc2e0fd2-4be0-475a-989a-1b89bb9ef427}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\pch.h">
@@ -444,6 +450,30 @@
     <ClInclude Include="Source\Editor\Menu\Project\EditorBuildSettingMenu.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\PBRPass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\PBRTechnique.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\Animator.h">
+      <Filter>GraphicsCore\Animator</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\Material.h">
+      <Filter>GraphicsCore\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\M_Default.h">
+      <Filter>GraphicsCore\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\PBRLitTechnique.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\GBufferPass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\DeferredPBRLitPass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\pch.cpp">
@@ -756,6 +786,27 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Editor\Menu\Project\EditorBuildSettingMenu.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\PBRPass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\Animator.cpp">
+      <Filter>GraphicsCore\Animator</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\Material.cpp">
+      <Filter>GraphicsCore\Material</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\M_Default.cpp">
+      <Filter>GraphicsCore\Material</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\PBRLitTechnique.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\GBufferPass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\DeferredPBRLitPass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

@@ -52,6 +52,6 @@ float4 ps_main(PSInput input) : SV_TARGET
     float3 grass = textures[grassID].Sample(samLinear_wrap, input.uv).xyz;
     float4 color = saturate((diffuse + float4(grass * mask, 1)) * NdotL);
     
-    color = diffuse;
+    //color = diffuse;
     return color;
 }

@@ -20,8 +20,7 @@ void FileSystemModule::ModuleInitialize()
     File::Path directory = PROJECT_SETTING_PATH;
     UmFileSystem.LoadSetting(directory / filename);
 
-    UmFileSystem.RegisterFileEventNotifier(new SampleNotifier,
-                                           {".txt", ".png", ".dds"});
+    UmFileSystem.RegisterFileEventNotifier(new SampleNotifier, {".txt", ".png", ".dds", ".fbx"});
 
     _observer = new File::FileObserver();
     _observer->Start(UmFileSystem.GetRootPath(),
