@@ -53,10 +53,7 @@ void EditorInspectorTool::ShowMenuBarFrame()
 {
     if (ImGui::BeginMenuBar())
     {
-        if (ImGui::MenuItem("Lock", nullptr, _isLockFocus))
-        {
-            _isLockFocus = !_isLockFocus;
-        }
+        ImGui::MenuItem("Lock", nullptr, &_isLockFocus);
 
         ImGui::EndMenuBar();
     }

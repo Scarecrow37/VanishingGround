@@ -33,6 +33,9 @@ public:
     void ModuleUnInitialize() override;
 
 public:
+    bool SaveSetting(const File::Path& path);
+    bool LoadSetting(const File::Path& path);
+
     void Update();
 
 private:

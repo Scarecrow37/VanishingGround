@@ -362,6 +362,9 @@ void EditorAssetBrowserTool::ShowFolderDirectoryPath(spFolderContext context)
 
 void EditorAssetBrowserTool::ContentsFrameEventAction(spFolderContext context)
 {
+    if (nullptr == context)
+        return;
+
     const File::Path& curPath = context->GetPath();
 
     bool isSelected   = UmFileSystem.IsSameContext(_selectedContext->GetContext(), context);
@@ -745,16 +748,19 @@ void EditorAssetBrowserTool::ShowSameFilePopupBox()
 
 void EditorAssetBrowserTool::ProcessEnterAction(spContext context)
 {
-    // 폴더일 시
-    if (true == context->IsDirectory())
+    if (nullptr != context)
     {
-        auto spFolderContext = std::static_pointer_cast<File::FolderContext>(context);
-        SetFocusFolder(spFolderContext);
-    }
-    // 파일일 시
-    else
-    {
-        UmFileSystem.RequestOpenFile(context->GetPath());
+        // 폴더일 시
+        if (true == context->IsDirectory())
+        {
+            auto spFolderContext = std::static_pointer_cast<File::FolderContext>(context);
+            SetFocusFolder(spFolderContext);
+        }
+        // 파일일 시
+        else
+        {
+            UmFileSystem.RequestOpenFile(context->GetPath());
+        }
     }
 }
 
@@ -822,10 +828,13 @@ bool EditorAssetBrowserTool::SetFocusFolder(wpFolderContext context)
 
 void EditorAssetBrowserTool::SetFocusParentFolder(spContext context)
 {
-    const File::Path& curPath       = context->GetPath();
-    const File::Path  parentPath    = curPath.parent_path();
-    const auto        parentContext = UmFileSystem.GetContext<File::FolderContext>(parentPath);
-    SetFocusFolder(parentContext);
+    if (nullptr != context)
+    {
+        const File::Path& curPath       = context->GetPath();
+        const File::Path  parentPath    = curPath.parent_path();
+        const auto        parentContext = UmFileSystem.GetContext<File::FolderContext>(parentPath);
+        SetFocusFolder(parentContext);
+    }
 }
 
 void EditorAssetBrowserTool::SetFocusFromUndoPath()
