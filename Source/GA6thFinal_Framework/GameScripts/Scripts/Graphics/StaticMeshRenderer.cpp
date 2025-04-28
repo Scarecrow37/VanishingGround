@@ -25,7 +25,10 @@ StaticMeshRenderer::StaticMeshRenderer()
 
 StaticMeshRenderer::~StaticMeshRenderer()
 {
-    //(*_isActive) = false;
+    if (_isActive != nullptr)
+    {
+        (*_isActive) = false;
+    }  
 }
 
 void StaticMeshRenderer::Reset()
@@ -76,11 +79,14 @@ void StaticMeshRenderer::Update()
     }
 }
 
-void StaticMeshRenderer::FixedUpdate() {}
+void StaticMeshRenderer::FixedUpdate() 
+{
+
+}
 
 void StaticMeshRenderer::OnDestroy()
 {
-    (*_isActive) = false;
+   
 }
 
 void StaticMeshRenderer::OnApplicationQuit() {}
