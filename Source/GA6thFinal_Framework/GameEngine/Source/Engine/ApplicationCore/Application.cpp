@@ -40,7 +40,6 @@ Application::Application()
 
     //필수 모듈들
     AddModule<EngineCoresModule>();
-
     _imguiDX12Module = AddModule<ImGuiDX12Module>();
     _filesystemModule = AddModule<FileSystemModule>();
 }
@@ -61,6 +60,21 @@ void Application::Initialize(HINSTANCE hInstance)
 
     //초기화 완료
     OnStartupComplete();
+
+    //시작 씬 로드
+    ESceneManager& sceneManager = UmSceneManager;
+    std::string& loadScene = Application::IsEditor() ? sceneManager._setting.MainScene : sceneManager._setting.StartScene;
+    if (loadScene != STR_NULL)
+    {
+        if (UmComponentFactory.HasScript() == false)
+        {
+            if (UmComponentFactory.InitalizeComponentFactory() == false)
+            {
+                return;
+            }
+        }
+        sceneManager.LoadScene(loadScene);
+    }
 }
 
 void Application::UnInitialize()
