@@ -27,17 +27,11 @@ void ScriptTestEditor::OnFrame()
     using namespace Global;
     using namespace u8_literals;
     {
-        auto& scenesMap = UmSceneManager.GetScenesMap();
-        for (auto& [guid, scene] : scenesMap)
+        auto& objectList = ESceneManager::Engine::GetRuntimeObjects();
+        for (auto& object : objectList)
         {
-            ImGui::PushID(&scene);
-            ImGui::Separator();
-            std::string sceneName = scene.Name;
-            ImGui::Text("Name : %s", sceneName.c_str());
-            ImGui::Text("isLoaded : %s", scene.isLoaded ? "true" : "false");
-            std::string scenePath = scene.Path;
-            ImGui::Text("Path : %s", scenePath.c_str());
-            ImGui::PopID();
+           
+            
         }
     }
 }
