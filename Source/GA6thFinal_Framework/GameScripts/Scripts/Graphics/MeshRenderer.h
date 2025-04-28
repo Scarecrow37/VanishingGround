@@ -29,4 +29,5 @@ public:
 
 protected:
     std::shared_ptr<Model> _model;
+    bool*                  _isActive{nullptr};
 };

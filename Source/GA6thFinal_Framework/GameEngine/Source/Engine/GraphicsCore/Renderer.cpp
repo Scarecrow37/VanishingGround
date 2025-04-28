@@ -25,9 +25,9 @@ Renderer::~Renderer()
 {
 }
 
-void Renderer::RegisterRenderQueue(MeshRenderer* component)
+void Renderer::RegisterRenderQueue(bool** isActive, MeshRenderer* component)
 {
-    auto iter = std::find_if(_components.begin(), _components.end(), [component](const auto& ptr) { return ptr == component; });
+    auto iter = std::find_if(_components.begin(), _components.end(), [component](const auto& ptr) { return ptr.second == component; });
 
     if (iter != _components.end())
     {
@@ -35,12 +35,15 @@ void Renderer::RegisterRenderQueue(MeshRenderer* component)
         return;
     }
 
-    _components.push_back(component);
+    _components.emplace_back(true, component);
+    *isActive = &_components.back().first;
+
     // test code
-    for (auto& meshRenerComps : _components)
+    _renderScenes["Editor"]->RegisterOnRenderQueue(*isActive, component);
+
+    /*for (auto& meshRenerComps : _components)
     {
-        _renderScenes["Editor"]->RegisterOnRenderQueue(meshRenerComps);
-    }
+    }*/
 }
 
 void Renderer::Initialize()
@@ -67,9 +70,7 @@ void Renderer::Initialize()
 
 void Renderer::Update()
 {
-    // 비활성된 컴포넌트 제거
-    auto first = std::remove_if(_components.begin(), _components.end(), [](const auto& ptr) { return (!ptr->Enable || !ptr->gameObject->ActiveInHierarchy); });
-    _components.erase(first, _components.end());
+    
 
     UmMainCamera.Update();
 
@@ -80,6 +81,11 @@ void Renderer::Update()
     {
         renderScene.second->UpdateRenderScene();
     } 
+
+    // 비활성된 컴포넌트 제거
+    auto first =
+        std::remove_if(_components.begin(), _components.end(), [](const auto& component) { return !component.first; });
+    _components.erase(first, _components.end());
 }
 
 void Renderer::Render()
