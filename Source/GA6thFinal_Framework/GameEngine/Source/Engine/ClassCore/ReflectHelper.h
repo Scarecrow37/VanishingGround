@@ -288,9 +288,6 @@ namespace ReflectHelper
 
         template <class T>
         void InputReflectFields(T& obj);
-
-        template <class T>
-        void InputReflectFields(T* obj);
     } // namespace ImGuiDraw
 
     // serialized helper
@@ -561,7 +558,10 @@ namespace ReflectHelper
                                 ImGui::SameLine();
                                 if (ImGui::Button("-"))
                                 {
-                                    value->pop_back();
+                                    if (value->size() > 0)
+                                    {
+                                        value->pop_back();
+                                    }                                 
                                 }
                             }
                         }
@@ -580,13 +580,6 @@ namespace ReflectHelper
         void InputReflectFields(T& obj)
         {
             const auto view = rfl::to_view(obj);
-            view.apply([](auto& f) { ImGuiDraw::Private::InputAuto(f); });
-        }
-
-        template <class T>
-        void InputReflectFields(T* obj)
-        {
-            const auto view = rfl::to_view(*obj);
             view.apply([](auto& f) { ImGuiDraw::Private::InputAuto(f); });
         }
     } // namespace ImGuiDraw
