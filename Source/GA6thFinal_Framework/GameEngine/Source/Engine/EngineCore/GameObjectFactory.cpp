@@ -142,12 +142,15 @@ std::shared_ptr<GameObject> EGameObjectFactory::DeserializeToYaml(YAML::Node* pG
         currObject = MakeGameObjectToYaml(&currNode);
 
         //프리팹 추적
-        File::Guid prefab = currNode["Prefab"].as<std::string>();
-        if (prefab != STR_NULL)
+        if (currNode["Prefab"])
         {
-            std::vector<std::weak_ptr<GameObject>>& instanceList = _prefabInstanceList[prefab];
-            instanceList.emplace_back(currObject);
-            currObject->_prefabGuid = prefab;
+            File::Guid prefab = currNode["Prefab"].as<std::string>();
+            if (prefab != STR_NULL)
+            {
+                std::vector<std::weak_ptr<GameObject>>& instanceList = _prefabInstanceList[prefab];
+                instanceList.emplace_back(currObject);
+                currObject->_prefabGuid = prefab;
+            }
         }
 
         //컴포넌트들 역직렬화
@@ -354,7 +357,10 @@ std::shared_ptr<GameObject> EGameObjectFactory::MakeGameObjectToYaml(YAML::Node*
 
     std::shared_ptr<GameObject> object = MakeGameObject(Type);
     ResetGameObject(object.get(), "null");
-    object->_prefabGuid = objectNode["Prefab"].as<std::string>();
+    if (objectNode["Prefab"])
+    {
+        object->_prefabGuid = objectNode["Prefab"].as<std::string>();
+    }
     std::string ReflectFields = objectNode["ReflectFields"].as<std::string>();
     object->DeserializedReflectFields(ReflectFields);
     {
