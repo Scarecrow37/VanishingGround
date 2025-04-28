@@ -158,12 +158,9 @@ std::shared_ptr<GameObject> EGameObjectFactory::DeserializeToGuid(const File::Gu
         return nullptr;
     }
     auto pObject = DeserializeToYaml(&iter->second);
-    std::vector<std::weak_ptr<GameObject>>& instanceList = _PrefavInstanceList[guid];
+    std::vector<std::weak_ptr<GameObject>>& instanceList = _prefavInstanceList[guid];
     instanceList.emplace_back(pObject);
-    std::erase_if(instanceList, [](std::weak_ptr<GameObject>& weakObject)
-    { 
-        return weakObject.expired();
-    });
+    pObject->_prefab = guid;
     return pObject;
 }
 
@@ -195,6 +192,32 @@ void EGameObjectFactory::WriteGameObjectFile(Transform* transform, std::string_v
         }
         ofs.close();
     }
+}
+
+bool EGameObjectFactory::UnpackPrefab(GameObject* targetObject)
+{
+    if (targetObject->IsPrefabInstacne == true)
+    {
+        auto findIter = _prefavInstanceList.find(targetObject->_prefab);
+        if (findIter != _prefavInstanceList.end())
+        {
+            std::vector<std::weak_ptr<GameObject>>& instanceList = findIter->second;
+            std::erase_if(instanceList, 
+                [targetObject](std::weak_ptr<GameObject>& weakObject) 
+                { 
+                    bool isUnpackObject = false;
+                    bool isExpired = weakObject.expired();
+                    if (isExpired == false)
+                    {
+                        std::shared_ptr<GameObject> pObject = weakObject.lock();
+                        isUnpackObject = targetObject == pObject.get();
+                    }
+                    return isExpired || isUnpackObject; 
+                });
+            return true;
+        }
+    }
+    return false;
 }
 
 std::shared_ptr<GameObject> EGameObjectFactory::MakeGameObject(std::string_view typeid_name)

@@ -88,6 +88,13 @@ public:
     /// <param name="transform"></param>
     /// <param name="outPath"></param>
     void WriteGameObjectFile(Transform* transform, std::string_view outPath);
+
+    /// <summary>
+    /// 프리팹 인스턴스를 일반 게임 오브젝트로 변경합니다.
+    /// </summary>
+    /// <returns></returns>
+    bool UnpackPrefab(GameObject* object);
+
 private:
     //컴포넌트를 동적할당후 shared_ptr로 반환합니다.
     //매개변수로 생성할 컴포넌트 typeid().name()을 전달해야합니다.
@@ -133,5 +140,5 @@ private:
     std::unordered_map<File::Guid, YAML::Node> _prefabDataMap;
 
     // 인스턴스화된 프리팹 추적용
-    std::unordered_map<File::Guid, std::vector<std::weak_ptr<GameObject>>>  _PrefavInstanceList;      
+    std::unordered_map<File::Guid, std::vector<std::weak_ptr<GameObject>>>  _prefavInstanceList;      
 };
