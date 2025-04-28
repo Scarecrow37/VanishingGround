@@ -25,25 +25,16 @@ Renderer::~Renderer()
 {
 }
 
-void Renderer::RegisterRenderQueue(bool** isActive, MeshRenderer* component)
+void Renderer::RegisterRenderQueue(bool** isActive, MeshRenderer* component, std::string_view sceneName)
 {
-    auto iter = std::find_if(_components.begin(), _components.end(), [component](const auto& ptr) { return ptr.second == component; });
+    auto iter = _renderScenes.find(sceneName.data());
 
-    if (iter != _components.end())
+    if (iter == _renderScenes.end())
     {
-        ASSERT(false, L"Renderer::RegisterRenderQueue : Already registered component.");
-        return;
+        ASSERT(false, L"Renderer::RegisterRenderQueue : Render Scene Not Registered.");
     }
-
-    _components.emplace_back(true, component);
-    *isActive = &_components.back().first;
-
-    // test code
-    _renderScenes["Editor"]->RegisterOnRenderQueue(*isActive, component);
-
-    /*for (auto& meshRenerComps : _components)
-    {
-    }*/
+    auto scene = iter->second;
+    scene->RegisterOnRenderQueue(isActive,component);
 }
 
 void Renderer::Initialize()
@@ -70,13 +61,12 @@ void Renderer::Initialize()
 
 void Renderer::Update()
 {
-    
-
     UmMainCamera.Update();
 
 	UmDevice.ResetCommands();
 	//UpdateFrameResource();
 	UmDevice.ClearBackBuffer(D3D12_CLEAR_FLAG_DEPTH, { 0.5f, 0.5f, 0.5f, 1.f });
+
     for (auto& renderScene : _renderScenes)
     {
         renderScene.second->UpdateRenderScene();

@@ -96,6 +96,7 @@ void ESceneManager::SceneUpdate()
     ObjectsLateUpdate();
     ObjectsApplicationQuit();
     ObjectsOnDisable();
+
     ObjectsDestroy();
     ObjectsMatrixUpdate();
 }
