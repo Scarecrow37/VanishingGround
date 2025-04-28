@@ -8,8 +8,8 @@ StaticMeshRenderer::StaticMeshRenderer()
             if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
             {
                 DragDropAsset::Data* data = (DragDropAsset::Data*)payLoad->Data; 
-                auto context = data->context->lock();
-
+                auto context = data->pContext->lock();
+                
                 if (nullptr != context)
                 {
                     const auto& path = context->GetPath();
