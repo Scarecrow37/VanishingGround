@@ -158,6 +158,16 @@ void GameObject::OnInspectorStay()
     ImGui::PopID();
 }
 
+void GameObject::SerializedReflectEvent() 
+{
+    ReflectFields->_prefabGuid = _prefab.string();
+}
+
+void GameObject::DeserializedReflectEvent() 
+{
+    _prefab = ReflectFields->_prefabGuid;
+}
+
 std::string GameObject::Helper::GenerateUniqueName(std::string_view baseName)
 {
     size_t                    count   = 0;
