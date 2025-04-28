@@ -30,8 +30,15 @@ void ScriptTestEditor::OnFrame()
         auto& objectList = ESceneManager::Engine::GetRuntimeObjects();
         for (auto& object : objectList)
         {
-           
-            
+            if (object->IsPrefabInstacne == true)
+            {
+                ImGui::PushID(object.get());
+                std::string prefabPath = object->PrefabPath;
+                ImGui::BeginDisabled();
+                ImGui::InputText("Prefab", &prefabPath);
+                ImGui::EndDisabled();
+                ImGui::PopID();
+            }
         }
     }
 }
