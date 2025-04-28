@@ -25,7 +25,8 @@ void GameObject::Destroy(GameObject& gameObject, float t)
 GameObject::GameObject()
     : 
     _transform(*this),
-    _ownerScene("null"),
+    _ownerScene(STR_NULL),
+    _prefab(STR_NULL),
     _components(),
     _instanceID(-1)
 {

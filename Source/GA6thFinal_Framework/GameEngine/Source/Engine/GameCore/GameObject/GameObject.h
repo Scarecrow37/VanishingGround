@@ -298,7 +298,7 @@ public:
 
     GETTER_ONLY(std::string, PrefabPath) 
     { 
-        return _prefab.string();
+        return _prefab.ToPath().string();
     }
     //이 오브젝트가 참조하고있는 프리팹을 반환합니다.
     PROPERTY(PrefabPath)
