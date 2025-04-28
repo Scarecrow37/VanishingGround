@@ -14,6 +14,7 @@
 #include "Defines.h"
 #include "Externs.h"
 
+class Model;
 class GraphicsCore
 {
 public:
@@ -28,4 +29,11 @@ public:
     void UpdateAnimation(const float deltaTime);
     void Update();
     void Render();
+    void Flip();
+
+private:
+    void InitializeDefaultGeometry();
+
+private:
+    std::vector<std::shared_ptr<Model>> _geometries;
 };

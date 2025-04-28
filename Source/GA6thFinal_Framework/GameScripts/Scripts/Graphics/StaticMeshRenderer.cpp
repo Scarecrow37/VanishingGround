@@ -1,26 +1,76 @@
 ﻿#include "StaticMeshRenderer.h"
 #include "Engine/GraphicsCore/Model.h"
 
-void StaticMeshRenderer::Reset() {}
+StaticMeshRenderer::StaticMeshRenderer()
+{    
+    FilePath.SetDragDropFunc([this]()
+        { 
+            if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
+            {
+                DragDropAsset::Data* data = (DragDropAsset::Data*)payLoad->Data; 
+                auto context = data->pContext->lock();
+                
+                if (nullptr != context)
+                {
+                    const auto& path = context->GetPath();
+                    if (path.extension() == L".fbx")
+                    {
+                        ReflectFields->Guid = path.ToGuid().string();
+                        UmResourceManager.RegisterLoadQueue({path, RESOURCE_TYPE::MODEL});
+                    }
+                }
+            }
+    });
+}
+
+StaticMeshRenderer::~StaticMeshRenderer()
+{
+}
+
+void StaticMeshRenderer::Reset()
+{
+    ReflectFields->Type = MeshRenderer::RENDER_TYPE::STATIC;
+}
 
 void StaticMeshRenderer::Awake()
 {
-    //UmResourceManager.RegisterLoadQueue({L"../TestAssets/Zelda/zelda.fbx", RESOURCE_TYPE::MODEL});
+    if (!ReflectFields->Guid.empty())
+    {
+        File::Guid guid = ReflectFields->Guid;
+        UmResourceManager.RegisterLoadQueue({guid.ToPath(), RESOURCE_TYPE::MODEL});
+    }
 }
 
 void StaticMeshRenderer::Start()
 {
-    //_model = UmResourceManager.LoadResource<Model>(L"../TestAssets/Zelda/zelda.fbx");
+    if (!ReflectFields->Guid.empty())
+    {
+        File::Guid guid = ReflectFields->Guid;
+        _model = UmResourceManager.LoadResource<Model>(guid.ToPath());
+    }
 }
 
 void StaticMeshRenderer::OnEnable()
 {
-    UmRenderer.RegisterRenderQueue(this);
+    //if constexpr (!IS_EDITOR)
+        UmRenderer.RegisterRenderQueue(this);
 }
 
 void StaticMeshRenderer::OnDisable() {}
 
-void StaticMeshRenderer::Update() {}
+void StaticMeshRenderer::Update() 
+{
+    if constexpr (IS_EDITOR)
+    {
+        ImGui::Begin("sdasadsadawsddasd");
+        if (ImGui::Button("Load"))
+        {
+            File::Guid guid = ReflectFields->Guid;
+            _model = UmResourceManager.LoadResource<Model>(guid.ToPath());
+        }
+        ImGui::End();
+    }
+}
 
 void StaticMeshRenderer::FixedUpdate() {}
 

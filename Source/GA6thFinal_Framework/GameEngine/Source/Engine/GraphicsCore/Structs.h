@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 struct Vertex
 {
@@ -40,4 +40,5 @@ struct CameraData
 	XMMATRIX Projection;
 	XMMATRIX ViewInverse;
 	XMMATRIX ProejctionInverse;
+    Vector4  Position{0.f,0.f,-5.f,1.f};
 };

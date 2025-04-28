@@ -26,6 +26,7 @@ public:
     void RegisterCommand(ID3D12GraphicsCommandList* commandList);
     void ExecuteCommand();
     void ResetCommands();
+    void ResolveBackBuffer(ComPtr<ID3D12Resource> source);
 
     UINT GetRTVDescriptorSize() { return _rtvDescriptorSize; }
     UINT GetCBVSRVUAVDescriptorSize() { return _cbvSrvUavDescriptorSize; }
@@ -34,8 +35,8 @@ public:
     DXGI_FORMAT GetBackBufferFormat() { return _backBufferFormat; }
     DXGI_FORMAT GetDepthStencilFormat() { return _depthStencilFormat; }
 
-    bool GetMsaaState() { return _4xMsaaState; }
-    UINT GetMsaaQuality() { return _4xMsaaQuality; }
+    bool GetMSAAState() { return _4xMSAAState; }
+    UINT GetMSAAQuality() { return _4xMSAAQuality; }
     UINT GetCurrentBackBufferIndex() { return _renderTargetIndex; }
     D3D12_VIEWPORT GetMainViewport() { return _mainViewport; }
     HRESULT UpdateBuffer(ComPtr<ID3D12Resource>& buffer, void* data, UINT size);
@@ -50,6 +51,10 @@ public:
                                D3D12_INDEX_BUFFER_VIEW& view);
     HRESULT CreateConstantBuffer(void* data, UINT size,  ComPtr<ID3D12Resource>& buffer);
     HRESULT CreateDefaultBuffer(UINT size,  ComPtr<ID3D12Resource>& buffer);
+
+    HRESULT CreateCommandList(ComPtr<ID3D12CommandAllocator>& allocator, 
+                              ComPtr<ID3D12GraphicsCommandList>& commandList,
+                              COMMAND_TYPE type);
 
 private:
     void    SetViewPort();
@@ -79,9 +84,9 @@ private:
     D3D12_VIEWPORT _mainViewport;
     D3D12_RECT     _mainrRect;
 
-    bool _4xMsaaState = false; // 4X MSAA enabled
+    bool _4xMSAAState = false; // 4X MSAA enabled
 
-    UINT _4xMsaaQuality           = 0; // quality level of 4X MSAA
+    UINT _4xMSAAQuality           = 0; // quality level of 4X MSAA
     UINT _rtvDescriptorSize       = 0;
     UINT _dsvDescriptorSize       = 0;
     UINT _cbvSrvUavDescriptorSize = 0;

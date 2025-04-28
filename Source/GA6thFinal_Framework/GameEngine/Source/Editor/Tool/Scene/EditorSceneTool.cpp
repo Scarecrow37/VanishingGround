@@ -44,29 +44,35 @@ void EditorSceneTool::OnPreFrame()
 void EditorSceneTool::OnFrame()
 {
     //_aspect = ImGui::GetWindowHeight() / ImGui::GetWindowWidth();
-    _camera->SetupPerspective(_fovDegree, _aspect, _nearZ, _farZ);
+    //_camera->SetupPerspective(_fovDegree, _aspect, _nearZ, _farZ);
 
-    ImGuizmo::SetDrawlist();
+    //ImGuizmo::SetDrawlist();
 
-    _camera->SetRotation(_rotation.ToEuler());
-    _camera->SetPosition(_position);
-    _camera->Update();
+    //_camera->SetRotation(_rotation.ToEuler());
+    //_camera->SetPosition(_position);
+    //_camera->Update();
 
-    const Matrix& cameraView       = _camera->GetViewMatrix();
-    const Matrix& cameraProjection = _camera->GetProjectionMatrix();
+    //const Matrix& cameraView       = _camera->GetViewMatrix();
+    //const Matrix& cameraProjection = _camera->GetProjectionMatrix();
 
-    ImGuizmo::DrawGrid(*cameraView.m, *cameraProjection.m, *Matrix::Identity.m, _farZ);
-    ImGuizmo::DrawCubes(*cameraView.m, *cameraProjection.m, *_tempMatrix.m, 1);
+    //ImGuizmo::DrawGrid(*cameraView.m, *cameraProjection.m, *Matrix::Identity.m, _farZ);
+    //ImGuizmo::DrawCubes(*cameraView.m, *cameraProjection.m, *_tempMatrix.m, 1);
 
-    if (false == IsLock() && false == Global::editorModule->IsLock())
-    {
-        ProcessViewManipulate();
-        ProcessManipulate();
-    }
+    //if (false == IsLock() && false == Global::editorModule->IsLock())
+    //{
+    //    ProcessViewManipulate();
+    //    ProcessManipulate();
+    //}
+    auto handle = UmRenderer.GetRenderSceneImage("Editor");
+
+    ImVec2 size = ImGui::GetContentRegionAvail();
+
+    ImGui::Image((ImTextureID)handle.ptr, size);
 }
 
 void EditorSceneTool::OnPostFrame()
 {
+
 }
 
 void EditorSceneTool::OnFocus()

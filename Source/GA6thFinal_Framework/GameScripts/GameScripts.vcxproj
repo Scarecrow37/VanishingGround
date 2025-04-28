@@ -283,24 +283,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Scripts\Graphics\Animator.h" />
     <ClInclude Include="Scripts\Graphics\MeshRenderer.h" />
-    <ClInclude Include="Scripts\Graphics\SkeletalMeshRenderer.h" />
     <ClInclude Include="Scripts\Graphics\StaticMeshRenderer.h" />
     <ClInclude Include="Scripts\Test\TestComponent.h" />
     <ClInclude Include="UmScriptCore.h" />
     <ClInclude Include="UmScripts.h" />
     <ClInclude Include="Scripts\FileSystemTest\FileTestComponent.h" />
+    <ClInclude Include="Scripts\Graphics\SkeletalMeshRenderer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="Scripts\Graphics\Animator.cpp" />
-    <ClCompile Include="Scripts\Graphics\SkeletalMeshRenderer.cpp" />
     <ClCompile Include="Scripts\Graphics\StaticMeshRenderer.cpp" />
     <ClCompile Include="Scripts\Test\TestComponent.cpp" />
     <ClCompile Include="UmScriptCore.cpp" />
     <ClCompile Include="UmScripts.cpp" />
     <ClCompile Include="Scripts\FileSystemTest\FileTestComponent.cpp" />
+    <ClCompile Include="Scripts\Graphics\SkeletalMeshRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

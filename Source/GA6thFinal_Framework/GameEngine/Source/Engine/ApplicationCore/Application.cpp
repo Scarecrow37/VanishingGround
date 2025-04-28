@@ -105,8 +105,9 @@ void Application::Run()
                 ESceneManager::Engine::SceneUpdate();
                 // CameraUpdate, RenderQueueUpdate, Render
                 Global::engineCore->Graphics.Update();
-                _imguiDX12Module->ImguiEnd();
                 Global::engineCore->Graphics.Render();
+                _imguiDX12Module->ImguiEnd();
+                Global::engineCore->Graphics.Flip();
             }
         }
     }
