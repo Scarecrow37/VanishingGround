@@ -133,7 +133,7 @@ void GameObject::OnInspectorStay()
 
                     for (auto& key : engineCore->ComponentFactory.GetNewComponentKeyList())
                     {
-                        if (ImGui::Button(key.c_str()))
+                        if (ImGui::Button(key.c_str() + 6))
                         {
                             engineCore->ComponentFactory.AddComponentToObject(selectObject, key);
                             ImGui::CloseCurrentPopup();

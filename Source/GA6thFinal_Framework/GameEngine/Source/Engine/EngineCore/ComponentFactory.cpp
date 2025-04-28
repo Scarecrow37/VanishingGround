@@ -120,6 +120,7 @@ bool EComponentFactory::InitalizeComponentFactory()
             delete component;
         }
     }
+    std::sort(m_NewScriptsKeyVec.begin(), m_NewScriptsKeyVec.end());
 
     //파괴된 컴포넌트 재생성 및 복구
     MissingComponent missingTemp;
