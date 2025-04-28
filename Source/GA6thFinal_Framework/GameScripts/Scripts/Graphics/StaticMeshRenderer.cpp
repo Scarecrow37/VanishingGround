@@ -34,7 +34,7 @@ void StaticMeshRenderer::Reset()
 
 void StaticMeshRenderer::Awake()
 {
-    if constexpr (!IS_EDITOR)
+    if (!ReflectFields->Guid.empty())
     {
         File::Guid guid = ReflectFields->Guid;
         UmResourceManager.RegisterLoadQueue({guid.ToPath(), RESOURCE_TYPE::MODEL});
@@ -43,7 +43,7 @@ void StaticMeshRenderer::Awake()
 
 void StaticMeshRenderer::Start()
 {
-    if constexpr (!IS_EDITOR)
+    if (!ReflectFields->Guid.empty())
     {
         File::Guid guid = ReflectFields->Guid;
         _model = UmResourceManager.LoadResource<Model>(guid.ToPath());
