@@ -36,7 +36,7 @@ void RenderPass::SetOwnerScene(RenderScene* owner)
 }
 
 void RenderPass::Begin(ID3D12GraphicsCommandList* commandList)
-{;
+{
 }
 
 void RenderPass::End(ID3D12GraphicsCommandList* commandList)

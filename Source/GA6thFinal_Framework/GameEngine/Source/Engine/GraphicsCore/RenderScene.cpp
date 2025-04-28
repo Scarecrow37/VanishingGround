@@ -30,9 +30,11 @@ void RenderScene::UpdateRenderScene()
     for (auto& component : _renderQueue)
     {
         auto& model     = component->GetModel();
+        if (!model.get())
+            continue;
         auto& meshes    = model->GetMeshes();
         auto& materials = model->GetMaterials();
-
+        
         XMMATRIX world = XMMatrixTranspose(component->gameObject->transform->GetWorldMatrix());
         UINT     size  = (UINT)meshes.size();
 

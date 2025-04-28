@@ -52,7 +52,7 @@ void StaticMeshRenderer::Start()
 
 void StaticMeshRenderer::OnEnable()
 {
-    if constexpr (!IS_EDITOR)
+    //if constexpr (!IS_EDITOR)
         UmRenderer.RegisterRenderQueue(this);
 }
 

@@ -208,7 +208,8 @@ void GBufferPass::DrawStaticTwoSidedMesh(ID3D12GraphicsCommandList* commandList)
     for (auto& component : _ownerScene->_renderQueue)
     {
         const auto& model = component->GetModel();
-
+        if (!model.get())
+            continue;
         for (auto& mesh : model->GetMeshes())
         {
             commandList->SetGraphicsRoot32BitConstant(_shaders[0]->GetRootSignatureIndex("bit32_object"), ID++, 0);
