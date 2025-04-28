@@ -64,7 +64,10 @@ void EditorSceneTool::OnFrame()
     //    ProcessManipulate();
     //}
     auto handle = UmRenderer.GetRenderSceneImage("Editor");
-    ImGui::Image((ImTextureID)handle.ptr, ImVec2(ImGui::GetWindowWidth(), ImGui::GetWindowHeight()));
+
+    ImVec2 size = ImGui::GetContentRegionAvail();
+
+    ImGui::Image((ImTextureID)handle.ptr, size);
 }
 
 void EditorSceneTool::OnPostFrame()
