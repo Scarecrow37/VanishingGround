@@ -455,7 +455,6 @@ void EditorAssetBrowserTool::ShowContentsToList()
     }
 
     // 참조 포인터가 살아있을 때
-    bool isClickedLeft = ImGui::IsMouseClicked(0); // 마우스 왼 클릭
     if (false == _currFocusFolderContext.expired())
     {
         auto spFocusCtx = _currFocusFolderContext.lock();
@@ -789,10 +788,7 @@ void EditorAssetBrowserTool::ProcessMoveAction(wpContext srcContext, wpFolderCon
 
 void EditorAssetBrowserTool::SetFocusInspector(wpContext context)
 {
-    if (true == EditorInspectorTool::SetFocusObject(_selectedContext))
-    {
-        _selectedContext->SetContext(context);
-    }
+    _selectedContext->SetContext(context);
 }
 
 bool EditorAssetBrowserTool::SetFocusFolder(wpFolderContext context)
