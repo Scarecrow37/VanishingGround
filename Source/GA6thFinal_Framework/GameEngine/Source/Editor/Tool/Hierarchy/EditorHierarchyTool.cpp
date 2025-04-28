@@ -183,9 +183,10 @@ void EditorHierarchyTool::HierarchyDropEvent()
         if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
         {
             DragDropAsset::Data* data = (DragDropAsset::Data*)payload->Data;      
-            if (data->context.expired() == false)
+            std::weak_ptr<File::Context>* wpContext = data->pContext;
+            if (false == wpContext->expired())
             {
-                auto context = data->context.lock();
+                auto context = wpContext->lock();
                 const File::Path& path = context->GetPath();
                 fs::path extension = path.extension();
                 if (extension == UmGameObjectFactory.PREFAB_EXTENSION)
