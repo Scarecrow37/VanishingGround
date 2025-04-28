@@ -13,6 +13,9 @@ RenderScene::RenderScene() : _frameQuad{std::make_unique<Quad>()}, _frameShader{
 
 void RenderScene::UpdateRenderScene()
 {
+    auto first = std::remove_if(_renderQueue.begin(), _renderQueue.end(), [](const auto& component) { return !(*component.first); });
+    _renderQueue.erase(first, _renderQueue.end());
+
     _currentFrameIndex   = UmDevice.GetCurrentBackBufferIndex();
     Vector4    cameraPos = Vector4(UmMainCamera.GetWorldMatrix().Translation());
     CameraData cameraData{.View       = XMMatrixTranspose(UmMainCamera.GetViewMatrix()),
@@ -27,7 +30,7 @@ void RenderScene::UpdateRenderScene()
     std::vector<MaterialData>                materialDatas;
     UINT                                     materialID = 0;
 
-    for (auto& component : _renderQueue)
+    for (auto& [isActive, component] : _renderQueue)
     {
         auto& model     = component->GetModel();
         if (!model.get())
@@ -75,9 +78,9 @@ void RenderScene::UpdateRenderScene()
     _frameResources[_currentFrameIndex]->CopyDescriptors(handles);
 }
 
-void RenderScene::RegisterOnRenderQueue(MeshRenderer* renderable)
+void RenderScene::RegisterOnRenderQueue(bool* isActive, MeshRenderer* renderable)
 {
-    _renderQueue.push_back(renderable);
+    _renderQueue.emplace_back(isActive, renderable);
 }
 
 void RenderScene::Execute(ID3D12GraphicsCommandList* commandList)
