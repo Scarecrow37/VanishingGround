@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "RenderPass.h"
 
-class Shader;
+class ShaderBuilder;
 class BaseMesh;
 
 class GBufferPass : public RenderPass
@@ -31,7 +31,7 @@ private:
         SKELTAL
     };
  
-    std::vector<std::shared_ptr<Shader>> _shaders;
+    std::vector<std::shared_ptr<ShaderBuilder>> _shader;
 
     enum MeshRenderType
     {

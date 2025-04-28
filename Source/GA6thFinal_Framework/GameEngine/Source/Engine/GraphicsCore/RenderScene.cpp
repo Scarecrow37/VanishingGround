@@ -6,10 +6,12 @@
 #include "RenderPass.h"
 #include "RenderTarget.h"
 #include "RenderTechnique.h"
-#include "Shader.h"
+#include "ShaderBuilder.h"
 #include "UmScripts.h"
 
-RenderScene::RenderScene() : _frameQuad{std::make_unique<Quad>()}, _frameShader{std::make_unique<Shader>()} {}
+RenderScene::RenderScene() : _frameQuad{std::make_unique<Quad>()}, _frameShader{std::make_unique<ShaderBuilder>()} {}
+
+RenderScene::~RenderScene() {}
 
 void RenderScene::UpdateRenderScene()
 {
@@ -189,8 +191,8 @@ void RenderScene::CreateFrameQuadAndFrameShader()
     // 화면 크기만한 quad만들기. NDC 좌표계로
     _frameQuad->Initialize(-1.f, 1.f, 2.f, 2.f, 0.f);
     _frameShader->BeginBuild();
-    _frameShader->LoadShader(L"../Shaders/vs_quad.hlsl", Shader::Type::VS);
-    _frameShader->LoadShader(L"../Shaders/ps_quad_frame.hlsl", Shader::Type::PS);
+    _frameShader->SetShader(L"../Shaders/vs_quad.hlsl", ShaderBuilder::Type::VS);
+    _frameShader->SetShader(L"../Shaders/ps_quad_frame.hlsl", ShaderBuilder::Type::PS);
     _frameShader->EndBuild();
 
 }
@@ -211,8 +213,8 @@ void RenderScene::CreateFramePSO()
     psodesc.DSVFormat             = DXGI_FORMAT_D24_UNORM_S8_UINT;
     psodesc.pRootSignature        = _frameShader->GetRootSignature().Get();
     psodesc.SampleDesc            = {1, 0};
-    psodesc.VS                    = _frameShader->GetShaderByteCode(Shader::Type::VS);
-    psodesc.PS                    = _frameShader->GetShaderByteCode(Shader::Type::PS);
+    psodesc.VS                    = _frameShader->GetShaderByteCode(ShaderBuilder::Type::VS);
+    psodesc.PS                    = _frameShader->GetShaderByteCode(ShaderBuilder::Type::PS);
     ComPtr<ID3D12Device> device   = UmDevice.GetDevice();
 
     hr = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(_framePSO.GetAddressOf()));

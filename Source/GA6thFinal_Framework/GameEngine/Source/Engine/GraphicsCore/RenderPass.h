@@ -5,7 +5,7 @@
 //  사용하는 방식으로 설계 예정.
 
 class RenderScene;
-
+class ShaderBuilder;
 class RenderPass
 {
 public:
@@ -14,7 +14,7 @@ public:
 
 public:
     void SetClearValue(const Color& clearColor, float depthClear = 1.f, UINT clearStencil = 0);
-    void SetShader(std::shared_ptr<Shader> shader);
+    void SetShader(std::shared_ptr<ShaderBuilder> shader);
     void SetPipelineState(ComPtr<ID3D12PipelineState> pso);
     void SetOwnerScene(RenderScene* owner);
 
@@ -36,7 +36,7 @@ protected:
     float                       _clearDepth;
     UINT                        _clearStencil;
     // 기본적으로 한개의 쉐이더와 한개의 pso를 주지만 필요에 따라 알아서 상속받아서 더 사용해도 무방.
-    std::shared_ptr<Shader>     _shader;
+    std::shared_ptr<ShaderBuilder> _shader;
     ComPtr<ID3D12PipelineState> _pipelineState;
     
     RenderScene*                _ownerScene;

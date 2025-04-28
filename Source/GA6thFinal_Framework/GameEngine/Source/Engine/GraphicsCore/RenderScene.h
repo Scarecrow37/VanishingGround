@@ -5,7 +5,7 @@ class RenderPass;
 class RenderTechnique;
 class FrameResource;
 class Quad;
-class Shader;
+class ShaderBuilder;
 // 임시 오브젝트
 class TempObject;
 class RenderScene
@@ -24,7 +24,7 @@ public:
 
 public :
     RenderScene();
-    ~RenderScene() = default;
+    ~RenderScene();
 
 public:
     void UpdateRenderScene();
@@ -93,10 +93,10 @@ public:
     ComPtr<ID3D12Resource>                      _cameraBuffer;
 
 private:
-    std::unique_ptr<Quad>        _frameQuad;
-    std::unique_ptr<Shader>      _frameShader;
-    ComPtr<ID3D12PipelineState>  _framePSO;
-    ComPtr<ID3D12DescriptorHeap> _srvDescriptorHeap;
+    std::unique_ptr<Quad>          _frameQuad;
+    std::unique_ptr<ShaderBuilder> _frameShader;
+    ComPtr<ID3D12PipelineState>    _framePSO;
+    ComPtr<ID3D12DescriptorHeap>   _srvDescriptorHeap;
 
     // 폐기 목록? msaa
 private:

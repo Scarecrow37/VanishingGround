@@ -44,8 +44,8 @@ constexpr const char* STR_NULL = "null";
 
 #pragma comment(lib, "d3d12")
 #pragma comment(lib, "dxgi")
-#pragma comment(lib, "d3dcompiler")
 #pragma comment(lib, "Dbghelp.lib")
+#pragma comment(lib, "d3dcompiler")
 
 using namespace DirectX;
 using namespace DirectX::SimpleMath;

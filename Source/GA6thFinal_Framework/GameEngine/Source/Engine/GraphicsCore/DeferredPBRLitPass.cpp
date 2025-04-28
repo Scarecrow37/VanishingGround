@@ -1,6 +1,6 @@
 ﻿#include "pch.h"
 #include "DeferredPBRLitPass.h"
-#include "Shader.h"
+#include "ShaderBuilder.h"
 
 DeferredPBRLitPass::~DeferredPBRLitPass() {}
 
@@ -17,7 +17,7 @@ void DeferredPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList) {}
 
 void DeferredPBRLitPass::InitShaderAndPSO()
 {
-    _shader = std::make_shared<Shader>();
+    _shader = std::make_shared<ShaderBuilder>();
     _shader->BeginBuild();
     //_shader->
 }
