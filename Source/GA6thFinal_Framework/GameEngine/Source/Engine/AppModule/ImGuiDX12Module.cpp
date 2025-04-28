@@ -31,10 +31,8 @@ void ImGuiDX12Module::ModuleInitialize()
     ImFontConfig fontConfig{};
     ImFont* mainFont = io.Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\malgun.ttf", 20.0f, &fontConfig, io.Fonts->GetGlyphRangesKorean());
     
-    std::string fontFileName = "Font Awesome 6 Free-Regular-400.ttf";
-    File::Path  fontPath     = UmFileSystem.GetRootPath();
-    fontPath /= fontFileName;
-    if (true == std::filesystem::exists(fontPath.generic_string()))
+    File::Path fontFile = "Font Awesome 6 Free-Regular-400.ttf";
+    if (true == std::filesystem::exists(fontFile.generic_string()))
     {
         const ImWchar icons_ranges[] = {0xf000, 0xf3ff, 0}; // FontAwesome 유니코드 범위
 
@@ -42,7 +40,7 @@ void ImGuiDX12Module::ModuleInitialize()
         config.MergeMode = true; // 기존 폰트와 병합
       
         ImFontAtlas* atlas = io.Fonts;
-        ImFont* iconFont = atlas->AddFontFromFileTTF(fontPath.string().c_str(), 15.0f, &config, icons_ranges);
+        ImFont*      iconFont = atlas->AddFontFromFileTTF(fontFile.string().c_str(), 15.0f, &config, icons_ranges);
     }
     io.Fonts->Build();
     auto cpuHandle = _imguiDescriptorHeap->GetCPUDescriptorHandleForHeapStart();

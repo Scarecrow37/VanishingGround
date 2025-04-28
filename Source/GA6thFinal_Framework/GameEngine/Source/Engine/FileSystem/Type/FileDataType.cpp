@@ -50,7 +50,7 @@ namespace File
             node[FILE_GUID_HEADER] = _fileGuid.string();
             node[PROJ_GUID_HEADER] = _projectGuid.string();
             fout << node;
-
+            fout.close();
             return true;
         }
         return false;

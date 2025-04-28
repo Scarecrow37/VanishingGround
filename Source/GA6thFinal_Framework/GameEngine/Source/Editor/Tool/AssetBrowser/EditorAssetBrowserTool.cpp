@@ -151,8 +151,8 @@ void EditorAssetBrowserTool::ShowColumnPlitter()
 
 void EditorAssetBrowserTool::ShowFolderHierarchy()
 {
-    std::weak_ptr<File::FolderContext> rootFolder =
-        UmFileSystem.GetContext<File::FolderContext>(File::Path(UmFileSystem.GetRootPath()));
+    const File::Path& root = UmFileSystem.GetRootPath();
+    std::weak_ptr<File::FolderContext> rootFolder = UmFileSystem.GetContext<File::FolderContext>(root);
 
     if (false == rootFolder.expired())
     {
@@ -187,7 +187,7 @@ void EditorAssetBrowserTool::ShowFolderHierarchy(spFolderContext FolderContext)
     }
 
     // ==== Text출력 ====
-    std::string icon = isOpen ? EditorIcon::ICON_Folder_OPEN : EditorIcon::ICON_Folder;
+    std::string icon = isOpen ? EditorIcon::ICON_FOLDER_OPEN : EditorIcon::ICON_Folder;
     std::string name = icon + " " + path.filename().string();
     ImGui::SameLine();
     ImGui::SetCursorPosX(startX + offsetX);
@@ -253,6 +253,7 @@ void EditorAssetBrowserTool::ShowFolderDirectoryPath(spFolderContext context)
     if (nullptr != context)
     {
         const File::Path& path = context->GetPath();
+        const File::Path& root = UmFileSystem.GetRootPath();
 
         bool canUndo = (false == _directoryUndoStack.empty());
         bool canRedo = (false == _directoryRedoStack.empty());
@@ -279,56 +280,24 @@ void EditorAssetBrowserTool::ShowFolderDirectoryPath(spFolderContext context)
 
         ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(200, 230, 200, 255));
 
-        std::string icon = EditorIcon::ICON_Folder_OPEN;
+        std::string icon = EditorIcon::ICON_FOLDER_OPEN;
         ImGui::Text(icon.c_str());
         ImGui::SameLine(0.0f, 5.0f);
 
+        File::Path absRoot = fs::absolute(root);
+        File::Path relativePath = fs::relative(absRoot, absRoot.parent_path()); // 상대경로로 부모 폴더 계산
+        ListToDirectoryFileName(relativePath);
+
         File::Path curPath;
-
-        for (auto itr = path.begin(); itr != path.end();)
+        for (auto itr = path.begin(); itr != path.end(); ++itr)
         {
-            fs::path    name    = (*itr);
-            std::string nameStr = name.string();
+            ImGui::SameLine();
+            ImGui::Text("/");
+            ImGui::SameLine();
+
+            File::Path name = (*itr);
             curPath /= name;
-
-            ImVec2 textSize = ImGui::CalcTextSize(nameStr.c_str());
-            float  startX   = ImGui::GetCursorPosX();
-
-            auto wpFolderContext = UmFileSystem.GetContext<File::FolderContext>(curPath);
-            auto spFolderContext = wpFolderContext.lock(); // 실패하면 개버그니까 그냥 과감하게 lock
-
-            ImGui::PushID(spFolderContext.get());
-            ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0, 0, 0, 0)); // 기본 배경 투명
-            if (ImGui::Selectable(nameStr.c_str(), false, 0, textSize))
-            {
-                auto selectedContext = UmFileSystem.GetContext<File::FolderContext>(curPath);
-                if (false == selectedContext.expired())
-                {
-                    SetFocusFolder(wpFolderContext);
-                }
-            }
-            DragDropAsset::Data data;
-            const char*         eventID = DragDropAsset::KEY;
-            if (ImGui::BeginDragDropTarget())
-            {
-                if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(eventID))
-                {
-                    DragDropAsset::Data data = (*(DragDropAsset::Data*)payload->Data);
-                    _eventFunc.emplace_back([=]() { ProcessMoveAction(*data.pContext, spFolderContext); });
-                }
-                ImGui::EndDragDropTarget();
-            }
-
-            ImGui::PopStyleColor();
-
-            ImGui::PopID();
-
-            if (path.end() != ++itr)
-            {
-                ImGui::SameLine();
-                ImGui::Text("/");
-                ImGui::SameLine();
-            }
+            ListToDirectoryFileName(curPath);
         }
     }
     else
@@ -357,6 +326,50 @@ void EditorAssetBrowserTool::ShowFolderDirectoryPath(spFolderContext context)
 
     ImGui::PopStyleColor();
     ImGuiHelper::Separator();
+}
+
+void EditorAssetBrowserTool::ListToDirectoryFileName(const File::Path& curPath)
+{
+    auto    name = curPath.filename();
+    auto&   root = UmFileSystem.GetRootPath();
+
+    File::Path  realRoot     = fs::absolute(root);
+    File::Path  realPath     = fs::absolute(name);
+    File::Path  relativePath = fs::relative(realPath, realRoot.parent_path()); // 상대경로로 부모 폴더 계산
+    File::Path  folderName   = relativePath.filename();
+    std::string nameStr      = folderName.string();
+
+    ImVec2 textSize = ImGui::CalcTextSize(nameStr.c_str());
+    float  startX   = ImGui::GetCursorPosX();
+
+    auto wpFolderContext = UmFileSystem.GetContext<File::FolderContext>(curPath);
+    auto spFolderContext = wpFolderContext.lock(); // 실패하면 개버그니까 그냥 과감하게 lock
+
+    ImGui::PushID(spFolderContext.get());
+    ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0, 0, 0, 0)); // 기본 배경 투명
+    if (ImGui::Selectable(nameStr.c_str(), false, 0, textSize))
+    {
+        auto selectedContext = UmFileSystem.GetContext<File::FolderContext>(curPath);
+        if (false == selectedContext.expired())
+        {
+            SetFocusFolder(wpFolderContext);
+        }
+    }
+    DragDropAsset::Data data;
+    const char*         eventID = DragDropAsset::KEY;
+    if (ImGui::BeginDragDropTarget())
+    {
+        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(eventID))
+        {
+            DragDropAsset::Data data = (*(DragDropAsset::Data*)payload->Data);
+            _eventFunc.emplace_back([=]() { ProcessMoveAction(*data.pContext, spFolderContext); });
+        }
+        ImGui::EndDragDropTarget();
+    }
+
+    ImGui::PopStyleColor();
+
+    ImGui::PopID();
 }
 
 void EditorAssetBrowserTool::ContentsFrameEventAction(spFolderContext context)

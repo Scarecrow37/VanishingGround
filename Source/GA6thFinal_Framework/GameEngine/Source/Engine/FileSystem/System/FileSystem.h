@@ -7,19 +7,29 @@ namespace File
     class Context;
     class FileContext;
     class FolderContext;
+
+    constexpr const char* PROJECT_EXTENSION = ".UmProject";
+    constexpr const char* PROJECT_SETTING_FILENAME = "FileSystem.UmSetting";
 } // namespace File
 
 class EFileSystem
 {
     using NotifierSet = std::unordered_set<File::FileEventNotifier*>;
-
+    using CallBackFunc = std::function<void(const File::FileEventData&)>;
 public:
+    bool CreateProject(const File::Path& path);
+    bool LoadProject(const File::Path& path);
+    bool SaveProject();
+
     bool SaveSetting(const File::Path& path);
     bool LoadSetting(const File::Path& path);
 
     inline int         GetDebugLevel() const { return _setting.DebugLevel; }
-    inline const auto& GetRootPath() const { return _setting.RootPath; }
     inline const auto& GetMetaExt() const { return _setting.MetaExt; }
+
+    inline const auto& GetRootPath() const { return _rootPath; }
+    const File::Path&  GetAssetPath() const { return _assetPath; }
+    const File::Path&  GetSettingPath() const { return _settingPath; }
 
     bool IsVaildGuid(const File::Guid& guid);
     bool IsValidExtension(const File::FString& ext);
@@ -83,14 +93,16 @@ public:
 
 public:
     void RegisterFileEventNotifier(
-        File::FileEventNotifier*                  notifier,
-        const std::initializer_list<std::string>& exts);
+        File::FileEventNotifier* notifier, const std::initializer_list<const char*>& exts);
     void UnRegisterFileEventNotifier(File::FileEventNotifier* notifier);
 
 public:
     void Clear();
     void ReadDirectory();
     void ReadDirectory(const File::Path& path);
+
+    void ObserverSetUp(const CallBackFunc& callback);
+    void ObserverShutDown();
 
     void RegisterContext(const File::Path& path);
     void UnregisterContext(const File::Path& path);
@@ -103,7 +115,12 @@ private:
     void ClearNotifier();
    
 private:
-    File::SystemSetting _setting;   // 세팅 정보
+    File::SystemSetting _setting = {}; // 세팅 정보
+    File::Path          _rootPath;     // 루트 경로(절대 경로)
+    File::Path          _assetPath;    // 에셋 경로(절대 경로)
+    File::Path          _settingPath;  // 세팅 경로(절대 경로)
+
+    File::FileObserver* _observer = nullptr; // 파일 디렉터리 이벤트를 감시하는 옵저버.
 
     std::unordered_set<std::shared_ptr<File::Context>>
         _contextTable; // 원본 컨텍스트 포인터를 관리하는 테이블

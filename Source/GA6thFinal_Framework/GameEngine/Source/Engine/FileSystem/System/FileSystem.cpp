@@ -3,6 +3,87 @@
 
 using namespace File;
 
+bool EFileSystem::CreateProject(const File::Path& path)
+{
+    bool isExists = fs::exists(path);
+    bool isValid  = path.extension() == PROJECT_EXTENSION;
+
+    if (true == isExists)
+    {
+        OutputLog(L"failed to EFileSystem::CreateProject. already exists to project.");
+        return false;
+    }
+
+    if (false == isValid)
+    {
+        OutputLog(L"failed to EFileSystem::CreateProject. file is unvaild extension.");
+        return false;
+    }
+
+    std::ofstream projectof(path);
+    if (false == projectof.is_open())
+    {
+        return false;
+    }
+    projectof.close();
+
+    fs::path assetPath = path / ASSET_FOLDER_NAME;
+    fs::path settingPath = path / PROJECT_SETTING_PATH;
+    File::CreateFolder(assetPath);
+    File::CreateFolder(settingPath);
+
+    return true;
+}
+
+bool EFileSystem::LoadProject(const File::Path& path)
+{
+    bool isExists = fs::exists(path);
+    bool isValid  = path.extension() == PROJECT_EXTENSION;
+
+    if (false == isExists)
+    {
+        OutputLog(L"failed to EFileSystem::CreateProject. not exists to direcotry.");
+        return false;
+    }
+    if (false == isValid)
+    {
+        OutputLog(L"failed to EFileSystem::CreateProject. file is unvaild extension.");
+        return false;
+    }
+
+    File::Path directory = path.parent_path();
+
+    _rootPath    = fs::absolute(directory).generic_wstring();
+    _assetPath   = fs::absolute(_rootPath / ASSET_FOLDER_NAME).generic_wstring();
+    _settingPath = fs::absolute(_rootPath / PROJECT_SETTING_PATH).generic_wstring();
+
+    File::CreateFolder(_assetPath);
+    File::CreateFolder(_settingPath);
+
+    if (nullptr != _observer)
+    {
+        _observer->Stop();
+        _observer->SetObservingPath(_rootPath);
+        _observer->Start();
+    }
+
+    LoadSetting(_settingPath / PROJECT_SETTING_FILENAME);
+    ReadDirectory(); 
+
+    return true;
+}
+
+bool EFileSystem::SaveProject()
+{
+    if (false == fs::exists(_rootPath))
+    {
+        return false;
+    }
+
+    SaveSetting(_settingPath / PROJECT_SETTING_FILENAME);
+    return true;
+}
+
 bool EFileSystem::SaveSetting(const File::Path& path)
 {
     auto setting = rfl::yaml::save(path.string(), _setting);
@@ -12,7 +93,7 @@ bool EFileSystem::SaveSetting(const File::Path& path)
     }
     else
     {
-        return true;
+        return LoadSetting(path);
     }
 }
 
@@ -26,8 +107,28 @@ bool EFileSystem::LoadSetting(const File::Path& path)
     else
     {
         _setting = setting.value();
-        ReadDirectory(); 
         return true;
+    }
+}
+
+void EFileSystem::ObserverSetUp(const CallBackFunc& callback)
+{
+    if (nullptr == _observer)
+    {
+        _observer = new File::FileObserver();
+        _observer->SetCallbackFunc(callback);
+        _observer->SetObservingPath(_rootPath);
+        _observer->Start();
+    }
+}
+
+void EFileSystem::ObserverShutDown() 
+{
+    if (nullptr != _observer)
+    {
+        _observer->Stop();
+        delete _observer;
+        _observer = nullptr;
     }
 }
 
@@ -149,11 +250,38 @@ void EFileSystem::RequestPasteFile(const File::Path& path)
 
 void EFileSystem::DrawGuiSettingEditor() 
 {
-    if (ImGui::Button("Save"))
+    if (ImGui::BeginMenuBar())
     {
-        File::Path filename  = L"fileSystem.setting";
-        File::Path directory = PROJECT_SETTING_PATH;
-        SaveSetting(directory / filename);
+        if (ImGui::BeginMenu("File"))
+        {
+            if (ImGui::MenuItem("Save"))
+            {
+                TCHAR title[] = L"폴더를 선택하세요.";
+                UINT  flags   = BIF_USENEWUI | BIF_RETURNONLYFSDIRS;
+
+                File::Path directory = _rootPath / PROJECT_SETTING_PATH;
+                directory            = directory.generic_wstring();
+                if (File::OpenForderBrowser(title, flags, directory, _rootPath))
+                {
+                    File::Path filename  = L"FileSystem.UmSetting";
+                    SaveSetting(directory / filename);
+                }
+            }
+            if (ImGui::MenuItem("Load"))
+            {
+                TCHAR      title[] = L"폴더를 선택하세요.";
+                UINT       flags   = BIF_USENEWUI | BIF_RETURNONLYFSDIRS;
+                File::Path path;
+                if (File::OpenForderBrowser(title, flags, path))
+                {
+                    File::Path filename  = L"fileSystem.setting";
+                    File::Path directory = PROJECT_SETTING_PATH;
+                    SaveSetting(directory / filename);
+                }
+            }
+            ImGui::EndMenu();
+        }
+        ImGui::EndMenuBar();
     }
 
     ImGui::SameLine();
@@ -172,14 +300,6 @@ void EFileSystem::DrawGuiSettingEditor()
     ImGui::Text("Debug Level: ");
     ImGui::DragInt("##DragDebuglevel", &_setting.DebugLevel, 0, 3);
 
-    static char path[128] = "";
-    strcpy_s(path, _setting.RootPath.c_str());
-    ImGui::Text("Save Path: ");
-    if (ImGui::InputText("##InputRootPath", path, IM_ARRAYSIZE(path)))
-    {
-        _setting.RootPath = path;
-    }
-
     static char metaExt[128] = "";
     strcpy_s(metaExt, _setting.MetaExt.c_str());
     ImGui::Text("Medta Extension: ");
@@ -189,9 +309,7 @@ void EFileSystem::DrawGuiSettingEditor()
     }
 }
 
-void EFileSystem::RegisterFileEventNotifier(
-    FileEventNotifier*                        notifier,
-    const std::initializer_list<std::string>& exts)
+void EFileSystem::RegisterFileEventNotifier(FileEventNotifier* notifier, const std::initializer_list<const char*>& exts)
 {
     if (notifier == nullptr)
         return;
@@ -257,76 +375,83 @@ void EFileSystem::ClearNotifier()
 void EFileSystem::ReadDirectory() 
 {
     ClearContext();
-    ReadDirectory(_setting.RootPath);
+    ReadDirectory(_rootPath);
 }
 
 void EFileSystem::ReadDirectory(const File::Path& path) 
 {
-    RegisterContext(path);
+    File::Path extesion = path.extension();
+    File::Path genPath  = path.generic_string();
 
-    if (true == fs::is_directory(path))
+    if (true == IsValidExtension(extesion))
     {
-        for (const auto& entry : fs::recursive_directory_iterator(path))
+        RegisterContext(genPath);
+    }
+    if (true == fs::is_directory(genPath))
+    {
+        for (const auto& entry : fs::recursive_directory_iterator(genPath))
         {
             // 경로를 재네릭화
             File::Path genericPath = entry.path().generic_string();
-            File::Path extesion    = genericPath.extension();
-            if (true == IsValidExtension(extesion))
-            {
-                ReadDirectory(genericPath);
-            }
+            ReadDirectory(genericPath);
         }
     }
 }
 
-void EFileSystem::RegisterContext(const File::Path& path) 
+void EFileSystem::RegisterContext(const File::Path& srcPath) 
 {
     // 파일이 없으면 return
-    if (false == stdfs::exists(path))
+    if (false == stdfs::exists(srcPath))
         return;
 
-     auto find = GetContext(path);
+     auto find = GetContext(srcPath);
 
      if (false != find.expired())
      {
          std::shared_ptr<Context> context;
 
-         if (true == stdfs::is_regular_file(path))
+         auto absPath = stdfs::weakly_canonical(srcPath);
+
+         if (true == stdfs::is_regular_file(absPath))
          {
-             context = std::make_shared<FileContext>(path);
+             context = std::make_shared<FileContext>(absPath);
          }
-         else if (true == stdfs::is_directory(path))
+         else if (true == stdfs::is_directory(absPath))
          {
-             context = std::make_shared<FolderContext>(path);
+             context = std::make_shared<FolderContext>(absPath);
          }
          else
          {
              return;
          }
 
+         // 부모 폴더에서 자신을 추가한다.
+         File::Path parentPath = absPath.parent_path().generic_string();
+         if (parentPath == "")  // 비어있으면 현재 디렉터리임
+             parentPath = ".";
+
+         auto parentContext = UmFileSystem.GetContext<FolderContext>(parentPath);
+         if (false == parentContext.expired())
+         {
+             auto spParentContext = parentContext.lock();
+             File::Path filename  = absPath.filename();
+             spParentContext->_contextTable[filename] = context;
+         }
+
          auto& meta = context->GetMeta();
          auto& guid = meta.GetFileGuid();
 
-         _pathToGuidTable[path] = context;
+         _pathToGuidTable[absPath] = context;
          _guidToPathTable[guid] = context;
          _contextTable.insert(context);
 
-         // 부모 폴더에서 자신을 추가한다.
-         File::Path parentPath    = path.parent_path().generic_string();
-         auto       parentContext = UmFileSystem.GetContext<FolderContext>(parentPath);
-         if (false == parentContext.expired())
-         {
-             File::Path filename = path.filename();
-             parentContext.lock()->_contextTable[filename] = context;
-         }
+         context->OnFileRegistered(absPath);
 
-         context->OnFileRegistered(path);
-
-         File::Path extension    = path.extension();
+         File::Path  extension   = absPath.extension();
          NotifierSet notifierSet = GetNotifiers(extension);
          for (auto& notifier : notifierSet)
          {
-             notifier->OnFileRegistered(path);
+             notifier->OnFileRegistered(absPath);
          }
      }
 }

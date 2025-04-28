@@ -1,4 +1,9 @@
 ﻿#pragma once
+// 파일 열기 대화 상자
+#include <commdlg.h>
+#include <shlobj.h>
+
+// uuid
 #include <rpc.h>
 #pragma comment(lib, "Rpcrt4.lib")
 
@@ -47,4 +52,8 @@ namespace File
     bool CopyPathToClipBoard(const File::Path& path);
 
     File::Path GenerateUniquePath(const File::Path& path, unsigned int maxIndex = 999);
+
+    bool OpenFileNameBrowser(TCHAR* filter, File::Path& out, const File::Path& root = L".");
+
+    bool OpenForderBrowser(TCHAR* title, UINT flags, File::Path& out, const File::Path& root = L"");
 } // namespace File

@@ -16,20 +16,12 @@ void FileSystemModule::PreInitialize()
 
 void FileSystemModule::ModuleInitialize()
 {
-    File::Path filename  = L"filesystem.setting";
-    File::Path directory = PROJECT_SETTING_PATH;
-    UmFileSystem.LoadSetting(directory / filename);
-
-    UmFileSystem.RegisterFileEventNotifier(new SampleNotifier,
-                                           {".txt", ".png", ".dds"});
-
-    _observer = new File::FileObserver();
-    _observer->Start(UmFileSystem.GetRootPath(),
-                     [this](const Event& event) { 
-        RecieveFileEvent(event);
-    });
-
-    UmFileSystem.ReadDirectory();
+    if (true == IS_EDITOR)
+    {
+        UmFileSystem.ObserverSetUp([this](const Event& event) { RecieveFileEvent(event); });
+    }
+    auto accessExt = {".txt", ".png", ".dds"};
+    UmFileSystem.RegisterFileEventNotifier(new SampleNotifier, accessExt);
 }
 
 void FileSystemModule::PreUnInitialize() 
@@ -38,6 +30,7 @@ void FileSystemModule::PreUnInitialize()
 
 void FileSystemModule::ModuleUnInitialize() 
 {
+    UmFileSystem.SaveProject();
     if (nullptr != _observer)
     {
         _observer->Stop();
@@ -49,7 +42,6 @@ void FileSystemModule::ModuleUnInitialize()
 
 void FileSystemModule::Update() 
 {
-    auto& filesystem = UmFileSystem;
     DispatchFileEvent();
 }
 

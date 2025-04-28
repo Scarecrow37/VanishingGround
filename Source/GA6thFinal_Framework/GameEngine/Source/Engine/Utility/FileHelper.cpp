@@ -141,7 +141,7 @@ namespace File
         }
         return false;
     }
-    File::Path GenerateUniquePath(const File::Path& path, unsigned int maxIndex)
+    Path GenerateUniquePath(const File::Path& path, unsigned int maxIndex)
     {
         // 중복일 시 뒤에 () 붙여서 생성
         File::Path name      = path.stem();
@@ -167,5 +167,84 @@ namespace File
             }
             return newPath;
         }
+    }
+
+    bool OpenFileNameBrowser(TCHAR* _filter, File::Path& _return, const File::Path& root)
+    {
+        OPENFILENAME OFN;
+        TCHAR        lpstrFile[MAX_PATH]    = L"";
+
+        memset(&OFN, 0, sizeof(OPENFILENAME));
+
+        OFN.lStructSize     = sizeof(OPENFILENAME);
+        OFN.hwndOwner       = GetFocus();
+        OFN.lpstrFilter     = _filter;
+        OFN.lpstrFile       = lpstrFile;
+        OFN.nMaxFile        = 100;
+        OFN.lpstrInitialDir = root.c_str();
+
+        if (GetOpenFileName(&OFN) != 0)
+        {
+            _return = OFN.lpstrFile;
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    // 콜백 함수
+    static int CALLBACK BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData)
+    {
+        if (uMsg == BFFM_INITIALIZED)
+        {
+            if (lpData != NULL)
+                SendMessage(hwnd, BFFM_SETSELECTION, TRUE, lpData);
+        }
+        return 0;
+    }
+
+    bool OpenForderBrowser(TCHAR* title, UINT flags, File::Path& out, const File::Path& root)
+    {
+        PIDLIST_ABSOLUTE pidlRoot = nullptr;
+        SFGAOF           sfgao    = 0;
+
+        File::Path absRoot = fs::absolute(root);
+        File::Path absPath = fs::absolute(out);
+
+        if (FAILED(SHParseDisplayName(absRoot.c_str(), NULL, &pidlRoot, 0, &sfgao)))
+        {
+            pidlRoot = NULL; // 실패하면 NULL 처리 (Desktop 기준으로)
+        }
+
+        BROWSEINFO bi = {0};
+        bi.hwndOwner  = NULL;
+        bi.lpszTitle  = title;
+        bi.ulFlags    = flags;
+        bi.lpfn       = BrowseCallbackProc;
+        bi.pidlRoot   = pidlRoot; // PIDL 설정!
+
+        // 시작 폴더용 lParam 설정
+        bi.lParam = reinterpret_cast<LPARAM>(absPath.c_str());
+
+        // 폴더 선택 대화상자 열기
+        LPITEMIDLIST pidl = SHBrowseForFolder(&bi);
+        if (pidl != NULL)
+        {
+            wchar_t path[MAX_PATH];
+            if (SHGetPathFromIDList(pidl, path))
+            {
+                out = path;
+                CoTaskMemFree(pidl); // pidl 해제
+                if (pidlRoot)
+                    CoTaskMemFree(pidlRoot); // 루트도 해제
+                return true;
+            }
+            CoTaskMemFree(pidl);
+        }
+        if (pidlRoot)
+            CoTaskMemFree(pidlRoot); // 루트도 해제
+        return false;
     }
 }

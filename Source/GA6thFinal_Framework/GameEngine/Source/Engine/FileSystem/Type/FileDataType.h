@@ -63,14 +63,13 @@ namespace File
         File::Guid                _projectGuid; // 프로젝트 ID
 
         inline static const char* FILE_GUID_HEADER = "File Guid";
-        inline static const char* PROJ_GUID_HEADER = "Project Guid";
+    inline static const char*     PROJ_GUID_HEADER = "Project Guid";
     public:
     };
 
     struct SystemSetting
     {
         int         DebugLevel = 0; // 디버그 레벨
-        std::string RootPath   = "Assets";
         std::string MetaExt    = ".UmMeta";
     };
 } // namespace File

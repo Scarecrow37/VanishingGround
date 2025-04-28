@@ -39,7 +39,8 @@ void EditorMenuFileSystemSetting::OnTickGui()
 {
     if (true == _isOpenGui)
     {
-        ImGui::Begin("FileSystemSetting", &_isOpenGui, ImGuiWindowFlags_NoDocking);
+        ImGuiWindowFlags flags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_MenuBar;
+        ImGui::Begin("FileSystemSetting", &_isOpenGui, flags);
         UmFileSystem.DrawGuiSettingEditor();
         ImGui::End();
     }
