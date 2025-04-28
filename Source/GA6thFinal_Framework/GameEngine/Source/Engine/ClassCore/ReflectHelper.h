@@ -311,9 +311,8 @@ namespace ReflectHelper
     {
         namespace Private
         {
-            void EngineLog(int logLevel, std::string_view message,
-                           std::source_location location =
-                               std::source_location::current());
+            void EngineLog(int logLevel, std::string_view message, std::source_location location = std::source_location::current());
+
             template <class T>
             bool InputAuto(T field)
             {
