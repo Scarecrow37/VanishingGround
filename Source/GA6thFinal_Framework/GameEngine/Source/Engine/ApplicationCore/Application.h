@@ -157,6 +157,10 @@ protected:
     /*클라이언트 크기를 모니터 해상도로*/
     void SetOptimalScreenSize();
 
+private:
+    //시작 씬 로드
+    void LoadStartScene();
+
 protected:
     /** 클래스 스타일. Initialize() 실행전에만 적용됩니다.*/
     UINT _winClassStyle = CS_HREDRAW | CS_VREDRAW;
