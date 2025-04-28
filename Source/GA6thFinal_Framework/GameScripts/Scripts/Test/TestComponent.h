@@ -10,7 +10,8 @@ public:
 
 public:
     REFLECT_PROPERTY(
-        ObjectDrop
+        ObjectDrop, 
+        ReflectFields->floatVector
         )
 
     GETTER_ONLY(std::string_view, ObjectDrop)
