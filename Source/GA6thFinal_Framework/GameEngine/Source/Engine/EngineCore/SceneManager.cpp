@@ -897,7 +897,10 @@ void ESceneManager::OnFileRegistered(const File::Path& path)
 
 void ESceneManager::OnFileUnregistered(const File::Path& path) 
 {
-
+    File::Guid  guid = path.ToGuid();
+    Scene& scene = _scenesMap[guid];
+    std::string sceneName = scene.Name;
+    EraseSceneGUID(sceneName, guid);
 }
 
 void ESceneManager::OnFileModified(const File::Path& path)

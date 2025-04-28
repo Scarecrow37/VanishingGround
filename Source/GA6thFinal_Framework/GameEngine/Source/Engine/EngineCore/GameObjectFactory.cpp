@@ -16,38 +16,31 @@ void EGameObjectFactory::Engine::RegisterFileEvents()
 void EGameObjectFactory::OnFileRegistered(const File::Path& path) 
 {
     _prefabDataMap[path.ToGuid()] = YAML::LoadFile(path.string());
-    std::string message = std::format("Prefab Added : {}", path.string());
-    UmLogger.Log(LogLevel::LEVEL_TRACE, message.c_str());
 }
 
 void EGameObjectFactory::OnFileUnregistered(const File::Path& path) 
 {
+    _prefabDataMap.erase(path.ToGuid());
 }
 
 void EGameObjectFactory::OnFileModified(const File::Path& path)
 {
     _prefabDataMap[path.ToGuid()] = YAML::LoadFile(path.string());
-    std::string message = std::format("Prefab Modified : {}", path.string());
-    UmLogger.Log(LogLevel::LEVEL_TRACE, message.c_str());
 }
 
 void EGameObjectFactory::OnFileRemoved(const File::Path& path) 
 {
     _prefabDataMap.erase(path.ToGuid());
-    std::string message = std::format("Removed UmPrefab : {}", path.string());
-    UmLogger.Log(LogLevel::LEVEL_TRACE, message.c_str());
 }
 
 void EGameObjectFactory::OnFileRenamed(const File::Path& oldPath, const File::Path& newPath) 
 {
-    std::string message = std::format("Renamed UmPrefab {} to {}", oldPath.string(), newPath.string());
-    UmLogger.Log(LogLevel::LEVEL_TRACE, message.c_str());
+
 }
 
 void EGameObjectFactory::OnFileMoved(const File::Path& oldPath, const File::Path& newPath) 
 {
-    std::string message = std::format("Moved UmPrefab {} to {}", oldPath.string(), newPath.string());
-    UmLogger.Log(LogLevel::LEVEL_TRACE, message.c_str());
+
 }
 
 EGameObjectFactory::EGameObjectFactory()
