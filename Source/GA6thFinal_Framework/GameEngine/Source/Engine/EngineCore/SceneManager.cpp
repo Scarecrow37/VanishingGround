@@ -786,7 +786,7 @@ bool ESceneManager::DeserializeToYaml(YAML::Node* _sceneNode)
     for (auto object : rootObjects)
     {
         YAML::Node objectNode = object;
-        auto newObject = UmGameObjectFactory.DeserializeToYaml(&objectNode);
+        std::shared_ptr<GameObject> newObject = UmGameObjectFactory.DeserializeToYaml(&objectNode);   
         Transform::ForeachDFS(newObject->_transform,
         [&Guid](Transform* curr) 
         {
