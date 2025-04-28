@@ -91,7 +91,10 @@ bool EditorModule::LoadSetting(const File::Path& path)
             {
                 tool->SetVisible(status.IsVisible);
                 tool->SetLock(status.IsLock);
-                tool->DeserializedReflectFields(status.ReflectionField);
+                if (status.ReflectionField != "{}")
+                {
+                    tool->DeserializedReflectFields(status.ReflectionField);
+                }         
             }
         }
         return true;
