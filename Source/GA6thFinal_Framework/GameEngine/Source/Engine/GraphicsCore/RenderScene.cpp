@@ -13,6 +13,12 @@ RenderScene::RenderScene() : _frameQuad{std::make_unique<Quad>()}, _frameShader{
 
 void RenderScene::UpdateRenderScene()
 {
+    // 비활성된 컴포넌트 제거
+    auto first = std::remove_if(_renderQueue.begin(), _renderQueue.end(),
+                                [](const auto& ptr) { return (!ptr->Enable || !ptr->gameObject->ActiveInHierarchy); });
+    _renderQueue.erase(first, _renderQueue.end());
+
+
     _currentFrameIndex   = UmDevice.GetCurrentBackBufferIndex();
     Vector4    cameraPos = Vector4(UmMainCamera.GetWorldMatrix().Translation());
     CameraData cameraData{.View       = XMMatrixTranspose(UmMainCamera.GetViewMatrix()),
@@ -77,6 +83,14 @@ void RenderScene::UpdateRenderScene()
 
 void RenderScene::RegisterOnRenderQueue(MeshRenderer* renderable)
 {
+    auto iter = std::find_if(_renderQueue.begin(), _renderQueue.end(),
+                             [renderable](const auto& ptr) { return ptr == renderable; });
+
+    if (iter != _renderQueue.end())
+    {
+        ASSERT(false, L"RenderScene::RegisterRenderQueue : Already registered component.");
+        return;
+    }
     _renderQueue.push_back(renderable);
 }
 
