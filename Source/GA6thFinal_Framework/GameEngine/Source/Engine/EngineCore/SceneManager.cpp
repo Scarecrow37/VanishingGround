@@ -876,19 +876,19 @@ void ESceneManager::OnFileRegistered(const File::Path& path)
         WriteSceneToFile(scene, relativeRootPath.parent_path().string(), true);
     }
     
-    std::string& loadScene = Application::IsEditor() ? _setting.MainScene : _setting.StartScene; 
-    if (scene.isLoaded == false && path.string() == loadScene)
+    if (_loadFuncEvent)
     {
-        if (UmComponentFactory.HasScript() == false)
+        std::string& loadScene = Application::IsEditor() ? _setting.MainScene : _setting.StartScene;
+        if (scene.isLoaded == false && path.string() == loadScene)
         {
-            if (UmComponentFactory.InitalizeComponentFactory() == false)
+            if (UmComponentFactory.HasScript() == false)
             {
-                return;
+                if (UmComponentFactory.InitalizeComponentFactory() == false)
+                {
+                    return;
+                }
             }
-        }
-        LoadScene(path.string());
-        if (_loadFuncEvent)
-        {
+            LoadScene(path.string());
             _loadFuncEvent();
             _loadFuncEvent = nullptr;
         }
@@ -977,3 +977,4 @@ void ESceneManager::EraseSceneGUID(std::string_view sceneName, const File::Guid 
     _scenesMap.erase(guid);
     _sceneDataMap.erase(guid);
 }
+

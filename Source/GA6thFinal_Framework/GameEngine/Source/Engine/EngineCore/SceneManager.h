@@ -74,10 +74,12 @@ enum class LoadSceneMode
 
 //함수는 일단 선언만. 구현은 나중에.
 class ESceneManager 
-    : File::FileEventNotifier
+    : 
+    File::FileEventNotifier
 {
 private:
     friend class EngineCores;
+    friend class Application;
     ESceneManager();
     ~ESceneManager();
     USING_PROPERTY(ESceneManager)
