@@ -90,6 +90,13 @@ public:
     void WriteGameObjectFile(Transform* transform, std::string_view outPath);
 
     /// <summary>
+    /// 게임 오브젝트를 프리팹 인스턴스로 만듭니다.
+    /// </summary>
+    /// <param name="object"></param>
+    /// <returns></returns>
+    bool PackPrefab(GameObject* object, const File::Guid& guid);
+
+    /// <summary>
     /// 프리팹 인스턴스를 일반 게임 오브젝트로 변경합니다.
     /// </summary>
     /// <returns></returns>
@@ -139,6 +146,9 @@ private:
     //프리팹 직렬화 데이터 모아두는 맵
     std::unordered_map<File::Guid, YAML::Node> _prefabDataMap;
 
-    // 인스턴스화된 프리팹 추적용
-    std::unordered_map<File::Guid, std::vector<std::weak_ptr<GameObject>>>  _prefavInstanceList;      
+    //인스턴스화된 프리팹 추적용
+    std::unordered_map<File::Guid, std::vector<std::weak_ptr<GameObject>>> _prefabInstanceList;     
+
+    //프리팹 인스턴스 GUID 등록 대기용 큐
+    std::unordered_map<File::Path, std::vector<std::weak_ptr<GameObject>>> _prefabGuidQueue;
 };
