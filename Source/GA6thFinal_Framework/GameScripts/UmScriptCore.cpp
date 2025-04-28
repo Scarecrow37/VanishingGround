@@ -109,9 +109,13 @@ UMREALSCRIPTS_DECLSPEC void CreateUmrealcSriptFile(const char* fileName)
 
         if (result == IDYES)
         {
-            constexpr const wchar_t* ScriptSlnFilePath = L"..\\UmrealScripts.sln";
-            HINSTANCE result = ShellExecuteW(NULL, L"open", ScriptSlnFilePath, NULL, NULL, SW_SHOWNORMAL);
+            std::string processPath;
+            INT_PTR result = 0;
+            constexpr const wchar_t* ScriptSlnFilePath = L"..\\GameScripts.sln";
+            result = (INT_PTR)ShellExecuteW(NULL, L"open", ScriptSlnFilePath, NULL, NULL, SW_SHOWNORMAL);
         }
+        std::filesystem::path absolutePath = std::filesystem::absolute(filePath);
+        result = (INT_PTR)ShellExecuteA(NULL, "open", absolutePath.string().c_str(), NULL, NULL, SW_SHOWNORMAL);
     }   
 }
 

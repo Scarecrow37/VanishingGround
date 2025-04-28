@@ -4,7 +4,8 @@
 using namespace Global;
 using namespace u8_literals;
 
-void EditorSceneMenuScenes::OnMenu() 
+
+void EditorSceneMenuScenes::OnMenu()
 {
     EditorModule& editor = *Global::editorModule;
     if (ImGui::BeginMenu("New Scene File"))
@@ -38,19 +39,21 @@ void EditorSceneMenuScenes::OnMenu()
     }
 }
 
+void EditorSceneMenuGameObject::ImGuiNewGameObjectMenuItems()
+{
+    static const char* GameObjectKey = typeid(GameObject).name();
+    static const char* GameObjectName = GameObjectKey + 6;
+    if (ImGui::MenuItem(GameObjectName))
+    {
+        UmGameObjectFactory.NewGameObject(GameObjectKey, GameObject::Helper::GenerateUniqueName(GameObjectName));
+    }
+}
+
 void EditorSceneMenuGameObject::OnMenu()
 {
     if (ImGui::BeginMenu("New GameObject"))
     {
-        const auto& objectKeys = EGameObjectFactory::Engine::GetGameObjectKeys();
-        for (auto& key : objectKeys)
-        {
-            const char* name  = key.c_str() + 6;
-            if (ImGui::MenuItem(name))
-            {
-                UmGameObjectFactory.NewGameObject(key, GameObject::Helper::GenerateUniqueName(name));
-            }
-        }
+        ImGuiNewGameObjectMenuItems();
         ImGui::EndMenu();
     }
 }

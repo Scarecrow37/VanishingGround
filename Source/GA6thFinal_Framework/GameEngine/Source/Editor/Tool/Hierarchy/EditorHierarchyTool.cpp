@@ -8,7 +8,7 @@ static std::weak_ptr<GameObject> HierarchyFocusObjWeak;
 static void TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>& focusObject)
 {
     auto TreeDoubleClickEvent = [&node]() {
-        bool result = ImGui::IsMouseDoubleClicked(0) && ImGui::IsItemHovered();
+        bool result = ImGui::IsMouseReleased(ImGuiMouseButton_Left) && ImGui::IsItemHovered();
         if (result)
         {
             HierarchyFocusObjWeak = node.gameObject->GetWeakPtr();
@@ -66,47 +66,68 @@ static void TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>
         }
     };
 
-    auto PushFocusStyle = [&node](GameObject* pFocusObject) {
-        if (pFocusObject)
+    auto PushFocusStyle = [&node]() 
+    {
+        if (node.gameObject->ActiveInHierarchy == false)
         {
-            Transform* curr = &pFocusObject->transform;
-
-            if (curr == &node)
-            {
-                ImGui::PushStyleColor(
-                    ImGuiCol_Text, ImVec4(0.4f, 0.75f, 1.0f, 1.0f)); // 글자색
-                ImGui::PushStyleColor(
-                    ImGuiCol_HeaderHovered,
-                    ImVec4(0.2f, 0.45f, 0.8f, 1.0f)); // 포커스시
-                ImGui::PushStyleColor(
-                    ImGuiCol_HeaderActive,
-                    ImVec4(0.25f, 0.55f, 0.9f, 1.0f)); // 클릭시
+            GameObject& object  = node.gameObject;
+            const type_info& type_id = typeid(object);
+            if (typeid(GameObject) == type_id)
+            {     
+                //회색 계열
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.4f, 0.4f, 0.4f, 1.0f));         
+                ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.3f, 0.3f, 0.3f, 1.0f)); 
+                ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImVec4(0.2f, 0.2f, 0.2f, 1.0f));  
                 return true;
+            }
+        }
+        else
+        {
+            GameObject& object  = node.gameObject;
+            const type_info& type_id = typeid(object);
+            if (typeid(GameObject) == type_id)
+            {
+                //기본 스타일 사용
+                return false;
             }
         }
         return false;
     };
-
-    auto PopFocusStyle = [&node](GameObject* pFocusObject) {
-        if (pFocusObject)
+    auto PopFocusStyle = [&node](bool isPushStyle) 
+    {
+        if (isPushStyle)
         {
-            Transform* curr = &pFocusObject->transform;
-            if (curr == &node)
-            {
-                ImGui::PopStyleColor(3);
-
-                return true;
-            }
+            ImGui::PopStyleColor(3);
         }
-        return false;
+    };
+    auto FocusRectDarw = [&node](GameObject* pFocusObject) 
+    {
+        if (pFocusObject == &node.gameObject)
+        {
+            ImVec2 min = ImGui::GetItemRectMin(); 
+            ImVec2 max = ImGui::GetItemRectMax(); 
+
+            ImVec2 windowPos  = ImGui::GetWindowPos();  
+            ImVec2 windowSize = ImGui::GetWindowSize(); 
+
+            min.x = windowPos.x; 
+            max.x = windowPos.x + windowSize.x; 
+
+            constexpr float dampX = 3.f;
+            min.x += dampX;
+            max.x -= dampX;
+
+            ImGui::GetWindowDrawList()->AddRect(min, max, IM_COL32(180, 180, 180, 255), 4.0f, 0, 1.5f);
+        }
     };
 
     ImGui::PushID(&node);
-    PushFocusStyle(focusObject.get());
+    bool isPushStyle = PushFocusStyle();
     if (ImGui::TreeNodeEx(node.gameObject->ToString().data(),
                           ImGuiTreeNodeFlags_OpenOnArrow))
     {
-        PopFocusStyle(focusObject.get());
+        FocusRectDarw(focusObject.get());
+        PopFocusStyle(isPushStyle);
         TreeDoubleClickEvent();
         TreeRightClickEvent();
         TreeDragDropEvent();
@@ -123,7 +144,8 @@ static void TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>
     }
     else
     {
-        PopFocusStyle(focusObject.get());
+        FocusRectDarw(focusObject.get());
+        PopFocusStyle(isPushStyle);
         TreeDoubleClickEvent();
         TreeRightClickEvent();
         TreeDragDropEvent();
@@ -155,16 +177,16 @@ void  EditorHierarchyTool::OnPreFrame()
 void EditorHierarchyTool::HierarchyDropEvent()
 {
     namespace fs = std::filesystem;
-    ImGuiWindow* window = ImGui::FindWindowByName(GetLabel().c_str());
-    ImRect       rect   = window->Rect();
+    ImRect rect = window->Rect();
     if (ImGui::BeginDragDropTargetCustom(rect, window->ID))
     {
         if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
         {
             DragDropAsset::Data* data = (DragDropAsset::Data*)payload->Data;      
-            if (data->context->expired() == false)
+            std::weak_ptr<File::Context>* wpContext = data->pContext;
+            if (false == wpContext->expired())
             {
-                auto context = data->context->lock();
+                auto context = wpContext->lock();
                 const File::Path& path = context->GetPath();
                 fs::path extension = path.extension();
                 if (extension == UmGameObjectFactory.PREFAB_EXTENSION)
@@ -181,9 +203,27 @@ void EditorHierarchyTool::HierarchyDropEvent()
     }
 }
 
-void  EditorHierarchyTool::OnFrame()
+void EditorHierarchyTool::HierarchyRightClickEvent() const 
 {
+    if (ImGui::BeginPopupContextWindow("HierarchyRightClickPopup",
+        ImGuiPopupFlags_NoOpenOverItems |
+        ImGuiPopupFlags_MouseButtonRight |
+        ImGuiPopupFlags_NoOpenOverExistingPopup)
+       )
+    {
+        ImGui::Text("New GameObject");
+        ImGui::Separator();
+        EditorSceneMenuGameObject::ImGuiNewGameObjectMenuItems();
+        ImGui::EndPopup();
+    }
+}
+
+void EditorHierarchyTool::OnFrame()
+{
+    window = ImGui::GetCurrentWindow();
+    HierarchyRightClickEvent();
     HierarchyDropEvent();
+
     const auto& scenes = engineCore->SceneManager.GetLoadedScenes();
     for (auto& pScene : scenes)
     {
@@ -198,17 +238,19 @@ void  EditorHierarchyTool::OnFrame()
             {
                 if (ImGui::BeginPopupContextItem("RightClick"))
                 {
-                    if (ImGui::Button("Save Scene"))
+                    if (ImGui::MenuItem("Save Scene"))
                     {
                         std::string           path = scene.Path;
                         std::filesystem::path writePath =
                             std::filesystem::relative(path, UmFileSystem.GetRootPath()).parent_path();
-                        UmSceneManager.WriteSceneToFile(scene, writePath.string());
+                        UmSceneManager.WriteSceneToFile(scene, writePath.string(), true);
+                        ImGui::CloseCurrentPopup();
                     }
-                    if (ImGui::Button("Unload Scene"))
+                    if (ImGui::MenuItem("Unload Scene"))
                     {
                         std::string path = scene.Path;
                         UmSceneManager.UnloadScene(path);
+                        ImGui::CloseCurrentPopup();
                     }
                     ImGui::EndPopup();
                 }

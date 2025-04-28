@@ -60,8 +60,11 @@ EGameObjectFactory::~EGameObjectFactory() = default;
 std::shared_ptr<GameObject> EGameObjectFactory::NewGameObject(std::string_view typeid_name, std::string_view name)
 {
     auto sptr_object = MakeGameObject(typeid_name);
-    ResetGameObject(sptr_object.get(), name);
-    ESceneManager::Engine::AddGameObjectToLifeCycle(sptr_object);
+    if (sptr_object != nullptr)
+    {
+        ResetGameObject(sptr_object.get(), name);
+        ESceneManager::Engine::AddGameObjectToLifeCycle(sptr_object);
+    }
     return sptr_object;
 }
 
@@ -69,8 +72,7 @@ YAML::Node EGameObjectFactory::SerializeToYaml(GameObject* gameObject)
 {
     if (UmComponentFactory.HasScript() == false)
     {
-        UmLogger.Log(LogLevel::LEVEL_ERROR,
-                           u8"스크립트 빌드를 해주세요."_c_str);
+        UmLogger.Log(LogLevel::LEVEL_WARNING, u8"스크립트 빌드를 해주세요."_c_str);
         return YAML::Node();
     }
 
@@ -107,8 +109,7 @@ std::shared_ptr<GameObject> EGameObjectFactory::DeserializeToYaml(YAML::Node* pG
 {
     if (UmComponentFactory.HasScript() == false)
     {
-        UmLogger.Log(LogLevel::LEVEL_ERROR,
-                           u8"스크립트 빌드를 해주세요."_c_str);
+        UmLogger.Log(LogLevel::LEVEL_WARNING, u8"스크립트 빌드를 해주세요."_c_str);
         return nullptr;
     }
 
@@ -152,7 +153,7 @@ std::shared_ptr<GameObject> EGameObjectFactory::DeserializeToGuid(const File::Gu
 {
     if (UmComponentFactory.HasScript() == false)
     {
-        UmLogger.Log(LogLevel::LEVEL_ERROR, u8"스크립트 빌드를 해주세요."_c_str);
+        UmLogger.Log(LogLevel::LEVEL_WARNING, u8"스크립트 빌드를 해주세요."_c_str);
         return nullptr;
     }
 
@@ -160,7 +161,7 @@ std::shared_ptr<GameObject> EGameObjectFactory::DeserializeToGuid(const File::Gu
     if (iter == _prefabDataMap.end())
     {
         std::string message = std::format("{} {}", u8"존재하지 않는 프리팹입니다."_c_str, guid.ToPath().string());
-        UmLogger.Log(LogLevel::LEVEL_ERROR, message);
+        UmLogger.Log(LogLevel::LEVEL_WARNING, message);
         return nullptr;
     }
     auto pObject = DeserializeToYaml(&iter->second);
@@ -211,8 +212,13 @@ std::shared_ptr<GameObject> EGameObjectFactory::MakeGameObject(std::string_view 
     {
         auto& [key, NewObjectFunc] = *findIter;
         newObject.reset(NewObjectFunc());
+        newObject->_weakPtr = newObject;
     }
-    newObject->_weakPtr = newObject;
+    else
+    {
+        std::string message = std::format("{}{}", typeid_name, u8"는 존재하지 않는 오브젝트 타입입니다."_c_str);
+        UmLogger.Log(LogLevel::LEVEL_ERROR, message);
+    }
     return newObject;
 }
 

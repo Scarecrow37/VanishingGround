@@ -24,6 +24,27 @@ void EditorLogsTool::OnEndGui()
 {
 }
 
+static bool openVSWithFile(const std::string& filePath, int lineNumber)
+{
+    std::string processPath; 
+    INT_PTR result{};
+    while (true)
+    {
+        ProcessHelper::IsVisualStudio(processPath);
+        if (processPath.empty() == false)
+        {
+            result = (INT_PTR) ShellExecuteA(NULL, "open", filePath.c_str(), NULL, NULL, SW_SHOWNORMAL);
+            return true;
+        }
+        if (result <= 32)
+        {
+            constexpr const wchar_t* ScriptSlnFilePath = L"..\\GA6thFinal_Framework.sln";
+            result = (INT_PTR)ShellExecuteW(NULL, L"open", ScriptSlnFilePath, NULL, NULL, SW_SHOWNORMAL);
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+}
+
 void EditorLogsTool::OnTickGui() 
 {
     const auto& logMessages = engineCore->Logger.GetLogMessages();
@@ -152,6 +173,11 @@ void EditorLogsTool::OnFrame()
             ImGui::PushStyleColor(ImGuiCol_Text, ImGuiHelper::ArrayToImVec4(ReflectFields->LogColorTable[level]));
             ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4());
             ImGui::InputTextMultiline("##message", &logText, {regionAvail.x, 50}, ImGuiInputTextFlags_ReadOnly);
+            ImGuiHelper::HoveredToolTip(u8"우클릭으로 해당 파일로 이동합니다."_c_str);
+            if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+            {
+                openVSWithFile(location.file_name(), location.line());
+            }
             ImGui::PopStyleColor(2);
             ImGui::PopID();
         }   
