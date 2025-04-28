@@ -206,7 +206,7 @@ void GBufferPass::DrawStaticTwoSidedMesh(ID3D12GraphicsCommandList* commandList)
     commandList->SetPipelineState(_psos[0].Get());
 
     UINT ID = 0;
-    for (auto& component : _ownerScene->_renderQueue)
+    for (auto& [isActive, component] : _ownerScene->_renderQueue)
     {
         const auto& model = component->GetModel();
         if (!model.get())

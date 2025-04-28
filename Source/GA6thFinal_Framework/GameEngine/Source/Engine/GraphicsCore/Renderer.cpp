@@ -25,16 +25,32 @@ Renderer::~Renderer()
 {
 }
 
-void Renderer::RegisterRenderQueue(MeshRenderer* component, std::string_view sceneName)
+void Renderer::RegisterRenderQueue(bool** isActive, MeshRenderer* component)
 {
     auto iter = _renderScenes.find(sceneName.data());
     if (iter == _renderScenes.end())
+    auto iter = std::find_if(_components.begin(), _components.end(), [component](const auto& ptr) { return ptr.second == component; });
+
+    if (iter != _components.end())
     {
         ASSERT(false, L"Renderer::RegisterRenderQueue : Render Scene Not Registered.");
          
     }
     auto scene = iter->second;
     scene->RegisterOnRenderQueue(component);
+        ASSERT(false, L"Renderer::RegisterRenderQueue : Already registered component.");
+        return;
+    }
+
+    _components.emplace_back(true, component);
+    *isActive = &_components.back().first;
+
+    // test code
+    _renderScenes["Editor"]->RegisterOnRenderQueue(*isActive, component);
+
+    /*for (auto& meshRenerComps : _components)
+    {
+    }*/
 }
 
 void Renderer::Initialize()
@@ -71,6 +87,11 @@ void Renderer::Update()
     {
         renderScene.second->UpdateRenderScene();
     } 
+
+    // 비활성된 컴포넌트 제거
+    auto first =
+        std::remove_if(_components.begin(), _components.end(), [](const auto& component) { return !component.first; });
+    _components.erase(first, _components.end());
 }
 
 void Renderer::Render()

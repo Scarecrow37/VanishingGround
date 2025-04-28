@@ -33,7 +33,7 @@ void RenderScene::UpdateRenderScene()
     std::vector<MaterialData>                materialDatas;
     UINT                                     materialID = 0;
 
-    for (auto& component : _renderQueue)
+    for (auto& [isActive, component] : _renderQueue)
     {
         auto& model     = component->GetModel();
         if (!model.get())
@@ -81,7 +81,7 @@ void RenderScene::UpdateRenderScene()
     _frameResources[_currentFrameIndex]->CopyDescriptors(handles);
 }
 
-void RenderScene::RegisterOnRenderQueue(MeshRenderer* renderable)
+void RenderScene::RegisterOnRenderQueue(bool* isActive, MeshRenderer* renderable)
 {
     auto iter = std::find_if(_renderQueue.begin(), _renderQueue.end(),
                              [renderable](const auto& ptr) { return ptr == renderable; });

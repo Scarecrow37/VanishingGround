@@ -25,6 +25,7 @@ StaticMeshRenderer::StaticMeshRenderer()
 
 StaticMeshRenderer::~StaticMeshRenderer()
 {
+    //(*_isActive) = false;
 }
 
 void StaticMeshRenderer::Reset()
@@ -53,10 +54,13 @@ void StaticMeshRenderer::Start()
 void StaticMeshRenderer::OnEnable()
 {
     //if constexpr (!IS_EDITOR)
-    UmRenderer.RegisterRenderQueue(this, "Editor");
+        UmRenderer.RegisterRenderQueue(&_isActive, this);
 }
 
-void StaticMeshRenderer::OnDisable() {}
+void StaticMeshRenderer::OnDisable()
+{
+    (*_isActive) = false;
+}
 
 void StaticMeshRenderer::Update() 
 {
@@ -76,7 +80,7 @@ void StaticMeshRenderer::FixedUpdate() {}
 
 void StaticMeshRenderer::OnDestroy()
 {
-    int a = 0;
+    (*_isActive) = false;
 }
 
 void StaticMeshRenderer::OnApplicationQuit() {}
