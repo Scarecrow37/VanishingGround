@@ -18,7 +18,7 @@ public:
     ~Renderer();
 
 public:
-    void RegisterRenderQueue(MeshRenderer* component,std::string_view sceneName);
+    void RegisterRenderQueue(bool** isActive, MeshRenderer* component,std::string_view sceneName);
 
 public:
     void Initialize();

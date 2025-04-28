@@ -25,32 +25,16 @@ Renderer::~Renderer()
 {
 }
 
-void Renderer::RegisterRenderQueue(bool** isActive, MeshRenderer* component)
+void Renderer::RegisterRenderQueue(bool** isActive, MeshRenderer* component, std::string_view sceneName)
 {
     auto iter = _renderScenes.find(sceneName.data());
-    if (iter == _renderScenes.end())
-    auto iter = std::find_if(_components.begin(), _components.end(), [component](const auto& ptr) { return ptr.second == component; });
 
-    if (iter != _components.end())
+    if (iter == _renderScenes.end())
     {
         ASSERT(false, L"Renderer::RegisterRenderQueue : Render Scene Not Registered.");
-         
     }
     auto scene = iter->second;
-    scene->RegisterOnRenderQueue(component);
-        ASSERT(false, L"Renderer::RegisterRenderQueue : Already registered component.");
-        return;
-    }
-
-    _components.emplace_back(true, component);
-    *isActive = &_components.back().first;
-
-    // test code
-    _renderScenes["Editor"]->RegisterOnRenderQueue(*isActive, component);
-
-    /*for (auto& meshRenerComps : _components)
-    {
-    }*/
+    scene->RegisterOnRenderQueue(isActive,component);
 }
 
 void Renderer::Initialize()

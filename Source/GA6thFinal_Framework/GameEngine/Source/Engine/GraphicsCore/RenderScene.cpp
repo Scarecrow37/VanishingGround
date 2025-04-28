@@ -14,8 +14,7 @@ RenderScene::RenderScene() : _frameQuad{std::make_unique<Quad>()}, _frameShader{
 void RenderScene::UpdateRenderScene()
 {
     // 비활성된 컴포넌트 제거
-    auto first = std::remove_if(_renderQueue.begin(), _renderQueue.end(),
-                                [](const auto& ptr) { return (!ptr->Enable || !ptr->gameObject->ActiveInHierarchy); });
+    auto first = std::remove_if(_renderQueue.begin(), _renderQueue.end(), [](const auto& ptr) { return *ptr.first==false; });
     _renderQueue.erase(first, _renderQueue.end());
 
 
@@ -81,17 +80,20 @@ void RenderScene::UpdateRenderScene()
     _frameResources[_currentFrameIndex]->CopyDescriptors(handles);
 }
 
-void RenderScene::RegisterOnRenderQueue(bool* isActive, MeshRenderer* renderable)
+void RenderScene::RegisterOnRenderQueue(bool** isActive, MeshRenderer* renderable)
 {
+    Shader* sr = _frameShader.get();
     auto iter = std::find_if(_renderQueue.begin(), _renderQueue.end(),
-                             [renderable](const auto& ptr) { return ptr == renderable; });
+                             [renderable](const auto& ptr) { return ptr.second == renderable; });
 
     if (iter != _renderQueue.end())
     {
         ASSERT(false, L"RenderScene::RegisterRenderQueue : Already registered component.");
         return;
     }
-    _renderQueue.push_back(renderable);
+
+    _renderQueue.emplace_back(std::make_unique<bool>(true), renderable);
+    *isActive = _renderQueue.back().first.get();
 }
 
 void RenderScene::Execute(ID3D12GraphicsCommandList* commandList)
