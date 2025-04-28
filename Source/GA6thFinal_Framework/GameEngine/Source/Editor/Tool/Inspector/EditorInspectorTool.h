@@ -18,12 +18,16 @@ private:
     virtual void OnFocus() override;
 
 public:
-    static void SetFocusObject(std::weak_ptr<IEditorObject> obj)
-    {
-        _focusedObject = obj;
-    }
+    static bool IsLockFocus() { return _isLockFocus; }
+
+    static bool SetFocusObject(std::weak_ptr<IEditorObject> obj);
 
 private:
+    static void ShowMenuBarFrame();
+
+private:
+    inline static bool _isLockFocus = false;
+
     inline static std::weak_ptr<IEditorObject> _focusedObject;
 };
 

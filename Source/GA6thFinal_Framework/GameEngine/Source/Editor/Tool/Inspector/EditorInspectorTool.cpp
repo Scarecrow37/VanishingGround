@@ -5,6 +5,8 @@ EditorInspectorTool::EditorInspectorTool()
 {
     SetLabel("Inspector");
     SetDockLayout(DockLayout::RIGHT);
+
+    SetWindowFlag(ImGuiWindowFlags_MenuBar); // 메뉴바 사용
 }
 
 EditorInspectorTool::~EditorInspectorTool()
@@ -21,6 +23,8 @@ void  EditorInspectorTool::OnPreFrame()
 
 void  EditorInspectorTool::OnFrame()
 {
+    ShowMenuBarFrame();
+
     if (false == _focusedObject.expired())
     {
         auto spFocusedObject = _focusedObject.lock();
@@ -33,5 +37,27 @@ void  EditorInspectorTool::OnPostFrame()
 }
 
 void EditorInspectorTool::OnFocus()
+{}
+
+bool EditorInspectorTool::SetFocusObject(std::weak_ptr<IEditorObject> obj) 
 {
+    if (false == _isLockFocus)
+    {
+        _focusedObject = obj;
+        return true;
+    }
+    return false;
+}
+
+void EditorInspectorTool::ShowMenuBarFrame()
+{
+    if (ImGui::BeginMenuBar())
+    {
+        if (ImGui::MenuItem("Lock", nullptr, _isLockFocus))
+        {
+            _isLockFocus = !_isLockFocus;
+        }
+
+        ImGui::EndMenuBar();
+    }
 }

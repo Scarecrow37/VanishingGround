@@ -11,6 +11,7 @@ EditorAssetBrowserTool::EditorAssetBrowserTool()
     SetWindowFlag(ImGuiWindowFlags_MenuBar); // 메뉴바 사용
 
     _selectedContext = std::make_shared<EditorAssetObject>();
+    _selectedContext->SetThis(_selectedContext);
 
     _showType = List;
 }
@@ -788,8 +789,10 @@ void EditorAssetBrowserTool::ProcessMoveAction(wpContext srcContext, wpFolderCon
 
 void EditorAssetBrowserTool::SetFocusInspector(wpContext context)
 {
-    _selectedContext->SetContext(context);
-    EditorInspectorTool::SetFocusObject(_selectedContext);
+    if (true == EditorInspectorTool::SetFocusObject(_selectedContext))
+    {
+        _selectedContext->SetContext(context);
+    }
 }
 
 bool EditorAssetBrowserTool::SetFocusFolder(wpFolderContext context)
@@ -867,32 +870,34 @@ void EditorAssetBrowserTool::SetFocusFromRedoPath()
     }
 }
 
-bool EditorAssetBrowserTool::IsKeyDownCopy()
-{
-    bool ctrl = ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftCtrl);
-    bool c    = ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_C, false);
-    return true == ctrl && true == c;
-}
-
-bool EditorAssetBrowserTool::IsKeyDownPaste()
-{
-    bool ctrl = ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftCtrl);
-    bool v    = ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_V, false);
-    return true == ctrl && true == v;
-}
-
 void EditorAssetObject::OnInspectorStay()
 {
-    if (false == _context.expired())
+    bool isDebug    = Global::editorModule->IsDebugMode();
+    bool isExpired  = _focusedInspector.expired();
+
+    if (false == isExpired)
     {
-        auto  spContext = _context.lock();
+        auto  spContext = _focusedInspector.lock();
         auto& metaData  = spContext->GetMeta();
 
-        ImGui::Text("Path: %s", spContext->GetPath().string().c_str());
-        ImGui::Text("Guid: %s", metaData.GetFileGuid().string().c_str());
-        ImGui::Separator();
+        if (true == isDebug)
+        {
+            ImGui::Text("Path: %s", spContext->GetPath().string().c_str());
+            ImGui::Text("Guid: %s", metaData.GetFileGuid().string().c_str());
+            ImGui::Separator();
+        }
 
         auto& path = spContext->GetPath();
         UmFileSystem.RequestInspectFile(path);
+    }
+}
+
+void EditorAssetObject::SetContext(std::weak_ptr<File::Context> context) 
+{
+    _selectedAsset = context;
+
+    if (true == EditorInspectorTool::SetFocusObject(_this))
+    {
+        _focusedInspector = context;
     }
 }

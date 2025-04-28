@@ -96,10 +96,6 @@ private:
     void SetFocusFromRedoPath();
 
 private:
-    bool IsKeyDownCopy();
-    bool IsKeyDownPaste();
-
-private:
     /* 브라우저에서 보여질 유형 (List, Icon) */
     ShowType _showType;
     /* 현재 포커싱 폴더 */
@@ -136,15 +132,21 @@ public:
     virtual void OnInspectorStay() override;
 
 public:
-    inline auto GetContext() 
-    {
-        return _context; 
-    }
-    inline void SetContext(std::weak_ptr<File::Context> context) 
-    {
-        _context = context; 
+    inline void SetThis(std::weak_ptr<EditorAssetObject> thisObj)
+    { 
+        _this = thisObj; 
     }
 
+    inline auto GetContext() 
+    {
+        return _selectedAsset; 
+    }
+
+    void SetContext(std::weak_ptr<File::Context> context);
+
 private:
-    std::weak_ptr<File::Context> _context;
+    std::weak_ptr<File::Context> _selectedAsset;
+    std::weak_ptr<File::Context> _focusedInspector;
+
+    std::weak_ptr<EditorAssetObject> _this; // 자신 weak_ptr 객체
 };
