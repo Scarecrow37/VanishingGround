@@ -8,6 +8,10 @@ class StaticMeshRenderer : public MeshRenderer
 {
     USING_PROPERTY(StaticMeshRenderer)
 
+public:
+    StaticMeshRenderer();
+    virtual ~StaticMeshRenderer();
+
 protected:
     virtual void Reset() override;
     virtual void Awake() override;

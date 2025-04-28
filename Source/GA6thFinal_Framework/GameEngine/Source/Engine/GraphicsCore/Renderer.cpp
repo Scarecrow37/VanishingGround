@@ -13,12 +13,11 @@
 #include "Cylinder.h"
 #include "Grid.h"
 #include "Quad.h"
+#include "RenderScene.h"
+#include "PBRLitTechnique.h"
 #endif
 
-Renderer::Renderer()
-	: _shader(std::make_unique<Shader>())
-	, _frameResource(std::make_unique<FrameResource>())
-	, _currnetState(0)
+Renderer::Renderer() : _currnetState(0)
 {
 }
 
@@ -37,29 +36,33 @@ void Renderer::RegisterRenderQueue(MeshRenderer* component)
     }
 
     _components.push_back(component);
+    // test code
+    for (auto& meshRenerComps : _components)
+    {
+        _renderScenes["Editor"]->RegisterOnRenderQueue(meshRenerComps);
+    }
 }
 
 void Renderer::Initialize()
 {
-	_shader->BeginBuild();
-	_shader->LoadShader(L"../Shaders/vs_fr.hlsl", Shader::Type::VS);
-	_shader->LoadShader(L"../Shaders/ps_fr.hlsl", Shader::Type::PS);
-	_shader->EndBuild();
+    /*if (IS_EDITOR)
+    {
+    }
+    else
+    {
+    }*/
+    //std::shared_ptr<RenderScene> testRenderScene = std::make_shared<RenderScene>();
+    //testRenderScene->InitializeRenderScene(1);
+    //std::shared_ptr<PBRTechnique> pbrTech = std::make_shared<PBRTechnique>();
+    //testRenderScene->AddRenderTechnique("PBR", pbrTech);
 
-	CreatePipelineState();
+    //_renderScenes["TEST PBR"] = testRenderScene;
+    std::shared_ptr<RenderScene> testRenderScene = std::make_shared<RenderScene>();
+    testRenderScene->InitializeRenderScene();
+    std::shared_ptr<PBRLitTechnique> pbrTech = std::make_shared<PBRLitTechnique>();
+    testRenderScene->AddRenderTechnique("PBRLIT", pbrTech);
+    _renderScenes["Editor"] = testRenderScene;
 
-	UmDevice.SetCurrentPipelineState(_pipelineState[_currnetState]);
-
-	// 임시
-	_frameResource->Initialize(100, 50);
-
-	CameraData cameraData
-	{
-		.View = UmMainCamera.GetViewMatrix(),
-		.Projection = UmMainCamera.GetProjectionMatrix(),
-	};
-
-	UmDevice.CreateConstantBuffer(&cameraData, sizeof(CameraData), _cameraBuffer);
 }
 
 void Renderer::Update()
@@ -71,163 +74,138 @@ void Renderer::Update()
     UmMainCamera.Update();
 
 	UmDevice.ResetCommands();
-	UpdateFrameResource();
+	//UpdateFrameResource();
 	UmDevice.ClearBackBuffer(D3D12_CLEAR_FLAG_DEPTH, { 0.5f, 0.5f, 0.5f, 1.f });
+    for (auto& renderScene : _renderScenes)
+    {
+        renderScene.second->UpdateRenderScene();
+    } 
 }
 
 void Renderer::Render()
 {
 	ComPtr<ID3D12GraphicsCommandList> commandList = UmDevice.GetCommandList();
-	ComPtr<ID3D12RootSignature> rootSignature = _shader->GetRootSignature();
 
-	commandList->SetPipelineState(_pipelineState[_currnetState].Get());
-	commandList->SetGraphicsRootSignature(rootSignature.Get());
-	
-	ComPtr<ID3D12DescriptorHeap> dh = _frameResource->GetDescriptorHeap();
-	ID3D12DescriptorHeap* hps[] = { dh.Get(), };
-
-	//디스크립터-힙 설정.
-	commandList->SetDescriptorHeaps(_countof(hps), hps);
-
-	//디스크립터-힙에서 첫번째 디스크립터 (배열)주소 획득.
-	D3D12_GPU_DESCRIPTOR_HANDLE textures = dh->GetGPUDescriptorHandleForHeapStart();
-	
-	//ID3DR
-	// 현재 타겟의 카메라 버퍼 설정	
-	commandList->SetGraphicsRootConstantBufferView(_shader->GetRootSignatureIndex("cameraData"), _cameraBuffer->GetGPUVirtualAddress());
-
-	commandList->SetGraphicsRootDescriptorTable(_shader->GetRootSignatureIndex("objectData"), textures);
-	textures.ptr += UmDevice.GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-
-	commandList->SetGraphicsRootDescriptorTable(_shader->GetRootSignatureIndex("material"), textures);
-	textures.ptr += UmDevice.GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-
-	commandList->SetGraphicsRootDescriptorTable(_shader->GetRootSignatureIndex("textures"), textures);
-
-	UINT ID = 0;
-    for (auto& component : _components)
+    for (auto& renderScene : _renderScenes)
     {
-        const auto& model = component->GetModel();
-        
-        for (auto& mesh : model->GetMeshes())
-        {
-            commandList->SetGraphicsRoot32BitConstant(_shader->GetRootSignatureIndex("bit32_object"), ID++, 0);
-            mesh->Render(commandList.Get());
-        }
+        renderScene.second->Execute(commandList.Get());
     }
-	
-	UmDevice.Flip();
+    if constexpr(IS_EDITOR) UmDevice.SetBackBuffer();
 }
 
-HRESULT Renderer::CreatePipelineState()
+void Renderer::Flip()
 {
-	HRESULT hr = S_OK;
-
-	D3D12_RASTERIZER_DESC rd = {};
-	rd.FillMode = D3D12_FILL_MODE_SOLID;
-	rd.CullMode = D3D12_CULL_MODE_BACK;
-	//rd.FrontCounterClockwise = false;
-	rd.DepthClipEnable = TRUE;
-
-	D3D12_BLEND_DESC bd = {};
-	bd.RenderTarget[0].BlendEnable = FALSE;
-	bd.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
-
-	D3D12_DEPTH_STENCIL_DESC  dsd = {};
-	dsd.DepthEnable = TRUE;
-	dsd.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
-	dsd.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
-	dsd.StencilEnable = FALSE;
-	
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC psd = {};
-	psd.pRootSignature = _shader->GetRootSignature().Get();
-	psd.VS = _shader->GetShaderByteCode(Shader::Type::VS);
-	psd.PS = _shader->GetShaderByteCode(Shader::Type::PS);
-	//psd.GS = gs;
-	//psd.StreamOutput		= {};
-	psd.BlendState = bd;
-	psd.SampleMask = UINT_MAX;
-	psd.RasterizerState = rd;
-	psd.DepthStencilState = dsd;
-	psd.InputLayout = _shader->GetInputLayout();
-	//psd.IBStripCutValue	= 0;
-	psd.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-	psd.NumRenderTargets = 1;
-	psd.RTVFormats[0] = UmDevice.GetMode().Format;
-	psd.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT; // 임시 포맷
-	//psd.DSVFormat = 0;						   //DS 포멧. (미지정시 스왑체인에 등록된 DS 버퍼의 포멧 값 사용)
-	psd.SampleDesc = { 1, 0 };					   //AA 설정.
-	//psd.NodeMask 			= 0;
-	//psd.CachedPSO 		= nullptr;
-	//psd.Flags 			= D3D12_PIPELINE_STATE_FLAG_NONE;
-	
-	//첫번째 렌더링 상태 객체 : "Solid" (기본상태)
-	ComPtr<ID3D12Device> device = UmDevice.GetDevice();
-
-	hr = device->CreateGraphicsPipelineState(&psd, IID_PPV_ARGS(_pipelineState[0].GetAddressOf()));
-	FAILED_CHECK_BREAK(hr);
-	
-	psd.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
-	hr = device->CreateGraphicsPipelineState(&psd, IID_PPV_ARGS(_pipelineState[1].GetAddressOf()));
-	FAILED_CHECK_BREAK(hr);
-
-	return hr;
+    UmDevice.Flip();
 }
 
-void Renderer::UpdateFrameResource()
+D3D12_GPU_DESCRIPTOR_HANDLE Renderer::GetRenderSceneImage(std::string_view renderSceneName)
 {
-    CameraData cameraData
+    auto iter = _renderScenes.find(std::string(renderSceneName));
+    if (iter != _renderScenes.end())
     {
-        .View       = XMMatrixTranspose(UmMainCamera.GetViewMatrix()),
-        .Projection = XMMatrixTranspose(UmMainCamera.GetProjectionMatrix()),
-    };
-
-	UmDevice.UpdateBuffer(_cameraBuffer, &cameraData, sizeof(CameraData));
-
-	std::unordered_map<size_t, UINT>         materialPair;
-    std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> handles;
-    std::vector<XMMATRIX>                    worldMatrixes;
-    std::vector<MaterialData>                materialDatas;
-    UINT                                     materialID = 0;
-
-    for (auto& component : _components)
+        auto scene = iter->second;
+        return SceneView(scene.get());
+    }
+    else
     {
-        auto& model     = component->GetModel();
-        auto& meshes    = model->GetMeshes();
-        auto& materials = model->GetMaterials();
-         
-        XMMATRIX world = XMMatrixTranspose(component->gameObject->transform->GetWorldMatrix());
-        UINT size = (UINT)meshes.size();
+        std::wstring msg = L"Renderer::GetRenderSceneImage: RenderSceneName '" +
+                           std::wstring(renderSceneName.begin(), renderSceneName.end()) + L"' is not registered.";
+        ASSERT(false, msg.c_str());
+    }
+}
 
-        for (UINT i = 0; i < size; i++)
-        {
-            worldMatrixes.emplace_back(world);
-            MaterialData materialData{};
+void Renderer::InitializeImgui()
+{
+    D3D12_DESCRIPTOR_HEAP_DESC desc = {};
+    desc.NumDescriptors             = 200;
+    desc.Type                       = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+    desc.Flags                      = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+    UmDevice.GetDevice()->CreateDescriptorHeap(&desc, IID_PPV_ARGS(_imguiDescriptorHeap.GetAddressOf()));
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;     // IF using Docking Branch
+    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;   // Enable Multi-Viewport / Platform Windows
 
-            for (UINT j = 0; j < 4; j++)
-            {
-                if (nullptr == materials[i][j])
-                    continue;
-
-                auto iter = materialPair.find(materials[i][j]->GetHandle().ptr);
-                if (iter == materialPair.end())
-                {
-                    materialPair.emplace(materials[i][j]->GetHandle().ptr, materialID);
-                    materialData.ID[j] = materialID++;
-                    handles.push_back(materials[i][j]->GetHandle());
-                }
-                else
-                {
-                    materialData.ID[j] = iter->second;
-                }
-            }
-
-            materialDatas.push_back(materialData);
-        }
+    // When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular
+    // ones.
+    ImGuiStyle& style = ImGui::GetStyle();
+    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+    {
+        style.WindowRounding              = 0.0f;
+        style.Colors[ImGuiCol_WindowBg].w = 1.0f;
     }
 
-	UINT size = static_cast<UINT>(worldMatrixes.size());
-    _frameResource->CopyStructuredBuffer(UmDevice.GetCommandList().Get(), worldMatrixes.data(), size * sizeof(ObjectData), FrameResource::Type::TRANSFORM);
-	_frameResource->CopyStructuredBuffer(UmDevice.GetCommandList().Get(), materialDatas.data(), size * sizeof(MaterialData), FrameResource::Type::MATERIAL);
-	_frameResource->CopyDescriptors(handles);
+    ImFontConfig fontConfig{};
+    ImFont*      mainFont = io.Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\malgun.ttf", 20.0f, &fontConfig,
+                                                         io.Fonts->GetGlyphRangesKorean());
+
+    std::string fontFileName = "Font Awesome 6 Free-Regular-400.ttf";
+    File::Path  fontPath     = UmFileSystem.GetRootPath();
+    fontPath /= fontFileName;
+    if (true == std::filesystem::exists(fontPath.generic_string()))
+    {
+        const ImWchar icons_ranges[] = {0xf000, 0xf3ff, 0}; // FontAwesome 유니코드 범위
+
+        ImFontConfig config;
+        config.MergeMode = true; // 기존 폰트와 병합
+
+        ImFontAtlas* atlas    = io.Fonts;
+        ImFont*      iconFont = atlas->AddFontFromFileTTF(fontPath.string().c_str(), 15.0f, &config, icons_ranges);
+    }
+    io.Fonts->Build();
+    auto cpuHandle = _imguiDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+    auto gpuHandle = _imguiDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
+    ImGui_ImplWin32_Init(Global::engineCore->App.GetHwnd());
+    ImGui_ImplDX12_Init(UmDevice.GetDevice().Get(), static_cast<int>(SWAPCHAIN_BUFFER_COUNT),
+                        UmDevice.GetBackBufferFormat(), _imguiDescriptorHeap.Get(), cpuHandle, gpuHandle);
 }
+
+void Renderer::PreUnInitializeImgui()
+{
+    ImGui_ImplDX12_Shutdown();
+    ImGui_ImplWin32_Shutdown();
+    ImGui::DestroyContext();
+}
+
+void Renderer::ImguiBegin()
+{
+    ImGui_ImplDX12_NewFrame();
+    ImGui_ImplWin32_NewFrame();
+    ImGui::NewFrame();
+    ImGuizmo::BeginFrame();
+}
+
+void Renderer::ImguiEnd() 
+{
+    ImGuiIO& io = ImGui::GetIO();
+
+    ImGui::Render();
+
+    ID3D12DescriptorHeap* descriptorHeaps[] = {_imguiDescriptorHeap.Get()};
+    UmDevice.GetCommandList()->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+    ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), UmDevice.GetCommandList().Get());
+
+    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+    {
+        ImGui::UpdatePlatformWindows();
+        ImGui::RenderPlatformWindowsDefault(nullptr, nullptr);
+    }
+}
+
+// SWTODO : 수정해야함. 너무 임시야. 임구이에서 어떻게 해당이미지의 gpu handle을 반환할지?
+//          뭐가 반환될지 어떻게 알지?
+D3D12_GPU_DESCRIPTOR_HANDLE Renderer::SceneView(RenderScene* scene)
+{
+    auto dest = _imguiDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+    UINT offset = UmDevice.GetCBVSRVUAVDescriptorSize();
+    dest.ptr += offset;
+    auto src  = scene->GetFinalImage();
+    UmDevice.GetDevice()->CopyDescriptorsSimple(1, dest, src, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+    D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = _imguiDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
+    gpuHandle.ptr += offset;
+    return gpuHandle;
+}
+

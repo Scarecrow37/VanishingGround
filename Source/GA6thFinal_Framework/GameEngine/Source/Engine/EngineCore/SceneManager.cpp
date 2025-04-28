@@ -815,7 +815,7 @@ void ESceneManager::WriteSceneToFile(const Scene& scene, std::string_view outPat
     bool result = WriteUmSceneFile(scene, sceneName, outPath, isOverride);
 }
 
-void ESceneManager::WriteEmptySceneToFile(std::string_view name, std::string_view outPath, bool isOverride) 
+void ESceneManager::WriteEmptySceneToFile(std::string_view name, std::string_view outPath, bool isOverride)
 {
     namespace fs = std::filesystem;
     Scene scene;

@@ -18,7 +18,4 @@ public:
 
     void ImguiBegin();
     void ImguiEnd();
-
-private:
-    ComPtr<ID3D12DescriptorHeap> _imguiDescriptorHeap = nullptr;
 };
