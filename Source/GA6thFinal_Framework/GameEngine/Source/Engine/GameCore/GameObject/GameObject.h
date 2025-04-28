@@ -291,14 +291,14 @@ public:
 
     GETTER_ONLY(bool, IsPrefabInstacne) 
     { 
-        return _prefab != STR_NULL; 
+        return _prefabGuid != STR_NULL; 
     }
     //get : 프리팹으로 인스턴스화된 게임오브젝트 여부를 반환합니다.
     PROPERTY(IsPrefabInstacne)
 
     GETTER_ONLY(std::string, PrefabPath) 
     { 
-        return _prefab.ToPath().string();
+        return _prefabGuid.ToPath().string();
     }
     //이 오브젝트가 참조하고있는 프리팹을 반환합니다.
     PROPERTY(PrefabPath)
@@ -314,7 +314,6 @@ private:
 protected:
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
     std::string                              _name = STR_NULL;
-    std::string                              _prefabGuid = STR_NULL;
     bool                                     _activeSelf = true;
     bool                                     _isStatic = false;
     REFLECT_FIELDS_END(GameObject)
@@ -333,7 +332,7 @@ protected:
 private:
     std::weak_ptr<GameObject>                _weakPtr;
     std::string                              _ownerScene;
-    File::Guid                               _prefab;
+    File::Guid                               _prefabGuid;
     std::vector<std::shared_ptr<Component>>  _components;
     int                                      _instanceID;
 

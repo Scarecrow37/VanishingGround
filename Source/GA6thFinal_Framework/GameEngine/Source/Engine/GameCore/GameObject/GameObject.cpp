@@ -26,7 +26,7 @@ GameObject::GameObject()
     : 
     _transform(*this),
     _ownerScene(STR_NULL),
-    _prefab(STR_NULL),
+    _prefabGuid(STR_NULL),
     _components(),
     _instanceID(-1)
 {
@@ -56,10 +56,48 @@ void GameObject::OnInspectorViewEnter()
 void GameObject::OnInspectorStay() 
 {
     using namespace u8_literals;
-
     static GameObject* selectObject = nullptr;
     ImGui::PushID(this);
     {
+        if (IsPrefabInstacne)
+        {
+            ImGui::Text("Prefab");
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.6f, 0.6f, 0.6f, 1.0f));   
+            ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.2f, 0.2f, 0.2f, 1.0f));
+            static std::string guidPath;
+            guidPath = _prefabGuid.ToPath().string();
+            if (guidPath.empty() == false)
+            {
+                ImGui::InputText("Prefab", &guidPath, ImGuiInputTextFlags_ReadOnly);
+            }
+            else
+            {
+                static std::string emptyPath = STR_NULL;
+                ImGui::InputText("Prefab", &emptyPath, ImGuiInputTextFlags_ReadOnly);
+            }     
+            if(ImGui::BeginDragDropTarget())
+            {
+                if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
+                {
+                    DragDropAsset::Data* data = (DragDropAsset::Data*)payload->Data;
+                    if (data->context.expired() == false)
+                    {
+                        auto                  context   = data->context.lock();
+                        const File::Path&     path      = context->GetPath();
+                        std::filesystem::path extension = path.extension();
+                        if (extension == UmGameObjectFactory.PREFAB_EXTENSION)
+                        {
+                            UmGameObjectFactory.UnpackPrefab(this);
+                            UmGameObjectFactory.PackPrefab(this, context->GetMeta().GetFileGuid());
+                        }
+                    }
+                }
+                ImGui::EndDragDropTarget();
+            }
+            ImGui::PopStyleColor(2);
+            ImGui::Separator();
+        }
+
         ImGuiDrawPropertys();
         _transform.ImGuiDrawPropertys();
         if (ImGui::Button("AddComponent"))
@@ -161,12 +199,12 @@ void GameObject::OnInspectorStay()
 
 void GameObject::SerializedReflectEvent() 
 {
-    ReflectFields->_prefabGuid = _prefab.string();
+   
 }
 
 void GameObject::DeserializedReflectEvent() 
 {
-    _prefab = ReflectFields->_prefabGuid;
+   
 }
 
 std::string GameObject::Helper::GenerateUniqueName(std::string_view baseName)
