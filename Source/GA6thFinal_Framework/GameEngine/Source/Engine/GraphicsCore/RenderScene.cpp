@@ -15,15 +15,18 @@ RenderScene::~RenderScene() {}
 
 void RenderScene::UpdateRenderScene()
 {
+    // 카메라 업데이트 
+    _camera->Update();
+
     // 비활성된 컴포넌트 제거
     auto first = std::remove_if(_renderQueue.begin(), _renderQueue.end(), [](const auto& ptr) { return *ptr.first==false; });
     _renderQueue.erase(first, _renderQueue.end());
 
 
     _currentFrameIndex   = UmDevice.GetCurrentBackBufferIndex();
-    Vector4    cameraPos = Vector4(UmMainCamera.GetWorldMatrix().Translation());
-    CameraData cameraData{.View       = XMMatrixTranspose(UmMainCamera.GetViewMatrix()),
-                          .Projection = XMMatrixTranspose(UmMainCamera.GetProjectionMatrix()),
+    Vector4    cameraPos = Vector4(_camera->GetWorldMatrix().Translation());
+    CameraData cameraData{.View       = XMMatrixTranspose(_camera->GetViewMatrix()),
+                          .Projection = XMMatrixTranspose(_camera->GetProjectionMatrix()),
                           .Position   = cameraPos};
 
     UmDevice.UpdateBuffer(_cameraBuffer, &cameraData, sizeof(CameraData));
@@ -122,6 +125,7 @@ void RenderScene::AddRenderTechnique(const std::string& name, std::shared_ptr<Re
 //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 void RenderScene::InitializeRenderScene()
 {
+    CreateCamera();
     CreateRenderTarget();
     CreateDepthStencil();
     CreateFrameQuadAndFrameShader();
@@ -259,9 +263,20 @@ void RenderScene::CreateFrameResource()
         _frameResources[i]->Initialize(100, 6);
     }
     // 임시 : 메인 카메라를 통해 Camera ConstantBuffer 만들기.
-    CameraData cameraData{.View       = UmMainCamera.GetViewMatrix(),
-                          .Projection = UmMainCamera.GetProjectionMatrix(),
+    CameraData cameraData{.View       = _camera->GetViewMatrix(),
+                          .Projection = _camera->GetProjectionMatrix(),
                           .Position   = {0.f, 0.f, -5.f, 1.f}};
 
     UmDevice.CreateConstantBuffer(&cameraData, sizeof(CameraData), _cameraBuffer);
+}
+
+void RenderScene::CreateCamera() 
+{
+    _camera = std::make_shared<Camera>();
+    Vector3 position = Vector3::Zero;
+    Vector3 diretion = Vector3::Forward;
+    Matrix  rotation = Matrix::Identity;
+    _camera->SetRotation(rotation.ToEuler());
+    _camera->SetPosition(position);
+    _camera->Update();
 }

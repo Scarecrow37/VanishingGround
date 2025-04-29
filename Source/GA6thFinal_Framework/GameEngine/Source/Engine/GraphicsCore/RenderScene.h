@@ -6,6 +6,7 @@ class RenderTechnique;
 class FrameResource;
 class Quad;
 class ShaderBuilder;
+class Camera;
 // 임시 오브젝트
 class TempObject;
 class RenderScene
@@ -28,6 +29,7 @@ public :
 
 public:
     void UpdateRenderScene();
+    std::shared_ptr<Camera> GetCamera() { return _camera; }
 
 public:
     void RenderOnBackBuffer(ID3D12GraphicsCommandList* commandList);
@@ -61,6 +63,8 @@ private:
     void CreateSrvDescriptorHeap();
     // frame Resource Backbuffer 갯수만큼 생성해주기.
     void CreateFrameResource();
+    // scene이 제공해주는 카메라 만들기
+    void CreateCamera();
 
 public:
     UINT _currentFrameIndex = 0;
@@ -91,6 +95,9 @@ public:
     //frame resource와 카메라 리소스.
     std::vector<std::shared_ptr<FrameResource>> _frameResources;
     ComPtr<ID3D12Resource>                      _cameraBuffer;
+
+    // 카메라 한개
+    std::shared_ptr<Camera> _camera;
 
 private:
     std::unique_ptr<Quad>          _frameQuad;
