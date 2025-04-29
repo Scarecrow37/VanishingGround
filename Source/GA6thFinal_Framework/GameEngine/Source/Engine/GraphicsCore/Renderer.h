@@ -3,6 +3,7 @@
 class Shader;
 class FrameResource;
 class MeshRenderer;
+class RenderScene;
 class Renderer
 {
     enum class ResterizeMode
@@ -17,24 +18,31 @@ public:
     ~Renderer();
 
 public:
-    void RegisterRenderQueue(MeshRenderer* component);
+    void RegisterRenderQueue(bool** isActive, MeshRenderer* component,std::string_view sceneName);
 
 public:
     void Initialize();
     void Update();
     void Render();
+    void Flip();
+    D3D12_GPU_DESCRIPTOR_HANDLE GetRenderSceneImage(std::string_view renderSceneName);
+
+public:
+    //imgui 관련 함수
+    void InitializeImgui();
+    void PreUnInitializeImgui();
+    void ImguiBegin();
+    void ImguiEnd();
 
 private:
-    HRESULT CreatePipelineState();
-
-    // 임시
-    void UpdateFrameResource();
+    D3D12_GPU_DESCRIPTOR_HANDLE SceneView(RenderScene* scene);
 
 private:
-    std::vector<MeshRenderer*>     _components;
-    std::unique_ptr<Shader>        _shader;
-    ComPtr<ID3D12PipelineState>    _pipelineState[2];
-    std::unique_ptr<FrameResource> _frameResource;
-    ComPtr<ID3D12Resource>         _cameraBuffer;
-    UINT                           _currnetState;
+    // imgui 전용 descriptor heap
+    ComPtr<ID3D12DescriptorHeap>                                  _imguiDescriptorHeap = nullptr;
+
+private:
+    std::vector<std::pair<bool, MeshRenderer*>>                   _components;
+    std::unordered_map<std::string, std::shared_ptr<RenderScene>> _renderScenes;
+    UINT                                                          _currnetState;
 };

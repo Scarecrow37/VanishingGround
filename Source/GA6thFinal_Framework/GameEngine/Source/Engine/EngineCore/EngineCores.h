@@ -15,7 +15,6 @@ public:
     ELogger Logger;
     EFileSystem FileSystem;
     Application& App;
-
     GraphicsCore Graphics;
 
 private:

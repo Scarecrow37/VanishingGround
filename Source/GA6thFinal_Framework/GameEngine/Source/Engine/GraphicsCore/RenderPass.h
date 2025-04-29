@@ -9,22 +9,10 @@ class RenderScene;
 class RenderPass
 {
 public:
-    struct DescriptorSet
-    {
-        std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> RenderTargetViewsHandle{};
-        D3D12_CPU_DESCRIPTOR_HANDLE              DepthStencilViewHandle = {};
-        UINT                                     RenderTagetCount{};
-        bool                                     UseDepthStencilView = false;
-        std::vector<ComPtr<ID3D12Resource>>      RenderTargetResources{};
-        ComPtr<ID3D12Resource>                   DepthStencilResource = nullptr;
-        void CreateDescriptorSet(UINT renderTargetCount, D3D12_CPU_DESCRIPTOR_HANDLE depthstencilHandle,
-                                 ComPtr<ID3D12Resource> depthStencilBuffer, RenderScene* ownerScene, bool UseDepth);
-    };
     RenderPass();
     virtual ~RenderPass();
 
 public:
-    void SetDescriptors(const DescriptorSet& descriptors);
     void SetClearValue(const Color& clearColor, float depthClear = 1.f, UINT clearStencil = 0);
     void SetShader(std::shared_ptr<Shader> shader);
     void SetPipelineState(ComPtr<ID3D12PipelineState> pso);
@@ -37,18 +25,19 @@ public:
      * @param commandList
      */
     virtual void Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& sissorRect);
-    virtual void Begin(ComPtr<ID3D12GraphicsCommandList> commandList);
-    virtual void End(ComPtr<ID3D12GraphicsCommandList> commandList);
-    virtual void Draw(ComPtr<ID3D12GraphicsCommandList> commandList) {};
+    virtual void Begin(ID3D12GraphicsCommandList* commandList);
+    virtual void End(ID3D12GraphicsCommandList* commandList);
+    virtual void Draw(ID3D12GraphicsCommandList* commandList) {};
 
 protected:
     D3D12_VIEWPORT              _viewPort;
     D3D12_RECT                  _sissorRect;
-    DescriptorSet               _descriptor;
     Color                       _clearColor;
     float                       _clearDepth;
     UINT                        _clearStencil;
+    // 기본적으로 한개의 쉐이더와 한개의 pso를 주지만 필요에 따라 알아서 상속받아서 더 사용해도 무방.
     std::shared_ptr<Shader>     _shader;
     ComPtr<ID3D12PipelineState> _pipelineState;
+    
     RenderScene*                _ownerScene;
 };

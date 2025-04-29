@@ -26,5 +26,5 @@ private:
 	std::vector<std::unique_ptr<BaseMesh>>	_meshes;
 	std::vector<std::vector<std::shared_ptr<Texture>>>	_materials;
 	std::shared_ptr<Animation>				_animation;
-	std::unique_ptr<Skeleton>				_skeleton;
+    std::shared_ptr<Skeleton>               _skeleton;
 };

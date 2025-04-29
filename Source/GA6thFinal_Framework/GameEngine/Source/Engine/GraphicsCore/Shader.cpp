@@ -9,7 +9,8 @@ Shader::Shader()
 {	
 	if (!_isFirstInitialize)
 	{
-		CreateStaticSampler(D3D12_FILTER_MIN_MAG_MIP_LINEAR, D3D12_TEXTURE_ADDRESS_MODE_WRAP, 0, _staticSamplers["samLinear_wrap"]);
+        CreateStaticSampler(D3D12_FILTER_ANISOTROPIC, D3D12_TEXTURE_ADDRESS_MODE_WRAP, 0,
+                            _staticSamplers["samLinear_wrap"]);
 
 		_isFirstInitialize = true;
 	}
@@ -175,7 +176,7 @@ HRESULT Shader::CreateRootSignature()
 				std::string_view name = bindDesc.Name;
 				if (name.find("textures") != std::string::npos)
 				{
-					descriptorRange.NumDescriptors = 50;
+					descriptorRange.NumDescriptors = -1;
 				}
 
 				descriptorRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
@@ -419,13 +420,13 @@ HRESULT Shader::CompileShader(std::wstring_view filePath, std::string_view entry
 							shader.GetAddressOf(),				//[출력] 컴파일된 셰이더 코드.
 							error.GetAddressOf());				//[출력] 컴파일 에러 코드.
 	
-	FAILED_CHECK_BREAK(hr);
-
 	if (nullptr != error)
 	{
 		std::filesystem::path errorMessage = static_cast<const char*>(error->GetBufferPointer());
-		ASSERT(FAILED(hr), errorMessage.c_str());
+		ASSERT(SUCCEEDED(hr), errorMessage.c_str());
 	}
+
+	FAILED_CHECK_BREAK(hr);
 
 	return hr;
 }
@@ -502,7 +503,7 @@ void Shader::CreateStaticSampler(D3D12_FILTER filter, D3D12_TEXTURE_ADDRESS_MODE
 	samplerDesc.AddressV = addressMode;
 	samplerDesc.AddressW = addressMode;
 	samplerDesc.MipLODBias = 0.0f;
-	samplerDesc.MaxAnisotropy = (filter == D3D12_FILTER_ANISOTROPIC) ? 16 : 0;
+	samplerDesc.MaxAnisotropy = (filter == D3D12_FILTER_ANISOTROPIC) ? 8 : 0;
 	samplerDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
 	samplerDesc.BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE;
 	samplerDesc.MinLOD = 0.0f;
