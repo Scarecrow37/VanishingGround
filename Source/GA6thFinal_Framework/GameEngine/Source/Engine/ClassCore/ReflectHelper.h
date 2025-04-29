@@ -192,7 +192,7 @@ protected:                                                                     \
 // 에디터 편집을 허용할 프로퍼티들을 등록합니다. Get, Set 함수가 모두 존재하는
 // 프로퍼티만 편집 가능합니다.
 #define REFLECT_PROPERTY(...)                                                                               \
-    virtual void ImGuiDrawPropertys(const ReflectHelper::ImGuiDraw::InputAutoSetting& setting = UmCore->ImGuiDrawPropertysSetting)  \
+    virtual void ImGuiDrawPropertys(ReflectHelper::ImGuiDraw::InputAutoSetting& setting = UmCore->ImGuiDrawPropertysSetting)  \
     {                                                                                                       \
         __super::ImGuiDrawPropertys();                                                                      \
         auto fields = std::tie(__VA_ARGS__);                                                                \
