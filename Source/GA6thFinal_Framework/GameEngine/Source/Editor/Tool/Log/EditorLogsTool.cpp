@@ -167,7 +167,7 @@ void EditorLogsTool::OnFrame()
         {
             logText.clear();
             auto& [level, message, location] = _drawLogList[i];
-            ImGui::PushID(message.c_str());
+            ImGui::PushID(&message);
             logText += message;
             logText += std::format("\n{}, line : {}", location.function_name(), location.line());
             ImGui::PushStyleColor(ImGuiCol_Text, ImGuiHelper::ArrayToImVec4(ReflectFields->LogColorTable[level]));
