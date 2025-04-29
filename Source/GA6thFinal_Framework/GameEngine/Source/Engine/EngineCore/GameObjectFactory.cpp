@@ -283,6 +283,43 @@ bool EGameObjectFactory::UnpackPrefab(GameObject* targetObject)
     return false;
 }
 
+const YAML::Node* EGameObjectFactory::GetPrefabData(GameObject* object) const
+{
+    auto findIter = _prefabDataMap.find(object->_prefabGuid);
+    if (findIter != _prefabDataMap.end())
+    {
+        return &findIter->second;
+    }
+    return nullptr;
+}
+
+bool EGameObjectFactory::IsOverrideField(void* pField)
+{
+    bool result = false;
+    if (_prefabInstanceOverride.find(pField) != _prefabInstanceOverride.end())
+    {
+        result = true;
+    }
+    return result;
+}
+
+bool EGameObjectFactory::SetOverrideFlag(void* pField)
+{
+    auto [iter, result] = _prefabInstanceOverride.insert(pField);
+    return result;
+}
+
+bool EGameObjectFactory::UnsetOverrideFlag(void* pField)
+{
+    bool result = false;
+    size_t eraseCount = _prefabInstanceOverride.erase(pField);
+    if (eraseCount > 0)
+    {
+        result = true;
+    }
+    return result;
+}
+
 std::shared_ptr<GameObject> EGameObjectFactory::MakeGameObject(std::string_view typeid_name)
 {
     std::shared_ptr<GameObject> newObject;

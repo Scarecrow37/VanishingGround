@@ -102,6 +102,35 @@ public:
     /// <returns></returns>
     bool UnpackPrefab(GameObject* object);
 
+
+    /// <summary>
+    /// 게임 오브젝트가 참조하는 프리팹 데이터를 가져옵니다.
+    /// </summary>
+    /// <param name="object :">대상 오브젝트</param>
+    /// <returns>해당 프리팹의 YAML 형식 직렬화 데이터</returns>
+    const YAML::Node* GetPrefabData(GameObject* object) const;
+
+    /// <summary>
+    /// 필드 오버라이드 여부를 확인합니다. 
+    /// </summary>
+    /// <param name="pFiled :">확인할 맴버 변수의 주소</param>
+    /// <returns>해당 주소의 오버라이드 플래그 여부</returns>
+    bool IsOverrideField(void* pField);
+
+    /// <summary>
+    /// 필드 오버라이드 여부를 설정합니다.
+    /// </summary>
+    /// <param name="pFiled :">설정할 맴버 변수의 주소</param>
+    /// <returns>결과</returns>
+    bool SetOverrideFlag(void* pField);
+
+    /// <summary>
+    /// 필드 오버라이드 여부를 초기화합니다.
+    /// </summary>
+    /// <param name="pFiled :">초기화할 맴버 변수의 주소</param>
+    /// <returns>결과</returns>
+    bool UnsetOverrideFlag(void* pField);
+
 private:
     //컴포넌트를 동적할당후 shared_ptr로 반환합니다.
     //매개변수로 생성할 컴포넌트 typeid().name()을 전달해야합니다.
@@ -152,4 +181,6 @@ private:
     //인스턴스화된 프리팹 추적용
     std::unordered_map<File::Guid, std::vector<std::weak_ptr<GameObject>>> _prefabInstanceList;     
 
+    //프리팹 인스턴스 ovrride 추적용
+    std::unordered_set<void*> _prefabInstanceOverride;
 };
