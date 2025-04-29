@@ -24,7 +24,9 @@ protected:
     virtual void DeserializedReflectEvent() {}
 
 public:
-    virtual void ImGuiDrawPropertys() {
+    virtual void ImGuiDrawPropertys() 
+    {
+
     } // REFLECT_PROPERTY() 매크로를 통해 자동으로 override 됩니다.
 
     virtual std::string SerializedReflectFields()
@@ -189,37 +191,38 @@ protected:                                                                     \
 
 // 에디터 편집을 허용할 프로퍼티들을 등록합니다. Get, Set 함수가 모두 존재하는
 // 프로퍼티만 편집 가능합니다.
-#define REFLECT_PROPERTY(...)                                                  \
-    virtual void ImGuiDrawPropertys()                                          \
-    {                                                                          \
-        __super::ImGuiDrawPropertys();                                         \
-        auto                             fields = std::tie(__VA_ARGS__);       \
-        static std::unordered_set<void*> reflectionFieldsSet;                  \
-        reflectionFieldsSet.clear();                                           \
-                                                                               \
-        ImGui::PushID(this);                                                   \
-        StdHelper::for_each_tuple(fields, [&](auto& field) {                   \
-            using FieldType = std::remove_cvref_t<decltype(field)>;            \
-            if constexpr (PropertyUtils::is_TProperty_v<FieldType>)            \
-            {                                                                  \
-                static_assert(FieldType::is_getter,                            \
-                              "This property does not have a getter.");        \
-                ReflectHelper::ImGuiDraw::Private::InputAuto(field);           \
-            }                                                                  \
-            else                                                               \
-            {                                                                  \
-                reflectionFieldsSet.insert(&field);                            \
-            }                                                                  \
-        });                                                                    \
-        const auto view = rfl::to_view(*ReflectFields.Get());                  \
-        view.apply([&](auto& rflField) {                                       \
-            if (reflectionFieldsSet.find(rflField.value()) !=                  \
-                reflectionFieldsSet.end())                                     \
-            {                                                                  \
-                ReflectHelper::ImGuiDraw::Private::InputAuto(rflField);        \
-            }                                                                  \
-        });                                                                    \
-        ImGui::PopID();                                                        \
+#define REFLECT_PROPERTY(...)                                                                               \
+    virtual void ImGuiDrawPropertys(const ReflectHelper::ImGuiDraw::InputAutoSetting& setting = UmCore->ImGuiDrawPropertysSetting)  \
+    {                                                                                                       \
+        __super::ImGuiDrawPropertys();                                                                      \
+        auto fields = std::tie(__VA_ARGS__);                                                                \
+        static std::unordered_set<void*> reflectionFieldsSet;                                               \
+        reflectionFieldsSet.clear();                                                                        \
+                                                                                                            \
+        ImGui::PushID(this);                                                                                \
+        StdHelper::for_each_tuple(fields, [&](auto& field) {                                                \
+            using FieldType = std::remove_cvref_t<decltype(field)>;                                         \
+            if constexpr (PropertyUtils::is_TProperty_v<FieldType>)                                         \
+            {                                                                                               \
+                static_assert(FieldType::is_getter,                                                         \
+                              "This property does not have a getter.");                                     \
+                ReflectHelper::ImGuiDraw::Private::InputAuto(field, setting);                               \
+            }                                                                                               \
+            else                                                                                            \
+            {                                                                                               \
+                reflectionFieldsSet.insert(&field);                                                         \
+            }                                                                                               \
+        });                                                                                                 \
+        const auto view = rfl::to_view(*ReflectFields.Get());                                               \
+        view.apply([&](auto& rflField) {                                                                    \
+            if (reflectionFieldsSet.find(rflField.value()) !=                                               \
+                reflectionFieldsSet.end())                                                                  \
+            {                                                                                               \
+                ReflectHelper::ImGuiDraw::Private::InputAuto(rflField, setting);                            \
+            }                                                                                               \
+        });                                                                                                 \
+        setting.InputEndEvent = nullptr;                                                                    \
+        ImGui::PopID();                                                                                     \
     }
 
 namespace ReflectHelper
@@ -230,64 +233,73 @@ namespace ReflectHelper
         {
             struct Int
             {
-                static int                 step;
-                static int                 step_fast;
-                static ImGuiInputTextFlags flags;
-            };
+                int                 step      = 0;
+                int                 step_fast = 0;
+                ImGuiInputTextFlags flags     = 0;
+            }
+            _int;
 
             struct Float
             {
-                static float               step;
-                static float               step_fast;
-                static std::string         format;
-                static ImGuiInputTextFlags flags;
-            };
+                float               step      = 0;
+                float               step_fast = 0;
+                std::string         format    = "%.3f";
+                ImGuiInputTextFlags flags     = 0;
+            }
+            _float;
 
             struct Double
             {
-                static double              step;
-                static double              step_fast;
-                static std::string         format;
-                static ImGuiInputTextFlags flags;
-            };
+                double              step      = 0;
+                double              step_fast = 0;
+                std::string         format    = "%.6f";
+                ImGuiInputTextFlags flags     = 0;
+            }
+            _double;
 
             struct String
             {
-                static ImGuiInputTextFlags    flags;
-                static ImGuiInputTextCallback callback;
-                static void*                  user_data;
-            };
+                ImGuiInputTextFlags    flags     = 0;
+                ImGuiInputTextCallback callback  = nullptr;
+                void*                  user_data = nullptr;
+            }
+            _string;
 
             struct Vector2
             {
-                static float            v_speed;
-                static float            v_min;
-                static float            v_max;
-                static std::string      format;
-                static ImGuiSliderFlags flags;
-            };
+                float            v_speed = 0.1f;
+                float            v_min   = 0.f;
+                float            v_max   = 0.f;
+                std::string      format  = "%.3f";
+                ImGuiSliderFlags flags   = 0;
+            }
+            _Vector2;
 
             struct Vector3
             {
-                static float            v_speed;
-                static float            v_min;
-                static float            v_max;
-                static std::string      format;
-                static ImGuiSliderFlags flags;
-            };
+                float            v_speed = 0.1f;
+                float            v_min   = 0.f;
+                float            v_max   = 0.f;
+                std::string      format  = "%.3f";
+                ImGuiSliderFlags flags   = 0;
+            }
+            _Vector3;
 
             struct Vector4
             {
-                static float            v_speed;
-                static float            v_min;
-                static float            v_max;
-                static std::string      format;
-                static ImGuiSliderFlags flags;
-            };
-        };
+                float            v_speed = 0.1f;
+                float            v_min   = 0.f;
+                float            v_max   = 0.f;
+                std::string      format  = "%.3f";
+                ImGuiSliderFlags flags   = 0;
+            }
+            _Vector4;
 
-        template <class T>
-        void InputReflectFields(T& obj);
+            //InputAuto return 직전에 호출해주는 함수객체 입니다. 
+            //매개변수로 Input 여부랑 접근한 맴버의 이름을 전달해줍니다.
+            //ImGuiDrawPropertys() 함수 호출 이후 NULL로 초기화됩니다.
+            std::function<void(bool, std::string_view)> InputEndEvent;
+        };
     } // namespace ImGuiDraw
 
     // serialized helper
@@ -311,10 +323,10 @@ namespace ReflectHelper
             void EngineLog(int logLevel, std::string_view message, std::source_location location = std::source_location::current());
 
             template <class T>
-            bool InputAuto(T field)
+            bool InputAuto(T field, const InputAutoSetting& setting)
             {
                 using namespace DirectX::SimpleMath;
-                auto NotArrayTypeFunc = [](auto* value, const char* name) {
+                auto NotArrayTypeFunc = [&setting](auto* value, const char* name) {
                     using value_type = std::remove_cvref_t<decltype(*value)>;
                     using OriginType = std::remove_cvref_t<
                         PropertyUtils::get_field_type_t<value_type>>;
@@ -334,10 +346,10 @@ namespace ReflectHelper
                     if constexpr (std::is_same_v<OriginType, int>)
                     {
                         int input = val;
-                        isEdit    = ImGui::InputInt(
-                            name, &input, InputAutoSetting::Int::step,
-                            InputAutoSetting::Int::step_fast,
-                            InputAutoSetting::Int::flags);
+                        isEdit    = ImGui::InputInt(name, &input, 
+                            setting._int.step,
+                            setting._int.step_fast,
+                            setting._int.flags);
 
                         if constexpr (isProperty == false || isSetter == true)
                         {
@@ -351,10 +363,11 @@ namespace ReflectHelper
                     {
                         float input = val;
                         isEdit      = ImGui::InputFloat(
-                            name, &input, InputAutoSetting::Float::step,
-                            InputAutoSetting::Float::step_fast,
-                            InputAutoSetting::Float::format.c_str(),
-                            InputAutoSetting::Float::flags);
+                            name, &input, 
+                            setting._float.step,
+                            setting._float.step_fast,
+                            setting._float.format.c_str(),
+                            setting._float.flags);
 
                         if constexpr (isProperty == false || isSetter == true)
                         {
@@ -369,9 +382,9 @@ namespace ReflectHelper
                         double input = val;
                         isEdit       = ImGui::InputDouble(
                             name, &input, InputAutoSetting::Double::step,
-                            InputAutoSetting::Double::step_fast,
-                            InputAutoSetting::Double::format.c_str(),
-                            InputAutoSetting::Double::flags);
+                            setting._double.step_fast,
+                            setting._double.format.c_str(),
+                            setting._double.flags);
 
                         if constexpr (isProperty == false || isSetter == true)
                         {
@@ -399,9 +412,10 @@ namespace ReflectHelper
                         static std::string input;
                         input  = val;
                         isEdit = ImGui::InputText(
-                            name, &input, InputAutoSetting::String::flags,
-                            InputAutoSetting::String::callback,
-                            InputAutoSetting::String::user_data);
+                            name, &input, 
+                            setting._string.flags,
+                            setting._string.callback,
+                            setting._string.user_data);
 
                         if constexpr (isProperty == false || isSetter == true)
                         {
@@ -416,9 +430,10 @@ namespace ReflectHelper
                         static std::string input;
                         input  = val;
                         isEdit = ImGui::InputText(
-                            name, &input, InputAutoSetting::String::flags,
-                            InputAutoSetting::String::callback,
-                            InputAutoSetting::String::user_data);
+                            name, &input, 
+                            setting._string.flags,
+                            setting._string.callback,
+                            setting._string.user_data);
 
                         if constexpr (isProperty == false || isSetter == true)
                         {
@@ -432,11 +447,12 @@ namespace ReflectHelper
                     {
                         DirectX::SimpleMath::Vector2 input = val;
                         isEdit                             = ImGui::DragFloat2(
-                            name, &input.x, InputAutoSetting::Vector2::v_speed,
-                            InputAutoSetting::Vector2::v_min,
-                            InputAutoSetting::Vector2::v_max,
-                            InputAutoSetting::Vector2::format.c_str(),
-                            InputAutoSetting::Vector2::flags);
+                            name, &input.x, 
+                            setting._Vector2.v_speed,
+                            setting._Vector2.v_min,
+                            setting._Vector2.v_max,
+                            setting._Vector2.format.c_str(),
+                            setting._Vector2.flags);
 
                         if constexpr (isProperty == false || isSetter == true)
                         {
@@ -450,11 +466,12 @@ namespace ReflectHelper
                     {
                         DirectX::SimpleMath::Vector3 input = val;
                         isEdit                             = ImGui::DragFloat3(
-                            name, &input.x, InputAutoSetting::Vector3::v_speed,
-                            InputAutoSetting::Vector3::v_min,
-                            InputAutoSetting::Vector3::v_max,
-                            InputAutoSetting::Vector3::format.c_str(),
-                            InputAutoSetting::Vector3::flags);
+                            name, &input.x, 
+                            setting._Vector3.v_speed,
+                            setting._Vector3.v_min,
+                            setting._Vector3.v_max,
+                            setting._Vector3.format.c_str(),
+                            setting._Vector3.flags);
 
                         if constexpr (isProperty == false || isSetter == true)
                         {
@@ -468,11 +485,12 @@ namespace ReflectHelper
                     {
                         DirectX::SimpleMath::Vector4 input = val;
                         isEdit                             = ImGui::DragFloat4(
-                            name, &input.x, InputAutoSetting::Vector4::v_speed,
-                            InputAutoSetting::Vector4::v_min,
-                            InputAutoSetting::Vector4::v_max,
-                            InputAutoSetting::Vector4::format.c_str(),
-                            InputAutoSetting::Vector4::flags);
+                            name, &input.x, 
+                            setting._Vector4.v_speed,
+                            setting._Vector4.v_min,
+                            setting._Vector4.v_max,
+                            setting._Vector4.format.c_str(),
+                            setting._Vector4.flags);
 
                         if constexpr (isProperty == false || isSetter == true)
                         {
@@ -519,7 +537,6 @@ namespace ReflectHelper
                     using value_type = std::remove_cvref_t<decltype(*value)>;
                     using OriginType =
                         PropertyUtils::get_field_type_t<value_type>;
-                    bool isEdit = false;
                     if constexpr (StdHelper::is_std_array_v<OriginType>)
                     {
                         if (ImGui::CollapsingHeader((const char*)name.data()))
@@ -529,8 +546,7 @@ namespace ReflectHelper
                                 int i = 0;
                                 for (auto& val : *value)
                                 {
-                                    isEdit = NotArrayTypeFunc(
-                                        &val, std::format("[{}]", i).c_str());
+                                    isEdit = NotArrayTypeFunc(&val, std::format("[{}]", i).c_str());
                                     i++;
                                 }
                             }
@@ -547,8 +563,7 @@ namespace ReflectHelper
                                 int  i      = 0;
                                 for (auto& val : *value)
                                 {
-                                    isEdit = NotArrayTypeFunc(
-                                        &val, std::format("[{}]", i).c_str());
+                                    isEdit = NotArrayTypeFunc(&val, std::format("[{}]", i).c_str());
                                     i++;
                                 }
                                 if (ImGui::Button("+"))
@@ -571,19 +586,15 @@ namespace ReflectHelper
                         isEdit = NotArrayTypeFunc(value, name.data());
                     }
                 }
+
+                if (setting.InputEndEvent)
+                {
+                    setting.InputEndEvent(isEdit, field.name());
+                }
                 ImGui::PopID();
                 return isEdit;
             }
         } // namespace Private
-
-        template <class T>
-        void InputReflectFields(T& obj)
-        {
-            const auto view = rfl::to_view(obj);
-            view.apply([](auto& f) { 
-                ImGuiDraw::Private::InputAuto(f); 
-                });
-        }
     } // namespace ImGuiDraw
 
     namespace json
