@@ -20,7 +20,7 @@ HRESULT RenderTarget::Initialize(DXGI_FORMAT format)
 
     D3D12_CLEAR_VALUE clearValue{
         .Format = _format,
-        .Color  = {0.f, 0.f, 0.f, 1.f},
+        .Color  = {0.3f, 0.3f, 0.3f, 1.f},
     };
     // committedReosurce로 임시로 생성
     UmDevice.GetDevice()->CreateCommittedResource(&property, D3D12_HEAP_FLAG_NONE, &desc,
