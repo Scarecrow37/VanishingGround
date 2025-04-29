@@ -240,6 +240,14 @@ bool EGameObjectFactory::PackPrefab(GameObject* targetObject, const File::Guid& 
     {
         if (_prefabDataMap.find(guid) != _prefabDataMap.end())
         {
+            if (_prefabInstanceList[guid].empty() == false)
+            {
+                std::erase_if(_prefabInstanceList[guid], 
+                [targetObject](std::weak_ptr<GameObject>& weakObject) 
+                {
+                    return weakObject.expired();
+                });
+            }
             _prefabInstanceList[guid].emplace_back(targetObject->GetWeakPtr());
             targetObject->_prefabGuid = guid;
             return true;

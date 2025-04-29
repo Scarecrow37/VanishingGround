@@ -146,9 +146,10 @@ private:
     //프리팹 직렬화 데이터 모아두는 맵
     std::unordered_map<File::Guid, YAML::Node> _prefabDataMap;
 
+    //프리팹 인스턴스 GUID 등록 대기용 큐
+    std::unordered_map<File::Path, std::vector<std::weak_ptr<GameObject>>> _prefabGuidQueue;
+
     //인스턴스화된 프리팹 추적용
     std::unordered_map<File::Guid, std::vector<std::weak_ptr<GameObject>>> _prefabInstanceList;     
 
-    //프리팹 인스턴스 GUID 등록 대기용 큐
-    std::unordered_map<File::Path, std::vector<std::weak_ptr<GameObject>>> _prefabGuidQueue;
 };
