@@ -119,8 +119,20 @@ void GameObject::OnInspectorStay()
             ImGui::PushID(component.get());
             {
                 ImGui::Separator();
-                ImGui::Text(component->ClassName());
+                const char* className = component->ClassName();
+                ImVec2 textSize  = ImGui::CalcTextSize(className);  
+                ImVec2 cursorPos = ImGui::GetCursorScreenPos();
+                ImVec2 padding = ImVec2(4.0f, 2.0f);
+                ImVec2 bgMin = cursorPos;
+                ImVec2 bgMax = ImVec2(cursorPos.x + textSize.x + padding.x, cursorPos.y + textSize.y + padding.y);
+                ImGui::GetWindowDrawList()->AddRectFilled(bgMin, bgMax, ImGui::GetColorU32(ImVec4(0.2f, 0.204f, 0.212f, 1.0f)));
+                ImGui::SetCursorScreenPos(ImVec2(cursorPos.x , cursorPos.y));
+                ImGui::Text(className);
+                ImGui::SameLine();
+                ImGui::Text(" Component");
+
                 component->ImGuiDrawPropertys();
+
                 if (ImGui::Button("Destroy Component"))
                 {
                     GameObject::Destroy(component.get());
