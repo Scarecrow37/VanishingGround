@@ -284,20 +284,26 @@ void EditorAssetBrowserTool::ShowFolderDirectoryPath(spFolderContext context)
         ImGui::Text(icon.c_str());
         ImGui::SameLine(0.0f, 5.0f);
 
-        File::Path absRoot = fs::absolute(root);
-        File::Path relativePath = fs::relative(absRoot, absRoot.parent_path()); // 상대경로로 부모 폴더 계산
-        ListToDirectoryFileName(relativePath);
+       
+        ListToDirectoryFileName(L".");
 
-        File::Path curPath;
-        for (auto itr = path.begin(); itr != path.end(); ++itr)
+        // 상대경로로 부모 폴더 계산
+        File::Path relativePath;
+        relativePath = fs::relative(path, root);
+
+        File::Path node;
+        for (auto itr = relativePath.begin(); itr != relativePath.end(); ++itr)
         {
+            if ((*itr) == L".") 
+                continue;
+
             ImGui::SameLine();
             ImGui::Text("/");
             ImGui::SameLine();
 
-            File::Path name = (*itr);
-            curPath /= name;
-            ListToDirectoryFileName(curPath);
+            File::Path folderName = fs::absolute((*itr)).filename();
+            node /= folderName;
+            ListToDirectoryFileName(node);
         }
     }
     else
@@ -328,33 +334,28 @@ void EditorAssetBrowserTool::ShowFolderDirectoryPath(spFolderContext context)
     ImGuiHelper::Separator();
 }
 
-void EditorAssetBrowserTool::ListToDirectoryFileName(const File::Path& curPath)
+void EditorAssetBrowserTool::ListToDirectoryFileName(const File::Path& relativePath)
 {
-    auto    name = curPath.filename();
-    auto&   root = UmFileSystem.GetRootPath();
+    auto& root = UmFileSystem.GetRootPath();
 
-    File::Path  realRoot     = fs::absolute(root);
-    File::Path  realPath     = fs::absolute(name);
-    File::Path  relativePath = fs::relative(realPath, realRoot.parent_path()); // 상대경로로 부모 폴더 계산
-    File::Path  folderName   = relativePath.filename();
-    std::string nameStr      = folderName.string();
+    File::Path absPath    = fs::absolute(relativePath);
+    File::Path folderName = absPath.filename();
+    std::string nameStr   = folderName.string();
 
     ImVec2 textSize = ImGui::CalcTextSize(nameStr.c_str());
     float  startX   = ImGui::GetCursorPosX();
 
-    auto wpFolderContext = UmFileSystem.GetContext<File::FolderContext>(curPath);
+    auto wpFolderContext = UmFileSystem.GetContext<File::FolderContext>(absPath);
     auto spFolderContext = wpFolderContext.lock(); // 실패하면 개버그니까 그냥 과감하게 lock
 
     ImGui::PushID(spFolderContext.get());
+
     ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0, 0, 0, 0)); // 기본 배경 투명
     if (ImGui::Selectable(nameStr.c_str(), false, 0, textSize))
     {
-        auto selectedContext = UmFileSystem.GetContext<File::FolderContext>(curPath);
-        if (false == selectedContext.expired())
-        {
-            SetFocusFolder(wpFolderContext);
-        }
+        SetFocusFolder(wpFolderContext);
     }
+
     DragDropAsset::Data data;
     const char*         eventID = DragDropAsset::KEY;
     if (ImGui::BeginDragDropTarget())

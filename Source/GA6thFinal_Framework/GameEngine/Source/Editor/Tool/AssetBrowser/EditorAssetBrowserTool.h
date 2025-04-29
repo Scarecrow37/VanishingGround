@@ -66,7 +66,7 @@ private:
     void ShowFolderContents();
 
     void ShowFolderDirectoryPath(spFolderContext context);  // 콘텐츠 뷰 상단 주소 출력
-    void ListToDirectoryFileName(const File::Path& curPath);
+    void ListToDirectoryFileName(const File::Path& relativePath);
     void ContentsFrameEventAction(spFolderContext context); // 콘텐츠 뷰 프레임 이벤트 액션
 
     void ShowContentsToList(); // 콘텐츠 뷰 출력 타입 - 리스트

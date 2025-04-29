@@ -27,10 +27,11 @@ bool EFileSystem::CreateProject(const File::Path& path)
     }
     projectof.close();
 
-    fs::path assetPath = path / ASSET_FOLDER_NAME;
-    fs::path settingPath = path / PROJECT_SETTING_PATH;
-    File::CreateFolder(assetPath);
-    File::CreateFolder(settingPath);
+    File::Path rootPath     = path.parent_path();
+    File::Path assetPath    = rootPath / ASSET_FOLDER_NAME;
+    File::Path settingPath  = rootPath / PROJECT_SETTING_PATH;
+    File::CreateFolder(assetPath.generic_wstring());
+    File::CreateFolder(settingPath.generic_wstring());
 
     return true;
 }
@@ -411,7 +412,7 @@ void EFileSystem::RegisterContext(const File::Path& srcPath)
          std::shared_ptr<Context> context;
 
          auto absPath = stdfs::weakly_canonical(srcPath);
-
+         absPath      = absPath.generic_wstring();
          if (true == stdfs::is_regular_file(absPath))
          {
              context = std::make_shared<FileContext>(absPath);

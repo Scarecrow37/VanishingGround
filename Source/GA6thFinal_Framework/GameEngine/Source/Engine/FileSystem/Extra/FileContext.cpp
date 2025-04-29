@@ -6,12 +6,6 @@ namespace File
     Context::Context(const Path& path) 
         : _name(path.filename().string()), _path(path), _meta({})
     {
-        if (true == LoadMeta())
-        {
-            if (UmFileSystem.GetDebugLevel() >= 2)
-                OutputLog(L"Failed to load meta: " +
-                          _meta.GetFileGuid().wstring());
-        }
         if (UmFileSystem.GetDebugLevel() >= 3)
             OutputLog(L"Create Context: " + _path.wstring());
     }
@@ -92,6 +86,14 @@ namespace File
     FileContext::FileContext(const File::Path& path) 
         : Context(path)
     {
+        if (true == IsRegularFile())
+        {
+            if (true == LoadMeta())
+            {
+                if (UmFileSystem.GetDebugLevel() >= 2)
+                    OutputLog(L"Failed to load meta: " + _meta.GetFileGuid().wstring());
+            }
+        }
     }
 
     FileContext::~FileContext()
