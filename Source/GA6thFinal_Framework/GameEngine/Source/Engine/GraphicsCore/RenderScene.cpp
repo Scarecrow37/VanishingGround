@@ -84,7 +84,7 @@ void RenderScene::UpdateRenderScene()
 
 void RenderScene::RegisterOnRenderQueue(bool** isActive, MeshRenderer* renderable)
 {
-    Shader* sr = _frameShader.get();
+    ShaderBuilder* sr = _frameShader.get();
     auto iter = std::find_if(_renderQueue.begin(), _renderQueue.end(),
                              [renderable](const auto& ptr) { return ptr.second == renderable; });
 
