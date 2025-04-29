@@ -57,7 +57,7 @@ void StaticMeshRenderer::Start()
 void StaticMeshRenderer::OnEnable()
 {
     //if constexpr (!IS_EDITOR)
-        UmRenderer.RegisterRenderQueue(&_isActive, this);
+    UmRenderer.RegisterRenderQueue(&_isActive, this, "Editor");
 }
 
 void StaticMeshRenderer::OnDisable()
