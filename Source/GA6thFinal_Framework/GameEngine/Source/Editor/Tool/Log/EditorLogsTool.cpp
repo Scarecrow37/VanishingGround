@@ -58,7 +58,7 @@ void EditorLogsTool::OnTickGui()
                 _drawLogList.emplace_back(level, message, location);   
             }          
 
-            if (_isFocused == false)
+            if (_isWindowHovered == false)
             {
                 notReadCount++;
             }
@@ -100,11 +100,12 @@ void EditorLogsTool::OnPreFrame()
 
 void EditorLogsTool::OnFrame()
 {
-    _isFocused = ImGui::IsWindowFocused();
+    _isWindowFocused = ImGui::IsWindowFocused();
+    _isWindowHovered = ImGui::IsWindowHovered();
     if (notReadCount > 0)
     {
         ImGui::PopStyleColor();
-        if (_isFocused == true)
+        if (_isWindowFocused == true || _isWindowHovered == true)
         {
             static bool once = false;
             if (once == true)
