@@ -6,10 +6,13 @@ HRESULT Shader::CompileShader(std::wstring_view filePath, std::string_view entry
     HRESULT          hr = S_OK;
     ComPtr<ID3DBlob> error;
 
-    UINT flags = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_ENABLE_UNBOUNDED_DESCRIPTOR_TABLES;
+    UINT flags = D3DCOMPILE_ENABLE_STRICTNESS | 
+                 D3DCOMPILE_ENABLE_UNBOUNDED_DESCRIPTOR_TABLES |
+                 D3DCOMPILE_PACK_MATRIX_COLUMN_MAJOR;
 
 #ifdef _DEBUG
-    flags |= D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+    flags |= D3DCOMPILE_DEBUG;
+   /*flags |= D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;*/
 #endif
 
     hr = D3DCompileFromFile(filePath.data(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, entry.data(),

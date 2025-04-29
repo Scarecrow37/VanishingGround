@@ -285,6 +285,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Editor\Tool\Model\EditorModelTool.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\ComputeShader.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\GeometryShader.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\MeshShader.h" />
@@ -417,6 +418,7 @@
     <ClInclude Include="Source\Engine\GraphicsCore\VertexShader.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Editor\Tool\Model\EditorModelTool.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\ComputeShader.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\GeometryShader.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\MeshShader.cpp" />
