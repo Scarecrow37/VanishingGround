@@ -47,7 +47,11 @@ void EGameObjectFactory::OnFileModified(const File::Path& path)
             auto pObject = weakObject.lock();
             if (pObject != nullptr)
             {
-                pObject->_prefabGuid = path.ToGuid();
+                if (pObject->IsPrefabInstacne == true)
+                {
+                    UnpackPrefab(pObject.get());
+                }
+                PackPrefab(pObject.get(), path.ToGuid());
             }      
         }
         guidQueue.clear();
@@ -234,8 +238,7 @@ bool EGameObjectFactory::PackPrefab(GameObject* targetObject, const File::Guid& 
 {
     if (targetObject->IsPrefabInstacne == false)
     {
-        auto findIter = _prefabDataMap.find(guid);
-        if (findIter != _prefabDataMap.end())
+        if (_prefabDataMap.find(guid) != _prefabDataMap.end())
         {
             _prefabInstanceList[guid].emplace_back(targetObject->GetWeakPtr());
             targetObject->_prefabGuid = guid;
