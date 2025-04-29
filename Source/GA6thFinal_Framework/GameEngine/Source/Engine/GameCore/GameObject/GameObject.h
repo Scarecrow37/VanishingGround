@@ -221,8 +221,9 @@ public:
     inline int GetComponentIndex(const Component* pComponent) const;
 
 
-    //IEditorObject에서 상속
  private:
+    //IEditorObject에서 상속됨
+
     /* InspectorView에 SetFocus 될 때 호출 구현 X */
     virtual void OnInspectorViewEnter();
     /* InspectorView의 Draw단계에 호출 */
@@ -293,7 +294,7 @@ public:
     { 
         return _prefabGuid != STR_NULL; 
     }
-    //get : 프리팹으로 인스턴스화된 게임오브젝트 여부를 반환합니다.
+    //get : 프리팹 인스턴스화 여부를 반환합니다.
     PROPERTY(IsPrefabInstacne)
 
     GETTER_ONLY(std::string, PrefabPath) 

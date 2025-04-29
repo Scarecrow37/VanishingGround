@@ -59,8 +59,30 @@ void GameObject::OnInspectorStay()
     static GameObject* selectObject = nullptr;
     ImGui::PushID(this);
     {
-        if (IsPrefabInstacne)
+        bool isPrefab = IsPrefabInstacne;
+        const YAML::Node* pPrefabData = nullptr;
+        std::string prefabReflectJson;
+        yyjson_doc* prefabDoc = nullptr;
+        yyjson_val* prefabRoot = nullptr;
+
+        std::string thisReflectJson;
+        yyjson_doc* thisDoc = nullptr;
+        yyjson_val* thisRoot = nullptr;
+        if (isPrefab)
         {
+            pPrefabData = UmGameObjectFactory.GetPrefabData(this);
+            if(pPrefabData != nullptr)
+            {
+                const YAML::Node& rootData = *pPrefabData->begin();  
+                prefabReflectJson = rootData["ReflectFields"].as<std::string>();
+                prefabDoc         = yyjson_read(prefabReflectJson.c_str(), prefabReflectJson.size(), 0);
+                prefabRoot        = yyjson_doc_get_root(prefabDoc);
+
+                thisReflectJson = SerializedReflectFields();
+                thisDoc         = yyjson_read(thisReflectJson.c_str(), thisReflectJson.size(), 0);
+                thisRoot        = yyjson_doc_get_root(thisDoc);
+            }
+
             ImGui::Text("Prefab");
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.6f, 0.6f, 0.6f, 1.0f));   
             ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.2f, 0.2f, 0.2f, 1.0f));
@@ -75,6 +97,7 @@ void GameObject::OnInspectorStay()
                 static std::string emptyPath = STR_NULL;
                 ImGui::InputText("Prefab", &emptyPath, ImGuiInputTextFlags_ReadOnly);
             }     
+            ImGui::PopStyleColor(2);
             if(ImGui::BeginDragDropTarget())
             {
                 if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
@@ -94,10 +117,35 @@ void GameObject::OnInspectorStay()
                 }
                 ImGui::EndDragDropTarget();
             }
-            ImGui::PopStyleColor(2);
             ImGui::Separator();
         }
 
+        if (isPrefab)
+        {
+            //??????????????
+            UmCore->ImGuiDrawPropertysSetting.InputEndEvent = [&](bool result, std::string_view) {
+                if (true == result && true == isPrefab)
+                {
+                    auto testFunc = [&](std::string_view name, void* pValue) 
+                    {
+                        bool isOverrideField = UmGameObjectFactory.IsOverrideField(pValue);
+                        if (false == isOverrideField)
+                        {
+                            yyjson_val* prefabVal    = yyjson_obj_get(prefabRoot, name.data());
+                            std::string prefabValStr = ReflectHelper::json::yyjsonValToString(prefabVal);
+
+                            yyjson_val* thisVal    = yyjson_obj_get(thisRoot, name.data());
+                            std::string thisValStr = ReflectHelper::json::yyjsonValToString(thisVal);
+
+                            if (prefabValStr != thisValStr)
+                            {
+                                UmGameObjectFactory.SetOverrideFlag(pValue);
+                            }
+                        }
+                    };
+                }
+            };
+        }
         ImGuiDrawPropertys();
         _transform.ImGuiDrawPropertys();
         if (ImGui::Button("AddComponent"))
@@ -205,6 +253,15 @@ void GameObject::OnInspectorStay()
                 ImGui::EndPopup();
             }
         }
+
+        if (prefabDoc != nullptr)
+        {
+            yyjson_doc_free(prefabDoc);
+        }
+        if (thisDoc != nullptr)
+        {
+            yyjson_doc_free(thisDoc);
+        }        
     }
     ImGui::PopID();
 }
