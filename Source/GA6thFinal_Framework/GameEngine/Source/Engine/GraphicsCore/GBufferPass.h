@@ -41,4 +41,5 @@ private:
         SKELTAL_ONE_SIDED,
     };
     std::vector<ComPtr<ID3D12PipelineState>> _psos;
+    std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _gbufferHandle;
 };
