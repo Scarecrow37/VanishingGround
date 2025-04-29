@@ -187,8 +187,8 @@ protected:                                                                     \
         {                                                                      \
             CLASS## ::DeserializedReflectEvent();                              \
         }                                                                      \
-    }
-
+    }                                                                          
+                       
 // 에디터 편집을 허용할 프로퍼티들을 등록합니다. Get, Set 함수가 모두 존재하는
 // 프로퍼티만 편집 가능합니다.
 #define REFLECT_PROPERTY(...)                                                                               \
@@ -310,6 +310,13 @@ namespace ReflectHelper
 
         template <typename Type>
         bool DeserializedObjet(Type& obj, std::string_view data);
+
+        /// <summary>
+        /// 전달한 yyjson_val*를 string으로 변환해서 반환합니다.
+        /// </summary>
+        /// <param name="val :">변환할 val 값</param>
+        /// <returns>변환된 string 객체</returns>
+        std::string yyjsonValToString(yyjson_val* val);
     } // namespace json
 } // namespace ReflectHelper
 
@@ -335,7 +342,8 @@ namespace ReflectHelper
                     constexpr bool isSetter = PropertyUtils::is_setter<value_type>;
                     constexpr bool isLock = isProperty == true && isSetter == false;
 
-                    bool  isEdit = false;
+                    bool isEdit = false;
+                    bool result = false;
                     auto& val    = *value;
 
                     if constexpr (isLock == true)
@@ -353,9 +361,13 @@ namespace ReflectHelper
 
                         if constexpr (isProperty == false || isSetter == true)
                         {
-                            if (isEdit && ImGui::IsItemDeactivatedAfterEdit())
+                            if (isEdit)
                             {
                                 val = input;
+                            }
+                            if (ImGui::IsItemDeactivatedAfterEdit())
+                            {
+                                result = true;
                             }
                         }
                     }
@@ -371,9 +383,13 @@ namespace ReflectHelper
 
                         if constexpr (isProperty == false || isSetter == true)
                         {
-                            if (isEdit && ImGui::IsItemDeactivatedAfterEdit())
+                            if (isEdit)
                             {
                                 val = input;
+                            }
+                            if (ImGui::IsItemDeactivatedAfterEdit())
+                            {
+                                result = true;
                             }
                         }
                     }
@@ -388,9 +404,13 @@ namespace ReflectHelper
 
                         if constexpr (isProperty == false || isSetter == true)
                         {
-                            if (isEdit && ImGui::IsItemDeactivatedAfterEdit())
+                            if (isEdit)
                             {
                                 val = input;
+                            }
+                            if (ImGui::IsItemDeactivatedAfterEdit())
+                            {
+                                result = true;
                             }
                         }                      
                     }
@@ -401,9 +421,13 @@ namespace ReflectHelper
 
                         if constexpr (isProperty == false || isSetter == true)
                         {
-                            if (isEdit && ImGui::IsItemDeactivatedAfterEdit())
+                            if (isEdit)
                             {
                                 val = input;
+                            }
+                            if (ImGui::IsItemDeactivatedAfterEdit())
+                            {
+                                result = true;
                             }
                         }
                     }
@@ -419,9 +443,13 @@ namespace ReflectHelper
 
                         if constexpr (isProperty == false || isSetter == true)
                         {
-                            if (isEdit && ImGui::IsItemDeactivatedAfterEdit())
+                            if (isEdit)
                             {
                                 val = input;
+                            }
+                            if (ImGui::IsItemDeactivatedAfterEdit())
+                            {
+                                result = true;
                             }
                         }
                     }
@@ -437,17 +465,22 @@ namespace ReflectHelper
 
                         if constexpr (isProperty == false || isSetter == true)
                         {
-                            if (isEdit && ImGui::IsItemDeactivatedAfterEdit())
+                            if (isEdit)
                             {
-                                val = input;
+                                val = input;                               
+                            }
+                            if (ImGui::IsItemDeactivatedAfterEdit())
+                            {
+                                result = true;
                             }
                         }
                     }
                     else if constexpr (isProperty && std::is_same_v<OriginType, DirectX::SimpleMath::Vector2>)
                     {
                         DirectX::SimpleMath::Vector2 input = val;
-                        isEdit                             = ImGui::DragFloat2(
-                            name, &input.x, 
+                        isEdit = ImGui::DragFloat2(
+                            name, 
+                            &input.x, 
                             setting._Vector2.v_speed,
                             setting._Vector2.v_min,
                             setting._Vector2.v_max,
@@ -460,13 +493,18 @@ namespace ReflectHelper
                             {
                                 val = input;
                             }
+                            if (ImGui::IsItemDeactivatedAfterEdit())
+                            {
+                                result = true;
+                            }
                         }
                     }
                     else if constexpr (isProperty && std::is_same_v<OriginType, DirectX::SimpleMath::Vector3>)
                     {
                         DirectX::SimpleMath::Vector3 input = val;
-                        isEdit                             = ImGui::DragFloat3(
-                            name, &input.x, 
+                        isEdit = ImGui::DragFloat3(
+                            name, 
+                            &input.x, 
                             setting._Vector3.v_speed,
                             setting._Vector3.v_min,
                             setting._Vector3.v_max,
@@ -479,13 +517,18 @@ namespace ReflectHelper
                             {
                                 val = input;
                             }
+                            if (ImGui::IsItemDeactivatedAfterEdit())
+                            {
+                                result = true;
+                            }
                         }
                     }
                     else if constexpr (isProperty && std::is_same_v<OriginType, DirectX::SimpleMath::Vector4>)
                     {
                         DirectX::SimpleMath::Vector4 input = val;
-                        isEdit                             = ImGui::DragFloat4(
-                            name, &input.x, 
+                        isEdit = ImGui::DragFloat4(
+                            name, 
+                            &input.x, 
                             setting._Vector4.v_speed,
                             setting._Vector4.v_min,
                             setting._Vector4.v_max,
@@ -497,6 +540,10 @@ namespace ReflectHelper
                             if (isEdit)
                             {
                                 val = input;
+                            }
+                            if (ImGui::IsItemDeactivatedAfterEdit())
+                            {
+                                result = true;
                             }
                         }
                     }
@@ -524,7 +571,7 @@ namespace ReflectHelper
                             ImGui::EndDragDropTarget();
                         }                   
                     }
-                    return isEdit;
+                    return result;
                 };
 
                 bool isEdit = false;
