@@ -16,7 +16,7 @@ public:
     EFileSystem FileSystem;
     Application& App;
     GraphicsCore Graphics;
-
+    ReflectHelper::ImGuiDraw::InputAutoSetting ImGuiDrawPropertysSetting;
 private:
     LogLocation::EngineLocationInfo LocationInfo;
 };
