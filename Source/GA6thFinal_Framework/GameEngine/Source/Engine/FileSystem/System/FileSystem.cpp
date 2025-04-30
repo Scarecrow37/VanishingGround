@@ -75,6 +75,7 @@ bool EFileSystem::LoadProject(const File::Path& path)
 
     File::Path directory = path.parent_path();
 
+    _projectName = path.stem().string();
     _originPath  = fs::current_path().generic_wstring();
     _rootPath    = fs::absolute(directory).generic_wstring();
     _assetPath   = fs::absolute(_rootPath / ASSET_FOLDER_NAME).generic_wstring();
@@ -112,10 +113,13 @@ bool EFileSystem::SaveProject()
     return true;
 }
 
-bool EFileSystem::SaveAsProject(const File::Path& path)
+bool EFileSystem::SaveAsProject(const File::Path& to)
 {
+    if (true == _projectData.IsNull())
+        return false;
 
-    return false;
+    fs::copy(_rootPath, to, fs::copy_options::recursive | fs::copy_options::overwrite_existing);
+    return true;
 }
 
 bool EFileSystem::LoadProjectWithMessageBox(const File::Path& path)

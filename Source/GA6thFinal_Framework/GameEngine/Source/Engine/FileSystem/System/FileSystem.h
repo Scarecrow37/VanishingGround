@@ -21,13 +21,14 @@ public:
     bool CreateProject(const File::Path& path);
     bool LoadProject(const File::Path& path);
     bool SaveProject();
-    bool SaveAsProject(const File::Path& path);
+    bool SaveAsProject(const File::Path& to);
     bool LoadProjectWithMessageBox(const File::Path& path);
     bool SaveProjectWithMessageBox();
 
     bool SaveSetting(const File::Path& path);
     bool LoadSetting(const File::Path& path);
 
+    inline auto&       GetProjectName() { return _projectName; }
     inline int         GetDebugLevel() const { return _setting.DebugLevel; }
     inline const auto& GetMetaExt() const { return _setting.MetaExt; }
 
@@ -125,6 +126,7 @@ private:
 private:
     File::SystemSetting _setting = {};          // 세팅 정보
     File::ProjectData   _projectData;           // 프로젝트 데이터
+    std::string         _projectName;           // 프로젝트 이름
 
     File::FileObserver* _observer = nullptr;    // 파일 디렉터리 이벤트를 감시하는 옵저버.
 

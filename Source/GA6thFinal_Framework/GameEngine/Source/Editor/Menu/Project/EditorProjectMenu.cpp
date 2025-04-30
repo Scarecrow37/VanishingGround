@@ -83,5 +83,20 @@ void EditorMenuProjectRoot::OnMenu()
     {
         UmFileSystem.SaveProjectWithMessageBox();
     }
+    if (ImGui::MenuItem("SaveAs Project", nullptr))
+    {
+        TCHAR title[] = L"폴더를 선택하세요.";
+        UINT  flags   = BIF_USENEWUI | BIF_RETURNONLYFSDIRS;
+        File::Path directory;
+        if (File::OpenForderBrowser(title, flags, directory))
+        {
+            if (true == UmFileSystem.SaveAsProject(directory))
+            {
+                File::Path projectName = UmFileSystem.GetProjectName();
+                projectName.replace_extension(File::PROJECT_EXTENSION);
+                UmFileSystem.LoadProject(directory / projectName);
+            }
+        }
+    }
 }
 
