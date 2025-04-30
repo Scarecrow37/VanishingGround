@@ -65,14 +65,14 @@ namespace File
 
     bool FileData::FileRemove() const
     {
-        if (true == stdfs::exists(_filePath))
+        if (true == fs::exists(_filePath))
         {
-            stdfs::remove(_filePath);
+            fs::remove(_filePath);
             return true;
         }
     }
 
-    bool FileData::Create(const File::Path& path, bool isHidden)
+    bool FileData::Create(const File::Path& path, bool isEmpty, bool isHidden)
     {
         if (path != _filePath)
         {
@@ -80,7 +80,14 @@ namespace File
         }
         if (true == IsNull())
         {
-            CreateGuid(_fileGuid);
+            if (true == isEmpty)
+            {
+                _fileGuid = NULL_GUID;
+            }
+            else
+            {
+                CreateGuid(_fileGuid);
+            }
         }
 
         bool result = FileCreate(isHidden);
@@ -102,7 +109,7 @@ namespace File
         if (true == path.empty())
             return false;
 
-        if (false == stdfs::exists(path))
+        if (false == fs::exists(path))
             return false;
 
         YAML::Node node = YAML::LoadFile(path.string());
@@ -130,9 +137,9 @@ namespace File
 
     bool FileData::Move(const Path& path)
     {
-        if (true == stdfs::exists(_filePath))
+        if (true == fs::exists(_filePath))
         {
-            stdfs::rename(_filePath, path);
+            fs::rename(_filePath, path);
             _filePath = path;
             return true;
         }
@@ -141,9 +148,9 @@ namespace File
 
     bool FileData::Clear()
     {
-        if (true == stdfs::exists(_filePath))
+        if (true == fs::exists(_filePath))
         {
-            _filePath = "";
+            _filePath = NULL_PATH;
             _fileGuid = NULL_GUID;
             return true;
         }

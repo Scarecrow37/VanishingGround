@@ -29,19 +29,19 @@ private:
 private:
     bool _isHorverdScene = false;
 
-    Camera* _camera = nullptr;
+    std::shared_ptr<Camera> _camera = nullptr;
 
     // Camera
     Vector3 _position = Vector3::Zero;
     Vector3 _diretion = Vector3::Forward;
-    Matrix  _rotation = Matrix::Identity;
+    Vector3 _rotation=Vector3::Zero;
     Matrix _view;
-    float _fovDegree = 27.0f;
+    float _fovDegree = 45.f;
     float _aspect = 1.0f;
-    float _nearZ = 0.1f;
-    float _farZ = 100.f;
-    float _moveSpeed = 10.0f;
-    float _rotateSpeed = 5.0f;
+    float _nearZ = 0.01f;
+    float _farZ = 10000.f;
+    float _moveSpeed = 30.0f;
+    float _rotateSpeed = 10.0f;
 
     // ViewManipulate
     float _setDistance = 100.0f;

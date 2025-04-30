@@ -15,15 +15,18 @@ RenderScene::~RenderScene() {}
 
 void RenderScene::UpdateRenderScene()
 {
+    // 카메라 업데이트 
+    _camera->Update();
+
     // 비활성된 컴포넌트 제거
     auto first = std::remove_if(_renderQueue.begin(), _renderQueue.end(), [](const auto& ptr) { return *ptr.first==false; });
     _renderQueue.erase(first, _renderQueue.end());
 
 
     _currentFrameIndex   = UmDevice.GetCurrentBackBufferIndex();
-    Vector4    cameraPos = Vector4(UmMainCamera.GetWorldMatrix().Translation());
-    CameraData cameraData{.View       = XMMatrixTranspose(UmMainCamera.GetViewMatrix()),
-                          .Projection = XMMatrixTranspose(UmMainCamera.GetProjectionMatrix()),
+    Vector4    cameraPos = Vector4(_camera->GetWorldMatrix().Translation());
+    CameraData cameraData{.View       = XMMatrixTranspose(_camera->GetViewMatrix()),
+                          .Projection = XMMatrixTranspose(_camera->GetProjectionMatrix()),
                           .Position   = cameraPos};
 
     UmDevice.UpdateBuffer(_cameraBuffer, &cameraData, sizeof(CameraData));
@@ -84,7 +87,6 @@ void RenderScene::UpdateRenderScene()
 
 void RenderScene::RegisterOnRenderQueue(bool** isActive, MeshRenderer* renderable)
 {
-    ShaderBuilder* sr = _frameShader.get();
     auto iter = std::find_if(_renderQueue.begin(), _renderQueue.end(),
                              [renderable](const auto& ptr) { return ptr.second == renderable; });
 
@@ -100,7 +102,7 @@ void RenderScene::RegisterOnRenderQueue(bool** isActive, MeshRenderer* renderabl
 
 void RenderScene::Execute(ID3D12GraphicsCommandList* commandList)
 {
-    for (auto& [name, tech] : _techniques)
+    for (auto& tech : _techniques)
     {
         tech->Execute(commandList);
     }
@@ -111,17 +113,18 @@ D3D12_CPU_DESCRIPTOR_HANDLE RenderScene::GetFinalImage()
     return _gBufferSrvHandles[BASECOLOR];
 }
 
-void RenderScene::AddRenderTechnique(const std::string& name, std::shared_ptr<RenderTechnique> technique)
+void RenderScene::AddRenderTechnique(std::shared_ptr<RenderTechnique> technique)
 {
     technique->SetOwnerScene(this);
     technique->Initialize();
-    _techniques[name] = technique;
+    _techniques.push_back(technique);
 }
 
 // 250424
 //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 void RenderScene::InitializeRenderScene()
 {
+    CreateCamera();
     CreateRenderTarget();
     CreateDepthStencil();
     CreateFrameQuadAndFrameShader();
@@ -135,7 +138,7 @@ void RenderScene::CreateRenderTarget()
     // gbuffer 생성
     _gBuffer.resize(_gBufferCount);
     _gBufferSrvHandles.resize(_gBufferCount);
-    for (UINT i = 0; i <= GBuffer::EMISSIVE; ++i)
+    for (UINT i = 0; i <= GBuffer::WORLDPOSITION; ++i)
     {
         _gBuffer[i] = std::make_shared<RenderTarget>();
         _gBuffer[i]->Initialize(DXGI_FORMAT_R32G32B32A32_FLOAT);
@@ -259,9 +262,20 @@ void RenderScene::CreateFrameResource()
         _frameResources[i]->Initialize(100, 6);
     }
     // 임시 : 메인 카메라를 통해 Camera ConstantBuffer 만들기.
-    CameraData cameraData{.View       = UmMainCamera.GetViewMatrix(),
-                          .Projection = UmMainCamera.GetProjectionMatrix(),
+    CameraData cameraData{.View       = _camera->GetViewMatrix(),
+                          .Projection = _camera->GetProjectionMatrix(),
                           .Position   = {0.f, 0.f, -5.f, 1.f}};
 
     UmDevice.CreateConstantBuffer(&cameraData, sizeof(CameraData), _cameraBuffer);
+}
+
+void RenderScene::CreateCamera() 
+{
+    _camera = std::make_shared<Camera>();
+    Vector3 position = Vector3::Zero;
+    Vector3 diretion = Vector3::Forward;
+    Matrix  rotation = Matrix::Identity;
+    _camera->SetRotation(rotation.ToEuler());
+    _camera->SetPosition(position);
+    _camera->Update();
 }

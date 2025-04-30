@@ -51,11 +51,11 @@ void Renderer::Initialize()
     //testRenderScene->AddRenderTechnique("PBR", pbrTech);
 
     //_renderScenes["TEST PBR"] = testRenderScene;
-    std::shared_ptr<RenderScene> testRenderScene = std::make_shared<RenderScene>();
-    testRenderScene->InitializeRenderScene();
+    std::shared_ptr<RenderScene> editorScene = std::make_shared<RenderScene>();
+    editorScene->InitializeRenderScene();
     std::shared_ptr<PBRLitTechnique> pbrTech = std::make_shared<PBRLitTechnique>();
-    testRenderScene->AddRenderTechnique("PBRLIT", pbrTech);
-    _renderScenes["Editor"] = testRenderScene;
+    editorScene->AddRenderTechnique(pbrTech);
+    _renderScenes["Editor"] = editorScene;
 
 }
 
@@ -101,6 +101,22 @@ D3D12_GPU_DESCRIPTOR_HANDLE Renderer::GetRenderSceneImage(std::string_view rende
     {
         auto scene = iter->second;
         return SceneView(scene.get());
+    }
+    else
+    {
+        std::wstring msg = L"Renderer::GetRenderSceneImage: RenderSceneName '" +
+                           std::wstring(renderSceneName.begin(), renderSceneName.end()) + L"' is not registered.";
+        ASSERT(false, msg.c_str());
+    }
+}
+
+std::shared_ptr<Camera> Renderer::GetCamera(std::string_view renderSceneName)
+{
+    auto iter = _renderScenes.find(std::string(renderSceneName));
+    if (iter != _renderScenes.end())
+    {
+        auto scene = iter->second;
+        return scene->GetCamera();
     }
     else
     {

@@ -6,6 +6,7 @@ class RenderTechnique;
 class FrameResource;
 class Quad;
 class ShaderBuilder;
+class Camera;
 // 임시 오브젝트
 class TempObject;
 class RenderScene
@@ -17,6 +18,7 @@ public:
         NORMAL,
         ORM,
         EMISSIVE,
+        WORLDPOSITION,
         DEPTH,
         COSTOMDEPTH,
         END
@@ -28,6 +30,7 @@ public :
 
 public:
     void UpdateRenderScene();
+    std::shared_ptr<Camera> GetCamera() { return _camera; }
 
 public:
     void RenderOnBackBuffer(ID3D12GraphicsCommandList* commandList);
@@ -40,7 +43,7 @@ public:
     // 렌더큐에서 삭제된건?? 물어봐야함.
 
     // 렌더 기술 등록
-    void AddRenderTechnique(const std::string& name, std::shared_ptr<RenderTechnique> technique);
+    void AddRenderTechnique(std::shared_ptr<RenderTechnique> technique);
     // 실행
     void Execute(ID3D12GraphicsCommandList* commandList);
 
@@ -61,14 +64,16 @@ private:
     void CreateSrvDescriptorHeap();
     // frame Resource Backbuffer 갯수만큼 생성해주기.
     void CreateFrameResource();
+    // scene이 제공해주는 카메라 만들기
+    void CreateCamera();
 
 public:
     UINT _currentFrameIndex = 0;
     // 가지고있는 technique들
-    std::unordered_map<std::string, std::shared_ptr<RenderTechnique>> _techniques;
+    std::vector<std::shared_ptr<RenderTechnique>> _techniques;
 
-    // 0: basecolor, 1: normal ,2:ORM , 3:emissive, 4: depth, 5: costom depth(bit mask,후처리용)
-    UINT                              _gBufferCount = 6;
+    // 0: basecolor, 1: normal ,2:ORM , 3:emissive, 4:world position, 5: depth, 6: costom depth(bit mask,후처리용)
+    UINT                                       _gBufferCount = GBuffer::END;
     std::vector<std::shared_ptr<RenderTarget>> _gBuffer;
     std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _gBufferSrvHandles;
 
@@ -91,6 +96,9 @@ public:
     //frame resource와 카메라 리소스.
     std::vector<std::shared_ptr<FrameResource>> _frameResources;
     ComPtr<ID3D12Resource>                      _cameraBuffer;
+
+    // 카메라 한개
+    std::shared_ptr<Camera> _camera;
 
 private:
     std::unique_ptr<Quad>          _frameQuad;
