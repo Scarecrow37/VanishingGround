@@ -7,9 +7,9 @@ public:
     virtual ~EditorCommandTool();
 
 private:
-    virtual void OnTickGui() override {}
-    virtual void OnStartGui() override {};
-    virtual void OnEndGui() override {};
+    virtual void OnTickGui() override;
+    virtual void OnStartGui() override;
+    virtual void OnEndGui() override;
 
 private:
     /* Begin 호출 전에 호출 */

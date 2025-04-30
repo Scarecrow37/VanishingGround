@@ -16,7 +16,7 @@ public:
     EFileSystem FileSystem;
     Application& App;
     GraphicsCore Graphics;
-    CommandManager CommandManager;
+    ECommandManager CommandManager;
 
 private:
     LogLocation::EngineLocationInfo LocationInfo;

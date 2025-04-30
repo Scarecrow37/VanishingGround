@@ -1,28 +1,7 @@
 ﻿#include "pch.h"
 #include "CommandManager.h"
 
-void CommandManager::PreInitialize() 
-{
-    _undoStack.resize(_maxCommandSize);
-    _redoStack.resize(_maxCommandSize);
-}
-
-void CommandManager::ModuleInitialize() 
-{
-
-}
-
-void CommandManager::PreUnInitialize() 
-{
-}
-
-void CommandManager::ModuleUnInitialize() 
-{
-    _undoStack.clear();
-    _redoStack.clear();
-}
-
-void CommandManager::Undo()
+void ECommandManager::Undo()
 {
     if (true == _undoStack.empty())
         return;
@@ -36,7 +15,7 @@ void CommandManager::Undo()
     ClampCommandStack();
 }
 
-void CommandManager::Undo(UINT cnt) 
+void ECommandManager::Undo(UINT cnt)
 {
     for (UINT i = 0; i < cnt; ++i)
     {
@@ -51,7 +30,7 @@ void CommandManager::Undo(UINT cnt)
     }
 }
 
-void CommandManager::Redo() 
+void ECommandManager::Redo()
 {
     if (true == _redoStack.empty())
         return;
@@ -65,7 +44,7 @@ void CommandManager::Redo()
     ClampCommandStack();
 }
 
-void CommandManager::Redo(UINT cnt) 
+void ECommandManager::Redo(UINT cnt)
 {
     for (UINT i = 0; i < cnt; ++i)
     {
@@ -80,7 +59,7 @@ void CommandManager::Redo(UINT cnt)
     }
 }
 
-void CommandManager::ClampCommandStack() 
+void ECommandManager::ClampCommandStack()
 {
     if (_undoStack.size() > _maxCommandSize)
     {

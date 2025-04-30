@@ -3,7 +3,7 @@
 
 class UmCommand;
 
-class CommandManager
+class ECommandManager
 {
 public:
     template <typename T, typename... Args>

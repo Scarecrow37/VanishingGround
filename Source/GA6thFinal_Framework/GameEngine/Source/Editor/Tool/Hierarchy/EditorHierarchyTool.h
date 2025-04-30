@@ -26,3 +26,14 @@ private:
     ImGuiWindow* window = nullptr;
 };
 
+class SampleCommand : public UmCommand
+{
+public:
+    SampleCommand() : UmCommand("Inspector Focused") {}
+    ~SampleCommand() override = default;
+
+public:
+    // UmCommand을(를) 통해 상속됨
+    void Execute() override;
+    void Undo() override;
+};

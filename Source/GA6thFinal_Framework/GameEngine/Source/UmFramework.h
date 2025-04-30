@@ -133,6 +133,7 @@ using namespace Microsoft::WRL;
 #include "Engine/FileSystem/Extra/FileEventNotifier.h"
 #include "Engine/FileSystem/FileSystemModule.h"
 
+
 //Graphics
 #include "Engine/GraphicsCore/GraphicsCore.h"
 
@@ -142,6 +143,7 @@ using namespace Microsoft::WRL;
 #include "Engine/EngineCore/GameObjectFactory.h"
 #include "Engine/EngineCore/ComponentFactory.h"
 #include "Engine/EngineCore/SceneManager.h"
+#include "Engine/CommandCore/CommandManager.h"
 #include "Engine/EngineCore/EngineCores.h" 
 
 //Editor Core
@@ -166,10 +168,6 @@ using namespace Microsoft::WRL;
 //DragDropTypes
 #include "Editor/DragDropTypes/DragDropTransform.h"
 #include "Editor/DragDropTypes/DragDropAsset.h"
-
-//Command
-#include "Engine/CommandCore/UmCommand.h"
-#include "Engine/CommandCore/CommandManager.h"
 
 //컴포넌트는 접근 안하는 헤더들
 #ifndef _SCRIPTS_PROJECT
