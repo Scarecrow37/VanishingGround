@@ -401,6 +401,9 @@ protected:
     virtual void OnRequestedCopy(const File::Path& path);
     virtual void OnRequestedPaste(const File::Path& path);
 
+    virtual void OnRequestedSave() override;
+    virtual void OnRequestedLoad() override;
+
     //관리하는 씬 파일 파괴시 호출
     void EraseSceneGUID(std::string_view sceneName, const File::Guid guid);
 

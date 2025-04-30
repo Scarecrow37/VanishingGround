@@ -10,21 +10,18 @@ bool ESceneManager::RootGameObjectsFilter(GameObject* obj, std::string_view scen
 
 std::filesystem::path ESceneManager::GetSettingFilePath()
 {
-    std::filesystem::path path = PROJECT_SETTING_PATH;
+    std::filesystem::path path = UmFileSystem.GetSettingPath();
     path /= SETTING_FILE_NAME;
     return path;
 }
 
 ESceneManager::ESceneManager() 
 {
-    LoadSettingFile();
+   
 }
 ESceneManager::~ESceneManager()
 {
-    if constexpr (Application::IsEditor())
-    {
-        SaveSettingFile();
-    } 
+    
 }
 
 void ESceneManager::LoadSettingFile() 
@@ -959,6 +956,16 @@ void ESceneManager::OnRequestedCopy(const File::Path& path)
 void ESceneManager::OnRequestedPaste(const File::Path& path) 
 {
 
+}
+
+void ESceneManager::OnRequestedSave() 
+{
+    SaveSettingFile();
+}
+
+void ESceneManager::OnRequestedLoad() 
+{
+    LoadSettingFile();
 }
 
 void ESceneManager::EraseSceneGUID(std::string_view sceneName, const File::Guid guid) 
