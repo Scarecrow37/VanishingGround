@@ -157,7 +157,11 @@ private:
     //Prefab의 GUID만 다시 작성합니다.
     void WritePrefabGuid(const File::Path& path);
 
-    //Prefab Instance의 
+    //Prefab Instance의 계층 구조를 Prefab 파일과 동기화 시킵니다.
+    void SyncPrefabInstance()
+    {
+
+    }
 
     // FileEventNotifier을(를) 통해 상속됨
     void OnFileRegistered(const File::Path& path) override;
