@@ -10,6 +10,7 @@
 
 #include "ResourceManager.h"
 #include "ViewManager.h"
+#include "ParticleManager.h"
 
 #include "Defines.h"
 #include "Externs.h"

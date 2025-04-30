@@ -288,6 +288,9 @@
     <ClInclude Include="Source\Editor\Menu\Project\EditorBuildSettingMenu.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\DeferredPBRLitPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\GBufferPass.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\ParticleEffect.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\ParticleEmitter.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\ParticleManager.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\PBRLitTechnique.h" />
     <ClInclude Include="Source\Engine\EditorCore\Setting\EditorSetting.h" />
     <ClInclude Include="Source\Engine\EditorCore\PopupBox\EditorPopupBox.h" />
@@ -414,6 +417,9 @@
     <ClCompile Include="Source\Editor\Menu\Project\EditorBuildSettingMenu.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\DeferredPBRLitPass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\GBufferPass.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\ParticleEffect.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\ParticleEmitter.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\ParticleManager.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\PBRLitTechnique.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\Animator.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\M_Default.cpp" />

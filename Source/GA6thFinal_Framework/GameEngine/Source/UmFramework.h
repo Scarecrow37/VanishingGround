@@ -84,6 +84,7 @@ using namespace Microsoft::WRL;
 #include <system_error>
 #include <typeindex>
 #include <string_view>
+#include <random>
 
 //ThirdParty
 #include <pugixml.hpp>

@@ -94,6 +94,12 @@
     <Filter Include="GraphicsCore\Material">
       <UniqueIdentifier>{cc2e0fd2-4be0-475a-989a-1b89bb9ef427}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GraphicsCore\ParticleCore">
+      <UniqueIdentifier>{88169691-a9c9-44bd-a7f0-a33433907f77}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsCore\ParticleCore\Particle">
+      <UniqueIdentifier>{c099d55e-cbf9-48fc-886f-6812ccfc7f06}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\pch.h">
@@ -450,12 +456,6 @@
     <ClInclude Include="Source\Editor\Menu\Project\EditorBuildSettingMenu.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\PBRPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\PBRTechnique.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\GraphicsCore\Animator.h">
       <Filter>GraphicsCore\Animator</Filter>
     </ClInclude>
@@ -473,6 +473,15 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\GraphicsCore\DeferredPBRLitPass.h">
       <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\ParticleEffect.h">
+      <Filter>GraphicsCore\ParticleCore</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\ParticleEmitter.h">
+      <Filter>GraphicsCore\ParticleCore</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\ParticleManager.h">
+      <Filter>GraphicsCore\ParticleCore</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -788,9 +797,6 @@
     <ClCompile Include="Source\Editor\Menu\Project\EditorBuildSettingMenu.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\PBRPass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\Animator.cpp">
       <Filter>GraphicsCore\Animator</Filter>
     </ClCompile>
@@ -808,6 +814,15 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\DeferredPBRLitPass.cpp">
       <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\ParticleEffect.cpp">
+      <Filter>GraphicsCore\ParticleCore</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\ParticleEmitter.cpp">
+      <Filter>GraphicsCore\ParticleCore</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\ParticleManager.cpp">
+      <Filter>GraphicsCore\ParticleCore</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
