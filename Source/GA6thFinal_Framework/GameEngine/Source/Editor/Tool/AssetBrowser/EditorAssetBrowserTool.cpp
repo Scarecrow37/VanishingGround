@@ -890,23 +890,16 @@ void EditorAssetBrowserTool::SetFocusFromRedoPath()
 
 void EditorAssetObject::OnInspectorStay()
 {
-    bool isDebug    = Global::editorModule->IsDebugMode();
-    bool isExpired  = _focusedInspector.expired();
+    bool isDebug   = Global::editorModule->IsDebugMode();
+    bool isExpired = _focusedInspector.expired();
 
-    if (false == isExpired)
+    if (false == isExpired && true == isDebug)
     {
         auto  spContext = _focusedInspector.lock();
         auto& metaData  = spContext->GetMeta();
 
-void EditorAssetObject::OnInspectorStay()
-{
-    if (false == _context.expired())
-    {
-        auto  spContext = _context.lock();
-        auto& metaData  = spContext->GetMeta();
-
         ImGui::Text("Path: %s", spContext->GetPath().string().c_str());
-        ImGui::Text("Guid: %s", metaData.GetFileGuid().string().c_str());
+        ImGui::Text("Guid: %s", metaData.GetGuid().string().c_str());
         ImGui::Separator();
 
         auto& path = spContext->GetPath();
