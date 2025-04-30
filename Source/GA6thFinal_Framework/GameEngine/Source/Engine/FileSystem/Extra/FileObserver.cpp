@@ -15,10 +15,22 @@ namespace File
         Stop();
     }
 
-    bool FileObserver::Start(const File::Path& path,
-                             const CallBackFunc& callback)
+    void FileObserver::SetCallbackFunc(const CallBackFunc& callback) 
     {
-        if (nullptr == callback)
+        _eventCallback = callback;
+    }
+
+    void FileObserver::SetObservingPath(const Path& path)
+    {
+        _path = path;
+    }
+
+    bool FileObserver::Start()
+    {
+        if (false == fs::exists(_path))
+            return false;
+
+        if (nullptr == _eventCallback)
             return false;
 
         if (true == _eventProcessingThread.joinable())
@@ -30,10 +42,9 @@ namespace File
         if (false == _isStart)
         {
             _isStart       = true;
-            _path          = path;
-            _eventCallback = callback;
             SetHandles();
             SetThread();
+            OutputLog(L"FileObserver thread is Start");
             return true;
         }
         return false;
@@ -396,7 +407,10 @@ namespace File
         FileEventData data = {path.generic_wstring(), "", EventType::ADDED};
         LastFileEventLog(data);
 
-        _eventCallback(data);
+        if (nullptr != _eventCallback)
+        {
+            _eventCallback(data);
+        }
         _sendEventQueue.pop_front();
     }
     void FileObserver::ProcessRemoved()
@@ -406,7 +420,10 @@ namespace File
         FileEventData data = {path.generic_wstring(), "", EventType::REMOVED};
         LastFileEventLog(data);
 
-        _eventCallback(data);
+        if (nullptr != _eventCallback)
+        {
+            _eventCallback(data);
+        }
         _sendEventQueue.pop_front();
     }
     void FileObserver::ProcessModified()
@@ -416,7 +433,10 @@ namespace File
         FileEventData data = {path.generic_wstring(), "", EventType::MODIFIED};
         LastFileEventLog(data);
 
-        _eventCallback(data);
+        if (nullptr != _eventCallback)
+        {
+            _eventCallback(data);
+        }
         _sendEventQueue.pop_front();
     }
     void FileObserver::ProcessRenamed()
@@ -430,7 +450,10 @@ namespace File
                               secondPath.generic_wstring(), EventType::RENAMED};
         LastFileEventLog(data);
 
-        _eventCallback(data);
+        if (nullptr != _eventCallback)
+        {
+            _eventCallback(data);
+        }
         _sendEventQueue.pop_front();
         _sendEventQueue.pop_front();
     }
@@ -445,7 +468,10 @@ namespace File
                               secondPath.generic_wstring(), EventType::MOVED};
         LastFileEventLog(data);
 
-        _eventCallback(data);
+        if (nullptr != _eventCallback)
+        {
+            _eventCallback(data);
+        }
         _sendEventQueue.pop_front();
         _sendEventQueue.pop_front();
     }
