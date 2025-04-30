@@ -3,6 +3,7 @@
 namespace File
 {
     // stdfs
+    namespace fs = std::filesystem;
     namespace stdfs = std::filesystem;
     using FString = stdfs::path;
 
@@ -37,40 +38,57 @@ namespace File
         File::Path operator/(const File::FString& v);
     };
 
-    inline static const File::Guid NULL_GUID;
-    inline static const File::Path NULL_PATH;
+    inline static const File::Guid NULL_GUID = L"00000000-0000-0000-0000-000000000000";
+    inline static const File::Path NULL_PATH = L"";
+
+    class FileData
+    {
+    protected:
+        virtual bool Write(YAML::Node& node) const = 0;
+        virtual bool Read(YAML::Node& node) const  = 0;
+
+    public:
+        bool FileCreate(bool isHidden = false) const;
+        bool FileRemove() const;
+
+        bool Create(const File::Path& path, bool isEmpty = false, bool isHidden = false);
+        bool Load(const Path& path);
+        bool Move(const Path& path);
+        bool Clear();
+
+        bool IsNull() const;
+
+    public:
+        inline const auto& GetGuid() const { return _fileGuid; }
+        inline const auto& GetPath() const { return _filePath; }
+
+    protected:
+        File::Path _filePath = NULL_PATH; // 파일 경로
+        File::Guid _fileGuid = NULL_GUID; // 파일 ID
+
+        inline static const char* FILE_GUID_HEADER = "Guid";
+    };
 
     /*
     MetaData는 파일의 메타데이터를 만들거나, 불러와서 사용하는 구조체입니다.
     */
-    class MetaData
+    class MetaData : public FileData
     {
-    public:
-        MetaData() : _filePath(""), _fileGuid(""), _projectGuid("") {}
-        ~MetaData() = default;
-    public:
-        bool Create(const Path& path);
-        bool Load(const Path& path);
-        bool Move(const Path& path);
-        bool Remove();
-        bool IsNull();
-    public:
-        inline const Guid& GetFileGuid() const { return _fileGuid; }
-        inline const Guid& GetProjectGuid() const { return _projectGuid; }
     private:
-        File::Path                _filePath;    // 메타 파일 경로
-        File::Guid                _fileGuid;    // 파일 ID
-        File::Guid                _projectGuid; // 프로젝트 ID
+        virtual bool Write(YAML::Node& node) const override;
+        virtual bool Read(YAML::Node& node) const override;
+    };
 
-        inline static const char* FILE_GUID_HEADER = "File Guid";
-        inline static const char* PROJ_GUID_HEADER = "Project Guid";
-    public:
+    class ProjectData : public FileData
+    {
+    private:
+        virtual bool Write(YAML::Node& node) const override;
+        virtual bool Read(YAML::Node& node) const override;
     };
 
     struct SystemSetting
     {
         int         DebugLevel = 0; // 디버그 레벨
-        std::string RootPath   = "Assets";
         std::string MetaExt    = ".UmMeta";
     };
 } // namespace File

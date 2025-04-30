@@ -42,7 +42,10 @@ Application::Application()
     AddModule<EngineCoresModule>();
 
     _imguiDX12Module = AddModule<ImGuiDX12Module>();
-    _filesystemModule = AddModule<FileSystemModule>();
+    if constexpr(Application::IsEditor())
+    {
+        _filesystemModule = AddModule<FileSystemModule>();
+    }
 }
 
 void Application::Initialize(HINSTANCE hInstance)

@@ -9,7 +9,8 @@ Shader::Shader()
 {	
 	if (!_isFirstInitialize)
 	{
-		CreateStaticSampler(D3D12_FILTER_MIN_MAG_MIP_LINEAR, D3D12_TEXTURE_ADDRESS_MODE_WRAP, 0, _staticSamplers["samLinear_wrap"]);
+        CreateStaticSampler(D3D12_FILTER_ANISOTROPIC, D3D12_TEXTURE_ADDRESS_MODE_WRAP, 0,
+                            _staticSamplers["samLinear_wrap"]);
 
 		_isFirstInitialize = true;
 	}
@@ -502,7 +503,7 @@ void Shader::CreateStaticSampler(D3D12_FILTER filter, D3D12_TEXTURE_ADDRESS_MODE
 	samplerDesc.AddressV = addressMode;
 	samplerDesc.AddressW = addressMode;
 	samplerDesc.MipLODBias = 0.0f;
-	samplerDesc.MaxAnisotropy = (filter == D3D12_FILTER_ANISOTROPIC) ? 16 : 0;
+	samplerDesc.MaxAnisotropy = (filter == D3D12_FILTER_ANISOTROPIC) ? 8 : 0;
 	samplerDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
 	samplerDesc.BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE;
 	samplerDesc.MinLOD = 0.0f;

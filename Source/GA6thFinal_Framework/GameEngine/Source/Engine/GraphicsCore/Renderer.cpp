@@ -25,22 +25,16 @@ Renderer::~Renderer()
 {
 }
 
-void Renderer::RegisterRenderQueue(MeshRenderer* component)
+void Renderer::RegisterRenderQueue(bool** isActive, MeshRenderer* component, std::string_view sceneName)
 {
-    auto iter = std::find_if(_components.begin(), _components.end(), [component](const auto& ptr) { return ptr == component; });
+    auto iter = _renderScenes.find(sceneName.data());
 
-    if (iter != _components.end())
+    if (iter == _renderScenes.end())
     {
-        ASSERT(false, L"Renderer::RegisterRenderQueue : Already registered component.");
-        return;
+        ASSERT(false, L"Renderer::RegisterRenderQueue : Render Scene Not Registered.");
     }
-
-    _components.push_back(component);
-    // test code
-    for (auto& meshRenerComps : _components)
-    {
-        _renderScenes["Editor"]->RegisterOnRenderQueue(meshRenerComps);
-    }
+    auto scene = iter->second;
+    scene->RegisterOnRenderQueue(isActive,component);
 }
 
 void Renderer::Initialize()
@@ -67,19 +61,21 @@ void Renderer::Initialize()
 
 void Renderer::Update()
 {
-    // 비활성된 컴포넌트 제거
-    auto first = std::remove_if(_components.begin(), _components.end(), [](const auto& ptr) { return (!ptr->Enable || !ptr->gameObject->ActiveInHierarchy); });
-    _components.erase(first, _components.end());
-
     UmMainCamera.Update();
 
 	UmDevice.ResetCommands();
 	//UpdateFrameResource();
 	UmDevice.ClearBackBuffer(D3D12_CLEAR_FLAG_DEPTH, { 0.5f, 0.5f, 0.5f, 1.f });
+
     for (auto& renderScene : _renderScenes)
     {
         renderScene.second->UpdateRenderScene();
     } 
+
+    // 비활성된 컴포넌트 제거
+    auto first =
+        std::remove_if(_components.begin(), _components.end(), [](const auto& component) { return !component.first; });
+    _components.erase(first, _components.end());
 }
 
 void Renderer::Render()

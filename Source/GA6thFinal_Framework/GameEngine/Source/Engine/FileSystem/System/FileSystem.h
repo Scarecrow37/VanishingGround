@@ -7,29 +7,48 @@ namespace File
     class Context;
     class FileContext;
     class FolderContext;
+
+    constexpr const char* UNDEFINED_EXTENSION       = ".UmUndefined";
+    constexpr const char* PROJECT_EXTENSION         = ".UmProject";
+    constexpr const char* PROJECT_SETTING_FILENAME  = "FileSystem.UmSetting";
 } // namespace File
 
 class EFileSystem
 {
     using NotifierSet = std::unordered_set<File::FileEventNotifier*>;
-
+    using CallBackFunc = std::function<void(const File::FileEventData&)>;
 public:
+    bool CreateProject(const File::Path& path);
+    bool LoadProject(const File::Path& path);
+    bool SaveProject();
+    bool SaveAsProject(const File::Path& to);
+    bool LoadProjectWithMessageBox(const File::Path& path);
+    bool SaveProjectWithMessageBox();
+
     bool SaveSetting(const File::Path& path);
     bool LoadSetting(const File::Path& path);
 
+public:
+    inline auto&       GetProjectName() { return _projectName; }
     inline int         GetDebugLevel() const { return _setting.DebugLevel; }
-    inline const auto& GetRootPath() const { return _setting.RootPath; }
     inline const auto& GetMetaExt() const { return _setting.MetaExt; }
 
-    bool IsVaildGuid(const File::Guid& guid);
-    bool IsValidExtension(const File::FString& ext);
-    bool IsSameContext(std::weak_ptr<File::Context> left, std::weak_ptr<File::Context> right);
+    inline const File::Path& GetOriginPath() const { return _originPath; }
+    inline const File::Path& GetRootPath() const { return _rootPath; }
+    inline const File::Path& GetAssetPath() const { return _assetPath; }
+    inline const File::Path& GetSettingPath() const { return _settingPath; }
 
-    const File::Path& GetPathFromGuid(const File::Guid& guid);
-    const File::Guid& GetGuidFromPath(const File::Path& path);
+    bool IsVaildGuid(const File::Guid& guid) const;
+    bool IsValidExtension(const File::FString& ext) const;
+    bool IsSameContext(std::weak_ptr<File::Context> left, std::weak_ptr<File::Context> right) const;
+
+    File::Path GetRelativePath(const File::Path& path) const;
+
+    const File::Path& GetPathFromGuid(const File::Guid& guid) const;
+    const File::Guid& GetGuidFromPath(const File::Path& path) const;
 
     template <typename T>
-    std::weak_ptr<T> GetContext(const File::Guid& guid)
+    std::weak_ptr<T> GetContext(const File::Guid& guid) const 
     {
         auto context = GetContext(guid);
         if (false == context.expired())
@@ -49,10 +68,10 @@ public:
         }
         return std::weak_ptr<T>();
     }
-    std::weak_ptr<File::Context> GetContext(const File::Guid& guid);
+    std::weak_ptr<File::Context> GetContext(const File::Guid& guid) const;
 
     template <typename T>
-    std::weak_ptr<T> GetContext(const File::Path& path)
+    std::weak_ptr<T> GetContext(const File::Path& path) const
     {
         auto context = GetContext(path);
         if (false == context.expired())
@@ -70,10 +89,12 @@ public:
         }
         return std::weak_ptr<T>();
     }
-    std::weak_ptr<File::Context> GetContext(const File::Path& path);
+    std::weak_ptr<File::Context> GetContext(const File::Path& path) const;
 
 
     NotifierSet GetNotifiers(const File::FString& ext);
+    void RequestSave();
+    void RequestLoad();
     void RequestInspectFile(const File::Path& path);
     void RequestOpenFile(const File::Path& path);
     void RequestCopyFile(const File::Path& path);
@@ -83,14 +104,16 @@ public:
 
 public:
     void RegisterFileEventNotifier(
-        File::FileEventNotifier*                  notifier,
-        const std::initializer_list<std::string>& exts);
+        File::FileEventNotifier* notifier, const std::initializer_list<const char*>& exts = {});
     void UnRegisterFileEventNotifier(File::FileEventNotifier* notifier);
 
 public:
     void Clear();
     void ReadDirectory();
     void ReadDirectory(const File::Path& path);
+
+    void ObserverSetUp(const CallBackFunc& callback);
+    void ObserverShutDown();
 
     void RegisterContext(const File::Path& path);
     void UnregisterContext(const File::Path& path);
@@ -103,14 +126,25 @@ private:
     void ClearNotifier();
    
 private:
-    File::SystemSetting _setting;   // 세팅 정보
+    File::SystemSetting _setting = {};          // 세팅 정보
+    File::ProjectData   _projectData;           // 프로젝트 데이터
+    std::string         _projectName;           // 프로젝트 이름
+
+    File::FileObserver* _observer = nullptr;    // 파일 디렉터리 이벤트를 감시하는 옵저버.
+
+    File::Path _originPath;  // 원본 경로(절대 경로)
+    File::Path _rootPath;    // 루트 경로(절대 경로)
+    File::Path _assetPath;   // 에셋 경로(절대 경로)
+    File::Path _settingPath; // 세팅 경로(절대 경로)
 
     std::unordered_set<std::shared_ptr<File::Context>>
-        _contextTable; // 원본 컨텍스트 포인터를 관리하는 테이블
+        _contextTable;      // 원본 컨텍스트 포인터를 관리하는 테이블
     std::unordered_map<File::Path, std::weak_ptr<File::Context>>
-        _pathToGuidTable; // 파일 경로를 통해 ID를 찾는 테이블
+        _pathToGuidTable;   // 파일 경로를 통해 ID를 찾는 테이블
     std::unordered_map<File::Guid, std::weak_ptr<File::Context>>
-        _guidToPathTable; // ID를 통해 파일 경로를 찾는 테이블
+        _guidToPathTable;   // ID를 통해 파일 경로를 찾는 테이블
+    std::unordered_set<File::FileEventNotifier*> 
+        _notifierSet;
     std::unordered_map<File::FString, NotifierSet>
-        _notifierTable; // Notifier 테이블
+        _extesionToNotifierTable;     // Notifier 테이블
 };

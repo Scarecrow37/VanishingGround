@@ -21,7 +21,9 @@ namespace File
         FileObserver();
         ~FileObserver();
     public:
-        bool Start(const File::Path& path, const CallBackFunc& callback);
+        void SetCallbackFunc(const CallBackFunc& callback);
+        void SetObservingPath(const Path& path);
+        bool Start();
         void Stop();
     private:
         void SetHandles();

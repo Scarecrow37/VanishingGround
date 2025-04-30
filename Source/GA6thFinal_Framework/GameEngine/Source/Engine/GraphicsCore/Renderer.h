@@ -18,7 +18,7 @@ public:
     ~Renderer();
 
 public:
-    void RegisterRenderQueue(MeshRenderer* component);
+    void RegisterRenderQueue(bool** isActive, MeshRenderer* component,std::string_view sceneName);
 
 public:
     void Initialize();
@@ -40,8 +40,9 @@ private:
 private:
     // imgui 전용 descriptor heap
     ComPtr<ID3D12DescriptorHeap>                                  _imguiDescriptorHeap = nullptr;
+
 private:
-    std::vector<MeshRenderer*>     _components;
+    std::vector<std::pair<bool, MeshRenderer*>>                   _components;
     std::unordered_map<std::string, std::shared_ptr<RenderScene>> _renderScenes;
-    UINT                           _currnetState;
+    UINT                                                          _currnetState;
 };

@@ -14,10 +14,12 @@ void GBufferPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& s
 {
     __super::Initialize(viewPort, sissorRect);
     InitShaderAndPSO();
+    _gbufferHandle.reserve(_ownerScene->_gBufferCount);
 }
 
 void GBufferPass::Begin(ID3D12GraphicsCommandList* commandList)
 {
+    _gbufferHandle.clear();
     // GBuffer -> RENDER_TARGET 전이 + Clear
     for (UINT i = 0; i < _ownerScene->_gBufferCount; ++i)
     {
@@ -40,13 +42,12 @@ void GBufferPass::Begin(ID3D12GraphicsCommandList* commandList)
     commandList->ClearDepthStencilView(_ownerScene->_depthStencilHandle,
                                        D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
     // OM 세팅 (RTV + DSV)
-    std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> gbufferHandle;
-    gbufferHandle.reserve(_ownerScene->_gBufferCount);
+ 
     for (auto& rt : _ownerScene->_gBuffer)
     {
-        gbufferHandle.push_back(rt->GetHandle());
+        _gbufferHandle.push_back(rt->GetHandle());
     }
-    commandList->OMSetRenderTargets(_ownerScene->_gBufferCount, gbufferHandle.data(), FALSE,
+    commandList->OMSetRenderTargets(_ownerScene->_gBufferCount, _gbufferHandle.data(), FALSE,
                                      &_ownerScene->_depthStencilHandle);
 
     // 뷰포트 & 시저 설정
@@ -205,7 +206,7 @@ void GBufferPass::DrawStaticTwoSidedMesh(ID3D12GraphicsCommandList* commandList)
     commandList->SetPipelineState(_psos[0].Get());
 
     UINT ID = 0;
-    for (auto& component : _ownerScene->_renderQueue)
+    for (auto& [isActive, component] : _ownerScene->_renderQueue)
     {
         const auto& model = component->GetModel();
         if (!model.get())

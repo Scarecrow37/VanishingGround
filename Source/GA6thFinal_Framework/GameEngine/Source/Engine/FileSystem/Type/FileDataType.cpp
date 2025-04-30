@@ -31,9 +31,10 @@ namespace File
     {
         return UmFileSystem.GetGuidFromPath(native());
     }
-    bool MetaData::Create(const Path& path)
+
+    bool FileData::FileCreate(bool isHidden) const
     {
-        std::ofstream fout(path);
+        std::ofstream fout(_filePath);
         if (false == fout.is_open())
         {
             OutputLog(L"File Open Error");
@@ -42,68 +43,151 @@ namespace File
         else
         {
             // 숨김 설정
-            // SetFileAttributesW(path.c_str(), FILE_ATTRIBUTE_HIDDEN);
-            _filePath = path;
-            CreateGuid(_fileGuid);
-            CreateGuid(_projectGuid);
+            if (isHidden)
+            {
+                SetFileAttributesW(_filePath.c_str(), FILE_ATTRIBUTE_HIDDEN);
+            }
+
             YAML::Node node;
             node[FILE_GUID_HEADER] = _fileGuid.string();
-            node[PROJ_GUID_HEADER] = _projectGuid.string();
+            if (false == Write(node))
+            {
+                return false;
+            }
             fout << node;
+            fout.close();
 
             return true;
         }
+
         return false;
     }
-    bool MetaData::Load(const Path& path)
+
+    bool FileData::FileRemove() const
     {
+        if (true == fs::exists(_filePath))
+        {
+            fs::remove(_filePath);
+            return true;
+        }
+    }
+
+    bool FileData::Create(const File::Path& path, bool isEmpty, bool isHidden)
+    {
+        if (path != _filePath)
+        {
+            _filePath = path;
+        }
+        if (true == IsNull())
+        {
+            if (true == isEmpty)
+            {
+                _fileGuid = NULL_GUID;
+            }
+            else
+            {
+                CreateGuid(_fileGuid);
+            }
+        }
+
+        bool result = FileCreate(isHidden);
+
+        if (false == result)
+        {
+            _filePath = NULL_PATH;
+            _fileGuid = NULL_GUID;
+            return false;
+        }
+        return true;
+    }
+
+    bool FileData::Load(const Path& path)
+    {
+        _fileGuid = NULL_GUID;
+        _filePath = NULL_PATH;
+
         if (true == path.empty())
             return false;
 
-        if (false == stdfs::exists(path))
+        if (false == fs::exists(path))
             return false;
 
         YAML::Node node = YAML::LoadFile(path.string());
         if (true == node.IsNull())
             return false;
 
-        if (node[FILE_GUID_HEADER] && node[PROJ_GUID_HEADER])
+        _filePath = path;
+
+        if (node[FILE_GUID_HEADER])
         {
-            _filePath    = path;
-            _fileGuid    = node[FILE_GUID_HEADER].as<std::string>();
-            _projectGuid = node[PROJ_GUID_HEADER].as<std::string>();
+            _fileGuid = node[FILE_GUID_HEADER].as<std::string>();
+
+            if (false == Read(node))
+            {
+                return false;
+            }
 
             if (UmFileSystem.GetDebugLevel() >= 2)
                 OutputLog(L"Load MetaFile: " + _filePath.wstring());
+
             return true;
-        }   
+        }
         return false;
     }
-    bool MetaData::Move(const Path& path)
+
+    bool FileData::Move(const Path& path)
     {
-        if (true == stdfs::exists(_filePath))
+        if (true == fs::exists(_filePath))
         {
-            stdfs::rename(_filePath, path);
+            fs::rename(_filePath, path);
             _filePath = path;
             return true;
         }
         return false;
     }
-    bool MetaData::Remove()
+
+    bool FileData::Clear()
     {
-        if (true == stdfs::exists(_filePath))
+        if (true == fs::exists(_filePath))
         {
-            stdfs::remove(_filePath);
-            _filePath    = "";
-            _fileGuid    = NULL_GUID;
-            _projectGuid = NULL_GUID;
+            _filePath = NULL_PATH;
+            _fileGuid = NULL_GUID;
             return true;
         }
         return false;
     }
-    bool MetaData::IsNull()
+
+    bool FileData::IsNull() const
     {
         return _fileGuid == NULL_GUID;
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="node"></param>
+    /// <returns></returns>
+    bool MetaData::Write(YAML::Node& node) const
+    {
+        return true;
+    }
+
+    bool MetaData::Read(YAML::Node& node) const
+    {
+        return true;
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="node"></param>
+    /// <returns></returns>
+    bool ProjectData::Write(YAML::Node& node) const
+    {
+        return true;
+    }
+
+    bool ProjectData::Read(YAML::Node& node) const
+    {
+        return true;
     }
 }
 

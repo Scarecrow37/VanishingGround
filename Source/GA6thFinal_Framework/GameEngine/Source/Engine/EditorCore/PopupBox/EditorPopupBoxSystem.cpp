@@ -5,11 +5,11 @@ EditorPopupBoxSystem::EditorPopupBoxSystem() {}
 
 EditorPopupBoxSystem::~EditorPopupBoxSystem() 
 {
-    for (auto& popupBox : _popupBoxStack)
+    for (auto& popupBox : _popupBoxQueue)
     {
         delete popupBox;
     }
-    _popupBoxStack.clear();
+    _popupBoxQueue.clear();
     _popupBoxTable.clear();
 }
 
@@ -21,7 +21,7 @@ void EditorPopupBoxSystem::OpenPopupBox(const std::string& name, std::function<v
         return;
     }
     _popupBoxTable[name] = new EditorPopupBox(name, content);
-    _popupBoxStack.push_back(_popupBoxTable[name]);
+    _popupBoxQueue.push_back(_popupBoxTable[name]);
 }
 
 bool EditorPopupBoxSystem::IsExistPopupBox(const std::string& name)
@@ -42,13 +42,13 @@ bool EditorPopupBoxSystem::IsPopupBoxOpened(const std::string& name)
 
 bool EditorPopupBoxSystem::IsEmpty()
 {
-    bool isEmpty = _popupBoxStack.empty();
+    bool isEmpty = _popupBoxQueue.empty();
     return isEmpty;
 }
 
 void EditorPopupBoxSystem::OnDrawGui()
 {
-    if (_popupBoxStack.empty())
+    if (_popupBoxQueue.empty())
     {
         return;
     }
@@ -56,8 +56,8 @@ void EditorPopupBoxSystem::OnDrawGui()
 
     if (nullptr == popupBox)
     {
-        popupBox = _popupBoxStack.back();
-        auto& name = popupBox->GetName();
+        popupBox    = _popupBoxQueue.front();
+        auto& name  = popupBox->GetName();
         ImGui::OpenPopup(name.c_str());
     }
 
@@ -84,10 +84,10 @@ void EditorPopupBoxSystem::OnDrawGui()
 
 void EditorPopupBoxSystem::Pop()
 {
-    auto* popupBox = _popupBoxStack.back();
+    auto* popupBox = _popupBoxQueue.front();
     auto& name     = popupBox->GetName();
     _popupBoxTable.erase(name);
-    _popupBoxStack.pop_back();
+    _popupBoxQueue.pop_front();
 
     delete popupBox;
 }
