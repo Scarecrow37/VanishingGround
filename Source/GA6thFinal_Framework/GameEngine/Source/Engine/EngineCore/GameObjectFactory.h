@@ -74,7 +74,6 @@ public:
     /// <returns></returns>
     std::shared_ptr<GameObject> DeserializeToYaml(YAML::Node* gameObjectNode);
 
-
     /// <summary>
     /// GUID를 통해 파일을 읽어 오브젝트를 씬에 추가합니다.
     /// </summary>
@@ -143,8 +142,12 @@ private:
     
    //게임 오브젝트를 Yaml로 반환
    YAML::Node MakeYamlToGameObject(GameObject* gameObject);
+
    //Yaml을 오브젝트로 반환. Reset도 해줌.
    std::shared_ptr<GameObject> MakeGameObjectToYaml(YAML::Node* objectNode);
+
+   //오브젝트 계층구조를 포함한 Yaml 직렬화 데이터로 GameObject들을 만들어서 반환합니다.
+   std::vector<std::shared_ptr<GameObject>> MakeObjectsGraphToYaml(YAML::Node* pObjectNode);
 
    void RegisterGameObjects();
 private:
@@ -158,8 +161,12 @@ private:
         std::vector<int> EmptyID;
     }
     instanceIDManager;
-
 private:
+    //Prefab의 GUID만 다시 작성합니다.
+    void WritePrefabGuid(const File::Path& path);
+
+    //Prefab Instance의 
+
     // FileEventNotifier을(를) 통해 상속됨
     void OnFileRegistered(const File::Path& path) override;
     void OnFileUnregistered(const File::Path& path) override;
