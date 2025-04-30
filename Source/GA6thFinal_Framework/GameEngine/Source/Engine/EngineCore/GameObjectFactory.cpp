@@ -13,12 +13,11 @@ void EGameObjectFactory::Engine::RegisterFileEvents()
     UmFileSystem.RegisterFileEventNotifier(&UmGameObjectFactory, {EGameObjectFactory::PREFAB_EXTENSION});
 }
 
-void EGameObjectFactory::OnFileRegistered(const File::Path& path) 
+void EGameObjectFactory::WritePrefabGuid(const File::Path& path) 
 {
-    _prefabDataMap[path.ToGuid()] = YAML::LoadFile(path.string());
     YAML::Node& prefabNode = _prefabDataMap[path.ToGuid()];
-    YAML::Node rootNode = *prefabNode.begin();
-    File::Guid prefabGuid = rootNode["Prefab"].as<std::string>();
+    YAML::Node  rootNode   = *prefabNode.begin();
+    File::Guid  prefabGuid = rootNode["Prefab"].as<std::string>();
     if (prefabGuid != path.ToGuid())
     {
         rootNode["Prefab"] = path.ToGuid().string();
@@ -31,6 +30,12 @@ void EGameObjectFactory::OnFileRegistered(const File::Path& path)
     }
 }
 
+void EGameObjectFactory::OnFileRegistered(const File::Path& path)
+{
+    _prefabDataMap[path.ToGuid()] = YAML::LoadFile(path.string());
+    WritePrefabGuid(path);
+}
+
 void EGameObjectFactory::OnFileUnregistered(const File::Path& path) 
 {
     _prefabDataMap.erase(path.ToGuid());
@@ -40,6 +45,7 @@ void EGameObjectFactory::OnFileModified(const File::Path& path)
 {
     _prefabDataMap[path.ToGuid()] = YAML::LoadFile(path.string());
     auto& guidQueue = _prefabGuidQueue[path];
+    WritePrefabGuid(path);
     if (guidQueue.empty() == false)
     {
         for (auto& weakObject : guidQueue)
@@ -128,24 +134,25 @@ YAML::Node EGameObjectFactory::SerializeToYaml(GameObject* gameObject)
     return nodes;
 }
 
-std::shared_ptr<GameObject> EGameObjectFactory::DeserializeToYaml(YAML::Node* pGameObjectNode)
+std::vector<std::shared_ptr<GameObject>> EGameObjectFactory::MakeObjectsGraphToYaml(YAML::Node* pObjectNode) 
 {
+    std::vector<std::shared_ptr<GameObject>> makeList;
     if (UmComponentFactory.HasScript() == false)
     {
         UmLogger.Log(LogLevel::LEVEL_WARNING, u8"스크립트 빌드를 해주세요."_c_str);
-        return nullptr;
+        return makeList;
     }
 
-    YAML::Node& nodes = *pGameObjectNode;
-    std::map<int, Transform*> transformParentLevelMap;
+    YAML::Node& nodes = *pObjectNode;
+    std::map<int, Transform*>   transformParentLevelMap;
     std::shared_ptr<GameObject> currObject;
     for (auto node : nodes)
     {
-        //오브젝트 생성
+        // 오브젝트 생성
         YAML::Node& currNode = node;
-        currObject = MakeGameObjectToYaml(&currNode);
+        currObject           = MakeGameObjectToYaml(&currNode);
 
-        //프리팹 추적
+        // 프리팹 추적
         if (currNode["Prefab"])
         {
             File::Guid prefab = currNode["Prefab"].as<std::string>();
@@ -157,21 +164,20 @@ std::shared_ptr<GameObject> EGameObjectFactory::DeserializeToYaml(YAML::Node* pG
             }
         }
 
-        //컴포넌트들 역직렬화
+        // 컴포넌트들 역직렬화
         if (currNode["Components"])
         {
             YAML::Node componentNodes = currNode["Components"].as<YAML::Node>();
             for (auto componentNode : componentNodes)
             {
                 YAML::Node& currComponentNode = componentNode;
-                UmComponentFactory.DeserializeToYaml(currObject.get(),
-                                                     &currComponentNode);
+                UmComponentFactory.DeserializeToYaml(currObject.get(), &currComponentNode);
             }
         }
 
-        //Transform 역직렬화
-        YAML::Node transformNode = currNode["Transform"].as<YAML::Node>();
-        int TransformIndex = transformNode["TransformIndex"].as<int>();
+        // Transform 역직렬화
+        YAML::Node transformNode                = currNode["Transform"].as<YAML::Node>();
+        int        TransformIndex               = transformNode["TransformIndex"].as<int>();
         transformParentLevelMap[TransformIndex] = &currObject->_transform;
         if (transformNode["ParentIndex"])
         {
@@ -179,9 +185,19 @@ std::shared_ptr<GameObject> EGameObjectFactory::DeserializeToYaml(YAML::Node* pG
             Transform* pParent     = transformParentLevelMap[ParentIndex];
             currObject->_transform.SetParent(pParent);
         }
-        ESceneManager::Engine::AddGameObjectToLifeCycle(currObject);
+        makeList.push_back(currObject);
     }
-    return transformParentLevelMap[0]->gameObject->GetWeakPtr().lock();
+    return makeList;
+}
+
+std::shared_ptr<GameObject> EGameObjectFactory::DeserializeToYaml(YAML::Node* pObjectNode)
+{
+    auto makeList = MakeObjectsGraphToYaml(pObjectNode);
+    for (auto& ptr : makeList)
+    {
+        ESceneManager::Engine::AddGameObjectToLifeCycle(ptr);
+    }
+    return makeList[0];
 }
 
 std::shared_ptr<GameObject> EGameObjectFactory::DeserializeToGuid(const File::Guid& guid)
