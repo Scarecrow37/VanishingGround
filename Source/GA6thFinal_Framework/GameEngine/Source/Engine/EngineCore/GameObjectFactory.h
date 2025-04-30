@@ -101,14 +101,6 @@ public:
     /// <returns></returns>
     bool UnpackPrefab(GameObject* object);
 
-
-    /// <summary>
-    /// 게임 오브젝트가 참조하는 프리팹 데이터를 가져옵니다.
-    /// </summary>
-    /// <param name="object :">대상 오브젝트</param>
-    /// <returns>해당 프리팹의 YAML 형식 직렬화 데이터</returns>
-    const YAML::Node* GetPrefabData(GameObject* object) const;
-
     /// <summary>
     /// 필드 오버라이드 여부를 확인합니다. 
     /// </summary>

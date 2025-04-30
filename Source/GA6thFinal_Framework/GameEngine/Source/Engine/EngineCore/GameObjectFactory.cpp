@@ -299,16 +299,6 @@ bool EGameObjectFactory::UnpackPrefab(GameObject* targetObject)
     return false;
 }
 
-const YAML::Node* EGameObjectFactory::GetPrefabData(GameObject* object) const
-{
-    auto findIter = _prefabDataMap.find(object->_prefabGuid);
-    if (findIter != _prefabDataMap.end())
-    {
-        return &findIter->second;
-    }
-    return nullptr;
-}
-
 bool EGameObjectFactory::IsOverrideField(void* pField)
 {
     bool result = false;
