@@ -136,7 +136,7 @@ void GameObject::OnInspectorStay()
                 {
                     UmCore->ImGuiDrawPropertysSetting.InputEndEvent = [&](bool result, std::string_view name) 
                     {
-
+                        
                     };
                 }
                 component->ImGuiDrawPropertys();
