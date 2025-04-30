@@ -43,7 +43,8 @@ void EditorDockSpace::OnStartGui()
     std::sort(_editorToolList.begin(), _editorToolList.end(),
         [](EditorGui* a, EditorGui* b) {
             return a->GetCallOrder() > b->GetCallOrder();
-        });
+        }
+    );
 }
 
 void EditorDockSpace::OnDrawGui()
@@ -154,6 +155,7 @@ void EditorDockSpace::UpdateWindowFlag()
             ImGuiWindowFlags_NoBringToFrontOnFocus |
             ImGuiWindowFlags_NoNavFocus;
     }
+
     // When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background
     // and handle the pass-thru hole, so we ask Begin() to not render a background.
     if (_dockNodeFlags & ImGuiDockNodeFlags_PassthruCentralNode)

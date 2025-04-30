@@ -39,9 +39,10 @@ private:
     void RecieveFileEvent(const Event& data);
     void DispatchFileEvent();
 
-private:
-    File::FileObserver* _observer; // 파일 디렉터리 이벤트를 감시하는 옵저버.
+    static void ProcessDropFile(const HDROP hDrop);
+    static bool FileSystemWinProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
+private:
     std::mutex          _mutex;
     std::queue<Event>   _eventQueue; // 이벤트 큐
 };
@@ -54,15 +55,17 @@ public:
     virtual ~SampleNotifier() {}
 
 public:
-    virtual void OnFileRegistered(const File::Path& path) override;
-    virtual void OnFileUnregistered(const File::Path& path) override;
-    virtual void OnFileModified(const File::Path& path) override;
-    virtual void OnFileRemoved(const File::Path& path) override;
-    virtual void OnFileRenamed(const File::Path& oldPath, const File::Path& newPath) override;
-    virtual void OnFileMoved(const File::Path& oldPath, const File::Path& newPath) override;
+    void OnFileRegistered(const File::Path& path) override;
+    void OnFileUnregistered(const File::Path& path) override;
+    void OnFileModified(const File::Path& path) override;
+    void OnFileRemoved(const File::Path& path) override;
+    void OnFileRenamed(const File::Path& oldPath, const File::Path& newPath) override;
+    void OnFileMoved(const File::Path& oldPath, const File::Path& newPath) override;
 
-    virtual void OnRequestedInspect(const File::Path& path) override;
-    virtual void OnRequestedOpen(const File::Path& path) override;
-    virtual void OnRequestedCopy(const File::Path& path) override;
-    virtual void OnRequestedPaste(const File::Path& path) override;
+    void OnRequestedSave() override;
+    void OnRequestedLoad() override;
+    void OnRequestedInspect(const File::Path& path) override;
+    void OnRequestedOpen(const File::Path& path) override;
+    void OnRequestedCopy(const File::Path& path) override;
+    void OnRequestedPaste(const File::Path& path) override;
 };

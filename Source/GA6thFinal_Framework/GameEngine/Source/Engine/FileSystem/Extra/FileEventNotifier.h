@@ -17,21 +17,25 @@ namespace File
 
     public:
         /* 콜백 파일 이벤트. */
-        virtual void OnFileRegistered(const File::Path& path)                   = 0;
-        virtual void OnFileUnregistered(const File::Path& path)                 = 0;
-        virtual void OnFileModified(const Path& path)                           = 0;
-        virtual void OnFileRemoved(const Path& path)                            = 0;
-        virtual void OnFileRenamed(const Path& oldPath, const Path& newPath)    = 0;
-        virtual void OnFileMoved(const Path& oldPath, const Path& newPath)      = 0;
-
+        virtual void OnFileRegistered(const File::Path& path)                   {}
+        virtual void OnFileUnregistered(const File::Path& path)                 {}
+        virtual void OnFileModified(const Path& path)                           {}
+        virtual void OnFileRemoved(const Path& path)                            {}
+        virtual void OnFileRenamed(const Path& oldPath, const Path& newPath)    {}
+        virtual void OnFileMoved(const Path& oldPath, const Path& newPath)      {}
+        
+        /* 프로젝트 세이브 요청을 처리할 동작을 구현 */
+        virtual void OnRequestedSave()                                          {}
+        /* 프로젝트 로드 요청을 처리할 동작을 구현 */
+        virtual void OnRequestedLoad()                                          {}
         /* 인스펙터에 출력 요청을 처리할 동작을 구현 */
-        virtual void OnRequestedInspect(const File::Path& path) {};
+        virtual void OnRequestedInspect(const File::Path& path)                 {}
         /* 파일을 여는 요청을 처리할 동작을 구현 */
-        virtual void OnRequestedOpen(const File::Path& path) {};
+        virtual void OnRequestedOpen(const File::Path& path)                    {}
         /* 파일을 복사했을 때 처리할 동작을 구현 */
-        virtual void OnRequestedCopy(const File::Path& path) {};
+        virtual void OnRequestedCopy(const File::Path& path)                    {}
         /* 파일을 붙여넣었을 때 처리할 동작을 구현 */
-        virtual void OnRequestedPaste(const File::Path& path) {};
+        virtual void OnRequestedPaste(const File::Path& path)                   {}
 
     public:
         bool IsTriggerExtension(const File::FString& ext);
