@@ -38,17 +38,17 @@ public:
     inline const File::Path& GetAssetPath() const { return _assetPath; }
     inline const File::Path& GetSettingPath() const { return _settingPath; }
 
-    bool IsVaildGuid(const File::Guid& guid);
-    bool IsValidExtension(const File::FString& ext);
-    bool IsSameContext(std::weak_ptr<File::Context> left, std::weak_ptr<File::Context> right);
+    bool IsVaildGuid(const File::Guid& guid) const;
+    bool IsValidExtension(const File::FString& ext) const;
+    bool IsSameContext(std::weak_ptr<File::Context> left, std::weak_ptr<File::Context> right) const;
 
     File::Path GetRelativePath(const File::Path& path) const;
 
-    const File::Path& GetPathFromGuid(const File::Guid& guid);
-    const File::Guid& GetGuidFromPath(const File::Path& path);
+    const File::Path& GetPathFromGuid(const File::Guid& guid) const;
+    const File::Guid& GetGuidFromPath(const File::Path& path) const;
 
     template <typename T>
-    std::weak_ptr<T> GetContext(const File::Guid& guid)
+    std::weak_ptr<T> GetContext(const File::Guid& guid) const 
     {
         auto context = GetContext(guid);
         if (false == context.expired())
@@ -68,10 +68,10 @@ public:
         }
         return std::weak_ptr<T>();
     }
-    std::weak_ptr<File::Context> GetContext(const File::Guid& guid);
+    std::weak_ptr<File::Context> GetContext(const File::Guid& guid) const;
 
     template <typename T>
-    std::weak_ptr<T> GetContext(const File::Path& path)
+    std::weak_ptr<T> GetContext(const File::Path& path) const
     {
         auto context = GetContext(path);
         if (false == context.expired())
@@ -89,12 +89,11 @@ public:
         }
         return std::weak_ptr<T>();
     }
-    std::weak_ptr<File::Context> GetContext(const File::Path& path);
+    std::weak_ptr<File::Context> GetContext(const File::Path& path) const;
 
 
     NotifierSet GetNotifiers(const File::FString& ext);
     void RequestSave();
-    //void RequestSaveAs(const File::Path& path);
     void RequestLoad();
     void RequestInspectFile(const File::Path& path);
     void RequestOpenFile(const File::Path& path);
