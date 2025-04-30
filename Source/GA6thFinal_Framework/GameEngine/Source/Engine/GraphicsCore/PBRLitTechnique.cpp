@@ -2,18 +2,36 @@
 #include "PBRLitTechnique.h"
 #include "GBufferPass.h"
 #include "Shader.h"
+#include "RenderScene.h"
+#include "RenderTarget.h"
+
 PBRLitTechnique::PBRLitTechnique() {}
 
 PBRLitTechnique::~PBRLitTechnique() {}
 
-void PBRLitTechnique::Initialize() 
+void PBRLitTechnique::Initialize(ID3D12GraphicsCommandList* commandList)
 {
     InitGBufferPass();
+    // gbuffer 상태 전이 하기.
+    for (UINT i = 0; i < _ownerScene->_gBufferCount; ++i)
+    {
+        ComPtr<ID3D12Resource> gbuffer = _ownerScene->_gBuffer[i]->GetResource();
+
+        CD3DX12_RESOURCE_BARRIER br = CD3DX12_RESOURCE_BARRIER::Transition(gbuffer.Get(), D3D12_RESOURCE_STATE_COMMON,
+                                                                           D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+        commandList->ResourceBarrier(1, &br);
+    }
+    // mesh lighting target 상태 전이하기.
+    ComPtr<ID3D12Resource> meshRT = _ownerScene->_meshLightingTarget->GetResource();
+    CD3DX12_RESOURCE_BARRIER br     = CD3DX12_RESOURCE_BARRIER::Transition(meshRT.Get(), D3D12_RESOURCE_STATE_COMMON,
+                                                                           D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    commandList->ResourceBarrier(1, &br);
 }
 
 void PBRLitTechnique::Execute(ID3D12GraphicsCommandList* commandList)
 {
     __super::Execute(commandList);
+
 }
 
 void PBRLitTechnique::InitGBufferPass()
@@ -31,6 +49,8 @@ void PBRLitTechnique::InitGBufferPass()
             .left = 0, .top = 0, .right = (LONG)UmDevice.GetMode().Width, .bottom = (LONG)UmDevice.GetMode().Height};
     gBufferPass->Initialize(viewport, scissor);
     AddRenderPass(gBufferPass);
+
+
 }
 
 void PBRLitTechnique::InitDeferredPass() 
