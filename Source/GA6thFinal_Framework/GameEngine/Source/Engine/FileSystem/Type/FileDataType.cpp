@@ -32,9 +32,9 @@ namespace File
         return UmFileSystem.GetGuidFromPath(native());
     }
 
-    bool FileData::Create(const File::Path& path, bool isHidden)
+    bool FileData::FileCreate(bool isHidden) const
     {
-        std::ofstream fout(path);
+        std::ofstream fout(_filePath);
         if (false == fout.is_open())
         {
             OutputLog(L"File Open Error");
@@ -42,31 +42,56 @@ namespace File
         }
         else
         {
-            _filePath = path;
-            CreateGuid(_fileGuid);
-
             // 숨김 설정
             if (isHidden)
             {
-                SetFileAttributesW(path.c_str(), FILE_ATTRIBUTE_HIDDEN);
+                SetFileAttributesW(_filePath.c_str(), FILE_ATTRIBUTE_HIDDEN);
             }
-           
+
             YAML::Node node;
+            node[FILE_GUID_HEADER] = _fileGuid.string();
+            if (false == Write(node))
             {
-                node[FILE_GUID_HEADER] = _fileGuid.string();
-
-                if (false == Write(node))
-                {
-                    return false;
-                }
+                return false;
             }
-
             fout << node;
             fout.close();
 
             return true;
         }
+
         return false;
+    }
+
+    bool FileData::FileRemove() const
+    {
+        if (true == stdfs::exists(_filePath))
+        {
+            stdfs::remove(_filePath);
+            return true;
+        }
+    }
+
+    bool FileData::Create(const File::Path& path, bool isHidden)
+    {
+        if (path != _filePath)
+        {
+            _filePath = path;
+        }
+        if (true == IsNull())
+        {
+            CreateGuid(_fileGuid);
+        }
+
+        bool result = FileCreate(isHidden);
+
+        if (false == result)
+        {
+            _filePath = NULL_PATH;
+            _fileGuid = NULL_GUID;
+            return false;
+        }
+        return true;
     }
 
     bool FileData::Load(const Path& path)
@@ -114,11 +139,10 @@ namespace File
         return false;
     }
 
-    bool FileData::Remove()
+    bool FileData::Clear()
     {
         if (true == stdfs::exists(_filePath))
         {
-            stdfs::remove(_filePath);
             _filePath = "";
             _fileGuid = NULL_GUID;
             return true;
@@ -126,7 +150,7 @@ namespace File
         return false;
     }
 
-    bool FileData::IsNull()
+    bool FileData::IsNull() const
     {
         return _fileGuid == NULL_GUID;
     }
@@ -135,12 +159,12 @@ namespace File
     /// </summary>
     /// <param name="node"></param>
     /// <returns></returns>
-    bool MetaData::Write(YAML::Node& node)
+    bool MetaData::Write(YAML::Node& node) const
     {
         return true;
     }
 
-    bool MetaData::Read(YAML::Node& node)
+    bool MetaData::Read(YAML::Node& node) const
     {
         return true;
     }
@@ -149,12 +173,12 @@ namespace File
     /// </summary>
     /// <param name="node"></param>
     /// <returns></returns>
-    bool ProjectData::Write(YAML::Node& node)
+    bool ProjectData::Write(YAML::Node& node) const
     {
         return true;
     }
 
-    bool ProjectData::Read(YAML::Node& node)
+    bool ProjectData::Read(YAML::Node& node) const
     {
         return true;
     }

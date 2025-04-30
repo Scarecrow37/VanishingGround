@@ -147,8 +147,10 @@ bool EFileSystem::SaveProjectWithMessageBox()
     std::wstring msg    = L"현재 프로젝트를 저장하시겠습니까?"; 
     std::wstring title  = L"Save Project";
 
+    HWND hwnd = UmApplication.GetHwnd();
+
     int result = MessageBox(
-        GetFocus(),                 // 부모 창 핸들 (NULL로 하면 독립적 메시지 박스)
+        hwnd,                       // 부모 창 핸들 (NULL로 하면 독립적 메시지 박스)
         msg.c_str(),                // 메시지 텍스트
         title.c_str(),              // 메시지 박스 제목
         MB_YESNO | MB_ICONWARNING   // 스타일: 예/아니오 버튼 + 질문 아이콘
@@ -489,19 +491,23 @@ void EFileSystem::ReadDirectory(const File::Path& path)
     }
 }
 
-void EFileSystem::RegisterContext(const File::Path& srcPath) 
+void EFileSystem::RegisterContext(const File::Path& path) 
 {
     // 파일이 없으면 return
-    if (false == stdfs::exists(srcPath))
+    if (false == stdfs::exists(path))
         return;
 
-     auto find = GetContext(srcPath);
+    // 확장자가 유효하지 않으면 return
+    if (false == IsValidExtension(path.extension()))
+        return;
+
+     auto find = GetContext(path);
 
      if (false != find.expired())
      {
          std::shared_ptr<Context> context;
 
-         auto absPath = stdfs::weakly_canonical(srcPath);
+         auto absPath = stdfs::weakly_canonical(path);
          absPath      = absPath.generic_wstring();
          if (true == stdfs::is_regular_file(absPath))
          {
@@ -549,6 +555,14 @@ void EFileSystem::RegisterContext(const File::Path& srcPath)
 
 void EFileSystem::UnregisterContext(const File::Path& path) 
 {
+    // 파일이 없으면 return
+    if (false == stdfs::exists(path))
+        return;
+
+    // 확장자가 유효하지 않으면 return
+    if (false == IsValidExtension(path.extension()))
+        return;
+
     auto wpContext = GetContext(path);
 
     if (false == wpContext.expired())
@@ -572,12 +586,33 @@ void EFileSystem::UnregisterContext(const File::Path& path)
 
 void EFileSystem::ProcessRemovedFile(const File::Path& path)
 {
+    if (path.extension() == UmFileSystem.GetMetaExt())
+    {
+        // 메타 파일을 메모리에 존재하는 guid로 재생성
+        File::Path filePath = path;
+        filePath.replace_extension("");
+
+        auto wpContext      = GetContext(filePath);
+        if (false == wpContext.expired())
+        {
+            auto  spContext = wpContext.lock();
+            auto& meta      = spContext->GetMeta();
+            meta.FileCreate();
+        }
+        return;
+    }
+
+    // 확장자가 유효하지 않으면 return
+    if (false == IsValidExtension(path.extension()))
+        return;
+
     auto wpContext = GetContext(path);
     if (false == wpContext.expired())
     {
-        auto            spContext = wpContext.lock();
-        const MetaData& meta      = spContext->GetMeta();
-        File::Guid      guid      = meta.GetGuid();
+        
+        auto  spContext = wpContext.lock();
+        auto& meta      = spContext->GetMeta();
+        auto& guid      = meta.GetGuid();
 
         auto notifierSet = GetNotifiers(path.extension());
         for (auto& notifier : notifierSet)
@@ -600,6 +635,14 @@ void EFileSystem::ProcessRemovedFile(const File::Path& path)
 
 void EFileSystem::ProcessModifiedFile(const File::Path& path)
 {
+    // 파일이 없으면 return
+    if (false == stdfs::exists(path))
+        return;
+
+    // 확장자가 유효하지 않으면 return
+    if (false == IsValidExtension(path.extension()))
+        return;
+
     auto wpContext = GetContext(path);
     if (false == wpContext.expired())
     {
@@ -617,6 +660,14 @@ void EFileSystem::ProcessModifiedFile(const File::Path& path)
 
 void EFileSystem::ProcessMovedFile(const File::Path& oldPath, const File::Path& newPath) 
 {
+    // 파일이 없으면 return
+    if (false == stdfs::exists(newPath))
+        return;
+
+    // 확장자가 유효하지 않으면 return
+    if (false == IsValidExtension(newPath.extension()))
+        return;
+
     // 이전 경로에서 컨텍스트를 찾아 새 경로로 옮기기
     auto wpContext = GetContext(oldPath);
     if (false == wpContext.expired())

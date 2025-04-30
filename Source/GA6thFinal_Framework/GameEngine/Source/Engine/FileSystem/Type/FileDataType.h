@@ -43,15 +43,19 @@ namespace File
     class FileData
     {
     protected:
-        virtual bool Write(YAML::Node& node) = 0;
-        virtual bool Read(YAML::Node& node)  = 0;
+        virtual bool Write(YAML::Node& node) const = 0;
+        virtual bool Read(YAML::Node& node) const  = 0;
 
     public:
+        bool FileCreate(bool isHidden = false) const;
+        bool FileRemove() const;
+
         bool Create(const File::Path& path, bool isHidden = false);
         bool Load(const Path& path);
         bool Move(const Path& path);
-        bool Remove();
-        bool IsNull();
+        bool Clear();
+
+        bool IsNull() const;
 
     public:
         inline const auto& GetGuid() const { return _fileGuid; }
@@ -70,15 +74,15 @@ namespace File
     class MetaData : public FileData
     {
     private:
-        virtual bool Write(YAML::Node& node) override;
-        virtual bool Read(YAML::Node& node) override;
+        virtual bool Write(YAML::Node& node) const override;
+        virtual bool Read(YAML::Node& node) const override;
     };
 
     class ProjectData : public FileData
     {
     private:
-        virtual bool Write(YAML::Node& node) override;
-        virtual bool Read(YAML::Node& node) override;
+        virtual bool Write(YAML::Node& node) const override;
+        virtual bool Read(YAML::Node& node) const override;
     };
 
     struct SystemSetting

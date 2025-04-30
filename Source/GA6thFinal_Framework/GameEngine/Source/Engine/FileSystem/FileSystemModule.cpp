@@ -31,7 +31,6 @@ void FileSystemModule::ModuleInitialize()
 void FileSystemModule::PreUnInitialize() 
 {
     UmFileSystem.ObserverShutDown();
-    UmFileSystem.SaveProject();
     UmFileSystem.Clear();
 }
 
@@ -66,41 +65,34 @@ void FileSystemModule::DispatchFileEvent()
         File::Path lp = (rootPath / lParam).generic_string();
         File::Path rp = (rootPath / rParam).generic_string();
 
-        if (true == UmFileSystem.IsValidExtension(lp.extension()))
-        {
-            std::unordered_set<File::FileEventNotifier*> notifiers;
+        std::unordered_set<File::FileEventNotifier*> notifiers;
 
-            switch (eventType)
-            {
-            case File::EventType::ADDED:
-            {
-                UmFileSystem.RegisterContext(lp);
-                break;
-            }
-            case File::EventType::REMOVED:
-            {
-                UmFileSystem.ProcessRemovedFile(lp);
-                break;
-            }
-            case File::EventType::MODIFIED:
-            {
-                UmFileSystem.ProcessModifiedFile(lp);
-                break;
-            }
-            case File::EventType::RENAMED:
-            {
-                UmFileSystem.ProcessMovedFile(lp, rp);
-                break;
-            }
-            case File::EventType::MOVED:
-            {
-                UmFileSystem.ProcessMovedFile(lp, rp);
-                break;
-            }
-            default:
-                break;
-            }
+        switch (eventType)
+        {
+        case File::EventType::ADDED: {
+            UmFileSystem.RegisterContext(lp);
+            break;
         }
+        case File::EventType::REMOVED: {
+            UmFileSystem.ProcessRemovedFile(lp);
+            break;
+        }
+        case File::EventType::MODIFIED: {
+            UmFileSystem.ProcessModifiedFile(lp);
+            break;
+        }
+        case File::EventType::RENAMED: {
+            UmFileSystem.ProcessMovedFile(lp, rp);
+            break;
+        }
+        case File::EventType::MOVED: {
+            UmFileSystem.ProcessMovedFile(lp, rp);
+            break;
+        }
+        default:
+            break;
+        }
+
         _eventQueue.pop();
     }
 }
@@ -132,9 +124,17 @@ bool FileSystemModule::FileSystemWinProc(HWND hwnd, UINT msg, WPARAM wParam, LPA
 {
     switch (msg)
     {
-    case WM_DROPFILES:
-        ProcessDropFile((HDROP)wParam);
-        break;
+        case WM_CLOSE: 
+        {
+            UmFileSystem.SaveProjectWithMessageBox();
+            // 이후 처리 동작은 Application이 호출한다.
+            break;
+        }
+        case WM_DROPFILES:
+        {
+            ProcessDropFile((HDROP)wParam);
+            break;
+        }
     }
     return false;
 }

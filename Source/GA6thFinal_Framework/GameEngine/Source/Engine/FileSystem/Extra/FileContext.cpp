@@ -22,8 +22,7 @@ namespace File
     bool Context::LoadMeta()
     {
         // 파일과 메타의 경로(확장자)를 헷갈리지 말자
-        File::Path metaPath = _path;
-        metaPath.replace_extension(UmFileSystem.GetMetaExt());
+        File::Path metaPath = _path + UmFileSystem.GetMetaExt();
 
         // 처음엔 어차피 Null이므로 false가 반환된다.
         if (false == _meta.Move(metaPath))
@@ -36,7 +35,7 @@ namespace File
         }
 
         // 마지막으로 Null여부를 반환
-        return (false == _meta.IsNull());
+        return !_meta.IsNull();
     }
 
     bool Context::Open() 
@@ -88,7 +87,7 @@ namespace File
     {
         if (true == IsRegularFile())
         {
-            if (true == LoadMeta())
+            if (false == LoadMeta())
             {
                 if (UmFileSystem.GetDebugLevel() >= 2)
                     OutputLog(L"Failed to load meta: " + _meta.GetGuid().wstring());
@@ -114,7 +113,8 @@ namespace File
 
     void FileContext::OnFileRemoved(const Path& path) 
     {
-        _meta.Remove();
+        _meta.Clear();
+        _meta.FileRemove();
     }
 
     void FileContext::OnFileRenamed(const Path& oldPath, const Path& newPath) 
@@ -180,7 +180,8 @@ namespace File
 
     void FolderContext::OnFileRemoved(const Path& path) 
     {
-        _meta.Remove();
+        _meta.Clear();
+        _meta.FileRemove();
 
         for (auto& [name, wpContext] : _contextTable)
         {
