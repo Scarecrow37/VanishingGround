@@ -1,8 +1,9 @@
 ﻿#include "pch.h"
 #include "FileSystemModule.h"
 
+using namespace u8_literals;
+
 FileSystemModule::FileSystemModule()
-    : _observer(nullptr)
 {
 }
 
@@ -16,39 +17,29 @@ void FileSystemModule::PreInitialize()
 
 void FileSystemModule::ModuleInitialize()
 {
-    File::Path filename  = L"filesystem.setting";
-    File::Path directory = PROJECT_SETTING_PATH;
-    UmFileSystem.LoadSetting(directory / filename);
+    HWND hwnd = UmApplication.GetHwnd();
+    DragAcceptFiles(hwnd, TRUE);
 
-    UmFileSystem.RegisterFileEventNotifier(new SampleNotifier, {".txt", ".png", ".dds", ".fbx"});
+    const MessageHandler msgHandler(FileSystemWinProc, 0);
 
-    _observer = new File::FileObserver();
-    _observer->Start(UmFileSystem.GetRootPath(),
-                     [this](const Event& event) { 
-        RecieveFileEvent(event);
-    });
-
-    UmFileSystem.ReadDirectory();
+    UmApplication.AddMessageHandler(msgHandler);
+    UmFileSystem.ObserverSetUp([this](const Event& event) { RecieveFileEvent(event); });
+    auto accessExt = {".txt", ".png", ".dds", ".fbx"};
+    UmFileSystem.RegisterFileEventNotifier(new SampleNotifier, accessExt);
 }
 
 void FileSystemModule::PreUnInitialize() 
 {
+    UmFileSystem.ObserverShutDown();
+    UmFileSystem.Clear();
 }
 
 void FileSystemModule::ModuleUnInitialize() 
 {
-    if (nullptr != _observer)
-    {
-        _observer->Stop();
-        delete _observer;
-        _observer = nullptr;
-    }
-    UmFileSystem.Clear();
 }
 
 void FileSystemModule::Update() 
 {
-    auto& filesystem = UmFileSystem;
     DispatchFileEvent();
 }
 
@@ -74,43 +65,78 @@ void FileSystemModule::DispatchFileEvent()
         File::Path lp = (rootPath / lParam).generic_string();
         File::Path rp = (rootPath / rParam).generic_string();
 
-        if (true == UmFileSystem.IsValidExtension(lp.extension()))
-        {
-            std::unordered_set<File::FileEventNotifier*> notifiers;
+        std::unordered_set<File::FileEventNotifier*> notifiers;
 
-            switch (eventType)
-            {
-            case File::EventType::ADDED:
-            {
-                UmFileSystem.RegisterContext(lp);
-                break;
-            }
-            case File::EventType::REMOVED:
-            {
-                UmFileSystem.ProcessRemovedFile(lp);
-                break;
-            }
-            case File::EventType::MODIFIED:
-            {
-                UmFileSystem.ProcessModifiedFile(lp);
-                break;
-            }
-            case File::EventType::RENAMED:
-            {
-                UmFileSystem.ProcessMovedFile(lp, rp);
-                break;
-            }
-            case File::EventType::MOVED:
-            {
-                UmFileSystem.ProcessMovedFile(lp, rp);
-                break;
-            }
-            default:
-                break;
-            }
+        switch (eventType)
+        {
+        case File::EventType::ADDED: {
+            UmFileSystem.RegisterContext(lp);
+            break;
         }
+        case File::EventType::REMOVED: {
+            UmFileSystem.ProcessRemovedFile(lp);
+            break;
+        }
+        case File::EventType::MODIFIED: {
+            UmFileSystem.ProcessModifiedFile(lp);
+            break;
+        }
+        case File::EventType::RENAMED: {
+            UmFileSystem.ProcessMovedFile(lp, rp);
+            break;
+        }
+        case File::EventType::MOVED: {
+            UmFileSystem.ProcessMovedFile(lp, rp);
+            break;
+        }
+        default:
+            break;
+        }
+
         _eventQueue.pop();
     }
+}
+
+void FileSystemModule::ProcessDropFile(const HDROP hDrop)
+{
+    // 드롭된 파일의 개수
+    UINT fileCount = DragQueryFile(hDrop, 0xFFFFFFFF, NULL, 0);
+
+    for (size_t i = 0; i < fileCount; ++i)
+    {
+        // 각 파일의 절대경로를 얻음
+        wchar_t targetPath[MAX_PATH];
+        DragQueryFile(hDrop, i, targetPath, MAX_PATH);
+
+        File::Path project = targetPath;
+        File::Path extension = project.extension();
+        if (File::PROJECT_EXTENSION == extension)
+        {
+            UmFileSystem.SaveProjectWithMessageBox();
+            UmFileSystem.LoadProjectWithMessageBox(targetPath);
+        }
+    }
+    // 메모리 해제
+    DragFinish(hDrop);
+}
+
+bool FileSystemModule::FileSystemWinProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+    switch (msg)
+    {
+        case WM_CLOSE: 
+        {
+            UmFileSystem.SaveProjectWithMessageBox();
+            // 이후 처리 동작은 Application이 호출한다.
+            break;
+        }
+        case WM_DROPFILES:
+        {
+            ProcessDropFile((HDROP)wParam);
+            break;
+        }
+    }
+    return false;
 }
 
 void SampleNotifier::OnFileRegistered(const File::Path& path) 
@@ -147,6 +173,16 @@ void SampleNotifier::OnFileMoved(const File::Path& oldPath, const File::Path& ne
 {
     std::wstring log = L"Moved File: " + oldPath.generic_wstring() + L" to " + newPath.generic_wstring();
     File::OutputLog(log);
+}
+
+void SampleNotifier::OnRequestedSave() 
+{
+    UmLogger.Log(1, "OnRequestedSave");
+}
+
+void SampleNotifier::OnRequestedLoad() 
+{
+    UmLogger.Log(1, "OnRequestedLoad");
 }
 
 void SampleNotifier::OnRequestedInspect(const File::Path& path) 

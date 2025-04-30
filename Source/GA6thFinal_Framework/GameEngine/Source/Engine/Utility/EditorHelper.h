@@ -13,7 +13,7 @@ public:
     inline static const char* ICON_FILE_DOCS  = "\xef\x85\x9c"; // f15c
 
     inline static const char* ICON_Folder        = "\xef\x81\xbb"; //
-    inline static const char* ICON_Folder_OPEN   = "\xef\x81\xbc"; // f07c
+    inline static const char* ICON_FOLDER_OPEN   = "\xef\x81\xbc"; // f07c
     inline static const char* ICON_Folder_CLOSED = "\xee\x86\x85"; // e185
 
     inline static const char* ICON_IMAGE    = "\xef\x8c\x82"; // f302

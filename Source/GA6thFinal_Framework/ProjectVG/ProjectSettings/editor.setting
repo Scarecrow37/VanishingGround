@@ -1,0 +1,30 @@
+IsDebugMode: false
+ToolData:
+  - name: class EditorDebugTool
+    IsVisible: true
+    IsLock: false
+    ReflectionField: "{}"
+  - name: class EditorLogsTool
+    IsVisible: true
+    IsLock: false
+    ReflectionField: "{\"LogColorTable\":{\"1\":[0.6299999952316284,0.6299999952316284,0.6299999952316284,1.0],\"2\":[0.0,0.75,1.0,1.0],\"3\":[1.0,1.0,1.0,1.0],\"4\":[1.0,0.8399999737739563,0.0,1.0],\"5\":[1.0,0.27000001072883606,0.0,1.0],\"6\":[0.550000011920929,0.0,0.0,1.0]},\"LogFilterTable\":{\"1\":true,\"2\":true,\"3\":true,\"4\":true,\"5\":true,\"6\":true}}"
+  - name: class EditorHierarchyTool
+    IsVisible: true
+    IsLock: false
+    ReflectionField: "{}"
+  - name: class ScriptTestEditor
+    IsVisible: true
+    IsLock: false
+    ReflectionField: "{}"
+  - name: class EditorInspectorTool
+    IsVisible: true
+    IsLock: false
+    ReflectionField: "{}"
+  - name: class EditorAssetBrowserTool
+    IsVisible: true
+    IsLock: false
+    ReflectionField: "{\"UpperHeight\":40.0,\"ColumWidth\":250.0,\"ColumHeight\":359.0}"
+  - name: class EditorSceneTool
+    IsVisible: true
+    IsLock: false
+    ReflectionField: "{}"
