@@ -289,6 +289,11 @@ const File::Guid& EFileSystem::GetGuidFromPath(const File::Path& path) const
 }
 std::weak_ptr<Context> EFileSystem::GetContext(const File::Guid& guid) const
 {
+    if (NULL_GUID == guid)
+    {
+        return std::weak_ptr<Context>();
+    }
+
     auto itr = _guidToPathTable.find(guid);
     if (itr != _guidToPathTable.end())
     {
