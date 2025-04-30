@@ -827,7 +827,7 @@ bool ESceneManager::WriteUmSceneFile(const Scene& scene, std::string_view sceneN
 {
     namespace fs     = std::filesystem;
     using fsPath     = std::filesystem::path;
-    fsPath writePath = UmFileSystem.GetRootPath();
+    fsPath writePath = UmFileSystem.GetAssetPath();
     writePath /= outPath;
     writePath /= sceneName;
     writePath.replace_extension(SCENE_EXTENSION);

@@ -90,7 +90,7 @@ void GameObject::OnInspectorStay()
                         if (extension == UmGameObjectFactory.PREFAB_EXTENSION)
                         {
                             UmGameObjectFactory.UnpackPrefab(this);
-                            UmGameObjectFactory.PackPrefab(this, context->GetMeta().GetFileGuid());
+                            UmGameObjectFactory.PackPrefab(this, context->GetMeta().GetGuid());
                         }
                     }
                 }
