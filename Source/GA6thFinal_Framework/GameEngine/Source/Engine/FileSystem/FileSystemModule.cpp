@@ -24,7 +24,7 @@ void FileSystemModule::ModuleInitialize()
 
     UmApplication.AddMessageHandler(msgHandler);
     UmFileSystem.ObserverSetUp([this](const Event& event) { RecieveFileEvent(event); });
-    auto accessExt = {".txt", ".png", ".dds"};
+    auto accessExt = {".txt", ".png", ".dds", ".fbx"};
     UmFileSystem.RegisterFileEventNotifier(new SampleNotifier, accessExt);
 }
 
