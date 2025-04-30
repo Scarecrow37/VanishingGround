@@ -239,6 +239,17 @@ bool EFileSystem::IsSameContext(std::weak_ptr<File::Context> left, std::weak_ptr
     return false;
 }
 
+File::Path EFileSystem::GetRelativePath(const File::Path& path) const
+{
+    if (false == _projectData.IsNull())
+    {
+        File::Path out = fs::absolute(path);
+        fs::relative(out, _rootPath);
+        return out;
+    }
+    return File::NULL_PATH;
+}
+
 const File::Path& EFileSystem::GetPathFromGuid(const File::Guid& guid)
 {
     auto wpContext = GetContext(guid);

@@ -28,6 +28,7 @@ public:
     bool SaveSetting(const File::Path& path);
     bool LoadSetting(const File::Path& path);
 
+public:
     inline auto&       GetProjectName() { return _projectName; }
     inline int         GetDebugLevel() const { return _setting.DebugLevel; }
     inline const auto& GetMetaExt() const { return _setting.MetaExt; }
@@ -40,6 +41,8 @@ public:
     bool IsVaildGuid(const File::Guid& guid);
     bool IsValidExtension(const File::FString& ext);
     bool IsSameContext(std::weak_ptr<File::Context> left, std::weak_ptr<File::Context> right);
+
+    File::Path GetRelativePath(const File::Path& path) const;
 
     const File::Path& GetPathFromGuid(const File::Guid& guid);
     const File::Guid& GetGuidFromPath(const File::Path& path);
