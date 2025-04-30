@@ -21,7 +21,7 @@ constexpr bool IS_EDITOR = false;
 #endif
 
 // 프로젝트 설정 파일들 모아두는 폴더
-constexpr const wchar_t* PROJECT_SETTING_PATH = L"Settings"; 
+constexpr const wchar_t* PROJECT_SETTING_PATH = L"ProjectSettings"; 
 // 에셋 파일들 모아두는 폴더
 constexpr const wchar_t* ASSET_FOLDER_NAME = L"Assets";
 // 문자열 null을 명시적으로 표시하기 위한 값

@@ -1,8 +1,9 @@
 ﻿#include "pch.h"
 #include "FileSystemModule.h"
 
+using namespace u8_literals;
+
 FileSystemModule::FileSystemModule()
-    : _observer(nullptr)
 {
 }
 
@@ -16,28 +17,26 @@ void FileSystemModule::PreInitialize()
 
 void FileSystemModule::ModuleInitialize()
 {
-    if (true == IS_EDITOR)
-    {
-        UmFileSystem.ObserverSetUp([this](const Event& event) { RecieveFileEvent(event); });
-    }
+    HWND hwnd = UmApplication.GetHwnd();
+    DragAcceptFiles(hwnd, TRUE);
+
+    const MessageHandler msgHandler(FileSystemWinProc, 0);
+
+    UmApplication.AddMessageHandler(msgHandler);
+    UmFileSystem.ObserverSetUp([this](const Event& event) { RecieveFileEvent(event); });
     auto accessExt = {".txt", ".png", ".dds"};
     UmFileSystem.RegisterFileEventNotifier(new SampleNotifier, accessExt);
 }
 
 void FileSystemModule::PreUnInitialize() 
 {
+    UmFileSystem.ObserverShutDown();
+    UmFileSystem.SaveProject();
+    UmFileSystem.Clear();
 }
 
 void FileSystemModule::ModuleUnInitialize() 
 {
-    UmFileSystem.SaveProject();
-    if (nullptr != _observer)
-    {
-        _observer->Stop();
-        delete _observer;
-        _observer = nullptr;
-    }
-    UmFileSystem.Clear();
 }
 
 void FileSystemModule::Update() 
@@ -106,6 +105,40 @@ void FileSystemModule::DispatchFileEvent()
     }
 }
 
+void FileSystemModule::ProcessDropFile(const HDROP hDrop)
+{
+    // 드롭된 파일의 개수
+    UINT fileCount = DragQueryFile(hDrop, 0xFFFFFFFF, NULL, 0);
+
+    for (size_t i = 0; i < fileCount; ++i)
+    {
+        // 각 파일의 절대경로를 얻음
+        wchar_t targetPath[MAX_PATH];
+        DragQueryFile(hDrop, i, targetPath, MAX_PATH);
+
+        File::Path project = targetPath;
+        File::Path extension = project.extension();
+        if (File::PROJECT_EXTENSION == extension)
+        {
+            UmFileSystem.SaveProjectWithMessageBox();
+            UmFileSystem.LoadProjectWithMessageBox(targetPath);
+        }
+    }
+    // 메모리 해제
+    DragFinish(hDrop);
+}
+
+bool FileSystemModule::FileSystemWinProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+    switch (msg)
+    {
+    case WM_DROPFILES:
+        ProcessDropFile((HDROP)wParam);
+        break;
+    }
+    return false;
+}
+
 void SampleNotifier::OnFileRegistered(const File::Path& path) 
 {
     std::wstring log = L"Register File: " + path.generic_wstring();
@@ -140,6 +173,16 @@ void SampleNotifier::OnFileMoved(const File::Path& oldPath, const File::Path& ne
 {
     std::wstring log = L"Moved File: " + oldPath.generic_wstring() + L" to " + newPath.generic_wstring();
     File::OutputLog(log);
+}
+
+void SampleNotifier::OnRequestedSave() 
+{
+    UmLogger.Log(1, "OnRequestedSave");
+}
+
+void SampleNotifier::OnRequestedLoad() 
+{
+    UmLogger.Log(1, "OnRequestedLoad");
 }
 
 void SampleNotifier::OnRequestedInspect(const File::Path& path) 

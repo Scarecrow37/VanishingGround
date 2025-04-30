@@ -218,33 +218,32 @@ void EditorAssetBrowserTool::ShowFolderHierarchy(spFolderContext FolderContext)
 // 오른쪽: 선택된 폴더의 파일 목록
 void EditorAssetBrowserTool::ShowFolderContents()
 {
-    spFolderContext spForcusFolder;
     if (false == _currFocusFolderContext.expired())
     {
-        spForcusFolder = _currFocusFolderContext.lock();
-    }
+        spFolderContext spForcusFolder = _currFocusFolderContext.lock();
 
-    ShowFolderDirectoryPath(spForcusFolder);
+        ShowFolderDirectoryPath(spForcusFolder);
 
-    ContentsFrameEventAction(spForcusFolder);
+        ContentsFrameEventAction(spForcusFolder);
 
-    if (ImGui::BeginPopupContextItem("ContentsPopup"))
-    {
-        ImGui::MenuItem("Show in explorer");
-        ImGui::MenuItem("Refresh");
-        // 팝업 내용
-        ImGui::EndPopup();
-    }
-    switch (_showType)
-    {
-    case EditorAssetBrowserTool::List:
-        ShowContentsToList();
-        break;
-    case EditorAssetBrowserTool::Icon:
-        ShowContentsToIcon();
-        break;
-    default:
-        break;
+        if (ImGui::BeginPopupContextItem("ContentsPopup"))
+        {
+            ImGui::MenuItem("Show in explorer");
+            ImGui::MenuItem("Refresh");
+            // 팝업 내용
+            ImGui::EndPopup();
+        }
+        switch (_showType)
+        {
+        case EditorAssetBrowserTool::List:
+            ShowContentsToList();
+            break;
+        case EditorAssetBrowserTool::Icon:
+            ShowContentsToIcon();
+            break;
+        default:
+            break;
+        }
     }
 }
 
@@ -397,64 +396,64 @@ void EditorAssetBrowserTool::ContentsFrameEventAction(spFolderContext context)
     bool isKeyCopy  = ctrl && c; // Ctrl + C
     bool isKeyPaste = ctrl && v; // Ctrl + V
 
-    DragDropTransform::Data data;
-    if (ImGuiHelper::DragDrop::RecieveFrameDragDropEvent(DragDropTransform::KEY, &data))
+    if (nullptr != context)
     {
-        if (nullptr != context)
+        DragDropTransform::Data data;
+        if (ImGuiHelper::DragDrop::RecieveFrameDragDropEvent(DragDropTransform::KEY, &data))
         {
             File::Path path = context->GetPath();
             path            = std::filesystem::relative(path, UmFileSystem.GetRootPath());
             UmGameObjectFactory.WriteGameObjectFile(data.pTransform, path.string());
         }
-    }
 
-    if (false == isRename)
-    {
-        if (true == isKeyBackSpace)
+        if (false == isRename)
         {
-            SetFocusParentFolder(context);
-        }
-        if (true == isKeyPaste)
-        {
-            if (true == fs::exists(_copyPath))
+            if (true == isKeyBackSpace)
             {
-                File::Path from = _copyPath;
-                File::Path to   = (curPath / from.filename());
+                SetFocusParentFolder(context);
+            }
+            if (true == isKeyPaste)
+            {
+                if (true == fs::exists(_copyPath))
+                {
+                    File::Path from = _copyPath;
+                    File::Path to   = (curPath / from.filename());
 
-                File::CopyFileFromTo(from, to);
+                    File::CopyFileFromTo(from, to);
+                }
             }
         }
-    }
 
-    if (true == ImGui::IsWindowHovered() && false == ImGui::IsAnyItemHovered())
-    {
-        if (true == ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+        if (true == ImGui::IsWindowHovered() && false == ImGui::IsAnyItemHovered())
         {
-            ImGui::OpenPopup("ContentsFramePopup");
-        }
-    }
-
-    float compactFactor = 0.1f;
-    ImGuiHelper::PushStyleCompactToItem(compactFactor);
-
-    if (ImGui::BeginPopup("ContentsFramePopup"))
-    {
-        if (ImGui::BeginMenu("Create"))
-        {
-            if (ImGui::MenuItem("Folder"))
+            if (true == ImGui::IsMouseClicked(ImGuiMouseButton_Right))
             {
-                File::CreateFolderEx(curPath / "New Folder", true);
+                ImGui::OpenPopup("ContentsFramePopup");
             }
-            ImGui::EndMenu();
         }
-        if (ImGui::MenuItem("Copy Path"))
-        {
-            File::CopyPathToClipBoard(curPath);
-        }
-        ImGui::EndPopup();
-    }
 
-    ImGuiHelper::PopStyleCompact();
+        float compactFactor = 0.1f;
+        ImGuiHelper::PushStyleCompactToItem(compactFactor);
+
+        if (ImGui::BeginPopup("ContentsFramePopup"))
+        {
+            if (ImGui::BeginMenu("Create"))
+            {
+                if (ImGui::MenuItem("Folder"))
+                {
+                    File::CreateFolderEx(curPath / "New Folder", true);
+                }
+                ImGui::EndMenu();
+            }
+            if (ImGui::MenuItem("Copy Path"))
+            {
+                File::CopyPathToClipBoard(curPath);
+            }
+            ImGui::EndPopup();
+        }
+
+        ImGuiHelper::PopStyleCompact();
+    }
 }
 
 void EditorAssetBrowserTool::ShowContentsToList()
@@ -903,7 +902,7 @@ void EditorAssetObject::OnInspectorStay()
         auto& metaData  = spContext->GetMeta();
 
         ImGui::Text("Path: %s", spContext->GetPath().string().c_str());
-        ImGui::Text("Guid: %s", metaData.GetFileGuid().string().c_str());
+        ImGui::Text("Guid: %s", metaData.GetGuid().string().c_str());
         ImGui::Separator();
 
         auto& path = spContext->GetPath();

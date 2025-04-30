@@ -44,6 +44,7 @@ namespace File
             _isStart       = true;
             SetHandles();
             SetThread();
+            OutputLog(L"FileObserver thread is Start");
             return true;
         }
         return false;

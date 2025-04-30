@@ -41,7 +41,6 @@ static void ShowNewProjectPopup()
         {
         }
     }
-
     
     ImGui::Text("Project Name: ");
     ImGui::InputText("##name_input", nameBuffer, IM_ARRAYSIZE(nameBuffer), ImGuiInputTextFlags_None);
@@ -82,7 +81,7 @@ void EditorMenuProjectRoot::OnMenu()
     }
     if (ImGui::MenuItem("Save Project", nullptr))
     {
-        Global::engineCore->ComponentFactory.InitalizeComponentFactory();
+        UmFileSystem.SaveProjectWithMessageBox();
     }
 }
 

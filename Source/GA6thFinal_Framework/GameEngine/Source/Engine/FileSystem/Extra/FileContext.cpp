@@ -91,7 +91,7 @@ namespace File
             if (true == LoadMeta())
             {
                 if (UmFileSystem.GetDebugLevel() >= 2)
-                    OutputLog(L"Failed to load meta: " + _meta.GetFileGuid().wstring());
+                    OutputLog(L"Failed to load meta: " + _meta.GetGuid().wstring());
             }
         }
     }

@@ -40,31 +40,45 @@ namespace File
     inline static const File::Guid NULL_GUID;
     inline static const File::Path NULL_PATH;
 
-    /*
-    MetaData는 파일의 메타데이터를 만들거나, 불러와서 사용하는 구조체입니다.
-    */
-    class MetaData
+    class FileData
     {
+    protected:
+        virtual bool Write(YAML::Node& node) = 0;
+        virtual bool Read(YAML::Node& node)  = 0;
+
     public:
-        MetaData() : _filePath(""), _fileGuid(""), _projectGuid("") {}
-        ~MetaData() = default;
-    public:
-        bool Create(const Path& path);
+        bool Create(const File::Path& path, bool isHidden = false);
         bool Load(const Path& path);
         bool Move(const Path& path);
         bool Remove();
         bool IsNull();
-    public:
-        inline const Guid& GetFileGuid() const { return _fileGuid; }
-        inline const Guid& GetProjectGuid() const { return _projectGuid; }
-    private:
-        File::Path                _filePath;    // 메타 파일 경로
-        File::Guid                _fileGuid;    // 파일 ID
-        File::Guid                _projectGuid; // 프로젝트 ID
 
-        inline static const char* FILE_GUID_HEADER = "File Guid";
-    inline static const char*     PROJ_GUID_HEADER = "Project Guid";
     public:
+        inline const auto& GetGuid() const { return _fileGuid; }
+        inline const auto& GetPath() const { return _filePath; }
+
+    protected:
+        File::Path _filePath; // 파일 경로
+        File::Guid _fileGuid; // 파일 ID
+
+        inline static const char* FILE_GUID_HEADER = "Guid";
+    };
+
+    /*
+    MetaData는 파일의 메타데이터를 만들거나, 불러와서 사용하는 구조체입니다.
+    */
+    class MetaData : public FileData
+    {
+    private:
+        virtual bool Write(YAML::Node& node) override;
+        virtual bool Read(YAML::Node& node) override;
+    };
+
+    class ProjectData : public FileData
+    {
+    private:
+        virtual bool Write(YAML::Node& node) override;
+        virtual bool Read(YAML::Node& node) override;
     };
 
     struct SystemSetting

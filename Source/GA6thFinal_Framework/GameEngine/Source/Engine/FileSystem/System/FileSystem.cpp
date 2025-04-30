@@ -2,6 +2,7 @@
 #include "FileSystem.h"
 
 using namespace File;
+using namespace u8_literals;
 
 bool EFileSystem::CreateProject(const File::Path& path)
 {
@@ -20,12 +21,11 @@ bool EFileSystem::CreateProject(const File::Path& path)
         return false;
     }
 
-    std::ofstream projectof(path);
-    if (false == projectof.is_open())
+    if (false == _projectData.Create(path, false))
     {
+        OutputLog(L"failed to EFileSystem::CreateProject. failed to create project file.");
         return false;
     }
-    projectof.close();
 
     File::Path rootPath     = path.parent_path();
     File::Path assetPath    = rootPath / ASSET_FOLDER_NAME;
@@ -41,19 +41,41 @@ bool EFileSystem::LoadProject(const File::Path& path)
     bool isExists = fs::exists(path);
     bool isValid  = path.extension() == PROJECT_EXTENSION;
 
-    if (false == isExists)
+    std::pair<bool, std::wstring> result = {true, L""};
+    if (true == result.first && false == isExists)
     {
-        OutputLog(L"failed to EFileSystem::CreateProject. not exists to direcotry.");
-        return false;
+        result.second = L"존재하지 않는 경로입니다.";
+        result.first  = false;
     }
-    if (false == isValid)
+    if (true == result.first && false == isValid)
     {
-        OutputLog(L"failed to EFileSystem::CreateProject. file is unvaild extension.");
+        result.second = L"프로젝트 확장자가 올바르지 않습니다.";
+        result.first  = false;
+    }
+
+    if (true == result.first && false == _projectData.Load(path))
+    {
+        result.second = L"프로젝트 파일 로드에 실패하였습니다.";
+        result.first  = false;
+    }
+
+    if (false == result.first)
+    {
+        std::wstring msg    = result.second;
+        std::wstring title  = L"Error";
+        int result = MessageBox(
+            GetFocus(),                 // 부모 창 핸들 (NULL로 하면 독립적 메시지 박스)
+            msg.c_str(),                // 메시지 텍스트
+            title.c_str(),              // 메시지 박스 제목
+            MB_OK | MB_ICONWARNING      // 스타일: 예/아니오 버튼 + 질문 아이콘
+        );
+
         return false;
     }
 
     File::Path directory = path.parent_path();
 
+    _originPath  = fs::current_path().generic_wstring();
     _rootPath    = fs::absolute(directory).generic_wstring();
     _assetPath   = fs::absolute(_rootPath / ASSET_FOLDER_NAME).generic_wstring();
     _settingPath = fs::absolute(_rootPath / PROJECT_SETTING_PATH).generic_wstring();
@@ -70,19 +92,73 @@ bool EFileSystem::LoadProject(const File::Path& path)
 
     LoadSetting(_settingPath / PROJECT_SETTING_FILENAME);
     ReadDirectory(); 
-
+    RequestLoad();
     return true;
 }
 
 bool EFileSystem::SaveProject()
 {
+    if (true == _rootPath.empty())
+        return false;
+
     if (false == fs::exists(_rootPath))
     {
         return false;
     }
 
     SaveSetting(_settingPath / PROJECT_SETTING_FILENAME);
+    RequestSave();
+
     return true;
+}
+
+bool EFileSystem::SaveAsProject(const File::Path& path)
+{
+
+    return false;
+}
+
+bool EFileSystem::LoadProjectWithMessageBox(const File::Path& path)
+{
+    File::Path projectName = path.filename();
+
+    std::wstring msg    = projectName.wstring() + L" 프로젝트를 로드하시겠습니까?";
+    std::wstring title  = L"Load Project";
+    int result = MessageBox(
+        GetFocus(),                 // 부모 창 핸들 (NULL로 하면 독립적 메시지 박스)
+        msg.c_str(),                // 메시지 텍스트
+        title.c_str(),              // 메시지 박스 제목
+        MB_YESNO | MB_ICONWARNING   // 스타일: 예/아니오 버튼 + 질문 아이콘
+    );
+
+    if (result == IDYES)
+    {
+        return LoadProject(path);
+    }
+
+    return false;
+}
+
+bool EFileSystem::SaveProjectWithMessageBox()
+{
+    if (true == _rootPath.empty())
+        return false;
+
+    std::wstring msg    = L"현재 프로젝트를 저장하시겠습니까?"; 
+    std::wstring title  = L"Save Project";
+
+    int result = MessageBox(
+        GetFocus(),                 // 부모 창 핸들 (NULL로 하면 독립적 메시지 박스)
+        msg.c_str(),                // 메시지 텍스트
+        title.c_str(),              // 메시지 박스 제목
+        MB_YESNO | MB_ICONWARNING   // 스타일: 예/아니오 버튼 + 질문 아이콘
+    );
+
+    if (result == IDYES)
+    {
+        return SaveProject();
+    }
+    return false;
 }
 
 bool EFileSystem::SaveSetting(const File::Path& path)
@@ -140,7 +216,7 @@ bool EFileSystem::IsVaildGuid(const File::Guid& guid)
 
 bool EFileSystem::IsValidExtension(const File::FString& ext)
 {
-    return (ext == "") || (_notifierTable.find(ext) != _notifierTable.end());
+    return (ext == "") || (_extesionToNotifierTable.find(ext) != _extesionToNotifierTable.end());
 }
 
 bool EFileSystem::IsSameContext(std::weak_ptr<File::Context> left, std::weak_ptr<File::Context> right)
@@ -172,7 +248,7 @@ const File::Guid& EFileSystem::GetGuidFromPath(const File::Path& path)
     if (false == wpContext.expired())
     {
         const MetaData& meta = wpContext.lock()->GetMeta();
-        return meta.GetFileGuid();
+        return meta.GetGuid();
     }
     return NULL_GUID;
 }
@@ -205,15 +281,31 @@ std::weak_ptr<Context> EFileSystem::GetContext(const File::Path& path)
 std::unordered_set<File::FileEventNotifier*> EFileSystem::GetNotifiers(
     const File::FString& ext)
 {
-    auto itr = _notifierTable.find(ext);
-    if (itr != _notifierTable.end())
+    auto itr = _extesionToNotifierTable.find(ext);
+    if (itr != _extesionToNotifierTable.end())
     {
         return itr->second;
     }
     return std::unordered_set<File::FileEventNotifier*>();
 }
 
-void EFileSystem::RequestInspectFile(const File::Path& path) 
+void EFileSystem::RequestSave()
+{
+    for (auto& notifier : _notifierSet)
+    {
+        notifier->OnRequestedSave();
+    }
+}
+
+void EFileSystem::RequestLoad()
+{
+    for (auto& notifier : _notifierSet)
+    {
+        notifier->OnRequestedLoad();
+    }
+}
+
+void EFileSystem::RequestInspectFile(const File::Path& path)
 {
     NotifierSet notifierSet = GetNotifiers(path.extension());
     for (auto& notifier : notifierSet)
@@ -270,8 +362,8 @@ void EFileSystem::DrawGuiSettingEditor()
             }
             if (ImGui::MenuItem("Load"))
             {
-                TCHAR      title[] = L"폴더를 선택하세요.";
-                UINT       flags   = BIF_USENEWUI | BIF_RETURNONLYFSDIRS;
+                TCHAR title[] = L"폴더를 선택하세요.";
+                UINT  flags   = BIF_USENEWUI | BIF_RETURNONLYFSDIRS;
                 File::Path path;
                 if (File::OpenForderBrowser(title, flags, path))
                 {
@@ -285,30 +377,18 @@ void EFileSystem::DrawGuiSettingEditor()
         ImGui::EndMenuBar();
     }
 
-    ImGui::SameLine();
-
-    if (ImGui::Button("Load"))
-    {
-        File::Path filename  = L"fileSystem.setting";
-        File::Path directory = PROJECT_SETTING_PATH;
-        LoadSetting(directory / filename);
-    }
-
-    ImGui::Separator();
-
-    ImGui::Text("FileSystem Setting");
-
     ImGui::Text("Debug Level: ");
     ImGui::DragInt("##DragDebuglevel", &_setting.DebugLevel, 0, 3);
 
     static char metaExt[128] = "";
     strcpy_s(metaExt, _setting.MetaExt.c_str());
-    ImGui::Text("Medta Extension: ");
+    ImGui::Text("Meta Extension: ");
     if (ImGui::InputText("##InputMetaExt", metaExt, IM_ARRAYSIZE(metaExt)))
     {
         _setting.MetaExt = metaExt;
     }
 }
+
 
 void EFileSystem::RegisterFileEventNotifier(FileEventNotifier* notifier, const std::initializer_list<const char*>& exts)
 {
@@ -318,7 +398,12 @@ void EFileSystem::RegisterFileEventNotifier(FileEventNotifier* notifier, const s
     for (const auto& ext : exts)
     {
         notifier->_triggerExtTable.insert(ext);
-        _notifierTable[ext].insert(notifier);
+        _extesionToNotifierTable[ext].insert(notifier);
+    }
+    auto itr = _notifierSet.find(notifier);
+    if (itr == _notifierSet.end())
+    {
+        _notifierSet.insert(notifier);
     }
 }
 
@@ -326,18 +411,23 @@ void EFileSystem::UnRegisterFileEventNotifier(FileEventNotifier* notifier)
 {
     const std::vector<FString> exts = notifier->GetTriggerExtensions();
 
-     for (const auto& ext : exts)
+    for (const auto& ext : exts)
     {
-         auto itr = _notifierTable.find(ext);
-        if (itr != _notifierTable.end())
+        auto itr = _extesionToNotifierTable.find(ext);
+        if (itr != _extesionToNotifierTable.end())
         {
             auto& notifierSet = itr->second;
             notifierSet.erase(notifier);
             if (notifierSet.empty())
             {
-                _notifierTable.erase(itr);
+                _extesionToNotifierTable.erase(itr);
             }
         }
+    }
+    auto itr = _notifierSet.find(notifier);
+    if (itr != _notifierSet.end())
+    {
+        _notifierSet.erase(itr);
     }
 }
 
@@ -370,7 +460,7 @@ void EFileSystem::ClearContext()
 
 void EFileSystem::ClearNotifier() 
 {
-    _notifierTable.clear();
+    _extesionToNotifierTable.clear();
 }
 
 void EFileSystem::ReadDirectory() 
@@ -440,7 +530,7 @@ void EFileSystem::RegisterContext(const File::Path& srcPath)
          }
 
          auto& meta = context->GetMeta();
-         auto& guid = meta.GetFileGuid();
+         auto& guid = meta.GetGuid();
 
          _pathToGuidTable[absPath] = context;
          _guidToPathTable[guid] = context;
@@ -465,7 +555,7 @@ void EFileSystem::UnregisterContext(const File::Path& path)
     {
         auto spContext  = wpContext.lock();
         auto& meta      = spContext->GetMeta();
-        auto& guid      = meta.GetFileGuid();
+        auto& guid      = meta.GetGuid();
 
         File::Path  extension   = path.extension();
         NotifierSet notifierSet = GetNotifiers(extension);
@@ -487,7 +577,7 @@ void EFileSystem::ProcessRemovedFile(const File::Path& path)
     {
         auto            spContext = wpContext.lock();
         const MetaData& meta      = spContext->GetMeta();
-        File::Guid      guid      = meta.GetFileGuid();
+        File::Guid      guid      = meta.GetGuid();
 
         auto notifierSet = GetNotifiers(path.extension());
         for (auto& notifier : notifierSet)

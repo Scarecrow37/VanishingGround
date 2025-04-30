@@ -28,9 +28,11 @@ namespace File
     }
     bool CreateFolder(const File::Path& path) 
     {
-        if (false == std::filesystem::exists(path))
+        bool isExists    = fs::exists(path);
+        bool isDirectory = (false == path.has_extension());
+        if (false == isExists && true == isDirectory)
         {
-            bool check = std::filesystem::create_directory(path);
+            bool check = fs::create_directory(path);
             if (true == check)
             {
                 OutputLog(L"Succeed Create Folder (" + path.wstring() + L')');
@@ -46,19 +48,25 @@ namespace File
 
     bool CreateFolderEx(const File::Path& path, bool processDup) 
     {
-        if (false == std::filesystem::exists(path))
+        bool isExists    = fs::exists(path);
+        bool isDirectory = (false == path.has_extension());
+        if (true == isDirectory)
         {
-            return CreateFolder(path);
+            if (false == isExists)
+            {
+                return CreateFolder(path);
+            }
+            else if (true == processDup)
+            {
+                return CreateFolder(GenerateUniquePath(path));
+            }
         }
-        else if (true == processDup)
-        {
-            return CreateFolder(GenerateUniquePath(path));
-        }
+        return false;
     }
 
     bool OpenFile(const File::Path& path)
     {
-        File::Path AbsPath = std::filesystem::absolute(path);
+        File::Path AbsPath = fs::absolute(path);
 
         HINSTANCE hr = ShellExecuteW(NULL,         // 부모 윈도우 핸들
                                      L"open",      // 작업(“open”, “edit”, “print” 등)
@@ -82,15 +90,15 @@ namespace File
 
     bool RemoveFile(const File::Path& path)
     {
-        if (true == std::filesystem::exists(path))
+        if (true == fs::exists(path))
         {
-            if (std::filesystem::is_directory(path))
+            if (fs::is_directory(path))
             {
-                return std::filesystem::remove_all(path); // 디렉토리 삭제
+                return fs::remove_all(path); // 디렉토리 삭제
             }
             else
             {
-                return std::filesystem::remove(path); // 파일 삭제
+                return fs::remove(path); // 파일 삭제
             }
         }
         return false;
@@ -148,7 +156,7 @@ namespace File
         File::Path parent    = path.parent_path();
         File::Path extension = path.extension();
        
-        if (false == std::filesystem::exists(path))
+        if (false == fs::exists(path))
         {
             return path;
         }
@@ -160,7 +168,7 @@ namespace File
             {
                 tail = " (" + std::to_string(index) + ")";
                 newPath = parent / (name + tail + extension);
-                if (false == std::filesystem::exists(newPath))
+                if (false == fs::exists(newPath))
                 {
                     break;
                 }
@@ -177,21 +185,21 @@ namespace File
         memset(&OFN, 0, sizeof(OPENFILENAME));
 
         OFN.lStructSize     = sizeof(OPENFILENAME);
-        OFN.hwndOwner       = GetFocus();
+        OFN.hwndOwner       = UmApplication.GetHwnd();
         OFN.lpstrFilter     = _filter;
         OFN.lpstrFile       = lpstrFile;
         OFN.nMaxFile        = 100;
         OFN.lpstrInitialDir = root.c_str();
 
+        auto originPath = fs::current_path();
+        bool result = false;
         if (GetOpenFileName(&OFN) != 0)
         {
             _return = OFN.lpstrFile;
-            return true;
+            result =  true;
         }
-        else
-        {
-            return false;
-        }
+        fs::current_path(originPath);
+        return result;
     }
 
     // 콜백 함수
