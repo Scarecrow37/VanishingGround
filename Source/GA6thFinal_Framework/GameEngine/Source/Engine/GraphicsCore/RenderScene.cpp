@@ -87,7 +87,6 @@ void RenderScene::UpdateRenderScene()
 
 void RenderScene::RegisterOnRenderQueue(bool** isActive, MeshRenderer* renderable)
 {
-    ShaderBuilder* sr = _frameShader.get();
     auto iter = std::find_if(_renderQueue.begin(), _renderQueue.end(),
                              [renderable](const auto& ptr) { return ptr.second == renderable; });
 
@@ -139,7 +138,7 @@ void RenderScene::CreateRenderTarget()
     // gbuffer 생성
     _gBuffer.resize(_gBufferCount);
     _gBufferSrvHandles.resize(_gBufferCount);
-    for (UINT i = 0; i <= GBuffer::EMISSIVE; ++i)
+    for (UINT i = 0; i <= GBuffer::WORLDPOSITION; ++i)
     {
         _gBuffer[i] = std::make_shared<RenderTarget>();
         _gBuffer[i]->Initialize(DXGI_FORMAT_R32G32B32A32_FLOAT);

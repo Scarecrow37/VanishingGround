@@ -19,5 +19,6 @@ void DeferredPBRLitPass::InitShaderAndPSO()
 {
     _shader = std::make_shared<ShaderBuilder>();
     _shader->BeginBuild();
-    //_shader->
+    _shader->SetShader(L"../Shaders/vs_quad.hlsl", ShaderBuilder::Type::VS);
+
 }
