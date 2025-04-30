@@ -22,18 +22,21 @@ concept IsEditorTool = IsEditorGui<T> && std::is_base_of_v<EditorTool, T>;
 template <typename T>
 concept IsEditorMenu = IsEditorGui<T> && std::is_base_of_v<EditorMenu, T>;
 
- class EditorModule : public IAppModule
+ class EditorModule 
+     : public IAppModule
+     , public File::FileEventNotifier
  {
      friend class Application;
      friend class EditorTool;
  private:
      EditorModule();
      ~EditorModule();
+
  public:
-     void PreInitialize() override {}
+     void PreInitialize() override;
      void ModuleInitialize() override;
 
-     void PreUnInitialize() override {}
+     void PreUnInitialize() override;
      void ModuleUnInitialize() override;
 
  private:
@@ -88,14 +91,18 @@ concept IsEditorMenu = IsEditorGui<T> && std::is_base_of_v<EditorMenu, T>;
      inline EditorDockSpace* GetMainDockSpace() { return _mainDockSpace; }
 
      /* 에디터 디버그 모드 */
-     inline void SetDebugMode(bool v) { _isDebugMode = v; }
-     inline bool IsDebugMode() { return _isDebugMode; }
+     inline void SetDebugMode(bool v) { _setting.IsDebugMode = v; }
+     inline bool IsDebugMode() { return _setting.IsDebugMode; }
  private:
+     /* 기본 스타일 설정 */
      void SetGuiThemeStyle();
+     /* 프로젝트 세이브 요청을 처리할 동작을 구현 */
+     virtual void OnRequestedSave() override;
+     /* 프로젝트 로드 요청을 처리할 동작을 구현 */
+     virtual void OnRequestedLoad() override;
  private:
-     EditorSetting _setting;
+     EditorSetting          _setting;
 
-     bool                   _isDebugMode;                       // 에디터 디버그 모드 여부(에디터관련 정보 출력)
      EditorPopupBoxSystem*  _PopupBox;                          // 에디터 모달 팝업
      EditorMenuBar*         _mainMenuBar;                       // 에디터 메뉴 바
      EditorDockSpace*       _mainDockSpace;                     // 에디터 도킹 스페이스
