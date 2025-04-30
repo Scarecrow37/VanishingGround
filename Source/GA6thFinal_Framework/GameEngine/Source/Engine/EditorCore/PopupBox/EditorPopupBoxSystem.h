@@ -25,5 +25,5 @@ private:
 
 private:
     std::unordered_map<std::string, EditorPopupBox*> _popupBoxTable;
-    std::vector<EditorPopupBox*>                     _popupBoxStack;
+    std::deque<EditorPopupBox*>                      _popupBoxQueue;
 };

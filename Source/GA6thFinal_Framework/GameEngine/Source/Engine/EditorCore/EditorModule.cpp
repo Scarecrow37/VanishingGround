@@ -6,7 +6,6 @@
 EditorModule* Global::editorModule = nullptr;
 
 EditorModule::EditorModule() 
-    : _isDebugMode(false)
 {
     Global::editorModule = this;
     _mainMenuBar = new EditorMenuBar;
@@ -21,33 +20,31 @@ EditorModule::~EditorModule()
     delete _PopupBox;
 }
 
+void EditorModule::PreInitialize() {}
+
 void EditorModule::ModuleInitialize()
 {
     // 모듈 등록시 1회 호출
     SetGuiThemeStyle();
     _mainMenuBar->OnStartGui();
     _mainDockSpace->OnStartGui();
-
-    File::Path filename  = L"editor.setting";
-    File::Path directory = PROJECT_SETTING_PATH;
-    LoadSetting(directory / filename);
+    UmFileSystem.RegisterFileEventNotifier(this);
 }
 
+void EditorModule::PreUnInitialize() {}
+
 void EditorModule::ModuleUnInitialize()
-{ 
-    //파괴 직전 함수 필요하면 추가
+{
+    // 파괴 직전 함수 필요하면 추가
     _mainMenuBar->OnEndGui();
     _mainDockSpace->OnEndGui();
-
-    File::Path filename  = L"editor.setting";
-    File::Path directory = PROJECT_SETTING_PATH;
-    
-    SaveSetting(directory / filename);
 }
 
 bool EditorModule::SaveSetting(const File::Path& path)
 {
     _setting.ToolData.clear();
+    _setting.ImGuiData = ImGui::SaveIniSettingsToMemory();
+
     for (auto& [key, tool] : _mainDockSpace->GetRefToolTable())
     {
         EditorTool* editorTool = tool.get();
@@ -61,7 +58,6 @@ bool EditorModule::SaveSetting(const File::Path& path)
             _setting.ToolData.push_back(data);
         }
     }
-
     auto setting = rfl::yaml::save(path.string(), _setting);
     if (false == setting)
     {
@@ -91,12 +87,15 @@ bool EditorModule::LoadSetting(const File::Path& path)
             {
                 tool->SetVisible(status.IsVisible);
                 tool->SetLock(status.IsLock);
-                if (status.ReflectionField != "{}")
+                if (false == status.ReflectionField.empty())
                 {
                     tool->DeserializedReflectFields(status.ReflectionField);
-                }         
+                }
             }
         }
+
+        ImGui::LoadIniSettingsFromMemory(_setting.ImGuiData.c_str());
+
         return true;
     }
 }
@@ -160,4 +159,18 @@ void EditorModule::SetGuiThemeStyle()
 
     // DragDrop
     colors[ImGuiCol_DragDropTarget] = ImVec4{0.2f, 0.6f, 0.4f, 1.0f};
+}
+
+void EditorModule::OnRequestedSave()
+{
+    File::Path name = L"editor.setting";
+    auto& path = UmFileSystem.GetSettingPath();
+    SaveSetting(path / name);
+}
+
+void EditorModule::OnRequestedLoad() 
+{
+    File::Path name = L"editor.setting";
+    auto& path = UmFileSystem.GetSettingPath();
+    LoadSetting(path / name);
 }
