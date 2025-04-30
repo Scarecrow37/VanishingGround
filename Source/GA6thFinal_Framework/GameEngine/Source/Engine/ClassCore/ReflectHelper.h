@@ -5,6 +5,16 @@
 #include <rfl/json.hpp>
 #include <rfl/yaml.hpp>
 
+//전방 선언
+namespace ReflectHelper
+{
+    namespace ImGuiDraw
+    {
+        struct InputAutoSetting;
+    }
+}
+
+
 // reflect-cpp 라이브러리 docs https://rfl.getml.com/docs-readme/#the-basics
 // reflect-cpp github https://github.com/getml/reflect-cpp
 
@@ -24,7 +34,7 @@ protected:
     virtual void DeserializedReflectEvent() {}
 
 public:
-    virtual void ImGuiDrawPropertys() 
+    virtual void ImGuiDrawPropertys(ReflectHelper::ImGuiDraw::InputAutoSetting& setting, bool isTail) 
     {
 
     } // REFLECT_PROPERTY() 매크로를 통해 자동으로 override 됩니다.
@@ -90,111 +100,119 @@ protected:
 #pragma endregion
 };
 
-#define REFLECT_FIELDS_BEGIN(BASE)                                             \
-    using Base = BASE;                                                         \
-    struct reflect_fields_struct                                               \
-    {                                                                          \
+#define REFLECT_FIELDS_BEGIN(BASE)                                                                              \
+    using Base = BASE;                                                                                          \
+    struct reflect_fields_struct                                                                                \
+    {                                                                                                           \
         rfl::Flatten<Base::reflect_fields_struct> Basefields{};
 
-#define REFLECT_FIELDS_END(CLASS)                                              \
-    };                                                                         \
-    struct reflection_safe_ptr                                                 \
-    {                                                                          \
-        reflection_safe_ptr(CLASS##* owner)                                    \
-        {                                                                      \
-            _owner = owner;                                                    \
-        }                                                                      \
-        ~reflection_safe_ptr() = default;                                      \
-        reflect_fields_struct* operator->()                                    \
-        {                                                                      \
-            return Get();                                                      \
-        }                                                                      \
-        reflect_fields_struct& operator*()                                     \
-        {                                                                      \
-            return *Get();                                                     \
-        }                                                                      \
-        const reflect_fields_struct* operator->() const                        \
-        {                                                                      \
-            return Get();                                                      \
-        }                                                                      \
-        const reflect_fields_struct& operator*() const                         \
-        {                                                                      \
-            return *Get();                                                     \
-        }                                                                      \
-        reflect_fields_struct* Get()                                           \
-        {                                                                      \
-            if (_reflection == nullptr)                                        \
-            {                                                                  \
+#define REFLECT_FIELDS_END(CLASS)                                                                               \
+    };                                                                                                          \
+    struct reflection_safe_ptr                                                                                  \
+    {                                                                                                           \
+        reflection_safe_ptr(CLASS##* owner)                                                                     \
+        {                                                                                                       \
+            _owner = owner;                                                                                     \
+        }                                                                                                       \
+        ~reflection_safe_ptr() = default;                                                                       \
+        reflect_fields_struct* operator->()                                                                     \
+        {                                                                                                       \
+            return Get();                                                                                       \
+        }                                                                                                       \
+        reflect_fields_struct& operator*()                                                                      \
+        {                                                                                                       \
+            return *Get();                                                                                      \
+        }                                                                                                       \
+        const reflect_fields_struct* operator->() const                                                         \
+        {                                                                                                       \
+            return Get();                                                                                       \
+        }                                                                                                       \
+        const reflect_fields_struct& operator*() const                                                          \
+        {                                                                                                       \
+            return *Get();                                                                                      \
+        }                                                                                                       \
+        reflect_fields_struct* Get()                                                                            \
+        {                                                                                                       \
+            if (_reflection == nullptr)                                                                         \
+            {                                                                                                   \
                 _reflection = reinterpret_cast<CLASS## ::reflect_fields_struct*>(_owner->get_reflect_fields()); \
-            }                                                                  \
-            return _reflection;                                                \
-        }                                                                      \
-        const reflect_fields_struct* Get() const                               \
-        {                                                                      \
-            if (_reflection == nullptr)                                        \
-            {                                                                  \
+            }                                                                                                   \
+            return _reflection;                                                                                 \
+        }                                                                                                       \
+        const reflect_fields_struct* Get() const                                                                \
+        {                                                                                                       \
+            if (_reflection == nullptr)                                                                         \
+            {                                                                                                   \
                 _reflection = reinterpret_cast<CLASS## ::reflect_fields_struct*>(_owner->get_reflect_fields()); \
-            }                                                                  \
-            return _reflection;                                                \
-        }                                                                      \
-                                                                               \
-    private:                                                                   \
-        mutable CLASS## ::reflect_fields_struct* _reflection = nullptr;        \
-        CLASS##*                         _owner      = nullptr;                \
-    };                                                                         \
-    reflection_safe_ptr ReflectFields{this};                                   \
-                                                                               \
-public:                                                                        \
-    virtual std::string SerializedReflectFields()                              \
-    {                                                                          \
-        serialized_reflect_event_recursive();                                  \
-        return ReflectHelper::json::SerializedObjet(*ReflectFields);           \
-    }                                                                          \
-    virtual bool DeserializedReflectFields(std::string_view data)              \
-    {                                                                          \
-        bool result =                                                          \
-            ReflectHelper::json::DeserializedObjet(*ReflectFields, data);      \
-        deserialized_reflect_event_recursive();                                \
-        return result;                                                         \
-    }                                                                          \
-                                                                               \
-protected:                                                                     \
-    virtual void make_reflect_fields(void*& fields, unsigned long long& size)  \
-    {                                                                          \
-        size_t size_of = sizeof(CLASS## ::reflect_fields_struct);              \
-        fields         = malloc(size_of);                                      \
-        size           = size_of;                                              \
-        new (fields) CLASS## ::reflect_fields_struct();                        \
-    }                                                                          \
-    virtual void serialized_reflect_event_recursive()                          \
-    {                                                                          \
-        Base::serialized_reflect_event_recursive();                            \
-        if constexpr (std::is_same_v<                                          \
-                          decltype(Base::SerializedReflectEvent),              \
-                          decltype(CLASS## ::SerializedReflectEvent)> ==       \
-                      false)                                                   \
-        {                                                                      \
-            CLASS## ::SerializedReflectEvent();                                \
-        }                                                                      \
-    }                                                                          \
-    virtual void deserialized_reflect_event_recursive()                        \
-    {                                                                          \
-        Base::deserialized_reflect_event_recursive();                          \
-        if constexpr (std::is_same_v<                                          \
-                          decltype(Base::DeserializedReflectEvent),            \
-                          decltype(CLASS## ::DeserializedReflectEvent)> ==     \
-                      false)                                                   \
-        {                                                                      \
-            CLASS## ::DeserializedReflectEvent();                              \
-        }                                                                      \
-    }                                                                          
+            }                                                                                                   \
+            return _reflection;                                                                                 \
+        }                                                                                                       \
+                                                                                                                \
+    private:                                                                                                    \
+        mutable CLASS## ::reflect_fields_struct* _reflection = nullptr;                                         \
+        CLASS##*                         _owner      = nullptr;                                                 \
+    };                                                                                                          \
+    reflection_safe_ptr ReflectFields{this};                                                                    \
+                                                                                                                \
+public:                                                                                                         \
+    virtual std::string SerializedReflectFields()                                                               \
+    {                                                                                                           \
+        serialized_reflect_event_recursive();                                                                   \
+        return ReflectHelper::json::SerializedObjet(*ReflectFields);                                            \
+    }                                                                                                           \
+    virtual bool DeserializedReflectFields(std::string_view data)                                               \
+    {                                                                                                           \
+        bool result =                                                                                           \
+            ReflectHelper::json::DeserializedObjet(*ReflectFields, data);                                       \
+        deserialized_reflect_event_recursive();                                                                 \
+        return result;                                                                                          \
+    }                                                                                                           \
+                                                                                                                \
+protected:                                                                                                      \
+    virtual void make_reflect_fields(void*& fields, unsigned long long& size)                                   \
+    {                                                                                                           \
+        size_t size_of = sizeof(CLASS## ::reflect_fields_struct);                                               \
+        fields         = malloc(size_of);                                                                       \
+        size           = size_of;                                                                               \
+        new (fields) CLASS## ::reflect_fields_struct();                                                         \
+    }                                                                                                           \
+    virtual void serialized_reflect_event_recursive()                                                           \
+    {                                                                                                           \
+        Base::serialized_reflect_event_recursive();                                                             \
+        if constexpr (std::is_same_v<                                                                           \
+                          decltype(Base::SerializedReflectEvent),                                               \
+                          decltype(CLASS## ::SerializedReflectEvent)> ==                                        \
+                      false)                                                                                    \
+        {                                                                                                       \
+            CLASS##::SerializedReflectEvent();                                                                  \
+        }                                                                                                       \
+    }                                                                                                           \
+    virtual void deserialized_reflect_event_recursive()                                                         \
+    {                                                                                                           \
+        Base::deserialized_reflect_event_recursive();                                                           \
+        if constexpr (std::is_same_v<                                                                           \
+                          decltype(Base::DeserializedReflectEvent),                                             \
+                          decltype(CLASS##::DeserializedReflectEvent)> ==                                       \
+                      false)                                                                                    \
+        {                                                                                                       \
+            CLASS##::DeserializedReflectEvent();                                                                \
+        }                                                                                                       \
+    }                                                                                                           \
+    virtual void applyReflectFields(const std::function<void(std::string_view, void*)>& func)                   \
+    {                                                                                                           \
+        const auto view = rfl::to_view(*ReflectFields.Get());                                                   \
+        view.apply([&](auto& rflField)                                                                          \
+        {                                                                                                       \
+            func(rflField.name(), rflField.value());                                                            \
+        });                                                                                                     \
+    }                                                                                                           \
                        
 // 에디터 편집을 허용할 프로퍼티들을 등록합니다. Get, Set 함수가 모두 존재하는
 // 프로퍼티만 편집 가능합니다.
 #define REFLECT_PROPERTY(...)                                                                               \
-    virtual void ImGuiDrawPropertys(ReflectHelper::ImGuiDraw::InputAutoSetting& setting = UmCore->ImGuiDrawPropertysSetting)  \
+    virtual void ImGuiDrawPropertys(ReflectHelper::ImGuiDraw::InputAutoSetting& setting = UmCore->ImGuiDrawPropertysSetting, bool isTail = true)    \
     {                                                                                                       \
-        __super::ImGuiDrawPropertys();                                                                      \
+        __super::ImGuiDrawPropertys(setting, false);                                                        \
         auto fields = std::tie(__VA_ARGS__);                                                                \
         static std::unordered_set<void*> reflectionFieldsSet;                                               \
         reflectionFieldsSet.clear();                                                                        \
@@ -221,7 +239,10 @@ protected:                                                                     \
                 ReflectHelper::ImGuiDraw::Private::InputAuto(rflField, setting);                            \
             }                                                                                               \
         });                                                                                                 \
-        setting.InputEndEvent = nullptr;                                                                    \
+        if (isTail)                                                                                         \
+        {                                                                                                   \
+            setting.InputEndEvent = nullptr;                                                                \
+        }                                                                                                   \
         ImGui::PopID();                                                                                     \
     }
 
@@ -458,7 +479,8 @@ namespace ReflectHelper
                         static std::string input;
                         input  = val;
                         isEdit = ImGui::InputText(
-                            name, &input, 
+                            name, 
+                            &input, 
                             setting._string.flags,
                             setting._string.callback,
                             setting._string.user_data);
@@ -603,11 +625,9 @@ namespace ReflectHelper
                     {
                         if constexpr (std::ranges::range<decltype(*value)>)
                         {
-                            if (ImGui::CollapsingHeader(
-                                    (const char*)name.data()))
+                            if (ImGui::CollapsingHeader((const char*)name.data()))
                             {
-                                bool isEdit = false;
-                                int  i      = 0;
+                                int  i = 0;
                                 for (auto& val : *value)
                                 {
                                     isEdit = NotArrayTypeFunc(&val, std::format("[{}]", i).c_str());
@@ -616,6 +636,7 @@ namespace ReflectHelper
                                 if (ImGui::Button("+"))
                                 {
                                     value->emplace_back();
+                                    isEdit = true;
                                 }
                                 ImGui::SameLine();
                                 if (ImGui::Button("-"))
@@ -623,6 +644,7 @@ namespace ReflectHelper
                                     if (value->size() > 0)
                                     {
                                         value->pop_back();
+                                        isEdit = true;
                                     }                                 
                                 }
                             }
