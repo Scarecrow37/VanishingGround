@@ -54,7 +54,7 @@ void Renderer::Initialize()
     std::shared_ptr<RenderScene> editorScene = std::make_shared<RenderScene>();
     editorScene->InitializeRenderScene();
     std::shared_ptr<PBRLitTechnique> pbrTech = std::make_shared<PBRLitTechnique>();
-    editorScene->AddRenderTechnique("PBRLIT", pbrTech);
+    editorScene->AddRenderTechnique(pbrTech);
     _renderScenes["Editor"] = editorScene;
 
 }

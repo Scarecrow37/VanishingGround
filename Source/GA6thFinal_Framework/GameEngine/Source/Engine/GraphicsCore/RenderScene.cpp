@@ -102,7 +102,7 @@ void RenderScene::RegisterOnRenderQueue(bool** isActive, MeshRenderer* renderabl
 
 void RenderScene::Execute(ID3D12GraphicsCommandList* commandList)
 {
-    for (auto& [name, tech] : _techniques)
+    for (auto& tech : _techniques)
     {
         tech->Execute(commandList);
     }
@@ -113,11 +113,11 @@ D3D12_CPU_DESCRIPTOR_HANDLE RenderScene::GetFinalImage()
     return _gBufferSrvHandles[BASECOLOR];
 }
 
-void RenderScene::AddRenderTechnique(const std::string& name, std::shared_ptr<RenderTechnique> technique)
+void RenderScene::AddRenderTechnique(std::shared_ptr<RenderTechnique> technique)
 {
     technique->SetOwnerScene(this);
     technique->Initialize();
-    _techniques[name] = technique;
+    _techniques.push_back(technique);
 }
 
 // 250424

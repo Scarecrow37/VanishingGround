@@ -43,7 +43,7 @@ public:
     // 렌더큐에서 삭제된건?? 물어봐야함.
 
     // 렌더 기술 등록
-    void AddRenderTechnique(const std::string& name, std::shared_ptr<RenderTechnique> technique);
+    void AddRenderTechnique(std::shared_ptr<RenderTechnique> technique);
     // 실행
     void Execute(ID3D12GraphicsCommandList* commandList);
 
@@ -70,7 +70,7 @@ private:
 public:
     UINT _currentFrameIndex = 0;
     // 가지고있는 technique들
-    std::unordered_map<std::string, std::shared_ptr<RenderTechnique>> _techniques;
+    std::vector<std::shared_ptr<RenderTechnique>> _techniques;
 
     // 0: basecolor, 1: normal ,2:ORM , 3:emissive, 4:world position, 5: depth, 6: costom depth(bit mask,후처리용)
     UINT                                       _gBufferCount = GBuffer::END;
