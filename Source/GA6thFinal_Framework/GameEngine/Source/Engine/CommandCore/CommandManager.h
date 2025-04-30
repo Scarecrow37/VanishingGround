@@ -3,15 +3,8 @@
 
 class UmCommand;
 
-class CommandManager : public IAppModule
+class CommandManager
 {
-public:
-// IAppModule을(를) 통해 상속됨
-    void PreInitialize() override;
-    void ModuleInitialize() override;
-    void PreUnInitialize() override;
-    void ModuleUnInitialize() override;
-
 public:
     template <typename T, typename... Args>
     void Do(Args... args)
@@ -24,8 +17,16 @@ public:
     }
 
     void Undo();
+    void Undo(UINT cnt);
 
     void Redo();
+    void Redo(UINT cnt);
+
+public:
+    inline const auto& UndoStackBegin() const { return _undoStack.begin(); }
+    inline const auto& UndoStackEnd() const { return _undoStack.end(); }
+    inline const auto& RedoStackBegin() const { return _redoStack.begin(); }
+    inline const auto& RedoStackEnd() const { return _redoStack.end(); }
 
 private:
     void ClampCommandStack();

@@ -37,6 +37,7 @@ GameApplication::GameApplication()
     _editorModule->RegisterEditorObject<EditorSceneTool>();
     _editorModule->RegisterEditorObject<EditorAssetBrowserTool>();
     _editorModule->RegisterEditorObject<EditorLogsTool>();
+    _editorModule->RegisterEditorObject<EditorCommandTool>();
 
     // 김시우 테스트용
     _editorModule->RegisterEditorObject<ScriptTestEditor>();

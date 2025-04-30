@@ -22,7 +22,7 @@ void CommandManager::ModuleUnInitialize()
     _redoStack.clear();
 }
 
-void CommandManager::Undo() 
+void CommandManager::Undo()
 {
     if (true == _undoStack.empty())
         return;
@@ -34,6 +34,21 @@ void CommandManager::Undo()
     _redoStack.push_back(cmd);
 
     ClampCommandStack();
+}
+
+void CommandManager::Undo(UINT cnt) 
+{
+    for (UINT i = 0; i < cnt; ++i)
+    {
+        if (true == _undoStack.empty())
+        {
+            break;
+        }
+        else
+        {
+            Undo();
+        }
+    }
 }
 
 void CommandManager::Redo() 
@@ -48,6 +63,21 @@ void CommandManager::Redo()
     _undoStack.push_back(cmd);
 
     ClampCommandStack();
+}
+
+void CommandManager::Redo(UINT cnt) 
+{
+    for (UINT i = 0; i < cnt; ++i)
+    {
+        if (true == _redoStack.empty())
+        {
+            break;
+        }
+        else
+        {
+            Redo();
+        }
+    }
 }
 
 void CommandManager::ClampCommandStack() 
