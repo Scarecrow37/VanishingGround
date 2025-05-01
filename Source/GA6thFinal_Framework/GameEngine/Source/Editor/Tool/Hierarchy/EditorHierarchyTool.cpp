@@ -80,7 +80,7 @@ static void TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>
         if (node.gameObject->ActiveInHierarchy == false)
         {
             GameObject& object  = node.gameObject;
-            if (object.IsPrefabInstacne == false)
+            if (object.IsPrefabInstance() == false)
             {
                 // 회색 계열
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.4f, 0.4f, 0.4f, 1.0f));
@@ -104,7 +104,7 @@ static void TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>
         else
         {
             GameObject& object  = node.gameObject;   
-            if (object.IsPrefabInstacne == false)
+            if (object.IsPrefabInstance() == false)
             {
                 // 기본 스타일 사용
                 return false;
