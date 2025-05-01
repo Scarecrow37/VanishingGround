@@ -290,12 +290,26 @@ public:
     //  게임 오브젝트의 이름
     PROPERTY(Name)
 
-    GETTER_ONLY(bool, IsPrefabInstacne) 
+    GETTER_ONLY(GameObject*, PrefabInstance) 
     { 
-        return _prefabGuid != STR_NULL; 
+        Transform* curr = &_transform;
+        while (curr != nullptr)
+        {
+            if (curr->gameObject->_prefabGuid != STR_NULL)
+            {
+                return &curr->gameObject;
+            }
+            curr = curr->Parent;      
+        }
+        return nullptr; 
     }
-    //get : 프리팹 인스턴스화 여부를 반환합니다.
-    PROPERTY(IsPrefabInstacne)
+    //get : 자신부터 부모중 프리팹 인스턴스가 존재하면 해당 포인터를 반환합니다.
+    PROPERTY(PrefabInstance)
+
+    bool IsPrefabInstance()
+    {
+        return _prefabGuid != STR_NULL;
+    }
 
     GETTER_ONLY(std::string, PrefabPath) 
     { 
@@ -314,9 +328,9 @@ private:
     Transform _transform;
 protected:
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
-    std::string                              _name = STR_NULL;
-    bool                                     _activeSelf = true;
-    bool                                     _isStatic = false;
+    std::string _name = STR_NULL;
+    bool        _activeSelf = true;
+    bool        _isStatic = false;
     REFLECT_FIELDS_END(GameObject)
 
     /*

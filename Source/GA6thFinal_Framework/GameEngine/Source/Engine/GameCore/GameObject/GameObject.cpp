@@ -59,7 +59,8 @@ void GameObject::OnInspectorStay()
     static GameObject* selectObject = nullptr;
     ImGui::PushID(this);
     {
-        bool isPrefab = IsPrefabInstacne;
+        bool isPrefab = IsPrefabInstance();
+        GameObject* pPrefabObject = PrefabInstance; 
         if (isPrefab)
         {
             ImGui::Text("Prefab");
@@ -77,25 +78,6 @@ void GameObject::OnInspectorStay()
                 ImGui::InputText("Prefab", &emptyPath, ImGuiInputTextFlags_ReadOnly);
             }     
             ImGui::PopStyleColor(2);
-            if(ImGui::BeginDragDropTarget())
-            {
-                if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
-                {
-                    DragDropAsset::Data* data = (DragDropAsset::Data*)payload->Data;
-                    if (data->pContext->expired() == false)
-                    {
-                        auto                  context   = data->pContext->lock();
-                        const File::Path&     path      = context->GetPath();
-                        std::filesystem::path extension = path.extension();
-                        if (extension == UmGameObjectFactory.PREFAB_EXTENSION)
-                        {
-                            UmGameObjectFactory.UnpackPrefab(this);
-                            UmGameObjectFactory.PackPrefab(this, context->GetMeta().GetGuid());
-                        }
-                    }
-                }
-                ImGui::EndDragDropTarget();
-            }
             ImGui::Separator();
         }
 
@@ -115,28 +97,45 @@ void GameObject::OnInspectorStay()
             GameObject::Destroy(this);
         }
 
-        for (auto& component : _components)
+        for (int i = 0; i < _components.size(); i++)
         {
+            std::shared_ptr<Component>& component = _components[i];
             ImGui::PushID(component.get());
             {
                 ImGui::Separator();
                 const char* className = component->ClassName();
-                ImVec2 textSize  = ImGui::CalcTextSize(className);  
-                ImVec2 cursorPos = ImGui::GetCursorScreenPos();
-                ImVec2 padding = ImVec2(4.0f, 2.0f);
-                ImVec2 bgMin = cursorPos;
-                ImVec2 bgMax = ImVec2(cursorPos.x + textSize.x + padding.x, cursorPos.y + textSize.y + padding.y);
-                ImGui::GetWindowDrawList()->AddRectFilled(bgMin, bgMax, ImGui::GetColorU32(ImVec4(0.2f, 0.204f, 0.212f, 1.0f)));
-                ImGui::SetCursorScreenPos(ImVec2(cursorPos.x , cursorPos.y));
                 ImGui::Text(className);
                 ImGui::SameLine();
                 ImGui::Text(" Component");
-
-                if (isPrefab)
+                if (pPrefabObject != nullptr)
                 {
                     UmCore->ImGuiDrawPropertysSetting.InputEndEvent = [&](bool result, std::string_view name) 
                     {
-                        
+                        if (result == true)
+                        {                 
+                            const auto* originPrefab = UmGameObjectFactory.GetOriginPrefab(pPrefabObject->_prefabGuid);
+                            if (originPrefab != nullptr)
+                            {
+                                int myNumber = -1;
+                                int level    = 0;
+                                Transform::ForeachBFS(pPrefabObject->_transform, [&](Transform* curr) {
+                                    if (curr == &_transform)
+                                    {
+                                        myNumber = level;
+                                    }
+                                    level++;
+                                });                            
+                                if (myNumber > -1)
+                                {
+                                    GameObject* prefab = (*originPrefab)[myNumber].get();
+                                    std::string prefabData = prefab->GetComponentAtIndex<Component>(i)->SerializedReflectFields();
+                                    component->applyReflectFields([&](std::string_view name, void* pData) 
+                                    {
+
+                                    });
+                                }
+                            }
+                        }
                     };
                 }
                 component->ImGuiDrawPropertys();
