@@ -1,6 +1,8 @@
 ﻿#include "pch.h"
 using namespace Global;
 
+#define SAFE_FREE(ptr) if(ptr != nullptr) free(ptr)
+
 void GameObject::DontDestroyOnLoad(GameObject& gameObject)
 {
     ESceneManager::Engine::DontDestroyOnLoadObject(gameObject);
@@ -127,12 +129,38 @@ void GameObject::OnInspectorStay()
                                 });                            
                                 if (myNumber > -1)
                                 {
+                                    using namespace ReflectHelper::json;
                                     GameObject* prefab = (*originPrefab)[myNumber].get();
-                                    std::string prefabData = prefab->GetComponentAtIndex<Component>(i)->SerializedReflectFields();
-                                    component->applyReflectFields([&](std::string_view name, void* pData) 
+                                    Component* prefabComponent = prefab->GetComponentAtIndex<Component>(i);
+                                    if (prefabComponent != nullptr)
                                     {
+                                        std::string prefabData = prefabComponent->SerializedReflectFields();
+                                        yyjson_doc* prefabDoc  = yyjson_read(prefabData.c_str(), prefabData.size(), 0);
+                                        yyjson_val* prefabRoot = yyjson_doc_get_root(prefabDoc);
 
-                                    });
+                                        std::string myData = component->SerializedReflectFields();
+                                        yyjson_doc* myDoc  = yyjson_read(myData.c_str(), myData.size(), 0);
+                                        yyjson_val* myRoot = yyjson_doc_get_root(myDoc);
+
+                                        component->applyReflectFields([&](std::string_view rflName, void* pData) 
+                                        {
+                                            yyjson_val* prefabVal = yyjson_obj_get(prefabRoot, name.data());
+                                            char* prefabCStr = yyjsonValToCStr(prefabVal);
+
+                                            yyjson_val* myVal  = yyjson_obj_get(myRoot, name.data());
+                                            char* myCStr = yyjsonValToCStr(myVal);
+
+                                            if (std::strcmp(prefabCStr, myCStr) != 0)
+                                            {
+                                                std::string message = std::format("edit {}", name);
+                                                UmLogger.Log(LogLevel::LEVEL_TRACE, message);
+                                            }
+
+                                            SAFE_FREE(prefabCStr);
+                                            SAFE_FREE(myCStr);
+                                        });
+                                        yyjson_doc_free(prefabDoc);
+                                    }
                                 }
                             }
                         }
