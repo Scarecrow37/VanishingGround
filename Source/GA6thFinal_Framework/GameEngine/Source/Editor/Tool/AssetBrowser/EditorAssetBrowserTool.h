@@ -52,6 +52,8 @@ private:
 
     /* 메뉴바 - 콜럼 사이 어퍼프레임 */
     void ShowUpperFrame();
+    void ShowFolderDirectoryPath(spFolderContext context); // 주소 출력
+    void ListToDirectoryFileName(const File::Path& relativePath);
 
     /*  */
     void BeginColumn();         // Begin
@@ -64,9 +66,7 @@ private:
 
      /* 콘텐츠 뷰 콜럼 */
     void ShowFolderContents();
-
-    void ShowFolderDirectoryPath(spFolderContext context);  // 콘텐츠 뷰 상단 주소 출력
-    void ListToDirectoryFileName(const File::Path& relativePath);
+    void ShowSearchBar(spFolderContext context); // 검색바
     void ContentsFrameEventAction(spFolderContext context); // 콘텐츠 뷰 프레임 이벤트 액션
 
     void ShowContentsToList(); // 콘텐츠 뷰 출력 타입 - 리스트
@@ -121,7 +121,6 @@ private:
 
     // ReflectFields
     REFLECT_FIELDS_BEGIN(EditorTool)
-    float UpperHeight = 40.0f;
     float ColumWidth  = 250.f;
     float ColumHeight = 0.0f;
     REFLECT_FIELDS_END(EditorAssetBrowserTool)

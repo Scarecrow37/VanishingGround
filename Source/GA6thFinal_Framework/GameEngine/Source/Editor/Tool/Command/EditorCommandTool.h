@@ -32,5 +32,6 @@ private:
 
 private:
     ImVec4 _tableDefaultColor = ImVec4(0.4, 0.4, 0.4, 0.8);
-    ImVec4 _tableHoveredColor;
+    ImVec4 _tableHoveredColor = ImVec4(0.6, 0.6, 0.6, 0.8);
+    ;
 };

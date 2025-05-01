@@ -100,6 +100,6 @@ ImVec4 EditorCommandTool::GetSelectableColor(int index, ImVec4 color)
     // 빼거나 더할 값
     ImVec4 blend = ImVec4(0.1f, 0.1f, 0.1f, 0.0f);
     // 짝수 인덱스는 어둡게, 홀수 인덱스는 밝게
-    ImVec4 color = index % 2 == 0 ? color + blend : color - blend;
-    return color;
+    ImVec4 out = index % 2 == 0 ? color + blend : color - blend;
+    return out;
 }
