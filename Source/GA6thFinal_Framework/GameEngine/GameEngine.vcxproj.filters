@@ -450,12 +450,6 @@
     <ClInclude Include="Source\Editor\Menu\Project\EditorBuildSettingMenu.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\PBRPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\PBRTechnique.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\GraphicsCore\Animator.h">
       <Filter>GraphicsCore\Animator</Filter>
     </ClInclude>
@@ -472,6 +466,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\GraphicsCore\DeferredPBRLitPass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GameCore\Component\MissingComponent.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -788,9 +785,6 @@
     <ClCompile Include="Source\Editor\Menu\Project\EditorBuildSettingMenu.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\PBRPass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\Animator.cpp">
       <Filter>GraphicsCore\Animator</Filter>
     </ClCompile>
@@ -807,6 +801,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\DeferredPBRLitPass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GameCore\Component\MissingComponent.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
