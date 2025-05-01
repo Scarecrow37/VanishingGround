@@ -59,6 +59,12 @@ void ECommandManager::Redo(UINT cnt)
     }
 }
 
+void ECommandManager::Clear() 
+{
+    _undoStack.clear();
+    _redoStack.clear();
+}
+
 void ECommandManager::ClampCommandStack()
 {
     if (_undoStack.size() > _maxCommandSize)

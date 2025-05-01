@@ -49,6 +49,18 @@ bool EditorInspectorTool::SetFocusObject(std::weak_ptr<IEditorObject> obj)
     return false;
 }
 
+bool EditorInspectorTool::IsFocused(std::weak_ptr<IEditorObject> obj)
+{
+    bool ownerIsExpired = _focusedObject.expired();
+    bool objIsExpired   = obj.expired();
+    if (false == ownerIsExpired && false == objIsExpired)
+    {
+        bool isSame = obj.lock() == _focusedObject.lock();
+        return isSame;
+    }
+    return false;
+}
+
 void EditorInspectorTool::ShowMenuBarFrame()
 {
     if (ImGui::BeginMenuBar())
@@ -56,5 +68,24 @@ void EditorInspectorTool::ShowMenuBarFrame()
         ImGui::MenuItem("Lock", nullptr, &_isLockFocus);
 
         ImGui::EndMenuBar();
+    }
+}
+
+namespace Command
+{
+    void FocusInspecor::Execute()
+    {
+        if (false == _newFocused.expired())
+        {
+            EditorInspectorTool::SetFocusObject(_newFocused);
+        }
+    }
+
+    void FocusInspecor::Undo()
+    {
+        if (false == _oldFocused.expired())
+        {
+            EditorInspectorTool::SetFocusObject(_oldFocused);
+        }
     }
 }

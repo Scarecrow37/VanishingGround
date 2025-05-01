@@ -22,6 +22,8 @@ public:
 
     static bool SetFocusObject(std::weak_ptr<IEditorObject> obj);
 
+    static bool IsFocused(std::weak_ptr<IEditorObject> obj);
+
 private:
     static void ShowMenuBarFrame();
 
@@ -31,3 +33,24 @@ private:
     inline static std::weak_ptr<IEditorObject> _focusedObject;
 };
 
+namespace Command
+{
+    class FocusInspecor : public UmCommand
+    {
+    public:
+        FocusInspecor(std::weak_ptr<GameObject> oldWp, std::weak_ptr<GameObject> newWp)
+            : UmCommand("Inspector Focused"), _oldFocused(oldWp), _newFocused(newWp)
+        {
+        }
+        ~FocusInspecor() override = default;
+
+    public:
+        // UmCommand을(를) 통해 상속됨
+        void Execute() override;
+        void Undo() override;
+
+    private:
+        std::weak_ptr<GameObject> _oldFocused;
+        std::weak_ptr<GameObject> _newFocused;
+    };
+}

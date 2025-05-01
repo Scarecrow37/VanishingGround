@@ -22,11 +22,13 @@ public:
     void Redo();
     void Redo(UINT cnt);
 
+    void Clear();
+
 public:
-    inline const auto& UndoStackBegin() const { return _undoStack.begin(); }
-    inline const auto& UndoStackEnd() const { return _undoStack.end(); }
-    inline const auto& RedoStackBegin() const { return _redoStack.begin(); }
-    inline const auto& RedoStackEnd() const { return _redoStack.end(); }
+    inline const auto UndoStackBegin() const { return _undoStack.begin(); }
+    inline const auto UndoStackEnd() const { return _undoStack.end(); }
+    inline const auto RedoStackBegin() const { return _redoStack.begin(); }
+    inline const auto RedoStackEnd() const { return _redoStack.end(); }
 
 private:
     void ClampCommandStack();

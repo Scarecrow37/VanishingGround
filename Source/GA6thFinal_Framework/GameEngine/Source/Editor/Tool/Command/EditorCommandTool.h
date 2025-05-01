@@ -26,4 +26,11 @@ private:
 
     /* PopUp창 호출 성공 시 호출 (Begin 후에 호출) */
     virtual void OnPopup();
+
+private:
+    ImVec4 GetSelectableColor(int index, ImVec4 color);
+
+private:
+    ImVec4 _tableDefaultColor = ImVec4(0.4, 0.4, 0.4, 0.8);
+    ImVec4 _tableHoveredColor;
 };
