@@ -402,7 +402,7 @@ void EditorAssetBrowserTool::ContentsFrameEventAction(spFolderContext context)
         if (ImGuiHelper::DragDrop::RecieveFrameDragDropEvent(DragDropTransform::KEY, &data))
         {
             File::Path path = context->GetPath();
-            path            = std::filesystem::relative(path, UmFileSystem.GetRootPath());
+            path = UmFileSystem.GetRelativePath(path);
             UmGameObjectFactory.WriteGameObjectFile(data.pTransform, path.string());
         }
 
