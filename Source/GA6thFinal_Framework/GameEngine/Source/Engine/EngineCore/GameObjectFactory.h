@@ -96,6 +96,14 @@ public:
     bool PackPrefab(GameObject* object, const File::Guid& guid);
 
     /// <summary>
+    /// <para> 프리팹 원본 객체를 가져옵니다. 계층 구조가 BFS 순으로 담아져 있습니다. </para>
+    /// <para> 실패시 nullptr을 반환합니다. </para>
+    /// </summary>
+    /// <param name="guid :">가져올 프리팹 GUID</param>
+    /// <returns>해당 GUID의 프리팹</returns>
+    const std::vector<std::shared_ptr<GameObject>>* GetOriginPrefab(const File::Guid& guid);
+
+    /// <summary>
     /// 프리팹 인스턴스를 일반 게임 오브젝트로 변경합니다.
     /// </summary>
     /// <returns></returns>
@@ -122,6 +130,8 @@ public:
     /// <returns>결과</returns>
     bool UnsetOverrideFlag(void* pField);
 
+
+
 private:
     //컴포넌트를 동적할당후 shared_ptr로 반환합니다.
     //매개변수로 생성할 컴포넌트 typeid().name()을 전달해야합니다.
@@ -138,8 +148,11 @@ private:
    //Yaml을 오브젝트로 반환. Reset도 해줌.
    std::shared_ptr<GameObject> MakeGameObjectToYaml(YAML::Node* objectNode);
 
+   //게임 오브젝트를 YAML로 초기화
+   void ParsingYaml(GameObject* pObject, YAML::Node& objectNode);
+
    //오브젝트 계층구조를 포함한 Yaml 직렬화 데이터로 GameObject들을 만들어서 반환합니다.
-   std::vector<std::shared_ptr<GameObject>> MakeObjectsGraphToYaml(YAML::Node* pObjectNode);
+   std::vector<std::shared_ptr<GameObject>> MakeObjectsGraphToYaml(YAML::Node* pObjectNode, bool useResource = false);
 
    void RegisterGameObjects();
 private:
@@ -155,13 +168,7 @@ private:
     instanceIDManager;
 private:
     //Prefab의 GUID만 다시 작성합니다.
-    void WritePrefabGuid(const File::Path& path);
-
-    //Prefab Instance의 계층 구조를 Prefab 파일과 동기화 시킵니다.
-    void SyncPrefabInstance()
-    {
-
-    }
+    void WritePrefabGuid(const File::Path& path, YAML::Node& data);
 
     // FileEventNotifier을(를) 통해 상속됨
     void OnFileRegistered(const File::Path& path) override;
@@ -175,9 +182,9 @@ private:
     void OnRequestedCopy(const File::Path& path) override {}
     void OnRequestedPaste(const File::Path& path) override {}
 
-    //프리팹 직렬화 데이터 모아두는 맵
-    std::unordered_map<File::Guid, YAML::Node> _prefabDataMap;
-
+    //프리팹 오브젝트 모음
+    std::unordered_map<File::Guid, std::vector<std::shared_ptr<GameObject>>> _prefabObjectMap;
+     
     //프리팹 인스턴스 GUID 등록 대기용 큐
     std::unordered_map<File::Path, std::vector<std::weak_ptr<GameObject>>> _prefabGuidQueue;
 
@@ -186,4 +193,5 @@ private:
 
     //프리팹 인스턴스 ovrride 추적용
     std::unordered_set<void*> _prefabInstanceOverride;
+
 };
