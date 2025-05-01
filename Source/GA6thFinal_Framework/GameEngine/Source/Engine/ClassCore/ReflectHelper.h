@@ -333,11 +333,12 @@ namespace ReflectHelper
         bool DeserializedObjet(Type& obj, std::string_view data);
 
         /// <summary>
-        /// 전달한 yyjson_val*를 string으로 변환해서 반환합니다.
+        /// <para>전달한 yyjson_val*를 char*형식의 문자열로 변환해서 반환합니다.</para>
+        /// <para>반드시 반환된 값이 nullptr이 아니면 사용후 free로 해제해야 합니다.</para>
         /// </summary>
         /// <param name="val :">변환할 val 값</param>
-        /// <returns>변환된 string 객체</returns>
-        std::string yyjsonValToString(yyjson_val* val);
+        /// <returns>변환된 문자열</returns>
+        char* yyjsonValToCStr(yyjson_val* val);
     } // namespace json
 } // namespace ReflectHelper
 
