@@ -10,7 +10,9 @@ public:
 
 public:
     REFLECT_PROPERTY(
-        ObjectDrop
+        ObjectDrop, 
+        TestVector3,
+        ReflectFields->floatVector
         )
 
     GETTER_ONLY(std::string_view, ObjectDrop)
@@ -19,7 +21,20 @@ public:
     }
     PROPERTY(ObjectDrop)
 
+    GETTER(const Vector3&, TestVector3)
+    {
+        return testVector3;
+    }
+    SETTER(const Vector3&, TestVector3)
+    {
+        testVector3 = value;
+    }
+    PROPERTY(TestVector3)
+
     const std::vector<float>& GetfloatVector() const { return ReflectFields->floatVector; }
+
+private:
+    Vector3 testVector3;
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)

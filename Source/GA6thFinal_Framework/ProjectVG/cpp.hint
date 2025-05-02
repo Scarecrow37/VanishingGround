@@ -101,7 +101,7 @@ protected:                                                                     \
         }                                                                      \
     }
 
-#define REFLECT_PROPERTY(...)              
+#define REFLECT_PROPERTY(...) 
 
 #define USING_PROPERTY(class_name)                 
      

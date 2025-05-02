@@ -48,14 +48,14 @@ namespace Command
                 : UmCommand("Inspector Focused"), _oldFocused(oldWp), _newFocused(newWp)
             {
             }
-            ~FocusObject() override = default;
+            virtual ~FocusObject() override = default;
 
         public:
             // UmCommand을(를) 통해 상속됨
-            void Execute() override;
-            void Undo() override;
+            virtual void Execute() override;
+            virtual void Undo() override;
 
-        private:
+        protected:
             std::weak_ptr<GameObject> _oldFocused;
             std::weak_ptr<GameObject> _newFocused;
         };
