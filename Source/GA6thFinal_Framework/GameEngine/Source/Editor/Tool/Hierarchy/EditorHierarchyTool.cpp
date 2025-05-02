@@ -11,15 +11,11 @@ static void TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>
         bool result = ImGui::IsMouseReleased(ImGuiMouseButton_Left) && ImGui::IsItemHovered();
         if (result)
         {
-            //HierarchyFocusObjWeak = node.gameObject->GetWeakPtr();
-            //EditorInspectorTool::SetFocusObject(HierarchyFocusObjWeak);
-
             auto oldWp = HierarchyFocusObjWeak;
             auto newWp = node.gameObject->GetWeakPtr();
             if (false == EditorInspectorTool::IsFocused(newWp))
             {
-                UmCommandManager.Do<Command::Inspector::FocusObject>(oldWp, newWp);
-                HierarchyFocusObjWeak = newWp;
+                UmCommandManager.Do<Command::Hierarchy::FocusCommand>(oldWp, newWp);
             }
         }
         return result;
@@ -321,3 +317,15 @@ void EditorHierarchyTool::OnPopup()
   
 }
 
+Command::Hierarchy::FocusCommand::~FocusCommand() = default;
+void Command::Hierarchy::FocusCommand::Execute() 
+{
+    Super::Execute();
+    HierarchyFocusObjWeak = _newFocused;
+}
+
+void Command::Hierarchy::FocusCommand::Undo() 
+{
+    Super::Undo();
+    HierarchyFocusObjWeak = _oldFocused;
+}
