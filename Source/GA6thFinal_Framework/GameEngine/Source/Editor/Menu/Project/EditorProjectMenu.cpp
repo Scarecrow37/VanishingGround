@@ -34,7 +34,7 @@ static void ShowNewProjectPopup()
     ImGui::SameLine();
     if (ImGui::Button(EditorIcon::ICON_FOLDER_OPEN))
     {
-        TCHAR title[] = L"폴더를 선택하세요.";
+        TCHAR title[] = L"새 프로젝트 만들기";
         UINT  flags   = BIF_USENEWUI | BIF_RETURNONLYFSDIRS;
         
         if (File::OpenForderBrowser(title, flags, directory))
@@ -85,7 +85,7 @@ void EditorMenuProjectRoot::OnMenu()
     }
     if (ImGui::MenuItem("SaveAs Project", nullptr))
     {
-        TCHAR title[] = L"폴더를 선택하세요.";
+        TCHAR title[] = L"다른 이름으로 저장";
         UINT  flags   = BIF_USENEWUI | BIF_RETURNONLYFSDIRS;
         File::Path directory;
         if (File::OpenForderBrowser(title, flags, directory))

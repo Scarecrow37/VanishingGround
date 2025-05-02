@@ -285,6 +285,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Editor\Tool\Command\EditorCommandTool.h" />
+    <ClInclude Include="Source\Engine\CommandCore\CommandManager.h" />
+    <ClInclude Include="Source\Engine\CommandCore\UmCommand.h" />
     <ClInclude Include="Source\Editor\Menu\Project\EditorBuildSettingMenu.h" />
     <ClInclude Include="Source\Engine\GameCore\Component\MissingComponent.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\DeferredPBRLitPass.h" />
@@ -412,6 +415,9 @@
     <ClInclude Include="Source\UmScripts.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Editor\Tool\Command\EditorCommandTool.cpp" />
+    <ClCompile Include="Source\Engine\CommandCore\CommandManager.cpp" />
+    <ClCompile Include="Source\Engine\CommandCore\UmCommand.cpp" />
     <ClCompile Include="Source\Editor\Menu\Project\EditorBuildSettingMenu.cpp" />
     <ClCompile Include="Source\Engine\GameCore\Component\MissingComponent.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\DeferredPBRLitPass.cpp" />

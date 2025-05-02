@@ -144,9 +144,10 @@ void Renderer::InitializeImgui()
     if (true == std::filesystem::exists(fontPath.generic_string()))
     {
         const ImWchar icons_ranges[] = {0xf000, 0xf3ff, 0}; // FontAwesome 유니코드 범위
+        ImFontConfig  config;
 
-        ImFontConfig config;
-        config.MergeMode = true; // 기존 폰트와 병합
+        config.MergeMode        = true;
+        config.PixelSnapH = true;
 
         ImFontAtlas* atlas    = io.Fonts;
         ImFont*      iconFont = atlas->AddFontFromFileTTF(fontPath.string().c_str(), 15.0f, &config, icons_ranges);
