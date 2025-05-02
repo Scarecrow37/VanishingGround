@@ -35,6 +35,38 @@ public:
 
     inline static const char* ICON_BELL_ON  = "\xef\x83\xb3"; // f0f3
     inline static const char* ICON_BELL_OFF = "\xef\x87\xb6"; // f1f6
+
+    inline static const char* ICON_EDIT = "\xef\x83\x84"; // f044
+
+    static constexpr std::string UnicodeToUTF8(unsigned int codepoint)
+    {
+        std::string out;
+
+        if (codepoint <= 0x7F)
+        {
+            out += static_cast<char>(codepoint);
+        }
+        else if (codepoint <= 0x7FF)
+        {
+            out += static_cast<char>(0xC0 | (codepoint >> 6));
+            out += static_cast<char>(0x80 | (codepoint & 0x3F));
+        }
+        else if (codepoint <= 0xFFFF)
+        {
+            out += static_cast<char>(0xE0 | (codepoint >> 12));
+            out += static_cast<char>(0x80 | ((codepoint >> 6) & 0x3F));
+            out += static_cast<char>(0x80 | (codepoint & 0x3F));
+        }
+        else if (codepoint <= 0x10FFFF)
+        {
+            out += static_cast<char>(0xF0 | (codepoint >> 18));
+            out += static_cast<char>(0x80 | ((codepoint >> 12) & 0x3F));
+            out += static_cast<char>(0x80 | ((codepoint >> 6) & 0x3F));
+            out += static_cast<char>(0x80 | (codepoint & 0x3F));
+        }
+
+        return out;
+    }
 };
 
 
