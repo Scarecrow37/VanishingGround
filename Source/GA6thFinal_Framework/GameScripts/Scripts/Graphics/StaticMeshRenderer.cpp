@@ -28,6 +28,7 @@ StaticMeshRenderer::~StaticMeshRenderer()
     if (_isActive != nullptr)
     {
         (*_isActive) = false;
+        _isActive = nullptr;
     }  
 }
 
@@ -63,6 +64,7 @@ void StaticMeshRenderer::OnEnable()
 void StaticMeshRenderer::OnDisable()
 {
     (*_isActive) = false;
+    _isActive = nullptr;
 }
 
 void StaticMeshRenderer::Update() 
