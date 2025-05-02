@@ -6,6 +6,7 @@ namespace File
     {
         Path      _lParam;
         Path      _rParam;
+        UINT      _fileID;
         EventType _eventType;
     };
 
@@ -16,7 +17,7 @@ namespace File
     class FileObserver
     {
         using CallBackFunc = std::function<void(const FileEventData&)>;
-        using EventQueue   = std::deque<std::pair<Path, DWORD>>;
+        using EventQueue   = std::deque<std::pair<Path, FILE_NOTIFY_EXTENDED_INFORMATION>>;
     public:
         FileObserver();
         ~FileObserver();
