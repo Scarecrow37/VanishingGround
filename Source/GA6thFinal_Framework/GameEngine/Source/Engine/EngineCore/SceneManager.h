@@ -408,6 +408,7 @@ protected:
 
     virtual void OnRequestedSave() override;
     virtual void OnRequestedLoad() override;
+    virtual void OnPostRequestedLoad() override;
 
     //씬 이름 변경시
     void RenameScene(Scene& scene, std::string_view oldName, std::string_view newName);

@@ -803,9 +803,27 @@ bool ESceneManager::DeserializeToYaml(YAML::Node* _sceneNode)
     YAML::Node rootObjects = sceneNode["GameObjects"].as<YAML::Node>();
     for (auto object : rootObjects)
     {
-        YAML::Node objectNode = object;
-        std::shared_ptr<GameObject> newObject = UmGameObjectFactory.DeserializeToYaml(&objectNode);   
-        Transform::ForeachDFS(newObject->_transform,
+        YAML::Node objectNodes = object;
+        YAML::Node rootObjectNode = *objectNodes.begin();
+        File::Guid prefabGuid = rootObjectNode["Prefab"].as<std::string>();
+        std::shared_ptr<GameObject> newObject;
+        if (prefabGuid != STR_NULL)
+        {
+            newObject = UmGameObjectFactory.DeserializeToGuid(prefabGuid);  
+        }
+        else
+        {
+            newObject = UmGameObjectFactory.DeserializeToYaml(&objectNodes);   
+        }
+        if (nullptr == newObject)
+        {
+            UmLogger.Log(LogLevel::LEVEL_FATAL, u8"메모리 할당 실패."_c_str);
+            __debugbreak();
+            UmApplication.Quit();
+            return false;
+        }
+        Transform::ForeachDFS(
+        newObject->_transform,
         [&Guid](Transform* curr) 
         {
             curr->_gameObject._ownerScene = Guid.ToPath().string();
@@ -1011,6 +1029,11 @@ void ESceneManager::OnRequestedSave()
 void ESceneManager::OnRequestedLoad() 
 {
     LoadSettingFile();
+}
+
+void ESceneManager::OnPostRequestedLoad() 
+{
+    Engine::LoadStartScene();
 }
 
 void ESceneManager::EraseSceneGUID(std::string_view sceneName, const File::Guid guid) 
