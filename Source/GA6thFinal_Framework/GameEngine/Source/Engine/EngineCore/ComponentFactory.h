@@ -118,11 +118,16 @@ public:
     YAML::Node SerializeToYaml(Component* component);
 
     /// <summary>
-    /// Yaml 형식으로 직렬화된 컴포넌트를 오브젝트에 추가합니다.
+    /// Yaml 형식으로 직렬화된 컴포넌트를 런타임 오브젝트에 추가합니다. 
     /// </summary>
-    /// <param name="node"></param>
     /// <returns></returns>
-    bool DeserializeToYaml(GameObject* ownerObject, YAML::Node* componentNode);
+    bool AddComponentToYamlLifeCycle(GameObject* ownerObject, YAML::Node* componentNode);
+
+    /// <summary>
+    /// Yaml 형식으로 직렬화된 컴포넌트를 즉시 오브젝트에 추가합니다. (리소스 프리팹 전용)
+    /// </summary>
+    /// <returns></returns>
+    bool AddComponentToYamlNow(GameObject* ownerObject, YAML::Node* componentNode);
 
 private:
     using InitScripts = void(*)(const std::shared_ptr<EngineCores>, ImGuiContext*);

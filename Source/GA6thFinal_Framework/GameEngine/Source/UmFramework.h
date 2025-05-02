@@ -174,8 +174,8 @@ using namespace Microsoft::WRL;
 //Editor Tools
 #include "Editor/Tool/Debug/EditorDebugTool.h"
 #include "Editor/Tool/AssetBrowser/EditorAssetBrowserTool.h"
-#include "Editor/Tool/Hierarchy/EditorHierarchyTool.h"
 #include "Editor/Tool/Inspector/EditorInspectorTool.h"
+#include "Editor/Tool/Hierarchy/EditorHierarchyTool.h"
 #include "Editor/Tool/Scene/EditorSceneTool.h"
 #include "Editor/Tool/Log/EditorLogsTool.h"
 #include "Editor/Tool/Command/EditorCommandTool.h"

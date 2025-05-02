@@ -221,8 +221,9 @@ public:
     inline int GetComponentIndex(const Component* pComponent) const;
 
 
-    //IEditorObject에서 상속
  private:
+    //IEditorObject에서 상속됨
+
     /* InspectorView에 SetFocus 될 때 호출 구현 X */
     virtual void OnInspectorViewEnter();
     /* InspectorView의 Draw단계에 호출 */
@@ -277,7 +278,6 @@ public:
     //  게임 오브젝트에 대해 IsStatic 플래그가 설정되어 있는지 여부.
     PROPERTY(IsStatic);
     
-
     GETTER(std::string_view, Name)
     {
         return ReflectFields->_name;
@@ -290,6 +290,34 @@ public:
     //  게임 오브젝트의 이름
     PROPERTY(Name)
 
+    GETTER_ONLY(GameObject*, PrefabInstance) 
+    { 
+        Transform* curr = &_transform;
+        while (curr != nullptr)
+        {
+            if (curr->gameObject->_prefabGuid != STR_NULL)
+            {
+                return &curr->gameObject;
+            }
+            curr = curr->Parent;      
+        }
+        return nullptr; 
+    }
+    //get : 자신부터 부모중 프리팹 인스턴스가 존재하면 해당 포인터를 반환합니다.
+    PROPERTY(PrefabInstance)
+
+    bool IsPrefabInstance()
+    {
+        return _prefabGuid != STR_NULL;
+    }
+
+    GETTER_ONLY(std::string, PrefabPath) 
+    { 
+        return _prefabGuid.ToPath().string();
+    }
+    //이 오브젝트가 참조하고있는 프리팹을 반환합니다.
+    PROPERTY(PrefabPath)
+
     //에디터 편집을 허용할 프로퍼티.
     REFLECT_PROPERTY(
         Name,
@@ -298,16 +326,28 @@ public:
     )
 private:
     Transform _transform;
-private:
+protected:
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
-    std::string                              _name = "null";
-    bool                                     _activeSelf = true;
-    bool                                     _isStatic = false;
+    std::string _name = STR_NULL;
+    bool        _activeSelf = true;
+    bool        _isStatic = false;
     REFLECT_FIELDS_END(GameObject)
+
+    /*
+    직렬화 직전 자동으로 호출되는 이벤트 함수입니다.
+    직접 override 해서 사용합니다.
+    */
+    virtual void SerializedReflectEvent();
+    /*
+    역직렬화 이후 자동으로 호출되는 이벤트 함수 입니다.
+    직접 override 해서 사용합니다.
+    */
+    virtual void DeserializedReflectEvent();
 
 private:
     std::weak_ptr<GameObject>                _weakPtr;
     std::string                              _ownerScene;
+    File::Guid                               _prefabGuid;
     std::vector<std::shared_ptr<Component>>  _components;
     int                                      _instanceID;
 

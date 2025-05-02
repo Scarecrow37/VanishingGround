@@ -1,6 +1,8 @@
 ﻿#include "pch.h"
 using namespace Global;
 
+#define SAFE_FREE(ptr) if(ptr != nullptr) free(ptr)
+
 void GameObject::DontDestroyOnLoad(GameObject& gameObject)
 {
     ESceneManager::Engine::DontDestroyOnLoadObject(gameObject);
@@ -25,7 +27,8 @@ void GameObject::Destroy(GameObject& gameObject, float t)
 GameObject::GameObject()
     : 
     _transform(*this),
-    _ownerScene("null"),
+    _ownerScene(STR_NULL),
+    _prefabGuid(STR_NULL),
     _components(),
     _instanceID(-1)
 {
@@ -55,10 +58,31 @@ void GameObject::OnInspectorViewEnter()
 void GameObject::OnInspectorStay() 
 {
     using namespace u8_literals;
-
     static GameObject* selectObject = nullptr;
     ImGui::PushID(this);
     {
+        bool isPrefab = IsPrefabInstance();
+        GameObject* pPrefabObject = PrefabInstance; 
+        if (isPrefab)
+        {
+            ImGui::Text("Prefab");
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.6f, 0.6f, 0.6f, 1.0f));   
+            ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.2f, 0.2f, 0.2f, 1.0f));
+            static std::string guidPath;
+            guidPath = _prefabGuid.ToPath().string();
+            if (guidPath.empty() == false)
+            {
+                ImGui::InputText("Prefab", &guidPath, ImGuiInputTextFlags_ReadOnly);
+            }
+            else
+            {
+                static std::string emptyPath = STR_NULL;
+                ImGui::InputText("Prefab", &emptyPath, ImGuiInputTextFlags_ReadOnly);
+            }     
+            ImGui::PopStyleColor(2);
+            ImGui::Separator();
+        }
+
         ImGuiDrawPropertys();
         _transform.ImGuiDrawPropertys();
         if (ImGui::Button("AddComponent"))
@@ -75,13 +99,75 @@ void GameObject::OnInspectorStay()
             GameObject::Destroy(this);
         }
 
-        for (auto& component : _components)
+        for (int i = 0; i < _components.size(); i++)
         {
+            std::shared_ptr<Component>& component = _components[i];
             ImGui::PushID(component.get());
             {
                 ImGui::Separator();
-                ImGui::Text(component->ClassName());
+                const char* className = component->ClassName();
+                ImGui::Text(className);
+                ImGui::SameLine();
+                ImGui::Text(" Component");
+                if (pPrefabObject != nullptr)
+                {
+                    UmCore->ImGuiDrawPropertysSetting.InputEndEvent = [&](bool result, std::string_view name) 
+                    {
+                        if (result == true)
+                        {                 
+                            const auto* originPrefab = UmGameObjectFactory.GetOriginPrefab(pPrefabObject->_prefabGuid);
+                            if (originPrefab != nullptr)
+                            {
+                                int myNumber = -1;
+                                int level    = 0;
+                                Transform::ForeachBFS(pPrefabObject->_transform, [&](Transform* curr) {
+                                    if (curr == &_transform)
+                                    {
+                                        myNumber = level;
+                                    }
+                                    level++;
+                                });                            
+                                if (myNumber > -1)
+                                {
+                                    using namespace ReflectHelper::json;
+                                    GameObject* prefab = (*originPrefab)[myNumber].get();
+                                    Component* prefabComponent = prefab->GetComponentAtIndex<Component>(i);
+                                    if (prefabComponent != nullptr)
+                                    {
+                                        std::string prefabData = prefabComponent->SerializedReflectFields();
+                                        yyjson_doc* prefabDoc  = yyjson_read(prefabData.c_str(), prefabData.size(), 0);
+                                        yyjson_val* prefabRoot = yyjson_doc_get_root(prefabDoc);
+
+                                        std::string myData = component->SerializedReflectFields();
+                                        yyjson_doc* myDoc  = yyjson_read(myData.c_str(), myData.size(), 0);
+                                        yyjson_val* myRoot = yyjson_doc_get_root(myDoc);
+
+                                        component->applyReflectFields([&](std::string_view rflName, void* pData) 
+                                        {
+                                            yyjson_val* prefabVal = yyjson_obj_get(prefabRoot, name.data());
+                                            char* prefabCStr = yyjsonValToCStr(prefabVal);
+
+                                            yyjson_val* myVal  = yyjson_obj_get(myRoot, name.data());
+                                            char* myCStr = yyjsonValToCStr(myVal);
+
+                                            if (0 != std ::strcmp(prefabCStr, myCStr))
+                                            {
+                                                //std::string message = std::format("edit {}", name);
+                                                //UmLogger.Log(LogLevel::LEVEL_TRACE, message);
+                                            }
+
+                                            SAFE_FREE(prefabCStr);
+                                            SAFE_FREE(myCStr);
+                                        });
+                                        yyjson_doc_free(prefabDoc);
+                                    }
+                                }
+                            }
+                        }
+                    };
+                }
                 component->ImGuiDrawPropertys();
+
                 if (ImGui::Button("Destroy Component"))
                 {
                     GameObject::Destroy(component.get());
@@ -133,7 +219,7 @@ void GameObject::OnInspectorStay()
 
                     for (auto& key : engineCore->ComponentFactory.GetNewComponentKeyList())
                     {
-                        if (ImGui::Button(key.c_str()))
+                        if (ImGui::Button(key.c_str() + 6))
                         {
                             engineCore->ComponentFactory.AddComponentToObject(selectObject, key);
                             ImGui::CloseCurrentPopup();
@@ -153,9 +239,19 @@ void GameObject::OnInspectorStay()
                 ImGui::SameLine();
                 ImGui::EndPopup();
             }
-        }
+        }    
     }
     ImGui::PopID();
+}
+
+void GameObject::SerializedReflectEvent() 
+{
+   
+}
+
+void GameObject::DeserializedReflectEvent() 
+{
+   
 }
 
 std::string GameObject::Helper::GenerateUniqueName(std::string_view baseName)

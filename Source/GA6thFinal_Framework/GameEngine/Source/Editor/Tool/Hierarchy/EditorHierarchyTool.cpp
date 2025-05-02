@@ -11,15 +11,11 @@ static void TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>
         bool result = ImGui::IsMouseReleased(ImGuiMouseButton_Left) && ImGui::IsItemHovered();
         if (result)
         {
-            //HierarchyFocusObjWeak = node.gameObject->GetWeakPtr();
-            //EditorInspectorTool::SetFocusObject(HierarchyFocusObjWeak);
-
             auto oldWp = HierarchyFocusObjWeak;
             auto newWp = node.gameObject->GetWeakPtr();
             if (false == EditorInspectorTool::IsFocused(newWp))
             {
-                UmCommandManager.Do<Command::Inspector::FocusObject>(oldWp, newWp);
-                HierarchyFocusObjWeak = newWp;
+                UmCommandManager.Do<Command::Hierarchy::FocusCommand>(oldWp, newWp);
             }
         }
         return result;
@@ -70,6 +66,15 @@ static void TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>
             {
                 GameObject::Destroy(&node.gameObject);
             }
+            ImGui::Separator();
+            if(ImGui::BeginMenu("Prefab"))
+            {
+                if (ImGui::MenuItem("Unpack Prefab"))
+                {
+                    UmGameObjectFactory.UnpackPrefab(&node.gameObject);
+                }
+                ImGui::EndMenu();
+            }   
             ImGui::EndPopup();
         }
     };
@@ -79,24 +84,48 @@ static void TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>
         if (node.gameObject->ActiveInHierarchy == false)
         {
             GameObject& object  = node.gameObject;
-            const type_info& type_id = typeid(object);
-            if (typeid(GameObject) == type_id)
-            {     
-                //회색 계열
-                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.4f, 0.4f, 0.4f, 1.0f));         
-                ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.3f, 0.3f, 0.3f, 1.0f)); 
-                ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImVec4(0.2f, 0.2f, 0.2f, 1.0f));  
+            if (object.IsPrefabInstance() == false)
+            {
+                // 회색 계열
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.4f, 0.4f, 0.4f, 1.0f));
                 return true;
             }
+            else
+            {
+                std::string path = object.PrefabPath;
+                if (path.empty() == false)
+                {
+                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.3f, 0.6f, 0.8f, 1.0f)); 
+                    return true;
+                }
+                else
+                {
+                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.7f, 0.4f, 0.4f, 1.0f)); 
+                    return true;
+                }       
+            }         
         }
         else
         {
-            GameObject& object  = node.gameObject;
-            const type_info& type_id = typeid(object);
-            if (typeid(GameObject) == type_id)
+            GameObject& object  = node.gameObject;   
+            if (object.IsPrefabInstance() == false)
             {
-                //기본 스타일 사용
+                // 기본 스타일 사용
                 return false;
+            }
+            else
+            {
+                std::string path = object.PrefabPath;
+                if (path.empty() == false)
+                {
+                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.4f, 0.75f, 1.0f, 1.0f));
+                    return true;
+                }
+                else
+                {
+                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.5f, 0.5f, 1.0f)); 
+                    return true;
+                }       
             }
         }
         return false;
@@ -105,7 +134,7 @@ static void TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>
     {
         if (isPushStyle)
         {
-            ImGui::PopStyleColor(3);
+            ImGui::PopStyleColor();
         }
     };
     auto FocusRectDarw = [&node](GameObject* pFocusObject) 
@@ -132,7 +161,7 @@ static void TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>
     ImGui::PushID(&node);
     bool isPushStyle = PushFocusStyle();
     if (ImGui::TreeNodeEx(node.gameObject->ToString().data(),
-                          ImGuiTreeNodeFlags_OpenOnArrow))
+                          ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth))
     {
         FocusRectDarw(focusObject.get());
         PopFocusStyle(isPushStyle);
@@ -248,9 +277,8 @@ void EditorHierarchyTool::OnFrame()
                 {
                     if (ImGui::MenuItem("Save Scene"))
                     {
-                        std::string           path = scene.Path;
-                        std::filesystem::path writePath =
-                            std::filesystem::relative(path, UmFileSystem.GetRootPath()).parent_path();
+                        std::string path = scene.Path;
+                        std::filesystem::path writePath = UmFileSystem.GetRelativePath(path).parent_path();
                         UmSceneManager.WriteSceneToFile(scene, writePath.string(), true);
                         ImGui::CloseCurrentPopup();
                     }
@@ -289,3 +317,15 @@ void EditorHierarchyTool::OnPopup()
   
 }
 
+Command::Hierarchy::FocusCommand::~FocusCommand() = default;
+void Command::Hierarchy::FocusCommand::Execute() 
+{
+    Super::Execute();
+    HierarchyFocusObjWeak = _newFocused;
+}
+
+void Command::Hierarchy::FocusCommand::Undo() 
+{
+    Super::Undo();
+    HierarchyFocusObjWeak = _oldFocused;
+}
