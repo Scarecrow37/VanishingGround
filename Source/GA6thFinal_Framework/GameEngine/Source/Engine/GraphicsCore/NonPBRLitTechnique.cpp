@@ -5,7 +5,7 @@ NonPBRLitTechnique::NonPBRLitTechnique() {}
 
 NonPBRLitTechnique::~NonPBRLitTechnique() {}
 
-void NonPBRLitTechnique::Initialize() {}
+void NonPBRLitTechnique::Initialize(ID3D12GraphicsCommandList* commandList) {}
 
 void NonPBRLitTechnique::Execute(ID3D12GraphicsCommandList* commandList)
 {

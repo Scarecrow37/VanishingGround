@@ -46,7 +46,7 @@ void DeferredPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
     auto                 dest   = _srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
     UINT                 descriptorSize = UmDevice.GetCBVSRVUAVDescriptorSize();
 
-    for (UINT i = 0; i <= RenderScene::GBuffer::COSTOMDEPTH; ++i)
+    for (UINT i = 0; i <= RenderScene::GBuffer::CUSTOMDEPTH; ++i)
     {
         D3D12_CPU_DESCRIPTOR_HANDLE destHandle = CD3DX12_CPU_DESCRIPTOR_HANDLE(dest, i, descriptorSize);
         device->CopyDescriptorsSimple(1, destHandle, _ownerScene->_gBufferSrvHandles[i],
