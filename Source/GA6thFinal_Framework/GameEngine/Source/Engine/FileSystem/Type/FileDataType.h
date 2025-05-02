@@ -20,6 +20,7 @@ namespace File
         using FString::FString;
     public:
         File::Path ToPath() const;
+        bool       IsNull() const;
     public:
         operator File::Path() const;
     };
@@ -32,17 +33,23 @@ namespace File
         using FString::FString;
     public:
         File::Guid ToGuid() const;
+        bool       IsNull() const;
     public:
         operator File::Guid() const;
         File::Path operator+(const File::FString& v);
         File::Path operator/(const File::FString& v);
     };
 
-    inline static const File::Guid NULL_GUID = L"00000000-0000-0000-0000-000000000000";
+    inline static const File::Guid NULL_GUID = L"";
     inline static const File::Path NULL_PATH = L"";
 
     class FileData
     {
+    public:
+        FileData() = default; // 기본 생성자
+        FileData(File::Path);
+        FileData(File::Guid);
+        virtual ~FileData() = default;
     protected:
         virtual bool Write(YAML::Node& node) const = 0;
         virtual bool Read(YAML::Node& node) const  = 0;

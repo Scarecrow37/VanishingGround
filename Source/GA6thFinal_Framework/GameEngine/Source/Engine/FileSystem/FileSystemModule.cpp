@@ -71,7 +71,7 @@ void FileSystemModule::DispatchFileEvent()
 
     while (false == _eventQueue.empty())
     {
-        const auto& [lParam, rParam, eventType] = _eventQueue.front();
+        const auto& [lParam, rParam, id, eventType] = _eventQueue.front();
 
         const File::Path& rootPath = UmFileSystem.GetRootPath();
 
