@@ -42,10 +42,7 @@ void EditorAssetBrowserTool::OnFrame()
     ImGui::PushID(this);
 
     ImGuiChildFlags flags = ImGuiChildFlags_Border;
-
-    // 메뉴 창
-    //ShowBrowserMenu();
-
+    
     ShowUpperFrame();
 
     // Left, Right 구분 창
@@ -85,44 +82,24 @@ void EditorAssetBrowserTool::OnPostFrame()
 
 void EditorAssetBrowserTool::OnFocus() {}
 
-void EditorAssetBrowserTool::ShowBrowserMenu()
-{
-    if (ImGui::BeginMenuBar())
-    {
-        if (ImGui::Button("Refresh"))
-        {
-            File::Path path = UmFileSystem.GetRootPath();
-            UmFileSystem.ReadDirectory();
-            _currFocusFolderContext = UmFileSystem.GetContext<File::FolderContext>(path);
-            _directoryUndoStack.clear();
-            _directoryRedoStack.clear();
-        }
-        if (false == _currFocusFolderContext.expired())
-        {
-            spFolderContext spForcusFolder = _currFocusFolderContext.lock();
-
-            ShowFolderDirectoryPath(spForcusFolder);
-        }
-        ImGui::EndMenuBar();
-    }
-}
-
 #define REFRESH_TEXT "Refresh"
 void EditorAssetBrowserTool::ShowUpperFrame()
 {
     ImVec2 textSize = ImGui::CalcTextSize(REFRESH_TEXT);
-    float  upperHeight = textSize.y + 10.0f;
+    float  upperHeight = textSize.y + 15.0f;
 
     ImGuiChildFlags flags = ImGuiChildFlags_Border;
-    ImGui::BeginChild("UpperFrame", ImVec2(0, upperHeight), flags);
+    ImGui::BeginChild("UpperFrame", ImVec2(0, upperHeight), flags, ImGuiWindowFlags_NoScrollbar);
     {
         // 해당 프레임의 사용 가능 영역을 가져옴
         ImVec2 windowPos  = ImGui::GetWindowPos();
         ImVec2 windowSize = ImGui::GetWindowSize();
-        
-        ImVec2 buttonSize = ImVec2(textSize.x + 10.0f, windowSize.y); // 버튼 크기 설정
-        ImGui::SetCursorPos(ImVec2(0, 0));                            // 윈도우 내부 좌표 기준
-        if (ImGui::Button(REFRESH_TEXT, buttonSize))
+        ImVec2 availableSize = ImGui::GetContentRegionAvail();
+
+        ImVec2 buttonSize = ImVec2(textSize.x, availableSize.y); // 버튼 크기 설정
+        //ImGui::SetCursorPos(ImVec2(0, 0));            // 윈도우 내부 좌표 기준
+
+        if (ImGui::Selectable(REFRESH_TEXT, false, ImGuiSelectableFlags_None, buttonSize))
         {
             File::Path path = UmFileSystem.GetRootPath();
             UmFileSystem.ReadDirectory();
@@ -134,7 +111,6 @@ void EditorAssetBrowserTool::ShowUpperFrame()
         if (false == _currFocusFolderContext.expired())
         {
             spFolderContext spForcusFolder = _currFocusFolderContext.lock();
-
             ShowFolderDirectoryPath(spForcusFolder);
         }
     }
@@ -150,10 +126,15 @@ void EditorAssetBrowserTool::ShowFolderDirectoryPath(spFolderContext context)
 
         bool canUndo = (false == _directoryUndoStack.empty());
         bool canRedo = (false == _directoryRedoStack.empty());
+
+        ImVec2 windowSize = ImGui::GetWindowSize();
+        ImVec2 pos        = ImGui::GetCursorPos();
         {
-            const char* icon  = EditorIcon::ICON_CIRCLE_ARROW_LEFT;
-            ImVec2      size  = ImGui::CalcTextSize(icon);
-            int         flags = canUndo ? ImGuiSelectableFlags_None : ImGuiSelectableFlags_Disabled;
+           
+            const char* icon        = EditorIcon::ICON_CIRCLE_ARROW_LEFT;
+            ImVec2      size        = ImGui::CalcTextSize(icon);
+            int         flags       = canUndo ? ImGuiSelectableFlags_None : ImGuiSelectableFlags_Disabled;
+
             if (ImGui::Selectable(icon, false, flags, size))
             {
                 SetFocusFromUndoPath();
@@ -164,6 +145,7 @@ void EditorAssetBrowserTool::ShowFolderDirectoryPath(spFolderContext context)
             const char* icon  = EditorIcon::ICON_CIRCLE_ARROW_RIGHT;
             ImVec2      size  = ImGui::CalcTextSize(icon);
             int         flags = canRedo ? ImGuiSelectableFlags_None : ImGuiSelectableFlags_Disabled;
+
             if (ImGui::Selectable(icon, false, flags, size))
             {
                 SetFocusFromRedoPath();
@@ -393,9 +375,6 @@ void EditorAssetBrowserTool::ShowSearchBar(spFolderContext context)
 
     const char* x = "X";
     ImVec2 textSize = ImGui::CalcTextSize(x);
-
-    ImGui::Text(EditorIcon::UnicodeToUTF8(0xf111).c_str());
-    ImGui::SameLine();
     ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f);
     ImGui::InputText("##SearchBar", searchBuffer, IM_ARRAYSIZE(searchBuffer));
     ImGui::PopStyleVar();

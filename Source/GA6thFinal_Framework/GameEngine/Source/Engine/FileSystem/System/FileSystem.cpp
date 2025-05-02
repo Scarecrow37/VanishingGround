@@ -91,9 +91,14 @@ bool EFileSystem::LoadProject(const File::Path& path)
         _observer->Start();
     }
 
-    LoadSetting(_settingPath / PROJECT_SETTING_FILENAME);
-    RequestLoad();
+    for (auto& notifier : _notifierSet)
+        notifier->OnRequestedLoad();
+
     ReadDirectory();
+
+    for (auto& notifier : _notifierSet)
+        notifier->OnPostRequestedLoad();
+
     return true;
 }
 
@@ -107,8 +112,11 @@ bool EFileSystem::SaveProject()
         return false;
     }
 
-    SaveSetting(_settingPath / PROJECT_SETTING_FILENAME);
-    RequestSave();
+    for (auto& notifier : _notifierSet)
+        notifier->OnRequestedSave();
+
+    for (auto& notifier : _notifierSet)
+        notifier->OnPostRequestedSave();
 
     return true;
 }
@@ -327,22 +335,6 @@ std::unordered_set<File::FileEventNotifier*> EFileSystem::GetNotifiers(
         return itr->second;
     }
     return std::unordered_set<File::FileEventNotifier*>();
-}
-
-void EFileSystem::RequestSave()
-{
-    for (auto& notifier : _notifierSet)
-    {
-        notifier->OnRequestedSave();
-    }
-}
-
-void EFileSystem::RequestLoad()
-{
-    for (auto& notifier : _notifierSet)
-    {
-        notifier->OnRequestedLoad();
-    }
 }
 
 void EFileSystem::RequestInspectFile(const File::Path& path)

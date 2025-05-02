@@ -47,9 +47,6 @@ private:
     virtual void OnFocus() override;
 
 private:
-    /* 브라우저 메뉴바 */
-    void ShowBrowserMenu();
-
     /* 메뉴바 - 콜럼 사이 어퍼프레임 */
     void ShowUpperFrame();
     void ShowFolderDirectoryPath(spFolderContext context); // 주소 출력

@@ -17,7 +17,9 @@ class SampleFileEventNotifier;
 FileSystemModule은 파일 시스템을 셋업하고, 비동기적으로 받은 이벤트를
 엔진에 동기적으로 전달하는 모듈이다.
 */
-class FileSystemModule : public IAppModule
+class FileSystemModule 
+    : public IAppModule
+    , public File::FileEventNotifier
 {
     using Event = File::FileEventData;
     using NotifierSet = std::unordered_set<File::FileEventNotifier*>;
@@ -32,9 +34,9 @@ public:
     void PreUnInitialize() override;
     void ModuleUnInitialize() override;
 
+    void OnRequestedSave() override;
+    void OnRequestedLoad() override;
 public:
-    bool SaveSetting(const File::Path& path);
-    bool LoadSetting(const File::Path& path);
 
     void Update();
 
@@ -48,27 +50,4 @@ private:
 private:
     std::mutex          _mutex;
     std::queue<Event>   _eventQueue; // 이벤트 큐
-};
-
-/* 테스트용 클래스. 추후 제거해야함 */
-class SampleNotifier : public File::FileEventNotifier
-{
-public:
-    SampleNotifier() {}
-    virtual ~SampleNotifier() {}
-
-public:
-    void OnFileRegistered(const File::Path& path) override;
-    void OnFileUnregistered(const File::Path& path) override;
-    void OnFileModified(const File::Path& path) override;
-    void OnFileRemoved(const File::Path& path) override;
-    void OnFileRenamed(const File::Path& oldPath, const File::Path& newPath) override;
-    void OnFileMoved(const File::Path& oldPath, const File::Path& newPath) override;
-
-    void OnRequestedSave() override;
-    void OnRequestedLoad() override;
-    void OnRequestedInspect(const File::Path& path) override;
-    void OnRequestedOpen(const File::Path& path) override;
-    void OnRequestedCopy(const File::Path& path) override;
-    void OnRequestedPaste(const File::Path& path) override;
 };
