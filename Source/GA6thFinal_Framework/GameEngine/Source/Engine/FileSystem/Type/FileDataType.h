@@ -45,6 +45,11 @@ namespace File
 
     class FileData
     {
+    public:
+        FileData() = default; // 기본 생성자
+        FileData(File::Path);
+        FileData(File::Guid);
+        virtual ~FileData() = default;
     protected:
         virtual bool Write(YAML::Node& node) const = 0;
         virtual bool Read(YAML::Node& node) const  = 0;

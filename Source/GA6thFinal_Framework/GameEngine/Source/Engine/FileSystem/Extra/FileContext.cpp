@@ -114,7 +114,6 @@ namespace File
     void FileContext::OnFileRemoved(const Path& path) 
     {
         _meta.Clear();
-        _meta.FileRemove();
     }
 
     void FileContext::OnFileRenamed(const Path& oldPath, const Path& newPath) 
@@ -180,8 +179,8 @@ namespace File
 
     void FolderContext::OnFileRemoved(const Path& path) 
     {
-        _meta.Clear();
         _meta.FileRemove();
+        _meta.Clear();
 
         for (auto& [name, wpContext] : _contextTable)
         {

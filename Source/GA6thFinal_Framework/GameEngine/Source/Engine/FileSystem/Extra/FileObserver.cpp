@@ -198,9 +198,17 @@ namespace File
         /*
         ReadDirectoryChangesExW는 문서가 너무 없어서 그냥 안전하게 기존 래거시 함수 사용.
         */
-        return ReadDirectoryChangesW(_hDirectory, _recievedBytes, sizeof(_recievedBytes),
-                                     TRUE, NOTIFY_FILTERS, &_bytesReturned,
-                                     &_overlapped, NULL);
+        return ReadDirectoryChangesExW(
+            _hDirectory,
+            _recievedBytes,
+            sizeof(_recievedBytes),
+            TRUE, 
+            NOTIFY_FILTERS, 
+            &_bytesReturned,
+            &_overlapped, 
+            NULL,
+            ReadDirectoryNotifyExtendedInformation 
+        );
     }
 
     void FileObserver::RecieveFileEvents()
@@ -236,29 +244,26 @@ namespace File
                 {
                     listen = false;
                     // 변경된 데이터에 대한 처리
-                    FILE_NOTIFY_INFORMATION* fileInfo =
-                        reinterpret_cast<FILE_NOTIFY_INFORMATION*>(
-                            &_recievedBytes[0]);
+                    FILE_NOTIFY_EXTENDED_INFORMATION* fileInfo =
+                        reinterpret_cast<FILE_NOTIFY_EXTENDED_INFORMATION*>(&_recievedBytes[0]);
 
                     while (true)
                     {
-                        std::wstring filename(fileInfo->FileName,
+                        std::wstring filePath(fileInfo->FileName,
                                               fileInfo->FileNameLength /
                                                   sizeof(WCHAR));
 
-                        if (false == filename.empty())
+                        if (false == filePath.empty())
                         {
                             std::lock_guard<std::mutex> lock(_mutex);
-                            _recievedEventQueue.push_back(
-                                std::make_pair(filename, fileInfo->Action));
+                            _recievedEventQueue.push_back(std::make_pair(filePath, *fileInfo));
                         }
 
                         if (0 == fileInfo->NextEntryOffset)
                             break;
 
-                        fileInfo = reinterpret_cast<FILE_NOTIFY_INFORMATION*>(
-                            reinterpret_cast<BYTE*>(fileInfo) +
-                            fileInfo->NextEntryOffset);
+                         fileInfo = reinterpret_cast<FILE_NOTIFY_EXTENDED_INFORMATION*>(
+                            reinterpret_cast<BYTE*>(fileInfo) + fileInfo->NextEntryOffset);
                     }
 
                     std::this_thread::sleep_for(
@@ -356,39 +361,37 @@ namespace File
         if (q.empty())
             return EventType::UNKNOWN;
 
-        auto& [firstPath, firstEvent] = q[0];
+        auto& [firstPath, firstInfo] = q[0];
 
         if (_sendEventQueue.size() >= 2)
         {
-            auto& [secondPath, secondEvent] = q[1];
+            auto& [secondPath, secondInfo] = q[1];
 
-            bool checkFile = firstPath.filename() == secondPath.filename();
+            bool checkFile = firstInfo.FileId.QuadPart == secondInfo.FileId.QuadPart;
 
-            if (checkFile)
+            if (true == checkFile)
             {
-                // 이동 (현재 인덱스: removed, 다음 인덱스: added, 각 파일명
-                // 동일해야함)
-                if (FILE_ACTION_REMOVED == firstEvent &&
-                    FILE_ACTION_ADDED == secondEvent)
+                // 이동 (현재 인덱스: removed, 다음 인덱스: added)
+                if (FILE_ACTION_REMOVED == firstInfo.Action &&
+                    FILE_ACTION_ADDED == secondInfo.Action)
                     return EventType::MOVED;
             }
             else
             {
-                // 이름 변경 (현재 인덱스: renamed_old, 다음 인덱스:
-                // renamed_new)
-                if (FILE_ACTION_RENAMED_OLD_NAME == firstEvent &&
-                    FILE_ACTION_RENAMED_NEW_NAME == secondEvent)
+                // 이름 변경 (현재 인덱스: renamed_old, 다음 인덱스: renamed_new)
+                if (FILE_ACTION_RENAMED_OLD_NAME == firstInfo.Action &&
+                    FILE_ACTION_RENAMED_NEW_NAME == secondInfo.Action)
                     return EventType::RENAMED;
             }
         }
 
-        if (FILE_ACTION_ADDED == firstEvent)
+        if (FILE_ACTION_ADDED == firstInfo.Action)
             return EventType::ADDED;
 
-        if (FILE_ACTION_REMOVED == firstEvent)
+        if (FILE_ACTION_REMOVED == firstInfo.Action)
             return EventType::REMOVED;
 
-        if (FILE_ACTION_MODIFIED == firstEvent)
+        if (FILE_ACTION_MODIFIED == firstInfo.Action)
             return EventType::MODIFIED;
 
         return EventType::UNKNOWN;
@@ -396,7 +399,7 @@ namespace File
 
     void FileObserver::ProcessUnKnown()
     {
-        FileEventData data = {"", "", EventType::UNKNOWN};
+        FileEventData data = {"", "", 0, EventType::UNKNOWN};
         _sendEventQueue.pop_front();
     }
 
@@ -404,7 +407,7 @@ namespace File
     {
         const auto& [path, event] = _sendEventQueue[0];
 
-        FileEventData data = {path.generic_wstring(), "", EventType::ADDED};
+        FileEventData data = {path.generic_wstring(), "", event.FileId.QuadPart, EventType::ADDED};
         LastFileEventLog(data);
 
         if (nullptr != _eventCallback)
@@ -417,7 +420,7 @@ namespace File
     {
         const auto& [path, event] = _sendEventQueue[0];
 
-        FileEventData data = {path.generic_wstring(), "", EventType::REMOVED};
+        FileEventData data = {path.generic_wstring(), "", event.FileId.QuadPart, EventType::REMOVED};
         LastFileEventLog(data);
 
         if (nullptr != _eventCallback)
@@ -430,7 +433,7 @@ namespace File
     {
         const auto& [path, event] = _sendEventQueue[0];
 
-        FileEventData data = {path.generic_wstring(), "", EventType::MODIFIED};
+        FileEventData data = {path.generic_wstring(), "", event.FileId.QuadPart, EventType::MODIFIED};
         LastFileEventLog(data);
 
         if (nullptr != _eventCallback)
@@ -446,8 +449,8 @@ namespace File
 
         // lParam: 이전 이름
         // rParam: 새 이름
-        FileEventData data = {firstPath.generic_wstring(),
-                              secondPath.generic_wstring(), EventType::RENAMED};
+        FileEventData data = {firstPath.generic_wstring(), secondPath.generic_wstring(), secondEvent.FileId.QuadPart,
+                              EventType::RENAMED};
         LastFileEventLog(data);
 
         if (nullptr != _eventCallback)
@@ -464,8 +467,8 @@ namespace File
 
         // lParam: 이전 경로
         // rParam: 새 경로
-        FileEventData data = {firstPath.generic_wstring(),
-                              secondPath.generic_wstring(), EventType::MOVED};
+        FileEventData data = {firstPath.generic_wstring(), secondPath.generic_wstring(), secondEvent.FileId.QuadPart, 
+                              EventType::MOVED};
         LastFileEventLog(data);
 
         if (nullptr != _eventCallback)

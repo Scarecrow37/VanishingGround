@@ -37,6 +37,11 @@ namespace File
     {
         return NULL_PATH == native();
     }
+    FileData::FileData(File::Path path) 
+        : _filePath(path), _fileGuid(path) { }
+    FileData::FileData(File::Guid guid) 
+         : _filePath(guid), _fileGuid(guid) { }
+
     bool FileData::FileCreate(bool isHidden) const
     {
         std::ofstream fout(_filePath);
@@ -89,7 +94,7 @@ namespace File
             {
                 _fileGuid = NULL_GUID;
             }
-            else
+            else if (true == _fileGuid.IsNull())
             {
                 CreateGuid(_fileGuid);
             }
@@ -111,7 +116,7 @@ namespace File
         _fileGuid = NULL_GUID;
         _filePath = NULL_PATH;
 
-        if (true == path.empty())
+        if (true == path.IsNull())
             return false;
 
         if (false == fs::exists(path))
