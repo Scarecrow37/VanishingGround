@@ -150,10 +150,10 @@ void GameObject::OnInspectorStay()
                                             yyjson_val* myVal  = yyjson_obj_get(myRoot, name.data());
                                             char* myCStr = yyjsonValToCStr(myVal);
 
-                                            if (std::strcmp(prefabCStr, myCStr) != 0)
+                                            if (0 != std ::strcmp(prefabCStr, myCStr))
                                             {
-                                                std::string message = std::format("edit {}", name);
-                                                UmLogger.Log(LogLevel::LEVEL_TRACE, message);
+                                                //std::string message = std::format("edit {}", name);
+                                                //UmLogger.Log(LogLevel::LEVEL_TRACE, message);
                                             }
 
                                             SAFE_FREE(prefabCStr);
