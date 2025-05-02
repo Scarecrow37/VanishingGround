@@ -99,9 +99,9 @@ public:
 
     // 카메라 한개
     std::shared_ptr<Camera> _camera;
-
-private:
+    // 화면 크기 quad
     std::unique_ptr<Quad>          _frameQuad;
+private:
     std::unique_ptr<ShaderBuilder> _frameShader;
     ComPtr<ID3D12PipelineState>    _framePSO;
     ComPtr<ID3D12DescriptorHeap>   _srvDescriptorHeap;

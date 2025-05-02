@@ -24,7 +24,7 @@ HRESULT RenderTarget::Initialize(DXGI_FORMAT format)
     };
     // committedReosurce로 임시로 생성
     UmDevice.GetDevice()->CreateCommittedResource(&property, D3D12_HEAP_FLAG_NONE, &desc,
-                                                        D3D12_RESOURCE_STATE_PRESENT, &clearValue,
+                                                        D3D12_RESOURCE_STATE_COMMON, &clearValue,
                                                         IID_PPV_ARGS(_resource.GetAddressOf()));
 
     HRESULT hr = S_OK;
