@@ -826,7 +826,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="cpp.hint" />
     <None Include="Source\Engine\Imgui\imgui_node_editor_internal.inl">
       <Filter>소스 파일\imgui</Filter>
     </None>
@@ -836,5 +835,6 @@
     <None Include="Source\Engine\Imgui\imgui_bezier_math.inl">
       <Filter>소스 파일\imgui</Filter>
     </None>
+    <None Include="cpp.hint" />
   </ItemGroup>
 </Project>

@@ -353,7 +353,7 @@ void EditorAssetBrowserTool::ShowFolderContents()
 
         ContentsFrameEventAction(spForcusFolder);
 
-        ShowSearchBar(spForcusFolder);
+        //ShowSearchBar(spForcusFolder);
 
         switch (_showType)
         {
@@ -392,7 +392,7 @@ void EditorAssetBrowserTool::ShowSearchBar(spFolderContext context)
     // 사각형 Draw
     // ---------------------------
     ImVec2 rectSize = ImVec2(inputSize.x + buttonSize.x, inputSize.y);
-    ImVec4 rectColor = ImGui::GetColorU32(ImGuiCol_FrameBg);
+    ImU32 rectColor = ImGui::GetColorU32(ImGuiCol_FrameBg);
     ImGuiHelper::DrawFillRect(
         inputPos,
         inputPos + rectSize, rectColor, 
@@ -413,6 +413,7 @@ void EditorAssetBrowserTool::ShowSearchBar(spFolderContext context)
         _searchBuffer[0] = '\0';
     }
     ImGui::PopStyleColor(3);
+
     // ---------------------------
     // InputText는 나중에 그림
     // ---------------------------
