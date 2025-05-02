@@ -1,4 +1,3 @@
-#include "CommonData.hlsli"
 #include "Function.hlsli"
 struct PSInput
 {

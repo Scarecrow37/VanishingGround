@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "PBRLitTechnique.h"
 #include "GBufferPass.h"
+#include "DeferredPBRLitPass.h"
 #include "Shader.h"
 #include "RenderScene.h"
 #include "RenderTarget.h"
@@ -12,6 +13,7 @@ PBRLitTechnique::~PBRLitTechnique() {}
 void PBRLitTechnique::Initialize(ID3D12GraphicsCommandList* commandList)
 {
     InitGBufferPass();
+    InitDeferredPass();
     // gbuffer 상태 전이 하기.
     for (UINT i = 0; i < _ownerScene->_gBufferCount; ++i)
     {
@@ -38,7 +40,7 @@ void PBRLitTechnique::InitGBufferPass()
 {
     std::shared_ptr<GBufferPass> gBufferPass = std::make_shared<GBufferPass>();
     gBufferPass->SetOwnerScene(_ownerScene);
-    gBufferPass->SetClearValue(Color(0.f,0.f,0.f,1.f));
+    gBufferPass->SetClearValue(Color(0.3f, 0.3f, 0.3f, 1.f));
     D3D12_VIEWPORT viewport{.TopLeftX = 0,
                             .TopLeftY = 0,
                             .Width    = (FLOAT)UmDevice.GetMode().Width,
@@ -55,5 +57,17 @@ void PBRLitTechnique::InitGBufferPass()
 
 void PBRLitTechnique::InitDeferredPass() 
 {
-
+    std::shared_ptr<DeferredPBRLitPass> litPass = std::make_shared<DeferredPBRLitPass>();
+    litPass->SetOwnerScene(_ownerScene);
+    litPass->SetClearValue(Color(0.3f, 0.3f, 0.3f, 1.f));
+    D3D12_VIEWPORT viewport{.TopLeftX = 0,
+                            .TopLeftY = 0,
+                            .Width    = (FLOAT)UmDevice.GetMode().Width,
+                            .Height   = (FLOAT)UmDevice.GetMode().Height,
+                            .MinDepth = 0.f,
+                            .MaxDepth = 1.f};
+    D3D12_RECT     scissor{
+            .left = 0, .top = 0, .right = (LONG)UmDevice.GetMode().Width, .bottom = (LONG)UmDevice.GetMode().Height};
+    litPass->Initialize(viewport, scissor);
+    AddRenderPass(litPass);
 }

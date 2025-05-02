@@ -16,6 +16,7 @@ void DeferredPBRLitPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_
                                     .NodeMask       = 0};
 
     UmDevice.GetDevice().Get()->CreateDescriptorHeap(&desc, IID_PPV_ARGS(_srvDescriptorHeap.GetAddressOf()));
+    InitShaderAndPSO();
 }
 
 void DeferredPBRLitPass::Begin(ID3D12GraphicsCommandList* commandList)
@@ -41,24 +42,25 @@ void DeferredPBRLitPass::End(ID3D12GraphicsCommandList* commandList)
 void DeferredPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
 {
     // 사용할 gbuffer 복사 descriptor 복사
-    std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> handles;
-    handles.reserve(7);
-    for (UINT i = RenderScene::GBuffer::BASECOLOR; i <= RenderScene::GBuffer::WORLDPOSITION; ++i)
-    {
-        D3D12_CPU_DESCRIPTOR_HANDLE handle = _ownerScene->_gBuffer[i]->GetHandle();
-        handles.push_back(handle);
-    }
     ComPtr<ID3D12Device> device = UmDevice.GetDevice();
+    auto                 dest   = _srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+    UINT                 descriptorSize = UmDevice.GetCBVSRVUAVDescriptorSize();
 
-    UINT count = static_cast<UINT>(handles.size());
-    auto dest  = _srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-    device->CopyDescriptors(count, &dest, nullptr, count, handles.data(), nullptr,
-                            D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+    for (UINT i = 0; i <= RenderScene::GBuffer::COSTOMDEPTH; ++i)
+    {
+        D3D12_CPU_DESCRIPTOR_HANDLE destHandle = CD3DX12_CPU_DESCRIPTOR_HANDLE(dest, i, descriptorSize);
+        device->CopyDescriptorsSimple(1, destHandle, _ownerScene->_gBufferSrvHandles[i],
+                                      D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+    }
+
     ID3D12DescriptorHeap* hps[] = {
         _srvDescriptorHeap.Get(),
     };
     // 디스크립터-힙 설정.
     commandList->SetDescriptorHeaps(_countof(hps), hps);
+    commandList->SetGraphicsRootSignature(_shader->GetRootSignature().Get());
+    commandList->SetGraphicsRootConstantBufferView(_shader->GetRootSignatureIndex("cameraData"),
+                                                   _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
     D3D12_GPU_DESCRIPTOR_HANDLE gbuffer = _srvDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
     commandList->SetGraphicsRootDescriptorTable(_shader->GetRootSignatureIndex("gBuffers"), gbuffer);
     // pso 세팅

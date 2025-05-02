@@ -18,13 +18,13 @@ float NormalDistributionGGX(float3 N, float3 H, float roughness)
 
 float GeometrySchlickGGX(float NdotV, float roughness)
 {
-    float r = roughness = 1.f;
+    float r = roughness;
     float k = (r * r) / 8.f;
     
     return NdotV / (NdotV * (1.f - k) + k + Epsilon);
 }
 
-float GeometrySmith(float3 N, float V, float3 L, float roughness)
+float GeometrySmith(float3 N, float3 V, float3 L, float roughness)
 {
     float NdotV = saturate(dot(N, V));
     float NdotL = saturate(dot(N, L));

@@ -110,7 +110,8 @@ void RenderScene::Execute(ID3D12GraphicsCommandList* commandList)
 
 D3D12_CPU_DESCRIPTOR_HANDLE RenderScene::GetFinalImage()
 {
-    return _gBufferSrvHandles[BASECOLOR];
+    //return _gBufferSrvHandles[BASECOLOR];
+    return _meshLightingSrv;
 }
 
 void RenderScene::AddRenderTechnique(std::shared_ptr<RenderTechnique> technique)
