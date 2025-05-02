@@ -20,9 +20,13 @@ private:
 public:
     static bool IsLockFocus() { return _isLockFocus; }
 
+    static bool IsFocused(std::weak_ptr<IEditorObject> obj);
+
+public:
+    // Command
     static bool SetFocusObject(std::weak_ptr<IEditorObject> obj);
 
-    static bool IsFocused(std::weak_ptr<IEditorObject> obj);
+    static bool SetLockFocus(bool isLock);
 
 private:
     static void ShowMenuBarFrame();
@@ -35,22 +39,44 @@ private:
 
 namespace Command
 {
-    class FocusInspecor : public UmCommand
+    namespace Inspector
     {
-    public:
-        FocusInspecor(std::weak_ptr<GameObject> oldWp, std::weak_ptr<GameObject> newWp)
-            : UmCommand("Inspector Focused"), _oldFocused(oldWp), _newFocused(newWp)
+        class FocusObject : public UmCommand
         {
-        }
-        ~FocusInspecor() override = default;
+        public:
+            FocusObject(std::weak_ptr<GameObject> oldWp, std::weak_ptr<GameObject> newWp)
+                : UmCommand("Inspector Focused"), _oldFocused(oldWp), _newFocused(newWp)
+            {
+            }
+            ~FocusObject() override = default;
 
-    public:
-        // UmCommand을(를) 통해 상속됨
-        void Execute() override;
-        void Undo() override;
+        public:
+            // UmCommand을(를) 통해 상속됨
+            void Execute() override;
+            void Undo() override;
 
-    private:
-        std::weak_ptr<GameObject> _oldFocused;
-        std::weak_ptr<GameObject> _newFocused;
-    };
+        private:
+            std::weak_ptr<GameObject> _oldFocused;
+            std::weak_ptr<GameObject> _newFocused;
+        };
+
+        // 사용 X
+        class LockFocus : public UmCommand
+        {
+        public:
+            LockFocus(bool isLock) 
+                : UmCommand("Inspector Lock Focus"), _isLock(isLock)
+            {
+            }
+            ~LockFocus() override = default;
+
+        public:
+            // UmCommand을(를) 통해 상속됨
+            void Execute() override;
+            void Undo() override;
+
+        private:
+            bool _isLock;
+        };
+    }
 }

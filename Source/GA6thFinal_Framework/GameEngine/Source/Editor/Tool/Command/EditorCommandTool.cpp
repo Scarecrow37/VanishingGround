@@ -78,7 +78,9 @@ void EditorCommandTool::OnFrame()
                 auto name = icon + " " + command->GetName();
 
                 ImVec4 defaultColor = GetSelectableColor(index, _tableDefaultColor);
+                defaultColor.w = 0.2f;
                 ImVec4 hoveredColor = GetSelectableColor(index, _tableHoveredColor);
+                hoveredColor.w      = 0.2f;
                 ImGui::PushStyleColor(ImGuiCol_Header, defaultColor);
                 ImGui::PushStyleColor(ImGuiCol_HeaderHovered, hoveredColor);
                 ImGui::Selectable(name.c_str(), true);

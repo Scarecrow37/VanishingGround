@@ -39,16 +39,6 @@ void  EditorInspectorTool::OnPostFrame()
 void EditorInspectorTool::OnFocus()
 {}
 
-bool EditorInspectorTool::SetFocusObject(std::weak_ptr<IEditorObject> obj) 
-{
-    if (false == _isLockFocus)
-    {
-        _focusedObject = obj;
-        return true;
-    }
-    return false;
-}
-
 bool EditorInspectorTool::IsFocused(std::weak_ptr<IEditorObject> obj)
 {
     bool ownerIsExpired = _focusedObject.expired();
@@ -71,21 +61,50 @@ void EditorInspectorTool::ShowMenuBarFrame()
     }
 }
 
+bool EditorInspectorTool::SetFocusObject(std::weak_ptr<IEditorObject> obj)
+{
+    if (false == _isLockFocus)
+    {
+        _focusedObject = obj;
+        return true;
+    }
+    return false;
+}
+
+bool EditorInspectorTool::SetLockFocus(bool isLock)
+{
+    _isLockFocus = isLock;
+    return true;
+}
+
 namespace Command
 {
-    void FocusInspecor::Execute()
+    namespace Inspector
     {
-        if (false == _newFocused.expired())
+        void FocusObject::Execute()
         {
-            EditorInspectorTool::SetFocusObject(_newFocused);
+            if (false == _newFocused.expired())
+            {
+                EditorInspectorTool::SetFocusObject(_newFocused);
+            }
         }
-    }
 
-    void FocusInspecor::Undo()
-    {
-        if (false == _oldFocused.expired())
+        void FocusObject::Undo()
         {
-            EditorInspectorTool::SetFocusObject(_oldFocused);
+            if (false == _oldFocused.expired())
+            {
+                EditorInspectorTool::SetFocusObject(_oldFocused);
+            }
         }
-    }
+
+        void LockFocus::Execute() 
+        {
+            EditorInspectorTool::SetLockFocus(_isLock);
+        }
+
+        void LockFocus::Undo() 
+        {
+            EditorInspectorTool::SetLockFocus(!_isLock);
+        }
+    } // namespace Inspector
 }
