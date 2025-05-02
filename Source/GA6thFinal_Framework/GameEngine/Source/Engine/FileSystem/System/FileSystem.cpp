@@ -281,7 +281,8 @@ const File::Path& EFileSystem::GetPathFromGuid(const File::Guid& guid) const
     auto wpContext = GetContext(guid);
     if (false == wpContext.expired())
     {
-        return wpContext.lock()->GetPath();
+        auto& path = wpContext.lock()->GetPath();
+        return path;
     }
     return NULL_PATH;
 }
@@ -585,10 +586,8 @@ void EFileSystem::RegisterContext(const File::Path& path)
 
 void EFileSystem::UnregisterContext(const File::Path& path) 
 {
-    // 파일이 없으면 return
-    if (false == stdfs::exists(path))
-        return;
-
+    // 이미 삭제된 파일이므로 존재 검사를 하면 안된다...
+   
     // 확장자가 유효하지 않으면 return
     if (false == IsValidExtension(path.extension()))
         return;
@@ -621,13 +620,16 @@ void EFileSystem::ProcessRemovedFile(const File::Path& path)
         // 메타 파일을 메모리에 존재하는 guid로 재생성
         File::Path filePath = path;
         filePath.replace_extension("");
-
-        auto wpContext      = GetContext(filePath);
-        if (false == wpContext.expired())
+        // 원본 파일이 존재할 때 만
+        if (true == fs::exists(filePath))
         {
-            auto  spContext = wpContext.lock();
-            auto& meta      = spContext->GetMeta();
-            meta.FileCreate();
+            auto wpContext = GetContext(filePath);
+            if (false == wpContext.expired())
+            {
+                auto  spContext = wpContext.lock();
+                auto& meta      = spContext->GetMeta();
+                meta.FileCreate();
+            }
         }
         return;
     }
@@ -639,7 +641,6 @@ void EFileSystem::ProcessRemovedFile(const File::Path& path)
     auto wpContext = GetContext(path);
     if (false == wpContext.expired())
     {
-        
         auto  spContext = wpContext.lock();
         auto& meta      = spContext->GetMeta();
         auto& guid      = meta.GetGuid();

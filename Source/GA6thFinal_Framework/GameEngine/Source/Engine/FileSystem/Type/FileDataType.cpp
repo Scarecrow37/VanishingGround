@@ -11,6 +11,10 @@ namespace File
     {
         return UmFileSystem.GetPathFromGuid(native());
     }
+    bool Guid::IsNull() const
+    {
+        return NULL_GUID == native();
+    }
     Path::operator File::Guid() const
     {
         return ToGuid();
@@ -19,18 +23,24 @@ namespace File
     {
         return string() + v.string();
     }
-
     File::Path Path::operator/(const File::FString& v)
     {
         File::Path path = string();
         path /= v;
         return path.generic_string();
     }
-
     File::Guid Path::ToGuid() const
     {
         return UmFileSystem.GetGuidFromPath(native());
     }
+    bool Path::IsNull() const
+    {
+        return NULL_PATH == native();
+    }
+    FileData::FileData(File::Path path) 
+        : _filePath(path), _fileGuid(path) { }
+    FileData::FileData(File::Guid guid) 
+         : _filePath(guid), _fileGuid(guid) { }
 
     bool FileData::FileCreate(bool isHidden) const
     {
@@ -84,7 +94,7 @@ namespace File
             {
                 _fileGuid = NULL_GUID;
             }
-            else
+            else if (true == _fileGuid.IsNull())
             {
                 CreateGuid(_fileGuid);
             }
@@ -106,7 +116,7 @@ namespace File
         _fileGuid = NULL_GUID;
         _filePath = NULL_PATH;
 
-        if (true == path.empty())
+        if (true == path.IsNull())
             return false;
 
         if (false == fs::exists(path))
