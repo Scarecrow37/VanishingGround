@@ -20,7 +20,7 @@ public:
         EMISSIVE,
         WORLDPOSITION,
         DEPTH,
-        COSTOMDEPTH,
+        CUSTOMDEPTH,
         END
     };
 
@@ -72,7 +72,7 @@ public:
     // 가지고있는 technique들
     std::vector<std::shared_ptr<RenderTechnique>> _techniques;
 
-    // 0: basecolor, 1: normal ,2:ORM , 3:emissive, 4:world position, 5: depth, 6: costom depth(bit mask,후처리용)
+    // 0: basecolor, 1: normal ,2:ORM , 3:emissive, 4:world position, 5: depth, 6: custom depth(bit mask,후처리용)
     UINT                                       _gBufferCount = GBuffer::END;
     std::vector<std::shared_ptr<RenderTarget>> _gBuffer;
     std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _gBufferSrvHandles;

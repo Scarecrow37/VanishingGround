@@ -159,13 +159,14 @@ void GBufferPass::InitShaderAndPSO()
     psodesc.SampleMask               = UINT_MAX;
     psodesc.PrimitiveTopologyType    = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
     psodesc.InputLayout              = staticMeshShaderBuilder->GetInputLayout();
-    psodesc.NumRenderTargets         = 6;
+    psodesc.NumRenderTargets         = 7;
     psodesc.RTVFormats[0]            = DXGI_FORMAT_R32G32B32A32_FLOAT;
     psodesc.RTVFormats[1]            = DXGI_FORMAT_R32G32B32A32_FLOAT;
     psodesc.RTVFormats[2]            = DXGI_FORMAT_R32G32B32A32_FLOAT;
     psodesc.RTVFormats[3]            = DXGI_FORMAT_R32G32B32A32_FLOAT;
-    psodesc.RTVFormats[4]            = DXGI_FORMAT_R32_FLOAT;
-    psodesc.RTVFormats[5]            = DXGI_FORMAT_R32_UINT;
+    psodesc.RTVFormats[4]            = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    psodesc.RTVFormats[5]            = DXGI_FORMAT_R32_FLOAT;
+    psodesc.RTVFormats[6]            = DXGI_FORMAT_R32_UINT;
     psodesc.DSVFormat                = DXGI_FORMAT_D24_UNORM_S8_UINT;
     psodesc.pRootSignature           = staticMeshShaderBuilder->GetRootSignature().Get();
     psodesc.SampleDesc               = {1, 0};

@@ -4,6 +4,7 @@
 
 // Editor
 #include "NonPBRLitTechnique.h"
+#include "RendererFileEvent.h"
 
 #define SeongU01
 #ifdef SeongU01
@@ -17,7 +18,10 @@
 #include "PBRLitTechnique.h"
 #endif
 
-Renderer::Renderer() : _currnetState(0)
+Renderer::Renderer()
+    : _currnetState(0)
+    , _currentImGuiImageIndex(1)
+
 {
 }
 
@@ -64,6 +68,10 @@ void Renderer::Initialize()
         modelViewerScene->InitializeRenderScene();
         modelViewerScene->AddRenderTechnique(std::make_shared<PBRLitTechnique>());
         _renderScenes["ModelViewer"] = modelViewerScene;
+
+        // Renderer File Event
+        _rendererFileEvent = std::make_unique<RendererFileEvent>();
+        UmFileSystem.RegisterFileEventNotifier(_rendererFileEvent.get(), {".png", ".dds", ".fbx"});
     }
 }
 
@@ -95,6 +103,9 @@ void Renderer::Render()
 void Renderer::Flip()
 {
     UmDevice.Flip();
+    // 임시 ImGUI Image Index 찾는 구조 나중에 수정
+    // ImGUI Descriptor Index 초기화 (0 은 ImGUI Font)
+    _currentImGuiImageIndex = 1;
 }
 
 D3D12_GPU_DESCRIPTOR_HANDLE Renderer::GetRenderSceneImage(std::string_view renderSceneName)
@@ -214,14 +225,18 @@ void Renderer::ImguiEnd()
 // SWTODO : 수정해야함. 너무 임시야. 임구이에서 어떻게 해당이미지의 gpu handle을 반환할지?
 //          뭐가 반환될지 어떻게 알지?
 D3D12_GPU_DESCRIPTOR_HANDLE Renderer::SceneView(RenderScene* scene)
-{
+{    
     auto dest = _imguiDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-    UINT offset = UmDevice.GetCBVSRVUAVDescriptorSize();
+    UINT offset = _currentImGuiImageIndex * UmDevice.GetCBVSRVUAVDescriptorSize();
     dest.ptr += offset;
+
     auto src  = scene->GetFinalImage();
     UmDevice.GetDevice()->CopyDescriptorsSimple(1, dest, src, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
     D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = _imguiDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
     gpuHandle.ptr += offset;
+
+    // next ImGUI Descriptor Index
+    _currentImGuiImageIndex++;
+
     return gpuHandle;
 }
-

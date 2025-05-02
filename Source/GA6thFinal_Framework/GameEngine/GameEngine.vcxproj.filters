@@ -510,6 +510,9 @@
     <ClInclude Include="Source\Editor\DynamicCamera\EditorDynamicCamera.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\RendererFileEvent.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\pch.cpp">
@@ -876,6 +879,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Editor\Tool\Command\EditorCommandTool.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\RendererFileEvent.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

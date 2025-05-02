@@ -47,7 +47,7 @@ void RenderScene::UpdateRenderScene()
         auto& meshes    = model->GetMeshes();
         auto& materials = model->GetMaterials();
         
-        XMMATRIX world = XMMatrixTranspose(component->gameObject->transform->GetWorldMatrix());
+        XMMATRIX world = XMMatrixTranspose(component->transform->GetWorldMatrix());
         UINT     size  = (UINT)meshes.size();
 
         for (UINT i = 0; i < size; i++)
@@ -151,9 +151,9 @@ void RenderScene::CreateRenderTarget()
     _gBuffer[GBuffer::DEPTH]->Initialize(DXGI_FORMAT_R32_FLOAT);
     _gBufferSrvHandles[GBuffer::DEPTH] = _gBuffer[GBuffer::DEPTH]->CreateShaderResourceView();
     
-    _gBuffer[GBuffer::COSTOMDEPTH] = std::make_shared<RenderTarget>();
-    _gBuffer[GBuffer::COSTOMDEPTH]->Initialize(DXGI_FORMAT_R32_UINT);
-    _gBufferSrvHandles[GBuffer::COSTOMDEPTH] = _gBuffer[GBuffer::COSTOMDEPTH]->CreateShaderResourceView();
+    _gBuffer[GBuffer::CUSTOMDEPTH] = std::make_shared<RenderTarget>();
+    _gBuffer[GBuffer::CUSTOMDEPTH]->Initialize(DXGI_FORMAT_R32_UINT);
+    _gBufferSrvHandles[GBuffer::CUSTOMDEPTH] = _gBuffer[GBuffer::CUSTOMDEPTH]->CreateShaderResourceView();
     
 
 

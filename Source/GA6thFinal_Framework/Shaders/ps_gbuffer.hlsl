@@ -12,13 +12,13 @@ struct PSInput
 
 struct PSOutput
 {
-    float4 baseColor : SV_Target0;
-    float4 normal : SV_Target1;
-    float4 orm : SV_Target2;
-    float4 emissive : SV_Target3;
+    float4 baseColor     : SV_Target0;
+    float4 normal        : SV_Target1;
+    float4 orm           : SV_Target2;
+    float4 emissive      : SV_Target3;
     float4 worldPosition : SV_Target4;
-    float depth : SV_Target5;
-    uint costomDepth : SV_Target6;
+    float depth          : SV_Target5;
+    uint customDepth     : SV_Target6;
 };
 
 #define DIFFUSE 0
@@ -72,7 +72,7 @@ PSOutput WriteGuBuffer(PSInput input)
     //5. depth
     output.depth = input.position.z;
     // SWTODO : 나중에 마스킹값 받는거 처리
-    output.costomDepth = 0;
+    output.customDepth = 0;
     return output;
 }
 
@@ -81,6 +81,6 @@ PSOutput ps_main(PSInput input)
     PSOutput output = (PSOutput) 0;
 
     output = WriteGuBuffer(input);
-    return output;
 
+    return output;
 }
