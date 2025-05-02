@@ -63,7 +63,7 @@ private:
 
      /* 콘텐츠 뷰 콜럼 */
     void ShowFolderContents();
-    void ShowSearchBar(spFolderContext context); // 검색바
+    void ShowSearchBar(spFolderContext context); // 콘텐츠 뷰 검색 바
     void ContentsFrameEventAction(spFolderContext context); // 콘텐츠 뷰 프레임 이벤트 액션
 
     void ShowContentsToList(); // 콘텐츠 뷰 출력 타입 - 리스트
@@ -115,6 +115,9 @@ private:
     
     /* EventProcessing */
     std::vector<std::function<void()>> _eventFunc; 
+
+    /* Search */
+    char _searchBuffer[128] = "";
 
     // ReflectFields
     REFLECT_FIELDS_BEGIN(EditorTool)

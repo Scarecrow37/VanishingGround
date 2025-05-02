@@ -37,7 +37,8 @@ void  EditorInspectorTool::OnPostFrame()
 }
 
 void EditorInspectorTool::OnFocus()
-{}
+{
+}
 
 bool EditorInspectorTool::IsFocused(std::weak_ptr<IEditorObject> obj)
 {
