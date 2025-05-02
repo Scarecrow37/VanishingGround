@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include "UmFramework.h"
 #include "blueprint.h"
 
 class EditorShaderGraph :

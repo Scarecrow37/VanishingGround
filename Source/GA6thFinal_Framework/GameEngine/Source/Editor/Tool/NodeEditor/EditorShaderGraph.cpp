@@ -1,4 +1,5 @@
-﻿#include "EditorShaderGraph.h"
+﻿#include "pch.h"
+#include "EditorShaderGraph.h"
 
 using namespace Global;
 

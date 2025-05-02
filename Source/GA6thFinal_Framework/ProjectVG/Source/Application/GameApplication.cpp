@@ -43,7 +43,7 @@ GameApplication::GameApplication()
     _editorModule->RegisterEditorObject<ScriptTestEditor>();
 
     // 블루프린트 버그있음
-    //_editorModule->RegisterEditorObject<EditorShaderGraph>();
+    _editorModule->RegisterEditorObject<EditorShaderGraph>();
 
     /* Menu */
     // Project

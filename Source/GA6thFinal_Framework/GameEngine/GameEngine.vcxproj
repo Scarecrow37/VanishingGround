@@ -286,6 +286,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Source\Editor\Tool\Command\EditorCommandTool.h" />
+    <ClInclude Include="Source\Editor\Tool\NodeEditor\blueprint.h" />
+    <ClInclude Include="Source\Editor\Tool\NodeEditor\EditorShaderGraph.h" />
+    <ClInclude Include="Source\Editor\Tool\NodeEditor\NodeEditor.h" />
+    <ClInclude Include="Source\Editor\Tool\NodeEditor\utilities\builders.h" />
+    <ClInclude Include="Source\Editor\Tool\NodeEditor\utilities\drawing.h" />
+    <ClInclude Include="Source\Editor\Tool\NodeEditor\utilities\widgets.h" />
     <ClInclude Include="Source\Engine\CommandCore\CommandManager.h" />
     <ClInclude Include="Source\Engine\CommandCore\UmCommand.h" />
     <ClInclude Include="Source\Editor\Menu\Project\EditorBuildSettingMenu.h" />
@@ -416,6 +422,31 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Editor\Tool\Command\EditorCommandTool.cpp" />
+    <ClCompile Include="Source\Editor\Tool\NodeEditor\blueprint.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\NodeEditor\EditorShaderGraph.cpp" />
+    <ClCompile Include="Source\Editor\Tool\NodeEditor\utilities\builders.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\NodeEditor\utilities\drawing.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\NodeEditor\utilities\widgets.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="Source\Engine\CommandCore\CommandManager.cpp" />
     <ClCompile Include="Source\Engine\CommandCore\UmCommand.cpp" />
     <ClCompile Include="Source\Editor\Menu\Project\EditorBuildSettingMenu.cpp" />

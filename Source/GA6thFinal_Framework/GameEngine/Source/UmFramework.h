@@ -179,6 +179,7 @@ using namespace Microsoft::WRL;
 #include "Editor/Tool/Scene/EditorSceneTool.h"
 #include "Editor/Tool/Log/EditorLogsTool.h"
 #include "Editor/Tool/Command/EditorCommandTool.h"
+#include "Editor/Tool/NodeEditor/EditorShaderGraph.h"
 
 #include "Editor/Tool/ScriptTest/ScriptTestEditor.h"    // 테스트용. 추후 제거 필요
 
