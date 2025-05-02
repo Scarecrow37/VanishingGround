@@ -25,4 +25,3 @@ private:
 
     ImGuiWindow* window = nullptr;
 };
-

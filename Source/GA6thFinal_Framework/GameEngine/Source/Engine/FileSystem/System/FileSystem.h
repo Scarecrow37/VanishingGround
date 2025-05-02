@@ -93,8 +93,6 @@ public:
 
 
     NotifierSet GetNotifiers(const File::FString& ext);
-    void RequestSave();
-    void RequestLoad();
     void RequestInspectFile(const File::Path& path);
     void RequestOpenFile(const File::Path& path);
     void RequestCopyFile(const File::Path& path);

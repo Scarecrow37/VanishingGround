@@ -25,7 +25,7 @@ void FileSystemModule::ModuleInitialize()
     UmApplication.AddMessageHandler(msgHandler);
     UmFileSystem.ObserverSetUp([this](const Event& event) { RecieveFileEvent(event); });
     auto accessExt = {".txt", ".png", ".dds"};
-    UmFileSystem.RegisterFileEventNotifier(new SampleNotifier, accessExt);
+    UmFileSystem.RegisterFileEventNotifier(this, accessExt);
 }
 
 void FileSystemModule::PreUnInitialize() 
@@ -35,7 +35,20 @@ void FileSystemModule::PreUnInitialize()
 }
 
 void FileSystemModule::ModuleUnInitialize() 
+{}
+
+void FileSystemModule::OnRequestedSave() 
 {
+    auto& path = UmFileSystem.GetSettingPath();
+    auto name = File::PROJECT_SETTING_FILENAME;
+    UmFileSystem.SaveSetting(path / name);
+}
+
+void FileSystemModule::OnRequestedLoad() 
+{
+    auto& path = UmFileSystem.GetSettingPath();
+    auto  name = File::PROJECT_SETTING_FILENAME;
+    UmFileSystem.LoadSetting(path / name);
 }
 
 void FileSystemModule::Update() 
@@ -137,70 +150,4 @@ bool FileSystemModule::FileSystemWinProc(HWND hwnd, UINT msg, WPARAM wParam, LPA
         }
     }
     return false;
-}
-
-void SampleNotifier::OnFileRegistered(const File::Path& path) 
-{
-    std::wstring log = L"Register File: " + path.generic_wstring();
-    File::OutputLog(log);
-}
-
-void SampleNotifier::OnFileUnregistered(const File::Path& path) 
-{
-    std::wstring log = L"Unregister File: " + path.generic_wstring();
-    File::OutputLog(log);
-}
-
-void SampleNotifier::OnFileModified(const File::Path& path) 
-{
-    std::wstring log = L"Modified File: " + path.generic_wstring();
-    File::OutputLog(log);
-}
-
-void SampleNotifier::OnFileRemoved(const File::Path& path) 
-{
-    std::wstring log = L"Removed File: " + path.generic_wstring();
-    File::OutputLog(log);
-}
-
-void SampleNotifier::OnFileRenamed(const File::Path& oldPath, const File::Path& newPath) 
-{
-    std::wstring log = L"Renamed File: " + oldPath.generic_wstring() + L" to " + newPath.generic_wstring();
-    File::OutputLog(log);
-}
-
-void SampleNotifier::OnFileMoved(const File::Path& oldPath, const File::Path& newPath) 
-{
-    std::wstring log = L"Moved File: " + oldPath.generic_wstring() + L" to " + newPath.generic_wstring();
-    File::OutputLog(log);
-}
-
-void SampleNotifier::OnRequestedSave() 
-{
-    UmLogger.Log(1, "OnRequestedSave");
-}
-
-void SampleNotifier::OnRequestedLoad() 
-{
-    UmLogger.Log(1, "OnRequestedLoad");
-}
-
-void SampleNotifier::OnRequestedInspect(const File::Path& path) 
-{
-    ImGui::Text("TestInspect");
-}
-
-void SampleNotifier::OnRequestedOpen(const File::Path& path)
-{
-    File::OpenFile(path);
-}
-
-void SampleNotifier::OnRequestedCopy(const File::Path& path) 
-{
-    UmLogger.Log(1, "Copy File");
-}
-
-void SampleNotifier::OnRequestedPaste(const File::Path& path) 
-{
-    UmLogger.Log(1, "Paste File");
 }

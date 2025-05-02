@@ -47,11 +47,10 @@ private:
     virtual void OnFocus() override;
 
 private:
-    /* 브라우저 메뉴바 */
-    void ShowBrowserMenu();
-
     /* 메뉴바 - 콜럼 사이 어퍼프레임 */
     void ShowUpperFrame();
+    void ShowFolderDirectoryPath(spFolderContext context); // 주소 출력
+    void ListToDirectoryFileName(const File::Path& relativePath);
 
     /*  */
     void BeginColumn();         // Begin
@@ -64,9 +63,7 @@ private:
 
      /* 콘텐츠 뷰 콜럼 */
     void ShowFolderContents();
-
-    void ShowFolderDirectoryPath(spFolderContext context);  // 콘텐츠 뷰 상단 주소 출력
-    void ListToDirectoryFileName(const File::Path& relativePath);
+    void ShowSearchBar(spFolderContext context); // 검색바
     void ContentsFrameEventAction(spFolderContext context); // 콘텐츠 뷰 프레임 이벤트 액션
 
     void ShowContentsToList(); // 콘텐츠 뷰 출력 타입 - 리스트
@@ -97,10 +94,6 @@ private:
     void SetFocusFromRedoPath();
 
 private:
-    bool IsKeyDownCopy();
-    bool IsKeyDownPaste();
-
-private:
     /* 브라우저에서 보여질 유형 (List, Icon) */
     ShowType _showType;
     /* 현재 포커싱 폴더 */
@@ -125,7 +118,6 @@ private:
 
     // ReflectFields
     REFLECT_FIELDS_BEGIN(EditorTool)
-    float UpperHeight = 40.0f;
     float ColumWidth  = 250.f;
     float ColumHeight = 0.0f;
     REFLECT_FIELDS_END(EditorAssetBrowserTool)
@@ -137,15 +129,21 @@ public:
     virtual void OnInspectorStay() override;
 
 public:
-    inline auto GetContext() 
-    {
-        return _context; 
-    }
-    inline void SetContext(std::weak_ptr<File::Context> context) 
-    {
-        _context = context; 
+    inline void SetThis(std::weak_ptr<EditorAssetObject> thisObj)
+    { 
+        _this = thisObj; 
     }
 
+    inline auto GetContext() 
+    {
+        return _selectedAsset; 
+    }
+
+    void SetContext(std::weak_ptr<File::Context> context);
+
 private:
-    std::weak_ptr<File::Context> _context;
+    std::weak_ptr<File::Context> _selectedAsset;
+    std::weak_ptr<File::Context> _focusedInspector;
+
+    std::weak_ptr<EditorAssetObject> _this; // 자신 weak_ptr 객체
 };
