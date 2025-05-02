@@ -195,6 +195,11 @@ public:
         /// </summary>
         /// <returns></returns>
         static std::string& GetStartSceneSetting();
+
+        /// <summary>
+        /// 시작 씬을 로드합니다.
+        /// </summary>
+        static void LoadStartScene();
     };
 
 public:

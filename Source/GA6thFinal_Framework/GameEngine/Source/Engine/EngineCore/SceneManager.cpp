@@ -318,6 +318,26 @@ std::string& ESceneManager::Engine::GetStartSceneSetting()
     return UmSceneManager._setting.StartScene;
 }
 
+void ESceneManager::Engine::LoadStartScene() 
+{
+    ESceneManager& sceneManager = UmSceneManager;
+    std::string& loadScene = Application::IsEditor() ? sceneManager._setting.MainScene : sceneManager._setting.StartScene;
+    File::Path path = loadScene;
+    File::Guid guid = path.ToGuid();
+    auto   findGuid = sceneManager._scenesMap.find(guid);
+    if (loadScene != STR_NULL && findGuid != sceneManager._scenesMap.end())
+    {
+        if (UmComponentFactory.HasScript() == false)
+        {
+            if (UmComponentFactory.InitalizeComponentFactory() == false)
+            {
+                return;
+            }
+        }
+        sceneManager.LoadScene(loadScene);
+    }
+}
+
 void ESceneManager::CreateEmptySceneAndLoad(std::string_view name, std::string_view outPath, const std::function<void()>& loadEvent) 
 {
     if (UmComponentFactory.HasScript() == false)

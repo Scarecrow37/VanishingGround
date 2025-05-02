@@ -62,12 +62,8 @@ void Application::Initialize(HINSTANCE hInstance)
     //모듈 초기화
     InitModules();
 
-    //시작 씬
-    LoadStartScene();
-
     //초기화 완료
     OnStartupComplete();
-
 }
 
 void Application::UnInitialize()
@@ -133,28 +129,6 @@ void Application::SetStyleToBorderlessWindowed()
 void Application::SetOptimalScreenSize()
 {
     _clientSize = { 0, 0 };
-}
-
-void Application::LoadStartScene() 
-{
-    // 시작 씬 로드
-    ESceneManager& sceneManager = UmSceneManager;
-    std::string&   loadScene =
-    Application::IsEditor() ? sceneManager._setting.MainScene : sceneManager._setting.StartScene;
-    File::Path path = loadScene;
-    File::Guid guid = path.ToGuid();
-    auto findGuid = sceneManager._scenesMap.find(guid);
-    if (loadScene != STR_NULL && findGuid != sceneManager._scenesMap.end())
-    {
-        if (UmComponentFactory.HasScript() == false)
-        {
-            if (UmComponentFactory.InitalizeComponentFactory() == false)
-            {
-                return;
-            }
-        }
-        sceneManager.LoadScene(loadScene);
-    }
 }
 
 void Application::CreateWindowClient()
