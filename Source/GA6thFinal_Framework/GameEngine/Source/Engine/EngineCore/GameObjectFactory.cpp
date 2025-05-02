@@ -119,18 +119,21 @@ YAML::Node EGameObjectFactory::SerializeToYaml(GameObject* gameObject)
     YAML::Node nodes;
     std::map<Transform*, int> transformParentLevelMap;
     int parentIndex = 0;
+    bool isPrefabInstance = gameObject->IsPrefabInstance();
     Transform::ForeachBFS(
         gameObject->_transform, 
         [&](Transform* curr) 
         {
             //오브젝트 직렬화
             YAML::Node objectNode = MakeYamlToGameObject(&curr->gameObject);
+
             //컴포넌트들 직렬화
             for (auto& component : curr->gameObject->_components)
             {
                 YAML::Node componentNode = UmComponentFactory.SerializeToYaml(component.get());
                 objectNode["Components"].push_back(componentNode);
             }
+
             //Transform 직렬화
             transformParentLevelMap[curr] = parentIndex;
             YAML::Node transformNode = objectNode["Transform"].as<YAML::Node>();
@@ -162,6 +165,7 @@ std::vector<std::shared_ptr<GameObject>> EGameObjectFactory::MakeObjectsGraphToY
     YAML::Node& nodes = *pObjectNode;
     std::map<int, Transform*>   transformParentLevelMap;
     std::shared_ptr<GameObject> currObject;
+    bool isPrefabInstance = false;
     for (auto node : nodes)
     {
         // 오브젝트 생성
@@ -172,7 +176,7 @@ std::vector<std::shared_ptr<GameObject>> EGameObjectFactory::MakeObjectsGraphToY
         {
             ResetGameObject(currObject.get(), "null");
         }
-        ParsingYaml(currObject.get(), currNode);
+        ParsingYamlToGameObject(currObject.get(), currNode);
 
         // 프리팹 추적
         if (currNode["Prefab"])
@@ -183,6 +187,7 @@ std::vector<std::shared_ptr<GameObject>> EGameObjectFactory::MakeObjectsGraphToY
                 std::vector<std::weak_ptr<GameObject>>& instanceList = _prefabInstanceList[prefab];
                 instanceList.emplace_back(currObject);
                 currObject->_prefabGuid = prefab;
+                isPrefabInstance = true;
             }
         }
 
@@ -245,9 +250,11 @@ std::shared_ptr<GameObject> EGameObjectFactory::DeserializeToGuid(const File::Gu
     auto iter = _prefabObjectMap.find(guid);
     if (iter == _prefabObjectMap.end())
     {
-        std::string message = std::format("{} {}", u8"존재하지 않는 프리팹입니다."_c_str, guid.ToPath().string());
-        UmLogger.Log(LogLevel::LEVEL_WARNING, message);
-        return nullptr;
+        auto tempObject = NewGameObject(typeid(GameObject).name(), "GameObject");
+        std::vector<std::weak_ptr<GameObject>>& instanceList = _prefabInstanceList[guid];
+        instanceList.emplace_back(tempObject);
+        tempObject->_prefabGuid = guid;
+        return tempObject;
     }
     YAML::Node yamlData = SerializeToYaml(iter->second[0].get());
     auto pObject = DeserializeToYaml(&yamlData);
@@ -456,16 +463,17 @@ std::shared_ptr<GameObject> EGameObjectFactory::MakeGameObjectToYaml(YAML::Node*
 
     std::shared_ptr<GameObject> object = MakeGameObject(Type);
     ResetGameObject(object.get(), "null");
-    ParsingYaml(object.get(), objectNode);
+    ParsingYamlToGameObject(object.get(), objectNode);
     return object;
 }
 
-void EGameObjectFactory::ParsingYaml(GameObject* pObject, YAML::Node& objectNode) 
+void EGameObjectFactory::ParsingYamlToGameObject(GameObject* pObject, YAML::Node& objectNode) 
 {
     if (objectNode["Prefab"])
     {
         pObject->_prefabGuid = objectNode["Prefab"].as<std::string>();
     }
+
     std::string ReflectFields = objectNode["ReflectFields"].as<std::string>();
     pObject->DeserializedReflectFields(ReflectFields);
     {
