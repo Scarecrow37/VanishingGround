@@ -170,6 +170,9 @@ private:
     //Prefab의 GUID만 다시 작성합니다.
     void WritePrefabGuid(const File::Path& path, YAML::Node& data);
 
+    //PrefabInstance를 갱신합니다.
+    void ApplyPrefabInstanceChanges(const File::Guid& guid, YAML::Node& yaml);
+
     // FileEventNotifier을(를) 통해 상속됨
     void OnFileRegistered(const File::Path& path) override;
     void OnFileUnregistered(const File::Path& path) override;

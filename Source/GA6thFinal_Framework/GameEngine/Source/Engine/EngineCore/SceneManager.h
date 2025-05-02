@@ -200,6 +200,11 @@ public:
         /// 시작 씬을 로드합니다.
         /// </summary>
         static void LoadStartScene();
+
+        /// <summary>
+        /// 프리팹 인스턴스를 Swap 합니다. Reset만 호출되며 인스턴스 아이디는 유지됩니다.
+        /// </summary>
+        static void SwapPrefabInstance(GameObject* original, GameObject* remake);
     };
 
 public:

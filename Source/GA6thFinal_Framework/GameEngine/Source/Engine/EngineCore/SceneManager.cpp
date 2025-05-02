@@ -338,6 +338,16 @@ void ESceneManager::Engine::LoadStartScene()
     }
 }
 
+void ESceneManager::Engine::SwapPrefabInstance(GameObject* original, GameObject* remake)
+{
+    int index = original->GetInstanceID();
+    std::shared_ptr<GameObject>& sOrigin = UmSceneManager._runtimeObjects[index];
+    std::shared_ptr<GameObject>  sRemake = remake->GetWeakPtr().lock();
+    std::swap(sOrigin->_instanceID, sRemake->_instanceID);
+    std::swap(sOrigin->_ownerScene, sRemake->_ownerScene);
+    std::swap(sOrigin, sRemake);
+}
+
 void ESceneManager::CreateEmptySceneAndLoad(std::string_view name, std::string_view outPath, const std::function<void()>& loadEvent) 
 {
     if (UmComponentFactory.HasScript() == false)

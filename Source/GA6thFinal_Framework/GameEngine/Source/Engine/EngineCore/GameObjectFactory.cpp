@@ -30,12 +30,50 @@ void EGameObjectFactory::WritePrefabGuid(const File::Path& path, YAML::Node& dat
     }
 }
 
+void EGameObjectFactory::ApplyPrefabInstanceChanges(const File::Guid& guid, YAML::Node& yaml) 
+{
+    auto findIter = _prefabInstanceList.find(guid);
+    if (findIter != _prefabInstanceList.end())
+    {
+        auto& [guid, list] = *findIter;
+        std::erase_if(list, [](auto& waek) 
+        { 
+            return waek.expired();
+        });
+
+        if (false == list.empty())
+        {     
+            std::vector<std::shared_ptr<GameObject>> instanceList;
+            for (auto& wptr : list)
+            {
+                std::shared_ptr<GameObject> pGameObject = wptr.lock();
+                if (nullptr != pGameObject)
+                {
+                    instanceList.push_back(pGameObject);
+                }
+            }
+            for (auto& pGameObject : instanceList)
+            {
+                auto prefabObjects = UmGameObjectFactory.MakeObjectsGraphToYaml(&yaml, true);
+                int i = 0;
+                Transform::ForeachBFS(pGameObject->_transform, [&](Transform* curr) 
+                {
+                    ESceneManager::Engine::SwapPrefabInstance(&curr->gameObject, prefabObjects[i].get());                
+                    i++;
+                });
+                UmGameObjectFactory.PackPrefab(prefabObjects.front().get(), guid);
+            }
+        }
+    }
+}
+
 void EGameObjectFactory::OnFileRegistered(const File::Path& path)
 {
     File::Guid guid = path.ToGuid();
     YAML::Node yamlData = YAML::LoadFile(path.string());
     _prefabObjectMap[guid] = MakeObjectsGraphToYaml(&yamlData, true);
     WritePrefabGuid(path, yamlData);
+    ApplyPrefabInstanceChanges(guid, yamlData);
 }
 
 void EGameObjectFactory::OnFileUnregistered(const File::Path& path) 
@@ -67,6 +105,7 @@ void EGameObjectFactory::OnFileModified(const File::Path& path)
         }
         guidQueue.clear();
     }
+    ApplyPrefabInstanceChanges(guid, yamlData);
 }
 
 void EGameObjectFactory::OnFileRemoved(const File::Path& path) 
@@ -185,9 +224,12 @@ std::vector<std::shared_ptr<GameObject>> EGameObjectFactory::MakeObjectsGraphToY
             if (prefab != STR_NULL)
             {
                 std::vector<std::weak_ptr<GameObject>>& instanceList = _prefabInstanceList[prefab];
-                instanceList.emplace_back(currObject);
+                if (useResource == false)
+                {
+                    instanceList.emplace_back(currObject);
+                    isPrefabInstance = true;
+                }
                 currObject->_prefabGuid = prefab;
-                isPrefabInstance = true;
             }
         }
 
