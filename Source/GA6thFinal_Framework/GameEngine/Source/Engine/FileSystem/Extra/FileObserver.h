@@ -6,7 +6,7 @@ namespace File
     {
         Path      _lParam;
         Path      _rParam;
-        UINT      _fileID;
+        LONGLONG  _fileID;
         EventType _eventType;
     };
 
