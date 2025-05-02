@@ -19,9 +19,11 @@ void RenderScene::UpdateRenderScene()
     _camera->Update();
 
     // 비활성된 컴포넌트 제거
-    auto first = std::remove_if(_renderQueue.begin(), _renderQueue.end(), [](const auto& ptr) { return *ptr.first==false; });
+    auto first = std::remove_if(_renderQueue.begin(), _renderQueue.end(), [](const auto& ptr)
+        { 
+            return *ptr.first == false;
+        });
     _renderQueue.erase(first, _renderQueue.end());
-
 
     _currentFrameIndex   = UmDevice.GetCurrentBackBufferIndex();
     Vector4    cameraPos = Vector4(_camera->GetWorldMatrix().Translation());

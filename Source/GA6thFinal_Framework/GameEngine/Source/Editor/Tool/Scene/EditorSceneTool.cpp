@@ -1,11 +1,13 @@
 ﻿#include "pch.h"
 #include "EditorSceneTool.h"
+#include "../..//DynamicCamera/EditorDynamicCamera.h"
 
 EditorSceneTool::EditorSceneTool() 
     : _useSnap(false)
     , _manipulateOperation(ImGuizmo::TRANSLATE)
     , _manipulateMode(ImGuizmo::MODE::WORLD)
     , _tempMatrix(Matrix::Identity), _view(Matrix::Identity)
+    , _camera(std::make_unique<EditorDynamicCamera>())
 {
     SetLabel("Scene");
     SetDockLayout(DockLayout::UP);
@@ -17,10 +19,13 @@ EditorSceneTool::~EditorSceneTool()
 
 void EditorSceneTool::OnStartGui()
 {
-    _camera = UmRenderer.GetCamera("Editor");
+    std::shared_ptr<Camera> camera = UmRenderer.GetCamera("Editor");
+    ASSERT((nullptr != camera), L"Camera is nullptr");
 
-    _position = Vector3(0.f, 0.f, -100.f);
-    _camera->SetPosition(_position);
+    _camera->SetTarget(camera);
+
+    //_position = Vector3(0.f, 0.f, -100.f);
+    //_camera->SetPosition(_position);
 }
 
 void EditorSceneTool::OnPreFrame()
@@ -44,7 +49,7 @@ void EditorSceneTool::OnFrame()
     float  width      = ImGui::GetWindowWidth();
     float  height     = ImGui::GetWindowHeight();
     _aspect           = width/ height;
-    _camera->SetupPerspective(_fovDegree, _aspect, _nearZ, _farZ);
+    _camera->GetCamera()->SetupPerspective(_fovDegree, _aspect, _nearZ, _farZ);
     //ImGuizmo::SetDrawlist();
 
     //const Matrix& cameraView       = _camera->GetViewMatrix();
@@ -67,7 +72,7 @@ void EditorSceneTool::OnFrame()
 
 void EditorSceneTool::OnPostFrame()
 {
-
+    _camera->Update();
 }
 
 void EditorSceneTool::OnFocus()
@@ -137,82 +142,82 @@ void EditorSceneTool::OnFocus()
 //    }
 
 
-    const float deltaTime   = UmTime.DeltaTime();
-    const float moveSpeed   = 30.f;
-    const float mouseSpped  = 5.f;
-    const float rotateSpeed = 2.f;
+   // const float deltaTime   = UmTime.DeltaTime();
+   // const float moveSpeed   = 30.f;
+   // const float mouseSpped  = 5.f;
+   // const float rotateSpeed = 2.f;
 
-    if (GetAsyncKeyState('W') & 0x8001)
-    {
-        _position += -_camera->GetWorldMatrix().Forward() * moveSpeed * deltaTime;
-    }
-    if (GetAsyncKeyState('S') & 0x8001)
-    {
-        _position += -_camera->GetWorldMatrix().Backward() * moveSpeed * deltaTime;
-    }
-    if (GetAsyncKeyState('A') & 0x8001)
-    {
-        _position += _camera->GetWorldMatrix().Left() * moveSpeed * deltaTime;
-    }
-    if (GetAsyncKeyState('D') & 0x8001)
-    {
-        _position += _camera->GetWorldMatrix().Right() * moveSpeed * deltaTime;
-    }
+   // if (GetAsyncKeyState('W') & 0x8001)
+   // {
+   //     _position += -_camera->GetWorldMatrix().Forward() * moveSpeed * deltaTime;
+   // }
+   // if (GetAsyncKeyState('S') & 0x8001)
+   // {
+   //     _position += -_camera->GetWorldMatrix().Backward() * moveSpeed * deltaTime;
+   // }
+   // if (GetAsyncKeyState('A') & 0x8001)
+   // {
+   //     _position += _camera->GetWorldMatrix().Left() * moveSpeed * deltaTime;
+   // }
+   // if (GetAsyncKeyState('D') & 0x8001)
+   // {
+   //     _position += _camera->GetWorldMatrix().Right() * moveSpeed * deltaTime;
+   // }
 
-    if (GetAsyncKeyState('Q') & 0x8001)
-    {
-        _position += _camera->GetWorldMatrix().Up() * moveSpeed * deltaTime;
-    }
+   // if (GetAsyncKeyState('Q') & 0x8001)
+   // {
+   //     _position += _camera->GetWorldMatrix().Up() * moveSpeed * deltaTime;
+   // }
 
-    if (GetAsyncKeyState('E') & 0x8001)
-    {
-        _position -= _camera->GetWorldMatrix().Up() * moveSpeed * deltaTime;
-    }
+   // if (GetAsyncKeyState('E') & 0x8001)
+   // {
+   //     _position -= _camera->GetWorldMatrix().Up() * moveSpeed * deltaTime;
+   // }
 
-    if (GetAsyncKeyState(VK_LEFT) & 0x8001)
-    {
-        _rotation += Vector3(0.f, -rotateSpeed * deltaTime, 0.f);
-    }
+   // if (GetAsyncKeyState(VK_LEFT) & 0x8001)
+   // {
+   //     _rotation += Vector3(0.f, -rotateSpeed * deltaTime, 0.f);
+   // }
 
-    if (GetAsyncKeyState(VK_RIGHT) & 0x8001)
-    {
-        _rotation += Vector3(0.f, rotateSpeed * deltaTime, 0.f);
-    }
+   // if (GetAsyncKeyState(VK_RIGHT) & 0x8001)
+   // {
+   //     _rotation += Vector3(0.f, rotateSpeed * deltaTime, 0.f);
+   // }
 
-    if (GetAsyncKeyState(VK_UP) & 0x8001)
-    {
-        _rotation += Vector3(-rotateSpeed * deltaTime, 0.f, 0.f);
-    }
+   // if (GetAsyncKeyState(VK_UP) & 0x8001)
+   // {
+   //     _rotation += Vector3(-rotateSpeed * deltaTime, 0.f, 0.f);
+   // }
 
-    if (GetAsyncKeyState(VK_DOWN) & 0x8001)
-    {
-        _rotation += Vector3(rotateSpeed * deltaTime, 0.f, 0.f);
-    }
+   // if (GetAsyncKeyState(VK_DOWN) & 0x8001)
+   // {
+   //     _rotation += Vector3(rotateSpeed * deltaTime, 0.f, 0.f);
+   // }
 
-    if (GetAsyncKeyState(VK_RBUTTON) & 0x8001)
-    {
-        POINT point;
-        GetCursorPos((POINT*)&point);
+   // if (GetAsyncKeyState(VK_RBUTTON) & 0x8001)
+   // {
+   //     POINT point;
+   //     GetCursorPos((POINT*)&point);
 
-        static Vector2 prevPoint{};
-        static Vector2 currPoint{};
-        currPoint.x   = point.x;
-        currPoint.y   = point.y;
-        Vector2 delta = (currPoint - prevPoint);
-        delta.Clamp({-1.f, -1.f}, {1.f, 1.f});
-        prevPoint = currPoint;
+   //     static Vector2 prevPoint{};
+   //     static Vector2 currPoint{};
+   //     currPoint.x   = point.x;
+   //     currPoint.y   = point.y;
+   //     Vector2 delta = (currPoint - prevPoint);
+   //     delta.Clamp({-1.f, -1.f}, {1.f, 1.f});
+   //     prevPoint = currPoint;
 
-        if (delta != XMVectorZero())
-        {
-            _rotation += Vector3(delta.y * deltaTime * mouseSpped, delta.x * deltaTime * mouseSpped, 0.f);
-        }
+   //     if (delta != XMVectorZero())
+   //     {
+   //         _rotation += Vector3(delta.y * deltaTime * mouseSpped, delta.x * deltaTime * mouseSpped, 0.f);
+   //     }
 
-        /*ScreenToClient(UmCore->App.GetHwnd(), &point);
-        SetCursorPos(point.x, point.y);*/
-    }
+   //     /*ScreenToClient(UmCore->App.GetHwnd(), &point);
+   //     SetCursorPos(point.x, point.y);*/
+   // }
 
-   _camera->SetPosition(_position);
-   _camera->SetRotation(_rotation);
+   //_camera->SetPosition(_position);
+   //_camera->SetRotation(_rotation);
    //_camera->Update();
 }
 
@@ -245,7 +250,7 @@ void EditorSceneTool::ProcessViewManipulate()
 
     ImGuizmo::SetRect(windowLeft, windowTop, windowWidth, windowHeight);
 
-    _view = _camera->GetViewMatrix();
+    _view = _camera->GetCamera()->GetViewMatrix();
 
     ImGuizmo::ViewManipulate(*_view.m, _setDistance, viewManipulatePos, viewManipulateSize, 0x10101010);
 
@@ -269,8 +274,9 @@ void EditorSceneTool::ProcessManipulate()
 
     ImGuizmo::SetRect(windowLeft, windowTop, windowWidth, windowHeight);
 
-    const Matrix& cameraView       = _camera->GetViewMatrix();
-    const Matrix& cameraProjection = _camera->GetProjectionMatrix();
+    auto&         camera           = _camera->GetCamera();
+    const Matrix& cameraView       = camera->GetViewMatrix();
+    const Matrix& cameraProjection = camera->GetProjectionMatrix();
 
     ImGuizmo::Manipulate(
         *cameraView.m,

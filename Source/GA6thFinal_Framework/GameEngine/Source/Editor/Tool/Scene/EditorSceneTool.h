@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+class EditorDynamicCamera;
 class EditorSceneTool
     : public EditorTool
 {
@@ -29,7 +30,7 @@ private:
 private:
     bool _isHorverdScene = false;
 
-    std::shared_ptr<Camera> _camera = nullptr;
+    std::unique_ptr<EditorDynamicCamera> _camera;
 
     // Camera
     Vector3 _position = Vector3::Zero;

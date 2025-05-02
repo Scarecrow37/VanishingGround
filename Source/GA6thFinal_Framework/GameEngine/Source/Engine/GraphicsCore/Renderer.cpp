@@ -1,9 +1,9 @@
 ﻿#include "pch.h"
 #include "Renderer.h"
-#include "Shader.h"
-#include "FrameResource.h"
-#include "Model.h"
 #include "UmScripts.h"
+
+// Editor
+#include "NonPBRLitTechnique.h"
 
 #define SeongU01
 #ifdef SeongU01
@@ -57,11 +57,19 @@ void Renderer::Initialize()
     editorScene->AddRenderTechnique(pbrTech);
     _renderScenes["Editor"] = editorScene;
 
+    if constexpr (IS_EDITOR)
+    {
+        // Model Viewer Scene
+        std::shared_ptr<RenderScene> modelViewerScene = std::make_shared<RenderScene>();
+        modelViewerScene->InitializeRenderScene();
+        modelViewerScene->AddRenderTechnique(std::make_shared<PBRLitTechnique>());
+        _renderScenes["ModelViewer"] = modelViewerScene;
+    }
 }
 
 void Renderer::Update()
 {
-    UmMainCamera.Update();
+    //UmMainCamera.Update();
 
 	UmDevice.ResetCommands();
 	//UpdateFrameResource();
@@ -70,12 +78,7 @@ void Renderer::Update()
     for (auto& renderScene : _renderScenes)
     {
         renderScene.second->UpdateRenderScene();
-    } 
-
-    // 비활성된 컴포넌트 제거
-    auto first =
-        std::remove_if(_components.begin(), _components.end(), [](const auto& component) { return !component.first; });
-    _components.erase(first, _components.end());
+    }
 }
 
 void Renderer::Render()

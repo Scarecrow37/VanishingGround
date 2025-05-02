@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+class EditorDynamicCamera;
 class EditorModelTool : public EditorTool
 {
 public:
@@ -26,4 +27,7 @@ private:
 
     /* PopUp창 호출 성공 시 호출 (Begin 후에 호출) */
     virtual void OnPopup() override;
+
+private:
+    std::unique_ptr<EditorDynamicCamera> _camera;
 };
