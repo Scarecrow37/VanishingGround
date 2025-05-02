@@ -273,9 +273,8 @@ void EditorHierarchyTool::OnFrame()
                 {
                     if (ImGui::MenuItem("Save Scene"))
                     {
-                        std::string           path = scene.Path;
-                        std::filesystem::path writePath =
-                            std::filesystem::relative(path, UmFileSystem.GetRootPath()).parent_path();
+                        std::string path = scene.Path;
+                        std::filesystem::path writePath = UmFileSystem.GetRelativePath(path).parent_path();
                         UmSceneManager.WriteSceneToFile(scene, writePath.string(), true);
                         ImGui::CloseCurrentPopup();
                     }
