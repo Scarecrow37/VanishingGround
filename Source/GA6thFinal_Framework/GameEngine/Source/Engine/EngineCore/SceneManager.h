@@ -409,6 +409,15 @@ protected:
     virtual void OnRequestedSave() override;
     virtual void OnRequestedLoad() override;
 
+    //씬 이름 변경시
+    void RenameScene(Scene& scene, std::string_view oldName, std::string_view newName);
+
+    //씬 오너 이름 변경시
+    void ResetOwnerScene(std::string_view oldName, std::string_view newName);
+
+    //메인 씬 변경 체크
+    void CheckMainSceneRename(Scene& renameScene, const File::Path& newPath);
+
     //관리하는 씬 파일 파괴시 호출
     void EraseSceneGUID(std::string_view sceneName, const File::Guid guid);
 

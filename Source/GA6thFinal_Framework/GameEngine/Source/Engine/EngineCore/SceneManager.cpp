@@ -940,27 +940,52 @@ void ESceneManager::OnFileRenamed(const File::Path& oldPath, const File::Path& n
     Scene& scene = _scenesMap[guid];
     std::string oldName = oldPath.stem().string();
     std::string newName = scene.Name;
-    _scenesFindMap[oldName].erase(guid);
-    if (_scenesFindMap[oldName].empty() == true)
-    {
-        _scenesFindMap.erase(oldName);
-    }
-    _scenesFindMap[newName].insert(guid);
+    RenameScene(scene, oldName, newName);
 
     bool isLoaded = scene.isLoaded;
-    if (isLoaded)
+    if (true == isLoaded)
     {
-        auto rootObjects = GetRootGameObjectsByPath(oldPath.string());
-        for (auto& object : rootObjects)
-        {
-            object->_ownerScene = newPath.string();
-        }
+        ResetOwnerScene(oldPath.string(), newPath.string());
+        CheckMainSceneRename(scene, newPath);
     }
 }
 
-void ESceneManager::OnFileMoved(const File::Path& oldPath, const File::Path& newPath) 
+void ESceneManager::OnFileMoved(const File::Path& oldPath, const File::Path& newPath)
 {
+    File::Guid guid  = newPath.ToGuid();
+    Scene&     scene = _scenesMap[guid];
+    if (true == scene.isLoaded)
+    {
+        ResetOwnerScene(oldPath.string(), newPath.string());
+        CheckMainSceneRename(scene, newPath);
+    }
+}
 
+void ESceneManager::RenameScene(Scene& scene, std::string_view oldName, std::string_view newName) 
+{
+    _scenesFindMap[oldName.data()].erase(scene._guid);
+    if (_scenesFindMap[oldName.data()].empty() == true)
+    {
+        _scenesFindMap.erase(oldName.data());
+    }
+    _scenesFindMap[newName.data()].insert(scene._guid);
+}
+
+void ESceneManager::ResetOwnerScene(std::string_view oldPath, std::string_view newPath) 
+{
+    auto rootObjects = GetRootGameObjectsByPath(oldPath.data());
+    for (auto& object : rootObjects)
+    {
+        object->_ownerScene = newPath.data();
+    }
+}
+
+void ESceneManager::CheckMainSceneRename(Scene& renameScene, const File::Path& newPath) 
+{
+    if (_lodedSceneList.front() == &renameScene)
+    {
+        _setting.MainScene = newPath.string();
+    }
 }
 
 void ESceneManager::OnRequestedOpen(const File::Path& path) 
