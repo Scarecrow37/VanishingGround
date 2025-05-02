@@ -143,13 +143,13 @@ private:
         std::string_view name);
     
    //게임 오브젝트를 Yaml로 반환
-   YAML::Node MakeYamlToGameObject(GameObject* gameObject);
+    YAML::Node MakeYamlToGameObject(GameObject* gameObject);
 
    //Yaml을 오브젝트로 반환. Reset도 해줌.
    std::shared_ptr<GameObject> MakeGameObjectToYaml(YAML::Node* objectNode);
 
    //게임 오브젝트를 YAML로 초기화
-   void ParsingYaml(GameObject* pObject, YAML::Node& objectNode);
+   void ParsingYamlToGameObject(GameObject* pObject, YAML::Node& objectNode);
 
    //오브젝트 계층구조를 포함한 Yaml 직렬화 데이터로 GameObject들을 만들어서 반환합니다.
    std::vector<std::shared_ptr<GameObject>> MakeObjectsGraphToYaml(YAML::Node* pObjectNode, bool useResource = false);
