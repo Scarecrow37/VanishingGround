@@ -74,7 +74,6 @@ public:
     /// <returns></returns>
     std::shared_ptr<GameObject> DeserializeToYaml(YAML::Node* gameObjectNode);
 
-
     /// <summary>
     /// GUID를 통해 파일을 읽어 오브젝트를 씬에 추가합니다.
     /// </summary>
@@ -88,6 +87,51 @@ public:
     /// <param name="transform"></param>
     /// <param name="outPath"></param>
     void WriteGameObjectFile(Transform* transform, std::string_view outPath);
+
+    /// <summary>
+    /// 게임 오브젝트를 프리팹 인스턴스로 만듭니다.
+    /// </summary>
+    /// <param name="object"></param>
+    /// <returns></returns>
+    bool PackPrefab(GameObject* object, const File::Guid& guid);
+
+    /// <summary>
+    /// <para> 프리팹 원본 객체를 가져옵니다. 계층 구조가 BFS 순으로 담아져 있습니다. </para>
+    /// <para> 실패시 nullptr을 반환합니다. </para>
+    /// </summary>
+    /// <param name="guid :">가져올 프리팹 GUID</param>
+    /// <returns>해당 GUID의 프리팹</returns>
+    const std::vector<std::shared_ptr<GameObject>>* GetOriginPrefab(const File::Guid& guid);
+
+    /// <summary>
+    /// 프리팹 인스턴스를 일반 게임 오브젝트로 변경합니다.
+    /// </summary>
+    /// <returns></returns>
+    bool UnpackPrefab(GameObject* object);
+
+    /// <summary>
+    /// 필드 오버라이드 여부를 확인합니다. 
+    /// </summary>
+    /// <param name="pFiled :">확인할 맴버 변수의 주소</param>
+    /// <returns>해당 주소의 오버라이드 플래그 여부</returns>
+    bool IsOverrideField(void* pField);
+
+    /// <summary>
+    /// 필드 오버라이드 여부를 설정합니다.
+    /// </summary>
+    /// <param name="pFiled :">설정할 맴버 변수의 주소</param>
+    /// <returns>결과</returns>
+    bool SetOverrideFlag(void* pField);
+
+    /// <summary>
+    /// 필드 오버라이드 여부를 초기화합니다.
+    /// </summary>
+    /// <param name="pFiled :">초기화할 맴버 변수의 주소</param>
+    /// <returns>결과</returns>
+    bool UnsetOverrideFlag(void* pField);
+
+
+
 private:
     //컴포넌트를 동적할당후 shared_ptr로 반환합니다.
     //매개변수로 생성할 컴포넌트 typeid().name()을 전달해야합니다.
@@ -99,9 +143,16 @@ private:
         std::string_view name);
     
    //게임 오브젝트를 Yaml로 반환
-   YAML::Node MakeYamlToGameObject(GameObject* gameObject);
+    YAML::Node MakeYamlToGameObject(GameObject* gameObject);
+
    //Yaml을 오브젝트로 반환. Reset도 해줌.
    std::shared_ptr<GameObject> MakeGameObjectToYaml(YAML::Node* objectNode);
+
+   //게임 오브젝트를 YAML로 초기화
+   void ParsingYamlToGameObject(GameObject* pObject, YAML::Node& objectNode);
+
+   //오브젝트 계층구조를 포함한 Yaml 직렬화 데이터로 GameObject들을 만들어서 반환합니다.
+   std::vector<std::shared_ptr<GameObject>> MakeObjectsGraphToYaml(YAML::Node* pObjectNode, bool useResource = false);
 
    void RegisterGameObjects();
 private:
@@ -115,8 +166,10 @@ private:
         std::vector<int> EmptyID;
     }
     instanceIDManager;
-
 private:
+    //Prefab의 GUID만 다시 작성합니다.
+    void WritePrefabGuid(const File::Path& path, YAML::Node& data);
+
     // FileEventNotifier을(를) 통해 상속됨
     void OnFileRegistered(const File::Path& path) override;
     void OnFileUnregistered(const File::Path& path) override;
@@ -129,9 +182,16 @@ private:
     void OnRequestedCopy(const File::Path& path) override {}
     void OnRequestedPaste(const File::Path& path) override {}
 
-    //프리팹 직렬화 데이터 모아두는 맵
-    std::unordered_map<File::Guid, YAML::Node> _prefabDataMap;
+    //프리팹 오브젝트 모음
+    std::unordered_map<File::Guid, std::vector<std::shared_ptr<GameObject>>> _prefabObjectMap;
+     
+    //프리팹 인스턴스 GUID 등록 대기용 큐
+    std::unordered_map<File::Path, std::vector<std::weak_ptr<GameObject>>> _prefabGuidQueue;
 
-    // 인스턴스화된 프리팹 추적용
-    std::unordered_map<File::Guid, std::vector<std::weak_ptr<GameObject>>>  _PrefavInstanceList;      
+    //인스턴스화된 프리팹 추적용
+    std::unordered_map<File::Guid, std::vector<std::weak_ptr<GameObject>>> _prefabInstanceList;     
+
+    //프리팹 인스턴스 ovrride 추적용
+    std::unordered_set<void*> _prefabInstanceOverride;
+
 };

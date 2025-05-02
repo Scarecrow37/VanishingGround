@@ -91,9 +91,14 @@ bool EFileSystem::LoadProject(const File::Path& path)
         _observer->Start();
     }
 
-    LoadSetting(_settingPath / PROJECT_SETTING_FILENAME);
-    ReadDirectory(); 
-    RequestLoad();
+    for (auto& notifier : _notifierSet)
+        notifier->OnRequestedLoad();
+
+    ReadDirectory();
+
+    for (auto& notifier : _notifierSet)
+        notifier->OnPostRequestedLoad();
+
     return true;
 }
 
@@ -107,8 +112,11 @@ bool EFileSystem::SaveProject()
         return false;
     }
 
-    SaveSetting(_settingPath / PROJECT_SETTING_FILENAME);
-    RequestSave();
+    for (auto& notifier : _notifierSet)
+        notifier->OnRequestedSave();
+
+    for (auto& notifier : _notifierSet)
+        notifier->OnPostRequestedSave();
 
     return true;
 }
@@ -118,8 +126,26 @@ bool EFileSystem::SaveAsProject(const File::Path& to)
     if (true == _projectData.IsNull())
         return false;
 
-    fs::copy(_rootPath, to, fs::copy_options::recursive | fs::copy_options::overwrite_existing);
-    return true;
+    std::wstring msg    = L"현재 프로젝트를 저장하고 다른 이름으로 저장합니다.";
+    std::wstring title  = L"Save As Project";
+
+    int result = MessageBox(
+        GetFocus(),               // 부모 창 핸들 (NULL로 하면 독립적 메시지 박스)
+        msg.c_str(),              // 메시지 텍스트
+        title.c_str(),            // 메시지 박스 제목
+        MB_YESNO                  // 스타일: 예/아니오 버튼
+    );
+
+    if (result == IDYES)
+    {
+        SaveProject();
+        fs::copy(_rootPath, to, fs::copy_options::recursive | fs::copy_options::overwrite_existing);
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 bool EFileSystem::LoadProjectWithMessageBox(const File::Path& path)
@@ -132,7 +158,7 @@ bool EFileSystem::LoadProjectWithMessageBox(const File::Path& path)
         GetFocus(),                 // 부모 창 핸들 (NULL로 하면 독립적 메시지 박스)
         msg.c_str(),                // 메시지 텍스트
         title.c_str(),              // 메시지 박스 제목
-        MB_YESNO | MB_ICONWARNING   // 스타일: 예/아니오 버튼 + 질문 아이콘
+        MB_YESNO                    // 스타일: 예/아니오 버튼
     );
 
     if (result == IDYES)
@@ -157,7 +183,7 @@ bool EFileSystem::SaveProjectWithMessageBox()
         hwnd,                       // 부모 창 핸들 (NULL로 하면 독립적 메시지 박스)
         msg.c_str(),                // 메시지 텍스트
         title.c_str(),              // 메시지 박스 제목
-        MB_YESNO | MB_ICONWARNING   // 스타일: 예/아니오 버튼 + 질문 아이콘
+        MB_YESNO                    // 스타일: 예/아니오 버튼
     );
 
     if (result == IDYES)
@@ -215,17 +241,17 @@ void EFileSystem::ObserverShutDown()
     }
 }
 
-bool EFileSystem::IsVaildGuid(const File::Guid& guid)
+bool EFileSystem::IsVaildGuid(const File::Guid& guid) const
 {
     return _guidToPathTable.find(guid) != _guidToPathTable.end();
 }
 
-bool EFileSystem::IsValidExtension(const File::FString& ext)
+bool EFileSystem::IsValidExtension(const File::FString& ext) const
 {
     return (ext == "") || (_extesionToNotifierTable.find(ext) != _extesionToNotifierTable.end());
 }
 
-bool EFileSystem::IsSameContext(std::weak_ptr<File::Context> left, std::weak_ptr<File::Context> right)
+bool EFileSystem::IsSameContext(std::weak_ptr<File::Context> left, std::weak_ptr<File::Context> right) const
 {
     if (false == left.expired() && false == right.expired())
     {
@@ -250,7 +276,7 @@ File::Path EFileSystem::GetRelativePath(const File::Path& path) const
     return File::NULL_PATH;
 }
 
-const File::Path& EFileSystem::GetPathFromGuid(const File::Guid& guid)
+const File::Path& EFileSystem::GetPathFromGuid(const File::Guid& guid) const
 {
     auto wpContext = GetContext(guid);
     if (false == wpContext.expired())
@@ -259,7 +285,7 @@ const File::Path& EFileSystem::GetPathFromGuid(const File::Guid& guid)
     }
     return NULL_PATH;
 }
-const File::Guid& EFileSystem::GetGuidFromPath(const File::Path& path)
+const File::Guid& EFileSystem::GetGuidFromPath(const File::Path& path) const
 {
     auto wpContext = GetContext(path);
     if (false == wpContext.expired())
@@ -269,8 +295,13 @@ const File::Guid& EFileSystem::GetGuidFromPath(const File::Path& path)
     }
     return NULL_GUID;
 }
-std::weak_ptr<Context> EFileSystem::GetContext(const File::Guid& guid)
+std::weak_ptr<Context> EFileSystem::GetContext(const File::Guid& guid) const
 {
+    if (NULL_GUID == guid)
+    {
+        return std::weak_ptr<Context>();
+    }
+
     auto itr = _guidToPathTable.find(guid);
     if (itr != _guidToPathTable.end())
     {
@@ -282,7 +313,7 @@ std::weak_ptr<Context> EFileSystem::GetContext(const File::Guid& guid)
     }
     
 }
-std::weak_ptr<Context> EFileSystem::GetContext(const File::Path& path)
+std::weak_ptr<Context> EFileSystem::GetContext(const File::Path& path) const
 {
     auto itr = _pathToGuidTable.find(path);
     if (itr != _pathToGuidTable.end())
@@ -304,22 +335,6 @@ std::unordered_set<File::FileEventNotifier*> EFileSystem::GetNotifiers(
         return itr->second;
     }
     return std::unordered_set<File::FileEventNotifier*>();
-}
-
-void EFileSystem::RequestSave()
-{
-    for (auto& notifier : _notifierSet)
-    {
-        notifier->OnRequestedSave();
-    }
-}
-
-void EFileSystem::RequestLoad()
-{
-    for (auto& notifier : _notifierSet)
-    {
-        notifier->OnRequestedLoad();
-    }
 }
 
 void EFileSystem::RequestInspectFile(const File::Path& path)

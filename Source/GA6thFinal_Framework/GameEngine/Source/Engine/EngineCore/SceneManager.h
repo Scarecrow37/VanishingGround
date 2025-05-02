@@ -74,10 +74,12 @@ enum class LoadSceneMode
 
 //함수는 일단 선언만. 구현은 나중에.
 class ESceneManager 
-    : File::FileEventNotifier
+    : 
+    File::FileEventNotifier
 {
 private:
     friend class EngineCores;
+    friend class Application;
     ESceneManager();
     ~ESceneManager();
     USING_PROPERTY(ESceneManager)
@@ -193,6 +195,11 @@ public:
         /// </summary>
         /// <returns></returns>
         static std::string& GetStartSceneSetting();
+
+        /// <summary>
+        /// 시작 씬을 로드합니다.
+        /// </summary>
+        static void LoadStartScene();
     };
 
 public:
@@ -398,6 +405,19 @@ protected:
     virtual void OnRequestedOpen(const File::Path& path);
     virtual void OnRequestedCopy(const File::Path& path);
     virtual void OnRequestedPaste(const File::Path& path);
+
+    virtual void OnRequestedSave() override;
+    virtual void OnRequestedLoad() override;
+    virtual void OnPostRequestedLoad() override;
+
+    //씬 이름 변경시
+    void RenameScene(Scene& scene, std::string_view oldName, std::string_view newName);
+
+    //씬 오너 이름 변경시
+    void ResetOwnerScene(std::string_view oldName, std::string_view newName);
+
+    //메인 씬 변경 체크
+    void CheckMainSceneRename(Scene& renameScene, const File::Path& newPath);
 
     //관리하는 씬 파일 파괴시 호출
     void EraseSceneGUID(std::string_view sceneName, const File::Guid guid);
