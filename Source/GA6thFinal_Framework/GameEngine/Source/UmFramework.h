@@ -133,6 +133,7 @@ using namespace Microsoft::WRL;
 #include "Engine/FileSystem/Extra/FileEventNotifier.h"
 #include "Engine/FileSystem/FileSystemModule.h"
 
+
 //Graphics
 #include "Engine/GraphicsCore/GraphicsCore.h"
 
@@ -142,6 +143,7 @@ using namespace Microsoft::WRL;
 #include "Engine/EngineCore/GameObjectFactory.h"
 #include "Engine/EngineCore/ComponentFactory.h"
 #include "Engine/EngineCore/SceneManager.h"
+#include "Engine/CommandCore/CommandManager.h"
 #include "Engine/EngineCore/EngineCores.h" 
 
 //Editor Core
@@ -172,11 +174,12 @@ using namespace Microsoft::WRL;
 //Editor Tools
 #include "Editor/Tool/Debug/EditorDebugTool.h"
 #include "Editor/Tool/AssetBrowser/EditorAssetBrowserTool.h"
-#include "Editor/Tool/Hierarchy/EditorHierarchyTool.h"
 #include "Editor/Tool/Inspector/EditorInspectorTool.h"
+#include "Editor/Tool/Hierarchy/EditorHierarchyTool.h"
 #include "Editor/Tool/Scene/EditorSceneTool.h"
 #include "Editor/Tool/Log/EditorLogsTool.h"
 #include "Editor/Tool/Model/EditorModelTool.h"
+#include "Editor/Tool/Command/EditorCommandTool.h"
 
 #include "Editor/Tool/ScriptTest/ScriptTestEditor.h"    // 테스트용. 추후 제거 필요
 

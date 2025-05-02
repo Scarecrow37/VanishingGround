@@ -20,6 +20,7 @@ void EditorBuildSettingMenu::OnTickGui()
         {
             ImVec2 viewportCenter = ImGui::GetMainViewport()->GetCenter();
             ImGui::SetNextWindowPos(viewportCenter, ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+            ImGui::SetNextWindowSize(ImVec2(475, 375), ImGuiCond_FirstUseEver);
             isShow = true;
         }
         ImGui::Begin("Build Setting", &isPopup, ImGuiWindowFlags_NoDocking);

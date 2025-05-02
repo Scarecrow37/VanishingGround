@@ -78,12 +78,10 @@ void TestComponent::OnDisable()
 
 void TestComponent::SerializedReflectEvent()
 {
-    UmLogger.Log(LogLevel::LEVEL_DEBUG,
-                                 "SerializedReflectEvent");
+    UmLogger.Log(LogLevel::LEVEL_DEBUG, "SerializedReflectEvent");
 }
 
 void TestComponent::DeserializedReflectEvent()
 {
-    UmLogger.Log(LogLevel::LEVEL_DEBUG,
-                                 "DeserializedReflectEvent");
+    UmLogger.Log(LogLevel::LEVEL_DEBUG, "DeserializedReflectEvent");
 }

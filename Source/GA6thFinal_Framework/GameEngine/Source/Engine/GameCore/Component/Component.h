@@ -102,7 +102,7 @@ public:
 
 protected:
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
-    bool        _enable = true;
+    bool _enable = true;
     REFLECT_FIELDS_END(Component)
 
 public:

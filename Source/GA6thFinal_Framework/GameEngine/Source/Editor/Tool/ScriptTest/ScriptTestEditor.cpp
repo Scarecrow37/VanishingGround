@@ -22,22 +22,24 @@ void ScriptTestEditor::OnPreFrame()
 
 }
 
+class TestObject : public GameObject
+{
+public:
+    TestObject() = default;
+    ~TestObject() = default;
+    
+    REFLECT_FIELDS_BEGIN(GameObject)
+    float fTest = 10;
+    std::array<float, 3> array {0.1, 0.2, 0.3};
+    std::vector<int> vecInt{1, 2, 3};
+    REFLECT_FIELDS_END(TestObject)
+};
+
 void ScriptTestEditor::OnFrame() 
 {
     using namespace Global;
     using namespace u8_literals;
     {
-        auto& scenesMap = UmSceneManager.GetScenesMap();
-        for (auto& [guid, scene] : scenesMap)
-        {
-            ImGui::PushID(&scene);
-            ImGui::Separator();
-            std::string sceneName = scene.Name;
-            ImGui::Text("Name : %s", sceneName.c_str());
-            ImGui::Text("isLoaded : %s", scene.isLoaded ? "true" : "false");
-            std::string scenePath = scene.Path;
-            ImGui::Text("Path : %s", scenePath.c_str());
-            ImGui::PopID();
-        }
+
     }
 }
