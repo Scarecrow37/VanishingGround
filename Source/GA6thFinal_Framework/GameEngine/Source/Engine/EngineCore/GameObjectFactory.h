@@ -37,9 +37,6 @@ public:
     static constexpr const char* PREFAB_EXTENSION = ".UmPrefab";
     struct Engine 
     {
-        //SceneManager에서 오브젝트를 Destroy 할때 Instance ID를 반납하기 위한 함수입니다.
-        static void ReturnInstanceID(int id);
-
         /// <summary>
         /// 모든 게임 오브젝트의 키들을 반환합니다.
         /// </summary>
@@ -51,6 +48,19 @@ public:
         /// </summary>
         static void RegisterFileEvents();
     };
+
+    struct InstanceIDManager
+    {
+        // 게임 오브젝트의 인스턴스 ID를 부여하기 위한 함수입니다.
+        static int CreateInstanceID();
+
+        // SceneManager에서 오브젝트를 Destroy 할때 Instance ID를 반납하기 위한 함수입니다.
+        static void ReturnInstanceID(int id);
+
+    private:
+        inline static std::mutex instanceIdMutex;
+    };
+
     /// <summary>
     /// 게임 오브젝트를 생성합니다. 생성된 오브젝트는 자동으로 씬에 등록됩니다.
     /// </summary>
@@ -130,8 +140,6 @@ public:
     /// <returns>결과</returns>
     bool UnsetOverrideFlag(void* pField);
 
-
-
 private:
     //컴포넌트를 동적할당후 shared_ptr로 반환합니다.
     //매개변수로 생성할 컴포넌트 typeid().name()을 전달해야합니다.
@@ -196,5 +204,8 @@ private:
 
     //프리팹 인스턴스 ovrride 추적용
     std::unordered_set<void*> _prefabInstanceOverride;
+
+    //ofs 이후 Modified 2번 호출 블락용 플래그
+    bool isWriteFile = false;
 
 };
