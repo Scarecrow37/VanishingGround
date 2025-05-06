@@ -57,32 +57,54 @@ void GameObject::OnInspectorViewEnter()
 
 void GameObject::OnInspectorStay() 
 {
+    constexpr ImVec4 DEBUG_TEXT_COLOR = ImVec4(0.6f, 0.6f, 0.6f, 1.0f);
+    constexpr ImVec4 DEBUG_FRAMEBG_COLOR = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
+
     using namespace u8_literals;
     static GameObject* selectObject = nullptr;
+    static bool isDebug  = false;
     ImGui::PushID(this);
     {
+        ImGui::Checkbox("Debug", &isDebug);
+        ImGui::Separator();
         bool isPrefab = IsPrefabInstance();
         GameObject* pPrefabObject = PrefabInstance; 
         if (isPrefab)
         {
             ImGui::Text("Prefab");
-            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.6f, 0.6f, 0.6f, 1.0f));   
-            ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.2f, 0.2f, 0.2f, 1.0f));
+            ImGui::PushStyleColor(ImGuiCol_Text, DEBUG_TEXT_COLOR);   
+            ImGui::PushStyleColor(ImGuiCol_FrameBg, DEBUG_FRAMEBG_COLOR);
             static std::string guidPath;
             guidPath = _prefabGuid.ToPath().string();
             if (guidPath.empty() == false)
             {
-                ImGui::InputText("Prefab", &guidPath, ImGuiInputTextFlags_ReadOnly);
+                ImGui::InputText("Prefab file path", &guidPath, ImGuiInputTextFlags_ReadOnly);
             }
             else
             {
                 static std::string emptyPath = STR_NULL;
-                ImGui::InputText("Prefab", &emptyPath, ImGuiInputTextFlags_ReadOnly);
+                ImGui::InputText("Prefab file path", &emptyPath, ImGuiInputTextFlags_ReadOnly);
             }     
+
+            if (isDebug)
+            {
+                static std::string tempPath;
+                if (_prefabGuid != tempPath)
+                {
+                    tempPath = _prefabGuid.string();
+                }          
+                ImGui::InputText("Prefab GUID", &tempPath, ImGuiInputTextFlags_ReadOnly);
+            }
             ImGui::PopStyleColor(2);
             ImGui::Separator();
         }
 
+        if (isDebug)
+        {
+            ImGui::PushStyleColor(ImGuiCol_Text, DEBUG_TEXT_COLOR);   
+            ImGui::Text("Instance ID : %d", _instanceID);
+            ImGui::PopStyleColor();
+        }
         ImGuiDrawPropertys();
         _transform.ImGuiDrawPropertys();
         if (ImGui::Button("AddComponent"))
@@ -150,14 +172,17 @@ void GameObject::OnInspectorStay()
                                             yyjson_val* myVal  = yyjson_obj_get(myRoot, name.data());
                                             char* myCStr = yyjsonValToCStr(myVal);
 
-                                            if (0 != std ::strcmp(prefabCStr, myCStr))
+                                            if (prefabCStr != nullptr && myCStr && nullptr)
                                             {
-                                                //std::string message = std::format("edit {}", name);
-                                                //UmLogger.Log(LogLevel::LEVEL_TRACE, message);
-                                            }
+                                                if (0 != std ::strcmp(prefabCStr, myCStr))
+                                                {
+                                                    // std::string message = std::format("edit {}", name);
+                                                    // UmLogger.Log(LogLevel::LEVEL_TRACE, message);
+                                                }
 
-                                            SAFE_FREE(prefabCStr);
-                                            SAFE_FREE(myCStr);
+                                                SAFE_FREE(prefabCStr);
+                                                SAFE_FREE(myCStr);
+                                            }
                                         });
                                         yyjson_doc_free(prefabDoc);
                                     }
