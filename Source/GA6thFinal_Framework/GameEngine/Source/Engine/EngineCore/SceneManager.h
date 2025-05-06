@@ -313,6 +313,7 @@ private:
     void ObjectsApplicationQuit();   //OnApplicationQuit를 호출합니다.
     void ObjectsOnDisable();         //OnDisable 예정인 컴포넌트들의 OnDisable 함수를 호출해줍니다.
     void ObjectsDestroy();           //Destroy 예정인 컴포넌트들의 OnDestroy 함수를 호출 한 뒤 파괴합니다.
+
 private:
     /*게임오브젝트의 Life cycle 수행 여부를 확인하는 함수*/
     bool IsRuntimeActive(std::shared_ptr<GameObject>& obj);
@@ -322,6 +323,18 @@ private:
         호출 전에 파괴되는 컴포넌트를 위해 존재하는 함수입니다.
     */
     void NotInitDestroyComponentEraseToWaitVec(Component* destroyComponent);
+
+    /// <summary>
+    /// 게임 오브젝트를 이름 맵에 추가합니다. 
+    /// </summary>
+    /// <param name="pInsertObject"></param>
+    bool InsertGameObjectMap(std::shared_ptr<GameObject>& pInsertObject);
+
+    /// <summary>
+    /// 게임 오브젝트의 맵에서 제거합니다.
+    /// </summary>
+    void EraseGameObjectMap(std::shared_ptr<GameObject>& pEraseObject);
+
 private:
     //Life cycle 에 포함되는 실제 오브젝트들 항목
     std::vector<std::shared_ptr<GameObject>> _runtimeObjects;

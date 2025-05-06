@@ -106,12 +106,7 @@ void ESceneManager::Engine::AddGameObjectToLifeCycle(std::shared_ptr<GameObject>
         return;
     }
 
-    auto [iter, result] = Global::engineCore->SceneManager._runtimeObjectsUnorderedMap[gameObject->ReflectFields->_name].insert(gameObject);
-    if (result == false)
-    {
-        assert(!"이미 추가한 게임 오브젝트 입니다.");
-    }
-    else
+    if (UmSceneManager.InsertGameObjectMap(gameObject))
     {
         Global::engineCore->SceneManager._addGameObjectsQueue.push_back(gameObject);
     }
@@ -324,7 +319,7 @@ void ESceneManager::Engine::LoadStartScene()
     std::string& loadScene = Application::IsEditor() ? sceneManager._setting.MainScene : sceneManager._setting.StartScene;
     File::Path path = loadScene;
     File::Guid guid = path.ToGuid();
-    auto   findGuid = sceneManager._scenesMap.find(guid);
+    auto findGuid = sceneManager._scenesMap.find(guid);
     if (loadScene != STR_NULL && findGuid != sceneManager._scenesMap.end())
     {
         if (UmComponentFactory.HasScript() == false)
@@ -340,12 +335,15 @@ void ESceneManager::Engine::LoadStartScene()
 
 void ESceneManager::Engine::SwapPrefabInstance(GameObject* original, GameObject* remake)
 {
+    ESceneManager& sceneManager = UmSceneManager;
     int index = original->GetInstanceID();
-    std::shared_ptr<GameObject>& sOrigin = UmSceneManager._runtimeObjects[index];
+    std::shared_ptr<GameObject>& sOrigin = sceneManager._runtimeObjects[index];
     std::shared_ptr<GameObject>  sRemake = remake->GetWeakPtr().lock();
     std::swap(sOrigin->_instanceID, sRemake->_instanceID);
     std::swap(sOrigin->_ownerScene, sRemake->_ownerScene);
     std::swap(sOrigin, sRemake);
+    sceneManager.EraseGameObjectMap(sRemake);
+    sceneManager.InsertGameObjectMap(sOrigin);
 }
 
 void ESceneManager::CreateEmptySceneAndLoad(std::string_view name, std::string_view outPath, const std::function<void()>& loadEvent) 
@@ -695,14 +693,9 @@ void ESceneManager::ObjectsDestroy()
         //오브젝트 삭제
         int instanceID = destroyObject->GetInstanceID();
         std::shared_ptr<GameObject>& pObject = _runtimeObjects[instanceID];
-        auto findIter = _runtimeObjectsUnorderedMap.find(destroyObject->ReflectFields->_name);
-        if (findIter == _runtimeObjectsUnorderedMap.end())
-        {
-            assert(!"유효하지 않는 오브젝트 이름입니다.");
-        }
-        findIter->second.erase(pObject);
+        EraseGameObjectMap(pObject);
         pObject.reset();
-        EGameObjectFactory::Engine::ReturnInstanceID(instanceID);
+        EGameObjectFactory::InstanceIDManager::ReturnInstanceID(instanceID);
     }
     destroyObjectSet.clear();
     destroyObjectQueue.clear();
@@ -774,6 +767,26 @@ void ESceneManager::NotInitDestroyComponentEraseToWaitVec(Component* destroyComp
         );
     }
 
+}
+
+bool ESceneManager::InsertGameObjectMap(std::shared_ptr<GameObject>& pInsertObject) 
+{
+    auto [iter, result] = _runtimeObjectsUnorderedMap[pInsertObject->ReflectFields->_name].insert(pInsertObject);
+    if (result == false)
+    {
+        assert(!"이미 추가한 게임 오브젝트 입니다.");
+    }
+    return result;
+}
+
+void ESceneManager::EraseGameObjectMap(std::shared_ptr<GameObject>& pEraseObject)
+{
+    auto findIter = _runtimeObjectsUnorderedMap.find(pEraseObject->ReflectFields->_name);
+    if (findIter == _runtimeObjectsUnorderedMap.end())
+    {
+        assert(!"유효하지 않는 오브젝트 이름입니다.");
+    }
+    findIter->second.erase(pEraseObject);
 }
 
 YAML::Node ESceneManager::SerializeToYaml(const Scene& scene)
