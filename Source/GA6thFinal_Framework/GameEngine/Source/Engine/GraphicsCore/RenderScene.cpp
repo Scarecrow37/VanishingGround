@@ -112,8 +112,7 @@ void RenderScene::Execute(ID3D12GraphicsCommandList* commandList)
 
 D3D12_CPU_DESCRIPTOR_HANDLE RenderScene::GetFinalImage()
 {
-    //return _gBufferSrvHandles[BASECOLOR];
-    return _meshLightingSrv;
+    return _meshLightingTarget->GetSRVHandle();
 }
 
 void RenderScene::AddRenderTechnique(std::shared_ptr<RenderTechnique> technique)
@@ -141,38 +140,36 @@ void RenderScene::CreateRenderTarget()
 {
     // gbuffer 생성
     _gBuffer.resize(_gBufferCount);
-    _gBufferSrvHandles.resize(_gBufferCount);
     for (UINT i = 0; i <= GBuffer::WORLDPOSITION; ++i)
     {
         _gBuffer[i] = std::make_shared<RenderTarget>();
         _gBuffer[i]->Initialize(DXGI_FORMAT_R32G32B32A32_FLOAT);
-        _gBufferSrvHandles[i] = _gBuffer[i]->CreateShaderResourceView();
+        _gBuffer[i]->CreateShaderResourceView();
     }
   
     _gBuffer[GBuffer::DEPTH] = std::make_shared<RenderTarget>();
     _gBuffer[GBuffer::DEPTH]->Initialize(DXGI_FORMAT_R32_FLOAT);
-    _gBufferSrvHandles[GBuffer::DEPTH] = _gBuffer[GBuffer::DEPTH]->CreateShaderResourceView();
+    _gBuffer[GBuffer::DEPTH]->CreateShaderResourceView();
     
     _gBuffer[GBuffer::CUSTOMDEPTH] = std::make_shared<RenderTarget>();
     _gBuffer[GBuffer::CUSTOMDEPTH]->Initialize(DXGI_FORMAT_R32_UINT);
-    _gBufferSrvHandles[GBuffer::CUSTOMDEPTH] = _gBuffer[GBuffer::CUSTOMDEPTH]->CreateShaderResourceView();
+    _gBuffer[GBuffer::CUSTOMDEPTH]->CreateShaderResourceView();
     
 
 
     // 후처리용으로 돌려쓸 renderTarget 생성해주기
     _renderTargets.resize(_renderTargetPoolCount);
-    _renderTargetSrvHandles.resize(_renderTargetPoolCount);
     for (UINT i = 0; i < _renderTargetPoolCount; ++i)
     {
         _renderTargets[i] = std::make_shared<RenderTarget>();
         _renderTargets[i]->Initialize(DXGI_FORMAT_R32G32B32A32_FLOAT);
-        _renderTargetSrvHandles[i] = _renderTargets[i]->CreateShaderResourceView();
+        _renderTargets[i]->CreateShaderResourceView();
     }
 
     // 메쉬 음영처리가 된 타겟 하나 생성 -> 이 타겟을 가져와서 후처리를 진행해야함.
     _meshLightingTarget = std::make_shared<RenderTarget>();
     _meshLightingTarget->Initialize(DXGI_FORMAT_R32G32B32A32_FLOAT);
-    _meshLightingSrv = _meshLightingTarget->CreateShaderResourceView();
+    _meshLightingTarget->CreateShaderResourceView();
 }
 
 void RenderScene::CreateDepthStencil() 

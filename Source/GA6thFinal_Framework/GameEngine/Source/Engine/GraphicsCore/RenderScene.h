@@ -75,16 +75,13 @@ public:
     // 0: basecolor, 1: normal ,2:ORM , 3:emissive, 4:world position, 5: depth, 6: custom depth(bit mask,후처리용)
     UINT                                       _gBufferCount = GBuffer::END;
     std::vector<std::shared_ptr<RenderTarget>> _gBuffer;
-    std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _gBufferSrvHandles;
 
     // 후처리시 사용할 rt pool 혹은 각 테크별로 돌려서 쓸?
     UINT _renderTargetPoolCount = 3;
     std::vector<std::shared_ptr<RenderTarget>> _renderTargets;
-    std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>  _renderTargetSrvHandles;
 
     // 후처리시 필요한 사실상 통상적 메쉬 그리기가 이루어진, 음영처리가 완성된 타겟 하나
     std::shared_ptr<RenderTarget> _meshLightingTarget;
-    D3D12_CPU_DESCRIPTOR_HANDLE _meshLightingSrv;
 
     // frame단위로 사용하는 depth stencil buffer
     D3D12_CPU_DESCRIPTOR_HANDLE _depthStencilHandle;

@@ -25,7 +25,7 @@ void DeferredPBRLitPass::Begin(ID3D12GraphicsCommandList* commandList)
     CD3DX12_RESOURCE_BARRIER br = CD3DX12_RESOURCE_BARRIER::Transition(
         rt.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
     commandList->ResourceBarrier(1, &br);
-    commandList->OMSetRenderTargets(1, &_ownerScene->_meshLightingTarget->GetHandle(), FALSE, nullptr);
+    commandList->OMSetRenderTargets(1, &_ownerScene->_meshLightingTarget->GetRTVHandle(), FALSE, nullptr);
 
     commandList->RSSetViewports(1, &_viewPort);
     commandList->RSSetScissorRects(1, &_sissorRect);
@@ -49,7 +49,7 @@ void DeferredPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
     for (UINT i = 0; i <= RenderScene::GBuffer::CUSTOMDEPTH; ++i)
     {
         D3D12_CPU_DESCRIPTOR_HANDLE destHandle = CD3DX12_CPU_DESCRIPTOR_HANDLE(dest, i, descriptorSize);
-        device->CopyDescriptorsSimple(1, destHandle, _ownerScene->_gBufferSrvHandles[i],
+        device->CopyDescriptorsSimple(1, destHandle, _ownerScene->_gBuffer[i]->GetSRVHandle(),
                                       D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
     }
 

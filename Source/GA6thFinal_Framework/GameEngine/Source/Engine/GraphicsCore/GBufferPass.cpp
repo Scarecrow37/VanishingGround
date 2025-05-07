@@ -29,7 +29,7 @@ void GBufferPass::Begin(ID3D12GraphicsCommandList* commandList)
             gbuffer.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,D3D12_RESOURCE_STATE_RENDER_TARGET);
         commandList->ResourceBarrier(1, &br);
 
-        D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle  = _ownerScene->_gBuffer[i]->GetHandle();
+        D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle  = _ownerScene->_gBuffer[i]->GetRTVHandle();
         commandList->ClearRenderTargetView(cpuHandle, _clearColor, 0, nullptr);
     }
 
@@ -44,7 +44,7 @@ void GBufferPass::Begin(ID3D12GraphicsCommandList* commandList)
  
     for (auto& rt : _ownerScene->_gBuffer)
     {
-        _gbufferHandle.push_back(rt->GetHandle());
+        _gbufferHandle.push_back(rt->GetRTVHandle());
     }
     commandList->OMSetRenderTargets(_ownerScene->_gBufferCount, _gbufferHandle.data(), FALSE,
                                      &_ownerScene->_depthStencilHandle);
