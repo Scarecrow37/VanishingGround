@@ -6,6 +6,7 @@ class EditorHierarchyTool
 public:
     EditorHierarchyTool();
     virtual ~EditorHierarchyTool();
+    static void ImGuiNewGameObjectMenuItems();
 private:
     virtual void OnStartGui() override;
 

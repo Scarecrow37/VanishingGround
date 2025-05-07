@@ -4,6 +4,11 @@
 using namespace u8_literals;
 using namespace Global;
 
+static void SetSceneDirtyFlag(Scene& scene)
+{
+    scene.isDirty = true;
+}
+
 static std::weak_ptr<GameObject> HierarchyFocusObjWeak;
 static void TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>& focusObject)
 {
@@ -43,6 +48,7 @@ static void TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>
             {
                 DragDropTransform::Data* data = (DragDropTransform::Data*)payload->Data;
                 data->pTransform->SetParent(node);
+                SetSceneDirtyFlag(node.gameObject->GetScene());
             }
             ImGui::EndDragDropTarget();
         }
@@ -57,14 +63,17 @@ static void TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>
             if (ImGui::MenuItem("Set Root Object"))
             {
                 node.SetParent(nullptr);
+                SetSceneDirtyFlag(node.gameObject->GetScene());
             }
             if (ImGui::MenuItem("Detach Children"))
             {
                 node.DetachChildren();
+                SetSceneDirtyFlag(node.gameObject->GetScene());
             }
             if (ImGui::MenuItem("Destroy"))
             {
                 GameObject::Destroy(&node.gameObject);
+                SetSceneDirtyFlag(node.gameObject->GetScene());
             }
             ImGui::Separator();
             if(ImGui::BeginMenu("Prefab"))
@@ -72,6 +81,7 @@ static void TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>
                 if (ImGui::MenuItem("Unpack Prefab"))
                 {
                     UmGameObjectFactory.UnpackPrefab(&node.gameObject);
+                    SetSceneDirtyFlag(node.gameObject->GetScene());
                 }
                 ImGui::EndMenu();
             }   
@@ -199,6 +209,18 @@ EditorHierarchyTool::EditorHierarchyTool()
 
 EditorHierarchyTool::~EditorHierarchyTool()
 {
+
+}
+
+void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
+{
+    static const char* GameObjectKey  = typeid(GameObject).name();
+    static const char* GameObjectName = GameObjectKey + 6;
+    if (ImGui::MenuItem(GameObjectName))
+    {
+        UmGameObjectFactory.NewGameObject(GameObjectKey, GameObject::Helper::GenerateUniqueName(GameObjectName));
+        SetSceneDirtyFlag(*UmSceneManager.GetMainScene());
+    }
 }
 
 void  EditorHierarchyTool::OnStartGui()
@@ -229,6 +251,7 @@ void EditorHierarchyTool::HierarchyDropEvent()
                 if (extension == UmGameObjectFactory.PREFAB_EXTENSION)
                 {
                     UmGameObjectFactory.DeserializeToGuid(path.ToGuid());
+                    SetSceneDirtyFlag(*UmSceneManager.GetMainScene());
                 }
                 else if (extension == UmSceneManager.SCENE_EXTENSION)
                 {
@@ -250,7 +273,7 @@ void EditorHierarchyTool::HierarchyRightClickEvent() const
     {
         ImGui::Text("New GameObject");
         ImGui::Separator();
-        EditorSceneMenuGameObject::ImGuiNewGameObjectMenuItems();
+        ImGuiNewGameObjectMenuItems();
         ImGui::EndPopup();
     }
 }
@@ -271,26 +294,31 @@ void EditorHierarchyTool::OnFrame()
                 continue;
 
             std::string sName = scene.Name;
-            if (ImGui::CollapsingHeader(sName.c_str(), ImGuiTreeNodeFlags_::ImGuiTreeNodeFlags_DefaultOpen))
+            bool isCollapsingOpen = ImGui::CollapsingHeader(sName.c_str(), ImGuiTreeNodeFlags_::ImGuiTreeNodeFlags_DefaultOpen);
+            if (ImGui::BeginPopupContextItem("RightClick"))
             {
-                if (ImGui::BeginPopupContextItem("RightClick"))
+                if (ImGui::MenuItem("Save Scene"))
                 {
-                    if (ImGui::MenuItem("Save Scene"))
-                    {
-                        std::string path = scene.Path;
-                        std::filesystem::path writePath = UmFileSystem.GetRelativePath(path).parent_path();
-                        UmSceneManager.WriteSceneToFile(scene, writePath.string(), true);
-                        ImGui::CloseCurrentPopup();
-                    }
-                    if (ImGui::MenuItem("Unload Scene"))
-                    {
-                        std::string path = scene.Path;
-                        UmSceneManager.UnloadScene(path);
-                        ImGui::CloseCurrentPopup();
-                    }
-                    ImGui::EndPopup();
+                    std::string           path      = scene.Path;
+                    std::filesystem::path writePath = UmFileSystem.GetRelativePath(path).parent_path();
+                    UmSceneManager.WriteSceneToFile(scene, writePath.string(), true);
+                    ImGui::CloseCurrentPopup();
                 }
-
+                if (ImGui::MenuItem("Unload Scene"))
+                {
+                    std::string path = scene.Path;
+                    UmSceneManager.UnloadScene(path);
+                    ImGui::CloseCurrentPopup();
+                }
+                ImGui::EndPopup();
+            }
+            if (true == scene.isDirty)
+            {
+                ImGui::SameLine();
+                ImGui::Text("*");
+            }  
+            if (isCollapsingOpen)
+            {
                 auto rootObjects = scene.GetRootGameObjects();
                 std::shared_ptr<GameObject> focusObject = HierarchyFocusObjWeak.lock();
                 for (auto& obj : rootObjects)
