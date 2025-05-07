@@ -685,7 +685,6 @@ namespace ReflectHelper
             }
             else
             {
-                assert(!"역직렬화 실패.");
                 return false;
             }
             return true;
