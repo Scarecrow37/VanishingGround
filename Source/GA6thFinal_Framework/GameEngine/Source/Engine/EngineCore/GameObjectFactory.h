@@ -92,6 +92,12 @@ public:
     std::shared_ptr<GameObject> DeserializeToGuid(const File::Guid& guid);
 
     /// <summary>
+    /// 씬 파일에 저장된 object 정보를 역직렬화 합니다.
+    /// /// <param name="node :">씬에서 읽은 object YAML</param>
+    /// </summary>
+    std::shared_ptr<GameObject> DeserializeToSceneObject(YAML::Node& sceneObjectsNode);
+
+    /// <summary>
     /// 게임 오브젝트를 UmPrefab파일로 저장합니다. FileSystem의 RootPath 기준으로 저장합니다. 
     /// </summary>
     /// <param name="transform"></param>
@@ -156,8 +162,8 @@ private:
    //Yaml을 오브젝트로 반환. Reset도 해줌.
    std::shared_ptr<GameObject> MakeGameObjectToYaml(YAML::Node* objectNode);
 
-   //게임 오브젝트를 YAML로 초기화
-   void ParsingYamlToGameObject(GameObject* pObject, YAML::Node& objectNode);
+   //게임 오브젝트를 YAML로 GameObject와 Transform의 ReflectFields만 초기화합니다.
+   void ParsingYamlToGameObject(GameObject* pObject, const YAML::Node& objectNode);
 
    //오브젝트 계층구조를 포함한 Yaml 직렬화 데이터로 GameObject들을 만들어서 반환합니다.
    std::vector<std::shared_ptr<GameObject>> MakeObjectsGraphToYaml(YAML::Node* pObjectNode, bool useResource = false);

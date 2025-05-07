@@ -60,8 +60,15 @@ void EGameObjectFactory::ApplyPrefabInstanceChanges(const File::Guid& guid, YAML
                     int i = 0;
                     Transform::ForeachBFS(pGameObject->_transform, [&](Transform* curr) 
                     {
-                        ESceneManager::Engine::SwapPrefabInstance(&curr->gameObject, prefabObjects[i].get());
-                        i++;
+                        if (i < prefabObjects.size())
+                        {
+                            ESceneManager::Engine::SwapPrefabInstance(&curr->gameObject, prefabObjects[i].get());
+                            i++;
+                        }
+                        else
+                        {
+                            GameObject::Destroy(curr->gameObject);
+                        }
                     });
 
                     if (i < prefabObjects.size())
@@ -327,6 +334,38 @@ std::shared_ptr<GameObject> EGameObjectFactory::DeserializeToGuid(const File::Gu
     return pObject;
 }
 
+std::shared_ptr<GameObject> EGameObjectFactory::DeserializeToSceneObject(YAML::Node& sceneObjectsNode)
+{
+    auto yamlIter = sceneObjectsNode.begin();
+    YAML::Node rootObjectNode = *yamlIter;
+    File::Guid prefabGuid = rootObjectNode["Prefab"].as<std::string>();
+    std::shared_ptr<GameObject> newObject;
+    if constexpr (Application::IsEditor())
+    {
+        if (prefabGuid != STR_NULL)
+        {
+            newObject = UmGameObjectFactory.DeserializeToGuid(prefabGuid);
+            Transform::ForeachBFS(newObject->_transform, [&](Transform* curr) {
+                if (yamlIter != sceneObjectsNode.end())
+                {
+                    const YAML::Node& currNode = *yamlIter;
+                    ParsingYamlToGameObject(&curr->gameObject, currNode);
+                    ++yamlIter;
+                }
+            });
+        }
+        else
+        {
+            newObject = UmGameObjectFactory.DeserializeToYaml(&rootObjectNode);
+        }
+    }
+    else
+    {
+        newObject = UmGameObjectFactory.DeserializeToYaml(&rootObjectNode);
+    }  
+    return newObject;
+}
+
 void EGameObjectFactory::WriteGameObjectFile(Transform* transform, std::string_view outPath)
 {
     namespace fs     = std::filesystem;
@@ -531,14 +570,19 @@ std::shared_ptr<GameObject> EGameObjectFactory::MakeGameObjectToYaml(YAML::Node*
     return object;
 }
 
-void EGameObjectFactory::ParsingYamlToGameObject(GameObject* pObject, YAML::Node& objectNode) 
+void EGameObjectFactory::ParsingYamlToGameObject(GameObject* pObject, const YAML::Node& objectNode) 
 {
     if (objectNode["Prefab"])
     {
         pObject->_prefabGuid = objectNode["Prefab"].as<std::string>();
     }
-
-    std::string ReflectFields = objectNode["ReflectFields"].as<std::string>();
+    std::string ReflectFields = objectNode["ReflectFields"].as<std::string>(); 
+    yyjson_doc* jsonDoc  = yyjson_read(ReflectFields.c_str(), ReflectFields.size(), 0);
+    yyjson_val* jsonRoot = yyjson_doc_get_root(jsonDoc);
+    yyjson_val* jsonName = yyjson_obj_get(jsonRoot , "_name");
+    const char* nameStr = yyjson_get_str(jsonName);
+    ESceneManager::Engine::RenameGameObject(pObject, nameStr);
+    yyjson_doc_free(jsonDoc); 
     pObject->DeserializedReflectFields(ReflectFields);
     {
         YAML::Node  transformNode = objectNode["Transform"].as<YAML::Node>();
