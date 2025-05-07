@@ -241,7 +241,6 @@ void ESceneManager::Engine::RenameGameObject(GameObject* gameObject, std::string
             }
         }
     }
-    __debugbreak(); //이름 오류.
 }
 
 const std::vector<std::shared_ptr<GameObject>>& ESceneManager::Engine::GetRuntimeObjects()
@@ -342,6 +341,8 @@ void ESceneManager::Engine::SwapPrefabInstance(GameObject* original, GameObject*
     std::swap(sOrigin->_instanceID, sRemake->_instanceID);
     std::swap(sOrigin->_ownerScene, sRemake->_ownerScene);
     std::swap(sOrigin, sRemake);
+    std::string objectData = sRemake->SerializedReflectFields();
+    sOrigin->DeserializedReflectFields(objectData);
     sOrigin->_transform = sRemake->_transform;
     sceneManager.EraseGameObjectMap(sRemake);
     sceneManager.InsertGameObjectMap(sOrigin);
@@ -829,16 +830,7 @@ bool ESceneManager::DeserializeToYaml(YAML::Node* _sceneNode)
     {
         YAML::Node objectNodes = object;
         YAML::Node rootObjectNode = *objectNodes.begin();
-        File::Guid prefabGuid = rootObjectNode["Prefab"].as<std::string>();
-        std::shared_ptr<GameObject> newObject;
-        if (prefabGuid != STR_NULL)
-        {
-            newObject = UmGameObjectFactory.DeserializeToGuid(prefabGuid);  
-        }
-        else
-        {
-            newObject = UmGameObjectFactory.DeserializeToYaml(&objectNodes);   
-        }
+        std::shared_ptr<GameObject> newObject = UmGameObjectFactory.DeserializeToSceneObject(object);
         if (nullptr == newObject)
         {
             UmLogger.Log(LogLevel::LEVEL_FATAL, u8"메모리 할당 실패."_c_str);
@@ -846,6 +838,7 @@ bool ESceneManager::DeserializeToYaml(YAML::Node* _sceneNode)
             UmApplication.Quit();
             return false;
         }
+
         Transform::ForeachDFS(
         newObject->_transform,
         [&Guid](Transform* curr) 
