@@ -57,12 +57,23 @@ void GameObject::OnInspectorViewEnter()
 
 void GameObject::OnInspectorStay() 
 {
+    using namespace u8_literals;
     constexpr ImVec4 DEBUG_TEXT_COLOR = ImVec4(0.6f, 0.6f, 0.6f, 1.0f);
     constexpr ImVec4 DEBUG_FRAMEBG_COLOR = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
-
-    using namespace u8_literals;
     static GameObject* selectObject = nullptr;
     static bool isDebug  = false;
+    auto SetSceneDirtyFlag = [this](bool result, std::string_view name)
+    {
+        if (result)
+        {
+            Scene* ownerScene = UmSceneManager.GetSceneByName(_ownerScene);
+            if (ownerScene)
+            {
+                ownerScene->isDirty = true;
+            }
+        }
+    };
+
     ImGui::PushID(this);
     {
         ImGui::Checkbox("Debug", &isDebug);
@@ -105,8 +116,13 @@ void GameObject::OnInspectorStay()
             ImGui::Text("Instance ID : %d", _instanceID);
             ImGui::PopStyleColor();
         }
+
+        UmCore->ImGuiDrawPropertysSetting.InputEndEvent = SetSceneDirtyFlag;
         ImGuiDrawPropertys();
+
+        UmCore->ImGuiDrawPropertysSetting.InputEndEvent = SetSceneDirtyFlag;
         _transform.ImGuiDrawPropertys();
+
         if (ImGui::Button("AddComponent"))
         {
             selectObject = this;
@@ -137,6 +153,7 @@ void GameObject::OnInspectorStay()
                     {
                         if (result == true)
                         {                 
+                            SetSceneDirtyFlag(result, name);
                             const auto* originPrefab = UmGameObjectFactory.GetOriginPrefab(pPrefabObject->_prefabGuid);
                             if (originPrefab != nullptr)
                             {
@@ -190,6 +207,10 @@ void GameObject::OnInspectorStay()
                             }
                         }
                     };
+                }
+                else
+                {
+                    UmCore->ImGuiDrawPropertysSetting.InputEndEvent = SetSceneDirtyFlag;
                 }
                 component->ImGuiDrawPropertys();
 
