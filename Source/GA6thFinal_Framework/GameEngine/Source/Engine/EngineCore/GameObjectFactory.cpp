@@ -356,12 +356,12 @@ std::shared_ptr<GameObject> EGameObjectFactory::DeserializeToSceneObject(YAML::N
         }
         else
         {
-            newObject = UmGameObjectFactory.DeserializeToYaml(&rootObjectNode);
+            newObject = UmGameObjectFactory.DeserializeToYaml(&sceneObjectsNode);
         }
     }
     else
     {
-        newObject = UmGameObjectFactory.DeserializeToYaml(&rootObjectNode);
+        newObject = UmGameObjectFactory.DeserializeToYaml(&sceneObjectsNode);
     }  
     return newObject;
 }
@@ -519,7 +519,8 @@ void EGameObjectFactory::ResetGameObject(
     }
     else
     {
-        ownerObject->_ownerScene = STR_NULL;
+        UmLogger.Log(LogLevel::LEVEL_FATAL, u8"씬이 로드되지 않았습니다."_c_str);
+        __debugbreak();
     }   
     ownerObject->ReflectFields->_name = name;
     ownerObject->ReflectFields->_isStatic = false;
