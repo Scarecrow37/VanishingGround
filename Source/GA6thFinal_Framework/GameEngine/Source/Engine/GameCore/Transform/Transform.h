@@ -19,6 +19,19 @@ public:
     Transform(GameObject& owner);
     ~Transform();
 
+    Transform& operator=(const Transform& rhs)
+    { 
+        if (this != &rhs)
+        {
+            _hasChanged = true;
+            _position   = rhs._position;
+            _rotation   = rhs._rotation;
+            _eulerAngle = rhs._eulerAngle;
+            _scale      = rhs._scale;
+        }
+        return *this;
+    }
+
     GETTER_ONLY(GameObject&, gameObject)
     { 
         return _gameObject;

@@ -342,6 +342,7 @@ void ESceneManager::Engine::SwapPrefabInstance(GameObject* original, GameObject*
     std::swap(sOrigin->_instanceID, sRemake->_instanceID);
     std::swap(sOrigin->_ownerScene, sRemake->_ownerScene);
     std::swap(sOrigin, sRemake);
+    sOrigin->_transform = sRemake->_transform;
     sceneManager.EraseGameObjectMap(sRemake);
     sceneManager.InsertGameObjectMap(sOrigin);
 }
