@@ -239,7 +239,7 @@ protected:                                                                      
                 ReflectHelper::ImGuiDraw::Private::InputAuto(rflField, setting);                            \
             }                                                                                               \
         });                                                                                                 \
-        if (isTail)                                                                                         \
+        if (true == isTail)                                                                                 \
         {                                                                                                   \
             setting.InputEndEvent = nullptr;                                                                \
         }                                                                                                   \
