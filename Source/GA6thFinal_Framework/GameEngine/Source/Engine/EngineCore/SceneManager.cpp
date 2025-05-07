@@ -430,6 +430,7 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
         return;
     }
     scene->_isLoaded = true;
+    scene->isDirty   = false;
     _lodedSceneList.push_back(scene);
 }
 
@@ -861,7 +862,7 @@ bool ESceneManager::DeserializeToGuid(const File::Guid& guid)
     return DeserializeToYaml(&findIter->second);
 }
 
-void ESceneManager::WriteSceneToFile(const Scene& scene, std::string_view outPath, bool isOverride)
+void ESceneManager::WriteSceneToFile(Scene& scene, std::string_view outPath, bool isOverride)
 {
     namespace fs = std::filesystem;
     std::string sceneName = scene.Name;
@@ -875,7 +876,7 @@ void ESceneManager::WriteEmptySceneToFile(std::string_view name, std::string_vie
     bool result = WriteUmSceneFile(scene, name, outPath, isOverride);
 }
 
-bool ESceneManager::WriteUmSceneFile(const Scene& scene, std::string_view sceneName, std::string_view outPath, bool isOverride)
+bool ESceneManager::WriteUmSceneFile(Scene& scene, std::string_view sceneName, std::string_view outPath, bool isOverride)
 {
     namespace fs     = std::filesystem;
     using fsPath     = std::filesystem::path;
@@ -884,7 +885,8 @@ bool ESceneManager::WriteUmSceneFile(const Scene& scene, std::string_view sceneN
     writePath /= sceneName;
     writePath.replace_extension(SCENE_EXTENSION);
    
-    if (fs::exists(writePath) == true && isOverride == false)
+    bool isExists = fs::exists(writePath);
+    if (true == isExists && false == isOverride)
     {
         int result = MessageBox(UmApplication.GetHwnd(), L"파일이 이미 존재합니다. 덮어쓰겠습니까?",
                                 L"파일이 존재합니다.", MB_YESNO);
@@ -901,9 +903,14 @@ bool ESceneManager::WriteUmSceneFile(const Scene& scene, std::string_view sceneN
         if (ofs.is_open())
         {
             ofs << node;
+            if (true == isExists && true == scene.isDirty)
+            {
+                scene.isDirty = false;
+            }
         }
         ofs.close();
     }
+    return true;
 }
 
 void ESceneManager::OnFileRegistered(const File::Path& path) 

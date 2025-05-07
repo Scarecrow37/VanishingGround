@@ -56,6 +56,9 @@ public:
     // get : 이 씬 파일의 상대 경로를 반환합니다.
     PROPERTY(Path)
 
+    // 씬의 수정 여부입니다. 파일을 저장하면 자동으로 초기화됩니다.
+    bool isDirty = false;
+
 private:
     bool _isLoaded = false;
     File::Guid _guid = STR_NULL;
@@ -78,11 +81,13 @@ class ESceneManager
     File::FileEventNotifier
 {
 private:
+    USING_PROPERTY(ESceneManager)
     friend class EngineCores;
     friend class Application;
     ESceneManager();
     ~ESceneManager();
-    USING_PROPERTY(ESceneManager)
+
+    ESceneManager& operator=(const ESceneManager& rhs) = delete;
 
     void LoadSettingFile();
     void SaveSettingFile() const;
@@ -287,7 +292,7 @@ public:
     /// <param name="scene :">저장할 파일</param>
     /// <param name="outPath :">저장할 경로</param>
     /// <param name="isOverride :">덮어쓰기 안내문구 스킵 여부</param>
-    void WriteSceneToFile(const Scene& scene, std::string_view outPath, bool isOverride = false);
+    void WriteSceneToFile(Scene& scene, std::string_view outPath, bool isOverride = false);
 
     /// <summary>
     /// <para> 빈 씬을 UmScene파일로 저장합니다. FileSystem의 RootPath 기준으로 저장합니다. </para>
@@ -407,7 +412,7 @@ protected:
     /// <param name="outPath"></param>
     /// <returns></returns>
     bool WriteUmSceneFile(
-        const Scene& scene, 
+        Scene& scene, 
         std::string_view sceneName, 
         std::string_view outPath,
         bool isOverride = false);
