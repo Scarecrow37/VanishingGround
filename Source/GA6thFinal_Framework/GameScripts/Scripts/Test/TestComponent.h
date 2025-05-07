@@ -11,7 +11,8 @@ public:
 public:
     REFLECT_PROPERTY(
         ObjectDrop, 
-        emitFactor
+        TestVector3,
+        ReflectFields->floatVector
         )
 
     GETTER_ONLY(std::string_view, ObjectDrop)
@@ -20,29 +21,20 @@ public:
     }
     PROPERTY(ObjectDrop)
 
-    GETTER(Vector3, emitFactor) 
-    { 
-        return emit.GetFactor(); 
+    GETTER(const Vector3&, TestVector3)
+    {
+        return testVector3;
     }
-    SETTER(Vector3, emitFactor)
-    { 
-        emit.SetFactor(value);
+    SETTER(const Vector3&, TestVector3)
+    {
+        testVector3 = value;
     }
-    PROPERTY(emitFactor)
+    PROPERTY(TestVector3)
 
     const std::vector<float>& GetfloatVector() const { return ReflectFields->floatVector; }
 
 private:
-    class EmitLocator
-    {
-    public:
-        Vector3         GetFactor() const { return _factor; }
-        void            SetFactor(const Vector3 factor) { _factor = factor; }
-
-    protected:
-        Vector3                               _factor;
-    }
-    emit;
+    Vector3 testVector3;
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)

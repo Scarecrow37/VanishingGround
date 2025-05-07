@@ -3,6 +3,7 @@
 namespace File
 {
     // stdfs
+    namespace fs = std::filesystem;
     namespace stdfs = std::filesystem;
     using FString = stdfs::path;
 
@@ -19,6 +20,7 @@ namespace File
         using FString::FString;
     public:
         File::Path ToPath() const;
+        bool       IsNull() const;
     public:
         operator File::Path() const;
     };
@@ -31,17 +33,23 @@ namespace File
         using FString::FString;
     public:
         File::Guid ToGuid() const;
+        bool       IsNull() const;
     public:
         operator File::Guid() const;
         File::Path operator+(const File::FString& v);
         File::Path operator/(const File::FString& v);
     };
 
-    inline static const File::Guid NULL_GUID;
-    inline static const File::Path NULL_PATH;
+    inline static const File::Guid NULL_GUID = L"";
+    inline static const File::Path NULL_PATH = L"";
 
     class FileData
     {
+    public:
+        FileData() = default; // 기본 생성자
+        FileData(File::Path);
+        FileData(File::Guid);
+        virtual ~FileData() = default;
     protected:
         virtual bool Write(YAML::Node& node) const = 0;
         virtual bool Read(YAML::Node& node) const  = 0;
@@ -50,7 +58,7 @@ namespace File
         bool FileCreate(bool isHidden = false) const;
         bool FileRemove() const;
 
-        bool Create(const File::Path& path, bool isHidden = false);
+        bool Create(const File::Path& path, bool isEmpty = false, bool isHidden = false);
         bool Load(const Path& path);
         bool Move(const Path& path);
         bool Clear();
@@ -62,8 +70,8 @@ namespace File
         inline const auto& GetPath() const { return _filePath; }
 
     protected:
-        File::Path _filePath; // 파일 경로
-        File::Guid _fileGuid; // 파일 ID
+        File::Path _filePath = NULL_PATH; // 파일 경로
+        File::Guid _fileGuid = NULL_GUID; // 파일 ID
 
         inline static const char* FILE_GUID_HEADER = "Guid";
     };

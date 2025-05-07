@@ -23,7 +23,7 @@ public:
     Renderer        Renderer;
     ViewManager     ViewManager;
     ResourceManager ResourceManager;
-    Camera          MainCamera;
+    //Camera          MainCamera;
 
 public:
     void Initialize(HWND hwnd, UINT width, UINT height, FEATURE_LEVEL feature);

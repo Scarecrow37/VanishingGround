@@ -87,6 +87,7 @@ private:
 public:
     using field_type = std::conditional_t<is_getter, typename getter::Type, typename setter::Type>;
     using remove_cvref_field_type = std::remove_cvref_t<field_type>;
+    static constexpr bool is_ref_getter = !std::is_pointer_v<field_type> && std::is_reference_v<field_type> && is_getter;
     TProperty(
         owner_type* _this
     ) 
@@ -143,16 +144,16 @@ public:
         return this->Getter();
     }
 
-    inline auto* operator->() const requires(std::is_pointer_v<owner_type>&& is_getter)
+    inline auto* operator->() const requires(std::is_pointer_v<field_type> && is_getter)
     { 
         return this->Getter();
     }
-    inline auto* operator->()const requires(!std::is_pointer_v<owner_type> && std::is_reference_v<field_type> && is_getter)
+    inline auto* operator->()const requires(is_ref_getter)
     { 
         return &this->Getter();
     }
 
-    inline auto* operator&() requires(!std::is_pointer_v<owner_type> && std::is_reference_v<field_type> && is_getter)
+    inline auto* operator&() requires(is_ref_getter)
     {
         return &this->Getter();
     }

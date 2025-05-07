@@ -1,9 +1,10 @@
 ﻿#include "pch.h"
 #include "Renderer.h"
-#include "Shader.h"
-#include "FrameResource.h"
-#include "Model.h"
 #include "UmScripts.h"
+
+// Editor
+#include "NonPBRLitTechnique.h"
+#include "RendererFileEvent.h"
 
 #define SeongU01
 #ifdef SeongU01
@@ -17,7 +18,10 @@
 #include "PBRLitTechnique.h"
 #endif
 
-Renderer::Renderer() : _currnetState(0)
+Renderer::Renderer()
+    : _currnetState(0)
+    , _currentImGuiImageIndex(1)
+
 {
 }
 
@@ -51,17 +55,29 @@ void Renderer::Initialize()
     //testRenderScene->AddRenderTechnique("PBR", pbrTech);
 
     //_renderScenes["TEST PBR"] = testRenderScene;
-    std::shared_ptr<RenderScene> testRenderScene = std::make_shared<RenderScene>();
-    testRenderScene->InitializeRenderScene();
+    std::shared_ptr<RenderScene> editorScene = std::make_shared<RenderScene>();
+    editorScene->InitializeRenderScene();
     std::shared_ptr<PBRLitTechnique> pbrTech = std::make_shared<PBRLitTechnique>();
-    testRenderScene->AddRenderTechnique("PBRLIT", pbrTech);
-    _renderScenes["Editor"] = testRenderScene;
+    editorScene->AddRenderTechnique(pbrTech);
+    _renderScenes["Editor"] = editorScene;
 
+    if constexpr (IS_EDITOR)
+    {
+        // Model Viewer Scene
+        std::shared_ptr<RenderScene> modelViewerScene = std::make_shared<RenderScene>();
+        modelViewerScene->InitializeRenderScene();
+        modelViewerScene->AddRenderTechnique(std::make_shared<PBRLitTechnique>());
+        _renderScenes["ModelViewer"] = modelViewerScene;
+
+        // Renderer File Event
+        _rendererFileEvent = std::make_unique<RendererFileEvent>();
+        UmFileSystem.RegisterFileEventNotifier(_rendererFileEvent.get(), {".png", ".dds", ".fbx"});
+    }
 }
 
 void Renderer::Update()
 {
-    UmMainCamera.Update();
+    //UmMainCamera.Update();
 
 	UmDevice.ResetCommands();
 	//UpdateFrameResource();
@@ -70,12 +86,7 @@ void Renderer::Update()
     for (auto& renderScene : _renderScenes)
     {
         renderScene.second->UpdateRenderScene();
-    } 
-
-    // 비활성된 컴포넌트 제거
-    auto first =
-        std::remove_if(_components.begin(), _components.end(), [](const auto& component) { return !component.first; });
-    _components.erase(first, _components.end());
+    }
 }
 
 void Renderer::Render()
@@ -92,6 +103,9 @@ void Renderer::Render()
 void Renderer::Flip()
 {
     UmDevice.Flip();
+    // 임시 ImGUI Image Index 찾는 구조 나중에 수정
+    // ImGUI Descriptor Index 초기화 (0 은 ImGUI Font)
+    _currentImGuiImageIndex = 1;
 }
 
 D3D12_GPU_DESCRIPTOR_HANDLE Renderer::GetRenderSceneImage(std::string_view renderSceneName)
@@ -101,6 +115,22 @@ D3D12_GPU_DESCRIPTOR_HANDLE Renderer::GetRenderSceneImage(std::string_view rende
     {
         auto scene = iter->second;
         return SceneView(scene.get());
+    }
+    else
+    {
+        std::wstring msg = L"Renderer::GetRenderSceneImage: RenderSceneName '" +
+                           std::wstring(renderSceneName.begin(), renderSceneName.end()) + L"' is not registered.";
+        ASSERT(false, msg.c_str());
+    }
+}
+
+std::shared_ptr<Camera> Renderer::GetCamera(std::string_view renderSceneName)
+{
+    auto iter = _renderScenes.find(std::string(renderSceneName));
+    if (iter != _renderScenes.end())
+    {
+        auto scene = iter->second;
+        return scene->GetCamera();
     }
     else
     {
@@ -144,9 +174,10 @@ void Renderer::InitializeImgui()
     if (true == std::filesystem::exists(fontPath.generic_string()))
     {
         const ImWchar icons_ranges[] = {0xf000, 0xf3ff, 0}; // FontAwesome 유니코드 범위
+        ImFontConfig  config;
 
-        ImFontConfig config;
-        config.MergeMode = true; // 기존 폰트와 병합
+        config.MergeMode        = true;
+        config.PixelSnapH = true;
 
         ImFontAtlas* atlas    = io.Fonts;
         ImFont*      iconFont = atlas->AddFontFromFileTTF(fontPath.string().c_str(), 15.0f, &config, icons_ranges);
@@ -194,14 +225,18 @@ void Renderer::ImguiEnd()
 // SWTODO : 수정해야함. 너무 임시야. 임구이에서 어떻게 해당이미지의 gpu handle을 반환할지?
 //          뭐가 반환될지 어떻게 알지?
 D3D12_GPU_DESCRIPTOR_HANDLE Renderer::SceneView(RenderScene* scene)
-{
+{    
     auto dest = _imguiDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-    UINT offset = UmDevice.GetCBVSRVUAVDescriptorSize();
+    UINT offset = _currentImGuiImageIndex * UmDevice.GetCBVSRVUAVDescriptorSize();
     dest.ptr += offset;
+
     auto src  = scene->GetFinalImage();
     UmDevice.GetDevice()->CopyDescriptorsSimple(1, dest, src, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
     D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = _imguiDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
     gpuHandle.ptr += offset;
+
+    // next ImGUI Descriptor Index
+    _currentImGuiImageIndex++;
+
     return gpuHandle;
 }
-

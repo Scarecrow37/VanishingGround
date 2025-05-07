@@ -78,16 +78,10 @@ void TestComponent::OnDisable()
 
 void TestComponent::SerializedReflectEvent()
 {
-    UmLogger.Log(LogLevel::LEVEL_DEBUG,
-                                 "SerializedReflectEvent");
-    Vector3 factor = emit.GetFactor();
-    std::memcpy(ReflectFields->_factor.data(), &factor, sizeof(ReflectFields->_factor));
+    UmLogger.Log(LogLevel::LEVEL_DEBUG, "SerializedReflectEvent");
 }
 
 void TestComponent::DeserializedReflectEvent()
 {
-    UmLogger.Log(LogLevel::LEVEL_DEBUG,
-                                 "DeserializedReflectEvent");
-
-    emit.SetFactor(Vector3{ReflectFields->_factor.data()});
+    UmLogger.Log(LogLevel::LEVEL_DEBUG, "DeserializedReflectEvent");
 }

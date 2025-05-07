@@ -20,23 +20,23 @@ HRESULT RenderTarget::Initialize(DXGI_FORMAT format)
 
     D3D12_CLEAR_VALUE clearValue{
         .Format = _format,
-        .Color  = {0.f, 0.f, 0.f, 1.f},
+        .Color  = {0.3f, 0.3f, 0.3f, 1.f},
     };
     // committedReosurce로 임시로 생성
     UmDevice.GetDevice()->CreateCommittedResource(&property, D3D12_HEAP_FLAG_NONE, &desc,
-                                                        D3D12_RESOURCE_STATE_PRESENT, &clearValue,
+                                                        D3D12_RESOURCE_STATE_COMMON, &clearValue,
                                                         IID_PPV_ARGS(_resource.GetAddressOf()));
 
     HRESULT hr = S_OK;
 
-    hr = UmViewManager.AddDescriptorHeap(ViewManager::Type::RENDER_TARGET, _handle);
+    hr = UmViewManager.AddDescriptorHeap(ViewManager::Type::RENDER_TARGET, _rtvHandle);
     FAILED_CHECK_BREAK(hr);
-    UmDevice.GetDevice()->CreateRenderTargetView(_resource.Get(), nullptr, _handle);
+    UmDevice.GetDevice()->CreateRenderTargetView(_resource.Get(), nullptr, _rtvHandle);
 
     return hr;
 }
 
-D3D12_CPU_DESCRIPTOR_HANDLE RenderTarget::CreateShaderResourceView()
+void RenderTarget::CreateShaderResourceView()
 {
     // Srv 생성하기(RenderTarget에 대한)
     D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
@@ -46,8 +46,6 @@ D3D12_CPU_DESCRIPTOR_HANDLE RenderTarget::CreateShaderResourceView()
     srvDesc.Texture2D.MipLevels             = 1;
     srvDesc.Shader4ComponentMapping         = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
-    D3D12_CPU_DESCRIPTOR_HANDLE srvHandle;
-    UmViewManager.AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, srvHandle);
-    UmDevice.GetDevice()->CreateShaderResourceView(_resource.Get(), &srvDesc, srvHandle);
-    return srvHandle;
+    UmViewManager.AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _srvHandle);
+    UmDevice.GetDevice()->CreateShaderResourceView(_resource.Get(), &srvDesc, _srvHandle);
 }

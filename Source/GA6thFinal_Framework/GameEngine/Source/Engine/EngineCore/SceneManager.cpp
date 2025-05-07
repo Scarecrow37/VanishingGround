@@ -10,21 +10,18 @@ bool ESceneManager::RootGameObjectsFilter(GameObject* obj, std::string_view scen
 
 std::filesystem::path ESceneManager::GetSettingFilePath()
 {
-    std::filesystem::path path = PROJECT_SETTING_PATH;
+    std::filesystem::path path = UmFileSystem.GetSettingPath();
     path /= SETTING_FILE_NAME;
     return path;
 }
 
 ESceneManager::ESceneManager() 
 {
-    LoadSettingFile();
+   
 }
 ESceneManager::~ESceneManager()
 {
-    if constexpr (Application::IsEditor())
-    {
-        SaveSettingFile();
-    } 
+    
 }
 
 void ESceneManager::LoadSettingFile() 
@@ -319,6 +316,26 @@ void ESceneManager::Engine::DontDestroyOnLoadObject(GameObject& gameObject)
 std::string& ESceneManager::Engine::GetStartSceneSetting()
 {
     return UmSceneManager._setting.StartScene;
+}
+
+void ESceneManager::Engine::LoadStartScene() 
+{
+    ESceneManager& sceneManager = UmSceneManager;
+    std::string& loadScene = Application::IsEditor() ? sceneManager._setting.MainScene : sceneManager._setting.StartScene;
+    File::Path path = loadScene;
+    File::Guid guid = path.ToGuid();
+    auto   findGuid = sceneManager._scenesMap.find(guid);
+    if (loadScene != STR_NULL && findGuid != sceneManager._scenesMap.end())
+    {
+        if (UmComponentFactory.HasScript() == false)
+        {
+            if (UmComponentFactory.InitalizeComponentFactory() == false)
+            {
+                return;
+            }
+        }
+        sceneManager.LoadScene(loadScene);
+    }
 }
 
 void ESceneManager::CreateEmptySceneAndLoad(std::string_view name, std::string_view outPath, const std::function<void()>& loadEvent) 
@@ -786,9 +803,27 @@ bool ESceneManager::DeserializeToYaml(YAML::Node* _sceneNode)
     YAML::Node rootObjects = sceneNode["GameObjects"].as<YAML::Node>();
     for (auto object : rootObjects)
     {
-        YAML::Node objectNode = object;
-        auto newObject = UmGameObjectFactory.DeserializeToYaml(&objectNode);
-        Transform::ForeachDFS(newObject->_transform,
+        YAML::Node objectNodes = object;
+        YAML::Node rootObjectNode = *objectNodes.begin();
+        File::Guid prefabGuid = rootObjectNode["Prefab"].as<std::string>();
+        std::shared_ptr<GameObject> newObject;
+        if (prefabGuid != STR_NULL)
+        {
+            newObject = UmGameObjectFactory.DeserializeToGuid(prefabGuid);  
+        }
+        else
+        {
+            newObject = UmGameObjectFactory.DeserializeToYaml(&objectNodes);   
+        }
+        if (nullptr == newObject)
+        {
+            UmLogger.Log(LogLevel::LEVEL_FATAL, u8"메모리 할당 실패."_c_str);
+            __debugbreak();
+            UmApplication.Quit();
+            return false;
+        }
+        Transform::ForeachDFS(
+        newObject->_transform,
         [&Guid](Transform* curr) 
         {
             curr->_gameObject._ownerScene = Guid.ToPath().string();
@@ -827,7 +862,7 @@ bool ESceneManager::WriteUmSceneFile(const Scene& scene, std::string_view sceneN
 {
     namespace fs     = std::filesystem;
     using fsPath     = std::filesystem::path;
-    fsPath writePath = UmFileSystem.GetRootPath();
+    fsPath writePath = UmFileSystem.GetAssetPath();
     writePath /= outPath;
     writePath /= sceneName;
     writePath.replace_extension(SCENE_EXTENSION);
@@ -873,23 +908,23 @@ void ESceneManager::OnFileRegistered(const File::Path& path)
                 return;
             }
         }    
-        std::filesystem::path relativeRootPath = std::filesystem::relative(path, UmFileSystem.GetRootPath());
+        std::filesystem::path relativeRootPath = UmFileSystem.GetRelativePath(path);
         WriteSceneToFile(scene, relativeRootPath.parent_path().string(), true);
     }
     
-    std::string& loadScene = Application::IsEditor() ? _setting.MainScene : _setting.StartScene; 
-    if (scene.isLoaded == false && path.string() == loadScene)
+    if (_loadFuncEvent)
     {
-        if (UmComponentFactory.HasScript() == false)
+        std::string& loadScene = Application::IsEditor() ? _setting.MainScene : _setting.StartScene;
+        if (scene.isLoaded == false && path.string() == loadScene)
         {
-            if (UmComponentFactory.InitalizeComponentFactory() == false)
+            if (UmComponentFactory.HasScript() == false)
             {
-                return;
+                if (UmComponentFactory.InitalizeComponentFactory() == false)
+                {
+                    return;
+                }
             }
-        }
-        LoadScene(path.string());
-        if (_loadFuncEvent)
-        {
+            LoadScene(path.string());
             _loadFuncEvent();
             _loadFuncEvent = nullptr;
         }
@@ -898,7 +933,10 @@ void ESceneManager::OnFileRegistered(const File::Path& path)
 
 void ESceneManager::OnFileUnregistered(const File::Path& path) 
 {
-
+    File::Guid  guid = path.ToGuid();
+    Scene& scene = _scenesMap[guid];
+    std::string sceneName = scene.Name;
+    EraseSceneGUID(sceneName, guid);
 }
 
 void ESceneManager::OnFileModified(const File::Path& path)
@@ -920,27 +958,52 @@ void ESceneManager::OnFileRenamed(const File::Path& oldPath, const File::Path& n
     Scene& scene = _scenesMap[guid];
     std::string oldName = oldPath.stem().string();
     std::string newName = scene.Name;
-    _scenesFindMap[oldName].erase(guid);
-    if (_scenesFindMap[oldName].empty() == true)
-    {
-        _scenesFindMap.erase(oldName);
-    }
-    _scenesFindMap[newName].insert(guid);
+    RenameScene(scene, oldName, newName);
 
     bool isLoaded = scene.isLoaded;
-    if (isLoaded)
+    if (true == isLoaded)
     {
-        auto rootObjects = GetRootGameObjectsByPath(oldPath.string());
-        for (auto& object : rootObjects)
-        {
-            object->_ownerScene = newPath.string();
-        }
+        ResetOwnerScene(oldPath.string(), newPath.string());
+        CheckMainSceneRename(scene, newPath);
     }
 }
 
-void ESceneManager::OnFileMoved(const File::Path& oldPath, const File::Path& newPath) 
+void ESceneManager::OnFileMoved(const File::Path& oldPath, const File::Path& newPath)
 {
+    File::Guid guid  = newPath.ToGuid();
+    Scene&     scene = _scenesMap[guid];
+    if (true == scene.isLoaded)
+    {
+        ResetOwnerScene(oldPath.string(), newPath.string());
+        CheckMainSceneRename(scene, newPath);
+    }
+}
 
+void ESceneManager::RenameScene(Scene& scene, std::string_view oldName, std::string_view newName) 
+{
+    _scenesFindMap[oldName.data()].erase(scene._guid);
+    if (_scenesFindMap[oldName.data()].empty() == true)
+    {
+        _scenesFindMap.erase(oldName.data());
+    }
+    _scenesFindMap[newName.data()].insert(scene._guid);
+}
+
+void ESceneManager::ResetOwnerScene(std::string_view oldPath, std::string_view newPath) 
+{
+    auto rootObjects = GetRootGameObjectsByPath(oldPath.data());
+    for (auto& object : rootObjects)
+    {
+        object->_ownerScene = newPath.data();
+    }
+}
+
+void ESceneManager::CheckMainSceneRename(Scene& renameScene, const File::Path& newPath) 
+{
+    if (_lodedSceneList.front() == &renameScene)
+    {
+        _setting.MainScene = newPath.string();
+    }
 }
 
 void ESceneManager::OnRequestedOpen(const File::Path& path) 
@@ -956,6 +1019,21 @@ void ESceneManager::OnRequestedCopy(const File::Path& path)
 void ESceneManager::OnRequestedPaste(const File::Path& path) 
 {
 
+}
+
+void ESceneManager::OnRequestedSave() 
+{
+    SaveSettingFile();
+}
+
+void ESceneManager::OnRequestedLoad() 
+{
+    LoadSettingFile();
+}
+
+void ESceneManager::OnPostRequestedLoad() 
+{
+    Engine::LoadStartScene();
 }
 
 void ESceneManager::EraseSceneGUID(std::string_view sceneName, const File::Guid guid) 
@@ -975,3 +1053,4 @@ void ESceneManager::EraseSceneGUID(std::string_view sceneName, const File::Guid 
     _scenesMap.erase(guid);
     _sceneDataMap.erase(guid);
 }
+

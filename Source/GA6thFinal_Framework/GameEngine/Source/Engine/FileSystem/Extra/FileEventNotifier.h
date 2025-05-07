@@ -26,8 +26,10 @@ namespace File
         
         /* 프로젝트 세이브 요청을 처리할 동작을 구현 */
         virtual void OnRequestedSave()                                          {}
+        virtual void OnPostRequestedSave()                                      {}
         /* 프로젝트 로드 요청을 처리할 동작을 구현 */
         virtual void OnRequestedLoad()                                          {}
+        virtual void OnPostRequestedLoad()                                      {}
         /* 인스펙터에 출력 요청을 처리할 동작을 구현 */
         virtual void OnRequestedInspect(const File::Path& path)                 {}
         /* 파일을 여는 요청을 처리할 동작을 구현 */
