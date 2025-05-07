@@ -57,7 +57,6 @@ GameApplication::GameApplication()
     _editorModule->RegisterEditorObject<EditorMenuStyleEditor>();
     _editorModule->RegisterEditorObject<EditorMenuFileSystemSetting>();
     // Scene
-    _editorModule->RegisterEditorObject<EditorSceneMenuGameObject>();
     _editorModule->RegisterEditorObject<EditorSceneMenuScenes>();
 }
 
