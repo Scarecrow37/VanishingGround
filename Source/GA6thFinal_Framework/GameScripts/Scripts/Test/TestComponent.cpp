@@ -80,10 +80,14 @@ void TestComponent::SerializedReflectEvent()
 {
     UmLogger.Log(LogLevel::LEVEL_DEBUG,
                                  "SerializedReflectEvent");
+    Vector3 factor = emit.GetFactor();
+    std::memcpy(ReflectFields->_factor.data(), &factor, sizeof(ReflectFields->_factor));
 }
 
 void TestComponent::DeserializedReflectEvent()
 {
     UmLogger.Log(LogLevel::LEVEL_DEBUG,
                                  "DeserializedReflectEvent");
+
+    emit.SetFactor(Vector3{ReflectFields->_factor.data()});
 }

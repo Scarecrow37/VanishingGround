@@ -1,4 +1,7 @@
 ﻿#include "pch.h"
+#include "Quad.h"
+#include "Texture.h"
+#include "Particle.h"
 #include "ParticleEmitter.h"
 
 void EmitLocator::RandomInitialize() 
@@ -73,6 +76,43 @@ DirectX::SimpleMath::Vector3 MeshSurfaceLocator::EmitLocate()
         return {0, 0, 0};
 }
 
+
+void SpriteModule::SetFrameInfo(Vector4 frameInfo) 
+{
+    _initialFrameInfo = frameInfo;
+}
+
+void SpriteModule::SetFrameInfo(int widthCount, int heightCount, int startIndex, int totalCount) 
+{
+    _initialFrameInfo = Vector4(widthCount, heightCount, startIndex, totalCount);
+}
+
+void SpriteModule::LoadAlbedoTexture(std::wstring filePath) 
+{
+    _albedoTexture = UmResourceManager.LoadResource<Texture>(filePath);
+}
+
+void SpriteModule::LoadNormalTexture(std::wstring filePath) 
+{
+    _albedoTexture = UmResourceManager.LoadResource<Texture>(filePath);
+}
+
+DirectX::SimpleMath::Vector4 SpriteModule::GetInitialFrameInfo() const 
+{
+    return _initialFrameInfo;
+}
+
+Texture* SpriteModule::GetAlbedoTexture() const 
+{
+    return _albedoTexture.get();
+}
+
+Texture* SpriteModule::GetNormalTexture() const 
+{
+    return _normalTexture.get();
+}
+
+
 void ParticleEmitter::Initialize(SIZE_T maxParticles /*= 100000*/, float emissionRate /*= 500.f*/,
                                  float         emitterLifetime /*= 5.f */,
                                  LocationShape locatorShape /*= LocationShape::SPHERE*/,
@@ -80,11 +120,67 @@ void ParticleEmitter::Initialize(SIZE_T maxParticles /*= 100000*/, float emissio
 {
     _maxParticles = maxParticles;
     _emissionRate = emissionRate;
+    _particlePool.resize(_maxParticles);
+    for (size_t i = 0; i < maxParticles; ++i)
+    {
+        _inactiveParticleIndices.push(i);
+    }
+ 
 
 
 }
 
-void ParticleEmitter::Update(float deltaTime) {}
+void ParticleEmitter::AwakeParticle(SIZE_T index) {}
+
+void ParticleEmitter::Update(float deltaTime) 
+{
+    _translationMatrix = Matrix::CreateTranslation(_emitterPosition);
+    _rotationMatrix    = Matrix::CreateFromQuaternion(_emitterRotation);
+    _worldMatrix       = _rotationMatrix * _translationMatrix;
+    for (int i = 0; i < _activeParticleCount; ++i)
+    {
+        _particlePool[i].SetParentWorldMatrix(_worldMatrix);
+        // particle update code.
+
+
+    }
+
+    // 수명 다한 파티클 비활성화
+    for (int i = 0; i < _activeParticleCount; ++i)
+    {
+        // if (age[i] >= lifetime[i])
+        if (_particlePool[i].GetAge() >= _particlePool[i].GetLifetime())
+        {
+            _activeParticleCount--;
+            std::swap(_particlePool[i], _particlePool[_activeParticleCount]);
+            _inactiveParticleIndices.push(_activeParticleCount);
+        }
+    }
+
+
+    // 새 파티클 생성
+    size_t newParticles = 0;
+    _emissionThreshold += deltaTime * _emissionRate;
+    if (_emissionThreshold >= 1)
+    {
+        newParticles = static_cast<size_t>(_emissionThreshold);
+        _emissionThreshold -= newParticles;
+    }
+    while (0 < newParticles && !_inactiveParticleIndices.empty())
+    {
+        size_t index = _inactiveParticleIndices.top();
+        _inactiveParticleIndices.pop();
+        if (index >= _activeParticleCount)
+        {
+            // SwapVectors(index, m_activeCount);
+            std::swap(_particlePool[index], _particlePool[_activeParticleCount]);
+            index = _activeParticleCount;
+        }
+        _activeParticleCount++;
+        AwakeParticle(index);
+        newParticles--;
+    }
+}
 
 void ParticleEmitter::SetLocatorFactor(const Vector3& factor) 
 {
@@ -117,4 +213,6 @@ void ParticleEmitter::InitializeLocator(LocationShape locatorShape , Vector3 fac
     }
     _emitLocator->SetFactor(factor);
     _emitLocator->RandomInitialize();
+
 }
+

@@ -86,7 +86,21 @@ public:
 class SpriteModule : public ParticleRenderModule
 {
 public:
+    void           SetFrameInfo(Vector4 frameInfo);
+    void           SetFrameInfo(int widthCount, int heightCount, int startIndex, int totalCount);
+    void           LoadAlbedoTexture(std::wstring filePath);
+    void           LoadNormalTexture(std::wstring filePath);
+
+    Vector4        GetInitialFrameInfo() const;
+    class Texture* GetAlbedoTexture() const;
+    class Texture* GetNormalTexture() const;
+
+
 protected:
+    Vector4                        _initialFrameInfo;
+    std::shared_ptr<class Texture> _albedoTexture;
+    std::shared_ptr<class Texture> _normalTexture;
+
 private:
 };
 
@@ -107,6 +121,14 @@ public:
 
     void Initialize(SIZE_T maxParticles = 100000, float emissionRate = 500.f, float emitterLifetime = 5.f,
                     LocationShape locatorShape = LocationShape::SPHERE, Vector3 locationFactor = Vector3(1,1,1));
+    void AwakeParticle(SIZE_T index);
+
+    /*
+     *        TODO :
+     *       update 로직 분리 - particle manager 에서 전체 파티클 업데이트 일괄 처리후
+     *       개별 emitter 별로 파티클 수명 관리(활성화-비활성화 전환)
+     */
+    
     void Update(float deltaTime);
 
     void SetLocatorFactor(const Vector3& factor);
