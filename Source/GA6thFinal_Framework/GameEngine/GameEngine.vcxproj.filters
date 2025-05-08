@@ -288,7 +288,7 @@
     <ClInclude Include="Source\Engine\FileSystem\Interface\IFileEventProcesser.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\FileSystem\Type\FileDataType.h">
+    <ClInclude Include="Source\Engine\FileSystem\Type\FileGuidPath.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Utility\FileHelper.h">
@@ -481,6 +481,15 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Editor\Tool\Command\EditorCommandTool.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\FileSystem\Type\FileInformation.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\FileSystem\Type\FileData.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\FileSystem\Type\FileSystemSetting.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\GraphicsCore\Shader.h">
@@ -683,7 +692,7 @@
     <ClCompile Include="Source\Engine\FileSystem\Interface\IFileEventProcesser.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\FileSystem\Type\FileDataType.cpp">
+    <ClCompile Include="Source\Engine\FileSystem\Type\FileGuidPath.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Utility\FileHelper.cpp">
@@ -888,6 +897,15 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\d3dUtil.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\FileSystem\Type\FileInformation.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\FileSystem\Type\FileData.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\FileSystem\Type\FileSystemSetting.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

@@ -124,7 +124,11 @@ using namespace Microsoft::WRL;
 #include "Engine/ApplicationCore/Application.h"
 
 //FileSystem Module
-#include "Engine/FileSystem/Type/FileDataType.h"
+#include "Engine/FileSystem/Type/FileSystemSetting.h"
+#include "Engine/FileSystem/Type/FileGuidPath.h"
+#include "Engine/FileSystem/Type/FileData.h"
+#include "Engine/FileSystem/Type/FileInformation.h"
+
 #include "Engine/Utility/FileHelper.h"
 #include "Engine/FileSystem/Interface/IFileEventProcesser.h"
 #include "Engine/FileSystem/Extra/FileObserver.h"
