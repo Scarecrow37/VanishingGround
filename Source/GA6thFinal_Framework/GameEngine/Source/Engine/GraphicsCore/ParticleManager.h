@@ -16,7 +16,7 @@ private:
     ComPtr<ID3D12Device>              _device;
     ComPtr<ID3D12CommandQueue>        _computeQueue;
     ComPtr<ID3D12CommandAllocator>    _computeAllocator;
-    ComPtr<ID3D12GraphicsCommandList> _computeCmdList;
+    ComPtr<ID3D12GraphicsCommandList> _computeCommandList;
 
     ComPtr<ID3D12Fence> _computeFence;
     UINT64              _currentFenceValue = 0;
@@ -29,7 +29,11 @@ private:
     ComPtr<ID3D12DescriptorHeap> _uavHeap;
     D3D12_CPU_DESCRIPTOR_HANDLE  _uavHandles[2];
 
-        UINT _currentBufferIndex;
+    ComPtr<ID3D12CommandAllocator>    _particleCommandAllocator;
+    ComPtr<ID3D12GraphicsCommandList> _particleCommandList;
+
+
+    UINT _currentBufferIndex;
     UINT _particleStride;
     UINT _maxParticles;
 

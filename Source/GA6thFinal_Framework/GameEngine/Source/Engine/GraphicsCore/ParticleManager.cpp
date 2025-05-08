@@ -23,21 +23,30 @@ void ParticleManager::Initialize()
      FAILED_CHECK_BREAK(_device->CreateCommandQueue(&desc, IID_PPV_ARGS(_computeQueue.GetAddressOf())));
      FAILED_CHECK_BREAK(_device->CreateCommandAllocator(desc.Type, IID_PPV_ARGS(_computeAllocator.GetAddressOf())));
      FAILED_CHECK_BREAK(_device->CreateCommandList(desc.NodeMask, desc.Type, _computeAllocator.Get(), nullptr,
-                                                   IID_PPV_ARGS(_computeCmdList.GetAddressOf())));
-     _computeCmdList->Close();
+                                                   IID_PPV_ARGS(_computeCommandList.GetAddressOf())));
+     
+     _computeCommandList->Close();
+
+     FAILED_CHECK_BREAK(_device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(_particleCommandAllocator.GetAddressOf())));
+     FAILED_CHECK_BREAK(_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, _particleCommandAllocator.Get(),
+                                                   nullptr, IID_PPV_ARGS(_particleCommandList.GetAddressOf())));
+     _particleCommandList->Close();
+
+
+
 
          // 펜스 생성 (초기값 0)
      _device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&_computeFence));
 
      // 이벤트 핸들 생성 (동기화용)
      _fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-
-
+     
+     
  }
 
  void ParticleManager::Update(const float deltaTime) 
 {
 
-
+     //컴퓨트 
 
 }
