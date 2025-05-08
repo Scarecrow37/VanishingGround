@@ -38,22 +38,3 @@ void EditorSceneMenuScenes::OnMenu()
         ImGui::EndMenu();
     }
 }
-
-void EditorSceneMenuGameObject::ImGuiNewGameObjectMenuItems()
-{
-    static const char* GameObjectKey = typeid(GameObject).name();
-    static const char* GameObjectName = GameObjectKey + 6;
-    if (ImGui::MenuItem(GameObjectName))
-    {
-        UmGameObjectFactory.NewGameObject(GameObjectKey, GameObject::Helper::GenerateUniqueName(GameObjectName));
-    }
-}
-
-void EditorSceneMenuGameObject::OnMenu()
-{
-    if (ImGui::BeginMenu("New GameObject"))
-    {
-        ImGuiNewGameObjectMenuItems();
-        ImGui::EndMenu();
-    }
-}

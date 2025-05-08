@@ -291,6 +291,12 @@
     <ClInclude Include="Source\Engine\FileSystem\Type\FileData.h" />
     <ClInclude Include="Source\Engine\FileSystem\Type\FileInformation.h" />
     <ClInclude Include="Source\Editor\Tool\Command\EditorCommandTool.h" />
+    <ClInclude Include="Source\Editor\Tool\Hierarchy\Command\DetachChildrenCommand.h" />
+    <ClInclude Include="Source\Editor\Tool\Hierarchy\Command\DropPrefabCommand.h" />
+    <ClInclude Include="Source\Editor\Tool\Hierarchy\Command\FocusCommand.h" />
+    <ClInclude Include="Source\Editor\Tool\Hierarchy\Command\NewGameObjectCommand.h" />
+    <ClInclude Include="Source\Editor\Tool\Hierarchy\Command\PackPrefabCommand.h" />
+    <ClInclude Include="Source\Editor\Tool\Hierarchy\Command\SetParentCommand.h" />
     <ClInclude Include="Source\Engine\CommandCore\CommandManager.h" />
     <ClInclude Include="Source\Engine\CommandCore\UmCommand.h" />
     <ClInclude Include="Source\Editor\DynamicCamera\EditorDynamicCamera.h" />
@@ -334,7 +340,6 @@
     <ClInclude Include="Source\Editor\Tool\Inspector\EditorInspectorTool.h" />
     <ClInclude Include="Source\Editor\Tool\Log\EditorLogsTool.h" />
     <ClInclude Include="Source\Editor\Tool\Scene\EditorSceneTool.h" />
-    <ClInclude Include="Source\Editor\Tool\ScriptTest\ScriptTestEditor.h" />
     <ClInclude Include="Source\Engine\FileSystem\Extra\FileObserver.h" />
     <ClInclude Include="Source\Engine\FileSystem\System\FileSystem.h" />
     <ClInclude Include="Source\Engine\FileSystem\Extra\FileContext.h" />
@@ -443,6 +448,37 @@
     <ClCompile Include="Source\Engine\FileSystem\Type\FileData.cpp" />
     <ClCompile Include="Source\Engine\FileSystem\Type\FileInformation.cpp" />
     <ClCompile Include="Source\Editor\Tool\Command\EditorCommandTool.cpp" />
+    <ClCompile Include="Source\Editor\Tool\Hierarchy\Command\DetachChildrenCommand.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\Hierarchy\Command\DropPrefabCommand.cpp" />
+    <ClCompile Include="Source\Editor\Tool\Hierarchy\Command\FocusCommand.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\Hierarchy\Command\NewGameObjectCommand.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\Hierarchy\Command\PackPrefabCommand.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\Hierarchy\Command\SetParentCommand.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="Source\Engine\CommandCore\CommandManager.cpp" />
     <ClCompile Include="Source\Engine\CommandCore\UmCommand.cpp" />
     <ClCompile Include="Source\Editor\Menu\Project\EditorBuildSettingMenu.cpp" />
@@ -502,7 +538,6 @@
     <ClCompile Include="Source\Editor\Tool\Inspector\EditorInspectorTool.cpp" />
     <ClCompile Include="Source\Editor\Tool\Log\EditorLogsTool.cpp" />
     <ClCompile Include="Source\Editor\Tool\Scene\EditorSceneTool.cpp" />
-    <ClCompile Include="Source\Editor\Tool\ScriptTest\ScriptTestEditor.cpp" />
     <ClCompile Include="Source\Engine\FileSystem\Extra\FileObserver.cpp" />
     <ClCompile Include="Source\Engine\FileSystem\System\FileSystem.cpp" />
     <ClCompile Include="Source\Engine\FileSystem\Extra\FileContext.cpp" />

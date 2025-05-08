@@ -185,8 +185,6 @@ using namespace Microsoft::WRL;
 #include "Editor/Tool/Model/EditorModelTool.h"
 #include "Editor/Tool/Command/EditorCommandTool.h"
 
-#include "Editor/Tool/ScriptTest/ScriptTestEditor.h"    // 테스트용. 추후 제거 필요
-
 // Editor Menu
 #include "Editor/Menu/Project/EditorProjectMenu.h"
 #include "Editor/Menu/Window/EditorWindowMenu.h"
