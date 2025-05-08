@@ -1,22 +1,23 @@
 ﻿#include "pch.h"
 #include "EditorHierarchyTool.h"
+#include "Command/FocusCommand.h"
+#include "Command/SetParentCommand.h"
+#include "Command/DetachChildrenCommand.h"
+#include "Command/PackPrefabCommand.h"
+#include "Command/NewGameObjectCommand.h"
+#include "Command/DropPrefabCommand.h"
 
 using namespace u8_literals;
 using namespace Global;
+using namespace Command::Hierarchy;
 
-static void SetSceneDirtyFlag(Scene& scene)
-{
-    scene.isDirty = true;
-}
-
-static std::weak_ptr<GameObject> HierarchyFocusObjWeak;
 static void TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>& focusObject)
 {
     auto TreeDoubleClickEvent = [&node]() {
         bool result = ImGui::IsMouseReleased(ImGuiMouseButton_Left) && ImGui::IsItemHovered();
         if (result)
         {
-            auto oldWp = HierarchyFocusObjWeak;
+            auto oldWp = EditorHierarchyTool::HierarchyFocusObjWeak;
             auto newWp = node.gameObject->GetWeakPtr();
             if (false == EditorInspectorTool::IsFocused(newWp))
             {
@@ -47,8 +48,18 @@ static void TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>
                 ImGui::AcceptDragDropPayload(DragDropTransform::KEY))
             {
                 DragDropTransform::Data* data = (DragDropTransform::Data*)payload->Data;
-                data->pTransform->SetParent(node);
-                SetSceneDirtyFlag(node.gameObject->GetScene());
+                Transform* prevParent = data->pTransform->Parent;
+                auto targetObject = data->pTransform->gameObject->GetWeakPtr();
+                auto currObject   = node.gameObject->GetWeakPtr();
+                if (nullptr != prevParent)
+                {
+                    auto prevObject = prevParent->gameObject->GetWeakPtr();
+                    UmCommandManager.Do<Command::Hierarchy::SetParentCommand>(targetObject, prevObject, currObject);
+                }
+                else
+                {
+                    UmCommandManager.Do<Command::Hierarchy::SetParentCommand>(targetObject, nullptr, currObject);
+                }            
             }
             ImGui::EndDragDropTarget();
         }
@@ -62,26 +73,29 @@ static void TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>
         {
             if (ImGui::MenuItem("Set Root Object"))
             {
-                node.SetParent(nullptr);
-                SetSceneDirtyFlag(node.gameObject->GetScene());
+                Transform* prevParent = node.Parent;
+                auto targetObject = node.gameObject->GetWeakPtr();
+                if (nullptr != prevParent)
+                {
+                    auto prevObject = prevParent->gameObject->GetWeakPtr();
+                    UmCommandManager.Do<Command::Hierarchy::SetParentCommand>(targetObject, prevObject, nullptr);
+                }   
             }
             if (ImGui::MenuItem("Detach Children"))
             {
-                node.DetachChildren();
-                SetSceneDirtyFlag(node.gameObject->GetScene());
+                UmCommandManager.Do<DetachChildrenCommand>(node.gameObject->GetWeakPtr());
             }
             if (ImGui::MenuItem("Destroy"))
             {
                 GameObject::Destroy(&node.gameObject);
-                SetSceneDirtyFlag(node.gameObject->GetScene());
+                node.gameObject->GetScene().isDirty = true;
             }
             ImGui::Separator();
             if(ImGui::BeginMenu("Prefab"))
             {
                 if (ImGui::MenuItem("Unpack Prefab"))
                 {
-                    UmGameObjectFactory.UnpackPrefab(&node.gameObject);
-                    SetSceneDirtyFlag(node.gameObject->GetScene());
+                    UmCommandManager.Do<PackPrefabCommand>(node.gameObject->GetWeakPtr(), "");
                 }
                 ImGui::EndMenu();
             }   
@@ -218,8 +232,7 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
     static const char* GameObjectName = GameObjectKey + 6;
     if (ImGui::MenuItem(GameObjectName))
     {
-        UmGameObjectFactory.NewGameObject(GameObjectKey, GameObject::Helper::GenerateUniqueName(GameObjectName));
-        SetSceneDirtyFlag(*UmSceneManager.GetMainScene());
+        UmCommandManager.Do<NewGameObjectCommand>(GameObjectKey, GameObject::Helper::GenerateUniqueName(GameObjectName));
     }
 }
 
@@ -250,8 +263,7 @@ void EditorHierarchyTool::HierarchyDropEvent()
                 fs::path extension = path.extension();
                 if (extension == UmGameObjectFactory.PREFAB_EXTENSION)
                 {
-                    UmGameObjectFactory.DeserializeToGuid(path.ToGuid());
-                    SetSceneDirtyFlag(*UmSceneManager.GetMainScene());
+                    UmCommandManager.Do<DropPrefabCommand>(path.ToGuid());                
                 }
                 else if (extension == UmSceneManager.SCENE_EXTENSION)
                 {
@@ -345,15 +357,3 @@ void EditorHierarchyTool::OnPopup()
   
 }
 
-Command::Hierarchy::FocusCommand::~FocusCommand() = default;
-void Command::Hierarchy::FocusCommand::Execute() 
-{
-    Super::Execute();
-    HierarchyFocusObjWeak = _newFocused;
-}
-
-void Command::Hierarchy::FocusCommand::Undo() 
-{
-    Super::Undo();
-    HierarchyFocusObjWeak = _oldFocused;
-}
