@@ -1,5 +1,4 @@
-﻿#include "EditorAssetBrowserTool.h"
-#include "pch.h"
+﻿#include "pch.h"
 
 namespace fs = std::filesystem;
 using namespace u8_literals;
@@ -414,8 +413,8 @@ void EditorAssetBrowserTool::ContentsFrameEventAction(spFolderContext context)
         DragDropTransform::Data data;
         if (ImGuiHelper::DragDrop::RecieveFrameDragDropEvent(DragDropTransform::KEY, &data))
         {
-            File::Path path = context->GetPath();
-            path = UmFileSystem.GetRelativePath(path);
+            std::filesystem::path path = context->GetPath();
+            path = std::filesystem::relative(path, UmFileSystem.GetAssetPath());
             UmGameObjectFactory.WriteGameObjectFile(data.pTransform, path.string());
         }
 

@@ -147,3 +147,4 @@ private:
 
     std::weak_ptr<EditorAssetObject> _this; // 자신 weak_ptr 객체
 };
+
