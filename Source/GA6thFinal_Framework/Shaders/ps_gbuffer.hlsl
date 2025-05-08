@@ -79,7 +79,6 @@ PSOutput WriteGuBuffer(PSInput input)
 PSOutput ps_main(PSInput input)
 {
     PSOutput output = (PSOutput) 0;
-
     output = WriteGuBuffer(input);
 
     return output;

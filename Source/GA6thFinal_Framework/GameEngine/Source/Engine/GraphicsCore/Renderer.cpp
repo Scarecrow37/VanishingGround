@@ -43,6 +43,7 @@ void Renderer::RegisterRenderQueue(bool** isActive, MeshRenderer* component, std
 
 void Renderer::Initialize()
 {
+
     /*if (IS_EDITOR)
     {
     }
@@ -79,7 +80,7 @@ void Renderer::Update()
 {
     //UmMainCamera.Update();
 
-	UmDevice.ResetCommands();
+	//UmDevice.ResetCommands();
 	//UpdateFrameResource();
 	UmDevice.ClearBackBuffer(D3D12_CLEAR_FLAG_DEPTH, { 0.5f, 0.5f, 0.5f, 1.f });
 
@@ -106,6 +107,7 @@ void Renderer::Flip()
     // 임시 ImGUI Image Index 찾는 구조 나중에 수정
     // ImGUI Descriptor Index 초기화 (0 은 ImGUI Font)
     _currentImGuiImageIndex = 1;
+    UmDevice.ResetCommands();
 }
 
 D3D12_GPU_DESCRIPTOR_HANDLE Renderer::GetRenderSceneImage(std::string_view renderSceneName)

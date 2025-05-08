@@ -285,6 +285,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Engine\GraphicsCore\d3dUtil.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\RendererFileEvent.h" />
     <ClInclude Include="Source\Editor\Tool\Command\EditorCommandTool.h" />
     <ClInclude Include="Source\Engine\CommandCore\CommandManager.h" />
@@ -425,6 +426,7 @@
     <ClInclude Include="Source\Engine\GraphicsCore\VertexShader.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Engine\GraphicsCore\d3dUtil.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\RendererFileEvent.cpp" />
     <ClCompile Include="Source\Editor\DynamicCamera\EditorDynamicCamera.cpp" />
     <ClCompile Include="Source\Editor\Tool\Model\EditorModelTool.cpp" />
