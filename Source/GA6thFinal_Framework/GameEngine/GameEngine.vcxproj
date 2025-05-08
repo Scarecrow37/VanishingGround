@@ -285,6 +285,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Engine\FileSystem\Type\FileSystemSetting.h" />
+    <ClInclude Include="Source\Engine\FileSystem\Type\FileData.h" />
+    <ClInclude Include="Source\Engine\FileSystem\Type\FileInformation.h" />
     <ClInclude Include="Source\Editor\Tool\Command\EditorCommandTool.h" />
     <ClInclude Include="Source\Engine\CommandCore\CommandManager.h" />
     <ClInclude Include="Source\Engine\CommandCore\UmCommand.h" />
@@ -333,7 +336,7 @@
     <ClInclude Include="Source\Engine\AppModule\EngineCoresModule.h" />
     <ClInclude Include="Source\Engine\AppModule\ImGuiDX12Module.h" />
     <ClInclude Include="Source\Engine\AppModule\Interface\IAppModule.h" />
-    <ClInclude Include="Source\Engine\FileSystem\Type\FileDataType.h" />
+    <ClInclude Include="Source\Engine\FileSystem\Type\FileGuidPath.h" />
     <ClInclude Include="Source\Engine\Utility\FileHelper.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Animation.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\BaseMesh.h" />
@@ -415,6 +418,9 @@
     <ClInclude Include="Source\UmScripts.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Engine\FileSystem\Type\FileSystemSetting.cpp" />
+    <ClCompile Include="Source\Engine\FileSystem\Type\FileData.cpp" />
+    <ClCompile Include="Source\Engine\FileSystem\Type\FileInformation.cpp" />
     <ClCompile Include="Source\Editor\Tool\Command\EditorCommandTool.cpp" />
     <ClCompile Include="Source\Engine\CommandCore\CommandManager.cpp" />
     <ClCompile Include="Source\Engine\CommandCore\UmCommand.cpp" />
@@ -497,7 +503,7 @@
     <ClCompile Include="Source\Engine\EngineCore\GameObjectFactory.cpp" />
     <ClCompile Include="Source\Engine\EngineCore\SceneManager.cpp" />
     <ClCompile Include="Source\Engine\EngineCore\TimeSystem.cpp" />
-    <ClCompile Include="Source\Engine\FileSystem\Type\FileDataType.cpp" />
+    <ClCompile Include="Source\Engine\FileSystem\Type\FileGuidPath.cpp" />
     <ClCompile Include="Source\Engine\GameCore\Component\Component.cpp" />
     <ClCompile Include="Source\Engine\GameCore\GameObject\GameObject.cpp" />
     <ClCompile Include="Source\Engine\GameCore\Transform\Transform.cpp" />
