@@ -113,7 +113,7 @@ void FileSystemModule::ProcessDropFile(const HDROP hDrop)
     // 드롭된 파일의 개수
     UINT fileCount = DragQueryFile(hDrop, 0xFFFFFFFF, NULL, 0);
 
-    for (size_t i = 0; i < fileCount; ++i)
+    for (UINT i = 0; i < fileCount; ++i)
     {
         // 각 파일의 절대경로를 얻음
         wchar_t targetPath[MAX_PATH];

@@ -270,7 +270,7 @@ File::Path EFileSystem::GetRelativePath(const File::Path& path) const
     if (false == _projectData.IsNull())
     {
         File::Path out = fs::absolute(path);
-        fs::relative(out, _rootPath);
+        out = fs::relative(out, _rootPath);
         return out;
     }
     return File::NULL_PATH;
