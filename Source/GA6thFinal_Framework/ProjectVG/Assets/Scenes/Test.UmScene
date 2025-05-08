@@ -1,0 +1,213 @@
+SerializeVersion: 0
+Guid: 6556d3ba-84a3-40f5-b30f-3e052c6663fc
+GameObjects:
+  -
+    - SerializeVersion: 0
+      Type: class GameObject
+      ReflectFields: "{\"_name\":\"GameObject\",\"_activeSelf\":true,\"_isStatic\":false}"
+      Transform:
+        ReflectFields: "{\"position\":[0.0,0.0,0.0],\"rotation\":[0.0,0.0,0.0,1.0],\"eulerAngle\":[0.0,0.0,0.0],\"scale\":[1.0,1.0,1.0]}"
+        TransformIndex: 0
+      Components:
+        - Type: class StaticMeshRenderer
+          ReflectFields: "{\"_enable\":true,\"Guid\":\"a3a6593d-9837-4df6-b6f8-6fe8eab14743\",\"Type\":\"STATIC\"}"
+  -
+    - SerializeVersion: 0
+      Type: class GameObject
+      ReflectFields: "{\"_name\":\"GameObject\",\"_activeSelf\":true,\"_isStatic\":false}"
+      Transform:
+        ReflectFields: "{\"position\":[0.0,0.0,0.0],\"rotation\":[0.0,0.0,0.0,1.0],\"eulerAngle\":[0.0,0.0,0.0],\"scale\":[1.0,1.0,1.0]}"
+        TransformIndex: 0
+      Components:
+        - Type: class StaticMeshRenderer
+          ReflectFields: "{\"_enable\":true,\"Guid\":\"a3a6593d-9837-4df6-b6f8-6fe8eab14743\",\"Type\":\"STATIC\"}"
+  -
+    - SerializeVersion: 0
+      Type: class GameObject
+      ReflectFields: "{\"_name\":\"GameObject\",\"_activeSelf\":true,\"_isStatic\":false}"
+      Transform:
+        ReflectFields: "{\"position\":[0.0,0.0,0.0],\"rotation\":[0.0,0.0,0.0,1.0],\"eulerAngle\":[0.0,0.0,0.0],\"scale\":[1.0,1.0,1.0]}"
+        TransformIndex: 0
+      Components:
+        - Type: class StaticMeshRenderer
+          ReflectFields: "{\"_enable\":true,\"Guid\":\"a3a6593d-9837-4df6-b6f8-6fe8eab14743\",\"Type\":\"STATIC\"}"
+  -
+    - SerializeVersion: 0
+      Type: class GameObject
+      ReflectFields: "{\"_name\":\"GameObject\",\"_activeSelf\":true,\"_isStatic\":false}"
+      Transform:
+        ReflectFields: "{\"position\":[0.0,0.0,0.0],\"rotation\":[0.0,0.0,0.0,1.0],\"eulerAngle\":[0.0,0.0,0.0],\"scale\":[1.0,1.0,1.0]}"
+        TransformIndex: 0
+      Components:
+        - Type: class StaticMeshRenderer
+          ReflectFields: "{\"_enable\":true,\"Guid\":\"a3a6593d-9837-4df6-b6f8-6fe8eab14743\",\"Type\":\"STATIC\"}"
+  -
+    - SerializeVersion: 0
+      Type: class GameObject
+      ReflectFields: "{\"_name\":\"GameObject\",\"_activeSelf\":true,\"_isStatic\":false}"
+      Transform:
+        ReflectFields: "{\"position\":[0.0,0.0,0.0],\"rotation\":[0.0,0.0,0.0,1.0],\"eulerAngle\":[0.0,0.0,0.0],\"scale\":[1.0,1.0,1.0]}"
+        TransformIndex: 0
+      Components:
+        - Type: class StaticMeshRenderer
+          ReflectFields: "{\"_enable\":true,\"Guid\":\"a3a6593d-9837-4df6-b6f8-6fe8eab14743\",\"Type\":\"STATIC\"}"
+  -
+    - SerializeVersion: 0
+      Type: class GameObject
+      ReflectFields: "{\"_name\":\"GameObject\",\"_activeSelf\":true,\"_isStatic\":false}"
+      Transform:
+        ReflectFields: "{\"position\":[0.0,0.0,0.0],\"rotation\":[0.0,0.0,0.0,1.0],\"eulerAngle\":[0.0,0.0,0.0],\"scale\":[1.0,1.0,1.0]}"
+        TransformIndex: 0
+      Components:
+        - Type: class StaticMeshRenderer
+          ReflectFields: "{\"_enable\":true,\"Guid\":\"a3a6593d-9837-4df6-b6f8-6fe8eab14743\",\"Type\":\"STATIC\"}"
+  -
+    - SerializeVersion: 0
+      Type: class GameObject
+      ReflectFields: "{\"_name\":\"GameObject\",\"_activeSelf\":true,\"_isStatic\":false}"
+      Transform:
+        ReflectFields: "{\"position\":[0.0,0.0,0.0],\"rotation\":[0.0,0.0,0.0,1.0],\"eulerAngle\":[0.0,0.0,0.0],\"scale\":[1.0,1.0,1.0]}"
+        TransformIndex: 0
+      Components:
+        - Type: class StaticMeshRenderer
+          ReflectFields: "{\"_enable\":true,\"Guid\":\"a3a6593d-9837-4df6-b6f8-6fe8eab14743\",\"Type\":\"STATIC\"}"
+  -
+    - SerializeVersion: 0
+      Type: class GameObject
+      ReflectFields: "{\"_name\":\"GameObject\",\"_activeSelf\":true,\"_isStatic\":false}"
+      Transform:
+        ReflectFields: "{\"position\":[0.0,0.0,0.0],\"rotation\":[0.0,0.0,0.0,1.0],\"eulerAngle\":[0.0,0.0,0.0],\"scale\":[1.0,1.0,1.0]}"
+        TransformIndex: 0
+      Components:
+        - Type: class StaticMeshRenderer
+          ReflectFields: "{\"_enable\":true,\"Guid\":\"a3a6593d-9837-4df6-b6f8-6fe8eab14743\",\"Type\":\"STATIC\"}"
+  -
+    - SerializeVersion: 0
+      Type: class GameObject
+      ReflectFields: "{\"_name\":\"GameObject\",\"_activeSelf\":true,\"_isStatic\":false}"
+      Transform:
+        ReflectFields: "{\"position\":[0.0,0.0,0.0],\"rotation\":[0.0,0.0,0.0,1.0],\"eulerAngle\":[0.0,0.0,0.0],\"scale\":[1.0,1.0,1.0]}"
+        TransformIndex: 0
+      Components:
+        - Type: class StaticMeshRenderer
+          ReflectFields: "{\"_enable\":true,\"Guid\":\"a3a6593d-9837-4df6-b6f8-6fe8eab14743\",\"Type\":\"STATIC\"}"
+  -
+    - SerializeVersion: 0
+      Type: class GameObject
+      ReflectFields: "{\"_name\":\"GameObject\",\"_activeSelf\":true,\"_isStatic\":false}"
+      Transform:
+        ReflectFields: "{\"position\":[0.0,0.0,0.0],\"rotation\":[0.0,0.0,0.0,1.0],\"eulerAngle\":[0.0,0.0,0.0],\"scale\":[1.0,1.0,1.0]}"
+        TransformIndex: 0
+      Components:
+        - Type: class StaticMeshRenderer
+          ReflectFields: "{\"_enable\":true,\"Guid\":\"a3a6593d-9837-4df6-b6f8-6fe8eab14743\",\"Type\":\"STATIC\"}"
+  -
+    - SerializeVersion: 0
+      Type: class GameObject
+      ReflectFields: "{\"_name\":\"GameObject\",\"_activeSelf\":true,\"_isStatic\":false}"
+      Transform:
+        ReflectFields: "{\"position\":[0.0,0.0,0.0],\"rotation\":[0.0,0.0,0.0,1.0],\"eulerAngle\":[0.0,0.0,0.0],\"scale\":[1.0,1.0,1.0]}"
+        TransformIndex: 0
+      Components:
+        - Type: class StaticMeshRenderer
+          ReflectFields: "{\"_enable\":true,\"Guid\":\"a3a6593d-9837-4df6-b6f8-6fe8eab14743\",\"Type\":\"STATIC\"}"
+  -
+    - SerializeVersion: 0
+      Type: class GameObject
+      ReflectFields: "{\"_name\":\"GameObject\",\"_activeSelf\":true,\"_isStatic\":false}"
+      Transform:
+        ReflectFields: "{\"position\":[0.0,0.0,0.0],\"rotation\":[0.0,0.0,0.0,1.0],\"eulerAngle\":[0.0,0.0,0.0],\"scale\":[1.0,1.0,1.0]}"
+        TransformIndex: 0
+      Components:
+        - Type: class StaticMeshRenderer
+          ReflectFields: "{\"_enable\":true,\"Guid\":\"a3a6593d-9837-4df6-b6f8-6fe8eab14743\",\"Type\":\"STATIC\"}"
+  -
+    - SerializeVersion: 0
+      Type: class GameObject
+      ReflectFields: "{\"_name\":\"GameObject\",\"_activeSelf\":true,\"_isStatic\":false}"
+      Transform:
+        ReflectFields: "{\"position\":[0.0,0.0,0.0],\"rotation\":[0.0,0.0,0.0,1.0],\"eulerAngle\":[0.0,0.0,0.0],\"scale\":[1.0,1.0,1.0]}"
+        TransformIndex: 0
+      Components:
+        - Type: class StaticMeshRenderer
+          ReflectFields: "{\"_enable\":true,\"Guid\":\"a3a6593d-9837-4df6-b6f8-6fe8eab14743\",\"Type\":\"STATIC\"}"
+  -
+    - SerializeVersion: 0
+      Type: class GameObject
+      ReflectFields: "{\"_name\":\"GameObject\",\"_activeSelf\":true,\"_isStatic\":false}"
+      Transform:
+        ReflectFields: "{\"position\":[0.0,0.0,0.0],\"rotation\":[0.0,0.0,0.0,1.0],\"eulerAngle\":[0.0,0.0,0.0],\"scale\":[1.0,1.0,1.0]}"
+        TransformIndex: 0
+      Components:
+        - Type: class StaticMeshRenderer
+          ReflectFields: "{\"_enable\":true,\"Guid\":\"a3a6593d-9837-4df6-b6f8-6fe8eab14743\",\"Type\":\"STATIC\"}"
+  -
+    - SerializeVersion: 0
+      Type: class GameObject
+      ReflectFields: "{\"_name\":\"GameObject\",\"_activeSelf\":true,\"_isStatic\":false}"
+      Transform:
+        ReflectFields: "{\"position\":[0.0,0.0,0.0],\"rotation\":[0.0,0.0,0.0,1.0],\"eulerAngle\":[0.0,0.0,0.0],\"scale\":[1.0,1.0,1.0]}"
+        TransformIndex: 0
+      Components:
+        - Type: class StaticMeshRenderer
+          ReflectFields: "{\"_enable\":true,\"Guid\":\"a3a6593d-9837-4df6-b6f8-6fe8eab14743\",\"Type\":\"STATIC\"}"
+  -
+    - SerializeVersion: 0
+      Type: class GameObject
+      ReflectFields: "{\"_name\":\"GameObject\",\"_activeSelf\":true,\"_isStatic\":false}"
+      Transform:
+        ReflectFields: "{\"position\":[0.0,0.0,0.0],\"rotation\":[0.0,0.0,0.0,1.0],\"eulerAngle\":[0.0,0.0,0.0],\"scale\":[1.0,1.0,1.0]}"
+        TransformIndex: 0
+      Components:
+        - Type: class StaticMeshRenderer
+          ReflectFields: "{\"_enable\":true,\"Guid\":\"a3a6593d-9837-4df6-b6f8-6fe8eab14743\",\"Type\":\"STATIC\"}"
+  -
+    - SerializeVersion: 0
+      Type: class GameObject
+      ReflectFields: "{\"_name\":\"GameObject\",\"_activeSelf\":true,\"_isStatic\":false}"
+      Transform:
+        ReflectFields: "{\"position\":[0.0,0.0,0.0],\"rotation\":[0.0,0.0,0.0,1.0],\"eulerAngle\":[0.0,0.0,0.0],\"scale\":[1.0,1.0,1.0]}"
+        TransformIndex: 0
+      Components:
+        - Type: class StaticMeshRenderer
+          ReflectFields: "{\"_enable\":true,\"Guid\":\"a3a6593d-9837-4df6-b6f8-6fe8eab14743\",\"Type\":\"STATIC\"}"
+  -
+    - SerializeVersion: 0
+      Type: class GameObject
+      ReflectFields: "{\"_name\":\"GameObject\",\"_activeSelf\":true,\"_isStatic\":false}"
+      Transform:
+        ReflectFields: "{\"position\":[0.0,0.0,0.0],\"rotation\":[0.0,0.0,0.0,1.0],\"eulerAngle\":[0.0,0.0,0.0],\"scale\":[1.0,1.0,1.0]}"
+        TransformIndex: 0
+      Components:
+        - Type: class StaticMeshRenderer
+          ReflectFields: "{\"_enable\":true,\"Guid\":\"a3a6593d-9837-4df6-b6f8-6fe8eab14743\",\"Type\":\"STATIC\"}"
+  -
+    - SerializeVersion: 0
+      Type: class GameObject
+      ReflectFields: "{\"_name\":\"GameObject\",\"_activeSelf\":true,\"_isStatic\":false}"
+      Transform:
+        ReflectFields: "{\"position\":[0.0,0.0,0.0],\"rotation\":[0.0,0.0,0.0,1.0],\"eulerAngle\":[0.0,0.0,0.0],\"scale\":[1.0,1.0,1.0]}"
+        TransformIndex: 0
+      Components:
+        - Type: class StaticMeshRenderer
+          ReflectFields: "{\"_enable\":true,\"Guid\":\"a3a6593d-9837-4df6-b6f8-6fe8eab14743\",\"Type\":\"STATIC\"}"
+  -
+    - SerializeVersion: 0
+      Type: class GameObject
+      ReflectFields: "{\"_name\":\"GameObject\",\"_activeSelf\":true,\"_isStatic\":false}"
+      Transform:
+        ReflectFields: "{\"position\":[0.0,0.0,0.0],\"rotation\":[0.0,0.0,0.0,1.0],\"eulerAngle\":[0.0,0.0,0.0],\"scale\":[1.0,1.0,1.0]}"
+        TransformIndex: 0
+      Components:
+        - Type: class StaticMeshRenderer
+          ReflectFields: "{\"_enable\":true,\"Guid\":\"a3a6593d-9837-4df6-b6f8-6fe8eab14743\",\"Type\":\"STATIC\"}"
+  -
+    - SerializeVersion: 0
+      Type: class GameObject
+      ReflectFields: "{\"_name\":\"GameObject\",\"_activeSelf\":true,\"_isStatic\":false}"
+      Transform:
+        ReflectFields: "{\"position\":[0.0,0.0,0.0],\"rotation\":[0.0,0.0,0.0,1.0],\"eulerAngle\":[0.0,0.0,0.0],\"scale\":[1.0,1.0,1.0]}"
+        TransformIndex: 0
+      Components:
+        - Type: class StaticMeshRenderer
+          ReflectFields: "{\"_enable\":true,\"Guid\":\"a3a6593d-9837-4df6-b6f8-6fe8eab14743\",\"Type\":\"STATIC\"}"

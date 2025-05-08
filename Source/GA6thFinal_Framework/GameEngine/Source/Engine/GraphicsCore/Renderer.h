@@ -4,6 +4,7 @@ class Shader;
 class FrameResource;
 class MeshRenderer;
 class RenderScene;
+class RendererFileEvent;
 class Renderer
 {
     enum class ResterizeMode
@@ -26,6 +27,7 @@ public:
     void Render();
     void Flip();
     D3D12_GPU_DESCRIPTOR_HANDLE GetRenderSceneImage(std::string_view renderSceneName);
+    std::shared_ptr<Camera>     GetCamera(std::string_view renderSceneName);
 
 public:
     //imgui 관련 함수
@@ -40,6 +42,8 @@ private:
 private:
     // imgui 전용 descriptor heap
     ComPtr<ID3D12DescriptorHeap>                                  _imguiDescriptorHeap = nullptr;
+    std::unique_ptr<RendererFileEvent>                            _rendererFileEvent;
+    UINT                                                          _currentImGuiImageIndex;
 
 private:
     std::vector<std::pair<bool, MeshRenderer*>>                   _components;

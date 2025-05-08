@@ -285,12 +285,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Engine\GraphicsCore\d3dUtil.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\RendererFileEvent.h" />
     <ClInclude Include="Source\Engine\FileSystem\Type\FileSystemSetting.h" />
     <ClInclude Include="Source\Engine\FileSystem\Type\FileData.h" />
     <ClInclude Include="Source\Engine\FileSystem\Type\FileInformation.h" />
     <ClInclude Include="Source\Editor\Tool\Command\EditorCommandTool.h" />
     <ClInclude Include="Source\Engine\CommandCore\CommandManager.h" />
     <ClInclude Include="Source\Engine\CommandCore\UmCommand.h" />
+    <ClInclude Include="Source\Editor\DynamicCamera\EditorDynamicCamera.h" />
+    <ClInclude Include="Source\Editor\Tool\Model\EditorModelTool.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\ComputeShader.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\GeometryShader.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\MeshShader.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\NonPBRLitTechnique.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\PixelShader.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\Shader.h" />
     <ClInclude Include="Source\Editor\Menu\Project\EditorBuildSettingMenu.h" />
     <ClInclude Include="Source\Engine\GameCore\Component\MissingComponent.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\DeferredPBRLitPass.h" />
@@ -365,7 +375,7 @@
     <ClInclude Include="Source\Engine\GraphicsCore\RenderTarget.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Resource.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\ResourceManager.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\Shader.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\ShaderBuilder.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Skeleton.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Sphere.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Structs.h" />
@@ -416,8 +426,19 @@
     <ClInclude Include="Source\pch.h" />
     <ClInclude Include="Source\Engine\Utility\DumpUtility.h" />
     <ClInclude Include="Source\UmScripts.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\VertexShader.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Engine\GraphicsCore\d3dUtil.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\RendererFileEvent.cpp" />
+    <ClCompile Include="Source\Editor\DynamicCamera\EditorDynamicCamera.cpp" />
+    <ClCompile Include="Source\Editor\Tool\Model\EditorModelTool.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\ComputeShader.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\GeometryShader.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\MeshShader.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\NonPBRLitTechnique.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\PixelShader.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\Shader.cpp" />
     <ClCompile Include="Source\Engine\FileSystem\Type\FileSystemSetting.cpp" />
     <ClCompile Include="Source\Engine\FileSystem\Type\FileData.cpp" />
     <ClCompile Include="Source\Engine\FileSystem\Type\FileInformation.cpp" />
@@ -528,9 +549,8 @@
     <ClCompile Include="Source\Engine\GraphicsCore\Quad.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\Renderer.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\RenderTarget.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\Resource.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\ResourceManager.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\Shader.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\ShaderBuilder.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\Skeleton.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\Sphere.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\StructuredBuffer.cpp" />
@@ -634,6 +654,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Source\Engine\Utility\DumpUtility.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\VertexShader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

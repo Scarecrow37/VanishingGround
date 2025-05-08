@@ -20,7 +20,7 @@ public:
     void         SetTechniqueType(RenderTechniqueType type) { _type = type; }
     void         AddRenderPass(std::shared_ptr<RenderPass> pass);
     void         SetOwnerScene(RenderScene* scene) { _ownerScene = scene; }
-    virtual void Initialize();
+    virtual void Initialize(ID3D12GraphicsCommandList* commandList);
     virtual void Execute(ID3D12GraphicsCommandList* commadList);
 
 protected:

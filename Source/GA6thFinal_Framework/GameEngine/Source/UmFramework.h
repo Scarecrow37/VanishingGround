@@ -46,8 +46,8 @@ constexpr const char* STR_NULL = "null";
 
 #pragma comment(lib, "d3d12")
 #pragma comment(lib, "dxgi")
-#pragma comment(lib, "d3dcompiler")
 #pragma comment(lib, "Dbghelp.lib")
+#pragma comment(lib, "d3dcompiler")
 
 using namespace DirectX;
 using namespace DirectX::SimpleMath;
@@ -182,6 +182,7 @@ using namespace Microsoft::WRL;
 #include "Editor/Tool/Hierarchy/EditorHierarchyTool.h"
 #include "Editor/Tool/Scene/EditorSceneTool.h"
 #include "Editor/Tool/Log/EditorLogsTool.h"
+#include "Editor/Tool/Model/EditorModelTool.h"
 #include "Editor/Tool/Command/EditorCommandTool.h"
 
 #include "Editor/Tool/ScriptTest/ScriptTestEditor.h"    // 테스트용. 추후 제거 필요

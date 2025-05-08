@@ -12,18 +12,20 @@ struct PSInput
 
 struct PSOutput
 {
-    float4 baseColor : SV_Target0;
-    float4 normal : SV_Target1;
-    float4 orm : SV_Target2;
-    float4 emissive : SV_Target3;
-    float depth : SV_Target4;
-    uint costomDepth : SV_Target5;
+    float4 baseColor     : SV_Target0;
+    float4 normal        : SV_Target1;
+    float4 orm           : SV_Target2;
+    float4 emissive      : SV_Target3;
+    float4 worldPosition : SV_Target4;
+    float depth          : SV_Target5;
+    uint customDepth     : SV_Target6;
 };
 
 #define DIFFUSE 0
 #define NORMAL 1
 #define ORM 2
 #define EMISSIVE 3
+
 struct Material
 {
     uint ID[4];
@@ -35,7 +37,15 @@ StructuredBuffer<Material> material;
 Texture2D textures[];
 SamplerState samLinear_wrap;
 
-PSOutput ps_main(PSInput input)
+
+float3 CalculateNormal(float3 sampledNormal, float3 tangent, float3 bitangent, float3 normal)
+{
+    sampledNormal = normalize(sampledNormal * 2.0 - 1.0);
+    float3x3 TBN = float3x3(tangent, bitangent, normal);
+    return normalize(mul(sampledNormal, TBN));
+}
+
+PSOutput WriteGuBuffer(PSInput input)
 {
     PSOutput output = (PSOutput) 0;
     uint diffuseID = material[object.ID].ID[DIFFUSE];
@@ -48,23 +58,28 @@ PSOutput ps_main(PSInput input)
     //output.baseColor.rgb = pow(output.baseColor.rgb, 2.2);
     // 1. normal
     float3 normal = textures[normalID].Sample(samLinear_wrap, input.uv).xyz;
-    normal = (normal * 2.f) - 1.f;
-    normal = normalize(normal);
-    float3 T = input.tangent;
-    float3 B = input.biTangent;
-    float3 N = input.normal;
-    float3x3 TBN = float3x3(T, B, N);
-    normal = normalize(mul(normal, TBN));
+    normal = CalculateNormal(normal, input.tangent, input.biTangent, input.normal);
     output.normal = float4(normal, 1.f);
     //2. ORM
     float ao = textures[ORMID].Sample(samLinear_wrap, input.uv).r;
     float roughness = textures[ORMID].Sample(samLinear_wrap, input.uv).g;
     float metallic = textures[ORMID].Sample(samLinear_wrap, input.uv).b;
     output.orm = float4(ao, roughness, metallic, 1.f);
+    //3. emissive
     output.emissive = textures[emissiveID].Sample(samLinear_wrap, input.uv);
+    //4. worldPosition
+    output.worldPosition = input.worldPosition;
+    //5. depth
     output.depth = input.position.z;
     // SWTODO : 나중에 마스킹값 받는거 처리
-    output.costomDepth = 0;
-    
+    output.customDepth = 0;
+    return output;
+}
+
+PSOutput ps_main(PSInput input)
+{
+    PSOutput output = (PSOutput) 0;
+    output = WriteGuBuffer(input);
+
     return output;
 }

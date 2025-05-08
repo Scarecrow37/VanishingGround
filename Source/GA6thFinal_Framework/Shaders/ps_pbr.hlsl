@@ -37,10 +37,11 @@ struct PSInput
 #define Fdielectric  0.04
 
 
-#define DIFFUSE 0
+#define BASECOLOR 0
 #define NORMAL 1
 #define ORM 2
 #define EMISSIVE 3
+#define DEPTH 4
 
 struct Material
 {
@@ -55,11 +56,20 @@ StructuredBuffer<Material> material;
 Texture2D textures[];
 SamplerState samLinear_wrap;
 
+struct NumLight
+{
+    uint Directional;
+    uint Point;
+    uint Spot;
+    uint padding;
+};
+ConstantBuffer<NumLight> num_light : register(b2);
+
 float4 ps_main(PSInput input) : SV_Target
 {
     float3 tempLight = float3(0, 0, 1);
     
-    uint diffuseID = material[object.ID].ID[DIFFUSE];
+    uint diffuseID = material[object.ID].ID[BASECOLOR];
     uint normalID = material[object.ID].ID[NORMAL];
     uint ORMID = material[object.ID].ID[ORM];
     uint emissiveID = material[object.ID].ID[EMISSIVE];
