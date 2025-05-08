@@ -258,9 +258,6 @@
     <ClInclude Include="Source\Editor\Tool\Scene\EditorSceneTool.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Editor\Tool\ScriptTest\ScriptTestEditor.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Editor\Menu\Project\EditorProjectMenu.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -678,9 +675,6 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Editor\Tool\Scene\EditorSceneTool.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Editor\Tool\ScriptTest\ScriptTestEditor.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Editor\Menu\Project\EditorProjectMenu.cpp">

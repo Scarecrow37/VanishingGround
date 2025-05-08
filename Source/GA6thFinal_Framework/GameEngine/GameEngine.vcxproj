@@ -340,7 +340,6 @@
     <ClInclude Include="Source\Editor\Tool\Inspector\EditorInspectorTool.h" />
     <ClInclude Include="Source\Editor\Tool\Log\EditorLogsTool.h" />
     <ClInclude Include="Source\Editor\Tool\Scene\EditorSceneTool.h" />
-    <ClInclude Include="Source\Editor\Tool\ScriptTest\ScriptTestEditor.h" />
     <ClInclude Include="Source\Engine\FileSystem\Extra\FileObserver.h" />
     <ClInclude Include="Source\Engine\FileSystem\System\FileSystem.h" />
     <ClInclude Include="Source\Engine\FileSystem\Extra\FileContext.h" />
@@ -539,7 +538,6 @@
     <ClCompile Include="Source\Editor\Tool\Inspector\EditorInspectorTool.cpp" />
     <ClCompile Include="Source\Editor\Tool\Log\EditorLogsTool.cpp" />
     <ClCompile Include="Source\Editor\Tool\Scene\EditorSceneTool.cpp" />
-    <ClCompile Include="Source\Editor\Tool\ScriptTest\ScriptTestEditor.cpp" />
     <ClCompile Include="Source\Engine\FileSystem\Extra\FileObserver.cpp" />
     <ClCompile Include="Source\Engine\FileSystem\System\FileSystem.cpp" />
     <ClCompile Include="Source\Engine\FileSystem\Extra\FileContext.cpp" />
