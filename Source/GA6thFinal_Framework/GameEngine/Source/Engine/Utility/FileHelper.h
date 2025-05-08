@@ -62,5 +62,5 @@ namespace File
     bool OpenForderBrowser(TCHAR* title, UINT flags, File::Path& out, const File::Path& root = L"");
 
     /* 해당 경로에 중복 파일이 있을 경우 중복 방지 인덱스를 붙여서 리턴 */
-    File::Path GenerateUniquePath(const File::Path& path, unsigned int maxIndex = 999);
+    File::Path GenerateUniquePath(const File::Path& path, int maxIndex = 999);
 } // namespace File

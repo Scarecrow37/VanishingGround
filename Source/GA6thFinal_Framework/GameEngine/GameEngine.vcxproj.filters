@@ -258,9 +258,6 @@
     <ClInclude Include="Source\Editor\Tool\Scene\EditorSceneTool.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Editor\Tool\ScriptTest\ScriptTestEditor.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Editor\Menu\Project\EditorProjectMenu.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -288,7 +285,7 @@
     <ClInclude Include="Source\Engine\FileSystem\Interface\IFileEventProcesser.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\FileSystem\Type\FileDataType.h">
+    <ClInclude Include="Source\Engine\FileSystem\Type\FileGuidPath.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Utility\FileHelper.h">
@@ -483,6 +480,15 @@
     <ClInclude Include="Source\Editor\Tool\Command\EditorCommandTool.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\FileSystem\Type\FileInformation.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\FileSystem\Type\FileData.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\FileSystem\Type\FileSystemSetting.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Engine\GraphicsCore\Shader.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -514,6 +520,24 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\GraphicsCore\d3dUtil.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Tool\Hierarchy\Command\FocusCommand.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Tool\Hierarchy\Command\SetParentCommand.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Tool\Hierarchy\Command\DetachChildrenCommand.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Tool\Hierarchy\Command\PackPrefabCommand.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Tool\Hierarchy\Command\NewGameObjectCommand.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Tool\Hierarchy\Command\DropPrefabCommand.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -653,9 +677,6 @@
     <ClCompile Include="Source\Editor\Tool\Scene\EditorSceneTool.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Editor\Tool\ScriptTest\ScriptTestEditor.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Editor\Menu\Project\EditorProjectMenu.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -683,7 +704,7 @@
     <ClCompile Include="Source\Engine\FileSystem\Interface\IFileEventProcesser.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\FileSystem\Type\FileDataType.cpp">
+    <ClCompile Include="Source\Engine\FileSystem\Type\FileGuidPath.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Utility\FileHelper.cpp">
@@ -884,10 +905,37 @@
     <ClCompile Include="Source\Editor\Tool\Command\EditorCommandTool.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\RendererFileEvent.cpp">
+    <ClCompile Include="Source\Editor\Tool\Hierarchy\Command\FocusCommand.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\Hierarchy\Command\SetParentCommand.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\Hierarchy\Command\DetachChildrenCommand.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\Hierarchy\Command\PackPrefabCommand.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\Hierarchy\Command\NewGameObjectCommand.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\Hierarchy\Command\DropPrefabCommand.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\FileSystem\Type\FileInformation.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\FileSystem\Type\FileData.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\FileSystem\Type\FileSystemSetting.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\d3dUtil.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\RendererFileEvent.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

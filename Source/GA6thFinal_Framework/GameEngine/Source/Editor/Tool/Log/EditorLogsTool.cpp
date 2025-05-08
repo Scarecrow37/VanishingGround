@@ -160,7 +160,7 @@ void EditorLogsTool::OnFrame()
     ImVec2 regionAvail = ImGui::GetContentRegionAvail();
     ImGui::BeginChild("LogScroll", regionAvail, true, ImGuiWindowFlags_HorizontalScrollbar);
     ImGuiListClipper clipper;
-    clipper.Begin(_drawLogList.size());
+    clipper.Begin(static_cast<int>(_drawLogList.size()));
     while (clipper.Step())
     {
         std::string logText;

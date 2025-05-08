@@ -71,7 +71,7 @@ void FileSystemModule::DispatchFileEvent()
 
     while (false == _eventQueue.empty())
     {
-        const auto& [lParam, rParam, id, eventType] = _eventQueue.front();
+        const auto& [lParam, rParam, event, info] = _eventQueue.front();
 
         const File::Path& rootPath = UmFileSystem.GetRootPath();
 
@@ -80,32 +80,30 @@ void FileSystemModule::DispatchFileEvent()
 
         std::unordered_set<File::FileEventNotifier*> notifiers;
 
-        switch (eventType)
+        if (event & File::Flag::FILE_EVENT_ACTION_RENAMED)
         {
-        case File::EventType::ADDED: {
+            UmFileSystem.ProcessMovedFile(lp, rp);
+        }
+        else if (event & File::Flag::FILE_EVENT_ACTION_MOVED)
+        {
+            UmFileSystem.ProcessMovedFile(lp, rp);
+        }
+        else if (event & File::Flag::FILE_EVENT_ACTION_ADDED)
+        {
             UmFileSystem.RegisterContext(lp);
-            break;
         }
-        case File::EventType::REMOVED: {
+        else if (event & File::Flag::FILE_EVENT_ACTION_REMOVED)
+        {
             UmFileSystem.ProcessRemovedFile(lp);
-            break;
         }
-        case File::EventType::MODIFIED: {
+        else if (event & File::Flag::FILE_EVENT_ACTION_MODIFIED)
+        {
             UmFileSystem.ProcessModifiedFile(lp);
-            break;
         }
-        case File::EventType::RENAMED: {
-            UmFileSystem.ProcessMovedFile(lp, rp);
-            break;
+        else if (event == File::Flag::FILE_EVENT_ACTION_UNKNOWN)
+        {
+            ASSERT(false, L"Unknown File Event");
         }
-        case File::EventType::MOVED: {
-            UmFileSystem.ProcessMovedFile(lp, rp);
-            break;
-        }
-        default:
-            break;
-        }
-
         _eventQueue.pop();
     }
 }
@@ -115,7 +113,7 @@ void FileSystemModule::ProcessDropFile(const HDROP hDrop)
     // 드롭된 파일의 개수
     UINT fileCount = DragQueryFile(hDrop, 0xFFFFFFFF, NULL, 0);
 
-    for (size_t i = 0; i < fileCount; ++i)
+    for (UINT i = 0; i < fileCount; ++i)
     {
         // 각 파일의 절대경로를 얻음
         wchar_t targetPath[MAX_PATH];

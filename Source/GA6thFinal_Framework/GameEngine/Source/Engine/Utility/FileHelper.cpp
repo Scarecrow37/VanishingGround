@@ -75,7 +75,7 @@ namespace File
                                      NULL, // 기본 디렉터리
                                      SW_SHOWNORMAL // 창 표시 방식
         );
-        if ((int)hr <= 32)
+        if (reinterpret_cast<UINT_PTR>(hr) <= 32)
         {
             int debugLevel = UmFileSystem.GetDebugLevel();
             if (debugLevel > 0)
@@ -149,7 +149,7 @@ namespace File
         }
         return false;
     }
-    Path GenerateUniquePath(const File::Path& path, unsigned int maxIndex)
+    Path GenerateUniquePath(const File::Path& path, int maxIndex)
     {
         // 중복일 시 뒤에 () 붙여서 생성
         File::Path name      = path.stem();

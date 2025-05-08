@@ -56,6 +56,9 @@ public:
     // get : 이 씬 파일의 상대 경로를 반환합니다.
     PROPERTY(Path)
 
+    // 씬의 수정 여부입니다. 파일을 저장하면 자동으로 초기화됩니다.
+    bool isDirty = false;
+
 private:
     bool _isLoaded = false;
     File::Guid _guid = STR_NULL;
@@ -78,11 +81,13 @@ class ESceneManager
     File::FileEventNotifier
 {
 private:
+    USING_PROPERTY(ESceneManager)
     friend class EngineCores;
     friend class Application;
     ESceneManager();
     ~ESceneManager();
-    USING_PROPERTY(ESceneManager)
+
+    ESceneManager& operator=(const ESceneManager& rhs) = delete;
 
     void LoadSettingFile();
     void SaveSettingFile() const;
@@ -200,6 +205,11 @@ public:
         /// 시작 씬을 로드합니다.
         /// </summary>
         static void LoadStartScene();
+
+        /// <summary>
+        /// 프리팹 인스턴스를 Swap 합니다. Reset만 호출되며 인스턴스 아이디는 유지됩니다.
+        /// </summary>
+        static void SwapPrefabInstance(GameObject* original, GameObject* remake);
     };
 
 public:
@@ -282,7 +292,7 @@ public:
     /// <param name="scene :">저장할 파일</param>
     /// <param name="outPath :">저장할 경로</param>
     /// <param name="isOverride :">덮어쓰기 안내문구 스킵 여부</param>
-    void WriteSceneToFile(const Scene& scene, std::string_view outPath, bool isOverride = false);
+    void WriteSceneToFile(Scene& scene, std::string_view outPath, bool isOverride = false);
 
     /// <summary>
     /// <para> 빈 씬을 UmScene파일로 저장합니다. FileSystem의 RootPath 기준으로 저장합니다. </para>
@@ -308,6 +318,7 @@ private:
     void ObjectsApplicationQuit();   //OnApplicationQuit를 호출합니다.
     void ObjectsOnDisable();         //OnDisable 예정인 컴포넌트들의 OnDisable 함수를 호출해줍니다.
     void ObjectsDestroy();           //Destroy 예정인 컴포넌트들의 OnDestroy 함수를 호출 한 뒤 파괴합니다.
+
 private:
     /*게임오브젝트의 Life cycle 수행 여부를 확인하는 함수*/
     bool IsRuntimeActive(std::shared_ptr<GameObject>& obj);
@@ -317,6 +328,18 @@ private:
         호출 전에 파괴되는 컴포넌트를 위해 존재하는 함수입니다.
     */
     void NotInitDestroyComponentEraseToWaitVec(Component* destroyComponent);
+
+    /// <summary>
+    /// 게임 오브젝트를 이름 맵에 추가합니다. 
+    /// </summary>
+    /// <param name="pInsertObject"></param>
+    bool InsertGameObjectMap(std::shared_ptr<GameObject>& pInsertObject);
+
+    /// <summary>
+    /// 게임 오브젝트의 맵에서 제거합니다.
+    /// </summary>
+    void EraseGameObjectMap(std::shared_ptr<GameObject>& pEraseObject);
+
 private:
     //Life cycle 에 포함되는 실제 오브젝트들 항목
     std::vector<std::shared_ptr<GameObject>> _runtimeObjects;
@@ -389,7 +412,7 @@ protected:
     /// <param name="outPath"></param>
     /// <returns></returns>
     bool WriteUmSceneFile(
-        const Scene& scene, 
+        Scene& scene, 
         std::string_view sceneName, 
         std::string_view outPath,
         bool isOverride = false);

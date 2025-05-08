@@ -106,12 +106,7 @@ void ESceneManager::Engine::AddGameObjectToLifeCycle(std::shared_ptr<GameObject>
         return;
     }
 
-    auto [iter, result] = Global::engineCore->SceneManager._runtimeObjectsUnorderedMap[gameObject->ReflectFields->_name].insert(gameObject);
-    if (result == false)
-    {
-        assert(!"이미 추가한 게임 오브젝트 입니다.");
-    }
-    else
+    if (UmSceneManager.InsertGameObjectMap(gameObject))
     {
         Global::engineCore->SceneManager._addGameObjectsQueue.push_back(gameObject);
     }
@@ -149,8 +144,7 @@ void ESceneManager::Engine::SetGameObjectActive(int instanceID, bool value)
                         {
 
                             {
-                                auto [iter, result] =
-                                    WaitSet.insert(component.get());
+                                auto [iter, result] = WaitSet.insert(component.get());
                                 if (result)
                                 {
                                     WaitVec.emplace_back(component.get());
@@ -246,7 +240,6 @@ void ESceneManager::Engine::RenameGameObject(GameObject* gameObject, std::string
             }
         }
     }
-    __debugbreak(); //이름 오류.
 }
 
 const std::vector<std::shared_ptr<GameObject>>& ESceneManager::Engine::GetRuntimeObjects()
@@ -324,7 +317,7 @@ void ESceneManager::Engine::LoadStartScene()
     std::string& loadScene = Application::IsEditor() ? sceneManager._setting.MainScene : sceneManager._setting.StartScene;
     File::Path path = loadScene;
     File::Guid guid = path.ToGuid();
-    auto   findGuid = sceneManager._scenesMap.find(guid);
+    auto findGuid = sceneManager._scenesMap.find(guid);
     if (loadScene != STR_NULL && findGuid != sceneManager._scenesMap.end())
     {
         if (UmComponentFactory.HasScript() == false)
@@ -335,6 +328,32 @@ void ESceneManager::Engine::LoadStartScene()
             }
         }
         sceneManager.LoadScene(loadScene);
+    }
+}
+
+void ESceneManager::Engine::SwapPrefabInstance(GameObject* original, GameObject* remake)
+{
+    ESceneManager& sceneManager = UmSceneManager;
+    int index = original->GetInstanceID();
+    std::shared_ptr<GameObject>& sOrigin = sceneManager._runtimeObjects[index];
+    std::shared_ptr<GameObject>  sRemake = remake->GetWeakPtr().lock();
+    std::swap(sOrigin->_instanceID, sRemake->_instanceID);
+    std::swap(sOrigin->_ownerScene, sRemake->_ownerScene);
+    std::swap(sOrigin, sRemake);
+    std::string objectData = sRemake->SerializedReflectFields();
+    sOrigin->DeserializedReflectFields(objectData);
+    sOrigin->_transform = sRemake->_transform;
+    sceneManager.EraseGameObjectMap(sRemake);
+    sceneManager.InsertGameObjectMap(sOrigin);
+
+    for (int i = 0; i < sOrigin->GetComponentCount(); ++i)
+    {
+        Component* component = sOrigin->GetComponentAtIndex<Component>(i);
+        if (component)
+        {
+            component->_initFlags.SetAwake();
+            component->_initFlags.SetStart();
+        }
     }
 }
 
@@ -420,6 +439,7 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
         return;
     }
     scene->_isLoaded = true;
+    scene->isDirty   = false;
     _lodedSceneList.push_back(scene);
 }
 
@@ -685,14 +705,9 @@ void ESceneManager::ObjectsDestroy()
         //오브젝트 삭제
         int instanceID = destroyObject->GetInstanceID();
         std::shared_ptr<GameObject>& pObject = _runtimeObjects[instanceID];
-        auto findIter = _runtimeObjectsUnorderedMap.find(destroyObject->ReflectFields->_name);
-        if (findIter == _runtimeObjectsUnorderedMap.end())
-        {
-            assert(!"유효하지 않는 오브젝트 이름입니다.");
-        }
-        findIter->second.erase(pObject);
+        EraseGameObjectMap(pObject);
         pObject.reset();
-        EGameObjectFactory::Engine::ReturnInstanceID(instanceID);
+        EGameObjectFactory::InstanceIDManager::ReturnInstanceID(instanceID);
     }
     destroyObjectSet.clear();
     destroyObjectQueue.clear();
@@ -766,6 +781,26 @@ void ESceneManager::NotInitDestroyComponentEraseToWaitVec(Component* destroyComp
 
 }
 
+bool ESceneManager::InsertGameObjectMap(std::shared_ptr<GameObject>& pInsertObject) 
+{
+    auto [iter, result] = _runtimeObjectsUnorderedMap[pInsertObject->ReflectFields->_name].insert(pInsertObject);
+    if (result == false)
+    {
+        assert(!"이미 추가한 게임 오브젝트 입니다.");
+    }
+    return result;
+}
+
+void ESceneManager::EraseGameObjectMap(std::shared_ptr<GameObject>& pEraseObject)
+{
+    auto findIter = _runtimeObjectsUnorderedMap.find(pEraseObject->ReflectFields->_name);
+    if (findIter == _runtimeObjectsUnorderedMap.end())
+    {
+        assert(!"유효하지 않는 오브젝트 이름입니다.");
+    }
+    findIter->second.erase(pEraseObject);
+}
+
 YAML::Node ESceneManager::SerializeToYaml(const Scene& scene)
 {
     if (UmComponentFactory.HasScript() == false)
@@ -805,16 +840,7 @@ bool ESceneManager::DeserializeToYaml(YAML::Node* _sceneNode)
     {
         YAML::Node objectNodes = object;
         YAML::Node rootObjectNode = *objectNodes.begin();
-        File::Guid prefabGuid = rootObjectNode["Prefab"].as<std::string>();
-        std::shared_ptr<GameObject> newObject;
-        if (prefabGuid != STR_NULL)
-        {
-            newObject = UmGameObjectFactory.DeserializeToGuid(prefabGuid);  
-        }
-        else
-        {
-            newObject = UmGameObjectFactory.DeserializeToYaml(&objectNodes);   
-        }
+        std::shared_ptr<GameObject> newObject = UmGameObjectFactory.DeserializeToSceneObject(object);
         if (nullptr == newObject)
         {
             UmLogger.Log(LogLevel::LEVEL_FATAL, u8"메모리 할당 실패."_c_str);
@@ -822,6 +848,7 @@ bool ESceneManager::DeserializeToYaml(YAML::Node* _sceneNode)
             UmApplication.Quit();
             return false;
         }
+
         Transform::ForeachDFS(
         newObject->_transform,
         [&Guid](Transform* curr) 
@@ -844,7 +871,7 @@ bool ESceneManager::DeserializeToGuid(const File::Guid& guid)
     return DeserializeToYaml(&findIter->second);
 }
 
-void ESceneManager::WriteSceneToFile(const Scene& scene, std::string_view outPath, bool isOverride)
+void ESceneManager::WriteSceneToFile(Scene& scene, std::string_view outPath, bool isOverride)
 {
     namespace fs = std::filesystem;
     std::string sceneName = scene.Name;
@@ -858,7 +885,7 @@ void ESceneManager::WriteEmptySceneToFile(std::string_view name, std::string_vie
     bool result = WriteUmSceneFile(scene, name, outPath, isOverride);
 }
 
-bool ESceneManager::WriteUmSceneFile(const Scene& scene, std::string_view sceneName, std::string_view outPath, bool isOverride)
+bool ESceneManager::WriteUmSceneFile(Scene& scene, std::string_view sceneName, std::string_view outPath, bool isOverride)
 {
     namespace fs     = std::filesystem;
     using fsPath     = std::filesystem::path;
@@ -867,7 +894,8 @@ bool ESceneManager::WriteUmSceneFile(const Scene& scene, std::string_view sceneN
     writePath /= sceneName;
     writePath.replace_extension(SCENE_EXTENSION);
    
-    if (fs::exists(writePath) == true && isOverride == false)
+    bool isExists = fs::exists(writePath);
+    if (true == isExists && false == isOverride)
     {
         int result = MessageBox(UmApplication.GetHwnd(), L"파일이 이미 존재합니다. 덮어쓰겠습니까?",
                                 L"파일이 존재합니다.", MB_YESNO);
@@ -884,9 +912,14 @@ bool ESceneManager::WriteUmSceneFile(const Scene& scene, std::string_view sceneN
         if (ofs.is_open())
         {
             ofs << node;
+            if (true == isExists && true == scene.isDirty)
+            {
+                scene.isDirty = false;
+            }
         }
         ofs.close();
     }
+    return true;
 }
 
 void ESceneManager::OnFileRegistered(const File::Path& path) 

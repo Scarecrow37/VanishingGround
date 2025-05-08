@@ -14,21 +14,32 @@ public:
     //엔진 접근용 네임스페이스
     struct Engine
     {
+        static constexpr const wchar_t* SCRIPTS_DLL_EDITOR_DEBUG_PATH = L"..\\GameScripts\\bin\\DebugEditor";
+        static constexpr const wchar_t* BUILD_BATCH_EDITOR_DEBUG_PATH = L"..\\GameScripts\\build_debug_editor.bat";
+
+        static constexpr const wchar_t* SCRIPTS_DLL_EDITOR_RELEASE_PATH = L"..\\GameScripts\\bin\\ReleaseEditor";
+        static constexpr const wchar_t* BUILD_BATCH_EDITOR_RELEASE_PATH = L"..\\GameScripts\\build_release_editor.bat";
+
+        static constexpr const wchar_t* SCRIPTS_DLL_DEBUG_PATH = L"..\\GameScripts\\bin\\Debug";
+        static constexpr const wchar_t* BUILD_BATCH_DEBUG_PATH = L"..\\GameScripts\\build_debug.bat";
+
+        static constexpr const wchar_t* SCRIPTS_DLL_RELEASE_PATH = L"..\\GameScripts\\bin\\Release";
+        static constexpr const wchar_t* BUILD_BATCH_RELEASE_PATH = L"..\\GameScripts\\build_release.bat";
 #ifdef _UMEDITOR
 #ifdef _DEBUG
-        static constexpr const wchar_t* SCRIPTS_DLL_PATH = L"..\\GameScripts\\bin\\DebugEditor";
-        static constexpr const wchar_t* BUILD_BATCH_PATH = L"..\\GameScripts\\build_debug_editor.bat";
+        static constexpr const wchar_t* SCRIPTS_DLL_PATH = SCRIPTS_DLL_EDITOR_DEBUG_PATH;
+        static constexpr const wchar_t* BUILD_BATCH_PATH = BUILD_BATCH_EDITOR_DEBUG_PATH;
 #else
-        static constexpr const wchar_t* SCRIPTS_DLL_PATH = L"..\\GameScripts\\bin\\ReleaseEditor";
-        static constexpr const wchar_t* BUILD_BATCH_PATH = L"..\\GameScripts\\build_release_editor.bat";
+        static constexpr const wchar_t* SCRIPTS_DLL_PATH = SCRIPTS_DLL_EDITOR_RELEASE_PATH;
+        static constexpr const wchar_t* BUILD_BATCH_PATH = BUILD_BATCH_EDITOR_RELEASE_PATH;
 #endif
 #else
 #ifdef _DEBUG
-        static constexpr const wchar_t* SCRIPTS_DLL_PATH = L"..\\GameScripts\\bin\\Debug";
-        static constexpr const wchar_t* BUILD_BATCH_PATH = L"..\\GameScripts\\build_debug.bat";
+        static constexpr const wchar_t* SCRIPTS_DLL_PATH = SCRIPTS_DLL_DEBUG_PATH;
+        static constexpr const wchar_t* BUILD_BATCH_PATH = BUILD_BATCH_DEBUG_PATH;
 #else
-        static constexpr const wchar_t* SCRIPTS_DLL_PATH = L"..\\GameScripts\\bin\\Release";
-        static constexpr const wchar_t* BUILD_BATCH_PATH = L"..\\GameScripts\\build_release.bat";
+        static constexpr const wchar_t* SCRIPTS_DLL_PATH = SCRIPTS_DLL_RELEASE_PATH;
+        static constexpr const wchar_t* BUILD_BATCH_PATH = BUILD_BATCH_RELEASE_PATH;
 #endif
 #endif  
     };

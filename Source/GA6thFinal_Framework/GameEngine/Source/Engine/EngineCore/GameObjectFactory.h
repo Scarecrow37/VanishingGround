@@ -37,9 +37,6 @@ public:
     static constexpr const char* PREFAB_EXTENSION = ".UmPrefab";
     struct Engine 
     {
-        //SceneManager에서 오브젝트를 Destroy 할때 Instance ID를 반납하기 위한 함수입니다.
-        static void ReturnInstanceID(int id);
-
         /// <summary>
         /// 모든 게임 오브젝트의 키들을 반환합니다.
         /// </summary>
@@ -51,6 +48,19 @@ public:
         /// </summary>
         static void RegisterFileEvents();
     };
+
+    struct InstanceIDManager
+    {
+        // 게임 오브젝트의 인스턴스 ID를 부여하기 위한 함수입니다.
+        static int CreateInstanceID();
+
+        // SceneManager에서 오브젝트를 Destroy 할때 Instance ID를 반납하기 위한 함수입니다.
+        static void ReturnInstanceID(int id);
+
+    private:
+        inline static std::mutex instanceIdMutex;
+    };
+
     /// <summary>
     /// 게임 오브젝트를 생성합니다. 생성된 오브젝트는 자동으로 씬에 등록됩니다.
     /// </summary>
@@ -80,6 +90,12 @@ public:
     /// <param name="guid">생성할 프리팹 GUID</param>
     /// <returns></returns>
     std::shared_ptr<GameObject> DeserializeToGuid(const File::Guid& guid);
+
+    /// <summary>
+    /// 씬 파일에 저장된 object 정보를 역직렬화 합니다.
+    /// /// <param name="node :">씬에서 읽은 object YAML</param>
+    /// </summary>
+    std::shared_ptr<GameObject> DeserializeToSceneObject(YAML::Node& sceneObjectsNode);
 
     /// <summary>
     /// 게임 오브젝트를 UmPrefab파일로 저장합니다. FileSystem의 RootPath 기준으로 저장합니다. 
@@ -130,8 +146,6 @@ public:
     /// <returns>결과</returns>
     bool UnsetOverrideFlag(void* pField);
 
-
-
 private:
     //컴포넌트를 동적할당후 shared_ptr로 반환합니다.
     //매개변수로 생성할 컴포넌트 typeid().name()을 전달해야합니다.
@@ -148,8 +162,8 @@ private:
    //Yaml을 오브젝트로 반환. Reset도 해줌.
    std::shared_ptr<GameObject> MakeGameObjectToYaml(YAML::Node* objectNode);
 
-   //게임 오브젝트를 YAML로 초기화
-   void ParsingYamlToGameObject(GameObject* pObject, YAML::Node& objectNode);
+   //게임 오브젝트를 YAML로 GameObject와 Transform의 ReflectFields만 초기화합니다.
+   void ParsingYamlToGameObject(GameObject* pObject, const YAML::Node& objectNode);
 
    //오브젝트 계층구조를 포함한 Yaml 직렬화 데이터로 GameObject들을 만들어서 반환합니다.
    std::vector<std::shared_ptr<GameObject>> MakeObjectsGraphToYaml(YAML::Node* pObjectNode, bool useResource = false);
@@ -169,6 +183,9 @@ private:
 private:
     //Prefab의 GUID만 다시 작성합니다.
     void WritePrefabGuid(const File::Path& path, YAML::Node& data);
+
+    //PrefabInstance를 갱신합니다.
+    void ApplyPrefabInstanceChanges(const File::Guid& guid, YAML::Node& yaml);
 
     // FileEventNotifier을(를) 통해 상속됨
     void OnFileRegistered(const File::Path& path) override;
@@ -193,5 +210,4 @@ private:
 
     //프리팹 인스턴스 ovrride 추적용
     std::unordered_set<void*> _prefabInstanceOverride;
-
 };
