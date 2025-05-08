@@ -525,7 +525,7 @@ void EFileSystem::ReadDirectory(const File::Path& path)
 void EFileSystem::RegisterContext(const File::Path& path) 
 {
     // 파일이 없으면 return
-    if (false == stdfs::exists(path))
+    if (false == fs::exists(path))
         return;
 
     // 확장자가 유효하지 않으면 return
@@ -538,13 +538,13 @@ void EFileSystem::RegisterContext(const File::Path& path)
      {
          std::shared_ptr<Context> context;
 
-         auto absPath = stdfs::weakly_canonical(path);
+         auto absPath = fs::weakly_canonical(path);
          absPath      = absPath.generic_wstring();
-         if (true == stdfs::is_regular_file(absPath))
+         if (true == fs::is_regular_file(absPath))
          {
              context = std::make_shared<FileContext>(absPath);
          }
-         else if (true == stdfs::is_directory(absPath))
+         else if (true == fs::is_directory(absPath))
          {
              context = std::make_shared<FolderContext>(absPath);
          }
@@ -667,7 +667,7 @@ void EFileSystem::ProcessRemovedFile(const File::Path& path)
 void EFileSystem::ProcessModifiedFile(const File::Path& path)
 {
     // 파일이 없으면 return
-    if (false == stdfs::exists(path))
+    if (false == fs::exists(path))
         return;
 
     // 확장자가 유효하지 않으면 return
@@ -692,7 +692,7 @@ void EFileSystem::ProcessModifiedFile(const File::Path& path)
 void EFileSystem::ProcessMovedFile(const File::Path& oldPath, const File::Path& newPath) 
 {
     // 파일이 없으면 return
-    if (false == stdfs::exists(newPath))
+    if (false == fs::exists(newPath))
         return;
 
     // 확장자가 유효하지 않으면 return
