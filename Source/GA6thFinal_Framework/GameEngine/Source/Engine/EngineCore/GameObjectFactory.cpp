@@ -417,11 +417,11 @@ bool EGameObjectFactory::PackPrefab(GameObject* targetObject, const File::Guid& 
                 {
                     return weakObject.expired();
                 });
-            }
-            _prefabInstanceList[guid].emplace_back(targetObject->GetWeakPtr());
-            targetObject->_prefabGuid = guid;
-            return true;
+            }                              
         }
+        _prefabInstanceList[guid].emplace_back(targetObject->GetWeakPtr());
+        targetObject->_prefabGuid = guid;
+        return true;
     }
     return false;
 }
