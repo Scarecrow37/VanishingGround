@@ -27,7 +27,24 @@ void EGameObjectFactory::WritePrefabGuid(const File::Path& path, YAML::Node& dat
             ofs << prefabNode;
         }
         ofs.close();
-        isWriteFile = true;
+    }
+
+    auto& guidQueue = _prefabGuidQueue[path];
+    if (guidQueue.empty() == false)
+    {
+        for (auto& weakObject : guidQueue)
+        {
+            auto pObject = weakObject.lock();
+            if (pObject != nullptr)
+            {
+                if (pObject->IsPrefabInstance() == true)
+                {
+                    UnpackPrefab(pObject.get());
+                }
+                PackPrefab(pObject.get(), path.ToGuid());
+            }
+        }
+        guidQueue.clear();
     }
 }
 
@@ -108,34 +125,10 @@ void EGameObjectFactory::OnFileUnregistered(const File::Path& path)
 
 void EGameObjectFactory::OnFileModified(const File::Path& path)
 {
-    //ofs로 파일 덮어쓴 이후 2번 호출되는거 블락용
-    if (true == isWriteFile)
-    {
-        isWriteFile = false;
-        return;
-    }
-
     File::Guid guid = path.ToGuid();
     YAML::Node yamlData = YAML::LoadFile(path.string());
     _prefabObjectMap[guid] = MakeObjectsGraphToYaml(&yamlData, true);
-    auto& guidQueue = _prefabGuidQueue[path];
     WritePrefabGuid(path, yamlData);
-    if (guidQueue.empty() == false)
-    {
-        for (auto& weakObject : guidQueue)
-        {
-            auto pObject = weakObject.lock();
-            if (pObject != nullptr)
-            {
-                if (pObject->IsPrefabInstance() == true)
-                {
-                    UnpackPrefab(pObject.get());
-                }
-                PackPrefab(pObject.get(), path.ToGuid());
-            }      
-        }
-        guidQueue.clear();
-    }
     ApplyPrefabInstanceChanges(guid, yamlData);
 }
 
@@ -395,7 +388,6 @@ void EGameObjectFactory::WriteGameObjectFile(Transform* transform, std::string_v
             ofs << node;
         }
         ofs.close();
-        isWriteFile = true;
 
         if (false == isExists)
         {

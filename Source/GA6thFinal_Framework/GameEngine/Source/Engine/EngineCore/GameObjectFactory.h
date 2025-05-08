@@ -210,8 +210,4 @@ private:
 
     //프리팹 인스턴스 ovrride 추적용
     std::unordered_set<void*> _prefabInstanceOverride;
-
-    //ofs 이후 Modified 2번 호출 블락용 플래그
-    bool isWriteFile = false;
-
 };
