@@ -44,6 +44,7 @@ namespace File
             fs::remove(_filePath);
             return true;
         }
+        return false;
     }
 
     bool FileData::Create(const File::Path& path, bool isEmpty, bool isHidden)
