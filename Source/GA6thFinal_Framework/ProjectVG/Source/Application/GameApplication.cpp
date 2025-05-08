@@ -42,9 +42,6 @@ GameApplication::GameApplication()
         _editorModule->RegisterEditorObject<EditorCommandTool>();
         _editorModule->RegisterEditorObject<EditorModelTool>();
 
-        // 김시우 테스트용
-        _editorModule->RegisterEditorObject<ScriptTestEditor>();
-
         // 블루프린트 버그있음
         //_editorModule->RegisterEditorObject<EditorShaderGraph>();
 
@@ -59,8 +56,8 @@ GameApplication::GameApplication()
         _editorModule->RegisterEditorObject<EditorMenuDebug>();
         _editorModule->RegisterEditorObject<EditorMenuStyleEditor>();
         _editorModule->RegisterEditorObject<EditorMenuFileSystemSetting>();
+        
         // Scene
-        _editorModule->RegisterEditorObject<EditorSceneMenuGameObject>();
         _editorModule->RegisterEditorObject<EditorSceneMenuScenes>();
     }
 }

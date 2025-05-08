@@ -239,7 +239,7 @@ protected:                                                                      
                 ReflectHelper::ImGuiDraw::Private::InputAuto(rflField, setting);                            \
             }                                                                                               \
         });                                                                                                 \
-        if (isTail)                                                                                         \
+        if (true == isTail)                                                                                 \
         {                                                                                                   \
             setting.InputEndEvent = nullptr;                                                                \
         }                                                                                                   \
@@ -685,7 +685,6 @@ namespace ReflectHelper
             }
             else
             {
-                assert(!"역직렬화 실패.");
                 return false;
             }
             return true;
