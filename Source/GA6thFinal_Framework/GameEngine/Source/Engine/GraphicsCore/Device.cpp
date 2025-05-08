@@ -378,10 +378,9 @@ HRESULT Device::Flip()
     _swapChain->Present(0, 0);
 
     GPUSync();
-
+    _uploadResources.clear();
     // 새 프레임 준비.
     _renderTargetIndex = _swapChain->GetCurrentBackBufferIndex();
-
     return 0;
 }
   
@@ -396,10 +395,6 @@ HRESULT Device::CreateVertexBuffer(void* data, UINT size, UINT stride, ComPtr<ID
         auto desc     = CD3DX12_RESOURCE_DESC::Buffer(size);
 
         ComPtr<ID3D12Resource> uploadBuffer;
-        hr = _device->CreateCommittedResource(&property, D3D12_HEAP_FLAG_NONE, &desc, D3D12_RESOURCE_STATE_GENERIC_READ,
-                                              nullptr, IID_PPV_ARGS(&uploadBuffer));
-        FAILED_CHECK_BREAK(hr);
-        //UpdateBuffer(uploadBuffer, data, size);
         buffer = d3dUtil::CreateDefaultBuffer(_device.Get(), _commandList.Get(), data, size, uploadBuffer);
 
         _uploadResources.push_back(uploadBuffer);
@@ -424,11 +419,6 @@ HRESULT Device::CreateIndexBuffer(void* data, UINT size, DXGI_FORMAT format, Com
         auto desc     = CD3DX12_RESOURCE_DESC::Buffer(size);
 
         ComPtr<ID3D12Resource> uploadBuffer;
-        hr = _device->CreateCommittedResource(&property, D3D12_HEAP_FLAG_NONE, &desc, D3D12_RESOURCE_STATE_GENERIC_READ,
-                                              nullptr, IID_PPV_ARGS(&uploadBuffer));
-        FAILED_CHECK_BREAK(hr);
-
-        //UpdateBuffer(uploadBuffer, data, size);
         buffer = d3dUtil::CreateDefaultBuffer(_device.Get(), _commandList.Get(), data, size, uploadBuffer);
 
         _uploadResources.push_back(uploadBuffer);

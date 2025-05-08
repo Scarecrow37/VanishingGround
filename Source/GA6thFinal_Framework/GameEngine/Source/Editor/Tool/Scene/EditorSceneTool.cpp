@@ -72,12 +72,13 @@ void EditorSceneTool::OnFrame()
 
 void EditorSceneTool::OnPostFrame()
 {
-    _camera->Update();
+    
 }
 
 void EditorSceneTool::OnFocus()
 {
-//    auto window     = ImGui::GetCurrentWindow();
+    _camera->Update();
+    //    auto window     = ImGui::GetCurrentWindow();
 //    auto rect       = window->Rect();
 //    _isHorverdScene = ImGui::IsMouseHoveringRect(rect.Min, rect.Max);
 //
@@ -177,7 +178,7 @@ void EditorSceneTool::OnFocus()
    // if (GetAsyncKeyState(VK_LEFT) & 0x8001)
    // {
    //     _rotation += Vector3(0.f, -rotateSpeed * deltaTime, 0.f);
-   // }
+   // }z
 
    // if (GetAsyncKeyState(VK_RIGHT) & 0x8001)
    // {

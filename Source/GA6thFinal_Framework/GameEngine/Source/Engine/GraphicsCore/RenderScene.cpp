@@ -260,7 +260,7 @@ void RenderScene::CreateFrameResource()
     {
         _frameResources[i] = std::make_shared<FrameResource>();
         // 임시 텍스쳐 갯수가 달라질 수 있는거 아닌가요?
-        _frameResources[i]->Initialize(100, 6);
+        _frameResources[i]->Initialize(100, 200);
     }
     // 임시 : 메인 카메라를 통해 Camera ConstantBuffer 만들기.
     CameraData cameraData{.View       = _camera->GetViewMatrix(),
