@@ -39,7 +39,10 @@ public:
     //get : owner GameObject
     PROPERTY(gameObject)
 
-        GETTER_ONLY(int, ChildCount) { return (int)_childsList.size(); }
+    GETTER_ONLY(int, ChildCount) 
+    { 
+        return (int)_childsList.size(); 
+    }
     // https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Transform-childCount.html
     // get : 자식의 개수를 반환합니다.
     // return : int
