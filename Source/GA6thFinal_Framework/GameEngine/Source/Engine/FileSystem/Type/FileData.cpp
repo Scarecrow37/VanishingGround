@@ -1,46 +1,10 @@
 ﻿#include "pch.h"
-#include "FileDataType.h"
+#include "FileData.h"
 
 namespace File
 {
-    Guid::operator File::Path() const
-    {
-        return ToPath();
-    }
-    File::Path Guid::ToPath() const
-    {
-        return UmFileSystem.GetPathFromGuid(native());
-    }
-    bool Guid::IsNull() const
-    {
-        return NULL_GUID == native();
-    }
-    Path::operator File::Guid() const
-    {
-        return ToGuid();
-    }
-    File::Path Path::operator+(const File::FString& v)
-    {
-        return string() + v.string();
-    }
-    File::Path Path::operator/(const File::FString& v)
-    {
-        File::Path path = string();
-        path /= v;
-        return path.generic_string();
-    }
-    File::Guid Path::ToGuid() const
-    {
-        return UmFileSystem.GetGuidFromPath(native());
-    }
-    bool Path::IsNull() const
-    {
-        return NULL_PATH == native();
-    }
-    FileData::FileData(File::Path path) 
-        : _filePath(path), _fileGuid(path) { }
-    FileData::FileData(File::Guid guid) 
-         : _filePath(guid), _fileGuid(guid) { }
+    FileData::FileData(File::Path path) : _filePath(path), _fileGuid(path) {}
+    FileData::FileData(File::Guid guid) : _filePath(guid), _fileGuid(guid) {}
 
     bool FileData::FileCreate(bool isHidden) const
     {
@@ -80,6 +44,7 @@ namespace File
             fs::remove(_filePath);
             return true;
         }
+        return false;
     }
 
     bool FileData::Create(const File::Path& path, bool isEmpty, bool isHidden)
@@ -172,7 +137,7 @@ namespace File
         return _fileGuid == NULL_GUID;
     }
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <param name="node"></param>
     /// <returns></returns>
@@ -186,7 +151,7 @@ namespace File
         return true;
     }
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <param name="node"></param>
     /// <returns></returns>
@@ -199,5 +164,4 @@ namespace File
     {
         return true;
     }
-}
-
+} // namespace File

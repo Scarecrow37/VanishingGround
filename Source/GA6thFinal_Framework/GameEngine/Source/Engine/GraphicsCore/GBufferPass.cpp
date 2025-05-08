@@ -5,7 +5,7 @@
 #include "Model.h"
 #include "RenderScene.h"
 #include "RenderTarget.h"
-#include "Shader.h"
+#include "ShaderBuilder.h"
 #include "UmScripts.h"
 
 GBufferPass::~GBufferPass() {}
@@ -29,9 +29,8 @@ void GBufferPass::Begin(ID3D12GraphicsCommandList* commandList)
             gbuffer.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,D3D12_RESOURCE_STATE_RENDER_TARGET);
         commandList->ResourceBarrier(1, &br);
 
-        Color                       clearColor = {0.f, 0.f, 0.f, 1.f};
-        D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle  = _ownerScene->_gBuffer[i]->GetHandle();
-        commandList->ClearRenderTargetView(cpuHandle, clearColor, 0, nullptr);
+        D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle  = _ownerScene->_gBuffer[i]->GetRTVHandle();
+        commandList->ClearRenderTargetView(cpuHandle, _clearColor, 0, nullptr);
     }
 
     // DepthStencil 상태 전이 + Clear
@@ -45,7 +44,7 @@ void GBufferPass::Begin(ID3D12GraphicsCommandList* commandList)
  
     for (auto& rt : _ownerScene->_gBuffer)
     {
-        _gbufferHandle.push_back(rt->GetHandle());
+        _gbufferHandle.push_back(rt->GetRTVHandle());
     }
     commandList->OMSetRenderTargets(_ownerScene->_gBufferCount, _gbufferHandle.data(), FALSE,
                                      &_ownerScene->_depthStencilHandle);
@@ -89,20 +88,19 @@ void GBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
     //D3D12_GPU_DESCRIPTOR_HANDLE boneMatrix = resource;
     resource.ptr += UmDevice.GetCBVSRVUAVDescriptorSize();
     D3D12_GPU_DESCRIPTOR_HANDLE textures = resource;
-    commandList->SetGraphicsRootSignature(_shaders[MeshType::STATIC]->GetRootSignature().Get());
+    commandList->SetGraphicsRootSignature(_shader[MeshType::STATIC]->GetRootSignature().Get());
+
     //  현재 타겟의 카메라 버퍼 설정
-    commandList->SetGraphicsRootConstantBufferView(_shaders[MeshType::STATIC]->GetRootSignatureIndex("cameraData"),
+    commandList->SetGraphicsRootConstantBufferView(_shader[MeshType::STATIC]->GetRootSignatureIndex("cameraData"),
                                                    _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
 
-    commandList->SetGraphicsRootDescriptorTable(_shaders[MeshType::STATIC]->GetRootSignatureIndex("objectData"),
+    commandList->SetGraphicsRootDescriptorTable(_shader[MeshType::STATIC]->GetRootSignatureIndex("objectData"),
                                                 objectData);
     
-    commandList->SetGraphicsRootDescriptorTable(_shaders[MeshType::STATIC]->GetRootSignatureIndex("material"),
-                                                material);
+    commandList->SetGraphicsRootDescriptorTable(_shader[MeshType::STATIC]->GetRootSignatureIndex("material"), material);
     
+    commandList->SetGraphicsRootDescriptorTable(_shader[MeshType::STATIC]->GetRootSignatureIndex("textures"), textures);
 
-    commandList->SetGraphicsRootDescriptorTable(_shaders[MeshType::STATIC]->GetRootSignatureIndex("textures"),
-                                                textures);
     // SWTODO : 나중에 material 생성되면 material 별로 mesh 구분 후 찍어주기.
     // 그리기
     DrawStaticTwoSidedMesh(commandList);
@@ -129,21 +127,23 @@ void GBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
 
 void GBufferPass::InitShaderAndPSO()
 {
-    _shaders.reserve(2);
+    _shader.reserve(2);
     _psos.reserve(4);
-    std::shared_ptr<Shader> staticMeshShader = std::make_shared<Shader>();
-    staticMeshShader->BeginBuild();
-    staticMeshShader->LoadShader(L"../Shaders/vs_fr.hlsl", Shader::Type::VS);
-    staticMeshShader->LoadShader(L"../Shaders/ps_gbuffer.hlsl", Shader::Type::PS);
-    staticMeshShader->EndBuild();
-    _shaders.push_back(staticMeshShader);
+
+    std::shared_ptr<ShaderBuilder> staticMeshShaderBuilder = std::make_shared<ShaderBuilder>();
+    staticMeshShaderBuilder->BeginBuild();
+    staticMeshShaderBuilder->SetShader(L"../Shaders/vs_fr.hlsl", ShaderBuilder::Type::VS);
+    staticMeshShaderBuilder->SetShader(L"../Shaders/ps_gbuffer.hlsl", ShaderBuilder::Type::PS);
+    staticMeshShaderBuilder->EndBuild();
+    _shader.push_back(staticMeshShaderBuilder);
+
     // SWTODO : Bone Matrix 생기면 vertex shader 바꿔주기.
-    std::shared_ptr<Shader> skeletalMeshShader = std::make_shared<Shader>();
-    skeletalMeshShader->BeginBuild();
-    skeletalMeshShader->LoadShader(L"../Shaders/vs_fr.hlsl", Shader::Type::VS);
-    skeletalMeshShader->LoadShader(L"../Shaders/ps_gbuffer.hlsl", Shader::Type::PS);
-    skeletalMeshShader->EndBuild();
-    _shaders.push_back(skeletalMeshShader);
+    std::shared_ptr<ShaderBuilder> skeletalMeshShaderBuilder = std::make_shared<ShaderBuilder>();
+    skeletalMeshShaderBuilder->BeginBuild();
+    skeletalMeshShaderBuilder->SetShader(L"../Shaders/vs_fr.hlsl", ShaderBuilder::Type::VS);
+    skeletalMeshShaderBuilder->SetShader(L"../Shaders/ps_gbuffer.hlsl", ShaderBuilder::Type::PS);
+    skeletalMeshShaderBuilder->EndBuild();
+    _shader.push_back(skeletalMeshShaderBuilder);
    
     // static two side.
     ComPtr<ID3D12Device> device      = UmDevice.GetDevice();
@@ -157,19 +157,20 @@ void GBufferPass::InitShaderAndPSO()
     psodesc.DepthStencilState        = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
     psodesc.SampleMask               = UINT_MAX;
     psodesc.PrimitiveTopologyType    = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-    psodesc.InputLayout              = staticMeshShader->GetInputLayout();
-    psodesc.NumRenderTargets         = 6;
+    psodesc.InputLayout              = staticMeshShaderBuilder->GetInputLayout();
+    psodesc.NumRenderTargets         = 7;
     psodesc.RTVFormats[0]            = DXGI_FORMAT_R32G32B32A32_FLOAT;
     psodesc.RTVFormats[1]            = DXGI_FORMAT_R32G32B32A32_FLOAT;
     psodesc.RTVFormats[2]            = DXGI_FORMAT_R32G32B32A32_FLOAT;
     psodesc.RTVFormats[3]            = DXGI_FORMAT_R32G32B32A32_FLOAT;
-    psodesc.RTVFormats[4]            = DXGI_FORMAT_R32_FLOAT;
-    psodesc.RTVFormats[5]            = DXGI_FORMAT_R32_UINT;
+    psodesc.RTVFormats[4]            = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    psodesc.RTVFormats[5]            = DXGI_FORMAT_R32_FLOAT;
+    psodesc.RTVFormats[6]            = DXGI_FORMAT_R32_UINT;
     psodesc.DSVFormat                = DXGI_FORMAT_D24_UNORM_S8_UINT;
-    psodesc.pRootSignature           = staticMeshShader->GetRootSignature().Get();
+    psodesc.pRootSignature           = staticMeshShaderBuilder->GetRootSignature().Get();
     psodesc.SampleDesc               = {1, 0};
-    psodesc.VS                       = staticMeshShader->GetShaderByteCode(Shader::Type::VS);
-    psodesc.PS                       = staticMeshShader->GetShaderByteCode(Shader::Type::PS);
+    psodesc.VS                       = staticMeshShaderBuilder->GetShaderByteCode(ShaderBuilder::Type::VS);
+    psodesc.PS                       = staticMeshShaderBuilder->GetShaderByteCode(ShaderBuilder::Type::PS);
     hr = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(statictwosidedpso.GetAddressOf()));
     FAILED_CHECK_BREAK(hr);
     _psos.push_back(statictwosidedpso);
@@ -184,10 +185,10 @@ void GBufferPass::InitShaderAndPSO()
     // skeletal two side.
     ComPtr<ID3D12PipelineState> skeletaltwosidepso;
     psodesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
-    psodesc.InputLayout              = skeletalMeshShader->GetInputLayout();
-    psodesc.pRootSignature           = skeletalMeshShader->GetRootSignature().Get();
-    psodesc.VS                       = skeletalMeshShader->GetShaderByteCode(Shader::Type::VS);
-    psodesc.PS                       = skeletalMeshShader->GetShaderByteCode(Shader::Type::PS);
+    psodesc.InputLayout              = skeletalMeshShaderBuilder->GetInputLayout();
+    psodesc.pRootSignature           = skeletalMeshShaderBuilder->GetRootSignature().Get();
+    psodesc.VS                       = skeletalMeshShaderBuilder->GetShaderByteCode(ShaderBuilder::Type::VS);
+    psodesc.PS                       = skeletalMeshShaderBuilder->GetShaderByteCode(ShaderBuilder::Type::PS);
     hr = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(skeletaltwosidepso.GetAddressOf()));
     FAILED_CHECK_BREAK(hr);
     _psos.push_back(skeletaltwosidepso);
@@ -213,7 +214,7 @@ void GBufferPass::DrawStaticTwoSidedMesh(ID3D12GraphicsCommandList* commandList)
             continue;
         for (auto& mesh : model->GetMeshes())
         {
-            commandList->SetGraphicsRoot32BitConstant(_shaders[0]->GetRootSignatureIndex("bit32_object"), ID++, 0);
+            commandList->SetGraphicsRoot32BitConstant(_shader[0]->GetRootSignatureIndex("bit32_object"), ID++, 0);
             mesh->Render(commandList);
         }
     }
@@ -225,7 +226,8 @@ void GBufferPass::DrawStaticMeshes(ID3D12GraphicsCommandList*                   
     for (auto& [mesh,id] : meshes)
     {
         
-        commandList->SetGraphicsRoot32BitConstant(_shaders[MeshType::STATIC]->GetRootSignatureIndex("bit32_object"), id, 0);
+        commandList->SetGraphicsRoot32BitConstant(_shader[MeshType::STATIC]->GetRootSignatureIndex("bit32_object"), id,
+                                                  0);
         mesh->Render(commandList);
     }
 }
@@ -236,7 +238,8 @@ void GBufferPass::DrawSkeletalMeshes(ID3D12GraphicsCommandList*                 
     for (auto& [mesh, id] : meshes)
     {
 
-        commandList->SetGraphicsRoot32BitConstant(_shaders[MeshType::SKELTAL]->GetRootSignatureIndex("bit32_object"), id, 0);
+        commandList->SetGraphicsRoot32BitConstant(_shader[MeshType::SKELTAL]->GetRootSignatureIndex("bit32_object"), id,
+                                                  0);
         mesh->Render(commandList);
     }
 }

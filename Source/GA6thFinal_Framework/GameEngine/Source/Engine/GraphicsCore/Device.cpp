@@ -1,5 +1,6 @@
-﻿#include "Device.h"
-#include "pch.h"
+﻿#include "pch.h"
+#include "Device.h"
+#include "d3dUtil.h"
 
 float Device::GetEngineTime()
 {
@@ -56,6 +57,7 @@ void Device::Initialize()
 
 void Device::Finalize()
 {
+    _uploadResources.clear();
     CloseHandle(_fenceEvent);
 }
 
@@ -376,53 +378,57 @@ HRESULT Device::Flip()
     _swapChain->Present(0, 0);
 
     GPUSync();
-
+    _uploadResources.clear();
     // 새 프레임 준비.
     _renderTargetIndex = _swapChain->GetCurrentBackBufferIndex();
-
     return 0;
 }
-
+  
 HRESULT Device::CreateVertexBuffer(void* data, UINT size, UINT stride, ComPtr<ID3D12Resource>& buffer,
                                    D3D12_VERTEX_BUFFER_VIEW& view)
 {
     HRESULT hr = S_OK;
 
-    // 버퍼 생성
-    hr = CreateBuffer(size, buffer);
-    FAILED_CHECK_BREAK(hr);
-
-    // 버퍼 갱신.
     if (data)
-        UpdateBuffer(buffer, data, size);
+    {
+        auto property = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+        auto desc     = CD3DX12_RESOURCE_DESC::Buffer(size);
 
-    // 리소스-뷰 생성.
+        ComPtr<ID3D12Resource> uploadBuffer;
+        buffer = d3dUtil::CreateDefaultBuffer(_device.Get(), _commandList.Get(), data, size, uploadBuffer);
+
+        _uploadResources.push_back(uploadBuffer);
+    }
+
     view.BufferLocation = buffer->GetGPUVirtualAddress();
     view.SizeInBytes    = size;
     view.StrideInBytes  = stride;
 
-    return 0;
+    return S_OK;
 }
 
 HRESULT Device::CreateIndexBuffer(void* data, UINT size, DXGI_FORMAT format, ComPtr<ID3D12Resource>& buffer,
                                   D3D12_INDEX_BUFFER_VIEW& view)
 {
-    HRESULT hr = S_OK;
 
-    // 버퍼 생성
-    hr = CreateBuffer(size, buffer);
-    FAILED_CHECK_BREAK(hr);
+    HRESULT hr       = S_OK;
 
-    // 버퍼 갱신.
     if (data)
-        UpdateBuffer(buffer, data, size);
+    {
+        auto property = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+        auto desc     = CD3DX12_RESOURCE_DESC::Buffer(size);
 
-    // 리소스-뷰 생성.
+        ComPtr<ID3D12Resource> uploadBuffer;
+        buffer = d3dUtil::CreateDefaultBuffer(_device.Get(), _commandList.Get(), data, size, uploadBuffer);
+
+        _uploadResources.push_back(uploadBuffer);
+    }
+
     view.BufferLocation = buffer->GetGPUVirtualAddress();
     view.SizeInBytes    = size;
     view.Format         = format;
 
-    return 0;
+    return S_OK;
 }
 
 HRESULT Device::CreateConstantBuffer(void* data, UINT size, ComPtr<ID3D12Resource>& buffer)

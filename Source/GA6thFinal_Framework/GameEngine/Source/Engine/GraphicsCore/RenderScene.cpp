@@ -6,22 +6,29 @@
 #include "RenderPass.h"
 #include "RenderTarget.h"
 #include "RenderTechnique.h"
-#include "Shader.h"
+#include "ShaderBuilder.h"
 #include "UmScripts.h"
 
-RenderScene::RenderScene() : _frameQuad{std::make_unique<Quad>()}, _frameShader{std::make_unique<Shader>()} {}
+RenderScene::RenderScene() : _frameQuad{std::make_unique<Quad>()}, _frameShader{std::make_unique<ShaderBuilder>()} {}
+
+RenderScene::~RenderScene() {}
 
 void RenderScene::UpdateRenderScene()
 {
+    // 카메라 업데이트 
+    _camera->Update();
+
     // 비활성된 컴포넌트 제거
-    auto first = std::remove_if(_renderQueue.begin(), _renderQueue.end(), [](const auto& ptr) { return *ptr.first==false; });
+    auto first = std::remove_if(_renderQueue.begin(), _renderQueue.end(), [](const auto& ptr)
+        { 
+            return *ptr.first == false;
+        });
     _renderQueue.erase(first, _renderQueue.end());
 
-
     _currentFrameIndex   = UmDevice.GetCurrentBackBufferIndex();
-    Vector4    cameraPos = Vector4(UmMainCamera.GetWorldMatrix().Translation());
-    CameraData cameraData{.View       = XMMatrixTranspose(UmMainCamera.GetViewMatrix()),
-                          .Projection = XMMatrixTranspose(UmMainCamera.GetProjectionMatrix()),
+    Vector4    cameraPos = Vector4(_camera->GetWorldMatrix().Translation());
+    CameraData cameraData{.View       = XMMatrixTranspose(_camera->GetViewMatrix()),
+                          .Projection = XMMatrixTranspose(_camera->GetProjectionMatrix()),
                           .Position   = cameraPos};
 
     UmDevice.UpdateBuffer(_cameraBuffer, &cameraData, sizeof(CameraData));
@@ -40,7 +47,7 @@ void RenderScene::UpdateRenderScene()
         auto& meshes    = model->GetMeshes();
         auto& materials = model->GetMaterials();
         
-        XMMATRIX world = XMMatrixTranspose(component->gameObject->transform->GetWorldMatrix());
+        XMMATRIX world = XMMatrixTranspose(component->transform->GetWorldMatrix());
         UINT     size  = (UINT)meshes.size();
 
         for (UINT i = 0; i < size; i++)
@@ -82,7 +89,6 @@ void RenderScene::UpdateRenderScene()
 
 void RenderScene::RegisterOnRenderQueue(bool** isActive, MeshRenderer* renderable)
 {
-    Shader* sr = _frameShader.get();
     auto iter = std::find_if(_renderQueue.begin(), _renderQueue.end(),
                              [renderable](const auto& ptr) { return ptr.second == renderable; });
 
@@ -98,7 +104,7 @@ void RenderScene::RegisterOnRenderQueue(bool** isActive, MeshRenderer* renderabl
 
 void RenderScene::Execute(ID3D12GraphicsCommandList* commandList)
 {
-    for (auto& [name, tech] : _techniques)
+    for (auto& tech : _techniques)
     {
         tech->Execute(commandList);
     }
@@ -106,20 +112,22 @@ void RenderScene::Execute(ID3D12GraphicsCommandList* commandList)
 
 D3D12_CPU_DESCRIPTOR_HANDLE RenderScene::GetFinalImage()
 {
-    return _gBufferSrvHandles[BASECOLOR];
+    return _meshLightingTarget->GetSRVHandle();
 }
 
-void RenderScene::AddRenderTechnique(const std::string& name, std::shared_ptr<RenderTechnique> technique)
+void RenderScene::AddRenderTechnique(std::shared_ptr<RenderTechnique> technique)
 {
+    ID3D12GraphicsCommandList* commandList = UmDevice.GetCommandList().Get();
     technique->SetOwnerScene(this);
-    technique->Initialize();
-    _techniques[name] = technique;
+    technique->Initialize(commandList);
+    _techniques.push_back(technique);
 }
 
 // 250424
 //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 void RenderScene::InitializeRenderScene()
 {
+    CreateCamera();
     CreateRenderTarget();
     CreateDepthStencil();
     CreateFrameQuadAndFrameShader();
@@ -132,38 +140,36 @@ void RenderScene::CreateRenderTarget()
 {
     // gbuffer 생성
     _gBuffer.resize(_gBufferCount);
-    _gBufferSrvHandles.resize(_gBufferCount);
-    for (UINT i = 0; i <= GBuffer::EMISSIVE; ++i)
+    for (UINT i = 0; i <= GBuffer::WORLDPOSITION; ++i)
     {
         _gBuffer[i] = std::make_shared<RenderTarget>();
         _gBuffer[i]->Initialize(DXGI_FORMAT_R32G32B32A32_FLOAT);
-        _gBufferSrvHandles[i] = _gBuffer[i]->CreateShaderResourceView();
+        _gBuffer[i]->CreateShaderResourceView();
     }
   
     _gBuffer[GBuffer::DEPTH] = std::make_shared<RenderTarget>();
     _gBuffer[GBuffer::DEPTH]->Initialize(DXGI_FORMAT_R32_FLOAT);
-    _gBufferSrvHandles[GBuffer::DEPTH] = _gBuffer[GBuffer::DEPTH]->CreateShaderResourceView();
+    _gBuffer[GBuffer::DEPTH]->CreateShaderResourceView();
     
-    _gBuffer[GBuffer::COSTOMDEPTH] = std::make_shared<RenderTarget>();
-    _gBuffer[GBuffer::COSTOMDEPTH]->Initialize(DXGI_FORMAT_R32_UINT);
-    _gBufferSrvHandles[GBuffer::COSTOMDEPTH] = _gBuffer[GBuffer::COSTOMDEPTH]->CreateShaderResourceView();
+    _gBuffer[GBuffer::CUSTOMDEPTH] = std::make_shared<RenderTarget>();
+    _gBuffer[GBuffer::CUSTOMDEPTH]->Initialize(DXGI_FORMAT_R32_UINT);
+    _gBuffer[GBuffer::CUSTOMDEPTH]->CreateShaderResourceView();
     
 
 
     // 후처리용으로 돌려쓸 renderTarget 생성해주기
     _renderTargets.resize(_renderTargetPoolCount);
-    _renderTargetSrvHandles.resize(_renderTargetPoolCount);
     for (UINT i = 0; i < _renderTargetPoolCount; ++i)
     {
         _renderTargets[i] = std::make_shared<RenderTarget>();
         _renderTargets[i]->Initialize(DXGI_FORMAT_R32G32B32A32_FLOAT);
-        _renderTargetSrvHandles[i] = _renderTargets[i]->CreateShaderResourceView();
+        _renderTargets[i]->CreateShaderResourceView();
     }
 
     // 메쉬 음영처리가 된 타겟 하나 생성 -> 이 타겟을 가져와서 후처리를 진행해야함.
     _meshLightingTarget = std::make_shared<RenderTarget>();
     _meshLightingTarget->Initialize(DXGI_FORMAT_R32G32B32A32_FLOAT);
-    _meshLightingSrv = _meshLightingTarget->CreateShaderResourceView();
+    _meshLightingTarget->CreateShaderResourceView();
 }
 
 void RenderScene::CreateDepthStencil() 
@@ -202,8 +208,8 @@ void RenderScene::CreateFrameQuadAndFrameShader()
     // 화면 크기만한 quad만들기. NDC 좌표계로
     _frameQuad->Initialize(-1.f, 1.f, 2.f, 2.f, 0.f);
     _frameShader->BeginBuild();
-    _frameShader->LoadShader(L"../Shaders/vs_quad.hlsl", Shader::Type::VS);
-    _frameShader->LoadShader(L"../Shaders/ps_quad_frame.hlsl", Shader::Type::PS);
+    _frameShader->SetShader(L"../Shaders/vs_quad.hlsl", ShaderBuilder::Type::VS);
+    _frameShader->SetShader(L"../Shaders/ps_quad_frame.hlsl", ShaderBuilder::Type::PS);
     _frameShader->EndBuild();
 
 }
@@ -224,8 +230,8 @@ void RenderScene::CreateFramePSO()
     psodesc.DSVFormat             = DXGI_FORMAT_D24_UNORM_S8_UINT;
     psodesc.pRootSignature        = _frameShader->GetRootSignature().Get();
     psodesc.SampleDesc            = {1, 0};
-    psodesc.VS                    = _frameShader->GetShaderByteCode(Shader::Type::VS);
-    psodesc.PS                    = _frameShader->GetShaderByteCode(Shader::Type::PS);
+    psodesc.VS                    = _frameShader->GetShaderByteCode(ShaderBuilder::Type::VS);
+    psodesc.PS                    = _frameShader->GetShaderByteCode(ShaderBuilder::Type::PS);
     ComPtr<ID3D12Device> device   = UmDevice.GetDevice();
 
     hr = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(_framePSO.GetAddressOf()));
@@ -254,12 +260,23 @@ void RenderScene::CreateFrameResource()
     {
         _frameResources[i] = std::make_shared<FrameResource>();
         // 임시 텍스쳐 갯수가 달라질 수 있는거 아닌가요?
-        _frameResources[i]->Initialize(100, 6);
+        _frameResources[i]->Initialize(100, 200);
     }
     // 임시 : 메인 카메라를 통해 Camera ConstantBuffer 만들기.
-    CameraData cameraData{.View       = UmMainCamera.GetViewMatrix(),
-                          .Projection = UmMainCamera.GetProjectionMatrix(),
+    CameraData cameraData{.View       = _camera->GetViewMatrix(),
+                          .Projection = _camera->GetProjectionMatrix(),
                           .Position   = {0.f, 0.f, -5.f, 1.f}};
 
     UmDevice.CreateConstantBuffer(&cameraData, sizeof(CameraData), _cameraBuffer);
+}
+
+void RenderScene::CreateCamera() 
+{
+    _camera = std::make_shared<Camera>();
+    Vector3 position = Vector3::Zero;
+    Vector3 diretion = Vector3::Forward;
+    Matrix  rotation = Matrix::Identity;
+    _camera->SetRotation(rotation.ToEuler());
+    _camera->SetPosition(position);
+    _camera->Update();
 }

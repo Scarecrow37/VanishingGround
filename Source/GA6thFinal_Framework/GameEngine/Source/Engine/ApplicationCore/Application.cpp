@@ -42,7 +42,8 @@ Application::Application()
     //필수 모듈들
     AddModule<EngineCoresModule>();
     _imguiDX12Module = AddModule<ImGuiDX12Module>();
-    if constexpr(Application::IsEditor())
+
+    if constexpr(true == Application::IsEditor())
     {
         _filesystemModule = AddModule<FileSystemModule>();
     }
@@ -96,7 +97,7 @@ void Application::Run()
 
             _imguiDX12Module->ImguiBegin();
             {
-                if constexpr(Application::IsEditor())
+                if constexpr(true == Application::IsEditor())
                 {
                     _filesystemModule->Update();
                     Global::editorModule->Update();
