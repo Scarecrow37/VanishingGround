@@ -19,7 +19,7 @@ static void TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>
         {
             auto oldWp = EditorHierarchyTool::HierarchyFocusObjWeak;
             auto newWp = node.gameObject->GetWeakPtr();
-            if (false == EditorInspectorTool::IsFocused(newWp))
+            if (false == EditorInspectorTool::IsLockFocus() &&  false == EditorInspectorTool::IsFocused(newWp))
             {
                 UmCommandManager.Do<Command::Hierarchy::FocusCommand>(oldWp, newWp);
             }
