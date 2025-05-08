@@ -286,6 +286,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Source\Editor\Tool\Command\EditorCommandTool.h" />
+    <ClInclude Include="Source\Editor\Tool\Hierarchy\Command\DetachChildrenCommand.h" />
+    <ClInclude Include="Source\Editor\Tool\Hierarchy\Command\DropPrefabCommand.h" />
+    <ClInclude Include="Source\Editor\Tool\Hierarchy\Command\FocusCommand.h" />
+    <ClInclude Include="Source\Editor\Tool\Hierarchy\Command\NewGameObjectCommand.h" />
+    <ClInclude Include="Source\Editor\Tool\Hierarchy\Command\PackPrefabCommand.h" />
+    <ClInclude Include="Source\Editor\Tool\Hierarchy\Command\SetParentCommand.h" />
     <ClInclude Include="Source\Engine\CommandCore\CommandManager.h" />
     <ClInclude Include="Source\Engine\CommandCore\UmCommand.h" />
     <ClInclude Include="Source\Editor\Menu\Project\EditorBuildSettingMenu.h" />
@@ -416,6 +422,37 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Editor\Tool\Command\EditorCommandTool.cpp" />
+    <ClCompile Include="Source\Editor\Tool\Hierarchy\Command\DetachChildrenCommand.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\Hierarchy\Command\DropPrefabCommand.cpp" />
+    <ClCompile Include="Source\Editor\Tool\Hierarchy\Command\FocusCommand.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\Hierarchy\Command\NewGameObjectCommand.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\Hierarchy\Command\PackPrefabCommand.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\Hierarchy\Command\SetParentCommand.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="Source\Engine\CommandCore\CommandManager.cpp" />
     <ClCompile Include="Source\Engine\CommandCore\UmCommand.cpp" />
     <ClCompile Include="Source\Editor\Menu\Project\EditorBuildSettingMenu.cpp" />
