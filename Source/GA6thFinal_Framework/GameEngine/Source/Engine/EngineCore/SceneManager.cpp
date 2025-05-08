@@ -144,8 +144,7 @@ void ESceneManager::Engine::SetGameObjectActive(int instanceID, bool value)
                         {
 
                             {
-                                auto [iter, result] =
-                                    WaitSet.insert(component.get());
+                                auto [iter, result] = WaitSet.insert(component.get());
                                 if (result)
                                 {
                                     WaitVec.emplace_back(component.get());
@@ -346,6 +345,16 @@ void ESceneManager::Engine::SwapPrefabInstance(GameObject* original, GameObject*
     sOrigin->_transform = sRemake->_transform;
     sceneManager.EraseGameObjectMap(sRemake);
     sceneManager.InsertGameObjectMap(sOrigin);
+
+    for (int i = 0; i < sOrigin->GetComponentCount(); ++i)
+    {
+        Component* component = sOrigin->GetComponentAtIndex<Component>(i);
+        if (component)
+        {
+            component->_initFlags.SetAwake();
+            component->_initFlags.SetStart();
+        }
+    }
 }
 
 void ESceneManager::CreateEmptySceneAndLoad(std::string_view name, std::string_view outPath, const std::function<void()>& loadEvent) 
