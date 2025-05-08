@@ -42,3 +42,11 @@ struct CameraData
 	XMMATRIX ProejctionInverse;
     Vector4  Position{0.f,0.f,-5.f,1.f};
 };
+
+struct NumLight
+{
+    UINT Directional;
+    UINT Point;
+    UINT Spot;
+    UINT Padding; 
+};

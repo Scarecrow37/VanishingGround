@@ -94,6 +94,9 @@
     <Filter Include="GraphicsCore\Material">
       <UniqueIdentifier>{cc2e0fd2-4be0-475a-989a-1b89bb9ef427}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GraphicsCore\Resource\ShaderBlob">
+      <UniqueIdentifier>{269d6efd-b9fd-480e-903e-d56777bc8493}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\pch.h">
@@ -381,7 +384,7 @@
     <ClInclude Include="Source\Engine\GraphicsCore\Renderer.h">
       <Filter>GraphicsCore\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\Shader.h">
+    <ClInclude Include="Source\Engine\GraphicsCore\ShaderBuilder.h">
       <Filter>GraphicsCore\Shader</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\AppModule\ImGuiDX12Module.h">
@@ -478,6 +481,39 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Editor\Tool\Command\EditorCommandTool.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\Shader.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\VertexShader.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\ComputeShader.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\GeometryShader.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\MeshShader.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\PixelShader.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Tool\Model\EditorModelTool.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\NonPBRLitTechnique.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\DynamicCamera\EditorDynamicCamera.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\RendererFileEvent.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\d3dUtil.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -725,7 +761,7 @@
     <ClCompile Include="Source\Engine\GraphicsCore\Renderer.cpp">
       <Filter>GraphicsCore\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\Shader.cpp">
+    <ClCompile Include="Source\Engine\GraphicsCore\ShaderBuilder.cpp">
       <Filter>GraphicsCore\Shader</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\AppModule\ImGuiDX12Module.cpp">
@@ -748,9 +784,6 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\GraphicsModule.cpp">
       <Filter>GraphicsCore\Module</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\Resource.cpp">
-      <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\RenderScene.cpp">
       <Filter>소스 파일</Filter>
@@ -812,6 +845,33 @@
     <ClCompile Include="Source\Engine\GraphicsCore\DeferredPBRLitPass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\Shader.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\VertexShader.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\ComputeShader.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\GeometryShader.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\MeshShader.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\PixelShader.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\Model\EditorModelTool.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\NonPBRLitTechnique.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\DynamicCamera\EditorDynamicCamera.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Engine\GameCore\Component\MissingComponent.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -822,6 +882,12 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Editor\Tool\Command\EditorCommandTool.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\RendererFileEvent.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\d3dUtil.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

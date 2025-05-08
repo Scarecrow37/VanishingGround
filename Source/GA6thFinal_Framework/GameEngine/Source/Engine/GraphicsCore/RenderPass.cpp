@@ -20,7 +20,7 @@ void RenderPass::SetClearValue(const Color& clearColor, float depthClear, UINT c
     _clearStencil = clearStencil;
 }
 
-void RenderPass::SetShader(std::shared_ptr<Shader> shader)
+void RenderPass::SetShader(std::shared_ptr<ShaderBuilder> shader)
 {
     _shader = shader;
 }

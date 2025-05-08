@@ -101,4 +101,6 @@ private:
     // TODO : temp 나중에 commandList manager생기고 삭제하기? 수정하기?
     ComPtr<ID3D12GraphicsCommandList> _commandList;
     ComPtr<ID3D12CommandAllocator>    _commandAllocator;
+
+    std::vector<ComPtr<ID3D12Resource>> _uploadResources;
 };
