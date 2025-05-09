@@ -137,7 +137,6 @@ using namespace Microsoft::WRL;
 #include "Engine/FileSystem/Extra/FileEventNotifier.h"
 #include "Engine/FileSystem/FileSystemModule.h"
 
-
 //Graphics
 #include "Engine/GraphicsCore/GraphicsCore.h"
 
@@ -151,6 +150,7 @@ using namespace Microsoft::WRL;
 #include "Engine/EngineCore/EngineCores.h" 
 
 //Editor Core
+#include "Engine/EditorCore/Interface/IEditorObject.h"
 #include "Engine/EditorCore/EditorEnum.h"
 #include "Engine/EditorCore/EditorGui.h"
 #include "Engine/EditorCore/EditorTool.h"
