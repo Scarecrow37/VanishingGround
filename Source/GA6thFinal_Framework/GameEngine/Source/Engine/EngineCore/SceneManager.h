@@ -307,9 +307,16 @@ public:
     void WriteEmptySceneToFile(std::string_view name, std::string_view outPath, bool isOverride = false);
     
 private:
+#ifdef _UMEDITOR
+    //play 여부
+    bool isPlay = true;
+#else
+    static constexpr bool isPlay = true;
+#endif
+
     //Life cycle 을 수행. 클라에서 매틱 호출해야함.
     void SceneUpdate();
-
+    
 private:
     void ObjectsAddRuntime();        //추가 대기중인 오브젝트, 컴포넌트를 라이프 사이클에 포함시킵니다.
     void ObjectsAwake();             //Awake 예정인 컴포넌트들의 Awake 함수를 호출합니다.

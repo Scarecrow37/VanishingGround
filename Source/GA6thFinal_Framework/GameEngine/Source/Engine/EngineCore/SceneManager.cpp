@@ -90,6 +90,10 @@ void ESceneManager::Engine::SceneUpdate()
 
 void ESceneManager::SceneUpdate()
 {
+#ifdef _UMEDITOR
+    isPlay = editorModule->PlayMode.IsPlay();
+#endif
+
     ObjectsAddRuntime();
     ObjectsOnEnable();
     ObjectsAwake();
@@ -103,7 +107,6 @@ void ESceneManager::SceneUpdate()
     ObjectsLateUpdate();
     ObjectsApplicationQuit();
     ObjectsOnDisable();
-
     ObjectsDestroy();
     ObjectsMatrixUpdate();
 }
@@ -152,7 +155,6 @@ void ESceneManager::Engine::SetGameObjectActive(int instanceID, bool value)
                         if (component->_initFlags.IsAwake()   == true &&
                             component->ReflectFields->_enable == true)
                         {
-
                             {
                                 auto [iter, result] = WaitSet.insert(component.get());
                                 if (result)
@@ -640,9 +642,13 @@ void ESceneManager::ObjectsOnEnable()
     {
         *value = true;  
     }
-    for (auto& component : OnEnableVec)
+    
+    if (isPlay)
     {
-        component->OnEnable();
+        for (auto& component : OnEnableVec)
+        {
+            component->OnEnable();
+        }
     }
     OnEnableSet.clear();
     OnEnableVec.clear();
@@ -656,9 +662,13 @@ void ESceneManager::ObjectsOnDisable()
     {
         *value = false;
     }
-    for (auto& component : OnDisableVec)
+
+    if (isPlay)
     {
-        component->OnDisable();
+        for (auto& component : OnDisableVec)
+        {
+            component->OnDisable();
+        }
     }
     OnDisableSet.clear();
     OnDisableVec.clear();
@@ -674,9 +684,12 @@ void ESceneManager::ObjectsDestroy()
         //OnDestroy 대상 호출
         if (destroyComponent->_gameObect->ActiveInHierarchy_property_getter())
         {
-            if (destroyComponent->Enable)
+            if (isPlay)
             {
-                destroyComponent->OnDestroy();
+                if (destroyComponent->Enable)
+                {
+                    destroyComponent->OnDestroy();
+                }
             }
         }
 
@@ -704,11 +717,13 @@ void ESceneManager::ObjectsDestroy()
         {
             for (auto& component : destroyObject->_components)
             {
-                if (component->Enable)
+                if (isPlay)
                 {
-                    component->OnDestroy();
+                    if (component->Enable)
+                    {
+                        component->OnDestroy();
+                    }
                 }
-
                 NotInitDestroyComponentEraseToWaitVec(component.get());
             }
         }
@@ -755,8 +770,11 @@ void ESceneManager::ObjectsAddRuntime()
     for (auto& component : _addComponentsQueue)
     {
         component->_gameObect->_components.emplace_back(component);
-        _waitAwakeVec.push_back(component);
-        _waitStartVec.push_back(component);
+        if (isPlay)
+        {
+            _waitAwakeVec.push_back(component);
+            _waitStartVec.push_back(component);
+        }
     }
     _addComponentsQueue.clear();
 }
