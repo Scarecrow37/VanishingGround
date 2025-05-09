@@ -45,7 +45,7 @@ HRESULT StructuredBuffer::Initialize(const D3D12_CPU_DESCRIPTOR_HANDLE handle, c
 	srvDesc.Format = DXGI_FORMAT_UNKNOWN;
 
 	srvDesc.Buffer.NumElements = numElements;
-	srvDesc.Buffer.StructureByteStride = size;
+	srvDesc.Buffer.StructureByteStride = (UINT)size;
 	srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
 
 	device->CreateShaderResourceView(_defaultBuffer.Get(), &srvDesc, handle);
