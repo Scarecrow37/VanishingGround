@@ -40,7 +40,6 @@ void PBRLitTechnique::InitGBufferPass()
 {
     std::shared_ptr<GBufferPass> gBufferPass = std::make_shared<GBufferPass>();
     gBufferPass->SetOwnerScene(_ownerScene);
-    gBufferPass->SetClearValue(Color(0.3f, 0.3f, 0.3f, 1.f));
     D3D12_VIEWPORT viewport{.TopLeftX = 0,
                             .TopLeftY = 0,
                             .Width    = (FLOAT)UmDevice.GetMode().Width,
@@ -59,7 +58,6 @@ void PBRLitTechnique::InitDeferredPass()
 {
     std::shared_ptr<DeferredPBRLitPass> litPass = std::make_shared<DeferredPBRLitPass>();
     litPass->SetOwnerScene(_ownerScene);
-    litPass->SetClearValue(Color(0.3f, 0.3f, 0.3f, 1.f));
     D3D12_VIEWPORT viewport{.TopLeftX = 0,
                             .TopLeftY = 0,
                             .Width    = (FLOAT)UmDevice.GetMode().Width,
