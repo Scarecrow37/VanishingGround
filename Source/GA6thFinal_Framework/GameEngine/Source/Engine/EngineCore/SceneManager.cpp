@@ -3,6 +3,16 @@ using namespace Global;
 using namespace u8_literals;
 static constexpr const char* DONT_DESTROY_ON_LOAD_SCENE_NAME = "DontDestroyOnLoad";
 
+void Scene::IsDirty_property_setter(const std::remove_cvref_t<bool>& value) 
+{
+#ifdef _UMEDITOR
+    if (false == editorModule->PlayMode.IsPlay())
+    {
+        _isDirty = value;
+    }
+#endif  
+}
+
 bool ESceneManager::RootGameObjectsFilter(GameObject* obj, std::string_view scenePath)
 {
     return obj->_ownerScene == scenePath.data() && obj->transform->Parent == nullptr;
@@ -438,8 +448,9 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
     {
         return;
     }
+
     scene->_isLoaded = true;
-    scene->isDirty   = false;
+    scene->IsDirty   = false;
     _lodedSceneList.push_back(scene);
 }
 
@@ -887,6 +898,13 @@ void ESceneManager::WriteEmptySceneToFile(std::string_view name, std::string_vie
 
 bool ESceneManager::WriteUmSceneFile(Scene& scene, std::string_view sceneName, std::string_view outPath, bool isOverride)
 {
+#ifdef _UMEDITOR
+    if (true == editorModule->PlayMode.IsPlay())
+    {
+        return false;
+    }
+#endif 
+
     namespace fs     = std::filesystem;
     using fsPath     = std::filesystem::path;
     fsPath writePath = UmFileSystem.GetAssetPath();
@@ -912,9 +930,11 @@ bool ESceneManager::WriteUmSceneFile(Scene& scene, std::string_view sceneName, s
         if (ofs.is_open())
         {
             ofs << node;
-            if (true == isExists && true == scene.isDirty)
+            if (true == isExists)
             {
-                scene.isDirty = false;
+                scene.IsDirty = false;
+                File::Guid guid = UmFileSystem.GetGuidFromPath(writePath);
+                _sceneDataMap[guid] = node;
             }
         }
         ofs.close();

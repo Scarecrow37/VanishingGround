@@ -56,10 +56,14 @@ public:
     // get : 이 씬 파일의 상대 경로를 반환합니다.
     PROPERTY(Path)
 
-    // 씬의 수정 여부입니다. 파일을 저장하면 자동으로 초기화됩니다.
-    bool isDirty = false;
-
+    GETTER(bool, IsDirty)
+    {
+        return _isDirty;
+    }
+    SETTER(bool, IsDirty);
+    PROPERTY(IsDirty)
 private:
+    bool _isDirty   = false;
     bool _isLoaded = false;
     File::Guid _guid = STR_NULL;
 };
@@ -469,3 +473,4 @@ inline auto Scene::GetRootGameObjects() const
     std::string path = Path;
     return ESceneManager::GetRootGameObjectsByPath(path);
 }
+
