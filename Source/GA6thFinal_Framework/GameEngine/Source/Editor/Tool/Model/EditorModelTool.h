@@ -29,5 +29,10 @@ private:
     virtual void OnPopup() override;
 
 private:
+    void ImportFBX(std::filesystem::path path);
+    void ExportFBX();
+
+private:
     std::unique_ptr<EditorDynamicCamera> _camera;
+    //std::shared_ptr<StaticMeshRenderer> 
 };

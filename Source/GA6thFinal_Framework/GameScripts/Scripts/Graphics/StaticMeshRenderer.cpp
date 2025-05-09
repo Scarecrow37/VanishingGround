@@ -1,5 +1,5 @@
 ﻿#include "StaticMeshRenderer.h"
-#include "Engine/GraphicsCore/Model.h"
+#include "Engine/GraphicsCore/MeshRenderer.h"
 
 StaticMeshRenderer::StaticMeshRenderer()
 {    
@@ -20,21 +20,19 @@ StaticMeshRenderer::StaticMeshRenderer()
                     }
                 }
             }
-    });
+    });    
 }
 
 StaticMeshRenderer::~StaticMeshRenderer()
 {
-    if (_isActive != nullptr)
-    {
-        (*_isActive) = false;
-        _isActive = nullptr;
-    }  
+    if (_meshRenderer)
+        _meshRenderer->SetDestroy();
 }
 
 void StaticMeshRenderer::Reset()
 {
-    ReflectFields->Type = MeshRenderer::RENDER_TYPE::STATIC;
+    _meshRenderer = std::make_unique<MeshRenderer>(MeshRenderer::RENDER_TYPE::STATIC, transform->GetWorldMatrix());
+    _meshRenderer->RegisterRenderQueue("Editor");
 }
 
 void StaticMeshRenderer::Awake()
@@ -51,20 +49,18 @@ void StaticMeshRenderer::Start()
     if (!ReflectFields->Guid.empty())
     {
         File::Guid guid = ReflectFields->Guid;
-        _model = UmResourceManager.LoadResource<Model>(guid.ToPath());
+        _meshRenderer->LoadModel(guid.ToPath().c_str());
     }
 }
 
 void StaticMeshRenderer::OnEnable()
 {
-    //if constexpr (!IS_EDITOR)
-    UmRenderer.RegisterRenderQueue(&_isActive, this, "Editor");
+    _meshRenderer->SetActive(true);
 }
 
 void StaticMeshRenderer::OnDisable()
 {
-    (*_isActive) = false;
-    _isActive = nullptr;
+    _meshRenderer->SetActive(false);
 }
 
 void StaticMeshRenderer::Update() 
@@ -75,7 +71,7 @@ void StaticMeshRenderer::Update()
         if (ImGui::Button("Load"))
         {
             File::Guid guid = ReflectFields->Guid;
-            _model = UmResourceManager.LoadResource<Model>(guid.ToPath());
+            _meshRenderer->LoadModel(guid.ToPath().c_str());
         }
         ImGui::End();
     }

@@ -283,7 +283,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Scripts\Graphics\MeshRenderer.h" />
     <ClInclude Include="Scripts\Graphics\StaticMeshRenderer.h" />
     <ClInclude Include="Scripts\Test\TestComponent.h" />
     <ClInclude Include="UmScriptCore.h" />

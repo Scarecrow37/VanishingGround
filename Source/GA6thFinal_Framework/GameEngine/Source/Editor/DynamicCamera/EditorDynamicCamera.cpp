@@ -1,11 +1,7 @@
 ﻿#include "pch.h"
 #include "EditorDynamicCamera.h"
 
-EditorDynamicCamera::EditorDynamicCamera()
-    : _moveSpeed(10.f)
-    , _rotationSpeed(5.f)
-{
-}
+EditorDynamicCamera::EditorDynamicCamera() : _moveSpeed(10.f), _rotationSpeed(5.f) {}
 
 void EditorDynamicCamera::SetTarget(std::shared_ptr<Camera> camera)
 {
@@ -16,9 +12,10 @@ void EditorDynamicCamera::Update()
 {
     const float deltaTime = UmTime.DeltaTime();
 
-    ImGuiIO&    io          = ImGui::GetIO();
-    float moveSpeed   = _moveSpeed * deltaTime;
-    float rotateSpeed = _rotationSpeed * deltaTime;
+    ImGuiIO& io          = ImGui::GetIO();
+    float    moveSpeed   = _moveSpeed * deltaTime;
+    float    zoomSpeed   = moveSpeed * 10.f;
+    float    rotateSpeed = _rotationSpeed * deltaTime;
 
     const Matrix& matrix = _camera->GetWorldMatrix();
     const Vector3 foward = -matrix.Forward();
@@ -56,7 +53,6 @@ void EditorDynamicCamera::Update()
         _position += -up * moveSpeed;
     }
 
-
     if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_MouseRight))
     {
         ImVec2 mouseDelta = io.MouseDelta;
@@ -66,6 +62,12 @@ void EditorDynamicCamera::Update()
             float deltaY = mouseDelta.y * rotateSpeed;
             _rotation += Vector3(deltaY, deltaX, 0.f);
         }
+    }
+
+    if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_MouseWheelY))
+    {
+        float wheel = io.MouseWheel;
+        _position += foward * zoomSpeed * wheel;
     }
 
     _camera->SetPosition(_position);

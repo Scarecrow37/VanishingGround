@@ -28,6 +28,13 @@ void EditorModelTool::OnPreFrame()
     if (ImGui::Button("Import", ImVec2(100, 50)))
     {
         // FBX or binary Load
+        TCHAR      filter[] = L"Model File (.fbx, .UmModel)\0*.fbx;*.UmModel\0";
+        File::Path out;
+        if (File::OpenFileNameBrowser(filter, out))
+        {
+            //UmFileSystem.LoadProject(out);
+            ImportFBX(out);
+        }
     }
 
     ImGuiWindow* window = ImGui::GetCurrentWindow();
@@ -74,5 +81,14 @@ void EditorModelTool::OnFocus()
 }
 
 void EditorModelTool::OnPopup()
+{
+}
+
+void EditorModelTool::ImportFBX(std::filesystem::path path)
+{
+
+}
+
+void EditorModelTool::ExportFBX()
 {
 }
