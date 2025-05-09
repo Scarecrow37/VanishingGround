@@ -145,7 +145,7 @@ public:
         EditorPlayMode();
         ~EditorPlayMode();
 
-        bool IsPlay() const
+        constexpr bool IsPlay() const
         {
             return _isPlay;
         }
@@ -154,8 +154,13 @@ public:
         void SetPlayModeColor();
         void SetPlayModeColor(ImVec4 (&playModeColors)[ImGuiCol_COUNT]);
         void DefaultPlayModeColor();
+
     private:
+        #ifdef _UMEDITOR
         bool _isPlay = false;
+        #else
+        static constexpr bool _isPlay = true;
+        #endif
         File::Guid _playSceneGuid;
         ImVec4 _playModeColors[ImGuiCol_COUNT];
     }

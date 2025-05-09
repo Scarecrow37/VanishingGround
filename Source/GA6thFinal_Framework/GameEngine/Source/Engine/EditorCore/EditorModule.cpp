@@ -214,7 +214,9 @@ void EditorModule::EditorPlayMode::Play()
             UmSceneManager.LoadScene(path.string()); 
             SetPlayModeColor();
 
+            #ifdef _UMEDITOR
             _isPlay = true;
+            #endif // _UMEDITOR
         }
     }
 }
@@ -228,12 +230,18 @@ void EditorModule::EditorPlayMode::Stop()
             if (object)
             {
                 object->ActiveSelf = false; //스크립트 이벤트 함수들 호출 방지용
-                GameObject::Destroy(object.get()); //DontDestroyOnLoad도 파괴해야함
+                if (object->GetOwnerSceneName() == ESceneManager::DONT_DESTROY_ON_LOAD_SCENE_NAME)
+                {
+                    GameObject::Destroy(object.get()); 
+                }        
             }
         }
         UmSceneManager.LoadScene(_playSceneGuid.ToPath().string());
         Global::editorModule->SetGuiThemeStyle();
+
+        #ifdef _UMEDITOR
         _isPlay = false;
+        #endif
     }
 }
 
