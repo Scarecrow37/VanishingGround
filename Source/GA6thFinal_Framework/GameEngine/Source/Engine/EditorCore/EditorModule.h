@@ -9,7 +9,37 @@ class EditorPopupBoxSystem;
 #ifndef _SCRIPTS_PROJECT
 namespace Global
 {
+#ifdef _UMEDITOR
     extern EditorModule* editorModule;
+#else
+    struct NotEditorModule
+    {
+        EditorModule* operator->()
+        {
+            assert(!"에디터 빌드만 접근 가능합니다.");
+            __debugbreak(); // 에디터 아닌데 접근하면 안됨.
+            UmApplication.Quit();
+            return nullptr;
+        }
+        EditorModule& operator*()
+        {
+            assert(!"에디터 빌드만 접근 가능합니다.");
+            __debugbreak(); // 에디터 아닌데 접근하면 안됨.
+            EditorModule& err = reinterpret_cast<EditorModule&>(*this);
+            UmApplication.Quit();
+            return err;
+        }
+        EditorModule& operator=(EditorModule* rhs)
+        {
+            assert(!"에디터 빌드만 접근 가능합니다.");
+            __debugbreak(); // 에디터 아닌데 접근하면 안됨.
+            EditorModule& err = reinterpret_cast<EditorModule&>(*this);
+            UmApplication.Quit();
+            return err;
+        }
+    };
+    extern NotEditorModule editorModule;
+#endif // _UMEDITOR  
 }
 #endif
 
