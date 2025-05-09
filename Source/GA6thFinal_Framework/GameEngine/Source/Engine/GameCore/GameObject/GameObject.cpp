@@ -69,7 +69,7 @@ void GameObject::OnInspectorStay()
             Scene* ownerScene = UmSceneManager.GetSceneByName(_ownerScene);
             if (ownerScene)
             {
-                ownerScene->isDirty = true;
+                ownerScene->IsDirty = true;
             }
         }
     };
