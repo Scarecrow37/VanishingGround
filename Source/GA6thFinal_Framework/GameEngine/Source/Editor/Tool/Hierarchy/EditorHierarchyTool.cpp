@@ -88,7 +88,7 @@ static void TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>
             if (ImGui::MenuItem("Destroy"))
             {
                 GameObject::Destroy(&node.gameObject);
-                node.gameObject->GetScene().isDirty = true;
+                node.gameObject->GetScene().IsDirty = true;
             }
             ImGui::Separator();
             if(ImGui::BeginMenu("Prefab"))
@@ -249,8 +249,8 @@ void  EditorHierarchyTool::OnPreFrame()
 void EditorHierarchyTool::HierarchyDropEvent()
 {
     namespace fs = std::filesystem;
-    ImRect rect = window->Rect();
-    if (ImGui::BeginDragDropTargetCustom(rect, window->ID))
+    ImRect rect = _window->Rect();
+    if (ImGui::BeginDragDropTargetCustom(rect, _window->ID))
     {
         if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
         {
@@ -292,7 +292,7 @@ void EditorHierarchyTool::HierarchyRightClickEvent() const
 
 void EditorHierarchyTool::OnFrame()
 {
-    window = ImGui::GetCurrentWindow();
+    _window = ImGui::GetCurrentWindow();
     HierarchyRightClickEvent();
     HierarchyDropEvent();
 
@@ -309,6 +309,11 @@ void EditorHierarchyTool::OnFrame()
             bool isCollapsingOpen = ImGui::CollapsingHeader(sName.c_str(), ImGuiTreeNodeFlags_::ImGuiTreeNodeFlags_DefaultOpen);
             if (ImGui::BeginPopupContextItem("RightClick"))
             {
+                if (true == _isPlay)
+                {
+                    ImGui::BeginDisabled();
+                }
+
                 if (ImGui::MenuItem("Save Scene"))
                 {
                     std::filesystem::path writePath = (std::string)scene.Path;
@@ -322,9 +327,14 @@ void EditorHierarchyTool::OnFrame()
                     UmSceneManager.UnloadScene(path);
                     ImGui::CloseCurrentPopup();
                 }
+
+                if (true == _isPlay)
+                {
+                    ImGui::EndDisabled();
+                }
                 ImGui::EndPopup();
             }
-            if (true == scene.isDirty)
+            if (true == scene.IsDirty)
             {
                 ImGui::SameLine();
                 ImGui::Text("*");
@@ -355,5 +365,10 @@ void  EditorHierarchyTool::OnPostFrame()
 void EditorHierarchyTool::OnPopup()
 {
   
+}
+
+void EditorHierarchyTool::OnTickGui() 
+{
+    _isPlay = editorModule->PlayMode.IsPlay();
 }
 
