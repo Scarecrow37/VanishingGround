@@ -199,7 +199,6 @@ void EditorModule::EditorPlayMode::Play()
         Scene* scene = UmSceneManager.GetMainScene();
         if (nullptr != scene)
         {
-            _isPlay = true;
             File::Path path = (std::string)scene->Path;         
             _playSceneGuid = path.ToGuid();
 
@@ -207,6 +206,8 @@ void EditorModule::EditorPlayMode::Play()
             UmSceneManager.WriteSceneToFile(*scene, writePath.string(), true);
             UmSceneManager.LoadScene(path.string()); 
             SetPlayModeColor();
+
+            _isPlay = true;
         }
     }
 }
@@ -215,9 +216,10 @@ void EditorModule::EditorPlayMode::Stop()
 {
     if (true == _isPlay)
     {
-        _isPlay = false;
         UmSceneManager.LoadScene(_playSceneGuid.ToPath().string());
         Global::editorModule->SetGuiThemeStyle();
+
+        _isPlay = false;
     }
 }
 
