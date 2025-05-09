@@ -584,14 +584,17 @@ void ESceneManager::ObjectsFixedUpdate()
 
 void ESceneManager::ObjectsUpdate()
 {
-    for (auto& obj : _runtimeObjects)
+    if (_isPlay)
     {
-        if (IsRuntimeActive(obj))
+        for (auto& obj : _runtimeObjects)
         {
-            for (auto& component : obj->_components)
+            if (IsRuntimeActive(obj))
             {
-                if (component->Enable)
-                    component->Update();
+                for (auto& component : obj->_components)
+                {
+                    if (component->Enable)
+                        component->Update();
+                }
             }
         }
     }
@@ -599,14 +602,17 @@ void ESceneManager::ObjectsUpdate()
 
 void ESceneManager::ObjectsLateUpdate()
 {
-    for (auto& obj : _runtimeObjects)
+    if (_isPlay)
     {
-        if (IsRuntimeActive(obj))
+        for (auto& obj : _runtimeObjects)
         {
-            for (auto& component : obj->_components)
+            if (IsRuntimeActive(obj))
             {
-                if (component->Enable)
-                    component->LateUpdate();
+                for (auto& component : obj->_components)
+                {
+                    if (component->Enable)
+                        component->LateUpdate();
+                }
             }
         }
     }
@@ -632,16 +638,19 @@ void ESceneManager::ObjectsMatrixUpdate()
 
 void ESceneManager::ObjectsApplicationQuit()
 {
-    if (Global::engineCore->App.IsQuit())
+    if (_isPlay)
     {
-        for (auto& obj : _runtimeObjects)
+        if (Global::engineCore->App.IsQuit())
         {
-            if (IsRuntimeActive(obj))
+            for (auto& obj : _runtimeObjects)
             {
-                for (auto& component : obj->_components)
+                if (IsRuntimeActive(obj))
                 {
-                    if (component->Enable)
-                        component->OnApplicationQuit();
+                    for (auto& component : obj->_components)
+                    {
+                        if (component->Enable)
+                            component->OnApplicationQuit();
+                    }
                 }
             }
         }
@@ -663,6 +672,7 @@ void ESceneManager::ObjectsOnEnable()
             component->OnEnable();
         }
     }
+
     OnEnableSet.clear();
     OnEnableVec.clear();
     OnEnableValue.clear();
@@ -683,6 +693,7 @@ void ESceneManager::ObjectsOnDisable()
             component->OnDisable();
         }
     }
+
     OnDisableSet.clear();
     OnDisableVec.clear();
     OnDisableValue.clear();
@@ -695,10 +706,11 @@ void ESceneManager::ObjectsDestroy()
     for (auto& destroyComponent : destroyComponentQueue)
     {
         //OnDestroy 대상 호출
-        if (destroyComponent->_gameObect->ActiveInHierarchy_property_getter())
+        if (_isPlay)
         {
-            if (_isPlay)
+            if (destroyComponent->_gameObect->ActiveInHierarchy_property_getter())
             {
+
                 if (destroyComponent->Enable)
                 {
                     destroyComponent->OnDestroy();
