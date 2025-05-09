@@ -61,7 +61,8 @@ void FBXImporter::CreateModel(const std::filesystem::path& filePath, bool isStat
 
     model->InitMaterials((UINT)materialIndex.size());
 
-    for (size_t i = 0; i < materialIndex.size(); i++)
+    UINT size = (UINT)materialIndex.size();
+    for (UINT i = 0; i < size; i++)
     {
         auto& texture = textures[materialIndex[i]];
 

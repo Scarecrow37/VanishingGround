@@ -3,7 +3,11 @@
 #include "EditorGui.h"
 #include "EditorMenuBar.h"
 
+#ifdef _UMEDITOR
 EditorModule* Global::editorModule = nullptr;
+#else
+Global::NotEditorModule editorModule;
+#endif
 
 EditorModule::EditorModule() 
 {

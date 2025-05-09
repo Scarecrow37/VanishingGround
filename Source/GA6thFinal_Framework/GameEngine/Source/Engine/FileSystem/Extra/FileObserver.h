@@ -1,13 +1,27 @@
 ﻿#pragma once
-
 namespace File
 {
+    namespace Flag
+    {
+        using EventAction = UINT64;
+        enum EventActionFlags
+        {
+            FILE_EVENT_ACTION_UNKNOWN  = 0,      // 에러
+            FILE_EVENT_ACTION_ADDED    = 1 << 0, // 추가
+            FILE_EVENT_ACTION_REMOVED  = 1 << 1, // 삭제
+            FILE_EVENT_ACTION_MODIFIED = 1 << 2, // 수정
+            FILE_EVENT_ACTION_RENAMED  = 1 << 3, // 이름 변경
+            FILE_EVENT_ACTION_MOVED    = 1 << 4, // 이동
+        };
+    } // namespace Flag
+
+    using FileID = LONGLONG;
     struct FileEventData
     {
-        Path      _lParam;
-        Path      _rParam;
-        UINT      _fileID;
-        EventType _eventType;
+        File::Path            LParam    = "";
+        File::Path            RParam    = "";
+        Flag::EventAction     EventType = Flag::FILE_EVENT_ACTION_UNKNOWN;
+        File::FileInformation FileInfo  = {};
     };
 
     /*
@@ -16,8 +30,9 @@ namespace File
     */
     class FileObserver
     {
-        using CallBackFunc = std::function<void(const FileEventData&)>;
-        using EventQueue   = std::deque<std::pair<Path, FILE_NOTIFY_EXTENDED_INFORMATION>>;
+        using CallBackFunc      = std::function<void(const FileEventData&)>;
+        using FileEventQueue    = std::deque<std::pair<DWORD, FileInformation>>;
+        using FileEventTable    = std::unordered_map<FileID, FileEventData>;
     public:
         FileObserver();
         ~FileObserver();
@@ -32,13 +47,8 @@ namespace File
     private:
         /* EventProcessing 메서드. 큐에 쌓인 이벤트를 하나씩 콜백해줍니다. */
         void        EventProcessingThread();
-        EventType   CheckEvent(const EventQueue& q);
-        void        ProcessUnKnown();
-        void        ProcessAdded();
-        void        ProcessRemoved();
-        void        ProcessModified();
-        void        ProcessRenamed();
-        void        ProcessMoved();
+        void        CheckEvent();
+        void        ProcessEvent();
         /* EventObserving 메서드. 디렉터리 이벤트를 관찰해 큐에 수집합니다. */
         void        EventObservingThread();
         bool        SetEventListener();
@@ -49,8 +59,10 @@ namespace File
     private:
         Path            _path;
         CallBackFunc    _eventCallback;
-        EventQueue      _recievedEventQueue;
-        EventQueue      _sendEventQueue;
+        FileEventQueue  _recievedEventQueue;
+        FileEventQueue  _sendEventQueue;
+        FileEventTable  _fileEventTable;
+
     private:
         BYTE            _recievedBytes[1024];   // 이벤트를 통해 받은 데이터
         DWORD           _bytesReturned;         // 받은 데이터의 크기

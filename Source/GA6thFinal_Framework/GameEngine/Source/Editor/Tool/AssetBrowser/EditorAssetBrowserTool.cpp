@@ -1,5 +1,4 @@
-﻿#include "EditorAssetBrowserTool.h"
-#include "pch.h"
+﻿#include "pch.h"
 
 namespace fs = std::filesystem;
 using namespace u8_literals;
@@ -229,8 +228,7 @@ void EditorAssetBrowserTool::ListToDirectoryFileName(const File::Path& relativeP
         SetFocusFolder(wpFolderContext);
     }
 
-    DragDropAsset::Data data;
-    const char*         eventID = DragDropAsset::KEY;
+    const char* eventID = DragDropAsset::KEY;
     if (ImGui::BeginDragDropTarget())
     {
         if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(eventID))
@@ -415,8 +413,8 @@ void EditorAssetBrowserTool::ContentsFrameEventAction(spFolderContext context)
         DragDropTransform::Data data;
         if (ImGuiHelper::DragDrop::RecieveFrameDragDropEvent(DragDropTransform::KEY, &data))
         {
-            File::Path path = context->GetPath();
-            path = UmFileSystem.GetRelativePath(path);
+            std::filesystem::path path = context->GetPath();
+            path = std::filesystem::relative(path, UmFileSystem.GetAssetPath());
             UmGameObjectFactory.WriteGameObjectFile(data.pTransform, path.string());
         }
 
@@ -595,9 +593,7 @@ void EditorAssetBrowserTool::ItemEventAction(spContext context, const char* mode
     {
         auto spFolderContext = std::static_pointer_cast<File::FolderContext>(context);
 
-        DragDropAsset::Data data;
-        const char*         eventID = DragDropAsset::KEY;
-
+        const char* eventID = DragDropAsset::KEY;
         if (ImGui::BeginDragDropTarget())
         {
             if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(eventID))

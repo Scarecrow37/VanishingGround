@@ -25,7 +25,6 @@ struct PSOutput
 #define NORMAL 1
 #define ORM 2
 #define EMISSIVE 3
-
 struct Material
 {
     uint ID[4];

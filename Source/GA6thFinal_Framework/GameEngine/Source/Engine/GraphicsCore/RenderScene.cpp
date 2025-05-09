@@ -146,16 +146,16 @@ void RenderScene::CreateRenderTarget()
     for (UINT i = 0; i <= GBuffer::WORLDPOSITION; ++i)
     {
         _gBuffer[i] = std::make_shared<RenderTarget>();
-        _gBuffer[i]->Initialize(DXGI_FORMAT_R32G32B32A32_FLOAT);
+        _gBuffer[i]->Initialize(DXGI_FORMAT_R32G32B32A32_FLOAT, 0.247f);
         _gBuffer[i]->CreateShaderResourceView();
     }
   
     _gBuffer[GBuffer::DEPTH] = std::make_shared<RenderTarget>();
-    _gBuffer[GBuffer::DEPTH]->Initialize(DXGI_FORMAT_R32_FLOAT);
+    _gBuffer[GBuffer::DEPTH]->Initialize(DXGI_FORMAT_R32_FLOAT, 1.f);
     _gBuffer[GBuffer::DEPTH]->CreateShaderResourceView();
     
     _gBuffer[GBuffer::CUSTOMDEPTH] = std::make_shared<RenderTarget>();
-    _gBuffer[GBuffer::CUSTOMDEPTH]->Initialize(DXGI_FORMAT_R32_UINT);
+    _gBuffer[GBuffer::CUSTOMDEPTH]->Initialize(DXGI_FORMAT_R32_UINT, 1.f);
     _gBuffer[GBuffer::CUSTOMDEPTH]->CreateShaderResourceView();
     
 
@@ -165,13 +165,13 @@ void RenderScene::CreateRenderTarget()
     for (UINT i = 0; i < _renderTargetPoolCount; ++i)
     {
         _renderTargets[i] = std::make_shared<RenderTarget>();
-        _renderTargets[i]->Initialize(DXGI_FORMAT_R32G32B32A32_FLOAT);
+        _renderTargets[i]->Initialize(DXGI_FORMAT_R32G32B32A32_FLOAT, 0.247f);
         _renderTargets[i]->CreateShaderResourceView();
     }
 
     // 메쉬 음영처리가 된 타겟 하나 생성 -> 이 타겟을 가져와서 후처리를 진행해야함.
     _meshLightingTarget = std::make_shared<RenderTarget>();
-    _meshLightingTarget->Initialize(DXGI_FORMAT_R32G32B32A32_FLOAT);
+    _meshLightingTarget->Initialize(DXGI_FORMAT_R32G32B32A32_FLOAT, 0.247f);
     _meshLightingTarget->CreateShaderResourceView();
 }
 
@@ -263,7 +263,7 @@ void RenderScene::CreateFrameResource()
     {
         _frameResources[i] = std::make_shared<FrameResource>();
         // 임시 텍스쳐 갯수가 달라질 수 있는거 아닌가요?
-        _frameResources[i]->Initialize(100, 6);
+        _frameResources[i]->Initialize(1000, 4000);
     }
     // 임시 : 메인 카메라를 통해 Camera ConstantBuffer 만들기.
     CameraData cameraData{.View       = _camera->GetViewMatrix(),

@@ -1,8 +1,9 @@
 ﻿#include "pch.h"
 #include "RenderTarget.h"
 
-HRESULT RenderTarget::Initialize(DXGI_FORMAT format)
+HRESULT RenderTarget::Initialize(DXGI_FORMAT format, FLOAT clearColor)
 {
+    clearValue                  = clearColor;
     _format                     = format;
     ComPtr<ID3D12Device> device = UmDevice.GetDevice();
     D3D12_RESOURCE_DESC  desc{.Dimension        = D3D12_RESOURCE_DIMENSION_TEXTURE2D,
@@ -17,10 +18,10 @@ HRESULT RenderTarget::Initialize(DXGI_FORMAT format)
                               .Flags  = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET};
 
     CD3DX12_HEAP_PROPERTIES property(D3D12_HEAP_TYPE_DEFAULT);
-
+    
     D3D12_CLEAR_VALUE clearValue{
         .Format = _format,
-        .Color  = {0.3f, 0.3f, 0.3f, 1.f},
+        .Color  = {clearColor, clearColor, clearColor,1.f},
     };
     // committedReosurce로 임시로 생성
     UmDevice.GetDevice()->CreateCommittedResource(&property, D3D12_HEAP_FLAG_NONE, &desc,

@@ -25,11 +25,12 @@ GameApplication::GameApplication()
     SetStyleToWindowed();
     _clientSize = { 1920, 1080 };
     _windowName = L"Umreal Engine";
-    
-    //에디터 매니저 등록
+
+#ifdef _UMEDITOR
+    // 에디터 매니저 등록
     _editorModule = AddModule<EditorModule>();
 
-    //추가할 에디터 작성
+    // 추가할 에디터 작성
     /* Tool */
     _editorModule->RegisterEditorObject<EditorDebugTool>();
     _editorModule->RegisterEditorObject<EditorHierarchyTool>();
@@ -39,9 +40,6 @@ GameApplication::GameApplication()
     _editorModule->RegisterEditorObject<EditorLogsTool>();
     _editorModule->RegisterEditorObject<EditorCommandTool>();
     _editorModule->RegisterEditorObject<EditorModelTool>();
-
-    // 김시우 테스트용
-    _editorModule->RegisterEditorObject<ScriptTestEditor>();
 
     // 블루프린트 버그있음
     //_editorModule->RegisterEditorObject<EditorShaderGraph>();
@@ -57,9 +55,10 @@ GameApplication::GameApplication()
     _editorModule->RegisterEditorObject<EditorMenuDebug>();
     _editorModule->RegisterEditorObject<EditorMenuStyleEditor>();
     _editorModule->RegisterEditorObject<EditorMenuFileSystemSetting>();
+
     // Scene
-    _editorModule->RegisterEditorObject<EditorSceneMenuGameObject>();
     _editorModule->RegisterEditorObject<EditorSceneMenuScenes>();
+#endif // _UMEDITOR
 }
 
 GameApplication::~GameApplication()
