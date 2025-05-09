@@ -12,7 +12,8 @@ Command::Hierarchy::NewGameObjectCommand::NewGameObjectCommand(std::string_view 
 void Command::Hierarchy::NewGameObjectCommand::Execute() 
 {
     auto pObject = UmGameObjectFactory.NewGameObject(_typeName, _newName);
-    pObject->GetScene().IsDirty = true;
+    Scene& scene = pObject->GetScene();
+    scene.IsDirty = true;
     _newObject = pObject;
 }
 
