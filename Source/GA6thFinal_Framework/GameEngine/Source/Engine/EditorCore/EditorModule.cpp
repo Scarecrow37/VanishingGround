@@ -163,6 +163,9 @@ void EditorModule::SetGuiThemeStyle()
 
     // DragDrop
     colors[ImGuiCol_DragDropTarget] = ImVec4{0.2f, 0.6f, 0.4f, 1.0f};
+
+    PlayMode.SetPlayModeColor(colors);
+    PlayMode.DefaultPlayModeColor();
 }
 
 void EditorModule::OnRequestedSave()
@@ -177,4 +180,87 @@ void EditorModule::OnRequestedLoad()
     File::Path name = L"editor.setting";
     auto& path = UmFileSystem.GetSettingPath();
     LoadSetting(path / name);
+}
+
+EditorModule::EditorPlayMode::EditorPlayMode() 
+{
+    
+}
+
+EditorModule::EditorPlayMode::~EditorPlayMode() 
+{
+
+}
+
+void EditorModule::EditorPlayMode::Play()
+{
+    if (false == _isPlay)
+    {
+        Scene* scene = UmSceneManager.GetMainScene();
+        if (nullptr != scene)
+        {
+            _isPlay = true;
+            File::Path path = (std::string)scene->Path;         
+            _playSceneGuid = path.ToGuid();
+
+            auto writePath = std::filesystem::relative(path, UmFileSystem.GetAssetPath()).parent_path();
+            UmSceneManager.WriteSceneToFile(*scene, writePath.string(), true);
+            UmSceneManager.LoadScene(path.string()); 
+            SetPlayModeColor();
+        }
+    }
+}
+
+void EditorModule::EditorPlayMode::Stop() 
+{
+    if (true == _isPlay)
+    {
+        _isPlay = false;
+        UmSceneManager.LoadScene(_playSceneGuid.ToPath().string());
+        Global::editorModule->SetGuiThemeStyle();
+    }
+}
+
+void EditorModule::EditorPlayMode::SetPlayModeColor() 
+{
+    auto& colors = ImGui::GetStyle().Colors;
+    std::memcpy(&colors, &_playModeColors, sizeof(_playModeColors));
+}
+
+void EditorModule::EditorPlayMode::SetPlayModeColor(ImVec4 (&playModeColors)[ImGuiCol_COUNT]) 
+{
+    std::memcpy(&_playModeColors, &playModeColors, sizeof(_playModeColors));
+}
+
+void EditorModule::EditorPlayMode::DefaultPlayModeColor()
+{
+    // Headers
+    _playModeColors[ImGuiCol_Header]        = ImVec4{0.09f, 0.17f, 0.22f, 1.0f};
+    _playModeColors[ImGuiCol_HeaderHovered] = ImVec4{0.22f, 0.32f, 0.42f, 1.0f};
+    _playModeColors[ImGuiCol_HeaderActive]  = ImVec4{0.13f, 0.19f, 0.25f, 1.0f};
+
+    // Buttons
+    _playModeColors[ImGuiCol_Button]        = ImVec4{0.13f, 0.18f, 0.23f, 1.0f};
+    _playModeColors[ImGuiCol_ButtonHovered] = ImVec4{0.23f, 0.33f, 0.44f, 1.0f};
+    _playModeColors[ImGuiCol_ButtonActive]  = ImVec4{0.15f, 0.22f, 0.28f, 1.0f};
+
+    // Frame BG
+    _playModeColors[ImGuiCol_FrameBg]        = ImVec4{0.14f, 0.19f, 0.24f, 1.0f};
+    _playModeColors[ImGuiCol_FrameBgHovered] = ImVec4{0.25f, 0.35f, 0.46f, 1.0f};
+    _playModeColors[ImGuiCol_FrameBgActive]  = ImVec4{0.18f, 0.26f, 0.33f, 1.0f};
+
+    // Tabs
+    _playModeColors[ImGuiCol_Tab]                = ImVec4{0.12f, 0.17f, 0.22f, 1.0f};
+    _playModeColors[ImGuiCol_TabHovered]         = ImVec4{0.30f, 0.42f, 0.55f, 1.0f};
+    _playModeColors[ImGuiCol_TabActive]          = ImVec4{0.22f, 0.32f, 0.42f, 1.0f};
+    _playModeColors[ImGuiCol_TabUnfocused]       = ImVec4{0.12f, 0.17f, 0.22f, 1.0f};
+    _playModeColors[ImGuiCol_TabUnfocusedActive] = ImVec4{0.18f, 0.26f, 0.33f, 1.0f};
+
+    // Title
+    _playModeColors[ImGuiCol_TitleBg]          = ImVec4{0.12f, 0.17f, 0.22f, 1.0f};
+    _playModeColors[ImGuiCol_TitleBgActive]    = ImVec4{0.13f, 0.18f, 0.24f, 1.0f};
+    _playModeColors[ImGuiCol_TitleBgCollapsed] = ImVec4{0.10f, 0.15f, 0.19f, 1.0f};
+
+    // DragDrop
+    _playModeColors[ImGuiCol_DragDropTarget] = ImVec4{0.1f, 0.4f, 0.65f, 1.0f};
 }
