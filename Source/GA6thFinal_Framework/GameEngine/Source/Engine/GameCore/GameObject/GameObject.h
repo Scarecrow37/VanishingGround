@@ -154,6 +154,15 @@ public:
     Scene& GetScene();
 
     /// <summary>
+    /// 이 오브젝트가 속한 씬의 이름을 반환합니다.
+    /// </summary>
+    /// <returns></returns>
+    std::string_view GetOwnerSceneName()
+    {
+        return _ownerScene;
+    }
+
+    /// <summary>
     /// <para>이 GameObject의 InstanceID를 반환합니다.                                 </para>
     /// <para>참고 : InstanceID는 매 런타임마다 달라집니다. 즉 UUID로 사용할 수 없습니다. </para>
     /// </summary>
