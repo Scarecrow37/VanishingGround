@@ -204,6 +204,13 @@ void EditorModule::EditorPlayMode::Play()
 
             auto writePath = std::filesystem::relative(path, UmFileSystem.GetAssetPath()).parent_path();
             UmSceneManager.WriteSceneToFile(*scene, writePath.string(), true);
+            for (const auto& object : ESceneManager::Engine::GetRuntimeObjects())
+            {
+                if (object)
+                {
+                    object->ActiveSelf = false; // 스크립트 이벤트 함수들 호출 방지용
+                }           
+            }
             UmSceneManager.LoadScene(path.string()); 
             SetPlayModeColor();
 
@@ -216,9 +223,16 @@ void EditorModule::EditorPlayMode::Stop()
 {
     if (true == _isPlay)
     {
+        for (const auto& object : ESceneManager::Engine::GetRuntimeObjects())
+        {
+            if (object)
+            {
+                object->ActiveSelf = false; //스크립트 이벤트 함수들 호출 방지용
+                GameObject::Destroy(object.get()); //DontDestroyOnLoad도 파괴해야함
+            }
+        }
         UmSceneManager.LoadScene(_playSceneGuid.ToPath().string());
         Global::editorModule->SetGuiThemeStyle();
-
         _isPlay = false;
     }
 }
