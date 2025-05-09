@@ -941,8 +941,9 @@ void ESceneManager::OnFileRegistered(const File::Path& path)
                 return;
             }
         }    
-        std::filesystem::path relativeRootPath = UmFileSystem.GetRelativePath(path);
-        WriteSceneToFile(scene, relativeRootPath.parent_path().string(), true);
+        std::filesystem::path writePath = path;
+        writePath = std::filesystem::relative(writePath, UmFileSystem.GetAssetPath()).parent_path();
+        WriteSceneToFile(scene, writePath.string(), true);
     }
     
     if (_loadFuncEvent)

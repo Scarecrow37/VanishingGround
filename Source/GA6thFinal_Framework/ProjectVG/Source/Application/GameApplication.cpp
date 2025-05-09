@@ -26,40 +26,39 @@ GameApplication::GameApplication()
     _clientSize = { 1920, 1080 };
     _windowName = L"Umreal Engine";
 
-    if constexpr (true == Application::IsEditor())
-    {
-        // 에디터 매니저 등록
-        _editorModule = AddModule<EditorModule>();
+#ifdef _UMEDITOR
+    // 에디터 매니저 등록
+    _editorModule = AddModule<EditorModule>();
 
-        // 추가할 에디터 작성
-        /* Tool */
-        _editorModule->RegisterEditorObject<EditorDebugTool>();
-        _editorModule->RegisterEditorObject<EditorHierarchyTool>();
-        _editorModule->RegisterEditorObject<EditorInspectorTool>();
-        _editorModule->RegisterEditorObject<EditorSceneTool>();
-        _editorModule->RegisterEditorObject<EditorAssetBrowserTool>();
-        _editorModule->RegisterEditorObject<EditorLogsTool>();
-        _editorModule->RegisterEditorObject<EditorCommandTool>();
-        _editorModule->RegisterEditorObject<EditorModelTool>();
+    // 추가할 에디터 작성
+    /* Tool */
+    _editorModule->RegisterEditorObject<EditorDebugTool>();
+    _editorModule->RegisterEditorObject<EditorHierarchyTool>();
+    _editorModule->RegisterEditorObject<EditorInspectorTool>();
+    _editorModule->RegisterEditorObject<EditorSceneTool>();
+    _editorModule->RegisterEditorObject<EditorAssetBrowserTool>();
+    _editorModule->RegisterEditorObject<EditorLogsTool>();
+    _editorModule->RegisterEditorObject<EditorCommandTool>();
+    _editorModule->RegisterEditorObject<EditorModelTool>();
 
-        // 블루프린트 버그있음
-        //_editorModule->RegisterEditorObject<EditorShaderGraph>();
+    // 블루프린트 버그있음
+    //_editorModule->RegisterEditorObject<EditorShaderGraph>();
 
-        /* Menu */
-        // Project
-        _editorModule->RegisterEditorObject<EditorMenuProjectRoot>();
-        _editorModule->RegisterEditorObject<EditorMenuScriptBuilder>();
-        _editorModule->RegisterEditorObject<EditorBuildSettingMenu>();
-        // Window
-        _editorModule->RegisterEditorObject<EditorMenuTools>();
-        // Setting
-        _editorModule->RegisterEditorObject<EditorMenuDebug>();
-        _editorModule->RegisterEditorObject<EditorMenuStyleEditor>();
-        _editorModule->RegisterEditorObject<EditorMenuFileSystemSetting>();
-        
-        // Scene
-        _editorModule->RegisterEditorObject<EditorSceneMenuScenes>();
-    }
+    /* Menu */
+    // Project
+    _editorModule->RegisterEditorObject<EditorMenuProjectRoot>();
+    _editorModule->RegisterEditorObject<EditorMenuScriptBuilder>();
+    _editorModule->RegisterEditorObject<EditorBuildSettingMenu>();
+    // Window
+    _editorModule->RegisterEditorObject<EditorMenuTools>();
+    // Setting
+    _editorModule->RegisterEditorObject<EditorMenuDebug>();
+    _editorModule->RegisterEditorObject<EditorMenuStyleEditor>();
+    _editorModule->RegisterEditorObject<EditorMenuFileSystemSetting>();
+
+    // Scene
+    _editorModule->RegisterEditorObject<EditorSceneMenuScenes>();
+#endif // _UMEDITOR
 }
 
 GameApplication::~GameApplication()
