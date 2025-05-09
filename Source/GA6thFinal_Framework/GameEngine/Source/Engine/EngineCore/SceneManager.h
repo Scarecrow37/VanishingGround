@@ -63,6 +63,7 @@ public:
     SETTER(bool, IsDirty);
     PROPERTY(IsDirty)
 private:
+    bool _isDontDestroyOnLoad = false;
     bool _isDirty   = false;
     bool _isLoaded = false;
     File::Guid _guid = STR_NULL;
@@ -110,6 +111,7 @@ public:
     static constexpr const char* SCENE_EXTENSION = ".UmScene";
     static constexpr const char* SETTING_FILE_NAME = "SceneManager.setting.json";
     static constexpr const char* EMPTY_SCENE_NAME  = "EmptyScene";
+    static constexpr const char* DONT_DESTROY_ON_LOAD_SCENE_NAME = "DontDestroyOnLoad";
     static std::filesystem::path GetSettingFilePath();
 
     //엔진 접근용 네임스페이스
@@ -285,6 +287,12 @@ public:
     }
 
     /// <summary>
+    /// 씬 로드해도 파괴되지 않는 씬을 가져옵니다.
+    /// </summary>
+    /// <returns>DontDestroyOnLoad 오브젝트가 없으면 nullptr</returns>
+    Scene* GetDontDestroyOnLoadScene();
+
+    /// <summary>
     /// 씬 정보를 이름을 통해 찾아서 반환합니다.
     /// </summary>
     /// <returns>성공시 Scene 의 주소, 실패시 nullptr</returns>
@@ -309,9 +317,9 @@ public:
 private:
 #ifdef _UMEDITOR
     //play 여부
-    bool isPlay = true;
+    bool _isPlay = true;
 #else
-    static constexpr bool isPlay = true;
+    static constexpr bool _isPlay = true;
 #endif
 
     //Life cycle 을 수행. 클라에서 매틱 호출해야함.
@@ -477,7 +485,15 @@ inline auto ESceneManager::GetRootGameObjectsByPath(std::string_view path)
 
 inline auto Scene::GetRootGameObjects() const
 {
-    std::string path = Path;
+    std::string path;
+    if (_isDontDestroyOnLoad)
+    {
+        path = ESceneManager::DONT_DESTROY_ON_LOAD_SCENE_NAME;
+    }
+    else
+    {
+        path = Path;
+    }
     return ESceneManager::GetRootGameObjectsByPath(path);
 }
 

@@ -1,7 +1,6 @@
 ﻿#include "pch.h"
 using namespace Global;
 using namespace u8_literals;
-static constexpr const char* DONT_DESTROY_ON_LOAD_SCENE_NAME = "DontDestroyOnLoad";
 
 void Scene::IsDirty_property_setter(const std::remove_cvref_t<bool>& value) 
 {
@@ -91,7 +90,7 @@ void ESceneManager::Engine::SceneUpdate()
 void ESceneManager::SceneUpdate()
 {
 #ifdef _UMEDITOR
-    isPlay = editorModule->PlayMode.IsPlay();
+    _isPlay = editorModule->PlayMode.IsPlay();
 #endif
 
     ObjectsAddRuntime();
@@ -298,19 +297,25 @@ void ESceneManager::Engine::DestroyObject(GameObject& gameObject)
 void ESceneManager::Engine::DontDestroyOnLoadObject(GameObject* gameObject)
 {
     ESceneManager& SceneManager = engineCore->SceneManager;
-
-    auto find = SceneManager._scenesMap.find(DONT_DESTROY_ON_LOAD_SCENE_NAME);
-    Scene* pDontDestroyScene = nullptr;
-    if (find == SceneManager._scenesMap.end())
+    if (true == SceneManager._isPlay)
     {
-        pDontDestroyScene = &SceneManager._scenesMap[DONT_DESTROY_ON_LOAD_SCENE_NAME];
+        auto find = SceneManager._scenesMap.find(DONT_DESTROY_ON_LOAD_SCENE_NAME);
+        Scene* pDontDestroyScene = nullptr;
+        if (find == SceneManager._scenesMap.end())
+        {
+            pDontDestroyScene = &SceneManager._scenesMap[DONT_DESTROY_ON_LOAD_SCENE_NAME];
+            pDontDestroyScene->_isDontDestroyOnLoad = true;
+        }
+        else
+        {
+            pDontDestroyScene = &find->second;
+        }
+        if (pDontDestroyScene->isLoaded == false)
+        {
+            pDontDestroyScene->_isLoaded = true;
+        }
+        gameObject->_ownerScene = DONT_DESTROY_ON_LOAD_SCENE_NAME;
     }
-    else
-    {
-        pDontDestroyScene = &find->second;
-    }
-    pDontDestroyScene->_isLoaded = true;
-    gameObject->_ownerScene      = DONT_DESTROY_ON_LOAD_SCENE_NAME;
 }
 
 void ESceneManager::Engine::DontDestroyOnLoadObject(GameObject& gameObject)
@@ -413,15 +418,13 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
         _addGameObjectsQueue.clear();
         _lodedSceneList.clear();
 
-        for (auto& [guid, scene] : _scenesMap)
+        for (auto& obj : _runtimeObjects)
         {
-            if (guid == DONT_DESTROY_ON_LOAD_SCENE_NAME)
-                continue;
-
-            scene._isLoaded = false;
-            auto objects = scene.GetRootGameObjects();
-            for (auto& obj : objects)
+            if (obj)
             {
+                if (obj->_ownerScene == DONT_DESTROY_ON_LOAD_SCENE_NAME)
+                    continue;
+
                 GameObject::Destroy(obj.get());
             }
         }
@@ -490,6 +493,16 @@ void ESceneManager::UnloadScene(std::string_view sceneName)
         GameObject::Destroy(obj.get());
     }
     std::erase(_lodedSceneList, scene);
+}
+
+Scene* ESceneManager::GetDontDestroyOnLoadScene() 
+{
+    auto findIter = _scenesMap.find(DONT_DESTROY_ON_LOAD_SCENE_NAME);
+    if (findIter != _scenesMap.end())
+    {
+        return &findIter->second;
+    }
+    return nullptr;
 }
 
 Scene* ESceneManager::GetSceneByName(std::string_view name)
@@ -643,7 +656,7 @@ void ESceneManager::ObjectsOnEnable()
         *value = true;  
     }
     
-    if (isPlay)
+    if (_isPlay)
     {
         for (auto& component : OnEnableVec)
         {
@@ -663,7 +676,7 @@ void ESceneManager::ObjectsOnDisable()
         *value = false;
     }
 
-    if (isPlay)
+    if (_isPlay)
     {
         for (auto& component : OnDisableVec)
         {
@@ -684,7 +697,7 @@ void ESceneManager::ObjectsDestroy()
         //OnDestroy 대상 호출
         if (destroyComponent->_gameObect->ActiveInHierarchy_property_getter())
         {
-            if (isPlay)
+            if (_isPlay)
             {
                 if (destroyComponent->Enable)
                 {
@@ -717,7 +730,7 @@ void ESceneManager::ObjectsDestroy()
         {
             for (auto& component : destroyObject->_components)
             {
-                if (isPlay)
+                if (_isPlay)
                 {
                     if (component->Enable)
                     {
@@ -770,7 +783,7 @@ void ESceneManager::ObjectsAddRuntime()
     for (auto& component : _addComponentsQueue)
     {
         component->_gameObect->_components.emplace_back(component);
-        if (isPlay)
+        if (_isPlay)
         {
             _waitAwakeVec.push_back(component);
             _waitStartVec.push_back(component);
