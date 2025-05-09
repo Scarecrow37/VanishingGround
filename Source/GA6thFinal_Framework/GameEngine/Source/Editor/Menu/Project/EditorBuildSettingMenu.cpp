@@ -8,7 +8,6 @@ EditorBuildSettingMenu::EditorBuildSettingMenu()
 {
     SetCallOrder(1);
     SetPath("Project/Build");
-    SetLabel("");
 }
 
 void EditorBuildSettingMenu::OnTickGui()

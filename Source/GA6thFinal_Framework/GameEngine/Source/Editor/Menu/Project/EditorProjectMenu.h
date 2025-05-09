@@ -9,7 +9,6 @@ public:
     EditorMenuScriptBuilder() {
         SetCallOrder(0);
         SetPath("Project/Build");
-        SetLabel("");
     }
     virtual ~EditorMenuScriptBuilder() = default;
 public:
@@ -26,7 +25,6 @@ public:
     {
         SetCallOrder(0);
         SetPath("Project");
-        SetLabel("ProjectManager");
     }
     virtual ~EditorMenuProjectRoot() = default;
 
