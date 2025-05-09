@@ -58,6 +58,9 @@ GameApplication::GameApplication()
 
     // Scene
     _editorModule->RegisterEditorObject<EditorSceneMenuScenes>();
+
+    // Play
+    _editorModule->RegisterEditorObject<EditorPlayMenu>();
 #endif // _UMEDITOR
 }
 
@@ -68,6 +71,7 @@ GameApplication::~GameApplication()
 
 void GameApplication::OnStartupComplete() 
 {
+
 }
 
 void GameApplication::OnShutdownComplete() 
