@@ -292,6 +292,7 @@ void EditorHierarchyTool::HierarchyRightClickEvent() const
 
 void EditorHierarchyTool::OnFrame()
 {
+    std::shared_ptr<GameObject> focusObject = HierarchyFocusObjWeak.lock();
     _window = ImGui::GetCurrentWindow();
     HierarchyRightClickEvent();
     HierarchyDropEvent();
@@ -342,7 +343,6 @@ void EditorHierarchyTool::OnFrame()
             if (isCollapsingOpen)
             {
                 auto rootObjects = scene.GetRootGameObjects();
-                std::shared_ptr<GameObject> focusObject = HierarchyFocusObjWeak.lock();
                 for (auto& obj : rootObjects)
                 {
                     ImGui::PushID(obj.get());
@@ -354,6 +354,28 @@ void EditorHierarchyTool::OnFrame()
             }
         }      
         ImGui::PopID();
+    }
+
+    if (editorModule->PlayMode.IsPlay())
+    {
+        Scene* pDontDestroyOnLoad = UmSceneManager.GetDontDestroyOnLoadScene();
+        if (nullptr != pDontDestroyOnLoad)
+        {
+            bool isCollapsingOpen =
+                ImGui::CollapsingHeader("DontDestroyOnLoad", ImGuiTreeNodeFlags_::ImGuiTreeNodeFlags_DefaultOpen);
+            if (isCollapsingOpen)
+            {
+                auto rootObjects = pDontDestroyOnLoad->GetRootGameObjects();
+                for (auto& obj : rootObjects)
+                {
+                    ImGui::PushID(obj.get());
+                    {
+                        TransformTreeNode(obj->transform, focusObject);
+                    }
+                    ImGui::PopID();
+                }
+            }
+        }
     }
 }
 
