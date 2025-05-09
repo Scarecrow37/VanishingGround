@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+class EditorDockSpace;
+
 /*
 도킹이 가능한 에디터 윈도우를 생성할 수 있는 객체
 */
@@ -52,7 +54,11 @@ public:
     inline void             SetPos(const ImVec2& pos) { _pos = {true, pos}; }
     inline ImVec2           GetPos() { return _pos.second; }
 
+    void SetDockSpace(EditorDockSpace* dockSpace) { _dockSpace = dockSpace; }
+
 private:
+    EditorDockSpace* _dockSpace = nullptr; // 도킹 스페이스 (부모 도킹스페이스)
+
     DockLayout              _dockLayout = DockLayout::NONE;         // 초기 Dock영역 (초기 도킹빌드시에만 사용하고 이후엔 사용 X)
     ImGuiWindowFlags        _windowFlags = ImGuiWindowFlags_None;   // ImGui윈도우 플래그 (ImGuiWindowFlags_NoCollapse는 항상 활성화)
     bool                    _isLock = false;                        // 해당 탭에 대한 입력을 막을지에 대한 여부

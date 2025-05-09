@@ -49,6 +49,12 @@ concept IsEditorMenu = IsEditorGui<T> && std::is_base_of_v<EditorMenu, T>;
      bool IsLock();
 
  public:
+     template <IsEditorTool T>
+     void AddDockSpace()
+     {
+
+     }
+
      /* 툴을 등록합니다. */
      template <IsEditorGui T>
      void RegisterEditorObject()
@@ -106,4 +112,8 @@ concept IsEditorMenu = IsEditorGui<T> && std::is_base_of_v<EditorMenu, T>;
      EditorPopupBoxSystem*  _PopupBox;                          // 에디터 모달 팝업
      EditorMenuBar*         _mainMenuBar;                       // 에디터 메뉴 바
      EditorDockSpace*       _mainDockSpace;                     // 에디터 도킹 스페이스
-};
+
+     std::unordered_map<std::string, EditorDockSpace*> _editorToolTable; // 검색용 툴 컨테이너
+     std::vector<EditorTool*> _editorToolList; // 에디터 툴 리스트
+     std::vector<EditorMenu*> _editorMenuList; // 에디터 메뉴 리스트
+ };

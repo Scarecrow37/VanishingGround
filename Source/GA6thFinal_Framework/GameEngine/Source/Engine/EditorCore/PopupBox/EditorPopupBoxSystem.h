@@ -14,6 +14,7 @@ public:
 
     void OpenPopupBox(const std::string& name, std::function<void()> content);
 
+public:
     bool IsExistPopupBox(const std::string& name);
 
     bool IsPopupBoxOpened(const std::string& name);

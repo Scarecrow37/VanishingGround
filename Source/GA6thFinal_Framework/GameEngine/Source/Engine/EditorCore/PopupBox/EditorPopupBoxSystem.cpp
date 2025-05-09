@@ -46,7 +46,7 @@ bool EditorPopupBoxSystem::IsEmpty()
     return isEmpty;
 }
 
-void EditorPopupBoxSystem::OnDrawGui()
+void EditorPopupBoxSystem::Update()
 {
     if (_popupBoxQueue.empty())
     {

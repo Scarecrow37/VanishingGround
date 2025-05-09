@@ -9,15 +9,21 @@ EditorModule::EditorModule()
 {
     Global::editorModule = this;
     _mainMenuBar = new EditorMenuBar;
-    _mainDockSpace = new EditorDockSpace;
-    _PopupBox = new EditorPopupBoxSystem;
+    _popupBoxSystem = new EditorPopupBoxSystem;
+
+    ImGuiWindowClass mainClass;
+    mainClass.ClassId               = ImHashStr("MainDockSpace");
+    mainClass.DockingAllowUnclassed = false;
+
+    _mainDockSpace = new EditorDockSpace(mainClass);
+    _mainDockSpace->SetDockFullSpace(true);
 }
 
 EditorModule::~EditorModule()
 {
     delete _mainMenuBar;
     delete _mainDockSpace;
-    delete _PopupBox;
+    delete _popupBoxSystem;
 }
 
 void EditorModule::PreInitialize() {}
@@ -116,12 +122,12 @@ void EditorModule::Update()
     if (true == isLock)
         ImGui::EndDisabled();
 
-    _PopupBox->OnDrawGui(); // 모달 팝업창 
+    _popupBoxSystem->Update(); // 모달 팝업창
 }
 
 bool EditorModule::IsLock()
 {
-    return (false == _PopupBox->IsEmpty());
+    return (false == _popupBoxSystem->IsEmpty());
 }
 
 void EditorModule::SetGuiThemeStyle()

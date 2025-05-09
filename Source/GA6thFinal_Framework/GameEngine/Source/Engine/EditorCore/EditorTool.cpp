@@ -39,6 +39,7 @@ void EditorTool::OnDrawGui()
         }
 
         std::string label = GetLabel();
+        ImGui::SetNextWindowClass(_dockSpace->GetDockWindowClass());
         ImGui::Begin(label.c_str(), &_isVisible, _windowFlags | ImGuiWindowFlags_NoCollapse);
 
         if (true == Global::editorModule->IsDebugMode())

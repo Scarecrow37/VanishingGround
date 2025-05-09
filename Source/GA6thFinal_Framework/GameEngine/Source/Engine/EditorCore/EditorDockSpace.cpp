@@ -1,13 +1,15 @@
 ﻿#include "pch.h"
 #include "EditorDockSpace.h"
 
-EditorDockSpace::EditorDockSpace()
-    : _isFullSpace(true)
+EditorDockSpace::EditorDockSpace(const ImGuiWindowClass& windowClass)
+    : _isFullSpace(false)
     , _isPadding(false)
     , _dockSpaceMainID()
     , _dockLayoutID()
     , _dockNodeFlags(ImGuiDockNodeFlags_NoCloseButton | ImGuiDockNodeFlags_NoWindowMenuButton)
-    , _dockWindowFlags(ImGuiWindowFlags_None)
+    , _dockWindowFlags(ImGuiWindowFlags_MenuBar)
+    , _windowClass(windowClass)
+    , _parentDockSpace(nullptr)
 {
     SetLabel("DockSpace");
 }
@@ -57,6 +59,8 @@ void EditorDockSpace::OnDrawGui()
     SubmitDockSpace();      // Submit Dock
     PopDockStyle();         // Dock Style Pop
 
+    ImGui::End();
+
     for (auto& tool : _editorToolList)
     {
         if (nullptr != tool)
@@ -66,8 +70,6 @@ void EditorDockSpace::OnDrawGui()
             ImGui::PopID();
         }
     }
-
-    ImGui::End();
 }
 
 void EditorDockSpace::OnEndGui()
@@ -78,6 +80,16 @@ void EditorDockSpace::OnEndGui()
         {
             tool->OnEndGui();
         }
+    }
+}
+
+void EditorDockSpace::SetParent(EditorDockSpace* parent) 
+{
+    _parentDockSpace = parent;
+    if (nullptr != parent)
+    {
+        //_dockNodeFlags |= ImGuiDockNodeFlags_PassthruCentralNode;
+        //_dockWindowFlags |= ImGuiWindowFlags_NoCollapse;
     }
 }
 
@@ -135,7 +147,15 @@ void EditorDockSpace::SubmitDockSpace()
     {
         _dockSpaceMainID = ImGui::GetID(GetLabel().c_str());
         InitDockLayout();
-        ImGui::DockSpace(_dockSpaceMainID, ImVec2(0.0f, 0.0f), _dockNodeFlags);
+        if (nullptr == _parentDockSpace)
+        {
+            ImGui::SetNextWindowClass(&_windowClass);
+        }
+        else
+        {
+            ImGui::SetNextWindowClass(_parentDockSpace->GetDockWindowClass());
+        }
+        ImGui::DockSpace(_dockSpaceMainID, ImVec2(0.0f, 0.0f), _dockNodeFlags, &_windowClass);
     }
     style.WindowMinSize.x = minWinSizeX;
 }
@@ -144,7 +164,7 @@ void EditorDockSpace::UpdateWindowFlag()
 {
     // We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
     // because it would be confusing to have two docking targets within each others.
-    _dockWindowFlags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+    _dockWindowFlags = ImGuiWindowFlags_MenuBar;
     if (_isFullSpace)
     {
         _dockWindowFlags |=
@@ -153,7 +173,8 @@ void EditorDockSpace::UpdateWindowFlag()
             ImGuiWindowFlags_NoResize |
             ImGuiWindowFlags_NoMove |
             ImGuiWindowFlags_NoBringToFrontOnFocus |
-            ImGuiWindowFlags_NoNavFocus;
+            ImGuiWindowFlags_NoNavFocus |
+            ImGuiWindowFlags_NoDocking;
     }
 
     // When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background
