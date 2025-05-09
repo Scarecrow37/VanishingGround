@@ -12,7 +12,7 @@ Command::Hierarchy::NewGameObjectCommand::NewGameObjectCommand(std::string_view 
 void Command::Hierarchy::NewGameObjectCommand::Execute() 
 {
     auto pObject = UmGameObjectFactory.NewGameObject(_typeName, _newName);
-    pObject->GetScene().isDirty = true;
+    pObject->GetScene().IsDirty = true;
     _newObject = pObject;
 }
 
@@ -22,6 +22,6 @@ void Command::Hierarchy::NewGameObjectCommand::Undo()
     {
         auto pObject = _newObject.lock();
         GameObject::Destroy(pObject.get());
-        pObject->GetScene().isDirty = true;
+        pObject->GetScene().IsDirty = true;
     }
 }

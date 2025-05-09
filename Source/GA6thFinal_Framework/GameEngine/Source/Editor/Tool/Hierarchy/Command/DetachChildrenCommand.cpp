@@ -21,7 +21,7 @@ void Command::Hierarchy::DetachChildrenCommand::Execute()
                 _childrens.push_back(child->gameObject->GetWeakPtr());
             }
             targetObject->transform->DetachChildren();
-            targetObject->GetScene().isDirty = true;
+            targetObject->GetScene().IsDirty = true;
         }
     }      
 }
@@ -40,6 +40,6 @@ void Command::Hierarchy::DetachChildrenCommand::Undo()
             auto pChild = weakChild.lock();
             pChild->transform->SetParent(pTargetObject->transform);
         }
-        pTargetObject->GetScene().isDirty = true;
+        pTargetObject->GetScene().IsDirty = true;
     }
 }
