@@ -13,6 +13,17 @@ public:
     void Render();
 
 private:
+    void InitializeComputeCommandObject();
+    void InitializeRenderCommandList();
+    void InitializeComputeSyncObject();
+    void InitializeComputeShader();
+    void InitializeComputeRootSignature();
+    void InitializeComputePSO();
+
+
+
+
+
     ComPtr<ID3D12Device>              _device;
     ComPtr<ID3D12CommandQueue>        _computeQueue;
     ComPtr<ID3D12CommandAllocator>    _computeAllocator;
@@ -24,7 +35,9 @@ private:
 
     ComPtr<ID3D12RootSignature> _computeRootSignature;
     ComPtr<ID3D12PipelineState> _computePSO;
-    
+    ComPtr<ID3DBlob>            _computeShaderBlob;
+
+
     ComPtr<ID3D12Resource>       _particleBuffers[2];
     ComPtr<ID3D12DescriptorHeap> _uavHeap;
     D3D12_CPU_DESCRIPTOR_HANDLE  _uavHandles[2];
