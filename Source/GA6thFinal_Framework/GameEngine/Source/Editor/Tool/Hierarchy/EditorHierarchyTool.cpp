@@ -218,7 +218,7 @@ static void TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>
 EditorHierarchyTool::EditorHierarchyTool()
 {
     SetLabel("Hierarchy");
-    SetDockLayout(DockLayout::LEFT);
+    SetDockLayout(ImGuiDir_Left);
 }
 
 EditorHierarchyTool::~EditorHierarchyTool()

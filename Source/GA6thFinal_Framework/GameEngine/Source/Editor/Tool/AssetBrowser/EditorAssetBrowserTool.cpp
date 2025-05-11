@@ -6,7 +6,7 @@ using namespace u8_literals;
 EditorAssetBrowserTool::EditorAssetBrowserTool()
 {
     SetLabel("AssetBrowser");
-    SetDockLayout(DockLayout::DOWN);
+    SetDockLayout(ImGuiDir_Down);
     //SetWindowFlag(ImGuiWindowFlags_MenuBar);
 
     _selectedContext = std::make_shared<EditorAssetObject>();

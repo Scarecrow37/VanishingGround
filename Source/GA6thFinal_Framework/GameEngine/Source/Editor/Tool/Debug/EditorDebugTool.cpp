@@ -9,7 +9,7 @@ EditorDebugTool::EditorDebugTool()
     _fps()
 {
     SetLabel("Debug");
-    SetDockLayout(DockLayout::DOWN);
+    SetDockLayout(ImGuiDir_Down);
 }
 
 EditorDebugTool::~EditorDebugTool()

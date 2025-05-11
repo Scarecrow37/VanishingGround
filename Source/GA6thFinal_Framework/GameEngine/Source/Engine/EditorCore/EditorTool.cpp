@@ -17,13 +17,9 @@ Popup창도 OpenPopup을 할 필요가 없다. 그냥 BeginPopupContextItem만 �
 */
 void EditorTool::OnDrawGui()
 {
-    ImGuiIO& io = ImGui::GetIO();
-    
     if (IsVisible())
     {
         static bool isFirstTick = true;
-
-        OnPreFrame();
 
         if (true == _size.first)
         {
@@ -38,14 +34,9 @@ void EditorTool::OnDrawGui()
             _pos.first = false;
         }
 
-        std::string label = GetLabel();
-        ImGui::SetNextWindowClass(_dockSpace->GetDockWindowClass());
-        ImGui::Begin(label.c_str(), &_isVisible, _windowFlags | ImGuiWindowFlags_NoCollapse);
+        OnPreFrame();
 
-        if (true == Global::editorModule->IsDebugMode())
-        {
-            DefaultDebugFrame();
-        }
+        BeginFrame();
 
         if (false == isFirstTick && true == ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows))
         {
@@ -71,7 +62,7 @@ void EditorTool::OnDrawGui()
             ImGui::EndDisabled();
         }
 
-        ImGui::End();
+        EndFrame();
 
         OnPostFrame();
 
@@ -104,27 +95,21 @@ void EditorTool::DefaultPopupFrame()
     ImGui::MenuItem("Close", "", &_isVisible);
     ImGui::Separator();
     ImGui::MenuItem("Lock", "", &_isLock);
-    //ImGui::Separator();
 }
 
-void EditorTool::DefaultDebugFrame()
+void EditorTool::BeginFrame()
 {
-    static char tooltip[256];
-
-    snprintf(tooltip, sizeof(tooltip), 
-        "GuiID: 0x%08X\nDockID: %d\nFlag: %d\nOrder: %d",
-        ImGui::GetID(""),
-        ImGui::GetWindowDockID(), 
-        _windowFlags, 
-        _callOrder
-    );
-
-    if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
+    std::string       label     = GetLabel();
+    EditorDockWindow* dockSpace = GetDockWindow();
+    if (nullptr != dockSpace)
     {
-        ImGui::BeginTooltip();
-        ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
-        ImGui::TextUnformatted(tooltip);
-        ImGui::PopTextWrapPos();
-        ImGui::EndTooltip();
+        auto& windowClass = dockSpace->GetWindowClass();
+        ImGui::SetNextWindowClass(&windowClass);
     }
+    ImGui::Begin(label.c_str(), &_isVisible, _windowFlags | ImGuiWindowFlags_NoCollapse);
+}
+
+void EditorTool::EndFrame()
+{
+    ImGui::End();
 }

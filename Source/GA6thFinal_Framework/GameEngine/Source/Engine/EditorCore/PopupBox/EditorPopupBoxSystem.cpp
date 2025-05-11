@@ -13,6 +13,49 @@ EditorPopupBoxSystem::~EditorPopupBoxSystem()
     _popupBoxTable.clear();
 }
 
+void EditorPopupBoxSystem::OnTickGui() {}
+
+void EditorPopupBoxSystem::OnStartGui() {}
+
+void EditorPopupBoxSystem::OnDrawGui() 
+{
+    if (_popupBoxQueue.empty())
+    {
+        return;
+    }
+
+    if (nullptr == _currentPopupBox)
+    {
+        _currentPopupBox = _popupBoxQueue.front();
+        auto& popupName  = _currentPopupBox->GetName();
+        ImGui::OpenPopup(popupName.c_str());
+    }
+
+    if (nullptr != _currentPopupBox)
+    {
+        auto& popupName = _currentPopupBox->GetName();
+        bool  isOpen    = _currentPopupBox->IsOpen();
+
+        if (false == _currentPopupBox->IsNull())
+        {
+            if (ImGui::BeginPopupModal(popupName.c_str(), &isOpen, ImGuiWindowFlags_AlwaysAutoResize))
+            {
+                _currentPopupBox->GetContent()();
+                ImGui::EndPopup();
+            }
+            if (false == isOpen)
+            {
+                PopFront();
+                _currentPopupBox = nullptr;
+            }
+        }
+    }
+}
+
+void EditorPopupBoxSystem::OnEndGui() 
+{
+}
+
 void EditorPopupBoxSystem::OpenPopupBox(const std::string& name, std::function<void()> content)
 {
     auto itr = _popupBoxTable.find(name);
@@ -46,43 +89,7 @@ bool EditorPopupBoxSystem::IsEmpty()
     return isEmpty;
 }
 
-void EditorPopupBoxSystem::Update()
-{
-    if (_popupBoxQueue.empty())
-    {
-        return;
-    }
-    static EditorPopupBox* popupBox = nullptr;
-
-    if (nullptr == popupBox)
-    {
-        popupBox    = _popupBoxQueue.front();
-        auto& name  = popupBox->GetName();
-        ImGui::OpenPopup(name.c_str());
-    }
-
-    if (nullptr != popupBox)
-    {
-        auto& name   = popupBox->GetName();
-        bool  isOpen = popupBox->IsOpen();
-
-        if (false == popupBox->IsNull())
-        {
-            if (ImGui::BeginPopupModal(name.c_str(), &isOpen, ImGuiWindowFlags_AlwaysAutoResize))
-            {
-                popupBox->GetContent()();
-                ImGui::EndPopup();
-            }
-            if (false == isOpen)
-            {
-                Pop();
-                popupBox = nullptr;
-            }
-        }
-    }
-}
-
-void EditorPopupBoxSystem::Pop()
+void EditorPopupBoxSystem::PopFront()
 {
     auto* popupBox = _popupBoxQueue.front();
     auto& name     = popupBox->GetName();

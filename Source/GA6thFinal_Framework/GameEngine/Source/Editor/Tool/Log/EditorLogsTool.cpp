@@ -7,7 +7,7 @@ using namespace Global;
 EditorLogsTool::EditorLogsTool()
 {
     SetLabel(u8"로그###로그"_c_str);
-    SetDockLayout(DockLayout::DOWN);
+    SetDockLayout(ImGuiDir_Down);
     ResetLogColor();
     ResetLogFilter();
 }

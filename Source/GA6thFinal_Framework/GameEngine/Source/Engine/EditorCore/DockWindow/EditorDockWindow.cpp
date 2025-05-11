@@ -1,52 +1,83 @@
 ﻿#include "pch.h"
 #include "EditorDockWindow.h"
 
+EditorDockWindow::EditorDockWindow() 
+{
+}
+
+EditorDockWindow::~EditorDockWindow() 
+{
+    for (auto& editor : _editorToolList)
+    {
+        if (nullptr != editor)
+        {
+            delete editor;
+            editor = nullptr;
+        }
+    }
+    _editorToolList.clear();
+    _editorToolTable.clear();
+}
+
+
 void EditorDockWindow::OnTickGui() 
 {
+    for (auto& editor : _editorToolList)
+    {
+        if (nullptr != editor)
+        {
+            editor->OnTickGui();
+        }
+    }
 }
 
 void EditorDockWindow::OnStartGui() 
 {
-    _dockSplitMainID = ImHashStr(GetLabel().c_str());
-
-    _imGuiWindowClass.ClassId = _dockSplitMainID;
-    _imGuiWindowClass.DockingAllowUnclassed = false;
-    _imGuiWindowClass.DockingAlwaysTabBar   = true;
-}
-
-void EditorDockWindow::OnDrawGui() 
-{
-    UpdateFlag(); 
-    PushDockStyle(); 
-
-    ImGui::Begin(GetLabel().c_str(), nullptr, _imGuiWindowFlags);
-
-    SubmitDockSpace(); 
-    PopDockStyle();    
-
-    ImGui::End();
+    for (auto& editor : _editorToolList)
+    {
+        if (nullptr != editor)
+        {
+            editor->OnStartGui();
+        }
+    }
 }
 
 void EditorDockWindow::OnEndGui() 
 {
+    for (auto& editor : _editorToolList)
+    {
+        if (nullptr != editor)
+        {
+            editor->OnEndGui();
+        }
+    }
 }
 
-void EditorDockWindow::InitDockLayout()
+void EditorDockWindow::OnPreFrame() 
 {
-    if (NULL == ImGui::DockBuilderGetNode(_dockSplitMainID))
+    UpdateFlag();
+    PushDockStyle();
+}
+
+void EditorDockWindow::OnFrame()
+{
+    SubmitDockSpace();
+    PopDockStyle();
+}
+
+void EditorDockWindow::OnPostFrame()
+{
+    for (auto& editor : _editorToolList)
     {
-        ImGui::DockBuilderRemoveNode(_dockSplitMainID);
-        ImGui::DockBuilderAddNode(_dockSplitMainID, _userImGuiDockFlags); // 새로 추가
-
-        ImGuiID dock_main_id = _dockSplitMainID; // This variable will track the document node, however we are not using
-
-        for (auto& [id, direction, ratio] : _dockSplitLayoutID)
+        if (nullptr != editor)
         {
-            id = ImGui::DockBuilderSplitNode(dock_main_id, direction, ratio, NULL, &dock_main_id);
+            editor->OnDrawGui();
         }
-
-        ImGui::DockBuilderFinish(_dockSplitMainID);
     }
+}
+
+void EditorDockWindow::UpdateFlag()
+{
 }
 
 void EditorDockWindow::SubmitDockSpace() 
@@ -60,28 +91,50 @@ void EditorDockWindow::SubmitDockSpace()
     style.WindowMinSize.x   = 370.0f;
     if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
     {
+        auto& windowClass = GetWindowClass();
+        _dockSplitMainID = windowClass.ClassId;
         InitDockLayout();
-        ImGui::DockSpace(_dockSplitMainID, ImVec2(0.0f, 0.0f), _imGuiDockFlags);
+        ImGui::DockSpace(windowClass.ClassId, ImVec2(0.0f, 0.0f), _imGuiDockFlags, &windowClass);
     }
     style.WindowMinSize.x = minWinSizeX;
 }
 
-void EditorDockWindow::UpdateFlag() 
+void EditorDockWindow::InitDockLayout()
 {
-    _imGuiWindowFlags = _userImGuiWindowFlags;
-    if (_flags & DOCKWINDOW_FLAGS_FULLSCREEN)
+    bool useDockBuild = (_optionFlags & DOCKWINDOW_FLAGS_USE_DOCKBUILD) != 0;
+    ImGuiDockNode* dockNode = ImGui::DockBuilderGetNode(_dockSplitMainID);
+
+    if (true == useDockBuild && NULL == dockNode)
     {
-        _imGuiWindowFlags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
-                            ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus |
-                            ImGuiWindowFlags_NoNavFocus;
+        ImGui::DockBuilderRemoveNode(_dockSplitMainID);
+        ImGui::DockBuilderAddNode(_dockSplitMainID, _imGuiDockFlags); // 새로 추가
+
+        ImGuiID dock_main_id = _dockSplitMainID;
+
+        for (auto& [direction, ratio] : _dockSplitLayoutID)
+        {
+            ImGuiID id;
+            id = ImGui::DockBuilderSplitNode(dock_main_id, direction, ratio, NULL, &dock_main_id);
+            _dockSplitIDTable[direction] = id;
+        }
+        _dockSplitIDTable[ImGuiDir_None] = dock_main_id;
+        for (auto& [key, tool] : _editorToolTable)
+        {
+            if (nullptr != tool)
+            {
+                const char* label     = tool->GetLabel().c_str();
+                ImGuiDir    direction = tool->GetDockLayout();
+                ImGuiID     splitID   = _dockSplitIDTable[direction];
+                ImGui::DockBuilderDockWindow(label, splitID);
+            }
+        }
+        ImGui::DockBuilderFinish(_dockSplitMainID);
     }
-    if (_imGuiDockFlags & ImGuiDockNodeFlags_PassthruCentralNode)
-        _imGuiWindowFlags |= ImGuiWindowFlags_NoBackground;
 }
 
 void EditorDockWindow::PushDockStyle() 
 {
-    if (_flags & DOCKWINDOW_FLAGS_FULLSCREEN)
+    if (_optionFlags & DOCKWINDOW_FLAGS_FULLSCREEN)
     {
         ImGuiViewport* viewport = ImGui::GetMainViewport();
         ImGui::SetNextWindowPos(viewport->Pos);
@@ -90,7 +143,7 @@ void EditorDockWindow::PushDockStyle()
         ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
     }
-    if (_flags & DOCKWINDOW_FLAGS_PADDING)
+    if (_optionFlags & DOCKWINDOW_FLAGS_PADDING)
     {
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
     }
@@ -98,30 +151,32 @@ void EditorDockWindow::PushDockStyle()
 
 void EditorDockWindow::PopDockStyle() 
 {
-    if (_flags & DOCKWINDOW_FLAGS_FULLSCREEN)
+    if (_optionFlags & DOCKWINDOW_FLAGS_FULLSCREEN)
     {
         ImGui::PopStyleVar(2);
     }
-    if (_flags & DOCKWINDOW_FLAGS_PADDING)
+    if (_optionFlags & DOCKWINDOW_FLAGS_PADDING)
     {
         ImGui::PopStyleVar();
     }
 }
 
-void EditorDockWindow::SetOptionFlags(EditorDockWindowFlags flags) 
+void EditorDockWindow::CreateDockLayoutNode(ImGuiDir direction, float ratio)
 {
-    _flags = flags;
-}
-
-void EditorDockWindow::AddDockLayoutNode(ImGuiDir direction, float ratio)
-{
+    auto itr = _dockSplitIDTable.find(direction);
+    if (_dockSplitIDTable.end() != itr)
+    {
+        /* 도킹 레이아웃 분할 노드는 방향당 한 번만 생성 가능합니다. */
+        return;
+    }
     if (ratio < 0.0f || ratio > 1.0f)
     {
         /* 도킹 레이아웃 분할 비율은 [0 ~ 1] 사이의 값 입니다. */
         ASSERT(false, L"Dock ratio must be between 0.0f and 1.0f");
+        ImClamp(ratio, 0.0f, 1.0f);
     }
-    else
-    {
-        _dockSplitLayoutID.push_back({0, direction, ratio});
-    }
+    _dockSplitLayoutID.push_back({direction, ratio});
+    _dockSplitIDTable[direction] = 0;
+
+    _optionFlags |= DOCKWINDOW_FLAGS_USE_DOCKBUILD;
 }

@@ -4,7 +4,7 @@
 EditorCommandTool::EditorCommandTool() 
 {
     SetLabel("Command");
-    SetDockLayout(DockLayout::RIGHT);
+    SetDockLayout(ImGuiDir_Right);
 }
 
 EditorCommandTool::~EditorCommandTool() {}

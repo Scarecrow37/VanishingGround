@@ -285,6 +285,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Engine\EditorCore\Menu\EditorMenuSystem.h" />
+    <ClInclude Include="Source\Engine\EditorCore\Interface\IEditorCycle.h" />
+    <ClInclude Include="Source\Engine\EditorCore\DockWindow\EditorDockWindow.h" />
     <ClInclude Include="Source\Engine\EditorCore\Interface\IEditorObject.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\d3dUtil.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\RendererFileEvent.h" />
@@ -348,7 +351,7 @@
     <ClInclude Include="Source\Engine\FileSystem\Interface\IFileEventProcesser.h" />
     <ClInclude Include="Source\Engine\FileSystem\FileSystemModule.h" />
     <ClInclude Include="Source\Engine\EditorCore\EditorTool.h" />
-    <ClInclude Include="Source\Engine\EditorCore\EditorDockSpace.h" />
+    <ClInclude Include="Source\Engine\EditorCore\DockWindow\EditorDockWindowSystem.h" />
     <ClInclude Include="Source\Engine\AppModule\EngineCoresModule.h" />
     <ClInclude Include="Source\Engine\AppModule\ImGuiDX12Module.h" />
     <ClInclude Include="Source\Engine\AppModule\Interface\IAppModule.h" />
@@ -395,8 +398,7 @@
     <ClInclude Include="Source\Engine\Utility\stlHelper.h" />
     <ClInclude Include="Source\Engine\ClassCore\ReflectHelper.h" />
     <ClInclude Include="Source\Engine\EditorCore\EditorGui.h" />
-    <ClInclude Include="Source\Engine\EditorCore\EditorEnum.h" />
-    <ClInclude Include="Source\Engine\EditorCore\EditorMenuBar.h" />
+    <ClInclude Include="Source\Engine\EditorCore\Menu\EditorMenuBar.h" />
     <ClInclude Include="Source\Engine\EditorCore\EditorModule.h" />
     <ClInclude Include="Source\Engine\EngineCore\ComponentFactory.h" />
     <ClInclude Include="Source\Engine\EngineCore\EngineCores.h" />
@@ -435,6 +437,8 @@
     <ClInclude Include="Source\Engine\GraphicsCore\VertexShader.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Engine\EditorCore\Menu\EditorMenuSystem.cpp" />
+    <ClCompile Include="Source\Engine\EditorCore\DockWindow\EditorDockWindow.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\d3dUtil.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\RendererFileEvent.cpp" />
     <ClCompile Include="Source\Editor\DynamicCamera\EditorDynamicCamera.cpp" />
@@ -546,13 +550,12 @@
     <ClCompile Include="Source\Engine\FileSystem\Interface\IFileEventProcesser.cpp" />
     <ClCompile Include="Source\Engine\FileSystem\FileSystemModule.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\EditorTool.cpp" />
-    <ClCompile Include="Source\Engine\EditorCore\EditorDockSpace.cpp" />
+    <ClCompile Include="Source\Engine\EditorCore\DockWindow\EditorDockWindowSystem.cpp" />
     <ClCompile Include="Source\Engine\AppModule\EngineCoresModule.cpp" />
     <ClCompile Include="Source\Engine\AppModule\ImGuiDX12Module.cpp" />
     <ClCompile Include="Source\Engine\ClassCore\ReflectHelper.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\EditorGui.cpp" />
-    <ClCompile Include="Source\Engine\EditorCore\EditorEnum.cpp" />
-    <ClCompile Include="Source\Engine\EditorCore\EditorMenuBar.cpp" />
+    <ClCompile Include="Source\Engine\EditorCore\Menu\EditorMenuBar.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\EditorModule.cpp" />
     <ClCompile Include="Source\Engine\EngineCore\ComponentFactory.cpp" />
     <ClCompile Include="Source\Engine\EngineCore\EngineCores.cpp" />

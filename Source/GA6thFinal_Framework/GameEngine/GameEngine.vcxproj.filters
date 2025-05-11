@@ -210,13 +210,10 @@
     <ClInclude Include="Source\Engine\EditorCore\EditorGui.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\EditorCore\EditorEnum.h">
+    <ClInclude Include="Source\Engine\EditorCore\Menu\EditorMenuBar.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\EditorCore\EditorMenuBar.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\EditorCore\EditorDockSpace.h">
+    <ClInclude Include="Source\Engine\EditorCore\DockWindow\EditorDockWindowSystem.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\EditorCore\EditorTool.h">
@@ -543,6 +540,15 @@
     <ClInclude Include="Source\Engine\EditorCore\Interface\IEditorObject.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\EditorCore\DockWindow\EditorDockWindow.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\EditorCore\Interface\IEditorCycle.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\EditorCore\Menu\EditorMenuSystem.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\pch.cpp">
@@ -635,13 +641,10 @@
     <ClCompile Include="Source\Engine\EditorCore\EditorGui.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\EditorCore\EditorEnum.cpp">
+    <ClCompile Include="Source\Engine\EditorCore\Menu\EditorMenuBar.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\EditorCore\EditorMenuBar.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\EditorCore\EditorDockSpace.cpp">
+    <ClCompile Include="Source\Engine\EditorCore\DockWindow\EditorDockWindowSystem.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\EditorCore\EditorTool.cpp">
@@ -939,6 +942,12 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\RendererFileEvent.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\EditorCore\DockWindow\EditorDockWindow.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\EditorCore\Menu\EditorMenuSystem.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

@@ -4,7 +4,7 @@
 EditorInspectorTool::EditorInspectorTool()
 {
     SetLabel("Inspector");
-    SetDockLayout(DockLayout::RIGHT);
+    SetDockLayout(ImGuiDir_Right);
 
     SetWindowFlag(ImGuiWindowFlags_MenuBar); // 메뉴바 사용
 }

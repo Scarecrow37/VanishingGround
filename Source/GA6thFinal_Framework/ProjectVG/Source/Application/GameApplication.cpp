@@ -29,35 +29,26 @@ GameApplication::GameApplication()
 #ifdef _UMEDITOR
     // 에디터 매니저 등록
     _editorModule = AddModule<EditorModule>();
-
-    // 추가할 에디터 작성
-    /* Tool */
-    _editorModule->RegisterEditorObject<EditorDebugTool>();
-    _editorModule->RegisterEditorObject<EditorHierarchyTool>();
-    _editorModule->RegisterEditorObject<EditorInspectorTool>();
-    _editorModule->RegisterEditorObject<EditorSceneTool>();
-    _editorModule->RegisterEditorObject<EditorAssetBrowserTool>();
-    _editorModule->RegisterEditorObject<EditorLogsTool>();
-    _editorModule->RegisterEditorObject<EditorCommandTool>();
-    _editorModule->RegisterEditorObject<EditorModelTool>();
-
+    BuildRootDock();
+    BuildSceneDock();
+    BuildAssetDock();
     // 블루프린트 버그있음
     //_editorModule->RegisterEditorObject<EditorShaderGraph>();
 
-    /* Menu */
-    // Project
-    _editorModule->RegisterEditorObject<EditorMenuProjectRoot>();
-    _editorModule->RegisterEditorObject<EditorMenuScriptBuilder>();
-    _editorModule->RegisterEditorObject<EditorBuildSettingMenu>();
-    // Window
-    _editorModule->RegisterEditorObject<EditorMenuTools>();
-    // Setting
-    _editorModule->RegisterEditorObject<EditorMenuDebug>();
-    _editorModule->RegisterEditorObject<EditorMenuStyleEditor>();
-    _editorModule->RegisterEditorObject<EditorMenuFileSystemSetting>();
-
-    // Scene
-    _editorModule->RegisterEditorObject<EditorSceneMenuScenes>();
+    ///* Menu */
+    //// Project
+    //_editorModule->RegisterEditorObject<EditorMenuProjectRoot>();
+    //_editorModule->RegisterEditorObject<EditorMenuScriptBuilder>();
+    //_editorModule->RegisterEditorObject<EditorBuildSettingMenu>();
+    //// Window
+    //_editorModule->RegisterEditorObject<EditorMenuTools>();
+    //// Setting
+    //_editorModule->RegisterEditorObject<EditorMenuDebug>();
+    //_editorModule->RegisterEditorObject<EditorMenuStyleEditor>();
+    //_editorModule->RegisterEditorObject<EditorMenuFileSystemSetting>();
+    //
+    //// Scene
+    //_editorModule->RegisterEditorObject<EditorSceneMenuScenes>();
 #endif // _UMEDITOR
 }
 
@@ -73,4 +64,79 @@ void GameApplication::OnStartupComplete()
 void GameApplication::OnShutdownComplete() 
 {
 
+}
+
+void GameApplication::BuildRootDock() 
+{
+    auto& dockSystem = _editorModule->GetDockWindowSystem();
+
+    _rootDock = dockSystem.RegisterDockWindow("RootDock");
+
+    ImGuiWindowClass windowClass;
+    windowClass.ClassId               = ImHashStr("RootDockID"); // 윈도우 ID값 (그냥 대충 ImHashStr을 사용하여 생성)
+    windowClass.DockingAllowUnclassed = false; // 허용되지 않은 윈도우의 도킹을 허용할 것인가
+    windowClass.DockingAlwaysTabBar   = false; // 도킹 탭바를 항상 표시할 것인가
+
+    int windowFlag = 
+        ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
+        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus |
+        ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoDocking;
+
+    int dockNodeFlag = 
+        ImGuiDockNodeFlags_NoWindowMenuButton | ImGuiDockNodeFlags_NoCloseButton;
+
+    _rootDock->SetWindowClass(windowClass);
+    _rootDock->SetWindowFlag(windowFlag);
+    _rootDock->SetDockNodeFlag(dockNodeFlag);
+    _rootDock->SetOptionFlags(EditorDockWindow::DOCKWINDOW_FLAGS_FULLSCREEN);
+}
+
+void GameApplication::BuildSceneDock() 
+{
+    auto& dockSystem = _editorModule->GetDockWindowSystem();
+
+    _sceneDock = dockSystem.RegisterDockWindow("SceneDock");
+    
+    ImGuiWindowClass windowClass;
+    windowClass.ClassId               = ImHashStr("SceneDockID");
+    windowClass.DockingAllowUnclassed = false;
+    windowClass.DockingAlwaysTabBar   = true;
+
+    int dockNodeFlag = ImGuiDockNodeFlags_NoWindowMenuButton | ImGuiDockNodeFlags_NoCloseButton;
+
+    _sceneDock->SetDockWindow(_rootDock);
+    _sceneDock->SetWindowClass(windowClass);
+    _sceneDock->SetDockNodeFlag(dockNodeFlag);
+    _sceneDock->CreateDockLayoutNode(ImGuiDir::ImGuiDir_Right, 0.25f);
+    _sceneDock->CreateDockLayoutNode(ImGuiDir::ImGuiDir_Down, 0.40f);
+    _sceneDock->CreateDockLayoutNode(ImGuiDir::ImGuiDir_Left, 0.30f);
+    _sceneDock->CreateDockLayoutNode(ImGuiDir::ImGuiDir_Up, 0.50f);
+
+    _sceneDock->RegisterTool<EditorDebugTool>();
+    _sceneDock->RegisterTool<EditorHierarchyTool>();
+    _sceneDock->RegisterTool<EditorInspectorTool>();
+    _sceneDock->RegisterTool<EditorSceneTool>();
+    _sceneDock->RegisterTool<EditorLogsTool>();
+    _sceneDock->RegisterTool<EditorCommandTool>();
+    _sceneDock->RegisterTool<EditorModelTool>();
+}
+
+void GameApplication::BuildAssetDock() 
+{
+    auto& dockSystem = _editorModule->GetDockWindowSystem();
+
+    _assetDock = dockSystem.RegisterDockWindow("AssetDock");
+
+    ImGuiWindowClass windowClass;
+    windowClass.ClassId               = ImHashStr("AssetDockID");
+    windowClass.DockingAllowUnclassed = false;
+    windowClass.DockingAlwaysTabBar   = true;
+
+    int dockNodeFlag = ImGuiDockNodeFlags_NoWindowMenuButton | ImGuiDockNodeFlags_NoCloseButton;
+
+    _assetDock->SetDockWindow(_rootDock);
+    _assetDock->SetWindowClass(windowClass);
+    _sceneDock->SetDockNodeFlag(dockNodeFlag);
+
+    _assetDock->RegisterTool<EditorAssetBrowserTool>();
 }

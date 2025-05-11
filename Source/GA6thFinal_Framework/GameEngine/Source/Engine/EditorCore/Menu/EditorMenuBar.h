@@ -23,7 +23,7 @@ public:
     virtual void OnEndGui() override;
 public:
     template <typename T>
-    T* RegisterMenu()
+    T* RegisterGui()
     {
         static_assert(std::is_base_of_v<EditorMenu, T>, "T is not a EditorMenu.");
         const char* typeName = typeid(T).name();
@@ -48,7 +48,7 @@ public:
     }
 
     template <typename T>
-    T* GetMenu()
+    T* GetGui()
     {
         static_assert(std::is_base_of_v<EditorMenu, T>, "T is not a EditorMenu.");
         auto itr = _menuTable.find(typeid(T).name());
@@ -62,6 +62,7 @@ private:
     std::unordered_map<Path, std::unique_ptr<EditorMenuNode>> _nodeTable;
     std::unordered_map<Name, std::unique_ptr<EditorMenu>>     _menuTable;
     EditorMenuNode* _root;
+
 private:
     EditorMenuNode* BuildMenuNode(Path path);
     void Sort(EditorMenuNode* root);

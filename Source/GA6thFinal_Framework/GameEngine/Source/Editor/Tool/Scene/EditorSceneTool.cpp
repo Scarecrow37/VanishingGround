@@ -10,7 +10,7 @@ EditorSceneTool::EditorSceneTool()
     , _camera(std::make_unique<EditorDynamicCamera>())
 {
     SetLabel("Scene");
-    SetDockLayout(DockLayout::UP);
+    SetDockLayout(ImGuiDir_Up);
 }
 
 EditorSceneTool::~EditorSceneTool()

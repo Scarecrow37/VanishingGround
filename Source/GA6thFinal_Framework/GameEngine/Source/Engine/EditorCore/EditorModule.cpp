@@ -1,7 +1,5 @@
 ﻿#include "pch.h"
 #include "EditorModule.h"
-#include "EditorGui.h"
-#include "EditorMenuBar.h"
 
 #ifdef _UMEDITOR
 EditorModule* Global::editorModule = nullptr;
@@ -12,22 +10,10 @@ Global::NotEditorModule editorModule;
 EditorModule::EditorModule() 
 {
     Global::editorModule = this;
-    _mainMenuBar = new EditorMenuBar;
-    _popupBoxSystem = new EditorPopupBoxSystem;
-
-    ImGuiWindowClass mainClass;
-    mainClass.ClassId               = ImHashStr("MainDockSpace");
-    mainClass.DockingAllowUnclassed = false;
-
-    _mainDockSpace = new EditorDockSpace(mainClass);
-    _mainDockSpace->SetDockFullSpace(true);
 }
 
 EditorModule::~EditorModule()
 {
-    delete _mainMenuBar;
-    delete _mainDockSpace;
-    delete _popupBoxSystem;
 }
 
 void EditorModule::PreInitialize() {}
@@ -36,8 +22,9 @@ void EditorModule::ModuleInitialize()
 {
     // 모듈 등록시 1회 호출
     SetGuiThemeStyle();
-    _mainMenuBar->OnStartGui();
-    _mainDockSpace->OnStartGui();
+    _popupBoxSystem.OnStartGui();
+    _dockWindowSystem.OnStartGui();
+
     UmFileSystem.RegisterFileEventNotifier(this);
 }
 
@@ -46,8 +33,8 @@ void EditorModule::PreUnInitialize() {}
 void EditorModule::ModuleUnInitialize()
 {
     // 파괴 직전 함수 필요하면 추가
-    _mainMenuBar->OnEndGui();
-    _mainDockSpace->OnEndGui();
+    _popupBoxSystem.OnEndGui();
+    _dockWindowSystem.OnEndGui();
 }
 
 bool EditorModule::SaveSetting(const File::Path& path)
@@ -55,16 +42,15 @@ bool EditorModule::SaveSetting(const File::Path& path)
     _setting.ToolData.clear();
     _setting.ImGuiData = ImGui::SaveIniSettingsToMemory();
 
-    for (auto& [key, tool] : _mainDockSpace->GetRefToolTable())
+    for (auto& tool : _dockWindowSystem.GetDockWindowList())
     {
-        EditorTool* editorTool = tool.get();
-        if (nullptr != editorTool)
+        if (nullptr != tool)
         {
             EditorToolSerializeData data;
-            data.name       = key;
-            data.IsVisible  = editorTool->IsVisible();
-            data.IsLock     = editorTool->IsLock();
-            data.ReflectionField = editorTool->SerializedReflectFields();
+            data.name            = tool->GetLabel();
+            data.IsVisible       = tool->IsVisible();
+            data.IsLock          = tool->IsLock();
+            data.ReflectionField = tool->SerializedReflectFields();
             _setting.ToolData.push_back(data);
         }
     }
@@ -92,7 +78,7 @@ bool EditorModule::LoadSetting(const File::Path& path)
 
         for (auto& status : _setting.ToolData)
         {
-            EditorTool* tool = _mainDockSpace->GetTool(status.name);
+            EditorTool* tool = _dockWindowSystem[status.name];
             if (nullptr != tool)
             {
                 tool->SetVisible(status.IsVisible);
@@ -117,21 +103,26 @@ void EditorModule::Update()
         ImGui::BeginDisabled();
 
     /* ========GUI Update======== */ 
-    _mainMenuBar->OnTickGui();
-    _mainDockSpace->OnTickGui();
-    _mainMenuBar->OnDrawGui();
-    _mainDockSpace->OnDrawGui();
+    _popupBoxSystem.OnTickGui();
+
+    _dockWindowSystem.OnTickGui();
+    _dockWindowSystem.OnDrawGui();
     /* =========================== */
 
     if (true == isLock)
         ImGui::EndDisabled();
 
-    _popupBoxSystem->Update(); // 모달 팝업창
+    _popupBoxSystem.OnDrawGui();
 }
 
 bool EditorModule::IsLock()
 {
-    return (false == _popupBoxSystem->IsEmpty());
+    return (false == _popupBoxSystem.IsEmpty());
+}
+
+void EditorModule::OpenPopupBox(const std::string& name, std::function<void()> content) 
+{
+    _popupBoxSystem.OpenPopupBox(name, content);
 }
 
 void EditorModule::SetGuiThemeStyle()

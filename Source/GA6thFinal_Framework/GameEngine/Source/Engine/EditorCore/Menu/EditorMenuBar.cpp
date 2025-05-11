@@ -58,7 +58,7 @@ EditorMenuNode* EditorMenuBar::BuildMenuNode(Path path)
             EditorMenuNode* instance = new EditorMenuNode();
             instance->SetPath(curPath.string());
             _nodeTable[curPath].reset(instance);
-            instance->SetLabel(curPath.filename().string());
+            //instance->SetLabel(curPath.filename().string());
 
             EditorMenuNode* parent = GetMenuFromPath(curPath.parent_path());
             parent->_menuList[""].push_back(instance);
@@ -72,26 +72,26 @@ EditorMenuNode* EditorMenuBar::BuildMenuNode(Path path)
 
 void EditorMenuBar::Sort(EditorMenuNode* root)
 {
-    if (root->_menuList.empty())
-        return;
-
-    for (auto& [key, group] : root->_menuList)
-    {
-        if (group.empty())
-            continue;
-
-        std::sort(group.begin(), group.end(),
-                  [](EditorGui* a, EditorGui* b) { return a->GetCallOrder() < b->GetCallOrder(); });
-
-        for (auto& node : group)
-        {
-            auto* menuNode = dynamic_cast<EditorMenuNode*>(node);
-            if (menuNode)
-            {
-                Sort(menuNode);
-            }
-        }
-    }
+    //if (root->_menuList.empty())
+    //    return;
+    //
+    //for (auto& [key, group] : root->_menuList)
+    //{
+    //    if (group.empty())
+    //        continue;
+    //
+    //    std::sort(group.begin(), group.end(),
+    //              [](EditorGui* a, EditorGui* b) { return a->GetCallOrder() < b->GetCallOrder(); });
+    //
+    //    for (auto& node : group)
+    //    {
+    //        auto* menuNode = dynamic_cast<EditorMenuNode*>(node);
+    //        if (menuNode)
+    //        {
+    //            Sort(menuNode);
+    //        }
+    //    }
+    //}
 }
 
 EditorMenuNode* EditorMenuBar::GetMenuFromPath(Path path)
@@ -117,23 +117,21 @@ EditorMenuBase::~EditorMenuBase()
 
 void EditorMenuBase::DefaultDebugFrame()
 {
-    static char tooltip[256];
-
-    snprintf(tooltip, sizeof(tooltip), "GuiID: 0x%08X\nOrder: %d\nPath: %s\nLabel: %s",
-        ImGui::GetID(""),
-        GetCallOrder(), 
-        GetPath().c_str(), 
-        GetLabel().c_str()
-    );
-
-    if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
-    {
-        ImGui::BeginTooltip();
-        ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
-        ImGui::TextUnformatted(tooltip);
-        ImGui::PopTextWrapPos();
-        ImGui::EndTooltip();
-    }
+    //static char tooltip[256];
+    //
+    //snprintf(tooltip, sizeof(tooltip), "GuiID: 0x%08X\nOrder: %d\nPath: %s\nLabel: %s",
+    //    ImGui::GetID(""),
+    //    GetPath().c_str(), 
+    //);
+    //
+    //if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
+    //{
+    //    ImGui::BeginTooltip();
+    //    ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+    //    ImGui::TextUnformatted(tooltip);
+    //    ImGui::PopTextWrapPos();
+    //    ImGui::EndTooltip();
+    //}
 }
 
 EditorMenuNode::EditorMenuNode()
@@ -172,47 +170,6 @@ void EditorMenuNode::OnStartGui()
 
 void EditorMenuNode::OnDrawGui()
 {
-    if (IsVisible())
-    {
-        bool isOpen = false;
-
-        ImGui::PushID(this);
-        // 라벨이 있는 객체만
-        if (false == GetLabel().empty())
-        {
-            isOpen = ImGui::BeginMenu(GetLabel().c_str(), GetActive());
-        }
-        if (true == isOpen || true == GetLabel().empty())
-        {
-            if (true == Global::editorModule->IsDebugMode())
-            {
-                DefaultDebugFrame();
-            }
-
-            for (auto itr = _menuList.begin(); itr != _menuList.end();)
-            {
-                auto& [key, group] = *itr;
-
-                for (auto& node : group)
-                {
-                    node->OnDrawGui();
-                }
-
-                ++itr;
-
-                if (itr != _menuList.end())
-                {
-                    ImGui::Separator();
-                }
-            }
-
-            if (true == isOpen)
-            {
-                ImGui::EndMenu();
-            }
-        }
-        ImGui::PopID();
-    }
 }
 
 void EditorMenuNode::OnEndGui() 

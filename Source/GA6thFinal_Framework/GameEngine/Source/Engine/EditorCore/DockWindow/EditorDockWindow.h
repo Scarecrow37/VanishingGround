@@ -2,35 +2,81 @@
 
 using EditorDockWindowFlags = UINT64; // EditorDockWindow::Flags
 
-class EditorDockWindow : public EditorGui
+class EditorDockWindow : public EditorTool
 {
+    using ToolTable = std::unordered_map<std::string, EditorTool*>;
+    using ToolList  = std::vector<EditorTool*>;
 public:
     enum Flags
     {
         DOCKWINDOW_FLAGS_NONE       = 0,
         DOCKWINDOW_FLAGS_FULLSCREEN = 1 << 0,
         DOCKWINDOW_FLAGS_PADDING    = 1 << 1,
+
+        // 내부 사용
+        DOCKWINDOW_FLAGS_USE_DOCKBUILD = 1 << 2,
     };
 
 private:
     /* internal */
     struct DockSplitInfo
     {
-        ImGuiID     DockID    = 0;
         ImGuiDir    Direction = ImGuiDir::ImGuiDir_None;
         float       Ratio = 0.0f;
     };
 
 public:
-    EditorDockWindow()          = default;
-    virtual ~EditorDockWindow() = default;
+    EditorDockWindow();
+    virtual ~EditorDockWindow();
 
 public:
     // EditorGui을(를) 통해 상속됨
-    void OnTickGui() override;
-    void OnStartGui() override;
-    void OnDrawGui() override;
-    void OnEndGui() override;
+    void OnTickGui() override final;
+    void OnStartGui() override final;
+    void OnEndGui() override final;
+
+private:
+    /* Begin 호출 전에 호출 */
+    virtual void OnPreFrame();
+
+    /* Begin 호출 시 호출 */
+    virtual void OnFrame();
+
+    /* End 호출 후에 호출 */
+    virtual void OnPostFrame();
+
+public:
+    /* 툴을 등록합니다. */
+    template <typename T>
+    T* RegisterTool()
+    {
+        static_assert(std::is_base_of_v<EditorTool, T>, "T is not a EditorTool.");
+        const char* typeName = typeid(T).name();
+        auto        itr      = _editorToolTable.find(typeName);
+        if (itr == _editorToolTable.end())
+        {
+            T* instance = new T;
+            _editorToolTable[typeName] = instance;
+            _editorToolList.push_back(instance);
+            instance->SetDockWindow(this);
+        }
+        return GetTool<T>();
+    }
+
+    /* 툴을 가져옵니다. */
+    template <typename T>
+    T* GetTool()
+    {
+        static_assert(std::is_base_of_v<EditorTool, T>, "T is not a EditorGui.");
+        auto itr = _editorToolTable.find(typeid(T).name());
+        if (itr == _editorToolTable.end())
+            return nullptr;
+        return dynamic_cast<T*>(itr->second);
+    }
+
+public:
+    /* 도킹 레이아웃 노드를 추가합니다. */
+    void CreateDockLayoutNode(ImGuiDir direction, float ratio);
 
 private:
     /* 최초로 에디터를 킬 경우 초기 툴의 DockSpace 공간 지정 */
@@ -44,35 +90,29 @@ private:
     /* DockSytle Pop (SubmitDockSpace 이후에 호출해야 함) */
     void PopDockStyle();
 
-public:
-    /*  */
-    void SetOptionFlags(EditorDockWindowFlags flags);
-    /* 도킹 레이아웃 노드를 추가합니다. */
-    void AddDockLayoutNode(ImGuiDir direction, float ratio);
-
 private:
-    UINT _flags; /* 도킹 윈도우 플래그 값 */
+    ToolTable                           _editorToolTable; /* 등록된 툴 테이블 */
+    ToolList                            _editorToolList;  /* 등록된 툴 리스트 */
 
-    ImGuiDockNodeFlags          _userImGuiDockFlags;    /* 사용자 DockSpace 플래그 값 */
-    ImGuiWindowFlags            _userImGuiWindowFlags;  /* 사용자 DockWindow 플래그 값 */
-    ImGuiID                     _dockSplitMainID;       /* 메인 도킹영역에 대한 ID값 */
-    std::vector<DockSplitInfo>  _dockSplitLayoutID;     /* 도킹 영역에 대한 ID값 */
+    UINT                                _optionFlags; /* 도킹 윈도우 플래그 값 */
 
-private:
-    ImGuiWindowClass   _imGuiWindowClass; /* 윈도우 클래스 */
-    ImGuiDockNodeFlags _imGuiDockFlags;   /* 최종 DockSpace 플래그 값 */
-    ImGuiWindowFlags   _imGuiWindowFlags; /* 최종 DockWindow 플래그 값 */
+    ImGuiID                             _dockSplitMainID;       /* 메인 도킹영역에 대한 ID값 */
+    ImGuiDockNodeFlags                  _userImGuiDockFlags;    /* 사용자 DockSpace 플래그 값 */
+    ImGuiDockNodeFlags                  _imGuiDockFlags;        /* 최종 DockSpace 플래그 값 */
+
+    std::vector<DockSplitInfo>          _dockSplitLayoutID;     /* 도킹 영역에 대한 ID값 */
+    std::unordered_map<int, ImGuiID>    _dockSplitIDTable;      /* 도킹 영역에 대한 ID값 */
 
 public:
+    /* 옵션 플래그에 대한 설정 */
+    inline void         SetOptionFlags(EditorDockWindowFlags flags) { _optionFlags = flags; }
+    inline void         AddOptionFlags(EditorDockWindowFlags flags) { _optionFlags |= flags; }
+    inline void         RemoveOptionFlags(EditorDockWindowFlags flags) { _optionFlags &= ~flags; }
+    inline const auto&  GetOptionFlags() { return _optionFlags; }
+
     /* Dock에 대한 플래그 설정 */
-    inline void SetDockFlag(ImGuiDockNodeFlags flags) { _userImGuiDockFlags = flags; }
-    inline void AddDockFlag(ImGuiDockNodeFlags flags) { _userImGuiDockFlags |= flags; }
-    inline void RemoveDockFlag(ImGuiDockNodeFlags flags) { _userImGuiDockFlags &= ~flags; }
-    inline auto GetDockFlag() { return _userImGuiDockFlags; }
-
-    /* 도킹 윈도우에 대한 플래그 설정 */
-    inline void SetWindowFlag(ImGuiWindowFlags flags) { _userImGuiWindowFlags = flags; }
-    inline void AddWindowFlag(ImGuiWindowFlags flags) { _userImGuiWindowFlags |= flags; }
-    inline void RemoveWindowFlag(ImGuiWindowFlags flags) { _userImGuiWindowFlags &= ~flags; }
-    inline auto GetWindowFlag() { return _userImGuiWindowFlags; }
+    inline void         SetDockNodeFlag(ImGuiDockNodeFlags flags) { _userImGuiDockFlags = flags; }
+    inline void         AddDockNodeFlag(ImGuiDockNodeFlags flags) { _userImGuiDockFlags |= flags; }
+    inline void         RemoveDockNodeFlag(ImGuiDockNodeFlags flags) { _userImGuiDockFlags &= ~flags; }
+    inline const auto&  GetDockFlag() { return _userImGuiDockFlags; }
 };

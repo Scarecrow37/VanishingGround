@@ -6,10 +6,9 @@
 class EditorMenuScriptBuilder : public EditorMenu
 {
 public:
-    EditorMenuScriptBuilder() {
-        SetCallOrder(0);
+    EditorMenuScriptBuilder() 
+    {
         SetPath("Project/Build");
-        SetLabel("");
     }
     virtual ~EditorMenuScriptBuilder() = default;
 public:
@@ -24,9 +23,7 @@ class EditorMenuProjectRoot : public EditorMenu
 public:
     EditorMenuProjectRoot()
     {
-        SetCallOrder(0);
         SetPath("Project");
-        SetLabel("ProjectManager");
     }
     virtual ~EditorMenuProjectRoot() = default;
 

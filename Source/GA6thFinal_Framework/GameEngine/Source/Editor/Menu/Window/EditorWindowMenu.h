@@ -8,9 +8,7 @@ class EditorMenuTools : public EditorMenu
 public:
     EditorMenuTools()
     {
-        SetCallOrder(0);
         SetPath("Window");
-        SetLabel("");
     }
     virtual ~EditorMenuTools() = default;
 

@@ -151,12 +151,12 @@ using namespace Microsoft::WRL;
 
 //Editor Core
 #include "Engine/EditorCore/Interface/IEditorObject.h"
-#include "Engine/EditorCore/EditorEnum.h"
+#include "Engine/EditorCore/Interface/IEditorCycle.h"
 #include "Engine/EditorCore/EditorGui.h"
 #include "Engine/EditorCore/EditorTool.h"
-#include "Engine/EditorCore/EditorMenuBar.h"
-#include "Engine/EditorCore/EditorDockSpace.h"
 #include "Engine/EditorCore/PopupBox/EditorPopupBoxSystem.h"
+#include "Engine/EditorCore/DockWindow/EditorDockWindowSystem.h"
+#include "Engine/EditorCore/Menu/EditorMenuSystem.h"
 #include "Engine/EditorCore/EditorModule.h"
 
 //Game Core
@@ -175,6 +175,7 @@ using namespace Microsoft::WRL;
 
 //컴포넌트는 접근 안하는 헤더들
 #ifndef _SCRIPTS_PROJECT
+
 //Editor Tools
 #include "Editor/Tool/Debug/EditorDebugTool.h"
 #include "Editor/Tool/AssetBrowser/EditorAssetBrowserTool.h"
@@ -191,4 +192,5 @@ using namespace Microsoft::WRL;
 #include "Editor/Menu/Setting/EditorSettingMenu.h"
 #include "Editor/Menu/Scene/EditorSceneMenu.h"
 #include "Editor/Menu/Project/EditorBuildSettingMenu.h"
+
 #endif
