@@ -24,7 +24,7 @@ void Model::BindMaterial(const UINT meshIndex, std::shared_ptr<Texture> texture)
 }
 
 HRESULT Model::LoadResource(const std::filesystem::path& filePath)
-{
+{    
     FBXImporter fbxImporter;
     fbxImporter.CreateModel(filePath, true, this);
     

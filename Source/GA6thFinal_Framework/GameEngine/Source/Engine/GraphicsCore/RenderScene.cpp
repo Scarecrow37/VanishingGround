@@ -7,9 +7,13 @@
 #include "RenderTarget.h"
 #include "RenderTechnique.h"
 #include "ShaderBuilder.h"
-#include "UmScripts.h"
+#include "MeshRenderer.h"
 
-RenderScene::RenderScene() : _frameQuad{std::make_unique<Quad>()}, _frameShader{std::make_unique<ShaderBuilder>()} {}
+RenderScene::RenderScene()
+    : _frameQuad{std::make_unique<Quad>()}
+    , _frameShader{std::make_unique<ShaderBuilder>()}
+{
+}
 
 RenderScene::~RenderScene() {}
 
@@ -19,10 +23,9 @@ void RenderScene::UpdateRenderScene()
     _camera->Update();
 
     // 비활성된 컴포넌트 제거
-    auto first = std::remove_if(_renderQueue.begin(), _renderQueue.end(), [](const auto& ptr)
-        { 
-            return *ptr.first == false;
-        });
+    auto first = std::remove_if(_renderQueue.begin(), _renderQueue.end(), [](const auto& component)
+        {  return component->IsDestroy(); });
+
     _renderQueue.erase(first, _renderQueue.end());
 
     _currentFrameIndex   = UmDevice.GetCurrentBackBufferIndex();
@@ -39,15 +42,16 @@ void RenderScene::UpdateRenderScene()
     std::vector<MaterialData>                materialDatas;
     UINT                                     materialID = 0;
 
-    for (auto& [isActive, component] : _renderQueue)
+    for (auto& component : _renderQueue)
     {
-        auto& model     = component->GetModel();
-        if (!model.get())
+        if (!component->IsActive())
             continue;
-        auto& meshes    = model->GetMeshes();
-        auto& materials = model->GetMaterials();
+
+        const auto& model     = component->GetModel();
+        const auto& meshes    = model->GetMeshes();
+        const auto& materials = model->GetMaterials();
         
-        XMMATRIX world = XMMatrixTranspose(component->transform->GetWorldMatrix());
+        XMMATRIX world = XMMatrixTranspose(component->GetWorldMatrix());
         UINT     size  = (UINT)meshes.size();
 
         for (UINT i = 0; i < size; i++)
@@ -87,10 +91,10 @@ void RenderScene::UpdateRenderScene()
     _frameResources[_currentFrameIndex]->CopyDescriptors(handles);
 }
 
-void RenderScene::RegisterOnRenderQueue(bool** isActive, MeshRenderer* renderable)
+void RenderScene::RegisterOnRenderQueue(MeshRenderer* component)
 {
     auto iter = std::find_if(_renderQueue.begin(), _renderQueue.end(),
-                             [renderable](const auto& ptr) { return ptr.second == renderable; });
+                             [component](const auto& ptr) { return ptr == component; });
 
     if (iter != _renderQueue.end())
     {
@@ -98,8 +102,7 @@ void RenderScene::RegisterOnRenderQueue(bool** isActive, MeshRenderer* renderabl
         return;
     }
 
-    _renderQueue.emplace_back(std::make_unique<bool>(true), renderable);
-    *isActive = _renderQueue.back().first.get();
+    _renderQueue.push_back(component);
 }
 
 void RenderScene::Execute(ID3D12GraphicsCommandList* commandList)
