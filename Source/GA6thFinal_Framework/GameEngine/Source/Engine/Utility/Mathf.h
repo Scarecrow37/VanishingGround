@@ -11,6 +11,13 @@ namespace Mathf
 	/*radian angle 기준 Epsilon*/
 	constexpr float AngleEpsilon = 0.001f;
 
+    /*이거 왜 SimpleMath에 없음?*/
+    constexpr Matrix IdentityMatrix = Matrix(
+        1.f, 0, 0, 0,
+        0, 1.f, 0, 0,
+        0, 0, 1.f, 0,
+        0, 0, 0, 1.f);
+
 	//선형 보간
 	float Lerp(float startfloat, float endfloat, float t);
 
