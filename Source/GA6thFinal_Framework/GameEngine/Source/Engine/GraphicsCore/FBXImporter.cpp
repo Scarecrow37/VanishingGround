@@ -8,7 +8,7 @@
 
 FBXImporter::FBXImporter()
 	: _boneCount(0)
-	, _isStaticMesh(false)
+	, _isStaticMesh(true)
 {
 	_impoter.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, 0);
 }
@@ -34,14 +34,14 @@ void FBXImporter::CreateModel(const std::filesystem::path& filePath, bool isStat
 
     const aiScene* scene = _impoter.ReadFile(filePath.string(), importFlags);
 
-    if (scene->HasAnimations())
-        _isStaticMesh = false;
-
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
     {
         ASSERT(false, L"The model could't be found by that path.");
         return;
     }  
+
+    if (scene->HasAnimations())
+        _isStaticMesh = false;
 
     std::unordered_map<std::string, std::pair<unsigned int, Matrix>> boneInfo;
     std::vector<std::vector<std::shared_ptr<Texture>>>	textures;

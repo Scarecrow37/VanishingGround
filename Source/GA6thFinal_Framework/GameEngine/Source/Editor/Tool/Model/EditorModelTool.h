@@ -30,7 +30,7 @@ private:
     virtual void OnPopup() override;
 
 private:
-    void ImportFBX(std::filesystem::path path);
+    void ImportFBX(const std::filesystem::path& path);
     void ExportFBX();
 
 private:

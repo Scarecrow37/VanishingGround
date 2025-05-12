@@ -22,6 +22,12 @@ void EditorDynamicCamera::Update()
     const Vector3 right  = -matrix.Right();
     const Vector3 up     = -matrix.Up();
 
+    if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_R))
+    {
+        _position = Vector3(0.f, 0.f, -5.f);
+        _rotation = Vector3(0.f, 0.f, 0.f);
+    }
+
     if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftShift))
     {
         moveSpeed *= 2.f;
