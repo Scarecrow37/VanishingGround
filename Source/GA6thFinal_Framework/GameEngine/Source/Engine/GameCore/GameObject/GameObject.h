@@ -7,7 +7,7 @@ class Component;
 
 //오브젝트 생성용 전역함수
 template<IS_BASE_GAMEOBJECT_C TObject>
-std::weak_ptr<TObject> NewGameObject(
+std::shared_ptr<TObject> NewGameObject(
     std::string_view name)
 {
     std::shared_ptr<GameObject> shared_object = Global::engineCore->GameObjectFactory.NewGameObject(typeid(TObject).name(), name);
@@ -16,7 +16,8 @@ std::weak_ptr<TObject> NewGameObject(
 
 //함수는 일단 선언만. 구현은 나중에. 
 class GameObject : 
-    public ReflectSerializer
+    public ReflectSerializer,
+    public IEditorObject
 {
     friend class EGameObjectFactory;
     friend class EComponentFactory;
@@ -25,6 +26,16 @@ class GameObject :
 
     //public static 함수
 public:
+    struct Helper
+    {
+        /// <summary>
+        /// 고유한 이름을 만들어줍니다. baseName (i) 형식으로 만듭니다.
+        /// </summary>
+        /// <param name="baseName"></param>
+        /// <returns>생성된 이름</returns>
+        static std::string GenerateUniqueName(std::string_view baseName);
+    };
+
     /// <summary>
     /// <para> 매개변수와 같은 이름을 가진 GameObject를 찾아 반환합니다. </para>
     /// <para> 같은 이름의 GameObject가 없으면 nullptr를 반환합니다.    </para>
@@ -97,14 +108,12 @@ public:
         Destroy(*gameObject, t);
     }
 
-    /// <summary>
-    /// <para>구현 X                                                         </para>
+    /// <summary>                                                           </para>
     /// <para>전달받은 오브젝트가 다른 Scene을 로드 할 때 파괴되지 않도록 합니다.</para>
     /// </summary>
     /// <param name="Object :">대상 오브젝트</param>
     static void DontDestroyOnLoad(GameObject& gameObject);
-    /// <summary>
-    /// <para>구현 X                                                         </para>
+    /// <summary>                                                           </para>
     /// <para>전달받은 오브젝트가 다른 Scene을 로드 할 때 파괴하지 않도록 합니다.</para>
     /// </summary>
     /// <param name="Object :">대상 오브젝트</param>
@@ -114,13 +123,11 @@ public:
     }
 
     /// <summary>
-    /// <para> 구현 X                                      </para>
     /// <para> 대상 오브젝트의 복사본을 현재 씬에 생성합니다.  </para>
     /// </summary>
     /// <param name="gameObject :">복사할 오브젝트</param>
     static void Instantiate(GameObject& original);
     /// <summary>
-    /// <para> 구현 X                                      </para>
     /// <para> 대상 오브젝트의 복사본을 현재 씬에 생성합니다.  </para>
     /// </summary>
     /// <param name="gameObject :">복사할 오브젝트</param>
@@ -134,6 +141,12 @@ public:
     ~GameObject();
 
 public:
+    /// <summary>
+    /// 이 게임오브젝트의 weak_ptr을 반환합니다.
+    /// </summary>
+    /// <returns>weak_ptr this</returns>
+    std::weak_ptr<GameObject> GetWeakPtr() const;
+
     /// <summary>
     /// <para> 전달받은 GameObject가 속해있는 Scene을 반환합니다. </para>
     /// </summary>
@@ -159,7 +172,7 @@ public:
     /// <para> 이 GameObject의 이름을 반환합니다. </para>
     /// </summary>
     /// <returns>std::string_view 오브젝트의 이름</returns>
-    std::string_view ToString() { return ReflectionFields->_name; }
+    std::string_view ToString() { return ReflectFields->_name; }
 
     /// <summary>
     /// 컴포넌트를 추가합니다.
@@ -170,21 +183,21 @@ public:
 
     /// <summary>
     /// <para> TComponent 타입의 컴포넌트를 찾아서 반환합니다. </para>
-    /// <para> 실패시 empty를 반환합니다.                     </para>
+    /// <para> 실패시 nullptr를 반환합니다.                     </para>
     /// </summary>
     /// <typeparam name="TComponent :">검색할 컴포넌트 타입</typeparam>
-    /// <returns>해당 타입 컴포넌트의 weak_ptr</returns>
+    /// <returns>해당 타입 컴포넌트의 ptr</returns>
     template<IS_BASE_COMPONENT_C TComponent>
-    inline std::weak_ptr<TComponent> GetComponent();
+    inline TComponent* GetComponent() const;
 
     /// <summary>
     /// 전달받은 인덱스의 컴포넌트를 TComponent 타입으로 dynamic_cast를 시도해 반환합니다.
     /// </summary>
     /// <typeparam name="TComponent :">캐스팅할 컴포넌트 타입</typeparam>
     /// <param name="index :">컴포넌트 인덱스</param>
-    /// <returns>해당 타입 컴포넌트의 weak_ptr</returns>
+    /// <returns>해당 타입 컴포넌트의 ptr</returns>
     template<IS_BASE_COMPONENT_C TComponent>
-    inline std::weak_ptr<TComponent> GetComponentAtIndex(size_t index);
+    inline TComponent* GetComponentAtIndex(size_t index) const;
 
     /// <summary>
     /// <para> TComponent 타입의 컴포넌트를 전부 찾아서 반환합니다. </para>
@@ -193,23 +206,38 @@ public:
     /// <typeparam name="TComponent"></typeparam>
     /// <returns>찾은 모든 컴포넌트에 대한 배열</returns>
     template<IS_BASE_COMPONENT_C TComponent>
-    inline std::vector<std::weak_ptr<TComponent>> GetComponents();
+    inline std::vector<TComponent*> GetComponents() const;
 
     /// <summary>
     /// 이 오브젝트에 부착된 컴포넌트 개수를 반환합니다.
     /// </summary>
     /// <returns>이 오브젝트에 부착된 컴포넌트 개수.</returns>
-    inline size_t GetComponentCount() { return _components.size(); }
+    inline size_t GetComponentCount() const { return _components.size(); }
+
+    /// <summary>
+    /// <para> 전달받은 컴포넌트가 이 오브젝트에 존재하면 인덱스를 반환합니다.</para>
+    /// <para> 실패시 -1을 반환합니다.                         </para>
+    /// </summary>
+    inline int GetComponentIndex(const Component* pComponent) const;
+
+
+ private:
+    //IEditorObject에서 상속됨
+
+    /* InspectorView에 SetFocus 될 때 호출 구현 X */
+    virtual void OnInspectorViewEnter();
+    /* InspectorView의 Draw단계에 호출 */
+    virtual void OnInspectorStay();
 
 
 //프로퍼티
 public:
     GETTER_ONLY(bool, ActiveInHierarchy)
     {
-        Transform* curr = &transform;
+        Transform* curr = &_transform;
         while (curr != nullptr)
         {
-            if (!curr->gameObject.ReflectionFields->_activeSelf)
+            if (!curr->gameObject->ReflectFields->_activeSelf)
                 return false;
 
             curr = curr->Parent;
@@ -218,6 +246,13 @@ public:
     }
     // get : 실제 활성화 여부 (부모가 false면 false)
     PROPERTY(ActiveInHierarchy);
+
+    GETTER_ONLY(Transform&, transform)
+    { 
+        return _transform;
+    }
+    //get : object Transform
+    PROPERTY(transform)
     
     SETTER(bool, ActiveSelf)
     {
@@ -225,7 +260,7 @@ public:
     }
     GETTER(bool, ActiveSelf)
     {
-        return ReflectionFields->_activeSelf;
+        return ReflectFields->_activeSelf;
     }
     // get, set :
     //  자신의 local active 여부 (실제 활성화 여부)
@@ -233,20 +268,19 @@ public:
    
     GETTER(bool, IsStatic)
     {
-        return ReflectionFields->_isStatic;
+        return ReflectFields->_isStatic;
     }
     SETTER(bool, IsStatic)
     {
-        ReflectionFields->_isStatic = value;
+        ReflectFields->_isStatic = value;
     }
     // get, set :
     //  게임 오브젝트에 대해 IsStatic 플래그가 설정되어 있는지 여부.
     PROPERTY(IsStatic);
     
-
     GETTER(std::string_view, Name)
     {
-        return ReflectionFields->_name;
+        return ReflectFields->_name;
     }
     SETTER(std::string_view, Name)
     {
@@ -256,26 +290,64 @@ public:
     //  게임 오브젝트의 이름
     PROPERTY(Name)
 
+    GETTER_ONLY(GameObject*, PrefabInstance) 
+    { 
+        Transform* curr = &_transform;
+        while (curr != nullptr)
+        {
+            if (curr->gameObject->_prefabGuid != STR_NULL)
+            {
+                return &curr->gameObject;
+            }
+            curr = curr->Parent;      
+        }
+        return nullptr; 
+    }
+    //get : 자신부터 부모중 프리팹 인스턴스가 존재하면 해당 포인터를 반환합니다.
+    PROPERTY(PrefabInstance)
+
+    bool IsPrefabInstance()
+    {
+        return _prefabGuid != STR_NULL;
+    }
+
+    GETTER_ONLY(std::string, PrefabPath) 
+    { 
+        return _prefabGuid.ToPath().string();
+    }
+    //이 오브젝트가 참조하고있는 프리팹을 반환합니다.
+    PROPERTY(PrefabPath)
+
     //에디터 편집을 허용할 프로퍼티.
     REFLECT_PROPERTY(
         Name,
         ActiveSelf,
         IsStatic
     )
-
-public:
-    Transform transform;
 private:
-    using Base = ReflectSerializer; struct reflect_fields_struct 
-    {
-        rfl::Flatten<Base::reflect_fields_struct> Basefields{};
-        std::string                              _name = "null";
-        bool                                     _activeSelf = true;
-        bool                                     _isStatic = false;
+    Transform _transform;
+protected:
+    REFLECT_FIELDS_BEGIN(ReflectSerializer)
+    std::string _name = STR_NULL;
+    bool        _activeSelf = true;
+    bool        _isStatic = false;
     REFLECT_FIELDS_END(GameObject)
 
+    /*
+    직렬화 직전 자동으로 호출되는 이벤트 함수입니다.
+    직접 override 해서 사용합니다.
+    */
+    virtual void SerializedReflectEvent();
+    /*
+    역직렬화 이후 자동으로 호출되는 이벤트 함수 입니다.
+    직접 override 해서 사용합니다.
+    */
+    virtual void DeserializedReflectEvent();
+
 private:
+    std::weak_ptr<GameObject>                _weakPtr;
     std::string                              _ownerScene;
+    File::Guid                               _prefabGuid;
     std::vector<std::shared_ptr<Component>>  _components;
     int                                      _instanceID;
 
@@ -297,28 +369,27 @@ template<IS_BASE_COMPONENT_C TComponent >
 inline TComponent& GameObject::AddComponent()
 {
     EComponentFactory& factory = Global::engineCore->ComponentFactory;
-
-    bool result = factory.AddComponentToObject(this, typeid(TComponent).name());
-    if (result)
+    Component* component = factory.AddComponentToObject(this, typeid(TComponent).name());
+    if (component)
     {
-        return *(this->_components.back());
+        return static_cast<TComponent&>(*component);
     }
     else
     {
-        //존재하지 않는 컴포넌트.
+        //컴포넌트 생성 실패
         __debugbreak();
     } 
 }
 
 template<IS_BASE_COMPONENT_C TComponent>
-inline std::weak_ptr<TComponent> GameObject::GetComponent()
+inline TComponent* GameObject::GetComponent() const
 {
-    std::weak_ptr<TComponent> result;
+    TComponent* result = nullptr;
     for (auto& component : _components)
     {
         if (typeid(TComponent) == typeid(*component))
         {
-            result = std::static_pointer_cast<TComponent>(component);
+            result = static_cast<TComponent*>(component.get());
             break;
         }
     }
@@ -326,30 +397,42 @@ inline std::weak_ptr<TComponent> GameObject::GetComponent()
 }
 
 template<IS_BASE_COMPONENT_C TComponent>
-inline std::weak_ptr<TComponent> GameObject::GetComponentAtIndex(size_t index)
+inline TComponent* GameObject::GetComponentAtIndex(size_t index) const
 {
-    std::weak_ptr<TComponent> result;
+    TComponent* result = nullptr;
     if (index >= _components.size())
     {
         return result;
     }
     else
     {
-        result = std::dynamic_pointer_cast<TComponent>(_components[index]);
+        result = static_cast<TComponent*>(_components[index].get());
         return result;
     }
 }
 
 template<IS_BASE_COMPONENT_C TComponent>
-inline std::vector<std::weak_ptr<TComponent>> GameObject::GetComponents()
+inline std::vector<TComponent*> GameObject::GetComponents() const
 {
-    std::vector<std::weak_ptr<TComponent>> result;
+    std::vector<TComponent*> result;
     for (auto& component : _components)
     {
         if (typeid(TComponent) == typeid(*component))
         {
-            result.emplace_back(std::static_pointer_cast<TComponent>(component));
+            result.emplace_back(static_cast<TComponent*>(component));
         }
     }
     return result;
+}
+
+inline int GameObject::GetComponentIndex(const Component* pComponent) const
+{
+    for (int i = 0; i < _components.size(); ++i)
+    {
+        if (_components[i].get() == pComponent)
+        {
+            return i;
+        }
+    }
+    return -1;
 }

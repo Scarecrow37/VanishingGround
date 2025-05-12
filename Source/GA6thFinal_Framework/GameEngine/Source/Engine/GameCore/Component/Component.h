@@ -70,16 +70,23 @@ protected:
     virtual void OnApplicationQuit() {};
 
 public:
-    GETTER_ONLY(GameObject&, gameObect)
+    GETTER_ONLY(GameObject&, gameObject)
     {
         return *_gameObect;
     }
     //get : 이 컴포넌트가 부착된 게임 오브젝트입니다. 컴포넌트는 항상 게임 오브젝트에 부착됩니다.
-    PROPERTY(gameObect);
+    PROPERTY(gameObject);
+
+    GETTER_ONLY(Transform&, transform)
+    { 
+        return _gameObect->transform_property_getter();
+    }
+    //get : 게임 오브젝트의 transform
+    PROPERTY(transform)
 
     GETTER(bool, Enable)
     {
-        return ReflectionFields->_enable;
+        return ReflectFields->_enable;
     }
     SETTER(bool, Enable)
     {
@@ -95,7 +102,7 @@ public:
 
 protected:
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
-    bool        _enable = true;
+    bool _enable = true;
     REFLECT_FIELDS_END(Component)
 
 public:
@@ -112,7 +119,48 @@ public:
     /// 이 컴포넌트의 인덱스를 반환합니다. (이 컴포넌트가 추가된 오브젝트에서의 기준)
     /// </summary>
     /// <returns>int 인덱스</returns>
-    int GetComponentIndex() const { return _index; }
+    int GetIndex() const;
+
+    /// <summary>
+    /// 컴포넌트를 추가합니다.
+    /// </summary>
+    /// <typeparam name="TComponent :">추가할 컴포넌트 타입</typeparam>
+    template <IS_BASE_COMPONENT_C TComponent>
+    inline TComponent& AddComponent();
+
+    /// <summary>
+    /// <para> TComponent 타입의 컴포넌트를 찾아서 반환합니다. </para>
+    /// <para> 실패시 nullptr를 반환합니다.                     </para>
+    /// </summary>
+    /// <typeparam name="TComponent :">검색할 컴포넌트 타입</typeparam>
+    /// <returns>해당 타입 컴포넌트의 ptr</returns>
+    template <IS_BASE_COMPONENT_C TComponent>
+    inline TComponent* GetComponent() const;
+
+    /// <summary>
+    /// 전달받은 인덱스의 컴포넌트를 TComponent 타입으로 dynamic_cast를 시도해
+    /// 반환합니다.
+    /// </summary>
+    /// <typeparam name="TComponent :">캐스팅할 컴포넌트 타입</typeparam>
+    /// <param name="index :">컴포넌트 인덱스</param>
+    /// <returns>해당 타입 컴포넌트의 ptr</returns>
+    template <IS_BASE_COMPONENT_C TComponent>
+    inline TComponent* GetComponentAtIndex(size_t index) const;
+
+    /// <summary>
+    /// <para> TComponent 타입의 컴포넌트를 전부 찾아서 반환합니다. </para>
+    /// <para> 실패시 empty를 반환합니다.                         </para>
+    /// </summary>
+    /// <typeparam name="TComponent"></typeparam>
+    /// <returns>찾은 모든 컴포넌트에 대한 배열</returns>
+    template <IS_BASE_COMPONENT_C TComponent>
+    inline std::vector<TComponent*> GetComponents() const;
+
+    /// <summary>
+    /// 이 오브젝트에 부착된 컴포넌트 개수를 반환합니다.
+    /// </summary>
+    /// <returns>이 오브젝트에 부착된 컴포넌트 개수.</returns>
+    inline size_t GetComponentCount() const;
 
 private:
     std::string _className;
@@ -145,5 +193,34 @@ private:
     InitFlags _initFlags;
 
     GameObject* _gameObect;
-    int         _index;
 };
+
+template <IS_BASE_COMPONENT_C TComponent>
+inline TComponent& Component::AddComponent()
+{
+    return gameObject->AddComponent<TComponent>();
+}
+
+template <IS_BASE_COMPONENT_C TComponent>
+inline TComponent* Component::GetComponent() const
+{
+    return gameObject->GetComponent<TComponent>();
+}
+
+template <IS_BASE_COMPONENT_C TComponent>
+inline TComponent* Component::GetComponentAtIndex(size_t index) const
+{
+    return gameObject->GetComponentAtIndex<TComponent>(index);
+}
+
+template <IS_BASE_COMPONENT_C TComponent>
+inline std::vector<TComponent*> Component::GetComponents() const
+{
+    return gameObject->GetComponents<TComponent>();
+}
+
+inline size_t Component::GetComponentCount() const
+{
+    GameObject& object = gameObject;
+    return object.GetComponentCount();
+}

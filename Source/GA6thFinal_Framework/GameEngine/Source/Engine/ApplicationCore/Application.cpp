@@ -1,5 +1,4 @@
 ﻿#include "pch.h"
-#include "Application.h"
 using namespace Global;
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -8,13 +7,6 @@ LRESULT CALLBACK Application::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 {
     if (ImGui_ImplWin32_WndProcHandler(hwnd, msg, wParam, lParam))
         return true;
-
-    switch (msg)
-    {
-    case WM_DESTROY:
-        PostQuitMessage(0);
-        return true;
-    }
 
     if (App)
     {
@@ -26,12 +18,15 @@ LRESULT CALLBACK Application::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
             }
         }
     }
-    return DefWindowProc(hwnd, msg, wParam, lParam);
-}
 
-bool Application::IsEditor()
-{
-    return Global::editorManager != nullptr;
+    switch (msg)
+    {
+    case WM_DESTROY:
+        PostQuitMessage(0);
+        return true;
+    }
+
+    return DefWindowProc(hwnd, msg, wParam, lParam);
 }
 
 Application::Application()
@@ -46,8 +41,12 @@ Application::Application()
 
     //필수 모듈들
     AddModule<EngineCoresModule>();
-    _graphicsModule = AddModule<GraphicsModule>();
-    _imguiDX11Module = AddModule<ImGuiDX11Module>();
+    _imguiDX12Module = AddModule<ImGuiDX12Module>();
+
+    if constexpr(true == Application::IsEditor())
+    {
+        _filesystemModule = AddModule<FileSystemModule>();
+    }
 }
 
 void Application::Initialize(HINSTANCE hInstance)
@@ -63,12 +62,18 @@ void Application::Initialize(HINSTANCE hInstance)
 
     //모듈 초기화
     InitModules();
+
+    //초기화 완료
+    OnStartupComplete();
 }
 
 void Application::UnInitialize()
 {
     //모듈 해제
     UnInitModules();
+
+    //해제 완료
+    OnShutdownComplete();
 }
 
 void Application::Run()
@@ -88,21 +93,26 @@ void Application::Run()
         else
         {
             ETimeSystem::Engine::TimeSystemUpdate();
-            float deltaTime = engineCore->Time.deltaTime();
+            float deltaTime = engineCore->Time.DeltaTime();
 
-            _imguiDX11Module->ImguiBegin();
+            _imguiDX12Module->ImguiBegin();
             {
-                if (Global::editorManager)
+                if constexpr(true == Application::IsEditor())
                 {
-                    Global::editorManager->OnDrawGui();
+                    _filesystemModule->Update();
+                    Global::editorModule->Update();
                 }
-                ESceneManager::Engine::SceneUpdate();
 
-                //_graphicsModule->PreUpdate(deltaTime);
-                //_graphicsModule->PostUpdate(deltaTime);
+                // AnimationUpdate
+                Global::engineCore->Graphics.UpdateAnimation(deltaTime);
+                
+                ESceneManager::Engine::SceneUpdate();
+                // CameraUpdate, RenderQueueUpdate, Render
+                Global::engineCore->Graphics.Update();
+                Global::engineCore->Graphics.Render();
+                _imguiDX12Module->ImguiEnd();
+                Global::engineCore->Graphics.Flip();
             }
-            _imguiDX11Module->ImguiEnd();
-            _graphicsModule->Render();
         }
     }
 }
@@ -234,4 +244,19 @@ void Application::UnInitModules()
         appModule->ModuleUnInitialize();
     }
     _appModuleList.clear();
+}
+
+void Application::MainEntry::Initialize(HINSTANCE hInstance) 
+{
+    Application::App->Initialize(hInstance);
+}
+
+void Application::MainEntry::UnInitialize() 
+{
+    Application::App->UnInitialize();
+}
+
+void Application::MainEntry::Run() 
+{
+    Application::App->Run();
 }

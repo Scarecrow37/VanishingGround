@@ -1,12 +1,4 @@
-﻿//REFLECT_PROPERTY 사용용 인터페이스. 최상위 부모만 상속 받으면 됨.
-struct IReflectProperty
-{
-    IReflectProperty() = default;
-    virtual ~IReflectProperty() = default;
-    virtual void ImGuiDrawPropertys() {} //프로퍼티 맴버들의 순회를 위한 함수입니다.
-};
-
-//프로퍼티 사용시 1회 포함
+﻿//프로퍼티 사용시 1회 포함
 #define USING_PROPERTY(class_name)                                                             \
 using property_class_type = class_name;                                                                           
 
@@ -44,21 +36,44 @@ SETTER(type, property_name)
 
 #define PROPERTY(property_name)                                                                \
 TProperty<property_class_type, property_name##_property_getter_struct, property_name##_property_setter_struct> property_name{this};                \
-using property_name##_property_t = TProperty<property_class_type, property_name##_property_getter_struct, property_name##_property_setter_struct>; \
-friend property_name##_property_t;                                                                                                                 
+using property_name##_property_t = TProperty<property_class_type, property_name##_property_getter_struct, property_name##_property_setter_struct>;                                                                                                               
                                                                                                                             
 struct property_void_type
 {
     using Type = void;
 };
 
-//Set, Get 함수 선언 도움을 위한 헬퍼 템플릿 클래스
 template <typename owner_type, class getter, class setter>
 class TProperty
 {
 public:
     static constexpr bool is_getter = !std::is_same_v<getter::Type, void>;
     static constexpr bool is_setter = !std::is_same_v<setter::Type, void>;
+
+    /// <summary>
+    /// <para> 이 프로퍼티의 에디터 창에서 AcceptDragDropPayload를 호출하는 함수를 설정합니다. </para>
+    /// <para> 프로퍼티를 맴버로 사용하는 클래스의 생성자에서 사용해야합니다. </para>
+    /// <para> if (ImGui::BeginDragDropTarget())후 호출해줍니다. </para>
+    /// </summary>
+    inline void SetDragDropFunc(const std::function<void()>& func) 
+    {
+        if (dragDropTargetFunc)
+        {
+            assert(!"이미 설정된 함수입니다.");
+        }
+        else
+        {
+            dragDropTargetFunc = func;
+        }
+    }
+
+    inline void InvokeDragDropFunc()
+    {
+        if (dragDropTargetFunc)
+        {
+            dragDropTargetFunc();
+        }
+    }
 
 private:
     static_assert(is_getter || is_setter, "TProperty must have either a getter or a setter.");
@@ -71,6 +86,8 @@ private:
     using setterType = std::conditional_t<is_setter, setter, char>;
 public:
     using field_type = std::conditional_t<is_getter, typename getter::Type, typename setter::Type>;
+    using remove_cvref_field_type = std::remove_cvref_t<field_type>;
+    static constexpr bool is_ref_getter = !std::is_pointer_v<field_type> && std::is_reference_v<field_type> && is_getter;
     TProperty(
         owner_type* _this
     ) 
@@ -86,12 +103,13 @@ private:
     getterType _getter{};
     setterType _setter{};
     const type_info& type_id;
+    std::function<void()> dragDropTargetFunc;
 
-    field_type Getter() const
+    field_type Getter() const requires(is_getter)
     {
         return _getter(_propertyOwner);
     }
-    void Setter(const field_type& rhs)
+    void Setter(const remove_cvref_field_type& rhs) requires(is_setter)
     {
         _setter(_propertyOwner, rhs);
     }
@@ -121,17 +139,22 @@ public:
     }
 
     //Read
-    inline operator auto() const requires(is_getter)
+    inline operator field_type() const requires(is_getter)
     { 
         return this->Getter();
     }
 
-    inline auto* operator->() requires ( std::is_pointer_v<owner_type> && is_getter)
+    inline auto* operator->() const requires(std::is_pointer_v<field_type> && is_getter)
     { 
         return this->Getter();
     }
-    inline auto* operator->() requires (!std::is_pointer_v<owner_type> && std::is_reference_v<field_type> && is_getter)
+    inline auto* operator->()const requires(is_ref_getter)
     { 
+        return &this->Getter();
+    }
+
+    inline auto* operator&() requires(is_ref_getter)
+    {
         return &this->Getter();
     }
 
@@ -144,7 +167,7 @@ public:
         }
         return *this;
     }
-    inline TProperty& operator=(const field_type& rhs) requires (is_setter)
+    inline TProperty& operator=(const remove_cvref_field_type& rhs) requires (is_setter)
     {
         this->Setter(rhs);
         return *this;
@@ -158,7 +181,7 @@ public:
         }
         return *this;
     }
-    inline TProperty& operator+=(const field_type& rhs) requires (is_setter)
+    inline TProperty& operator+=(const remove_cvref_field_type& rhs) requires (is_setter)
     {
         this->Setter(this->Getter() + rhs);
         return *this;
@@ -172,7 +195,7 @@ public:
         }
         return *this;
     }
-    inline TProperty& operator-=(const field_type& rhs) requires (is_setter)
+    inline TProperty& operator-=(const remove_cvref_field_type& rhs) requires (is_setter)
     {
         this->Setter(this->Getter() - rhs);
         return *this;
@@ -186,7 +209,7 @@ public:
         }
         return *this;
     }
-    inline TProperty& operator*=(const field_type& rhs) requires (is_setter)
+    inline TProperty& operator*=(const remove_cvref_field_type& rhs) requires (is_setter)
     {
         this->Setter(this->Getter() * rhs);
         return *this;
@@ -200,7 +223,7 @@ public:
         }
         return *this;
     }
-    inline TProperty& operator/=(const field_type& rhs) requires (is_setter)
+    inline TProperty& operator/=(const remove_cvref_field_type& rhs) requires (is_setter)
     {
         this->Setter(this->Getter() / rhs);
         return *this;
@@ -230,4 +253,10 @@ namespace PropertyUtils
     //field_type이 존재하면 해당 타입을 없으면 원본 타입 사용.
     template <typename T>
     using get_field_type_t = typename get_field_type<T>::type;
+
+    template <typename T>
+    concept is_setter = requires 
+    {
+        { T::is_setter } -> std::convertible_to<bool>;
+    } && T::is_setter;
 }

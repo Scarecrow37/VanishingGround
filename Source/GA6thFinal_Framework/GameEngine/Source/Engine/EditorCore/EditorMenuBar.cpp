@@ -3,69 +3,44 @@
 
 EditorMenuBar::EditorMenuBar()
 {
-    _root = new EditorMenuNode;
-    _pathTable[""] = _root;
+    _root = new EditorMenuNode();
+    _root->SetPath("");
+    _nodeTable[_root->GetPath()].reset(_root);
 }
 
 EditorMenuBar::~EditorMenuBar()
 {
+    _nodeTable.clear();
+    _menuTable.clear();
 }
 
 void EditorMenuBar::OnTickGui()
 {
+     _root->OnTickGui();
 }
 
 void EditorMenuBar::OnStartGui()
 {
-    for (auto& node : _root->_MenuNodeVec)
-    {
-        if (nullptr != node)
-            node->OnStartGui();
-    }
+    _root->OnStartGui();
 }
 
 void EditorMenuBar::OnDrawGui()
 {
     ImGui::BeginMainMenuBar();
 
-    for (auto& [key, menu] : _nameTable)
-    {
-        if (nullptr != menu)
-            menu->OnTickGui();
-    }
-
-    for (auto& node : _root->_MenuNodeVec)
-    {
-        if(nullptr != node)
-            node->OnDrawGui();
-    }
+    _root->OnDrawGui();
 
     ImGui::EndMainMenuBar();
 }
 
 void EditorMenuBar::OnEndGui()
 {
-    for (auto& node : _root->_MenuNodeVec)
-    {
-        if (nullptr != node)
-            node->OnEndGui();
-    }
+    _root->OnEndGui();
 }
 
-EditorMenuNode* EditorMenuBar::GetMenuFromPath(Path path)
-{
-    auto itr = _pathTable.find(path);
-    // 없으면 만들어 줌
-    if (itr != _pathTable.end())
-    {
-        return itr->second;
-    }
-    return nullptr;
-}
-
-/* 
+/*
 인자로 받은 경로에 따라 메뉴Node를 만들고 최상위 부모Node를 반환합니다.
-*/ 
+*/
 EditorMenuNode* EditorMenuBar::BuildMenuNode(Path path)
 {
     if (true == path.empty())
@@ -77,84 +52,203 @@ EditorMenuNode* EditorMenuBar::BuildMenuNode(Path path)
         curPath /= entry;
         curPath = curPath.generic_string();
 
-        auto itr = _pathTable.find(curPath);
-        if (itr == _pathTable.end())
+        auto itr = _nodeTable.find(curPath);
+        if (itr == _nodeTable.end())
         {
-            EditorMenuNode* parent = GetMenuFromPath(curPath.parent_path());
-            EditorMenuNode* instance = new EditorMenuNode;
-            instance->SetMenuPath(curPath);
+            EditorMenuNode* instance = new EditorMenuNode();
+            instance->SetPath(curPath.string());
+            _nodeTable[curPath].reset(instance);
+            instance->SetLabel(curPath.filename().string());
 
-            parent->_MenuNodeVec.push_back(instance);
-            _pathTable[curPath] = instance;
+            EditorMenuNode* parent = GetMenuFromPath(curPath.parent_path());
+            parent->_menuList[""].push_back(instance);
 
             Sort(parent);
         }
     }
 
-    return _pathTable[path];
+    return _nodeTable[path].get();
 }
 
 void EditorMenuBar::Sort(EditorMenuNode* root)
 {
-    // root->_MenuNodeVec의 컨테이너에서 EditorMenu::GetCallOrder값을 통해 내림차순으로 정렬한다.
-    if (root->_MenuNodeVec.empty())
+    if (root->_menuList.empty())
         return;
 
-    std::sort(
-        root->_MenuNodeVec.begin(),
-        root->_MenuNodeVec.end(),
-        [](EditorMenu* a, EditorMenu* b) {
-            return a->GetCallOrder() > b->GetCallOrder();
-        });
-
-    for (auto& node : root->_MenuNodeVec)
+    for (auto& [key, group] : root->_menuList)
     {
-        auto* instance = dynamic_cast<EditorMenuNode*>(node);
-        if(instance)
-            Sort(instance);
+        if (group.empty())
+            continue;
+
+        std::sort(group.begin(), group.end(),
+                  [](EditorGui* a, EditorGui* b) { return a->GetCallOrder() < b->GetCallOrder(); });
+
+        for (auto& node : group)
+        {
+            auto* menuNode = dynamic_cast<EditorMenuNode*>(node);
+            if (menuNode)
+            {
+                Sort(menuNode);
+            }
+        }
+    }
+}
+
+EditorMenuNode* EditorMenuBar::GetMenuFromPath(Path path)
+{
+    auto itr = _nodeTable.find(path);
+    // 없으면 만들어 줌
+    if (itr != _nodeTable.end())
+    {
+        return itr->second.get();
+    }
+    return nullptr;
+}
+
+EditorMenuBase::EditorMenuBase()
+    : _isActive(true), _path("")
+{
+
+}
+
+EditorMenuBase::~EditorMenuBase() 
+{
+}
+
+void EditorMenuBase::DefaultDebugFrame()
+{
+    static char tooltip[256];
+
+    snprintf(tooltip, sizeof(tooltip), "GuiID: 0x%08X\nOrder: %d\nPath: %s\nLabel: %s",
+        ImGui::GetID(""),
+        GetCallOrder(), 
+        GetPath().c_str(), 
+        GetLabel().c_str()
+    );
+
+    if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
+    {
+        ImGui::BeginTooltip();
+        ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+        ImGui::TextUnformatted(tooltip);
+        ImGui::PopTextWrapPos();
+        ImGui::EndTooltip();
+    }
+}
+
+EditorMenuNode::EditorMenuNode()
+{
+}
+
+EditorMenuNode::~EditorMenuNode() 
+{
+}
+
+void EditorMenuNode::OnTickGui() 
+{
+    for (auto itr = _menuList.begin(); itr != _menuList.end(); ++itr)
+    {
+        auto& [key, group] = *itr;
+
+        for (auto& node : group)
+        {
+            node->OnTickGui();
+        }
+    }
+}
+
+void EditorMenuNode::OnStartGui() 
+{
+    for (auto itr = _menuList.begin(); itr != _menuList.end(); ++itr)
+    {
+        auto& [key, group] = *itr;
+
+        for (auto& node : group)
+        {
+            node->OnStartGui();
+        }
     }
 }
 
 void EditorMenuNode::OnDrawGui()
 {
-    if (GetVisible())
+    if (IsVisible())
     {
-        OnPreMenu();
+        bool isOpen = false;
 
-        std::string label = GetMenuPath().filename().string();
-        if (ImGui::BeginMenu(label.c_str(), GetActive()))
+        ImGui::PushID(this);
+        // 라벨이 있는 객체만
+        if (false == GetLabel().empty())
         {
-            OnMenu();
-
-            for (auto& node : _MenuNodeVec)
+            isOpen = ImGui::BeginMenu(GetLabel().c_str(), GetActive());
+        }
+        if (true == isOpen || true == GetLabel().empty())
+        {
+            if (true == Global::editorModule->IsDebugMode())
             {
-                if(nullptr != node)
-                node->OnDrawGui();
+                DefaultDebugFrame();
             }
-            ImGui::EndMenu();
-        }
 
-        OnPostMenu();
+            for (auto itr = _menuList.begin(); itr != _menuList.end();)
+            {
+                auto& [key, group] = *itr;
+
+                for (auto& node : group)
+                {
+                    node->OnDrawGui();
+                }
+
+                ++itr;
+
+                if (itr != _menuList.end())
+                {
+                    ImGui::Separator();
+                }
+            }
+
+            if (true == isOpen)
+            {
+                ImGui::EndMenu();
+            }
+        }
+        ImGui::PopID();
     }
 }
 
-void EditorMenuNode::Sort()
+void EditorMenuNode::OnEndGui() 
 {
-    std::sort(_MenuNodeVec.begin(), _MenuNodeVec.end(),
-        [](EditorMenu* a, EditorMenu* b) {
-            return a->GetCallOrder() > b->GetCallOrder();
-        });
-}
-
-void EditorMenuLeaf::OnDrawGui()
-{
-    if (true == GetVisible())
+    for (auto itr = _menuList.begin(); itr != _menuList.end(); ++itr)
     {
-        if (ImGui::MenuItem(GetLabel().c_str(), GetShortcut().c_str(), GetToggleValue(), GetActive()))
+        auto& [key, group] = *itr;
+
+        for (auto& node : group)
         {
-            OnSelected();
+            node->OnEndGui();
         }
-        OnMenu();
     }
 }
 
+EditorMenu::EditorMenu() 
+{
+}
+
+EditorMenu::~EditorMenu() 
+{
+}
+
+void EditorMenu::OnDrawGui()
+{
+    if (true == IsVisible())
+    {
+        ImGui::PushID(this);
+
+        OnMenu();
+
+        if (true == Global::editorModule->IsDebugMode())
+        {
+            DefaultDebugFrame();
+        }
+
+        ImGui::PopID();
+    }
+}

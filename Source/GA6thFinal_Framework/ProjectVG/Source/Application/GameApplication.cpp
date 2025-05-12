@@ -1,18 +1,6 @@
 ﻿#include "GameApplication.h"
 #include "UmFramework.h"
-
-#include "Source/EditorTools/EditorDebugView.h"
-#include "Source/EditorTools/EditorHierarchyView.h"
-#include "Source/EditorTools/EditorInspectorView.h"
-#include "Source/EditorTools/EditorSceneView.h"
-#include "Source/EditorTools/EditorAssetBrowser.h"
-#include "Source/EditorTools/NodeEditor/EditorShaderGraph.h"
-#include "Source/TestEditor/ObjectTestEditor.h"
-#include "Source/EditorTools/EditorLogsTool/EditorLogsTool.h"
-
-#include "Source/EditorTools/EditorMenu/EditorProjectMenu.h"
-#include "Source/EditorTools/EditorMenu/EditorWindowMenu.h"
-#include "Source/EditorTools/EditorMenu/EditorSettingMenu.h"
+#include "UmScripts.h"
 
 int APIENTRY wWinMain(
     _In_ HINSTANCE hInstance,
@@ -25,9 +13,9 @@ int APIENTRY wWinMain(
     UNREFERENCED_PARAMETER(lpCmdLine);
 
     GameApplication app;
-    app.Initialize(hInstance);
-    app.Run();
-    app.UnInitialize();
+    Application::MainEntry::Initialize(hInstance);
+    Application::MainEntry::Run();
+    Application::MainEntry::UnInitialize();
     return 0;
 }
 
@@ -37,33 +25,40 @@ GameApplication::GameApplication()
     SetStyleToWindowed();
     _clientSize = { 1920, 1080 };
     _windowName = L"Umreal Engine";
-    
-    //에디터 매니저 등록
-    _editorManager = AddModule<EditorManager>();
 
-    //추가할 에디터 작성
+#ifdef _UMEDITOR
+    // 에디터 매니저 등록
+    _editorModule = AddModule<EditorModule>();
+
+    // 추가할 에디터 작성
     /* Tool */
-    _editorManager->RegisterEditorObject<EditorDebugView>();
-    _editorManager->RegisterEditorObject<EditorHierarchyView>();
-    _editorManager->RegisterEditorObject<EditorInspectorView>();
-    _editorManager->RegisterEditorObject<EditorSceneView>();
-    _editorManager->RegisterEditorObject<EditorAssetBrowser>();
-    _editorManager->RegisterEditorObject<EditorLogsTool>();
+    _editorModule->RegisterEditorObject<EditorDebugTool>();
+    _editorModule->RegisterEditorObject<EditorHierarchyTool>();
+    _editorModule->RegisterEditorObject<EditorInspectorTool>();
+    _editorModule->RegisterEditorObject<EditorSceneTool>();
+    _editorModule->RegisterEditorObject<EditorAssetBrowserTool>();
+    _editorModule->RegisterEditorObject<EditorLogsTool>();
+    _editorModule->RegisterEditorObject<EditorCommandTool>();
+    _editorModule->RegisterEditorObject<EditorModelTool>();
 
-    //김시우 테스트용
-    _editorManager->RegisterEditorObject<ObjectTestEditor>();
-
-    //블루프린트 버그있음
-    //_editorManager->RegisterEditorObject<EditorShaderGraph>();
+    // 블루프린트 버그있음
+    //_editorModule->RegisterEditorObject<EditorShaderGraph>();
 
     /* Menu */
-    //Project
-    _editorManager->RegisterEditorObject<EditorMenuScriptBuilder>();
+    // Project
+    _editorModule->RegisterEditorObject<EditorMenuProjectRoot>();
+    _editorModule->RegisterEditorObject<EditorMenuScriptBuilder>();
+    _editorModule->RegisterEditorObject<EditorBuildSettingMenu>();
     // Window
-    _editorManager->RegisterEditorObject<EditorMenuTools>();
+    _editorModule->RegisterEditorObject<EditorMenuTools>();
     // Setting
-    _editorManager->RegisterEditorObject<EditorMenuDebug>();
-    _editorManager->RegisterEditorObject<EditorMenuStyleEditor>();
+    _editorModule->RegisterEditorObject<EditorMenuDebug>();
+    _editorModule->RegisterEditorObject<EditorMenuStyleEditor>();
+    _editorModule->RegisterEditorObject<EditorMenuFileSystemSetting>();
+
+    // Scene
+    _editorModule->RegisterEditorObject<EditorSceneMenuScenes>();
+#endif // _UMEDITOR
 }
 
 GameApplication::~GameApplication()
@@ -71,3 +66,11 @@ GameApplication::~GameApplication()
 
 }
 
+void GameApplication::OnStartupComplete() 
+{
+}
+
+void GameApplication::OnShutdownComplete() 
+{
+
+}

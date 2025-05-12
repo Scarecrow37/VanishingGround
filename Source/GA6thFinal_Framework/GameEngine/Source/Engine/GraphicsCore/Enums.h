@@ -1,0 +1,11 @@
+﻿#pragma once
+
+constexpr UINT SWAPCHAIN_BUFFER_COUNT = 4;
+
+enum class FEATURE_LEVEL { LEVEL_11_0, LEVEL_12_0, LEVEL_12_1 };
+
+enum RESOURCE { IB, VB, CB, DS, RT, SR, END };
+
+enum class RESOURCE_TYPE { MODEL, TEXTURE, ANIMATION };
+
+enum class COMMAND_TYPE { DIRECT, BUNDLE, COMPUTE };

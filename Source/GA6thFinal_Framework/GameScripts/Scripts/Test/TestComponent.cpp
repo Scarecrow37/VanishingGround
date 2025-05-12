@@ -1,5 +1,18 @@
 ﻿#include "TestComponent.h"
-TestComponent::TestComponent()  = default;
+#include "Scripts/FileSystemTest/FileTestComponent.h"
+TestComponent::TestComponent()
+{
+    ObjectDrop.SetDragDropFunc([this]
+    {
+        if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropTransform::KEY))
+        {
+            using Data = DragDropTransform::Data;
+            Data* data = (Data*)payLoad->Data;
+            ReflectFields->objectName = data->pTransform->gameObject->Name;
+        }
+    });
+
+}
 TestComponent::~TestComponent() = default;
 
 using namespace Global;
@@ -9,53 +22,68 @@ void TestComponent::Update()
 {
     ImGui::Begin(u8"테스트 컴포넌트 업데이트 호출중!!!"_c_str);
     {
+        transform->ImGuiDrawPropertys();
     }
     ImGui::End();
+    static float currTime = 0.f;
+    constexpr float addTime  = 1.f;
+
+    //currTime += UmTime.deltaTime();
+    //while (addTime <= currTime)
+    //{
+    //    AddComponent<FileTestComponent>();
+    //    currTime -= addTime;
+    //}
+}
+
+void TestComponent::FixedUpdate() 
+{
+    //UmLogger.Log(LogLevel::LEVEL_DEBUG, "Fixed Update!");    
 }
 
 void TestComponent::OnDestroy()
 {
-    engineCore->EngineLogger.Log(LogLevel::LEVEL_DEBUG, "OnDestroy!");
+    UmLogger.Log(LogLevel::LEVEL_DEBUG, "OnDestroy!");
 }
 
 void TestComponent::OnApplicationQuit()
 {
-    engineCore->EngineLogger.Log(LogLevel::LEVEL_DEBUG, "OnApplicationQuit!");
+    UmLogger.Log(LogLevel::LEVEL_DEBUG, "OnApplicationQuit!");
 }
 
 void TestComponent::Reset()
 {
-    engineCore->EngineLogger.Log(LogLevel::LEVEL_DEBUG, "Reset!");
+    UmLogger.Log(LogLevel::LEVEL_DEBUG, "Reset!");
 }
 
 void TestComponent::Awake()
 {
-    engineCore->EngineLogger.Log(LogLevel::LEVEL_DEBUG, "Awake!");
+    UmLogger.Log(LogLevel::LEVEL_DEBUG, "Awake!");
 }
 
 void TestComponent::Start()
 {
-    engineCore->EngineLogger.Log(LogLevel::LEVEL_DEBUG, "Start!");
+    UmLogger.Log(LogLevel::LEVEL_DEBUG, "Start!");
 }
 
 void TestComponent::OnEnable()
 {
-    engineCore->EngineLogger.Log(LogLevel::LEVEL_DEBUG, "OnEnable!");
+    UmLogger.Log(LogLevel::LEVEL_DEBUG, "OnEnable!");
 }
 
 void TestComponent::OnDisable()
 {
-    engineCore->EngineLogger.Log(LogLevel::LEVEL_DEBUG, "OnDisable!");
+    UmLogger.Log(LogLevel::LEVEL_DEBUG, "OnDisable!");
 }
 
 void TestComponent::SerializedReflectEvent()
 {
-    engineCore->EngineLogger.Log(LogLevel::LEVEL_DEBUG,
-                                 "SerializedReflectEvent");
+    UmLogger.Log(LogLevel::LEVEL_DEBUG, "SerializedReflectEvent");
+    std::memcpy(ReflectFields->testVector3.data(), &testVector3, sizeof(ReflectFields->testVector3));
 }
 
 void TestComponent::DeserializedReflectEvent()
 {
-    engineCore->EngineLogger.Log(LogLevel::LEVEL_DEBUG,
-                                 "DeserializedReflectEvent");
+    UmLogger.Log(LogLevel::LEVEL_DEBUG, "DeserializedReflectEvent");
+    testVector3 = Vector3(ReflectFields->testVector3.data());
 }

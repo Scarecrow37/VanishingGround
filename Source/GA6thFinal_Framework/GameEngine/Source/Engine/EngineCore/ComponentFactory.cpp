@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 using namespace Global;
+using namespace u8_literals;
 
 EComponentFactory::EComponentFactory()
 {
@@ -8,42 +9,51 @@ EComponentFactory::EComponentFactory()
 EComponentFactory::~EComponentFactory() = default;
 
 bool EComponentFactory::InitalizeComponentFactory()
-{
-    //복구해야할 컴포넌트 항목들
-    static std::vector<std::tuple<GameObject*, std::string, int>> addList;
+{  
+    static std::vector<std::tuple<GameObject*, std::string, int, std::string>> addList; //복구해야할 컴포넌트 항목들
     addList.clear();
 
-    DWORD exitCodeOut{};
-    if (!dllUtility::RunBatchFile(Engine::BUILD_BATCH_PATH, &exitCodeOut))
+    if constexpr (Application::IsEditor())
     {
-        engineCore->EngineLogger.Log(LogLevel::LEVEL_ERROR, "Scripts build Fail!");
-        return false;
+        DWORD exitCodeOut{};
+        if (!dllUtility::RunBatchFile(Engine::BUILD_BATCH_PATH, &exitCodeOut))
+        {
+            engineCore->Logger.Log(LogLevel::LEVEL_ERROR, "Scripts build Fail!");
+            return false;
+        }
     }
-      
+    else
+    {
+        if (m_scriptsDll != NULL)
+            return false;
+    }
+    SetForegroundWindow(UmApplication.GetHwnd());
     if (m_scriptsDll != NULL)
     {
         //모든 컴포넌트 자원 회수
-        for (auto& [key, wptr] : m_ComponentInstanceVec)
+        for (auto& [key, wptr] : _componentInstanceVec)
         {
             if (auto component = wptr.lock())
             {
-                int index = component->GetComponentIndex();
-                addList.emplace_back(component->_gameObect, key, index);
+                int index = component->GetIndex();
+                addList.emplace_back(component->_gameObect, key, index, component->SerializedReflectFields());
                 component->_gameObect->_components[index].reset(); //컴포넌트 파괴
             }
         }
-        m_ComponentInstanceVec.clear();
+        _componentInstanceVec.clear();
 
         FreeLibrary(m_scriptsDll);
         m_scriptsDll = NULL;
     }
 
-    m_NewScriptsFunctionMap.clear();
+    _newScriptsFunctionMap.clear();
     m_NewScriptsKeyVec.clear();
+    SetDllDirectory(EComponentFactory::Engine::SCRIPTS_DLL_PATH);
     m_scriptsDll = LoadLibraryW(L"GameScripts.dll");
     if (m_scriptsDll == NULL)
     {
-        assert(!"DLL Load Fail");
+        //DLL Load Fail
+        __debugbreak();
         return false;
     }
 
@@ -70,6 +80,7 @@ bool EComponentFactory::InitalizeComponentFactory()
         }
     }
 
+    //스크립트 파일 생성 함수 등록
     std::vector<std::string> funcList = dllUtility::GetDLLFuntionNameList(m_scriptsDll);
     MakeScriptFunc = (MakeUmScriptsFile)GetProcAddress(m_scriptsDll, funcList[0].c_str());
     if (funcList[0] != "CreateUmrealcSriptFile")
@@ -80,6 +91,7 @@ bool EComponentFactory::InitalizeComponentFactory()
         return false;
     }
 
+    //스크립트 초기화 함수 등록
     if (funcList[1] != "InitalizeUmrealScript")
     {
         FreeLibrary(m_scriptsDll);
@@ -88,10 +100,13 @@ bool EComponentFactory::InitalizeComponentFactory()
         return false;
     }
     auto InitDLLCores = (InitScripts)GetProcAddress(m_scriptsDll, funcList[1].c_str());
+    std::shared_ptr<EngineCores> cores = engineCore;
     InitDLLCores(
-        engineCore,
+        cores,
         ImGui::GetCurrentContext());
 
+    //스크립트 생성자들 등록
+    AddEngineComponentsToScripts();
     for (size_t i = 0; i < funcList.size(); i++)
     {
         std::string& funcName = funcList[i];
@@ -100,29 +115,61 @@ bool EComponentFactory::InitalizeComponentFactory()
             auto NewComponentFunc = (NewScripts)GetProcAddress(m_scriptsDll, funcName.c_str());
             Component* component = NewComponentFunc();
             const char* key = typeid(*component).name();
-            m_NewScriptsFunctionMap[key] = NewComponentFunc;
+            _newScriptsFunctionMap[key] = NewComponentFunc;
             m_NewScriptsKeyVec.emplace_back(key);
             delete component;
         }
     }
+    std::sort(m_NewScriptsKeyVec.begin(), m_NewScriptsKeyVec.end());
 
     //파괴된 컴포넌트 재생성 및 복구
-    for (auto& [gameObject, key, index] : addList)
+    MissingComponent missingTemp;
+    for (auto& [gameObject, key, index, reflectData] : addList)
     {
-        auto findIter = m_NewScriptsFunctionMap.find(key);
-        if (findIter != m_NewScriptsFunctionMap.end())
+        bool isMissing = false;
+        if (key == typeid(MissingComponent).name())
+        {
+            //Missing 컴포넌트면 데이터 복구
+            missingTemp.DeserializedReflectFields(reflectData);
+            key = missingTemp.ReflectFields->typeName;
+            isMissing = true;
+        }
+        std::shared_ptr<Component> newComponent;
+        auto findIter = _newScriptsFunctionMap.find(key);
+        bool isFind   = findIter != _newScriptsFunctionMap.end();
+        if (isFind)
         {
             //컴포넌트 존재하면 다시 생성
-            std::shared_ptr<Component> newComponent = NewComponent(key);
-            ResetComponent(gameObject, newComponent.get()); //엔진에서 사용하기 위해 초기화
-            newComponent->_initFlags.SetAwake();            //초기화 플래그 설정
-            newComponent->_initFlags.SetStart();            //초기화 플래그 설정
-            newComponent->_index = index;                  //인덱스 제대로 재설정
-            gameObject->_components[index] = newComponent;
+            newComponent = NewComponent(key);
         }
+        else
+        {
+            //없어진 컴포넌트면 Missing으로 대체
+            std::shared_ptr<MissingComponent> missing = NewMissingComponent();
+            missing->ReflectFields->typeName = key;
+            missing->ReflectFields->reflectData = reflectData;
+            newComponent = std::move(missing);
+        }
+        ResetComponent(gameObject, newComponent.get());       // 엔진에서 사용하기 위해 초기화
+        newComponent->_initFlags.SetAwake();                  // 초기화 플래그 설정
+        newComponent->_initFlags.SetStart();                  // 초기화 플래그 설정
+        gameObject->_components[index] = newComponent;  
+        if (isFind == true)
+        {
+            if (isMissing == true)
+            {
+                //Missing 컴포넌트면 데이터 복구
+                reflectData = missingTemp.ReflectFields->reflectData;
+            }
+            if (reflectData.empty() == false)
+            {
+                newComponent->DeserializedReflectFields(reflectData); // 데이터 복구
+            }          
+        }     
     }
+
     //존재 안하는거는 전부 제거
-    for (auto& [gameObject, key, index] : addList)
+    for (auto& [gameObject, key, index, reflectData] : addList)
     {
         std::erase_if(gameObject->_components, [](auto& sptr)
             {
@@ -138,49 +185,133 @@ void EComponentFactory::UninitalizeComponentFactory()
     if (m_scriptsDll != NULL)
     {
         //모든 컴포넌트 자원 회수
-        for (auto& [key, wptr] : m_ComponentInstanceVec)
+        for (auto& [key, wptr] : _componentInstanceVec)
         {
             if (auto component = wptr.lock())
             {
-                int index = component->GetComponentIndex();
+                int index = component->GetIndex();
                 component->_gameObect->_components[index].reset(); //컴포넌트 파괴
             }
         }
-        m_ComponentInstanceVec.clear();
+        _componentInstanceVec.clear();
         FreeLibrary(m_scriptsDll);
         m_scriptsDll = NULL;
     }
 }
 
-bool EComponentFactory::AddComponentToObject(GameObject* ownerObject, std::string_view typeid_name)
+Component* EComponentFactory::AddComponentToObject(GameObject* ownerObject, std::string_view typeid_name)
 {
     if(std::shared_ptr<Component> sptr_component = NewComponent(typeid_name))
     {
         const char* name = typeid_name.data();
         ResetComponent(ownerObject, sptr_component.get());
-        ownerObject->_components.emplace_back(sptr_component);  //오브젝트에 추가
         ESceneManager::Engine::AddComponentToLifeCycle(sptr_component); //씬에 등록
-        return true;
+        return sptr_component.get();
     }
-    return false;
+    return nullptr;
 }
 
 void EComponentFactory::MakeScriptFile(const char* fileName) const
 {
-    MakeScriptFunc(fileName);
+    if (m_scriptsDll != NULL)
+    {
+        MakeScriptFunc(fileName);
+    }
+    else
+    {
+        engineCore->Logger.Log(LogLevel::LEVEL_WARNING, u8"Script DLL을 빌드해주세요!"_c_str);
+    }
+}
+
+YAML::Node EComponentFactory::SerializeToYaml(Component* component)
+{
+    if (UmComponentFactory.HasScript() == false)
+    {
+        if (UmComponentFactory.InitalizeComponentFactory() == false)
+        {
+            UmLogger.Log(LogLevel::LEVEL_FATAL, u8"스크립트 빌드 에러 해결 필요."_c_str);
+            __debugbreak();
+            UmApplication.Quit();
+            return YAML::Node();
+        }
+    }
+    return MakeYamlToComponent(component);
+}
+
+bool EComponentFactory::AddComponentToYamlLifeCycle(GameObject* ownerObject,
+                                          YAML::Node* componentNode)
+{
+    if (UmComponentFactory.HasScript() == false)
+    {
+        if (UmComponentFactory.InitalizeComponentFactory() == false)
+        {
+            UmLogger.Log(LogLevel::LEVEL_FATAL, u8"스크립트 빌드 에러 해결 필요."_c_str);
+            __debugbreak();
+            UmApplication.Quit();
+            return false;
+        }
+    }
+    if (std::shared_ptr<Component> component = MakeComponentToYaml(ownerObject, componentNode))
+    {
+        ESceneManager::Engine::AddComponentToLifeCycle(component); // 씬에 등록
+    }
+    else
+    {
+        return false;
+    }
+    return true;
+}
+
+bool EComponentFactory::AddComponentToYamlNow(GameObject* ownerObject, YAML::Node* componentNode)
+{
+    if (UmComponentFactory.HasScript() == false)
+    {
+        if (UmComponentFactory.InitalizeComponentFactory() == false)
+        {
+            UmLogger.Log(LogLevel::LEVEL_FATAL, u8"스크립트 빌드 에러 해결 필요."_c_str);
+            __debugbreak();
+            UmApplication.Quit();
+            return false;
+        }
+    }
+    if (std::shared_ptr<Component> component = MakeComponentToYaml(ownerObject, componentNode))
+    {
+        component->_gameObect->_components.emplace_back(component); //바로 추가
+    }
+    else
+    {
+        return false;
+    }
+    return true;
+}
+
+void EComponentFactory::AddEngineComponentsToScripts() 
+{
+    for (auto& [key, func] : _engineComponets)
+    {
+        _newScriptsFunctionMap[key] = func;
+        m_NewScriptsKeyVec.emplace_back(key);
+    }
 }
 
 std::shared_ptr<Component> EComponentFactory::NewComponent(std::string_view typeid_name)
 {
     std::shared_ptr<Component> newComponent;
-    auto findIter = m_NewScriptsFunctionMap.find(typeid_name.data());
-    if (findIter != m_NewScriptsFunctionMap.end())
+    auto findIter = _newScriptsFunctionMap.find(typeid_name.data());
+    if (findIter != _newScriptsFunctionMap.end())
     {
         auto& [name, func] = *findIter;
         newComponent.reset(func());                                //컴포넌트 생성
-        m_ComponentInstanceVec.emplace_back(name, newComponent);   //추적용 weak_ptr 생성 
+        _componentInstanceVec.emplace_back(name, newComponent);   //추적용 weak_ptr 생성 
     }
     return newComponent;
+}
+
+std::shared_ptr<MissingComponent> EComponentFactory::NewMissingComponent()
+{
+    std::shared_ptr<MissingComponent> missing = std::make_shared<MissingComponent>();
+    _componentInstanceVec.emplace_back(typeid(MissingComponent).name(), missing);
+    return missing;
 }
 
 void EComponentFactory::ResetComponent(GameObject* ownerObject, Component* component)
@@ -188,8 +319,25 @@ void EComponentFactory::ResetComponent(GameObject* ownerObject, Component* compo
     //여긴 엔진에서 사용하기 위한 초기화 코드 
     component->_className = (typeid(*component).name() + 5);
     component->_gameObect = ownerObject;
-    component->_index = (int)ownerObject->_components.size();
-
     component->Reset();
     //end
+}
+
+YAML::Node EComponentFactory::MakeYamlToComponent(Component* component)
+{
+    YAML::Node node;
+    node["Type"] = typeid(*component).name();
+    node["ReflectFields"] = component->SerializedReflectFields();
+    return node;
+}
+
+std::shared_ptr<Component> EComponentFactory::MakeComponentToYaml(GameObject* ownerObject, YAML::Node* pComponentNode)
+{
+    YAML::Node& node = *pComponentNode;
+    std::string Type = node["Type"].as<std::string>();
+    std::shared_ptr<Component> component = NewComponent(Type);
+    ResetComponent(ownerObject, component.get());
+    std::string ReflectFields = node["ReflectFields"].as<std::string>();
+    component->DeserializedReflectFields(ReflectFields);
+    return component;
 }

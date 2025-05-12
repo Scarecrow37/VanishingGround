@@ -18,16 +18,35 @@ Popup창도 OpenPopup을 할 필요가 없다. 그냥 BeginPopupContextItem만 �
 void EditorTool::OnDrawGui()
 {
     ImGuiIO& io = ImGui::GetIO();
-
-    OnTickGui();
-
-    if (GetVisible())
+    
+    if (IsVisible())
     {
+        static bool isFirstTick = true;
+
         OnPreFrame();
 
-        ImGui::Begin(GetLabel().c_str(), &_isVisible, _windowFlags | ImGuiWindowFlags_NoCollapse);
+        if (true == _size.first)
+        {
+            ImGui::SetNextWindowSize(_size.second, ImGuiCond_FirstUseEver);
+            _size.first = false;
+        }
 
-        if (true == ImGui::IsWindowFocused()) 
+        if (true == _pos.first)
+        {
+            ImVec2 clientPos = ImGui::GetMainViewport()->Pos;
+            ImGui::SetNextWindowPos(clientPos + _pos.second, ImGuiCond_FirstUseEver);
+            _pos.first = false;
+        }
+
+        std::string label = GetLabel();
+        ImGui::Begin(label.c_str(), &_isVisible, _windowFlags | ImGuiWindowFlags_NoCollapse);
+
+        if (true == Global::editorModule->IsDebugMode())
+        {
+            DefaultDebugFrame();
+        }
+
+        if (false == isFirstTick && true == ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows))
         {
             OnFocus();
         }
@@ -37,11 +56,6 @@ void EditorTool::OnDrawGui()
             DefaultPopupFrame();
             OnPopup();
             ImGui::EndPopup();
-        }
-
-        if (true == Global::editorManager->IsDebugMode())
-        {
-            DefaultDebugFrame();
         }
 
         if (true == _isLock)
@@ -59,6 +73,8 @@ void EditorTool::OnDrawGui()
         ImGui::End();
 
         OnPostFrame();
+
+        isFirstTick = false;
     }
 }
 
@@ -92,15 +108,22 @@ void EditorTool::DefaultPopupFrame()
 
 void EditorTool::DefaultDebugFrame()
 {
-    const char* mark = "(ToolDebug)";
-    char tooltip[256];
+    static char tooltip[256];
 
     snprintf(tooltip, sizeof(tooltip), 
-        "ID: 0x%08X\nFlag: %d\nDockID: %d",
+        "GuiID: 0x%08X\nDockID: %d\nFlag: %d\nOrder: %d",
         ImGui::GetID(""),
+        ImGui::GetWindowDockID(), 
         _windowFlags, 
-        ImGui::GetWindowDockID()
+        _callOrder
     );
-    ImGuiHelper::TooltipMarker(tooltip, mark);
-    ImGuiHelper::Separator(0.0f);
+
+    if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
+    {
+        ImGui::BeginTooltip();
+        ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+        ImGui::TextUnformatted(tooltip);
+        ImGui::PopTextWrapPos();
+        ImGui::EndTooltip();
+    }
 }

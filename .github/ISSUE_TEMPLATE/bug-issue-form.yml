@@ -1,0 +1,83 @@
+name: 버그 제보
+description: 발생한 버그를 제보합니다. 생성된 이슈는 Jira와 연동되며, branch가 자동으로 생성됩니다.
+title: "[BUG] 이슈 이름을 작성해주세요."
+labels: ["bug"]
+assignees:
+  - Scarecrow37
+body:
+  - type: input
+    id: parentKey
+    attributes:
+      label: 🎟️ 상위 에픽(작업) (Ticket Number)
+      description: 상위 에픽(작업)의 Ticket Number를 기입해주세요
+      placeholder: VG-00
+    validations:
+      required: true
+      
+  - type: input
+    id: description
+    attributes:
+      label: 🐛 버그 설명 (Description)
+      description: 발생한 버그에 대한 명확하고 간결한 설명을 작성해주세요.
+    validations:
+      required: true
+      
+  - type: textarea
+    id: reappearance
+    attributes:
+      label: 🪜 재현 방법 (Reappearance)
+      description: 발생한 상황의 단계를 구체적으로 설명해 주세요.
+      value: |
+        1. Situation1
+        2. Situation2
+    validations:
+      required: true
+      
+  - type: input
+    id: expectancy
+    attributes:
+      label: 🪄 예상한 동작 (Expectancy)
+      description: 정상적으로 기대한 동작에 대한 명확하고 간결한 설명을 작성해주세요.
+    validations:
+      required: true
+      
+  - type: textarea
+    id: screenshot
+    attributes:
+      label: 📷 스크린샷 첨부 (screenshot)
+      description: 문제의 설명에 도움이 될 스크린샷이 있다면 첨부해 주세요.
+    validations:
+      required: false
+      
+  - type: textarea
+    id: hardware
+    attributes:
+      label: 🖥️ 하드웨어 정보 (Hardware)
+      description: 다음 정보를 작성해주세요.
+      value: |
+        - OS: [예: Windows 11 24H2]
+        - CPU: [예: Intel(R) Core(TM) i9-14900KF]
+        - GPU: [예: NVIDIA GeForce RTX 4080 SUPER]
+        - Memory: [예: 128GB]
+        - Project Version [예: Version 0.1.1]
+    validations:
+      required: false
+      
+  - type: input
+    id: additional
+    attributes:
+      label: 📝 추가 사항 (Additional)
+      description: 문제와 관련된 기타 정보를 추가해주세요.
+    validations:
+      required: false
+      
+  - type: textarea
+    id: subtasks
+    attributes:
+      label: ✅ 체크리스트(Subtasks)
+      description: 해당 기능에 대해 필요한 작업목록을 작성해주세요.
+      value: |
+        - [ ] Task1
+        - [ ] Task2
+    validations:
+      required: true

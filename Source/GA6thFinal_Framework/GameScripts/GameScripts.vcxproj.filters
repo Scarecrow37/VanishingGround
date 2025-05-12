@@ -15,13 +15,22 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="UmrealScriptCore.h">
+    <ClInclude Include="UmScriptCore.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="UmrealScripts.h">
+    <ClInclude Include="UmScripts.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Scripts\Test\TestComponent.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\FileSystemTest\FileTestComponent.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\Graphics\StaticMeshRenderer.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\Graphics\SkeletalMeshRenderer.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -29,13 +38,22 @@
     <ClCompile Include="dllmain.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="UmrealScriptCore.cpp">
+    <ClCompile Include="UmScriptCore.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="UmrealScripts.cpp">
+    <ClCompile Include="UmScripts.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Scripts\Test\TestComponent.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\FileSystemTest\FileTestComponent.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\Graphics\StaticMeshRenderer.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\Graphics\SkeletalMeshRenderer.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

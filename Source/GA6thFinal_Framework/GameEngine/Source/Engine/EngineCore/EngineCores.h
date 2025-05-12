@@ -3,15 +3,24 @@
 //엔진 코어들을 모아놓은 관리 클래스
 class EngineCores
 {
+    friend LogLocation::LogLocation(const std::source_location& location);
 public:
-    EngineCores();
+    EngineCores(Application& app);
     ~EngineCores();
 
     ETimeSystem Time;
     ESceneManager SceneManager;
     EGameObjectFactory GameObjectFactory;
     EComponentFactory ComponentFactory;
-    EEngineLogger EngineLogger;
+    ELogger Logger;
+    EFileSystem FileSystem;
+    Application& App;
+    GraphicsCore Graphics;
+    ECommandManager CommandManager;
+    ReflectHelper::ImGuiDraw::InputAutoSetting ImGuiDrawPropertysSetting;
+
+private:
+    LogLocation::EngineLocationInfo LocationInfo;
 };
 
 //안전한 접근 및 DLL에서 엔진 코어를 접근하기 위한 Wrapper 구조체
@@ -64,4 +73,12 @@ namespace Global
     extern SafeEngineCoresPtr engineCore; //스크립트에서 엔진 접근을 위한 전역 변수.
 }
 
-
+#define UmCore Global::engineCore
+#define UmTime UmCore->Time
+#define UmSceneManager UmCore->SceneManager
+#define UmLogger UmCore->Logger
+#define UmGameObjectFactory UmCore->GameObjectFactory
+#define UmComponentFactory UmCore->ComponentFactory
+#define UmApplication UmCore->App
+#define UmFileSystem UmCore->FileSystem
+#define UmCommandManager UmCore->CommandManager
