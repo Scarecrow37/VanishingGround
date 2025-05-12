@@ -47,7 +47,11 @@ void EditorDockWindowSystem::OnDrawGui()
     {
         if (nullptr != window)
         {
-            window->OnDrawGui();
+            bool isOpen = window->IsVisible();
+            if (true == isOpen)
+            {
+                window->OnDrawGui();
+            }
         }
     }
 }
@@ -63,7 +67,7 @@ void EditorDockWindowSystem::OnEndGui()
     }
 }
 
-EditorDockWindow* EditorDockWindowSystem::RegisterDockWindow(const std::string& label)
+EditorDockWindow* EditorDockWindowSystem::RegisterDockWindow(const std::string& label, EditorDockWindow* parent)
 {
     EditorDockWindow* instance;
     auto itr = _dockWindowTable.find(label);
@@ -72,7 +76,14 @@ EditorDockWindow* EditorDockWindowSystem::RegisterDockWindow(const std::string& 
         instance = new EditorDockWindow;
         instance->SetLabel(label);
         _dockWindowTable[label] = instance;
-        _dockWindowList.push_back(instance);
+        if (nullptr != parent)
+        {
+            parent->RegisterChildDockWindow(instance);
+        }
+        else
+        {
+            _dockWindowList.push_back(instance);
+        }
     }
     else
     {

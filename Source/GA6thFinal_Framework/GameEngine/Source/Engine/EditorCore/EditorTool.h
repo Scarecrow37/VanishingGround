@@ -34,52 +34,55 @@ private:
     virtual void OnPopup();
 
 private:
-    void DefaultPopupFrame();
-
     void BeginFrame();
     void EndFrame();
+    void InitFrame();
+
+    void DefaultPopupFrame();
 
 private:
-    std::string             _label              = "";                       // 에디터 툴 이름 (기본적으로 전역 단위의 이름 중복을 허용하지 않음. 나중엔 uuid등으로 관리할지 고민 중)
-    int                     _callOrder          = 0;                        // OnDrawGui 호출 순서
-    bool                    _isLock             = false;                    // 해당 탭에 대한 입력을 막을지에 대한 여부
-    std::pair<bool, ImVec2> _size               = {false, ImVec2(0, 0)};    // 사이즈 조정 여부와 사이즈
-    std::pair<bool, ImVec2> _pos                = {false, ImVec2(0, 0)};    // 위치 조정 여부와 위치
+    std::string                     _label              = "";                       // 에디터 툴 이름 (기본적으로 전역 단위의 이름 중복을 허용하지 않음. 나중엔 uuid등으로 관리할지 고민 중)
+    int                             _callOrder          = 0;                        // OnDrawGui 호출 순서
+    bool                            _isLock             = false;                    // 해당 탭에 대한 입력을 막을지에 대한 여부
+    bool                            _isFirstTick        = true;  
 
-    ImGuiWindowClass        _imGuiWindowClass   = {};
-    EditorDockWindow*       _dockWindow         = nullptr;                  // 도킹 스페이스 (부모 도킹스페이스)
-    ImGuiDir                _dockLayout         = ImGuiDir_None;            // 초기 Dock영역 (초기 도킹빌드시에만 사용하고 이후엔 사용 X)
-    ImGuiWindowFlags        _windowFlags        = ImGuiWindowFlags_None;    // ImGui윈도우 플래그 (ImGuiWindowFlags_NoCollapse는 항상 활성화)
+    ImGuiWindowClass                _imGuiWindowClass   = {};
+    std::pair<bool, ImVec2>         _size               = {false, ImVec2(0, 0)};    // 사이즈 조정 여부와 사이즈
+    std::pair<bool, ImVec2>         _pos                = {false, ImVec2(0, 0)};    // 위치 조정 여부와 위치
+    std::pair<bool, ImGuiDir>       _dockLayout         = {false, ImGuiDir_None};   // 초기 Dock영역 (초기 도킹빌드시에만 사용하고 이후엔 사용 X)
+    ImGuiWindowFlags                _windowFlags        = ImGuiWindowFlags_None;    // ImGui윈도우 플래그 (ImGuiWindowFlags_NoCollapse는 항상 활성화)
     
+    EditorDockWindow*               _ownerDockWindow = nullptr;                     // 도킹 스페이스 (부모 도킹스페이스)
+    std::vector<EditorDockWindow*>  _childDockWindowList;                           // 도킹 스페이스 리스트 (자식 도킹스페이스)
 public:
-    inline void             SetWindowClass(const ImGuiWindowClass& windowClass) { _imGuiWindowClass = windowClass; }
-    inline const auto&      GetWindowClass() { return _imGuiWindowClass; }
-    /*                      도킹 스페이스 설정 (부모 도킹스페이스) */
-    inline void             SetDockWindow(EditorDockWindow* dockWindow) { _dockWindow = dockWindow; }
-    inline auto*            GetDockWindow() { return _dockWindow; }
-    /*                      이름 설정 (기본적으로 중복을 비허용.) */
-    inline void             SetLabel(const std::string& label) { _label = label; }
-    inline const auto&      GetLabel() { return _label; }
-    /*                      호출 순서 설정 */
-    inline void             SetCallOrder(int i) { _callOrder = i; }
-    inline int              GetCallOrder() { return _callOrder; }
-    /*                      초기 도킹 영역을 지정 */
-    inline void             SetDockLayout(ImGuiDir layout) { _dockLayout = layout; }
-    inline ImGuiDir         GetDockLayout() { return _dockLayout; }
-    /*                      플래그 설정 */
-    inline void             SetWindowFlag(ImGuiWindowFlags flag) { _windowFlags = flag; }
-    inline void             AddWindowFlag(ImGuiWindowFlags flag) { _windowFlags |= flag; }
-    inline ImGuiWindowFlags GetWindowFlag() { return _windowFlags; }
-    /*                      툴 잠금 설정 */
-    inline void             SetLock(bool v) { _isLock = v; }
-    inline bool             IsLock() { return _isLock; }
-    inline void             ToggleLock() { _isLock = _isLock == true ? false : true; }
-    /*                      사이즈 조정 설정 */
-    inline void             SetSize(const ImVec2& size) { _size = {true, size}; }
-    inline ImVec2           GetSize() { return _size.second; }
+    inline void                     SetWindowClass(const ImGuiWindowClass& windowClass) { _imGuiWindowClass = windowClass; }
+    inline const auto&              GetWindowClass() { return _imGuiWindowClass; }
+    /*                              이름 설정 (기본적으로 중복을 비허용.) */
+    inline void                     SetLabel(const std::string& label) { _label = label; }
+    inline const auto&              GetLabel() { return _label; }
+    /*                              호출 순서 설정 */
+    inline void                     SetCallOrder(int i) { _callOrder = i; }
+    inline int                      GetCallOrder() { return _callOrder; }
+    /*                              초기 도킹 영역을 지정 */
+    inline void                     SetDockLayout(ImGuiDir layout) { _dockLayout = {true, layout}; }
+    inline ImGuiDir                 GetDockLayout() { return _dockLayout.second; }
+    /*                              플래그 설정 */
+    inline void                     SetWindowFlag(ImGuiWindowFlags flag) { _windowFlags = flag; }
+    inline void                     AddWindowFlag(ImGuiWindowFlags flag) { _windowFlags |= flag; }
+    inline ImGuiWindowFlags         GetWindowFlag() { return _windowFlags; }
+    /*                              툴 잠금 설정 */
+    inline void                     SetLock(bool v) { _isLock = v; }
+    inline bool                     IsLock() { return _isLock; }
+    inline void                     ToggleLock() { _isLock = _isLock == true ? false : true; }
+    /*                              사이즈 조정 설정 */
+    inline void                     SetSize(const ImVec2& size) { _size = {true, size}; }
+    inline ImVec2                   GetSize() { return _size.second; }
+    /*                              위치 조정 설정 */
+    inline void                     SetPos(const ImVec2& pos) { _pos = {true, pos}; }
+    inline ImVec2                   GetPos() { return _pos.second; }
 
-    /*                      위치 조정 설정 */
-    inline void             SetPos(const ImVec2& pos) { _pos = {true, pos}; }
-    inline ImVec2           GetPos() { return _pos.second; }
+    /*                              도킹 스페이스 설정 (부모 도킹스페이스) */
+    inline void                     SetOwnerDockWindow(EditorDockWindow* dockWindow) { _ownerDockWindow = dockWindow; }
+    inline auto*                    GetOwnerDockWindow() { return _ownerDockWindow; }
 };
 

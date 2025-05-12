@@ -17,28 +17,12 @@ Popup창도 OpenPopup을 할 필요가 없다. 그냥 BeginPopupContextItem만 �
 */
 void EditorTool::OnDrawGui()
 {
-    if (IsVisible())
+    OnPreFrame();
+
+    InitFrame();
+    BeginFrame();
     {
-        static bool isFirstTick = true;
-
-        if (true == _size.first)
-        {
-            ImGui::SetNextWindowSize(_size.second, ImGuiCond_FirstUseEver);
-            _size.first = false;
-        }
-
-        if (true == _pos.first)
-        {
-            ImVec2 clientPos = ImGui::GetMainViewport()->Pos;
-            ImGui::SetNextWindowPos(clientPos + _pos.second, ImGuiCond_FirstUseEver);
-            _pos.first = false;
-        }
-
-        OnPreFrame();
-
-        BeginFrame();
-
-        if (false == isFirstTick && true == ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows))
+        if (false == _isFirstTick && true == ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows))
         {
             OnFocus();
         }
@@ -62,12 +46,12 @@ void EditorTool::OnDrawGui()
             ImGui::EndDisabled();
         }
 
-        EndFrame();
-
-        OnPostFrame();
-
-        isFirstTick = false;
     }
+    EndFrame();
+
+    OnPostFrame();
+
+    _isFirstTick = false;
 }
 
 void EditorTool::OnPreFrame()
@@ -90,26 +74,51 @@ void EditorTool::OnPopup()
 {
 }
 
-void EditorTool::DefaultPopupFrame()
-{
-    ImGui::MenuItem("Close", "", &_isVisible);
-    ImGui::Separator();
-    ImGui::MenuItem("Lock", "", &_isLock);
-}
-
 void EditorTool::BeginFrame()
 {
     std::string       label     = GetLabel();
-    EditorDockWindow* dockSpace = GetDockWindow();
+    EditorDockWindow* dockSpace = GetOwnerDockWindow();
     if (nullptr != dockSpace)
     {
         auto& windowClass = dockSpace->GetWindowClass();
         ImGui::SetNextWindowClass(&windowClass);
     }
-    ImGui::Begin(label.c_str(), &_isVisible, _windowFlags | ImGuiWindowFlags_NoCollapse);
+    int windowFlag = _windowFlags | ImGuiWindowFlags_NoCollapse;
+    ImGui::Begin(label.c_str(), &_isVisible, windowFlag);
 }
 
 void EditorTool::EndFrame()
 {
     ImGui::End();
+}
+
+void EditorTool::InitFrame() 
+{
+    if (true == _isFirstTick)
+    {
+        if (true == _size.first)
+        {
+            ImGui::SetNextWindowSize(_size.second, ImGuiCond_FirstUseEver);
+            _size.first = false;
+        }
+
+        if (true == _pos.first)
+        {
+            ImVec2 clientPos = ImGui::GetMainViewport()->Pos;
+            ImGui::SetNextWindowPos(clientPos + _pos.second, ImGuiCond_FirstUseEver);
+            _pos.first = false;
+        }
+        if (nullptr != _ownerDockWindow)
+        {
+            _ownerDockWindow->SetDockBuildWindow(_label, _dockLayout.second);
+            _dockLayout.first = false;
+        }
+    }
+}
+
+void EditorTool::DefaultPopupFrame()
+{
+    ImGui::MenuItem("Close", "", &_isVisible);
+    ImGui::Separator();
+    ImGui::MenuItem("Lock", "", &_isLock);
 }

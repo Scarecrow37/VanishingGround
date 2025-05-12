@@ -79,8 +79,8 @@ void GameApplication::BuildRootDock()
 
     int windowFlag = 
         ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
-        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus |
-        ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoDocking;
+        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus |
+                     ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_MenuBar;
 
     int dockNodeFlag = 
         ImGuiDockNodeFlags_NoWindowMenuButton | ImGuiDockNodeFlags_NoCloseButton;
@@ -89,54 +89,70 @@ void GameApplication::BuildRootDock()
     _rootDock->SetWindowFlag(windowFlag);
     _rootDock->SetDockNodeFlag(dockNodeFlag);
     _rootDock->SetOptionFlags(EditorDockWindow::DOCKWINDOW_FLAGS_FULLSCREEN);
+
+    _rootDock->CreateDockLayoutNode(ImGuiDir::ImGuiDir_Up, 0.70f);
+    _rootDock->CreateDockLayoutNode(ImGuiDir::ImGuiDir_Down, 0.30f);
+
+    _rootDock->RegisterGui<EditorMenuProjectRoot>();
+    _rootDock->RegisterGui<EditorMenuScriptBuilder>();
+    _rootDock->RegisterGui<EditorBuildSettingMenu>(); 
+    _rootDock->RegisterGui<EditorMenuDebug>();
+    _rootDock->RegisterGui<EditorMenuStyleEditor>();
+    _rootDock->RegisterGui<EditorMenuFileSystemSetting>();
 }
 
 void GameApplication::BuildSceneDock() 
 {
     auto& dockSystem = _editorModule->GetDockWindowSystem();
 
-    _sceneDock = dockSystem.RegisterDockWindow("SceneDock");
+    _sceneDock = dockSystem.RegisterDockWindow("SceneDock", _rootDock);
     
     ImGuiWindowClass windowClass;
     windowClass.ClassId               = ImHashStr("SceneDockID");
     windowClass.DockingAllowUnclassed = false;
     windowClass.DockingAlwaysTabBar   = true;
 
+    int windowFlag   = ImGuiWindowFlags_MenuBar;
     int dockNodeFlag = ImGuiDockNodeFlags_NoWindowMenuButton | ImGuiDockNodeFlags_NoCloseButton;
 
-    _sceneDock->SetDockWindow(_rootDock);
     _sceneDock->SetWindowClass(windowClass);
+    _sceneDock->SetWindowFlag(windowFlag);
     _sceneDock->SetDockNodeFlag(dockNodeFlag);
+    _sceneDock->SetDockLayout(ImGuiDir_Up);
+
     _sceneDock->CreateDockLayoutNode(ImGuiDir::ImGuiDir_Right, 0.25f);
     _sceneDock->CreateDockLayoutNode(ImGuiDir::ImGuiDir_Down, 0.40f);
     _sceneDock->CreateDockLayoutNode(ImGuiDir::ImGuiDir_Left, 0.30f);
     _sceneDock->CreateDockLayoutNode(ImGuiDir::ImGuiDir_Up, 0.50f);
 
-    _sceneDock->RegisterTool<EditorDebugTool>();
-    _sceneDock->RegisterTool<EditorHierarchyTool>();
-    _sceneDock->RegisterTool<EditorInspectorTool>();
-    _sceneDock->RegisterTool<EditorSceneTool>();
-    _sceneDock->RegisterTool<EditorLogsTool>();
-    _sceneDock->RegisterTool<EditorCommandTool>();
-    _sceneDock->RegisterTool<EditorModelTool>();
+    _sceneDock->RegisterGui<EditorDebugTool>();
+    _sceneDock->RegisterGui<EditorHierarchyTool>();
+    _sceneDock->RegisterGui<EditorInspectorTool>();
+    _sceneDock->RegisterGui<EditorSceneTool>();
+    _sceneDock->RegisterGui<EditorLogsTool>();
+    _sceneDock->RegisterGui<EditorCommandTool>();
+    _sceneDock->RegisterGui<EditorModelTool>();
+    _sceneDock->RegisterGui<EditorAssetBrowserTool>();
+
+    _sceneDock->RegisterGui<EditorMenuTools>(_sceneDock);
+    _sceneDock->RegisterGui<EditorSceneMenuScenes>();
 }
 
 void GameApplication::BuildAssetDock() 
 {
     auto& dockSystem = _editorModule->GetDockWindowSystem();
 
-    _assetDock = dockSystem.RegisterDockWindow("AssetDock");
+    _assetDock = dockSystem.RegisterDockWindow("AssetDock", _rootDock);
 
     ImGuiWindowClass windowClass;
     windowClass.ClassId               = ImHashStr("AssetDockID");
     windowClass.DockingAllowUnclassed = false;
     windowClass.DockingAlwaysTabBar   = true;
 
-    int dockNodeFlag = ImGuiDockNodeFlags_NoWindowMenuButton | ImGuiDockNodeFlags_NoCloseButton;
+    int dockNodeFlag = ImGuiDockNodeFlags_NoWindowMenuButton | ImGuiDockNodeFlags_NoCloseButton |
+                       ImGuiDockNodeFlags_NoTabBar;
 
-    _assetDock->SetDockWindow(_rootDock);
     _assetDock->SetWindowClass(windowClass);
-    _sceneDock->SetDockNodeFlag(dockNodeFlag);
-
-    _assetDock->RegisterTool<EditorAssetBrowserTool>();
+    _assetDock->SetDockNodeFlag(dockNodeFlag);
+    _assetDock->SetDockLayout(ImGuiDir_Down);
 }

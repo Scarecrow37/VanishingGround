@@ -210,7 +210,7 @@
     <ClInclude Include="Source\Engine\EditorCore\EditorGui.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\EditorCore\Menu\EditorMenuBar.h">
+    <ClInclude Include="Source\Engine\EditorCore\Menu\EditorMenu.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\EditorCore\DockWindow\EditorDockWindowSystem.h">
@@ -411,9 +411,6 @@
     <ClInclude Include="Source\Engine\GraphicsCore\RenderTechnique.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\UmScripts.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Imgui\GraphEditor.h">
       <Filter>헤더 파일\imgui</Filter>
     </ClInclude>
@@ -546,9 +543,6 @@
     <ClInclude Include="Source\Engine\EditorCore\Interface\IEditorCycle.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\EditorCore\Menu\EditorMenuSystem.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\pch.cpp">
@@ -641,7 +635,7 @@
     <ClCompile Include="Source\Engine\EditorCore\EditorGui.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\EditorCore\Menu\EditorMenuBar.cpp">
+    <ClCompile Include="Source\Engine\EditorCore\Menu\EditorMenu.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\EditorCore\DockWindow\EditorDockWindowSystem.cpp">
@@ -945,9 +939,6 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\EditorCore\DockWindow\EditorDockWindow.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\EditorCore\Menu\EditorMenuSystem.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

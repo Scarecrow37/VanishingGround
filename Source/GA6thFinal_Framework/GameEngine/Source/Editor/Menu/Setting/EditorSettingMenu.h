@@ -5,12 +5,7 @@
 class EditorMenuDebug : public EditorMenu
 {
 public:
-    EditorMenuDebug() 
-    {
-        SetPath("Setting/Editor");
-
-        _isDebugMode = Global::editorModule->IsDebugMode();
-    }
+    EditorMenuDebug();
     virtual ~EditorMenuDebug() = default;
 public:
     virtual void OnMenu() override;
@@ -22,10 +17,7 @@ private:
 class EditorMenuStyleEditor : public EditorMenu
 {
 public:
-    EditorMenuStyleEditor()
-    {
-        SetPath("Setting/Editor");
-    }
+    EditorMenuStyleEditor()          = default;
     virtual ~EditorMenuStyleEditor() = default;
 public:
     virtual void OnMenu() override;
@@ -37,10 +29,7 @@ private:
 class EditorMenuFileSystemSetting : public EditorMenu
 {
 public:
-    EditorMenuFileSystemSetting()
-    {
-        SetPath("Setting/FileSystem");
-    }
+    EditorMenuFileSystemSetting()          = default;
     virtual ~EditorMenuFileSystemSetting() = default;
 
 public:

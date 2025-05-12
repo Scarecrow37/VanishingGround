@@ -285,7 +285,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Engine\EditorCore\Menu\EditorMenuSystem.h" />
     <ClInclude Include="Source\Engine\EditorCore\Interface\IEditorCycle.h" />
     <ClInclude Include="Source\Engine\EditorCore\DockWindow\EditorDockWindow.h" />
     <ClInclude Include="Source\Engine\EditorCore\Interface\IEditorObject.h" />
@@ -398,7 +397,7 @@
     <ClInclude Include="Source\Engine\Utility\stlHelper.h" />
     <ClInclude Include="Source\Engine\ClassCore\ReflectHelper.h" />
     <ClInclude Include="Source\Engine\EditorCore\EditorGui.h" />
-    <ClInclude Include="Source\Engine\EditorCore\Menu\EditorMenuBar.h" />
+    <ClInclude Include="Source\Engine\EditorCore\Menu\EditorMenu.h" />
     <ClInclude Include="Source\Engine\EditorCore\EditorModule.h" />
     <ClInclude Include="Source\Engine\EngineCore\ComponentFactory.h" />
     <ClInclude Include="Source\Engine\EngineCore\EngineCores.h" />
@@ -433,11 +432,9 @@
     <ClInclude Include="Source\UmFramework.h" />
     <ClInclude Include="Source\pch.h" />
     <ClInclude Include="Source\Engine\Utility\DumpUtility.h" />
-    <ClInclude Include="Source\UmScripts.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\VertexShader.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Engine\EditorCore\Menu\EditorMenuSystem.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\DockWindow\EditorDockWindow.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\d3dUtil.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\RendererFileEvent.cpp" />
@@ -555,7 +552,7 @@
     <ClCompile Include="Source\Engine\AppModule\ImGuiDX12Module.cpp" />
     <ClCompile Include="Source\Engine\ClassCore\ReflectHelper.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\EditorGui.cpp" />
-    <ClCompile Include="Source\Engine\EditorCore\Menu\EditorMenuBar.cpp" />
+    <ClCompile Include="Source\Engine\EditorCore\Menu\EditorMenu.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\EditorModule.cpp" />
     <ClCompile Include="Source\Engine\EngineCore\ComponentFactory.cpp" />
     <ClCompile Include="Source\Engine\EngineCore\EngineCores.cpp" />

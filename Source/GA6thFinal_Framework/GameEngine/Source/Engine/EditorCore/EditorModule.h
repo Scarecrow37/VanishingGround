@@ -43,17 +43,6 @@ namespace Global
 }
 #endif
 
-template <typename T>
-concept IsEditorGui = std::is_base_of_v<EditorGui, T>;
-
-template <typename T>
-concept IsEditorDockWindow = IsEditorGui<T> && std::is_base_of_v<EditorDockWindow, T>;
-
-template <typename T>
-concept IsEditorTool = IsEditorGui<T> && std::is_base_of_v<EditorTool, T>;
-
-template <typename T>
-concept IsEditorMenu = IsEditorGui<T> && std::is_base_of_v<EditorMenu, T>;
 
  class EditorModule 
      : public IAppModule
@@ -100,7 +89,7 @@ concept IsEditorMenu = IsEditorGui<T> && std::is_base_of_v<EditorMenu, T>;
      /* 프로젝트 로드 요청을 처리할 동작을 구현 */
      virtual void OnRequestedLoad() override;
  private:
-     EditorSetting             _setting;
-     EditorDockWindowSystem    _dockWindowSystem;                  // 에디터 도킹 윈도우 시스템
-     EditorPopupBoxSystem      _popupBoxSystem;                    // 에디터 모달 팝업 시스템
+     EditorSetting             _setting;            // 에디터 세팅 데이터
+     EditorDockWindowSystem    _dockWindowSystem;   // 에디터 도킹 윈도우 시스템
+     EditorPopupBoxSystem      _popupBoxSystem;     // 에디터 모달 팝업 시스템
  };

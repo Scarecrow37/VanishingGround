@@ -6,10 +6,7 @@
 class EditorMenuScriptBuilder : public EditorMenu
 {
 public:
-    EditorMenuScriptBuilder() 
-    {
-        SetPath("Project/Build");
-    }
+    EditorMenuScriptBuilder()          = default;
     virtual ~EditorMenuScriptBuilder() = default;
 public:
     virtual void OnMenu() override;
@@ -21,10 +18,7 @@ public:
 class EditorMenuProjectRoot : public EditorMenu
 {
 public:
-    EditorMenuProjectRoot()
-    {
-        SetPath("Project");
-    }
+    EditorMenuProjectRoot()          = default;
     virtual ~EditorMenuProjectRoot() = default;
 
 public:

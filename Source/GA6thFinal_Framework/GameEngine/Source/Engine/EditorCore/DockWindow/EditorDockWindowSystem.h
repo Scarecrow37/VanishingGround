@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include "EditorDockWindow.h"
  
+class EditorDockWindow;
+
 class EditorDockWindowSystem : public IEditorCycle
 {
     using DockTable = std::unordered_map<std::string, EditorDockWindow*>;
@@ -17,7 +19,7 @@ public:
     virtual void OnEndGui() override;
 
 public:
-    EditorDockWindow* RegisterDockWindow(const std::string& label);
+    EditorDockWindow* RegisterDockWindow(const std::string& label, EditorDockWindow* parent = nullptr);
     EditorDockWindow* GetDockWindow(const std::string& label);
     EditorDockWindow* operator[](const std::string& label);
 

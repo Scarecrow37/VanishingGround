@@ -7,7 +7,7 @@ EditorDockWindow::EditorDockWindow()
 
 EditorDockWindow::~EditorDockWindow() 
 {
-    for (auto& editor : _editorToolList)
+    for (auto& editor : _editorGuiList)
     {
         if (nullptr != editor)
         {
@@ -15,14 +15,14 @@ EditorDockWindow::~EditorDockWindow()
             editor = nullptr;
         }
     }
-    _editorToolList.clear();
-    _editorToolTable.clear();
+    _editorGuiList.clear();
+    _editorToolClassTable.clear();
 }
 
 
 void EditorDockWindow::OnTickGui() 
 {
-    for (auto& editor : _editorToolList)
+    for (auto& editor : _editorGuiList)
     {
         if (nullptr != editor)
         {
@@ -33,7 +33,7 @@ void EditorDockWindow::OnTickGui()
 
 void EditorDockWindow::OnStartGui() 
 {
-    for (auto& editor : _editorToolList)
+    for (auto& editor : _editorGuiList)
     {
         if (nullptr != editor)
         {
@@ -44,7 +44,7 @@ void EditorDockWindow::OnStartGui()
 
 void EditorDockWindow::OnEndGui() 
 {
-    for (auto& editor : _editorToolList)
+    for (auto& editor : _editorGuiList)
     {
         if (nullptr != editor)
         {
@@ -63,21 +63,38 @@ void EditorDockWindow::OnFrame()
 {
     SubmitDockSpace();
     PopDockStyle();
-}
 
-void EditorDockWindow::OnPostFrame()
-{
-    for (auto& editor : _editorToolList)
+    for (auto& editor : _editorGuiList)
     {
         if (nullptr != editor)
         {
-            editor->OnDrawGui();
+            if (true == editor->IsVisible())
+            {
+                editor->OnDrawGui();
+            }
         }
     }
 }
 
+void EditorDockWindow::OnPostFrame()
+{
+}
+
+bool EditorDockWindow::RegisterChildDockWindow(EditorDockWindow* childDockWindow)
+{
+    if (nullptr == childDockWindow)
+    {
+        return false;
+    }
+
+    _editorGuiList.push_back(childDockWindow);
+    childDockWindow->SetOwnerDockWindow(this);
+    return true;
+}
+
 void EditorDockWindow::UpdateFlag()
 {
+    _imGuiDockFlags = _userImGuiDockFlags;
 }
 
 void EditorDockWindow::SubmitDockSpace() 
@@ -101,11 +118,13 @@ void EditorDockWindow::SubmitDockSpace()
 
 void EditorDockWindow::InitDockLayout()
 {
-    bool useDockBuild = (_optionFlags & DOCKWINDOW_FLAGS_USE_DOCKBUILD) != 0;
+   // bool useDockBuild = (_optionFlags & DOCKWINDOW_FLAGS_USE_DOCKBUILD);
+    bool useDockBuild = true;
     ImGuiDockNode* dockNode = ImGui::DockBuilderGetNode(_dockSplitMainID);
 
     if (true == useDockBuild && NULL == dockNode)
     {
+        isDockBuilding = true;
         ImGui::DockBuilderRemoveNode(_dockSplitMainID);
         ImGui::DockBuilderAddNode(_dockSplitMainID, _imGuiDockFlags); // 새로 추가
 
@@ -117,15 +136,17 @@ void EditorDockWindow::InitDockLayout()
             id = ImGui::DockBuilderSplitNode(dock_main_id, direction, ratio, NULL, &dock_main_id);
             _dockSplitIDTable[direction] = id;
         }
+
         _dockSplitIDTable[ImGuiDir_None] = dock_main_id;
-        for (auto& [key, tool] : _editorToolTable)
+
+        for (auto& tool : _editorGuiList)
         {
             if (nullptr != tool)
             {
-                const char* label     = tool->GetLabel().c_str();
-                ImGuiDir    direction = tool->GetDockLayout();
-                ImGuiID     splitID   = _dockSplitIDTable[direction];
-                ImGui::DockBuilderDockWindow(label, splitID);
+                //const char* label     = tool->GetLabel().c_str();
+                //ImGuiDir    direction = tool->GetDockLayout();
+                //ImGuiID     splitID   = _dockSplitIDTable[direction];
+                //ImGui::DockBuilderDockWindow(label, splitID);
             }
         }
         ImGui::DockBuilderFinish(_dockSplitMainID);
@@ -179,4 +200,16 @@ void EditorDockWindow::CreateDockLayoutNode(ImGuiDir direction, float ratio)
     _dockSplitIDTable[direction] = 0;
 
     _optionFlags |= DOCKWINDOW_FLAGS_USE_DOCKBUILD;
+}
+
+bool EditorDockWindow::SetDockBuildWindow(const std::string& label, ImGuiDir direction)
+{
+    if (false == isDockBuilding)
+    {
+        /* 도킹 빌드 중이 아닙니다. */
+        return false;
+    }
+    ImGuiID splitID = _dockSplitIDTable[direction];
+    ImGui::DockBuilderDockWindow(label.c_str(), splitID);
+    return true;
 }

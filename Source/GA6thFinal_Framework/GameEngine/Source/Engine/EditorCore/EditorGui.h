@@ -16,20 +16,19 @@ public:
     virtual ~EditorGui() = default;
 
 public:
-    virtual void    OnTickGui() = 0;
-    virtual void    OnStartGui() = 0;
-    virtual void    OnDrawGui() = 0;
-    virtual void    OnEndGui() = 0;
+    virtual void OnTickGui() = 0;
+    virtual void OnStartGui() = 0;
+    virtual void OnDrawGui() = 0;
+    virtual void OnEndGui() = 0;
 
 public:
-    /* 활성화 여부 설정 */
-    inline void         SetVisible(bool v) { _isVisible = v; }
-    inline bool         IsVisible() { return _isVisible; }
-    inline void         ToggleVisible() { _isVisible = _isVisible == true ? false : true; }
+    /*          활성화 여부 설정 */
+    inline void SetVisible(bool v) { _isVisible = v; }
+    inline bool IsVisible() { return _isVisible; }
+    inline void ToggleVisible() { _isVisible = _isVisible == true ? false : true; }
 
 protected:
-   
-    bool                _isVisible = true;      // 에디터 창의 렌더 여부
+    bool _isVisible = true;      // 에디터 창의 렌더 여부
     
 };
 
