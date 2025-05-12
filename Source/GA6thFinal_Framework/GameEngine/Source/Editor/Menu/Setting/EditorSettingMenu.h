@@ -9,7 +9,6 @@ public:
     {
         SetCallOrder(0);
         SetPath("Setting/Editor");
-        SetLabel("");
 
         _isDebugMode = Global::editorModule->IsDebugMode();
     }
@@ -28,7 +27,6 @@ public:
     {
         SetCallOrder(0);
         SetPath("Setting/Editor");
-        SetLabel("");
     }
     virtual ~EditorMenuStyleEditor() = default;
 public:
@@ -45,7 +43,6 @@ public:
     {
         SetCallOrder(0);
         SetPath("Setting/FileSystem");
-        SetLabel("");
     }
     virtual ~EditorMenuFileSystemSetting() = default;
 

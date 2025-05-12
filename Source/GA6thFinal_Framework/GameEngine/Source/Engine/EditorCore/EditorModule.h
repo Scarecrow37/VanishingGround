@@ -136,4 +136,33 @@ concept IsEditorMenu = IsEditorGui<T> && std::is_base_of_v<EditorMenu, T>;
      EditorPopupBoxSystem*  _PopupBox;                          // 에디터 모달 팝업
      EditorMenuBar*         _mainMenuBar;                       // 에디터 메뉴 바
      EditorDockSpace*       _mainDockSpace;                     // 에디터 도킹 스페이스
+
+public:
+    //플레이 모드 관리용
+    class EditorPlayMode
+    {
+    public:
+        EditorPlayMode();
+        ~EditorPlayMode();
+
+        constexpr bool IsPlay() const
+        {
+            return _isPlay;
+        }
+        void Play();
+        void Stop();
+        void SetPlayModeColor();
+        void SetPlayModeColor(ImVec4 (&playModeColors)[ImGuiCol_COUNT]);
+        void DefaultPlayModeColor();
+
+    private:
+        #ifdef _UMEDITOR
+        bool _isPlay = false;
+        #else
+        static constexpr bool _isPlay = true;
+        #endif
+        File::Guid _playSceneGuid;
+        ImVec4 _playModeColors[ImGuiCol_COUNT];
+    }
+    PlayMode;
 };

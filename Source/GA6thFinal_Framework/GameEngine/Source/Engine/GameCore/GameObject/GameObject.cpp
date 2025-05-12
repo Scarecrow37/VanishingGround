@@ -42,7 +42,14 @@ GameObject::~GameObject()
 
 Scene& GameObject::GetScene()
 {
-    return *engineCore->SceneManager.GetSceneByName(_ownerScene);
+    if (_ownerScene != ESceneManager::DONT_DESTROY_ON_LOAD_SCENE_NAME)
+    {
+        return *engineCore->SceneManager.GetSceneByName(_ownerScene);       
+    }
+    else
+    {
+        return *engineCore->SceneManager.GetDontDestroyOnLoadScene();
+    }
 }
 
 std::weak_ptr<GameObject> GameObject::GetWeakPtr() const
@@ -69,7 +76,7 @@ void GameObject::OnInspectorStay()
             Scene* ownerScene = UmSceneManager.GetSceneByName(_ownerScene);
             if (ownerScene)
             {
-                ownerScene->isDirty = true;
+                ownerScene->IsDirty = true;
             }
         }
     };

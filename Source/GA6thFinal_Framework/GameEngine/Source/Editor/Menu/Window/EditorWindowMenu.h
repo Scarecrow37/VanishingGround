@@ -10,7 +10,6 @@ public:
     {
         SetCallOrder(0);
         SetPath("Window");
-        SetLabel("");
     }
     virtual ~EditorMenuTools() = default;
 

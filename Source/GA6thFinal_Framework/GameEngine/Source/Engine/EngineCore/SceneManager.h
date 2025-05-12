@@ -56,10 +56,15 @@ public:
     // get : 이 씬 파일의 상대 경로를 반환합니다.
     PROPERTY(Path)
 
-    // 씬의 수정 여부입니다. 파일을 저장하면 자동으로 초기화됩니다.
-    bool isDirty = false;
-
+    GETTER(bool, IsDirty)
+    {
+        return _isDirty;
+    }
+    SETTER(bool, IsDirty);
+    PROPERTY(IsDirty)
 private:
+    bool _isDontDestroyOnLoad = false;
+    bool _isDirty   = false;
     bool _isLoaded = false;
     File::Guid _guid = STR_NULL;
 };
@@ -106,6 +111,7 @@ public:
     static constexpr const char* SCENE_EXTENSION = ".UmScene";
     static constexpr const char* SETTING_FILE_NAME = "SceneManager.setting.json";
     static constexpr const char* EMPTY_SCENE_NAME  = "EmptyScene";
+    static constexpr const char* DONT_DESTROY_ON_LOAD_SCENE_NAME = "DontDestroyOnLoad";
     static std::filesystem::path GetSettingFilePath();
 
     //엔진 접근용 네임스페이스
@@ -281,6 +287,12 @@ public:
     }
 
     /// <summary>
+    /// 씬 로드해도 파괴되지 않는 씬을 가져옵니다.
+    /// </summary>
+    /// <returns>DontDestroyOnLoad 오브젝트가 없으면 nullptr</returns>
+    Scene* GetDontDestroyOnLoadScene();
+
+    /// <summary>
     /// 씬 정보를 이름을 통해 찾아서 반환합니다.
     /// </summary>
     /// <returns>성공시 Scene 의 주소, 실패시 nullptr</returns>
@@ -303,9 +315,16 @@ public:
     void WriteEmptySceneToFile(std::string_view name, std::string_view outPath, bool isOverride = false);
     
 private:
+#ifdef _UMEDITOR
+    //play 여부
+    bool _isPlay = true;
+#else
+    static constexpr bool _isPlay = true;
+#endif
+
     //Life cycle 을 수행. 클라에서 매틱 호출해야함.
     void SceneUpdate();
-
+    
 private:
     void ObjectsAddRuntime();        //추가 대기중인 오브젝트, 컴포넌트를 라이프 사이클에 포함시킵니다.
     void ObjectsAwake();             //Awake 예정인 컴포넌트들의 Awake 함수를 호출합니다.
@@ -466,6 +485,15 @@ inline auto ESceneManager::GetRootGameObjectsByPath(std::string_view path)
 
 inline auto Scene::GetRootGameObjects() const
 {
-    std::string path = Path;
+    std::string path;
+    if (_isDontDestroyOnLoad)
+    {
+        path = ESceneManager::DONT_DESTROY_ON_LOAD_SCENE_NAME;
+    }
+    else
+    {
+        path = Path;
+    }
     return ESceneManager::GetRootGameObjectsByPath(path);
 }
+

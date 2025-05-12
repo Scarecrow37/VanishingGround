@@ -13,7 +13,8 @@ void EditorSceneMenuScenes::OnMenu()
         if (ImGui::MenuItem("New EmptyScene"))
         {
             static std::string inputBuff;
-            editor.OpenPopupBox(u8"씬 이름을 입력하세요"_c_str, [&]() {
+            editor.OpenPopupBox(u8"씬 이름을 입력하세요"_c_str, [&]()
+            {
                 ImGui::PushID(this);
                 {
                     ImGui::InputText(u8"이름"_c_str, &inputBuff);

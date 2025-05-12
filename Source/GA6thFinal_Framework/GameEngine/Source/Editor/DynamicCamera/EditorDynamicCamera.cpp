@@ -22,39 +22,40 @@ void EditorDynamicCamera::Update()
     const Vector3 right  = -matrix.Right();
     const Vector3 up     = -matrix.Up();
 
-    if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftShift))
+    bool isRightClick = ImGui::IsKeyDown(ImGuiKey::ImGuiKey_MouseRight);
+    if (isRightClick)
     {
-        moveSpeed *= 2.f;
-    }
-    if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_W))
-    {
-        _position += foward * moveSpeed;
-    }
-    if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_S))
-    {
-        _position += -foward * moveSpeed;
-    }
+        if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftShift))
+        {
+            moveSpeed *= 2.f;
+        }
+        if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_W))
+        {
+            _position += foward * moveSpeed;
+        }
+        if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_S))
+        {
+            _position += -foward * moveSpeed;
+        }
 
-    if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_A))
-    {
-        _position += right * moveSpeed;
-    }
-    if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_D))
-    {
-        _position += -right * moveSpeed;
-    }
+        if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_A))
+        {
+            _position += right * moveSpeed;
+        }
+        if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_D))
+        {
+            _position += -right * moveSpeed;
+        }
 
-    if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_Q))
-    {
-        _position += up * moveSpeed;
-    }
-    if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_E))
-    {
-        _position += -up * moveSpeed;
-    }
+        if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_Q))
+        {
+            _position += -Vector3::Up * moveSpeed;
+        }
+        if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_E))
+        {
+            _position += Vector3::Up * moveSpeed;
+        }
 
-    if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_MouseRight))
-    {
         ImVec2 mouseDelta = io.MouseDelta;
         if (mouseDelta.x != 0.f || mouseDelta.y != 0.f)
         {
@@ -62,12 +63,12 @@ void EditorDynamicCamera::Update()
             float deltaY = mouseDelta.y * rotateSpeed;
             _rotation += Vector3(deltaY, deltaX, 0.f);
         }
-    }
-
-    if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_MouseWheelY))
-    {
-        float wheel = io.MouseWheel;
-        _position += foward * zoomSpeed * wheel;
+        
+        if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_MouseWheelY))
+        {
+            float wheel = io.MouseWheel;
+            _position += foward * zoomSpeed * wheel;
+        }
     }
 
     _camera->SetPosition(_position);

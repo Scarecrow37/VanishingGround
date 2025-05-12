@@ -126,6 +126,7 @@ public:
 
 private:
     virtual void OnDrawGui() override final;
+    void SetLabel() = delete;
 
 private:
     /* 재정의 가능 */

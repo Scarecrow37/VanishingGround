@@ -38,6 +38,10 @@ public:
 
     inline static const char* ICON_EDIT = "\xef\x83\x84"; // f044
 
+    inline static const char* ICON_PLAY = "\xef\x85\x84";
+    inline static const char* ICON_STOP = "\xef\x8a\x8d";
+    inline static const char* ICON_PAUSE = "\xef\x8a\x8b";
+
     static constexpr std::string UnicodeToUTF8(unsigned int codepoint)
     {
         std::string out;

@@ -12,7 +12,7 @@ Command::Hierarchy::DropPrefabCommand::DropPrefabCommand(const File::Guid& guid)
 void Command::Hierarchy::DropPrefabCommand::Execute() 
 {
     _newObject = UmGameObjectFactory.DeserializeToGuid(_guid);
-    UmSceneManager.GetMainScene()->isDirty = true;
+    UmSceneManager.GetMainScene()->IsDirty = true;
 }
 
 void Command::Hierarchy::DropPrefabCommand::Undo() 
@@ -21,6 +21,6 @@ void Command::Hierarchy::DropPrefabCommand::Undo()
     {
         auto pObject = _newObject.lock();
         GameObject::Destroy(pObject.get());
-        pObject->GetScene().isDirty = true;
+        pObject->GetScene().IsDirty = true;
     }
 }

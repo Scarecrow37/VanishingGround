@@ -191,4 +191,5 @@ using namespace Microsoft::WRL;
 #include "Editor/Menu/Setting/EditorSettingMenu.h"
 #include "Editor/Menu/Scene/EditorSceneMenu.h"
 #include "Editor/Menu/Project/EditorBuildSettingMenu.h"
+#include "Editor/Menu/Play/EditorPlayMenu.h"
 #endif
