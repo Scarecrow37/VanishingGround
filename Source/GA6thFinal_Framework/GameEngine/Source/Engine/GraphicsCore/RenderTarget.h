@@ -12,8 +12,11 @@ public:
     ComPtr<ID3D12Resource>             GetResource() { return _resource; }
 
 public:
-    HRESULT Initialize(DXGI_FORMAT format);
+    HRESULT Initialize(DXGI_FORMAT format, FLOAT clearColor);
     void    CreateShaderResourceView();
+
+public:
+    FLOAT clearValue;
 
 private:
     ComPtr<ID3D12Resource>      _resource;

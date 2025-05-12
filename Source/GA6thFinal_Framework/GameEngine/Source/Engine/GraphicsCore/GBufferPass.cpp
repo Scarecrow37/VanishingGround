@@ -28,9 +28,10 @@ void GBufferPass::Begin(ID3D12GraphicsCommandList* commandList)
         CD3DX12_RESOURCE_BARRIER br = CD3DX12_RESOURCE_BARRIER::Transition(
             gbuffer.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,D3D12_RESOURCE_STATE_RENDER_TARGET);
         commandList->ResourceBarrier(1, &br);
-
-        D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle  = _ownerScene->_gBuffer[i]->GetRTVHandle();
-        commandList->ClearRenderTargetView(cpuHandle, _clearColor, 0, nullptr);
+        float clearValue    = _ownerScene->_gBuffer[i]->clearValue;
+        Color           clearColor = {clearValue, clearValue, clearValue, 1.f};
+        D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle     = _ownerScene->_gBuffer[i]->GetRTVHandle();
+        commandList->ClearRenderTargetView(cpuHandle, clearColor, 0, nullptr);
     }
 
     // DepthStencil 상태 전이 + Clear
