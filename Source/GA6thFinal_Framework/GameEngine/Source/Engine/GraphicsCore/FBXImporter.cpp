@@ -18,7 +18,12 @@ FBXImporter::~FBXImporter()
 }
 
 void FBXImporter::CreateModel(const std::filesystem::path& filePath, bool isStaticMesh, Model* model)
-{    
+{
+    if (filePath.extension() == L".fbx")
+    {
+
+    }
+
     unsigned int importFlags =
         aiProcess_Triangulate |         // vertex 삼각형 으로 출력
         aiProcess_GenNormals |          // Normal 정보 생성  

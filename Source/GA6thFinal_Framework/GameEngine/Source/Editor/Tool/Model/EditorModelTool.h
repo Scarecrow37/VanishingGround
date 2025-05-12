@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 class EditorDynamicCamera;
+class MeshRenderer;
 class EditorModelTool : public EditorTool
 {
 public:
@@ -34,5 +35,6 @@ private:
 
 private:
     std::unique_ptr<EditorDynamicCamera> _camera;
-    //std::shared_ptr<StaticMeshRenderer> 
+    std::unique_ptr<MeshRenderer>        _meshRenderer;
+    Matrix                               _worldMatrix;
 };

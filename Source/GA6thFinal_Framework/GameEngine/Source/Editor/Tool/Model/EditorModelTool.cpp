@@ -1,9 +1,11 @@
 ﻿#include "pch.h"
 #include "EditorModelTool.h"
-#include "../../DynamicCamera/EditorDynamicCamera.h"
+#include "Editor/DynamicCamera/EditorDynamicCamera.h"
+#include "Engine/GraphicsCore/MeshRenderer.h"
 
 EditorModelTool::EditorModelTool()
     : _camera(std::make_unique<EditorDynamicCamera>())
+    , _meshRenderer(std::make_unique<MeshRenderer>(MeshRenderer::RENDER_TYPE::STATIC, _worldMatrix))
 {
     SetLabel("ModelViewer");
 }
@@ -86,7 +88,7 @@ void EditorModelTool::OnPopup()
 
 void EditorModelTool::ImportFBX(std::filesystem::path path)
 {
-
+    _meshRenderer->LoadModel(path.c_str());
 }
 
 void EditorModelTool::ExportFBX()
