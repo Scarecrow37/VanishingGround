@@ -86,7 +86,7 @@ void GameApplication::BuildRootDock()
         ImGuiDockNodeFlags_NoWindowMenuButton | ImGuiDockNodeFlags_NoCloseButton;
 
     _rootDock->SetWindowClass(windowClass);
-    _rootDock->SetWindowFlag(windowFlag);
+    _rootDock->SetImGuiWindowFlag(windowFlag);
     _rootDock->SetDockNodeFlag(dockNodeFlag);
     _rootDock->SetOptionFlags(EditorDockWindow::DOCKWINDOW_FLAGS_FULLSCREEN);
 
@@ -116,7 +116,7 @@ void GameApplication::BuildSceneDock()
     int dockNodeFlag = ImGuiDockNodeFlags_NoWindowMenuButton | ImGuiDockNodeFlags_NoCloseButton;
 
     _sceneDock->SetWindowClass(windowClass);
-    _sceneDock->SetWindowFlag(windowFlag);
+    _sceneDock->SetImGuiWindowFlag(windowFlag);
     _sceneDock->SetDockNodeFlag(dockNodeFlag);
     _sceneDock->SetDockLayout(ImGuiDir_Up);
 

@@ -7,7 +7,7 @@ EditorAssetBrowserTool::EditorAssetBrowserTool()
 {
     SetLabel("AssetBrowser");
     //SetDockLayout(ImGuiDir_Down);
-    SetWindowFlag(ImGuiWindowFlags_NoTitleBar);
+    SetImGuiWindowFlag(ImGuiWindowFlags_NoTitleBar);
 
     _selectedContext = std::make_shared<EditorAssetObject>();
     _selectedContext->SetThis(_selectedContext);

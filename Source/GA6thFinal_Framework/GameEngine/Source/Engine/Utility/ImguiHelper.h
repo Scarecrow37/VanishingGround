@@ -180,6 +180,16 @@ namespace ImGuiHelper
         drawlist->AddRectFilled(a, b, col, rounding, flags);
     }
 
+    static bool IsWindowDrawable(ImGuiWindow* window = nullptr)
+    {
+        if (!window)
+            window = ImGui::GetCurrentWindowRead();
+        if (!window)
+            return false;
+
+        return window->SkipItems;
+    }
+
     class DragDrop
     {
         using EventID = const char*;

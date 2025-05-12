@@ -20,7 +20,12 @@ void EditorTool::OnDrawGui()
     OnPreFrame();
 
     InitFrame();
+
     BeginFrame();
+
+    bool canOpenFrame = IsDrawable() || HasEditorToolFlags(EDITORTOOL_FLAGS_ALWAYS_FRAME);
+
+    if (true == canOpenFrame)
     {
         if (false == _isFirstTick && true == ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows))
         {
@@ -74,7 +79,7 @@ void EditorTool::OnPopup()
 {
 }
 
-void EditorTool::BeginFrame()
+bool EditorTool::BeginFrame()
 {
     std::string       label     = GetLabel();
     EditorDockWindow* dockSpace = GetOwnerDockWindow();
@@ -85,6 +90,15 @@ void EditorTool::BeginFrame()
     }
     int windowFlag = _windowFlags | ImGuiWindowFlags_NoCollapse;
     ImGui::Begin(label.c_str(), &_isVisible, windowFlag);
+
+    _isDrawable = ImGuiHelper::IsWindowDrawable();
+
+    if (_isDrawable)
+    {
+        UmLogger.Log(1, _label + " is Clipped");
+    }
+
+    return _isDrawable;
 }
 
 void EditorTool::EndFrame()

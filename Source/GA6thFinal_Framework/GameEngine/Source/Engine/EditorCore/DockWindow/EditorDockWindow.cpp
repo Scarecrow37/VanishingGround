@@ -95,6 +95,10 @@ bool EditorDockWindow::RegisterChildDockWindow(EditorDockWindow* childDockWindow
 void EditorDockWindow::UpdateFlag()
 {
     _imGuiDockFlags = _userImGuiDockFlags;
+    if (false == HasEditorToolFlags(EditorTool::EDITORTOOL_FLAGS_ALWAYS_FRAME))
+    {
+        AddEditorToolFlags(EditorTool::EDITORTOOL_FLAGS_ALWAYS_FRAME);
+    }
 }
 
 void EditorDockWindow::SubmitDockSpace() 
@@ -118,7 +122,7 @@ void EditorDockWindow::SubmitDockSpace()
 
 void EditorDockWindow::InitDockLayout()
 {
-   // bool useDockBuild = (_optionFlags & DOCKWINDOW_FLAGS_USE_DOCKBUILD);
+   // bool useDockBuild = (_dockWindowOptionFlags & DOCKWINDOW_FLAGS_USE_DOCKBUILD);
     bool useDockBuild = true;
     ImGuiDockNode* dockNode = ImGui::DockBuilderGetNode(_dockSplitMainID);
 
@@ -155,7 +159,7 @@ void EditorDockWindow::InitDockLayout()
 
 void EditorDockWindow::PushDockStyle() 
 {
-    if (_optionFlags & DOCKWINDOW_FLAGS_FULLSCREEN)
+    if (_dockWindowOptionFlags & DOCKWINDOW_FLAGS_FULLSCREEN)
     {
         ImGuiViewport* viewport = ImGui::GetMainViewport();
         ImGui::SetNextWindowPos(viewport->Pos);
@@ -164,7 +168,7 @@ void EditorDockWindow::PushDockStyle()
         ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
     }
-    if (_optionFlags & DOCKWINDOW_FLAGS_PADDING)
+    if (_dockWindowOptionFlags & DOCKWINDOW_FLAGS_PADDING)
     {
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
     }
@@ -172,11 +176,11 @@ void EditorDockWindow::PushDockStyle()
 
 void EditorDockWindow::PopDockStyle() 
 {
-    if (_optionFlags & DOCKWINDOW_FLAGS_FULLSCREEN)
+    if (_dockWindowOptionFlags & DOCKWINDOW_FLAGS_FULLSCREEN)
     {
         ImGui::PopStyleVar(2);
     }
-    if (_optionFlags & DOCKWINDOW_FLAGS_PADDING)
+    if (_dockWindowOptionFlags & DOCKWINDOW_FLAGS_PADDING)
     {
         ImGui::PopStyleVar();
     }
@@ -199,7 +203,7 @@ void EditorDockWindow::CreateDockLayoutNode(ImGuiDir direction, float ratio)
     _dockSplitLayoutID.push_back({direction, ratio});
     _dockSplitIDTable[direction] = 0;
 
-    _optionFlags |= DOCKWINDOW_FLAGS_USE_DOCKBUILD;
+    _dockWindowOptionFlags |= DOCKWINDOW_FLAGS_USE_DOCKBUILD;
 }
 
 bool EditorDockWindow::SetDockBuildWindow(const std::string& label, ImGuiDir direction)

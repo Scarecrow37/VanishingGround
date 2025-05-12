@@ -75,11 +75,11 @@ private:
     void PopDockStyle();
 
 private:
-    GuiTable                            _editorToolClassTable; /* 등록된 툴 테이블 (클래스 이름) */
-    GuiList                             _editorGuiList;        /* 등록된 툴 리스트 */
-    ToolTable                           _editorToolList;       /* 등록된 툴 리스트 (툴 이름) */
+    GuiTable                            _editorToolClassTable;      /* 등록된 툴 테이블 (클래스 이름) */
+    GuiList                             _editorGuiList;             /* 등록된 툴 리스트 */
+    ToolTable                           _editorToolList;            /* 등록된 툴 리스트 (툴 이름) */
 
-    UINT                                _optionFlags;               /* 도킹 윈도우 플래그 값 */
+    UINT                                _dockWindowOptionFlags;     /* 도킹 윈도우 플래그 값 */
 
     ImGuiID                             _dockSplitMainID;           /* 메인 도킹영역에 대한 ID값 */
     ImGuiDockNodeFlags                  _userImGuiDockFlags;        /* 사용자 DockSpace 플래그 값 */
@@ -92,10 +92,10 @@ private:
 
 public:
     /* 옵션 플래그에 대한 설정 */
-    inline void         SetOptionFlags(EditorDockWindowFlags flags) { _optionFlags = flags; }
-    inline void         AddOptionFlags(EditorDockWindowFlags flags) { _optionFlags |= flags; }
-    inline void         RemoveOptionFlags(EditorDockWindowFlags flags) { _optionFlags &= ~flags; }
-    inline const auto&  GetOptionFlags() { return _optionFlags; }
+    inline void         SetOptionFlags(EditorDockWindowFlags flags) { _dockWindowOptionFlags = flags; }
+    inline void         AddOptionFlags(EditorDockWindowFlags flags) { _dockWindowOptionFlags |= flags; }
+    inline void         RemoveOptionFlags(EditorDockWindowFlags flags) { _dockWindowOptionFlags &= ~flags; }
+    inline const auto&  GetOptionFlags() { return _dockWindowOptionFlags; }
 
     /* Dock에 대한 플래그 설정 */
     inline void         SetDockNodeFlag(ImGuiDockNodeFlags flags) { _userImGuiDockFlags = flags; }

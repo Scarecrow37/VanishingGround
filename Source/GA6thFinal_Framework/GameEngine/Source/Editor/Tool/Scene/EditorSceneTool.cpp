@@ -33,12 +33,12 @@ void EditorSceneTool::OnPreFrame()
     // 프레임에 대한 호버링 중이면 No_Move플래그를 설정
     if (true == _isHorverdScene)
     {
-        SetWindowFlag(ImGuiWindowFlags_NoMove);
+        SetImGuiWindowFlag(ImGuiWindowFlags_NoMove);
         //UmLogger.Log(1, "SceneTool is Hovered");
     }
     else
     {
-        SetWindowFlag(ImGuiWindowFlags_None);
+        SetImGuiWindowFlag(ImGuiWindowFlags_None);
         //UmLogger.Log(1, "SceneTool is UnHovered");
     }
 }
