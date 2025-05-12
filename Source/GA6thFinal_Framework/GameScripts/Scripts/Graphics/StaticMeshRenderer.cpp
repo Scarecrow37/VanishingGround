@@ -65,7 +65,7 @@ void StaticMeshRenderer::OnDisable()
 
 void StaticMeshRenderer::Update() 
 {
-    if constexpr (IS_EDITOR)
+    /*if constexpr (IS_EDITOR)
     {
         ImGui::Begin("sdasadsadawsddasd");
         if (ImGui::Button("Load"))
@@ -74,7 +74,7 @@ void StaticMeshRenderer::Update()
             _meshRenderer->LoadModel(guid.ToPath().c_str());
         }
         ImGui::End();
-    }
+    }*/
 }
 
 void StaticMeshRenderer::FixedUpdate() 
