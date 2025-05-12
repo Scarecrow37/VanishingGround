@@ -510,9 +510,6 @@
     <ClInclude Include="Source\Editor\Tool\Model\EditorModelTool.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\NonPBRLitTechnique.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Editor\DynamicCamera\EditorDynamicCamera.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -541,6 +538,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\EditorCore\Interface\IEditorObject.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\MeshRenderer.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Editor\Menu\Play\EditorPlayMenu.h">
@@ -893,9 +893,6 @@
     <ClCompile Include="Source\Editor\Tool\Model\EditorModelTool.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\NonPBRLitTechnique.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Editor\DynamicCamera\EditorDynamicCamera.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -942,6 +939,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\RendererFileEvent.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\MeshRenderer.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Editor\Menu\Play\EditorPlayMenu.cpp">

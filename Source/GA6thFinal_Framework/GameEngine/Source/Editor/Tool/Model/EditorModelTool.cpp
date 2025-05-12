@@ -1,9 +1,11 @@
 ﻿#include "pch.h"
 #include "EditorModelTool.h"
-#include "../../DynamicCamera/EditorDynamicCamera.h"
+#include "Editor/DynamicCamera/EditorDynamicCamera.h"
+#include "Engine/GraphicsCore/MeshRenderer.h"
 
 EditorModelTool::EditorModelTool()
     : _camera(std::make_unique<EditorDynamicCamera>())
+    , _meshRenderer(std::make_unique<MeshRenderer>(MeshRenderer::RENDER_TYPE::STATIC, _worldMatrix))
 {
     SetLabel("ModelViewer");
 }
@@ -25,10 +27,17 @@ void EditorModelTool::OnEndGui()
 
 void EditorModelTool::OnPreFrame()
 {
-    if (ImGui::Button("Import", ImVec2(100, 50)))
-    {
-        // FBX or binary Load
-    }
+    //if (ImGui::Button("Import", ImVec2(100, 50)))
+    //{
+    //    // FBX or binary Load
+    //    TCHAR      filter[] = L"Model File (.fbx, .UmModel)\0*.fbx;*.UmModel\0";
+    //    File::Path out;
+    //    if (File::OpenFileNameBrowser(filter, out))
+    //    {
+    //        //UmFileSystem.LoadProject(out);
+    //        ImportFBX(out);
+    //    }
+    //}
 
     ImGuiWindow* window = ImGui::GetCurrentWindow();
     ImRect       rect   = window->Rect(); // 윈도우 전체 영역
@@ -74,5 +83,14 @@ void EditorModelTool::OnFocus()
 }
 
 void EditorModelTool::OnPopup()
+{
+}
+
+void EditorModelTool::ImportFBX(std::filesystem::path path)
+{
+    _meshRenderer->LoadModel(path.c_str());
+}
+
+void EditorModelTool::ExportFBX()
 {
 }

@@ -32,6 +32,5 @@ UMREAL_COMPONENT(FileTestComponent)
 #include "Scripts\Graphics\StaticMeshRenderer.h"
 UMREAL_COMPONENT(StaticMeshRenderer)
 
-
-#include "Scripts\Graphics/SkeletalMeshRenderer.h"
-UMREAL_COMPONENT(SkeletalMeshRenderer)
+//#include "Scripts\Graphics/SkeletalMeshRenderer.h"
+//UMREAL_COMPONENT(SkeletalMeshRenderer)

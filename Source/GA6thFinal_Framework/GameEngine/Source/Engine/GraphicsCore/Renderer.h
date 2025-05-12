@@ -19,15 +19,17 @@ public:
     ~Renderer();
 
 public:
-    void RegisterRenderQueue(bool** isActive, MeshRenderer* component,std::string_view sceneName);
+    D3D12_GPU_DESCRIPTOR_HANDLE GetRenderSceneImage(std::string_view renderSceneName);
+    std::shared_ptr<Camera>     GetCamera(std::string_view renderSceneName);
+
+public:
+    void RegisterRenderQueue(std::string_view sceneName, MeshRenderer* component);
 
 public:
     void Initialize();
     void Update();
     void Render();
     void Flip();
-    D3D12_GPU_DESCRIPTOR_HANDLE GetRenderSceneImage(std::string_view renderSceneName);
-    std::shared_ptr<Camera>     GetCamera(std::string_view renderSceneName);
 
 public:
     //imgui 관련 함수

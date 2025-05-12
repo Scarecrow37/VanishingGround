@@ -6,7 +6,7 @@
 #include "RenderScene.h"
 #include "RenderTarget.h"
 #include "ShaderBuilder.h"
-#include "UmScripts.h"
+#include "MeshRenderer.h"
 
 GBufferPass::~GBufferPass() {}
 
@@ -208,11 +208,12 @@ void GBufferPass::DrawStaticTwoSidedMesh(ID3D12GraphicsCommandList* commandList)
     commandList->SetPipelineState(_psos[0].Get());
 
     UINT ID = 0;
-    for (auto& [isActive, component] : _ownerScene->_renderQueue)
+    for (auto& component : _ownerScene->_renderQueue)
     {
-        const auto& model = component->GetModel();
-        if (!model.get())
+        if (!component->IsActive())
             continue;
+        
+        const auto& model = component->GetModel();
         for (auto& mesh : model->GetMeshes())
         {
             commandList->SetGraphicsRoot32BitConstant(_shader[0]->GetRootSignatureIndex("bit32_object"), ID++, 0);
@@ -225,10 +226,8 @@ void GBufferPass::DrawStaticMeshes(ID3D12GraphicsCommandList*                   
                              const std::vector<std::pair<BaseMesh*, UINT>>& meshes)
 {
     for (auto& [mesh,id] : meshes)
-    {
-        
-        commandList->SetGraphicsRoot32BitConstant(_shader[MeshType::STATIC]->GetRootSignatureIndex("bit32_object"), id,
-                                                  0);
+    {        
+        commandList->SetGraphicsRoot32BitConstant(_shader[MeshType::STATIC]->GetRootSignatureIndex("bit32_object"), id, 0);
         mesh->Render(commandList);
     }
 }
@@ -239,8 +238,7 @@ void GBufferPass::DrawSkeletalMeshes(ID3D12GraphicsCommandList*                 
     for (auto& [mesh, id] : meshes)
     {
 
-        commandList->SetGraphicsRoot32BitConstant(_shader[MeshType::SKELTAL]->GetRootSignatureIndex("bit32_object"), id,
-                                                  0);
+        commandList->SetGraphicsRoot32BitConstant(_shader[MeshType::SKELTAL]->GetRootSignatureIndex("bit32_object"), id, 0);
         mesh->Render(commandList);
     }
 }
