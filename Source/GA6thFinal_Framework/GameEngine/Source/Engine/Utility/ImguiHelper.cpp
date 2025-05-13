@@ -32,47 +32,31 @@ namespace ImGuiHelper
       EditorDynamicCamera* pDynamicCamera, 
       Camera* pCamera, 
       Matrix* pObjectMatrix,
-      DrawManipulateDesc & desc,
-      Vector3* outPosition,
-      Quaternion* outRotation,
-      Vector3* outScale);
+      DrawManipulateDesc & desc);
 }
 
 bool ImGuiHelper::DrawManipulate(
     Camera* pCamera, 
     Matrix* pObjectMatrix, 
-    DrawManipulateDesc& desc, 
-    Vector3* outPosition,
-    Quaternion* outRotation, 
-    Vector3* outScale)
+    DrawManipulateDesc& desc)
 {
-    return DrawManipulate(nullptr, pCamera, pObjectMatrix, desc, outPosition, outRotation, outScale);
+    return DrawManipulate(nullptr, pCamera, pObjectMatrix, desc);
 }
 
 bool ImGuiHelper::DrawManipulate(
     EditorDynamicCamera* pDynamicCamera, 
     Matrix* pObjectMatrix, 
-    DrawManipulateDesc& desc,
-    Vector3* outPosition, 
-    Quaternion* outRotation, 
-    Vector3* outScale)
+    DrawManipulateDesc& desc)
 {
-    return DrawManipulate(pDynamicCamera, nullptr, pObjectMatrix, desc, outPosition, outRotation, outScale);
+    return DrawManipulate(pDynamicCamera, nullptr, pObjectMatrix, desc);
 }
 
 static bool ImGuiHelper::DrawManipulate(
     EditorDynamicCamera* pDynamicCamera,
     Camera* pCamera,
     Matrix* pObjectMatrix,
-    DrawManipulateDesc& desc, 
-    Vector3* outPosition, 
-    Quaternion* outRotation,
-    Vector3* outScale)
+    DrawManipulateDesc& desc)
 {
-    bool isOutPosition = outPosition != nullptr;
-    bool isOutRotation = outRotation != nullptr;
-    bool isOutScale = outScale != nullptr;
-
     Camera* realCamera = nullptr;
     if (nullptr != pDynamicCamera)
     {
@@ -140,29 +124,6 @@ static bool ImGuiHelper::DrawManipulate(
                 pCamera->SetPosition(position);
                 pCamera->SetRotation(rotation.ToEuler());
             }           
-        }
-    }
-    
-    if (true == manipulateResult)
-    {
-        if (isOutPosition || isOutRotation || isOutScale)
-        {
-            Vector3    position;
-            Quaternion rotation;
-            Vector3    scale;
-            objectMatrix.Decompose(scale, rotation, position);
-            if (true == isOutPosition)
-            {
-                *outPosition = position;
-            }
-            if (true == isOutRotation)
-            {
-                *outRotation = rotation;
-            }
-            if (true == isOutScale)
-            {
-                *outScale = scale;
-            }
         }
     }
     return manipulateResult;
