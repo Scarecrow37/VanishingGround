@@ -1,7 +1,16 @@
 ﻿#include "pch.h"
 using namespace Global;
 using namespace u8_literals;
-static constexpr const char* DONT_DESTROY_ON_LOAD_SCENE_NAME = "DontDestroyOnLoad";
+
+void Scene::IsDirty_property_setter(const std::remove_cvref_t<bool>& value) 
+{
+#ifdef _UMEDITOR
+    if (false == editorModule->PlayMode.IsPlay())
+    {
+        _isDirty = value;
+    }
+#endif  
+}
 
 bool ESceneManager::RootGameObjectsFilter(GameObject* obj, std::string_view scenePath)
 {
@@ -80,6 +89,10 @@ void ESceneManager::Engine::SceneUpdate()
 
 void ESceneManager::SceneUpdate()
 {
+#ifdef _UMEDITOR
+    _isPlay = editorModule->PlayMode.IsPlay();
+#endif
+
     ObjectsAddRuntime();
     ObjectsOnEnable();
     ObjectsAwake();
@@ -93,7 +106,6 @@ void ESceneManager::SceneUpdate()
     ObjectsLateUpdate();
     ObjectsApplicationQuit();
     ObjectsOnDisable();
-
     ObjectsDestroy();
     ObjectsMatrixUpdate();
 }
@@ -142,7 +154,6 @@ void ESceneManager::Engine::SetGameObjectActive(int instanceID, bool value)
                         if (component->_initFlags.IsAwake()   == true &&
                             component->ReflectFields->_enable == true)
                         {
-
                             {
                                 auto [iter, result] = WaitSet.insert(component.get());
                                 if (result)
@@ -286,19 +297,25 @@ void ESceneManager::Engine::DestroyObject(GameObject& gameObject)
 void ESceneManager::Engine::DontDestroyOnLoadObject(GameObject* gameObject)
 {
     ESceneManager& SceneManager = engineCore->SceneManager;
-
-    auto find = SceneManager._scenesMap.find(DONT_DESTROY_ON_LOAD_SCENE_NAME);
-    Scene* pDontDestroyScene = nullptr;
-    if (find == SceneManager._scenesMap.end())
+    if (true == SceneManager._isPlay)
     {
-        pDontDestroyScene = &SceneManager._scenesMap[DONT_DESTROY_ON_LOAD_SCENE_NAME];
+        auto find = SceneManager._scenesMap.find(DONT_DESTROY_ON_LOAD_SCENE_NAME);
+        Scene* pDontDestroyScene = nullptr;
+        if (find == SceneManager._scenesMap.end())
+        {
+            pDontDestroyScene = &SceneManager._scenesMap[DONT_DESTROY_ON_LOAD_SCENE_NAME];
+            pDontDestroyScene->_isDontDestroyOnLoad = true;
+        }
+        else
+        {
+            pDontDestroyScene = &find->second;
+        }
+        if (pDontDestroyScene->isLoaded == false)
+        {
+            pDontDestroyScene->_isLoaded = true;
+        }
+        gameObject->_ownerScene = DONT_DESTROY_ON_LOAD_SCENE_NAME;
     }
-    else
-    {
-        pDontDestroyScene = &find->second;
-    }
-    pDontDestroyScene->_isLoaded = true;
-    gameObject->_ownerScene      = DONT_DESTROY_ON_LOAD_SCENE_NAME;
 }
 
 void ESceneManager::Engine::DontDestroyOnLoadObject(GameObject& gameObject)
@@ -401,15 +418,13 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
         _addGameObjectsQueue.clear();
         _lodedSceneList.clear();
 
-        for (auto& [guid, scene] : _scenesMap)
+        for (auto& obj : _runtimeObjects)
         {
-            if (guid == DONT_DESTROY_ON_LOAD_SCENE_NAME)
-                continue;
-
-            scene._isLoaded = false;
-            auto objects = scene.GetRootGameObjects();
-            for (auto& obj : objects)
+            if (obj)
             {
+                if (obj->_ownerScene == DONT_DESTROY_ON_LOAD_SCENE_NAME)
+                    continue;
+
                 GameObject::Destroy(obj.get());
             }
         }
@@ -438,8 +453,9 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
     {
         return;
     }
+
     scene->_isLoaded = true;
-    scene->isDirty   = false;
+    scene->IsDirty   = false;
     _lodedSceneList.push_back(scene);
 }
 
@@ -477,6 +493,16 @@ void ESceneManager::UnloadScene(std::string_view sceneName)
         GameObject::Destroy(obj.get());
     }
     std::erase(_lodedSceneList, scene);
+}
+
+Scene* ESceneManager::GetDontDestroyOnLoadScene() 
+{
+    auto findIter = _scenesMap.find(DONT_DESTROY_ON_LOAD_SCENE_NAME);
+    if (findIter != _scenesMap.end())
+    {
+        return &findIter->second;
+    }
+    return nullptr;
 }
 
 Scene* ESceneManager::GetSceneByName(std::string_view name)
@@ -558,14 +584,17 @@ void ESceneManager::ObjectsFixedUpdate()
 
 void ESceneManager::ObjectsUpdate()
 {
-    for (auto& obj : _runtimeObjects)
+    if (_isPlay)
     {
-        if (IsRuntimeActive(obj))
+        for (auto& obj : _runtimeObjects)
         {
-            for (auto& component : obj->_components)
+            if (IsRuntimeActive(obj))
             {
-                if (component->Enable)
-                    component->Update();
+                for (auto& component : obj->_components)
+                {
+                    if (component->Enable)
+                        component->Update();
+                }
             }
         }
     }
@@ -573,14 +602,17 @@ void ESceneManager::ObjectsUpdate()
 
 void ESceneManager::ObjectsLateUpdate()
 {
-    for (auto& obj : _runtimeObjects)
+    if (_isPlay)
     {
-        if (IsRuntimeActive(obj))
+        for (auto& obj : _runtimeObjects)
         {
-            for (auto& component : obj->_components)
+            if (IsRuntimeActive(obj))
             {
-                if (component->Enable)
-                    component->LateUpdate();
+                for (auto& component : obj->_components)
+                {
+                    if (component->Enable)
+                        component->LateUpdate();
+                }
             }
         }
     }
@@ -606,16 +638,19 @@ void ESceneManager::ObjectsMatrixUpdate()
 
 void ESceneManager::ObjectsApplicationQuit()
 {
-    if (Global::engineCore->App.IsQuit())
+    if (_isPlay)
     {
-        for (auto& obj : _runtimeObjects)
+        if (Global::engineCore->App.IsQuit())
         {
-            if (IsRuntimeActive(obj))
+            for (auto& obj : _runtimeObjects)
             {
-                for (auto& component : obj->_components)
+                if (IsRuntimeActive(obj))
                 {
-                    if (component->Enable)
-                        component->OnApplicationQuit();
+                    for (auto& component : obj->_components)
+                    {
+                        if (component->Enable)
+                            component->OnApplicationQuit();
+                    }
                 }
             }
         }
@@ -629,10 +664,15 @@ void ESceneManager::ObjectsOnEnable()
     {
         *value = true;  
     }
-    for (auto& component : OnEnableVec)
+    
+    if (_isPlay)
     {
-        component->OnEnable();
+        for (auto& component : OnEnableVec)
+        {
+            component->OnEnable();
+        }
     }
+
     OnEnableSet.clear();
     OnEnableVec.clear();
     OnEnableValue.clear();
@@ -645,10 +685,15 @@ void ESceneManager::ObjectsOnDisable()
     {
         *value = false;
     }
-    for (auto& component : OnDisableVec)
+
+    if (_isPlay)
     {
-        component->OnDisable();
+        for (auto& component : OnDisableVec)
+        {
+            component->OnDisable();
+        }
     }
+
     OnDisableSet.clear();
     OnDisableVec.clear();
     OnDisableValue.clear();
@@ -661,11 +706,15 @@ void ESceneManager::ObjectsDestroy()
     for (auto& destroyComponent : destroyComponentQueue)
     {
         //OnDestroy 대상 호출
-        if (destroyComponent->_gameObect->ActiveInHierarchy_property_getter())
+        if (_isPlay)
         {
-            if (destroyComponent->Enable)
+            if (destroyComponent->_gameObect->ActiveInHierarchy_property_getter())
             {
-                destroyComponent->OnDestroy();
+
+                if (destroyComponent->Enable)
+                {
+                    destroyComponent->OnDestroy();
+                }
             }
         }
 
@@ -693,11 +742,13 @@ void ESceneManager::ObjectsDestroy()
         {
             for (auto& component : destroyObject->_components)
             {
-                if (component->Enable)
+                if (_isPlay)
                 {
-                    component->OnDestroy();
+                    if (component->Enable)
+                    {
+                        component->OnDestroy();
+                    }
                 }
-
                 NotInitDestroyComponentEraseToWaitVec(component.get());
             }
         }
@@ -744,8 +795,11 @@ void ESceneManager::ObjectsAddRuntime()
     for (auto& component : _addComponentsQueue)
     {
         component->_gameObect->_components.emplace_back(component);
-        _waitAwakeVec.push_back(component);
-        _waitStartVec.push_back(component);
+        if (_isPlay)
+        {
+            _waitAwakeVec.push_back(component);
+            _waitStartVec.push_back(component);
+        }
     }
     _addComponentsQueue.clear();
 }
@@ -887,6 +941,13 @@ void ESceneManager::WriteEmptySceneToFile(std::string_view name, std::string_vie
 
 bool ESceneManager::WriteUmSceneFile(Scene& scene, std::string_view sceneName, std::string_view outPath, bool isOverride)
 {
+#ifdef _UMEDITOR
+    if (true == editorModule->PlayMode.IsPlay())
+    {
+        return false;
+    }
+#endif 
+
     namespace fs     = std::filesystem;
     using fsPath     = std::filesystem::path;
     fsPath writePath = UmFileSystem.GetAssetPath();
@@ -912,9 +973,11 @@ bool ESceneManager::WriteUmSceneFile(Scene& scene, std::string_view sceneName, s
         if (ofs.is_open())
         {
             ofs << node;
-            if (true == isExists && true == scene.isDirty)
+            if (true == isExists)
             {
-                scene.isDirty = false;
+                scene.IsDirty = false;
+                File::Guid guid = UmFileSystem.GetGuidFromPath(writePath);
+                _sceneDataMap[guid] = node;
             }
         }
         ofs.close();

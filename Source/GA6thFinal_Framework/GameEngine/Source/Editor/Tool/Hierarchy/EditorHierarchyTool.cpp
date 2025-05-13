@@ -88,7 +88,7 @@ static void TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>
             if (ImGui::MenuItem("Destroy"))
             {
                 GameObject::Destroy(&node.gameObject);
-                node.gameObject->GetScene().isDirty = true;
+                node.gameObject->GetScene().IsDirty = true;
             }
             ImGui::Separator();
             if(ImGui::BeginMenu("Prefab"))
@@ -218,7 +218,7 @@ static void TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>
 EditorHierarchyTool::EditorHierarchyTool()
 {
     SetLabel("Hierarchy");
-    SetDockLayout(DockLayout::LEFT);
+    SetDockLayout(ImGuiDir_Left);
 }
 
 EditorHierarchyTool::~EditorHierarchyTool()
@@ -241,16 +241,15 @@ void  EditorHierarchyTool::OnStartGui()
    
 }
 
-void  EditorHierarchyTool::OnPreFrame()
-{
+void EditorHierarchyTool::OnPreFrameBegin() {
     
 }
 
 void EditorHierarchyTool::HierarchyDropEvent()
 {
     namespace fs = std::filesystem;
-    ImRect rect = window->Rect();
-    if (ImGui::BeginDragDropTargetCustom(rect, window->ID))
+    ImRect rect = _window->Rect();
+    if (ImGui::BeginDragDropTargetCustom(rect, _window->ID))
     {
         if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
         {
@@ -290,9 +289,10 @@ void EditorHierarchyTool::HierarchyRightClickEvent() const
     }
 }
 
-void EditorHierarchyTool::OnFrame()
+void EditorHierarchyTool::OnPostFrameBegin()
 {
-    window = ImGui::GetCurrentWindow();
+    std::shared_ptr<GameObject> focusObject = HierarchyFocusObjWeak.lock();
+    _window = ImGui::GetCurrentWindow();
     HierarchyRightClickEvent();
     HierarchyDropEvent();
 
@@ -309,6 +309,11 @@ void EditorHierarchyTool::OnFrame()
             bool isCollapsingOpen = ImGui::CollapsingHeader(sName.c_str(), ImGuiTreeNodeFlags_::ImGuiTreeNodeFlags_DefaultOpen);
             if (ImGui::BeginPopupContextItem("RightClick"))
             {
+                if (true == _isPlay)
+                {
+                    ImGui::BeginDisabled();
+                }
+
                 if (ImGui::MenuItem("Save Scene"))
                 {
                     std::filesystem::path writePath = (std::string)scene.Path;
@@ -322,9 +327,14 @@ void EditorHierarchyTool::OnFrame()
                     UmSceneManager.UnloadScene(path);
                     ImGui::CloseCurrentPopup();
                 }
+
+                if (true == _isPlay)
+                {
+                    ImGui::EndDisabled();
+                }
                 ImGui::EndPopup();
             }
-            if (true == scene.isDirty)
+            if (true == scene.IsDirty)
             {
                 ImGui::SameLine();
                 ImGui::Text("*");
@@ -332,7 +342,6 @@ void EditorHierarchyTool::OnFrame()
             if (isCollapsingOpen)
             {
                 auto rootObjects = scene.GetRootGameObjects();
-                std::shared_ptr<GameObject> focusObject = HierarchyFocusObjWeak.lock();
                 for (auto& obj : rootObjects)
                 {
                     ImGui::PushID(obj.get());
@@ -345,15 +354,40 @@ void EditorHierarchyTool::OnFrame()
         }      
         ImGui::PopID();
     }
+
+    if (editorModule->PlayMode.IsPlay())
+    {
+        Scene* pDontDestroyOnLoad = UmSceneManager.GetDontDestroyOnLoadScene();
+        if (nullptr != pDontDestroyOnLoad)
+        {
+            bool isCollapsingOpen =
+                ImGui::CollapsingHeader("DontDestroyOnLoad", ImGuiTreeNodeFlags_::ImGuiTreeNodeFlags_DefaultOpen);
+            if (isCollapsingOpen)
+            {
+                auto rootObjects = pDontDestroyOnLoad->GetRootGameObjects();
+                for (auto& obj : rootObjects)
+                {
+                    ImGui::PushID(obj.get());
+                    {
+                        TransformTreeNode(obj->transform, focusObject);
+                    }
+                    ImGui::PopID();
+                }
+            }
+        }
+    }
 }
 
-void  EditorHierarchyTool::OnPostFrame()
-{
+void EditorHierarchyTool::OnFrameEnd() {
     
 }
 
-void EditorHierarchyTool::OnPopup()
-{
+void EditorHierarchyTool::OnFramePopupOpened() {
   
+}
+
+void EditorHierarchyTool::OnTickGui() 
+{
+    _isPlay = editorModule->PlayMode.IsPlay();
 }
 

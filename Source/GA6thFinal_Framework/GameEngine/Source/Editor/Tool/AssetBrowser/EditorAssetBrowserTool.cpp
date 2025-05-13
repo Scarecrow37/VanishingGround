@@ -6,8 +6,7 @@ using namespace u8_literals;
 EditorAssetBrowserTool::EditorAssetBrowserTool()
 {
     SetLabel("AssetBrowser");
-    SetDockLayout(DockLayout::DOWN);
-    //SetWindowFlag(ImGuiWindowFlags_MenuBar);
+    SetDockLayout(ImGuiDir_Down);
 
     _selectedContext = std::make_shared<EditorAssetObject>();
     _selectedContext->SetThis(_selectedContext);
@@ -24,7 +23,7 @@ void EditorAssetBrowserTool::OnStartGui()
     _currFocusFolderContext = UmFileSystem.GetContext<File::FolderContext>(File::Path(UmFileSystem.GetRootPath()));
 }
 
-void EditorAssetBrowserTool::OnPreFrame()
+void EditorAssetBrowserTool::OnPreFrameBegin()
 {
     if (false == _nextFocusFolderContext.expired())
     {
@@ -36,7 +35,7 @@ void EditorAssetBrowserTool::OnPreFrame()
     }
 }
 
-void EditorAssetBrowserTool::OnFrame()
+void EditorAssetBrowserTool::OnPostFrameBegin()
 {
     ImGui::PushID(this);
 
@@ -69,7 +68,7 @@ void EditorAssetBrowserTool::OnFrame()
     ImGui::PopID();
 }
 
-void EditorAssetBrowserTool::OnPostFrame()
+void EditorAssetBrowserTool::OnFrameEnd()
 {
     for (auto& func : _eventFunc)
     {
@@ -79,7 +78,7 @@ void EditorAssetBrowserTool::OnPostFrame()
     _eventFunc.clear();
 }
 
-void EditorAssetBrowserTool::OnFocus() {}
+void EditorAssetBrowserTool::OnFrameFocusStay() {}
 
 #define REFRESH_TEXT "Refresh"
 void EditorAssetBrowserTool::ShowUpperFrame()
@@ -351,7 +350,7 @@ void EditorAssetBrowserTool::ShowFolderContents()
 
         ContentsFrameEventAction(spForcusFolder);
 
-        ShowSearchBar(spForcusFolder);
+        //ShowSearchBar(spForcusFolder);
 
         switch (_showType)
         {
@@ -369,15 +368,59 @@ void EditorAssetBrowserTool::ShowFolderContents()
 
 void EditorAssetBrowserTool::ShowSearchBar(spFolderContext context) 
 {
-    static char searchBuffer[128] = "";
+    float roundFactor = 3.0f;
 
-    const char* x = "X";
-    ImVec2 textSize = ImGui::CalcTextSize(x);
-    ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f);
-    ImGui::InputText("##SearchBar", searchBuffer, IM_ARRAYSIZE(searchBuffer));
-    ImGui::PopStyleVar();
-    ImGui::SameLine(-textSize.x);
-    ImGui::Button("X", textSize);
+    // ---------------------------
+    // InputText의 위치 및 크기 계산
+    // ---------------------------
+    ImVec2 inputPos   = ImGui::GetCursorScreenPos();
+    ImVec2 inputSize = ImVec2(200.0f, ImGui::GetFrameHeight()); // 높이는 자동 조절됨
+
+    // ---------------------------
+    // 버튼 크기 계산
+    // ---------------------------
+    ImVec2 textSize   = ImGui::CalcTextSize("x");
+    ImVec2 buttonSize = textSize;
+    buttonSize.x += ImGui::GetStyle().FramePadding.x * 2;
+    buttonSize.y += ImGui::GetStyle().FramePadding.y * 2;
+
+
+    // ---------------------------
+    // 사각형 Draw
+    // ---------------------------
+    ImVec2 rectSize = ImVec2(inputSize.x + buttonSize.x, inputSize.y);
+    ImU32 rectColor = ImGui::GetColorU32(ImGuiCol_FrameBg);
+    ImGuiHelper::DrawFillRect(
+        inputPos,
+        inputPos + rectSize, rectColor, 
+        roundFactor,
+        ImDrawFlags_RoundCornersAll
+    );
+    
+    // ---------------------------
+    // 버튼 먼저 그림 (겹치게)
+    // ---------------------------
+    ImVec2 buttonPos = ImVec2(inputPos.x + inputSize.x, inputPos.y);
+    ImGui::SetCursorScreenPos(buttonPos);
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));        // 기본 배경
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0, 0, 0, 0)); // 호버 시 배경
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0, 0, 0, 0));  // 클릭 시 배경
+    if (ImGui::Button("x", buttonSize))
+    {
+        _searchBuffer[0] = '\0';
+    }
+    ImGui::PopStyleColor(3);
+
+    // ---------------------------
+    // InputText는 나중에 그림
+    // ---------------------------
+    ImGui::SetCursorScreenPos(inputPos);
+    ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0, 0, 0, 0)); // 완전 투명
+    ImGui::PushItemWidth(inputSize.x);
+    ImGui::InputText("##SearchBarFrontFrame", _searchBuffer, IM_ARRAYSIZE(_searchBuffer));
+    ImGui::PopItemWidth();
+    ImGui::PopStyleColor();
+
     ImGuiHelper::Separator();
 }
 

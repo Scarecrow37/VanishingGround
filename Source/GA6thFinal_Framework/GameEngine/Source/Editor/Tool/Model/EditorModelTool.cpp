@@ -30,7 +30,7 @@ void EditorModelTool::OnEndGui()
 {
 }
 
-void EditorModelTool::OnPreFrame()
+void EditorModelTool::OnPreFrameBegin()
 {
     if (ImGui::Button("Import", ImVec2(100, 50)))
     {
@@ -44,8 +44,10 @@ void EditorModelTool::OnPreFrame()
     }
 }
 
-void EditorModelTool::OnFrame()
-{    
+void EditorModelTool::OnPostFrameBegin() {}
+
+void EditorModelTool::OnFrameRender()
+{
     auto handle = UmRenderer.GetRenderSceneImage("ModelViewer");
 
     ImVec2 size = ImGui::GetContentRegionAvail();
@@ -75,18 +77,19 @@ void EditorModelTool::OnFrame()
     }
 }
 
-void EditorModelTool::OnPostFrame()
-{    
-}
+void EditorModelTool::OnFrameClipped() {}
 
-void EditorModelTool::OnFocus()
-{
-    _camera->Update();
-}
-
-void EditorModelTool::OnPopup()
+void EditorModelTool::OnFrameEnd()
 {
 }
+
+void EditorModelTool::OnFrameFocusEnter() {}
+
+void EditorModelTool::OnFrameFocusStay() {}
+
+void EditorModelTool::OnFrameFocusExit() {}
+
+void EditorModelTool::OnFramePopupOpened() {}
 
 void EditorModelTool::ImportFBX(const std::filesystem::path& path)
 {
@@ -97,6 +100,4 @@ void EditorModelTool::ImportFBX(const std::filesystem::path& path)
     //_meshRenderer->LoadModel(path.c_str());
 }
 
-void EditorModelTool::ExportFBX()
-{
-}
+void EditorModelTool::ExportFBX() {}
