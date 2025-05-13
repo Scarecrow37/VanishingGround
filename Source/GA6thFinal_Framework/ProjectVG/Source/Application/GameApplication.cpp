@@ -32,23 +32,6 @@ GameApplication::GameApplication()
     BuildRootDock();
     BuildSceneDock();
     BuildAssetDock();
-    // 블루프린트 버그있음
-    //_editorModule->RegisterEditorObject<EditorShaderGraph>();
-
-    ///* Menu */
-    //// Project
-    //_editorModule->RegisterEditorObject<EditorMenuProjectRoot>();
-    //_editorModule->RegisterEditorObject<EditorMenuScriptBuilder>();
-    //_editorModule->RegisterEditorObject<EditorBuildSettingMenu>();
-    //// Window
-    //_editorModule->RegisterEditorObject<EditorMenuTools>();
-    //// Setting
-    //_editorModule->RegisterEditorObject<EditorMenuDebug>();
-    //_editorModule->RegisterEditorObject<EditorMenuStyleEditor>();
-    //_editorModule->RegisterEditorObject<EditorMenuFileSystemSetting>();
-    //
-    //// Scene
-    //_editorModule->RegisterEditorObject<EditorSceneMenuScenes>();
 #endif // _UMEDITOR
 }
 
@@ -81,18 +64,18 @@ void GameApplication::BuildRootDock()
     int windowFlag = 
         ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus |
-                     ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_MenuBar;
+        ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_MenuBar;
 
     int dockNodeFlag = 
         ImGuiDockNodeFlags_NoWindowMenuButton | ImGuiDockNodeFlags_NoCloseButton;
 
     _rootDock->SetWindowClass(windowClass);
     _rootDock->SetImGuiWindowFlag(windowFlag);
-    _rootDock->SetDockNodeFlag(dockNodeFlag);
-    _rootDock->SetOptionFlags(EditorDockWindow::DOCKWINDOW_FLAGS_FULLSCREEN);
+    _rootDock->SetImGuiDockNodeFlag(dockNodeFlag);
+    _rootDock->SetDockWindowFlags(EditorDockWindow::DOCKWINDOW_FLAGS_FULLSCREEN);
 
-    _rootDock->CreateDockLayoutNode(ImGuiDir::ImGuiDir_Up, 0.70f);
-    _rootDock->CreateDockLayoutNode(ImGuiDir::ImGuiDir_Down, 0.30f);
+    //_rootDock->CreateDockLayoutNode(ImGuiDir::ImGuiDir_Up, 0.70f);
+    //_rootDock->CreateDockLayoutNode(ImGuiDir::ImGuiDir_Down, 0.30f);
 
     _rootDock->RegisterGui<EditorMenuProjectRoot>();
     _rootDock->RegisterGui<EditorMenuScriptBuilder>();
@@ -118,7 +101,7 @@ void GameApplication::BuildSceneDock()
 
     _sceneDock->SetWindowClass(windowClass);
     _sceneDock->SetImGuiWindowFlag(windowFlag);
-    _sceneDock->SetDockNodeFlag(dockNodeFlag);
+    _sceneDock->SetImGuiDockNodeFlag(dockNodeFlag);
     _sceneDock->SetDockLayout(ImGuiDir_Up);
 
     _sceneDock->CreateDockLayoutNode(ImGuiDir::ImGuiDir_Right, 0.25f);
@@ -154,6 +137,6 @@ void GameApplication::BuildAssetDock()
                        ImGuiDockNodeFlags_NoTabBar;
 
     _assetDock->SetWindowClass(windowClass);
-    _assetDock->SetDockNodeFlag(dockNodeFlag);
+    _assetDock->SetImGuiDockNodeFlag(dockNodeFlag);
     _assetDock->SetDockLayout(ImGuiDir_Down);
 }

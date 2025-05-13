@@ -74,6 +74,11 @@ void EditorDockWindow::OnPostFrameBegin()
             }
         }
     }
+
+    if (true == _isDockBuilding)
+    {
+        ImGui::DockBuilderFinish(_dockSplitMainID);
+    }
 }
 
 void EditorDockWindow::OnFrameRender() 
@@ -131,6 +136,7 @@ void EditorDockWindow::InitDockLayout()
 
     if (true == useDockBuild && NULL == dockNode)
     {
+        _isDockBuilding = true;
         ImGui::DockBuilderRemoveNode(_dockSplitMainID);
         ImGui::DockBuilderAddNode(_dockSplitMainID, _imGuiDockFlags); // 새로 추가
 
@@ -142,20 +148,7 @@ void EditorDockWindow::InitDockLayout()
             id = ImGui::DockBuilderSplitNode(dock_main_id, direction, ratio, NULL, &dock_main_id);
             _dockSplitIDTable[direction] = id;
         }
-
         _dockSplitIDTable[ImGuiDir_None] = dock_main_id;
-
-        for (auto& [key, tool] : _editorToolList)
-        {
-            if (nullptr != tool)
-            {
-                const char* label     = tool->GetLabel().c_str();
-                ImGuiDir    direction = tool->GetDockLayout();
-                ImGuiID     splitID   = _dockSplitIDTable[direction];
-                ImGui::DockBuilderDockWindow(label, splitID);
-            }
-        }
-        ImGui::DockBuilderFinish(_dockSplitMainID);
     }
 }
 
@@ -204,6 +197,26 @@ void EditorDockWindow::CreateDockLayoutNode(ImGuiDir direction, float ratio)
     }
     _dockSplitLayoutID.push_back({direction, ratio});
     _dockSplitIDTable[direction] = 0;
+}
 
-    _dockWindowOptionFlags |= DOCKWINDOW_FLAGS_USE_DOCKBUILD;
+bool EditorDockWindow::SetDockBuildWindow(const std::string& label, ImGuiDir direction)
+{
+    if (false == _isDockBuilding)
+    {
+        /* 도킹 빌드 중이 아닙니다. */
+        return false;
+    }
+
+    ImGuiID splitID;
+    auto    itr = _dockSplitIDTable.find(direction);
+    if (itr == _dockSplitIDTable.end())
+    {
+        splitID = _dockSplitIDTable[ImGuiDir_None];
+    }
+    else
+    {
+        splitID = _dockSplitIDTable[direction];
+    }
+    ImGui::DockBuilderDockWindow(label.c_str(), splitID);
+    return true;
 }

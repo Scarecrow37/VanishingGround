@@ -17,47 +17,29 @@ Popup창도 OpenPopup을 할 필요가 없다. 그냥 BeginPopupContextItem만 �
 */
 void EditorTool::OnDrawGui()
 {
-    OnPreFrameBegin();
+    ImGui::PushID(this);
 
-    InitFrame();
+    ProcessPopupFrame();    // 팝업 확인, 처리 및 콜백
 
-    BeginFrame();
+    OnPreFrameBegin();      // [Callback] Begin 이전 콜백
 
-    OnPostFrameBegin();
+    BeginFrame();           // Begin 호출 및 프레임 처리
 
-    if (false == _isFirstTick && true == ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows))
-    {
-        OnFrameFocused();
-    }
+    OnPostFrameBegin();     // [Callback] Begin 이후 콜백
 
-    if (true == ImGui::BeginPopupContextItem("##PopupContext"))
-    {
-        DefaultPopupFrame();
-        OnFramePopupOpened();
-        ImGui::EndPopup();
-    }
+    ProcessFocusFrame();    // 포커스 확인, 처리 및 콜백
 
     bool canOpenFrame = false == IsClipped() || true == HasEditorToolFlags(EDITORTOOL_FLAGS_ALWAYS_FRAME);
-
     if (true == canOpenFrame)
     {
-        if (true == _isLock)
-        {
-            ImGui::BeginDisabled();
-        }
-
-        OnFrameRender();
-        
-        if (true == _isLock)
-        {
-            ImGui::EndDisabled();
-        }
-
+        OnFrameRender();    // [Callback] Begin 이후 클리핑 통과 시 콜백
     }
 
-    EndFrame();
+    EndFrame();             // End 호출 및 프레임 처리
 
-    OnFrameEnd();
+    OnFrameEnd();           // [Callback] End 이후 콜백
+
+    ImGui::PopID();
 
     _isFirstTick = false;
 }
@@ -86,27 +68,59 @@ void EditorTool::OnFramePopupOpened()
 {
 }
 
-bool EditorTool::BeginFrame()
+void EditorTool::PushStyle() 
 {
-    std::string       label     = GetLabel();
-    EditorDockWindow* dockSpace = GetOwnerDockWindow();
-    if (nullptr != dockSpace)
+    if (true == HasEditorToolFlags(EDITORTOOL_FLAGS_NO_PADDING))
     {
-        auto& windowClass = dockSpace->GetWindowClass();
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+        ++_imguiSytleStackCount;
+    }
+}
+
+void EditorTool::PopStyle() 
+{
+    ImGui::PopStyleVar(_imguiSytleStackCount);
+    _imguiSytleStackCount = 0;
+}
+
+void EditorTool::BeginFrame()
+{
+    InitFrame();
+
+    auto label      = GetLabel().c_str();
+    auto owner      = GetOwnerDockWindow();
+    int  windowFlag = _windowFlags | ImGuiWindowFlags_NoCollapse;
+
+    // 속한 도킹스페이스가 있으면 윈도우 클래스 지정
+    if (nullptr != owner)
+    {
+        auto& windowClass = owner->GetWindowClass();
         ImGui::SetNextWindowClass(&windowClass);
     }
-    int windowFlag = _windowFlags | ImGuiWindowFlags_NoCollapse;
-    ImGui::Begin(label.c_str(), &_isVisible, windowFlag);
+   
+    ImGui::Begin(label, &_isVisible, windowFlag);
 
+    _imguiWindow      = ImGui::GetCurrentWindow();
     _isBeginningFrame = true;
-    _isClipped = !ImGuiHelper::IsWindowDrawable();
+    _isClipped        = !ImGuiHelper::IsWindowDrawable();
 
-    return _isClipped;
+    if (true == _isLock)
+    {
+        ImGui::BeginDisabled();
+        _isBeginningDisable = true;
+    }
 }
 
 void EditorTool::EndFrame()
 {
+    if (true == _isBeginningDisable)
+    {
+        ImGui::EndDisabled();
+    }
+
     _isBeginningFrame = false;
+    _isBeginningDisable = false;
+
     ImGui::End();
 }
 
@@ -114,24 +128,69 @@ void EditorTool::InitFrame()
 {
     if (true == _isFirstTick)
     {
+        // Init Size
         if (true == _size.first)
         {
             ImGui::SetNextWindowSize(_size.second, ImGuiCond_FirstUseEver);
             _size.first = false;
         }
-
+        // Init Position
         if (true == _pos.first)
         {
             ImVec2 clientPos = ImGui::GetMainViewport()->Pos;
             ImGui::SetNextWindowPos(clientPos + _pos.second, ImGuiCond_FirstUseEver);
             _pos.first = false;
         }
+        // Init DockLayout
+        if (nullptr != _ownerDockWindow)
+        {
+            _ownerDockWindow->SetDockBuildWindow(_label, _dockLayout.second);
+            _dockLayout.first = false;
+        }
     }
 }
 
-void EditorTool::DefaultPopupFrame()
+void EditorTool::ProcessPopupFrame() 
 {
-    ImGui::MenuItem("Close", "", &_isVisible);
-    ImGui::Separator();
-    ImGui::MenuItem("Lock", "", &_isLock);
+    if (nullptr != _imguiWindow)
+    {
+        if (true == _imguiWindow->SkipItems)
+            return;
+
+        ImGuiDockNode* node   = _imguiWindow->DockNode;
+
+        if (nullptr == node)
+            return;
+
+        ImGuiTabBar* tabbar = node ? node->TabBar : nullptr;
+
+        if (tabbar)
+        {
+            ImVec2 min = tabbar->BarRect.Min, max = tabbar->BarRect.Max;
+
+            bool isTabBarHovered = ImGui::IsMouseHoveringRect(min, max, false);
+            bool isMouseReleased = ImGui::IsMouseReleased(ImGuiMouseButton_Right);
+
+            if (true == isTabBarHovered && true == isMouseReleased)
+            {
+                ImGui::OpenPopup("##TabBarContextMenu");
+            }
+            if (ImGui::BeginPopup("##TabBarContextMenu"))
+            {
+                ImGui::MenuItem("Close", "", &_isVisible);
+                ImGui::Separator();
+                ImGui::MenuItem("Lock", "", &_isLock);
+                OnFramePopupOpened();
+                ImGui::EndPopup();
+            }
+        }
+    }
+}
+
+void EditorTool::ProcessFocusFrame()
+{
+    if (false == _isFirstTick && true == ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows))
+    {
+        OnFrameFocused();
+    }
 }

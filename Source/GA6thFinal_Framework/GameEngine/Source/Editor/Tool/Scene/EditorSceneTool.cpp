@@ -16,7 +16,6 @@ EditorSceneTool::EditorSceneTool()
 
     SetLabel("Scene");
     SetDockLayout(ImGuiDir_Up);
-    SetDockLayout(DockLayout::UP);
 
     drawManipulateDesc.Operation = ImGuizmo::TRANSLATE;
     drawManipulateDesc.Mode      = ImGuizmo::MODE::WORLD;
@@ -72,11 +71,11 @@ void EditorSceneTool::SetMoveFlag()
 {
     if (true == _isOver)
     {
-        SetWindowFlag(ImGuiWindowFlags_NoMove);
+        SetImGuiWindowFlag(ImGuiWindowFlags_NoMove);
     }
     else
     {
-        SetWindowFlag(ImGuiWindowFlags_None);
+        SetImGuiWindowFlag(ImGuiWindowFlags_None);
     }
 }
 

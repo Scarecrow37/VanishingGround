@@ -14,9 +14,6 @@ public:
         DOCKWINDOW_FLAGS_NONE       = 0,
         DOCKWINDOW_FLAGS_FULLSCREEN = 1 << 0,
         DOCKWINDOW_FLAGS_PADDING    = 1 << 1,
-
-        // 내부 사용
-        DOCKWINDOW_FLAGS_USE_DOCKBUILD = 1 << 2,
     };
 
 private:
@@ -54,7 +51,9 @@ public:
 
     bool RegisterChildDockWindow(EditorDockWindow* childDockWindow);
 
+    /* DockBuild */
     void CreateDockLayoutNode(ImGuiDir direction, float ratio);
+    bool SetDockBuildWindow(const std::string& label, ImGuiDir direction);
 
 private:
     /* 최초로 에디터를 킬 경우 초기 툴의 DockSpace 공간 지정 */
@@ -73,6 +72,7 @@ private:
     GuiList                             _editorGuiList;             /* 등록된 툴 리스트 */
     ToolTable                           _editorToolList;            /* 등록된 툴 리스트 (툴 이름) */
 
+    bool                                _isDockBuilding = false;    /* 도킹 빌드 중인지 여부 */
     UINT                                _dockWindowOptionFlags;     /* 도킹 윈도우 플래그 값 */
 
     ImGuiID                             _dockSplitMainID;           /* 메인 도킹영역에 대한 ID값 */
@@ -82,20 +82,20 @@ private:
     std::vector<DockSplitInfo>          _dockSplitLayoutID;         /* 도킹 영역에 대한 ID값 */
     std::unordered_map<int, ImGuiID>    _dockSplitIDTable;          /* 도킹 영역에 대한 ID값 */
 
-    bool isDockBuilding = false; /* 도킹 빌드 중인지 여부 */
+    
 
 public:
     /* 옵션 플래그에 대한 설정 */
-    inline void         SetOptionFlags(EditorDockWindowFlags flags) { _dockWindowOptionFlags = flags; }
-    inline void         AddOptionFlags(EditorDockWindowFlags flags) { _dockWindowOptionFlags |= flags; }
-    inline void         RemoveOptionFlags(EditorDockWindowFlags flags) { _dockWindowOptionFlags &= ~flags; }
-    inline const auto&  GetOptionFlags() { return _dockWindowOptionFlags; }
+    inline void         SetDockWindowFlags(EditorDockWindowFlags flags) { _dockWindowOptionFlags = flags; }
+    inline void         AddDockWindowFlags(EditorDockWindowFlags flags) { _dockWindowOptionFlags |= flags; }
+    inline void         RemoveDockWindowOptionFlags(EditorDockWindowFlags flags) { _dockWindowOptionFlags &= ~flags; }
+    inline const auto&  GetDockWindowOptionFlags() { return _dockWindowOptionFlags; }
 
     /* Dock에 대한 플래그 설정 */
-    inline void         SetDockNodeFlag(ImGuiDockNodeFlags flags) { _userImGuiDockFlags = flags; }
-    inline void         AddDockNodeFlag(ImGuiDockNodeFlags flags) { _userImGuiDockFlags |= flags; }
-    inline void         RemoveDockNodeFlag(ImGuiDockNodeFlags flags) { _userImGuiDockFlags &= ~flags; }
-    inline const auto&  GetDockFlag() { return _userImGuiDockFlags; }
+    inline void         SetImGuiDockNodeFlag(ImGuiDockNodeFlags flags) { _userImGuiDockFlags = flags; }
+    inline void         AddImGuiDockNodeFlag(ImGuiDockNodeFlags flags) { _userImGuiDockFlags |= flags; }
+    inline void         RemoveImGuiDockNodeFlag(ImGuiDockNodeFlags flags) { _userImGuiDockFlags &= ~flags; }
+    inline const auto&  GetImGuiDockNodeFlag() { return _userImGuiDockFlags; }
 
     inline const auto&  GetRefGuiList() { return _editorGuiList; }
     inline const auto&  GetRefGuiTable() { return _editorToolClassTable; }

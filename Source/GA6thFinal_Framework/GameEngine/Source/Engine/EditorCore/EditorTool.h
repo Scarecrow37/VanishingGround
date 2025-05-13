@@ -14,6 +14,7 @@ public:
     {
         EDITORTOOL_FLAGS_NONE               = 0,
         EDITORTOOL_FLAGS_ALWAYS_FRAME       = 1 << 2,   // 항상 프레임을 열고 닫음.
+        EDITORTOOL_FLAGS_NO_PADDING         = 1 << 3,   // 패딩을 없앰
     };
 
 public:
@@ -52,29 +53,39 @@ private:
     //virtual void OnFrameResized();
 
 private:
-    bool BeginFrame();
+    void PushStyle();
+    void PopStyle();
+    void BeginFrame();
     void EndFrame();
     void InitFrame();
+
+    void ProcessPopupFrame();
 
     void DefaultPopupFrame();
 
 private:
-    std::string                     _label              = "";                       // 에디터 툴 이름 (기본적으로 전역 단위의 이름 중복을 허용하지 않음. 나중엔 uuid등으로 관리할지 고민 중)
-    int                             _callOrder          = 0;                        // OnDrawGui 호출 순서
-    bool                            _isLock             = false;                    // 해당 탭에 대한 입력을 막을지에 대한 여부
-    bool                            _isClipped          = false;                    // 해당 탭이 보일지에 대한 여부
-    bool                            _isBeginningFrame   = false;                    // BeginFrame이 호출 중인지 여부
-    bool                            _isFirstTick        = true;                     // 첫 번째 Tick인지 여부
-    UINT                            _editorToolOptionFlags = EDITORTOOL_FLAGS_NONE; // 옵션 플래그
+    std::string                     _label                  = "";                       // 에디터 툴 이름 (기본적으로 전역 단위의 이름 중복을 허용하지 않음. 나중엔 uuid등으로 관리할지 고민 중)
+    int                             _callOrder              = 0;                        // OnDrawGui 호출 순서
+    bool                            _isLock                 = false;                    // 해당 탭에 대한 입력을 막을지에 대한 여부
+    bool                            _isClipped              = false;                    // 해당 탭이 보일지에 대한 여부
+    bool                            _isBeginningFrame       = false;                    // BeginFrame이 호출 중인지 여부
+    bool                            _isFirstTick            = true;                     // 첫 번째 Tick인지 여부
+    UINT                            _editorToolOptionFlags  = EDITORTOOL_FLAGS_NONE;    // 옵션 플래그
 
-    ImGuiWindowClass                _imGuiWindowClass   = {};
-    std::pair<bool, ImVec2>         _size               = {false, ImVec2(0, 0)};    // 사이즈 조정 여부와 사이즈
-    std::pair<bool, ImVec2>         _pos                = {false, ImVec2(0, 0)};    // 위치 조정 여부와 위치
-    std::pair<bool, ImGuiDir>       _dockLayout         = {false, ImGuiDir_None};   // 초기 Dock영역 (초기 도킹빌드시에만 사용하고 이후엔 사용 X)
-    ImGuiWindowFlags                _windowFlags        = ImGuiWindowFlags_None;    // ImGui윈도우 플래그 (ImGuiWindowFlags_NoCollapse는 항상 활성화)
+    ImGuiWindowClass                _imGuiWindowClass       = {};
+    std::pair<bool, ImVec2>         _size                   = {false, ImVec2(0, 0)};    // 사이즈 조정 여부와 사이즈
+    std::pair<bool, ImVec2>         _pos                    = {false, ImVec2(0, 0)};    // 위치 조정 여부와 위치
+    std::pair<bool, ImGuiDir>       _dockLayout             = {false, ImGuiDir_None};   // 초기 Dock영역 (초기 도킹빌드시에만 사용하고 이후엔 사용 X)
+    ImGuiWindowFlags                _windowFlags            = ImGuiWindowFlags_None;    // ImGui윈도우 플래그 (ImGuiWindowFlags_NoCollapse는 항상 활성화)
     
-    EditorDockWindow*               _ownerDockWindow = nullptr;                     // 도킹 스페이스 (부모 도킹스페이스)
-    std::vector<EditorDockWindow*>  _childDockWindowList;                           // 도킹 스페이스 리스트 (자식 도킹스페이스)
+    EditorDockWindow*               _ownerDockWindow        = nullptr;                  // 도킹 스페이스 (부모 도킹스페이스)
+    std::vector<EditorDockWindow*>  _childDockWindowList;                               // 도킹 스페이스 리스트 (자식 도킹스페이스)
+
+private:
+    // internal
+    ImGuiWindow*                    _imguiWindow            = nullptr;
+    int                             _imguiSytleStackCount   = 0; // PushStyleVar 호출 횟수
+    bool                            _isBeginningDisable     = false; // BeginDisabled 호출 여부
 
 public:
     inline void         SetWindowClass(const ImGuiWindowClass& windowClass) { _imGuiWindowClass = windowClass; }
@@ -122,10 +133,10 @@ public:
     inline void         SetOwnerDockWindow(EditorDockWindow* dockWindow) { _ownerDockWindow = dockWindow; }
     inline auto*        GetOwnerDockWindow() { return _ownerDockWindow; }
 
-
+    inline auto*        GetImGuiWindow() { return _imguiWindow; }
     /*                  렌더링 가능 여부 */
     inline bool         IsClipped() { return _isClipped; }
-    /*                  Begin이 호출 되었는 지 여부 */
+    /*                  Begin과 End 사이의 작업 중인지 여부 */
     inline bool         IsBeginningFrame() { return _isBeginningFrame; }
 };
 
