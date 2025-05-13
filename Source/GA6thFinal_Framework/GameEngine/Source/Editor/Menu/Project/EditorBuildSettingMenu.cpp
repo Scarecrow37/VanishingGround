@@ -6,8 +6,6 @@ EditorBuildSettingMenu::EditorBuildSettingMenu()
     isPopup(false), 
     isShow(false)
 {
-    SetCallOrder(1);
-    SetPath("Project/Build");
 }
 
 void EditorBuildSettingMenu::OnTickGui()
@@ -34,10 +32,19 @@ void EditorBuildSettingMenu::OnTickGui()
 void EditorBuildSettingMenu::OnMenu()
 {
     EditorModule& editorModule = *Global::editorModule;
-    if (ImGui::MenuItem("Build Setting"))
+
+    if (ImGui::BeginMenu("Project"))
     {
-        isPopup = true;
-        isShow  = false;
+        if (ImGui::BeginMenu("Build"))
+        {
+            if (ImGui::MenuItem("Build Setting"))
+            {
+                isPopup = true;
+                isShow  = false;
+            }
+            ImGui::EndMenu();
+        }
+        ImGui::EndMenu();
     }
 }
 

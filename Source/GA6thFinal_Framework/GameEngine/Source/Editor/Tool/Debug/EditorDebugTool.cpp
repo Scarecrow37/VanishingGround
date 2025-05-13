@@ -9,7 +9,7 @@ EditorDebugTool::EditorDebugTool()
     _fps()
 {
     SetLabel("Debug");
-    SetDockLayout(DockLayout::DOWN);
+    SetDockLayout(ImGuiDir_Down);
 }
 
 EditorDebugTool::~EditorDebugTool()
@@ -25,12 +25,12 @@ void EditorDebugTool::OnStartGui()
     return void ();
 }
 
-void EditorDebugTool::OnPreFrame()
+void EditorDebugTool::OnPreFrameBegin()
 {
     return void ();
 }
 
-void EditorDebugTool::OnFrame()
+void EditorDebugTool::OnPostFrameBegin()
 {
     ImGui::InputDouble("Time scale", &engineCore->Time.TimeScale);
 
@@ -53,12 +53,12 @@ void EditorDebugTool::OnFrame()
     ImGui::InputDouble("maximumDeltaTime", &engineCore->Time.MaximumDeltaTime);
 }
 
-void EditorDebugTool::OnPostFrame()
+void EditorDebugTool::OnFrameEnd()
 {
     return void ();
 }
 
-void EditorDebugTool::OnPopup() 
+void EditorDebugTool::OnFramePopupOpened() 
 {
 
 }

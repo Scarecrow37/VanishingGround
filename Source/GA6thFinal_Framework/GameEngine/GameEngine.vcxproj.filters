@@ -207,19 +207,16 @@
     <ClInclude Include="Source\Engine\Utility\ImGuiHelper.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\EditorCore\EditorGui.h">
+    <ClInclude Include="Source\Engine\EditorCore\Gui\EditorGui.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\EditorCore\EditorEnum.h">
+    <ClInclude Include="Source\Engine\EditorCore\Gui\Menu\EditorMenu.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\EditorCore\EditorMenuBar.h">
+    <ClInclude Include="Source\Engine\EditorCore\System\EditorDockWindowSystem.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\EditorCore\EditorDockSpace.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\EditorCore\EditorTool.h">
+    <ClInclude Include="Source\Engine\EditorCore\Gui\Tool\EditorTool.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\EngineCore\EngineLogger.h">
@@ -414,9 +411,6 @@
     <ClInclude Include="Source\Engine\GraphicsCore\RenderTechnique.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\UmScripts.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Imgui\GraphEditor.h">
       <Filter>헤더 파일\imgui</Filter>
     </ClInclude>
@@ -438,10 +432,10 @@
     <ClInclude Include="Source\Editor\DragDropTypes\DragDropAsset.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\EditorCore\PopupBox\EditorPopupBoxSystem.h">
+    <ClInclude Include="Source\Engine\EditorCore\System\EditorPopupBoxSystem.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\EditorCore\PopupBox\EditorPopupBox.h">
+    <ClInclude Include="Source\Engine\EditorCore\Gui\PopupBox\EditorPopupBox.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\EditorCore\Setting\EditorSetting.h">
@@ -540,6 +534,12 @@
     <ClInclude Include="Source\Engine\EditorCore\Interface\IEditorObject.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\EditorCore\Gui\DockWindow\EditorDockWindow.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\EditorCore\Interface\IEditorCycle.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Engine\GraphicsCore\MeshRenderer.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -635,19 +635,16 @@
     <ClCompile Include="Source\Engine\Utility\ImGuiHelper.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\EditorCore\EditorGui.cpp">
+    <ClCompile Include="Source\Engine\EditorCore\Gui\EditorGui.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\EditorCore\EditorEnum.cpp">
+    <ClCompile Include="Source\Engine\EditorCore\Gui\Menu\EditorMenu.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\EditorCore\EditorMenuBar.cpp">
+    <ClCompile Include="Source\Engine\EditorCore\System\EditorDockWindowSystem.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\EditorCore\EditorDockSpace.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\EditorCore\EditorTool.cpp">
+    <ClCompile Include="Source\Engine\EditorCore\Gui\Tool\EditorTool.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\EngineCore\EngineLogger.cpp">
@@ -839,10 +836,10 @@
     <ClCompile Include="Source\Editor\DragDropTypes\DragDropAsset.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\EditorCore\PopupBox\EditorPopupBoxSystem.cpp">
+    <ClCompile Include="Source\Engine\EditorCore\System\EditorPopupBoxSystem.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\EditorCore\PopupBox\EditorPopupBox.cpp">
+    <ClCompile Include="Source\Engine\EditorCore\Gui\PopupBox\EditorPopupBox.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Editor\DragDropTypes\DragDropTransform.cpp">
@@ -947,9 +944,11 @@
     <ClCompile Include="Source\Editor\Menu\Play\EditorPlayMenu.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\EditorCore\Gui\DockWindow\EditorDockWindow.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="cpp.hint" />
     <None Include="Source\Engine\Imgui\imgui_node_editor_internal.inl">
       <Filter>소스 파일\imgui</Filter>
     </None>
@@ -959,5 +958,6 @@
     <None Include="Source\Engine\Imgui\imgui_bezier_math.inl">
       <Filter>소스 파일\imgui</Filter>
     </None>
+    <None Include="cpp.hint" />
   </ItemGroup>
 </Project>

@@ -15,7 +15,7 @@ EditorSceneTool::EditorSceneTool()
     }
 
     SetLabel("Scene");
-    SetDockLayout(DockLayout::UP);
+    SetDockLayout(ImGuiDir_Up);
 
     drawManipulateDesc.Operation = ImGuizmo::TRANSLATE;
     drawManipulateDesc.Mode      = ImGuizmo::MODE::WORLD;
@@ -44,24 +44,24 @@ void EditorSceneTool::OnStartGui()
     _camera->SetTarget(camera);
 }
 
-void EditorSceneTool::OnPreFrame()
+void EditorSceneTool::OnPreFrameBegin()
 {
     SetMoveFlag();
 }
 
-void EditorSceneTool::OnFrame()
+void EditorSceneTool::OnPostFrameBegin()
 {
     SetCamera();
     DrawSceneView();
     DrawManipulate();
 }
 
-void EditorSceneTool::OnPostFrame()
+void EditorSceneTool::OnFrameEnd()
 {
     
 }
 
-void EditorSceneTool::OnFocus()
+void EditorSceneTool::OnFrameFocusStay()
 {
     UpdateMode();
     _camera->Update();
@@ -71,11 +71,11 @@ void EditorSceneTool::SetMoveFlag()
 {
     if (true == _isOver)
     {
-        SetWindowFlag(ImGuiWindowFlags_NoMove);
+        SetImGuiWindowFlag(ImGuiWindowFlags_NoMove);
     }
     else
     {
-        SetWindowFlag(ImGuiWindowFlags_None);
+        SetImGuiWindowFlag(ImGuiWindowFlags_None);
     }
 }
 
