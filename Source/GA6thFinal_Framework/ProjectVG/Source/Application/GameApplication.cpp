@@ -119,4 +119,5 @@ void GameApplication::BuildSceneDock()
 
     _sceneDock->RegisterGui<EditorMenuTools>(_sceneDock);
     _sceneDock->RegisterGui<EditorSceneMenuScenes>();
+    _sceneDock->RegisterGui<EditorPlayMenu>();
 }
