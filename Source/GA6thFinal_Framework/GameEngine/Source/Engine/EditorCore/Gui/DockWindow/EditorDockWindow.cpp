@@ -16,7 +16,51 @@ EditorDockWindow::~EditorDockWindow()
         }
     }
     _editorGuiList.clear();
-    _editorToolClassTable.clear();
+    _editorGuiClassTable.clear();
+    _editorToolTable.clear();
+}
+
+bool EditorDockWindow::SerializeFromData(EditorToolSerializeData* data)
+{
+    if (nullptr == data)
+        return false;
+
+    Super::SerializeFromData(data);
+
+    for (auto& gui : _editorGuiList)
+    {
+        if (nullptr != gui)
+        {
+            EditorToolSerializeData childData;
+            if (true == gui->SerializeFromData(&childData))
+            {
+                data->ChildToolData.emplace_back(childData);
+            }
+        }
+    }
+    return true;
+}
+
+bool EditorDockWindow::DeSerializeFromData(EditorToolSerializeData* data)
+{
+    if (nullptr == data)
+        return false;
+
+    EditorTool::DeSerializeFromData(data);
+
+    for (auto& childData : data->ChildToolData)
+    {
+        auto itr = _editorGuiClassTable.find(childData.Class);
+        if (_editorGuiClassTable.end() != itr)
+        {
+            auto editorTool = _editorToolTable[childData.Class];
+            if (nullptr != editorTool)
+            {
+                editorTool->DeSerializeFromData(&childData);
+            }
+        }
+    }
+    return true;
 }
 
 

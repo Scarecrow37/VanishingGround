@@ -4,9 +4,10 @@ using EditorDockWindowFlags = UINT64; // EditorDockWindow::Flags
 
 class EditorDockWindow : public EditorTool
 {
-    using GuiTable         = std::unordered_map<std::string, EditorGui*>;
-    using GuiList          = std::vector<EditorGui*>;
-    using ToolTable        = std::unordered_map<std::string, EditorTool*>;
+    using Super             = EditorTool;
+    using GuiTable          = std::unordered_map<std::string, EditorGui*>;
+    using GuiList           = std::vector<EditorGui*>;
+    using ToolTable         = std::unordered_map<std::string, EditorTool*>;
 
 public:
     enum Flags
@@ -27,6 +28,10 @@ private:
 public:
     EditorDockWindow();
     virtual ~EditorDockWindow();
+
+public:
+    virtual bool SerializeFromData(EditorToolSerializeData* data) override;
+    virtual bool DeSerializeFromData(EditorToolSerializeData* data) override;
 
 public:
     // EditorGui을(를) 통해 상속됨
@@ -68,9 +73,9 @@ private:
     void PopDockStyle();
 
 private:
-    GuiTable                            _editorToolClassTable;      /* 등록된 툴 테이블 (클래스 이름) */
+    GuiTable                            _editorGuiClassTable;       /* 등록된 툴 테이블 (클래스 이름) */
     GuiList                             _editorGuiList;             /* 등록된 툴 리스트 */
-    ToolTable                           _editorToolList;            /* 등록된 툴 리스트 (툴 이름) */
+    ToolTable                           _editorToolTable;           /* 등록된 툴 리스트 (툴 이름) */
 
     bool                                _isDockBuilding = false;    /* 도킹 빌드 중인지 여부 */
     int                                 _dockWindowOptionFlags;     /* 도킹 윈도우 플래그 값 */
@@ -100,8 +105,8 @@ public:
     inline int          GetImGuiDockNodeFlag() { return _userImGuiDockFlags; }
 
     inline const auto&  GetRefGuiList() { return _editorGuiList; }
-    inline const auto&  GetRefGuiTable() { return _editorToolClassTable; }
-    inline const auto&  GetRefToolList() { return _editorToolList; }
+    inline const auto&  GetRefGuiTable() { return _editorGuiClassTable; }
+    inline const auto&  GetRefToolList() { return _editorToolTable; }
 };
 
 template <typename T>
@@ -116,14 +121,14 @@ inline T* EditorDockWindow::RegisterGui(Args... args)
 
     T*          instance  = new T(args...);
     const char* typeName  = typeid(T).name();
-    auto        itr       = _editorToolClassTable.find(typeName);
-    if (itr == _editorToolClassTable.end())
+    auto        itr       = _editorGuiClassTable.find(typeName);
+    if (itr == _editorGuiClassTable.end())
     {
-        _editorToolClassTable[typeName]  = instance;
+        _editorGuiClassTable[typeName]  = instance;
         _editorGuiList.push_back(instance);
         if constexpr (IsEditorTool<T>)
         {
-            _editorToolList[typeName] = instance;
+            _editorToolTable[typeName] = instance;
             instance->SetOwnerDockWindow(this);
         }
     }
@@ -139,8 +144,8 @@ template <typename T>
 inline T* EditorDockWindow::GetGui()
 {
     static_assert(std::is_base_of_v<EditorGui, T>, "T is not a EditorGui.");
-    auto itr = _editorToolClassTable.find(typeid(T).name());
-    if (itr == _editorToolClassTable.end())
+    auto itr = _editorGuiClassTable.find(typeid(T).name());
+    if (itr == _editorGuiClassTable.end())
         return nullptr;
     return dynamic_cast<T*>(itr->second);
 }

@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include "Setting/EditorSetting.h"
 
 class EditorTool;
 class EditorModule;
@@ -92,7 +91,10 @@ namespace Global
      EditorSetting             _setting;            // 에디터 세팅 데이터
      EditorDockWindowSystem    _dockWindowSystem;   // 에디터 도킹 윈도우 시스템
      EditorPopupBoxSystem      _popupBoxSystem;     // 에디터 모달 팝업 시스템
-public:
+
+     bool _isDirty = false;
+
+ public:
     //플레이 모드 관리용
     class EditorPlayMode
     {

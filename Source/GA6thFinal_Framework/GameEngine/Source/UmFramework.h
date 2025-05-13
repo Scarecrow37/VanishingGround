@@ -152,6 +152,7 @@ using namespace Microsoft::WRL;
 //Editor Core
 #include "Engine/EditorCore/Interface/IEditorObject.h"
 #include "Engine/EditorCore/Interface/IEditorCycle.h"
+#include "Engine/EditorCore/Setting/EditorSetting.h"
 #include "Engine/EditorCore/Gui/EditorGui.h"
 #include "Engine/EditorCore/Gui/Tool/EditorTool.h"
 #include "Engine/EditorCore/Gui/Menu/EditorMenu.h"

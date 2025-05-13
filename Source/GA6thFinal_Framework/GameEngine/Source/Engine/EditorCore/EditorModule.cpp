@@ -47,11 +47,10 @@ bool EditorModule::SaveSetting(const File::Path& path)
         if (nullptr != tool)
         {
             EditorToolSerializeData data;
-            data.name            = tool->GetLabel();
-            data.IsVisible       = tool->IsVisible();
-            data.IsLock          = tool->IsLock();
-            data.ReflectionField = tool->SerializedReflectFields();
-            _setting.ToolData.push_back(data);
+            if (true == tool->SerializeFromData(&data))
+            {
+                _setting.ToolData.push_back(data);
+            }
         }
     }
     auto setting = rfl::yaml::save(path.string(), _setting);
@@ -78,19 +77,14 @@ bool EditorModule::LoadSetting(const File::Path& path)
 
         for (auto& status : _setting.ToolData)
         {
-            EditorTool* tool = _dockWindowSystem[status.name];
+            EditorTool* tool = _dockWindowSystem[status.Name];
             if (nullptr != tool)
             {
-                tool->SetVisible(status.IsVisible);
-                tool->SetLock(status.IsLock);
-                if (status.ReflectionField != "{}")
-                {
-                    tool->DeserializedReflectFields(status.ReflectionField);
-                }
+                tool->DeSerializeFromData(&status);
             }
         }
 
-        ImGui::LoadIniSettingsFromMemory(_setting.ImGuiData.c_str());
+        _isDirty = true;
 
         return true;
     }
@@ -99,6 +93,7 @@ bool EditorModule::LoadSetting(const File::Path& path)
 void EditorModule::Update()
 {
     bool isLock = IsLock();
+
     if (true == isLock)
         ImGui::BeginDisabled();
 
@@ -113,6 +108,12 @@ void EditorModule::Update()
         ImGui::EndDisabled();
 
     _popupBoxSystem.OnDrawGui();
+
+    if (true == _isDirty)
+    {
+        _isDirty = false;
+        ImGui::LoadIniSettingsFromMemory(_setting.ImGuiData.c_str());
+    }
 }
 
 bool EditorModule::IsLock()
@@ -167,14 +168,14 @@ void EditorModule::SetGuiThemeStyle()
 
 void EditorModule::OnRequestedSave()
 {
-    File::Path name = L"editor.setting";
+    File::Path name = L"EditorModule.UmSetting";
     auto& path = UmFileSystem.GetSettingPath();
     SaveSetting(path / name);
 }
 
 void EditorModule::OnRequestedLoad() 
 {
-    File::Path name = L"editor.setting";
+    File::Path name = L"EditorModule.UmSetting";
     auto& path = UmFileSystem.GetSettingPath();
     LoadSetting(path / name);
 }

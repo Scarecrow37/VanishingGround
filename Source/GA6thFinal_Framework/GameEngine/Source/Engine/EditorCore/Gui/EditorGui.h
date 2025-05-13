@@ -16,6 +16,10 @@ public:
     virtual ~EditorGui() = default;
 
 public:
+    virtual bool SerializeFromData(EditorToolSerializeData* data);
+    virtual bool DeSerializeFromData(EditorToolSerializeData* data);
+
+public:
     virtual void OnTickGui() = 0;
     virtual void OnStartGui() = 0;
     virtual void OnDrawGui() = 0;

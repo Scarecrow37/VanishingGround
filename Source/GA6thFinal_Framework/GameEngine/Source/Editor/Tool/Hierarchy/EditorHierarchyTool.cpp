@@ -19,7 +19,7 @@ static void TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>
         {
             auto oldWp = EditorHierarchyTool::HierarchyFocusObjWeak;
             auto newWp = node.gameObject->GetWeakPtr();
-            if (false == EditorInspectorTool::IsLockFocus() &&  false == EditorInspectorTool::IsFocused(newWp))
+            if (false == EditorInspectorTool::IsLockFocus() && false == EditorInspectorTool::IsFocusObject(newWp))
             {
                 UmCommandManager.Do<Command::Hierarchy::FocusCommand>(oldWp, newWp);
             }
@@ -241,8 +241,12 @@ void  EditorHierarchyTool::OnStartGui()
    
 }
 
-void EditorHierarchyTool::OnPreFrameBegin() {
-    
+void EditorHierarchyTool::OnPreFrameBegin() 
+{
+}
+
+void EditorHierarchyTool::OnPostFrameBegin() 
+{
 }
 
 void EditorHierarchyTool::HierarchyDropEvent()
@@ -289,7 +293,7 @@ void EditorHierarchyTool::HierarchyRightClickEvent() const
     }
 }
 
-void EditorHierarchyTool::OnPostFrameBegin()
+void EditorHierarchyTool::OnFrameRender()
 {
     std::shared_ptr<GameObject> focusObject = HierarchyFocusObjWeak.lock();
     _window = ImGui::GetCurrentWindow();

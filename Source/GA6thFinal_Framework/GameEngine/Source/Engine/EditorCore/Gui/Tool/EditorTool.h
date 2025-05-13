@@ -8,6 +8,7 @@ class EditorDockWindow;
 class EditorTool : public EditorGui
 {
     friend class EditorModule;
+    using Super = EditorGui;
 
 public:
     enum Flags
@@ -20,7 +21,12 @@ public:
 public:
     EditorTool() = default;
     virtual ~EditorTool() = default;
+
 public:
+    virtual bool SerializeFromData(EditorToolSerializeData* data) override;
+    virtual bool DeSerializeFromData(EditorToolSerializeData* data) override;
+
+ public:
     virtual void OnTickGui() override {}
     virtual void OnStartGui() override {};
     virtual void OnDrawGui() override;
