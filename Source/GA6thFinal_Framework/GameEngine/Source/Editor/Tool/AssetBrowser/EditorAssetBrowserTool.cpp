@@ -78,7 +78,7 @@ void EditorAssetBrowserTool::OnFrameEnd()
     _eventFunc.clear();
 }
 
-void EditorAssetBrowserTool::OnFrameFocused() {}
+void EditorAssetBrowserTool::OnFrameFocusStay() {}
 
 #define REFRESH_TEXT "Refresh"
 void EditorAssetBrowserTool::ShowUpperFrame()

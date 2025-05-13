@@ -15,7 +15,7 @@ private:
 
     virtual void OnFrameEnd() override;
 
-    virtual void OnFrameFocused() override;
+    virtual void OnFrameFocusStay() override;
 
 public:
     static bool IsLockFocus() { return _isLockFocus; }

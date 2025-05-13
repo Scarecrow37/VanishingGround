@@ -1,7 +1,7 @@
-﻿#include "pch.h"
-#include "EditorCommandTool.h"
+﻿#include "EditorCommandTool.h"
+#include "pch.h"
 
-EditorCommandTool::EditorCommandTool() 
+EditorCommandTool::EditorCommandTool()
 {
     SetLabel("Command");
     SetDockLayout(ImGuiDir_Right);
@@ -9,9 +9,9 @@ EditorCommandTool::EditorCommandTool()
 
 EditorCommandTool::~EditorCommandTool() {}
 
-void EditorCommandTool::OnTickGui() 
+void EditorCommandTool::OnTickGui()
 {
-    auto& manager  = UmCommandManager;
+    auto& manager = UmCommandManager;
 
     bool ctrl      = ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftCtrl);
     bool z         = ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_Z, false);
@@ -35,17 +35,19 @@ void EditorCommandTool::OnEndGui() {}
 
 void EditorCommandTool::OnPreFrameBegin() {}
 
-void EditorCommandTool::OnPostFrameBegin()
+void EditorCommandTool::OnPostFrameBegin() {}
+
+void EditorCommandTool::OnFrameRender()
 {
-    auto& manager  = UmCommandManager;
+    auto& manager = UmCommandManager;
     if (ImGui::Button("Clear"))
     {
         manager.Clear();
     }
     ImGui::Separator();
 
-    int index = 0;
-    std::string icon = EditorIcon::UnicodeToUTF8(0xf044);
+    int         index = 0;
+    std::string icon  = EditorIcon::UnicodeToUTF8(0xf044);
 
     ImGuiChildFlags flags = ImGuiChildFlags_Border;
     ImGui::BeginChild("FolderHierarchyFrame", ImVec2(0, 0), flags);
@@ -78,7 +80,7 @@ void EditorCommandTool::OnPostFrameBegin()
                 auto name = icon + " " + command->GetName();
 
                 ImVec4 defaultColor = GetSelectableColor(index, _tableDefaultColor);
-                defaultColor.w = 0.2f;
+                defaultColor.w      = 0.2f;
                 ImVec4 hoveredColor = GetSelectableColor(index, _tableHoveredColor);
                 hoveredColor.w      = 0.2f;
                 ImGui::PushStyleColor(ImGuiCol_Header, defaultColor);
@@ -91,9 +93,15 @@ void EditorCommandTool::OnPostFrameBegin()
     ImGui::EndChild();
 }
 
+void EditorCommandTool::OnFrameClipped() {}
+
 void EditorCommandTool::OnFrameEnd() {}
 
-void EditorCommandTool::OnFrameFocused() {}
+void EditorCommandTool::OnFrameFocusEnter() {}
+
+void EditorCommandTool::OnFrameFocusStay() {}
+
+void EditorCommandTool::OnFrameFocusExit() {}
 
 void EditorCommandTool::OnFramePopupOpened() {}
 

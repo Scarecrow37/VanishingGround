@@ -44,7 +44,7 @@ private:
 
     virtual void OnFrameEnd() override;
 
-    virtual void OnFrameFocused() override;
+    virtual void OnFrameFocusStay() override;
 
 private:
     /* 메뉴바 - 콜럼 사이 어퍼프레임 */

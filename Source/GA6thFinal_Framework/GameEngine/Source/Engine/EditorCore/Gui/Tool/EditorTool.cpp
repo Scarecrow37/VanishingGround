@@ -22,18 +22,12 @@ void EditorTool::OnDrawGui()
     ProcessPopupFrame();    // 팝업 확인, 처리 및 콜백
 
     OnPreFrameBegin();      // [Callback] Begin 이전 콜백
-
     BeginFrame();           // Begin 호출 및 프레임 처리
-
     OnPostFrameBegin();     // [Callback] Begin 이후 콜백
 
     ProcessFocusFrame();    // 포커스 확인, 처리 및 콜백
 
-    bool canOpenFrame = false == IsClipped() || true == HasEditorToolFlags(EDITORTOOL_FLAGS_ALWAYS_FRAME);
-    if (true == canOpenFrame)
-    {
-        OnFrameRender();    // [Callback] Begin 이후 클리핑 통과 시 콜백
-    }
+    ProcessRenderFrame();   // 클리핑 확인, 처리 및 콜백
 
     EndFrame();             // End 호출 및 프레임 처리
 
@@ -44,29 +38,15 @@ void EditorTool::OnDrawGui()
     _isFirstTick = false;
 }
 
-void EditorTool::OnPreFrameBegin()
-{
-}
-
-void EditorTool::OnPostFrameBegin()
-{
-}
-
-void EditorTool::OnFrameRender() 
-{
-}
-
-void EditorTool::OnFrameEnd()
-{
-}
-
-void EditorTool::OnFrameFocused()
-{
-}
-
-void EditorTool::OnFramePopupOpened()
-{
-}
+void EditorTool::OnPreFrameBegin() {}
+void EditorTool::OnPostFrameBegin() {}
+void EditorTool::OnFrameRender() {}
+void EditorTool::OnFrameClipped() {}
+void EditorTool::OnFrameEnd() {}
+void EditorTool::OnFrameFocusEnter() {}
+void EditorTool::OnFrameFocusStay() {}
+void EditorTool::OnFrameFocusExit() {}
+void EditorTool::OnFramePopupOpened() {}
 
 void EditorTool::PushStyle() 
 {
@@ -102,24 +82,24 @@ void EditorTool::BeginFrame()
 
     _imguiWindow      = ImGui::GetCurrentWindow();
     _isBeginningFrame = true;
-    _isClipped        = !ImGuiHelper::IsWindowDrawable();
+    _isDrawable        = ImGuiHelper::IsWindowDrawable();
 
     if (true == _isLock)
     {
         ImGui::BeginDisabled();
-        _isBeginningDisable = true;
+        _isFrameDisable = true;
     }
 }
 
 void EditorTool::EndFrame()
 {
-    if (true == _isBeginningDisable)
+    if (true == _isFrameDisable)
     {
         ImGui::EndDisabled();
     }
 
     _isBeginningFrame = false;
-    _isBeginningDisable = false;
+    _isFrameDisable   = false;
 
     ImGui::End();
 }
@@ -189,8 +169,43 @@ void EditorTool::ProcessPopupFrame()
 
 void EditorTool::ProcessFocusFrame()
 {
-    if (false == _isFirstTick && true == ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows))
+    if (false == _isFirstTick)
     {
-        OnFrameFocused();
+        if (true == ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows))
+        {
+            if (false == _isFrameFocused)
+            {
+                OnFrameFocusEnter();
+            }
+            OnFrameFocusStay();
+            _isFrameFocused = true;
+        }
+        else
+        {
+            if (true == _isFrameFocused)
+            {
+                OnFrameFocusExit();
+            }
+            _isFrameFocused = false;
+        }
+    }
+}
+
+void EditorTool::ProcessRenderFrame()
+{
+    bool isDrawable     = _isDrawable;
+    bool isAlwaysFrame  = HasEditorToolFlags(EDITORTOOL_FLAGS_ALWAYS_FRAME);
+    bool canOpenFrame   = true == isDrawable || true == isAlwaysFrame;
+    if (true == canOpenFrame)
+    {
+        OnFrameRender(); // [Callback] Begin 이후 클리핑 통과 시 콜백
+        _isFrameDrawed = true;
+    }
+    // 이전 프레임에 클립되지 않았고 현재 프레임에 클립된 경우 
+    else if (false == isDrawable && true == _isFrameDrawed)
+    {
+        OnFrameClipped(); // [Callback] Begin 이후 클리핑 통과 실패 시 콜백
+        _isFrameDrawed = false;
+        UmLogger.Log(1, _label + " is Clipped");
     }
 }

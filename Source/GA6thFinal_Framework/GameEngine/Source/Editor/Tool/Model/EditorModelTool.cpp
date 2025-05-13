@@ -65,8 +65,10 @@ void EditorModelTool::OnPreFrameBegin()
     }
 }
 
-void EditorModelTool::OnPostFrameBegin()
-{    
+void EditorModelTool::OnPostFrameBegin() {}
+
+void EditorModelTool::OnFrameRender()
+{
     auto handle = UmRenderer.GetRenderSceneImage("ModelViewer");
 
     ImVec2 size = ImGui::GetContentRegionAvail();
@@ -74,23 +76,23 @@ void EditorModelTool::OnPostFrameBegin()
     ImGui::Image((ImTextureID)handle.ptr, size);
 }
 
+void EditorModelTool::OnFrameClipped() {}
+
 void EditorModelTool::OnFrameEnd()
 {
 }
 
-void EditorModelTool::OnFrameFocused()
-{
-}
+void EditorModelTool::OnFrameFocusEnter() {}
 
-void EditorModelTool::OnFramePopupOpened()
-{
-}
+void EditorModelTool::OnFrameFocusStay() {}
+
+void EditorModelTool::OnFrameFocusExit() {}
+
+void EditorModelTool::OnFramePopupOpened() {}
 
 void EditorModelTool::ImportFBX(std::filesystem::path path)
 {
     _meshRenderer->LoadModel(path.c_str());
 }
 
-void EditorModelTool::ExportFBX()
-{
-}
+void EditorModelTool::ExportFBX() {}

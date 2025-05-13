@@ -61,7 +61,7 @@ void EditorSceneTool::OnFrameEnd()
     
 }
 
-void EditorSceneTool::OnFrameFocused()
+void EditorSceneTool::OnFrameFocusStay()
 {
     UpdateMode();
     _camera->Update();

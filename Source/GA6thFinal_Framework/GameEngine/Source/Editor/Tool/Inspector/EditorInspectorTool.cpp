@@ -36,7 +36,7 @@ void EditorInspectorTool::OnFrameEnd()
 {
 }
 
-void EditorInspectorTool::OnFrameFocused()
+void EditorInspectorTool::OnFrameFocusStay()
 {
 }
 

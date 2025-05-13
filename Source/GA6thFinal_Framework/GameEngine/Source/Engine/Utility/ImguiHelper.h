@@ -189,7 +189,7 @@ namespace ImGuiHelper
         if (!window)
             return false;
 
-        return window->SkipItems;
+        return !window->SkipItems;
     }
 
     class DragDrop
