@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include "EditorPopupBox.h"
 
 class EditorPopupBox;
 

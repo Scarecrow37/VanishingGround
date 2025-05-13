@@ -287,7 +287,7 @@
   <ItemGroup>
     <ClInclude Include="Source\Editor\Menu\Play\EditorPlayMenu.h" />
     <ClInclude Include="Source\Engine\EditorCore\Interface\IEditorCycle.h" />
-    <ClInclude Include="Source\Engine\EditorCore\DockWindow\EditorDockWindow.h" />
+    <ClInclude Include="Source\Engine\EditorCore\Gui\DockWindow\EditorDockWindow.h" />
     <ClInclude Include="Source\Engine\EditorCore\Interface\IEditorObject.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\d3dUtil.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\MeshRenderer.h" />
@@ -317,8 +317,8 @@
     <ClInclude Include="Source\Engine\GraphicsCore\GBufferPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\PBRLitTechnique.h" />
     <ClInclude Include="Source\Engine\EditorCore\Setting\EditorSetting.h" />
-    <ClInclude Include="Source\Engine\EditorCore\PopupBox\EditorPopupBox.h" />
-    <ClInclude Include="Source\Engine\EditorCore\PopupBox\EditorPopupBoxSystem.h" />
+    <ClInclude Include="Source\Engine\EditorCore\Gui\PopupBox\EditorPopupBox.h" />
+    <ClInclude Include="Source\Engine\EditorCore\System\EditorPopupBoxSystem.h" />
     <ClInclude Include="Source\Editor\DragDropTypes\DragDropAsset.h" />
     <ClInclude Include="Source\Engine\Imgui\GraphEditor.h" />
     <ClInclude Include="Source\Engine\Imgui\ImCurveEdit.h" />
@@ -350,8 +350,8 @@
     <ClInclude Include="Source\Engine\FileSystem\Extra\FileEventNotifier.h" />
     <ClInclude Include="Source\Engine\FileSystem\Interface\IFileEventProcesser.h" />
     <ClInclude Include="Source\Engine\FileSystem\FileSystemModule.h" />
-    <ClInclude Include="Source\Engine\EditorCore\EditorTool.h" />
-    <ClInclude Include="Source\Engine\EditorCore\DockWindow\EditorDockWindowSystem.h" />
+    <ClInclude Include="Source\Engine\EditorCore\Gui\Tool\EditorTool.h" />
+    <ClInclude Include="Source\Engine\EditorCore\System\EditorDockWindowSystem.h" />
     <ClInclude Include="Source\Engine\AppModule\EngineCoresModule.h" />
     <ClInclude Include="Source\Engine\AppModule\ImGuiDX12Module.h" />
     <ClInclude Include="Source\Engine\AppModule\Interface\IAppModule.h" />
@@ -397,8 +397,8 @@
     <ClInclude Include="Source\Engine\Utility\Mathf.h" />
     <ClInclude Include="Source\Engine\Utility\stlHelper.h" />
     <ClInclude Include="Source\Engine\ClassCore\ReflectHelper.h" />
-    <ClInclude Include="Source\Engine\EditorCore\EditorGui.h" />
-    <ClInclude Include="Source\Engine\EditorCore\Menu\EditorMenu.h" />
+    <ClInclude Include="Source\Engine\EditorCore\Gui\EditorGui.h" />
+    <ClInclude Include="Source\Engine\EditorCore\Gui\Menu\EditorMenu.h" />
     <ClInclude Include="Source\Engine\EditorCore\EditorModule.h" />
     <ClInclude Include="Source\Engine\EngineCore\ComponentFactory.h" />
     <ClInclude Include="Source\Engine\EngineCore\EngineCores.h" />
@@ -437,7 +437,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Editor\Menu\Play\EditorPlayMenu.cpp" />
-    <ClCompile Include="Source\Engine\EditorCore\DockWindow\EditorDockWindow.cpp" />
+    <ClCompile Include="Source\Engine\EditorCore\Gui\DockWindow\EditorDockWindow.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\d3dUtil.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\MeshRenderer.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\RendererFileEvent.cpp" />
@@ -495,8 +495,8 @@
     <ClCompile Include="Source\Engine\GraphicsCore\Material.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\Setting\EditorSetting.cpp" />
     <ClCompile Include="Source\Editor\DragDropTypes\DragDropTransform.cpp" />
-    <ClCompile Include="Source\Engine\EditorCore\PopupBox\EditorPopupBox.cpp" />
-    <ClCompile Include="Source\Engine\EditorCore\PopupBox\EditorPopupBoxSystem.cpp" />
+    <ClCompile Include="Source\Engine\EditorCore\Gui\PopupBox\EditorPopupBox.cpp" />
+    <ClCompile Include="Source\Engine\EditorCore\System\EditorPopupBoxSystem.cpp" />
     <ClCompile Include="Source\Editor\DragDropTypes\DragDropAsset.cpp" />
     <ClCompile Include="Source\Engine\Imgui\GraphEditor.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
@@ -548,13 +548,13 @@
     <ClCompile Include="Source\Engine\FileSystem\Extra\FileEventNotifier.cpp" />
     <ClCompile Include="Source\Engine\FileSystem\Interface\IFileEventProcesser.cpp" />
     <ClCompile Include="Source\Engine\FileSystem\FileSystemModule.cpp" />
-    <ClCompile Include="Source\Engine\EditorCore\EditorTool.cpp" />
-    <ClCompile Include="Source\Engine\EditorCore\DockWindow\EditorDockWindowSystem.cpp" />
+    <ClCompile Include="Source\Engine\EditorCore\Gui\Tool\EditorTool.cpp" />
+    <ClCompile Include="Source\Engine\EditorCore\System\EditorDockWindowSystem.cpp" />
     <ClCompile Include="Source\Engine\AppModule\EngineCoresModule.cpp" />
     <ClCompile Include="Source\Engine\AppModule\ImGuiDX12Module.cpp" />
     <ClCompile Include="Source\Engine\ClassCore\ReflectHelper.cpp" />
-    <ClCompile Include="Source\Engine\EditorCore\EditorGui.cpp" />
-    <ClCompile Include="Source\Engine\EditorCore\Menu\EditorMenu.cpp" />
+    <ClCompile Include="Source\Engine\EditorCore\Gui\EditorGui.cpp" />
+    <ClCompile Include="Source\Engine\EditorCore\Gui\Menu\EditorMenu.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\EditorModule.cpp" />
     <ClCompile Include="Source\Engine\EngineCore\ComponentFactory.cpp" />
     <ClCompile Include="Source\Engine\EngineCore\EngineCores.cpp" />
