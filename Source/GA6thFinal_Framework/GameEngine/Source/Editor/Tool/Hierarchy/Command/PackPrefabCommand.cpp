@@ -21,12 +21,12 @@ void Command::Hierarchy::PackPrefabCommand::Execute()
         {
             UmGameObjectFactory.UnpackPrefab(pTarget.get());
             UmGameObjectFactory.PackPrefab(pTarget.get(), _currGuid);
-            pTarget->GetScene().isDirty = true;
+            pTarget->GetScene().IsDirty = true;
         }
         else
         {
             UmGameObjectFactory.UnpackPrefab(pTarget.get());
-            pTarget->GetScene().isDirty = true;
+            pTarget->GetScene().IsDirty = true;
         }
     }
 }
@@ -40,12 +40,12 @@ void Command::Hierarchy::PackPrefabCommand::Undo()
         {
             UmGameObjectFactory.UnpackPrefab(pTarget.get());
             UmGameObjectFactory.PackPrefab(pTarget.get(), _prevGuid);
-            pTarget->GetScene().isDirty = true;
+            pTarget->GetScene().IsDirty = true;
         }
         else
         {
             UmGameObjectFactory.UnpackPrefab(pTarget.get());
-            pTarget->GetScene().isDirty = true;
+            pTarget->GetScene().IsDirty = true;
         }
     }
 }

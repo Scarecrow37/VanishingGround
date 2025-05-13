@@ -1,4 +1,6 @@
 ﻿#pragma once
+class Camera;
+class EditorDynamicCamera;
 
 namespace ImGuiHelper
 {
@@ -180,6 +182,16 @@ namespace ImGuiHelper
         drawlist->AddRectFilled(a, b, col, rounding, flags);
     }
 
+    static bool IsWindowDrawable(ImGuiWindow* window = nullptr)
+    {
+        if (!window)
+            window = ImGui::GetCurrentWindowRead();
+        if (!window)
+            return false;
+
+        return !window->SkipItems;
+    }
+
     class DragDrop
     {
         using EventID = const char*;
@@ -270,7 +282,7 @@ namespace ImGuiHelper
 }
 
 
-//김시우가 만듬
+//by KimSiwoo
 namespace ImGuiHelper
 {
     std::array<float, 4> ImVec4ToArray(const ImVec4& vec4);
@@ -294,4 +306,45 @@ namespace ImGuiHelper
     {
         return ImVec4(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t, a.z + (b.z - a.z) * t, a.w + (b.w - a.w) * t);
     }
-}
+
+    //ViewManipulate용 데이터 구조체
+    struct ViewManipulateDesc
+    {
+        // clientTop 좌표
+        float ClientTop = 0.f;
+        // clientRight 좌표
+        float ClientRight = 0.f;
+        // 크기
+        ImVec2 Size = {0.f, 0.f};
+        // 배경 색
+        ImU32 BackgroundColor = 0x10101010;
+    };
+
+    // DrawManipulate용 데이터 구조체
+    struct DrawManipulateDesc
+    {
+        ImGuizmo::OPERATION Operation = ImGuizmo::OPERATION::UNIVERSAL;
+
+        ImGuizmo::MODE Mode = ImGuizmo::MODE::WORLD;
+        //
+        bool UseSnap = true;
+        //snap 값
+        std::array<float, 3> Snap{1.f, 1.f, 1.f};
+
+        //View Manipulate용
+        ViewManipulateDesc ViewDesc;
+    };
+
+    /// <summary>
+    /// 전달받은 오브젝트의 Guizmo를 Draw 합니다. 반드시 ImGuizmo::SetRect() 설정 이후 호출해야합니다.
+    /// </summary>
+    /// <param name="pObject"></param>
+    bool DrawManipulate(Camera* pCamera, Matrix* pObjectMatrix, DrawManipulateDesc& desc, Vector3* outPosition, Quaternion* outRotation, Vector3* outScale);
+
+    /// <summary>
+    /// 전달받은 오브젝트의 Guizmo를 Draw 합니다. 반드시 ImGuizmo::SetRect() 설정 이후 호출해야합니다.
+    /// </summary>
+    /// <param name="pObject"></param>
+    bool DrawManipulate(EditorDynamicCamera* pDynamicCamera, Matrix* pObjectMatrix, DrawManipulateDesc& desc, Vector3* outPosition, Quaternion* outRotation, Vector3* outScale);
+
+} // namespace ImGuiHelper

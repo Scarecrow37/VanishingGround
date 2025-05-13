@@ -7,7 +7,7 @@ using namespace Global;
 EditorLogsTool::EditorLogsTool()
 {
     SetLabel(u8"로그###로그"_c_str);
-    SetDockLayout(DockLayout::DOWN);
+    SetDockLayout(ImGuiDir_Down);
     ResetLogColor();
     ResetLogFilter();
 }
@@ -72,7 +72,7 @@ void EditorLogsTool::OnTickGui()
     }
 }
 
-void EditorLogsTool::OnPreFrame() 
+void EditorLogsTool::OnPreFrameBegin() 
 {
     std::string lable = u8"로그###로그"_c_str;
     if (notReadCount > 0)
@@ -98,7 +98,7 @@ void EditorLogsTool::OnPreFrame()
     SetLabel(lable.c_str());
 }
 
-void EditorLogsTool::OnFrame()
+void EditorLogsTool::OnPostFrameBegin()
 {
     _isWindowFocused = ImGui::IsWindowFocused();
     _isWindowHovered = ImGui::IsWindowHovered();

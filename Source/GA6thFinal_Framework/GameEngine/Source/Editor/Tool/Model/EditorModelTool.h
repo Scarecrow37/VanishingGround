@@ -15,19 +15,25 @@ private:
 
 private:
     /* Begin 호출 전에 호출 */
-    virtual void OnPreFrame() override;
+    virtual void OnPreFrameBegin() override;
 
-    /* Begin 호출 시 호출 */
-    virtual void OnFrame() override;
+    /* Begin 호출 직후 호출 */
+    virtual void OnPostFrameBegin() override;
+
+    /* Begin 호출 후 클리핑 테스트를 통과한 후 호출 */
+    virtual void OnFrameRender() override;
+    virtual void OnFrameClipped() override;
 
     /* End 호출 후에 호출 */
-    virtual void OnPostFrame() override;
+    virtual void OnFrameEnd() override;
 
-    /* 프레임이 포커싱 될 때 호출 (Begin 후에 호출) */
-    virtual void OnFocus() override;
+    /* 프레임이 포커싱 될 때 호출 (OnPostFrameBegin 후에 호출) */
+    virtual void OnFrameFocusEnter() override;
+    virtual void OnFrameFocusStay() override;
+    virtual void OnFrameFocusExit() override;
 
-    /* PopUp창 호출 성공 시 호출 (Begin 후에 호출) */
-    virtual void OnPopup() override;
+    /* Popup창 호출 성공 시 호출 (OnPreFrameBegin 전에 호출) */
+    virtual void OnFramePopupOpened() override;
 
 private:
     void ImportFBX(const std::filesystem::path& path);

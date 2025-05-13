@@ -3,12 +3,7 @@
 class EditorSceneMenuScenes : public EditorMenu
 {
 public:
-    EditorSceneMenuScenes()
-    {
-        SetCallOrder(0);
-        SetPath("Scene");
-        SetLabel("Scene");
-    }
+    EditorSceneMenuScenes()          = default;
     virtual ~EditorSceneMenuScenes() = default;
 
 public:
