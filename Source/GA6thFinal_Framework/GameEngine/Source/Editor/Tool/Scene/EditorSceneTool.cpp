@@ -130,29 +130,39 @@ void EditorSceneTool::DrawManipulate()
     if (false == _manipulateObject.expired())
     {
         auto pObject = _manipulateObject.lock();
-        Matrix world = pObject->transform->GetWorldMatrix ();
+        Matrix worldMatrix = pObject->transform->GetWorldMatrix();
+        Matrix* pObjectMatrix = &worldMatrix;
 
         EditorDynamicCamera* pDynamicCamera = _camera.get();
-        Matrix* pObjectMatrix = &world;
 
         drawManipulateDesc.ViewDesc.ClientRight = _clientRight;
         drawManipulateDesc.ViewDesc.ClientTop   = _clientTop;
 
-        Vector3 position;
-        Quaternion rotation;
-        Vector3 scale;
-
         ImGuizmo::SetDrawlist();
         ImGuizmo::SetRect(_clientLeft, _clientTop, _clientWidth, _clientHeight);
-        bool useManipulate = ImGuiHelper::DrawManipulate(pDynamicCamera, pObjectMatrix, drawManipulateDesc, &position, &rotation, &scale);
+        bool useManipulate = ImGuiHelper::DrawManipulate(pDynamicCamera, pObjectMatrix, drawManipulateDesc, nullptr, nullptr, nullptr);
+        _isUsing           = ImGuizmo::IsUsing();
+        _isOver            = ImGuizmo::IsOver();
 
-        _isUsing = ImGuizmo::IsUsing();
-        _isOver = ImGuizmo::IsOver();
         if (true == useManipulate)
-        {
+        {         
+            Transform* parent = pObject->transform->Parent;
+            Vector3    position;
+            Quaternion rotation;
+            Vector3    scale;
+            if (nullptr == parent)
+            {
+                worldMatrix.Decompose(scale, rotation, position);
+            }
+            else
+            {
+                const Matrix& parentWorldInvert = parent->GetWorldMatrix().Invert();
+                Matrix localMatrix = worldMatrix * parentWorldInvert;
+                localMatrix.Decompose(scale, rotation, position);
+            }
             pObject->transform->Position = position;
             pObject->transform->Rotation = rotation;
-            pObject->transform->Scale = scale;
+            pObject->transform->Scale    = scale;
         }
     }   
 }

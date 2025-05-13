@@ -145,25 +145,27 @@ static bool ImGuiHelper::DrawManipulate(
     
     if (true == manipulateResult)
     {
-        Vector3 position;
-        Quaternion rotation;
-        Vector3 scale;
-        objectMatrix.Decompose(scale, rotation, position);
-        if (true == isOutPosition)
+        if (isOutPosition || isOutRotation || isOutScale)
         {
-            std::swap(position.y, position.z);
-            *outPosition = position;
-        }
-        if (true == isOutRotation)
-        {
-            *outRotation = rotation;
-        }
-        if (true == isOutScale)
-        {
-            *outScale = scale;
+            Vector3    position;
+            Quaternion rotation;
+            Vector3    scale;
+            objectMatrix.Decompose(scale, rotation, position);
+            if (true == isOutPosition)
+            {
+                std::swap(position.y, position.z);
+                *outPosition = position;
+            }
+            if (true == isOutRotation)
+            {
+                *outRotation = rotation;
+            }
+            if (true == isOutScale)
+            {
+                *outScale = scale;
+            }
         }
     }
-
     return manipulateResult;
 }
 
