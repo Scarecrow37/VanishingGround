@@ -153,7 +153,6 @@ static bool ImGuiHelper::DrawManipulate(
             objectMatrix.Decompose(scale, rotation, position);
             if (true == isOutPosition)
             {
-                std::swap(position.y, position.z);
                 *outPosition = position;
             }
             if (true == isOutRotation)
