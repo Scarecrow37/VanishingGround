@@ -7,8 +7,7 @@ class FrameResource;
 class Quad;
 class ShaderBuilder;
 class Camera;
-// 임시 오브젝트
-class TempObject;
+class MeshRenderer;
 class RenderScene
 {
 public:
@@ -24,12 +23,12 @@ public:
         END
     };
 
-public :
+public:
     RenderScene();
     ~RenderScene();
 
 public:
-    void UpdateRenderScene();
+    void                    UpdateRenderScene();
     std::shared_ptr<Camera> GetCamera() { return _camera; }
 
 public:
@@ -39,7 +38,7 @@ public:
     // 렌더신 시작시 한번만 호출
     void InitializeRenderScene();
     // 렌더할 메쉬 등록
-    void RegisterOnRenderQueue(bool** isActive, MeshRenderer* renderable);
+    void RegisterOnRenderQueue(MeshRenderer* component);
     // 렌더큐에서 삭제된건?? 물어봐야함.
 
     // 렌더 기술 등록
@@ -77,7 +76,7 @@ public:
     std::vector<std::shared_ptr<RenderTarget>> _gBuffer;
 
     // 후처리시 사용할 rt pool 혹은 각 테크별로 돌려서 쓸?
-    UINT _renderTargetPoolCount = 3;
+    UINT                                       _renderTargetPoolCount = 3;
     std::vector<std::shared_ptr<RenderTarget>> _renderTargets;
 
     // 후처리시 필요한 사실상 통상적 메쉬 그리기가 이루어진, 음영처리가 완성된 타겟 하나
@@ -88,16 +87,17 @@ public:
     ComPtr<ID3D12Resource>      _depthStencilBuffer;
 
     // 렌더링할 목록
-    std::vector<std::pair<std::unique_ptr<bool>, MeshRenderer*>>                  _renderQueue;
-    
-    //frame resource와 카메라 리소스.
+    std::vector<MeshRenderer*> _renderQueue;
+
+    // frame resource와 카메라 리소스.
     std::vector<std::shared_ptr<FrameResource>> _frameResources;
     ComPtr<ID3D12Resource>                      _cameraBuffer;
 
     // 카메라 한개
     std::shared_ptr<Camera> _camera;
     // 화면 크기 quad
-    std::unique_ptr<Quad>          _frameQuad;
+    std::unique_ptr<Quad> _frameQuad;
+
 private:
     std::unique_ptr<ShaderBuilder> _frameShader;
     ComPtr<ID3D12PipelineState>    _framePSO;
@@ -105,7 +105,7 @@ private:
 
     // 폐기 목록? msaa
 private:
-    ComPtr<ID3D12Resource> _nonMSAATexture;
+    ComPtr<ID3D12Resource>      _nonMSAATexture;
     D3D12_CPU_DESCRIPTOR_HANDLE _nonMSAARtHandle;
     D3D12_CPU_DESCRIPTOR_HANDLE _nonMSAASrvHandle;
 };

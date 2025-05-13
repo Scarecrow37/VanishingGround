@@ -7,6 +7,11 @@ class EditorSceneTool
 public:
     EditorSceneTool();
     virtual ~EditorSceneTool();
+
+    static void SetManipulateObject(std::weak_ptr<GameObject>& object);
+private:
+    inline static EditorSceneTool* pSceneTool = nullptr;
+
 private:
     virtual void  OnStartGui() override;
 
@@ -19,13 +24,11 @@ private:
     virtual void OnFrameFocused() override;
 
 private:
-    void ProcessMove();
-    
-    void ProcessMode();
-
-    void ProcessViewManipulate();
-
-    void ProcessManipulate();
+    void SetMoveFlag();
+    void SetCamera();
+    void UpdateMode();
+    void DrawManipulate();
+    void DrawSceneView();
 
 private:
     bool _isHorverdScene = false;
@@ -36,25 +39,27 @@ private:
     Vector3 _position = Vector3::Zero;
     Vector3 _diretion = Vector3::Forward;
     Vector3 _rotation=Vector3::Zero;
-    Matrix _view;
-    float _fovDegree = 45.f;
+
+    float _fovDegree = 70.f;
     float _aspect = 1.0f;
     float _nearZ = 0.01f;
     float _farZ = 10000.f;
     float _moveSpeed = 30.0f;
     float _rotateSpeed = 10.0f;
 
-    // ViewManipulate
-    float _setDistance = 100.0f;
-
     // Manipulate
-    bool                _useSnap;   
-    float               _snap[3] = {1.f, 1.f, 1.f};
-    ImGuizmo::MODE      _manipulateMode;
-    ImGuizmo::OPERATION _manipulateOperation;
+    std::weak_ptr<GameObject> _manipulateObject;
+    ImGuiHelper::DrawManipulateDesc drawManipulateDesc; 
+    bool _isUsing = false;
+    bool _isOver = false;
     
-    // tempObject
-    Matrix _tempMatrix;
+    //clientSize
+    float _clientWidth   = 0.f;    
+    float _clientHeight  = 0.f;
+    float _clientLeft    = 0.f;
+    float _clientRight   = 0.f;
+    float _clientTop     = 0.f;
+    float _clientBottom  = 0.f;
 
 protected:
     //REFLECT_FIELDS_BEGIN(EditorTool)

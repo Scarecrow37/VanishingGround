@@ -92,4 +92,32 @@ namespace Global
      EditorSetting             _setting;            // 에디터 세팅 데이터
      EditorDockWindowSystem    _dockWindowSystem;   // 에디터 도킹 윈도우 시스템
      EditorPopupBoxSystem      _popupBoxSystem;     // 에디터 모달 팝업 시스템
- };
+public:
+    //플레이 모드 관리용
+    class EditorPlayMode
+    {
+    public:
+        EditorPlayMode();
+        ~EditorPlayMode();
+
+        constexpr bool IsPlay() const
+        {
+            return _isPlay;
+        }
+        void Play();
+        void Stop();
+        void SetPlayModeColor();
+        void SetPlayModeColor(ImVec4 (&playModeColors)[ImGuiCol_COUNT]);
+        void DefaultPlayModeColor();
+
+    private:
+        #ifdef _UMEDITOR
+        bool _isPlay = false;
+        #else
+        static constexpr bool _isPlay = true;
+        #endif
+        File::Guid _playSceneGuid;
+        ImVec4 _playModeColors[ImGuiCol_COUNT];
+    }
+    PlayMode;
+};

@@ -1,9 +1,7 @@
 ﻿#include "pch.h"
 #include "Renderer.h"
-#include "UmScripts.h"
 
 // Editor
-#include "NonPBRLitTechnique.h"
 #include "RendererFileEvent.h"
 
 #define SeongU01
@@ -29,7 +27,37 @@ Renderer::~Renderer()
 {
 }
 
-void Renderer::RegisterRenderQueue(bool** isActive, MeshRenderer* component, std::string_view sceneName)
+D3D12_GPU_DESCRIPTOR_HANDLE Renderer::GetRenderSceneImage(std::string_view renderSceneName)
+{
+    auto iter = _renderScenes.find(std::string(renderSceneName));
+
+    if (iter == _renderScenes.end())
+    {
+        std::wstring msg = L"Renderer::GetRenderSceneImage: RenderSceneName '" + std::wstring(renderSceneName.begin(), renderSceneName.end()) + L"' is not registered.";
+        ASSERT(false, msg.c_str());    
+    }
+    
+    auto scene = iter->second;
+
+    return SceneView(scene.get());
+}
+
+std::shared_ptr<Camera> Renderer::GetCamera(std::string_view renderSceneName)
+{
+    auto iter = _renderScenes.find(std::string(renderSceneName));
+
+    if (iter == _renderScenes.end())
+    {
+        std::wstring msg = L"Renderer::GetRenderSceneImage: RenderSceneName '" + std::wstring(renderSceneName.begin(), renderSceneName.end()) + L"' is not registered.";
+        ASSERT(false, msg.c_str());
+    }
+
+    auto scene = iter->second;
+
+    return scene->GetCamera();
+}
+
+void Renderer::RegisterRenderQueue(std::string_view sceneName, MeshRenderer* component)
 {
     auto iter = _renderScenes.find(sceneName.data());
 
@@ -37,8 +65,9 @@ void Renderer::RegisterRenderQueue(bool** isActive, MeshRenderer* component, std
     {
         ASSERT(false, L"Renderer::RegisterRenderQueue : Render Scene Not Registered.");
     }
+
     auto scene = iter->second;
-    scene->RegisterOnRenderQueue(isActive,component);
+    scene->RegisterOnRenderQueue(component);
 }
 
 void Renderer::Initialize()
@@ -108,38 +137,6 @@ void Renderer::Flip()
     // ImGUI Descriptor Index 초기화 (0 은 ImGUI Font)
     _currentImGuiImageIndex = 1;
     UmDevice.ResetCommands();
-}
-
-D3D12_GPU_DESCRIPTOR_HANDLE Renderer::GetRenderSceneImage(std::string_view renderSceneName)
-{
-    auto iter = _renderScenes.find(std::string(renderSceneName));
-    if (iter != _renderScenes.end())
-    {
-        auto scene = iter->second;
-        return SceneView(scene.get());
-    }
-    else
-    {
-        std::wstring msg = L"Renderer::GetRenderSceneImage: RenderSceneName '" +
-                           std::wstring(renderSceneName.begin(), renderSceneName.end()) + L"' is not registered.";
-        ASSERT(false, msg.c_str());
-    }
-}
-
-std::shared_ptr<Camera> Renderer::GetCamera(std::string_view renderSceneName)
-{
-    auto iter = _renderScenes.find(std::string(renderSceneName));
-    if (iter != _renderScenes.end())
-    {
-        auto scene = iter->second;
-        return scene->GetCamera();
-    }
-    else
-    {
-        std::wstring msg = L"Renderer::GetRenderSceneImage: RenderSceneName '" +
-                           std::wstring(renderSceneName.begin(), renderSceneName.end()) + L"' is not registered.";
-        ASSERT(false, msg.c_str());
-    }
 }
 
 void Renderer::InitializeImgui()

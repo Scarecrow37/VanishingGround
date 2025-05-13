@@ -27,9 +27,6 @@
     <ClInclude Include="Scripts\FileSystemTest\FileTestComponent.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Scripts\Graphics\MeshRenderer.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Scripts\Graphics\StaticMeshRenderer.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>

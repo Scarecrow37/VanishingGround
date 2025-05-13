@@ -285,10 +285,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Editor\Menu\Play\EditorPlayMenu.h" />
     <ClInclude Include="Source\Engine\EditorCore\Interface\IEditorCycle.h" />
     <ClInclude Include="Source\Engine\EditorCore\DockWindow\EditorDockWindow.h" />
     <ClInclude Include="Source\Engine\EditorCore\Interface\IEditorObject.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\d3dUtil.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\MeshRenderer.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\RendererFileEvent.h" />
     <ClInclude Include="Source\Engine\FileSystem\Type\FileSystemSetting.h" />
     <ClInclude Include="Source\Engine\FileSystem\Type\FileData.h" />
@@ -307,7 +309,6 @@
     <ClInclude Include="Source\Engine\GraphicsCore\ComputeShader.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\GeometryShader.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\MeshShader.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\NonPBRLitTechnique.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\PixelShader.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Shader.h" />
     <ClInclude Include="Source\Editor\Menu\Project\EditorBuildSettingMenu.h" />
@@ -435,15 +436,16 @@
     <ClInclude Include="Source\Engine\GraphicsCore\VertexShader.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Editor\Menu\Play\EditorPlayMenu.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\DockWindow\EditorDockWindow.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\d3dUtil.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\MeshRenderer.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\RendererFileEvent.cpp" />
     <ClCompile Include="Source\Editor\DynamicCamera\EditorDynamicCamera.cpp" />
     <ClCompile Include="Source\Editor\Tool\Model\EditorModelTool.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\ComputeShader.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\GeometryShader.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\MeshShader.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\NonPBRLitTechnique.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\PixelShader.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\Shader.cpp" />
     <ClCompile Include="Source\Engine\FileSystem\Type\FileSystemSetting.cpp" />
