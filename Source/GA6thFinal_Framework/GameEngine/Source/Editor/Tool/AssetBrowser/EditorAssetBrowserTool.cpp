@@ -24,7 +24,7 @@ void EditorAssetBrowserTool::OnStartGui()
     _currFocusFolderContext = UmFileSystem.GetContext<File::FolderContext>(File::Path(UmFileSystem.GetRootPath()));
 }
 
-void EditorAssetBrowserTool::OnPreFrame()
+void EditorAssetBrowserTool::OnPreFrameBegin()
 {
     if (false == _nextFocusFolderContext.expired())
     {
@@ -36,7 +36,7 @@ void EditorAssetBrowserTool::OnPreFrame()
     }
 }
 
-void EditorAssetBrowserTool::OnFrame()
+void EditorAssetBrowserTool::OnPostFrameBegin()
 {
     ImGui::PushID(this);
 
@@ -69,7 +69,7 @@ void EditorAssetBrowserTool::OnFrame()
     ImGui::PopID();
 }
 
-void EditorAssetBrowserTool::OnPostFrame()
+void EditorAssetBrowserTool::OnFrameEnd()
 {
     for (auto& func : _eventFunc)
     {
@@ -79,7 +79,7 @@ void EditorAssetBrowserTool::OnPostFrame()
     _eventFunc.clear();
 }
 
-void EditorAssetBrowserTool::OnFocus() {}
+void EditorAssetBrowserTool::OnFrameFocused() {}
 
 #define REFRESH_TEXT "Refresh"
 void EditorAssetBrowserTool::ShowUpperFrame()

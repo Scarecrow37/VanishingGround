@@ -241,8 +241,7 @@ void  EditorHierarchyTool::OnStartGui()
    
 }
 
-void  EditorHierarchyTool::OnPreFrame()
-{
+void EditorHierarchyTool::OnPreFrameBegin() {
     
 }
 
@@ -290,7 +289,7 @@ void EditorHierarchyTool::HierarchyRightClickEvent() const
     }
 }
 
-void EditorHierarchyTool::OnFrame()
+void EditorHierarchyTool::OnPostFrameBegin()
 {
     window = ImGui::GetCurrentWindow();
     HierarchyRightClickEvent();
@@ -347,13 +346,11 @@ void EditorHierarchyTool::OnFrame()
     }
 }
 
-void  EditorHierarchyTool::OnPostFrame()
-{
+void EditorHierarchyTool::OnFrameEnd() {
     
 }
 
-void EditorHierarchyTool::OnPopup()
-{
+void EditorHierarchyTool::OnFramePopupOpened() {
   
 }
 

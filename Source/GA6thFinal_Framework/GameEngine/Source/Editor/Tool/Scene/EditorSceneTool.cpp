@@ -28,7 +28,7 @@ void EditorSceneTool::OnStartGui()
     //_camera->SetPosition(_position);
 }
 
-void EditorSceneTool::OnPreFrame()
+void EditorSceneTool::OnPreFrameBegin()
 {
     // 프레임에 대한 호버링 중이면 No_Move플래그를 설정
     if (true == _isHorverdScene)
@@ -43,7 +43,7 @@ void EditorSceneTool::OnPreFrame()
     }
 }
 
-void EditorSceneTool::OnFrame()
+void EditorSceneTool::OnPostFrameBegin()
 {
     //ImVec2 windowSize = ImGui::GetWindowSize();
     float  width      = ImGui::GetWindowWidth();
@@ -70,12 +70,12 @@ void EditorSceneTool::OnFrame()
     ImGui::Image((ImTextureID)handle.ptr, size);
 }
 
-void EditorSceneTool::OnPostFrame()
+void EditorSceneTool::OnFrameEnd()
 {
     
 }
 
-void EditorSceneTool::OnFocus()
+void EditorSceneTool::OnFrameFocused()
 {
     _camera->Update();
     //    auto window     = ImGui::GetCurrentWindow();

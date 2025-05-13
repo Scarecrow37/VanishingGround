@@ -38,14 +38,10 @@ public:
     void OnEndGui() override final;
 
 private:
-    /* Begin 호출 전에 호출 */
-    virtual void OnPreFrame();
-
-    /* Begin 호출 시 호출 */
-    virtual void OnFrame();
-
-    /* End 호출 후에 호출 */
-    virtual void OnPostFrame();
+    virtual void OnPreFrameBegin();
+    virtual void OnPostFrameBegin();
+    virtual void OnFrameRender();
+    virtual void OnFrameEnd();
 
 public:
     /* 툴을 등록합니다. */
@@ -59,8 +55,6 @@ public:
     bool RegisterChildDockWindow(EditorDockWindow* childDockWindow);
 
     void CreateDockLayoutNode(ImGuiDir direction, float ratio);
-
-    bool SetDockBuildWindow(const std::string& label, ImGuiDir direction);
 
 private:
     /* 최초로 에디터를 킬 경우 초기 툴의 DockSpace 공간 지정 */

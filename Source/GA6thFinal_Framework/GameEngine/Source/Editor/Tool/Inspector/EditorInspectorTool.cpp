@@ -17,11 +17,11 @@ void  EditorInspectorTool::OnStartGui()
 {
 }
 
-void  EditorInspectorTool::OnPreFrame()
+void EditorInspectorTool::OnPreFrameBegin()
 {
 }
 
-void  EditorInspectorTool::OnFrame()
+void EditorInspectorTool::OnPostFrameBegin()
 {
     ShowMenuBarFrame();
 
@@ -32,11 +32,11 @@ void  EditorInspectorTool::OnFrame()
     }
 }
 
-void  EditorInspectorTool::OnPostFrame()
+void EditorInspectorTool::OnFrameEnd()
 {
 }
 
-void EditorInspectorTool::OnFocus()
+void EditorInspectorTool::OnFrameFocused()
 {
 }
 

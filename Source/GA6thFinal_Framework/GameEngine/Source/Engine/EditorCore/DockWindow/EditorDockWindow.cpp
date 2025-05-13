@@ -53,13 +53,13 @@ void EditorDockWindow::OnEndGui()
     }
 }
 
-void EditorDockWindow::OnPreFrame() 
+void EditorDockWindow::OnPreFrameBegin() 
 {
     UpdateFlag();
     PushDockStyle();
 }
 
-void EditorDockWindow::OnFrame()
+void EditorDockWindow::OnPostFrameBegin()
 {
     SubmitDockSpace();
     PopDockStyle();
@@ -76,7 +76,11 @@ void EditorDockWindow::OnFrame()
     }
 }
 
-void EditorDockWindow::OnPostFrame()
+void EditorDockWindow::OnFrameRender() 
+{
+}
+
+void EditorDockWindow::OnFrameEnd()
 {
 }
 
@@ -122,13 +126,11 @@ void EditorDockWindow::SubmitDockSpace()
 
 void EditorDockWindow::InitDockLayout()
 {
-   // bool useDockBuild = (_dockWindowOptionFlags & DOCKWINDOW_FLAGS_USE_DOCKBUILD);
     bool useDockBuild = true;
     ImGuiDockNode* dockNode = ImGui::DockBuilderGetNode(_dockSplitMainID);
 
     if (true == useDockBuild && NULL == dockNode)
     {
-        isDockBuilding = true;
         ImGui::DockBuilderRemoveNode(_dockSplitMainID);
         ImGui::DockBuilderAddNode(_dockSplitMainID, _imGuiDockFlags); // 새로 추가
 
@@ -143,14 +145,14 @@ void EditorDockWindow::InitDockLayout()
 
         _dockSplitIDTable[ImGuiDir_None] = dock_main_id;
 
-        for (auto& tool : _editorGuiList)
+        for (auto& [key, tool] : _editorToolList)
         {
             if (nullptr != tool)
             {
-                //const char* label     = tool->GetLabel().c_str();
-                //ImGuiDir    direction = tool->GetDockLayout();
-                //ImGuiID     splitID   = _dockSplitIDTable[direction];
-                //ImGui::DockBuilderDockWindow(label, splitID);
+                const char* label     = tool->GetLabel().c_str();
+                ImGuiDir    direction = tool->GetDockLayout();
+                ImGuiID     splitID   = _dockSplitIDTable[direction];
+                ImGui::DockBuilderDockWindow(label, splitID);
             }
         }
         ImGui::DockBuilderFinish(_dockSplitMainID);
@@ -204,16 +206,4 @@ void EditorDockWindow::CreateDockLayoutNode(ImGuiDir direction, float ratio)
     _dockSplitIDTable[direction] = 0;
 
     _dockWindowOptionFlags |= DOCKWINDOW_FLAGS_USE_DOCKBUILD;
-}
-
-bool EditorDockWindow::SetDockBuildWindow(const std::string& label, ImGuiDir direction)
-{
-    if (false == isDockBuilding)
-    {
-        /* 도킹 빌드 중이 아닙니다. */
-        return false;
-    }
-    ImGuiID splitID = _dockSplitIDTable[direction];
-    ImGui::DockBuilderDockWindow(label.c_str(), splitID);
-    return true;
 }

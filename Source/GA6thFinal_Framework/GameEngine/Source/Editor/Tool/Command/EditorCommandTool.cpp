@@ -33,9 +33,9 @@ void EditorCommandTool::OnStartGui() {}
 
 void EditorCommandTool::OnEndGui() {}
 
-void EditorCommandTool::OnPreFrame() {}
+void EditorCommandTool::OnPreFrameBegin() {}
 
-void EditorCommandTool::OnFrame()
+void EditorCommandTool::OnPostFrameBegin()
 {
     auto& manager  = UmCommandManager;
     if (ImGui::Button("Clear"))
@@ -91,11 +91,11 @@ void EditorCommandTool::OnFrame()
     ImGui::EndChild();
 }
 
-void EditorCommandTool::OnPostFrame() {}
+void EditorCommandTool::OnFrameEnd() {}
 
-void EditorCommandTool::OnFocus() {}
+void EditorCommandTool::OnFrameFocused() {}
 
-void EditorCommandTool::OnPopup() {}
+void EditorCommandTool::OnFramePopupOpened() {}
 
 ImVec4 EditorCommandTool::GetSelectableColor(int index, ImVec4 color)
 {

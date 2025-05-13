@@ -13,19 +13,19 @@ private:
 
 private:
     /* Begin 호출 전에 호출 */
-    virtual void OnPreFrame();
+    virtual void OnPreFrameBegin();
 
     /* Begin 호출 시 호출 */
-    virtual void OnFrame();
+    virtual void OnPostFrameBegin();
 
     /* End 호출 후에 호출 */
-    virtual void OnPostFrame();
+    virtual void OnFrameEnd();
 
     /* 프레임이 포커싱 될 때 호출 (Begin 후에 호출) */
-    virtual void OnFocus();
+    virtual void OnFrameFocused();
 
     /* PopUp창 호출 성공 시 호출 (Begin 후에 호출) */
-    virtual void OnPopup();
+    virtual void OnFramePopupOpened();
 
 private:
     ImVec4 GetSelectableColor(int index, ImVec4 color);

@@ -11,13 +11,13 @@ public:
 private:
     virtual void OnStartGui() override;
 
-    virtual void OnPreFrame() override;
+    virtual void OnPreFrameBegin() override;
 
-    virtual void OnFrame() override;
+    virtual void OnPostFrameBegin() override;
 
-    virtual void OnPostFrame() override;
+    virtual void OnFrameEnd() override;
 
-    virtual void OnPopup() override;
+    virtual void OnFramePopupOpened() override;
 
     //드래그 드롭 이벤트
     void HierarchyDropEvent();

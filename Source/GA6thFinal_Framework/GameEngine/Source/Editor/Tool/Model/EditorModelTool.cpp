@@ -23,7 +23,7 @@ void EditorModelTool::OnEndGui()
 {
 }
 
-void EditorModelTool::OnPreFrame()
+void EditorModelTool::OnPreFrameBegin()
 {
     if (ImGui::Button("Import", ImVec2(100, 50)))
     {
@@ -56,7 +56,7 @@ void EditorModelTool::OnPreFrame()
     }
 }
 
-void EditorModelTool::OnFrame()
+void EditorModelTool::OnPostFrameBegin()
 {    
     auto handle = UmRenderer.GetRenderSceneImage("ModelViewer");
 
@@ -65,14 +65,14 @@ void EditorModelTool::OnFrame()
     ImGui::Image((ImTextureID)handle.ptr, size);
 }
 
-void EditorModelTool::OnPostFrame()
+void EditorModelTool::OnFrameEnd()
 {
 }
 
-void EditorModelTool::OnFocus()
+void EditorModelTool::OnFrameFocused()
 {
 }
 
-void EditorModelTool::OnPopup()
+void EditorModelTool::OnFramePopupOpened()
 {
 }

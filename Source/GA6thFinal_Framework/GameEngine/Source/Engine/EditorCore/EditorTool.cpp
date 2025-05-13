@@ -17,65 +17,72 @@ Popup창도 OpenPopup을 할 필요가 없다. 그냥 BeginPopupContextItem만 �
 */
 void EditorTool::OnDrawGui()
 {
-    OnPreFrame();
+    OnPreFrameBegin();
 
     InitFrame();
 
     BeginFrame();
 
-    bool canOpenFrame = IsDrawable() || HasEditorToolFlags(EDITORTOOL_FLAGS_ALWAYS_FRAME);
+    OnPostFrameBegin();
+
+    if (false == _isFirstTick && true == ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows))
+    {
+        OnFrameFocused();
+    }
+
+    if (true == ImGui::BeginPopupContextItem("##PopupContext"))
+    {
+        DefaultPopupFrame();
+        OnFramePopupOpened();
+        ImGui::EndPopup();
+    }
+
+    bool canOpenFrame = false == IsClipped() || true == HasEditorToolFlags(EDITORTOOL_FLAGS_ALWAYS_FRAME);
 
     if (true == canOpenFrame)
     {
-        if (false == _isFirstTick && true == ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows))
-        {
-            OnFocus();
-        }
-
-        if (true == ImGui::BeginPopupContextItem("PopupContext"))
-        {
-            DefaultPopupFrame();
-            OnPopup();
-            ImGui::EndPopup();
-        }
-
         if (true == _isLock)
         {
             ImGui::BeginDisabled();
         }
 
-        OnFrame();
-
+        OnFrameRender();
+        
         if (true == _isLock)
         {
             ImGui::EndDisabled();
         }
 
     }
+
     EndFrame();
 
-    OnPostFrame();
+    OnFrameEnd();
 
     _isFirstTick = false;
 }
 
-void EditorTool::OnPreFrame()
+void EditorTool::OnPreFrameBegin()
 {
 }
 
-void EditorTool::OnFrame()
+void EditorTool::OnPostFrameBegin()
 {
 }
 
-void EditorTool::OnPostFrame()
+void EditorTool::OnFrameRender() 
 {
 }
 
-void EditorTool::OnFocus()
+void EditorTool::OnFrameEnd()
 {
 }
 
-void EditorTool::OnPopup()
+void EditorTool::OnFrameFocused()
+{
+}
+
+void EditorTool::OnFramePopupOpened()
 {
 }
 
@@ -91,18 +98,15 @@ bool EditorTool::BeginFrame()
     int windowFlag = _windowFlags | ImGuiWindowFlags_NoCollapse;
     ImGui::Begin(label.c_str(), &_isVisible, windowFlag);
 
-    _isDrawable = ImGuiHelper::IsWindowDrawable();
+    _isBeginningFrame = true;
+    _isClipped = !ImGuiHelper::IsWindowDrawable();
 
-    if (_isDrawable)
-    {
-        UmLogger.Log(1, _label + " is Clipped");
-    }
-
-    return _isDrawable;
+    return _isClipped;
 }
 
 void EditorTool::EndFrame()
 {
+    _isBeginningFrame = false;
     ImGui::End();
 }
 
@@ -121,11 +125,6 @@ void EditorTool::InitFrame()
             ImVec2 clientPos = ImGui::GetMainViewport()->Pos;
             ImGui::SetNextWindowPos(clientPos + _pos.second, ImGuiCond_FirstUseEver);
             _pos.first = false;
-        }
-        if (nullptr != _ownerDockWindow)
-        {
-            _ownerDockWindow->SetDockBuildWindow(_label, _dockLayout.second);
-            _dockLayout.first = false;
         }
     }
 }

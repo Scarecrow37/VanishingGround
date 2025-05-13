@@ -14,19 +14,19 @@ private:
 
 private:
     /* Begin 호출 전에 호출 */
-    virtual void OnPreFrame() override;
+    virtual void OnPreFrameBegin() override;
 
     /* Begin 호출 시 호출 */
-    virtual void OnFrame() override;
+    virtual void OnPostFrameBegin() override;
 
     /* End 호출 후에 호출 */
-    virtual void OnPostFrame() override;
+    virtual void OnFrameEnd() override;
 
     /* 프레임이 포커싱 될 때 호출 (Begin 후에 호출) */
-    virtual void OnFocus() override;
+    virtual void OnFrameFocused() override;
 
     /* PopUp창 호출 성공 시 호출 (Begin 후에 호출) */
-    virtual void OnPopup() override;
+    virtual void OnFramePopupOpened() override;
 
 private:
     std::unique_ptr<EditorDynamicCamera> _camera;

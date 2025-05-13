@@ -27,19 +27,29 @@ public:
 
 private:
     /* Begin 호출 전에 호출 */
-    virtual void OnPreFrame();
+    virtual void OnPreFrameBegin();
 
-    /* Begin 호출 시 호출 */
-    virtual void OnFrame();
+    /* Begin 호출 직후 호출 */
+    virtual void OnPostFrameBegin();
+    
+    /* Begin 호출 후 클리핑 테스트를 통과한 후 호출 */
+    virtual void OnFrameRender();
 
     /* End 호출 후에 호출 */
-    virtual void OnPostFrame();
+    virtual void OnFrameEnd();
 
     /* 프레임이 포커싱 될 때 호출 (Begin 후에 호출) */
-    virtual void OnFocus();
+    virtual void OnFrameFocused();
 
     /* PopUp창 호출 성공 시 호출 (Begin 후에 호출) */
-    virtual void OnPopup();
+    virtual void OnFramePopupOpened();
+
+    // 추가 할 것
+    //virtual void OnFrameClosed();
+    //
+    //virtual void OnFrameOpened();
+    //
+    //virtual void OnFrameResized();
 
 private:
     bool BeginFrame();
@@ -52,7 +62,8 @@ private:
     std::string                     _label              = "";                       // 에디터 툴 이름 (기본적으로 전역 단위의 이름 중복을 허용하지 않음. 나중엔 uuid등으로 관리할지 고민 중)
     int                             _callOrder          = 0;                        // OnDrawGui 호출 순서
     bool                            _isLock             = false;                    // 해당 탭에 대한 입력을 막을지에 대한 여부
-    bool                            _isDrawable         = false;                    // 해당 탭이 보일지에 대한 여부
+    bool                            _isClipped          = false;                    // 해당 탭이 보일지에 대한 여부
+    bool                            _isBeginningFrame   = false;                    // BeginFrame이 호출 중인지 여부
     bool                            _isFirstTick        = true;                     // 첫 번째 Tick인지 여부
     UINT                            _editorToolOptionFlags = EDITORTOOL_FLAGS_NONE; // 옵션 플래그
 
@@ -84,11 +95,13 @@ public:
     /*                  플래그 설정 */
     inline void         SetEditorToolFlags(UINT flags) { _editorToolOptionFlags = flags; }
     inline void         AddEditorToolFlags(UINT flags) { _editorToolOptionFlags |= flags; }
+    inline void         RemoveEditorToolFlags(UINT flags) { _editorToolOptionFlags &= ~flags; }
     inline UINT         GetEditorToolFlags() { return _editorToolOptionFlags; }
     inline bool         HasEditorToolFlags(UINT flags) { return (_editorToolOptionFlags & flags); }
 
     inline void         SetImGuiWindowFlag(ImGuiWindowFlags flag) { _windowFlags = flag; }
     inline void         AddImGuiWindowFlag(ImGuiWindowFlags flag) { _windowFlags |= flag; }
+    inline void         RemoveImGuiWindowFlag(ImGuiWindowFlags flag) { _windowFlags &= ~flag; }
     inline auto         GetImGuiWindowFlag() { return _windowFlags; }
     inline bool         HasImGuiWindowFlag(ImGuiWindowFlags flag) { return (_windowFlags & flag); }
 
@@ -105,11 +118,14 @@ public:
     inline void         SetPos(const ImVec2& pos) { _pos = {true, pos}; }
     inline ImVec2       GetPos() { return _pos.second; }
 
-    /*                  렌더링 가능 여부 */
-    inline bool         IsDrawable() { return _isDrawable; }
-
     /*                  도킹 스페이스 설정 (부모 도킹스페이스) */
     inline void         SetOwnerDockWindow(EditorDockWindow* dockWindow) { _ownerDockWindow = dockWindow; }
     inline auto*        GetOwnerDockWindow() { return _ownerDockWindow; }
+
+
+    /*                  렌더링 가능 여부 */
+    inline bool         IsClipped() { return _isClipped; }
+    /*                  Begin이 호출 되었는 지 여부 */
+    inline bool         IsBeginningFrame() { return _isBeginningFrame; }
 };
 
