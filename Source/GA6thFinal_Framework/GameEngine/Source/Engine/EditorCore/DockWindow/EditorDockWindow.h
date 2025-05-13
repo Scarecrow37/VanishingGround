@@ -73,7 +73,7 @@ private:
     ToolTable                           _editorToolList;            /* 등록된 툴 리스트 (툴 이름) */
 
     bool                                _isDockBuilding = false;    /* 도킹 빌드 중인지 여부 */
-    UINT                                _dockWindowOptionFlags;     /* 도킹 윈도우 플래그 값 */
+    int                                 _dockWindowOptionFlags;     /* 도킹 윈도우 플래그 값 */
 
     ImGuiID                             _dockSplitMainID;           /* 메인 도킹영역에 대한 ID값 */
     ImGuiDockNodeFlags                  _userImGuiDockFlags;        /* 사용자 DockSpace 플래그 값 */
@@ -89,13 +89,15 @@ public:
     inline void         SetDockWindowFlags(EditorDockWindowFlags flags) { _dockWindowOptionFlags = flags; }
     inline void         AddDockWindowFlags(EditorDockWindowFlags flags) { _dockWindowOptionFlags |= flags; }
     inline void         RemoveDockWindowOptionFlags(EditorDockWindowFlags flags) { _dockWindowOptionFlags &= ~flags; }
+    inline bool         HasDockWindowFlags(EditorDockWindowFlags flags) { return (_dockWindowOptionFlags & flags) == flags; }
     inline const auto&  GetDockWindowOptionFlags() { return _dockWindowOptionFlags; }
 
     /* Dock에 대한 플래그 설정 */
     inline void         SetImGuiDockNodeFlag(ImGuiDockNodeFlags flags) { _userImGuiDockFlags = flags; }
     inline void         AddImGuiDockNodeFlag(ImGuiDockNodeFlags flags) { _userImGuiDockFlags |= flags; }
     inline void         RemoveImGuiDockNodeFlag(ImGuiDockNodeFlags flags) { _userImGuiDockFlags &= ~flags; }
-    inline const auto&  GetImGuiDockNodeFlag() { return _userImGuiDockFlags; }
+    inline bool         HasImGuiDockNodeFlag(ImGuiDockNodeFlags flags) { return (_userImGuiDockFlags & flags) == flags; }
+    inline int          GetImGuiDockNodeFlag() { return _userImGuiDockFlags; }
 
     inline const auto&  GetRefGuiList() { return _editorGuiList; }
     inline const auto&  GetRefGuiTable() { return _editorToolClassTable; }

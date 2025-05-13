@@ -60,17 +60,15 @@ private:
     void InitFrame();
 
     void ProcessPopupFrame();
-
-    void DefaultPopupFrame();
+    void ProcessFocusFrame();
 
 private:
     std::string                     _label                  = "";                       // 에디터 툴 이름 (기본적으로 전역 단위의 이름 중복을 허용하지 않음. 나중엔 uuid등으로 관리할지 고민 중)
-    int                             _callOrder              = 0;                        // OnDrawGui 호출 순서
     bool                            _isLock                 = false;                    // 해당 탭에 대한 입력을 막을지에 대한 여부
     bool                            _isClipped              = false;                    // 해당 탭이 보일지에 대한 여부
     bool                            _isBeginningFrame       = false;                    // BeginFrame이 호출 중인지 여부
     bool                            _isFirstTick            = true;                     // 첫 번째 Tick인지 여부
-    UINT                            _editorToolOptionFlags  = EDITORTOOL_FLAGS_NONE;    // 옵션 플래그
+    int                             _editorToolOptionFlags  = EDITORTOOL_FLAGS_NONE;    // 옵션 플래그
 
     ImGuiWindowClass                _imGuiWindowClass       = {};
     std::pair<bool, ImVec2>         _size                   = {false, ImVec2(0, 0)};    // 사이즈 조정 여부와 사이즈
@@ -95,10 +93,6 @@ public:
     inline void         SetLabel(const std::string& label) { _label = label; }
     inline const auto&  GetLabel() { return _label; }
 
-    /*                  호출 순서 설정 */
-    inline void         SetCallOrder(int i) { _callOrder = i; }
-    inline int          GetCallOrder() { return _callOrder; }
-
     /*                  초기 도킹 영역을 지정 */
     inline void         SetDockLayout(ImGuiDir layout) { _dockLayout = {true, layout}; }
     inline ImGuiDir     GetDockLayout() { return _dockLayout.second; }
@@ -107,14 +101,14 @@ public:
     inline void         SetEditorToolFlags(UINT flags) { _editorToolOptionFlags = flags; }
     inline void         AddEditorToolFlags(UINT flags) { _editorToolOptionFlags |= flags; }
     inline void         RemoveEditorToolFlags(UINT flags) { _editorToolOptionFlags &= ~flags; }
-    inline UINT         GetEditorToolFlags() { return _editorToolOptionFlags; }
-    inline bool         HasEditorToolFlags(UINT flags) { return (_editorToolOptionFlags & flags); }
+    inline int          GetEditorToolFlags() { return _editorToolOptionFlags; }
+    inline bool         HasEditorToolFlags(UINT flags) { return _editorToolOptionFlags & flags; }
 
     inline void         SetImGuiWindowFlag(ImGuiWindowFlags flag) { _windowFlags = flag; }
     inline void         AddImGuiWindowFlag(ImGuiWindowFlags flag) { _windowFlags |= flag; }
     inline void         RemoveImGuiWindowFlag(ImGuiWindowFlags flag) { _windowFlags &= ~flag; }
     inline auto         GetImGuiWindowFlag() { return _windowFlags; }
-    inline bool         HasImGuiWindowFlag(ImGuiWindowFlags flag) { return (_windowFlags & flag); }
+    inline bool         HasImGuiWindowFlag(ImGuiWindowFlags flag) { return _windowFlags & flag; }
 
     /*                  툴 잠금 설정 */
     inline void         SetLock(bool v) { _isLock = v; }
