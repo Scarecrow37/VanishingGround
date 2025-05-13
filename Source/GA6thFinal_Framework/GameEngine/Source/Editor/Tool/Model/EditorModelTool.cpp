@@ -44,8 +44,10 @@ void EditorModelTool::OnPreFrameBegin()
     }
 }
 
-void EditorModelTool::OnFrame()
-{    
+void EditorModelTool::OnPostFrameBegin() {}
+
+void EditorModelTool::OnFrameRender()
+{
     auto handle = UmRenderer.GetRenderSceneImage("ModelViewer");
 
     ImVec2 size = ImGui::GetContentRegionAvail();
@@ -73,17 +75,6 @@ void EditorModelTool::OnFrame()
 
         ImGui::EndDragDropTarget();
     }
-}
-
-void EditorModelTool::OnPostFrameBegin() {}
-
-void EditorModelTool::OnFrameRender()
-{
-    auto handle = UmRenderer.GetRenderSceneImage("ModelViewer");
-
-    ImVec2 size = ImGui::GetContentRegionAvail();
-
-    ImGui::Image((ImTextureID)handle.ptr, size);
 }
 
 void EditorModelTool::OnFrameClipped() {}
