@@ -140,7 +140,7 @@ void EditorSceneTool::DrawManipulate()
 
         ImGuizmo::SetDrawlist();
         ImGuizmo::SetRect(_clientLeft, _clientTop, _clientWidth, _clientHeight);
-        bool useManipulate = ImGuiHelper::DrawManipulate(pDynamicCamera, pObjectMatrix, drawManipulateDesc, nullptr, nullptr, nullptr);
+        bool useManipulate = ImGuiHelper::DrawManipulate(pDynamicCamera, pObjectMatrix, drawManipulateDesc);
         _isUsing           = ImGuizmo::IsUsing();
         _isOver            = ImGuizmo::IsOver();
 
