@@ -218,7 +218,7 @@ static void TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>
 EditorHierarchyTool::EditorHierarchyTool()
 {
     SetLabel("Hierarchy");
-    SetDockLayout(DockLayout::LEFT);
+    SetDockLayout(ImGuiDir_Left);
 }
 
 EditorHierarchyTool::~EditorHierarchyTool()
@@ -241,8 +241,7 @@ void  EditorHierarchyTool::OnStartGui()
    
 }
 
-void  EditorHierarchyTool::OnPreFrame()
-{
+void EditorHierarchyTool::OnPreFrameBegin() {
     
 }
 
@@ -290,7 +289,7 @@ void EditorHierarchyTool::HierarchyRightClickEvent() const
     }
 }
 
-void EditorHierarchyTool::OnFrame()
+void EditorHierarchyTool::OnPostFrameBegin()
 {
     std::shared_ptr<GameObject> focusObject = HierarchyFocusObjWeak.lock();
     _window = ImGui::GetCurrentWindow();
@@ -379,13 +378,11 @@ void EditorHierarchyTool::OnFrame()
     }
 }
 
-void  EditorHierarchyTool::OnPostFrame()
-{
+void EditorHierarchyTool::OnFrameEnd() {
     
 }
 
-void EditorHierarchyTool::OnPopup()
-{
+void EditorHierarchyTool::OnFramePopupOpened() {
   
 }
 

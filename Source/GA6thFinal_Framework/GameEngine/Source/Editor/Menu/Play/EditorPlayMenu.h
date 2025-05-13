@@ -3,11 +3,7 @@
 class EditorPlayMenu : public EditorMenu
 {
 public:
-    EditorPlayMenu()
-    {
-        SetCallOrder(0);
-        SetPath("Play");
-    }
+    EditorPlayMenu() = default;
     virtual ~EditorPlayMenu() = default;
 
 public:

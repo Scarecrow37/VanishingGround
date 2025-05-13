@@ -5,6 +5,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Application\GameApplication.h" />
+    <ClInclude Include="Source\Application\UmScripts.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

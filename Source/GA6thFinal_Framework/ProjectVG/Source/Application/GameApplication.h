@@ -7,11 +7,17 @@ public:
     GameApplication();
     virtual ~GameApplication() override;
 
-    EditorModule* _editorModule = nullptr;
-
 protected:
     /*모듈 초기화 끝난 후 호출되는 함수*/
     virtual void OnStartupComplete();
     /*모듈 초기화 해제 끝난 후 호출되는 함수*/
     virtual void OnShutdownComplete();
+
+private:
+    void BuildRootDock();
+    void BuildSceneDock();
+
+    EditorModule*     _editorModule = nullptr;
+    EditorDockWindow* _rootDock     = nullptr;
+    EditorDockWindow* _sceneDock    = nullptr;
 };

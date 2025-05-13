@@ -1,20 +1,28 @@
 ﻿#include "pch.h"
 #include "EditorWindowMenu.h"
 
+EditorMenuTools::EditorMenuTools(EditorDockWindow* focusWindow) 
+    :  _focusWindow(focusWindow) 
+{
+}
+
 void EditorMenuTools::OnMenu()
 {
-    if (ImGui::BeginMenu("Tools"))
+    if (ImGui::BeginMenu("Window"))
     {
-        EditorDockSpace* dockSpace = Global::editorModule->GetMainDockSpace();
-        const auto& toolTable = dockSpace->GetRefToolTable();
-        for (auto& [key, tool] : toolTable)
+        if (ImGui::BeginMenu("Tools"))
         {
-            bool active = tool->IsVisible();
-            if (ImGui::MenuItem(tool->GetLabel().c_str(), nullptr, active,
-                                GetActive()))
+            auto& table = _focusWindow->GetRefToolList();
+            for (auto& [key, tool] : table)
             {
-                tool->SetVisible(active ? false : true);
+                bool active = tool->IsVisible();
+                const char* label  = tool->GetLabel().c_str();
+                if (ImGui::MenuItem(label, nullptr, active))
+                {
+                    tool->SetVisible(active ? false : true);
+                }
             }
+            ImGui::EndMenu();
         }
         ImGui::EndMenu();
     }
