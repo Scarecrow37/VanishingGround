@@ -51,6 +51,14 @@ void EditorSceneTool::OnPreFrameBegin()
 
 void EditorSceneTool::OnPostFrameBegin()
 {
+
+}
+
+void EditorSceneTool::OnFrameRender() 
+{
+    UpdateMode();
+    _camera->Update();
+
     SetCamera();
     DrawSceneView();
     DrawManipulate();
@@ -63,8 +71,7 @@ void EditorSceneTool::OnFrameEnd()
 
 void EditorSceneTool::OnFrameFocusStay()
 {
-    UpdateMode();
-    _camera->Update();
+
 }
     
 void EditorSceneTool::SetMoveFlag() 
