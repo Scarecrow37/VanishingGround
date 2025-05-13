@@ -167,7 +167,7 @@ private:
 
     //컴포넌트를 엔진에 사용하기 위해 초기화합니다.
     //초기화 후 컴포넌트의 Reset을 호출합니다.
-    void ResetComponent(GameObject* ownerObject, Component* component);
+    void ResetComponent(GameObject* ownerObject, std::shared_ptr<Component>& component);
 
     //컴포넌트를 Yaml로 직렬화
     YAML::Node MakeYamlToComponent(Component* component);

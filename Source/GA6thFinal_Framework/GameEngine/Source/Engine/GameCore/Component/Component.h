@@ -12,6 +12,15 @@ public:
     Component();
     virtual ~Component();
 
+    /// <summary>
+    /// 이 컴포넌트의 weak_ptr을 반환합니다.
+    /// </summary>
+    /// <returns>weak_ptr this</returns>
+    std::weak_ptr<Component> GetWeakPtr() const
+    {
+        return _weakPtr;
+    }
+
 protected:
     /// <summary>
     /// <para> 이 함수는 ComponentFactory.AddComponentToObject() 직후 호출됩니다.              </para>
@@ -191,8 +200,8 @@ private:
         bool _isStart;
     };
     InitFlags _initFlags;
-
     GameObject* _gameObect;
+    std::weak_ptr<Component> _weakPtr;
 };
 
 template <IS_BASE_COMPONENT_C TComponent>
