@@ -107,22 +107,21 @@ static bool ImGuiHelper::DrawManipulate(
         bool isMouseHoveringRect = (mousePos.x >= rectMin.x && mousePos.x <= rectMax.x && mousePos.y >= rectMin.y && mousePos.y <= rectMax.y);
         if (true == isMouseHoveringRect)
         {
-            viewManipulateMatrix = (inversionMatrix * viewManipulateMatrix * inversionMatrix);
+            viewManipulateMatrix = inversionMatrix * viewManipulateMatrix * inversionMatrix;
             viewManipulateMatrix = viewManipulateMatrix.Invert();
             Vector3    position;
             Quaternion rotation;
             Vector3    scale;
             viewManipulateMatrix.Decompose(scale, rotation, position);
-
             if (nullptr != pDynamicCamera)
             {
                 pDynamicCamera->SetPosition(position);
-                pDynamicCamera->SetRotation(rotation.ToEuler());
+                pDynamicCamera->SetRotation(rotation);
             }
             else if (nullptr != pCamera)
             {
                 pCamera->SetPosition(position);
-                pCamera->SetRotation(rotation.ToEuler());
+                pCamera->SetRotation(rotation);
             }           
         }
     }
