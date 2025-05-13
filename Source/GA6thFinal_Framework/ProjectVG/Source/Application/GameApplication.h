@@ -16,10 +16,8 @@ protected:
 private:
     void BuildRootDock();
     void BuildSceneDock();
-    void BuildAssetDock();
 
     EditorModule*     _editorModule = nullptr;
     EditorDockWindow* _rootDock     = nullptr;
     EditorDockWindow* _sceneDock    = nullptr;
-    EditorDockWindow* _assetDock    = nullptr;
 };

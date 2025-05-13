@@ -206,6 +206,5 @@ void EditorTool::ProcessRenderFrame()
     {
         OnFrameClipped(); // [Callback] Begin 이후 클리핑 통과 실패 시 콜백
         _isFrameDrawed = false;
-        UmLogger.Log(1, _label + " is Clipped");
     }
 }

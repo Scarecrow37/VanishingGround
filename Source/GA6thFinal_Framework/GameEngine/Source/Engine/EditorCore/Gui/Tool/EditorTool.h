@@ -69,7 +69,7 @@ private:
 private:
     std::string                     _label                  = "";                       // 에디터 툴 이름 (기본적으로 전역 단위의 이름 중복을 허용하지 않음. 나중엔 uuid등으로 관리할지 고민 중)
     bool                            _isLock                 = false;                    // 해당 탭에 대한 입력을 막을지에 대한 여부
-    bool                            _isDrawable              = false;                    // 해당 탭이 보일지에 대한 여부
+    bool                            _isDrawable              = false;                   // 해당 탭이 보일지에 대한 여부
     bool                            _isBeginningFrame       = false;                    // BeginFrame이 호출 중인지 여부
     bool                            _isFirstTick            = true;                     // 첫 번째 Tick인지 여부
     int                             _editorToolOptionFlags  = EDITORTOOL_FLAGS_NONE;    // 옵션 플래그
@@ -88,7 +88,7 @@ private:
     int                             _imguiSytleStackCount   = 0;        // [Internal] PushStyleVar 호출 횟수
     bool                            _isFrameDisable         = false;    // [Internal] BeginDisabled 호출 여부
     bool                            _isFrameFocused         = false;    // [Internal] 이전 FrameFocus 여부
-    bool                            _isFrameDrawed          = false;     // [Internal] 이전 FrameRender 호출 여부
+    bool                            _isFrameDrawed          = false;    // [Internal] 이전 FrameRender 호출 여부
 
 public:
     inline void         SetWindowClass(const ImGuiWindowClass& windowClass) { _imGuiWindowClass = windowClass; }
