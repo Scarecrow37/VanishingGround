@@ -35,11 +35,12 @@ void EditorModelTool::OnPreFrameBegin()
     if (ImGui::Button("Import", ImVec2(100, 50)))
     {
         // FBX or binary Load
-        TCHAR      filter[] = L"Model File (.fbx, .UmModel)\0*.fbx;*.UmModel\0";
-        File::Path out;
-        if (File::OpenFileNameBrowser(filter, out))
+        std::vector<File::Path> out;
+        if (File::ShowOpenFileBrowser(UmApplication.GetHwnd(), L"Import Model", L"",
+                                      {{L"Model File(.fbx, .UmModel)", L"\0*.fbx;*.UmModel\0"}}, false, out))
+            ;
         {
-            ImportFBX(out);
+            ImportFBX(out.front());
         }
     }
 }
