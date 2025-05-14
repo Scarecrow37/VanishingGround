@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 //참고 Unity Game Loop https://docs.unity3d.com/kr/2022.3/Manual/ExecutionOrder.html
-class Component :
+class Component abstract :
     public ReflectSerializer
 {
     friend class GameObject;
