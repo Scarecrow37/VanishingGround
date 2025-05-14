@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "UmFramework.h"
-#include "Source/EditorTools/NodeEditor/blueprint.h"
+#include "blueprint.h"
 
 class EditorShaderGraph :
     public EditorTool
