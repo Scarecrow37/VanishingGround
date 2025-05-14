@@ -1,4 +1,5 @@
 #include "Function.hlsli"
+
 struct PSInput
 {
     float4 position : SV_POSITION;
@@ -20,7 +21,6 @@ StructuredBuffer<DirectionalLight> directionalLights;
 StructuredBuffer<PointLight> pointLights;
 StructuredBuffer<SpotLight> spotLights;
 Texture2D gBuffers[];
-SamplerState samLinear_wrap;
 
 
 float4 ps_main(PSInput input) : SV_Target0

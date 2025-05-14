@@ -24,8 +24,6 @@ StructuredBuffer<Material> material;
 
 Texture2D textures[];
 
-SamplerState samLinear_wrap;
-
 float4 ps_main(PSInput input) : SV_TARGET
 {
     float3 tempLight = float3(0, 0, 1);

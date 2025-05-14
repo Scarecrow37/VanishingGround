@@ -30,6 +30,7 @@ private:
     std::vector<std::vector<unsigned int>>       _indices;
     std::vector<std::vector<std::string>>        _textures;
     std::vector<unsigned int>                    _materialIndex;
+    std::vector<Material>                        _materials;
 
     std::shared_ptr<Skeleton>                    _skeleton;
     std::shared_ptr<Animation>                   _animation;

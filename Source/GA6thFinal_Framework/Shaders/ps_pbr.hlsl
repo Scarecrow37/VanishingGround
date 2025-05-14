@@ -36,9 +36,6 @@ struct PSInput
     float4 worldPosition : POSITION;
 };
 
-#define Fdielectric  0.04
-
-
 #define BASECOLOR 0
 #define NORMAL 1
 #define ORM 2
@@ -52,15 +49,6 @@ struct Material
 
 StructuredBuffer<Material> material;
 Texture2D textures[];
-SamplerState samLinear_wrap;
-
-struct NumLight
-{
-    uint Directional;
-    uint Point;
-    uint Spot;
-    uint padding;
-};
 ConstantBuffer<NumLight> num_light : register(b2);
 
 float4 ps_main(PSInput input) : SV_Target

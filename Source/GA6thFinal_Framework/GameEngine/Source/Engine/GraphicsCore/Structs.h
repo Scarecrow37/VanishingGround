@@ -39,9 +39,9 @@ struct Material
     #undef OPAQUE
     enum class ShadingModel { UNLIT, DEFAULTLIT, };
     enum class BlendMode{ OPAQUE, MASKED, TRANSLUCENT, ADDITIVE, MODULATE };
-    ShadingModel shadingModel;
-    BlendMode blendMode;
-    bool isTwoSided;
+    ShadingModel Model;
+    BlendMode Mode;
+    bool IsTwoSided;
 };
 
 struct CameraData

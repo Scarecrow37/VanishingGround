@@ -25,17 +25,15 @@ struct PSOutput
 #define NORMAL 1
 #define ORM 2
 #define EMISSIVE 3
+
 struct Material
 {
     uint ID[4];
 };
-ConstantBuffer<Object> bit32_object : register(b1);
+
 StructuredBuffer<Material> material;
 
-#define object bit32_object
 Texture2D textures[];
-SamplerState samLinear_wrap;
-
 
 float3 CalculateNormal(float3 sampledNormal, float3 tangent, float3 bitangent, float3 normal)
 {

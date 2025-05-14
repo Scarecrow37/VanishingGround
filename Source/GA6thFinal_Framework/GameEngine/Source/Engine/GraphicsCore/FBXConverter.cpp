@@ -91,9 +91,9 @@ void FBXConverter::ImportModel(const std::filesystem::path& filePath, Model* mod
 }
 
 void FBXConverter::LoadNode(aiNode* node,
-                           const aiScene* scene, 
-                           std::unordered_map<std::string, std::pair<unsigned int, Matrix>>& boneInfo, 
-                           Model* model)
+                            const aiScene* scene, 
+                            std::unordered_map<std::string, std::pair<unsigned int, Matrix>>& boneInfo, 
+                            Model* model)
 {    
     for (unsigned int i = 0; i < node->mNumMeshes; i++)
     {
@@ -326,15 +326,23 @@ void FBXConverter::LoadFromAssimp(const std::filesystem::path& filePath, Model* 
 
     model->InitMaterials((UINT)_materialIndex.size());
     UINT size = (UINT)_materialIndex.size();
+
+    Material material{
+        .Model = Material::ShadingModel::DEFAULTLIT,
+        .Mode    = Material::BlendMode::OPAQUE,
+        .IsTwoSided   = false,
+    };
+
     for (UINT i = 0; i < size; i++)
     {
         auto& paths = _textures[_materialIndex[i]];
+        model->BindMaterial(i, material);
 
         for (auto& path : paths)
         {
             std::filesystem::path newPath = filePath;
             newPath.replace_filename(path);
-            model->BindMaterial(i, UmResourceManager.LoadResource<Texture>(newPath));
+            model->BindTexture(i, UmResourceManager.LoadResource<Texture>(newPath));
         }
     }
 
@@ -433,7 +441,7 @@ void FBXConverter::LoadFromBinary(const std::filesystem::path& filePath, Model* 
         {
             std::filesystem::path newPath = filePath;
             newPath.replace_filename(path);
-            model->BindMaterial(i, UmResourceManager.LoadResource<Texture>(newPath));
+            model->BindTexture(i, UmResourceManager.LoadResource<Texture>(newPath));
         }
     }    
 }
