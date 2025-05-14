@@ -1,4 +1,5 @@
 ﻿#include "pch.h"
+#include "Engine/GraphicsCore/Model.h"
 #include "UmScripts.h"
 using namespace Global;
 using namespace u8_literals;
@@ -93,7 +94,7 @@ void ESceneManager::SceneUpdate()
 #ifdef _UMEDITOR
     _isPlay = editorModule->PlayMode.IsPlay();
 #endif
-
+    SceneResourceManager::Update(ResourceManager);
     ObjectsAddRuntime();
     ObjectsOnEnable();
     ObjectsAwake();
@@ -162,11 +163,12 @@ void ESceneManager::Engine::SetGameObjectActive(int instanceID, bool value)
                                     WaitVec.emplace_back(component.get());
 
                                     //메시 컴포넌트들은 meshRenderer의 SetActive도 변경해야함.
-                                    if (Component::Type::Mesh == component->_type)
+                                    if (Component::Type::Renderer == component->_type)
                                     {
                                         auto& meshActiveQueue = value ? sceneManager._meshSetActiveQueue.first
                                                                       : sceneManager._meshSetActiveQueue.second;
-                                        meshActiveQueue.push_back(static_cast<MeshComponent*>(component.get()));
+                                        MeshComponent* meshComponent = static_cast<MeshComponent*>(component.get());
+                                        meshActiveQueue.push_back(meshComponent->Renderer.get());
                                     }
                                 }
                             }
@@ -199,10 +201,11 @@ void ESceneManager::Engine::SetComponentEnable(Component* component, bool value)
                 WaitVec.push_back(component);
 
                 // 메시 컴포넌트들은 meshRenderer의 SetActive도 변경해야함.
-                if (Component::Type::Mesh == component->_type)
+                if (Component::Type::Renderer == component->_type)
                 {
                     auto& meshActiveQueue = value ? sceneManager._meshSetActiveQueue.first : sceneManager._meshSetActiveQueue.second;
-                    meshActiveQueue.push_back(static_cast<MeshComponent*>(component));
+                    MeshComponent* meshComponent = static_cast<MeshComponent*>(component);
+                    meshActiveQueue.push_back(meshComponent->Renderer.get());
                 }
             }
         }
@@ -685,9 +688,9 @@ void ESceneManager::ObjectsOnEnable()
 
     for (auto& mesh : MeshEnableQueue)
     {
-        if (nullptr != mesh->_meshRenderer)
+        if (nullptr != mesh)
         {
-            mesh->_meshRenderer->SetActive(true);
+            mesh->SetActive(true);
         }
     }
     
@@ -717,9 +720,9 @@ void ESceneManager::ObjectsOnDisable()
 
     for (auto& mesh : MeshDisableQueue)
     {
-        if (nullptr != mesh->_meshRenderer)
+        if (nullptr != mesh)
         {
-            mesh->_meshRenderer->SetActive(false);
+            mesh->SetActive(false);
         }
     }
 
@@ -1187,6 +1190,83 @@ void ESceneManager::EraseSceneGUID(std::string_view sceneName, const File::Guid 
     }
     _scenesMap.erase(guid);
     _sceneDataMap.erase(guid);
+}
+
+void ESceneManager::SceneResourceManager::Update(SceneResourceManager& manager) 
+{
+    ModelResources& models = manager._models;
+    {
+        std::pair<std::weak_ptr<MeshComponent>, File::Guid> curr;
+        while (false == models.ModelLoadQueue.empty())
+        {
+            if (true == models.ModelLoadQueue.try_pop(curr))
+            {
+                auto& [weakPtr, guid] = curr;
+                if (false == weakPtr.expired())
+                {
+                    std::shared_ptr<MeshComponent> pMeshComponent = weakPtr.lock();
+                    if (nullptr != pMeshComponent->Renderer)
+                    {
+                        MeshRenderer& meshRenderer = *pMeshComponent->Renderer;
+                        File::Path path = guid.ToPath();
+                        if (false == path.IsNull())
+                        {
+                            if (models.ModelResource.find(guid) == models.ModelResource.end())
+                            {
+                                models.ModelResource[guid] = UmResourceManager.LoadResource<Model>(path.string());
+                            }
+                            meshRenderer.RegisterRenderQueue("Editor");
+                            meshRenderer.LoadModel(path.wstring()); 
+                            models.ModelUseComponentList[guid].push_back(pMeshComponent);
+                        }
+                        else
+                        {
+                            UmLogger.Log(LogLevel::LEVEL_WARNING, std::format("{}{}", guid.string(), (const char*)u8"는 존재하지 않는 리소스입니다."));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+}
+
+void ESceneManager::SceneResourceManager::RequestModelResource(const MeshComponent* meshComponent, const File::Guid& guid)
+{
+    if (auto sharedPtr = meshComponent->GetWeakPtr().lock())
+    {
+        if (0 <= sharedPtr->_gameObect->_instanceID)
+        {
+            std::weak_ptr<MeshComponent> weakPtr = std::static_pointer_cast<MeshComponent>(sharedPtr);
+            auto pair = std::make_pair(weakPtr, guid);
+            _models.ModelLoadQueue.push(pair);
+        }
+    }
+}
+
+void ESceneManager::SceneResourceManager::ClearModelResource() 
+{
+    for (auto& [guid, resource] : _models.ModelResource)
+    {
+        auto componentListIter = _models.ModelUseComponentList.find(guid);
+        if (componentListIter != _models.ModelUseComponentList.end())
+        {
+            auto& [guid, list] = *componentListIter;
+            for (auto& weakPtr : list)
+            {
+                if (false == weakPtr.expired())
+                {
+                    auto pComponent = weakPtr.lock();
+                    if (nullptr != pComponent->Renderer)
+                    {
+                        pComponent->Renderer->SetDestroy();
+                    }
+                }
+            }
+        }
+    }
+    _models.ModelUseComponentList.clear();
+    _models.ModelResource.clear();
 }
 
 ESceneManager::SceneResourceManager::SceneResourceManager() 

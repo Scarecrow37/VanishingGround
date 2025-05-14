@@ -2,6 +2,7 @@
 class GameObject;
 class ESceneManager;
 class MeshComponent;
+class Model;
 
 //참고 
 // Unity SceneManager https://docs.unity3d.com/6000.0/Documentation/ScriptReference/SceneManagement.SceneManager.html
@@ -322,13 +323,36 @@ public:
         SceneResourceManager();
         ~SceneResourceManager();
 
+        /// <summary>
+        /// 해당 리소스 매니저를 업데이트 합니다.
+        /// </summary>
+        /// <param name="manager"></param>
+        static void Update(SceneResourceManager& manager);
+
+        /// <summary>
+        /// MeshComponent의 Model 리소스 로드를 요청합니다.
+        /// </summary>
+        /// <param name="meshComponent :">대상 메시 컴포넌트</param>
+        /// <param name="guid :">로드할 리소스의 guid</param>
+        void RequestModelResource(const MeshComponent* meshComponent, const File::Guid& guid);
+         
+        void ClearModelResource();
+
     private:
-        std::vector<std::weak_ptr<MeshComponent>> _resourceLoadQueue;
+        struct ModelResources
+        {
+            Concurrency::concurrent_queue<std::pair<std::weak_ptr<MeshComponent>, File::Guid>> ModelLoadQueue;
+            std::unordered_map<File::Guid, std::shared_ptr<Model>>                             ModelResource;
+            std::unordered_map<File::Guid, std::vector<std::weak_ptr<MeshComponent>>>          ModelUseComponentList;
+        }
+        _models;
+
+
     };
     /// <summary>
     /// 씬 리소스 관리를 위한 맴버입니다.
     /// </summary>
-    SceneResourceManager SceneResourceManager;
+    SceneResourceManager ResourceManager;
 
 private:
 #ifdef _UMEDITOR
@@ -398,8 +422,8 @@ private:
     std::tuple<std::unordered_set<Component*>, std::vector<Component*>, std::vector<bool*>> _onEnableQueue;
     std::tuple<std::unordered_set<Component*>, std::vector<Component*>, std::vector<bool*>> _onDisableQueue;
 
-    //MeshComponent의 Enable, Disable 변경 관리용
-    std::pair<std::vector<MeshComponent*>, std::vector<MeshComponent*>> _meshSetActiveQueue;
+    //Renderer의 Enable, Disable 변경 관리용
+    std::pair<std::vector<MeshRenderer*>, std::vector<MeshRenderer*>> _meshSetActiveQueue;
 
 private:
     struct
