@@ -185,6 +185,7 @@ using namespace Microsoft::WRL;
 #include "Editor/Tool/Hierarchy/EditorHierarchyTool.h"
 #include "Editor/Tool/Scene/EditorSceneTool.h"
 #include "Editor/Tool/Log/EditorLogsTool.h"
+#include "Editor/Tool/Model/EditorModelDetails.h"
 #include "Editor/Tool/Model/EditorModelTool.h"
 #include "Editor/Tool/Command/EditorCommandTool.h"
 
@@ -195,4 +196,5 @@ using namespace Microsoft::WRL;
 #include "Editor/Menu/Scene/EditorSceneMenu.h"
 #include "Editor/Menu/Project/EditorBuildSettingMenu.h"
 #include "Editor/Menu/Play/EditorPlayMenu.h"
+#include "Editor/Menu/Model/EditorModelMenu.h"
 #endif

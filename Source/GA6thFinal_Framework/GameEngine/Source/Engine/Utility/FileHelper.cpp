@@ -188,12 +188,12 @@ namespace File
         OFN.hwndOwner       = UmApplication.GetHwnd();
         OFN.lpstrFilter     = _filter;
         OFN.lpstrFile       = lpstrFile;
-        OFN.nMaxFile        = 100;
+        OFN.nMaxFile        = MAX_PATH;
         OFN.lpstrInitialDir = root.c_str();
-
+        
         auto originPath = fs::current_path();
         bool result = false;
-        if (GetOpenFileName(&OFN) != 0)
+        if (GetOpenFileName(&OFN))
         {
             _return = OFN.lpstrFile;
             result =  true;

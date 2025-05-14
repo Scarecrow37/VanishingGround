@@ -20,7 +20,7 @@ public:
 public:
     void SetActive(bool isActive) { _isActive = isActive; }
     void SetDestroy() { _isDestroy = true; }
-    void SetModel(std::shared_ptr<Model> model) { _model    = model; _isActive = true; }
+    void SetModel(std::shared_ptr<Model> model) { _model = model; _isActive = true; }
 
 public:
     void RegisterRenderQueue(std::string_view sceneName);
