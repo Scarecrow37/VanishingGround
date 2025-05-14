@@ -20,7 +20,7 @@ public:
     void MakeMeshRenderer(MeshRenderer::RENDER_TYPE renderType, const Matrix& world);
 
     //meshRenderer 입니다. MakeMeshRenderer를 호출해야만 생성됩니다.
-    const std::unique_ptr<MeshRenderer>& _meshRenderer;
+    const std::unique_ptr<MeshRenderer>& Renderer;
 
 private:
     std::unique_ptr<MeshRenderer> _pMeshRenderer;

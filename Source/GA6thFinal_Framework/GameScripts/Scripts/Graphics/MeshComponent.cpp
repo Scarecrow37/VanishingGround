@@ -2,16 +2,16 @@
 
 MeshComponent::MeshComponent() 
     : 
-    Component(Component::Type::Mesh),
-    _meshRenderer(_pMeshRenderer)
+    Component(Component::Type::RENDER),
+    Renderer(_pMeshRenderer)
 {
   
 }
 MeshComponent::~MeshComponent()
 {
-    if (_meshRenderer)
+    if (Renderer)
     {
-        _meshRenderer->SetDestroy();
+        Renderer->SetDestroy();
     }
 }
 
