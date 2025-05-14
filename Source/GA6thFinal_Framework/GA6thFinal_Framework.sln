@@ -12,6 +12,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GameEngine", "GameEngine\Ga
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ProjectVG", "ProjectVG\ProjectVG.vcxproj", "{896040A8-4B36-4419-86FD-E2A066A26818}"
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Installer", "Installer\Installer.vdproj", "{52B20422-474D-5734-629F-99A1F7DE9787}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -56,6 +58,14 @@ Global
 		{896040A8-4B36-4419-86FD-E2A066A26818}.ReleaseEditor|x64.Build.0 = ReleaseEditor|x64
 		{896040A8-4B36-4419-86FD-E2A066A26818}.ReleaseEditor|x86.ActiveCfg = ReleaseEditor|Win32
 		{896040A8-4B36-4419-86FD-E2A066A26818}.ReleaseEditor|x86.Build.0 = ReleaseEditor|Win32
+		{52B20422-474D-5734-629F-99A1F7DE9787}.Debug|x64.ActiveCfg = Debug
+		{52B20422-474D-5734-629F-99A1F7DE9787}.Debug|x86.ActiveCfg = Debug
+		{52B20422-474D-5734-629F-99A1F7DE9787}.DebugEditor|x64.ActiveCfg = Debug
+		{52B20422-474D-5734-629F-99A1F7DE9787}.DebugEditor|x86.ActiveCfg = Debug
+		{52B20422-474D-5734-629F-99A1F7DE9787}.Release|x64.ActiveCfg = Release
+		{52B20422-474D-5734-629F-99A1F7DE9787}.Release|x86.ActiveCfg = Release
+		{52B20422-474D-5734-629F-99A1F7DE9787}.ReleaseEditor|x64.ActiveCfg = Release
+		{52B20422-474D-5734-629F-99A1F7DE9787}.ReleaseEditor|x86.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
