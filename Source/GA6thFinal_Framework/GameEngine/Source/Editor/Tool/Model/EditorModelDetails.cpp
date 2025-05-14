@@ -67,39 +67,46 @@ FBXConverter& EditorModelDetails::GetFBXConverter()
 
 void EditorModelDetails::ImportModel()
 {
-    TCHAR      filter[] = L"Model Files (*.fbx;*.UmModel)\0*.fbx;*.UmModel\0\0";
-    File::Path path;
+    std::vector<File::Path> path;
 
-    if (File::OpenFileNameBrowser(filter, path))
+    if (File::ShowOpenFileBrowser(UmApplication.GetHwnd(), L"Import Model", L"", { { L"Model Files (*.fbx;*.UmModel)", L"*.fbx; *.UmModel\0\0"} }, false, path))
     {
         std::shared_ptr<Model> model = std::make_shared<Model>();
 
         FBXConverter& fbxConverter = GetFBXConverter();
-        fbxConverter.ImportModel(path, model.get());
+        fbxConverter.ImportModel(path.front(), model.get());
         _meshRenderer->SetModel(model);
 
-        _filePath = path;
+        _filePath = path.front();
         _filePath.replace_extension("UmModel");
     }    
 }
 
 void EditorModelDetails::ExportModel()
 {
-    wchar_t path[MAX_PATH] = L"";
-
-    OPENFILENAMEW ofn = {};
-    ofn.lStructSize   = sizeof(ofn);
-    ofn.hwndOwner     = UmApplication.GetHwnd();
-    ofn.lpstrFilter   = L"UmModel Files (*.UmModel)\0*.UmModel\0";
-    ofn.lpstrFile     = path;
-    ofn.nMaxFile      = MAX_PATH;
-    ofn.Flags         = OFN_OVERWRITEPROMPT;
-
-    if (GetSaveFileNameW(&ofn))
+    File::Path path;
+    
+    if (File::ShowSaveFileBrowser(UmApplication.GetHwnd(), L"Export Model", L"", L"model.UmModel", path))
     {
         FBXConverter& fbxConverter = GetFBXConverter();
         fbxConverter.ExportModel(path);
     }
+    // wchar_t path[MAX_PATH] = L"";
+    // 
+    // OPENFILENAMEW ofn = {};
+    // ofn.lStructSize   = sizeof(ofn);
+    // ofn.hwndOwner     = UmApplication.GetHwnd();
+    // ofn.lpstrFilter   = L"UmModel Files (*.UmModel)\0*.UmModel\0";
+    // ofn.lpstrFile     = path;
+    // ofn.nMaxFile      = MAX_PATH;
+    // ofn.Flags         = OFN_OVERWRITEPROMPT;
+    // 
+    // {L"Model Files (*.UmModel)", L"*.UmModel\0\0"}}
+    //if (GetSaveFileNameW(&ofn))
+    //{
+    //    FBXConverter& fbxConverter = GetFBXConverter();
+    //    fbxConverter.ExportModel(path);
+    //}
 }
 
 void EditorModelDetails::SaveModel()

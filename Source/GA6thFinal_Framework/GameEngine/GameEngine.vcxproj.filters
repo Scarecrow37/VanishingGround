@@ -1,142 +1,102 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="Source\Editor\Menu\Model\EditorModelMenu.cpp" />
-    <ClCompile Include="Source\Editor\Menu\Play\EditorPlayMenu.cpp" />
-    <ClCompile Include="Source\Editor\Tool\Model\EditorModelDetails.cpp" />
-    <ClCompile Include="Source\Engine\EditorCore\Gui\DockWindow\EditorDockWindow.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\d3dUtil.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\FBXConverter.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\MeshRenderer.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\RendererFileEvent.cpp" />
-    <ClCompile Include="Source\Editor\DynamicCamera\EditorDynamicCamera.cpp" />
-    <ClCompile Include="Source\Editor\Tool\Model\EditorModelTool.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\ComputeShader.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\GeometryShader.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\MeshShader.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\PixelShader.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\Shader.cpp" />
-    <ClCompile Include="Source\Engine\FileSystem\Type\FileSystemSetting.cpp" />
-    <ClCompile Include="Source\Engine\FileSystem\Type\FileData.cpp" />
-    <ClCompile Include="Source\Engine\FileSystem\Type\FileInformation.cpp" />
-    <ClCompile Include="Source\Editor\Tool\Command\EditorCommandTool.cpp" />
-    <ClCompile Include="Source\Editor\Tool\Hierarchy\Command\DetachChildrenCommand.cpp" />
-    <ClCompile Include="Source\Editor\Tool\Hierarchy\Command\DropPrefabCommand.cpp" />
-    <ClCompile Include="Source\Editor\Tool\Hierarchy\Command\FocusCommand.cpp" />
-    <ClCompile Include="Source\Editor\Tool\Hierarchy\Command\NewGameObjectCommand.cpp" />
-    <ClCompile Include="Source\Editor\Tool\Hierarchy\Command\PackPrefabCommand.cpp" />
-    <ClCompile Include="Source\Editor\Tool\Hierarchy\Command\SetParentCommand.cpp" />
-    <ClCompile Include="Source\Engine\CommandCore\CommandManager.cpp" />
-    <ClCompile Include="Source\Engine\CommandCore\UmCommand.cpp" />
-    <ClCompile Include="Source\Editor\Menu\Project\EditorBuildSettingMenu.cpp" />
-    <ClCompile Include="Source\Engine\GameCore\Component\MissingComponent.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\DeferredPBRLitPass.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\GBufferPass.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\PBRLitTechnique.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\Animator.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\M_PBR.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\Material.cpp" />
-    <ClCompile Include="Source\Engine\EditorCore\Setting\EditorSetting.cpp" />
-    <ClCompile Include="Source\Editor\DragDropTypes\DragDropTransform.cpp" />
-    <ClCompile Include="Source\Engine\EditorCore\Gui\PopupBox\EditorPopupBox.cpp" />
-    <ClCompile Include="Source\Engine\EditorCore\System\EditorPopupBoxSystem.cpp" />
-    <ClCompile Include="Source\Editor\DragDropTypes\DragDropAsset.cpp" />
-    <ClCompile Include="Source\Engine\Imgui\GraphEditor.cpp" />
-    <ClCompile Include="Source\Engine\Imgui\ImCurveEdit.cpp" />
-    <ClCompile Include="Source\Engine\Imgui\ImGradient.cpp" />
-    <ClCompile Include="Source\Engine\Imgui\ImGuizmo.cpp" />
-    <ClCompile Include="Source\Engine\Imgui\ImSequencer.cpp" />
-    <ClCompile Include="Source\Engine\Utility\EditorHelper.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\RenderPass.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\RenderTechnique.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\RenderScene.cpp" />
-    <ClCompile Include="Source\Editor\Menu\Project\EditorProjectMenu.cpp" />
-    <ClCompile Include="Source\Editor\Menu\Scene\EditorSceneMenu.cpp" />
-    <ClCompile Include="Source\Editor\Menu\Setting\EditorSettingMenu.cpp" />
-    <ClCompile Include="Source\Editor\Menu\Window\EditorWindowMenu.cpp" />
-    <ClCompile Include="Source\Editor\Tool\AssetBrowser\EditorAssetBrowserTool.cpp" />
-    <ClCompile Include="Source\Editor\Tool\Debug\EditorDebugTool.cpp" />
-    <ClCompile Include="Source\Editor\Tool\Hierarchy\EditorHierarchyTool.cpp" />
-    <ClCompile Include="Source\Editor\Tool\Inspector\EditorInspectorTool.cpp" />
-    <ClCompile Include="Source\Editor\Tool\Log\EditorLogsTool.cpp" />
-    <ClCompile Include="Source\Editor\Tool\Scene\EditorSceneTool.cpp" />
-    <ClCompile Include="Source\Engine\FileSystem\Extra\FileObserver.cpp" />
-    <ClCompile Include="Source\Engine\FileSystem\System\FileSystem.cpp" />
-    <ClCompile Include="Source\Engine\FileSystem\Extra\FileContext.cpp" />
-    <ClCompile Include="Source\Engine\FileSystem\Extra\FileEventNotifier.cpp" />
-    <ClCompile Include="Source\Engine\FileSystem\Interface\IFileEventProcesser.cpp" />
-    <ClCompile Include="Source\Engine\FileSystem\FileSystemModule.cpp" />
-    <ClCompile Include="Source\Engine\EditorCore\Gui\Tool\EditorTool.cpp" />
-    <ClCompile Include="Source\Engine\EditorCore\System\EditorDockWindowSystem.cpp" />
-    <ClCompile Include="Source\Engine\AppModule\EngineCoresModule.cpp" />
-    <ClCompile Include="Source\Engine\AppModule\ImGuiDX12Module.cpp" />
-    <ClCompile Include="Source\Engine\ClassCore\ReflectHelper.cpp" />
-    <ClCompile Include="Source\Engine\EditorCore\Gui\EditorGui.cpp" />
-    <ClCompile Include="Source\Engine\EditorCore\Gui\Menu\EditorMenu.cpp" />
-    <ClCompile Include="Source\Engine\EditorCore\EditorModule.cpp" />
-    <ClCompile Include="Source\Engine\EngineCore\ComponentFactory.cpp" />
-    <ClCompile Include="Source\Engine\EngineCore\EngineCores.cpp" />
-    <ClCompile Include="Source\Engine\EngineCore\EngineLogger.cpp" />
-    <ClCompile Include="Source\Engine\EngineCore\GameObjectFactory.cpp" />
-    <ClCompile Include="Source\Engine\EngineCore\SceneManager.cpp" />
-    <ClCompile Include="Source\Engine\EngineCore\TimeSystem.cpp" />
-    <ClCompile Include="Source\Engine\FileSystem\Type\FileGuidPath.cpp" />
-    <ClCompile Include="Source\Engine\GameCore\Component\Component.cpp" />
-    <ClCompile Include="Source\Engine\GameCore\GameObject\GameObject.cpp" />
-    <ClCompile Include="Source\Engine\GameCore\Transform\Transform.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\Animation.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\BaseMesh.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\Box.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\Camera.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\Cylinder.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\Device.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\FBXImporter.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\Font.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\FontManager.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\FrameResource.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\FX.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\GeometryGenerator.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\GeoSphere.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\GraphicsCore.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\GraphicsModule.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\Grid.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\Model.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\MultiRenderTargetManager.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\Quad.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\Renderer.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\RenderTarget.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\ResourceManager.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\ShaderBuilder.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\Skeleton.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\Sphere.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\StructuredBuffer.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\TempObject.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\Texture.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\VIBuffer.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\ViewManager.cpp" />
-    <ClCompile Include="Source\Engine\Imgui\crude_json.cpp" />
-    <ClCompile Include="Source\Engine\Imgui\imgui_canvas.cpp" />
-    <ClCompile Include="Source\Engine\Imgui\imgui_impl_dx11.cpp" />
-    <ClCompile Include="Source\Engine\Imgui\imgui_impl_dx12.cpp" />
-    <ClCompile Include="Source\Engine\Imgui\imgui_impl_win32.cpp" />
-    <ClCompile Include="Source\Engine\Imgui\imgui.cpp" />
-    <ClCompile Include="Source\Engine\Imgui\imgui_demo.cpp" />
-    <ClCompile Include="Source\Engine\Imgui\imgui_draw.cpp" />
-    <ClCompile Include="Source\Engine\Imgui\imgui_node_editor.cpp" />
-    <ClCompile Include="Source\Engine\Imgui\imgui_node_editor_api.cpp" />
-    <ClCompile Include="Source\Engine\Imgui\imgui_tables.cpp" />
-    <ClCompile Include="Source\Engine\Imgui\imgui_widgets.cpp" />
-    <ClCompile Include="Source\Engine\Imgui\imgui_stdlib.cpp" />
-    <ClCompile Include="Source\Engine\Utility\dllUtility.cpp" />
-    <ClCompile Include="Source\Engine\Utility\FileHelper.cpp" />
-    <ClCompile Include="Source\Engine\Utility\ImguiHelper.cpp" />
-    <ClCompile Include="Source\Engine\Utility\LogLevel.cpp" />
-    <ClCompile Include="Source\Engine\Utility\Mathf.cpp" />
-    <ClCompile Include="Source\Engine\Utility\utfHelper.cpp" />
-    <ClCompile Include="Source\Engine\ApplicationCore\Application.cpp" />
-    <ClCompile Include="Source\pch.cpp" />
-    <ClCompile Include="Source\Engine\Utility\DumpUtility.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\VertexShader.cpp" />
+    <Filter Include="소스 파일">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="헤더 파일">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="리소스 파일">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="헤더 파일\imgui">
+      <UniqueIdentifier>{486340dd-7678-478d-9f14-4bf39a9d426c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\imgui">
+      <UniqueIdentifier>{9f4da9ab-ce48-4179-ac8c-0d31af6f01e0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsCore">
+      <UniqueIdentifier>{7ee76fe4-b5c3-4628-be71-cb1e070427af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsCore\Mesh">
+      <UniqueIdentifier>{507098b5-2d2e-4d2f-8362-337252a3091e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsCore\Resource">
+      <UniqueIdentifier>{bdfe6f32-dff4-4937-b704-842a8d4b8fb2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsCore\Manager">
+      <UniqueIdentifier>{09a21ef3-ad3d-402d-9971-9643a6232f1f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsCore\Mesh\Geometry">
+      <UniqueIdentifier>{5e602853-f0cc-418d-b1a2-520e825cbb17}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsCore\Camera">
+      <UniqueIdentifier>{026c3fa8-67ae-4474-b607-f2549b0a5daa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsCore\Headers">
+      <UniqueIdentifier>{cb5020ed-6b69-48bc-9084-1dd626dc60d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsCore\Device">
+      <UniqueIdentifier>{a585e09c-c565-4a08-8f0b-42dac91ce98f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsCore\FBXImporter">
+      <UniqueIdentifier>{ccfbddb1-8952-4c6d-a33c-4a7c05ae6581}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsCore\Font">
+      <UniqueIdentifier>{0721e0cf-8e7c-4922-9926-38eb0513b6f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsCore\FrameResource">
+      <UniqueIdentifier>{4cefd1b9-bda8-4c4d-aaf0-30cfc83fcf9c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsCore\FX">
+      <UniqueIdentifier>{488fd3c4-b8c0-46c1-af6b-bbc2223243c9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsCore\RenderTarget">
+      <UniqueIdentifier>{df1afd56-b568-44be-8cca-f234f362ab94}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsCore\Renderer">
+      <UniqueIdentifier>{efcc3221-3a70-478c-a67b-5bbb11f8706e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsCore\Shader">
+      <UniqueIdentifier>{9278a8f9-45d5-41a1-b3c4-12fb4088616f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsCore\ImGui">
+      <UniqueIdentifier>{d750d661-0287-4a20-87de-8ea281d76872}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsCore\Skeleton">
+      <UniqueIdentifier>{735deb03-881f-4282-8293-e48808ceb724}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsCore\Resource\Texture">
+      <UniqueIdentifier>{e613624d-48ce-49f7-b1fc-e308b8d9ba3b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsCore\Resource\Model">
+      <UniqueIdentifier>{23a11d16-627e-4103-bbc0-56e1b23c28f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsCore\Resource\Animation">
+      <UniqueIdentifier>{10d76cf7-ce92-4ebc-b14e-43b6bccafc1a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsCore\VIBuffer">
+      <UniqueIdentifier>{76ef463e-5622-4f1d-a307-537e80137e5c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsCore\StructuredBuffer">
+      <UniqueIdentifier>{baa45bd7-71fc-4ad4-9e7a-d3a2107318c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsCore\Module">
+      <UniqueIdentifier>{a63d94b8-ab29-418c-9b51-30ec5e81ea26}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsCore\Animator">
+      <UniqueIdentifier>{80ba6ad3-2eb0-450c-92d5-8aac33e067f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsCore\Material">
+      <UniqueIdentifier>{cc2e0fd2-4be0-475a-989a-1b89bb9ef427}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsCore\Resource\ShaderBlob">
+      <UniqueIdentifier>{269d6efd-b9fd-480e-903e-d56777bc8493}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\pch.h">
@@ -490,9 +450,6 @@
     <ClInclude Include="Source\Engine\GraphicsCore\Material.h">
       <Filter>GraphicsCore\Material</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\M_PBR.h">
-      <Filter>GraphicsCore\Material</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\GraphicsCore\PBRLitTechnique.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -586,10 +543,19 @@
     <ClInclude Include="Source\Editor\Menu\Play\EditorPlayMenu.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Source\UmScripts.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Tool\Model\EditorModelDetails.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Menu\Model\EditorModelMenu.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Engine\GraphicsCore\FBXConverter.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\UmScripts.h">
+    <ClInclude Include="Source\Engine\GraphicsCore\M_PBR.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -903,9 +869,6 @@
     <ClCompile Include="Source\Engine\GraphicsCore\Material.cpp">
       <Filter>GraphicsCore\Material</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\M_PBR.cpp">
-      <Filter>GraphicsCore\Material</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\PBRLitTechnique.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -987,16 +950,22 @@
     <ClCompile Include="Source\Engine\GraphicsCore\MeshRenderer.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\FBXConverter.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Editor\Menu\Play\EditorPlayMenu.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\EditorCore\Gui\DockWindow\EditorDockWindow.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\PBRTechnique.cpp">
+    <ClCompile Include="Source\Editor\Tool\Model\EditorModelDetails.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Menu\Model\EditorModelMenu.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\FBXConverter.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\M_PBR.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1010,14 +979,6 @@
     <None Include="Source\Engine\Imgui\imgui_bezier_math.inl">
       <Filter>소스 파일\imgui</Filter>
     </None>
-    <None Include="..\Shaders\CommonData.hlsli">
-      <Filter>GraphicsCore\HLSL</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="cpp.hint" />
-    <None Include="Source\Engine\Imgui\imgui_bezier_math.inl" />
-    <None Include="Source\Engine\Imgui\imgui_extra_math.inl" />
-    <None Include="Source\Engine\Imgui\imgui_node_editor_internal.inl" />
   </ItemGroup>
 </Project>
