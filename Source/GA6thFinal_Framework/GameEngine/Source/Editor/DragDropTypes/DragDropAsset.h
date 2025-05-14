@@ -6,6 +6,6 @@ public:
     static constexpr const char* KEY = "Asset";
     struct Data
     {
-        std::weak_ptr<File::FileContext> context;
+        std::weak_ptr<File::Context>* pContext;
     };
 };

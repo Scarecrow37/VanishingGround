@@ -1,67 +1,59 @@
 ﻿#include "pch.h"
 #include "EditorModule.h"
-#include "EditorGui.h"
-#include "EditorMenuBar.h"
 
+#ifdef _UMEDITOR
 EditorModule* Global::editorModule = nullptr;
+#else
+Global::NotEditorModule editorModule;
+#endif
 
 EditorModule::EditorModule() 
-    : _isDebugMode(false)
 {
     Global::editorModule = this;
-    _mainMenuBar = new EditorMenuBar;
-    _mainDockSpace = new EditorDockSpace;
-    _PopupBox = new EditorPopupBoxSystem;
 }
 
 EditorModule::~EditorModule()
 {
-    delete _mainMenuBar;
-    delete _mainDockSpace;
-    delete _PopupBox;
 }
+
+void EditorModule::PreInitialize() {}
 
 void EditorModule::ModuleInitialize()
 {
     // 모듈 등록시 1회 호출
     SetGuiThemeStyle();
-    _mainMenuBar->OnStartGui();
-    _mainDockSpace->OnStartGui();
+    _popupBoxSystem.OnStartGui();
+    _dockWindowSystem.OnStartGui();
 
-    File::Path filename  = L"editor.setting";
-    File::Path directory = PROJECT_SETTING_PATH;
-    LoadSetting(directory / filename);
+    UmFileSystem.RegisterFileEventNotifier(this);
 }
 
-void EditorModule::ModuleUnInitialize()
-{ 
-    //파괴 직전 함수 필요하면 추가
-    _mainMenuBar->OnEndGui();
-    _mainDockSpace->OnEndGui();
+void EditorModule::PreUnInitialize() {}
 
-    File::Path filename  = L"editor.setting";
-    File::Path directory = PROJECT_SETTING_PATH;
-    
-    SaveSetting(directory / filename);
+void EditorModule::ModuleUnInitialize()
+{
+    // 파괴 직전 함수 필요하면 추가
+    _popupBoxSystem.OnEndGui();
+    _dockWindowSystem.OnEndGui();
 }
 
 bool EditorModule::SaveSetting(const File::Path& path)
 {
     _setting.ToolData.clear();
-    for (auto& [key, tool] : _mainDockSpace->GetRefToolTable())
+    _setting.ImGuiData = ImGui::SaveIniSettingsToMemory();
+
+    for (auto& tool : _dockWindowSystem.GetDockWindowList())
     {
-        EditorTool* editorTool = tool.get();
-        if (nullptr != editorTool)
+        if (nullptr != tool)
         {
             EditorToolSerializeData data;
-            data.name       = key;
-            data.IsVisible  = editorTool->IsVisible();
-            data.IsLock     = editorTool->IsLock();
-            data.ReflectionField = editorTool->SerializedReflectFields();
+            data.name            = tool->GetLabel();
+            data.IsVisible       = tool->IsVisible();
+            data.IsLock          = tool->IsLock();
+            data.ReflectionField = tool->SerializedReflectFields();
             _setting.ToolData.push_back(data);
         }
     }
-
     auto setting = rfl::yaml::save(path.string(), _setting);
     if (false == setting)
     {
@@ -86,14 +78,20 @@ bool EditorModule::LoadSetting(const File::Path& path)
 
         for (auto& status : _setting.ToolData)
         {
-            EditorTool* tool = _mainDockSpace->GetTool(status.name);
+            EditorTool* tool = _dockWindowSystem[status.name];
             if (nullptr != tool)
             {
                 tool->SetVisible(status.IsVisible);
                 tool->SetLock(status.IsLock);
-                tool->DeserializedReflectFields(status.ReflectionField);
+                if (status.ReflectionField != "{}")
+                {
+                    tool->DeserializedReflectFields(status.ReflectionField);
+                }
             }
         }
+
+        ImGui::LoadIniSettingsFromMemory(_setting.ImGuiData.c_str());
+
         return true;
     }
 }
@@ -105,21 +103,26 @@ void EditorModule::Update()
         ImGui::BeginDisabled();
 
     /* ========GUI Update======== */ 
-    _mainMenuBar->OnTickGui();
-    _mainDockSpace->OnTickGui();
-    _mainMenuBar->OnDrawGui();
-    _mainDockSpace->OnDrawGui();
+    _popupBoxSystem.OnTickGui();
+
+    _dockWindowSystem.OnTickGui();
+    _dockWindowSystem.OnDrawGui();
     /* =========================== */
 
     if (true == isLock)
         ImGui::EndDisabled();
 
-    _PopupBox->OnDrawGui(); // 모달 팝업창 
+    _popupBoxSystem.OnDrawGui();
 }
 
 bool EditorModule::IsLock()
 {
-    return (false == _PopupBox->IsEmpty());
+    return (false == _popupBoxSystem.IsEmpty());
+}
+
+void EditorModule::OpenPopupBox(const std::string& name, std::function<void()> content) 
+{
+    _popupBoxSystem.OpenPopupBox(name, content);
 }
 
 void EditorModule::SetGuiThemeStyle()
@@ -154,4 +157,131 @@ void EditorModule::SetGuiThemeStyle()
     colors[ImGuiCol_TitleBg] = ImVec4{ 0.15f, 0.1505f, 0.151f, 1.0f };
     colors[ImGuiCol_TitleBgActive] = ImVec4{ 0.15f, 0.1505f, 0.151f, 1.0f };
     colors[ImGuiCol_TitleBgCollapsed] = ImVec4{ 0.15f, 0.1505f, 0.151f, 1.0f };
+
+    // DragDrop
+    colors[ImGuiCol_DragDropTarget] = ImVec4{0.2f, 0.6f, 0.4f, 1.0f};
+
+    PlayMode.SetPlayModeColor(colors);
+    PlayMode.DefaultPlayModeColor();
+}
+
+void EditorModule::OnRequestedSave()
+{
+    File::Path name = L"editor.setting";
+    auto& path = UmFileSystem.GetSettingPath();
+    SaveSetting(path / name);
+}
+
+void EditorModule::OnRequestedLoad() 
+{
+    File::Path name = L"editor.setting";
+    auto& path = UmFileSystem.GetSettingPath();
+    LoadSetting(path / name);
+}
+
+EditorModule::EditorPlayMode::EditorPlayMode() 
+{
+    
+}
+
+EditorModule::EditorPlayMode::~EditorPlayMode() 
+{
+
+}
+
+void EditorModule::EditorPlayMode::Play()
+{
+    if (false == _isPlay)
+    {
+        Scene* scene = UmSceneManager.GetMainScene();
+        if (nullptr != scene)
+        {
+            File::Path path = (std::string)scene->Path;         
+            _playSceneGuid = path.ToGuid();
+
+            auto writePath = std::filesystem::relative(path, UmFileSystem.GetAssetPath()).parent_path();
+            UmSceneManager.WriteSceneToFile(*scene, writePath.string(), true);
+            for (const auto& object : ESceneManager::Engine::GetRuntimeObjects())
+            {
+                if (object)
+                {
+                    object->ActiveSelf = false; // 스크립트 이벤트 함수들 호출 방지용
+                }           
+            }
+            UmSceneManager.LoadScene(path.string()); 
+            SetPlayModeColor();
+
+            #ifdef _UMEDITOR
+            _isPlay = true;
+            #endif // _UMEDITOR
+        }
+    }
+}
+
+void EditorModule::EditorPlayMode::Stop() 
+{
+    if (true == _isPlay)
+    {
+        for (const auto& object : ESceneManager::Engine::GetRuntimeObjects())
+        {
+            if (object)
+            {
+                object->ActiveSelf = false; //스크립트 이벤트 함수들 호출 방지용
+                if (object->GetOwnerSceneName() == ESceneManager::DONT_DESTROY_ON_LOAD_SCENE_NAME)
+                {
+                    GameObject::Destroy(object.get()); 
+                }        
+            }
+        }
+        UmSceneManager.LoadScene(_playSceneGuid.ToPath().string());
+        Global::editorModule->SetGuiThemeStyle();
+
+        #ifdef _UMEDITOR
+        _isPlay = false;
+        #endif
+    }
+}
+
+void EditorModule::EditorPlayMode::SetPlayModeColor() 
+{
+    auto& colors = ImGui::GetStyle().Colors;
+    std::memcpy(&colors, &_playModeColors, sizeof(_playModeColors));
+}
+
+void EditorModule::EditorPlayMode::SetPlayModeColor(ImVec4 (&playModeColors)[ImGuiCol_COUNT]) 
+{
+    std::memcpy(&_playModeColors, &playModeColors, sizeof(_playModeColors));
+}
+
+void EditorModule::EditorPlayMode::DefaultPlayModeColor()
+{
+    // Headers
+    _playModeColors[ImGuiCol_Header]        = ImVec4{0.09f, 0.17f, 0.22f, 1.0f};
+    _playModeColors[ImGuiCol_HeaderHovered] = ImVec4{0.22f, 0.32f, 0.42f, 1.0f};
+    _playModeColors[ImGuiCol_HeaderActive]  = ImVec4{0.13f, 0.19f, 0.25f, 1.0f};
+
+    // Buttons
+    _playModeColors[ImGuiCol_Button]        = ImVec4{0.13f, 0.18f, 0.23f, 1.0f};
+    _playModeColors[ImGuiCol_ButtonHovered] = ImVec4{0.23f, 0.33f, 0.44f, 1.0f};
+    _playModeColors[ImGuiCol_ButtonActive]  = ImVec4{0.15f, 0.22f, 0.28f, 1.0f};
+
+    // Frame BG
+    _playModeColors[ImGuiCol_FrameBg]        = ImVec4{0.14f, 0.19f, 0.24f, 1.0f};
+    _playModeColors[ImGuiCol_FrameBgHovered] = ImVec4{0.25f, 0.35f, 0.46f, 1.0f};
+    _playModeColors[ImGuiCol_FrameBgActive]  = ImVec4{0.18f, 0.26f, 0.33f, 1.0f};
+
+    // Tabs
+    _playModeColors[ImGuiCol_Tab]                = ImVec4{0.12f, 0.17f, 0.22f, 1.0f};
+    _playModeColors[ImGuiCol_TabHovered]         = ImVec4{0.30f, 0.42f, 0.55f, 1.0f};
+    _playModeColors[ImGuiCol_TabActive]          = ImVec4{0.22f, 0.32f, 0.42f, 1.0f};
+    _playModeColors[ImGuiCol_TabUnfocused]       = ImVec4{0.12f, 0.17f, 0.22f, 1.0f};
+    _playModeColors[ImGuiCol_TabUnfocusedActive] = ImVec4{0.18f, 0.26f, 0.33f, 1.0f};
+
+    // Title
+    _playModeColors[ImGuiCol_TitleBg]          = ImVec4{0.12f, 0.17f, 0.22f, 1.0f};
+    _playModeColors[ImGuiCol_TitleBgActive]    = ImVec4{0.13f, 0.18f, 0.24f, 1.0f};
+    _playModeColors[ImGuiCol_TitleBgCollapsed] = ImVec4{0.10f, 0.15f, 0.19f, 1.0f};
+
+    // DragDrop
+    _playModeColors[ImGuiCol_DragDropTarget] = ImVec4{0.1f, 0.4f, 0.65f, 1.0f};
 }

@@ -8,13 +8,6 @@ LRESULT CALLBACK Application::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
     if (ImGui_ImplWin32_WndProcHandler(hwnd, msg, wParam, lParam))
         return true;
 
-    switch (msg)
-    {
-    case WM_DESTROY:
-        PostQuitMessage(0);
-        return true;
-    }
-
     if (App)
     {
         for (auto& handle : App->_messageHandleList)
@@ -25,6 +18,14 @@ LRESULT CALLBACK Application::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
             }
         }
     }
+
+    switch (msg)
+    {
+    case WM_DESTROY:
+        PostQuitMessage(0);
+        return true;
+    }
+
     return DefWindowProc(hwnd, msg, wParam, lParam);
 }
 
@@ -40,9 +41,12 @@ Application::Application()
 
     //필수 모듈들
     AddModule<EngineCoresModule>();
-
     _imguiDX12Module = AddModule<ImGuiDX12Module>();
-    _filesystemModule = AddModule<FileSystemModule>();
+
+    if constexpr(true == Application::IsEditor())
+    {
+        _filesystemModule = AddModule<FileSystemModule>();
+    }
 }
 
 void Application::Initialize(HINSTANCE hInstance)
@@ -93,7 +97,7 @@ void Application::Run()
 
             _imguiDX12Module->ImguiBegin();
             {
-                if (UmApplication.IsEditor())
+                if constexpr(true == Application::IsEditor())
                 {
                     _filesystemModule->Update();
                     Global::editorModule->Update();

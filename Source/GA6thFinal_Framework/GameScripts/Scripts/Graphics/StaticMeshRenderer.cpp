@@ -1,33 +1,91 @@
 ﻿#include "StaticMeshRenderer.h"
-#include "Engine/GraphicsCore/Model.h"
+#include "Engine/GraphicsCore/MeshRenderer.h"
+
+StaticMeshRenderer::StaticMeshRenderer()
+{    
+    FilePath.SetDragDropFunc([this]()
+        { 
+            if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
+            {
+                DragDropAsset::Data* data = (DragDropAsset::Data*)payLoad->Data; 
+                auto context = data->pContext->lock();
+                
+                if (nullptr != context)
+                {
+                    const auto& path = context->GetPath();
+                    if (path.extension() == L".fbx")
+                    {
+                        ReflectFields->Guid = path.ToGuid().string();
+                        UmResourceManager.RegisterLoadQueue({path, RESOURCE_TYPE::MODEL});
+                    }
+                }
+            }
+    });    
+}
+
+StaticMeshRenderer::~StaticMeshRenderer()
+{
+    if (_meshRenderer)
+        _meshRenderer->SetDestroy();
+}
 
 void StaticMeshRenderer::Reset()
 {
-    ReflectFields->Type = MeshRenderer::RENDER_TYPE::STATIC;
+    _meshRenderer = std::make_unique<MeshRenderer>(MeshRenderer::RENDER_TYPE::STATIC, transform->GetWorldMatrix());
+    _meshRenderer->RegisterRenderQueue("Editor");
 }
 
 void StaticMeshRenderer::Awake()
 {
-    UmResourceManager.RegisterLoadQueue({ReflectFields->FilePath, RESOURCE_TYPE::MODEL});
+    if (!ReflectFields->Guid.empty())
+    {
+        File::Guid guid = ReflectFields->Guid;
+        UmResourceManager.RegisterLoadQueue({guid.ToPath(), RESOURCE_TYPE::MODEL});
+    }
 }
 
 void StaticMeshRenderer::Start()
 {
-    _model = UmResourceManager.LoadResource<Model>(ReflectFields->FilePath);
+    if (!ReflectFields->Guid.empty())
+    {
+        File::Guid guid = ReflectFields->Guid;
+        _meshRenderer->LoadModel(guid.ToPath().c_str());
+    }
 }
 
 void StaticMeshRenderer::OnEnable()
 {
-    UmRenderer.RegisterRenderQueue(this);
+    _meshRenderer->SetActive(true);
 }
 
-void StaticMeshRenderer::OnDisable() {}
+void StaticMeshRenderer::OnDisable()
+{
+    _meshRenderer->SetActive(false);
+}
 
-void StaticMeshRenderer::Update() {}
+void StaticMeshRenderer::Update() 
+{
+    /*if constexpr (IS_EDITOR)
+    {
+        ImGui::Begin("sdasadsadawsddasd");
+        if (ImGui::Button("Load"))
+        {
+            File::Guid guid = ReflectFields->Guid;
+            _meshRenderer->LoadModel(guid.ToPath().c_str());
+        }
+        ImGui::End();
+    }*/
+}
 
-void StaticMeshRenderer::FixedUpdate() {}
+void StaticMeshRenderer::FixedUpdate() 
+{
 
-void StaticMeshRenderer::OnDestroy() {}
+}
+
+void StaticMeshRenderer::OnDestroy()
+{
+   
+}
 
 void StaticMeshRenderer::OnApplicationQuit() {}
 

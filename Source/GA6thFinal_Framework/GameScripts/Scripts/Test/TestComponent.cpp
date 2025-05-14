@@ -59,11 +59,6 @@ void TestComponent::Reset()
 void TestComponent::Awake()
 {
     UmLogger.Log(LogLevel::LEVEL_DEBUG, "Awake!");
-
-    for (int i = LogLevel::LEVEL_TRACE; i <= LogLevel::LEVEL_FATAL; i++)
-    {
-        UmLogger.Log(i, LogLevel::LogLevelTo_c_str(i));
-    }
 }
 
 void TestComponent::Start()
@@ -83,12 +78,12 @@ void TestComponent::OnDisable()
 
 void TestComponent::SerializedReflectEvent()
 {
-    UmLogger.Log(LogLevel::LEVEL_DEBUG,
-                                 "SerializedReflectEvent");
+    UmLogger.Log(LogLevel::LEVEL_DEBUG, "SerializedReflectEvent");
+    std::memcpy(ReflectFields->testVector3.data(), &testVector3, sizeof(ReflectFields->testVector3));
 }
 
 void TestComponent::DeserializedReflectEvent()
 {
-    UmLogger.Log(LogLevel::LEVEL_DEBUG,
-                                 "DeserializedReflectEvent");
+    UmLogger.Log(LogLevel::LEVEL_DEBUG, "DeserializedReflectEvent");
+    testVector3 = Vector3(ReflectFields->testVector3.data());
 }

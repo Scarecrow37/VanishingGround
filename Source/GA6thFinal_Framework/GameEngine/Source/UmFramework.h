@@ -20,8 +20,10 @@ constexpr bool IS_EDITOR = true;
 constexpr bool IS_EDITOR = false;
 #endif
 
-// 프로젝트 설정 파일들 모아두는 폴더s
-constexpr const wchar_t* PROJECT_SETTING_PATH = L"ProjectSetting"; 
+// 프로젝트 설정 파일들 모아두는 폴더
+constexpr const wchar_t* PROJECT_SETTING_PATH = L"ProjectSettings"; 
+// 에셋 파일들 모아두는 폴더
+constexpr const wchar_t* ASSET_FOLDER_NAME = L"Assets";
 // 문자열 null을 명시적으로 표시하기 위한 값
 constexpr const char* STR_NULL = "null";
 
@@ -44,8 +46,8 @@ constexpr const char* STR_NULL = "null";
 
 #pragma comment(lib, "d3d12")
 #pragma comment(lib, "dxgi")
-#pragma comment(lib, "d3dcompiler")
 #pragma comment(lib, "Dbghelp.lib")
+#pragma comment(lib, "d3dcompiler")
 
 using namespace DirectX;
 using namespace DirectX::SimpleMath;
@@ -122,7 +124,11 @@ using namespace Microsoft::WRL;
 #include "Engine/ApplicationCore/Application.h"
 
 //FileSystem Module
-#include "Engine/FileSystem/Type/FileDataType.h"
+#include "Engine/FileSystem/Type/FileSystemSetting.h"
+#include "Engine/FileSystem/Type/FileGuidPath.h"
+#include "Engine/FileSystem/Type/FileData.h"
+#include "Engine/FileSystem/Type/FileInformation.h"
+
 #include "Engine/Utility/FileHelper.h"
 #include "Engine/FileSystem/Interface/IFileEventProcesser.h"
 #include "Engine/FileSystem/Extra/FileObserver.h"
@@ -140,15 +146,19 @@ using namespace Microsoft::WRL;
 #include "Engine/EngineCore/GameObjectFactory.h"
 #include "Engine/EngineCore/ComponentFactory.h"
 #include "Engine/EngineCore/SceneManager.h"
+#include "Engine/CommandCore/CommandManager.h"
 #include "Engine/EngineCore/EngineCores.h" 
 
 //Editor Core
-#include "Engine/EditorCore/EditorEnum.h"
-#include "Engine/EditorCore/EditorGui.h"
-#include "Engine/EditorCore/EditorTool.h"
-#include "Engine/EditorCore/EditorMenuBar.h"
-#include "Engine/EditorCore/EditorDockSpace.h"
-#include "Engine/EditorCore/PopupBox/EditorPopupBoxSystem.h"
+#include "Engine/EditorCore/Interface/IEditorObject.h"
+#include "Engine/EditorCore/Interface/IEditorCycle.h"
+#include "Engine/EditorCore/Gui/EditorGui.h"
+#include "Engine/EditorCore/Gui/Tool/EditorTool.h"
+#include "Engine/EditorCore/Gui/Menu/EditorMenu.h"
+#include "Engine/EditorCore/Gui/PopupBox/EditorPopupBox.h"
+#include "Engine/EditorCore/Gui/DockWindow/EditorDockWindow.h"
+#include "Engine/EditorCore/System/EditorPopupBoxSystem.h"
+#include "Engine/EditorCore/System/EditorDockWindowSystem.h"
 #include "Engine/EditorCore/EditorModule.h"
 
 //Game Core
@@ -159,7 +169,7 @@ using namespace Microsoft::WRL;
 
 //Application Module
 #include "Engine/AppModule/EngineCoresModule.h"
-//#include "Engine/AppModule/ImGuiDX12Module.h"
+#include "Engine/AppModule/ImGuiDX12Module.h"
 
 //DragDropTypes
 #include "Editor/DragDropTypes/DragDropTransform.h"
@@ -167,20 +177,22 @@ using namespace Microsoft::WRL;
 
 //컴포넌트는 접근 안하는 헤더들
 #ifndef _SCRIPTS_PROJECT
+
 //Editor Tools
 #include "Editor/Tool/Debug/EditorDebugTool.h"
 #include "Editor/Tool/AssetBrowser/EditorAssetBrowserTool.h"
-#include "Editor/Tool/Hierarchy/EditorHierarchyTool.h"
 #include "Editor/Tool/Inspector/EditorInspectorTool.h"
+#include "Editor/Tool/Hierarchy/EditorHierarchyTool.h"
 #include "Editor/Tool/Scene/EditorSceneTool.h"
 #include "Editor/Tool/Log/EditorLogsTool.h"
-
-#include "Editor/Tool/ScriptTest/ScriptTestEditor.h"    // 테스트용. 추후 제거 필요
+#include "Editor/Tool/Model/EditorModelTool.h"
+#include "Editor/Tool/Command/EditorCommandTool.h"
 
 // Editor Menu
 #include "Editor/Menu/Project/EditorProjectMenu.h"
 #include "Editor/Menu/Window/EditorWindowMenu.h"
 #include "Editor/Menu/Setting/EditorSettingMenu.h"
 #include "Editor/Menu/Scene/EditorSceneMenu.h"
+#include "Editor/Menu/Project/EditorBuildSettingMenu.h"
+#include "Editor/Menu/Play/EditorPlayMenu.h"
 #endif
-#include "Engine/AppModule/ImGuiDX12Module.h"

@@ -1,19 +1,42 @@
 ﻿#include "pch.h"
 #include "EditorSettingMenu.h"
 
+EditorMenuDebug::EditorMenuDebug() 
+{
+    _isDebugMode = Global::editorModule->IsDebugMode();
+}
+
 void EditorMenuDebug::OnMenu()
 {
-    if (ImGui::MenuItem("Debug", "", &_isDebugMode))
+    EditorModule* editor = Global::editorModule;
+    if (ImGui::BeginMenu("Setting"))
     {
-        Global::editorModule->SetDebugMode(_isDebugMode);
+        if (ImGui::BeginMenu("Editor"))
+        {
+            if (ImGui::MenuItem("Debug", "", &_isDebugMode))
+            {
+                editor->SetDebugMode(_isDebugMode);
+            }
+            ImGui::EndMenu();
+        }
+        ImGui::EndMenu();
     }
 }
 
 void EditorMenuStyleEditor::OnMenu()
 {
-    if (ImGui::MenuItem("Style", ""))
+    EditorModule* editor = Global::editorModule;
+    if (ImGui::BeginMenu("Setting"))
     {
-        _isOpenGui = !_isOpenGui;
+        if (ImGui::BeginMenu("Editor"))
+        {
+            if (ImGui::MenuItem("Style", ""))
+            {
+                _isOpenGui = !_isOpenGui;
+            }
+            ImGui::EndMenu();
+        }
+        ImGui::EndMenu();
     }
 }
 
@@ -29,9 +52,17 @@ void EditorMenuStyleEditor::OnTickGui()
 
 void EditorMenuFileSystemSetting::OnMenu() 
 {
-    if (ImGui::MenuItem("Setting", ""))
+    if (ImGui::BeginMenu("Setting"))
     {
-        _isOpenGui = !_isOpenGui;
+        if (ImGui::BeginMenu("FileSystem"))
+        {
+            if (ImGui::MenuItem("Setting", ""))
+            {
+                _isOpenGui = !_isOpenGui;
+            }
+            ImGui::EndMenu();
+        }
+        ImGui::EndMenu();
     }
 }
 
@@ -39,7 +70,8 @@ void EditorMenuFileSystemSetting::OnTickGui()
 {
     if (true == _isOpenGui)
     {
-        ImGui::Begin("FileSystemSetting", &_isOpenGui, ImGuiWindowFlags_NoDocking);
+        ImGuiWindowFlags flags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_MenuBar;
+        ImGui::Begin("FileSystemSetting", &_isOpenGui, flags);
         UmFileSystem.DrawGuiSettingEditor();
         ImGui::End();
     }

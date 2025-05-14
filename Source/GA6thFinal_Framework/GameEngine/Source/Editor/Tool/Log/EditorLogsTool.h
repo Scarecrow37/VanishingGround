@@ -24,13 +24,13 @@ protected:
     virtual void OnTickGui() override;
 
     /* Begin 호출 전에 항상 호출 (Begin성공 유무 상관 X) */
-    virtual void OnPreFrame() override;
+    virtual void OnPreFrameBegin() override;
 
     /* Begin 호출 성공 시 호출 */
-    virtual void OnFrame() override;
+    virtual void OnPostFrameBegin() override;
 
     /* End 호출 후에 항상 호출 (Begin성공 유무 상관 X) */
-    virtual void OnPostFrame() override {};
+    virtual void OnFrameEnd() override {};
 private:
     void ResetLogColor();
     void ResetLogFilter();
@@ -39,8 +39,11 @@ private:
 
 private:
     size_t prevLogCount = 0;
-    bool   _isMessagePush     = false;
-    bool   _editFilter  = false;
+    size_t notReadCount = 0;
+    bool _isMessagePush = false;
+    bool _editFilter  = false;
+    bool _isWindowFocused = false;
+    bool _isWindowHovered = false;
     std::vector<std::tuple<int, std::string, LogLocation>> _drawLogList;
 
 protected:

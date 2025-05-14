@@ -15,8 +15,9 @@ public:
     ELogger Logger;
     EFileSystem FileSystem;
     Application& App;
-
     GraphicsCore Graphics;
+    ECommandManager CommandManager;
+    ReflectHelper::ImGuiDraw::InputAutoSetting ImGuiDrawPropertysSetting;
 
 private:
     LogLocation::EngineLocationInfo LocationInfo;
@@ -80,3 +81,4 @@ namespace Global
 #define UmComponentFactory UmCore->ComponentFactory
 #define UmApplication UmCore->App
 #define UmFileSystem UmCore->FileSystem
+#define UmCommandManager UmCore->CommandManager

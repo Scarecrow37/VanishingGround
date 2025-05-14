@@ -6,17 +6,32 @@
 #include "RenderPass.h"
 #include "RenderTarget.h"
 #include "RenderTechnique.h"
-#include "Shader.h"
-#include "UmScripts.h"
+#include "ShaderBuilder.h"
+#include "MeshRenderer.h"
 
-RenderScene::RenderScene() : _frameQuad{std::make_unique<Quad>()}, _frameShader{std::make_unique<Shader>()} {}
+RenderScene::RenderScene()
+    : _frameQuad{std::make_unique<Quad>()}
+    , _frameShader{std::make_unique<ShaderBuilder>()}
+{
+}
+
+RenderScene::~RenderScene() {}
 
 void RenderScene::UpdateRenderScene()
 {
+    // 카메라 업데이트 
+    _camera->Update();
+
+    // 비활성된 컴포넌트 제거
+    auto first = std::remove_if(_renderQueue.begin(), _renderQueue.end(), [](const auto& component)
+        {  return component->IsDestroy(); });
+
+    _renderQueue.erase(first, _renderQueue.end());
+
     _currentFrameIndex   = UmDevice.GetCurrentBackBufferIndex();
-    Vector4    cameraPos = Vector4(UmMainCamera.GetWorldMatrix().Translation());
-    CameraData cameraData{.View       = XMMatrixTranspose(UmMainCamera.GetViewMatrix()),
-                          .Projection = XMMatrixTranspose(UmMainCamera.GetProjectionMatrix()),
+    Vector4    cameraPos = Vector4(_camera->GetWorldMatrix().Translation());
+    CameraData cameraData{.View       = XMMatrixTranspose(_camera->GetViewMatrix()),
+                          .Projection = XMMatrixTranspose(_camera->GetProjectionMatrix()),
                           .Position   = cameraPos};
 
     UmDevice.UpdateBuffer(_cameraBuffer, &cameraData, sizeof(CameraData));
@@ -29,11 +44,14 @@ void RenderScene::UpdateRenderScene()
 
     for (auto& component : _renderQueue)
     {
-        auto& model    = component->GetModel();
-        auto& meshes   = model->GetMeshes();
-        auto& textures = model->GetTextures();
+        if (!component->IsActive())
+            continue;
 
-        XMMATRIX world = XMMatrixTranspose(component->gameObject->transform->GetWorldMatrix());
+        const auto& model     = component->GetModel();
+        const auto& meshes    = model->GetMeshes();
+        const auto& materials = model->GetMaterials();
+        
+        XMMATRIX world = XMMatrixTranspose(component->GetWorldMatrix());
         UINT     size  = (UINT)meshes.size();
 
         for (UINT i = 0; i < size; i++)
@@ -73,245 +91,46 @@ void RenderScene::UpdateRenderScene()
     _frameResources[_currentFrameIndex]->CopyDescriptors(handles);
 }
 
-void RenderScene::InitializeRenderScene(UINT renderTargetCount)
+void RenderScene::RegisterOnRenderQueue(MeshRenderer* component)
 {
-    CreateRenderTargetPool(renderTargetCount);
-    // 화면 크기만한 quad만들기. NDC 좌표계로
-    _frameQuad->Initialize(-1.f, 1.f, 2.f, 2.f, 0.f);
-    _frameShader->BeginBuild();
-    _frameShader->LoadShader(L"../Shaders/vs_quad.hlsl", Shader::Type::VS);
-    _frameShader->LoadShader(L"../Shaders/ps_quad_frame.hlsl", Shader::Type::PS);
-    _frameShader->EndBuild();
-    CreatePso();
-    CreateDescriptorHeap();
-    CreateFrameDepthStencil();
-    CreateMSAARenderTarget();
+    auto iter = std::find_if(_renderQueue.begin(), _renderQueue.end(),
+                             [component](const auto& ptr) { return ptr == component; });
 
-    // Frame Resource만들기
-    _frameResources.resize(SWAPCHAIN_BUFFER_COUNT);
-    for (UINT i = 0; i < SWAPCHAIN_BUFFER_COUNT; ++i)
+    if (iter != _renderQueue.end())
     {
-        _frameResources[i] = std::make_shared<FrameResource>();
-        // 임시
-        _frameResources[i]->Initialize(100, 6);
+        ASSERT(false, L"RenderScene::RegisterRenderQueue : Already registered component.");
+        return;
     }
 
-    // 임시 : 메인 카메라를 통해 Camera ConstantBuffer 만들기.
-    CameraData cameraData{.View       = UmMainCamera.GetViewMatrix(),
-                          .Projection = UmMainCamera.GetProjectionMatrix(),
-                          .Position   = {0.f, 0.f, -5.f, 1.f}};
-
-    UmDevice.CreateConstantBuffer(&cameraData, sizeof(CameraData), _cameraBuffer);
+    _renderQueue.push_back(component);
 }
 
-void RenderScene::RegisterOnRenderQueue(MeshRenderer* renderable)
+void RenderScene::Execute(ID3D12GraphicsCommandList* commandList)
 {
-    _renderQueue.push_back(renderable);
-}
-
-void RenderScene::AddRenderTechnique(const std::string& name, std::shared_ptr<RenderTechnique> technique)
-{
-    technique->SetOwnerScene(this);
-    technique->Initalize();
-    _techniques[name] = technique;
-}
-
-void RenderScene::Excute(ComPtr<ID3D12GraphicsCommandList> commandList)
-{
-    for (auto& [name, tech] : _techniques)
+    for (auto& tech : _techniques)
     {
         tech->Execute(commandList);
     }
-    // if you want msaa->안하기로함.
-    // CopyMSAATexture(commandList);
-
-    // editor game 분기 처리
-    /*bool isEditor = UmApplication.IsEditor();
-    if (!isEditor)
-        RenderOnBackBuffer(commandList);
-    else
-        RenderOnEditor(commandList);*/
-        RenderOnBackBuffer(commandList);
 }
 
-void RenderScene::RenderOnBackBuffer(ComPtr<ID3D12GraphicsCommandList> commandList)
+D3D12_CPU_DESCRIPTOR_HANDLE RenderScene::GetFinalImage()
 {
-    UmDevice.SetBackBuffer();
-    commandList->SetPipelineState(_framePSO.Get());
-    commandList->SetGraphicsRootSignature(_frameShader->GetRootSignature().Get());
-    // screen
-    auto                        dest = _srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-    D3D12_CPU_DESCRIPTOR_HANDLE src  = _renderTargetSRVHandles[0];
-    UmDevice.GetDevice()->CopyDescriptorsSimple(1, dest, src, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-
-    // dest.ptr += UmDevice.GetCBVSRVUAVDescriptorSize();
-    // src =
-    ID3D12DescriptorHeap* dh[] = {_srvDescriptorHeap.Get()};
-    commandList->SetDescriptorHeaps(_countof(dh), dh);
-    auto srv = _srvDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
-    commandList->SetGraphicsRootDescriptorTable(_frameShader->GetRootSignatureIndex("screen"), srv);
-    _frameQuad->Render(commandList.Get());
+    return _meshLightingTarget->GetSRVHandle();
 }
 
-void RenderScene::RenderOnEditor(ComPtr<ID3D12GraphicsCommandList> commandList)
+void RenderScene::AddRenderTechnique(std::shared_ptr<RenderTechnique> technique)
 {
-    commandList->SetPipelineState(_framePSO.Get());
-    commandList->SetGraphicsRootSignature(_frameShader->GetRootSignature().Get());
-    auto                        dest = _srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-    D3D12_CPU_DESCRIPTOR_HANDLE src  = _renderTargetSRVHandles[0];
-    UmDevice.GetDevice()->CopyDescriptorsSimple(1, dest, src, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+    ID3D12GraphicsCommandList* commandList = UmDevice.GetCommandList().Get();
+    technique->SetOwnerScene(this);
+    technique->Initialize(commandList);
+    _techniques.push_back(technique);
 }
 
-void RenderScene::CreateRenderTargetPool(UINT renderTargetCount)
-{
-    // Create Render Target pool and Render Target View
-    _renderTargetPool.resize(renderTargetCount);
-    _renderTargetHandles.resize(renderTargetCount);
-    _renderTargetSRVHandles.resize(renderTargetCount);
-    for (UINT i = 0; i < renderTargetCount; ++i)
-    {
-        _renderTargetPool[i] = std::make_shared<RenderTarget>();
-    }
-
-    for (UINT i = 0; i < renderTargetCount; ++i)
-    {
-        _renderTargetPool[i]->Initialize();
-    }
-    for (UINT i = 0; i < renderTargetCount; ++i)
-    {
-        _renderTargetHandles[i] = _renderTargetPool[i]->GetHandle();
-    }
-    // Srv 생성하기(RenderTarget에 대한)
-    for (UINT i = 0; i < renderTargetCount; ++i)
-    {
-        _renderTargetSRVHandles[i] = _renderTargetPool[i]->CreateShaderResourceView();
-    }
-}
-
-void RenderScene::CreateFrameDepthStencil()
-{
-    // Create Depth Stecil Buffer and Depth Stencil View
-    HRESULT hr = S_OK;
-    hr         = UmViewManager.AddDescriptorHeap(ViewManager::Type::DEPTH_STENCIL, _depthStencilHandle);
-    FAILED_CHECK_BREAK(hr);
-
-    D3D12_RESOURCE_DESC depthDesc{.Dimension        = D3D12_RESOURCE_DIMENSION_TEXTURE2D,
-                                  .Alignment        = 0,
-                                  .Width            = UmDevice.GetMode().Width,
-                                  .Height           = UmDevice.GetMode().Height,
-                                  .DepthOrArraySize = 1,
-                                  .MipLevels        = 1,
-                                  .Format           = DXGI_FORMAT_R24G8_TYPELESS,
-                                  .SampleDesc{.Count   = UmDevice.GetMSAAState() ? (UINT)4 : (UINT)1,
-                                              .Quality = UmDevice.GetMSAAState() ? (UmDevice.GetMSAAQuality() - 1) : 0},
-                                  .Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN,
-                                  .Flags  = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL};
-
-    D3D12_CLEAR_VALUE optClear{.Format = UmDevice.GetDepthStencilFormat(), .DepthStencil{.Depth = 1.f, .Stencil = 0}};
-    CD3DX12_HEAP_PROPERTIES property(D3D12_HEAP_TYPE_DEFAULT);
-    hr = UmDevice.GetDevice()->CreateCommittedResource(&property, D3D12_HEAP_FLAG_NONE, &depthDesc,
-                                                       D3D12_RESOURCE_STATE_PRESENT, &optClear,
-                                                       IID_PPV_ARGS(_depthStencilBuffer.GetAddressOf()));
-
-    D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc{.Format        = UmDevice.GetDepthStencilFormat(),
-                                          .ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D,
-                                          .Flags         = D3D12_DSV_FLAG_NONE};
-
-    UmDevice.GetDevice()->CreateDepthStencilView(_depthStencilBuffer.Get(), &dsvDesc, _depthStencilHandle);
-}
-
-void RenderScene::CreateMSAARenderTarget()
-{
-    // non mass 텍스쳐에 대한 rt와 srv 생성
-    ComPtr<ID3D12Device> device = UmDevice.GetDevice();
-    D3D12_RESOURCE_DESC  desc{.Dimension        = D3D12_RESOURCE_DIMENSION_TEXTURE2D,
-                              .Width            = UmDevice.GetMode().Width,
-                              .Height           = UmDevice.GetMode().Height,
-                              .DepthOrArraySize = 1,
-                              .MipLevels        = 1,
-                              .Format           = DXGI_FORMAT_R32G32B32A32_FLOAT,
-                              .SampleDesc       = {1, 0},
-                              .Layout           = D3D12_TEXTURE_LAYOUT_UNKNOWN,
-                              .Flags            = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET};
-
-    D3D12_CLEAR_VALUE clearValue{
-        .Format = DXGI_FORMAT_R32G32B32A32_FLOAT,
-        .Color  = {0.f, 0.f, 0.f, 1.f},
-    };
-    HRESULT                 hr = S_OK;
-    CD3DX12_HEAP_PROPERTIES property(D3D12_HEAP_TYPE_DEFAULT);
-
-    UmDevice.GetDevice()->CreateCommittedResource(&property, D3D12_HEAP_FLAG_NONE, &desc, D3D12_RESOURCE_STATE_PRESENT,
-                                                  &clearValue, IID_PPV_ARGS(_nonMSAATexture.GetAddressOf()));
-    hr = S_OK;
-
-    hr = UmViewManager.AddDescriptorHeap(ViewManager::Type::RENDER_TARGET, _nonMSAARtHandle);
-    FAILED_CHECK_BREAK(hr);
-    UmDevice.GetDevice()->CreateRenderTargetView(_nonMSAATexture.Get(), nullptr, _nonMSAARtHandle);
-
-    D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-    srvDesc.Format                          = DXGI_FORMAT_R32G32B32A32_FLOAT;
-    srvDesc.ViewDimension                   = D3D12_SRV_DIMENSION_TEXTURE2D;
-    srvDesc.Texture2D.MipLevels             = 1;
-    srvDesc.Shader4ComponentMapping         = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-    UmViewManager.AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _nonMSAASrvHandle);
-    device->CreateShaderResourceView(_nonMSAATexture.Get(), &srvDesc, _nonMSAASrvHandle);
-}
-
-void RenderScene::CreatePso()
-{
-    HRESULT                            hr = S_OK;
-    D3D12_GRAPHICS_PIPELINE_STATE_DESC psodesc;
-    ZeroMemory(&psodesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
-    psodesc.RasterizerState       = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-    psodesc.BlendState            = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-    psodesc.DepthStencilState     = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-    psodesc.SampleMask            = UINT_MAX;
-    psodesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-    psodesc.InputLayout           = _frameShader->GetInputLayout();
-    psodesc.NumRenderTargets      = 1;
-    psodesc.RTVFormats[0]         = UmDevice.GetMode().Format;
-    psodesc.DSVFormat             = DXGI_FORMAT_D24_UNORM_S8_UINT;
-    psodesc.pRootSignature        = _frameShader->GetRootSignature().Get();
-    psodesc.SampleDesc            = {1, 0};
-    psodesc.VS                    = _frameShader->GetShaderByteCode(Shader::Type::VS);
-    psodesc.PS                    = _frameShader->GetShaderByteCode(Shader::Type::PS);
-    ComPtr<ID3D12Device> device   = UmDevice.GetDevice();
-
-    hr = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(_framePSO.GetAddressOf()));
-    FAILED_CHECK_BREAK(hr);
-}
-
-void RenderScene::CreateDescriptorHeap()
-{
-    D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
-
-    srvHeapDesc.NumDescriptors = 2;
-    srvHeapDesc.Type           = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-    srvHeapDesc.Flags          = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-    HRESULT hr                 = S_OK;
-    hr = UmDevice.GetDevice()->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(_srvDescriptorHeap.GetAddressOf()));
-    FAILED_CHECK_BREAK(hr);
-}
-
-void RenderScene::CopyMSAATexture(ComPtr<ID3D12GraphicsCommandList> commandList)
-{
-    auto br = CD3DX12_RESOURCE_BARRIER::Transition(_nonMSAATexture.Get(), D3D12_RESOURCE_STATE_PRESENT,
-                                                   D3D12_RESOURCE_STATE_RESOLVE_DEST);
-    commandList->ResourceBarrier(1, &br);
-    commandList->ResolveSubresource(_nonMSAATexture.Get(), 0, _renderTargetPool[0]->GetResource().Get(), 0,
-                                    DXGI_FORMAT_R32G32B32A32_FLOAT);
-    br = CD3DX12_RESOURCE_BARRIER::Transition(_renderTargetPool[0]->GetResource().Get(),
-                                              D3D12_RESOURCE_STATE_RESOLVE_SOURCE, D3D12_RESOURCE_STATE_PRESENT);
-    commandList->ResourceBarrier(1, &br);
-    br = CD3DX12_RESOURCE_BARRIER::Transition(_nonMSAATexture.Get(), D3D12_RESOURCE_STATE_RESOLVE_DEST,
-                                              D3D12_RESOURCE_STATE_PRESENT);
-    commandList->ResourceBarrier(1, &br);
-}
 // 250424
 //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 void RenderScene::InitializeRenderScene()
 {
+    CreateCamera();
     CreateRenderTarget();
     CreateDepthStencil();
     CreateFrameQuadAndFrameShader();
@@ -323,22 +142,37 @@ void RenderScene::InitializeRenderScene()
 void RenderScene::CreateRenderTarget()
 {
     // gbuffer 생성
-    _gBuffer.resize(_gbufferCount);
-    for (UINT i = 0; i < _gbufferCount; ++i)
+    _gBuffer.resize(_gBufferCount);
+    for (UINT i = 0; i <= GBuffer::WORLDPOSITION; ++i)
     {
         _gBuffer[i] = std::make_shared<RenderTarget>();
-        _gBuffer[i] ->Initialize();
-        _gBufferSrvHandles[i] = _gBuffer[i]->CreateShaderResourceView();
+        _gBuffer[i]->Initialize(DXGI_FORMAT_R32G32B32A32_FLOAT, 0.247f);
+        _gBuffer[i]->CreateShaderResourceView();
     }
+  
+    _gBuffer[GBuffer::DEPTH] = std::make_shared<RenderTarget>();
+    _gBuffer[GBuffer::DEPTH]->Initialize(DXGI_FORMAT_R32_FLOAT, 1.f);
+    _gBuffer[GBuffer::DEPTH]->CreateShaderResourceView();
+    
+    _gBuffer[GBuffer::CUSTOMDEPTH] = std::make_shared<RenderTarget>();
+    _gBuffer[GBuffer::CUSTOMDEPTH]->Initialize(DXGI_FORMAT_R32_UINT, 1.f);
+    _gBuffer[GBuffer::CUSTOMDEPTH]->CreateShaderResourceView();
+    
+
 
     // 후처리용으로 돌려쓸 renderTarget 생성해주기
     _renderTargets.resize(_renderTargetPoolCount);
     for (UINT i = 0; i < _renderTargetPoolCount; ++i)
     {
         _renderTargets[i] = std::make_shared<RenderTarget>();
-        _renderTargets[i]->Initialize();
-        _renderTargetSrvHandles[i] = _renderTargets[i]->CreateShaderResourceView();
+        _renderTargets[i]->Initialize(DXGI_FORMAT_R32G32B32A32_FLOAT, 0.247f);
+        _renderTargets[i]->CreateShaderResourceView();
     }
+
+    // 메쉬 음영처리가 된 타겟 하나 생성 -> 이 타겟을 가져와서 후처리를 진행해야함.
+    _meshLightingTarget = std::make_shared<RenderTarget>();
+    _meshLightingTarget->Initialize(DXGI_FORMAT_R32G32B32A32_FLOAT, 0.247f);
+    _meshLightingTarget->CreateShaderResourceView();
 }
 
 void RenderScene::CreateDepthStencil() 
@@ -359,6 +193,12 @@ void RenderScene::CreateDepthStencil()
                                   .Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN,
                                   .Flags  = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL};
 
+    D3D12_CLEAR_VALUE   optClear{.Format = UmDevice.GetDepthStencilFormat(), .DepthStencil{.Depth = 1.f, .Stencil = 0}};
+    CD3DX12_HEAP_PROPERTIES property(D3D12_HEAP_TYPE_DEFAULT);
+    hr = UmDevice.GetDevice()->CreateCommittedResource(&property, D3D12_HEAP_FLAG_NONE, &depthDesc,
+                                                       D3D12_RESOURCE_STATE_PRESENT, &optClear,
+                                                       IID_PPV_ARGS(_depthStencilBuffer.GetAddressOf()));
+
     D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc{.Format        = UmDevice.GetDepthStencilFormat(),
                                           .ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D,
                                           .Flags         = D3D12_DSV_FLAG_NONE};
@@ -371,9 +211,10 @@ void RenderScene::CreateFrameQuadAndFrameShader()
     // 화면 크기만한 quad만들기. NDC 좌표계로
     _frameQuad->Initialize(-1.f, 1.f, 2.f, 2.f, 0.f);
     _frameShader->BeginBuild();
-    _frameShader->LoadShader(L"../Shaders/vs_quad.hlsl", Shader::Type::VS);
-    _frameShader->LoadShader(L"../Shaders/ps_quad_frame.hlsl", Shader::Type::PS);
+    _frameShader->SetShader(L"../Shaders/vs_quad.hlsl", ShaderBuilder::Type::VS);
+    _frameShader->SetShader(L"../Shaders/ps_quad_frame.hlsl", ShaderBuilder::Type::PS);
     _frameShader->EndBuild();
+
 }
 
 void RenderScene::CreateFramePSO()
@@ -392,8 +233,8 @@ void RenderScene::CreateFramePSO()
     psodesc.DSVFormat             = DXGI_FORMAT_D24_UNORM_S8_UINT;
     psodesc.pRootSignature        = _frameShader->GetRootSignature().Get();
     psodesc.SampleDesc            = {1, 0};
-    psodesc.VS                    = _frameShader->GetShaderByteCode(Shader::Type::VS);
-    psodesc.PS                    = _frameShader->GetShaderByteCode(Shader::Type::PS);
+    psodesc.VS                    = _frameShader->GetShaderByteCode(ShaderBuilder::Type::VS);
+    psodesc.PS                    = _frameShader->GetShaderByteCode(ShaderBuilder::Type::PS);
     ComPtr<ID3D12Device> device   = UmDevice.GetDevice();
 
     hr = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(_framePSO.GetAddressOf()));
@@ -422,13 +263,23 @@ void RenderScene::CreateFrameResource()
     {
         _frameResources[i] = std::make_shared<FrameResource>();
         // 임시 텍스쳐 갯수가 달라질 수 있는거 아닌가요?
-        _frameResources[i]->Initialize(100, 6);
+        _frameResources[i]->Initialize(1000, 4000);
     }
     // 임시 : 메인 카메라를 통해 Camera ConstantBuffer 만들기.
-    CameraData cameraData{.View       = UmMainCamera.GetViewMatrix(),
-                          .Projection = UmMainCamera.GetProjectionMatrix(),
+    CameraData cameraData{.View       = _camera->GetViewMatrix(),
+                          .Projection = _camera->GetProjectionMatrix(),
                           .Position   = {0.f, 0.f, -5.f, 1.f}};
 
     UmDevice.CreateConstantBuffer(&cameraData, sizeof(CameraData), _cameraBuffer);
 }
 
+void RenderScene::CreateCamera() 
+{
+    _camera = std::make_shared<Camera>();
+    Vector3 position = Vector3::Zero;
+    Vector3 diretion = Vector3::Forward;
+    Matrix  rotation = Matrix::Identity;
+    _camera->SetRotation(rotation.ToEuler());
+    _camera->SetPosition(position);
+    _camera->Update();
+}

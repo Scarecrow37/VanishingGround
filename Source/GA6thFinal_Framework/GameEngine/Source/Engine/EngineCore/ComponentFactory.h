@@ -14,21 +14,32 @@ public:
     //엔진 접근용 네임스페이스
     struct Engine
     {
+        static constexpr const wchar_t* SCRIPTS_DLL_EDITOR_DEBUG_PATH = L"..\\GameScripts\\bin\\DebugEditor";
+        static constexpr const wchar_t* BUILD_BATCH_EDITOR_DEBUG_PATH = L"..\\GameScripts\\build_debug_editor.bat";
+
+        static constexpr const wchar_t* SCRIPTS_DLL_EDITOR_RELEASE_PATH = L"..\\GameScripts\\bin\\ReleaseEditor";
+        static constexpr const wchar_t* BUILD_BATCH_EDITOR_RELEASE_PATH = L"..\\GameScripts\\build_release_editor.bat";
+
+        static constexpr const wchar_t* SCRIPTS_DLL_DEBUG_PATH = L"..\\GameScripts\\bin\\Debug";
+        static constexpr const wchar_t* BUILD_BATCH_DEBUG_PATH = L"..\\GameScripts\\build_debug.bat";
+
+        static constexpr const wchar_t* SCRIPTS_DLL_RELEASE_PATH = L"..\\GameScripts\\bin\\Release";
+        static constexpr const wchar_t* BUILD_BATCH_RELEASE_PATH = L"..\\GameScripts\\build_release.bat";
 #ifdef _UMEDITOR
 #ifdef _DEBUG
-        static constexpr const wchar_t* SCRIPTS_DLL_PATH = L"..\\GameScripts\\bin\\DebugEditor";
-        static constexpr const wchar_t* BUILD_BATCH_PATH = L"..\\GameScripts\\build_debug_editor.bat";
+        static constexpr const wchar_t* SCRIPTS_DLL_PATH = SCRIPTS_DLL_EDITOR_DEBUG_PATH;
+        static constexpr const wchar_t* BUILD_BATCH_PATH = BUILD_BATCH_EDITOR_DEBUG_PATH;
 #else
-        static constexpr const wchar_t* SCRIPTS_DLL_PATH = L"..\\GameScripts\\bin\\ReleaseEditor";
-        static constexpr const wchar_t* BUILD_BATCH_PATH = L"..\\GameScripts\\build_release_editor.bat";
+        static constexpr const wchar_t* SCRIPTS_DLL_PATH = SCRIPTS_DLL_EDITOR_RELEASE_PATH;
+        static constexpr const wchar_t* BUILD_BATCH_PATH = BUILD_BATCH_EDITOR_RELEASE_PATH;
 #endif
 #else
 #ifdef _DEBUG
-        static constexpr const wchar_t* SCRIPTS_DLL_PATH = L"..\\GameScripts\\bin\\Debug";
-        static constexpr const wchar_t* BUILD_BATCH_PATH = L"..\\GameScripts\\build_debug.bat";
+        static constexpr const wchar_t* SCRIPTS_DLL_PATH = SCRIPTS_DLL_DEBUG_PATH;
+        static constexpr const wchar_t* BUILD_BATCH_PATH = BUILD_BATCH_DEBUG_PATH;
 #else
-        static constexpr const wchar_t* SCRIPTS_DLL_PATH = L"..\\GameScripts\\bin\\Release";
-        static constexpr const wchar_t* BUILD_BATCH_PATH = L"..\\GameScripts\\build_release.bat";
+        static constexpr const wchar_t* SCRIPTS_DLL_PATH = SCRIPTS_DLL_RELEASE_PATH;
+        static constexpr const wchar_t* BUILD_BATCH_PATH = BUILD_BATCH_RELEASE_PATH;
 #endif
 #endif  
     };
@@ -118,11 +129,16 @@ public:
     YAML::Node SerializeToYaml(Component* component);
 
     /// <summary>
-    /// Yaml 형식으로 직렬화된 컴포넌트를 오브젝트에 추가합니다.
+    /// Yaml 형식으로 직렬화된 컴포넌트를 런타임 오브젝트에 추가합니다. 
     /// </summary>
-    /// <param name="node"></param>
     /// <returns></returns>
-    bool DeserializeToYaml(GameObject* ownerObject, YAML::Node* componentNode);
+    bool AddComponentToYamlLifeCycle(GameObject* ownerObject, YAML::Node* componentNode);
+
+    /// <summary>
+    /// Yaml 형식으로 직렬화된 컴포넌트를 즉시 오브젝트에 추가합니다. (리소스 프리팹 전용)
+    /// </summary>
+    /// <returns></returns>
+    bool AddComponentToYamlNow(GameObject* ownerObject, YAML::Node* componentNode);
 
 private:
     using InitScripts = void(*)(const std::shared_ptr<EngineCores>, ImGuiContext*);

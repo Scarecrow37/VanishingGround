@@ -13,7 +13,7 @@ public:
     inline static const char* ICON_FILE_DOCS  = "\xef\x85\x9c"; // f15c
 
     inline static const char* ICON_Folder        = "\xef\x81\xbb"; //
-    inline static const char* ICON_Folder_OPEN   = "\xef\x81\xbc"; // f07c
+    inline static const char* ICON_FOLDER_OPEN   = "\xef\x81\xbc"; // f07c
     inline static const char* ICON_Folder_CLOSED = "\xee\x86\x85"; // e185
 
     inline static const char* ICON_IMAGE    = "\xef\x8c\x82"; // f302
@@ -29,4 +29,59 @@ public:
     inline static const char* ICON_CIRCLE_ARROW_RIGHT = "\xef\x8d\x9a"; // f35a
     inline static const char* ICON_CIRCLE_ARROW_UP    = "\xef\x8d\x9b"; // f35b
     inline static const char* ICON_CIRCLE_ARROW_DOWN  = "\xef\x8d\x9c"; // f35c
+
+    inline static const char* ICON_HELP     = "\xef\x81\x99"; // f059
+    inline static const char* ICON_QUESTION = "\xef\x81\x99"; // f059
+
+    inline static const char* ICON_BELL_ON  = "\xef\x83\xb3"; // f0f3
+    inline static const char* ICON_BELL_OFF = "\xef\x87\xb6"; // f1f6
+
+    inline static const char* ICON_EDIT = "\xef\x83\x84"; // f044
+
+    inline static const char* ICON_PLAY = "\xef\x85\x84";
+    inline static const char* ICON_STOP = "\xef\x8a\x8d";
+    inline static const char* ICON_PAUSE = "\xef\x8a\x8b";
+
+    static constexpr std::string UnicodeToUTF8(unsigned int codepoint)
+    {
+        std::string out;
+
+        if (codepoint <= 0x7F)
+        {
+            out += static_cast<char>(codepoint);
+        }
+        else if (codepoint <= 0x7FF)
+        {
+            out += static_cast<char>(0xC0 | (codepoint >> 6));
+            out += static_cast<char>(0x80 | (codepoint & 0x3F));
+        }
+        else if (codepoint <= 0xFFFF)
+        {
+            out += static_cast<char>(0xE0 | (codepoint >> 12));
+            out += static_cast<char>(0x80 | ((codepoint >> 6) & 0x3F));
+            out += static_cast<char>(0x80 | (codepoint & 0x3F));
+        }
+        else if (codepoint <= 0x10FFFF)
+        {
+            out += static_cast<char>(0xF0 | (codepoint >> 18));
+            out += static_cast<char>(0x80 | ((codepoint >> 12) & 0x3F));
+            out += static_cast<char>(0x80 | ((codepoint >> 6) & 0x3F));
+            out += static_cast<char>(0x80 | (codepoint & 0x3F));
+        }
+
+        return out;
+    }
+};
+
+
+
+//에디터에서 사용되는 프로세스들을 도와주는 이벤트 함수입니다.
+struct ProcessHelper
+{
+    /// <summary>
+    /// 비주얼 스튜디오의 실행 여부를 확인합니다.
+    /// </summary>
+    /// <param name="outExeFilePath :">비주얼 스튜디오 exe 파일 경로</param>
+    /// <returns>실행 여부</returns>
+    static bool IsVisualStudio(std::string& outExeFilePath);
 };

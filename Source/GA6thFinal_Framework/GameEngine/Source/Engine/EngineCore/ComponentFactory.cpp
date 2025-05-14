@@ -9,20 +9,25 @@ EComponentFactory::EComponentFactory()
 EComponentFactory::~EComponentFactory() = default;
 
 bool EComponentFactory::InitalizeComponentFactory()
-{
-    SetDllDirectory(EComponentFactory::Engine::SCRIPTS_DLL_PATH);
-
-    //복구해야할 컴포넌트 항목들
-    static std::vector<std::tuple<GameObject*, std::string, int, std::string>> addList;
+{  
+    static std::vector<std::tuple<GameObject*, std::string, int, std::string>> addList; //복구해야할 컴포넌트 항목들
     addList.clear();
 
-    DWORD exitCodeOut{};
-    if (!dllUtility::RunBatchFile(Engine::BUILD_BATCH_PATH, &exitCodeOut))
+    if constexpr (Application::IsEditor())
     {
-        engineCore->Logger.Log(LogLevel::LEVEL_ERROR, "Scripts build Fail!");
-        return false;
+        DWORD exitCodeOut{};
+        if (!dllUtility::RunBatchFile(Engine::BUILD_BATCH_PATH, &exitCodeOut))
+        {
+            engineCore->Logger.Log(LogLevel::LEVEL_ERROR, "Scripts build Fail!");
+            return false;
+        }
     }
-      
+    else
+    {
+        if (m_scriptsDll != NULL)
+            return false;
+    }
+    SetForegroundWindow(UmApplication.GetHwnd());
     if (m_scriptsDll != NULL)
     {
         //모든 컴포넌트 자원 회수
@@ -43,10 +48,12 @@ bool EComponentFactory::InitalizeComponentFactory()
 
     _newScriptsFunctionMap.clear();
     m_NewScriptsKeyVec.clear();
+    SetDllDirectory(EComponentFactory::Engine::SCRIPTS_DLL_PATH);
     m_scriptsDll = LoadLibraryW(L"GameScripts.dll");
     if (m_scriptsDll == NULL)
     {
-        assert(!"DLL Load Fail");
+        //DLL Load Fail
+        __debugbreak();
         return false;
     }
 
@@ -113,6 +120,7 @@ bool EComponentFactory::InitalizeComponentFactory()
             delete component;
         }
     }
+    std::sort(m_NewScriptsKeyVec.begin(), m_NewScriptsKeyVec.end());
 
     //파괴된 컴포넌트 재생성 및 복구
     MissingComponent missingTemp;
@@ -211,8 +219,7 @@ void EComponentFactory::MakeScriptFile(const char* fileName) const
     }
     else
     {
-        engineCore->Logger.Log(LogLevel::LEVEL_ERROR,
-                                     u8"Script DLL을 빌드해주세요!"_c_str);
+        engineCore->Logger.Log(LogLevel::LEVEL_WARNING, u8"Script DLL을 빌드해주세요!"_c_str);
     }
 }
 
@@ -220,25 +227,56 @@ YAML::Node EComponentFactory::SerializeToYaml(Component* component)
 {
     if (UmComponentFactory.HasScript() == false)
     {
-        UmLogger.Log(LogLevel::LEVEL_ERROR,
-                           u8"스크립트 빌드를 해주세요."_c_str);
-        return YAML::Node();
+        if (UmComponentFactory.InitalizeComponentFactory() == false)
+        {
+            UmLogger.Log(LogLevel::LEVEL_FATAL, u8"스크립트 빌드 에러 해결 필요."_c_str);
+            __debugbreak();
+            UmApplication.Quit();
+            return YAML::Node();
+        }
     }
     return MakeYamlToComponent(component);
 }
 
-bool EComponentFactory::DeserializeToYaml(GameObject* ownerObject,
+bool EComponentFactory::AddComponentToYamlLifeCycle(GameObject* ownerObject,
                                           YAML::Node* componentNode)
 {
     if (UmComponentFactory.HasScript() == false)
     {
-        UmLogger.Log(LogLevel::LEVEL_ERROR,
-                           u8"스크립트 빌드를 해주세요."_c_str);
-        return false;
+        if (UmComponentFactory.InitalizeComponentFactory() == false)
+        {
+            UmLogger.Log(LogLevel::LEVEL_FATAL, u8"스크립트 빌드 에러 해결 필요."_c_str);
+            __debugbreak();
+            UmApplication.Quit();
+            return false;
+        }
     }
     if (std::shared_ptr<Component> component = MakeComponentToYaml(ownerObject, componentNode))
     {
         ESceneManager::Engine::AddComponentToLifeCycle(component); // 씬에 등록
+    }
+    else
+    {
+        return false;
+    }
+    return true;
+}
+
+bool EComponentFactory::AddComponentToYamlNow(GameObject* ownerObject, YAML::Node* componentNode)
+{
+    if (UmComponentFactory.HasScript() == false)
+    {
+        if (UmComponentFactory.InitalizeComponentFactory() == false)
+        {
+            UmLogger.Log(LogLevel::LEVEL_FATAL, u8"스크립트 빌드 에러 해결 필요."_c_str);
+            __debugbreak();
+            UmApplication.Quit();
+            return false;
+        }
+    }
+    if (std::shared_ptr<Component> component = MakeComponentToYaml(ownerObject, componentNode))
+    {
+        component->_gameObect->_components.emplace_back(component); //바로 추가
     }
     else
     {
@@ -281,7 +319,6 @@ void EComponentFactory::ResetComponent(GameObject* ownerObject, Component* compo
     //여긴 엔진에서 사용하기 위한 초기화 코드 
     component->_className = (typeid(*component).name() + 5);
     component->_gameObect = ownerObject;
-
     component->Reset();
     //end
 }

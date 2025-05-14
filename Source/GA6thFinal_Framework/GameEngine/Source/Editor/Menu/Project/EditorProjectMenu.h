@@ -6,12 +6,21 @@
 class EditorMenuScriptBuilder : public EditorMenu
 {
 public:
-    EditorMenuScriptBuilder() {
-        SetCallOrder(0);
-        SetPath("Project/Build");
-        SetLabel("");
-    }
+    EditorMenuScriptBuilder()          = default;
     virtual ~EditorMenuScriptBuilder() = default;
+public:
+    virtual void OnMenu() override;
+};
+
+/*
+프로젝트 루트 설정
+*/
+class EditorMenuProjectRoot : public EditorMenu
+{
+public:
+    EditorMenuProjectRoot()          = default;
+    virtual ~EditorMenuProjectRoot() = default;
+
 public:
     virtual void OnMenu() override;
 };

@@ -13,8 +13,9 @@ ResourceManager::~ResourceManager()
 }
 
 void ResourceManager::Update()
-{
-    _tempResource.clear();
+{    
+    // _tempResource.clear();
+    std::erase_if(_tempResource, [](const auto& resource) { return resource.use_count() > 1; });
 
     for (auto& [filePath, type] : _loadQueue)
     {

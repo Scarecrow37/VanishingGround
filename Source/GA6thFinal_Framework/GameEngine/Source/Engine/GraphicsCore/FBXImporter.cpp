@@ -8,7 +8,7 @@
 
 FBXImporter::FBXImporter()
 	: _boneCount(0)
-	, _isStaticMesh(false)
+	, _isStaticMesh(true)
 {
 	_impoter.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, 0);
 }
@@ -18,7 +18,12 @@ FBXImporter::~FBXImporter()
 }
 
 void FBXImporter::CreateModel(const std::filesystem::path& filePath, bool isStaticMesh, Model* model)
-{    
+{
+    if (filePath.extension() == L".fbx")
+    {
+
+    }
+
     unsigned int importFlags =
         aiProcess_Triangulate |         // vertex 삼각형 으로 출력
         aiProcess_GenNormals |          // Normal 정보 생성  
@@ -27,9 +32,6 @@ void FBXImporter::CreateModel(const std::filesystem::path& filePath, bool isStat
         aiProcess_LimitBoneWeights |    // 본 weight 제한
         aiProcess_ConvertToLeftHanded;  // DX용 왼손좌표계 변환
 
-    //if (isStaticMesh) importFlags |= aiProcess_PreTransformVertices;
-    //_isStaticMesh = isStaticMesh;
-    _isStaticMesh        = true;
     const aiScene* scene = _impoter.ReadFile(filePath.string(), importFlags);
 
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
@@ -37,6 +39,9 @@ void FBXImporter::CreateModel(const std::filesystem::path& filePath, bool isStat
         ASSERT(false, L"The model could't be found by that path.");
         return;
     }  
+
+    if (scene->HasAnimations())
+        _isStaticMesh = false;
 
     std::unordered_map<std::string, std::pair<unsigned int, Matrix>> boneInfo;
     std::vector<std::vector<std::shared_ptr<Texture>>>	textures;
@@ -69,6 +74,8 @@ void FBXImporter::CreateModel(const std::filesystem::path& filePath, bool isStat
     };
 
     for (size_t i = 0; i < size; i++)
+    UINT size = (UINT)materialIndex.size();
+    for (UINT i = 0; i < size; i++)
     {
         auto& texture = textures[materialIndex[i]];
         model->BindMaterial(i, material);

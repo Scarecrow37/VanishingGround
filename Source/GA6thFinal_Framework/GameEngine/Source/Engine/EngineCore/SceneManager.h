@@ -56,7 +56,15 @@ public:
     // get : 이 씬 파일의 상대 경로를 반환합니다.
     PROPERTY(Path)
 
+    GETTER(bool, IsDirty)
+    {
+        return _isDirty;
+    }
+    SETTER(bool, IsDirty);
+    PROPERTY(IsDirty)
 private:
+    bool _isDontDestroyOnLoad = false;
+    bool _isDirty   = false;
     bool _isLoaded = false;
     File::Guid _guid = STR_NULL;
 };
@@ -74,13 +82,17 @@ enum class LoadSceneMode
 
 //함수는 일단 선언만. 구현은 나중에.
 class ESceneManager 
-    : File::FileEventNotifier
+    : 
+    File::FileEventNotifier
 {
 private:
+    USING_PROPERTY(ESceneManager)
     friend class EngineCores;
+    friend class Application;
     ESceneManager();
     ~ESceneManager();
-    USING_PROPERTY(ESceneManager)
+
+    ESceneManager& operator=(const ESceneManager& rhs) = delete;
 
     void LoadSettingFile();
     void SaveSettingFile() const;
@@ -99,6 +111,7 @@ public:
     static constexpr const char* SCENE_EXTENSION = ".UmScene";
     static constexpr const char* SETTING_FILE_NAME = "SceneManager.setting.json";
     static constexpr const char* EMPTY_SCENE_NAME  = "EmptyScene";
+    static constexpr const char* DONT_DESTROY_ON_LOAD_SCENE_NAME = "DontDestroyOnLoad";
     static std::filesystem::path GetSettingFilePath();
 
     //엔진 접근용 네임스페이스
@@ -187,6 +200,22 @@ public:
         /// </summary>
         static void DontDestroyOnLoadObject(GameObject* gameObject);
         static void DontDestroyOnLoadObject(GameObject& gameObject);
+
+        /// <summary>
+        /// 시작 씬 설정을 가져옵니다.
+        /// </summary>
+        /// <returns></returns>
+        static std::string& GetStartSceneSetting();
+
+        /// <summary>
+        /// 시작 씬을 로드합니다.
+        /// </summary>
+        static void LoadStartScene();
+
+        /// <summary>
+        /// 프리팹 인스턴스를 Swap 합니다. Reset만 호출되며 인스턴스 아이디는 유지됩니다.
+        /// </summary>
+        static void SwapPrefabInstance(GameObject* original, GameObject* remake);
     };
 
 public:
@@ -199,7 +228,7 @@ public:
     }
 
     /// <summary>
-    /// 등록된 모든 씬들을 반환합니다. 씬 이름이 key로 Scene 객체가 value로 저장되어있습니다.
+    /// 등록된 모든 씬들을 반환합니다. 씬 GUID가 key로 Scene 객체가 value로 저장되어있습니다.
     /// </summary>
     inline const std::unordered_map<File::Guid, Scene>& GetScenesMap()
     {
@@ -258,21 +287,27 @@ public:
     }
 
     /// <summary>
+    /// 씬 로드해도 파괴되지 않는 씬을 가져옵니다.
+    /// </summary>
+    /// <returns>DontDestroyOnLoad 오브젝트가 없으면 nullptr</returns>
+    Scene* GetDontDestroyOnLoadScene();
+
+    /// <summary>
     /// 씬 정보를 이름을 통해 찾아서 반환합니다.
     /// </summary>
     /// <returns>성공시 Scene 의 주소, 실패시 nullptr</returns>
     Scene* GetSceneByName(std::string_view name);
 
     /// <summary>
-    /// 씬을 UmScene파일로 저장합니다.
+    /// 씬을 UmScene파일로 저장합니다. FileSystem의 RootPath 기준으로 저장합니다. 
     /// </summary>
     /// <param name="scene :">저장할 파일</param>
     /// <param name="outPath :">저장할 경로</param>
     /// <param name="isOverride :">덮어쓰기 안내문구 스킵 여부</param>
-    void WriteSceneToFile(const Scene& scene, std::string_view outPath, bool isOverride = false);
+    void WriteSceneToFile(Scene& scene, std::string_view outPath, bool isOverride = false);
 
     /// <summary>
-    /// <para> 빈 씬을 UmScene파일로 저장합니다. </para>
+    /// <para> 빈 씬을 UmScene파일로 저장합니다. FileSystem의 RootPath 기준으로 저장합니다. </para>
     /// </summary>
     /// <param name="name :">파일 이름</param>
     /// <param name="outPath :">저장할 경로</param>
@@ -280,9 +315,16 @@ public:
     void WriteEmptySceneToFile(std::string_view name, std::string_view outPath, bool isOverride = false);
     
 private:
+#ifdef _UMEDITOR
+    //play 여부
+    bool _isPlay = true;
+#else
+    static constexpr bool _isPlay = true;
+#endif
+
     //Life cycle 을 수행. 클라에서 매틱 호출해야함.
     void SceneUpdate();
-
+    
 private:
     void ObjectsAddRuntime();        //추가 대기중인 오브젝트, 컴포넌트를 라이프 사이클에 포함시킵니다.
     void ObjectsAwake();             //Awake 예정인 컴포넌트들의 Awake 함수를 호출합니다.
@@ -295,6 +337,7 @@ private:
     void ObjectsApplicationQuit();   //OnApplicationQuit를 호출합니다.
     void ObjectsOnDisable();         //OnDisable 예정인 컴포넌트들의 OnDisable 함수를 호출해줍니다.
     void ObjectsDestroy();           //Destroy 예정인 컴포넌트들의 OnDestroy 함수를 호출 한 뒤 파괴합니다.
+
 private:
     /*게임오브젝트의 Life cycle 수행 여부를 확인하는 함수*/
     bool IsRuntimeActive(std::shared_ptr<GameObject>& obj);
@@ -304,6 +347,18 @@ private:
         호출 전에 파괴되는 컴포넌트를 위해 존재하는 함수입니다.
     */
     void NotInitDestroyComponentEraseToWaitVec(Component* destroyComponent);
+
+    /// <summary>
+    /// 게임 오브젝트를 이름 맵에 추가합니다. 
+    /// </summary>
+    /// <param name="pInsertObject"></param>
+    bool InsertGameObjectMap(std::shared_ptr<GameObject>& pInsertObject);
+
+    /// <summary>
+    /// 게임 오브젝트의 맵에서 제거합니다.
+    /// </summary>
+    void EraseGameObjectMap(std::shared_ptr<GameObject>& pEraseObject);
+
 private:
     //Life cycle 에 포함되는 실제 오브젝트들 항목
     std::vector<std::shared_ptr<GameObject>> _runtimeObjects;
@@ -330,8 +385,11 @@ private:
 private:
     struct
     {
-       // 현재 Single로 로드된 씬 이름입니다. NewGameObject를 하면 이 씬에 오브젝트가 생성됩니다.
+       //현재 Single로 로드된 씬 이름입니다. NewGameObject를 하면 이 씬에 오브젝트가 생성됩니다.
        std::string MainScene = STR_NULL;
+
+       //에디터가 아닌 상태에서 처음으로 로드할 씬
+       std::string StartScene = STR_NULL;
     } 
     _setting;
     std::function<void()> _loadFuncEvent;
@@ -366,8 +424,21 @@ protected:
     /// <returns></returns>
     bool DeserializeToGuid(const File::Guid& guid);
 
+    /// <summary>
+    /// RootPath 기준으로 씬 파일을 작성합니다.
+    /// </summary>
+    /// <param name="sceneName"></param>
+    /// <param name="outPath"></param>
+    /// <returns></returns>
+    bool WriteUmSceneFile(
+        Scene& scene, 
+        std::string_view sceneName, 
+        std::string_view outPath,
+        bool isOverride = false);
+
     // FileEventNotifier을(를) 통해 상속됨
-    virtual void OnFileAdded(const File::Path& path) override;
+    virtual void OnFileRegistered(const File::Path& path) override;
+    virtual void OnFileUnregistered(const File::Path& path) override;
     virtual void OnFileModified(const File::Path& path) override;
     virtual void OnFileRemoved(const File::Path& path) override;
     virtual void OnFileRenamed(const File::Path& oldPath, const File::Path& newPath) override;
@@ -376,6 +447,19 @@ protected:
     virtual void OnRequestedOpen(const File::Path& path);
     virtual void OnRequestedCopy(const File::Path& path);
     virtual void OnRequestedPaste(const File::Path& path);
+
+    virtual void OnRequestedSave() override;
+    virtual void OnRequestedLoad() override;
+    virtual void OnPostRequestedLoad() override;
+
+    //씬 이름 변경시
+    void RenameScene(Scene& scene, std::string_view oldName, std::string_view newName);
+
+    //씬 오너 이름 변경시
+    void ResetOwnerScene(std::string_view oldName, std::string_view newName);
+
+    //메인 씬 변경 체크
+    void CheckMainSceneRename(Scene& renameScene, const File::Path& newPath);
 
     //관리하는 씬 파일 파괴시 호출
     void EraseSceneGUID(std::string_view sceneName, const File::Guid guid);
@@ -401,6 +485,15 @@ inline auto ESceneManager::GetRootGameObjectsByPath(std::string_view path)
 
 inline auto Scene::GetRootGameObjects() const
 {
-    std::string path = Path;
+    std::string path;
+    if (_isDontDestroyOnLoad)
+    {
+        path = ESceneManager::DONT_DESTROY_ON_LOAD_SCENE_NAME;
+    }
+    else
+    {
+        path = Path;
+    }
     return ESceneManager::GetRootGameObjectsByPath(path);
 }
+
