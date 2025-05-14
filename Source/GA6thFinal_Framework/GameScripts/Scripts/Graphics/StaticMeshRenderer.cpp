@@ -1,7 +1,5 @@
 ﻿#include "StaticMeshRenderer.h"
-#include "Engine/GraphicsCore/MeshRenderer.h"
-
-StaticMeshRenderer::StaticMeshRenderer()
+StaticMeshRenderer::StaticMeshRenderer() 
 {    
     FilePath.SetDragDropFunc([this]()
         { 
@@ -25,13 +23,12 @@ StaticMeshRenderer::StaticMeshRenderer()
 
 StaticMeshRenderer::~StaticMeshRenderer()
 {
-    if (_meshRenderer)
-        _meshRenderer->SetDestroy();
+    
 }
 
 void StaticMeshRenderer::Reset()
 {
-    _meshRenderer = std::make_unique<MeshRenderer>(MeshRenderer::RENDER_TYPE::STATIC, transform->GetWorldMatrix());
+    MakeMeshRenderer(MeshRenderer::RENDER_TYPE::STATIC, gameObject->transform->GetWorldMatrix());
     _meshRenderer->RegisterRenderQueue("Editor");
 }
 
