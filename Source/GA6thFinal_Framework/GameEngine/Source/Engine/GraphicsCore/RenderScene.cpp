@@ -50,7 +50,8 @@ void RenderScene::UpdateRenderScene()
         const auto& model     = component->GetModel();
         const auto& meshes    = model->GetMeshes();
         const auto& materials = model->GetMaterials();
-        
+        const auto& textures  = model->GetTextures();
+
         XMMATRIX world = XMMatrixTranspose(component->GetWorldMatrix());
         UINT     size  = (UINT)meshes.size();
 

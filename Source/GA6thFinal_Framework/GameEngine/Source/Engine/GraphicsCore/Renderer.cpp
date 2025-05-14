@@ -10,7 +10,6 @@
 #include "Cylinder.h"
 #include "GeoSphere.h"
 #include "Grid.h"
-#include "PBRTechnique.h"
 #include "Quad.h"
 #include "RenderScene.h"
 #include "PBRLitTechnique.h"
