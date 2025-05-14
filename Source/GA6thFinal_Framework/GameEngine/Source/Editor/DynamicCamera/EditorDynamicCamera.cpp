@@ -73,6 +73,7 @@ void EditorDynamicCamera::Update()
         {
             float wheel = io.MouseWheel;
             _moveScale += wheel * 0.01f;
+            _moveScale = std::clamp(_moveScale, 0.f, 1000.f);
         }
     }
 
