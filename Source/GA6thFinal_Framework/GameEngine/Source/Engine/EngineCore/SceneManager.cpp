@@ -1151,3 +1151,12 @@ void ESceneManager::EraseSceneGUID(std::string_view sceneName, const File::Guid 
     _sceneDataMap.erase(guid);
 }
 
+ESceneManager::SceneResourceManager::SceneResourceManager() 
+{
+
+}
+
+ESceneManager::SceneResourceManager::~SceneResourceManager() 
+{
+
+}

@@ -313,7 +313,21 @@ public:
     /// <param name="outPath :">저장할 경로</param>
     /// <param name="isOverride :">덮어쓰기 안내문구 스킵 여부</param>
     void WriteEmptySceneToFile(std::string_view name, std::string_view outPath, bool isOverride = false);
-    
+
+    class SceneResourceManager
+    {
+    public:
+        SceneResourceManager();
+        ~SceneResourceManager();
+
+    private:
+        std::vector<std::weak_ptr<Component>> _resourceLoadQueue;
+    };
+    /// <summary>
+    /// 씬 리소스 관리를 위한 맴버입니다.
+    /// </summary>
+    SceneResourceManager SceneResourceManager;
+
 private:
 #ifdef _UMEDITOR
     //play 여부
@@ -402,6 +416,7 @@ private:
 
     //로드된 씬 항목
     std::vector<Scene*> _lodedSceneList;
+
 protected:
     /// <summary>
     /// 씬을 Yaml 형식으로 직렬화합니다.
