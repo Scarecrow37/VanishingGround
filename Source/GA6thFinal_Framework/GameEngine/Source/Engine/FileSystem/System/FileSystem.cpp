@@ -177,15 +177,16 @@ int EFileSystem::SaveProjectWithMessageBox()
     std::wstring msg    = L"현재 프로젝트를 저장하시겠습니까?"; 
     std::wstring title  = L"Save Project";
     HWND         hwnd   = UmApplication.GetHwnd();
+    UINT         style  = MB_YESNOCANCEL | MB_DEFBUTTON1; // 기본 버튼을 YES로 설정
 
     int msgResult = MessageBox(
         hwnd,                       // 부모 창 핸들 (NULL로 하면 독립적 메시지 박스)
         msg.c_str(),                // 메시지 텍스트
         title.c_str(),              // 메시지 박스 제목
-        MB_OKCANCEL                 // 스타일
+        style                       // 스타일
     );
 
-    if (msgResult == IDOK)
+    if (msgResult == IDYES)
     {
         SaveProject();
     }
@@ -238,6 +239,11 @@ void EFileSystem::ObserverShutDown()
         delete _observer;
         _observer = nullptr;
     }
+}
+
+bool EFileSystem::IsLoadedProject() const
+{
+    return !_projectData.IsNull();
 }
 
 bool EFileSystem::IsVaildGuid(const File::Guid& guid) const
