@@ -382,12 +382,12 @@ void EFileSystem::DrawGuiSettingEditor()
         {
             if (ImGui::MenuItem("Save"))
             {
-                TCHAR title[] = L"폴더를 선택하세요.";
-                UINT  flags   = BIF_USENEWUI | BIF_RETURNONLYFSDIRS;
+                HWND    owner = UmApplication.GetHwnd();
+                LPCWSTR title = L"폴더를 선택하세요.";
 
                 File::Path directory = _rootPath / PROJECT_SETTING_PATH;
                 directory            = directory.generic_wstring();
-                if (File::OpenForderBrowser(title, flags, directory, _rootPath))
+                if (File::ShowOpenFolderBrowser(owner, title, _rootPath.c_str(), directory))
                 {
                     File::Path filename  = L"FileSystem.UmSetting";
                     SaveSetting(directory / filename);
@@ -395,10 +395,10 @@ void EFileSystem::DrawGuiSettingEditor()
             }
             if (ImGui::MenuItem("Load"))
             {
-                TCHAR title[] = L"폴더를 선택하세요.";
-                UINT  flags   = BIF_USENEWUI | BIF_RETURNONLYFSDIRS;
+                HWND       owner   = UmApplication.GetHwnd();
+                LPCWSTR    title = L"폴더를 선택하세요.";
                 File::Path path;
-                if (File::OpenForderBrowser(title, flags, path))
+                if (File::ShowOpenFolderBrowser(owner, title, _rootPath.c_str(), path))
                 {
                     File::Path filename  = L"fileSystem.setting";
                     File::Path directory = PROJECT_SETTING_PATH;
