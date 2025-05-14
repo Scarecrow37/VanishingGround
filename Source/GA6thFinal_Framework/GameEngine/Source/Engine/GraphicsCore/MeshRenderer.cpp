@@ -16,6 +16,7 @@ MeshRenderer::~MeshRenderer()
 
 void MeshRenderer::RegisterRenderQueue(std::string_view sceneName)
 {
+    _isDestroy = false;
     UmRenderer.RegisterRenderQueue(sceneName, this);
 }
 
