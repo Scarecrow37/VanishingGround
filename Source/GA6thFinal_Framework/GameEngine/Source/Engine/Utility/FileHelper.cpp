@@ -177,82 +177,185 @@ namespace File
         }
     }
 
-    bool OpenFileNameBrowser(TCHAR* _filter, File::Path& _return, const File::Path& root)
+    bool ShowOpenFileBrowser(HWND owner, LPCWSTR title, LPCWSTR initialDir,
+                             std::vector<std::pair<LPCWSTR, LPCWSTR>> filters, bool allowMultiSelect,
+                             OUT std::vector<File::Path>& out)
     {
-        OPENFILENAME OFN;
-        TCHAR        lpstrFile[MAX_PATH]    = L"";
-
-        memset(&OFN, 0, sizeof(OPENFILENAME));
-
-        OFN.lStructSize     = sizeof(OPENFILENAME);
-        OFN.hwndOwner       = UmApplication.GetHwnd();
-        OFN.lpstrFilter     = _filter;
-        OFN.lpstrFile       = lpstrFile;
-        OFN.nMaxFile        = MAX_PATH;
-        OFN.lpstrInitialDir = root.c_str();
-        
-        auto originPath = fs::current_path();
-        bool result = false;
-        if (GetOpenFileName(&OFN))
+        DirectoryBrowserFlags flags = DIRECTORY_BROWSER_FLAG_OPEN_FILE;
+        if (allowMultiSelect)
         {
-            _return = OFN.lpstrFile;
-            result =  true;
+            flags |= DIRECTORY_BROWSER_FLAG_ALLOW_MULTISELECT;
         }
-        fs::current_path(originPath);
+        return ShowSelectDirectoryBrowserEx(owner, title, initialDir, L"", filters, flags, out);
+    }
+
+    bool ShowSaveFileBrowser(HWND owner, LPCWSTR title, LPCWSTR initialDir, LPCWSTR defaultName, OUT File::Path& out)
+    {
+        std::vector<std::pair<LPCWSTR, LPCWSTR>> filters;
+        std::vector<File::Path>                  outPath;
+        DirectoryBrowserFlags                    flags = DIRECTORY_BROWSER_FLAG_SAVE_FILE;
+
+        bool result = ShowSelectDirectoryBrowserEx(owner, title, initialDir, defaultName, filters, flags, outPath);
+        if (true == result)
+            out = outPath.front();
         return result;
     }
 
-    // 콜백 함수
-    static int CALLBACK BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData)
+    bool ShowOpenFolderBrowser(HWND owner, LPCWSTR title, LPCWSTR initialDir, OUT File::Path& out)
     {
-        if (uMsg == BFFM_INITIALIZED)
-        {
-            if (lpData != NULL)
-                SendMessage(hwnd, BFFM_SETSELECTION, TRUE, lpData);
-        }
-        return 0;
+        std::vector<std::pair<LPCWSTR, LPCWSTR>> filters;
+        std::vector<File::Path>                  outPath;
+        DirectoryBrowserFlags flags = DIRECTORY_BROWSER_FLAG_OPEN_FILE | DIRECTORY_BROWSER_FLAG_PICK_FOLDER;
+
+        bool result = ShowSelectDirectoryBrowserEx(owner, title, initialDir, L"", filters, flags, outPath);
+        if (true == result)
+            out = outPath.front();
+        return result;
     }
 
-    bool OpenForderBrowser(TCHAR* title, UINT flags, File::Path& out, const File::Path& root)
+    bool ShowSelectDirectoryBrowserEx(HWND owner, LPCWSTR title, LPCWSTR initialDirectory, LPCWSTR initialFileName,
+                                                           std::vector<std::pair<LPCWSTR, LPCWSTR>> filters,
+                                                           DirectoryBrowserFlags flags, 
+                                                           OUT std::vector<File::Path>& out)
     {
-        PIDLIST_ABSOLUTE pidlRoot = nullptr;
-        SFGAOF           sfgao    = 0;
-
-        File::Path absRoot = fs::absolute(root);
-        File::Path absPath = fs::absolute(out);
-
-        if (FAILED(SHParseDisplayName(absRoot.c_str(), NULL, &pidlRoot, 0, &sfgao)))
+        // COM 초기화
+        HRESULT hr = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
+        if (FAILED(hr))
         {
-            pidlRoot = NULL; // 실패하면 NULL 처리 (Desktop 기준으로)
+            return false;
         }
 
-        BROWSEINFO bi = {0};
-        bi.hwndOwner  = NULL;
-        bi.lpszTitle  = title;
-        bi.ulFlags    = flags;
-        bi.lpfn       = BrowseCallbackProc;
-        bi.pidlRoot   = pidlRoot; // PIDL 설정!
+        IFileDialog* pDialog = nullptr;
 
-        // 시작 폴더용 lParam 설정
-        bi.lParam = reinterpret_cast<LPARAM>(absPath.c_str());
-
-        // 폴더 선택 대화상자 열기
-        LPITEMIDLIST pidl = SHBrowseForFolder(&bi);
-        if (pidl != NULL)
+        // === 다이얼로그 생성 ===
+        if (flags & DIRECTORY_BROWSER_FLAG_SAVE_FILE)
         {
-            wchar_t path[MAX_PATH];
-            if (SHGetPathFromIDList(pidl, path))
+            hr = CoCreateInstance(CLSID_FileSaveDialog, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pDialog));
+        }
+        else
+        {
+            hr = CoCreateInstance(CLSID_FileOpenDialog, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pDialog));
+        }
+        if (FAILED(hr))
+        {
+            CoUninitialize();
+            return false;
+        }
+
+        // === 타이틀 설정 ===
+        pDialog->SetTitle(title);
+
+        // === 옵션 설정 ===
+        DWORD options = 0;
+        pDialog->GetOptions(&options);
+        options |= FOS_FORCEFILESYSTEM | FOS_NOCHANGEDIR | FOS_PATHMUSTEXIST; // 기본
+        if (flags & DIRECTORY_BROWSER_FLAG_PICK_FOLDER)
+        {
+            options |= FOS_PICKFOLDERS; // 폴더 선택
+        }
+        if (flags & DIRECTORY_BROWSER_FLAG_ALLOW_MULTISELECT)
+        {
+            options |= FOS_ALLOWMULTISELECT; // Ctrl/Shift로 다중 파일 선택 허용
+        }
+        if (flags & DIRECTORY_BROWSER_FLAG_SAVE_FILE)
+        {
+            options |= FOS_OVERWRITEPROMPT; // 저장 시 덮어쓰기 경고 (SaveDialog 전용)
+        }
+        pDialog->SetOptions(options); // 옵션 설정
+
+        // === 필터 설정 ===
+        if (false == filters.empty())
+        {
+            std::vector<COMDLG_FILTERSPEC> specs;
+            specs.reserve(filters.size());
+            for (auto& [name, spec] : filters)
             {
-                out = path;
-                CoTaskMemFree(pidl); // pidl 해제
-                if (pidlRoot)
-                    CoTaskMemFree(pidlRoot); // 루트도 해제
-                return true;
+                specs.push_back({name, spec});
             }
-            CoTaskMemFree(pidl);
+            pDialog->SetFileTypes(static_cast<UINT>(specs.size()), specs.data());
+            pDialog->SetFileTypeIndex(1); // 첫 번째 필터 선택
         }
-        if (pidlRoot)
-            CoTaskMemFree(pidlRoot); // 루트도 해제
-        return false;
+
+        // === 기본 폴더 설정 ===
+        fs::path defaultAbsPath = initialDirectory;
+        if (true == defaultAbsPath.empty())
+        {
+            defaultAbsPath = fs::current_path();
+        }
+        defaultAbsPath = fs::absolute(defaultAbsPath);
+        IShellItem* folderItem = nullptr;
+        hr = SHCreateItemFromParsingName(defaultAbsPath.c_str(), nullptr, IID_PPV_ARGS(&folderItem));
+        if (SUCCEEDED(hr))
+        {
+            pDialog->SetFolder(folderItem); // 기본 폴더 설정
+            folderItem->Release();
+        }
+
+        // === 기본 파일 이름 설정 ===
+        if (flags & DIRECTORY_BROWSER_FLAG_SAVE_FILE)
+        {
+            // 저장 플래그에만 적용
+            pDialog->SetFileName(initialFileName);
+        }
+
+        // 다이얼로그 실행
+        bool isGetPath = false;
+        hr = pDialog->Show(owner);
+        if (SUCCEEDED(hr))
+        {
+            if ((flags & DIRECTORY_BROWSER_FLAG_ALLOW_MULTISELECT) && (flags & DIRECTORY_BROWSER_FLAG_OPEN_FILE))
+            {
+                IFileOpenDialog* openDlg = nullptr;
+                hr = pDialog->QueryInterface(IID_PPV_ARGS(&openDlg));
+                if (SUCCEEDED(hr))
+                {
+                    IShellItemArray* pItems = nullptr;
+                    hr                      = openDlg->GetResults(&pItems);
+                    if (SUCCEEDED(hr) && nullptr != pItems)
+                    {
+                        DWORD count = 0;
+                        pItems->GetCount(&count);
+                        for (DWORD i = 0; i < count; ++i)
+                        {
+                            IShellItem* pItem = nullptr;
+                            hr                = pItems->GetItemAt(i, &pItem);
+                            if (SUCCEEDED(hr))
+                            {
+                                PWSTR pszFilePath = nullptr;
+                                hr                = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
+                                if (SUCCEEDED(hr))
+                                {
+                                    out.emplace_back(pszFilePath);
+                                    CoTaskMemFree(pszFilePath);
+                                    isGetPath = true;
+                                }
+                                pItem->Release();
+                            }
+                        }
+                        pItems->Release();
+                    }
+                }
+            }
+            else
+            {
+                IShellItem* pItem = nullptr;
+                hr = pDialog->GetResult(&pItem);
+                if (SUCCEEDED(hr) && pItem)
+                {
+                    LPWSTR pszFilePath = nullptr;
+                    hr = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
+                    if (SUCCEEDED(hr))
+                    {
+                        out.emplace_back(pszFilePath);
+                        CoTaskMemFree(pszFilePath);
+                        isGetPath = true;
+                    }
+                    pItem->Release();
+                }
+            }
+        }
+        pDialog->Release();
+        CoUninitialize();
+        return isGetPath;
     }
-}
+} 

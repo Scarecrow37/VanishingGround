@@ -1,4 +1,6 @@
 ﻿#include "pch.h"
+#include "Engine/GraphicsCore/Model.h"
+#include "UmScripts.h"
 using namespace Global;
 using namespace u8_literals;
 
@@ -92,7 +94,7 @@ void ESceneManager::SceneUpdate()
 #ifdef _UMEDITOR
     _isPlay = editorModule->PlayMode.IsPlay();
 #endif
-
+    SceneResourceManager::Update(ResourceManager);
     ObjectsAddRuntime();
     ObjectsOnEnable();
     ObjectsAwake();
@@ -131,14 +133,14 @@ void ESceneManager::Engine::AddComponentToLifeCycle(std::shared_ptr<Component> c
 
 void ESceneManager::Engine::SetGameObjectActive(int instanceID, bool value)
 {
+    ESceneManager& sceneManager = UmSceneManager;
     if (auto& gameObject = Global::engineCore->SceneManager._runtimeObjects[instanceID])
     {
         if (gameObject->ReflectFields->_activeSelf != value)
         {
             //컴포넌트들의 On__able 함수를 호출하도록 합니다.
-            auto& [WaitSet, WaitVec, WaitValue] = value ? Global::engineCore->SceneManager._onEnableQueue : Global::engineCore->SceneManager._onDisableQueue;
-            WaitValue.emplace_back(&gameObject->ReflectFields->_activeSelf);
-                           
+            auto& [WaitSet, WaitVec, WaitValue] = value ? sceneManager._onEnableQueue : sceneManager._onDisableQueue;
+            WaitValue.emplace_back(&gameObject->ReflectFields->_activeSelf);                
             if (value == true)
             {
                 gameObject->ReflectFields->_activeSelf = true; //ActiveInHierarchy 검증용                        
@@ -159,6 +161,15 @@ void ESceneManager::Engine::SetGameObjectActive(int instanceID, bool value)
                                 if (result)
                                 {
                                     WaitVec.emplace_back(component.get());
+
+                                    //메시 컴포넌트들은 meshRenderer의 SetActive도 변경해야함.
+                                    if (Component::Type::RENDER == component->_type)
+                                    {
+                                        auto& meshActiveQueue = value ? sceneManager._meshSetActiveQueue.first
+                                                                      : sceneManager._meshSetActiveQueue.second;
+                                        MeshComponent* meshComponent = static_cast<MeshComponent*>(component.get());
+                                        meshActiveQueue.push_back(meshComponent->Renderer.get());
+                                    }
                                 }
                             }
                         }
@@ -176,10 +187,11 @@ void ESceneManager::Engine::SetGameObjectActive(int instanceID, bool value)
 
 void ESceneManager::Engine::SetComponentEnable(Component* component, bool value)
 {
+    ESceneManager& sceneManager = UmSceneManager;
     if (component && component->ReflectFields->_enable != value)
     {
         //컴포넌트의 On__able 함수를 호출하도록 합니다.
-        auto& [WaitSet, WaitVec, WaitValue] = value ? engineCore->SceneManager._onEnableQueue : engineCore->SceneManager._onDisableQueue;
+        auto& [WaitSet, WaitVec, WaitValue] = value ? sceneManager._onEnableQueue : sceneManager._onDisableQueue;
         WaitValue.emplace_back(&component->ReflectFields->_enable);
         if (component->gameObject->ActiveInHierarchy == true)
         {
@@ -187,6 +199,14 @@ void ESceneManager::Engine::SetComponentEnable(Component* component, bool value)
             if (result)
             {
                 WaitVec.push_back(component);
+
+                // 메시 컴포넌트들은 meshRenderer의 SetActive도 변경해야함.
+                if (Component::Type::RENDER == component->_type)
+                {
+                    auto& meshActiveQueue = value ? sceneManager._meshSetActiveQueue.first : sceneManager._meshSetActiveQueue.second;
+                    MeshComponent* meshComponent = static_cast<MeshComponent*>(component);
+                    meshActiveQueue.push_back(meshComponent->Renderer.get());
+                }
             }
         }
     }
@@ -660,9 +680,18 @@ void ESceneManager::ObjectsApplicationQuit()
 void ESceneManager::ObjectsOnEnable()
 {
     auto& [OnEnableSet, OnEnableVec, OnEnableValue] = _onEnableQueue;
+    auto& MeshEnableQueue = _meshSetActiveQueue.first;
     for (auto& value : OnEnableValue)
     {
         *value = true;  
+    }
+
+    for (auto& mesh : MeshEnableQueue)
+    {
+        if (nullptr != mesh)
+        {
+            mesh->SetActive(true);
+        }
     }
     
     if (_isPlay)
@@ -676,14 +705,25 @@ void ESceneManager::ObjectsOnEnable()
     OnEnableSet.clear();
     OnEnableVec.clear();
     OnEnableValue.clear();
+    MeshEnableQueue.clear();
 }
 
 void ESceneManager::ObjectsOnDisable()
 {
     auto& [OnDisableSet, OnDisableVec, OnDisableValue] = _onDisableQueue;
+    auto& MeshDisableQueue = _meshSetActiveQueue.second;
+
     for (auto& value : OnDisableValue)
     {
         *value = false;
+    }
+
+    for (auto& mesh : MeshDisableQueue)
+    {
+        if (nullptr != mesh)
+        {
+            mesh->SetActive(false);
+        }
     }
 
     if (_isPlay)
@@ -697,6 +737,7 @@ void ESceneManager::ObjectsOnDisable()
     OnDisableSet.clear();
     OnDisableVec.clear();
     OnDisableValue.clear();
+    MeshDisableQueue.clear();
 }
 
 void ESceneManager::ObjectsDestroy()
@@ -1151,3 +1192,89 @@ void ESceneManager::EraseSceneGUID(std::string_view sceneName, const File::Guid 
     _sceneDataMap.erase(guid);
 }
 
+void ESceneManager::SceneResourceManager::Update(SceneResourceManager& manager) 
+{
+    ModelResources& models = manager._models;
+    {
+        std::pair<std::weak_ptr<MeshComponent>, File::Guid> curr;
+        while (false == models.ModelLoadQueue.empty())
+        {
+            if (true == models.ModelLoadQueue.try_pop(curr))
+            {
+                auto& [weakPtr, guid] = curr;
+                if (false == weakPtr.expired())
+                {
+                    std::shared_ptr<MeshComponent> pMeshComponent = weakPtr.lock();
+                    if (nullptr != pMeshComponent->Renderer)
+                    {
+                        MeshRenderer& meshRenderer = *pMeshComponent->Renderer;
+                        File::Path path = guid.ToPath();
+                        if (false == path.IsNull())
+                        {
+                            if (models.ModelResource.find(guid) == models.ModelResource.end())
+                            {
+                                models.ModelResource[guid] = UmResourceManager.LoadResource<Model>(path.string());
+                            }
+                            meshRenderer.RegisterRenderQueue("Editor");
+                            meshRenderer.LoadModel(path.wstring()); 
+                            models.ModelUseComponentList[guid].push_back(pMeshComponent);
+                        }
+                        else
+                        {
+                            UmLogger.Log(LogLevel::LEVEL_WARNING, std::format("{}{}", guid.string(), (const char*)u8"는 존재하지 않는 리소스입니다."));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+}
+
+void ESceneManager::SceneResourceManager::RequestModelResource(const MeshComponent* meshComponent, const File::Guid& guid)
+{
+    if (auto sharedPtr = meshComponent->GetWeakPtr().lock())
+    {
+        if (0 <= sharedPtr->_gameObect->_instanceID)
+        {
+            std::weak_ptr<MeshComponent> weakPtr = std::static_pointer_cast<MeshComponent>(sharedPtr);
+            auto pair = std::make_pair(weakPtr, guid);
+            _models.ModelLoadQueue.push(pair);
+        }
+    }
+}
+
+void ESceneManager::SceneResourceManager::ClearModelResource() 
+{
+    for (auto& [guid, resource] : _models.ModelResource)
+    {
+        auto componentListIter = _models.ModelUseComponentList.find(guid);
+        if (componentListIter != _models.ModelUseComponentList.end())
+        {
+            auto& [guid, list] = *componentListIter;
+            for (auto& weakPtr : list)
+            {
+                if (false == weakPtr.expired())
+                {
+                    auto pComponent = weakPtr.lock();
+                    if (nullptr != pComponent->Renderer)
+                    {
+                        pComponent->Renderer->SetDestroy();
+                    }
+                }
+            }
+        }
+    }
+    _models.ModelUseComponentList.clear();
+    _models.ModelResource.clear();
+}
+
+ESceneManager::SceneResourceManager::SceneResourceManager() 
+{
+
+}
+
+ESceneManager::SceneResourceManager::~SceneResourceManager() 
+{
+
+}

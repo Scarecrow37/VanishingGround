@@ -171,7 +171,7 @@ void EditorTool::ProcessFocusFrame()
 {
     if (false == _isFirstTick)
     {
-        if (true == ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows))
+        if (true == ImGui::IsWindowFocused(ImGuiFocusedFlags_DockHierarchy | ImGuiFocusedFlags_RootAndChildWindows))
         {
             if (false == _isFrameFocused)
             {

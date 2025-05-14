@@ -139,158 +139,880 @@
     <ClCompile Include="Source\Engine\GraphicsCore\VertexShader.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Editor\Menu\Model\EditorModelMenu.h" />
-    <ClInclude Include="Source\Editor\Menu\Play\EditorPlayMenu.h" />
-    <ClInclude Include="Source\Editor\Tool\Model\EditorModelDetails.h" />
-    <ClInclude Include="Source\Engine\EditorCore\Interface\IEditorCycle.h" />
-    <ClInclude Include="Source\Engine\EditorCore\Gui\DockWindow\EditorDockWindow.h" />
-    <ClInclude Include="Source\Engine\EditorCore\Interface\IEditorObject.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\d3dUtil.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\FBXConverter.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\MeshRenderer.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\RendererFileEvent.h" />
-    <ClInclude Include="Source\Engine\FileSystem\Type\FileSystemSetting.h" />
-    <ClInclude Include="Source\Engine\FileSystem\Type\FileData.h" />
-    <ClInclude Include="Source\Engine\FileSystem\Type\FileInformation.h" />
-    <ClInclude Include="Source\Editor\Tool\Command\EditorCommandTool.h" />
-    <ClInclude Include="Source\Editor\Tool\Hierarchy\Command\DetachChildrenCommand.h" />
-    <ClInclude Include="Source\Editor\Tool\Hierarchy\Command\DropPrefabCommand.h" />
-    <ClInclude Include="Source\Editor\Tool\Hierarchy\Command\FocusCommand.h" />
-    <ClInclude Include="Source\Editor\Tool\Hierarchy\Command\NewGameObjectCommand.h" />
-    <ClInclude Include="Source\Editor\Tool\Hierarchy\Command\PackPrefabCommand.h" />
-    <ClInclude Include="Source\Editor\Tool\Hierarchy\Command\SetParentCommand.h" />
-    <ClInclude Include="Source\Engine\CommandCore\CommandManager.h" />
-    <ClInclude Include="Source\Engine\CommandCore\UmCommand.h" />
-    <ClInclude Include="Source\Editor\DynamicCamera\EditorDynamicCamera.h" />
-    <ClInclude Include="Source\Editor\Tool\Model\EditorModelTool.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\ComputeShader.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\GeometryShader.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\MeshShader.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\PixelShader.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\Shader.h" />
-    <ClInclude Include="Source\Editor\Menu\Project\EditorBuildSettingMenu.h" />
-    <ClInclude Include="Source\Engine\GameCore\Component\MissingComponent.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\DeferredPBRLitPass.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\GBufferPass.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\PBRLitTechnique.h" />
-    <ClInclude Include="Source\Engine\EditorCore\Setting\EditorSetting.h" />
-    <ClInclude Include="Source\Engine\EditorCore\Gui\PopupBox\EditorPopupBox.h" />
-    <ClInclude Include="Source\Engine\EditorCore\System\EditorPopupBoxSystem.h" />
-    <ClInclude Include="Source\Editor\DragDropTypes\DragDropAsset.h" />
-    <ClInclude Include="Source\Engine\Imgui\GraphEditor.h" />
-    <ClInclude Include="Source\Engine\Imgui\ImCurveEdit.h" />
-    <ClInclude Include="Source\Engine\Imgui\ImGradient.h" />
-    <ClInclude Include="Source\Engine\Imgui\ImGuizmo.h" />
-    <ClInclude Include="Source\Engine\Imgui\ImSequencer.h" />
-    <ClInclude Include="Source\Engine\Imgui\ImZoomSlider.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\Animator.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\M_PBR.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\Material.h" />
-    <ClInclude Include="Source\Engine\Utility\EditorHelper.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\RenderPass.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\RenderTechnique.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\RenderScene.h" />
-    <ClInclude Include="Source\Editor\DragDropTypes\DragDropTransform.h" />
-    <ClInclude Include="Source\Editor\Menu\Project\EditorProjectMenu.h" />
-    <ClInclude Include="Source\Editor\Menu\Scene\EditorSceneMenu.h" />
-    <ClInclude Include="Source\Editor\Menu\Setting\EditorSettingMenu.h" />
-    <ClInclude Include="Source\Editor\Menu\Window\EditorWindowMenu.h" />
-    <ClInclude Include="Source\Editor\Tool\AssetBrowser\EditorAssetBrowserTool.h" />
-    <ClInclude Include="Source\Editor\Tool\Debug\EditorDebugTool.h" />
-    <ClInclude Include="Source\Editor\Tool\Hierarchy\EditorHierarchyTool.h" />
-    <ClInclude Include="Source\Editor\Tool\Inspector\EditorInspectorTool.h" />
-    <ClInclude Include="Source\Editor\Tool\Log\EditorLogsTool.h" />
-    <ClInclude Include="Source\Editor\Tool\Scene\EditorSceneTool.h" />
-    <ClInclude Include="Source\Engine\FileSystem\Extra\FileObserver.h" />
-    <ClInclude Include="Source\Engine\FileSystem\System\FileSystem.h" />
-    <ClInclude Include="Source\Engine\FileSystem\Extra\FileContext.h" />
-    <ClInclude Include="Source\Engine\FileSystem\Extra\FileEventNotifier.h" />
-    <ClInclude Include="Source\Engine\FileSystem\Interface\IFileEventProcesser.h" />
-    <ClInclude Include="Source\Engine\FileSystem\FileSystemModule.h" />
-    <ClInclude Include="Source\Engine\EditorCore\Gui\Tool\EditorTool.h" />
-    <ClInclude Include="Source\Engine\EditorCore\System\EditorDockWindowSystem.h" />
-    <ClInclude Include="Source\Engine\AppModule\EngineCoresModule.h" />
-    <ClInclude Include="Source\Engine\AppModule\ImGuiDX12Module.h" />
-    <ClInclude Include="Source\Engine\AppModule\Interface\IAppModule.h" />
-    <ClInclude Include="Source\Engine\FileSystem\Type\FileGuidPath.h" />
-    <ClInclude Include="Source\Engine\Utility\FileHelper.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\Animation.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\BaseMesh.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\Box.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\Camera.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\Cylinder.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\Defines.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\Device.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\DX12Practice.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\Enums.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\Externs.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\FBXImporter.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\Font.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\FontManager.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\FrameResource.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\FX.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\GeometryGenerator.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\GeoSphere.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\GraphicsCore.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\GraphicsModule.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\Grid.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\Model.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\MultiRenderTargetManager.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\Quad.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\Renderer.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\RenderTarget.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\Resource.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\ResourceManager.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\ShaderBuilder.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\Skeleton.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\Sphere.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\Structs.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\StructuredBuffer.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\TempObject.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\Texture.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\VIBuffer.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\ViewManager.h" />
-    <ClInclude Include="Source\Engine\Utility\LogLevel.h" />
-    <ClInclude Include="Source\Engine\Utility\Mathf.h" />
-    <ClInclude Include="Source\Engine\Utility\stlHelper.h" />
-    <ClInclude Include="Source\Engine\ClassCore\ReflectHelper.h" />
-    <ClInclude Include="Source\Engine\EditorCore\Gui\EditorGui.h" />
-    <ClInclude Include="Source\Engine\EditorCore\Gui\Menu\EditorMenu.h" />
-    <ClInclude Include="Source\Engine\EditorCore\EditorModule.h" />
-    <ClInclude Include="Source\Engine\EngineCore\ComponentFactory.h" />
-    <ClInclude Include="Source\Engine\EngineCore\EngineCores.h" />
-    <ClInclude Include="Source\Engine\EngineCore\EngineLogger.h" />
-    <ClInclude Include="Source\Engine\EngineCore\GameObjectFactory.h" />
-    <ClInclude Include="Source\Engine\EngineCore\SceneManager.h" />
-    <ClInclude Include="Source\Engine\EngineCore\TimeSystem.h" />
-    <ClInclude Include="Source\Engine\GameCore\Component\Component.h" />
-    <ClInclude Include="Source\Engine\GameCore\GameObject\GameObject.h" />
-    <ClInclude Include="Source\Engine\GameCore\Transform\Transform.h" />
-    <ClInclude Include="Source\Engine\Imgui\crude_json.h" />
-    <ClInclude Include="Source\Engine\Imgui\imgui_bezier_math.h" />
-    <ClInclude Include="Source\Engine\Imgui\imgui_canvas.h" />
-    <ClInclude Include="Source\Engine\Imgui\imgui_extra_math.h" />
-    <ClInclude Include="Source\Engine\Imgui\imgui_impl_dx11.h" />
-    <ClInclude Include="Source\Engine\Imgui\imgui_impl_dx12.h" />
-    <ClInclude Include="Source\Engine\Imgui\imconfig.h" />
-    <ClInclude Include="Source\Engine\Imgui\imgui.h" />
-    <ClInclude Include="Source\Engine\Imgui\imgui_impl_win32.h" />
-    <ClInclude Include="Source\Engine\Imgui\imgui_internal.h" />
-    <ClInclude Include="Source\Engine\Imgui\imgui_node_editor.h" />
-    <ClInclude Include="Source\Engine\Imgui\imgui_node_editor_internal.h" />
-    <ClInclude Include="Source\Engine\Imgui\imstb_rectpack.h" />
-    <ClInclude Include="Source\Engine\Imgui\imstb_textedit.h" />
-    <ClInclude Include="Source\Engine\Imgui\imstb_truetype.h" />
-    <ClInclude Include="Source\Engine\Imgui\imgui_stdlib.h" />
-    <ClInclude Include="Source\Engine\ClassCore\TProperty.hpp" />
-    <ClInclude Include="Source\Engine\Utility\dllUtility.h" />
-    <ClInclude Include="Source\Engine\Utility\ImguiHelper.h" />
-    <ClInclude Include="Source\Engine\Utility\utfHelper.h" />
-    <ClInclude Include="Source\Engine\ApplicationCore\Application.h" />
-    <ClInclude Include="Source\UmFramework.h" />
-    <ClInclude Include="Source\pch.h" />
-    <ClInclude Include="Source\Engine\Utility\DumpUtility.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\VertexShader.h" />
+    <ClInclude Include="Source\pch.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Utility\DumpUtility.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\UmFramework.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Imgui\imconfig.h">
+      <Filter>헤더 파일\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Imgui\imgui.h">
+      <Filter>헤더 파일\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Imgui\imgui_impl_dx11.h">
+      <Filter>헤더 파일\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Imgui\imgui_impl_dx12.h">
+      <Filter>헤더 파일\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Imgui\imgui_internal.h">
+      <Filter>헤더 파일\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Imgui\imgui_stdlib.h">
+      <Filter>헤더 파일\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Imgui\imstb_rectpack.h">
+      <Filter>헤더 파일\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Imgui\imstb_textedit.h">
+      <Filter>헤더 파일\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Imgui\imstb_truetype.h">
+      <Filter>헤더 파일\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Imgui\imgui_impl_win32.h">
+      <Filter>헤더 파일\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\EngineCore\TimeSystem.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\ClassCore\TProperty.hpp">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\ClassCore\ReflectHelper.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Utility\stlHelper.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GameCore\Component\Component.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Utility\dllUtility.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\EngineCore\EngineCores.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GameCore\GameObject\GameObject.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\EngineCore\SceneManager.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\EngineCore\ComponentFactory.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Utility\utfHelper.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\EngineCore\GameObjectFactory.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GameCore\Transform\Transform.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Imgui\imgui_node_editor_internal.h">
+      <Filter>헤더 파일\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Imgui\imgui_node_editor.h">
+      <Filter>헤더 파일\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Imgui\imgui_extra_math.h">
+      <Filter>헤더 파일\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Imgui\imgui_canvas.h">
+      <Filter>헤더 파일\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Imgui\imgui_bezier_math.h">
+      <Filter>헤더 파일\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Imgui\crude_json.h">
+      <Filter>헤더 파일\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\ApplicationCore\Application.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\AppModule\Interface\IAppModule.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\AppModule\EngineCoresModule.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Utility\ImGuiHelper.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\EditorCore\Gui\EditorGui.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\EditorCore\Gui\Menu\EditorMenu.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\EditorCore\System\EditorDockWindowSystem.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\EditorCore\Gui\Tool\EditorTool.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\EngineCore\EngineLogger.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Utility\Mathf.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Utility\LogLevel.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\FileSystem\FileSystemModule.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\EditorCore\EditorModule.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\DragDropTypes\DragDropTransform.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Tool\AssetBrowser\EditorAssetBrowserTool.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Tool\Debug\EditorDebugTool.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Tool\Hierarchy\EditorHierarchyTool.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Tool\Inspector\EditorInspectorTool.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Tool\Log\EditorLogsTool.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Tool\Scene\EditorSceneTool.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Menu\Project\EditorProjectMenu.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Menu\Scene\EditorSceneMenu.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Menu\Setting\EditorSettingMenu.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Menu\Window\EditorWindowMenu.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\FileSystem\Extra\FileObserver.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\FileSystem\System\FileSystem.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\FileSystem\Extra\FileContext.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\FileSystem\Extra\FileEventNotifier.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\FileSystem\Interface\IFileEventProcesser.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\FileSystem\Type\FileGuidPath.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Utility\FileHelper.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Utility\EditorHelper.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\GraphicsCore.h">
+      <Filter>GraphicsCore</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\TempObject.h">
+      <Filter>GraphicsCore</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\Animation.h">
+      <Filter>GraphicsCore\Resource\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\BaseMesh.h">
+      <Filter>GraphicsCore\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\Box.h">
+      <Filter>GraphicsCore\Mesh\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\Camera.h">
+      <Filter>GraphicsCore\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\Cylinder.h">
+      <Filter>GraphicsCore\Mesh\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\Defines.h">
+      <Filter>GraphicsCore\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\DX12Practice.h">
+      <Filter>GraphicsCore\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\Enums.h">
+      <Filter>GraphicsCore\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\Externs.h">
+      <Filter>GraphicsCore\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\Structs.h">
+      <Filter>GraphicsCore\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\Device.h">
+      <Filter>GraphicsCore\Device</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\FBXImporter.h">
+      <Filter>GraphicsCore\FBXImporter</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\Font.h">
+      <Filter>GraphicsCore\Font</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\FrameResource.h">
+      <Filter>GraphicsCore\FrameResource</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\FX.h">
+      <Filter>GraphicsCore\FX</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\GeometryGenerator.h">
+      <Filter>GraphicsCore\Mesh\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\GeoSphere.h">
+      <Filter>GraphicsCore\Mesh\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\Grid.h">
+      <Filter>GraphicsCore\Mesh\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\Model.h">
+      <Filter>GraphicsCore\Resource\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\Quad.h">
+      <Filter>GraphicsCore\Mesh\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\FontManager.h">
+      <Filter>GraphicsCore\Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\MultiRenderTargetManager.h">
+      <Filter>GraphicsCore\Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\ResourceManager.h">
+      <Filter>GraphicsCore\Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\ViewManager.h">
+      <Filter>GraphicsCore\Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\Resource.h">
+      <Filter>GraphicsCore\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\RenderTarget.h">
+      <Filter>GraphicsCore\RenderTarget</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\Renderer.h">
+      <Filter>GraphicsCore\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\ShaderBuilder.h">
+      <Filter>GraphicsCore\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\AppModule\ImGuiDX12Module.h">
+      <Filter>GraphicsCore\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\Skeleton.h">
+      <Filter>GraphicsCore\Skeleton</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\Sphere.h">
+      <Filter>GraphicsCore\Mesh\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\Texture.h">
+      <Filter>GraphicsCore\Resource\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\StructuredBuffer.h">
+      <Filter>GraphicsCore\StructuredBuffer</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\VIBuffer.h">
+      <Filter>GraphicsCore\VIBuffer</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\GraphicsModule.h">
+      <Filter>GraphicsCore\Module</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\RenderScene.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\RenderPass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\RenderTechnique.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Imgui\GraphEditor.h">
+      <Filter>헤더 파일\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Imgui\ImCurveEdit.h">
+      <Filter>헤더 파일\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Imgui\ImGradient.h">
+      <Filter>헤더 파일\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Imgui\ImGuizmo.h">
+      <Filter>헤더 파일\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Imgui\ImSequencer.h">
+      <Filter>헤더 파일\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Imgui\ImZoomSlider.h">
+      <Filter>헤더 파일\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\DragDropTypes\DragDropAsset.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\EditorCore\System\EditorPopupBoxSystem.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\EditorCore\Gui\PopupBox\EditorPopupBox.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\EditorCore\Setting\EditorSetting.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Menu\Project\EditorBuildSettingMenu.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\Animator.h">
+      <Filter>GraphicsCore\Animator</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\Material.h">
+      <Filter>GraphicsCore\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\M_PBR.h">
+      <Filter>GraphicsCore\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\PBRLitTechnique.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\GBufferPass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\DeferredPBRLitPass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GameCore\Component\MissingComponent.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\CommandCore\UmCommand.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\CommandCore\CommandManager.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Tool\Command\EditorCommandTool.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\FileSystem\Type\FileInformation.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\FileSystem\Type\FileData.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\FileSystem\Type\FileSystemSetting.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\Shader.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\VertexShader.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\ComputeShader.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\GeometryShader.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\MeshShader.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\PixelShader.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Tool\Model\EditorModelTool.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\DynamicCamera\EditorDynamicCamera.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\RendererFileEvent.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\d3dUtil.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Tool\Hierarchy\Command\FocusCommand.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Tool\Hierarchy\Command\SetParentCommand.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Tool\Hierarchy\Command\DetachChildrenCommand.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Tool\Hierarchy\Command\PackPrefabCommand.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Tool\Hierarchy\Command\NewGameObjectCommand.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Tool\Hierarchy\Command\DropPrefabCommand.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\EditorCore\Interface\IEditorObject.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\EditorCore\Gui\DockWindow\EditorDockWindow.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\EditorCore\Interface\IEditorCycle.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\MeshRenderer.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Menu\Play\EditorPlayMenu.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\FBXConverter.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\UmScripts.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\pch.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Utility\DumpUtility.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Imgui\imgui.cpp">
+      <Filter>소스 파일\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Imgui\imgui_demo.cpp">
+      <Filter>소스 파일\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Imgui\imgui_draw.cpp">
+      <Filter>소스 파일\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Imgui\imgui_impl_dx11.cpp">
+      <Filter>소스 파일\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Imgui\imgui_impl_dx12.cpp">
+      <Filter>소스 파일\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Imgui\imgui_stdlib.cpp">
+      <Filter>소스 파일\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Imgui\imgui_tables.cpp">
+      <Filter>소스 파일\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Imgui\imgui_widgets.cpp">
+      <Filter>소스 파일\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Imgui\imgui_impl_win32.cpp">
+      <Filter>소스 파일\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\EngineCore\TimeSystem.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\ClassCore\ReflectHelper.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GameCore\Component\Component.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Utility\dllUtility.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GameCore\GameObject\GameObject.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\EngineCore\SceneManager.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\EngineCore\ComponentFactory.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\EngineCore\EngineCores.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Utility\utfHelper.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\EngineCore\GameObjectFactory.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GameCore\Transform\Transform.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Imgui\crude_json.cpp">
+      <Filter>소스 파일\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Imgui\imgui_canvas.cpp">
+      <Filter>소스 파일\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Imgui\imgui_node_editor.cpp">
+      <Filter>소스 파일\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Imgui\imgui_node_editor_api.cpp">
+      <Filter>소스 파일\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\ApplicationCore\Application.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\AppModule\EngineCoresModule.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Utility\ImGuiHelper.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\EditorCore\Gui\EditorGui.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\EditorCore\Gui\Menu\EditorMenu.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\EditorCore\System\EditorDockWindowSystem.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\EditorCore\Gui\Tool\EditorTool.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\EngineCore\EngineLogger.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Utility\Mathf.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\FileSystem\FileSystemModule.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\EditorCore\EditorModule.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Utility\LogLevel.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\AssetBrowser\EditorAssetBrowserTool.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\Debug\EditorDebugTool.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\Hierarchy\EditorHierarchyTool.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\Inspector\EditorInspectorTool.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\Log\EditorLogsTool.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\Scene\EditorSceneTool.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Menu\Project\EditorProjectMenu.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Menu\Scene\EditorSceneMenu.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Menu\Setting\EditorSettingMenu.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Menu\Window\EditorWindowMenu.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\FileSystem\Extra\FileObserver.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\FileSystem\System\FileSystem.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\FileSystem\Extra\FileContext.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\FileSystem\Extra\FileEventNotifier.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\FileSystem\Interface\IFileEventProcesser.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\FileSystem\Type\FileGuidPath.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Utility\FileHelper.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Utility\EditorHelper.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\GraphicsCore.cpp">
+      <Filter>GraphicsCore</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\TempObject.cpp">
+      <Filter>GraphicsCore</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\Animation.cpp">
+      <Filter>GraphicsCore\Resource\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\BaseMesh.cpp">
+      <Filter>GraphicsCore\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\Box.cpp">
+      <Filter>GraphicsCore\Mesh\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\Camera.cpp">
+      <Filter>GraphicsCore\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\Cylinder.cpp">
+      <Filter>GraphicsCore\Mesh\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\Device.cpp">
+      <Filter>GraphicsCore\Device</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\FBXImporter.cpp">
+      <Filter>GraphicsCore\FBXImporter</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\Font.cpp">
+      <Filter>GraphicsCore\Font</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\FrameResource.cpp">
+      <Filter>GraphicsCore\FrameResource</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\FX.cpp">
+      <Filter>GraphicsCore\FX</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\GeometryGenerator.cpp">
+      <Filter>GraphicsCore\Mesh\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\GeoSphere.cpp">
+      <Filter>GraphicsCore\Mesh\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\Grid.cpp">
+      <Filter>GraphicsCore\Mesh\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\Model.cpp">
+      <Filter>GraphicsCore\Resource\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\Quad.cpp">
+      <Filter>GraphicsCore\Mesh\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\FontManager.cpp">
+      <Filter>GraphicsCore\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\MultiRenderTargetManager.cpp">
+      <Filter>GraphicsCore\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\ResourceManager.cpp">
+      <Filter>GraphicsCore\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\ViewManager.cpp">
+      <Filter>GraphicsCore\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\RenderTarget.cpp">
+      <Filter>GraphicsCore\RenderTarget</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\Renderer.cpp">
+      <Filter>GraphicsCore\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\ShaderBuilder.cpp">
+      <Filter>GraphicsCore\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\AppModule\ImGuiDX12Module.cpp">
+      <Filter>GraphicsCore\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\Skeleton.cpp">
+      <Filter>GraphicsCore\Skeleton</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\Sphere.cpp">
+      <Filter>GraphicsCore\Mesh\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\Texture.cpp">
+      <Filter>GraphicsCore\Resource\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\StructuredBuffer.cpp">
+      <Filter>GraphicsCore\StructuredBuffer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\VIBuffer.cpp">
+      <Filter>GraphicsCore\VIBuffer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\GraphicsModule.cpp">
+      <Filter>GraphicsCore\Module</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\RenderScene.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\RenderPass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\RenderTechnique.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Imgui\GraphEditor.cpp">
+      <Filter>소스 파일\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Imgui\ImCurveEdit.cpp">
+      <Filter>소스 파일\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Imgui\ImGradient.cpp">
+      <Filter>소스 파일\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Imgui\ImGuizmo.cpp">
+      <Filter>소스 파일\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Imgui\ImSequencer.cpp">
+      <Filter>소스 파일\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\DragDropTypes\DragDropAsset.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\EditorCore\System\EditorPopupBoxSystem.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\EditorCore\Gui\PopupBox\EditorPopupBox.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\DragDropTypes\DragDropTransform.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\EditorCore\Setting\EditorSetting.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Menu\Project\EditorBuildSettingMenu.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\Animator.cpp">
+      <Filter>GraphicsCore\Animator</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\Material.cpp">
+      <Filter>GraphicsCore\Material</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\M_PBR.cpp">
+      <Filter>GraphicsCore\Material</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\PBRLitTechnique.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\GBufferPass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\DeferredPBRLitPass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\Shader.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\VertexShader.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\ComputeShader.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\GeometryShader.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\MeshShader.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\PixelShader.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\Model\EditorModelTool.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\DynamicCamera\EditorDynamicCamera.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GameCore\Component\MissingComponent.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\CommandCore\UmCommand.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\CommandCore\CommandManager.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\Command\EditorCommandTool.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\Hierarchy\Command\FocusCommand.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\Hierarchy\Command\SetParentCommand.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\Hierarchy\Command\DetachChildrenCommand.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\Hierarchy\Command\PackPrefabCommand.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\Hierarchy\Command\NewGameObjectCommand.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\Hierarchy\Command\DropPrefabCommand.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\FileSystem\Type\FileInformation.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\FileSystem\Type\FileData.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\FileSystem\Type\FileSystemSetting.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\d3dUtil.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\RendererFileEvent.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\MeshRenderer.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\FBXConverter.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Menu\Play\EditorPlayMenu.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\EditorCore\Gui\DockWindow\EditorDockWindow.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\PBRTechnique.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Source\Engine\Imgui\imgui_node_editor_internal.inl">
+      <Filter>소스 파일\imgui</Filter>
+    </None>
+    <None Include="Source\Engine\Imgui\imgui_extra_math.inl">
+      <Filter>소스 파일\imgui</Filter>
+    </None>
+    <None Include="Source\Engine\Imgui\imgui_bezier_math.inl">
+      <Filter>소스 파일\imgui</Filter>
+    </None>
+    <None Include="..\Shaders\CommonData.hlsli">
+      <Filter>GraphicsCore\HLSL</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
