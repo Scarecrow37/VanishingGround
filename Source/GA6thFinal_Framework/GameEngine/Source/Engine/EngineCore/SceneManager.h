@@ -1,6 +1,7 @@
 ﻿#pragma once
 class GameObject;
 class ESceneManager;
+class MeshComponent;
 
 //참고 
 // Unity SceneManager https://docs.unity3d.com/6000.0/Documentation/ScriptReference/SceneManagement.SceneManager.html
@@ -216,6 +217,7 @@ public:
         /// 프리팹 인스턴스를 Swap 합니다. Reset만 호출되며 인스턴스 아이디는 유지됩니다.
         /// </summary>
         static void SwapPrefabInstance(GameObject* original, GameObject* remake);
+
     };
 
 public:
@@ -321,7 +323,7 @@ public:
         ~SceneResourceManager();
 
     private:
-        std::vector<std::weak_ptr<Component>> _resourceLoadQueue;
+        std::vector<std::weak_ptr<MeshComponent>> _resourceLoadQueue;
     };
     /// <summary>
     /// 씬 리소스 관리를 위한 맴버입니다.
@@ -395,6 +397,9 @@ private:
     //OnEnable, OnDisable을 set과 같이 관리
     std::tuple<std::unordered_set<Component*>, std::vector<Component*>, std::vector<bool*>> _onEnableQueue;
     std::tuple<std::unordered_set<Component*>, std::vector<Component*>, std::vector<bool*>> _onDisableQueue;
+
+    //MeshComponent의 Enable, Disable 변경 관리용
+    std::pair<std::vector<MeshComponent*>, std::vector<MeshComponent*>> _meshSetActiveQueue;
 
 private:
     struct

@@ -52,26 +52,17 @@ void StaticMeshRenderer::Start()
 
 void StaticMeshRenderer::OnEnable()
 {
-    _meshRenderer->SetActive(true);
+    
 }
 
 void StaticMeshRenderer::OnDisable()
 {
-    _meshRenderer->SetActive(false);
+    
 }
 
 void StaticMeshRenderer::Update() 
 {
-    /*if constexpr (IS_EDITOR)
-    {
-        ImGui::Begin("sdasadsadawsddasd");
-        if (ImGui::Button("Load"))
-        {
-            File::Guid guid = ReflectFields->Guid;
-            _meshRenderer->LoadModel(guid.ToPath().c_str());
-        }
-        ImGui::End();
-    }*/
+  
 }
 
 void StaticMeshRenderer::FixedUpdate() 
@@ -84,8 +75,17 @@ void StaticMeshRenderer::OnDestroy()
    
 }
 
-void StaticMeshRenderer::OnApplicationQuit() {}
+void StaticMeshRenderer::OnApplicationQuit() 
+{
 
-void StaticMeshRenderer::SerializedReflectEvent() {}
+}
 
-void StaticMeshRenderer::DeserializedReflectEvent() {}
+void StaticMeshRenderer::SerializedReflectEvent() 
+{
+
+}
+
+void StaticMeshRenderer::DeserializedReflectEvent() 
+{
+
+}

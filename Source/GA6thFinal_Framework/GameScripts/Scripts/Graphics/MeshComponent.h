@@ -21,6 +21,7 @@ public:
 
     //meshRenderer 입니다. MakeMeshRenderer를 호출해야만 생성됩니다.
     const std::unique_ptr<MeshRenderer>& _meshRenderer;
+
 private:
     std::unique_ptr<MeshRenderer> _pMeshRenderer;
 

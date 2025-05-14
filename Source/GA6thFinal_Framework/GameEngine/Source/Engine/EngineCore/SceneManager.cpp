@@ -1,4 +1,5 @@
 ﻿#include "pch.h"
+#include "UmScripts.h"
 using namespace Global;
 using namespace u8_literals;
 
@@ -131,14 +132,14 @@ void ESceneManager::Engine::AddComponentToLifeCycle(std::shared_ptr<Component> c
 
 void ESceneManager::Engine::SetGameObjectActive(int instanceID, bool value)
 {
+    ESceneManager& sceneManager = UmSceneManager;
     if (auto& gameObject = Global::engineCore->SceneManager._runtimeObjects[instanceID])
     {
         if (gameObject->ReflectFields->_activeSelf != value)
         {
             //컴포넌트들의 On__able 함수를 호출하도록 합니다.
-            auto& [WaitSet, WaitVec, WaitValue] = value ? Global::engineCore->SceneManager._onEnableQueue : Global::engineCore->SceneManager._onDisableQueue;
-            WaitValue.emplace_back(&gameObject->ReflectFields->_activeSelf);
-                           
+            auto& [WaitSet, WaitVec, WaitValue] = value ? sceneManager._onEnableQueue : sceneManager._onDisableQueue;
+            WaitValue.emplace_back(&gameObject->ReflectFields->_activeSelf);                
             if (value == true)
             {
                 gameObject->ReflectFields->_activeSelf = true; //ActiveInHierarchy 검증용                        
@@ -159,6 +160,14 @@ void ESceneManager::Engine::SetGameObjectActive(int instanceID, bool value)
                                 if (result)
                                 {
                                     WaitVec.emplace_back(component.get());
+
+                                    //메시 컴포넌트들은 meshRenderer의 SetActive도 변경해야함.
+                                    if (Component::Type::Mesh == component->_type)
+                                    {
+                                        auto& meshActiveQueue = value ? sceneManager._meshSetActiveQueue.first
+                                                                      : sceneManager._meshSetActiveQueue.second;
+                                        meshActiveQueue.push_back(static_cast<MeshComponent*>(component.get()));
+                                    }
                                 }
                             }
                         }
@@ -176,10 +185,11 @@ void ESceneManager::Engine::SetGameObjectActive(int instanceID, bool value)
 
 void ESceneManager::Engine::SetComponentEnable(Component* component, bool value)
 {
+    ESceneManager& sceneManager = UmSceneManager;
     if (component && component->ReflectFields->_enable != value)
     {
         //컴포넌트의 On__able 함수를 호출하도록 합니다.
-        auto& [WaitSet, WaitVec, WaitValue] = value ? engineCore->SceneManager._onEnableQueue : engineCore->SceneManager._onDisableQueue;
+        auto& [WaitSet, WaitVec, WaitValue] = value ? sceneManager._onEnableQueue : sceneManager._onDisableQueue;
         WaitValue.emplace_back(&component->ReflectFields->_enable);
         if (component->gameObject->ActiveInHierarchy == true)
         {
@@ -187,6 +197,13 @@ void ESceneManager::Engine::SetComponentEnable(Component* component, bool value)
             if (result)
             {
                 WaitVec.push_back(component);
+
+                // 메시 컴포넌트들은 meshRenderer의 SetActive도 변경해야함.
+                if (Component::Type::Mesh == component->_type)
+                {
+                    auto& meshActiveQueue = value ? sceneManager._meshSetActiveQueue.first : sceneManager._meshSetActiveQueue.second;
+                    meshActiveQueue.push_back(static_cast<MeshComponent*>(component));
+                }
             }
         }
     }
@@ -660,9 +677,18 @@ void ESceneManager::ObjectsApplicationQuit()
 void ESceneManager::ObjectsOnEnable()
 {
     auto& [OnEnableSet, OnEnableVec, OnEnableValue] = _onEnableQueue;
+    auto& MeshEnableQueue = _meshSetActiveQueue.first;
     for (auto& value : OnEnableValue)
     {
         *value = true;  
+    }
+
+    for (auto& mesh : MeshEnableQueue)
+    {
+        if (nullptr != mesh->_meshRenderer)
+        {
+            mesh->_meshRenderer->SetActive(true);
+        }
     }
     
     if (_isPlay)
@@ -676,14 +702,25 @@ void ESceneManager::ObjectsOnEnable()
     OnEnableSet.clear();
     OnEnableVec.clear();
     OnEnableValue.clear();
+    MeshEnableQueue.clear();
 }
 
 void ESceneManager::ObjectsOnDisable()
 {
     auto& [OnDisableSet, OnDisableVec, OnDisableValue] = _onDisableQueue;
+    auto& MeshDisableQueue = _meshSetActiveQueue.second;
+
     for (auto& value : OnDisableValue)
     {
         *value = false;
+    }
+
+    for (auto& mesh : MeshDisableQueue)
+    {
+        if (nullptr != mesh->_meshRenderer)
+        {
+            mesh->_meshRenderer->SetActive(false);
+        }
     }
 
     if (_isPlay)
@@ -697,6 +734,7 @@ void ESceneManager::ObjectsOnDisable()
     OnDisableSet.clear();
     OnDisableVec.clear();
     OnDisableValue.clear();
+    MeshDisableQueue.clear();
 }
 
 void ESceneManager::ObjectsDestroy()

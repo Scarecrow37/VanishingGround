@@ -2,11 +2,18 @@
 
 MeshComponent::MeshComponent() 
     : 
+    Component(Component::Type::Mesh),
     _meshRenderer(_pMeshRenderer)
 {
   
 }
-MeshComponent::~MeshComponent() = default;
+MeshComponent::~MeshComponent()
+{
+    if (_meshRenderer)
+    {
+        _meshRenderer->SetDestroy();
+    }
+}
 
 void MeshComponent::MakeMeshRenderer(MeshRenderer::RENDER_TYPE renderType, const Matrix& world)
 {
