@@ -54,3 +54,6 @@ struct Object
 };
 
 ConstantBuffer<CameraData> cameraData : register(b0);
+ConstantBuffer<Object> bit32_object   : register(b1);
+
+#define object bit32_object

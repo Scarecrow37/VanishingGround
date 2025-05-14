@@ -12,6 +12,7 @@ float NormalDistributionFunction(float3 N, float3 Lh, float roughness)
     float denominator = PI * pow(pow(saturate(dot(N, Lh)), 2) * (alphaSq - 1) + 1, 2);
     return alphaSq / denominator;
 }
+
 float GSchlickGGX(float3 Vector, float3 N, float roughness)
 {
     float NDotVec = saturate(dot(Vector, N));
@@ -19,6 +20,7 @@ float GSchlickGGX(float3 Vector, float3 N, float roughness)
     float k = (r * r) / 8.0;
     return NDotVec / (NDotVec * (1.0 - k) + k);
 }
+
 float GAFDirect(float3 N, float3 Lo, float3 Li, float roughness)
 {
     return GSchlickGGX(Lo, N, roughness) * GSchlickGGX(Li, N, roughness);
@@ -48,11 +50,7 @@ struct Material
     uint ID[4];
 };
 
-ConstantBuffer<Object> bit32_object : register(b1);
 StructuredBuffer<Material> material;
-
-#define object bit32_object
-
 Texture2D textures[];
 SamplerState samLinear_wrap;
 

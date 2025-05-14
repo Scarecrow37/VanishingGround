@@ -253,7 +253,7 @@ public:
     const Matrix& GetWorldMatrix() { return _worldMatrix; }
 
     /// <summary>
-    /// 로컬 행렬 입니다. 
+    /// 로컬 행렬 입니다. 부모가 없으면 World 행렬과 동일합니다.
     /// </summary>
     /// <returns></returns>
     const Matrix& GetLocalMatrix() { return _localMatrix; }

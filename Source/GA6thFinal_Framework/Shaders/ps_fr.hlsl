@@ -19,10 +19,8 @@ struct Material
     uint ID[4];
 };
 
-ConstantBuffer<Object> bit32_object : register(b1);
-StructuredBuffer<Material> material;
 
-#define object bit32_object
+StructuredBuffer<Material> material;
 
 Texture2D textures[];
 

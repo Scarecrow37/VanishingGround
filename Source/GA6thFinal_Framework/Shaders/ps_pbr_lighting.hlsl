@@ -25,12 +25,9 @@ SamplerState samLinear_wrap;
 
 float4 ps_main(PSInput input) : SV_Target0
 {
-    float3 albedo = gBuffers[BASECOLOR].Sample(samLinear_wrap, input.uv).rgb;
     float depth = gBuffers[DEPTH].Sample(samLinear_wrap, input.uv).r;
-    if (depth == 1.f)
-    {
-        discard;
-    }
+    float3 albedo = gBuffers[BASECOLOR].Sample(samLinear_wrap, input.uv).rgb;
+    clip(1.f - Epsilon - depth);
     albedo = pow(albedo, 2.2);
     
     float3 normal = gBuffers[NORMAL].Sample(samLinear_wrap, input.uv).rgb;
