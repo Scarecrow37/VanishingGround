@@ -84,7 +84,7 @@ jobs:
               }
             }
 
-      - name: Create Sub-task under Task
+      - name: Create Sub-task under Bug
         if: steps.parent-type.outputs.parent_type == '버그'
         id: create-subtask-under-bug
         uses: atlassian/gajira-create@v3
@@ -99,9 +99,21 @@ jobs:
                 "key": "${{ steps.issue-parser.outputs.issueparser_parentKey }}"
               }
             }
+            
+      - name: Set ISSUE_KEY from create-task
+        if: steps.parent-type.outputs.parent_type == '에픽'
+        run: echo "ISSUE_KEY=${{ steps.create-task.outputs.issue }}" >> $GITHUB_ENV
+      
+      - name: Set ISSUE_KEY from create-subtask-under-task
+        if: steps.parent-type.outputs.parent_type == '작업'
+        run: echo "ISSUE_KEY=${{ steps.create-subtask-under-task.outputs.issue }}" >> $GITHUB_ENV
+      
+      - name: Set ISSUE_KEY from create-subtask-under-bug
+        if: steps.parent-type.outputs.parent_type == '버그'
+        run: echo "ISSUE_KEY=${{ steps.create-subtask-under-bug.outputs.issue }}" >> $GITHUB_ENV
 
       - name: Log created issue
-        run: echo "Jira Issue ${{ steps.issue-parser.outputs.parentKey }}/${{ steps.create.outputs.issue }} was created"
+        run: echo "Jira Issue ${{ steps.issue-parser.outputs.issueparser_parentKey }}/${{ env.ISSUE_KEY }} was created"
 
       - name: Checkout develop code
         uses: actions/checkout@v4
@@ -115,7 +127,6 @@ jobs:
         env:
           ISSUE_NUMBER: ${{ github.event.issue.number }}
           ISSUE_TITLE: ${{ github.event.issue.title }}
-          ISSUE_KEY: ${{ steps.create-task.outputs.issue || steps.create-subtask.outputs.issue }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "TITLE: $ISSUE_TITLE"
@@ -138,5 +149,4 @@ jobs:
           actions: 'create-comment'
           token: ${{ secrets.GITHUB_TOKEN }}
           issue-number: ${{ github.event.issue.number }}
-          body: 'Jira Issue Created: [${{ steps.create.outputs.issue }}](${{ secrets.JIRA_BASE_URL }}/browse/${{ steps.create.outputs.issue }})'
-      
+          body: 'Jira Issue Created: [${{ env.ISSUE_KEY }}](${{ secrets.JIRA_BASE_URL }}/browse/${{ env.ISSUE_KEY }})'
