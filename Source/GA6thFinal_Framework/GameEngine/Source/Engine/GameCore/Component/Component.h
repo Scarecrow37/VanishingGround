@@ -8,8 +8,21 @@ class Component abstract :
     friend class EComponentFactory;
     friend class ESceneManager;
     USING_PROPERTY(Component)
+
 public:
-    Component();
+    enum class Type
+    {
+        // 일반
+        Generic,
+        // 메시
+        Mesh,
+    };
+
+    /// <summary>
+    /// 생성시 타입 플래그를 지정해줘야합니다.
+    /// </summary>
+    /// <param name="isMeshComponent"></param>
+    Component(Type type = Type::Generic);
     virtual ~Component();
 
     /// <summary>
@@ -125,6 +138,15 @@ public:
     }
 
     /// <summary>
+    /// 이 컴포넌트의 타입입니다.
+    /// </summary>
+    /// <returns>컴포넌트의 타입</returns>
+    Type GetType() const
+    {
+        return _type;
+    }
+
+    /// <summary>
     /// 이 컴포넌트의 인덱스를 반환합니다. (이 컴포넌트가 추가된 오브젝트에서의 기준)
     /// </summary>
     /// <returns>int 인덱스</returns>
@@ -172,8 +194,6 @@ public:
     inline size_t GetComponentCount() const;
 
 private:
-    std::string _className;
-
     struct InitFlags
     {
         InitFlags();
@@ -200,6 +220,9 @@ private:
         bool _isStart;
     };
     InitFlags _initFlags;
+
+    const Type _type;
+    std::string _className;
     GameObject* _gameObect;
     std::weak_ptr<Component> _weakPtr;
 };
