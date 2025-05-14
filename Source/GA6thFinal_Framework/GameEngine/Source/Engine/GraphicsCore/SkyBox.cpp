@@ -1,6 +1,6 @@
-﻿#include "SkyBox.h"
+﻿#include "pch.h"
+#include "SkyBox.h"
 #include "Box.h"
-#include "pch.h"
 #include "ShaderBuilder.h"
 #include <stb_image.h>
 
@@ -180,12 +180,11 @@ void SkyBox::CreateComputePSO()
     FAILED_CHECK_BREAK(hr);
 }
 
-void SkyBox::BindResource() 
-{
+void SkyBox::BindResources(UINT cubeSize, UINT faceIndex) {
 
 }
 
-void SkyBox::SetPipelineStete(UINT cubeSize, UINT faceIndex) 
+void SkyBox::SetPipelineState() 
 {
 
 }

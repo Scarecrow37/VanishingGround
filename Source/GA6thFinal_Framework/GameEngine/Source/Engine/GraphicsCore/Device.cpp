@@ -126,6 +126,7 @@ void Device::CreateDeviceAndSwapChain(HWND hwnd, D3D_FEATURE_LEVEL feature)
     assert(_4xMSAAQuality > 0 && "Unexpected MSAA quality level");
 
     CreateCommandQueue();
+    CreateComputeCommandObject();
     CreateSyncObject();
 
     _swapChain.Reset();
@@ -225,7 +226,7 @@ void Device::CreateDepthStencil()
     _device->CreateDepthStencilView(_depthStencilBuffer.Get(), &dsvDesc, _depthStencilHandle);
 }
 
-HRESULT Device::CreateBuffer(UINT size, ComPtr<ID3D12Resource>& buffer)
+void Device::CreateBuffer(UINT size, ComPtr<ID3D12Resource>& buffer)
 {
     D3D12_HEAP_PROPERTIES hp = {};
     hp.Type                  = D3D12_HEAP_TYPE_UPLOAD; // 힙 타입 : "업로드"
@@ -254,7 +255,6 @@ HRESULT Device::CreateBuffer(UINT size, ComPtr<ID3D12Resource>& buffer)
     FAILED_CHECK_BREAK(_device->CreateCommittedResource(&hp, D3D12_HEAP_FLAG_NONE, &rd,
                                                         D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
                                                         IID_PPV_ARGS(buffer.GetAddressOf())));
-    return 0;
 }
 
 void Device::GPUSync()
@@ -384,10 +384,9 @@ HRESULT Device::Flip()
     return 0;
 }
   
-HRESULT Device::CreateVertexBuffer(void* data, UINT size, UINT stride, ComPtr<ID3D12Resource>& buffer,
+void Device::CreateVertexBuffer(void* data, UINT size, UINT stride, ComPtr<ID3D12Resource>& buffer,
                                    D3D12_VERTEX_BUFFER_VIEW& view)
 {
-    HRESULT hr = S_OK;
 
     if (data)
     {
@@ -400,16 +399,11 @@ HRESULT Device::CreateVertexBuffer(void* data, UINT size, UINT stride, ComPtr<ID
     view.BufferLocation = buffer->GetGPUVirtualAddress();
     view.SizeInBytes    = size;
     view.StrideInBytes  = stride;
-
-    return S_OK;
 }
 
-HRESULT Device::CreateIndexBuffer(void* data, UINT size, DXGI_FORMAT format, ComPtr<ID3D12Resource>& buffer,
+void Device::CreateIndexBuffer(void* data, UINT size, DXGI_FORMAT format, ComPtr<ID3D12Resource>& buffer,
                                   D3D12_INDEX_BUFFER_VIEW& view)
 {
-
-    HRESULT hr       = S_OK;
-
     if (data)
     {
         ComPtr<ID3D12Resource> uploadBuffer;
@@ -421,29 +415,19 @@ HRESULT Device::CreateIndexBuffer(void* data, UINT size, DXGI_FORMAT format, Com
     view.BufferLocation = buffer->GetGPUVirtualAddress();
     view.SizeInBytes    = size;
     view.Format         = format;
-
-    return S_OK;
 }
 
-HRESULT Device::CreateConstantBuffer(void* data, UINT size, ComPtr<ID3D12Resource>& buffer)
+void Device::CreateConstantBuffer(void* data, UINT size, ComPtr<ID3D12Resource>& buffer)
 {
-    HRESULT hr = S_OK;
-
     // 버퍼 생성
-    hr = CreateBuffer(size, buffer);
-    FAILED_CHECK_BREAK(hr);
+    CreateBuffer(size, buffer);
 
     // 버퍼 갱신
     if (data)
         UpdateBuffer(buffer, data, size);
-
-    // 리소스-뷰 생성
-    //...
-
-    return hr;
 }
 
-HRESULT Device::CreateDefaultBuffer(UINT size, ComPtr<ID3D12Resource>& buffer)
+void Device::CreateDefaultBuffer(UINT size, ComPtr<ID3D12Resource>& buffer)
 {
 
     D3D12_HEAP_PROPERTIES hp = {};
@@ -473,10 +457,9 @@ HRESULT Device::CreateDefaultBuffer(UINT size, ComPtr<ID3D12Resource>& buffer)
     FAILED_CHECK_BREAK(_device->CreateCommittedResource(&hp, D3D12_HEAP_FLAG_NONE, &rd,
                                                         D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
                                                         IID_PPV_ARGS(buffer.GetAddressOf())));
-    return 0;
 }
 
-HRESULT Device::CreateCommandList(ComPtr<ID3D12CommandAllocator>&    allocator,
+void Device::CreateCommandList(ComPtr<ID3D12CommandAllocator>&    allocator,
                                   ComPtr<ID3D12GraphicsCommandList>& commandList,
                                   COMMAND_TYPE type)
 {
@@ -504,6 +487,17 @@ HRESULT Device::CreateCommandList(ComPtr<ID3D12CommandAllocator>&    allocator,
     FAILED_CHECK_BREAK(_device->CreateCommandList(desc.NodeMask, desc.Type, allocator.Get(), nullptr,
                                                   IID_PPV_ARGS(commandList.GetAddressOf())));
     commandList->Close();
+}
 
-    return S_OK;
+void Device::CreateComputeCommandObject()
+{
+    CreateCommandList(_computeComandListAlloc, _computeCommandList, COMMAND_TYPE::COMPUTE);
+    D3D12_COMMAND_QUEUE_DESC desc
+    {
+        .Type     = D3D12_COMMAND_LIST_TYPE_COMPUTE,
+        .Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL,
+        .Flags    = D3D12_COMMAND_QUEUE_FLAG_NONE,
+        .NodeMask = 0,
+    };
+    FAILED_CHECK_BREAK(_device->CreateCommandQueue(&desc, IID_PPV_ARGS(_computeCommandQueue.GetAddressOf())));
 }

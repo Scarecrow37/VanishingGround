@@ -35,35 +35,36 @@ public:
     DXGI_FORMAT GetBackBufferFormat() { return _backBufferFormat; }
     DXGI_FORMAT GetDepthStencilFormat() { return _depthStencilFormat; }
 
-    bool GetMSAAState() { return _4xMSAAState; }
-    UINT GetMSAAQuality() { return _4xMSAAQuality; }
-    UINT GetCurrentBackBufferIndex() { return _renderTargetIndex; }
+    bool           GetMSAAState() { return _4xMSAAState; }
+    UINT           GetMSAAQuality() { return _4xMSAAQuality; }
+    UINT           GetCurrentBackBufferIndex() { return _renderTargetIndex; }
     D3D12_VIEWPORT GetMainViewport() { return _mainViewport; }
-    HRESULT UpdateBuffer(ComPtr<ID3D12Resource>& buffer, void* data, UINT size);
+    HRESULT        UpdateBuffer(ComPtr<ID3D12Resource>& buffer, void* data, UINT size);
 
     HRESULT ClearBackBuffer(XMVECTOR color);
     HRESULT ClearBackBuffer(UINT flag, XMVECTOR color, float depth = 1.0f, UINT stencil = 0);
     HRESULT Flip();
 
-    HRESULT CreateVertexBuffer(void* data, UINT size, UINT stride,  ComPtr<ID3D12Resource>& buffer,
-                                D3D12_VERTEX_BUFFER_VIEW& view);
-    HRESULT CreateIndexBuffer(void* data, UINT size, DXGI_FORMAT format,  ComPtr<ID3D12Resource>& buffer,
-                               D3D12_INDEX_BUFFER_VIEW& view);
-    HRESULT CreateConstantBuffer(void* data, UINT size,  ComPtr<ID3D12Resource>& buffer);
-    HRESULT CreateDefaultBuffer(UINT size,  ComPtr<ID3D12Resource>& buffer);
+    void CreateVertexBuffer(void* data, UINT size, UINT stride, ComPtr<ID3D12Resource>& buffer,
+                            D3D12_VERTEX_BUFFER_VIEW& view);
+    void CreateIndexBuffer(void* data, UINT size, DXGI_FORMAT format, ComPtr<ID3D12Resource>& buffer,
+                           D3D12_INDEX_BUFFER_VIEW& view);
+    void CreateConstantBuffer(void* data, UINT size, ComPtr<ID3D12Resource>& buffer);
+    void CreateDefaultBuffer(UINT size, ComPtr<ID3D12Resource>& buffer);
 
-    HRESULT CreateCommandList(ComPtr<ID3D12CommandAllocator>& allocator, 
-                              ComPtr<ID3D12GraphicsCommandList>& commandList,
-                              COMMAND_TYPE type);
+    void CreateCommandList(ComPtr<ID3D12CommandAllocator>& allocator, ComPtr<ID3D12GraphicsCommandList>& commandList,
+                           COMMAND_TYPE type);
+
+    void CreateComputeCommandObject();
 
 private:
-    void    SetViewPort();
-    void    CreateDeviceAndSwapChain(HWND hwnd, D3D_FEATURE_LEVEL feature);
-    void    CreateCommandQueue();
-    void    CreateSyncObject();
-    void    CreateRenderTarget();
-    void    CreateDepthStencil();
-    HRESULT CreateBuffer(UINT size, ComPtr<ID3D12Resource>& buffer);
+    void SetViewPort();
+    void CreateDeviceAndSwapChain(HWND hwnd, D3D_FEATURE_LEVEL feature);
+    void CreateCommandQueue();
+    void CreateSyncObject();
+    void CreateRenderTarget();
+    void CreateDepthStencil();
+    void CreateBuffer(UINT size, ComPtr<ID3D12Resource>& buffer);
 
 private:
     ComPtr<ID3D12Device>       _device;
@@ -103,4 +104,9 @@ private:
     ComPtr<ID3D12CommandAllocator>    _commandAllocator;
 
     std::vector<ComPtr<ID3D12Resource>> _uploadResources;
+
+    // compute 관련 command 객체들
+    ComPtr<ID3D12CommandQueue>        _computeCommandQueue;
+    ComPtr<ID3D12GraphicsCommandList> _computeCommandList;
+    ComPtr<ID3D12CommandAllocator>    _computeComandListAlloc;
 };

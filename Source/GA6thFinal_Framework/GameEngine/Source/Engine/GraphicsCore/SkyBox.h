@@ -20,8 +20,8 @@ private:
     void CreateSRV(ID3D12Resource* resource);
     void CreateUAV(ID3D12Resource* resource);
     void CreateComputePSO();
-    void BindResource();
-    void SetPipelineStete(UINT cubeSize, UINT faceIndex);
+    void BindResources(UINT cubeSize, UINT faceIndex);
+    void SetPipelineState();
 
 private:
     std::unique_ptr<ShaderBuilder> _shader;
