@@ -99,10 +99,14 @@ void EditorSceneTool::SetCamera()
 
     _clientWidth  = _clientRight - _clientLeft;
     _clientHeight = _clientBottom - _clientTop;
-    _aspect = _clientWidth / _clientHeight;
+    ReflectFields->CameraAspect = _clientWidth / _clientHeight;
 
     auto& camera = _camera->GetCamera();
-    camera->SetupPerspective(_fovDegree, _aspect, _nearZ, _farZ);
+    camera->SetupPerspective(
+        ReflectFields->CameraFovDegree,
+        ReflectFields->CameraAspect,
+        ReflectFields->CameraNearZ,
+        ReflectFields->CameraFarZ);
 }
 
 void EditorSceneTool::UpdateMode()
@@ -178,5 +182,26 @@ void EditorSceneTool::DrawSceneView()
 {
     auto   handle = UmRenderer.GetRenderSceneImage("Editor");
     ImGui::Image((ImTextureID)handle.ptr, {_clientWidth, _clientHeight});
+}
+
+void EditorSceneTool::SerializedReflectEvent() 
+{
+    Vector3 camPos = _camera->GetPosition();
+    std::memcpy(ReflectFields->CameraPosition.data(), &camPos, sizeof(ReflectFields->CameraPosition));
+
+    Quaternion camRot = _camera->GetRotation();
+    std::memcpy(ReflectFields->CameraRotation.data(), &camRot, sizeof(ReflectFields->CameraRotation));
+}
+
+void EditorSceneTool::DeserializedReflectEvent() 
+{
+    _camera->SetMoveSpeed(ReflectFields->CameraMoveSpeed);
+    _camera->SetRotationSpeed(ReflectFields->CameraRotateSpeed);
+
+    Vector3 camPos = Vector3(ReflectFields->CameraPosition.data());
+    _camera->SetPosition(camPos);
+
+    Quaternion camRot = Quaternion(ReflectFields->CameraRotation.data());
+    _camera->SetRotation(camRot);
 }
 

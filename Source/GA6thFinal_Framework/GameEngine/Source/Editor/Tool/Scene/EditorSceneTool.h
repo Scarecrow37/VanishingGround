@@ -37,18 +37,6 @@ private:
 
     std::unique_ptr<EditorDynamicCamera> _camera;
 
-    // Camera
-    Vector3 _position = Vector3::Zero;
-    Vector3 _diretion = Vector3::Forward;
-    Vector3 _rotation=Vector3::Zero;
-
-    float _fovDegree = 70.f;
-    float _aspect = 1.0f;
-    float _nearZ = 0.01f;
-    float _farZ = 10000.f;
-    float _moveSpeed = 30.0f;
-    float _rotateSpeed = 10.0f;
-
     // Manipulate
     std::weak_ptr<GameObject> _manipulateObject;
     ImGuiHelper::DrawManipulateDesc drawManipulateDesc; 
@@ -64,11 +52,26 @@ private:
     float _clientBottom  = 0.f;
 
 protected:
-    //REFLECT_FIELDS_BEGIN(EditorTool)
-    //std::array<float, 3> position{};
-    //std::array<float, 4> rotation{};
-    //std::array<float, 3> eulerAngle{};
-    //std::array<float, 3> scale{};
-    //REFLECT_FIELDS_END(EditorSceneTool)
+    REFLECT_FIELDS_BEGIN(EditorTool)
+    std::array<float, 3> CameraPosition{};
+    std::array<float, 4> CameraRotation{};
+    float  CameraFovDegree = 70.f;
+    float  CameraAspect      = 1.0f;
+    float  CameraNearZ       = 0.01f;
+    float  CameraFarZ        = 10000.f;
+    float  CameraMoveSpeed   = 30.0f;
+    float  CameraRotateSpeed = 10.0f;
+    REFLECT_FIELDS_END(EditorSceneTool)
+
+    /*
+    직렬화 직전 자동으로 호출되는 이벤트 함수입니다.
+    직접 override 해서 사용합니다.
+    */
+    virtual void SerializedReflectEvent();
+    /*
+    역직렬화 이후 자동으로 호출되는 이벤트 함수 입니다.
+    직접 override 해서 사용합니다.
+    */
+    virtual void DeserializedReflectEvent();
 };
 
