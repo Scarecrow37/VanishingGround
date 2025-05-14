@@ -48,9 +48,9 @@ private:
     EComponentFactory();
     ~EComponentFactory();
 
-#ifndef _SCRIPTS_PROJECT
     /// <summary>
-    /// 엔진 컴포넌트를 등록하는 함수입니다. 생성자에서 호출해야 합니다.
+    /// <para> 엔진 컴포넌트를 등록하는 함수입니다. 생성자에서 호출해야 합니다.            </para>
+    /// <para> 이 컴포넌트들은 m_NewScriptsKeyVec와 _newScriptsFunctionMap에 추가됩니다. </para>
     /// </summary>
     /// <typeparam name="TGameObject :">등록할 타입 파라미터</typeparam>
     template <IS_BASE_COMPONENT_C TComponent>
@@ -59,7 +59,7 @@ private:
         const char* key = typeid(TComponent).name();
         _engineComponets.emplace_back(key, []()->Component*{ return new TComponent; });
     }
-#endif
+
 public:
     /// <summary>
     /// <summary>컴포넌트 팩토리를 초기화합니다. </summary>
@@ -167,7 +167,7 @@ private:
 
     //컴포넌트를 엔진에 사용하기 위해 초기화합니다.
     //초기화 후 컴포넌트의 Reset을 호출합니다.
-    void ResetComponent(GameObject* ownerObject, Component* component);
+    void ResetComponent(GameObject* ownerObject, std::shared_ptr<Component>& component);
 
     //컴포넌트를 Yaml로 직렬화
     YAML::Node MakeYamlToComponent(Component* component);

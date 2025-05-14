@@ -145,7 +145,10 @@ public:
     /// 이 게임오브젝트의 weak_ptr을 반환합니다.
     /// </summary>
     /// <returns>weak_ptr this</returns>
-    std::weak_ptr<GameObject> GetWeakPtr() const;
+    std::weak_ptr<GameObject> GetWeakPtr() const 
+    { 
+        return _weakPtr; 
+    }
 
     /// <summary>
     /// <para> 전달받은 GameObject가 속해있는 Scene을 반환합니다. </para>
