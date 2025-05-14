@@ -10,11 +10,14 @@ EComponentFactory::~EComponentFactory() = default;
 
 bool EComponentFactory::InitalizeComponentFactory()
 {  
-    static std::vector<std::tuple<GameObject*, std::string, int, std::string>> addList; //복구해야할 컴포넌트 항목들
-    addList.clear();
-
     if constexpr (Application::IsEditor())
     {
+        if (true == editorModule->PlayMode.IsPlay())
+        {
+            engineCore->Logger.Log(LogLevel::LEVEL_WARNING, "You cannot build while in Play Mode.");
+            return false;
+        }
+
         DWORD exitCodeOut{};
         if (!dllUtility::RunBatchFile(Engine::BUILD_BATCH_PATH, &exitCodeOut))
         {
@@ -27,6 +30,10 @@ bool EComponentFactory::InitalizeComponentFactory()
         if (m_scriptsDll != NULL)
             return false;
     }
+
+    static std::vector<std::tuple<GameObject*, std::string, int, std::string>> addList; //복구해야할 컴포넌트 항목들
+    addList.clear();
+
     SetForegroundWindow(UmApplication.GetHwnd());
     if (m_scriptsDll != NULL)
     {
