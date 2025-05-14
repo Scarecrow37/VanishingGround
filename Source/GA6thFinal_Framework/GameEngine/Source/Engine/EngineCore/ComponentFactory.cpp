@@ -10,11 +10,14 @@ EComponentFactory::~EComponentFactory() = default;
 
 bool EComponentFactory::InitalizeComponentFactory()
 {  
-    static std::vector<std::tuple<GameObject*, std::string, int, std::string>> addList; //복구해야할 컴포넌트 항목들
-    addList.clear();
-
     if constexpr (Application::IsEditor())
     {
+        if (true == editorModule->PlayMode.IsPlay())
+        {
+            engineCore->Logger.Log(LogLevel::LEVEL_WARNING, "You cannot build while in Play Mode.");
+            return false;
+        }
+
         DWORD exitCodeOut{};
         if (!dllUtility::RunBatchFile(Engine::BUILD_BATCH_PATH, &exitCodeOut))
         {
@@ -27,6 +30,10 @@ bool EComponentFactory::InitalizeComponentFactory()
         if (m_scriptsDll != NULL)
             return false;
     }
+
+    static std::vector<std::tuple<GameObject*, std::string, int, std::string>> addList; //복구해야할 컴포넌트 항목들
+    addList.clear();
+
     SetForegroundWindow(UmApplication.GetHwnd());
     if (m_scriptsDll != NULL)
     {
@@ -150,7 +157,7 @@ bool EComponentFactory::InitalizeComponentFactory()
             missing->ReflectFields->reflectData = reflectData;
             newComponent = std::move(missing);
         }
-        ResetComponent(gameObject, newComponent.get());       // 엔진에서 사용하기 위해 초기화
+        ResetComponent(gameObject, newComponent);       // 엔진에서 사용하기 위해 초기화
         newComponent->_initFlags.SetAwake();                  // 초기화 플래그 설정
         newComponent->_initFlags.SetStart();                  // 초기화 플래그 설정
         gameObject->_components[index] = newComponent;  
@@ -204,7 +211,7 @@ Component* EComponentFactory::AddComponentToObject(GameObject* ownerObject, std:
     if(std::shared_ptr<Component> sptr_component = NewComponent(typeid_name))
     {
         const char* name = typeid_name.data();
-        ResetComponent(ownerObject, sptr_component.get());
+        ResetComponent(ownerObject, sptr_component);
         ESceneManager::Engine::AddComponentToLifeCycle(sptr_component); //씬에 등록
         return sptr_component.get();
     }
@@ -314,11 +321,12 @@ std::shared_ptr<MissingComponent> EComponentFactory::NewMissingComponent()
     return missing;
 }
 
-void EComponentFactory::ResetComponent(GameObject* ownerObject, Component* component)
+void EComponentFactory::ResetComponent(GameObject* ownerObject, std::shared_ptr<Component>& component)
 {
     //여긴 엔진에서 사용하기 위한 초기화 코드 
     component->_className = (typeid(*component).name() + 5);
     component->_gameObect = ownerObject;
+    component->_weakPtr = component;
     component->Reset();
     //end
 }
@@ -336,7 +344,7 @@ std::shared_ptr<Component> EComponentFactory::MakeComponentToYaml(GameObject* ow
     YAML::Node& node = *pComponentNode;
     std::string Type = node["Type"].as<std::string>();
     std::shared_ptr<Component> component = NewComponent(Type);
-    ResetComponent(ownerObject, component.get());
+    ResetComponent(ownerObject, component);
     std::string ReflectFields = node["ReflectFields"].as<std::string>();
     component->DeserializedReflectFields(ReflectFields);
     return component;

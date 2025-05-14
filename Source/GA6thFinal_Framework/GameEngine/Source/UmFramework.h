@@ -84,6 +84,7 @@ using namespace Microsoft::WRL;
 #include <system_error>
 #include <typeindex>
 #include <string_view>
+#include <concurrent_queue.h>
 
 //ThirdParty
 #include <pugixml.hpp>

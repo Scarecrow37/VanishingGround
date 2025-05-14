@@ -435,6 +435,7 @@
     <ClInclude Include="Source\pch.h" />
     <ClInclude Include="Source\Engine\Utility\DumpUtility.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\VertexShader.h" />
+    <ClInclude Include="Source\UmScripts.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Editor\Menu\Play\EditorPlayMenu.cpp" />

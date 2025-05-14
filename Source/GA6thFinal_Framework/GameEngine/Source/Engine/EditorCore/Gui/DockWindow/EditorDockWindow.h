@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-using EditorDockWindowFlags = UINT64; // EditorDockWindow::Flags
+using EditorDockWindowFlags = int; // EditorDockWindow::Flags
 
 class EditorDockWindow : public EditorTool
 {
