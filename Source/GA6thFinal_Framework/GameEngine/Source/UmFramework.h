@@ -188,6 +188,7 @@ using namespace Microsoft::WRL;
 #include "Editor/Tool/Log/EditorLogsTool.h"
 #include "Editor/Tool/Model/EditorModelDetails.h"
 #include "Editor/Tool/Model/EditorModelTool.h"
+#include "Editor/Tool/Model/EditorModelHierarchy.h"
 #include "Editor/Tool/Command/EditorCommandTool.h"
 
 // Editor Menu

@@ -1,15 +1,10 @@
 ﻿#pragma once
 
-class MeshRenderer;
-class FBXConverter;
-class EditorModelDetails : public EditorTool
+class EditorModelHierarchy : public EditorTool
 {
-    friend class EditorModelTool;
-    friend class EditorModelMenu;
-    friend class EditorModelHierarchy;
 public:
-    EditorModelDetails();
-    virtual ~EditorModelDetails() = default;
+    EditorModelHierarchy();
+    virtual ~EditorModelHierarchy() = default;
 
 private:
     virtual void OnTickGui() override;
@@ -38,16 +33,10 @@ private:
     /* Popup창 호출 성공 시 호출 (OnPreFrameBegin 전에 호출) */
     virtual void OnFramePopupOpened() override;
 
-    private:
-    static FBXConverter& GetFBXConverter();
+private:
+    void ImportFBX(const std::filesystem::path& path);
+    void ExportFBX();
 
 private:
-    void ImportModel();
-    void ExportModel();
-    void SaveModel();
-
-private:
-    std::unique_ptr<MeshRenderer>        _meshRenderer;
-    Matrix                               _worldMatrix;
-    std::filesystem::path                _filePath;
+    EditorModelDetails*                  _editorModelDetails;
 };

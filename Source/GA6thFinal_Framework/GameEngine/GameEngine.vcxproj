@@ -288,6 +288,7 @@
     <ClInclude Include="Source\Editor\Menu\Model\EditorModelMenu.h" />
     <ClInclude Include="Source\Editor\Menu\Play\EditorPlayMenu.h" />
     <ClInclude Include="Source\Editor\Tool\Model\EditorModelDetails.h" />
+    <ClInclude Include="Source\Editor\Tool\Model\EditorModelHierarchy.h" />
     <ClInclude Include="Source\Engine\EditorCore\Interface\IEditorCycle.h" />
     <ClInclude Include="Source\Engine\EditorCore\Gui\DockWindow\EditorDockWindow.h" />
     <ClInclude Include="Source\Engine\EditorCore\Interface\IEditorObject.h" />
@@ -443,6 +444,7 @@
     <ClCompile Include="Source\Editor\Menu\Model\EditorModelMenu.cpp" />
     <ClCompile Include="Source\Editor\Menu\Play\EditorPlayMenu.cpp" />
     <ClCompile Include="Source\Editor\Tool\Model\EditorModelDetails.cpp" />
+    <ClCompile Include="Source\Editor\Tool\Model\EditorModelHierarchy.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\Gui\DockWindow\EditorDockWindow.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\d3dUtil.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\FBXConverter.cpp" />

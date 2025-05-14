@@ -39,6 +39,8 @@ void FBXConverter::ExportModel(const std::filesystem::path& filePath)
                 outFile.write((char*)vertices[i].data(), vertexStride * vertexCount);
                 outFile.write((char*)_indices[i].data(), sizeof(unsigned int) * indexCount);
 
+                outFile.write(_meshNames[i].c_str(), _meshNames[i].size() + 1);
+
                 unsigned int materialIndex = _materialIndex[i];
                 outFile.write((char*)&materialIndex, sizeof(unsigned int));
 
@@ -235,6 +237,7 @@ void FBXConverter::LoadMesh(aiNode* node,
 
     std::unique_ptr<BaseMesh> baseMesh = std::make_unique<BaseMesh>();
     baseMesh->Initialize(descriptor);
+    baseMesh->SetName(node->mName.C_Str());
     model->AddMesh(std::move(baseMesh));
     _materialIndex.push_back(mesh->mMaterialIndex);
 }
