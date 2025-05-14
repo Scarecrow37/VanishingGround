@@ -22,8 +22,8 @@ public:
     bool LoadProject(const File::Path& path);
     bool SaveProject();
     bool SaveAsProject(const File::Path& to);
-    bool LoadProjectWithMessageBox(const File::Path& path);
-    bool SaveProjectWithMessageBox();
+    int  LoadProjectWithMessageBox(const File::Path& path);
+    int  SaveProjectWithMessageBox();
 
     bool SaveSetting(const File::Path& path);
     bool LoadSetting(const File::Path& path);

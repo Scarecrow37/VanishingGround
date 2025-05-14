@@ -137,7 +137,10 @@ bool FileSystemModule::FileSystemWinProc(HWND hwnd, UINT msg, WPARAM wParam, LPA
     {
         case WM_CLOSE: 
         {
-            UmFileSystem.SaveProjectWithMessageBox();
+            if (IDOK != UmFileSystem.SaveProjectWithMessageBox())
+            {
+                return true;
+            }
             // 이후 처리 동작은 Application이 호출한다.
             break;
         }

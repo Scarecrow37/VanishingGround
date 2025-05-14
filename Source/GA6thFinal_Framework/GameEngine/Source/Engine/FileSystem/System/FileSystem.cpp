@@ -148,49 +148,48 @@ bool EFileSystem::SaveAsProject(const File::Path& to)
     }
 }
 
-bool EFileSystem::LoadProjectWithMessageBox(const File::Path& path)
+int EFileSystem::LoadProjectWithMessageBox(const File::Path& path)
 {
     File::Path projectName = path.filename();
 
     std::wstring msg    = projectName.wstring() + L" 프로젝트를 로드하시겠습니까?";
     std::wstring title  = L"Load Project";
-    int result = MessageBox(
-        GetFocus(),                 // 부모 창 핸들 (NULL로 하면 독립적 메시지 박스)
+    HWND         hwnd   = UmApplication.GetHwnd();
+
+    int msgResult = MessageBox(hwnd,    // 부모 창 핸들 (NULL로 하면 독립적 메시지 박스)
         msg.c_str(),                // 메시지 텍스트
         title.c_str(),              // 메시지 박스 제목
         MB_YESNO                    // 스타일: 예/아니오 버튼
     );
 
-    if (result == IDYES)
+    if (msgResult == IDYES)
     {
-        return LoadProject(path);
+        LoadProject(path);
     }
-
-    return false;
+    return msgResult;
 }
 
-bool EFileSystem::SaveProjectWithMessageBox()
+int EFileSystem::SaveProjectWithMessageBox()
 {
     if (true == _rootPath.empty())
         return false;
 
     std::wstring msg    = L"현재 프로젝트를 저장하시겠습니까?"; 
     std::wstring title  = L"Save Project";
+    HWND         hwnd   = UmApplication.GetHwnd();
 
-    HWND hwnd = UmApplication.GetHwnd();
-
-    int result = MessageBox(
+    int msgResult = MessageBox(
         hwnd,                       // 부모 창 핸들 (NULL로 하면 독립적 메시지 박스)
         msg.c_str(),                // 메시지 텍스트
         title.c_str(),              // 메시지 박스 제목
-        MB_YESNO                    // 스타일: 예/아니오 버튼
+        MB_OKCANCEL                 // 스타일
     );
 
-    if (result == IDYES)
+    if (msgResult == IDOK)
     {
-        return SaveProject();
+        SaveProject();
     }
-    return false;
+    return msgResult;
 }
 
 bool EFileSystem::SaveSetting(const File::Path& path)
