@@ -13,16 +13,16 @@ public:
     enum class Type
     {
         // 일반
-        Generic,
-        // 메시
-        Mesh,
+        GENERIC,    
+        // 렌더러
+        RENDER,
     };
 
     /// <summary>
     /// 생성시 타입 플래그를 지정해줘야합니다.
     /// </summary>
     /// <param name="isMeshComponent"></param>
-    Component(Type type = Type::Generic);
+    Component(Type type = Type::GENERIC);
     virtual ~Component();
 
     /// <summary>

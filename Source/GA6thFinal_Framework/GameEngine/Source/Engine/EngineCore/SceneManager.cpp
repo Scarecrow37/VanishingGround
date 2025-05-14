@@ -163,7 +163,7 @@ void ESceneManager::Engine::SetGameObjectActive(int instanceID, bool value)
                                     WaitVec.emplace_back(component.get());
 
                                     //메시 컴포넌트들은 meshRenderer의 SetActive도 변경해야함.
-                                    if (Component::Type::Renderer == component->_type)
+                                    if (Component::Type::RENDER == component->_type)
                                     {
                                         auto& meshActiveQueue = value ? sceneManager._meshSetActiveQueue.first
                                                                       : sceneManager._meshSetActiveQueue.second;
@@ -201,7 +201,7 @@ void ESceneManager::Engine::SetComponentEnable(Component* component, bool value)
                 WaitVec.push_back(component);
 
                 // 메시 컴포넌트들은 meshRenderer의 SetActive도 변경해야함.
-                if (Component::Type::Renderer == component->_type)
+                if (Component::Type::RENDER == component->_type)
                 {
                     auto& meshActiveQueue = value ? sceneManager._meshSetActiveQueue.first : sceneManager._meshSetActiveQueue.second;
                     MeshComponent* meshComponent = static_cast<MeshComponent*>(component);
