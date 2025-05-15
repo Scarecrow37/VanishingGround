@@ -1,11 +1,10 @@
 ﻿#pragma once
 
-class EditorDynamicCamera;
-class EditorModelTool : public EditorTool
+class EditorModelHierarchy : public EditorTool
 {
 public:
-    EditorModelTool();
-    virtual ~EditorModelTool() = default;
+    EditorModelHierarchy();
+    virtual ~EditorModelHierarchy() = default;
 
 private:
     virtual void OnTickGui() override;
@@ -39,6 +38,5 @@ private:
     void ExportFBX();
 
 private:
-    std::unique_ptr<EditorDynamicCamera> _camera;
     EditorModelDetails*                  _editorModelDetails;
 };
