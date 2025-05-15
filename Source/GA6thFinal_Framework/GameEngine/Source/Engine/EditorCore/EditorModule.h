@@ -139,13 +139,5 @@ namespace Global
         ImVec4 _playModeColors[ImGuiCol_COUNT];
     }
     PlayMode;
-
- public:
-     //커맨드 매니저
-     ECommandManager CommandManager;
-
  };
 
-#ifndef _SCRIPTS_PROJECT
-#define UmCommandManager Global::editorModule->CommandManager
-#endif
