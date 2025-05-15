@@ -85,6 +85,7 @@ using namespace Microsoft::WRL;
 #include <system_error>
 #include <typeindex>
 #include <string_view>
+#include <concurrent_queue.h>
 
 //ThirdParty
 #include <pugixml.hpp>
@@ -186,7 +187,9 @@ using namespace Microsoft::WRL;
 #include "Editor/Tool/Hierarchy/EditorHierarchyTool.h"
 #include "Editor/Tool/Scene/EditorSceneTool.h"
 #include "Editor/Tool/Log/EditorLogsTool.h"
+#include "Editor/Tool/Model/EditorModelDetails.h"
 #include "Editor/Tool/Model/EditorModelTool.h"
+#include "Editor/Tool/Model/EditorModelHierarchy.h"
 #include "Editor/Tool/Command/EditorCommandTool.h"
 
 // Editor Menu
@@ -196,4 +199,5 @@ using namespace Microsoft::WRL;
 #include "Editor/Menu/Scene/EditorSceneMenu.h"
 #include "Editor/Menu/Project/EditorBuildSettingMenu.h"
 #include "Editor/Menu/Play/EditorPlayMenu.h"
+#include "Editor/Menu/Model/EditorModelMenu.h"
 #endif

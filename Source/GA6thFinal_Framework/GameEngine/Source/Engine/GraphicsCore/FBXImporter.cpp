@@ -19,11 +19,6 @@ FBXImporter::~FBXImporter()
 
 void FBXImporter::CreateModel(const std::filesystem::path& filePath, bool isStaticMesh, Model* model)
 {
-    if (filePath.extension() == L".fbx")
-    {
-
-    }
-
     unsigned int importFlags =
         aiProcess_Triangulate |         // vertex 삼각형 으로 출력
         aiProcess_GenNormals |          // Normal 정보 생성  
@@ -66,14 +61,21 @@ void FBXImporter::CreateModel(const std::filesystem::path& filePath, bool isStat
 
     model->InitMaterials((UINT)materialIndex.size());
 
-    UINT size = (UINT)materialIndex.size();
+    size_t size = materialIndex.size();
+    Material material{
+        .Model = Material::ShadingModel::DEFAULTLIT,
+        .Mode    = Material::BlendMode::OPAQUE,
+        .IsTwoSided   = false,
+    };
+
     for (UINT i = 0; i < size; i++)
     {
         auto& texture = textures[materialIndex[i]];
+        model->BindMaterial(i, material);
 
         for (auto& j : texture)
         {
-            model->BindMaterial(i, j);
+            model->BindTexture(i, j);
         }
     }
 }
@@ -255,8 +257,9 @@ void FBXImporter::LoadMaterials(const aiScene* paiScene,
     textures.resize(paiScene->mNumMaterials);
 
     for (unsigned int i = 0; i < paiScene->mNumMaterials; i++)
-    {
+    {        
         aiMaterial* material = paiScene->mMaterials[i];
+        //material->Get("", 0, 0, 0);
         aiColor3D color{};
         material->Get(AI_MATKEY_COLOR_DIFFUSE, color);
 

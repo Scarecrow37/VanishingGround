@@ -1,16 +1,38 @@
 ﻿#pragma once
 
 //참고 Unity Game Loop https://docs.unity3d.com/kr/2022.3/Manual/ExecutionOrder.html
-class Component :
+class Component abstract :
     public ReflectSerializer
 {
     friend class GameObject;
     friend class EComponentFactory;
     friend class ESceneManager;
     USING_PROPERTY(Component)
+
 public:
-    Component();
+    enum class Type
+    {
+        // 일반
+        GENERIC,    
+        // 렌더러
+        RENDER,
+    };
+
+    /// <summary>
+    /// 생성시 타입 플래그를 지정해줘야합니다.
+    /// </summary>
+    /// <param name="isMeshComponent"></param>
+    Component(Type type = Type::GENERIC);
     virtual ~Component();
+
+    /// <summary>
+    /// 이 컴포넌트의 weak_ptr을 반환합니다.
+    /// </summary>
+    /// <returns>weak_ptr this</returns>
+    std::weak_ptr<Component> GetWeakPtr() const
+    {
+        return _weakPtr;
+    }
 
 protected:
     /// <summary>
@@ -116,6 +138,15 @@ public:
     }
 
     /// <summary>
+    /// 이 컴포넌트의 타입입니다.
+    /// </summary>
+    /// <returns>컴포넌트의 타입</returns>
+    Type GetType() const
+    {
+        return _type;
+    }
+
+    /// <summary>
     /// 이 컴포넌트의 인덱스를 반환합니다. (이 컴포넌트가 추가된 오브젝트에서의 기준)
     /// </summary>
     /// <returns>int 인덱스</returns>
@@ -163,8 +194,6 @@ public:
     inline size_t GetComponentCount() const;
 
 private:
-    std::string _className;
-
     struct InitFlags
     {
         InitFlags();
@@ -192,7 +221,10 @@ private:
     };
     InitFlags _initFlags;
 
+    const Type _type;
+    std::string _className;
     GameObject* _gameObect;
+    std::weak_ptr<Component> _weakPtr;
 };
 
 template <IS_BASE_COMPONENT_C TComponent>

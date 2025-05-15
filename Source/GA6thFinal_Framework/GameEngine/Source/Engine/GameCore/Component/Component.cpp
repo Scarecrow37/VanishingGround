@@ -1,8 +1,10 @@
 ﻿#include "pch.h"
 
-Component::Component() :
-    _className(),
-    _gameObect(nullptr)
+Component::Component(Type type)
+    : 
+    _className(), 
+    _gameObect(nullptr),
+    _type(type)
 {
 
 }
@@ -13,6 +15,7 @@ Component::InitFlags::InitFlags() :
     _isAwake(false),
     _isStart(false)
 {
+
 }
 
 Component::InitFlags::~InitFlags() = default;

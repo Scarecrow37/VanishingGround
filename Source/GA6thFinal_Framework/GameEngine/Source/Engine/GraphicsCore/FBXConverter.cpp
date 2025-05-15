@@ -16,11 +16,7 @@ FBXConverter::~FBXConverter()
 {
 }
 
-void FBXConverter::CreateModel(Model* model)
-{
-}
-
-void FBXConverter::ExportFBX(const std::filesystem::path& filePath)
+void FBXConverter::ExportModel(const std::filesystem::path& filePath)
 {    
     auto WriteData = [this, &filePath](const auto& vertices, unsigned long long vertexStride)
         {
@@ -34,13 +30,31 @@ void FBXConverter::ExportFBX(const std::filesystem::path& filePath)
             for (unsigned int i = 0; i < meshCount; i++)
             {
                 unsigned int vertexCount = (unsigned int)vertices[i].size();
-                unsigned int indexCount  = (unsigned int)_indices[i].size();
-
                 outFile.write((char*)&vertexCount, sizeof(unsigned int));
+
+                unsigned int indexCount  = (unsigned int)_indices[i].size();
                 outFile.write((char*)&indexCount, sizeof(unsigned int));
+
                 outFile.write((char*)&vertexStride, sizeof(unsigned long long));
                 outFile.write((char*)vertices[i].data(), vertexStride * vertexCount);
                 outFile.write((char*)_indices[i].data(), sizeof(unsigned int) * indexCount);
+
+                outFile.write(_meshNames[i].c_str(), _meshNames[i].size() + 1);
+
+                unsigned int materialIndex = _materialIndex[i];
+                outFile.write((char*)&materialIndex, sizeof(unsigned int));
+
+                unsigned int materialCount = (unsigned int)_textures[materialIndex].size();                
+                outFile.write((char*)&materialCount, sizeof(unsigned int));
+
+                for (unsigned int j = 0; j < materialCount; j++)
+                {
+                    auto& path = _textures[materialIndex][j];
+                    unsigned int pathSize = (unsigned int)path.size() + 1;
+
+                    outFile.write((char*)&pathSize, sizeof(unsigned int));
+                    outFile.write(path.c_str(), pathSize);
+                }
             }
 
             outFile.close();
@@ -56,31 +70,41 @@ void FBXConverter::ExportFBX(const std::filesystem::path& filePath)
     }    
 }
 
-void FBXConverter::ImportFBX(const std::filesystem::path& filePath)
+void FBXConverter::ImportModel(const std::filesystem::path& filePath, Model* model)
 {
+    Reset();
+
+    auto prev  = GetTickCount64();
+    auto curr  = GetTickCount64();
+    
     if (filePath.extension() == L".fbx")
     {
-        LoadFromAssimp(filePath);
+        LoadFromAssimp(filePath, model);
     }
     else if (filePath.extension() == L".UmModel")
     {
-        LoadFromBinary(filePath);
-    }    
+        LoadFromBinary(filePath, model);
+    }
+
+    curr       = GetTickCount64();
+    float delta = (curr - prev) / 1000.f;
+
+    int a = 0;
 }
 
 void FBXConverter::LoadNode(aiNode* node,
-                           const aiScene* scene, 
-                           std::unordered_map<std::string, std::pair<unsigned int, Matrix>>& boneInfo, 
-                           std::vector<unsigned int>& materialIndex)
+                            const aiScene* scene, 
+                            std::unordered_map<std::string, std::pair<unsigned int, Matrix>>& boneInfo, 
+                            Model* model)
 {    
     for (unsigned int i = 0; i < node->mNumMeshes; i++)
     {
-        LoadMesh(node, scene->mMeshes[node->mMeshes[i]], boneInfo, materialIndex);
+        LoadMesh(node, scene->mMeshes[node->mMeshes[i]], boneInfo, model);
     }
     
     for (unsigned int i = 0; i < node->mNumChildren; i++)
     {
-        LoadNode(node->mChildren[i], scene, boneInfo, materialIndex);
+        LoadNode(node->mChildren[i], scene, boneInfo, model);
     }
 }
 
@@ -88,7 +112,7 @@ void FBXConverter::LoadMesh(aiNode* node,
                             aiMesh* mesh, 
                             std::unordered_map<std::string, 
                             std::pair<unsigned int, Matrix>>& boneInfo, 
-                            std::vector<unsigned int>& materialIndex)
+                            Model* model)
 {   
     auto LoadVertexData = [node, mesh](auto& vertices)
         {
@@ -107,7 +131,7 @@ void FBXConverter::LoadMesh(aiNode* node,
                                                                          mesh->mNormals[i].y, 
                                                                          mesh->mNormals[i].z, 
                                                                          0.f), 
-                                                             transform);
+                                                              transform);
 
 				if (mesh->HasTangentsAndBitangents())
 				{
@@ -183,49 +207,55 @@ void FBXConverter::LoadMesh(aiNode* node,
                 }
             }
         }
-
-        // Weight 정규화
-        for (auto& vertex : _skeletalVertices.back())
-        {
-            float totalWeight = 0.f;
-
-            for (auto& BlendWeight : vertex.BlendWeights)
-            {
-                totalWeight += BlendWeight;
-            }
-
-            if (totalWeight > 0.f)
-            {
-                for (auto& BlendWeight : vertex.BlendWeights)
-                {
-                    BlendWeight /= totalWeight;
-                }
-            }
-        }
     }
 
-    materialIndex.push_back(mesh->mMaterialIndex);
+    void* vertices     = nullptr;
+    UINT  vertexSize   = 0;
+    UINT  vertexStride = 0;
+
+    if (_isStaticMesh)
+    {
+        vertices     = static_cast<void*>(_staticVertices.back().data());
+        vertexStride = static_cast<UINT>(sizeof(StaticMeshVertex));
+        vertexSize   = static_cast<UINT>(vertexStride * _staticVertices.back().size());
+    }
+    else
+    {
+        vertices     = static_cast<void*>(_skeletalVertices.back().data());
+        vertexStride = static_cast<UINT>(sizeof(SkeletalMeshVertex));
+        vertexSize   = static_cast<UINT>(vertexStride * _skeletalVertices.back().size());
+    }
+
+    VIBuffer::Descriptor descriptor{
+        .vertexData   = vertices,
+        .indexData    = _indices.back().data(),
+        .vertexSize   = vertexSize,
+        .vertexStride = vertexStride,
+        .indexSize    = static_cast<UINT>(sizeof(UINT) * _indices.back().size()),
+        .indexCount   = static_cast<UINT>(_indices.back().size()),
+    };
+
+    std::unique_ptr<BaseMesh> baseMesh = std::make_unique<BaseMesh>();
+    baseMesh->Initialize(descriptor);
+    baseMesh->SetName(node->mName.C_Str());
+    model->AddMesh(std::move(baseMesh));
+    _materialIndex.push_back(mesh->mMaterialIndex);
 }
 
 void FBXConverter::LoadMaterials(const aiScene* paiScene,
-                                const std::filesystem::path& filePath)
+                                 const std::filesystem::path& filePath)
 {    
     _textures.resize(paiScene->mNumMaterials);
 
     for (unsigned int i = 0; i < paiScene->mNumMaterials; i++)
     {
         aiMaterial* material = paiScene->mMaterials[i];
-        aiColor3D color{};
-        material->Get(AI_MATKEY_COLOR_DIFFUSE, color);
-
         aiString texturePath;
-        material->GetTexture(aiTextureType_DIFFUSE, 0, &texturePath);
 
-        _textures[i].push_back(ConvertPath(filePath, texturePath, material, aiTextureType_DIFFUSE));
-        _textures[i].push_back(ConvertPath(filePath, texturePath, material, aiTextureType_NORMALS));
-        _textures[i].push_back(ConvertPath(filePath, texturePath, material, aiTextureType_SHININESS));
-        _textures[i].push_back(ConvertPath(filePath, texturePath, material, aiTextureType_EMISSIVE));
-        //textures[i].push_back(LoadTexture(filePath, texturePath, material, aiTextureType_OPACITY));
+        _textures[i].push_back(std::move(ConvertPath(texturePath, material, aiTextureType_DIFFUSE)));
+        _textures[i].push_back(std::move(ConvertPath(texturePath, material, aiTextureType_NORMALS)));
+        _textures[i].push_back(std::move(ConvertPath(texturePath, material, aiTextureType_SHININESS)));
+        _textures[i].push_back(std::move(ConvertPath(texturePath, material, aiTextureType_EMISSIVE)));
     }
 }
 
@@ -243,47 +273,33 @@ void FBXConverter::FindMissingBone(aiNode*                                      
     }
 }
 
-std::shared_ptr<Texture> FBXConverter::LoadTexture(const std::filesystem::path& rootPath,
-                                                   aiString& filePath, 
-                                                   aiMaterial* pMaterial, 
-                                                   aiTextureType type)
-{
-    std::filesystem::path newPath = rootPath.parent_path().wstring() + L"/";
-    std::filesystem::path fileName = filePath.C_Str();
-    newPath += fileName.filename();
-
-    if (AI_SUCCESS == pMaterial->GetTexture(type, 0, &filePath))
-    {
-        fileName = filePath.C_Str();
-        newPath = rootPath.parent_path().wstring() + L"/" + fileName.filename().wstring();
-
-        return UmResourceManager.LoadResource<Texture>(newPath.c_str());
-    }
-
-    return nullptr;
-}
-
-std::string FBXConverter::ConvertPath(const std::filesystem::path& rootPath, 
-                                      aiString& filePath, 
+std::string FBXConverter::ConvertPath(aiString& filePath, 
                                       aiMaterial* pMaterial,
                                       aiTextureType type)
 {
-    std::filesystem::path newPath  = rootPath.parent_path().wstring() + L"/";
-    std::filesystem::path fileName = filePath.C_Str();
-    newPath += fileName.filename();
-
     if (AI_SUCCESS == pMaterial->GetTexture(type, 0, &filePath))
     {
-        fileName = filePath.C_Str();
-        newPath  = rootPath.parent_path().wstring() + L"/" + fileName.filename().wstring();
-
-        return newPath.string();
+        std::filesystem::path fileName = filePath.C_Str();
+        return fileName.filename().string();
     }
 
     return "";
 }
 
-void FBXConverter::LoadFromAssimp(const std::filesystem::path& filePath)
+void FBXConverter::Reset()
+{
+    _staticVertices.clear();
+    _skeletalVertices.clear();
+    _materialIndex.clear();
+    _indices.clear();
+    _textures.clear();
+    _skeleton.reset();
+    _animation.reset();
+    _boneCount    = 0;
+    _isStaticMesh = true;
+}
+
+void FBXConverter::LoadFromAssimp(const std::filesystem::path& filePath, Model* model)
 {
     Assimp::Importer impoter;
     impoter.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, 0);
@@ -307,11 +323,31 @@ void FBXConverter::LoadFromAssimp(const std::filesystem::path& filePath)
     }
 
     std::unordered_map<std::string, std::pair<unsigned int, Matrix>> boneInfo;
-    std::vector<std::vector<std::shared_ptr<Texture>>>               textures;
-    std::vector<unsigned int>                                        materialIndex;
-
-    LoadNode(scene->mRootNode, scene, boneInfo, materialIndex);
+    
+    LoadNode(scene->mRootNode, scene, boneInfo, model);
     LoadMaterials(scene, filePath);
+
+    model->InitMaterials((UINT)_materialIndex.size());
+    UINT size = (UINT)_materialIndex.size();
+
+    Material material{
+        .Model = Material::ShadingModel::DEFAULTLIT,
+        .Mode    = Material::BlendMode::OPAQUE,
+        .IsTwoSided   = false,
+    };
+
+    for (UINT i = 0; i < size; i++)
+    {
+        auto& paths = _textures[_materialIndex[i]];
+        model->BindMaterial(i, material);
+
+        for (auto& path : paths)
+        {
+            std::filesystem::path newPath = filePath;
+            newPath.replace_filename(path);
+            model->BindTexture(i, UmResourceManager.LoadResource<Texture>(newPath));
+        }
+    }
 
     if (!boneInfo.empty())
     {
@@ -325,11 +361,11 @@ void FBXConverter::LoadFromAssimp(const std::filesystem::path& filePath)
     {
         _animation = UmResourceManager.LoadResource<Animation>(filePath.c_str());
         _animation->LoadAnimation(scene);
-    }
+    }    
 }
 
-void FBXConverter::LoadFromBinary(const std::filesystem::path& filePath)
-{
+void FBXConverter::LoadFromBinary(const std::filesystem::path& filePath, Model* model)
+{    
     std::ifstream inFile(filePath, std::ios::in | std::ios::binary);
     if (!inFile.is_open())
     {
@@ -342,6 +378,8 @@ void FBXConverter::LoadFromBinary(const std::filesystem::path& filePath)
 
     _staticVertices.resize(meshCount);
     _indices.resize(meshCount);
+    _textures.resize(meshCount);
+    model->InitMaterials(meshCount);
     for (unsigned int i = 0; i < meshCount; i++)
     {
         unsigned int vertexCount = 0;
@@ -353,21 +391,27 @@ void FBXConverter::LoadFromBinary(const std::filesystem::path& filePath)
         unsigned long long vertexStride = 0;
         inFile.read((char*)&vertexStride, sizeof(unsigned long long));
 
-        char* vertices = new char[vertexStride * vertexCount];
-        inFile.read((char*)vertices, vertexStride * vertexCount);
+        void* vertices = nullptr;
 
-        char* indices = new char[sizeof(unsigned int) * indexCount];
-        inFile.read((char*)indices, sizeof(unsigned int) * indexCount);
-
-        /*_staticVertices[i].resize(vertexCount);
-        inFile.read((char*)_staticVertices[i].data(), vertexStride * vertexCount);
+        if (vertexStride == sizeof(StaticMeshVertex))
+        {
+            _staticVertices[i].resize(vertexCount);
+            inFile.read((char*)_staticVertices[i].data(), vertexStride * vertexCount);
+            vertices = static_cast<void*>(_staticVertices[i].data());
+        }
+        else if (vertexStride == sizeof(SkeletalMeshVertex))
+        {
+            _skeletalVertices[i].resize(vertexCount);
+            inFile.read((char*)_skeletalVertices[i].data(), vertexStride * vertexCount);
+            vertices = static_cast<void*>(_skeletalVertices[i].data());
+        }
 
         _indices[i].resize(indexCount);
-        inFile.read((char*)_indices[i].data(), sizeof(unsigned int) * indexCount);*/
+        inFile.read((char*)_indices[i].data(), sizeof(unsigned int) * indexCount);
 
         VIBuffer::Descriptor descriptor{
             .vertexData   = vertices,
-            .indexData    = indices,
+            .indexData    = _indices[i].data(),
             .vertexSize   = (UINT)vertexStride * vertexCount,
             .vertexStride = (UINT)vertexStride,
             .indexSize    = (sizeof(UINT) * indexCount),
@@ -376,9 +420,31 @@ void FBXConverter::LoadFromBinary(const std::filesystem::path& filePath)
 
         std::unique_ptr<BaseMesh> baseMesh = std::make_unique<BaseMesh>();
         baseMesh->Initialize(descriptor);
-        //model->AddMesh(std::move(baseMesh));
-        //materialIndex.push_back(mesh->mMaterialIndex);
-    }
 
-    int a = 0;
+        unsigned int materialIndex = 0;
+        inFile.read((char*)&materialIndex, sizeof(unsigned int));
+        _materialIndex.push_back(materialIndex);
+
+        unsigned int materialCount = 0;
+        inFile.read((char*)&materialCount, sizeof(unsigned int));
+        _textures[i].resize(materialCount);
+
+        for (unsigned int j = 0; j < materialCount; j++)
+        {
+            unsigned int pathSize = 0;
+            inFile.read((char*)&pathSize, sizeof(unsigned int));
+            _textures[i][j].resize(pathSize);
+            inFile.read((char*)_textures[i][j].data(), pathSize);
+        }
+
+        model->AddMesh(std::move(baseMesh));
+        
+        auto& paths = _textures[materialIndex];
+        for (auto& path : paths)
+        {
+            std::filesystem::path newPath = filePath;
+            newPath.replace_filename(path);
+            model->BindTexture(i, UmResourceManager.LoadResource<Texture>(newPath));
+        }
+    }    
 }
