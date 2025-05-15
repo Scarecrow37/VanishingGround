@@ -26,6 +26,7 @@ private:
     std::unique_ptr<ShaderBuilder>      _shader;
     std::unique_ptr<Box>                _box;
     ComPtr<ID3D12Resource>              _skyboxCubeMap;
+    ComPtr<ID3D12Resource>              _skyboxhdrTexture;
     D3D12_CPU_DESCRIPTOR_HANDLE         _hdrSRVCPU;
     D3D12_GPU_DESCRIPTOR_HANDLE         _hdrSRVGPU;
     D3D12_CPU_DESCRIPTOR_HANDLE         _cubeUAVCPU;
@@ -33,4 +34,5 @@ private:
     ComPtr<ID3D12PipelineState>         _computePSO;
     ComPtr<ID3D12DescriptorHeap>        _descriptorHeap;
     std::vector<ComPtr<ID3D12Resource>> _cbs;
+    ComPtr<ID3D12Resource>              uploadBuffer;
 };

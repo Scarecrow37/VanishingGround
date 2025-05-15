@@ -1,6 +1,6 @@
+#include "CommonData.hlsli"
 Texture2D screen : register(t0);
 Texture2D UI : register(t1);
-SamplerState samLinear_wrap;
 
 struct PSInput
 {

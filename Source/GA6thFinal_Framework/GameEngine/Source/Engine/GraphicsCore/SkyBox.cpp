@@ -39,18 +39,18 @@ void SkyBox::SetTexture(std::string path)
     ID3D12GraphicsCommandList* pCommandList = UmDevice.GetCommandList().Get();
 
     // DirectXTex에서 가져온 포맷 사용 (보통 R32G32B32A32_FLOAT)
-    ComPtr<ID3D12Resource> hdrTexture =
+    _skyboxhdrTexture =
         CreateTexture2D(pDevice, static_cast<int>(metadata.width), static_cast<int>(metadata.height), metadata.format);
 
-    UploadToTexture2D(pDevice, pCommandList, hdrTexture.Get(), img->pixels, imageSize);
+    UploadToTexture2D(pDevice, pCommandList, _skyboxhdrTexture.Get(), img->pixels, imageSize);
 
     // Create SRV
-    CreateSRV(hdrTexture.Get());
+    CreateSRV(_skyboxhdrTexture.Get());
 
     // Create CubeMap texture (UAV)
     const UINT             cubeSize = 512;
-    ComPtr<ID3D12Resource> cubeMap  = CreateCubeMap(pDevice, cubeSize, DXGI_FORMAT_R16G16B16A16_FLOAT);
-    CreateUAV(cubeMap.Get());
+    _skyboxCubeMap      = CreateCubeMap(pDevice, cubeSize, DXGI_FORMAT_R16G16B16A16_FLOAT);
+    CreateUAV(_skyboxCubeMap.Get());
     SetPipelineState();
     // Dispatch compute shader per face (0~5)
     for (UINT face = 0; face < 6; ++face)
@@ -58,8 +58,6 @@ void SkyBox::SetTexture(std::string path)
         BindResources(cubeSize, face);
         pCommandList->Dispatch((cubeSize + 15) / 16, (cubeSize + 15) / 16, 1);
     }
-
-    _skyboxCubeMap = cubeMap;
 }
 
 
@@ -118,7 +116,7 @@ void SkyBox::UploadToTexture2D(ID3D12Device* device, ID3D12GraphicsCommandList* 
     auto                  heapProperty = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
     CD3DX12_RESOURCE_DESC   bufferDesc   = CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize);
 
-    ComPtr<ID3D12Resource> uploadBuffer;
+   
     FAILED_CHECK_BREAK(device->CreateCommittedResource(&heapProperty, D3D12_HEAP_FLAG_NONE, &bufferDesc,
                                                        D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
                                                        IID_PPV_ARGS(&uploadBuffer)));
@@ -221,10 +219,10 @@ void SkyBox::BindResources(UINT cubeSize, UINT faceIndex)
     UmDevice.CreateConstantBuffer(&cb,sizeof(CubeConvertConstants),_cb);
 
     cmdList->SetComputeRootSignature(_shader->GetRootSignature().Get());
-    cmdList->SetComputeRootShaderResourceView(_shader->GetRootSignatureIndex("EquirectangularMap"),
-                                                _hdrSRVGPU.ptr);  
-    cmdList->SetComputeRootUnorderedAccessView(_shader->GetRootSignatureIndex("CubeMap"),
-                                               _cubeUAVGPU.ptr);
+    cmdList->SetComputeRootDescriptorTable(_shader->GetRootSignatureIndex("EquirectangularMap"),
+                                                _hdrSRVGPU);  
+    cmdList->SetComputeRootDescriptorTable(_shader->GetRootSignatureIndex("CubeMap"),
+                                               _cubeUAVGPU);
     cmdList->SetComputeRootConstantBufferView(_shader->GetRootSignatureIndex("CubeMapInfo"),
                                               _cb->GetGPUVirtualAddress());
     _cbs.push_back(_cb);

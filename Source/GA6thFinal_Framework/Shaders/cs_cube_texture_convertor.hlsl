@@ -1,6 +1,6 @@
+#include "CommonData.hlsli"
 Texture2D<float4> EquirectangularMap;
 RWTexture2DArray<float4> CubeMap;
-SamplerState samLinear_clamp;
 
 cbuffer CubeMapInfo
 {

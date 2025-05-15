@@ -12,7 +12,7 @@ void GraphicsCore::Initialize(HWND hwnd, UINT width, UINT height, FEATURE_LEVEL 
 {
     Device.SetUpDevice(hwnd, width, height, feature);
     ViewManager.Initialize();
-    Device.Initialize();
+    Device.Initialize(); 
     Device.ResetCommands();
     Renderer.Initialize();
 
