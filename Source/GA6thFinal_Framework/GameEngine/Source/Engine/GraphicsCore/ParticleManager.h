@@ -16,10 +16,14 @@ private:
     void InitializeComputeCommandObject();
     void InitializeRenderCommandList();
     void InitializeComputeSyncObject();
-    void InitializeComputeShader();
-    void InitializeComputeRootSignature();
-    void InitializeComputePSO();
+    
+    void InitializeParticleComputeShader();
+    void InitializeParticleComputeRootSignature();
+    void InitializeParticleComputePSO();
 
+    void InitializeSortingComputeShader();
+    void InitializeSortingComputeRootSignature();
+    void InitializeSortingComputePSO();
 
 
 
@@ -33,9 +37,22 @@ private:
     UINT64              _currentFenceValue = 0;
     HANDLE              _fenceEvent;
 
-    ComPtr<ID3D12RootSignature> _computeRootSignature;
-    ComPtr<ID3D12PipelineState> _computePSO;
-    ComPtr<ID3DBlob>            _computeShaderBlob;
+    ComPtr<ID3D12RootSignature> _computeSpriteRootSignature;
+    ComPtr<ID3D12PipelineState> _computeAxialSpritePSO;
+    ComPtr<ID3D12PipelineState> _computeSpritePSO;
+    ComPtr<ID3DBlob>            _computeAxialSpriteShaderBlob;
+    ComPtr<ID3DBlob>            _computeSpriteShaderBlob;
+
+    ComPtr<ID3D12RootSignature> _computeMeshRootSignature;
+    ComPtr<ID3D12PipelineState> _computeMeshPSO;
+    ComPtr<ID3DBlob>            _computeMeshShaderBlob;
+
+
+
+    ComPtr<ID3D12RootSignature> _sortingRootSignature;
+    ComPtr<ID3D12PipelineState> _sortingPSO;
+    ComPtr<ID3DBlob>            _sortingShaderBlob;
+
 
 
     ComPtr<ID3D12Resource>       _particleBuffers[2];
