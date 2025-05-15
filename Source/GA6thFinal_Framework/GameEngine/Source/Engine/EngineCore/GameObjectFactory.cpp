@@ -594,6 +594,7 @@ int EGameObjectFactory::InstanceIDManager::CreateInstanceID()
     }
     else
     {
+        std::sort(_emptyID.begin(), _emptyID.end(), [](int a, int b) { return a > b; });
         instanceID = _emptyID.back();
         _emptyID.pop_back();
     } 
@@ -604,9 +605,7 @@ int EGameObjectFactory::InstanceIDManager::CreateInstanceID()
 void EGameObjectFactory::InstanceIDManager::ReturnInstanceID(int id)
 {
     instanceIdMutex.lock();
-    std::vector<int>& emptyID = _emptyID;
-    emptyID.push_back(id);
-    std::sort(emptyID.begin(), emptyID.end(), [](int a, int b) { return a > b; });
+    _emptyID.push_back(id);
     instanceIdMutex.unlock();
 }
 
