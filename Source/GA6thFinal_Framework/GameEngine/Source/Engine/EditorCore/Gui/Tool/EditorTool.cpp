@@ -149,6 +149,7 @@ void EditorTool::ProcessPopupFrame()
             bool isTabBarHovered = ImGui::IsMouseHoveringRect(min, max, false);
             bool isMouseReleased = ImGui::IsMouseReleased(ImGuiMouseButton_Right);
 
+            ImGui::PushID(this);
             if (true == isTabBarHovered && true == isMouseReleased)
             {
                 ImGui::OpenPopup("##TabBarContextMenu");
@@ -161,6 +162,7 @@ void EditorTool::ProcessPopupFrame()
                 OnFramePopupOpened();
                 ImGui::EndPopup();
             }
+            ImGui::PopID();
         }
     }
 }
