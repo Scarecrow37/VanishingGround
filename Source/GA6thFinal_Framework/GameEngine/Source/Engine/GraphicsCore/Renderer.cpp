@@ -7,9 +7,8 @@
 #define SeongU01
 #ifdef SeongU01
 #include "Box.h"
-#include "Sphere.h"
-#include "GeoSphere.h"
 #include "Cylinder.h"
+#include "GeoSphere.h"
 #include "Grid.h"
 #include "Quad.h"
 #include "RenderScene.h"
@@ -23,9 +22,7 @@ Renderer::Renderer()
 {
 }
 
-Renderer::~Renderer()
-{
-}
+Renderer::~Renderer() {}
 
 D3D12_GPU_DESCRIPTOR_HANDLE Renderer::GetRenderSceneImage(std::string_view renderSceneName)
 {
@@ -101,7 +98,7 @@ void Renderer::Initialize()
 
         // Renderer File Event
         _rendererFileEvent = std::make_unique<RendererFileEvent>();
-        UmFileSystem.RegisterFileEventNotifier(_rendererFileEvent.get(), {".png", ".dds", ".fbx"});
+        UmFileSystem.RegisterFileEventNotifier(_rendererFileEvent.get(), {".png", ".dds", ".fbx", ".UmModel"});
     }
 }
 
@@ -121,7 +118,7 @@ void Renderer::Update()
 
 void Renderer::Render()
 {
-	ComPtr<ID3D12GraphicsCommandList> commandList = UmDevice.GetCommandList();
+    ComPtr<ID3D12GraphicsCommandList> commandList = UmDevice.GetCommandList();
 
     for (auto& renderScene : _renderScenes)
     {

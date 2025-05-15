@@ -1,11 +1,15 @@
 ﻿#pragma once
 
-class EditorDynamicCamera;
-class EditorModelTool : public EditorTool
+class MeshRenderer;
+class FBXConverter;
+class EditorModelDetails : public EditorTool
 {
+    friend class EditorModelTool;
+    friend class EditorModelMenu;
+    friend class EditorModelHierarchy;
 public:
-    EditorModelTool();
-    virtual ~EditorModelTool() = default;
+    EditorModelDetails();
+    virtual ~EditorModelDetails() = default;
 
 private:
     virtual void OnTickGui() override;
@@ -34,11 +38,16 @@ private:
     /* Popup창 호출 성공 시 호출 (OnPreFrameBegin 전에 호출) */
     virtual void OnFramePopupOpened() override;
 
-private:
-    void ImportFBX(const std::filesystem::path& path);
-    void ExportFBX();
+    private:
+    static FBXConverter& GetFBXConverter();
 
 private:
-    std::unique_ptr<EditorDynamicCamera> _camera;
-    EditorModelDetails*                  _editorModelDetails;
+    void ImportModel();
+    void ExportModel();
+    void SaveModel();
+
+private:
+    std::unique_ptr<MeshRenderer>        _meshRenderer;
+    Matrix                               _worldMatrix;
+    std::filesystem::path                _filePath;
 };
