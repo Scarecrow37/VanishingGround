@@ -799,7 +799,6 @@ void ESceneManager::ObjectsDestroy()
         std::shared_ptr<GameObject>& pObject = _runtimeObjects[instanceID];
         EraseGameObjectMap(pObject);
         pObject.reset();
-        EGameObjectFactory::InstanceIDManager::ReturnInstanceID(instanceID);
     }
     destroyObjectSet.clear();
     destroyObjectQueue.clear();

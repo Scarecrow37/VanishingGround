@@ -286,6 +286,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Source\Editor\Menu\Play\EditorPlayMenu.h" />
+    <ClInclude Include="Source\Engine\ClassCore\Command\InputAutoCommand.h" />
     <ClInclude Include="Source\Engine\EditorCore\Interface\IEditorCycle.h" />
     <ClInclude Include="Source\Engine\EditorCore\Gui\DockWindow\EditorDockWindow.h" />
     <ClInclude Include="Source\Engine\EditorCore\Interface\IEditorObject.h" />

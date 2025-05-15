@@ -52,14 +52,17 @@ public:
     struct InstanceIDManager
     {
         // 게임 오브젝트의 인스턴스 ID를 부여하기 위한 함수입니다.
-        static int CreateInstanceID();
+        int CreateInstanceID();
 
         // SceneManager에서 오브젝트를 Destroy 할때 Instance ID를 반납하기 위한 함수입니다.
-        static void ReturnInstanceID(int id);
+        void ReturnInstanceID(int id);
 
     private:
-        inline static std::mutex instanceIdMutex;
-    };
+        int              _backID = 0;
+        std::vector<int> _emptyID;
+        std::mutex instanceIdMutex;
+    }
+    InstanceID;
 
     /// <summary>
     /// 게임 오브젝트를 생성합니다. 생성된 오브젝트는 자동으로 씬에 등록됩니다.
@@ -173,13 +176,6 @@ private:
     std::map<std::string, std::function<GameObject* ()>> _NewGameObjectFuncMap;    //생성용 맵
     std::vector<std::string>                             _NewGameObjectKeyVec;     //키 항목 모음
 
-    //인스턴스 아이디를 추적하기 위한 맴버
-    struct
-    {
-        int BackID = 0;
-        std::vector<int> EmptyID;
-    }
-    instanceIDManager;
 private:
     //Prefab의 GUID만 다시 작성합니다.
     void WritePrefabGuid(const File::Path& path, YAML::Node& data);
