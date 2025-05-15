@@ -64,7 +64,7 @@ private:
 protected:
     REFLECT_FIELDS_BEGIN(EditorGui)
     std::string OriginLabel;
-    bool IsLock;
+    bool IsLock = false;
     REFLECT_FIELDS_END(EditorTool)
 
 private:
