@@ -100,6 +100,10 @@ void EditorLogsTool::OnPreFrameBegin()
 
 void EditorLogsTool::OnPostFrameBegin()
 {
+    if (notReadCount > 0)
+    {
+        ImGui::PopStyleColor();
+    }
 }
 
 void EditorLogsTool::OnFrameRender() 
@@ -108,7 +112,6 @@ void EditorLogsTool::OnFrameRender()
     _isWindowHovered = ImGui::IsWindowHovered();
     if (notReadCount > 0)
     {
-        ImGui::PopStyleColor();
         if (_isWindowFocused == true || _isWindowHovered == true)
         {
             static bool once = false;

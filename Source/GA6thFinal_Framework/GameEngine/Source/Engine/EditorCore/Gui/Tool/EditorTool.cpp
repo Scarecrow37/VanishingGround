@@ -171,22 +171,22 @@ void EditorTool::ProcessFocusFrame()
 {
     if (false == _isFirstTick)
     {
-        if (true == ImGui::IsWindowFocused(ImGuiFocusedFlags_DockHierarchy | ImGuiFocusedFlags_RootAndChildWindows))
+        if (true == ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows))
         {
             if (false == _isFrameFocused)
             {
+                _isFrameFocused = true;
                 OnFrameFocusEnter();
             }
             OnFrameFocusStay();
-            _isFrameFocused = true;
         }
         else
         {
             if (true == _isFrameFocused)
             {
+                _isFrameFocused = false;
                 OnFrameFocusExit();
             }
-            _isFrameFocused = false;
         }
     }
 }

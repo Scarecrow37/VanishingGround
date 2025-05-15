@@ -78,7 +78,6 @@ private:
     void ShowDeletePopupBox(wpContext context);
     void ShowSameFilePopupBox();
 
-
 private:
     void ProcessEnterAction(spContext context);
     void ProcessMoveAction(wpContext srcContext, wpFolderContext dstContext);

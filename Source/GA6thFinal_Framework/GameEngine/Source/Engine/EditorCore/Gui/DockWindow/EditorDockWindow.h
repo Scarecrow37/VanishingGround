@@ -87,6 +87,9 @@ private:
     std::vector<DockSplitInfo>          _dockSplitLayoutID;         /* 도킹 영역에 대한 ID값 */
     std::unordered_map<int, ImGuiID>    _dockSplitIDTable;          /* 도킹 영역에 대한 ID값 */
 
+private:
+    int _pushedStyleCount = 0; // [internal] PushStyleVar 호출 횟수
+
 public:
     /* 옵션 플래그에 대한 설정 */
     inline void         SetDockWindowFlags(EditorDockWindowFlags flags) { _dockWindowOptionFlags = flags; }

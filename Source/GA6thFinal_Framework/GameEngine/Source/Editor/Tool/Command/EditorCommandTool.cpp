@@ -69,10 +69,14 @@ void EditorCommandTool::OnFrameRender()
                 ImGui::PopStyleColor(2);
             }
         }
+
         auto redoBegin = manager.RedoStackBegin();
         auto redoEnd   = manager.RedoStackEnd();
 
-        for (auto itr = redoBegin; itr != redoEnd; ++itr, ++index)
+        using Iterator = decltype(redoBegin);
+        std::reverse_iterator<Iterator> redoRbegin(redoEnd);
+        std::reverse_iterator<Iterator> redoRend(redoBegin);
+        for (auto itr = redoRbegin; itr != redoRend; ++itr, ++index)
         {
             auto& command = *itr;
             if (nullptr != command)
