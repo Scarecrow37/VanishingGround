@@ -5,6 +5,7 @@ class EditorMenu;
 class EditorDockWindow;
 class EditorModule;
 class EditorPopupBoxSystem;
+class EditorModule;
 
 #ifndef _SCRIPTS_PROJECT
 namespace Global
@@ -14,6 +15,9 @@ namespace Global
 #else
     struct NotEditorModule
     {
+        NotEditorModule()  = default;
+        ~NotEditorModule() = default;
+
         EditorModule* operator->()
         {
             assert(!"에디터 빌드만 접근 가능합니다.");
@@ -37,12 +41,18 @@ namespace Global
             UmApplication.Quit();
             return err;
         }
+        operator EditorModule*()
+        {
+            assert(!"에디터 빌드만 접근 가능합니다.");
+            __debugbreak(); // 에디터 아닌데 접근하면 안됨.
+            UmApplication.Quit();
+            return nullptr;
+        }
     };
     extern NotEditorModule editorModule;
-#endif // _UMEDITOR  
-}
+#endif // _UMEDITOR
+} // namespace Global
 #endif
-
 
  class EditorModule 
      : public IAppModule
@@ -130,3 +140,4 @@ namespace Global
     }
     PlayMode;
 };
+

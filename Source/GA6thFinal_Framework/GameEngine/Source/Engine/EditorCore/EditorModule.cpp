@@ -4,7 +4,7 @@
 #ifdef _UMEDITOR
 EditorModule* Global::editorModule = nullptr;
 #else
-Global::NotEditorModule editorModule;
+Global::NotEditorModule Global::editorModule;
 #endif
 
 EditorModule::EditorModule() 

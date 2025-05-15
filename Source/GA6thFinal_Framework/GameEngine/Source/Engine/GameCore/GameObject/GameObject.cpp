@@ -52,11 +52,6 @@ Scene& GameObject::GetScene()
     }
 }
 
-std::weak_ptr<GameObject> GameObject::GetWeakPtr() const
-{
-    return _weakPtr;
-}
-
 void GameObject::OnInspectorViewEnter() 
 {
 

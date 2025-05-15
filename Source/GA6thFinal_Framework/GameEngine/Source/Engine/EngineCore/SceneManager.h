@@ -1,6 +1,8 @@
 ﻿#pragma once
 class GameObject;
 class ESceneManager;
+class MeshComponent;
+class Model;
 
 //참고 
 // Unity SceneManager https://docs.unity3d.com/6000.0/Documentation/ScriptReference/SceneManagement.SceneManager.html
@@ -216,6 +218,7 @@ public:
         /// 프리팹 인스턴스를 Swap 합니다. Reset만 호출되며 인스턴스 아이디는 유지됩니다.
         /// </summary>
         static void SwapPrefabInstance(GameObject* original, GameObject* remake);
+
     };
 
 public:
@@ -313,7 +316,44 @@ public:
     /// <param name="outPath :">저장할 경로</param>
     /// <param name="isOverride :">덮어쓰기 안내문구 스킵 여부</param>
     void WriteEmptySceneToFile(std::string_view name, std::string_view outPath, bool isOverride = false);
-    
+
+    class SceneResourceManager
+    {
+    public:
+        SceneResourceManager();
+        ~SceneResourceManager();
+
+        /// <summary>
+        /// 해당 리소스 매니저를 업데이트 합니다.
+        /// </summary>
+        /// <param name="manager"></param>
+        static void Update(SceneResourceManager& manager);
+
+        /// <summary>
+        /// MeshComponent의 Model 리소스 로드를 요청합니다.
+        /// </summary>
+        /// <param name="meshComponent :">대상 메시 컴포넌트</param>
+        /// <param name="guid :">로드할 리소스의 guid</param>
+        void RequestModelResource(const MeshComponent* meshComponent, const File::Guid& guid);
+         
+        void ClearModelResource();
+
+    private:
+        struct ModelResources
+        {
+            Concurrency::concurrent_queue<std::pair<std::weak_ptr<MeshComponent>, File::Guid>> ModelLoadQueue;
+            std::unordered_map<File::Guid, std::shared_ptr<Model>>                             ModelResource;
+            std::unordered_map<File::Guid, std::vector<std::weak_ptr<MeshComponent>>>          ModelUseComponentList;
+        }
+        _models;
+
+
+    };
+    /// <summary>
+    /// 씬 리소스 관리를 위한 맴버입니다.
+    /// </summary>
+    SceneResourceManager ResourceManager;
+
 private:
 #ifdef _UMEDITOR
     //play 여부
@@ -382,6 +422,9 @@ private:
     std::tuple<std::unordered_set<Component*>, std::vector<Component*>, std::vector<bool*>> _onEnableQueue;
     std::tuple<std::unordered_set<Component*>, std::vector<Component*>, std::vector<bool*>> _onDisableQueue;
 
+    //Renderer의 Enable, Disable 변경 관리용
+    std::pair<std::vector<MeshRenderer*>, std::vector<MeshRenderer*>> _meshSetActiveQueue;
+
 private:
     struct
     {
@@ -402,6 +445,7 @@ private:
 
     //로드된 씬 항목
     std::vector<Scene*> _lodedSceneList;
+
 protected:
     /// <summary>
     /// 씬을 Yaml 형식으로 직렬화합니다.

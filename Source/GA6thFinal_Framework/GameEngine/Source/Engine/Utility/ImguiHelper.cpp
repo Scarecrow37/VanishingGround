@@ -32,47 +32,31 @@ namespace ImGuiHelper
       EditorDynamicCamera* pDynamicCamera, 
       Camera* pCamera, 
       Matrix* pObjectMatrix,
-      DrawManipulateDesc & desc,
-      Vector3* outPosition,
-      Quaternion* outRotation,
-      Vector3* outScale);
+      DrawManipulateDesc & desc);
 }
 
 bool ImGuiHelper::DrawManipulate(
     Camera* pCamera, 
     Matrix* pObjectMatrix, 
-    DrawManipulateDesc& desc, 
-    Vector3* outPosition,
-    Quaternion* outRotation, 
-    Vector3* outScale)
+    DrawManipulateDesc& desc)
 {
-    return DrawManipulate(nullptr, pCamera, pObjectMatrix, desc, outPosition, outRotation, outScale);
+    return DrawManipulate(nullptr, pCamera, pObjectMatrix, desc);
 }
 
 bool ImGuiHelper::DrawManipulate(
     EditorDynamicCamera* pDynamicCamera, 
     Matrix* pObjectMatrix, 
-    DrawManipulateDesc& desc,
-    Vector3* outPosition, 
-    Quaternion* outRotation, 
-    Vector3* outScale)
+    DrawManipulateDesc& desc)
 {
-    return DrawManipulate(pDynamicCamera, nullptr, pObjectMatrix, desc, outPosition, outRotation, outScale);
+    return DrawManipulate(pDynamicCamera, nullptr, pObjectMatrix, desc);
 }
 
 static bool ImGuiHelper::DrawManipulate(
     EditorDynamicCamera* pDynamicCamera,
     Camera* pCamera,
     Matrix* pObjectMatrix,
-    DrawManipulateDesc& desc, 
-    Vector3* outPosition, 
-    Quaternion* outRotation,
-    Vector3* outScale)
+    DrawManipulateDesc& desc)
 {
-    bool isOutPosition = outPosition != nullptr;
-    bool isOutRotation = outRotation != nullptr;
-    bool isOutScale = outScale != nullptr;
-
     Camera* realCamera = nullptr;
     if (nullptr != pDynamicCamera)
     {
@@ -123,46 +107,22 @@ static bool ImGuiHelper::DrawManipulate(
         bool isMouseHoveringRect = (mousePos.x >= rectMin.x && mousePos.x <= rectMax.x && mousePos.y >= rectMin.y && mousePos.y <= rectMax.y);
         if (true == isMouseHoveringRect)
         {
-            viewManipulateMatrix = (inversionMatrix * viewManipulateMatrix * inversionMatrix);
+            viewManipulateMatrix = inversionMatrix * viewManipulateMatrix * inversionMatrix;
             viewManipulateMatrix = viewManipulateMatrix.Invert();
             Vector3    position;
             Quaternion rotation;
             Vector3    scale;
             viewManipulateMatrix.Decompose(scale, rotation, position);
-
             if (nullptr != pDynamicCamera)
             {
                 pDynamicCamera->SetPosition(position);
-                pDynamicCamera->SetRotation(rotation.ToEuler());
+                pDynamicCamera->SetRotation(rotation);
             }
             else if (nullptr != pCamera)
             {
                 pCamera->SetPosition(position);
-                pCamera->SetRotation(rotation.ToEuler());
+                pCamera->SetRotation(rotation);
             }           
-        }
-    }
-    
-    if (true == manipulateResult)
-    {
-        if (isOutPosition || isOutRotation || isOutScale)
-        {
-            Vector3    position;
-            Quaternion rotation;
-            Vector3    scale;
-            objectMatrix.Decompose(scale, rotation, position);
-            if (true == isOutPosition)
-            {
-                *outPosition = position;
-            }
-            if (true == isOutRotation)
-            {
-                *outRotation = rotation;
-            }
-            if (true == isOutScale)
-            {
-                *outScale = scale;
-            }
         }
     }
     return manipulateResult;

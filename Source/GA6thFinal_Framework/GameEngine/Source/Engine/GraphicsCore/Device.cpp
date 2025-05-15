@@ -391,9 +391,6 @@ HRESULT Device::CreateVertexBuffer(void* data, UINT size, UINT stride, ComPtr<ID
 
     if (data)
     {
-        auto property = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-        auto desc     = CD3DX12_RESOURCE_DESC::Buffer(size);
-
         ComPtr<ID3D12Resource> uploadBuffer;
         buffer = d3dUtil::CreateDefaultBuffer(_device.Get(), _commandList.Get(), data, size, uploadBuffer);
 
@@ -415,9 +412,6 @@ HRESULT Device::CreateIndexBuffer(void* data, UINT size, DXGI_FORMAT format, Com
 
     if (data)
     {
-        auto property = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-        auto desc     = CD3DX12_RESOURCE_DESC::Buffer(size);
-
         ComPtr<ID3D12Resource> uploadBuffer;
         buffer = d3dUtil::CreateDefaultBuffer(_device.Get(), _commandList.Get(), data, size, uploadBuffer);
 

@@ -444,9 +444,6 @@
     <ClInclude Include="Source\Engine\GraphicsCore\Material.h">
       <Filter>GraphicsCore\Material</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\M_Default.h">
-      <Filter>GraphicsCore\Material</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\GraphicsCore\PBRLitTechnique.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -538,6 +535,27 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Editor\Menu\Play\EditorPlayMenu.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\UmScripts.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Tool\Model\EditorModelDetails.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Menu\Model\EditorModelMenu.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\FBXConverter.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\M_PBR.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Tool\Model\EditorModelHierarchy.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\RendererBase.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\EditorCore\System\EditorGuiSystem.h">
@@ -846,9 +864,6 @@
       <Filter>GraphicsCore\Animator</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\Material.cpp">
-      <Filter>GraphicsCore\Material</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\M_Default.cpp">
       <Filter>GraphicsCore\Material</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\PBRLitTechnique.cpp">

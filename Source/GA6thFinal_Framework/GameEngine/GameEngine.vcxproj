@@ -285,11 +285,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Editor\Menu\Model\EditorModelMenu.h" />
     <ClInclude Include="Source\Editor\Menu\Play\EditorPlayMenu.h" />
+    <ClInclude Include="Source\Editor\Tool\Model\EditorModelDetails.h" />
+    <ClInclude Include="Source\Editor\Tool\Model\EditorModelHierarchy.h" />
     <ClInclude Include="Source\Engine\EditorCore\Interface\IEditorCycle.h" />
     <ClInclude Include="Source\Engine\EditorCore\Gui\DockWindow\EditorDockWindow.h" />
     <ClInclude Include="Source\Engine\EditorCore\Interface\IEditorObject.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\d3dUtil.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\FBXConverter.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\RendererBase.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\MeshRenderer.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\RendererFileEvent.h" />
     <ClInclude Include="Source\Engine\FileSystem\Type\FileSystemSetting.h" />
@@ -326,7 +331,7 @@
     <ClInclude Include="Source\Engine\Imgui\ImSequencer.h" />
     <ClInclude Include="Source\Engine\Imgui\ImZoomSlider.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Animator.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\M_Default.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\M_PBR.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Material.h" />
     <ClInclude Include="Source\Engine\Utility\EditorHelper.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\RenderPass.h" />
@@ -433,11 +438,16 @@
     <ClInclude Include="Source\pch.h" />
     <ClInclude Include="Source\Engine\Utility\DumpUtility.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\VertexShader.h" />
+    <ClInclude Include="Source\UmScripts.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Editor\Menu\Model\EditorModelMenu.cpp" />
     <ClCompile Include="Source\Editor\Menu\Play\EditorPlayMenu.cpp" />
+    <ClCompile Include="Source\Editor\Tool\Model\EditorModelDetails.cpp" />
+    <ClCompile Include="Source\Editor\Tool\Model\EditorModelHierarchy.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\Gui\DockWindow\EditorDockWindow.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\d3dUtil.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\FBXConverter.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\MeshRenderer.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\RendererFileEvent.cpp" />
     <ClCompile Include="Source\Editor\DynamicCamera\EditorDynamicCamera.cpp" />
@@ -490,7 +500,7 @@
     <ClCompile Include="Source\Engine\GraphicsCore\GBufferPass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\PBRLitTechnique.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\Animator.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\M_Default.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\M_PBR.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\Material.cpp" />
     <ClCompile Include="Source\Editor\DragDropTypes\DragDropTransform.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\Gui\PopupBox\EditorPopupBox.cpp" />
