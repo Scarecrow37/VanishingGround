@@ -5,13 +5,13 @@ namespace Command
 {
     namespace InputAuto
     {
-        template <const char* COMMAND_NAME, typename DATA, typename PDATA>
+        template <typename DATA, typename DATA_POINTER>
         class InputAutoCommand : public UmCommand
         {
         public:
-            InputAutoCommand(const DATA& prev, const DATA& curr, PDATA* pData) 
+            InputAutoCommand(std::string_view name, const DATA& prev, const DATA& curr, DATA_POINTER* pData) 
                 :
-                UmCommand(COMMAND_NAME),
+                UmCommand(name),
                 _prev(prev),
                 _curr(curr),
                 _pData(pData)
@@ -23,20 +23,19 @@ namespace Command
 
             }
 
+            virtual void Execute() 
+            { 
+                *_pData = _curr; 
+            }
+            virtual void Undo() 
+            { 
+                *_pData = _prev; 
+            }
+
         private:
             DATA _prev;
             DATA _curr;
-            PDATA* _pData;
-            virtual void Execute()
-            {
-                *_pData = _curr;
-            }
-
-            virtual void Undo()
-            {
-                *_pData = _prev;
-            }
+            DATA_POINTER* _pData;
         };
-
     } // namespace InputAuto
 }
