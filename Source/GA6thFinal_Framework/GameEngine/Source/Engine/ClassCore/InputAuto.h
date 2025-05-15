@@ -248,17 +248,17 @@ namespace ReflectHelper
                             {   
                                 if constexpr (StdHelper::is_string_view_v<origin_type> || StdHelper::is_wstring_view_v<origin_type>)
                                 {
-                                    origin_type curr = (origin_type)val;
-                                    UmCommandManager.Do<Command::InputAuto::InputAutoCommand<remove_view_type, value_type>>(name, prevValue[value], curr.data(), value);    
+                                    //origin_type curr = (origin_type)val;
+                                    //UmCommandManager.Do<Command::InputAuto::InputAutoCommand<remove_view_type, value_type>>(name, prevValue[value], curr.data(), value);    
                                 }
                                 else if constexpr (std::is_same_v<bool, origin_type>)
                                 {
-                                     bool curr = !prevValue[value];
-                                     UmCommandManager.Do<Command::InputAuto::InputAutoCommand<remove_view_type, value_type>>(name, prevValue[value], curr, value);  
+                                     //bool curr = !prevValue[value];
+                                     //UmCommandManager.Do<Command::InputAuto::InputAutoCommand<remove_view_type, value_type>>(name, prevValue[value], curr, value);  
                                 }
                                 else
                                 {
-                                    UmCommandManager.Do<Command::InputAuto::InputAutoCommand<remove_view_type, value_type>>(name, prevValue[value], (origin_type)val, value);                    
+                                    //UmCommandManager.Do<Command::InputAuto::InputAutoCommand<remove_view_type, value_type>>(name, prevValue[value], (origin_type)val, value);                    
                                 }
                                 prevValue.erase(value);
                             }
