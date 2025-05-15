@@ -35,7 +35,7 @@ void EditorAssetBrowserTool::OnPreFrameBegin()
     }
 }
 
-void EditorAssetBrowserTool::OnPostFrameBegin()
+void EditorAssetBrowserTool::OnFrameRender()
 {
     ImGui::PushID(this);
 
@@ -77,8 +77,6 @@ void EditorAssetBrowserTool::OnFrameEnd()
     }
     _eventFunc.clear();
 }
-
-void EditorAssetBrowserTool::OnFrameFocusStay() {}
 
 #define REFRESH_TEXT "Refresh"
 void EditorAssetBrowserTool::ShowUpperFrame()
@@ -313,7 +311,7 @@ void EditorAssetBrowserTool::ShowFolderHierarchy(spFolderContext FolderContext)
     }
 
     // ==== Text출력 ====
-    std::string icon = isOpen ? EditorIcon::ICON_FOLDER_OPEN : EditorIcon::ICON_Folder;
+    std::string icon = isOpen ? EditorIcon::ICON_FOLDER_OPEN : EditorIcon::ICON_FOLDER;
     std::string name = icon + " " + path.filename().string();
     ImGui::SameLine();
     ImGui::SetCursorPosX(startX + offsetX);
@@ -559,7 +557,7 @@ void EditorAssetBrowserTool::ShowItemToList(spContext context, const char* mode)
     float fontSize = ImGui::GetFontSize();
 
     const File::Path&  path = context->GetPath();
-    const std::string  icon = context->IsDirectory() ? EditorIcon::ICON_Folder : EditorIcon::ICON_FILE;
+    const std::string  icon = context->IsDirectory() ? EditorIcon::ICON_FOLDER : EditorIcon::ICON_FILE;
     const std::string& name = isParent ? "../" : context->GetName();
 
     ImGui::PushID(context.get());

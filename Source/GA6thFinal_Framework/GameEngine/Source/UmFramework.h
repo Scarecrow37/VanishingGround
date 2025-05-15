@@ -159,7 +159,7 @@ using namespace Microsoft::WRL;
 #include "Engine/EditorCore/Gui/PopupBox/EditorPopupBox.h"
 #include "Engine/EditorCore/Gui/DockWindow/EditorDockWindow.h"
 #include "Engine/EditorCore/System/EditorPopupBoxSystem.h"
-#include "Engine/EditorCore/System/EditorDockWindowSystem.h"
+#include "Engine/EditorCore/System/EditorGuiSystem.h"
 #include "Engine/EditorCore/EditorModule.h"
 
 //Input Auto

@@ -16,9 +16,9 @@ EditorDockWindow::~EditorDockWindow()
         }
     }
     _editorGuiList.clear();
-    _editorToolClassTable.clear();
+    _editorGuiClassTable.clear();
+    _editorToolTable.clear();
 }
-
 
 void EditorDockWindow::OnTickGui() 
 {
@@ -98,6 +98,7 @@ bool EditorDockWindow::RegisterChildDockWindow(EditorDockWindow* childDockWindow
 
     _editorGuiList.push_back(childDockWindow);
     childDockWindow->SetOwnerDockWindow(this);
+    _dockWindowTable[childDockWindow->GetLabel()] = childDockWindow;
     return true;
 }
 
