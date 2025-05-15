@@ -142,12 +142,12 @@ using namespace Microsoft::WRL;
 #include "Engine/GraphicsCore/GraphicsCore.h"
 
 //Engine Core
+#include "Engine/CommandCore/CommandManager.h"
 #include "Engine/EngineCore/EngineLogger.h"
 #include "Engine/EngineCore/TimeSystem.h"
 #include "Engine/EngineCore/GameObjectFactory.h"
 #include "Engine/EngineCore/ComponentFactory.h"
 #include "Engine/EngineCore/SceneManager.h"
-#include "Engine/CommandCore/CommandManager.h"
 #include "Engine/EngineCore/EngineCores.h" 
 
 //Editor Core
