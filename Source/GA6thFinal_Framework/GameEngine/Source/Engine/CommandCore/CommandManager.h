@@ -1,8 +1,6 @@
 ﻿#pragma once
 #include "UmCommand.h"
 
-class UmCommand;
-
 class ECommandManager
 {
 public:

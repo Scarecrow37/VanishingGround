@@ -101,6 +101,7 @@ namespace Global
      EditorSetting             _setting;            // 에디터 세팅 데이터
      EditorDockWindowSystem    _dockWindowSystem;   // 에디터 도킹 윈도우 시스템
      EditorPopupBoxSystem      _popupBoxSystem;     // 에디터 모달 팝업 시스템
+
 public:
     //플레이 모드 관리용
     class EditorPlayMode
@@ -129,5 +130,13 @@ public:
         ImVec4 _playModeColors[ImGuiCol_COUNT];
     }
     PlayMode;
-};
 
+ public:
+     //커맨드 매니저
+     ECommandManager CommandManager;
+
+ };
+
+#ifndef _SCRIPTS_PROJECT
+#define UmCommandManager Global::editorModule->CommandManager
+#endif
