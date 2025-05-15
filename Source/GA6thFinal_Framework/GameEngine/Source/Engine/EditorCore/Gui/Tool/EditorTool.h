@@ -16,6 +16,8 @@ public:
         EDITORTOOL_FLAGS_NONE               = 0,
         EDITORTOOL_FLAGS_ALWAYS_FRAME       = 1 << 2,   // 항상 프레임을 열고 닫음.
         EDITORTOOL_FLAGS_NO_PADDING         = 1 << 3,   // 패딩을 없앰
+        // [Internal] Flags
+        EDITORTOOL_FLAGS_IS_DOCKWINDOW      = 1 << 4,   // 도킹 윈도우 여부
     };
 
 public:
@@ -81,7 +83,6 @@ private:
     ImGuiWindowFlags                _windowFlags            = ImGuiWindowFlags_None;    // ImGui윈도우 플래그 (ImGuiWindowFlags_NoCollapse는 항상 활성화)
     
     EditorDockWindow*               _ownerDockWindow        = nullptr;                  // 도킹 스페이스 (부모 도킹스페이스)
-    std::vector<EditorDockWindow*>  _childDockWindowList;                               // 도킹 스페이스 리스트 (자식 도킹스페이스)
 
 private:
     ImGuiWindow*                    _imguiWindow            = nullptr;  // [Internal] ImGuiWindow 클래스

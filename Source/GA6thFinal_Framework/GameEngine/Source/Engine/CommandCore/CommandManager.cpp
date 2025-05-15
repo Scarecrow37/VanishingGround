@@ -30,6 +30,21 @@ void ECommandManager::Undo(UINT cnt)
     }
 }
 
+bool ECommandManager::Undo(CommandQueue::const_iterator itr)
+{
+    bool result = false;
+    for (auto it = _undoStack.begin(); it != _undoStack.end(); ++it)
+    {
+        Undo();
+        if (itr == it)
+        {
+            result = true;
+            break;
+        }
+    }
+    return result;
+}
+
 void ECommandManager::Redo()
 {
     if (true == _redoStack.empty())
@@ -57,6 +72,21 @@ void ECommandManager::Redo(UINT cnt)
             Redo();
         }
     }
+}
+
+bool ECommandManager::Redo(CommandQueue::const_iterator itr)
+{
+    bool result = false;
+    for (auto it = _redoStack.begin(); it != _redoStack.end(); ++it)
+    {
+        Redo();
+        if (itr == it)
+        {
+            result = true;
+            break;
+        }
+    }
+    return result;
 }
 
 void ECommandManager::Clear() 

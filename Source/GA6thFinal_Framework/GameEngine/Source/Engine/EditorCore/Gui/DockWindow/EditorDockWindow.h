@@ -38,10 +38,11 @@ public:
     void OnEndGui() override final;
 
 private:
-    virtual void OnPreFrameBegin();
-    virtual void OnPostFrameBegin();
-    virtual void OnFrameRender();
-    virtual void OnFrameEnd();
+    virtual void OnPreFrameBegin() override;
+    virtual void OnPostFrameBegin() override;
+    virtual void OnFrameRender() override;
+    virtual void OnFrameEnd() override;
+    virtual void OnFrameFocusStay() override;
 
 public:
     /* 툴을 등록합니다. */
