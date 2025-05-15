@@ -399,10 +399,13 @@ inline TComponent* GameObject::GetComponent() const
     TComponent* result = nullptr;
     for (auto& component : _components)
     {
-        if (typeid(TComponent) == typeid(*component))
+        if (nullptr != component)
         {
-            result = static_cast<TComponent*>(component.get());
-            break;
+            if (typeid(TComponent) == typeid(*component))
+            {
+                result = static_cast<TComponent*>(component.get());
+                break;
+            }
         }
     }
     return result;
@@ -418,7 +421,10 @@ inline TComponent* GameObject::GetComponentAtIndex(size_t index) const
     }
     else
     {
-        result = static_cast<TComponent*>(_components[index].get());
+        if (nullptr != _components[index])
+        {
+            result = dynamic_cast<TComponent*>(_components[index].get());
+        }       
         return result;
     }
 }
@@ -429,9 +435,12 @@ inline std::vector<TComponent*> GameObject::GetComponents() const
     std::vector<TComponent*> result;
     for (auto& component : _components)
     {
-        if (typeid(TComponent) == typeid(*component))
+        if (nullptr != component)
         {
-            result.emplace_back(static_cast<TComponent*>(component));
+            if (typeid(TComponent) == typeid(*component))
+            {
+                result.emplace_back(static_cast<TComponent*>(component));
+            }
         }
     }
     return result;
