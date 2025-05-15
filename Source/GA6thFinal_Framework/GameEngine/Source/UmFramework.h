@@ -118,6 +118,7 @@ using namespace Microsoft::WRL;
 #include "Engine/Utility/Mathf.h"
 
 //Class Core
+#include "Engine/CommandCore/CommandManager.h"
 #include "Engine/ClassCore/TProperty.hpp"
 #include "Engine/ClassCore/ReflectHelper.h"
 
@@ -148,7 +149,6 @@ using namespace Microsoft::WRL;
 #include "Engine/EngineCore/GameObjectFactory.h"
 #include "Engine/EngineCore/ComponentFactory.h"
 #include "Engine/EngineCore/SceneManager.h"
-#include "Engine/CommandCore/CommandManager.h"
 #include "Engine/EngineCore/EngineCores.h" 
 
 //Editor Core
@@ -160,8 +160,11 @@ using namespace Microsoft::WRL;
 #include "Engine/EditorCore/Gui/PopupBox/EditorPopupBox.h"
 #include "Engine/EditorCore/Gui/DockWindow/EditorDockWindow.h"
 #include "Engine/EditorCore/System/EditorPopupBoxSystem.h"
-#include "Engine/EditorCore/System/EditorDockWindowSystem.h"
+#include "Engine/EditorCore/System/EditorGuiSystem.h"
 #include "Engine/EditorCore/EditorModule.h"
+
+//Input Auto
+#include "Engine/ClassCore/InputAuto.h"
 
 //Game Core
 #include "Engine/GameCore/Transform/Transform.h"

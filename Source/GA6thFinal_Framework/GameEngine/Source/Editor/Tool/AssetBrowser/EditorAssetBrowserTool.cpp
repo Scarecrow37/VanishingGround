@@ -35,7 +35,7 @@ void EditorAssetBrowserTool::OnPreFrameBegin()
     }
 }
 
-void EditorAssetBrowserTool::OnPostFrameBegin()
+void EditorAssetBrowserTool::OnFrameRender()
 {
     ImGui::PushID(this);
 
@@ -77,8 +77,6 @@ void EditorAssetBrowserTool::OnFrameEnd()
     }
     _eventFunc.clear();
 }
-
-void EditorAssetBrowserTool::OnFrameFocusStay() {}
 
 #define REFRESH_TEXT "Refresh"
 void EditorAssetBrowserTool::ShowUpperFrame()
@@ -313,7 +311,7 @@ void EditorAssetBrowserTool::ShowFolderHierarchy(spFolderContext FolderContext)
     }
 
     // ==== Text출력 ====
-    std::string icon = isOpen ? EditorIcon::ICON_FOLDER_OPEN : EditorIcon::ICON_Folder;
+    std::string icon = isOpen ? EditorIcon::ICON_FOLDER_OPEN : EditorIcon::ICON_FOLDER;
     std::string name = icon + " " + path.filename().string();
     ImGui::SameLine();
     ImGui::SetCursorPosX(startX + offsetX);
@@ -431,10 +429,11 @@ void EditorAssetBrowserTool::ContentsFrameEventAction(spFolderContext context)
 
     const File::Path& curPath = context->GetPath();
 
-    bool isSelected   = UmFileSystem.IsSameContext(_selectedContext->GetContext(), context);
-    bool isRename     = browserFlags[FLAG_IS_RENAME];
-    bool isItemActive = ImGui::IsItemActive();  // 셀렉터블이 눌렸는지
-    bool isHovered    = ImGui::IsItemHovered(); // 셀렉터블이 호버링 되었는지
+    bool isSelected     = UmFileSystem.IsSameContext(_selectedContext->GetContext(), context);
+    bool isRename       = browserFlags[FLAG_IS_RENAME];
+    bool isFrameFocused = IsFocusFrame();         // 윈도우 포커스 여부
+    bool isItemActive   = ImGui::IsItemActive();  // 셀렉터블이 눌렸는지
+    bool isHovered      = ImGui::IsItemHovered(); // 셀렉터블이 호버링 되었는지
 
     bool isClickedLeft  = isHovered && ImGui::IsMouseClicked(0); // 마우스 왼 클릭
     bool isClickedRight = isHovered && ImGui::IsMouseClicked(1); // 마우스 오른 클릭
@@ -461,7 +460,7 @@ void EditorAssetBrowserTool::ContentsFrameEventAction(spFolderContext context)
             UmGameObjectFactory.WriteGameObjectFile(data.pTransform, path.string());
         }
 
-        if (false == isRename)
+        if (true == isFrameFocused && false == isRename)
         {
             if (true == isKeyBackSpace)
             {
@@ -559,7 +558,7 @@ void EditorAssetBrowserTool::ShowItemToList(spContext context, const char* mode)
     float fontSize = ImGui::GetFontSize();
 
     const File::Path&  path = context->GetPath();
-    const std::string  icon = context->IsDirectory() ? EditorIcon::ICON_Folder : EditorIcon::ICON_FILE;
+    const std::string  icon = context->IsDirectory() ? EditorIcon::ICON_FOLDER : EditorIcon::ICON_FILE;
     const std::string& name = isParent ? "../" : context->GetName();
 
     ImGui::PushID(context.get());
@@ -671,7 +670,7 @@ void EditorAssetBrowserTool::ItemInputAction(spContext context, const char* mode
     bool isParent       = (0 == strcmp(mode, "parent"));
     bool isSelected     = UmFileSystem.IsSameContext(_selectedContext->GetContext(), context);
     bool isRename       = browserFlags[FLAG_IS_RENAME];
-    bool isFrameFocused = ImGui::IsWindowFocused();               // 윈도우 포커스 여부
+    bool isFrameFocused = IsFocusFrame();                         // 윈도우 포커스 여부
     bool isItemActive   = ImGui::IsItemActive();                  // 셀렉터블이 눌렸는지
     bool isItemHovered  = ImGui::IsItemHovered();                 // 셀렉터블이 호버링 되었는지
     bool isItemFocused  = ImGui::IsItemFocused() && io.NavActive; // 셀렉터블이 포커스 되었는지
@@ -694,7 +693,7 @@ void EditorAssetBrowserTool::ItemInputAction(spContext context, const char* mode
     bool isKeyCopy  = ctrl && c; // Ctrl + C
     bool isKeyPaste = ctrl && v; // Ctrl + V
 
-    if (true == isItemFocused)
+    if (true == isFrameFocused && true == isItemFocused)
     {
         if (true == isMouseDouble || true == iskeyEnter)
         {

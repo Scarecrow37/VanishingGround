@@ -57,9 +57,9 @@ void GameApplication::BuildRootDock()
     _rootDock = dockSystem.RegisterDockWindow("RootDock");
 
     ImGuiWindowClass imguiwindowClass;
-    imguiwindowClass.ClassId               = ImHashStr("RootDockID"); // 윈도우 ID값 (그냥 대충 ImHashStr을 사용하여 생성)
-    imguiwindowClass.DockingAllowUnclassed = false; // 허용되지 않은 윈도우의 도킹을 허용할 것인가
-    imguiwindowClass.DockingAlwaysTabBar   = false; // 도킹 탭바를 항상 표시할 것인가
+    imguiwindowClass.ClassId                = ImHashStr("RootDockID"); // 윈도우 ID값 (그냥 대충 ImHashStr을 사용하여 생성)
+    imguiwindowClass.DockingAllowUnclassed  = false; // 허용되지 않은 윈도우의 도킹을 허용할 것인가
+    imguiwindowClass.DockingAlwaysTabBar    = false; // 도킹 탭바를 항상 표시할 것인가
 
     int imguiWindowFlag = 
         ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
@@ -80,10 +80,11 @@ void GameApplication::BuildRootDock()
     _rootDock->RegisterGui<EditorMenuProjectRoot>();
     _rootDock->RegisterGui<EditorMenuScriptBuilder>();
     _rootDock->RegisterGui<EditorBuildSettingMenu>(); 
-    _rootDock->RegisterGui<EditorMenuDebug>();
-    _rootDock->RegisterGui<EditorMenuStyleEditor>();
+    _rootDock->RegisterGui<EditorMenuEditorSetting>();
     _rootDock->RegisterGui<EditorMenuFileSystemSetting>();
     _rootDock->RegisterGui<EditorPlayMenu>();
+
+    _rootDock->RegisterGui<EditorMenuTools>(_rootDock);
 }
 
 void GameApplication::BuildSceneDock() 
@@ -93,16 +94,18 @@ void GameApplication::BuildSceneDock()
     _sceneDock = dockSystem.RegisterDockWindow("SceneDock", _rootDock);
     
     ImGuiWindowClass imguiwindowClass;
-    imguiwindowClass.ClassId          = ImHashStr("SceneDockID");
-    imguiwindowClass.DockingAllowUnclassed = false;
-    imguiwindowClass.DockingAlwaysTabBar   = true;
+    imguiwindowClass.ClassId                = ImHashStr("SceneDockID");
+    imguiwindowClass.DockingAllowUnclassed  = false;
+    imguiwindowClass.DockingAlwaysTabBar    = true;
 
-    int imguiWindowFlag = ImGuiWindowFlags_MenuBar;
-    int dockWindowFlag  = ImGuiDockNodeFlags_NoWindowMenuButton | ImGuiDockNodeFlags_NoCloseButton;
+    int imguiWindowFlag   = ImGuiWindowFlags_MenuBar;
+    int imguiDockNodeFlag =
+        ImGuiDockNodeFlags_NoWindowMenuButton | ImGuiDockNodeFlags_NoCloseButton;
+    int dockWindowFlag  = EditorDockWindow::DOCKWINDOW_FLAGS_FULLSCREEN;
 
     _sceneDock->SetWindowClass(imguiwindowClass);
     _sceneDock->SetImGuiWindowFlag(imguiWindowFlag);
-    _sceneDock->SetImGuiDockNodeFlag(dockWindowFlag);
+    _sceneDock->SetImGuiDockNodeFlag(imguiDockNodeFlag);
     _sceneDock->SetDockLayout(ImGuiDir_Up);
 
     _sceneDock->CreateDockLayoutNode(ImGuiDir::ImGuiDir_Right, 0.25f);

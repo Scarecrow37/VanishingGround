@@ -4,7 +4,6 @@
 #include "Command/SetParentCommand.h"
 #include "Command/DetachChildrenCommand.h"
 #include "Command/PackPrefabCommand.h"
-#include "Command/NewGameObjectCommand.h"
 #include "Command/DropPrefabCommand.h"
 
 using namespace u8_literals;
@@ -19,7 +18,7 @@ static void TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>
         {
             auto oldWp = EditorHierarchyTool::HierarchyFocusObjWeak;
             auto newWp = node.gameObject->GetWeakPtr();
-            if (false == EditorInspectorTool::IsLockFocus() &&  false == EditorInspectorTool::IsFocused(newWp))
+            if (false == EditorInspectorTool::IsLockFocus() && false == EditorInspectorTool::IsFocusObject(newWp))
             {
                 UmCommandManager.Do<Command::Hierarchy::FocusCommand>(oldWp, newWp);
             }
@@ -87,8 +86,8 @@ static void TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>
             }
             if (ImGui::MenuItem("Destroy"))
             {
-                GameObject::Destroy(&node.gameObject);
                 node.gameObject->GetScene().IsDirty = true;
+                GameObject::Destroy(&node.gameObject);
             }
             ImGui::Separator();
             if(ImGui::BeginMenu("Prefab"))
@@ -182,36 +181,39 @@ static void TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>
         }
     };
 
-    ImGui::PushID(&node);
-    bool isPushStyle = PushFocusStyle();
-    if (ImGui::TreeNodeEx(node.gameObject->ToString().data(),
-                          ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth))
+    if (STR_NULL != node.gameObject->GetOwnerSceneName())
     {
-        FocusRectDarw(focusObject.get());
-        PopFocusStyle(isPushStyle);
-        TreeDoubleClickEvent();
-        TreeRightClickEvent();
-        TreeDragDropEvent();
-
-        for (int i = 0; i < node.ChildCount; i++)
+        ImGui::PushID(&node);
+        bool isPushStyle = PushFocusStyle();
+        if (ImGui::TreeNodeEx(node.gameObject->ToString().data(),
+                              ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth))
         {
-            Transform* child = node.GetChild(i);
-            if (child)
+            FocusRectDarw(focusObject.get());
+            PopFocusStyle(isPushStyle);
+            TreeDoubleClickEvent();
+            TreeRightClickEvent();
+            TreeDragDropEvent();
+
+            for (int i = 0; i < node.ChildCount; i++)
             {
-                TransformTreeNode(*child, focusObject);
+                Transform* child = node.GetChild(i);
+                if (child)
+                {
+                    TransformTreeNode(*child, focusObject);
+                }
             }
+            ImGui::TreePop();
         }
-        ImGui::TreePop();
+        else
+        {
+            FocusRectDarw(focusObject.get());
+            PopFocusStyle(isPushStyle);
+            TreeDoubleClickEvent();
+            TreeRightClickEvent();
+            TreeDragDropEvent();
+        }
+        ImGui::PopID();
     }
-    else
-    {
-        FocusRectDarw(focusObject.get());
-        PopFocusStyle(isPushStyle);
-        TreeDoubleClickEvent();
-        TreeRightClickEvent();
-        TreeDragDropEvent();
-    }
-    ImGui::PopID();
 }
 
 
@@ -232,7 +234,7 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
     static const char* GameObjectName = GameObjectKey + 6;
     if (ImGui::MenuItem(GameObjectName))
     {
-        UmCommandManager.Do<NewGameObjectCommand>(GameObjectKey, GameObject::Helper::GenerateUniqueName(GameObjectName));
+        UmCommandManager.Do<ESceneManager::NewGameObjectCommand>(GameObjectKey, GameObject::Helper::GenerateUniqueName(GameObjectName));
     }
 }
 
@@ -241,8 +243,12 @@ void  EditorHierarchyTool::OnStartGui()
    
 }
 
-void EditorHierarchyTool::OnPreFrameBegin() {
-    
+void EditorHierarchyTool::OnPreFrameBegin() 
+{
+}
+
+void EditorHierarchyTool::OnPostFrameBegin() 
+{
 }
 
 void EditorHierarchyTool::HierarchyDropEvent()
@@ -289,7 +295,7 @@ void EditorHierarchyTool::HierarchyRightClickEvent() const
     }
 }
 
-void EditorHierarchyTool::OnPostFrameBegin()
+void EditorHierarchyTool::OnFrameRender()
 {
     std::shared_ptr<GameObject> focusObject = HierarchyFocusObjWeak.lock();
     _window = ImGui::GetCurrentWindow();

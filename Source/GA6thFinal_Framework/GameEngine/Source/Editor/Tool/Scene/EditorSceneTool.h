@@ -55,7 +55,7 @@ protected:
     REFLECT_FIELDS_BEGIN(EditorTool)
     std::array<float, 3> CameraPosition{};
     std::array<float, 4> CameraRotation{};
-    float  CameraFovDegree = 70.f;
+    float  CameraFovDegree   = 70.f;
     float  CameraAspect      = 1.0f;
     float  CameraNearZ       = 0.01f;
     float  CameraFarZ        = 10000.f;

@@ -39,12 +39,8 @@ private:
     virtual void OnStartGui() override;
 
     virtual void OnPreFrameBegin() override;
-
-    virtual void OnPostFrameBegin() override;
-
+    virtual void OnFrameRender() override;
     virtual void OnFrameEnd() override;
-
-    virtual void OnFrameFocusStay() override;
 
 private:
     /* 메뉴바 - 콜럼 사이 어퍼프레임 */
@@ -81,7 +77,6 @@ private:
     /* 팝업 박스 메서드 */
     void ShowDeletePopupBox(wpContext context);
     void ShowSameFilePopupBox();
-
 
 private:
     void ProcessEnterAction(spContext context);

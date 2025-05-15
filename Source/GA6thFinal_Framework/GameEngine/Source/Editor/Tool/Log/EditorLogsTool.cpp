@@ -100,11 +100,18 @@ void EditorLogsTool::OnPreFrameBegin()
 
 void EditorLogsTool::OnPostFrameBegin()
 {
+    if (notReadCount > 0)
+    {
+        ImGui::PopStyleColor();
+    }
+}
+
+void EditorLogsTool::OnFrameRender() 
+{
     _isWindowFocused = ImGui::IsWindowFocused();
     _isWindowHovered = ImGui::IsWindowHovered();
     if (notReadCount > 0)
     {
-        ImGui::PopStyleColor();
         if (_isWindowFocused == true || _isWindowHovered == true)
         {
             static bool once = false;
@@ -118,8 +125,8 @@ void EditorLogsTool::OnPostFrameBegin()
                 once = true;
             }
         }
-    } 
-    static ImVec2 buttonSize = ImVec2(50, 26);
+    }
+    static ImVec2 buttonSize    = ImVec2(50, 26);
     static ImVec2 buttonPadding = ImVec2(10, 0);
 
     if (ImGui::Button("Filter", buttonSize))
@@ -181,7 +188,7 @@ void EditorLogsTool::OnPostFrameBegin()
             }
             ImGui::PopStyleColor(2);
             ImGui::PopID();
-        }   
+        }
     }
     if (_isMessagePush)
     {

@@ -38,6 +38,10 @@ GameObject::GameObject()
 GameObject::~GameObject()
 {
     _components.clear();
+    if (0 <= _instanceID)
+    {
+        UmGameObjectFactory.InstanceID.ReturnInstanceID(_instanceID);
+    }
 }
 
 Scene& GameObject::GetScene()

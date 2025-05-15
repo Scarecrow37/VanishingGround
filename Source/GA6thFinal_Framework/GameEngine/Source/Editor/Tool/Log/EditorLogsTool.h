@@ -14,22 +14,12 @@ public:
     ~EditorLogsTool();
 
 protected:
-    /* ImGui가 초기화된 후 한번 호출 */
     virtual void OnStartGui() override;
-
-    /* ImGui가 종료될때 한번 호출 */
     virtual void OnEndGui() override;
-
-    /*반드시 호출*/
     virtual void OnTickGui() override;
-
-    /* Begin 호출 전에 항상 호출 (Begin성공 유무 상관 X) */
     virtual void OnPreFrameBegin() override;
-
-    /* Begin 호출 성공 시 호출 */
     virtual void OnPostFrameBegin() override;
-
-    /* End 호출 후에 항상 호출 (Begin성공 유무 상관 X) */
+    virtual void OnFrameRender() override;
     virtual void OnFrameEnd() override {};
 private:
     void ResetLogColor();

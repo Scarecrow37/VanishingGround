@@ -21,7 +21,11 @@ void EditorInspectorTool::OnPreFrameBegin()
 {
 }
 
-void EditorInspectorTool::OnPostFrameBegin()
+void EditorInspectorTool::OnPostFrameBegin() 
+{
+}
+
+void EditorInspectorTool::OnFrameRender()
 {
     ShowMenuBarFrame();
 
@@ -40,7 +44,7 @@ void EditorInspectorTool::OnFrameFocusStay()
 {
 }
 
-bool EditorInspectorTool::IsFocused(std::weak_ptr<IEditorObject> obj)
+bool EditorInspectorTool::IsFocusObject(std::weak_ptr<IEditorObject> obj)
 {
     bool ownerIsExpired = _focusedObject.expired();
     bool objIsExpired   = obj.expired();

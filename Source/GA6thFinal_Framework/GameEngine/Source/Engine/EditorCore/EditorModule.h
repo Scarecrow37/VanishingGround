@@ -1,8 +1,9 @@
 ﻿#pragma once
-#include "Setting/EditorSetting.h"
 
 class EditorTool;
-class EditorMenuBar;
+class EditorMenu;
+class EditorDockWindow;
+class EditorModule;
 class EditorPopupBoxSystem;
 class EditorModule;
 
@@ -82,10 +83,12 @@ namespace Global
  public:
      void OpenPopupBox(const std::string& name, std::function<void()> content);
 
+     void ResetGuiLayout();
+
  public:
      /* 에디터 디버그 모드 */
-     inline void SetDebugMode(bool v) { _setting.IsDebugMode = v; }
-     inline bool IsDebugMode() { return _setting.IsDebugMode; }
+     inline void SetDebugMode(bool v) { _isDebug = v; }
+     inline bool IsDebugMode() { return _isDebug; }
 
      inline auto& GetDockWindowSystem() { return _dockWindowSystem; }
      inline auto& GetPopupBoxSystem()   { return _popupBoxSystem; }
@@ -97,11 +100,18 @@ namespace Global
      virtual void OnRequestedSave() override;
      /* 프로젝트 로드 요청을 처리할 동작을 구현 */
      virtual void OnRequestedLoad() override;
+
  private:
-     EditorSetting             _setting;            // 에디터 세팅 데이터
-     EditorDockWindowSystem    _dockWindowSystem;   // 에디터 도킹 윈도우 시스템
-     EditorPopupBoxSystem      _popupBoxSystem;     // 에디터 모달 팝업 시스템
-public:
+     bool _isDebug = false;
+     std::string _imGuiIniData;   // ImGui 설정 데이터
+
+     EditorGuiSystem            _dockWindowSystem;   // 에디터 도킹 윈도우 시스템
+     EditorPopupBoxSystem       _popupBoxSystem;     // 에디터 모달 팝업 시스템
+
+     bool _isFirstTick     = true;
+     bool _isRefreshLayout = false;
+
+ public:
     //플레이 모드 관리용
     class EditorPlayMode
     {
@@ -129,5 +139,5 @@ public:
         ImVec4 _playModeColors[ImGuiCol_COUNT];
     }
     PlayMode;
-};
+ };
 
