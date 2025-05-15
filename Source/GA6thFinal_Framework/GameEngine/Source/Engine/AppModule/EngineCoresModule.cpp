@@ -18,5 +18,6 @@ void EngineCoresModule::ModuleUnInitialize()
     engineCore->ComponentFactory.UninitalizeComponentFactory();
     //engineCore->Graphics.ResourceManager.Clear();
     engineCore->Graphics.Device.Finalize();
+    UmCommandManager.Clear();
     SafeEngineCoresPtr::Engine::DestroyEngineCores();
 }
