@@ -294,6 +294,7 @@
     <ClInclude Include="Source\Engine\EditorCore\Interface\IEditorObject.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\d3dUtil.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\FBXConverter.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\RendererBase.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\MeshRenderer.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\RendererFileEvent.h" />
     <ClInclude Include="Source\Engine\FileSystem\Type\FileSystemSetting.h" />
