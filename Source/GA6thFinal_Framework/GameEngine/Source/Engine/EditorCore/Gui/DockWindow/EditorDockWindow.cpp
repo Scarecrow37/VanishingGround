@@ -163,23 +163,19 @@ void EditorDockWindow::PushDockStyle()
         ImGui::SetNextWindowViewport(viewport->ID);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+        _pushedStyleCount += 2;
     }
     if (_dockWindowOptionFlags & DOCKWINDOW_FLAGS_PADDING)
     {
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+        _pushedStyleCount += 1;
     }
 }
 
 void EditorDockWindow::PopDockStyle() 
 {
-    if (_dockWindowOptionFlags & DOCKWINDOW_FLAGS_FULLSCREEN)
-    {
-        ImGui::PopStyleVar(2);
-    }
-    if (_dockWindowOptionFlags & DOCKWINDOW_FLAGS_PADDING)
-    {
-        ImGui::PopStyleVar();
-    }
+    ImGui::PopStyleVar(_pushedStyleCount);
+    _pushedStyleCount = 0;
 }
 
 void EditorDockWindow::CreateDockLayoutNode(ImGuiDir direction, float ratio)
