@@ -425,6 +425,11 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
         return;
     }
 
+    if (DeserializeToGuid(scene->_guid) == false)
+    {
+        return;
+    }
+
     if (mode == LoadSceneMode::SINGLE)
     {
         _addComponentsQueue.clear();
@@ -442,6 +447,7 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
             }
         }
         _setting.MainScene = scene->Path;
+        UmCommandManager.Clear();
     }
     else
     {
@@ -462,13 +468,8 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
         }
     }
 
-    if (DeserializeToGuid(scene->_guid) == false)
-    {
-        return;
-    }
-
     scene->_isLoaded = true;
-    scene->IsDirty   = false;
+    scene->_isDirty  = false;
     _lodedSceneList.push_back(scene);
 }
 

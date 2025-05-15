@@ -210,7 +210,6 @@ void EditorModule::EditorPlayMode::Play()
             }
             UmSceneManager.LoadScene(path.string()); 
             SetPlayModeColor();
-            UmCommandManager.Clear();
 
             #ifdef _UMEDITOR
             _isPlay = true;
@@ -236,7 +235,6 @@ void EditorModule::EditorPlayMode::Stop()
         }
         UmSceneManager.LoadScene(_playSceneGuid.ToPath().string());
         Global::editorModule->SetGuiThemeStyle();
-        UmCommandManager.Clear();
 
         #ifdef _UMEDITOR
         _isPlay = false;
