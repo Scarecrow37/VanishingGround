@@ -18,8 +18,8 @@ void GraphicsCore::Initialize(HWND hwnd, UINT width, UINT height, FEATURE_LEVEL 
 
     auto commandList = Device.GetCommandList().Get();
     commandList->Close();
-    Device.RegisterCommand(commandList);
-    Device.ExecuteCommand();
+    Device.RegisterCommand(commandList,MESH_RENDER_LIST);
+    Device.ExecuteCommand(MESH_RENDER_LIST);
     Device.GPUSync();
 
     //MainCamera.SetupPerspective(45.f, static_cast<float>(width) / height, 0.01f, 10000.f);
@@ -27,6 +27,7 @@ void GraphicsCore::Initialize(HWND hwnd, UINT width, UINT height, FEATURE_LEVEL 
 
     //InitializeDefaultGeometry();
     UmDevice.ResetCommands();
+    UmDevice.ResetComputeCommands();
 }
 
 void GraphicsCore::UpdateAnimation(const float deltaTime) {}

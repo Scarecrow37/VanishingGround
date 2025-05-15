@@ -9,7 +9,9 @@ public:
 public:
     ComPtr<ID3D12Device>              GetDevice() const { return _device; }
     ComPtr<ID3D12CommandQueue>        GetCommandQueue() const { return _commandQueue; }
+    ComPtr<ID3D12CommandQueue>        GetComputeCommandQueue() const { return _computeCommandQueue; }
     ComPtr<ID3D12GraphicsCommandList> GetCommandList() const { return _commandList; }
+    ComPtr<ID3D12GraphicsCommandList> GetComputeCommandList() const { return _computeCommandList; }
     const DXGI_MODE_DESC&             GetMode() const { return _mode; }
     float                             GetEngineTime();
 
@@ -21,12 +23,15 @@ public:
 public:
     void OnResize(UINT width, UINT height);
     void GPUSync();
+
     void SetCurrentPipelineState(ComPtr<ID3D12PipelineState> pipelineState);
     void SetBackBuffer();
-    void RegisterCommand(ID3D12GraphicsCommandList* commandList);
-    void ExecuteCommand();
-    void ResetCommands();
     void ResolveBackBuffer(ComPtr<ID3D12Resource> source);
+
+    void ResetCommands();
+    void ResetComputeCommands();
+    
+    void Execute();
 
     UINT GetRTVDescriptorSize() { return _rtvDescriptorSize; }
     UINT GetCBVSRVUAVDescriptorSize() { return _cbvSrvUavDescriptorSize; }
@@ -54,17 +59,22 @@ public:
 
     void CreateCommandList(ComPtr<ID3D12CommandAllocator>& allocator, ComPtr<ID3D12GraphicsCommandList>& commandList,
                            COMMAND_TYPE type);
-
-    void CreateComputeCommandObject();
-
-private:
+    void RegisterCommand(ID3D12CommandList* commandList, COMMAND_LIST_TYPE type);
+    void ExecuteCommand(COMMAND_LIST_TYPE type);
+ private:
     void SetViewPort();
     void CreateDeviceAndSwapChain(HWND hwnd, D3D_FEATURE_LEVEL feature);
+    void CreateComputeCommandObject();
     void CreateCommandQueue();
     void CreateSyncObject();
     void CreateRenderTarget();
     void CreateDepthStencil();
     void CreateBuffer(UINT size, ComPtr<ID3D12Resource>& buffer);
+    
+    void WaitComputeFence(int fenceSlot);
+    void WaitGraphicsFence(int fenceSlot);
+    void SignalComputeQueue(int fenceSlot);
+    void SignalGraphicsQueue(int fenceSlot);
 
 private:
     ComPtr<ID3D12Device>       _device;
@@ -74,6 +84,11 @@ private:
     ComPtr<ID3D12Fence>        _fence;
     UINT64                     _fenceValue = 0;
     HANDLE                     _fenceEvent;
+
+    std::vector<ComPtr<ID3D12Fence>> _graphicsFences;
+    std::vector<UINT64> _lastGraphicsFenceValues;
+    std::vector<UINT64> _fenceValues;
+
 
     ComPtr<ID3D12Resource>                   _swapChainBuffer[SWAPCHAIN_BUFFER_COUNT];
     ComPtr<ID3D12Resource>                   _depthStencilBuffer;
@@ -97,8 +112,7 @@ private:
     DXGI_FORMAT     _depthStencilFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 
     DXGI_MODE_DESC                  _mode;
-    std::vector<ID3D12CommandList*> _commandLists;
-
+    std::vector<std::vector<ID3D12CommandList*>> _commandLists;
     // TODO : temp 나중에 commandList manager생기고 삭제하기? 수정하기?
     ComPtr<ID3D12GraphicsCommandList> _commandList;
     ComPtr<ID3D12CommandAllocator>    _commandAllocator;

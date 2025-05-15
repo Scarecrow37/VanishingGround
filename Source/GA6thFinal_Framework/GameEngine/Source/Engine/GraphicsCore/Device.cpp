@@ -43,6 +43,7 @@ void Device::SetUpDevice(HWND hwnd, UINT width, UINT height, FEATURE_LEVEL featu
 
 void Device::Initialize()
 {
+    _commandLists.resize(COMMAND_LIST_END);
     HRESULT hr = S_OK;
 
     hr =
@@ -58,6 +59,8 @@ void Device::Initialize()
 void Device::Finalize()
 {
     _uploadResources.clear();
+    _graphicsFences.clear();
+    _lastGraphicsFenceValues.clear();
     CloseHandle(_fenceEvent);
 }
 
@@ -77,8 +80,8 @@ void Device::OnResize(UINT width, UINT height)
 
     _commandList->ResourceBarrier(1, &barrier);
     FAILED_CHECK_BREAK(_commandList->Close());
-    RegisterCommand(_commandList.Get());
-    ExecuteCommand();
+    RegisterCommand(_commandList.Get(),MESH_RENDER_LIST);
+    ExecuteCommand(MESH_RENDER_LIST);
     GPUSync();
     _mainViewport.TopLeftX = 0;
     _mainViewport.TopLeftY = 0;
@@ -170,6 +173,18 @@ void Device::CreateSyncObject()
     _fenceEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
     if (FAILED(hr) || NULL == _fenceEvent)
         __debugbreak();
+
+    //HRESULT hr = S_OK;
+    _graphicsFences.resize(FENCE_END);
+    _lastGraphicsFenceValues.resize(FENCE_END);
+    _fenceValues.resize(FENCE_END);
+    for (UINT i = MESH_COMPUTE_FENCE; i < FENCE_END; ++i)
+    {
+        hr = _device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(_graphicsFences[i].GetAddressOf()));
+        FAILED_CHECK_BREAK(hr);
+        _fenceValues[i] = 1;
+    }
+    
 }
 
 void Device::CreateRenderTarget()
@@ -257,6 +272,40 @@ void Device::CreateBuffer(UINT size, ComPtr<ID3D12Resource>& buffer)
                                                         IID_PPV_ARGS(buffer.GetAddressOf())));
 }
 
+void Device::SignalComputeQueue(int fenceSlot)
+{
+    const UINT64 fenceValue = _fenceValues[fenceSlot]++;
+    _computeCommandQueue->Signal(_graphicsFences[fenceSlot].Get(), fenceValue);
+    _lastGraphicsFenceValues[fenceSlot] = fenceValue;
+}
+
+void Device::WaitComputeFence(int fenceSlot)
+{
+    UINT64 fenceValue = _lastGraphicsFenceValues[fenceSlot];
+    if (_graphicsFences[fenceSlot]->GetCompletedValue() < fenceValue)
+    {
+        _graphicsFences[fenceSlot]->SetEventOnCompletion(fenceValue, _fenceEvent);
+        WaitForSingleObject(_fenceEvent, INFINITE);
+    }
+}
+
+void Device::SignalGraphicsQueue(int fenceSlot)
+{
+    const UINT64 fenceValue = _fenceValues[fenceSlot]++;
+    _commandQueue->Signal(_graphicsFences[fenceSlot].Get(), fenceValue);
+    _lastGraphicsFenceValues[fenceSlot] = fenceValue;
+}
+
+void Device::WaitGraphicsFence(int fenceSlot)
+{
+    UINT64 fenceValue = _lastGraphicsFenceValues[fenceSlot];
+    if (_graphicsFences[fenceSlot]->GetCompletedValue() < fenceValue)
+    {
+        _graphicsFences[fenceSlot]->SetEventOnCompletion(fenceValue, _fenceEvent);
+        WaitForSingleObject(_fenceEvent, INFINITE);
+    }
+}
+
 void Device::GPUSync()
 {
     const UINT64 fence = _fenceValue;
@@ -269,7 +318,6 @@ void Device::GPUSync()
     // GPU 의 현재 Fence 값 확인.
     if (_fence->GetCompletedValue() < fence)
     {
-
         // 이벤트 설정 : GPU 의 펜스 값이 fence 와 동일해지면 이벤트가 발생됨.
         _fence->SetEventOnCompletion(fence, _fenceEvent);
 
@@ -288,21 +336,46 @@ void Device::SetBackBuffer()
     _commandList->OMSetRenderTargets(1, &_renderTargetHandles[_renderTargetIndex], FALSE, &_depthStencilHandle);
 }
 
-void Device::RegisterCommand(ID3D12GraphicsCommandList* commandList)
-{
-    _commandLists.push_back(commandList);
-}
-
-void Device::ExecuteCommand()
-{
-    _commandQueue->ExecuteCommandLists(static_cast<UINT>(_commandLists.size()), _commandLists.data());
-    _commandLists.clear();
-}
-
 void Device::ResetCommands()
 {
     _commandAllocator->Reset();
-    _commandList->Reset(_commandAllocator.Get(), _currentPipelineState.Get());
+    _commandList->Reset(_commandAllocator.Get(), nullptr);
+}
+
+
+void Device::ResetComputeCommands()
+{
+    _computeComandListAlloc->Reset();
+    _computeCommandList->Reset(_computeComandListAlloc.Get(), nullptr);
+}
+
+void Device::Execute()
+{
+    auto br = CD3DX12_RESOURCE_BARRIER::Transition(_swapChainBuffer[_renderTargetIndex].Get(),
+                                                   D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+    _commandList->ResourceBarrier(1, &br);
+    _computeCommandList->Close();
+    _commandList->Close();
+    RegisterCommand(_computeCommandList.Get(), MESH_COMPUTE_LIST);
+    RegisterCommand(_commandList.Get(),MESH_RENDER_LIST);
+
+    ExecuteCommand(MESH_COMPUTE_LIST);
+    SignalComputeQueue(MESH_COMPUTE_FENCE);
+
+    ExecuteCommand(PARTICLE_COMPUTE_LIST);
+    SignalComputeQueue(PARTICLE_COMPUTE_FENCE);
+
+    WaitGraphicsFence(MESH_COMPUTE_FENCE);
+    {
+        ExecuteCommand(MESH_RENDER_LIST);
+        SignalGraphicsQueue(MESH_RENDER_FENCE);
+    }
+
+    WaitGraphicsFence(PARTICLE_COMPUTE_FENCE);
+    {
+        ExecuteCommand(PARTICLE_RENDER_LIST);
+        SignalGraphicsQueue(PARTICLE_RENDER_FENCE);
+    }
 }
 
 void Device::ResolveBackBuffer(ComPtr<ID3D12Resource> source)
@@ -367,17 +440,9 @@ HRESULT Device::ClearBackBuffer(UINT flag, XMVECTOR color, float depth, UINT ste
 
 HRESULT Device::Flip()
 {
-    auto br = CD3DX12_RESOURCE_BARRIER::Transition(_swapChainBuffer[_renderTargetIndex].Get(),
-                                                   D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
-    _commandList->ResourceBarrier(1, &br);
-    _commandList->Close();
-
-    RegisterCommand(_commandList.Get());
-    ExecuteCommand();
-
     _swapChain->Present(0, 0);
-
     GPUSync();
+
     _uploadResources.clear();
     // 새 프레임 준비.
     _renderTargetIndex = _swapChain->GetCurrentBackBufferIndex();
@@ -387,7 +452,6 @@ HRESULT Device::Flip()
 void Device::CreateVertexBuffer(void* data, UINT size, UINT stride, ComPtr<ID3D12Resource>& buffer,
                                    D3D12_VERTEX_BUFFER_VIEW& view)
 {
-
     if (data)
     {
         ComPtr<ID3D12Resource> uploadBuffer;
@@ -487,6 +551,28 @@ void Device::CreateCommandList(ComPtr<ID3D12CommandAllocator>&    allocator,
     FAILED_CHECK_BREAK(_device->CreateCommandList(desc.NodeMask, desc.Type, allocator.Get(), nullptr,
                                                   IID_PPV_ARGS(commandList.GetAddressOf())));
     commandList->Close();
+}
+
+void Device::RegisterCommand(ID3D12CommandList* commandList, COMMAND_LIST_TYPE type)
+{
+    _commandLists[type].push_back(commandList);
+}
+
+void Device::ExecuteCommand(COMMAND_LIST_TYPE type) 
+{
+    switch (type)
+    {
+    case MESH_RENDER_LIST:
+    case PARTICLE_RENDER_LIST:
+        _commandQueue->ExecuteCommandLists(static_cast<UINT>(_commandLists[type].size()), _commandLists[type].data());
+        break;
+    case MESH_COMPUTE_LIST:
+    case PARTICLE_COMPUTE_LIST:
+        _computeCommandQueue->ExecuteCommandLists(static_cast<UINT>(_commandLists[type].size()), _commandLists[type].data());
+        break;
+    }
+        _commandLists[type].clear();
+
 }
 
 void Device::CreateComputeCommandObject()

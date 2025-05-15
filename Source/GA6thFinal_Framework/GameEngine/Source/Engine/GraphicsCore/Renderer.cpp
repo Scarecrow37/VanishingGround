@@ -132,11 +132,13 @@ void Renderer::Render()
 
 void Renderer::Flip()
 {
+    UmDevice.Execute();
     UmDevice.Flip();
     // 임시 ImGUI Image Index 찾는 구조 나중에 수정
     // ImGUI Descriptor Index 초기화 (0 은 ImGUI Font)
     _currentImGuiImageIndex = 1;
     UmDevice.ResetCommands();
+    UmDevice.ResetComputeCommands();
 }
 
 void Renderer::InitializeImgui()
