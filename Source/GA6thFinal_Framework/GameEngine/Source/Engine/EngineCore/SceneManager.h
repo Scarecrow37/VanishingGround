@@ -152,7 +152,7 @@ public:
         /// <param name="instanceID :">적용 대상의 instanceID</param>
         /// <param name="value :">적용 값</param>
         /// </summary>
-        static void SetGameObjectActive(int instanceID, bool value);
+        static void SetGameObjectActive(GameObject* pObject, bool value);
 
         /// <summary>
         /// <para> 컴포넌트의 라이프 사이클 활성화 여부를 변경합니다.     </para>
@@ -399,6 +399,21 @@ private:
     /// </summary>
     void EraseGameObjectMap(std::shared_ptr<GameObject>& pEraseObject);
 
+    /// <summary>
+    /// 자식까지 모두 포함한 오브젝트들을 삭제 대기열에 추가합니다.
+    /// </summary>
+    void AddDestroyObjectQueue(GameObject* gameObject);
+
+    /// <summary>
+    /// 컴포넌트를 파괴 대기열에 추가합니다.
+    /// </summary>
+    void AddDestroyComponentQueue(Component* component);
+
+    /// <summary>
+    /// 오브젝트의 OwnerScene을 변경합니다.
+    /// </summary>
+    void SetObjectOwnerScene(GameObject* object, std::string_view sceneName);
+
 private:
     //Life cycle 에 포함되는 실제 오브젝트들 항목
     std::vector<std::shared_ptr<GameObject>> _runtimeObjects;
@@ -510,6 +525,41 @@ protected:
 
     //직렬화된 씬들 캐싱용
     std::unordered_map<File::Guid, YAML::Node> _sceneDataMap;
+
+public:
+    class DestroyGameObjectCommand : public UmCommand
+    {
+    public:
+        DestroyGameObjectCommand(GameObject* object);
+        ~DestroyGameObjectCommand();
+
+    private:
+        void Execute() override;
+        void Undo() override;
+
+        std::vector<std::shared_ptr<GameObject>> _destroyObjects;
+        std::string _ownerSceneName;
+        bool _active;
+        bool _isFocus;
+    };
+
+    class NewGameObjectCommand : public UmCommand
+    {
+    public:
+        NewGameObjectCommand(std::string_view type_id, std::string_view name);
+        virtual ~NewGameObjectCommand() = default;
+
+    private:
+        std::shared_ptr<GameObject> _newObject;
+        std::string _ownerScene;
+        std::string _newName;
+        std::string _typeName;
+        bool _active;
+
+        // UmCommand을(를) 통해 상속됨
+        void Execute() override;
+        void Undo() override;
+    };
 };
 
 inline auto ESceneManager::GetRootGameObjectsByPath(std::string_view path) 
