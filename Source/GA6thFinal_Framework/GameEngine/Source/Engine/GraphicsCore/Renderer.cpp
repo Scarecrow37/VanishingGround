@@ -14,6 +14,7 @@
 #include "Quad.h"
 #include "RenderScene.h"
 #include "PBRLitTechnique.h"
+#include "SkyBoxRenderTechnique.h"
 #endif
 
 Renderer::Renderer()
@@ -87,6 +88,8 @@ void Renderer::Initialize()
     //_renderScenes["TEST PBR"] = testRenderScene;
     std::shared_ptr<RenderScene> editorScene = std::make_shared<RenderScene>();
     editorScene->InitializeRenderScene();
+    std::shared_ptr<SkyBoxRenderTechnique> skyTech = std::make_shared<SkyBoxRenderTechnique>();
+    editorScene->AddRenderTechnique(skyTech);
     std::shared_ptr<PBRLitTechnique> pbrTech = std::make_shared<PBRLitTechnique>();
     editorScene->AddRenderTechnique(pbrTech);
     _renderScenes["Editor"] = editorScene;

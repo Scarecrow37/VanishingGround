@@ -285,6 +285,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Engine\GraphicsCore\SkyBoxPass.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\SkyBoxRenderTechnique.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\SkyBox.h" />
     <ClInclude Include="Source\Editor\Menu\Play\EditorPlayMenu.h" />
     <ClInclude Include="Source\Engine\EditorCore\Interface\IEditorCycle.h" />
@@ -438,6 +440,8 @@
     <ClInclude Include="Source\Engine\GraphicsCore\VertexShader.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Engine\GraphicsCore\SkyBoxPass.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\SkyBoxRenderTechnique.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\SkyBox.cpp" />
     <ClCompile Include="Source\Editor\Menu\Play\EditorPlayMenu.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\Gui\DockWindow\EditorDockWindow.cpp" />
