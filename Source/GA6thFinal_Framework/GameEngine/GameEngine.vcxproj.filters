@@ -525,9 +525,6 @@
     <ClInclude Include="Source\Editor\Tool\Hierarchy\Command\PackPrefabCommand.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Editor\Tool\Hierarchy\Command\NewGameObjectCommand.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Editor\Tool\Hierarchy\Command\DropPrefabCommand.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -921,9 +918,6 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Editor\Tool\Hierarchy\Command\PackPrefabCommand.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Editor\Tool\Hierarchy\Command\NewGameObjectCommand.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Editor\Tool\Hierarchy\Command\DropPrefabCommand.cpp">
