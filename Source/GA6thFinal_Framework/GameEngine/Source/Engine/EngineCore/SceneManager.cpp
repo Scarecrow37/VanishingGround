@@ -425,11 +425,6 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
         return;
     }
 
-    if (DeserializeToGuid(scene->_guid) == false)
-    {
-        return;
-    }
-
     if (mode == LoadSceneMode::SINGLE)
     {
         _addComponentsQueue.clear();
@@ -468,6 +463,7 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
         }
     }
 
+    DeserializeToGuid(scene->_guid);
     scene->_isLoaded = true;
     scene->_isDirty  = false;
     _lodedSceneList.push_back(scene);
@@ -1360,8 +1356,12 @@ void ESceneManager::DestroyGameObjectCommand::Undo()
 
 ESceneManager::NewGameObjectCommand::NewGameObjectCommand(std::string_view type_id, std::string_view name)
     : 
-    UmCommand("New GameObject"), _typeName(type_id), _newName(name)
+    UmCommand("New GameObject"), 
+    _typeName(type_id), 
+    _newName(name),
+    _active(true)
 {
+
 }
 
 void ESceneManager::NewGameObjectCommand::Execute()
