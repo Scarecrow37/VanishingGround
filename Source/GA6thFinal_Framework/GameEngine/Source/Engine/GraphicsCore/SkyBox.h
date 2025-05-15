@@ -9,8 +9,7 @@ public:
 
 public:
     void Initialize();
-    void SetTexture(std::string_view path);
-    void Render();
+    void SetTexture(std::string path);
 
 private:
     ComPtr<ID3D12Resource> CreateTexture2D(ID3D12Device* device, int w, int h, DXGI_FORMAT format);
@@ -24,10 +23,14 @@ private:
     void SetPipelineState();
 
 private:
-    std::unique_ptr<ShaderBuilder> _shader;
-    std::unique_ptr<Box>           _box;
-    ComPtr<ID3D12Resource>         _skyboxCubeMap;
-    D3D12_CPU_DESCRIPTOR_HANDLE    _hdrSRV;
-    D3D12_CPU_DESCRIPTOR_HANDLE    _cubeUAV;
-    ComPtr<ID3D12PipelineState>    _computePSO;
+    std::unique_ptr<ShaderBuilder>      _shader;
+    std::unique_ptr<Box>                _box;
+    ComPtr<ID3D12Resource>              _skyboxCubeMap;
+    D3D12_CPU_DESCRIPTOR_HANDLE         _hdrSRVCPU;
+    D3D12_GPU_DESCRIPTOR_HANDLE         _hdrSRVGPU;
+    D3D12_CPU_DESCRIPTOR_HANDLE         _cubeUAVCPU;
+    D3D12_GPU_DESCRIPTOR_HANDLE         _cubeUAVGPU;
+    ComPtr<ID3D12PipelineState>         _computePSO;
+    ComPtr<ID3D12DescriptorHeap>        _descriptorHeap;
+    std::vector<ComPtr<ID3D12Resource>> _cbs;
 };

@@ -6,7 +6,7 @@ cbuffer CubeMapInfo
 {
     uint cubeFaceIndex;
     uint resolution;
-    float2 padding;
+    uint2 padding;
 };
 
 [numthreads(8, 8, 1)]
