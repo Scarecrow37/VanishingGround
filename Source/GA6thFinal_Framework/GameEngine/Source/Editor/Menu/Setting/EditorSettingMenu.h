@@ -5,7 +5,7 @@
 class EditorMenuDebug : public EditorMenu
 {
 public:
-    EditorMenuDebug();
+    EditorMenuDebug()          = default;
     virtual ~EditorMenuDebug() = default;
 public:
     virtual void OnMenu() override;

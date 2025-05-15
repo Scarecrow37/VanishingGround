@@ -8,6 +8,8 @@ class EditorDockWindow : public EditorTool
     using GuiTable          = std::unordered_map<std::string, EditorGui*>;
     using GuiList           = std::vector<EditorGui*>;
     using ToolTable         = std::unordered_map<std::string, EditorTool*>;
+    using MenuTable         = std::unordered_map<std::string, EditorMenu*>;
+    using DockWindowTable   = std::unordered_map<std::string, EditorDockWindow*>;
 
 public:
     enum Flags
@@ -28,10 +30,6 @@ private:
 public:
     EditorDockWindow();
     virtual ~EditorDockWindow();
-
-public:
-    virtual bool SerializeFromData(EditorToolSerializeData* data) override;
-    virtual bool DeSerializeFromData(EditorToolSerializeData* data) override;
 
 public:
     // EditorGui을(를) 통해 상속됨
@@ -75,7 +73,9 @@ private:
 private:
     GuiTable                            _editorGuiClassTable;       /* 등록된 툴 테이블 (클래스 이름) */
     GuiList                             _editorGuiList;             /* 등록된 툴 리스트 */
-    ToolTable                           _editorToolTable;           /* 등록된 툴 리스트 (툴 이름) */
+    ToolTable                           _editorToolTable;           /* 등록된 툴 리스트 */
+    MenuTable                           _editorMenuTable;           /* 등록된 메뉴 리스트 */
+    DockWindowTable                     _dockWindowTable;           /* 등록된 도킹 윈도우 리스트 */
 
     bool                                _isDockBuilding = false;    /* 도킹 빌드 중인지 여부 */
     int                                 _dockWindowOptionFlags;     /* 도킹 윈도우 플래그 값 */
@@ -86,8 +86,6 @@ private:
 
     std::vector<DockSplitInfo>          _dockSplitLayoutID;         /* 도킹 영역에 대한 ID값 */
     std::unordered_map<int, ImGuiID>    _dockSplitIDTable;          /* 도킹 영역에 대한 ID값 */
-
-    
 
 public:
     /* 옵션 플래그에 대한 설정 */
@@ -106,15 +104,21 @@ public:
 
     inline const auto&  GetRefGuiList() { return _editorGuiList; }
     inline const auto&  GetRefGuiTable() { return _editorGuiClassTable; }
-    inline const auto&  GetRefToolList() { return _editorToolTable; }
+    inline const auto&  GetRefToolTable() { return _editorToolTable; }
+    inline const auto&  GetRefMenuTable() { return _editorMenuTable; }
+    inline const auto&  GetRefDockWindowTable() { return _dockWindowTable; }
 };
 
 template <typename T>
 concept IsEditorGui = std::is_base_of_v<EditorGui, T>;
 template <typename T>
 concept IsEditorTool = IsEditorGui<T> && std::is_base_of_v<EditorTool, T>;
+template <typename T>
+concept IsEditorMenu = IsEditorGui<T> && std::is_base_of_v<EditorMenu, T>;
+template <typename T>
+concept IsEditorDockWindow = IsEditorGui<T> && std::is_base_of_v<EditorDockWindow, T>;
 
- template <typename T, typename... Args>
+template <typename T, typename... Args>
 inline T* EditorDockWindow::RegisterGui(Args... args)
 {
     static_assert(std::is_base_of_v<EditorGui, T>, "T is not a EditorGui.");
@@ -130,6 +134,11 @@ inline T* EditorDockWindow::RegisterGui(Args... args)
         {
             _editorToolTable[typeName] = instance;
             instance->SetOwnerDockWindow(this);
+            instance->SetOriginLabel(instance->GetLabel().c_str());
+        }
+        else if constexpr (IsEditorMenu<T>)
+        {
+            _editorMenuTable[typeName] = instance;
         }
     }
     else

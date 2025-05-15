@@ -152,14 +152,13 @@ using namespace Microsoft::WRL;
 //Editor Core
 #include "Engine/EditorCore/Interface/IEditorObject.h"
 #include "Engine/EditorCore/Interface/IEditorCycle.h"
-#include "Engine/EditorCore/Setting/EditorSetting.h"
 #include "Engine/EditorCore/Gui/EditorGui.h"
 #include "Engine/EditorCore/Gui/Tool/EditorTool.h"
 #include "Engine/EditorCore/Gui/Menu/EditorMenu.h"
 #include "Engine/EditorCore/Gui/PopupBox/EditorPopupBox.h"
 #include "Engine/EditorCore/Gui/DockWindow/EditorDockWindow.h"
 #include "Engine/EditorCore/System/EditorPopupBoxSystem.h"
-#include "Engine/EditorCore/System/EditorDockWindowSystem.h"
+#include "Engine/EditorCore/System/EditorGuiSystem.h"
 #include "Engine/EditorCore/EditorModule.h"
 
 //Game Core

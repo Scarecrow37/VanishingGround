@@ -1,11 +1,6 @@
 ﻿#include "pch.h"
 #include "EditorSettingMenu.h"
 
-EditorMenuDebug::EditorMenuDebug() 
-{
-    _isDebugMode = Global::editorModule->IsDebugMode();
-}
-
 void EditorMenuDebug::OnMenu()
 {
     EditorModule* editor = Global::editorModule;
@@ -13,6 +8,7 @@ void EditorMenuDebug::OnMenu()
     {
         if (ImGui::BeginMenu("Editor"))
         {
+            _isDebugMode = Global::editorModule->IsDebugMode();
             if (ImGui::MenuItem("Debug", "", &_isDebugMode))
             {
                 editor->SetDebugMode(_isDebugMode);

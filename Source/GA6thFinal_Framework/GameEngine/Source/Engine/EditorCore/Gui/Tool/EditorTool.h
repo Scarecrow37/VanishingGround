@@ -22,10 +22,6 @@ public:
     EditorTool() = default;
     virtual ~EditorTool() = default;
 
-public:
-    virtual bool SerializeFromData(EditorToolSerializeData* data) override;
-    virtual bool DeSerializeFromData(EditorToolSerializeData* data) override;
-
  public:
     virtual void OnTickGui() override {}
     virtual void OnStartGui() override {};
@@ -54,13 +50,6 @@ private:
     /* Popup창 호출 성공 시 호출 (OnPreFrameBegin 전에 호출) */
     virtual void OnFramePopupOpened();
 
-    // 추가 할 것
-    //virtual void OnFrameClosed();
-    //
-    //virtual void OnFrameOpened();
-    //
-    //virtual void OnFrameResized();
-
 private:
     void PushStyle();
     void PopStyle();
@@ -72,10 +61,15 @@ private:
     void ProcessFocusFrame();
     void ProcessRenderFrame();
 
+protected:
+    REFLECT_FIELDS_BEGIN(EditorGui)
+    std::string OriginLabel;
+    bool IsLock;
+    REFLECT_FIELDS_END(EditorTool)
+
 private:
     std::string                     _label                  = "";                       // 에디터 툴 이름 (기본적으로 전역 단위의 이름 중복을 허용하지 않음. 나중엔 uuid등으로 관리할지 고민 중)
-    bool                            _isLock                 = false;                    // 해당 탭에 대한 입력을 막을지에 대한 여부
-    bool                            _isDrawable              = false;                   // 해당 탭이 보일지에 대한 여부
+    bool                            _isDrawable             = false;                    // 해당 탭이 보일지에 대한 여부
     bool                            _isBeginningFrame       = false;                    // BeginFrame이 호출 중인지 여부
     bool                            _isFirstTick            = true;                     // 첫 번째 Tick인지 여부
     int                             _editorToolOptionFlags  = EDITORTOOL_FLAGS_NONE;    // 옵션 플래그
@@ -101,8 +95,10 @@ public:
     inline const auto&  GetWindowClass() { return _imGuiWindowClass; }
 
     /*                  이름 설정 (기본적으로 중복을 비허용.) */
-    inline void         SetLabel(const std::string& label) { _label = label; }
+    inline void         SetLabel(const char* label) { _label = label; }
     inline const auto&  GetLabel() { return _label; }
+    inline void         SetOriginLabel(const char* label) { ReflectFields->OriginLabel = label; }
+    inline const auto&  GetOriginLabel() { return ReflectFields->OriginLabel; }
 
     /*                  초기 도킹 영역을 지정 */
     inline void         SetDockLayout(ImGuiDir layout) { _dockLayout = {true, layout}; }
@@ -122,9 +118,9 @@ public:
     inline bool         HasImGuiWindowFlag(ImGuiWindowFlags flag) { return _windowFlags & flag; }
 
     /*                  툴 잠금 설정 */
-    inline void         SetLock(bool v) { _isLock = v; }
-    inline bool         IsLock() { return _isLock; }
-    inline void         ToggleLock() { _isLock = _isLock == true ? false : true; }
+    inline void         SetLock(bool v) { ReflectFields->IsLock = v; }
+    inline bool         IsLock() { return ReflectFields->IsLock; }
+    inline void         ToggleLock() { ReflectFields->IsLock = ReflectFields->IsLock == true ? false : true; }
 
     /*                  사이즈 조정 설정 */
     inline void         SetSize(const ImVec2& size) { _size = {true, size}; }

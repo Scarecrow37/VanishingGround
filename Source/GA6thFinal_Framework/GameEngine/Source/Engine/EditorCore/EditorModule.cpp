@@ -39,55 +39,48 @@ void EditorModule::ModuleUnInitialize()
 
 bool EditorModule::SaveSetting(const File::Path& path)
 {
-    _setting.ToolData.clear();
-    _setting.ImGuiData = ImGui::SaveIniSettingsToMemory();
+    File::Path generic = path.generic_string();
 
-    for (auto& tool : _dockWindowSystem.GetDockWindowList())
+    std::ofstream fout(generic);
+    if (true == fout.is_open())
     {
-        if (nullptr != tool)
-        {
-            EditorToolSerializeData data;
-            if (true == tool->SerializeFromData(&data))
-            {
-                _setting.ToolData.push_back(data);
-            }
-        }
-    }
-    auto setting = rfl::yaml::save(path.string(), _setting);
-    if (false == setting)
-    {
-        return false;
-    }
-    else
-    {
+        YAML::Node node;
+        node["debug"]        = _isDebug;
+        node["GuiToolData"]  = _dockWindowSystem.SaveGuiSettingToMemory();
+        node["imGuiIniData"] = ImGui::SaveIniSettingsToMemory();
+
+        fout << node;
+        fout.close();
+
         return true;
     }
+    return false;
 }
 
 bool EditorModule::LoadSetting(const File::Path& path)
 {
-    auto setting = rfl::yaml::load<EditorSetting>(path.string());
-    if (false == setting)
+    File::Path generic = path.generic_string();
+    if (true == std::filesystem::exists(generic))
     {
-        return false;
-    }
-    else
-    {
-        _setting = setting.value();
-
-        for (auto& status : _setting.ToolData)
+        YAML::Node node = YAML::LoadFile(generic.string());
+        if (false == node.IsNull())
         {
-            EditorTool* tool = _dockWindowSystem[status.Name];
-            if (nullptr != tool)
-            {
-                tool->DeSerializeFromData(&status);
-            }
+            if (node["debug"])
+                _isDebug = node["debug"].as<bool>();
+
+            if (node["imGuiIniData"])
+                _imGuiIniData = node["imGuiIniData"].as<std::string>();
+
+            if (node["GuiToolData"])
+                _dockWindowSystem.LoadGuiSettingFromMemory(node["GuiToolData"]);
+
+            _isDirty = true;
+
+            return true;
         }
-
-        _isDirty = true;
-
-        return true;
     }
+    SaveSetting(generic);
+    return false;
 }
 
 void EditorModule::Update()
@@ -112,7 +105,7 @@ void EditorModule::Update()
     if (true == _isDirty)
     {
         _isDirty = false;
-        ImGui::LoadIniSettingsFromMemory(_setting.ImGuiData.c_str());
+        ImGui::LoadIniSettingsFromMemory(_imGuiIniData.c_str());
     }
 }
 

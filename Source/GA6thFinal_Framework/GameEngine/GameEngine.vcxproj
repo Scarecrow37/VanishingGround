@@ -316,7 +316,6 @@
     <ClInclude Include="Source\Engine\GraphicsCore\DeferredPBRLitPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\GBufferPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\PBRLitTechnique.h" />
-    <ClInclude Include="Source\Engine\EditorCore\Setting\EditorSetting.h" />
     <ClInclude Include="Source\Engine\EditorCore\Gui\PopupBox\EditorPopupBox.h" />
     <ClInclude Include="Source\Engine\EditorCore\System\EditorPopupBoxSystem.h" />
     <ClInclude Include="Source\Editor\DragDropTypes\DragDropAsset.h" />
@@ -351,7 +350,7 @@
     <ClInclude Include="Source\Engine\FileSystem\Interface\IFileEventProcesser.h" />
     <ClInclude Include="Source\Engine\FileSystem\FileSystemModule.h" />
     <ClInclude Include="Source\Engine\EditorCore\Gui\Tool\EditorTool.h" />
-    <ClInclude Include="Source\Engine\EditorCore\System\EditorDockWindowSystem.h" />
+    <ClInclude Include="Source\Engine\EditorCore\System\EditorGuiSystem.h" />
     <ClInclude Include="Source\Engine\AppModule\EngineCoresModule.h" />
     <ClInclude Include="Source\Engine\AppModule\ImGuiDX12Module.h" />
     <ClInclude Include="Source\Engine\AppModule\Interface\IAppModule.h" />
@@ -493,7 +492,6 @@
     <ClCompile Include="Source\Engine\GraphicsCore\Animator.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\M_Default.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\Material.cpp" />
-    <ClCompile Include="Source\Engine\EditorCore\Setting\EditorSetting.cpp" />
     <ClCompile Include="Source\Editor\DragDropTypes\DragDropTransform.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\Gui\PopupBox\EditorPopupBox.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\System\EditorPopupBoxSystem.cpp" />
@@ -549,7 +547,7 @@
     <ClCompile Include="Source\Engine\FileSystem\Interface\IFileEventProcesser.cpp" />
     <ClCompile Include="Source\Engine\FileSystem\FileSystemModule.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\Gui\Tool\EditorTool.cpp" />
-    <ClCompile Include="Source\Engine\EditorCore\System\EditorDockWindowSystem.cpp" />
+    <ClCompile Include="Source\Engine\EditorCore\System\EditorGuiSystem.cpp" />
     <ClCompile Include="Source\Engine\AppModule\EngineCoresModule.cpp" />
     <ClCompile Include="Source\Engine\AppModule\ImGuiDX12Module.cpp" />
     <ClCompile Include="Source\Engine\ClassCore\ReflectHelper.cpp" />

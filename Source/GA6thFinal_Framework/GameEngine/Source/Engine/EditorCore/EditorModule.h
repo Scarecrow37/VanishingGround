@@ -1,8 +1,9 @@
 ﻿#pragma once
 
 class EditorTool;
+class EditorMenu;
+class EditorDockWindow;
 class EditorModule;
-class EditorMenuBar;
 class EditorPopupBoxSystem;
 
 #ifndef _SCRIPTS_PROJECT
@@ -74,8 +75,8 @@ namespace Global
 
  public:
      /* 에디터 디버그 모드 */
-     inline void SetDebugMode(bool v) { _setting.IsDebugMode = v; }
-     inline bool IsDebugMode() { return _setting.IsDebugMode; }
+     inline void SetDebugMode(bool v) { _isDebug = v; }
+     inline bool IsDebugMode() { return _isDebug; }
 
      inline auto& GetDockWindowSystem() { return _dockWindowSystem; }
      inline auto& GetPopupBoxSystem()   { return _popupBoxSystem; }
@@ -88,9 +89,11 @@ namespace Global
      /* 프로젝트 로드 요청을 처리할 동작을 구현 */
      virtual void OnRequestedLoad() override;
  private:
-     EditorSetting             _setting;            // 에디터 세팅 데이터
-     EditorDockWindowSystem    _dockWindowSystem;   // 에디터 도킹 윈도우 시스템
-     EditorPopupBoxSystem      _popupBoxSystem;     // 에디터 모달 팝업 시스템
+     bool _isDebug = false;
+     std::string _imGuiIniData;   // ImGui 설정 데이터
+
+     EditorGuiSystem            _dockWindowSystem;   // 에디터 도킹 윈도우 시스템
+     EditorPopupBoxSystem       _popupBoxSystem;     // 에디터 모달 팝업 시스템
 
      bool _isDirty = false;
 

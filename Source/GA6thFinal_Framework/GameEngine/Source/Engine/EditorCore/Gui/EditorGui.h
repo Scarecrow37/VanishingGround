@@ -7,17 +7,9 @@ class EditorGui
     : public IEditorCycle
     , public ReflectSerializer
 {
-protected:
-    REFLECT_FIELDS_BEGIN(ReflectSerializer)
-    REFLECT_FIELDS_END(EditorGui)
-
 public:
     EditorGui() = default;
     virtual ~EditorGui() = default;
-
-public:
-    virtual bool SerializeFromData(EditorToolSerializeData* data);
-    virtual bool DeSerializeFromData(EditorToolSerializeData* data);
 
 public:
     virtual void OnTickGui() = 0;
@@ -27,12 +19,13 @@ public:
 
 public:
     /*          활성화 여부 설정 */
-    inline void SetVisible(bool v) { _isVisible = v; }
-    inline bool IsVisible() { return _isVisible; }
-    inline void ToggleVisible() { _isVisible = _isVisible == true ? false : true; }
+    inline void SetVisible(bool v) { ReflectFields->_isVisible = v; }
+    inline bool IsVisible() { return ReflectFields->_isVisible; }
+    inline void ToggleVisible() { ReflectFields->_isVisible = ReflectFields->_isVisible == true ? false : true; }
 
 protected:
-    bool _isVisible = true;      // 에디터 창의 렌더 여부
-    
+    REFLECT_FIELDS_BEGIN(ReflectSerializer)
+    bool _isVisible = true;
+    REFLECT_FIELDS_END(EditorGui)
 };
 

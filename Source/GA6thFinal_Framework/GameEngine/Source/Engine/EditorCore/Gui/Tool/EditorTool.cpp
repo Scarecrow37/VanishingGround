@@ -1,35 +1,6 @@
 ﻿#include "pch.h"
 #include "EditorTool.h"
 
-bool EditorTool::SerializeFromData(EditorToolSerializeData* data)
-{
-    if(nullptr == data)
-        return false;
-
-    Super::SerializeFromData(data);
-
-    data->Name            = GetLabel();
-    data->IsLock          = IsLock();
-    data->ReflectionField = SerializedReflectFields();
-
-    return true;
-}
-
-bool EditorTool::DeSerializeFromData(EditorToolSerializeData* data)
-{
-    if (nullptr == data)
-        return false;
-
-    Super::DeSerializeFromData(data);
-
-    SetLock(data->IsLock);
-    if (data->ReflectionField != "{}")
-    {
-        DeserializedReflectFields(data->ReflectionField);
-    }
-    return false;
-}
-
 /*
 2025.03.13 -
 Begin의 if문 안에 End를 넣으니까 같은 Tab으로 Docking시도 시 Missing End() 예외가 발생하며 터짐.
@@ -94,6 +65,7 @@ void EditorTool::BeginFrame()
     InitFrame();
 
     auto label      = GetLabel().c_str();
+    bool& isVisible = ReflectFields->Basefields.get()._isVisible;
     auto owner      = GetOwnerDockWindow();
     int  windowFlag = _windowFlags | ImGuiWindowFlags_NoCollapse;
 
@@ -104,13 +76,13 @@ void EditorTool::BeginFrame()
         ImGui::SetNextWindowClass(&windowClass);
     }
    
-    ImGui::Begin(label, &_isVisible, windowFlag);
+    ImGui::Begin(label, &isVisible, windowFlag);
 
     _imguiWindow      = ImGui::GetCurrentWindow();
     _isBeginningFrame = true;
     _isDrawable       = ImGuiHelper::IsWindowDrawable();
 
-    if (true == _isLock)
+    if (true ==IsLock())
     {
         ImGui::BeginDisabled();
         _isFrameDisable = true;
@@ -183,9 +155,9 @@ void EditorTool::ProcessPopupFrame()
             }
             if (ImGui::BeginPopup("##TabBarContextMenu"))
             {
-                ImGui::MenuItem("Close", "", &_isVisible);
+                ImGui::MenuItem("Close", "", &ReflectFields->Basefields.get()._isVisible);
                 ImGui::Separator();
-                ImGui::MenuItem("Lock", "", &_isLock);
+                ImGui::MenuItem("Lock", "", &ReflectFields->IsLock);
                 OnFramePopupOpened();
                 ImGui::EndPopup();
             }
