@@ -1297,9 +1297,8 @@ ESceneManager::SceneResourceManager::~SceneResourceManager()
 
 }
 
-ESceneManager::DestroyGameObjectCommand::DestroyGameObjectCommand(GameObject* object) 
-    : 
-    UmCommand("Destroy Object")
+ESceneManager::DestroyGameObjectCommand::DestroyGameObjectCommand(GameObject* object)
+    : UmCommand("Destroy Object") 
 {
     Transform::ForeachBFS(object->transform, 
     [this](Transform* curr) 
@@ -1307,6 +1306,7 @@ ESceneManager::DestroyGameObjectCommand::DestroyGameObjectCommand(GameObject* ob
         _destroyObjects.push_back(curr->gameObject->GetWeakPtr().lock());
     });
     auto& rootObject = _destroyObjects.front();
+    _isFocus = false;
     _active = rootObject->ActiveSelf;
     _ownerSceneName = rootObject->GetOwnerSceneName();
 }
