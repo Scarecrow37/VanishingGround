@@ -33,6 +33,7 @@ void EditorDockWindow::OnTickGui()
 
 void EditorDockWindow::OnStartGui() 
 {
+    AddEditorToolFlags(EditorTool::EDITORTOOL_FLAGS_IS_DOCKWINDOW);
     for (auto& editor : _editorGuiList)
     {
         if (nullptr != editor)
@@ -86,6 +87,10 @@ void EditorDockWindow::OnFrameRender()
 }
 
 void EditorDockWindow::OnFrameEnd()
+{
+}
+
+void EditorDockWindow::OnFrameFocusStay() 
 {
 }
 
