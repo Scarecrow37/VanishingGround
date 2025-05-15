@@ -177,7 +177,7 @@ public:
     /// </summary>
     void SetActive(bool value)
     {
-        ESceneManager::Engine::SetGameObjectActive(_instanceID, value);
+        ESceneManager::Engine::SetGameObjectActive(this, value);
     }
 
     /// <summary>
