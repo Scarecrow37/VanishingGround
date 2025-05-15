@@ -12,7 +12,7 @@ void EditorMenuTools::OnMenu()
     {
         if (ImGui::BeginMenu("Tools"))
         {
-            auto& table = _focusWindow->GetRefToolList();
+            auto& table = _focusWindow->GetRefToolTable();
             for (auto& [key, tool] : table)
             {
                 bool active = tool->IsVisible();
