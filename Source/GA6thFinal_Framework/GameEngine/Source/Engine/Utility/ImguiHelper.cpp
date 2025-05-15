@@ -86,6 +86,7 @@ static bool ImGuiHelper::DrawManipulate(
         (float*)nullptr,
         pSnap);
 
+    /*
     auto& viewDesc = desc.ViewDesc;
     if (0.f < viewDesc.Size.x && 0.f < viewDesc.Size.y)
     {
@@ -125,6 +126,8 @@ static bool ImGuiHelper::DrawManipulate(
             }           
         }
     }
+    */
+
     return manipulateResult;
 }
 

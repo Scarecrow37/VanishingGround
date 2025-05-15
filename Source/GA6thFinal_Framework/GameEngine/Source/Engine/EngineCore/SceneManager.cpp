@@ -95,10 +95,10 @@ void ESceneManager::SceneUpdate()
     _isPlay = editorModule->PlayMode.IsPlay();
 #endif
     SceneResourceManager::Update(ResourceManager);
+    UmResourceManager.Update();
     ObjectsAddRuntime();
     ObjectsOnEnable();
     ObjectsAwake();
-    UmResourceManager.Update();
     ObjectsStart();
     while (ETimeSystem::Engine::TimeSystemFixedUpdate())
     {
@@ -131,11 +131,12 @@ void ESceneManager::Engine::AddComponentToLifeCycle(std::shared_ptr<Component> c
     Global::engineCore->SceneManager._addComponentsQueue.push_back(component);
 }
 
-void ESceneManager::Engine::SetGameObjectActive(int instanceID, bool value)
+void ESceneManager::Engine::SetGameObjectActive(GameObject* pObject, bool value)
 {
     ESceneManager& sceneManager = UmSceneManager;
-    if (auto& gameObject = Global::engineCore->SceneManager._runtimeObjects[instanceID])
+    if (nullptr != pObject)
     {
+        GameObject* gameObject = pObject;
         if (gameObject->ReflectFields->_activeSelf != value)
         {
             //컴포넌트들의 On__able 함수를 호출하도록 합니다.
@@ -161,17 +162,17 @@ void ESceneManager::Engine::SetGameObjectActive(int instanceID, bool value)
                                 if (result)
                                 {
                                     WaitVec.emplace_back(component.get());
-
-                                    //메시 컴포넌트들은 meshRenderer의 SetActive도 변경해야함.
-                                    if (Component::Type::RENDER == component->_type)
-                                    {
-                                        auto& meshActiveQueue = value ? sceneManager._meshSetActiveQueue.first
-                                                                      : sceneManager._meshSetActiveQueue.second;
-                                        MeshComponent* meshComponent = static_cast<MeshComponent*>(component.get());
-                                        meshActiveQueue.push_back(meshComponent->Renderer.get());
-                                    }
                                 }
                             }
+                        }
+
+                        // 메시 컴포넌트들은 meshRenderer의 SetActive도 변경해야함.
+                        if (Component::Type::RENDER == component->_type)
+                        {
+                            auto& meshActiveQueue = value ? sceneManager._meshSetActiveQueue.first
+                                                          : sceneManager._meshSetActiveQueue.second;
+                            MeshComponent* meshComponent  = static_cast<MeshComponent*>(component.get());
+                            meshActiveQueue.push_back(meshComponent->Renderer.get());
                         }
                     }
                 }                   
@@ -199,14 +200,15 @@ void ESceneManager::Engine::SetComponentEnable(Component* component, bool value)
             if (result)
             {
                 WaitVec.push_back(component);
-
-                // 메시 컴포넌트들은 meshRenderer의 SetActive도 변경해야함.
-                if (Component::Type::RENDER == component->_type)
-                {
-                    auto& meshActiveQueue = value ? sceneManager._meshSetActiveQueue.first : sceneManager._meshSetActiveQueue.second;
-                    MeshComponent* meshComponent = static_cast<MeshComponent*>(component);
-                    meshActiveQueue.push_back(meshComponent->Renderer.get());
-                }
+            }
+            
+            // 메시 컴포넌트들은 meshRenderer의 SetActive도 변경해야함.
+            if (Component::Type::RENDER == component->_type)
+            {
+                auto& meshActiveQueue =
+                    value ? sceneManager._meshSetActiveQueue.first : sceneManager._meshSetActiveQueue.second;
+                MeshComponent* meshComponent = static_cast<MeshComponent*>(component);
+                meshActiveQueue.push_back(meshComponent->Renderer.get());
             }
         }
     }
@@ -280,12 +282,7 @@ const std::vector<std::shared_ptr<GameObject>>& ESceneManager::Engine::GetRuntim
 
 void ESceneManager::Engine::DestroyObject(Component* component)
 {
-    auto& [set, vec] =  engineCore->SceneManager._destroyComponentsQueue;
-    auto [iter, result] = set.insert(component);
-    if (result)
-    {
-        vec.push_back(component);
-    }
+    UmSceneManager.AddDestroyComponentQueue(component);
 }
 
 void ESceneManager::Engine::DestroyObject(Component& component)
@@ -295,18 +292,14 @@ void ESceneManager::Engine::DestroyObject(Component& component)
 
 void ESceneManager::Engine::DestroyObject(GameObject* gameObject)
 {
-    auto& [set, vec] = engineCore->SceneManager._destroyObjectsQueue;
-
-   Transform::ForeachDFS(
-        gameObject->_transform, 
-        [&set, &vec](Transform* pTransform) 
-        {
-            auto [iter, result] = set.insert(&pTransform->gameObject);
-            if (result)
-            {
-                vec.push_back(&pTransform->gameObject);
-            }
-        });
+    if constexpr (Application::IsEditor())
+    {
+        UmCommandManager.Do<DestroyGameObjectCommand>(gameObject);
+    }
+    else
+    {
+        UmSceneManager.AddDestroyObjectQueue(gameObject);
+    }
 }
 
 void ESceneManager::Engine::DestroyObject(GameObject& gameObject)
@@ -449,6 +442,7 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
             }
         }
         _setting.MainScene = scene->Path;
+        UmCommandManager.Clear();
     }
     else
     {
@@ -469,13 +463,9 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
         }
     }
 
-    if (DeserializeToGuid(scene->_guid) == false)
-    {
-        return;
-    }
-
+    DeserializeToGuid(scene->_guid);
     scene->_isLoaded = true;
-    scene->IsDirty   = false;
+    scene->_isDirty  = false;
     _lodedSceneList.push_back(scene);
 }
 
@@ -799,7 +789,6 @@ void ESceneManager::ObjectsDestroy()
         std::shared_ptr<GameObject>& pObject = _runtimeObjects[instanceID];
         EraseGameObjectMap(pObject);
         pObject.reset();
-        EGameObjectFactory::InstanceIDManager::ReturnInstanceID(instanceID);
     }
     destroyObjectSet.clear();
     destroyObjectQueue.clear();
@@ -894,6 +883,35 @@ void ESceneManager::EraseGameObjectMap(std::shared_ptr<GameObject>& pEraseObject
         assert(!"유효하지 않는 오브젝트 이름입니다.");
     }
     findIter->second.erase(pEraseObject);
+}
+
+void ESceneManager::AddDestroyComponentQueue(Component* component) 
+{
+    auto& [set, vec]    = engineCore->SceneManager._destroyComponentsQueue;
+    auto [iter, result] = set.insert(component);
+    if (result)
+    {
+        vec.push_back(component);
+    }
+}
+
+void ESceneManager::SetObjectOwnerScene(GameObject* object, std::string_view sceneName) 
+{
+    object->_ownerScene = sceneName;
+}
+
+void ESceneManager::AddDestroyObjectQueue(GameObject* gameObject) 
+{
+    auto& [set, vec] = engineCore->SceneManager._destroyObjectsQueue;
+    Transform::ForeachDFS(gameObject->_transform, 
+    [&set, &vec](Transform* pTransform) 
+    {
+        auto [iter, result] = set.insert(&pTransform->gameObject);
+        if (result)
+        {
+            vec.push_back(&pTransform->gameObject);
+        }
+    });
 }
 
 YAML::Node ESceneManager::SerializeToYaml(const Scene& scene)
@@ -1277,4 +1295,106 @@ ESceneManager::SceneResourceManager::SceneResourceManager()
 ESceneManager::SceneResourceManager::~SceneResourceManager() 
 {
 
+}
+
+ESceneManager::DestroyGameObjectCommand::DestroyGameObjectCommand(GameObject* object)
+    : UmCommand("Destroy Object") 
+{
+    Transform::ForeachBFS(object->transform, 
+    [this](Transform* curr) 
+    {
+        _destroyObjects.push_back(curr->gameObject->GetWeakPtr().lock());
+    });
+    auto& rootObject = _destroyObjects.front();
+    _isFocus = false;
+    _active = rootObject->ActiveSelf;
+    _ownerSceneName = rootObject->GetOwnerSceneName();
+}
+
+ESceneManager::DestroyGameObjectCommand::~DestroyGameObjectCommand() = default;
+
+void ESceneManager::DestroyGameObjectCommand::Execute() 
+{
+    auto& rootObject = _destroyObjects.front();
+    rootObject->GetScene().IsDirty = true;
+
+    int instanceID = rootObject->_instanceID;
+    rootObject->ActiveSelf = false;
+    for (auto& object : _destroyObjects)
+    {
+        UmSceneManager.SetObjectOwnerScene(object.get(), STR_NULL);
+    }
+    UmSceneManager.AddDestroyObjectQueue(rootObject.get());
+
+    if (EditorHierarchyTool::HierarchyFocusObjWeak.lock() == rootObject)
+    {
+        std::weak_ptr<GameObject> empty;
+        EditorHierarchyTool::HierarchyFocusObjWeak = empty;
+        EditorInspectorTool::SetFocusObject(empty);
+        _isFocus = true;
+    }
+}
+
+void ESceneManager::DestroyGameObjectCommand::Undo() 
+{
+    auto& rootObject = _destroyObjects.front();
+    rootObject->ActiveSelf = _active;
+    for (auto& object : _destroyObjects)
+    {
+        UmSceneManager.SetObjectOwnerScene(object.get(), _ownerSceneName);
+        rootObject->GetScene().IsDirty = true;
+        ESceneManager::Engine::AddGameObjectToLifeCycle(object);
+    }
+    
+    if (_isFocus)
+    {
+        EditorHierarchyTool::HierarchyFocusObjWeak = rootObject;
+        EditorInspectorTool::SetFocusObject(rootObject);
+    }
+}
+
+
+ESceneManager::NewGameObjectCommand::NewGameObjectCommand(std::string_view type_id, std::string_view name)
+    : 
+    UmCommand("New GameObject"), 
+    _typeName(type_id), 
+    _newName(name),
+    _active(true)
+{
+
+}
+
+void ESceneManager::NewGameObjectCommand::Execute()
+{
+    if (nullptr == _newObject)
+    {
+        _newObject = UmGameObjectFactory.NewGameObject(_typeName, _newName);
+        _ownerScene = _newObject->GetOwnerSceneName();
+    }
+    else
+    {
+        _newObject->ActiveSelf = _active;
+        UmSceneManager.SetObjectOwnerScene(_newObject.get(), _ownerScene);
+        ESceneManager::Engine::AddGameObjectToLifeCycle(_newObject);
+    }
+    Scene& scene  = _newObject->GetScene();
+    scene.IsDirty = true;
+}
+
+void ESceneManager::NewGameObjectCommand::Undo()
+{
+    int instanceID = _newObject->_instanceID;
+    Scene& scene  = _newObject->GetScene();
+    scene.IsDirty = true;
+    _active = _newObject->ActiveSelf;
+    _newObject->ActiveSelf = false;
+    _newObject->transform->DetachChildren();
+    UmSceneManager.SetObjectOwnerScene(_newObject.get(), STR_NULL);
+    UmSceneManager.AddDestroyObjectQueue(_newObject.get());
+    if (EditorHierarchyTool::HierarchyFocusObjWeak.lock() == _newObject)
+    {
+        std::weak_ptr<GameObject> empty;
+        EditorHierarchyTool::HierarchyFocusObjWeak = empty;
+        EditorInspectorTool::SetFocusObject(empty);
+    }
 }
