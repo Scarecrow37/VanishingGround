@@ -139,5 +139,7 @@ public:
     inline bool         IsDrawable() { return _isDrawable; }
     /*                  Begin과 End 사이의 작업 중인지 여부 */
     inline bool         IsBeginningFrame() { return _isBeginningFrame; }
+    /*                  해당 프레임이 포커싱 중인지 여부 */ 
+    inline bool         IsFocusFrame() { return _isFrameFocused; }
 };
 
