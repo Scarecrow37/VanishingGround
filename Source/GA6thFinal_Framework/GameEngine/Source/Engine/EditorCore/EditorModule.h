@@ -139,5 +139,5 @@ namespace Global
         ImVec4 _playModeColors[ImGuiCol_COUNT];
     }
     PlayMode;
-};
+ };
 

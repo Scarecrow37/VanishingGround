@@ -6,11 +6,11 @@ void ECommandManager::Undo()
     if (true == _undoStack.empty())
         return;
 
-    auto cmd = _undoStack.back();
+    auto& cmd = _undoStack.back();
     cmd->Undo();
 
-    _undoStack.pop_back();
     _redoStack.push_back(cmd);
+    _undoStack.pop_back();
 
     ClampCommandStack();
 }
@@ -50,11 +50,11 @@ void ECommandManager::Redo()
     if (true == _redoStack.empty())
         return;
 
-    auto cmd = _redoStack.back();
+    auto& cmd = _redoStack.back();
     cmd->Execute();
 
-    _redoStack.pop_back();
     _undoStack.push_back(cmd);
+    _redoStack.pop_back();
 
     ClampCommandStack();
 }
