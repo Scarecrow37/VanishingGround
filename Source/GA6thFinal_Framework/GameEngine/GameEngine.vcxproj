@@ -290,6 +290,7 @@
     <ClInclude Include="Source\Editor\Tool\Model\EditorModelDetails.h" />
     <ClInclude Include="Source\Editor\Tool\Model\EditorModelHierarchy.h" />
     <ClInclude Include="Source\Engine\ClassCore\Command\InputAutoCommand.h" />
+    <ClInclude Include="Source\Engine\ClassCore\InputAuto.h" />
     <ClInclude Include="Source\Engine\EditorCore\Interface\IEditorCycle.h" />
     <ClInclude Include="Source\Engine\EditorCore\Gui\DockWindow\EditorDockWindow.h" />
     <ClInclude Include="Source\Engine\EditorCore\Interface\IEditorObject.h" />

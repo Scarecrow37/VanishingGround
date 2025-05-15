@@ -34,7 +34,7 @@ namespace Command
 
             virtual void Undo()
             {
-                 *_pData = _prev;
+                *_pData = _prev;
             }
         };
 
