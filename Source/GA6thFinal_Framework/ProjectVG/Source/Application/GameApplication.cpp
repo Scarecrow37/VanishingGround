@@ -79,8 +79,7 @@ void GameApplication::BuildRootDock()
     _rootDock->RegisterGui<EditorMenuProjectRoot>();
     _rootDock->RegisterGui<EditorMenuScriptBuilder>();
     _rootDock->RegisterGui<EditorBuildSettingMenu>(); 
-    _rootDock->RegisterGui<EditorMenuDebug>();
-    _rootDock->RegisterGui<EditorMenuStyleEditor>();
+    _rootDock->RegisterGui<EditorMenuEditorSetting>();
     _rootDock->RegisterGui<EditorMenuFileSystemSetting>();
     _rootDock->RegisterGui<EditorPlayMenu>();
 }

@@ -28,7 +28,9 @@ void EditorModule::ModuleInitialize()
     UmFileSystem.RegisterFileEventNotifier(this);
 }
 
-void EditorModule::PreUnInitialize() {}
+void EditorModule::PreUnInitialize() 
+{
+}
 
 void EditorModule::ModuleUnInitialize()
 {
@@ -74,7 +76,7 @@ bool EditorModule::LoadSetting(const File::Path& path)
             if (node["GuiToolData"])
                 _dockWindowSystem.LoadGuiSettingFromMemory(node["GuiToolData"]);
 
-            _isDirty = true;
+            ResetGuiLayout();
 
             return true;
         }
@@ -102,10 +104,15 @@ void EditorModule::Update()
 
     _popupBoxSystem.OnDrawGui();
 
-    if (true == _isDirty)
+    if (true == _isRefreshLayout)
     {
-        _isDirty = false;
+        _isRefreshLayout = false;
         ImGui::LoadIniSettingsFromMemory(_imGuiIniData.c_str());
+    }
+    if (true == _isFirstTick)
+    {
+        _imGuiIniData = ImGui::SaveIniSettingsToMemory();
+        _isFirstTick = false;
     }
 }
 
@@ -117,6 +124,11 @@ bool EditorModule::IsLock()
 void EditorModule::OpenPopupBox(const std::string& name, std::function<void()> content) 
 {
     _popupBoxSystem.OpenPopupBox(name, content);
+}
+
+void EditorModule::ResetGuiLayout() 
+{
+    _isRefreshLayout = true;
 }
 
 void EditorModule::SetGuiThemeStyle()

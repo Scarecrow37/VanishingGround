@@ -1,7 +1,7 @@
 ﻿#include "pch.h"
 #include "EditorSettingMenu.h"
 
-void EditorMenuDebug::OnMenu()
+void EditorMenuEditorSetting::OnMenu()
 {
     EditorModule* editor = Global::editorModule;
     if (ImGui::BeginMenu("Setting"))
@@ -13,22 +13,13 @@ void EditorMenuDebug::OnMenu()
             {
                 editor->SetDebugMode(_isDebugMode);
             }
-            ImGui::EndMenu();
-        }
-        ImGui::EndMenu();
-    }
-}
-
-void EditorMenuStyleEditor::OnMenu()
-{
-    EditorModule* editor = Global::editorModule;
-    if (ImGui::BeginMenu("Setting"))
-    {
-        if (ImGui::BeginMenu("Editor"))
-        {
-            if (ImGui::MenuItem("Style", ""))
+            if (ImGui::MenuItem("Style"))
             {
                 _isOpenGui = !_isOpenGui;
+            }
+            if (ImGui::MenuItem("Reset Layout"))
+            {
+                editor->ResetGuiLayout();
             }
             ImGui::EndMenu();
         }
@@ -36,7 +27,7 @@ void EditorMenuStyleEditor::OnMenu()
     }
 }
 
-void EditorMenuStyleEditor::OnTickGui()
+void EditorMenuEditorSetting::OnTickGui() 
 {
     if (true == _isOpenGui)
     {
@@ -45,6 +36,7 @@ void EditorMenuStyleEditor::OnTickGui()
         ImGui::End();
     }
 }
+
 
 void EditorMenuFileSystemSetting::OnMenu() 
 {

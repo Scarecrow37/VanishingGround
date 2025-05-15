@@ -73,6 +73,8 @@ namespace Global
  public:
      void OpenPopupBox(const std::string& name, std::function<void()> content);
 
+     void ResetGuiLayout();
+
  public:
      /* 에디터 디버그 모드 */
      inline void SetDebugMode(bool v) { _isDebug = v; }
@@ -88,6 +90,7 @@ namespace Global
      virtual void OnRequestedSave() override;
      /* 프로젝트 로드 요청을 처리할 동작을 구현 */
      virtual void OnRequestedLoad() override;
+
  private:
      bool _isDebug = false;
      std::string _imGuiIniData;   // ImGui 설정 데이터
@@ -95,7 +98,8 @@ namespace Global
      EditorGuiSystem            _dockWindowSystem;   // 에디터 도킹 윈도우 시스템
      EditorPopupBoxSystem       _popupBoxSystem;     // 에디터 모달 팝업 시스템
 
-     bool _isDirty = false;
+     bool _isFirstTick     = true;
+     bool _isRefreshLayout = false;
 
  public:
     //플레이 모드 관리용
