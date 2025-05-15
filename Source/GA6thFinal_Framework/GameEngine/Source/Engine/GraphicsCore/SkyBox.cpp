@@ -40,7 +40,6 @@ void SkyBox::SetTexture(std::string_view path)
         BindResources(cubeSize, face);
         pCommandList->Dispatch((cubeSize + 15) / 16, (cubeSize + 15) / 16, 1);
     }
-
     _skyboxCubeMap = cubeMap;
 }
 
@@ -180,7 +179,8 @@ void SkyBox::CreateComputePSO()
     FAILED_CHECK_BREAK(hr);
 }
 
-void SkyBox::BindResources(UINT cubeSize, UINT faceIndex) {
+void SkyBox::BindResources(UINT cubeSize, UINT faceIndex) 
+{
 
 }
 
