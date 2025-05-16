@@ -10,7 +10,7 @@ public:
     ~FBXConverter();
 
 public:
-    void ImportModel(const std::filesystem::path& filePath, Model* model);
+    void ImportModel(const std::filesystem::path& filePath, std::shared_ptr<Model> model);
     void ExportModel(const std::filesystem::path& filePath);
 
 private:
@@ -30,8 +30,8 @@ private:
     std::vector<std::vector<unsigned int>>       _indices;
     std::vector<std::vector<std::string>>        _textures;
     std::vector<unsigned int>                    _materialIndex;
-    std::vector<Material>                        _materials;
     std::vector<std::string>                     _meshNames;
+    std::shared_ptr<Model>                       _model;
 
     std::shared_ptr<Skeleton>                    _skeleton;
     std::shared_ptr<Animation>                   _animation;
