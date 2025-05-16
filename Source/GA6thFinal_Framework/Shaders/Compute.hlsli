@@ -80,7 +80,7 @@ float4 UpdateAnimation(float4 frameInfo, float deltaTime)
        
     }
 
-    return float4(duration, elapsed, currentFrame, frameInfo.w);
+    return float4(duration, frameInfo.y, currentFrame, frameInfo.w);
 }
 float4x4 CreateScaleMatrix(float4 scale)
 {

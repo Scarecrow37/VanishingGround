@@ -23,6 +23,7 @@ public:
     Renderer        Renderer;
     ViewManager     ViewManager;
     ResourceManager ResourceManager;
+    ParticleManager ParticleManager;
     //Camera          MainCamera;
 
 public:

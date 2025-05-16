@@ -7,6 +7,7 @@
 #include "Model.h"
 #include "Quad.h"
 #include "Sphere.h"
+#define MAX_PARTICLE 1000000
 
 void GraphicsCore::Initialize(HWND hwnd, UINT width, UINT height, FEATURE_LEVEL feature)
 {
@@ -26,6 +27,8 @@ void GraphicsCore::Initialize(HWND hwnd, UINT width, UINT height, FEATURE_LEVEL 
     //MainCamera.SetPosition({0.f, 0.f, -5.f});
 
     InitializeDefaultGeometry();
+
+    ParticleManager.Initialize(MAX_PARTICLE);
 }
 
 void GraphicsCore::UpdateAnimation(const float deltaTime) {}

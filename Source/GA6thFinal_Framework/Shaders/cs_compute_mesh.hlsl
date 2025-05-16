@@ -1,7 +1,7 @@
 #include "Compute.hlsli"
 
 StructuredBuffer<ParticleInput> ParticleInputBuffer : register(t0);
-StructuredBuffer<EmitterInfo> EmitterInfo : register(t1);
+StructuredBuffer<EmitterInfo> EmitterInfoBuffer : register(t1);
 RWStructuredBuffer<ParticleOutput> ParticleOutputBuffer : register(u0);
 
 
@@ -22,7 +22,7 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
     
     // 입력 데이터 가져오기
     ParticleInput input = ParticleInputBuffer[idx];
-    EmitterInfo emitter = EmitterInfo[input.emitterIndex];
+    EmitterInfo emitter = EmitterInfoBuffer[input.emitterIndex];
     
     // 1. 위치 업데이트
     float3 acceleration = float3(0, -9.8, 0) * input.mass;
@@ -33,10 +33,8 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
     
     // 3. 빌보딩 행렬 계산
     float4x4 billboardMat = CalculateBillboardMatrix(
-        worldPos.xyz,
-        CameraPos.xyz,
-        input.axis
-    );
+        worldPos.xyz, ViewInvMatrix
+            );
     
     // 4. 스케일 적용
     float4x4 scaleMat = CreateScaleMatrix(
@@ -51,11 +49,7 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
     output.Color = lerp(input.startColor, input.endColor, input.age / input.lifetime);
     
     // 7. 프레임 애니메이션
-    output.FrameInfo = UpdateAnimation(
-        input.frameinfo,
-        input.lifetime,
-        input.age
-    );
+    output.FrameInfo = UpdateAnimation(input.frameinfo, deltaTime);
     
     // 결과 저장
     ParticleOutputBuffer[idx] = output;

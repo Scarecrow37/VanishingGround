@@ -2,9 +2,9 @@
 class ParticleManager
 {
 public:
-    ParticleManager(ID3D12Device* device, UINT maxParticles);
+    ParticleManager( );
 
-    void Initialize();
+    void Initialize(UINT maxParticles);
     void RegisterEffect();
     void DeleteEffect();
     void Update(const float deltaTime);
@@ -24,11 +24,11 @@ private:
     void InitializeSortingComputeShader();
     void InitializeSortingComputeRootSignature();
     void InitializeSortingComputePSO();
+    
+    void InitializeDescriptorHeap();
 
 
 
-
-    ComPtr<ID3D12Device>              _device;
     ComPtr<ID3D12CommandQueue>        _computeQueue;
     ComPtr<ID3D12CommandAllocator>    _computeAllocator;
     ComPtr<ID3D12GraphicsCommandList> _computeCommandList;

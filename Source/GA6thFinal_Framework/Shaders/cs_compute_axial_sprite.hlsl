@@ -1,7 +1,7 @@
 #include "Compute.hlsli"
 
 StructuredBuffer<ParticleInput> ParticleInputBuffer : register(t0);
-StructuredBuffer<EmitterInfo> EmitterInfo : register(t1);
+StructuredBuffer<EmitterInfo> EmitterInfoBuffer : register(t1);
 RWStructuredBuffer<ParticleOutput> ParticleOutputBuffer : register(u0);
 
 
@@ -22,7 +22,7 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
     
     // 입력 데이터 가져오기
     ParticleInput input = ParticleInputBuffer[idx];
-    EmitterInfo emitter = EmitterInfo[input.emitterIndex];
+    EmitterInfo emitter = EmitterInfoBuffer[input.emitterIndex];
     
     // 1. 위치 업데이트
     float3 acceleration = float3(0, -9.8, 0) * input.mass;
