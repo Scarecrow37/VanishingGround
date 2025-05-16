@@ -96,6 +96,7 @@ void EditorSceneTool::SetCamera()
 
     _clientWidth  = _clientRight - _clientLeft;
     _clientHeight = _clientBottom - _clientTop;
+    _clientHeight = std::min(_clientHeight, Mathf::Epsilon);
     ReflectFields->CameraAspect = _clientWidth / _clientHeight;
 
     auto& camera = _camera->GetCamera();
@@ -138,39 +139,70 @@ void EditorSceneTool::DrawManipulate()
     if (false == _manipulateObject.expired())
     {
         auto pObject = _manipulateObject.lock();
-        Matrix worldMatrix = pObject->transform->GetWorldMatrix();
-        Matrix* pObjectMatrix = &worldMatrix;
+        if (pObject->IsValid())
+        {
+            Matrix  worldMatrix   = pObject->transform->GetWorldMatrix();
+            Matrix* pObjectMatrix = &worldMatrix;
 
-        EditorDynamicCamera* pDynamicCamera = _camera.get();
+            EditorDynamicCamera* pDynamicCamera = _camera.get();
 
-        drawManipulateDesc.ViewDesc.ClientRight = _clientRight;
-        drawManipulateDesc.ViewDesc.ClientTop   = _clientTop;
+            drawManipulateDesc.ViewDesc.ClientRight = _clientRight;
+            drawManipulateDesc.ViewDesc.ClientTop   = _clientTop;
 
-        ImGuizmo::SetDrawlist();
-        ImGuizmo::SetRect(_clientLeft, _clientTop, _clientWidth, _clientHeight);
-        bool useManipulate = ImGuiHelper::DrawManipulate(pDynamicCamera, pObjectMatrix, drawManipulateDesc);
-        _isUsing           = ImGuizmo::IsUsing();
-        _isOver            = ImGuizmo::IsOver();
+            ImGuizmo::SetDrawlist();
+            ImGuizmo::SetRect(_clientLeft, _clientTop, _clientWidth, _clientHeight);
+            _isUseManipulate = ImGuiHelper::DrawManipulate(pDynamicCamera, pObjectMatrix, drawManipulateDesc);
+            _isUsing         = ImGuizmo::IsUsing();
+            _isOver          = ImGuizmo::IsOver();
 
-        if (true == useManipulate)
-        {         
-            Transform* parent = pObject->transform->Parent;
-            Vector3    position;
-            Quaternion rotation;
-            Vector3    scale;
-            if (nullptr == parent)
+            if (true == _isUseManipulate)
             {
-                worldMatrix.Decompose(scale, rotation, position);
+                Transform* parent = pObject->transform->Parent;
+                Vector3    position;
+                Quaternion rotation;
+                Vector3    scale;
+                if (nullptr == parent)
+                {
+                    worldMatrix.Decompose(scale, rotation, position);
+                }
+                else
+                {
+                    const Matrix& parentWorldInvert = parent->GetWorldMatrix().Invert();
+                    Matrix        localMatrix       = worldMatrix * parentWorldInvert;
+                    localMatrix.Decompose(scale, rotation, position);
+                }
+                pObject->transform->Position = position;
+                pObject->transform->Rotation = rotation;
+                pObject->transform->Scale    = scale;
+            }
+
+            static bool                         prevIsUsing = false;
+            static ManipulateCommand::Transform prevTransform;
+            if (prevIsUsing != _isUsing)
+            {
+                if (true == _isUsing)
+                {
+                    _isUsingStart          = true;
+                    prevTransform.Position = pObject->transform->Position;
+                    prevTransform.Rotation = pObject->transform->Rotation;
+                    prevTransform.Scale    = pObject->transform->Scale;
+                }
+                else
+                {
+                    _isUsingEnd = true;
+                    ManipulateCommand::Transform currTransform;
+                    currTransform.Position = pObject->transform->Position;
+                    currTransform.Rotation = pObject->transform->Rotation;
+                    currTransform.Scale    = pObject->transform->Scale;
+                    UmCommandManager.Do<ManipulateCommand>(pObject, currTransform, prevTransform);
+                }
             }
             else
             {
-                const Matrix& parentWorldInvert = parent->GetWorldMatrix().Invert();
-                Matrix localMatrix = worldMatrix * parentWorldInvert;
-                localMatrix.Decompose(scale, rotation, position);
+                _isUsingStart = false;
+                _isUsingEnd   = false;
             }
-            pObject->transform->Position = position;
-            pObject->transform->Rotation = rotation;
-            pObject->transform->Scale    = scale;
+            prevIsUsing = _isUsing;
         }
     }   
 }
@@ -215,3 +247,39 @@ void EditorSceneTool::UpdateCameraSetting()
     _camera->SetRotationSpeed(ReflectFields->CameraRotateSpeed / 1000.f);
 }
 
+EditorSceneTool::ManipulateCommand::ManipulateCommand(
+    const std::shared_ptr<GameObject>& target, 
+    ManipulateCommand::Transform& curr,
+    ManipulateCommand::Transform& prev) 
+    : 
+    UmCommand("Manipulate"),
+    _target(target),
+    _curr(curr),
+    _prev(prev)
+{
+
+}
+
+EditorSceneTool::ManipulateCommand::~ManipulateCommand() = default;
+
+void EditorSceneTool::ManipulateCommand::Execute() 
+{
+    if (false == _target.expired())
+    {
+        auto object = _target.lock();
+        object->transform->Position = _curr.Position;
+        object->transform->Rotation = _curr.Rotation;
+        object->transform->Scale    = _curr.Scale;
+    }
+}
+
+void EditorSceneTool::ManipulateCommand::Undo() 
+{
+    if (false == _target.expired())
+    {
+        auto object = _target.lock();
+        object->transform->Position = _prev.Position;
+        object->transform->Rotation = _prev.Rotation;
+        object->transform->Scale    = _prev.Scale;
+    }
+}

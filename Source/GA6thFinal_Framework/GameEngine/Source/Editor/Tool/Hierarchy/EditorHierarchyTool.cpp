@@ -181,7 +181,7 @@ static void TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>
         }
     };
 
-    if (STR_NULL != node.gameObject->GetOwnerSceneName())
+    if (node.gameObject->IsValid())
     {
         ImGui::PushID(&node);
         bool isPushStyle = PushFocusStyle();
