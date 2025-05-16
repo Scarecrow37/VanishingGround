@@ -14,7 +14,8 @@ public:
     enum Flags
     {
         EDITORTOOL_FLAGS_NONE               = 0,
-        EDITORTOOL_FLAGS_ALWAYS_FRAME       = 1 << 2,   // 항상 프레임을 열고 닫음.
+        EDITORTOOL_FLAGS_ALWAYS_FRAME       = 1 << 1,   // 항상 프레임을 열고 닫음
+        EDITORTOOL_FLAGS_NO_CLOSE_BUTTON    = 1 << 2,   // 닫기 버튼을 없앰
         EDITORTOOL_FLAGS_NO_PADDING         = 1 << 3,   // 패딩을 없앰
         // [Internal] Flags
         EDITORTOOL_FLAGS_IS_DOCKWINDOW      = 1 << 4,   // 도킹 윈도우 여부
