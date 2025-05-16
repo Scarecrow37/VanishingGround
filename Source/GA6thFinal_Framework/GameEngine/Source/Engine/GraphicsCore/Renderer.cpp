@@ -128,23 +128,6 @@ void Renderer::Initialize()
 
 void Renderer::Update()
 {
-
-    //test code
-    if (GetAsyncKeyState(VK_F1) & 0x8000)
-    {
-        SetSkyBox("../../../Resource/Assets/skybox/the_sky_is_on_fire_4k.hdr");
-    }
-
-       if (GetAsyncKeyState(VK_F2) & 0x8000)
-    {
-        SetSkyBox("../../../Resource/Assets/skybox/kloppenheim_05_puresky_4k.hdr");
-    }
-
-             if (GetAsyncKeyState(VK_F3) & 0x8000)
-    {
-        SetSkyBox("../../../Resource/Assets/skybox/studio_small_09_4k.hdr");
-    }
-
     //UmMainCamera.Update();
 
 	//UmDevice.ResetCommands();
