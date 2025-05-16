@@ -92,7 +92,7 @@ EditorDockWindow* EditorGuiSystem::RegisterDockWindow(const std::string& label, 
     return instance;
 }
 
-EditorDockWindow* EditorGuiSystem::GetDockWindow(const std::string& label)
+EditorDockWindow* EditorGuiSystem::GetDockWindow(const std::string& label) const
 {
     auto itr = _dockWindowTable.find(label);
     if (_dockWindowTable.end() == itr)
@@ -100,7 +100,7 @@ EditorDockWindow* EditorGuiSystem::GetDockWindow(const std::string& label)
     return itr->second;
 }
 
-EditorDockWindow* EditorGuiSystem::operator[](const std::string& label)
+EditorDockWindow* EditorGuiSystem::operator[](const std::string& label) const
 {
     return GetDockWindow(label);
 }

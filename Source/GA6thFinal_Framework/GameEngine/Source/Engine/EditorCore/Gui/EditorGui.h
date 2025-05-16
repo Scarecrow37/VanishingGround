@@ -33,14 +33,14 @@ private:
 public:
     /*          활성화 여부 설정 */
     inline void SetVisible(bool v) {ReflectFields->_isVisible = v; }
-    inline bool IsVisible() { return ReflectFields->_isVisible; }
     inline void ToggleVisible() { ReflectFields->_isVisible = ReflectFields->_isVisible == true ? false : true; }
+    inline bool IsVisible() const { return ReflectFields->_isVisible; }
 
     /*          플래그 설정 */
     inline void SetEditorGuiFlags(UINT flags) { _editorGuiOptionFlags = flags; }
     inline void AddEditorGuiFlags(UINT flags) { _editorGuiOptionFlags |= flags; }
     inline void RemoveEditorGuiFlags(UINT flags) { _editorGuiOptionFlags &= ~flags; }
-    inline int  GetEditorGuiFlags() { return _editorGuiOptionFlags; }
-    inline bool HasEditorGuiFlags(UINT flags) { return _editorGuiOptionFlags & flags; }
+    inline int  GetEditorGuiFlags() const { return _editorGuiOptionFlags; }
+    inline bool HasEditorGuiFlags(UINT flags) const { return _editorGuiOptionFlags & flags; }
 };
 
