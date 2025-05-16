@@ -24,14 +24,6 @@ void SkyBoxPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& si
 
 void SkyBoxPass::Begin(ID3D12GraphicsCommandList* commandList) 
 {
-    ComPtr<ID3D12Resource> rt = _ownerScene->_meshLightingTarget->GetResource();
-    CD3DX12_RESOURCE_BARRIER br = CD3DX12_RESOURCE_BARRIER::Transition(
-        rt.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    commandList->ResourceBarrier(1, &br);
-    auto  handle     = _ownerScene->_meshLightingTarget->GetRTVHandle();
-    float clearValue = _ownerScene->_meshLightingTarget->clearValue;
-    Color clearColor = {clearValue, clearValue, clearValue, 1.f};
-    commandList->ClearRenderTargetView(handle, clearColor, 0, nullptr);
     commandList->OMSetRenderTargets(1, &_ownerScene->_meshLightingTarget->GetRTVHandle(), FALSE, nullptr);
 
     commandList->RSSetViewports(1, &_viewPort);
