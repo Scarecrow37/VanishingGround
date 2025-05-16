@@ -19,7 +19,7 @@ namespace ReflectHelper
                 {
                     using value_type          = std::remove_cvref_t<decltype(*value)>;
                     using origin_type         = std::remove_cvref_t<PropertyUtils::get_field_type_t<value_type>>;
-                    using remove_view_type     = StdHelper::StringViewToString<origin_type>; 
+                    using remove_view_type    = StdHelper::StringViewToString<origin_type>; 
                     constexpr bool isProperty = PropertyUtils::is_TProperty_v<value_type>;
                     constexpr bool isSetter   = PropertyUtils::is_setter<value_type>;
                     constexpr bool isLock     = isProperty == true && isSetter == false;
@@ -237,30 +237,41 @@ namespace ReflectHelper
                     
                     if constexpr (Application::IsEditor())
                     {
-                        if constexpr (isProperty == false || isSetter == true)
+                        if constexpr (isProperty == true && isSetter == true)
                         {
-                            static std::unordered_map<void*, remove_view_type> prevValue;
-                            if (ImGui::IsItemActivated())
-                            {
-                                prevValue[value] = val;
-                            }
-                            if (result)
+                            using owner_type = value_type::owner_type;
+                            if constexpr (
+                                          std::is_base_of_v<GameObject, owner_type> ||
+                                          std::is_base_of_v<Component, owner_type> ||
+                                          std::is_base_of_v<Transform, owner_type>
+                                         )
                             {   
-                                if constexpr (StdHelper::is_string_view_v<origin_type> || StdHelper::is_wstring_view_v<origin_type>)
-                                {
-                                    //origin_type curr = (origin_type)val;
-                                    //UmCommandManager.Do<Command::InputAuto::InputAutoCommand<remove_view_type, value_type>>(name, prevValue[value], curr.data(), value);    
-                                }
-                                else if constexpr (std::is_same_v<bool, origin_type>)
-                                {
-                                     //bool curr = !prevValue[value];
-                                     //UmCommandManager.Do<Command::InputAuto::InputAutoCommand<remove_view_type, value_type>>(name, prevValue[value], curr, value);  
-                                }
-                                else
-                                {
-                                    //UmCommandManager.Do<Command::InputAuto::InputAutoCommand<remove_view_type, value_type>>(name, prevValue[value], (origin_type)val, value);                    
-                                }
-                                prevValue.erase(value);
+                               static std::unordered_map<void*, remove_view_type> prevValue;
+                               if (ImGui::IsItemActivated())
+                               {
+                                   prevValue[value] = val;
+                               }
+                               if (result)
+                               {   
+                                   owner_type* owner = val.GetOwner();
+                                   using weak_type = decltype(owner->GetWeakPtr());
+                                   using Command = Command::InputAuto::InputAutoCommand<remove_view_type, value_type, weak_type>;
+                                   if constexpr (StdHelper::is_string_view_v<origin_type> || StdHelper::is_wstring_view_v<origin_type>)
+                                   {
+                                       origin_type curr = (origin_type)val;
+                                       UmCommandManager.Do<Command>(name, prevValue[value], curr.data(), value, owner->GetWeakPtr());    
+                                   }
+                                   else if constexpr (std::is_same_v<bool, origin_type>)
+                                   {
+                                       bool curr = !prevValue[value];
+                                       UmCommandManager.Do<Command>(name, prevValue[value], curr, value, owner->GetWeakPtr());  
+                                   }
+                                   else
+                                   {
+                                       UmCommandManager.Do<Command>(name, prevValue[value], (origin_type)val, value, owner->GetWeakPtr());                    
+                                   }
+                                   prevValue.erase(value);
+                               }
                             }
                         }
                     }
