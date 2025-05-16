@@ -4,6 +4,17 @@
 using namespace File;
 using namespace u8_literals;
 
+EFileSystem::EFileSystem()
+{
+    _originPath = fs::current_path().generic_wstring();
+}
+
+EFileSystem::~EFileSystem() 
+{
+    Clear();
+    ObserverShutDown();
+}
+
 bool EFileSystem::CreateProject(const File::Path& path)
 {
     bool isExists = fs::exists(path);
@@ -76,7 +87,6 @@ bool EFileSystem::LoadProject(const File::Path& path)
     File::Path directory = path.parent_path();
 
     _projectName = path.stem().string();
-    _originPath  = fs::current_path().generic_wstring();
     _rootPath    = fs::absolute(directory).generic_wstring();
     _assetPath   = fs::absolute(_rootPath / ASSET_FOLDER_NAME).generic_wstring();
     _settingPath = fs::absolute(_rootPath / PROJECT_SETTING_PATH).generic_wstring();

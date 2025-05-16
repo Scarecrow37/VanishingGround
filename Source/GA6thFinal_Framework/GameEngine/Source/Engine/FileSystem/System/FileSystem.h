@@ -17,6 +17,11 @@ class EFileSystem
 {
     using NotifierSet = std::unordered_set<File::FileEventNotifier*>;
     using CallBackFunc = std::function<void(const File::FileEventData&)>;
+
+public:
+    EFileSystem();
+    ~EFileSystem();
+
 public:
     bool CreateProject(const File::Path& path);
     bool LoadProject(const File::Path& path);
