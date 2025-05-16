@@ -96,6 +96,7 @@ void EditorSceneTool::SetCamera()
 
     _clientWidth  = _clientRight - _clientLeft;
     _clientHeight = _clientBottom - _clientTop;
+    _clientHeight = std::min(_clientHeight, Mathf::Epsilon);
     ReflectFields->CameraAspect = _clientWidth / _clientHeight;
 
     auto& camera = _camera->GetCamera();

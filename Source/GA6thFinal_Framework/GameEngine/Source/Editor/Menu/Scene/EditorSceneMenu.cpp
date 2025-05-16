@@ -10,34 +10,32 @@ void EditorSceneMenuScenes::OnMenu()
     EditorModule& editor = *Global::editorModule;
     if (ImGui::BeginMenu("Scene"))
     {
-        if (ImGui::BeginMenu("New Scene File"))
+        if (ImGui::MenuItem("New Scene"))
         {
-            if (ImGui::MenuItem("New EmptyScene"))
+            static std::string inputBuff;
+            editor.OpenPopupBox(u8"씬 이름을 입력하세요"_c_str, [&]() 
             {
-                static std::string inputBuff;
-                editor.OpenPopupBox(u8"씬 이름을 입력하세요"_c_str, [&]() {
-                    ImGui::PushID(this);
+                ImGui::PushID(this);
+                {              
+                    ImGui::InputText(u8"##이름"_c_str, &inputBuff);
+                    ImGui::Text(std::format("{}{}{}","SavePath : Scenes\\", inputBuff, ".UmScene").c_str());
+                    if (ImGui::Button(u8"확인"_c_str))
                     {
-                        ImGui::InputText(u8"이름"_c_str, &inputBuff);
-                        if (ImGui::Button(u8"확인"_c_str))
+                        if (inputBuff.empty() == false)
                         {
-                            if (inputBuff.empty() == false)
-                            {
-                                std::filesystem::path outPath = "Scenes";
-                                UmSceneManager.WriteEmptySceneToFile(inputBuff, outPath.string());
-                                ImGui::CloseCurrentPopup();
-                            }
-                        }
-                        ImGui::SameLine();
-                        if (ImGui::Button(u8"취소"_c_str))
-                        {
+                            std::filesystem::path outPath = "Scenes";
+                            UmSceneManager.WriteEmptySceneToFile(inputBuff, outPath.string());
                             ImGui::CloseCurrentPopup();
                         }
                     }
-                    ImGui::PopID();
-                });
-            }
-            ImGui::EndMenu();
+                    ImGui::SameLine();
+                    if (ImGui::Button(u8"취소"_c_str))
+                    {
+                        ImGui::CloseCurrentPopup();
+                    }
+                }
+                ImGui::PopID();
+            });
         }
         if (ImGui::MenuItem("Camera Setting"))
         {
