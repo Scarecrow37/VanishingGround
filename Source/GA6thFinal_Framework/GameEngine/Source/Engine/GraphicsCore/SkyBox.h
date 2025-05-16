@@ -10,12 +10,15 @@ public:
 public:
     void Initialize();
     void SetTexture(std::string path);
+    void Render(ID3D12GraphicsCommandList* commnadList,UINT rootParameterIndex);
+    void SetDescriptorHeap(ID3D12GraphicsCommandList* commnadList);
 
 private:
     ComPtr<ID3D12Resource> CreateTexture2D(ID3D12Device* device, int w, int h, DXGI_FORMAT format);
     ComPtr<ID3D12Resource> CreateCubeMap(ID3D12Device* device, UINT size, DXGI_FORMAT format);
     void UploadToTexture2D(ID3D12Device* device, ID3D12GraphicsCommandList* commandList, ID3D12Resource* texture,
                            const void* data, size_t dataSize);
+    void CreateHDRSRV(ID3D12Resource* resource);
     void CreateSRV(ID3D12Resource* resource);
     void CreateUAV(ID3D12Resource* resource);
     void CreateComputePSO();
@@ -31,6 +34,8 @@ private:
     D3D12_GPU_DESCRIPTOR_HANDLE         _hdrSRVGPU;
     D3D12_CPU_DESCRIPTOR_HANDLE         _cubeUAVCPU;
     D3D12_GPU_DESCRIPTOR_HANDLE         _cubeUAVGPU;
+    D3D12_CPU_DESCRIPTOR_HANDLE         _cubeSRVCPU;
+    D3D12_GPU_DESCRIPTOR_HANDLE         _cubeSRVGPU;
     ComPtr<ID3D12PipelineState>         _computePSO;
     ComPtr<ID3D12DescriptorHeap>        _descriptorHeap;
     std::vector<ComPtr<ID3D12Resource>> _cbs;

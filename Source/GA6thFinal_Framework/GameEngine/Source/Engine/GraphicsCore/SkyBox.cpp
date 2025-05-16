@@ -9,11 +9,11 @@ SkyBox::~SkyBox() {}
 
 void SkyBox::Initialize()
 {
-    _box->Initialize(1000.f, 1000.f, 1000.f, 0);
+    _box->InitializeInverted(1000.f, 1000.f, 1000.f, 0);
     HRESULT hr = S_OK;
     ComPtr<ID3D12Device> device = UmDevice.GetDevice();
     D3D12_DESCRIPTOR_HEAP_DESC hpDesc{.Type           = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
-                                      .NumDescriptors = 2,
+                                      .NumDescriptors = 3,
                                       .Flags          = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
                                       .NodeMask       = 0};
     hr = device->CreateDescriptorHeap(&hpDesc, IID_PPV_ARGS(_descriptorHeap.GetAddressOf()));
@@ -45,12 +45,13 @@ void SkyBox::SetTexture(std::string path)
     UploadToTexture2D(pDevice, pCommandList, _skyboxhdrTexture.Get(), img->pixels, imageSize);
 
     // Create SRV
-    CreateSRV(_skyboxhdrTexture.Get());
+    CreateHDRSRV(_skyboxhdrTexture.Get());
 
     // Create CubeMap texture (UAV)
     const UINT             cubeSize = 512;
-    _skyboxCubeMap      = CreateCubeMap(pDevice, cubeSize, DXGI_FORMAT_R16G16B16A16_FLOAT);
+    _skyboxCubeMap      = CreateCubeMap(pDevice, cubeSize, DXGI_FORMAT_R32G32B32A32_FLOAT);
     CreateUAV(_skyboxCubeMap.Get());
+    CreateSRV(_skyboxCubeMap.Get());
     SetPipelineState();
     // Dispatch compute shader per face (0~5)
     for (UINT face = 0; face < 6; ++face)
@@ -58,6 +59,18 @@ void SkyBox::SetTexture(std::string path)
         BindResources(cubeSize, face);
         pCommandList->Dispatch((cubeSize + 15) / 16, (cubeSize + 15) / 16, 1);
     }
+}
+
+void SkyBox::Render(ID3D12GraphicsCommandList* commnadList, UINT rootParameterIndex)
+{
+    commnadList->SetGraphicsRootDescriptorTable(rootParameterIndex, _cubeSRVGPU);
+    _box->Render(commnadList);
+}
+
+void SkyBox::SetDescriptorHeap(ID3D12GraphicsCommandList* commnadList) 
+{
+    ID3D12DescriptorHeap* hps[] = {_descriptorHeap.Get()};
+    commnadList->SetDescriptorHeaps(_countof(hps), hps);
 }
 
 
@@ -142,19 +155,15 @@ void SkyBox::UploadToTexture2D(ID3D12Device* device, ID3D12GraphicsCommandList* 
     device->GetCopyableFootprints(&texDesc, 0, 1, 0, &footprint, &numRows, &rowSizeInBytes, &totalBytes);
     src.PlacedFootprint = footprint;
 
-    CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(texture, D3D12_RESOURCE_STATE_GENERIC_READ,
-                                                                            D3D12_RESOURCE_STATE_COPY_DEST);
-    commandList->ResourceBarrier(1, &barrier);
-
     commandList->CopyTextureRegion(&dst, 0, 0, 0, &src, nullptr);
 
-    barrier = CD3DX12_RESOURCE_BARRIER::Transition(
+    auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(
         texture, D3D12_RESOURCE_STATE_COPY_DEST,
         D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE); 
     commandList->ResourceBarrier(1, &barrier);
 }
 
-void SkyBox::CreateSRV(ID3D12Resource* resource)
+void SkyBox::CreateHDRSRV(ID3D12Resource* resource)
 {
     D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
     srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
@@ -165,6 +174,18 @@ void SkyBox::CreateSRV(ID3D12Resource* resource)
     _hdrSRVCPU.ptr = _descriptorHeap->GetCPUDescriptorHandleForHeapStart().ptr + _shaderResourceDescriptorSize;
     _hdrSRVGPU.ptr = _descriptorHeap->GetGPUDescriptorHandleForHeapStart().ptr + _shaderResourceDescriptorSize;
     UmDevice.GetDevice()->CreateShaderResourceView(resource, &srvDesc, _hdrSRVCPU);
+}
+
+void SkyBox::CreateSRV(ID3D12Resource* resource)
+{
+    D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+    srvDesc.Shader4ComponentMapping    = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING; 
+    srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
+    srvDesc.TextureCube.MostDetailedMip = 0;
+    srvDesc.TextureCube.MipLevels       = 1;
+    _cubeSRVCPU.ptr = _descriptorHeap->GetCPUDescriptorHandleForHeapStart().ptr;
+    _cubeSRVGPU.ptr = _descriptorHeap->GetGPUDescriptorHandleForHeapStart().ptr;
+    UmDevice.GetDevice()->CreateShaderResourceView(resource, &srvDesc, _cubeSRVCPU);
 }
 
 void SkyBox::CreateUAV(ID3D12Resource* resource)
@@ -178,8 +199,8 @@ void SkyBox::CreateUAV(ID3D12Resource* resource)
     uavDesc.Texture2DArray.ArraySize       = 6;
 
     UINT _shaderResourceDescriptorSize = UmDevice.GetCBVSRVUAVDescriptorSize();
-    _cubeUAVCPU.ptr = _descriptorHeap->GetCPUDescriptorHandleForHeapStart().ptr + _shaderResourceDescriptorSize;
-    _cubeUAVGPU.ptr = _descriptorHeap->GetGPUDescriptorHandleForHeapStart().ptr + _shaderResourceDescriptorSize;
+    _cubeUAVCPU.ptr = _descriptorHeap->GetCPUDescriptorHandleForHeapStart().ptr + (_shaderResourceDescriptorSize*2);
+    _cubeUAVGPU.ptr = _descriptorHeap->GetGPUDescriptorHandleForHeapStart().ptr + (_shaderResourceDescriptorSize*2);
     UmDevice.GetDevice()->CreateUnorderedAccessView(resource, nullptr, &uavDesc, _cubeUAVCPU);
 }
 

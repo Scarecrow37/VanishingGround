@@ -9,7 +9,7 @@ cbuffer CubeMapInfo
     uint2 padding;
 };
 
-[numthreads(8, 8, 1)]
+[numthreads(16, 16, 1)]
 void cs_main(uint3 DTid : SV_DispatchThreadID)
 {
     uint x = DTid.x;
@@ -24,27 +24,27 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
     {
         case
         0:
-            dir = normalize(float3(1.0f, -v, -u));
+            dir = normalize(float3(1.0f, v, -u));
             break; // +X
         case
         1:
-            dir = normalize(float3(-1.0f, -v, u));
+            dir = normalize(float3(-1.0f, v, u));
             break; // -X
         case
         2:
-            dir = normalize(float3(u, 1.0f, v));
+            dir = normalize(float3(u, -1.0f, v));
             break; // +Y
         case
         3:
-            dir = normalize(float3(u, -1.0f, -v));
+            dir = normalize(float3(u, 1.0f, -v));
             break; // -Y
         case
         4:
-            dir = normalize(float3(u, -v, 1.0f));
+            dir = normalize(float3(u, v, 1.0f));
             break; // +Z
         case
         5:
-            dir = normalize(float3(-u, -v, -1.0f));
+            dir = normalize(float3(-u, v, -1.0f));
             break; // -Z
     }
         // 방향 벡터 → equirectangular UV 변환

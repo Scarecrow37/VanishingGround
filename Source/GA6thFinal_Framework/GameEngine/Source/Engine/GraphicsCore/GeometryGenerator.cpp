@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "GeometryGenerator.h"
 
 GeometryGenerator::MeshData GeometryGenerator::CreateBox(float width,
@@ -142,6 +142,121 @@ GeometryGenerator::MeshData GeometryGenerator::CreateBox(float width,
 
     return meshData;
 }
+
+GeometryGenerator::MeshData GeometryGenerator::CreateInvertedBox(float width, float height, float depth, uint32 numSubdivisions)
+{
+    MeshData meshData;
+
+    //
+    // Create the vertices.
+    //
+
+    Vertex v[24];
+
+    float w2 = 0.5f * width;
+    float h2 = 0.5f * height;
+    float d2 = 0.5f * depth;
+
+    // Fill in the front face vertex data.
+    v[0] = Vertex(-w2, -h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+    v[1] = Vertex(-w2, +h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+    v[2] = Vertex(+w2, +h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+    v[3] = Vertex(+w2, -h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+
+    // Fill in the back face vertex data.
+    v[4] = Vertex(-w2, -h2, +d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+    v[5] = Vertex(+w2, -h2, +d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+    v[6] = Vertex(+w2, +h2, +d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+    v[7] = Vertex(-w2, +h2, +d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+
+    // Fill in the top face vertex data.
+    v[8]  = Vertex(-w2, +h2, -d2, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+    v[9]  = Vertex(-w2, +h2, +d2, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+    v[10] = Vertex(+w2, +h2, +d2, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+    v[11] = Vertex(+w2, +h2, -d2, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+
+    // Fill in the bottom face vertex data.
+    v[12] = Vertex(-w2, -h2, -d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+    v[13] = Vertex(+w2, -h2, -d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+    v[14] = Vertex(+w2, -h2, +d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+    v[15] = Vertex(-w2, -h2, +d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+
+    // Fill in the left face vertex data.
+    v[16] = Vertex(-w2, -h2, +d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f);
+    v[17] = Vertex(-w2, +h2, +d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f);
+    v[18] = Vertex(-w2, +h2, -d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f);
+    v[19] = Vertex(-w2, -h2, -d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f);
+
+    // Fill in the right face vertex data.
+    v[20] = Vertex(+w2, -h2, -d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f);
+    v[21] = Vertex(+w2, +h2, -d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f);
+    v[22] = Vertex(+w2, +h2, +d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f);
+    v[23] = Vertex(+w2, -h2, +d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
+
+    meshData.vertices.assign(&v[0], &v[24]);
+
+    for (int i = 0; i < 24; i++)
+    {
+        v[i].biTangent = XMVector3Cross(v[i].normal, v[i].tangent);
+    }
+
+    //
+    // Create the indices (reversed winding for inside view).
+    //
+    uint32 i[36];
+
+    i[0] = 2;
+    i[1] = 1;
+    i[2] = 0;
+    i[3] = 3;
+    i[4] = 2;
+    i[5] = 0;
+
+    i[6]  = 6;
+    i[7]  = 5;
+    i[8]  = 4;
+    i[9]  = 7;
+    i[10] = 6;
+    i[11] = 4;
+
+    i[12] = 10;
+    i[13] = 9;
+    i[14] = 8;
+    i[15] = 11;
+    i[16] = 10;
+    i[17] = 8;
+
+    i[18] = 14;
+    i[19] = 13;
+    i[20] = 12;
+    i[21] = 15;
+    i[22] = 14;
+    i[23] = 12;
+
+    i[24] = 18;
+    i[25] = 17;
+    i[26] = 16;
+    i[27] = 19;
+    i[28] = 18;
+    i[29] = 16;
+
+    i[30] = 22;
+    i[31] = 21;
+    i[32] = 20;
+    i[33] = 23;
+    i[34] = 22;
+    i[35] = 20;
+
+    meshData.indices32.assign(&i[0], &i[36]);
+
+    numSubdivisions = std::min<uint32>(numSubdivisions, 6u);
+
+    for (uint32 i = 0; i < numSubdivisions; ++i)
+        Subdivide(meshData);
+
+    return meshData;
+}
+
 
 GeometryGenerator::MeshData GeometryGenerator::CreateSphere(float radius,
     uint32 sliceCount,
