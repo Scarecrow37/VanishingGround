@@ -792,9 +792,13 @@ void ESceneManager::ObjectsDestroy()
 
         //오브젝트 삭제
         int instanceID = destroyObject->GetInstanceID();
-        std::shared_ptr<GameObject>& pObject = _runtimeObjects[instanceID];
-        EraseGameObjectMap(pObject);
-        pObject.reset();
+        if (STR_NULL != destroyObject->_ownerScene)
+        {
+            std::shared_ptr<GameObject>& pObject = _runtimeObjects[instanceID];
+            SetObjectOwnerScene(pObject.get(), STR_NULL);
+            EraseGameObjectMap(pObject);
+            pObject.reset();
+        }
     }
     destroyObjectSet.clear();
     destroyObjectQueue.clear();
@@ -1314,7 +1318,10 @@ ESceneManager::DestroyGameObjectCommand::DestroyGameObjectCommand(GameObject* ob
     Transform::ForeachBFS(object->transform, 
     [this](Transform* curr) 
     {
-        _destroyObjects.push_back(curr->gameObject->GetWeakPtr().lock());
+        if (STR_NULL != curr->gameObject->GetOwnerSceneName())
+        {
+            _destroyObjects.push_back(curr->gameObject->GetWeakPtr().lock());
+        }
     });
     auto& rootObject = _destroyObjects.front();
     _isFocus = false;
@@ -1331,12 +1338,7 @@ void ESceneManager::DestroyGameObjectCommand::Execute()
 
     int instanceID = rootObject->_instanceID;
     rootObject->ActiveSelf = false;
-    for (auto& object : _destroyObjects)
-    {
-        UmSceneManager.SetObjectOwnerScene(object.get(), STR_NULL);
-    }
     UmSceneManager.AddDestroyObjectQueue(rootObject.get());
-
     if (EditorHierarchyTool::HierarchyFocusObjWeak.lock() == rootObject)
     {
         std::weak_ptr<GameObject> empty;
@@ -1440,5 +1442,30 @@ void ESceneManager::DestroyComponentCommand::Undo()
     {
         auto owner = _ownerObject.lock();
         UmSceneManager.InsertComponentToObject(owner.get(), _destroyComponent, _index);
+        _destroyComponent->Enable = _enable;
     }  
+}
+
+ESceneManager::AddComponentCommand::AddComponentCommand(std::string_view type_id, GameObject* ownerObject) 
+    : 
+    UmCommand("AddComponent"),
+    _ownerObject(ownerObject->GetWeakPtr()),
+    _typeName(type_id),
+    _index(-1)
+{
+
+}
+
+void ESceneManager::AddComponentCommand::Execute() 
+{
+    if (false == _ownerObject.expired())
+    {
+        auto pObject = _ownerObject.lock();
+        Component* component = UmComponentFactory.AddComponentToObject(pObject.get(), _typeName);
+    }
+}
+
+void ESceneManager::AddComponentCommand::Undo() 
+{
+
 }
