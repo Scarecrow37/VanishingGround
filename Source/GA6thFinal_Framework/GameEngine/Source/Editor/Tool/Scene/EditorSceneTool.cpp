@@ -138,68 +138,71 @@ void EditorSceneTool::DrawManipulate()
     if (false == _manipulateObject.expired())
     {
         auto pObject = _manipulateObject.lock();
-        Matrix worldMatrix = pObject->transform->GetWorldMatrix();
-        Matrix* pObjectMatrix = &worldMatrix;
-
-        EditorDynamicCamera* pDynamicCamera = _camera.get();
-
-        drawManipulateDesc.ViewDesc.ClientRight = _clientRight;
-        drawManipulateDesc.ViewDesc.ClientTop   = _clientTop;
-
-        ImGuizmo::SetDrawlist();
-        ImGuizmo::SetRect(_clientLeft, _clientTop, _clientWidth, _clientHeight);
-        _isUseManipulate = ImGuiHelper::DrawManipulate(pDynamicCamera, pObjectMatrix, drawManipulateDesc);
-        _isUsing = ImGuizmo::IsUsing();
-        _isOver  = ImGuizmo::IsOver();
-
-        if (true == _isUseManipulate)
-        {         
-            Transform* parent = pObject->transform->Parent;
-            Vector3    position;
-            Quaternion rotation;
-            Vector3    scale;
-            if (nullptr == parent)
-            {
-                worldMatrix.Decompose(scale, rotation, position);
-            }
-            else
-            {
-                const Matrix& parentWorldInvert = parent->GetWorldMatrix().Invert();
-                Matrix localMatrix = worldMatrix * parentWorldInvert;
-                localMatrix.Decompose(scale, rotation, position);
-            }
-            pObject->transform->Position = position;
-            pObject->transform->Rotation = rotation;
-            pObject->transform->Scale    = scale;
-        }
-
-        static bool prevUseManipulate = false;
-        static ManipulateCommand::Transform prevTransform;
-        if (prevUseManipulate != _isUseManipulate)
+        if (pObject->IsValid())
         {
+            Matrix  worldMatrix   = pObject->transform->GetWorldMatrix();
+            Matrix* pObjectMatrix = &worldMatrix;
+
+            EditorDynamicCamera* pDynamicCamera = _camera.get();
+
+            drawManipulateDesc.ViewDesc.ClientRight = _clientRight;
+            drawManipulateDesc.ViewDesc.ClientTop   = _clientTop;
+
+            ImGuizmo::SetDrawlist();
+            ImGuizmo::SetRect(_clientLeft, _clientTop, _clientWidth, _clientHeight);
+            _isUseManipulate = ImGuiHelper::DrawManipulate(pDynamicCamera, pObjectMatrix, drawManipulateDesc);
+            _isUsing         = ImGuizmo::IsUsing();
+            _isOver          = ImGuizmo::IsOver();
+
             if (true == _isUseManipulate)
             {
-                _isStartManipulate = true;
-                prevTransform.Position = pObject->transform->Position;
-                prevTransform.Rotation = pObject->transform->Rotation;
-                prevTransform.Scale    = pObject->transform->Scale;
+                Transform* parent = pObject->transform->Parent;
+                Vector3    position;
+                Quaternion rotation;
+                Vector3    scale;
+                if (nullptr == parent)
+                {
+                    worldMatrix.Decompose(scale, rotation, position);
+                }
+                else
+                {
+                    const Matrix& parentWorldInvert = parent->GetWorldMatrix().Invert();
+                    Matrix        localMatrix       = worldMatrix * parentWorldInvert;
+                    localMatrix.Decompose(scale, rotation, position);
+                }
+                pObject->transform->Position = position;
+                pObject->transform->Rotation = rotation;
+                pObject->transform->Scale    = scale;
+            }
+
+            static bool                         prevIsUsing = false;
+            static ManipulateCommand::Transform prevTransform;
+            if (prevIsUsing != _isUsing)
+            {
+                if (true == _isUsing)
+                {
+                    _isUsingStart          = true;
+                    prevTransform.Position = pObject->transform->Position;
+                    prevTransform.Rotation = pObject->transform->Rotation;
+                    prevTransform.Scale    = pObject->transform->Scale;
+                }
+                else
+                {
+                    _isUsingEnd = true;
+                    ManipulateCommand::Transform currTransform;
+                    currTransform.Position = pObject->transform->Position;
+                    currTransform.Rotation = pObject->transform->Rotation;
+                    currTransform.Scale    = pObject->transform->Scale;
+                    UmCommandManager.Do<ManipulateCommand>(pObject, currTransform, prevTransform);
+                }
             }
             else
             {
-                ManipulateCommand::Transform currTransform;
-                currTransform.Position = pObject->transform->Position;
-                currTransform.Rotation = pObject->transform->Rotation;
-                currTransform.Scale    = pObject->transform->Scale;
-                _isEndManipulate = true;
-                UmCommandManager.Do<ManipulateCommand>(pObject, currTransform, prevTransform);
+                _isUsingStart = false;
+                _isUsingEnd   = false;
             }
+            prevIsUsing = _isUsing;
         }
-        else
-        {
-            _isStartManipulate = false;
-            _isEndManipulate   = false;
-        }
-        prevUseManipulate = _isUseManipulate;
     }   
 }
 
