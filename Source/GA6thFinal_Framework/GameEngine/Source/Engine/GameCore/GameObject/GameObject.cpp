@@ -56,8 +56,7 @@ Scene& GameObject::GetScene()
     }
 }
 
-void GameObject::OnInspectorViewEnter() 
-{
+void GameObject::OnInspectorEnter() {
 
 }
 

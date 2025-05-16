@@ -11,7 +11,7 @@ public:
     virtual ~IEditorObject() = default;
 
 public:
-    virtual void OnInspectorViewEnter() {};
+    virtual void OnInspectorEnter() {};
 
     virtual void OnInspectorStay() {};
 
