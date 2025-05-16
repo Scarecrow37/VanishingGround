@@ -170,6 +170,12 @@ public:
 
 public:
     /// <summary>
+    /// 게임 오브젝트의 WeakPtr을 반환합니다.
+    /// </summary>
+    /// <returns></returns>
+    std::weak_ptr<GameObject> GetWeakPtr();
+
+    /// <summary>
     /// <para>
     /// https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Transform.DetachChildren.html
     /// </para> <para> 자식오브젝트들을 전부 분리해 root로 만들어버립니다.

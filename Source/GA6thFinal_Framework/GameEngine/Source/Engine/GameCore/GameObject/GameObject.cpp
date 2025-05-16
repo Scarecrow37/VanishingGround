@@ -56,8 +56,7 @@ Scene& GameObject::GetScene()
     }
 }
 
-void GameObject::OnInspectorViewEnter() 
-{
+void GameObject::OnInspectorEnter() {
 
 }
 
@@ -273,7 +272,7 @@ void GameObject::OnInspectorStay()
                     {
                         if (ImGui::Button(key.c_str() + 6))
                         {
-                            engineCore->ComponentFactory.AddComponentToObject(selectObject, key);
+                            UmCommandManager.Do<ESceneManager::AddComponentCommand>(selectObject, key);
                             ImGui::CloseCurrentPopup();
                         }
                     }

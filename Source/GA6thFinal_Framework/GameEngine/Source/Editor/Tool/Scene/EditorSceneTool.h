@@ -53,9 +53,9 @@ private:
 
 protected:
     REFLECT_FIELDS_BEGIN(EditorTool)
-    std::array<float, 3> CameraPosition{};
-    std::array<float, 4> CameraRotation{};
-    float  CameraFovDegree   = 70.f;
+    std::array<float, 3> CameraPosition{0, 0, 0};
+    std::array<float, 4> CameraRotation{0, 0, 0, 1};
+    float  CameraFov   = 70.f;
     float  CameraAspect      = 1.0f;
     float  CameraNearZ       = 0.01f;
     float  CameraFarZ        = 10000.f;
@@ -73,5 +73,15 @@ protected:
     직접 override 해서 사용합니다.
     */
     virtual void DeserializedReflectEvent();
+
+public:
+    REFLECT_PROPERTY(
+        ReflectFields->CameraFov, 
+        ReflectFields->CameraNearZ,
+        ReflectFields->CameraFarZ, 
+        ReflectFields->CameraRotateSpeed
+        )
+
+    void UpdateCameraSetting();
 };
 

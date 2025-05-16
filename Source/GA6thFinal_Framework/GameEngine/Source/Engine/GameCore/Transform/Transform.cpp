@@ -20,6 +20,11 @@ Transform::~Transform()
     EraseParent();
 }
 
+std::weak_ptr<GameObject> Transform::GetWeakPtr()
+{
+    return _gameObject.GetWeakPtr();
+}
+
 void Transform::DetachChildren()
 {
     for (auto& child : _childsList)
