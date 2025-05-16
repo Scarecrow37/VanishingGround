@@ -19,7 +19,7 @@ void EditorDynamicCamera::Update()
 
     ImGuiIO& io          = ImGui::GetIO();
     float    moveSpeed   = _moveScale * _moveSpeed * deltaTime;
-    float    rotateSpeed = _rotationSpeed;
+    float    rotateSpeed = _rotationSpeed * 0.001f;
 
     const Matrix& matrix = _camera->GetWorldMatrix();
     const Vector3 foward = -matrix.Forward();
