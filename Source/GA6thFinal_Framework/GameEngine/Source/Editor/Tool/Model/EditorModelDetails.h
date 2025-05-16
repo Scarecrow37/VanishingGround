@@ -11,6 +11,9 @@ public:
     EditorModelDetails();
     virtual ~EditorModelDetails() = default;
 
+public:
+    void SetSelectedMesh(unsigned int index) { _selectedMeshIndex = index; }
+
 private:
     virtual void OnTickGui() override;
     virtual void OnStartGui() override;
@@ -38,7 +41,7 @@ private:
     /* Popup창 호출 성공 시 호출 (OnPreFrameBegin 전에 호출) */
     virtual void OnFramePopupOpened() override;
 
-    private:
+private:
     static FBXConverter& GetFBXConverter();
 
 private:
@@ -50,4 +53,5 @@ private:
     std::unique_ptr<MeshRenderer>        _meshRenderer;
     Matrix                               _worldMatrix;
     std::filesystem::path                _filePath;
+    unsigned int                         _selectedMeshIndex = 0;
 };

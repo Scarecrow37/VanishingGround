@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+class BaseMesh;
 class EditorModelHierarchy : public EditorTool
 {
 public:
@@ -38,5 +39,6 @@ private:
     void ExportFBX();
 
 private:
-    EditorModelDetails*                  _editorModelDetails;
+    EditorModelDetails* _editorModelDetails;
+    BaseMesh*           _selectedMesh;
 };

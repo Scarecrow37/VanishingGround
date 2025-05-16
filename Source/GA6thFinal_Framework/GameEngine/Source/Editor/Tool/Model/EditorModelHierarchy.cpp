@@ -1,18 +1,16 @@
 ﻿#include "pch.h"
 #include "EditorModelHierarchy.h"
+#include "Engine/GraphicsCore/BaseMesh.h"
 #include "Engine/GraphicsCore/MeshRenderer.h"
 #include "Engine/GraphicsCore/Model.h"
-#include "Engine/GraphicsCore/BaseMesh.h"
 
-EditorModelHierarchy::EditorModelHierarchy()
-    : _editorModelDetails(nullptr)
+EditorModelHierarchy::EditorModelHierarchy() : _editorModelDetails(nullptr), _selectedMesh(nullptr)
 {
     SetLabel("Hierarchy##model");
     SetDockLayout(ImGuiDir_Left);
 }
 
-void EditorModelHierarchy::OnTickGui() {
-}
+void EditorModelHierarchy::OnTickGui() {}
 
 void EditorModelHierarchy::OnStartGui()
 {
@@ -21,25 +19,33 @@ void EditorModelHierarchy::OnStartGui()
     _editorModelDetails         = modelDock->GetGui<EditorModelDetails>();
 }
 
-void EditorModelHierarchy::OnEndGui() {
-}
+void EditorModelHierarchy::OnEndGui() {}
 
-void EditorModelHierarchy::OnPreFrameBegin() {
-}
+void EditorModelHierarchy::OnPreFrameBegin() {}
 
 void EditorModelHierarchy::OnPostFrameBegin() {}
 
 void EditorModelHierarchy::OnFrameRender()
 {
-    auto& meshRenderer = _editorModelDetails->_meshRenderer;
-    const auto& model = meshRenderer->GetModel();
+    auto&       meshRenderer = _editorModelDetails->_meshRenderer;
+    const auto& model        = meshRenderer->GetModel();
 
     if (model)
     {
+        char label[32] = "";
+        char id[8]     = "";
+        int  index     = 0;
         for (auto& mesh : model->GetMeshes())
         {
-            ImGui::Text(mesh->GetName().data());
-            ImGui::Separator();
+            sprintf_s(id, "##%d", index);
+            strncpy_s(label, sizeof(label), mesh->GetName().data(), sizeof(label) - 1);
+            strcat_s(label, sizeof(label), id);
+            if (ImGui::Selectable(label, mesh.get() == _selectedMesh))
+            {
+                _selectedMesh = mesh.get();
+                _editorModelDetails->SetSelectedMesh(index);
+            }
+            index++;
         }
     }
 }

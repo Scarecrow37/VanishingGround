@@ -24,6 +24,7 @@ EditorSceneTool::EditorSceneTool()
 
     drawManipulateDesc.ViewDesc.Size = ImVec2(128, 128);
     drawManipulateDesc.ViewDesc.BackgroundColor = 0x10101010;
+    UpdateCameraSetting();
 }
 
 EditorSceneTool::~EditorSceneTool()
@@ -104,7 +105,7 @@ void EditorSceneTool::SetCamera()
         ReflectFields->CameraFov,
         ReflectFields->CameraAspect,
         ReflectFields->CameraNearZ,
-        ReflectFields->CameraFarZ);   
+        ReflectFields->CameraFarZ);
 }
 
 void EditorSceneTool::UpdateMode()
@@ -244,7 +245,7 @@ void EditorSceneTool::DeserializedReflectEvent()
 void EditorSceneTool::UpdateCameraSetting() 
 {
     _camera->SetMoveSpeed(ReflectFields->CameraMoveSpeed);
-    _camera->SetRotationSpeed(ReflectFields->CameraRotateSpeed / 1000.f);
+    _camera->SetRotationSpeed(ReflectFields->CameraRotateSpeed);
 }
 
 EditorSceneTool::ManipulateCommand::ManipulateCommand(

@@ -8,10 +8,12 @@
 #include "RenderTechnique.h"
 #include "ShaderBuilder.h"
 #include "MeshRenderer.h"
+#include "SkyBox.h"
 
 RenderScene::RenderScene()
     : _frameQuad{std::make_unique<Quad>()}
     , _frameShader{std::make_unique<ShaderBuilder>()}
+    ,_skyBox{std::make_unique<SkyBox>()}
 {
 }
 
@@ -108,6 +110,16 @@ void RenderScene::RegisterOnRenderQueue(MeshRenderer* component)
 
 void RenderScene::Execute(ID3D12GraphicsCommandList* commandList)
 {
+    // 메쉬 최종 타겟 클리어
+    ComPtr<ID3D12Resource>   rt = _meshLightingTarget->GetResource();
+    CD3DX12_RESOURCE_BARRIER br = CD3DX12_RESOURCE_BARRIER::Transition(
+        rt.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    commandList->ResourceBarrier(1, &br);
+    auto  handle     = _meshLightingTarget->GetRTVHandle();
+    float clearValue = _meshLightingTarget->clearValue;
+    Color clearColor = {clearValue, clearValue, clearValue, 1.f};
+    commandList->ClearRenderTargetView(handle, clearColor, 0, nullptr);
+
     for (auto& tech : _techniques)
     {
         tech->Execute(commandList);
@@ -117,6 +129,11 @@ void RenderScene::Execute(ID3D12GraphicsCommandList* commandList)
 D3D12_CPU_DESCRIPTOR_HANDLE RenderScene::GetFinalImage()
 {
     return _meshLightingTarget->GetSRVHandle();
+}
+
+void RenderScene::SetSkyBox(std::string path)
+{
+    _skyBox->SetTexture(path);
 }
 
 void RenderScene::AddRenderTechnique(std::shared_ptr<RenderTechnique> technique)
@@ -215,7 +232,6 @@ void RenderScene::CreateFrameQuadAndFrameShader()
     _frameShader->SetShader(L"../Shaders/vs_quad.hlsl", ShaderBuilder::Type::VS);
     _frameShader->SetShader(L"../Shaders/ps_quad_frame.hlsl", ShaderBuilder::Type::PS);
     _frameShader->EndBuild();
-
 }
 
 void RenderScene::CreateFramePSO()
