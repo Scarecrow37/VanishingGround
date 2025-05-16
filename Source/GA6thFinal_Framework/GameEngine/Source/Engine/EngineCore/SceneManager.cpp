@@ -1318,7 +1318,7 @@ ESceneManager::DestroyGameObjectCommand::DestroyGameObjectCommand(GameObject* ob
     Transform::ForeachBFS(object->transform, 
     [this](Transform* curr) 
     {
-        if (STR_NULL != curr->gameObject->GetOwnerSceneName())
+        if (curr->gameObject->IsValid())
         {
             _destroyObjects.push_back(curr->gameObject->GetWeakPtr().lock());
         }
