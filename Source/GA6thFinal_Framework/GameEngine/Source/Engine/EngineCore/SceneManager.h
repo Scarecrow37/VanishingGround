@@ -1,5 +1,6 @@
 ﻿#pragma once
 class GameObject;
+class Component;
 class ESceneManager;
 class MeshComponent;
 class Model;
@@ -584,13 +585,14 @@ public:
     class AddComponentCommand : public UmCommand
     {
     public:
-        AddComponentCommand(std::string_view type_id, GameObject* ownerObject);
+        AddComponentCommand(GameObject* ownerObject, std::string_view type_id);
         virtual ~AddComponentCommand() = default;
 
     private:
-        std::weak_ptr<GameObject> _ownerObject;
-        std::string               _typeName;
-        int                       _index;
+        std::shared_ptr<Component> _addComponent;
+        std::weak_ptr<GameObject>  _ownerObject;
+        std::string                _typeName;
+        int                        _index;
 
         // UmCommand을(를) 통해 상속됨
         void Execute() override;

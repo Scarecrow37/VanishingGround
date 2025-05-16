@@ -1402,7 +1402,6 @@ void ESceneManager::NewGameObjectCommand::Undo()
     _active = _newObject->ActiveSelf;
     _newObject->ActiveSelf = false;
     _newObject->transform->DetachChildren();
-    UmSceneManager.SetObjectOwnerScene(_newObject.get(), STR_NULL);
     UmSceneManager.AddDestroyObjectQueue(_newObject.get());
     if (EditorHierarchyTool::HierarchyFocusObjWeak.lock() == _newObject)
     {
@@ -1446,7 +1445,7 @@ void ESceneManager::DestroyComponentCommand::Undo()
     }  
 }
 
-ESceneManager::AddComponentCommand::AddComponentCommand(std::string_view type_id, GameObject* ownerObject) 
+ESceneManager::AddComponentCommand::AddComponentCommand(GameObject* ownerObject, std::string_view type_id) 
     : 
     UmCommand("AddComponent"),
     _ownerObject(ownerObject->GetWeakPtr()),
@@ -1460,12 +1459,25 @@ void ESceneManager::AddComponentCommand::Execute()
 {
     if (false == _ownerObject.expired())
     {
-        auto pObject = _ownerObject.lock();
-        Component* component = UmComponentFactory.AddComponentToObject(pObject.get(), _typeName);
+        if (nullptr == _addComponent)
+        {
+            auto pObject = _ownerObject.lock();
+            Component* component = UmComponentFactory.AddComponentToObject(pObject.get(), _typeName);
+            _addComponent = component->GetWeakPtr().lock();
+        }
+        else
+        {
+            auto owner = _ownerObject.lock();
+            UmSceneManager.InsertComponentToObject(owner.get(), _addComponent, _index);
+        }
     }
 }
 
 void ESceneManager::AddComponentCommand::Undo() 
 {
-
+    if (false == _ownerObject.expired())
+    {
+        _index = _addComponent->GetIndex();
+        UmSceneManager.AddDestroyComponentQueue(_addComponent.get());
+    }
 }
