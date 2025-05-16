@@ -222,7 +222,6 @@ void RenderScene::CreateFrameQuadAndFrameShader()
     _frameShader->SetShader(L"../Shaders/vs_quad.hlsl", ShaderBuilder::Type::VS);
     _frameShader->SetShader(L"../Shaders/ps_quad_frame.hlsl", ShaderBuilder::Type::PS);
     _frameShader->EndBuild();
-
 }
 
 void RenderScene::CreateFramePSO()

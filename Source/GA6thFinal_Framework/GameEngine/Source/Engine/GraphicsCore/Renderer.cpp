@@ -1,27 +1,18 @@
 ﻿#include "pch.h"
 #include "Renderer.h"
-
-// Editor
-#include "RendererFileEvent.h"
-
-#define SeongU01
-#ifdef SeongU01
 #include "Box.h"
 #include "Cylinder.h"
 #include "GeoSphere.h"
 #include "Grid.h"
+#include "Model.h"
+#include "PBRLitTechnique.h"
 #include "Quad.h"
 #include "RenderScene.h"
-#include "PBRLitTechnique.h"
+#include "RendererFileEvent.h"
 #include "SkyBoxRenderTechnique.h"
-#endif
+#include "Sphere.h"
 
-Renderer::Renderer()
-    : _currnetState(0)
-    , _currentImGuiImageIndex(1)
-
-{
-}
+Renderer::Renderer() : _currnetState(0), _currentImGuiImageIndex(1) {}
 
 Renderer::~Renderer() {}
 
@@ -31,10 +22,11 @@ D3D12_GPU_DESCRIPTOR_HANDLE Renderer::GetRenderSceneImage(std::string_view rende
 
     if (iter == _renderScenes.end())
     {
-        std::wstring msg = L"Renderer::GetRenderSceneImage: RenderSceneName '" + std::wstring(renderSceneName.begin(), renderSceneName.end()) + L"' is not registered.";
-        ASSERT(false, msg.c_str());    
+        std::wstring msg = L"Renderer::GetRenderSceneImage: RenderSceneName '" +
+                           std::wstring(renderSceneName.begin(), renderSceneName.end()) + L"' is not registered.";
+        ASSERT(false, msg.c_str());
     }
-    
+
     auto scene = iter->second;
 
     return SceneView(scene.get());
@@ -46,12 +38,12 @@ std::shared_ptr<Camera> Renderer::GetCamera(std::string_view renderSceneName)
 
     if (iter == _renderScenes.end())
     {
-        std::wstring msg = L"Renderer::GetRenderSceneImage: RenderSceneName '" + std::wstring(renderSceneName.begin(), renderSceneName.end()) + L"' is not registered.";
+        std::wstring msg = L"Renderer::GetRenderSceneImage: RenderSceneName '" +
+                           std::wstring(renderSceneName.begin(), renderSceneName.end()) + L"' is not registered.";
         ASSERT(false, msg.c_str());
     }
 
     auto scene = iter->second;
-
     return scene->GetCamera();
 }
 
@@ -91,19 +83,8 @@ void Renderer::SetSkyBox(std::string path)
 
 void Renderer::Initialize()
 {
+    CreateDefaultResource();
 
-    /*if (IS_EDITOR)
-    {
-    }
-    else
-    {
-    }*/
-    //std::shared_ptr<RenderScene> testRenderScene = std::make_shared<RenderScene>();
-    //testRenderScene->InitializeRenderScene(1);
-    //std::shared_ptr<PBRTechnique> pbrTech = std::make_shared<PBRTechnique>();
-    //testRenderScene->AddRenderTechnique("PBR", pbrTech);
-
-    //_renderScenes["TEST PBR"] = testRenderScene;
     std::shared_ptr<RenderScene> editorScene = std::make_shared<RenderScene>();
     editorScene->InitializeRenderScene();
     std::shared_ptr<SkyBoxRenderTechnique> skyTech = std::make_shared<SkyBoxRenderTechnique>();
@@ -128,11 +109,7 @@ void Renderer::Initialize()
 
 void Renderer::Update()
 {
-    //UmMainCamera.Update();
-
-	//UmDevice.ResetCommands();
-	//UpdateFrameResource();
-	UmDevice.ClearBackBuffer(D3D12_CLEAR_FLAG_DEPTH, { 0.5f, 0.5f, 0.5f, 1.f });
+    UmDevice.ClearBackBuffer(D3D12_CLEAR_FLAG_DEPTH, { 0.5f, 0.5f, 0.5f, 1.f });
 
     for (auto& renderScene : _renderScenes)
     {
@@ -148,7 +125,8 @@ void Renderer::Render()
     {
         renderScene.second->Execute(commandList.Get());
     }
-    if constexpr(IS_EDITOR) UmDevice.SetBackBuffer();
+    if constexpr (IS_EDITOR)
+        UmDevice.SetBackBuffer();
 }
 
 void Renderer::Flip()
@@ -160,6 +138,130 @@ void Renderer::Flip()
     _currentImGuiImageIndex = 1;
     UmDevice.ResetCommands();
     UmDevice.ResetComputeCommands();
+}
+
+void Renderer::CreateDefaultResource()
+{
+    CreateDefaultGeometry();
+    CreateDefaultTexture();
+}
+
+void Renderer::CreateDefaultGeometry()
+{
+    std::unique_ptr<Box> box = std::make_unique<Box>();
+    box->Initialize(1.f, 1.f, 1.f);
+
+    std::unique_ptr<Sphere> sphere = std::make_unique<Sphere>();
+    sphere                         = std::make_unique<Sphere>();
+    sphere->Initialize(1.f, 20, 20);
+
+    std::unique_ptr<GeoSphere> geoSphere = std::make_unique<GeoSphere>();
+    geoSphere                            = std::make_unique<GeoSphere>();
+    geoSphere->Initialize(1.f, 5);
+
+    std::unique_ptr<Cylinder> cylinder = std::make_unique<Cylinder>();
+    cylinder                           = std::make_unique<Cylinder>();
+    cylinder->Initialize(0.5f, 0.3f, 2.f, 20, 20);
+
+    std::unique_ptr<Grid> grid = std::make_unique<Grid>();
+    grid                       = std::make_unique<Grid>();
+    grid->Initialize(20.f, 30.f, 4, 4);
+
+    std::unique_ptr<Quad> quad = std::make_unique<Quad>();
+    quad                       = std::make_unique<Quad>();
+    quad->Initialize(-1.0f, 1.0f, 2.0f, 2.0f, 0.0f);
+
+    std::shared_ptr<Model>    geometry;
+    std::unique_ptr<BaseMesh> baseMesh;
+
+    baseMesh = std::move(box);
+    geometry = std::make_shared<Model>();
+    geometry->AddMesh(std::move(baseMesh));
+    _defaultResource.push_back(geometry);
+    UmResourceManager.AddResource(L"Box", geometry);
+
+    baseMesh = std::move(cylinder);
+    geometry = std::make_shared<Model>();
+    geometry->AddMesh(std::move(baseMesh));
+    _defaultResource.push_back(geometry);
+    UmResourceManager.AddResource(L"Cylinder", geometry);
+
+    baseMesh = std::move(sphere);
+    geometry = std::make_shared<Model>();
+    geometry->AddMesh(std::move(baseMesh));
+    _defaultResource.push_back(geometry);
+    UmResourceManager.AddResource(L"Sphere", geometry);
+
+    baseMesh = std::move(geoSphere);
+    geometry = std::make_shared<Model>();
+    geometry->AddMesh(std::move(baseMesh));
+    _defaultResource.push_back(geometry);
+    UmResourceManager.AddResource(L"GeoSphere", geometry);
+
+    baseMesh = std::move(grid);
+    geometry = std::make_shared<Model>();
+    geometry->AddMesh(std::move(baseMesh));
+    _defaultResource.push_back(geometry);
+    UmResourceManager.AddResource(L"Grid", geometry);
+
+    baseMesh = std::move(quad);
+    geometry = std::make_shared<Model>();
+    geometry->AddMesh(std::move(baseMesh));
+    _defaultResource.push_back(geometry);
+    UmResourceManager.AddResource(L"Quad", geometry);
+}
+
+void Renderer::CreateDefaultTexture()
+{
+    D3D12_RESOURCE_DESC texDesc = {};
+    texDesc.Dimension           = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+    texDesc.Width               = 1;
+    texDesc.Height              = 1;
+    texDesc.DepthOrArraySize    = 1;
+    texDesc.MipLevels           = 1;
+    texDesc.Format              = DXGI_FORMAT_R8G8B8A8_UNORM;
+    texDesc.SampleDesc.Count    = 1;
+    texDesc.Layout              = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+    texDesc.Flags               = D3D12_RESOURCE_FLAG_NONE;
+
+    ID3D12Device*          device = UmDevice.GetDevice().Get();
+    ComPtr<ID3D12Resource> texture;
+
+    auto defaultHeapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+    device->CreateCommittedResource(&defaultHeapProp, D3D12_HEAP_FLAG_NONE, &texDesc, D3D12_RESOURCE_STATE_COPY_DEST,
+                                    nullptr, IID_PPV_ARGS(texture.GetAddressOf()));
+
+    UINT64                 uploadBufferSize;
+    ComPtr<ID3D12Resource> uploadHeap;
+
+    device->GetCopyableFootprints(&texDesc, 0, 1, 0, nullptr, nullptr, nullptr, &uploadBufferSize);
+    auto uploadHeapProp       = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+    auto uploadBufferSizeProp = CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize);
+    device->CreateCommittedResource(&uploadHeapProp, D3D12_HEAP_FLAG_NONE, &uploadBufferSizeProp,
+                                    D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
+                                    IID_PPV_ARGS(uploadHeap.GetAddressOf()));
+
+    D3D12_SUBRESOURCE_DATA textureData   = {};
+    static const uint8_t   blackPixel[4] = {0, 0, 0, 255};
+    textureData.pData                    = blackPixel;
+    textureData.RowPitch                 = 4;
+    textureData.SlicePitch               = 4;
+
+    ID3D12GraphicsCommandList* commandList = UmDevice.GetCommandList().Get();
+    UpdateSubresources(commandList, texture.Get(), uploadHeap.Get(), 0, 0, 1, &textureData);
+    CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
+        texture.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+
+    commandList->ResourceBarrier(1, &barrier);
+
+    std::shared_ptr<Texture> textureResource = std::make_shared<Texture>();
+    textureResource->SetResource(texture.Get());
+    textureResource->CreateShaderResourceView();
+
+    UmResourceManager.AddResource("BlackTexture", textureResource);
+    _defaultResource.push_back(textureResource);
+
+    UmDevice.UploadResource(uploadHeap);
 }
 
 void Renderer::InitializeImgui()
@@ -198,7 +300,7 @@ void Renderer::InitializeImgui()
         const ImWchar icons_ranges[] = {0xf000, 0xf3ff, 0}; // FontAwesome 유니코드 범위
         ImFontConfig  config;
 
-        config.MergeMode        = true;
+        config.MergeMode  = true;
         config.PixelSnapH = true;
 
         ImFontAtlas* atlas    = io.Fonts;
@@ -227,7 +329,7 @@ void Renderer::ImguiBegin()
     ImGuizmo::BeginFrame();
 }
 
-void Renderer::ImguiEnd() 
+void Renderer::ImguiEnd()
 {
     ImGuiIO& io = ImGui::GetIO();
 
@@ -247,12 +349,12 @@ void Renderer::ImguiEnd()
 // SWTODO : 수정해야함. 너무 임시야. 임구이에서 어떻게 해당이미지의 gpu handle을 반환할지?
 //          뭐가 반환될지 어떻게 알지?
 D3D12_GPU_DESCRIPTOR_HANDLE Renderer::SceneView(RenderScene* scene)
-{    
-    auto dest = _imguiDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+{
+    auto dest   = _imguiDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
     UINT offset = _currentImGuiImageIndex * UmDevice.GetCBVSRVUAVDescriptorSize();
     dest.ptr += offset;
 
-    auto src  = scene->GetFinalImage();
+    auto src = scene->GetFinalImage();
     UmDevice.GetDevice()->CopyDescriptorsSimple(1, dest, src, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
     D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = _imguiDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
     gpuHandle.ptr += offset;

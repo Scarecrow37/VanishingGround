@@ -5,6 +5,7 @@ class FrameResource;
 class MeshRenderer;
 class RenderScene;
 class RendererFileEvent;
+class Resource;
 class Renderer
 {
     enum class ResterizeMode
@@ -36,23 +37,29 @@ public:
     void Flip();
 
 public:
-    //imgui 관련 함수
+    // imgui 관련 함수
     void InitializeImgui();
     void PreUnInitializeImgui();
     void ImguiBegin();
     void ImguiEnd();
 
 private:
+    void CreateDefaultResource();
+    void CreateDefaultGeometry();
+    void CreateDefaultTexture();
+
+private:
     D3D12_GPU_DESCRIPTOR_HANDLE SceneView(RenderScene* scene);
 
 private:
     // imgui 전용 descriptor heap
-    ComPtr<ID3D12DescriptorHeap>                                  _imguiDescriptorHeap = nullptr;
-    std::unique_ptr<RendererFileEvent>                            _rendererFileEvent;
-    UINT                                                          _currentImGuiImageIndex;
+    ComPtr<ID3D12DescriptorHeap>       _imguiDescriptorHeap = nullptr;
+    std::unique_ptr<RendererFileEvent> _rendererFileEvent;
+    UINT                               _currentImGuiImageIndex;
 
 private:
     std::vector<std::pair<bool, MeshRenderer*>>                   _components;
     std::unordered_map<std::string, std::shared_ptr<RenderScene>> _renderScenes;
     UINT                                                          _currnetState;
+    std::list<std::shared_ptr<Resource>>                          _defaultResource;
 };
