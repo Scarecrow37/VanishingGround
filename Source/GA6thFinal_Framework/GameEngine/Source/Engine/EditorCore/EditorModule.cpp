@@ -23,7 +23,7 @@ void EditorModule::ModuleInitialize()
     // 모듈 등록시 1회 호출
     SetGuiThemeStyle();
     _popupBoxSystem.OnStartGui();
-    _dockWindowSystem.OnStartGui();
+    _guiSystem.OnStartGui();
 
     UmFileSystem.RegisterFileEventNotifier(this);
 }
@@ -36,7 +36,7 @@ void EditorModule::ModuleUnInitialize()
 {
     // 파괴 직전 함수 필요하면 추가
     _popupBoxSystem.OnEndGui();
-    _dockWindowSystem.OnEndGui();
+    _guiSystem.OnEndGui();
 }
 
 bool EditorModule::SaveSetting(const File::Path& path)
@@ -48,7 +48,7 @@ bool EditorModule::SaveSetting(const File::Path& path)
     {
         YAML::Node node;
         node["debug"]        = _isDebug;
-        node["GuiToolData"]  = _dockWindowSystem.SaveGuiSettingToMemory();
+        node["GuiToolData"]  = _guiSystem.SaveGuiSettingToMemory();
         node["imGuiIniData"] = ImGui::SaveIniSettingsToMemory();
 
         fout << node;
@@ -74,7 +74,7 @@ bool EditorModule::LoadSetting(const File::Path& path)
                 _imGuiIniData = node["imGuiIniData"].as<std::string>();
 
             if (node["GuiToolData"])
-                _dockWindowSystem.LoadGuiSettingFromMemory(node["GuiToolData"]);
+                _guiSystem.LoadGuiSettingFromMemory(node["GuiToolData"]);
 
             ResetGuiLayout();
 
@@ -95,8 +95,8 @@ void EditorModule::Update()
     /* ========GUI Update======== */ 
     _popupBoxSystem.OnTickGui();
 
-    _dockWindowSystem.OnTickGui();
-    _dockWindowSystem.OnDrawGui();
+    _guiSystem.OnTickGui();
+    _guiSystem.OnDrawGui();
     /* =========================== */
 
     if (true == isLock)

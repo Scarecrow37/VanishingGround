@@ -93,24 +93,24 @@ private:
 
 public:
     /* 옵션 플래그에 대한 설정 */
-    inline void         SetDockWindowFlags(EditorDockWindowFlags flags) { _dockWindowOptionFlags = flags; }
-    inline void         AddDockWindowFlags(EditorDockWindowFlags flags) { _dockWindowOptionFlags |= flags; }
-    inline void         RemoveDockWindowOptionFlags(EditorDockWindowFlags flags) { _dockWindowOptionFlags &= ~flags; }
-    inline bool         HasDockWindowFlags(EditorDockWindowFlags flags) const { return (_dockWindowOptionFlags & flags) == flags; }
-    inline const auto&  GetDockWindowOptionFlags() const { return _dockWindowOptionFlags; }
+    inline void                         SetDockWindowFlags(EditorDockWindowFlags flags) { _dockWindowOptionFlags = flags; }
+    inline void                         AddDockWindowFlags(EditorDockWindowFlags flags) { _dockWindowOptionFlags |= flags; }
+    inline void                         RemoveDockWindowOptionFlags(EditorDockWindowFlags flags) { _dockWindowOptionFlags &= ~flags; }
+    inline bool                         HasDockWindowFlags(EditorDockWindowFlags flags) const { return (_dockWindowOptionFlags & flags) == flags; }
+    inline EditorDockWindowFlags        GetDockWindowOptionFlags() const { return _dockWindowOptionFlags; }
 
     /* Dock에 대한 플래그 설정 */
-    inline void         SetImGuiDockNodeFlag(ImGuiDockNodeFlags flags) { _userImGuiDockFlags = flags; }
-    inline void         AddImGuiDockNodeFlag(ImGuiDockNodeFlags flags) { _userImGuiDockFlags |= flags; }
-    inline void         RemoveImGuiDockNodeFlag(ImGuiDockNodeFlags flags) { _userImGuiDockFlags &= ~flags; }
-    inline bool         HasImGuiDockNodeFlag(ImGuiDockNodeFlags flags) const { return (_userImGuiDockFlags & flags) == flags; }
-    inline int          GetImGuiDockNodeFlag() const { return _userImGuiDockFlags; }
+    inline void                         SetImGuiDockNodeFlag(ImGuiDockNodeFlags flags) { _userImGuiDockFlags = flags; }
+    inline void                         AddImGuiDockNodeFlag(ImGuiDockNodeFlags flags) { _userImGuiDockFlags |= flags; }
+    inline void                         RemoveImGuiDockNodeFlag(ImGuiDockNodeFlags flags) { _userImGuiDockFlags &= ~flags; }
+    inline bool                         HasImGuiDockNodeFlag(ImGuiDockNodeFlags flags) const { return (_userImGuiDockFlags & flags) == flags; }
+    inline ImGuiDockNodeFlags           GetImGuiDockNodeFlag() const { return _userImGuiDockFlags; }
 
-    inline const auto&  GetRefGuiList() const { return _editorGuiList; }
-    inline const auto&  GetRefGuiTable() const { return _editorGuiClassTable; }
-    inline const auto&  GetRefToolTable() const { return _editorToolTable; }
-    inline const auto&  GetRefMenuTable() const { return _editorMenuTable; }
-    inline const auto&  GetRefDockWindowTable() const { return _dockWindowTable; }
+    inline const GuiList&               GetRefGuiList() const { return _editorGuiList; }
+    inline const GuiTable&              GetRefGuiTable() const { return _editorGuiClassTable; }
+    inline const ToolTable&             GetRefToolTable() const { return _editorToolTable; }
+    inline const MenuTable&             GetRefMenuTable() const { return _editorMenuTable; }
+    inline const DockWindowTable&       GetRefDockWindowTable() const { return _dockWindowTable; }
 };
 
 template <typename T>

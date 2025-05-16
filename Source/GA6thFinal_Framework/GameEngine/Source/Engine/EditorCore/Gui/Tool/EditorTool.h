@@ -93,54 +93,54 @@ private:
     bool                            _isFrameDrawed          = false;    // [Internal] 이전 FrameRender 호출 여부
 
 public:
-    inline void         SetWindowClass(const ImGuiWindowClass& windowClass) { _imGuiWindowClass = windowClass; }
-    inline const auto&  GetWindowClass() const { return _imGuiWindowClass; }
+    inline void                     SetWindowClass(const ImGuiWindowClass& windowClass) { _imGuiWindowClass = windowClass; }
+    inline const ImGuiWindowClass&  GetWindowClass() const { return _imGuiWindowClass; }
 
-    /*                  이름 설정 (기본적으로 중복을 비허용.) */
-    inline void         SetLabel(const char* label) { _label = label; }
-    inline const auto&  GetLabel() const { return _label; }
+    /*                              이름 설정 (기본적으로 중복을 비허용.) */
+    inline void                     SetLabel(const char* label) { _label = label; }
+    inline const std::string&       GetLabel() const { return _label; }
 
-    /*                  초기 도킹 영역을 지정 */
-    inline void         SetDockLayout(ImGuiDir layout) { _dockLayout = {true, layout}; }
-    inline ImGuiDir     GetDockLayout() const { return _dockLayout.second; }
+    /*                              초기 도킹 영역을 지정 */
+    inline void                     SetDockLayout(ImGuiDir layout) { _dockLayout = {true, layout}; }
+    inline ImGuiDir                 GetDockLayout() const { return _dockLayout.second; }
 
-    /*                  플래그 설정 */
-    inline void         SetEditorToolFlags(UINT flags) { _editorToolOptionFlags = flags; }
-    inline void         AddEditorToolFlags(UINT flags) { _editorToolOptionFlags |= flags; }
-    inline void         RemoveEditorToolFlags(UINT flags) { _editorToolOptionFlags &= ~flags; }
-    inline int          GetEditorToolFlags() const { return _editorToolOptionFlags; }
-    inline bool         HasEditorToolFlags(UINT flags) const { return _editorToolOptionFlags & flags; }
+    /*                              플래그 설정 */
+    inline void                     SetEditorToolFlags(int flags) { _editorToolOptionFlags = flags; }
+    inline void                     AddEditorToolFlags(int flags) { _editorToolOptionFlags |= flags; }
+    inline void                     RemoveEditorToolFlags(int flags) { _editorToolOptionFlags &= ~flags; }
+    inline int                      GetEditorToolFlags() const { return _editorToolOptionFlags; }
+    inline bool                     HasEditorToolFlags(int flags) const { return _editorToolOptionFlags & flags; }
 
-    inline void         SetImGuiWindowFlag(ImGuiWindowFlags flag) { _windowFlags = flag; }
-    inline void         AddImGuiWindowFlag(ImGuiWindowFlags flag) { _windowFlags |= flag; }
-    inline void         RemoveImGuiWindowFlag(ImGuiWindowFlags flag) { _windowFlags &= ~flag; }
-    inline auto         GetImGuiWindowFlag() const { return _windowFlags; }
-    inline bool         HasImGuiWindowFlag(ImGuiWindowFlags flag) const { return _windowFlags & flag; }
+    inline void                     SetImGuiWindowFlag(ImGuiWindowFlags flag) { _windowFlags = flag; }
+    inline void                     AddImGuiWindowFlag(ImGuiWindowFlags flag) { _windowFlags |= flag; }
+    inline void                     RemoveImGuiWindowFlag(ImGuiWindowFlags flag) { _windowFlags &= ~flag; }
+    inline ImGuiWindowFlags         GetImGuiWindowFlag() const { return _windowFlags; }
+    inline bool                     HasImGuiWindowFlag(ImGuiWindowFlags flag) const { return _windowFlags & flag; }
 
-    /*                  툴 잠금 설정 */
-    inline void         SetLock(bool v) { ReflectFields->IsLock = v; }
-    inline void         ToggleLock() { ReflectFields->IsLock = ReflectFields->IsLock == true ? false : true; }
-    inline bool         IsLock() const { return ReflectFields->IsLock; }
+    /*                              툴 잠금 설정 */
+    inline void                     SetLock(bool v) { ReflectFields->IsLock = v; }
+    inline void                     ToggleLock() { ReflectFields->IsLock = ReflectFields->IsLock == true ? false : true; }
+    inline bool                     IsLock() const { return ReflectFields->IsLock; }
    
 
-    /*                  사이즈 조정 설정 */
-    inline void         SetSize(const ImVec2& size) { _size = {true, size}; }
-    inline ImVec2       GetSize() const { return _size.second; }
+    /*                              사이즈 조정 설정 */
+    inline void                     SetSize(const ImVec2& size) { _size = {true, size}; }
+    inline ImVec2                   GetSize() const { return _size.second; }
 
-    /*                  위치 조정 설정 */
-    inline void         SetPos(const ImVec2& pos) { _pos = {true, pos}; }
-    inline ImVec2       GetPos() const { return _pos.second; }
+    /*                              위치 조정 설정 */
+    inline void                     SetPos(const ImVec2& pos) { _pos = {true, pos}; }
+    inline ImVec2                   GetPos() const { return _pos.second; }
 
-    /*                  도킹 스페이스 설정 (부모 도킹스페이스) */
-    inline void         SetOwnerDockWindow(EditorDockWindow* dockWindow) { _ownerDockWindow = dockWindow; }
-    inline auto*        GetOwnerDockWindow() const { return _ownerDockWindow; }
+    /*                              도킹 스페이스 설정 (부모 도킹스페이스) */
+    inline void                     SetOwnerDockWindow(EditorDockWindow* dockWindow) { _ownerDockWindow = dockWindow; }
+    inline EditorDockWindow*        GetOwnerDockWindow() const { return _ownerDockWindow; }
 
-    inline auto*        GetImGuiWindow() const { return _imguiWindow; }
-    /*                  렌더링 가능 여부 */
-    inline bool         IsDrawable() const { return _isDrawable; }
-    /*                  Begin과 End 사이의 작업 중인지 여부 */
-    inline bool         IsBeginningFrame() const { return _isBeginningFrame; }
-    /*                  해당 프레임이 포커싱 중인지 여부 */ 
-    inline bool         IsFocusFrame() const { return _isFrameFocused; }
+    inline ImGuiWindow*             GetImGuiWindow() const { return _imguiWindow; }
+    /*                              렌더링 가능 여부 */
+    inline bool                     IsDrawable() const { return _isDrawable; }
+    /*                              Begin과 End 사이의 작업 중인지 여부 */
+    inline bool                     IsBeginningFrame() const { return _isBeginningFrame; }
+    /*                              해당 프레임이 포커싱 중인지 여부 */ 
+    inline bool                     IsFocusFrame() const { return _isFrameFocused; }
 };
 

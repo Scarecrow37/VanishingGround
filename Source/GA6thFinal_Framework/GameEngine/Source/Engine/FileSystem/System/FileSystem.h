@@ -29,22 +29,22 @@ public:
     bool LoadSetting(const File::Path& path);
 
 public:
-    inline auto&       GetProjectName() { return _projectName; }
-    inline int         GetDebugLevel() const { return _setting.DebugLevel; }
-    inline const auto& GetMetaExt() const { return _setting.MetaExt; }
-
-    inline const File::Path& GetOriginPath() const { return _originPath; }
-    inline const File::Path& GetRootPath() const { return _rootPath; }
-    inline const File::Path& GetAssetPath() const { return _assetPath; }
-    inline const File::Path& GetSettingPath() const { return _settingPath; }
-
     bool IsLoadedProject() const;
     bool IsVaildGuid(const File::Guid& guid) const;
     bool IsValidExtension(const File::FString& ext) const;
     bool IsSameContext(std::weak_ptr<File::Context> left, std::weak_ptr<File::Context> right) const;
 
-    File::Path GetRelativePath(const File::Path& path) const;
+    inline const std::string&   GetProjectName() const  { return _projectName; }
+    inline int                  GetDebugLevel() const   { return _setting.DebugLevel; }
+    inline const std::string&   GetMetaExt() const      { return _setting.MetaExt; }
 
+    inline const File::Path&    GetOriginPath() const   { return _originPath; }
+    inline const File::Path&    GetRootPath() const     { return _rootPath; }
+    inline const File::Path&    GetAssetPath() const    { return _assetPath; }
+    inline const File::Path&    GetSettingPath() const  { return _settingPath; }
+
+
+    File::Path GetRelativePath(const File::Path& path) const;
     const File::Path& GetPathFromGuid(const File::Guid& guid) const;
     const File::Guid& GetGuidFromPath(const File::Path& path) const;
 
