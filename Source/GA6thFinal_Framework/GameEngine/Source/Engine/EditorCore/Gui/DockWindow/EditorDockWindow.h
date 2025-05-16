@@ -138,7 +138,6 @@ inline T* EditorDockWindow::RegisterGui(Args... args)
         {
             _editorToolTable[typeName] = instance;
             instance->SetOwnerDockWindow(this);
-            instance->SetOriginLabel(instance->GetLabel().c_str());
         }
         else if constexpr (IsEditorMenu<T>)
         {

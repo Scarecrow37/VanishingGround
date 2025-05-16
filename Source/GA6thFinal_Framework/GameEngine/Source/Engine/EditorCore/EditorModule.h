@@ -90,8 +90,8 @@ namespace Global
 
      inline bool IsLock() const { return (false == _popupBoxSystem.IsEmpty()); }
 
-     inline auto& GetDockWindowSystem() const { return _dockWindowSystem; }
-     inline auto& GetPopupBoxSystem() const { return _popupBoxSystem; }
+     inline auto& GetDockWindowSystem() { return _dockWindowSystem; }
+     inline auto& GetPopupBoxSystem() { return _popupBoxSystem; }
      
  private:
      /* 기본 스타일 설정 */
