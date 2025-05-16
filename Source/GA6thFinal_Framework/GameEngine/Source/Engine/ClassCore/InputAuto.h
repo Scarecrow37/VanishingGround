@@ -242,7 +242,7 @@ namespace ReflectHelper
                             using owner_type = value_type::owner_type;
                             if constexpr (
                                           std::is_base_of_v<GameObject, owner_type> ||
-                                          std::is_base_of_v<Component, owner_type> ||
+                                          std::is_base_of_v<Component, owner_type>  ||
                                           std::is_base_of_v<Transform, owner_type>
                                          )
                             {   
