@@ -409,10 +409,13 @@ private:
     /// </summary>
     void AddDestroyComponentQueue(Component* component);
 
+    void InsertComponentToObject(GameObject* object, std::shared_ptr<Component>& component, int index); 
+
     /// <summary>
     /// 오브젝트의 OwnerScene을 변경합니다.
     /// </summary>
     void SetObjectOwnerScene(GameObject* object, std::string_view sceneName);
+
 
 private:
     //Life cycle 에 포함되는 실제 오브젝트들 항목
@@ -527,11 +530,12 @@ protected:
     std::unordered_map<File::Guid, YAML::Node> _sceneDataMap;
 
 public:
+    //커맨드들
     class DestroyGameObjectCommand : public UmCommand
     {
     public:
         DestroyGameObjectCommand(GameObject* object);
-        ~DestroyGameObjectCommand();
+        virtual  ~DestroyGameObjectCommand();
 
     private:
         void Execute() override;
@@ -559,6 +563,22 @@ public:
         // UmCommand을(를) 통해 상속됨
         void Execute() override;
         void Undo() override;
+    };
+
+    class DestroyComponentCommand : public UmCommand
+    {
+    public:
+        DestroyComponentCommand(Component* component);
+        virtual ~DestroyComponentCommand();
+
+    private:
+        void Execute() override;
+        void Undo() override;
+
+        std::shared_ptr<Component> _destroyComponent;
+        std::weak_ptr<GameObject>  _ownerObject;
+        bool                       _enable;
+        int                        _index;
     };
 };
 
