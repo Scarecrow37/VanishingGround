@@ -1,20 +1,46 @@
 ﻿#include "pch.h"
 #include "EditorWindowMenu.h"
 
+EditorMenuTools::EditorMenuTools(EditorDockWindow* focusWindow) 
+    :  _focusWindow(focusWindow) 
+{
+}
+
+void EditorMenuTools::OnStartGui() 
+{
+    if (nullptr == _focusWindow)
+    {
+        return;
+    }
+    _dockWindowTable = _focusWindow->GetRefDockWindowTable();
+    _editorToolTable = _focusWindow->GetRefToolTable();
+}
+
 void EditorMenuTools::OnMenu()
 {
-    if (ImGui::BeginMenu("Tools"))
+    if (ImGui::BeginMenu("Window"))
     {
-        EditorDockSpace* dockSpace = Global::editorModule->GetMainDockSpace();
-        const auto& toolTable = dockSpace->GetRefToolTable();
-        for (auto& [key, tool] : toolTable)
+        if (ImGui::BeginMenu("Tools"))
         {
-            bool active = tool->IsVisible();
-            if (ImGui::MenuItem(tool->GetLabel().c_str(), nullptr, active,
-                                GetActive()))
+            for (auto& [key, tool] : _dockWindowTable)
             {
-                tool->SetVisible(active ? false : true);
+                bool        active = tool->IsVisible();
+                const char* label  = tool->GetLabel().c_str();
+                if (ImGui::MenuItem(label, nullptr, active))
+                {
+                    tool->SetVisible(active ? false : true);
+                }
             }
+            for (auto& [key, tool] : _editorToolTable)
+            {
+                bool active = tool->IsVisible();
+                const char* label  = tool->GetLabel().c_str();
+                if (ImGui::MenuItem(label, nullptr, active))
+                {
+                    tool->SetVisible(active ? false : true);
+                }
+            }
+            ImGui::EndMenu();
         }
         ImGui::EndMenu();
     }

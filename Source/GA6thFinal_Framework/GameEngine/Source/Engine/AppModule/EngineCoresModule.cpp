@@ -18,5 +18,9 @@ void EngineCoresModule::ModuleUnInitialize()
     engineCore->ComponentFactory.UninitalizeComponentFactory();
     //engineCore->Graphics.ResourceManager.Clear();
     engineCore->Graphics.Device.Finalize();
+    if constexpr (Application::IsEditor())
+    {
+        UmCommandManager.Clear();
+    }
     SafeEngineCoresPtr::Engine::DestroyEngineCores();
 }

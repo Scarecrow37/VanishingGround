@@ -6,11 +6,11 @@ void ECommandManager::Undo()
     if (true == _undoStack.empty())
         return;
 
-    auto cmd = _undoStack.back();
+    auto& cmd = _undoStack.back();
     cmd->Undo();
 
-    _undoStack.pop_back();
     _redoStack.push_back(cmd);
+    _undoStack.pop_back();
 
     ClampCommandStack();
 }
@@ -30,16 +30,31 @@ void ECommandManager::Undo(UINT cnt)
     }
 }
 
+bool ECommandManager::Undo(CommandQueue::const_iterator itr)
+{
+    bool result = false;
+    for (auto it = _undoStack.begin(); it != _undoStack.end(); ++it)
+    {
+        Undo();
+        if (itr == it)
+        {
+            result = true;
+            break;
+        }
+    }
+    return result;
+}
+
 void ECommandManager::Redo()
 {
     if (true == _redoStack.empty())
         return;
 
-    auto cmd = _redoStack.back();
+    auto& cmd = _redoStack.back();
     cmd->Execute();
 
-    _redoStack.pop_back();
     _undoStack.push_back(cmd);
+    _redoStack.pop_back();
 
     ClampCommandStack();
 }
@@ -57,6 +72,21 @@ void ECommandManager::Redo(UINT cnt)
             Redo();
         }
     }
+}
+
+bool ECommandManager::Redo(CommandQueue::const_iterator itr)
+{
+    bool result = false;
+    for (auto it = _redoStack.begin(); it != _redoStack.end(); ++it)
+    {
+        Redo();
+        if (itr == it)
+        {
+            result = true;
+            break;
+        }
+    }
+    return result;
 }
 
 void ECommandManager::Clear() 

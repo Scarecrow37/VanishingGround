@@ -13,19 +13,22 @@ void GraphicsCore::Initialize(HWND hwnd, UINT width, UINT height, FEATURE_LEVEL 
 {
     Device.SetUpDevice(hwnd, width, height, feature);
     ViewManager.Initialize();
-    Device.Initialize();
+    Device.Initialize(); 
     Device.ResetCommands();
     Renderer.Initialize();
 
     auto commandList = Device.GetCommandList().Get();
     commandList->Close();
-    Device.RegisterCommand(commandList);
-    Device.ExecuteCommand();
+    Device.RegisterCommand(commandList,MESH_RENDER_LIST);
+    Device.ExecuteCommand(MESH_RENDER_LIST);
     Device.GPUSync();
 
     //MainCamera.SetupPerspective(45.f, static_cast<float>(width) / height, 0.01f, 10000.f);
     //MainCamera.SetPosition({0.f, 0.f, -5.f});
 
+    //InitializeDefaultGeometry();
+    UmDevice.ResetCommands();
+    UmDevice.ResetComputeCommands();
     InitializeDefaultGeometry();
 
     ParticleManager.Initialize(MAX_PARTICLE);

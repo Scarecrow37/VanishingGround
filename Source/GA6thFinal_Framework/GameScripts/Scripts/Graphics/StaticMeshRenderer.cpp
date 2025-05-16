@@ -1,7 +1,5 @@
 ﻿#include "StaticMeshRenderer.h"
-#include "Engine/GraphicsCore/Model.h"
-
-StaticMeshRenderer::StaticMeshRenderer()
+StaticMeshRenderer::StaticMeshRenderer() 
 {    
     FilePath.SetDragDropFunc([this]()
         { 
@@ -15,70 +13,48 @@ StaticMeshRenderer::StaticMeshRenderer()
                     const auto& path = context->GetPath();
                     if (path.extension() == L".fbx")
                     {
-                        ReflectFields->Guid = path.ToGuid().string();
-                        UmResourceManager.RegisterLoadQueue({path, RESOURCE_TYPE::MODEL});
+                        File::Guid guid = path.ToGuid();
+                        ReflectFields->Guid = guid.string();
+                        UmSceneManager.ResourceManager.RequestModelResource(this, guid);
                     }
                 }
             }
-    });
+    });    
 }
 
 StaticMeshRenderer::~StaticMeshRenderer()
 {
-    if (_isActive != nullptr)
-    {
-        (*_isActive) = false;
-        _isActive = nullptr;
-    }  
+    
 }
 
 void StaticMeshRenderer::Reset()
 {
-    ReflectFields->Type = MeshRenderer::RENDER_TYPE::STATIC;
+    MakeMeshRenderer(MeshRenderer::RENDER_TYPE::STATIC, gameObject->transform->GetWorldMatrix());
 }
 
 void StaticMeshRenderer::Awake()
 {
-    if (!ReflectFields->Guid.empty())
-    {
-        File::Guid guid = ReflectFields->Guid;
-        UmResourceManager.RegisterLoadQueue({guid.ToPath(), RESOURCE_TYPE::MODEL});
-    }
+
 }
 
 void StaticMeshRenderer::Start()
 {
-    if (!ReflectFields->Guid.empty())
-    {
-        File::Guid guid = ReflectFields->Guid;
-        _model = UmResourceManager.LoadResource<Model>(guid.ToPath());
-    }
+
 }
 
 void StaticMeshRenderer::OnEnable()
 {
-    //if constexpr (!IS_EDITOR)
-    UmRenderer.RegisterRenderQueue(&_isActive, this, "Editor");
+    
 }
 
 void StaticMeshRenderer::OnDisable()
 {
-    (*_isActive) = false;
-    _isActive = nullptr;
+    
 }
 
 void StaticMeshRenderer::Update() 
 {
-    if constexpr (IS_EDITOR)
-    {
-        ImGui::Begin("sdasadsadawsddasd");
-        if (ImGui::Button("Load"))
-        {
-            File::Guid guid = ReflectFields->Guid;
-            _model = UmResourceManager.LoadResource<Model>(guid.ToPath());
-        }
-        ImGui::End();
-    }
+  
 }
 
 void StaticMeshRenderer::FixedUpdate() 
@@ -91,8 +67,21 @@ void StaticMeshRenderer::OnDestroy()
    
 }
 
-void StaticMeshRenderer::OnApplicationQuit() {}
+void StaticMeshRenderer::OnApplicationQuit() 
+{
 
-void StaticMeshRenderer::SerializedReflectEvent() {}
+}
 
-void StaticMeshRenderer::DeserializedReflectEvent() {}
+void StaticMeshRenderer::SerializedReflectEvent() 
+{
+
+}
+
+void StaticMeshRenderer::DeserializedReflectEvent() 
+{
+    File::Guid guid = ReflectFields->Guid;
+    if (false == guid.IsNull())
+    {
+        UmSceneManager.ResourceManager.RequestModelResource(this, guid);
+    }
+}

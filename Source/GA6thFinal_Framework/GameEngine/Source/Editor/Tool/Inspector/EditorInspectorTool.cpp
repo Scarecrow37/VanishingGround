@@ -4,9 +4,9 @@
 EditorInspectorTool::EditorInspectorTool()
 {
     SetLabel("Inspector");
-    SetDockLayout(DockLayout::RIGHT);
+    SetDockLayout(ImGuiDir_Right);
 
-    SetWindowFlag(ImGuiWindowFlags_MenuBar); // 메뉴바 사용
+    SetImGuiWindowFlag(ImGuiWindowFlags_MenuBar); // 메뉴바 사용
 }
 
 EditorInspectorTool::~EditorInspectorTool()
@@ -17,11 +17,15 @@ void  EditorInspectorTool::OnStartGui()
 {
 }
 
-void  EditorInspectorTool::OnPreFrame()
+void EditorInspectorTool::OnPreFrameBegin()
 {
 }
 
-void  EditorInspectorTool::OnFrame()
+void EditorInspectorTool::OnPostFrameBegin() 
+{
+}
+
+void EditorInspectorTool::OnFrameRender()
 {
     ShowMenuBarFrame();
 
@@ -32,14 +36,15 @@ void  EditorInspectorTool::OnFrame()
     }
 }
 
-void  EditorInspectorTool::OnPostFrame()
+void EditorInspectorTool::OnFrameEnd()
 {
 }
 
-void EditorInspectorTool::OnFocus()
-{}
+void EditorInspectorTool::OnFrameFocusStay()
+{
+}
 
-bool EditorInspectorTool::IsFocused(std::weak_ptr<IEditorObject> obj)
+bool EditorInspectorTool::IsFocusObject(std::weak_ptr<IEditorObject> obj)
 {
     bool ownerIsExpired = _focusedObject.expired();
     bool objIsExpired   = obj.expired();

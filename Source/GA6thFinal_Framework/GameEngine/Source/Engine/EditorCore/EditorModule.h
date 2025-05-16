@@ -1,26 +1,58 @@
 ﻿#pragma once
-#include "Setting/EditorSetting.h"
 
 class EditorTool;
+class EditorMenu;
+class EditorDockWindow;
 class EditorModule;
-class EditorMenuBar;
 class EditorPopupBoxSystem;
+class EditorModule;
 
 #ifndef _SCRIPTS_PROJECT
 namespace Global
 {
+#ifdef _UMEDITOR
     extern EditorModule* editorModule;
-}
+#else
+    struct NotEditorModule
+    {
+        NotEditorModule()  = default;
+        ~NotEditorModule() = default;
+
+        EditorModule* operator->()
+        {
+            assert(!"에디터 빌드만 접근 가능합니다.");
+            __debugbreak(); // 에디터 아닌데 접근하면 안됨.
+            UmApplication.Quit();
+            return nullptr;
+        }
+        EditorModule& operator*()
+        {
+            assert(!"에디터 빌드만 접근 가능합니다.");
+            __debugbreak(); // 에디터 아닌데 접근하면 안됨.
+            EditorModule& err = reinterpret_cast<EditorModule&>(*this);
+            UmApplication.Quit();
+            return err;
+        }
+        EditorModule& operator=(EditorModule* rhs)
+        {
+            assert(!"에디터 빌드만 접근 가능합니다.");
+            __debugbreak(); // 에디터 아닌데 접근하면 안됨.
+            EditorModule& err = reinterpret_cast<EditorModule&>(*this);
+            UmApplication.Quit();
+            return err;
+        }
+        operator EditorModule*()
+        {
+            assert(!"에디터 빌드만 접근 가능합니다.");
+            __debugbreak(); // 에디터 아닌데 접근하면 안됨.
+            UmApplication.Quit();
+            return nullptr;
+        }
+    };
+    extern NotEditorModule editorModule;
+#endif // _UMEDITOR
+} // namespace Global
 #endif
-
-template <typename T>
-concept IsEditorGui = std::is_base_of_v<EditorGui, T>;
-
-template <typename T>
-concept IsEditorTool = IsEditorGui<T> && std::is_base_of_v<EditorTool, T>;
-
-template <typename T>
-concept IsEditorMenu = IsEditorGui<T> && std::is_base_of_v<EditorMenu, T>;
 
  class EditorModule 
      : public IAppModule
@@ -49,50 +81,18 @@ concept IsEditorMenu = IsEditorGui<T> && std::is_base_of_v<EditorMenu, T>;
      bool IsLock();
 
  public:
-     /* 툴을 등록합니다. */
-     template <IsEditorGui T>
-     void RegisterEditorObject()
-     {
-         if constexpr (IsEditorTool<T>)
-         {
-             _mainDockSpace->RegisterTool<T>();
-         }
-         else if constexpr (IsEditorMenu<T>)
-         {
-             _mainMenuBar->RegisterMenu<T>();
-         }
-     }
+     void OpenPopupBox(const std::string& name, std::function<void()> content);
 
-     /* 툴을 가져옵니다. */
-     template <IsEditorGui T>
-     T* GetEditorObject()
-     {
-         if constexpr (IsEditorTool<T>)
-         {
-             return _mainDockSpace->GetTool<T>();
-         }
-         else if constexpr (IsEditorMenu<T>)
-         {
-             return _mainMenuBar->GetMenu<T>();
-         }
-         return nullptr;
-     }
-
-     void OpenPopupBox(const std::string& name, std::function<void()> content) 
-     {
-         _PopupBox->OpenPopupBox(name, content); 
-     }
+     void ResetGuiLayout();
 
  public:
-     /* */
-     inline EditorMenuBar* GetMainMenuBar() { return _mainMenuBar; }
-
-     /* */
-     inline EditorDockSpace* GetMainDockSpace() { return _mainDockSpace; }
-
      /* 에디터 디버그 모드 */
-     inline void SetDebugMode(bool v) { _setting.IsDebugMode = v; }
-     inline bool IsDebugMode() { return _setting.IsDebugMode; }
+     inline void SetDebugMode(bool v) { _isDebug = v; }
+     inline bool IsDebugMode() { return _isDebug; }
+
+     inline auto& GetDockWindowSystem() { return _dockWindowSystem; }
+     inline auto& GetPopupBoxSystem()   { return _popupBoxSystem; }
+     
  private:
      /* 기본 스타일 설정 */
      void SetGuiThemeStyle();
@@ -100,10 +100,44 @@ concept IsEditorMenu = IsEditorGui<T> && std::is_base_of_v<EditorMenu, T>;
      virtual void OnRequestedSave() override;
      /* 프로젝트 로드 요청을 처리할 동작을 구현 */
      virtual void OnRequestedLoad() override;
- private:
-     EditorSetting          _setting;
 
-     EditorPopupBoxSystem*  _PopupBox;                          // 에디터 모달 팝업
-     EditorMenuBar*         _mainMenuBar;                       // 에디터 메뉴 바
-     EditorDockSpace*       _mainDockSpace;                     // 에디터 도킹 스페이스
-};
+ private:
+     bool _isDebug = false;
+     std::string _imGuiIniData;   // ImGui 설정 데이터
+
+     EditorGuiSystem            _dockWindowSystem;   // 에디터 도킹 윈도우 시스템
+     EditorPopupBoxSystem       _popupBoxSystem;     // 에디터 모달 팝업 시스템
+
+     bool _isFirstTick     = true;
+     bool _isRefreshLayout = false;
+
+ public:
+    //플레이 모드 관리용
+    class EditorPlayMode
+    {
+    public:
+        EditorPlayMode();
+        ~EditorPlayMode();
+
+        constexpr bool IsPlay() const
+        {
+            return _isPlay;
+        }
+        void Play();
+        void Stop();
+        void SetPlayModeColor();
+        void SetPlayModeColor(ImVec4 (&playModeColors)[ImGuiCol_COUNT]);
+        void DefaultPlayModeColor();
+
+    private:
+        #ifdef _UMEDITOR
+        bool _isPlay = false;
+        #else
+        static constexpr bool _isPlay = true;
+        #endif
+        File::Guid _playSceneGuid;
+        ImVec4 _playModeColors[ImGuiCol_COUNT];
+    }
+    PlayMode;
+ };
+

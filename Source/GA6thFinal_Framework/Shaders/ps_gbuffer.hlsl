@@ -30,13 +30,10 @@ struct Material
 {
     uint ID[4];
 };
-ConstantBuffer<Object> bit32_object : register(b1);
+
 StructuredBuffer<Material> material;
 
-#define object bit32_object
 Texture2D textures[];
-SamplerState samLinear_wrap;
-
 
 float3 CalculateNormal(float3 sampledNormal, float3 tangent, float3 bitangent, float3 normal)
 {
@@ -79,7 +76,6 @@ PSOutput WriteGuBuffer(PSInput input)
 PSOutput ps_main(PSInput input)
 {
     PSOutput output = (PSOutput) 0;
-
     output = WriteGuBuffer(input);
 
     return output;

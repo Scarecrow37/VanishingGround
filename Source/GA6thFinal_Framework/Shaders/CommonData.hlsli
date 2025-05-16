@@ -54,3 +54,13 @@ struct Object
 };
 
 ConstantBuffer<CameraData> cameraData : register(b0);
+ConstantBuffer<Object> bit32_object   : register(b1);
+
+#define object bit32_object
+
+SamplerState samPoint_wrap : register(s0);
+SamplerState samPoint_clamp : register(s1);
+SamplerState samLinear_wrap : register(s2);
+SamplerState samLinear_clamp : register(s3);
+SamplerState samAnistropic_wrap : register(s4);
+SamplerState samAnistropic_clamp : register(s5);

@@ -7,9 +7,13 @@
 #include "RenderTarget.h"
 #include "RenderTechnique.h"
 #include "ShaderBuilder.h"
-#include "UmScripts.h"
+#include "MeshRenderer.h"
 
-RenderScene::RenderScene() : _frameQuad{std::make_unique<Quad>()}, _frameShader{std::make_unique<ShaderBuilder>()} {}
+RenderScene::RenderScene()
+    : _frameQuad{std::make_unique<Quad>()}
+    , _frameShader{std::make_unique<ShaderBuilder>()}
+{
+}
 
 RenderScene::~RenderScene() {}
 
@@ -19,10 +23,9 @@ void RenderScene::UpdateRenderScene()
     _camera->Update();
 
     // 비활성된 컴포넌트 제거
-    auto first = std::remove_if(_renderQueue.begin(), _renderQueue.end(), [](const auto& ptr)
-        { 
-            return *ptr.first == false;
-        });
+    auto first = std::remove_if(_renderQueue.begin(), _renderQueue.end(), [](const auto& component)
+        {  return component->IsDestroy(); });
+
     _renderQueue.erase(first, _renderQueue.end());
 
     _currentFrameIndex   = UmDevice.GetCurrentBackBufferIndex();
@@ -39,15 +42,17 @@ void RenderScene::UpdateRenderScene()
     std::vector<MaterialData>                materialDatas;
     UINT                                     materialID = 0;
 
-    for (auto& [isActive, component] : _renderQueue)
+    for (auto& component : _renderQueue)
     {
-        auto& model     = component->GetModel();
-        if (!model.get())
+        if (!component->IsActive())
             continue;
-        auto& meshes    = model->GetMeshes();
-        auto& materials = model->GetMaterials();
-        
-        XMMATRIX world = XMMatrixTranspose(component->transform->GetWorldMatrix());
+
+        const auto& model     = component->GetModel();
+        const auto& meshes    = model->GetMeshes();
+        const auto& materials = model->GetMaterials();
+        const auto& textures  = model->GetTextures();
+
+        XMMATRIX world = XMMatrixTranspose(component->GetWorldMatrix());
         UINT     size  = (UINT)meshes.size();
 
         for (UINT i = 0; i < size; i++)
@@ -57,15 +62,15 @@ void RenderScene::UpdateRenderScene()
 
             for (UINT j = 0; j < 4; j++)
             {
-                if (nullptr == materials[i][j])
+                if (nullptr == textures[i][j])
                     continue;
 
-                auto iter = materialPair.find(materials[i][j]->GetHandle().ptr);
+                auto iter = materialPair.find(textures[i][j]->GetHandle().ptr);
                 if (iter == materialPair.end())
                 {
-                    materialPair.emplace(materials[i][j]->GetHandle().ptr, materialID);
+                    materialPair.emplace(textures[i][j]->GetHandle().ptr, materialID);
                     materialData.ID[j] = materialID++;
-                    handles.push_back(materials[i][j]->GetHandle());
+                    handles.push_back(textures[i][j]->GetHandle());
                 }
                 else
                 {
@@ -87,10 +92,10 @@ void RenderScene::UpdateRenderScene()
     _frameResources[_currentFrameIndex]->CopyDescriptors(handles);
 }
 
-void RenderScene::RegisterOnRenderQueue(bool** isActive, MeshRenderer* renderable)
+void RenderScene::RegisterOnRenderQueue(MeshRenderer* component)
 {
     auto iter = std::find_if(_renderQueue.begin(), _renderQueue.end(),
-                             [renderable](const auto& ptr) { return ptr.second == renderable; });
+                             [component](const auto& ptr) { return ptr == component; });
 
     if (iter != _renderQueue.end())
     {
@@ -98,8 +103,7 @@ void RenderScene::RegisterOnRenderQueue(bool** isActive, MeshRenderer* renderabl
         return;
     }
 
-    _renderQueue.emplace_back(std::make_unique<bool>(true), renderable);
-    *isActive = _renderQueue.back().first.get();
+    _renderQueue.push_back(component);
 }
 
 void RenderScene::Execute(ID3D12GraphicsCommandList* commandList)
@@ -143,16 +147,16 @@ void RenderScene::CreateRenderTarget()
     for (UINT i = 0; i <= GBuffer::WORLDPOSITION; ++i)
     {
         _gBuffer[i] = std::make_shared<RenderTarget>();
-        _gBuffer[i]->Initialize(DXGI_FORMAT_R32G32B32A32_FLOAT);
+        _gBuffer[i]->Initialize(DXGI_FORMAT_R32G32B32A32_FLOAT, 0.247f);
         _gBuffer[i]->CreateShaderResourceView();
     }
   
     _gBuffer[GBuffer::DEPTH] = std::make_shared<RenderTarget>();
-    _gBuffer[GBuffer::DEPTH]->Initialize(DXGI_FORMAT_R32_FLOAT);
+    _gBuffer[GBuffer::DEPTH]->Initialize(DXGI_FORMAT_R32_FLOAT, 1.f);
     _gBuffer[GBuffer::DEPTH]->CreateShaderResourceView();
     
     _gBuffer[GBuffer::CUSTOMDEPTH] = std::make_shared<RenderTarget>();
-    _gBuffer[GBuffer::CUSTOMDEPTH]->Initialize(DXGI_FORMAT_R32_UINT);
+    _gBuffer[GBuffer::CUSTOMDEPTH]->Initialize(DXGI_FORMAT_R32_UINT, 1.f);
     _gBuffer[GBuffer::CUSTOMDEPTH]->CreateShaderResourceView();
     
 
@@ -162,13 +166,13 @@ void RenderScene::CreateRenderTarget()
     for (UINT i = 0; i < _renderTargetPoolCount; ++i)
     {
         _renderTargets[i] = std::make_shared<RenderTarget>();
-        _renderTargets[i]->Initialize(DXGI_FORMAT_R32G32B32A32_FLOAT);
+        _renderTargets[i]->Initialize(DXGI_FORMAT_R32G32B32A32_FLOAT, 0.247f);
         _renderTargets[i]->CreateShaderResourceView();
     }
 
     // 메쉬 음영처리가 된 타겟 하나 생성 -> 이 타겟을 가져와서 후처리를 진행해야함.
     _meshLightingTarget = std::make_shared<RenderTarget>();
-    _meshLightingTarget->Initialize(DXGI_FORMAT_R32G32B32A32_FLOAT);
+    _meshLightingTarget->Initialize(DXGI_FORMAT_R32G32B32A32_FLOAT, 0.247f);
     _meshLightingTarget->CreateShaderResourceView();
 }
 
@@ -260,7 +264,7 @@ void RenderScene::CreateFrameResource()
     {
         _frameResources[i] = std::make_shared<FrameResource>();
         // 임시 텍스쳐 갯수가 달라질 수 있는거 아닌가요?
-        _frameResources[i]->Initialize(100, 6);
+        _frameResources[i]->Initialize(1000, 4000);
     }
     // 임시 : 메인 카메라를 통해 Camera ConstantBuffer 만들기.
     CameraData cameraData{.View       = _camera->GetViewMatrix(),

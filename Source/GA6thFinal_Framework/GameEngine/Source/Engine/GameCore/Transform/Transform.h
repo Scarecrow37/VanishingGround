@@ -19,6 +19,19 @@ public:
     Transform(GameObject& owner);
     ~Transform();
 
+    Transform& operator=(const Transform& rhs)
+    { 
+        if (this != &rhs)
+        {
+            _hasChanged = true;
+            _position   = rhs._position;
+            _rotation   = rhs._rotation;
+            _eulerAngle = rhs._eulerAngle;
+            _scale      = rhs._scale;
+        }
+        return *this;
+    }
+
     GETTER_ONLY(GameObject&, gameObject)
     { 
         return _gameObject;
@@ -26,7 +39,10 @@ public:
     //get : owner GameObject
     PROPERTY(gameObject)
 
-        GETTER_ONLY(int, ChildCount) { return (int)_childsList.size(); }
+    GETTER_ONLY(int, ChildCount) 
+    { 
+        return (int)_childsList.size(); 
+    }
     // https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Transform-childCount.html
     // get : 자식의 개수를 반환합니다.
     // return : int
@@ -237,7 +253,7 @@ public:
     const Matrix& GetWorldMatrix() { return _worldMatrix; }
 
     /// <summary>
-    /// 로컬 행렬 입니다. 
+    /// 로컬 행렬 입니다. 부모가 없으면 World 행렬과 동일합니다.
     /// </summary>
     /// <returns></returns>
     const Matrix& GetLocalMatrix() { return _localMatrix; }

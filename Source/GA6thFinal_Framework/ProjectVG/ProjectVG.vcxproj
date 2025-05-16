@@ -125,19 +125,19 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(solutionDir)bin\</OutDir>
+    <OutDir>$(solutionDir)bin-$(Configuration)\</OutDir>
     <TargetName>$(ProjectName)_$(Configuration)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">
-    <OutDir>$(solutionDir)bin\</OutDir>
+    <OutDir>$(solutionDir)bin-$(Configuration)\</OutDir>
     <TargetName>$(ProjectName)_$(Configuration)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(solutionDir)bin\</OutDir>
+    <OutDir>$(solutionDir)bin-$(Configuration)\</OutDir>
     <TargetName>$(ProjectName)_$(Configuration)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">
-    <OutDir>$(solutionDir)bin\</OutDir>
+    <OutDir>$(solutionDir)bin-$(Configuration)\</OutDir>
     <TargetName>$(ProjectName)_$(Configuration)</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -271,6 +271,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Application\GameApplication.h" />
+    <ClInclude Include="Source\Application\UmScripts.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Application\GameApplication.cpp" />

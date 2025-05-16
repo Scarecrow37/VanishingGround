@@ -13,25 +13,34 @@ private:
 
 private:
     /* Begin 호출 전에 호출 */
-    virtual void OnPreFrame();
+    virtual void OnPreFrameBegin();
 
-    /* Begin 호출 시 호출 */
-    virtual void OnFrame();
+    /* Begin 호출 직후 호출 */
+    virtual void OnPostFrameBegin();
+
+    /* Begin 호출 후 클리핑 테스트를 통과한 후 호출 */
+    virtual void OnFrameRender();
+    virtual void OnFrameClipped();
 
     /* End 호출 후에 호출 */
-    virtual void OnPostFrame();
+    virtual void OnFrameEnd();
 
-    /* 프레임이 포커싱 될 때 호출 (Begin 후에 호출) */
-    virtual void OnFocus();
+    /* 프레임이 포커싱 될 때 호출 (OnPostFrameBegin 후에 호출) */
+    virtual void OnFrameFocusEnter();
+    virtual void OnFrameFocusStay();
+    virtual void OnFrameFocusExit();
 
-    /* PopUp창 호출 성공 시 호출 (Begin 후에 호출) */
-    virtual void OnPopup();
+    /* Popup창 호출 성공 시 호출 (OnPreFrameBegin 전에 호출) */
+    virtual void OnFramePopupOpened();
 
 private:
     ImVec4 GetSelectableColor(int index, ImVec4 color);
 
 private:
-    ImVec4 _tableDefaultColor = ImVec4(0.4, 0.4, 0.4, 0.8);
-    ImVec4 _tableHoveredColor = ImVec4(0.6, 0.6, 0.6, 0.8);
-    ;
+    int _requestUndoCount = 0;
+    int _requestRedoCount  = 0;
+
+    ImVec4 _tableDefaultColor = ImVec4(0.4f, 0.4f, 0.4f, 0.8f);
+    ImVec4 _tableHoveredColor = ImVec4(0.6f, 0.6f, 0.6f, 0.8f);
+    
 };

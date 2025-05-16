@@ -6,7 +6,7 @@
 #include "RenderScene.h"
 #include "RenderTarget.h"
 #include "ShaderBuilder.h"
-#include "UmScripts.h"
+#include "MeshRenderer.h"
 
 GBufferPass::~GBufferPass() {}
 
@@ -28,9 +28,10 @@ void GBufferPass::Begin(ID3D12GraphicsCommandList* commandList)
         CD3DX12_RESOURCE_BARRIER br = CD3DX12_RESOURCE_BARRIER::Transition(
             gbuffer.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,D3D12_RESOURCE_STATE_RENDER_TARGET);
         commandList->ResourceBarrier(1, &br);
-
-        D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle  = _ownerScene->_gBuffer[i]->GetRTVHandle();
-        commandList->ClearRenderTargetView(cpuHandle, _clearColor, 0, nullptr);
+        float clearValue    = _ownerScene->_gBuffer[i]->clearValue;
+        Color           clearColor = {clearValue, clearValue, clearValue, 1.f};
+        D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle     = _ownerScene->_gBuffer[i]->GetRTVHandle();
+        commandList->ClearRenderTargetView(cpuHandle, clearColor, 0, nullptr);
     }
 
     // DepthStencil 상태 전이 + Clear
@@ -159,13 +160,13 @@ void GBufferPass::InitShaderAndPSO()
     psodesc.PrimitiveTopologyType    = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
     psodesc.InputLayout              = staticMeshShaderBuilder->GetInputLayout();
     psodesc.NumRenderTargets         = 7;
-    psodesc.RTVFormats[0]            = DXGI_FORMAT_R32G32B32A32_FLOAT;
-    psodesc.RTVFormats[1]            = DXGI_FORMAT_R32G32B32A32_FLOAT;
-    psodesc.RTVFormats[2]            = DXGI_FORMAT_R32G32B32A32_FLOAT;
-    psodesc.RTVFormats[3]            = DXGI_FORMAT_R32G32B32A32_FLOAT;
-    psodesc.RTVFormats[4]            = DXGI_FORMAT_R32G32B32A32_FLOAT;
-    psodesc.RTVFormats[5]            = DXGI_FORMAT_R32_FLOAT;
-    psodesc.RTVFormats[6]            = DXGI_FORMAT_R32_UINT;
+    psodesc.RTVFormats[RenderScene::BASECOLOR]            = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    psodesc.RTVFormats[RenderScene::NORMAL] = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    psodesc.RTVFormats[RenderScene::ORM]            = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    psodesc.RTVFormats[RenderScene::EMISSIVE]            = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    psodesc.RTVFormats[RenderScene::WORLDPOSITION]            = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    psodesc.RTVFormats[RenderScene::DEPTH]            = DXGI_FORMAT_R32_FLOAT;
+    psodesc.RTVFormats[RenderScene::CUSTOMDEPTH]            = DXGI_FORMAT_R32_UINT;
     psodesc.DSVFormat                = DXGI_FORMAT_D24_UNORM_S8_UINT;
     psodesc.pRootSignature           = staticMeshShaderBuilder->GetRootSignature().Get();
     psodesc.SampleDesc               = {1, 0};
@@ -207,11 +208,12 @@ void GBufferPass::DrawStaticTwoSidedMesh(ID3D12GraphicsCommandList* commandList)
     commandList->SetPipelineState(_psos[0].Get());
 
     UINT ID = 0;
-    for (auto& [isActive, component] : _ownerScene->_renderQueue)
+    for (auto& component : _ownerScene->_renderQueue)
     {
-        const auto& model = component->GetModel();
-        if (!model.get())
+        if (!component->IsActive())
             continue;
+        
+        const auto& model = component->GetModel();
         for (auto& mesh : model->GetMeshes())
         {
             commandList->SetGraphicsRoot32BitConstant(_shader[0]->GetRootSignatureIndex("bit32_object"), ID++, 0);
@@ -224,10 +226,8 @@ void GBufferPass::DrawStaticMeshes(ID3D12GraphicsCommandList*                   
                              const std::vector<std::pair<BaseMesh*, UINT>>& meshes)
 {
     for (auto& [mesh,id] : meshes)
-    {
-        
-        commandList->SetGraphicsRoot32BitConstant(_shader[MeshType::STATIC]->GetRootSignatureIndex("bit32_object"), id,
-                                                  0);
+    {        
+        commandList->SetGraphicsRoot32BitConstant(_shader[MeshType::STATIC]->GetRootSignatureIndex("bit32_object"), id, 0);
         mesh->Render(commandList);
     }
 }
@@ -238,8 +238,7 @@ void GBufferPass::DrawSkeletalMeshes(ID3D12GraphicsCommandList*                 
     for (auto& [mesh, id] : meshes)
     {
 
-        commandList->SetGraphicsRoot32BitConstant(_shader[MeshType::SKELTAL]->GetRootSignatureIndex("bit32_object"), id,
-                                                  0);
+        commandList->SetGraphicsRoot32BitConstant(_shader[MeshType::SKELTAL]->GetRootSignatureIndex("bit32_object"), id, 0);
         mesh->Render(commandList);
     }
 }

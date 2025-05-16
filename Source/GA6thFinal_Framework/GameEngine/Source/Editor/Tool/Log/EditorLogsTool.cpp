@@ -7,7 +7,7 @@ using namespace Global;
 EditorLogsTool::EditorLogsTool()
 {
     SetLabel(u8"로그###로그"_c_str);
-    SetDockLayout(DockLayout::DOWN);
+    SetDockLayout(ImGuiDir_Down);
     ResetLogColor();
     ResetLogFilter();
 }
@@ -72,7 +72,7 @@ void EditorLogsTool::OnTickGui()
     }
 }
 
-void EditorLogsTool::OnPreFrame() 
+void EditorLogsTool::OnPreFrameBegin() 
 {
     std::string lable = u8"로그###로그"_c_str;
     if (notReadCount > 0)
@@ -98,13 +98,20 @@ void EditorLogsTool::OnPreFrame()
     SetLabel(lable.c_str());
 }
 
-void EditorLogsTool::OnFrame()
+void EditorLogsTool::OnPostFrameBegin()
+{
+    if (notReadCount > 0)
+    {
+        ImGui::PopStyleColor();
+    }
+}
+
+void EditorLogsTool::OnFrameRender() 
 {
     _isWindowFocused = ImGui::IsWindowFocused();
     _isWindowHovered = ImGui::IsWindowHovered();
     if (notReadCount > 0)
     {
-        ImGui::PopStyleColor();
         if (_isWindowFocused == true || _isWindowHovered == true)
         {
             static bool once = false;
@@ -118,8 +125,8 @@ void EditorLogsTool::OnFrame()
                 once = true;
             }
         }
-    } 
-    static ImVec2 buttonSize = ImVec2(50, 26);
+    }
+    static ImVec2 buttonSize    = ImVec2(50, 26);
     static ImVec2 buttonPadding = ImVec2(10, 0);
 
     if (ImGui::Button("Filter", buttonSize))
@@ -160,7 +167,7 @@ void EditorLogsTool::OnFrame()
     ImVec2 regionAvail = ImGui::GetContentRegionAvail();
     ImGui::BeginChild("LogScroll", regionAvail, true, ImGuiWindowFlags_HorizontalScrollbar);
     ImGuiListClipper clipper;
-    clipper.Begin(_drawLogList.size());
+    clipper.Begin(static_cast<int>(_drawLogList.size()));
     while (clipper.Step())
     {
         std::string logText;
@@ -181,7 +188,7 @@ void EditorLogsTool::OnFrame()
             }
             ImGui::PopStyleColor(2);
             ImGui::PopID();
-        }   
+        }
     }
     if (_isMessagePush)
     {

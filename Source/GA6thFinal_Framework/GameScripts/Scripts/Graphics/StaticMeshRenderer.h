@@ -1,16 +1,28 @@
 ﻿#pragma once
 #include "UmFramework.h"
-#include "MeshRenderer.h"
+#include "MeshComponent.h"
 
-class Model;
-class BaseMesh;
-class StaticMeshRenderer : public MeshRenderer
+class StaticMeshRenderer : public MeshComponent
 {
     USING_PROPERTY(StaticMeshRenderer)
 
 public:
     StaticMeshRenderer();
     virtual ~StaticMeshRenderer();
+
+public:
+    REFLECT_PROPERTY(FilePath)
+    GETTER_ONLY(std::string, FilePath)
+    {
+        File::Guid guid = ReflectFields->Guid;
+        return guid.ToPath().string();
+    }
+    PROPERTY(FilePath)
+
+public:
+    REFLECT_FIELDS_BEGIN(Component)
+    std::string Guid;
+    REFLECT_FIELDS_END(StaticMeshRenderer)
 
 protected:
     virtual void Reset() override;
@@ -25,5 +37,4 @@ protected:
 
     virtual void SerializedReflectEvent() override;
     virtual void DeserializedReflectEvent() override;
-
 };

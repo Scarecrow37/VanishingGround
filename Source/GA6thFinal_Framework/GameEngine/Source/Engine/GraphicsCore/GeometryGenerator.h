@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 class GeometryGenerator
 {
@@ -63,7 +63,7 @@ public:
      */
     MeshData CreateBox(float width, float height, float depth,
         uint32 numSubdivisions);
-
+    MeshData CreateInvertedBox(float width, float height, float depth, uint32 numSubdivisions);
     /**
      * @brief Generates a spherical mesh.
      * @param radius : The radius of the sphere.

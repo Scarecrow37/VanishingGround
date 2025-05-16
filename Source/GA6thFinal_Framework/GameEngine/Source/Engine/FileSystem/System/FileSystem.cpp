@@ -148,49 +148,49 @@ bool EFileSystem::SaveAsProject(const File::Path& to)
     }
 }
 
-bool EFileSystem::LoadProjectWithMessageBox(const File::Path& path)
+int EFileSystem::LoadProjectWithMessageBox(const File::Path& path)
 {
     File::Path projectName = path.filename();
 
     std::wstring msg    = projectName.wstring() + L" 프로젝트를 로드하시겠습니까?";
     std::wstring title  = L"Load Project";
-    int result = MessageBox(
-        GetFocus(),                 // 부모 창 핸들 (NULL로 하면 독립적 메시지 박스)
+    HWND         hwnd   = UmApplication.GetHwnd();
+
+    int msgResult = MessageBox(hwnd,    // 부모 창 핸들 (NULL로 하면 독립적 메시지 박스)
         msg.c_str(),                // 메시지 텍스트
         title.c_str(),              // 메시지 박스 제목
         MB_YESNO                    // 스타일: 예/아니오 버튼
     );
 
-    if (result == IDYES)
+    if (msgResult == IDYES)
     {
-        return LoadProject(path);
+        LoadProject(path);
     }
-
-    return false;
+    return msgResult;
 }
 
-bool EFileSystem::SaveProjectWithMessageBox()
+int EFileSystem::SaveProjectWithMessageBox()
 {
     if (true == _rootPath.empty())
         return false;
 
     std::wstring msg    = L"현재 프로젝트를 저장하시겠습니까?"; 
     std::wstring title  = L"Save Project";
+    HWND         hwnd   = UmApplication.GetHwnd();
+    UINT         style  = MB_YESNOCANCEL | MB_DEFBUTTON1; // 기본 버튼을 YES로 설정
 
-    HWND hwnd = UmApplication.GetHwnd();
-
-    int result = MessageBox(
+    int msgResult = MessageBox(
         hwnd,                       // 부모 창 핸들 (NULL로 하면 독립적 메시지 박스)
         msg.c_str(),                // 메시지 텍스트
         title.c_str(),              // 메시지 박스 제목
-        MB_YESNO                    // 스타일: 예/아니오 버튼
+        style                       // 스타일
     );
 
-    if (result == IDYES)
+    if (msgResult == IDYES)
     {
-        return SaveProject();
+        SaveProject();
     }
-    return false;
+    return msgResult;
 }
 
 bool EFileSystem::SaveSetting(const File::Path& path)
@@ -241,6 +241,11 @@ void EFileSystem::ObserverShutDown()
     }
 }
 
+bool EFileSystem::IsLoadedProject() const
+{
+    return !_projectData.IsNull();
+}
+
 bool EFileSystem::IsVaildGuid(const File::Guid& guid) const
 {
     return _guidToPathTable.find(guid) != _guidToPathTable.end();
@@ -270,7 +275,7 @@ File::Path EFileSystem::GetRelativePath(const File::Path& path) const
     if (false == _projectData.IsNull())
     {
         File::Path out = fs::absolute(path);
-        fs::relative(out, _rootPath);
+        out = fs::relative(out, _rootPath);
         return out;
     }
     return File::NULL_PATH;
@@ -382,12 +387,12 @@ void EFileSystem::DrawGuiSettingEditor()
         {
             if (ImGui::MenuItem("Save"))
             {
-                TCHAR title[] = L"폴더를 선택하세요.";
-                UINT  flags   = BIF_USENEWUI | BIF_RETURNONLYFSDIRS;
+                HWND    owner = UmApplication.GetHwnd();
+                LPCWSTR title = L"폴더를 선택하세요.";
 
                 File::Path directory = _rootPath / PROJECT_SETTING_PATH;
                 directory            = directory.generic_wstring();
-                if (File::OpenForderBrowser(title, flags, directory, _rootPath))
+                if (File::ShowOpenFolderBrowser(owner, title, _rootPath.c_str(), directory))
                 {
                     File::Path filename  = L"FileSystem.UmSetting";
                     SaveSetting(directory / filename);
@@ -395,10 +400,10 @@ void EFileSystem::DrawGuiSettingEditor()
             }
             if (ImGui::MenuItem("Load"))
             {
-                TCHAR title[] = L"폴더를 선택하세요.";
-                UINT  flags   = BIF_USENEWUI | BIF_RETURNONLYFSDIRS;
+                HWND       owner   = UmApplication.GetHwnd();
+                LPCWSTR    title = L"폴더를 선택하세요.";
                 File::Path path;
-                if (File::OpenForderBrowser(title, flags, path))
+                if (File::ShowOpenFolderBrowser(owner, title, _rootPath.c_str(), path))
                 {
                     File::Path filename  = L"fileSystem.setting";
                     File::Path directory = PROJECT_SETTING_PATH;
@@ -525,7 +530,7 @@ void EFileSystem::ReadDirectory(const File::Path& path)
 void EFileSystem::RegisterContext(const File::Path& path) 
 {
     // 파일이 없으면 return
-    if (false == stdfs::exists(path))
+    if (false == fs::exists(path))
         return;
 
     // 확장자가 유효하지 않으면 return
@@ -538,13 +543,13 @@ void EFileSystem::RegisterContext(const File::Path& path)
      {
          std::shared_ptr<Context> context;
 
-         auto absPath = stdfs::weakly_canonical(path);
+         auto absPath = fs::weakly_canonical(path);
          absPath      = absPath.generic_wstring();
-         if (true == stdfs::is_regular_file(absPath))
+         if (true == fs::is_regular_file(absPath))
          {
              context = std::make_shared<FileContext>(absPath);
          }
-         else if (true == stdfs::is_directory(absPath))
+         else if (true == fs::is_directory(absPath))
          {
              context = std::make_shared<FolderContext>(absPath);
          }
@@ -667,7 +672,7 @@ void EFileSystem::ProcessRemovedFile(const File::Path& path)
 void EFileSystem::ProcessModifiedFile(const File::Path& path)
 {
     // 파일이 없으면 return
-    if (false == stdfs::exists(path))
+    if (false == fs::exists(path))
         return;
 
     // 확장자가 유효하지 않으면 return
@@ -692,7 +697,7 @@ void EFileSystem::ProcessModifiedFile(const File::Path& path)
 void EFileSystem::ProcessMovedFile(const File::Path& oldPath, const File::Path& newPath) 
 {
     // 파일이 없으면 return
-    if (false == stdfs::exists(newPath))
+    if (false == fs::exists(newPath))
         return;
 
     // 확장자가 유효하지 않으면 return

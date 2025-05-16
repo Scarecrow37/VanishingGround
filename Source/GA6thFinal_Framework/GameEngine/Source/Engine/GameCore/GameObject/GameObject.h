@@ -145,13 +145,25 @@ public:
     /// 이 게임오브젝트의 weak_ptr을 반환합니다.
     /// </summary>
     /// <returns>weak_ptr this</returns>
-    std::weak_ptr<GameObject> GetWeakPtr() const;
+    std::weak_ptr<GameObject> GetWeakPtr() const 
+    { 
+        return _weakPtr; 
+    }
 
     /// <summary>
     /// <para> 전달받은 GameObject가 속해있는 Scene을 반환합니다. </para>
     /// </summary>
     /// <returns>Scene 정보</returns>
     Scene& GetScene();
+
+    /// <summary>
+    /// 이 오브젝트가 속한 씬의 이름을 반환합니다.
+    /// </summary>
+    /// <returns></returns>
+    std::string_view GetOwnerSceneName()
+    {
+        return _ownerScene;
+    }
 
     /// <summary>
     /// <para>이 GameObject의 InstanceID를 반환합니다.                                 </para>
@@ -165,7 +177,7 @@ public:
     /// </summary>
     void SetActive(bool value)
     {
-        ESceneManager::Engine::SetGameObjectActive(_instanceID, value);
+        ESceneManager::Engine::SetGameObjectActive(this, value);
     }
 
     /// <summary>

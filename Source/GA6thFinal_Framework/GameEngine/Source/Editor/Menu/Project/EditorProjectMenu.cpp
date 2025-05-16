@@ -3,9 +3,17 @@
 
 void EditorMenuScriptBuilder::OnMenu()
 {
-    if (ImGui::MenuItem("Script Build", ""))
+    if (ImGui::BeginMenu("Project"))
     {
-        Global::engineCore->ComponentFactory.InitalizeComponentFactory();
+        if (ImGui::BeginMenu("Build"))
+        {
+            if (ImGui::MenuItem("Script Build", ""))
+            {
+                Global::engineCore->ComponentFactory.InitalizeComponentFactory();
+            }
+            ImGui::EndMenu();
+        }
+        ImGui::EndMenu();
     }
 }
 
@@ -34,10 +42,9 @@ static void ShowNewProjectPopup()
     ImGui::SameLine();
     if (ImGui::Button(EditorIcon::ICON_FOLDER_OPEN))
     {
-        TCHAR title[] = L"새 프로젝트 만들기";
-        UINT  flags   = BIF_USENEWUI | BIF_RETURNONLYFSDIRS;
-        
-        if (File::OpenForderBrowser(title, flags, directory))
+        HWND    owner   = UmApplication.GetHwnd();
+        LPCWSTR title   = L"새 프로젝트 만들기";
+        if (File::ShowOpenFolderBrowser(owner, title, L"", directory))
         {
         }
     }
@@ -65,38 +72,48 @@ static void ShowNewProjectPopup()
 
 void EditorMenuProjectRoot::OnMenu() 
 {
-    if (ImGui::MenuItem("New Project", nullptr))
+    if (ImGui::BeginMenu("Project"))
     {
-        Global::editorModule->OpenPopupBox("New Project", ShowNewProjectPopup);
-    }
-    if (ImGui::MenuItem("Open Project", nullptr))
-    {
-        TCHAR filter[] = L"프로젝트 파일 (.UmProject)\0*.UmProject\0모든 파일\0*.*\0";
-
-        File::Path out;
-        if (File::OpenFileNameBrowser(filter, out))
+        if (ImGui::MenuItem("New Project", nullptr))
         {
-            UmFileSystem.LoadProject(out);
+            Global::editorModule->OpenPopupBox("New Project", ShowNewProjectPopup);
         }
-    }
-    if (ImGui::MenuItem("Save Project", nullptr))
-    {
-        UmFileSystem.SaveProjectWithMessageBox();
-    }
-    if (ImGui::MenuItem("SaveAs Project", nullptr))
-    {
-        TCHAR title[] = L"다른 이름으로 저장";
-        UINT  flags   = BIF_USENEWUI | BIF_RETURNONLYFSDIRS;
-        File::Path directory;
-        if (File::OpenForderBrowser(title, flags, directory))
+        if (ImGui::MenuItem("Open Project", nullptr))
         {
-            if (true == UmFileSystem.SaveAsProject(directory))
+            HWND       owner    = UmApplication.GetHwnd();
+            LPCWSTR    title    = L"새 프로젝트 만들기";
+            std::vector<File::Path> out;
+            if (File::ShowOpenFileBrowser(owner, title, L"",
+                {
+                    {L"프로젝트 파일\0", L"*.UmProject*\0"},
+                    {L"모든 파일\0", L"*.*\0"}
+                },
+                false, out))
             {
-                File::Path projectName = UmFileSystem.GetProjectName();
-                projectName.replace_extension(File::PROJECT_EXTENSION);
-                UmFileSystem.LoadProject(directory / projectName);
+                UmFileSystem.LoadProject(out.front());
             }
         }
+        if (ImGui::MenuItem("Save Project", nullptr))
+        {
+            UmFileSystem.SaveProjectWithMessageBox();
+        }
+        if (ImGui::MenuItem("SaveAs Project", nullptr))
+        {
+            HWND       owner    = UmApplication.GetHwnd();
+            LPCWSTR    title    = L"다른 이름으로 저장";
+            File::Path curPath  = UmFileSystem.GetRootPath();
+            File::Path directory;
+            if (File::ShowOpenFolderBrowser(owner, title, curPath.c_str(), directory))
+            {
+                if (true == UmFileSystem.SaveAsProject(directory))
+                {
+                    File::Path projectName = UmFileSystem.GetProjectName();
+                    projectName.replace_extension(File::PROJECT_EXTENSION);
+                    UmFileSystem.LoadProject(directory / projectName);
+                }
+            }
+        }
+        ImGui::EndMenu();
     }
 }
 

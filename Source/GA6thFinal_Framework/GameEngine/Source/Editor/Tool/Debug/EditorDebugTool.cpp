@@ -9,7 +9,7 @@ EditorDebugTool::EditorDebugTool()
     _fps()
 {
     SetLabel("Debug");
-    SetDockLayout(DockLayout::DOWN);
+    SetDockLayout(ImGuiDir_Down);
 }
 
 EditorDebugTool::~EditorDebugTool()
@@ -25,12 +25,16 @@ void EditorDebugTool::OnStartGui()
     return void ();
 }
 
-void EditorDebugTool::OnPreFrame()
+void EditorDebugTool::OnPreFrameBegin()
 {
     return void ();
 }
 
-void EditorDebugTool::OnFrame()
+void EditorDebugTool::OnPostFrameBegin() 
+{
+}
+
+void EditorDebugTool::OnFrameRender()
 {
     ImGui::InputDouble("Time scale", &engineCore->Time.TimeScale);
 
@@ -53,12 +57,12 @@ void EditorDebugTool::OnFrame()
     ImGui::InputDouble("maximumDeltaTime", &engineCore->Time.MaximumDeltaTime);
 }
 
-void EditorDebugTool::OnPostFrame()
+void EditorDebugTool::OnFrameEnd()
 {
     return void ();
 }
 
-void EditorDebugTool::OnPopup() 
+void EditorDebugTool::OnFramePopupOpened() 
 {
 
 }
@@ -69,7 +73,7 @@ void EditorDebugTool::UpdateFPS()
     _elpasedTime += UmTime.DeltaTime();
     if (_elpasedTime >= 0.5f)
     {
-        _fps         = _frameCount / _elpasedTime;
+        _fps         = static_cast<int>((float)_frameCount / _elpasedTime);
         _frameCount  = 0;
         _elpasedTime = 0.0;
     }

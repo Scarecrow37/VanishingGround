@@ -25,6 +25,7 @@ void DeferredPBRLitPass::Begin(ID3D12GraphicsCommandList* commandList)
     CD3DX12_RESOURCE_BARRIER br = CD3DX12_RESOURCE_BARRIER::Transition(
         rt.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
     commandList->ResourceBarrier(1, &br);
+  
     commandList->OMSetRenderTargets(1, &_ownerScene->_meshLightingTarget->GetRTVHandle(), FALSE, nullptr);
 
     commandList->RSSetViewports(1, &_viewPort);

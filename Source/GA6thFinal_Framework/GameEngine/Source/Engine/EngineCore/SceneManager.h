@@ -1,6 +1,8 @@
 ﻿#pragma once
 class GameObject;
 class ESceneManager;
+class MeshComponent;
+class Model;
 
 //참고 
 // Unity SceneManager https://docs.unity3d.com/6000.0/Documentation/ScriptReference/SceneManagement.SceneManager.html
@@ -56,7 +58,15 @@ public:
     // get : 이 씬 파일의 상대 경로를 반환합니다.
     PROPERTY(Path)
 
+    GETTER(bool, IsDirty)
+    {
+        return _isDirty;
+    }
+    SETTER(bool, IsDirty);
+    PROPERTY(IsDirty)
 private:
+    bool _isDontDestroyOnLoad = false;
+    bool _isDirty   = false;
     bool _isLoaded = false;
     File::Guid _guid = STR_NULL;
 };
@@ -78,11 +88,13 @@ class ESceneManager
     File::FileEventNotifier
 {
 private:
+    USING_PROPERTY(ESceneManager)
     friend class EngineCores;
     friend class Application;
     ESceneManager();
     ~ESceneManager();
-    USING_PROPERTY(ESceneManager)
+
+    ESceneManager& operator=(const ESceneManager& rhs) = delete;
 
     void LoadSettingFile();
     void SaveSettingFile() const;
@@ -101,6 +113,7 @@ public:
     static constexpr const char* SCENE_EXTENSION = ".UmScene";
     static constexpr const char* SETTING_FILE_NAME = "SceneManager.setting.json";
     static constexpr const char* EMPTY_SCENE_NAME  = "EmptyScene";
+    static constexpr const char* DONT_DESTROY_ON_LOAD_SCENE_NAME = "DontDestroyOnLoad";
     static std::filesystem::path GetSettingFilePath();
 
     //엔진 접근용 네임스페이스
@@ -139,7 +152,7 @@ public:
         /// <param name="instanceID :">적용 대상의 instanceID</param>
         /// <param name="value :">적용 값</param>
         /// </summary>
-        static void SetGameObjectActive(int instanceID, bool value);
+        static void SetGameObjectActive(GameObject* pObject, bool value);
 
         /// <summary>
         /// <para> 컴포넌트의 라이프 사이클 활성화 여부를 변경합니다.     </para>
@@ -200,6 +213,12 @@ public:
         /// 시작 씬을 로드합니다.
         /// </summary>
         static void LoadStartScene();
+
+        /// <summary>
+        /// 프리팹 인스턴스를 Swap 합니다. Reset만 호출되며 인스턴스 아이디는 유지됩니다.
+        /// </summary>
+        static void SwapPrefabInstance(GameObject* original, GameObject* remake);
+
     };
 
 public:
@@ -271,6 +290,12 @@ public:
     }
 
     /// <summary>
+    /// 씬 로드해도 파괴되지 않는 씬을 가져옵니다.
+    /// </summary>
+    /// <returns>DontDestroyOnLoad 오브젝트가 없으면 nullptr</returns>
+    Scene* GetDontDestroyOnLoadScene();
+
+    /// <summary>
     /// 씬 정보를 이름을 통해 찾아서 반환합니다.
     /// </summary>
     /// <returns>성공시 Scene 의 주소, 실패시 nullptr</returns>
@@ -282,7 +307,7 @@ public:
     /// <param name="scene :">저장할 파일</param>
     /// <param name="outPath :">저장할 경로</param>
     /// <param name="isOverride :">덮어쓰기 안내문구 스킵 여부</param>
-    void WriteSceneToFile(const Scene& scene, std::string_view outPath, bool isOverride = false);
+    void WriteSceneToFile(Scene& scene, std::string_view outPath, bool isOverride = false);
 
     /// <summary>
     /// <para> 빈 씬을 UmScene파일로 저장합니다. FileSystem의 RootPath 기준으로 저장합니다. </para>
@@ -291,11 +316,55 @@ public:
     /// <param name="outPath :">저장할 경로</param>
     /// <param name="isOverride :">덮어쓰기 안내문구 스킵 여부</param>
     void WriteEmptySceneToFile(std::string_view name, std::string_view outPath, bool isOverride = false);
-    
+
+    class SceneResourceManager
+    {
+    public:
+        SceneResourceManager();
+        ~SceneResourceManager();
+
+        /// <summary>
+        /// 해당 리소스 매니저를 업데이트 합니다.
+        /// </summary>
+        /// <param name="manager"></param>
+        static void Update(SceneResourceManager& manager);
+
+        /// <summary>
+        /// MeshComponent의 Model 리소스 로드를 요청합니다.
+        /// </summary>
+        /// <param name="meshComponent :">대상 메시 컴포넌트</param>
+        /// <param name="guid :">로드할 리소스의 guid</param>
+        void RequestModelResource(const MeshComponent* meshComponent, const File::Guid& guid);
+         
+        void ClearModelResource();
+
+    private:
+        struct ModelResources
+        {
+            Concurrency::concurrent_queue<std::pair<std::weak_ptr<MeshComponent>, File::Guid>> ModelLoadQueue;
+            std::unordered_map<File::Guid, std::shared_ptr<Model>>                             ModelResource;
+            std::unordered_map<File::Guid, std::vector<std::weak_ptr<MeshComponent>>>          ModelUseComponentList;
+        }
+        _models;
+
+
+    };
+    /// <summary>
+    /// 씬 리소스 관리를 위한 맴버입니다.
+    /// </summary>
+    SceneResourceManager ResourceManager;
+
 private:
+#ifdef _UMEDITOR
+    //play 여부
+    bool _isPlay = true;
+#else
+    static constexpr bool _isPlay = true;
+#endif
+
     //Life cycle 을 수행. 클라에서 매틱 호출해야함.
     void SceneUpdate();
-
+    
 private:
     void ObjectsAddRuntime();        //추가 대기중인 오브젝트, 컴포넌트를 라이프 사이클에 포함시킵니다.
     void ObjectsAwake();             //Awake 예정인 컴포넌트들의 Awake 함수를 호출합니다.
@@ -308,6 +377,7 @@ private:
     void ObjectsApplicationQuit();   //OnApplicationQuit를 호출합니다.
     void ObjectsOnDisable();         //OnDisable 예정인 컴포넌트들의 OnDisable 함수를 호출해줍니다.
     void ObjectsDestroy();           //Destroy 예정인 컴포넌트들의 OnDestroy 함수를 호출 한 뒤 파괴합니다.
+
 private:
     /*게임오브젝트의 Life cycle 수행 여부를 확인하는 함수*/
     bool IsRuntimeActive(std::shared_ptr<GameObject>& obj);
@@ -317,6 +387,33 @@ private:
         호출 전에 파괴되는 컴포넌트를 위해 존재하는 함수입니다.
     */
     void NotInitDestroyComponentEraseToWaitVec(Component* destroyComponent);
+
+    /// <summary>
+    /// 게임 오브젝트를 이름 맵에 추가합니다. 
+    /// </summary>
+    /// <param name="pInsertObject"></param>
+    bool InsertGameObjectMap(std::shared_ptr<GameObject>& pInsertObject);
+
+    /// <summary>
+    /// 게임 오브젝트의 맵에서 제거합니다.
+    /// </summary>
+    void EraseGameObjectMap(std::shared_ptr<GameObject>& pEraseObject);
+
+    /// <summary>
+    /// 자식까지 모두 포함한 오브젝트들을 삭제 대기열에 추가합니다.
+    /// </summary>
+    void AddDestroyObjectQueue(GameObject* gameObject);
+
+    /// <summary>
+    /// 컴포넌트를 파괴 대기열에 추가합니다.
+    /// </summary>
+    void AddDestroyComponentQueue(Component* component);
+
+    /// <summary>
+    /// 오브젝트의 OwnerScene을 변경합니다.
+    /// </summary>
+    void SetObjectOwnerScene(GameObject* object, std::string_view sceneName);
+
 private:
     //Life cycle 에 포함되는 실제 오브젝트들 항목
     std::vector<std::shared_ptr<GameObject>> _runtimeObjects;
@@ -340,6 +437,9 @@ private:
     std::tuple<std::unordered_set<Component*>, std::vector<Component*>, std::vector<bool*>> _onEnableQueue;
     std::tuple<std::unordered_set<Component*>, std::vector<Component*>, std::vector<bool*>> _onDisableQueue;
 
+    //Renderer의 Enable, Disable 변경 관리용
+    std::pair<std::vector<MeshRenderer*>, std::vector<MeshRenderer*>> _meshSetActiveQueue;
+
 private:
     struct
     {
@@ -360,6 +460,7 @@ private:
 
     //로드된 씬 항목
     std::vector<Scene*> _lodedSceneList;
+
 protected:
     /// <summary>
     /// 씬을 Yaml 형식으로 직렬화합니다.
@@ -389,7 +490,7 @@ protected:
     /// <param name="outPath"></param>
     /// <returns></returns>
     bool WriteUmSceneFile(
-        const Scene& scene, 
+        Scene& scene, 
         std::string_view sceneName, 
         std::string_view outPath,
         bool isOverride = false);
@@ -424,6 +525,41 @@ protected:
 
     //직렬화된 씬들 캐싱용
     std::unordered_map<File::Guid, YAML::Node> _sceneDataMap;
+
+public:
+    class DestroyGameObjectCommand : public UmCommand
+    {
+    public:
+        DestroyGameObjectCommand(GameObject* object);
+        ~DestroyGameObjectCommand();
+
+    private:
+        void Execute() override;
+        void Undo() override;
+
+        std::vector<std::shared_ptr<GameObject>> _destroyObjects;
+        std::string _ownerSceneName;
+        bool _active;
+        bool _isFocus;
+    };
+
+    class NewGameObjectCommand : public UmCommand
+    {
+    public:
+        NewGameObjectCommand(std::string_view type_id, std::string_view name);
+        virtual ~NewGameObjectCommand() = default;
+
+    private:
+        std::shared_ptr<GameObject> _newObject;
+        std::string _ownerScene;
+        std::string _newName;
+        std::string _typeName;
+        bool _active;
+
+        // UmCommand을(를) 통해 상속됨
+        void Execute() override;
+        void Undo() override;
+    };
 };
 
 inline auto ESceneManager::GetRootGameObjectsByPath(std::string_view path) 
@@ -443,6 +579,15 @@ inline auto ESceneManager::GetRootGameObjectsByPath(std::string_view path)
 
 inline auto Scene::GetRootGameObjects() const
 {
-    std::string path = Path;
+    std::string path;
+    if (_isDontDestroyOnLoad)
+    {
+        path = ESceneManager::DONT_DESTROY_ON_LOAD_SCENE_NAME;
+    }
+    else
+    {
+        path = Path;
+    }
     return ESceneManager::GetRootGameObjectsByPath(path);
 }
+

@@ -1,17 +1,17 @@
-﻿#include "pch.h"
-#include "EditorCommandTool.h"
+﻿#include "EditorCommandTool.h"
+#include "pch.h"
 
-EditorCommandTool::EditorCommandTool() 
+EditorCommandTool::EditorCommandTool()
 {
     SetLabel("Command");
-    SetDockLayout(DockLayout::RIGHT);
+    SetDockLayout(ImGuiDir_Right);
 }
 
 EditorCommandTool::~EditorCommandTool() {}
 
-void EditorCommandTool::OnTickGui() 
+void EditorCommandTool::OnTickGui()
 {
-    auto& manager  = UmCommandManager;
+    auto& manager = UmCommandManager;
 
     bool ctrl      = ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftCtrl);
     bool z         = ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_Z, false);
@@ -27,63 +27,92 @@ void EditorCommandTool::OnTickGui()
     {
         manager.Redo();
     }
+
+    if (0 != _requestUndoCount)
+    {
+        manager.Undo(_requestUndoCount);
+        _requestUndoCount = 0;
+    }
+    if (0 != _requestRedoCount)
+    {
+        manager.Redo(_requestRedoCount);
+        _requestRedoCount = 0;
+    }
 }
 
 void EditorCommandTool::OnStartGui() {}
 
 void EditorCommandTool::OnEndGui() {}
 
-void EditorCommandTool::OnPreFrame() {}
+void EditorCommandTool::OnPreFrameBegin() {}
 
-void EditorCommandTool::OnFrame()
+void EditorCommandTool::OnPostFrameBegin() {}
+
+void EditorCommandTool::OnFrameRender()
 {
-    auto& manager  = UmCommandManager;
+    auto& manager = UmCommandManager;
     if (ImGui::Button("Clear"))
     {
         manager.Clear();
     }
     ImGui::Separator();
 
-    int index = 0;
-    std::string icon = EditorIcon::UnicodeToUTF8(0xf044);
+    int         total = 0;
+    int         curr  = 0;
+    std::string icon  = EditorIcon::UnicodeToUTF8(0xf044);
 
     ImGuiChildFlags flags = ImGuiChildFlags_Border;
     ImGui::BeginChild("FolderHierarchyFrame", ImVec2(0, 0), flags);
     {
         auto undoBegin = manager.UndoStackBegin();
         auto undoEnd   = manager.UndoStackEnd();
-        for (auto itr = undoBegin; itr != undoEnd; ++itr, ++index)
+        for (auto itr = undoBegin; itr != undoEnd; ++itr, ++total, ++curr)
         {
             auto& command = *itr;
             if (nullptr != command)
             {
                 auto name = icon + " " + command->GetName();
 
-                ImVec4 defaultColor = GetSelectableColor(index, _tableDefaultColor);
-                ImVec4 hoveredColor = GetSelectableColor(index, _tableHoveredColor);
+                ImVec4 defaultColor = GetSelectableColor(total, _tableDefaultColor);
+                ImVec4 hoveredColor = GetSelectableColor(total, _tableHoveredColor);
                 ImGui::PushStyleColor(ImGuiCol_Header, defaultColor);
                 ImGui::PushStyleColor(ImGuiCol_HeaderHovered, hoveredColor);
-                ImGui::Selectable(name.c_str(), true);
+                ImGui::PushID(command.get());
+                if (ImGui::Selectable(name.c_str(), true))
+                {
+                    int queueSize     = manager.GetUndoStackSize();
+                    _requestUndoCount = queueSize - curr;
+                }
+                ImGui::PopID();
                 ImGui::PopStyleColor(2);
             }
         }
+        curr           = 0;
         auto redoBegin = manager.RedoStackBegin();
         auto redoEnd   = manager.RedoStackEnd();
 
-        for (auto itr = redoBegin; itr != redoEnd; ++itr, ++index)
+        using Iterator = decltype(redoBegin);
+        std::reverse_iterator<Iterator> redoRbegin(redoEnd);
+        std::reverse_iterator<Iterator> redoRend(redoBegin);
+        for (auto itr = redoRbegin; itr != redoRend; ++itr, ++total, ++curr)
         {
             auto& command = *itr;
             if (nullptr != command)
             {
                 auto name = icon + " " + command->GetName();
 
-                ImVec4 defaultColor = GetSelectableColor(index, _tableDefaultColor);
-                defaultColor.w = 0.2f;
-                ImVec4 hoveredColor = GetSelectableColor(index, _tableHoveredColor);
+                ImVec4 defaultColor = GetSelectableColor(total, _tableDefaultColor);
+                defaultColor.w      = 0.2f;
+                ImVec4 hoveredColor = GetSelectableColor(total, _tableHoveredColor);
                 hoveredColor.w      = 0.2f;
                 ImGui::PushStyleColor(ImGuiCol_Header, defaultColor);
                 ImGui::PushStyleColor(ImGuiCol_HeaderHovered, hoveredColor);
-                ImGui::Selectable(name.c_str(), true);
+                ImGui::PushID(command.get());
+                if (ImGui::Selectable(name.c_str(), true))
+                {
+                    _requestRedoCount = curr + 1;
+                }
+                ImGui::PopID();
                 ImGui::PopStyleColor(2);
             }
         }
@@ -91,11 +120,17 @@ void EditorCommandTool::OnFrame()
     ImGui::EndChild();
 }
 
-void EditorCommandTool::OnPostFrame() {}
+void EditorCommandTool::OnFrameClipped() {}
 
-void EditorCommandTool::OnFocus() {}
+void EditorCommandTool::OnFrameEnd() {}
 
-void EditorCommandTool::OnPopup() {}
+void EditorCommandTool::OnFrameFocusEnter() {}
+
+void EditorCommandTool::OnFrameFocusStay() {}
+
+void EditorCommandTool::OnFrameFocusExit() {}
+
+void EditorCommandTool::OnFramePopupOpened() {}
 
 ImVec4 EditorCommandTool::GetSelectableColor(int index, ImVec4 color)
 {

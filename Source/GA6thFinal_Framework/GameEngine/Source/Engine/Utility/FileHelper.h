@@ -22,6 +22,16 @@ namespace File
         MOVED,    // 이동
     };
 
+    enum DirectoryBrowserFlag
+    {
+        DIRECTORY_BROWSER_FLAG_NONE                 = 0,      // 플래그 없음
+        DIRECTORY_BROWSER_FLAG_SAVE_FILE            = 1 << 0, // 파일 저장에 대한 플래그
+        DIRECTORY_BROWSER_FLAG_OPEN_FILE            = 1 << 1, // 파일 열기에 대한 플래그
+        DIRECTORY_BROWSER_FLAG_ALLOW_MULTISELECT    = 1 << 2, // 다중 선택에 대한 플래그
+        DIRECTORY_BROWSER_FLAG_PICK_FOLDER          = 1 << 3, // 폴더 선택에 대한 플래그
+    };
+    using DirectoryBrowserFlags = DWORD;
+
     static void OutputLog(const std::wstring& msg)
     {
 #ifdef _DEBUG
@@ -54,13 +64,18 @@ namespace File
 
     /* 클립보드에 문자열을 복사해주는 함수 */
     bool CopyPathToClipBoard(const File::Path& path);
-
-    /* 파일 이름 선택 브라우저를 여는 함수 */
-    bool OpenFileNameBrowser(TCHAR* filter, File::Path& out, const File::Path& root = L".");
-
-    /* 폴더 선택 브라우저를 여는 함수 */
-    bool OpenForderBrowser(TCHAR* title, UINT flags, File::Path& out, const File::Path& root = L"");
-
     /* 해당 경로에 중복 파일이 있을 경우 중복 방지 인덱스를 붙여서 리턴 */
-    File::Path GenerateUniquePath(const File::Path& path, unsigned int maxIndex = 999);
+    File::Path GenerateUniquePath(const File::Path& path, int maxIndex = 999);
+
+    // 파일 브라우저 열기
+    bool ShowOpenFileBrowser(HWND owner, LPCWSTR title, LPCWSTR initialDir,
+                             std::vector<std::pair<LPCWSTR, LPCWSTR>> filters, bool allowMultiSelect, OUT std::vector<File::Path>& out);
+    bool ShowSaveFileBrowser(HWND owner, LPCWSTR title, LPCWSTR initialDir, LPCWSTR defaultName, OUT File::Path& out);
+    bool ShowOpenFolderBrowser(HWND owner, LPCWSTR title, LPCWSTR initialDir, OUT File::Path& out);
+
+    bool ShowSelectDirectoryBrowserEx(HWND owner, LPCWSTR title, LPCWSTR initialDirectory, LPCWSTR initialFileName,
+                                                           std::vector<std::pair<LPCWSTR, LPCWSTR>> filters,
+                                                           DirectoryBrowserFlags flags,
+                                                           OUT std::vector<File::Path>& out);
 } // namespace File
+

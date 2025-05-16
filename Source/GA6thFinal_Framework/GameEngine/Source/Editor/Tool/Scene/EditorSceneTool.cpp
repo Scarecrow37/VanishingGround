@@ -3,18 +3,37 @@
 #include "../..//DynamicCamera/EditorDynamicCamera.h"
 
 EditorSceneTool::EditorSceneTool() 
-    : _useSnap(false)
-    , _manipulateOperation(ImGuizmo::TRANSLATE)
-    , _manipulateMode(ImGuizmo::MODE::WORLD)
-    , _tempMatrix(Matrix::Identity), _view(Matrix::Identity)
-    , _camera(std::make_unique<EditorDynamicCamera>())
+    :   _camera(std::make_unique<EditorDynamicCamera>())
 {
+    if (pSceneTool == nullptr)
+    {
+        pSceneTool = this;
+    }
+    else
+    {
+        __debugbreak(); //??? 에디터 2개 생성됨
+    }
+
     SetLabel("Scene");
-    SetDockLayout(DockLayout::UP);
+    SetDockLayout(ImGuiDir_Up);
+
+    drawManipulateDesc.Operation = ImGuizmo::TRANSLATE;
+    drawManipulateDesc.Mode      = ImGuizmo::MODE::WORLD;
+    drawManipulateDesc.UseSnap = false;
+    drawManipulateDesc.Snap = {1.f, 1.f, 1.f};
+
+    drawManipulateDesc.ViewDesc.Size = ImVec2(128, 128);
+    drawManipulateDesc.ViewDesc.BackgroundColor = 0x10101010;
 }
 
 EditorSceneTool::~EditorSceneTool()
 {
+
+}
+
+void EditorSceneTool::SetManipulateObject(std::weak_ptr<GameObject>& object) 
+{
+    pSceneTool-> _manipulateObject = object;
 }
 
 void EditorSceneTool::OnStartGui()
@@ -23,268 +42,163 @@ void EditorSceneTool::OnStartGui()
     ASSERT((nullptr != camera), L"Camera is nullptr");
 
     _camera->SetTarget(camera);
-
-    //_position = Vector3(0.f, 0.f, -100.f);
-    //_camera->SetPosition(_position);
 }
 
-void EditorSceneTool::OnPreFrame()
+void EditorSceneTool::OnPreFrameBegin()
 {
-    // 프레임에 대한 호버링 중이면 No_Move플래그를 설정
-    if (true == _isHorverdScene)
+    SetMoveFlag();
+}
+
+void EditorSceneTool::OnPostFrameBegin()
+{
+}
+
+void EditorSceneTool::OnFrameRender() 
+{
+    UpdateMode();
+    _camera->Update();
+
+    SetCamera();
+    DrawSceneView();
+    DrawManipulate();
+}
+
+void EditorSceneTool::OnFrameEnd()
+{
+}
+
+void EditorSceneTool::OnFrameFocusStay()
+{
+}
+    
+void EditorSceneTool::SetMoveFlag() 
+{
+    if (true == _isOver)
     {
-        SetWindowFlag(ImGuiWindowFlags_NoMove);
-        //UmLogger.Log(1, "SceneTool is Hovered");
+        SetImGuiWindowFlag(ImGuiWindowFlags_NoMove);
     }
     else
     {
-        SetWindowFlag(ImGuiWindowFlags_None);
-        //UmLogger.Log(1, "SceneTool is UnHovered");
+        SetImGuiWindowFlag(ImGuiWindowFlags_None);
     }
 }
 
-void EditorSceneTool::OnFrame()
+void EditorSceneTool::SetCamera()
 {
-    //ImVec2 windowSize = ImGui::GetWindowSize();
-    float  width      = ImGui::GetWindowWidth();
-    float  height     = ImGui::GetWindowHeight();
-    _aspect           = width/ height;
-    _camera->GetCamera()->SetupPerspective(_fovDegree, _aspect, _nearZ, _farZ);
-    //ImGuizmo::SetDrawlist();
+    ImVec2 windowPos  = ImGui::GetWindowPos();
+    ImVec2 contentMin = ImGui::GetWindowContentRegionMin();
+    ImVec2 contentMax = ImGui::GetWindowContentRegionMax();
 
-    //const Matrix& cameraView       = _camera->GetViewMatrix();
-    //const Matrix& cameraProjection = _camera->GetProjectionMatrix();
+    _clientLeft   = windowPos.x + contentMin.x;
+    _clientRight  = windowPos.x + contentMax.x;
+    _clientTop    = windowPos.y + contentMin.y;
+    _clientBottom = windowPos.y + contentMax.y;
 
-    //ImGuizmo::DrawGrid(*cameraView.m, *cameraProjection.m, *Matrix::Identity.m, _farZ);
-    //ImGuizmo::DrawCubes(*cameraView.m, *cameraProjection.m, *_tempMatrix.m, 1);
+    _clientWidth  = _clientRight - _clientLeft;
+    _clientHeight = _clientBottom - _clientTop;
+    ReflectFields->CameraAspect = _clientWidth / _clientHeight;
 
-    //if (false == IsLock() && false == Global::editorModule->IsLock())
-    //{
-    //    ProcessViewManipulate();
-    //    ProcessManipulate();
-    //}
-    auto handle = UmRenderer.GetRenderSceneImage("Editor");
-
-    ImVec2 size = ImGui::GetContentRegionAvail();
-
-    ImGui::Image((ImTextureID)handle.ptr, size);
+    auto& camera = _camera->GetCamera();
+    camera->SetupPerspective(
+        ReflectFields->CameraFovDegree,
+        ReflectFields->CameraAspect,
+        ReflectFields->CameraNearZ,
+        ReflectFields->CameraFarZ);
 }
 
-void EditorSceneTool::OnPostFrame()
+void EditorSceneTool::UpdateMode()
 {
-    _camera->Update();
+    if (false == ImGui::IsKeyDown(ImGuiKey_MouseRight))
+    {
+        if (ImGui::IsKeyPressed(ImGuiKey_W))
+            drawManipulateDesc.Operation = ImGuizmo::TRANSLATE;
+        if (ImGui::IsKeyPressed(ImGuiKey_E))
+            drawManipulateDesc.Operation = ImGuizmo::ROTATE;
+        if (ImGui::IsKeyPressed(ImGuiKey_R))
+            drawManipulateDesc.Operation = ImGuizmo::SCALE;
+        if (ImGui::IsKeyPressed(ImGuiKey_T))
+            drawManipulateDesc.Operation = ImGuizmo::UNIVERSAL;
+
+        if (ImGui::IsKeyPressed(ImGuiKey_X))
+        {
+            if (drawManipulateDesc.Mode == ImGuizmo::MODE::LOCAL)
+            {
+                drawManipulateDesc.Mode = ImGuizmo::MODE::WORLD;
+            }
+            else
+            {
+                drawManipulateDesc.Mode = ImGuizmo::MODE::LOCAL;
+            }
+        }      
+    }  
 }
 
-void EditorSceneTool::OnFocus()
+void EditorSceneTool::DrawManipulate() 
 {
-//    auto window     = ImGui::GetCurrentWindow();
-//    auto rect       = window->Rect();
-//    _isHorverdScene = ImGui::IsMouseHoveringRect(rect.Min, rect.Max);
-//
-//    if (false == IsLock() && false == Global::editorModule->IsLock())
-//    {
-//        if (ImGui::IsMouseDown(ImGuiMouseButton_Right))
-//        {
-//            ProcessMove();
-//        }
-//        else
-//        {
-//            ProcessMode();
-//        }
-//    }
-//}
-//
-//void EditorSceneTool::ProcessMove()
-//{
-//    ImGuiIO& io = ImGui::GetIO();
-//    float    delta = UmTime.DeltaTime();
-//    float    moveSpeed = _moveSpeed * delta;
-//    float    rotateSpeed = _rotateSpeed * delta;
-//
-//    auto foward = -_rotation.Forward();
-//    auto right = -_rotation.Right();
-//    auto up = -_rotation.Up();
-//
-//    if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_W))
-//    {
-//        _position += foward * moveSpeed;
-//    }
-//    if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_S))
-//    {
-//        _position += -foward * moveSpeed;
-//    }
-//
-//    if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_A))
-//    {
-//        _position += right * moveSpeed;
-//    }
-//    if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_D))
-//    {
-//        _position += -right * moveSpeed;
-//    }
-//
-//    if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_Q))
-//    {
-//        _position += up * moveSpeed;
-//    }
-//    if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_E))
-//    {
-//        _position += -up * moveSpeed;
-//    }
-//
-//    ImVec2 mouseDelta = io.MouseDelta;
-//    if (mouseDelta.x != 0.f || mouseDelta.y != 0.f)
-//    {
-//        float deltaX = mouseDelta.x * rotateSpeed;
-//        float deltaY = mouseDelta.y * rotateSpeed;
-//        _diretion += Vector3(deltaX, deltaY, 0.f);
-//        _rotation = XMMatrixRotationRollPitchYaw(_diretion.y, _diretion.x, 0.f);
-//    }
+    if (false == _manipulateObject.expired())
+    {
+        auto pObject = _manipulateObject.lock();
+        Matrix worldMatrix = pObject->transform->GetWorldMatrix();
+        Matrix* pObjectMatrix = &worldMatrix;
 
+        EditorDynamicCamera* pDynamicCamera = _camera.get();
 
-   // const float deltaTime   = UmTime.DeltaTime();
-   // const float moveSpeed   = 30.f;
-   // const float mouseSpped  = 5.f;
-   // const float rotateSpeed = 2.f;
+        drawManipulateDesc.ViewDesc.ClientRight = _clientRight;
+        drawManipulateDesc.ViewDesc.ClientTop   = _clientTop;
 
-   // if (GetAsyncKeyState('W') & 0x8001)
-   // {
-   //     _position += -_camera->GetWorldMatrix().Forward() * moveSpeed * deltaTime;
-   // }
-   // if (GetAsyncKeyState('S') & 0x8001)
-   // {
-   //     _position += -_camera->GetWorldMatrix().Backward() * moveSpeed * deltaTime;
-   // }
-   // if (GetAsyncKeyState('A') & 0x8001)
-   // {
-   //     _position += _camera->GetWorldMatrix().Left() * moveSpeed * deltaTime;
-   // }
-   // if (GetAsyncKeyState('D') & 0x8001)
-   // {
-   //     _position += _camera->GetWorldMatrix().Right() * moveSpeed * deltaTime;
-   // }
+        ImGuizmo::SetDrawlist();
+        ImGuizmo::SetRect(_clientLeft, _clientTop, _clientWidth, _clientHeight);
+        bool useManipulate = ImGuiHelper::DrawManipulate(pDynamicCamera, pObjectMatrix, drawManipulateDesc);
+        _isUsing           = ImGuizmo::IsUsing();
+        _isOver            = ImGuizmo::IsOver();
 
-   // if (GetAsyncKeyState('Q') & 0x8001)
-   // {
-   //     _position += _camera->GetWorldMatrix().Up() * moveSpeed * deltaTime;
-   // }
-
-   // if (GetAsyncKeyState('E') & 0x8001)
-   // {
-   //     _position -= _camera->GetWorldMatrix().Up() * moveSpeed * deltaTime;
-   // }
-
-   // if (GetAsyncKeyState(VK_LEFT) & 0x8001)
-   // {
-   //     _rotation += Vector3(0.f, -rotateSpeed * deltaTime, 0.f);
-   // }
-
-   // if (GetAsyncKeyState(VK_RIGHT) & 0x8001)
-   // {
-   //     _rotation += Vector3(0.f, rotateSpeed * deltaTime, 0.f);
-   // }
-
-   // if (GetAsyncKeyState(VK_UP) & 0x8001)
-   // {
-   //     _rotation += Vector3(-rotateSpeed * deltaTime, 0.f, 0.f);
-   // }
-
-   // if (GetAsyncKeyState(VK_DOWN) & 0x8001)
-   // {
-   //     _rotation += Vector3(rotateSpeed * deltaTime, 0.f, 0.f);
-   // }
-
-   // if (GetAsyncKeyState(VK_RBUTTON) & 0x8001)
-   // {
-   //     POINT point;
-   //     GetCursorPos((POINT*)&point);
-
-   //     static Vector2 prevPoint{};
-   //     static Vector2 currPoint{};
-   //     currPoint.x   = point.x;
-   //     currPoint.y   = point.y;
-   //     Vector2 delta = (currPoint - prevPoint);
-   //     delta.Clamp({-1.f, -1.f}, {1.f, 1.f});
-   //     prevPoint = currPoint;
-
-   //     if (delta != XMVectorZero())
-   //     {
-   //         _rotation += Vector3(delta.y * deltaTime * mouseSpped, delta.x * deltaTime * mouseSpped, 0.f);
-   //     }
-
-   //     /*ScreenToClient(UmCore->App.GetHwnd(), &point);
-   //     SetCursorPos(point.x, point.y);*/
-   // }
-
-   //_camera->SetPosition(_position);
-   //_camera->SetRotation(_rotation);
-   //_camera->Update();
+        if (true == useManipulate)
+        {         
+            Transform* parent = pObject->transform->Parent;
+            Vector3    position;
+            Quaternion rotation;
+            Vector3    scale;
+            if (nullptr == parent)
+            {
+                worldMatrix.Decompose(scale, rotation, position);
+            }
+            else
+            {
+                const Matrix& parentWorldInvert = parent->GetWorldMatrix().Invert();
+                Matrix localMatrix = worldMatrix * parentWorldInvert;
+                localMatrix.Decompose(scale, rotation, position);
+            }
+            pObject->transform->Position = position;
+            pObject->transform->Rotation = rotation;
+            pObject->transform->Scale    = scale;
+        }
+    }   
 }
 
-void EditorSceneTool::ProcessMode() 
+void EditorSceneTool::DrawSceneView() 
 {
-    if (ImGui::IsKeyPressed(ImGuiKey_T))
-        _manipulateOperation = ImGuizmo::TRANSLATE;
-    if (ImGui::IsKeyPressed(ImGuiKey_E))
-        _manipulateOperation = ImGuizmo::ROTATE;
-    if (ImGui::IsKeyPressed(ImGuiKey_R))
-        _manipulateOperation = ImGuizmo::SCALE;
+    auto   handle = UmRenderer.GetRenderSceneImage("Editor");
+    ImGui::Image((ImTextureID)handle.ptr, {_clientWidth, _clientHeight});
 }
 
-void EditorSceneTool::ProcessViewManipulate() 
+void EditorSceneTool::SerializedReflectEvent() 
 {
-    float windowWidth  = ImGui::GetWindowWidth();
-    float windowHeight = ImGui::GetWindowHeight();
-    float windowLeft  = ImGui::GetWindowPos().x;
-    float windowRight  = windowLeft + windowWidth;
-    float windowTop    = ImGui::GetWindowPos().y;
-    float windowBottom = windowTop + windowHeight;
+    Vector3 camPos = _camera->GetPosition();
+    std::memcpy(ReflectFields->CameraPosition.data(), &camPos, sizeof(ReflectFields->CameraPosition));
 
-    ImVec2 viewManipulateOffset = ImVec2(10, 10);
-    ImVec2 viewManipulateSize   = ImVec2(128, 128);
-
-    float viewManipulateRight = windowRight - viewManipulateSize.x + viewManipulateOffset.x;
-    float viewManipulateTop   = windowTop + viewManipulateOffset.y;
-
-    ImVec2 viewManipulatePos = ImVec2(viewManipulateRight, viewManipulateTop);
-
-    ImGuizmo::SetRect(windowLeft, windowTop, windowWidth, windowHeight);
-
-    _view = _camera->GetCamera()->GetViewMatrix();
-
-    ImGuizmo::ViewManipulate(*_view.m, _setDistance, viewManipulatePos, viewManipulateSize, 0x10101010);
-
-    // 각 성분 행렬만 추출
-    Matrix     world = _view.Invert();
-    Vector3    scale;
-    Quaternion rotationQuat;
-    Vector3    translation;
-    world.Decompose(scale, rotationQuat, translation);
-
-    // 회전 행렬
-    //_rotation = Matrix::CreateFromQuaternion(rotationQuat);
+    Quaternion camRot = _camera->GetRotation();
+    std::memcpy(ReflectFields->CameraRotation.data(), &camRot, sizeof(ReflectFields->CameraRotation));
 }
 
-void EditorSceneTool::ProcessManipulate() 
+void EditorSceneTool::DeserializedReflectEvent() 
 {
-    float windowWidth  = ImGui::GetWindowWidth();
-    float windowHeight = ImGui::GetWindowHeight();
-    float windowLeft   = ImGui::GetWindowPos().x;
-    float windowTop    = ImGui::GetWindowPos().y;
+    _camera->SetMoveSpeed(ReflectFields->CameraMoveSpeed);
+    _camera->SetRotationSpeed(ReflectFields->CameraRotateSpeed);
 
-    ImGuizmo::SetRect(windowLeft, windowTop, windowWidth, windowHeight);
+    Vector3 camPos = Vector3(ReflectFields->CameraPosition.data());
+    _camera->SetPosition(camPos);
 
-    auto&         camera           = _camera->GetCamera();
-    const Matrix& cameraView       = camera->GetViewMatrix();
-    const Matrix& cameraProjection = camera->GetProjectionMatrix();
-
-    ImGuizmo::Manipulate(
-        *cameraView.m,
-        *cameraProjection.m,
-        _manipulateOperation,
-        _manipulateMode,
-        *_tempMatrix.m,
-        NULL,
-        _useSnap ? &_snap[0] : NULL
-    );
+    Quaternion camRot = Quaternion(ReflectFields->CameraRotation.data());
+    _camera->SetRotation(camRot);
 }
+

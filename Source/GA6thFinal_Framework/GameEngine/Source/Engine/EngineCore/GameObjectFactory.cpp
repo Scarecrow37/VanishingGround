@@ -28,6 +28,84 @@ void EGameObjectFactory::WritePrefabGuid(const File::Path& path, YAML::Node& dat
         }
         ofs.close();
     }
+
+    auto& guidQueue = _prefabGuidQueue[path];
+    if (guidQueue.empty() == false)
+    {
+        for (auto& weakObject : guidQueue)
+        {
+            auto pObject = weakObject.lock();
+            if (pObject != nullptr)
+            {
+                if (pObject->IsPrefabInstance() == true)
+                {
+                    UnpackPrefab(pObject.get());
+                }
+                PackPrefab(pObject.get(), path.ToGuid());
+            }
+        }
+        guidQueue.clear();
+    }
+}
+
+void EGameObjectFactory::ApplyPrefabInstanceChanges(const File::Guid& guid, YAML::Node& yaml) 
+{
+    auto findIter = _prefabInstanceList.find(guid);
+    if (findIter != _prefabInstanceList.end())
+    {
+        auto& [guid, list] = *findIter;
+        std::erase_if(list, [](auto& waek) 
+        { 
+            return waek.expired();
+        });
+
+        if (false == list.empty())
+        {     
+            std::vector<std::shared_ptr<GameObject>> instanceList;
+            for (auto& wptr : list)
+            {
+                if (false == wptr.expired())
+                {
+                    instanceList.push_back(wptr.lock());
+                }
+            }
+            for (auto& pGameObject : instanceList)
+            {
+                auto prefabObjects = UmGameObjectFactory.MakeObjectsGraphToYaml(&yaml, true);
+                if (false == prefabObjects.empty())
+                {
+                    int i = 0;
+                    Transform::ForeachBFS(pGameObject->_transform, [&](Transform* curr) 
+                    {
+                        if (i < prefabObjects.size())
+                        {
+                            ESceneManager::Engine::SwapPrefabInstance(&curr->gameObject, prefabObjects[i].get());
+                            i++;
+                        }
+                        else
+                        {
+                            GameObject::Destroy(curr->gameObject);
+                        }
+                    });
+
+                    if (i < prefabObjects.size())
+                    {
+                        std::string_view ownerScene = prefabObjects[i - 1]->_ownerScene;
+                        for (; i < prefabObjects.size(); i++)
+                        {
+                            auto& curr        = prefabObjects[i];
+                            curr->_ownerScene = ownerScene;
+                            curr->_instanceID = InstanceID.CreateInstanceID();
+                            ESceneManager::Engine::AddGameObjectToLifeCycle(curr);
+                        }
+                    }
+                    auto prefabRoot = prefabObjects.front().get();
+                    UmGameObjectFactory.UnpackPrefab(prefabRoot);
+                    UmGameObjectFactory.PackPrefab(prefabRoot, guid);
+                }
+            }
+        }
+    }
 }
 
 void EGameObjectFactory::OnFileRegistered(const File::Path& path)
@@ -36,6 +114,7 @@ void EGameObjectFactory::OnFileRegistered(const File::Path& path)
     YAML::Node yamlData = YAML::LoadFile(path.string());
     _prefabObjectMap[guid] = MakeObjectsGraphToYaml(&yamlData, true);
     WritePrefabGuid(path, yamlData);
+    ApplyPrefabInstanceChanges(guid, yamlData);
 }
 
 void EGameObjectFactory::OnFileUnregistered(const File::Path& path) 
@@ -49,24 +128,8 @@ void EGameObjectFactory::OnFileModified(const File::Path& path)
     File::Guid guid = path.ToGuid();
     YAML::Node yamlData = YAML::LoadFile(path.string());
     _prefabObjectMap[guid] = MakeObjectsGraphToYaml(&yamlData, true);
-    auto& guidQueue = _prefabGuidQueue[path];
     WritePrefabGuid(path, yamlData);
-    if (guidQueue.empty() == false)
-    {
-        for (auto& weakObject : guidQueue)
-        {
-            auto pObject = weakObject.lock();
-            if (pObject != nullptr)
-            {
-                if (pObject->IsPrefabInstance() == true)
-                {
-                    UnpackPrefab(pObject.get());
-                }
-                PackPrefab(pObject.get(), path.ToGuid());
-            }      
-        }
-        guidQueue.clear();
-    }
+    ApplyPrefabInstanceChanges(guid, yamlData);
 }
 
 void EGameObjectFactory::OnFileRemoved(const File::Path& path) 
@@ -183,11 +246,14 @@ std::vector<std::shared_ptr<GameObject>> EGameObjectFactory::MakeObjectsGraphToY
         {
             File::Guid prefab = currNode["Prefab"].as<std::string>();
             if (prefab != STR_NULL)
-            {
-                std::vector<std::weak_ptr<GameObject>>& instanceList = _prefabInstanceList[prefab];
-                instanceList.emplace_back(currObject);
+            {              
+                if (useResource == false)
+                {
+                    std::vector<std::weak_ptr<GameObject>>& instanceList = _prefabInstanceList[prefab];
+                    instanceList.emplace_back(currObject);
+                    isPrefabInstance = true;
+                }
                 currObject->_prefabGuid = prefab;
-                isPrefabInstance = true;
             }
         }
 
@@ -261,6 +327,38 @@ std::shared_ptr<GameObject> EGameObjectFactory::DeserializeToGuid(const File::Gu
     return pObject;
 }
 
+std::shared_ptr<GameObject> EGameObjectFactory::DeserializeToSceneObject(YAML::Node& sceneObjectsNode)
+{
+    auto yamlIter = sceneObjectsNode.begin();
+    YAML::Node rootObjectNode = *yamlIter;
+    File::Guid prefabGuid = rootObjectNode["Prefab"].as<std::string>();
+    std::shared_ptr<GameObject> newObject;
+    if constexpr (Application::IsEditor())
+    {
+        if (prefabGuid != STR_NULL)
+        {
+            newObject = UmGameObjectFactory.DeserializeToGuid(prefabGuid);
+            Transform::ForeachBFS(newObject->_transform, [&](Transform* curr) {
+                if (yamlIter != sceneObjectsNode.end())
+                {
+                    const YAML::Node& currNode = *yamlIter;
+                    ParsingYamlToGameObject(&curr->gameObject, currNode);
+                    ++yamlIter;
+                }
+            });
+        }
+        else
+        {
+            newObject = UmGameObjectFactory.DeserializeToYaml(&sceneObjectsNode);
+        }
+    }
+    else
+    {
+        newObject = UmGameObjectFactory.DeserializeToYaml(&sceneObjectsNode);
+    }  
+    return newObject;
+}
+
 void EGameObjectFactory::WriteGameObjectFile(Transform* transform, std::string_view outPath)
 {
     namespace fs     = std::filesystem;
@@ -269,7 +367,8 @@ void EGameObjectFactory::WriteGameObjectFile(Transform* transform, std::string_v
     writePath /= outPath;
     writePath /= transform->gameObject->ToString();
     writePath.replace_extension(PREFAB_EXTENSION);
-    if (fs::exists(writePath) == true)
+    bool isExists = fs::exists(writePath);
+    if (true == isExists)
     {
         int result = MessageBox(UmApplication.GetHwnd(), L"파일이 이미 존재합니다. 덮어쓰겠습니까?",
                                 L"파일이 존재합니다.", MB_YESNO);
@@ -278,6 +377,7 @@ void EGameObjectFactory::WriteGameObjectFile(Transform* transform, std::string_v
             return;
         }
     }
+  
     fs::create_directories(writePath.parent_path());
     YAML::Node node = UmGameObjectFactory.SerializeToYaml(&transform->gameObject);
     if (node.IsNull() == false)
@@ -288,8 +388,12 @@ void EGameObjectFactory::WriteGameObjectFile(Transform* transform, std::string_v
             ofs << node;
         }
         ofs.close();
-    }
-    _prefabGuidQueue[writePath].emplace_back(transform->gameObject->GetWeakPtr());
+
+        if (false == isExists)
+        {
+            _prefabGuidQueue[writePath].emplace_back(transform->gameObject->GetWeakPtr());
+        }
+    }  
 }
 
 bool EGameObjectFactory::PackPrefab(GameObject* targetObject, const File::Guid& guid)
@@ -305,11 +409,11 @@ bool EGameObjectFactory::PackPrefab(GameObject* targetObject, const File::Guid& 
                 {
                     return weakObject.expired();
                 });
-            }
-            _prefabInstanceList[guid].emplace_back(targetObject->GetWeakPtr());
-            targetObject->_prefabGuid = guid;
-            return true;
+            }                              
         }
+        _prefabInstanceList[guid].emplace_back(targetObject->GetWeakPtr());
+        targetObject->_prefabGuid = guid;
+        return true;
     }
     return false;
 }
@@ -407,23 +511,15 @@ void EGameObjectFactory::ResetGameObject(
     }
     else
     {
-        ownerObject->_ownerScene = STR_NULL;
+        UmLogger.Log(LogLevel::LEVEL_FATAL, u8"씬이 로드되지 않았습니다."_c_str);
+        __debugbreak();
     }   
     ownerObject->ReflectFields->_name = name;
     ownerObject->ReflectFields->_isStatic = false;
     ownerObject->ReflectFields->_activeSelf = true;
   
     //인스턴스 아이디 부여
-    int instanceID = -1;
-    if (instanceIDManager.EmptyID.empty())
-    {
-        instanceID = instanceIDManager.BackID++;
-    }
-    else
-    {
-        instanceID = instanceIDManager.EmptyID.back();
-        instanceIDManager.EmptyID.pop_back();
-    }
+    int instanceID = InstanceID.CreateInstanceID();
     ownerObject->_instanceID = instanceID;
 }
 
@@ -467,14 +563,19 @@ std::shared_ptr<GameObject> EGameObjectFactory::MakeGameObjectToYaml(YAML::Node*
     return object;
 }
 
-void EGameObjectFactory::ParsingYamlToGameObject(GameObject* pObject, YAML::Node& objectNode) 
+void EGameObjectFactory::ParsingYamlToGameObject(GameObject* pObject, const YAML::Node& objectNode) 
 {
     if (objectNode["Prefab"])
     {
         pObject->_prefabGuid = objectNode["Prefab"].as<std::string>();
     }
-
-    std::string ReflectFields = objectNode["ReflectFields"].as<std::string>();
+    std::string ReflectFields = objectNode["ReflectFields"].as<std::string>(); 
+    yyjson_doc* jsonDoc  = yyjson_read(ReflectFields.c_str(), ReflectFields.size(), 0);
+    yyjson_val* jsonRoot = yyjson_doc_get_root(jsonDoc);
+    yyjson_val* jsonName = yyjson_obj_get(jsonRoot , "_name");
+    const char* nameStr = yyjson_get_str(jsonName);
+    ESceneManager::Engine::RenameGameObject(pObject, nameStr);
+    yyjson_doc_free(jsonDoc); 
     pObject->DeserializedReflectFields(ReflectFields);
     {
         YAML::Node  transformNode = objectNode["Transform"].as<YAML::Node>();
@@ -483,18 +584,34 @@ void EGameObjectFactory::ParsingYamlToGameObject(GameObject* pObject, YAML::Node
     }
 }
 
-void EGameObjectFactory::Engine::ReturnInstanceID(int id)
+int EGameObjectFactory::InstanceIDManager::CreateInstanceID()
 {
-    std::vector<int>& emptyID = engineCore->GameObjectFactory.instanceIDManager.EmptyID;
-    emptyID.push_back(id);
-    std::sort(emptyID.begin(), emptyID.end(), [](int a, int b)
-        {
-            return a > b; //내림차순 정렬
-        });
+    int instanceID = -1;
+    instanceIdMutex.lock();
+    if (_emptyID.empty())
+    {
+        instanceID = _backID++;
+    }
+    else
+    {
+        std::sort(_emptyID.begin(), _emptyID.end(), [](int a, int b) { return a > b; });
+        instanceID = _emptyID.back();
+        _emptyID.pop_back();
+    } 
+    instanceIdMutex.unlock();
+    return instanceID;
+}
+
+void EGameObjectFactory::InstanceIDManager::ReturnInstanceID(int id)
+{
+    instanceIdMutex.lock();
+    _emptyID.push_back(id);
+    instanceIdMutex.unlock();
 }
 
 const std::vector<std::string>& EGameObjectFactory::Engine::GetGameObjectKeys()
 {
     return engineCore->GameObjectFactory._NewGameObjectKeyVec;
 }
+
 

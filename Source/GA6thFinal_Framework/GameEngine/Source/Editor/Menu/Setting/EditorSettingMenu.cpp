@@ -1,23 +1,33 @@
 ﻿#include "pch.h"
 #include "EditorSettingMenu.h"
 
-void EditorMenuDebug::OnMenu()
+void EditorMenuEditorSetting::OnMenu()
 {
-    if (ImGui::MenuItem("Debug", "", &_isDebugMode))
+    EditorModule* editor = Global::editorModule;
+    if (ImGui::BeginMenu("Setting"))
     {
-        Global::editorModule->SetDebugMode(_isDebugMode);
+        if (ImGui::BeginMenu("Editor"))
+        {
+            _isDebugMode = Global::editorModule->IsDebugMode();
+            if (ImGui::MenuItem("Debug", "", &_isDebugMode))
+            {
+                editor->SetDebugMode(_isDebugMode);
+            }
+            if (ImGui::MenuItem("Style"))
+            {
+                _isOpenGui = !_isOpenGui;
+            }
+            if (ImGui::MenuItem("Reset Layout"))
+            {
+                editor->ResetGuiLayout();
+            }
+            ImGui::EndMenu();
+        }
+        ImGui::EndMenu();
     }
 }
 
-void EditorMenuStyleEditor::OnMenu()
-{
-    if (ImGui::MenuItem("Style", ""))
-    {
-        _isOpenGui = !_isOpenGui;
-    }
-}
-
-void EditorMenuStyleEditor::OnTickGui()
+void EditorMenuEditorSetting::OnTickGui() 
 {
     if (true == _isOpenGui)
     {
@@ -27,11 +37,20 @@ void EditorMenuStyleEditor::OnTickGui()
     }
 }
 
+
 void EditorMenuFileSystemSetting::OnMenu() 
 {
-    if (ImGui::MenuItem("Setting", ""))
+    if (ImGui::BeginMenu("Setting"))
     {
-        _isOpenGui = !_isOpenGui;
+        if (ImGui::BeginMenu("FileSystem"))
+        {
+            if (ImGui::MenuItem("Setting", ""))
+            {
+                _isOpenGui = !_isOpenGui;
+            }
+            ImGui::EndMenu();
+        }
+        ImGui::EndMenu();
     }
 }
 
