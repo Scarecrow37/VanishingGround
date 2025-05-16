@@ -3,7 +3,10 @@
 
 void Camera::SetupPerspective(float fovDegree, float aspect, float nearZ, float farZ)
 {
-    aspect = std::max(aspect, Mathf::Epsilon);
+    if (std::isnan(aspect))
+    {
+        aspect = Mathf::Epsilon;
+    }
     _projection        = XMMatrixPerspectiveFovLH(XMConvertToRadians(fovDegree), aspect, nearZ, farZ);
     _projectionInverse = XMMatrixInverse(nullptr, _projection);
 }
