@@ -110,6 +110,16 @@ void RenderScene::RegisterOnRenderQueue(MeshRenderer* component)
 
 void RenderScene::Execute(ID3D12GraphicsCommandList* commandList)
 {
+    // 메쉬 최종 타겟 클리어
+    ComPtr<ID3D12Resource>   rt = _meshLightingTarget->GetResource();
+    CD3DX12_RESOURCE_BARRIER br = CD3DX12_RESOURCE_BARRIER::Transition(
+        rt.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    commandList->ResourceBarrier(1, &br);
+    auto  handle     = _meshLightingTarget->GetRTVHandle();
+    float clearValue = _meshLightingTarget->clearValue;
+    Color clearColor = {clearValue, clearValue, clearValue, 1.f};
+    commandList->ClearRenderTargetView(handle, clearColor, 0, nullptr);
+
     for (auto& tech : _techniques)
     {
         tech->Execute(commandList);
