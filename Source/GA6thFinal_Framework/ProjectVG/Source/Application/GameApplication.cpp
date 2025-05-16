@@ -101,9 +101,10 @@ void GameApplication::BuildSceneDock()
     int imguiWindowFlag   = ImGuiWindowFlags_MenuBar;
     int imguiDockNodeFlag =
         ImGuiDockNodeFlags_NoWindowMenuButton | ImGuiDockNodeFlags_NoCloseButton;
-    int dockWindowFlag  = EditorDockWindow::DOCKWINDOW_FLAGS_FULLSCREEN;
+    int editorToolFlag    = EditorTool::EDITORTOOL_FLAGS_NO_CLOSE_BUTTON;
 
     _sceneDock->SetWindowClass(imguiwindowClass);
+    _sceneDock->SetEditorToolFlags(editorToolFlag);
     _sceneDock->SetImGuiWindowFlag(imguiWindowFlag);
     _sceneDock->SetImGuiDockNodeFlag(imguiDockNodeFlag);
     _sceneDock->SetDockLayout(ImGuiDir_Up);

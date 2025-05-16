@@ -14,13 +14,13 @@ void EngineCoresModule::PreInitialize()
 
 void EngineCoresModule::ModuleUnInitialize()
 {
-    ESceneManager::Engine::CleanupSceneManager();
-    engineCore->ComponentFactory.UninitalizeComponentFactory();
-    //engineCore->Graphics.ResourceManager.Clear();
-    engineCore->Graphics.Device.Finalize();
     if constexpr (Application::IsEditor())
     {
         UmCommandManager.Clear();
     }
+    ESceneManager::Engine::CleanupSceneManager();
+    engineCore->ComponentFactory.UninitalizeComponentFactory();
+    //engineCore->Graphics.ResourceManager.Clear();
+    engineCore->Graphics.Device.Finalize();
     SafeEngineCoresPtr::Engine::DestroyEngineCores();
 }

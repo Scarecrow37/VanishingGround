@@ -78,8 +78,6 @@ namespace Global
  public:
      void Update();
 
-     bool IsLock();
-
  public:
      void OpenPopupBox(const std::string& name, std::function<void()> content);
 
@@ -88,10 +86,12 @@ namespace Global
  public:
      /* 에디터 디버그 모드 */
      inline void SetDebugMode(bool v) { _isDebug = v; }
-     inline bool IsDebugMode() { return _isDebug; }
+     inline bool IsDebugMode() const { return _isDebug; }
+
+     inline bool IsLock() const { return (false == _popupBoxSystem.IsEmpty()); }
 
      inline auto& GetDockWindowSystem() { return _dockWindowSystem; }
-     inline auto& GetPopupBoxSystem()   { return _popupBoxSystem; }
+     inline auto& GetPopupBoxSystem() { return _popupBoxSystem; }
      
  private:
      /* 기본 스타일 설정 */
