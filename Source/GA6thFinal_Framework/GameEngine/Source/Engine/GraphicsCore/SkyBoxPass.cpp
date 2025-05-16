@@ -5,16 +5,17 @@
 #include "RenderScene.h"
 #include "ShaderBuilder.h"
 
-SkyBoxPass::SkyBoxPass() : _skyBox{std::make_unique<SkyBox>()} {}
+SkyBoxPass::SkyBoxPass() {}
 
 SkyBoxPass::~SkyBoxPass() {}
 
 void SkyBoxPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& sissorRect) 
 {
+    _skyBox = _ownerScene->GetSkyBox();
     __super::Initialize(viewPort, sissorRect);
     InitShaderAndPSO();
-    _skyBox->Initialize(); 
-       
+    _skyBox->Initialize();
+
     File::Path fileName  = L"../../../Resource/Assets/skybox/kloppenheim_05_puresky_4k.hdr";
     File::Path assetPath = UmFileSystem.GetAssetPath();
     File::Path result    = assetPath / fileName;

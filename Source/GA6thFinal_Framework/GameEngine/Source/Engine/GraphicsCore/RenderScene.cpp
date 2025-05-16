@@ -8,10 +8,12 @@
 #include "RenderTechnique.h"
 #include "ShaderBuilder.h"
 #include "MeshRenderer.h"
+#include "SkyBox.h"
 
 RenderScene::RenderScene()
     : _frameQuad{std::make_unique<Quad>()}
     , _frameShader{std::make_unique<ShaderBuilder>()}
+    ,_skyBox{std::make_unique<SkyBox>()}
 {
 }
 
@@ -117,6 +119,11 @@ void RenderScene::Execute(ID3D12GraphicsCommandList* commandList)
 D3D12_CPU_DESCRIPTOR_HANDLE RenderScene::GetFinalImage()
 {
     return _meshLightingTarget->GetSRVHandle();
+}
+
+void RenderScene::SetSkyBox(std::string path)
+{
+    _skyBox->SetTexture(path);
 }
 
 void RenderScene::AddRenderTechnique(std::shared_ptr<RenderTechnique> technique)
