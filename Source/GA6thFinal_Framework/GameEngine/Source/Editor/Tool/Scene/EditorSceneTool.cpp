@@ -24,6 +24,7 @@ EditorSceneTool::EditorSceneTool()
 
     drawManipulateDesc.ViewDesc.Size = ImVec2(128, 128);
     drawManipulateDesc.ViewDesc.BackgroundColor = 0x10101010;
+    UpdateCameraSetting();
 }
 
 EditorSceneTool::~EditorSceneTool()
