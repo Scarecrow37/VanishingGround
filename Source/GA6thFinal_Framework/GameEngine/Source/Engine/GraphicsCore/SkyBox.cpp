@@ -129,15 +129,16 @@ void SkyBox::UploadToTexture2D(ID3D12Device* device, ID3D12GraphicsCommandList* 
     auto                  heapProperty = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
     CD3DX12_RESOURCE_DESC   bufferDesc   = CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize);
 
+    ComPtr<ID3D12Resource> uploadResrouce;
    
     FAILED_CHECK_BREAK(device->CreateCommittedResource(&heapProperty, D3D12_HEAP_FLAG_NONE, &bufferDesc,
                                                        D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
-                                                       IID_PPV_ARGS(&uploadBuffer)));
+                                                       IID_PPV_ARGS(&uploadResrouce)));
     void*         mappedData = nullptr;
     CD3DX12_RANGE readRange(0, 0);
-    FAILED_CHECK_BREAK(uploadBuffer->Map(0, &readRange, &mappedData));
+    FAILED_CHECK_BREAK(uploadResrouce->Map(0, &readRange, &mappedData));
     memcpy(mappedData, data, dataSize);
-    uploadBuffer->Unmap(0, nullptr);
+    uploadResrouce->Unmap(0, nullptr);
 
     D3D12_TEXTURE_COPY_LOCATION dst = {};
     dst.pResource                   = texture;
@@ -145,7 +146,7 @@ void SkyBox::UploadToTexture2D(ID3D12Device* device, ID3D12GraphicsCommandList* 
     dst.SubresourceIndex            = 0;
 
     D3D12_TEXTURE_COPY_LOCATION src = {};
-    src.pResource                   = uploadBuffer.Get();
+    src.pResource                   = uploadResrouce.Get();
     src.Type                        = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
 
     D3D12_PLACED_SUBRESOURCE_FOOTPRINT footprint;
@@ -161,6 +162,8 @@ void SkyBox::UploadToTexture2D(ID3D12Device* device, ID3D12GraphicsCommandList* 
         texture, D3D12_RESOURCE_STATE_COPY_DEST,
         D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE); 
     commandList->ResourceBarrier(1, &barrier);
+
+    UmDevice.UploadResource(uploadResrouce);
 }
 
 void SkyBox::CreateHDRSRV(ID3D12Resource* resource)

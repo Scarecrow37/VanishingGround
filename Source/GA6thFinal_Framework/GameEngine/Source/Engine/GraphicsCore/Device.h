@@ -19,11 +19,12 @@ public:
     void SetUpDevice(HWND hwnd, UINT width, UINT height, FEATURE_LEVEL feature);
     void Initialize();
     void Finalize();
-
+    
 public:
     void OnResize(UINT width, UINT height);
     void GPUSync();
 
+    void UploadResource(ComPtr<ID3D12Resource> uploadResource);
     void SetCurrentPipelineState(ComPtr<ID3D12PipelineState> pipelineState);
     void SetBackBuffer();
     void ResolveBackBuffer(ComPtr<ID3D12Resource> source);
@@ -33,6 +34,7 @@ public:
     
     void Execute();
 
+public:
     UINT GetRTVDescriptorSize() { return _rtvDescriptorSize; }
     UINT GetCBVSRVUAVDescriptorSize() { return _cbvSrvUavDescriptorSize; }
     UINT GetDSVDescriptorSize() { return _dsvDescriptorSize; }
@@ -117,10 +119,12 @@ private:
     ComPtr<ID3D12GraphicsCommandList> _commandList;
     ComPtr<ID3D12CommandAllocator>    _commandAllocator;
 
-    std::vector<ComPtr<ID3D12Resource>> _uploadResources;
 
     // compute 관련 command 객체들
     ComPtr<ID3D12CommandQueue>        _computeCommandQueue;
     ComPtr<ID3D12GraphicsCommandList> _computeCommandList;
     ComPtr<ID3D12CommandAllocator>    _computeComandListAlloc;
+
+    // UploadBuffer 생명주기를 관리 할 UploadBuffer container
+    std::vector<ComPtr<ID3D12Resource>> _uploadResources;
 };

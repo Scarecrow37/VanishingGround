@@ -326,6 +326,11 @@ void Device::GPUSync()
     }
 }
 
+void Device::UploadResource(ComPtr<ID3D12Resource> uploadResource) 
+{
+    _uploadResources.push_back(uploadResource);
+}
+
 void Device::SetCurrentPipelineState(ComPtr<ID3D12PipelineState> pipelineState)
 {
     _currentPipelineState = pipelineState;

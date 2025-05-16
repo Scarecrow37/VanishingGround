@@ -39,5 +39,4 @@ private:
     ComPtr<ID3D12PipelineState>         _computePSO;
     ComPtr<ID3D12DescriptorHeap>        _descriptorHeap;
     std::vector<ComPtr<ID3D12Resource>> _cbs;
-    ComPtr<ID3D12Resource>              uploadBuffer;
 };
