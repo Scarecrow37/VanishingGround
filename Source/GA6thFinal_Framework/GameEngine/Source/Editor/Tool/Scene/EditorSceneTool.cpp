@@ -100,10 +100,10 @@ void EditorSceneTool::SetCamera()
 
     auto& camera = _camera->GetCamera();
     camera->SetupPerspective(
-        ReflectFields->CameraFovDegree,
+        ReflectFields->CameraFov,
         ReflectFields->CameraAspect,
         ReflectFields->CameraNearZ,
-        ReflectFields->CameraFarZ);
+        ReflectFields->CameraFarZ);   
 }
 
 void EditorSceneTool::UpdateMode()
@@ -187,18 +187,31 @@ void EditorSceneTool::SerializedReflectEvent()
     std::memcpy(ReflectFields->CameraPosition.data(), &camPos, sizeof(ReflectFields->CameraPosition));
 
     Quaternion camRot = _camera->GetRotation();
+    camRot.Normalize();
     std::memcpy(ReflectFields->CameraRotation.data(), &camRot, sizeof(ReflectFields->CameraRotation));
+
+    UpdateCameraSetting();
 }
 
 void EditorSceneTool::DeserializedReflectEvent() 
 {
-    _camera->SetMoveSpeed(ReflectFields->CameraMoveSpeed);
-    _camera->SetRotationSpeed(ReflectFields->CameraRotateSpeed);
-
     Vector3 camPos = Vector3(ReflectFields->CameraPosition.data());
     _camera->SetPosition(camPos);
 
     Quaternion camRot = Quaternion(ReflectFields->CameraRotation.data());
+    if (camRot.w <= Mathf::AngleEpsilon)
+    {
+        camRot = Quaternion();
+    }
+    camRot.Normalize();
     _camera->SetRotation(camRot);
+
+    UpdateCameraSetting();
+}
+
+void EditorSceneTool::UpdateCameraSetting() 
+{
+    _camera->SetMoveSpeed(ReflectFields->CameraMoveSpeed);
+    _camera->SetRotationSpeed(ReflectFields->CameraRotateSpeed / 1000.f);
 }
 
