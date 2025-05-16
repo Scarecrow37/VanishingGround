@@ -65,7 +65,7 @@ void EditorTool::BeginFrame()
     InitFrame();
 
     auto label      = GetLabel().c_str();
-    bool& isVisible = ReflectFields->Basefields.get()._isVisible;
+    bool* isVisible = HasEditorToolFlags(EDITORTOOL_FLAGS_NO_CLOSE_BUTTON) ? nullptr : &ReflectFields->Basefields.get()._isVisible;
     auto owner      = GetOwnerDockWindow();
     int  windowFlag = _windowFlags | ImGuiWindowFlags_NoCollapse;
 
@@ -76,7 +76,7 @@ void EditorTool::BeginFrame()
         ImGui::SetNextWindowClass(&windowClass);
     }
    
-    ImGui::Begin(label, &isVisible, windowFlag);
+    ImGui::Begin(label, isVisible, windowFlag);
 
     _imguiWindow      = ImGui::GetCurrentWindow();
     _isBeginningFrame = true;

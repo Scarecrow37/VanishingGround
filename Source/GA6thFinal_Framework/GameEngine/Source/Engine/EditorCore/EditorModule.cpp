@@ -116,11 +116,6 @@ void EditorModule::Update()
     }
 }
 
-bool EditorModule::IsLock()
-{
-    return (false == _popupBoxSystem.IsEmpty());
-}
-
 void EditorModule::OpenPopupBox(const std::string& name, std::function<void()> content) 
 {
     _popupBoxSystem.OpenPopupBox(name, content);

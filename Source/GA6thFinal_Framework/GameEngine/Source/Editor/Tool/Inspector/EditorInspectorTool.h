@@ -17,26 +17,25 @@ private:
 
     virtual void OnFrameEnd() override;
 
-    virtual void OnFrameFocusStay() override;
-
 public:
     static bool IsLockFocus() { return _isLockFocus; }
+    static bool SetLockFocus(bool isLock);
 
     static bool IsFocusObject(std::weak_ptr<IEditorObject> obj);
-
-public:
-    // Command
     static bool SetFocusObject(std::weak_ptr<IEditorObject> obj);
-
-    static bool SetLockFocus(bool isLock);
+    static std::weak_ptr<IEditorObject> GetFocusObject();
 
 private:
     static void ShowMenuBarFrame();
 
 private:
-    inline static bool _isLockFocus = false;
+    inline static std::weak_ptr<IEditorObject> _currFocused;    // 현재 틱에 포커스된 오브젝트
+    inline static std::weak_ptr<IEditorObject> _nextFocused;    // 다음 틱에 포커스될 오브젝트
+    inline static IEditorObject* _rowPtrCurrFocused = nullptr;  // 현재 틱에 포커스된 오브젝트의 Row Pointer
+    inline static IEditorObject* _rowPtrNextFocused = nullptr;  // 다음 틱에 포커스될 오브젝트의 Row Pointer
 
-    inline static std::weak_ptr<IEditorObject> _focusedObject;
+    inline static bool _isLockFocus    = false; // 포커스 잠금 여부
+    inline static bool _isFocusChanged = false; // 포커스 변경 여부
 };
 
 namespace Command

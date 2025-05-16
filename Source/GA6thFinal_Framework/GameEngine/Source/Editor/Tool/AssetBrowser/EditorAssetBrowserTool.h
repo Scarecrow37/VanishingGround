@@ -124,7 +124,9 @@ private:
 class EditorAssetObject : public IEditorObject
 {
 public:
+    virtual void OnInspectorEnter() override;
     virtual void OnInspectorStay() override;
+    virtual void OnInspectorExit() override;
 
 public:
     inline void SetThis(std::weak_ptr<EditorAssetObject> thisObj)
