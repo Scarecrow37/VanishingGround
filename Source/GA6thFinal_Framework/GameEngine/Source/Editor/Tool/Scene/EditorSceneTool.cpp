@@ -51,7 +51,6 @@ void EditorSceneTool::OnPreFrameBegin()
 
 void EditorSceneTool::OnPostFrameBegin()
 {
-
 }
 
 void EditorSceneTool::OnFrameRender() 
@@ -66,12 +65,10 @@ void EditorSceneTool::OnFrameRender()
 
 void EditorSceneTool::OnFrameEnd()
 {
-    
 }
 
 void EditorSceneTool::OnFrameFocusStay()
 {
-
 }
     
 void EditorSceneTool::SetMoveFlag() 
