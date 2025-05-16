@@ -5,3 +5,4 @@
 #define UmViewManager Global::engineCore->Graphics.ViewManager
 #define UmResourceManager Global::engineCore->Graphics.ResourceManager
 #define UmMainCamera Global::engineCore->Graphics.MainCamera
+#define UmParticleManager Global::engineCore->Graphics.ParticleManager
