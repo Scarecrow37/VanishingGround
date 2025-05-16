@@ -197,7 +197,10 @@ void EComponentFactory::UninitalizeComponentFactory()
             if (auto component = wptr.lock())
             {
                 int index = component->GetIndex();
-                component->_gameObect->_components[index].reset(); //컴포넌트 파괴
+                if (0 <= index)
+                {
+                    component->_gameObect->_components[index].reset(); // 컴포넌트 파괴
+                }             
             }
         }
         _componentInstanceVec.clear();

@@ -19,7 +19,7 @@ void EditorDynamicCamera::Update()
 
     ImGuiIO& io          = ImGui::GetIO();
     float    moveSpeed   = _moveScale * _moveSpeed * deltaTime;
-    float    rotateSpeed = _rotationSpeed * deltaTime;
+    float    rotateSpeed = _rotationSpeed;
 
     const Matrix& matrix = _camera->GetWorldMatrix();
     const Vector3 foward = -matrix.Forward();
@@ -29,10 +29,6 @@ void EditorDynamicCamera::Update()
     bool isRightClick = ImGui::IsKeyDown(ImGuiKey::ImGuiKey_MouseRight);
     if (isRightClick)
     {
-        if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftShift))
-        {
-            moveSpeed *= 2.f;
-        }
         if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_W))
         {
             _position += foward * moveSpeed;

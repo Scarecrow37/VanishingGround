@@ -8,7 +8,6 @@ using namespace u8_literals;
 void EditorSceneMenuScenes::OnMenu()
 {
     EditorModule& editor = *Global::editorModule;
-
     if (ImGui::BeginMenu("Scene"))
     {
         if (ImGui::BeginMenu("New Scene File"))
@@ -40,8 +39,29 @@ void EditorSceneMenuScenes::OnMenu()
             }
             ImGui::EndMenu();
         }
+        if (ImGui::MenuItem("Camera Setting"))
+        {
+            _isSceneCameraPopUp = true;
+        }
         ImGui::EndMenu();
     }
 
-   
+    SceneCameraPopUp();
+}
+
+void EditorSceneMenuScenes::SceneCameraPopUp() 
+{
+    if (nullptr == _sceneTool)
+    {
+        _sceneTool = editorModule->GetDockWindowSystem().GetDockWindow("SceneDock")->GetGui<EditorSceneTool>();
+    }
+    else if(_isSceneCameraPopUp)
+    {
+        ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+        ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+        ImGui::Begin("Camera Setting", &_isSceneCameraPopUp, ImGuiWindowFlags_AlwaysAutoResize);
+        _sceneTool->ImGuiDrawPropertys();
+        _sceneTool->UpdateCameraSetting();
+        ImGui::End();
+    }
 }
