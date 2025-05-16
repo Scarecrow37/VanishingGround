@@ -148,11 +148,11 @@ void EditorSceneTool::DrawManipulate()
 
         ImGuizmo::SetDrawlist();
         ImGuizmo::SetRect(_clientLeft, _clientTop, _clientWidth, _clientHeight);
-        bool useManipulate = ImGuiHelper::DrawManipulate(pDynamicCamera, pObjectMatrix, drawManipulateDesc);
-        _isUsing           = ImGuizmo::IsUsing();
-        _isOver            = ImGuizmo::IsOver();
+        _isUseManipulate = ImGuiHelper::DrawManipulate(pDynamicCamera, pObjectMatrix, drawManipulateDesc);
+        _isUsing = ImGuizmo::IsUsing();
+        _isOver  = ImGuizmo::IsOver();
 
-        if (true == useManipulate)
+        if (true == _isUseManipulate)
         {         
             Transform* parent = pObject->transform->Parent;
             Vector3    position;
@@ -172,6 +172,34 @@ void EditorSceneTool::DrawManipulate()
             pObject->transform->Rotation = rotation;
             pObject->transform->Scale    = scale;
         }
+
+        static bool prevUseManipulate = false;
+        static ManipulateCommand::Transform prevTransform;
+        if (prevUseManipulate != _isUseManipulate)
+        {
+            if (true == _isUseManipulate)
+            {
+                _isStartManipulate = true;
+                prevTransform.Position = pObject->transform->Position;
+                prevTransform.Rotation = pObject->transform->Rotation;
+                prevTransform.Scale    = pObject->transform->Scale;
+            }
+            else
+            {
+                ManipulateCommand::Transform currTransform;
+                currTransform.Position = pObject->transform->Position;
+                currTransform.Rotation = pObject->transform->Rotation;
+                currTransform.Scale    = pObject->transform->Scale;
+                _isEndManipulate = true;
+                UmCommandManager.Do<ManipulateCommand>(pObject, currTransform, prevTransform);
+            }
+        }
+        else
+        {
+            _isStartManipulate = false;
+            _isEndManipulate   = false;
+        }
+        prevUseManipulate = _isUseManipulate;
     }   
 }
 
@@ -215,3 +243,39 @@ void EditorSceneTool::UpdateCameraSetting()
     _camera->SetRotationSpeed(ReflectFields->CameraRotateSpeed / 1000.f);
 }
 
+EditorSceneTool::ManipulateCommand::ManipulateCommand(
+    const std::shared_ptr<GameObject>& target, 
+    ManipulateCommand::Transform& curr,
+    ManipulateCommand::Transform& prev) 
+    : 
+    UmCommand("Manipulate"),
+    _target(target),
+    _curr(curr),
+    _prev(prev)
+{
+
+}
+
+EditorSceneTool::ManipulateCommand::~ManipulateCommand() = default;
+
+void EditorSceneTool::ManipulateCommand::Execute() 
+{
+    if (false == _target.expired())
+    {
+        auto object = _target.lock();
+        object->transform->Position = _curr.Position;
+        object->transform->Rotation = _curr.Rotation;
+        object->transform->Scale    = _curr.Scale;
+    }
+}
+
+void EditorSceneTool::ManipulateCommand::Undo() 
+{
+    if (false == _target.expired())
+    {
+        auto object = _target.lock();
+        object->transform->Position = _prev.Position;
+        object->transform->Rotation = _prev.Rotation;
+        object->transform->Scale    = _prev.Scale;
+    }
+}
