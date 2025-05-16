@@ -18,12 +18,6 @@ EditorAssetBrowserTool::~EditorAssetBrowserTool()
 {
 }
 
-void EditorAssetBrowserTool::OnTickGui()
-{
-    if (GetOwnerDockWindow()->IsFocusFrame())
-        UmLogger.Log(1, "EditorAssetBrowserTool::OnFrameFocusStay");
-}
-
 void EditorAssetBrowserTool::OnStartGui()
 {
     _currFocusFolderContext = UmFileSystem.GetContext<File::FolderContext>(File::Path(UmFileSystem.GetRootPath()));
