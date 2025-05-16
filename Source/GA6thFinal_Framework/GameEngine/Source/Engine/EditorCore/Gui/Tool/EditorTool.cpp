@@ -172,13 +172,14 @@ void EditorTool::ProcessFocusFrame()
     if (false == _isFirstTick)
     {
         bool isFocused = false;
+        // 도킹 윈도우 여부 판단
         if (true == HasEditorToolFlags(EditorTool::EDITORTOOL_FLAGS_IS_DOCKWINDOW))
         {   // 나는 도킹 호스트거나 부모 창이므로, 자식 도킹창들까지 포커스 포함해서 판단한다.
-            isFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows | ImGuiFocusedFlags_DockHierarchy);
+            isFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows | ImGuiFocusedFlags_DockHierarchy);
         }
         else
         {   // 나는 자식 도킹창이므로, 내 창 자체에만 포커스 있는지 본다.
-            isFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_None);
+            isFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows);
         }
 
         if (true == isFocused)
