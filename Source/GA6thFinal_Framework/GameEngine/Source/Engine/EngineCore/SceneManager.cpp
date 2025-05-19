@@ -1340,7 +1340,6 @@ void ESceneManager::SceneResourceManager::Update(SceneResourceManager& manager)
                             {
                                 models.ModelResource[guid] = UmResourceManager.LoadResource<Model>(path.string());
                             }
-                            meshRenderer.RegisterRenderQueue("Editor");
                             meshRenderer.LoadModel(path.wstring()); 
                             models.ModelUseComponentList[guid].push_back(pMeshComponent);
                         }

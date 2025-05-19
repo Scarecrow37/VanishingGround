@@ -20,6 +20,7 @@ void MeshComponent::MakeMeshRenderer(MeshRenderer::RENDER_TYPE renderType, const
     if (nullptr == _pMeshRenderer)
     {
         _pMeshRenderer.reset(new MeshRenderer(renderType, world));
+        _pMeshRenderer->RegisterRenderQueue("Editor");
     } 
     else
     {
