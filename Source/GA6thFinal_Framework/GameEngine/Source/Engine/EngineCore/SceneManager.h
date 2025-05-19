@@ -466,11 +466,10 @@ private:
     std::pair<std::vector<MeshRenderer*>, std::vector<MeshRenderer*>> _meshSetActiveQueue;
 
 private:
+    // 이전에 로드한 씬 이름입니다.
+    std::string _prevScene = STR_NULL;
     struct
     {
-       //이전에 로드한 씬 이름입니다.
-       std::string PrevScene = STR_NULL;
-
        //현재 Single로 로드된 씬 이름입니다. NewGameObject를 하면 이 씬에 오브젝트가 생성됩니다.
        std::string MainScene = STR_NULL;
 
