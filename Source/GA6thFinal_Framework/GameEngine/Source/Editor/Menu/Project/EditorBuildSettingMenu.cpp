@@ -17,7 +17,7 @@ void EditorBuildSettingMenu::OnTickGui()
         {
             ImVec2 viewportCenter = ImGui::GetMainViewport()->GetCenter();
             ImGui::SetNextWindowPos(viewportCenter, ImGuiCond_Always, ImVec2(0.5f, 0.5f));
-            ImGui::SetNextWindowSize(ImVec2(475, 375), ImGuiCond_FirstUseEver);
+            ImGui::SetNextWindowSize(ImVec2(475, 425), ImGuiCond_FirstUseEver);
             isShow = true;
         }
         ImGui::Begin("Build Setting", &isPopup, ImGuiWindowFlags_NoDocking);
@@ -38,15 +38,11 @@ void EditorBuildSettingMenu::OnMenu()
     {
         if (ImGui::BeginMenu("Build"))
         {
-            if (ImGui::MenuItem("Build Setting"))
+            if (ImGui::MenuItem("Build Project"))
             {
                 isPopup = true;
                 isShow  = false;
-            }
-            if (ImGui::MenuItem("Build Project"))
-            {
-                bool result = editorModule.BuildSystem.BuildProject();
-                UmLogger.Log(LogLevel::LEVEL_DEBUG, "Build Project");
+     
             }
             if (ImGui::MenuItem("Build Script"))
             {
@@ -60,6 +56,8 @@ void EditorBuildSettingMenu::OnMenu()
 
 void EditorBuildSettingMenu::BuildSettingPopup() 
 {
+    EditorModule& editorModule = *Global::editorModule;
+
     if(ImGui::BeginChild("Start Scene Setting", {0, 300}, ImGuiChildFlags_Border))
     {
         std::string& startSceneSetting = ESceneManager::Engine::GetStartSceneSetting();
@@ -81,5 +79,38 @@ void EditorBuildSettingMenu::BuildSettingPopup()
             ImGuiHelper::HoveredToolTip(toolTip);
         }
         ImGui::EndChild();
+
+        static std::string buildOutPath;
+        ImGui::InputText("##path_input", &buildOutPath, ImGuiInputTextFlags_ReadOnly);
+        if (ImGui::BeginItemTooltip())
+        {
+            ImGui::Text(buildOutPath.c_str());
+            ImGui::EndTooltip();
+        }
+        ImGui::SameLine();
+        if (ImGui::Button(EditorIcon::ICON_FOLDER_OPEN))
+        {
+            File::Path path;
+            if (File::ShowOpenFolderBrowser(UmApplication.GetHwnd(), L"저장할 폴더를 선택하세요.", L"C:", path))
+            {
+                buildOutPath = path.string();
+            }  
+        }
+        if (ImGui::Button("Build"))
+        {
+            if (false == buildOutPath.empty())
+            {
+                bool result = editorModule.BuildSystem.BuildProject(buildOutPath.c_str());
+                if (true == result)
+                {
+                    MessageBox(UmApplication.GetHwnd(), L"빌드 완료.", L"빌드", MB_OK);
+                }
+            }
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Close"))
+        {
+            ImGui::CloseCurrentPopup();
+        }
     }
 }
