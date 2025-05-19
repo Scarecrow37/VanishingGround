@@ -169,14 +169,14 @@ void EditorModule::SetGuiThemeStyle()
 void EditorModule::OnRequestedSave()
 {
     File::Path name = L"EditorModule.UmSetting";
-    auto& path = UmFileSystem.GetSettingPath();
+    auto& path = UmFileSystem.GetProjectSettingPath();
     SaveSetting(path / name);
 }
 
 void EditorModule::OnRequestedLoad() 
 {
     File::Path name = L"EditorModule.UmSetting";
-    auto& path = UmFileSystem.GetSettingPath();
+    auto& path = UmFileSystem.GetProjectSettingPath();
     LoadSetting(path / name);
 }
 
@@ -285,4 +285,19 @@ void EditorModule::EditorPlayMode::DefaultPlayModeColor()
 
     // DragDrop
     _playModeColors[ImGuiCol_DragDropTarget] = ImVec4{0.1f, 0.4f, 0.65f, 1.0f};
+}
+
+EditorModule::EditorBuildSystem::EditorBuildSystem() 
+{
+
+}
+
+EditorModule::EditorBuildSystem::~EditorBuildSystem() 
+{
+
+}
+
+bool EditorModule::EditorBuildSystem::BuildProject()
+{
+    return false;
 }

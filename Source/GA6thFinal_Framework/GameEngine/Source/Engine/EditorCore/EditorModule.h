@@ -139,5 +139,17 @@ namespace Global
         ImVec4 _playModeColors[ImGuiCol_COUNT];
     }
     PlayMode;
+
+    //빌드 매니저
+    class EditorBuildSystem
+    {
+    public:
+        EditorBuildSystem();
+        ~EditorBuildSystem();
+
+        bool BuildProject();
+
+    }
+    BuildSystem;
  };
 
