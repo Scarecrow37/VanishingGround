@@ -2,3 +2,55 @@
 #include "Particle.h"
 #include "ParticleEmitter.h"
 #include "ParticleEffect.h"
+
+void ParticleEffect::Initialize(class ParticleManager* particleManager) 
+{
+
+}
+
+void ParticleEffect::Update(float deltaTime) 
+{
+    _scaleMatrix = Matrix::CreateScale(_scale);
+    _rotationMatrix = Matrix::CreateFromQuaternion(_rotation);
+    _translationMatrix = Matrix::CreateTranslation(_position);
+
+    _worldMatrix = _scaleMatrix * _rotationMatrix * _translationMatrix;
+
+    for (auto emitter : _particleEmitters)
+    {
+        emitter->SetEffectWorldMatrix(_worldMatrix);
+        emitter->Update(deltaTime);
+    }
+
+
+}
+
+
+
+void ParticleEffect::AddEmitter(SIZE_T maxParticles /*= 100000*/, float emissionRate /*= 500.f*/,
+                                float emitterLifetime /*= 5.f*/, LocationShape locatorShape /*= LocationShape::SPHERE*/,
+                                Vector3 locationFactor /*= Vector3(1, 1, 1)*/)
+{
+    auto newEmitter = new ParticleEmitter();
+    newEmitter->Initialize(maxParticles, emissionRate, emitterLifetime, locatorShape, locationFactor);
+
+    _particleEmitters.push_back(newEmitter);
+}
+
+void ParticleEffect::RemoveEmitter() {}
+
+class ParticleEmitter* ParticleEffect::GetEmitter(size_t emitterIndex) 
+{
+    return _particleEmitters[emitterIndex];
+}
+
+void ParticleEffect::UpdateParticleLifeCycle(float deltaTime) 
+{
+    for (auto emitter : _particleEmitters)
+    {
+        if (true == emitter->GetActiveFlag())
+        {
+            emitter->UpdateParticleLifeCycle(deltaTime);
+        }
+    }
+}

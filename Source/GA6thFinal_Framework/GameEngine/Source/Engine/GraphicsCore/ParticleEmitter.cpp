@@ -76,15 +76,16 @@ DirectX::SimpleMath::Vector3 MeshSurfaceLocator::EmitLocate()
         return {0, 0, 0};
 }
 
-
 void SpriteModule::SetFrameInfo(Vector4 frameInfo) 
 {
     _initialFrameInfo = frameInfo;
+    CalculateFrameInfos();
 }
 
 void SpriteModule::SetFrameInfo(int widthCount, int heightCount, int startIndex, int totalCount) 
 {
     _initialFrameInfo = Vector4(widthCount, heightCount, startIndex, totalCount);
+    CalculateFrameInfos();
 }
 
 void SpriteModule::LoadAlbedoTexture(std::wstring filePath) 
@@ -112,12 +113,51 @@ Texture* SpriteModule::GetNormalTexture() const
     return _normalTexture.get();
 }
 
+void SpriteModule::CalculateFrameInfos() 
+{
+    _preCalculatedFrameInfos.clear();
+    Vector2 offset = {1.f / _initialFrameInfo.x, 1 / _initialFrameInfo.y};
+    for (int i = 0;i < _initialFrameInfo.w;++i)
+    {
+
+        Vector4 newFrame = {0, 0, 1, 1};
+        UINT    x        = i % (UINT)_initialFrameInfo.x;
+        UINT    y        = i / (UINT)_initialFrameInfo.x;
+
+        newFrame.x = x * offset.x;
+        newFrame.y = y * offset.y;
+        newFrame.z = newFrame.x + offset.x;
+        newFrame.w = newFrame.y + offset.y;
+        _preCalculatedFrameInfos.push_back(newFrame);
+    }
+}
 
 void ParticleEmitter::Initialize(SIZE_T maxParticles /*= 100000*/, float emissionRate /*= 500.f*/,
-                                 float         emitterLifetime /*= 5.f */,
+                                 float         emitterLifetime /*= 5.f*/,
                                  LocationShape locatorShape /*= LocationShape::SPHERE*/,
-                                 Vector3       locationFactor /* = Vector3(1, 1, 1)*/)
+                                 Vector3       locationFactor /*= Vector3(1,1,1)*/,
+                                 ParticleType  particleType /*= ParticleType::SPRITE*/)
 {
+    _particleType = particleType;
+    switch (particleType)
+    {
+    case ParticleType::SPRITE:
+        _particleRenderModule = new SpriteModule();
+        break;
+    case ParticleType::MESH:
+        _particleRenderModule = new MeshModule();
+        break;
+    case ParticleType::RIBBON:
+        _particleRenderModule = new RibbonModule();
+        break;
+    default:
+        _particleRenderModule = new SpriteModule();
+        break;
+
+    }
+
+    _emitLocator->RandomInitialize();
+    _emitLocator->SetFactor(locationFactor);
     _maxParticles = maxParticles;
     _emissionRate = emissionRate;
     _particlePool.resize(_maxParticles);
@@ -125,38 +165,47 @@ void ParticleEmitter::Initialize(SIZE_T maxParticles /*= 100000*/, float emissio
     {
         _inactiveParticleIndices.push(i);
     }
- 
+}
 
+
+void ParticleEmitter::AwakeParticle(UINT index) 
+{
+    Vector3 offset = {_emitLocator->_randomVal(), _emitLocator->_randomVal(), _emitLocator->_randomVal()};
+
+    Vector4 location = {1, 1, 1, 1};
+    location.x       = _emitLocator->EmitLocate().x + _emitLocator->_randomVal() * _particleDistributionOffset;
+    location.y       = _emitLocator->EmitLocate().y + _emitLocator->_randomVal() * _particleDistributionOffset;
+    location.z       = _emitLocator->EmitLocate().z + _emitLocator->_randomVal() * _particleDistributionOffset;
+    _particlePool[index]->SetPosition(location);
+    _particlePool[index]->SetVelocity(_velocity);
+    _particlePool[index]->SetStartColor(_startColor);
+    _particlePool[index]->SetStartOpacity(_startOpacity);
+    _particlePool[index]->SetEndColor(_endColor);
+    _particlePool[index]->SetEndOpacity(_endOpacity);
+    _particlePool[index]->SetStartScale(_startScale);
+    _particlePool[index]->SetEndScale(_endScale);
+    _particlePool[index]->SetAge(0.f);
+    _particlePool[index]->SetLifetime(_particleLifetime);
+    _particlePool[index]->SetMass(_particleMass);
+    auto spritemodule = static_cast<SpriteModule*>(_particleRenderModule);
+    Vector4 frameInfo    = {spritemodule->GetFrameDuration(), 0, 0, 0};
+    _particlePool[index]->SetFrameinfo(frameInfo);
 
 }
 
-void ParticleEmitter::AwakeParticle(SIZE_T index) {}
-
-void ParticleEmitter::Update(float deltaTime) 
+void ParticleEmitter::UpdateParticleLifeCycle(float deltaTime) 
 {
-    _translationMatrix = Matrix::CreateTranslation(_emitterPosition);
-    _rotationMatrix    = Matrix::CreateFromQuaternion(_emitterRotation);
-    _worldMatrix       = _rotationMatrix * _translationMatrix;
-    for (int i = 0; i < _activeParticleCount; ++i)
-    {
-        _particlePool[i].SetParentWorldMatrix(_worldMatrix);
-        // particle update code.
-
-
-    }
-
     // 수명 다한 파티클 비활성화
     for (int i = 0; i < _activeParticleCount; ++i)
     {
-        // if (age[i] >= lifetime[i])
-        if (_particlePool[i].GetAge() >= _particlePool[i].GetLifetime())
+        _particlePool[i]->SetAge(_particlePool[i]->GetAge() + deltaTime);
+        if (_particlePool[i]->GetAge() >= _particlePool[i]->GetLifetime())
         {
             _activeParticleCount--;
             std::swap(_particlePool[i], _particlePool[_activeParticleCount]);
             _inactiveParticleIndices.push(_activeParticleCount);
         }
     }
-
 
     // 새 파티클 생성
     size_t newParticles = 0;
@@ -179,6 +228,18 @@ void ParticleEmitter::Update(float deltaTime)
         _activeParticleCount++;
         AwakeParticle(index);
         newParticles--;
+    }
+}
+
+
+void ParticleEmitter::Update(float deltaTime) 
+{
+    _translationMatrix = Matrix::CreateTranslation(_emitterPosition);
+    _rotationMatrix    = Matrix::CreateFromQuaternion(_emitterRotation);
+    _worldMatrix       = _rotationMatrix * _translationMatrix * _effectWorldMatrix;
+    for (int i = 0; i < _activeParticleCount; ++i)
+    {
+        // particle update code.
     }
 }
 

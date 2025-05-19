@@ -37,10 +37,9 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
         CameraPos.xyz,
         input.axis
     );
-    
     // 4. 스케일 적용
     float4x4 scaleMat = CreateScaleMatrix(
-        lerp(float4(input.startEndScale.xy, 1, 1), float4(input.startEndScale.zw, 1, 1), input.age / input.lifetime)
+        lerp(float4(input.startScale.xy, 1, 1), float4(input.endScale.xy, 1, 1), input.age / input.lifetime)
     );
     
     // 5. 최종 행렬 계산
@@ -48,12 +47,12 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
     output.FinalMatrix = mul(mul(mul(scaleMat, billboardMat), ViewMatrix), ProjMatrix);
     
     // 6. 색상 보간
-    output.Color = lerp(input.startColor, input.endColor, input.age / input.lifetime);
+    float3 outputColor = lerp(input.startColor, input.endColor, input.age / input.lifetime);
+    float outputOpacity = lerp(input.startopacity, input.endopacity, input.age / input.lifetime);
+    output.Color = float4(outputColor, outputOpacity);
     
     // 7. 프레임 애니메이션
-    output.FrameInfo = UpdateAnimation(
-        input.frameinfo,deltaTime
-    );
+    output.FrameInfo = UpdateAnimation(input.frameinfo, deltaTime);
     
     // 결과 저장
     ParticleOutputBuffer[idx] = output;

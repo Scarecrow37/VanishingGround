@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "ParticleHelper.h"
 
 enum class LocationShape
 {
@@ -22,13 +23,13 @@ public:
     virtual Vector3 EmitLocate() = 0;
     Vector3         GetFactor() const { return _factor; }
     void            SetFactor(const Vector3 factor) { _factor = factor; }
+    std::function<float()>                _randomVal;
 
 protected:
     Vector3                               _factor;
     std::random_device                    _randomizer;
     std::mt19937                          _randomGenerator;
     std::uniform_real_distribution<float> _randomRange;
-    std::function<float()>                _randomVal;
 };
 
 class SphereLocator : public EmitLocator
@@ -80,7 +81,6 @@ private:
 class ParticleRenderModule
 {
 public:
-
 };
 
 class SpriteModule : public ParticleRenderModule
@@ -95,11 +95,15 @@ public:
     class Texture* GetAlbedoTexture() const;
     class Texture* GetNormalTexture() const;
 
-
 protected:
     Vector4                        _initialFrameInfo;
     std::shared_ptr<class Texture> _albedoTexture;
     std::shared_ptr<class Texture> _normalTexture;
+    std::vector<Vector4>           _preCalculatedFrameInfos;
+    void                           CalculateFrameInfos();
+    UMPARTICLE_PROPERTY(float, _frameDuration, FrameDuration, 1 / 24.f);
+
+
 
 private:
 };
@@ -113,15 +117,16 @@ class RibbonModule : public ParticleRenderModule
 
 };
 
-
-
 class ParticleEmitter
 {
 public:
-
+    ParticleType          _particleType;
+    ParticleRenderModule* _particleRenderModule;
+    EmitLocator* _emitLocator;
     void Initialize(SIZE_T maxParticles = 100000, float emissionRate = 500.f, float emitterLifetime = 5.f,
-                    LocationShape locatorShape = LocationShape::SPHERE, Vector3 locationFactor = Vector3(1,1,1));
-    void AwakeParticle(SIZE_T index);
+                    LocationShape locatorShape = LocationShape::SPHERE, Vector3 locationFactor = Vector3(1,1,1),ParticleType particleType = ParticleType::SPRITE);
+    void AwakeParticle(UINT index);
+    void UpdateParticleLifeCycle(float deltaTime);
 
     /*
      *        TODO :
@@ -133,43 +138,52 @@ public:
 
     void SetLocatorFactor(const Vector3& factor);
 
+    std::vector<class Particle*> GetParticlePool() { return _particlePool; }
+
+    UINT GetActiveParticleCount() const { return _activeParticleCount; }
+
 protected:
     void InitializeLocator(LocationShape locatorShape, Vector3 factor);
 
+    UMPARTICLE_PROPERTY_REF(Matrix, _effectWorldMatrix, EffectWorldMatrix, Matrix::Identity);
+    Vector3      _emitterPosition;
+    Quaternion   _emitterRotation;
+    UMPARTICLE_PROPERTY(bool, _activeFlag, ActiveFlag,true);
+    UMPARTICLE_PROPERTY(float, _emitterAge, EmitterAge,0.f);
+    UMPARTICLE_PROPERTY(float, _emitterLifetime, EmitterLifetime,5.f);
+    UMPARTICLE_PROPERTY(SIZE_T, _maxParticles, MaxParticles,10000);
+    UMPARTICLE_PROPERTY(float, _emissionRate, EmissionRate,5000.f);
+    UMPARTICLE_PROPERTY(bool, _spawnBurstFlag, SpawnBurstFlag,false);
+    UMPARTICLE_PROPERTY(float, _spawnBurstCount, SpawnBurstCount,5000);
+
+    Matrix GetWorldMatrix() const { return _worldMatrix; }
 
 protected:
-    EmitLocator* _emitLocator;
-    SIZE_T       _maxParticles;
-    float        _emissionRate;
     float        _emissionThreshold;
-    bool         _emitterActiveFlag;
-    float        _emitterAge;
-    float        _emitterLifetime;
-    bool         _isSpawnBursting;
-    float        _spawnBurstCount;
 
     // particle pooling
-    class ParticleEffect*       _parentEffect;
-    std::vector<class Particle> _particlePool;
-    SIZE_T                      _activeParticleCount;
-    std::stack<SIZE_T>          _inactiveParticleIndices;
+    std::vector<class Particle*> _particlePool;
+    SIZE_T                       _activeParticleCount;
+    std::stack<SIZE_T>           _inactiveParticleIndices;
 
     // rotation, translation matrix for scene graph ( manager - system - emitter - particles )
-    Vector3    _emitterPosition;
-    Quaternion _emitterRotation;
+
     Matrix     _translationMatrix;
     Matrix     _rotationMatrix;
     Matrix     _worldMatrix;
 
     // initial value for particles for lerp
-    Vector3 _startVelocity;
-    Vector3 _endVelocity;
-    Vector4 _startColor;
-    Vector4 _endColor;
-    Vector3 _startScale;
-    Vector3 _endScale;
-
-
-
+    UMPARTICLE_PROPERTY_REF(Vector3, _velocity, Velocity,Vector3(1,1,1));
+    UMPARTICLE_PROPERTY_REF(Vector3, _startColor, StartColor, Vector3(1, 1, 1));
+    UMPARTICLE_PROPERTY(float, _startOpacity, StartOpacity, 0.f);
+    UMPARTICLE_PROPERTY_REF(Vector3, _endColor, EndColor, Vector3(1, 1, 1));
+    UMPARTICLE_PROPERTY(float, _endOpacity, EndOpacity, 1.f);
+    UMPARTICLE_PROPERTY_REF(Vector4, _startScale, StartScale, Vector4(1, 1, 1, 1));
+    UMPARTICLE_PROPERTY_REF(Vector4, _endScale, EndScale, Vector4(1, 1, 1, 1));
+    
+    UMPARTICLE_PROPERTY(float, _particleLifetime, ParticleLifetime , 1.f);
+    UMPARTICLE_PROPERTY(float, _particleMass, ParticleMass,0.1f);
+    UMPARTICLE_PROPERTY(float, _particleDistributionOffset, ParticleDistributionOffset,1.f);
+    
 
 };
