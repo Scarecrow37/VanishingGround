@@ -990,25 +990,38 @@ bool ESceneManager::DeserializeToYaml(YAML::Node* _sceneNode)
 
     if (true == isMainScene)
     {
+        bool loadSkyBox = false;
         if (STR_NULL != scene._skyBox)
         {
             if (STR_NULL != _setting.PrevScene)
             {
-                File::Guid prevGuid = _setting.PrevScene;
-                Scene& prevSccene = _scenesMap[Guid];
-                if (false == prevGuid.IsNull() && prevSccene._skyBox != scene._skyBox)
+                File::Guid prevGuid = UmFileSystem.GetGuidFromPath(_setting.PrevScene);
+                if (false == prevGuid.IsNull())
                 {
-                    UmRenderer.SetSkyBox(scene._skyBox.ToPath().string());
+                    Scene& prevSccene = _scenesMap[prevGuid];
+                    if (prevSccene._skyBox != scene._skyBox)
+                    {
+                        loadSkyBox = true;
+                    }
+                }
+                else
+                {
+                    loadSkyBox = true;
                 }
             }
             else
             {
-                UmRenderer.SetSkyBox(scene._skyBox.ToPath().string());
+                loadSkyBox = true;
             }            
         }
         else
         {
+            UmRenderer.ResetSkyBox();
+        }
 
+        if (loadSkyBox)
+        {
+            UmRenderer.SetSkyBox(scene._skyBox.ToPath().string());
         }
     }
     
