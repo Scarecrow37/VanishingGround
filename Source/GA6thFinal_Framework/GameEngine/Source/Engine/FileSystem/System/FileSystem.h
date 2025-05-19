@@ -30,22 +30,22 @@ public:
     bool LoadSetting(const File::Path& path);
 
 public:
-    inline auto&       GetProjectName() { return _projectName; }
-    inline int         GetDebugLevel() const { return _setting.DebugLevel; }
-    inline const auto& GetMetaExt() const { return _setting.MetaExt; }
-
-    inline const File::Path& GetOriginPath() const { return _originPath; }
-    inline const File::Path& GetRootPath() const { return _rootPath; }
-    inline const File::Path& GetAssetPath() const { return _assetPath; }
-    inline const File::Path& GetProjectSettingPath() const { return _projectSettingPath; }
-    inline const File::Path& GetBuildSettingPath() const { return _buildSettingPath; }
+    inline int                  GetDebugLevel()         const { return _setting.DebugLevel; }
+    inline const std::string&   GetProjectName()        const { return _projectName; }
+    inline const std::string&   GetMetaExt()            const { return _setting.MetaExt; }
+    inline const File::Path&    GetOriginPath()         const { return _originPath; }
+    inline const File::Path&    GetRootPath()           const { return _rootPath; }
+    inline const File::Path&    GetAssetPath()          const { return _assetPath; }
+    inline const File::Path&    GetProjectSettingPath() const { return _projectSettingPath; }
+    inline const File::Path&    GetBuildSettingPath()   const { return _buildSettingPath; }
 
     bool IsLoadedProject() const;
     bool IsVaildGuid(const File::Guid& guid) const;
     bool IsValidExtension(const File::FString& ext) const;
     bool IsSameContext(std::weak_ptr<File::Context> left, std::weak_ptr<File::Context> right) const;
-
+            
     File::Path GetRelativePath(const File::Path& path) const;
+    std::shared_ptr<File::Guid> GetGuidRef(const File::Guid guid);
 
     const File::Path& GetPathFromGuid(const File::Guid& guid) const;
     const File::Guid& GetGuidFromPath(const File::Path& path) const;
@@ -140,13 +140,16 @@ private:
     File::Path _buildSettingPath; // 빌드세팅 경로(절대 경로)
 
     std::unordered_set<std::shared_ptr<File::Context>>
-        _contextTable;      // 원본 컨텍스트 포인터를 관리하는 테이블
+        _contextTable;              // 원본 컨텍스트 포인터를 관리하는 테이블
     std::unordered_map<File::Path, std::weak_ptr<File::Context>>
-        _pathToGuidTable;   // 파일 경로를 통해 ID를 찾는 테이블
+        _pathToGuidTable;           // 파일 경로를 통해 ID를 찾는 테이블
     std::unordered_map<File::Guid, std::weak_ptr<File::Context>>
-        _guidToPathTable;   // ID를 통해 파일 경로를 찾는 테이블
+        _guidToPathTable;           // ID를 통해 파일 경로를 찾는 테이블
+    std::unordered_map<File::Guid, std::weak_ptr<File::Guid>>
+        _guidToRefTable;            // ID를 통해 참조를 찾는 테이블
+
     std::unordered_set<File::FileEventNotifier*> 
-        _notifierSet;
+        _notifierSet;               // 등록된 Notifier
     std::unordered_map<File::FString, NotifierSet>
-        _extesionToNotifierTable;     // Notifier 테이블
+        _extesionToNotifierTable;     // 확장자를 통해 Notifier를 찾는 테이블
 };

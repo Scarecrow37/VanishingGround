@@ -303,6 +303,29 @@ File::Path EFileSystem::GetRelativePath(const File::Path& path) const
     return File::NULL_PATH;
 }
 
+std::shared_ptr<File::Guid> EFileSystem::GetGuidRef(const File::Guid guid)
+{
+    if (NULL_GUID == guid)
+    {
+        return std::shared_ptr<File::Guid>();
+    }
+    auto itr = _guidToRefTable.find(guid);
+    if (itr != _guidToRefTable.end())
+    {
+        if (true == itr->second.expired())
+        {
+            _guidToRefTable.erase(itr);
+        }
+        else
+        {
+            return itr->second.lock();
+        }
+    }
+    auto spwGuid = std::make_shared<File::Guid>(guid);
+    _guidToRefTable[guid] = spwGuid;
+    return spwGuid;
+}
+
 const File::Path& EFileSystem::GetPathFromGuid(const File::Guid& guid) const
 {
     auto wpContext = GetContext(guid);
