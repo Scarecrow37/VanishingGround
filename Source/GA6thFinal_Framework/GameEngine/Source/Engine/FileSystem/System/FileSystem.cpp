@@ -336,6 +336,11 @@ File::GuidRef EFileSystem::GetGuidRef(const File::Guid guid)
     return spwGuid;
 }
 
+const EFileSystem::GuidRefTable& EFileSystem::GetGuidRefTable() const
+{
+    return _guidToRefTable;
+}
+
 const File::Path& EFileSystem::GetPathFromGuid(const File::Guid& guid) const
 {
     auto wpContext = GetContext(guid);
