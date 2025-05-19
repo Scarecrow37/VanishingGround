@@ -7,7 +7,7 @@ void EditorMenuScriptBuilder::OnMenu()
     {
         if (ImGui::BeginMenu("Build"))
         {
-            if (ImGui::MenuItem("Script Build", ""))
+            if (ImGui::MenuItem("Build Script"))
             {
                 Global::engineCore->ComponentFactory.InitalizeComponentFactory();
             }
