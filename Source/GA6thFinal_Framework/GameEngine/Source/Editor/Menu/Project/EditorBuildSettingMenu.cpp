@@ -42,6 +42,10 @@ void EditorBuildSettingMenu::OnMenu()
                 isPopup = true;
                 isShow  = false;
             }
+            if (ImGui::MenuItem("Build Project"))
+            {
+
+            }
             ImGui::EndMenu();
         }
         ImGui::EndMenu();
@@ -61,12 +65,13 @@ void EditorBuildSettingMenu::BuildSettingPopup()
         ImGui::Separator();
         for (auto& [guid, scene] : UmSceneManager.GetScenesMap())
         {
-            std::string path = guid.ToPath().string();
+            File::Path scenePath = guid.ToPath();
+            std::string path = std::filesystem::relative(scenePath, UmFileSystem.GetRootPath()).string();
             if (ImGui::Button(path.c_str()))
             {
                 startSceneSetting = path;
             }
-            std::string toolTip = std::format("{}{}", path, u8"으로 설정합니다."_c_str);
+            const std::string toolTip = std::format("{}{}", path, u8"으로 설정합니다."_c_str);
             ImGuiHelper::HoveredToolTip(toolTip);
         }
         ImGui::EndChild();
