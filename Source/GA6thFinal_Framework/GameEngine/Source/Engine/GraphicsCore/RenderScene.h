@@ -49,7 +49,8 @@ public:
 
     // Scene view 용 최종 렌더 이미지 얻기
     D3D12_CPU_DESCRIPTOR_HANDLE GetFinalImage();
-    void                        SetSkyBox(std::string path);
+    void                        SetSkyBox(std::string_view path);
+    void                        ResetSkyBox();
     SkyBox*                     GetSkyBox() { return _skyBox.get();};
 
 private:
