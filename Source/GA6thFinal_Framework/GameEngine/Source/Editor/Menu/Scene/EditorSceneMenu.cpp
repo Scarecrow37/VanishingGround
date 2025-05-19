@@ -5,7 +5,7 @@ using namespace Global;
 using namespace u8_literals;
 
 
-void EditorSceneMenuScenes::OnMenu()
+void EditorSceneMenu::OnMenu()
 {
     EditorModule& editor = *Global::editorModule;
     if (ImGui::BeginMenu("Scene"))
@@ -47,7 +47,7 @@ void EditorSceneMenuScenes::OnMenu()
     SceneCameraPopUp();
 }
 
-void EditorSceneMenuScenes::SceneCameraPopUp() 
+void EditorSceneMenu::SceneCameraPopUp() 
 {
     if (nullptr == _sceneTool)
     {

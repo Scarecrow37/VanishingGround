@@ -18,6 +18,7 @@ class EFileSystem
     using NotifierSet = std::unordered_set<File::FileEventNotifier*>;
     using CallBackFunc = std::function<void(const File::FileEventData&)>;
 public:
+    bool LoadGameDirectory();
     bool CreateProject(const File::Path& path);
     bool LoadProject(const File::Path& path);
     bool SaveProject();
@@ -29,22 +30,23 @@ public:
     bool LoadSetting(const File::Path& path);
 
 public:
+    inline auto&       GetProjectName() { return _projectName; }
+    inline int         GetDebugLevel() const { return _setting.DebugLevel; }
+    inline const auto& GetMetaExt() const { return _setting.MetaExt; }
+
+    inline const File::Path& GetOriginPath() const { return _originPath; }
+    inline const File::Path& GetRootPath() const { return _rootPath; }
+    inline const File::Path& GetAssetPath() const { return _assetPath; }
+    inline const File::Path& GetProjectSettingPath() const { return _projectSettingPath; }
+    inline const File::Path& GetBuildSettingPath() const { return _buildSettingPath; }
+
     bool IsLoadedProject() const;
     bool IsVaildGuid(const File::Guid& guid) const;
     bool IsValidExtension(const File::FString& ext) const;
     bool IsSameContext(std::weak_ptr<File::Context> left, std::weak_ptr<File::Context> right) const;
 
-    inline const std::string&   GetProjectName() const  { return _projectName; }
-    inline int                  GetDebugLevel() const   { return _setting.DebugLevel; }
-    inline const std::string&   GetMetaExt() const      { return _setting.MetaExt; }
-
-    inline const File::Path&    GetOriginPath() const   { return _originPath; }
-    inline const File::Path&    GetRootPath() const     { return _rootPath; }
-    inline const File::Path&    GetAssetPath() const    { return _assetPath; }
-    inline const File::Path&    GetSettingPath() const  { return _settingPath; }
-
-
     File::Path GetRelativePath(const File::Path& path) const;
+
     const File::Path& GetPathFromGuid(const File::Guid& guid) const;
     const File::Guid& GetGuidFromPath(const File::Path& path) const;
 
@@ -134,7 +136,8 @@ private:
     File::Path _originPath;  // 원본 경로(절대 경로)
     File::Path _rootPath;    // 루트 경로(절대 경로)
     File::Path _assetPath;   // 에셋 경로(절대 경로)
-    File::Path _settingPath; // 세팅 경로(절대 경로)
+    File::Path _projectSettingPath; // 프로젝트세팅 경로(절대 경로)
+    File::Path _buildSettingPath; // 빌드세팅 경로(절대 경로)
 
     std::unordered_set<std::shared_ptr<File::Context>>
         _contextTable;      // 원본 컨텍스트 포인터를 관리하는 테이블

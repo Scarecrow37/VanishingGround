@@ -3,18 +3,7 @@
 
 void EditorMenuScriptBuilder::OnMenu()
 {
-    if (ImGui::BeginMenu("Project"))
-    {
-        if (ImGui::BeginMenu("Build"))
-        {
-            if (ImGui::MenuItem("Script Build", ""))
-            {
-                Global::engineCore->ComponentFactory.InitalizeComponentFactory();
-            }
-            ImGui::EndMenu();
-        }
-        ImGui::EndMenu();
-    }
+
 }
 
 static void ShowNewProjectPopup()
