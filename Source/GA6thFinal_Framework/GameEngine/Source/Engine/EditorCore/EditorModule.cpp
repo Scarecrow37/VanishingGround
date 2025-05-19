@@ -297,7 +297,114 @@ EditorModule::EditorBuildSystem::~EditorBuildSystem()
 
 }
 
-bool EditorModule::EditorBuildSystem::BuildProject()
+bool EditorModule::EditorBuildSystem::BuildProject(std::string_view outPath)
 {
-    return false;
+    using namespace u8_literals;
+    namespace fs = std::filesystem;
+
+    if (false == UmFileSystem.IsLoadedProject())
+    {
+        UmLogger.Log(LogLevel::LEVEL_ERROR, u8"프로젝트를 열어주세요."_c_str);
+    }
+
+    fs::path batchPath = PROJECT_BUILD_BATCH_FILE;
+    DWORD exitCode{};
+    bool batchResult = dllUtility::RunBatchFile(batchPath.c_str(), &exitCode);
+    if (false == batchResult)
+    {
+        UmLogger.Log(LogLevel::LEVEL_ERROR, u8"프로젝트 빌드 실패."_c_str);
+        return false;
+    }
+
+    fs::path destPath = outPath;
+    fs::path exePath  = PROJECT_EXE_FOLDER;
+#ifdef _DEBUG
+    fs::path scriptPath = EComponentFactory::Engine::SCRIPTS_DLL_DEBUG_PATH;
+#else
+    fs::path scriptPath = EComponentFactory::Engine::SCRIPTS_DLL_RELEASE_PATH;
+#endif
+    File::Path            rootPath = UmFileSystem.GetRootPath();
+    std::vector<fs::path> pathStack;
+    fs::create_directories(destPath);
+
+    //스크립트 dll 복사
+    for (const auto& entry : fs::directory_iterator(scriptPath))
+    {
+        if (fs::is_regular_file(entry.path()))
+        {
+            if (L".dll" == entry.path().extension())
+            {
+                fs::path copyPath = destPath / "bin" / entry.path().filename();
+                fs::create_directories(copyPath.parent_path());
+                fs::copy_file(entry.path(), copyPath, fs::copy_options::overwrite_existing);
+            }
+        }
+    }
+
+    //exe 파일 및 dll 복사
+    pathStack.push_back(exePath);
+    while (false == pathStack.empty())
+    {
+        fs::path curr = pathStack.back();
+        pathStack.pop_back();
+        for (const auto& entry : fs::directory_iterator(curr))
+        {
+            if (fs::is_regular_file(entry.path()))
+            {
+                fs::path copyPath = destPath / "bin" / entry.path().filename();
+                fs::create_directories(copyPath.parent_path());
+                fs::copy_file(entry.path(), copyPath, fs::copy_options::overwrite_existing);
+            }
+            else
+            {
+                pathStack.push_back(entry);
+            }
+        }
+    }
+    
+    //리소스 복사
+    pathStack.push_back(rootPath);
+    while (false == pathStack.empty())
+    {
+        fs::path curr = pathStack.back();
+        pathStack.pop_back();
+        for (const auto& entry : fs::directory_iterator(curr))
+        {
+            if (fs::is_regular_file(entry.path()))
+            {
+                fs::path relative = entry.path().lexically_relative(rootPath);
+                fs::path copyPath = destPath / "bin" / relative;
+                fs::create_directories(copyPath.parent_path());
+                fs::copy_file(entry.path(), copyPath, fs::copy_options::overwrite_existing);
+            }
+            else
+            {
+                pathStack.push_back(entry);
+            }
+        }
+    }
+
+    //셰이더 복사
+    pathStack.emplace_back("..\\Shaders");
+    while (false == pathStack.empty())
+    {
+        fs::path curr = pathStack.back();
+        pathStack.pop_back();
+        for (const auto& entry : fs::directory_iterator(curr))
+        {
+            if (fs::is_regular_file(entry.path()))
+            {
+                fs::path relative = entry.path().lexically_relative("..\\");
+                fs::path copyPath = destPath / relative;
+                fs::create_directories(copyPath.parent_path());
+                fs::copy_file(entry.path(), copyPath, fs::copy_options::overwrite_existing);
+            }
+            else
+            {
+                pathStack.push_back(entry);
+            }
+        }
+    }
+
+    return true;
 }
