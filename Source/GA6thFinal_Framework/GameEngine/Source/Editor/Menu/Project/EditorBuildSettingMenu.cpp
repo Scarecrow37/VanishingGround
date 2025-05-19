@@ -41,8 +41,7 @@ void EditorBuildSettingMenu::OnMenu()
             if (ImGui::MenuItem("Build Project"))
             {
                 isPopup = true;
-                isShow  = false;
-     
+                isShow  = false; 
             }
             if (ImGui::MenuItem("Build Script"))
             {
@@ -81,7 +80,7 @@ void EditorBuildSettingMenu::BuildSettingPopup()
         ImGui::EndChild();
 
         static std::string buildOutPath;
-        ImGui::InputText("##path_input", &buildOutPath, ImGuiInputTextFlags_ReadOnly);
+        ImGui::InputText("Save Path", &buildOutPath, ImGuiInputTextFlags_ReadOnly);
         if (ImGui::BeginItemTooltip())
         {
             ImGui::Text(buildOutPath.c_str());
@@ -110,7 +109,7 @@ void EditorBuildSettingMenu::BuildSettingPopup()
         ImGui::SameLine();
         if (ImGui::Button("Close"))
         {
-            ImGui::CloseCurrentPopup();
+            isPopup = false;
         }
     }
 }

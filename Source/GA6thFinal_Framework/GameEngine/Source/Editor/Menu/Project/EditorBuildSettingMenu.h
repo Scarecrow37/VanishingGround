@@ -16,5 +16,5 @@ public:
 private:
     bool isPopup;
     bool isShow;
-    static void BuildSettingPopup();
+    void BuildSettingPopup();
 };
