@@ -36,6 +36,17 @@ bool EFileSystem::CreateProject(const File::Path& path)
     return true;
 }
 
+EFileSystem::EFileSystem() 
+{
+    _originPath = fs::current_path().generic_wstring();
+}
+
+EFileSystem::~EFileSystem() 
+{
+    Clear();
+    ObserverShutDown();
+}
+
 bool EFileSystem::LoadGameDirectory()
 {
     std::filesystem::path path = fs::current_path().generic_wstring();
@@ -97,7 +108,6 @@ bool EFileSystem::LoadProject(const File::Path& path)
     File::Path directory = path.parent_path();
 
     _projectName = path.stem().string();
-    _originPath  = fs::current_path().generic_wstring();
     _rootPath    = fs::absolute(directory).generic_wstring();
     _assetPath   = fs::absolute(_rootPath / ASSET_FOLDER_NAME).generic_wstring();
     _projectSettingPath = fs::absolute(_rootPath / PROJECT_SETTING_PATH).generic_wstring();
@@ -303,11 +313,11 @@ File::Path EFileSystem::GetRelativePath(const File::Path& path) const
     return File::NULL_PATH;
 }
 
-std::shared_ptr<File::Guid> EFileSystem::GetGuidRef(const File::Guid guid)
+File::GuidRef EFileSystem::GetGuidRef(const File::Guid guid)
 {
     if (NULL_GUID == guid)
     {
-        return std::shared_ptr<File::Guid>();
+        return File::GuidRef();
     }
     auto itr = _guidToRefTable.find(guid);
     if (itr != _guidToRefTable.end())
@@ -518,6 +528,7 @@ void EFileSystem::Clear()
 {        
     ClearContext();
     ClearNotifier();
+    _guidToRefTable.clear();
 }
 
 void EFileSystem::ClearContext()
@@ -543,6 +554,7 @@ void EFileSystem::ClearContext()
 
 void EFileSystem::ClearNotifier() 
 {
+    _notifierSet.clear();
     _extesionToNotifierTable.clear();
 }
 

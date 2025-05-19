@@ -17,6 +17,11 @@ class EFileSystem
 {
     using NotifierSet = std::unordered_set<File::FileEventNotifier*>;
     using CallBackFunc = std::function<void(const File::FileEventData&)>;
+
+public:
+    EFileSystem();
+    ~EFileSystem();
+
 public:
     bool LoadGameDirectory();
     bool CreateProject(const File::Path& path);
@@ -45,7 +50,7 @@ public:
     bool IsSameContext(std::weak_ptr<File::Context> left, std::weak_ptr<File::Context> right) const;
             
     File::Path GetRelativePath(const File::Path& path) const;
-    std::shared_ptr<File::Guid> GetGuidRef(const File::Guid guid);
+    File::GuidRef GetGuidRef(const File::Guid guid);
 
     const File::Path& GetPathFromGuid(const File::Guid& guid) const;
     const File::Guid& GetGuidFromPath(const File::Path& path) const;
@@ -133,11 +138,11 @@ private:
 
     File::FileObserver* _observer = nullptr;    // 파일 디렉터리 이벤트를 감시하는 옵저버.
 
-    File::Path _originPath;  // 원본 경로(절대 경로)
-    File::Path _rootPath;    // 루트 경로(절대 경로)
-    File::Path _assetPath;   // 에셋 경로(절대 경로)
+    File::Path _originPath;         // 원본 경로(절대 경로)
+    File::Path _rootPath;           // 루트 경로(절대 경로)
+    File::Path _assetPath;          // 에셋 경로(절대 경로)
     File::Path _projectSettingPath; // 프로젝트세팅 경로(절대 경로)
-    File::Path _buildSettingPath; // 빌드세팅 경로(절대 경로)
+    File::Path _buildSettingPath;   // 빌드세팅 경로(절대 경로)
 
     std::unordered_set<std::shared_ptr<File::Context>>
         _contextTable;              // 원본 컨텍스트 포인터를 관리하는 테이블
@@ -148,8 +153,7 @@ private:
     std::unordered_map<File::Guid, std::weak_ptr<File::Guid>>
         _guidToRefTable;            // ID를 통해 참조를 찾는 테이블
 
-    std::unordered_set<File::FileEventNotifier*> 
-        _notifierSet;               // 등록된 Notifier
+   NotifierSet _notifierSet;        // 등록된 Notifier
     std::unordered_map<File::FString, NotifierSet>
-        _extesionToNotifierTable;     // 확장자를 통해 Notifier를 찾는 테이블
+        _extesionToNotifierTable;   // 확장자를 통해 Notifier를 찾는 테이블
 };
