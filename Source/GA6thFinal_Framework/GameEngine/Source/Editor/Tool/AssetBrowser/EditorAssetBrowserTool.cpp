@@ -954,7 +954,6 @@ void EditorAssetBrowserTool::SetFocusFromRedoPath()
 
 void EditorAssetObject::OnInspectorEnter() 
 {
-    UmLogger.Log(1, "EditorAssetObject::OnInspectorEnter");
 }
 
 void EditorAssetObject::OnInspectorStay()
@@ -979,7 +978,6 @@ void EditorAssetObject::OnInspectorStay()
 
 void EditorAssetObject::OnInspectorExit() 
 {
-    UmLogger.Log(1, "EditorAssetObject::OnInspectorExit");
 }
 
 void EditorAssetObject::SetContext(std::weak_ptr<File::Context> context) 
