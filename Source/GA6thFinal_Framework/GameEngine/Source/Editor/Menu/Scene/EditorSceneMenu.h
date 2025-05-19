@@ -2,11 +2,11 @@
 
 class EditorSceneTool;
 
-class EditorSceneMenuScenes : public EditorMenu
+class EditorSceneMenu : public EditorMenu
 {
 public:
-    EditorSceneMenuScenes()          = default;
-    virtual ~EditorSceneMenuScenes() = default;
+    EditorSceneMenu()          = default;
+    virtual ~EditorSceneMenu() = default;
 
 public:
     virtual void OnMenu() override;

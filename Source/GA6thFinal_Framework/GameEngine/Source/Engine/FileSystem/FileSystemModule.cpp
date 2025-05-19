@@ -39,14 +39,14 @@ void FileSystemModule::ModuleUnInitialize()
 
 void FileSystemModule::OnRequestedSave() 
 {
-    auto& path = UmFileSystem.GetSettingPath();
+    auto& path = UmFileSystem.GetProjectSettingPath();
     auto name = File::PROJECT_SETTING_FILENAME;
     UmFileSystem.SaveSetting(path / name);
 }
 
 void FileSystemModule::OnRequestedLoad() 
 {
-    auto& path = UmFileSystem.GetSettingPath();
+    auto& path = UmFileSystem.GetProjectSettingPath();
     auto  name = File::PROJECT_SETTING_FILENAME;
     UmFileSystem.LoadSetting(path / name);
 }
