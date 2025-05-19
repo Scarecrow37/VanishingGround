@@ -15,11 +15,12 @@ void SkyBoxPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& si
     __super::Initialize(viewPort, sissorRect);
     InitShaderAndPSO();
     _skyBox->Initialize();
-
-    File::Path fileName  = L"../../../Resource/Assets/skybox/kloppenheim_05_puresky_4k.hdr";
-    File::Path assetPath = UmFileSystem.GetAssetPath();
-    File::Path result    = assetPath / fileName;
-    _skyBox->SetTexture(result.string());
+    
+    //예시로 남겨둠.
+    // File::Path fileName  = L"../../../Resource/Assets/skybox/kloppenheim_05_puresky_4k.hdr";
+    // File::Path assetPath = UmFileSystem.GetAssetPath();
+    // File::Path result    = assetPath / fileName;
+    //_skyBox->SetTexture(result.string());
 }
 
 void SkyBoxPass::Begin(ID3D12GraphicsCommandList* commandList) 
@@ -40,12 +41,16 @@ void SkyBoxPass::End(ID3D12GraphicsCommandList* commandList)
 
 void SkyBoxPass::Draw(ID3D12GraphicsCommandList* commandList) 
 {
-    _skyBox->SetDescriptorHeap(commandList);
-    commandList->SetGraphicsRootSignature(_shader->GetRootSignature().Get());
-    commandList->SetGraphicsRootConstantBufferView(_shader->GetRootSignatureIndex("cameraData"),
-                                                   _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
-    commandList->SetPipelineState(_pipelineState.Get());
-    _skyBox->Render(commandList, _shader->GetRootSignatureIndex("evnTexture"));
+    bool isActive = _skyBox->HasTexture();
+    if (isActive)
+    {
+        _skyBox->SetDescriptorHeap(commandList);
+        commandList->SetGraphicsRootSignature(_shader->GetRootSignature().Get());
+        commandList->SetGraphicsRootConstantBufferView(_shader->GetRootSignatureIndex("cameraData"),
+                                                       _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
+        commandList->SetPipelineState(_pipelineState.Get());
+        _skyBox->Render(commandList, _shader->GetRootSignatureIndex("evnTexture"));
+    }
 }
 
 void SkyBoxPass::InitShaderAndPSO() 
