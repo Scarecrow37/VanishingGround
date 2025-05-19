@@ -54,12 +54,12 @@ public:
     bool IsValidExtension(const File::FString& ext) const;
     bool IsSameContext(std::weak_ptr<File::Context> left, std::weak_ptr<File::Context> right) const;
             
-    File::Path GetRelativePath(const File::Path& path) const;
-    File::GuidRef GetGuidRef(const File::Guid guid);
-    const GuidRefTable& GetGuidRefTable() const;
-
-    const File::Path& GetPathFromGuid(const File::Guid& guid) const;
-    const File::Guid& GetGuidFromPath(const File::Path& path) const;
+    File::Path                  GetRelativePath(const File::Path& path) const;
+    File::GuidRef               GetGuidRef(const File::Guid guid);
+    const GuidRefTable&         GetGuidRefTable() const;
+    const NotifierSet&          GetNotifiers(const File::FString& ext);
+    const File::Path&           GetPathFromGuid(const File::Guid& guid) const;
+    const File::Guid&           GetGuidFromPath(const File::Path& path) const;
 
     template <typename T>
     std::weak_ptr<T> GetContext(const File::Guid& guid) const 
@@ -104,9 +104,7 @@ public:
         return std::weak_ptr<T>();
     }
     std::weak_ptr<File::Context> GetContext(const File::Path& path) const;
-
-
-    NotifierSet GetNotifiers(const File::FString& ext);
+   
     void RequestInspectFile(const File::Path& path);
     void RequestOpenFile(const File::Path& path);
     void RequestCopyFile(const File::Path& path);

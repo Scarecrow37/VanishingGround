@@ -4,41 +4,11 @@
 using namespace File;
 using namespace u8_literals;
 
-bool EFileSystem::CreateProject(const File::Path& path)
-{
-    bool isExists = fs::exists(path);
-    bool isValid  = path.extension() == PROJECT_EXTENSION;
-
-    if (true == isExists)
-    {
-        OutputLog(L"failed to EFileSystem::CreateProject. already exists to project.");
-        return false;
-    }
-
-    if (false == isValid)
-    {
-        OutputLog(L"failed to EFileSystem::CreateProject. file is unvaild extension.");
-        return false;
-    }
-
-    if (false == _projectData.Create(path, false))
-    {
-        OutputLog(L"failed to EFileSystem::CreateProject. failed to create project file.");
-        return false;
-    }
-
-    File::Path rootPath     = path.parent_path();
-    File::Path assetPath    = rootPath / ASSET_FOLDER_NAME;
-    File::Path settingPath  = rootPath / PROJECT_SETTING_PATH;
-    File::CreateFolder(assetPath.generic_wstring());
-    File::CreateFolder(settingPath.generic_wstring());
-
-    return true;
-}
 
 EFileSystem::EFileSystem() 
 {
     _originPath = fs::current_path().generic_wstring();
+    _extesionToNotifierTable["null"] = NotifierSet{};
 }
 
 EFileSystem::~EFileSystem() 
@@ -64,6 +34,38 @@ bool EFileSystem::LoadGameDirectory()
 
     for (auto& notifier : _notifierSet)
         notifier->OnPostRequestedLoad();
+
+    return true;
+}
+
+bool EFileSystem::CreateProject(const File::Path& path)
+{
+    bool isExists = fs::exists(path);
+    bool isValid  = path.extension() == PROJECT_EXTENSION;
+
+    if (true == isExists)
+    {
+        OutputLog(L"failed to EFileSystem::CreateProject. already exists to project.");
+        return false;
+    }
+
+    if (false == isValid)
+    {
+        OutputLog(L"failed to EFileSystem::CreateProject. file is unvaild extension.");
+        return false;
+    }
+
+    if (false == _projectData.Create(path, false))
+    {
+        OutputLog(L"failed to EFileSystem::CreateProject. failed to create project file.");
+        return false;
+    }
+
+    File::Path rootPath    = path.parent_path();
+    File::Path assetPath   = rootPath / ASSET_FOLDER_NAME;
+    File::Path settingPath = rootPath / PROJECT_SETTING_PATH;
+    File::CreateFolder(assetPath.generic_wstring());
+    File::CreateFolder(settingPath.generic_wstring());
 
     return true;
 }
@@ -351,6 +353,7 @@ const File::Path& EFileSystem::GetPathFromGuid(const File::Guid& guid) const
     }
     return NULL_PATH;
 }
+
 const File::Guid& EFileSystem::GetGuidFromPath(const File::Path& path) const
 {
     auto wpContext = GetContext(path);
@@ -361,6 +364,7 @@ const File::Guid& EFileSystem::GetGuidFromPath(const File::Path& path) const
     }
     return NULL_GUID;
 }
+
 std::weak_ptr<Context> EFileSystem::GetContext(const File::Guid& guid) const
 {
     if (NULL_GUID == guid)
@@ -377,8 +381,8 @@ std::weak_ptr<Context> EFileSystem::GetContext(const File::Guid& guid) const
     {
         return std::weak_ptr<Context>();
     }
-    
 }
+
 std::weak_ptr<Context> EFileSystem::GetContext(const File::Path& path) const
 {
     auto itr = _pathToGuidTable.find(path);
@@ -392,7 +396,7 @@ std::weak_ptr<Context> EFileSystem::GetContext(const File::Path& path) const
     }
 }
 
-std::unordered_set<File::FileEventNotifier*> EFileSystem::GetNotifiers(
+const EFileSystem::NotifierSet& EFileSystem::GetNotifiers(
     const File::FString& ext)
 {
     auto itr = _extesionToNotifierTable.find(ext);
@@ -400,12 +404,12 @@ std::unordered_set<File::FileEventNotifier*> EFileSystem::GetNotifiers(
     {
         return itr->second;
     }
-    return std::unordered_set<File::FileEventNotifier*>();
+    return _extesionToNotifierTable["null"];
 }
 
 void EFileSystem::RequestInspectFile(const File::Path& path)
 {
-    NotifierSet notifierSet = GetNotifiers(path.extension());
+    const NotifierSet& notifierSet = GetNotifiers(path.extension());
     for (auto& notifier : notifierSet)
     {
         notifier->OnRequestedInspect(path);
@@ -414,7 +418,7 @@ void EFileSystem::RequestInspectFile(const File::Path& path)
 
 void EFileSystem::RequestOpenFile(const File::Path& path) 
 {
-    NotifierSet notifierSet = GetNotifiers(path.extension());
+    const NotifierSet& notifierSet = GetNotifiers(path.extension());
     for (auto& notifier : notifierSet)
     {
         notifier->OnRequestedOpen(path);
@@ -423,7 +427,7 @@ void EFileSystem::RequestOpenFile(const File::Path& path)
 
 void EFileSystem::RequestCopyFile(const File::Path& path) 
 {
-    NotifierSet notifierSet = GetNotifiers(path.extension());
+    const NotifierSet& notifierSet = GetNotifiers(path.extension());
     for (auto& notifier : notifierSet)
     {
         notifier->OnRequestedCopy(path);
@@ -432,7 +436,7 @@ void EFileSystem::RequestCopyFile(const File::Path& path)
 
 void EFileSystem::RequestPasteFile(const File::Path& path) 
 {
-    NotifierSet notifierSet = GetNotifiers(path.extension());
+    const NotifierSet& notifierSet = GetNotifiers(path.extension());
     for (auto& notifier : notifierSet)
     {
         notifier->OnRequestedPaste(path);
@@ -545,7 +549,7 @@ void EFileSystem::ClearContext()
         {
             auto& path = context->GetPath();
             File::Path  extension   = path.extension();
-            NotifierSet notifierSet = GetNotifiers(extension);
+            const NotifierSet& notifierSet = GetNotifiers(extension);
             for (auto& notifier : notifierSet)
             {
                 notifier->OnFileUnregistered(path);
@@ -643,7 +647,7 @@ void EFileSystem::RegisterContext(const File::Path& path)
          context->OnFileRegistered(absPath);
 
          File::Path  extension   = absPath.extension();
-         NotifierSet notifierSet = GetNotifiers(extension);
+         const NotifierSet& notifierSet = GetNotifiers(extension);
          for (auto& notifier : notifierSet)
          {
              notifier->OnFileRegistered(absPath);
@@ -668,7 +672,7 @@ void EFileSystem::UnregisterContext(const File::Path& path)
         auto& guid      = meta.GetGuid();
 
         File::Path  extension   = path.extension();
-        NotifierSet notifierSet = GetNotifiers(extension);
+        const NotifierSet& notifierSet = GetNotifiers(extension);
         for (auto& notifier : notifierSet)
         {
             notifier->OnFileUnregistered(path);
@@ -748,7 +752,7 @@ void EFileSystem::ProcessModifiedFile(const File::Path& path)
 
         spContext->OnFileModified(path);
 
-        auto notifierSet = GetNotifiers(path.extension());
+        const NotifierSet& notifierSet = GetNotifiers(path.extension());
         for (auto& notifier : notifierSet)
         {
             notifier->OnFileModified(path);
@@ -807,7 +811,7 @@ void EFileSystem::ProcessMovedFile(const File::Path& oldPath, const File::Path& 
 
         if (oldFolderPath == newFolderPath)
         {
-            auto notifierSet = GetNotifiers(newExtension);
+            const NotifierSet& notifierSet = GetNotifiers(newExtension);
             for (auto& notifier : notifierSet)
             {
                 notifier->OnFileRenamed(oldPath, newPath);
@@ -815,7 +819,7 @@ void EFileSystem::ProcessMovedFile(const File::Path& oldPath, const File::Path& 
         }
         else
         {
-            auto notifierSet = GetNotifiers(newExtension);
+            const NotifierSet& notifierSet = GetNotifiers(newExtension);
             for (auto& notifier : notifierSet)
             {
                 notifier->OnFileMoved(oldPath, newPath);
