@@ -26,7 +26,9 @@ void GraphicsCore::UpdateAnimation(const float deltaTime) {}
 
 void GraphicsCore::Update()
 {
+    ParticleManager.Update(UmTime.DeltaTime());
     Renderer.Update();
+    
 }
 
 void GraphicsCore::Render()

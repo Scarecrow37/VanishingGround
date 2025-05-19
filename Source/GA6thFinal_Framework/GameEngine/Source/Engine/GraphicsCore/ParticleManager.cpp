@@ -1,5 +1,4 @@
 ﻿#include "pch.h"
-#include "Particle.h"
 #include "ParticleEmitter.h"
 #include "ParticleEffect.h"
 #include "ParticleManager.h"
@@ -11,13 +10,14 @@ void ParticleManager::SetCamera(std::string_view viewName)
 
 ParticleManager::ParticleManager()
 {
-     _currentBufferIndex = 0;
-     _particleStride     = sizeof(Particle);
+
   
  }
 
 void ParticleManager::Initialize(UINT maxParticles)
  {
+    _currentBufferIndex = 0;
+    _particleStride     = sizeof(Particle);
     _maxParticles = maxParticles;
      InitializeRenderCommandList();
      InitializeComputeCommandObject();
