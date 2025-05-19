@@ -78,8 +78,8 @@ void GameApplication::BuildRootDock()
     _rootDock->SetDockWindowFlags(dockWindowFlag);
 
     _rootDock->RegisterGui<EditorMenuProjectRoot>();
-    _rootDock->RegisterGui<EditorMenuScriptBuilder>();
     _rootDock->RegisterGui<EditorBuildSettingMenu>(); 
+    _rootDock->RegisterGui<EditorMenuScriptBuilder>();
     _rootDock->RegisterGui<EditorMenuEditorSetting>();
     _rootDock->RegisterGui<EditorMenuFileSystemSetting>();
 
@@ -122,9 +122,9 @@ void GameApplication::BuildSceneDock()
     _sceneDock->RegisterGui<EditorCommandTool>();
     _sceneDock->RegisterGui<EditorAssetBrowserTool>();
 
-    _sceneDock->RegisterGui<EditorMenuTools>(_sceneDock);
-    _sceneDock->RegisterGui<EditorSceneMenuScenes>();
     _sceneDock->RegisterGui<EditorPlayMenu>();
+    _sceneDock->RegisterGui<EditorMenuTools>(_sceneDock);
+    _sceneDock->RegisterGui<EditorSceneMenu>();
 }
 
 void GameApplication::BuildModelDock()
