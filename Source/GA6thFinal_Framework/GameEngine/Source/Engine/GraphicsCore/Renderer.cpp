@@ -60,7 +60,7 @@ void Renderer::RegisterRenderQueue(std::string_view sceneName, MeshRenderer* com
     scene->RegisterOnRenderQueue(component);
 }
 
-void Renderer::SetSkyBox(std::string_view sceneName, std::string path) 
+void Renderer::SetSkyBox(std::string_view sceneName, std::string_view path) 
 {
     auto iter = _renderScenes.find(sceneName.data());
 
@@ -73,7 +73,7 @@ void Renderer::SetSkyBox(std::string_view sceneName, std::string path)
     scene->SetSkyBox(path);
 }
 
-void Renderer::SetSkyBox(std::string path)
+void Renderer::SetSkyBox(std::string_view path)
 {
     // 얼추 게임 씬 나오면 그거 바꿔야할텐데.
     auto iter = _renderScenes.find("Editor");

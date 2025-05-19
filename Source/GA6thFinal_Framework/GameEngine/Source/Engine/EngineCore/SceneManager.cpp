@@ -394,6 +394,25 @@ void ESceneManager::Engine::SwapPrefabInstance(GameObject* original, GameObject*
     }
 }
 
+void ESceneManager::Engine::SetSceneSkyBoxGuid(Scene& scene, const File::Guid& skyBox)
+{
+    scene._skyBox = skyBox;
+}
+
+void ESceneManager::Engine::SetSceneSkyBoxPath(Scene& scene, std::string_view skyBoxPath) 
+{
+    File::Guid guid = UmFileSystem.GetGuidFromPath(skyBoxPath);
+    if (false == guid.IsNull())
+    {
+        SetSceneSkyBoxGuid(scene, guid);
+    }
+}
+
+void ESceneManager::Engine::UpdateMatrix(GameObject* gameObject) 
+{
+    gameObject->transform->UpdateMatrix();
+}
+
 void ESceneManager::CreateEmptySceneAndLoad(std::string_view name, std::string_view outPath, const std::function<void()>& loadEvent) 
 {
     if (UmComponentFactory.HasScript() == false)
@@ -448,6 +467,7 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
                 GameObject::Destroy(obj.get());
             }
         }
+        _setting.PrevScene = _setting.MainScene;
         _setting.MainScene = scene->Path;
         UmCommandManager.Clear();
     }
@@ -640,7 +660,7 @@ void ESceneManager::ObjectsMatrixUpdate()
     static std::unordered_set<Transform*> updateCheckSet;
     for (auto& obj : _runtimeObjects)
     {
-        if (IsRuntimeActive(obj) && obj->_transform._hasChanged == true)
+        if (nullptr != obj && obj->_transform._hasChanged == true)
         {
             updateCheckSet.clear();
             Transform* root = obj->_transform._root ? obj->_transform._root : &obj->_transform;
@@ -906,11 +926,6 @@ void ESceneManager::AddDestroyComponentQueue(Component* component)
     }
 }
 
-void ESceneManager::InsertComponentToObject(GameObject* object, std::shared_ptr<Component>& component, int index) 
-{
-    object->_components.insert(object->_components.begin() + index, component);
-}
-
 void ESceneManager::SetObjectOwnerScene(GameObject* object, std::string_view sceneName) 
 {
     object->_ownerScene = sceneName;
@@ -943,6 +958,11 @@ YAML::Node ESceneManager::SerializeToYaml(const Scene& scene)
     sceneNode["SerializeVersion"] = 0;
     sceneNode["Guid"] = scene._guid.string();
 
+    if (false == targetScene._skyBox.ToPath().IsNull())
+    {
+        sceneNode["SkyBox"] = targetScene._skyBox.string();
+    }
+
     auto rootObjects = scene.GetRootGameObjects();
     for (auto& object : rootObjects)
     {
@@ -960,9 +980,50 @@ bool ESceneManager::DeserializeToYaml(YAML::Node* _sceneNode)
         return false;
     }
 
+    bool isMainScene = _lodedSceneList.empty();
+
     YAML::Node& sceneNode = *_sceneNode;
     int SerializeVersion = sceneNode["SerializeVersion"].as<int>();
     File::Guid Guid = sceneNode["Guid"].as<std::string>();
+
+    Scene& scene = _scenesMap[Guid];
+
+    if (true == isMainScene)
+    {
+        bool loadSkyBox = false;
+        if (STR_NULL != scene._skyBox)
+        {
+            if (STR_NULL != _setting.PrevScene)
+            {
+                File::Guid prevGuid = UmFileSystem.GetGuidFromPath(_setting.PrevScene);
+                if (false == prevGuid.IsNull())
+                {
+                    Scene& prevSccene = _scenesMap[prevGuid];
+                    if (prevSccene._skyBox != scene._skyBox)
+                    {
+                        loadSkyBox = true;
+                    }
+                }
+                else
+                {
+                    loadSkyBox = true;
+                }
+            }
+            else
+            {
+                loadSkyBox = true;
+            }            
+        }
+        else
+        {
+            UmRenderer.ResetSkyBox();
+        }
+
+        if (loadSkyBox)
+        {
+            UmRenderer.SetSkyBox(scene._skyBox.ToPath().string());
+        }
+    }
     
     YAML::Node rootObjects = sceneNode["GameObjects"].as<YAML::Node>();
     for (auto object : rootObjects)
@@ -1012,6 +1073,24 @@ void ESceneManager::WriteEmptySceneToFile(std::string_view name, std::string_vie
     namespace fs = std::filesystem;
     Scene scene;
     bool result = WriteUmSceneFile(scene, name, outPath, isOverride);
+}
+
+bool ESceneManager::SetSkyBox(const File::Path& path)
+{
+    Scene* mainScene = GetMainScene();
+    if (nullptr == mainScene)
+    {
+        return false;
+    }
+
+    File::Guid guid = path.ToGuid();
+    if (true == guid.IsNull())
+    {
+        return false;
+    }
+
+    Engine::SetSceneSkyBoxGuid(*mainScene, guid);
+    UmRenderer.SetSkyBox(path.string());
 }
 
 bool ESceneManager::WriteUmSceneFile(Scene& scene, std::string_view sceneName, std::string_view outPath, bool isOverride)
@@ -1066,8 +1145,12 @@ void ESceneManager::OnFileRegistered(const File::Path& path)
     _sceneDataMap[guid] = YAML::LoadFile(path.string());
     YAML::Node& node    = _sceneDataMap[guid];
 
-    Scene& scene = _scenesMap[path.ToGuid()];
+    Scene& scene = _scenesMap[guid];
     scene._guid  = guid;
+    if (node["SkyBox"])
+    {
+        scene._skyBox = node["SkyBox"].as<std::string>();
+    }
     _scenesFindMap[scene.Name].insert(guid);
     std::string nodeGuid = node["Guid"].as<std::string>();
     if (nodeGuid != guid)
@@ -1105,7 +1188,7 @@ void ESceneManager::OnFileRegistered(const File::Path& path)
 
 void ESceneManager::OnFileUnregistered(const File::Path& path) 
 {
-    File::Guid  guid = path.ToGuid();
+    File::Guid guid = path.ToGuid();
     Scene& scene = _scenesMap[guid];
     std::string sceneName = scene.Name;
     EraseSceneGUID(sceneName, guid);
@@ -1113,7 +1196,15 @@ void ESceneManager::OnFileUnregistered(const File::Path& path)
 
 void ESceneManager::OnFileModified(const File::Path& path)
 {
-    _sceneDataMap[path.ToGuid()] = YAML::LoadFile(path.string());
+    File::Guid guid = path.ToGuid();
+    _sceneDataMap[guid] = YAML::LoadFile(path.string());
+    const YAML::Node& node = _sceneDataMap[guid];
+    Scene& scene = _scenesMap[guid];
+    scene._guid  = guid;
+    if (node["SkyBox"])
+    {
+        scene._skyBox = node["SkyBox"].as<std::string>();
+    }
 }
 
 void ESceneManager::OnFileRemoved(const File::Path& path) 
@@ -1249,7 +1340,6 @@ void ESceneManager::SceneResourceManager::Update(SceneResourceManager& manager)
                             {
                                 models.ModelResource[guid] = UmResourceManager.LoadResource<Model>(path.string());
                             }
-                            meshRenderer.RegisterRenderQueue("Editor");
                             meshRenderer.LoadModel(path.wstring()); 
                             models.ModelUseComponentList[guid].push_back(pMeshComponent);
                         }
@@ -1441,7 +1531,7 @@ void ESceneManager::DestroyComponentCommand::Undo()
     if (false == _ownerObject.expired())
     {
         auto owner = _ownerObject.lock();
-        UmSceneManager.InsertComponentToObject(owner.get(), _destroyComponent, _index);
+        UmComponentFactory.InsertComponentToObject(owner.get(), _destroyComponent, _index);
         _destroyComponent->Enable = _enable;
     }  
 }
@@ -1469,7 +1559,7 @@ void ESceneManager::AddComponentCommand::Execute()
         else
         {
             auto owner = _ownerObject.lock();
-            UmSceneManager.InsertComponentToObject(owner.get(), _addComponent, _index);
+            UmComponentFactory.InsertComponentToObject(owner.get(), _addComponent, _index);
         }
     }
 }
