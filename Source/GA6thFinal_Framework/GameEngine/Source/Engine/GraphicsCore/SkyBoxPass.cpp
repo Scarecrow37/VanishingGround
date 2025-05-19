@@ -33,10 +33,6 @@ void SkyBoxPass::Begin(ID3D12GraphicsCommandList* commandList)
 
 void SkyBoxPass::End(ID3D12GraphicsCommandList* commandList) 
 {
-    ComPtr<ID3D12Resource>   rt = _ownerScene->_meshLightingTarget->GetResource();
-    CD3DX12_RESOURCE_BARRIER br = CD3DX12_RESOURCE_BARRIER::Transition(rt.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET,
-                                                                       D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-    commandList->ResourceBarrier(1, &br);
 }
 
 void SkyBoxPass::Draw(ID3D12GraphicsCommandList* commandList) 
