@@ -467,7 +467,7 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
                 GameObject::Destroy(obj.get());
             }
         }
-        _setting.PrevScene = _setting.MainScene;
+        _prevScene = _setting.MainScene;
         _setting.MainScene = scene->Path;
         UmCommandManager.Clear();
     }
@@ -993,9 +993,9 @@ bool ESceneManager::DeserializeToYaml(YAML::Node* _sceneNode)
         bool loadSkyBox = false;
         if (STR_NULL != scene._skyBox)
         {
-            if (STR_NULL != _setting.PrevScene)
+            if (STR_NULL != _prevScene)
             {
-                File::Guid prevGuid = UmFileSystem.GetGuidFromPath(_setting.PrevScene);
+                File::Guid prevGuid = UmFileSystem.GetGuidFromPath(_prevScene);
                 if (false == prevGuid.IsNull())
                 {
                     Scene& prevSccene = _scenesMap[prevGuid];
