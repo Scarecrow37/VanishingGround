@@ -38,6 +38,7 @@ constexpr const char* STR_NULL = "null";
 #include <d3dcompiler.h>
 
 #include <DirectXMath.h>
+#include <DirectXTex.h>
 #include <directxtk12/SimpleMath.h>
 #include <directxtk12/SpriteBatch.h>
 #include <directxtk12/SpriteFont.h>

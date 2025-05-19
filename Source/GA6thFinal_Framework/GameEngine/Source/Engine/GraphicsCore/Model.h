@@ -14,6 +14,7 @@ public:
     const std::vector<std::unique_ptr<BaseMesh>>&             GetMeshes() const { return _meshes; }
     const std::vector<std::vector<std::shared_ptr<Texture>>>& GetTextures() const { return _textures; }
     const std::vector<Material>&                              GetMaterials() const { return _material; }
+    std::vector<Material>&                                    GetMaterials() { return _material; }
 
 public:
     void AddMesh(std::unique_ptr<BaseMesh> mesh);

@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+class GameObject;
 class EditorDynamicCamera;
 class EditorSceneTool
     : public EditorTool
@@ -37,12 +38,6 @@ private:
 
     std::unique_ptr<EditorDynamicCamera> _camera;
 
-    // Manipulate
-    std::weak_ptr<GameObject> _manipulateObject;
-    ImGuiHelper::DrawManipulateDesc drawManipulateDesc; 
-    bool _isUsing = false;
-    bool _isOver = false;
-    
     //clientSize
     float _clientWidth   = 0.f;    
     float _clientHeight  = 0.f;
@@ -51,11 +46,42 @@ private:
     float _clientTop     = 0.f;
     float _clientBottom  = 0.f;
 
+    // Manipulate
+    std::weak_ptr<GameObject> _manipulateObject;
+    ImGuiHelper::DrawManipulateDesc drawManipulateDesc; 
+    bool _isUseManipulate = false;
+    bool _isUsingStart = false; 
+    bool _isUsingEnd = false; 
+    bool _isUsing = false;
+    bool _isOver = false;
+
+public:
+    class ManipulateCommand : public UmCommand
+    {
+    public:
+        struct Transform
+        {
+            Vector3 Position;
+            Quaternion Rotation;
+            Vector3 Scale;
+        };
+        ManipulateCommand(const std::shared_ptr<GameObject>& target, ManipulateCommand::Transform& curr, ManipulateCommand::Transform& prev);
+        virtual ~ManipulateCommand();
+
+    private:
+        std::weak_ptr<GameObject>    _target;
+        ManipulateCommand::Transform _prev;
+        ManipulateCommand::Transform _curr;
+
+        void Execute() override;
+        void Undo() override;
+    };
+    
 protected:
     REFLECT_FIELDS_BEGIN(EditorTool)
-    std::array<float, 3> CameraPosition{};
-    std::array<float, 4> CameraRotation{};
-    float  CameraFovDegree   = 70.f;
+    std::array<float, 3> CameraPosition{0, 0, 0};
+    std::array<float, 4> CameraRotation{0, 0, 0, 1};
+    float  CameraFov   = 70.f;
     float  CameraAspect      = 1.0f;
     float  CameraNearZ       = 0.01f;
     float  CameraFarZ        = 10000.f;
@@ -73,5 +99,15 @@ protected:
     직접 override 해서 사용합니다.
     */
     virtual void DeserializedReflectEvent();
+
+public:
+    REFLECT_PROPERTY(
+        ReflectFields->CameraFov, 
+        ReflectFields->CameraNearZ,
+        ReflectFields->CameraFarZ, 
+        ReflectFields->CameraRotateSpeed
+        )
+
+    void UpdateCameraSetting();
 };
 

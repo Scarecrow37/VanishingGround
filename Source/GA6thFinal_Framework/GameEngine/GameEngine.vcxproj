@@ -286,6 +286,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Source\Editor\Menu\Model\EditorModelMenu.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\SkyBoxPass.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\SkyBoxRenderTechnique.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\SkyBox.h" />
     <ClInclude Include="Source\Editor\Menu\Play\EditorPlayMenu.h" />
     <ClInclude Include="Source\Editor\Tool\Model\EditorModelDetails.h" />
     <ClInclude Include="Source\Editor\Tool\Model\EditorModelHierarchy.h" />
@@ -443,6 +446,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Editor\Menu\Model\EditorModelMenu.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\SkyBoxPass.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\SkyBoxRenderTechnique.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\SkyBox.cpp" />
     <ClCompile Include="Source\Editor\Menu\Play\EditorPlayMenu.cpp" />
     <ClCompile Include="Source\Editor\Tool\Model\EditorModelDetails.cpp" />
     <ClCompile Include="Source\Editor\Tool\Model\EditorModelHierarchy.cpp" />

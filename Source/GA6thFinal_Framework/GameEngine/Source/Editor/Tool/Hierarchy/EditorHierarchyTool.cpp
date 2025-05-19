@@ -181,7 +181,7 @@ static void TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>
         }
     };
 
-    if (STR_NULL != node.gameObject->GetOwnerSceneName())
+    if (node.gameObject->IsValid())
     {
         ImGui::PushID(&node);
         bool isPushStyle = PushFocusStyle();
@@ -295,12 +295,34 @@ void EditorHierarchyTool::HierarchyRightClickEvent() const
     }
 }
 
+void EditorHierarchyTool::KeyboardEvent() 
+{
+    if (GetOwnerDockWindow()->IsFocusFrame())
+    {
+        bool holdCtrl = ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftCtrl);
+        if (holdCtrl)
+        {
+            if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_S))
+            {
+                Scene* scene = UmSceneManager.GetMainScene();
+                if (scene)
+                {
+                    std::filesystem::path writePath = (std::string)scene->Path;
+                    writePath = std::filesystem::relative(writePath, UmFileSystem.GetAssetPath()).parent_path();
+                    UmSceneManager.WriteSceneToFile(*scene, writePath.string(), true);
+                }
+            }
+        }
+    }
+}
+
 void EditorHierarchyTool::OnFrameRender()
 {
     std::shared_ptr<GameObject> focusObject = HierarchyFocusObjWeak.lock();
     _window = ImGui::GetCurrentWindow();
     HierarchyRightClickEvent();
     HierarchyDropEvent();
+    KeyboardEvent();
 
     const auto& scenes = engineCore->SceneManager.GetLoadedScenes();
     for (auto& pScene : scenes)
@@ -327,6 +349,7 @@ void EditorHierarchyTool::OnFrameRender()
                     UmSceneManager.WriteSceneToFile(scene, writePath.string(), true);
                     ImGui::CloseCurrentPopup();
                 }
+
                 if (ImGui::MenuItem("Unload Scene"))
                 {
                     std::string path = scene.Path;
@@ -388,7 +411,8 @@ void EditorHierarchyTool::OnFrameEnd() {
     
 }
 
-void EditorHierarchyTool::OnFramePopupOpened() {
+void EditorHierarchyTool::OnFramePopupOpened() 
+{
   
 }
 

@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "Resource.h"
 
 class Texture : public Resource
@@ -8,7 +8,12 @@ public:
 	virtual ~Texture() = default;
 
 public:
-	// ResourceÀ»(¸¦) ÅëÇØ »ó¼ÓµÊ
+    void SetResource(ID3D12Resource* resource);
+    void CreateShaderResourceView();
+
+public:
+	// Resourceì„(ë¥¼) í†µí•´ ìƒì†ë¨
 	HRESULT LoadResource(const std::filesystem::path& filePath) override;
+
 };
 

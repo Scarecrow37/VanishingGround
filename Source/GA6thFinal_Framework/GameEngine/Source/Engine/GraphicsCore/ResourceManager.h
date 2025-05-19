@@ -43,14 +43,9 @@ public:
 
         _resources[filePath] = resource;
     }
-    void Update();
-    void RegisterLoadQueue(const std::pair<std::filesystem::path, RESOURCE_TYPE>& data);
-    void Clear();
-    //std::shared_ptr<Resource> MakeShared(std::string_view type, std::wstring_view path, size_t size);
 
+    void Clear();
 private:
     std::unordered_map<std::wstring, std::weak_ptr<Resource>> _resources;
-    std::set<std::pair<std::wstring, RESOURCE_TYPE>>          _loadQueue;
-    std::list<std::shared_ptr<Resource>>                      _tempResource;
 };
 

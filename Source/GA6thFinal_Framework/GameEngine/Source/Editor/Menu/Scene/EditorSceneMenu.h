@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+class EditorSceneTool;
+
 class EditorSceneMenuScenes : public EditorMenu
 {
 public:
@@ -8,4 +10,9 @@ public:
 
 public:
     virtual void OnMenu() override;
+
+private:
+    EditorSceneTool* _sceneTool = nullptr;
+    bool _isSceneCameraPopUp = false;
+    void SceneCameraPopUp();
 };

@@ -8,6 +8,7 @@ class Quad;
 class ShaderBuilder;
 class Camera;
 class MeshRenderer;
+class SkyBox;
 class RenderScene
 {
 public:
@@ -48,6 +49,8 @@ public:
 
     // Scene view 용 최종 렌더 이미지 얻기
     D3D12_CPU_DESCRIPTOR_HANDLE GetFinalImage();
+    void                        SetSkyBox(std::string path);
+    SkyBox*                     GetSkyBox() { return _skyBox.get();};
 
 private:
     // 사용할 gbuffer와 render target pool 생성
@@ -97,6 +100,9 @@ public:
     std::shared_ptr<Camera> _camera;
     // 화면 크기 quad
     std::unique_ptr<Quad> _frameQuad;
+private:
+    // skybox
+    std::unique_ptr<SkyBox> _skyBox;
 
 private:
     std::unique_ptr<ShaderBuilder> _frameShader;
