@@ -44,6 +44,8 @@ private:
     virtual void OnFrameEnd() override;
     virtual void OnFrameFocusStay() override;
 
+    virtual void ProcessFocusFrame() override;
+
 public:
     /* 툴을 등록합니다. */
     template <typename T, typename... Args > 

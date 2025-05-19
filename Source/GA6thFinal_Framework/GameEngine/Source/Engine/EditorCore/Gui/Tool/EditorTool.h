@@ -7,7 +7,7 @@ class EditorDockWindow;
 */
 class EditorTool : public EditorGui
 {
-    friend class EditorModule;
+    friend class EditorDockWindow;
     using Super = EditorGui;
 
 public:
@@ -22,10 +22,10 @@ public:
     };
 
 public:
-    EditorTool() = default;
-    virtual ~EditorTool() = default;
+    EditorTool();
+    virtual ~EditorTool();
 
- public:
+public:
     virtual void OnTickGui() override {}
     virtual void OnStartGui() override {};
     virtual void OnDrawGui() override;
@@ -60,9 +60,9 @@ private:
     void EndFrame();
     void InitFrame();
 
-    void ProcessPopupFrame();
-    void ProcessFocusFrame();
-    void ProcessRenderFrame();
+    virtual void ProcessPopupFrame();
+    virtual void ProcessFocusFrame();
+    virtual void ProcessRenderFrame();
 
 protected:
     REFLECT_FIELDS_BEGIN(EditorGui)
@@ -74,7 +74,6 @@ private:
     std::string                     _label                  = "";                       // 에디터 툴 이름 (기본적으로 전역 단위의 이름 중복을 허용하지 않음. 나중엔 uuid등으로 관리할지 고민 중)
     bool                            _isDrawable             = false;                    // 해당 탭이 보일지에 대한 여부
     bool                            _isBeginningFrame       = false;                    // BeginFrame이 호출 중인지 여부
-    bool                            _isFirstTick            = true;                     // 첫 번째 Tick인지 여부
     int                             _editorToolOptionFlags  = EDITORTOOL_FLAGS_NONE;    // 옵션 플래그
 
     ImGuiWindowClass                _imGuiWindowClass       = {};
@@ -88,6 +87,8 @@ private:
 private:
     ImGuiWindow*                    _imguiWindow            = nullptr;  // [Internal] ImGuiWindow 클래스
     int                             _imguiSytleStackCount   = 0;        // [Internal] PushStyleVar 호출 횟수
+    bool                            _isDockWindow           = false;    // [Internal] 도킹윈도우인지 여부
+    bool                            _isFirstTick            = true;     // [Internal] 첫 번째 Tick인지 여부
     bool                            _isFrameDisable         = false;    // [Internal] BeginDisabled 호출 여부
     bool                            _isFrameFocused         = false;    // [Internal] 이전 FrameFocus 여부
     bool                            _isFrameDrawed          = false;    // [Internal] 이전 FrameRender 호출 여부
@@ -142,5 +143,7 @@ public:
     inline bool                     IsBeginningFrame() const { return _isBeginningFrame; }
     /*                              해당 프레임이 포커싱 중인지 여부 */ 
     inline bool                     IsFocusFrame() const { return _isFrameFocused; }
+    /*                              해당 객체가 도킹 윈도우인지 반환 */
+    inline bool                     IsDockWindow() const { return _isDockWindow; }
 };
 
