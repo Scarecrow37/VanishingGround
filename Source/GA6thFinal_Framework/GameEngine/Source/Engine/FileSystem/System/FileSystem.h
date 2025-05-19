@@ -17,6 +17,11 @@ class EFileSystem
 {
     using NotifierSet = std::unordered_set<File::FileEventNotifier*>;
     using CallBackFunc = std::function<void(const File::FileEventData&)>;
+
+public:
+    EFileSystem();
+    ~EFileSystem();
+
 public:
     bool CreateProject(const File::Path& path);
     bool LoadProject(const File::Path& path);
@@ -137,13 +142,13 @@ private:
     File::Path _settingPath; // 세팅 경로(절대 경로)
 
     std::unordered_set<std::shared_ptr<File::Context>>
-        _contextTable;      // 원본 컨텍스트 포인터를 관리하는 테이블
+        _contextTable;                  // 원본 컨텍스트 포인터를 관리하는 테이블
     std::unordered_map<File::Path, std::weak_ptr<File::Context>>
-        _pathToGuidTable;   // 파일 경로를 통해 ID를 찾는 테이블
+        _pathToGuidTable;               // 파일 경로를 통해 ID를 찾는 테이블
     std::unordered_map<File::Guid, std::weak_ptr<File::Context>>
-        _guidToPathTable;   // ID를 통해 파일 경로를 찾는 테이블
+        _guidToPathTable;               // ID를 통해 파일 경로를 찾는 테이블
     std::unordered_set<File::FileEventNotifier*> 
-        _notifierSet;
+        _notifierSet;                   // 등록된 Notifier
     std::unordered_map<File::FString, NotifierSet>
-        _extesionToNotifierTable;     // Notifier 테이블
+        _extesionToNotifierTable;       // 확장자를 통해 Notifier를 찾는 테이블
 };

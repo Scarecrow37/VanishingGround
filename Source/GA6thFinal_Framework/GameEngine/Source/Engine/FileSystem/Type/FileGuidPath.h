@@ -16,11 +16,14 @@ namespace File
         Guid() : FString() {}
         Guid(const FString& id) : FString(id) {}
         using FString::FString;
+
     public:
         File::Path ToPath() const;
         bool       IsNull() const;
+
     public:
         operator File::Path() const;
+
     };
 
     class Path : public FString
@@ -29,13 +32,16 @@ namespace File
         Path() : FString() {}
         Path(const FString& path) : FString(path) {}
         using FString::FString;
+
     public:
         File::Guid ToGuid() const;
         bool       IsNull() const;
+
     public:
         operator File::Guid() const;
         File::Path operator+(const File::FString& v);
         File::Path operator/(const File::FString& v);
+
     };
 
     inline static const File::Guid NULL_GUID = L"";
