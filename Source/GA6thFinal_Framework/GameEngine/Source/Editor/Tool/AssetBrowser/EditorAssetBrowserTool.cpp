@@ -78,6 +78,22 @@ void EditorAssetBrowserTool::OnFrameEnd()
     _eventFunc.clear();
 }
 
+void EditorAssetBrowserTool::OnTickGui() 
+{
+}
+
+void EditorAssetBrowserTool::OnFrameFocusEnter() 
+{
+}
+
+void EditorAssetBrowserTool::OnFrameFocusStay() 
+{
+}
+
+void EditorAssetBrowserTool::OnFrameFocusExit() 
+{
+}
+
 #define REFRESH_TEXT "Refresh"
 void EditorAssetBrowserTool::ShowUpperFrame()
 {
