@@ -21,7 +21,7 @@ bool ESceneManager::RootGameObjectsFilter(GameObject* obj, std::string_view scen
 
 std::filesystem::path ESceneManager::GetSettingFilePath()
 {
-    std::filesystem::path path = UmFileSystem.GetSettingPath();
+    std::filesystem::path path = UmFileSystem.GetBuildSettingPath();
     path /= SETTING_FILE_NAME;
     return path;
 }
@@ -352,6 +352,7 @@ void ESceneManager::Engine::LoadStartScene()
     ESceneManager& sceneManager = UmSceneManager;
     std::string& loadScene = Application::IsEditor() ? sceneManager._setting.MainScene : sceneManager._setting.StartScene;
     File::Path path = loadScene;
+    path = std::filesystem::absolute(path);
     File::Guid guid = path.ToGuid();
     auto findGuid = sceneManager._scenesMap.find(guid);
     if (loadScene != STR_NULL && findGuid != sceneManager._scenesMap.end())
@@ -363,7 +364,7 @@ void ESceneManager::Engine::LoadStartScene()
                 return;
             }
         }
-        sceneManager.LoadScene(loadScene);
+        sceneManager.LoadScene(path.string());
     }
 }
 

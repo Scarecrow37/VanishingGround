@@ -63,6 +63,12 @@ void Application::Initialize(HINSTANCE hInstance)
     //모듈 초기화
     InitModules();
 
+    //게임 모드 체크
+    if constexpr (false == Application::IsEditor())
+    {
+        UmFileSystem.LoadGameDirectory();
+    }
+
     //초기화 완료
     OnStartupComplete();
 }
