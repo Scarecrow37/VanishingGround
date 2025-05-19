@@ -70,6 +70,7 @@ private:
     bool _isDirty   = false;
     bool _isLoaded = false;
     File::Guid _guid = STR_NULL;
+    File::Guid _skyBox = STR_NULL;
 };
 
 /// <summary>

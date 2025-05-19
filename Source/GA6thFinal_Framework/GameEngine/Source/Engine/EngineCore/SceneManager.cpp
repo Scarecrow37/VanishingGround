@@ -960,9 +960,16 @@ bool ESceneManager::DeserializeToYaml(YAML::Node* _sceneNode)
         return false;
     }
 
+    bool isMainScene = _lodedSceneList.size() == 1;
+
     YAML::Node& sceneNode = *_sceneNode;
     int SerializeVersion = sceneNode["SerializeVersion"].as<int>();
     File::Guid Guid = sceneNode["Guid"].as<std::string>();
+
+    if (true == isMainScene)
+    {
+
+    }
     
     YAML::Node rootObjects = sceneNode["GameObjects"].as<YAML::Node>();
     for (auto object : rootObjects)
