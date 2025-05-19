@@ -81,6 +81,26 @@ void Renderer::SetSkyBox(std::string_view path)
     scene->SetSkyBox(path);
 }
 
+void Renderer::ResetSkyBox()
+{
+    auto iter  = _renderScenes.find("Editor");
+    auto scene = iter->second;
+    scene->ResetSkyBox();
+}
+
+void Renderer::ResetSkyBox(std::string_view sceneName) 
+{
+    auto iter = _renderScenes.find(sceneName.data());
+
+    if (iter == _renderScenes.end())
+    {
+        ASSERT(false, L"Renderer::RegisterRenderQueue : Render Scene Not Registered.");
+    }
+
+    auto scene = iter->second;
+    scene->ResetSkyBox();
+}
+
 void Renderer::Initialize()
 {
     CreateDefaultResource();

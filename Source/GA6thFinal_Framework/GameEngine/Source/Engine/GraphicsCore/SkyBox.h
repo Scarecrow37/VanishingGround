@@ -12,6 +12,7 @@ public:
     void SetTexture(std::string path);
     void Render(ID3D12GraphicsCommandList* commnadList,UINT rootParameterIndex);
     void SetDescriptorHeap(ID3D12GraphicsCommandList* commnadList);
+    void ResetResource();
     bool HasTexture() { return _hasTexture; }
 
 private:
