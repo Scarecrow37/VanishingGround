@@ -129,14 +129,6 @@ void Renderer::Initialize()
 
 void Renderer::Update()
 {
-    if (GetAsyncKeyState(VK_F1) & 0x8000)
-    {
-        SetSkyBox("../../../Resource/Assets/skybox/kloppenheim_05_puresky_4k.hdr");
-    }
-    if (GetAsyncKeyState(VK_F2) & 0x8000)
-    {
-        ResetSkyBox();
-    }
     UmDevice.ClearBackBuffer(D3D12_CLEAR_FLAG_DEPTH, { 0.5f, 0.5f, 0.5f, 1.f });
 
     for (auto& renderScene : _renderScenes)
