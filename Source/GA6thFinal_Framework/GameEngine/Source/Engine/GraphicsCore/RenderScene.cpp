@@ -131,9 +131,9 @@ D3D12_CPU_DESCRIPTOR_HANDLE RenderScene::GetFinalImage()
     return _meshLightingTarget->GetSRVHandle();
 }
 
-void RenderScene::SetSkyBox(std::string path)
+void RenderScene::SetSkyBox(std::string_view path)
 {
-    _skyBox->SetTexture(path);
+    _skyBox->SetTexture(path.data());
 }
 
 void RenderScene::AddRenderTechnique(std::shared_ptr<RenderTechnique> technique)

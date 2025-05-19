@@ -56,6 +56,8 @@ void EditorSceneTool::OnPostFrameBegin()
 
 void EditorSceneTool::OnFrameRender() 
 {
+    _window = ImGui::GetCurrentWindow();
+    DragDropEvent();
     UpdateMode();
     _camera->Update();
 
@@ -72,7 +74,33 @@ void EditorSceneTool::OnFrameFocusStay()
 {
 }
     
-void EditorSceneTool::SetMoveFlag() 
+void EditorSceneTool::DragDropEvent() 
+{
+    namespace fs = std::filesystem;
+    ImRect rect  = _window->Rect();
+    if (ImGui::BeginDragDropTargetCustom(rect, _window->ID))
+    {
+        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
+        {
+            DragDropAsset::Data* data = (DragDropAsset::Data*)payload->Data;
+            std::weak_ptr<File::Context>* wpContext = data->pContext;
+            if (false == wpContext->expired())
+            {
+                auto              context   = wpContext->lock();
+                const File::Path& path      = context->GetPath();
+                fs::path extension = path.extension();
+            
+                if (".hdr" == extension)
+                {
+                    UmSceneManager.SetSkyBox(path);
+                }
+            }
+        }
+        ImGui::EndDragDropTarget();
+    }
+}
+
+void EditorSceneTool::SetMoveFlag()
 {
     if (true == _isOver)
     {
