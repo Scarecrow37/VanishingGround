@@ -136,6 +136,11 @@ void RenderScene::SetSkyBox(std::string path)
     _skyBox->SetTexture(path);
 }
 
+void RenderScene::ResetSkyBox()
+{
+    _skyBox->ResetResource();
+}
+
 void RenderScene::AddRenderTechnique(std::shared_ptr<RenderTechnique> technique)
 {
     ID3D12GraphicsCommandList* commandList = UmDevice.GetCommandList().Get();
