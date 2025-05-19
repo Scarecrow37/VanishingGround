@@ -64,8 +64,11 @@ float4 ps_main(PSInput input) : SV_Target0
     //}
     
     // ibl specular brdf 따로 구현하기
+    // 임시로 albedo 색상에 상수값으로 환경광 표현
+    float3 ambient = 0.3;
+    ambient *= albedo;
     diffuse = pow(diffuse, 1.0 / 2.2);
-    float3 color = diffuse; //+ specular;
+    float3 color = diffuse+ ambient;
 
     return float4(color, 1.0);
 }

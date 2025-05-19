@@ -280,7 +280,7 @@ namespace File
         fs::path defaultAbsPath = initialDirectory;
         if (true == defaultAbsPath.empty())
         {
-            defaultAbsPath = fs::current_path();
+            defaultAbsPath = UmFileSystem.GetRootPath();
         }
         defaultAbsPath = fs::absolute(defaultAbsPath);
         IShellItem* folderItem = nullptr;

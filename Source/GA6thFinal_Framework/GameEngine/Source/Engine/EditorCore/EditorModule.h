@@ -90,8 +90,8 @@ namespace Global
 
      inline bool IsLock() const { return (false == _popupBoxSystem.IsEmpty()); }
 
-     inline auto& GetDockWindowSystem() { return _dockWindowSystem; }
-     inline auto& GetPopupBoxSystem() { return _popupBoxSystem; }
+     inline EditorGuiSystem&        GetDockWindowSystem() { return _guiSystem; }
+     inline EditorPopupBoxSystem&   GetPopupBoxSystem() { return _popupBoxSystem; }
      
  private:
      /* 기본 스타일 설정 */
@@ -105,7 +105,7 @@ namespace Global
      bool _isDebug = false;
      std::string _imGuiIniData;   // ImGui 설정 데이터
 
-     EditorGuiSystem            _dockWindowSystem;   // 에디터 도킹 윈도우 시스템
+     EditorGuiSystem            _guiSystem;   // 에디터 도킹 윈도우 시스템
      EditorPopupBoxSystem       _popupBoxSystem;     // 에디터 모달 팝업 시스템
 
      bool _isFirstTick     = true;

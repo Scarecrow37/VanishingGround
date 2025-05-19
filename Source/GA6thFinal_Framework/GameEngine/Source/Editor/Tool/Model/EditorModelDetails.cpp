@@ -48,7 +48,7 @@ void EditorModelDetails::OnFrameRender()
 
         if (ImGui::BeginTable("##material", 2, ImGuiTableFlags_Borders))
         {
-            ImGui::TableNextRow();            
+            ImGui::TableNextRow();
             ImGui::TableNextColumn();
             const char* blendModeNames[] = {"Opaque", "Masked", "Translucent", "Additive", "Modulate"};
             ImGui::Text("Blend Mode");
@@ -104,7 +104,7 @@ void EditorModelDetails::ImportModel()
         std::shared_ptr<Model> model = std::make_shared<Model>();
 
         FBXConverter& fbxConverter = GetFBXConverter();
-        fbxConverter.ImportModel(path.front(), model.get());
+        fbxConverter.ImportModel(path.front(), model);
         _meshRenderer->SetModel(model);
 
         _filePath = path.front();
