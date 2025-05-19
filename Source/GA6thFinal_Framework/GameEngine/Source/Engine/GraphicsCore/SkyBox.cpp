@@ -3,7 +3,7 @@
 #include "Box.h"
 #include "ShaderBuilder.h"
 
-SkyBox::SkyBox():_box{std::make_unique<Box>()} {}
+SkyBox::SkyBox() : _box{std::make_unique<Box>()}, _hasTexture{false} {}
 
 SkyBox::~SkyBox() {}
 
@@ -59,6 +59,8 @@ void SkyBox::SetTexture(std::string path)
         BindResources(cubeSize, face);
         pCommandList->Dispatch((cubeSize + 15) / 16, (cubeSize + 15) / 16, 1);
     }
+
+    _hasTexture = true;
 }
 
 void SkyBox::Render(ID3D12GraphicsCommandList* commnadList, UINT rootParameterIndex)
