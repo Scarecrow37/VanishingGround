@@ -302,6 +302,11 @@ bool EComponentFactory::AddComponentToYamlNow(GameObject* ownerObject, YAML::Nod
     return true;
 }
 
+void EComponentFactory::InsertComponentToObject(GameObject* object, std::shared_ptr<Component>& component, int index) 
+{
+    object->_components.insert(object->_components.begin() + index, component);
+}
+
 void EComponentFactory::AddEngineComponentsToScripts() 
 {
     for (auto& [key, func] : _engineComponets)

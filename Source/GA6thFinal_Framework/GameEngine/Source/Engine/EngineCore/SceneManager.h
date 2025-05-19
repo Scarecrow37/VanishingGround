@@ -65,11 +65,13 @@ public:
     }
     SETTER(bool, IsDirty);
     PROPERTY(IsDirty)
+
 private:
     bool _isDontDestroyOnLoad = false;
     bool _isDirty   = false;
     bool _isLoaded = false;
     File::Guid _guid = STR_NULL;
+    File::Guid _skyBox = STR_NULL;
 };
 
 /// <summary>
@@ -220,6 +222,21 @@ public:
         /// </summary>
         static void SwapPrefabInstance(GameObject* original, GameObject* remake);
 
+        /// <summary>
+        /// 씬의 스카이박스를 설정합니다.
+        /// </summary>
+        static void SetSceneSkyBoxGuid(Scene& scene, const File::Guid& skyBox);
+
+        /// <summary>
+        /// 씬의 스카이박스를 설정합니다.
+        /// </summary>
+        static void SetSceneSkyBoxPath(Scene& scene, std::string_view skyBoxPath);
+
+        /// <summary>
+        /// 오브젝트의 행렬을 명시적으로 업데이트합니다. (성능 하락 주의)
+        /// </summary>
+        /// <param name="gameObject"></param>
+        static void UpdateMatrix(GameObject* gameObject);
     };
 
 public:
@@ -318,6 +335,13 @@ public:
     /// <param name="isOverride :">덮어쓰기 안내문구 스킵 여부</param>
     void WriteEmptySceneToFile(std::string_view name, std::string_view outPath, bool isOverride = false);
 
+    /// <summary>
+    /// 스카이 박스를 설정합니다.
+    /// </summary>
+    /// <param name="path :">사용할 스카이박스</param>
+    /// <returns></returns>
+    bool SetSkyBox(const File::Path& path);
+    
     class SceneResourceManager
     {
     public:
@@ -410,13 +434,10 @@ private:
     /// </summary>
     void AddDestroyComponentQueue(Component* component);
 
-    void InsertComponentToObject(GameObject* object, std::shared_ptr<Component>& component, int index); 
-
     /// <summary>
     /// 오브젝트의 OwnerScene을 변경합니다.
     /// </summary>
     void SetObjectOwnerScene(GameObject* object, std::string_view sceneName);
-
 
 private:
     //Life cycle 에 포함되는 실제 오브젝트들 항목
@@ -447,6 +468,9 @@ private:
 private:
     struct
     {
+       //이전에 로드한 씬 이름입니다.
+       std::string PrevScene = STR_NULL;
+
        //현재 Single로 로드된 씬 이름입니다. NewGameObject를 하면 이 씬에 오브젝트가 생성됩니다.
        std::string MainScene = STR_NULL;
 
