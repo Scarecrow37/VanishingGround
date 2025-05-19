@@ -75,6 +75,16 @@ void SkyBox::SetDescriptorHeap(ID3D12GraphicsCommandList* commnadList)
     commnadList->SetDescriptorHeaps(_countof(hps), hps);
 }
 
+void SkyBox::ResetResource() 
+{
+    _skyboxCubeMap.Reset();
+    _skyboxhdrTexture.Reset();
+    for (auto& it : _cbs)
+    {
+        it.Reset();
+    }
+    _hasTexture = false;
+}
 
 ComPtr<ID3D12Resource> SkyBox::CreateTexture2D(ID3D12Device* device, int w, int h, DXGI_FORMAT format)
 {

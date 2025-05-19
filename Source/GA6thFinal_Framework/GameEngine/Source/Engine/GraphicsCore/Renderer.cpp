@@ -81,6 +81,26 @@ void Renderer::SetSkyBox(std::string path)
     scene->SetSkyBox(path);
 }
 
+void Renderer::ResetSkyBox()
+{
+    auto iter  = _renderScenes.find("Editor");
+    auto scene = iter->second;
+    scene->ResetSkyBox();
+}
+
+void Renderer::ResetSkyBox(std::string_view sceneName) 
+{
+    auto iter = _renderScenes.find(sceneName.data());
+
+    if (iter == _renderScenes.end())
+    {
+        ASSERT(false, L"Renderer::RegisterRenderQueue : Render Scene Not Registered.");
+    }
+
+    auto scene = iter->second;
+    scene->ResetSkyBox();
+}
+
 void Renderer::Initialize()
 {
     CreateDefaultResource();
@@ -109,6 +129,14 @@ void Renderer::Initialize()
 
 void Renderer::Update()
 {
+    if (GetAsyncKeyState(VK_F1) & 0x8000)
+    {
+        SetSkyBox("../../../Resource/Assets/skybox/kloppenheim_05_puresky_4k.hdr");
+    }
+    if (GetAsyncKeyState(VK_F2) & 0x8000)
+    {
+        ResetSkyBox();
+    }
     UmDevice.ClearBackBuffer(D3D12_CLEAR_FLAG_DEPTH, { 0.5f, 0.5f, 0.5f, 1.f });
 
     for (auto& renderScene : _renderScenes)
