@@ -94,6 +94,22 @@ void EditorDockWindow::OnFrameFocusStay()
 {
 }
 
+void EditorDockWindow::ProcessFocusFrame()
+{
+    _isFrameFocused = false;
+    for (auto& [key, editor] : _editorToolTable)
+    {
+        if (nullptr != editor)
+        {
+            bool isFocused = editor->IsFocusFrame();
+            if (true == isFocused)
+            {
+                _isFrameFocused = true;
+            }
+        }
+    }
+}
+
 bool EditorDockWindow::RegisterChildDockWindow(EditorDockWindow* childDockWindow)
 {
     if (nullptr == childDockWindow)
