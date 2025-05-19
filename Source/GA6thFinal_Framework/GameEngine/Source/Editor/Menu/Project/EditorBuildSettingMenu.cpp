@@ -32,6 +32,7 @@ void EditorBuildSettingMenu::OnTickGui()
 void EditorBuildSettingMenu::OnMenu()
 {
     EditorModule& editorModule = *Global::editorModule;
+    EComponentFactory& componentFactory = UmComponentFactory;
 
     if (ImGui::BeginMenu("Project"))
     {
@@ -44,7 +45,12 @@ void EditorBuildSettingMenu::OnMenu()
             }
             if (ImGui::MenuItem("Build Project"))
             {
-
+                bool result = editorModule.BuildSystem.BuildProject();
+                UmLogger.Log(LogLevel::LEVEL_DEBUG, "Build Project");
+            }
+            if (ImGui::MenuItem("Build Script"))
+            {
+                componentFactory.InitalizeComponentFactory();
             }
             ImGui::EndMenu();
         }
