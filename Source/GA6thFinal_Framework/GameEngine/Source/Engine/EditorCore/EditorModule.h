@@ -139,5 +139,33 @@ namespace Global
         ImVec4 _playModeColors[ImGuiCol_COUNT];
     }
     PlayMode;
+
+    //빌드 매니저
+    class EditorBuildSystem
+    {
+    public:
+        static constexpr const char* PROJECT_EXE_FOLDER_DEBUG    = "..\\bin-Debug";
+        static constexpr const char* PROJECT_EXE_FOLDER_RELEASE  = "..\\bin-Release";
+        #ifdef _DEBUG
+        static constexpr const char* PROJECT_EXE_FOLDER = PROJECT_EXE_FOLDER_DEBUG;
+        #else
+        static constexpr const char* PROJECT_EXE_FOLDER = PROJECT_EXE_FOLDER_RELEASE;
+        #endif
+
+        static constexpr const char* PROJECT_BUILD_BATCH_DEBUG   = "..\\GameEngine\\project_build_debug.bat";
+        static constexpr const char* PROJECT_BUILD_BATCH_RELEASE = "..\\GameEngine\\project_build_release.bat";
+        #ifdef _DEBUG
+        static constexpr const char* PROJECT_BUILD_BATCH_FILE = PROJECT_BUILD_BATCH_DEBUG;
+        #else
+        static constexpr const char* PROJECT_BUILD_BATCH_FILE = PROJECT_BUILD_BATCH_RELEASE;
+        #endif
+    public:
+        EditorBuildSystem();
+        ~EditorBuildSystem();
+
+        bool BuildProject(std::string_view outPath);
+
+    }
+    BuildSystem;
  };
 

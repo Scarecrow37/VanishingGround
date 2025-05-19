@@ -36,6 +36,27 @@ bool EFileSystem::CreateProject(const File::Path& path)
     return true;
 }
 
+bool EFileSystem::LoadGameDirectory()
+{
+    std::filesystem::path path = fs::current_path().generic_wstring();
+    _projectName        = path.stem().string();
+    _originPath         = fs::current_path().generic_wstring();
+    _rootPath           = fs::absolute(path).generic_wstring();
+    _assetPath          = fs::absolute(_rootPath / ASSET_FOLDER_NAME).generic_wstring();
+    _projectSettingPath = fs::absolute(_rootPath / PROJECT_SETTING_PATH).generic_wstring();
+    _buildSettingPath   = fs::absolute(_rootPath / BUILD_SETTING_PATH).generic_wstring(); 
+
+    for (auto& notifier : _notifierSet)
+        notifier->OnRequestedLoad();
+
+    ReadDirectory();
+
+    for (auto& notifier : _notifierSet)
+        notifier->OnPostRequestedLoad();
+
+    return true;
+}
+
 bool EFileSystem::LoadProject(const File::Path& path)
 {
     bool isExists = fs::exists(path);
@@ -79,10 +100,11 @@ bool EFileSystem::LoadProject(const File::Path& path)
     _originPath  = fs::current_path().generic_wstring();
     _rootPath    = fs::absolute(directory).generic_wstring();
     _assetPath   = fs::absolute(_rootPath / ASSET_FOLDER_NAME).generic_wstring();
-    _settingPath = fs::absolute(_rootPath / PROJECT_SETTING_PATH).generic_wstring();
+    _projectSettingPath = fs::absolute(_rootPath / PROJECT_SETTING_PATH).generic_wstring();
+    _buildSettingPath   = fs::absolute(_rootPath / BUILD_SETTING_PATH).generic_wstring(); 
 
     File::CreateFolder(_assetPath);
-    File::CreateFolder(_settingPath);
+    File::CreateFolder(_projectSettingPath);
 
     if (nullptr != _observer)
     {
