@@ -16,6 +16,29 @@ FBXConverter::~FBXConverter()
 {
 }
 
+void FBXConverter::ImportModel(const std::filesystem::path& filePath, std::shared_ptr<Model> model)
+{
+    Reset();
+
+    _model    = model;
+    auto prev = GetTickCount64();
+    auto curr = GetTickCount64();
+
+    if (filePath.extension() == L".fbx")
+    {
+        LoadFromAssimp(filePath, model.get());
+    }
+    else if (filePath.extension() == L".UmModel")
+    {
+        LoadFromBinary(filePath, model.get());
+    }
+
+    curr        = GetTickCount64();
+    float delta = (curr - prev) / 1000.f;
+
+    int a = 0;
+}
+
 void FBXConverter::ExportModel(const std::filesystem::path& filePath)
 {    
     auto WriteData = [this, &filePath](const auto& vertices, unsigned long long vertexStride)
@@ -27,6 +50,7 @@ void FBXConverter::ExportModel(const std::filesystem::path& filePath)
             unsigned int meshCount = (unsigned int)vertices.size();
             outFile.write((char*)&meshCount, sizeof(unsigned int));
 
+            const auto& materials = _model->GetMaterials();
             for (unsigned int i = 0; i < meshCount; i++)
             {
                 unsigned int vertexCount = (unsigned int)vertices[i].size();
@@ -57,6 +81,8 @@ void FBXConverter::ExportModel(const std::filesystem::path& filePath)
                     outFile.write((char*)&pathSize, sizeof(unsigned int));
                     outFile.write(path.c_str(), pathSize);
                 }
+
+                outFile.write((char*)&materials[i], sizeof(Material));
             }
 
             outFile.close();
@@ -70,28 +96,6 @@ void FBXConverter::ExportModel(const std::filesystem::path& filePath)
     {
         WriteData(_skeletalVertices, sizeof(SkeletalMeshVertex));
     }    
-}
-
-void FBXConverter::ImportModel(const std::filesystem::path& filePath, Model* model)
-{
-    Reset();
-
-    auto prev  = GetTickCount64();
-    auto curr  = GetTickCount64();
-    
-    if (filePath.extension() == L".fbx")
-    {
-        LoadFromAssimp(filePath, model);
-    }
-    else if (filePath.extension() == L".UmModel")
-    {
-        LoadFromBinary(filePath, model);
-    }
-
-    curr       = GetTickCount64();
-    float delta = (curr - prev) / 1000.f;
-
-    int a = 0;
 }
 
 void FBXConverter::LoadNode(aiNode* node,
@@ -478,5 +482,9 @@ void FBXConverter::LoadFromBinary(const std::filesystem::path& filePath, Model* 
 
             model->BindTexture(i, UmResourceManager.LoadResource<Texture>(newPath));
         }
-    }    
+
+        Material material{};
+        inFile.read((char*)&material, sizeof(Material));
+        model->BindMaterial(i, material);
+    }
 }
