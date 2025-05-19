@@ -1,6 +1,9 @@
 ﻿#pragma once
 class GameObject;
+class Component;
 class ESceneManager;
+class MeshComponent;
+class Model;
 
 //참고 
 // Unity SceneManager https://docs.unity3d.com/6000.0/Documentation/ScriptReference/SceneManagement.SceneManager.html
@@ -150,7 +153,7 @@ public:
         /// <param name="instanceID :">적용 대상의 instanceID</param>
         /// <param name="value :">적용 값</param>
         /// </summary>
-        static void SetGameObjectActive(int instanceID, bool value);
+        static void SetGameObjectActive(GameObject* pObject, bool value);
 
         /// <summary>
         /// <para> 컴포넌트의 라이프 사이클 활성화 여부를 변경합니다.     </para>
@@ -216,6 +219,7 @@ public:
         /// 프리팹 인스턴스를 Swap 합니다. Reset만 호출되며 인스턴스 아이디는 유지됩니다.
         /// </summary>
         static void SwapPrefabInstance(GameObject* original, GameObject* remake);
+
     };
 
 public:
@@ -313,7 +317,44 @@ public:
     /// <param name="outPath :">저장할 경로</param>
     /// <param name="isOverride :">덮어쓰기 안내문구 스킵 여부</param>
     void WriteEmptySceneToFile(std::string_view name, std::string_view outPath, bool isOverride = false);
-    
+
+    class SceneResourceManager
+    {
+    public:
+        SceneResourceManager();
+        ~SceneResourceManager();
+
+        /// <summary>
+        /// 해당 리소스 매니저를 업데이트 합니다.
+        /// </summary>
+        /// <param name="manager"></param>
+        static void Update(SceneResourceManager& manager);
+
+        /// <summary>
+        /// MeshComponent의 Model 리소스 로드를 요청합니다.
+        /// </summary>
+        /// <param name="meshComponent :">대상 메시 컴포넌트</param>
+        /// <param name="guid :">로드할 리소스의 guid</param>
+        void RequestModelResource(const MeshComponent* meshComponent, const File::Guid& guid);
+         
+        void ClearModelResource();
+
+    private:
+        struct ModelResources
+        {
+            Concurrency::concurrent_queue<std::pair<std::weak_ptr<MeshComponent>, File::Guid>> ModelLoadQueue;
+            std::unordered_map<File::Guid, std::shared_ptr<Model>>                             ModelResource;
+            std::unordered_map<File::Guid, std::vector<std::weak_ptr<MeshComponent>>>          ModelUseComponentList;
+        }
+        _models;
+
+
+    };
+    /// <summary>
+    /// 씬 리소스 관리를 위한 맴버입니다.
+    /// </summary>
+    SceneResourceManager ResourceManager;
+
 private:
 #ifdef _UMEDITOR
     //play 여부
@@ -359,6 +400,24 @@ private:
     /// </summary>
     void EraseGameObjectMap(std::shared_ptr<GameObject>& pEraseObject);
 
+    /// <summary>
+    /// 자식까지 모두 포함한 오브젝트들을 삭제 대기열에 추가합니다.
+    /// </summary>
+    void AddDestroyObjectQueue(GameObject* gameObject);
+
+    /// <summary>
+    /// 컴포넌트를 파괴 대기열에 추가합니다.
+    /// </summary>
+    void AddDestroyComponentQueue(Component* component);
+
+    void InsertComponentToObject(GameObject* object, std::shared_ptr<Component>& component, int index); 
+
+    /// <summary>
+    /// 오브젝트의 OwnerScene을 변경합니다.
+    /// </summary>
+    void SetObjectOwnerScene(GameObject* object, std::string_view sceneName);
+
+
 private:
     //Life cycle 에 포함되는 실제 오브젝트들 항목
     std::vector<std::shared_ptr<GameObject>> _runtimeObjects;
@@ -382,6 +441,9 @@ private:
     std::tuple<std::unordered_set<Component*>, std::vector<Component*>, std::vector<bool*>> _onEnableQueue;
     std::tuple<std::unordered_set<Component*>, std::vector<Component*>, std::vector<bool*>> _onDisableQueue;
 
+    //Renderer의 Enable, Disable 변경 관리용
+    std::pair<std::vector<MeshRenderer*>, std::vector<MeshRenderer*>> _meshSetActiveQueue;
+
 private:
     struct
     {
@@ -402,6 +464,7 @@ private:
 
     //로드된 씬 항목
     std::vector<Scene*> _lodedSceneList;
+
 protected:
     /// <summary>
     /// 씬을 Yaml 형식으로 직렬화합니다.
@@ -466,6 +529,75 @@ protected:
 
     //직렬화된 씬들 캐싱용
     std::unordered_map<File::Guid, YAML::Node> _sceneDataMap;
+
+public:
+    //커맨드들
+    class DestroyGameObjectCommand : public UmCommand
+    {
+    public:
+        DestroyGameObjectCommand(GameObject* object);
+        virtual  ~DestroyGameObjectCommand();
+
+    private:
+        void Execute() override;
+        void Undo() override;
+
+        std::vector<std::shared_ptr<GameObject>> _destroyObjects;
+        std::string _ownerSceneName;
+        bool _active;
+        bool _isFocus;
+    };
+
+    class NewGameObjectCommand : public UmCommand
+    {
+    public:
+        NewGameObjectCommand(std::string_view type_id, std::string_view name);
+        virtual ~NewGameObjectCommand() = default;
+
+    private:
+        std::shared_ptr<GameObject> _newObject;
+        std::string _ownerScene;
+        std::string _newName;
+        std::string _typeName;
+        bool _active;
+
+        // UmCommand을(를) 통해 상속됨
+        void Execute() override;
+        void Undo() override;
+    };
+
+    class DestroyComponentCommand : public UmCommand
+    {
+    public:
+        DestroyComponentCommand(Component* component);
+        virtual ~DestroyComponentCommand();
+
+    private:
+        void Execute() override;
+        void Undo() override;
+
+        std::shared_ptr<Component> _destroyComponent;
+        std::weak_ptr<GameObject>  _ownerObject;
+        bool                       _enable;
+        int                        _index;
+    };
+
+    class AddComponentCommand : public UmCommand
+    {
+    public:
+        AddComponentCommand(GameObject* ownerObject, std::string_view type_id);
+        virtual ~AddComponentCommand() = default;
+
+    private:
+        std::shared_ptr<Component> _addComponent;
+        std::weak_ptr<GameObject>  _ownerObject;
+        std::string                _typeName;
+        int                        _index;
+
+        // UmCommand을(를) 통해 상속됨
+        void Execute() override;
+        void Undo() override;
+    };
 };
 
 inline auto ESceneManager::GetRootGameObjectsByPath(std::string_view path) 

@@ -15,11 +15,15 @@ private:
 
     virtual void OnPostFrameBegin() override;
 
+    virtual void OnFrameRender() override;
+
     virtual void OnFrameEnd() override;
 
     virtual void OnFramePopupOpened() override;
 
     void UpdateFPS();
+
+private:
     float _elpasedTime;
     int   _frameCount;
     int   _fps;

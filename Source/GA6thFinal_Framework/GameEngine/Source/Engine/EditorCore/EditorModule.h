@@ -1,10 +1,11 @@
 ﻿#pragma once
-#include "Setting/EditorSetting.h"
 
 class EditorTool;
+class EditorMenu;
+class EditorDockWindow;
 class EditorModule;
-class EditorMenuBar;
 class EditorPopupBoxSystem;
+class EditorModule;
 
 #ifndef _SCRIPTS_PROJECT
 namespace Global
@@ -14,6 +15,9 @@ namespace Global
 #else
     struct NotEditorModule
     {
+        NotEditorModule()  = default;
+        ~NotEditorModule() = default;
+
         EditorModule* operator->()
         {
             assert(!"에디터 빌드만 접근 가능합니다.");
@@ -37,12 +41,18 @@ namespace Global
             UmApplication.Quit();
             return err;
         }
+        operator EditorModule*()
+        {
+            assert(!"에디터 빌드만 접근 가능합니다.");
+            __debugbreak(); // 에디터 아닌데 접근하면 안됨.
+            UmApplication.Quit();
+            return nullptr;
+        }
     };
     extern NotEditorModule editorModule;
-#endif // _UMEDITOR  
-}
+#endif // _UMEDITOR
+} // namespace Global
 #endif
-
 
  class EditorModule 
      : public IAppModule
@@ -68,18 +78,20 @@ namespace Global
  public:
      void Update();
 
-     bool IsLock();
-
  public:
      void OpenPopupBox(const std::string& name, std::function<void()> content);
 
+     void ResetGuiLayout();
+
  public:
      /* 에디터 디버그 모드 */
-     inline void SetDebugMode(bool v) { _setting.IsDebugMode = v; }
-     inline bool IsDebugMode() { return _setting.IsDebugMode; }
+     inline void SetDebugMode(bool v) { _isDebug = v; }
+     inline bool IsDebugMode() const { return _isDebug; }
+
+     inline bool IsLock() const { return (false == _popupBoxSystem.IsEmpty()); }
 
      inline auto& GetDockWindowSystem() { return _dockWindowSystem; }
-     inline auto& GetPopupBoxSystem()   { return _popupBoxSystem; }
+     inline auto& GetPopupBoxSystem() { return _popupBoxSystem; }
      
  private:
      /* 기본 스타일 설정 */
@@ -88,11 +100,18 @@ namespace Global
      virtual void OnRequestedSave() override;
      /* 프로젝트 로드 요청을 처리할 동작을 구현 */
      virtual void OnRequestedLoad() override;
+
  private:
-     EditorSetting             _setting;            // 에디터 세팅 데이터
-     EditorDockWindowSystem    _dockWindowSystem;   // 에디터 도킹 윈도우 시스템
-     EditorPopupBoxSystem      _popupBoxSystem;     // 에디터 모달 팝업 시스템
-public:
+     bool _isDebug = false;
+     std::string _imGuiIniData;   // ImGui 설정 데이터
+
+     EditorGuiSystem            _dockWindowSystem;   // 에디터 도킹 윈도우 시스템
+     EditorPopupBoxSystem       _popupBoxSystem;     // 에디터 모달 팝업 시스템
+
+     bool _isFirstTick     = true;
+     bool _isRefreshLayout = false;
+
+ public:
     //플레이 모드 관리용
     class EditorPlayMode
     {
@@ -120,4 +139,5 @@ public:
         ImVec4 _playModeColors[ImGuiCol_COUNT];
     }
     PlayMode;
-};
+ };
+

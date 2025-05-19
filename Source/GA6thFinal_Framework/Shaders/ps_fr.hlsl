@@ -19,14 +19,10 @@ struct Material
     uint ID[4];
 };
 
-ConstantBuffer<Object> bit32_object : register(b1);
+
 StructuredBuffer<Material> material;
 
-#define object bit32_object
-
 Texture2D textures[];
-
-SamplerState samLinear_wrap;
 
 float4 ps_main(PSInput input) : SV_TARGET
 {

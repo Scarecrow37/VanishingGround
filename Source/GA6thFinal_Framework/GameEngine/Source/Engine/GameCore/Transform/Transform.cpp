@@ -20,6 +20,11 @@ Transform::~Transform()
     EraseParent();
 }
 
+std::weak_ptr<GameObject> Transform::GetWeakPtr()
+{
+    return _gameObject.GetWeakPtr();
+}
+
 void Transform::DetachChildren()
 {
     for (auto& child : _childsList)
@@ -51,21 +56,24 @@ void Transform::SetParent(Transform* p)
     }
     else //부모 관계 변경
     {
-        if (p == this || p->IsDescendantOf(this))
+        if (p->gameObject->GetOwnerSceneName() == gameObject->GetOwnerSceneName())
         {
-            return;
-        }
-        EraseParent();
-        {
-            _parent = p;
+            if (p == this || p->IsDescendantOf(this))
+            {
+                return;
+            }
+            EraseParent();
+            {
+                _parent = p;
 
-            if (p->_root)
-                _root = p->_root;
-            else
-                _root = _parent;
+                if (p->_root)
+                    _root = p->_root;
+                else
+                    _root = _parent;
 
-            p->_childsList.push_back(this);
-            SetChildsRootParent(_root);
+                p->_childsList.push_back(this);
+                SetChildsRootParent(_root);
+            }
         }
     }
     _hasChanged = true;

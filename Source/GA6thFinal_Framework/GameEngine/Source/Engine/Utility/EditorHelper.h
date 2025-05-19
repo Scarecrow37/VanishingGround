@@ -12,9 +12,9 @@ public:
     inline static const char* ICON_FILE_IMAGE = "\xef\x87\x85"; // f1c5
     inline static const char* ICON_FILE_DOCS  = "\xef\x85\x9c"; // f15c
 
-    inline static const char* ICON_Folder        = "\xef\x81\xbb"; //
+    inline static const char* ICON_FOLDER        = "\xef\x81\xbb"; //
     inline static const char* ICON_FOLDER_OPEN   = "\xef\x81\xbc"; // f07c
-    inline static const char* ICON_Folder_CLOSED = "\xee\x86\x85"; // e185
+    inline static const char* ICON_FOLDER_CLOSED = "\xee\x86\x85"; // e185
 
     inline static const char* ICON_IMAGE    = "\xef\x8c\x82"; // f302
     inline static const char* ICON_KEYBOARD = "\xef\x84\x9c"; // f11c

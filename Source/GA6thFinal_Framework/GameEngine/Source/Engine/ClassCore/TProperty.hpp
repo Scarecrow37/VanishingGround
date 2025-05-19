@@ -43,10 +43,11 @@ struct property_void_type
     using Type = void;
 };
 
-template <typename owner_type, class getter, class setter>
+template <typename owner, class getter, class setter>
 class TProperty
 {
 public:
+    using owner_type = owner;
     static constexpr bool is_getter = !std::is_same_v<getter::Type, void>;
     static constexpr bool is_setter = !std::is_same_v<setter::Type, void>;
 
@@ -75,6 +76,10 @@ public:
         }
     }
 
+    inline owner_type* GetOwner()
+    {
+        return _propertyOwner;
+    }
 private:
     static_assert(is_getter || is_setter, "TProperty must have either a getter or a setter.");
 
@@ -88,6 +93,7 @@ public:
     using field_type = std::conditional_t<is_getter, typename getter::Type, typename setter::Type>;
     using remove_cvref_field_type = std::remove_cvref_t<field_type>;
     static constexpr bool is_ref_getter = !std::is_pointer_v<field_type> && std::is_reference_v<field_type> && is_getter;
+
     TProperty(
         owner_type* _this
     ) 

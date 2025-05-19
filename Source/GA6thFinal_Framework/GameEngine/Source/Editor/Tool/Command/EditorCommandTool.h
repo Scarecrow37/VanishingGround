@@ -37,7 +37,10 @@ private:
     ImVec4 GetSelectableColor(int index, ImVec4 color);
 
 private:
+    int _requestUndoCount = 0;
+    int _requestRedoCount  = 0;
+
     ImVec4 _tableDefaultColor = ImVec4(0.4f, 0.4f, 0.4f, 0.8f);
     ImVec4 _tableHoveredColor = ImVec4(0.6f, 0.6f, 0.6f, 0.8f);
-    ;
+    
 };

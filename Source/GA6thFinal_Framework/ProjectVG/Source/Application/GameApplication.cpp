@@ -31,6 +31,7 @@ GameApplication::GameApplication()
     _editorModule = AddModule<EditorModule>();
     BuildRootDock();
     BuildSceneDock();
+    BuildModelDock();
 #endif // _UMEDITOR
 }
 
@@ -56,9 +57,9 @@ void GameApplication::BuildRootDock()
     _rootDock = dockSystem.RegisterDockWindow("RootDock");
 
     ImGuiWindowClass imguiwindowClass;
-    imguiwindowClass.ClassId               = ImHashStr("RootDockID"); // 윈도우 ID값 (그냥 대충 ImHashStr을 사용하여 생성)
-    imguiwindowClass.DockingAllowUnclassed = false; // 허용되지 않은 윈도우의 도킹을 허용할 것인가
-    imguiwindowClass.DockingAlwaysTabBar   = false; // 도킹 탭바를 항상 표시할 것인가
+    imguiwindowClass.ClassId                = ImHashStr("RootDockID"); // 윈도우 ID값 (그냥 대충 ImHashStr을 사용하여 생성)
+    imguiwindowClass.DockingAllowUnclassed  = false; // 허용되지 않은 윈도우의 도킹을 허용할 것인가
+    imguiwindowClass.DockingAlwaysTabBar    = false; // 도킹 탭바를 항상 표시할 것인가
 
     int imguiWindowFlag = 
         ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
@@ -79,10 +80,11 @@ void GameApplication::BuildRootDock()
     _rootDock->RegisterGui<EditorMenuProjectRoot>();
     _rootDock->RegisterGui<EditorMenuScriptBuilder>();
     _rootDock->RegisterGui<EditorBuildSettingMenu>(); 
-    _rootDock->RegisterGui<EditorMenuDebug>();
-    _rootDock->RegisterGui<EditorMenuStyleEditor>();
+    _rootDock->RegisterGui<EditorMenuEditorSetting>();
     _rootDock->RegisterGui<EditorMenuFileSystemSetting>();
-    _rootDock->RegisterGui<EditorPlayMenu>();
+
+
+    _rootDock->RegisterGui<EditorMenuTools>(_rootDock);
 }
 
 void GameApplication::BuildSceneDock() 
@@ -92,16 +94,19 @@ void GameApplication::BuildSceneDock()
     _sceneDock = dockSystem.RegisterDockWindow("SceneDock", _rootDock);
     
     ImGuiWindowClass imguiwindowClass;
-    imguiwindowClass.ClassId          = ImHashStr("SceneDockID");
-    imguiwindowClass.DockingAllowUnclassed = false;
-    imguiwindowClass.DockingAlwaysTabBar   = true;
+    imguiwindowClass.ClassId                = ImHashStr("SceneDockID");
+    imguiwindowClass.DockingAllowUnclassed  = false;
+    imguiwindowClass.DockingAlwaysTabBar    = true;
 
-    int imguiWindowFlag = ImGuiWindowFlags_MenuBar;
-    int dockWindowFlag  = ImGuiDockNodeFlags_NoWindowMenuButton | ImGuiDockNodeFlags_NoCloseButton;
+    int imguiWindowFlag   = ImGuiWindowFlags_MenuBar;
+    int imguiDockNodeFlag =
+        ImGuiDockNodeFlags_NoWindowMenuButton | ImGuiDockNodeFlags_NoCloseButton;
+    int editorToolFlag    = EditorTool::EDITORTOOL_FLAGS_NO_CLOSE_BUTTON;
 
     _sceneDock->SetWindowClass(imguiwindowClass);
+    _sceneDock->SetEditorToolFlags(editorToolFlag);
     _sceneDock->SetImGuiWindowFlag(imguiWindowFlag);
-    _sceneDock->SetImGuiDockNodeFlag(dockWindowFlag);
+    _sceneDock->SetImGuiDockNodeFlag(imguiDockNodeFlag);
     _sceneDock->SetDockLayout(ImGuiDir_Up);
 
     _sceneDock->CreateDockLayoutNode(ImGuiDir::ImGuiDir_Right, 0.25f);
@@ -115,9 +120,41 @@ void GameApplication::BuildSceneDock()
     _sceneDock->RegisterGui<EditorSceneTool>();
     _sceneDock->RegisterGui<EditorLogsTool>();
     _sceneDock->RegisterGui<EditorCommandTool>();
-    _sceneDock->RegisterGui<EditorModelTool>();
     _sceneDock->RegisterGui<EditorAssetBrowserTool>();
 
     _sceneDock->RegisterGui<EditorMenuTools>(_sceneDock);
     _sceneDock->RegisterGui<EditorSceneMenuScenes>();
+    _sceneDock->RegisterGui<EditorPlayMenu>();
+}
+
+void GameApplication::BuildModelDock()
+{
+    auto& dockSystem = _editorModule->GetDockWindowSystem();
+
+    _modelDock       = dockSystem.RegisterDockWindow("ModelDock", _rootDock);
+
+    ImGuiWindowClass imguiwindowClass;
+    imguiwindowClass.ClassId               = ImHashStr("ModelDockID");
+    imguiwindowClass.DockingAllowUnclassed = false;
+    imguiwindowClass.DockingAlwaysTabBar   = true;
+
+    int imguiWindowFlag                    = ImGuiWindowFlags_MenuBar;
+    int dockWindowFlag                     = ImGuiDockNodeFlags_NoWindowMenuButton | ImGuiDockNodeFlags_NoCloseButton;
+
+    _modelDock->SetWindowClass(imguiwindowClass);
+    _modelDock->SetImGuiWindowFlag(imguiWindowFlag);
+    _modelDock->SetImGuiDockNodeFlag(dockWindowFlag);
+    
+    _modelDock->CreateDockLayoutNode(ImGuiDir::ImGuiDir_Right, 0.25f);
+    _modelDock->CreateDockLayoutNode(ImGuiDir::ImGuiDir_Down, 0.40f);
+    _modelDock->CreateDockLayoutNode(ImGuiDir::ImGuiDir_Left, 0.30f);
+    _modelDock->CreateDockLayoutNode(ImGuiDir::ImGuiDir_Up, 0.50f);
+
+    _modelDock->RegisterGui<EditorModelTool>();
+    _modelDock->RegisterGui<EditorModelDetails>();
+    _modelDock->RegisterGui<EditorModelHierarchy>();
+
+    // Menu
+    _modelDock->RegisterGui<EditorModelMenu>();
+    _modelDock->RegisterGui<EditorMenuTools>(_modelDock);
 }

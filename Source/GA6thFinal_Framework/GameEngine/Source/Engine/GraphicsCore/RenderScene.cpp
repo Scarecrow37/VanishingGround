@@ -8,10 +8,12 @@
 #include "RenderTechnique.h"
 #include "ShaderBuilder.h"
 #include "MeshRenderer.h"
+#include "SkyBox.h"
 
 RenderScene::RenderScene()
     : _frameQuad{std::make_unique<Quad>()}
     , _frameShader{std::make_unique<ShaderBuilder>()}
+    ,_skyBox{std::make_unique<SkyBox>()}
 {
 }
 
@@ -50,7 +52,8 @@ void RenderScene::UpdateRenderScene()
         const auto& model     = component->GetModel();
         const auto& meshes    = model->GetMeshes();
         const auto& materials = model->GetMaterials();
-        
+        const auto& textures  = model->GetTextures();
+
         XMMATRIX world = XMMatrixTranspose(component->GetWorldMatrix());
         UINT     size  = (UINT)meshes.size();
 
@@ -61,15 +64,15 @@ void RenderScene::UpdateRenderScene()
 
             for (UINT j = 0; j < 4; j++)
             {
-                if (nullptr == materials[i][j])
+                if (nullptr == textures[i][j])
                     continue;
 
-                auto iter = materialPair.find(materials[i][j]->GetHandle().ptr);
+                auto iter = materialPair.find(textures[i][j]->GetHandle().ptr);
                 if (iter == materialPair.end())
                 {
-                    materialPair.emplace(materials[i][j]->GetHandle().ptr, materialID);
+                    materialPair.emplace(textures[i][j]->GetHandle().ptr, materialID);
                     materialData.ID[j] = materialID++;
-                    handles.push_back(materials[i][j]->GetHandle());
+                    handles.push_back(textures[i][j]->GetHandle());
                 }
                 else
                 {
@@ -107,6 +110,16 @@ void RenderScene::RegisterOnRenderQueue(MeshRenderer* component)
 
 void RenderScene::Execute(ID3D12GraphicsCommandList* commandList)
 {
+    // 메쉬 최종 타겟 클리어
+    ComPtr<ID3D12Resource>   rt = _meshLightingTarget->GetResource();
+    CD3DX12_RESOURCE_BARRIER br = CD3DX12_RESOURCE_BARRIER::Transition(
+        rt.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    commandList->ResourceBarrier(1, &br);
+    auto  handle     = _meshLightingTarget->GetRTVHandle();
+    float clearValue = _meshLightingTarget->clearValue;
+    Color clearColor = {clearValue, clearValue, clearValue, 1.f};
+    commandList->ClearRenderTargetView(handle, clearColor, 0, nullptr);
+
     for (auto& tech : _techniques)
     {
         tech->Execute(commandList);
@@ -116,6 +129,11 @@ void RenderScene::Execute(ID3D12GraphicsCommandList* commandList)
 D3D12_CPU_DESCRIPTOR_HANDLE RenderScene::GetFinalImage()
 {
     return _meshLightingTarget->GetSRVHandle();
+}
+
+void RenderScene::SetSkyBox(std::string path)
+{
+    _skyBox->SetTexture(path);
 }
 
 void RenderScene::AddRenderTechnique(std::shared_ptr<RenderTechnique> technique)
@@ -214,7 +232,6 @@ void RenderScene::CreateFrameQuadAndFrameShader()
     _frameShader->SetShader(L"../Shaders/vs_quad.hlsl", ShaderBuilder::Type::VS);
     _frameShader->SetShader(L"../Shaders/ps_quad_frame.hlsl", ShaderBuilder::Type::PS);
     _frameShader->EndBuild();
-
 }
 
 void RenderScene::CreateFramePSO()

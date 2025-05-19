@@ -339,12 +339,12 @@ namespace ImGuiHelper
     /// 전달받은 오브젝트의 Guizmo를 Draw 합니다. 반드시 ImGuizmo::SetRect() 설정 이후 호출해야합니다.
     /// </summary>
     /// <param name="pObject"></param>
-    bool DrawManipulate(Camera* pCamera, Matrix* pObjectMatrix, DrawManipulateDesc& desc, Vector3* outPosition, Quaternion* outRotation, Vector3* outScale);
+    bool DrawManipulate(Camera* pCamera, Matrix* pObjectMatrix, DrawManipulateDesc& desc);
 
     /// <summary>
     /// 전달받은 오브젝트의 Guizmo를 Draw 합니다. 반드시 ImGuizmo::SetRect() 설정 이후 호출해야합니다.
     /// </summary>
     /// <param name="pObject"></param>
-    bool DrawManipulate(EditorDynamicCamera* pDynamicCamera, Matrix* pObjectMatrix, DrawManipulateDesc& desc, Vector3* outPosition, Quaternion* outRotation, Vector3* outScale);
+    bool DrawManipulate(EditorDynamicCamera* pDynamicCamera, Matrix* pObjectMatrix, DrawManipulateDesc& desc);
 
 } // namespace ImGuiHelper

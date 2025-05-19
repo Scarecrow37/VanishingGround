@@ -1,6 +1,5 @@
 #include "CommonData.hlsli"
 
-ConstantBuffer<Object> bit32_object : register(b1);
 StructuredBuffer<ObjectData> objectData;
 
 struct VSInput
@@ -22,7 +21,7 @@ struct VSOutput
     float4 worldPosition : POSITION;
 };
 
-#define object bit32_object
+
 
 VSOutput vs_main(VSInput input)
 {

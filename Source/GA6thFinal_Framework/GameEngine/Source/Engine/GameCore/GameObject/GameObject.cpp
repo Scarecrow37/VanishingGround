@@ -38,6 +38,10 @@ GameObject::GameObject()
 GameObject::~GameObject()
 {
     _components.clear();
+    if (0 <= _instanceID)
+    {
+        UmGameObjectFactory.InstanceID.ReturnInstanceID(_instanceID);
+    }
 }
 
 Scene& GameObject::GetScene()
@@ -52,13 +56,7 @@ Scene& GameObject::GetScene()
     }
 }
 
-std::weak_ptr<GameObject> GameObject::GetWeakPtr() const
-{
-    return _weakPtr;
-}
-
-void GameObject::OnInspectorViewEnter() 
-{
+void GameObject::OnInspectorEnter() {
 
 }
 
@@ -274,7 +272,7 @@ void GameObject::OnInspectorStay()
                     {
                         if (ImGui::Button(key.c_str() + 6))
                         {
-                            engineCore->ComponentFactory.AddComponentToObject(selectObject, key);
+                            UmCommandManager.Do<ESceneManager::AddComponentCommand>(selectObject, key);
                             ImGui::CloseCurrentPopup();
                         }
                     }

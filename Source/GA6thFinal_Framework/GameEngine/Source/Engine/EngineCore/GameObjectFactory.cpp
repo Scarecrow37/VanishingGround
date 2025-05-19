@@ -95,7 +95,7 @@ void EGameObjectFactory::ApplyPrefabInstanceChanges(const File::Guid& guid, YAML
                         {
                             auto& curr        = prefabObjects[i];
                             curr->_ownerScene = ownerScene;
-                            curr->_instanceID = InstanceIDManager::CreateInstanceID();
+                            curr->_instanceID = InstanceID.CreateInstanceID();
                             ESceneManager::Engine::AddGameObjectToLifeCycle(curr);
                         }
                     }
@@ -519,7 +519,7 @@ void EGameObjectFactory::ResetGameObject(
     ownerObject->ReflectFields->_activeSelf = true;
   
     //인스턴스 아이디 부여
-    int instanceID = InstanceIDManager::CreateInstanceID();
+    int instanceID = InstanceID.CreateInstanceID();
     ownerObject->_instanceID = instanceID;
 }
 
@@ -586,37 +586,27 @@ void EGameObjectFactory::ParsingYamlToGameObject(GameObject* pObject, const YAML
 
 int EGameObjectFactory::InstanceIDManager::CreateInstanceID()
 {
-    EGameObjectFactory& factory = UmGameObjectFactory;
     int instanceID = -1;
+    instanceIdMutex.lock();
+    if (_emptyID.empty())
     {
-        std::lock_guard<std::mutex> guard{instanceIdMutex};
-
-        if (factory.instanceIDManager.EmptyID.empty())
-        {
-            instanceID = factory.instanceIDManager.BackID++;
-        }
-        else
-        {
-            instanceID = factory.instanceIDManager.EmptyID.back();
-            factory.instanceIDManager.EmptyID.pop_back();
-        }
-    }   
+        instanceID = _backID++;
+    }
+    else
+    {
+        std::sort(_emptyID.begin(), _emptyID.end(), [](int a, int b) { return a > b; });
+        instanceID = _emptyID.back();
+        _emptyID.pop_back();
+    } 
+    instanceIdMutex.unlock();
     return instanceID;
 }
 
 void EGameObjectFactory::InstanceIDManager::ReturnInstanceID(int id)
 {
-    EGameObjectFactory& factory = UmGameObjectFactory;
-    {
-        std::lock_guard<std::mutex> guard{instanceIdMutex};
-
-        std::vector<int>& emptyID = factory.instanceIDManager.EmptyID;
-        emptyID.push_back(id);
-        std::sort(emptyID.begin(), emptyID.end(), [](int a, int b) 
-        {
-            return a > b; 
-        });
-    }
+    instanceIdMutex.lock();
+    _emptyID.push_back(id);
+    instanceIdMutex.unlock();
 }
 
 const std::vector<std::string>& EGameObjectFactory::Engine::GetGameObjectKeys()

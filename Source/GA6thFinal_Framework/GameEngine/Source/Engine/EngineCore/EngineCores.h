@@ -18,7 +18,6 @@ public:
     GraphicsCore Graphics;
     ECommandManager CommandManager;
     ReflectHelper::ImGuiDraw::InputAutoSetting ImGuiDrawPropertysSetting;
-
 private:
     LogLocation::EngineLocationInfo LocationInfo;
 };

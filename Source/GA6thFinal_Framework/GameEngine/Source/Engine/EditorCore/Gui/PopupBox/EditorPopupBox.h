@@ -6,10 +6,10 @@ public:
     EditorPopupBox(std::string_view name, std::function<void()> content) : name(name), content(content) {}
     ~EditorPopupBox() = default;
 
-    inline bool        IsNull() { return content == nullptr; }
-    inline bool        IsOpen() { return isOpen; }
-    inline const auto& GetName() { return name; }
-    inline const auto& GetContent() { return content; }
+    inline bool        IsNull() const { return content == nullptr; }
+    inline bool        IsOpen() const { return isOpen; }
+    inline const auto& GetName() const { return name; }
+    inline const auto& GetContent() const { return content; }
 
 private:
     std::string           name    = "";

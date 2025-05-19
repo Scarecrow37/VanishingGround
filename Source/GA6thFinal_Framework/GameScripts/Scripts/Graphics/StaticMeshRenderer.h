@@ -1,8 +1,8 @@
 ﻿#pragma once
 #include "UmFramework.h"
+#include "MeshComponent.h"
 
-class MeshRenderer;
-class StaticMeshRenderer : public Component
+class StaticMeshRenderer : public MeshComponent
 {
     USING_PROPERTY(StaticMeshRenderer)
 
@@ -37,7 +37,4 @@ protected:
 
     virtual void SerializedReflectEvent() override;
     virtual void DeserializedReflectEvent() override;
-
-private:
-    std::unique_ptr<MeshRenderer> _meshRenderer;
 };

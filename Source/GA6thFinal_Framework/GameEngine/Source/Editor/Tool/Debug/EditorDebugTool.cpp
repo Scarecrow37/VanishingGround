@@ -30,7 +30,11 @@ void EditorDebugTool::OnPreFrameBegin()
     return void ();
 }
 
-void EditorDebugTool::OnPostFrameBegin()
+void EditorDebugTool::OnPostFrameBegin() 
+{
+}
+
+void EditorDebugTool::OnFrameRender()
 {
     ImGui::InputDouble("Time scale", &engineCore->Time.TimeScale);
 

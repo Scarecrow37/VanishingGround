@@ -11,15 +11,14 @@ public:
 public:
 	void SetupPerspective(float fovDegree, float aspect, float nearZ, float farZ);
 	void SetRotation(const Vector3& rotation);
+	void SetRotation(const Quaternion& rotation);
 	void SetPosition(const Vector3& position);
 	void AddRotation(const Vector3& rotation);
+    void AddRotation(const Quaternion& rotation);
 	void AddPosition(const Vector3& position);
 
 public:
 	void Update();
-
-private:
-    void Input();
 
 private:
     Matrix        _world;
@@ -27,5 +26,5 @@ private:
     Matrix        _projection;
     Matrix        _projectionInverse;
     Vector3       _position;
-    Vector3       _rotation;
+    Quaternion    _rotation;
 };

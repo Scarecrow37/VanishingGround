@@ -34,6 +34,16 @@ struct MaterialData
 	UINT ID[4];
 };
 
+struct Material
+{
+    #undef OPAQUE
+    enum class ShadingModel { UNLIT, DEFAULTLIT, END };
+    enum class BlendMode{ OPAQUE, MASKED, TRANSLUCENT, ADDITIVE, MODULATE, END };
+    ShadingModel Model;
+    BlendMode Mode;
+    bool IsTwoSided;
+};
+
 struct CameraData
 {	
 	XMMATRIX View;

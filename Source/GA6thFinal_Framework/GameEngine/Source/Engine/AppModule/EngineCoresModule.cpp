@@ -14,6 +14,10 @@ void EngineCoresModule::PreInitialize()
 
 void EngineCoresModule::ModuleUnInitialize()
 {
+    if constexpr (Application::IsEditor())
+    {
+        UmCommandManager.Clear();
+    }
     ESceneManager::Engine::CleanupSceneManager();
     engineCore->ComponentFactory.UninitalizeComponentFactory();
     //engineCore->Graphics.ResourceManager.Clear();

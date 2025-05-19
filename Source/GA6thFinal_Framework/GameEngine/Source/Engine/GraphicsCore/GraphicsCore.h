@@ -30,10 +30,4 @@ public:
     void Update();
     void Render();
     void Flip();
-
-private:
-    void InitializeDefaultGeometry();
-
-private:
-    std::vector<std::shared_ptr<Model>> _geometries;
 };

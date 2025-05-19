@@ -8,19 +8,24 @@ class EditorDockWindow;
 class EditorTool : public EditorGui
 {
     friend class EditorModule;
+    using Super = EditorGui;
 
 public:
     enum Flags
     {
         EDITORTOOL_FLAGS_NONE               = 0,
-        EDITORTOOL_FLAGS_ALWAYS_FRAME       = 1 << 2,   // 항상 프레임을 열고 닫음.
+        EDITORTOOL_FLAGS_ALWAYS_FRAME       = 1 << 1,   // 항상 프레임을 열고 닫음
+        EDITORTOOL_FLAGS_NO_CLOSE_BUTTON    = 1 << 2,   // 닫기 버튼을 없앰
         EDITORTOOL_FLAGS_NO_PADDING         = 1 << 3,   // 패딩을 없앰
+        // [Internal] Flags
+        EDITORTOOL_FLAGS_IS_DOCKWINDOW      = 1 << 4,   // 도킹 윈도우 여부
     };
 
 public:
     EditorTool() = default;
     virtual ~EditorTool() = default;
-public:
+
+ public:
     virtual void OnTickGui() override {}
     virtual void OnStartGui() override {};
     virtual void OnDrawGui() override;
@@ -48,13 +53,6 @@ private:
     /* Popup창 호출 성공 시 호출 (OnPreFrameBegin 전에 호출) */
     virtual void OnFramePopupOpened();
 
-    // 추가 할 것
-    //virtual void OnFrameClosed();
-    //
-    //virtual void OnFrameOpened();
-    //
-    //virtual void OnFrameResized();
-
 private:
     void PushStyle();
     void PopStyle();
@@ -66,10 +64,15 @@ private:
     void ProcessFocusFrame();
     void ProcessRenderFrame();
 
+protected:
+    REFLECT_FIELDS_BEGIN(EditorGui)
+    std::string OriginLabel;
+    bool IsLock = false;
+    REFLECT_FIELDS_END(EditorTool)
+
 private:
     std::string                     _label                  = "";                       // 에디터 툴 이름 (기본적으로 전역 단위의 이름 중복을 허용하지 않음. 나중엔 uuid등으로 관리할지 고민 중)
-    bool                            _isLock                 = false;                    // 해당 탭에 대한 입력을 막을지에 대한 여부
-    bool                            _isDrawable              = false;                   // 해당 탭이 보일지에 대한 여부
+    bool                            _isDrawable             = false;                    // 해당 탭이 보일지에 대한 여부
     bool                            _isBeginningFrame       = false;                    // BeginFrame이 호출 중인지 여부
     bool                            _isFirstTick            = true;                     // 첫 번째 Tick인지 여부
     int                             _editorToolOptionFlags  = EDITORTOOL_FLAGS_NONE;    // 옵션 플래그
@@ -81,7 +84,6 @@ private:
     ImGuiWindowFlags                _windowFlags            = ImGuiWindowFlags_None;    // ImGui윈도우 플래그 (ImGuiWindowFlags_NoCollapse는 항상 활성화)
     
     EditorDockWindow*               _ownerDockWindow        = nullptr;                  // 도킹 스페이스 (부모 도킹스페이스)
-    std::vector<EditorDockWindow*>  _childDockWindowList;                               // 도킹 스페이스 리스트 (자식 도킹스페이스)
 
 private:
     ImGuiWindow*                    _imguiWindow            = nullptr;  // [Internal] ImGuiWindow 클래스
@@ -92,50 +94,53 @@ private:
 
 public:
     inline void         SetWindowClass(const ImGuiWindowClass& windowClass) { _imGuiWindowClass = windowClass; }
-    inline const auto&  GetWindowClass() { return _imGuiWindowClass; }
+    inline const auto&  GetWindowClass() const { return _imGuiWindowClass; }
 
     /*                  이름 설정 (기본적으로 중복을 비허용.) */
-    inline void         SetLabel(const std::string& label) { _label = label; }
-    inline const auto&  GetLabel() { return _label; }
+    inline void         SetLabel(const char* label) { _label = label; }
+    inline const auto&  GetLabel() const { return _label; }
 
     /*                  초기 도킹 영역을 지정 */
     inline void         SetDockLayout(ImGuiDir layout) { _dockLayout = {true, layout}; }
-    inline ImGuiDir     GetDockLayout() { return _dockLayout.second; }
+    inline ImGuiDir     GetDockLayout() const { return _dockLayout.second; }
 
     /*                  플래그 설정 */
     inline void         SetEditorToolFlags(UINT flags) { _editorToolOptionFlags = flags; }
     inline void         AddEditorToolFlags(UINT flags) { _editorToolOptionFlags |= flags; }
     inline void         RemoveEditorToolFlags(UINT flags) { _editorToolOptionFlags &= ~flags; }
-    inline int          GetEditorToolFlags() { return _editorToolOptionFlags; }
-    inline bool         HasEditorToolFlags(UINT flags) { return _editorToolOptionFlags & flags; }
+    inline int          GetEditorToolFlags() const { return _editorToolOptionFlags; }
+    inline bool         HasEditorToolFlags(UINT flags) const { return _editorToolOptionFlags & flags; }
 
     inline void         SetImGuiWindowFlag(ImGuiWindowFlags flag) { _windowFlags = flag; }
     inline void         AddImGuiWindowFlag(ImGuiWindowFlags flag) { _windowFlags |= flag; }
     inline void         RemoveImGuiWindowFlag(ImGuiWindowFlags flag) { _windowFlags &= ~flag; }
-    inline auto         GetImGuiWindowFlag() { return _windowFlags; }
-    inline bool         HasImGuiWindowFlag(ImGuiWindowFlags flag) { return _windowFlags & flag; }
+    inline auto         GetImGuiWindowFlag() const { return _windowFlags; }
+    inline bool         HasImGuiWindowFlag(ImGuiWindowFlags flag) const { return _windowFlags & flag; }
 
     /*                  툴 잠금 설정 */
-    inline void         SetLock(bool v) { _isLock = v; }
-    inline bool         IsLock() { return _isLock; }
-    inline void         ToggleLock() { _isLock = _isLock == true ? false : true; }
+    inline void         SetLock(bool v) { ReflectFields->IsLock = v; }
+    inline void         ToggleLock() { ReflectFields->IsLock = ReflectFields->IsLock == true ? false : true; }
+    inline bool         IsLock() const { return ReflectFields->IsLock; }
+   
 
     /*                  사이즈 조정 설정 */
     inline void         SetSize(const ImVec2& size) { _size = {true, size}; }
-    inline ImVec2       GetSize() { return _size.second; }
+    inline ImVec2       GetSize() const { return _size.second; }
 
     /*                  위치 조정 설정 */
     inline void         SetPos(const ImVec2& pos) { _pos = {true, pos}; }
-    inline ImVec2       GetPos() { return _pos.second; }
+    inline ImVec2       GetPos() const { return _pos.second; }
 
     /*                  도킹 스페이스 설정 (부모 도킹스페이스) */
     inline void         SetOwnerDockWindow(EditorDockWindow* dockWindow) { _ownerDockWindow = dockWindow; }
-    inline auto*        GetOwnerDockWindow() { return _ownerDockWindow; }
+    inline auto*        GetOwnerDockWindow() const { return _ownerDockWindow; }
 
-    inline auto*        GetImGuiWindow() { return _imguiWindow; }
+    inline auto*        GetImGuiWindow() const { return _imguiWindow; }
     /*                  렌더링 가능 여부 */
-    inline bool         IsDrawable() { return _isDrawable; }
+    inline bool         IsDrawable() const { return _isDrawable; }
     /*                  Begin과 End 사이의 작업 중인지 여부 */
-    inline bool         IsBeginningFrame() { return _isBeginningFrame; }
+    inline bool         IsBeginningFrame() const { return _isBeginningFrame; }
+    /*                  해당 프레임이 포커싱 중인지 여부 */ 
+    inline bool         IsFocusFrame() const { return _isFrameFocused; }
 };
 

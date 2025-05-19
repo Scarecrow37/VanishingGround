@@ -1,7 +1,12 @@
 ﻿#include "pch.h"
 #include "EditorDynamicCamera.h"
 
-EditorDynamicCamera::EditorDynamicCamera() : _moveSpeed(10.f), _rotationSpeed(5.f) {}
+EditorDynamicCamera::EditorDynamicCamera() 
+    : 
+    _moveSpeed(10.f),
+    _moveScale(1.f),
+    _rotationSpeed(5.f) 
+{}
 
 void EditorDynamicCamera::SetTarget(std::shared_ptr<Camera> camera)
 {
@@ -13,9 +18,8 @@ void EditorDynamicCamera::Update()
     const float deltaTime = UmTime.DeltaTime();
 
     ImGuiIO& io          = ImGui::GetIO();
-    float    moveSpeed   = _moveSpeed * deltaTime;
-    float    zoomSpeed   = moveSpeed * 10.f;
-    float    rotateSpeed = _rotationSpeed * deltaTime;
+    float    moveSpeed   = _moveScale * _moveSpeed * deltaTime;
+    float    rotateSpeed = _rotationSpeed * 0.001f;
 
     const Matrix& matrix = _camera->GetWorldMatrix();
     const Vector3 foward = -matrix.Forward();
@@ -25,10 +29,6 @@ void EditorDynamicCamera::Update()
     bool isRightClick = ImGui::IsKeyDown(ImGuiKey::ImGuiKey_MouseRight);
     if (isRightClick)
     {
-        if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftShift))
-        {
-            moveSpeed *= 2.f;
-        }
         if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_W))
         {
             _position += foward * moveSpeed;
@@ -61,13 +61,15 @@ void EditorDynamicCamera::Update()
         {
             float deltaX = mouseDelta.x * rotateSpeed;
             float deltaY = mouseDelta.y * rotateSpeed;
-            _rotation += Vector3(deltaY, deltaX, 0.f);
+            _rotation *= Quaternion::CreateFromAxisAngle(Vector3::Up, deltaX);
+            _rotation = Quaternion::CreateFromAxisAngle(Vector3::Right, deltaY) * _rotation;
         }
         
         if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_MouseWheelY))
         {
             float wheel = io.MouseWheel;
-            _position += foward * zoomSpeed * wheel;
+            _moveScale += wheel * 0.01f;
+            _moveScale = std::clamp(_moveScale, 0.f, 1000.f);
         }
     }
 

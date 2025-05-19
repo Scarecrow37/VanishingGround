@@ -38,6 +38,7 @@ constexpr const char* STR_NULL = "null";
 #include <d3dcompiler.h>
 
 #include <DirectXMath.h>
+#include <DirectXTex.h>
 #include <directxtk12/SimpleMath.h>
 #include <directxtk12/SpriteBatch.h>
 #include <directxtk12/SpriteFont.h>
@@ -84,6 +85,7 @@ using namespace Microsoft::WRL;
 #include <system_error>
 #include <typeindex>
 #include <string_view>
+#include <concurrent_queue.h>
 
 //ThirdParty
 #include <pugixml.hpp>
@@ -116,6 +118,7 @@ using namespace Microsoft::WRL;
 #include "Engine/Utility/Mathf.h"
 
 //Class Core
+#include "Engine/CommandCore/CommandManager.h"
 #include "Engine/ClassCore/TProperty.hpp"
 #include "Engine/ClassCore/ReflectHelper.h"
 
@@ -146,7 +149,6 @@ using namespace Microsoft::WRL;
 #include "Engine/EngineCore/GameObjectFactory.h"
 #include "Engine/EngineCore/ComponentFactory.h"
 #include "Engine/EngineCore/SceneManager.h"
-#include "Engine/CommandCore/CommandManager.h"
 #include "Engine/EngineCore/EngineCores.h" 
 
 //Editor Core
@@ -158,8 +160,11 @@ using namespace Microsoft::WRL;
 #include "Engine/EditorCore/Gui/PopupBox/EditorPopupBox.h"
 #include "Engine/EditorCore/Gui/DockWindow/EditorDockWindow.h"
 #include "Engine/EditorCore/System/EditorPopupBoxSystem.h"
-#include "Engine/EditorCore/System/EditorDockWindowSystem.h"
+#include "Engine/EditorCore/System/EditorGuiSystem.h"
 #include "Engine/EditorCore/EditorModule.h"
+
+//Input Auto
+#include "Engine/ClassCore/InputAuto.h"
 
 //Game Core
 #include "Engine/GameCore/Transform/Transform.h"
@@ -185,7 +190,9 @@ using namespace Microsoft::WRL;
 #include "Editor/Tool/Hierarchy/EditorHierarchyTool.h"
 #include "Editor/Tool/Scene/EditorSceneTool.h"
 #include "Editor/Tool/Log/EditorLogsTool.h"
+#include "Editor/Tool/Model/EditorModelDetails.h"
 #include "Editor/Tool/Model/EditorModelTool.h"
+#include "Editor/Tool/Model/EditorModelHierarchy.h"
 #include "Editor/Tool/Command/EditorCommandTool.h"
 
 // Editor Menu
@@ -195,4 +202,5 @@ using namespace Microsoft::WRL;
 #include "Editor/Menu/Scene/EditorSceneMenu.h"
 #include "Editor/Menu/Project/EditorBuildSettingMenu.h"
 #include "Editor/Menu/Play/EditorPlayMenu.h"
+#include "Editor/Menu/Model/EditorModelMenu.h"
 #endif

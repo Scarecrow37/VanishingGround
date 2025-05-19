@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 class EditorDynamicCamera;
-class MeshRenderer;
 class EditorModelTool : public EditorTool
 {
 public:
@@ -36,11 +35,10 @@ private:
     virtual void OnFramePopupOpened() override;
 
 private:
-    void ImportFBX(std::filesystem::path path);
+    void ImportFBX(const std::filesystem::path& path);
     void ExportFBX();
 
 private:
     std::unique_ptr<EditorDynamicCamera> _camera;
-    std::unique_ptr<MeshRenderer>        _meshRenderer;
-    Matrix                               _worldMatrix;
+    EditorModelDetails*                  _editorModelDetails;
 };

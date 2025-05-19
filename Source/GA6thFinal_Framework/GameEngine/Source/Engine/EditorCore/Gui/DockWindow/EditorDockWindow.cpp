@@ -16,9 +16,9 @@ EditorDockWindow::~EditorDockWindow()
         }
     }
     _editorGuiList.clear();
-    _editorToolClassTable.clear();
+    _editorGuiClassTable.clear();
+    _editorToolTable.clear();
 }
-
 
 void EditorDockWindow::OnTickGui() 
 {
@@ -33,6 +33,7 @@ void EditorDockWindow::OnTickGui()
 
 void EditorDockWindow::OnStartGui() 
 {
+    AddEditorToolFlags(EditorTool::EDITORTOOL_FLAGS_IS_DOCKWINDOW);
     for (auto& editor : _editorGuiList)
     {
         if (nullptr != editor)
@@ -89,6 +90,10 @@ void EditorDockWindow::OnFrameEnd()
 {
 }
 
+void EditorDockWindow::OnFrameFocusStay() 
+{
+}
+
 bool EditorDockWindow::RegisterChildDockWindow(EditorDockWindow* childDockWindow)
 {
     if (nullptr == childDockWindow)
@@ -98,6 +103,7 @@ bool EditorDockWindow::RegisterChildDockWindow(EditorDockWindow* childDockWindow
 
     _editorGuiList.push_back(childDockWindow);
     childDockWindow->SetOwnerDockWindow(this);
+    _dockWindowTable[childDockWindow->GetLabel()] = childDockWindow;
     return true;
 }
 
@@ -162,23 +168,19 @@ void EditorDockWindow::PushDockStyle()
         ImGui::SetNextWindowViewport(viewport->ID);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+        _pushedStyleCount += 2;
     }
     if (_dockWindowOptionFlags & DOCKWINDOW_FLAGS_PADDING)
     {
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+        _pushedStyleCount += 1;
     }
 }
 
 void EditorDockWindow::PopDockStyle() 
 {
-    if (_dockWindowOptionFlags & DOCKWINDOW_FLAGS_FULLSCREEN)
-    {
-        ImGui::PopStyleVar(2);
-    }
-    if (_dockWindowOptionFlags & DOCKWINDOW_FLAGS_PADDING)
-    {
-        ImGui::PopStyleVar();
-    }
+    ImGui::PopStyleVar(_pushedStyleCount);
+    _pushedStyleCount = 0;
 }
 
 void EditorDockWindow::CreateDockLayoutNode(ImGuiDir direction, float ratio)
