@@ -1,5 +1,6 @@
 ﻿#pragma once
 class GameObject;
+class Component;
 class ESceneManager;
 class MeshComponent;
 class Model;
@@ -64,11 +65,13 @@ public:
     }
     SETTER(bool, IsDirty);
     PROPERTY(IsDirty)
+
 private:
     bool _isDontDestroyOnLoad = false;
     bool _isDirty   = false;
     bool _isLoaded = false;
     File::Guid _guid = STR_NULL;
+    File::Guid _skyBox = STR_NULL;
 };
 
 /// <summary>
@@ -219,6 +222,21 @@ public:
         /// </summary>
         static void SwapPrefabInstance(GameObject* original, GameObject* remake);
 
+        /// <summary>
+        /// 씬의 스카이박스를 설정합니다.
+        /// </summary>
+        static void SetSceneSkyBoxGuid(Scene& scene, const File::Guid& skyBox);
+
+        /// <summary>
+        /// 씬의 스카이박스를 설정합니다.
+        /// </summary>
+        static void SetSceneSkyBoxPath(Scene& scene, std::string_view skyBoxPath);
+
+        /// <summary>
+        /// 오브젝트의 행렬을 명시적으로 업데이트합니다. (성능 하락 주의)
+        /// </summary>
+        /// <param name="gameObject"></param>
+        static void UpdateMatrix(GameObject* gameObject);
     };
 
 public:
@@ -317,6 +335,13 @@ public:
     /// <param name="isOverride :">덮어쓰기 안내문구 스킵 여부</param>
     void WriteEmptySceneToFile(std::string_view name, std::string_view outPath, bool isOverride = false);
 
+    /// <summary>
+    /// 스카이 박스를 설정합니다.
+    /// </summary>
+    /// <param name="path :">사용할 스카이박스</param>
+    /// <returns></returns>
+    bool SetSkyBox(const File::Path& path);
+    
     class SceneResourceManager
     {
     public:
@@ -441,6 +466,8 @@ private:
     std::pair<std::vector<MeshRenderer*>, std::vector<MeshRenderer*>> _meshSetActiveQueue;
 
 private:
+    // 이전에 로드한 씬 이름입니다.
+    std::string _prevScene = STR_NULL;
     struct
     {
        //현재 Single로 로드된 씬 이름입니다. NewGameObject를 하면 이 씬에 오브젝트가 생성됩니다.
@@ -527,11 +554,12 @@ protected:
     std::unordered_map<File::Guid, YAML::Node> _sceneDataMap;
 
 public:
+    //커맨드들
     class DestroyGameObjectCommand : public UmCommand
     {
     public:
         DestroyGameObjectCommand(GameObject* object);
-        ~DestroyGameObjectCommand();
+        virtual  ~DestroyGameObjectCommand();
 
     private:
         void Execute() override;
@@ -555,6 +583,39 @@ public:
         std::string _newName;
         std::string _typeName;
         bool _active;
+
+        // UmCommand을(를) 통해 상속됨
+        void Execute() override;
+        void Undo() override;
+    };
+
+    class DestroyComponentCommand : public UmCommand
+    {
+    public:
+        DestroyComponentCommand(Component* component);
+        virtual ~DestroyComponentCommand();
+
+    private:
+        void Execute() override;
+        void Undo() override;
+
+        std::shared_ptr<Component> _destroyComponent;
+        std::weak_ptr<GameObject>  _ownerObject;
+        bool                       _enable;
+        int                        _index;
+    };
+
+    class AddComponentCommand : public UmCommand
+    {
+    public:
+        AddComponentCommand(GameObject* ownerObject, std::string_view type_id);
+        virtual ~AddComponentCommand() = default;
+
+    private:
+        std::shared_ptr<Component> _addComponent;
+        std::weak_ptr<GameObject>  _ownerObject;
+        std::string                _typeName;
+        int                        _index;
 
         // UmCommand을(를) 통해 상속됨
         void Execute() override;

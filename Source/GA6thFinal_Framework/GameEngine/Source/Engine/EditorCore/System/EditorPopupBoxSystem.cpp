@@ -67,13 +67,13 @@ void EditorPopupBoxSystem::OpenPopupBox(const std::string& name, std::function<v
     _popupBoxQueue.push_back(_popupBoxTable[name]);
 }
 
-bool EditorPopupBoxSystem::IsExistPopupBox(const std::string& name)
+bool EditorPopupBoxSystem::IsExistPopupBox(const std::string& name) const
 {
     bool isExist = _popupBoxTable.find(name) != _popupBoxTable.end();
     return isExist;
 }
 
-bool EditorPopupBoxSystem::IsPopupBoxOpened(const std::string& name)
+bool EditorPopupBoxSystem::IsPopupBoxOpened(const std::string& name) const
 {
     auto itr = _popupBoxTable.find(name);
     if (itr != _popupBoxTable.end())
@@ -83,7 +83,7 @@ bool EditorPopupBoxSystem::IsPopupBoxOpened(const std::string& name)
     return false;
 }
 
-bool EditorPopupBoxSystem::IsEmpty()
+bool EditorPopupBoxSystem::IsEmpty() const
 {
     bool isEmpty = _popupBoxQueue.empty();
     return isEmpty;

@@ -166,6 +166,15 @@ public:
     }
 
     /// <summary>
+    /// 이 오브젝트가 유효한지 확인합니다.
+    /// </summary>
+    /// <returns></returns>
+    bool IsValid() const
+    {
+        return STR_NULL != _ownerScene;
+    }
+
+    /// <summary>
     /// <para>이 GameObject의 InstanceID를 반환합니다.                                 </para>
     /// <para>참고 : InstanceID는 매 런타임마다 달라집니다. 즉 UUID로 사용할 수 없습니다. </para>
     /// </summary>
@@ -237,7 +246,7 @@ public:
     //IEditorObject에서 상속됨
 
     /* InspectorView에 SetFocus 될 때 호출 구현 X */
-    virtual void OnInspectorViewEnter();
+     virtual void OnInspectorEnter();
     /* InspectorView의 Draw단계에 호출 */
     virtual void OnInspectorStay();
 
@@ -399,10 +408,13 @@ inline TComponent* GameObject::GetComponent() const
     TComponent* result = nullptr;
     for (auto& component : _components)
     {
-        if (typeid(TComponent) == typeid(*component))
+        if (nullptr != component)
         {
-            result = static_cast<TComponent*>(component.get());
-            break;
+            if (typeid(TComponent) == typeid(*component))
+            {
+                result = static_cast<TComponent*>(component.get());
+                break;
+            }
         }
     }
     return result;
@@ -418,7 +430,10 @@ inline TComponent* GameObject::GetComponentAtIndex(size_t index) const
     }
     else
     {
-        result = static_cast<TComponent*>(_components[index].get());
+        if (nullptr != _components[index])
+        {
+            result = dynamic_cast<TComponent*>(_components[index].get());
+        }       
         return result;
     }
 }
@@ -429,9 +444,12 @@ inline std::vector<TComponent*> GameObject::GetComponents() const
     std::vector<TComponent*> result;
     for (auto& component : _components)
     {
-        if (typeid(TComponent) == typeid(*component))
+        if (nullptr != component)
         {
-            result.emplace_back(static_cast<TComponent*>(component));
+            if (typeid(TComponent) == typeid(*component))
+            {
+                result.emplace_back(static_cast<TComponent*>(component));
+            }
         }
     }
     return result;

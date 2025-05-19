@@ -12,6 +12,8 @@ public:
     void SetTexture(std::string path);
     void Render(ID3D12GraphicsCommandList* commnadList,UINT rootParameterIndex);
     void SetDescriptorHeap(ID3D12GraphicsCommandList* commnadList);
+    void ResetResource();
+    bool HasTexture() { return _hasTexture; }
 
 private:
     ComPtr<ID3D12Resource> CreateTexture2D(ID3D12Device* device, int w, int h, DXGI_FORMAT format);
@@ -39,4 +41,6 @@ private:
     ComPtr<ID3D12PipelineState>         _computePSO;
     ComPtr<ID3D12DescriptorHeap>        _descriptorHeap;
     std::vector<ComPtr<ID3D12Resource>> _cbs;
+
+    bool _hasTexture;
 };

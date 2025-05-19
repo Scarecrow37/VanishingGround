@@ -23,37 +23,43 @@ void EditorInspectorTool::OnPreFrameBegin()
 
 void EditorInspectorTool::OnPostFrameBegin() 
 {
+    if (false == _currFocused.expired())
+    {
+        _rowPtrCurrFocused = _currFocused.lock().get();
+    }
+    else
+    {
+        _rowPtrCurrFocused = nullptr;
+    }
+
+    if (false == _nextFocused.expired())
+    {
+        _rowPtrNextFocused = _nextFocused.lock().get();
+    }
+    else
+    {
+        _rowPtrNextFocused = nullptr;
+    }
 }
 
+#define SAFE_CALL(ptr, func) if (nullptr != ptr) ptr->func; // nullptr 체크용
+  
 void EditorInspectorTool::OnFrameRender()
 {
     ShowMenuBarFrame();
-
-    if (false == _focusedObject.expired())
+    if (true == _isFocusChanged)
     {
-        auto spFocusedObject = _focusedObject.lock();
-        spFocusedObject->OnInspectorStay();
+        SAFE_CALL(_rowPtrCurrFocused, OnInspectorExit());
+        SAFE_CALL(_rowPtrNextFocused, OnInspectorEnter());
+        _rowPtrCurrFocused = _rowPtrNextFocused;
+        _currFocused       = _nextFocused;
+        _isFocusChanged    = false;
     }
+    SAFE_CALL(_rowPtrCurrFocused, OnInspectorStay());
 }
 
 void EditorInspectorTool::OnFrameEnd()
 {
-}
-
-void EditorInspectorTool::OnFrameFocusStay()
-{
-}
-
-bool EditorInspectorTool::IsFocusObject(std::weak_ptr<IEditorObject> obj)
-{
-    bool ownerIsExpired = _focusedObject.expired();
-    bool objIsExpired   = obj.expired();
-    if (false == ownerIsExpired && false == objIsExpired)
-    {
-        bool isSame = obj.lock() == _focusedObject.lock();
-        return isSame;
-    }
-    return false;
 }
 
 void EditorInspectorTool::ShowMenuBarFrame()
@@ -66,14 +72,32 @@ void EditorInspectorTool::ShowMenuBarFrame()
     }
 }
 
+bool EditorInspectorTool::IsFocusObject(std::weak_ptr<IEditorObject> obj)
+{
+    bool ownerIsExpired = _currFocused.expired();
+    bool objIsExpired   = obj.expired();
+    if (false == ownerIsExpired && false == objIsExpired)
+    {
+        bool isSame = obj.lock() == _currFocused.lock();
+        return isSame;
+    }
+    return false;
+}
+
 bool EditorInspectorTool::SetFocusObject(std::weak_ptr<IEditorObject> obj)
 {
     if (false == _isLockFocus)
     {
-        _focusedObject = obj;
+        _nextFocused = obj;
+        _isFocusChanged = true;
         return true;
     }
     return false;
+}
+
+std::weak_ptr<IEditorObject> EditorInspectorTool::GetFocusObject()
+{
+    return _currFocused;
 }
 
 bool EditorInspectorTool::SetLockFocus(bool isLock)

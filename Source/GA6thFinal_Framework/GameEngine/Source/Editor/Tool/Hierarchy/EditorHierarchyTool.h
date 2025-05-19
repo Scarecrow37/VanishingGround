@@ -29,6 +29,9 @@ private:
     //빈 공간 우클릭시
     void HierarchyRightClickEvent() const;
 
+    //키보드 이벤트
+    void KeyboardEvent();
+
     ImGuiWindow* _window = nullptr;
     bool         _isPlay = false;
 };

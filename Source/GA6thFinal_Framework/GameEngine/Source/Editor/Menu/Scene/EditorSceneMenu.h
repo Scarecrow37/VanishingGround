@@ -1,11 +1,18 @@
 ﻿#pragma once
 
-class EditorSceneMenuScenes : public EditorMenu
+class EditorSceneTool;
+
+class EditorSceneMenu : public EditorMenu
 {
 public:
-    EditorSceneMenuScenes()          = default;
-    virtual ~EditorSceneMenuScenes() = default;
+    EditorSceneMenu()          = default;
+    virtual ~EditorSceneMenu() = default;
 
 public:
     virtual void OnMenu() override;
+
+private:
+    EditorSceneTool* _sceneTool = nullptr;
+    bool _isSceneCameraPopUp = false;
+    void SceneCameraPopUp();
 };

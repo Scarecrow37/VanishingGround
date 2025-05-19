@@ -42,6 +42,11 @@ private:
     virtual void OnFrameRender() override;
     virtual void OnFrameEnd() override;
 
+    virtual void OnTickGui() override;
+    virtual void OnFrameFocusEnter() override;
+    virtual void OnFrameFocusStay() override;
+    virtual void OnFrameFocusExit() override;
+
 private:
     /* 메뉴바 - 콜럼 사이 어퍼프레임 */
     void ShowUpperFrame();
@@ -124,7 +129,9 @@ private:
 class EditorAssetObject : public IEditorObject
 {
 public:
+    virtual void OnInspectorEnter() override;
     virtual void OnInspectorStay() override;
+    virtual void OnInspectorExit() override;
 
 public:
     inline void SetThis(std::weak_ptr<EditorAssetObject> thisObj)

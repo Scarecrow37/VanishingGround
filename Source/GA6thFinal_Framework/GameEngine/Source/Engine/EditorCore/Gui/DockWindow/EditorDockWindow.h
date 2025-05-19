@@ -44,6 +44,8 @@ private:
     virtual void OnFrameEnd() override;
     virtual void OnFrameFocusStay() override;
 
+    virtual void ProcessFocusFrame() override;
+
 public:
     /* 툴을 등록합니다. */
     template <typename T, typename... Args > 
@@ -51,7 +53,7 @@ public:
 
     /* 툴을 가져옵니다. */
     template <typename T> 
-    T* GetGui();
+    T* GetGui() const;
 
     bool RegisterChildDockWindow(EditorDockWindow* childDockWindow);
 
@@ -93,24 +95,24 @@ private:
 
 public:
     /* 옵션 플래그에 대한 설정 */
-    inline void         SetDockWindowFlags(EditorDockWindowFlags flags) { _dockWindowOptionFlags = flags; }
-    inline void         AddDockWindowFlags(EditorDockWindowFlags flags) { _dockWindowOptionFlags |= flags; }
-    inline void         RemoveDockWindowOptionFlags(EditorDockWindowFlags flags) { _dockWindowOptionFlags &= ~flags; }
-    inline bool         HasDockWindowFlags(EditorDockWindowFlags flags) { return (_dockWindowOptionFlags & flags) == flags; }
-    inline const auto&  GetDockWindowOptionFlags() { return _dockWindowOptionFlags; }
+    inline void                         SetDockWindowFlags(EditorDockWindowFlags flags) { _dockWindowOptionFlags = flags; }
+    inline void                         AddDockWindowFlags(EditorDockWindowFlags flags) { _dockWindowOptionFlags |= flags; }
+    inline void                         RemoveDockWindowOptionFlags(EditorDockWindowFlags flags) { _dockWindowOptionFlags &= ~flags; }
+    inline bool                         HasDockWindowFlags(EditorDockWindowFlags flags) const { return (_dockWindowOptionFlags & flags) == flags; }
+    inline EditorDockWindowFlags        GetDockWindowOptionFlags() const { return _dockWindowOptionFlags; }
 
     /* Dock에 대한 플래그 설정 */
-    inline void         SetImGuiDockNodeFlag(ImGuiDockNodeFlags flags) { _userImGuiDockFlags = flags; }
-    inline void         AddImGuiDockNodeFlag(ImGuiDockNodeFlags flags) { _userImGuiDockFlags |= flags; }
-    inline void         RemoveImGuiDockNodeFlag(ImGuiDockNodeFlags flags) { _userImGuiDockFlags &= ~flags; }
-    inline bool         HasImGuiDockNodeFlag(ImGuiDockNodeFlags flags) { return (_userImGuiDockFlags & flags) == flags; }
-    inline int          GetImGuiDockNodeFlag() { return _userImGuiDockFlags; }
+    inline void                         SetImGuiDockNodeFlag(ImGuiDockNodeFlags flags) { _userImGuiDockFlags = flags; }
+    inline void                         AddImGuiDockNodeFlag(ImGuiDockNodeFlags flags) { _userImGuiDockFlags |= flags; }
+    inline void                         RemoveImGuiDockNodeFlag(ImGuiDockNodeFlags flags) { _userImGuiDockFlags &= ~flags; }
+    inline bool                         HasImGuiDockNodeFlag(ImGuiDockNodeFlags flags) const { return (_userImGuiDockFlags & flags) == flags; }
+    inline ImGuiDockNodeFlags           GetImGuiDockNodeFlag() const { return _userImGuiDockFlags; }
 
-    inline const auto&  GetRefGuiList() { return _editorGuiList; }
-    inline const auto&  GetRefGuiTable() { return _editorGuiClassTable; }
-    inline const auto&  GetRefToolTable() { return _editorToolTable; }
-    inline const auto&  GetRefMenuTable() { return _editorMenuTable; }
-    inline const auto&  GetRefDockWindowTable() { return _dockWindowTable; }
+    inline const GuiList&               GetRefGuiList() const { return _editorGuiList; }
+    inline const GuiTable&              GetRefGuiTable() const { return _editorGuiClassTable; }
+    inline const ToolTable&             GetRefToolTable() const { return _editorToolTable; }
+    inline const MenuTable&             GetRefMenuTable() const { return _editorMenuTable; }
+    inline const DockWindowTable&       GetRefDockWindowTable() const { return _dockWindowTable; }
 };
 
 template <typename T>
@@ -138,7 +140,6 @@ inline T* EditorDockWindow::RegisterGui(Args... args)
         {
             _editorToolTable[typeName] = instance;
             instance->SetOwnerDockWindow(this);
-            instance->SetOriginLabel(instance->GetLabel().c_str());
         }
         else if constexpr (IsEditorMenu<T>)
         {
@@ -154,7 +155,7 @@ inline T* EditorDockWindow::RegisterGui(Args... args)
 }
 
 template <typename T>
-inline T* EditorDockWindow::GetGui()
+inline T* EditorDockWindow::GetGui() const
 {
     static_assert(std::is_base_of_v<EditorGui, T>, "T is not a EditorGui.");
     auto itr = _editorGuiClassTable.find(typeid(T).name());

@@ -1,6 +1,20 @@
 ﻿#include "pch.h"
 #include "EditorTool.h"
 
+EditorTool::EditorTool()
+{
+    EditorDockWindow* pDockWindow = dynamic_cast<EditorDockWindow*>(this);
+    if (nullptr == pDockWindow)
+    {
+        _isDockWindow = false;
+    }
+}
+
+EditorTool::~EditorTool()
+{
+
+}
+
 /*
 2025.03.13 -
 Begin의 if문 안에 End를 넣으니까 같은 Tab으로 Docking시도 시 Missing End() 예외가 발생하며 터짐.
@@ -65,7 +79,7 @@ void EditorTool::BeginFrame()
     InitFrame();
 
     auto label      = GetLabel().c_str();
-    bool& isVisible = ReflectFields->Basefields.get()._isVisible;
+    bool* isVisible = HasEditorToolFlags(EDITORTOOL_FLAGS_NO_CLOSE_BUTTON) ? nullptr : &ReflectFields->Basefields.get()._isVisible;
     auto owner      = GetOwnerDockWindow();
     int  windowFlag = _windowFlags | ImGuiWindowFlags_NoCollapse;
 
@@ -76,7 +90,7 @@ void EditorTool::BeginFrame()
         ImGui::SetNextWindowClass(&windowClass);
     }
    
-    ImGui::Begin(label, &isVisible, windowFlag);
+    ImGui::Begin(label, isVisible, windowFlag);
 
     _imguiWindow      = ImGui::GetCurrentWindow();
     _isBeginningFrame = true;
@@ -172,16 +186,7 @@ void EditorTool::ProcessFocusFrame()
     if (false == _isFirstTick)
     {
         bool isFocused = false;
-        // 도킹 윈도우 여부 판단
-        if (true == HasEditorToolFlags(EditorTool::EDITORTOOL_FLAGS_IS_DOCKWINDOW))
-        {   // 나는 도킹 호스트거나 부모 창이므로, 자식 도킹창들까지 포커스 포함해서 판단한다.
-            isFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows | ImGuiFocusedFlags_DockHierarchy);
-        }
-        else
-        {   // 나는 자식 도킹창이므로, 내 창 자체에만 포커스 있는지 본다.
-            isFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows);
-        }
-
+        isFocused      = ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows);
         if (true == isFocused)
         {
             if (false == _isFrameFocused)
@@ -199,6 +204,16 @@ void EditorTool::ProcessFocusFrame()
                 OnFrameFocusExit();
             }
         }
+
+        // 도킹 윈도우 여부 판단
+        // if (true == HasEditorToolFlags(EditorTool::EDITORTOOL_FLAGS_IS_DOCKWINDOW))
+        //{   // 나는 도킹 호스트거나 부모 창이므로, 자식 도킹창들까지 포커스 포함해서 판단한다.
+        //    isFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows | ImGuiFocusedFlags_DockHierarchy);
+        //}
+        // else
+        //{   // 나는 자식 도킹창이므로, 내 창 자체에만 포커스 있는지 본다.
+        //    isFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows);
+        //}
     }
 }
 

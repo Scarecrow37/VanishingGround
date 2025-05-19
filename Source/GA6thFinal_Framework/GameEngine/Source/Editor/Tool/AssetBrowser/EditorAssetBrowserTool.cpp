@@ -78,6 +78,22 @@ void EditorAssetBrowserTool::OnFrameEnd()
     _eventFunc.clear();
 }
 
+void EditorAssetBrowserTool::OnTickGui() 
+{
+}
+
+void EditorAssetBrowserTool::OnFrameFocusEnter() 
+{
+}
+
+void EditorAssetBrowserTool::OnFrameFocusStay() 
+{
+}
+
+void EditorAssetBrowserTool::OnFrameFocusExit() 
+{
+}
+
 #define REFRESH_TEXT "Refresh"
 void EditorAssetBrowserTool::ShowUpperFrame()
 {
@@ -936,23 +952,34 @@ void EditorAssetBrowserTool::SetFocusFromRedoPath()
     }
 }
 
+void EditorAssetObject::OnInspectorEnter() 
+{
+    UmLogger.Log(1, "EditorAssetObject::OnInspectorEnter");
+}
+
 void EditorAssetObject::OnInspectorStay()
 {
     bool isDebug   = Global::editorModule->IsDebugMode();
     bool isExpired = _focusedInspector.expired();
 
-    if (false == isExpired && true == isDebug)
+    if (false == isExpired)
     {
         auto  spContext = _focusedInspector.lock();
-        auto& metaData  = spContext->GetMeta();
-
-        ImGui::Text("Path: %s", spContext->GetPath().string().c_str());
-        ImGui::Text("Guid: %s", metaData.GetGuid().string().c_str());
-        ImGui::Separator();
-
+        if (true == isDebug)
+        {
+            auto& metaData = spContext->GetMeta();
+            ImGui::Text("Path: %s", spContext->GetPath().string().c_str());
+            ImGui::Text("Guid: %s", metaData.GetGuid().string().c_str());
+            ImGui::Separator();
+        }
         auto& path = spContext->GetPath();
         UmFileSystem.RequestInspectFile(path);
     }
+}
+
+void EditorAssetObject::OnInspectorExit() 
+{
+    UmLogger.Log(1, "EditorAssetObject::OnInspectorExit");
 }
 
 void EditorAssetObject::SetContext(std::weak_ptr<File::Context> context) 

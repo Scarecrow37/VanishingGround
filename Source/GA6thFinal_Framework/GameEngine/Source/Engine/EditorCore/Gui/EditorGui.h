@@ -8,6 +8,11 @@ class EditorGui
     , public ReflectSerializer
 {
 public:
+    enum FLags
+    {
+        EDITORGUI_FLAGS_NONE           = 0,
+    };
+public:
     EditorGui() = default;
     virtual ~EditorGui() = default;
 
@@ -17,15 +22,25 @@ public:
     virtual void OnDrawGui() = 0;
     virtual void OnEndGui() = 0;
 
-public:
-    /*          활성화 여부 설정 */
-    inline void SetVisible(bool v) { ReflectFields->_isVisible = v; }
-    inline bool IsVisible() { return ReflectFields->_isVisible; }
-    inline void ToggleVisible() { ReflectFields->_isVisible = ReflectFields->_isVisible == true ? false : true; }
-
 protected:
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
     bool _isVisible = true;
     REFLECT_FIELDS_END(EditorGui)
+
+private:
+    int _editorGuiOptionFlags = EDITORGUI_FLAGS_NONE; // 옵션 플래그
+
+public:
+    /*          활성화 여부 설정 */
+    inline void SetVisible(bool v) {ReflectFields->_isVisible = v; }
+    inline void ToggleVisible() { ReflectFields->_isVisible = ReflectFields->_isVisible == true ? false : true; }
+    inline bool IsVisible() const { return ReflectFields->_isVisible; }
+
+    /*          플래그 설정 */
+    inline void SetEditorGuiFlags(UINT flags) { _editorGuiOptionFlags = flags; }
+    inline void AddEditorGuiFlags(UINT flags) { _editorGuiOptionFlags |= flags; }
+    inline void RemoveEditorGuiFlags(UINT flags) { _editorGuiOptionFlags &= ~flags; }
+    inline int  GetEditorGuiFlags() const { return _editorGuiOptionFlags; }
+    inline bool HasEditorGuiFlags(UINT flags) const { return _editorGuiOptionFlags & flags; }
 };
 

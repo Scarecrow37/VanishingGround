@@ -18,11 +18,11 @@ public:
 public:
     void OpenPopupBox(const std::string& name, std::function<void()> content);
 
-    bool IsExistPopupBox(const std::string& name);
+    bool IsExistPopupBox(const std::string& name) const;
 
-    bool IsPopupBoxOpened(const std::string& name);
+    bool IsPopupBoxOpened(const std::string& name) const;
 
-    bool IsEmpty();
+    bool IsEmpty() const;
 
 private:
     void PopFront();

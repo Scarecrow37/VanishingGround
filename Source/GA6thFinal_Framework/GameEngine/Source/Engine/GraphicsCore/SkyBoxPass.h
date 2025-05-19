@@ -17,5 +17,5 @@ private:
     void InitShaderAndPSO();
 
 private:
-    std::unique_ptr<SkyBox> _skyBox;
+    SkyBox* _skyBox;
 };

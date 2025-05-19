@@ -24,7 +24,7 @@ void FileSystemModule::ModuleInitialize()
 
     UmApplication.AddMessageHandler(msgHandler);
     UmFileSystem.ObserverSetUp([this](const Event& event) { RecieveFileEvent(event); });
-    auto accessExt = {".txt", ".png", ".dds"};
+    auto accessExt = {".txt", ".png", ".dds", ".hdr"};
     UmFileSystem.RegisterFileEventNotifier(this, accessExt);
 }
 
@@ -39,14 +39,14 @@ void FileSystemModule::ModuleUnInitialize()
 
 void FileSystemModule::OnRequestedSave() 
 {
-    auto& path = UmFileSystem.GetSettingPath();
+    auto& path = UmFileSystem.GetProjectSettingPath();
     auto name = File::PROJECT_SETTING_FILENAME;
     UmFileSystem.SaveSetting(path / name);
 }
 
 void FileSystemModule::OnRequestedLoad() 
 {
-    auto& path = UmFileSystem.GetSettingPath();
+    auto& path = UmFileSystem.GetProjectSettingPath();
     auto  name = File::PROJECT_SETTING_FILENAME;
     UmFileSystem.LoadSetting(path / name);
 }

@@ -5,32 +5,26 @@
 #include "RenderScene.h"
 #include "ShaderBuilder.h"
 
-SkyBoxPass::SkyBoxPass() : _skyBox{std::make_unique<SkyBox>()} {}
+SkyBoxPass::SkyBoxPass() {}
 
 SkyBoxPass::~SkyBoxPass() {}
 
 void SkyBoxPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& sissorRect) 
 {
+    _skyBox = _ownerScene->GetSkyBox();
     __super::Initialize(viewPort, sissorRect);
     InitShaderAndPSO();
-    _skyBox->Initialize(); 
-       
-    File::Path fileName  = L"../../../Resource/Assets/skybox/kloppenheim_05_puresky_4k.hdr";
-    File::Path assetPath = UmFileSystem.GetAssetPath();
-    File::Path result    = assetPath / fileName;
-    _skyBox->SetTexture(result.string());
+    _skyBox->Initialize();
+    
+    //예시로 남겨둠.
+    // File::Path fileName  = L"../../../Resource/Assets/skybox/kloppenheim_05_puresky_4k.hdr";
+    // File::Path assetPath = UmFileSystem.GetAssetPath();
+    // File::Path result    = assetPath / fileName;
+    //_skyBox->SetTexture(result.string());
 }
 
 void SkyBoxPass::Begin(ID3D12GraphicsCommandList* commandList) 
 {
-    ComPtr<ID3D12Resource> rt = _ownerScene->_meshLightingTarget->GetResource();
-    CD3DX12_RESOURCE_BARRIER br = CD3DX12_RESOURCE_BARRIER::Transition(
-        rt.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    commandList->ResourceBarrier(1, &br);
-    auto  handle     = _ownerScene->_meshLightingTarget->GetRTVHandle();
-    float clearValue = _ownerScene->_meshLightingTarget->clearValue;
-    Color clearColor = {clearValue, clearValue, clearValue, 1.f};
-    commandList->ClearRenderTargetView(handle, clearColor, 0, nullptr);
     commandList->OMSetRenderTargets(1, &_ownerScene->_meshLightingTarget->GetRTVHandle(), FALSE, nullptr);
 
     commandList->RSSetViewports(1, &_viewPort);
@@ -39,20 +33,20 @@ void SkyBoxPass::Begin(ID3D12GraphicsCommandList* commandList)
 
 void SkyBoxPass::End(ID3D12GraphicsCommandList* commandList) 
 {
-    ComPtr<ID3D12Resource>   rt = _ownerScene->_meshLightingTarget->GetResource();
-    CD3DX12_RESOURCE_BARRIER br = CD3DX12_RESOURCE_BARRIER::Transition(rt.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET,
-                                                                       D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-    commandList->ResourceBarrier(1, &br);
 }
 
 void SkyBoxPass::Draw(ID3D12GraphicsCommandList* commandList) 
 {
-    _skyBox->SetDescriptorHeap(commandList);
-    commandList->SetGraphicsRootSignature(_shader->GetRootSignature().Get());
-    commandList->SetGraphicsRootConstantBufferView(_shader->GetRootSignatureIndex("cameraData"),
-                                                   _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
-    commandList->SetPipelineState(_pipelineState.Get());
-    _skyBox->Render(commandList, _shader->GetRootSignatureIndex("evnTexture"));
+    bool isActive = _skyBox->HasTexture();
+    if (isActive)
+    {
+        _skyBox->SetDescriptorHeap(commandList);
+        commandList->SetGraphicsRootSignature(_shader->GetRootSignature().Get());
+        commandList->SetGraphicsRootConstantBufferView(_shader->GetRootSignatureIndex("cameraData"),
+                                                       _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
+        commandList->SetPipelineState(_pipelineState.Get());
+        _skyBox->Render(commandList, _shader->GetRootSignatureIndex("evnTexture"));
+    }
 }
 
 void SkyBoxPass::InitShaderAndPSO() 

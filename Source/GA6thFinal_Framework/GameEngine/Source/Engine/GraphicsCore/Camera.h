@@ -21,9 +21,6 @@ public:
 	void Update();
 
 private:
-    void Input();
-
-private:
     Matrix        _world;
     Matrix        _view;
     Matrix        _projection;

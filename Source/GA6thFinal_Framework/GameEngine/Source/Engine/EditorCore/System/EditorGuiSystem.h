@@ -19,8 +19,8 @@ public:
 
 public:
     EditorDockWindow* RegisterDockWindow(const std::string& label, EditorDockWindow* parent = nullptr);
-    EditorDockWindow* GetDockWindow(const std::string& label);
-    EditorDockWindow* operator[](const std::string& label);
+    EditorDockWindow* GetDockWindow(const std::string& label) const;
+    EditorDockWindow* operator[](const std::string& label) const;
 
     YAML::Node SaveGuiSettingToMemory();
     void       LoadGuiSettingFromMemory(YAML::Node node);
