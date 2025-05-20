@@ -40,6 +40,9 @@ namespace File
 
     inline static const File::Guid NULL_GUID = L"";
     inline static const File::Path NULL_PATH = L"";
+
+    using GuidRef = std::shared_ptr<File::Guid>;
+ 
 } // namespace File
 
 namespace std

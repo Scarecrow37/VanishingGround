@@ -15,8 +15,18 @@ namespace File
 
 class EFileSystem
 {
+    using ContextSet = std::unordered_set<std::shared_ptr<File::Context>>;
+    using ContextPathTable = std::unordered_map<File::Path, std::weak_ptr<File::Context>>;
+    using ContextGuidTable = std::unordered_map<File::Guid, std::weak_ptr<File::Context>>;
+    using GuidRefTable     = std::unordered_map<File::Guid, std::weak_ptr<File::Guid>>;
     using NotifierSet = std::unordered_set<File::FileEventNotifier*>;
+    using NotifierTable = std::unordered_map<File::FString, NotifierSet>;
     using CallBackFunc = std::function<void(const File::FileEventData&)>;
+
+public:
+    EFileSystem();
+    ~EFileSystem();
+
 public:
     bool LoadGameDirectory();
     bool CreateProject(const File::Path& path);
@@ -30,25 +40,26 @@ public:
     bool LoadSetting(const File::Path& path);
 
 public:
-    inline auto&       GetProjectName() { return _projectName; }
-    inline int         GetDebugLevel() const { return _setting.DebugLevel; }
-    inline const auto& GetMetaExt() const { return _setting.MetaExt; }
-
-    inline const File::Path& GetOriginPath() const { return _originPath; }
-    inline const File::Path& GetRootPath() const { return _rootPath; }
-    inline const File::Path& GetAssetPath() const { return _assetPath; }
-    inline const File::Path& GetProjectSettingPath() const { return _projectSettingPath; }
-    inline const File::Path& GetBuildSettingPath() const { return _buildSettingPath; }
+    inline int                  GetDebugLevel()         const { return _setting.DebugLevel; }
+    inline const std::string&   GetProjectName()        const { return _projectName; }
+    inline const std::string&   GetMetaExt()            const { return _setting.MetaExt; }
+    inline const File::Path&    GetOriginPath()         const { return _originPath; }
+    inline const File::Path&    GetRootPath()           const { return _rootPath; }
+    inline const File::Path&    GetAssetPath()          const { return _assetPath; }
+    inline const File::Path&    GetProjectSettingPath() const { return _projectSettingPath; }
+    inline const File::Path&    GetBuildSettingPath()   const { return _buildSettingPath; }
 
     bool IsLoadedProject() const;
     bool IsVaildGuid(const File::Guid& guid) const;
     bool IsValidExtension(const File::FString& ext) const;
     bool IsSameContext(std::weak_ptr<File::Context> left, std::weak_ptr<File::Context> right) const;
-
-    File::Path GetRelativePath(const File::Path& path) const;
-
-    const File::Path& GetPathFromGuid(const File::Guid& guid) const;
-    const File::Guid& GetGuidFromPath(const File::Path& path) const;
+            
+    File::Path                  GetRelativePath(const File::Path& path) const;
+    File::GuidRef               GetGuidRef(const File::Guid guid);
+    const GuidRefTable&         GetGuidRefTable() const;
+    const NotifierSet&          GetNotifiers(const File::FString& ext);
+    const File::Path&           GetPathFromGuid(const File::Guid& guid) const;
+    const File::Guid&           GetGuidFromPath(const File::Path& path) const;
 
     template <typename T>
     std::weak_ptr<T> GetContext(const File::Guid& guid) const 
@@ -93,9 +104,7 @@ public:
         return std::weak_ptr<T>();
     }
     std::weak_ptr<File::Context> GetContext(const File::Path& path) const;
-
-
-    NotifierSet GetNotifiers(const File::FString& ext);
+   
     void RequestInspectFile(const File::Path& path);
     void RequestOpenFile(const File::Path& path);
     void RequestCopyFile(const File::Path& path);
@@ -133,20 +142,17 @@ private:
 
     File::FileObserver* _observer = nullptr;    // 파일 디렉터리 이벤트를 감시하는 옵저버.
 
-    File::Path _originPath;  // 원본 경로(절대 경로)
-    File::Path _rootPath;    // 루트 경로(절대 경로)
-    File::Path _assetPath;   // 에셋 경로(절대 경로)
-    File::Path _projectSettingPath; // 프로젝트세팅 경로(절대 경로)
-    File::Path _buildSettingPath; // 빌드세팅 경로(절대 경로)
+    File::Path          _originPath;         // 원본 경로(절대 경로)
+    File::Path          _rootPath;           // 루트 경로(절대 경로)
+    File::Path          _assetPath;          // 에셋 경로(절대 경로)
+    File::Path          _projectSettingPath; // 프로젝트세팅 경로(절대 경로)
+    File::Path          _buildSettingPath;   // 빌드세팅 경로(절대 경로)
 
-    std::unordered_set<std::shared_ptr<File::Context>>
-        _contextTable;      // 원본 컨텍스트 포인터를 관리하는 테이블
-    std::unordered_map<File::Path, std::weak_ptr<File::Context>>
-        _pathToGuidTable;   // 파일 경로를 통해 ID를 찾는 테이블
-    std::unordered_map<File::Guid, std::weak_ptr<File::Context>>
-        _guidToPathTable;   // ID를 통해 파일 경로를 찾는 테이블
-    std::unordered_set<File::FileEventNotifier*> 
-        _notifierSet;
-    std::unordered_map<File::FString, NotifierSet>
-        _extesionToNotifierTable;     // Notifier 테이블
+    ContextSet          _contextTable;              // 원본 컨텍스트 포인터를 관리하는 테이블
+    ContextPathTable    _pathToGuidTable;           // 파일 경로를 통해 ID를 찾는 테이블
+    ContextGuidTable    _guidToPathTable;           // ID를 통해 파일 경로를 찾는 테이블
+    GuidRefTable        _guidToRefTable;            // ID를 통해 참조를 찾는 테이블
+
+    NotifierSet         _notifierSet;               // 등록된 Notifier
+    NotifierTable       _extesionToNotifierTable;   // 확장자를 통해 Notifier를 찾는 테이블
 };
