@@ -69,6 +69,7 @@ void ParticleManager::RegisterEffect()
     // dispatch compute shader
     {
         DispatchParticleCompute(deltaTime);
+        UmDevice.RegisterCommand(_computeCommandList.Get(), PARTICLE_COMPUTE_LIST);
     }
     // update particle lifecycle
     for (auto effect : _pariticleEffects)
@@ -465,10 +466,6 @@ void ParticleManager::InitializeDescriptorHeap()
 
 }
 
-void ParticleManager::SetSpriteComputeState() 
-{
-
-}
 
 void ParticleManager::CreateParticleResources() 
 {
@@ -598,6 +595,13 @@ void ParticleManager::DispatchParticleCompute(float deltaTime)
     // 2. 컴퓨트 커맨드 리스트 리셋
     _computeAllocator->Reset();
     _computeCommandList->Reset(_computeAllocator.Get(), _computeSpritePSO.Get());
+
+
+    //upload buffer -> default buf
+
+
+
+
 
     // 3. 디스크립터 힙 설정
     ID3D12DescriptorHeap* heaps[] = {_cbvSrvUavHeap.Get()};
