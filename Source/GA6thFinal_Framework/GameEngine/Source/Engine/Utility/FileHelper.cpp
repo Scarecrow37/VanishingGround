@@ -177,46 +177,69 @@ namespace File
         }
     }
 
-    bool ShowOpenFileBrowser(HWND owner, LPCWSTR title, LPCWSTR initialDir,
-                             std::vector<std::pair<LPCWSTR, LPCWSTR>> filters, bool allowMultiSelect,
-                             OUT std::vector<File::Path>& out)
+    bool File::ShowOpenFileDialog(HWND owner, LPCWSTR title, LPCWSTR initialDir,
+                                  std::vector<std::pair<LPCWSTR, LPCWSTR>> filters, bool allowMultiSelect,
+                                  OUT std::vector<File::Path>& out)
     {
-        DirectoryBrowserFlags flags = DIRECTORY_BROWSER_FLAG_OPEN_FILE;
+        DWORD flags = DIRECTORY_DIALOG_FLAG_OPEN_FILE;
         if (allowMultiSelect)
         {
-            flags |= DIRECTORY_BROWSER_FLAG_ALLOW_MULTISELECT;
+            flags |= DIRECTORY_DIALOG_FLAG_ALLOW_MULTISELECT;
         }
-        return ShowSelectDirectoryBrowserEx(owner, title, initialDir, L"", filters, flags, out);
+
+        FileDialogDesc desc;
+        desc.Owner              = owner;
+        desc.Title              = title;
+        desc.InitialDirectory   = initialDir;
+        desc.DefaultFileName    = L""; // 초기 파일 이름은 없음
+        desc.Filters            = filters;
+        desc.Flags              = flags;
+
+        return ShowFileDialogEx(desc, out);
     }
 
-    bool ShowSaveFileBrowser(HWND owner, LPCWSTR title, LPCWSTR initialDir, LPCWSTR defaultName, OUT File::Path& out)
+    bool File::ShowSaveFileDialog(HWND owner, LPCWSTR title, LPCWSTR initialDir, LPCWSTR defaultName,
+                                  const std::vector<std::pair<LPCWSTR, LPCWSTR>>& filters, OUT File::Path& out)
     {
-        std::vector<std::pair<LPCWSTR, LPCWSTR>> filters;
-        std::vector<File::Path>                  outPath;
-        DirectoryBrowserFlags                    flags = DIRECTORY_BROWSER_FLAG_SAVE_FILE;
+        std::vector<File::Path> outPath;
+        DWORD flags = DIRECTORY_DIALOG_FLAG_SAVE_FILE;
 
-        bool result = ShowSelectDirectoryBrowserEx(owner, title, initialDir, defaultName, filters, flags, outPath);
+        FileDialogDesc desc;
+        desc.Owner = owner;
+        desc.Title = title;
+        desc.InitialDirectory = initialDir;
+        desc.DefaultFileName  = defaultName;
+        desc.Filters          = filters;
+        desc.Flags            = flags;
+
+        bool result = ShowFileDialogEx(desc, outPath);
+        if (true == result)
+        {
+            out = outPath.front();
+        }
+        return result;
+    }
+
+    bool File::ShowOpenFolderDialog(HWND owner, LPCWSTR title, LPCWSTR initialDir, OUT File::Path& out)
+    {
+        std::vector<File::Path> outPath;
+        DWORD flags = DIRECTORY_DIALOG_FLAG_OPEN_FILE | DIRECTORY_DIALOG_FLAG_PICK_FOLDER;
+
+        FileDialogDesc desc;
+        desc.Owner = owner;
+        desc.Title = title;
+        desc.InitialDirectory = initialDir;
+        desc.DefaultFileName  = L""; // 초기 파일 이름은 없음
+        desc.Filters          = {};
+        desc.Flags            = flags;
+
+        bool result = ShowFileDialogEx(desc, outPath);
         if (true == result)
             out = outPath.front();
         return result;
     }
 
-    bool ShowOpenFolderBrowser(HWND owner, LPCWSTR title, LPCWSTR initialDir, OUT File::Path& out)
-    {
-        std::vector<std::pair<LPCWSTR, LPCWSTR>> filters;
-        std::vector<File::Path>                  outPath;
-        DirectoryBrowserFlags flags = DIRECTORY_BROWSER_FLAG_OPEN_FILE | DIRECTORY_BROWSER_FLAG_PICK_FOLDER;
-
-        bool result = ShowSelectDirectoryBrowserEx(owner, title, initialDir, L"", filters, flags, outPath);
-        if (true == result)
-            out = outPath.front();
-        return result;
-    }
-
-    bool ShowSelectDirectoryBrowserEx(HWND owner, LPCWSTR title, LPCWSTR initialDirectory, LPCWSTR initialFileName,
-                                                           std::vector<std::pair<LPCWSTR, LPCWSTR>> filters,
-                                                           DirectoryBrowserFlags flags, 
-                                                           OUT std::vector<File::Path>& out)
+    bool ShowFileDialogEx(IN const FileDialogDesc& desc, OUT std::vector<File::Path>& out)
     {
         // COM 초기화
         HRESULT hr = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
@@ -228,7 +251,7 @@ namespace File
         IFileDialog* pDialog = nullptr;
 
         // === 다이얼로그 생성 ===
-        if (flags & DIRECTORY_BROWSER_FLAG_SAVE_FILE)
+        if (desc.Flags & DIRECTORY_DIALOG_FLAG_SAVE_FILE)
         {
             hr = CoCreateInstance(CLSID_FileSaveDialog, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pDialog));
         }
@@ -243,32 +266,32 @@ namespace File
         }
 
         // === 타이틀 설정 ===
-        pDialog->SetTitle(title);
+        pDialog->SetTitle(desc.Title);
 
         // === 옵션 설정 ===
         DWORD options = 0;
         pDialog->GetOptions(&options);
         options |= FOS_FORCEFILESYSTEM | FOS_NOCHANGEDIR | FOS_PATHMUSTEXIST; // 기본
-        if (flags & DIRECTORY_BROWSER_FLAG_PICK_FOLDER)
+        if (desc.Flags & DIRECTORY_DIALOG_FLAG_PICK_FOLDER)
         {
             options |= FOS_PICKFOLDERS; // 폴더 선택
         }
-        if (flags & DIRECTORY_BROWSER_FLAG_ALLOW_MULTISELECT)
+        if (desc.Flags & DIRECTORY_DIALOG_FLAG_ALLOW_MULTISELECT)
         {
             options |= FOS_ALLOWMULTISELECT; // Ctrl/Shift로 다중 파일 선택 허용
         }
-        if (flags & DIRECTORY_BROWSER_FLAG_SAVE_FILE)
+        if (desc.Flags & DIRECTORY_DIALOG_FLAG_SAVE_FILE)
         {
             options |= FOS_OVERWRITEPROMPT; // 저장 시 덮어쓰기 경고 (SaveDialog 전용)
         }
         pDialog->SetOptions(options); // 옵션 설정
 
         // === 필터 설정 ===
-        if (false == filters.empty())
+        if (false == desc.Filters.empty())
         {
             std::vector<COMDLG_FILTERSPEC> specs;
-            specs.reserve(filters.size());
-            for (auto& [name, spec] : filters)
+            specs.reserve(desc.Filters.size());
+            for (const auto& [name, spec] : desc.Filters)
             {
                 specs.push_back({name, spec});
             }
@@ -277,12 +300,12 @@ namespace File
         }
 
         // === 기본 폴더 설정 ===
-        fs::path defaultAbsPath = initialDirectory;
+        fs::path defaultAbsPath = desc.InitialDirectory;
         if (true == defaultAbsPath.empty())
         {
             defaultAbsPath = UmFileSystem.GetRootPath();
         }
-        defaultAbsPath = fs::absolute(defaultAbsPath);
+        defaultAbsPath         = fs::absolute(defaultAbsPath);
         IShellItem* folderItem = nullptr;
         hr = SHCreateItemFromParsingName(defaultAbsPath.c_str(), nullptr, IID_PPV_ARGS(&folderItem));
         if (SUCCEEDED(hr))
@@ -292,21 +315,24 @@ namespace File
         }
 
         // === 기본 파일 이름 설정 ===
-        if (flags & DIRECTORY_BROWSER_FLAG_SAVE_FILE)
+        if (desc.Flags & DIRECTORY_DIALOG_FLAG_SAVE_FILE)
         {
             // 저장 플래그에만 적용
-            pDialog->SetFileName(initialFileName);
+            pDialog->SetFileName(desc.DefaultFileName);
         }
 
         // 다이얼로그 실행
         bool isGetPath = false;
-        hr = pDialog->Show(owner);
+        hr             = pDialog->Show(desc.Owner);
         if (SUCCEEDED(hr))
         {
-            if ((flags & DIRECTORY_BROWSER_FLAG_ALLOW_MULTISELECT) && (flags & DIRECTORY_BROWSER_FLAG_OPEN_FILE))
+            if ((desc.Flags & DIRECTORY_DIALOG_FLAG_ALLOW_MULTISELECT) &&
+                (desc.Flags & DIRECTORY_DIALOG_FLAG_OPEN_FILE))
             {
                 IFileOpenDialog* openDlg = nullptr;
-                hr = pDialog->QueryInterface(IID_PPV_ARGS(&openDlg));
+                hr                       = pDialog->QueryInterface(IID_PPV_ARGS(&openDlg));
+                if (FAILED(hr))
+
                 if (SUCCEEDED(hr))
                 {
                     IShellItemArray* pItems = nullptr;
@@ -339,11 +365,11 @@ namespace File
             else
             {
                 IShellItem* pItem = nullptr;
-                hr = pDialog->GetResult(&pItem);
+                hr                = pDialog->GetResult(&pItem);
                 if (SUCCEEDED(hr) && pItem)
                 {
                     LPWSTR pszFilePath = nullptr;
-                    hr = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
+                    hr                 = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
                     if (SUCCEEDED(hr))
                     {
                         out.emplace_back(pszFilePath);

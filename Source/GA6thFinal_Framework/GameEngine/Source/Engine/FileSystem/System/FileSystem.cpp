@@ -455,7 +455,7 @@ void EFileSystem::DrawGuiSettingEditor()
 
                 File::Path directory = _rootPath / PROJECT_SETTING_PATH;
                 directory            = directory.generic_wstring();
-                if (File::ShowOpenFolderBrowser(owner, title, _rootPath.c_str(), directory))
+                if (File::ShowOpenFolderDialog(owner, title, _rootPath.c_str(), directory))
                 {
                     File::Path filename  = L"FileSystem.UmSetting";
                     SaveSetting(directory / filename);
@@ -466,7 +466,7 @@ void EFileSystem::DrawGuiSettingEditor()
                 HWND       owner   = UmApplication.GetHwnd();
                 LPCWSTR    title = L"폴더를 선택하세요.";
                 File::Path path;
-                if (File::ShowOpenFolderBrowser(owner, title, _rootPath.c_str(), path))
+                if (File::ShowOpenFolderDialog(owner, title, _rootPath.c_str(), path))
                 {
                     File::Path filename  = L"fileSystem.setting";
                     File::Path directory = PROJECT_SETTING_PATH;
