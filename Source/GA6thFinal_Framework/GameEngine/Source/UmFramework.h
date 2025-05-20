@@ -91,10 +91,8 @@ using namespace Microsoft::WRL;
 
 //ThirdParty
 #include <pugixml.hpp>
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
+#include "include/UmAssimp.h"
 
-#include <assimp/postprocess.h>
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include "Engine/Imgui/imgui.h"
 #include "Engine/Imgui/imgui_stdlib.h"
