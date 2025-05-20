@@ -91,7 +91,7 @@ public:
     ComPtr<ID3D12Resource>      _depthStencilBuffer;
 
     // 렌더링할 목록
-    std::vector<MeshRenderer*> _renderQueue;
+    std::vector<std::pair<std::unique_ptr<bool>, MeshRenderer*>> _renderQueue;
 
     // frame resource와 카메라 리소스.
     std::vector<std::shared_ptr<FrameResource>> _frameResources;

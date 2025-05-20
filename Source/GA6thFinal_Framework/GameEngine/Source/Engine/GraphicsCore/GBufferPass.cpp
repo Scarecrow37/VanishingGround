@@ -208,7 +208,7 @@ void GBufferPass::DrawStaticTwoSidedMesh(ID3D12GraphicsCommandList* commandList)
     commandList->SetPipelineState(_psos[0].Get());
 
     UINT ID = 0;
-    for (auto& component : _ownerScene->_renderQueue)
+    for (auto& [isDestroy, component] : _ownerScene->_renderQueue)
     {
         if (!component->IsActive())
             continue;

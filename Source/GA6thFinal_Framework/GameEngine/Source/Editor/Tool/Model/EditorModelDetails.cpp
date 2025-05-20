@@ -5,7 +5,7 @@
 #include "Engine/GraphicsCore/Model.h"
 
 EditorModelDetails::EditorModelDetails()
-    : _meshRenderer(std::make_unique<MeshRenderer>(MeshRenderer::RENDER_TYPE::STATIC, _worldMatrix)),
+    : _meshRenderer(std::make_unique<MeshRenderer>(MESH_RENDER_TYPE::STATIC, _worldMatrix)),
       _selectedMeshIndex(0)
 {
     SetLabel("Details##model");
