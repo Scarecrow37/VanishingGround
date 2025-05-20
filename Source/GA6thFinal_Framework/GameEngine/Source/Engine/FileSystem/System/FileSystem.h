@@ -136,17 +136,17 @@ private:
     void ClearNotifier();
    
 private:
-    File::SystemSetting _setting = {};          // 세팅 정보
-    File::ProjectData   _projectData;           // 프로젝트 데이터
-    std::string         _projectName;           // 프로젝트 이름
+    File::SystemSetting _setting = {};              // 세팅 정보
+    File::ProjectData   _projectData;               // 프로젝트 데이터
+    std::string         _projectName;               // 프로젝트 이름
 
-    File::FileObserver* _observer = nullptr;    // 파일 디렉터리 이벤트를 감시하는 옵저버.
+    File::FileObserver* _observer = nullptr;        // 파일 디렉터리 이벤트를 감시하는 옵저버.
 
-    File::Path          _originPath;         // 원본 경로(절대 경로)
-    File::Path          _rootPath;           // 루트 경로(절대 경로)
-    File::Path          _assetPath;          // 에셋 경로(절대 경로)
-    File::Path          _projectSettingPath; // 프로젝트세팅 경로(절대 경로)
-    File::Path          _buildSettingPath;   // 빌드세팅 경로(절대 경로)
+    File::Path          _originPath;                // 원본 경로(절대 경로)
+    File::Path          _rootPath;                  // 루트 경로(절대 경로)
+    File::Path          _assetPath;                 // 에셋 경로(절대 경로)
+    File::Path          _projectSettingPath;        // 프로젝트세팅 경로(절대 경로)
+    File::Path          _buildSettingPath;          // 빌드세팅 경로(절대 경로)
 
     ContextSet          _contextTable;              // 원본 컨텍스트 포인터를 관리하는 테이블
     ContextPathTable    _pathToGuidTable;           // 파일 경로를 통해 ID를 찾는 테이블

@@ -16,6 +16,7 @@ namespace File
     } // namespace Flag
 
     using FileID = LONGLONG;
+   
     struct FileEventData
     {
         File::Path            LParam    = "";
@@ -46,31 +47,33 @@ namespace File
         void SetThread();
     private:
         /* EventProcessing 메서드. 큐에 쌓인 이벤트를 하나씩 콜백해줍니다. */
-        void        EventProcessingThread();
-        void        CheckEvent();
-        void        ProcessEvent();
+        void EventProcessingThread();
+        void CheckEvent();
+        void ProcessEvent();
         /* EventObserving 메서드. 디렉터리 이벤트를 관찰해 큐에 수집합니다. */
-        void        EventObservingThread();
-        bool        SetEventListener();
-        void        RecieveFileEvents();
+        void EventObservingThread();
+        bool SetEventListener();
+        void RecieveFileEvents();
 
-        void        EventDataToWStr(FileEventData& data, std::wstring& wstr);
-        void        LastFileEventLog(FileEventData& event);
-    private:
-        Path            _path;
-        CallBackFunc    _eventCallback;
-        FileEventQueue  _recievedEventQueue;
-        FileEventQueue  _sendEventQueue;
-        FileEventTable  _fileEventTable;
+        /* 로그용 함수 */
+        void EventDataToWStr(FileEventData& data, std::wstring& wstr);
+        void LastFileEventLog(FileEventData& event);
 
     private:
-        BYTE            _recievedBytes[1024];   // 이벤트를 통해 받은 데이터
-        DWORD           _bytesReturned;         // 받은 데이터의 크기
+        Path                    _path;
+        CallBackFunc            _eventCallback;
+        FileEventQueue          _recievedEventQueue;
+        FileEventQueue          _sendEventQueue;
+        FileEventTable          _fileEventTable;
 
-        HANDLE          _hDirectory;            // 파일 디렉터리에 접근하는 커널 핸들
-        OVERLAPPED      _overlapped;            // 비동기 IO작업을 위한 오버랩 구조체
-        std::thread     _eventProcessingThread; // 큐에 쌓인 이벤트를 콜백
-        std::thread     _eventObservingThread;  // 디렉터리 이벤트를 관찰해 큐에 수집
+    private:
+        BYTE                    _recievedBytes[1024];   // 이벤트를 통해 받은 데이터
+        DWORD                   _bytesReturned;         // 받은 데이터의 크기
+
+        HANDLE                  _hDirectory;            // 파일 디렉터리에 접근하는 커널 핸들
+        OVERLAPPED              _overlapped;            // 비동기 IO작업을 위한 오버랩 구조체
+        std::thread             _eventProcessingThread; // 큐에 쌓인 이벤트를 콜백
+        std::thread             _eventObservingThread;  // 디렉터리 이벤트를 관찰해 큐에 수집
 
         std::condition_variable _cv;
         std::mutex              _mutex;
