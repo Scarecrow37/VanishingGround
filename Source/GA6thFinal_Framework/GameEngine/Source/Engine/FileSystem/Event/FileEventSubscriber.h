@@ -40,6 +40,7 @@ namespace File
         virtual void OnRequestedPaste(const File::Path& path)                   {}
 
     public:
+        /* 대응되는 확장자인지 확인 */
         bool IsTriggerExtension(const File::FString& ext);
         std::vector<FString> GetTriggerExtensions() const;
 

@@ -15,8 +15,6 @@ namespace File
         };
     } // namespace Flag
 
-    using FileID = LONGLONG;
-   
     struct FileEventData
     {
         File::Path            LParam    = "";
@@ -25,6 +23,7 @@ namespace File
         File::FileInformation FileInfo  = {};
     };
 
+    using FileID = LONGLONG;
     /*
     Observer클래스는 해당 파일 디렉터리를 관찰하여 발생하는 이벤트를 수집하여
     시스템에게 비동기적으로 이벤트를 보내줍니다.

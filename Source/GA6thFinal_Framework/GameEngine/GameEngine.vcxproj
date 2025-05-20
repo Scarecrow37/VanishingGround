@@ -352,10 +352,10 @@
     <ClInclude Include="Source\Editor\Tool\Inspector\EditorInspectorTool.h" />
     <ClInclude Include="Source\Editor\Tool\Log\EditorLogsTool.h" />
     <ClInclude Include="Source\Editor\Tool\Scene\EditorSceneTool.h" />
-    <ClInclude Include="Source\Engine\FileSystem\Extra\FileEventObserver.h" />
+    <ClInclude Include="Source\Engine\FileSystem\Event\FileEventObserver.h" />
     <ClInclude Include="Source\Engine\FileSystem\System\FileSystem.h" />
-    <ClInclude Include="Source\Engine\FileSystem\Extra\FileContext.h" />
-    <ClInclude Include="Source\Engine\FileSystem\Extra\FileEventSubscriber.h" />
+    <ClInclude Include="Source\Engine\FileSystem\Context\FileContext.h" />
+    <ClInclude Include="Source\Engine\FileSystem\Event\FileEventSubscriber.h" />
     <ClInclude Include="Source\Engine\FileSystem\Interface\IFileEventProcesser.h" />
     <ClInclude Include="Source\Engine\FileSystem\FileSystemModule.h" />
     <ClInclude Include="Source\Engine\EditorCore\Gui\Tool\EditorTool.h" />
@@ -551,10 +551,10 @@
     <ClCompile Include="Source\Editor\Tool\Inspector\EditorInspectorTool.cpp" />
     <ClCompile Include="Source\Editor\Tool\Log\EditorLogsTool.cpp" />
     <ClCompile Include="Source\Editor\Tool\Scene\EditorSceneTool.cpp" />
-    <ClCompile Include="Source\Engine\FileSystem\Extra\FileEventObserver.cpp" />
+    <ClCompile Include="Source\Engine\FileSystem\Event\FileEventObserver.cpp" />
     <ClCompile Include="Source\Engine\FileSystem\System\FileSystem.cpp" />
-    <ClCompile Include="Source\Engine\FileSystem\Extra\FileContext.cpp" />
-    <ClCompile Include="Source\Engine\FileSystem\Extra\FileEventSubscriber.cpp" />
+    <ClCompile Include="Source\Engine\FileSystem\Context\FileContext.cpp" />
+    <ClCompile Include="Source\Engine\FileSystem\Event\FileEventSubscriber.cpp" />
     <ClCompile Include="Source\Engine\FileSystem\Interface\IFileEventProcesser.cpp" />
     <ClCompile Include="Source\Engine\FileSystem\FileSystemModule.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\Gui\Tool\EditorTool.cpp" />

@@ -264,13 +264,13 @@
     <ClInclude Include="Source\Editor\Menu\Window\EditorWindowMenu.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\FileSystem\Extra\FileEventObserver.h">
+    <ClInclude Include="Source\Engine\FileSystem\Event\FileEventObserver.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\FileSystem\System\FileSystem.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\FileSystem\Extra\FileContext.h">
+    <ClInclude Include="Source\Engine\FileSystem\Context\FileContext.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\FileSystem\Interface\IFileEventProcesser.h">
@@ -570,7 +570,7 @@
     <ClInclude Include="Source\Engine\GraphicsCore\SkyBoxPass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\FileSystem\Extra\FileEventSubscriber.h">
+    <ClInclude Include="Source\Engine\FileSystem\Event\FileEventSubscriber.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -716,13 +716,13 @@
     <ClCompile Include="Source\Editor\Menu\Window\EditorWindowMenu.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\FileSystem\Extra\FileEventObserver.cpp">
+    <ClCompile Include="Source\Engine\FileSystem\Event\FileEventObserver.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\FileSystem\System\FileSystem.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\FileSystem\Extra\FileContext.cpp">
+    <ClCompile Include="Source\Engine\FileSystem\Context\FileContext.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\FileSystem\Interface\IFileEventProcesser.cpp">
@@ -986,7 +986,7 @@
     <ClCompile Include="Source\Engine\GraphicsCore\M_PBR.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\FileSystem\Extra\FileEventSubscriber.cpp">
+    <ClCompile Include="Source\Engine\FileSystem\Event\FileEventSubscriber.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
