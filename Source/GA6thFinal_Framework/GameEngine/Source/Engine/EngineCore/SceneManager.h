@@ -88,7 +88,7 @@ enum class LoadSceneMode
 //함수는 일단 선언만. 구현은 나중에.
 class ESceneManager 
     : 
-    File::FileEventNotifier
+    File::FileEventSubscriber
 {
 private:
     USING_PROPERTY(ESceneManager)
@@ -123,7 +123,7 @@ public:
     struct Engine
     {
         /// <summary>
-        /// Scene FileEventNotifier를 등록합니다.
+        /// Scene FileEventSubscriber를 등록합니다.
         /// </summary>
         static void RegisterFileEvents();
 
@@ -522,7 +522,7 @@ protected:
         std::string_view outPath,
         bool isOverride = false);
 
-    // FileEventNotifier을(를) 통해 상속됨
+    // FileEventSubscriber을(를) 통해 상속됨
     virtual void OnFileRegistered(const File::Path& path) override;
     virtual void OnFileUnregistered(const File::Path& path) override;
     virtual void OnFileModified(const File::Path& path) override;

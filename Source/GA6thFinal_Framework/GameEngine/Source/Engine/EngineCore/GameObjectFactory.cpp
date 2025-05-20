@@ -10,7 +10,7 @@ void EGameObjectFactory::RegisterGameObjects()
 
 void EGameObjectFactory::Engine::RegisterFileEvents()
 {
-    UmFileSystem.RegisterFileEventNotifier(&UmGameObjectFactory, {EGameObjectFactory::PREFAB_EXTENSION});
+    UmFileSystem.RegisterFileEventSubscriber(&UmGameObjectFactory, {EGameObjectFactory::PREFAB_EXTENSION});
 }
 
 void EGameObjectFactory::WritePrefabGuid(const File::Path& path, YAML::Node& data) 

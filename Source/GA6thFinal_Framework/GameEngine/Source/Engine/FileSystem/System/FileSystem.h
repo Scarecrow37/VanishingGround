@@ -2,8 +2,8 @@
 
 namespace File
 {
-    class FileEventNotifier;
-    class FileObserver;
+    class FileEventSubscriber;
+    class FileEventObserver;
     class Context;
     class FileContext;
     class FolderContext;
@@ -15,13 +15,13 @@ namespace File
 
 class EFileSystem
 {
-    using ContextSet = std::unordered_set<std::shared_ptr<File::Context>>;
-    using ContextPathTable = std::unordered_map<File::Path, std::weak_ptr<File::Context>>;
-    using ContextGuidTable = std::unordered_map<File::Guid, std::weak_ptr<File::Context>>;
-    using GuidRefTable     = std::unordered_map<File::Guid, std::weak_ptr<File::Guid>>;
-    using NotifierSet = std::unordered_set<File::FileEventNotifier*>;
-    using NotifierTable = std::unordered_map<File::FString, NotifierSet>;
-    using CallBackFunc = std::function<void(const File::FileEventData&)>;
+    using ContextSet            = std::unordered_set<std::shared_ptr<File::Context>>;
+    using ContextPathTable      = std::unordered_map<File::Path, std::weak_ptr<File::Context>>;
+    using ContextGuidTable      = std::unordered_map<File::Guid, std::weak_ptr<File::Context>>;
+    using GuidRefTable          = std::unordered_map<File::Guid, std::weak_ptr<File::Guid>>;
+    using EventSubscriberSet    = std::unordered_set<File::FileEventSubscriber*>;
+    using EventSubscriberTable  = std::unordered_map<File::FString, EventSubscriberSet>;
+    using CallBackFunc          = std::function<void(const File::FileEventData&)>;
 
 public:
     EFileSystem();
@@ -57,7 +57,7 @@ public:
     File::Path                  GetRelativePath(const File::Path& path) const;
     File::GuidRef               GetGuidRef(const File::Guid guid);
     const GuidRefTable&         GetGuidRefTable() const;
-    const NotifierSet&          GetNotifiers(const File::FString& ext);
+    const EventSubscriberSet&   GetEventSubscribers(const File::FString& ext);
     const File::Path&           GetPathFromGuid(const File::Guid& guid) const;
     const File::Guid&           GetGuidFromPath(const File::Path& path) const;
 
@@ -113,9 +113,9 @@ public:
     void DrawGuiSettingEditor();
 
 public:
-    void RegisterFileEventNotifier(
-        File::FileEventNotifier* notifier, const std::initializer_list<const char*>& exts = {});
-    void UnRegisterFileEventNotifier(File::FileEventNotifier* notifier);
+    void RegisterFileEventSubscriber(
+        File::FileEventSubscriber* subscriber, const std::initializer_list<const char*>& exts = {});
+    void UnRegisterFileEventSubscriber(File::FileEventSubscriber* subscriber);
 
 public:
     void Clear();
@@ -133,26 +133,26 @@ public:
 
 private:
     void ClearContext();
-    void ClearNotifier();
+    void ClearEventSubscriber();
    
 private:
-    File::SystemSetting _setting = {};              // 세팅 정보
-    File::ProjectData   _projectData;               // 프로젝트 데이터
-    std::string         _projectName;               // 프로젝트 이름
+    File::SystemSetting         _setting = {};              // 세팅 정보
+    File::ProjectData           _projectData;               // 프로젝트 데이터
+    std::string                 _projectName;               // 프로젝트 이름
 
-    File::FileObserver* _observer = nullptr;        // 파일 디렉터리 이벤트를 감시하는 옵저버.
+    File::Path                  _originPath;                // 원본 경로(절대 경로)
+    File::Path                  _rootPath;                  // 루트 경로(절대 경로)
+    File::Path                  _assetPath;                 // 에셋 경로(절대 경로)
+    File::Path                  _projectSettingPath;        // 프로젝트세팅 경로(절대 경로)
+    File::Path                  _buildSettingPath;          // 빌드세팅 경로(절대 경로)
 
-    File::Path          _originPath;                // 원본 경로(절대 경로)
-    File::Path          _rootPath;                  // 루트 경로(절대 경로)
-    File::Path          _assetPath;                 // 에셋 경로(절대 경로)
-    File::Path          _projectSettingPath;        // 프로젝트세팅 경로(절대 경로)
-    File::Path          _buildSettingPath;          // 빌드세팅 경로(절대 경로)
+    File::FileEventObserver*    _observer = nullptr;        // 파일 디렉터리 이벤트를 감시하는 옵저버.
 
-    ContextSet          _contextTable;              // 원본 컨텍스트 포인터를 관리하는 테이블
-    ContextPathTable    _pathToGuidTable;           // 파일 경로를 통해 ID를 찾는 테이블
-    ContextGuidTable    _guidToPathTable;           // ID를 통해 파일 경로를 찾는 테이블
-    GuidRefTable        _guidToRefTable;            // ID를 통해 참조를 찾는 테이블
+    ContextSet                  _contextTable;              // 원본 컨텍스트 포인터를 관리하는 테이블
+    ContextPathTable            _pathToGuidTable;           // 파일 경로를 통해 ID를 찾는 테이블
+    ContextGuidTable            _guidToPathTable;           // ID를 통해 파일 경로를 찾는 테이블
+    GuidRefTable                _guidToRefTable;            // ID를 통해 참조를 찾는 테이블
 
-    NotifierSet         _notifierSet;               // 등록된 Notifier
-    NotifierTable       _extesionToNotifierTable;   // 확장자를 통해 Notifier를 찾는 테이블
+    EventSubscriberSet          _subscriberSet;             // 등록된 EventSubscriber
+    EventSubscriberTable        _extToSubscriberTable;      // 확장자를 통해 EventSubscriber를 찾는 테이블
 };

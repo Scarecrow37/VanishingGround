@@ -123,7 +123,7 @@ void Renderer::Initialize()
 
         // Renderer File Event
         _rendererFileEvent = std::make_unique<RendererFileEvent>();
-        UmFileSystem.RegisterFileEventNotifier(_rendererFileEvent.get(), {".png", ".dds", ".fbx", ".UmModel"});
+        UmFileSystem.RegisterFileEventSubscriber(_rendererFileEvent.get(), {".png", ".dds", ".fbx", ".UmModel"});
     }
 }
 

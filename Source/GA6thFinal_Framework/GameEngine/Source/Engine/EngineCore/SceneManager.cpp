@@ -71,7 +71,7 @@ void ESceneManager::SaveSettingFile() const
 void ESceneManager::Engine::RegisterFileEvents()
 {
     //파일 관리자 등록
-    UmFileSystem.RegisterFileEventNotifier(&UmSceneManager, {SCENE_EXTENSION});
+    UmFileSystem.RegisterFileEventSubscriber(&UmSceneManager, {SCENE_EXTENSION});
 }
 
 void ESceneManager::Engine::CleanupSceneManager()

@@ -1,31 +1,31 @@
 ﻿#include "pch.h"
-#include "FileObserver.h"
+#include "FileEventObserver.h"
 
 namespace File
 {
-    FileObserver::FileObserver() 
+    FileEventObserver::FileEventObserver() 
         : _isStart(false), _isObserving(false), _request(false),
           _recievedBytes({}), _bytesReturned(0), _hDirectory(NULL),
           _overlapped({})
     {
     }
 
-    FileObserver::~FileObserver() 
+    FileEventObserver::~FileEventObserver() 
     {
         Stop();
     }
 
-    void FileObserver::SetCallbackFunc(const CallBackFunc& callback) 
+    void FileEventObserver::SetCallbackFunc(const CallBackFunc& callback) 
     {
         _eventCallback = callback;
     }
 
-    void FileObserver::SetObservingPath(const Path& path)
+    void FileEventObserver::SetObservingPath(const Path& path)
     {
         _path = path;
     }
 
-    bool FileObserver::Start()
+    bool FileEventObserver::Start()
     {
         if (false == fs::exists(_path))
             return false;
@@ -44,24 +44,24 @@ namespace File
             _isStart = true;
             SetHandles();
             SetThread();
-            OutputLog(L"FileObserver thread is Start");
+            OutputLog(L"FileEventObserver thread is Start");
             return true;
         }
         return false;
     }
 
-    void FileObserver::Stop()
+    void FileEventObserver::Stop()
     {
         if (true == _isStart)
         {
             _isStart = false;
             _eventProcessingThread.join();
             _eventObservingThread.join();
-            OutputLog(L"FileObserver thread is joined");
+            OutputLog(L"FileEventObserver thread is joined");
         }
     }
 
-    void FileObserver::SetHandles()
+    void FileEventObserver::SetHandles()
     {
         if (true == std::filesystem::exists(_path) &&
             true == std::filesystem::is_directory(_path))
@@ -88,7 +88,7 @@ namespace File
         }
     }
 
-    void FileObserver::SetThread()
+    void FileEventObserver::SetThread()
     {
         // 스레드 초기화
         _eventProcessingThread = std::thread([this]() {
@@ -112,7 +112,7 @@ namespace File
         });
     }
 
-    void FileObserver::EventProcessingThread()
+    void FileEventObserver::EventProcessingThread()
     {
         while (true == _isStart)
         {
@@ -133,7 +133,7 @@ namespace File
         }
     }
 
-    void FileObserver::CheckEvent()
+    void FileEventObserver::CheckEvent()
     {
         for (auto& [action, info] : _sendEventQueue)
         {
@@ -203,7 +203,7 @@ namespace File
         }
     }
 
-    void FileObserver::ProcessEvent()
+    void FileEventObserver::ProcessEvent()
     {
         for (auto& [id, data] : _fileEventTable)
         {
@@ -216,7 +216,7 @@ namespace File
         _fileEventTable.clear();
     }
 
-    void FileObserver::EventObservingThread()
+    void FileEventObserver::EventObservingThread()
     {
         DWORD bytesReturned = 0;
 
@@ -247,7 +247,7 @@ namespace File
         _cv.notify_all();
     }
 
-    bool FileObserver::SetEventListener()
+    bool FileEventObserver::SetEventListener()
     {
         return ReadDirectoryChangesExW(
             _hDirectory,
@@ -262,7 +262,7 @@ namespace File
         );
     }
 
-    void FileObserver::RecieveFileEvents()
+    void FileEventObserver::RecieveFileEvents()
     {
         static bool listen = false;
         DWORD       bytes  = {};
@@ -332,7 +332,7 @@ namespace File
         }
     }
    
-    void FileObserver::EventDataToWStr(FileEventData& data, std::wstring& wstr)
+    void FileEventObserver::EventDataToWStr(FileEventData& data, std::wstring& wstr)
     {
         const auto& [lParam, rParam, event, info] = data;
         wstr += L"(LParam: ";
@@ -365,14 +365,14 @@ namespace File
         wstr += L")";
     }
 
-    void FileObserver::LastFileEventLog(FileEventData& event) 
+    void FileEventObserver::LastFileEventLog(FileEventData& event) 
     {
 #ifdef _DEBUG
         if (UmFileSystem.GetDebugLevel() >= 1)
         {
             std::wstring wstr;
             EventDataToWStr(event, wstr);
-            OutputLog(L"FileObserver send file event " + wstr);
+            OutputLog(L"FileEventObserver send file event " + wstr);
         }
 #endif
     }

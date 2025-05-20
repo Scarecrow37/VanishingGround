@@ -8,7 +8,7 @@ using namespace u8_literals;
 EFileSystem::EFileSystem() 
 {
     _originPath = fs::current_path().generic_wstring();
-    _extesionToNotifierTable["null"] = NotifierSet{};
+    _extToSubscriberTable["null"] = EventSubscriberSet{};
 }
 
 EFileSystem::~EFileSystem() 
@@ -27,13 +27,13 @@ bool EFileSystem::LoadGameDirectory()
     _projectSettingPath = fs::absolute(_rootPath / PROJECT_SETTING_PATH).generic_wstring();
     _buildSettingPath   = fs::absolute(_rootPath / BUILD_SETTING_PATH).generic_wstring(); 
 
-    for (auto& notifier : _notifierSet)
-        notifier->OnRequestedLoad();
+    for (auto& subscriber : _subscriberSet)
+        subscriber->OnRequestedLoad();
 
     ReadDirectory();
 
-    for (auto& notifier : _notifierSet)
-        notifier->OnPostRequestedLoad();
+    for (auto& subscriber : _subscriberSet)
+        subscriber->OnPostRequestedLoad();
 
     return true;
 }
@@ -125,13 +125,13 @@ bool EFileSystem::LoadProject(const File::Path& path)
         _observer->Start();
     }
 
-    for (auto& notifier : _notifierSet)
-        notifier->OnRequestedLoad();
+    for (auto& subscriber : _subscriberSet)
+        subscriber->OnRequestedLoad();
 
     ReadDirectory();
 
-    for (auto& notifier : _notifierSet)
-        notifier->OnPostRequestedLoad();
+    for (auto& subscriber : _subscriberSet)
+        subscriber->OnPostRequestedLoad();
 
     return true;
 }
@@ -146,11 +146,11 @@ bool EFileSystem::SaveProject()
         return false;
     }
 
-    for (auto& notifier : _notifierSet)
-        notifier->OnRequestedSave();
+    for (auto& subscriber : _subscriberSet)
+        subscriber->OnRequestedSave();
 
-    for (auto& notifier : _notifierSet)
-        notifier->OnPostRequestedSave();
+    for (auto& subscriber : _subscriberSet)
+        subscriber->OnPostRequestedSave();
 
     return true;
 }
@@ -258,7 +258,7 @@ void EFileSystem::ObserverSetUp(const CallBackFunc& callback)
 {
     if (nullptr == _observer)
     {
-        _observer = new File::FileObserver();
+        _observer = new File::FileEventObserver();
         _observer->SetCallbackFunc(callback);
         _observer->SetObservingPath(_rootPath);
         _observer->Start();
@@ -287,7 +287,7 @@ bool EFileSystem::IsVaildGuid(const File::Guid& guid) const
 
 bool EFileSystem::IsValidExtension(const File::FString& ext) const
 {
-    return (ext == "") || (_extesionToNotifierTable.find(ext) != _extesionToNotifierTable.end());
+    return (ext == "") || (_extToSubscriberTable.find(ext) != _extToSubscriberTable.end());
 }
 
 bool EFileSystem::IsSameContext(std::weak_ptr<File::Context> left, std::weak_ptr<File::Context> right) const
@@ -396,50 +396,49 @@ std::weak_ptr<Context> EFileSystem::GetContext(const File::Path& path) const
     }
 }
 
-const EFileSystem::NotifierSet& EFileSystem::GetNotifiers(
-    const File::FString& ext)
+const EFileSystem::EventSubscriberSet& EFileSystem::GetEventSubscribers(const File::FString& ext)
 {
-    auto itr = _extesionToNotifierTable.find(ext);
-    if (itr != _extesionToNotifierTable.end())
+    auto itr = _extToSubscriberTable.find(ext);
+    if (itr != _extToSubscriberTable.end())
     {
         return itr->second;
     }
-    return _extesionToNotifierTable["null"];
+    return _extToSubscriberTable["null"];
 }
 
 void EFileSystem::RequestInspectFile(const File::Path& path)
 {
-    const NotifierSet& notifierSet = GetNotifiers(path.extension());
-    for (auto& notifier : notifierSet)
+    const EventSubscriberSet& subscriberSet = GetEventSubscribers(path.extension());
+    for (auto& subscriber : subscriberSet)
     {
-        notifier->OnRequestedInspect(path);
+        subscriber->OnRequestedInspect(path);
     }
 }
 
 void EFileSystem::RequestOpenFile(const File::Path& path) 
 {
-    const NotifierSet& notifierSet = GetNotifiers(path.extension());
-    for (auto& notifier : notifierSet)
+    const EventSubscriberSet& subscriberSet = GetEventSubscribers(path.extension());
+    for (auto& subscriber : subscriberSet)
     {
-        notifier->OnRequestedOpen(path);
+        subscriber->OnRequestedOpen(path);
     }
 }
 
 void EFileSystem::RequestCopyFile(const File::Path& path) 
 {
-    const NotifierSet& notifierSet = GetNotifiers(path.extension());
-    for (auto& notifier : notifierSet)
+    const EventSubscriberSet& subscriberSet = GetEventSubscribers(path.extension());
+    for (auto& subscriber : subscriberSet)
     {
-        notifier->OnRequestedCopy(path);
+        subscriber->OnRequestedCopy(path);
     }
 }
 
 void EFileSystem::RequestPasteFile(const File::Path& path) 
 {
-    const NotifierSet& notifierSet = GetNotifiers(path.extension());
-    for (auto& notifier : notifierSet)
+    const EventSubscriberSet& subscriberSet = GetEventSubscribers(path.extension());
+    for (auto& subscriber : subscriberSet)
     {
-        notifier->OnRequestedPaste(path);
+        subscriber->OnRequestedPaste(path);
     }
 }
 
@@ -492,51 +491,51 @@ void EFileSystem::DrawGuiSettingEditor()
 }
 
 
-void EFileSystem::RegisterFileEventNotifier(FileEventNotifier* notifier, const std::initializer_list<const char*>& exts)
+void EFileSystem::RegisterFileEventSubscriber(FileEventSubscriber* subscriber, const std::initializer_list<const char*>& exts)
 {
-    if (notifier == nullptr)
+    if (subscriber == nullptr)
         return;
 
     for (const auto& ext : exts)
     {
-        notifier->_triggerExtTable.insert(ext);
-        _extesionToNotifierTable[ext].insert(notifier);
+        subscriber->_triggerExtTable.insert(ext);
+        _extToSubscriberTable[ext].insert(subscriber);
     }
-    auto itr = _notifierSet.find(notifier);
-    if (itr == _notifierSet.end())
+    auto itr = _subscriberSet.find(subscriber);
+    if (itr == _subscriberSet.end())
     {
-        _notifierSet.insert(notifier);
+        _subscriberSet.insert(subscriber);
     }
 }
 
-void EFileSystem::UnRegisterFileEventNotifier(FileEventNotifier* notifier) 
+void EFileSystem::UnRegisterFileEventSubscriber(FileEventSubscriber* subscriber)
 {
-    const std::vector<FString> exts = notifier->GetTriggerExtensions();
+    const std::vector<FString> exts = subscriber->GetTriggerExtensions();
 
     for (const auto& ext : exts)
     {
-        auto itr = _extesionToNotifierTable.find(ext);
-        if (itr != _extesionToNotifierTable.end())
+        auto itr = _extToSubscriberTable.find(ext);
+        if (itr != _extToSubscriberTable.end())
         {
-            auto& notifierSet = itr->second;
-            notifierSet.erase(notifier);
-            if (notifierSet.empty())
+            auto& subscriberSet = itr->second;
+            subscriberSet.erase(subscriber);
+            if (subscriberSet.empty())
             {
-                _extesionToNotifierTable.erase(itr);
+                _extToSubscriberTable.erase(itr);
             }
         }
     }
-    auto itr = _notifierSet.find(notifier);
-    if (itr != _notifierSet.end())
+    auto itr = _subscriberSet.find(subscriber);
+    if (itr != _subscriberSet.end())
     {
-        _notifierSet.erase(itr);
+        _subscriberSet.erase(itr);
     }
 }
 
 void EFileSystem::Clear()
 {        
     ClearContext();
-    ClearNotifier();
+    ClearEventSubscriber();
     _guidToRefTable.clear();
 }
 
@@ -549,10 +548,10 @@ void EFileSystem::ClearContext()
         {
             auto& path = context->GetPath();
             File::Path  extension   = path.extension();
-            const NotifierSet& notifierSet = GetNotifiers(extension);
-            for (auto& notifier : notifierSet)
+            const EventSubscriberSet& subscriberSet = GetEventSubscribers(extension);
+            for (auto& subscriber : subscriberSet)
             {
-                notifier->OnFileUnregistered(path);
+                subscriber->OnFileUnregistered(path);
             }
         }
     }
@@ -561,10 +560,10 @@ void EFileSystem::ClearContext()
     _contextTable.clear();
 }
 
-void EFileSystem::ClearNotifier() 
+void EFileSystem::ClearEventSubscriber()
 {
-    _notifierSet.clear();
-    _extesionToNotifierTable.clear();
+    _subscriberSet.clear();
+    _extToSubscriberTable.clear();
 }
 
 void EFileSystem::ReadDirectory() 
@@ -647,10 +646,10 @@ void EFileSystem::RegisterContext(const File::Path& path)
          context->OnFileRegistered(absPath);
 
          File::Path  extension   = absPath.extension();
-         const NotifierSet& notifierSet = GetNotifiers(extension);
-         for (auto& notifier : notifierSet)
+         const EventSubscriberSet& subscriberSet = GetEventSubscribers(extension);
+         for (auto& subscriber : subscriberSet)
          {
-             notifier->OnFileRegistered(absPath);
+             subscriber->OnFileRegistered(absPath);
          }
      }
 }
@@ -672,10 +671,10 @@ void EFileSystem::UnregisterContext(const File::Path& path)
         auto& guid      = meta.GetGuid();
 
         File::Path  extension   = path.extension();
-        const NotifierSet& notifierSet = GetNotifiers(extension);
-        for (auto& notifier : notifierSet)
+        const EventSubscriberSet& subscriberSet = GetEventSubscribers(extension);
+        for (auto& subscriber : subscriberSet)
         {
-            notifier->OnFileUnregistered(path);
+            subscriber->OnFileUnregistered(path);
         }
 
         _contextTable.erase(spContext);
@@ -716,10 +715,10 @@ void EFileSystem::ProcessRemovedFile(const File::Path& path)
         auto& meta      = spContext->GetMeta();
         auto& guid      = meta.GetGuid();
 
-        auto notifierSet = GetNotifiers(path.extension());
-        for (auto& notifier : notifierSet)
+        const EventSubscriberSet& subscriberSet = GetEventSubscribers(path.extension());
+        for (auto& subscriber : subscriberSet)
         {
-            notifier->OnFileRemoved(path);
+            subscriber->OnFileRemoved(path);
         }
         UmFileSystem.UnregisterContext(path);
 
@@ -752,10 +751,10 @@ void EFileSystem::ProcessModifiedFile(const File::Path& path)
 
         spContext->OnFileModified(path);
 
-        const NotifierSet& notifierSet = GetNotifiers(path.extension());
-        for (auto& notifier : notifierSet)
+        const EventSubscriberSet& subscriberSet = GetEventSubscribers(path.extension());
+        for (auto& subscriber : subscriberSet)
         {
-            notifier->OnFileModified(path);
+            subscriber->OnFileModified(path);
         } 
     }
 }
@@ -811,18 +810,18 @@ void EFileSystem::ProcessMovedFile(const File::Path& oldPath, const File::Path& 
 
         if (oldFolderPath == newFolderPath)
         {
-            const NotifierSet& notifierSet = GetNotifiers(newExtension);
-            for (auto& notifier : notifierSet)
+            const EventSubscriberSet& subscriberSet = GetEventSubscribers(newExtension);
+            for (auto& subscriber : subscriberSet)
             {
-                notifier->OnFileRenamed(oldPath, newPath);
+                subscriber->OnFileRenamed(oldPath, newPath);
             } 
         }
         else
         {
-            const NotifierSet& notifierSet = GetNotifiers(newExtension);
-            for (auto& notifier : notifierSet)
+            const EventSubscriberSet& subscriberSet = GetEventSubscribers(newExtension);
+            for (auto& subscriber : subscriberSet)
             {
-                notifier->OnFileMoved(oldPath, newPath);
+                subscriber->OnFileMoved(oldPath, newPath);
             } 
         }
     }
