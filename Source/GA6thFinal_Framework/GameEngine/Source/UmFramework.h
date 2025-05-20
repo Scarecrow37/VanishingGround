@@ -90,7 +90,7 @@ using namespace Microsoft::WRL;
 #include <concurrent_queue.h>
 
 //ThirdParty
-#include <pugixml.hpp>
+#include "pugixml/pugixml.hpp"
 #include "UmAssimp.h"
 
 #define IMGUI_DEFINE_MATH_OPERATORS
