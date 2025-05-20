@@ -453,10 +453,6 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
 
     if (mode == LoadSceneMode::SINGLE)
     {
-        _addComponentsQueue.clear();
-        _addGameObjectsQueue.clear();
-        _lodedSceneList.clear();
-
         for (auto& obj : _runtimeObjects)
         {
             if (obj)
@@ -467,8 +463,15 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
                 GameObject::Destroy(obj.get());
             }
         }
-        _prevScene = _setting.MainScene;
+
+        if (false == _lodedSceneList.empty())
+        {
+            _prevScene = _setting.MainScene;
+        }
         _setting.MainScene = scene->Path;
+        _addComponentsQueue.clear();
+        _addGameObjectsQueue.clear();
+        _lodedSceneList.clear();
         UmCommandManager.Clear();
     }
     else
@@ -981,11 +984,9 @@ bool ESceneManager::DeserializeToYaml(YAML::Node* _sceneNode)
     }
 
     bool isMainScene = _lodedSceneList.empty();
-
     YAML::Node& sceneNode = *_sceneNode;
     int SerializeVersion = sceneNode["SerializeVersion"].as<int>();
     File::Guid Guid = sceneNode["Guid"].as<std::string>();
-
     Scene& scene = _scenesMap[Guid];
 
     if (true == isMainScene)
