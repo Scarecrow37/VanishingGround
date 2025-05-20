@@ -14,20 +14,11 @@ public:
     REFLECT_PROPERTY(FilePath)
     GETTER_ONLY(std::string, FilePath)
     {
-        if (nullptr != _guidRef)
-        {
-            return _guidRef->ToPath().string();
-        }
-        else
-        {
-            return File::NULL_PATH.string();
-        }
+        return UmFileSystem.GetPathFromGuid(ReflectFields->Guid).string();
     }
     PROPERTY(FilePath)
 
 public:
-    std::shared_ptr<File::Guid> _guidRef;
-
     REFLECT_FIELDS_BEGIN(Component)
     std::string Guid;
     REFLECT_FIELDS_END(StaticMeshRenderer)
