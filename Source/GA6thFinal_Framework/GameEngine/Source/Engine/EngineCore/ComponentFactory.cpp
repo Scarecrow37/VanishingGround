@@ -165,8 +165,8 @@ bool EComponentFactory::InitalizeComponentFactory()
             newComponent = std::move(missing);
         }
         ResetComponent(gameObject, newComponent);       // 엔진에서 사용하기 위해 초기화
-        newComponent->_initFlags.SetAwake();                  // 초기화 플래그 설정
-        newComponent->_initFlags.SetStart();                  // 초기화 플래그 설정
+        newComponent->_initFlags.SetAwake();            // 초기화 플래그 설정
+        newComponent->_initFlags.SetStart();            // 초기화 플래그 설정
         gameObject->_components[index] = newComponent;  
         if (isFind == true)
         {
