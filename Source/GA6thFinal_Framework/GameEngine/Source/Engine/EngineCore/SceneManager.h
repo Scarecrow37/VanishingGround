@@ -479,7 +479,7 @@ private:
     _setting;
     std::function<void()> _loadFuncEvent;
 
-    //생성한 씬을 찾기 위한 맵입다. key : 파일 확장자를 제외한 파일 이름 
+    //생성한 씬을 찾기 위한 맵입니다. key : 파일 확장자를 제외한 파일 이름 
     std::unordered_map<std::string, std::unordered_set<File::Guid>> _scenesFindMap;
 
     //생성된 씬 맵(GUID)
