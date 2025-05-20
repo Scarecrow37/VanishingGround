@@ -29,7 +29,7 @@ StaticMeshRenderer::~StaticMeshRenderer()
 
 void StaticMeshRenderer::Reset()
 {
-    MakeMeshRenderer(MeshRenderer::RENDER_TYPE::STATIC, gameObject->transform->GetWorldMatrix());
+    MakeMeshRenderer(MESH_RENDER_TYPE::STATIC, gameObject->transform->GetWorldMatrix());
 }
 
 void StaticMeshRenderer::Awake()
