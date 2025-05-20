@@ -14,6 +14,7 @@ StaticMeshRenderer::StaticMeshRenderer()
                     if (path.extension() == L".fbx")
                     {
                         File::Guid guid = path.ToGuid();
+                        _guidRef = UmFileSystem.GetGuidRef(guid);
                         ReflectFields->Guid = guid.string();
                         UmSceneManager.ResourceManager.RequestModelResource(this, guid);
                     }
@@ -80,6 +81,7 @@ void StaticMeshRenderer::SerializedReflectEvent()
 void StaticMeshRenderer::DeserializedReflectEvent() 
 {
     File::Guid guid = ReflectFields->Guid;
+    _guidRef = UmFileSystem.GetGuidRef(guid);
     if (false == guid.IsNull())
     {
         UmSceneManager.ResourceManager.RequestModelResource(this, guid);

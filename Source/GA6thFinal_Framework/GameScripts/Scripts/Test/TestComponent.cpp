@@ -1,5 +1,5 @@
 ﻿#include "TestComponent.h"
-#include "Scripts/FileSystemTest/FileTestComponent.h"
+
 TestComponent::TestComponent()
 {
     ObjectDrop.SetDragDropFunc([this]
