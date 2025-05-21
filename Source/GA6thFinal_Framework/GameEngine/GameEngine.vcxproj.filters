@@ -1022,22 +1022,7 @@
     <ClCompile Include="ThirdParty\include\reflectcpp.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="ThirdParty\include\rfl\Generic.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="ThirdParty\include\rfl\yaml\Writer.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="ThirdParty\include\rfl\generic\Writer.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="ThirdParty\include\rfl\internal\strings\strings.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="ThirdParty\include\rfl\json\to_schema.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="ThirdParty\include\rfl\json\Writer.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="ThirdParty\include\rfl\parsing\schema\Type.cpp">
