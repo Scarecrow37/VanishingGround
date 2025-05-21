@@ -33,11 +33,7 @@ namespace File
         if (nullptr == _eventCallback)
             return false;
 
-        if (true == _eventProcessingThread.joinable())
-            _eventProcessingThread.join();
-
-        if (true == _eventObservingThread.joinable())
-            _eventObservingThread.join();
+        Stop();
 
         if (false == _isStart)
         {
@@ -55,8 +51,18 @@ namespace File
         if (true == _isStart)
         {
             _isStart = false;
-            _eventProcessingThread.join();
-            _eventObservingThread.join();
+            if (true == _eventProcessingThread.joinable())
+            {
+                _eventProcessingThread.join();
+            }
+            if (true == _eventObservingThread.joinable())
+            {
+                _eventObservingThread.join();
+            }
+            if (TRUE == CloseHandle(_hDirectory))
+            {
+                _hDirectory = NULL;
+            }
             OutputLog(L"FileEventObserver thread is joined");
         }
     }
@@ -256,7 +262,7 @@ namespace File
         GetOverlappedResult(_hDirectory, &_overlapped, &bytesReturned, TRUE);
         // IO작업이 완전히 끝났는지 확인 후 핸들 닫기
         CloseHandle(_overlapped.hEvent);
-
+        _overlapped  = {};
         _isObserving = false;
         _cv.notify_all();
     }
@@ -278,9 +284,11 @@ namespace File
 
     void FileEventObserver::RecieveFileEvents()
     {
-        static bool listen = false;
-        DWORD       bytes  = {};
+        static bool listen;
+        DWORD bytes;
 
+        bytes  = {};
+        listen = false;
         while (true)
         {
             // 파일 디렉터리 변경을 감지함
