@@ -26,6 +26,11 @@ GameApplication::GameApplication()
     _clientSize = { 1920, 1080 };
     _windowName = L"Umreal Engine";
 
+    if constexpr (Application::IsEditor())
+    {
+        _windowStyleEX = WS_OVERLAPPEDWINDOW;
+    }
+
 #ifdef _UMEDITOR
     // 에디터 매니저 등록
     _editorModule = AddModule<EditorModule>();
