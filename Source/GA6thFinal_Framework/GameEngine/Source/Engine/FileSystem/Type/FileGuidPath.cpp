@@ -64,13 +64,15 @@ namespace File
     GuidRef& GuidRef::operator=(const File::Guid& other)
     {
         Release();
-        *this = other;
+        FString::operator=(other);
         AddRef();
         return *this;
     }
     GuidRef& GuidRef::operator=(File::Guid&& other) noexcept
     {
         Release();
+        FString::operator=(std::move(other));
+        AddRef();
         return *this;
     }
 }
