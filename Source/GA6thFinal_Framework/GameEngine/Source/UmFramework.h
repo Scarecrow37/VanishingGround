@@ -29,6 +29,13 @@ constexpr const wchar_t* ASSET_FOLDER_NAME = L"Assets";
 // 문자열 null을 명시적으로 표시하기 위한 값
 constexpr const char* STR_NULL = "null";
 
+//DirectX12
+#include "directx/d3dcommon.h"
+#include "directx/d3dx12.h"
+#include "UmDirectxtk12.h"
+#include "UmDirectXTex.h"
+#include "DirectXMath.h"
+
 //WINDOW SDK
 #include <Windows.h>
 #include <dbghelp.h>
@@ -41,15 +48,6 @@ constexpr const char* STR_NULL = "null";
 #pragma comment(lib, "dxgi")
 #pragma comment(lib, "Dbghelp.lib")
 #pragma comment(lib, "d3dcompiler")
-
-#include "directx/d3dx12.h"
-#include "UmDirectxtk12.h"
-#include "UmDirectXTex.h"
-#include "DirectXMath.h"
-
-using namespace DirectX;
-using namespace DirectX::SimpleMath;
-using namespace Microsoft::WRL;
 
 //CRT
 #include <tchar.h>
@@ -102,6 +100,11 @@ using namespace Microsoft::WRL;
 #include "Engine/Imgui/ImZoomSlider.h"
 #include "Engine/Imgui/ImCurveEdit.h"
 #include "Engine/Imgui/GraphEditor.h"
+
+//namespace
+using namespace DirectX;
+using namespace DirectX::SimpleMath;
+using namespace Microsoft::WRL;
 
 //Utility
 #include "Engine/Utility/LogLevel.h"
