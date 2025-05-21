@@ -58,7 +58,7 @@ bool Application::ApplicationPump(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
             Application& app = UmApplication;
             app._clientSize.cx = LOWORD(lParam); 
             app._clientSize.cy = HIWORD(lParam);
-            //UmDevice.OnResize(app._clientSize.cx, app._clientSize.cy);
+            UmDevice.OnResize(app._clientSize.cx, app._clientSize.cy);
             return true;
         }        
     }

@@ -117,7 +117,7 @@ private:
     DXGI_FORMAT     _depthStencilFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 
     DXGI_MODE_DESC                               _mode;
-    bool                                         _onResize = false;
+    bool                                         _onResize = true;
     std::vector<std::vector<ID3D12CommandList*>> _commandLists;
     // TODO : temp 나중에 commandList manager생기고 삭제하기? 수정하기?
     ComPtr<ID3D12GraphicsCommandList> _commandList;
