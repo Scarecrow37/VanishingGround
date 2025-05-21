@@ -71,15 +71,15 @@ namespace File
             {
                 throw std::system_error(GetLastError(), std::system_category());
             }
-
-            _hDirectory = CreateFileW(
-                _path.c_str(),                                  // 감시할 디렉토리 경로
-                FILE_LIST_DIRECTORY,                            // 디렉토리 목록 조회 권한
+            // 디렉터리 핸들을 비동기 모드로 가져온다.
+            _hDirectory = CreateFile(
+                _path.c_str(),                                          // 감시할 디렉토리 경로
+                FILE_LIST_DIRECTORY,                                    // 디렉토리 목록 조회 권한
                 FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, // 공유 가능
-                nullptr,                                        // 보안 속성 없음
-                OPEN_EXISTING,                                  // 기존에 존재해야 함
-                FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED,  // 디렉토리 열기 허용 + 비동기 IO
-                HANDLE(0));                                         // 템플릿 파일 없음
+                nullptr,                                                // 보안 속성 없음
+                OPEN_EXISTING,                                          // 기존에 존재해야 함
+                FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED,      // 디렉토리 열기 허용 + 비동기 IO
+                HANDLE(0));                                             // 템플릿 파일 없음
 
             if (INVALID_HANDLE_VALUE == _hDirectory)
             {
@@ -231,6 +231,7 @@ namespace File
 
         do
         {
+            // 변경 이벤트 수집
             RecieveFileEvents();
             if (true == _request)
             {
@@ -239,8 +240,11 @@ namespace File
             }
         } while (true == _isStart);
 
+         // 현재 작업 중인 IO요청을 강제 취소해 달라는 신호를 보냄
         CancelIoEx(_hDirectory, &_overlapped);
+        // 작업이 완료될 때까지 대기
         GetOverlappedResult(_hDirectory, &_overlapped, &bytesReturned, TRUE);
+        // IO작업이 완전히 끝났는지 확인 후 핸들 닫기
         CloseHandle(_overlapped.hEvent);
 
         _isObserving = false;
@@ -250,13 +254,13 @@ namespace File
     bool FileEventObserver::SetEventListener()
     {
         return ReadDirectoryChangesExW(
-            _hDirectory,
-            _recievedBytes,
-            sizeof(_recievedBytes),
-            TRUE, 
-            NOTIFY_FILTERS, 
-            &_bytesReturned,
-            &_overlapped, 
+            _hDirectory,            // 모티너링 대상 디렉터리 핸들
+            _recievedBytes,         // 수신 결과 반환 버퍼의 포인터
+            sizeof(_recievedBytes), // 수신 결과 버퍼의 크기
+            TRUE,                   // TRUE: 하위 디렉터리도 감지 범위에 포함, FALSE: 현재 디렉터리만 감지
+            NOTIFY_FILTERS,         // 감지할 이벤트 필터
+            &_bytesReturned,        // 수신 받은 크기
+            &_overlapped,           // 비동기 IO를 위한 OVERLAPPED 구조체의 포인터
             NULL,
             ReadDirectoryNotifyExtendedInformation 
         );
