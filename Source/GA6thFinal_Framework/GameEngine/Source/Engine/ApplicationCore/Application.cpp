@@ -49,6 +49,22 @@ Application::Application()
     }
 }
 
+bool Application::ApplicationPump(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+    if (msg == WM_SIZE)
+    {
+        if (nullptr != UmCore.get())
+        {
+            Application& app = UmApplication;
+            app._clientSize.cx = LOWORD(lParam); 
+            app._clientSize.cy = HIWORD(lParam);
+            //UmDevice.OnResize(app._clientSize.cx, app._clientSize.cy);
+            return true;
+        }        
+    }
+    return false;
+}
+
 void Application::Initialize(HINSTANCE hInstance)
 {
     //로케일 설정
@@ -62,6 +78,10 @@ void Application::Initialize(HINSTANCE hInstance)
 
     //모듈 초기화
     InitModules();
+
+    //기본 메시지 핸들러 등록
+    MessageHandler handle(ApplicationPump, 0);
+    AddMessageHandler(handle);
 
     //게임 모드 체크
     if constexpr (false == Application::IsEditor())
