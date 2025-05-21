@@ -24,8 +24,8 @@ void FileSystemModule::ModuleInitialize()
 
     UmApplication.AddMessageHandler(msgHandler);
     UmFileSystem.ObserverSetUp([this](const Event& event) { RecieveFileEvent(event); });
-    auto accessExt = {".txt", ".png", ".dds"};
-    UmFileSystem.RegisterFileEventNotifier(this, accessExt);
+    auto accessExt = {".txt", ".png", ".dds", ".hdr"};
+    UmFileSystem.RegisterFileEventSubscriber(this, accessExt);
 }
 
 void FileSystemModule::PreUnInitialize() 
@@ -71,33 +71,40 @@ void FileSystemModule::DispatchFileEvent()
 
     while (false == _eventQueue.empty())
     {
-        const auto& [lParam, rParam, event, info] = _eventQueue.front();
-
+        const Event& eventPacket = _eventQueue.front();
         const File::Path& rootPath = UmFileSystem.GetRootPath();
-
-        File::Path lp = (rootPath / lParam).generic_string();
-        File::Path rp = (rootPath / rParam).generic_string();
-
-        std::unordered_set<File::FileEventNotifier*> notifiers;
+        const auto& [lParamTable, rParamTable, event, info] = eventPacket;
 
         if (event & File::Flag::FILE_EVENT_ACTION_RENAMED)
         {
+            File::Flag::EventAction eventType = File::Flag::FILE_EVENT_ACTION_RENAMED;
+            File::Path lp = (rootPath / eventPacket.GetLParam(eventType)).generic_string();
+            File::Path rp = (rootPath / eventPacket.GetRParam(eventType)).generic_string();
             UmFileSystem.ProcessMovedFile(lp, rp);
         }
         else if (event & File::Flag::FILE_EVENT_ACTION_MOVED)
         {
+            File::Flag::EventAction eventType = File::Flag::FILE_EVENT_ACTION_MOVED;
+            File::Path lp = (rootPath / eventPacket.GetLParam(eventType)).generic_string();
+            File::Path rp = (rootPath / eventPacket.GetRParam(eventType)).generic_string();
             UmFileSystem.ProcessMovedFile(lp, rp);
         }
         else if (event & File::Flag::FILE_EVENT_ACTION_ADDED)
         {
+            File::Flag::EventAction eventType = File::Flag::FILE_EVENT_ACTION_ADDED;
+            File::Path lp = (rootPath / eventPacket.GetLParam(eventType)).generic_string();
             UmFileSystem.RegisterContext(lp);
         }
         else if (event & File::Flag::FILE_EVENT_ACTION_REMOVED)
         {
+            File::Flag::EventAction eventType = File::Flag::FILE_EVENT_ACTION_REMOVED;
+            File::Path lp = (rootPath / eventPacket.GetLParam(eventType)).generic_string();
             UmFileSystem.ProcessRemovedFile(lp);
         }
         else if (event & File::Flag::FILE_EVENT_ACTION_MODIFIED)
         {
+            File::Flag::EventAction eventType = File::Flag::FILE_EVENT_ACTION_MODIFIED;
+            File::Path lp = (rootPath / eventPacket.GetLParam(eventType)).generic_string();
             UmFileSystem.ProcessModifiedFile(lp);
         }
         else if (event == File::Flag::FILE_EVENT_ACTION_UNKNOWN)

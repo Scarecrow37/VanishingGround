@@ -13,13 +13,14 @@ public:
 public:
     REFLECT_PROPERTY(FilePath)
     GETTER_ONLY(std::string, FilePath)
-    {
-        File::Guid guid = ReflectFields->Guid;
-        return guid.ToPath().string();
+    { 
+        return _guidRef.ToPath().string();
     }
     PROPERTY(FilePath)
 
 public:
+    File::GuidRef _guidRef;
+
     REFLECT_FIELDS_BEGIN(Component)
     std::string Guid;
     REFLECT_FIELDS_END(StaticMeshRenderer)

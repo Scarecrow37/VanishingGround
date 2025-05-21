@@ -15,11 +15,12 @@ MeshComponent::~MeshComponent()
     }
 }
 
-void MeshComponent::MakeMeshRenderer(MeshRenderer::RENDER_TYPE renderType, const Matrix& world)
+void MeshComponent::MakeMeshRenderer(MESH_RENDER_TYPE renderType, const Matrix& world)
 {
     if (nullptr == _pMeshRenderer)
     {
         _pMeshRenderer.reset(new MeshRenderer(renderType, world));
+        _pMeshRenderer->RegisterRenderQueue("Editor");
     } 
     else
     {

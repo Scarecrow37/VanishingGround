@@ -27,6 +27,7 @@ private:
     virtual void OnFrameFocusStay() override;
 
 private:
+    void DragDropEvent();
     void SetMoveFlag();
     void SetCamera();
     void UpdateMode();
@@ -34,6 +35,7 @@ private:
     void DrawSceneView();
 
 private:
+    ImGuiWindow* _window = nullptr;
     bool _isHorverdScene = false;
 
     std::unique_ptr<EditorDynamicCamera> _camera;

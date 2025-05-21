@@ -5,7 +5,7 @@ class Transform;
 template<typename T>
 concept IS_BASE_GAMEOBJECT_C = std::is_base_of_v<GameObject, T>;
 
-class EGameObjectFactory : public File::FileEventNotifier
+class EGameObjectFactory : public File::FileEventSubscriber
 {
     friend class EngineCores;
 private:
@@ -44,7 +44,7 @@ public:
         static const std::vector<std::string>& GetGameObjectKeys();
 
         /// <summary>
-        /// Prefab FileEventNotifier를 등록합니다. 
+        /// Prefab FileEventSubscriber를 등록합니다. 
         /// </summary>
         static void RegisterFileEvents();
     };
@@ -183,7 +183,7 @@ private:
     //PrefabInstance를 갱신합니다.
     void ApplyPrefabInstanceChanges(const File::Guid& guid, YAML::Node& yaml);
 
-    // FileEventNotifier을(를) 통해 상속됨
+    // FileEventSubscriber을(를) 통해 상속됨
     void OnFileRegistered(const File::Path& path) override;
     void OnFileUnregistered(const File::Path& path) override;
     void OnFileModified(const File::Path& path) override;

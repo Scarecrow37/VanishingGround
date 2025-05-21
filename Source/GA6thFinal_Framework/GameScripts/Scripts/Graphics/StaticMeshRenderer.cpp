@@ -13,9 +13,9 @@ StaticMeshRenderer::StaticMeshRenderer()
                     const auto& path = context->GetPath();
                     if (path.extension() == L".fbx")
                     {
-                        File::Guid guid = path.ToGuid();
-                        ReflectFields->Guid = guid.string();
-                        UmSceneManager.ResourceManager.RequestModelResource(this, guid);
+                        _guidRef = path.ToGuid();
+                        ReflectFields->Guid = _guidRef.string();
+                        UmSceneManager.ResourceManager.RequestModelResource(this, _guidRef);
                     }
                 }
             }
@@ -29,7 +29,7 @@ StaticMeshRenderer::~StaticMeshRenderer()
 
 void StaticMeshRenderer::Reset()
 {
-    MakeMeshRenderer(MeshRenderer::RENDER_TYPE::STATIC, gameObject->transform->GetWorldMatrix());
+    MakeMeshRenderer(MESH_RENDER_TYPE::STATIC, gameObject->transform->GetWorldMatrix());
 }
 
 void StaticMeshRenderer::Awake()
@@ -80,8 +80,9 @@ void StaticMeshRenderer::SerializedReflectEvent()
 void StaticMeshRenderer::DeserializedReflectEvent() 
 {
     File::Guid guid = ReflectFields->Guid;
+    _guidRef = guid;
     if (false == guid.IsNull())
     {
-        UmSceneManager.ResourceManager.RequestModelResource(this, guid);
+        UmSceneManager.ResourceManager.RequestModelResource(this, _guidRef);
     }
 }

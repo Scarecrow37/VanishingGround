@@ -22,16 +22,6 @@ namespace File
         MOVED,    // 이동
     };
 
-    enum DirectoryBrowserFlag
-    {
-        DIRECTORY_BROWSER_FLAG_NONE                 = 0,      // 플래그 없음
-        DIRECTORY_BROWSER_FLAG_SAVE_FILE            = 1 << 0, // 파일 저장에 대한 플래그
-        DIRECTORY_BROWSER_FLAG_OPEN_FILE            = 1 << 1, // 파일 열기에 대한 플래그
-        DIRECTORY_BROWSER_FLAG_ALLOW_MULTISELECT    = 1 << 2, // 다중 선택에 대한 플래그
-        DIRECTORY_BROWSER_FLAG_PICK_FOLDER          = 1 << 3, // 폴더 선택에 대한 플래그
-    };
-    using DirectoryBrowserFlags = DWORD;
-
     static void OutputLog(const std::wstring& msg)
     {
 #ifdef _DEBUG
@@ -67,15 +57,31 @@ namespace File
     /* 해당 경로에 중복 파일이 있을 경우 중복 방지 인덱스를 붙여서 리턴 */
     File::Path GenerateUniquePath(const File::Path& path, int maxIndex = 999);
 
-    // 파일 브라우저 열기
-    bool ShowOpenFileBrowser(HWND owner, LPCWSTR title, LPCWSTR initialDir,
-                             std::vector<std::pair<LPCWSTR, LPCWSTR>> filters, bool allowMultiSelect, OUT std::vector<File::Path>& out);
-    bool ShowSaveFileBrowser(HWND owner, LPCWSTR title, LPCWSTR initialDir, LPCWSTR defaultName, OUT File::Path& out);
-    bool ShowOpenFolderBrowser(HWND owner, LPCWSTR title, LPCWSTR initialDir, OUT File::Path& out);
+    enum DirectoryDialogFlag
+    {
+        DIRECTORY_DIALOG_FLAG_NONE                 = 0,      // 플래그 없음
+        DIRECTORY_DIALOG_FLAG_SAVE_FILE            = 1 << 0, // 파일 저장에 대한 플래그
+        DIRECTORY_DIALOG_FLAG_OPEN_FILE            = 1 << 1, // 파일 열기에 대한 플래그
+        DIRECTORY_DIALOG_FLAG_ALLOW_MULTISELECT    = 1 << 2, // 다중 선택에 대한 플래그
+        DIRECTORY_DIALOG_FLAG_PICK_FOLDER          = 1 << 3, // 폴더 선택에 대한 플래그
+    };
 
-    bool ShowSelectDirectoryBrowserEx(HWND owner, LPCWSTR title, LPCWSTR initialDirectory, LPCWSTR initialFileName,
-                                                           std::vector<std::pair<LPCWSTR, LPCWSTR>> filters,
-                                                           DirectoryBrowserFlags flags,
-                                                           OUT std::vector<File::Path>& out);
+    struct FileDialogDesc
+    {
+        HWND                                        Owner;
+        LPCWSTR                                     Title;
+        LPCWSTR                                     InitialDirectory;
+        LPCWSTR                                     DefaultFileName;
+        std::vector<std::pair<LPCWSTR, LPCWSTR>>    Filters;
+        DWORD                                       Flags;
+    };
+    // 파일 브라우저 열기
+    bool ShowOpenFileDialog(HWND owner, LPCWSTR title, LPCWSTR initialDir,
+                             std::vector<std::pair<LPCWSTR, LPCWSTR>> filters, bool allowMultiSelect, OUT std::vector<File::Path>& out);
+    bool ShowSaveFileDialog(HWND owner, LPCWSTR title, LPCWSTR initialDir, LPCWSTR defaultName,
+                            const std::vector<std::pair<LPCWSTR, LPCWSTR>>& filters, OUT File::Path& out);
+    bool ShowOpenFolderDialog(HWND owner, LPCWSTR title, LPCWSTR initialDir, OUT File::Path& out);
+
+    bool ShowFileDialogEx(IN const FileDialogDesc& desc, OUT std::vector<File::Path>& out);
 } // namespace File
 

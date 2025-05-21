@@ -56,7 +56,7 @@ namespace Global
 
  class EditorModule 
      : public IAppModule
-     , public File::FileEventNotifier
+     , public File::FileEventSubscriber
  {
      friend class Application;
      friend class EditorTool;
