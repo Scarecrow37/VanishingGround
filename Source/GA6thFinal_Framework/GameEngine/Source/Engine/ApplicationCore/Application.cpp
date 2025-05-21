@@ -118,27 +118,31 @@ void Application::Run()
         }
         else
         {
+            // Time System Update
             ETimeSystem::Engine::TimeSystemUpdate();
             float deltaTime = engineCore->Time.DeltaTime();
 
+            // Imgui begin
             _imguiDX12Module->ImguiBegin();
-            {
-                if constexpr(true == Application::IsEditor())
-                {
-                    _filesystemModule->Update();
-                    Global::editorModule->Update();
-                }
 
-                // AnimationUpdate
-                Global::engineCore->Graphics.UpdateAnimation(deltaTime);
-                
-                ESceneManager::Engine::SceneUpdate();
-                // CameraUpdate, RenderQueueUpdate, Render
-                Global::engineCore->Graphics.Update();
-                Global::engineCore->Graphics.Render();
-                _imguiDX12Module->ImguiEnd();
-                Global::engineCore->Graphics.Flip();
+            // Editor Update
+            if constexpr (true == Application::IsEditor())
+            {
+                _filesystemModule->Update();
+                Global::editorModule->Update();
             }
+
+            // AnimationUpdate
+            Global::engineCore->Graphics.UpdateAnimation(deltaTime);
+
+            // Scene Logic Update
+            ESceneManager::Engine::SceneUpdate();
+
+            // CameraUpdate, RenderQueueUpdate, Render
+            Global::engineCore->Graphics.Update();
+            Global::engineCore->Graphics.Render();
+            _imguiDX12Module->ImguiEnd();
+            Global::engineCore->Graphics.Flip();
         }
     }
 }
