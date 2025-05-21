@@ -63,8 +63,10 @@ public:
                            COMMAND_TYPE type);
     void RegisterCommand(ID3D12CommandList* commandList, COMMAND_LIST_TYPE type);
     void ExecuteCommand(COMMAND_LIST_TYPE type);
+
  private:
     void SetViewPort();
+    void ResizeSwapChain();
     void CreateDeviceAndSwapChain(HWND hwnd, D3D_FEATURE_LEVEL feature);
     void CreateComputeCommandObject();
     void CreateCommandQueue();
@@ -73,6 +75,7 @@ public:
     void CreateDepthStencil();
     void CreateBuffer(UINT size, ComPtr<ID3D12Resource>& buffer);
     
+
     void WaitComputeFence(int fenceSlot);
     void WaitGraphicsFence(int fenceSlot);
     void SignalComputeQueue(int fenceSlot);
@@ -113,7 +116,8 @@ private:
     DXGI_FORMAT     _backBufferFormat   = DXGI_FORMAT_R8G8B8A8_UNORM;
     DXGI_FORMAT     _depthStencilFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 
-    DXGI_MODE_DESC                  _mode;
+    DXGI_MODE_DESC                               _mode;
+    bool                                         _onResize = false;
     std::vector<std::vector<ID3D12CommandList*>> _commandLists;
     // TODO : temp 나중에 commandList manager생기고 삭제하기? 수정하기?
     ComPtr<ID3D12GraphicsCommandList> _commandList;
