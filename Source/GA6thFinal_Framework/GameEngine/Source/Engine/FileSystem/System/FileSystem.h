@@ -55,10 +55,10 @@ public:
     bool IsSameContext(std::weak_ptr<File::Context> left, std::weak_ptr<File::Context> right) const;
             
     File::Path                  GetRelativePath(const File::Path& path) const;
-    const GuidRefTable&         GetGuidRefTable() const;
-    const EventSubscriberSet&   GetEventSubscribers(const File::FString& ext);
     const File::Path&           GetPathFromGuid(const File::Guid& guid) const;
     const File::Guid&           GetGuidFromPath(const File::Path& path) const;
+    const GuidRefTable&         GetGuidRefTable() const;
+    const EventSubscriberSet&   GetEventSubscribers(const File::FString& ext);
 
     template <typename T>
     std::weak_ptr<T> GetContext(const File::Guid& guid) const 
