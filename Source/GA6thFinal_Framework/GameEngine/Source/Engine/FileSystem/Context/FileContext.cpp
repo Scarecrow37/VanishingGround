@@ -6,17 +6,11 @@ namespace File
     Context::Context(const Path& path) 
         : _name(path.filename().string()), _path(path), _meta({})
     {
-        if (UmFileSystem.GetDebugLevel() >= 3)
-            OutputLog(L"Create Context: " + _path.wstring());
+
     }
 
     Context::~Context() 
     {
-#ifdef _DEBUG
-        if (UmFileSystem.GetDebugLevel() >= 3)
-            OutputLog(L"Destroy Context: " + _path.wstring());
-#endif // DEBUG
-
     }
 
     bool Context::LoadMeta()
@@ -101,10 +95,14 @@ namespace File
 
     void FileContext::OnFileRegistered(const File::Path& path) 
     {
+        if (UmFileSystem.GetDebugLevel() >= 3)
+            OutputLog(L"Create FileContext: " + _path.wstring());
     }
 
     void FileContext::OnFileUnregistered(const File::Path& path) 
     {
+        if (UmFileSystem.GetDebugLevel() >= 3)
+            OutputLog(L"Destroy FileContext: " + _path.wstring());
     }
 
     void FileContext::OnFileModified(const Path& path) 
@@ -135,12 +133,10 @@ namespace File
     FolderContext::FolderContext(const File::Path& path) 
     : Context(path)
     {
-
     }
     
     FolderContext::~FolderContext() 
     {
-    
     }
 
     void FolderContext::MoveContext(std::weak_ptr<Context> context) 
@@ -167,10 +163,14 @@ namespace File
 
     void FolderContext::OnFileRegistered(const File::Path& path)
     {
+        if (UmFileSystem.GetDebugLevel() >= 3)
+            OutputLog(L"Create FolderContext: " + _path.wstring());
     }
 
     void FolderContext::OnFileUnregistered(const File::Path& path) 
     {
+        if (UmFileSystem.GetDebugLevel() >= 3)
+            OutputLog(L"Destroy FolderContext: " + _path.wstring());
     }
 
     void FolderContext::OnFileModified(const Path& path) 

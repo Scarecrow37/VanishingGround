@@ -133,10 +133,10 @@ using namespace Microsoft::WRL;
 
 #include "Engine/Utility/FileHelper.h"
 #include "Engine/FileSystem/Interface/IFileEventProcesser.h"
-#include "Engine/FileSystem/Extra/FileObserver.h"
-#include "Engine/FileSystem/Extra/FileContext.h"
+#include "Engine/FileSystem/Event/FileEventObserver.h"
+#include "Engine/FileSystem/Context/FileContext.h"
 #include "Engine/FileSystem/System/FileSystem.h"
-#include "Engine/FileSystem/Extra/FileEventNotifier.h"
+#include "Engine/FileSystem/Event/FileEventSubscriber.h"
 #include "Engine/FileSystem/FileSystemModule.h"
 
 //Graphics

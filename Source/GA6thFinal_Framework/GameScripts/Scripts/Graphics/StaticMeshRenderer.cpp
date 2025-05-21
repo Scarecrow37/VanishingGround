@@ -13,9 +13,9 @@ StaticMeshRenderer::StaticMeshRenderer()
                     const auto& path = context->GetPath();
                     if (path.extension() == L".fbx")
                     {
-                        File::Guid guid = path.ToGuid();
-                        ReflectFields->Guid = guid.string();
-                        UmSceneManager.ResourceManager.RequestModelResource(this, guid);
+                        _guidRef = path.ToGuid();
+                        ReflectFields->Guid = _guidRef.string();
+                        UmSceneManager.ResourceManager.RequestModelResource(this, _guidRef);
                     }
                 }
             }
@@ -79,5 +79,10 @@ void StaticMeshRenderer::SerializedReflectEvent()
 
 void StaticMeshRenderer::DeserializedReflectEvent() 
 {
-    UmSceneManager.ResourceManager.RequestModelResource(this, ReflectFields->Guid);
+    File::Guid guid = ReflectFields->Guid;
+    _guidRef = guid;
+    if (false == guid.IsNull())
+    {
+        UmSceneManager.ResourceManager.RequestModelResource(this, _guidRef);
+    }
 }
