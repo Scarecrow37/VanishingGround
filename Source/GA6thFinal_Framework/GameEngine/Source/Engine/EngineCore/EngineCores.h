@@ -63,6 +63,12 @@ struct SafeEngineCoresPtr
     {
         return _instance.operator bool();
     }
+
+    EngineCores* get()
+    { 
+        return _instance.get();
+    }
+
 private:
     std::shared_ptr<EngineCores> _instance;
 };

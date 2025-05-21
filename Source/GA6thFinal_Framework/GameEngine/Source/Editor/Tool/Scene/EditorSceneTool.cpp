@@ -58,8 +58,6 @@ void EditorSceneTool::OnFrameRender()
 {
     _window = ImGui::GetCurrentWindow();
     DragDropEvent();
-    _camera->Update();
-
     SetCamera();    
     DrawSceneView();
     DrawManipulate();
@@ -71,6 +69,7 @@ void EditorSceneTool::OnFrameEnd()
 
 void EditorSceneTool::OnFrameFocusStay()
 {
+    _camera->Update();
     UpdateMode();
 }
     
