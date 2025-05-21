@@ -19,9 +19,9 @@ if %BUILD_RESULT% neq 0 (
 	
 	if %BUILD_RESULT% neq 0 (
 		echo 빌드 실패! ERRORLEVEL=%BUILD_RESULT%
+		pause
 	) else (
 		echo 빌드 성공!
 	)
 )
-pause
 exit /b %BUILD_RESULT%

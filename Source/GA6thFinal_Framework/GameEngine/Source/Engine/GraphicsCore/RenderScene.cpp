@@ -13,7 +13,7 @@
 RenderScene::RenderScene()
     : _frameQuad{std::make_unique<Quad>()}
     , _frameShader{std::make_unique<ShaderBuilder>()}
-    ,_skyBox{std::make_unique<SkyBox>()}
+    , _skyBox{std::make_unique<SkyBox>()}
 {
 }
 
@@ -25,8 +25,7 @@ void RenderScene::UpdateRenderScene()
     _camera->Update();
 
     // 비활성된 컴포넌트 제거
-    auto first = std::remove_if(_renderQueue.begin(), _renderQueue.end(), [](const auto& component)
-        {  return component->IsDestroy(); });
+    auto first = std::remove_if(_renderQueue.begin(), _renderQueue.end(), [](const auto& pair) { return *pair.first; });
 
     _renderQueue.erase(first, _renderQueue.end());
 
@@ -44,7 +43,7 @@ void RenderScene::UpdateRenderScene()
     std::vector<MaterialData>                materialDatas;
     UINT                                     materialID = 0;
 
-    for (auto& component : _renderQueue)
+    for (auto& [isDestroy, component] : _renderQueue)
     {
         if (!component->IsActive())
             continue;
@@ -96,8 +95,8 @@ void RenderScene::UpdateRenderScene()
 
 void RenderScene::RegisterOnRenderQueue(MeshRenderer* component)
 {
-    auto iter = std::find_if(_renderQueue.begin(), _renderQueue.end(),
-                             [component](const auto& ptr) { return ptr == component; });
+    auto iter = std::find_if(_renderQueue.begin(), _renderQueue.end(), 
+        [component](const auto& pair) { return !pair.first.get(); }); // isDestroy()가 false면 중복된 것
 
     if (iter != _renderQueue.end())
     {
@@ -105,7 +104,8 @@ void RenderScene::RegisterOnRenderQueue(MeshRenderer* component)
         return;
     }
 
-    _renderQueue.push_back(component);
+    _renderQueue.emplace_back(std::make_unique<bool>(false), component);
+    component->_isDestroy = _renderQueue.back().first.get();
 }
 
 void RenderScene::Execute(ID3D12GraphicsCommandList* commandList)
@@ -131,9 +131,14 @@ D3D12_CPU_DESCRIPTOR_HANDLE RenderScene::GetFinalImage()
     return _meshLightingTarget->GetSRVHandle();
 }
 
-void RenderScene::SetSkyBox(std::string path)
+void RenderScene::SetSkyBox(std::string_view path)
 {
-    _skyBox->SetTexture(path);
+    _skyBox->SetTexture(path.data());
+}
+
+void RenderScene::ResetSkyBox()
+{
+    _skyBox->ResetResource();
 }
 
 void RenderScene::AddRenderTechnique(std::shared_ptr<RenderTechnique> technique)

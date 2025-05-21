@@ -4,7 +4,7 @@ using namespace u8_literals;
 
 EComponentFactory::EComponentFactory()
 {
-    SetDllDirectory(EComponentFactory::Engine::SCRIPTS_DLL_PATH);
+   
 }
 EComponentFactory::~EComponentFactory() = default;
 
@@ -55,7 +55,11 @@ bool EComponentFactory::InitalizeComponentFactory()
 
     _newScriptsFunctionMap.clear();
     m_NewScriptsKeyVec.clear();
-    SetDllDirectory(EComponentFactory::Engine::SCRIPTS_DLL_PATH);
+
+    if constexpr (true == Application::IsEditor())
+    {
+        SetDllDirectory(EComponentFactory::Engine::SCRIPTS_DLL_PATH);
+    }
     m_scriptsDll = LoadLibraryW(L"GameScripts.dll");
     if (m_scriptsDll == NULL)
     {
@@ -64,29 +68,32 @@ bool EComponentFactory::InitalizeComponentFactory()
         return false;
     }
 
-    //기존 DLL, PDB 삭제
-    std::filesystem::path prevPath = EComponentFactory::Engine::SCRIPTS_DLL_PATH;
-    prevPath /= L"Prev_GameScripts.dll";
-    if (std::filesystem::exists(prevPath))
+    if constexpr (true == Application::IsEditor())
     {
-        std::error_code ec;
-        std::filesystem::remove(prevPath, ec);
-        if (ec) 
+        //기존 DLL, PDB 삭제
+        std::filesystem::path prevPath = EComponentFactory::Engine::SCRIPTS_DLL_PATH;
+        prevPath /= L"Prev_GameScripts.dll";
+        if (std::filesystem::exists(prevPath))
         {
-            __debugbreak(); //삭제 실패
+            std::error_code ec;
+            std::filesystem::remove(prevPath, ec);
+            if (ec) 
+            {
+                __debugbreak(); //삭제 실패
+            }
+        }
+        prevPath.replace_extension(L".pdb");
+        if (std::filesystem::exists(prevPath))
+        {
+            std::error_code ec;
+            std::filesystem::remove(prevPath, ec);
+            if (ec)
+            {
+                __debugbreak(); //삭제 실패
+            }
         }
     }
-    prevPath.replace_extension(L".pdb");
-    if (std::filesystem::exists(prevPath))
-    {
-        std::error_code ec;
-        std::filesystem::remove(prevPath, ec);
-        if (ec)
-        {
-            __debugbreak(); //삭제 실패
-        }
-    }
-
+    
     //스크립트 파일 생성 함수 등록
     std::vector<std::string> funcList = dllUtility::GetDLLFuntionNameList(m_scriptsDll);
     MakeScriptFunc = (MakeUmScriptsFile)GetProcAddress(m_scriptsDll, funcList[0].c_str());
@@ -158,8 +165,8 @@ bool EComponentFactory::InitalizeComponentFactory()
             newComponent = std::move(missing);
         }
         ResetComponent(gameObject, newComponent);       // 엔진에서 사용하기 위해 초기화
-        newComponent->_initFlags.SetAwake();                  // 초기화 플래그 설정
-        newComponent->_initFlags.SetStart();                  // 초기화 플래그 설정
+        newComponent->_initFlags.SetAwake();            // 초기화 플래그 설정
+        newComponent->_initFlags.SetStart();            // 초기화 플래그 설정
         gameObject->_components[index] = newComponent;  
         if (isFind == true)
         {
@@ -293,6 +300,11 @@ bool EComponentFactory::AddComponentToYamlNow(GameObject* ownerObject, YAML::Nod
         return false;
     }
     return true;
+}
+
+void EComponentFactory::InsertComponentToObject(GameObject* object, std::shared_ptr<Component>& component, int index) 
+{
+    object->_components.insert(object->_components.begin() + index, component);
 }
 
 void EComponentFactory::AddEngineComponentsToScripts() 

@@ -78,6 +78,22 @@ void EditorAssetBrowserTool::OnFrameEnd()
     _eventFunc.clear();
 }
 
+void EditorAssetBrowserTool::OnTickGui() 
+{
+}
+
+void EditorAssetBrowserTool::OnFrameFocusEnter() 
+{
+}
+
+void EditorAssetBrowserTool::OnFrameFocusStay() 
+{
+}
+
+void EditorAssetBrowserTool::OnFrameFocusExit() 
+{
+}
+
 #define REFRESH_TEXT "Refresh"
 void EditorAssetBrowserTool::ShowUpperFrame()
 {
@@ -938,7 +954,6 @@ void EditorAssetBrowserTool::SetFocusFromRedoPath()
 
 void EditorAssetObject::OnInspectorEnter() 
 {
-    UmLogger.Log(1, "EditorAssetObject::OnInspectorEnter");
 }
 
 void EditorAssetObject::OnInspectorStay()
@@ -963,7 +978,6 @@ void EditorAssetObject::OnInspectorStay()
 
 void EditorAssetObject::OnInspectorExit() 
 {
-    UmLogger.Log(1, "EditorAssetObject::OnInspectorExit");
 }
 
 void EditorAssetObject::SetContext(std::weak_ptr<File::Context> context) 

@@ -5,7 +5,7 @@
 #include "Engine/GraphicsCore/Model.h"
 
 EditorModelDetails::EditorModelDetails()
-    : _meshRenderer(std::make_unique<MeshRenderer>(MeshRenderer::RENDER_TYPE::STATIC, _worldMatrix)),
+    : _meshRenderer(std::make_unique<MeshRenderer>(MESH_RENDER_TYPE::STATIC, _worldMatrix)),
       _selectedMeshIndex(0)
 {
     SetLabel("Details##model");
@@ -48,7 +48,7 @@ void EditorModelDetails::OnFrameRender()
 
         if (ImGui::BeginTable("##material", 2, ImGuiTableFlags_Borders))
         {
-            ImGui::TableNextRow();            
+            ImGui::TableNextRow();
             ImGui::TableNextColumn();
             const char* blendModeNames[] = {"Opaque", "Masked", "Translucent", "Additive", "Modulate"};
             ImGui::Text("Blend Mode");
@@ -98,13 +98,13 @@ void EditorModelDetails::ImportModel()
 {
     std::vector<File::Path> path;
 
-    if (File::ShowOpenFileBrowser(UmApplication.GetHwnd(), L"Import Model", L"",
-                                  {{L"Model Files (*.fbx;*.UmModel)", L"*.fbx; *.UmModel\0\0"}}, false, path))
+    if (File::ShowOpenFileDialog(UmApplication.GetHwnd(), L"Import Model", L"",
+                                 {{L"Model Files (*.fbx;*.UmModel)", L"*.fbx; *.UmModel\0\0"}}, false, path))
     {
         std::shared_ptr<Model> model = std::make_shared<Model>();
 
         FBXConverter& fbxConverter = GetFBXConverter();
-        fbxConverter.ImportModel(path.front(), model.get());
+        fbxConverter.ImportModel(path.front(), model);
         _meshRenderer->SetModel(model);
 
         _filePath = path.front();
@@ -116,7 +116,7 @@ void EditorModelDetails::ExportModel()
 {
     File::Path path;
 
-    if (File::ShowSaveFileBrowser(UmApplication.GetHwnd(), L"Export Model", L"", L"model.UmModel", path))
+    if (File::ShowSaveFileDialog(UmApplication.GetHwnd(), L"Export Model", L"", L"model.UmModel", {}, path))
     {
         FBXConverter& fbxConverter = GetFBXConverter();
         fbxConverter.ExportModel(path);

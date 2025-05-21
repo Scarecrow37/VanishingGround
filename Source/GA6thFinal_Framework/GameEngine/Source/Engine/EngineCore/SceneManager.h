@@ -65,11 +65,13 @@ public:
     }
     SETTER(bool, IsDirty);
     PROPERTY(IsDirty)
+
 private:
     bool _isDontDestroyOnLoad = false;
     bool _isDirty   = false;
     bool _isLoaded = false;
     File::Guid _guid = STR_NULL;
+    File::Guid _skyBox = STR_NULL;
 };
 
 /// <summary>
@@ -86,7 +88,7 @@ enum class LoadSceneMode
 //함수는 일단 선언만. 구현은 나중에.
 class ESceneManager 
     : 
-    File::FileEventNotifier
+    File::FileEventSubscriber
 {
 private:
     USING_PROPERTY(ESceneManager)
@@ -97,7 +99,11 @@ private:
 
     ESceneManager& operator=(const ESceneManager& rhs) = delete;
 
+private:
     void LoadSettingFile();
+
+public:
+    //현재 빌드 설정 파일을 저장합니다.
     void SaveSettingFile() const;
 public:
     /// <summary>
@@ -121,7 +127,7 @@ public:
     struct Engine
     {
         /// <summary>
-        /// Scene FileEventNotifier를 등록합니다.
+        /// Scene FileEventSubscriber를 등록합니다.
         /// </summary>
         static void RegisterFileEvents();
 
@@ -220,6 +226,21 @@ public:
         /// </summary>
         static void SwapPrefabInstance(GameObject* original, GameObject* remake);
 
+        /// <summary>
+        /// 씬의 스카이박스를 설정합니다.
+        /// </summary>
+        static void SetSceneSkyBoxGuid(Scene& scene, const File::Guid& skyBox);
+
+        /// <summary>
+        /// 씬의 스카이박스를 설정합니다.
+        /// </summary>
+        static void SetSceneSkyBoxPath(Scene& scene, std::string_view skyBoxPath);
+
+        /// <summary>
+        /// 오브젝트의 행렬을 명시적으로 업데이트합니다. (성능 하락 주의)
+        /// </summary>
+        /// <param name="gameObject"></param>
+        static void UpdateMatrix(GameObject* gameObject);
     };
 
 public:
@@ -318,6 +339,13 @@ public:
     /// <param name="isOverride :">덮어쓰기 안내문구 스킵 여부</param>
     void WriteEmptySceneToFile(std::string_view name, std::string_view outPath, bool isOverride = false);
 
+    /// <summary>
+    /// 스카이 박스를 설정합니다.
+    /// </summary>
+    /// <param name="path :">사용할 스카이박스</param>
+    /// <returns></returns>
+    bool SetSkyBox(const File::Path& path);
+    
     class SceneResourceManager
     {
     public:
@@ -410,13 +438,16 @@ private:
     /// </summary>
     void AddDestroyComponentQueue(Component* component);
 
-    void InsertComponentToObject(GameObject* object, std::shared_ptr<Component>& component, int index); 
-
     /// <summary>
     /// 오브젝트의 OwnerScene을 변경합니다.
     /// </summary>
     void SetObjectOwnerScene(GameObject* object, std::string_view sceneName);
 
+    /// <summary>
+    /// 스카이박스를 변경합니다.
+    /// </summary>
+    /// <param name="scene"></param>
+    void SetRendererSkyBox(Scene* scene);
 
 private:
     //Life cycle 에 포함되는 실제 오브젝트들 항목
@@ -445,6 +476,8 @@ private:
     std::pair<std::vector<MeshRenderer*>, std::vector<MeshRenderer*>> _meshSetActiveQueue;
 
 private:
+    // 이전에 로드한 씬 이름입니다.
+    std::string _prevScene = STR_NULL;
     struct
     {
        //현재 Single로 로드된 씬 이름입니다. NewGameObject를 하면 이 씬에 오브젝트가 생성됩니다.
@@ -456,7 +489,7 @@ private:
     _setting;
     std::function<void()> _loadFuncEvent;
 
-    //생성한 씬을 찾기 위한 맵입다. key : 파일 확장자를 제외한 파일 이름 
+    //생성한 씬을 찾기 위한 맵입니다. key : 파일 확장자를 제외한 파일 이름 
     std::unordered_map<std::string, std::unordered_set<File::Guid>> _scenesFindMap;
 
     //생성된 씬 맵(GUID)
@@ -499,7 +532,7 @@ protected:
         std::string_view outPath,
         bool isOverride = false);
 
-    // FileEventNotifier을(를) 통해 상속됨
+    // FileEventSubscriber을(를) 통해 상속됨
     virtual void OnFileRegistered(const File::Path& path) override;
     virtual void OnFileUnregistered(const File::Path& path) override;
     virtual void OnFileModified(const File::Path& path) override;

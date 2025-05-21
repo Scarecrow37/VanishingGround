@@ -3,18 +3,7 @@
 
 void EditorMenuScriptBuilder::OnMenu()
 {
-    if (ImGui::BeginMenu("Project"))
-    {
-        if (ImGui::BeginMenu("Build"))
-        {
-            if (ImGui::MenuItem("Script Build", ""))
-            {
-                Global::engineCore->ComponentFactory.InitalizeComponentFactory();
-            }
-            ImGui::EndMenu();
-        }
-        ImGui::EndMenu();
-    }
+
 }
 
 static void ShowNewProjectPopup()
@@ -44,7 +33,7 @@ static void ShowNewProjectPopup()
     {
         HWND    owner   = UmApplication.GetHwnd();
         LPCWSTR title   = L"새 프로젝트 만들기";
-        if (File::ShowOpenFolderBrowser(owner, title, L"", directory))
+        if (File::ShowOpenFolderDialog(owner, title, L"", directory))
         {
         }
     }
@@ -83,12 +72,9 @@ void EditorMenuProjectRoot::OnMenu()
             HWND       owner    = UmApplication.GetHwnd();
             LPCWSTR    title    = L"새 프로젝트 만들기";
             std::vector<File::Path> out;
-            if (File::ShowOpenFileBrowser(owner, title, L"",
-                {
-                    {L"프로젝트 파일\0", L"*.UmProject*\0"},
-                    {L"모든 파일\0", L"*.*\0"}
-                },
-                false, out))
+            if (File::ShowOpenFileDialog(owner, title, L"",
+                                         {{L"프로젝트 파일\0", L"*.UmProject*\0"}, {L"모든 파일\0", L"*.*\0"}}, false,
+                                         out))
             {
                 UmFileSystem.LoadProject(out.front());
             }
@@ -103,7 +89,7 @@ void EditorMenuProjectRoot::OnMenu()
             LPCWSTR    title    = L"다른 이름으로 저장";
             File::Path curPath  = UmFileSystem.GetRootPath();
             File::Path directory;
-            if (File::ShowOpenFolderBrowser(owner, title, curPath.c_str(), directory))
+            if (File::ShowOpenFolderDialog(owner, title, curPath.c_str(), directory))
             {
                 if (true == UmFileSystem.SaveAsProject(directory))
                 {

@@ -26,11 +26,8 @@ UMREALSCRIPT_NEWCOMPONENT(CLASS_NAME)
 #include "Scripts\Test\TestComponent.h"
 UMREAL_COMPONENT(TestComponent)
 
-#include "Scripts\FileSystemTest/FileTestComponent.h"
-UMREAL_COMPONENT(FileTestComponent)
-
 #include "Scripts\Graphics/MeshComponent.h"
-//UMREAL_COMPONENT(MeshComponent)
+//UMREAL_COMPONENT(MeshComponent)   //Base 컴포넌트여서 Export 되면 안됩니다.
 
 #include "Scripts\Graphics\StaticMeshRenderer.h"
 UMREAL_COMPONENT(StaticMeshRenderer)

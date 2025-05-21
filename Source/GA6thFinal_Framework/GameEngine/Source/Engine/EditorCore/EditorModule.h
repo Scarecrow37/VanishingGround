@@ -56,7 +56,7 @@ namespace Global
 
  class EditorModule 
      : public IAppModule
-     , public File::FileEventNotifier
+     , public File::FileEventSubscriber
  {
      friend class Application;
      friend class EditorTool;
@@ -90,8 +90,8 @@ namespace Global
 
      inline bool IsLock() const { return (false == _popupBoxSystem.IsEmpty()); }
 
-     inline auto& GetDockWindowSystem() { return _dockWindowSystem; }
-     inline auto& GetPopupBoxSystem() { return _popupBoxSystem; }
+     inline EditorGuiSystem&        GetDockWindowSystem() { return _guiSystem; }
+     inline EditorPopupBoxSystem&   GetPopupBoxSystem() { return _popupBoxSystem; }
      
  private:
      /* 기본 스타일 설정 */
@@ -105,7 +105,7 @@ namespace Global
      bool _isDebug = false;
      std::string _imGuiIniData;   // ImGui 설정 데이터
 
-     EditorGuiSystem            _dockWindowSystem;   // 에디터 도킹 윈도우 시스템
+     EditorGuiSystem            _guiSystem;   // 에디터 도킹 윈도우 시스템
      EditorPopupBoxSystem       _popupBoxSystem;     // 에디터 모달 팝업 시스템
 
      bool _isFirstTick     = true;
@@ -139,5 +139,33 @@ namespace Global
         ImVec4 _playModeColors[ImGuiCol_COUNT];
     }
     PlayMode;
+
+    //빌드 매니저
+    class EditorBuildSystem
+    {
+    public:
+        static constexpr const char* PROJECT_EXE_FOLDER_DEBUG    = "..\\bin-Debug";
+        static constexpr const char* PROJECT_EXE_FOLDER_RELEASE  = "..\\bin-Release";
+        #ifdef _DEBUG
+        static constexpr const char* PROJECT_EXE_FOLDER = PROJECT_EXE_FOLDER_DEBUG;
+        #else
+        static constexpr const char* PROJECT_EXE_FOLDER = PROJECT_EXE_FOLDER_RELEASE;
+        #endif
+
+        static constexpr const char* PROJECT_BUILD_BATCH_DEBUG   = "..\\GameEngine\\project_build_debug.bat";
+        static constexpr const char* PROJECT_BUILD_BATCH_RELEASE = "..\\GameEngine\\project_build_release.bat";
+        #ifdef _DEBUG
+        static constexpr const char* PROJECT_BUILD_BATCH_FILE = PROJECT_BUILD_BATCH_DEBUG;
+        #else
+        static constexpr const char* PROJECT_BUILD_BATCH_FILE = PROJECT_BUILD_BATCH_RELEASE;
+        #endif
+    public:
+        EditorBuildSystem();
+        ~EditorBuildSystem();
+
+        bool BuildProject(std::string_view outPath);
+
+    }
+    BuildSystem;
  };
 

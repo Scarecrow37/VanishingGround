@@ -23,9 +23,9 @@ void EditorModule::ModuleInitialize()
     // 모듈 등록시 1회 호출
     SetGuiThemeStyle();
     _popupBoxSystem.OnStartGui();
-    _dockWindowSystem.OnStartGui();
+    _guiSystem.OnStartGui();
 
-    UmFileSystem.RegisterFileEventNotifier(this);
+    UmFileSystem.RegisterFileEventSubscriber(this);
 }
 
 void EditorModule::PreUnInitialize() 
@@ -36,7 +36,7 @@ void EditorModule::ModuleUnInitialize()
 {
     // 파괴 직전 함수 필요하면 추가
     _popupBoxSystem.OnEndGui();
-    _dockWindowSystem.OnEndGui();
+    _guiSystem.OnEndGui();
 }
 
 bool EditorModule::SaveSetting(const File::Path& path)
@@ -48,7 +48,7 @@ bool EditorModule::SaveSetting(const File::Path& path)
     {
         YAML::Node node;
         node["debug"]        = _isDebug;
-        node["GuiToolData"]  = _dockWindowSystem.SaveGuiSettingToMemory();
+        node["GuiToolData"]  = _guiSystem.SaveGuiSettingToMemory();
         node["imGuiIniData"] = ImGui::SaveIniSettingsToMemory();
 
         fout << node;
@@ -74,7 +74,7 @@ bool EditorModule::LoadSetting(const File::Path& path)
                 _imGuiIniData = node["imGuiIniData"].as<std::string>();
 
             if (node["GuiToolData"])
-                _dockWindowSystem.LoadGuiSettingFromMemory(node["GuiToolData"]);
+                _guiSystem.LoadGuiSettingFromMemory(node["GuiToolData"]);
 
             ResetGuiLayout();
 
@@ -95,8 +95,8 @@ void EditorModule::Update()
     /* ========GUI Update======== */ 
     _popupBoxSystem.OnTickGui();
 
-    _dockWindowSystem.OnTickGui();
-    _dockWindowSystem.OnDrawGui();
+    _guiSystem.OnTickGui();
+    _guiSystem.OnDrawGui();
     /* =========================== */
 
     if (true == isLock)
@@ -169,14 +169,14 @@ void EditorModule::SetGuiThemeStyle()
 void EditorModule::OnRequestedSave()
 {
     File::Path name = L"EditorModule.UmSetting";
-    auto& path = UmFileSystem.GetSettingPath();
+    auto& path = UmFileSystem.GetProjectSettingPath();
     SaveSetting(path / name);
 }
 
 void EditorModule::OnRequestedLoad() 
 {
     File::Path name = L"EditorModule.UmSetting";
-    auto& path = UmFileSystem.GetSettingPath();
+    auto& path = UmFileSystem.GetProjectSettingPath();
     LoadSetting(path / name);
 }
 
@@ -285,4 +285,126 @@ void EditorModule::EditorPlayMode::DefaultPlayModeColor()
 
     // DragDrop
     _playModeColors[ImGuiCol_DragDropTarget] = ImVec4{0.1f, 0.4f, 0.65f, 1.0f};
+}
+
+EditorModule::EditorBuildSystem::EditorBuildSystem() 
+{
+
+}
+
+EditorModule::EditorBuildSystem::~EditorBuildSystem() 
+{
+
+}
+
+bool EditorModule::EditorBuildSystem::BuildProject(std::string_view outPath)
+{
+    using namespace u8_literals;
+    namespace fs = std::filesystem;
+
+    if (false == UmFileSystem.IsLoadedProject())
+    {
+        UmLogger.Log(LogLevel::LEVEL_ERROR, u8"프로젝트를 열어주세요."_c_str);
+    }
+
+    fs::path batchPath = PROJECT_BUILD_BATCH_FILE;
+    DWORD exitCode{};
+    bool batchResult = dllUtility::RunBatchFile(batchPath.c_str(), &exitCode);
+    if (false == batchResult)
+    {
+        UmLogger.Log(LogLevel::LEVEL_ERROR, u8"프로젝트 빌드 실패."_c_str);
+        return false;
+    }
+
+    fs::path destPath = outPath;
+    fs::path exePath  = PROJECT_EXE_FOLDER;
+#ifdef _DEBUG
+    fs::path scriptPath = EComponentFactory::Engine::SCRIPTS_DLL_DEBUG_PATH;
+#else
+    fs::path scriptPath = EComponentFactory::Engine::SCRIPTS_DLL_RELEASE_PATH;
+#endif
+    File::Path            rootPath = UmFileSystem.GetRootPath();
+    std::vector<fs::path> pathStack;
+    fs::create_directories(destPath);
+
+    //스크립트 dll 복사
+    for (const auto& entry : fs::directory_iterator(scriptPath))
+    {
+        if (fs::is_regular_file(entry.path()))
+        {
+            if (L".dll" == entry.path().extension())
+            {
+                fs::path copyPath = destPath / "bin" / entry.path().filename();
+                fs::create_directories(copyPath.parent_path());
+                fs::copy_file(entry.path(), copyPath, fs::copy_options::overwrite_existing);
+            }
+        }
+    }
+
+    //exe 파일 및 dll 복사
+    pathStack.push_back(exePath);
+    while (false == pathStack.empty())
+    {
+        fs::path curr = pathStack.back();
+        pathStack.pop_back();
+        for (const auto& entry : fs::directory_iterator(curr))
+        {
+            if (fs::is_regular_file(entry.path()))
+            {
+                fs::path copyPath = destPath / "bin" / entry.path().filename();
+                fs::create_directories(copyPath.parent_path());
+                fs::copy_file(entry.path(), copyPath, fs::copy_options::overwrite_existing);
+            }
+            else
+            {
+                pathStack.push_back(entry);
+            }
+        }
+    }
+    
+    //리소스 복사
+    pathStack.push_back(rootPath);
+    while (false == pathStack.empty())
+    {
+        fs::path curr = pathStack.back();
+        pathStack.pop_back();
+        for (const auto& entry : fs::directory_iterator(curr))
+        {
+            if (fs::is_regular_file(entry.path()))
+            {
+                fs::path relative = entry.path().lexically_relative(rootPath);
+                fs::path copyPath = destPath / "bin" / relative;
+                fs::create_directories(copyPath.parent_path());
+                fs::copy_file(entry.path(), copyPath, fs::copy_options::overwrite_existing);
+            }
+            else
+            {
+                pathStack.push_back(entry);
+            }
+        }
+    }
+
+    //셰이더 복사
+    pathStack.emplace_back("..\\Shaders");
+    while (false == pathStack.empty())
+    {
+        fs::path curr = pathStack.back();
+        pathStack.pop_back();
+        for (const auto& entry : fs::directory_iterator(curr))
+        {
+            if (fs::is_regular_file(entry.path()))
+            {
+                fs::path relative = entry.path().lexically_relative("..\\");
+                fs::path copyPath = destPath / relative;
+                fs::create_directories(copyPath.parent_path());
+                fs::copy_file(entry.path(), copyPath, fs::copy_options::overwrite_existing);
+            }
+            else
+            {
+                pathStack.push_back(entry);
+            }
+        }
+    }
+
+    return true;
 }

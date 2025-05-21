@@ -56,10 +56,9 @@ void EditorSceneTool::OnPostFrameBegin()
 
 void EditorSceneTool::OnFrameRender() 
 {
-    UpdateMode();
-    _camera->Update();
-
-    SetCamera();
+    _window = ImGui::GetCurrentWindow();
+    DragDropEvent();
+    SetCamera();    
     DrawSceneView();
     DrawManipulate();
 }
@@ -70,9 +69,37 @@ void EditorSceneTool::OnFrameEnd()
 
 void EditorSceneTool::OnFrameFocusStay()
 {
+    _camera->Update();
+    UpdateMode();
 }
     
-void EditorSceneTool::SetMoveFlag() 
+void EditorSceneTool::DragDropEvent() 
+{
+    namespace fs = std::filesystem;
+    ImRect rect  = _window->Rect();
+    if (ImGui::BeginDragDropTargetCustom(rect, _window->ID))
+    {
+        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
+        {
+            DragDropAsset::Data* data = (DragDropAsset::Data*)payload->Data;
+            std::weak_ptr<File::Context>* wpContext = data->pContext;
+            if (false == wpContext->expired())
+            {
+                auto              context   = wpContext->lock();
+                const File::Path& path      = context->GetPath();
+                fs::path extension = path.extension();
+            
+                if (".hdr" == extension)
+                {
+                    UmSceneManager.SetSkyBox(path);
+                }
+            }
+        }
+        ImGui::EndDragDropTarget();
+    }
+}
+
+void EditorSceneTool::SetMoveFlag()
 {
     if (true == _isOver)
     {
@@ -156,54 +183,57 @@ void EditorSceneTool::DrawManipulate()
             _isUsing         = ImGuizmo::IsUsing();
             _isOver          = ImGuizmo::IsOver();
 
-            if (true == _isUseManipulate)
+            if (IsFocusFrame())
             {
-                Transform* parent = pObject->transform->Parent;
-                Vector3    position;
-                Quaternion rotation;
-                Vector3    scale;
-                if (nullptr == parent)
+                if (true == _isUseManipulate)
                 {
-                    worldMatrix.Decompose(scale, rotation, position);
+                    Transform* parent = pObject->transform->Parent;
+                    Vector3    position;
+                    Quaternion rotation;
+                    Vector3    scale;
+                    if (nullptr == parent)
+                    {
+                        worldMatrix.Decompose(scale, rotation, position);
+                    }
+                    else
+                    {
+                        const Matrix& parentWorldInvert = parent->GetWorldMatrix().Invert();
+                        Matrix        localMatrix       = worldMatrix * parentWorldInvert;
+                        localMatrix.Decompose(scale, rotation, position);
+                    }
+                    pObject->transform->Position = position;
+                    pObject->transform->Rotation = rotation;
+                    pObject->transform->Scale    = scale;
                 }
-                else
-                {
-                    const Matrix& parentWorldInvert = parent->GetWorldMatrix().Invert();
-                    Matrix        localMatrix       = worldMatrix * parentWorldInvert;
-                    localMatrix.Decompose(scale, rotation, position);
-                }
-                pObject->transform->Position = position;
-                pObject->transform->Rotation = rotation;
-                pObject->transform->Scale    = scale;
-            }
 
-            static bool                         prevIsUsing = false;
-            static ManipulateCommand::Transform prevTransform;
-            if (prevIsUsing != _isUsing)
-            {
-                if (true == _isUsing)
+                static bool                         prevIsUsing = false;
+                static ManipulateCommand::Transform prevTransform;
+                if (prevIsUsing != _isUsing)
                 {
-                    _isUsingStart          = true;
-                    prevTransform.Position = pObject->transform->Position;
-                    prevTransform.Rotation = pObject->transform->Rotation;
-                    prevTransform.Scale    = pObject->transform->Scale;
+                    if (true == _isUsing)
+                    {
+                        _isUsingStart          = true;
+                        prevTransform.Position = pObject->transform->Position;
+                        prevTransform.Rotation = pObject->transform->Rotation;
+                        prevTransform.Scale    = pObject->transform->Scale;
+                    }
+                    else
+                    {
+                        _isUsingEnd = true;
+                        ManipulateCommand::Transform currTransform;
+                        currTransform.Position = pObject->transform->Position;
+                        currTransform.Rotation = pObject->transform->Rotation;
+                        currTransform.Scale    = pObject->transform->Scale;
+                        UmCommandManager.Do<ManipulateCommand>(pObject, currTransform, prevTransform);
+                    }
                 }
                 else
                 {
-                    _isUsingEnd = true;
-                    ManipulateCommand::Transform currTransform;
-                    currTransform.Position = pObject->transform->Position;
-                    currTransform.Rotation = pObject->transform->Rotation;
-                    currTransform.Scale    = pObject->transform->Scale;
-                    UmCommandManager.Do<ManipulateCommand>(pObject, currTransform, prevTransform);
+                    _isUsingStart = false;
+                    _isUsingEnd   = false;
                 }
+                prevIsUsing = _isUsing;
             }
-            else
-            {
-                _isUsingStart = false;
-                _isUsingEnd   = false;
-            }
-            prevIsUsing = _isUsing;
         }
     }   
 }

@@ -140,6 +140,14 @@ public:
     /// <returns></returns>
     bool AddComponentToYamlNow(GameObject* ownerObject, YAML::Node* componentNode);
 
+    /// <summary>
+    /// 컴포넌트를 오브젝트에 바로 추가합니다.
+    /// </summary>
+    /// <param name="object :">대상</param>
+    /// <param name="component :">컴포넌트</param>
+    /// <param name="index :">번호</param>
+    void InsertComponentToObject(GameObject* object, std::shared_ptr<Component>& component, int index);
+
 private:
     using InitScripts = void(*)(const std::shared_ptr<EngineCores>, ImGuiContext*);
     using MakeUmScriptsFile = void(*)(const char* fileName);

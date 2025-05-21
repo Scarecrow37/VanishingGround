@@ -3,7 +3,7 @@
 #include "Box.h"
 #include "ShaderBuilder.h"
 
-SkyBox::SkyBox():_box{std::make_unique<Box>()} {}
+SkyBox::SkyBox() : _box{std::make_unique<Box>()}, _hasTexture{false} {}
 
 SkyBox::~SkyBox() {}
 
@@ -59,6 +59,8 @@ void SkyBox::SetTexture(std::string path)
         BindResources(cubeSize, face);
         pCommandList->Dispatch((cubeSize + 15) / 16, (cubeSize + 15) / 16, 1);
     }
+
+    _hasTexture = true;
 }
 
 void SkyBox::Render(ID3D12GraphicsCommandList* commnadList, UINT rootParameterIndex)
@@ -73,6 +75,16 @@ void SkyBox::SetDescriptorHeap(ID3D12GraphicsCommandList* commnadList)
     commnadList->SetDescriptorHeaps(_countof(hps), hps);
 }
 
+void SkyBox::ResetResource() 
+{
+    _skyboxCubeMap.Reset();
+    _skyboxhdrTexture.Reset();
+    for (auto& it : _cbs)
+    {
+        it.Reset();
+    }
+    _hasTexture = false;
+}
 
 ComPtr<ID3D12Resource> SkyBox::CreateTexture2D(ID3D12Device* device, int w, int h, DXGI_FORMAT format)
 {

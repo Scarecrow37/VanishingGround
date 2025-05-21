@@ -24,8 +24,8 @@ void FileSystemModule::ModuleInitialize()
 
     UmApplication.AddMessageHandler(msgHandler);
     UmFileSystem.ObserverSetUp([this](const Event& event) { RecieveFileEvent(event); });
-    auto accessExt = {".txt", ".png", ".dds"};
-    UmFileSystem.RegisterFileEventNotifier(this, accessExt);
+    auto accessExt = {".txt", ".png", ".dds", ".hdr"};
+    UmFileSystem.RegisterFileEventSubscriber(this, accessExt);
 }
 
 void FileSystemModule::PreUnInitialize() 
@@ -39,14 +39,14 @@ void FileSystemModule::ModuleUnInitialize()
 
 void FileSystemModule::OnRequestedSave() 
 {
-    auto& path = UmFileSystem.GetSettingPath();
+    auto& path = UmFileSystem.GetProjectSettingPath();
     auto name = File::PROJECT_SETTING_FILENAME;
     UmFileSystem.SaveSetting(path / name);
 }
 
 void FileSystemModule::OnRequestedLoad() 
 {
-    auto& path = UmFileSystem.GetSettingPath();
+    auto& path = UmFileSystem.GetProjectSettingPath();
     auto  name = File::PROJECT_SETTING_FILENAME;
     UmFileSystem.LoadSetting(path / name);
 }
@@ -78,7 +78,7 @@ void FileSystemModule::DispatchFileEvent()
         File::Path lp = (rootPath / lParam).generic_string();
         File::Path rp = (rootPath / rParam).generic_string();
 
-        std::unordered_set<File::FileEventNotifier*> notifiers;
+        std::unordered_set<File::FileEventSubscriber*> notifiers;
 
         if (event & File::Flag::FILE_EVENT_ACTION_RENAMED)
         {
