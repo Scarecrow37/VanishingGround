@@ -140,7 +140,7 @@ namespace File
             auto itr = _fileEventTable.find(info.FileId);
             if (itr == _fileEventTable.end())
             {
-                _fileEventTable[info.FileId] = {"", "", Flag::FILE_EVENT_ACTION_UNKNOWN, info};
+                _fileEventTable[info.FileId] = {{}, {}, Flag::FILE_EVENT_ACTION_UNKNOWN, info};
             }
         }
 
@@ -157,21 +157,25 @@ namespace File
                 if (true == checkFile)
                 {
                     // 이동 (현재 인덱스: removed, 다음 인덱스: added)
-                    if (FILE_ACTION_REMOVED == firstAction && FILE_ACTION_ADDED == secondAction)
+                    if (FILE_ACTION_REMOVED == firstAction &&
+                        FILE_ACTION_ADDED == secondAction)
                     {
-                        _fileEventTable[firstInfo.FileId].EventType |= Flag::FILE_EVENT_ACTION_MOVED;
-                        _fileEventTable[firstInfo.FileId].LParam = firstInfo.FilePath.generic_wstring();
-                        _fileEventTable[firstInfo.FileId].RParam = secondInfo.FilePath.generic_wstring();
+                        DWORD eventType = Flag::FILE_EVENT_ACTION_MOVED;
+                        _fileEventTable[firstInfo.FileId].EventType |= eventType;
+                        _fileEventTable[firstInfo.FileId].LParamTable[eventType] = firstInfo.FilePath.generic_wstring();
+                        _fileEventTable[firstInfo.FileId].RParamTable[eventType] = secondInfo.FilePath.generic_wstring();
                         _sendEventQueue.pop_front();
                         _sendEventQueue.pop_front();
+                        
                         continue;
                     }
                     else if (FILE_ACTION_RENAMED_OLD_NAME == firstAction &&
                              FILE_ACTION_RENAMED_NEW_NAME == secondAction)
                     {
-                        _fileEventTable[firstInfo.FileId].EventType |= Flag::FILE_EVENT_ACTION_RENAMED;
-                        _fileEventTable[firstInfo.FileId].LParam = firstInfo.FilePath.generic_wstring();
-                        _fileEventTable[firstInfo.FileId].RParam = secondInfo.FilePath.generic_wstring();
+                        DWORD eventType = Flag::FILE_EVENT_ACTION_RENAMED;
+                        _fileEventTable[firstInfo.FileId].EventType |= eventType;
+                        _fileEventTable[firstInfo.FileId].LParamTable[eventType] = firstInfo.FilePath.generic_wstring();
+                        _fileEventTable[firstInfo.FileId].RParamTable[eventType] = secondInfo.FilePath.generic_wstring();
                         _sendEventQueue.pop_front();
                         _sendEventQueue.pop_front();
                         continue;
@@ -180,22 +184,28 @@ namespace File
             }
             if (FILE_ACTION_ADDED == firstAction)
             {
-                _fileEventTable[firstInfo.FileId].EventType |= Flag::FILE_EVENT_ACTION_ADDED;
-                _fileEventTable[firstInfo.FileId].LParam = firstInfo.FilePath.generic_wstring();
+                DWORD eventType = Flag::FILE_EVENT_ACTION_ADDED;
+                _fileEventTable[firstInfo.FileId].EventType |= eventType;
+                _fileEventTable[firstInfo.FileId].LParamTable[eventType] = firstInfo.FilePath.generic_wstring();
+                _fileEventTable[firstInfo.FileId].RParamTable[eventType] = L"";
                 _sendEventQueue.pop_front();
                 continue;
             }
             else if (FILE_ACTION_REMOVED == firstAction)
             {
-                _fileEventTable[firstInfo.FileId].EventType |= Flag::FILE_EVENT_ACTION_REMOVED;
-                _fileEventTable[firstInfo.FileId].LParam = firstInfo.FilePath.generic_wstring();
+                DWORD eventType = Flag::FILE_EVENT_ACTION_REMOVED;
+                _fileEventTable[firstInfo.FileId].EventType |= eventType;
+                _fileEventTable[firstInfo.FileId].LParamTable[eventType] = firstInfo.FilePath.generic_wstring();
+                _fileEventTable[firstInfo.FileId].RParamTable[eventType] = L"";
                 _sendEventQueue.pop_front();
                 continue;
             }
             else if (FILE_ACTION_MODIFIED == firstAction)
             {
-                _fileEventTable[firstInfo.FileId].EventType |= Flag::FILE_EVENT_ACTION_MODIFIED;
-                _fileEventTable[firstInfo.FileId].LParam = firstInfo.FilePath.generic_wstring();
+                DWORD eventType = Flag::FILE_EVENT_ACTION_MODIFIED;
+                _fileEventTable[firstInfo.FileId].EventType |= eventType;
+                _fileEventTable[firstInfo.FileId].LParamTable[eventType] = firstInfo.FilePath.generic_wstring();
+                _fileEventTable[firstInfo.FileId].RParamTable[eventType] = L"";
                 _sendEventQueue.pop_front();
                 continue;
             }
@@ -340,9 +350,9 @@ namespace File
     {
         const auto& [lParam, rParam, event, info] = data;
         wstr += L"(LParam: ";
-        wstr += lParam.wstring();
+        wstr += data.GetLParam(event).wstring();
         wstr += L", RParam: ";
-        wstr += rParam.wstring();
+        wstr += data.GetRParam(event).wstring();
         wstr += L", EventType: ";
         if (event & Flag::FILE_EVENT_ACTION_RENAMED)
         {
@@ -379,5 +389,21 @@ namespace File
             OutputLog(L"FileEventObserver send file event " + wstr);
         }
 #endif
+    }
+    const File::Path& FileEventData::GetLParam(Flag::EventAction action) const
+    {
+        auto itr = LParamTable.find(action);
+        if (itr != LParamTable.end())
+            return itr->second;
+        else
+            return NULL_PATH;
+    }
+    const File::Path& FileEventData::GetRParam(Flag::EventAction action) const
+    {
+        auto itr = RParamTable.find(action);
+        if (itr != RParamTable.end())
+            return itr->second;
+        else
+            return NULL_PATH;
     }
 } // namespace File
