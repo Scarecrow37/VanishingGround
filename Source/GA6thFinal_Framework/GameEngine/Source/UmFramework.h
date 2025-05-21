@@ -29,28 +29,23 @@ constexpr const wchar_t* ASSET_FOLDER_NAME = L"Assets";
 // 문자열 null을 명시적으로 표시하기 위한 값
 constexpr const char* STR_NULL = "null";
 
-#define DIRECTX_TOOLKIT_IMPORT
-
 //WINDOW SDK
 #include <Windows.h>
 #include <dbghelp.h>
-#include <directx/d3dx12.h>
 #include <dxgi1_4.h>
 #include <dxgi1_6.h>
 #include <d3dcompiler.h>
-
-#include <DirectXMath.h>
-#include <DirectXTex.h>
-#include <directxtk12/SimpleMath.h>
-#include <directxtk12/SpriteBatch.h>
-#include <directxtk12/SpriteFont.h>
-#include <directxtk12/ResourceUploadBatch.h>
 #include <wrl.h>
 
 #pragma comment(lib, "d3d12")
 #pragma comment(lib, "dxgi")
 #pragma comment(lib, "Dbghelp.lib")
 #pragma comment(lib, "d3dcompiler")
+
+#include "directx/d3dx12.h"
+#include "UmDirectxtk12.h"
+#include "UmDirectXTex.h"
+#include "DirectXMath.h"
 
 using namespace DirectX;
 using namespace DirectX::SimpleMath;
@@ -90,11 +85,10 @@ using namespace Microsoft::WRL;
 #include <concurrent_queue.h>
 
 //ThirdParty
-#include <pugixml.hpp>
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
+#include "pugixml/pugixml.hpp"
+#include "UmYaml-cpp.h"
+#include "UmAssimp.h"
 
-#include <assimp/postprocess.h>
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include "Engine/Imgui/imgui.h"
 #include "Engine/Imgui/imgui_stdlib.h"

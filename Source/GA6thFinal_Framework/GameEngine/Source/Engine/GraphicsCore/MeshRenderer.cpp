@@ -2,7 +2,7 @@
 #include "MeshRenderer.h"
 #include "Model.h"
 
-MeshRenderer::MeshRenderer(RENDER_TYPE type, const Matrix& worldMatrix)
+MeshRenderer::MeshRenderer(MESH_RENDER_TYPE type, const Matrix& worldMatrix)
     : _type(type)
     , _worldMatrix(worldMatrix)
 {
