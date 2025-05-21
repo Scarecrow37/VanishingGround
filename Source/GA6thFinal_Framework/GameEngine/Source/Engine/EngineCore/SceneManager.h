@@ -99,7 +99,11 @@ private:
 
     ESceneManager& operator=(const ESceneManager& rhs) = delete;
 
+private:
     void LoadSettingFile();
+
+public:
+    //현재 빌드 설정 파일을 저장합니다.
     void SaveSettingFile() const;
 public:
     /// <summary>

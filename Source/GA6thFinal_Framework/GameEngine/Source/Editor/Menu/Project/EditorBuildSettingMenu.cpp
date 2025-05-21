@@ -73,6 +73,7 @@ void EditorBuildSettingMenu::BuildSettingPopup()
             if (ImGui::Button(path.c_str()))
             {
                 startSceneSetting = path;
+                UmSceneManager.SaveSettingFile();
             }
             const std::string toolTip = std::format("{}{}", path, u8"으로 설정합니다."_c_str);
             ImGuiHelper::HoveredToolTip(toolTip);
