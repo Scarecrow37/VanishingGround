@@ -18,7 +18,7 @@ class EFileSystem
     using ContextSet            = std::unordered_set<std::shared_ptr<File::Context>>;
     using ContextPathTable      = std::unordered_map<File::Path, std::weak_ptr<File::Context>>;
     using ContextGuidTable      = std::unordered_map<File::Guid, std::weak_ptr<File::Context>>;
-    using GuidRefTable          = std::unordered_map<File::Guid, std::weak_ptr<File::Guid>>;
+    using GuidRefTable          = std::unordered_map<File::Guid, std::size_t>;
     using EventSubscriberSet    = std::unordered_set<File::FileEventSubscriber*>;
     using EventSubscriberTable  = std::unordered_map<File::FString, EventSubscriberSet>;
     using CallBackFunc          = std::function<void(const File::FileEventData&)>;
@@ -55,7 +55,6 @@ public:
     bool IsSameContext(std::weak_ptr<File::Context> left, std::weak_ptr<File::Context> right) const;
             
     File::Path                  GetRelativePath(const File::Path& path) const;
-    File::GuidRef               GetGuidRef(const File::Guid guid);
     const GuidRefTable&         GetGuidRefTable() const;
     const EventSubscriberSet&   GetEventSubscribers(const File::FString& ext);
     const File::Path&           GetPathFromGuid(const File::Guid& guid) const;
@@ -116,6 +115,11 @@ public:
     void RegisterFileEventSubscriber(
         File::FileEventSubscriber* subscriber, const std::initializer_list<const char*>& exts = {});
     void UnRegisterFileEventSubscriber(File::FileEventSubscriber* subscriber);
+
+public:
+    void AddGuidRefCount(const File::Guid& guid);
+    void SubGuidRefCount(const File::Guid& guid);
+    std::size_t GetGuidRefCount(const File::Guid& guid) const;
 
 public:
     void Clear();

@@ -315,29 +315,6 @@ File::Path EFileSystem::GetRelativePath(const File::Path& path) const
     return File::NULL_PATH;
 }
 
-File::GuidRef EFileSystem::GetGuidRef(const File::Guid guid)
-{
-    if (NULL_GUID == guid)
-    {
-        return File::GuidRef();
-    }
-    auto itr = _guidToRefTable.find(guid);
-    if (itr != _guidToRefTable.end())
-    {
-        if (true == itr->second.expired())
-        {
-            _guidToRefTable.erase(itr);
-        }
-        else
-        {
-            return itr->second.lock();
-        }
-    }
-    auto spwGuid = std::make_shared<File::Guid>(guid);
-    _guidToRefTable[guid] = spwGuid;
-    return spwGuid;
-}
-
 const EFileSystem::GuidRefTable& EFileSystem::GetGuidRefTable() const
 {
     return _guidToRefTable;
@@ -529,6 +506,58 @@ void EFileSystem::UnRegisterFileEventSubscriber(FileEventSubscriber* subscriber)
     if (itr != _subscriberSet.end())
     {
         _subscriberSet.erase(itr);
+    }
+}
+
+void EFileSystem::AddGuidRefCount(const File::Guid& guid) 
+{
+    if (NULL_GUID == guid)
+    {
+        return;
+    }
+    auto itr = _guidToRefTable.find(guid);
+    if (itr == _guidToRefTable.end())
+    {
+        _guidToRefTable[guid] = 1;
+        return;
+    }
+    else
+    {
+        ++itr->second;
+    }
+}
+
+void EFileSystem::SubGuidRefCount(const File::Guid& guid) 
+{
+    if (NULL_GUID == guid)
+    {
+        return;
+    }
+    auto itr = _guidToRefTable.find(guid);
+    if (itr != _guidToRefTable.end())
+    {
+        --itr->second;
+        if (0 == itr->second)
+        {
+            _guidToRefTable.erase(itr);
+        }
+    }
+}
+
+std::size_t EFileSystem::GetGuidRefCount(const File::Guid& guid) const
+{
+    if (NULL_GUID == guid)
+    {
+        return std::size_t();
+    }
+    auto itr = _guidToRefTable.find(guid);
+    if (itr != _guidToRefTable.end())
+    {
+        return itr->second;
+    }
+    else
+    {
+        return std::size_t();
     }
 }
 
