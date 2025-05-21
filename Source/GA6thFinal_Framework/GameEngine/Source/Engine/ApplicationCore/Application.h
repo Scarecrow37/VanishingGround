@@ -108,7 +108,7 @@ public:
     };
 
 private:
-    static bool ApplicationPump(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+    static bool AppMessageHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 private:
     void Initialize(HINSTANCE hInstance);

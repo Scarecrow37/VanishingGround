@@ -49,7 +49,7 @@ Application::Application()
     }
 }
 
-bool Application::ApplicationPump(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+bool Application::AppMessageHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     if (msg == WM_SIZE)
     {
@@ -80,7 +80,7 @@ void Application::Initialize(HINSTANCE hInstance)
     InitModules();
 
     //기본 메시지 핸들러 등록
-    MessageHandler handle(ApplicationPump, 0);
+    MessageHandler handle(AppMessageHandler, 0);
     AddMessageHandler(handle);
 
     //게임 모드 체크
