@@ -7,13 +7,13 @@ namespace File
     FileSystem에게 Notifier를 등록하면, 해당 관련 이벤트가 발생할 때마다
     해당 이벤트 함수를 호출한다.
     */
-    class FileEventNotifier 
+    class FileEventSubscriber 
         : public Interface::IFileEventProcesser
     {
         friend class EFileSystem;
     public:
-        FileEventNotifier();
-        virtual ~FileEventNotifier();
+        FileEventSubscriber();
+        virtual ~FileEventSubscriber();
 
     public:
         /* 콜백 파일 이벤트. */
@@ -24,10 +24,10 @@ namespace File
         virtual void OnFileRenamed(const Path& oldPath, const Path& newPath)    {}
         virtual void OnFileMoved(const Path& oldPath, const Path& newPath)      {}
         
-        /* 프로젝트 세이브 요청을 처리할 동작을 구현 */
+        /* 프로젝트 세이브 요청을 처리할 동작을 구현 (확장자가 상관 없는 공통 이벤트) */
         virtual void OnRequestedSave()                                          {}
         virtual void OnPostRequestedSave()                                      {}
-        /* 프로젝트 로드 요청을 처리할 동작을 구현 */
+        /* 프로젝트 로드 요청을 처리할 동작을 구현 (확장자가 상관 없는 공통 이벤트) */
         virtual void OnRequestedLoad()                                          {}
         virtual void OnPostRequestedLoad()                                      {}
         /* 인스펙터에 출력 요청을 처리할 동작을 구현 */
@@ -40,6 +40,7 @@ namespace File
         virtual void OnRequestedPaste(const File::Path& path)                   {}
 
     public:
+        /* 대응되는 확장자인지 확인 */
         bool IsTriggerExtension(const File::FString& ext);
         std::vector<FString> GetTriggerExtensions() const;
 

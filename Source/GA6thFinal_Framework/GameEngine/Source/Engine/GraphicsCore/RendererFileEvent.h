@@ -1,7 +1,7 @@
 ﻿#pragma once
-#include "../FileSystem/Extra/FileEventNotifier.h"
+#include "../FileSystem/Event/FileEventSubscriber.h"
 
-class RendererFileEvent : public File::FileEventNotifier
+class RendererFileEvent : public File::FileEventSubscriber
 {
 public:
     RendererFileEvent() = default;

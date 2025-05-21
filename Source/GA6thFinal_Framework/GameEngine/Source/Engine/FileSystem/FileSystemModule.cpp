@@ -25,7 +25,7 @@ void FileSystemModule::ModuleInitialize()
     UmApplication.AddMessageHandler(msgHandler);
     UmFileSystem.ObserverSetUp([this](const Event& event) { RecieveFileEvent(event); });
     auto accessExt = {".txt", ".png", ".dds", ".hdr"};
-    UmFileSystem.RegisterFileEventNotifier(this, accessExt);
+    UmFileSystem.RegisterFileEventSubscriber(this, accessExt);
 }
 
 void FileSystemModule::PreUnInitialize() 
@@ -78,7 +78,7 @@ void FileSystemModule::DispatchFileEvent()
         File::Path lp = (rootPath / lParam).generic_string();
         File::Path rp = (rootPath / rParam).generic_string();
 
-        std::unordered_set<File::FileEventNotifier*> notifiers;
+        std::unordered_set<File::FileEventSubscriber*> notifiers;
 
         if (event & File::Flag::FILE_EVENT_ACTION_RENAMED)
         {

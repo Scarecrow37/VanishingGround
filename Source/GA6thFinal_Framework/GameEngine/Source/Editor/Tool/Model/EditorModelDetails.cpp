@@ -98,8 +98,8 @@ void EditorModelDetails::ImportModel()
 {
     std::vector<File::Path> path;
 
-    if (File::ShowOpenFileBrowser(UmApplication.GetHwnd(), L"Import Model", L"",
-                                  {{L"Model Files (*.fbx;*.UmModel)", L"*.fbx; *.UmModel\0\0"}}, false, path))
+    if (File::ShowOpenFileDialog(UmApplication.GetHwnd(), L"Import Model", L"",
+                                 {{L"Model Files (*.fbx;*.UmModel)", L"*.fbx; *.UmModel\0\0"}}, false, path))
     {
         std::shared_ptr<Model> model = std::make_shared<Model>();
 
@@ -116,7 +116,7 @@ void EditorModelDetails::ExportModel()
 {
     File::Path path;
 
-    if (File::ShowSaveFileBrowser(UmApplication.GetHwnd(), L"Export Model", L"", L"model.UmModel", path))
+    if (File::ShowSaveFileDialog(UmApplication.GetHwnd(), L"Export Model", L"", L"model.UmModel", {}, path))
     {
         FBXConverter& fbxConverter = GetFBXConverter();
         fbxConverter.ExportModel(path);

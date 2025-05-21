@@ -1,22 +1,22 @@
 ﻿#include "pch.h"
-#include "FileEventNotifier.h"
+#include "FileEventSubscriber.h"
 
 namespace File
 {
-    FileEventNotifier::FileEventNotifier()
+    FileEventSubscriber::FileEventSubscriber()
     {
     }
 
-    FileEventNotifier::~FileEventNotifier() 
+    FileEventSubscriber::~FileEventSubscriber() 
     {
     }
 
-    bool FileEventNotifier::IsTriggerExtension(const FString& ext)
+    bool FileEventSubscriber::IsTriggerExtension(const FString& ext)
     {
         return _triggerExtTable.find(ext) != _triggerExtTable.end();
     }
 
-    std::vector<FString> FileEventNotifier::GetTriggerExtensions() const
+    std::vector<FString> FileEventSubscriber::GetTriggerExtensions() const
     {
         std::vector<FString> extensions;
         for (const auto& ext : _triggerExtTable)

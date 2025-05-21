@@ -2,8 +2,8 @@
 
 namespace File
 {
-    class FileEventNotifier;
-    class FileObserver;
+    class FileEventSubscriber;
+    class FileEventObserver;
     class Context;
     class FileContext;
     class FolderContext;
@@ -11,7 +11,7 @@ namespace File
 } // namespace File
 
 class FileSystemModule;
-class SampleFileEventNotifier;
+class SampleFileEventSubscriber;
 
 /*
 FileSystemModule은 파일 시스템을 셋업하고, 비동기적으로 받은 이벤트를
@@ -19,10 +19,10 @@ FileSystemModule은 파일 시스템을 셋업하고, 비동기적으로 받은 
 */
 class FileSystemModule 
     : public IAppModule
-    , public File::FileEventNotifier
+    , public File::FileEventSubscriber
 {
     using Event = File::FileEventData;
-    using NotifierSet = std::unordered_set<File::FileEventNotifier*>;
+    using NotifierSet = std::unordered_set<File::FileEventSubscriber*>;
 
 public:
     FileSystemModule();
