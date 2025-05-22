@@ -88,8 +88,6 @@ namespace Global
      inline void SetDebugMode(bool v) { _isDebug = v; }
      inline bool IsDebugMode() const { return _isDebug; }
 
-     inline bool IsLock() const { return (false == _popupBoxSystem.IsEmpty()); }
-
      inline EditorGuiSystem&        GetDockWindowSystem() { return _guiSystem; }
      inline EditorPopupBoxSystem&   GetPopupBoxSystem() { return _popupBoxSystem; }
      
