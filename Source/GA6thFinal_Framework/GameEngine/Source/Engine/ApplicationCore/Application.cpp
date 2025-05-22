@@ -49,7 +49,7 @@ Application::Application()
     }
 }
 
-bool Application::ApplicationPump(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+bool Application::AppMessageHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     if (msg == WM_SIZE)
     {
@@ -80,7 +80,7 @@ void Application::Initialize(HINSTANCE hInstance)
     InitModules();
 
     //기본 메시지 핸들러 등록
-    MessageHandler handle(ApplicationPump, 0);
+    MessageHandler handle(AppMessageHandler, 0);
     AddMessageHandler(handle);
 
     //게임 모드 체크
@@ -118,27 +118,31 @@ void Application::Run()
         }
         else
         {
+            // Time System Update
             ETimeSystem::Engine::TimeSystemUpdate();
             float deltaTime = engineCore->Time.DeltaTime();
 
+            // Imgui begin
             _imguiDX12Module->ImguiBegin();
-            {
-                if constexpr(true == Application::IsEditor())
-                {
-                    _filesystemModule->Update();
-                    Global::editorModule->Update();
-                }
 
-                // AnimationUpdate
-                Global::engineCore->Graphics.UpdateAnimation(deltaTime);
-                
-                ESceneManager::Engine::SceneUpdate();
-                // CameraUpdate, RenderQueueUpdate, Render
-                Global::engineCore->Graphics.Update();
-                Global::engineCore->Graphics.Render();
-                _imguiDX12Module->ImguiEnd();
-                Global::engineCore->Graphics.Flip();
+            // Editor Update
+            if constexpr (true == Application::IsEditor())
+            {
+                _filesystemModule->Update();
+                Global::editorModule->Update();
             }
+
+            // AnimationUpdate
+            Global::engineCore->Graphics.UpdateAnimation(deltaTime);
+
+            // Scene Logic Update
+            ESceneManager::Engine::SceneUpdate();
+
+            // CameraUpdate, RenderQueueUpdate, Render
+            Global::engineCore->Graphics.Update();
+            Global::engineCore->Graphics.Render();
+            _imguiDX12Module->ImguiEnd();
+            Global::engineCore->Graphics.Flip();
         }
     }
 }
