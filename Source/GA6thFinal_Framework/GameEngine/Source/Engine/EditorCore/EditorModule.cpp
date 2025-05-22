@@ -87,19 +87,16 @@ bool EditorModule::LoadSetting(const File::Path& path)
 
 void EditorModule::Update()
 {
-    bool isLock = IsLock();
-
-    if (true == isLock)
-        ImGui::BeginDisabled();
-
-    /* ========GUI Update======== */ 
     _popupBoxSystem.OnTickGui();
-
     _guiSystem.OnTickGui();
-    _guiSystem.OnDrawGui();
-    /* =========================== */
 
-    if (true == isLock)
+    bool isPopupEmpty = _popupBoxSystem.IsEmpty();
+    if (false == isPopupEmpty)
+        ImGui::BeginDisabled();
+    
+    _guiSystem.OnDrawGui();
+
+    if (false == isPopupEmpty)
         ImGui::EndDisabled();
 
     _popupBoxSystem.OnDrawGui();
