@@ -1369,6 +1369,10 @@ void ESceneManager::SceneResourceManager::RequestModelResource(const MeshCompone
             }
         }
     }
+    else
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, std::format("{}{}", guid.string(), u8"는 존재하지 않는 리소스입니다."_c_str));
+    }
 }
 
 void ESceneManager::SceneResourceManager::ClearModelResource() 
