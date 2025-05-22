@@ -438,6 +438,11 @@ void ESceneManager::CreateEmptySceneAndLoad(std::string_view name, std::string_v
 
 void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
 {
+    if (false == UmComponentFactory.HasScript())
+    {
+        UmComponentFactory.InitalizeComponentFactory();
+    }
+
     Scene* scene = GetSceneByName(sceneName);
     if (scene == nullptr)
     {
