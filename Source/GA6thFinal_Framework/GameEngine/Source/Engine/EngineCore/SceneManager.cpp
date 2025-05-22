@@ -298,14 +298,7 @@ void ESceneManager::Engine::DestroyObject(Component& component)
 
 void ESceneManager::Engine::DestroyObject(GameObject* gameObject)
 {
-    if constexpr (Application::IsEditor())
-    {
-        UmCommandManager.Do<DestroyGameObjectCommand>(gameObject);
-    }
-    else
-    {
-        UmSceneManager.AddDestroyObjectQueue(gameObject);
-    }
+    UmSceneManager.AddDestroyObjectQueue(gameObject);
 }
 
 void ESceneManager::Engine::DestroyObject(GameObject& gameObject)

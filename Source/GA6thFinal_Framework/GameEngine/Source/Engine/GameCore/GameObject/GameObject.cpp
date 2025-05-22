@@ -139,7 +139,14 @@ void GameObject::OnInspectorStay()
             if (selectObject == this)
                 selectObject = nullptr;
 
-            GameObject::Destroy(this);
+            if (false == editorModule->PlayMode.IsPlay())
+            {
+                UmCommandManager.Do<ESceneManager::DestroyGameObjectCommand>(this);
+            }
+            else
+            {
+                GameObject::Destroy(this);
+            }
         }
 
         for (int i = 0; i < _components.size(); i++)
