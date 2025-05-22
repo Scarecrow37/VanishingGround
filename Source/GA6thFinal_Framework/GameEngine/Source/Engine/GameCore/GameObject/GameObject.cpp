@@ -228,7 +228,14 @@ void GameObject::OnInspectorStay()
 
                 if (ImGui::Button("Destroy Component"))
                 {
-                    GameObject::Destroy(component.get());
+                    if (false == editorModule->PlayMode.IsPlay())
+                    {
+                        UmCommandManager.Do<ESceneManager::DestroyComponentCommand>(component.get());
+                    }
+                    else
+                    {
+                        GameObject::Destroy(component.get());
+                    }                 
                 }
                 ImGui::Separator();
             }

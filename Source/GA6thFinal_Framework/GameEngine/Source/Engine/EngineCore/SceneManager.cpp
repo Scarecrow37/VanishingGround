@@ -281,14 +281,7 @@ const std::vector<std::shared_ptr<GameObject>>& ESceneManager::Engine::GetRuntim
 
 void ESceneManager::Engine::DestroyObject(Component* component)
 {
-    if constexpr (Application::IsEditor())
-    {
-        UmCommandManager.Do<DestroyComponentCommand>(component);
-    }
-    else
-    {
-        UmSceneManager.AddDestroyComponentQueue(component);
-    }   
+    UmSceneManager.AddDestroyComponentQueue(component);
 }
 
 void ESceneManager::Engine::DestroyObject(Component& component)
@@ -1363,13 +1356,17 @@ void ESceneManager::SceneResourceManager::Update(SceneResourceManager& manager)
 
 void ESceneManager::SceneResourceManager::RequestModelResource(const MeshComponent* meshComponent, const File::Guid& guid)
 {
-    if (auto sharedPtr = meshComponent->GetWeakPtr().lock())
+    File::Path path = UmFileSystem.GetPathFromGuid(guid);
+    if (false == path.IsNull())
     {
-        if (0 <= sharedPtr->_gameObect->_instanceID)
+        if (auto sharedPtr = meshComponent->GetWeakPtr().lock())
         {
-            std::weak_ptr<MeshComponent> weakPtr = std::static_pointer_cast<MeshComponent>(sharedPtr);
-            auto pair = std::make_pair(weakPtr, guid);
-            _models.ModelLoadQueue.push(pair);
+            if (0 <= sharedPtr->_gameObect->_instanceID)
+            {
+                std::weak_ptr<MeshComponent> weakPtr = std::static_pointer_cast<MeshComponent>(sharedPtr);
+                auto                         pair    = std::make_pair(weakPtr, guid);
+                _models.ModelLoadQueue.push(pair);
+            }
         }
     }
 }
