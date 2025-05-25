@@ -29,15 +29,11 @@ GameApplication::GameApplication()
     if constexpr (Application::IsEditor())
     {
         _windowStyleEX = WS_OVERLAPPEDWINDOW;
+        _editorModule  = AddModule<EditorModule>();
+        BuildRootDock();
+        BuildSceneDock();
+        BuildModelDock();
     }
-
-#ifdef _UMEDITOR
-    // 에디터 매니저 등록
-    _editorModule = AddModule<EditorModule>();
-    BuildRootDock();
-    BuildSceneDock();
-    BuildModelDock();
-#endif // _UMEDITOR
 }
 
 GameApplication::~GameApplication()

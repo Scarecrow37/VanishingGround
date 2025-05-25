@@ -51,14 +51,13 @@ public:
     inline void Quit() { _isQuit = true; }
 
     /// <summary>
-    /// 앱 종료 여부를 확인합니다. 컴포넌트에서는 OnApplicationQuit 함수를
-    /// 호출하기 때문에 사용할 필요 없습니다.
+    /// 앱 종료 여부를 반환합니다. 컴포넌트에서는 OnApplicationQuit 함수를 호출하기 때문에 사용할 필요 없습니다.
     /// </summary>
     /// <returns>isQuit 여부</returns>
     inline bool IsQuit() const { return _isQuit; }
 
     /// <summary>
-    /// 에디터 모드 여부를 확인합니다.
+    /// 에디터 빌드 여부를 반환해줍니다.
     /// </summary>
     inline static constexpr bool IsEditor() 
     { 
@@ -78,8 +77,7 @@ public:
     inline HWND GetHwnd() const { return _hWnd; }
 
     /// <summary>
-    /// 메시지 핸들러를 등록합니다. Application에서 메시지 피크시 핸들러들에게
-    /// 메시지를 전달해줍니다.
+    /// 메시지 핸들러를 등록합니다. Application에서 PeekMessage시 핸들러들에게메시지를 전달해줍니다.
     /// </summary>
     /// <param name="handle :">사용할 핸들러 함수</param>
     /// <param name="messageOrder :">우선순위</param>
@@ -94,6 +92,10 @@ public:
                   });
     }
 
+    /// <summary>
+    /// 클라이언트 실제 영역을 반환합니다.
+    /// </summary>
+    /// <returns></returns>
     inline const SIZE& GetClientSize()
     { 
         return _clientSize;
