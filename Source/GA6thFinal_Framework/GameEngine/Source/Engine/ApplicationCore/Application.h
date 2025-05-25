@@ -33,9 +33,9 @@ public:
     virtual ~Application() = default;
 
 protected:
-    /*모듈 초기화 끝난 후 호출되는 함수*/
+    /*애플리케이션의 Initialize 끝난 후 호출되는 함수입니다.*/
     virtual void OnStartupComplete() {};
-    /*모듈 초기화 해제 끝난 후 호출되는 함수*/
+    /*애플리케이션의 UnInitialize 끝난 후 호출되는 함수입니다.*/
     virtual void OnShutdownComplete() {};
 
 private:
@@ -165,15 +165,14 @@ protected:
     /** 클래스 스타일. Initialize() 실행전에만 적용됩니다.*/
     UINT _winClassStyle = CS_HREDRAW | CS_VREDRAW;
 
-    /** 클라이언트 윈도우 스타일. Initialize() 실행전에만 적용됩니다. 기본값 :
-     * 테두리 없는 창모드*/
+    /** 클라이언트 윈도우 스타일. Initialize() 실행전에만 적용됩니다. 기본값 : 테두리 없는 창모드*/
     DWORD _windowStyleEX = WS_POPUP;
 
     /** 윈도우 클래스 구조체 이름. Initialize() 실행전에만 적용됩니다.*/
     LPCWSTR _winClassName = L"UmrealEngineClass";
 
     /** 윈도우 클라이언트 이름. Initialize() 실행전에만 적용됩니다.*/
-    LPCWSTR _windowName = L"DemoApp";
+    LPCWSTR _windowName = L"Umreal Engine";
 
     /** 클라이언트 사이즈. Initialize() 실행전에만 적용됩니다. 기본 값 : 화면
      * 해상도*/
