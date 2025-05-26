@@ -255,8 +255,7 @@ YAML::Node EComponentFactory::SerializeToYaml(Component* component)
     return MakeYamlToComponent(component);
 }
 
-bool EComponentFactory::AddComponentToYamlLifeCycle(GameObject* ownerObject,
-                                          YAML::Node* componentNode)
+bool EComponentFactory::AddComponentToYamlLifeCycle(GameObject* ownerObject, YAML::Node* componentNode)
 {
     if (UmComponentFactory.HasScript() == false)
     {

@@ -71,7 +71,7 @@ public:
     bool InitalizeComponentFactory();
 
     /// <summary>
-    /// 스크립트 DLL을 언로드합니다.
+    /// 스크립트 DLL을 언로드합니다. 모든 컴포넌트들이 파괴됩니다.
     /// </summary>
     void UninitalizeComponentFactory();
 
