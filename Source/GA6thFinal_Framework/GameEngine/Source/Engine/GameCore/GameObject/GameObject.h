@@ -6,7 +6,7 @@ class Component;
 //Unity GameObject Script https://docs.unity3d.com/6000.0/Documentation/ScriptReference/GameObject.html
 
 //오브젝트 생성용 전역함수
-template<IS_BASE_GAMEOBJECT_C TObject>
+template<IS_BASE_GAMEOBJECT_C TObject = GameObject>
 std::shared_ptr<TObject> NewGameObject(
     std::string_view name)
 {
