@@ -25,9 +25,7 @@ void ParticleEffect::Update(float deltaTime)
 
 }
 
-
-
-void ParticleEffect::AddEmitter(SIZE_T maxParticles /*= 100000*/, float emissionRate /*= 500.f*/,
+ParticleEmitter* ParticleEffect::AddEmitter(SIZE_T maxParticles /*= 100000*/, float emissionRate /*= 500.f*/,
                                 float emitterLifetime /*= 5.f*/, LocationShape locatorShape /*= LocationShape::SPHERE*/,
                                 Vector3 locationFactor /*= Vector3(1, 1, 1)*/)
 {
@@ -35,6 +33,7 @@ void ParticleEffect::AddEmitter(SIZE_T maxParticles /*= 100000*/, float emission
     newEmitter->Initialize(maxParticles, emissionRate, emitterLifetime, locatorShape, locationFactor);
 
     _particleEmitters.push_back(newEmitter);
+    return newEmitter;
 }
 
 void ParticleEffect::RemoveEmitter() {}

@@ -5,27 +5,34 @@
 class ParticleManager
 {
 public:
-    ParticleManager( );
+    ParticleManager();
 
     void Initialize(UINT maxParticles);
-    void RegisterEffect();
+    class ParticleEffect* RegisterEffect();
+    class ParticleEmitter* RegisterEmitter(class ParticleEffect* effect, SIZE_T maxParticles = 100000,
+                                           float emissionRate = 500.f, float emitterLifetime = 5.f,
+                                           LocationShape locatorShape = LocationShape::SPHERE,
+                                           Vector3       locationFactor = Vector3(1, 1, 1));
     void DeleteEffect(UINT);
     void Update(const float deltaTime);
-    
-    //임시 render
+
+    // 임시 render
     void Render();
 
-
     UINT GetTotalCount() const { return _totalCount; }
+    UINT GetMaxCount() const { return _maxParticles; }
+    std::vector<std::shared_ptr<Texture>> GetActiveAlbedos() const { return _activeEmitterAlbedos; }
+    ComPtr<ID3D12Resource>                GetComputeOutputResource() { return _particleOutputBuffer; }
 
 public:
-    void                SetCamera(std::string_view viewName);
+    void SetCamera(std::string_view viewName);
+    void SetCamera(std::shared_ptr<Camera> camera);
 
 
 private:
     void InitializeComputeCommandObject();
     void InitializeRenderCommandList();
-    
+
     void InitializeParticleComputeShader();
     void InitializeParticleComputeRootSignature();
     void InitializeParticleComputePSO();
@@ -40,6 +47,7 @@ private:
     void CreateParticleResources();
     void CreateStructuredBuffer(ComPtr<ID3D12Resource>& resource, ComPtr<ID3D12Resource>& uploadResource,
                                 UINT bufferSize, UINT stride);
+    void CreateStructuredBuffer(ComPtr<ID3D12Resource>& resource, UINT bufferSize, UINT stride);
     void CreateUAVBuffer(ComPtr<ID3D12Resource>& resource, UINT bufferSize, UINT stride);
     void CreateConstantBuffer(ComPtr<ID3D12Resource>& resource, ComPtr<ID3D12Resource>& uploadResource,
                               UINT bufferSize);
@@ -48,8 +56,10 @@ private:
     void DispatchParticleCompute(float deltaTime);
     void UpdateParticleResources(float deltaTime);
 
+    void CopyFromUploadBuffer();
     
-        std::shared_ptr<Camera> _camera;
+    class RenderScene*      _currentRenderscene;
+    std::shared_ptr<Camera> _camera;
 
 
     ComPtr<ID3D12CommandQueue>        _computeQueue;
@@ -86,23 +96,20 @@ private:
     ComPtr<ID3DBlob>            _sortingShaderBlob;
 
 
-    ComPtr<ID3D12CommandAllocator>    _particleCommandAllocator;
-    ComPtr<ID3D12GraphicsCommandList> _particleCommandList;
-
 
     UINT _currentBufferIndex;
     UINT _particleStride;
     UINT _maxParticles;
     UINT _maxEmitters = 100;
 
-    //std::vector<Matrix> _spriteBillboardMatrix;
-    //std::vector<Matrix> _spriteAxialBillboardMatrix;
     //
     UINT _particleEmitterCount = 0;
-    
-    std::vector<class ParticleEffect*> _pariticleEffects;
-    std::vector<class Particle>       _totalParticles;
-    std::vector<EmitterInfo>    _emitterMatrix;
-    UINT                               _totalCount = 0;
 
+    std::vector<class ParticleEffect*> _pariticleEffects;
+    std::vector<class Particle>        _totalParticles;
+    std::vector<EmitterInfo>           _emitterMatrix;
+    std::vector<std::shared_ptr<Texture>> _activeEmitterAlbedos;
+    std::vector<std::shared_ptr<Texture>> _activeEmitterNormals;
+
+    UINT                               _totalCount = 0;
 };

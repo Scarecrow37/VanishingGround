@@ -20,6 +20,13 @@ void GraphicsCore::Initialize(HWND hwnd, UINT width, UINT height, FEATURE_LEVEL 
 
 
     ParticleManager.Initialize(MAX_PARTICLE);
+
+
+    //test
+    auto effect = UmParticleManager.RegisterEffect();
+    UmParticleManager.RegisterEmitter(effect);
+    
+
 }
 
 void GraphicsCore::UpdateAnimation(const float deltaTime) {}

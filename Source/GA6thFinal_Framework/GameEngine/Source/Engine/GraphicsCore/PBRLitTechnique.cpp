@@ -27,6 +27,7 @@ void PBRLitTechnique::Initialize(ID3D12GraphicsCommandList* commandList)
     ComPtr<ID3D12Resource> meshRT = _ownerScene->_meshLightingTarget->GetResource();
     CD3DX12_RESOURCE_BARRIER br     = CD3DX12_RESOURCE_BARRIER::Transition(meshRT.Get(), D3D12_RESOURCE_STATE_COMMON,
                                                                            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+
     commandList->ResourceBarrier(1, &br);
 }
 

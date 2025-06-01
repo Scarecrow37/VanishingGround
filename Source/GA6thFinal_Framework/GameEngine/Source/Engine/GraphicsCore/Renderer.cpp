@@ -10,6 +10,7 @@
 #include "RenderScene.h"
 #include "RendererFileEvent.h"
 #include "SkyBoxRenderTechnique.h"
+#include "ParticleRenderTechnique.h"
 #include "Sphere.h"
 
 Renderer::Renderer() : _currnetState(0), _currentImGuiImageIndex(1) {}
@@ -112,6 +113,18 @@ void Renderer::Initialize()
     std::shared_ptr<PBRLitTechnique> pbrTech = std::make_shared<PBRLitTechnique>();
     editorScene->AddRenderTechnique(pbrTech);
     _renderScenes["Editor"] = editorScene;
+
+    std::shared_ptr<RenderScene> particleScene = std::make_shared<RenderScene>();
+    particleScene->InitializeRenderScene();
+    std::shared_ptr<ParticleRenderTechnique> particleTech = std::make_shared<ParticleRenderTechnique>();
+    particleScene->AddRenderTechnique(particleTech);
+
+
+
+
+    UmParticleManager.SetCamera(particleScene->GetCamera());
+    _renderScenes["Particle"] = particleScene;
+
 
     if constexpr (IS_EDITOR)
     {

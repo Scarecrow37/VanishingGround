@@ -173,6 +173,8 @@ void Device::CreateCommandQueue()
     FAILED_CHECK_BREAK(_device->CreateCommandList(desc.NodeMask, desc.Type, _commandAllocator.Get(), nullptr,
                                                   IID_PPV_ARGS(_commandList.GetAddressOf())));
     _commandList->Close();
+    _commandQueue->SetName(L"GraphicsQueue");
+
 }
 
 void Device::CreateSyncObject()
@@ -291,11 +293,13 @@ void Device::SignalComputeQueue(int fenceSlot)
 void Device::WaitComputeFence(int fenceSlot)
 {
     UINT64 fenceValue = _lastGraphicsFenceValues[fenceSlot];
-    if (_graphicsFences[fenceSlot]->GetCompletedValue() < fenceValue)
-    {
-        _graphicsFences[fenceSlot]->SetEventOnCompletion(fenceValue, _fenceEvent);
-        WaitForSingleObject(_fenceEvent, INFINITE);
-    }
+    _computeCommandQueue->Wait(_graphicsFences[fenceSlot].Get(), fenceValue);
+
+    //if (_graphicsFences[fenceSlot]->GetCompletedValue() < fenceValue)
+    //{
+    //    _graphicsFences[fenceSlot]->SetEventOnCompletion(fenceValue, _fenceEvent);
+    //    WaitForSingleObject(_fenceEvent, INFINITE);
+    //}
 }
 
 void Device::SignalGraphicsQueue(int fenceSlot)
@@ -308,11 +312,12 @@ void Device::SignalGraphicsQueue(int fenceSlot)
 void Device::WaitGraphicsFence(int fenceSlot)
 {
     UINT64 fenceValue = _lastGraphicsFenceValues[fenceSlot];
-    if (_graphicsFences[fenceSlot]->GetCompletedValue() < fenceValue)
-    {
-        _graphicsFences[fenceSlot]->SetEventOnCompletion(fenceValue, _fenceEvent);
-        WaitForSingleObject(_fenceEvent, INFINITE);
-    }
+    _commandQueue->Wait(_graphicsFences[fenceSlot].Get(), fenceValue);
+    //if (_graphicsFences[fenceSlot]->GetCompletedValue() < fenceValue)
+    //{
+    //    _graphicsFences[fenceSlot]->SetEventOnCompletion(fenceValue, _fenceEvent);
+    //    WaitForSingleObject(_fenceEvent, INFINITE);
+    //}
 }
 
 void Device::GPUSync()
@@ -376,14 +381,14 @@ void Device::Execute()
     ExecuteCommand(MESH_COMPUTE_LIST);
     SignalComputeQueue(MESH_COMPUTE_FENCE);
 
-    ExecuteCommand(PARTICLE_COMPUTE_LIST);
-    SignalComputeQueue(PARTICLE_COMPUTE_FENCE);
-
     WaitGraphicsFence(MESH_COMPUTE_FENCE);
     {
         ExecuteCommand(MESH_RENDER_LIST);
         SignalGraphicsQueue(MESH_RENDER_FENCE);
     }
+
+    ExecuteCommand(PARTICLE_COMPUTE_LIST);
+    SignalComputeQueue(PARTICLE_COMPUTE_FENCE);
 
     WaitGraphicsFence(PARTICLE_COMPUTE_FENCE);
     {
@@ -601,4 +606,5 @@ void Device::CreateComputeCommandObject()
         .NodeMask = 0,
     };
     FAILED_CHECK_BREAK(_device->CreateCommandQueue(&desc, IID_PPV_ARGS(_computeCommandQueue.GetAddressOf())));
+    _computeCommandQueue->SetName(L"ComputeQueue");
 }

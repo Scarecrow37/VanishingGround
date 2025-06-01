@@ -103,14 +103,14 @@ DirectX::SimpleMath::Vector4 SpriteModule::GetInitialFrameInfo() const
     return _initialFrameInfo;
 }
 
-Texture* SpriteModule::GetAlbedoTexture() const 
+std::shared_ptr<class Texture> SpriteModule::GetAlbedoTexture() const
 {
-    return _albedoTexture.get();
+    return _albedoTexture;
 }
 
-Texture* SpriteModule::GetNormalTexture() const 
+std::shared_ptr<Texture> SpriteModule::GetNormalTexture() const 
 {
-    return _normalTexture.get();
+    return _normalTexture;
 }
 
 void SpriteModule::CalculateFrameInfos() 
@@ -155,6 +155,32 @@ void ParticleEmitter::Initialize(SIZE_T maxParticles /*= 100000*/, float emissio
         break;
 
     }
+    _locationType = locatorShape;
+    switch (_locationType)
+    {
+    case LocationShape::SPHERE:
+        _emitLocator = new SphereLocator();
+        break;
+    case LocationShape::CUBE:
+        _emitLocator = new CubeLocator();
+        break;
+    case LocationShape::CYLINDER:
+        _emitLocator = new CylinderLocator();
+        break;
+    case LocationShape::TORUS:
+        _emitLocator = new TorusLocator();
+        break;
+
+    case LocationShape::CONE:
+        _emitLocator = new ConeLocator();
+        break;
+    case LocationShape::MESH_SURFACE:
+        _emitLocator = new MeshSurfaceLocator();
+        break;
+    default:
+        _emitLocator = new SphereLocator();
+        break;
+    }
 
     _emitLocator->RandomInitialize();
     _emitLocator->SetFactor(locationFactor);
@@ -163,6 +189,7 @@ void ParticleEmitter::Initialize(SIZE_T maxParticles /*= 100000*/, float emissio
     _particlePool.resize(_maxParticles);
     for (size_t i = 0; i < maxParticles; ++i)
     {
+        _particlePool[i] = new Particle();
         _inactiveParticleIndices.push(i);
     }
 }
@@ -234,6 +261,13 @@ void ParticleEmitter::UpdateParticleLifeCycle(float deltaTime)
 
 void ParticleEmitter::Update(float deltaTime) 
 {
+    _emitterAge += deltaTime;
+    if (_emitterAge >= _emitterLifetime)
+    {
+        _emitterAge = 0;
+        _activeFlag = false;
+        return;
+    }
     _translationMatrix = Matrix::CreateTranslation(_emitterPosition);
     _rotationMatrix    = Matrix::CreateFromQuaternion(_emitterRotation);
     _worldMatrix       = _rotationMatrix * _translationMatrix * _effectWorldMatrix;

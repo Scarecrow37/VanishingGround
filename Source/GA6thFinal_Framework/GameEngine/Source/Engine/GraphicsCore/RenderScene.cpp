@@ -196,6 +196,8 @@ void RenderScene::CreateRenderTarget()
     _meshLightingTarget = std::make_shared<RenderTarget>();
     _meshLightingTarget->Initialize(DXGI_FORMAT_R32G32B32A32_FLOAT, 0.247f);
     _meshLightingTarget->CreateShaderResourceView();
+    //test
+    _meshLightingTarget->GetResource()->SetName(L"meshLightingTarget");
 }
 
 void RenderScene::CreateDepthStencil() 

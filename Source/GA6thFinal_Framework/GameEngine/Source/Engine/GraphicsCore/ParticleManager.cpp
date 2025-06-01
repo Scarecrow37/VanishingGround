@@ -3,9 +3,16 @@
 #include "ParticleEffect.h"
 #include "ParticleManager.h"
 
+
+
 void ParticleManager::SetCamera(std::string_view viewName) 
 {
     _camera = UmRenderer.GetCamera(viewName);
+}
+
+void ParticleManager::SetCamera(std::shared_ptr<Camera> camera) 
+{
+    _camera = camera;
 }
 
 ParticleManager::ParticleManager()
@@ -19,7 +26,6 @@ void ParticleManager::Initialize(UINT maxParticles)
     _currentBufferIndex = 0;
     _particleStride     = sizeof(Particle);
     _maxParticles = maxParticles;
-     InitializeRenderCommandList();
      InitializeComputeCommandObject();
      InitializeParticleComputeShader();
      InitializeParticleComputeRootSignature();
@@ -31,12 +37,24 @@ void ParticleManager::Initialize(UINT maxParticles)
      
  }
 
-void ParticleManager::RegisterEffect() 
+ParticleEffect* ParticleManager::RegisterEffect() 
 {
-
+    auto newEffect = new ParticleEffect();
+    newEffect->Initialize(this);
+    _pariticleEffects.push_back(newEffect);
+    return newEffect;
 }
 
- void ParticleManager::Update(const float deltaTime)
+ParticleEmitter* ParticleManager::RegisterEmitter(class ParticleEffect* effect, SIZE_T maxParticles /*= 100000*/,
+                                                  float emissionRate /*= 500.f*/, float emitterLifetime /*= 5.f*/,
+                                                  LocationShape locatorShape /*= LocationShape::SPHERE*/,
+                                                  Vector3       locationFactor /*= Vector3(1, 1, 1)*/)
+{
+    auto newEmitter = effect->AddEmitter(maxParticles, emissionRate, emitterLifetime, locatorShape, locationFactor);
+    return newEmitter;
+}
+
+void ParticleManager::Update(const float deltaTime)
 {
     for (auto effect : _pariticleEffects)
     {
@@ -44,6 +62,7 @@ void ParticleManager::RegisterEffect()
     }
     _totalParticles.clear();
     _emitterMatrix.clear();
+    _activeEmitterAlbedos.clear();
     UINT emitterIndex = 0;
     for (auto effect : _pariticleEffects)
     {
@@ -53,6 +72,11 @@ void ParticleManager::RegisterEffect()
             {
                 if (true == emitter->GetActiveFlag())
                 {
+                    if (ParticleType::SPRITE == emitter->_particleType)
+                    {
+                        _activeEmitterAlbedos.push_back(static_cast<SpriteModule*>(emitter->_particleRenderModule)->GetAlbedoTexture());
+                        //_activeEmitterNormals.push_back(static_cast<SpriteModule*>(emitter->_particleRenderModule)->GetNormalTexture());
+                    }
                     _emitterMatrix.push_back({emitter->GetWorldMatrix()});
                     for (int i = 0; i < emitter->GetActiveParticleCount(); i++)
                     {
@@ -103,14 +127,7 @@ void ParticleManager::InitializeComputeCommandObject()
 
     _computeCommandList->Close();
 }
-void ParticleManager::InitializeRenderCommandList()
-{
-    FAILED_CHECK_BREAK(UmDevice.GetDevice()->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT,
-                                                       IID_PPV_ARGS(_particleCommandAllocator.GetAddressOf())));
-    FAILED_CHECK_BREAK(UmDevice.GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, _particleCommandAllocator.Get(),
-                                                  nullptr, IID_PPV_ARGS(_particleCommandList.GetAddressOf())));
-    _particleCommandList->Close();
-}
+
 
 void ParticleManager::InitializeParticleComputeShader()
 {
@@ -480,7 +497,7 @@ void ParticleManager::CreateParticleResources()
     // 3. 파티클 출력 버퍼 (UAV - u0)
     UINT particleOutputSize = _maxParticles * sizeof(ParticleOutput);
     CreateUAVBuffer(_particleOutputBuffer, particleOutputSize, sizeof(ParticleOutput));
-
+    _particleOutputBuffer->SetName(L"particle output");
     // 4. MVP 상수 버퍼 (CBV - b0)
     UINT mvpConstantSize = BYTEALIGN(sizeof(MVPConstants), 256); // 256바이트 정렬
     CreateConstantBuffer(_mvpConstantBuffer, _mvpUploadBuffer, mvpConstantSize);
@@ -505,6 +522,20 @@ void ParticleManager::CreateStructuredBuffer(ComPtr<ID3D12Resource>& resource, C
     FAILED_CHECK_BREAK(UmDevice.GetDevice()->CreateCommittedResource(&uploadProperty, D3D12_HEAP_FLAG_NONE, &bufferDesc,
                                                                      D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
                                                                      IID_PPV_ARGS(&uploadResource)));
+
+
+}
+
+void ParticleManager::CreateStructuredBuffer(ComPtr<ID3D12Resource>& resource, UINT bufferSize, UINT stride) 
+{
+   //uav로 쓰고 srv로 읽기용
+    D3D12_RESOURCE_DESC bufferDesc      = CD3DX12_RESOURCE_DESC::Buffer(bufferSize);
+    auto                defaultProperty = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+    FAILED_CHECK_BREAK(UmDevice.GetDevice()->CreateCommittedResource(&defaultProperty, D3D12_HEAP_FLAG_NONE,
+                                                                     &bufferDesc, D3D12_RESOURCE_STATE_COMMON, nullptr,
+                                                                     IID_PPV_ARGS(&resource)));
+
+
 
 
 }
@@ -598,10 +629,13 @@ void ParticleManager::DispatchParticleCompute(float deltaTime)
 
 
     //upload buffer -> default buf
+ 
 
+    CopyFromUploadBuffer();
 
-
-
+    CD3DX12_RESOURCE_BARRIER computeOutputBarrior = CD3DX12_RESOURCE_BARRIER::Transition(
+        _particleOutputBuffer.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+    _computeCommandList->ResourceBarrier(1, &computeOutputBarrior);
 
     // 3. 디스크립터 힙 설정
     ID3D12DescriptorHeap* heaps[] = {_cbvSrvUavHeap.Get()};
@@ -629,6 +663,13 @@ void ParticleManager::DispatchParticleCompute(float deltaTime)
     // 6. 디스패치
     UINT numThreadGroups = (_totalParticles.size() + 31) / 32; // 32개 스레드 그룹으로 나누기
     _computeCommandList->Dispatch(numThreadGroups, 1, 1);
+
+        computeOutputBarrior = CD3DX12_RESOURCE_BARRIER::Transition(
+        _particleOutputBuffer.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COMMON);
+    _computeCommandList->ResourceBarrier(1, &computeOutputBarrior);
+
+
+
 
     // 7. 커맨드 리스트 종료 및 실행
     _computeCommandList->Close();
@@ -663,5 +704,38 @@ void ParticleManager::UpdateParticleResources(float deltaTime)
     _mvpConstantBuffer->Map(0, nullptr, &mappedData);
     memcpy(mappedData, &mvpConstants, sizeof(MVPConstants));
     _mvpConstantBuffer->Unmap(0, nullptr);
+}
+
+void ParticleManager::CopyFromUploadBuffer() 
+{
+    // 3-1. 리소스 상태 전이 (COMMON → COPY_DEST)
+
+    CD3DX12_RESOURCE_BARRIER preCopyBarriers[] = {
+        CD3DX12_RESOURCE_BARRIER::Transition(_particleInputBuffer.Get(), D3D12_RESOURCE_STATE_COMMON,
+                                             D3D12_RESOURCE_STATE_COPY_DEST),
+        CD3DX12_RESOURCE_BARRIER::Transition(_emitterInfoBuffer.Get(), D3D12_RESOURCE_STATE_COMMON,
+                                             D3D12_RESOURCE_STATE_COPY_DEST)};
+    _computeCommandList->ResourceBarrier(_countof(preCopyBarriers), preCopyBarriers);
+
+    // 3-2. 버퍼 복사 명령
+    UINT64 particleDataSize = _totalParticles.size() * sizeof(Particle);
+    _computeCommandList->CopyBufferRegion(_particleInputBuffer.Get(),       // Dest
+                                          0,                                // DestOffset
+                                          _particleInputUploadBuffer.Get(), // Src
+                                          0,                                // SrcOffset
+                                          particleDataSize                  // NumBytes
+    );
+
+    UINT64 emitterDataSize = _emitterMatrix.size() * sizeof(EmitterInfo);
+    _computeCommandList->CopyBufferRegion(_emitterInfoBuffer.Get(), 0, _emitterInfoUploadBuffer.Get(), 0,
+                                          emitterDataSize);
+
+    // 3-3. 리소스 상태 전이 (COPY_DEST → SRV)
+    CD3DX12_RESOURCE_BARRIER postCopyBarriers[] = {
+        CD3DX12_RESOURCE_BARRIER::Transition(_particleInputBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST,
+                                             D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE),
+        CD3DX12_RESOURCE_BARRIER::Transition(_emitterInfoBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST,
+                                             D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE)};
+    _computeCommandList->ResourceBarrier(_countof(postCopyBarriers), postCopyBarriers);
 }
 

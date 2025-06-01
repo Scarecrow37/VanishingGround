@@ -14,6 +14,7 @@ public:
 public:
     void Initialize(const VIBuffer::Descriptor& descriptor);
     void Render(ID3D12GraphicsCommandList* commandList);
+    void Render(ID3D12GraphicsCommandList* commandList , UINT instanceCount);
 
 private:
     std::string               _name;

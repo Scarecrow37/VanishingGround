@@ -109,7 +109,7 @@ void GBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
     //DrawStaticMeshes(commandList, _ownerScene->_staticOneSidedMeshes);
 
     //commandList->SetGraphicsRootConstantBufferView(_shaders[MeshType::SKELTAL]->GetRootSignatureIndex("cameraData"),
-    //                                               _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
+    //                                                          _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
 
     //commandList->SetGraphicsRootDescriptorTable(_shaders[MeshType::SKELTAL]->GetRootSignatureIndex("objectData"),
     //                                            objectData);

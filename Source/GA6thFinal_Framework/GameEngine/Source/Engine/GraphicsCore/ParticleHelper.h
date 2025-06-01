@@ -55,6 +55,8 @@ struct ParticleOutput
     Matrix FinalMatrix;
     Vector4   Color;
     Vector4   FrameInfo;
+    int      EmitterIndex;
+    Vector3   paddings;
 };
 
 struct EmitterInfo
@@ -70,4 +72,19 @@ struct MVPConstants
     Vector4 CameraPos;
     float   deltaTime;
     float   padding[3]; // 16바이트 정렬 유지
+};
+enum class LocationShape
+{
+    SPHERE,
+    CUBE,
+    CYLINDER,
+    CONE,
+    TORUS,
+    MESH_SURFACE
+};
+enum class ParticleType
+{
+    SPRITE,
+    MESH,
+    RIBBON
 };

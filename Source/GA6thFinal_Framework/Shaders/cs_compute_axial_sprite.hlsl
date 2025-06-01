@@ -44,6 +44,9 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
     
     // 5. 최종 행렬 계산
     ParticleOutput output;
+    output.paddings = (float3) 0;
+    output.EmitterIndex = input.emitterIndex;
+
     output.FinalMatrix = mul(mul(mul(scaleMat, billboardMat), ViewMatrix), ProjMatrix);
     
     // 6. 색상 보간

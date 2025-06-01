@@ -296,6 +296,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Engine\GraphicsCore\ParticleSpritePass.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\ParticleRenderTechnique.h" />
     <ClInclude Include="Source\Editor\Menu\Model\EditorModelMenu.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\SkyBoxPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\SkyBoxRenderTechnique.h" />
@@ -467,6 +469,8 @@
     <ClInclude Include="ThirdParty\include\UmYaml-cpp.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Engine\GraphicsCore\ParticleSpritePass.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\ParticleRenderTechnique.cpp" />
     <ClCompile Include="Source\Editor\Menu\Model\EditorModelMenu.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\SkyBoxPass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\SkyBoxRenderTechnique.cpp" />

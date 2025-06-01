@@ -20,7 +20,7 @@ struct ParticleInput
     float3 velocity;
     int emitterIndex;
     
-    float2 scale;
+    float4 scale;
     float lifetime;
     float mass;
     float2 paddings;
@@ -33,6 +33,8 @@ struct ParticleOutput
     float4x4 FinalMatrix;
     float4 Color;
     float4 FrameInfo;
+    int EmitterIndex;
+    float3 paddings;
     
 };
 

@@ -1,21 +1,7 @@
 ﻿#pragma once
 #include "ParticleHelper.h"
 
-enum class LocationShape
-{
-    SPHERE,
-    CUBE,
-    CYLINDER,
-    CONE,
-    TORUS,
-    MESH_SURFACE
-};
-enum class ParticleType
-{
-    SPRITE,
-    MESH,
-    RIBBON
-};
+
 class EmitLocator
 {
 public:
@@ -26,7 +12,7 @@ public:
     std::function<float()>                _randomVal;
 
 protected:
-    Vector3                               _factor;
+    Vector3                               _factor = {100, 100, 100};
     std::random_device                    _randomizer;
     std::mt19937                          _randomGenerator;
     std::uniform_real_distribution<float> _randomRange;
@@ -92,8 +78,8 @@ public:
     void           LoadNormalTexture(std::wstring filePath);
 
     Vector4        GetInitialFrameInfo() const;
-    class Texture* GetAlbedoTexture() const;
-    class Texture* GetNormalTexture() const;
+    std::shared_ptr<class Texture> GetAlbedoTexture() const;
+    std::shared_ptr<class Texture> GetNormalTexture() const;
 
 protected:
     Vector4                        _initialFrameInfo;
@@ -122,9 +108,11 @@ class ParticleEmitter
 public:
     ParticleType          _particleType;
     ParticleRenderModule* _particleRenderModule;
-    EmitLocator* _emitLocator;
+    LocationShape         _locationType;
+    EmitLocator*          _emitLocator;
     void Initialize(SIZE_T maxParticles = 100000, float emissionRate = 500.f, float emitterLifetime = 5.f,
-                    LocationShape locatorShape = LocationShape::SPHERE, Vector3 locationFactor = Vector3(1,1,1),ParticleType particleType = ParticleType::SPRITE);
+                    LocationShape locatorShape = LocationShape::SPHERE, Vector3 locationFactor = Vector3(1, 1, 1),
+                    ParticleType particleType = ParticleType::SPRITE);
     void AwakeParticle(UINT index);
     void UpdateParticleLifeCycle(float deltaTime);
 
