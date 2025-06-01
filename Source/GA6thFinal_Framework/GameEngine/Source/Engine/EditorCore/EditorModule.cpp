@@ -25,7 +25,7 @@ void EditorModule::ModuleInitialize()
     _popupBoxSystem.OnStartGui();
     _guiSystem.OnStartGui();
 
-    UmFileSystem.RegisterFileEventNotifier(this);
+    UmFileSystem.RegisterFileEventSubscriber(this);
 }
 
 void EditorModule::PreUnInitialize() 

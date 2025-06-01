@@ -106,6 +106,10 @@ public:
         static void UnInitialize();
         static void Run();
     };
+
+private:
+    static bool AppMessageHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
 private:
     void Initialize(HINSTANCE hInstance);
     void UnInitialize();

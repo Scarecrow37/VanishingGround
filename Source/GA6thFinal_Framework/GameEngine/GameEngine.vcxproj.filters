@@ -270,16 +270,13 @@
     <ClInclude Include="Source\Editor\Menu\Window\EditorWindowMenu.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\FileSystem\Extra\FileObserver.h">
+    <ClInclude Include="Source\Engine\FileSystem\Event\FileEventObserver.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\FileSystem\System\FileSystem.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\FileSystem\Extra\FileContext.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\FileSystem\Extra\FileEventNotifier.h">
+    <ClInclude Include="Source\Engine\FileSystem\Context\FileContext.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\FileSystem\Interface\IFileEventProcesser.h">
@@ -579,6 +576,27 @@
     <ClInclude Include="Source\Engine\GraphicsCore\SkyBoxPass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="ThirdParty\include\pugixml\pugiconfig.hpp">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\include\pugixml\pugixml.hpp">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\include\UmAssimp.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\include\UmDirectXTex.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\include\UmDirectxtk12.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\include\UmYaml-cpp.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\FileSystem\Event\FileEventSubscriber.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Engine\GraphicsCore\ParticleEffect.h">
       <Filter>GraphicsCore\ParticleCore</Filter>
     </ClInclude>
@@ -737,16 +755,13 @@
     <ClCompile Include="Source\Editor\Menu\Window\EditorWindowMenu.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\FileSystem\Extra\FileObserver.cpp">
+    <ClCompile Include="Source\Engine\FileSystem\Event\FileEventObserver.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\FileSystem\System\FileSystem.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\FileSystem\Extra\FileContext.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\FileSystem\Extra\FileEventNotifier.cpp">
+    <ClCompile Include="Source\Engine\FileSystem\Context\FileContext.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\FileSystem\Interface\IFileEventProcesser.cpp">
@@ -993,6 +1008,36 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\SkyBoxPass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Menu\Model\EditorModelMenu.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\Model\EditorModelDetails.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\Model\EditorModelHierarchy.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\FBXConverter.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\M_PBR.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\include\pugixml\pugixml.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\include\yyjson.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\include\reflectcpp_yaml.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\include\reflectcpp_json.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\include\reflectcpp.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\ParticleEffect.cpp">

@@ -71,7 +71,7 @@ void ESceneManager::SaveSettingFile() const
 void ESceneManager::Engine::RegisterFileEvents()
 {
     //파일 관리자 등록
-    UmFileSystem.RegisterFileEventNotifier(&UmSceneManager, {SCENE_EXTENSION});
+    UmFileSystem.RegisterFileEventSubscriber(&UmSceneManager, {SCENE_EXTENSION});
 }
 
 void ESceneManager::Engine::CleanupSceneManager()
@@ -281,14 +281,7 @@ const std::vector<std::shared_ptr<GameObject>>& ESceneManager::Engine::GetRuntim
 
 void ESceneManager::Engine::DestroyObject(Component* component)
 {
-    if constexpr (Application::IsEditor())
-    {
-        UmCommandManager.Do<DestroyComponentCommand>(component);
-    }
-    else
-    {
-        UmSceneManager.AddDestroyComponentQueue(component);
-    }   
+    UmSceneManager.AddDestroyComponentQueue(component);
 }
 
 void ESceneManager::Engine::DestroyObject(Component& component)
@@ -298,14 +291,7 @@ void ESceneManager::Engine::DestroyObject(Component& component)
 
 void ESceneManager::Engine::DestroyObject(GameObject* gameObject)
 {
-    if constexpr (Application::IsEditor())
-    {
-        UmCommandManager.Do<DestroyGameObjectCommand>(gameObject);
-    }
-    else
-    {
-        UmSceneManager.AddDestroyObjectQueue(gameObject);
-    }
+    UmSceneManager.AddDestroyObjectQueue(gameObject);
 }
 
 void ESceneManager::Engine::DestroyObject(GameObject& gameObject)
@@ -445,6 +431,11 @@ void ESceneManager::CreateEmptySceneAndLoad(std::string_view name, std::string_v
 
 void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
 {
+    if (false == UmComponentFactory.HasScript())
+    {
+        UmComponentFactory.InitalizeComponentFactory();
+    }
+
     Scene* scene = GetSceneByName(sceneName);
     if (scene == nullptr)
     {
@@ -473,6 +464,7 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
         _addGameObjectsQueue.clear();
         _lodedSceneList.clear();
         UmCommandManager.Clear();
+        SetRendererSkyBox(scene);
     }
     else
     {
@@ -934,6 +926,48 @@ void ESceneManager::SetObjectOwnerScene(GameObject* object, std::string_view sce
     object->_ownerScene = sceneName;
 }
 
+void ESceneManager::SetRendererSkyBox(Scene* scene) 
+{
+    // 스카이 박스 로드
+    if (STR_NULL != scene->_skyBox)
+    {
+        bool loadSkyBox = false;
+        if (STR_NULL != _prevScene)
+        {
+            File::Guid prevGuid = UmFileSystem.GetGuidFromPath(_prevScene);
+            if (false == prevGuid.IsNull())
+            {
+                Scene& prevSccene = _scenesMap[prevGuid];
+                if (prevSccene._skyBox != scene->_skyBox)
+                {
+                    loadSkyBox = true;
+                }
+            }
+            else
+            {
+                loadSkyBox = true;
+            }
+        }
+        else
+        {
+            loadSkyBox = true;
+        }
+
+        if (loadSkyBox)
+        {
+            File::Path path = scene->_skyBox.ToPath();
+            if (false == path.IsNull())
+            {
+                UmRenderer.SetSkyBox(path.string());
+            }
+        }
+    }
+    else
+    {
+        UmRenderer.ResetSkyBox();
+    }
+}
+
 void ESceneManager::AddDestroyObjectQueue(GameObject* gameObject) 
 {
     auto& [set, vec] = engineCore->SceneManager._destroyObjectsQueue;
@@ -983,49 +1017,11 @@ bool ESceneManager::DeserializeToYaml(YAML::Node* _sceneNode)
         return false;
     }
 
-    bool isMainScene = _lodedSceneList.empty();
     YAML::Node& sceneNode = *_sceneNode;
     int SerializeVersion = sceneNode["SerializeVersion"].as<int>();
     File::Guid Guid = sceneNode["Guid"].as<std::string>();
     Scene& scene = _scenesMap[Guid];
 
-    if (true == isMainScene)
-    {
-        bool loadSkyBox = false;
-        if (STR_NULL != scene._skyBox)
-        {
-            if (STR_NULL != _prevScene)
-            {
-                File::Guid prevGuid = UmFileSystem.GetGuidFromPath(_prevScene);
-                if (false == prevGuid.IsNull())
-                {
-                    Scene& prevSccene = _scenesMap[prevGuid];
-                    if (prevSccene._skyBox != scene._skyBox)
-                    {
-                        loadSkyBox = true;
-                    }
-                }
-                else
-                {
-                    loadSkyBox = true;
-                }
-            }
-            else
-            {
-                loadSkyBox = true;
-            }            
-        }
-        else
-        {
-            UmRenderer.ResetSkyBox();
-        }
-
-        if (loadSkyBox)
-        {
-            UmRenderer.SetSkyBox(scene._skyBox.ToPath().string());
-        }
-    }
-    
     YAML::Node rootObjects = sceneNode["GameObjects"].as<YAML::Node>();
     for (auto object : rootObjects)
     {
@@ -1092,6 +1088,8 @@ bool ESceneManager::SetSkyBox(const File::Path& path)
 
     Engine::SetSceneSkyBoxGuid(*mainScene, guid);
     UmRenderer.SetSkyBox(path.string());
+
+    return true;
 }
 
 bool ESceneManager::WriteUmSceneFile(Scene& scene, std::string_view sceneName, std::string_view outPath, bool isOverride)
@@ -1358,14 +1356,22 @@ void ESceneManager::SceneResourceManager::Update(SceneResourceManager& manager)
 
 void ESceneManager::SceneResourceManager::RequestModelResource(const MeshComponent* meshComponent, const File::Guid& guid)
 {
-    if (auto sharedPtr = meshComponent->GetWeakPtr().lock())
+    File::Path path = UmFileSystem.GetPathFromGuid(guid);
+    if (false == path.IsNull())
     {
-        if (0 <= sharedPtr->_gameObect->_instanceID)
+        if (auto sharedPtr = meshComponent->GetWeakPtr().lock())
         {
-            std::weak_ptr<MeshComponent> weakPtr = std::static_pointer_cast<MeshComponent>(sharedPtr);
-            auto pair = std::make_pair(weakPtr, guid);
-            _models.ModelLoadQueue.push(pair);
+            if (0 <= sharedPtr->_gameObect->_instanceID)
+            {
+                std::weak_ptr<MeshComponent> weakPtr = std::static_pointer_cast<MeshComponent>(sharedPtr);
+                auto                         pair    = std::make_pair(weakPtr, guid);
+                _models.ModelLoadQueue.push(pair);
+            }
         }
+    }
+    else
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, std::format("{}{}", guid.string(), u8"는 존재하지 않는 리소스입니다."_c_str));
     }
 }
 

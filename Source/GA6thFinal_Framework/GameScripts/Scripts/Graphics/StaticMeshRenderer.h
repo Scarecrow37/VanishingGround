@@ -13,20 +13,13 @@ public:
 public:
     REFLECT_PROPERTY(FilePath)
     GETTER_ONLY(std::string, FilePath)
-    {
-        if (nullptr != _guidRef)
-        {
-            return _guidRef->ToPath().string();
-        }
-        else
-        {
-            return File::NULL_PATH.string();
-        }
+    { 
+        return _guidRef.ToPath().string();
     }
     PROPERTY(FilePath)
 
 public:
-    std::shared_ptr<File::Guid> _guidRef;
+    File::GuidRef _guidRef;
 
     REFLECT_FIELDS_BEGIN(Component)
     std::string Guid;

@@ -1,0 +1,417 @@
+﻿#include "pch.h"
+#include "FileEventObserver.h"
+
+namespace File
+{
+    FileEventObserver::FileEventObserver() 
+        : _isStart(false), _isObserving(false), _request(false),
+          _recievedBytes({}), _bytesReturned(0), _hDirectory(NULL),
+          _overlapped({})
+    {
+    }
+
+    FileEventObserver::~FileEventObserver() 
+    {
+        Stop();
+    }
+
+    void FileEventObserver::SetCallbackFunc(const CallBackFunc& callback) 
+    {
+        _eventCallback = callback;
+    }
+
+    void FileEventObserver::SetObservingPath(const Path& path)
+    {
+        _path = path;
+    }
+
+    bool FileEventObserver::Start()
+    {
+        if (false == fs::exists(_path))
+            return false;
+
+        if (nullptr == _eventCallback)
+            return false;
+
+        Stop();
+
+        if (false == _isStart)
+        {
+            _isStart = true;
+            SetHandles();
+            SetThread();
+            OutputLog(L"FileEventObserver thread is Start");
+            return true;
+        }
+        return false;
+    }
+
+    void FileEventObserver::Stop()
+    {
+        if (true == _isStart)
+        {
+            _isStart = false;
+            if (true == _eventProcessingThread.joinable())
+            {
+                _eventProcessingThread.join();
+            }
+            if (true == _eventObservingThread.joinable())
+            {
+                _eventObservingThread.join();
+            }
+            if (TRUE == CloseHandle(_hDirectory))
+            {
+                _hDirectory = NULL;
+            }
+            OutputLog(L"FileEventObserver thread is joined");
+        }
+    }
+
+    void FileEventObserver::SetHandles()
+    {
+        if (true == std::filesystem::exists(_path) &&
+            true == std::filesystem::is_directory(_path))
+        {
+            auto fileInfo = GetFileAttributesW(_path.c_str());
+            if (INVALID_FILE_ATTRIBUTES == fileInfo)
+            {
+                throw std::system_error(GetLastError(), std::system_category());
+            }
+            // 디렉터리 핸들을 비동기 모드로 가져온다.
+            _hDirectory = CreateFile(
+                _path.c_str(),                                          // 감시할 디렉토리 경로
+                FILE_LIST_DIRECTORY,                                    // 디렉토리 목록 조회 권한
+                FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, // 공유 가능
+                nullptr,                                                // 보안 속성 없음
+                OPEN_EXISTING,                                          // 기존에 존재해야 함
+                FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED,      // 디렉토리 열기 허용 + 비동기 IO
+                HANDLE(0));                                             // 템플릿 파일 없음
+
+            if (INVALID_HANDLE_VALUE == _hDirectory)
+            {
+                ThrowSystemError();
+            }
+        }
+    }
+
+    void FileEventObserver::SetThread()
+    {
+        // 스레드 초기화
+        _eventProcessingThread = std::thread([this]() {
+            try
+            {
+                EventProcessingThread();
+            }
+            catch (...)
+            {
+            }
+        });
+
+        _eventObservingThread = std::thread([this]() {
+            try
+            {
+                EventObservingThread();
+            }
+            catch (...)
+            {
+            }
+        });
+    }
+
+    void FileEventObserver::EventProcessingThread()
+    {
+        while (true == _isStart)
+        {
+            std::unique_lock<std::mutex> lock(_mutex);
+            // 콜백 정보들이 없거나 destroy가 false일 경우 대기
+            if (_recievedEventQueue.empty() && true == _isObserving)
+            {
+                // 옵저빙 스레드에서 notify_all이 호출되면 대기 해제
+                _cv.wait(lock, [this] { return _recievedEventQueue.size() > 0 || false == _isObserving; });
+            }
+            // 콜백 정보를 이동 후 락 해제
+            std::swap(_sendEventQueue, _recievedEventQueue);
+            lock.unlock();
+
+            CheckEvent();
+
+            ProcessEvent();
+        }
+    }
+
+    void FileEventObserver::CheckEvent()
+    {
+        for (auto& [action, info] : _sendEventQueue)
+        {
+            auto itr = _fileEventTable.find(info.FileId);
+            if (itr == _fileEventTable.end())
+            {
+                _fileEventTable[info.FileId] = {{}, {}, Flag::FILE_EVENT_ACTION_UNKNOWN, info};
+            }
+        }
+
+        while (false == _sendEventQueue.empty())
+        {
+            auto& [firstAction, firstInfo] = _sendEventQueue[0];
+
+            if (_sendEventQueue.size() >= 2)
+            {
+                auto& [secondAction, secondInfo] = _sendEventQueue[1];
+
+                bool checkFile = firstInfo.FileId == secondInfo.FileId;
+
+                if (true == checkFile)
+                {
+                    // 이동 (현재 인덱스: removed, 다음 인덱스: added)
+                    if (FILE_ACTION_REMOVED == firstAction &&
+                        FILE_ACTION_ADDED == secondAction)
+                    {
+                        DWORD eventType = Flag::FILE_EVENT_ACTION_MOVED;
+                        _fileEventTable[firstInfo.FileId].EventType |= eventType;
+                        _fileEventTable[firstInfo.FileId].LParamTable[eventType] = firstInfo.FilePath.generic_wstring();
+                        _fileEventTable[firstInfo.FileId].RParamTable[eventType] = secondInfo.FilePath.generic_wstring();
+                        _sendEventQueue.pop_front();
+                        _sendEventQueue.pop_front();
+                        
+                        continue;
+                    }
+                    else if (FILE_ACTION_RENAMED_OLD_NAME == firstAction &&
+                             FILE_ACTION_RENAMED_NEW_NAME == secondAction)
+                    {
+                        DWORD eventType = Flag::FILE_EVENT_ACTION_RENAMED;
+                        _fileEventTable[firstInfo.FileId].EventType |= eventType;
+                        _fileEventTable[firstInfo.FileId].LParamTable[eventType] = firstInfo.FilePath.generic_wstring();
+                        _fileEventTable[firstInfo.FileId].RParamTable[eventType] = secondInfo.FilePath.generic_wstring();
+                        _sendEventQueue.pop_front();
+                        _sendEventQueue.pop_front();
+                        continue;
+                    }
+                }
+            }
+            if (FILE_ACTION_ADDED == firstAction)
+            {
+                DWORD eventType = Flag::FILE_EVENT_ACTION_ADDED;
+                _fileEventTable[firstInfo.FileId].EventType |= eventType;
+                _fileEventTable[firstInfo.FileId].LParamTable[eventType] = firstInfo.FilePath.generic_wstring();
+                _fileEventTable[firstInfo.FileId].RParamTable[eventType] = L"";
+                _sendEventQueue.pop_front();
+                continue;
+            }
+            else if (FILE_ACTION_REMOVED == firstAction)
+            {
+                DWORD eventType = Flag::FILE_EVENT_ACTION_REMOVED;
+                _fileEventTable[firstInfo.FileId].EventType |= eventType;
+                _fileEventTable[firstInfo.FileId].LParamTable[eventType] = firstInfo.FilePath.generic_wstring();
+                _fileEventTable[firstInfo.FileId].RParamTable[eventType] = L"";
+                _sendEventQueue.pop_front();
+                continue;
+            }
+            else if (FILE_ACTION_MODIFIED == firstAction)
+            {
+                DWORD eventType = Flag::FILE_EVENT_ACTION_MODIFIED;
+                _fileEventTable[firstInfo.FileId].EventType |= eventType;
+                _fileEventTable[firstInfo.FileId].LParamTable[eventType] = firstInfo.FilePath.generic_wstring();
+                _fileEventTable[firstInfo.FileId].RParamTable[eventType] = L"";
+                _sendEventQueue.pop_front();
+                continue;
+            }
+            _sendEventQueue.pop_front();
+        }
+    }
+
+    void FileEventObserver::ProcessEvent()
+    {
+        for (auto& [id, data] : _fileEventTable)
+        {
+            LastFileEventLog(data);
+            if (nullptr != _eventCallback)
+            {
+                _eventCallback(data);
+            }
+        }
+        _fileEventTable.clear();
+    }
+
+    void FileEventObserver::EventObservingThread()
+    {
+        DWORD bytesReturned = 0;
+
+        ZeroMemory(&_overlapped, sizeof(_overlapped));
+        _overlapped.hEvent = CreateEvent(nullptr, TRUE, FALSE, nullptr);
+        if (NULL == _overlapped.hEvent)
+        {
+            ThrowSystemError();
+        }
+
+        _isObserving = true;
+
+        do
+        {
+            // 변경 이벤트 수집
+            RecieveFileEvents();
+            if (true == _request)
+            {
+                _request = false;
+                _cv.notify_all();
+            }
+        } while (true == _isStart);
+
+         // 현재 작업 중인 IO요청을 강제 취소해 달라는 신호를 보냄
+        CancelIoEx(_hDirectory, &_overlapped);
+        // 작업이 완료될 때까지 대기
+        GetOverlappedResult(_hDirectory, &_overlapped, &bytesReturned, TRUE);
+        // IO작업이 완전히 끝났는지 확인 후 핸들 닫기
+        CloseHandle(_overlapped.hEvent);
+        _overlapped  = {};
+        _isObserving = false;
+        _cv.notify_all();
+    }
+
+    bool FileEventObserver::SetEventListener()
+    {
+        return ReadDirectoryChangesExW(
+            _hDirectory,            // 모티너링 대상 디렉터리 핸들
+            _recievedBytes,         // 수신 결과 반환 버퍼의 포인터
+            sizeof(_recievedBytes), // 수신 결과 버퍼의 크기
+            TRUE,                   // TRUE: 하위 디렉터리도 감지 범위에 포함, FALSE: 현재 디렉터리만 감지
+            NOTIFY_FILTERS,         // 감지할 이벤트 필터
+            &_bytesReturned,        // 수신 받은 크기
+            &_overlapped,           // 비동기 IO를 위한 OVERLAPPED 구조체의 포인터
+            NULL,
+            ReadDirectoryNotifyExtendedInformation 
+        );
+    }
+
+    void FileEventObserver::RecieveFileEvents()
+    {
+        static bool listen;
+        DWORD bytes;
+
+        bytes  = {};
+        listen = false;
+        while (true)
+        {
+            // 파일 디렉터리 변경을 감지함
+            if (false == listen)
+            {
+                if (true == SetEventListener())
+                {
+                    listen = true;
+                }
+                else
+                {
+                    listen = false;
+                    break;
+                }
+            }
+
+            // 변경이 감지되어 이벤트를 처리 중이면
+            if (TRUE == GetOverlappedResultEx(_hDirectory, &_overlapped, &bytes, 100, FALSE))
+            {
+                // IO작업이 진행중이면 기다림
+                if (ERROR_IO_INCOMPLETE == GetLastError())
+                {
+                    continue;
+                }
+                else
+                {
+                    listen = false;
+                    // 변경된 데이터에 대한 처리
+                    FILE_NOTIFY_EXTENDED_INFORMATION* fileInfo =
+                        reinterpret_cast<FILE_NOTIFY_EXTENDED_INFORMATION*>(&_recievedBytes[0]);
+
+                    while (true)
+                    {
+                        _request = true;
+
+                        std::wstring filename(fileInfo->FileName, fileInfo->FileNameLength / sizeof(WCHAR));
+
+                        FileInformation info = {filename,
+                                                fileInfo->CreationTime.QuadPart,
+                                                fileInfo->LastAccessTime.QuadPart,
+                                                fileInfo->LastChangeTime.QuadPart,
+                                                fileInfo->LastAccessTime.QuadPart,
+                                                fileInfo->FileId.QuadPart,
+                                                fileInfo->ParentFileId.QuadPart};
+                        {
+                            std::lock_guard<std::mutex> lock(_mutex);
+                            _recievedEventQueue.push_back(std::make_pair(fileInfo->Action, info));
+                        }
+
+                        if (0 == fileInfo->NextEntryOffset)
+                            break;
+
+                        fileInfo = reinterpret_cast<FILE_NOTIFY_EXTENDED_INFORMATION*>(
+                            reinterpret_cast<BYTE*>(fileInfo) + fileInfo->NextEntryOffset);
+                    }
+                }
+            }
+            // 변경이 없다
+            else
+            {
+                return;
+            }
+        }
+    }
+   
+    void FileEventObserver::EventDataToWStr(FileEventData& data, std::wstring& wstr)
+    {
+        const auto& [lParam, rParam, event, info] = data;
+        wstr += L"(LParam: ";
+        wstr += data.GetLParam(event).wstring();
+        wstr += L", RParam: ";
+        wstr += data.GetRParam(event).wstring();
+        wstr += L", EventType: ";
+        if (event & Flag::FILE_EVENT_ACTION_RENAMED)
+        {
+            wstr += L"[FILE_EVENT_ACTION_RENAMED]";
+        }
+        if (event & Flag::FILE_EVENT_ACTION_MOVED)
+        {
+            wstr += L"[FILE_EVENT_ACTION_MOVED]";
+        }
+        if (event & Flag::FILE_EVENT_ACTION_ADDED)
+        {
+            wstr += L"[FILE_EVENT_ACTION_ADDED]";
+        }
+        if (event & Flag::FILE_EVENT_ACTION_REMOVED)
+        {
+            wstr += L"[FILE_EVENT_ACTION_REMOVED]";
+        }
+        if (event & Flag::FILE_EVENT_ACTION_MODIFIED)
+        {
+            wstr += L"[FILE_EVENT_ACTION_MODIFIED]";
+        }
+        wstr += L", FileId: ";
+        wstr += std::to_wstring(info.FileId);
+        wstr += L")";
+    }
+
+    void FileEventObserver::LastFileEventLog(FileEventData& event) 
+    {
+#ifdef _DEBUG
+        if (UmFileSystem.GetDebugLevel() >= 1)
+        {
+            std::wstring wstr;
+            EventDataToWStr(event, wstr);
+            OutputLog(L"FileEventObserver send file event " + wstr);
+        }
+#endif
+    }
+    const File::Path& FileEventData::GetLParam(Flag::EventAction action) const
+    {
+        auto itr = LParamTable.find(action);
+        if (itr != LParamTable.end())
+            return itr->second;
+        else
+            return NULL_PATH;
+    }
+    const File::Path& FileEventData::GetRParam(Flag::EventAction action) const
+    {
+        auto itr = RParamTable.find(action);
+        if (itr != RParamTable.end())
+            return itr->second;
+        else
+            return NULL_PATH;
+    }
+} // namespace File

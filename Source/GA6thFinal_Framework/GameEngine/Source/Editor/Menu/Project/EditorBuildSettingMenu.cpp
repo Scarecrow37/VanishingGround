@@ -73,6 +73,7 @@ void EditorBuildSettingMenu::BuildSettingPopup()
             if (ImGui::Button(path.c_str()))
             {
                 startSceneSetting = path;
+                UmSceneManager.SaveSettingFile();
             }
             const std::string toolTip = std::format("{}{}", path, u8"으로 설정합니다."_c_str);
             ImGuiHelper::HoveredToolTip(toolTip);
@@ -90,7 +91,7 @@ void EditorBuildSettingMenu::BuildSettingPopup()
         if (ImGui::Button(EditorIcon::ICON_FOLDER_OPEN))
         {
             File::Path path;
-            if (File::ShowOpenFolderBrowser(UmApplication.GetHwnd(), L"저장할 폴더를 선택하세요.", L"C:", path))
+            if (File::ShowOpenFolderDialog(UmApplication.GetHwnd(), L"저장할 폴더를 선택하세요.", L"C:", path))
             {
                 buildOutPath = path.string();
             }  

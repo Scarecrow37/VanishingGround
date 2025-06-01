@@ -88,7 +88,7 @@ enum class LoadSceneMode
 //함수는 일단 선언만. 구현은 나중에.
 class ESceneManager 
     : 
-    File::FileEventNotifier
+    File::FileEventSubscriber
 {
 private:
     USING_PROPERTY(ESceneManager)
@@ -99,7 +99,11 @@ private:
 
     ESceneManager& operator=(const ESceneManager& rhs) = delete;
 
+private:
     void LoadSettingFile();
+
+public:
+    //현재 빌드 설정 파일을 저장합니다.
     void SaveSettingFile() const;
 public:
     /// <summary>
@@ -123,7 +127,7 @@ public:
     struct Engine
     {
         /// <summary>
-        /// Scene FileEventNotifier를 등록합니다.
+        /// Scene FileEventSubscriber를 등록합니다.
         /// </summary>
         static void RegisterFileEvents();
 
@@ -439,6 +443,12 @@ private:
     /// </summary>
     void SetObjectOwnerScene(GameObject* object, std::string_view sceneName);
 
+    /// <summary>
+    /// 스카이박스를 변경합니다.
+    /// </summary>
+    /// <param name="scene"></param>
+    void SetRendererSkyBox(Scene* scene);
+
 private:
     //Life cycle 에 포함되는 실제 오브젝트들 항목
     std::vector<std::shared_ptr<GameObject>> _runtimeObjects;
@@ -522,7 +532,7 @@ protected:
         std::string_view outPath,
         bool isOverride = false);
 
-    // FileEventNotifier을(를) 통해 상속됨
+    // FileEventSubscriber을(를) 통해 상속됨
     virtual void OnFileRegistered(const File::Path& path) override;
     virtual void OnFileUnregistered(const File::Path& path) override;
     virtual void OnFileModified(const File::Path& path) override;

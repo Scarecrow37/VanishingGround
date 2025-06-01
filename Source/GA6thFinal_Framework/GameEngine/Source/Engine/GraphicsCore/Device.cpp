@@ -53,7 +53,7 @@ void Device::Initialize()
     hr = UmViewManager.AddDescriptorHeap(ViewManager::Type::DEPTH_STENCIL, _depthStencilHandle);
     FAILED_CHECK_BREAK(hr);
 
-    OnResize(_mode.Width, _mode.Height);
+    ResizeSwapChain();
 }
 
 void Device::Finalize()
@@ -68,29 +68,7 @@ void Device::OnResize(UINT width, UINT height)
 {
     _mode.Width  = width;
     _mode.Height = height;
-    assert(_device);
-    assert(_swapChain);
-    GPUSync();
-    FAILED_CHECK_BREAK(_commandList->Reset(_commandAllocator.Get(), nullptr));
-    CreateRenderTarget();
-    CreateDepthStencil();
-
-    auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(_depthStencilBuffer.Get(), D3D12_RESOURCE_STATE_COMMON,
-                                                        D3D12_RESOURCE_STATE_DEPTH_WRITE);
-
-    _commandList->ResourceBarrier(1, &barrier);
-    FAILED_CHECK_BREAK(_commandList->Close());
-    RegisterCommand(_commandList.Get(),MESH_RENDER_LIST);
-    ExecuteCommand(MESH_RENDER_LIST);
-    GPUSync();
-    _mainViewport.TopLeftX = 0;
-    _mainViewport.TopLeftY = 0;
-    _mainViewport.Width    = static_cast<float>(_mode.Width);
-    _mainViewport.Height   = static_cast<float>(_mode.Height);
-    _mainViewport.MinDepth = 0.0f;
-    _mainViewport.MaxDepth = 1.0f;
-
-    _mainrRect = {0, 0, static_cast<long>(_mode.Width), static_cast<long>(_mode.Height)};
+    _onResize    = true;
 }
 
 void Device::SetViewPort()
@@ -106,6 +84,37 @@ void Device::SetViewPort()
 
     // g_CmdList->RSSetViewports(1, &vp);
     _mainViewport = viewPort;
+}
+
+void Device::ResizeSwapChain()
+{
+    if (!_onResize)
+        return;
+
+    assert(_device);
+    assert(_swapChain);
+    GPUSync();
+    FAILED_CHECK_BREAK(_commandList->Reset(_commandAllocator.Get(), nullptr));
+    CreateRenderTarget();
+    CreateDepthStencil();
+
+    auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(_depthStencilBuffer.Get(), D3D12_RESOURCE_STATE_COMMON,
+                                                        D3D12_RESOURCE_STATE_DEPTH_WRITE);
+
+    _commandList->ResourceBarrier(1, &barrier);
+    FAILED_CHECK_BREAK(_commandList->Close());
+    RegisterCommand(_commandList.Get(), MESH_RENDER_LIST);
+    ExecuteCommand(MESH_RENDER_LIST);
+    GPUSync();
+    _mainViewport.TopLeftX = 0;
+    _mainViewport.TopLeftY = 0;
+    _mainViewport.Width    = static_cast<float>(_mode.Width);
+    _mainViewport.Height   = static_cast<float>(_mode.Height);
+    _mainViewport.MinDepth = 0.0f;
+    _mainViewport.MaxDepth = 1.0f;
+
+    _mainrRect = {0, 0, static_cast<long>(_mode.Width), static_cast<long>(_mode.Height)};
+    _onResize  = false;
 }
 
 void Device::CreateDeviceAndSwapChain(HWND hwnd, D3D_FEATURE_LEVEL feature)
@@ -447,6 +456,7 @@ HRESULT Device::Flip()
 {
     _swapChain->Present(0, 0);
     GPUSync();
+    ResizeSwapChain();
 
     _uploadResources.clear();
     // 새 프레임 준비.
