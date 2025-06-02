@@ -132,7 +132,7 @@ public:
     /// 이 컴포넌트의 실제 클래스 이름입니다.
     /// </summary>
     /// <returns>컴포넌트 클래스 실제 이름</returns>
-    const char* ClassName()
+    const char* ClassName() const
     {
         return _className.c_str();
     }
@@ -141,13 +141,13 @@ public:
     /// 이 컴포넌트의 타입입니다.
     /// </summary>
     /// <returns>컴포넌트의 타입</returns>
-    Type GetType() const
+    Component::Type GetType() const
     {
         return _type;
     }
 
     /// <summary>
-    /// 이 컴포넌트의 인덱스를 반환합니다. (이 컴포넌트가 추가된 오브젝트에서의 기준)
+    /// 이 컴포넌트가 추가된 오브젝트에서의 인덱스를 반환합니다.
     /// </summary>
     /// <returns>int 인덱스</returns>
     int GetIndex() const;
