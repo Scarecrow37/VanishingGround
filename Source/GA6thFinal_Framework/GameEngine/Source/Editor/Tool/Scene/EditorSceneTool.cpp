@@ -239,7 +239,11 @@ void EditorSceneTool::DrawManipulate()
                 {
                     if (_isUsingStart)
                     {
-                        UmCommandManager.Do<Command::EditorScene::InstantiateCommand>(pObject.get());
+                        UmCommandManager.Do<Command::EditorScene::DuplicateCommand>(pObject.get());
+                    }
+                    if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_D))
+                    {
+                        UmCommandManager.Do<Command::EditorScene::DuplicateCommand>(pObject.get());
                     }
                 }
             }
