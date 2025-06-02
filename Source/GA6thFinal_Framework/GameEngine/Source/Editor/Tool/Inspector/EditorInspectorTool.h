@@ -45,8 +45,8 @@ namespace Command
         class FocusObject : public UmCommand
         {
         public:
-            FocusObject(std::weak_ptr<GameObject> oldWp, std::weak_ptr<GameObject> newWp)
-                : UmCommand("Inspector Focused"), _oldFocused(oldWp), _newFocused(newWp)
+            FocusObject(std::weak_ptr<GameObject> oldWp, std::weak_ptr<GameObject> newWp, std::string_view commandName = "Inspector Focused")
+                : UmCommand(commandName), _oldFocused(oldWp), _newFocused(newWp)
             {
             }
             virtual ~FocusObject() override = default;

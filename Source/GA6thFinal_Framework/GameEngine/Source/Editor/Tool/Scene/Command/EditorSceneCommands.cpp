@@ -149,8 +149,8 @@ void Command::EditorScene::AddComponentCommand::Undo()
     }
 }
 
-Command::EditorScene::InstantiateCommand::InstantiateCommand(GameObject* sourceObject)
-    : FocusCommand(std::weak_ptr<GameObject>(), std::weak_ptr<GameObject>())
+Command::EditorScene::DuplicateCommand::DuplicateCommand(GameObject* sourceObject)
+    : FocusCommand(std::weak_ptr<GameObject>(), std::weak_ptr<GameObject>(), "Duplicate")
 {
     _active         = sourceObject->ActiveSelf;
     _ownerSceneName = sourceObject->GetOwnerSceneName();
@@ -160,16 +160,22 @@ Command::EditorScene::InstantiateCommand::InstantiateCommand(GameObject* sourceO
         });
 }
 
-Command::EditorScene::InstantiateCommand::~InstantiateCommand() {}
+Command::EditorScene::DuplicateCommand::~DuplicateCommand() {}
 
-void Command::EditorScene::InstantiateCommand::Execute()
+void Command::EditorScene::DuplicateCommand::Execute()
 {
     if (true == _destObjects.empty())
     {
         GameObject* sourceRoot = _sourceObjects.front().get();
         _oldFocused = sourceRoot->GetWeakPtr();
         GameObject* destRoot = GameObject::Instantiate(sourceRoot);
-        destRoot->Name = GameObject::Helper::GenerateUniqueName(destRoot->Name);
+        std::string destName{(std::string_view)destRoot->Name};
+        size_t pos = destName.rfind(" (");
+        if (pos != std::string::npos && destName.back() == ')')
+        {
+            destName = destName.substr(0, pos);
+        }
+        destRoot->Name = GameObject::Helper::GenerateUniqueName(destName);
         _newFocused = destRoot->GetWeakPtr();
         Transform::ForeachBFS(destRoot->transform, [&](Transform* curr) 
             { 
@@ -190,7 +196,7 @@ void Command::EditorScene::InstantiateCommand::Execute()
     Super::Execute();
 }
 
-void Command::EditorScene::InstantiateCommand::Undo()
+void Command::EditorScene::DuplicateCommand::Undo()
 {
     auto& rootObject               = _destObjects.front();
     rootObject->GetScene().IsDirty = true;

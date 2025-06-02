@@ -74,13 +74,13 @@ namespace Command
             void Undo() override;
         };
 
-        class InstantiateCommand : public Command::Hierarchy::FocusCommand
+        class DuplicateCommand : public Command::Hierarchy::FocusCommand
         {
             using Super = FocusCommand;
 
         public:
-            InstantiateCommand(GameObject* sourceObject);
-            virtual ~InstantiateCommand() override;
+            DuplicateCommand(GameObject* sourceObject);
+            virtual ~DuplicateCommand() override;
 
             virtual void Execute() override;
             virtual void Undo() override;

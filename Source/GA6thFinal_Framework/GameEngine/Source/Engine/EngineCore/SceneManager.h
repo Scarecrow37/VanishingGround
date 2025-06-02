@@ -10,7 +10,7 @@ namespace Command::EditorScene
     class DestroyGameObjectCommand;
     class AddComponentCommand;
     class DestroyComponentCommand;
-    class InstantiateCommand;
+    class DuplicateCommand;
 };
 
 //참고 
@@ -577,7 +577,7 @@ public:
     friend class Command::EditorScene::DestroyGameObjectCommand;
     friend class Command::EditorScene::AddComponentCommand;
     friend class Command::EditorScene::DestroyComponentCommand;
-    friend class Command::EditorScene::InstantiateCommand;
+    friend class Command::EditorScene::DuplicateCommand;
 };
 
 inline auto ESceneManager::GetRootGameObjectsByPath(std::string_view path) 
