@@ -170,6 +170,8 @@ void EditorSceneTool::DrawManipulate()
         auto pObject = _manipulateObject.lock();
         if (pObject->IsValid())
         {
+            bool isLeftShiftHold = ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftShift);
+
             Matrix  worldMatrix   = pObject->transform->GetWorldMatrix();
             Matrix* pObjectMatrix = &worldMatrix;
 
@@ -183,6 +185,14 @@ void EditorSceneTool::DrawManipulate()
             _isUseManipulate = ImGuiHelper::DrawManipulate(pDynamicCamera, pObjectMatrix, drawManipulateDesc);
             _isUsing         = ImGuizmo::IsUsing();
             _isOver          = ImGuizmo::IsOver();
+
+            if (isLeftShiftHold)
+            {
+                if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_D))
+                {
+                    UmCommandManager.Do<Command::EditorScene::DuplicateCommand>(pObject.get());
+                }
+            }
 
             if (IsFocusFrame())
             {
@@ -235,14 +245,9 @@ void EditorSceneTool::DrawManipulate()
                 }
                 prevIsUsing = _isUsing;
 
-                //Manipulate 단축키
-                if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftShift))
+                if (isLeftShiftHold)
                 {
                     if (_isUsingStart)
-                    {
-                        UmCommandManager.Do<Command::EditorScene::DuplicateCommand>(pObject.get());
-                    }
-                    if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_D))
                     {
                         UmCommandManager.Do<Command::EditorScene::DuplicateCommand>(pObject.get());
                     }
