@@ -126,14 +126,14 @@ public:
     /// <para> 대상 오브젝트의 복사본을 현재 씬에 생성합니다.  </para>
     /// </summary>
     /// <param name="gameObject :">복사할 오브젝트</param>
-    static void Instantiate(GameObject& original);
+    static GameObject* Instantiate(GameObject& original);
     /// <summary>
     /// <para> 대상 오브젝트의 복사본을 현재 씬에 생성합니다.  </para>
     /// </summary>
     /// <param name="gameObject :">복사할 오브젝트</param>
-    static void Instantiate(GameObject* original)
+    static GameObject* Instantiate(GameObject* original)
     {
-        Instantiate(*original);
+        return Instantiate(*original);
     }
    
 public:
