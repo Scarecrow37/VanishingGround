@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "UmFramework.h"
+#include "Editor/Tool/Hierarchy/Command/FocusCommand.h"
 
 namespace Command
 {
