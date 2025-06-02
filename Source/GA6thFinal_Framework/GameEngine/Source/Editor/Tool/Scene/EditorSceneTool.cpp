@@ -235,6 +235,7 @@ void EditorSceneTool::DrawManipulate()
                 }
                 prevIsUsing = _isUsing;
 
+                //Manipulate 단축키
                 if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftShift))
                 {
                     if (_isUsingStart)
