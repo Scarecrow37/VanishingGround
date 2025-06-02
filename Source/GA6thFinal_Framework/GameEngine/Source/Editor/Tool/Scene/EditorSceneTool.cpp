@@ -1,4 +1,5 @@
 ﻿#include "pch.h"
+#include "Editor/Tool/Scene/Command/EditorSceneCommands.h"
 #include "EditorSceneTool.h"
 #include "../..//DynamicCamera/EditorDynamicCamera.h"
 
@@ -233,6 +234,14 @@ void EditorSceneTool::DrawManipulate()
                     _isUsingEnd   = false;
                 }
                 prevIsUsing = _isUsing;
+
+                if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftShift))
+                {
+                    if (_isUsingStart)
+                    {
+                        UmCommandManager.Do<Command::EditorScene::InstantiateCommand>(pObject.get());
+                    }
+                }
             }
         }
     }   
@@ -270,6 +279,7 @@ void EditorSceneTool::DeserializedReflectEvent()
     _camera->SetRotation(camRot);
 
     UpdateCameraSetting();
+    _camera->Update();
 }
 
 void EditorSceneTool::UpdateCameraSetting() 
