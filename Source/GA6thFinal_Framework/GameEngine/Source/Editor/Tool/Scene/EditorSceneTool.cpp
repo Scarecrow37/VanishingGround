@@ -1,4 +1,5 @@
 ﻿#include "pch.h"
+#include "Editor/Tool/Scene/Command/EditorSceneCommands.h"
 #include "EditorSceneTool.h"
 #include "../..//DynamicCamera/EditorDynamicCamera.h"
 
@@ -169,6 +170,8 @@ void EditorSceneTool::DrawManipulate()
         auto pObject = _manipulateObject.lock();
         if (pObject->IsValid())
         {
+            bool isLeftShiftHold = ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftShift);
+
             Matrix  worldMatrix   = pObject->transform->GetWorldMatrix();
             Matrix* pObjectMatrix = &worldMatrix;
 
@@ -182,6 +185,14 @@ void EditorSceneTool::DrawManipulate()
             _isUseManipulate = ImGuiHelper::DrawManipulate(pDynamicCamera, pObjectMatrix, drawManipulateDesc);
             _isUsing         = ImGuizmo::IsUsing();
             _isOver          = ImGuizmo::IsOver();
+
+            if (isLeftShiftHold)
+            {
+                if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_D))
+                {
+                    UmCommandManager.Do<Command::EditorScene::DuplicateCommand>(pObject.get());
+                }
+            }
 
             if (IsFocusFrame())
             {
@@ -233,6 +244,14 @@ void EditorSceneTool::DrawManipulate()
                     _isUsingEnd   = false;
                 }
                 prevIsUsing = _isUsing;
+
+                if (isLeftShiftHold)
+                {
+                    if (_isUsingStart)
+                    {
+                        UmCommandManager.Do<Command::EditorScene::DuplicateCommand>(pObject.get());
+                    }
+                }
             }
         }
     }   
@@ -270,6 +289,7 @@ void EditorSceneTool::DeserializedReflectEvent()
     _camera->SetRotation(camRot);
 
     UpdateCameraSetting();
+    _camera->Update();
 }
 
 void EditorSceneTool::UpdateCameraSetting() 

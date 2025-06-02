@@ -1,6 +1,5 @@
 ﻿#include "pch.h"
-#include "EditorHierarchyTool.h"
-#include "Command/FocusCommand.h"
+#include "Editor/Tool/Scene/Command/EditorSceneCommands.h"
 #include "Command/SetParentCommand.h"
 #include "Command/DetachChildrenCommand.h"
 #include "Command/PackPrefabCommand.h"
@@ -234,7 +233,7 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
     static const char* GameObjectName = GameObjectKey + 6;
     if (ImGui::MenuItem(GameObjectName))
     {
-        UmCommandManager.Do<ESceneManager::NewGameObjectCommand>(GameObjectKey, GameObject::Helper::GenerateUniqueName(GameObjectName));
+        UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(GameObjectKey, GameObject::Helper::GenerateUniqueName(GameObjectName));
     }
 }
 
@@ -273,7 +272,7 @@ void EditorHierarchyTool::HierarchyDropEvent()
                 else if (extension == UmSceneManager.SCENE_EXTENSION)
                 {
                     UmSceneManager.LoadScene(path.string(), LoadSceneMode::ADDITIVE);
-                }        
+                }
             }
         }
         ImGui::EndDragDropTarget();

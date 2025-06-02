@@ -591,6 +591,9 @@
     <ClInclude Include="Source\Engine\FileSystem\Event\FileEventSubscriber.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Editor\Tool\Scene\Command\EditorSceneCommands.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\pch.cpp">
@@ -1017,6 +1020,12 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="ThirdParty\include\reflectcpp.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\FileSystem\Event\FileEventSubscriber.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\Scene\Command\EditorSceneCommands.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
