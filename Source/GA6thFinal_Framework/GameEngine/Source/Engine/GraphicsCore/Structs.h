@@ -53,6 +53,15 @@ struct CameraData
     Vector4  Position{0.f,0.f,-5.f,1.f};
 };
 
+struct Light
+{
+    Vector4 Position;
+    Vector4 Direction;
+    Vector4 Color;
+    Vector4 Attenuation;
+    Vector4 SpotAngle;
+};
+
 struct NumLight
 {
     UINT Directional;
