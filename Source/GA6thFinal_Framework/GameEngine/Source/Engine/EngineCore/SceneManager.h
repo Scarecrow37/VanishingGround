@@ -4,6 +4,14 @@ class Component;
 class ESceneManager;
 class MeshComponent;
 class Model;
+namespace Command::EditorScene
+{
+    class NewGameObjectCommand;
+    class DestroyGameObjectCommand;
+    class AddComponentCommand;
+    class DestroyComponentCommand;
+    class InstantiateCommand;
+};
 
 //참고 
 // Unity SceneManager https://docs.unity3d.com/6000.0/Documentation/ScriptReference/SceneManagement.SceneManager.html
@@ -564,73 +572,12 @@ protected:
     std::unordered_map<File::Guid, YAML::Node> _sceneDataMap;
 
 public:
-    //커맨드들
-    class DestroyGameObjectCommand : public UmCommand
-    {
-    public:
-        DestroyGameObjectCommand(GameObject* object);
-        virtual  ~DestroyGameObjectCommand();
-
-    private:
-        void Execute() override;
-        void Undo() override;
-
-        std::vector<std::shared_ptr<GameObject>> _destroyObjects;
-        std::string _ownerSceneName;
-        bool _active;
-        bool _isFocus;
-    };
-
-    class NewGameObjectCommand : public UmCommand
-    {
-    public:
-        NewGameObjectCommand(std::string_view type_id, std::string_view name);
-        virtual ~NewGameObjectCommand() = default;
-
-    private:
-        std::shared_ptr<GameObject> _newObject;
-        std::string _ownerScene;
-        std::string _newName;
-        std::string _typeName;
-        bool _active;
-
-        // UmCommand을(를) 통해 상속됨
-        void Execute() override;
-        void Undo() override;
-    };
-
-    class DestroyComponentCommand : public UmCommand
-    {
-    public:
-        DestroyComponentCommand(Component* component);
-        virtual ~DestroyComponentCommand();
-
-    private:
-        void Execute() override;
-        void Undo() override;
-
-        std::shared_ptr<Component> _destroyComponent;
-        std::weak_ptr<GameObject>  _ownerObject;
-        bool                       _enable;
-        int                        _index;
-    };
-
-    class AddComponentCommand : public UmCommand
-    {
-    public:
-        AddComponentCommand(GameObject* ownerObject, std::string_view type_id);
-        virtual ~AddComponentCommand() = default;
-
-    private:
-        std::shared_ptr<Component> _addComponent;
-        std::weak_ptr<GameObject>  _ownerObject;
-        std::string                _typeName;
-        int                        _index;
-
-        // UmCommand을(를) 통해 상속됨
-        void Execute() override;
-        void Undo() override;
-    };
+    //커맨드 모음
+    friend class Command::EditorScene::NewGameObjectCommand;
+    friend class Command::EditorScene::DestroyGameObjectCommand;
+    friend class Command::EditorScene::AddComponentCommand;
+    friend class Command::EditorScene::DestroyComponentCommand;
+    friend class Command::EditorScene::InstantiateCommand;
 };
 
 inline auto ESceneManager::GetRootGameObjectsByPath(std::string_view path) 
