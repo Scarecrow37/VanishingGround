@@ -350,10 +350,13 @@ private:
 protected:
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
     std::string _name = STR_NULL;
-    bool        _activeSelf = true;
-    bool        _isStatic = false;
+    bool _activeSelf = true;
+    bool _isStatic = false;
+    std::set<std::string> _tags; //"SerializeVersion = 1" 부터 추가된 맴버.
     REFLECT_FIELDS_END(GameObject)
 
+    void ImguiEditTags();
+    
     /*
     직렬화 직전 자동으로 호출되는 이벤트 함수입니다.
     직접 override 해서 사용합니다.

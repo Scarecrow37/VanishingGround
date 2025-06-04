@@ -335,11 +335,7 @@ namespace ReflectHelper
             {
                 obj = result.value();
             }
-            else
-            {
-                return false;
-            }
-            return true;
+            return result;
         }
     } // namespace json
 } // namespace ReflectHelper

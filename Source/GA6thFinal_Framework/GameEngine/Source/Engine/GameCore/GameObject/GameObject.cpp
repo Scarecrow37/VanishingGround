@@ -117,6 +117,9 @@ void GameObject::OnInspectorStay()
             ImGui::Separator();
         }
 
+        ImGui::SameLine();
+        ImguiEditTags();
+
         if (isDebug)
         {
             ImGui::PushStyleColor(ImGuiCol_Text, DEBUG_TEXT_COLOR);   
@@ -311,8 +314,12 @@ void GameObject::OnInspectorStay()
     ImGui::PopID();
 }
 
-void GameObject::SerializedReflectEvent() 
+void GameObject::ImguiEditTags() 
 {
+    ImGui::Text("Tags");
+}
+
+void GameObject::SerializedReflectEvent() {
    
 }
 

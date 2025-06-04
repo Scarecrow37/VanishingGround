@@ -528,7 +528,7 @@ YAML::Node EGameObjectFactory::MakeYamlToGameObject(GameObject* gameObject)
     if (typeid(*gameObject) == typeid(GameObject))
     {
         YAML::Node objectNode;
-        objectNode["SerializeVersion"] = 0;
+        objectNode["SerializeVersion"] = 1;
         objectNode["Type"] = typeid(GameObject).name();
         objectNode["Prefab"] = gameObject->_prefabGuid.string();
         objectNode["ReflectFields"] = gameObject->SerializedReflectFields();
@@ -565,6 +565,8 @@ std::shared_ptr<GameObject> EGameObjectFactory::MakeGameObjectToYaml(YAML::Node*
 
 void EGameObjectFactory::ParsingYamlToGameObject(GameObject* pObject, const YAML::Node& objectNode) 
 {
+    const int SerializeVersion = objectNode["SerializeVersion"].as<int>();
+
     if (objectNode["Prefab"])
     {
         pObject->_prefabGuid = objectNode["Prefab"].as<std::string>();
@@ -576,7 +578,32 @@ void EGameObjectFactory::ParsingYamlToGameObject(GameObject* pObject, const YAML
     const char* nameStr = yyjson_get_str(jsonName);
     ESceneManager::Engine::RenameGameObject(pObject, nameStr);
     yyjson_doc_free(jsonDoc); 
-    pObject->DeserializedReflectFields(ReflectFields);
+
+    if (SerializeVersion == 0)
+    {
+        //_tags 맴버 추가 이전
+        struct ReflectFieldsVer0
+        {
+            std::string _name       = STR_NULL;
+            bool        _activeSelf = true;
+            bool        _isStatic   = false;
+            //std::set<std::string> _tags; //"Version = 1"부터 추가됨
+        };
+        ReflectFieldsVer0 data;
+        ReflectHelper::json::DeserializedObjet(data, ReflectFields);
+        auto view = rfl::to_view(data);
+        auto& objectReflectFields = *pObject->ReflectFields.Get();
+        objectReflectFields = rfl::as<GameObject::reflect_fields_struct>(data, objectReflectFields);
+    }
+    else
+    {
+        bool result = pObject->DeserializedReflectFields(ReflectFields);
+        if (false == result)
+        {
+            __debugbreak(); //역직렬화 실패.
+        }
+    }
+
     {
         YAML::Node  transformNode = objectNode["Transform"].as<YAML::Node>();
         std::string ReflectFields = transformNode["ReflectFields"].as<std::string>();
