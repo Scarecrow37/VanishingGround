@@ -88,11 +88,15 @@ void blueprint::OnStart()
 
     _links.push_back(Link(GetNextLinkId(), _nodes[14].Outputs[0].ID, _nodes[15].Inputs[0].ID));
 
-    /*
-    _headerBackground = LoadTexture("data/BlueprintBackground.png");
+
+    
+    /*_textures[0] = UmResourceManager.LoadResource<Texture>(UmFileSystem.GetAssetPath() / "Test/BlueprintBackground.png");
+    _textures[1]      = UmResourceManager.LoadResource<Texture>("data/ic_save_white_24dp.png");
+    _textures[2]      = UmResourceManager.LoadResource<Texture>("data/ic_restore_white_24dp.png");
+
+    _headerBackground = 
     _saveIcon = LoadTexture("data/ic_save_white_24dp.png");
-    _restoreIcon = LoadTexture("data/ic_restore_white_24dp.png");
-    */
+    _restoreIcon = LoadTexture("data/ic_restore_white_24dp.png");    */
 
     //auto& io = ImGui::GetIO();
 }
@@ -107,7 +111,7 @@ void blueprint::OnFrame(float deltaTime)
 
     ed::SetCurrentEditor(_editor);
 
-    //auto& style = ImGui::GetStyle();
+    auto& style = ImGui::GetStyle();
 
 # if 0
     {
@@ -1021,6 +1025,8 @@ void blueprint::OnFrame(float deltaTime)
     //ImGui::ShowTestWindow();
     //ImGui::ShowMetricsWindow();
 }
+
+void blueprint::OnStop() {}
 
 void blueprint::TestUpdate()
 {
@@ -2090,7 +2096,7 @@ void blueprint::ShowLeftPane(float paneWidth)
         else
         {
             ImGui::Dummy(ImVec2((float)saveIconWidth, (float)saveIconHeight));
-            drawList->AddImage(_saveIcon, ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), ImVec2(0, 0), ImVec2(1, 1), IM_COL32(255, 255, 255, 32));
+            //drawList->AddImage(_saveIcon, ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), ImVec2(0, 0), ImVec2(1, 1), IM_COL32(255, 255, 255, 32));
         }
 
         ImGui::SameLine(0, ImGui::GetStyle().ItemInnerSpacing.x);
@@ -2108,17 +2114,17 @@ void blueprint::ShowLeftPane(float paneWidth)
                 node.SavedState.clear();
             }
 
-            if (ImGui::IsItemActive())
-                drawList->AddImage(_restoreIcon, ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), ImVec2(0, 0), ImVec2(1, 1), IM_COL32(255, 255, 255, 96));
-            else if (ImGui::IsItemHovered())
-                drawList->AddImage(_restoreIcon, ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), ImVec2(0, 0), ImVec2(1, 1), IM_COL32(255, 255, 255, 255));
-            else
-                drawList->AddImage(_restoreIcon, ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), ImVec2(0, 0), ImVec2(1, 1), IM_COL32(255, 255, 255, 160));
+            //if (ImGui::IsItemActive())
+            //    drawList->AddImage(_restoreIcon, ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), ImVec2(0, 0), ImVec2(1, 1), IM_COL32(255, 255, 255, 96));
+            //else if (ImGui::IsItemHovered())
+            //    drawList->AddImage(_restoreIcon, ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), ImVec2(0, 0), ImVec2(1, 1), IM_COL32(255, 255, 255, 255));
+            //else
+            //    drawList->AddImage(_restoreIcon, ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), ImVec2(0, 0), ImVec2(1, 1), IM_COL32(255, 255, 255, 160));
         }
         else
         {
             ImGui::Dummy(ImVec2((float)restoreIconWidth, (float)restoreIconHeight));
-            drawList->AddImage(_restoreIcon, ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), ImVec2(0, 0), ImVec2(1, 1), IM_COL32(255, 255, 255, 32));
+            //drawList->AddImage(_restoreIcon, ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), ImVec2(0, 0), ImVec2(1, 1), IM_COL32(255, 255, 255, 32));
         }
 
         ImGui::SameLine(0, 0);
@@ -2436,6 +2442,7 @@ Node* blueprint::SpawnTreeTaskNode()
     _nodes.emplace_back(GetNextId(), "Move To");
     _nodes.back().Type = NodeType::Tree;
     _nodes.back().Inputs.emplace_back(GetNextId(), "", PinType::Flow);
+    _nodes.back().Outputs.emplace_back(GetNextId(), "", PinType::Flow);
 
     BuildNode(&_nodes.back());
 

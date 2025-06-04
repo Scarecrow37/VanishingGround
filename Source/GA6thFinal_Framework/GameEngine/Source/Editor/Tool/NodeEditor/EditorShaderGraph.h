@@ -1,6 +1,6 @@
 ﻿#pragma once
-#include "UmFramework.h"
-#include "blueprint.h"
+
+class blueprint;
 
 class EditorShaderGraph :
     public EditorTool
@@ -8,14 +8,12 @@ class EditorShaderGraph :
 public:
     EditorShaderGraph();
     virtual ~EditorShaderGraph();
+
 private:
-    virtual void  OnStartGui() override;
+    virtual void OnStartGui() override;
+    virtual void OnEndGui() override;
 
-    virtual void  OnPreFrame() override;
+    virtual void OnFrameRender() override;
 
-    virtual void  OnFrame() override;
-
-    virtual void  OnPostFrame() override;
-
-    blueprint _bluePrint;
+    blueprint* _bluePrint;
 };

@@ -1,12 +1,14 @@
-﻿#include "EditorShaderGraph.h"
+﻿#include "pch.h"
+#include "EditorShaderGraph.h"
+#include "blueprint.h"
 
 using namespace Global;
 
 EditorShaderGraph::EditorShaderGraph()
 {
-    using namespace u8_literals;
-    this->SetLabel(u8"노드 에디터"_c_str);
-    SetDockLayout(DockLayout::RIGHT);
+    SetLabel("NodeEditor");
+    SetDockLayout(ImGuiDir_Down);
+    _bluePrint = new blueprint();
 }
 
 EditorShaderGraph::~EditorShaderGraph()
@@ -15,18 +17,21 @@ EditorShaderGraph::~EditorShaderGraph()
 
 void EditorShaderGraph::OnStartGui()
 {
-    _bluePrint.OnStart();
+    _bluePrint->OnStart();
 }
 
-void EditorShaderGraph::OnPreFrame()
+void EditorShaderGraph::OnEndGui()
 {
+    if (nullptr != _bluePrint)
+    {
+        _bluePrint->OnStop();
+        delete _bluePrint;
+        _bluePrint = nullptr;
+    }
 }
 
-void EditorShaderGraph::OnFrame()
+void EditorShaderGraph::OnFrameRender()
 {
-    _bluePrint.OnFrame(engineCore->Time.DeltaTime());
+    _bluePrint->OnFrame(engineCore->Time.DeltaTime());
 }
 
-void EditorShaderGraph::OnPostFrame()
-{
-}

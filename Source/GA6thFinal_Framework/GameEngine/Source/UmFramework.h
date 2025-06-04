@@ -193,6 +193,7 @@ using namespace Microsoft::WRL;
 #include "Editor/Tool/Model/EditorModelTool.h"
 #include "Editor/Tool/Model/EditorModelHierarchy.h"
 #include "Editor/Tool/Command/EditorCommandTool.h"
+#include "Editor/Tool/NodeEditor/EditorShaderGraph.h"
 
 // Editor Menu
 #include "Editor/Menu/Project/EditorProjectMenu.h"

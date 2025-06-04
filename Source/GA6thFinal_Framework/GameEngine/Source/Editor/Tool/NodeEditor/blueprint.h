@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "NodeEditor.h"
 
+class Texture;
 class blueprint
 {
 public:
@@ -69,4 +70,6 @@ private:
     const float             _touchTime = 1.0f;
     std::map<ed::NodeId, float, NodeIdLess> _nodeTouchTime;
     bool                    _showOrdinals = false;
+
+    std::shared_ptr<Texture> _textures[3];
 };

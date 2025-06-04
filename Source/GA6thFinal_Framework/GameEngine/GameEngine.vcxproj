@@ -297,6 +297,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Source\Editor\Menu\Model\EditorModelMenu.h" />
+    <ClInclude Include="Source\Editor\Tool\NodeEditor\blueprint.h" />
+    <ClInclude Include="Source\Editor\Tool\NodeEditor\EditorShaderGraph.h" />
+    <ClInclude Include="Source\Editor\Tool\NodeEditor\NodeEditor.h" />
+    <ClInclude Include="Source\Editor\Tool\NodeEditor\utilities\builders.h" />
+    <ClInclude Include="Source\Editor\Tool\NodeEditor\utilities\drawing.h" />
+    <ClInclude Include="Source\Editor\Tool\NodeEditor\utilities\widgets.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\SkyBoxPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\SkyBoxRenderTechnique.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\SkyBox.h" />
@@ -463,6 +469,19 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Editor\Menu\Model\EditorModelMenu.cpp" />
+    <ClCompile Include="Source\Editor\Tool\NodeEditor\blueprint.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\NodeEditor\EditorShaderGraph.cpp" />
+    <ClCompile Include="Source\Editor\Tool\NodeEditor\utilities\builders.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\NodeEditor\utilities\drawing.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\NodeEditor\utilities\widgets.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\SkyBoxPass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\SkyBoxRenderTechnique.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\SkyBox.cpp" />
