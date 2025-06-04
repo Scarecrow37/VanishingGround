@@ -17,9 +17,11 @@ private:
     void BuildRootDock();
     void BuildSceneDock();
     void BuildModelDock();
+    void BuildFSMDock();
 
     EditorModule*     _editorModule = nullptr;
     EditorDockWindow* _rootDock     = nullptr;
     EditorDockWindow* _sceneDock    = nullptr;
     EditorDockWindow* _modelDock    = nullptr;
+    EditorDockWindow* _fsmDock      = nullptr;
 };

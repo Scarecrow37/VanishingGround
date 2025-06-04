@@ -591,25 +591,31 @@
     <ClInclude Include="Source\Engine\FileSystem\Event\FileEventSubscriber.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Editor\Tool\NodeEditor\utilities\builders.h">
+    <ClInclude Include="Source\Engine\EditorCore\Gui\NodeGraph\utilities\builders.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Editor\Tool\NodeEditor\utilities\drawing.h">
+    <ClInclude Include="Source\Engine\EditorCore\Gui\NodeGraph\utilities\drawing.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Editor\Tool\NodeEditor\utilities\widgets.h">
+    <ClInclude Include="Source\Engine\EditorCore\Gui\NodeGraph\utilities\widgets.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Editor\Tool\NodeEditor\EditorShaderGraph.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Editor\Tool\NodeEditor\NodeEditor.h">
+    <ClInclude Include="Source\Engine\EditorCore\Gui\NodeGraph\utilities\EditorNodeGraphUtillity.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Editor\Tool\NodeEditor\blueprint.h">
+    <ClInclude Include="Source\Engine\EditorCore\Gui\NodeGraph\blueprint.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Editor\Tool\Scene\Command\EditorSceneCommands.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\EditorCore\Gui\NodeGraph\EditorNodeGraph.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Tool\FiniteStateMachine\EditorFiniteStateMachine.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1043,22 +1049,28 @@
     <ClCompile Include="Source\Engine\FileSystem\Event\FileEventSubscriber.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Editor\Tool\NodeEditor\utilities\builders.cpp">
+    <ClCompile Include="Source\Engine\EditorCore\Gui\NodeGraph\utilities\builders.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Editor\Tool\NodeEditor\utilities\drawing.cpp">
+    <ClCompile Include="Source\Engine\EditorCore\Gui\NodeGraph\utilities\drawing.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Editor\Tool\NodeEditor\utilities\widgets.cpp">
+    <ClCompile Include="Source\Engine\EditorCore\Gui\NodeGraph\utilities\widgets.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Editor\Tool\NodeEditor\EditorShaderGraph.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Editor\Tool\NodeEditor\blueprint.cpp">
+    <ClCompile Include="Source\Engine\EditorCore\Gui\NodeGraph\blueprint.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Editor\Tool\Scene\Command\EditorSceneCommands.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\EditorCore\Gui\NodeGraph\EditorNodeGraph.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\FiniteStateMachine\EditorFiniteStateMachine.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

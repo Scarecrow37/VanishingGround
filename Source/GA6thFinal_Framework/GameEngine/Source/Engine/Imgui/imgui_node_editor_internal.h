@@ -1473,10 +1473,10 @@ struct EditorContext
 
     ImDrawList* GetDrawList() { return m_DrawList; }
 
-private:
     void LoadSettings();
     void SaveSettings();
 
+  private:
     Control BuildControl(bool allowOffscreen);
 
     void ShowMetrics(const Control& control);

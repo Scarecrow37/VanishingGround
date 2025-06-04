@@ -33,6 +33,7 @@ GameApplication::GameApplication()
         BuildRootDock();
         BuildSceneDock();
         BuildModelDock();
+        BuildFSMDock();
     }
 }
 
@@ -108,7 +109,6 @@ void GameApplication::BuildSceneDock()
     _sceneDock->SetEditorToolFlags(editorToolFlag);
     _sceneDock->SetImGuiWindowFlag(imguiWindowFlag);
     _sceneDock->SetImGuiDockNodeFlag(imguiDockNodeFlag);
-    _sceneDock->SetDockLayout(ImGuiDir_Up);
 
     _sceneDock->CreateDockLayoutNode(ImGuiDir::ImGuiDir_Right, 0.25f);
     _sceneDock->CreateDockLayoutNode(ImGuiDir::ImGuiDir_Down, 0.40f);
@@ -159,4 +159,33 @@ void GameApplication::BuildModelDock()
     // Menu
     _modelDock->RegisterGui<EditorModelMenu>();
     _modelDock->RegisterGui<EditorMenuTools>(_modelDock);
+}
+
+void GameApplication::BuildFSMDock() 
+{
+    auto& dockSystem = _editorModule->GetDockWindowSystem();
+
+    _fsmDock = dockSystem.RegisterDockWindow("FSM##Dock", _rootDock);
+
+    ImGuiWindowClass imguiwindowClass;
+    imguiwindowClass.ClassId               = ImHashStr("FSMDockID");
+    imguiwindowClass.DockingAllowUnclassed = false;
+    imguiwindowClass.DockingAlwaysTabBar   = true;
+
+    int imguiWindowFlag = ImGuiWindowFlags_MenuBar;
+    int dockWindowFlag  = ImGuiDockNodeFlags_NoWindowMenuButton | ImGuiDockNodeFlags_NoCloseButton;
+
+    _fsmDock->SetWindowClass(imguiwindowClass);
+    _fsmDock->SetImGuiWindowFlag(imguiWindowFlag);
+    _fsmDock->SetImGuiDockNodeFlag(dockWindowFlag);
+
+    _fsmDock->CreateDockLayoutNode(ImGuiDir::ImGuiDir_Right, 0.25f);
+    _fsmDock->CreateDockLayoutNode(ImGuiDir::ImGuiDir_Down, 0.40f);
+    _fsmDock->CreateDockLayoutNode(ImGuiDir::ImGuiDir_Left, 0.30f);
+    _fsmDock->CreateDockLayoutNode(ImGuiDir::ImGuiDir_Up, 0.50f);
+
+    _fsmDock->RegisterGui<EditorFiniteStateMachine>();
+
+    // Menu
+    _fsmDock->RegisterGui<EditorMenuTools>(_fsmDock);
 }

@@ -1,6 +1,5 @@
 ﻿#include "pch.h"
 #include "EditorShaderGraph.h"
-#include "blueprint.h"
 
 using namespace Global;
 

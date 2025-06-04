@@ -1,8 +1,10 @@
-﻿#include "blueprint.h"
+﻿#include "pch.h"
+#include "blueprint.h"
 #include "utilities/builders.h"
 #include "utilities/widgets.h"
 
 namespace util = ax::NodeEditor::Utilities;
+using namespace NodeGraph;
 
 using namespace ax;
 using ax::Widgets::IconType;
@@ -28,10 +30,14 @@ void blueprint::OnStart()
         {
             auto self = static_cast<blueprint*>(userPointer);
 
-            auto node = self->FindNode(nodeId);
-            if (!node)
-                return 0;
+            auto node = self->FindNode(nodeId); // 등록된 노드 ID로 해당 노드를 찾음
+            if (!node) return 0; // 못 찾으면 아무것도 하지 않음
 
+            /*
+            data 포인터가 유효하면, 해당 노드의 State 데이터를 메모리에 복사
+            이 State는 ImGuiNodeEditor 내부적으로 사용하는 직렬화된 노드의 시각적 상태(위치, 핀 정보 등)입니다.
+            node->State.size()를 반환해서 얼마나 많은 바이트가 채워졌는지 알림
+            */
             if (data != nullptr)
                 memcpy(data, node->State.data(), node->State.size());
             return node->State.size();
@@ -39,16 +45,26 @@ void blueprint::OnStart()
             return 0;
         };
 
+    //config.SaveSettings =
+    //    [](const char* data, size_t size, ed::SaveReasonFlags reason, void* userPointer) -> bool
+    //    { 
+    //        auto self = static_cast<blueprint*>(userPointer);
+    //
+    //
+    //    };
+
     config.SaveNodeSettings = [](ed::NodeId nodeId, const char* data, size_t size, ed::SaveReasonFlags reason, void* userPointer) -> bool
         {
             auto self = static_cast<blueprint*>(userPointer);
 
             auto node = self->FindNode(nodeId);
-            if (!node)
-                return false;
+            if (!node) return false;
 
+            /*
+            넘어온 data와 size를 해당 노드의 State에 저장
+            TouchNode()는 아마도 "변경되었음을 표시"하는 함수로 추정됩니다 (예: dirty flag 갱신)
+            */
             node->State.assign(data, size);
-
             self->TouchNode(nodeId);
 
             return true;
