@@ -9,7 +9,7 @@ using namespace u8_literals;
 using namespace Global;
 using namespace Command::Hierarchy;
 
-static void TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>& focusObject)
+void EditorHierarchyTool::TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>& focusObject)
 {
     auto TreeDoubleClickEvent = [&node]() {
         bool result = ImGui::IsMouseReleased(ImGuiMouseButton_Left) && ImGui::IsItemHovered();
@@ -241,6 +241,7 @@ void EditorHierarchyTool::OnStartGui()
 {
     _dockWindow = GetOwnerDockWindow();
     _editorSceneTool = _dockWindow->GetGui<EditorSceneTool>();
+    _editorFindTool  = _dockWindow->GetGui<HierarchyFindTool>();
 }
 
 void EditorHierarchyTool::OnPreFrameBegin() 
@@ -314,7 +315,7 @@ void EditorHierarchyTool::KeyboardEvent()
             }
         }
 
-        if (this->IsFocusFrame() || _editorSceneTool->IsFocusFrame())
+        if (this->IsFocusFrame() || _editorSceneTool->IsFocusFrame() || _editorFindTool->IsFocusFrame())
         {
             if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_Delete))
             {

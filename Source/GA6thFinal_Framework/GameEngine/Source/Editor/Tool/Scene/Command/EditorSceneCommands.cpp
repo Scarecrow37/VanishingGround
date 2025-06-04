@@ -184,24 +184,25 @@ void Command::EditorScene::DuplicateCommand::Execute()
     }
     else
     {
-        auto& rootObject       = _destObjects.front();
+        auto& rootObject = _destObjects.front();
         rootObject->ActiveSelf = _active;
         for (auto& object : _destObjects)
         {
             UmSceneManager.SetObjectOwnerScene(object.get(), _ownerSceneName);
-            rootObject->GetScene().IsDirty = true;
             ESceneManager::Engine::AddGameObjectToLifeCycle(object);
         }
     }
+    auto& rootObject = _destObjects.front();
+    rootObject->GetScene().IsDirty = true;
     Super::Execute();
 }
 
 void Command::EditorScene::DuplicateCommand::Undo()
 {
-    auto& rootObject               = _destObjects.front();
+    auto& rootObject = _destObjects.front();
     rootObject->GetScene().IsDirty = true;
 
-    int instanceID         = rootObject->GetInstanceID();
+    int instanceID = rootObject->GetInstanceID();
     rootObject->ActiveSelf = false;
     UmSceneManager.AddDestroyObjectQueue(rootObject.get());
     if (EditorHierarchyTool::HierarchyFocusObjWeak.lock() == rootObject)
@@ -210,5 +211,6 @@ void Command::EditorScene::DuplicateCommand::Undo()
         EditorHierarchyTool::HierarchyFocusObjWeak = empty;
         EditorInspectorTool::SetFocusObject(empty);
     }
+    rootObject->GetScene().IsDirty = true;
     Super::Undo();
 }

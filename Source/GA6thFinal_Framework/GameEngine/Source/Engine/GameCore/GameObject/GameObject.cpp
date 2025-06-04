@@ -16,6 +16,16 @@ GameObject* GameObject::Instantiate(GameObject& gameObject)
     return pObject.get();
 }
 
+std::vector<std::weak_ptr<GameObject>> GameObject::FindGameObjectsWithTag(std::string_view tag)
+{
+    return ESceneManager::Engine::FindGameObjectsWithTag(tag);
+}
+
+std::weak_ptr<GameObject> GameObject::FindWithTag(std::string_view tag)
+{
+    return ESceneManager::Engine::FindGameObjectWithTag(tag);
+}
+
 void GameObject::Destroy(Component& component, float t)
 {
     ESceneManager::Engine::DestroyObject(component);
@@ -43,6 +53,14 @@ GameObject::~GameObject()
     if (0 <= _instanceID)
     {
         UmGameObjectFactory.InstanceID.ReturnInstanceID(_instanceID);
+    }
+
+    if (0 < ReflectFields->_tags.size())
+    {
+        for (auto& tag : ReflectFields->_tags)
+        {
+            ESceneManager::Engine::EraseGameObjectTag(this, tag);
+        }
     }
 }
 
@@ -123,6 +141,8 @@ void GameObject::OnInspectorStay()
             ImGui::Text("Instance ID : %d", _instanceID);
             ImGui::PopStyleColor();
         }
+
+        ImguiEditTags();
 
         UmCore->ImGuiDrawPropertysSetting.InputEndEvent = SetSceneDirtyFlag;
         ImGuiDrawPropertys();
@@ -311,6 +331,68 @@ void GameObject::OnInspectorStay()
     ImGui::PopID();
 }
 
+void GameObject::ImguiEditTags() 
+{
+    if (ImGui::CollapsingHeader("Tags", ImGuiTreeNodeFlags_::ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        static std::vector<std::set<std::string>::iterator> eraseList;
+        for (auto iter = ReflectFields->_tags.begin(); iter != ReflectFields->_tags.end(); ++iter)
+        {
+            ImGui::BulletText("%s", iter->c_str());
+            ImGui::SameLine();
+            std::string buttonLabel = "Remove##" + *iter;
+            if (ImGui::SmallButton(buttonLabel.c_str()))
+            {
+                eraseList.push_back(iter);
+            }                
+        }
+
+        if (false == eraseList.empty())
+        {
+            for (auto& iter : eraseList)
+            {
+                ESceneManager::Engine::EraseGameObjectTag(this, *iter);
+                ReflectFields->_tags.erase(iter);
+            }
+            eraseList.clear();
+
+            GetScene().IsDirty = true;
+        }
+
+        static std::string tagInputBuffer;
+        if (ImGui::Button("Add"))
+        {
+            ImVec2 mousePos = ImGui::GetMousePos();
+            ImGui::SetNextWindowPos(mousePos, ImGuiCond_Always);         
+            ImGui::OpenPopup("AddTagsPopup");
+        }
+
+        if (ImGui::BeginPopup("AddTagsPopup"))
+        {
+            ImGui::InputText("##Tags", &tagInputBuffer);
+
+            if (ImGui::IsKeyReleased(ImGuiKey_Enter) || ImGui::Button("Add"))
+            {                
+                auto [iter, result] = ReflectFields->_tags.insert(tagInputBuffer);
+                if (result)
+                {
+                    ESceneManager::Engine::InsertGameObjectTag(this, tagInputBuffer);
+                }
+                ImGui::CloseCurrentPopup();
+
+                GetScene().IsDirty = true;
+            }
+            ImGui::SameLine();
+            if (ImGui::IsKeyReleased(ImGuiKey_Escape) || ImGui::Button("Cancel"))
+            {
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::EndPopup();
+        }
+    }
+    ImGui::Separator();
+}
+
 void GameObject::SerializedReflectEvent() 
 {
    
@@ -318,7 +400,14 @@ void GameObject::SerializedReflectEvent()
 
 void GameObject::DeserializedReflectEvent() 
 {
-   
+    //태그들을 SceneManager에 등록
+    if (true == IsValid())
+    {
+        for (auto& tag : ReflectFields->_tags)
+        {
+            ESceneManager::Engine::InsertGameObjectTag(this, tag);
+        }
+    }
 }
 
 std::string GameObject::Helper::GenerateUniqueName(std::string_view baseName)
