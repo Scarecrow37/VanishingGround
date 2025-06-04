@@ -342,6 +342,8 @@ void EditorSceneTool::DrawSceneView()
         }
     };
    
+    ImageButtonMode();
+    ImGui::SameLine();
     ImageButtonOperation(ImGuizmo::OPERATION::TRANSLATE);
     ImGui::SameLine();
     ImageButtonOperation(ImGuizmo::OPERATION::ROTATE);
@@ -349,8 +351,6 @@ void EditorSceneTool::DrawSceneView()
     ImageButtonOperation(ImGuizmo::OPERATION::SCALE);
     ImGui::SameLine();
     ImageButtonOperation(ImGuizmo::OPERATION::UNIVERSAL);
-    ImGui::SameLine();
-    ImageButtonMode();
 
 }
 

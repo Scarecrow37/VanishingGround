@@ -86,7 +86,7 @@ static void TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>
             if (ImGui::MenuItem("Destroy"))
             {
                 node.gameObject->GetScene().IsDirty = true;
-                GameObject::Destroy(&node.gameObject);
+                UmCommandManager.Do<Command::EditorScene::DestroyGameObjectCommand>(&node.gameObject);
             }
             ImGui::Separator();
             if(ImGui::BeginMenu("Prefab"))
@@ -237,9 +237,10 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
     }
 }
 
-void  EditorHierarchyTool::OnStartGui()
+void EditorHierarchyTool::OnStartGui()
 {
-   
+    _dockWindow = GetOwnerDockWindow();
+    _editorSceneTool = _dockWindow->GetGui<EditorSceneTool>();
 }
 
 void EditorHierarchyTool::OnPreFrameBegin() 
@@ -296,7 +297,7 @@ void EditorHierarchyTool::HierarchyRightClickEvent() const
 
 void EditorHierarchyTool::KeyboardEvent() 
 {
-    if (GetOwnerDockWindow()->IsFocusFrame())
+    if (_dockWindow->IsFocusFrame())
     {
         bool holdCtrl = ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftCtrl);
         if (holdCtrl)
@@ -311,6 +312,19 @@ void EditorHierarchyTool::KeyboardEvent()
                     UmSceneManager.WriteSceneToFile(*scene, writePath.string(), true);
                 }
             }
+        }
+
+        if (this->IsFocusFrame() || _editorSceneTool->IsFocusFrame())
+        {
+            if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_Delete))
+            {
+                if (false == HierarchyFocusObjWeak.expired())
+                {
+                    auto object = HierarchyFocusObjWeak.lock();
+                    object->GetScene().IsDirty = true;
+                    UmCommandManager.Do<Command::EditorScene::DestroyGameObjectCommand>(object.get());
+                }             
+            }              
         }
     }
 }
@@ -406,7 +420,8 @@ void EditorHierarchyTool::OnFrameRender()
     }
 }
 
-void EditorHierarchyTool::OnFrameEnd() {
+void EditorHierarchyTool::OnFrameEnd() 
+{
     
 }
 
@@ -418,5 +433,10 @@ void EditorHierarchyTool::OnFramePopupOpened()
 void EditorHierarchyTool::OnTickGui() 
 {
     _isPlay = editorModule->PlayMode.IsPlay();
+}
+
+void EditorHierarchyTool::OnFrameFocusStay() 
+{
+
 }
 

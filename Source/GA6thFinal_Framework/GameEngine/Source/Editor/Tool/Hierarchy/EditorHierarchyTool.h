@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+class EditorSceneTool;
+
 class EditorHierarchyTool
     : public EditorTool
 {
@@ -23,6 +25,8 @@ private:
 
     virtual void OnTickGui() override;
 
+    virtual void OnFrameFocusStay() override;
+
     //드래그 드롭 이벤트
     void HierarchyDropEvent();
 
@@ -34,5 +38,8 @@ private:
 
     ImGuiWindow* _window = nullptr;
     bool         _isPlay = false;
+
+    EditorDockWindow* _dockWindow = nullptr;
+    EditorSceneTool*  _editorSceneTool = nullptr;
 };
 
