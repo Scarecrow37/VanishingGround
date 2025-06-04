@@ -18,13 +18,13 @@ EditorSceneTool::EditorSceneTool()
     SetLabel("Scene");
     SetDockLayout(ImGuiDir_Up);
 
-    drawManipulateDesc.Operation = ImGuizmo::TRANSLATE;
-    drawManipulateDesc.Mode      = ImGuizmo::MODE::WORLD;
-    drawManipulateDesc.UseSnap = false;
-    drawManipulateDesc.Snap = {1.f, 1.f, 1.f};
+    _drawManipulateDesc.Operation = ImGuizmo::TRANSLATE;
+    _drawManipulateDesc.Mode      = ImGuizmo::MODE::WORLD;
+    _drawManipulateDesc.UseSnap = false;
+    _drawManipulateDesc.Snap = {1.f, 1.f, 1.f};
 
-    drawManipulateDesc.ViewDesc.Size = ImVec2(128, 128);
-    drawManipulateDesc.ViewDesc.BackgroundColor = 0x10101010;
+    _drawManipulateDesc.ViewDesc.Size = ImVec2(128, 128);
+    _drawManipulateDesc.ViewDesc.BackgroundColor = 0x10101010;
     UpdateCameraSetting();
 }
 
@@ -35,7 +35,7 @@ EditorSceneTool::~EditorSceneTool()
 
 void EditorSceneTool::SetManipulateObject(std::weak_ptr<GameObject>& object) 
 {
-    pSceneTool-> _manipulateObject = object;
+    pSceneTool->_manipulateObject = object;
 }
 
 void EditorSceneTool::OnStartGui()
@@ -141,23 +141,23 @@ void EditorSceneTool::UpdateMode()
     if (false == ImGui::IsKeyDown(ImGuiKey_MouseRight))
     {
         if (ImGui::IsKeyPressed(ImGuiKey_W))
-            drawManipulateDesc.Operation = ImGuizmo::TRANSLATE;
+            _drawManipulateDesc.Operation = ImGuizmo::TRANSLATE;
         if (ImGui::IsKeyPressed(ImGuiKey_E))
-            drawManipulateDesc.Operation = ImGuizmo::ROTATE;
+            _drawManipulateDesc.Operation = ImGuizmo::ROTATE;
         if (ImGui::IsKeyPressed(ImGuiKey_R))
-            drawManipulateDesc.Operation = ImGuizmo::SCALE;
+            _drawManipulateDesc.Operation = ImGuizmo::SCALE;
         if (ImGui::IsKeyPressed(ImGuiKey_T))
-            drawManipulateDesc.Operation = ImGuizmo::UNIVERSAL;
+            _drawManipulateDesc.Operation = ImGuizmo::UNIVERSAL;
 
         if (ImGui::IsKeyPressed(ImGuiKey_X))
         {
-            if (drawManipulateDesc.Mode == ImGuizmo::MODE::LOCAL)
+            if (_drawManipulateDesc.Mode == ImGuizmo::MODE::LOCAL)
             {
-                drawManipulateDesc.Mode = ImGuizmo::MODE::WORLD;
+                _drawManipulateDesc.Mode = ImGuizmo::MODE::WORLD;
             }
             else
             {
-                drawManipulateDesc.Mode = ImGuizmo::MODE::LOCAL;
+                _drawManipulateDesc.Mode = ImGuizmo::MODE::LOCAL;
             }
         }      
     }  
@@ -177,12 +177,12 @@ void EditorSceneTool::DrawManipulate()
 
             EditorDynamicCamera* pDynamicCamera = _camera.get();
 
-            drawManipulateDesc.ViewDesc.ClientRight = _clientRight;
-            drawManipulateDesc.ViewDesc.ClientTop   = _clientTop;
+            _drawManipulateDesc.ViewDesc.ClientRight = _clientRight;
+            _drawManipulateDesc.ViewDesc.ClientTop   = _clientTop;
 
             ImGuizmo::SetDrawlist();
             ImGuizmo::SetRect(_clientLeft, _clientTop, _clientWidth, _clientHeight);
-            _isUseManipulate = ImGuiHelper::DrawManipulate(pDynamicCamera, pObjectMatrix, drawManipulateDesc);
+            _isUseManipulate = ImGuiHelper::DrawManipulate(pDynamicCamera, pObjectMatrix, _drawManipulateDesc);
             _isUsing         = ImGuizmo::IsUsing();
             _isOver          = ImGuizmo::IsOver();
 
@@ -259,8 +259,87 @@ void EditorSceneTool::DrawManipulate()
 
 void EditorSceneTool::DrawSceneView() 
 {
-    auto   handle = UmRenderer.GetRenderSceneImage("Editor");
-    ImGui::Image((ImTextureID)handle.ptr, {_clientWidth, _clientHeight});
+    D3D12_GPU_DESCRIPTOR_HANDLE handle = UmRenderer.GetRenderSceneImage("Editor");
+    ImGui::Image((ImTextureID)handle.ptr, {_clientWidth, _clientHeight});  
+
+    constexpr ImVec2 iconButtonSize = ImVec2(64.0f, 64.0f);
+    constexpr ImVec2 damp = ImVec2(4.f, 4.f);
+    ImVec2 moveIconPos = _window->ContentRegionRect.Min;
+    ImGui::SetCursorScreenPos(ImVec2(moveIconPos.x + damp.x, moveIconPos.y + damp.y));
+    //static std::shared_ptr<Texture> moveIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/Move.png");
+    //static D3D12_GPU_DESCRIPTOR_HANDLE moveIconHandle = moveIconTexture->GetHandle();
+    //ImGui::ImageButton(
+    //"Move",
+    //(ImTextureID)moveIconHandle.ptr,
+    //iconButtonSize,
+    //ImVec2(0,0),
+    //ImVec2(1,1),
+    //ImVec4(0,0,0,0),
+    //ImVec4(1,1,1,1)
+    //);
+
+    auto ImageButtonOperation = [&](ImGuizmo::OPERATION op) 
+    {
+        bool isActive = IsActiveOperation(op);
+        if (isActive)
+        {
+            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.22f, 0.28f, 0.35f, 1.0f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.26f, 0.32f, 0.40f, 1.0f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.18f, 0.24f, 0.30f, 1.0f));
+        }
+
+        if (ImGuizmo::TRANSLATE == op)
+        {
+            if (ImGui::Button("Move", iconButtonSize))
+            {
+                _drawManipulateDesc.Operation = ImGuizmo::TRANSLATE;
+            }
+        }
+        else if (ImGuizmo::ROTATE == op)
+        {
+            if (ImGui::Button("Rotation", iconButtonSize))
+            {
+                _drawManipulateDesc.Operation = ImGuizmo::ROTATE;
+            }
+        }
+        else if (ImGuizmo::SCALE == op)
+        {
+            if (ImGui::Button("Scale", iconButtonSize))
+            {
+                _drawManipulateDesc.Operation = ImGuizmo::SCALE;
+            }
+        }
+        else if (ImGuizmo::UNIVERSAL == op)
+        {
+            if (ImGui::Button("Transform", iconButtonSize))
+            {
+                _drawManipulateDesc.Operation = ImGuizmo::UNIVERSAL;
+            }
+        }
+
+        if (isActive)
+        {
+            ImGui::PopStyleColor(3);
+        }
+    };
+   
+    ImageButtonOperation(ImGuizmo::OPERATION::TRANSLATE);
+    ImGui::SameLine();
+    ImageButtonOperation(ImGuizmo::OPERATION::ROTATE);
+    ImGui::SameLine();
+    ImageButtonOperation(ImGuizmo::OPERATION::SCALE);
+    ImGui::SameLine();
+    ImageButtonOperation(ImGuizmo::OPERATION::UNIVERSAL);
+}
+
+bool EditorSceneTool::IsActiveOperation(ImGuizmo::OPERATION op) const
+{
+    return op == _drawManipulateDesc.Operation;
+}
+
+bool EditorSceneTool::IsActiveMode(ImGuizmo::MODE mode) const
+{
+    return mode == _drawManipulateDesc.Mode;
 }
 
 void EditorSceneTool::SerializedReflectEvent() 
