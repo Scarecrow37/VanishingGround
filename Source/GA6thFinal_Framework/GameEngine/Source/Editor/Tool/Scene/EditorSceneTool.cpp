@@ -322,6 +322,25 @@ void EditorSceneTool::DrawSceneView()
             ImGui::PopStyleColor(3);
         }
     };
+
+    auto ImageButtonMode = [&]() 
+    {
+        bool isWorldMode = IsActiveMode(ImGuizmo::MODE::WORLD);
+        if (isWorldMode)
+        {
+            if (ImGui::Button("World", iconButtonSize))
+            {
+                _drawManipulateDesc.Mode = ImGuizmo::MODE::LOCAL;
+            }
+        }
+        else
+        {
+            if (ImGui::Button("Local", iconButtonSize))
+            {
+                _drawManipulateDesc.Mode = ImGuizmo::MODE::WORLD;
+            }
+        }
+    };
    
     ImageButtonOperation(ImGuizmo::OPERATION::TRANSLATE);
     ImGui::SameLine();
@@ -330,6 +349,9 @@ void EditorSceneTool::DrawSceneView()
     ImageButtonOperation(ImGuizmo::OPERATION::SCALE);
     ImGui::SameLine();
     ImageButtonOperation(ImGuizmo::OPERATION::UNIVERSAL);
+    ImGui::SameLine();
+    ImageButtonMode();
+
 }
 
 bool EditorSceneTool::IsActiveOperation(ImGuizmo::OPERATION op) const
