@@ -202,19 +202,23 @@ void EditorSceneTool::DrawManipulate()
                     Vector3    position;
                     Quaternion rotation;
                     Vector3    scale;
+                    bool decomposeResult = false;
                     if (nullptr == parent)
                     {
-                        worldMatrix.Decompose(scale, rotation, position);
+                        decomposeResult = worldMatrix.Decompose(scale, rotation, position);
                     }
                     else
                     {
                         const Matrix& parentWorldInvert = parent->GetWorldMatrix().Invert();
-                        Matrix        localMatrix       = worldMatrix * parentWorldInvert;
-                        localMatrix.Decompose(scale, rotation, position);
+                        Matrix localMatrix = worldMatrix * parentWorldInvert;
+                        decomposeResult = localMatrix.Decompose(scale, rotation, position);
                     }
-                    pObject->transform->Position = position;
-                    pObject->transform->Rotation = rotation;
-                    pObject->transform->Scale    = scale;
+                    if (decomposeResult)
+                    {
+                        pObject->transform->Position = position;
+                        pObject->transform->Rotation = rotation;
+                        pObject->transform->Scale    = scale;
+                    }
                 }
 
                 static bool                         prevIsUsing = false;

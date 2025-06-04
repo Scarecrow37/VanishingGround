@@ -132,7 +132,7 @@ public:
             return;
 
         _hasChanged = true;
-        _scale      = value;
+        _scale = value;
     }
     GETTER(const Vector3&, Scale) { return _scale; }
     PROPERTY(Scale)
