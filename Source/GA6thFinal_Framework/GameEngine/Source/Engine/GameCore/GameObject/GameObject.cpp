@@ -117,15 +117,14 @@ void GameObject::OnInspectorStay()
             ImGui::Separator();
         }
 
-        ImGui::SameLine();
-        ImguiEditTags();
-
         if (isDebug)
         {
             ImGui::PushStyleColor(ImGuiCol_Text, DEBUG_TEXT_COLOR);   
             ImGui::Text("Instance ID : %d", _instanceID);
             ImGui::PopStyleColor();
         }
+
+        ImguiEditTags();
 
         UmCore->ImGuiDrawPropertysSetting.InputEndEvent = SetSceneDirtyFlag;
         ImGuiDrawPropertys();
@@ -316,7 +315,59 @@ void GameObject::OnInspectorStay()
 
 void GameObject::ImguiEditTags() 
 {
-    ImGui::Text("Tags");
+    if (ImGui::CollapsingHeader("Tags", ImGuiTreeNodeFlags_::ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        static std::vector<std::set<std::string>::iterator> eraseList;
+        for (auto iter = ReflectFields->_tags.begin(); iter != ReflectFields->_tags.end(); ++iter)
+        {
+            ImGui::BulletText("%s", iter->c_str());
+            ImGui::SameLine();
+            std::string buttonLabel = "Remove##" + *iter;
+            if (ImGui::SmallButton(buttonLabel.c_str()))
+            {
+                eraseList.push_back(iter);
+            }                
+        }
+
+        if (false == eraseList.empty())
+        {
+            for (auto& iter : eraseList)
+            {
+                ReflectFields->_tags.erase(iter);
+            }
+            eraseList.clear();
+
+            GetScene().IsDirty = true;
+        }
+
+        static std::string tagInputBuffer;
+        if (ImGui::Button("Add"))
+        {
+            ImVec2 mousePos = ImGui::GetMousePos();
+            ImGui::SetNextWindowPos(mousePos, ImGuiCond_Always);         
+            ImGui::OpenPopup("AddTagsPopup");
+        }
+
+        if (ImGui::BeginPopup("AddTagsPopup"))
+        {
+            ImGui::InputText("##Tags", &tagInputBuffer);
+
+            if (ImGui::IsKeyReleased(ImGuiKey_Enter) || ImGui::Button("Add"))
+            {                
+                ReflectFields->_tags.insert(tagInputBuffer);
+                ImGui::CloseCurrentPopup();
+
+                GetScene().IsDirty = true;
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Cancel"))
+            {
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::EndPopup();
+        }
+    }
+    ImGui::Separator();
 }
 
 void GameObject::SerializedReflectEvent() {
