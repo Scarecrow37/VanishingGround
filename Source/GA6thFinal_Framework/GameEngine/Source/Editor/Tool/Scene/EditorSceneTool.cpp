@@ -341,6 +341,33 @@ void EditorSceneTool::DrawSceneView()
             }
         }
     };
+    auto ImageButtonGridSnap = [&]() 
+    {
+        bool isActive = _drawManipulateDesc.UseSnap;
+        if (isActive)
+        {
+            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.22f, 0.28f, 0.35f, 1.0f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.26f, 0.32f, 0.40f, 1.0f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.18f, 0.24f, 0.30f, 1.0f));
+        }
+
+        if (ImGui::Button("Grid snap", iconButtonSize))
+        {
+            _drawManipulateDesc.UseSnap = !isActive;
+        }
+        
+        if (ImGui::BeginPopupContextItem("Snap setting"))
+        {
+            ImGui::DragFloat3("Step", _drawManipulateDesc.Snap.data(), 0.1f);
+
+            ImGui::EndPopup();
+        }
+
+        if (isActive)
+        {
+            ImGui::PopStyleColor(3);
+        }
+    };
    
     ImageButtonMode();
     ImGui::SameLine();
@@ -351,7 +378,8 @@ void EditorSceneTool::DrawSceneView()
     ImageButtonOperation(ImGuizmo::OPERATION::SCALE);
     ImGui::SameLine();
     ImageButtonOperation(ImGuizmo::OPERATION::UNIVERSAL);
-
+    ImGui::SameLine();
+    ImageButtonGridSnap();
 }
 
 bool EditorSceneTool::IsActiveOperation(ImGuizmo::OPERATION op) const
