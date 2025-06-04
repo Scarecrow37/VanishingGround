@@ -397,7 +397,7 @@ void EditorHierarchyTool::OnFrameRender()
         ImGui::PopID();
     }
 
-    if (editorModule->PlayMode.IsPlay())
+    if (_isPlay)
     {
         Scene* pDontDestroyOnLoad = UmSceneManager.GetDontDestroyOnLoadScene();
         if (nullptr != pDontDestroyOnLoad)
