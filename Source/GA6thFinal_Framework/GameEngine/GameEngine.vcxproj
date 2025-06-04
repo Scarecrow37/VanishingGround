@@ -297,6 +297,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Source\Editor\Menu\Model\EditorModelMenu.h" />
+    <ClInclude Include="Source\Editor\Tool\Hierarchy\HierarchyFindTool.h" />
     <ClInclude Include="Source\Editor\Tool\Scene\Command\EditorSceneCommands.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\SkyBoxPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\SkyBoxRenderTechnique.h" />
@@ -464,6 +465,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Editor\Menu\Model\EditorModelMenu.cpp" />
+    <ClCompile Include="Source\Editor\Tool\Hierarchy\HierarchyFindTool.cpp" />
     <ClCompile Include="Source\Editor\Tool\Scene\Command\EditorSceneCommands.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
