@@ -6,7 +6,7 @@ class Component;
 //Unity GameObject Script https://docs.unity3d.com/6000.0/Documentation/ScriptReference/GameObject.html
 
 //오브젝트 생성용 전역함수
-template<IS_BASE_GAMEOBJECT_C TObject>
+template<IS_BASE_GAMEOBJECT_C TObject = GameObject>
 std::shared_ptr<TObject> NewGameObject(
     std::string_view name)
 {
@@ -50,7 +50,7 @@ public:
 
     /// <summary>
     /// <para> 매개변수와 같은 이름을 가진 GameObject를 찾아 전부 반환합니다. </para>
-    /// <para> 같은 이름의 GameObject가 없으면 nullptr를 반환합니다.         </para>
+    /// <para> 같은 이름의 GameObject가 없으면 empty를 반환합니다.         </para>
     /// </summary>
     /// <param name="name :">검색할 오브젝트의 이름</param>
     /// <returns>찾은 오브젝트를 weak_ptr에 담아준다.</returns>
@@ -126,14 +126,14 @@ public:
     /// <para> 대상 오브젝트의 복사본을 현재 씬에 생성합니다.  </para>
     /// </summary>
     /// <param name="gameObject :">복사할 오브젝트</param>
-    static void Instantiate(GameObject& original);
+    static GameObject* Instantiate(GameObject& original);
     /// <summary>
     /// <para> 대상 오브젝트의 복사본을 현재 씬에 생성합니다.  </para>
     /// </summary>
     /// <param name="gameObject :">복사할 오브젝트</param>
-    static void Instantiate(GameObject* original)
+    static GameObject* Instantiate(GameObject* original)
     {
-        Instantiate(*original);
+        return Instantiate(*original);
     }
    
 public:

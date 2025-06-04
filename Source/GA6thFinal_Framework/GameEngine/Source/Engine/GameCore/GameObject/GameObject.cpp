@@ -1,4 +1,5 @@
 ﻿#include "pch.h"
+#include "Editor/Tool/Scene/Command/EditorSceneCommands.h"
 using namespace Global;
 
 #define SAFE_FREE(ptr) if(ptr != nullptr) free(ptr)
@@ -8,10 +9,11 @@ void GameObject::DontDestroyOnLoad(GameObject& gameObject)
     ESceneManager::Engine::DontDestroyOnLoadObject(gameObject);
 }
 
-void GameObject::Instantiate(GameObject& gameObject)
+GameObject* GameObject::Instantiate(GameObject& gameObject)
 {
     YAML::Node node = UmGameObjectFactory.SerializeToYaml(&gameObject);
-    UmGameObjectFactory.DeserializeToYaml(&node);
+    auto pObject = UmGameObjectFactory.DeserializeToYaml(&node);
+    return pObject.get();
 }
 
 void GameObject::Destroy(Component& component, float t)
@@ -139,7 +141,14 @@ void GameObject::OnInspectorStay()
             if (selectObject == this)
                 selectObject = nullptr;
 
-            GameObject::Destroy(this);
+            if (false == editorModule->PlayMode.IsPlay())
+            {
+                UmCommandManager.Do<Command::EditorScene::DestroyGameObjectCommand>(this);
+            }
+            else
+            {
+                GameObject::Destroy(this);
+            }
         }
 
         for (int i = 0; i < _components.size(); i++)
@@ -221,7 +230,14 @@ void GameObject::OnInspectorStay()
 
                 if (ImGui::Button("Destroy Component"))
                 {
-                    GameObject::Destroy(component.get());
+                    if (false == editorModule->PlayMode.IsPlay())
+                    {
+                        UmCommandManager.Do<Command::EditorScene::DestroyComponentCommand>(component.get());
+                    }
+                    else
+                    {
+                        GameObject::Destroy(component.get());
+                    }                 
                 }
                 ImGui::Separator();
             }
@@ -272,7 +288,7 @@ void GameObject::OnInspectorStay()
                     {
                         if (ImGui::Button(key.c_str() + 6))
                         {
-                            UmCommandManager.Do<ESceneManager::AddComponentCommand>(selectObject, key);
+                            UmCommandManager.Do<Command::EditorScene::AddComponentCommand>(selectObject, key);
                             ImGui::CloseCurrentPopup();
                         }
                     }

@@ -609,6 +609,9 @@
     <ClInclude Include="Source\Editor\Tool\NodeEditor\blueprint.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Editor\Tool\Scene\Command\EditorSceneCommands.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\pch.cpp">
@@ -1053,6 +1056,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Editor\Tool\NodeEditor\blueprint.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\Scene\Command\EditorSceneCommands.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

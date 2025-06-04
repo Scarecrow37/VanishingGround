@@ -14,7 +14,7 @@ private:
     inline static EditorSceneTool* pSceneTool = nullptr;
 
 private:
-    virtual void  OnStartGui() override;
+    virtual void OnStartGui() override;
 
     virtual void OnPreFrameBegin() override;
 
