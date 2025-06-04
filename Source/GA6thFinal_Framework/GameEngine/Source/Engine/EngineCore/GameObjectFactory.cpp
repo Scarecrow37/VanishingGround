@@ -589,9 +589,12 @@ void EGameObjectFactory::ParsingYamlToGameObject(GameObject* pObject, const YAML
             bool        _isStatic   = false;
             //std::set<std::string> _tags; //"Version = 1"부터 추가됨
         };
+
+        //구 버전 구조체로 역직렬화
         ReflectFieldsVer0 data;
         ReflectHelper::json::DeserializedObjet(data, ReflectFields);
-        auto view = rfl::to_view(data);
+
+        //두개 데이터 통합
         auto& objectReflectFields = *pObject->ReflectFields.Get();
         objectReflectFields = rfl::as<GameObject::reflect_fields_struct>(data, objectReflectFields);
     }
