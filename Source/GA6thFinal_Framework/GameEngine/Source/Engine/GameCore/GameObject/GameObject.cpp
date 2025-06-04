@@ -16,6 +16,16 @@ GameObject* GameObject::Instantiate(GameObject& gameObject)
     return pObject.get();
 }
 
+std::vector<std::weak_ptr<GameObject>> GameObject::FindGameObjectsWithTag(std::string_view tag)
+{
+    return ESceneManager::Engine::FindGameObjectsWithTag(tag);
+}
+
+std::weak_ptr<GameObject> GameObject::FindWithTag(std::string_view tag)
+{
+    return ESceneManager::Engine::FindGameObjectWithTag(tag);
+}
+
 void GameObject::Destroy(Component& component, float t)
 {
     ESceneManager::Engine::DestroyObject(component);
@@ -43,6 +53,14 @@ GameObject::~GameObject()
     if (0 <= _instanceID)
     {
         UmGameObjectFactory.InstanceID.ReturnInstanceID(_instanceID);
+    }
+
+    if (0 < ReflectFields->_tags.size())
+    {
+        for (auto& tag : ReflectFields->_tags)
+        {
+            ESceneManager::Engine::EraseGameObjectTag(this, tag);
+        }
     }
 }
 
@@ -333,6 +351,7 @@ void GameObject::ImguiEditTags()
         {
             for (auto& iter : eraseList)
             {
+                ESceneManager::Engine::EraseGameObjectTag(this, *iter);
                 ReflectFields->_tags.erase(iter);
             }
             eraseList.clear();
@@ -354,13 +373,17 @@ void GameObject::ImguiEditTags()
 
             if (ImGui::IsKeyReleased(ImGuiKey_Enter) || ImGui::Button("Add"))
             {                
-                ReflectFields->_tags.insert(tagInputBuffer);
+                auto [iter, result] = ReflectFields->_tags.insert(tagInputBuffer);
+                if (result)
+                {
+                    ESceneManager::Engine::InsertGameObjectTag(this, tagInputBuffer);
+                }
                 ImGui::CloseCurrentPopup();
 
                 GetScene().IsDirty = true;
             }
             ImGui::SameLine();
-            if (ImGui::Button("Cancel"))
+            if (ImGui::IsKeyReleased(ImGuiKey_Escape) || ImGui::Button("Cancel"))
             {
                 ImGui::CloseCurrentPopup();
             }
@@ -370,13 +393,21 @@ void GameObject::ImguiEditTags()
     ImGui::Separator();
 }
 
-void GameObject::SerializedReflectEvent() {
+void GameObject::SerializedReflectEvent() 
+{
    
 }
 
 void GameObject::DeserializedReflectEvent() 
 {
-   
+    //태그들을 SceneManager에 등록
+    if (true == IsValid())
+    {
+        for (auto& tag : ReflectFields->_tags)
+        {
+            ESceneManager::Engine::InsertGameObjectTag(this, tag);
+        }
+    }
 }
 
 std::string GameObject::Helper::GenerateUniqueName(std::string_view baseName)

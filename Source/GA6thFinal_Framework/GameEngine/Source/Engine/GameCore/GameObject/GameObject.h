@@ -59,23 +59,21 @@ public:
         return ESceneManager::Engine::FindGameObjectsWithName(name);
     }
 
-    /// <summary>
-    /// <para> 구현 X                                                      </para>
+    /// <summary>                                                    </para>
     /// <para> 매개변수와 같은 태그가 설정된 GameObject들의 배열을 반환합니다. </para>
     /// <para> 태그가 있는 GameObject가 없으면 빈 배열을 반환합니다.          </para>
     /// </summary>
     /// <param name="tag :">검색할 태그</param>
     /// <returns>찾은 오브젝트들을 담은 weak_ptr배열</returns>
-    static std::vector<std::weak_ptr<GameObject>> FindGameObjectsWithTag(std::wstring_view tag) { return std::vector<std::weak_ptr<GameObject>>(); }
+    static std::vector<std::weak_ptr<GameObject>> FindGameObjectsWithTag(std::string_view tag);
 
-    /// <summary>
-    /// <para> 구현 X                                                                               </para>
+    /// <summary>                                                                           </para>
     /// <para> 매개변수와 같은 태그가 설정된 GameObject를 찾아 반환합니다.                             </para>
     /// <para> 참고 : 같은 태그가 설정된 오브젝트가 여러개 있으면 특정 오브젝트 반환을 보장하지 못합니다. </para>
     /// </summary>
     /// <param name="tag :">검색할 태그</param>
     /// <returns>찾은 오브젝트를 weak_ptr에 담아준다.</returns>
-    static std::weak_ptr<GameObject> FindWithTag(std::wstring_view tag) { return std::weak_ptr<GameObject>(); }
+    static std::weak_ptr<GameObject> FindWithTag(std::string_view tag);
 
     /// <summary>
     /// <para>전달받은 오브젝트 or 컴포넌트를 파괴합니다. </para>
