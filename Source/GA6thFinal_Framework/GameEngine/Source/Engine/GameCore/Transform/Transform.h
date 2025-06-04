@@ -119,8 +119,7 @@ public:
 
         _hasChanged = true;
         _eulerAngle = value;
-        Quaternion newRotation =
-            Quaternion::CreateFromYawPitchRoll(_eulerAngle * Mathf::Deg2Rad);
+        Quaternion newRotation = Quaternion::CreateFromYawPitchRoll(_eulerAngle * Mathf::Deg2Rad);
         _rotation = newRotation;
     }
     GETTER(const Vector3&, EulerAngle) { return _eulerAngle; }
