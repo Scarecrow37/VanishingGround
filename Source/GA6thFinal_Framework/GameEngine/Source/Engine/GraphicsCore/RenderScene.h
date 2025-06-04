@@ -96,6 +96,8 @@ public:
     // frame resource와 카메라 리소스.
     std::vector<std::shared_ptr<FrameResource>> _frameResources;
     ComPtr<ID3D12Resource>                      _cameraBuffer;
+    std::vector<XMMATRIX>                       _worldMatrixes;
+    std::vector<BoneMatrixes>                   _boneMatrixes;
 
     // 카메라 한개
     std::shared_ptr<Camera> _camera;

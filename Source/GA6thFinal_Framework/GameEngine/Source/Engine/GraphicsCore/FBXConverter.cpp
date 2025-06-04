@@ -35,8 +35,6 @@ void FBXConverter::ImportModel(const std::filesystem::path& filePath, std::share
 
     curr        = GetTickCount64();
     float delta = (curr - prev) / 1000.f;
-
-    int a = 0;
 }
 
 void FBXConverter::ExportModel(const std::filesystem::path& filePath)
@@ -301,8 +299,6 @@ void FBXConverter::Reset()
     _materialIndex.clear();
     _indices.clear();
     _textures.clear();
-    _skeleton.reset();
-    _animation.reset();
     _boneCount    = 0;
     _isStaticMesh = true;
 }
@@ -371,15 +367,17 @@ void FBXConverter::LoadFromAssimp(const std::filesystem::path& filePath, Model* 
     {
         FindMissingBone(scene->mRootNode, boneInfo);
 
-        _skeleton = std::make_shared<Skeleton>();
-        _skeleton->Initialize(scene, boneInfo);
+        std::shared_ptr<Skeleton> skeleton = std::make_shared<Skeleton>();
+        skeleton->Initialize(scene, boneInfo);
+        _model->_skeleton = skeleton;
     }
 
     if (scene->HasAnimations())
     {
-        _animation = UmResourceManager.LoadResource<Animation>(filePath.c_str());
-        _animation->LoadAnimation(scene);
-    }    
+        std::shared_ptr<Animation> animation = UmResourceManager.LoadResource<Animation>(filePath.c_str());
+        animation->LoadAnimation(scene);
+        _model->_animation = animation;
+    }
 }
 
 void FBXConverter::LoadFromBinary(const std::filesystem::path& filePath, Model* model)

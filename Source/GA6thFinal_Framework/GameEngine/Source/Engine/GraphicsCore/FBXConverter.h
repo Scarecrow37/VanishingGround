@@ -33,8 +33,6 @@ private:
     std::vector<std::string>                     _meshNames;
     std::shared_ptr<Model>                       _model;
 
-    std::shared_ptr<Skeleton>                    _skeleton;
-    std::shared_ptr<Animation>                   _animation;
     unsigned int                                 _boneCount;
     bool                                         _isStaticMesh;
 };

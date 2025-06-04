@@ -46,7 +46,7 @@ void EditorModelHierarchy::OnFrameRender()
                 _editorModelDetails->SetSelectedMesh(index);
             }
             index++;
-        }
+        }        
     }
 }
 
