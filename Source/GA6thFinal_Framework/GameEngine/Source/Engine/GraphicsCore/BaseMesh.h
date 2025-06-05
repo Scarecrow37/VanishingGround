@@ -10,7 +10,7 @@ public:
 public:
     std::string_view GetName() const { return _name; }
     void             SetName(std::string_view name) { _name = name; }
-    void             GetVertexInfo(char*& vertices, unsigned int& vertexStirde, unsigned int& vertexSize);
+    void             GetVertexInfo(char*& vertices, unsigned int& stride, unsigned int& size);
 
 public:
     void Initialize(const VIBuffer::Descriptor& descriptor, bool createVertexInfo = false);

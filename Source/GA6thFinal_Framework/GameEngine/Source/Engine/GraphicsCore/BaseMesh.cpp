@@ -14,11 +14,11 @@ BaseMesh::~BaseMesh()
     if (_vertices) delete[] _vertices;
 }
 
-void BaseMesh::GetVertexInfo(char*& vertices, unsigned int& vertexStirde, unsigned int& vertexSize)
+void BaseMesh::GetVertexInfo(char*& vertices, unsigned int& stride, unsigned int& size)
 {
-    vertices     = _vertices;
-    vertexStirde = _vertexStride;
-    vertexSize   = _vertexSize;
+    vertices = _vertices;
+    stride   = _vertexStride;
+    size     = _vertexSize;
 }
 
 void BaseMesh::Initialize(const VIBuffer::Descriptor& descriptor, bool createVertexInfo)
