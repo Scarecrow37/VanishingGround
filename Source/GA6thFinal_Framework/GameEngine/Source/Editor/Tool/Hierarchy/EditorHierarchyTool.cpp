@@ -1,6 +1,5 @@
 ﻿#include "pch.h"
-#include "EditorHierarchyTool.h"
-#include "Command/FocusCommand.h"
+#include "Editor/Tool/Scene/Command/EditorSceneCommands.h"
 #include "Command/SetParentCommand.h"
 #include "Command/DetachChildrenCommand.h"
 #include "Command/PackPrefabCommand.h"
@@ -10,7 +9,7 @@ using namespace u8_literals;
 using namespace Global;
 using namespace Command::Hierarchy;
 
-static void TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>& focusObject)
+void EditorHierarchyTool::TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>& focusObject)
 {
     auto TreeDoubleClickEvent = [&node]() {
         bool result = ImGui::IsMouseReleased(ImGuiMouseButton_Left) && ImGui::IsItemHovered();
@@ -87,7 +86,7 @@ static void TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>
             if (ImGui::MenuItem("Destroy"))
             {
                 node.gameObject->GetScene().IsDirty = true;
-                GameObject::Destroy(&node.gameObject);
+                UmCommandManager.Do<Command::EditorScene::DestroyGameObjectCommand>(&node.gameObject);
             }
             ImGui::Separator();
             if(ImGui::BeginMenu("Prefab"))
@@ -234,13 +233,15 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
     static const char* GameObjectName = GameObjectKey + 6;
     if (ImGui::MenuItem(GameObjectName))
     {
-        UmCommandManager.Do<ESceneManager::NewGameObjectCommand>(GameObjectKey, GameObject::Helper::GenerateUniqueName(GameObjectName));
+        UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(GameObjectKey, GameObject::Helper::GenerateUniqueName(GameObjectName));
     }
 }
 
-void  EditorHierarchyTool::OnStartGui()
+void EditorHierarchyTool::OnStartGui()
 {
-   
+    _dockWindow = GetOwnerDockWindow();
+    _editorSceneTool = _dockWindow->GetGui<EditorSceneTool>();
+    _editorFindTool  = _dockWindow->GetGui<HierarchyFindTool>();
 }
 
 void EditorHierarchyTool::OnPreFrameBegin() 
@@ -273,7 +274,7 @@ void EditorHierarchyTool::HierarchyDropEvent()
                 else if (extension == UmSceneManager.SCENE_EXTENSION)
                 {
                     UmSceneManager.LoadScene(path.string(), LoadSceneMode::ADDITIVE);
-                }        
+                }
             }
         }
         ImGui::EndDragDropTarget();
@@ -297,7 +298,7 @@ void EditorHierarchyTool::HierarchyRightClickEvent() const
 
 void EditorHierarchyTool::KeyboardEvent() 
 {
-    if (GetOwnerDockWindow()->IsFocusFrame())
+    if (_dockWindow->IsFocusFrame())
     {
         bool holdCtrl = ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftCtrl);
         if (holdCtrl)
@@ -312,6 +313,19 @@ void EditorHierarchyTool::KeyboardEvent()
                     UmSceneManager.WriteSceneToFile(*scene, writePath.string(), true);
                 }
             }
+        }
+
+        if (this->IsFocusFrame() || _editorSceneTool->IsFocusFrame() || _editorFindTool->IsFocusFrame())
+        {
+            if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_Delete))
+            {
+                if (false == HierarchyFocusObjWeak.expired())
+                {
+                    auto object = HierarchyFocusObjWeak.lock();
+                    object->GetScene().IsDirty = true;
+                    UmCommandManager.Do<Command::EditorScene::DestroyGameObjectCommand>(object.get());
+                }             
+            }              
         }
     }
 }
@@ -384,7 +398,7 @@ void EditorHierarchyTool::OnFrameRender()
         ImGui::PopID();
     }
 
-    if (editorModule->PlayMode.IsPlay())
+    if (_isPlay)
     {
         Scene* pDontDestroyOnLoad = UmSceneManager.GetDontDestroyOnLoadScene();
         if (nullptr != pDontDestroyOnLoad)
@@ -407,7 +421,8 @@ void EditorHierarchyTool::OnFrameRender()
     }
 }
 
-void EditorHierarchyTool::OnFrameEnd() {
+void EditorHierarchyTool::OnFrameEnd() 
+{
     
 }
 
@@ -419,5 +434,10 @@ void EditorHierarchyTool::OnFramePopupOpened()
 void EditorHierarchyTool::OnTickGui() 
 {
     _isPlay = editorModule->PlayMode.IsPlay();
+}
+
+void EditorHierarchyTool::OnFrameFocusStay() 
+{
+
 }
 
