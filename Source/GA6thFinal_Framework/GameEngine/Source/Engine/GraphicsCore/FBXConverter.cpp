@@ -240,7 +240,7 @@ void FBXConverter::LoadMesh(aiNode* node,
     };
 
     std::unique_ptr<BaseMesh> baseMesh = std::make_unique<BaseMesh>();
-    baseMesh->Initialize(descriptor);
+    baseMesh->Initialize(descriptor, true);
     baseMesh->SetName(node->mName.C_Str());
     model->AddMesh(std::move(baseMesh));
 
@@ -442,7 +442,7 @@ void FBXConverter::LoadFromBinary(const std::filesystem::path& filePath, Model* 
         };
 
         std::unique_ptr<BaseMesh> baseMesh = std::make_unique<BaseMesh>();
-        baseMesh->Initialize(descriptor);
+        baseMesh->Initialize(descriptor, true);
         baseMesh->SetName(_meshNames[i].c_str());
 
         unsigned int materialIndex = 0;
