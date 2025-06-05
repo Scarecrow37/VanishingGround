@@ -44,6 +44,7 @@ public:
     void PreUnInitializeImgui();
     void ImguiBegin();
     void ImguiEnd();
+    D3D12_GPU_DESCRIPTOR_HANDLE ConvertImGuiGPUHandle(const D3D12_CPU_DESCRIPTOR_HANDLE handle);
 
 private:
     void CreateDefaultResource();
