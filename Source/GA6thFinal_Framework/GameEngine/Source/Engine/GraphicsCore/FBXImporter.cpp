@@ -245,7 +245,7 @@ void FBXImporter::LoadMesh(aiNode* node,
 	};
 
 	std::unique_ptr<BaseMesh> baseMesh = std::make_unique<BaseMesh>();
-    baseMesh->Initialize(descriptor);
+    baseMesh->Initialize(descriptor, true);
     model->AddMesh(std::move(baseMesh));
     materialIndex.push_back(mesh->mMaterialIndex);
 }
