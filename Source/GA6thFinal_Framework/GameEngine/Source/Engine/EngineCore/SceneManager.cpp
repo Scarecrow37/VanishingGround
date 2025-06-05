@@ -1071,28 +1071,29 @@ bool ESceneManager::DeserializeToYaml(YAML::Node* _sceneNode)
     YAML::Node& sceneNode = *_sceneNode;
     int SerializeVersion = sceneNode["SerializeVersion"].as<int>();
     File::Guid Guid = sceneNode["Guid"].as<std::string>();
-    Scene& scene = _scenesMap[Guid];
 
-    YAML::Node rootObjects = sceneNode["GameObjects"].as<YAML::Node>();
+    const YAML::Node& rootObjects = sceneNode["GameObjects"];
     for (auto object : rootObjects)
     {
-        YAML::Node objectNodes = object;
+        const YAML::Node& objectNodes = object;
         YAML::Node rootObjectNode = *objectNodes.begin();
-        std::shared_ptr<GameObject> newObject = UmGameObjectFactory.DeserializeToSceneObject(object);
-        if (nullptr == newObject)
-        {
-            UmLogger.Log(LogLevel::LEVEL_FATAL, u8"메모리 할당 실패."_c_str);
-            __debugbreak();
-            UmApplication.Quit();
-            return false;
-        }
 
-        Transform::ForeachDFS(
-        newObject->_transform,
-        [&Guid](Transform* curr) 
+        if (false == rootObjectNode.IsNull())
         {
-            curr->_gameObject._ownerScene = Guid.ToPath().string();
-        });
+            std::shared_ptr<GameObject> newObject = UmGameObjectFactory.DeserializeToSceneObject(object);
+            if (nullptr == newObject)
+            {
+                UmLogger.Log(LogLevel::LEVEL_FATAL, u8"메모리 할당 실패."_c_str);
+                __debugbreak();
+                UmApplication.Quit();
+                return false;
+            }
+
+            Transform::ForeachDFS(newObject->_transform, [&Guid](Transform* curr) 
+            { 
+                curr->_gameObject._ownerScene = Guid.ToPath().string(); 
+            });
+        }
     }
     return true;
 }

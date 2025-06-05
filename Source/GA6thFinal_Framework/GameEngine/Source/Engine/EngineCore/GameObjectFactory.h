@@ -85,14 +85,14 @@ public:
     /// </summary>
     /// <param name="node"></param>
     /// <returns></returns>
-    std::shared_ptr<GameObject> DeserializeToYaml(YAML::Node* gameObjectNode);
+    std::shared_ptr<GameObject> DeserializeToYaml(YAML::Node* gameObjectNode, YAML::Node* sceneObjectNode = nullptr);
 
     /// <summary>
     /// GUID를 통해 파일을 읽어 오브젝트를 씬에 추가합니다.
     /// </summary>
     /// <param name="guid">생성할 프리팹 GUID</param>
     /// <returns></returns>
-    std::shared_ptr<GameObject> DeserializeToGuid(const File::Guid& guid);
+    std::shared_ptr<GameObject> DeserializeToGuid(const File::Guid& guid, YAML::Node* sceneNode = nullptr);
 
     /// <summary>
     /// 씬 파일에 저장된 object 정보를 역직렬화 합니다.
@@ -170,7 +170,7 @@ private:
    void ParsingYamlToGameObject(GameObject* pObject, const YAML::Node& objectNode);
 
    //오브젝트 계층구조를 포함한 Yaml 직렬화 데이터로 GameObject들을 만들어서 반환합니다.
-   std::vector<std::shared_ptr<GameObject>> MakeObjectsGraphToYaml(YAML::Node* pObjectNode, bool useResource = false);
+   std::vector<std::shared_ptr<GameObject>> MakeObjectsGraphToYaml(YAML::Node* pObjectNode, bool useResource = false, YAML::Node* pSceneObjectNode = nullptr);
 
    void RegisterGameObjects();
 private:

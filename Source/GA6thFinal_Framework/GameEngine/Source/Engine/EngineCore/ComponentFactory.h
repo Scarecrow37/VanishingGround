@@ -129,16 +129,23 @@ public:
     YAML::Node SerializeToYaml(Component* component);
 
     /// <summary>
+    /// Override된 맴버만 덮어씌웁니다.
+    /// </summary>
+    /// <param name="component :">대상 Component</param>
+    /// <param name="componentNode :">Scene 파일에 직렬화된 Component Node</param>
+    void ParsingYamlToOverrideFlags(Component* component, const YAML::Node& componentNode);
+
+    /// <summary>
     /// Yaml 형식으로 직렬화된 컴포넌트를 런타임 오브젝트에 추가합니다. 
     /// </summary>
     /// <returns></returns>
-    bool AddComponentToYamlLifeCycle(GameObject* ownerObject, YAML::Node* componentNode);
+    Component* AddComponentToYamlLifeCycle(GameObject* ownerObject, YAML::Node* componentNode);
 
     /// <summary>
     /// Yaml 형식으로 직렬화된 컴포넌트를 즉시 오브젝트에 추가합니다. (리소스 프리팹 전용)
     /// </summary>
     /// <returns></returns>
-    bool AddComponentToYamlNow(GameObject* ownerObject, YAML::Node* componentNode);
+    Component* AddComponentToYamlNow(GameObject* ownerObject, YAML::Node* componentNode);
 
     /// <summary>
     /// 컴포넌트를 오브젝트에 바로 추가합니다.

@@ -255,7 +255,40 @@ YAML::Node EComponentFactory::SerializeToYaml(Component* component)
     return MakeYamlToComponent(component);
 }
 
-bool EComponentFactory::AddComponentToYamlLifeCycle(GameObject* ownerObject, YAML::Node* componentNode)
+void EComponentFactory::ParsingYamlToOverrideFlags(Component* component, const YAML::Node& componentNode) 
+{
+    int SerializedVersion = 0;
+    const YAML::Node& node = componentNode;
+    if (node["SerializedVersion"])
+    {
+        SerializedVersion = node["SerializedVersion"].as<int>();
+    }
+
+    if (0 < SerializedVersion)
+    {
+        if constexpr (Application::IsEditor())
+        {
+            if (node["OverrideFlags"])
+            {
+                const YAML::Node& overrideFlagsNode = node["OverrideFlags"];
+                if (false == overrideFlagsNode.IsNull())
+                {
+                    std::string propertyName;
+                    component->applyReflectFields([&](std::string_view name, void* pData) 
+                    {
+                        if (overrideFlagsNode[name.data()])
+                        {
+                            propertyName = overrideFlagsNode[name.data()].as<std::string>();
+                            UmGameObjectFactory.SetOverrideFlag(pData, propertyName);
+                        }
+                    });
+                }
+            }
+        }
+    }
+}
+
+Component* EComponentFactory::AddComponentToYamlLifeCycle(GameObject* ownerObject, YAML::Node* componentNode)
 {
     if (UmComponentFactory.HasScript() == false)
     {
@@ -264,21 +297,22 @@ bool EComponentFactory::AddComponentToYamlLifeCycle(GameObject* ownerObject, YAM
             UmLogger.Log(LogLevel::LEVEL_FATAL, u8"스크립트 빌드 에러 해결 필요."_c_str);
             __debugbreak();
             UmApplication.Quit();
-            return false;
+            return nullptr;
         }
     }
-    if (std::shared_ptr<Component> component = MakeComponentToYaml(ownerObject, componentNode))
+    std::shared_ptr<Component> component;
+    if (component = MakeComponentToYaml(ownerObject, componentNode))
     {
         ESceneManager::Engine::AddComponentToLifeCycle(component); // 씬에 등록
     }
     else
     {
-        return false;
+        return nullptr;
     }
-    return true;
+    return component.get();
 }
 
-bool EComponentFactory::AddComponentToYamlNow(GameObject* ownerObject, YAML::Node* componentNode)
+Component* EComponentFactory::AddComponentToYamlNow(GameObject* ownerObject, YAML::Node* componentNode)
 {
     if (UmComponentFactory.HasScript() == false)
     {
@@ -287,18 +321,19 @@ bool EComponentFactory::AddComponentToYamlNow(GameObject* ownerObject, YAML::Nod
             UmLogger.Log(LogLevel::LEVEL_FATAL, u8"스크립트 빌드 에러 해결 필요."_c_str);
             __debugbreak();
             UmApplication.Quit();
-            return false;
+            return nullptr;
         }
     }
-    if (std::shared_ptr<Component> component = MakeComponentToYaml(ownerObject, componentNode))
+    std::shared_ptr<Component> component;
+    if (component = MakeComponentToYaml(ownerObject, componentNode))
     {
         component->_gameObect->_components.emplace_back(component); //바로 추가
     }
     else
     {
-        return false;
+        return nullptr;
     }
-    return true;
+    return component.get();
 }
 
 void EComponentFactory::InsertComponentToObject(GameObject* object, std::shared_ptr<Component>& component, int index) 
@@ -347,15 +382,44 @@ void EComponentFactory::ResetComponent(GameObject* ownerObject, std::shared_ptr<
 
 YAML::Node EComponentFactory::MakeYamlToComponent(Component* component)
 {
+    constexpr int SerializedVersion = 1;
     YAML::Node node;
+    if constexpr (0 < SerializedVersion)
+    {
+        node["SerializedVersion"] = SerializedVersion;
+    }
     node["Type"] = typeid(*component).name();
     node["ReflectFields"] = component->SerializedReflectFields();
+    if constexpr (0 < SerializedVersion)
+    {
+        if constexpr (Application::IsEditor())
+        {
+            YAML::Node overrideFlagsNode;
+            std::string_view propertyName;
+            component->applyReflectFields([&](std::string_view name, void* pData) 
+            {
+                if (true == UmGameObjectFactory.IsOverrideField(pData, &propertyName))
+                {
+                    overrideFlagsNode[name.data()] = propertyName;
+                }
+            });
+            if (false == overrideFlagsNode.IsNull())
+            {
+                node["OverrideFlags"] = overrideFlagsNode;
+            }
+        }
+    }
     return node;
 }
 
 std::shared_ptr<Component> EComponentFactory::MakeComponentToYaml(GameObject* ownerObject, YAML::Node* pComponentNode)
 {
+    int SerializedVersion = 0;
     YAML::Node& node = *pComponentNode;
+    if (node["SerializedVersion"])
+    {
+        SerializedVersion = node["SerializedVersion"].as<int>();
+    }
     std::string Type = node["Type"].as<std::string>();
     std::shared_ptr<Component> component = NewComponent(Type);
     ResetComponent(ownerObject, component);
