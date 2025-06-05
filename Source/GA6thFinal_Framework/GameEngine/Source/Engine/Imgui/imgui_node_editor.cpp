@@ -2120,6 +2120,26 @@ ed::Link* ed::EditorContext::GetLink(LinkId id)
         return CreateLink(id);
 }
 
+const char* ax::NodeEditor::Detail::EditorContext::SaveIniSettingsToMemory()
+{
+    SaveSettings();
+    return m_Settings.m_SerializeData.data();
+}
+
+void ax::NodeEditor::Detail::EditorContext::LoadIniSettingsFromMemory(const char* data) 
+{
+    ed::Settings::Parse(data, m_Settings);
+    if (ImRect_IsEmpty(m_Settings.m_VisibleRect))
+    {
+        m_NavigateAction.m_Scroll = m_Settings.m_ViewScroll;
+        m_NavigateAction.m_Zoom   = m_Settings.m_ViewZoom;
+    }
+    else
+    {
+        m_NavigateAction.NavigateTo(m_Settings.m_VisibleRect, NavigateAction::ZoomMode::Exact, 0.0f);
+    }
+}
+
 void ed::EditorContext::LoadSettings()
 {
     ed::Settings::Parse(m_Config.Load(), m_Settings);
@@ -2754,7 +2774,7 @@ void ed::Settings::MakeDirty(SaveReasonFlags reason, Node* node)
     }
 }
 
-std::string ed::Settings::Serialize()
+const char* ed::Settings::Serialize()
 {
     json::value result;
 
@@ -2791,7 +2811,9 @@ std::string ed::Settings::Serialize()
     view["visible_rect"]["max"]["x"] = m_VisibleRect.Max.x;
     view["visible_rect"]["max"]["y"] = m_VisibleRect.Max.y;
 
-    return result.dump();
+	m_SerializeData = result.dump();
+
+    return m_SerializeData.data();
 }
 
 bool ed::Settings::Parse(const std::string& string, Settings& settings)

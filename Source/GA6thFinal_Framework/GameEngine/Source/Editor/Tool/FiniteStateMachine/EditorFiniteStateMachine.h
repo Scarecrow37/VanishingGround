@@ -23,4 +23,7 @@ private:
 private:
     EditorNodeGraph* _nodeGraph;
 
+    REFLECT_FIELDS_BEGIN(EditorTool)
+    std::string SerializeData;
+    REFLECT_FIELDS_END(EditorFiniteStateMachine)
 };

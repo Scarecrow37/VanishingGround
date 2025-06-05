@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "EditorFiniteStateMachine.h"
+#include "Engine/EditorCore/Gui/NodeGraph/Nodes/Custom/NodeGraphHoudiniNode.h"
 
 EditorFiniteStateMachine::EditorFiniteStateMachine()
 {
@@ -14,6 +15,8 @@ void EditorFiniteStateMachine::OnTickGui() {}
 void EditorFiniteStateMachine::OnStartGui() 
 {
     _nodeGraph = new EditorNodeGraph();
+    _nodeGraph->AddNode<NodeGraph::HoudiniNode>("Houdini1")->SetPosition(ImVec2(255,255));
+    _nodeGraph->AddNode<NodeGraph::HoudiniNode>("Houdini2")->SetPosition(ImVec2(-255, -255));
 }
 
 void EditorFiniteStateMachine::OnEndGui() 

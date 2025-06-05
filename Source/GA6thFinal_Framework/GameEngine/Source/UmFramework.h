@@ -115,6 +115,7 @@ using namespace Microsoft::WRL;
 #include "Engine/Utility/stlHelper.h"
 #include "Engine/Utility/EditorHelper.h"
 #include "Engine/Utility/Mathf.h"
+#include "Engine/Utility/NodeGraphHelper.h"
 
 //Class Core
 #include "Engine/CommandCore/CommandManager.h"
@@ -153,13 +154,11 @@ using namespace Microsoft::WRL;
 //Editor Core
 #include "Engine/EditorCore/Interface/IEditorObject.h"
 #include "Engine/EditorCore/Interface/IEditorCycle.h"
-#include "Engine/EditorCore/Gui/NodeGraph/utilities/EditorNodeGraphUtillity.h"
 #include "Engine/EditorCore/Gui/EditorGui.h"
 #include "Engine/EditorCore/Gui/Tool/EditorTool.h"
 #include "Engine/EditorCore/Gui/Menu/EditorMenu.h"
 #include "Engine/EditorCore/Gui/PopupBox/EditorPopupBox.h"
 #include "Engine/EditorCore/Gui/DockWindow/EditorDockWindow.h"
-#include "Engine/EditorCore/Gui/NodeGraph/blueprint.h"
 #include "Engine/EditorCore/Gui/NodeGraph/EditorNodeGraph.h"
 #include "Engine/EditorCore/System/EditorPopupBoxSystem.h"
 #include "Engine/EditorCore/System/EditorGuiSystem.h"
@@ -196,7 +195,6 @@ using namespace Microsoft::WRL;
 #include "Editor/Tool/Model/EditorModelTool.h"
 #include "Editor/Tool/Model/EditorModelHierarchy.h"
 #include "Editor/Tool/Command/EditorCommandTool.h"
-#include "Editor/Tool/NodeEditor/EditorShaderGraph.h"
 #include "Editor/Tool/FiniteStateMachine/EditorFiniteStateMachine.h"
 
 // Editor Menu

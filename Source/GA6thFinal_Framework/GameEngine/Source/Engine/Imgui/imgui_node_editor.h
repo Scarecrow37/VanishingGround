@@ -282,6 +282,9 @@ struct EditorContext;
 
 
 //------------------------------------------------------------------------------
+IMGUI_NODE_EDITOR_API const char* SaveIniSettingsToMemory();
+IMGUI_NODE_EDITOR_API void LoadIniSettingsFromMemory(const char* data);
+
 IMGUI_NODE_EDITOR_API void SetCurrentEditor(EditorContext* ctx);
 IMGUI_NODE_EDITOR_API EditorContext* GetCurrentEditor();
 IMGUI_NODE_EDITOR_API EditorContext* CreateEditor(const Config* config = nullptr);

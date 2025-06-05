@@ -535,6 +535,8 @@ struct Settings
     float                m_ViewZoom;
     ImRect               m_VisibleRect;
 
+    std::string          m_SerializeData;
+
     Settings()
         : m_IsDirty(false)
         , m_DirtyReason(SaveReasonFlags::None)
@@ -551,7 +553,7 @@ struct Settings
     void ClearDirty(Node* node = nullptr);
     void MakeDirty(SaveReasonFlags reason, Node* node = nullptr);
 
-    std::string Serialize();
+    const char* Serialize();
 
     static bool Parse(const std::string& string, Settings& settings);
 };
@@ -1473,10 +1475,13 @@ struct EditorContext
 
     ImDrawList* GetDrawList() { return m_DrawList; }
 
-    void LoadSettings();
-    void SaveSettings();
+    const char* SaveIniSettingsToMemory();
+    void        LoadIniSettingsFromMemory(const char* data);
 
   private:
+    void    LoadSettings();
+    void    SaveSettings();
+
     Control BuildControl(bool allowOffscreen);
 
     void ShowMetrics(const Control& control);

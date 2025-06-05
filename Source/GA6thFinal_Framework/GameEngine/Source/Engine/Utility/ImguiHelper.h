@@ -167,6 +167,9 @@ namespace ImGuiHelper
         return colorChanged;
     }
 
+    /*
+    채워져있는 사각형을 그립니다.
+    */
     static void DrawFillRect(const ImVec2& leftTop, const ImVec2& rightBottom, const ImU32& color, float round = 0.0f,
                              ImDrawFlags flag = 0)
     {
@@ -182,6 +185,9 @@ namespace ImGuiHelper
         drawlist->AddRectFilled(a, b, col, rounding, flags);
     }
 
+    /*
+    윈도우가 그려질 수 있는 상태인지 확인합니다.
+    */
     static bool IsWindowDrawable(ImGuiWindow* window = nullptr)
     {
         if (!window)
@@ -190,6 +196,14 @@ namespace ImGuiHelper
             return false;
 
         return !window->SkipItems;
+    }
+
+    /*
+    Gui의 현재 아이템 사각형 영역을 반환합니다.
+    */
+    static inline ImRect GetItemRect()
+    {
+        return ImRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax());
     }
 
     class DragDrop
@@ -215,7 +229,7 @@ namespace ImGuiHelper
 
         /* 현재 아이템 기준으로 드래그앤드롭 데이터를 받습니다. */
         template <typename T>
-        static bool RecieveItemDragDropEvent(EventID id, T* outData)
+        static bool RecieveItemDragDropEvent(EventID id, T * outData)
         {
             if (ImGui::BeginDragDropTarget())
             {
@@ -235,7 +249,7 @@ namespace ImGuiHelper
 
         /* 현재 프레임 대상으로 드래그앤드롭을 데이터를 받습니다. */
         template <typename T>
-        static bool RecieveFrameDragDropEvent(EventID id, T* outData)
+        static bool RecieveFrameDragDropEvent(EventID id, T * outData)
         {
             ImGuiWindow* window = ImGui::GetCurrentWindow();
             ImRect       rect   = window->Rect(); // 윈도우 전체 영역
@@ -267,7 +281,7 @@ namespace ImGuiHelper
             return ImGui::IsDragDropActive();
         }
 
-        /* 드롭된 데이터 가져오기(드래그가 끝났을 때 사용) */ 
+        /* 드롭된 데이터 가져오기(드래그가 끝났을 때 사용) */
         template <typename T>
         static bool GetRecievedData(const ImGuiPayload* payload, T& outData)
         {

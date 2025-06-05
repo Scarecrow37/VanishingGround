@@ -296,16 +296,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Engine\EditorCore\Gui\NodeGraph\Nodes\Custom\NodeGraphTreeNode.h" />
+    <ClInclude Include="Source\Engine\EditorCore\Gui\NodeGraph\Nodes\Custom\NodeGraphHoudiniNode.h" />
+    <ClInclude Include="Source\Engine\EditorCore\Gui\NodeGraph\Nodes\NodeGraphPin.h" />
+    <ClInclude Include="Source\Engine\EditorCore\Gui\NodeGraph\Nodes\NodeGraphLink.h" />
+    <ClInclude Include="Source\Engine\Utility\NodeGraphHelper.h" />
+    <ClInclude Include="Source\Engine\EditorCore\Gui\NodeGraph\Nodes\NodeGraphNode.h" />
     <ClInclude Include="Source\Editor\Tool\FiniteStateMachine\EditorFiniteStateMachine.h" />
     <ClInclude Include="Source\Engine\EditorCore\Gui\NodeGraph\EditorNodeGraph.h" />
     <ClInclude Include="Source\Editor\Menu\Model\EditorModelMenu.h" />
     <ClInclude Include="Source\Editor\Tool\Scene\Command\EditorSceneCommands.h" />
-    <ClInclude Include="Source\Engine\EditorCore\Gui\NodeGraph\blueprint.h" />
-    <ClInclude Include="Source\Editor\Tool\NodeEditor\EditorShaderGraph.h" />
-    <ClInclude Include="Source\Engine\EditorCore\Gui\NodeGraph\utilities\EditorNodeGraphUtillity.h" />
-    <ClInclude Include="Source\Engine\EditorCore\Gui\NodeGraph\utilities\builders.h" />
-    <ClInclude Include="Source\Engine\EditorCore\Gui\NodeGraph\utilities\drawing.h" />
-    <ClInclude Include="Source\Engine\EditorCore\Gui\NodeGraph\utilities\widgets.h" />
+    <ClInclude Include="Source\Engine\EditorCore\Gui\NodeGraph\Utilities\builders.h" />
+    <ClInclude Include="Source\Engine\EditorCore\Gui\NodeGraph\Utilities\drawing.h" />
+    <ClInclude Include="Source\Engine\EditorCore\Gui\NodeGraph\Utilities\widgets.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\SkyBoxPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\SkyBoxRenderTechnique.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\SkyBox.h" />
@@ -471,20 +474,22 @@
     <ClInclude Include="ThirdParty\include\UmYaml-cpp.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Engine\EditorCore\Gui\NodeGraph\Nodes\Custom\NodeGraphTreeNode.cpp" />
+    <ClCompile Include="Source\Engine\EditorCore\Gui\NodeGraph\Nodes\Custom\NodeGraphHoudiniNode.cpp" />
+    <ClCompile Include="Source\Engine\EditorCore\Gui\NodeGraph\Nodes\NodeGraphPin.cpp" />
+    <ClCompile Include="Source\Engine\EditorCore\Gui\NodeGraph\Nodes\NodeGraphLink.cpp" />
+    <ClCompile Include="Source\Engine\Utility\NodeGraphHelper.cpp" />
+    <ClCompile Include="Source\Engine\EditorCore\Gui\NodeGraph\Nodes\NodeGraphNode.cpp" />
     <ClCompile Include="Source\Editor\Tool\FiniteStateMachine\EditorFiniteStateMachine.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\Gui\NodeGraph\EditorNodeGraph.cpp" />
     <ClCompile Include="Source\Editor\Menu\Model\EditorModelMenu.cpp" />
-    <ClCompile Include="Source\Engine\EditorCore\Gui\NodeGraph\blueprint.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="Source\Editor\Tool\NodeEditor\EditorShaderGraph.cpp" />
-    <ClCompile Include="Source\Engine\EditorCore\Gui\NodeGraph\utilities\builders.cpp">
+    <ClCompile Include="Source\Engine\EditorCore\Gui\NodeGraph\Utilities\builders.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Source\Engine\EditorCore\Gui\NodeGraph\utilities\drawing.cpp">
+    <ClCompile Include="Source\Engine\EditorCore\Gui\NodeGraph\Utilities\drawing.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Source\Engine\EditorCore\Gui\NodeGraph\utilities\widgets.cpp">
+    <ClCompile Include="Source\Engine\EditorCore\Gui\NodeGraph\Utilities\widgets.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Source\Editor\Tool\Scene\Command\EditorSceneCommands.cpp">

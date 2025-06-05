@@ -2,8 +2,7 @@
 #include "EditorNodeGraph.h"
 
 EditorNodeGraph::EditorNodeGraph() 
-    : _editor(nullptr)
-    , _serializeData("")
+    : _editor(nullptr), _state({}), _uniqueID(0)
 {
     ed::Config config;
     config.UserPointer = this;
@@ -16,19 +15,19 @@ EditorNodeGraph::EditorNodeGraph()
         if (!node)
             return false;
 
-        node->State.assign(data, size);
+        //node->State.assign(data, size);
         //self->TouchNode(nodeId);
 
         return true;
     };
 
-    config.SaveSettings = [](const char* data, size_t size, ed::SaveReasonFlags reason, void* userPointer) -> bool
-    {
-        auto self = static_cast<EditorNodeGraph*>(userPointer);
-        self->SaveData(data, size);
-
-        return true;
-    };
+    //config.SaveSettings = [](const char* data, size_t size, ed::SaveReasonFlags reason, void* userPointer) -> bool
+    //{
+    //    auto self = static_cast<EditorNodeGraph*>(userPointer);
+    //    self->SaveData(data, size);
+    //
+    //    return true;
+    //};
 
     _editor = ed::CreateEditor(&config);
 }
@@ -38,6 +37,8 @@ EditorNodeGraph::~EditorNodeGraph()
     ed::DestroyEditor(_editor);
     _editor = nullptr;
 }
+
+namespace util = ax::NodeEditor::Utilities;
 
 void EditorNodeGraph::Render() 
 {
@@ -49,7 +50,7 @@ void EditorNodeGraph::Render()
     ImGui::PushID(this);
     ed::Begin("Node editor");
     {
-
+        DrawNodes();
     }
     ed::End();
     ImGui::PopID();
@@ -57,35 +58,32 @@ void EditorNodeGraph::Render()
 
 NodeGraph::Node* EditorNodeGraph::FindNode(ed::NodeId id)
 {
-    for (auto& node : _nodeVector)
-        if (node.ID == id)
-            return &node;
-
+    auto itr = _nodeTable.find(id.Get());
+    if (itr != _nodeTable.end())
+        return itr->second;
     return nullptr;
 }
 
 NodeGraph::Link* EditorNodeGraph::FindLink(ed::LinkId id)
 {
-    for (auto& link : _linkedVector)
-        if (link.ID == id)
-            return &link;
-
+    auto itr = _linkTable.find(id.Get());
+    if (itr != _linkTable.end())
+        return itr->second;
     return nullptr;
 }
 
 void EditorNodeGraph::SaveData(const char* data, size_t size) 
 {
-
 }
 
-void EditorNodeGraph::LoadData(const std::string& data) {
+void EditorNodeGraph::LoadData(const std::string& data) 
+{
 
 }
 
 const char* EditorNodeGraph::SaveNodeSettingsToMemory()
 {
-
-    return _serializeData.data();
+    return ReflectFields->SerializeData.data();
 }
 
 void EditorNodeGraph::LoadNodeSettingsFromMemory(const std::string& data) 
@@ -94,5 +92,23 @@ void EditorNodeGraph::LoadNodeSettingsFromMemory(const std::string& data)
 
 const char* EditorNodeGraph::GetNodeSettingsData()
 {
-    return _serializeData.data();
+    return ReflectFields->SerializeData.data();
+}
+
+void EditorNodeGraph::SerializedReflectEvent() 
+{
+    ReflectFields->SerializeData = ed::SaveIniSettingsToMemory();
+}
+
+void EditorNodeGraph::DeserializedReflectEvent() 
+{
+}
+
+void EditorNodeGraph::DrawNodes()
+{
+    util::BlueprintNodeBuilder builder;
+    for (auto& node : _nodeVector)
+    {
+        node->Draw();
+    }
 }

@@ -1,4 +1,4 @@
-//------------------------------------------------------------------------------
+﻿//------------------------------------------------------------------------------
 // VERSION 0.9.1
 //
 // LICENSE
@@ -81,6 +81,16 @@ const ax::NodeEditor::Config& ax::NodeEditor::GetConfig(EditorContext* ctx)
         static Config s_EmptyConfig;
         return s_EmptyConfig;
     }
+}
+
+const char* ax::NodeEditor::SaveIniSettingsToMemory()
+{
+    return s_Editor->SaveIniSettingsToMemory();
+}
+
+void ax::NodeEditor::LoadIniSettingsFromMemory(const char* data)
+{
+    return s_Editor->LoadIniSettingsFromMemory(data);
 }
 
 void ax::NodeEditor::SetCurrentEditor(EditorContext* ctx)
