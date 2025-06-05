@@ -60,6 +60,14 @@ void EditorSceneTool::OnPostFrameBegin()
 void EditorSceneTool::OnFrameRender() 
 {
     _window = ImGui::GetCurrentWindow();
+    if (ImGui::IsWindowHovered())
+    {
+        if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_MouseRight))
+        {
+            ImGui::SetWindowFocus();
+        }
+    }
+    
     DragDropEvent();
     SetCamera();    
     DrawSceneView();
@@ -272,20 +280,21 @@ void EditorSceneTool::DrawSceneView()
     constexpr ImVec2 damp = ImVec2(4.f, 4.f);
     ImVec2 moveIconPos = _window->ContentRegionRect.Min;
     ImGui::SetCursorScreenPos(ImVec2(moveIconPos.x + damp.x, moveIconPos.y + damp.y));
-    //static std::shared_ptr<Texture> moveIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/Move.png");
-    //static D3D12_GPU_DESCRIPTOR_HANDLE moveIconHandle = moveIconTexture->GetHandle();
-    //ImGui::ImageButton(
-    //"Move",
-    //(ImTextureID)moveIconHandle.ptr,
-    //iconButtonSize,
-    //ImVec2(0,0),
-    //ImVec2(1,1),
-    //ImVec4(0,0,0,0),
-    //ImVec4(1,1,1,1)
-    //);
 
     auto ImageButtonOperation = [&](ImGuizmo::OPERATION op) 
     {
+        static std::shared_ptr<Texture> moveIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Resource/Icon/Editor/Move.png");
+        D3D12_GPU_DESCRIPTOR_HANDLE moveIconHandle = UmRenderer.ConvertImGuiGPUHandle(moveIconTexture->GetHandle());
+
+        static std::shared_ptr<Texture> rotationIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Resource/Icon/Editor/Rotate.png");
+        D3D12_GPU_DESCRIPTOR_HANDLE rotationIconHandle = UmRenderer.ConvertImGuiGPUHandle(rotationIconTexture->GetHandle());
+
+        static std::shared_ptr<Texture> scaleIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Resource/Icon/Editor/Scale.png");
+        D3D12_GPU_DESCRIPTOR_HANDLE scaleIconHandle = UmRenderer.ConvertImGuiGPUHandle(scaleIconTexture->GetHandle());
+
+        static std::shared_ptr<Texture> transformIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Resource/Icon/Editor/Transform.png");
+        D3D12_GPU_DESCRIPTOR_HANDLE transformIconHandle = UmRenderer.ConvertImGuiGPUHandle(transformIconTexture->GetHandle());
+
         bool isActive = IsActiveOperation(op);
         if (isActive)
         {
@@ -296,28 +305,28 @@ void EditorSceneTool::DrawSceneView()
 
         if (ImGuizmo::TRANSLATE == op)
         {
-            if (ImGui::Button("Move", iconButtonSize))
+            if (ImGui::ImageButton("Move", (ImTextureID)moveIconHandle.ptr, iconButtonSize))
             {
                 _drawManipulateDesc.Operation = ImGuizmo::TRANSLATE;
             }
         }
         else if (ImGuizmo::ROTATE == op)
         {
-            if (ImGui::Button("Rotation", iconButtonSize))
+            if (ImGui::ImageButton("Rotation", (ImTextureID)rotationIconHandle.ptr, iconButtonSize))
             {
                 _drawManipulateDesc.Operation = ImGuizmo::ROTATE;
             }
         }
         else if (ImGuizmo::SCALE == op)
         {
-            if (ImGui::Button("Scale", iconButtonSize))
+            if (ImGui::ImageButton("Scale", (ImTextureID)scaleIconHandle.ptr, iconButtonSize))
             {
                 _drawManipulateDesc.Operation = ImGuizmo::SCALE;
             }
         }
         else if (ImGuizmo::UNIVERSAL == op)
         {
-            if (ImGui::Button("Transform", iconButtonSize))
+            if (ImGui::ImageButton("Transform", (ImTextureID)transformIconHandle.ptr, iconButtonSize))
             {
                 _drawManipulateDesc.Operation = ImGuizmo::UNIVERSAL;
             }
@@ -375,18 +384,42 @@ void EditorSceneTool::DrawSceneView()
             ImGui::PopStyleColor(3);
         }
     };
+    
+    static bool showSettings = true;
+    auto ImageButtonToggleSetting = [&]() 
+    {
+        if (true == showSettings)
+        {
+            if (ImGui::Button(EditorIcon::ICON_CIRCLE_ARROW_LEFT, iconButtonSize))
+            {
+                showSettings = !showSettings;
+            }
+        }
+        else
+        {
+            if (ImGui::Button(EditorIcon::ICON_CIRCLE_ARROW_RIGHT, iconButtonSize))
+            {
+                showSettings = !showSettings;
+            }
+        }
+    };
    
-    ImageButtonMode();
-    ImGui::SameLine();
-    ImageButtonOperation(ImGuizmo::OPERATION::TRANSLATE);
-    ImGui::SameLine();
-    ImageButtonOperation(ImGuizmo::OPERATION::ROTATE);
-    ImGui::SameLine();
-    ImageButtonOperation(ImGuizmo::OPERATION::SCALE);
-    ImGui::SameLine();
-    ImageButtonOperation(ImGuizmo::OPERATION::UNIVERSAL);
-    ImGui::SameLine();
-    ImageButtonGridSnap();
+    if (showSettings)
+    {
+        ImageButtonMode();
+        ImGui::SameLine();
+        ImageButtonOperation(ImGuizmo::OPERATION::TRANSLATE);
+        ImGui::SameLine();
+        ImageButtonOperation(ImGuizmo::OPERATION::ROTATE);
+        ImGui::SameLine();
+        ImageButtonOperation(ImGuizmo::OPERATION::SCALE);
+        ImGui::SameLine();
+        ImageButtonOperation(ImGuizmo::OPERATION::UNIVERSAL);
+        ImGui::SameLine();
+        ImageButtonGridSnap();
+        ImGui::SameLine();
+    }
+    ImageButtonToggleSetting();
 }
 
 bool EditorSceneTool::IsActiveOperation(ImGuizmo::OPERATION op) const
