@@ -3,6 +3,8 @@
 #include "EditorSceneTool.h"
 #include "../..//DynamicCamera/EditorDynamicCamera.h"
 
+using namespace u8_literals;
+
 EditorSceneTool::EditorSceneTool() 
     :   _camera(std::make_unique<EditorDynamicCamera>())
 {
@@ -359,6 +361,7 @@ void EditorSceneTool::DrawSceneView()
         {
             _drawManipulateDesc.UseSnap = !isActive;
         }
+        ImGuiHelper::HoveredToolTip(u8"우클릭을 통해 수치를 변경할 수 있습니다."_c_str);
         
         if (ImGui::BeginPopupContextItem("Snap setting"))
         {
