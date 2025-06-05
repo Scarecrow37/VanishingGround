@@ -129,18 +129,19 @@ public:
     bool UnpackPrefab(GameObject* object);
 
     /// <summary>
-    /// 필드 오버라이드 여부를 확인합니다. 
+    /// 필드의 오버라이드 여부를 확인합니다. 필드랑 연결된 프로퍼티 이름도 확인 할 수 있습니다.
     /// </summary>
-    /// <param name="pFiled :">확인할 맴버 변수의 주소</param>
-    /// <returns>해당 주소의 오버라이드 플래그 여부</returns>
-    bool IsOverrideField(void* pField);
+    /// <param name="pField :">확인할 필드의 주소</param>
+    /// <param name="outPropertyName :">프로퍼티 이름을 반환받을 변수의 포인터</param>
+    /// <returns></returns>
+    bool IsOverrideField(void* pField, std::string_view* outPropertyName = nullptr);
 
     /// <summary>
-    /// 필드 오버라이드 여부를 설정합니다.
+    /// 필드 오버라이드 여부를 설정합니다. 프로퍼티의 이름도 같이 설정해야합니다.
     /// </summary>
     /// <param name="pFiled :">설정할 맴버 변수의 주소</param>
     /// <returns>결과</returns>
-    bool SetOverrideFlag(void* pField);
+    bool SetOverrideFlag(void* pField, std::string_view propertyName);
 
     /// <summary>
     /// 필드 오버라이드 여부를 초기화합니다.
@@ -205,5 +206,5 @@ private:
     std::unordered_map<File::Guid, std::vector<std::weak_ptr<GameObject>>> _prefabInstanceList;     
 
     //프리팹 인스턴스 ovrride 추적용
-    std::unordered_set<void*> _prefabInstanceOverride;
+    std::unordered_map<void*, std::string> _prefabInstanceOverride;
 };

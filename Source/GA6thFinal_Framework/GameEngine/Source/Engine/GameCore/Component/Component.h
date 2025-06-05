@@ -225,6 +225,13 @@ private:
     std::string _className;
     GameObject* _gameObect;
     std::weak_ptr<Component> _weakPtr;
+
+private:
+    /// <summary>
+    /// 프리팹용 OverrideFlag들을 해제합니다. 에디터 모드에서만 동작합니다.
+    /// </summary>
+    inline void UnsetOverrideFlags();
+
 };
 
 template <IS_BASE_COMPONENT_C TComponent>
@@ -255,4 +262,15 @@ inline size_t Component::GetComponentCount() const
 {
     GameObject& object = gameObject;
     return object.GetComponentCount();
+}
+
+inline void Component::UnsetOverrideFlags() 
+{
+    if constexpr (Application::IsEditor())
+    {
+        applyReflectFields([&](std::string_view name, void* pData) 
+        {
+            UmGameObjectFactory.UnsetOverrideFlag(pData);
+        });
+    }
 }

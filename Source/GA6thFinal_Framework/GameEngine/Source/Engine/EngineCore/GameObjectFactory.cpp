@@ -455,19 +455,30 @@ bool EGameObjectFactory::UnpackPrefab(GameObject* targetObject)
     return false;
 }
 
-bool EGameObjectFactory::IsOverrideField(void* pField)
+bool EGameObjectFactory::IsOverrideField(void* pField, std::string_view* outPropertyName)
 {
     bool result = false;
-    if (_prefabInstanceOverride.find(pField) != _prefabInstanceOverride.end())
+    auto findIter = _prefabInstanceOverride.find(pField);
+    if (findIter != _prefabInstanceOverride.end())
     {
         result = true;
+        if (outPropertyName != nullptr)
+        {
+            *outPropertyName = findIter->second;
+        }
     }
     return result;
 }
 
-bool EGameObjectFactory::SetOverrideFlag(void* pField)
+bool EGameObjectFactory::SetOverrideFlag(void* pField, std::string_view propertyName)
 {
-    auto [iter, result] = _prefabInstanceOverride.insert(pField);
+    bool result = false;
+    auto findIter = _prefabInstanceOverride.find(pField);
+    if (findIter == _prefabInstanceOverride.end())
+    {
+        result = true;
+        _prefabInstanceOverride[pField] = propertyName.data();
+    }
     return result;
 }
 
