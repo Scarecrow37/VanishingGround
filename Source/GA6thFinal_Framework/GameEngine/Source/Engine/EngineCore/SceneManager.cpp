@@ -1206,16 +1206,16 @@ void ESceneManager::OnFileRegistered(const File::Path& path)
     std::string nodeGuid = node["Guid"].as<std::string>();
     if (nodeGuid != guid)
     {
-        if (UmComponentFactory.HasScript() == false)
+        node["Guid"] = guid.string();
+        if (node.IsNull() == false)
         {
-            if (UmComponentFactory.InitalizeComponentFactory() == false)
+            std::ofstream ofs(path, std::ios::trunc);
+            if (ofs.is_open())
             {
-                return;
+                ofs << node;
             }
-        }    
-        std::filesystem::path writePath = path;
-        writePath = std::filesystem::relative(writePath, UmFileSystem.GetAssetPath()).parent_path();
-        WriteSceneToFile(scene, writePath.string(), true);
+            ofs.close();
+        }
     }
     
     if (_loadFuncEvent)
