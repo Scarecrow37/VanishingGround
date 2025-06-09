@@ -298,6 +298,9 @@ void EditorSceneTool::DrawSceneView()
 
     static std::shared_ptr<Texture> localIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/Local.png");
     D3D12_GPU_DESCRIPTOR_HANDLE localIconHandle = UmRenderer.ConvertImGuiGPUHandle(localIconTexture->GetHandle());
+
+    static std::shared_ptr<Texture> gridSnapIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/GridSnap.png");
+    D3D12_GPU_DESCRIPTOR_HANDLE gridSnapIconHandle = UmRenderer.ConvertImGuiGPUHandle(gridSnapIconTexture->GetHandle());
        
     auto ImageButtonOperation = [&](ImGuizmo::OPERATION op) 
     {
@@ -372,7 +375,7 @@ void EditorSceneTool::DrawSceneView()
             ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.18f, 0.24f, 0.30f, 1.0f));
         }
 
-        if (ImGui::Button("Grid snap", iconButtonSize))
+        if (ImGui::ImageButton("Grid snap", (ImTextureID)gridSnapIconHandle.ptr, iconButtonSize))
         {
             _drawManipulateDesc.UseSnap = !isActive;
         }
