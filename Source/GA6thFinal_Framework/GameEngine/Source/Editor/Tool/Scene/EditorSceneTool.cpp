@@ -450,12 +450,12 @@ void EditorSceneTool::SerializedReflectEvent()
     camRot.Normalize();
     std::memcpy(ReflectFields->CameraRotation.data(), &camRot, sizeof(ReflectFields->CameraRotation));
 
-    UpdateCameraSetting();
+    UpdateReflectFields();
 }
 
 void EditorSceneTool::DeserializedReflectEvent() 
 {
-    Vector3 camPos = Vector3(ReflectFields->CameraPosition.data());
+    Vector3 camPos = Vector3(ReflectFields->CameraPosition.data());  
     _camera->SetPosition(camPos);
 
     Quaternion camRot = Quaternion(ReflectFields->CameraRotation.data());
@@ -474,6 +474,14 @@ void EditorSceneTool::UpdateCameraSetting()
 {
     _camera->SetMoveSpeed(ReflectFields->CameraMoveSpeed);
     _camera->SetRotationSpeed(ReflectFields->CameraRotateSpeed);
+    _camera->SetPivot(ReflectFields->CameraPivot);
+}
+
+void EditorSceneTool::UpdateReflectFields() 
+{
+    ReflectFields->CameraMoveSpeed = _camera->GetMoveSpeed();
+    ReflectFields->CameraRotateSpeed = _camera->GetRotationSpeed();
+    ReflectFields->CameraPivot = _camera->GetPivot();
 }
 
 EditorSceneTool::ManipulateCommand::ManipulateCommand(

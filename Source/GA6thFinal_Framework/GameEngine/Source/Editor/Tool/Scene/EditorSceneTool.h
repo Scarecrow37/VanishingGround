@@ -92,6 +92,7 @@ protected:
     float  CameraFarZ        = 10000.f;
     float  CameraMoveSpeed   = 30.0f;
     float  CameraRotateSpeed = 10.0f;
+    float  CameraPivot = 0.f;
     REFLECT_FIELDS_END(EditorSceneTool)
 
     /*
@@ -110,9 +111,11 @@ public:
         ReflectFields->CameraFov, 
         ReflectFields->CameraNearZ,
         ReflectFields->CameraFarZ, 
-        ReflectFields->CameraRotateSpeed
+        ReflectFields->CameraRotateSpeed, 
+        ReflectFields->CameraPivot
         )
 
     void UpdateCameraSetting();
+    void UpdateReflectFields();
 };
 
