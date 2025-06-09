@@ -2,6 +2,9 @@
 using namespace Global;
 using namespace u8_literals;
 
+
+#define SAFE_FREE(ptr) if(ptr != nullptr) free(ptr)
+
 EComponentFactory::EComponentFactory()
 {
    
@@ -274,14 +277,62 @@ void EComponentFactory::ParsingYamlToOverrideFlags(Component* component, const Y
                 if (false == overrideFlagsNode.IsNull())
                 {
                     std::string propertyName;
+                    std::vector<std::string> overrideFieldNames;
                     component->applyReflectFields([&](std::string_view name, void* pData) 
                     {
                         if (overrideFlagsNode[name.data()])
                         {
                             propertyName = overrideFlagsNode[name.data()].as<std::string>();
                             UmGameObjectFactory.SetOverrideFlag(pData, propertyName);
+                            overrideFieldNames.emplace_back(name.data());
                         }
                     });
+
+                    if (false == overrideFieldNames.empty())
+                    {
+                        using namespace ReflectHelper::json;
+
+                        std::string prefabData = component->SerializedReflectFields();
+                        yyjson_doc* prefabDoc  = yyjson_read(prefabData.c_str(), prefabData.size(), 0);
+                        yyjson_mut_doc* prefabMutDoc = yyjson_doc_mut_copy(prefabDoc, nullptr);
+                        yyjson_mut_val* prefabRoot = yyjson_mut_doc_get_root(prefabMutDoc);
+
+                        std::string myData = componentNode["ReflectFields"].as<std::string>();
+                        yyjson_doc* myDoc  = yyjson_read(myData.c_str(), myData.size(), 0);
+                        yyjson_val* myRoot = yyjson_doc_get_root(myDoc);
+
+                        bool isWrite = false;
+                        for (auto& name : overrideFieldNames)
+                        {
+                            yyjson_val* myVal = yyjson_obj_get(myRoot, name.data());
+                            if (myVal)
+                            {
+                                yyjson_mut_val* prefabVal = yyjson_mut_obj_get(prefabRoot, name.data());
+                                if (prefabVal)
+                                {
+                                    yyjson_mut_val* prefabKey = yyjson_mut_strcpy(prefabMutDoc, name.data());
+                                    yyjson_mut_val* prefabVal = yyjson_val_mut_copy(prefabMutDoc, myVal);
+                                    yyjson_mut_obj_replace(prefabRoot, prefabKey, prefabVal);
+
+                                    isWrite = true;
+                                }
+                            }
+                        }
+                        
+                        if (isWrite)
+                        {
+                            char* str = yyjson_mut_write(prefabMutDoc, 0, nullptr);
+                            if (str)
+                            {
+                                component->DeserializedReflectFields(str);
+                                SAFE_FREE(str);
+                            }
+                        }
+
+                        yyjson_doc_free(prefabDoc);
+                        yyjson_mut_doc_free(prefabMutDoc);
+                        yyjson_doc_free(myDoc);
+                    }
                 }
             }
         }
