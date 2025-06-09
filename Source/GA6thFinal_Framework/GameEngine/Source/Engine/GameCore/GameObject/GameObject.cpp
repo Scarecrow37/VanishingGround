@@ -271,7 +271,9 @@ void GameObject::OnInspectorStay()
                                                         SAFE_FREE(myCStr);
                                                     }
                                                 });
+
                                                 yyjson_doc_free(prefabDoc);
+                                                yyjson_doc_free(myDoc);
                                             }
                                         }
                                     }
