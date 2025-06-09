@@ -173,6 +173,11 @@ void Application::CreateWindowClient()
     wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
     wc.lpszClassName = _winClassName;
 
+    if (NULL != _winClassIconPath)
+    {
+        wc.hIcon = (HICON)LoadImage(NULL, _winClassIconPath, IMAGE_ICON, 32, 32, LR_LOADFROMFILE);
+    }
+
     // 윈도우 클래스 등록
     if (!RegisterClassEx(&wc))
     {

@@ -173,6 +173,9 @@ protected:
     /** 윈도우 클래스 구조체 이름. Initialize() 실행전에만 적용됩니다.*/
     LPCWSTR _winClassName = L"UmrealEngineClass";
 
+    /** 윈도우 클래스 아이콘 경로. Initialize() 실행전에만 적용됩니다.*/
+    LPCWSTR _winClassIconPath = NULL;
+
     /** 윈도우 클라이언트 이름. Initialize() 실행전에만 적용됩니다.*/
     LPCWSTR _windowName = L"Umreal Engine";
 
