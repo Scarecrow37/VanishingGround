@@ -132,7 +132,7 @@ public:
     /// 이 컴포넌트의 실제 클래스 이름입니다.
     /// </summary>
     /// <returns>컴포넌트 클래스 실제 이름</returns>
-    const char* ClassName()
+    const char* ClassName() const
     {
         return _className.c_str();
     }
@@ -141,13 +141,13 @@ public:
     /// 이 컴포넌트의 타입입니다.
     /// </summary>
     /// <returns>컴포넌트의 타입</returns>
-    Type GetType() const
+    Component::Type GetType() const
     {
         return _type;
     }
 
     /// <summary>
-    /// 이 컴포넌트의 인덱스를 반환합니다. (이 컴포넌트가 추가된 오브젝트에서의 기준)
+    /// 이 컴포넌트가 추가된 오브젝트에서의 인덱스를 반환합니다.
     /// </summary>
     /// <returns>int 인덱스</returns>
     int GetIndex() const;
@@ -225,6 +225,13 @@ private:
     std::string _className;
     GameObject* _gameObect;
     std::weak_ptr<Component> _weakPtr;
+
+private:
+    /// <summary>
+    /// 프리팹용 OverrideFlag들을 해제합니다. 에디터 모드에서만 동작합니다.
+    /// </summary>
+    inline void UnsetOverrideFlags();
+
 };
 
 template <IS_BASE_COMPONENT_C TComponent>
@@ -255,4 +262,15 @@ inline size_t Component::GetComponentCount() const
 {
     GameObject& object = gameObject;
     return object.GetComponentCount();
+}
+
+inline void Component::UnsetOverrideFlags() 
+{
+    if constexpr (Application::IsEditor())
+    {
+        applyReflectFields([&](std::string_view name, void* pData) 
+        {
+            UmGameObjectFactory.UnsetOverrideFlag(pData);
+        });
+    }
 }

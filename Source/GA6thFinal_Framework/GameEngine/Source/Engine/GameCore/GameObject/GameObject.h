@@ -6,7 +6,7 @@ class Component;
 //Unity GameObject Script https://docs.unity3d.com/6000.0/Documentation/ScriptReference/GameObject.html
 
 //오브젝트 생성용 전역함수
-template<IS_BASE_GAMEOBJECT_C TObject>
+template<IS_BASE_GAMEOBJECT_C TObject = GameObject>
 std::shared_ptr<TObject> NewGameObject(
     std::string_view name)
 {
@@ -50,7 +50,7 @@ public:
 
     /// <summary>
     /// <para> 매개변수와 같은 이름을 가진 GameObject를 찾아 전부 반환합니다. </para>
-    /// <para> 같은 이름의 GameObject가 없으면 nullptr를 반환합니다.         </para>
+    /// <para> 같은 이름의 GameObject가 없으면 empty를 반환합니다.         </para>
     /// </summary>
     /// <param name="name :">검색할 오브젝트의 이름</param>
     /// <returns>찾은 오브젝트를 weak_ptr에 담아준다.</returns>
@@ -59,23 +59,21 @@ public:
         return ESceneManager::Engine::FindGameObjectsWithName(name);
     }
 
-    /// <summary>
-    /// <para> 구현 X                                                      </para>
+    /// <summary>                                                    </para>
     /// <para> 매개변수와 같은 태그가 설정된 GameObject들의 배열을 반환합니다. </para>
     /// <para> 태그가 있는 GameObject가 없으면 빈 배열을 반환합니다.          </para>
     /// </summary>
     /// <param name="tag :">검색할 태그</param>
     /// <returns>찾은 오브젝트들을 담은 weak_ptr배열</returns>
-    static std::vector<std::weak_ptr<GameObject>> FindGameObjectsWithTag(std::wstring_view tag) { return std::vector<std::weak_ptr<GameObject>>(); }
+    static std::vector<std::weak_ptr<GameObject>> FindGameObjectsWithTag(std::string_view tag);
 
-    /// <summary>
-    /// <para> 구현 X                                                                               </para>
+    /// <summary>                                                                           </para>
     /// <para> 매개변수와 같은 태그가 설정된 GameObject를 찾아 반환합니다.                             </para>
     /// <para> 참고 : 같은 태그가 설정된 오브젝트가 여러개 있으면 특정 오브젝트 반환을 보장하지 못합니다. </para>
     /// </summary>
     /// <param name="tag :">검색할 태그</param>
     /// <returns>찾은 오브젝트를 weak_ptr에 담아준다.</returns>
-    static std::weak_ptr<GameObject> FindWithTag(std::wstring_view tag) { return std::weak_ptr<GameObject>(); }
+    static std::weak_ptr<GameObject> FindWithTag(std::string_view tag);
 
     /// <summary>
     /// <para>전달받은 오브젝트 or 컴포넌트를 파괴합니다. </para>
@@ -126,14 +124,14 @@ public:
     /// <para> 대상 오브젝트의 복사본을 현재 씬에 생성합니다.  </para>
     /// </summary>
     /// <param name="gameObject :">복사할 오브젝트</param>
-    static void Instantiate(GameObject& original);
+    static GameObject* Instantiate(GameObject& original);
     /// <summary>
     /// <para> 대상 오브젝트의 복사본을 현재 씬에 생성합니다.  </para>
     /// </summary>
     /// <param name="gameObject :">복사할 오브젝트</param>
-    static void Instantiate(GameObject* original)
+    static GameObject* Instantiate(GameObject* original)
     {
-        Instantiate(*original);
+        return Instantiate(*original);
     }
    
 public:
@@ -350,10 +348,13 @@ private:
 protected:
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
     std::string _name = STR_NULL;
-    bool        _activeSelf = true;
-    bool        _isStatic = false;
+    bool _activeSelf = true;
+    bool _isStatic = false;
+    std::set<std::string> _tags; //"SerializeVersion = 1" 부터 추가된 맴버.
     REFLECT_FIELDS_END(GameObject)
 
+    void ImguiEditTags();
+    
     /*
     직렬화 직전 자동으로 호출되는 이벤트 함수입니다.
     직접 override 해서 사용합니다.

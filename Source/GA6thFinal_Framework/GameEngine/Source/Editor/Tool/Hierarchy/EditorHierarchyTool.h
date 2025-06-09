@@ -1,4 +1,6 @@
 ﻿#pragma once
+class EditorSceneTool;
+class HierarchyFindTool;
 
 class EditorHierarchyTool
     : public EditorTool
@@ -9,6 +11,8 @@ public:
     virtual ~EditorHierarchyTool();
     static void ImGuiNewGameObjectMenuItems();
 private:
+    static void TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>& focusObject);
+
     virtual void OnStartGui() override;
 
     virtual void OnPreFrameBegin() override;
@@ -23,6 +27,8 @@ private:
 
     virtual void OnTickGui() override;
 
+    virtual void OnFrameFocusStay() override;
+
     //드래그 드롭 이벤트
     void HierarchyDropEvent();
 
@@ -34,5 +40,9 @@ private:
 
     ImGuiWindow* _window = nullptr;
     bool         _isPlay = false;
+
+    EditorDockWindow* _dockWindow = nullptr;
+    EditorSceneTool*  _editorSceneTool = nullptr;
+    HierarchyFindTool* _editorFindTool = nullptr;
 };
 

@@ -3,15 +3,34 @@
 
 BaseMesh::BaseMesh()
 	: _viBuffer(std::make_unique<VIBuffer>())
+    , _vertices(nullptr)
+    , _vertexStride(0)
+    , _vertexSize(0)
 {
 }
 
 BaseMesh::~BaseMesh()
 {
+    if (_vertices) delete[] _vertices;
 }
 
-void BaseMesh::Initialize(const VIBuffer::Descriptor& descriptor)
+void BaseMesh::GetVertexInfo(char*& vertices, unsigned int& stride, unsigned int& size)
 {
+    vertices = _vertices;
+    stride   = _vertexStride;
+    size     = _vertexSize;
+}
+
+void BaseMesh::Initialize(const VIBuffer::Descriptor& descriptor, bool createVertexInfo)
+{
+    if (createVertexInfo)
+    {
+        _vertexStride = descriptor.vertexStride;
+        _vertexSize   = descriptor.vertexSize;
+        _vertices     = new char[_vertexSize];
+        memcpy(_vertices, descriptor.vertexData, _vertexSize);
+    }
+
 	_viBuffer->Initialize(descriptor);
 }
 

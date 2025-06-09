@@ -154,8 +154,12 @@ HRESULT ShaderBuilder::CreateRootSignature()
 				D3D12_ROOT_PARAMETER rootParam = {};
 				if (name.find("bit32") != std::string::npos)
 				{
+                    size_t first = name.find_first_of("_");
+                    size_t end   = name.find_first_of("_", ++first);
+                    std::string_view numValues = name.substr(first, end - first);
+                                        
 					rootParam.ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
-					rootParam.Constants.Num32BitValues = 1;
+                    rootParam.Constants.Num32BitValues = std::stoi(numValues.data());
 					rootParam.Constants.ShaderRegister = bindDesc.BindPoint;
 					rootParam.Constants.RegisterSpace = 0;
 					rootParam.ShaderVisibility = visibility;

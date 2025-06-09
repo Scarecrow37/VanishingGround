@@ -29,7 +29,7 @@ D3D12_GPU_DESCRIPTOR_HANDLE Renderer::GetRenderSceneImage(std::string_view rende
 
     auto scene = iter->second;
 
-    return SceneView(scene.get());
+    return ConvertImGuiGPUHandle(scene->GetFinalImage());
 }
 
 std::shared_ptr<Camera> Renderer::GetCamera(std::string_view renderSceneName)
@@ -282,6 +282,22 @@ void Renderer::CreateDefaultTexture()
     _defaultResource.push_back(textureResource);
 
     UmDevice.UploadResource(uploadHeap);
+}
+
+D3D12_GPU_DESCRIPTOR_HANDLE Renderer::ConvertImGuiGPUHandle(const D3D12_CPU_DESCRIPTOR_HANDLE handle)
+{
+    auto dest   = _imguiDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+    UINT offset = _currentImGuiImageIndex * UmDevice.GetCBVSRVUAVDescriptorSize();
+    dest.ptr += offset;
+
+    UmDevice.GetDevice()->CopyDescriptorsSimple(1, dest, handle, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+    D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = _imguiDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
+    gpuHandle.ptr += offset;
+
+    // next ImGUI Descriptor Index
+    _currentImGuiImageIndex++;
+
+    return gpuHandle;
 }
 
 void Renderer::InitializeImgui()

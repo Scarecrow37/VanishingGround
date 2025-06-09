@@ -9,7 +9,10 @@ Component::Component(Type type)
 
 }
 
-Component::~Component() = default;
+Component::~Component()
+{
+    UnsetOverrideFlags();
+}
 
 Component::InitFlags::InitFlags() :
     _isAwake(false),
