@@ -627,6 +627,9 @@
     <ClInclude Include="Source\Engine\EditorCore\Gui\NodeGraph\Nodes\Custom\NodeGraphTreeNode.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Editor\Tool\Hierarchy\HierarchyFindTool.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\pch.cpp">
@@ -1092,6 +1095,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\EditorCore\Gui\NodeGraph\Nodes\Custom\NodeGraphTreeNode.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\Hierarchy\HierarchyFindTool.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

@@ -120,17 +120,20 @@ static bool ImGuiHelper::DrawManipulate(
             Vector3    position;
             Quaternion rotation;
             Vector3    scale;
-            viewManipulateMatrix.Decompose(scale, rotation, position);
-            if (nullptr != pDynamicCamera)
+            bool decomposeResult = viewManipulateMatrix.Decompose(scale, rotation, position);
+            if(decomposeResult)
             {
-                pDynamicCamera->SetPosition(position);
-                pDynamicCamera->SetRotation(rotation);
-            }
-            else if (nullptr != pCamera)
-            {
-                pCamera->SetPosition(position);
-                pCamera->SetRotation(rotation);
-            }           
+                if (nullptr != pDynamicCamera)
+                {
+                    pDynamicCamera->SetPosition(position);
+                    pDynamicCamera->SetRotation(rotation);
+                }
+                else if (nullptr != pCamera)
+                {
+                    pCamera->SetPosition(position);
+                    pCamera->SetRotation(rotation);
+                }   
+            }        
         }
     }
     */

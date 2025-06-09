@@ -192,6 +192,20 @@ public:
         static std::vector<std::weak_ptr<GameObject>> FindGameObjectsWithName(std::string_view name);
 
         /// <summary>
+        /// 게임 오브젝트의 태그로 오브젝트를 탐색합니다.
+        /// </summary>
+        /// <param name="tag :">찾을 오브젝트의 태그</param>
+        /// <returns>성공시 weak_ptr에 담아줍니다.</returns>
+        static std::weak_ptr<GameObject> FindGameObjectWithTag(std::string_view tag);
+
+        /// <summary>
+        /// 게임 오브젝트의 태그로 오브젝트를 탐색해 전부 반환합니다.
+        /// </summary>
+        /// <param name="tag :">찾을 오브젝트의 태그</param>
+        /// <returns>성공시 weak_ptr에 담아줍니다.</returns>
+        static std::vector<std::weak_ptr<GameObject>> FindGameObjectsWithTag(std::string_view tag);
+
+        /// <summary>
         /// 게임 오브젝트의 이름을 변경합니다.
         /// </summary>
         /// <param name="gameObject :">대상</param>
@@ -249,6 +263,24 @@ public:
         /// </summary>
         /// <param name="gameObject"></param>
         static void UpdateMatrix(GameObject* gameObject);
+
+        /// <summary>
+        /// 게임 오브젝트의 태그를 RuntimeObjectTagMap에 등록합니다.
+        /// FindWithTag에 검색될려면 반드시 이 함수로 등록해야합니다.
+        /// </summary>
+        /// <param name="gameObject :">등록할 오브젝트</param>
+        /// <param name="tag :">사용할 태그</param>
+        /// <returns></returns>
+        static bool InsertGameObjectTag(GameObject* gameObject, std::string_view tag);
+
+        /// <summary>
+        /// 게임 오브젝트의 태그를 RuntimeObjectTagMap에서 지웁니다.
+        /// 오브젝트가 파괴될때 반드시 지워야합니다.
+        /// </summary>
+        /// <param name="gameObject :">지울 오브젝트</param>
+        /// <param name="tag :">태그</param>
+        /// <returns></returns>
+        static bool EraseGameObjectTag(GameObject* gameObject, std::string_view tag); 
     };
 
 public:
@@ -463,6 +495,9 @@ private:
 
     //오브젝트 이름과 포인터로 관리하는 map
     std::unordered_map<std::string, std::unordered_set<std::shared_ptr<GameObject>>> _runtimeObjectsUnorderedMap;
+
+    //오브젝트 태그 추적용 unordered_map
+    std::unordered_map<std::string, std::unordered_set<GameObject*>> _runtimeObjectsTagMap;
 
     //오브젝트 추가 대기열 
     std::vector<std::shared_ptr<GameObject>> _addGameObjectsQueue;

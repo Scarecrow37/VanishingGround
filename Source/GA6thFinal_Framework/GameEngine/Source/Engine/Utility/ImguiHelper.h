@@ -362,4 +362,49 @@ namespace ImGuiHelper
     /// <param name="pObject"></param>
     bool DrawManipulate(EditorDynamicCamera* pDynamicCamera, Matrix* pObjectMatrix, DrawManipulateDesc& desc);
 
-} // namespace ImGuiHelper
+    /// <summary>
+    /// 트리 스타일에 텍스트 버튼입니다.
+    /// </summary>
+    /// <param name="label :">사용할 라벨</param>
+    /// <param name="width :">너비</param>
+    /// <returns></returns>
+    inline bool TreeStyleTextButton(const char* label, float width = 0.0f)
+    {
+        ImGuiStyle& style    = ImGui::GetStyle();
+        ImDrawList* drawList = ImGui::GetWindowDrawList();
+
+        float frameHeight = ImGui::GetFontSize() + style.FramePadding.y * 2;
+        if (width <= 0.0f)
+            width = ImGui::GetContentRegionAvail().x;
+
+        ImVec2 pos  = ImGui::GetCursorScreenPos();
+        ImVec2 size = ImVec2(width, frameHeight);
+
+        // 클릭 감지를 위한 InvisibleButton
+        ImGui::InvisibleButton(label, size);
+
+        // 상태 감지
+        bool hovered = ImGui::IsItemHovered();
+        bool held    = ImGui::IsItemActive();
+        bool clicked = ImGui::IsItemClicked();
+
+        // 상태별 색상 설정
+        ImVec4 baseColor    = ImGui::GetStyleColorVec4(ImGuiCol_Header);
+        ImVec4 hoveredColor = ImGui::GetStyleColorVec4(ImGuiCol_HeaderHovered);
+        ImVec4 activeColor  = ImGui::GetStyleColorVec4(ImGuiCol_HeaderActive);
+
+        ImU32 bgCol = ImGui::ColorConvertFloat4ToU32(held ? activeColor : (hovered ? hoveredColor : baseColor));
+
+        // 배경 그리기
+        drawList->AddRectFilled(pos, ImVec2(pos.x + size.x, pos.y + size.y), bgCol, style.FrameRounding);
+
+        // 텍스트 위치 계산
+        ImVec2 textSize = ImGui::CalcTextSize(label);
+        ImVec2 textPos  = ImVec2(pos.x + style.FramePadding.x, pos.y + (frameHeight - textSize.y) * 0.5f);
+
+        // 텍스트 그리기
+        drawList->AddText(textPos, ImGui::GetColorU32(ImGuiCol_Text), label);
+
+        return clicked;
+    }
+} 

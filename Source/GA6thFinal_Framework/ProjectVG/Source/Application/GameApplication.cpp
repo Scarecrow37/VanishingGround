@@ -28,6 +28,7 @@ GameApplication::GameApplication()
 
     if constexpr (Application::IsEditor())
     {
+        _winClassIconPath = L"../GameEngine/Icon/umreal.ico";
         _windowStyleEX = WS_OVERLAPPEDWINDOW;
         _editorModule  = AddModule<EditorModule>();
         BuildRootDock();
@@ -117,6 +118,7 @@ void GameApplication::BuildSceneDock()
 
     _sceneDock->RegisterGui<EditorDebugTool>();
     _sceneDock->RegisterGui<EditorHierarchyTool>();
+    _sceneDock->RegisterGui<HierarchyFindTool>();
     _sceneDock->RegisterGui<EditorInspectorTool>();
     _sceneDock->RegisterGui<EditorSceneTool>();
     _sceneDock->RegisterGui<EditorLogsTool>();

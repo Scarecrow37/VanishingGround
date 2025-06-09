@@ -3,6 +3,8 @@
 #include "EditorSceneTool.h"
 #include "../..//DynamicCamera/EditorDynamicCamera.h"
 
+using namespace u8_literals;
+
 EditorSceneTool::EditorSceneTool() 
     :   _camera(std::make_unique<EditorDynamicCamera>())
 {
@@ -58,6 +60,14 @@ void EditorSceneTool::OnPostFrameBegin()
 void EditorSceneTool::OnFrameRender() 
 {
     _window = ImGui::GetCurrentWindow();
+    if (ImGui::IsWindowHovered())
+    {
+        if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_MouseRight))
+        {
+            ImGui::SetWindowFocus();
+        }
+    }
+    
     DragDropEvent();
     SetCamera();    
     DrawSceneView();
@@ -202,19 +212,23 @@ void EditorSceneTool::DrawManipulate()
                     Vector3    position;
                     Quaternion rotation;
                     Vector3    scale;
+                    bool decomposeResult = false;
                     if (nullptr == parent)
                     {
-                        worldMatrix.Decompose(scale, rotation, position);
+                        decomposeResult = worldMatrix.Decompose(scale, rotation, position);
                     }
                     else
                     {
                         const Matrix& parentWorldInvert = parent->GetWorldMatrix().Invert();
-                        Matrix        localMatrix       = worldMatrix * parentWorldInvert;
-                        localMatrix.Decompose(scale, rotation, position);
+                        Matrix localMatrix = worldMatrix * parentWorldInvert;
+                        decomposeResult = localMatrix.Decompose(scale, rotation, position);
                     }
-                    pObject->transform->Position = position;
-                    pObject->transform->Rotation = rotation;
-                    pObject->transform->Scale    = scale;
+                    if (decomposeResult)
+                    {
+                        pObject->transform->Position = position;
+                        pObject->transform->Rotation = rotation;
+                        pObject->transform->Scale    = scale;
+                    }
                 }
 
                 static bool                         prevIsUsing = false;
@@ -266,18 +280,28 @@ void EditorSceneTool::DrawSceneView()
     constexpr ImVec2 damp = ImVec2(4.f, 4.f);
     ImVec2 moveIconPos = _window->ContentRegionRect.Min;
     ImGui::SetCursorScreenPos(ImVec2(moveIconPos.x + damp.x, moveIconPos.y + damp.y));
-    //static std::shared_ptr<Texture> moveIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/Move.png");
-    //static D3D12_GPU_DESCRIPTOR_HANDLE moveIconHandle = moveIconTexture->GetHandle();
-    //ImGui::ImageButton(
-    //"Move",
-    //(ImTextureID)moveIconHandle.ptr,
-    //iconButtonSize,
-    //ImVec2(0,0),
-    //ImVec2(1,1),
-    //ImVec4(0,0,0,0),
-    //ImVec4(1,1,1,1)
-    //);
+    
+    static std::shared_ptr<Texture> moveIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/Move.png");
+    D3D12_GPU_DESCRIPTOR_HANDLE moveIconHandle = UmRenderer.ConvertImGuiGPUHandle(moveIconTexture->GetHandle());
 
+    static std::shared_ptr<Texture> rotationIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/Rotate.png");
+    D3D12_GPU_DESCRIPTOR_HANDLE rotationIconHandle = UmRenderer.ConvertImGuiGPUHandle(rotationIconTexture->GetHandle());
+
+    static std::shared_ptr<Texture> scaleIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/Scale.png");
+    D3D12_GPU_DESCRIPTOR_HANDLE scaleIconHandle = UmRenderer.ConvertImGuiGPUHandle(scaleIconTexture->GetHandle());
+
+    static std::shared_ptr<Texture> transformIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/Transform.png");
+    D3D12_GPU_DESCRIPTOR_HANDLE transformIconHandle = UmRenderer.ConvertImGuiGPUHandle(transformIconTexture->GetHandle());
+
+    static std::shared_ptr<Texture> worldIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/World.png");
+    D3D12_GPU_DESCRIPTOR_HANDLE worldIconHandle = UmRenderer.ConvertImGuiGPUHandle(worldIconTexture->GetHandle());
+
+    static std::shared_ptr<Texture> localIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/Local.png");
+    D3D12_GPU_DESCRIPTOR_HANDLE localIconHandle = UmRenderer.ConvertImGuiGPUHandle(localIconTexture->GetHandle());
+
+    static std::shared_ptr<Texture> gridSnapIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/GridSnap.png");
+    D3D12_GPU_DESCRIPTOR_HANDLE gridSnapIconHandle = UmRenderer.ConvertImGuiGPUHandle(gridSnapIconTexture->GetHandle());
+       
     auto ImageButtonOperation = [&](ImGuizmo::OPERATION op) 
     {
         bool isActive = IsActiveOperation(op);
@@ -290,28 +314,28 @@ void EditorSceneTool::DrawSceneView()
 
         if (ImGuizmo::TRANSLATE == op)
         {
-            if (ImGui::Button("Move", iconButtonSize))
+            if (ImGui::ImageButton("Move", (ImTextureID)moveIconHandle.ptr, iconButtonSize))
             {
                 _drawManipulateDesc.Operation = ImGuizmo::TRANSLATE;
             }
         }
         else if (ImGuizmo::ROTATE == op)
         {
-            if (ImGui::Button("Rotation", iconButtonSize))
+            if (ImGui::ImageButton("Rotation", (ImTextureID)rotationIconHandle.ptr, iconButtonSize))
             {
                 _drawManipulateDesc.Operation = ImGuizmo::ROTATE;
             }
         }
         else if (ImGuizmo::SCALE == op)
         {
-            if (ImGui::Button("Scale", iconButtonSize))
+            if (ImGui::ImageButton("Scale", (ImTextureID)scaleIconHandle.ptr, iconButtonSize))
             {
                 _drawManipulateDesc.Operation = ImGuizmo::SCALE;
             }
         }
         else if (ImGuizmo::UNIVERSAL == op)
         {
-            if (ImGui::Button("Transform", iconButtonSize))
+            if (ImGui::ImageButton("Transform", (ImTextureID)transformIconHandle.ptr, iconButtonSize))
             {
                 _drawManipulateDesc.Operation = ImGuizmo::UNIVERSAL;
             }
@@ -328,14 +352,14 @@ void EditorSceneTool::DrawSceneView()
         bool isWorldMode = IsActiveMode(ImGuizmo::MODE::WORLD);
         if (isWorldMode)
         {
-            if (ImGui::Button("World", iconButtonSize))
+            if (ImGui::ImageButton("World", (ImTextureID)worldIconHandle.ptr, iconButtonSize))
             {
                 _drawManipulateDesc.Mode = ImGuizmo::MODE::LOCAL;
             }
         }
         else
         {
-            if (ImGui::Button("Local", iconButtonSize))
+            if (ImGui::ImageButton("Local", (ImTextureID)localIconHandle.ptr, iconButtonSize))
             {
                 _drawManipulateDesc.Mode = ImGuizmo::MODE::WORLD;
             }
@@ -351,10 +375,11 @@ void EditorSceneTool::DrawSceneView()
             ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.18f, 0.24f, 0.30f, 1.0f));
         }
 
-        if (ImGui::Button("Grid snap", iconButtonSize))
+        if (ImGui::ImageButton("Grid snap", (ImTextureID)gridSnapIconHandle.ptr, iconButtonSize))
         {
             _drawManipulateDesc.UseSnap = !isActive;
         }
+        ImGuiHelper::HoveredToolTip(u8"우클릭을 통해 수치를 변경할 수 있습니다."_c_str);
         
         if (ImGui::BeginPopupContextItem("Snap setting"))
         {
@@ -368,18 +393,42 @@ void EditorSceneTool::DrawSceneView()
             ImGui::PopStyleColor(3);
         }
     };
+    
+    static bool showSettings = true;
+    auto ImageButtonToggleSetting = [&]() 
+    {
+        if (true == showSettings)
+        {
+            if (ImGui::Button(EditorIcon::ICON_CIRCLE_ARROW_LEFT, iconButtonSize))
+            {
+                showSettings = !showSettings;
+            }
+        }
+        else
+        {
+            if (ImGui::Button(EditorIcon::ICON_CIRCLE_ARROW_RIGHT, iconButtonSize))
+            {
+                showSettings = !showSettings;
+            }
+        }
+    };
    
-    ImageButtonMode();
-    ImGui::SameLine();
-    ImageButtonOperation(ImGuizmo::OPERATION::TRANSLATE);
-    ImGui::SameLine();
-    ImageButtonOperation(ImGuizmo::OPERATION::ROTATE);
-    ImGui::SameLine();
-    ImageButtonOperation(ImGuizmo::OPERATION::SCALE);
-    ImGui::SameLine();
-    ImageButtonOperation(ImGuizmo::OPERATION::UNIVERSAL);
-    ImGui::SameLine();
-    ImageButtonGridSnap();
+    if (showSettings)
+    {
+        ImageButtonMode();
+        ImGui::SameLine();
+        ImageButtonOperation(ImGuizmo::OPERATION::TRANSLATE);
+        ImGui::SameLine();
+        ImageButtonOperation(ImGuizmo::OPERATION::ROTATE);
+        ImGui::SameLine();
+        ImageButtonOperation(ImGuizmo::OPERATION::SCALE);
+        ImGui::SameLine();
+        ImageButtonOperation(ImGuizmo::OPERATION::UNIVERSAL);
+        ImGui::SameLine();
+        ImageButtonGridSnap();
+        ImGui::SameLine();
+    }
+    ImageButtonToggleSetting();
 }
 
 bool EditorSceneTool::IsActiveOperation(ImGuizmo::OPERATION op) const

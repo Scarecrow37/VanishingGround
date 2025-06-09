@@ -238,6 +238,32 @@ std::vector<std::weak_ptr<GameObject>> ESceneManager::Engine::FindGameObjectsWit
     return findObjects;
 }
 
+std::weak_ptr<GameObject> ESceneManager::Engine::FindGameObjectWithTag(std::string_view tag)
+{
+    std::weak_ptr<GameObject> findObject;
+    auto findIter = engineCore->SceneManager._runtimeObjectsTagMap.find(tag.data());
+    if (findIter != engineCore->SceneManager._runtimeObjectsTagMap.end() && !findIter->second.empty())
+    {
+        GameObject* object = *findIter->second.begin();
+        findObject = object->GetWeakPtr();
+    }
+    return findObject;
+}
+
+std::vector<std::weak_ptr<GameObject>> ESceneManager::Engine::FindGameObjectsWithTag(std::string_view tag)
+{
+    std::vector<std::weak_ptr<GameObject>> findObjects;
+    auto findIter = engineCore->SceneManager._runtimeObjectsTagMap.find(tag.data());
+    if (findIter != engineCore->SceneManager._runtimeObjectsTagMap.end() && !findIter->second.empty())
+    {
+        for (auto& obj : findIter->second)
+        {
+            findObjects.emplace_back(obj->GetWeakPtr());
+        }
+    }
+    return findObjects;
+}
+
 void ESceneManager::Engine::RenameGameObject(GameObject* gameObject, std::string_view newName)
 {
     if (gameObject == nullptr)
@@ -397,6 +423,31 @@ void ESceneManager::Engine::SetSceneSkyBoxPath(Scene& scene, std::string_view sk
 void ESceneManager::Engine::UpdateMatrix(GameObject* gameObject) 
 {
     gameObject->transform->UpdateMatrix();
+}
+
+bool ESceneManager::Engine::InsertGameObjectTag(GameObject* gameObject, std::string_view tag)
+{
+    auto [iter, result] = UmSceneManager._runtimeObjectsTagMap[tag.data()].insert(gameObject);
+    return result;
+}
+
+bool ESceneManager::Engine::EraseGameObjectTag(GameObject* gameObject, std::string_view tag)
+{
+    auto tagIter = UmSceneManager._runtimeObjectsTagMap.find(tag.data());
+    if (tagIter == UmSceneManager._runtimeObjectsTagMap.end())
+    {
+        return false;
+    }
+
+    std::unordered_set<GameObject*>& objectSet = tagIter->second;
+    auto objIter = objectSet.find(gameObject);
+    if (objIter == objectSet.end())
+    {
+        return false;
+    }
+   
+    objectSet.erase(objIter);
+    return true;
 }
 
 void ESceneManager::CreateEmptySceneAndLoad(std::string_view name, std::string_view outPath, const std::function<void()>& loadEvent) 
@@ -1020,28 +1071,29 @@ bool ESceneManager::DeserializeToYaml(YAML::Node* _sceneNode)
     YAML::Node& sceneNode = *_sceneNode;
     int SerializeVersion = sceneNode["SerializeVersion"].as<int>();
     File::Guid Guid = sceneNode["Guid"].as<std::string>();
-    Scene& scene = _scenesMap[Guid];
 
-    YAML::Node rootObjects = sceneNode["GameObjects"].as<YAML::Node>();
+    const YAML::Node& rootObjects = sceneNode["GameObjects"];
     for (auto object : rootObjects)
     {
-        YAML::Node objectNodes = object;
+        const YAML::Node& objectNodes = object;
         YAML::Node rootObjectNode = *objectNodes.begin();
-        std::shared_ptr<GameObject> newObject = UmGameObjectFactory.DeserializeToSceneObject(object);
-        if (nullptr == newObject)
-        {
-            UmLogger.Log(LogLevel::LEVEL_FATAL, u8"메모리 할당 실패."_c_str);
-            __debugbreak();
-            UmApplication.Quit();
-            return false;
-        }
 
-        Transform::ForeachDFS(
-        newObject->_transform,
-        [&Guid](Transform* curr) 
+        if (false == rootObjectNode.IsNull())
         {
-            curr->_gameObject._ownerScene = Guid.ToPath().string();
-        });
+            std::shared_ptr<GameObject> newObject = UmGameObjectFactory.DeserializeToSceneObject(object);
+            if (nullptr == newObject)
+            {
+                UmLogger.Log(LogLevel::LEVEL_FATAL, u8"메모리 할당 실패."_c_str);
+                __debugbreak();
+                UmApplication.Quit();
+                return false;
+            }
+
+            Transform::ForeachDFS(newObject->_transform, [&Guid](Transform* curr) 
+            { 
+                curr->_gameObject._ownerScene = Guid.ToPath().string(); 
+            });
+        }
     }
     return true;
 }
@@ -1155,16 +1207,16 @@ void ESceneManager::OnFileRegistered(const File::Path& path)
     std::string nodeGuid = node["Guid"].as<std::string>();
     if (nodeGuid != guid)
     {
-        if (UmComponentFactory.HasScript() == false)
+        node["Guid"] = guid.string();
+        if (node.IsNull() == false)
         {
-            if (UmComponentFactory.InitalizeComponentFactory() == false)
+            std::ofstream ofs(path, std::ios::trunc);
+            if (ofs.is_open())
             {
-                return;
+                ofs << node;
             }
-        }    
-        std::filesystem::path writePath = path;
-        writePath = std::filesystem::relative(writePath, UmFileSystem.GetAssetPath()).parent_path();
-        WriteSceneToFile(scene, writePath.string(), true);
+            ofs.close();
+        }
     }
     
     if (_loadFuncEvent)

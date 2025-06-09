@@ -2,6 +2,9 @@
 using namespace Global;
 using namespace u8_literals;
 
+
+#define SAFE_FREE(ptr) if(ptr != nullptr) free(ptr)
+
 EComponentFactory::EComponentFactory()
 {
    
@@ -255,7 +258,96 @@ YAML::Node EComponentFactory::SerializeToYaml(Component* component)
     return MakeYamlToComponent(component);
 }
 
-bool EComponentFactory::AddComponentToYamlLifeCycle(GameObject* ownerObject, YAML::Node* componentNode)
+bool EComponentFactory::ParsingYamlToOverrideFlags(Component* component, const YAML::Node& componentNode) 
+{
+    bool result = false;
+    int SerializedVersion = 0;
+    const YAML::Node& node = componentNode;
+    if (node["SerializedVersion"])
+    {
+        SerializedVersion = node["SerializedVersion"].as<int>();
+    }
+
+    if (0 < SerializedVersion)
+    {
+        if constexpr (Application::IsEditor())
+        {
+            const char* componentType = typeid(*component).name();
+            std::string nodeType = componentNode["Type"].as<std::string>();
+            if (nodeType == componentType)
+            {                     
+                if (node["OverrideFlags"])
+                {
+                    const YAML::Node& overrideFlagsNode = node["OverrideFlags"];
+                    if (false == overrideFlagsNode.IsNull())
+                    {
+                        std::string propertyName;
+                        std::vector<std::string> overrideFieldNames;
+                        component->applyReflectFields([&](std::string_view name, void* pData) 
+                        {
+                            if (overrideFlagsNode[name.data()])
+                            {
+                                propertyName = overrideFlagsNode[name.data()].as<std::string>();
+                                UmGameObjectFactory.SetOverrideFlag(pData, propertyName);
+                                overrideFieldNames.emplace_back(name.data());
+                            }
+                        });
+
+                        if (false == overrideFieldNames.empty())
+                        {
+                            using namespace ReflectHelper::json;
+
+                            std::string prefabData = component->SerializedReflectFields();
+                            yyjson_doc* prefabDoc  = yyjson_read(prefabData.c_str(), prefabData.size(), 0);
+                            yyjson_mut_doc* prefabMutDoc = yyjson_doc_mut_copy(prefabDoc, nullptr);
+                            yyjson_mut_val* prefabRoot = yyjson_mut_doc_get_root(prefabMutDoc);
+
+                            std::string myData = componentNode["ReflectFields"].as<std::string>();
+                            yyjson_doc* myDoc  = yyjson_read(myData.c_str(), myData.size(), 0);
+                            yyjson_val* myRoot = yyjson_doc_get_root(myDoc);
+
+                            bool isWrite = false;
+                            for (auto& name : overrideFieldNames)
+                            {
+                                yyjson_val* myVal = yyjson_obj_get(myRoot, name.data());
+                                if (myVal)
+                                {
+                                    yyjson_mut_val* prefabVal = yyjson_mut_obj_get(prefabRoot, name.data());
+                                    if (prefabVal)
+                                    {
+                                        yyjson_mut_val* prefabKey = yyjson_mut_strcpy(prefabMutDoc, name.data());
+                                        yyjson_mut_val* prefabVal = yyjson_val_mut_copy(prefabMutDoc, myVal);
+                                        yyjson_mut_obj_replace(prefabRoot, prefabKey, prefabVal);
+
+                                        isWrite = true;
+                                    }
+                                }
+                            }
+                            
+                            if (isWrite)
+                            {
+                                char* str = yyjson_mut_write(prefabMutDoc, 0, nullptr);
+                                if (str)
+                                {
+                                    component->DeserializedReflectFields(str);
+                                    SAFE_FREE(str);
+                                }
+                            }
+
+                            yyjson_doc_free(prefabDoc);
+                            yyjson_mut_doc_free(prefabMutDoc);
+                            yyjson_doc_free(myDoc);
+                        }
+                    }
+                }
+                result = true;
+            }
+        }
+    }
+    return result;
+}
+
+Component* EComponentFactory::AddComponentToYamlLifeCycle(GameObject* ownerObject, YAML::Node* componentNode)
 {
     if (UmComponentFactory.HasScript() == false)
     {
@@ -264,21 +356,22 @@ bool EComponentFactory::AddComponentToYamlLifeCycle(GameObject* ownerObject, YAM
             UmLogger.Log(LogLevel::LEVEL_FATAL, u8"스크립트 빌드 에러 해결 필요."_c_str);
             __debugbreak();
             UmApplication.Quit();
-            return false;
+            return nullptr;
         }
     }
-    if (std::shared_ptr<Component> component = MakeComponentToYaml(ownerObject, componentNode))
+    std::shared_ptr<Component> component;
+    if (component = MakeComponentToYaml(ownerObject, componentNode))
     {
         ESceneManager::Engine::AddComponentToLifeCycle(component); // 씬에 등록
     }
     else
     {
-        return false;
+        return nullptr;
     }
-    return true;
+    return component.get();
 }
 
-bool EComponentFactory::AddComponentToYamlNow(GameObject* ownerObject, YAML::Node* componentNode)
+Component* EComponentFactory::AddComponentToYamlNow(GameObject* ownerObject, YAML::Node* componentNode)
 {
     if (UmComponentFactory.HasScript() == false)
     {
@@ -287,23 +380,105 @@ bool EComponentFactory::AddComponentToYamlNow(GameObject* ownerObject, YAML::Nod
             UmLogger.Log(LogLevel::LEVEL_FATAL, u8"스크립트 빌드 에러 해결 필요."_c_str);
             __debugbreak();
             UmApplication.Quit();
-            return false;
+            return nullptr;
         }
     }
-    if (std::shared_ptr<Component> component = MakeComponentToYaml(ownerObject, componentNode))
+    std::shared_ptr<Component> component;
+    if (component = MakeComponentToYaml(ownerObject, componentNode))
     {
         component->_gameObect->_components.emplace_back(component); //바로 추가
     }
     else
     {
-        return false;
+        return nullptr;
     }
-    return true;
+    return component.get();
 }
 
 void EComponentFactory::InsertComponentToObject(GameObject* object, std::shared_ptr<Component>& component, int index) 
 {
     object->_components.insert(object->_components.begin() + index, component);
+}
+
+bool EComponentFactory::RevertOverrideField(Component* component, std::string_view fieldName)
+{
+    bool result = false;
+    if constexpr (Application::IsEditor())
+    {
+        EGameObjectFactory& gameObjectFactory = UmGameObjectFactory;
+        GameObject* prefabInstance = component->gameObject->PrefabInstance;
+        if (nullptr != prefabInstance)
+        {
+            const std::vector<std::shared_ptr<GameObject>>* prefabList = gameObjectFactory.GetOriginPrefab(prefabInstance->_prefabGuid);
+            if (nullptr != prefabList)
+            {
+                int prefabIndex = -1;
+                int currIndex = 0;
+                Transform::ForeachBFS(prefabInstance->_transform, [&](Transform* curr) 
+                {
+                    if (&component->gameObject == &curr->gameObject)
+                    {
+                        prefabIndex = currIndex;
+                    }
+                    currIndex++;
+                });
+
+                if (0 <= prefabIndex)
+                {
+                    GameObject* prefab = (*prefabList)[prefabIndex].get();
+                    Component* prefabComponent = prefab->GetComponentAtIndex<Component>(component->GetIndex());
+                    if (typeid(*component) == typeid(*prefabComponent))
+                    {
+                        using namespace ReflectHelper::json;
+                        std::string prefabData = prefabComponent->SerializedReflectFields();
+                        yyjson_doc* prefabDoc = yyjson_read(prefabData.c_str(), prefabData.size(), 0);
+                        yyjson_val* prefabRoot = yyjson_doc_get_root(prefabDoc);
+
+                        std::string myData = component->SerializedReflectFields();
+                        yyjson_doc* myDoc = yyjson_read(myData.c_str(), myData.size(), 0);
+                        yyjson_mut_doc* myMutDoc = yyjson_doc_mut_copy(myDoc, nullptr);
+                        yyjson_mut_val* myRoot = yyjson_mut_doc_get_root(myMutDoc);
+
+                        bool isWrite = false;
+                        yyjson_val* prefabVal = yyjson_obj_get(prefabRoot, fieldName.data());
+                        if (prefabVal)
+                        {
+                            yyjson_mut_val* myVal = yyjson_mut_obj_get(myRoot, fieldName.data());
+                            if (myVal)
+                            {
+                                yyjson_mut_val* myKey = yyjson_mut_strcpy(myMutDoc, fieldName.data());
+                                yyjson_mut_val* myVal = yyjson_val_mut_copy(myMutDoc, prefabVal);
+                                yyjson_mut_obj_replace(myRoot, myKey, myVal);
+                                isWrite = true;
+                            }
+                        }
+                        
+                        if (isWrite)
+                        {
+                            char* str = yyjson_mut_write(myMutDoc, 0, nullptr);
+                            if (str)
+                            {
+                                component->DeserializedReflectFields(str);
+                                SAFE_FREE(str);
+                            }
+                        }
+
+                        yyjson_doc_free(prefabDoc);
+                        yyjson_doc_free(myDoc);
+                        yyjson_mut_doc_free(myMutDoc);
+
+                        result = true;
+                    }
+                }
+            }
+        }
+    }
+
+    if (result == false)
+    {
+        UmLogger.Log(LogLevel::LEVEL_ERROR, u8"프리팹 구조와 오브젝트 구조가 다릅니다."_c_str);
+    }
+    return result;
 }
 
 void EComponentFactory::AddEngineComponentsToScripts() 
@@ -347,15 +522,44 @@ void EComponentFactory::ResetComponent(GameObject* ownerObject, std::shared_ptr<
 
 YAML::Node EComponentFactory::MakeYamlToComponent(Component* component)
 {
+    constexpr int SerializedVersion = 1;
     YAML::Node node;
+    if constexpr (0 < SerializedVersion)
+    {
+        node["SerializedVersion"] = SerializedVersion;
+    }
     node["Type"] = typeid(*component).name();
     node["ReflectFields"] = component->SerializedReflectFields();
+    if constexpr (0 < SerializedVersion)
+    {
+        if constexpr (Application::IsEditor())
+        {
+            YAML::Node overrideFlagsNode;
+            std::string_view propertyName;
+            component->applyReflectFields([&](std::string_view name, void* pData) 
+            {
+                if (true == UmGameObjectFactory.IsOverrideField(pData, &propertyName))
+                {
+                    overrideFlagsNode[name.data()] = propertyName;
+                }
+            });
+            if (false == overrideFlagsNode.IsNull())
+            {
+                node["OverrideFlags"] = overrideFlagsNode;
+            }
+        }
+    }
     return node;
 }
 
 std::shared_ptr<Component> EComponentFactory::MakeComponentToYaml(GameObject* ownerObject, YAML::Node* pComponentNode)
 {
+    int SerializedVersion = 0;
     YAML::Node& node = *pComponentNode;
+    if (node["SerializedVersion"])
+    {
+        SerializedVersion = node["SerializedVersion"].as<int>();
+    }
     std::string Type = node["Type"].as<std::string>();
     std::shared_ptr<Component> component = NewComponent(Type);
     ResetComponent(ownerObject, component);
