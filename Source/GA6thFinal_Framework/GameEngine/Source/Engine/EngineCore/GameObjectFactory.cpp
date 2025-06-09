@@ -69,13 +69,14 @@ void EGameObjectFactory::ApplyPrefabInstanceChanges(const File::Guid& guid, YAML
                     instanceList.push_back(wptr.lock());
                 }
             }
-            for (auto& pGameObject : instanceList)
+            for (auto& gameObject : instanceList)
             {
-                auto prefabObjects = UmGameObjectFactory.MakeObjectsGraphToYaml(&yaml, true);
+                YAML::Node myYaml = SerializeToYaml(gameObject.get());
+                auto prefabObjects = MakeObjectsGraphToYaml(&yaml, true, &myYaml);
                 if (false == prefabObjects.empty())
                 {
                     int i = 0;
-                    Transform::ForeachBFS(pGameObject->_transform, [&](Transform* curr) 
+                    Transform::ForeachBFS(gameObject->_transform, [&](Transform* curr) 
                     {
                         if (i < prefabObjects.size())
                         {
@@ -258,12 +259,12 @@ std::vector<std::shared_ptr<GameObject>> EGameObjectFactory::MakeObjectsGraphToY
                     std::vector<std::weak_ptr<GameObject>>& instanceList = _prefabInstanceList[prefab];
                     instanceList.emplace_back(currObject);
                     ParsingYamlToGameObject(currObject.get(), currNode);
-                    isPrefabInstance = true;
                 }
                 else
                 {
                     currObject->_prefabGuid = prefab;
                 }
+                isPrefabInstance = true;
             }
         }
 
@@ -280,22 +281,24 @@ std::vector<std::shared_ptr<GameObject>> EGameObjectFactory::MakeObjectsGraphToY
 
             for (auto componentNode : componentNodes)
             {
+                Component* component = nullptr;
                 YAML::Node& currComponentNode = componentNode;
                 if (useResource == false)
                 {
-                    Component* component = UmComponentFactory.AddComponentToYamlLifeCycle(currObject.get(), &currComponentNode);
-                    if (true == isPrefabInstance)
-                    {
-                        bool result = UmComponentFactory.ParsingYamlToOverrideFlags(component, *sceneComponentNodeIter);
-                        if (true == result)
-                        {
-                            ++sceneComponentNodeIter;
-                        }
-                    }
+                    component = UmComponentFactory.AddComponentToYamlLifeCycle(currObject.get(), &currComponentNode);
                 }
                 else
                 {
-                    UmComponentFactory.AddComponentToYamlNow(currObject.get(), &currComponentNode);
+                    component = UmComponentFactory.AddComponentToYamlNow(currObject.get(), &currComponentNode);
+                }
+
+                if (true == isPrefabInstance)
+                {
+                    bool result = UmComponentFactory.ParsingYamlToOverrideFlags(component, *sceneComponentNodeIter);
+                    if (true == result)
+                    {
+                        ++sceneComponentNodeIter;
+                    }
                 }
             }
         }
