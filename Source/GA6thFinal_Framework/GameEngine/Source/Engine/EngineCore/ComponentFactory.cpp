@@ -258,8 +258,9 @@ YAML::Node EComponentFactory::SerializeToYaml(Component* component)
     return MakeYamlToComponent(component);
 }
 
-void EComponentFactory::ParsingYamlToOverrideFlags(Component* component, const YAML::Node& componentNode) 
+bool EComponentFactory::ParsingYamlToOverrideFlags(Component* component, const YAML::Node& componentNode) 
 {
+    bool result = false;
     int SerializedVersion = 0;
     const YAML::Node& node = componentNode;
     if (node["SerializedVersion"])
@@ -271,72 +272,79 @@ void EComponentFactory::ParsingYamlToOverrideFlags(Component* component, const Y
     {
         if constexpr (Application::IsEditor())
         {
-            if (node["OverrideFlags"])
-            {
-                const YAML::Node& overrideFlagsNode = node["OverrideFlags"];
-                if (false == overrideFlagsNode.IsNull())
+            const char* componentType = typeid(*component).name();
+            std::string nodeType = componentNode["Type"].as<std::string>();
+            if (nodeType == componentType)
+            {                     
+                if (node["OverrideFlags"])
                 {
-                    std::string propertyName;
-                    std::vector<std::string> overrideFieldNames;
-                    component->applyReflectFields([&](std::string_view name, void* pData) 
+                    const YAML::Node& overrideFlagsNode = node["OverrideFlags"];
+                    if (false == overrideFlagsNode.IsNull())
                     {
-                        if (overrideFlagsNode[name.data()])
+                        std::string propertyName;
+                        std::vector<std::string> overrideFieldNames;
+                        component->applyReflectFields([&](std::string_view name, void* pData) 
                         {
-                            propertyName = overrideFlagsNode[name.data()].as<std::string>();
-                            UmGameObjectFactory.SetOverrideFlag(pData, propertyName);
-                            overrideFieldNames.emplace_back(name.data());
-                        }
-                    });
-
-                    if (false == overrideFieldNames.empty())
-                    {
-                        using namespace ReflectHelper::json;
-
-                        std::string prefabData = component->SerializedReflectFields();
-                        yyjson_doc* prefabDoc  = yyjson_read(prefabData.c_str(), prefabData.size(), 0);
-                        yyjson_mut_doc* prefabMutDoc = yyjson_doc_mut_copy(prefabDoc, nullptr);
-                        yyjson_mut_val* prefabRoot = yyjson_mut_doc_get_root(prefabMutDoc);
-
-                        std::string myData = componentNode["ReflectFields"].as<std::string>();
-                        yyjson_doc* myDoc  = yyjson_read(myData.c_str(), myData.size(), 0);
-                        yyjson_val* myRoot = yyjson_doc_get_root(myDoc);
-
-                        bool isWrite = false;
-                        for (auto& name : overrideFieldNames)
-                        {
-                            yyjson_val* myVal = yyjson_obj_get(myRoot, name.data());
-                            if (myVal)
+                            if (overrideFlagsNode[name.data()])
                             {
-                                yyjson_mut_val* prefabVal = yyjson_mut_obj_get(prefabRoot, name.data());
-                                if (prefabVal)
-                                {
-                                    yyjson_mut_val* prefabKey = yyjson_mut_strcpy(prefabMutDoc, name.data());
-                                    yyjson_mut_val* prefabVal = yyjson_val_mut_copy(prefabMutDoc, myVal);
-                                    yyjson_mut_obj_replace(prefabRoot, prefabKey, prefabVal);
+                                propertyName = overrideFlagsNode[name.data()].as<std::string>();
+                                UmGameObjectFactory.SetOverrideFlag(pData, propertyName);
+                                overrideFieldNames.emplace_back(name.data());
+                            }
+                        });
 
-                                    isWrite = true;
+                        if (false == overrideFieldNames.empty())
+                        {
+                            using namespace ReflectHelper::json;
+
+                            std::string prefabData = component->SerializedReflectFields();
+                            yyjson_doc* prefabDoc  = yyjson_read(prefabData.c_str(), prefabData.size(), 0);
+                            yyjson_mut_doc* prefabMutDoc = yyjson_doc_mut_copy(prefabDoc, nullptr);
+                            yyjson_mut_val* prefabRoot = yyjson_mut_doc_get_root(prefabMutDoc);
+
+                            std::string myData = componentNode["ReflectFields"].as<std::string>();
+                            yyjson_doc* myDoc  = yyjson_read(myData.c_str(), myData.size(), 0);
+                            yyjson_val* myRoot = yyjson_doc_get_root(myDoc);
+
+                            bool isWrite = false;
+                            for (auto& name : overrideFieldNames)
+                            {
+                                yyjson_val* myVal = yyjson_obj_get(myRoot, name.data());
+                                if (myVal)
+                                {
+                                    yyjson_mut_val* prefabVal = yyjson_mut_obj_get(prefabRoot, name.data());
+                                    if (prefabVal)
+                                    {
+                                        yyjson_mut_val* prefabKey = yyjson_mut_strcpy(prefabMutDoc, name.data());
+                                        yyjson_mut_val* prefabVal = yyjson_val_mut_copy(prefabMutDoc, myVal);
+                                        yyjson_mut_obj_replace(prefabRoot, prefabKey, prefabVal);
+
+                                        isWrite = true;
+                                    }
                                 }
                             }
-                        }
-                        
-                        if (isWrite)
-                        {
-                            char* str = yyjson_mut_write(prefabMutDoc, 0, nullptr);
-                            if (str)
+                            
+                            if (isWrite)
                             {
-                                component->DeserializedReflectFields(str);
-                                SAFE_FREE(str);
+                                char* str = yyjson_mut_write(prefabMutDoc, 0, nullptr);
+                                if (str)
+                                {
+                                    component->DeserializedReflectFields(str);
+                                    SAFE_FREE(str);
+                                }
                             }
-                        }
 
-                        yyjson_doc_free(prefabDoc);
-                        yyjson_mut_doc_free(prefabMutDoc);
-                        yyjson_doc_free(myDoc);
+                            yyjson_doc_free(prefabDoc);
+                            yyjson_mut_doc_free(prefabMutDoc);
+                            yyjson_doc_free(myDoc);
+                        }
                     }
                 }
+                result = true;
             }
         }
     }
+    return result;
 }
 
 Component* EComponentFactory::AddComponentToYamlLifeCycle(GameObject* ownerObject, YAML::Node* componentNode)

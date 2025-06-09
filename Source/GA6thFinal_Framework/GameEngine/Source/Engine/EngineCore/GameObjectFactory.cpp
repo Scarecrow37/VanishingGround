@@ -286,17 +286,16 @@ std::vector<std::shared_ptr<GameObject>> EGameObjectFactory::MakeObjectsGraphToY
                     Component* component = UmComponentFactory.AddComponentToYamlLifeCycle(currObject.get(), &currComponentNode);
                     if (true == isPrefabInstance)
                     {
-                        UmComponentFactory.ParsingYamlToOverrideFlags(component, *sceneComponentNodeIter);
+                        bool result = UmComponentFactory.ParsingYamlToOverrideFlags(component, *sceneComponentNodeIter);
+                        if (true == result)
+                        {
+                            ++sceneComponentNodeIter;
+                        }
                     }
                 }
                 else
                 {
                     UmComponentFactory.AddComponentToYamlNow(currObject.get(), &currComponentNode);
-                }
-
-                if (true == isPrefabInstance)
-                {
-                    ++sceneComponentNodeIter;
                 }
             }
         }

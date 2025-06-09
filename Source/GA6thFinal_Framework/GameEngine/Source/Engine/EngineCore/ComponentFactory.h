@@ -133,7 +133,8 @@ public:
     /// </summary>
     /// <param name="component :">대상 Component</param>
     /// <param name="componentNode :">Scene 파일에 직렬화된 Component Node</param>
-    void ParsingYamlToOverrideFlags(Component* component, const YAML::Node& componentNode);
+    /// <returns>같은 타입의 컴포넌트면 true 아니면 false입니다.</returns>
+    bool ParsingYamlToOverrideFlags(Component* component, const YAML::Node& componentNode);
 
     /// <summary>
     /// Yaml 형식으로 직렬화된 컴포넌트를 런타임 오브젝트에 추가합니다. 
