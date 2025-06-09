@@ -280,21 +280,27 @@ void EditorSceneTool::DrawSceneView()
     constexpr ImVec2 damp = ImVec2(4.f, 4.f);
     ImVec2 moveIconPos = _window->ContentRegionRect.Min;
     ImGui::SetCursorScreenPos(ImVec2(moveIconPos.x + damp.x, moveIconPos.y + damp.y));
+    
+    static std::shared_ptr<Texture> moveIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/Move.png");
+    D3D12_GPU_DESCRIPTOR_HANDLE moveIconHandle = UmRenderer.ConvertImGuiGPUHandle(moveIconTexture->GetHandle());
 
+    static std::shared_ptr<Texture> rotationIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/Rotate.png");
+    D3D12_GPU_DESCRIPTOR_HANDLE rotationIconHandle = UmRenderer.ConvertImGuiGPUHandle(rotationIconTexture->GetHandle());
+
+    static std::shared_ptr<Texture> scaleIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/Scale.png");
+    D3D12_GPU_DESCRIPTOR_HANDLE scaleIconHandle = UmRenderer.ConvertImGuiGPUHandle(scaleIconTexture->GetHandle());
+
+    static std::shared_ptr<Texture> transformIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/Transform.png");
+    D3D12_GPU_DESCRIPTOR_HANDLE transformIconHandle = UmRenderer.ConvertImGuiGPUHandle(transformIconTexture->GetHandle());
+
+    static std::shared_ptr<Texture> worldIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/World.png");
+    D3D12_GPU_DESCRIPTOR_HANDLE worldIconHandle = UmRenderer.ConvertImGuiGPUHandle(worldIconTexture->GetHandle());
+
+    static std::shared_ptr<Texture> localIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/Local.png");
+    D3D12_GPU_DESCRIPTOR_HANDLE localIconHandle = UmRenderer.ConvertImGuiGPUHandle(localIconTexture->GetHandle());
+       
     auto ImageButtonOperation = [&](ImGuizmo::OPERATION op) 
     {
-        static std::shared_ptr<Texture> moveIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Resource/Icon/Editor/Move.png");
-        D3D12_GPU_DESCRIPTOR_HANDLE moveIconHandle = UmRenderer.ConvertImGuiGPUHandle(moveIconTexture->GetHandle());
-
-        static std::shared_ptr<Texture> rotationIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Resource/Icon/Editor/Rotate.png");
-        D3D12_GPU_DESCRIPTOR_HANDLE rotationIconHandle = UmRenderer.ConvertImGuiGPUHandle(rotationIconTexture->GetHandle());
-
-        static std::shared_ptr<Texture> scaleIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Resource/Icon/Editor/Scale.png");
-        D3D12_GPU_DESCRIPTOR_HANDLE scaleIconHandle = UmRenderer.ConvertImGuiGPUHandle(scaleIconTexture->GetHandle());
-
-        static std::shared_ptr<Texture> transformIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Resource/Icon/Editor/Transform.png");
-        D3D12_GPU_DESCRIPTOR_HANDLE transformIconHandle = UmRenderer.ConvertImGuiGPUHandle(transformIconTexture->GetHandle());
-
         bool isActive = IsActiveOperation(op);
         if (isActive)
         {
@@ -343,14 +349,14 @@ void EditorSceneTool::DrawSceneView()
         bool isWorldMode = IsActiveMode(ImGuizmo::MODE::WORLD);
         if (isWorldMode)
         {
-            if (ImGui::Button("World", iconButtonSize))
+            if (ImGui::ImageButton("World", (ImTextureID)worldIconHandle.ptr, iconButtonSize))
             {
                 _drawManipulateDesc.Mode = ImGuizmo::MODE::LOCAL;
             }
         }
         else
         {
-            if (ImGui::Button("Local", iconButtonSize))
+            if (ImGui::ImageButton("Local", (ImTextureID)localIconHandle.ptr, iconButtonSize))
             {
                 _drawManipulateDesc.Mode = ImGuizmo::MODE::WORLD;
             }
