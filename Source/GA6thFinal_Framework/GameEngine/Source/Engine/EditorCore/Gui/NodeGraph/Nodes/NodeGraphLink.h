@@ -9,21 +9,21 @@ namespace NodeGraph
     class Link
     {
     public:
-        Link(ed::LinkId id, ed::PinId startPinId, ed::PinId endPinId)
-            : ID(id), StartPinID(startPinId), EndPinID(endPinId), Color(255, 255, 255)
+        Link(ed::LinkId id, ed::PinId startPinId, ed::PinId endPinId, ImColor pinColor)
+            : _id(id), _startPinID(startPinId), _endPinID(endPinId), _color(255, 255, 255)
         {
         }
 
     public:
-        inline ed::LinkId     GetLinkID() const { return ID; }
-        inline ed::PinId      GetStartPinID() const { return StartPinID; }
-        inline ed::PinId      GetEndPinID() const { return EndPinID; }
-        inline const ImColor& GetColor() const { return Color; }
+        inline ed::LinkId     GetLinkID() const { return _id; }
+        inline ed::PinId      GetStartPinID() const { return _startPinID; }
+        inline ed::PinId      GetEndPinID() const { return _endPinID; }
+        inline const ImColor& GetPinColor() const { return _color; }
 
     private:
-        ed::LinkId ID;
-        ed::PinId  StartPinID;
-        ed::PinId  EndPinID;
-        ImColor    Color;
+        ed::LinkId _id;
+        ed::PinId  _startPinID;
+        ed::PinId  _endPinID;
+        ImColor    _color;
     };
 } // namespace NodeGraph

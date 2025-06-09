@@ -13,14 +13,33 @@ namespace NodeGraph
         _outputPinList.clear();
     }
 
+    Pin* Node::FindPin(ed::PinId id)
+    {
+        for (auto& pin : _inputPinList)
+        {
+            if (pin.GetPinID() == id)
+                return &pin;
+        }
+        for (auto& pin : _outputPinList)
+        {
+            if (pin.GetPinID() == id)
+                return &pin;
+        }
+        return nullptr;
+    }
+
     void Node::AddInputPin(const char* name, PinType type)
     {
-        _inputPinList.emplace_back(_owner->GetUniqueID(), name, type, ed::PinKind::Input, this);
+        UINT64 id = _owner->GetUniqueID();
+        _inputPinList.emplace_back(id, name, type, ed::PinKind::Input, this);
+        _pinTable[id] = &_inputPinList.back();
     }
 
     void Node::AddOutputPin(const char* name, PinType type)
     {
-        _outputPinList.emplace_back(_owner->GetUniqueID(), name, type, ed::PinKind::Output, this);
+        UINT64 id = _owner->GetUniqueID();
+        _outputPinList.emplace_back(id, name, type, ed::PinKind::Output, this);
+        _pinTable[id] = &_outputPinList.back();
     }
     void Node::SetPosition(const ImVec2& pos) 
     {

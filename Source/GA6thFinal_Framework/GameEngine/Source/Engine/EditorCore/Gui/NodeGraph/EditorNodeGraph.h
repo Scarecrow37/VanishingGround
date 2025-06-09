@@ -8,12 +8,15 @@
 class EditorNodeGraph 
     : public ReflectSerializer
 {
-    using ID = uintptr_t;
+    using ID = UINT64;
 
 public:
     struct State
     {
-        NodeGraph::Pin* NewLinkPin = nullptr;
+        bool isProcessingNewNode = false;
+
+        NodeGraph::Pin* NewLinkPin = nullptr;       // 링크를 하기 나온 핀
+        NodeGraph::Pin* NewNodeLinkPin = nullptr;   // 새로운 노드에 연결할 핀
     };
 public:
     EditorNodeGraph();
@@ -28,6 +31,7 @@ public:
 
     NodeGraph::Node* FindNode(ed::NodeId id);
     NodeGraph::Link* FindLink(ed::LinkId id);
+    NodeGraph::Pin*  FindPin(ed::PinId id);
 
     /* SerializeFunc */
     void        SaveData(const char* data, size_t size = 0);
@@ -39,18 +43,27 @@ public:
     inline void SetCurrentContext()     { ed::SetCurrentEditor(_editor); }
 
     inline const State& GetState()      { return _state; }
-    inline int          GetUniqueID()   { return _uniqueID++; }
+    inline UINT64       GetUniqueID()   { return _uniqueID++; }
 
 private:
+    NodeGraph::Link* AddLink(ed::PinId startPinId, ed::PinId endPinId,
+                             const ImColor& pinColor = ImColor(255, 255, 255));
+
     virtual void SerializedReflectEvent() override;
     virtual void DeserializedReflectEvent() override;
 
-    void DrawNodes();
+    void ProcessNodes();
+    void ProcessLinkes();
+    void ProcessCreate();
+    void ProcessCreateLink();
+    void ProcessCreateNode();
+
+    void ShowLabel(const char* label, const ImColor& bgColor, const ImVec4& textColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
 
 private:
     ed::EditorContext* _editor;
     State              _state;
-    int                _uniqueID;
+    UINT64             _uniqueID;
 
     std::vector<NodeGraph::Node*> _nodeVector;
     std::vector<NodeGraph::Link*> _linkVector;
@@ -58,8 +71,14 @@ private:
     std::unordered_map<ID, NodeGraph::Link*> _linkTable;
 
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
-    std::string SerializeData;
+    std::string SerializeData           = "";
+    float       LinkThickness           = 2.0f;
+    enum LinkDataIndex { R, G, B, A, THICKNESS, };
+    std::array<float, 5> DefaultNewLinkData = {0.0f, 1.0f, 0.0f, 0.5f, 2.0f};
+    std::array<float, 5> RejectNewLinkData  = {1.0f, 0.2f, 0.2f, 1.0f, 1.0f};
+    std::array<float, 5> AcceptNewLinkData  = {0.2f, 1.0f, 0.2f, 1.0f, 4.0f};
     REFLECT_FIELDS_END(EditorNodeGraph)
+
 };
 
 template <typename T>

@@ -32,6 +32,8 @@ namespace NodeGraph
         virtual void Draw() = 0;
 
     public:
+        Pin* FindPin(ed::PinId id);
+
         void AddInputPin(const char* name, PinType type);
         void AddOutputPin(const char* name, PinType type);
         
@@ -54,11 +56,9 @@ namespace NodeGraph
         ImVec2           _size;
         std::vector<Pin> _inputPinList;
         std::vector<Pin> _outputPinList;
+        std::unordered_map<UINT64, NodeGraph::Pin*> _pinTable; // Pin ID to Pin mapping
 
-        std::string State;
+        std::string _serialData;
         std::string SavedState;
-
-        inline static float _nodeRounding = 10.0f; // Rounding for node corners
-        inline static float _pinPadding   = 12.0f; // Padding around pins
     };
 }

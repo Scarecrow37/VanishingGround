@@ -15,6 +15,13 @@ ImVec4 ImGuiHelper::ArrayToImVec4(const std::array<float, 4>& array)
     return vec4;
 }
 
+ImVec4 ImGuiHelper::FloatPtrToImVec4(const float* ptr)
+{
+    ImVec4 vec4;
+    std::memcpy(&vec4.x, ptr, sizeof(ImVec4));
+    return vec4;
+}
+
 bool ImGuiHelper::HoveredToolTip(std::string_view toolTip)
 {
     bool isHovered = ImGui::IsItemHovered();
@@ -33,7 +40,7 @@ namespace ImGuiHelper
       Camera* pCamera, 
       Matrix* pObjectMatrix,
       DrawManipulateDesc & desc);
-}
+} // namespace ImGuiHelper
 
 bool ImGuiHelper::DrawManipulate(
     Camera* pCamera, 

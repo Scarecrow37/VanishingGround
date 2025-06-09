@@ -301,6 +301,7 @@ namespace ImGuiHelper
 {
     std::array<float, 4> ImVec4ToArray(const ImVec4& vec4);
     ImVec4               ArrayToImVec4(const std::array<float, 4>& array);
+    ImVec4               FloatPtrToImVec4(const float* ptr);
 
     /// <summary>
     /// 이전 아이템에 마우스가 올라가면 툴팁을 출력합니다.

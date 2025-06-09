@@ -19,5 +19,9 @@ namespace NodeGraph
         void DrawLabel();
         void DrawPin(Pin* pin, ImVec4 color, ImRect rect, int roundFlag);
 
+    private:
+        inline static float _nodeRounding = 10.0f; // Rounding for node corners
+        inline static float _pinPadding   = 12.0f; // Padding around pins
+
     };
 } // namespace NodeGraph
