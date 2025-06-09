@@ -204,7 +204,7 @@ void GameObject::OnInspectorStay()
                     if (originPrefab != nullptr)
                     {
                         // 오버라이딩 맴버 여부 확인
-                        static std::unordered_map<std::string, void*> overrideMap;
+                        static std::unordered_map<std::string, std::pair<std::string, void*>> overrideMap;
                         int reflectFieldsCount = 0;
                         overrideMap.clear();
                         component->applyReflectFields([&](std::string_view rflName, void* pData) 
@@ -212,7 +212,7 @@ void GameObject::OnInspectorStay()
                             std::string_view propertyName;
                             if (true == UmGameObjectFactory.IsOverrideField(pData, &propertyName))
                             {
-                                overrideMap[propertyName.data()] = pData;
+                                overrideMap[propertyName.data()] = std::make_pair(rflName.data(), pData);
                             }
                             reflectFieldsCount++;
                         });
@@ -283,13 +283,15 @@ void GameObject::OnInspectorStay()
                             auto overrideIter = overrideMap.find(name.data());
                             if (overrideIter != overrideMap.end())
                             {
-                                auto& [name, pData] = *overrideIter;
+                                auto& [name, pair] = *overrideIter;
+                                auto& [rflName, pData] = pair;
                                 ImGui::PushID(pData);
                                 {
                                     ImGui::SameLine();
                                     if (ImGui::Button("Revert"))
                                     {
                                         UmGameObjectFactory.UnsetOverrideFlag(pData);
+                                        UmComponentFactory.RevertOverrideField(component.get(), rflName.data());
                                     }
                                 }
                                 ImGui::PopID();
