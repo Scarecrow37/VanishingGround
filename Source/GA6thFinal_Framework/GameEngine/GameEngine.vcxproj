@@ -389,7 +389,6 @@
     <ClInclude Include="Source\Engine\GraphicsCore\DX12Practice.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Enums.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Externs.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\FBXImporter.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Font.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\FontManager.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\FrameResource.h" />
@@ -606,7 +605,6 @@
     <ClCompile Include="Source\Engine\GraphicsCore\Camera.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\Cylinder.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\Device.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\FBXImporter.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\Font.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\FontManager.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\FrameResource.cpp" />

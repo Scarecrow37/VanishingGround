@@ -4,6 +4,7 @@
 class Animation : public Resource
 {
     friend class Animator;
+    friend class FBXConverter;
 
     struct BoneTransformTrack
     {

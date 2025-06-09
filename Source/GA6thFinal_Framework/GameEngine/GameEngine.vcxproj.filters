@@ -324,9 +324,6 @@
     <ClInclude Include="Source\Engine\GraphicsCore\Device.h">
       <Filter>GraphicsCore\Device</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\FBXImporter.h">
-      <Filter>GraphicsCore\FBXImporter</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\GraphicsCore\Font.h">
       <Filter>GraphicsCore\Font</Filter>
     </ClInclude>
@@ -787,9 +784,6 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\Device.cpp">
       <Filter>GraphicsCore\Device</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\FBXImporter.cpp">
-      <Filter>GraphicsCore\FBXImporter</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\Font.cpp">
       <Filter>GraphicsCore\Font</Filter>

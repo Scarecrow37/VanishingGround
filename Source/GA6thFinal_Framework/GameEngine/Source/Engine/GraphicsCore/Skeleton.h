@@ -14,6 +14,8 @@ struct Bone
 
 class Skeleton
 {
+    friend class FBXConverter;
+
 public:
     Bone* GetBone(const unsigned int ID = 0) const { return _bones[ID]; }
     Bone& GetRootBone() { return _rootBone; }
