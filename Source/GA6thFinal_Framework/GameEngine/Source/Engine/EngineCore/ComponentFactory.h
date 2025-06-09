@@ -156,6 +156,14 @@ public:
     /// <param name="index :">번호</param>
     void InsertComponentToObject(GameObject* object, std::shared_ptr<Component>& component, int index);
 
+    /// <summary>
+    /// PrefabOverrideField를 Prefab의 값으로 Revert합니다.
+    /// </summary>
+    /// <param name="component"></param>
+    /// <param name="fieldName"></param>
+    /// <returns></returns>
+    bool RevertOverrideField(Component* component, std::string_view fieldName);
+
 private:
     using InitScripts = void(*)(const std::shared_ptr<EngineCores>, ImGuiContext*);
     using MakeUmScriptsFile = void(*)(const char* fileName);

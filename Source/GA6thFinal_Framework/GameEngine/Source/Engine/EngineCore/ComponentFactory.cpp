@@ -400,6 +400,87 @@ void EComponentFactory::InsertComponentToObject(GameObject* object, std::shared_
     object->_components.insert(object->_components.begin() + index, component);
 }
 
+bool EComponentFactory::RevertOverrideField(Component* component, std::string_view fieldName)
+{
+    bool result = false;
+    if constexpr (Application::IsEditor())
+    {
+        EGameObjectFactory& gameObjectFactory = UmGameObjectFactory;
+        GameObject* prefabInstance = component->gameObject->PrefabInstance;
+        if (nullptr != prefabInstance)
+        {
+            const std::vector<std::shared_ptr<GameObject>>* prefabList = gameObjectFactory.GetOriginPrefab(prefabInstance->_prefabGuid);
+            if (nullptr != prefabList)
+            {
+                int prefabIndex = -1;
+                int currIndex = 0;
+                Transform::ForeachBFS(prefabInstance->_transform, [&](Transform* curr) 
+                {
+                    if (&component->gameObject == &curr->gameObject)
+                    {
+                        prefabIndex = currIndex;
+                    }
+                    currIndex++;
+                });
+
+                if (0 <= prefabIndex)
+                {
+                    GameObject* prefab = (*prefabList)[prefabIndex].get();
+                    Component* prefabComponent = prefab->GetComponentAtIndex<Component>(component->GetIndex());
+                    if (typeid(*component) == typeid(*prefabComponent))
+                    {
+                        using namespace ReflectHelper::json;
+                        std::string prefabData = prefabComponent->SerializedReflectFields();
+                        yyjson_doc* prefabDoc = yyjson_read(prefabData.c_str(), prefabData.size(), 0);
+                        yyjson_val* prefabRoot = yyjson_doc_get_root(prefabDoc);
+
+                        std::string myData = component->SerializedReflectFields();
+                        yyjson_doc* myDoc = yyjson_read(myData.c_str(), myData.size(), 0);
+                        yyjson_mut_doc* myMutDoc = yyjson_doc_mut_copy(myDoc, nullptr);
+                        yyjson_mut_val* myRoot = yyjson_mut_doc_get_root(myMutDoc);
+
+                        bool isWrite = false;
+                        yyjson_val* prefabVal = yyjson_obj_get(prefabRoot, fieldName.data());
+                        if (prefabVal)
+                        {
+                            yyjson_mut_val* myVal = yyjson_mut_obj_get(myRoot, fieldName.data());
+                            if (myVal)
+                            {
+                                yyjson_mut_val* myKey = yyjson_mut_strcpy(myMutDoc, fieldName.data());
+                                yyjson_mut_val* myVal = yyjson_val_mut_copy(myMutDoc, prefabVal);
+                                yyjson_mut_obj_replace(myRoot, myKey, myVal);
+                                isWrite = true;
+                            }
+                        }
+                        
+                        if (isWrite)
+                        {
+                            char* str = yyjson_mut_write(myMutDoc, 0, nullptr);
+                            if (str)
+                            {
+                                component->DeserializedReflectFields(str);
+                                SAFE_FREE(str);
+                            }
+                        }
+
+                        yyjson_doc_free(prefabDoc);
+                        yyjson_doc_free(myDoc);
+                        yyjson_mut_doc_free(myMutDoc);
+
+                        result = true;
+                    }
+                }
+            }
+        }
+    }
+
+    if (result == false)
+    {
+        UmLogger.Log(LogLevel::LEVEL_ERROR, u8"프리팹 구조와 오브젝트 구조가 다릅니다."_c_str);
+    }
+    return result;
+}
+
 void EComponentFactory::AddEngineComponentsToScripts() 
 {
     for (auto& [key, func] : _engineComponets)
