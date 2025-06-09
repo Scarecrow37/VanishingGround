@@ -292,6 +292,7 @@ void GameObject::OnInspectorStay()
                                     {
                                         UmGameObjectFactory.UnsetOverrideFlag(pData);
                                         UmComponentFactory.RevertOverrideField(component.get(), rflName.data());
+                                        GetScene().IsDirty = true;
                                     }
                                 }
                                 ImGui::PopID();
