@@ -118,23 +118,10 @@ void ParticleSpritePass::Draw(ID3D12GraphicsCommandList* commandlist)
     _particleRenderCommandList->SetGraphicsRootDescriptorTable(
         _spriteParticleShaderBuilder->GetRootSignatureIndex("AlbedoTextures"), descHeapPtr);
 
-
-
-
     _particleRenderCommandList->SetPipelineState(_psos[0].Get());
 
-
-    //// Texture2D (t1)
-    //descHeapPtr.ptr += _descriptorSize;
-    //_particleRenderCommandList->SetGraphicsRootDescriptorTable(1, descHeapPtr);
-
-    
-    
     const auto& meshs = _particleQuad->GetMeshes();
     meshs[0]->Render(_particleRenderCommandList.Get(), UmParticleManager.GetTotalCount());
-    //meshs[0]->Render(_particleRenderCommandList.Get(), 2000);
-
-
 
 }
 
@@ -218,18 +205,5 @@ void ParticleSpritePass::InitializeDescriptorHeap()
     particleOutputSrvDesc.Buffer.Flags               = D3D12_BUFFER_SRV_FLAG_NONE;
     ID3D12Resource* resource                         = UmParticleManager.GetComputeOutputResource().Get();
     UmDevice.GetDevice()->CreateShaderResourceView(resource, &particleOutputSrvDesc, handle);
-
-
-    ////test
-    //handle.Offset(1, _descriptorSize);
-    //D3D12_CPU_DESCRIPTOR_HANDLE srcHandle = _testSprite->GetHandle(); 
-    //UmDevice.GetDevice()->CopyDescriptorsSimple
-    //(
-    //    1,
-    //    handle, srcHandle, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV
-    //);
-
-
-
 
 }
