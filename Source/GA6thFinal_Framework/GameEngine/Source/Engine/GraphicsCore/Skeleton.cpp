@@ -1,4 +1,4 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "Skeleton.h"
 
 void Skeleton::Initialize(const aiScene* paiScene, std::unordered_map<std::string, std::pair<unsigned int, Matrix>>& boneInfoTable)
@@ -38,13 +38,13 @@ void Skeleton::SplitBone(const unsigned int ID, const char* boneName)
 		Bone* bone = bfs.front();
 		bfs.pop();
 
-		if (bone->name == boneName)
+		if (bone->Name == boneName)
 		{
 			_bones[ID] = bone;
 			break;
 		}
 
-		for (auto& child : bone->children)
+		for (auto& child : bone->Children)
 			bfs.push(&child);
 	}
 }
@@ -62,26 +62,26 @@ void Skeleton::MakeParent(const char* parent, const char* child)
 		Bone* bone = bfs.front();
 		bfs.pop();
 
-		if (bone->name == parent)
+		if (bone->Name == parent)
 		{
 			pParent = bone;
 		}
 
-		if (bone->name == child)
+		if (bone->Name == child)
 		{
 			pChild = bone;
 		}
 
-		for (auto& child : bone->children)
+		for (auto& child : bone->Children)
 			bfs.push(&child);
 	}
 
 	// pChild->parentAnim = &pParent->anim;
 
-	//// »õ·Î¿î ºÎ¸ð¿¡ pChild »ðÀÔ
+	//// ìƒˆë¡œìš´ ë¶€ëª¨ì— pChild ì‚½ìž…
 	//pParent->children.push_back(*pChild);
 
-	//// pChildÀÇ ºÎ¸ð¿¡¼­ ÀÚ½ÅÀ» Á¦°Å
+	//// pChildì˜ ë¶€ëª¨ì—ì„œ ìžì‹ ì„ ì œê±°
 	//std::erase_if(pChild->parent->children, [pChild](const Bone& child) { return pChild->name == child.name; });
 }
 
@@ -89,17 +89,17 @@ bool Skeleton::LoadSkeleton(Bone& bone, aiNode* paiNode, std::unordered_map<std:
 {
 	if (boneInfoTable.find(paiNode->mName.C_Str()) != boneInfoTable.end())
 	{
-		bone.name = paiNode->mName.C_Str();
-		bone.id = boneInfoTable[bone.name].first;
-		bone.offset = boneInfoTable[bone.name].second;
-		bone.local = XMMatrixTranspose(XMMATRIX(&paiNode->mTransformation.a1));
+		bone.Name = paiNode->mName.C_Str();
+		bone.ID = boneInfoTable[bone.Name].first;
+		bone.Offset = boneInfoTable[bone.Name].second;
+		bone.Local = XMMatrixTranspose(XMMATRIX(&paiNode->mTransformation.a1));
 
 		for (unsigned int i = 0; i < paiNode->mNumChildren; i++)
 		{
 			Bone child;
 			if (LoadSkeleton(child, paiNode->mChildren[i], boneInfoTable))
 			{
-				bone.children.push_back(child);
+				bone.Children.push_back(child);
 			}
 		}
 

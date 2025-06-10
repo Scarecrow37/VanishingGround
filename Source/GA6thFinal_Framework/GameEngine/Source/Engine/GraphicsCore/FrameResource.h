@@ -1,10 +1,10 @@
-#pragma once
+﻿#pragma once
 
 class StructuredBuffer;
 class FrameResource
 {
 public:
-	enum class Type { TRANSFORM, MATERIAL };
+	enum Type { TRANSFORM, BONE_MATRIXES, MATERIAL, END };
 
 public:
 	FrameResource();
@@ -22,7 +22,7 @@ public:
 private:
 	std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>		_handles;
 	ComPtr<ID3D12DescriptorHeap>					_frameHeap;
-	std::unique_ptr<StructuredBuffer>				_structuredBuffer[2];
+	std::unique_ptr<StructuredBuffer>				_structuredBuffer[END];
 	D3D12_CPU_DESCRIPTOR_HANDLE						_objectBufferHandle;
 	UINT64											_fenceValue;
 	UINT											_handleSize;

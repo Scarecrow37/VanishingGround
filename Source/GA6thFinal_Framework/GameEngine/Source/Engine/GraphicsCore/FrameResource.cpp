@@ -5,8 +5,8 @@
 FrameResource::FrameResource()
 	: _fenceValue(0)
 {
-	_structuredBuffer[0] = std::make_unique<StructuredBuffer>();
-	_structuredBuffer[1] = std::make_unique<StructuredBuffer>();
+    for (auto& buffer : _structuredBuffer)
+        buffer = std::make_unique<StructuredBuffer>();
 }
 
 FrameResource::~FrameResource()
@@ -22,7 +22,7 @@ HRESULT FrameResource::Initialize(const UINT numObjects, const UINT numTextures)
 	D3D12_DESCRIPTOR_HEAP_DESC desc
 	{
 		.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
-		.NumDescriptors = numTextures + 2,
+		.NumDescriptors = numTextures + Type::END,
 		.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
 		.NodeMask = 0
 	};
@@ -30,18 +30,19 @@ HRESULT FrameResource::Initialize(const UINT numObjects, const UINT numTextures)
 	hr = device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(_frameHeap.GetAddressOf()));
 	FAILED_CHECK_BREAK(hr);
 
-	_handles.resize(numTextures + 2);
+	_handles.resize(numTextures + Type::END);
 	UINT size = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle = _frameHeap->GetCPUDescriptorHandleForHeapStart();
 
-	for (UINT i = 0; i < numTextures + 2; i++)
+	for (UINT i = 0; i < numTextures + Type::END; i++)
 	{
 		_handles[i] = cpuHandle;
 		_handles[i].ptr += i * size;
 	}
 
-	_structuredBuffer[static_cast<int>(Type::TRANSFORM)]->Initialize(_handles[0], sizeof(ObjectData), numObjects);
-	_structuredBuffer[static_cast<int>(Type::MATERIAL)]->Initialize(_handles[1], sizeof(MaterialData), numObjects);
+	_structuredBuffer[Type::TRANSFORM]->Initialize(_handles[Type::TRANSFORM], sizeof(ObjectData), numObjects);
+    _structuredBuffer[Type::BONE_MATRIXES]->Initialize(_handles[Type::BONE_MATRIXES], sizeof(BoneMatrixes), numObjects);
+	_structuredBuffer[Type::MATERIAL]->Initialize(_handles[Type::MATERIAL], sizeof(MaterialData), numObjects);
 
 	return hr;
 }
@@ -52,7 +53,7 @@ void FrameResource::CopyDescriptorsSimple(const D3D12_CPU_DESCRIPTOR_HANDLE hand
 
 	UINT size = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	D3D12_CPU_DESCRIPTOR_HANDLE destHandle = _frameHeap->GetCPUDescriptorHandleForHeapStart();
-	destHandle.ptr += (destStartIndex + 2) * size;
+	destHandle.ptr += (destStartIndex + Type::END) * size;
 
 	device->CopyDescriptorsSimple(numDescriptors, destHandle, handle, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 }
@@ -66,12 +67,12 @@ void FrameResource::CopyDescriptors(const std::vector<D3D12_CPU_DESCRIPTOR_HANDL
 	UINT destDescriptorCount = 0;
 	UINT srcDescriptorCount = 0;
 
-	device->CopyDescriptors(count, &_handles[2], nullptr,
+	device->CopyDescriptors(count, &_handles[Type::END], nullptr,
 							count, handles.data(), nullptr, 
 							D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 }
 
 void FrameResource::CopyStructuredBuffer(ID3D12GraphicsCommandList* commandList, void* data, UINT size, FrameResource::Type type)
 {		
-	_structuredBuffer[(int)type]->CopyStructuredBuffer(commandList, data, size);
+	_structuredBuffer[type]->CopyStructuredBuffer(commandList, data, size);
 }

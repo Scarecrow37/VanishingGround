@@ -6,6 +6,8 @@ class Skeleton;
 class Animation;
 class Model : public Resource
 {
+    friend class FBXConverter;
+
 public:
     Model();
     virtual ~Model();
@@ -15,6 +17,8 @@ public:
     const std::vector<std::vector<std::shared_ptr<Texture>>>& GetTextures() const { return _textures; }
     const std::vector<Material>&                              GetMaterials() const { return _material; }
     std::vector<Material>&                                    GetMaterials() { return _material; }
+    const std::shared_ptr<Animation>                          GetAnimation() const { return _animation; }
+    const std::shared_ptr<Skeleton>                           GetSkeleton() const { return _skeleton; }
 
 public:
     void AddMesh(std::unique_ptr<BaseMesh> mesh);
