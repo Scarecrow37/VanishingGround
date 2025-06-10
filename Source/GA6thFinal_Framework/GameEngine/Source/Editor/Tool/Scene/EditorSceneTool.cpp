@@ -67,11 +67,12 @@ void EditorSceneTool::OnFrameRender()
             ImGui::SetWindowFocus();
         }
     }
-    
     DragDropEvent();
+    
     SetCamera();    
     DrawSceneView();
     DrawManipulate();
+    RayPicker();
 }
 
 void EditorSceneTool::OnFrameEnd()
@@ -445,6 +446,23 @@ void EditorSceneTool::SetCameraToFocusObject()
     }
 }
 
+void EditorSceneTool::RayPicker() 
+{
+    if (ImGui::IsWindowHovered() && ImGui::IsKeyReleased(ImGuiKey_MouseLeft))
+    {
+        ImGuiIO& io = ImGui::GetIO();
+        if (io.MousePos.x >= _window->ContentRegionRect.Min.x &&
+            io.MousePos.y >= _window->ContentRegionRect.Min.y &&
+            io.MousePos.x <= _window->ContentRegionRect.Max.x && 
+            io.MousePos.y <= _window->ContentRegionRect.Max.y
+            )
+        {
+            ImVec2 sceneScreenPos = io.MousePos - _window->ContentRegionRect.Min;
+            UmLogger.Log(LogLevel::LEVEL_TRACE, std::format("{}, {}", sceneScreenPos.x, sceneScreenPos.y));
+        }
+    }
+}
+
 bool EditorSceneTool::IsActiveOperation(ImGuizmo::OPERATION op) const
 {
     return op == _drawManipulateDesc.Operation;
@@ -457,7 +475,7 @@ bool EditorSceneTool::IsActiveMode(ImGuizmo::MODE mode) const
 
 void EditorSceneTool::SerializedReflectEvent() 
 {
-    Vector3 camPos = _camera->GetPosition();
+    Vector3 camPos = _camera->GetPosition() + _camera->GetCamera()->GetWorldMatrix().Forward() * _camera->GetPivot();
     std::memcpy(ReflectFields->CameraPosition.data(), &camPos, sizeof(ReflectFields->CameraPosition));
 
     Quaternion camRot = _camera->GetRotation();

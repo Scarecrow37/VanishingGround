@@ -34,6 +34,7 @@ private:
     void DrawManipulate();
     void DrawSceneView();
     void SetCameraToFocusObject();
+    void RayPicker();
 
     bool IsActiveOperation(ImGuizmo::OPERATION op) const;
     bool IsActiveMode(ImGuizmo::MODE mode) const;
