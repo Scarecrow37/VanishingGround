@@ -22,6 +22,10 @@ void ParticleRenderTechnique::Initialize(ID3D12GraphicsCommandList* commandList)
 void ParticleRenderTechnique::Execute(ID3D12GraphicsCommandList* commandList)
 {
     __super::Execute(commandList);
+    auto particleRenderCmdList = UmParticleManager.GetRenderCommandList().Get();
+    particleRenderCmdList->Close();
+
+    UmDevice.RegisterCommand(particleRenderCmdList, COMMAND_LIST_TYPE::PARTICLE_RENDER_LIST);
 }
 
 void ParticleRenderTechnique::InitializeSpriteParticlePass()

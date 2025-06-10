@@ -5,16 +5,17 @@
 
 void ParticleEffect::Initialize(class ParticleManager* particleManager) 
 {
-
+    //float random = rand() % 10;
+    //_scale = Vector3(random, random, random);
 }
 
 void ParticleEffect::Update(float deltaTime) 
 {
-    _scaleMatrix = Matrix::CreateScale(_scale);
+   // _scaleMatrix = Matrix::CreateScale(_scale);
     _rotationMatrix = Matrix::CreateFromQuaternion(_rotation);
     _translationMatrix = Matrix::CreateTranslation(_position);
 
-    _worldMatrix = _scaleMatrix * _rotationMatrix * _translationMatrix;
+    _worldMatrix = _rotationMatrix * _translationMatrix;
 
     for (auto emitter : _particleEmitters)
     {

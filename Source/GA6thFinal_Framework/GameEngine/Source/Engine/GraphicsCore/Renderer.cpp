@@ -364,13 +364,17 @@ void Renderer::ImguiBegin()
 
 void Renderer::ImguiEnd()
 {
+
+
     ImGuiIO& io = ImGui::GetIO();
 
     ImGui::Render();
 
     ID3D12DescriptorHeap* descriptorHeaps[] = {_imguiDescriptorHeap.Get()};
-    UmDevice.GetCommandList()->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
-    ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), UmDevice.GetCommandList().Get());
+    UmDevice.GetImguiCommandList()->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+    ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), UmDevice.GetImguiCommandList().Get());
+    //UmDevice.GetCommandList()->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+    //ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), UmDevice.GetCommandList().Get());
 
     if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
     {

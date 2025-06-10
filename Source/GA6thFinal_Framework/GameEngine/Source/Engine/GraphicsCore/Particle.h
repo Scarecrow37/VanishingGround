@@ -26,3 +26,25 @@ class Particle
     UMPARTICLE_PROPERTY(float, _mass, Mass,0.1f);
     Vector2 padding;
 };
+struct ParticleInput
+{
+public:
+    Vector4 frameinfo; // duration, elapsedTime, currentIndex, isLoop
+    Vector4 position;
+    Vector4 startScale;
+    Vector4 endScale;
+    Vector3 color;
+    float   opacity;
+    Vector3 startColor;
+    float   startopacity;
+    Vector3 endColor;
+    float   endopacity;
+    Vector3 axis;
+    float   age;
+    Vector3 velocity;
+    int     emitterIndex;
+    Vector4 scale;
+    float   lifetime;
+    float   mass;
+    Vector2 paddings;
+};

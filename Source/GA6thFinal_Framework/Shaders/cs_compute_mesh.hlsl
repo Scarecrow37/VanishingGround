@@ -43,6 +43,8 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
     
     // 5. 최종 행렬 계산
     ParticleOutput output;
+    output.position = input.position;
+
     output.paddings = (float3) 0;
 
     output.EmitterIndex = input.emitterIndex;

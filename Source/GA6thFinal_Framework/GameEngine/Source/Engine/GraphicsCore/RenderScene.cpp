@@ -119,6 +119,7 @@ void RenderScene::Execute(ID3D12GraphicsCommandList* commandList)
     float clearValue = _meshLightingTarget->clearValue;
     Color clearColor = {clearValue, clearValue, clearValue, 1.f};
     commandList->ClearRenderTargetView(handle, clearColor, 0, nullptr);
+    //commandList->ClearDepthStencilView(_depthStencilHandle, D3D12_CLEAR_FLAG_DEPTH, 1.f, 0, 0, nullptr);
 
     for (auto& tech : _techniques)
     {

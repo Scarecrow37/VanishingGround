@@ -3,7 +3,17 @@
 #include "ParticleEffect.h"
 #include "ParticleManager.h"
 
+ParticleManager::ParticleManager()
+{
 
+   
+ }
+
+void ParticleManager::ResetRenderCommandObject() 
+{
+    _renderAllocator->Reset();
+    _renderCommandList->Reset(_renderAllocator.Get(), nullptr);
+}
 
 void ParticleManager::SetCamera(std::string_view viewName) 
 {
@@ -15,21 +25,21 @@ void ParticleManager::SetCamera(std::shared_ptr<Camera> camera)
     _camera = camera;
 }
 
-ParticleManager::ParticleManager()
-{
 
-  
- }
 
 void ParticleManager::Initialize(UINT maxParticles)
  {
     _currentBufferIndex = 0;
-    _particleStride     = sizeof(Particle);
+     _particleStride     = sizeof(Particle);
     _maxParticles = maxParticles;
+     _totalParticles.resize(_maxParticles);
+
      InitializeComputeCommandObject();
      InitializeParticleComputeShader();
      InitializeParticleComputeRootSignature();
      InitializeParticleComputePSO();
+
+     IntializeGraphicsCommandObject();
      //InitializeSortingComputeShader();
      //InitializeSortingComputeRootSignature();
      //InitializeSortingComputePSO();
@@ -64,6 +74,7 @@ void ParticleManager::Update(const float deltaTime)
     _emitterMatrix.clear();
     _activeEmitterAlbedos.clear();
     UINT emitterIndex = 0;
+    _totalCount       = 0;
     for (auto effect : _pariticleEffects)
     {
         if (true == effect->GetActiveFlag())
@@ -77,13 +88,38 @@ void ParticleManager::Update(const float deltaTime)
                         _activeEmitterAlbedos.push_back(static_cast<SpriteModule*>(emitter->_particleRenderModule)->GetAlbedoTexture());
                         //_activeEmitterNormals.push_back(static_cast<SpriteModule*>(emitter->_particleRenderModule)->GetNormalTexture());
                     }
-                    _emitterMatrix.push_back({emitter->GetWorldMatrix()});
+                    _emitterMatrix.push_back({emitter->GetWorldMatrix().Transpose()});
+                    auto & particlePool = emitter->GetParticlePool();
                     for (int i = 0; i < emitter->GetActiveParticleCount(); i++)
                     {
-                        auto particle = *(emitter->GetParticlePool()[i]);
+                        //ParticleInput particle;
+                        //
+                        //particle.position = emitter->GetParticlePool()[i]->GetPosition();
+                        //particle.frameinfo = emitter->GetParticlePool()[i]->GetFrameinfo();
+                        //particle.startScale = emitter->GetParticlePool()[i]->GetStartScale();
+                        //particle.endScale = emitter->GetParticlePool()[i]->GetEndScale();
+                        //particle.color = emitter->GetParticlePool()[i]->GetColor();
+                        //particle.opacity = emitter->GetParticlePool()[i]->GetOpacity();
+                        //particle.startColor = emitter->GetParticlePool()[i]->GetStartColor();
+                        //particle.startopacity = emitter->GetParticlePool()[i]->GetStartOpacity();
+                        //particle.endColor = emitter->GetParticlePool()[i]->GetEndColor();
+                        //particle.endopacity = emitter->GetParticlePool()[i]->GetEndOpacity();
+                        //particle.axis = emitter->GetParticlePool()[i]->GetAxis();
+                        //particle.age = emitter->GetParticlePool()[i]->GetAge();
+                        //particle.velocity = emitter->GetParticlePool()[i]->GetVelocity();
+                        //particle.emitterIndex = emitter->GetParticlePool()[i]->GetEmitterIndex();
+                        //particle.scale = emitter->GetParticlePool()[i]->GetScale();
+                        //particle.lifetime = emitter->GetParticlePool()[i]->GetLifetime();
+                        //particle.mass = emitter->GetParticlePool()[i]->GetMass();
+
+                        auto particle = *particlePool[i];
+                        //auto particle = *(emitter->GetParticlePool()[i]);
                         particle.SetEmitterIndex(emitterIndex);
-                        _totalParticles.push_back(*(emitter->GetParticlePool()[i]));
+                        _totalParticles.push_back(particle);
+                        //_totalParticles[_totalCount] = *(emitter->GetParticlePool()[i]);
+                        //_totalParticles[_totalCount++].SetEmitterIndex(emitterIndex);
                     }
+                    _totalCount += emitter->GetActiveParticleCount();
                     emitterIndex++;
                 }
             }
@@ -98,7 +134,7 @@ void ParticleManager::Update(const float deltaTime)
     // update particle lifecycle
     for (auto effect : _pariticleEffects)
     {
-        if (true == effect->GetActiveFlag())
+        //if (true == effect->GetActiveFlag())
         {
             effect->UpdateParticleLifeCycle(deltaTime);
         }
@@ -117,9 +153,6 @@ void ParticleManager::InitializeComputeCommandObject()
     };
     
 
-    FAILED_CHECK_BREAK(UmDevice.GetDevice()->CreateCommandQueue(&desc, IID_PPV_ARGS(_computeQueue.GetAddressOf())));
-
-
     FAILED_CHECK_BREAK(UmDevice.GetDevice()->CreateCommandAllocator(desc.Type, IID_PPV_ARGS(_computeAllocator.GetAddressOf())));
     FAILED_CHECK_BREAK(UmDevice.GetDevice()->CreateCommandList(desc.NodeMask, desc.Type, _computeAllocator.Get(), nullptr,
                                                   IID_PPV_ARGS(_computeCommandList.GetAddressOf())));
@@ -128,6 +161,25 @@ void ParticleManager::InitializeComputeCommandObject()
     _computeCommandList->Close();
 }
 
+
+void ParticleManager::IntializeGraphicsCommandObject() 
+{
+    auto device = UmDevice.GetDevice();
+
+    D3D12_COMMAND_QUEUE_DESC desc{
+        .Type     = D3D12_COMMAND_LIST_TYPE_DIRECT,
+        .Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL,
+        .Flags    = D3D12_COMMAND_QUEUE_FLAG_NONE,
+        .NodeMask = 0,
+    };
+
+    FAILED_CHECK_BREAK(device->CreateCommandAllocator(desc.Type, IID_PPV_ARGS(_renderAllocator.GetAddressOf())));
+    FAILED_CHECK_BREAK(device->CreateCommandList(desc.NodeMask, desc.Type, _renderAllocator.Get(), nullptr,
+                                                 IID_PPV_ARGS(_renderCommandList.GetAddressOf())));
+    _renderCommandList->Close();
+}
+
+void ParticleManager::InitializeRenderCommandList() {}
 
 void ParticleManager::InitializeParticleComputeShader()
 {
@@ -499,7 +551,7 @@ void ParticleManager::CreateParticleResources()
     CreateUAVBuffer(_particleOutputBuffer, particleOutputSize, sizeof(ParticleOutput));
     _particleOutputBuffer->SetName(L"particle output");
     // 4. MVP 상수 버퍼 (CBV - b0)
-    UINT mvpConstantSize = BYTEALIGN(sizeof(MVPConstants), 256); // 256바이트 정렬
+    UINT mvpConstantSize = sizeof(MVPConstants); // 256바이트 정렬
     CreateConstantBuffer(_mvpConstantBuffer, _mvpUploadBuffer, mvpConstantSize);
 
     // 디스크립터 생성
@@ -549,7 +601,7 @@ void ParticleManager::CreateUAVBuffer(ComPtr<ID3D12Resource>& resource, UINT buf
 
     FAILED_CHECK_BREAK(UmDevice.GetDevice()->CreateCommittedResource(&defaultProperty, D3D12_HEAP_FLAG_NONE,
                                                                      &bufferDesc,
-        D3D12_RESOURCE_STATE_UNORDERED_ACCESS, nullptr, IID_PPV_ARGS(&resource)));
+        D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&resource)));
 }
 
 void ParticleManager::CreateConstantBuffer(ComPtr<ID3D12Resource>& resource, ComPtr<ID3D12Resource>& uploadResource,
@@ -574,7 +626,7 @@ void ParticleManager::CreateDescriptors()
     // 1. MVP 상수 버퍼 뷰 (b0)
     D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc{};
     cbvDesc.BufferLocation = _mvpConstantBuffer->GetGPUVirtualAddress();
-    cbvDesc.SizeInBytes    = BYTEALIGN(sizeof(MVPConstants), 256);
+    cbvDesc.SizeInBytes    = sizeof(MVPConstants);
     UmDevice.GetDevice()->CreateConstantBufferView(&cbvDesc, handle);
 
     // 2. 파티클 입력 버퍼 뷰 (t0)
@@ -617,7 +669,7 @@ void ParticleManager::CreateDescriptors()
 
 void ParticleManager::DispatchParticleCompute(float deltaTime) 
 {
-    if (_totalParticles.empty())
+    if (0>=_totalCount)
         return;
         
       // 1. 리소스 업데이트
@@ -683,7 +735,7 @@ void ParticleManager::UpdateParticleResources(float deltaTime)
     // 1. 파티클 입력 버퍼 업데이트
     void* mappedData = nullptr;
     _particleInputUploadBuffer->Map(0, nullptr, &mappedData);
-    memcpy(mappedData, _totalParticles.data(), _totalParticles.size() * sizeof(Particle));
+    memcpy(mappedData, _totalParticles.data(), _totalCount * sizeof(Particle));
     _particleInputUploadBuffer->Unmap(0, nullptr);
 
 
@@ -693,14 +745,33 @@ void ParticleManager::UpdateParticleResources(float deltaTime)
 
     // 3. MVP 상수 버퍼 업데이트
     MVPConstants mvpConstants;
-    mvpConstants.ViewMatrix    = _camera->GetViewMatrix();
-    mvpConstants.ViewInvMatrix = mvpConstants.ViewMatrix.Invert();
-    mvpConstants.ProjMatrix    = _camera->GetProjectionMatrix();
+    mvpConstants.ViewMatrix           = _camera->GetViewMatrix().Transpose();
+    mvpConstants.ViewRotInvMatrix     = _camera->GetViewMatrix().Transpose();
+    mvpConstants.ViewRotInvMatrix._14 = 0.0f;
+    mvpConstants.ViewRotInvMatrix._24 = 0.0f;
+    mvpConstants.ViewRotInvMatrix._34 = 0.0f;
+    mvpConstants.ViewRotInvMatrix._41 = 0.0f;
+    mvpConstants.ViewRotInvMatrix._42 = 0.0f;
+    mvpConstants.ViewRotInvMatrix._43 = 0.0f;
+    mvpConstants.ViewRotInvMatrix._44 = 1.0f;
+    mvpConstants.ViewRotInvMatrix     = mvpConstants.ViewRotInvMatrix.Invert();
+    //mvpConstants.ViewRotInvMatrix     = mvpConstants.ViewRotInvMatrix.Transpose();
+
+    mvpConstants.ProjMatrix = _camera->GetProjectionMatrix().Transpose();
 
     mvpConstants.CameraPos =
         Vector4(_camera->GetWorldMatrix()._41, _camera->GetWorldMatrix()._42, _camera->GetWorldMatrix()._43,1);
-    mvpConstants.deltaTime     = deltaTime;
 
+    float currentTime = UmTime.Time();
+    float delta   = currentTime - lastFrameTime;
+    lastFrameTime     = currentTime;
+
+    // 컴퓨트 셰이더 디스패치
+    mvpConstants.deltaTime = delta;
+
+
+    //mvpConstants.deltaTime     = deltaTime;
+    //mvpConstants.deltaTime     = 0.012f;
     _mvpConstantBuffer->Map(0, nullptr, &mappedData);
     memcpy(mappedData, &mvpConstants, sizeof(MVPConstants));
     _mvpConstantBuffer->Unmap(0, nullptr);

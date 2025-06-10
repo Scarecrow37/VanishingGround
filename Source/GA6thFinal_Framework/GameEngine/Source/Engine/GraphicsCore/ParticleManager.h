@@ -10,7 +10,7 @@ public:
     void Initialize(UINT maxParticles);
     class ParticleEffect* RegisterEffect();
     class ParticleEmitter* RegisterEmitter(class ParticleEffect* effect, SIZE_T maxParticles = 100000,
-                                           float emissionRate = 500.f, float emitterLifetime = 5.f,
+                                           float emissionRate = 1000.f, float emitterLifetime = 150.f,
                                            LocationShape locatorShape = LocationShape::SPHERE,
                                            Vector3       locationFactor = Vector3(1, 1, 1));
     void DeleteEffect(UINT);
@@ -23,6 +23,9 @@ public:
     UINT GetMaxCount() const { return _maxParticles; }
     std::vector<std::shared_ptr<Texture>> GetActiveAlbedos() const { return _activeEmitterAlbedos; }
     ComPtr<ID3D12Resource>                GetComputeOutputResource() { return _particleOutputBuffer; }
+    ComPtr<ID3D12GraphicsCommandList>     GetRenderCommandList() { return _renderCommandList; }
+    void                                  ResetRenderCommandObject();
+
 
 public:
     void SetCamera(std::string_view viewName);
@@ -31,6 +34,7 @@ public:
 
 private:
     void InitializeComputeCommandObject();
+    void IntializeGraphicsCommandObject();
     void InitializeRenderCommandList();
 
     void InitializeParticleComputeShader();
@@ -60,9 +64,12 @@ private:
     
     class RenderScene*      _currentRenderscene;
     std::shared_ptr<Camera> _camera;
+    float                   lastFrameTime = 0;
+
+    ComPtr<ID3D12CommandAllocator>    _renderAllocator;
+    ComPtr<ID3D12GraphicsCommandList> _renderCommandList;
 
 
-    ComPtr<ID3D12CommandQueue>        _computeQueue;
     ComPtr<ID3D12CommandAllocator>    _computeAllocator;
     ComPtr<ID3D12GraphicsCommandList> _computeCommandList;
 

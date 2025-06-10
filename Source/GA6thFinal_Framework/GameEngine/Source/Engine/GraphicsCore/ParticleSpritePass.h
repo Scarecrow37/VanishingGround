@@ -27,6 +27,8 @@ private:
     ComPtr<ID3D12DescriptorHeap>             _descriptorheap;
     UINT                                     _descriptorSize;
 
+
+    ComPtr<ID3D12GraphicsCommandList> _particleRenderCommandList;
     std::shared_ptr<Model> _particleQuad;
 
     // test

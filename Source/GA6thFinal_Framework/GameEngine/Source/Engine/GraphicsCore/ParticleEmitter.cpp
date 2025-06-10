@@ -53,14 +53,16 @@ DirectX::SimpleMath::Vector3 ConeLocator::EmitLocate()
 
 DirectX::SimpleMath::Vector3 TorusLocator::EmitLocate() 
 {
-    Vector3 location = Vector3(_randomVal(), 0, _randomVal()) * _factor.x;
+    Vector3 location = Vector3(_randomVal() , 0, _randomVal());
+    location *= _factor.x;
     while (location.Length() > _factor.x || location.Length() < _factor.z)
     {
-        location = Vector3(_randomVal(), 0, _randomVal()) * _factor.x;
+        location = Vector3(_randomVal(), 0, _randomVal());
+        location *= _factor.x;
     }
-    float length = location.Length();
-    float range  = std::sqrtf(_factor.x * (_factor.x - 2 * _factor.z) - length * (length - 2 * _factor.z));
-    location.y   = _randomVal() * range * _factor.y;
+    //float length = location.Length();
+    //float range  = std::sqrtf(_factor.x * (_factor.x - 2 * _factor.z) - length * (length - 2 * _factor.z));
+    //location.y   = _randomVal() * range * _factor.y;
     return location;
 
 

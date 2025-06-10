@@ -16,10 +16,10 @@ void EditorModelTool::OnTickGui()
 
 void EditorModelTool::OnStartGui()
 {
-    std::shared_ptr<Camera> camera = UmRenderer.GetCamera("ModelViewer");
+    std::shared_ptr<Camera> camera = UmRenderer.GetCamera("Particle");
     ASSERT((nullptr != camera), L"Camera is nullptr");
     _camera->SetTarget(camera);
-
+    _camera->SetPosition(Vector3(0.f, 0.f, -5.f));
     SIZE size = UmCore->App.GetClientSize();
     camera->SetupPerspective(45.f, (float)size.cx / (float)size.cy, 0.1f, 1000.f);
 
@@ -57,7 +57,7 @@ void EditorModelTool::OnPostFrameBegin()
 
 void EditorModelTool::OnFrameRender()
 {
-    auto handle = UmRenderer.GetRenderSceneImage("ModelViewer");
+    auto handle = UmRenderer.GetRenderSceneImage("Particle");
 
     ImVec2 size = ImGui::GetContentRegionAvail();
 

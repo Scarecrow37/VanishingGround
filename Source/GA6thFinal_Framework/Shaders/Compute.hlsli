@@ -1,7 +1,7 @@
 struct ParticleInput
 {
-    float4 position;
 
+    float4 position;
     float4 frameinfo; // duration, elapsedTime, currentIndex, isLoop
     float4 startScale;
     float4 endScale;
@@ -30,6 +30,7 @@ struct ParticleInput
 
 struct ParticleOutput
 {
+    float4 position;
     float4x4 FinalMatrix;
     float4 Color;
     float4 FrameInfo;
@@ -72,8 +73,6 @@ float4x4 CalculateBillboardMatrix(
     viewInvMatrix._41_42_43 = 0.f;
     viewInvMatrix._44 = 1.f;
     return viewInvMatrix;
-    
-    
 }
 
 // 애니메이션 업데이트 함수

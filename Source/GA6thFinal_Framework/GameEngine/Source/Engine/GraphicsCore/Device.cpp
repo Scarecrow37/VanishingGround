@@ -172,9 +172,12 @@ void Device::CreateCommandQueue()
     FAILED_CHECK_BREAK(_device->CreateCommandAllocator(desc.Type, IID_PPV_ARGS(_commandAllocator.GetAddressOf())));
     FAILED_CHECK_BREAK(_device->CreateCommandList(desc.NodeMask, desc.Type, _commandAllocator.Get(), nullptr,
                                                   IID_PPV_ARGS(_commandList.GetAddressOf())));
+    FAILED_CHECK_BREAK(_device->CreateCommandAllocator(desc.Type, IID_PPV_ARGS(_imguiCommandAllocator.GetAddressOf())));
+    FAILED_CHECK_BREAK(_device->CreateCommandList(desc.NodeMask, desc.Type, _imguiCommandAllocator.Get(), nullptr,
+                                                  IID_PPV_ARGS(_imguiCommandList.GetAddressOf())));
     _commandList->Close();
+    _imguiCommandList->Close();
     _commandQueue->SetName(L"GraphicsQueue");
-
 }
 
 void Device::CreateSyncObject()
@@ -283,11 +286,29 @@ void Device::CreateBuffer(UINT size, ComPtr<ID3D12Resource>& buffer)
                                                         IID_PPV_ARGS(buffer.GetAddressOf())));
 }
 
+//void Device::SignalComputeQueue(int fenceSlot)
+//{
+//    const UINT64 fenceValue = _fenceValues[fenceSlot]++;
+//    _computeCommandQueue->Signal(_graphicsFences[fenceSlot].Get(), fenceValue);
+//    _lastGraphicsFenceValues[fenceSlot] = fenceValue;
+//}
+//void Device::SignalGraphicsQueue(int fenceSlot)
+//{
+//    const UINT64 fenceValue = _fenceValues[fenceSlot]++;
+//    _commandQueue->Signal(_graphicsFences[fenceSlot].Get(), fenceValue);
+//    _lastGraphicsFenceValues[fenceSlot] = fenceValue;
+//}
+
 void Device::SignalComputeQueue(int fenceSlot)
 {
-    const UINT64 fenceValue = _fenceValues[fenceSlot]++;
-    _computeCommandQueue->Signal(_graphicsFences[fenceSlot].Get(), fenceValue);
-    _lastGraphicsFenceValues[fenceSlot] = fenceValue;
+    _lastGraphicsFenceValues[fenceSlot]++;
+    _computeCommandQueue->Signal(_graphicsFences[fenceSlot].Get(), _lastGraphicsFenceValues[fenceSlot]);
+}
+
+void Device::SignalGraphicsQueue(int fenceSlot)
+{
+    _lastGraphicsFenceValues[fenceSlot]++;
+    _commandQueue->Signal(_graphicsFences[fenceSlot].Get(), _lastGraphicsFenceValues[fenceSlot]);
 }
 
 void Device::WaitComputeFence(int fenceSlot)
@@ -302,12 +323,6 @@ void Device::WaitComputeFence(int fenceSlot)
     //}
 }
 
-void Device::SignalGraphicsQueue(int fenceSlot)
-{
-    const UINT64 fenceValue = _fenceValues[fenceSlot]++;
-    _commandQueue->Signal(_graphicsFences[fenceSlot].Get(), fenceValue);
-    _lastGraphicsFenceValues[fenceSlot] = fenceValue;
-}
 
 void Device::WaitGraphicsFence(int fenceSlot)
 {
@@ -359,6 +374,8 @@ void Device::ResetCommands()
 {
     _commandAllocator->Reset();
     _commandList->Reset(_commandAllocator.Get(), nullptr);
+    _imguiCommandAllocator->Reset();
+    _imguiCommandList->Reset(_imguiCommandAllocator.Get(), nullptr);
 }
 
 
@@ -370,31 +387,66 @@ void Device::ResetComputeCommands()
 
 void Device::Execute()
 {
-    auto br = CD3DX12_RESOURCE_BARRIER::Transition(_swapChainBuffer[_renderTargetIndex].Get(),
-                                                   D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
-    _commandList->ResourceBarrier(1, &br);
-    _computeCommandList->Close();
-    _commandList->Close();
-    RegisterCommand(_computeCommandList.Get(), MESH_COMPUTE_LIST);
-    RegisterCommand(_commandList.Get(),MESH_RENDER_LIST);
+    if(IS_EDITOR)
+    {
+        _computeCommandList->Close();
+        _commandList->Close();
 
+        auto br =
+            CD3DX12_RESOURCE_BARRIER::Transition(_swapChainBuffer[_renderTargetIndex].Get(),
+                                                 D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+        _imguiCommandList->ResourceBarrier(1, &br);
+
+        _imguiCommandList->Close();
+    }
+    else
+    {
+        auto br =
+            CD3DX12_RESOURCE_BARRIER::Transition(_swapChainBuffer[_renderTargetIndex].Get(),
+                                                 D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+        _commandList->ResourceBarrier(1, &br);
+        _commandList->Close();
+        _computeCommandList->Close();
+    }
+    // TODO : isEditor로 분류할 필요가 있음.
+    RegisterCommand(_computeCommandList.Get(), MESH_COMPUTE_LIST);
+    RegisterCommand(_commandList.Get(), MESH_RENDER_LIST);
+    RegisterCommand(_imguiCommandList.Get(),IMGUI_RENDER_LIST);
+
+    // [1] 메시 컴퓨트 작업 (Compute Queue)
     ExecuteCommand(MESH_COMPUTE_LIST);
     SignalComputeQueue(MESH_COMPUTE_FENCE);
 
-    WaitGraphicsFence(MESH_COMPUTE_FENCE);
-    {
-        ExecuteCommand(MESH_RENDER_LIST);
-        SignalGraphicsQueue(MESH_RENDER_FENCE);
-    }
+    // [2] 컴퓨트 큐 작업 완료 대기 (Graphics Queue)
+    _commandQueue->Wait(_graphicsFences[MESH_COMPUTE_FENCE].Get(), _lastGraphicsFenceValues[MESH_COMPUTE_FENCE]);
 
+    // [3] 병렬 실행: 파티클 컴퓨트 + 메시 렌더
+    //--------------------------------------------------
+    // (A) 파티클 컴퓨트 작업 (Compute Queue)
     ExecuteCommand(PARTICLE_COMPUTE_LIST);
     SignalComputeQueue(PARTICLE_COMPUTE_FENCE);
+    // (B) 메시 렌더 작업 (Graphics Queue)
+    ExecuteCommand(MESH_RENDER_LIST);
+    SignalGraphicsQueue(MESH_RENDER_FENCE);
+    //--------------------------------------------------
 
-    WaitGraphicsFence(PARTICLE_COMPUTE_FENCE);
-    {
-        ExecuteCommand(PARTICLE_RENDER_LIST);
-        SignalGraphicsQueue(PARTICLE_RENDER_FENCE);
-    }
+    // [4] 파티클 렌더 전 동기화
+    // 컴퓨트 큐 + 그래픽 큐 작업 모두 완료 대기
+    _commandQueue->Wait(_graphicsFences[PARTICLE_COMPUTE_FENCE].Get(),
+                        _lastGraphicsFenceValues[PARTICLE_COMPUTE_FENCE]);
+    _commandQueue->Wait(_graphicsFences[MESH_RENDER_FENCE].Get(), 
+                        _lastGraphicsFenceValues[MESH_RENDER_FENCE]);
+
+    // [5] 파티클 렌더 실행 (Graphics Queue)
+    ExecuteCommand(PARTICLE_RENDER_LIST);
+    SignalGraphicsQueue(PARTICLE_RENDER_FENCE);
+    
+    // [6] 임구이 렌더 전 동기화
+    // 그래픽 큐 작업 완료 대기
+    _commandQueue->Wait(_graphicsFences[PARTICLE_RENDER_FENCE].Get(), 
+        _lastGraphicsFenceValues[PARTICLE_RENDER_FENCE]);
+    // [7] 임구이 렌더 실행 (Graphics Queue)
+    ExecuteCommand(IMGUI_RENDER_LIST);
 }
 
 void Device::ResolveBackBuffer(ComPtr<ID3D12Resource> source)
@@ -442,7 +494,8 @@ HRESULT Device::ClearBackBuffer(UINT flag, XMVECTOR color, float depth, UINT ste
     // 장치 상태 재설정.
     _commandList->RSSetViewports(1, &_mainViewport);
     _commandList->RSSetScissorRects(1, &rc);
-
+    _imguiCommandList->RSSetViewports(1, &_mainViewport);
+    _imguiCommandList->RSSetScissorRects(1, &rc);
     // 렌더타겟 상태 전환
     //<리소스 베리어> 각 리소스의 상태관리 인터페이스. 리소스의 운용 충돌(Resource Hazard) 방지용.
 
@@ -451,6 +504,7 @@ HRESULT Device::ClearBackBuffer(UINT flag, XMVECTOR color, float depth, UINT ste
     _commandList->ResourceBarrier(1, &br);
 
     _commandList->OMSetRenderTargets(1, &_renderTargetHandles[_renderTargetIndex], FALSE, &_depthStencilHandle);
+    _imguiCommandList->OMSetRenderTargets(1, &_renderTargetHandles[_renderTargetIndex], FALSE, &_depthStencilHandle);
     _commandList->ClearRenderTargetView(_renderTargetHandles[_renderTargetIndex], (float*)&color, 0, nullptr);
     _commandList->ClearDepthStencilView(_depthStencilHandle, (D3D12_CLEAR_FLAGS)flag, depth, stencil, 0, nullptr);
 
@@ -583,10 +637,17 @@ void Device::ExecuteCommand(COMMAND_LIST_TYPE type)
     switch (type)
     {
     case MESH_RENDER_LIST:
+        _commandQueue->ExecuteCommandLists(static_cast<UINT>(_commandLists[type].size()), _commandLists[type].data());
+        break;
     case PARTICLE_RENDER_LIST:
         _commandQueue->ExecuteCommandLists(static_cast<UINT>(_commandLists[type].size()), _commandLists[type].data());
         break;
+    case IMGUI_RENDER_LIST:
+        _commandQueue->ExecuteCommandLists(static_cast<UINT>(_commandLists[type].size()), _commandLists[type].data());
+        break;
     case MESH_COMPUTE_LIST:
+        _computeCommandQueue->ExecuteCommandLists(static_cast<UINT>(_commandLists[type].size()), _commandLists[type].data());
+        break;
     case PARTICLE_COMPUTE_LIST:
         _computeCommandQueue->ExecuteCommandLists(static_cast<UINT>(_commandLists[type].size()), _commandLists[type].data());
         break;

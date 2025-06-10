@@ -1,6 +1,6 @@
 #include "CommonData.hlsli"
 
-//Texture2D AlbedoTextures[];
+Texture2D AlbedoTextures[];
 
 //test
 //Texture2D AlbedoTextures;
@@ -19,10 +19,10 @@ struct PSInput
 
 float4 ps_main(PSInput input) : SV_Target
 {
-    //float factor = AlbedoTextures[input.emitterIndex].Sample(samPoint_clamp, input.uv);
+    float factor = AlbedoTextures[input.emitterIndex].Sample(samPoint_clamp, input.uv);
     //float factor = AlbedoTextures.Sample(samPoint_clamp, input.uv);
-    //float4 output = input.color * factor;
-    //return output;
-    return input.color;
+    float4 output = input.color * factor;
+    return output;
+    //return input.color;
 
 }

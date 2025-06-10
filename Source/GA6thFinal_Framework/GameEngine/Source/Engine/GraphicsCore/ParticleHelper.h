@@ -56,7 +56,7 @@ struct ParticleOutput
     Vector4   Color;
     Vector4   FrameInfo;
     int      EmitterIndex;
-    Vector3   paddings;
+    //Vector3   paddings;
 };
 
 struct EmitterInfo
@@ -64,15 +64,20 @@ struct EmitterInfo
     Matrix WorldMatrix;
 };
 
-struct MVPConstants
+struct __declspec(align(16)) MVPConstants
 {
     Matrix  ViewMatrix;
-    Matrix  ViewInvMatrix;
+    Matrix  ViewRotInvMatrix;
     Matrix  ProjMatrix;
     Vector4 CameraPos;
-    float   deltaTime;
-    float   padding[3]; // 16바이트 정렬 유지
+    float   deltaTime; // 4바이트
+
+    // 패딩을 float 배열로 대체 (44바이트)
+    float pad1[4]; // 16바이트 (deltaTime 이후 12바이트 남은 공간 채움)
+    float pad2[4]; // 16바이트
+    float pad3[3]; // 12바이트 (총 16+16+12 = 44바이트)
 };
+
 enum class LocationShape
 {
     SPHERE,
@@ -87,4 +92,4 @@ enum class ParticleType
     SPRITE,
     MESH,
     RIBBON
-};
+}; 

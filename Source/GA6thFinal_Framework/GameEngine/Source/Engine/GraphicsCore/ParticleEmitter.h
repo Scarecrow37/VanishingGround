@@ -126,7 +126,7 @@ public:
 
     void SetLocatorFactor(const Vector3& factor);
 
-    std::vector<class Particle*> GetParticlePool() { return _particlePool; }
+    inline std::vector<class Particle*>& GetParticlePool() { return _particlePool; }
 
     UINT GetActiveParticleCount() const { return _activeParticleCount; }
 
@@ -146,11 +146,11 @@ protected:
 
     Matrix GetWorldMatrix() const { return _worldMatrix; }
 
+    std::vector<class Particle*> _particlePool;
 protected:
     float        _emissionThreshold;
 
     // particle pooling
-    std::vector<class Particle*> _particlePool;
     SIZE_T                       _activeParticleCount;
     std::stack<SIZE_T>           _inactiveParticleIndices;
 
