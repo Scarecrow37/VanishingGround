@@ -6,8 +6,15 @@
   <ItemGroup>
     <ClInclude Include="Source\Application\GameApplication.h" />
     <ClInclude Include="Source\Application\UmScripts.h" />
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resource.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\GameEngine\Icon\umreal.ico" />
   </ItemGroup>
 </Project>

@@ -28,6 +28,7 @@ GameApplication::GameApplication()
 
     if constexpr (Application::IsEditor())
     {
+        _winClassIconPath = L"../GameEngine/Icon/umreal.ico";
         _windowStyleEX = WS_OVERLAPPEDWINDOW;
         _editorModule  = AddModule<EditorModule>();
         BuildRootDock();
