@@ -204,8 +204,8 @@ void ESceneManager::Engine::SetComponentEnable(Component* component, bool value)
             // 메시 컴포넌트들은 meshRenderer의 SetActive도 변경해야함.
             if (Component::Type::RENDER == component->_type)
             {
-                auto& meshActiveQueue =
-                    value ? sceneManager._meshSetActiveQueue.first : sceneManager._meshSetActiveQueue.second;
+                auto& meshActiveQueue = value ? sceneManager._meshSetActiveQueue.first 
+                                              : sceneManager._meshSetActiveQueue.second;
                 MeshComponent* meshComponent = static_cast<MeshComponent*>(component);
                 meshActiveQueue.push_back(meshComponent->Renderer.get());
             }
@@ -902,6 +902,11 @@ void ESceneManager::ObjectsAddRuntime()
     for (auto& component : _addComponentsQueue)
     {
         component->_gameObect->_components.emplace_back(component);
+        if (typeid(*component) == typeid(MeshComponent))
+        {
+            _runtimeMeshComponents.emplace_back(std::static_pointer_cast<MeshComponent>(component));
+        }
+
         if (_isPlay)
         {
             _waitAwakeVec.push_back(component);
@@ -1143,6 +1148,22 @@ bool ESceneManager::SetSkyBox(const File::Path& path)
     mainScene->IsDirty = true;
 
     return true;
+}
+
+std::vector<MeshComponent*> ESceneManager::GetMeshComponents()
+{
+    std::vector<MeshComponent*> result;
+    std::erase_if(_runtimeMeshComponents, [](const std::weak_ptr<MeshComponent>& weakMesh) 
+    { 
+        return weakMesh.expired();
+    });
+
+    for (auto& weakMesh : _runtimeMeshComponents)
+    {
+        result.push_back(weakMesh.lock().get());
+    }
+
+    return result;
 }
 
 bool ESceneManager::WriteUmSceneFile(Scene& scene, std::string_view sceneName, std::string_view outPath, bool isOverride)
