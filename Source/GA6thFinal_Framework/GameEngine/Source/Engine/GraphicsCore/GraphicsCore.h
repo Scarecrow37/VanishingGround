@@ -7,6 +7,7 @@
 #include "Device.h"
 #include "Renderer.h"
 #include "Texture.h"
+#include "AnimationCore.h"
 
 #include "ResourceManager.h"
 #include "ViewManager.h"
@@ -14,15 +15,14 @@
 #include "Defines.h"
 #include "Externs.h"
 
-class Model;
 class GraphicsCore
 {
 public:
     Device          Device;
     Renderer        Renderer;
+    AnimationCore   AnimationCore;
     ViewManager     ViewManager;
     ResourceManager ResourceManager;
-    //Camera          MainCamera;
 
 public:
     void Initialize(HWND hwnd, UINT width, UINT height, FEATURE_LEVEL feature);
