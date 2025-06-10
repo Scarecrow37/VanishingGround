@@ -244,6 +244,9 @@
     <PostBuildEvent>
       <Command>xcopy /Y /E /I "$(SolutionDir)GameEngine\ThirdParty\bin\Debug\*" "$(TargetDir)"</Command>
     </PostBuildEvent>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_UMEDITOR;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -290,8 +293,12 @@
     <PostBuildEvent>
       <Command>xcopy /Y /E /I "$(SolutionDir)GameEngine\ThirdParty\bin\Release\*" "$(TargetDir)"</Command>
     </PostBuildEvent>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_UMEDITOR;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="resource.h" />
     <ClInclude Include="Source\Application\GameApplication.h" />
     <ClInclude Include="Source\Application\UmScripts.h" />
   </ItemGroup>
@@ -305,6 +312,12 @@
     <ProjectReference Include="..\GameEngine\GameEngine.vcxproj">
       <Project>{84fd41b3-de6f-4849-b1f4-6ea34a891299}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resource.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\GameEngine\Icon\umreal.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
