@@ -1150,20 +1150,14 @@ bool ESceneManager::SetSkyBox(const File::Path& path)
     return true;
 }
 
-std::vector<MeshComponent*> ESceneManager::GetMeshComponents()
+const std::vector<std::weak_ptr<MeshComponent>>& ESceneManager::GetMeshComponents()
 {
-    std::vector<MeshComponent*> result;
     std::erase_if(_runtimeMeshComponents, [](const std::weak_ptr<MeshComponent>& weakMesh) 
     { 
         return weakMesh.expired();
     });
 
-    for (auto& weakMesh : _runtimeMeshComponents)
-    {
-        result.push_back(weakMesh.lock().get());
-    }
-
-    return result;
+    return _runtimeMeshComponents;
 }
 
 bool ESceneManager::WriteUmSceneFile(Scene& scene, std::string_view sceneName, std::string_view outPath, bool isOverride)
