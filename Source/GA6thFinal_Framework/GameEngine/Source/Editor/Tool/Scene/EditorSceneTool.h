@@ -2,6 +2,9 @@
 
 class GameObject;
 class EditorDynamicCamera;
+class MeshComponent;
+class BaseMesh;
+
 class EditorSceneTool
     : public EditorTool
 {
@@ -35,6 +38,7 @@ private:
     void DrawSceneView();
     void SetCameraToFocusObject();
     void RayPicker();
+    void VertexSnap();
 
     bool IsActiveOperation(ImGuizmo::OPERATION op) const;
     bool IsActiveMode(ImGuizmo::MODE mode) const;
@@ -46,12 +50,12 @@ private:
     std::unique_ptr<EditorDynamicCamera> _camera;
 
     //clientSize
-    float _clientWidth   = 0.f;    
-    float _clientHeight  = 0.f;
-    float _clientLeft    = 0.f;
-    float _clientRight   = 0.f;
-    float _clientTop     = 0.f;
-    float _clientBottom  = 0.f;
+    float _sceneClientWidth  = 0.f;    
+    float _sceneClientHeight = 0.f;
+    float _sceneClienttLeft  = 0.f;
+    float _sceneClientRight  = 0.f;
+    float _sceneClientTop    = 0.f;
+    float _sceneClientBottom = 0.f;
 
     // Manipulate
     std::weak_ptr<GameObject> _manipulateObject;
@@ -61,6 +65,12 @@ private:
     bool _isUsingEnd = false; 
     bool _isUsing = false;
     bool _isOver = false;
+
+    //Vertex snap
+    std::weak_ptr<MeshComponent> _weakClosestMeshComponent;
+    BaseMesh* _manipulateBaseMesh = nullptr;
+    BaseMesh* _closestBaseMesh = nullptr;
+    bool _useVertexSnap = false;
 
 public:
     class ManipulateCommand : public UmCommand
