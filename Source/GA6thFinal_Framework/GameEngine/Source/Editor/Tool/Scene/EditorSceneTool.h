@@ -27,12 +27,13 @@ private:
     virtual void OnFrameFocusStay() override;
 
 private:
+    void UpdateKeyboardShortcuts();
     void DragDropEvent();
     void SetMoveFlag();
     void SetCamera();
-    void UpdateMode();
     void DrawManipulate();
     void DrawSceneView();
+    void SetCameraToFocusObject();
 
     bool IsActiveOperation(ImGuizmo::OPERATION op) const;
     bool IsActiveMode(ImGuizmo::MODE mode) const;

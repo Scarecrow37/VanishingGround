@@ -81,7 +81,7 @@ void EditorSceneTool::OnFrameEnd()
 void EditorSceneTool::OnFrameFocusStay()
 {
     _camera->Update();
-    UpdateMode();
+    UpdateKeyboardShortcuts();
 }
     
 void EditorSceneTool::DragDropEvent() 
@@ -146,7 +146,7 @@ void EditorSceneTool::SetCamera()
         ReflectFields->CameraFarZ);
 }
 
-void EditorSceneTool::UpdateMode()
+void EditorSceneTool::UpdateKeyboardShortcuts()
 {
     if (false == ImGui::IsKeyDown(ImGuiKey_MouseRight))
     {
@@ -170,6 +170,11 @@ void EditorSceneTool::UpdateMode()
                 _drawManipulateDesc.Mode = ImGuizmo::MODE::LOCAL;
             }
         }      
+
+        if (ImGui::IsKeyPressed(ImGuiKey_F))
+        {
+            SetCameraToFocusObject();
+        }
     }  
 }
 
@@ -429,6 +434,15 @@ void EditorSceneTool::DrawSceneView()
         ImGui::SameLine();
     }
     ImageButtonToggleSetting();
+}
+
+void EditorSceneTool::SetCameraToFocusObject() 
+{
+    if (false == EditorHierarchyTool::HierarchyFocusObjWeak.expired())
+    {
+        auto focusObject = EditorHierarchyTool::HierarchyFocusObjWeak.lock();
+        _camera->SetPosition(focusObject->transform->Position);
+    }
 }
 
 bool EditorSceneTool::IsActiveOperation(ImGuizmo::OPERATION op) const
