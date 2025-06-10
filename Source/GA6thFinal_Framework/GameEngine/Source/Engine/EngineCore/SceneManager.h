@@ -387,7 +387,7 @@ public:
     bool SetSkyBox(const File::Path& path);
     
     /// <summary>
-    /// 현재 씬에 존재하는 MeshComponent들을 반환합니다. *매 프레임 호출하면 퍼포먼스가 하락할 수 있습니다..*
+    /// 현재 씬에 존재하는 MeshComponent들을 반환합니다. *매 프레임 호출하면 퍼포먼스가 하락할 수 있습니다.*
     /// </summary>
     /// <returns></returns>
     std::vector<MeshComponent*> GetMeshComponents();
