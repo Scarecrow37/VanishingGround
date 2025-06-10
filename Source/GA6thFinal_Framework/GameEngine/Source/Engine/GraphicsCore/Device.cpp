@@ -565,6 +565,7 @@ void Device::CreateConstantBuffer(void* data, UINT size, ComPtr<ID3D12Resource>&
         UpdateBuffer(buffer, data, size);
 }
 
+
 void Device::CreateDefaultBuffer(UINT size, ComPtr<ID3D12Resource>& buffer)
 {
 

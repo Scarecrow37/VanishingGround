@@ -11,7 +11,8 @@ StaticMeshRenderer::StaticMeshRenderer()
                 if (nullptr != context)
                 {
                     const auto& path = context->GetPath();
-                    if (path.extension() == L".fbx")
+                    const auto  extension = path.extension();
+                    if (extension == L".fbx" || extension == L".UmModel")
                     {
                         _guidRef = path.ToGuid();
                         ReflectFields->Guid = _guidRef.string();

@@ -9,6 +9,7 @@
 #include "ShaderBuilder.h"
 #include "MeshRenderer.h"
 #include "SkyBox.h"
+#include "Animator.h"
 
 RenderScene::RenderScene()
     : _frameQuad{std::make_unique<Quad>()}
@@ -39,26 +40,37 @@ void RenderScene::UpdateRenderScene()
 
     std::unordered_map<size_t, UINT>         materialPair;
     std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> handles;
-    std::vector<XMMATRIX>                    worldMatrixes;
     std::vector<MaterialData>                materialDatas;
     UINT                                     materialID = 0;
 
+    _worldMatrixes.clear();
+    _boneMatrixes.clear();
     for (auto& [isDestroy, component] : _renderQueue)
     {
         if (!component->IsActive())
             continue;
 
+        const auto  type      = component->GetType();
         const auto& model     = component->GetModel();
         const auto& meshes    = model->GetMeshes();
         const auto& materials = model->GetMaterials();
         const auto& textures  = model->GetTextures();
 
-        XMMATRIX world = XMMatrixTranspose(component->GetWorldMatrix());
-        UINT     size  = (UINT)meshes.size();
+        XMMATRIX     world = XMMatrixTranspose(component->GetWorldMatrix());
+        BoneMatrixes boneMatrixes{};
+
+        if (MESH_RENDER_TYPE::SKELETAL == type)
+        {
+            auto animator = component->GetAnimator();            
+            if (animator) memcpy(&boneMatrixes, animator->GetAnimationTransform(), sizeof(BoneMatrixes));
+        }
+
+        UINT size = (UINT)meshes.size();
 
         for (UINT i = 0; i < size; i++)
         {
-            worldMatrixes.emplace_back(world);
+            _worldMatrixes.push_back(world);
+            _boneMatrixes.push_back(boneMatrixes);
             MaterialData materialData{};
 
             for (UINT j = 0; j < 4; j++)
@@ -83,13 +95,13 @@ void RenderScene::UpdateRenderScene()
         }
     }
 
-    UINT size = static_cast<UINT>(worldMatrixes.size());
-    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(UmDevice.GetCommandList().Get(), worldMatrixes.data(),
-                                                              size * sizeof(ObjectData),
-                                                              FrameResource::Type::TRANSFORM);
+    UINT size = static_cast<UINT>(_worldMatrixes.size());
+    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(UmDevice.GetCommandList().Get(), _worldMatrixes.data(),
+                                                              size * sizeof(ObjectData), FrameResource::Type::TRANSFORM);
+    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(UmDevice.GetCommandList().Get(), _boneMatrixes.data(),
+                                                              size * sizeof(BoneMatrixes), FrameResource::Type::BONE_MATRIXES);
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(UmDevice.GetCommandList().Get(), materialDatas.data(),
-                                                              size * sizeof(MaterialData),
-                                                              FrameResource::Type::MATERIAL);
+                                                              size * sizeof(MaterialData), FrameResource::Type::MATERIAL);
     _frameResources[_currentFrameIndex]->CopyDescriptors(handles);
 }
 

@@ -14,7 +14,7 @@ private:
     inline static EditorSceneTool* pSceneTool = nullptr;
 
 private:
-    virtual void  OnStartGui() override;
+    virtual void OnStartGui() override;
 
     virtual void OnPreFrameBegin() override;
 
@@ -34,6 +34,9 @@ private:
     void DrawManipulate();
     void DrawSceneView();
 
+    bool IsActiveOperation(ImGuizmo::OPERATION op) const;
+    bool IsActiveMode(ImGuizmo::MODE mode) const;
+
 private:
     ImGuiWindow* _window = nullptr;
     bool _isHorverdScene = false;
@@ -50,7 +53,7 @@ private:
 
     // Manipulate
     std::weak_ptr<GameObject> _manipulateObject;
-    ImGuiHelper::DrawManipulateDesc drawManipulateDesc; 
+    ImGuiHelper::DrawManipulateDesc _drawManipulateDesc; 
     bool _isUseManipulate = false;
     bool _isUsingStart = false; 
     bool _isUsingEnd = false; 

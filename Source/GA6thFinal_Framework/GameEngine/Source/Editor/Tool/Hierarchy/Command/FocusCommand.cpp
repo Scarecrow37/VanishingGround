@@ -1,4 +1,5 @@
 ﻿#include "FocusCommand.h"
+
 Command::Hierarchy::FocusCommand::~FocusCommand() = default;
 void Command::Hierarchy::FocusCommand::Execute()
 {

@@ -110,7 +110,7 @@ void Application::Run()
         {
             if (_msg.message == WM_QUIT)
             {
-                _isQuit = true;
+                Quit();
                 break;
             }
             TranslateMessage(&_msg); 

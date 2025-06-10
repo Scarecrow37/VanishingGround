@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+constexpr UINT MAX_BONE_MATRIX        = 128;
 constexpr UINT SWAPCHAIN_BUFFER_COUNT = 4;
 
 enum class FEATURE_LEVEL { LEVEL_11_0, LEVEL_12_0, LEVEL_12_1 };

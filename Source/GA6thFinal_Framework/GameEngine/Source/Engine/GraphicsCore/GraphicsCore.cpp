@@ -69,7 +69,10 @@ void GraphicsCore::Initialize(HWND hwnd, UINT width, UINT height, FEATURE_LEVEL 
 
 }
 
-void GraphicsCore::UpdateAnimation(const float deltaTime) {}
+void GraphicsCore::UpdateAnimation(const float deltaTime)
+{
+    AnimationCore.Update(deltaTime);
+}
 
 void GraphicsCore::Update()
 {

@@ -3,30 +3,35 @@
 
 class Animation : public Resource
 {
-	friend class Animator;
+    friend class Animator;
+    friend class FBXConverter;
 
-	struct BoneTransformTrack
-	{
-		std::vector<std::pair<float, Vector3>> positions;
-		std::vector<std::pair<float, Vector4>> rotations;
-		std::vector<std::pair<float, Vector3>> scales;
-	};
+    struct BoneTransformTrack
+    {
+        std::vector<std::pair<float, Vector3>> Positions;
+        std::vector<std::pair<float, Vector4>> Rotations;
+        std::vector<std::pair<float, Vector3>> Scales;
+    };
 
-	struct Channel
-	{
-		std::unordered_map<std::string, BoneTransformTrack> boneTransforms;
-		float lastTime = 0.f;
-	};
-
-public:
-	explicit Animation() = default;
-	virtual ~Animation() = default;
+    struct Channel
+    {
+        std::unordered_map<std::string, BoneTransformTrack> BoneTransforms;
+        float                                               LastTime = 0.f;
+    };
 
 public:
-	void LoadAnimation(const aiScene* scene);
-	// Resource을(를) 통해 상속됨
-	HRESULT LoadResource(const std::filesystem::path& filePath) override;
+    explicit Animation() = default;
+    virtual ~Animation() = default;
+
+public:
+    const std::vector<const char*>& GetAnimations() { return _animationNames; }
+
+public:
+    void LoadAnimation(const aiScene* scene);
+    // Resource을(를) 통해 상속됨
+    HRESULT LoadResource(const std::filesystem::path& filePath) override;
 
 private:
-	std::unordered_map<std::string, Channel> _animations;	
+    std::unordered_map<std::string, Channel> _animations;
+    std::vector<const char*>                 _animationNames;
 };
