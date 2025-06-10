@@ -902,11 +902,6 @@ void ESceneManager::ObjectsAddRuntime()
     for (auto& component : _addComponentsQueue)
     {
         component->_gameObect->_components.emplace_back(component);
-        if (typeid(*component) == typeid(MeshComponent))
-        {
-            _runtimeMeshComponents.emplace_back(std::static_pointer_cast<MeshComponent>(component));
-        }
-
         if (_isPlay)
         {
             _waitAwakeVec.push_back(component);
@@ -1410,7 +1405,8 @@ void ESceneManager::SceneResourceManager::Update(SceneResourceManager& manager)
                                     models.ModelResource[guid] = UmResourceManager.LoadResource<Model>(path.string());
                                 }
                                 meshRenderer.LoadModel(path.wstring());
-                                models.ModelUseComponentList[guid].push_back(pMeshComponent);
+                                models.ModelUseComponentList[guid].emplace_back(pMeshComponent);
+                                UmSceneManager._runtimeMeshComponents.emplace_back(pMeshComponent);
                             }
                         }
                         else
