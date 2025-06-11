@@ -51,6 +51,9 @@ void Animator::Initialize(std::wstring_view filePath, std::shared_ptr<Skeleton> 
 
 void Animator::Initialize(std::shared_ptr<Animation> animation, std::shared_ptr<Skeleton> skeleton)
 {
+    if (nullptr == animation || nullptr == skeleton)
+        return;
+
     _animation = animation;
     _skeleton  = skeleton;
     _controllers.resize(1);
