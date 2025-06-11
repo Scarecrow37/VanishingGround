@@ -23,6 +23,7 @@ public:
         _pivotPosition = position;
     }
     const Vector3& GetPosition() { return _position; }
+    const Vector3& GetPivotPosition() { return _pivotPosition; }
 
     void SetRotation(const Vector3& rotation) { _rotation = Quaternion::CreateFromYawPitchRoll(rotation); }
     void SetRotation(const Quaternion& rotation) { _rotation = rotation; }
