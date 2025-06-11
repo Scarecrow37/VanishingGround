@@ -2,6 +2,9 @@
 
 class GameObject;
 class EditorDynamicCamera;
+class MeshComponent;
+class BaseMesh;
+
 class EditorSceneTool
     : public EditorTool
 {
@@ -27,12 +30,15 @@ private:
     virtual void OnFrameFocusStay() override;
 
 private:
+    void UpdateKeyboardShortcuts();
     void DragDropEvent();
     void SetMoveFlag();
     void SetCamera();
-    void UpdateMode();
     void DrawManipulate();
     void DrawSceneView();
+    void SetCameraToFocusObject();
+    void RayPicker();
+    void VertexSnap();
 
     bool IsActiveOperation(ImGuizmo::OPERATION op) const;
     bool IsActiveMode(ImGuizmo::MODE mode) const;
@@ -44,12 +50,12 @@ private:
     std::unique_ptr<EditorDynamicCamera> _camera;
 
     //clientSize
-    float _clientWidth   = 0.f;    
-    float _clientHeight  = 0.f;
-    float _clientLeft    = 0.f;
-    float _clientRight   = 0.f;
-    float _clientTop     = 0.f;
-    float _clientBottom  = 0.f;
+    float _sceneClientWidth  = 0.f;    
+    float _sceneClientHeight = 0.f;
+    float _sceneClienttLeft  = 0.f;
+    float _sceneClientRight  = 0.f;
+    float _sceneClientTop    = 0.f;
+    float _sceneClientBottom = 0.f;
 
     // Manipulate
     std::weak_ptr<GameObject> _manipulateObject;
@@ -60,6 +66,11 @@ private:
     bool _isUsing = false;
     bool _isOver = false;
 
+    //Vertex snap
+    std::weak_ptr<MeshComponent> _weakClosestMeshComponent;
+    BaseMesh* _manipulateBaseMesh = nullptr;
+    BaseMesh* _closestBaseMesh = nullptr;
+    bool      _isSnapping = false;
 public:
     class ManipulateCommand : public UmCommand
     {
@@ -86,12 +97,15 @@ protected:
     REFLECT_FIELDS_BEGIN(EditorTool)
     std::array<float, 3> CameraPosition{0, 0, 0};
     std::array<float, 4> CameraRotation{0, 0, 0, 1};
-    float  CameraFov   = 70.f;
-    float  CameraAspect      = 1.0f;
-    float  CameraNearZ       = 0.01f;
-    float  CameraFarZ        = 10000.f;
-    float  CameraMoveSpeed   = 30.0f;
-    float  CameraRotateSpeed = 10.0f;
+    float  CameraFov           = 70.f;
+    float  CameraAspect        = 1.0f;
+    float  CameraNearZ         = 0.01f;
+    float  CameraFarZ          = 10000.f;
+    float  CameraMoveSpeed     = 30.0f;
+    float  CameraRotateSpeed   = 10.0f;
+    float  CameraPivot         = 0.f;
+    bool   VertexSnapUse       = false;
+    float  VertexSnapThreshold = 100.f;
     REFLECT_FIELDS_END(EditorSceneTool)
 
     /*
@@ -110,9 +124,11 @@ public:
         ReflectFields->CameraFov, 
         ReflectFields->CameraNearZ,
         ReflectFields->CameraFarZ, 
-        ReflectFields->CameraRotateSpeed
+        ReflectFields->CameraRotateSpeed, 
+        ReflectFields->CameraPivot
         )
 
     void UpdateCameraSetting();
+    void UpdateReflectFields();
 };
 

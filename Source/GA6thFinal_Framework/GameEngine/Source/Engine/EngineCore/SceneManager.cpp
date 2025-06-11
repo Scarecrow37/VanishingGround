@@ -204,8 +204,8 @@ void ESceneManager::Engine::SetComponentEnable(Component* component, bool value)
             // 메시 컴포넌트들은 meshRenderer의 SetActive도 변경해야함.
             if (Component::Type::RENDER == component->_type)
             {
-                auto& meshActiveQueue =
-                    value ? sceneManager._meshSetActiveQueue.first : sceneManager._meshSetActiveQueue.second;
+                auto& meshActiveQueue = value ? sceneManager._meshSetActiveQueue.first 
+                                              : sceneManager._meshSetActiveQueue.second;
                 MeshComponent* meshComponent = static_cast<MeshComponent*>(component);
                 meshActiveQueue.push_back(meshComponent->Renderer.get());
             }
@@ -1145,6 +1145,16 @@ bool ESceneManager::SetSkyBox(const File::Path& path)
     return true;
 }
 
+const std::vector<std::weak_ptr<MeshComponent>>& ESceneManager::GetMeshComponents()
+{
+    std::erase_if(_runtimeMeshComponents, [](const std::weak_ptr<MeshComponent>& weakMesh) 
+    { 
+        return weakMesh.expired();
+    });
+
+    return _runtimeMeshComponents;
+}
+
 bool ESceneManager::WriteUmSceneFile(Scene& scene, std::string_view sceneName, std::string_view outPath, bool isOverride)
 {
 #ifdef _UMEDITOR
@@ -1395,7 +1405,8 @@ void ESceneManager::SceneResourceManager::Update(SceneResourceManager& manager)
                                     models.ModelResource[guid] = UmResourceManager.LoadResource<Model>(path.string());
                                 }
                                 meshRenderer.LoadModel(path.wstring());
-                                models.ModelUseComponentList[guid].push_back(pMeshComponent);
+                                models.ModelUseComponentList[guid].emplace_back(pMeshComponent);
+                                UmSceneManager._runtimeMeshComponents.emplace_back(pMeshComponent);
                             }
                         }
                         else

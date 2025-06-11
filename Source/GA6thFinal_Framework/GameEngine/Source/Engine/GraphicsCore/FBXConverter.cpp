@@ -373,6 +373,7 @@ void FBXConverter::LoadFromAssimp(const std::filesystem::path& filePath, Model* 
                                aiProcess_GenUVCoords |
                                aiProcess_CalcTangentSpace | 
                                aiProcess_LimitBoneWeights | 
+                               aiProcess_JoinIdenticalVertices |
                                aiProcess_ConvertToLeftHanded;
 
     const aiScene* scene = impoter.ReadFile(filePath.string(), importFlags);

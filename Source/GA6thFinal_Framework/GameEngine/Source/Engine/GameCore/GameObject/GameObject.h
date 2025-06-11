@@ -447,9 +447,10 @@ inline std::vector<TComponent*> GameObject::GetComponents() const
     {
         if (nullptr != component)
         {
-            if (typeid(TComponent) == typeid(*component))
+            TComponent* resultComponent = dynamic_cast<TComponent*>(component.get());
+            if (nullptr != resultComponent)
             {
-                result.emplace_back(static_cast<TComponent*>(component));
+                result.emplace_back(resultComponent);
             }
         }
     }
