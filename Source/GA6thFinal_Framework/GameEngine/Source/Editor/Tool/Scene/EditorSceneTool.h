@@ -70,8 +70,7 @@ private:
     std::weak_ptr<MeshComponent> _weakClosestMeshComponent;
     BaseMesh* _manipulateBaseMesh = nullptr;
     BaseMesh* _closestBaseMesh = nullptr;
-    bool _useVertexSnap = false;
-
+    bool      _isSnapping = false;
 public:
     class ManipulateCommand : public UmCommand
     {
@@ -98,13 +97,15 @@ protected:
     REFLECT_FIELDS_BEGIN(EditorTool)
     std::array<float, 3> CameraPosition{0, 0, 0};
     std::array<float, 4> CameraRotation{0, 0, 0, 1};
-    float  CameraFov   = 70.f;
-    float  CameraAspect      = 1.0f;
-    float  CameraNearZ       = 0.01f;
-    float  CameraFarZ        = 10000.f;
-    float  CameraMoveSpeed   = 30.0f;
-    float  CameraRotateSpeed = 10.0f;
-    float  CameraPivot = 0.f;
+    float  CameraFov           = 70.f;
+    float  CameraAspect        = 1.0f;
+    float  CameraNearZ         = 0.01f;
+    float  CameraFarZ          = 10000.f;
+    float  CameraMoveSpeed     = 30.0f;
+    float  CameraRotateSpeed   = 10.0f;
+    float  CameraPivot         = 0.f;
+    bool   VertexSnapUse       = false;
+    float  VertexSnapThreshold = 100.f;
     REFLECT_FIELDS_END(EditorSceneTool)
 
     /*

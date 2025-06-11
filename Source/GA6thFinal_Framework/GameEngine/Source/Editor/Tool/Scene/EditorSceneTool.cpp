@@ -392,7 +392,7 @@ void EditorSceneTool::DrawSceneView()
     auto ImageButtonGridSnap = [&]() 
     {
         bool isActive = _drawManipulateDesc.UseSnap;
-        isActive     |= _useVertexSnap;
+        isActive |= ReflectFields->VertexSnapUse;
         if (isActive)
         {
             ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.22f, 0.28f, 0.35f, 1.0f));
@@ -408,7 +408,14 @@ void EditorSceneTool::DrawSceneView()
             ImGui::DragFloat3("Step", _drawManipulateDesc.Snap.data(), 0.1f);
             ImGui::Separator();
 
-            ImGui::Checkbox("Vertex snap", &_useVertexSnap);
+            if (ImGui::Checkbox("Vertex snap", &ReflectFields->VertexSnapUse))
+            {
+                if (false == ReflectFields->VertexSnapUse)
+                {
+                    _isSnapping = false;
+                }          
+            }        
+            ImGui::DragFloat("Threshold", &ReflectFields->VertexSnapThreshold, 0.01f);
 
             ImGui::EndPopup();
         }
@@ -558,6 +565,14 @@ static void AutoVertexForeach(char* vertexBuff, unsigned int stride, unsigned in
 
 void EditorSceneTool::VertexSnap() 
 {
+    if (false == ReflectFields->VertexSnapUse)
+    {
+        return;
+    }
+
+    //스넵을 탈출하기 위한 마우스 이동 임계값 입니다.
+    static constexpr float mouseMoveDeltaThresHold = 50.f;
+
     static std::vector<MeshComponent*> manipulateMeshes;
     if (_isUsingStart)
     {
@@ -573,7 +588,7 @@ void EditorSceneTool::VertexSnap()
         manipulateMeshes.clear();
     }
 
-    if (_isUsing && _useVertexSnap)    
+    if (_isUsing && ReflectFields->VertexSnapThreshold)    
     {
         auto manipulateObject = _manipulateObject.lock();
         if (false == manipulateMeshes.empty())
@@ -645,116 +660,152 @@ void EditorSceneTool::VertexSnap()
             }
             else
             {
-                auto                closestMeshComponent = _weakClosestMeshComponent.lock();
-                Transform&          closestTransform     = closestMeshComponent->gameObject->transform;
-                BoundingOrientedBox closestObbWorld;
-                _closestBaseMesh->GetBoundingBox().Transform(closestObbWorld, closestTransform.GetWorldMatrix());
-
-                bool intersects = false;
-                Transform& manipulateTransform = manipulateObject->transform;
-                BoundingOrientedBox manipulateObbWorld;
-                for (auto& meshComponent : manipulateMeshes)
+                static float mouseMoveDelta = 0.f;
+                static Vector3 snapPosition;
+                if (false == _isSnapping)
                 {
-                    if (nullptr != meshComponent->Renderer)
+
+                    auto                closestMeshComponent = _weakClosestMeshComponent.lock();
+                    Transform&          closestTransform     = closestMeshComponent->gameObject->transform;
+                    BoundingOrientedBox closestObbWorld;
+                    _closestBaseMesh->GetBoundingBox().Transform(closestObbWorld, closestTransform.GetWorldMatrix());
+
+                    bool                intersects          = false;
+                    Transform&          manipulateTransform = manipulateObject->transform;
+                    BoundingOrientedBox manipulateObbWorld;
+                    for (auto& meshComponent : manipulateMeshes)
                     {
-                        const auto& meshes = meshComponent->Renderer->GetModel()->GetMeshes();
-                        for (auto& mesh : meshes)
+                        if (nullptr != meshComponent->Renderer)
                         {
-                            mesh->GetBoundingBox().Transform(manipulateObbWorld, manipulateTransform.GetWorldMatrix());
-                            intersects = closestObbWorld.Intersects(manipulateObbWorld);
-                            if (true == intersects)
+                            const auto& meshes = meshComponent->Renderer->GetModel()->GetMeshes();
+                            for (auto& mesh : meshes)
                             {
-                                break;
-                            } 
+                                mesh->GetBoundingBox().Transform(manipulateObbWorld,
+                                                                 manipulateTransform.GetWorldMatrix());
+                                intersects = closestObbWorld.Intersects(manipulateObbWorld);
+                                if (true == intersects)
+                                {
+                                    break;
+                                }
+                            }
                         }
-   
+                        if (true == intersects)
+                        {
+                            break;
+                        }
                     }
-                    if (true == intersects)
+                    if (false == intersects)
                     {
-                        break;
-                    }              
-                }               
-                if (false == intersects)
-                {
-                    _weakClosestMeshComponent = std::weak_ptr<MeshComponent>();
-                    _closestBaseMesh = nullptr;
-                    _manipulateBaseMesh = nullptr;
+                        _weakClosestMeshComponent = std::weak_ptr<MeshComponent>();
+                        _closestBaseMesh          = nullptr;
+                        _manipulateBaseMesh       = nullptr;
+                    }
+
+                    // Vertex snap
+                    if (_manipulateBaseMesh && _closestBaseMesh)
+                    {
+                        auto PointInOrientedBox = [](const BoundingOrientedBox& box, const Vector3& point) {
+                            Quaternion invRot = box.Orientation;
+                            invRot.Conjugate();
+
+                            Vector3 local = point - box.Center;
+                            local         = Vector3::Transform(local, invRot);
+
+                            return std::abs(local.x) <= box.Extents.x && std::abs(local.y) <= box.Extents.y &&
+                                   std::abs(local.z) <= box.Extents.z;
+                        };
+
+                        static std::vector<Vector3> closestVertexes;
+                        static std::vector<Vector3> manipulateVertexes;
+                        if (false == _isSnapping)
+                        {
+                            closestVertexes.clear();
+                            const Matrix& closestWorldMatrix =
+                                closestMeshComponent->gameObject->transform->GetWorldMatrix();
+                            char*        closestVertexBuff;
+                            unsigned int closestStride;
+                            unsigned int closestSize;
+                            _closestBaseMesh->GetVertexInfo(closestVertexBuff, closestStride, closestSize);
+                            // AABB culling
+                            AutoVertexForeach(closestVertexBuff, closestStride, closestSize,
+                            [&](auto& closestCurrVertex) 
+                            {
+                                Vector3 position = Vector3(closestCurrVertex.Position);
+                                position         = Vector3::Transform(position, closestWorldMatrix);
+                                bool intersects  = PointInOrientedBox(manipulateObbWorld, position);
+                                if (true == intersects)
+                                {
+                                    closestVertexes.push_back(position);
+                                }
+                            });
+
+                            manipulateVertexes.clear();
+                            const Matrix& manipulateWorldMatrix = manipulateObject->transform->GetWorldMatrix();
+                            char*         manipulateVertexBuff;
+                            unsigned int  manipulateStride;
+                            unsigned int  manipulateSize;
+                            _manipulateBaseMesh->GetVertexInfo(manipulateVertexBuff, manipulateStride, manipulateSize);
+                            // AABB culling
+                            AutoVertexForeach(manipulateVertexBuff, manipulateStride, manipulateSize,
+                            [&](auto& manipulateCurrVertex) 
+                            {
+                                Vector3 position = Vector3(manipulateCurrVertex.Position);
+                                position        = Vector3::Transform(position, manipulateWorldMatrix);
+                                bool intersects = PointInOrientedBox(manipulateObbWorld, position);
+                                if (true == intersects)
+                                {
+                                    manipulateVertexes.push_back(position);
+                                }
+                            });
+
+                            constexpr float maxFloat = std::numeric_limits<float>::max();
+                            float closestVertexDis = maxFloat;
+                            std::pair<Vector3, Vector3> closestVertex;
+                            for (auto& currClosestVertexPos : closestVertexes)
+                            {
+                                for (auto& currManipulateVertexPos : manipulateVertexes)
+                                {
+                                    float currDis = Vector3::DistanceSquared(currClosestVertexPos, currManipulateVertexPos);
+                                    if (currDis < closestVertexDis)
+                                    {
+                                        closestVertex.first  = currClosestVertexPos;
+                                        closestVertex.second = currManipulateVertexPos;
+                                        closestVertexDis     = currDis;
+                                    }
+                                }
+                            }
+
+                            if (closestVertexDis != maxFloat && closestVertexDis < ReflectFields->VertexSnapThreshold)
+                            {
+                                if (closestVertexDis > Mathf::Epsilon)
+                                {
+                                    Vector3 offset = closestVertex.first - closestVertex.second;
+                                    snapPosition = manipulateObject->transform->Position + offset;
+                                    manipulateObject->transform->Position = snapPosition;
+                                    _isSnapping = true;
+                                    mouseMoveDelta = 0.f;
+                                }
+                            }
+                        }
+                    }
                 }
-
-                //Vertex snap
-                if (_manipulateBaseMesh && _closestBaseMesh)
+                else
                 {
-                    auto PointInOrientedBox = [](const BoundingOrientedBox& box, const Vector3& point) 
+                    manipulateObject->transform->Position = snapPosition;
+
+                    ImGuiIO& io = ImGui::GetIO();
+                    float moveDelta = Vector2(&io.MouseDelta.x).Length();
+                    mouseMoveDelta += moveDelta;
+                    if (ImGui::IsKeyReleased(ImGuiKey_MouseLeft))
                     {
-                        Quaternion invRot = box.Orientation;
-                        invRot.Conjugate();
-
-                        Vector3 local = point - box.Center;
-                        local = Vector3::Transform(local, invRot);
-
-                        return std::abs(local.x) <= box.Extents.x && 
-                               std::abs(local.y) <= box.Extents.y &&
-                               std::abs(local.z) <= box.Extents.z;
-                    };
-
-                    static std::vector<Vector3> closestVertexes;
-                    closestVertexes.clear();
-                    const Matrix& closestWorldMatrix   = closestMeshComponent->gameObject->transform->GetWorldMatrix();
-                    char* closestVertexBuff;
-                    unsigned int closestStride;
-                    unsigned int closestSize;
-                    _closestBaseMesh->GetVertexInfo(closestVertexBuff, closestStride, closestSize);     
-                    //AABB culling
-                    AutoVertexForeach(closestVertexBuff, closestStride, closestSize, 
-                    [&](auto& closestCurrVertex) 
+                        _isSnapping = false;
+                        mouseMoveDelta = 0.f;
+                    }
+                    if (mouseMoveDelta >= mouseMoveDeltaThresHold)
                     {
-                        Vector3 position = Vector3(closestCurrVertex.Position);
-                        position = Vector3::Transform(position, closestWorldMatrix);
-                        bool intersects = PointInOrientedBox(manipulateObbWorld, position);
-                        if (true == intersects)
-                        {
-                            closestVertexes.push_back(position);
-                        }
-                    });
-                  
-                    static std::vector<Vector3> manipulateVertexes;
-                    manipulateVertexes.clear();
-                    const Matrix& manipulateWorldMatrix = manipulateObject->transform->GetWorldMatrix();
-                    char* manipulateVertexBuff;
-                    unsigned int manipulateStride;
-                    unsigned int manipulateSize;
-                    _manipulateBaseMesh->GetVertexInfo(manipulateVertexBuff, manipulateStride, manipulateSize);           
-                    //AABB culling
-                    AutoVertexForeach(manipulateVertexBuff, manipulateStride, manipulateSize,
-                    [&](auto& manipulateCurrVertex) 
-                    {
-                        Vector3 position = Vector3(manipulateCurrVertex.Position);
-                        position = Vector3::Transform(position, manipulateWorldMatrix);
-                        bool intersects = PointInOrientedBox(manipulateObbWorld, position);
-                        if (true == intersects)
-                        {
-                            manipulateVertexes.push_back(position);
-                        }
-                    });
-
-                    constexpr float maxFloat = std::numeric_limits<float>::max();
-                    std::pair<Vector3, Vector3> closestVertex;
-                    float closestVertexDis = maxFloat;
-
-                    //Vector3 closestCurrPosition = Vector3(closestCurrVertex.Position);
-                    //Vector3 manipulateCurrPosition = Vector3(manipulateCurrVertex.Position);
-                    //float   currDis = Vector3::DistanceSquared(closestCurrPosition, manipulateCurrPosition);
-                    //
-                    //if (currDis < closestVertexDis)
-                    //{
-                    //    closestVertex.first  = closestCurrPosition;
-                    //    closestVertex.second = manipulateCurrPosition;
-                    //    closestVertexDis     = currDis;
-                    //}
-
-
-
-                    UmLogger.Message(LogLevel::LEVEL_DEBUG, "Test");
+                        _isSnapping = false;
+                        mouseMoveDelta = 0.f;
+                    }
                 }
             }
         }
