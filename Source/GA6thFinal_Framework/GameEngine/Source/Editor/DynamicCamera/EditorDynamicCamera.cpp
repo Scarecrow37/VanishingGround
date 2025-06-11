@@ -18,8 +18,7 @@ void EditorDynamicCamera::Update()
 {
     ImGuiIO& io = ImGui::GetIO();
     const Matrix& matrix = _camera->GetWorldMatrix();
-    const Vector3 foward = -matrix.Forward();
-
+    const Vector3 forward = Vector3::Transform(Vector3(0.0f, 0.0f, 1.0f), _rotation);
     bool isLeftAlt = ImGui::IsKeyDown(ImGuiKey_LeftAlt);
     bool isRightClick = ImGui::IsKeyDown(ImGuiKey_MouseRight);
     bool isLeftClick = ImGui::IsKeyDown(ImGuiKey_MouseLeft);
@@ -34,7 +33,7 @@ void EditorDynamicCamera::Update()
             _moveScale += wheel * 0.01f;
             _moveScale = std::clamp(_moveScale, 0.f, 1000.f);
         }
-        _pivotPosition = _position - foward * _pivot;
+        _pivotPosition = _position - forward * _pivot;
     }
     else
     {
@@ -49,7 +48,7 @@ void EditorDynamicCamera::Update()
             _pivot += wheel;
             _pivot = std::min(_pivot, 0.f);
         }
-        _position = _pivotPosition + foward * _pivot;
+        _position = _pivotPosition + forward * _pivot;
     }
     _camera->SetPosition(_position);
     _camera->SetRotation(_rotation);
