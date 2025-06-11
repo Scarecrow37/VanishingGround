@@ -336,7 +336,7 @@ void EditorSceneTool::DrawSceneView()
             {
                 _drawManipulateDesc.Operation = ImGuizmo::TRANSLATE;
             }
-            ImGuiHelper::HoveredToolTip("Short cut : w");
+            ImGuiHelper::HoveredToolTip("Short cut: w\nMove");
         }
         else if (ImGuizmo::ROTATE == op)
         {
@@ -344,7 +344,7 @@ void EditorSceneTool::DrawSceneView()
             {
                 _drawManipulateDesc.Operation = ImGuizmo::ROTATE;
             }
-            ImGuiHelper::HoveredToolTip("Short cut : e");
+            ImGuiHelper::HoveredToolTip("Short cut: e\nRotation");
         }
         else if (ImGuizmo::SCALE == op)
         {
@@ -352,7 +352,7 @@ void EditorSceneTool::DrawSceneView()
             {
                 _drawManipulateDesc.Operation = ImGuizmo::SCALE;
             }
-            ImGuiHelper::HoveredToolTip("Short cut : r");
+            ImGuiHelper::HoveredToolTip("Short cut: r\nScale");
         }
         else if (ImGuizmo::UNIVERSAL == op)
         {
@@ -360,7 +360,7 @@ void EditorSceneTool::DrawSceneView()
             {
                 _drawManipulateDesc.Operation = ImGuizmo::UNIVERSAL;
             }
-            ImGuiHelper::HoveredToolTip("Short cut : t");
+            ImGuiHelper::HoveredToolTip("Short cut: t\nTransform");
         }
 
         if (isActive)
@@ -378,6 +378,7 @@ void EditorSceneTool::DrawSceneView()
             {
                 _drawManipulateDesc.Mode = ImGuizmo::MODE::LOCAL;
             }
+            ImGuiHelper::HoveredToolTip("Short cut: x\nLocal");
         }
         else
         {
@@ -385,8 +386,8 @@ void EditorSceneTool::DrawSceneView()
             {
                 _drawManipulateDesc.Mode = ImGuizmo::MODE::WORLD;
             }
+            ImGuiHelper::HoveredToolTip("Short cut : x\nWorld");
         }
-        ImGuiHelper::HoveredToolTip("Short cut : x");
     };
     auto ImageButtonGridSnap = [&]() 
     {
@@ -532,6 +533,29 @@ void EditorSceneTool::RayPicker()
     }
 }
 
+template <typename Func>
+static void AutoVertexForeach(char* vertexBuff, unsigned int stride, unsigned int size, Func func)
+{
+    if (stride == sizeof(StaticMeshVertex))
+    {
+        StaticMeshVertex* vertexes = reinterpret_cast<StaticMeshVertex*>(vertexBuff);
+        for (size_t i = 0; i < size; ++i)
+        {
+            StaticMeshVertex& vertex = vertexes[i];
+            func(vertex);
+        }
+    }
+    else if (stride == sizeof(SkeletalMeshVertex))
+    {
+        SkeletalMeshVertex* vertexes = reinterpret_cast<SkeletalMeshVertex*>(vertexBuff);
+        for (size_t i = 0; i < size; ++i)
+        {
+            SkeletalMeshVertex& vertex = vertexes[i];
+            func(vertex);
+        }
+    }
+}
+
 void EditorSceneTool::VertexSnap() 
 {
     static std::vector<MeshComponent*> manipulateMeshes;
@@ -660,30 +684,77 @@ void EditorSceneTool::VertexSnap()
                 //Vertex snap
                 if (_manipulateBaseMesh && _closestBaseMesh)
                 {
-                    const Vector3& objectPos = manipulateObject->transform->Position;
-                    const Matrix& closeSetWorldMatrix = _weakClosestMeshComponent.lock()->gameObject->transform->GetWorldMatrix();
-                    char* vertexBuff;
-                    unsigned int stride;
-                    unsigned int size;
-                    _closestBaseMesh->GetVertexInfo(vertexBuff, stride, size);
-                    if (stride == sizeof(StaticMeshVertex))
+                    auto PointInOrientedBox = [](const BoundingOrientedBox& box, const Vector3& point) 
                     {
-                        StaticMeshVertex* vertexes = reinterpret_cast<StaticMeshVertex*>(vertexBuff);
-                        for (size_t i = 0; i < size; i++)
-                        {
-                            StaticMeshVertex& vertex = vertexes[i];
-                            //두개의 가까운 정점 찾은 뒤 Snap 해야함
-                        }
-                    }
-                    else if (stride == sizeof(SkeletalMeshVertex))
+                        Quaternion invRot = box.Orientation;
+                        invRot.Conjugate();
+
+                        Vector3 local = point - box.Center;
+                        local = Vector3::Transform(local, invRot);
+
+                        return std::abs(local.x) <= box.Extents.x && 
+                               std::abs(local.y) <= box.Extents.y &&
+                               std::abs(local.z) <= box.Extents.z;
+                    };
+
+                    static std::vector<Vector3> closestVertexes;
+                    closestVertexes.clear();
+                    const Matrix& closestWorldMatrix   = closestMeshComponent->gameObject->transform->GetWorldMatrix();
+                    char* closestVertexBuff;
+                    unsigned int closestStride;
+                    unsigned int closestSize;
+                    _closestBaseMesh->GetVertexInfo(closestVertexBuff, closestStride, closestSize);     
+                    //AABB culling
+                    AutoVertexForeach(closestVertexBuff, closestStride, closestSize, 
+                    [&](auto& closestCurrVertex) 
                     {
-                        SkeletalMeshVertex* vertexes = reinterpret_cast<SkeletalMeshVertex*>(vertexBuff);
-                        for (size_t i = 0; i < size; i++)
+                        Vector3 position = Vector3(closestCurrVertex.Position);
+                        position = Vector3::Transform(position, closestWorldMatrix);
+                        bool intersects = PointInOrientedBox(manipulateObbWorld, position);
+                        if (true == intersects)
                         {
-                            SkeletalMeshVertex& vertex = vertexes[i];
-                            //
+                            closestVertexes.push_back(position);
                         }
-                    }
+                    });
+                  
+                    static std::vector<Vector3> manipulateVertexes;
+                    manipulateVertexes.clear();
+                    const Matrix& manipulateWorldMatrix = manipulateObject->transform->GetWorldMatrix();
+                    char* manipulateVertexBuff;
+                    unsigned int manipulateStride;
+                    unsigned int manipulateSize;
+                    _manipulateBaseMesh->GetVertexInfo(manipulateVertexBuff, manipulateStride, manipulateSize);           
+                    //AABB culling
+                    AutoVertexForeach(manipulateVertexBuff, manipulateStride, manipulateSize,
+                    [&](auto& manipulateCurrVertex) 
+                    {
+                        Vector3 position = Vector3(manipulateCurrVertex.Position);
+                        position = Vector3::Transform(position, manipulateWorldMatrix);
+                        bool intersects = PointInOrientedBox(manipulateObbWorld, position);
+                        if (true == intersects)
+                        {
+                            manipulateVertexes.push_back(position);
+                        }
+                    });
+
+                    constexpr float maxFloat = std::numeric_limits<float>::max();
+                    std::pair<Vector3, Vector3> closestVertex;
+                    float closestVertexDis = maxFloat;
+
+                    //Vector3 closestCurrPosition = Vector3(closestCurrVertex.Position);
+                    //Vector3 manipulateCurrPosition = Vector3(manipulateCurrVertex.Position);
+                    //float   currDis = Vector3::DistanceSquared(closestCurrPosition, manipulateCurrPosition);
+                    //
+                    //if (currDis < closestVertexDis)
+                    //{
+                    //    closestVertex.first  = closestCurrPosition;
+                    //    closestVertex.second = manipulateCurrPosition;
+                    //    closestVertexDis     = currDis;
+                    //}
+
+
+
+                    UmLogger.Message(LogLevel::LEVEL_DEBUG, "Test");
                 }
             }
         }
@@ -703,7 +774,7 @@ bool EditorSceneTool::IsActiveMode(ImGuizmo::MODE mode) const
 
 void EditorSceneTool::SerializedReflectEvent() 
 {
-    Vector3 camPos = _camera->GetPosition() + _camera->GetCamera()->GetWorldMatrix().Forward() * _camera->GetPivot();
+    Vector3 camPos = _camera->GetPivotPosition();
     std::memcpy(ReflectFields->CameraPosition.data(), &camPos, sizeof(ReflectFields->CameraPosition));
 
     Quaternion camRot = _camera->GetRotation();
