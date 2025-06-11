@@ -20,21 +20,37 @@ static std::pair<std::string, std::string> GetCurrentTimestamp()
     );
 }
 
-ELogger::ELogger() {}
+ELogger::ELogger() 
+{
+
+}
 
 ELogger::~ELogger() = default;
 
-void ELogger::Log(int logLevel, 
-                        std::string_view message,
-                        const LogLocation location)
+void ELogger::Log(int logLevel, std::string_view message, const LogLocation location)
 {
     auto [day, time] = GetCurrentTimestamp();
-    std::string logMessage =
-        std::format("[{}] {}: {}", time, LogLevel::LogLevelTo_c_str(logLevel), message.data());
+    std::string logMessage = std::format("[{}] {}: {}", time, LogLevel::LogLevelTo_c_str(logLevel), message.data());
 
     if (LogLevel::IsLogLevel(logLevel))
     {
         _logMessages.emplace_back(logLevel, logMessage, location);
+    }
+}
+
+void ELogger::Message(int logLevel, std::string_view message)
+{
+    auto [day, time]       = GetCurrentTimestamp();
+    std::string logMessage = std::format("[{}] {}: {}", time, LogLevel::LogLevelTo_c_str(logLevel), message.data());
+
+    if (LogLevel::IsLogLevel(logLevel))
+    {
+        if (nullptr == messageLocation)
+        {
+            static LogLocation messageLocationinstance(std::source_location::current());
+            messageLocation = &messageLocationinstance;
+        }
+        _logMessages.emplace_back(logLevel, logMessage, *messageLocation);
     }
 }
 
@@ -56,3 +72,4 @@ void ELogger::LogMessagesClear(int logLevel)
             });
     }
 }
+
