@@ -23,3 +23,19 @@ void FiniteStateMachine::DeserializedReflectEvent()
         }
     }
 }
+
+void FiniteStateMachine::ImGuiDrawPropertysEvent() 
+{
+    const char* addKey = nullptr;
+    for (auto& [key, func] : GetInstanceConstructors())
+    {
+        if (ImGui::Button(key.c_str()))
+        {
+            addKey = key.c_str();
+        }
+    }
+    if (addKey)
+    {
+        AddState(addKey);
+    }
+}

@@ -95,6 +95,10 @@ protected:
     */
     virtual void DeserializedReflectEvent();
 
+    /*
+    ImGuiDrawPropertys() 호출 이후 콜되는 이벤트 함수입니다.
+    */
+    virtual void ImGuiDrawPropertysEvent();
 
     /// <summary>
     /// <para> 이 함수는 ComponentFactory.AddComponentToObject() 직후 호출됩니다.              </para>
