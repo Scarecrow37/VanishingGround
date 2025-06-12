@@ -58,7 +58,10 @@ bool Application::AppMessageHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
             Application& app = UmApplication;
             app._clientSize.cx = LOWORD(lParam); 
             app._clientSize.cy = HIWORD(lParam);
-            UmDevice.OnResize(app._clientSize.cx, app._clientSize.cy);
+            if (app._clientSize.cx > 0.f && app._clientSize.cy > 0.f)
+            {
+                UmDevice.OnResize(app._clientSize.cx, app._clientSize.cy);
+            }      
             return true;
         }        
     }
