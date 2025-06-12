@@ -31,7 +31,7 @@ const char* FiniteStateMachine::AddStateImguiPopUp()
     {
         for (auto& [key, func] : GetInstanceConstructors())
         {
-            if (ImGui::Button(key.c_str()))
+            if (ImGui::Button(key.c_str() + 6))
             {
                 addKey = key.c_str();
             }
@@ -48,7 +48,7 @@ void FiniteStateMachine::ImguiDrawStates()
     {
         ImGui::PushID(&state);
         {
-            ImGui::Text(key.c_str());
+            ImGui::Text(key.c_str() + 6);
             ImGui::SameLine();
             if (ImGui::Button("Remove"))
             {
@@ -72,12 +72,12 @@ void FiniteStateMachine::ImGuiDrawPropertysEvent()
         if (ImGui::CollapsingHeader("States"))
         {
             ImguiDrawStates();
+            if (true == ImGui::Button("Add State"))
+            {
+                ImGui::OpenPopup("AddStatePopup");
+            }
         }
 
-        if (true == ImGui::Button("Add State"))
-        {
-            ImGui::OpenPopup("AddStatePopup");
-        }
         if (ImGui::BeginPopup("AddStatePopup"))
         {
             const char* addKey = AddStateImguiPopUp();

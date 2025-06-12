@@ -33,6 +33,18 @@
     <ClInclude Include="Scripts\Graphics\MeshComponent.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Scripts\GameCore\FSM\FSMState.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\GameCore\FSM\TestState.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\GameCore\FSM\FiniteStateMachine.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\GameCore\FSM\MyState.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -54,6 +66,18 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Scripts\Graphics\MeshComponent.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\GameCore\FSM\FSMState.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\GameCore\FSM\TestState.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\GameCore\FSM\FiniteStateMachine.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\GameCore\FSM\MyState.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
