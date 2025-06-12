@@ -11,8 +11,9 @@ NodeGraphContext::NodeGraphContext()
                                  void* userPointer) -> bool {
         auto self = static_cast<NodeGraphContext*>(userPointer);
 
-        auto node = self->FindNodeFromNodeID(nodeId.Get());
-        if (!node)
+        NodeGraph::Node* node;
+
+        if (false == self->FindNodeFromNodeID(nodeId.Get(), &node))
             return false;
 
         //node->State.assign(data, size);
@@ -56,6 +57,7 @@ void NodeGraphContext::Render()
         ProcessNodes();
         ProcessLinks();
         ProcessCreate();
+        ProcessRemove();
         ProcessPopupContext();
 
         ImGui::SetCursorScreenPos(cursorTopLeft);
@@ -80,70 +82,98 @@ void NodeGraphContext::Clear()
     _linkTable.clear();
 }
 
-NodeGraph::Node* NodeGraphContext::FindNodeFromNodeID(UINT64 nodeID)
+bool NodeGraphContext::FindNodeFromNodeID(IN UINT64 nodeID, OUT NodeGraph::Node** ppNode)
 {
     auto itr = _nodeTable.find(nodeID);
     if (itr != _nodeTable.end())
-        return itr->second;
-    return nullptr;
+    {
+        (*ppNode) = itr->second;
+        return true;
+    }
+    return false;
 }
 
-NodeGraph::Node* NodeGraphContext::FindNodeFromPinID(UINT64 pinID)
+bool NodeGraphContext::FindNodeFromPinID(IN UINT64 pinID, OUT NodeGraph::Node** ppNode)
 {
     for (auto& node : _nodeVector)
     {
         NodeGraph::Pin* pin = node->FindPin(pinID);
         if (nullptr != pin)
         {
-            return node;
+            (*ppNode) = node;
+            return true;
         }
     }
-    return nullptr;
+    return false;
 }
 
-NodeGraph::Pin* NodeGraphContext::FindPinFromPinID(UINT64 pinID)
+bool NodeGraphContext::FindPinFromPinID(IN UINT64 pinID, OUT NodeGraph::Pin** ppPin)
 {
     for (auto& node : _nodeVector)
     {
         NodeGraph::Pin* pin = node->FindPin(pinID);
         if (nullptr != pin)
         {
-            return pin;
+            (*ppPin) = pin;
+            return true;
         }
     }
-    return nullptr;
+    return false;
 }
 
-void NodeGraphContext::SaveData(const char* data, size_t size) 
+bool NodeGraphContext::FindLinkFromLinkID(IN UINT64 linkID, OUT NodeGraph::Link** ppLink)
 {
+    auto itr = _linkTable.find(linkID);
+    if (itr != _linkTable.end())
+    {
+        (*ppLink) = itr->second;
+        return true;
+    }
+    return false;
 }
 
-void NodeGraphContext::LoadData(const std::string& data) 
+bool NodeGraphContext::FindPinsFromLinkID(IN UINT64 linkID, OUT NodeGraph::Pin** ppStartPin,OUT NodeGraph::Pin** ppEndPin)
 {
-
+    ed::PinId startID, endID;
+    if (true == ed::GetLinkPins(linkID, &startID, &endID))
+    {
+        FindPinFromPinID(startID.Get(), ppStartPin);
+        FindPinFromPinID(endID.Get(), ppEndPin);
+        return true;
+    }
+    return false;
 }
 
-const char* NodeGraphContext::SaveNodeSettingsToMemory()
+bool NodeGraphContext::RemoveNodeFromNodeID(IN UINT64 nodeID)
 {
-    return ReflectFields->SerializeData.data();
+    for (auto it = _nodeVector.begin(); it != _nodeVector.end(); ++it)
+    {
+        if ((*it)->GetNodeID() == nodeID)
+        {
+            delete *it;
+            _nodeVector.erase(it);
+            _nodeTable.erase(nodeID);
+            ed::DeleteNode(nodeID);
+            return true;
+        }
+    }
+    return false;
 }
 
-void NodeGraphContext::LoadNodeSettingsFromMemory(const std::string& data) 
+bool NodeGraphContext::RemoveLinkFromLinkID(IN UINT64 linkID)
 {
-}
-
-const char* NodeGraphContext::GetNodeSettingsData()
-{
-    return ReflectFields->SerializeData.data();
-}
-
-void NodeGraphContext::SerializedReflectEvent()
-{
-
-}
-
-void NodeGraphContext::DeserializedReflectEvent() 
-{
+    for (auto it = _linkVector.begin(); it != _linkVector.end(); ++it)
+    {
+        if ((*it)->GetLinkID().Get() == linkID)
+        {
+            delete *it;
+            _linkVector.erase(it);
+            _linkTable.erase(linkID);
+            ed::DeleteLink(linkID);
+            return true;
+        }
+    }
+    return false;
 }
 
 void NodeGraphContext::ProcessNodes()
@@ -183,8 +213,11 @@ void NodeGraphContext::ProcessCreateLink()
     ed::PinId startPinId = 0, endPinId = 0;
     if (ed::QueryNewLink(&startPinId, &endPinId))
     {
-        NodeGraph::Pin* startPin = FindPinFromPinID(startPinId.Get());
-        NodeGraph::Pin* endPin   = FindPinFromPinID(endPinId.Get());
+        NodeGraph::Pin* startPin = nullptr;
+        NodeGraph::Pin* endPin   = nullptr;
+
+        FindPinFromPinID(startPinId.Get(), &startPin);
+        FindPinFromPinID(endPinId.Get(), &endPin);
 
         _state.NewLinkPin = startPin ? startPin : endPin;
 
@@ -244,19 +277,52 @@ void NodeGraphContext::ProcessCreateNode()
     ed::PinId pinId = 0;
     if (ed::QueryNewNode(&pinId))
     {
-        _state.NewLinkPin = FindPinFromPinID(pinId.Get());
-        if (nullptr != _state.NewLinkPin)
+        if (true == FindPinFromPinID(pinId.Get(), &_state.NewLinkPin))
         {
             ShowLabel("+ Create Node", ImColor(32, 45, 32, 180));
         }
         if (ed::AcceptNewItem())
         {
             _state.isProcessingNewNode = true;
-            _state.NewNodeLinkPin      = FindPinFromPinID(pinId.Get());
+            _state.NewNodeLinkPin      = _state.NewLinkPin;
             _state.NewLinkPin          = nullptr;
             ed::Suspend();
             ImGui::OpenPopup("Create New Node");
             ed::Resume();
+        }
+    }
+}
+
+void NodeGraphContext::ProcessRemove() 
+{
+    if (ed::BeginDelete())
+    {
+        ProcessRemoveNode();
+        ProcessRemoveLink();
+        ed::EndDelete();
+    }
+}
+
+void NodeGraphContext::ProcessRemoveNode() 
+{
+    ed::NodeId nodeId = 0;
+    while (ed::QueryDeletedNode(&nodeId))
+    {
+        if (ed::AcceptDeletedItem())
+        {
+            RemoveNodeFromNodeID(nodeId.Get());
+        }
+    }
+}
+
+void NodeGraphContext::ProcessRemoveLink() 
+{
+    ed::LinkId linkId = 0;
+    while (ed::QueryDeletedLink(&linkId))
+    {
+        if (ed::AcceptDeletedItem())
+        {
+           RemoveLinkFromLinkID(linkId.Get());
         }
     }
 }
@@ -286,28 +352,32 @@ void NodeGraphContext::ProcessPopupContext()
 
     if (ImGui::BeginPopup("Node Context Menu"))
     {
-        auto node = FindNodeFromNodeID(contextNodeId.Get());
-        ImGui::TextUnformatted("Node Context Menu");
-        ImGui::Separator();
-        if (nullptr != node)
+        NodeGraph::Node* node = nullptr;
+        if (true == FindNodeFromNodeID(contextNodeId.Get(), &node))
         {
+            ImGui::TextUnformatted("Node Context Menu");
+            ImGui::Separator();
             node->OnNodePopup();
         }
         else
+        {
             ImGui::Text("Unknown node: %p", contextNodeId.AsPointer());
+        }
         ImGui::EndPopup();
     }
     if (ImGui::BeginPopup("Pin Context Menu"))
     {
-        auto node = FindNodeFromPinID(contextPinId.Get());
-        ImGui::TextUnformatted("Pin Context Menu");
-        ImGui::Separator();
-        if (nullptr != node)
+        NodeGraph::Node* node = nullptr;
+        if (true == FindNodeFromPinID(contextPinId.Get(), &node))
         {
+            ImGui::TextUnformatted("Pin Context Menu");
+            ImGui::Separator();
             node->OnPinPopup(contextPinId.Get());
         }
         else
+        {
             ImGui::Text("Unknown pin: %p", contextPinId.AsPointer());
+        }  
         ImGui::EndPopup();
     }
 

@@ -33,7 +33,7 @@ namespace NodeGraph
         /// </summary>
         /// <param name="id">핀의 ID값</param>
         /// <returns>핀을 찾는데 성공하면 해당 pin의 포인터, 찾지 못하면 null포인터를 반환합니다.</returns>
-        Pin* FindPin(UINT id);
+        Pin* FindPin(UINT64 id);
         /// <summary>
         /// 이름을 통해 핀을 찾습니다. label값 중복이 존재하는 경우 원하는 동작을 보장하지 않습니다.
         /// </summary>
@@ -53,7 +53,7 @@ namespace NodeGraph
         /// </summary>
         /// <param name="id">핀의 ID값</param>
         /// <returns>삭제에 성공하면 true, 실패하면 false.</returns>
-        bool RemovePin(UINT id);
+        bool RemovePin(UINT64 id);
         /// <summary>
         /// Label값에 대응하는 핀을 제거합니다. label값 중복이 존재하는 경우 원하는 동작을 보장하지 않습니다.
         /// </summary>
@@ -75,7 +75,7 @@ namespace NodeGraph
         /// 노드의 Z값을 변경합니다. Z값은 노드의 렌더링 순서를 결정합니다. 값이 높을수록 위에 렌더링됩니다.
         /// </summary>
         /// <param name="zOrder">설정할 노드의 Z값</param>
-        void SetZOrder(int zOrder);
+        void SetZOrder(float zOrder);
         /// <summary>
         /// 인덱스를 통해 입력 핀을 가져옵니다.
         /// </summary>
@@ -92,7 +92,7 @@ namespace NodeGraph
         inline UINT64   GetNodeID()             const { return _id; }
         inline ImVec2   GetPosition()           const { return ed::GetNodePosition(_id); }
         inline ImVec2   GetSize()               const { return ed::GetNodeSize(_id); }
-        inline int      GetZOrder()             const { return ed::GetNodeZPosition(_id); }
+        inline float    GetZOrder()             const { return ed::GetNodeZPosition(_id); }
         inline bool     IsSelected()            const { return ed::IsNodeSelected(_id); }
         inline size_t   GetInputPinCount()      const { return _inputPinList.size(); }
         inline size_t   GetOutputPinCount()     const { return _outputPinList.size(); }

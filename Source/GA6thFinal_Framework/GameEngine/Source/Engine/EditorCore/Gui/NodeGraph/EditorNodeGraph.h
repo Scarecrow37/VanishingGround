@@ -28,16 +28,54 @@ public:
     template <typename T>
     T* AddNode();
 
-    NodeGraph::Node* FindNodeFromNodeID(UINT64 nodeID);
-    NodeGraph::Node* FindNodeFromPinID(UINT64 pinID);
-    NodeGraph::Pin*  FindPinFromPinID(UINT64 pinID);
-
-    /* SerializeFunc */
-    void        SaveData(const char* data, size_t size = 0);
-    void        LoadData(const std::string& data);
-    const char* SaveNodeSettingsToMemory();
-    void        LoadNodeSettingsFromMemory(const std::string& data);
-    const char* GetNodeSettingsData();
+    /// <summary>
+    /// 노드ID를 통해 노드를 찾습니다.
+    /// </summary>
+    /// <param name="nodeID">[IN] 찾을 노드의 ID값</param>
+    /// <param name="ppNode">[OUT] 찾은 노드의 포인터를 반환합니다.</param>
+    /// <returns>찾는데 성공하면 true, 실패하면 false를 반환합니다.</returns>
+    bool FindNodeFromNodeID(IN UINT64 nodeID, OUT NodeGraph::Node** ppNode);
+    /// <summary>
+    /// 핀ID를 통해 노드를 찾습니다.
+    /// </summary>
+    /// <param name="pinID">[IN] 찾을 핀의 ID값</param>
+    /// <param name="ppNode">[OUT] 찾은 노드의 포인터를 반환합니다.</param> 
+    /// <returns>찾는데 성공하면 true, 실패하면 false를 반환합니다.</returns>
+    bool FindNodeFromPinID(IN UINT64 pinID, OUT NodeGraph::Node** ppNode);
+    /// <summary>
+    /// 핀ID를 통해 핀을 찾습니다.
+    /// </summary>
+    /// <param name="pinID">[IN]찾을 핀의 ID값</param> 
+    /// <param name="ppPin">[OUT]찾은 핀의 포인터를 반환합니다.</param> 
+    /// <returns>찾는데 성공하면 true, 실패하면 false를 반환합니다.</returns>
+    bool FindPinFromPinID(IN UINT64 pinID, OUT NodeGraph::Pin** ppPin);
+    /// <summary>
+    /// 링크ID를 통해 링크를 찾습니다.
+    /// </summary>
+    /// <param name="linkID">[IN]찾을 링크의 ID값</param>
+    /// <param name="ppLink">[OUT]찾은 링크의 포인터를 반환합니다.</param> 
+    /// <returns>찾는데 성공하면 true, 실패하면 false를 반환합니다.</returns> 
+    bool FindLinkFromLinkID(IN UINT64 linkID, OUT NodeGraph::Link** ppLink);
+    /// <summary>
+    /// 링크ID를 통해 해당 링크의 시작 핀과 끝 핀을 찾습니다.
+    /// </summary>
+    /// <param name="linkID">[IN]찾을 링크의 ID값</param>
+    /// <param name="ppStartPin">[OUT]해당 링크의 시작 핀을 반환합니다.</param>
+    /// <param name="ppEndPin">[OUT]해당 링크의 끝 핀을 반환합니다.</param>
+    /// <returns>찾는데 성공하면 true, 실패하면 false를 반환합니다.</returns>
+    bool FindPinsFromLinkID(IN UINT64 linkID, OUT NodeGraph::Pin** ppStartPin, OUT NodeGraph::Pin** ppEndPin);
+    /// <summary>
+    /// 노드ID를 통해 노드를 제거합니다.
+    /// </summary>
+    /// <param name="nodeID">[IN] 제거할 노드의 ID값</param>
+    /// <returns>삭제에 성공하면 true, 실패하면 false를 반환합니다.</returns> 
+    bool RemoveNodeFromNodeID(IN UINT64 nodeID);
+    /// <summary>
+    /// 링크ID를 통해 링크를 제거합니다.
+    /// </summary>
+    /// <param name="linkID">[IN] 제거할 링크의 ID값</param>
+    /// <returns>삭제에 성공하면 true, 실패하면 false를 반환합니다.</returns>
+    bool RemoveLinkFromLinkID(IN UINT64 linkID);
 
     inline void SetCurrentContext()     { ed::SetCurrentEditor(_editor); }
 
@@ -45,16 +83,16 @@ public:
     inline UINT64       GetUniqueID()   { return _uniqueID++; }
 
 private:
-
-    virtual void SerializedReflectEvent() override;
-    virtual void DeserializedReflectEvent() override;
-
     void ProcessNodes();
     void ProcessLinks();
 
     void ProcessCreate();
     void ProcessCreateLink();
     void ProcessCreateNode();
+
+    void ProcessRemove();
+    void ProcessRemoveNode();
+    void ProcessRemoveLink();
 
     void ProcessPopupContext();
 

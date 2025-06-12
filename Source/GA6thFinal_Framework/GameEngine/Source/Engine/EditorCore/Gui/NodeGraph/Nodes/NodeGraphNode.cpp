@@ -15,7 +15,7 @@ namespace NodeGraph
         _pinNameTable.clear();
     }
 
-    Pin* Node::FindPin(UINT id)
+    Pin* Node::FindPin(UINT64 id)
     {
         auto it = _pinIDTable.find(id);
         if (it != _pinIDTable.end())
@@ -54,7 +54,7 @@ namespace NodeGraph
         }
         return pin;
     }
-    bool Node::RemovePin(UINT id)
+    bool Node::RemovePin(UINT64 id)
     {
         return RemovePin(FindPin(id));
     }
@@ -111,7 +111,7 @@ namespace NodeGraph
     {
         ed::SelectNode(GetNodeID(), append);
     }
-    void Node::SetZOrder(int zOrder) 
+    void Node::SetZOrder(float zOrder) 
     {
         ed::SetNodeZPosition(GetNodeID(), zOrder);
     }

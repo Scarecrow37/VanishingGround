@@ -22,6 +22,14 @@ void NodeGraph::BehaviorTreeNode::OnNodePopup()
     {
         SetSeletion(true);
     }
+    if (ImGui::MenuItem("Remove Node"))
+    {
+        NodeGraphContext* context = NodeGraph::GetCurrentNodeGraphContext();
+        if (nullptr != context)
+        {
+            context->RemoveNodeFromNodeID(GetNodeID());
+        }
+    }
 }
 
 void NodeGraph::BehaviorTreeNode::OnPinPopup(UINT64 _pinID)
