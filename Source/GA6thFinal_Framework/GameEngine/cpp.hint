@@ -141,3 +141,12 @@ SETTER(type, property_name)
 TProperty<property_class_type, property_name##_property_getter_struct, property_name##_property_setter_struct> property_name{this};                \
 using property_name##_property_t = TProperty<property_class_type, property_name##_property_getter_struct, property_name##_property_setter_struct>;            
 
+#define REGISTER_CLASS(FACTORY, CLASS)                                                  \
+namespace FACTORY##_##CLASS##_IsRegister                                                \
+    {                                                                                   \
+    static bool IsRegister = EFactoryRegister.AddRegisterFunc(                          \
+    [&]()                                                                               \
+    {                                                                                   \
+        FACTORY::RegisterConstructor(typeid(CLASS).name(), [](){return new CLASS;} );   \
+    });                                                                                 \
+};

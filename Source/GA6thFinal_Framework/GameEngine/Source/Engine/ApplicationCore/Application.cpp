@@ -89,6 +89,9 @@ void Application::Initialize(HINSTANCE hInstance)
         UmFileSystem.LoadGameDirectory();
     }
 
+    //Factory 초기화
+    UmFactoryRegister.InvokeRegister();
+
     //초기화 완료
     OnStartupComplete();
 }
