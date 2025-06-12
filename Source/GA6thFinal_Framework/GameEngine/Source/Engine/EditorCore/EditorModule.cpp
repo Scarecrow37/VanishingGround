@@ -219,6 +219,23 @@ void EditorModule::EditorPlayMode::Play()
     }
 }
 
+void EditorModule::EditorPlayMode::Pause() 
+{
+    if (_isPlay)
+    {
+        if (true == _isPause)
+        {
+            UmTime.TimeScale = 1.f;
+            _isPause = false;
+        }
+        else
+        {
+            UmTime.TimeScale = 0.f;
+            _isPause = true;
+        }
+    }
+}
+
 void EditorModule::EditorPlayMode::Stop() 
 {
     if (true == _isPlay)
