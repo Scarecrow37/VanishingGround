@@ -243,8 +243,7 @@ protected:                                                                      
             setting.InputEndEvent = nullptr;                                                                \
         }                                                                                                   \
         ImGui::PopID();                                                                                     \
-    }
-
+    }                                                                                                       
 
 namespace ReflectHelper
 {
