@@ -204,8 +204,8 @@ void ESceneManager::Engine::SetComponentEnable(Component* component, bool value)
             // 메시 컴포넌트들은 meshRenderer의 SetActive도 변경해야함.
             if (Component::Type::RENDER == component->_type)
             {
-                auto& meshActiveQueue =
-                    value ? sceneManager._meshSetActiveQueue.first : sceneManager._meshSetActiveQueue.second;
+                auto& meshActiveQueue = value ? sceneManager._meshSetActiveQueue.first 
+                                              : sceneManager._meshSetActiveQueue.second;
                 MeshComponent* meshComponent = static_cast<MeshComponent*>(component);
                 meshActiveQueue.push_back(meshComponent->Renderer.get());
             }
@@ -615,7 +615,7 @@ void ESceneManager::ObjectsAwake()
 {
     for (auto& component : _waitAwakeVec)
     {
-        if (component->_gameObect->ActiveInHierarchy_property_getter())
+        if (component->_gameObject->ActiveInHierarchy_property_getter())
         {
             component->Awake();
             component->_initFlags.SetAwake();
@@ -627,7 +627,7 @@ void ESceneManager::ObjectsAwake()
     }
     std::erase_if(_waitAwakeVec, [](auto& component)
         {
-            return component->_gameObect->ActiveInHierarchy_property_getter();
+            return component->_gameObject->ActiveInHierarchy_property_getter();
         });
 }
 
@@ -635,7 +635,7 @@ void ESceneManager::ObjectsStart()
 {
     for (auto& component : _waitStartVec)
     {
-        if (component->_gameObect->ActiveInHierarchy_property_getter())
+        if (component->_gameObject->ActiveInHierarchy_property_getter())
         {
             if (component->ReflectFields->_enable)
             {
@@ -646,7 +646,7 @@ void ESceneManager::ObjectsStart()
     }
     std::erase_if(_waitStartVec, [](auto& component)
         {
-            return component->_gameObect->ActiveInHierarchy_property_getter();
+            return component->_gameObject->ActiveInHierarchy_property_getter();
         });
 }
 
@@ -812,7 +812,7 @@ void ESceneManager::ObjectsDestroy()
         //OnDestroy 대상 호출
         if (_isPlay)
         {
-            if (destroyComponent->_gameObect->ActiveInHierarchy_property_getter())
+            if (destroyComponent->_gameObject->ActiveInHierarchy_property_getter())
             {
 
                 if (destroyComponent->Enable)
@@ -823,7 +823,7 @@ void ESceneManager::ObjectsDestroy()
         }
 
         //해당 컴포넌트를 오브젝트 배열에서 삭제.
-        std::vector<std::shared_ptr<Component>>& components = destroyComponent->_gameObect->_components;
+        std::vector<std::shared_ptr<Component>>& components = destroyComponent->_gameObject->_components;
         std::erase_if(
             components, 
             [destroyComponent](std::shared_ptr<Component>& component)
@@ -901,7 +901,7 @@ void ESceneManager::ObjectsAddRuntime()
 
     for (auto& component : _addComponentsQueue)
     {
-        component->_gameObect->_components.emplace_back(component);
+        component->_gameObject->_components.emplace_back(component);
         if (_isPlay)
         {
             _waitAwakeVec.push_back(component);
@@ -1143,6 +1143,16 @@ bool ESceneManager::SetSkyBox(const File::Path& path)
     mainScene->IsDirty = true;
 
     return true;
+}
+
+const std::vector<std::weak_ptr<MeshComponent>>& ESceneManager::GetMeshComponents()
+{
+    std::erase_if(_runtimeMeshComponents, [](const std::weak_ptr<MeshComponent>& weakMesh) 
+    { 
+        return weakMesh.expired();
+    });
+
+    return _runtimeMeshComponents;
 }
 
 bool ESceneManager::WriteUmSceneFile(Scene& scene, std::string_view sceneName, std::string_view outPath, bool isOverride)
@@ -1388,14 +1398,20 @@ void ESceneManager::SceneResourceManager::Update(SceneResourceManager& manager)
                         File::Path path = guid.ToPath();
                         if (false == path.IsNull())
                         {
-                            if (0 <= pMeshComponent->_gameObect->_instanceID)
+                            if (0 <= pMeshComponent->_gameObject->_instanceID)
                             {
                                 if (models.ModelResource.find(guid) == models.ModelResource.end())
                                 {
                                     models.ModelResource[guid] = UmResourceManager.LoadResource<Model>(path.string());
                                 }
                                 meshRenderer.LoadModel(path.wstring());
-                                models.ModelUseComponentList[guid].push_back(pMeshComponent);
+                                models.ModelUseComponentList[guid].emplace_back(pMeshComponent);
+                                UmSceneManager._runtimeMeshComponents.emplace_back(pMeshComponent);
+
+                                if (false == pMeshComponent->_gameObject->IsValid())
+                                {
+                                    pMeshComponent->Renderer->SetActive(false);
+                                }
                             }
                         }
                         else

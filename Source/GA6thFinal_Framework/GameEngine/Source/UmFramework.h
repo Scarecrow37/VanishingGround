@@ -149,6 +149,7 @@ using namespace Microsoft::WRL;
 #include "Engine/EngineCore/GameObjectFactory.h"
 #include "Engine/EngineCore/ComponentFactory.h"
 #include "Engine/EngineCore/SceneManager.h"
+#include "Engine/EngineCore/FactoryRegister.h"
 #include "Engine/EngineCore/EngineCores.h" 
 
 //Editor Core

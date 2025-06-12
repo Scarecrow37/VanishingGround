@@ -228,11 +228,7 @@ namespace ReflectHelper
                     }
                     if constexpr (isProperty == true)
                     {
-                        if (ImGui::BeginDragDropTarget())
-                        {
-                            val.InvokeDragDropFunc();
-                            ImGui::EndDragDropTarget();
-                        }
+                        val.InvokeInputAutoEventFunc();
                     }
                     
                     if constexpr (Application::IsEditor())

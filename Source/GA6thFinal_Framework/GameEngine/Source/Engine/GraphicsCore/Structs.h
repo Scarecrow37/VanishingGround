@@ -34,6 +34,11 @@ struct MaterialData
 	UINT ID[4];
 };
 
+struct BoneMatrixes
+{
+    XMMATRIX matrix[MAX_BONE_MATRIX];
+};
+
 struct Material
 {
     #undef OPAQUE

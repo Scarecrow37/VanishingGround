@@ -59,6 +59,7 @@ void EditorSceneMenu::SceneCameraPopUp()
         ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
         ImGui::Begin("Camera Setting", &_isSceneCameraPopUp, ImGuiWindowFlags_AlwaysAutoResize);
         _sceneTool->ImGuiDrawPropertys();
+        _sceneTool->UpdateReflectFields();
         _sceneTool->UpdateCameraSetting();
         ImGui::End();
     }
