@@ -1,18 +1,100 @@
 ﻿#pragma once
-#include "UmFramework.h"
-class FiniteStateMachine : public Component
+#include "FSMState.h"
+
+class FiniteStateMachine : public Component, public FactoryConstructor<FSMState>
 {
     USING_PROPERTY(FiniteStateMachine)
+public:
+    /// <summary>
+    /// FSM에서 사용할 State를 추가합니다.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    template<typename T>
+    void AddState()
+    {
+        static_assert(std::is_base_of_v<FSMState, T>, "T is not derived from State.");
+        const char* key = typeid(T).name();
+        AddState(key);
+    }
+
+    /// <summary>
+    /// FSM에 등록된 State를 가져옵니다.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    template<typename T>
+    T* GetState()
+    {
+        static_assert(std::is_base_of_v<FSMState, T>, "T is not derived from State.");
+        const char* key = typeid(T).name();
+        FSMState* find = GetStateWithKey(key);
+        if (nullptr != find)
+        {
+            return static_cast<T*>(find);
+        }
+        return nullptr; 
+    }
+
+private:
+    /// <summary>
+    /// State를 등록합니다.
+    /// </summary>
+    /// <param name="stateTypeIdName"></param>
+    void AddState(std::string_view stateTypeIdName)
+    {
+        const char* key = stateTypeIdName.data();
+        auto stateFind = _stateMap.find(key);
+        if (stateFind == _stateMap.end())
+        {
+            FSMState* instance = NewInstanceWithKey(key);
+            if (instance)
+            {
+                _stateMap[key].reset(instance);
+            }
+            else
+            {
+                UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"존재하지 않는 State 입니다..");
+            }
+        }
+        else
+        {
+            UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"이미 등록된 State 타입입니다.");
+        }
+    }
+
+    FSMState* GetStateWithKey(std::string_view key)
+    {
+        auto stateFind = _stateMap.find(key.data());
+        if (stateFind != _stateMap.end())
+        {
+            return stateFind->second.get();
+        }
+    }
+
+private:
+    std::map<std::string, std::unique_ptr<FSMState>> _stateMap;
+
 public:
     REFLECT_PROPERTY()
 
 public:
     FiniteStateMachine();
-    virtual ~FiniteStateMachine();
+    ~FiniteStateMachine();
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)
+    std::unordered_map<std::string, std::string>StateReflectDatas;
     REFLECT_FIELDS_END(FiniteStateMachine)
+    /*
+    직렬화 직전 자동으로 호출되는 이벤트 함수입니다.
+    직접 override 해서 사용합니다.
+    */
+    virtual void SerializedReflectEvent();
+    /*
+    역직렬화 이후 자동으로 호출되는 이벤트 함수 입니다.
+    직접 override 해서 사용합니다.
+    */
+    virtual void DeserializedReflectEvent();
+
 
     /// <summary>
     /// <para> 이 함수는 ComponentFactory.AddComponentToObject() 직후 호출됩니다.              </para>
