@@ -3,47 +3,56 @@
 
 namespace NodeGraph
 {
-    Node::Node(EditorNodeGraph* owner, const char* name)
-        : _owner(owner), _id(owner->GetUniqueID()), _name(name), _color(ImColor(255, 255, 255)), _size(0, 0)
+    Node::Node(const char* label)
+        : _id(GetUniqueID()), _label(label), _color(ImColor(255, 255, 255)), _size(0, 0)
     {
     }
     Node::~Node()
     {
         _inputPinList.clear();
         _outputPinList.clear();
+        _totalPinList.clear();
+        _pinTable.clear();
     }
 
     Pin* Node::FindPin(ed::PinId id)
     {
-        for (auto& pin : _inputPinList)
+        auto it = _pinTable.find(id.Get());
+        if (it != _pinTable.end())
         {
-            if (pin.GetPinID() == id)
-                return &pin;
-        }
-        for (auto& pin : _outputPinList)
-        {
-            if (pin.GetPinID() == id)
-                return &pin;
+            return it->second;
         }
         return nullptr;
     }
 
-    void Node::AddInputPin(const char* name, PinType type)
+    Pin* Node::AddPin(const char* name, const char* type, ed::PinKind kind)
     {
-        UINT64 id = _owner->GetUniqueID();
-        _inputPinList.emplace_back(id, name, type, ed::PinKind::Input, this);
-        _pinTable[id] = &_inputPinList.back();
+        Pin* pin = nullptr;
+        UINT64 id;
+        SetCurrentNode(this);
+        if (kind == ed::PinKind::Input)
+        {
+            _inputPinList.emplace_back(name, type, kind);
+            pin = &_inputPinList.back();
+            id  = pin->GetPinID().Get();
+        }
+        else if (kind == ed::PinKind::Output)
+        {
+            _outputPinList.emplace_back(name, type, kind);
+            pin = &_outputPinList.back();
+            id  = pin->GetPinID().Get();
+        }
+
+        if (nullptr != pin)
+        {
+            _totalPinList.push_back(pin);
+            _pinTable[id] = pin;
+        }
+        return pin;
     }
 
-    void Node::AddOutputPin(const char* name, PinType type)
-    {
-        UINT64 id = _owner->GetUniqueID();
-        _outputPinList.emplace_back(id, name, type, ed::PinKind::Output, this);
-        _pinTable[id] = &_outputPinList.back();
-    }
     void Node::SetPosition(const ImVec2& pos) 
     {
-        _owner->SetCurrentContext();
         ed::SetNodePosition(_id, pos);
     }
 } // namespace NodeGraph

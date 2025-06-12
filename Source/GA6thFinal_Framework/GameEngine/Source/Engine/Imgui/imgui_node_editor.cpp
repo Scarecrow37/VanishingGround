@@ -1442,20 +1442,57 @@ void ed::EditorContext::End()
         //auto& style = ImGui::GetStyle();
 
         m_DrawList->ChannelsSetCurrent(c_UserChannel_Grid);
+        const float  VIEW_SCALE = m_Canvas.ViewScale();
+        const float  GRID_SX    = 32.0f; // * m_Canvas.ViewScale();
+        const float  GRID_SY    = 32.0f; // * m_Canvas.ViewScale();
+        const ImVec2 VIEW_POS   = m_Canvas.ViewRect().Min;
+        const ImVec2 VIEW_SIZE  = m_Canvas.ViewRect().GetSize();
 
-        ImVec2 offset    = m_Canvas.ViewOrigin() * (1.0f / m_Canvas.ViewScale());
-        ImU32 GRID_COLOR = GetColor(StyleColor_Grid, ImClamp(m_Canvas.ViewScale() * m_Canvas.ViewScale(), 0.0f, 1.0f));
-        float GRID_SX    = 32.0f;// * m_Canvas.ViewScale();
-        float GRID_SY    = 32.0f;// * m_Canvas.ViewScale();
-        ImVec2 VIEW_POS  = m_Canvas.ViewRect().Min;
-        ImVec2 VIEW_SIZE = m_Canvas.ViewRect().GetSize();
+        ImVec2 offset              = m_Canvas.ViewOrigin() * (1.0f / VIEW_SCALE);
+        float  alphaFactor         = ImClamp(VIEW_SCALE * VIEW_SCALE, 0.0f, 1.0f);
+        ImU32  gridColorDefault    = GetColor(StyleColor_Grid, alphaFactor * 0.5f);
+        ImU32  gridColorTenth      = GetColor(StyleColor_Grid, alphaFactor);
+        ImU32  gridColorZeroPointX = ImColor(80, 40, 40, 150 * (int)ImClamp(alphaFactor, 1.0f, 1.0f)); 
+        ImU32  gridColorZeroPointY = ImColor(40, 80, 40, 150 * (int)ImClamp(alphaFactor, 1.0f, 1.0f)); 
 
         m_DrawList->AddRectFilled(VIEW_POS, VIEW_POS + VIEW_SIZE, GetColor(StyleColor_Bg));
 
-        for (float x = fmodf(offset.x, GRID_SX); x < VIEW_SIZE.x; x += GRID_SX)
-            m_DrawList->AddLine(ImVec2(x, 0.0f) + VIEW_POS, ImVec2(x, VIEW_SIZE.y) + VIEW_POS, GRID_COLOR);
-        for (float y = fmodf(offset.y, GRID_SY); y < VIEW_SIZE.y; y += GRID_SY)
-            m_DrawList->AddLine(ImVec2(0.0f, y) + VIEW_POS, ImVec2(VIEW_SIZE.x, y) + VIEW_POS, GRID_COLOR);
+        int divx = static_cast<int>(-offset.x / GRID_SX);
+        int divy = static_cast<int>(-offset.y / GRID_SY);
+
+        for (float x = fmodf(offset.x, GRID_SX); x < VIEW_SIZE.x; x += GRID_SX, ++divx)
+        {
+            bool isZeroPoint = (0 == divx);
+            bool isTenth     = (0 == (divx % 10));
+
+            float thickness = 2.0f;
+            ImU32 color;
+            if (true == isZeroPoint)
+                color = gridColorZeroPointY;
+            else if (true == isTenth)
+                color = gridColorTenth;
+            else
+                color = gridColorDefault, thickness = 1.0f;
+
+            m_DrawList->AddLine(ImVec2(x, 0.0f) + VIEW_POS, ImVec2(x, VIEW_SIZE.y) + VIEW_POS, color, thickness);
+        }
+
+        for (float y = fmodf(offset.y, GRID_SY); y < VIEW_SIZE.y; y += GRID_SY, ++divy)
+        {
+            bool isZeroPoint = (0 == divy);
+            bool isTenth     = (0 == (divy % 10));
+
+            float thickness = 2.0f;
+            ImU32 color;
+            if (true == isZeroPoint)
+                color = gridColorZeroPointX;
+            else if (true == isTenth)
+                color = gridColorTenth;
+            else
+                color = gridColorDefault, thickness = 1.0f;
+
+            m_DrawList->AddLine(ImVec2(0.0f, y) + VIEW_POS, ImVec2(VIEW_SIZE.x, y) + VIEW_POS, color, thickness);
+        }
     }
 # endif
 

@@ -2,18 +2,6 @@
 
 namespace NodeGraph
 {
-    enum class PinType
-    {
-        Flow,
-        Bool,
-        Int,
-        Float,
-        String,
-        Object,
-        Function,
-        Delegate,
-    };
-
     class Pin;
     class Node;
     class Link;
@@ -21,22 +9,22 @@ namespace NodeGraph
     class Pin
     {
     public:
-        Pin(int id, const char* name, PinType type, ed::PinKind kind, Node* owner)
-            : _id(id), _name(name), _type(type), _kind(kind), _owner(owner)
-        {}
+        Pin(const char* name, const char* type, ed::PinKind kind);
+        ~Pin();
 
     public:
-        inline Node*       GetOwnerNode()   const { return _owner; }
         inline ed::PinId   GetPinID()       const { return _id; }
+        inline ed::NodeId  GetOwnerNodeID() const { return _ownerNodeID; }
         inline const char* GetPinName()     const { return _name.data(); }
+        inline const char* GetPinType()     const { return _type.data(); }
         inline ed::PinKind GetPinKind()     const { return _kind; }
-        inline PinType     GetPinType()     const { return _type; }
 
     private:
-        Node*       _owner;
         ed::PinId   _id;
+        ed::NodeId  _ownerNodeID;
         std::string _name;
+        std::string _type;
         ed::PinKind _kind;
-        PinType     _type;
+        
     };
 } // namespace NodeGraph

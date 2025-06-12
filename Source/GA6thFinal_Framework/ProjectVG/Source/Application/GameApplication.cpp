@@ -86,7 +86,6 @@ void GameApplication::BuildRootDock()
     _rootDock->RegisterGui<EditorMenuEditorSetting>();
     _rootDock->RegisterGui<EditorMenuFileSystemSetting>();
 
-
     _rootDock->RegisterGui<EditorMenuTools>(_rootDock);
 }
 
@@ -185,7 +184,7 @@ void GameApplication::BuildFSMDock()
     _fsmDock->CreateDockLayoutNode(ImGuiDir::ImGuiDir_Left, 0.30f);
     _fsmDock->CreateDockLayoutNode(ImGuiDir::ImGuiDir_Up, 0.50f);
 
-    _fsmDock->RegisterGui<EditorFiniteStateMachine>();
+    _fsmDock->RegisterGui<EditorBehaviorTreeTool>();
 
     // Menu
     _fsmDock->RegisterGui<EditorMenuTools>(_fsmDock);

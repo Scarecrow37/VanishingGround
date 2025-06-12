@@ -1,17 +1,16 @@
 ﻿#pragma once
 
-class EditorFiniteStateMachine : public EditorTool
+class EditorBehaviorTreeTool : public EditorTool
 {
 public:
-    EditorFiniteStateMachine();
-    virtual ~EditorFiniteStateMachine();
-
-private:
+    EditorBehaviorTreeTool();
+    virtual ~EditorBehaviorTreeTool();
+    
+public: 
     virtual void OnTickGui() override;
     virtual void OnStartGui() override;
     virtual void OnEndGui() override;
-
-     /* Begin 호출 전에 호출 */
+    /* Begin 호출 전에 호출 */
     virtual void OnPreFrameBegin() override;
     /* Begin 호출 직후 호출 */
     virtual void OnPostFrameBegin() override;
@@ -21,9 +20,5 @@ private:
     virtual void OnFrameEnd() override;
 
 private:
-    EditorNodeGraph* _nodeGraph;
-
-    REFLECT_FIELDS_BEGIN(EditorTool)
-    std::string SerializeData;
-    REFLECT_FIELDS_END(EditorFiniteStateMachine)
+    NodeGraphContext* _context;
 };

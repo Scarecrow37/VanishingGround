@@ -3,7 +3,7 @@
 
 namespace NodeGraph
 {
-    bool CanLink(Pin* from, Pin* to)
+    bool CanLink(const Pin* from, const Pin* to)
     {
         if (nullptr == from || nullptr == to)
         {
@@ -13,7 +13,7 @@ namespace NodeGraph
         bool isSamePin   = (from == to);
         bool isSameKind  = (from->GetPinKind() == to->GetPinKind());
         bool isSameType  = (from->GetPinType() == to->GetPinType());
-        bool isSameOwner = (from->GetOwnerNode() == to->GetOwnerNode());
+        bool isSameOwner = (from->GetOwnerNodeID() == to->GetOwnerNodeID());
 
         if (true == isSamePin || true == isSameKind || true == isSameType || true == isSameOwner)
             return false;

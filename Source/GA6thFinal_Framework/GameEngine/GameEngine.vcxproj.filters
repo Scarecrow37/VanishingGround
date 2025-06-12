@@ -606,9 +606,6 @@
     <ClInclude Include="Source\Engine\EditorCore\Gui\NodeGraph\EditorNodeGraph.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Editor\Tool\FiniteStateMachine\EditorFiniteStateMachine.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\EditorCore\Gui\NodeGraph\Nodes\NodeGraphNode.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -628,6 +625,15 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Editor\Tool\Hierarchy\HierarchyFindTool.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\EditorCore\System\EditorNodeGraphSystem.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Tool\BehaviorTree\EditorBehaviorTreeTool.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Tool\BehaviorTree\Nodes\BehaviorTreeNode.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1076,9 +1082,6 @@
     <ClCompile Include="Source\Engine\EditorCore\Gui\NodeGraph\EditorNodeGraph.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Editor\Tool\FiniteStateMachine\EditorFiniteStateMachine.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\EditorCore\Gui\NodeGraph\Nodes\NodeGraphNode.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -1098,6 +1101,15 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Editor\Tool\Hierarchy\HierarchyFindTool.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\EditorCore\System\EditorNodeGraphSystem.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\BehaviorTree\EditorBehaviorTreeTool.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\BehaviorTree\Nodes\BehaviorTreeNode.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

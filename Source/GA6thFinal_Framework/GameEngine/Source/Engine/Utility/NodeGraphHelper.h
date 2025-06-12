@@ -8,7 +8,7 @@ namespace NodeGraph
     class Node;
     class Link;
 
-    bool CanLink(Pin* from, Pin* to);
+    bool CanLink(const Pin* from, const Pin* to);
 
     ImU32 GetColor4ToImU32(const ImVec4& color);
     ImU32 GetColor4ToImU32(int* color);
@@ -46,7 +46,7 @@ namespace NodeGraph
             ed::PushStyleVar(style, value);
             ++_pushCount;
         }
-        inline void PopStyleVar() { ed::PopStyleVar(_pushCount); }
+        inline void PopStyleVar() { ed::PopStyleVar(_pushCount); _pushCount = 0; }
 
     private:
         int _pushCount = 0;

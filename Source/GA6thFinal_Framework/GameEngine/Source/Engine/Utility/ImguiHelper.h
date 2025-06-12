@@ -167,9 +167,14 @@ namespace ImGuiHelper
         return colorChanged;
     }
 
-    /*
-    채워져있는 사각형을 그립니다.
-    */
+    /// <summary>
+    /// 사각형을 그립니다.
+    /// </summary>
+    /// <param name="leftTop">좌상단 영역의 좌표</param>
+    /// <param name="rightBottom">우하단 영역의 좌표</param>
+    /// <param name="color">사각형 색상</param>
+    /// <param name="round">모서리 라운딩 값</param>
+    /// <param name="flag">모서리 라운딩 영역 플래그</param>
     static void DrawFillRect(const ImVec2& leftTop, const ImVec2& rightBottom, const ImU32& color, float round = 0.0f,
                              ImDrawFlags flag = 0)
     {
@@ -185,9 +190,11 @@ namespace ImGuiHelper
         drawlist->AddRectFilled(a, b, col, rounding, flags);
     }
 
-    /*
-    윈도우가 그려질 수 있는 상태인지 확인합니다.
-    */
+    /// <summary>
+    /// Gui윈도우가 그려질 수 있는 상태인지 확인합니다. 인자를 안넣을 경우 현재 윈도우를 대상으로 합니다.
+    /// </summary>
+    /// <param name="window">대상 ImGui윈도우</param>
+    /// <returns>윈도우의 Drawble여부</returns>
     static bool IsWindowDrawable(ImGuiWindow* window = nullptr)
     {
         if (!window)
@@ -197,13 +204,69 @@ namespace ImGuiHelper
 
         return !window->SkipItems;
     }
-
-    /*
-    Gui의 현재 아이템 사각형 영역을 반환합니다.
-    */
+    
+    /// <summary>
+    /// 마지막 Gui의 현재 사각형 영역을 반환합니다.
+    /// </summary>
+    /// <returns>마지막 Gui의 현재 사각형 영역</returns>
     static inline ImRect GetItemRect()
     {
         return ImRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax());
+    }
+
+    /// <summary>
+    /// 사각형 영역에 그리드를 그립니다.
+    /// </summary>
+    /// <param name="rect">사각형 영역</param> 
+    /// <param name="gridSize">그리드 간격(pixel)</param>
+    /// <param name="position">그리드 포지션</param>
+    /// <param name="zoomFactor">그리드 줌 값</param>
+    /// <param name="gridColorDefault">기본 그리드 색상</param>
+    /// <param name="gridColorTenth">10단위 그리드 색상</param>
+    /// <param name="gridColorZeroPointX">X축 영점 그리드 색상</param>
+    /// <param name="gridColorZeroPointY">Y축 영점 그리드 색상</param>
+    static inline void DrawGrid2D(const ImRect& rect, float gridSize, 
+                                  ImVec2 position = ImVec2(0,0),
+                                  float zoomFactor = 1.0f,
+                                  ImU32 gridColorDefault    = IM_COL32(100, 100, 100, 150),
+                                  ImU32 gridColorTenth      = IM_COL32(100, 100, 100, 50),
+                                  ImU32 gridColorZeroPointX = IM_COL32(100, 20, 20, 255),
+                                  ImU32 gridColorZeroPointY = IM_COL32(20, 100, 20, 255))
+    {
+        ImDrawList* drawList   = ImGui::GetWindowDrawList();
+        ImVec2      windowPos  = rect.Min;
+        ImVec2      canvasSize = rect.Max - rect.Min;
+
+        float gridSpace = gridSize * zoomFactor;
+        int   divx      = static_cast<int>(-position.x / gridSize);
+        int   divy      = static_cast<int>(-position.y / gridSize);
+
+        for (float x = fmodf(position.x * zoomFactor, gridSpace); x < canvasSize.x; x += gridSpace, divx++)
+        {
+            bool  isTenth = (0 == (divx % 10));
+            ImU32 color;
+            if (0 == divx)
+                color = gridColorZeroPointX;
+            else if (true == isTenth)
+                color = gridColorTenth;
+            else
+                color = gridColorDefault;
+
+            drawList->AddLine(ImVec2(x, 0.0f) + windowPos, ImVec2(x, canvasSize.y) + windowPos, color);
+        }
+        for (float y = fmodf(position.y * zoomFactor, gridSpace); y < canvasSize.y; y += gridSpace, divy++)
+        {
+            bool  isTenth = (0 == (divy % 10));
+            ImU32 color;
+            if (0 == divy)
+                color = gridColorZeroPointY;
+            else if (true == isTenth)
+                color = gridColorTenth;
+            else
+                color = gridColorDefault;
+
+            drawList->AddLine(ImVec2(0.0f, y) + windowPos, ImVec2(canvasSize.x, y) + windowPos, color);
+        }
     }
 
     class DragDrop

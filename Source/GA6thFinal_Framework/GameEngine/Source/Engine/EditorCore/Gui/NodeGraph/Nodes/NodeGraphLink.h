@@ -9,10 +9,8 @@ namespace NodeGraph
     class Link
     {
     public:
-        Link(ed::LinkId id, ed::PinId startPinId, ed::PinId endPinId, ImColor pinColor)
-            : _id(id), _startPinID(startPinId), _endPinID(endPinId), _color(255, 255, 255)
-        {
-        }
+        Link(ed::PinId startPinId, ed::PinId endPinId, ImColor pinColor = ImColor(255, 255, 255, 255));
+        ~Link();
 
     public:
         inline ed::LinkId     GetLinkID() const { return _id; }

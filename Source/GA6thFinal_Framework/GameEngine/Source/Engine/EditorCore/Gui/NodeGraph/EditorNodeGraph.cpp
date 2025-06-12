@@ -1,7 +1,7 @@
 ﻿#include "pch.h"
 #include "EditorNodeGraph.h"
 
-EditorNodeGraph::EditorNodeGraph() 
+NodeGraphContext::NodeGraphContext() 
     : _editor(nullptr), _state({}), _uniqueID(0)
 {
     ed::Config config;
@@ -9,7 +9,7 @@ EditorNodeGraph::EditorNodeGraph()
 
     config.SaveNodeSettings = [](ed::NodeId nodeId, const char* data, size_t size, ed::SaveReasonFlags reason,
                                  void* userPointer) -> bool {
-        auto self = static_cast<EditorNodeGraph*>(userPointer);
+        auto self = static_cast<NodeGraphContext*>(userPointer);
 
         auto node = self->FindNode(nodeId);
         if (!node)
@@ -23,7 +23,7 @@ EditorNodeGraph::EditorNodeGraph()
 
     //config.SaveSettings = [](const char* data, size_t size, ed::SaveReasonFlags reason, void* userPointer) -> bool
     //{
-    //    auto self = static_cast<EditorNodeGraph*>(userPointer);
+    //    auto self = static_cast<NodeGraphContext*>(userPointer);
     //    self->SaveData(data, size);
     //
     //    return true;
@@ -32,15 +32,16 @@ EditorNodeGraph::EditorNodeGraph()
     _editor = ed::CreateEditor(&config);
 }
 
-EditorNodeGraph::~EditorNodeGraph() 
+NodeGraphContext::~NodeGraphContext() 
 {
+    Clear();
     ed::DestroyEditor(_editor);
     _editor = nullptr;
 }
 
 namespace util = ax::NodeEditor::Utilities;
 
-void EditorNodeGraph::Render() 
+void NodeGraphContext::Render() 
 {
     ImGuiIO&    io    = ImGui::GetIO();
     ImGuiStyle& style = ImGui::GetStyle();
@@ -50,14 +51,36 @@ void EditorNodeGraph::Render()
     ImGui::PushID(this);
     ed::Begin("Node editor");
     {
+        auto cursorTopLeft = ImGui::GetCursorScreenPos();
+
         ProcessNodes();
-        ProcessLinkes();
+        ProcessLinks();
+        ProcessCreate();
+        ProcessPopupContext();
+
+        ImGui::SetCursorScreenPos(cursorTopLeft);
     }
     ed::End();
     ImGui::PopID();
 }
 
-NodeGraph::Node* EditorNodeGraph::FindNode(ed::NodeId id)
+void NodeGraphContext::Clear() 
+{
+    for (auto& node : _nodeVector)
+    {
+        delete node;
+    }
+    _nodeVector.clear();
+    _nodeTable.clear();
+    for (auto& link : _linkVector)
+    {
+        delete link;
+    }
+    _linkVector.clear();
+    _linkTable.clear();
+}
+
+NodeGraph::Node* NodeGraphContext::FindNode(ed::NodeId id)
 {
     auto itr = _nodeTable.find(id.Get());
     if (itr != _nodeTable.end())
@@ -65,15 +88,7 @@ NodeGraph::Node* EditorNodeGraph::FindNode(ed::NodeId id)
     return nullptr;
 }
 
-NodeGraph::Link* EditorNodeGraph::FindLink(ed::LinkId id)
-{
-    auto itr = _linkTable.find(id.Get());
-    if (itr != _linkTable.end())
-        return itr->second;
-    return nullptr;
-}
-
-NodeGraph::Pin* EditorNodeGraph::FindPin(ed::PinId id)
+NodeGraph::Pin* NodeGraphContext::FindPin(ed::PinId id)
 {
     for (auto& node : _nodeVector)
     {
@@ -86,48 +101,39 @@ NodeGraph::Pin* EditorNodeGraph::FindPin(ed::PinId id)
     return nullptr;
 }
 
-void EditorNodeGraph::SaveData(const char* data, size_t size) 
+void NodeGraphContext::SaveData(const char* data, size_t size) 
 {
 }
 
-void EditorNodeGraph::LoadData(const std::string& data) 
+void NodeGraphContext::LoadData(const std::string& data) 
 {
 
 }
 
-const char* EditorNodeGraph::SaveNodeSettingsToMemory()
-{
-    return ReflectFields->SerializeData.data();
-}
-
-void EditorNodeGraph::LoadNodeSettingsFromMemory(const std::string& data) 
-{
-}
-
-const char* EditorNodeGraph::GetNodeSettingsData()
+const char* NodeGraphContext::SaveNodeSettingsToMemory()
 {
     return ReflectFields->SerializeData.data();
 }
 
-NodeGraph::Link* EditorNodeGraph::AddLink(ed::PinId startPinId, ed::PinId endPinId, const ImColor& pinColor)
-{
-    UINT64 id = GetUniqueID();
-    NodeGraph::Link* link = new NodeGraph::Link(id, startPinId, endPinId, pinColor);
-    _linkVector.push_back(link);
-    _linkTable[id] = link;
-    return link;
-}
-
-void EditorNodeGraph::SerializedReflectEvent()
-{
-    ReflectFields->SerializeData = ed::SaveIniSettingsToMemory();
-}
-
-void EditorNodeGraph::DeserializedReflectEvent() 
+void NodeGraphContext::LoadNodeSettingsFromMemory(const std::string& data) 
 {
 }
 
-void EditorNodeGraph::ProcessNodes()
+const char* NodeGraphContext::GetNodeSettingsData()
+{
+    return ReflectFields->SerializeData.data();
+}
+
+void NodeGraphContext::SerializedReflectEvent()
+{
+
+}
+
+void NodeGraphContext::DeserializedReflectEvent() 
+{
+}
+
+void NodeGraphContext::ProcessNodes()
 {
     for (auto& node : _nodeVector)
     {
@@ -135,9 +141,9 @@ void EditorNodeGraph::ProcessNodes()
     }
 }
 
-void EditorNodeGraph::ProcessLinkes() 
+void NodeGraphContext::ProcessLinks() 
 {
-    for (auto& link : _linkVector)
+    for (auto& [id, link] : _linkTable)
     {
         ed::LinkId linkId   = link->GetLinkID();
         ed::PinId  startId  = link->GetStartPinID();
@@ -147,11 +153,10 @@ void EditorNodeGraph::ProcessLinkes()
     }
 }
 
-void EditorNodeGraph::ProcessCreate() 
+void NodeGraphContext::ProcessCreate() 
 {
     ImVec4 defaultNewLinkColor = ImGuiHelper::FloatPtrToImVec4(ReflectFields->DefaultNewLinkData.data());
     float  defaultNewLinkThickness = ReflectFields->DefaultNewLinkData[ReflectFields->THICKNESS];
-
     if (ed::BeginCreate(defaultNewLinkColor, defaultNewLinkThickness))
     {
         ProcessCreateLink();
@@ -160,7 +165,7 @@ void EditorNodeGraph::ProcessCreate()
     }
 }
 
-void EditorNodeGraph::ProcessCreateLink() 
+void NodeGraphContext::ProcessCreateLink()
 {
     ed::PinId startPinId = 0, endPinId = 0;
     if (ed::QueryNewLink(&startPinId, &endPinId))
@@ -188,8 +193,8 @@ void EditorNodeGraph::ProcessCreateLink()
             //////////////////////////////////////
             if (true == isReject)
             {
-                ImVec4 rejectLinkColor     = ImGuiHelper::FloatPtrToImVec4(ReflectFields->DefaultNewLinkData.data());
-                float  rejectLinkThickness = ReflectFields->DefaultNewLinkData[ReflectFields->THICKNESS];
+                ImVec4 rejectLinkColor     = ImGuiHelper::FloatPtrToImVec4(ReflectFields->RejectNewLinkData.data());
+                float  rejectLinkThickness = ReflectFields->RejectNewLinkData[ReflectFields->THICKNESS];
                 if (true == isSameKind)
                 {   // 입력인 경우 출력에, 출력인 경우 입력에만 허용
                     ShowLabel("x Incompatible Pin Kind", ImColor(45, 32, 32, 180));
@@ -205,27 +210,32 @@ void EditorNodeGraph::ProcessCreateLink()
             //////////////////////////////////////
             else
             {
-                ImVec4 acceptLinkColor     = ImGuiHelper::FloatPtrToImVec4(ReflectFields->DefaultNewLinkData.data());
-                float  acceptLinkThickness = ReflectFields->DefaultNewLinkData[ReflectFields->THICKNESS];
+                ImVec4 acceptLinkColor     = ImGuiHelper::FloatPtrToImVec4(ReflectFields->AcceptNewLinkData.data());
+                float  acceptLinkThickness = ReflectFields->AcceptNewLinkData[ReflectFields->THICKNESS];
                 ShowLabel("+ Create Link", ImColor(32, 45, 32, 180));
                 if (ed::AcceptNewItem(acceptLinkColor, acceptLinkThickness))
                 {
-                    AddLink(startPinId, endPinId);
+                    
+                    NodeGraph::Link* link = new NodeGraph::Link(startPinId, endPinId, ImColor(255, 255, 255));
+                    UINT64 id = link->GetLinkID().Get();
+                    _linkVector.push_back(link);
+                    _linkTable[id] = link;
                 }
             }
         }
     }
 }
 
-void EditorNodeGraph::ProcessCreateNode() 
+void NodeGraphContext::ProcessCreateNode() 
 {
     ed::PinId pinId = 0;
     if (ed::QueryNewNode(&pinId))
     {
         _state.NewLinkPin = FindPin(pinId);
         if (nullptr != _state.NewLinkPin)
+        {
             ShowLabel("+ Create Node", ImColor(32, 45, 32, 180));
-
+        }
         if (ed::AcceptNewItem())
         {
             _state.isProcessingNewNode = true;
@@ -238,7 +248,52 @@ void EditorNodeGraph::ProcessCreateNode()
     }
 }
 
-void EditorNodeGraph::ShowLabel(const char* label, const ImColor& bgColor, const ImVec4& textColor)
+void NodeGraphContext::ProcessPopupContext() 
+{
+    static ed::NodeId contextNodeId = 0;
+    static ed::LinkId contextLinkId = 0;
+    static ed::PinId  contextPinId  = 0;
+
+    ed::Suspend();
+    if (ed::ShowNodeContextMenu(&contextNodeId))
+        ImGui::OpenPopup("Node Context Menu");
+    else if (ed::ShowPinContextMenu(&contextPinId))
+        ImGui::OpenPopup("Pin Context Menu");
+    else if (ed::ShowLinkContextMenu(&contextLinkId))
+        ImGui::OpenPopup("Link Context Menu");
+    else if (ed::ShowBackgroundContextMenu())
+    {
+        ImGui::OpenPopup("Create New Node");
+        _state.NewNodeLinkPin = nullptr;
+    }
+    ed::Resume();
+
+    ed::Suspend();
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(8, 8));
+
+    if (ImGui::BeginPopup("Node Context Menu"))
+    {
+        auto node = FindNode(contextNodeId);
+
+        ImGui::TextUnformatted("Node Context Menu");
+        ImGui::Separator();
+        if (node)
+        {
+            node->OnNodePopup();
+        }
+        else
+            ImGui::Text("Unknown node: %p", contextNodeId.AsPointer());
+        ImGui::Separator();
+        //if (ImGui::MenuItem("Delete"))
+        //    ed::DeleteNode(contextNodeId);
+        ImGui::EndPopup();
+    }
+
+    ImGui::PopStyleVar();
+    ed::Resume();
+}
+
+void NodeGraphContext::ShowLabel(const char* label, const ImColor& bgColor, const ImVec4& textColor)
 {
     ImGui::SetCursorPosY(ImGui::GetCursorPosY() - ImGui::GetTextLineHeight());
     auto size = ImGui::CalcTextSize(label);

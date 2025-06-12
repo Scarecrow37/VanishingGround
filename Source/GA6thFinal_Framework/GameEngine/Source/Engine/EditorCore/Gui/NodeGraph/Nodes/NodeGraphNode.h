@@ -5,16 +5,6 @@ class EditorNodeGraph;
 
 namespace NodeGraph
 {
-
-    enum class NodeType
-    {
-        Blueprint,
-        Simple,
-        Tree,
-        Comment,
-        Houdini
-    };
-
     class Pin;
     class Node;
     class Link;
@@ -26,36 +16,41 @@ namespace NodeGraph
     class Node
     {
     public:
-        Node(EditorNodeGraph* owner, const char* name);
+        Node();
         virtual ~Node();
+
     public:
         virtual void Draw() = 0;
+        virtual void OnCreate() {};
+        virtual void OnNodePopup() {};
+        virtual void OnPinPopup(Pin* pin) {};
 
     public:
         Pin* FindPin(ed::PinId id);
-
-        void AddInputPin(const char* name, PinType type);
-        void AddOutputPin(const char* name, PinType type);
+        Pin* AddPin(const char* name, const char* type, ed::PinKind kind);
         
         void SetPosition(const ImVec2& pos);
 
-        inline void SetLabel(const char* name) { _name = name; }
+        inline void SetLabel(const char* name) { _label = name; }
         inline void SetHeaderColor(const ImColor& color) { _color = color; }
 
         inline ed::NodeId       GetNodeID()     const { return _id; }
-        inline const char*      GetNodeName()   const { return _name.data(); }
+        inline const char*      GetNodeLabel()  const { return _label.data(); }
         inline const ImColor&   GetNodeColor()  const { return _color; }
         inline const ImVec2&    GetNodeSize()   const { return _size; }
 
-    protected:
-        EditorNodeGraph* _owner;
+        inline ImVec2 GetPosition() const { return ed::GetNodePosition(_id); }
+        inline ImVec2 GetSize() const { return ed::GetNodeSize(_id); }
 
+    protected:
         ed::NodeId       _id;
-        std::string      _name;
+        std::string      _label;
         ImColor          _color;
         ImVec2           _size;
+        
         std::vector<Pin> _inputPinList;
         std::vector<Pin> _outputPinList;
+        std::vector<Pin*> _totalPinList;
         std::unordered_map<UINT64, NodeGraph::Pin*> _pinTable; // Pin ID to Pin mapping
 
         std::string _serialData;

@@ -5,7 +5,7 @@
 #include "Nodes/NodeGraphNode.h"
 #include "Nodes/NodeGraphLink.h"
 
-class EditorNodeGraph 
+class NodeGraphContext
     : public ReflectSerializer
 {
     using ID = UINT64;
@@ -19,18 +19,18 @@ public:
         NodeGraph::Pin* NewNodeLinkPin = nullptr;   // 새로운 노드에 연결할 핀
     };
 public:
-    EditorNodeGraph();
-    ~EditorNodeGraph();
+    NodeGraphContext();
+    ~NodeGraphContext();
 
 public:
     void Render();
+    void Clear();
 
 public:
     template <typename T>
     T* AddNode(const char* label);
 
     NodeGraph::Node* FindNode(ed::NodeId id);
-    NodeGraph::Link* FindLink(ed::LinkId id);
     NodeGraph::Pin*  FindPin(ed::PinId id);
 
     /* SerializeFunc */
@@ -46,17 +46,18 @@ public:
     inline UINT64       GetUniqueID()   { return _uniqueID++; }
 
 private:
-    NodeGraph::Link* AddLink(ed::PinId startPinId, ed::PinId endPinId,
-                             const ImColor& pinColor = ImColor(255, 255, 255));
 
     virtual void SerializedReflectEvent() override;
     virtual void DeserializedReflectEvent() override;
 
     void ProcessNodes();
-    void ProcessLinkes();
+    void ProcessLinks();
+
     void ProcessCreate();
     void ProcessCreateLink();
     void ProcessCreateNode();
+
+    void ProcessPopupContext();
 
     void ShowLabel(const char* label, const ImColor& bgColor, const ImVec4& textColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
 
@@ -65,11 +66,12 @@ private:
     State              _state;
     UINT64             _uniqueID;
 
-    std::vector<NodeGraph::Node*> _nodeVector;
-    std::vector<NodeGraph::Link*> _linkVector;
+    std::vector<NodeGraph::Node*>            _nodeVector;
+    std::vector<NodeGraph::Link*>            _linkVector;
     std::unordered_map<ID, NodeGraph::Node*> _nodeTable;
     std::unordered_map<ID, NodeGraph::Link*> _linkTable;
 
+public:
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
     std::string SerializeData           = "";
     float       LinkThickness           = 2.0f;
@@ -77,18 +79,20 @@ private:
     std::array<float, 5> DefaultNewLinkData = {0.0f, 1.0f, 0.0f, 0.5f, 2.0f};
     std::array<float, 5> RejectNewLinkData  = {1.0f, 0.2f, 0.2f, 1.0f, 1.0f};
     std::array<float, 5> AcceptNewLinkData  = {0.2f, 1.0f, 0.2f, 1.0f, 4.0f};
-    REFLECT_FIELDS_END(EditorNodeGraph)
+    REFLECT_FIELDS_END(NodeGraphContext)
 
 };
 
 template <typename T>
-inline T* EditorNodeGraph::AddNode(const char* label)
+inline T* NodeGraphContext::AddNode(const char* label)
 {
     static_assert(std::is_base_of<NodeGraph::Node, T>::value, "T must be derived from NodeGraph::Node");
     T* node = nullptr;
     ed::SetCurrentEditor(_editor);
     {
-        node = new T(this, label);
+        node = new T();
+        node->SetLabel(label);
+        node->OnCreate();
         _nodeVector.push_back(node);
         _nodeTable[node->GetNodeID().Get()] = node;
     }

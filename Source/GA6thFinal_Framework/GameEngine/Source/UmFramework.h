@@ -159,9 +159,9 @@ using namespace Microsoft::WRL;
 #include "Engine/EditorCore/Gui/Menu/EditorMenu.h"
 #include "Engine/EditorCore/Gui/PopupBox/EditorPopupBox.h"
 #include "Engine/EditorCore/Gui/DockWindow/EditorDockWindow.h"
-#include "Engine/EditorCore/Gui/NodeGraph/EditorNodeGraph.h"
 #include "Engine/EditorCore/System/EditorPopupBoxSystem.h"
 #include "Engine/EditorCore/System/EditorGuiSystem.h"
+#include "Engine/EditorCore/System/EditorNodeGraphSystem.h"
 #include "Engine/EditorCore/EditorModule.h"
 
 //Input Auto
@@ -196,7 +196,7 @@ using namespace Microsoft::WRL;
 #include "Editor/Tool/Model/EditorModelTool.h"
 #include "Editor/Tool/Model/EditorModelHierarchy.h"
 #include "Editor/Tool/Command/EditorCommandTool.h"
-#include "Editor/Tool/FiniteStateMachine/EditorFiniteStateMachine.h"
+#include "Editor/Tool/BehaviorTree/EditorBehaviorTreeTool.h"
 
 // Editor Menu
 #include "Editor/Menu/Project/EditorProjectMenu.h"
