@@ -27,8 +27,8 @@ void BaseMesh::Initialize(const VIBuffer::Descriptor& descriptor, bool createVer
     {
         _vertexStride = descriptor.vertexStride;
         _vertexSize   = descriptor.vertexSize / _vertexStride;
-        _vertices     = new char[_vertexSize];
-        memcpy(_vertices, descriptor.vertexData, _vertexSize);
+        _vertices     = new char[_vertexSize * _vertexStride];
+        memcpy(_vertices, descriptor.vertexData, _vertexSize * _vertexStride);
     }
 
 	_viBuffer->Initialize(descriptor);
