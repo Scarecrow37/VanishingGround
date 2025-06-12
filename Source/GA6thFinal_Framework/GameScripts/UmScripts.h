@@ -34,3 +34,6 @@ UMREAL_COMPONENT(StaticMeshRenderer)
 
 //#include "Scripts\Graphics/SkeletalMeshRenderer.h"
 //UMREAL_COMPONENT(SkeletalMeshRenderer)
+
+#include "Scripts\GameCore/FiniteStateMachine.h"
+UMREAL_COMPONENT(FiniteStateMachine)
