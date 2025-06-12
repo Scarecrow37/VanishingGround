@@ -87,7 +87,7 @@ template <typename T>
 inline T* NodeGraphContext::AddNode(const char* label)
 {
     static_assert(std::is_base_of<NodeGraph::Node, T>::value, "T must be derived from NodeGraph::Node");
-    T* node = nullptr;
+    NodeGraph::Node* node = nullptr;
     ed::SetCurrentEditor(_editor);
     {
         node = new T();
@@ -96,5 +96,5 @@ inline T* NodeGraphContext::AddNode(const char* label)
         _nodeVector.push_back(node);
         _nodeTable[node->GetNodeID().Get()] = node;
     }
-    return node;
+    return static_cast<T*>(node);
 }

@@ -299,8 +299,6 @@
     <ClInclude Include="Source\Editor\Tool\BehaviorTree\Nodes\BehaviorTreeNode.h" />
     <ClInclude Include="Source\Editor\Tool\BehaviorTree\EditorBehaviorTreeTool.h" />
     <ClInclude Include="Source\Engine\EditorCore\System\EditorNodeGraphSystem.h" />
-    <ClInclude Include="Source\Engine\EditorCore\Gui\NodeGraph\Nodes\Custom\NodeGraphTreeNode.h" />
-    <ClInclude Include="Source\Engine\EditorCore\Gui\NodeGraph\Nodes\Custom\NodeGraphHoudiniNode.h" />
     <ClInclude Include="Source\Engine\EditorCore\Gui\NodeGraph\Nodes\NodeGraphPin.h" />
     <ClInclude Include="Source\Engine\EditorCore\Gui\NodeGraph\Nodes\NodeGraphLink.h" />
     <ClInclude Include="Source\Engine\Utility\NodeGraphHelper.h" />
@@ -481,8 +479,6 @@
     <ClCompile Include="Source\Editor\Tool\BehaviorTree\Nodes\BehaviorTreeNode.cpp" />
     <ClCompile Include="Source\Editor\Tool\BehaviorTree\EditorBehaviorTreeTool.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\System\EditorNodeGraphSystem.cpp" />
-    <ClCompile Include="Source\Engine\EditorCore\Gui\NodeGraph\Nodes\Custom\NodeGraphTreeNode.cpp" />
-    <ClCompile Include="Source\Engine\EditorCore\Gui\NodeGraph\Nodes\Custom\NodeGraphHoudiniNode.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\Gui\NodeGraph\Nodes\NodeGraphPin.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\Gui\NodeGraph\Nodes\NodeGraphLink.cpp" />
     <ClCompile Include="Source\Engine\Utility\NodeGraphHelper.cpp" />

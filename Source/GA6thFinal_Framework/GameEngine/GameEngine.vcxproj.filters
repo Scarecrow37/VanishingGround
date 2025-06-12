@@ -615,12 +615,6 @@
     <ClInclude Include="Source\Engine\EditorCore\Gui\NodeGraph\Nodes\NodeGraphPin.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\EditorCore\Gui\NodeGraph\Nodes\Custom\NodeGraphHoudiniNode.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\EditorCore\Gui\NodeGraph\Nodes\Custom\NodeGraphTreeNode.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Editor\Tool\Hierarchy\HierarchyFindTool.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -1092,12 +1086,6 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\EditorCore\Gui\NodeGraph\Nodes\NodeGraphPin.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\EditorCore\Gui\NodeGraph\Nodes\Custom\NodeGraphHoudiniNode.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\EditorCore\Gui\NodeGraph\Nodes\Custom\NodeGraphTreeNode.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Editor\Tool\Hierarchy\HierarchyFindTool.cpp">

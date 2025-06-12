@@ -32,11 +32,9 @@ namespace NodeGraph
         void SetPosition(const ImVec2& pos);
 
         inline void SetLabel(const char* name) { _label = name; }
-        inline void SetHeaderColor(const ImColor& color) { _color = color; }
 
         inline ed::NodeId       GetNodeID()     const { return _id; }
         inline const char*      GetNodeLabel()  const { return _label.data(); }
-        inline const ImColor&   GetNodeColor()  const { return _color; }
         inline const ImVec2&    GetNodeSize()   const { return _size; }
 
         inline ImVec2 GetPosition() const { return ed::GetNodePosition(_id); }
@@ -45,7 +43,6 @@ namespace NodeGraph
     protected:
         ed::NodeId       _id;
         std::string      _label;
-        ImColor          _color;
         ImVec2           _size;
         
         std::vector<Pin> _inputPinList;

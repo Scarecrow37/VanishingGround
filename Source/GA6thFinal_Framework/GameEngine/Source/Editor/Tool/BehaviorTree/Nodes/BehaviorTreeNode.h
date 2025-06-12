@@ -8,10 +8,9 @@ namespace NodeGraph
         using Node::Node;
         virtual ~BehaviorTreeNode();
 
-    private:
+    public:
         // Node을(를) 통해 상속됨
         void Draw() override;
-
         void OnCreate() override;
         void OnNodePopup() override;
         void OnPinPopup(Pin* pin) override;

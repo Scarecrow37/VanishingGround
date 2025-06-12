@@ -3,8 +3,8 @@
 
 namespace NodeGraph
 {
-    Node::Node(const char* label)
-        : _id(GetUniqueID()), _label(label), _color(ImColor(255, 255, 255)), _size(0, 0)
+    Node::Node()
+        : _id(GetUniqueID()), _size(0, 0)
     {
     }
     Node::~Node()
