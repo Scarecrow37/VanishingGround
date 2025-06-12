@@ -48,7 +48,7 @@ void EditorSceneTool::SetManipulateObject(std::weak_ptr<GameObject>& object)
 void EditorSceneTool::OnStartGui()
 {
     std::shared_ptr<Camera> camera = UmRenderer.GetCamera("Editor");
-    ASSERT((nullptr != camera), L"Camera is nullptr");
+    GRAPHICS_ASSERT(nullptr != camera, L"Camera is nullptr");
 
     _camera->SetTarget(camera);
 }

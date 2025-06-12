@@ -190,7 +190,7 @@ void Animator::SplitBone(const unsigned int ID, const char* boneName)
 {
 	if (_maxSplit <= ID)
 	{
-		ASSERT(false, L"Greater than the number of bones you set.");
+        GRAPHICS_ASSERT(false, L"Greater than the number of bones you set.");
 		return;
 	}
 
@@ -210,7 +210,7 @@ void Animator::SetAnimationSpeed(float speed, unsigned int ID)
 {
 	if (_maxSplit <= ID)
 	{
-		ASSERT(false, L"Greater than the number of bones you set.");
+        GRAPHICS_ASSERT(false, L"Greater than the number of bones you set.");
 		return;
 	}
 

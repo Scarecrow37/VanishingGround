@@ -123,7 +123,7 @@ void RenderScene::UpdateRenderScene()
     }
 
     UINT size = static_cast<UINT>(_worldMatrixes.size());
-    ID3D12GraphicsCommandList* commandList = UmDevice.GetCommandList().Get();
+    ID3D12GraphicsCommandList* commandList = UmDevice.GetCommandList();
 
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, _worldMatrixes.data(), size * sizeof(ObjectData), FrameResource::Type::TRANSFORM);
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, _boneMatrixes.data(), size * sizeof(BoneMatrixes), FrameResource::Type::BONE_MATRIXES);
@@ -138,7 +138,7 @@ void RenderScene::RegisterOnRenderQueue(MeshRenderer* component)
 
     if (iter != _renderQueue.end())
     {
-        ASSERT(false, L"RenderScene::RegisterRenderQueue : Already registered component.");
+        GRAPHICS_ASSERT(false, L"RenderScene::RegisterRenderQueue : Already registered component.");
         return;
     }
 
@@ -183,7 +183,7 @@ void RenderScene::ResetSkyBox()
 
 void RenderScene::AddRenderTechnique(std::shared_ptr<RenderTechnique> technique)
 {
-    ID3D12GraphicsCommandList* commandList = UmDevice.GetCommandList().Get();
+    ID3D12GraphicsCommandList* commandList = UmDevice.GetCommandList();
     technique->SetOwnerScene(this);
     technique->Initialize(commandList);
     _techniques.push_back(technique);
@@ -238,9 +238,7 @@ void RenderScene::CreateRenderTarget()
 
 void RenderScene::CreateDepthStencil() 
 {
-    HRESULT hr = S_OK;
-    hr         = UmViewManager.AddDescriptorHeap(ViewManager::Type::DEPTH_STENCIL, _depthStencilHandle);
-    FAILED_CHECK_BREAK(hr);
+    UmViewManager.AddDescriptorHeap(ViewManager::Type::DEPTH_STENCIL, _depthStencilHandle);
 
     D3D12_RESOURCE_DESC depthDesc{.Dimension        = D3D12_RESOURCE_DIMENSION_TEXTURE2D,
                                   .Alignment        = 0,
@@ -256,9 +254,12 @@ void RenderScene::CreateDepthStencil()
 
     D3D12_CLEAR_VALUE   optClear{.Format = UmDevice.GetDepthStencilFormat(), .DepthStencil{.Depth = 1.f, .Stencil = 0}};
     CD3DX12_HEAP_PROPERTIES property(D3D12_HEAP_TYPE_DEFAULT);
+
+    HRESULT hr = S_OK;
     hr = UmDevice.GetDevice()->CreateCommittedResource(&property, D3D12_HEAP_FLAG_NONE, &depthDesc,
                                                        D3D12_RESOURCE_STATE_PRESENT, &optClear,
-                                                       IID_PPV_ARGS(_depthStencilBuffer.GetAddressOf()));
+                                                       IID_PPV_ARGS(&_depthStencilBuffer));
+    FAILED_CHECK_MESSAGE(hr, L"RenderScene::CreateDepthStencil UmDevice.GetDevice()->CreateCommittedResource Failed");
 
     D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc{.Format        = UmDevice.GetDepthStencilFormat(),
                                           .ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D,
@@ -294,10 +295,10 @@ void RenderScene::CreateFramePSO()
     psodesc.SampleDesc            = {1, 0};
     psodesc.VS                    = _frameShader->GetShaderByteCode(ShaderBuilder::Type::VS);
     psodesc.PS                    = _frameShader->GetShaderByteCode(ShaderBuilder::Type::PS);
-    ComPtr<ID3D12Device> device   = UmDevice.GetDevice();
 
-    HRESULT hr = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(_framePSO.GetAddressOf()));
-    FAILED_CHECK_BREAK(hr);
+    ID3D12Device* device = UmDevice.GetDevice();
+    HRESULT       hr     = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(&_framePSO));
+    FAILED_CHECK_MESSAGE(hr, L"RenderScene::CreateFramePSO device->CreateGraphicsPipelineState Faild");
 }
 
 void RenderScene::CreateSrvDescriptorHeap() 
@@ -306,8 +307,10 @@ void RenderScene::CreateSrvDescriptorHeap()
     desc.NumDescriptors             = 3;
     desc.Type                       = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
     desc.Flags                      = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-    HRESULT hr = UmDevice.GetDevice()->CreateDescriptorHeap(&desc, IID_PPV_ARGS(_srvDescriptorHeap.GetAddressOf()));
-    FAILED_CHECK_BREAK(hr);
+
+    ID3D12Device* device = UmDevice.GetDevice();
+    HRESULT hr = device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&_srvDescriptorHeap));
+    FAILED_CHECK_MESSAGE(hr, L"RenderScene::CreateSrvDescriptorHeap device->CreateDescriptorHeap Failed");
 }
 
 void RenderScene::CreateFrameResource()

@@ -9,7 +9,7 @@ void GraphicsCore::Initialize(HWND hwnd, UINT width, UINT height, FeatureLevel f
     Device.ResetCommands();
     Renderer.Initialize();
 
-    auto commandList = Device.GetCommandList().Get();
+    auto commandList = Device.GetCommandList();
     commandList->Close();
     Device.RegisterCommand(commandList,MESH_RENDER_LIST);
     Device.ExecuteCommand(MESH_RENDER_LIST);

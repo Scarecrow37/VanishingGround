@@ -1,10 +1,10 @@
 ﻿#include "pch.h"
 #include "StructuredBuffer.h"
 
-HRESULT StructuredBuffer::Initialize(const D3D12_CPU_DESCRIPTOR_HANDLE handle, const UINT64 size, const UINT numElements)
+void StructuredBuffer::Initialize(const D3D12_CPU_DESCRIPTOR_HANDLE handle, const UINT64 size, const UINT numElements)
 {
 	HRESULT hr = S_OK;
-	ComPtr<ID3D12Device> device = UmDevice.GetDevice();	
+	ID3D12Device* device = UmDevice.GetDevice();	
 
 	D3D12_RESOURCE_DESC resourceDesc = {};
 	resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
@@ -25,9 +25,9 @@ HRESULT StructuredBuffer::Initialize(const D3D12_CPU_DESCRIPTOR_HANDLE handle, c
 										 &resourceDesc,
 										 D3D12_RESOURCE_STATE_COMMON,
 										 nullptr,
-										 IID_PPV_ARGS(_defaultBuffer.GetAddressOf()));
+										 IID_PPV_ARGS(&_defaultBuffer));
 
-	FAILED_CHECK_BREAK(hr);
+	FAILED_CHECK_MESSAGE(hr, L"StructuredBuffer::Initialize device->CreateCommittedResource Failed");
 
 	auto uploadHeap = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
 	hr = device->CreateCommittedResource(&uploadHeap,
@@ -35,9 +35,9 @@ HRESULT StructuredBuffer::Initialize(const D3D12_CPU_DESCRIPTOR_HANDLE handle, c
 										 &resourceDesc,
 										 D3D12_RESOURCE_STATE_GENERIC_READ,
 										 nullptr,
-										 IID_PPV_ARGS(_uploadBuffer.GetAddressOf()));
+										 IID_PPV_ARGS(&_uploadBuffer));
 
-	FAILED_CHECK_BREAK(hr);
+	FAILED_CHECK_MESSAGE(hr, L"StructuredBuffer::Initialize device->CreateCommittedResource Failed");
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
@@ -56,8 +56,6 @@ HRESULT StructuredBuffer::Initialize(const D3D12_CPU_DESCRIPTOR_HANDLE handle, c
 														D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
 
 	UmDevice.GetCommandList()->ResourceBarrier(1, &barrier);
-
-	return hr;
 }
 
 void StructuredBuffer::CopyStructuredBuffer(ID3D12GraphicsCommandList* commandList, void* data, UINT size)

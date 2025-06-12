@@ -20,27 +20,26 @@ void Font::SetText(std::wstring_view text)
 {
 	if (text.size() > _maxTextLength)
 	{
-		ASSERT(false, L"Font text size is too long.");
+		GRAPHICS_ASSERT(false, L"Font text size is too long.");
 		return;
 	}
 
 	lstrcpy(_text.data(), text.data());
 }
 
-HRESULT Font::LoadResource(const std::filesystem::path& filePath)
+void Font::LoadResource(const std::filesystem::path& filePath)
 {
 	_filePath = filePath;
-	return S_OK;
 }
 
 void Font::Initialize(D3D12_CPU_DESCRIPTOR_HANDLE cpu, D3D12_GPU_DESCRIPTOR_HANDLE gpu)
 {
-	ComPtr<ID3D12Device> device = UmDevice.GetDevice();
-	ResourceUploadBatch resourceUpload(device.Get());
+	ID3D12Device* device = UmDevice.GetDevice();
+	ResourceUploadBatch resourceUpload(device);
 	resourceUpload.Begin();
 
-	_font = std::make_unique<DirectX::DX12::SpriteFont>(device.Get(), resourceUpload, _filePath.c_str(), cpu, gpu);
-	auto uploadFinish = resourceUpload.End(UmDevice.GetCommandQueue().Get());
+	_font = std::make_unique<DirectX::DX12::SpriteFont>(device, resourceUpload, _filePath.c_str(), cpu, gpu);
+	auto uploadFinish = resourceUpload.End(UmDevice.GetCommandQueue());
 
 	uploadFinish.wait();
 
