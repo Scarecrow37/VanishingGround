@@ -8,8 +8,6 @@
 class NodeGraphContext
     : public ReflectSerializer
 {
-    using ID = UINT64;
-
 public:
     struct State
     {
@@ -28,10 +26,11 @@ public:
 
 public:
     template <typename T>
-    T* AddNode(const char* label);
+    T* AddNode();
 
-    NodeGraph::Node* FindNode(ed::NodeId id);
-    NodeGraph::Pin*  FindPin(ed::PinId id);
+    NodeGraph::Node* FindNodeFromNodeID(UINT64 nodeID);
+    NodeGraph::Node* FindNodeFromPinID(UINT64 pinID);
+    NodeGraph::Pin*  FindPinFromPinID(UINT64 pinID);
 
     /* SerializeFunc */
     void        SaveData(const char* data, size_t size = 0);
@@ -66,10 +65,10 @@ private:
     State              _state;
     UINT64             _uniqueID;
 
-    std::vector<NodeGraph::Node*>            _nodeVector;
-    std::vector<NodeGraph::Link*>            _linkVector;
-    std::unordered_map<ID, NodeGraph::Node*> _nodeTable;
-    std::unordered_map<ID, NodeGraph::Link*> _linkTable;
+    std::vector<NodeGraph::Node*> _nodeVector;
+    std::vector<NodeGraph::Link*> _linkVector;
+    std::unordered_map<UINT64, NodeGraph::Node*> _nodeTable;
+    std::unordered_map<UINT64, NodeGraph::Link*> _linkTable;
 
 public:
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
@@ -84,17 +83,16 @@ public:
 };
 
 template <typename T>
-inline T* NodeGraphContext::AddNode(const char* label)
+inline T* NodeGraphContext::AddNode()
 {
     static_assert(std::is_base_of<NodeGraph::Node, T>::value, "T must be derived from NodeGraph::Node");
     NodeGraph::Node* node = nullptr;
     ed::SetCurrentEditor(_editor);
     {
         node = new T();
-        node->SetLabel(label);
         node->OnCreate();
         _nodeVector.push_back(node);
-        _nodeTable[node->GetNodeID().Get()] = node;
+        _nodeTable[node->GetNodeID()] = node;
     }
     return static_cast<T*>(node);
 }

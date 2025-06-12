@@ -54,7 +54,7 @@ NodeGraph::Node* EditorNodeGraphSystem::GetCurrentNode() const
 
 namespace NodeGraph
 {
-    UINT NodeGraph::GetUniqueID()
+    UINT64 NodeGraph::GetUniqueID()
     {
         auto& system  = Global::editorModule->GetNodeGraphSystem();
         auto  context = system.GetCurrentContext();

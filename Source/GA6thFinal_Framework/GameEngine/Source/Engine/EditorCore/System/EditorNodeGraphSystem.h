@@ -7,7 +7,7 @@ namespace NodeGraph
     class Pin;
     class Link;
 
-    UINT GetUniqueID();
+    UINT64 GetUniqueID();
     
     void SetCurrentNodeGraphContext(NodeGraphContext* context);
     void SetCurrentNode(NodeGraph::Node* node);

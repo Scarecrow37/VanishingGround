@@ -9,6 +9,8 @@ void NodeGraph::BehaviorTreeNode::Draw()
     DrawNode();
 }
 
+void NodeGraph::BehaviorTreeNode::Do() {}
+
 void NodeGraph::BehaviorTreeNode::OnCreate() 
 {
     
@@ -16,17 +18,22 @@ void NodeGraph::BehaviorTreeNode::OnCreate()
 
 void NodeGraph::BehaviorTreeNode::OnNodePopup()
 {
-    if (ImGui::MenuItem("Create Transition"))
+    if (ImGui::MenuItem("Select"))
     {
-        auto pin = AddPin(_label.c_str(), "Flow", ed::PinKind::Input);
-    }
-    if (ImGui::MenuItem("Create Out"))
-    {
-        auto pin = AddPin(_label.c_str(), "Flow", ed::PinKind::Output);
+        SetSeletion(true);
     }
 }
 
-void NodeGraph::BehaviorTreeNode::OnPinPopup(Pin* pin) {}
+void NodeGraph::BehaviorTreeNode::OnPinPopup(UINT64 _pinID)
+{
+    Pin* pin = FindPin(_pinID);
+    if (nullptr == pin)
+        return;
+    if (ImGui::MenuItem("Remove Pin"))
+    {
+        RemovePin(pin->GetPinID());
+    }
+}
 
 void NodeGraph::BehaviorTreeNode::DrawNode() 
 {
@@ -50,7 +57,7 @@ void NodeGraph::BehaviorTreeNode::DrawNode()
 
     ed::BeginNode(GetNodeID());
     {
-        ImGui::BeginVertical(_id.AsPointer());
+        ImGui::BeginVertical(this);
 
         CalculateInputPinRect();
         DrawLabel();
@@ -68,12 +75,12 @@ void NodeGraph::BehaviorTreeNode::CalculateInputPinRect()
     ImGui::BeginHorizontal("input");
     {
         
-        if (false == _inputPinList.empty())
+        if (true == HasInputPin())
         {
             ImGui::Spring(0, _padding * 2.0f);
             ImGui::Dummy(ImVec2(0, _padding));
 
-            Pin* pin = &_inputPinList.front();
+            const Pin* pin = GetInputPin();
             ImGui::Spring(1, 0);
             _inputRect = ImGuiHelper::GetItemRect();
 
@@ -104,9 +111,9 @@ void NodeGraph::BehaviorTreeNode::CalculateOutputPinRect()
     {
         ImGui::Spring(0, _padding * 2.0f);
         ImGui::Dummy(ImVec2(0, _padding));
-        if (false == _outputPinList.empty())
+        if (true == HasOutputPin())
         {
-            Pin* pin = &_outputPinList.front();
+            const Pin* pin = GetOutputPin();
             ImGui::Spring(1, 0);
             _outputRect = ImGuiHelper::GetItemRect();
 
@@ -132,12 +139,14 @@ void NodeGraph::BehaviorTreeNode::CalculateOutputPinRect()
 void NodeGraph::BehaviorTreeNode::DrawRect() 
 {
     auto drawList   = ed::GetNodeBackgroundDrawList(GetNodeID());
+    if (true == HasInputPin())
     {
         ImVec2 tl = _inputRect.GetTL(), br = _inputRect.GetBR();
         ImDrawFlags flag = ImDrawFlags_RoundCornersBottom; 
         drawList->AddRectFilled(tl, br, _inputRectColor, _pinRectRounding, flag);
         drawList->AddRect(tl, br, _inputRectColor, _pinRectRounding, flag);
     }
+    if (true == HasOutputPin())
     {
         ImVec2 tl = _outputRect.GetTL(), br = _outputRect.GetBR();
         ImDrawFlags flag = ImDrawFlags_RoundCornersTop; 
@@ -160,7 +169,7 @@ void NodeGraph::BehaviorTreeNode::DrawLabel()
     ImGui::Spring(1, _padding);
 
     ImGui::BeginVertical("content", ImVec2(0.0f, 0.0f));
-    ImGui::Dummy(ImVec2(textSize.x * 2.0f, 0));
+    ImGui::Dummy(ImVec2(textSize.x + 10.0f, 0));
     ImGui::Spring(1);
     ImGui::TextUnformatted(_label.c_str());
     ImGui::Spring(1);

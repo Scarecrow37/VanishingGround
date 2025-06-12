@@ -11,9 +11,10 @@ namespace NodeGraph
     public:
         // Node을(를) 통해 상속됨
         void Draw() override;
+        void Do() override;
         void OnCreate() override;
         void OnNodePopup() override;
-        void OnPinPopup(Pin* pin) override;
+        void OnPinPopup(UINT64 _pinID) override;
 
     protected:
         //virtual void OnPostBeginNode();
@@ -25,15 +26,20 @@ namespace NodeGraph
         void DrawRect();
         void DrawLabel();
 
+    public:
+        inline void SetLabel(const char* label) { _label = label; }
+
     private:
+        std::string _label;
+
         inline static float _nodeRounding = 4.0f;
         inline static float _pinRectRounding  = 4.0f;
         inline static float _labelRectRounding = 0.0f;
         inline static float _padding = 10.0f;
 
-        ImRect              _inputRect;
-        ImRect              _outputRect;
-        ImRect              _labelRect;
+        ImRect _inputRect;
+        ImRect _outputRect;
+        ImRect _labelRect;
 
         inline static ImU32 _inputRectColor  = IM_COL32(45, 45, 45, 255);
         inline static ImU32 _outputRectColor = IM_COL32(45, 45, 45, 255);

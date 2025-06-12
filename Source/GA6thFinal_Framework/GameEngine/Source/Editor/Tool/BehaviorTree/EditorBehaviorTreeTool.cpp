@@ -17,18 +17,21 @@ void EditorBehaviorTreeTool::OnStartGui()
     _context = new NodeGraphContext();
     NodeGraph::SetCurrentNodeGraphContext(_context);
     {
-        auto node = _context->AddNode<NodeGraph::BehaviorTreeNode>("root");
+        auto node = _context->AddNode<NodeGraph::BehaviorTreeNode>();
+        node->SetLabel("Root Node");
         node->AddPin("Output", "Out", ed::PinKind::Output);
         node->SetPosition(ImVec2(0, 0));
     }
     {
-        auto node = _context->AddNode<NodeGraph::BehaviorTreeNode>("node1");
+        auto node = _context->AddNode<NodeGraph::BehaviorTreeNode>();
+        node->SetLabel("Child Node 1");
         node->AddPin("Input", "In", ed::PinKind::Input);
         node->AddPin("Output", "Out", ed::PinKind::Output);
         node->SetPosition(ImVec2(-100, -100));
     }
     {
-        auto node = _context->AddNode<NodeGraph::BehaviorTreeNode>("node2");
+        auto node = _context->AddNode<NodeGraph::BehaviorTreeNode>();
+        node->SetLabel("Child Node 2");
         node->AddPin("Input", "In", ed::PinKind::Input);
         node->AddPin("Output", "Out", ed::PinKind::Output);
         node->SetPosition(ImVec2(100, 100));
