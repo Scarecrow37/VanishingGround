@@ -56,7 +56,7 @@ void EditorDynamicCamera::Update()
 
 void EditorDynamicCamera::UpdateMove() 
 {
-    const float deltaTime = UmTime.DeltaTime();
+    const float deltaTime = UmTime.UnscaledDeltaTime();
     float moveSpeed = _moveScale * _moveSpeed * deltaTime;
     const Matrix& matrix = _camera->GetWorldMatrix();
     const Vector3 foward = -matrix.Forward();
