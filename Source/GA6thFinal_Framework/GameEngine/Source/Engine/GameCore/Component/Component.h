@@ -94,14 +94,14 @@ protected:
 public:
     GETTER_ONLY(GameObject&, gameObject)
     {
-        return *_gameObect;
+        return *_gameObject;
     }
     //get : 이 컴포넌트가 부착된 게임 오브젝트입니다. 컴포넌트는 항상 게임 오브젝트에 부착됩니다.
     PROPERTY(gameObject);
 
     GETTER_ONLY(Transform&, transform)
     { 
-        return _gameObect->transform_property_getter();
+        return _gameObject->transform_property_getter();
     }
     //get : 게임 오브젝트의 transform
     PROPERTY(transform)
@@ -223,7 +223,7 @@ private:
 
     const Type _type;
     std::string _className;
-    GameObject* _gameObect;
+    GameObject* _gameObject;
     std::weak_ptr<Component> _weakPtr;
 
 private:
