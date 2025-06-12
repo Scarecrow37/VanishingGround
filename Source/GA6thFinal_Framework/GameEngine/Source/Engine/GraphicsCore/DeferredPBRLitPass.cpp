@@ -11,7 +11,7 @@ void DeferredPBRLitPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_
     __super::Initialize(viewPort, sissorRect);
 
     D3D12_DESCRIPTOR_HEAP_DESC desc{.Type           = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
-                                    .NumDescriptors = 7,
+                                    .NumDescriptors = RenderScene::GBuffer::END,
                                     .Flags          = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
                                     .NodeMask       = 0};
 
@@ -45,22 +45,22 @@ void DeferredPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
     for (UINT i = 0; i <= RenderScene::GBuffer::CUSTOMDEPTH; ++i)
     {
         D3D12_CPU_DESCRIPTOR_HANDLE destHandle = CD3DX12_CPU_DESCRIPTOR_HANDLE(dest, i, descriptorSize);
-        device->CopyDescriptorsSimple(1, destHandle, _ownerScene->_gBuffer[i]->GetSRVHandle(),
-                                      D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+        device->CopyDescriptorsSimple(1, destHandle, _ownerScene->_gBuffer[i]->GetSRVHandle(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
     }
 
     ID3D12DescriptorHeap* hps[] = {
         _srvDescriptorHeap.Get(),
     };
+
+    commandList->SetPipelineState(_pipelineState.Get());
     // 디스크립터-힙 설정.
     commandList->SetDescriptorHeaps(_countof(hps), hps);
-    commandList->SetGraphicsRootSignature(_shader->GetRootSignature().Get());
-    commandList->SetGraphicsRootConstantBufferView(_shader->GetRootSignatureIndex("cameraData"),
-                                                   _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
-    D3D12_GPU_DESCRIPTOR_HANDLE gbuffer = _srvDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
-    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootSignatureIndex("gBuffers"), gbuffer);
-    // pso 세팅
-    commandList->SetPipelineState(_pipelineState.Get());
+    commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
+    commandList->SetGraphicsRoot32BitConstants(_shader->GetRootSignatureIndex("bit32_3_numLight"), 3, &_ownerScene->_numLight, 0);
+    commandList->SetGraphicsRootConstantBufferView(_shader->GetRootSignatureIndex("cameraData"), _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
+    commandList->SetGraphicsRootConstantBufferView(_shader->GetRootSignatureIndex("lightData"), _ownerScene->_lightBuffer->GetGPUVirtualAddress());
+    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootSignatureIndex("gBuffers"), _srvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+
     //quad draw하기
     _ownerScene->_frameQuad->Render(commandList);
 }
@@ -88,7 +88,7 @@ void DeferredPBRLitPass::InitShaderAndPSO()
     psodesc.InputLayout              = _shader->GetInputLayout();
     psodesc.NumRenderTargets         = 1;
     psodesc.RTVFormats[0]            = DXGI_FORMAT_R32G32B32A32_FLOAT;
-    psodesc.pRootSignature           = _shader->GetRootSignature().Get();
+    psodesc.pRootSignature           = _shader->GetRootSignature();
     psodesc.SampleDesc               = {1, 0};
     psodesc.VS                       = _shader->GetShaderByteCode(ShaderBuilder::Type::VS);
     psodesc.PS                       = _shader->GetShaderByteCode(ShaderBuilder::Type::PS);

@@ -12,7 +12,7 @@ float Device::GetEngineTime()
     return deltaTime;
 }
 
-void Device::SetUpDevice(HWND hwnd, UINT width, UINT height, FEATURE_LEVEL feature)
+void Device::SetUpDevice(HWND hwnd, UINT width, UINT height, FeatureLevel feature)
 {
     _mode.Width  = width;
     _mode.Height = height;
@@ -25,13 +25,13 @@ void Device::SetUpDevice(HWND hwnd, UINT width, UINT height, FEATURE_LEVEL featu
 
     switch (feature)
     {
-    case FEATURE_LEVEL::LEVEL_11_0:
+    case FeatureLevel::LEVEL_11_0:
         d3dFeature = D3D_FEATURE_LEVEL_11_0;
         break;
-    case FEATURE_LEVEL::LEVEL_12_0:
+    case FeatureLevel::LEVEL_12_0:
         d3dFeature = D3D_FEATURE_LEVEL_12_0;
         break;
-    case FEATURE_LEVEL::LEVEL_12_1:
+    case FeatureLevel::LEVEL_12_1:
         d3dFeature = D3D_FEATURE_LEVEL_12_1;
         break;
     default:
@@ -541,7 +541,7 @@ void Device::CreateDefaultBuffer(UINT size, ComPtr<ID3D12Resource>& buffer)
 
 void Device::CreateCommandList(ComPtr<ID3D12CommandAllocator>&    allocator,
                                   ComPtr<ID3D12GraphicsCommandList>& commandList,
-                                  COMMAND_TYPE type)
+                                  CommandType type)
 {
     D3D12_COMMAND_QUEUE_DESC desc
     {
@@ -552,13 +552,13 @@ void Device::CreateCommandList(ComPtr<ID3D12CommandAllocator>&    allocator,
 
     switch (type)
     {
-    case COMMAND_TYPE::DIRECT:
+    case CommandType::DIRECT:
         desc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
         break;
-    case COMMAND_TYPE::BUNDLE:
+    case CommandType::BUNDLE:
         desc.Type = D3D12_COMMAND_LIST_TYPE_BUNDLE;
         break;
-    case COMMAND_TYPE::COMPUTE:
+    case CommandType::COMPUTE:
         desc.Type = D3D12_COMMAND_LIST_TYPE_COMPUTE;
         break;
     }
@@ -569,21 +569,21 @@ void Device::CreateCommandList(ComPtr<ID3D12CommandAllocator>&    allocator,
     commandList->Close();
 }
 
-void Device::RegisterCommand(ID3D12CommandList* commandList, COMMAND_LIST_TYPE type)
+void Device::RegisterCommand(ID3D12CommandList* commandList, CommandListType type)
 {
     _commandLists[type].push_back(commandList);
 }
 
-void Device::ExecuteCommand(COMMAND_LIST_TYPE type) 
+void Device::ExecuteCommand(CommandListType type)
 {
     switch (type)
     {
-    case MESH_RENDER_LIST:
-    case PARTICLE_RENDER_LIST:
+    case CommandListType::MESH_RENDER_LIST:
+    case CommandListType::PARTICLE_RENDER_LIST:
         _commandQueue->ExecuteCommandLists(static_cast<UINT>(_commandLists[type].size()), _commandLists[type].data());
         break;
-    case MESH_COMPUTE_LIST:
-    case PARTICLE_COMPUTE_LIST:
+    case CommandListType::MESH_COMPUTE_LIST:
+    case CommandListType::PARTICLE_COMPUTE_LIST:
         _computeCommandQueue->ExecuteCommandLists(static_cast<UINT>(_commandLists[type].size()), _commandLists[type].data());
         break;
     }
@@ -593,7 +593,7 @@ void Device::ExecuteCommand(COMMAND_LIST_TYPE type)
 
 void Device::CreateComputeCommandObject()
 {
-    CreateCommandList(_computeComandListAlloc, _computeCommandList, COMMAND_TYPE::COMPUTE);
+    CreateCommandList(_computeComandListAlloc, _computeCommandList, CommandType::COMPUTE);
     D3D12_COMMAND_QUEUE_DESC desc
     {
         .Type     = D3D12_COMMAND_LIST_TYPE_COMPUTE,

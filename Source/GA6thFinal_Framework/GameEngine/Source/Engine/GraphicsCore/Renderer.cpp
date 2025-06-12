@@ -105,7 +105,7 @@ void Renderer::Initialize()
 {
     CreateDefaultResource();
 
-    std::shared_ptr<RenderScene> editorScene = std::make_shared<RenderScene>();
+    std::shared_ptr<RenderScene> editorScene = std::make_shared<RenderScene>("Editor");
     editorScene->InitializeRenderScene();
     std::shared_ptr<SkyBoxRenderTechnique> skyTech = std::make_shared<SkyBoxRenderTechnique>();
     editorScene->AddRenderTechnique(skyTech);
@@ -116,7 +116,7 @@ void Renderer::Initialize()
     if constexpr (IS_EDITOR)
     {
         // Model Viewer Scene
-        std::shared_ptr<RenderScene> modelViewerScene = std::make_shared<RenderScene>();
+        std::shared_ptr<RenderScene> modelViewerScene = std::make_shared<RenderScene>("ModelViewer");
         modelViewerScene->InitializeRenderScene();
         modelViewerScene->AddRenderTechnique(std::make_shared<PBRLitTechnique>());
         _renderScenes["ModelViewer"] = modelViewerScene;

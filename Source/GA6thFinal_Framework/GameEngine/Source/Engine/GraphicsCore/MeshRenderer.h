@@ -6,13 +6,13 @@ class Animator;
 class MeshRenderer : public GraphicsBase
 {
 public:
-    MeshRenderer(MESH_RENDER_TYPE type, const Matrix& world);
+    MeshRenderer(MeshRenderType type, const Matrix& world);
     virtual ~MeshRenderer();
 
 public:
     const std::shared_ptr<Model>& GetModel() const { return _model; }
     const Matrix&                 GetWorldMatrix() const { return _worldMatrix; }
-    const MESH_RENDER_TYPE        GetType() const { return _type; }
+    const MeshRenderType          GetType() const { return _type; }
     std::shared_ptr<Animator>     GetAnimator() const;
 
 public:
@@ -27,5 +27,5 @@ private:
     std::shared_ptr<Model>    _model;
     std::shared_ptr<Animator> _animator;
     const Matrix&             _worldMatrix;
-    MESH_RENDER_TYPE          _type;
+    MeshRenderType            _type;
 };

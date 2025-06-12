@@ -16,7 +16,7 @@ public:
     float                             GetEngineTime();
 
 public:
-    void SetUpDevice(HWND hwnd, UINT width, UINT height, FEATURE_LEVEL feature);
+    void SetUpDevice(HWND hwnd, UINT width, UINT height, FeatureLevel feature);
     void Initialize();
     void Finalize();
     
@@ -60,9 +60,9 @@ public:
     void CreateDefaultBuffer(UINT size, ComPtr<ID3D12Resource>& buffer);
 
     void CreateCommandList(ComPtr<ID3D12CommandAllocator>& allocator, ComPtr<ID3D12GraphicsCommandList>& commandList,
-                           COMMAND_TYPE type);
-    void RegisterCommand(ID3D12CommandList* commandList, COMMAND_LIST_TYPE type);
-    void ExecuteCommand(COMMAND_LIST_TYPE type);
+                           CommandType type);
+    void RegisterCommand(ID3D12CommandList* commandList, CommandListType type);
+    void ExecuteCommand(CommandListType type);
 
  private:
     void SetViewPort();
