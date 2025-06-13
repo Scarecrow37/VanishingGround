@@ -8,6 +8,7 @@ float3 DiffuseBRDF(float3 N, float3 V, float3 L, float3 albedo, float metallic, 
 float3 CalculateDirectional(DirectionalLight light, float3 N, float3 V, float3 albedo, float metallic, float roughness);
 float3 CalculatePoint(PointLight light, float3 N, float3 V, float3 albedo, float metallic, float roughness, float3 fragPos);
 float3 CalculateSpot(SpotLight light, float3 N, float3 V, float3 albedo, float metallic, float roughness, float3 fragPos);
+float Attenuation(float3 attenuation, float distance, float range);
 
 float3 FresnelSchlick(float cosTheta, float3 F0)
 {
@@ -27,7 +28,7 @@ float NormalDistributionGGX(float3 N, float3 H, float roughness)
 
 float GeometrySchlickGGX(float NdotV, float roughness)
 {
-    float r = roughness;
+    float r = roughness + 1;
     float k = (r * r) / 8.f;
     
     return NdotV / (NdotV * (1.f - k) + k + Epsilon);
@@ -70,8 +71,9 @@ float3 CalculatePoint(PointLight light, float3 N, float3 V, float3 albedo, float
     float3 L = light.Position - fragPos;
     float distance = length(L);
     L = normalize(L);
-    float attenuation = 1.f / (light.Attenuation.r + light.Attenuation.g * distance + light.Attenuation.b * distance * distance);
-    attenuation *= 2;
+    
+    float attenuation = Attenuation(light.Attenuation, distance, light.Range);
+
         
     return DiffuseBRDF(N, V, L, albedo, metallic, roughness) * attenuation * light.Color * light.Intensity;
 }
@@ -89,4 +91,33 @@ float3 CalculateSpot(SpotLight light, float3 N, float3 V, float3 albedo, float m
     //float attenuation = 1.0 / (light.fallOffEnd + distance * distance);
     //float3 radiance = light.strength * attenuation * intensity;
     return DiffuseBRDF(N, V, L, albedo, metallic, roughness) * light.Intensity;
+}
+
+float Attenuation(float3 attenuation, float distance, float range)
+{
+    //float result = 1.f / (attenuation.r + attenuation.g * distance + attenuation.b * distance * distance);
+    //result *= 2;
+    
+    float result = saturate(1.0f - (distance * distance / (range * range)));
+    result = result * result;
+
+    //// 사이거리 - 광원의 반지름을 구하여 진짜 거리 계산
+    //float d = max(distance - range, 0); // 거리가 음수면 0으로 설정
+
+    //// 감쇠 계산을 위한 중간 값 설정 (거리 / 광원의 반지름 + 1)
+    //float denom = (d / range) + 1;
+
+    //// 감쇠 강도 계산 (거리가 크면 감쇠되고 반지름이 크면 빛을 많이 받음)
+    //float result = 1 / (denom * denom);
+
+    //// 감쇠 스케일 재조정 임계값
+    //// att가 0일때는 광원과 가장 멈
+    //// att가 1일 때는 광원 중심에 가장 가까움
+    //result = (result - Epsilon) / (1 - Epsilon);
+
+
+    //// att가 음수가 나오지 않도록 조정
+    //result = saturate(result);
+    
+    return result;
 }
