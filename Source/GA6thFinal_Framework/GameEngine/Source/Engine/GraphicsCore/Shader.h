@@ -12,7 +12,7 @@ public:
     SIZE_T GetBufferSize() const { return _blob->GetBufferSize(); }
 
 protected:
-    HRESULT CompileShader(std::wstring_view filePath, std::string_view entry, std::string_view shaderModel);
+    void CompileShader(std::wstring_view filePath, std::string_view entry, std::string_view shaderModel);
 
 private:
     ComPtr<ID3DBlob> _blob;

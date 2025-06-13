@@ -29,7 +29,7 @@ public:
 public:
     void Initialize(HWND hwnd, UINT width, UINT height, FeatureLevel feature);
     void UpdateAnimation(const float deltaTime);
-    void Update();
+    void Update(const float deltaTime);
     void Render();
     void Flip();
 };

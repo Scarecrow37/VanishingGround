@@ -2,23 +2,15 @@
 #include "Device.h"
 #include "d3dUtil.h"
 
-float Device::GetEngineTime()
-{
-    static ULONGLONG oldtime   = GetTickCount64();
-    ULONGLONG        nowtime   = GetTickCount64();
-    float            deltaTime = (nowtime - oldtime) * 0.001f;
-    oldtime                    = nowtime;
-
-    return deltaTime;
-}
-
 void Device::SetUpDevice(HWND hwnd, UINT width, UINT height, FeatureLevel feature)
 {
     _mode.Width  = width;
     _mode.Height = height;
 #ifndef NDEBUG
     ComPtr<ID3D12Debug> debugController;
-    FAILED_CHECK_BREAK(D3D12GetDebugInterface(IID_PPV_ARGS(debugController.GetAddressOf())));
+
+    HRESULT hr = D3D12GetDebugInterface(IID_PPV_ARGS(&debugController));
+    FAILED_CHECK_MESSAGE(hr, L"Device::SetUpDevice D3D12GetDebugInterface Failed");
     debugController->EnableDebugLayer();
 #endif // !NDEBUG
     D3D_FEATURE_LEVEL d3dFeature{};
@@ -44,14 +36,9 @@ void Device::SetUpDevice(HWND hwnd, UINT width, UINT height, FeatureLevel featur
 void Device::Initialize()
 {
     _commandLists.resize(COMMAND_LIST_END);
-    HRESULT hr = S_OK;
 
-    hr =
-        UmViewManager.AddDescriptorHeap(ViewManager::Type::RENDER_TARGET, SWAPCHAIN_BUFFER_COUNT, _renderTargetHandles);
-    FAILED_CHECK_BREAK(hr);
-
-    hr = UmViewManager.AddDescriptorHeap(ViewManager::Type::DEPTH_STENCIL, _depthStencilHandle);
-    FAILED_CHECK_BREAK(hr);
+    UmViewManager.AddDescriptorHeap(ViewManager::Type::RENDER_TARGET, SWAPCHAIN_BUFFER_COUNT, _renderTargetHandles);
+    UmViewManager.AddDescriptorHeap(ViewManager::Type::DEPTH_STENCIL, _depthStencilHandle);
 
     ResizeSwapChain();
 }
@@ -91,10 +78,11 @@ void Device::ResizeSwapChain()
     if (!_onResize)
         return;
 
-    assert(_device);
-    assert(_swapChain);
+    GRAPHICS_ASSERT(_device || _swapChain, L"");
+
     GPUSync();
-    FAILED_CHECK_BREAK(_commandList->Reset(_commandAllocator.Get(), nullptr));
+    _commandList->Reset(_commandAllocator.Get(), nullptr);
+
     CreateRenderTarget();
     CreateDepthStencil();
 
@@ -102,10 +90,12 @@ void Device::ResizeSwapChain()
                                                         D3D12_RESOURCE_STATE_DEPTH_WRITE);
 
     _commandList->ResourceBarrier(1, &barrier);
-    FAILED_CHECK_BREAK(_commandList->Close());
+    _commandList->Close();
+
     RegisterCommand(_commandList.Get(), MESH_RENDER_LIST);
     ExecuteCommand(MESH_RENDER_LIST);
     GPUSync();
+
     _mainViewport.TopLeftX = 0;
     _mainViewport.TopLeftY = 0;
     _mainViewport.Width    = static_cast<float>(_mode.Width);
@@ -119,23 +109,33 @@ void Device::ResizeSwapChain()
 
 void Device::CreateDeviceAndSwapChain(HWND hwnd, D3D_FEATURE_LEVEL feature)
 {
-    CreateDXGIFactory2(0, IID_PPV_ARGS(_dxgiFactory.GetAddressOf()));
-    FAILED_CHECK_BREAK(CreateDXGIFactory2(0, IID_PPV_ARGS(_dxgiFactory.GetAddressOf())));
-    FAILED_CHECK_BREAK(D3D12CreateDevice(0, feature, IID_PPV_ARGS(_device.GetAddressOf())));
+    HRESULT hr = S_OK;
+
+    hr = CreateDXGIFactory2(0, IID_PPV_ARGS(&_dxgiFactory));
+    FAILED_CHECK_MESSAGE(hr, L"Device::CreateDeviceAndSwapChain CreateDXGIFactory2 Failed");
+
+    hr = CreateDXGIFactory2(0, IID_PPV_ARGS(&_dxgiFactory));
+    FAILED_CHECK_MESSAGE(hr, L"Device::CreateDeviceAndSwapChain CreateDXGIFactory2 Failed");
+
+    hr = D3D12CreateDevice(0, feature, IID_PPV_ARGS(&_device));
+    FAILED_CHECK_MESSAGE(hr, L"Device::CreateDeviceAndSwapChain D3D12CreateDevice Failed");
 
     _rtvDescriptorSize       = _device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
     _dsvDescriptorSize       = _device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
     _cbvSrvUavDescriptorSize = _device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
     // 4X MSAA 품질 수준 지원 점검
     D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS msQualityLevels;
     msQualityLevels.Flags            = D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE;
     msQualityLevels.SampleCount      = 4;
     msQualityLevels.Format           = _backBufferFormat;
     msQualityLevels.NumQualityLevels = 0;
-    FAILED_CHECK_BREAK(_device->CheckFeatureSupport(D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS, &msQualityLevels,
-                                                    sizeof(msQualityLevels)));
+
+    hr = _device->CheckFeatureSupport(D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS, &msQualityLevels, sizeof(msQualityLevels));
+    FAILED_CHECK_MESSAGE(hr, L"Device::CreateDeviceAndSwapChain _device->CheckFeatureSupport Failed");
+
     _4xMSAAQuality = msQualityLevels.NumQualityLevels;
-    assert(_4xMSAAQuality > 0 && "Unexpected MSAA quality level");
+    GRAPHICS_ASSERT(_4xMSAAQuality > 0, L"Unexpected MSAA quality level");
 
     CreateCommandQueue();
     CreateComputeCommandObject();
@@ -143,6 +143,7 @@ void Device::CreateDeviceAndSwapChain(HWND hwnd, D3D_FEATURE_LEVEL feature)
 
     _swapChain.Reset();
     DXGI_SWAP_CHAIN_DESC1 sd{};
+
     sd.Width              = _mode.Width;
     sd.Height             = _mode.Height;
     sd.Format             = _backBufferFormat;
@@ -151,10 +152,13 @@ void Device::CreateDeviceAndSwapChain(HWND hwnd, D3D_FEATURE_LEVEL feature)
     sd.BufferUsage        = DXGI_USAGE_RENDER_TARGET_OUTPUT; // 후면 버퍼의 속성
     sd.BufferCount        = SWAPCHAIN_BUFFER_COUNT;
     sd.SwapEffect         = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+
     ComPtr<IDXGISwapChain1> swapChain;
-    FAILED_CHECK_BREAK(_dxgiFactory->CreateSwapChainForHwnd(_commandQueue.Get(), hwnd, &sd, nullptr, nullptr,
-                                                            swapChain.GetAddressOf()));
-    FAILED_CHECK_BREAK(swapChain->QueryInterface(IID_PPV_ARGS(_swapChain.GetAddressOf())));
+    hr = _dxgiFactory->CreateSwapChainForHwnd(_commandQueue.Get(), hwnd, &sd, nullptr, nullptr, &swapChain);
+    FAILED_CHECK_MESSAGE(hr, L"Device::CreateDeviceAndSwapChain _dxgiFactory->CreateSwapChainForHwnd Failed");
+
+    hr = swapChain->QueryInterface(IID_PPV_ARGS(&_swapChain));
+    FAILED_CHECK_MESSAGE(hr, L"Device::CreateDeviceAndSwapChain swapChain->QueryInterface Failed");
     _renderTargetIndex = _swapChain->GetCurrentBackBufferIndex();
 }
 
@@ -168,29 +172,37 @@ void Device::CreateCommandQueue()
         .NodeMask = 0,
     };
 
-    FAILED_CHECK_BREAK(_device->CreateCommandQueue(&desc, IID_PPV_ARGS(_commandQueue.GetAddressOf())));
-    FAILED_CHECK_BREAK(_device->CreateCommandAllocator(desc.Type, IID_PPV_ARGS(_commandAllocator.GetAddressOf())));
-    FAILED_CHECK_BREAK(_device->CreateCommandList(desc.NodeMask, desc.Type, _commandAllocator.Get(), nullptr,
-                                                  IID_PPV_ARGS(_commandList.GetAddressOf())));
+    HRESULT hr = S_OK;
+
+    hr = _device->CreateCommandQueue(&desc, IID_PPV_ARGS(&_commandQueue));
+    FAILED_CHECK_MESSAGE(hr, L"Device::CreateCommandQueue _device->CreateCommandQueue Failed");
+
+    hr = _device->CreateCommandAllocator(desc.Type, IID_PPV_ARGS(&_commandAllocator));
+    FAILED_CHECK_MESSAGE(hr, L"Device::CreateCommandQueue _device->CreateCommandAllocator Failed");
+
+    hr = _device->CreateCommandList(desc.NodeMask, desc.Type, _commandAllocator.Get(), nullptr, IID_PPV_ARGS(&_commandList));
+    FAILED_CHECK_MESSAGE(hr, L"Device::CreateCommandQueue _device->CreateCommandList Failed");
+
     _commandList->Close();
 }
 
 void Device::CreateSyncObject()
 {
-    HRESULT hr  = _device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(_fence.GetAddressOf()));
-    _fenceValue = 1;
-    _fenceEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
-    if (FAILED(hr) || NULL == _fenceEvent)
-        __debugbreak();
+    HRESULT hr = S_OK;
+    hr         = _device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&_fence));
+    FAILED_CHECK_MESSAGE(hr, L"Device::CreateSyncObject _device->CreateFence Failed");
 
-    //HRESULT hr = S_OK;
+    _fenceValue = 1;
+    _fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+    GRAPHICS_ASSERT(nullptr != _fenceEvent, L"Device::CreateSyncObject CreateEvent Failed");
+
     _graphicsFences.resize(FENCE_END);
     _lastGraphicsFenceValues.resize(FENCE_END);
     _fenceValues.resize(FENCE_END);
     for (UINT i = MESH_COMPUTE_FENCE; i < FENCE_END; ++i)
     {
-        hr = _device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(_graphicsFences[i].GetAddressOf()));
-        FAILED_CHECK_BREAK(hr);
+        hr = _device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&_graphicsFences[i]));
+        FAILED_CHECK_MESSAGE(hr, L"Device::CreateSyncObject _device->CreateFence Failed");
         _fenceValues[i] = 1;
     }
     
@@ -199,17 +211,20 @@ void Device::CreateSyncObject()
 void Device::CreateRenderTarget()
 {
     _mode.Format = _backBufferFormat;
-    for (size_t i = 0; i < SWAPCHAIN_BUFFER_COUNT; i++)
+    for (auto & swapChain : _swapChainBuffer)
     {
-        _swapChainBuffer[i].Reset();
+        swapChain.Reset();
     }
-    FAILED_CHECK_BREAK(_swapChain->ResizeBuffers(SWAPCHAIN_BUFFER_COUNT, _mode.Width, _mode.Height, _mode.Format,
-                                                 DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH));
-    _renderTargetIndex = _swapChain->GetCurrentBackBufferIndex();
 
+    HRESULT hr = S_OK;
+    hr         = _swapChain->ResizeBuffers(SWAPCHAIN_BUFFER_COUNT, _mode.Width, _mode.Height, _mode.Format, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH);
+    FAILED_CHECK_MESSAGE(hr, L"Device::CreateRenderTarget _swapChain->ResizeBuffers Failed");
+
+    _renderTargetIndex = _swapChain->GetCurrentBackBufferIndex();
     for (UINT i = 0; i < SWAPCHAIN_BUFFER_COUNT; i++)
     {
-        FAILED_CHECK_BREAK(_swapChain->GetBuffer(i, IID_PPV_ARGS(_swapChainBuffer[i].GetAddressOf())));
+        hr = _swapChain->GetBuffer(i, IID_PPV_ARGS(&_swapChainBuffer[i]));
+        FAILED_CHECK_MESSAGE(hr, L"Device::CreateRenderTarget _swapChain->GetBuffer Failed");
         _device->CreateRenderTargetView(_swapChainBuffer[i].Get(), nullptr, _renderTargetHandles[i]);
     }
 }
@@ -222,6 +237,7 @@ void Device::CreateDepthStencil()
     hp.MemoryPoolPreference  = D3D12_MEMORY_POOL_UNKNOWN;
     hp.CreationNodeMask      = 1;
     hp.VisibleNodeMask       = 1;
+
     D3D12_RESOURCE_DESC rd   = {};
     rd.Dimension             = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
     rd.Alignment             = 0;
@@ -234,19 +250,21 @@ void Device::CreateDepthStencil()
     rd.SampleDesc.Quality    = 0;
     rd.Layout                = D3D12_TEXTURE_LAYOUT_UNKNOWN;
     rd.Flags                 = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+
     D3D12_CLEAR_VALUE cv     = {};
     cv.Format                = _depthStencilFormat;
     cv.DepthStencil.Depth    = 1.f;
     cv.DepthStencil.Stencil  = 0;
-    FAILED_CHECK_BREAK(_device->CreateCommittedResource(
-        &hp, D3D12_HEAP_FLAG_NONE, &rd,
-        D3D12_RESOURCE_STATE_COMMON, // D3D12_RESOURCE_STATE_COMMON 전체 파이프라인에서 '다목적' 으로 사용될 경우.
-        &cv, IID_PPV_ARGS(_depthStencilBuffer.GetAddressOf())));
-    D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc;
-    dsvDesc.Flags              = D3D12_DSV_FLAG_NONE;
-    dsvDesc.ViewDimension      = D3D12_DSV_DIMENSION_TEXTURE2D;
-    dsvDesc.Format             = _depthStencilFormat;
-    dsvDesc.Texture2D.MipSlice = 0;
+
+    HRESULT hr = S_OK;
+    hr         = _device->CreateCommittedResource(&hp, D3D12_HEAP_FLAG_NONE, &rd, D3D12_RESOURCE_STATE_COMMON, &cv, IID_PPV_ARGS(&_depthStencilBuffer));
+    FAILED_CHECK_MESSAGE(hr, L"Device::CreateDepthStencil _device->CreateCommittedResource Failed");
+
+    D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
+    dsvDesc.Flags                         = D3D12_DSV_FLAG_NONE;
+    dsvDesc.ViewDimension                 = D3D12_DSV_DIMENSION_TEXTURE2D;
+    dsvDesc.Format                        = _depthStencilFormat;
+    dsvDesc.Texture2D.MipSlice            = 0;
     _device->CreateDepthStencilView(_depthStencilBuffer.Get(), &dsvDesc, _depthStencilHandle);
 }
 
@@ -276,9 +294,9 @@ void Device::CreateBuffer(UINT size, ComPtr<ID3D12Resource>& buffer)
     // 버퍼 생성.
     ID3D12Resource* pBuff = nullptr;
 
-    FAILED_CHECK_BREAK(_device->CreateCommittedResource(&hp, D3D12_HEAP_FLAG_NONE, &rd,
-                                                        D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
-                                                        IID_PPV_ARGS(buffer.GetAddressOf())));
+    HRESULT hr = S_OK;
+    hr = _device->CreateCommittedResource(&hp, D3D12_HEAP_FLAG_NONE, &rd, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&buffer));
+    FAILED_CHECK_MESSAGE(hr, L"Device::CreateBuffer _device->CreateCommittedResource Failed");
 }
 
 void Device::SignalComputeQueue(int fenceSlot)
@@ -340,11 +358,6 @@ void Device::UploadResource(ComPtr<ID3D12Resource> uploadResource)
     _uploadResources.push_back(uploadResource);
 }
 
-void Device::SetCurrentPipelineState(ComPtr<ID3D12PipelineState> pipelineState)
-{
-    _currentPipelineState = pipelineState;
-}
-
 void Device::SetBackBuffer()
 {
     _commandList->OMSetRenderTargets(1, &_renderTargetHandles[_renderTargetIndex], FALSE, &_depthStencilHandle);
@@ -370,6 +383,7 @@ void Device::Execute()
     _commandList->ResourceBarrier(1, &br);
     _computeCommandList->Close();
     _commandList->Close();
+
     RegisterCommand(_computeCommandList.Get(), MESH_COMPUTE_LIST);
     RegisterCommand(_commandList.Get(),MESH_RENDER_LIST);
 
@@ -395,38 +409,29 @@ void Device::Execute()
 void Device::ResolveBackBuffer(ComPtr<ID3D12Resource> source)
 {
     _commandList->ResolveSubresource(_swapChainBuffer[_renderTargetIndex].Get(), 0, source.Get(), 0, _mode.Format);
+
     auto br = CD3DX12_RESOURCE_BARRIER::Transition(_swapChainBuffer[_renderTargetIndex].Get(),
                                              D3D12_RESOURCE_STATE_RESOLVE_DEST, D3D12_RESOURCE_STATE_RENDER_TARGET);
+
     _commandList->ResourceBarrier(1, &br);
 }
 
-HRESULT Device::UpdateBuffer(ComPtr<ID3D12Resource>& buffer, void* data, UINT size)
+void Device::UpdateBuffer(ComPtr<ID3D12Resource>& buffer, void* data, UINT size)
 {
     HRESULT hr = S_OK;
+
     if (nullptr == data)
-        return hr;
+        return;
 
     UINT8* temp = nullptr;
     hr          = buffer->Map(0, nullptr, (void**)&temp);
-
-    if (FAILED(hr) || nullptr == temp)
-    {
-        __debugbreak();
-        return hr;
-    }
+    FAILED_CHECK_MESSAGE(hr, L"Device::UpdateBuffer buffer->Map Failed");
 
     memcpy(temp, data, size);
     buffer->Unmap(0, nullptr);
-
-    return hr;
 }
 
-HRESULT Device::ClearBackBuffer(XMVECTOR color)
-{
-    return 0;
-}
-
-HRESULT Device::ClearBackBuffer(UINT flag, XMVECTOR color, float depth, UINT stencil)
+void Device::ClearBackBuffer(UINT flag, XMVECTOR color, float depth, UINT stencil)
 {
     D3D12_RECT rc = {0, 0, (LONG)_mode.Width, (LONG)_mode.Height};
 
@@ -443,29 +448,27 @@ HRESULT Device::ClearBackBuffer(UINT flag, XMVECTOR color, float depth, UINT ste
 
     auto br = CD3DX12_RESOURCE_BARRIER::Transition(_swapChainBuffer[_renderTargetIndex].Get(),
                                                    D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+
     _commandList->ResourceBarrier(1, &br);
 
     _commandList->OMSetRenderTargets(1, &_renderTargetHandles[_renderTargetIndex], FALSE, &_depthStencilHandle);
     _commandList->ClearRenderTargetView(_renderTargetHandles[_renderTargetIndex], (float*)&color, 0, nullptr);
     _commandList->ClearDepthStencilView(_depthStencilHandle, (D3D12_CLEAR_FLAGS)flag, depth, stencil, 0, nullptr);
-
-    return 0;
 }
 
-HRESULT Device::Flip()
+void Device::Flip()
 {
     _swapChain->Present(0, 0);
     GPUSync();
     ResizeSwapChain();
 
     _uploadResources.clear();
+
     // 새 프레임 준비.
     _renderTargetIndex = _swapChain->GetCurrentBackBufferIndex();
-    return 0;
 }
   
-void Device::CreateVertexBuffer(void* data, UINT size, UINT stride, ComPtr<ID3D12Resource>& buffer,
-                                   D3D12_VERTEX_BUFFER_VIEW& view)
+void Device::CreateVertexBuffer(void* data, UINT size, UINT stride, ComPtr<ID3D12Resource>& buffer, D3D12_VERTEX_BUFFER_VIEW& view)
 {
     if (data)
     {
@@ -480,8 +483,7 @@ void Device::CreateVertexBuffer(void* data, UINT size, UINT stride, ComPtr<ID3D1
     view.StrideInBytes  = stride;
 }
 
-void Device::CreateIndexBuffer(void* data, UINT size, DXGI_FORMAT format, ComPtr<ID3D12Resource>& buffer,
-                                  D3D12_INDEX_BUFFER_VIEW& view)
+void Device::CreateIndexBuffer(void* data, UINT size, DXGI_FORMAT format, ComPtr<ID3D12Resource>& buffer, D3D12_INDEX_BUFFER_VIEW& view)
 {
     if (data)
     {
@@ -534,14 +536,12 @@ void Device::CreateDefaultBuffer(UINT size, ComPtr<ID3D12Resource>& buffer)
     // 버퍼 생성.
     ID3D12Resource* pBuff = nullptr;
 
-    FAILED_CHECK_BREAK(_device->CreateCommittedResource(&hp, D3D12_HEAP_FLAG_NONE, &rd,
-                                                        D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
-                                                        IID_PPV_ARGS(buffer.GetAddressOf())));
+    HRESULT hr = S_OK;
+    hr = _device->CreateCommittedResource(&hp, D3D12_HEAP_FLAG_NONE, &rd, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&buffer));
+    FAILED_CHECK_MESSAGE(hr, L"Device::CreateDefaultBuffer _device->CreateCommittedResource Failed");
 }
 
-void Device::CreateCommandList(ComPtr<ID3D12CommandAllocator>&    allocator,
-                                  ComPtr<ID3D12GraphicsCommandList>& commandList,
-                                  CommandType type)
+void Device::CreateCommandList(ComPtr<ID3D12CommandAllocator>& allocator, ComPtr<ID3D12GraphicsCommandList>& commandList, CommandType type)
 {
     D3D12_COMMAND_QUEUE_DESC desc
     {
@@ -563,9 +563,13 @@ void Device::CreateCommandList(ComPtr<ID3D12CommandAllocator>&    allocator,
         break;
     }
 
-    FAILED_CHECK_BREAK(_device->CreateCommandAllocator(desc.Type, IID_PPV_ARGS(allocator.GetAddressOf())));
-    FAILED_CHECK_BREAK(_device->CreateCommandList(desc.NodeMask, desc.Type, allocator.Get(), nullptr,
-                                                  IID_PPV_ARGS(commandList.GetAddressOf())));
+    HRESULT hr = S_OK;
+    hr = _device->CreateCommandAllocator(desc.Type, IID_PPV_ARGS(&allocator));
+    FAILED_CHECK_MESSAGE(hr, L"Device::CreateCommandList _device->CreateCommandAllocator Failed");
+
+    hr = _device->CreateCommandList(desc.NodeMask, desc.Type, allocator.Get(), nullptr, IID_PPV_ARGS(&commandList));
+    FAILED_CHECK_MESSAGE(hr, L"Device::CreateCommandList _device->CreateCommandList Failed");
+
     commandList->Close();
 }
 
@@ -601,5 +605,8 @@ void Device::CreateComputeCommandObject()
         .Flags    = D3D12_COMMAND_QUEUE_FLAG_NONE,
         .NodeMask = 0,
     };
-    FAILED_CHECK_BREAK(_device->CreateCommandQueue(&desc, IID_PPV_ARGS(_computeCommandQueue.GetAddressOf())));
+
+    HRESULT hr = S_OK;
+    hr         = _device->CreateCommandQueue(&desc, IID_PPV_ARGS(&_computeCommandQueue));
+    FAILED_CHECK_MESSAGE(hr, L"Device::CreateComputeCommandObject _device->CreateCommandQueue Failed");
 }

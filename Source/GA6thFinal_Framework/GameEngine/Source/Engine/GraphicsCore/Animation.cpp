@@ -53,7 +53,6 @@ void Animation::LoadAnimation(const aiScene* scene)
     }
 }
 
-HRESULT Animation::LoadResource(const std::filesystem::path& filePath)
+void Animation::LoadResource(const std::filesystem::path& filePath)
 {
-	return S_OK;
 }

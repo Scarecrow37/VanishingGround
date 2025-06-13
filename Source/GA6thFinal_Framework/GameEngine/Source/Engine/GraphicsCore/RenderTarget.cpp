@@ -5,7 +5,8 @@ HRESULT RenderTarget::Initialize(DXGI_FORMAT format, FLOAT clearColor)
 {
     clearValue                  = clearColor;
     _format                     = format;
-    ComPtr<ID3D12Device> device = UmDevice.GetDevice();
+
+    ID3D12Device*       device = UmDevice.GetDevice();
     D3D12_RESOURCE_DESC  desc{.Dimension        = D3D12_RESOURCE_DIMENSION_TEXTURE2D,
                               .Width            = UmDevice.GetMode().Width,
                               .Height           = UmDevice.GetMode().Height,
@@ -23,15 +24,15 @@ HRESULT RenderTarget::Initialize(DXGI_FORMAT format, FLOAT clearColor)
         .Format = _format,
         .Color  = {clearColor, clearColor, clearColor,1.f},
     };
+
     // committedReosurce로 임시로 생성
     UmDevice.GetDevice()->CreateCommittedResource(&property, D3D12_HEAP_FLAG_NONE, &desc,
                                                         D3D12_RESOURCE_STATE_COMMON, &clearValue,
-                                                        IID_PPV_ARGS(_resource.GetAddressOf()));
+                                                        IID_PPV_ARGS(&_resource));
 
     HRESULT hr = S_OK;
 
-    hr = UmViewManager.AddDescriptorHeap(ViewManager::Type::RENDER_TARGET, _rtvHandle);
-    FAILED_CHECK_BREAK(hr);
+    UmViewManager.AddDescriptorHeap(ViewManager::Type::RENDER_TARGET, _rtvHandle);
     UmDevice.GetDevice()->CreateRenderTargetView(_resource.Get(), nullptr, _rtvHandle);
 
     return hr;

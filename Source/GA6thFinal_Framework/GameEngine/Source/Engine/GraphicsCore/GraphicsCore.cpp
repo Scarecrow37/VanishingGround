@@ -9,7 +9,7 @@ void GraphicsCore::Initialize(HWND hwnd, UINT width, UINT height, FeatureLevel f
     Device.ResetCommands();
     Renderer.Initialize();
 
-    auto commandList = Device.GetCommandList().Get();
+    auto commandList = Device.GetCommandList();
     commandList->Close();
     Device.RegisterCommand(commandList,MESH_RENDER_LIST);
     Device.ExecuteCommand(MESH_RENDER_LIST);
@@ -24,8 +24,9 @@ void GraphicsCore::UpdateAnimation(const float deltaTime)
     AnimationCore.Update(deltaTime);
 }
 
-void GraphicsCore::Update()
+void GraphicsCore::Update(const float deltaTime)
 {
+    LightCore.Update(deltaTime);
     Renderer.Update();
 }
 

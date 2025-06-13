@@ -33,7 +33,7 @@ float4 ps_main(PSInput input) : SV_Target0
     float metallic = orm.b;
     
     float3 viewPos = cameraData.Position.xyz;
-    float3 fragPos = gBuffers[WORLDPOSITION].Sample(samLinear_wrap, input.uv).xzy;
+    float3 fragPos = gBuffers[WORLDPOSITION].Sample(samLinear_wrap, input.uv).xyz;
     float3 V = normalize(viewPos - fragPos);
     
     float3 diffuse = float3(0, 0, 0);
@@ -63,7 +63,7 @@ float4 ps_main(PSInput input) : SV_Target0
     float3 ambient = 0.3;
     ambient *= albedo;
     diffuse = pow(diffuse, 1.0 / 2.2);
-    float3 color = diffuse+ ambient;
+    float3 color = diffuse;//+ambient;
 
     return float4(color, 1.0);
 }

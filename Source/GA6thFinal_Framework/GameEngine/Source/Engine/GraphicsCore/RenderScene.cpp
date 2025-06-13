@@ -30,7 +30,6 @@ void RenderScene::UpdateRenderScene()
 
     // 비활성된 컴포넌트 제거
     auto first = std::remove_if(_renderQueue.begin(), _renderQueue.end(), [](const auto& pair) { return *pair.first; });
-
     _renderQueue.erase(first, _renderQueue.end());
 
     _currentFrameIndex   = UmDevice.GetCurrentBackBufferIndex();
@@ -42,24 +41,23 @@ void RenderScene::UpdateRenderScene()
     auto& lights = UmLightCore.GetLights(_name.c_str());
 
     _numLight = {};
-    for (auto& light : lights)
+    for (auto& [isDestroy, light] : lights)
     {
         if (!light->_isActive)
             continue;
 
         switch (light->_type)
         {
-        case Light::TYPE::DIRECTIONAL:
+        case Light::Type::DIRECTIONAL:
             _lightDatas[_numLight.Directional++] = light->_data;
             break;
-        case Light::TYPE::POINT:
+        case Light::Type::POINT:
             _lightDatas[MAX_DIRECTIONAL_LIGHT + _numLight.Point++] = light->_data;
             break;
-        case Light::TYPE::SPOT:
+        case Light::Type::SPOT:
             _lightDatas[MAX_DIRECTIONAL_LIGHT + MAX_POINT_LIGHT + _numLight.Spot++] = light->_data;
             break;
         }
-
     }
 
     UmDevice.UpdateBuffer(_cameraBuffer, &cameraData, sizeof(CameraData));
@@ -123,7 +121,7 @@ void RenderScene::UpdateRenderScene()
     }
 
     UINT size = static_cast<UINT>(_worldMatrixes.size());
-    ID3D12GraphicsCommandList* commandList = UmDevice.GetCommandList().Get();
+    ID3D12GraphicsCommandList* commandList = UmDevice.GetCommandList();
 
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, _worldMatrixes.data(), size * sizeof(ObjectData), FrameResource::Type::TRANSFORM);
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, _boneMatrixes.data(), size * sizeof(BoneMatrixes), FrameResource::Type::BONE_MATRIXES);
@@ -133,12 +131,11 @@ void RenderScene::UpdateRenderScene()
 
 void RenderScene::RegisterOnRenderQueue(MeshRenderer* component)
 {
-    auto iter = std::find_if(_renderQueue.begin(), _renderQueue.end(), 
-        [component](const auto& pair) { return !pair.first.get(); }); // isDestroy()가 false면 중복된 것
+    auto iter = std::find_if(_renderQueue.begin(), _renderQueue.end(), [](const auto& pair) { return !pair.first.get(); });
 
     if (iter != _renderQueue.end())
     {
-        ASSERT(false, L"RenderScene::RegisterRenderQueue : Already registered component.");
+        GRAPHICS_ASSERT(false, L"RenderScene::RegisterRenderQueue : Already registered component.");
         return;
     }
 
@@ -151,8 +148,7 @@ void RenderScene::Execute(ID3D12GraphicsCommandList* commandList)
     // 메쉬 최종 타겟 클리어
     ComPtr<ID3D12Resource>   rt = _meshLightingTarget->GetResource();
 
-    CD3DX12_RESOURCE_BARRIER br = CD3DX12_RESOURCE_BARRIER::Transition(
-        rt.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    auto br = CD3DX12_RESOURCE_BARRIER::Transition(rt.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
     commandList->ResourceBarrier(1, &br);
 
     auto  handle     = _meshLightingTarget->GetRTVHandle();
@@ -183,7 +179,7 @@ void RenderScene::ResetSkyBox()
 
 void RenderScene::AddRenderTechnique(std::shared_ptr<RenderTechnique> technique)
 {
-    ID3D12GraphicsCommandList* commandList = UmDevice.GetCommandList().Get();
+    ID3D12GraphicsCommandList* commandList = UmDevice.GetCommandList();
     technique->SetOwnerScene(this);
     technique->Initialize(commandList);
     _techniques.push_back(technique);
@@ -238,9 +234,7 @@ void RenderScene::CreateRenderTarget()
 
 void RenderScene::CreateDepthStencil() 
 {
-    HRESULT hr = S_OK;
-    hr         = UmViewManager.AddDescriptorHeap(ViewManager::Type::DEPTH_STENCIL, _depthStencilHandle);
-    FAILED_CHECK_BREAK(hr);
+    UmViewManager.AddDescriptorHeap(ViewManager::Type::DEPTH_STENCIL, _depthStencilHandle);
 
     D3D12_RESOURCE_DESC depthDesc{.Dimension        = D3D12_RESOURCE_DIMENSION_TEXTURE2D,
                                   .Alignment        = 0,
@@ -256,9 +250,12 @@ void RenderScene::CreateDepthStencil()
 
     D3D12_CLEAR_VALUE   optClear{.Format = UmDevice.GetDepthStencilFormat(), .DepthStencil{.Depth = 1.f, .Stencil = 0}};
     CD3DX12_HEAP_PROPERTIES property(D3D12_HEAP_TYPE_DEFAULT);
+
+    HRESULT hr = S_OK;
     hr = UmDevice.GetDevice()->CreateCommittedResource(&property, D3D12_HEAP_FLAG_NONE, &depthDesc,
                                                        D3D12_RESOURCE_STATE_PRESENT, &optClear,
-                                                       IID_PPV_ARGS(_depthStencilBuffer.GetAddressOf()));
+                                                       IID_PPV_ARGS(&_depthStencilBuffer));
+    FAILED_CHECK_MESSAGE(hr, L"RenderScene::CreateDepthStencil UmDevice.GetDevice()->CreateCommittedResource Failed");
 
     D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc{.Format        = UmDevice.GetDepthStencilFormat(),
                                           .ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D,
@@ -294,10 +291,10 @@ void RenderScene::CreateFramePSO()
     psodesc.SampleDesc            = {1, 0};
     psodesc.VS                    = _frameShader->GetShaderByteCode(ShaderBuilder::Type::VS);
     psodesc.PS                    = _frameShader->GetShaderByteCode(ShaderBuilder::Type::PS);
-    ComPtr<ID3D12Device> device   = UmDevice.GetDevice();
 
-    HRESULT hr = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(_framePSO.GetAddressOf()));
-    FAILED_CHECK_BREAK(hr);
+    ID3D12Device* device = UmDevice.GetDevice();
+    HRESULT       hr     = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(&_framePSO));
+    FAILED_CHECK_MESSAGE(hr, L"RenderScene::CreateFramePSO device->CreateGraphicsPipelineState Faild");
 }
 
 void RenderScene::CreateSrvDescriptorHeap() 
@@ -306,8 +303,10 @@ void RenderScene::CreateSrvDescriptorHeap()
     desc.NumDescriptors             = 3;
     desc.Type                       = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
     desc.Flags                      = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-    HRESULT hr = UmDevice.GetDevice()->CreateDescriptorHeap(&desc, IID_PPV_ARGS(_srvDescriptorHeap.GetAddressOf()));
-    FAILED_CHECK_BREAK(hr);
+
+    ID3D12Device* device = UmDevice.GetDevice();
+    HRESULT hr = device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&_srvDescriptorHeap));
+    FAILED_CHECK_MESSAGE(hr, L"RenderScene::CreateSrvDescriptorHeap device->CreateDescriptorHeap Failed");
 }
 
 void RenderScene::CreateFrameResource()

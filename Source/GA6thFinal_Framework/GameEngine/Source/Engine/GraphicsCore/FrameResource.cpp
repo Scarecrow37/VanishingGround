@@ -13,11 +13,11 @@ FrameResource::~FrameResource()
 {	
 }
 
-HRESULT FrameResource::Initialize(const UINT numObjects, const UINT numTextures)
+void FrameResource::Initialize(const UINT numObjects, const UINT numTextures)
 {
 	// Frame Resource 전용 SRV Visible 힙 생성
 	HRESULT hr = S_OK;
-	ComPtr<ID3D12Device> device = UmDevice.GetDevice();
+	ID3D12Device* device = UmDevice.GetDevice();
 
 	D3D12_DESCRIPTOR_HEAP_DESC desc
 	{
@@ -27,8 +27,8 @@ HRESULT FrameResource::Initialize(const UINT numObjects, const UINT numTextures)
 		.NodeMask = 0
 	};
 
-	hr = device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(_frameHeap.GetAddressOf()));
-	FAILED_CHECK_BREAK(hr);
+	hr = device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&_frameHeap));
+    FAILED_CHECK_MESSAGE(hr, L"FrameResource::Initialize device->CreateDescriptorHeap Failed");
 
 	_handles.resize(numTextures + Type::END);
 	UINT size = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
@@ -43,13 +43,11 @@ HRESULT FrameResource::Initialize(const UINT numObjects, const UINT numTextures)
 	_structuredBuffer[Type::TRANSFORM]->Initialize(_handles[Type::TRANSFORM], sizeof(ObjectData), numObjects);
     _structuredBuffer[Type::BONE_MATRIXES]->Initialize(_handles[Type::BONE_MATRIXES], sizeof(BoneMatrixes), numObjects);
 	_structuredBuffer[Type::MATERIAL]->Initialize(_handles[Type::MATERIAL], sizeof(MaterialData), numObjects);
-
-	return hr;
 }
 
 void FrameResource::CopyDescriptorsSimple(const D3D12_CPU_DESCRIPTOR_HANDLE handle, UINT destStartIndex, UINT numDescriptors)
 {
-	ComPtr<ID3D12Device> device = UmDevice.GetDevice();
+	ID3D12Device* device = UmDevice.GetDevice();
 
 	UINT size = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	D3D12_CPU_DESCRIPTOR_HANDLE destHandle = _frameHeap->GetCPUDescriptorHandleForHeapStart();
@@ -60,7 +58,7 @@ void FrameResource::CopyDescriptorsSimple(const D3D12_CPU_DESCRIPTOR_HANDLE hand
 
 void FrameResource::CopyDescriptors(const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& handles)
 {
-	ComPtr<ID3D12Device> device = UmDevice.GetDevice();
+    ID3D12Device* device = UmDevice.GetDevice();
 
 	UINT count = static_cast<UINT>(handles.size());
 

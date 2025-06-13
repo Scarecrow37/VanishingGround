@@ -15,9 +15,10 @@ public:
 	ComPtr<ID3D12DescriptorHeap> GetDepthStencilHeap() const { return _depthStencilHeap; }
 
 public:
-	HRESULT Initialize();
-	HRESULT AddDescriptorHeap(const ViewManager::Type type, D3D12_CPU_DESCRIPTOR_HANDLE& handle);
-	HRESULT AddDescriptorHeap(const ViewManager::Type type, UINT numDescriptors, std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& handles);
+    void Initialize();
+    void AddDescriptorHeap(const ViewManager::Type type, D3D12_CPU_DESCRIPTOR_HANDLE& handle);
+    void AddDescriptorHeap(const ViewManager::Type type, UINT numDescriptors,
+                           std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& handles);
 
 private:
 	ComPtr<ID3D12DescriptorHeap> _shaderResourceHeap;
