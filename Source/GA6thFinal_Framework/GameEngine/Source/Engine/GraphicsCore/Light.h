@@ -1,6 +1,7 @@
 ﻿#pragma once
+#include "GraphicsBase.h"
 
-class Light
+class Light : public GraphicsBase
 {
     friend class RenderScene;
 
@@ -15,10 +16,9 @@ public:
 
 public:
     Light();
-    ~Light();
+    virtual ~Light();
 
 public:
-    void SetActive(bool isActive) { _isActive = isActive; }
     void SetDirectionalLight(const Vector3& color, const Vector3& ambient, const Vector3& direction,
                              const float& intensity);
     void SetPointLight(const Vector3& color, const Vector3& position, const Vector3& attenuation, const float& range,
@@ -33,7 +33,6 @@ public:
 private:
     LightData _data{};
     Type      _type{};
-    bool      _isActive{true};
 
     const Vector3* _color{nullptr};
     const float*   _intensity{nullptr};

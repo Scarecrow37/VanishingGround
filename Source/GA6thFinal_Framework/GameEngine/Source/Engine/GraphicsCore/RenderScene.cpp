@@ -30,7 +30,6 @@ void RenderScene::UpdateRenderScene()
 
     // 비활성된 컴포넌트 제거
     auto first = std::remove_if(_renderQueue.begin(), _renderQueue.end(), [](const auto& pair) { return *pair.first; });
-
     _renderQueue.erase(first, _renderQueue.end());
 
     _currentFrameIndex   = UmDevice.GetCurrentBackBufferIndex();
@@ -42,7 +41,7 @@ void RenderScene::UpdateRenderScene()
     auto& lights = UmLightCore.GetLights(_name.c_str());
 
     _numLight = {};
-    for (auto& light : lights)
+    for (auto& [isDestroy, light] : lights)
     {
         if (!light->_isActive)
             continue;
@@ -59,7 +58,6 @@ void RenderScene::UpdateRenderScene()
             _lightDatas[MAX_DIRECTIONAL_LIGHT + MAX_POINT_LIGHT + _numLight.Spot++] = light->_data;
             break;
         }
-
     }
 
     UmDevice.UpdateBuffer(_cameraBuffer, &cameraData, sizeof(CameraData));
@@ -133,8 +131,7 @@ void RenderScene::UpdateRenderScene()
 
 void RenderScene::RegisterOnRenderQueue(MeshRenderer* component)
 {
-    auto iter = std::find_if(_renderQueue.begin(), _renderQueue.end(), 
-        [component](const auto& pair) { return !pair.first.get(); }); // isDestroy()가 false면 중복된 것
+    auto iter = std::find_if(_renderQueue.begin(), _renderQueue.end(), [](const auto& pair) { return !pair.first.get(); });
 
     if (iter != _renderQueue.end())
     {
@@ -151,8 +148,7 @@ void RenderScene::Execute(ID3D12GraphicsCommandList* commandList)
     // 메쉬 최종 타겟 클리어
     ComPtr<ID3D12Resource>   rt = _meshLightingTarget->GetResource();
 
-    CD3DX12_RESOURCE_BARRIER br = CD3DX12_RESOURCE_BARRIER::Transition(
-        rt.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    auto br = CD3DX12_RESOURCE_BARRIER::Transition(rt.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
     commandList->ResourceBarrier(1, &br);
 
     auto  handle     = _meshLightingTarget->GetRTVHandle();

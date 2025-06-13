@@ -24,8 +24,9 @@ void GraphicsCore::UpdateAnimation(const float deltaTime)
     AnimationCore.Update(deltaTime);
 }
 
-void GraphicsCore::Update()
+void GraphicsCore::Update(const float deltaTime)
 {
+    LightCore.Update(deltaTime);
     Renderer.Update();
 }
 
