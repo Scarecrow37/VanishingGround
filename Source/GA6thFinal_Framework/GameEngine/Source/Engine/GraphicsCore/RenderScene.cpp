@@ -49,13 +49,13 @@ void RenderScene::UpdateRenderScene()
 
         switch (light->_type)
         {
-        case Light::TYPE::DIRECTIONAL:
+        case Light::Type::DIRECTIONAL:
             _lightDatas[_numLight.Directional++] = light->_data;
             break;
-        case Light::TYPE::POINT:
+        case Light::Type::POINT:
             _lightDatas[MAX_DIRECTIONAL_LIGHT + _numLight.Point++] = light->_data;
             break;
-        case Light::TYPE::SPOT:
+        case Light::Type::SPOT:
             _lightDatas[MAX_DIRECTIONAL_LIGHT + MAX_POINT_LIGHT + _numLight.Spot++] = light->_data;
             break;
         }

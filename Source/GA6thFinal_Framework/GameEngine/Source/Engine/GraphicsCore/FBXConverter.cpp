@@ -21,8 +21,6 @@ void FBXConverter::ImportModel(const std::filesystem::path& filePath, std::share
     Reset();
 
     _model    = model;
-    auto prev = GetTickCount64();
-    auto curr = GetTickCount64();
 
     if (filePath.extension() == L".fbx")
     {
@@ -32,9 +30,6 @@ void FBXConverter::ImportModel(const std::filesystem::path& filePath, std::share
     {
         LoadFromBinary(filePath, model.get());
     }
-
-    curr        = GetTickCount64();
-    float delta = (curr - prev) / 1000.f;
 }
 
 void FBXConverter::ImportModel(const std::filesystem::path& filePath, Model* model)
@@ -368,8 +363,12 @@ void FBXConverter::LoadFromAssimp(const std::filesystem::path& filePath, Model* 
     Assimp::Importer impoter;
     impoter.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, 0);
 
-    unsigned int importFlags = aiProcessPreset_TargetRealtime_MaxQuality |
+    unsigned int importFlags = //aiProcessPreset_TargetRealtime_MaxQuality |
+                               aiProcessPreset_TargetRealtime_Fast |
                                aiProcess_ConvertToLeftHanded;
+
+    importFlags ^= aiProcess_GenSmoothNormals;
+    importFlags |= aiProcess_GenNormals;
 
     const aiScene* scene = impoter.ReadFile(filePath.string(), importFlags);
 
