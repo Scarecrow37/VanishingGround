@@ -41,7 +41,7 @@ void SkyBoxPass::Draw(ID3D12GraphicsCommandList* commandList)
     if (isActive)
     {
         _skyBox->SetDescriptorHeap(commandList);
-        commandList->SetGraphicsRootSignature(_shader->GetRootSignature().Get());
+        commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
         commandList->SetGraphicsRootConstantBufferView(_shader->GetRootSignatureIndex("cameraData"),
                                                        _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
         commandList->SetPipelineState(_pipelineState.Get());
@@ -72,7 +72,7 @@ void SkyBoxPass::InitShaderAndPSO()
     psodesc.InputLayout                   = _shader->GetInputLayout();
     psodesc.NumRenderTargets              = 1;
     psodesc.RTVFormats[0]                 = DXGI_FORMAT_R32G32B32A32_FLOAT;
-    psodesc.pRootSignature                = _shader->GetRootSignature().Get();
+    psodesc.pRootSignature                = _shader->GetRootSignature();
     psodesc.SampleDesc                    = {1, 0};
     psodesc.VS                            = _shader->GetShaderByteCode(ShaderBuilder::Type::VS);
     psodesc.PS                            = _shader->GetShaderByteCode(ShaderBuilder::Type::PS);

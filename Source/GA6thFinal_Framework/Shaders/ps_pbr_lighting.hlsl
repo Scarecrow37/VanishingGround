@@ -16,12 +16,7 @@ struct PSInput
 #define WORLDPOSITION 4
 #define DEPTH 5
 
-ConstantBuffer<NumLight> num_light : register(b0);
-StructuredBuffer<DirectionalLight> directionalLights;
-StructuredBuffer<PointLight> pointLights;
-StructuredBuffer<SpotLight> spotLights;
 Texture2D gBuffers[];
-
 
 float4 ps_main(PSInput input) : SV_Target0
 {
@@ -42,26 +37,26 @@ float4 ps_main(PSInput input) : SV_Target0
     float3 V = normalize(viewPos - fragPos);
     
     float3 diffuse = float3(0, 0, 0);
-    
+        
     //Directional Lights
-    for (uint i = 0; i < /*num_light.Directional*/1;++i)
+    for (uint i = 0; i < numLight.Directional; i++)
     {
-        DirectionalLight light = directionalLights[i];
+        DirectionalLight light = lightData.Directional[i];
         diffuse += CalculateDirectional(light, normal, V, albedo, metallic, roughness);
     }
-    //일단 빛 구현 안되어있으니 사용안함
     //Point Lights
-    //for (uint j = 0; j < num_light.Point;++j)
-    //{
-    //    PointLight light = pointLights[j];
-    //    diffuse += CalculatePoint(light, normal, V, albedo, metallic, roughness, fragPos);
-    //}
-    ////Spot Lights
-    //for (uint k = 0; k < num_light.Spot; ++k)
-    //{
-    //    SpotLight light = spotLights[k];
-    //    diffuse += CalculateSpot(light, normal, V, albedo, metallic, roughness, fragPos);
-    //}
+    for (uint j = 0; j < numLight.Point; j++)
+    {
+        PointLight light = lightData.Point[j];                
+        diffuse += CalculatePoint(light, normal, V, albedo, metallic, roughness, fragPos);
+    }
+    
+    //Spot Lights
+    for (uint k = 0; k < numLight.Spot; k++)
+    {
+        SpotLight light = lightData.Spot[k];
+        diffuse += CalculateSpot(light, normal, V, albedo, metallic, roughness, fragPos);
+    }
     
     // ibl specular brdf 따로 구현하기
     // 임시로 albedo 색상에 상수값으로 환경광 표현

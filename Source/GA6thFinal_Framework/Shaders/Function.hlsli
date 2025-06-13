@@ -1,5 +1,14 @@
 #include "CommonData.hlsli"
 
+float3 FresnelSchlick(float cosTheta, float3 F0);
+float NormalDistributionGGX(float3 N, float3 H, float roughness);
+float GeometrySchlickGGX(float NdotV, float roughness);
+float GeometrySmith(float3 N, float3 V, float3 L, float roughness);
+float3 DiffuseBRDF(float3 N, float3 V, float3 L, float3 albedo, float metallic, float roughness);
+float3 CalculateDirectional(DirectionalLight light, float3 N, float3 V, float3 albedo, float metallic, float roughness);
+float3 CalculatePoint(PointLight light, float3 N, float3 V, float3 albedo, float metallic, float roughness, float3 fragPos);
+float3 CalculateSpot(SpotLight light, float3 N, float3 V, float3 albedo, float metallic, float roughness, float3 fragPos);
+
 float3 FresnelSchlick(float cosTheta, float3 F0)
 {
     return F0 + (1.f - F0) * pow(1.f - cosTheta, 5);
@@ -35,8 +44,8 @@ float GeometrySmith(float3 N, float3 V, float3 L, float roughness)
 float3 DiffuseBRDF(float3 N, float3 V, float3 L, float3 albedo, float metallic, float roughness)
 {
     float3 H = normalize(V + L);
-    float NdotL = saturate(dot(N, L));
-    float VdotH = saturate(dot(V, H));
+    float  NdotL = saturate(dot(N, L));
+    float  VdotH = saturate(dot(V, H));
     
     float3 F0 = lerp(float3(Fdielectric, Fdielectric, Fdielectric), albedo, metallic);
     float3 F = FresnelSchlick(VdotH, F0);
@@ -50,38 +59,34 @@ float3 DiffuseBRDF(float3 N, float3 V, float3 L, float3 albedo, float metallic, 
     return (diffuse + specular) * NdotL;
 }
 
-float3 CalculateDirectional(DirectionalLight light,float3 N, float3 V,float3 albedo,float metallic,float roughness)
+float3 CalculateDirectional(DirectionalLight light, float3 N, float3 V, float3 albedo, float metallic, float roughness)
 {
-    //이거 사용해야하고 빛 구현 안되어있으니깐 임시 데이터 사용
-    //float3 L = normalize(-light.direction).xyz;
-    //float3 radiance = light.strength.rgb;
-    float3 L = float3(0, 0, -1);
-    float3 radiance = float3(1.0, 1.0, 1.0);
-    return DiffuseBRDF(N, V, L, albedo, metallic, roughness) * radiance;
+    float3 L = -light.Direction;
+    return DiffuseBRDF(N, V, L, albedo, metallic, roughness) * light.Color * light.Intensity;
 }
 
-float3 CalculatePoint(PointLight light,float3 N, float3 V,float3 albedo,float metallic,float roughness,float3 fragPos)
+float3 CalculatePoint(PointLight light, float3 N, float3 V, float3 albedo, float metallic, float roughness, float3 fragPos)
 {
-    float3 L = light.position - fragPos;
+    float3 L = light.Position - fragPos;
     float distance = length(L);
     L = normalize(L);
-    float3 attenuation = 1.f / (light.fallOffEnd + distance * distance);
-    float3 radiance = light.strength.rgb * attenuation;
+    float attenuation = 1.f / (light.Attenuation.r + light.Attenuation.g * distance + light.Attenuation.b * distance * distance);
+    attenuation *= 2;
         
-    return DiffuseBRDF(N, V, L, albedo, metallic, roughness) * radiance;
+    return DiffuseBRDF(N, V, L, albedo, metallic, roughness) * attenuation * light.Color * light.Intensity;
 }
 
-float3 CalculateSpot(SpotLight light,float3 N,float3 V, float3 albedo,float metallic,float roughness,float3 fragPos)
+float3 CalculateSpot(SpotLight light, float3 N, float3 V, float3 albedo, float metallic, float roughness, float3 fragPos)
 {
-    float3 L = light.position - fragPos;
+    float3 L = light.Position - fragPos;
     float distance = length(L);
     L = normalize(L);
 
-    float theta = dot(-L, normalize(light.direction.xyz));
-    float epsilon = light.spotInnerCone - light.spotOuterCone;
-    float intensity = saturate((theta - light.spotOuterCone) / max(epsilon, 1e-4));
+    float theta = dot(-L, normalize(light.Direction.xyz));
+    float epsilon = light.InnerCone - light.OuterCone;
+    float intensity = saturate((theta - light.OuterCone) / max(epsilon, 1e-4));
 
-    float attenuation = 1.0 / (light.fallOffEnd + distance * distance);
-    float3 radiance = light.strength * attenuation * intensity;
-    return DiffuseBRDF(N, V, L, albedo, metallic, roughness) * radiance;
+    //float attenuation = 1.0 / (light.fallOffEnd + distance * distance);
+    //float3 radiance = light.strength * attenuation * intensity;
+    return DiffuseBRDF(N, V, L, albedo, metallic, roughness) * light.Intensity;
 }

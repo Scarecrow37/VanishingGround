@@ -3,7 +3,7 @@
 #include "Model.h"
 #include "Animator.h"
 
-MeshRenderer::MeshRenderer(MESH_RENDER_TYPE type, const Matrix& worldMatrix)
+MeshRenderer::MeshRenderer(MeshRenderType type, const Matrix& worldMatrix)
     : _type(type)
     , _worldMatrix(worldMatrix)
 {
@@ -15,7 +15,7 @@ MeshRenderer::~MeshRenderer()
 
 std::shared_ptr<Animator> MeshRenderer::GetAnimator() const
 {
-    if (MESH_RENDER_TYPE::SKELETAL != _type)
+    if (MeshRenderType::SKELETAL != _type)
         return nullptr;
 
     return _animator;
@@ -26,7 +26,7 @@ void MeshRenderer::SetModel(std::shared_ptr<Model> model)
     _model = model;
 
     if (model->GetAnimation())
-        _type = MESH_RENDER_TYPE::SKELETAL;
+        _type = MeshRenderType::SKELETAL;
 
     SetActive(true);
 }
@@ -45,7 +45,7 @@ void MeshRenderer::LoadModel(std::wstring_view filePath)
 {
     _model = UmResourceManager.LoadResource<Model>(filePath);
 
-    if (MESH_RENDER_TYPE::SKELETAL == _type)
+    if (MeshRenderType::SKELETAL == _type)
     {
         _animator = std::make_shared<Animator>();
         _animator->Initialize(_model->GetAnimation(), _model->GetSkeleton());
