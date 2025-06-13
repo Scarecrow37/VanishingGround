@@ -11,7 +11,7 @@ const std::vector<LightCore::LightComponent>& LightCore::GetLights(std::string_v
     return _lights[sceneName.data()];
 }
 
-void LightCore::RegisterLight(std::string_view sceneName, std::shared_ptr<Light> light)
+void LightCore::RegisterLight(std::string_view sceneName, Light* light)
 {
     auto& lights = _lights[sceneName.data()];
 
