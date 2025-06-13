@@ -9,7 +9,7 @@ void EngineCoresModule::PreInitialize()
     EGameObjectFactory::Engine::RegisterFileEvents();
 
     const SIZE& clientSize = UmApplication.GetClientSize();
-    engineCore->Graphics.Initialize(engineCore->App.GetHwnd(), clientSize.cx, clientSize.cy, FEATURE_LEVEL::LEVEL_12_0);
+    engineCore->Graphics.Initialize(engineCore->App.GetHwnd(), clientSize.cx, clientSize.cy, FeatureLevel::LEVEL_12_0);
 }
 
 void EngineCoresModule::ModuleUnInitialize()

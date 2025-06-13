@@ -7,7 +7,7 @@
 #include "Engine/GraphicsCore/Animator.h"
 
 EditorModelDetails::EditorModelDetails()
-    : _meshRenderer(std::make_unique<MeshRenderer>(MESH_RENDER_TYPE::STATIC, _worldMatrix))
+    : _meshRenderer(std::make_unique<MeshRenderer>(MeshRenderType::STATIC, _worldMatrix))
     , _animator(std::make_shared<Animator>())
     , _selectedMeshIndex(0)
 {
@@ -49,7 +49,7 @@ void EditorModelDetails::OnFrameRender()
     {
         const auto type = _meshRenderer->GetType();
 
-        if (MESH_RENDER_TYPE::SKELETAL == type)
+        if (MeshRenderType::SKELETAL == type)
         {
             const auto& animation      = model->GetAnimation();
             const auto& animationNames = animation->GetAnimations();

@@ -4,6 +4,7 @@
 #include "Command/DetachChildrenCommand.h"
 #include "Command/PackPrefabCommand.h"
 #include "Command/DropPrefabCommand.h"
+#include "Engine/GraphicsCore/Light.h"
 
 using namespace u8_literals;
 using namespace Global;
@@ -234,6 +235,25 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
     if (ImGui::MenuItem(GameObjectName))
     {
         UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(GameObjectKey, GameObject::Helper::GenerateUniqueName(GameObjectName));
+    }
+    if (ImGui::BeginMenu("Light"))
+    {
+        if (ImGui::MenuItem("Directional Light"))
+        {
+            auto light = std::make_shared<Light>();
+            light->SetDirectionalLight(Vector3(1.f, 1.f, 1.f), Vector3(1.f, 1.f, 1.f), Vector3(0.5f, 0.5f, 0.f), 1.f);
+            UmLightCore.RegisterLight("Editor", light);
+        }
+        if (ImGui::MenuItem("Point Light"))
+        {
+            auto light = std::make_shared<Light>();
+            light->SetPointLight(Vector3(0.f, 0.f, 1.f), Vector3(0.f, 10.f, 0.f), Vector3(1.f, 0.1f, 0.1f), 20.f, 1.f);
+            UmLightCore.RegisterLight("Editor", light);
+        }
+        if (ImGui::MenuItem("Spot Light"))
+        {
+        }
+        ImGui::EndMenu();
     }
 }
 

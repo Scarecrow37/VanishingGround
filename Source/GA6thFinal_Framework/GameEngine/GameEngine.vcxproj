@@ -301,6 +301,8 @@
     <ClInclude Include="Source\Editor\Tool\Scene\Command\EditorSceneCommands.h" />
     <ClInclude Include="Source\Engine\EngineCore\FactoryRegister.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\AnimationCore.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\Light.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\LightCore.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\SkyBoxPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\SkyBoxRenderTechnique.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\SkyBox.h" />
@@ -471,6 +473,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\AnimationCore.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\Light.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\LightCore.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\SkyBoxPass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\SkyBoxRenderTechnique.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\SkyBox.cpp" />

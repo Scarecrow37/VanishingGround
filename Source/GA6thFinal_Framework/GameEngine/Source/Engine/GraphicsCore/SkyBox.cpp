@@ -229,7 +229,7 @@ void SkyBox::CreateComputePSO()
     ComPtr<ID3D12Device>               device = UmDevice.GetDevice();
     D3D12_COMPUTE_PIPELINE_STATE_DESC psodesc{};
     HRESULT                            hr = S_OK;
-    psodesc.pRootSignature                = _shader->GetRootSignature().Get();
+    psodesc.pRootSignature                = _shader->GetRootSignature();
     psodesc.CS                            = _shader->GetShaderByteCode(ShaderBuilder::Type::CS);
     psodesc.Flags                         = D3D12_PIPELINE_STATE_FLAG_NONE;
 
@@ -254,7 +254,7 @@ void SkyBox::BindResources(UINT cubeSize, UINT faceIndex)
     ComPtr<ID3D12Resource> _cb;
     UmDevice.CreateConstantBuffer(&cb,sizeof(CubeConvertConstants),_cb);
 
-    cmdList->SetComputeRootSignature(_shader->GetRootSignature().Get());
+    cmdList->SetComputeRootSignature(_shader->GetRootSignature());
     cmdList->SetComputeRootDescriptorTable(_shader->GetRootSignatureIndex("EquirectangularMap"),
                                                 _hdrSRVGPU);  
     cmdList->SetComputeRootDescriptorTable(_shader->GetRootSignatureIndex("CubeMap"),
@@ -268,6 +268,6 @@ void SkyBox::SetPipelineState()
 {
     ComPtr<ID3D12GraphicsCommandList> cmdList = UmDevice.GetCommandList();
     cmdList->SetPipelineState(_computePSO.Get());
-    cmdList->SetComputeRootSignature(_shader->GetRootSignature().Get());
+    cmdList->SetComputeRootSignature(_shader->GetRootSignature());
     cmdList->SetDescriptorHeaps(1,_descriptorHeap.GetAddressOf());
 }

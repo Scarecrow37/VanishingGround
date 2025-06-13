@@ -83,11 +83,11 @@ void GBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
 
         switch (type)
         {
-        case MESH_RENDER_TYPE::STATIC:
+        case ::MeshRenderType::STATIC :
             meshes[MeshType::STATIC].push_back(component);
             break;
 
-        case MESH_RENDER_TYPE::SKELETAL:
+        case ::MeshRenderType::SKELETAL :
             meshes[MeshType::SKELTAL].push_back(component);
             break;
         }
@@ -119,7 +119,7 @@ void GBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
     resource.ptr += UmDevice.GetCBVSRVUAVDescriptorSize();
     auto textures = resource;
 
-    commandList->SetGraphicsRootSignature(_shader[MeshType::STATIC]->GetRootSignature().Get());
+    commandList->SetGraphicsRootSignature(_shader[MeshType::STATIC]->GetRootSignature());
     commandList->SetGraphicsRootConstantBufferView(_shader[MeshType::STATIC]->GetRootSignatureIndex("cameraData"),
                                                    _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
     commandList->SetGraphicsRootDescriptorTable(_shader[MeshType::STATIC]->GetRootSignatureIndex("objectData"),
@@ -136,7 +136,7 @@ void GBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
     // DrawStaticMeshes(commandList, _ownerScene->_staticTwoSidedMeshes);
     // DrawStaticMeshes(commandList, _ownerScene->_staticOneSidedMeshes);
 
-    commandList->SetGraphicsRootSignature(_shader[MeshType::SKELTAL]->GetRootSignature().Get());
+    commandList->SetGraphicsRootSignature(_shader[MeshType::SKELTAL]->GetRootSignature());
     commandList->SetGraphicsRootConstantBufferView(_shader[MeshType::SKELTAL]->GetRootSignatureIndex("cameraData"),
                                                    _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
     commandList->SetGraphicsRootDescriptorTable(_shader[MeshType::SKELTAL]->GetRootSignatureIndex("objectData"),
@@ -194,7 +194,7 @@ void GBufferPass::InitShaderAndPSO()
     psodesc.RTVFormats[RenderScene::DEPTH]         = DXGI_FORMAT_R32_FLOAT;
     psodesc.RTVFormats[RenderScene::CUSTOMDEPTH]   = DXGI_FORMAT_R32_UINT;
     psodesc.DSVFormat                              = DXGI_FORMAT_D24_UNORM_S8_UINT;
-    psodesc.pRootSignature                         = staticMeshShaderBuilder->GetRootSignature().Get();
+    psodesc.pRootSignature                         = staticMeshShaderBuilder->GetRootSignature();
     psodesc.SampleDesc                             = {1, 0};
     psodesc.VS = staticMeshShaderBuilder->GetShaderByteCode(ShaderBuilder::Type::VS);
     psodesc.PS = staticMeshShaderBuilder->GetShaderByteCode(ShaderBuilder::Type::PS);
@@ -215,7 +215,7 @@ void GBufferPass::InitShaderAndPSO()
     ComPtr<ID3D12PipelineState> skeletalTwoSidePSO;
     psodesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
     psodesc.InputLayout              = skeletalMeshShaderBuilder->GetInputLayout();
-    psodesc.pRootSignature           = skeletalMeshShaderBuilder->GetRootSignature().Get();
+    psodesc.pRootSignature           = skeletalMeshShaderBuilder->GetRootSignature();
     psodesc.VS                       = skeletalMeshShaderBuilder->GetShaderByteCode(ShaderBuilder::Type::VS);
     psodesc.PS                       = skeletalMeshShaderBuilder->GetShaderByteCode(ShaderBuilder::Type::PS);
 
@@ -240,7 +240,8 @@ void GBufferPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, const std::
         const auto& model = component->GetModel();
         for (auto& mesh : model->GetMeshes())
         {
-            commandList->SetGraphicsRoot32BitConstant(_shader[type]->GetRootSignatureIndex("bit32_2_object"), param[0]++, 0);
+            commandList->SetGraphicsRoot32BitConstants(_shader[type]->GetRootSignatureIndex("bit32_2_object"), 2, param, 0);
+            param[0]++;
             mesh->Render(commandList);
         }
     }

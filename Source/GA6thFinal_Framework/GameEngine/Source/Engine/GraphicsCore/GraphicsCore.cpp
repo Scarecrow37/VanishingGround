@@ -1,7 +1,7 @@
 ﻿#include "pch.h"
 #include "GraphicsCore.h"
 
-void GraphicsCore::Initialize(HWND hwnd, UINT width, UINT height, FEATURE_LEVEL feature)
+void GraphicsCore::Initialize(HWND hwnd, UINT width, UINT height, FeatureLevel feature)
 {
     Device.SetUpDevice(hwnd, width, height, feature);
     ViewManager.Initialize();

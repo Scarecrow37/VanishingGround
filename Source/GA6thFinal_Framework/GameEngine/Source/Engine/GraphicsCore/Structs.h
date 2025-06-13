@@ -2,36 +2,36 @@
 
 struct Vertex
 {
-	Vector4 Position;
-	Vector3 Normal;
-	Vector3 Tangent;
-	Vector3 BiTangent;
-	Vector2 UV;
+    Vector4 Position;
+    Vector3 Normal;
+    Vector3 Tangent;
+    Vector3 BiTangent;
+    Vector2 UV;
 };
 
 struct StaticMeshVertex
 {
-	Vector4 Position;
-	Vector3 Normal;
-	Vector3 Tangent;
-	Vector3 BiTangent;
-	Vector2 UV;
+    Vector4 Position;
+    Vector3 Normal;
+    Vector3 Tangent;
+    Vector3 BiTangent;
+    Vector2 UV;
 };
 
 struct SkeletalMeshVertex : public Vertex
 {
-	UINT BlendIndices[4]{};
-	float BlendWeights[4]{};
+    UINT  BlendIndices[4]{};
+    float BlendWeights[4]{};
 };
 
 struct ObjectData
 {
-	XMMATRIX World;
+    XMMATRIX World;
 };
 
 struct MaterialData
 {
-	UINT ID[4];
+    UINT ID[4];
 };
 
 struct BoneMatrixes
@@ -41,27 +41,51 @@ struct BoneMatrixes
 
 struct Material
 {
-    #undef OPAQUE
-    enum class ShadingModel { UNLIT, DEFAULTLIT, END };
-    enum class BlendMode{ OPAQUE, MASKED, TRANSLUCENT, ADDITIVE, MODULATE, END };
+#undef OPAQUE
+    enum class ShadingModel
+    {
+        UNLIT,
+        DEFAULTLIT,
+        END
+    };
+    enum class BlendMode
+    {
+        OPAQUE,
+        MASKED,
+        TRANSLUCENT,
+        ADDITIVE,
+        MODULATE,
+        END
+    };
     ShadingModel Model;
-    BlendMode Mode;
-    bool IsTwoSided;
+    BlendMode    Mode;
+    bool         IsTwoSided;
 };
 
 struct CameraData
-{	
-	XMMATRIX View;
-	XMMATRIX Projection;
-	XMMATRIX ViewInverse;
-	XMMATRIX ProejctionInverse;
-    Vector4  Position{0.f,0.f,-5.f,1.f};
+{
+    XMMATRIX View;
+    XMMATRIX Projection;
+    XMMATRIX ViewInverse;
+    XMMATRIX ProejctionInverse;
+    Vector4  Position{0.f, 0.f, -5.f, 1.f};
+};
+
+struct LightData
+{
+    Vector3 Color;
+    float   Intensity;
+    Vector3 float3_1;
+    float   float_1;
+    Vector3 float3_2;
+    float   float_2;
+    Vector3 float3_3;
+    float   float_3;
 };
 
 struct NumLight
 {
-    UINT Directional;
-    UINT Point;
-    UINT Spot;
-    UINT Padding; 
+    unsigned int Directional;
+    unsigned int Point;
+    unsigned int Spot;
 };

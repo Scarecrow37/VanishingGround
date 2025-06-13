@@ -368,12 +368,7 @@ void FBXConverter::LoadFromAssimp(const std::filesystem::path& filePath, Model* 
     Assimp::Importer impoter;
     impoter.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, 0);
 
-    unsigned int importFlags = aiProcess_Triangulate | 
-                               aiProcess_GenNormals | 
-                               aiProcess_GenUVCoords |
-                               aiProcess_CalcTangentSpace | 
-                               aiProcess_LimitBoneWeights | 
-                               aiProcess_JoinIdenticalVertices |
+    unsigned int importFlags = aiProcessPreset_TargetRealtime_MaxQuality |
                                aiProcess_ConvertToLeftHanded;
 
     const aiScene* scene = impoter.ReadFile(filePath.string(), importFlags);
@@ -459,6 +454,8 @@ void FBXConverter::LoadFromBinary(const std::filesystem::path& filePath, Model* 
     _textures.resize(meshCount);
     _meshNames.resize(meshCount);
     model->InitMaterials(meshCount);
+
+    bool isStaticMesh = true;
     for (unsigned int i = 0; i < meshCount; i++)
     {
         unsigned int vertexCount = 0;
@@ -472,13 +469,16 @@ void FBXConverter::LoadFromBinary(const std::filesystem::path& filePath, Model* 
 
         void* vertices = nullptr;
 
-        if (vertexStride == sizeof(StaticMeshVertex))
+        if (vertexStride != sizeof(StaticMeshVertex))
+            isStaticMesh = false;
+
+        if (isStaticMesh)
         {
             _staticVertices[i].resize(vertexCount);
             inFile.read((char*)_staticVertices[i].data(), vertexStride * vertexCount);
             vertices = static_cast<void*>(_staticVertices[i].data());
         }
-        else if (vertexStride == sizeof(SkeletalMeshVertex))
+        else if (!isStaticMesh)
         {
             _skeletalVertices[i].resize(vertexCount);
             inFile.read((char*)_skeletalVertices[i].data(), vertexStride * vertexCount);
@@ -545,81 +545,82 @@ void FBXConverter::LoadFromBinary(const std::filesystem::path& filePath, Model* 
 
         Material material{};
         inFile.read((char*)&material, sizeof(Material));
-        model->BindMaterial(i, material);
+        model->BindMaterial(i, material);        
+    }
 
-        if (sizeof(SkeletalMeshVertex) == vertexStride)
+    if (!isStaticMesh)
+    {
+        model->_animation = std::make_shared<Animation>();
+        auto& animations  = model->_animation->_animations;
+
+        unsigned int animationSize = 0;
+        inFile.read((char*)&animationSize, sizeof(unsigned int));
+        for (unsigned int i = 0; i < animationSize; i++)
         {
-            model->_animation = std::make_shared<Animation>();
-            auto& animations = model->_animation->_animations;
-            
-            unsigned int animationSize = 0;
-            inFile.read((char*)&animationSize, sizeof(unsigned int));
-            for (unsigned int i = 0; i < animationSize; i++)
+            unsigned int channelNameSize = 0;
+            inFile.read((char*)&channelNameSize, sizeof(unsigned int));
+
+            std::string channelName(channelNameSize, '\0');
+            inFile.read(channelName.data(), channelNameSize);
+
+            Animation::Channel channel{};
+            inFile.read((char*)&channel.LastTime, sizeof(float));
+
+            unsigned int boneTransformSize = 0;
+            inFile.read((char*)&boneTransformSize, sizeof(unsigned int));
+            for (unsigned int i = 0; i < boneTransformSize; i++)
             {
-                unsigned int channelNameSize = 0;
-                inFile.read((char*)&channelNameSize, sizeof(unsigned int));
+                Animation::BoneTransformTrack track{};
 
-                std::string channelName(channelNameSize, '\0');
-                inFile.read(channelName.data(), channelNameSize);
+                unsigned int boneNameSize = 0;
+                inFile.read((char*)&boneNameSize, sizeof(unsigned int));
 
-                Animation::Channel channel{};
-                inFile.read((char*)&channel.LastTime, sizeof(float));
-                
-                unsigned int boneTransformSize = 0;
-                inFile.read((char*)&boneTransformSize, sizeof(unsigned int));
-                for (unsigned int i = 0; i < boneTransformSize; i++)
+                std::string boneName(boneNameSize, '\0');
+                inFile.read(boneName.data(), boneNameSize);
+
+                unsigned int PositionsSize = 0;
+                inFile.read((char*)&PositionsSize, sizeof(unsigned int));
+                for (unsigned int i = 0; i < PositionsSize; i++)
                 {
-                    Animation::BoneTransformTrack track{};
-
-                    unsigned int boneNameSize = 0;
-                    inFile.read((char*)&boneNameSize, sizeof(unsigned int));
-
-                    std::string boneName(boneNameSize, '\0');
-                    inFile.read(boneName.data(), boneNameSize);
-
-                    unsigned int PositionsSize = 0;
-                    inFile.read((char*)&PositionsSize, sizeof(unsigned int));
-                    for (unsigned int i = 0; i < PositionsSize; i++)
-                    {
-                        std::pair<float, Vector3> position;
-                        inFile.read((char*)&position, sizeof(std::pair<float, Vector3>));
-                        track.Positions.push_back(position);
-                    }
-
-                    unsigned int RotationSize = 0;
-                    inFile.read((char*)&RotationSize, sizeof(unsigned int));
-                    for (unsigned int i = 0; i < RotationSize; i++)
-                    {
-                        std::pair<float, Vector4> rotation;
-                        inFile.read((char*)&rotation, sizeof(std::pair<float, Vector4>));
-                        track.Rotations.push_back(rotation);
-                    }
-
-                    unsigned int ScalesSize = 0;
-                    inFile.read((char*)&ScalesSize, sizeof(unsigned int));
-                    for (unsigned int i = 0; i < ScalesSize; i++)
-                    {
-                        std::pair<float, Vector3> scale;
-                        inFile.read((char*)&scale, sizeof(std::pair<float, Vector3>));
-                        track.Scales.push_back(scale);
-                    }
-
-                    channel.BoneTransforms.emplace(boneName, track);
+                    std::pair<float, Vector3> position;
+                    inFile.read((char*)&position, sizeof(std::pair<float, Vector3>));
+                    track.Positions.push_back(position);
                 }
 
-                animations[channelName.c_str()] = channel;
+                unsigned int RotationSize = 0;
+                inFile.read((char*)&RotationSize, sizeof(unsigned int));
+                for (unsigned int i = 0; i < RotationSize; i++)
+                {
+                    std::pair<float, Vector4> rotation;
+                    inFile.read((char*)&rotation, sizeof(std::pair<float, Vector4>));
+                    track.Rotations.push_back(rotation);
+                }
+
+                unsigned int ScalesSize = 0;
+                inFile.read((char*)&ScalesSize, sizeof(unsigned int));
+                for (unsigned int i = 0; i < ScalesSize; i++)
+                {
+                    std::pair<float, Vector3> scale;
+                    inFile.read((char*)&scale, sizeof(std::pair<float, Vector3>));
+                    track.Scales.push_back(scale);
+                }
+
+                channel.BoneTransforms.emplace(boneName, track);
             }
 
-            _model->_skeleton = std::make_shared<Skeleton>();
-            ReadBoneData(inFile, _model->_skeleton->_rootBone);
+            animations[channelName.c_str()] = channel;
         }
-    }
 
-    for (auto& [name, channel] : _model->_animation->_animations)
-    {
-        if (name.empty()) continue;
-        _model->_animation->_animationNames.push_back(name.data());
-    }
+        _model->_skeleton = std::make_shared<Skeleton>();
+        ReadBoneData(inFile, _model->_skeleton->_rootBone);
+
+        for (auto& [name, channel] : _model->_animation->_animations)
+        {
+            if (name.empty())
+                continue;
+            _model->_animation->_animationNames.push_back(name.data());
+        }
+    }    
 
     inFile.close();
 }
