@@ -239,15 +239,20 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
     }
     if (ImGui::BeginMenu("Light"))
     {
-        if (ImGui::MenuItem("Directional Light"))
+        if (ImGui::MenuItem("Directional light"))
         {
             auto light = NewGameObject(GameObject::Helper::GenerateUniqueName("Directional light"));
             light->AddComponent<DirectionalLight>();            
         }
-        if (ImGui::MenuItem("Point Light"))
+        if (ImGui::MenuItem("Point light"))
         {
             auto light = NewGameObject(GameObject::Helper::GenerateUniqueName("Point light"));
             light->AddComponent<PointLight>();            
+        }
+        if (ImGui::MenuItem("Spot light"))
+        {
+            auto light = NewGameObject(GameObject::Helper::GenerateUniqueName("Spot light"));
+            light->AddComponent<SpotLight>();
         }
         ImGui::EndMenu();
     }
