@@ -124,6 +124,7 @@ namespace Global
             return _isPlay;
         }
         void Play();
+        void Pause();
         void Stop();
         void SetPlayModeColor();
         void SetPlayModeColor(ImVec4 (&playModeColors)[ImGuiCol_COUNT]);
@@ -137,6 +138,7 @@ namespace Global
         #endif
         File::Guid _playSceneGuid;
         ImVec4 _playModeColors[ImGuiCol_COUNT];
+        bool _isPause;
     }
     PlayMode;
 

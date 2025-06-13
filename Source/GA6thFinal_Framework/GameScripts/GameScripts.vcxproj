@@ -294,21 +294,27 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Scripts\GameCore\FSM\FSMState.h" />
+    <ClInclude Include="Scripts\GameCore\FSM\TestState.h" />
     <ClInclude Include="Scripts\Graphics\StaticMeshRenderer.h" />
     <ClInclude Include="Scripts\Test\TestComponent.h" />
     <ClInclude Include="UmScriptCore.h" />
     <ClInclude Include="UmScripts.h" />
     <ClInclude Include="Scripts\Graphics\SkeletalMeshRenderer.h" />
     <ClInclude Include="Scripts\Graphics\MeshComponent.h" />
+    <ClInclude Include="Scripts\GameCore\FSM\FiniteStateMachine.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="Scripts\GameCore\FSM\FSMState.cpp" />
+    <ClCompile Include="Scripts\GameCore\FSM\TestState.cpp" />
     <ClCompile Include="Scripts\Graphics\StaticMeshRenderer.cpp" />
     <ClCompile Include="Scripts\Test\TestComponent.cpp" />
     <ClCompile Include="UmScriptCore.cpp" />
     <ClCompile Include="UmScripts.cpp" />
     <ClCompile Include="Scripts\Graphics\SkeletalMeshRenderer.cpp" />
     <ClCompile Include="Scripts\Graphics\MeshComponent.cpp" />
+    <ClCompile Include="Scripts\GameCore\FSM\FiniteStateMachine.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

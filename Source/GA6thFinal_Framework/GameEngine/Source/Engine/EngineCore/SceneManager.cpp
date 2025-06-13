@@ -615,7 +615,7 @@ void ESceneManager::ObjectsAwake()
 {
     for (auto& component : _waitAwakeVec)
     {
-        if (component->_gameObect->ActiveInHierarchy_property_getter())
+        if (component->_gameObject->ActiveInHierarchy_property_getter())
         {
             component->Awake();
             component->_initFlags.SetAwake();
@@ -627,7 +627,7 @@ void ESceneManager::ObjectsAwake()
     }
     std::erase_if(_waitAwakeVec, [](auto& component)
         {
-            return component->_gameObect->ActiveInHierarchy_property_getter();
+            return component->_gameObject->ActiveInHierarchy_property_getter();
         });
 }
 
@@ -635,7 +635,7 @@ void ESceneManager::ObjectsStart()
 {
     for (auto& component : _waitStartVec)
     {
-        if (component->_gameObect->ActiveInHierarchy_property_getter())
+        if (component->_gameObject->ActiveInHierarchy_property_getter())
         {
             if (component->ReflectFields->_enable)
             {
@@ -646,7 +646,7 @@ void ESceneManager::ObjectsStart()
     }
     std::erase_if(_waitStartVec, [](auto& component)
         {
-            return component->_gameObect->ActiveInHierarchy_property_getter();
+            return component->_gameObject->ActiveInHierarchy_property_getter();
         });
 }
 
@@ -812,7 +812,7 @@ void ESceneManager::ObjectsDestroy()
         //OnDestroy 대상 호출
         if (_isPlay)
         {
-            if (destroyComponent->_gameObect->ActiveInHierarchy_property_getter())
+            if (destroyComponent->_gameObject->ActiveInHierarchy_property_getter())
             {
 
                 if (destroyComponent->Enable)
@@ -823,7 +823,7 @@ void ESceneManager::ObjectsDestroy()
         }
 
         //해당 컴포넌트를 오브젝트 배열에서 삭제.
-        std::vector<std::shared_ptr<Component>>& components = destroyComponent->_gameObect->_components;
+        std::vector<std::shared_ptr<Component>>& components = destroyComponent->_gameObject->_components;
         std::erase_if(
             components, 
             [destroyComponent](std::shared_ptr<Component>& component)
@@ -901,7 +901,7 @@ void ESceneManager::ObjectsAddRuntime()
 
     for (auto& component : _addComponentsQueue)
     {
-        component->_gameObect->_components.emplace_back(component);
+        component->_gameObject->_components.emplace_back(component);
         if (_isPlay)
         {
             _waitAwakeVec.push_back(component);
@@ -1398,7 +1398,7 @@ void ESceneManager::SceneResourceManager::Update(SceneResourceManager& manager)
                         File::Path path = guid.ToPath();
                         if (false == path.IsNull())
                         {
-                            if (0 <= pMeshComponent->_gameObect->_instanceID)
+                            if (0 <= pMeshComponent->_gameObject->_instanceID)
                             {
                                 if (models.ModelResource.find(guid) == models.ModelResource.end())
                                 {
@@ -1407,6 +1407,11 @@ void ESceneManager::SceneResourceManager::Update(SceneResourceManager& manager)
                                 meshRenderer.LoadModel(path.wstring());
                                 models.ModelUseComponentList[guid].emplace_back(pMeshComponent);
                                 UmSceneManager._runtimeMeshComponents.emplace_back(pMeshComponent);
+
+                                if (false == pMeshComponent->_gameObject->IsValid())
+                                {
+                                    pMeshComponent->Renderer->SetActive(false);
+                                }
                             }
                         }
                         else
