@@ -70,10 +70,8 @@ float3 CalculatePoint(PointLight light, float3 N, float3 V, float3 albedo, float
 {
     float3 L = light.Position - fragPos;
     float distance = length(L);
-    L = normalize(L);
-    
+    L = normalize(L);    
     float attenuation = Attenuation(light.Attenuation, distance, light.Range);
-
         
     return DiffuseBRDF(N, V, L, albedo, metallic, roughness) * attenuation * light.Color * light.Intensity;
 }
@@ -86,11 +84,10 @@ float3 CalculateSpot(SpotLight light, float3 N, float3 V, float3 albedo, float m
 
     float theta = dot(-L, normalize(light.Direction.xyz));
     float epsilon = light.InnerCone - light.OuterCone;
-    float intensity = saturate((theta - light.OuterCone) / max(epsilon, 1e-4));
+    float intensity = saturate((theta - light.OuterCone) / max(epsilon, 1e-4)) * light.Intensity;
+    float attenuation = Attenuation(light.Attenuation, distance, light.Range);
 
-    //float attenuation = 1.0 / (light.fallOffEnd + distance * distance);
-    //float3 radiance = light.strength * attenuation * intensity;
-    return DiffuseBRDF(N, V, L, albedo, metallic, roughness) * light.Intensity;
+    return DiffuseBRDF(N, V, L, albedo, metallic, roughness) * attenuation;
 }
 
 float Attenuation(float3 attenuation, float distance, float range)
