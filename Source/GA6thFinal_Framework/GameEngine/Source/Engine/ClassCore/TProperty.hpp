@@ -52,27 +52,26 @@ public:
     static constexpr bool is_setter = !std::is_same_v<setter::Type, void>;
 
     /// <summary>
-    /// <para> 이 프로퍼티의 에디터 창에서 AcceptDragDropPayload를 호출하는 함수를 설정합니다. </para>
+    /// <para> 이 프로퍼티가 InputAuto를 호출받은 뒤 호출되는 콜백 함수를 등록합니다. </para>
     /// <para> 프로퍼티를 맴버로 사용하는 클래스의 생성자에서 사용해야합니다. </para>
-    /// <para> if (ImGui::BeginDragDropTarget())후 호출해줍니다. </para>
     /// </summary>
-    inline void SetDragDropFunc(const std::function<void()>& func) 
+    inline void SetInputAutoEvent(const std::function<void()>& func) 
     {
-        if (dragDropTargetFunc)
+        if (_inputAutoEventFunc)
         {
             assert(!"이미 설정된 함수입니다.");
         }
         else
         {
-            dragDropTargetFunc = func;
+            _inputAutoEventFunc = func;
         }
     }
 
-    inline void InvokeDragDropFunc()
+    inline void InvokeInputAutoEventFunc()
     {
-        if (dragDropTargetFunc)
+        if (_inputAutoEventFunc)
         {
-            dragDropTargetFunc();
+            _inputAutoEventFunc();
         }
     }
 
@@ -109,7 +108,7 @@ private:
     getterType _getter{};
     setterType _setter{};
     const type_info& type_id;
-    std::function<void()> dragDropTargetFunc;
+    std::function<void()> _inputAutoEventFunc;
 
     field_type Getter() const requires(is_getter)
     {

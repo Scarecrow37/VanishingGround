@@ -70,7 +70,7 @@ void EditorDebugTool::OnFramePopupOpened()
 void EditorDebugTool::UpdateFPS() 
 {
     ++_frameCount;
-    _elpasedTime += UmTime.DeltaTime();
+    _elpasedTime += UmTime.UnscaledDeltaTime();
     if (_elpasedTime >= 0.5f)
     {
         _fps         = static_cast<int>((float)_frameCount / _elpasedTime);

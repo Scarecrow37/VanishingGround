@@ -299,6 +299,7 @@
     <ClInclude Include="Source\Editor\Menu\Model\EditorModelMenu.h" />
     <ClInclude Include="Source\Editor\Tool\Hierarchy\HierarchyFindTool.h" />
     <ClInclude Include="Source\Editor\Tool\Scene\Command\EditorSceneCommands.h" />
+    <ClInclude Include="Source\Engine\EngineCore\FactoryRegister.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\AnimationCore.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Light.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\LightCore.h" />
