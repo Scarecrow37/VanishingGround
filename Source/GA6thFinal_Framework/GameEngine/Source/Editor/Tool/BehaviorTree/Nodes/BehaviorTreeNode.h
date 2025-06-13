@@ -16,9 +16,6 @@ namespace NodeGraph
         void OnNodePopup() override;
         void OnPinPopup(UINT64 _pinID) override;
 
-    protected:
-        //virtual void OnPostBeginNode();
-
     private:
         void DrawNode();
         void CalculateInputPinRect();

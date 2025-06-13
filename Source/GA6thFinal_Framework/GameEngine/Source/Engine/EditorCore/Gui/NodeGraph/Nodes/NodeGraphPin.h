@@ -25,6 +25,16 @@ namespace NodeGraph
         std::string _label;
         std::string _type;
         ed::PinKind _kind;
+
+    public:
+        // 같은 노드를 참조하는 핀인지 확인합니다.
+        static bool IsSameOwner(const Pin* a, const Pin* b);
+        // 같은 종류의 핀인지 확인합니다. (입력, 출력)
+        static bool IsSameKind(const Pin* a, const Pin* b);
+        // 같은 종류의 핀인지 확인합니다. (타입)
+        static bool IsSameType(const Pin* a, const Pin* b);
+        // 같은 핀인지 확인합니다.
+        static bool IsSamePin(const Pin* a, const Pin* b);
         
     };
 } // namespace NodeGraph

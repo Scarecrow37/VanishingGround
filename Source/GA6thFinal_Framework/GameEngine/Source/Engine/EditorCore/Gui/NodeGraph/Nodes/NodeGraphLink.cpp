@@ -12,5 +12,6 @@ namespace NodeGraph
     }
     Link::~Link() 
     {
+        ed::DeleteLink(GetLinkID());
     }
 } // namespace NodeGraph

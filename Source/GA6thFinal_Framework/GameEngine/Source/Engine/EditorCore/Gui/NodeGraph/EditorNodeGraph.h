@@ -5,6 +5,12 @@
 #include "Nodes/NodeGraphNode.h"
 #include "Nodes/NodeGraphLink.h"
 
+namespace NodeGraph
+{
+    constexpr ImColor CANT_LINK_LABEL_COLOR(100, 20, 20, 200); // 링크를 할 수 없는 툴팁 바의 색
+    constexpr ImColor CAN_LINK_LABEL_COLOR(20, 100, 20, 200);  // 링크를 할 수 있는 툴팁 바의 색
+}
+
 class NodeGraphContext
     : public ReflectSerializer
 {

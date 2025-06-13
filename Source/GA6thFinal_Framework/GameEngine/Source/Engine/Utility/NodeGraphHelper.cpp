@@ -10,15 +10,16 @@ namespace NodeGraph
             return false;
         }
 
-        bool isSamePin   = (from == to);
-        bool isSameKind  = (from->GetPinKind() == to->GetPinKind());
-        bool isSameType  = (from->GetPinType() == to->GetPinType());
-        bool isSameOwner = (from->GetOwnerNodeID() == to->GetOwnerNodeID());
-
-        if (true == isSamePin || true == isSameKind || true == isSameType || true == isSameOwner)
+        bool isSameKind  = Pin::IsSameKind(from, to);
+        bool isSameType  = Pin::IsSameType(from, to);
+        bool isSameOwner = Pin::IsSameOwner(from, to);
+        
+        if (true == isSameKind ||   // 같은 종류의 핀(입력, 출력)이거나
+            false == isSameType ||  // 다른 종류의 핀(타입)이거나
+            true == isSameOwner)    // 같은 노드에 속한 핀인 경우
             return false;
-
-        return true;
+        else
+            return true;
     }
 
     ImU32 GetColor4ToImU32(const ImVec4& color)

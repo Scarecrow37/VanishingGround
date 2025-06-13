@@ -9,6 +9,7 @@ namespace NodeGraph
     }
     Node::~Node()
     {
+        ed::DeleteNode(GetNodeID());
         _inputPinList.clear();
         _outputPinList.clear();
         _pinIDTable.clear();

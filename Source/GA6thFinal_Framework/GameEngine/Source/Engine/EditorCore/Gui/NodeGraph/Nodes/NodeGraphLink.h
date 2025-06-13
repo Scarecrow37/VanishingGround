@@ -19,9 +19,9 @@ namespace NodeGraph
         inline const ImColor& GetPinColor() const { return _color; }
 
     private:
-        ed::LinkId _id;
-        ed::PinId  _startPinID;
-        ed::PinId  _endPinID;
-        ImColor    _color;
+        UINT64  _id;
+        UINT64  _startPinID;
+        UINT64  _endPinID;
+        ImColor _color;
     };
 } // namespace NodeGraph

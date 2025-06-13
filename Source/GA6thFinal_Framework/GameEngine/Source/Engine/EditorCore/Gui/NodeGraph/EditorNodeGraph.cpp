@@ -1,6 +1,8 @@
 ﻿#include "pch.h"
 #include "EditorNodeGraph.h"
 
+using namespace u8_literals;
+
 NodeGraphContext::NodeGraphContext() 
     : _editor(nullptr), _state({}), _uniqueID(0)
 {
@@ -153,7 +155,6 @@ bool NodeGraphContext::RemoveNodeFromNodeID(IN UINT64 nodeID)
             delete *it;
             _nodeVector.erase(it);
             _nodeTable.erase(nodeID);
-            ed::DeleteNode(nodeID);
             return true;
         }
     }
@@ -169,7 +170,6 @@ bool NodeGraphContext::RemoveLinkFromLinkID(IN UINT64 linkID)
             delete *it;
             _linkVector.erase(it);
             _linkTable.erase(linkID);
-            ed::DeleteLink(linkID);
             return true;
         }
     }
@@ -192,7 +192,11 @@ void NodeGraphContext::ProcessLinks()
         ed::PinId  startId  = link->GetStartPinID();
         ed::PinId  endId    = link->GetEndPinID();
         ImColor    pinColor = link->GetPinColor();
-        ed::Link(linkId, startId, endId, pinColor, ReflectFields->LinkThickness);
+        // Link의 반환 값이 false인 경우 내부 Context에서 Link를 찾지 못한 것이므로 삭제해주자.
+        if (false == ed::Link(linkId, startId, endId, pinColor, ReflectFields->LinkThickness))
+        {
+            RemoveLinkFromLinkID(linkId.Get());
+        }
     }
 }
 
@@ -228,27 +232,23 @@ void NodeGraphContext::ProcessCreateLink()
                 std::swap(startPin, endPin);
                 std::swap(startPinId, endPinId);
             }
-            
-            bool isSamePin = endPin == startPin;
-            bool isSameKind = endPin->GetPinKind() == startPin->GetPinKind();
-            bool isSameType = endPin->GetPinType() == startPin->GetPinType();
-            // 같은 핀이거나, 같은 종류(입력, 출력)의 핀이고, 같은 타입의 핀이 아닌 경우는 연결할 수 없습니다.
-            bool isReject = false == isSamePin && true == isSameKind && false == isSameType;
+            bool canLink = NodeGraph::CanLink(startPin, endPin);
             //////////////////////////////////////
             // 연결할 수 없는 핀 처리
             //////////////////////////////////////
-            if (true == isReject)
+            if (false == canLink)
             {
                 ImVec4 rejectLinkColor     = ImGuiHelper::FloatPtrToImVec4(ReflectFields->RejectNewLinkData.data());
                 float  rejectLinkThickness = ReflectFields->RejectNewLinkData[ReflectFields->THICKNESS];
-                if (true == isSameKind)
-                {   // 입력인 경우 출력에, 출력인 경우 입력에만 허용
-                    ShowLabel("x Incompatible Pin Kind", ImColor(45, 32, 32, 180));
-                }
-                else if (false == isSameType)
-                {   // 종류가 다른 핀일 경우
-                    ShowLabel("x Incompatible Pin Type", ImColor(45, 32, 32, 180));
-                }
+                if (true == NodeGraph::Pin::IsSamePin(startPin, endPin)) // 같은 핀을 연결하려는 경우
+                    ShowLabel(u8"같은 핀끼리는 연결하지 못합니다"_c_str, NodeGraph::CANT_LINK_LABEL_COLOR);
+                else if (true == NodeGraph::Pin::IsSameOwner(startPin, endPin)) // 같은 핀을 연결하려는 경우
+                    ShowLabel(u8"같은 노드에 속한 핀끼리는 연결하지 못합니다"_c_str, NodeGraph::CANT_LINK_LABEL_COLOR);
+                else if (true == NodeGraph::Pin::IsSameKind(startPin, endPin)) // 입력인 경우 출력에, 출력인 경우 입력에만 허용
+                    ShowLabel(u8"입출력이 같은 핀끼리는 연결하지 못합니다"_c_str, NodeGraph::CANT_LINK_LABEL_COLOR);
+                else if (false == NodeGraph::Pin::IsSameType(startPin, endPin)) // 종류가 다른 핀일 경우
+                    ShowLabel(u8"타입이 다른 핀끼리는 연결하지 못합니다"_c_str, NodeGraph::CANT_LINK_LABEL_COLOR);
+
                 ed::RejectNewItem(rejectLinkColor, rejectLinkThickness);
             }
             //////////////////////////////////////
@@ -258,7 +258,7 @@ void NodeGraphContext::ProcessCreateLink()
             {
                 ImVec4 acceptLinkColor     = ImGuiHelper::FloatPtrToImVec4(ReflectFields->AcceptNewLinkData.data());
                 float  acceptLinkThickness = ReflectFields->AcceptNewLinkData[ReflectFields->THICKNESS];
-                ShowLabel("+ Create Link", ImColor(32, 45, 32, 180));
+                ShowLabel(u8"링크가 가능합니다"_c_str, NodeGraph::CAN_LINK_LABEL_COLOR);
                 if (ed::AcceptNewItem(acceptLinkColor, acceptLinkThickness))
                 {
                     
@@ -279,7 +279,7 @@ void NodeGraphContext::ProcessCreateNode()
     {
         if (true == FindPinFromPinID(pinId.Get(), &_state.NewLinkPin))
         {
-            ShowLabel("+ Create Node", ImColor(32, 45, 32, 180));
+            ShowLabel(u8"노드를 추가합니다"_c_str, NodeGraph::CAN_LINK_LABEL_COLOR);
         }
         if (ed::AcceptNewItem())
         {
