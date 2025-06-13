@@ -1,20 +1,20 @@
 ﻿#pragma once
 
-namespace NodeGraph
+namespace BehaviorTree
 {
-    class BehaviorTreeNode : public Node
+    class BTNode : public NodeGraph::Node
     {
     public:
         using Node::Node;
-        virtual ~BehaviorTreeNode();
+        virtual ~BTNode();
 
     public:
         // Node을(를) 통해 상속됨
         void Draw() override;
-        void Do() override;
         void OnCreate() override;
         void OnNodePopup() override;
         void OnPinPopup(UINT64 _pinID) override;
+        void OnQueryNewLink(NodeGraph::Pin* from, NodeGraph::Pin* to, bool isReject) override;
 
     private:
         void DrawNode();

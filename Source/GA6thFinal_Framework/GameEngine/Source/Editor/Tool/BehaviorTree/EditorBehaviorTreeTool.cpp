@@ -3,6 +3,7 @@
 #include "Nodes/BehaviorTreeNode.h"
 
 EditorBehaviorTreeTool::EditorBehaviorTreeTool() 
+    : _context(nullptr)
 {
     SetLabel("BehaviorTree");
     SetDockLayout(ImGuiDir_Down);
@@ -15,25 +16,33 @@ void EditorBehaviorTreeTool::OnTickGui() {}
 void EditorBehaviorTreeTool::OnStartGui() 
 {
     _context = new NodeGraphContext();
+    auto filter = [](const NodeGraph::Pin* self, const NodeGraph::Pin* dest) -> bool {
+        // 예시: 같은 종류의 핀은 연결할 수 없습니다.
+        if (self->GetPinKind() == dest->GetPinKind())
+        {
+            return false;
+        }
+        return true;
+    };
     NodeGraph::SetCurrentNodeGraphContext(_context);
     {
-        auto node = _context->AddNode<NodeGraph::BehaviorTreeNode>();
+        auto node = _context->AddNode<BehaviorTree::BTNode>();
         node->SetLabel("Root Node");
-        node->AddPin("Output", "", ed::PinKind::Output);
+        node->AddPin("Output", ed::PinKind::Output, filter);
         node->SetPosition(ImVec2(0, 0));
     }
     {
-        auto node = _context->AddNode<NodeGraph::BehaviorTreeNode>();
+        auto node = _context->AddNode<BehaviorTree::BTNode>();
         node->SetLabel("Child Node 1");
-        node->AddPin("Input", "", ed::PinKind::Input);
-        node->AddPin("Output", "", ed::PinKind::Output);
+        node->AddPin("Input", ed::PinKind::Input, filter);
+        node->AddPin("Output", ed::PinKind::Output, filter);
         node->SetPosition(ImVec2(-100, -100));
     }
     {
-        auto node = _context->AddNode<NodeGraph::BehaviorTreeNode>();
+        auto node = _context->AddNode<BehaviorTree::BTNode>();
         node->SetLabel("Child Node 2");
-        node->AddPin("Input", "", ed::PinKind::Input);
-        node->AddPin("Output", "", ed::PinKind::Output);
+        node->AddPin("Input", ed::PinKind::Input, filter);
+        node->AddPin("Output", ed::PinKind::Output, filter);
         node->SetPosition(ImVec2(100, 100));
     }
 }

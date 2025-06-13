@@ -296,6 +296,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Editor\Tool\BehaviorTree\Nodes\BTRootNode.h" />
     <ClInclude Include="Source\Editor\Tool\BehaviorTree\Nodes\BehaviorTreeNode.h" />
     <ClInclude Include="Source\Editor\Tool\BehaviorTree\EditorBehaviorTreeTool.h" />
     <ClInclude Include="Source\Engine\EditorCore\System\EditorNodeGraphSystem.h" />
@@ -476,6 +477,7 @@
     <ClInclude Include="ThirdParty\include\UmYaml-cpp.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Editor\Tool\BehaviorTree\Nodes\BTRootNode.cpp" />
     <ClCompile Include="Source\Editor\Tool\BehaviorTree\Nodes\BehaviorTreeNode.cpp" />
     <ClCompile Include="Source\Editor\Tool\BehaviorTree\EditorBehaviorTreeTool.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\System\EditorNodeGraphSystem.cpp" />

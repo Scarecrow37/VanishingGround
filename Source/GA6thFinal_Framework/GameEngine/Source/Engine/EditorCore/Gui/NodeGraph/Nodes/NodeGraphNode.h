@@ -23,11 +23,17 @@ namespace NodeGraph
 
     public:
         virtual void Draw() = 0;
-        virtual void Do()   = 0;
-
         virtual void OnCreate() {};
+        virtual void OnDestroy() {};
         virtual void OnNodePopup() {};
         virtual void OnPinPopup(UINT64 pinID) {};
+        /// <summary>
+        /// 새로운 링크가 만들어질 때 호출됩니다. 시작 핀이 속한 노드에만 호출이 이루어집니다.
+        /// </summary>
+        /// <param name="from">시작 핀의 포인터</param>
+        /// <param name="to">끝 핀의 포인터</param>
+        /// <param name="isReject">링크가 불가능해 넘어갔는지 여부</param>
+        virtual void OnQueryNewLink(Pin* from, Pin* to, bool isReject) {};
 
     public:
         /// <summary>
@@ -48,10 +54,10 @@ namespace NodeGraph
         /// 핀을 추가합니다.
         /// </summary>
         /// <param name="label">핀의 이름</param>
-        /// <param name="type">핀의 식별 값(서로 간에 이을 수 있는 노드인지 확인하는 데 사용합니다.)</param>
         /// <param name="kind">핀의 유형(Input, Output)</param>
+        /// <param name="filter">핀의 필터 함수</param>
         /// <returns>추가한 핀의 포인터를 반환합니다.</returns>
-        Pin* AddPin(const char* label, const char* type, ed::PinKind kind);
+        Pin* AddPin(const char* label, ed::PinKind kind, LinkFilter filter);
 
         /// <summary>
         /// ID값에 대응하는 핀을 제거합니다.

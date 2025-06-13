@@ -34,17 +34,17 @@ namespace NodeGraph
         }
         return nullptr;
     }
-    Pin* Node::AddPin(const char* label, const char* type, ed::PinKind kind)
+    Pin* Node::AddPin(const char* label, ed::PinKind kind, LinkFilter filter)
     {
         Pin* pin = nullptr;
         SetCurrentNode(this);
         if (kind == ed::PinKind::Input)
         {
-            _inputPinList.emplace_back(label, type, kind);
+            _inputPinList.emplace_back(label, kind, filter);
             pin = &_inputPinList.back();        }
         else if (kind == ed::PinKind::Output)
         {
-            _outputPinList.emplace_back(label, type, kind);
+            _outputPinList.emplace_back(label, kind, filter);
             pin = &_outputPinList.back();
         }
         if (nullptr != pin)

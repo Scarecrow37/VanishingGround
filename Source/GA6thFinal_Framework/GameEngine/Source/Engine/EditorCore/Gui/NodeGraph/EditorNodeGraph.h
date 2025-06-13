@@ -35,12 +35,24 @@ public:
     T* AddNode();
 
     /// <summary>
+    /// <para> 링크를 만듭니다. </para><para> 
+    /// 핀에 직접적인 연결은 하지 않고 링크만 만들기 때문에,
+    /// 핀에 직접적인 추가를 원하시면 NodeGraph::Pin::AddLink 함수를 사용하세요. </para>
+    /// </summary>
+    /// <param name="startPinID"></param>
+    /// <param name="endPinID"></param>
+    /// <param name="pinColor"></param>
+    /// <returns></returns>
+    NodeGraph::Link* CreateLink(IN UINT64 startPinID, IN UINT64 endPinID, IN const ImColor& pinColor = ImColor(255, 255, 255, 255));
+
+    /// <summary>
     /// 노드ID를 통해 노드를 찾습니다.
     /// </summary>
     /// <param name="nodeID">[IN] 찾을 노드의 ID값</param>
     /// <param name="ppNode">[OUT] 찾은 노드의 포인터를 반환합니다.</param>
     /// <returns>찾는데 성공하면 true, 실패하면 false를 반환합니다.</returns>
     bool FindNodeFromNodeID(IN UINT64 nodeID, OUT NodeGraph::Node** ppNode);
+    
     /// <summary>
     /// 핀ID를 통해 노드를 찾습니다.
     /// </summary>
@@ -48,6 +60,7 @@ public:
     /// <param name="ppNode">[OUT] 찾은 노드의 포인터를 반환합니다.</param> 
     /// <returns>찾는데 성공하면 true, 실패하면 false를 반환합니다.</returns>
     bool FindNodeFromPinID(IN UINT64 pinID, OUT NodeGraph::Node** ppNode);
+    
     /// <summary>
     /// 핀ID를 통해 핀을 찾습니다.
     /// </summary>
@@ -55,6 +68,7 @@ public:
     /// <param name="ppPin">[OUT]찾은 핀의 포인터를 반환합니다.</param> 
     /// <returns>찾는데 성공하면 true, 실패하면 false를 반환합니다.</returns>
     bool FindPinFromPinID(IN UINT64 pinID, OUT NodeGraph::Pin** ppPin);
+    
     /// <summary>
     /// 링크ID를 통해 링크를 찾습니다.
     /// </summary>
@@ -62,6 +76,7 @@ public:
     /// <param name="ppLink">[OUT]찾은 링크의 포인터를 반환합니다.</param> 
     /// <returns>찾는데 성공하면 true, 실패하면 false를 반환합니다.</returns> 
     bool FindLinkFromLinkID(IN UINT64 linkID, OUT NodeGraph::Link** ppLink);
+    
     /// <summary>
     /// 링크ID를 통해 해당 링크의 시작 핀과 끝 핀을 찾습니다.
     /// </summary>
@@ -70,12 +85,14 @@ public:
     /// <param name="ppEndPin">[OUT]해당 링크의 끝 핀을 반환합니다.</param>
     /// <returns>찾는데 성공하면 true, 실패하면 false를 반환합니다.</returns>
     bool FindPinsFromLinkID(IN UINT64 linkID, OUT NodeGraph::Pin** ppStartPin, OUT NodeGraph::Pin** ppEndPin);
+    
     /// <summary>
     /// 노드ID를 통해 노드를 제거합니다.
     /// </summary>
     /// <param name="nodeID">[IN] 제거할 노드의 ID값</param>
     /// <returns>삭제에 성공하면 true, 실패하면 false를 반환합니다.</returns> 
     bool RemoveNodeFromNodeID(IN UINT64 nodeID);
+
     /// <summary>
     /// 링크ID를 통해 링크를 제거합니다.
     /// </summary>
@@ -83,6 +100,9 @@ public:
     /// <returns>삭제에 성공하면 true, 실패하면 false를 반환합니다.</returns>
     bool RemoveLinkFromLinkID(IN UINT64 linkID);
 
+    /// <summary>
+    /// 현재 컨텍스트를 글로벌로 지정합니다.
+    /// </summary>
     inline void SetCurrentContext()     { ed::SetCurrentEditor(_editor); }
 
     inline const State& GetState()      { return _state; }

@@ -55,13 +55,11 @@ void NodeGraphContext::Render()
     ed::Begin("Node editor");
     {
         auto cursorTopLeft = ImGui::GetCursorScreenPos();
-
-        ProcessNodes();
-        ProcessLinks();
         ProcessCreate();
         ProcessRemove();
+        ProcessNodes();
+        ProcessLinks();
         ProcessPopupContext();
-
         ImGui::SetCursorScreenPos(cursorTopLeft);
     }
     ed::End();
@@ -82,6 +80,15 @@ void NodeGraphContext::Clear()
     }
     _linkVector.clear();
     _linkTable.clear();
+}
+
+NodeGraph::Link* NodeGraphContext::CreateLink(IN UINT64 startPinID, IN UINT64 endPinID, IN const ImColor& pinColor)
+{
+    NodeGraph::Link* link = new NodeGraph::Link(startPinID, endPinID, pinColor);
+    UINT64 id = link->GetLinkID();
+    _linkVector.push_back(link);
+    _linkTable[id] = link;
+    return link;
 }
 
 bool NodeGraphContext::FindNodeFromNodeID(IN UINT64 nodeID, OUT NodeGraph::Node** ppNode)
@@ -186,6 +193,7 @@ void NodeGraphContext::ProcessNodes()
 
 void NodeGraphContext::ProcessLinks() 
 {
+    std::vector<UINT64> removeLinkIDs;
     for (auto& [id, link] : _linkTable)
     {
         ed::LinkId linkId   = link->GetLinkID();
@@ -195,8 +203,12 @@ void NodeGraphContext::ProcessLinks()
         // Link의 반환 값이 false인 경우 내부 Context에서 Link를 찾지 못한 것이므로 삭제해주자.
         if (false == ed::Link(linkId, startId, endId, pinColor, ReflectFields->LinkThickness))
         {
-            RemoveLinkFromLinkID(linkId.Get());
+            removeLinkIDs.push_back(linkId.Get());
         }
+    }
+    for (auto& linkID : removeLinkIDs)
+    {
+        RemoveLinkFromLinkID(linkID);
     }
 }
 
@@ -232,7 +244,13 @@ void NodeGraphContext::ProcessCreateLink()
                 std::swap(startPin, endPin);
                 std::swap(startPinId, endPinId);
             }
-            bool canLink = NodeGraph::CanLink(startPin, endPin);
+            bool canLink = startPin->CanLink(endPin);
+
+            NodeGraph::Node* node = nullptr;
+            if (true == FindNodeFromPinID(startPin->GetPinID(), &node))
+            {
+                node->OnQueryNewLink(startPin, endPin, !canLink);
+            }
             //////////////////////////////////////
             // 연결할 수 없는 핀 처리
             //////////////////////////////////////
@@ -240,15 +258,7 @@ void NodeGraphContext::ProcessCreateLink()
             {
                 ImVec4 rejectLinkColor     = ImGuiHelper::FloatPtrToImVec4(ReflectFields->RejectNewLinkData.data());
                 float  rejectLinkThickness = ReflectFields->RejectNewLinkData[ReflectFields->THICKNESS];
-                if (true == NodeGraph::Pin::IsSamePin(startPin, endPin)) // 같은 핀을 연결하려는 경우
-                    ShowLabel(u8"같은 핀끼리는 연결하지 못합니다"_c_str, NodeGraph::CANT_LINK_LABEL_COLOR);
-                else if (true == NodeGraph::Pin::IsSameOwner(startPin, endPin)) // 같은 핀을 연결하려는 경우
-                    ShowLabel(u8"같은 노드에 속한 핀끼리는 연결하지 못합니다"_c_str, NodeGraph::CANT_LINK_LABEL_COLOR);
-                else if (true == NodeGraph::Pin::IsSameKind(startPin, endPin)) // 입력인 경우 출력에, 출력인 경우 입력에만 허용
-                    ShowLabel(u8"입출력이 같은 핀끼리는 연결하지 못합니다"_c_str, NodeGraph::CANT_LINK_LABEL_COLOR);
-                else if (false == NodeGraph::Pin::IsSameType(startPin, endPin)) // 종류가 다른 핀일 경우
-                    ShowLabel(u8"타입이 다른 핀끼리는 연결하지 못합니다"_c_str, NodeGraph::CANT_LINK_LABEL_COLOR);
-
+                ShowLabel(u8"링크가 불가능합니다"_c_str, NodeGraph::CANT_LINK_LABEL_COLOR);
                 ed::RejectNewItem(rejectLinkColor, rejectLinkThickness);
             }
             //////////////////////////////////////
@@ -261,10 +271,7 @@ void NodeGraphContext::ProcessCreateLink()
                 ShowLabel(u8"링크가 가능합니다"_c_str, NodeGraph::CAN_LINK_LABEL_COLOR);
                 if (ed::AcceptNewItem(acceptLinkColor, acceptLinkThickness))
                 {
-                    NodeGraph::Link* link = new NodeGraph::Link(startPinId, endPinId, ImColor(255, 255, 255));
-                    UINT64 id = link->GetLinkID();
-                    _linkVector.push_back(link);
-                    _linkTable[id] = link;
+                    startPin->AddLink(endPin, acceptLinkColor);
                 }
             }
         }

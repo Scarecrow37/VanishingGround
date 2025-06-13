@@ -16,6 +16,7 @@ bool EditorNodeGraphSystem::CreateNodeGraphContext(NodeGraphContext** ptr)
         return false;
     }
     (*ptr)->SetCurrentContext();
+    return true;
 }
 
 void EditorNodeGraphSystem::DestroyNodeGraphContext(NodeGraphContext** context) 

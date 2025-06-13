@@ -15,5 +15,6 @@ public:
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)
+    std::filesystem::path _behaviorAssetPath;
     REFLECT_FIELDS_END(BehaviorTree)
 };

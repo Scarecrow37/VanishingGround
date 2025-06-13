@@ -7,9 +7,6 @@ namespace NodeGraph
     class Pin;
     class Node;
     class Link;
-
-    bool CanLink(const Pin* from, const Pin* to);
-
     ImU32 GetColor4ToImU32(const ImVec4& color);
     ImU32 GetColor4ToImU32(int* color);
     ImU32 GetColor4ToImU32(float r, float g, float b, float a = 1.0f);
