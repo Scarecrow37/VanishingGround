@@ -219,12 +219,7 @@ namespace ReflectHelper
                     {
                         DirectX::SimpleMath::Color input = val;
                         isEdit = ImGui::ColorEdit4(name, 
-                            &input.x,
-                            setting._Vector4.v_speed,
-                            setting._Vector4.v_min,
-                            setting._Vector4.v_max,
-                            setting._Vector4.format.c_str(),
-                            setting._Vector4.flags
+                            &input.x
                             );
 
                         if constexpr (isProperty == false || isSetter == true)
