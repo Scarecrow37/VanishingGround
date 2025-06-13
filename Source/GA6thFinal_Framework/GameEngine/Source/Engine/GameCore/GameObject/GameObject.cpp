@@ -119,6 +119,7 @@ void GameObject::OnInspectorStay()
         ImGui::SameLine();
         ImGui::Checkbox("Debug", &isDebug);
         ImGui::Separator();
+
         bool isPrefab = IsPrefabInstance();
         GameObject* pPrefabObject = PrefabInstance; 
         if (isPrefab)
