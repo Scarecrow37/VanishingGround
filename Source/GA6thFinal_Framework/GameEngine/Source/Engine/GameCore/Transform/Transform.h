@@ -112,6 +112,12 @@ public:
     GETTER(const Quaternion&, Rotation) { return _rotation; }
     PROPERTY(Rotation)
 
+    GETTER_ONLY(const Vector3&, Forward)
+    { 
+        return _forward;
+    }
+    PROPERTY(Forward)
+
     SETTER(const Vector3&, EulerAngle)
     {
         if (_eulerAngle == value)
@@ -267,7 +273,7 @@ public:
     /// 월드 역행렬 입니다.
     /// </summary>
     /// <returns></returns>
-    const Matrix& GetInversWorldMatrix() { return _inversWorldMatrix; };
+    const Matrix& GetInversWorldMatrix() { return _inversWorldMatrix; }
 
 private:
     GameObject& _gameObject;
@@ -314,6 +320,7 @@ private:
     bool       _hasChanged;
     Vector3    _position;
     Quaternion _rotation;
+    Vector3    _forward;
     Vector3    _eulerAngle;
     Vector3    _scale;
 

@@ -5,6 +5,7 @@
 #include "Command/PackPrefabCommand.h"
 #include "Command/DropPrefabCommand.h"
 #include "Engine/GraphicsCore/Light.h"
+#include "UmScripts.h"
 
 using namespace u8_literals;
 using namespace Global;
@@ -238,21 +239,21 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
     }
     if (ImGui::BeginMenu("Light"))
     {
-        /*if (ImGui::MenuItem("Directional Light"))
+        if (ImGui::MenuItem("Directional light"))
         {
-            auto light = std::make_shared<Light>();
-            light->SetDirectionalLight(Vector3(1.f, 1.f, 1.f), Vector3(1.f, 1.f, 1.f), Vector3(0.f, -1.f, 1.f), 1.f);
-            UmLightCore.RegisterLight("Editor", light);
+            auto light = NewGameObject(GameObject::Helper::GenerateUniqueName("Directional light"));
+            light->AddComponent<DirectionalLight>();            
         }
-        if (ImGui::MenuItem("Point Light"))
+        if (ImGui::MenuItem("Point light"))
         {
-            auto light = std::make_shared<Light>();
-            light->SetPointLight(Vector3(1.f, 1.f, 1.f), Vector3(0.f, 10.f, 0.f), Vector3(1.f, 0.1f, 0.1f), 20.f, 1.f);
-            UmLightCore.RegisterLight("Editor", light);
+            auto light = NewGameObject(GameObject::Helper::GenerateUniqueName("Point light"));
+            light->AddComponent<PointLight>();            
         }
-        if (ImGui::MenuItem("Spot Light"))
+        if (ImGui::MenuItem("Spot light"))
         {
-        }*/
+            auto light = NewGameObject(GameObject::Helper::GenerateUniqueName("Spot light"));
+            light->AddComponent<SpotLight>();
+        }
         ImGui::EndMenu();
     }
 }

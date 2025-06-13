@@ -214,7 +214,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)GameScripts\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)GameScripts\;$(SolutionDir)GameScripts\Scripts\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
@@ -234,7 +234,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)GameScripts\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)GameScripts\;$(SolutionDir)GameScripts\Scripts\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
@@ -256,7 +256,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)GameScripts\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)GameScripts\;$(SolutionDir)GameScripts\Scripts\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
@@ -280,7 +280,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)GameScripts\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)GameScripts\;$(SolutionDir)GameScripts\Scripts\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
@@ -295,26 +295,36 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Scripts\GameCore\FSM\FSMState.h" />
+    <ClInclude Include="Scripts\GameCore\FSM\MyState.h" />
     <ClInclude Include="Scripts\GameCore\FSM\TestState.h" />
     <ClInclude Include="Scripts\Graphics\StaticMeshRenderer.h" />
+    <ClInclude Include="Scripts\Light\Base\LightComponent.h" />
     <ClInclude Include="Scripts\Test\TestComponent.h" />
     <ClInclude Include="UmScriptCore.h" />
     <ClInclude Include="UmScripts.h" />
     <ClInclude Include="Scripts\Graphics\SkeletalMeshRenderer.h" />
     <ClInclude Include="Scripts\Graphics\MeshComponent.h" />
     <ClInclude Include="Scripts\GameCore\FSM\FiniteStateMachine.h" />
+    <ClInclude Include="Scripts\Light\DirectionalLight.h" />
+    <ClInclude Include="Scripts\Light\PointLight.h" />
+    <ClInclude Include="Scripts\Light\SpotLight.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="Scripts\GameCore\FSM\FSMState.cpp" />
+    <ClCompile Include="Scripts\GameCore\FSM\MyState.cpp" />
     <ClCompile Include="Scripts\GameCore\FSM\TestState.cpp" />
     <ClCompile Include="Scripts\Graphics\StaticMeshRenderer.cpp" />
+    <ClCompile Include="Scripts\Light\Base\LightComponent.cpp" />
     <ClCompile Include="Scripts\Test\TestComponent.cpp" />
     <ClCompile Include="UmScriptCore.cpp" />
     <ClCompile Include="UmScripts.cpp" />
     <ClCompile Include="Scripts\Graphics\SkeletalMeshRenderer.cpp" />
     <ClCompile Include="Scripts\Graphics\MeshComponent.cpp" />
     <ClCompile Include="Scripts\GameCore\FSM\FiniteStateMachine.cpp" />
+    <ClCompile Include="Scripts\Light\DirectionalLight.cpp" />
+    <ClCompile Include="Scripts\Light\PointLight.cpp" />
+    <ClCompile Include="Scripts\Light\SpotLight.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

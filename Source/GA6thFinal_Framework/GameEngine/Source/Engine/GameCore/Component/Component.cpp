@@ -3,7 +3,7 @@
 Component::Component(Type type)
     : 
     _className(), 
-    _gameObject(nullptr),
+    _gameObject(&staticDummyObject),
     _type(type)
 {
 
