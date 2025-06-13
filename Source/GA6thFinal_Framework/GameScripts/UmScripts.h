@@ -37,3 +37,6 @@ UMREAL_COMPONENT(StaticMeshRenderer)
 
 #include "Scripts/GameCore/FSM/FiniteStateMachine.h"
 UMREAL_COMPONENT(FiniteStateMachine)
+
+#include "Scripts\GameCore/BehaviorTree/BehaviorTree.h"
+UMREAL_COMPONENT(BehaviorTree)

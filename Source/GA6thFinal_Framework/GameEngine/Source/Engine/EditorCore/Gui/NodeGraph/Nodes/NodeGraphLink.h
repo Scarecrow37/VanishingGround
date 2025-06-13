@@ -13,9 +13,15 @@ namespace NodeGraph
         ~Link();
 
     public:
-        inline ed::LinkId     GetLinkID() const { return _id; }
-        inline ed::PinId      GetStartPinID() const { return _startPinID; }
-        inline ed::PinId      GetEndPinID() const { return _endPinID; }
+        /// <summary>
+        /// 플로우 애니메이션을 재생합니다.
+        /// </summary>
+        /// <param name="reverse">플로우 방향을 반전시킬지 여부입니다</param>
+        void SetFlow(bool reverse = false);
+
+        inline UINT64 GetLinkID() const { return _id; }
+        inline UINT64 GetStartPinID() const { return _startPinID; }
+        inline UINT64 GetEndPinID() const { return _endPinID; }
         inline const ImColor& GetPinColor() const { return _color; }
 
     private:

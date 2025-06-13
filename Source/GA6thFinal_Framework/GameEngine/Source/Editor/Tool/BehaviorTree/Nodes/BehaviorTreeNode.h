@@ -25,9 +25,14 @@ namespace NodeGraph
 
     public:
         inline void SetLabel(const char* label) { _label = label; }
+        inline void SetNodeRectFillColor(const ImColor& color) { _nodeRectFillColor = color; }
+        inline void SetNodeRectBorderColor(const ImColor& color) { _nodeRectBorderColor = color; }
 
     private:
         std::string _label;
+
+        ImColor _nodeRectFillColor      = ImColor(128, 128, 128, 200);
+        ImColor _nodeRectBorderColor    = ImColor(32, 32, 32, 0);
 
         inline static float _nodeRounding = 4.0f;
         inline static float _pinRectRounding  = 4.0f;

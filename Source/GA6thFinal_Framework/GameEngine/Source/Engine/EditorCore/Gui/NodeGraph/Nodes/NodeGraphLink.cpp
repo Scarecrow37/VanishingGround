@@ -14,4 +14,15 @@ namespace NodeGraph
     {
         ed::DeleteLink(GetLinkID());
     }
+    void Link::SetFlow(bool reverse) 
+    {
+        if (false == reverse)
+        {
+            ed::Flow(GetLinkID(), ed::FlowDirection::Forward);
+        }
+        else
+        {
+            ed::Flow(GetLinkID(), ed::FlowDirection::Backward);
+        }
+    }
 } // namespace NodeGraph

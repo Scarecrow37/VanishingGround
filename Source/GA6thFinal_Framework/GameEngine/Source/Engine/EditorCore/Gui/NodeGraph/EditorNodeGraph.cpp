@@ -165,7 +165,7 @@ bool NodeGraphContext::RemoveLinkFromLinkID(IN UINT64 linkID)
 {
     for (auto it = _linkVector.begin(); it != _linkVector.end(); ++it)
     {
-        if ((*it)->GetLinkID().Get() == linkID)
+        if ((*it)->GetLinkID() == linkID)
         {
             delete *it;
             _linkVector.erase(it);
@@ -261,9 +261,8 @@ void NodeGraphContext::ProcessCreateLink()
                 ShowLabel(u8"링크가 가능합니다"_c_str, NodeGraph::CAN_LINK_LABEL_COLOR);
                 if (ed::AcceptNewItem(acceptLinkColor, acceptLinkThickness))
                 {
-                    
                     NodeGraph::Link* link = new NodeGraph::Link(startPinId, endPinId, ImColor(255, 255, 255));
-                    UINT64 id = link->GetLinkID().Get();
+                    UINT64 id = link->GetLinkID();
                     _linkVector.push_back(link);
                     _linkTable[id] = link;
                 }

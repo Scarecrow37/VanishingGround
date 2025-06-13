@@ -30,6 +30,11 @@ void NodeGraph::BehaviorTreeNode::OnNodePopup()
             context->RemoveNodeFromNodeID(GetNodeID());
         }
     }
+    if (ImGui::MenuItem("ChangeBg"))
+    {
+        _nodeRectFillColor   = ImColor(rand() % 256, rand() % 256, rand() % 256, 200);
+        _nodeRectBorderColor = ImColor(rand() % 256, rand() % 256, rand() % 256, 0);
+    }
 }
 
 void NodeGraph::BehaviorTreeNode::OnPinPopup(UINT64 _pinID)
@@ -48,8 +53,8 @@ void NodeGraph::BehaviorTreeNode::DrawNode()
     NodeEditorStyleColorBuilder styleColor;
     NodeEditorStyleVarBuilder   styleVar;
 
-    styleColor.PushStyleColor(ed::StyleColor_NodeBg, ImColor(128, 128, 128, 200));
-    styleColor.PushStyleColor(ed::StyleColor_NodeBorder, ImColor(32, 32, 32, 0));
+    styleColor.PushStyleColor(ed::StyleColor_NodeBg, _nodeRectFillColor);
+    styleColor.PushStyleColor(ed::StyleColor_NodeBorder, _nodeRectBorderColor);
     styleColor.PushStyleColor(ed::StyleColor_PinRect, ImColor(60, 180, 255, 150));
     styleColor.PushStyleColor(ed::StyleColor_PinRectBorder, ImColor(60, 180, 255, 150));
 

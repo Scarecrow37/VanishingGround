@@ -114,16 +114,18 @@ private:
     std::unordered_map<UINT64, NodeGraph::Node*> _nodeTable;
     std::unordered_map<UINT64, NodeGraph::Link*> _linkTable;
 
+    std::unordered_map<UINT64, std::vector<UINT64>> _pinToStartLinkTable;
+    std::unordered_map<UINT64, std::vector<UINT64>> _pinToEndLinkTable;
+
 public:
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
-    std::string SerializeData           = "";
-    float       LinkThickness           = 2.0f;
+    std::string SerializeData = "";
+    float       LinkThickness = 2.0f;
     enum LinkDataIndex { R, G, B, A, THICKNESS, };
     std::array<float, 5> DefaultNewLinkData = {0.0f, 1.0f, 0.0f, 0.5f, 2.0f};
     std::array<float, 5> RejectNewLinkData  = {1.0f, 0.2f, 0.2f, 1.0f, 1.0f};
     std::array<float, 5> AcceptNewLinkData  = {0.2f, 1.0f, 0.2f, 1.0f, 4.0f};
     REFLECT_FIELDS_END(NodeGraphContext)
-
 };
 
 template <typename T>
