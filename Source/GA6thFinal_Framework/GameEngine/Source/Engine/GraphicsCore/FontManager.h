@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 class Font;
 class FontManager
@@ -8,7 +8,7 @@ public:
 	~FontManager();
 
 public:
-	HRESULT Initialize(const UINT numFonts);
+    void                  Initialize(const UINT numFonts);
 	std::shared_ptr<Font> LoadFont(std::wstring_view filePath);
 
 public:

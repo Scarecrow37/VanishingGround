@@ -4,6 +4,7 @@
 #include "RenderTarget.h"
 #include "RenderScene.h"
 #include "Quad.h"
+
 DeferredPBRLitPass::~DeferredPBRLitPass() {}
 
 void DeferredPBRLitPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& sissorRect)
@@ -15,7 +16,7 @@ void DeferredPBRLitPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_
                                     .Flags          = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
                                     .NodeMask       = 0};
 
-    UmDevice.GetDevice().Get()->CreateDescriptorHeap(&desc, IID_PPV_ARGS(_srvDescriptorHeap.GetAddressOf()));
+    UmDevice.GetDevice()->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&_srvDescriptorHeap));
     InitShaderAndPSO();
 }
 
@@ -38,7 +39,7 @@ void DeferredPBRLitPass::End(ID3D12GraphicsCommandList* commandList)
 void DeferredPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
 {
     // 사용할 gbuffer 복사 descriptor 복사
-    ComPtr<ID3D12Device> device = UmDevice.GetDevice();
+    ID3D12Device* device = UmDevice.GetDevice();
     auto                 dest   = _srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
     UINT                 descriptorSize = UmDevice.GetCBVSRVUAVDescriptorSize();
 
@@ -73,7 +74,7 @@ void DeferredPBRLitPass::InitShaderAndPSO()
     _shader->SetShader(L"../Shaders/ps_pbr_lighting.hlsl", ShaderBuilder::Type::PS);
     _shader->EndBuild();
 
-    ComPtr<ID3D12Device>               device = UmDevice.GetDevice();
+    ID3D12Device*                      device = UmDevice.GetDevice();
     D3D12_GRAPHICS_PIPELINE_STATE_DESC psodesc;
     HRESULT                            hr = S_OK;
     ZeroMemory(&psodesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
@@ -92,6 +93,7 @@ void DeferredPBRLitPass::InitShaderAndPSO()
     psodesc.SampleDesc               = {1, 0};
     psodesc.VS                       = _shader->GetShaderByteCode(ShaderBuilder::Type::VS);
     psodesc.PS                       = _shader->GetShaderByteCode(ShaderBuilder::Type::PS);
-    hr = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(_pipelineState.GetAddressOf()));
-    FAILED_CHECK_BREAK(hr);
+
+    hr = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(&_pipelineState));
+    FAILED_CHECK_MESSAGE(hr, L"DeferredPBRLitPass::InitShaderAndPSO device->CreateGraphicsPipelineState Failed");
 }

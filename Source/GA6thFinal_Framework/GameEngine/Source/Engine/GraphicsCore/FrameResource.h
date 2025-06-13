@@ -14,7 +14,7 @@ public:
 	ComPtr<ID3D12DescriptorHeap> GetDescriptorHeap() const { return _frameHeap; }
 
 public:
-	HRESULT Initialize(const UINT numObjects, const UINT numTextures);
+    void Initialize(const UINT numObjects, const UINT numTextures);
 	void CopyDescriptorsSimple(const D3D12_CPU_DESCRIPTOR_HANDLE handle, UINT destStartIndex, UINT numDescriptors);
 	void CopyDescriptors(const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& handles);
 	void CopyStructuredBuffer(ID3D12GraphicsCommandList* commandList, void* data, UINT size, FrameResource::Type type);

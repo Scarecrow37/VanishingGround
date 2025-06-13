@@ -173,7 +173,7 @@ void GBufferPass::InitShaderAndPSO()
     _shader.push_back(skeletalMeshShaderBuilder);
 
     // static two side.
-    ComPtr<ID3D12Device>               device = UmDevice.GetDevice();
+    ID3D12Device*                      device = UmDevice.GetDevice();
     D3D12_GRAPHICS_PIPELINE_STATE_DESC psodesc{};
     HRESULT                            hr = S_OK;
     ComPtr<ID3D12PipelineState>        staticTwoSidedPSO;
@@ -199,16 +199,16 @@ void GBufferPass::InitShaderAndPSO()
     psodesc.VS = staticMeshShaderBuilder->GetShaderByteCode(ShaderBuilder::Type::VS);
     psodesc.PS = staticMeshShaderBuilder->GetShaderByteCode(ShaderBuilder::Type::PS);
 
-    hr         = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(staticTwoSidedPSO.GetAddressOf()));
-    FAILED_CHECK_BREAK(hr);
+    hr         = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(&staticTwoSidedPSO));
+    FAILED_CHECK_MESSAGE(hr, L"GBufferPass::InitShaderAndPSO device->CreateGraphicsPipelineState Failed");
     _psos.push_back(staticTwoSidedPSO);
 
     // static one side.
     ComPtr<ID3D12PipelineState> staticOneSidePSO;
     psodesc.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
 
-    hr = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(staticOneSidePSO.GetAddressOf()));
-    FAILED_CHECK_BREAK(hr);
+    hr = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(&staticOneSidePSO));
+    FAILED_CHECK_MESSAGE(hr, L"GBufferPass::InitShaderAndPSO device->CreateGraphicsPipelineState Failed");
     _psos.push_back(staticOneSidePSO);
 
     // skeletal two side.
@@ -219,20 +219,19 @@ void GBufferPass::InitShaderAndPSO()
     psodesc.VS                       = skeletalMeshShaderBuilder->GetShaderByteCode(ShaderBuilder::Type::VS);
     psodesc.PS                       = skeletalMeshShaderBuilder->GetShaderByteCode(ShaderBuilder::Type::PS);
 
-    hr = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(skeletalTwoSidePSO.GetAddressOf()));
-    FAILED_CHECK_BREAK(hr);
+    hr = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(&skeletalTwoSidePSO));
+    FAILED_CHECK_MESSAGE(hr, L"GBufferPass::InitShaderAndPSO device->CreateGraphicsPipelineState Failed");
     _psos.push_back(skeletalTwoSidePSO);
 
     // skeletal one side.
     ComPtr<ID3D12PipelineState> skeletalOneSidePSO;
     psodesc.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
-    hr = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(skeletalOneSidePSO.GetAddressOf()));
-    FAILED_CHECK_BREAK(hr);
+    hr = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(&skeletalOneSidePSO));
+    FAILED_CHECK_MESSAGE(hr, L"GBufferPass::InitShaderAndPSO device->CreateGraphicsPipelineState Failed");
     _psos.push_back(skeletalOneSidePSO);
 }
 
-void GBufferPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, const std::vector<MeshRenderer*>& meshes,
-                             MeshType type)
+void GBufferPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, const std::vector<MeshRenderer*>& meshes, MeshType type)
 {    
     UINT param[2]{0, MAX_BONE_MATRIX};
     for (auto& component : meshes)

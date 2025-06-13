@@ -14,41 +14,39 @@ ViewManager::ViewManager()
 {	
 }
 
-HRESULT ViewManager::Initialize()
+void ViewManager::Initialize()
 {
 	HRESULT hr = S_OK;
-	ComPtr<ID3D12Device> device = UmDevice.GetDevice();
-	D3D12_DESCRIPTOR_HEAP_DESC desc = {};
+	ID3D12Device* device = UmDevice.GetDevice();
+	D3D12_DESCRIPTOR_HEAP_DESC desc{};
 
 	desc.NumDescriptors = 1000;
 	desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 	
-	hr = device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(_shaderResourceHeap.GetAddressOf()));
-	FAILED_CHECK_BREAK(hr);
+	hr = device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&_shaderResourceHeap));
+    FAILED_CHECK_MESSAGE(hr, L"ViewManager::Initialize Failed");
 
 	desc.NumDescriptors = 100;
 	desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
 	desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 	
-	hr = device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(_renderTargetHeap.GetAddressOf()));
-	FAILED_CHECK_BREAK(hr);
+	hr = device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&_renderTargetHeap));
+    FAILED_CHECK_MESSAGE(hr, L"ViewManager::Initialize Failed");
 
 	desc.NumDescriptors = 10;
 	desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
 	desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 	
-	hr = device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(_depthStencilHeap.GetAddressOf()));
-	FAILED_CHECK_BREAK(hr);
+	hr = device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&_depthStencilHeap));
+    FAILED_CHECK_MESSAGE(hr, L"ViewManager::Initialize Failed");
 
 	_shaderResourceDescriptorSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	_renderTargetDescriptorSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 	_depthStencilDescriptorSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
-
-	return hr;
 }
 
-HRESULT ViewManager::AddDescriptorHeap(const ViewManager::Type type, D3D12_CPU_DESCRIPTOR_HANDLE& handle)
+void ViewManager::AddDescriptorHeap(const ViewManager::Type type, D3D12_CPU_DESCRIPTOR_HANDLE& handle)
 {
 	HRESULT hr = S_OK;
 	UINT offset = 0;
@@ -81,11 +79,10 @@ HRESULT ViewManager::AddDescriptorHeap(const ViewManager::Type type, D3D12_CPU_D
 		__debugbreak();
 		break;
 	}
-
-	return hr;
 }
 
-HRESULT ViewManager::AddDescriptorHeap(const ViewManager::Type type, UINT numDescriptors, std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& handles)
+void ViewManager::AddDescriptorHeap(const ViewManager::Type type, UINT numDescriptors,
+                                    std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& handles)
 {
 	HRESULT hr = S_OK;
 	UINT offset = 0;
@@ -122,6 +119,4 @@ HRESULT ViewManager::AddDescriptorHeap(const ViewManager::Type type, UINT numDes
 			break;
 		}
 	}
-
-	return hr;
-}	
+}

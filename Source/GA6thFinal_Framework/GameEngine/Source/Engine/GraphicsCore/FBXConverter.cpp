@@ -378,7 +378,7 @@ void FBXConverter::LoadFromAssimp(const std::filesystem::path& filePath, Model* 
 
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
     {
-        ASSERT(false, L"The model could't be found by that path.");
+        GRAPHICS_ASSERT(false, L"The model could't be found by that path.");
         return;
     }
 
@@ -441,7 +441,7 @@ void FBXConverter::LoadFromBinary(const std::filesystem::path& filePath, Model* 
     std::ifstream inFile(filePath, std::ios::in | std::ios::binary);
     if (!inFile.is_open())
     {
-        ASSERT(false, L"The model could't be found by that path.");
+        GRAPHICS_ASSERT(false, L"The model could't be found by that path.");
         return;
     }
 

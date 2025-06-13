@@ -17,7 +17,7 @@ void EditorModelTool::OnTickGui()
 void EditorModelTool::OnStartGui()
 {
     std::shared_ptr<Camera> camera = UmRenderer.GetCamera("ModelViewer");
-    ASSERT((nullptr != camera), L"Camera is nullptr");
+    GRAPHICS_ASSERT(nullptr != camera, L"Camera is nullptr");
     _camera->SetTarget(camera);
 
     SIZE size = UmCore->App.GetClientSize();

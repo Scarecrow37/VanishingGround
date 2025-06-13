@@ -34,10 +34,8 @@ void Model::BindMaterial(const UINT meshIndex, const Material& material)
     _material[meshIndex] = material;
 }
 
-HRESULT Model::LoadResource(const std::filesystem::path& filePath)
+void Model::LoadResource(const std::filesystem::path& filePath)
 {    
     FBXConverter fbxConverter;
     fbxConverter.ImportModel(filePath, this);
-    
-	return S_OK;
 }
