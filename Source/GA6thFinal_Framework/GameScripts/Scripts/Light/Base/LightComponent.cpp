@@ -20,9 +20,9 @@ LightComponent::~LightComponent()
 void LightComponent::DeserializedReflectEvent() 
 {
     LightColor = Color(ReflectFields->Color[0], 
-                        ReflectFields->Color[1], 
-                        ReflectFields->Color[2], 
-                        ReflectFields->Color[3]);
+                       ReflectFields->Color[1], 
+                       ReflectFields->Color[2], 
+                       ReflectFields->Color[3]);
 }
 
 void LightComponent::Reset() 

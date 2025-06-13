@@ -58,6 +58,16 @@ public:
     }
     PROPERTY(Range)
 
+    inline const Vector3& GetAttenuation() 
+    { 
+        return _attenuation;
+    }
+
+    inline const float& GetRange()
+    {
+        return ReflectFields->Range;
+    }
+
 protected:
     REFLECT_FIELDS_BEGIN(LightComponent)
     std::array<float, 3> Attenuation{1.f, 0.1f, 0.1f};
@@ -73,5 +83,5 @@ protected:
     virtual void Reset() override;
 
 private:
-    Vector3 _attenuation;
+    Vector3 _attenuation{1.f, 0.1f, 0.1f};
 };

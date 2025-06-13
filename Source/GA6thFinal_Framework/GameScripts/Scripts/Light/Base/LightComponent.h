@@ -36,6 +36,11 @@ public:
         ReflectFields->Intensity = value;
     }
 
+    inline const float& GetIntensity()
+    {
+        return ReflectFields->Intensity;
+    }
+
 private:
     std::unique_ptr<Light> _light;
 

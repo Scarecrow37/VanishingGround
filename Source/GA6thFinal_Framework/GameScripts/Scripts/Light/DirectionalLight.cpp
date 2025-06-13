@@ -14,9 +14,9 @@ DirectionalLight::~DirectionalLight()
 void DirectionalLight::DeserializedReflectEvent() 
 {
     Ambient = Color(ReflectFields->Ambient[0], 
-                     ReflectFields->Ambient[1], 
-                     ReflectFields->Ambient[2],
-                     ReflectFields->Ambient[3]);
+                    ReflectFields->Ambient[1], 
+                    ReflectFields->Ambient[2],
+                    ReflectFields->Ambient[3]);
 }
 
 void DirectionalLight::Reset() 
