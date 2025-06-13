@@ -3,23 +3,23 @@
 LightComponent::LightComponent() 
     :
     Component(Component::Type::Light),
-    _light(std::make_shared<Light>()),
+    _light(std::make_unique<Light>()),
     Lighting(*_light)
 {
     LightCore& lightCore = UmLightCore;
-    lightCore.RegisterLight("Editor", _light);
+    lightCore.RegisterLight("Editor", _light.get());
 }
 
 LightComponent::~LightComponent() 
 {
     LightCore& lightCore = UmLightCore;
-    lightCore.UnRegisterLight("Editor", _light);
+    _light->SetDestroy();
     _light.reset();
 }
 
 void LightComponent::DeserializedReflectEvent() 
 {
-    _lightColor = Color(ReflectFields->Color[0], 
+    LightColor = Color(ReflectFields->Color[0], 
                         ReflectFields->Color[1], 
                         ReflectFields->Color[2], 
                         ReflectFields->Color[3]);

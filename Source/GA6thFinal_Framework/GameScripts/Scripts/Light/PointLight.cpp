@@ -3,10 +3,10 @@
 
 PointLight::PointLight()
 {
-    Vector3 color = Vector3(ReflectFields->Basefields.get().Color.data());
-    Vector3 attenuation = Vector3(ReflectFields->Constant, ReflectFields->Linear, ReflectFields->Quadratic);
-    float range = ReflectFields->Range;
-    float intensity = ReflectFields->Basefields.get().Intensity;
+    const Vector3& color = GetColor();
+    const Vector3& attenuation = _attenuation;
+    float& range = ReflectFields->Range;
+    float& intensity = ReflectFields->Basefields.get().Intensity;
 
     Lighting.SetPointLight(
     color, 
@@ -17,3 +17,9 @@ PointLight::PointLight()
     );
 }
 PointLight::~PointLight() = default;
+
+void PointLight::DeserializedReflectEvent() 
+{
+    _attenuation = Vector3(ReflectFields->Attenuation.data());
+
+}

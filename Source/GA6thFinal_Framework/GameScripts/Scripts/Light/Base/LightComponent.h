@@ -17,10 +17,15 @@ public:
     SETTER(const Color&, LightColor) 
     {
         _lightColor = value;
-        std::memcpy(&_lightColor.x, &ReflectFields->Color[0], sizeof(Color));
-        _light->SetColor(Vector3(value.x, value.y, value.z));
+        std::memcpy(&_lightColor.x, &ReflectFields->Color[0], sizeof(ReflectFields->Color));
+        std::memcpy(&_lightColor.x, &_lightColorVector3.x, sizeof(_lightColorVector3));
     }
     PROPERTY(LightColor)
+
+    const Vector3& GetColor()
+    {
+        return _lightColorVector3;
+    }
 
     GETTER(float, Intensity)
     {
@@ -29,8 +34,10 @@ public:
     SETTER(float, Intensity) 
     { 
         ReflectFields->Intensity = value;
-        _light->SetIntensity(value);
     }
+
+private:
+    std::unique_ptr<Light> _light;
 
 public:
     LightComponent();
@@ -50,6 +57,6 @@ protected:
     virtual void DeserializedReflectEvent() override;
 
 private:
-    std::shared_ptr<Light> _light;
     Color _lightColor{1.f, 1.f, 1.f, 1.f};
+    Vector3 _lightColorVector3{1.f, 1.f, 1.f};
 };

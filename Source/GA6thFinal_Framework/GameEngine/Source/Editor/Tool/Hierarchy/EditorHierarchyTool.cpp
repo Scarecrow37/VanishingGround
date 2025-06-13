@@ -239,7 +239,7 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
     }
     if (ImGui::BeginMenu("Light"))
     {
-        /*if (ImGui::MenuItem("Directional Light"))
+        if (ImGui::MenuItem("Directional Light"))
         {
             auto light = NewGameObject(GameObject::Helper::GenerateUniqueName("Directional light"));
             light->AddComponent<DirectionalLight>();            

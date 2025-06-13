@@ -5,8 +5,7 @@ class DirectionalLight : public LightComponent
     USING_PROPERTY(DirectionalLight)
 public:
     REFLECT_PROPERTY(
-        Ambient,
-        ReflectFields->Direction)
+        Ambient)
 
 public:
     DirectionalLight();
@@ -19,15 +18,14 @@ public:
     SETTER(const Color&, Ambient)
     { 
         _ambient = value;
-        std::memcpy(&_ambient.x, &ReflectFields->Ambient[0], sizeof(Color));
-        Lighting.SetColor(Vector3(value.x, value.y, value.z));
+        std::memcpy(&_ambient.x, &ReflectFields->Ambient[0], sizeof(ReflectFields->Ambient));
+        std::memcpy(&_ambient.x, &_ambientVector3.x, sizeof(_ambientVector3));
     }
     PROPERTY(Ambient)
 
 protected:
     REFLECT_FIELDS_BEGIN(LightComponent)
     std::array<float, 4> Ambient{1.f, 1.f, 1.f, 1.f};
-    std::array<float, 3> Direction{0.f, -1.f, 1.f};
     REFLECT_FIELDS_END(DirectionalLight)
 
     /*
@@ -38,4 +36,5 @@ protected:
 
 private:
     Color _ambient{1.f, 1.f, 1.f, 1.f};
+    Vector3 _ambientVector3{1.f, 1.f, 1.f};
 };

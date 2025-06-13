@@ -16,35 +16,35 @@ public:
     virtual ~PointLight();
 
     GETTER(float, Constant)
-    {
-        return ReflectFields->Constant;
+    { 
+        return _attenuation.x;
     }
     SETTER(float, Constant)
-    {
-        ReflectFields->Constant = value;
-        Lighting.SetAttenuation(ReflectFields->Constant, ReflectFields->Linear, ReflectFields->Quadratic);
+    {   
+        _attenuation.x = value;
+        std::memcpy(&_attenuation.x, ReflectFields->Attenuation.data(), sizeof(ReflectFields->Attenuation));
     }
     PROPERTY(Constant)
 
     GETTER(float, Linear) 
     { 
-        return ReflectFields->Linear; 
+        return _attenuation.y; 
     }
     SETTER(float, Linear)
-    {
-        ReflectFields->Linear = value;
-        Lighting.SetAttenuation(ReflectFields->Constant, ReflectFields->Linear, ReflectFields->Quadratic);
+    { 
+        _attenuation.y = value;
+        std::memcpy(&_attenuation.x, ReflectFields->Attenuation.data(), sizeof(ReflectFields->Attenuation));
     }
     PROPERTY(Linear)
 
     GETTER(float, Quadratic) 
     { 
-        return ReflectFields->Quadratic; 
+        return _attenuation.z; 
     }
     SETTER(float, Quadratic)
-    {
-        ReflectFields->Quadratic = value;
-        Lighting.SetAttenuation(ReflectFields->Constant, ReflectFields->Linear, ReflectFields->Quadratic);
+    { 
+        _attenuation.z = value;
+        std::memcpy(&_attenuation.x, ReflectFields->Attenuation.data(), sizeof(ReflectFields->Attenuation));
     }
     PROPERTY(Quadratic)
 
@@ -55,15 +55,21 @@ public:
     SETTER(float, Range)
     { 
         ReflectFields->Range = value;
-        Lighting.SetRange(value);
     }
     PROPERTY(Range)
 
 protected:
     REFLECT_FIELDS_BEGIN(LightComponent)
-    float Constant = 1.f;
-    float Linear = 0.1f;
-    float Quadratic = 0.1f;
+    std::array<float, 3> Attenuation{1.f, 0.1f, 0.1f};
     float Range = 1.f;
     REFLECT_FIELDS_END(PointLight)
+
+    /*
+    역직렬화 이후 자동으로 호출되는 이벤트 함수 입니다.
+    직접 override 해서 사용합니다.
+    */
+    virtual void DeserializedReflectEvent() override;
+
+private:
+    Vector3 _attenuation;
 };
