@@ -5,15 +5,59 @@ class PointLight : public LightComponent
     USING_PROPERTY(PointLight)
 public:
     REFLECT_PROPERTY(
-    ReflectFields->Constant, 
-    ReflectFields->Linear, 
-    ReflectFields->Quadratic,
-    ReflectFields->Range
+    Constant, 
+    Linear, 
+    Quadratic,
+    Range
     )
 
 public:
     PointLight();
     virtual ~PointLight();
+
+    GETTER(float, Constant)
+    {
+        return ReflectFields->Constant;
+    }
+    SETTER(float, Constant)
+    {
+        ReflectFields->Constant = value;
+        _light->SetAttenuation(ReflectFields->Constant, ReflectFields->Linear, ReflectFields->Quadratic);
+    }
+    PROPERTY(Constant)
+
+    GETTER(float, Linear) 
+    { 
+        return ReflectFields->Linear; 
+    }
+    SETTER(float, Linear)
+    {
+        ReflectFields->Linear = value;
+        _light->SetAttenuation(ReflectFields->Constant, ReflectFields->Linear, ReflectFields->Quadratic);
+    }
+    PROPERTY(Linear)
+
+    GETTER(float, Quadratic) 
+    { 
+        return ReflectFields->Quadratic; 
+    }
+    SETTER(float, Quadratic)
+    {
+        ReflectFields->Quadratic = value;
+        _light->SetAttenuation(ReflectFields->Constant, ReflectFields->Linear, ReflectFields->Quadratic);
+    }
+    PROPERTY(Quadratic)
+
+    GETTER(float, Range)
+    { 
+        return ReflectFields->Range; 
+    }
+    SETTER(float, Range)
+    { 
+        ReflectFields->Range = value;
+        _light->SetRange(value);
+    }
+    PROPERTY(Range)
 
 protected:
     REFLECT_FIELDS_BEGIN(LightComponent)
@@ -22,6 +66,4 @@ protected:
     float Quadratic = 0.1f;
     float Range = 1.f;
     REFLECT_FIELDS_END(PointLight)
-
-    virtual void FixedUpdate() override;
 };

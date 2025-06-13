@@ -13,9 +13,13 @@ DirectionalLight::~DirectionalLight()
 {
 
 }
-void DirectionalLight::FixedUpdate()
+
+void DirectionalLight::DeserializedReflectEvent() 
 {
-    _light->SetDirection(Vector3(ReflectFields->Direction.data()));
-    _light->SetColor(Vector3(ReflectFields->Basefields.get().Color.data()));
-    _light->SetIntensity(ReflectFields->Basefields.get().Intensity);
+    _ambient = Color(ReflectFields->Ambient[0], 
+                     ReflectFields->Ambient[1], 
+                     ReflectFields->Ambient[2],
+                     ReflectFields->Ambient[3]);
 }
+
+

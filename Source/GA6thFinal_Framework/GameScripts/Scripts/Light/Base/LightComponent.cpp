@@ -1,5 +1,4 @@
 ﻿#include "LightComponent.h"
-#include "Engine/GraphicsCore/Light.h"
 
 LightComponent::LightComponent() 
     :
@@ -15,5 +14,13 @@ LightComponent::~LightComponent()
     LightCore& lightCore = UmLightCore;
     lightCore.UnRegisterLight("Editor", _light);
     _light.reset();
+}
+
+void LightComponent::DeserializedReflectEvent() 
+{
+    _lightColor = Color(ReflectFields->Color[0], 
+                        ReflectFields->Color[1], 
+                        ReflectFields->Color[2], 
+                        ReflectFields->Color[3]);
 }
 
