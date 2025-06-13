@@ -154,9 +154,10 @@ void ESceneManager::Engine::SetGameObjectActive(GameObject* pObject, bool value)
                 {
                     for (auto& component : curr->gameObject->_components)
                     {
-                        if (component->_initFlags.IsAwake()   == true &&
-                            component->ReflectFields->_enable == true)
+                        bool isEnable = component->ReflectFields->_enable;
+                        if (true == isEnable)
                         {
+                            if (component->_initFlags.IsAwake() == true)
                             {
                                 auto [iter, result] = WaitSet.insert(component.get());
                                 if (result)
@@ -164,22 +165,21 @@ void ESceneManager::Engine::SetGameObjectActive(GameObject* pObject, bool value)
                                     WaitVec.emplace_back(component.get());
                                 }
                             }
-                        }
 
-                        // 메시 컴포넌트들은 meshRenderer의 SetActive도 변경해야함.
-                        if (Component::Type::RENDER == component->_type)
-                        {
-                            auto& meshActiveQueue = value ? sceneManager._meshSetActiveQueue.first
-                                                          : sceneManager._meshSetActiveQueue.second;
-                            MeshComponent* meshComponent  = static_cast<MeshComponent*>(component.get());
-                            meshActiveQueue.push_back(meshComponent->Renderer.get());
-                        }
-                        else if (Component::Type::Light == component->_type)
-                        {
-                            auto& lightActiveQueue = value ? sceneManager._lightSetActiveQueue.first
-                                                           : sceneManager._lightSetActiveQueue.second;
-                            LightComponent* lightComponent = static_cast<LightComponent*>(component.get());
-                            lightActiveQueue.push_back(&lightComponent->Lighting);
+                            if (Component::Type::RENDER == component->_type)
+                            {
+                                auto& meshActiveQueue = value ? sceneManager._meshSetActiveQueue.first
+                                                              : sceneManager._meshSetActiveQueue.second;
+                                MeshComponent* meshComponent   = static_cast<MeshComponent*>(component.get());
+                                meshActiveQueue.push_back(meshComponent->Renderer.get());
+                            }
+                            else if (Component::Type::Light == component->_type)
+                            {
+                                auto& lightActiveQueue = value ? sceneManager._meshSetActiveQueue.first
+                                                               : sceneManager._meshSetActiveQueue.second;
+                                LightComponent* lightComponent   = static_cast<LightComponent*>(component.get());
+                                lightActiveQueue.push_back(&lightComponent->Lighting);
+                            }
                         }
                     }
                 }                   
@@ -219,8 +219,8 @@ void ESceneManager::Engine::SetComponentEnable(Component* component, bool value)
             }
             else if (Component::Type::Light == component->_type)
             {
-                auto& lightActiveQueue = value ? sceneManager._lightSetActiveQueue.first 
-                                               : sceneManager._lightSetActiveQueue.second;
+                auto& lightActiveQueue = value ? sceneManager._meshSetActiveQueue.first 
+                                               : sceneManager._meshSetActiveQueue.second;
                 LightComponent* lightComponent = static_cast<LightComponent*>(component);
                 lightActiveQueue.push_back(&lightComponent->Lighting);
             }
@@ -758,14 +758,13 @@ void ESceneManager::ObjectsApplicationQuit()
 void ESceneManager::ObjectsOnEnable()
 {
     auto& [OnEnableSet, OnEnableVec, OnEnableValue] = _onEnableQueue;
-    auto& meshEnableQueue = _meshSetActiveQueue.first;
-    auto& lightEnableQueue = _lightSetActiveQueue.first;
+    auto& RenderEnableQueue = _meshSetActiveQueue.first;
     for (auto& value : OnEnableValue)
     {
         *value = true;  
     }
 
-    for (auto& mesh : meshEnableQueue)
+    for (auto& mesh : RenderEnableQueue)
     {
         if (nullptr != mesh)
         {
@@ -773,14 +772,6 @@ void ESceneManager::ObjectsOnEnable()
         }
     }
 
-    for (auto& light : lightEnableQueue)
-    {
-        if (nullptr != light)
-        {
-            light->SetActive(true);
-        }
-    }
-    
     if (_isPlay)
     {
         for (auto& component : OnEnableVec)
@@ -792,21 +783,20 @@ void ESceneManager::ObjectsOnEnable()
     OnEnableSet.clear();
     OnEnableVec.clear();
     OnEnableValue.clear();
-    meshEnableQueue.clear();
+    RenderEnableQueue.clear();
 }
 
 void ESceneManager::ObjectsOnDisable()
 {
     auto& [OnDisableSet, OnDisableVec, OnDisableValue] = _onDisableQueue;
-    auto& MeshDisableQueue = _meshSetActiveQueue.second;
-    auto& lightEnableQueue = _lightSetActiveQueue.second;
+    auto& RenderDisableQueue = _meshSetActiveQueue.second;
 
     for (auto& value : OnDisableValue)
     {
         *value = false;
     }
 
-    for (auto& mesh : MeshDisableQueue)
+    for (auto& mesh : RenderDisableQueue)
     {
         if (nullptr != mesh)
         {
@@ -814,14 +804,6 @@ void ESceneManager::ObjectsOnDisable()
         }
     }
 
-    for (auto& light : lightEnableQueue)
-    {
-        if (nullptr != light)
-        {
-            light->SetActive(false);
-        }
-    }
-    
     if (_isPlay)
     {
         for (auto& component : OnDisableVec)
@@ -833,7 +815,7 @@ void ESceneManager::ObjectsOnDisable()
     OnDisableSet.clear();
     OnDisableVec.clear();
     OnDisableValue.clear();
-    MeshDisableQueue.clear();
+    RenderDisableQueue.clear();
 }
 
 void ESceneManager::ObjectsDestroy()
