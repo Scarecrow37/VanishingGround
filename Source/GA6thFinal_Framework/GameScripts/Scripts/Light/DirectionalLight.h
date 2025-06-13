@@ -18,8 +18,8 @@ public:
     SETTER(const Color&, Ambient)
     { 
         _ambient = value;
-        std::memcpy(&_ambient.x, &ReflectFields->Ambient[0], sizeof(ReflectFields->Ambient));
-        std::memcpy(&_ambient.x, &_ambientVector3.x, sizeof(_ambientVector3));
+        std::memcpy(&ReflectFields->Ambient[0], &_ambient.x, sizeof(ReflectFields->Ambient));
+        std::memcpy(&_ambientVector3.x, &_ambient.x, sizeof(_ambientVector3));
     }
     PROPERTY(Ambient)
 
@@ -33,6 +33,8 @@ protected:
     직접 override 해서 사용합니다.
     */
     virtual void DeserializedReflectEvent() override;
+
+    virtual void Reset() override;
 
 private:
     Color _ambient{1.f, 1.f, 1.f, 1.f};

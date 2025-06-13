@@ -17,8 +17,8 @@ public:
     SETTER(const Color&, LightColor) 
     {
         _lightColor = value;
-        std::memcpy(&_lightColor.x, &ReflectFields->Color[0], sizeof(ReflectFields->Color));
-        std::memcpy(&_lightColor.x, &_lightColorVector3.x, sizeof(_lightColorVector3));
+        std::memcpy(&ReflectFields->Color[0], & _lightColor.x, sizeof(ReflectFields->Color));
+        std::memcpy(&_lightColorVector3.x, & _lightColor.x, sizeof(_lightColorVector3));
     }
     PROPERTY(LightColor)
 
@@ -55,6 +55,8 @@ protected:
     직접 override 해서 사용합니다.
     */
     virtual void DeserializedReflectEvent() override;
+
+    virtual void Reset();
 
 private:
     Color _lightColor{1.f, 1.f, 1.f, 1.f};

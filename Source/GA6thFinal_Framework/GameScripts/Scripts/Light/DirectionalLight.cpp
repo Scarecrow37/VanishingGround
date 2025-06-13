@@ -3,10 +3,7 @@
 
 DirectionalLight::DirectionalLight()
 {
-    const Vector3& color = GetColor();
-    const Vector3& ambient = _ambientVector3;
-    const Vector3& direction = transform->Forward;
-    Lighting.SetDirectionalLight(color, ambient, direction, ReflectFields->Basefields.get().Intensity);
+
 }
 
 DirectionalLight::~DirectionalLight() 
@@ -20,6 +17,14 @@ void DirectionalLight::DeserializedReflectEvent()
                      ReflectFields->Ambient[1], 
                      ReflectFields->Ambient[2],
                      ReflectFields->Ambient[3]);
+}
+
+void DirectionalLight::Reset() 
+{
+    const Vector3& color     = GetColor();
+    const Vector3& ambient   = _ambientVector3;
+    const Vector3& direction = transform->Forward;
+    Lighting.SetDirectionalLight(color, ambient, direction, ReflectFields->Basefields.get().Intensity);
 }
 
 

@@ -8,11 +8,11 @@ LightComponent::LightComponent()
 {
     LightCore& lightCore = UmLightCore;
     lightCore.RegisterLight("Editor", _light.get());
+    Lighting.SetActive(true);
 }
 
 LightComponent::~LightComponent() 
 {
-    LightCore& lightCore = UmLightCore;
     _light->SetDestroy();
     _light.reset();
 }
@@ -23,5 +23,10 @@ void LightComponent::DeserializedReflectEvent()
                         ReflectFields->Color[1], 
                         ReflectFields->Color[2], 
                         ReflectFields->Color[3]);
+}
+
+void LightComponent::Reset() 
+{
+
 }
 

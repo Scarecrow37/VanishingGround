@@ -33,7 +33,7 @@ public:
     SETTER(float, Linear)
     { 
         _attenuation.y = value;
-        std::memcpy(&_attenuation.x, ReflectFields->Attenuation.data(), sizeof(ReflectFields->Attenuation));
+        std::memcpy(ReflectFields->Attenuation.data(), &_attenuation.x, sizeof(ReflectFields->Attenuation));
     }
     PROPERTY(Linear)
 
@@ -44,7 +44,7 @@ public:
     SETTER(float, Quadratic)
     { 
         _attenuation.z = value;
-        std::memcpy(&_attenuation.x, ReflectFields->Attenuation.data(), sizeof(ReflectFields->Attenuation));
+        std::memcpy(ReflectFields->Attenuation.data(), &_attenuation.x, sizeof(ReflectFields->Attenuation));
     }
     PROPERTY(Quadratic)
 
@@ -69,6 +69,8 @@ protected:
     직접 override 해서 사용합니다.
     */
     virtual void DeserializedReflectEvent() override;
+
+    virtual void Reset() override;
 
 private:
     Vector3 _attenuation;
