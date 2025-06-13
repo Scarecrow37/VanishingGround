@@ -22,7 +22,7 @@ public:
     SETTER(float, Constant)
     {
         ReflectFields->Constant = value;
-        _light->SetAttenuation(ReflectFields->Constant, ReflectFields->Linear, ReflectFields->Quadratic);
+        Lighting.SetAttenuation(ReflectFields->Constant, ReflectFields->Linear, ReflectFields->Quadratic);
     }
     PROPERTY(Constant)
 
@@ -33,7 +33,7 @@ public:
     SETTER(float, Linear)
     {
         ReflectFields->Linear = value;
-        _light->SetAttenuation(ReflectFields->Constant, ReflectFields->Linear, ReflectFields->Quadratic);
+        Lighting.SetAttenuation(ReflectFields->Constant, ReflectFields->Linear, ReflectFields->Quadratic);
     }
     PROPERTY(Linear)
 
@@ -44,7 +44,7 @@ public:
     SETTER(float, Quadratic)
     {
         ReflectFields->Quadratic = value;
-        _light->SetAttenuation(ReflectFields->Constant, ReflectFields->Linear, ReflectFields->Quadratic);
+        Lighting.SetAttenuation(ReflectFields->Constant, ReflectFields->Linear, ReflectFields->Quadratic);
     }
     PROPERTY(Quadratic)
 
@@ -55,7 +55,7 @@ public:
     SETTER(float, Range)
     { 
         ReflectFields->Range = value;
-        _light->SetRange(value);
+        Lighting.SetRange(value);
     }
     PROPERTY(Range)
 

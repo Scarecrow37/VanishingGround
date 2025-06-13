@@ -8,7 +8,7 @@ PointLight::PointLight()
     float range = ReflectFields->Range;
     float intensity = ReflectFields->Basefields.get().Intensity;
 
-    _light->SetPointLight(
+    Lighting.SetPointLight(
     color, 
     transform->Position, 
     attenuation, 

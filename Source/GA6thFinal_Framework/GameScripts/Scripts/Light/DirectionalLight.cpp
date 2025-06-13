@@ -6,7 +6,7 @@ DirectionalLight::DirectionalLight()
     Vector3 color(ReflectFields->Basefields.get().Color.data());
     Vector3 ambient(ReflectFields->Ambient.data());
     Vector3 direction(ReflectFields->Direction.data());
-    _light->SetDirectionalLight(color, ambient, direction, ReflectFields->Basefields.get().Intensity);
+    Lighting.SetDirectionalLight(color, ambient, direction, ReflectFields->Basefields.get().Intensity);
 }
 
 DirectionalLight::~DirectionalLight() 

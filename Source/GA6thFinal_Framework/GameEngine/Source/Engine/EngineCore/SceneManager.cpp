@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "Engine/GraphicsCore/Model.h"
+#include "Engine/GraphicsCore/Light.h"
 #include "UmScripts.h"
 using namespace Global;
 using namespace u8_literals;
@@ -173,6 +174,13 @@ void ESceneManager::Engine::SetGameObjectActive(GameObject* pObject, bool value)
                             MeshComponent* meshComponent  = static_cast<MeshComponent*>(component.get());
                             meshActiveQueue.push_back(meshComponent->Renderer.get());
                         }
+                        else if (Component::Type::Light == component->_type)
+                        {
+                            auto& lightActiveQueue = value ? sceneManager._lightSetActiveQueue.first
+                                                           : sceneManager._lightSetActiveQueue.second;
+                            LightComponent* lightComponent = static_cast<LightComponent*>(component.get());
+                            lightActiveQueue.push_back(&lightComponent->Lighting);
+                        }
                     }
                 }                   
             });  
@@ -208,6 +216,13 @@ void ESceneManager::Engine::SetComponentEnable(Component* component, bool value)
                                               : sceneManager._meshSetActiveQueue.second;
                 MeshComponent* meshComponent = static_cast<MeshComponent*>(component);
                 meshActiveQueue.push_back(meshComponent->Renderer.get());
+            }
+            else if (Component::Type::Light == component->_type)
+            {
+                auto& lightActiveQueue = value ? sceneManager._lightSetActiveQueue.first 
+                                               : sceneManager._lightSetActiveQueue.second;
+                LightComponent* lightComponent = static_cast<LightComponent*>(component);
+                lightActiveQueue.push_back(&lightComponent->Lighting);
             }
         }
     }
@@ -743,17 +758,26 @@ void ESceneManager::ObjectsApplicationQuit()
 void ESceneManager::ObjectsOnEnable()
 {
     auto& [OnEnableSet, OnEnableVec, OnEnableValue] = _onEnableQueue;
-    auto& MeshEnableQueue = _meshSetActiveQueue.first;
+    auto& meshEnableQueue = _meshSetActiveQueue.first;
+    auto& lightEnableQueue = _lightSetActiveQueue.first;
     for (auto& value : OnEnableValue)
     {
         *value = true;  
     }
 
-    for (auto& mesh : MeshEnableQueue)
+    for (auto& mesh : meshEnableQueue)
     {
         if (nullptr != mesh)
         {
             mesh->SetActive(true);
+        }
+    }
+
+    for (auto& light : lightEnableQueue)
+    {
+        if (nullptr != light)
+        {
+            light->SetActive(true);
         }
     }
     
@@ -768,13 +792,14 @@ void ESceneManager::ObjectsOnEnable()
     OnEnableSet.clear();
     OnEnableVec.clear();
     OnEnableValue.clear();
-    MeshEnableQueue.clear();
+    meshEnableQueue.clear();
 }
 
 void ESceneManager::ObjectsOnDisable()
 {
     auto& [OnDisableSet, OnDisableVec, OnDisableValue] = _onDisableQueue;
     auto& MeshDisableQueue = _meshSetActiveQueue.second;
+    auto& lightEnableQueue = _lightSetActiveQueue.second;
 
     for (auto& value : OnDisableValue)
     {
@@ -789,6 +814,14 @@ void ESceneManager::ObjectsOnDisable()
         }
     }
 
+    for (auto& light : lightEnableQueue)
+    {
+        if (nullptr != light)
+        {
+            light->SetActive(false);
+        }
+    }
+    
     if (_isPlay)
     {
         for (auto& component : OnDisableVec)

@@ -2,10 +2,11 @@
 
 LightComponent::LightComponent() 
     :
-    Component(Component::Type::Light) 
+    Component(Component::Type::Light),
+    _light(std::make_shared<Light>()),
+    Lighting(*_light)
 {
     LightCore& lightCore = UmLightCore;
-    _light = std::make_shared<Light>();
     lightCore.RegisterLight("Editor", _light);
 }
 

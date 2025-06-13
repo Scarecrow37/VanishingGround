@@ -3,6 +3,8 @@ class GameObject;
 class Component;
 class ESceneManager;
 class MeshComponent;
+class LightComponent;
+class Light;
 class Model;
 namespace Command::EditorScene
 {
@@ -523,6 +525,9 @@ private:
 
     //Renderer의 Enable, Disable 변경 관리용
     std::pair<std::vector<MeshRenderer*>, std::vector<MeshRenderer*>> _meshSetActiveQueue;
+
+    //Light의 Enable, Disable 변경 관리용
+    std::pair<std::vector<Light*>, std::vector<Light*>> _lightSetActiveQueue;
 
     //Scene에 실행중인 Render component들
     std::vector<std::weak_ptr<MeshComponent>> _runtimeMeshComponents;

@@ -20,7 +20,7 @@ public:
     { 
         _ambient = value;
         std::memcpy(&_ambient.x, &ReflectFields->Ambient[0], sizeof(Color));
-        _light->SetColor(Vector3(value.x, value.y, value.z));
+        Lighting.SetColor(Vector3(value.x, value.y, value.z));
     }
     PROPERTY(Ambient)
 

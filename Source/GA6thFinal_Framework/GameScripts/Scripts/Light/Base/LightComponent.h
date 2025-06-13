@@ -35,10 +35,9 @@ public:
 public:
     LightComponent();
     virtual ~LightComponent() override;
+    Light& Lighting;
 
 protected:
-    std::shared_ptr<Light> _light;
-
     REFLECT_FIELDS_BEGIN(Component)
     float Intensity = 1.f;
     std::array<float, 4> Color{1.f, 1.f, 1.f, 1.f};    
@@ -51,5 +50,6 @@ protected:
     virtual void DeserializedReflectEvent() override;
 
 private:
+    std::shared_ptr<Light> _light;
     Color _lightColor{1.f, 1.f, 1.f, 1.f};
 };
