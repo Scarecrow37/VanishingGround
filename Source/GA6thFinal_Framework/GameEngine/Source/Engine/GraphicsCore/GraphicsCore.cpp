@@ -3,7 +3,7 @@
 // 임시
 #include "ParticleEffect.h"
 #include "ParticleEmitter.h"
-void GraphicsCore::Initialize(HWND hwnd, UINT width, UINT height, FEATURE_LEVEL feature)
+void GraphicsCore::Initialize(HWND hwnd, UINT width, UINT height, FeatureLevel feature)
 {
     Device.SetUpDevice(hwnd, width, height, feature);
     ViewManager.Initialize();
@@ -12,7 +12,7 @@ void GraphicsCore::Initialize(HWND hwnd, UINT width, UINT height, FEATURE_LEVEL 
     ParticleManager.Initialize(MAX_PARTICLE);
     Renderer.Initialize();
 
-    auto commandList = Device.GetCommandList().Get();
+    auto commandList = Device.GetCommandList();
     commandList->Close();
     auto imguiCommandList = Device.GetImguiCommandList().Get();
     imguiCommandList->Close();
@@ -78,9 +78,9 @@ void GraphicsCore::UpdateAnimation(const float deltaTime)
     AnimationCore.Update(deltaTime);
 }
 
-void GraphicsCore::Update()
+void GraphicsCore::Update(const float deltaTime)
 {
-    ParticleManager.Update(UmTime.DeltaTime());
+    LightCore.Update(deltaTime);
     Renderer.Update();
     
 }

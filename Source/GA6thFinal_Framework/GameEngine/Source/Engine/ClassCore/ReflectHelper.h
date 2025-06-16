@@ -32,6 +32,11 @@ protected:
     */
     virtual void DeserializedReflectEvent() {}
 
+    /*
+    ImGuiDrawPropertys() 호출 이후 콜되는 이벤트 함수입니다.
+    */
+    virtual void ImGuiDrawPropertysEvent() {}
+
 public:
     virtual void ImGuiDrawPropertys(ReflectHelper::ImGuiDraw::InputAutoSetting& setting, bool isTail) 
     {
@@ -241,10 +246,10 @@ protected:                                                                      
         if (true == isTail)                                                                                 \
         {                                                                                                   \
             setting.InputEndEvent = nullptr;                                                                \
+            ImGuiDrawPropertysEvent();                                                                      \
         }                                                                                                   \
         ImGui::PopID();                                                                                     \
-    }
-
+    }                                                                                                       
 
 namespace ReflectHelper
 {

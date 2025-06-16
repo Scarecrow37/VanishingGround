@@ -294,9 +294,6 @@
     <ClInclude Include="Source\Engine\GraphicsCore\GraphicsCore.h">
       <Filter>GraphicsCore</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\TempObject.h">
-      <Filter>GraphicsCore</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\GraphicsCore\Animation.h">
       <Filter>GraphicsCore\Resource\Animation</Filter>
     </ClInclude>
@@ -603,6 +600,15 @@
     <ClInclude Include="Source\Engine\GraphicsCore\AnimationCore.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\EngineCore\FactoryRegister.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\LightCore.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\Light.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Engine\GraphicsCore\ParticleEffect.h">
       <Filter>GraphicsCore\ParticleCore</Filter>
     </ClInclude>
@@ -789,9 +795,6 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\GraphicsCore.cpp">
-      <Filter>GraphicsCore</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\TempObject.cpp">
       <Filter>GraphicsCore</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\Animation.cpp">
@@ -1062,6 +1065,12 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\AnimationCore.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\LightCore.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\Light.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\ParticleEffect.cpp">

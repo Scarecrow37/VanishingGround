@@ -51,6 +51,9 @@ void Animator::Initialize(std::wstring_view filePath, std::shared_ptr<Skeleton> 
 
 void Animator::Initialize(std::shared_ptr<Animation> animation, std::shared_ptr<Skeleton> skeleton)
 {
+    if (nullptr == animation || nullptr == skeleton)
+        return;
+
     _animation = animation;
     _skeleton  = skeleton;
     _controllers.resize(1);
@@ -187,7 +190,7 @@ void Animator::SplitBone(const unsigned int ID, const char* boneName)
 {
 	if (_maxSplit <= ID)
 	{
-		ASSERT(false, L"Greater than the number of bones you set.");
+        GRAPHICS_ASSERT(false, L"Greater than the number of bones you set.");
 		return;
 	}
 
@@ -207,7 +210,7 @@ void Animator::SetAnimationSpeed(float speed, unsigned int ID)
 {
 	if (_maxSplit <= ID)
 	{
-		ASSERT(false, L"Greater than the number of bones you set.");
+        GRAPHICS_ASSERT(false, L"Greater than the number of bones you set.");
 		return;
 	}
 

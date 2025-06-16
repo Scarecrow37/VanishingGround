@@ -102,8 +102,24 @@ void GameObject::OnInspectorStay()
 
     ImGui::PushID(this);
     {
+        if (ImGui::Button("Destroy GameObject"))
+        {
+            if (selectObject == this)
+                selectObject = nullptr;
+
+            if (false == editorModule->PlayMode.IsPlay())
+            {
+                UmCommandManager.Do<Command::EditorScene::DestroyGameObjectCommand>(this);
+            }
+            else
+            {
+                GameObject::Destroy(this);
+            }
+        }
+        ImGui::SameLine();
         ImGui::Checkbox("Debug", &isDebug);
         ImGui::Separator();
+
         bool isPrefab = IsPrefabInstance();
         GameObject* pPrefabObject = PrefabInstance; 
         if (isPrefab)
@@ -156,21 +172,7 @@ void GameObject::OnInspectorStay()
             selectObject = this;
             ImGui::OpenPopup("Select Component");
         }
-        ImGui::SameLine();
-        if (ImGui::Button("Destroy GameObject"))
-        {
-            if (selectObject == this)
-                selectObject = nullptr;
-
-            if (false == editorModule->PlayMode.IsPlay())
-            {
-                UmCommandManager.Do<Command::EditorScene::DestroyGameObjectCommand>(this);
-            }
-            else
-            {
-                GameObject::Destroy(this);
-            }
-        }
+        ImGui::Separator();
 
         if (false == _components.empty())
         {

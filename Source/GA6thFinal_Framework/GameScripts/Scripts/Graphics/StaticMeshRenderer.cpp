@@ -1,25 +1,28 @@
 ﻿#include "StaticMeshRenderer.h"
 StaticMeshRenderer::StaticMeshRenderer() 
 {    
-    FilePath.SetDragDropFunc([this]()
-        { 
+    FilePath.SetInputAutoEvent([this]()
+    { 
+        if (ImGui::BeginDragDropTarget())
+        {
             if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
             {
-                DragDropAsset::Data* data = (DragDropAsset::Data*)payLoad->Data; 
+                DragDropAsset::Data* data    = (DragDropAsset::Data*)payLoad->Data;
                 auto context = data->pContext->lock();
-                
                 if (nullptr != context)
                 {
-                    const auto& path = context->GetPath();
+                    const auto& path      = context->GetPath();
                     const auto  extension = path.extension();
                     if (extension == L".fbx" || extension == L".UmModel")
                     {
-                        _guidRef = path.ToGuid();
+                        _guidRef            = path.ToGuid();
                         ReflectFields->Guid = _guidRef.string();
                         UmSceneManager.ResourceManager.RequestModelResource(this, _guidRef);
                     }
                 }
             }
+            ImGui::EndDragDropTarget();
+        }
     });    
 }
 
@@ -30,7 +33,7 @@ StaticMeshRenderer::~StaticMeshRenderer()
 
 void StaticMeshRenderer::Reset()
 {
-    MakeMeshRenderer(MESH_RENDER_TYPE::STATIC, gameObject->transform->GetWorldMatrix());
+    MakeMeshRenderer(MeshRenderType::STATIC, gameObject->transform->GetWorldMatrix());
 }
 
 void StaticMeshRenderer::Awake()

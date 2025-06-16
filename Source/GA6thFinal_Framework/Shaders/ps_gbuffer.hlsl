@@ -32,7 +32,6 @@ struct Material
 };
 
 StructuredBuffer<Material> material;
-
 Texture2D textures[];
 
 float3 CalculateNormal(float3 sampledNormal, float3 tangent, float3 bitangent, float3 normal)
@@ -45,10 +44,10 @@ float3 CalculateNormal(float3 sampledNormal, float3 tangent, float3 bitangent, f
 PSOutput WriteGuBuffer(PSInput input)
 {
     PSOutput output = (PSOutput) 0;
-    uint diffuseID = material[object.ID].ID[DIFFUSE];
-    uint normalID = material[object.ID].ID[NORMAL];
-    uint ORMID = material[object.ID].ID[ORM];
-    uint emissiveID = material[object.ID].ID[EMISSIVE];
+    uint diffuseID = material[objectData.ID].ID[DIFFUSE];
+    uint normalID = material[objectData.ID].ID[NORMAL];
+    uint ORMID = material[objectData.ID].ID[ORM];
+    uint emissiveID = material[objectData.ID].ID[EMISSIVE];
     
     // 0. baseColor
     output.baseColor = textures[diffuseID].Sample(samLinear_wrap, input.uv);

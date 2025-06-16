@@ -1,4 +1,5 @@
 ﻿#include "pch.h"
+#include "UmScripts.h"
 using namespace Global;
 using namespace u8_literals;
 
@@ -46,8 +47,8 @@ bool EComponentFactory::InitalizeComponentFactory()
             if (auto component = wptr.lock())
             {
                 int index = component->GetIndex();
-                addList.emplace_back(component->_gameObect, key, index, component->SerializedReflectFields());
-                component->_gameObect->_components[index].reset(); //컴포넌트 파괴
+                addList.emplace_back(component->_gameObject, key, index, component->SerializedReflectFields());
+                component->_gameObject->_components[index].reset(); //컴포넌트 파괴
             }
         }
         _componentInstanceVec.clear();
@@ -56,6 +57,7 @@ bool EComponentFactory::InitalizeComponentFactory()
         m_scriptsDll = NULL;
     }
 
+    UmCommandManager.Clear();
     _newScriptsFunctionMap.clear();
     m_NewScriptsKeyVec.clear();
 
@@ -209,7 +211,7 @@ void EComponentFactory::UninitalizeComponentFactory()
                 int index = component->GetIndex();
                 if (0 <= index)
                 {
-                    component->_gameObect->_components[index].reset(); // 컴포넌트 파괴
+                    component->_gameObject->_components[index].reset(); // 컴포넌트 파괴
                 }             
             }
         }
@@ -386,7 +388,7 @@ Component* EComponentFactory::AddComponentToYamlNow(GameObject* ownerObject, YAM
     std::shared_ptr<Component> component;
     if (component = MakeComponentToYaml(ownerObject, componentNode))
     {
-        component->_gameObect->_components.emplace_back(component); //바로 추가
+        component->_gameObject->_components.emplace_back(component); //바로 추가
     }
     else
     {
@@ -514,7 +516,7 @@ void EComponentFactory::ResetComponent(GameObject* ownerObject, std::shared_ptr<
 {
     //여긴 엔진에서 사용하기 위한 초기화 코드 
     component->_className = (typeid(*component).name() + 5);
-    component->_gameObect = ownerObject;
+    component->_gameObject = ownerObject;
     component->_weakPtr = component;
     component->Reset();
     //end

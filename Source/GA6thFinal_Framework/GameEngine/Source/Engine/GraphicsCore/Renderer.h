@@ -44,7 +44,6 @@ public:
     void PreUnInitializeImgui();
     void ImguiBegin();
     void ImguiEnd();
-    D3D12_GPU_DESCRIPTOR_HANDLE ConvertImGuiGPUHandle(const D3D12_CPU_DESCRIPTOR_HANDLE handle);
 
 private:
     void CreateDefaultResource();
@@ -52,13 +51,7 @@ private:
     void CreateDefaultTexture();
 
 private:
-    D3D12_GPU_DESCRIPTOR_HANDLE SceneView(RenderScene* scene);
-
-private:
-    // imgui 전용 descriptor heap
-    ComPtr<ID3D12DescriptorHeap>       _imguiDescriptorHeap = nullptr;
     std::unique_ptr<RendererFileEvent> _rendererFileEvent;
-    UINT                               _currentImGuiImageIndex;
 
 private:
     std::vector<std::pair<bool, MeshRenderer*>>                   _components;

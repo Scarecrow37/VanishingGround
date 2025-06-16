@@ -17,15 +17,15 @@ void PBRLitTechnique::Initialize(ID3D12GraphicsCommandList* commandList)
     // gbuffer 상태 전이 하기.
     for (UINT i = 0; i < _ownerScene->_gBufferCount; ++i)
     {
-        ComPtr<ID3D12Resource> gbuffer = _ownerScene->_gBuffer[i]->GetResource();
+        ID3D12Resource* gbuffer = _ownerScene->_gBuffer[i]->GetResource();
 
-        CD3DX12_RESOURCE_BARRIER br = CD3DX12_RESOURCE_BARRIER::Transition(gbuffer.Get(), D3D12_RESOURCE_STATE_COMMON,
+        CD3DX12_RESOURCE_BARRIER br = CD3DX12_RESOURCE_BARRIER::Transition(gbuffer, D3D12_RESOURCE_STATE_COMMON,
                                                                            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
         commandList->ResourceBarrier(1, &br);
     }
     // mesh lighting target 상태 전이하기.
-    ComPtr<ID3D12Resource> meshRT = _ownerScene->_meshLightingTarget->GetResource();
-    CD3DX12_RESOURCE_BARRIER br     = CD3DX12_RESOURCE_BARRIER::Transition(meshRT.Get(), D3D12_RESOURCE_STATE_COMMON,
+    ID3D12Resource* meshRT = _ownerScene->_meshLightingTarget->GetResource();
+    CD3DX12_RESOURCE_BARRIER br     = CD3DX12_RESOURCE_BARRIER::Transition(meshRT, D3D12_RESOURCE_STATE_COMMON,
                                                                            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
     commandList->ResourceBarrier(1, &br);
@@ -34,7 +34,6 @@ void PBRLitTechnique::Initialize(ID3D12GraphicsCommandList* commandList)
 void PBRLitTechnique::Execute(ID3D12GraphicsCommandList* commandList)
 {
     __super::Execute(commandList);
-
 }
 
 void PBRLitTechnique::InitGBufferPass()

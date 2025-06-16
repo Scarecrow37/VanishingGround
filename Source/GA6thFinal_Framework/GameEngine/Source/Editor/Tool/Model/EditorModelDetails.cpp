@@ -5,10 +5,12 @@
 #include "Engine/GraphicsCore/Model.h"
 #include "Engine/GraphicsCore/Animation.h"
 #include "Engine/GraphicsCore/Animator.h"
+#include "Engine/GraphicsCore/Light.h"
 
 EditorModelDetails::EditorModelDetails()
-    : _meshRenderer(std::make_unique<MeshRenderer>(MESH_RENDER_TYPE::STATIC, _worldMatrix))
+    : _meshRenderer(std::make_unique<MeshRenderer>(MeshRenderType::STATIC, _worldMatrix))
     , _animator(std::make_shared<Animator>())
+    , _mainLight(std::make_unique<Light>())
     , _selectedMeshIndex(0)
 {
     SetLabel("Details##model");
@@ -21,6 +23,13 @@ void EditorModelDetails::OnStartGui()
 {
     UmRenderer.RegisterRenderQueue("ModelViewer", _meshRenderer.get());
     UmAnimationCore.RegisterAnimator(_animator);
+    UmLightCore.RegisterLight("ModelViewer", _mainLight.get());
+
+    _color = Vector3(1.f);
+    _ambient = Vector3(1.f);
+    _direction = Vector3(0.f, -1.f, 1.f);
+    _intensity = 1.f;
+    _mainLight->SetDirectionalLight(_color, _ambient, _direction, _intensity);
 }
 
 void EditorModelDetails::OnEndGui() {}
@@ -44,12 +53,20 @@ void EditorModelDetails::OnFrameRender()
     }
     ImGui::EndHorizontal();
 
+    if (ImGui::CollapsingHeader("Light Property"))
+    {
+        ImGui::ColorPicker3("Color##Light", (float*)&_color);
+        ImGui::ColorPicker3("Ambient##Light", (float*)&_ambient);
+        ImGui::SliderFloat3("Direction##Light", (float*)&_direction, -1.f, 1.f);
+        ImGui::SliderFloat("Intensity##Light", &_intensity, 0.f, 1000.f);
+    }
+
     const auto& model = _meshRenderer->GetModel();
     if (model)
     {
         const auto type = _meshRenderer->GetType();
 
-        if (MESH_RENDER_TYPE::SKELETAL == type)
+        if (MeshRenderType::SKELETAL == type)
         {
             const auto& animation      = model->GetAnimation();
             const auto& animationNames = animation->GetAnimations();

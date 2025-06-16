@@ -87,11 +87,11 @@ void EditorLogsTool::OnPreFrameBegin()
             elapsedTime = 0.f;
             reverse     = !reverse;
         }
-        ImVec4&          defaultTextColor = ImGui::GetStyle().Colors[ImGuiCol_Text];
-        auto& [level, message, location]  = _drawLogList.back();
-        ImVec4 logTextColor = ImGuiHelper::ArrayToImVec4(ReflectFields->LogColorTable[level]);
-        ImVec4 lerpColor = reverse ? ImGuiHelper::ImVec4Lerp(logTextColor, defaultTextColor, t)
-                                   : ImGuiHelper::ImVec4Lerp(defaultTextColor, logTextColor, t);
+        ImVec4& defaultTextColor         = ImGui::GetStyle().Colors[ImGuiCol_Text];
+        auto& [level, message, location] = _drawLogList.back();
+        ImVec4 logTextColor              = ImGuiHelper::ArrayToImVec4(ReflectFields->LogColorTable[level]);
+        ImVec4 lerpColor                 = reverse ? ImGuiHelper::ImVec4Lerp(logTextColor, defaultTextColor, t)
+                                                   : ImGuiHelper::ImVec4Lerp(defaultTextColor, logTextColor, t);
         ImGui::PushStyleColor(ImGuiCol_Text, lerpColor);
         lable = std::format("{} +{}###{}", u8"로그"_c_str, std::min(notReadCount, (size_t)999), u8"로그"_c_str);
     }
@@ -177,14 +177,21 @@ void EditorLogsTool::OnFrameRender()
             auto& [level, message, location] = _drawLogList[i];
             ImGui::PushID(&message);
             logText += message;
-            logText += std::format("\n{}, line : {}", location.function_name(), location.line());
+            bool isLog = false == UmLogger.IsMessageLocation(location);
+            if (true == isLog)
+            {
+                logText += std::format("\n{}, line : {}", location.function_name(), location.line());
+            }
             ImGui::PushStyleColor(ImGuiCol_Text, ImGuiHelper::ArrayToImVec4(ReflectFields->LogColorTable[level]));
             ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4());
             ImGui::InputTextMultiline("##message", &logText, {regionAvail.x, 50}, ImGuiInputTextFlags_ReadOnly);
-            ImGuiHelper::HoveredToolTip(u8"우클릭으로 해당 파일로 이동합니다."_c_str);
-            if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+            if (isLog && ImGui::IsItemHovered())
             {
-                openVSWithFile(location.file_name(), location.line());
+                ImGuiHelper::HoveredToolTip(u8"우클릭으로 해당 파일로 이동합니다."_c_str);
+                if (ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+                {
+                    openVSWithFile(location.file_name(), location.line());
+                }
             }
             ImGui::PopStyleColor(2);
             ImGui::PopID();
@@ -216,11 +223,6 @@ void EditorLogsTool::ResetLogFilter()
     ReflectFields->LogFilterTable[LogLevel::LEVEL_WARNING] = true;
     ReflectFields->LogFilterTable[LogLevel::LEVEL_ERROR] = true;
     ReflectFields->LogFilterTable[LogLevel::LEVEL_FATAL] = true;
-}
-
-void EditorLogsTool::PrintLog(const std::tuple<int, std::string, LogLocation>& log)
-{
-
 }
 
 void EditorLogsTool::ShowFilter()

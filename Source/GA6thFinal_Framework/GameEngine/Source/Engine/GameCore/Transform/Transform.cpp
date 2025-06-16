@@ -172,10 +172,11 @@ void Transform::UpdateMatrix()
         }
         else
         {
-            curr->_worldMatrix =
-                curr->_localMatrix * curr->_parent->_worldMatrix;
+            curr->_worldMatrix = curr->_localMatrix * curr->_parent->_worldMatrix;
         }
         curr->_inversWorldMatrix = curr->_worldMatrix.Invert();
+        curr->_forward = Vector3(curr->_worldMatrix._31, curr->_worldMatrix._32, curr->_worldMatrix._33);
+        curr->_forward.Normalize();
         curr->_hasChanged = false;
     });
 }

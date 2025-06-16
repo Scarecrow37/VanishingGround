@@ -27,7 +27,7 @@ public:
     void BindMaterial(const UINT meshIndex, const Material& material);
 
     // Resource을(를) 통해 상속됨
-    HRESULT LoadResource(const std::filesystem::path& filePath) override;
+    void LoadResource(const std::filesystem::path& filePath) override;
 
 private:
     std::vector<std::unique_ptr<BaseMesh>>             _meshes;

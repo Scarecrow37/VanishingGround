@@ -1,6 +1,6 @@
 #include "CommonData.hlsli"
 
-StructuredBuffer<ObjectData> objectData;
+StructuredBuffer<matrix> worldMatrices;
 
 struct VSInput
 {
@@ -21,8 +21,6 @@ struct VSOutput
     float4 worldPosition : POSITION;
 };
 
-
-
 VSOutput vs_main(VSInput input)
 {
     VSOutput output = (VSOutput) 0;
@@ -30,15 +28,15 @@ VSOutput vs_main(VSInput input)
     float3 tangent = normalize(input.tangent);
     float3 biTangent = normalize(input.biTangent);
     
-    output.position = mul(input.position, objectData[object.ID].World);
+    output.position = mul(input.position, worldMatrices[objectData.ID]);
     
     output.worldPosition = output.position;
     output.position = mul(output.position, cameraData.View);
     output.position = mul(output.position, cameraData.Projection);
     
-    output.normal = normalize(mul(normal, (float3x3) objectData[object.ID].World));
-    output.tangent = normalize(mul(tangent, (float3x3) objectData[object.ID].World));
-    output.biTangent = normalize(mul(biTangent, (float3x3) objectData[object.ID].World));
+    output.normal = normalize(mul(normal, (float3x3) worldMatrices[objectData.ID]));
+    output.tangent = normalize(mul(tangent, (float3x3) worldMatrices[objectData.ID]));
+    output.biTangent = normalize(mul(biTangent, (float3x3) worldMatrices[objectData.ID]));
     
     output.uv = input.uv;
 

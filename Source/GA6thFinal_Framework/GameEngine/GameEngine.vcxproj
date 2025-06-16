@@ -301,7 +301,10 @@
     <ClInclude Include="Source\Editor\Menu\Model\EditorModelMenu.h" />
     <ClInclude Include="Source\Editor\Tool\Hierarchy\HierarchyFindTool.h" />
     <ClInclude Include="Source\Editor\Tool\Scene\Command\EditorSceneCommands.h" />
+    <ClInclude Include="Source\Engine\EngineCore\FactoryRegister.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\AnimationCore.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\Light.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\LightCore.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\SkyBoxPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\SkyBoxRenderTechnique.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\SkyBox.h" />
@@ -417,7 +420,6 @@
     <ClInclude Include="Source\Engine\GraphicsCore\Sphere.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Structs.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\StructuredBuffer.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\TempObject.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Texture.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\VIBuffer.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\ViewManager.h" />
@@ -479,6 +481,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\AnimationCore.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\Light.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\LightCore.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\SkyBoxPass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\SkyBoxRenderTechnique.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\SkyBox.cpp" />
@@ -637,7 +641,6 @@
     <ClCompile Include="Source\Engine\GraphicsCore\Skeleton.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\Sphere.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\StructuredBuffer.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\TempObject.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\Texture.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\VIBuffer.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\ViewManager.cpp" />

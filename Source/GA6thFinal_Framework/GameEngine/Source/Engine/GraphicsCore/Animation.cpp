@@ -40,8 +40,10 @@ void Animation::LoadAnimation(const aiScene* scene)
 			}
 
 			animation.BoneTransforms[channel->mNodeName.C_Str()] = track;
-			animation.LastTime = std::max(track.Scales.back().first, track.Rotations.back().first);
-			animation.LastTime = std::max(animation.LastTime, track.Positions.back().first);
+            animation.LastTime = std::max({track.Scales.back().first, 
+                                           track.Rotations.back().first,
+                                           track.Positions.back().first, 
+                                           animation.LastTime});
 		}
         
 		_animations[anim->mName.C_Str()] = animation;
@@ -53,7 +55,6 @@ void Animation::LoadAnimation(const aiScene* scene)
     }
 }
 
-HRESULT Animation::LoadResource(const std::filesystem::path& filePath)
+void Animation::LoadResource(const std::filesystem::path& filePath)
 {
-	return S_OK;
 }

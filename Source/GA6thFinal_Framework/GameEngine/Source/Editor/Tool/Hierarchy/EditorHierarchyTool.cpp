@@ -4,6 +4,8 @@
 #include "Command/DetachChildrenCommand.h"
 #include "Command/PackPrefabCommand.h"
 #include "Command/DropPrefabCommand.h"
+#include "Engine/GraphicsCore/Light.h"
+#include "UmScripts.h"
 
 using namespace u8_literals;
 using namespace Global;
@@ -234,6 +236,25 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
     if (ImGui::MenuItem(GameObjectName))
     {
         UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(GameObjectKey, GameObject::Helper::GenerateUniqueName(GameObjectName));
+    }
+    if (ImGui::BeginMenu("Light"))
+    {
+        if (ImGui::MenuItem("Directional light"))
+        {
+            auto light = NewGameObject(GameObject::Helper::GenerateUniqueName("Directional light"));
+            light->AddComponent<DirectionalLight>();            
+        }
+        if (ImGui::MenuItem("Point light"))
+        {
+            auto light = NewGameObject(GameObject::Helper::GenerateUniqueName("Point light"));
+            light->AddComponent<PointLight>();            
+        }
+        if (ImGui::MenuItem("Spot light"))
+        {
+            auto light = NewGameObject(GameObject::Helper::GenerateUniqueName("Spot light"));
+            light->AddComponent<SpotLight>();
+        }
+        ImGui::EndMenu();
     }
 }
 
