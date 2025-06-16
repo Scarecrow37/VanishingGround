@@ -29,11 +29,16 @@ const char* FiniteStateMachine::AddStateImguiPopUp()
     const char* addKey = nullptr;
     if (ImGui::BeginChild("ConstructorsChild", ImVec2(0, 100), ImGuiChildFlags_AutoResizeX, ImGuiWindowFlags_AlwaysVerticalScrollbar))
     {
+        static ImGuiTextFilter filter;
+        filter.Draw("Search");
         for (auto& [key, func] : GetInstanceConstructors())
         {
-            if (ImGui::Button(key.c_str() + 6))
+            if (filter.PassFilter(key.c_str() + 6))
             {
-                addKey = key.c_str();
+                if (ImGui::Selectable(key.c_str() + 6))
+                {
+                    addKey = key.c_str();
+                }
             }
         }
         ImGui::EndChild();
