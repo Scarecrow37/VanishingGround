@@ -21,7 +21,7 @@
     <ClInclude Include="UmScripts.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Scripts\Test\TestComponent.h">
+    <ClInclude Include="Scripts\Test\Component\TestComponent.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Scripts\Graphics\StaticMeshRenderer.h">
@@ -80,7 +80,7 @@
     <ClCompile Include="UmScripts.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\Test\TestComponent.cpp">
+    <ClCompile Include="Scripts\Test\Component\TestComponent.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Scripts\Graphics\StaticMeshRenderer.cpp">

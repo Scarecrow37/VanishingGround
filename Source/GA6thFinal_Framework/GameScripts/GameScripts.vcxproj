@@ -303,7 +303,7 @@
     <ClInclude Include="Scripts\Test\State\TestState.h" />
     <ClInclude Include="Scripts\Graphics\StaticMeshRenderer.h" />
     <ClInclude Include="Scripts\Light\Base\LightComponent.h" />
-    <ClInclude Include="Scripts\Test\TestComponent.h" />
+    <ClInclude Include="Scripts\Test\Component\TestComponent.h" />
     <ClInclude Include="UmScriptCore.h" />
     <ClInclude Include="UmScripts.h" />
     <ClInclude Include="Scripts\Graphics\SkeletalMeshRenderer.h" />
@@ -322,7 +322,7 @@
     <ClCompile Include="Scripts\Test\State\TestState.cpp" />
     <ClCompile Include="Scripts\Graphics\StaticMeshRenderer.cpp" />
     <ClCompile Include="Scripts\Light\Base\LightComponent.cpp" />
-    <ClCompile Include="Scripts\Test\TestComponent.cpp" />
+    <ClCompile Include="Scripts\Test\Component\TestComponent.cpp" />
     <ClCompile Include="UmScriptCore.cpp" />
     <ClCompile Include="UmScripts.cpp" />
     <ClCompile Include="Scripts\Graphics\SkeletalMeshRenderer.cpp" />
