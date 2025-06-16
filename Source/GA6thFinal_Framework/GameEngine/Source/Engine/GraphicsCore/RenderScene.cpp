@@ -3,7 +3,6 @@
 #include "FrameResource.h"
 #include "Model.h"
 #include "Quad.h"
-#include "RenderPass.h"
 #include "RenderTarget.h"
 #include "RenderTechnique.h"
 #include "ShaderBuilder.h"
@@ -63,13 +62,9 @@ void RenderScene::UpdateRenderScene()
     UmDevice.UpdateBuffer(_cameraBuffer, &cameraData, sizeof(CameraData));
     UmDevice.UpdateBuffer(_lightBuffer, _lightDatas.data(), sizeof(LightData) * MAX_LIGHT);
 
-    std::unordered_map<size_t, UINT>         materialPair;
-    std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> handles;
-    std::vector<MaterialData>                materialDatas;
-    UINT                                     materialID = 0;
-
     _worldMatrixes.clear();
     _boneMatrixes.clear();
+    _materialIDs.clear();
     for (auto& [isDestroy, component] : _renderQueue)
     {
         if (!component->IsActive())
@@ -96,37 +91,22 @@ void RenderScene::UpdateRenderScene()
         {
             _worldMatrixes.push_back(world);
             _boneMatrixes.push_back(boneMatrixes);
-            MaterialData materialData{};
 
+            MaterialID materialID{};
             for (UINT j = 0; j < 4; j++)
             {
-                if (nullptr == textures[i][j])
-                    continue;
-
-                auto iter = materialPair.find(textures[i][j]->GetHandle().ptr);
-                if (iter == materialPair.end())
-                {
-                    materialPair.emplace(textures[i][j]->GetHandle().ptr, materialID);
-                    materialData.ID[j] = materialID++;
-                    handles.push_back(textures[i][j]->GetHandle());
-                }
-                else
-                {
-                    materialData.ID[j] = iter->second;
-                }
+                materialID.ID[j] = textures[i][j]->GetID();
             }
-
-            materialDatas.push_back(materialData);
+            _materialIDs.push_back(materialID);
         }
     }
 
     UINT size = static_cast<UINT>(_worldMatrixes.size());
     ID3D12GraphicsCommandList* commandList = UmDevice.GetCommandList();
 
-    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, _worldMatrixes.data(), size * sizeof(ObjectData), FrameResource::Type::TRANSFORM);
+    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, _worldMatrixes.data(), size * sizeof(XMMATRIX), FrameResource::Type::TRANSFORM);
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, _boneMatrixes.data(), size * sizeof(BoneMatrixes), FrameResource::Type::BONE_MATRIXES);
-    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, materialDatas.data(), size * sizeof(MaterialData), FrameResource::Type::MATERIAL);
-    _frameResources[_currentFrameIndex]->CopyDescriptors(handles);
+    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, _materialIDs.data(), size * sizeof(MaterialID), FrameResource::Type::MATERIAL);
 }
 
 void RenderScene::RegisterOnRenderQueue(MeshRenderer* component)
@@ -146,9 +126,9 @@ void RenderScene::RegisterOnRenderQueue(MeshRenderer* component)
 void RenderScene::Execute(ID3D12GraphicsCommandList* commandList)
 {
     // 메쉬 최종 타겟 클리어
-    ComPtr<ID3D12Resource>   rt = _meshLightingTarget->GetResource();
+    ID3D12Resource* rt = _meshLightingTarget->GetResource();
 
-    auto br = CD3DX12_RESOURCE_BARRIER::Transition(rt.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    auto br = CD3DX12_RESOURCE_BARRIER::Transition(rt, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
     commandList->ResourceBarrier(1, &br);
 
     auto  handle     = _meshLightingTarget->GetRTVHandle();
@@ -162,7 +142,7 @@ void RenderScene::Execute(ID3D12GraphicsCommandList* commandList)
     }
 }
 
-D3D12_CPU_DESCRIPTOR_HANDLE RenderScene::GetFinalImage()
+D3D12_GPU_DESCRIPTOR_HANDLE RenderScene::GetFinalImage()
 {
     return _meshLightingTarget->GetSRVHandle();
 }
@@ -202,21 +182,25 @@ void RenderScene::CreateRenderTarget()
 {
     // gbuffer 생성
     _gBuffer.resize(_gBufferCount);
+    _gBufferIndex.resize(_gBufferCount);
     for (UINT i = 0; i <= GBuffer::WORLDPOSITION; ++i)
     {
         _gBuffer[i] = std::make_shared<RenderTarget>();
         _gBuffer[i]->Initialize(DXGI_FORMAT_R32G32B32A32_FLOAT, 0.247f);
         _gBuffer[i]->CreateShaderResourceView();
+        _gBufferIndex[i] = _gBuffer[i]->GetID();
     }
   
     _gBuffer[GBuffer::DEPTH] = std::make_shared<RenderTarget>();
     _gBuffer[GBuffer::DEPTH]->Initialize(DXGI_FORMAT_R32_FLOAT, 1.f);
     _gBuffer[GBuffer::DEPTH]->CreateShaderResourceView();
-    
+    _gBufferIndex[GBuffer::DEPTH] = _gBuffer[GBuffer::DEPTH]->GetID();
+
     _gBuffer[GBuffer::CUSTOMDEPTH] = std::make_shared<RenderTarget>();
     _gBuffer[GBuffer::CUSTOMDEPTH]->Initialize(DXGI_FORMAT_R32_UINT, 1.f);
     _gBuffer[GBuffer::CUSTOMDEPTH]->CreateShaderResourceView();
-    
+    _gBufferIndex[GBuffer::CUSTOMDEPTH] = _gBuffer[GBuffer::CUSTOMDEPTH]->GetID();
+
     // 후처리용으로 돌려쓸 renderTarget 생성해주기
     _renderTargets.resize(_renderTargetPoolCount);
     for (UINT i = 0; i < _renderTargetPoolCount; ++i)
@@ -224,6 +208,7 @@ void RenderScene::CreateRenderTarget()
         _renderTargets[i] = std::make_shared<RenderTarget>();
         _renderTargets[i]->Initialize(DXGI_FORMAT_R32G32B32A32_FLOAT, 0.247f);
         _renderTargets[i]->CreateShaderResourceView();
+
     }
 
     // 메쉬 음영처리가 된 타겟 하나 생성 -> 이 타겟을 가져와서 후처리를 진행해야함.
@@ -316,7 +301,7 @@ void RenderScene::CreateFrameResource()
     {
         _frameResources[i] = std::make_shared<FrameResource>();
         // 임시 텍스쳐 갯수가 달라질 수 있는거 아닌가요?
-        _frameResources[i]->Initialize(1000, 4000);
+        _frameResources[i]->Initialize(1000);
     }
     // 임시 : 메인 카메라를 통해 Camera ConstantBuffer 만들기.
     CameraData cameraData{.View       = _camera->GetViewMatrix(),

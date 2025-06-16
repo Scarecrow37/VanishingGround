@@ -294,31 +294,31 @@ void EditorSceneTool::DrawSceneView()
     ImGui::SetCursorScreenPos(ImVec2(moveIconPos.x + damp.x, moveIconPos.y + damp.y));
     
     static std::shared_ptr<Texture> moveIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/Move.png");
-    D3D12_GPU_DESCRIPTOR_HANDLE moveIconHandle = UmRenderer.ConvertImGuiGPUHandle(moveIconTexture->GetHandle());
+    D3D12_GPU_DESCRIPTOR_HANDLE moveIconHandle = moveIconTexture->GetGPUHandle();
 
     static std::shared_ptr<Texture> rotationIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/Rotate.png");
-    D3D12_GPU_DESCRIPTOR_HANDLE rotationIconHandle = UmRenderer.ConvertImGuiGPUHandle(rotationIconTexture->GetHandle());
+    D3D12_GPU_DESCRIPTOR_HANDLE rotationIconHandle = rotationIconTexture->GetGPUHandle();
 
     static std::shared_ptr<Texture> scaleIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/Scale.png");
-    D3D12_GPU_DESCRIPTOR_HANDLE scaleIconHandle = UmRenderer.ConvertImGuiGPUHandle(scaleIconTexture->GetHandle());
+    D3D12_GPU_DESCRIPTOR_HANDLE scaleIconHandle = scaleIconTexture->GetGPUHandle();
 
     static std::shared_ptr<Texture> transformIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/Transform.png");
-    D3D12_GPU_DESCRIPTOR_HANDLE transformIconHandle = UmRenderer.ConvertImGuiGPUHandle(transformIconTexture->GetHandle());
+    D3D12_GPU_DESCRIPTOR_HANDLE transformIconHandle = transformIconTexture->GetGPUHandle();
 
     static std::shared_ptr<Texture> worldIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/World.png");
-    D3D12_GPU_DESCRIPTOR_HANDLE worldIconHandle = UmRenderer.ConvertImGuiGPUHandle(worldIconTexture->GetHandle());
+    D3D12_GPU_DESCRIPTOR_HANDLE worldIconHandle = worldIconTexture->GetGPUHandle();
 
     static std::shared_ptr<Texture> localIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/Local.png");
-    D3D12_GPU_DESCRIPTOR_HANDLE localIconHandle = UmRenderer.ConvertImGuiGPUHandle(localIconTexture->GetHandle());
+    D3D12_GPU_DESCRIPTOR_HANDLE localIconHandle = localIconTexture->GetGPUHandle();
 
     static std::shared_ptr<Texture> gridSnapIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/GridSnap.png");
-    D3D12_GPU_DESCRIPTOR_HANDLE gridSnapIconHandle = UmRenderer.ConvertImGuiGPUHandle(gridSnapIconTexture->GetHandle());
+    D3D12_GPU_DESCRIPTOR_HANDLE gridSnapIconHandle = gridSnapIconTexture->GetGPUHandle();
 
     static std::shared_ptr<Texture> toggleLeftTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/ToggleLeft.png");
-    D3D12_GPU_DESCRIPTOR_HANDLE toggleLeftHandle = UmRenderer.ConvertImGuiGPUHandle(toggleLeftTexture->GetHandle());
+    D3D12_GPU_DESCRIPTOR_HANDLE toggleLeftHandle = toggleLeftTexture->GetGPUHandle();
 
     static std::shared_ptr<Texture> toggleRightTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/ToggleRight.png");
-    D3D12_GPU_DESCRIPTOR_HANDLE toggleRightHandle = UmRenderer.ConvertImGuiGPUHandle(toggleRightTexture->GetHandle());
+    D3D12_GPU_DESCRIPTOR_HANDLE toggleRightHandle = toggleRightTexture->GetGPUHandle();
 
     auto ImageButtonOperation = [&](ImGuizmo::OPERATION op) 
     {

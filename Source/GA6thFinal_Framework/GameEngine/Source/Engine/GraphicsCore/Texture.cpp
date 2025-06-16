@@ -23,7 +23,9 @@ void Texture::CreateShaderResourceView()
     // srvd.Texture2D = { 0, -1, 0, 0 };											//기본지정.
     srvd.Texture2D.MipLevels = _resource->GetDesc().MipLevels; // 밉멥레벨 수동지정.(상동)
 
-    device->CreateShaderResourceView(_resource.Get(), &srvd, _handle);
+    device->CreateShaderResourceView(_resource.Get(), &srvd, _handle.CPU);
+
+    _ID = UmViewManager.GetNumShaderResourceView() - 1;
 }
 
 void Texture::LoadResource(const std::filesystem::path& filePath)

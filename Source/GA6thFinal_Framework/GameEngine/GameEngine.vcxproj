@@ -413,7 +413,6 @@
     <ClInclude Include="Source\Engine\GraphicsCore\Sphere.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Structs.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\StructuredBuffer.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\TempObject.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Texture.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\VIBuffer.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\ViewManager.h" />
@@ -629,7 +628,6 @@
     <ClCompile Include="Source\Engine\GraphicsCore\Skeleton.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\Sphere.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\StructuredBuffer.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\TempObject.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\Texture.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\VIBuffer.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\ViewManager.cpp" />

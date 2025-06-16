@@ -12,7 +12,10 @@
 #include "SkyBoxRenderTechnique.h"
 #include "Sphere.h"
 
-Renderer::Renderer() : _currnetState(0), _currentImGuiImageIndex(1) {}
+Renderer::Renderer()
+    : _currnetState(0)
+{
+}
 
 Renderer::~Renderer() {}
 
@@ -28,8 +31,7 @@ D3D12_GPU_DESCRIPTOR_HANDLE Renderer::GetRenderSceneImage(std::string_view rende
     }
 
     auto scene = iter->second;
-
-    return ConvertImGuiGPUHandle(scene->GetFinalImage());
+    return scene->GetFinalImage();
 }
 
 std::shared_ptr<Camera> Renderer::GetCamera(std::string_view renderSceneName)
@@ -119,7 +121,7 @@ void Renderer::Initialize()
         std::shared_ptr<RenderScene> modelViewerScene = std::make_shared<RenderScene>("ModelViewer");
         modelViewerScene->InitializeRenderScene();
         modelViewerScene->AddRenderTechnique(std::make_shared<PBRLitTechnique>());
-        _renderScenes["ModelViewer"] = modelViewerScene;
+        _renderScenes["ModelViewer"] = modelViewerScene;        
 
         // Renderer File Event
         _rendererFileEvent = std::make_unique<RendererFileEvent>();
@@ -153,9 +155,6 @@ void Renderer::Flip()
 {
     UmDevice.Execute();
     UmDevice.Flip();
-    // 임시 ImGUI Image Index 찾는 구조 나중에 수정
-    // ImGUI Descriptor Index 초기화 (0 은 ImGUI Font)
-    _currentImGuiImageIndex = 1;
     UmDevice.ResetCommands();
     UmDevice.ResetComputeCommands();
 }
@@ -284,30 +283,8 @@ void Renderer::CreateDefaultTexture()
     UmDevice.UploadResource(uploadHeap);
 }
 
-D3D12_GPU_DESCRIPTOR_HANDLE Renderer::ConvertImGuiGPUHandle(const D3D12_CPU_DESCRIPTOR_HANDLE handle)
-{
-    auto dest   = _imguiDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-    UINT offset = _currentImGuiImageIndex * UmDevice.GetCBVSRVUAVDescriptorSize();
-    dest.ptr += offset;
-
-    UmDevice.GetDevice()->CopyDescriptorsSimple(1, dest, handle, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-    D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = _imguiDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
-    gpuHandle.ptr += offset;
-
-    // next ImGUI Descriptor Index
-    _currentImGuiImageIndex++;
-
-    return gpuHandle;
-}
-
 void Renderer::InitializeImgui()
 {
-    D3D12_DESCRIPTOR_HEAP_DESC desc = {};
-    desc.NumDescriptors             = 200;
-    desc.Type                       = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-    desc.Flags                      = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-
-    UmDevice.GetDevice()->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&_imguiDescriptorHeap));
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
@@ -345,12 +322,12 @@ void Renderer::InitializeImgui()
     }
     io.Fonts->Build();
 
-    auto cpuHandle = _imguiDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-    auto gpuHandle = _imguiDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
+    auto descriptorHeap = UmViewManager.GetShaderResourceHeap();
+    auto cpuHandle      = descriptorHeap->GetCPUDescriptorHandleForHeapStart();
+    auto gpuHandle      = descriptorHeap->GetGPUDescriptorHandleForHeapStart();
 
     ImGui_ImplWin32_Init(Global::engineCore->App.GetHwnd());
-    ImGui_ImplDX12_Init(UmDevice.GetDevice(), static_cast<int>(SWAPCHAIN_BUFFER_COUNT),
-                        UmDevice.GetBackBufferFormat(), _imguiDescriptorHeap.Get(), cpuHandle, gpuHandle);
+    ImGui_ImplDX12_Init(UmDevice.GetDevice(), static_cast<int>(SWAPCHAIN_BUFFER_COUNT), UmDevice.GetBackBufferFormat(), descriptorHeap, cpuHandle, gpuHandle);
 }
 
 void Renderer::PreUnInitializeImgui()
@@ -374,7 +351,7 @@ void Renderer::ImguiEnd()
 
     ImGui::Render();
 
-    ID3D12DescriptorHeap* descriptorHeaps[] = {_imguiDescriptorHeap.Get()};
+    ID3D12DescriptorHeap* descriptorHeaps[] = {UmViewManager.GetShaderResourceHeap()};
     UmDevice.GetCommandList()->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
     ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), UmDevice.GetCommandList());
 
@@ -383,23 +360,4 @@ void Renderer::ImguiEnd()
         ImGui::UpdatePlatformWindows();
         ImGui::RenderPlatformWindowsDefault(nullptr, nullptr);
     }
-}
-
-// SWTODO : 수정해야함. 너무 임시야. 임구이에서 어떻게 해당이미지의 gpu handle을 반환할지?
-//          뭐가 반환될지 어떻게 알지?
-D3D12_GPU_DESCRIPTOR_HANDLE Renderer::SceneView(RenderScene* scene)
-{
-    auto dest   = _imguiDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-    UINT offset = _currentImGuiImageIndex * UmDevice.GetCBVSRVUAVDescriptorSize();
-    dest.ptr += offset;
-
-    auto src = scene->GetFinalImage();
-    UmDevice.GetDevice()->CopyDescriptorsSimple(1, dest, src, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-    D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = _imguiDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
-    gpuHandle.ptr += offset;
-
-    // next ImGUI Descriptor Index
-    _currentImGuiImageIndex++;
-
-    return gpuHandle;
 }
