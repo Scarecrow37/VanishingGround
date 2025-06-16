@@ -8,6 +8,8 @@ class FiniteStateMachine : public Component
 private:
     static const char* AddStateImguiPopUp();
     void ImguiDrawStates();
+    static const char* AddConditionImguiPopup();
+    void ImguiDrawCondiitons();
 
 public:
     /// <summary>
