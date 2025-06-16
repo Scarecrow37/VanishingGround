@@ -288,9 +288,6 @@
     <ClInclude Include="Source\Engine\GraphicsCore\GraphicsCore.h">
       <Filter>GraphicsCore</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\TempObject.h">
-      <Filter>GraphicsCore</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\GraphicsCore\Animation.h">
       <Filter>GraphicsCore\Resource\Animation</Filter>
     </ClInclude>
@@ -771,9 +768,6 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\GraphicsCore.cpp">
-      <Filter>GraphicsCore</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\TempObject.cpp">
       <Filter>GraphicsCore</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\Animation.cpp">

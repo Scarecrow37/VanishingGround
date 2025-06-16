@@ -16,7 +16,6 @@ void DeferredPBRLitPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_
                                     .Flags          = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
                                     .NodeMask       = 0};
 
-    UmDevice.GetDevice()->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&_srvDescriptorHeap));
     InitShaderAndPSO();
 }
 
@@ -30,37 +29,25 @@ void DeferredPBRLitPass::Begin(ID3D12GraphicsCommandList* commandList)
 
 void DeferredPBRLitPass::End(ID3D12GraphicsCommandList* commandList) 
 {
-    ComPtr<ID3D12Resource>   rt = _ownerScene->_meshLightingTarget->GetResource();
-    CD3DX12_RESOURCE_BARRIER br = CD3DX12_RESOURCE_BARRIER::Transition(rt.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET,
-                                                                       D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    ID3D12Resource* rt = _ownerScene->_meshLightingTarget->GetResource();
+    auto br = CD3DX12_RESOURCE_BARRIER::Transition(rt, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     commandList->ResourceBarrier(1, &br);
 }
 
 void DeferredPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
 {
-    // 사용할 gbuffer 복사 descriptor 복사
-    ID3D12Device* device = UmDevice.GetDevice();
-    auto                 dest   = _srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-    UINT                 descriptorSize = UmDevice.GetCBVSRVUAVDescriptorSize();
-
-    for (UINT i = 0; i <= RenderScene::GBuffer::CUSTOMDEPTH; ++i)
-    {
-        D3D12_CPU_DESCRIPTOR_HANDLE destHandle = CD3DX12_CPU_DESCRIPTOR_HANDLE(dest, i, descriptorSize);
-        device->CopyDescriptorsSimple(1, destHandle, _ownerScene->_gBuffer[i]->GetSRVHandle(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-    }
-
-    ID3D12DescriptorHeap* hps[] = {
-        _srvDescriptorHeap.Get(),
-    };
+    auto                  resource = UmViewManager.GetShaderResourceHeap();
+    ID3D12DescriptorHeap* hps[] = { resource, };
 
     commandList->SetPipelineState(_pipelineState.Get());
-    // 디스크립터-힙 설정.
-    commandList->SetDescriptorHeaps(_countof(hps), hps);
     commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
-    commandList->SetGraphicsRoot32BitConstants(_shader->GetRootSignatureIndex("bit32_3_numLight"), 3, &_ownerScene->_numLight, 0);
-    commandList->SetGraphicsRootConstantBufferView(_shader->GetRootSignatureIndex("cameraData"), _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
-    commandList->SetGraphicsRootConstantBufferView(_shader->GetRootSignatureIndex("lightData"), _ownerScene->_lightBuffer->GetGPUVirtualAddress());
-    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootSignatureIndex("gBuffers"), _srvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+
+    commandList->SetDescriptorHeaps(_countof(hps), hps);
+    commandList->SetGraphicsRoot32BitConstants(_shader->GetRootParameterIndex("bit32_3_numLight"), 3, &_ownerScene->_numLight, 0);
+    commandList->SetGraphicsRoot32BitConstants(_shader->GetRootParameterIndex("bit32_7_gBufferID"), 7, _ownerScene->_gBufferIndex.data(), 0);
+    commandList->SetGraphicsRootConstantBufferView(_shader->GetRootParameterIndex("cameraData"), _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
+    commandList->SetGraphicsRootConstantBufferView(_shader->GetRootParameterIndex("lightData"), _ownerScene->_lightBuffer->GetGPUVirtualAddress());
+    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("textures"), resource->GetGPUDescriptorHandleForHeapStart());
 
     //quad draw하기
     _ownerScene->_frameQuad->Render(commandList);

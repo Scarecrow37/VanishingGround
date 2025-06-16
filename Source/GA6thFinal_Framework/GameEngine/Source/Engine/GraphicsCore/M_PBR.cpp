@@ -49,17 +49,17 @@
 //    _commandList->SetComputeRootSignature(_shader->GetRootSignature().Get());
 //    _commandList->SetDescriptorHeaps(1, _descriptor.GetAddressOf());
 //
-//    _commandList->SetGraphicsRootConstantBufferView(_shader->GetRootSignatureIndex("cameraData"), camera);
+//    _commandList->SetGraphicsRootConstantBufferView(_shader->GetRootParameterIndex("cameraData"), camera);
 //
 //    D3D12_GPU_DESCRIPTOR_HANDLE textures = _descriptor->GetGPUDescriptorHandleForHeapStart();
 //
-//    _commandList->SetGraphicsRootDescriptorTable(_shader->GetRootSignatureIndex("objectData"), textures);
+//    _commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("objectData"), textures);
 //    textures.ptr += UmDevice.GetCBVSRVUAVDescriptorSize();
 //
-//    _commandList->SetGraphicsRootDescriptorTable(_shader->GetRootSignatureIndex("material"), textures);
+//    _commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("material"), textures);
 //    textures.ptr += UmDevice.GetCBVSRVUAVDescriptorSize();
 //
-//    _commandList->SetGraphicsRootDescriptorTable(_shader->GetRootSignatureIndex("textures"), textures);
+//    _commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("textures"), textures);
 //    _commandList->Close();*/
 //}
 //
@@ -69,15 +69,15 @@
 //    commandList->SetComputeRootSignature(_shader->GetRootSignature().Get());
 //    commandList->SetDescriptorHeaps(1, _descriptor.GetAddressOf());
 //
-//    commandList->SetGraphicsRootConstantBufferView(_shader->GetRootSignatureIndex("cameraData"), camera);
+//    commandList->SetGraphicsRootConstantBufferView(_shader->GetRootParameterIndex("cameraData"), camera);
 //
 //    D3D12_GPU_DESCRIPTOR_HANDLE textures = _descriptor->GetGPUDescriptorHandleForHeapStart();
 //
-//    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootSignatureIndex("objectData"), textures);
+//    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("objectData"), textures);
 //    textures.ptr += UmDevice.GetCBVSRVUAVDescriptorSize();
 //
-//    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootSignatureIndex("material"), textures);    
+//    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("material"), textures);    
 //    textures.ptr += UmDevice.GetCBVSRVUAVDescriptorSize();
 //
-//    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootSignatureIndex("textures"), textures);*/
+//    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("textures"), textures);*/
 //}

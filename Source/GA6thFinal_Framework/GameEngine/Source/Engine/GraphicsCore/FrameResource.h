@@ -4,26 +4,23 @@ class StructuredBuffer;
 class FrameResource
 {
 public:
-	enum Type { TRANSFORM, BONE_MATRIXES, MATERIAL, END };
+    enum Type { TRANSFORM, BONE_MATRIXES, MATERIAL, END };
 
 public:
-	FrameResource();
-	~FrameResource();
+    FrameResource();
+    ~FrameResource();
 
 public:
-	ComPtr<ID3D12DescriptorHeap> GetDescriptorHeap() const { return _frameHeap; }
+    void SetFrameResource(Type type, UINT rootParametorIndex, ID3D12GraphicsCommandList* commandList);
 
 public:
-    void Initialize(const UINT numObjects, const UINT numTextures);
-	void CopyDescriptorsSimple(const D3D12_CPU_DESCRIPTOR_HANDLE handle, UINT destStartIndex, UINT numDescriptors);
-	void CopyDescriptors(const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& handles);
-	void CopyStructuredBuffer(ID3D12GraphicsCommandList* commandList, void* data, UINT size, FrameResource::Type type);
+    void Initialize(const UINT numObjects);
+    void CopyStructuredBuffer(ID3D12GraphicsCommandList* commandList, void* data, UINT size, FrameResource::Type type);
+    // void CopyDescriptorsSimple(const D3D12_CPU_DESCRIPTOR_HANDLE handle, UINT destStartIndex, UINT numDescriptors);
+    // void CopyDescriptors(const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& handles);
 
 private:
-	std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>		_handles;
-	ComPtr<ID3D12DescriptorHeap>					_frameHeap;
-	std::unique_ptr<StructuredBuffer>				_structuredBuffer[END];
-	D3D12_CPU_DESCRIPTOR_HANDLE						_objectBufferHandle;
-	UINT64											_fenceValue;
-	UINT											_handleSize;
+    std::unique_ptr<StructuredBuffer> _structuredBuffer[END];
+    UINT64                            _fenceValue{0};
+    UINT                              _handleSize{0};
 };
