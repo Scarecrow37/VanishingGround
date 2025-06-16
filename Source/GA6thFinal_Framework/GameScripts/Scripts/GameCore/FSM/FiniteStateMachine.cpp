@@ -52,12 +52,126 @@ void FiniteStateMachine::DeserializedReflectEvent()
         std::string_view currState = transition[0];
         std::string_view condition = transition[1];
         std::string_view nextState = transition[2];
-
-
+        AddTransition(currState, condition, nextState);
     }
 }
 
-const char* FiniteStateMachine::AddStateImguiPopUp() 
+void FiniteStateMachine::ImguiDrawTransition() 
+{
+    int removeIndex = -1;
+    if (ImGui::BeginTable("Transition", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+    {
+        ImGui::TableSetupColumn("State");
+        ImGui::TableSetupColumn("Condition");
+        ImGui::TableSetupColumn("Next");
+        ImGui::TableHeadersRow();
+
+        for (int i = 0; i < _transitions.size(); ++i)
+        {
+            Transition& transition = _transitions[i];
+            ImGui::PushID(&transition);
+            {
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+                ImGui::Text(typeid(*transition.CurrState).name() + 6);
+                ImGui::TableSetColumnIndex(1);
+                ImGui::Text(typeid(*transition.Condition).name() + 6);
+                ImGui::TableSetColumnIndex(2);
+                ImGui::Text(typeid(*transition.NextState).name() + 6);
+                ImGui::TableSetColumnIndex(3);
+                if (ImGui::Button("Remove"))
+                {
+                    removeIndex = i;
+                }
+            }
+            ImGui::PopID();
+        }
+        ImGui::EndTable();
+    }
+
+    if (0 <= removeIndex)
+    {
+        _transitions.erase(_transitions.begin() + removeIndex);
+    }
+
+    if (ImGui::Button("Add Transition"))
+    {
+        ImGui::OpenPopup("Add Transition");
+    }
+
+    ImGuiViewport* viewport = ImGui::GetMainViewport();
+    ImVec2 center = ImVec2(viewport->Pos.x + viewport->Size.x * 0.5f, viewport->Pos.y + viewport->Size.y * 0.5f);
+    ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+    if (ImGui::BeginPopup("Add Transition", ImGuiWindowFlags_NoMove))
+    {
+        static std::string state;
+        static std::string condition;
+        static std::string nextState;
+        ImGui::BeginDisabled();
+        ImGui::InputText("State", &state);
+        ImGui::EndDisabled();
+        ImGui::SameLine();
+        if (ImGui::BeginMenu("##State"))
+        {
+            const char* stateSel = AddStateImguiPopUp();
+            if (stateSel)
+            {
+                state = stateSel;
+            }
+            ImGui::EndMenu();
+        }
+        ImGui::BeginDisabled();
+        ImGui::InputText("Condition", &condition);
+        ImGui::EndDisabled();
+        ImGui::SameLine();
+        if (ImGui::BeginMenu("##Condition"))
+        {
+            const char* conditionSel = AddConditionImguiPopup();
+            if (conditionSel)
+            {
+                condition = conditionSel;
+            }
+            ImGui::EndMenu();
+        }
+        ImGui::BeginDisabled();
+        ImGui::InputText("Next state", &nextState);
+        ImGui::EndDisabled();
+        ImGui::SameLine();
+        if (ImGui::BeginMenu("##Next state"))
+        {
+            const char* stateSel = AddStateImguiPopUp();
+            if (stateSel)
+            {
+                nextState = stateSel;
+            }
+            ImGui::EndMenu();
+        }
+        if (false == state.empty()     && 
+            false == condition.empty() && 
+            false == nextState.empty())
+        {
+            if (state != nextState)
+            {
+                if (ImGui::Button("Add"))
+                {
+                    AddTransition(state, condition, nextState);
+                    state.clear();
+                    condition.clear();
+                    nextState.clear();
+                    ImGui::CloseCurrentPopup();
+                }
+                ImGui::SameLine();
+            }
+        }
+        if (ImGui::Button("Cancel"))
+        {
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::EndPopup();
+    }
+}
+
+const char* FiniteStateMachine::AddStateImguiPopUp()
 {
     const char* addKey = nullptr;
     if (ImGui::BeginChild("ConstructorsChild", ImVec2(0, 100), ImGuiChildFlags_AutoResizeX, ImGuiWindowFlags_AlwaysVerticalScrollbar))
@@ -128,16 +242,31 @@ void FiniteStateMachine::ImguiDrawCondiitons()
 void FiniteStateMachine::AddTransition(std::string_view state, std::string_view condition, std::string_view nextState)
 {
     bool isValid = true;
-    isValid &= _stateMap.find(state.data()) != _stateMap.end();
-    isValid &= _conditionMap.find(condition.data()) != _conditionMap.end();
-    isValid &= _stateMap.find(nextState.data()) != _stateMap.end();
+    auto currStateIter = _stateMap.find(state.data());
+    auto conditionIter = _conditionMap.find(condition.data());
+    auto nextStateIter = _stateMap.find(nextState.data());
+    isValid &= currStateIter != _stateMap.end();
+    isValid &= conditionIter != _conditionMap.end();
+    isValid &= nextStateIter != _stateMap.end();
     if (true == isValid)
     {
-
+        Transition trans{};
+        trans.CurrState = currStateIter->second.get();
+        trans.Condition = conditionIter->second.get();
+        trans.NextState = nextStateIter->second.get();
+        auto [iter, result] = _transitionSet.insert(trans);
+        if (true == result)
+        {
+            _transitions.push_back(trans);
+        }
+        else
+        {
+            UmLogger.Log(LogLevel::LEVEL_WARNING, u8"이미 추가된 전이 객체 입니다."_c_str);
+        }
     }
     else
     {
-        UmLogger.Log(LogLevel::LEVEL_WARNING, u8"전이 객체 추가 실패."_c_str);
+        UmLogger.Log(LogLevel::LEVEL_WARNING, u8"찾을수 없는 전이 객체 입니다."_c_str);
     }
 }
 
@@ -168,7 +297,8 @@ void FiniteStateMachine::ImGuiDrawPropertysEvent()
 {
     ImGui::PushID(this);
     {
-        ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+        ImguiDrawTransition();
+
         if (ImGui::CollapsingHeader("States"))
         {
             ImguiDrawStates();
@@ -188,7 +318,6 @@ void FiniteStateMachine::ImGuiDrawPropertysEvent()
             ImGui::EndPopup();
         }
 
-        ImGui::SetNextItemOpen(true, ImGuiCond_Once);
         if (ImGui::CollapsingHeader("Conditions"))
         {
             ImguiDrawCondiitons();

@@ -14,17 +14,29 @@ public:
 
         inline bool operator()(const Transition& a, const Transition& b) const
         { 
-            void* currState = a.CurrState;
-            void* condition = a.Condition;
-            void* nextState = a.NextState;
-        }
+            void* pointersA[3] = {a.CurrState, a.Condition, a.NextState};
+            void* pointersB[3] = {b.CurrState, b.Condition, b.NextState};
+            for (int i = 0; i < 3; ++i)
+            {
+                if (pointersA[i] < pointersB[i])
+                    return true;
+                if (pointersA[i] > pointersB[i])
+                    return false;
+            }
+            return false;
+        }   
     };
 
 private:
+   
+    void ImguiDrawTransition();
+
     static const char* AddStateImguiPopUp();
     void ImguiDrawStates();
+
     static const char* AddConditionImguiPopup();
     void ImguiDrawCondiitons();
+
 public:
     /// <summary>
     /// 전이 객체를 추가합니다.
@@ -180,7 +192,7 @@ private:
     std::map<std::string, std::unique_ptr<FSMState>> _stateMap;
     std::map<std::string, std::unique_ptr<FSMCondition>> _conditionMap;
     std::vector<Transition> _transitions;
-
+    std::set<Transition, Transition> _transitionSet;
 public:
     REFLECT_PROPERTY()
 

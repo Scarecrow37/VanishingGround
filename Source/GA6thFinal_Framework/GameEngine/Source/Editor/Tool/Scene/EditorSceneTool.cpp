@@ -209,7 +209,7 @@ void EditorSceneTool::DrawManipulate()
             _isUsing         = ImGuizmo::IsUsing();
             _isOver          = ImGuizmo::IsOver();
 
-            if (isLeftShiftHold)
+            if (isLeftShiftHold)    
             {
                 if (IsFocusFrame() && ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_D))
                 {
