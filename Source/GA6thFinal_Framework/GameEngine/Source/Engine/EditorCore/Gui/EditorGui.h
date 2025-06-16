@@ -17,9 +17,24 @@ public:
     virtual ~EditorGui() = default;
 
 public:
+    /// <summary>
+    /// 조건에 상관 없이 매 틱마다 호출됩니다.
+    /// </summary>
     virtual void OnTickGui() = 0;
+
+    /// <summary>
+    /// ImGui가 초기화된 직후에 호출됩니다.
+    /// </summary>
     virtual void OnStartGui() = 0;
+
+    /// <summary>
+    /// Gui가 렌더링 될 때 호출됩니다.
+    /// </summary>
     virtual void OnDrawGui() = 0;
+
+    /// <summary>
+    /// ImGui가 종료되기 직전에 호출됩니다.
+    /// </summary>
     virtual void OnEndGui() = 0;
 
 protected:
