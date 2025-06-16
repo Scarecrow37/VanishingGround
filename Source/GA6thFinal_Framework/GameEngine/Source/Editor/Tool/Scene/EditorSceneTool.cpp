@@ -211,7 +211,7 @@ void EditorSceneTool::DrawManipulate()
 
             if (isLeftShiftHold)
             {
-                if (Global::editorModule->IsFocusAreaEmpty() && _dockWindow->IsFocusFrame() && ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_D))
+                if (IsFocusFrame() && ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_D))
                 {
                     UmCommandManager.Do<Command::EditorScene::DuplicateCommand>(pObject.get());
                 }
