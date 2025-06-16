@@ -170,7 +170,7 @@ void GameObject::OnInspectorStay()
         if (ImGui::Button("AddComponent"))
         {
             selectObject = this;
-            ImGui::OpenPopup("Select Component");
+            ImGui::OpenPopup("Add Component");
         }
         ImGui::Separator();
 
