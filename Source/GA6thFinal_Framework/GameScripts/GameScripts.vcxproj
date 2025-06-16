@@ -294,6 +294,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Scripts\GameCore\FSM\Factory\FSMConditionFactory.h" />
+    <ClInclude Include="Scripts\GameCore\FSM\Factory\FSMStateFactory.h" />
+    <ClInclude Include="Scripts\GameCore\FSM\FSMCondition.h" />
     <ClInclude Include="Scripts\GameCore\FSM\FSMState.h" />
     <ClInclude Include="Scripts\GameCore\FSM\MyState.h" />
     <ClInclude Include="Scripts\GameCore\FSM\TestState.h" />

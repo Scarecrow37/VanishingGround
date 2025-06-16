@@ -1,7 +1,8 @@
 ﻿#pragma once
-#include "FSMState.h"
+#include "Factory/FSMStateFactory.h"
+#include "Factory/FSMConditionFactory.h"
 
-class FiniteStateMachine : public Component, public FactoryConstructor<FSMState>
+class FiniteStateMachine : public Component
 {
     USING_PROPERTY(FiniteStateMachine)
 private:
@@ -52,7 +53,7 @@ private:
         auto stateFind = _stateMap.find(key);
         if (stateFind == _stateMap.end())
         {
-            FSMState* instance = NewInstanceWithKey(key);
+            FSMState* instance = FSMStateFactory::NewInstanceWithKey(key);
             if (instance)
             {
                 _stateMap[key].reset(instance);

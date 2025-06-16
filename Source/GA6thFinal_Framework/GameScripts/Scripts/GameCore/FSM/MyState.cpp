@@ -1,6 +1,6 @@
 ﻿#include "MyState.h"
 
-REGISTER_CLASS(FiniteStateMachine, MyState)
+REGISTER_CLASS(FSMStateFactory, MyState)
 
 MyState::MyState() {}
 MyState::~MyState() {}

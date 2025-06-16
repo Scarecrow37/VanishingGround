@@ -15,7 +15,7 @@ void FiniteStateMachine::DeserializedReflectEvent()
 {
     for (auto& [key, data] : ReflectFields->StateReflectDatas)
     {
-        FSMState* state = NewInstanceWithKey(key);
+        FSMState* state = FSMStateFactory::NewInstanceWithKey(key);
         if (state)
         {
             _stateMap[key].reset(state);
@@ -31,7 +31,7 @@ const char* FiniteStateMachine::AddStateImguiPopUp()
     {
         static ImGuiTextFilter filter;
         filter.Draw("Search");
-        for (auto& [key, func] : GetInstanceConstructors())
+        for (auto& [key, func] : FSMStateFactory::GetInstanceConstructors())
         {
             if (filter.PassFilter(key.c_str() + 6))
             {

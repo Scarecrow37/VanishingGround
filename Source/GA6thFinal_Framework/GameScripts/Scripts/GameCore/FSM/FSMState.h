@@ -5,7 +5,7 @@ class FSMState : public ReflectSerializer
 {
 public:
     FSMState() = default;
-    virtual ~FSMState() = default;
+    virtual ~FSMState() override = default;
 
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
     REFLECT_FIELDS_END(FSMState)

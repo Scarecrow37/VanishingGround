@@ -1,6 +1,6 @@
 ﻿#include "TestState.h"
 
-REGISTER_CLASS(FiniteStateMachine, TestState)
+REGISTER_CLASS(FSMStateFactory, TestState)
 
 TestState::TestState() 
 {
