@@ -5,11 +5,34 @@
 class FiniteStateMachine : public Component
 {
     USING_PROPERTY(FiniteStateMachine)
+public:
+    struct Transition
+    {
+        FSMState* CurrState;
+        FSMCondition* Condition;
+        FSMState* NextState;
+
+        inline bool operator()(const Transition& a, const Transition& b) const
+        { 
+            void* currState = a.CurrState;
+            void* condition = a.Condition;
+            void* nextState = a.NextState;
+        }
+    };
+
 private:
     static const char* AddStateImguiPopUp();
     void ImguiDrawStates();
     static const char* AddConditionImguiPopup();
     void ImguiDrawCondiitons();
+public:
+    /// <summary>
+    /// 전이 객체를 추가합니다.
+    /// </summary>
+    /// <param name="state :">대상 상태</param>
+    /// <param name="condition :">전이 조건</param>
+    /// <param name="nextState :">변경될 상태</param>
+    void AddTransition(std::string_view state, std::string_view condition, std::string_view nextState);
 
 public:
     /// <summary>
@@ -156,6 +179,7 @@ private:
 private:
     std::map<std::string, std::unique_ptr<FSMState>> _stateMap;
     std::map<std::string, std::unique_ptr<FSMCondition>> _conditionMap;
+    std::vector<Transition> _transitions;
 
 public:
     REFLECT_PROPERTY()
@@ -167,6 +191,7 @@ protected:
     REFLECT_FIELDS_BEGIN(Component)
     std::unordered_map<std::string, std::string> StateReflectDatas;
     std::unordered_map<std::string, std::string> ConditionReflectDatas;
+    std::vector<std::array<std::string, 3>>      TransitionReflectDatas;
     REFLECT_FIELDS_END(FiniteStateMachine)
     /*
     직렬화 직전 자동으로 호출되는 이벤트 함수입니다.

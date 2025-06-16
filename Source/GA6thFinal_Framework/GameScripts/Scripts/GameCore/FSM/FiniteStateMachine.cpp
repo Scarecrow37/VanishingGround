@@ -1,4 +1,5 @@
 ﻿#include "FiniteStateMachine.h"
+using namespace u8_literals;
 
 FiniteStateMachine::FiniteStateMachine()  = default;
 FiniteStateMachine::~FiniteStateMachine() = default;
@@ -13,6 +14,14 @@ void FiniteStateMachine::SerializedReflectEvent()
     for (auto& [key, condition] : _conditionMap)
     {
         ReflectFields->ConditionReflectDatas[key] = condition->SerializedReflectFields();
+    }
+
+    for (auto& transition : _transitions)
+    {
+        const char* currState = typeid(*transition.CurrState).name();
+        const char* nextState = typeid(*transition.NextState).name();
+        const char* condition = typeid(*transition.Condition).name();
+        ReflectFields->TransitionReflectDatas.push_back({currState, condition, nextState});
     }
 }
 
@@ -36,6 +45,15 @@ void FiniteStateMachine::DeserializedReflectEvent()
             _conditionMap[key].reset(condition);
             _conditionMap[key]->DeserializedReflectFields(data);
         }
+    }
+
+    for (auto& transition : ReflectFields->TransitionReflectDatas)
+    {
+        std::string_view currState = transition[0];
+        std::string_view condition = transition[1];
+        std::string_view nextState = transition[2];
+
+
     }
 }
 
@@ -104,6 +122,22 @@ void FiniteStateMachine::ImguiDrawCondiitons()
     if (nullptr != removeKey)
     {
         RemoveConditionWithKey(removeKey);
+    }
+}
+
+void FiniteStateMachine::AddTransition(std::string_view state, std::string_view condition, std::string_view nextState)
+{
+    bool isValid = true;
+    isValid &= _stateMap.find(state.data()) != _stateMap.end();
+    isValid &= _conditionMap.find(condition.data()) != _conditionMap.end();
+    isValid &= _stateMap.find(nextState.data()) != _stateMap.end();
+    if (true == isValid)
+    {
+
+    }
+    else
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, u8"전이 객체 추가 실패."_c_str);
     }
 }
 
