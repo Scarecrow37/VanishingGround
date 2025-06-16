@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "FiniteStateMachine.h"
+#include "GameCore/FSM/FiniteStateMachine.h"
 
 class MyState : public FSMState
 {

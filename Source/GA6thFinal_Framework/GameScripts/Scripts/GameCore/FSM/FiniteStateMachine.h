@@ -31,7 +31,7 @@ public:
     {
         static_assert(std::is_base_of_v<FSMState, T>, "T is not derived from State.");
         const char* key = typeid(T).name();
-        return GetStateWithKey(key); 
+        return static_cast<T*>(GetStateWithKey(key)); 
     }
 
     template<typename T>
@@ -39,7 +39,7 @@ public:
     {
         static_assert(std::is_base_of_v<FSMState, T>, "T is not derived from State.");
         const char* key = typeid(T).name();
-        RemoveStateWithKey(key);
+        return RemoveStateWithKey(key);
     }
 
 private:
@@ -84,8 +84,76 @@ private:
         return 0 > count;
     }
 
+public:
+    template <typename T>
+    void AddCondition()
+    {
+        static_assert(std::is_base_of_v<FSMCondition, T>, "T is not derived from Condition.");
+        const char* key = typeid(T).name();
+        AddConditionWithKey(key);
+    }
+
+    template <typename T>
+    T* GetCondition()
+    {
+        static_assert(std::is_base_of_v<FSMCondition, T>, "T is not derived from Condition.");
+        const char* key = typeid(T).name();
+        return static_cast<T*>(GetConditionWithKey(key));
+    }
+
+    template <typename T>
+    bool RemoveCondition()
+    {
+        static_assert(std::is_base_of_v<FSMCondition, T>, "T is not derived from Condition.");
+        const char* key = typeid(T).name();
+        return RemoveConditionWithKey(key);
+    }
+
+private:
+    /// <summary>
+    /// Condition을 등록합니다.
+    /// </summary>
+    /// <param name="conditionTypeIdName"></param>
+    void AddConditionWithKey(std::string_view conditionTypeIdName)
+    {
+        const char* key = conditionTypeIdName.data();
+        auto conditionFind = _conditionMap.find(key);
+        if (conditionFind == _conditionMap.end())
+        {
+            FSMCondition* instance = FSMConditionFactory::NewInstanceWithKey(key);
+            if (instance)
+            {
+                _conditionMap[key].reset(instance);
+            }
+            else
+            {
+                UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"존재하지 않는 Condidtion 입니다.");
+            }
+        }
+        else
+        {
+            UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"이미 등록된 Condition 타입입니다.");
+        }
+    }
+
+    FSMCondition* GetConditionWithKey(std::string_view key)
+    {
+        auto conditionFind = _conditionMap.find(key.data());
+        if (conditionFind != _conditionMap.end())
+        {
+            return conditionFind->second.get();
+        }
+    }
+
+    bool RemoveConditionWithKey(std::string_view key)
+    {
+        size_t count = _conditionMap.erase(key.data());
+        return 0 > count;
+    }
+
 private:
     std::map<std::string, std::unique_ptr<FSMState>> _stateMap;
+    std::map<std::string, std::unique_ptr<FSMCondition>> _conditionMap;
 
 public:
     REFLECT_PROPERTY()
@@ -95,7 +163,8 @@ public:
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)
-    std::unordered_map<std::string, std::string>StateReflectDatas;
+    std::unordered_map<std::string, std::string> StateReflectDatas;
+    std::unordered_map<std::string, std::string> ConditionReflectDatas;
     REFLECT_FIELDS_END(FiniteStateMachine)
     /*
     직렬화 직전 자동으로 호출되는 이벤트 함수입니다.

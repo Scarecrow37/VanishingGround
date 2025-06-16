@@ -9,6 +9,11 @@ void FiniteStateMachine::SerializedReflectEvent()
     {
         ReflectFields->StateReflectDatas[key] = state->SerializedReflectFields();
     }
+
+    for (auto& [key, condition] : _conditionMap)
+    {
+        ReflectFields->ConditionReflectDatas[key] = condition->SerializedReflectFields();
+    }
 }
 
 void FiniteStateMachine::DeserializedReflectEvent() 
@@ -20,6 +25,16 @@ void FiniteStateMachine::DeserializedReflectEvent()
         {
             _stateMap[key].reset(state);
             _stateMap[key]->DeserializedReflectFields(data);
+        }
+    }
+
+    for (auto& [key, data] : ReflectFields->ConditionReflectDatas)
+    {
+        FSMCondition* condition = FSMConditionFactory::NewInstanceWithKey(key);
+        if (condition)
+        {
+            _conditionMap[key].reset(condition);
+            _conditionMap[key]->DeserializedReflectFields(data);
         }
     }
 }

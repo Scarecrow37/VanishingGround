@@ -36,13 +36,13 @@
     <ClInclude Include="Scripts\GameCore\FSM\FSMState.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Scripts\GameCore\FSM\TestState.h">
+    <ClInclude Include="Scripts\Test\State\TestState.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Scripts\GameCore\FSM\FiniteStateMachine.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Scripts\GameCore\FSM\MyState.h">
+    <ClInclude Include="Scripts\Test\State\MyState.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Scripts\Light\Base\LightComponent.h">
@@ -64,6 +64,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Scripts\GameCore\FSM\Factory\FSMConditionFactory.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\Test\Condition\TestCondition.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -92,13 +95,13 @@
     <ClCompile Include="Scripts\GameCore\FSM\FSMState.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\GameCore\FSM\TestState.cpp">
+    <ClCompile Include="Scripts\Test\State\TestState.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Scripts\GameCore\FSM\FiniteStateMachine.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\GameCore\FSM\MyState.cpp">
+    <ClCompile Include="Scripts\Test\State\MyState.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Scripts\Light\Base\LightComponent.cpp">
@@ -111,6 +114,12 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Scripts\Light\SpotLight.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\GameCore\FSM\FSMCondition.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\Test\Condition\TestCondition.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
