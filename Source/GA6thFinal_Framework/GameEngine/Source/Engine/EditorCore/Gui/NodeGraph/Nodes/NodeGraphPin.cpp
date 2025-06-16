@@ -42,6 +42,20 @@ namespace NodeGraph
         }
         return false;
     }
+
+    void Pin::ClearLinks() 
+    {
+        std::vector<UINT64> links;
+        for (auto& id : _linkIDVector)
+        {
+            links.push_back(id);
+        }
+        for (auto& id : links)
+        {
+            RemoveLink(id);
+        }
+    }
+
     Link* Pin::GetLinkToIndex(int index) const
     {
         Link* link = nullptr;
@@ -57,7 +71,12 @@ namespace NodeGraph
     {
         if (nullptr != dest && nullptr != _linkFilter)
         {
-            return _linkFilter(this, dest);
+            bool isThisFull = this->IsLinkFull();
+            bool isDestFull = dest->IsLinkFull();
+            if (false == isThisFull && false == isDestFull)
+            {
+                return _linkFilter(this, dest);
+            }
         }
         return false;
     }

@@ -5,10 +5,6 @@ namespace BehaviorTree
     class BTNode : public NodeGraph::Node
     {
     public:
-        using Node::Node;
-        virtual ~BTNode();
-
-    public:
         // Node을(를) 통해 상속됨
         void Draw() override;
         void OnCreate() override;

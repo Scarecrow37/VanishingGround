@@ -3,8 +3,6 @@
 
 namespace BehaviorTree
 {
-    BTNode::~BTNode() {}
-
     void BTNode::Draw()
     {
         DrawNode();
@@ -53,6 +51,11 @@ namespace BehaviorTree
                     link->SetFlow(isFlowForward, 5.0f);
                 }
             }
+        }
+        // Clear Link
+        if (ImGui::MenuItem("Clear Links"))
+        {
+            pin->ClearLinks();
         }
     }
 

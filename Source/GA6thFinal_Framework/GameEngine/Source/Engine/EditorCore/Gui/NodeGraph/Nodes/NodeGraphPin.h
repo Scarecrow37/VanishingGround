@@ -38,6 +38,8 @@ namespace NodeGraph
         /// <returns>제거에 성공하면 true, 해당 링크가 없다면 false를 반환합니다.</returns>
         bool RemoveLink(UINT64 linkID);
 
+        void ClearLinks();
+
         Link* GetLinkToIndex(int index) const;
 
         /// <summary>
@@ -70,7 +72,7 @@ namespace NodeGraph
         inline UINT64      GetOwnerNodeID()     const { return _ownerNodeID; }
         inline const char* GetPinLabel()        const { return _label.data(); }
         inline ed::PinKind GetPinKind()         const { return _kind; }
-        inline int         GetMaxLinkCount()    const { return _maxLinkCount; }
+        inline size_t      GetMaxLinkCount()    const { return _maxLinkCount; }
         inline size_t      GetLinkCount()       const { return _linkIDVector.size(); }
         inline bool        IsLinkFull()         const { return (_maxLinkCount != -1 && _linkIDVector.size() >= _maxLinkCount); }
         

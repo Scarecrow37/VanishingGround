@@ -6,9 +6,9 @@ namespace BehaviorTree
     class RootNode : public BTNode
     {
     public:
-
+        RootNode();
+        ~RootNode();
     private:
 
     };
 }
-

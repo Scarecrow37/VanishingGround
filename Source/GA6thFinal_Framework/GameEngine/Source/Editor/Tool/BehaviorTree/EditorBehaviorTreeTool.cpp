@@ -1,6 +1,6 @@
 ﻿#include "pch.h"
 #include "EditorBehaviorTreeTool.h"
-#include "Nodes/BehaviorTreeNode.h"
+#include "Nodes/BTRootNode.h"
 
 EditorBehaviorTreeTool::EditorBehaviorTreeTool() 
     : _context(nullptr)
@@ -26,9 +26,7 @@ void EditorBehaviorTreeTool::OnStartGui()
     };
     NodeGraph::SetCurrentNodeGraphContext(_context);
     {
-        auto node = _context->AddNode<BehaviorTree::BTNode>();
-        node->SetLabel("Root Node");
-        node->AddPin("Output", ed::PinKind::Output, filter);
+        auto node = _context->AddNode<BehaviorTree::RootNode>();
         node->SetPosition(ImVec2(0, 0));
     }
     {
