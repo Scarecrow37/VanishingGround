@@ -87,7 +87,8 @@ void cs_main(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex)
             // 범위 검증 후 저장
             if (histogramIndex < g_numThreadGroups * RADIX_SIZE)
             {
-                g_histogram[histogramIndex] = g_sharedData[k];
+                uint temp = g_sharedData[k];
+                g_histogram[histogramIndex] = temp;
             }
         }
     }

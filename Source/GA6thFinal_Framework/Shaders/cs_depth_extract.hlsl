@@ -75,7 +75,7 @@ void cs_main(uint3 id : SV_DispatchThreadID)
     
     
     // Back-to-front 정렬을 위한 음수 처리
-    float depth = rawDepth;
+    float depth = -rawDepth;
     
     // Depth 양자화로 플리커링 방지
     depth = QuantizeDepth(depth);

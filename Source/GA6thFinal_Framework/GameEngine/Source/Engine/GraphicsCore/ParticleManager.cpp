@@ -75,11 +75,11 @@ void ParticleManager::Update(const float deltaTime)
     _totalCount       = 0;
     for (auto effect : _pariticleEffects)
     {
-        if (true == effect->GetActiveFlag())
+        //if (true == effect->GetActiveFlag())
         {
             for (auto emitter : effect->GetEmitterList())
             {
-                if (true == emitter->GetActiveFlag())
+                //if (true == emitter->GetActiveFlag())
                 {
                     if (ParticleType::SPRITE == emitter->_particleType)
                     {
@@ -94,8 +94,9 @@ void ParticleManager::Update(const float deltaTime)
                         auto particle = *particlePool[i];
                         particle.SetEmitterIndex(emitterIndex);
                         _totalParticles.push_back(particle);
+                        _totalCount++;
                     }
-                    _totalCount += emitter->GetActiveParticleCount();
+                    //_totalCount += emitter->GetActiveParticleCount()+1;
                     emitterIndex++;
                 }
             }
@@ -113,6 +114,7 @@ void ParticleManager::Update(const float deltaTime)
         // sort particles
         {
             // Radix Sort를 사용한 파티클 정렬
+            //isSorted = false;
             if (_totalCount > 0)
             {
                 ExtractDepthKeys();
@@ -147,36 +149,46 @@ void ParticleManager::InitializeComputeCommandObject()
             .NodeMask = 0,
         };
     {
-        FAILED_CHECK_BREAK(UmDevice.GetDevice()->CreateCommandAllocator(
-            desc.Type, IID_PPV_ARGS(_computeAllocator.GetAddressOf())));
-        FAILED_CHECK_BREAK(
+            HRESULT hr = S_OK;
+        hr = UmDevice.GetDevice()->CreateCommandAllocator(desc.Type, IID_PPV_ARGS(&_computeAllocator));
+            FAILED_CHECK_MESSAGE(hr, L"ParticleManager::InitializeComputeCommandObject UmDevice.GetDevice()->CreateCommandAllocator Failed",);
+
+
+        FAILED_CHECK_MESSAGE(
             UmDevice.GetDevice()->CreateCommandList(desc.NodeMask, desc.Type, _computeAllocator.Get(), nullptr,
-                                                    IID_PPV_ARGS(_computeCommandList.GetAddressOf())));
+                                                        IID_PPV_ARGS(_computeCommandList.GetAddressOf())),
+                L"");
         _computeCommandList->Close();
     }
     {
-        FAILED_CHECK_BREAK(UmDevice.GetDevice()->CreateCommandAllocator(
-            desc.Type, IID_PPV_ARGS(_depthExtractAllocator.GetAddressOf())));
-        FAILED_CHECK_BREAK(UmDevice.GetDevice()->CreateCommandList(desc.NodeMask, desc.Type, _depthExtractAllocator.Get(),
+        FAILED_CHECK_MESSAGE(UmDevice.GetDevice()->CreateCommandAllocator(
+                                 desc.Type, IID_PPV_ARGS(_depthExtractAllocator.GetAddressOf())),
+                             L"");
+        FAILED_CHECK_MESSAGE(UmDevice.GetDevice()->CreateCommandList(desc.NodeMask, desc.Type, _depthExtractAllocator.Get(),
                                                                    nullptr,
-                                                                   IID_PPV_ARGS(_depthExtractCommandList.GetAddressOf())));
+                                                    IID_PPV_ARGS(_depthExtractCommandList.GetAddressOf())),
+            L"");
         _depthExtractCommandList->Close();
     }
    
     {
-        FAILED_CHECK_BREAK(
-            UmDevice.GetDevice()->CreateCommandAllocator(desc.Type, IID_PPV_ARGS(_radixSortAllocator.GetAddressOf())));
-        FAILED_CHECK_BREAK(UmDevice.GetDevice()->CreateCommandList(desc.NodeMask, desc.Type, _radixSortAllocator.Get(),
+        FAILED_CHECK_MESSAGE(
+            UmDevice.GetDevice()->CreateCommandAllocator(desc.Type, IID_PPV_ARGS(_radixSortAllocator.GetAddressOf())),
+            L"");
+        FAILED_CHECK_MESSAGE(UmDevice.GetDevice()->CreateCommandList(desc.NodeMask, desc.Type, _radixSortAllocator.Get(),
                                                                    nullptr,
-                                                                   IID_PPV_ARGS(_radixSortCommandList.GetAddressOf())));
+                                                    IID_PPV_ARGS(_radixSortCommandList.GetAddressOf())),
+            L"");
         _radixSortCommandList->Close();
     }
     {
-        FAILED_CHECK_BREAK(
-            UmDevice.GetDevice()->CreateCommandAllocator(desc.Type, IID_PPV_ARGS(_reorderAllocator.GetAddressOf())));
-        FAILED_CHECK_BREAK(UmDevice.GetDevice()->CreateCommandList(desc.NodeMask, desc.Type, _reorderAllocator.Get(),
+        FAILED_CHECK_MESSAGE(
+            UmDevice.GetDevice()->CreateCommandAllocator(desc.Type, IID_PPV_ARGS(_reorderAllocator.GetAddressOf())),
+            L"");
+        FAILED_CHECK_MESSAGE(UmDevice.GetDevice()->CreateCommandList(desc.NodeMask, desc.Type, _reorderAllocator.Get(),
                                                                    nullptr,
-                                                                   IID_PPV_ARGS(_reorderCommandList.GetAddressOf())));
+                                                                     IID_PPV_ARGS(_reorderCommandList.GetAddressOf())),
+                             L"");
         _reorderCommandList->Close();
     }
 
@@ -196,9 +208,11 @@ void ParticleManager::IntializeGraphicsCommandObject()
         .NodeMask = 0,
     };
 
-    FAILED_CHECK_BREAK(device->CreateCommandAllocator(desc.Type, IID_PPV_ARGS(_renderAllocator.GetAddressOf())));
-    FAILED_CHECK_BREAK(device->CreateCommandList(desc.NodeMask, desc.Type, _renderAllocator.Get(), nullptr,
-                                                 IID_PPV_ARGS(_renderCommandList.GetAddressOf())));
+    FAILED_CHECK_MESSAGE(device->CreateCommandAllocator(desc.Type, IID_PPV_ARGS(_renderAllocator.GetAddressOf())),
+                         L"ParticleManager::IntializeGraphicsCommandObject() device->CreateCommandAllocator Failed");
+    FAILED_CHECK_MESSAGE(device->CreateCommandList(desc.NodeMask, desc.Type, _renderAllocator.Get(), nullptr,
+                                                 IID_PPV_ARGS(_renderCommandList.GetAddressOf())),
+                         L"ParticleManager::IntializeGraphicsCommandObject() device->CreateCommandList Failed");
     _renderCommandList->Close();
 }
 void ParticleManager::InitializeParticleComputeShader()
@@ -225,11 +239,12 @@ void ParticleManager::InitializeParticleComputeShader()
 
         if (nullptr != error)
         {
+            
             std::filesystem::path errorMessage = static_cast<const char*>(error->GetBufferPointer());
-            ASSERT(SUCCEEDED(hr), errorMessage.c_str());
+            GRAPHICS_ASSERT(SUCCEEDED(hr), errorMessage.c_str());
         }
 
-        FAILED_CHECK_BREAK(hr);
+        FAILED_CHECK_MESSAGE(hr, L"D3DCompileFromFile Failed",);
     }
     // axial billboard sprite particle compute shader
     {
@@ -251,10 +266,10 @@ void ParticleManager::InitializeParticleComputeShader()
         if (nullptr != error)
         {
             std::filesystem::path errorMessage = static_cast<const char*>(error->GetBufferPointer());
-            ASSERT(SUCCEEDED(hr), errorMessage.c_str());
+            GRAPHICS_ASSERT(SUCCEEDED(hr), errorMessage.c_str());
         }
 
-        FAILED_CHECK_BREAK(hr);
+        FAILED_CHECK_MESSAGE(hr, L"D3DCompileFromFile Failed",);
     }
     // mesh particle compute shader
     {
@@ -276,10 +291,10 @@ void ParticleManager::InitializeParticleComputeShader()
         if (nullptr != error)
         {
             std::filesystem::path errorMessage = static_cast<const char*>(error->GetBufferPointer());
-            ASSERT(SUCCEEDED(hr), errorMessage.c_str());
+            GRAPHICS_ASSERT(SUCCEEDED(hr), errorMessage.c_str());
         }
 
-        FAILED_CHECK_BREAK(hr);
+        FAILED_CHECK_MESSAGE(hr, L"D3DCompileFromFile Failed",);
     }
 }
 void ParticleManager::InitializeParticleComputeRootSignature()
@@ -327,16 +342,16 @@ void ParticleManager::InitializeParticleComputeRootSignature()
         if (nullptr != error)
         {
             std::filesystem::path errorMessage = static_cast<const char*>(error->GetBufferPointer());
-            ASSERT(SUCCEEDED(hr), errorMessage.c_str());
+            GRAPHICS_ASSERT(SUCCEEDED(hr), errorMessage.c_str());
         }
 
-        FAILED_CHECK_BREAK(hr);
+        FAILED_CHECK_MESSAGE(hr,L"D3D12SerializeRootSignature Failed",);
 
         ComPtr<ID3D12RootSignature> rootSignature;
         hr = UmDevice.GetDevice()->CreateRootSignature(0, serializedRootSig->GetBufferPointer(),
                                                        serializedRootSig->GetBufferSize(),
                                                        IID_PPV_ARGS(_computeSpriteRootSignature.GetAddressOf()));
-        FAILED_CHECK_BREAK(hr);
+        FAILED_CHECK_MESSAGE(hr,L"CreateRootSignature Failed",);
     }
     // initialize mesh root signature;
     {
@@ -381,16 +396,16 @@ void ParticleManager::InitializeParticleComputeRootSignature()
         if (nullptr != error)
         {
             std::filesystem::path errorMessage = static_cast<const char*>(error->GetBufferPointer());
-            ASSERT(SUCCEEDED(hr), errorMessage.c_str());
+            GRAPHICS_ASSERT(SUCCEEDED(hr), errorMessage.c_str());
         }
 
-        FAILED_CHECK_BREAK(hr);
+        FAILED_CHECK_MESSAGE(hr,L"");
 
         ComPtr<ID3D12RootSignature> rootSignature;
         hr = UmDevice.GetDevice()->CreateRootSignature(0, serializedRootSig->GetBufferPointer(),
                                                        serializedRootSig->GetBufferSize(),
                                                        IID_PPV_ARGS(_computeMeshRootSignature.GetAddressOf()));
-        FAILED_CHECK_BREAK(hr);
+        FAILED_CHECK_MESSAGE(hr,L"");
     }
 }
 void ParticleManager::InitializeParticleComputePSO()
@@ -404,7 +419,7 @@ void ParticleManager::InitializeParticleComputePSO()
         HRESULT hr;
         hr = UmDevice.GetDevice()->CreateComputePipelineState(&computePSODesc,
                                                               IID_PPV_ARGS(_computeSpritePSO.GetAddressOf()));
-        FAILED_CHECK_BREAK(hr);
+        FAILED_CHECK_MESSAGE(hr,L"");
     }
     // initialize axial sprite pipeline state object
     {
@@ -417,7 +432,7 @@ void ParticleManager::InitializeParticleComputePSO()
         HRESULT hr;
         hr = UmDevice.GetDevice()->CreateComputePipelineState(&computePSODesc,
                                                               IID_PPV_ARGS(_computeAxialSpritePSO.GetAddressOf()));
-        FAILED_CHECK_BREAK(hr);
+        FAILED_CHECK_MESSAGE(hr,L"");
     }
     // initialize mesh pipeline state object
     {
@@ -429,7 +444,7 @@ void ParticleManager::InitializeParticleComputePSO()
         HRESULT hr;
         hr = UmDevice.GetDevice()->CreateComputePipelineState(&computePSODesc,
                                                               IID_PPV_ARGS(_computeMeshPSO.GetAddressOf()));
-        FAILED_CHECK_BREAK(hr);
+        FAILED_CHECK_MESSAGE(hr,L"");
     }
 }
 void ParticleManager::InitializeDescriptorHeap()
@@ -439,8 +454,8 @@ void ParticleManager::InitializeDescriptorHeap()
     heapDesc.NumDescriptors = 4;
     heapDesc.Type           = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
     heapDesc.Flags          = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-    FAILED_CHECK_BREAK(
-        UmDevice.GetDevice()->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(_cbvSrvUavHeap.GetAddressOf())));
+    FAILED_CHECK_MESSAGE(
+        UmDevice.GetDevice()->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(_cbvSrvUavHeap.GetAddressOf())), L"");
 
     _descriptorSize = UmDevice.GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
     CreateParticleResources();
@@ -471,25 +486,25 @@ void ParticleManager::CreateStructuredBuffer(ComPtr<ID3D12Resource>& resource, C
     // 기본 버퍼 생성 (GPU 전용)
     D3D12_RESOURCE_DESC bufferDesc      = CD3DX12_RESOURCE_DESC::Buffer(bufferSize);
     auto                defaultProperty = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
-    FAILED_CHECK_BREAK(UmDevice.GetDevice()->CreateCommittedResource(&defaultProperty, D3D12_HEAP_FLAG_NONE,
-                                                                     &bufferDesc, D3D12_RESOURCE_STATE_COMMON, nullptr,
-                                                                     IID_PPV_ARGS(&resource)));
+    FAILED_CHECK_MESSAGE(UmDevice.GetDevice()->CreateCommittedResource(&defaultProperty, D3D12_HEAP_FLAG_NONE,
+                                                                     &bufferDesc, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&resource)),
+                         L"");
 
     // 업로드 버퍼 생성 (CPU->GPU 전송용)
     auto uploadProperty = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
 
-    FAILED_CHECK_BREAK(UmDevice.GetDevice()->CreateCommittedResource(&uploadProperty, D3D12_HEAP_FLAG_NONE, &bufferDesc,
-                                                                     D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
-                                                                     IID_PPV_ARGS(&uploadResource)));
+    FAILED_CHECK_MESSAGE(UmDevice.GetDevice()->CreateCommittedResource(&uploadProperty, D3D12_HEAP_FLAG_NONE, &bufferDesc,
+                                                                     D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&uploadResource)),
+                         L"");
 }
 void ParticleManager::CreateStructuredBuffer(ComPtr<ID3D12Resource>& resource, UINT bufferSize, UINT stride)
 {
     // uav로 쓰고 srv로 읽기용
     D3D12_RESOURCE_DESC bufferDesc      = CD3DX12_RESOURCE_DESC::Buffer(bufferSize);
     auto                defaultProperty = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
-    FAILED_CHECK_BREAK(UmDevice.GetDevice()->CreateCommittedResource(&defaultProperty, D3D12_HEAP_FLAG_NONE,
-                                                                     &bufferDesc, D3D12_RESOURCE_STATE_COMMON, nullptr,
-                                                                     IID_PPV_ARGS(&resource)));
+    FAILED_CHECK_MESSAGE(UmDevice.GetDevice()->CreateCommittedResource(&defaultProperty, D3D12_HEAP_FLAG_NONE,
+                                                                     &bufferDesc, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&resource)),
+                         L"");
 }
 void ParticleManager::CreateUAVBuffer(ComPtr<ID3D12Resource>& resource, UINT bufferSize, UINT stride)
 {
@@ -498,9 +513,9 @@ void ParticleManager::CreateUAVBuffer(ComPtr<ID3D12Resource>& resource, UINT buf
         CD3DX12_RESOURCE_DESC::Buffer(bufferSize, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
     auto defaultProperty = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
 
-    FAILED_CHECK_BREAK(UmDevice.GetDevice()->CreateCommittedResource(&defaultProperty, D3D12_HEAP_FLAG_NONE,
-                                                                     &bufferDesc, D3D12_RESOURCE_STATE_COMMON, nullptr,
-                                                                     IID_PPV_ARGS(&resource)));
+    FAILED_CHECK_MESSAGE(UmDevice.GetDevice()->CreateCommittedResource(&defaultProperty, D3D12_HEAP_FLAG_NONE,
+                                                                     &bufferDesc, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&resource)),
+                         L"");
 }
 void ParticleManager::CreateConstantBuffer(ComPtr<ID3D12Resource>& resource, UINT bufferSize)
 {
@@ -512,10 +527,10 @@ void ParticleManager::CreateConstantBuffer(ComPtr<ID3D12Resource>& resource, UIN
     // 2. Upload Heap에 업로드 버퍼 생성 (CPU 접근 가능)
     auto uploadProperty = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
 
-    FAILED_CHECK_BREAK(
+    FAILED_CHECK_MESSAGE(
         UmDevice.GetDevice()->CreateCommittedResource(&uploadProperty, D3D12_HEAP_FLAG_NONE, &bufferDesc,
                                                       D3D12_RESOURCE_STATE_GENERIC_READ, // Upload Heap 필수 상태
-                                                      nullptr, IID_PPV_ARGS(&resource)));
+                                                      nullptr, IID_PPV_ARGS(&resource)), L"");
 
 
 
@@ -665,9 +680,9 @@ void ParticleManager::UpdateParticleResources(float deltaTime)
     lastFrameTime     = currentTime;
 
     // 컴퓨트 셰이더 디스패치
-    mvpConstants.deltaTime = delta;
+    mvpConstants.deltaTime = deltaTime;
 
-    FAILED_CHECK_BREAK(_mvpConstantBuffer->Map(0, nullptr, &mappedData));
+    FAILED_CHECK_MESSAGE(_mvpConstantBuffer->Map(0, nullptr, &mappedData),L"");
     memcpy(mappedData, &mvpConstants, sizeof(MVPConstants));
     _mvpConstantBuffer->Unmap(0, nullptr);
 }
@@ -720,9 +735,9 @@ void ParticleManager::InitializeRadixSortShaders()
     if (nullptr != error)
     {
         std::filesystem::path errorMessage = static_cast<const char*>(error->GetBufferPointer());
-        ASSERT(SUCCEEDED(hr), errorMessage.c_str());
+        GRAPHICS_ASSERT(SUCCEEDED(hr), errorMessage.c_str());
     }
-    FAILED_CHECK_BREAK(hr);
+    FAILED_CHECK_MESSAGE(hr,L"");
 
     // 히스토그램 계산 셰이더
     hr = D3DCompileFromFile(L"../Shaders/cs_radix_histogram.hlsl", nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE,
@@ -730,9 +745,9 @@ void ParticleManager::InitializeRadixSortShaders()
     if (nullptr != error)
     {
         std::filesystem::path errorMessage = static_cast<const char*>(error->GetBufferPointer());
-        ASSERT(SUCCEEDED(hr), errorMessage.c_str());
+        GRAPHICS_ASSERT(SUCCEEDED(hr), errorMessage.c_str());
     }
-    FAILED_CHECK_BREAK(hr);
+    FAILED_CHECK_MESSAGE(hr,L"");
 
     // 접두사 합 셰이더
     hr = D3DCompileFromFile(L"../Shaders/cs_prefix_sum.hlsl", nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "cs_main",
@@ -740,10 +755,10 @@ void ParticleManager::InitializeRadixSortShaders()
     if (nullptr != error)
     {
         std::filesystem::path errorMessage = static_cast<const char*>(error->GetBufferPointer());
-        ASSERT(SUCCEEDED(hr), errorMessage.c_str());
+        GRAPHICS_ASSERT(SUCCEEDED(hr), errorMessage.c_str());
     }
 
-    FAILED_CHECK_BREAK(hr);
+    FAILED_CHECK_MESSAGE(hr,L"");
 
     // 스캐터 셰이더
     hr = D3DCompileFromFile(L"../Shaders/cs_radix_scatter.hlsl", nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "cs_main",
@@ -751,9 +766,9 @@ void ParticleManager::InitializeRadixSortShaders()
     if (nullptr != error)
     {
         std::filesystem::path errorMessage = static_cast<const char*>(error->GetBufferPointer());
-        ASSERT(SUCCEEDED(hr), errorMessage.c_str());
+        GRAPHICS_ASSERT(SUCCEEDED(hr), errorMessage.c_str());
     }
-    FAILED_CHECK_BREAK(hr);
+    FAILED_CHECK_MESSAGE(hr,L"");
 
     // 재정렬 셰이더 (정렬된 인덱스로 ParticleOutput 재배열)
     hr = D3DCompileFromFile(L"../Shaders/cs_particle_reorder.hlsl", nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE,
@@ -761,9 +776,9 @@ void ParticleManager::InitializeRadixSortShaders()
     if (nullptr != error)
     {
         std::filesystem::path errorMessage = static_cast<const char*>(error->GetBufferPointer());
-        ASSERT(SUCCEEDED(hr), errorMessage.c_str());
+        GRAPHICS_ASSERT(SUCCEEDED(hr), errorMessage.c_str());
     }
-    FAILED_CHECK_BREAK(hr);
+    FAILED_CHECK_MESSAGE(hr,L"");
 }
 void ParticleManager::InitializeRadixSortRootSignature() 
 {
@@ -831,12 +846,12 @@ void ParticleManager::InitializeRadixSortRootSignature()
     ComPtr<ID3DBlob> error;
     HRESULT          hr = D3D12SerializeRootSignature(&rootSignDesc, D3D_ROOT_SIGNATURE_VERSION_1,
                                                       serializedRootSig.GetAddressOf(), error.GetAddressOf());
-    FAILED_CHECK_BREAK(hr);
+    FAILED_CHECK_MESSAGE(hr,L"");
 
     hr = UmDevice.GetDevice()->CreateRootSignature(0, serializedRootSig->GetBufferPointer(),
                                                    serializedRootSig->GetBufferSize(),
                                                    IID_PPV_ARGS(_radixSortRootSignature.GetAddressOf()));
-    FAILED_CHECK_BREAK(hr);
+    FAILED_CHECK_MESSAGE(hr,L"");
 }
 void ParticleManager::InitializeRadixSortPSO() 
 {
@@ -851,7 +866,7 @@ void ParticleManager::InitializeRadixSortPSO()
 
     hr = UmDevice.GetDevice()->CreateComputePipelineState(&depthExtractPsoDesc,
                                                           IID_PPV_ARGS(_depthExtractPSO.GetAddressOf()));
-    FAILED_CHECK_BREAK(hr);
+    FAILED_CHECK_MESSAGE(hr,L"");
 
     // 2. 히스토그램 PSO 생성 - 통합 루트 시그니처 사용
     D3D12_COMPUTE_PIPELINE_STATE_DESC histogramPsoDesc = {};
@@ -862,7 +877,7 @@ void ParticleManager::InitializeRadixSortPSO()
 
     hr =
         UmDevice.GetDevice()->CreateComputePipelineState(&histogramPsoDesc, IID_PPV_ARGS(_histogramPSO.GetAddressOf()));
-    FAILED_CHECK_BREAK(hr);
+    FAILED_CHECK_MESSAGE(hr,L"");
 
     // 3. 접두사 합 PSO 생성 - 통합 루트 시그니처 사용
     D3D12_COMPUTE_PIPELINE_STATE_DESC prefixSumPsoDesc = {};
@@ -873,7 +888,7 @@ void ParticleManager::InitializeRadixSortPSO()
 
     hr =
         UmDevice.GetDevice()->CreateComputePipelineState(&prefixSumPsoDesc, IID_PPV_ARGS(_prefixSumPSO.GetAddressOf()));
-    FAILED_CHECK_BREAK(hr);
+    FAILED_CHECK_MESSAGE(hr,L"");
 
     // 4. 스캐터 PSO 생성 - 통합 루트 시그니처 사용
     D3D12_COMPUTE_PIPELINE_STATE_DESC scatterPsoDesc = {};
@@ -883,7 +898,7 @@ void ParticleManager::InitializeRadixSortPSO()
     scatterPsoDesc.Flags    = D3D12_PIPELINE_STATE_FLAG_NONE;
 
     hr = UmDevice.GetDevice()->CreateComputePipelineState(&scatterPsoDesc, IID_PPV_ARGS(_scatterPSO.GetAddressOf()));
-    FAILED_CHECK_BREAK(hr);
+    FAILED_CHECK_MESSAGE(hr,L"");
 
     // 5. 재정렬 PSO 생성 - 통합 루트 시그니처 사용
     D3D12_COMPUTE_PIPELINE_STATE_DESC reorderPsoDesc = {};
@@ -893,7 +908,7 @@ void ParticleManager::InitializeRadixSortPSO()
     reorderPsoDesc.Flags    = D3D12_PIPELINE_STATE_FLAG_NONE;
 
     hr = UmDevice.GetDevice()->CreateComputePipelineState(&reorderPsoDesc, IID_PPV_ARGS(_reorderPSO.GetAddressOf()));
-    FAILED_CHECK_BREAK(hr);
+    FAILED_CHECK_MESSAGE(hr,L"");
 }
 void ParticleManager::CreateRadixSortResources() 
 {
@@ -935,7 +950,6 @@ void ParticleManager::PerformRadixSort()
         constants.numParticles    = _totalCount;
         constants.currentBit      = bit;
         constants.numThreadGroups = (_totalCount + THREADS_PER_GROUP - 1) / THREADS_PER_GROUP;
-
         void* mappedData = nullptr;
         _sortConstantBuffer[bit/4]->Map(0, nullptr, &mappedData);
         memcpy(mappedData, &constants, sizeof(RadixSortConstants));
@@ -959,7 +973,6 @@ void ParticleManager::PerformRadixSort()
 
 
 
-
         // 사용하지 않는 SRV 슬롯
         _radixSortCommandList->SetComputeRootShaderResourceView(2, 0);
 
@@ -980,6 +993,10 @@ void ParticleManager::PerformRadixSort()
         _radixSortCommandList->ResourceBarrier(1, &barrier);
 
         _radixSortCommandList->Dispatch(constants.numThreadGroups, 1, 1);
+
+
+
+
 
         // === 접두사 합 계산 단계 ===
         _radixSortCommandList->SetPipelineState(_prefixSumPSO.Get());
@@ -1008,10 +1025,7 @@ void ParticleManager::PerformRadixSort()
         barrier = CD3DX12_RESOURCE_BARRIER::UAV(_histogramBuffer.Get());
         _radixSortCommandList->ResourceBarrier(1, &barrier);
 
-
-
         _radixSortCommandList->Dispatch(1, 1, 1);
-
 
         // === 스캐터 (재배열) 단계 ===
         _radixSortCommandList->SetPipelineState(_scatterPSO.Get());
@@ -1039,6 +1053,21 @@ void ParticleManager::PerformRadixSort()
 
         // 사용하지 않는 UAV 슬롯
         _radixSortCommandList->SetComputeRootUnorderedAccessView(7, 0);
+
+        barrier = CD3DX12_RESOURCE_BARRIER::UAV(currentValuesBuffer.Get());
+        _radixSortCommandList->ResourceBarrier(1, &barrier);
+
+        barrier = CD3DX12_RESOURCE_BARRIER::UAV(outputKeysBuffer.Get());
+        _radixSortCommandList->ResourceBarrier(1, &barrier);
+
+        barrier = CD3DX12_RESOURCE_BARRIER::UAV(outputValuesBuffer.Get());
+        _radixSortCommandList->ResourceBarrier(1, &barrier);
+
+        barrier = CD3DX12_RESOURCE_BARRIER::UAV(_histogramBuffer.Get());
+        _radixSortCommandList->ResourceBarrier(1, &barrier);
+
+        barrier = CD3DX12_RESOURCE_BARRIER::UAV(_prefixSumBuffer.Get());
+        _radixSortCommandList->ResourceBarrier(1, &barrier);
 
         _radixSortCommandList->Dispatch(constants.numThreadGroups, 1, 1);
 

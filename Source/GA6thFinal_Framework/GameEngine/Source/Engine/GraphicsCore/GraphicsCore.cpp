@@ -14,7 +14,7 @@ void GraphicsCore::Initialize(HWND hwnd, UINT width, UINT height, FeatureLevel f
 
     auto commandList = Device.GetCommandList();
     commandList->Close();
-    auto imguiCommandList = Device.GetImguiCommandList().Get();
+    auto imguiCommandList = Device.GetImguiCommandList();
     imguiCommandList->Close();
     Device.RegisterCommand(commandList,MESH_RENDER_LIST);
     Device.ExecuteCommand(MESH_RENDER_LIST);
@@ -43,7 +43,7 @@ void GraphicsCore::Initialize(HWND hwnd, UINT width, UINT height, FeatureLevel f
     emitter->SetStartOpacity(0.5f);
     emitter->SetEndOpacity(0.f);
     emitter->SetVelocity({0, 0, 0});
-    emitter->SetEmissionRate(30);
+    emitter->SetEmissionRate(6);
     emitter->SetLocatorFactor({0, 0, 0});
     emitter->SetParticleMass(0.f);
     emitter->SetParticleDistributionOffset(0.1f);
@@ -64,7 +64,7 @@ void GraphicsCore::Initialize(HWND hwnd, UINT width, UINT height, FeatureLevel f
     emitter1->SetStartOpacity(0.5f);
     emitter1->SetEndOpacity(0.f);
     emitter1->SetVelocity({0, 0, 0});
-    emitter1->SetEmissionRate(30);
+    emitter1->SetEmissionRate(6);
     emitter1->SetLocatorFactor({0, 0, 0});
     emitter1->SetParticleMass(0.f);
     emitter1->SetParticleDistributionOffset(0.1f);
@@ -80,9 +80,9 @@ void GraphicsCore::UpdateAnimation(const float deltaTime)
 
 void GraphicsCore::Update(const float deltaTime)
 {
+    ParticleManager.Update(deltaTime);
     LightCore.Update(deltaTime);
     Renderer.Update();
-    
 }
 
 void GraphicsCore::Render()

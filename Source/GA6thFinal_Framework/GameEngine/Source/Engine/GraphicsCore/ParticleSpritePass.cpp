@@ -20,7 +20,7 @@ void ParticleSpritePass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_
     InitializeDescriptorHeap();
 
     //refactoring needed
-    _particleRenderCommandList = UmParticleManager.GetRenderCommandList().Get();
+    _particleRenderCommandList = UmParticleManager.GetRenderCommandList();
 
 
 
@@ -58,7 +58,7 @@ void ParticleSpritePass::Begin(ID3D12GraphicsCommandList* commandlist)
     for (int i = 0; i < albedoTextures.size();++i)
     {
         // 각 Texture 객체의 SRV CPU 핸들 얻기
-        D3D12_CPU_DESCRIPTOR_HANDLE srcHandle = albedoTextures[i]->GetHandle();
+        D3D12_CPU_DESCRIPTOR_HANDLE srcHandle = albedoTextures[i]->GetCPUHandle();
 
         // 디스크립터 힙 내 복사 위치 계산
         D3D12_CPU_DESCRIPTOR_HANDLE destHandle = heapStart;
@@ -84,7 +84,7 @@ void ParticleSpritePass::End(ID3D12GraphicsCommandList* commandlist)
         resource.Get(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COMMON);
 
     CD3DX12_RESOURCE_BARRIER meshLightingBarrior = CD3DX12_RESOURCE_BARRIER::Transition(
-        _ownerScene->_meshLightingTarget->GetResource().Get(), D3D12_RESOURCE_STATE_RENDER_TARGET,
+        _ownerScene->_meshLightingTarget->GetResource() , D3D12_RESOURCE_STATE_RENDER_TARGET,
         D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
     D3D12_RESOURCE_BARRIER barriors[] = {computeOutputBarrior, meshLightingBarrior};
@@ -111,22 +111,24 @@ void ParticleSpritePass::Draw(ID3D12GraphicsCommandList* commandlist)
     _particleRenderCommandList->SetDescriptorHeaps(_countof(hps), hps);
     D3D12_GPU_DESCRIPTOR_HANDLE descHeapPtr = _descriptorheap->GetGPUDescriptorHandleForHeapStart();
     
-    _particleRenderCommandList->SetGraphicsRootSignature(_spriteParticleShaderBuilder->GetRootSignature().Get());
+    _particleRenderCommandList->SetGraphicsRootSignature(_spriteParticleShaderBuilder->GetRootSignature());
     // StructuredBuffer (t0)
-    _particleRenderCommandList->SetGraphicsRootDescriptorTable(0, descHeapPtr);
+    auto outputResource = UmParticleManager.GetComputeOutputResource();
+    _particleRenderCommandList->SetGraphicsRootShaderResourceView(0, outputResource->GetGPUVirtualAddress());
 
 
-    // GPU 핸들 계산 (1번 슬롯부터 연속된 텍스처 테이블)
-    descHeapPtr.ptr += _descriptorSize * 1; // 0번이 StructuredBuffer라면 1번부터
+    //// GPU 핸들 계산 (1번 슬롯부터 연속된 텍스처 테이블)
+    //descHeapPtr.ptr += _descriptorSize * 1; // 0번이 StructuredBuffer라면 1번부터
 
     // 디스크립터 테이블 바인딩 (루트 파라미터 인덱스는 RootSignature에 따라 다름)
     _particleRenderCommandList->SetGraphicsRootDescriptorTable(
-        _spriteParticleShaderBuilder->GetRootSignatureIndex("AlbedoTextures"), descHeapPtr);
+        _spriteParticleShaderBuilder->GetRootParameterIndex("AlbedoTextures"), descHeapPtr);
 
     _particleRenderCommandList->SetPipelineState(_psos[0].Get());
 
     const auto& meshs = _particleQuad->GetMeshes();
-    meshs[0]->Render(_particleRenderCommandList.Get(), UmParticleManager.GetTotalCount());
+    UINT        totalCount = UmParticleManager.GetTotalCount();
+    meshs[0]->Render(_particleRenderCommandList, totalCount);
 
 }
 
@@ -178,12 +180,12 @@ void ParticleSpritePass::InitializePSO()
     psodesc.NumRenderTargets                       = 1;
     psodesc.RTVFormats[0]                          = DXGI_FORMAT_R32G32B32A32_FLOAT;
     //psodesc.DSVFormat                              = DXGI_FORMAT_D24_UNORM_S8_UINT;
-    psodesc.pRootSignature                         = _spriteParticleShaderBuilder->GetRootSignature().Get();
+    psodesc.pRootSignature                         = _spriteParticleShaderBuilder->GetRootSignature();
     psodesc.SampleDesc                             = {1, 0};
     psodesc.VS = _spriteParticleShaderBuilder->GetShaderByteCode(ShaderBuilder::Type::VS);
     psodesc.PS = _spriteParticleShaderBuilder->GetShaderByteCode(ShaderBuilder::Type::PS);
     hr         = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(statictwosidedpso.GetAddressOf()));
-    FAILED_CHECK_BREAK(hr);
+    FAILED_CHECK_MESSAGE(hr, L"");
     _psos.push_back(statictwosidedpso);
 
 }
@@ -194,21 +196,21 @@ void ParticleSpritePass::InitializeDescriptorHeap()
     heapDesc.NumDescriptors = 101; // max emitter count *2 + structured buffer srv
     heapDesc.Type           = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
     heapDesc.Flags          = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-    FAILED_CHECK_BREAK(
-        UmDevice.GetDevice()->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(_descriptorheap.GetAddressOf())));
+    FAILED_CHECK_MESSAGE(
+        UmDevice.GetDevice()->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(_descriptorheap.GetAddressOf())), L"");
 
     _descriptorSize = UmDevice.GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
-    CD3DX12_CPU_DESCRIPTOR_HANDLE handle(_descriptorheap->GetCPUDescriptorHandleForHeapStart());
-    D3D12_SHADER_RESOURCE_VIEW_DESC particleOutputSrvDesc{};
-    particleOutputSrvDesc.Format                     = DXGI_FORMAT_UNKNOWN;
-    particleOutputSrvDesc.ViewDimension              = D3D12_SRV_DIMENSION_BUFFER;
-    particleOutputSrvDesc.Shader4ComponentMapping    = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-    particleOutputSrvDesc.Buffer.FirstElement        = 0;
-    particleOutputSrvDesc.Buffer.NumElements         = UmParticleManager.GetMaxCount();
-    particleOutputSrvDesc.Buffer.StructureByteStride = sizeof(ParticleOutput);
-    particleOutputSrvDesc.Buffer.Flags               = D3D12_BUFFER_SRV_FLAG_NONE;
-    ID3D12Resource* resource                         = UmParticleManager.GetComputeOutputResource().Get();
-    UmDevice.GetDevice()->CreateShaderResourceView(resource, &particleOutputSrvDesc, handle);
+    //CD3DX12_CPU_DESCRIPTOR_HANDLE handle(_descriptorheap->GetCPUDescriptorHandleForHeapStart());
+    //D3D12_SHADER_RESOURCE_VIEW_DESC particleOutputSrvDesc{};
+    //particleOutputSrvDesc.Format                     = DXGI_FORMAT_UNKNOWN;
+    //particleOutputSrvDesc.ViewDimension              = D3D12_SRV_DIMENSION_BUFFER;
+    //particleOutputSrvDesc.Shader4ComponentMapping    = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+    //particleOutputSrvDesc.Buffer.FirstElement        = 0;
+    //particleOutputSrvDesc.Buffer.NumElements         = UmParticleManager.GetMaxCount();
+    //particleOutputSrvDesc.Buffer.StructureByteStride = sizeof(ParticleOutput);
+    //particleOutputSrvDesc.Buffer.Flags               = D3D12_BUFFER_SRV_FLAG_NONE;
+    //ID3D12Resource* resource                         = UmParticleManager.GetComputeOutputResource().Get();
+    //UmDevice.GetDevice()->CreateShaderResourceView(resource, &particleOutputSrvDesc, handle);
 
 }

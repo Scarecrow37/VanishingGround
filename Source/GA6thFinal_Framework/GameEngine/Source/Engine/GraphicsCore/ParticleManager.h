@@ -22,8 +22,17 @@ public:
     UINT                                  GetTotalCount() const { return _totalCount; }
     UINT                                  GetMaxCount() const { return _maxParticles; }
     std::vector<std::shared_ptr<Texture>> GetActiveAlbedos() const { return _activeEmitterAlbedos; }
-    ComPtr<ID3D12Resource>                GetComputeOutputResource() { return _sortedOutputBuffer; }
-    ComPtr<ID3D12GraphicsCommandList>     GetRenderCommandList() { return _renderCommandList; }
+    //임시
+    bool isSorted = true;
+    //
+    ID3D12Resource*                GetComputeOutputResource() 
+    {
+        if (isSorted)
+            return _sortedOutputBuffer.Get();
+        else
+            return _particleOutputBuffer.Get(); 
+    }
+    ID3D12GraphicsCommandList*     GetRenderCommandList() { return _renderCommandList.Get(); }
     void                                  ResetRenderCommandObject();
 
 public:

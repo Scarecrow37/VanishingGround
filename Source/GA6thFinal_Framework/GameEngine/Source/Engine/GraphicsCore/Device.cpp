@@ -405,9 +405,15 @@ void Device::Execute()
 {
     auto br = CD3DX12_RESOURCE_BARRIER::Transition(_swapChainBuffer[_renderTargetIndex].Get(),
                                                    D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
-    _commandList->ResourceBarrier(1, &br);
+    if (IS_EDITOR)
+        _imguiCommandList->ResourceBarrier(1, &br);
+    else 
+        _commandList->ResourceBarrier(1, &br);
+    
+    
     _computeCommandList->Close();
     _commandList->Close();
+    _imguiCommandList->Close();
 
     RegisterCommand(_computeCommandList.Get(), MESH_COMPUTE_LIST);
     RegisterCommand(_commandList.Get(), MESH_RENDER_LIST);
@@ -634,6 +640,10 @@ void Device::ExecuteCommand(CommandListType type)
     case CommandListType::MESH_COMPUTE_LIST:
     case CommandListType::PARTICLE_COMPUTE_LIST:
         _computeCommandQueue->ExecuteCommandLists(static_cast<UINT>(_commandLists[type].size()), _commandLists[type].data());
+        break;
+    case CommandListType::IMGUI_RENDER_LIST:
+        _commandQueue->ExecuteCommandLists(static_cast<UINT>(_commandLists[type].size()),
+                                                  _commandLists[type].data());
         break;
     }
         _commandLists[type].clear();

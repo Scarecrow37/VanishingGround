@@ -116,7 +116,7 @@ void Renderer::Initialize()
     editorScene->AddRenderTechnique(pbrTech);
     _renderScenes["Editor"] = editorScene;
 
-    std::shared_ptr<RenderScene> particleScene = std::make_shared<RenderScene>();
+    std::shared_ptr<RenderScene> particleScene = std::make_shared<RenderScene>("Particle");
     particleScene->InitializeRenderScene();
     std::shared_ptr<ParticleRenderTechnique> particleTech = std::make_shared<ParticleRenderTechnique>();
     particleScene->AddRenderTechnique(particleTech);
@@ -360,15 +360,14 @@ void Renderer::ImguiBegin()
 
 void Renderer::ImguiEnd()
 {
-
-
     ImGuiIO& io = ImGui::GetIO();
 
     ImGui::Render();
 
     ID3D12DescriptorHeap* descriptorHeaps[] = {UmViewManager.GetShaderResourceHeap()};
-    UmDevice.GetCommandList()->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
-    ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), UmDevice.GetCommandList());
+    auto                  commandList       = UmDevice.GetImguiCommandList();
+    commandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+    ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandList);
 
     if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
     {
