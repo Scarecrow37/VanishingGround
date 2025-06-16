@@ -11,6 +11,14 @@ void ParticleEffect::Initialize(class ParticleManager* particleManager)
 
 void ParticleEffect::Update(float deltaTime) 
 {
+
+   _age += deltaTime;
+    if (_age >= _lifetime)
+    {
+        _activeFlag = false;
+        return;
+    }
+
    // _scaleMatrix = Matrix::CreateScale(_scale);
     _rotationMatrix = Matrix::CreateFromQuaternion(_rotation);
     _translationMatrix = Matrix::CreateTranslation(_position);

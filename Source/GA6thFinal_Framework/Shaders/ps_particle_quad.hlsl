@@ -20,9 +20,8 @@ struct PSInput
 float4 ps_main(PSInput input) : SV_Target
 {
     float factor = AlbedoTextures[input.emitterIndex].Sample(samPoint_clamp, input.uv);
-    //float factor = AlbedoTextures.Sample(samPoint_clamp, input.uv);
-    float4 output = input.color * factor;
+    //float4 output = float4(input.color.rgb, input.color.a * factor );
+    float4 output = float4(input.color.rgb, max(1, factor));
     return output;
-    //return input.color;
 
 }

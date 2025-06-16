@@ -28,12 +28,14 @@ void ParticleSpritePass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_
 
 void ParticleSpritePass::Begin(ID3D12GraphicsCommandList* commandlist)
 {
+
     UmParticleManager.ResetRenderCommandObject();
     _particleRenderCommandList->OMSetRenderTargets(1, &_ownerScene->_meshLightingTarget->GetRTVHandle(), FALSE,
                                                    &_ownerScene->_depthStencilHandle);
     _particleRenderCommandList->RSSetViewports(1, &_viewPort);
     _particleRenderCommandList->RSSetScissorRects(1, &_sissorRect);
 
+    //float blendfactor[] = {0.f, 0.f, 0.f, 0.f};
     //float blendfactor[] = {0.5f, 0.5f, 0.5f, 0.5f};
     float blendfactor[] = {1, 1, 1, 1};
     _particleRenderCommandList->OMSetBlendFactor(blendfactor);
@@ -76,6 +78,7 @@ void ParticleSpritePass::Begin(ID3D12GraphicsCommandList* commandlist)
 
 void ParticleSpritePass::End(ID3D12GraphicsCommandList* commandlist)
 {
+
     ComPtr<ID3D12Resource>   resource             = UmParticleManager.GetComputeOutputResource();
     CD3DX12_RESOURCE_BARRIER computeOutputBarrior = CD3DX12_RESOURCE_BARRIER::Transition(
         resource.Get(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COMMON);
@@ -97,6 +100,8 @@ void ParticleSpritePass::End(ID3D12GraphicsCommandList* commandlist)
 
 void ParticleSpritePass::Draw(ID3D12GraphicsCommandList* commandlist)
 {
+
+
     ComPtr<ID3D12Device> device         = UmDevice.GetDevice();
     ID3D12DescriptorHeap* hps[] = {
         _descriptorheap.Get(),
@@ -140,15 +145,15 @@ void ParticleSpritePass::InitializePSO()
 
     D3D12_BLEND_DESC blendDesc       = {};
     blendDesc.AlphaToCoverageEnable  = FALSE;
-    blendDesc.IndependentBlendEnable = FALSE;
+    blendDesc.IndependentBlendEnable = TRUE;
     auto& rtDesc                     = blendDesc.RenderTarget[0];
     rtDesc.BlendEnable               = TRUE;
     rtDesc.SrcBlend                  = D3D12_BLEND_SRC_ALPHA;
     rtDesc.DestBlend                 = D3D12_BLEND_INV_SRC_ALPHA;
     rtDesc.BlendOp                   = D3D12_BLEND_OP_ADD;
     rtDesc.SrcBlendAlpha             = D3D12_BLEND_ONE;
-    rtDesc.DestBlendAlpha            = D3D12_BLEND_ZERO;
-    rtDesc.BlendOpAlpha              = D3D12_BLEND_OP_MAX;
+    rtDesc.DestBlendAlpha            = D3D12_BLEND_ONE;
+    rtDesc.BlendOpAlpha              = D3D12_BLEND_OP_ADD;
     rtDesc.RenderTargetWriteMask     = D3D12_COLOR_WRITE_ENABLE_ALL;
     
 

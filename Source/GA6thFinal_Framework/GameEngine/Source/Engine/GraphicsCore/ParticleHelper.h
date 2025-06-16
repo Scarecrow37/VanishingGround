@@ -78,6 +78,9 @@ struct __declspec(align(16)) MVPConstants
     float pad3[3]; // 12바이트 (총 16+16+12 = 44바이트)
 };
 
+
+
+
 enum class LocationShape
 {
     SPHERE,
@@ -93,3 +96,35 @@ enum class ParticleType
     MESH,
     RIBBON
 }; 
+
+enum class VelocityScaleType
+{
+    LINEAR,
+    POINT,
+    CONE,
+    CUSTOM
+};
+
+
+
+// 정렬용 키-값 쌍 구조체
+struct ParticleSortData
+{
+    float depth;         // FinalMatrix._43 값 (정렬 키)
+    UINT  originalIndex; // 원본 파티클 인덱스 (페이로드)
+};
+
+// Radix Sort 상수 버퍼
+struct RadixSortConstants
+{
+    UINT numParticles;
+    UINT currentBit;
+    UINT numThreadGroups;
+    UINT pad;
+};
+
+// Radix Sort 관련 상수
+static const UINT RADIX_BITS          = 4;
+static const UINT RADIX_SIZE          = 1 << RADIX_BITS; // 16
+static const UINT THREADS_PER_GROUP   = 256;
+static const UINT ELEMENTS_PER_THREAD = 4;

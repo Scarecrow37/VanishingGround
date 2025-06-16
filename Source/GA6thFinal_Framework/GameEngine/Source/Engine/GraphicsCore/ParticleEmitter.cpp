@@ -205,8 +205,17 @@ void ParticleEmitter::AwakeParticle(UINT index)
     location.x       = _emitLocator->EmitLocate().x + _emitLocator->_randomVal() * _particleDistributionOffset;
     location.y       = _emitLocator->EmitLocate().y + _emitLocator->_randomVal() * _particleDistributionOffset;
     location.z       = _emitLocator->EmitLocate().z + _emitLocator->_randomVal() * _particleDistributionOffset;
+
+    
+
+
     _particlePool[index]->SetPosition(location);
     _particlePool[index]->SetVelocity(_velocity);
+
+
+
+
+
     _particlePool[index]->SetStartColor(_startColor);
     _particlePool[index]->SetStartOpacity(_startOpacity);
     _particlePool[index]->SetEndColor(_endColor);
@@ -284,6 +293,11 @@ void ParticleEmitter::SetLocatorFactor(const Vector3& factor)
     _emitLocator->SetFactor(factor);
 }
 
+void ParticleEmitter::SetVelocityType(VelocityScaleType velType) 
+{
+
+}
+
 void ParticleEmitter::InitializeLocator(LocationShape locatorShape , Vector3 factor) 
 {
     switch (locatorShape)
@@ -310,6 +324,26 @@ void ParticleEmitter::InitializeLocator(LocationShape locatorShape , Vector3 fac
     }
     _emitLocator->SetFactor(factor);
     _emitLocator->RandomInitialize();
+
+}
+
+void ParticleEmitter::ScaleVelocity() 
+{
+    switch (_velocityType)
+    {
+    case VelocityScaleType::LINEAR:
+        _velocity = _velocityFactor;
+        break;
+        // scale, radius
+    case VelocityScaleType::CONE:
+    case VelocityScaleType::POINT:
+    case VelocityScaleType::CUSTOM:
+        _velocity = _velocityScalingFunciton();
+        break;
+    default:
+        _velocity = _velocityFactor;
+        break;
+    }
 
 }
 

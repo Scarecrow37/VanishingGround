@@ -40,7 +40,7 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
     
     // 2. 에미터 월드 변환 적용
     float4 worldPos = mul(float4(input.position.xyz, 1.0), emitter.WorldMatrix);
-    
+    float4 viewPos = mul(worldPos, mvp.ViewMatrix);
     // 3. 빌보딩 행렬 계산
     //float4x4 billboardMat = CalculateBillboardMatrix(
     //    worldPos.xyz, mvp.ViewInvMatrix
@@ -53,7 +53,7 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
     
     // 5. 최종 행렬 계산
     ParticleOutput output;
-    output.position = input.position;
+    output.position = viewPos;
     output.paddings = (float3) 0;
 
     output.EmitterIndex = input.emitterIndex;
