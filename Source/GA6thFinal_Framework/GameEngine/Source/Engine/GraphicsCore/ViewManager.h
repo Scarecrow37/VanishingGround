@@ -3,32 +3,39 @@
 class ViewManager
 {
 public:
-	enum class Type { SHADER_RESOURCE, RENDER_TARGET, DEPTH_STENCIL };
+    enum class Type
+    {
+        SHADER_RESOURCE,
+        RENDER_TARGET,
+        DEPTH_STENCIL
+    };
 
 public:
-	ViewManager();
-	~ViewManager() = default;
+    ViewManager()  = default;
+    ~ViewManager() = default;
 
 public:
-	ComPtr<ID3D12DescriptorHeap> GetShaderResourceHeap() const { return _shaderResourceHeap; }
-	ComPtr<ID3D12DescriptorHeap> GetRenderTargetHeap() const { return _renderTargetHeap; }
-	ComPtr<ID3D12DescriptorHeap> GetDepthStencilHeap() const { return _depthStencilHeap; }
+    ID3D12DescriptorHeap* GetShaderResourceHeap() const { return _shaderResourceHeap.Get(); }
+    ID3D12DescriptorHeap* GetRenderTargetHeap() const { return _renderTargetHeap.Get(); }
+    ID3D12DescriptorHeap* GetDepthStencilHeap() const { return _depthStencilHeap.Get(); }
+    const UINT            GetNumShaderResourceView() const { return _numShaderResource; }
 
 public:
     void Initialize();
     void AddDescriptorHeap(const ViewManager::Type type, D3D12_CPU_DESCRIPTOR_HANDLE& handle);
-    void AddDescriptorHeap(const ViewManager::Type type, UINT numDescriptors,
-                           std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& handles);
+    void AddDescriptorHeap(const ViewManager::Type type, DescriptorHandles& handles);
+    void AddDescriptorHeap(const ViewManager::Type type, UINT numDescriptors, std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& handles);
+    void AddDescriptorHeap(const ViewManager::Type type, UINT numDescriptors, std::vector<DescriptorHandles>& handles);
 
 private:
-	ComPtr<ID3D12DescriptorHeap> _shaderResourceHeap;
-	ComPtr<ID3D12DescriptorHeap> _renderTargetHeap;
-	ComPtr<ID3D12DescriptorHeap> _depthStencilHeap;
+    ComPtr<ID3D12DescriptorHeap> _shaderResourceHeap;
+    ComPtr<ID3D12DescriptorHeap> _renderTargetHeap;
+    ComPtr<ID3D12DescriptorHeap> _depthStencilHeap;
 
-	UINT _shaderResourceDescriptorSize;
-	UINT _renderTargetDescriptorSize;
-	UINT _depthStencilDescriptorSize;
-	UINT _numShaderResource;
-	UINT _numRenderTarget;
-	UINT _numDepthStencil;
+    UINT _shaderResourceDescriptorSize{0};
+    UINT _renderTargetDescriptorSize{0};
+    UINT _depthStencilDescriptorSize{0};
+    UINT _numShaderResource{1};
+    UINT _numRenderTarget{0};
+    UINT _numDepthStencil{0};
 };

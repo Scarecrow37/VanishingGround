@@ -61,11 +61,6 @@ struct LightData
 
 struct ObjectData
 {
-    matrix World;
-};
-
-struct Object
-{
     uint ID;
     uint Offset;
 };

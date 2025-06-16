@@ -30,15 +30,14 @@ public:
     virtual void Draw(ID3D12GraphicsCommandList* commandList) {};
 
 protected:
-    D3D12_VIEWPORT              _viewPort;
-    D3D12_RECT                  _sissorRect;
-    Color                       _clearColor;
-    float                       _clearDepth;
-    UINT                        _clearStencil;
+    D3D12_VIEWPORT _viewPort;
+    D3D12_RECT     _sissorRect;
+    Color          _clearColor;
+    float          _clearDepth;
+    UINT           _clearStencil;
     // 기본적으로 한개의 쉐이더와 한개의 pso를 주지만 필요에 따라 알아서 상속받아서 더 사용해도 무방.
     std::shared_ptr<ShaderBuilder> _shader;
-    ComPtr<ID3D12PipelineState> _pipelineState;
-    ComPtr<ID3D12DescriptorHeap>   _srvDescriptorHeap;
+    ComPtr<ID3D12PipelineState>    _pipelineState;
 
-    RenderScene*                _ownerScene;
+    RenderScene* _ownerScene;
 };

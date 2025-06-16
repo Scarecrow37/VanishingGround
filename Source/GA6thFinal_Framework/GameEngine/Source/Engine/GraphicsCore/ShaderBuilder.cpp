@@ -9,7 +9,7 @@ bool                          ShaderBuilder::_isFirstInitialize = false;
 ShaderBuilder::StaticSamplers ShaderBuilder::_staticSamplers    = {};
 
 ShaderBuilder::ShaderBuilder()
-	: _currentState(None)
+    : _currentState(State::NONE)
 {	
 	if (!_isFirstInitialize)
 	{
@@ -24,11 +24,11 @@ ShaderBuilder::ShaderBuilder()
 	}
 }
 
-UINT ShaderBuilder::GetRootSignatureIndex(std::string_view tag) const
+UINT ShaderBuilder::GetRootParameterIndex(std::string_view tag) const
 {
-	auto iter = _rootSignatureIndex.find(tag.data());
+	auto iter = _rootParameterIndex.find(tag.data());
 
-	if (iter != _rootSignatureIndex.end())
+	if (iter != _rootParameterIndex.end())
 		return iter->second;
 
 	return -1;
@@ -36,7 +36,7 @@ UINT ShaderBuilder::GetRootSignatureIndex(std::string_view tag) const
 
 void ShaderBuilder::BeginBuild()
 {
-	_currentState = Begin;
+	_currentState = State::BEGINE;
 
 	_shaders.resize(static_cast<UINT>(Type::END));
 	_shaderByteCodes.resize(static_cast<UINT>(Type::END));
@@ -44,7 +44,7 @@ void ShaderBuilder::BeginBuild()
 
 void ShaderBuilder::EndBuild()
 {
-	if (Begin != _currentState)
+    if (State::BEGINE != _currentState)
 		return;
 
 	bool hasShader = false;
@@ -61,7 +61,7 @@ void ShaderBuilder::EndBuild()
 	if (hasShader)
 		CreateRootSignature();
 
-	_currentState = End;
+	_currentState = State::END;
 }
 
 void ShaderBuilder::SetShader(std::wstring_view filePath, ShaderBuilder::Type type)
@@ -159,7 +159,7 @@ void ShaderBuilder::CreateRootSignature()
 					rootParam.ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
                     rootParam.Constants.Num32BitValues = std::stoi(numValues.data());
 					rootParam.Constants.ShaderRegister = bindDesc.BindPoint;
-					rootParam.Constants.RegisterSpace = 0;
+                    rootParam.Constants.RegisterSpace  = bindDesc.Space;
 					rootParam.ShaderVisibility = visibility;
 				}
 				else
@@ -171,8 +171,16 @@ void ShaderBuilder::CreateRootSignature()
 				}
 				rootParameters.push_back(rootParam);
 			}
+            else if (bindDesc.Type == D3D_SIT_STRUCTURED)
+            {
+                D3D12_ROOT_PARAMETER rootParam      = {};
+                rootParam.ParameterType             = D3D12_ROOT_PARAMETER_TYPE_SRV;
+                rootParam.ShaderVisibility          = visibility;
+                rootParam.Descriptor.ShaderRegister = bindDesc.BindPoint;
+                rootParam.Descriptor.RegisterSpace  = bindDesc.Space;
+                rootParameters.push_back(rootParam);
+            }
 			else if (bindDesc.Type == D3D_SIT_TEXTURE ||	// 텍스처 (SRV)
-				bindDesc.Type == D3D_SIT_STRUCTURED ||	// Structured Buffer (SRV)
 				bindDesc.Type == D3D_SIT_BYTEADDRESS)	// ByteAddressBuffer (SRV)
 			{
 				std::string_view name = bindDesc.Name;
@@ -211,15 +219,15 @@ void ShaderBuilder::CreateRootSignature()
 				samplers.push_back(_staticSamplers[bindDesc.Name]);
 			}
 
-			auto iter = _rootSignatureIndex.find(bindDesc.Name);
-			if (iter != _rootSignatureIndex.end())
+			auto iter = _rootParameterIndex.find(bindDesc.Name);
+            if (iter != _rootParameterIndex.end())
 			{
 				rootParameters[iter->second].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 				rootParameters.pop_back();
 			}
 			else
 			{
-				_rootSignatureIndex[bindDesc.Name] = static_cast<UINT>(rootParameters.size() - 1);
+                _rootParameterIndex[bindDesc.Name] = static_cast<UINT>(rootParameters.size() - 1);
 			}
 		}
 	}

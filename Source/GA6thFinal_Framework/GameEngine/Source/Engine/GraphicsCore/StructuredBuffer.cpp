@@ -1,10 +1,10 @@
 ﻿#include "pch.h"
 #include "StructuredBuffer.h"
 
-void StructuredBuffer::Initialize(const D3D12_CPU_DESCRIPTOR_HANDLE handle, const UINT64 size, const UINT numElements)
+void StructuredBuffer::Initialize(const UINT64 size, const UINT numElements)
 {
 	HRESULT hr = S_OK;
-	ID3D12Device* device = UmDevice.GetDevice();	
+	ID3D12Device* device = UmDevice.GetDevice();
 
 	D3D12_RESOURCE_DESC resourceDesc = {};
 	resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
@@ -38,17 +38,6 @@ void StructuredBuffer::Initialize(const D3D12_CPU_DESCRIPTOR_HANDLE handle, cons
 										 IID_PPV_ARGS(&_uploadBuffer));
 
 	FAILED_CHECK_MESSAGE(hr, L"StructuredBuffer::Initialize device->CreateCommittedResource Failed");
-
-	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
-	srvDesc.Format = DXGI_FORMAT_UNKNOWN;
-
-	srvDesc.Buffer.NumElements = numElements;
-	srvDesc.Buffer.StructureByteStride = (UINT)size;
-	srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
-
-	device->CreateShaderResourceView(_defaultBuffer.Get(), &srvDesc, handle);
 
 	// Copy 가능한 형태로 리소스 상태 전환
 	auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(_defaultBuffer.Get(),
