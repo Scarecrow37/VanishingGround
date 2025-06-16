@@ -94,35 +94,30 @@ void GBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
     ID3D12DescriptorHeap* hps[]                  = { dh, };
 
     auto                  resource               = dh->GetGPUDescriptorHandleForHeapStart();
-    auto&                 shader                 = _shader[MeshType::STATIC];
     auto&                 frameResource          = _ownerScene->_frameResources[currentBackBufferIndex];
     auto                  cameraData             = _ownerScene->_cameraBuffer->GetGPUVirtualAddress();
-    auto                  pso                    = _psos[STATIC_ONE_SIDED].Get();
 
 
 
-    commandList->SetPipelineState(pso);
-    commandList->SetGraphicsRootSignature(shader->GetRootSignature());
+    commandList->SetPipelineState(_psos[STATIC_ONE_SIDED].Get());
+    commandList->SetGraphicsRootSignature(_shader[MeshType::STATIC]->GetRootSignature());
+    commandList->SetGraphicsRootConstantBufferView(_shader[MeshType::STATIC]->GetRootParameterIndex("cameraData"), cameraData);
+
+    frameResource->SetFrameResource(FrameResource::Type::TRANSFORM, _shader[MeshType::STATIC]->GetRootParameterIndex("worldMatrices"), commandList);
+    frameResource->SetFrameResource(FrameResource::Type::MATERIAL, _shader[MeshType::STATIC]->GetRootParameterIndex("material"), commandList);
+
     commandList->SetDescriptorHeaps(_countof(hps), hps);
-    commandList->SetGraphicsRootDescriptorTable(shader->GetRootParameterIndex("textures"), resource);
-    commandList->SetGraphicsRootConstantBufferView(shader->GetRootParameterIndex("cameraData"), cameraData);
-
-    frameResource->SetFrameResource(FrameResource::Type::TRANSFORM, shader->GetRootParameterIndex("worldMatrices"), commandList);
-    frameResource->SetFrameResource(FrameResource::Type::MATERIAL, shader->GetRootParameterIndex("material"), commandList);
-
+    commandList->SetGraphicsRootDescriptorTable(_shader[MeshType::STATIC]->GetRootParameterIndex("textures"), resource);
     DrawMeshes(commandList, meshes[MeshType::STATIC], MeshType::STATIC);
 
     // Skeletal Mesh
-    pso = _psos[SKELTAL_ONE_SIDED].Get();
-    shader = _shader[MeshType::SKELTAL];
+    commandList->SetPipelineState(_psos[SKELTAL_ONE_SIDED].Get());
+    commandList->SetGraphicsRootSignature(_shader[MeshType::SKELTAL]->GetRootSignature());
+    commandList->SetGraphicsRootConstantBufferView(_shader[MeshType::SKELTAL]->GetRootParameterIndex("cameraData"), cameraData);
 
-    commandList->SetPipelineState(pso);
-    commandList->SetGraphicsRootSignature(shader->GetRootSignature());
-    commandList->SetGraphicsRootConstantBufferView(shader->GetRootParameterIndex("cameraData"), cameraData);
-
-    frameResource->SetFrameResource(FrameResource::Type::TRANSFORM, shader->GetRootParameterIndex("worldMatrices"), commandList);
-    frameResource->SetFrameResource(FrameResource::Type::BONE_MATRIXES, shader->GetRootParameterIndex("boneMatrices"), commandList);
-    frameResource->SetFrameResource(FrameResource::Type::MATERIAL, shader->GetRootParameterIndex("material"), commandList);   
+    frameResource->SetFrameResource(FrameResource::Type::TRANSFORM, _shader[MeshType::SKELTAL]->GetRootParameterIndex("worldMatrices"), commandList);
+    frameResource->SetFrameResource(FrameResource::Type::BONE_MATRIXES, _shader[MeshType::SKELTAL]->GetRootParameterIndex("boneMatrices"), commandList);
+    frameResource->SetFrameResource(FrameResource::Type::MATERIAL, _shader[MeshType::SKELTAL]->GetRootParameterIndex("material"), commandList);   
 
     DrawMeshes(commandList, meshes[MeshType::SKELTAL], MeshType::SKELTAL);
 }
