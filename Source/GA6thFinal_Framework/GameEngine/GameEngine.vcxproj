@@ -296,6 +296,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Editor\Tool\Sequencer\EditorSequencerTool.h" />
     <ClInclude Include="Source\Editor\Menu\Model\EditorModelMenu.h" />
     <ClInclude Include="Source\Editor\Tool\Hierarchy\HierarchyFindTool.h" />
     <ClInclude Include="Source\Editor\Tool\Scene\Command\EditorSceneCommands.h" />
@@ -464,8 +465,10 @@
     <ClInclude Include="ThirdParty\include\UmDirectXTex.h" />
     <ClInclude Include="ThirdParty\include\UmDirectxtk12.h" />
     <ClInclude Include="ThirdParty\include\UmYaml-cpp.h" />
+    <ClInclude Include="Source\Engine\EngineCore\TimelineSystem.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Editor\Tool\Sequencer\EditorSequencerTool.cpp" />
     <ClCompile Include="Source\Editor\Menu\Model\EditorModelMenu.cpp" />
     <ClCompile Include="Source\Editor\Tool\Hierarchy\HierarchyFindTool.cpp" />
     <ClCompile Include="Source\Editor\Tool\Scene\Command\EditorSceneCommands.cpp">
@@ -758,6 +761,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Source\Engine\EngineCore\TimelineSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

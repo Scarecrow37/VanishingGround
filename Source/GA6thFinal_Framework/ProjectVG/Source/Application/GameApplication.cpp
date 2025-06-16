@@ -124,6 +124,7 @@ void GameApplication::BuildSceneDock()
     _sceneDock->RegisterGui<EditorLogsTool>();
     _sceneDock->RegisterGui<EditorCommandTool>();
     _sceneDock->RegisterGui<EditorAssetBrowserTool>();
+    _sceneDock->RegisterGui<EditorSequencerTool>();
 
     _sceneDock->RegisterGui<EditorPlayMenu>();
     _sceneDock->RegisterGui<EditorMenuTools>(_sceneDock);
