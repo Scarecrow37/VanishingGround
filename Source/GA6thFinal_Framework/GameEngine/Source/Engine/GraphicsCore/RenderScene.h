@@ -48,7 +48,7 @@ public:
     void Execute(ID3D12GraphicsCommandList* commandList);
 
     // Scene view 용 최종 렌더 이미지 얻기
-    D3D12_CPU_DESCRIPTOR_HANDLE GetFinalImage();
+    D3D12_GPU_DESCRIPTOR_HANDLE GetFinalImage();
     void                        SetSkyBox(std::string_view path);
     void                        ResetSkyBox();
     SkyBox*                     GetSkyBox() { return _skyBox.get(); };
@@ -79,6 +79,7 @@ public:
     // 0: basecolor, 1: normal ,2:ORM , 3:emissive, 4:world position, 5: depth, 6: custom depth(bit mask,후처리용)
     UINT                                       _gBufferCount = GBuffer::END;
     std::vector<std::shared_ptr<RenderTarget>> _gBuffer;
+    std::vector<UINT>                          _gBufferIndex;
 
     // 후처리시 사용할 rt pool 혹은 각 테크별로 돌려서 쓸?
     UINT                                       _renderTargetPoolCount = 3;
@@ -101,6 +102,7 @@ public:
     ComPtr<ID3D12Resource>                      _lightBuffer;
     std::vector<XMMATRIX>                       _worldMatrixes;
     std::vector<BoneMatrixes>                   _boneMatrixes;
+    std::vector<MaterialID>                     _materialIDs;
     NumLight                                    _numLight;
 
     // 카메라 한개
@@ -117,9 +119,9 @@ private:
     ComPtr<ID3D12PipelineState>    _framePSO;
     ComPtr<ID3D12DescriptorHeap>   _srvDescriptorHeap;
 
-    // 폐기 목록? msaa
-private:
-    ComPtr<ID3D12Resource>      _nonMSAATexture;
-    D3D12_CPU_DESCRIPTOR_HANDLE _nonMSAARtHandle;
-    D3D12_CPU_DESCRIPTOR_HANDLE _nonMSAASrvHandle;
+//    // 폐기 목록? msaa
+//private:
+//    ComPtr<ID3D12Resource> _nonMSAATexture;
+//    DescriptorHandles      _nonMSAARtHandle;
+//    DescriptorHandles      _nonMSAASrvHandle;
 };

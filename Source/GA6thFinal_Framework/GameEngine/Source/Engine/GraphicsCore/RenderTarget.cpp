@@ -1,7 +1,7 @@
 ﻿#include "pch.h"
 #include "RenderTarget.h"
 
-HRESULT RenderTarget::Initialize(DXGI_FORMAT format, FLOAT clearColor)
+void RenderTarget::Initialize(DXGI_FORMAT format, FLOAT clearColor)
 {
     clearValue                  = clearColor;
     _format                     = format;
@@ -30,12 +30,8 @@ HRESULT RenderTarget::Initialize(DXGI_FORMAT format, FLOAT clearColor)
                                                         D3D12_RESOURCE_STATE_COMMON, &clearValue,
                                                         IID_PPV_ARGS(&_resource));
 
-    HRESULT hr = S_OK;
-
     UmViewManager.AddDescriptorHeap(ViewManager::Type::RENDER_TARGET, _rtvHandle);
     UmDevice.GetDevice()->CreateRenderTargetView(_resource.Get(), nullptr, _rtvHandle);
-
-    return hr;
 }
 
 void RenderTarget::CreateShaderResourceView()
@@ -49,5 +45,6 @@ void RenderTarget::CreateShaderResourceView()
     srvDesc.Shader4ComponentMapping         = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
     UmViewManager.AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _srvHandle);
-    UmDevice.GetDevice()->CreateShaderResourceView(_resource.Get(), &srvDesc, _srvHandle);
+    UmDevice.GetDevice()->CreateShaderResourceView(_resource.Get(), &srvDesc, _srvHandle.CPU);
+    _ID = UmViewManager.GetNumShaderResourceView() - 1;
 }

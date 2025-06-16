@@ -1,6 +1,5 @@
 #include "CommonData.hlsli"
 
-StructuredBuffer<ObjectData> objectData;
 
 struct VSInput
 {
@@ -28,15 +27,16 @@ struct BoneTransform
     matrix Transform;
 };
 
+StructuredBuffer<matrix> worldMatrices;
 StructuredBuffer<BoneTransform> boneMatrices;
 
 VSOutput vs_main(VSInput input)
 {    
-    matrix boneTransform = mul(input.blendWeights.x, boneMatrices[object.ID * object.Offset + input.blendIndices.x].Transform);
-    boneTransform += mul(input.blendWeights.y, boneMatrices[object.ID * object.Offset + input.blendIndices.y].Transform);
-    boneTransform += mul(input.blendWeights.z, boneMatrices[object.ID * object.Offset + input.blendIndices.z].Transform);
-    boneTransform += mul(input.blendWeights.w, boneMatrices[object.ID * object.Offset + input.blendIndices.w].Transform);
-    matrix worldTransform = mul(boneTransform, objectData[object.ID].World);    
+    matrix boneTransform = mul(input.blendWeights.x, boneMatrices[objectData.ID * objectData.Offset + input.blendIndices.x].Transform);
+    boneTransform += mul(input.blendWeights.y, boneMatrices[objectData.ID * objectData.Offset + input.blendIndices.y].Transform);
+    boneTransform += mul(input.blendWeights.z, boneMatrices[objectData.ID * objectData.Offset + input.blendIndices.z].Transform);
+    boneTransform += mul(input.blendWeights.w, boneMatrices[objectData.ID * objectData.Offset + input.blendIndices.w].Transform);
+    matrix worldTransform = mul(boneTransform, worldMatrices[objectData.ID]);
     
     VSOutput output = (VSOutput) 0;
     float3 normal = normalize(input.normal);

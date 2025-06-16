@@ -9,31 +9,45 @@ struct PSInput
     float2 uv : TEXCOORD;
 };
 
-#define BASECOLOR 0
-#define NORMAL 1
-#define ORM 2
-#define EMISSIVE 3
-#define WORLDPOSITION 4
-#define DEPTH 5
 
-Texture2D gBuffers[];
+struct GbufferID
+{
+    uint BaseColor;
+    uint Normal;
+    uint Orm;
+    uint Emissive;
+    uint WorldPosition;
+    uint Depth;
+    uint CumstomDepth;
+};
+
+ConstantBuffer<GbufferID> bit32_7_gBufferID;
+Texture2D textures[];
+
+#define BASECOLOR bit32_7_gBufferID.BaseColor
+#define NORMAL bit32_7_gBufferID.Normal
+#define ORM bit32_7_gBufferID.Orm
+#define EMISSIVE bit32_7_gBufferID.Emissive
+#define WORLDPOSITION bit32_7_gBufferID.WorldPosition
+#define DEPTH bit32_7_gBufferID.Depth
+#define CUMSTOMDEPTH bit32_7_gBufferID.CumstomDepth
 
 float4 ps_main(PSInput input) : SV_Target0
 {
-    float depth = gBuffers[DEPTH].Sample(samLinear_wrap, input.uv).r;
-    float3 albedo = gBuffers[BASECOLOR].Sample(samLinear_wrap, input.uv).rgb;
+    float depth = textures[DEPTH].Sample(samLinear_wrap, input.uv).r;
+    float3 albedo = textures[BASECOLOR].Sample(samLinear_wrap, input.uv).rgb;
     clip(1.f - Epsilon - depth);
     albedo = pow(albedo, 2.2);
     
-    float3 normal = gBuffers[NORMAL].Sample(samLinear_wrap, input.uv).rgb;
+    float3 normal = textures[NORMAL].Sample(samLinear_wrap, input.uv).rgb;
    
-    float3 orm = gBuffers[ORM].Sample(samLinear_wrap, input.uv).rgb;
+    float3 orm = textures[ORM].Sample(samLinear_wrap, input.uv).rgb;
     float ao = orm.r;
     float roughness = orm.g;
     float metallic = orm.b;
     
     float3 viewPos = cameraData.Position.xyz;
-    float3 fragPos = gBuffers[WORLDPOSITION].Sample(samLinear_wrap, input.uv).xyz;
+    float3 fragPos = textures[WORLDPOSITION].Sample(samLinear_wrap, input.uv).xyz;
     float3 V = normalize(viewPos - fragPos);
     
     float3 diffuse = float3(0, 0, 0);

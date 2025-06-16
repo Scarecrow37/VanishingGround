@@ -42,10 +42,10 @@ void SkyBoxPass::Draw(ID3D12GraphicsCommandList* commandList)
     {
         _skyBox->SetDescriptorHeap(commandList);
         commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
-        commandList->SetGraphicsRootConstantBufferView(_shader->GetRootSignatureIndex("cameraData"),
+        commandList->SetGraphicsRootConstantBufferView(_shader->GetRootParameterIndex("cameraData"),
                                                        _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
         commandList->SetPipelineState(_pipelineState.Get());
-        _skyBox->Render(commandList, _shader->GetRootSignatureIndex("evnTexture"));
+        _skyBox->Render(commandList, _shader->GetRootParameterIndex("evnTexture"));
     }
 }
 

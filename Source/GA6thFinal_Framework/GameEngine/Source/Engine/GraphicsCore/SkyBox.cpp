@@ -262,9 +262,9 @@ void SkyBox::BindResources(UINT cubeSize, UINT faceIndex)
     UmDevice.CreateConstantBuffer(&cb, sizeof(CubeConvertConstants), _cb);
 
     cmdList->SetComputeRootSignature(_shader->GetRootSignature());
-    cmdList->SetComputeRootDescriptorTable(_shader->GetRootSignatureIndex("EquirectangularMap"), _hdrSRVGPU);
-    cmdList->SetComputeRootDescriptorTable(_shader->GetRootSignatureIndex("CubeMap"), _cubeUAVGPU);
-    cmdList->SetComputeRootConstantBufferView(_shader->GetRootSignatureIndex("CubeMapInfo"), _cb->GetGPUVirtualAddress());
+    cmdList->SetComputeRootDescriptorTable(_shader->GetRootParameterIndex("EquirectangularMap"), _hdrSRVGPU);
+    cmdList->SetComputeRootDescriptorTable(_shader->GetRootParameterIndex("CubeMap"), _cubeUAVGPU);
+    cmdList->SetComputeRootConstantBufferView(_shader->GetRootParameterIndex("CubeMapInfo"), _cb->GetGPUVirtualAddress());
     _cbs.push_back(_cb);
 }
 

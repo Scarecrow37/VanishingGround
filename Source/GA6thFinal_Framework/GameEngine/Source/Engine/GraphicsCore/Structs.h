@@ -24,19 +24,14 @@ struct SkeletalMeshVertex : public Vertex
     float BlendWeights[4]{};
 };
 
-struct ObjectData
-{
-    XMMATRIX World;
-};
-
-struct MaterialData
-{
-    UINT ID[4];
-};
-
 struct BoneMatrixes
 {
     XMMATRIX matrix[MAX_BONE_MATRIX];
+};
+
+struct MaterialID
+{
+    UINT ID[4];
 };
 
 struct Material
@@ -88,4 +83,10 @@ struct NumLight
     unsigned int Directional;
     unsigned int Point;
     unsigned int Spot;
+};
+
+struct DescriptorHandles
+{
+    D3D12_CPU_DESCRIPTOR_HANDLE CPU;
+    D3D12_GPU_DESCRIPTOR_HANDLE GPU;
 };

@@ -62,7 +62,7 @@ float3 DiffuseBRDF(float3 N, float3 V, float3 L, float3 albedo, float metallic, 
 
 float3 CalculateDirectional(DirectionalLight light, float3 N, float3 V, float3 albedo, float metallic, float roughness)
 {
-    float3 L = -light.Direction;
+    float3 L = -light.Direction;    
     return DiffuseBRDF(N, V, L, albedo, metallic, roughness) * light.Color * light.Intensity;
 }
 
@@ -87,7 +87,7 @@ float3 CalculateSpot(SpotLight light, float3 N, float3 V, float3 albedo, float m
     float intensity = saturate((theta - light.OuterCone) / max(epsilon, 1e-4)) * light.Intensity;
     float attenuation = Attenuation(light.Attenuation, distance, light.Range);
 
-    return DiffuseBRDF(N, V, L, albedo, metallic, roughness) * attenuation;
+    return DiffuseBRDF(N, V, L, albedo, metallic, roughness) * attenuation * light.Color * light.Intensity;
 }
 
 float Attenuation(float3 attenuation, float distance, float range)
