@@ -41,6 +41,9 @@ bool EComponentFactory::InitalizeComponentFactory()
     SetForegroundWindow(UmApplication.GetHwnd());
     if (m_scriptsDll != NULL)
     {
+        //커맨드 Clear
+        UmCommandManager.Clear();
+
         //모든 컴포넌트 자원 회수
         for (auto& [key, wptr] : _componentInstanceVec)
         {
@@ -56,8 +59,6 @@ bool EComponentFactory::InitalizeComponentFactory()
         FreeLibrary(m_scriptsDll);
         m_scriptsDll = NULL;
     }
-
-    UmCommandManager.Clear();
     _newScriptsFunctionMap.clear();
     m_NewScriptsKeyVec.clear();
 
