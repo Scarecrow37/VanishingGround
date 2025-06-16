@@ -57,6 +57,7 @@ bool EComponentFactory::InitalizeComponentFactory()
         m_scriptsDll = NULL;
     }
 
+    UmCommandManager.Clear();
     _newScriptsFunctionMap.clear();
     m_NewScriptsKeyVec.clear();
 

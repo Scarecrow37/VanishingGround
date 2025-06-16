@@ -4,6 +4,7 @@
 class Component abstract :
     public ReflectSerializer
 {
+    inline static GameObject staticDummyObject;
     friend class GameObject;
     friend class EComponentFactory;
     friend class ESceneManager;
@@ -16,6 +17,8 @@ public:
         GENERIC,    
         // 렌더러
         RENDER,
+        // 조명
+        Light,
     };
 
     /// <summary>

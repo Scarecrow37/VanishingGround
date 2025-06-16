@@ -4,6 +4,10 @@
 class FiniteStateMachine : public Component, public FactoryConstructor<FSMState>
 {
     USING_PROPERTY(FiniteStateMachine)
+private:
+    static const char* AddStateImguiPopUp();
+    void ImguiDrawStates();
+
 public:
     /// <summary>
     /// FSM에서 사용할 State를 추가합니다.
@@ -14,7 +18,7 @@ public:
     {
         static_assert(std::is_base_of_v<FSMState, T>, "T is not derived from State.");
         const char* key = typeid(T).name();
-        AddState(key);
+        AddStateWithKey(key);
     }
 
     /// <summary>
@@ -26,12 +30,15 @@ public:
     {
         static_assert(std::is_base_of_v<FSMState, T>, "T is not derived from State.");
         const char* key = typeid(T).name();
-        FSMState* find = GetStateWithKey(key);
-        if (nullptr != find)
-        {
-            return static_cast<T*>(find);
-        }
-        return nullptr; 
+        return GetStateWithKey(key); 
+    }
+
+    template<typename T>
+    bool RemoveState()
+    {
+        static_assert(std::is_base_of_v<FSMState, T>, "T is not derived from State.");
+        const char* key = typeid(T).name();
+        RemoveStateWithKey(key);
     }
 
 private:
@@ -39,7 +46,7 @@ private:
     /// State를 등록합니다.
     /// </summary>
     /// <param name="stateTypeIdName"></param>
-    void AddState(std::string_view stateTypeIdName)
+    void AddStateWithKey(std::string_view stateTypeIdName)
     {
         const char* key = stateTypeIdName.data();
         auto stateFind = _stateMap.find(key);
@@ -70,13 +77,18 @@ private:
         }
     }
 
+    bool RemoveStateWithKey(std::string_view key) 
+    { 
+        size_t count = _stateMap.erase(key.data());
+        return 0 > count;
+    }
+
 private:
     std::map<std::string, std::unique_ptr<FSMState>> _stateMap;
 
 public:
     REFLECT_PROPERTY()
 
-public:
     FiniteStateMachine();
     ~FiniteStateMachine();
 

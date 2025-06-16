@@ -5,5 +5,5 @@ class TestState : public FSMState
 {
 public:
     TestState();
-    ~TestState();
+    virtual ~TestState() override;
 };

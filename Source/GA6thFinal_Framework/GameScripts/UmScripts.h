@@ -37,3 +37,14 @@ UMREAL_COMPONENT(StaticMeshRenderer)
 
 #include "Scripts/GameCore/FSM/FiniteStateMachine.h"
 UMREAL_COMPONENT(FiniteStateMachine)
+
+#include "Scripts/Light/Base/LightComponent.h"
+
+#include "Scripts/Light/DirectionalLight.h"
+UMREAL_COMPONENT(DirectionalLight)
+
+#include "Scripts/Light/PointLight.h"
+UMREAL_COMPONENT(PointLight)
+
+#include "Scripts/Light/SpotLight.h"
+UMREAL_COMPONENT(SpotLight)

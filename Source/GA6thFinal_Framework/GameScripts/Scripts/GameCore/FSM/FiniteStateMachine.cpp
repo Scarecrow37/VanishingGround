@@ -1,6 +1,6 @@
 ﻿#include "FiniteStateMachine.h"
 
-FiniteStateMachine::FiniteStateMachine() = default;
+FiniteStateMachine::FiniteStateMachine()  = default;
 FiniteStateMachine::~FiniteStateMachine() = default;
 
 void FiniteStateMachine::SerializedReflectEvent() 
@@ -24,18 +24,70 @@ void FiniteStateMachine::DeserializedReflectEvent()
     }
 }
 
-void FiniteStateMachine::ImGuiDrawPropertysEvent() 
+const char* FiniteStateMachine::AddStateImguiPopUp() 
 {
     const char* addKey = nullptr;
-    for (auto& [key, func] : GetInstanceConstructors())
+    if (ImGui::BeginChild("ConstructorsChild", ImVec2(0, 100), ImGuiChildFlags_AutoResizeX, ImGuiWindowFlags_AlwaysVerticalScrollbar))
     {
-        if (ImGui::Button(key.c_str()))
+        for (auto& [key, func] : GetInstanceConstructors())
         {
-            addKey = key.c_str();
+            if (ImGui::Button(key.c_str() + 6))
+            {
+                addKey = key.c_str();
+            }
+        }
+        ImGui::EndChild();
+    }
+    return addKey;
+}
+
+void FiniteStateMachine::ImguiDrawStates() 
+{
+    const char* removeKey = nullptr;
+    for (auto& [key, state] : _stateMap)
+    {
+        ImGui::PushID(&state);
+        {
+            ImGui::Text(key.c_str() + 6);
+            ImGui::SameLine();
+            if (ImGui::Button("Remove"))
+            {
+                removeKey = key.c_str();
+            }
+        }
+        ImGui::PopID();        
+    }
+
+    if (nullptr != removeKey)
+    {
+        RemoveStateWithKey(removeKey);
+    }
+}
+
+void FiniteStateMachine::ImGuiDrawPropertysEvent() 
+{
+    ImGui::PushID(this);
+    {
+        ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+        if (ImGui::CollapsingHeader("States"))
+        {
+            ImguiDrawStates();
+            if (true == ImGui::Button("Add State"))
+            {
+                ImGui::OpenPopup("AddStatePopup");
+            }
+        }
+
+        if (ImGui::BeginPopup("AddStatePopup"))
+        {
+            const char* addKey = AddStateImguiPopUp();
+            if (nullptr != addKey)
+            {
+                AddStateWithKey(addKey);
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::EndPopup();
         }
     }
-    if (addKey)
-    {
-        AddState(addKey);
-    }
+    ImGui::PopID();
 }
