@@ -158,7 +158,7 @@ void EditorModule::SetFocusArea(const char* id)
     }
 }
 
-void EditorModule::UnSetFocusArea(const char* id)
+void EditorModule::UnsetFocusArea(const char* id)
 {
     ImGuiID imguiId = ImHashStr(id);
     auto    itr     = _focusAreaList.find(imguiId);

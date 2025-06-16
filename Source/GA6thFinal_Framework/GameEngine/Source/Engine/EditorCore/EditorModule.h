@@ -115,7 +115,7 @@ namespace Global
      /// 해당 문자열의 포커스 영역을 해제합니다.
      /// </summary>
      /// <param name="id">포커스 영역의 Label값 입니다.</param>
-     void UnSetFocusArea(const char* id);
+     void UnsetFocusArea(const char* id);
 
      /// <summary>
      /// 에디터의 디버그 모드 여부를 설정합니다.
