@@ -24,12 +24,12 @@ D3D12_GPU_DESCRIPTOR_HANDLE Renderer::GetRenderSceneImage(std::string_view rende
     {
         std::wstring msg = L"Renderer::GetRenderSceneImage: RenderSceneName '" +
                            std::wstring(renderSceneName.begin(), renderSceneName.end()) + L"' is not registered.";
-        ASSERT(false, msg.c_str());
+        GRAPHICS_ASSERT(false, msg.c_str());
     }
 
     auto scene = iter->second;
 
-    return SceneView(scene.get());
+    return ConvertImGuiGPUHandle(scene->GetFinalImage());
 }
 
 std::shared_ptr<Camera> Renderer::GetCamera(std::string_view renderSceneName)
@@ -40,7 +40,7 @@ std::shared_ptr<Camera> Renderer::GetCamera(std::string_view renderSceneName)
     {
         std::wstring msg = L"Renderer::GetRenderSceneImage: RenderSceneName '" +
                            std::wstring(renderSceneName.begin(), renderSceneName.end()) + L"' is not registered.";
-        ASSERT(false, msg.c_str());
+        GRAPHICS_ASSERT(false, msg.c_str());
     }
 
     auto scene = iter->second;
@@ -53,7 +53,7 @@ void Renderer::RegisterRenderQueue(std::string_view sceneName, MeshRenderer* com
 
     if (iter == _renderScenes.end())
     {
-        ASSERT(false, L"Renderer::RegisterRenderQueue : Render Scene Not Registered.");
+        GRAPHICS_ASSERT(false, L"Renderer::RegisterRenderQueue : Render Scene Not Registered.");
     }
 
     auto scene = iter->second;
@@ -66,7 +66,7 @@ void Renderer::SetSkyBox(std::string_view sceneName, std::string_view path)
 
     if (iter == _renderScenes.end())
     {
-        ASSERT(false, L"Renderer::RegisterRenderQueue : Render Scene Not Registered.");
+        GRAPHICS_ASSERT(false, L"Renderer::RegisterRenderQueue : Render Scene Not Registered.");
     }
 
     auto scene = iter->second;
@@ -94,7 +94,7 @@ void Renderer::ResetSkyBox(std::string_view sceneName)
 
     if (iter == _renderScenes.end())
     {
-        ASSERT(false, L"Renderer::RegisterRenderQueue : Render Scene Not Registered.");
+        GRAPHICS_ASSERT(false, L"Renderer::RegisterRenderQueue : Render Scene Not Registered.");
     }
 
     auto scene = iter->second;
@@ -105,7 +105,7 @@ void Renderer::Initialize()
 {
     CreateDefaultResource();
 
-    std::shared_ptr<RenderScene> editorScene = std::make_shared<RenderScene>();
+    std::shared_ptr<RenderScene> editorScene = std::make_shared<RenderScene>("Editor");
     editorScene->InitializeRenderScene();
     std::shared_ptr<SkyBoxRenderTechnique> skyTech = std::make_shared<SkyBoxRenderTechnique>();
     editorScene->AddRenderTechnique(skyTech);
@@ -116,7 +116,7 @@ void Renderer::Initialize()
     if constexpr (IS_EDITOR)
     {
         // Model Viewer Scene
-        std::shared_ptr<RenderScene> modelViewerScene = std::make_shared<RenderScene>();
+        std::shared_ptr<RenderScene> modelViewerScene = std::make_shared<RenderScene>("ModelViewer");
         modelViewerScene->InitializeRenderScene();
         modelViewerScene->AddRenderTechnique(std::make_shared<PBRLitTechnique>());
         _renderScenes["ModelViewer"] = modelViewerScene;
@@ -244,12 +244,12 @@ void Renderer::CreateDefaultTexture()
     texDesc.Layout              = D3D12_TEXTURE_LAYOUT_UNKNOWN;
     texDesc.Flags               = D3D12_RESOURCE_FLAG_NONE;
 
-    ID3D12Device*          device = UmDevice.GetDevice().Get();
+    ID3D12Device*          device = UmDevice.GetDevice();
     ComPtr<ID3D12Resource> texture;
 
     auto defaultHeapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
     device->CreateCommittedResource(&defaultHeapProp, D3D12_HEAP_FLAG_NONE, &texDesc, D3D12_RESOURCE_STATE_COPY_DEST,
-                                    nullptr, IID_PPV_ARGS(texture.GetAddressOf()));
+                                    nullptr, IID_PPV_ARGS(&texture));
 
     UINT64                 uploadBufferSize;
     ComPtr<ID3D12Resource> uploadHeap;
@@ -259,7 +259,7 @@ void Renderer::CreateDefaultTexture()
     auto uploadBufferSizeProp = CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize);
     device->CreateCommittedResource(&uploadHeapProp, D3D12_HEAP_FLAG_NONE, &uploadBufferSizeProp,
                                     D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
-                                    IID_PPV_ARGS(uploadHeap.GetAddressOf()));
+                                    IID_PPV_ARGS(&uploadHeap));
 
     D3D12_SUBRESOURCE_DATA textureData   = {};
     static const uint8_t   blackPixel[4] = {0, 0, 0, 255};
@@ -267,7 +267,7 @@ void Renderer::CreateDefaultTexture()
     textureData.RowPitch                 = 4;
     textureData.SlicePitch               = 4;
 
-    ID3D12GraphicsCommandList* commandList = UmDevice.GetCommandList().Get();
+    ID3D12GraphicsCommandList* commandList = UmDevice.GetCommandList();
     UpdateSubresources(commandList, texture.Get(), uploadHeap.Get(), 0, 0, 1, &textureData);
     CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
         texture.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
@@ -284,13 +284,30 @@ void Renderer::CreateDefaultTexture()
     UmDevice.UploadResource(uploadHeap);
 }
 
+D3D12_GPU_DESCRIPTOR_HANDLE Renderer::ConvertImGuiGPUHandle(const D3D12_CPU_DESCRIPTOR_HANDLE handle)
+{
+    auto dest   = _imguiDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+    UINT offset = _currentImGuiImageIndex * UmDevice.GetCBVSRVUAVDescriptorSize();
+    dest.ptr += offset;
+
+    UmDevice.GetDevice()->CopyDescriptorsSimple(1, dest, handle, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+    D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = _imguiDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
+    gpuHandle.ptr += offset;
+
+    // next ImGUI Descriptor Index
+    _currentImGuiImageIndex++;
+
+    return gpuHandle;
+}
+
 void Renderer::InitializeImgui()
 {
     D3D12_DESCRIPTOR_HEAP_DESC desc = {};
     desc.NumDescriptors             = 200;
     desc.Type                       = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
     desc.Flags                      = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-    UmDevice.GetDevice()->CreateDescriptorHeap(&desc, IID_PPV_ARGS(_imguiDescriptorHeap.GetAddressOf()));
+
+    UmDevice.GetDevice()->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&_imguiDescriptorHeap));
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
@@ -327,10 +344,12 @@ void Renderer::InitializeImgui()
         ImFont*      iconFont = atlas->AddFontFromFileTTF(fontPath.string().c_str(), 15.0f, &config, icons_ranges);
     }
     io.Fonts->Build();
+
     auto cpuHandle = _imguiDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
     auto gpuHandle = _imguiDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
+
     ImGui_ImplWin32_Init(Global::engineCore->App.GetHwnd());
-    ImGui_ImplDX12_Init(UmDevice.GetDevice().Get(), static_cast<int>(SWAPCHAIN_BUFFER_COUNT),
+    ImGui_ImplDX12_Init(UmDevice.GetDevice(), static_cast<int>(SWAPCHAIN_BUFFER_COUNT),
                         UmDevice.GetBackBufferFormat(), _imguiDescriptorHeap.Get(), cpuHandle, gpuHandle);
 }
 
@@ -357,7 +376,7 @@ void Renderer::ImguiEnd()
 
     ID3D12DescriptorHeap* descriptorHeaps[] = {_imguiDescriptorHeap.Get()};
     UmDevice.GetCommandList()->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
-    ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), UmDevice.GetCommandList().Get());
+    ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), UmDevice.GetCommandList());
 
     if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
     {

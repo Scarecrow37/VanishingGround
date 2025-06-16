@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "Resource.h"
 
 class Font : public Resource
@@ -18,8 +18,8 @@ public:
 	void SetText(std::wstring_view text);
 
 public:
-	// ResourceÀ»(¸¦) ÅëÇØ »ó¼ÓµÊ
-	HRESULT LoadResource(const std::filesystem::path& filePath) override;
+	// Resourceì„(ë¥¼) í†µí•´ ìƒì†ë¨
+    void LoadResource(const std::filesystem::path& filePath) override;
 	void Initialize(D3D12_CPU_DESCRIPTOR_HANDLE cpu, D3D12_GPU_DESCRIPTOR_HANDLE gpu);
 
 private:

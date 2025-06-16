@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+class Animator;
 class MeshRenderer;
 class FBXConverter;
 class EditorModelDetails : public EditorTool
@@ -51,7 +52,9 @@ private:
 
 private:
     std::unique_ptr<MeshRenderer>        _meshRenderer;
+    std::shared_ptr<Animator>            _animator;
     Matrix                               _worldMatrix;
     std::filesystem::path                _filePath;
     unsigned int                         _selectedMeshIndex = 0;
+    unsigned int                         _currentAnimationIndex = 0;
 };

@@ -109,7 +109,7 @@ void FileSystemModule::DispatchFileEvent()
         }
         else if (event == File::Flag::FILE_EVENT_ACTION_UNKNOWN)
         {
-            ASSERT(false, L"Unknown File Event");
+            assert(false && L"Unknown File Event");
         }
         _eventQueue.pop();
     }

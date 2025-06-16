@@ -324,9 +324,6 @@
     <ClInclude Include="Source\Engine\GraphicsCore\Device.h">
       <Filter>GraphicsCore\Device</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\FBXImporter.h">
-      <Filter>GraphicsCore\FBXImporter</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\GraphicsCore\Font.h">
       <Filter>GraphicsCore\Font</Filter>
     </ClInclude>
@@ -549,7 +546,7 @@
     <ClInclude Include="Source\Editor\Tool\Model\EditorModelHierarchy.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\RendererBase.h">
+    <ClInclude Include="Source\Engine\GraphicsCore\GraphicsBase.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\ClassCore\Command\InputAutoCommand.h">
@@ -589,6 +586,24 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\FileSystem\Event\FileEventSubscriber.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Tool\Scene\Command\EditorSceneCommands.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Tool\Hierarchy\HierarchyFindTool.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\AnimationCore.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\EngineCore\FactoryRegister.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\LightCore.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\Light.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -778,9 +793,6 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\Device.cpp">
       <Filter>GraphicsCore\Device</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\FBXImporter.cpp">
-      <Filter>GraphicsCore\FBXImporter</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\Font.cpp">
       <Filter>GraphicsCore\Font</Filter>
@@ -1017,6 +1029,27 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="ThirdParty\include\reflectcpp.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\FileSystem\Event\FileEventSubscriber.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\Scene\Command\EditorSceneCommands.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\Hierarchy\HierarchyFindTool.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\FileSystem\Event\FileEventSubscriber.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\AnimationCore.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\LightCore.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\Light.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

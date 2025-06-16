@@ -14,7 +14,6 @@ namespace ReflectHelper
     }
 }
 
-
 // reflect-cpp 라이브러리 docs https://rfl.getml.com/docs-readme/#the-basics
 // reflect-cpp github https://github.com/getml/reflect-cpp
 
@@ -32,6 +31,11 @@ protected:
     직접 override 해서 사용합니다.
     */
     virtual void DeserializedReflectEvent() {}
+
+    /*
+    ImGuiDrawPropertys() 호출 이후 콜되는 이벤트 함수입니다.
+    */
+    virtual void ImGuiDrawPropertysEvent() {}
 
 public:
     virtual void ImGuiDrawPropertys(ReflectHelper::ImGuiDraw::InputAutoSetting& setting, bool isTail) 
@@ -242,10 +246,10 @@ protected:                                                                      
         if (true == isTail)                                                                                 \
         {                                                                                                   \
             setting.InputEndEvent = nullptr;                                                                \
+            ImGuiDrawPropertysEvent();                                                                      \
         }                                                                                                   \
         ImGui::PopID();                                                                                     \
-    }
-
+    }                                                                                                       
 
 namespace ReflectHelper
 {
@@ -335,11 +339,7 @@ namespace ReflectHelper
             {
                 obj = result.value();
             }
-            else
-            {
-                return false;
-            }
-            return true;
+            return result;
         }
     } // namespace json
 } // namespace ReflectHelper

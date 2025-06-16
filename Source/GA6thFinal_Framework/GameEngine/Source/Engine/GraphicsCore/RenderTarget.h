@@ -19,8 +19,8 @@ public:
     FLOAT clearValue;
 
 private:
-    ComPtr<ID3D12Resource>      _resource;
-    D3D12_CPU_DESCRIPTOR_HANDLE _rtvHandle;
-    D3D12_CPU_DESCRIPTOR_HANDLE _srvHandle;
-    DXGI_FORMAT                 _format;
+    ComPtr<ID3D12Resource>      _resource{};
+    D3D12_CPU_DESCRIPTOR_HANDLE _rtvHandle{};
+    D3D12_CPU_DESCRIPTOR_HANDLE _srvHandle{};
+    DXGI_FORMAT                 _format{};
 };

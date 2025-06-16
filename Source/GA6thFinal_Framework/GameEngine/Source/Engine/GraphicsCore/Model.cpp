@@ -3,7 +3,7 @@
 #include "Skeleton.h"
 #include "Animation.h"
 #include "BaseMesh.h"
-#include "FBXImporter.h"
+#include "FBXConverter.h"
 
 Model::Model()
 {
@@ -34,10 +34,8 @@ void Model::BindMaterial(const UINT meshIndex, const Material& material)
     _material[meshIndex] = material;
 }
 
-HRESULT Model::LoadResource(const std::filesystem::path& filePath)
+void Model::LoadResource(const std::filesystem::path& filePath)
 {    
-    FBXImporter fbxImporter;
-    fbxImporter.CreateModel(filePath, true, this);
-    
-	return S_OK;
+    FBXConverter fbxConverter;
+    fbxConverter.ImportModel(filePath, this);
 }

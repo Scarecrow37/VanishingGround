@@ -28,16 +28,13 @@ GameApplication::GameApplication()
 
     if constexpr (Application::IsEditor())
     {
+        _winClassIconPath = L"../GameEngine/Icon/umreal.ico";
         _windowStyleEX = WS_OVERLAPPEDWINDOW;
+        _editorModule  = AddModule<EditorModule>();
+        BuildRootDock();
+        BuildSceneDock();
+        BuildModelDock();
     }
-
-#ifdef _UMEDITOR
-    // 에디터 매니저 등록
-    _editorModule = AddModule<EditorModule>();
-    BuildRootDock();
-    BuildSceneDock();
-    BuildModelDock();
-#endif // _UMEDITOR
 }
 
 GameApplication::~GameApplication()
@@ -121,6 +118,7 @@ void GameApplication::BuildSceneDock()
 
     _sceneDock->RegisterGui<EditorDebugTool>();
     _sceneDock->RegisterGui<EditorHierarchyTool>();
+    _sceneDock->RegisterGui<HierarchyFindTool>();
     _sceneDock->RegisterGui<EditorInspectorTool>();
     _sceneDock->RegisterGui<EditorSceneTool>();
     _sceneDock->RegisterGui<EditorLogsTool>();

@@ -1,11 +1,13 @@
 ﻿#pragma once
 
-class RendererBase
+class GraphicsBase
 {
     friend class RenderScene;
+    friend class LightCore;
+
 public:
-    RendererBase() = default;
-    virtual ~RendererBase() = default;
+    GraphicsBase()          = default;
+    virtual ~GraphicsBase() = default;
 
 public:
     bool IsActive() const { return _isActive; }
@@ -15,10 +17,7 @@ public:
     void SetActive(bool isActive) { _isActive = isActive; }
     void SetDestroy() { *_isDestroy = true; }
 
-public:
-    virtual void RegisterRenderQueue(std::string_view sceneName) = 0;
-
 private:
-    bool _isActive = false;
+    bool  _isActive  = false;
     bool* _isDestroy = nullptr;
 };

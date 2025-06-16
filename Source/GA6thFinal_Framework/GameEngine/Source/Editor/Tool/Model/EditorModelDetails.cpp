@@ -3,10 +3,13 @@
 #include "Engine/GraphicsCore/FBXConverter.h"
 #include "Engine/GraphicsCore/MeshRenderer.h"
 #include "Engine/GraphicsCore/Model.h"
+#include "Engine/GraphicsCore/Animation.h"
+#include "Engine/GraphicsCore/Animator.h"
 
 EditorModelDetails::EditorModelDetails()
-    : _meshRenderer(std::make_unique<MeshRenderer>(MESH_RENDER_TYPE::STATIC, _worldMatrix)),
-      _selectedMeshIndex(0)
+    : _meshRenderer(std::make_unique<MeshRenderer>(MeshRenderType::STATIC, _worldMatrix))
+    , _animator(std::make_shared<Animator>())
+    , _selectedMeshIndex(0)
 {
     SetLabel("Details##model");
     SetDockLayout(ImGuiDir_Right);
@@ -17,6 +20,7 @@ void EditorModelDetails::OnTickGui() {}
 void EditorModelDetails::OnStartGui()
 {
     UmRenderer.RegisterRenderQueue("ModelViewer", _meshRenderer.get());
+    UmAnimationCore.RegisterAnimator(_animator);
 }
 
 void EditorModelDetails::OnEndGui() {}
@@ -43,6 +47,20 @@ void EditorModelDetails::OnFrameRender()
     const auto& model = _meshRenderer->GetModel();
     if (model)
     {
+        const auto type = _meshRenderer->GetType();
+
+        if (MeshRenderType::SKELETAL == type)
+        {
+            const auto& animation      = model->GetAnimation();
+            const auto& animationNames = animation->GetAnimations();
+            ImGui::Text("Animation");
+            ImGui::SameLine();
+            if (ImGui::Combo("##Animation", (int*)&_currentAnimationIndex, animationNames.data(), (int)animationNames.size()))
+            {
+                _animator->ChangeAnimation(animationNames[_currentAnimationIndex]);
+            }
+        }
+
         auto& materials = model->GetMaterials();
         auto& material  = materials[_selectedMeshIndex];
 
@@ -62,8 +80,8 @@ void EditorModelDetails::OnFrameRender()
             ImGui::Text("Shading Model");
             
             ImGui::TableNextColumn();
-            ImGui::Combo("##shadingModel", (int*)&material.Model, shadingModelNames, (int)Material::ShadingModel::END);            
-
+            ImGui::Combo("##shadingModel", (int*)&material.Model, shadingModelNames, (int)Material::ShadingModel::END);
+            
             ImGui::TableNextRow();
             ImGui::TableNextColumn();
             ImGui::Text("Two Sided");
@@ -106,6 +124,8 @@ void EditorModelDetails::ImportModel()
         FBXConverter& fbxConverter = GetFBXConverter();
         fbxConverter.ImportModel(path.front(), model);
         _meshRenderer->SetModel(model);
+        _animator->Initialize(model->GetAnimation(), model->GetSkeleton());
+        _meshRenderer->SetAnimator(_animator);
 
         _filePath = path.front();
         _filePath.replace_extension("UmModel");

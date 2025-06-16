@@ -21,8 +21,6 @@ void FBXConverter::ImportModel(const std::filesystem::path& filePath, std::share
     Reset();
 
     _model    = model;
-    auto prev = GetTickCount64();
-    auto curr = GetTickCount64();
 
     if (filePath.extension() == L".fbx")
     {
@@ -32,11 +30,18 @@ void FBXConverter::ImportModel(const std::filesystem::path& filePath, std::share
     {
         LoadFromBinary(filePath, model.get());
     }
+}
 
-    curr        = GetTickCount64();
-    float delta = (curr - prev) / 1000.f;
-
-    int a = 0;
+void FBXConverter::ImportModel(const std::filesystem::path& filePath, Model* model)
+{
+    if (filePath.extension() == L".fbx")
+    {
+        LoadFromAssimp(filePath, model);
+    }
+    else if (filePath.extension() == L".UmModel")
+    {
+        LoadFromBinary(filePath, model);
+    }
 }
 
 void FBXConverter::ExportModel(const std::filesystem::path& filePath)
@@ -65,7 +70,7 @@ void FBXConverter::ExportModel(const std::filesystem::path& filePath)
 
                 unsigned int meshNameSize = (unsigned int)_meshNames[i].size() + 1;
                 outFile.write((char*)&meshNameSize, sizeof(unsigned int));
-                outFile.write(_meshNames[i].c_str(), _meshNames[i].size() + 1);
+                outFile.write(_meshNames[i].c_str(), meshNameSize);
 
                 unsigned int materialIndex = _materialIndex[i];
                 outFile.write((char*)&materialIndex, sizeof(unsigned int));
@@ -85,6 +90,54 @@ void FBXConverter::ExportModel(const std::filesystem::path& filePath)
                 outFile.write((char*)&materials[i], sizeof(Material));
             }
 
+            if (sizeof(SkeletalMeshVertex) == vertexStride)
+            {
+                const auto animation = _model->GetAnimation();
+
+                unsigned int animationSize = (unsigned int)animation->_animations.size();
+                outFile.write((char*)&animationSize, sizeof(unsigned int));
+                for (auto& [channelName, channel] : animation->_animations)
+                {
+                    unsigned int channelNameSize = (unsigned int)channelName.size() + 1;
+                    outFile.write((char*)&channelNameSize, sizeof(unsigned int));
+                    outFile.write(channelName.data(), channelNameSize);
+                    outFile.write((char*)&channel.LastTime, sizeof(float));
+
+                    unsigned int boneTransformSize = (unsigned int)channel.BoneTransforms.size();
+                    outFile.write((char*)&boneTransformSize, sizeof(unsigned int));
+                    for (auto& [boneName, track] : channel.BoneTransforms)
+                    {
+                        unsigned int boneNameSize = (unsigned int)boneName.size() + 1;
+                        outFile.write((char*)&boneNameSize, sizeof(unsigned int));
+                        outFile.write(boneName.data(), boneNameSize);
+
+                        unsigned int PositionsSize = (unsigned int)track.Positions.size();
+                        outFile.write((char*)&PositionsSize, sizeof(unsigned int));
+                        for (auto& position : track.Positions)
+                        {
+                            outFile.write((char*)&position, sizeof(std::pair<float, Vector3>));
+                        }
+
+                        unsigned int RotationSize = (unsigned int)track.Rotations.size();
+                        outFile.write((char*)&RotationSize, sizeof(unsigned int));
+                        for (auto& rotation : track.Rotations)
+                        {
+                            outFile.write((char*)&rotation, sizeof(std::pair<float, Vector4>));
+                        }
+
+                        unsigned int ScalesSize = (unsigned int)track.Scales.size();
+                        outFile.write((char*)&ScalesSize, sizeof(unsigned int));
+                        for (auto& scale : track.Scales)
+                        {
+                            outFile.write((char*)&scale, sizeof(std::pair<float, Vector3>));
+                        }
+                    }
+                }
+
+                const auto skeleton = _model->GetSkeleton();
+                WriteBoneData(outFile, skeleton->_rootBone);
+            }
+
             outFile.close();
         };
 
@@ -95,7 +148,7 @@ void FBXConverter::ExportModel(const std::filesystem::path& filePath)
     else
     {
         WriteData(_skeletalVertices, sizeof(SkeletalMeshVertex));
-    }    
+    }
 }
 
 void FBXConverter::LoadNode(aiNode* node,
@@ -242,7 +295,7 @@ void FBXConverter::LoadMesh(aiNode* node,
     };
 
     std::unique_ptr<BaseMesh> baseMesh = std::make_unique<BaseMesh>();
-    baseMesh->Initialize(descriptor);
+    baseMesh->Initialize(descriptor, true);
     baseMesh->SetName(node->mName.C_Str());
     model->AddMesh(std::move(baseMesh));
 
@@ -301,8 +354,6 @@ void FBXConverter::Reset()
     _materialIndex.clear();
     _indices.clear();
     _textures.clear();
-    _skeleton.reset();
-    _animation.reset();
     _boneCount    = 0;
     _isStaticMesh = true;
 }
@@ -312,12 +363,12 @@ void FBXConverter::LoadFromAssimp(const std::filesystem::path& filePath, Model* 
     Assimp::Importer impoter;
     impoter.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, 0);
 
-    unsigned int importFlags = aiProcess_Triangulate | 
-                               aiProcess_GenNormals | 
-                               aiProcess_GenUVCoords |
-                               aiProcess_CalcTangentSpace | 
-                               aiProcess_LimitBoneWeights | 
+    unsigned int importFlags = //aiProcessPreset_TargetRealtime_MaxQuality |
+                               aiProcessPreset_TargetRealtime_Fast |
                                aiProcess_ConvertToLeftHanded;
+
+    importFlags ^= aiProcess_GenSmoothNormals;
+    importFlags |= aiProcess_GenNormals;
 
     const aiScene* scene = impoter.ReadFile(filePath.string(), importFlags);
 
@@ -326,7 +377,7 @@ void FBXConverter::LoadFromAssimp(const std::filesystem::path& filePath, Model* 
 
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
     {
-        ASSERT(false, L"The model could't be found by that path.");
+        GRAPHICS_ASSERT(false, L"The model could't be found by that path.");
         return;
     }
 
@@ -371,15 +422,17 @@ void FBXConverter::LoadFromAssimp(const std::filesystem::path& filePath, Model* 
     {
         FindMissingBone(scene->mRootNode, boneInfo);
 
-        _skeleton = std::make_shared<Skeleton>();
-        _skeleton->Initialize(scene, boneInfo);
+        std::shared_ptr<Skeleton> skeleton = std::make_shared<Skeleton>();
+        skeleton->Initialize(scene, boneInfo);
+        model->_skeleton = skeleton;
     }
 
     if (scene->HasAnimations())
     {
-        _animation = UmResourceManager.LoadResource<Animation>(filePath.c_str());
-        _animation->LoadAnimation(scene);
-    }    
+        std::shared_ptr<Animation> animation = UmResourceManager.LoadResource<Animation>(filePath.c_str());
+        animation->LoadAnimation(scene);
+        model->_animation = animation;
+    }
 }
 
 void FBXConverter::LoadFromBinary(const std::filesystem::path& filePath, Model* model)
@@ -387,7 +440,7 @@ void FBXConverter::LoadFromBinary(const std::filesystem::path& filePath, Model* 
     std::ifstream inFile(filePath, std::ios::in | std::ios::binary);
     if (!inFile.is_open())
     {
-        ASSERT(false, L"The model could't be found by that path.");
+        GRAPHICS_ASSERT(false, L"The model could't be found by that path.");
         return;
     }
 
@@ -395,10 +448,13 @@ void FBXConverter::LoadFromBinary(const std::filesystem::path& filePath, Model* 
     inFile.read((char*)&meshCount, sizeof(unsigned int));
 
     _staticVertices.resize(meshCount);
+    _skeletalVertices.resize(meshCount);
     _indices.resize(meshCount);
     _textures.resize(meshCount);
     _meshNames.resize(meshCount);
     model->InitMaterials(meshCount);
+
+    bool isStaticMesh = true;
     for (unsigned int i = 0; i < meshCount; i++)
     {
         unsigned int vertexCount = 0;
@@ -412,13 +468,16 @@ void FBXConverter::LoadFromBinary(const std::filesystem::path& filePath, Model* 
 
         void* vertices = nullptr;
 
-        if (vertexStride == sizeof(StaticMeshVertex))
+        if (vertexStride != sizeof(StaticMeshVertex))
+            isStaticMesh = false;
+
+        if (isStaticMesh)
         {
             _staticVertices[i].resize(vertexCount);
             inFile.read((char*)_staticVertices[i].data(), vertexStride * vertexCount);
             vertices = static_cast<void*>(_staticVertices[i].data());
         }
-        else if (vertexStride == sizeof(SkeletalMeshVertex))
+        else if (!isStaticMesh)
         {
             _skeletalVertices[i].resize(vertexCount);
             inFile.read((char*)_skeletalVertices[i].data(), vertexStride * vertexCount);
@@ -444,7 +503,7 @@ void FBXConverter::LoadFromBinary(const std::filesystem::path& filePath, Model* 
         };
 
         std::unique_ptr<BaseMesh> baseMesh = std::make_unique<BaseMesh>();
-        baseMesh->Initialize(descriptor);
+        baseMesh->Initialize(descriptor, true);
         baseMesh->SetName(_meshNames[i].c_str());
 
         unsigned int materialIndex = 0;
@@ -485,6 +544,119 @@ void FBXConverter::LoadFromBinary(const std::filesystem::path& filePath, Model* 
 
         Material material{};
         inFile.read((char*)&material, sizeof(Material));
-        model->BindMaterial(i, material);
+        model->BindMaterial(i, material);        
+    }
+
+    if (!isStaticMesh)
+    {
+        model->_animation = std::make_shared<Animation>();
+        auto& animations  = model->_animation->_animations;
+
+        unsigned int animationSize = 0;
+        inFile.read((char*)&animationSize, sizeof(unsigned int));
+        for (unsigned int i = 0; i < animationSize; i++)
+        {
+            unsigned int channelNameSize = 0;
+            inFile.read((char*)&channelNameSize, sizeof(unsigned int));
+
+            std::string channelName(channelNameSize, '\0');
+            inFile.read(channelName.data(), channelNameSize);
+
+            Animation::Channel channel{};
+            inFile.read((char*)&channel.LastTime, sizeof(float));
+
+            unsigned int boneTransformSize = 0;
+            inFile.read((char*)&boneTransformSize, sizeof(unsigned int));
+            for (unsigned int i = 0; i < boneTransformSize; i++)
+            {
+                Animation::BoneTransformTrack track{};
+
+                unsigned int boneNameSize = 0;
+                inFile.read((char*)&boneNameSize, sizeof(unsigned int));
+
+                std::string boneName(boneNameSize, '\0');
+                inFile.read(boneName.data(), boneNameSize);
+
+                unsigned int PositionsSize = 0;
+                inFile.read((char*)&PositionsSize, sizeof(unsigned int));
+                for (unsigned int i = 0; i < PositionsSize; i++)
+                {
+                    std::pair<float, Vector3> position;
+                    inFile.read((char*)&position, sizeof(std::pair<float, Vector3>));
+                    track.Positions.push_back(position);
+                }
+
+                unsigned int RotationSize = 0;
+                inFile.read((char*)&RotationSize, sizeof(unsigned int));
+                for (unsigned int i = 0; i < RotationSize; i++)
+                {
+                    std::pair<float, Vector4> rotation;
+                    inFile.read((char*)&rotation, sizeof(std::pair<float, Vector4>));
+                    track.Rotations.push_back(rotation);
+                }
+
+                unsigned int ScalesSize = 0;
+                inFile.read((char*)&ScalesSize, sizeof(unsigned int));
+                for (unsigned int i = 0; i < ScalesSize; i++)
+                {
+                    std::pair<float, Vector3> scale;
+                    inFile.read((char*)&scale, sizeof(std::pair<float, Vector3>));
+                    track.Scales.push_back(scale);
+                }
+
+                channel.BoneTransforms.emplace(boneName, track);
+            }
+
+            animations[channelName.c_str()] = channel;
+        }
+
+        _model->_skeleton = std::make_shared<Skeleton>();
+        ReadBoneData(inFile, _model->_skeleton->_rootBone);
+
+        for (auto& [name, channel] : _model->_animation->_animations)
+        {
+            if (name.empty())
+                continue;
+            _model->_animation->_animationNames.push_back(name.data());
+        }
+    }    
+
+    inFile.close();
+}
+
+void FBXConverter::WriteBoneData(std::ofstream& outFile, const Bone& bone)
+{
+    outFile.write((char*)&bone.Offset, sizeof(Matrix) * 3);
+    outFile.write((char*)&bone.ID, sizeof(int));
+
+    unsigned int skeletonNameSize = (unsigned int)bone.Name.size() + 1;
+    outFile.write((char*)&skeletonNameSize, sizeof(unsigned int));
+    outFile.write(bone.Name.c_str(), skeletonNameSize);
+
+    unsigned int children = (unsigned int)bone.Children.size();
+    outFile.write((char*)&children, sizeof(unsigned int));
+    for (auto& child : bone.Children)
+    {
+        WriteBoneData(outFile, child);
+    }
+}
+
+void FBXConverter::ReadBoneData(std::ifstream& inFile, Bone& bone)
+{
+    inFile.read((char*)&bone.Offset, sizeof(Matrix) * 3);
+    inFile.read((char*)&bone.ID, sizeof(int));
+
+    unsigned int skeletonNameSize = 0;
+    inFile.read((char*)&skeletonNameSize, sizeof(unsigned int));
+
+    bone.Name.resize(skeletonNameSize);
+    inFile.read(bone.Name.data(), skeletonNameSize);
+
+    unsigned int children = 0;
+    inFile.read((char*)&children, sizeof(unsigned int));
+    bone.Children.resize(children);
+    for (unsigned int i = 0; i < children; i++)
+    {
+        ReadBoneData(inFile, bone.Children[i]);
     }
 }

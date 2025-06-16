@@ -3,6 +3,7 @@
 class Skeleton;
 class Animation;
 class Model;
+struct Bone;
 class FBXConverter
 {
 public:
@@ -11,6 +12,7 @@ public:
 
 public:
     void ImportModel(const std::filesystem::path& filePath, std::shared_ptr<Model> model);
+    void ImportModel(const std::filesystem::path& filePath, Model* model);
     void ExportModel(const std::filesystem::path& filePath);
 
 private:
@@ -24,6 +26,9 @@ private:
     void LoadFromAssimp(const std::filesystem::path& filePath, Model* model);
     void LoadFromBinary(const std::filesystem::path& filePath, Model* model);
 
+    void WriteBoneData(std::ofstream& outFile, const Bone& bone);
+    void ReadBoneData(std::ifstream& inFile, Bone& bone);
+
 private:    
     std::vector<std::vector<StaticMeshVertex>>   _staticVertices;
     std::vector<std::vector<SkeletalMeshVertex>> _skeletalVertices;
@@ -33,8 +38,6 @@ private:
     std::vector<std::string>                     _meshNames;
     std::shared_ptr<Model>                       _model;
 
-    std::shared_ptr<Skeleton>                    _skeleton;
-    std::shared_ptr<Animation>                   _animation;
     unsigned int                                 _boneCount;
     bool                                         _isStaticMesh;
 };

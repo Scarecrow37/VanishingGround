@@ -210,7 +210,7 @@ void EditorDockWindow::CreateDockLayoutNode(ImGuiDir direction, float ratio)
     if (ratio < 0.0f || ratio > 1.0f)
     {
         /* 도킹 레이아웃 분할 비율은 [0 ~ 1] 사이의 값 입니다. */
-        ASSERT(false, L"Dock ratio must be between 0.0f and 1.0f");
+        assert(false && L"Dock ratio must be between 0.0f and 1.0f");
         ImClamp(ratio, 0.0f, 1.0f);
     }
     _dockSplitLayoutID.push_back({direction, ratio});

@@ -128,11 +128,11 @@ namespace ReflectHelper
                         {
                             input = val;
                         }
-                        isEdit = ImGui::InputText(name, 
-                                                  &input, 
-                                                  setting._string.flags,
-                                                  setting._string.callback,
-                                                  setting._string.user_data);
+                        isEdit = ImGui::InputText(name,
+                            &input,
+                            setting._string.flags,
+                            setting._string.callback,
+                            setting._string.user_data);
 
                         if constexpr (isProperty == false || isSetter == true)
                         {
@@ -149,13 +149,13 @@ namespace ReflectHelper
                     else if constexpr (isProperty && std::is_same_v<remove_view_type, DirectX::SimpleMath::Vector2>)
                     {
                         DirectX::SimpleMath::Vector2 input = val;
-                        isEdit = ImGui::DragFloat2(name, 
-                                                   &input.x, 
-                                                   setting._Vector2.v_speed,
-                                                   setting._Vector2.v_min,
-                                                   setting._Vector2.v_max, 
-                                                   setting._Vector2.format.c_str(),
-                                                   setting._Vector2.flags);
+                        isEdit = ImGui::DragFloat2(name,
+                            &input.x,
+                            setting._Vector2.v_speed,
+                            setting._Vector2.v_min,
+                            setting._Vector2.v_max,
+                            setting._Vector2.format.c_str(),
+                            setting._Vector2.flags);
 
                         if constexpr (isProperty == false || isSetter == true)
                         {
@@ -172,13 +172,13 @@ namespace ReflectHelper
                     else if constexpr (isProperty && std::is_same_v<remove_view_type, DirectX::SimpleMath::Vector3>)
                     {
                         DirectX::SimpleMath::Vector3 input = val;
-                        isEdit = ImGui::DragFloat3(name, 
-                                                   &input.x, 
-                                                   setting._Vector3.v_speed, 
-                                                   setting._Vector3.v_min,
-                                                   setting._Vector3.v_max,
-                                                   setting._Vector3.format.c_str(),
-                                                   setting._Vector3.flags);
+                        isEdit = ImGui::DragFloat3(name,
+                            &input.x,
+                            setting._Vector3.v_speed,
+                            setting._Vector3.v_min,
+                            setting._Vector3.v_max,
+                            setting._Vector3.format.c_str(),
+                            setting._Vector3.flags);
 
                         if constexpr (isProperty == false || isSetter == true)
                         {
@@ -196,12 +196,31 @@ namespace ReflectHelper
                     {
                         DirectX::SimpleMath::Vector4 input = val;
                         isEdit = ImGui::DragFloat4(name,
-                                                   &input.x,
-                                                   setting._Vector4.v_speed,
-                                                   setting._Vector4.v_min,
-                                                   setting._Vector4.v_max,
-                                                   setting._Vector4.format.c_str(),
-                                                   setting._Vector4.flags);
+                            &input.x,
+                            setting._Vector4.v_speed,
+                            setting._Vector4.v_min,
+                            setting._Vector4.v_max,
+                            setting._Vector4.format.c_str(),
+                            setting._Vector4.flags);
+
+                        if constexpr (isProperty == false || isSetter == true)
+                        {
+                            if (isEdit)
+                            {
+                                val = input;
+                            }
+                            if (ImGui::IsItemDeactivatedAfterEdit())
+                            {
+                                result = true;
+                            }
+                        }
+                    }
+                    else if constexpr (isProperty && std::is_same_v<remove_view_type, DirectX::SimpleMath::Color>)
+                    {
+                        DirectX::SimpleMath::Color input = val;
+                        isEdit = ImGui::ColorEdit4(name, 
+                            &input.x
+                            );
 
                         if constexpr (isProperty == false || isSetter == true)
                         {
@@ -228,11 +247,7 @@ namespace ReflectHelper
                     }
                     if constexpr (isProperty == true)
                     {
-                        if (ImGui::BeginDragDropTarget())
-                        {
-                            val.InvokeDragDropFunc();
-                            ImGui::EndDragDropTarget();
-                        }
+                        val.InvokeInputAutoEventFunc();
                     }
                     
                     if constexpr (Application::IsEditor())

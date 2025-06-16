@@ -20,35 +20,39 @@ void Animation::LoadAnimation(const aiScene* scene)
 
 			for (unsigned int k = 0; k < channel->mNumPositionKeys; k++)
 			{				
-				track.positions.emplace_back(
+				track.Positions.emplace_back(
 					(float)channel->mPositionKeys[k].mTime * offset,
 					AssimpVec3ToSimpleMathVec3(channel->mPositionKeys[k].mValue));
 			}
 
 			for (unsigned int k = 0; k < channel->mNumRotationKeys; k++)
 			{
-				track.rotations.emplace_back(
+				track.Rotations.emplace_back(
 					(float)channel->mRotationKeys[k].mTime * offset,
 					AssimpQuatToSimpleMathQuat(channel->mRotationKeys[k].mValue));
 			}
 
 			for (unsigned int k = 0; k < channel->mNumScalingKeys; k++)
 			{
-				track.scales.emplace_back(
+				track.Scales.emplace_back(
 					(float)channel->mScalingKeys[k].mTime * offset,
 					AssimpVec3ToSimpleMathVec3(channel->mScalingKeys[k].mValue));
 			}
 
-			animation.boneTransforms[channel->mNodeName.C_Str()] = track;
-			animation.lastTime = std::max(track.scales.back().first, track.rotations.back().first);
-			animation.lastTime = std::max(animation.lastTime, track.positions.back().first);
+			animation.BoneTransforms[channel->mNodeName.C_Str()] = track;
+			animation.LastTime = std::max(track.Scales.back().first, track.Rotations.back().first);
+			animation.LastTime = std::max(animation.LastTime, track.Positions.back().first);
 		}
         
 		_animations[anim->mName.C_Str()] = animation;
 	}
+
+    for (auto& [name, channel] : _animations)
+    {
+        _animationNames.push_back(name.data());
+    }
 }
 
-HRESULT Animation::LoadResource(const std::filesystem::path& filePath)
+void Animation::LoadResource(const std::filesystem::path& filePath)
 {
-	return S_OK;
 }

@@ -41,7 +41,7 @@ void SkyBoxPass::Draw(ID3D12GraphicsCommandList* commandList)
     if (isActive)
     {
         _skyBox->SetDescriptorHeap(commandList);
-        commandList->SetGraphicsRootSignature(_shader->GetRootSignature().Get());
+        commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
         commandList->SetGraphicsRootConstantBufferView(_shader->GetRootSignatureIndex("cameraData"),
                                                        _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
         commandList->SetPipelineState(_pipelineState.Get());
@@ -57,10 +57,10 @@ void SkyBoxPass::InitShaderAndPSO()
     _shader->SetShader(L"../Shaders/ps_skybox.hlsl", ShaderBuilder::Type::PS);
     _shader->EndBuild();
 
-    ComPtr<ID3D12Device>               device = UmDevice.GetDevice();
-    D3D12_GRAPHICS_PIPELINE_STATE_DESC psodesc;
+    ID3D12Device*                      device = UmDevice.GetDevice();
     HRESULT                            hr = S_OK;
-    ZeroMemory(&psodesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
+
+    D3D12_GRAPHICS_PIPELINE_STATE_DESC psodesc{};
     psodesc.RasterizerState          = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
     psodesc.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
     psodesc.BlendState               = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
@@ -72,10 +72,11 @@ void SkyBoxPass::InitShaderAndPSO()
     psodesc.InputLayout                   = _shader->GetInputLayout();
     psodesc.NumRenderTargets              = 1;
     psodesc.RTVFormats[0]                 = DXGI_FORMAT_R32G32B32A32_FLOAT;
-    psodesc.pRootSignature                = _shader->GetRootSignature().Get();
+    psodesc.pRootSignature                = _shader->GetRootSignature();
     psodesc.SampleDesc                    = {1, 0};
     psodesc.VS                            = _shader->GetShaderByteCode(ShaderBuilder::Type::VS);
     psodesc.PS                            = _shader->GetShaderByteCode(ShaderBuilder::Type::PS);
-    hr = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(_pipelineState.GetAddressOf()));
-    FAILED_CHECK_BREAK(hr);
+
+    hr = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(&_pipelineState));
+    FAILED_CHECK_MESSAGE(hr, L"SkyBoxPass::InitShaderAndPSO device->CreateGraphicsPipelineState Failed");
 }

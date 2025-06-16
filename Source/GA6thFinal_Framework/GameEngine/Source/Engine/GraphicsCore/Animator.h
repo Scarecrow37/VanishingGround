@@ -1,11 +1,11 @@
 ﻿#pragma once
+#include "GraphicsBase.h"
 
+struct Bone;
 class Skeleton;
 class Transform;
 class Animation;
-struct Bone;
-
-class Animator
+class Animator : public GraphicsBase
 {
 	enum TYPE { UPPER, LOWER, END };
     struct Controller
@@ -28,14 +28,14 @@ public:
 
 public:
 	const Matrix* GetAnimationTransform() const { return _animationTransforms.data(); }
-	const unsigned int GetID() const { return _ID; }
+    const Matrix* FindBoneMatrix(const char* boneName) const;
 
 public:
     void Initialize(std::wstring_view filePath, std::shared_ptr<Skeleton> skeleton);
+    void Initialize(std::shared_ptr<Animation> animation, std::shared_ptr<Skeleton> skeleton);
 	void Update(const float deltaTime);
 
 public:
-	void Release();
 	void ChangeAnimation(const char* animation);
 	void ChangeAnimation(const char* animation, unsigned int ID);
 	void SyncPartialAnimation(unsigned int parentID, unsigned int childID);
@@ -80,8 +80,8 @@ private:
 	std::shared_ptr<Animation>				_animation;
 	std::vector<Blend>						_blends;
 	std::shared_ptr<Skeleton>				_skeleton;
-	static unsigned int						_globalID;
-	unsigned int							_ID{ 0 };
+
 	unsigned int							_maxSplit{ 0 };	
-	bool									_isBlending{ false };
+	bool                                    _isBlending{false};
+    bool                                    _isInitialize{false};
 };
