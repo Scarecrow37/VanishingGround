@@ -45,6 +45,7 @@ private:
 
 private:
     ImGuiWindow* _window = nullptr;
+    EditorDockWindow* _dockWindow = nullptr;
     bool _isHorverdScene = false;
 
     std::unique_ptr<EditorDynamicCamera> _camera;
