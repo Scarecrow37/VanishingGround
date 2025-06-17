@@ -23,18 +23,20 @@ private:
     int   GetLineIndexInt(float x, float unitSize) const;
     float GetLineIndexFloat(float x, float unitSize) const;
 
-private:
+public:
     TimelineSystem* _system;
+
+    bool _useSnapping;
 
     ImRect _canvasRect;
     ImRect _canvasRectUpper;
     ImRect _canvasRectLower;
-    float  _upperFrameY = 10.0f;
+    float  _upperFrameY;
 
-    float  _viewLerpTarget = 1.0f;
-    float  _zoomMin = 0.05f;
-    float  _zoomMax = 1.0f;
-    ImVec2 _viewPosition = ImVec2(0, 0);
+    float  _viewLerpTarget;
+    float  _zoomMin;
+    float  _zoomMax;
+    ImVec2 _viewPosition;
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
     ImU32 UpperBgColor      = IM_COL32(20, 20, 20, 255);
     ImU32 LowerBgColor      = IM_COL32(40, 40, 40, 255);

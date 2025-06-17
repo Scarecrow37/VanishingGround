@@ -87,6 +87,14 @@ void EditorSequencerTool::OnFrameRender()
         notify->GetEvent()->ImGuiDrawPropertys();
     }
     ImGui::Separator();
+    ImGui::DragFloat2("View Position", &_sequencer->_viewPosition.x);
+    auto&  io       = ImGui::GetIO();
+    ImVec2 mousePos = io.MousePos - _sequencer->_canvasRectLower.Min;
+    ImGui::DragFloat2("View Scale", &mousePos.x);
+
+    //snap
+    ImGui::Checkbox("Use Snapping", &_sequencer->_useSnapping);
+
     ImGui::BeginChild("SequencerCanvas", ImVec2(0, 0), true);
     _sequencer->Render();
     ImGui::EndChild();

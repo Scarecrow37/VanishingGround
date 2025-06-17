@@ -3,8 +3,9 @@
 
 EditorSequencer::EditorSequencer() 
     : _system(nullptr)
-    , _canvasRect(ImVec2(0, 0)
-    , ImVec2(0, 0))
+    , _useSnapping(false)
+    , _canvasRect({})
+    , _upperFrameY(10.0f)
     , _viewLerpTarget(1.0f)
     , _zoomMin(0.05f)
     , _zoomMax(1.0f)
@@ -88,6 +89,13 @@ void EditorSequencer::EndCanvas()
 
 void EditorSequencer::DrawCanvas()
 {
+    auto& io = ImGui::GetIO();
+    ImVec2 mousePos = io.MousePos - _canvasRect.Min;
+
+    bool isContain = _canvasRect.Contains(io.MousePos);
+    bool isSnapped = false;
+    ImVec2 snapPos = ImVec2(0.0f, 0.0f);
+
     ImDrawList*  drawList = ImGui::GetWindowDrawList();
     const ImVec2 windowPos = ImGui::GetCursorScreenPos();
     const ImVec2 canvasSize = ImGui::GetContentRegionAvail();
@@ -113,23 +121,44 @@ void EditorSequencer::DrawCanvas()
         drawList->AddText(start + ImVec2(5.0f, 0), ImColor(1.0f, 1.0f, 1.0f, 1.0f), frame.c_str());
         drawList->AddLine(start, middle, ReflectFields->ThickLineColor, 3.0f);
         drawList->AddLine(middle, end, ReflectFields->ThinLineColor, 1.0f);
+
+        if (true == _useSnapping)
+        {
+            const float snapFactor = 0.1f;
+            const float snapRange  = (lineSpace * (float)lineUnit) * snapFactor;
+            // Check if the mouse is within the snapping range
+            auto& io = ImGui::GetIO();
+            bool  snapCheck = io.MousePos.x >= start.x - snapRange && io.MousePos.x <= start.x + snapRange;
+            if (true == isContain && true == snapCheck)
+            {
+                isSnapped = true;
+                snapPos = ImVec2(start.x - _canvasRect.Min.x, mousePos.y);
+            }
+        }
     }
     // Draw FollowLine
-    auto& io = ImGui::GetIO();
-    if (_canvasRectLower.Contains(io.MousePos))
+    if (true == isContain)
     {
-        ImVec2 mousePos = io.MousePos - _canvasRectLower.Min;
-        float indexX = GetLineIndexFloat(-_viewPosition.x + mousePos.x, ReflectFields->UnitSize);
+        float indexX;
+        float FollowPointX;
+        if (true == isSnapped)
+        {
+            float snapXSpace = -_viewPosition.x + snapPos.x / ReflectFields->ViewScale;
+            indexX = GetLineIndexFloat(snapXSpace, ReflectFields->UnitSize);
+            FollowPointX = snapPos.x;
+        }
+        else
+        {
+            float mouseXSpace = -_viewPosition.x + mousePos.x / ReflectFields->ViewScale;
+            indexX = GetLineIndexFloat(mouseXSpace, ReflectFields->UnitSize);
+            FollowPointX = mousePos.x;
+        }
 
-        float alignedX = startX + (indexX - GetLineIndexInt(-_viewPosition.x, ReflectFields->UnitSize)) * lineSpace;
-
-
-        ImVec2 start = ImVec2(mousePos.x, _upperFrameY) + _canvasRectUpper.Min;
-        ImVec2 end   = ImVec2(mousePos.x, canvasSize.y) + _canvasRectLower.Min;
+        ImVec2 start = ImVec2(FollowPointX, _upperFrameY) + _canvasRectUpper.Min;
+        ImVec2 end   = ImVec2(FollowPointX, canvasSize.y) + _canvasRectLower.Min;
 
         drawList->AddLine(start, end, ReflectFields->FollowLineColor, 3.0f);
 
-        // 소수점 3자리 표시
         std::string frameText = std::format("{:.3f}", indexX);
         drawList->AddText(start + ImVec2(5.0f, 0), ImColor(1.0f, 1.0f, 1.0f, 1.0f), frameText.c_str());
     }
@@ -155,10 +184,10 @@ int EditorSequencer::GetLineUnit() const
 
 int EditorSequencer::GetLineIndexInt(float x, float unitSize) const
 {
-    return static_cast<int>((x - _canvasRectLower.Min.x) / unitSize);
+    return static_cast<int>(GetLineIndexFloat(x, unitSize));
 }
 
 float EditorSequencer::GetLineIndexFloat(float x, float unitSize) const
 {
-    return (x - _canvasRectLower.Min.x) / unitSize;
+    return x / unitSize;
 }
