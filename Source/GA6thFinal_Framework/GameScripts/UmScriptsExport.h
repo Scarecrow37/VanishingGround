@@ -47,3 +47,6 @@ UMREAL_COMPONENT(PointLight)
 
 #include "Scripts/Light/SpotLight.h"
 UMREAL_COMPONENT(SpotLight)
+
+#include "Scripts\TurnSystem/TurnMode/TurnMode.h"
+UMREAL_COMPONENT(TurnMode)
