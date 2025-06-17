@@ -18,8 +18,8 @@ void TestMoveState::OnAwake()
 }
 
 void TestMoveState::OnStart() 
-{
-
+{    
+ 
 }
 
 void TestMoveState::OnEnter() 
@@ -34,5 +34,5 @@ void TestMoveState::OnExit()
 
 void TestMoveState::OnUpdate() 
 {
-    UmLogger.Log(LogLevel::LEVEL_DEBUG, "Move Update");
+   //UmLogger.Log(LogLevel::LEVEL_DEBUG, "Move Update");
 }

@@ -1,26 +1,26 @@
 ﻿#include "MyState.h"
 
-REGISTER_CLASS(FSMStateFactory, TesWorkState)
+REGISTER_CLASS(FSMStateFactory, TestWorkState)
 
-TesWorkState::TesWorkState() {}
-TesWorkState::~TesWorkState() {}
+TestWorkState::TestWorkState() {}
+TestWorkState::~TestWorkState() {}
 
-void TesWorkState::OnAwake() {}
+void TestWorkState::OnAwake() {}
 
-void TesWorkState::OnStart() {}
+void TestWorkState::OnStart() {}
 
 
-void TesWorkState::OnEnter() 
+void TestWorkState::OnEnter() 
 {
     UmLogger.Log(LogLevel::LEVEL_DEBUG, "Work Enter");
 }
 
-void TesWorkState::OnExit() 
+void TestWorkState::OnExit() 
 {
     UmLogger.Log(LogLevel::LEVEL_DEBUG, "Work Exit");
 }
 
-void TesWorkState::OnUpdate() 
+void TestWorkState::OnUpdate() 
 {
-    UmLogger.Log(LogLevel::LEVEL_DEBUG, "Work Update");
+    //UmLogger.Log(LogLevel::LEVEL_DEBUG, "Work Update");
 }

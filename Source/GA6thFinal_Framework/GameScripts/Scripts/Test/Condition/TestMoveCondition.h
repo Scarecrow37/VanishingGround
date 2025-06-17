@@ -13,5 +13,5 @@ public:
     bool Evaluate() override;
 
 private:
-    class TestComponent* testComponent;
+    class TestComponent* testComponent = nullptr;
 };

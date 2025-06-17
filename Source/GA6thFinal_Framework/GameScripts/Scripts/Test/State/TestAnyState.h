@@ -1,11 +1,11 @@
 ﻿#pragma once
 #include "GameCore/FSM/FiniteStateMachine.h"
 
-class TestWorkState : public FSMState
+class TestAnyState : public FSMState
 {
 public:
-    TestWorkState();
-    virtual ~TestWorkState() override;
+    TestAnyState();
+    virtual ~TestAnyState() override;
 
 
 // FSMState을(를) 통해 상속됨

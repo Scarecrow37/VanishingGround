@@ -299,9 +299,11 @@
     <ClInclude Include="Scripts\GameCore\FSM\IFSMEntity.h" />
     <ClInclude Include="Scripts\GameCore\FSM\FSMCondition.h" />
     <ClInclude Include="Scripts\GameCore\FSM\FSMState.h" />
+    <ClInclude Include="Scripts\Test\Condition\TestAnyCondition.h" />
     <ClInclude Include="Scripts\Test\Condition\TestCondition.h" />
     <ClInclude Include="Scripts\Test\Condition\TestMoveCondition.h" />
     <ClInclude Include="Scripts\Test\State\MyState.h" />
+    <ClInclude Include="Scripts\Test\State\TestAnyState.h" />
     <ClInclude Include="Scripts\Test\State\TestState.h" />
     <ClInclude Include="Scripts\Graphics\StaticMeshRenderer.h" />
     <ClInclude Include="Scripts\Light\Base\LightComponent.h" />
@@ -319,9 +321,11 @@
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="Scripts\GameCore\FSM\FSMCondition.cpp" />
     <ClCompile Include="Scripts\GameCore\FSM\FSMState.cpp" />
+    <ClCompile Include="Scripts\Test\Condition\TestAnyCondition.cpp" />
     <ClCompile Include="Scripts\Test\Condition\TestCondition.cpp" />
     <ClCompile Include="Scripts\Test\Condition\TestMoveCondition.cpp" />
     <ClCompile Include="Scripts\Test\State\MyState.cpp" />
+    <ClCompile Include="Scripts\Test\State\TestAnyState.cpp" />
     <ClCompile Include="Scripts\Test\State\TestState.cpp" />
     <ClCompile Include="Scripts\Graphics\StaticMeshRenderer.cpp" />
     <ClCompile Include="Scripts\Light\Base\LightComponent.cpp" />

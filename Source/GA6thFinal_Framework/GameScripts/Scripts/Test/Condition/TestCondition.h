@@ -1,7 +1,6 @@
 ﻿#pragma once
 #include "GameCore/FSM/FiniteStateMachine.h"
 
-
 class TestWorkCondition : public FSMCondition
 {
 public:
@@ -14,5 +13,5 @@ public:
     bool Evaluate() override;
 
 private:
-    class TestComponent* testComponent;
+    class TestComponent* testComponent = nullptr;
 };
