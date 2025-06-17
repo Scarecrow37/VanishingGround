@@ -609,6 +609,9 @@
     <ClInclude Include="Source\Editor\Tool\Sequencer\EditorSequencerTool.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\EditorCore\Gui\Sequencer\EditorSequencer.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\pch.cpp">
@@ -1056,6 +1059,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Editor\Tool\Sequencer\EditorSequencerTool.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\EditorCore\Gui\Sequencer\EditorSequencer.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
