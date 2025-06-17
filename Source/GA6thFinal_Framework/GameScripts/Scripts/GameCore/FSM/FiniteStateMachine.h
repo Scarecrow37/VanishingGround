@@ -188,11 +188,30 @@ private:
         return 0 > count;
     }
 
+public:
+    bool IsValidEntryPoint();
+
 private:
     std::map<std::string, std::unique_ptr<FSMState>> _stateMap;
     std::map<std::string, std::unique_ptr<FSMCondition>> _conditionMap;
     std::vector<Transition> _transitions;
     std::set<Transition, Transition> _transitionSet;
+
+    FSMState* _currState; 
+    FSMState* _nextState; 
+    int       _nextOrder;
+
+private:
+    void EraseTransition(int index);
+    void CheckTransitionCodition(Transition& transition);
+
+private:
+    void OnAwakeFSMEntities();
+    void OnStartFSMEntities();
+
+    void ChangeTransition();
+    void UpdateTransition();
+
 public:
     REFLECT_PROPERTY()
 
@@ -204,7 +223,9 @@ protected:
     std::unordered_map<std::string, std::string> StateReflectDatas;
     std::unordered_map<std::string, std::string> ConditionReflectDatas;
     std::vector<std::array<std::string, 3>>      TransitionReflectDatas;
+    int EntryTransitionID = -1;
     REFLECT_FIELDS_END(FiniteStateMachine)
+
     /*
     직렬화 직전 자동으로 호출되는 이벤트 함수입니다.
     직접 override 해서 사용합니다.
@@ -232,7 +253,7 @@ protected:
     /// <para> 이 함수는 항상 Start 함수 전에 호출되며 프리팹이 인스턴스화 된 직후에 호출됩니다.                </para>
     /// <para> 게임 오브젝트의 Active가 false 상태인 경우 Awake 함수는 true가 될때까지 호출되지 않습니다.      </para>
     /// </summary>
-    virtual void Awake() {};
+    virtual void Awake();
 
     /// <summary>
     /// <para>  오브젝트가 활성화된 경우에만 호출됩니다. </para> <para>  컴포넌트의 Enable 활성화 직후 이 함수를
@@ -249,7 +270,7 @@ protected:
     /// <summary>
     /// <para>  컴포넌트의 첫번째 Update 전에 한번 호출됩니다.   </para>
     /// </summary>
-    virtual void Start() {};
+    virtual void Start();
 
     /// <summary>
     /// <para> FixedUpdate 는 종종 Update 보다 더 자주 호출됩니다. </para> <para> 프레임 속도가 낮은 경우 프레임당 여러
@@ -260,7 +281,7 @@ protected:
     /// <summary>
     /// Update 는 프레임당 한 번 호출됩니다.
     /// </summary>
-    virtual void Update() {};
+    virtual void Update();
 
     /// <summary>
     /// LateUpdate 는 Update가 모두 끝난 후 호출됩니다.

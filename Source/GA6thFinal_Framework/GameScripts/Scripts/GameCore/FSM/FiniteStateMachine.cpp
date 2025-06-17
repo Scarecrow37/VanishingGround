@@ -1,8 +1,32 @@
 ﻿#include "FiniteStateMachine.h"
 using namespace u8_literals;
 
-FiniteStateMachine::FiniteStateMachine()  = default;
+constexpr int ORDER_MIN = std::numeric_limits<int>::min();
+
+FiniteStateMachine::FiniteStateMachine() 
+    : 
+    _currState(nullptr), 
+    _nextState(nullptr),
+    _nextOrder(ORDER_MIN)
+{
+
+}
+
 FiniteStateMachine::~FiniteStateMachine() = default;
+
+bool FiniteStateMachine::IsValidEntryPoint()
+{
+    int startIndex = ReflectFields->EntryTransitionID;
+    if (0 <= startIndex && startIndex < _transitions.size())
+    {
+        return true;
+    }
+    else
+    {
+        ReflectFields->EntryTransitionID = -1;
+        return false;
+    }
+}
 
 void FiniteStateMachine::SerializedReflectEvent() 
 {
@@ -16,6 +40,7 @@ void FiniteStateMachine::SerializedReflectEvent()
         ReflectFields->ConditionReflectDatas[key] = condition->SerializedReflectFields();
     }
 
+    ReflectFields->TransitionReflectDatas.clear();
     for (auto& transition : _transitions)
     {
         const char* currState = typeid(*transition.CurrState).name();
@@ -54,16 +79,20 @@ void FiniteStateMachine::DeserializedReflectEvent()
         std::string_view nextState = transition[2];
         AddTransition(currState, condition, nextState);
     }
+
+    IsValidEntryPoint();
 }
 
 void FiniteStateMachine::ImguiDrawTransition() 
 {
     int removeIndex = -1;
-    if (ImGui::BeginTable("Transition", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+    if (ImGui::BeginTable("Transition", 5, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
     {
+        ImGui::TableSetupColumn("Entry");
         ImGui::TableSetupColumn("State");
         ImGui::TableSetupColumn("Condition");
         ImGui::TableSetupColumn("Next");
+        ImGui::TableSetupColumn("Remove");
         ImGui::TableHeadersRow();
 
         for (int i = 0; i < _transitions.size(); ++i)
@@ -73,12 +102,24 @@ void FiniteStateMachine::ImguiDrawTransition()
             {
                 ImGui::TableNextRow();
                 ImGui::TableSetColumnIndex(0);
-                ImGui::Text(typeid(*transition.CurrState).name() + 6);
+                if (i != ReflectFields->EntryTransitionID)
+                {
+                    if (ImGui::Button("Set entry"))
+                    {
+                        ReflectFields->EntryTransitionID = i;
+                    }
+                }
+                else
+                {
+                    ImGui::Text("Entry");
+                }
                 ImGui::TableSetColumnIndex(1);
-                ImGui::Text(typeid(*transition.Condition).name() + 6);
+                ImGui::Text(typeid(*transition.CurrState).name() + 6);
                 ImGui::TableSetColumnIndex(2);
-                ImGui::Text(typeid(*transition.NextState).name() + 6);
+                ImGui::Text(typeid(*transition.Condition).name() + 6);
                 ImGui::TableSetColumnIndex(3);
+                ImGui::Text(typeid(*transition.NextState).name() + 6);
+                ImGui::TableSetColumnIndex(4);
                 if (ImGui::Button("Remove"))
                 {
                     removeIndex = i;
@@ -91,7 +132,7 @@ void FiniteStateMachine::ImguiDrawTransition()
 
     if (0 <= removeIndex)
     {
-        _transitions.erase(_transitions.begin() + removeIndex);
+        EraseTransition(removeIndex);
     }
 
     if (ImGui::Button("Add Transition"))
@@ -338,4 +379,113 @@ void FiniteStateMachine::ImGuiDrawPropertysEvent()
         }
     }
     ImGui::PopID();
+}
+
+void FiniteStateMachine::Awake() 
+{
+    OnAwakeFSMEntities();
+
+    if (true == IsValidEntryPoint())
+    {
+        Transition& transition = _transitions[ReflectFields->EntryTransitionID];
+        _currState = transition.CurrState;
+    }
+    else
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, u8"FSM의 EntryPoint가 설정되지 않았습니다."_c_str);
+    }
+}
+
+void FiniteStateMachine::Start() 
+{
+    OnStartFSMEntities();
+
+    if (nullptr != _currState)
+    {
+        _currState->OnEnter();
+    }
+}
+
+void FiniteStateMachine::EraseTransition(int index) 
+{
+    _transitionSet.erase(_transitions[index]);
+    _transitions.erase(_transitions.begin() + index);
+}
+
+void FiniteStateMachine::CheckTransitionCodition(Transition& transition) 
+{
+    if (true == transition.Condition->Evaluate())
+    {
+        _nextState = transition.NextState;
+        _nextOrder = transition.Condition->ReflectFields->Order;
+    }
+}
+
+void FiniteStateMachine::OnAwakeFSMEntities()
+{
+    for (auto& [key, state] : _stateMap)
+    {
+        state->OnAwake();
+    }
+    for (auto& [key, condition] : _conditionMap)
+    {
+        condition->OnAwake();
+    }
+}
+
+void FiniteStateMachine::OnStartFSMEntities() 
+{
+    for (auto& [key, state] : _stateMap)
+    {
+        state->OnStart();
+    }
+    for (auto& [key, condition] : _conditionMap)
+    {
+        condition->OnStart();
+    }
+}
+
+void FiniteStateMachine::ChangeTransition()
+{
+    if (nullptr != _currState)
+    {
+        for (auto& transition : _transitions)
+        {
+            if (transition.CurrState == _currState)
+            {
+                int conditionOrder = transition.Condition->ReflectFields->Order;
+                if (nullptr != _nextState && conditionOrder < _nextOrder)
+                {
+                    CheckTransitionCodition(transition);
+                }
+                else
+                {
+                    CheckTransitionCodition(transition);
+                }
+            }
+        }
+    }
+
+    if (nullptr != _nextState)
+    {
+        _currState->OnExit();
+        _currState = _nextState;
+        _currState->OnEnter();
+        _nextState = nullptr;
+        _nextOrder = ORDER_MIN;
+    }
+}
+
+void FiniteStateMachine::UpdateTransition() 
+{
+    if (nullptr != _currState)
+    {
+        _currState->OnUpdate();
+    }
+}
+
+void FiniteStateMachine::Update() 
+{
+    ChangeTransition();
+    UpdateTransition();
 }
