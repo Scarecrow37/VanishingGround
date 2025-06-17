@@ -50,3 +50,6 @@ UMREAL_COMPONENT(SpotLight)
 
 #include "Scripts\TurnSystem/TurnMode/TurnMode.h"
 UMREAL_COMPONENT(TurnMode)
+
+#include "Scripts\TurnSystem/TurnActor/TurnActor.h"
+UMREAL_COMPONENT(TurnActor)
