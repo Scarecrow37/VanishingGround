@@ -1,12 +1,72 @@
 ﻿#pragma once
-#include "FSMState.h"
+#include "Factory/FSMStateFactory.h"
+#include "Factory/FSMConditionFactory.h"
 
-class FiniteStateMachine : public Component, public FactoryConstructor<FSMState>
+class FiniteStateMachine : public Component
 {
     USING_PROPERTY(FiniteStateMachine)
-private:
-    static const char* AddStateImguiPopUp();
+public:
+    struct Transition
+    {
+        FSMState* CurrState;
+        FSMCondition* Condition;
+        FSMState* NextState;
+
+        inline bool operator()(const Transition& a, const Transition& b) const
+        { 
+            void* pointersA[3] = {a.CurrState, a.Condition, a.NextState};
+            void* pointersB[3] = {b.CurrState, b.Condition, b.NextState};
+            for (int i = 0; i < 3; ++i)
+            {
+                if (pointersA[i] < pointersB[i])
+                    return true;
+                if (pointersA[i] > pointersB[i])
+                    return false;
+            }
+            return false;
+        }   
+    };
+
+private: 
+    void ImGuiDrawDebug();
+    void ImguiDrawTransition();
+
+    static const char* SelectStateImguiChild();
+    const char* SelectMyStateImguiChild(bool enableAnyState = false);
     void ImguiDrawStates();
+
+    static const char* SlectConditionImguiChild();
+    const char* SelectMyConditionImguiChild();
+    void ImguiDrawCondiitons();
+
+
+public:
+    /// <summary>
+    /// 전이 객체를 추가합니다.
+    /// </summary>
+    /// <param name="state :">대상 상태</param>
+    /// <param name="condition :">전이 조건</param>
+    /// <param name="nextState :">변경될 상태</param>
+    void AddTransition(std::string_view state, std::string_view condition, std::string_view nextState);
+
+    /// <summary>
+    /// 모든 상황에서 전이가 가능한 전이 객체를 추가합니다.
+    /// </summary>
+    /// <param name="condition :">전이 조건</param>
+    /// <param name="nextState :">변경될 상태</param>
+    void AddAnyTransition(std::string_view condition, std::string_view nextState);
+
+    /// <summary>
+    /// 전이 객체를 제거합니다.
+    /// </summary>
+    /// <param name="index :">제거할 전이객체의 인덱스</param>
+    void EraseTransition(int index);
+
+    /// <summary>
+    /// FSM의 시작 상태를 설정합니다.
+    /// </summary>
+    /// <param name="index :">사용할 시작점의 인덱스</param>
+    void SetEntryTransition(int index);
 
 public:
     /// <summary>
@@ -30,7 +90,7 @@ public:
     {
         static_assert(std::is_base_of_v<FSMState, T>, "T is not derived from State.");
         const char* key = typeid(T).name();
-        return GetStateWithKey(key); 
+        return static_cast<T*>(GetStateWithKey(key)); 
     }
 
     template<typename T>
@@ -38,7 +98,7 @@ public:
     {
         static_assert(std::is_base_of_v<FSMState, T>, "T is not derived from State.");
         const char* key = typeid(T).name();
-        RemoveStateWithKey(key);
+        return RemoveStateWithKey(key);
     }
 
 private:
@@ -52,9 +112,10 @@ private:
         auto stateFind = _stateMap.find(key);
         if (stateFind == _stateMap.end())
         {
-            FSMState* instance = NewInstanceWithKey(key);
+            FSMState* instance = MakeState(key);
             if (instance)
             {
+                instance->_owner = this;
                 _stateMap[key].reset(instance);
             }
             else
@@ -83,8 +144,99 @@ private:
         return 0 > count;
     }
 
+public:
+    template <typename T>
+    void AddCondition()
+    {
+        static_assert(std::is_base_of_v<FSMCondition, T>, "T is not derived from Condition.");
+        const char* key = typeid(T).name();
+        AddConditionWithKey(key);
+    }
+
+    template <typename T>
+    T* GetCondition()
+    {
+        static_assert(std::is_base_of_v<FSMCondition, T>, "T is not derived from Condition.");
+        const char* key = typeid(T).name();
+        return static_cast<T*>(GetConditionWithKey(key));
+    }
+
+    template <typename T>
+    bool RemoveCondition()
+    {
+        static_assert(std::is_base_of_v<FSMCondition, T>, "T is not derived from Condition.");
+        const char* key = typeid(T).name();
+        return RemoveConditionWithKey(key);
+    }
+
+private:
+    /// <summary>
+    /// Condition을 등록합니다.
+    /// </summary>
+    /// <param name="conditionTypeIdName"></param>
+    void AddConditionWithKey(std::string_view conditionTypeIdName)
+    {
+        const char* key = conditionTypeIdName.data();
+        auto conditionFind = _conditionMap.find(key);
+        if (conditionFind == _conditionMap.end())
+        {
+            FSMCondition* instance = MakeCondition(key);
+            if (instance)
+            {
+                instance->_owner = this;
+                _conditionMap[key].reset(instance);
+            }
+            else
+            {
+                UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"존재하지 않는 Condidtion 입니다.");
+            }
+        }
+        else
+        {
+            UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"이미 등록된 Condition 타입입니다.");
+        }
+    }
+
+    FSMCondition* GetConditionWithKey(std::string_view key)
+    {
+        auto conditionFind = _conditionMap.find(key.data());
+        if (conditionFind != _conditionMap.end())
+        {
+            return conditionFind->second.get();
+        }
+    }
+
+    bool RemoveConditionWithKey(std::string_view key)
+    {
+        size_t count = _conditionMap.erase(key.data());
+        return 0 > count;
+    }
+
+public:
+    bool IsValidEntryPoint();
+
 private:
     std::map<std::string, std::unique_ptr<FSMState>> _stateMap;
+    std::map<std::string, std::unique_ptr<FSMCondition>> _conditionMap;
+    std::vector<Transition> _transitions;
+    std::set<Transition, Transition> _transitionSet;
+
+    FSMState* _currState; 
+    FSMState* _nextState; 
+    int       _nextOrder;
+
+private:
+    FSMState*     MakeState(std::string_view key);
+    FSMCondition* MakeCondition(std::string_view key);
+
+    void CheckTransitionCodition(Transition& transition);
+
+private:
+    void OnAwakeFSMEntities();
+    void OnStartFSMEntities();
+
+    void ChangeTransition();
+    void UpdateTransition();
 
 public:
     REFLECT_PROPERTY()
@@ -94,8 +246,12 @@ public:
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)
-    std::unordered_map<std::string, std::string>StateReflectDatas;
+    std::unordered_map<std::string, std::string> StateReflectDatas;
+    std::unordered_map<std::string, std::string> ConditionReflectDatas;
+    std::vector<std::array<std::string, 3>>      TransitionReflectDatas;
+    int EntryTransitionID = -1;
     REFLECT_FIELDS_END(FiniteStateMachine)
+
     /*
     직렬화 직전 자동으로 호출되는 이벤트 함수입니다.
     직접 override 해서 사용합니다.
@@ -123,7 +279,7 @@ protected:
     /// <para> 이 함수는 항상 Start 함수 전에 호출되며 프리팹이 인스턴스화 된 직후에 호출됩니다.                </para>
     /// <para> 게임 오브젝트의 Active가 false 상태인 경우 Awake 함수는 true가 될때까지 호출되지 않습니다.      </para>
     /// </summary>
-    virtual void Awake() {};
+    virtual void Awake();
 
     /// <summary>
     /// <para>  오브젝트가 활성화된 경우에만 호출됩니다. </para> <para>  컴포넌트의 Enable 활성화 직후 이 함수를
@@ -140,7 +296,7 @@ protected:
     /// <summary>
     /// <para>  컴포넌트의 첫번째 Update 전에 한번 호출됩니다.   </para>
     /// </summary>
-    virtual void Start() {};
+    virtual void Start();
 
     /// <summary>
     /// <para> FixedUpdate 는 종종 Update 보다 더 자주 호출됩니다. </para> <para> 프레임 속도가 낮은 경우 프레임당 여러
@@ -151,7 +307,7 @@ protected:
     /// <summary>
     /// Update 는 프레임당 한 번 호출됩니다.
     /// </summary>
-    virtual void Update() {};
+    virtual void Update();
 
     /// <summary>
     /// LateUpdate 는 Update가 모두 끝난 후 호출됩니다.

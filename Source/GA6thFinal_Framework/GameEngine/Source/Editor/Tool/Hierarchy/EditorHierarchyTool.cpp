@@ -319,7 +319,7 @@ void EditorHierarchyTool::HierarchyRightClickEvent() const
 
 void EditorHierarchyTool::KeyboardEvent() 
 {
-    if (_dockWindow->IsFocusFrame())
+    if (Global::editorModule->IsFocusAreaEmpty() && _dockWindow->IsFocusFrame())
     {
         bool holdCtrl = ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftCtrl);
         if (holdCtrl)

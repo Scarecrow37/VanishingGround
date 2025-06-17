@@ -118,7 +118,6 @@ void GameObject::OnInspectorStay()
         }
         ImGui::SameLine();
         ImGui::Checkbox("Debug", &isDebug);
-        ImGui::Separator();
 
         bool isPrefab = IsPrefabInstance();
         GameObject* pPrefabObject = PrefabInstance; 
@@ -149,7 +148,6 @@ void GameObject::OnInspectorStay()
                 ImGui::InputText("Prefab GUID", &tempPath, ImGuiInputTextFlags_ReadOnly);
             }
             ImGui::PopStyleColor(2);
-            ImGui::Separator();
         }
 
         if (isDebug)
@@ -170,7 +168,7 @@ void GameObject::OnInspectorStay()
         if (ImGui::Button("AddComponent"))
         {
             selectObject = this;
-            ImGui::OpenPopup("Select Component");
+            ImGui::OpenPopup("Add Component");
         }
         ImGui::Separator();
 
@@ -317,17 +315,20 @@ void GameObject::OnInspectorStay()
         {
             constexpr ImVec2 popupSize(400, 300);
             ImGui::SetNextWindowSize(popupSize, ImGuiCond_FirstUseEver); 
-            if (ImGui::BeginPopupModal("Select Component", nullptr))
+            if (ImGui::BeginPopupModal("Add Component", nullptr))
             {
                 ImGui::BeginChild("Component Child", 
                                   ImVec2{0, ImGui::GetContentRegionAvail().y - 40.0f}, 
-                                  0,
+                                  ImGuiChildFlags_AutoResizeX,
                                   ImGuiWindowFlags_HorizontalScrollbar);
                 if (UmComponentFactory.HasScript() == true)
                 {
-                    static ImVec2      popupPos{};
+                    static ImGuiTextFilter filter;
+                    filter.Draw("Search");
+
+                    static ImVec2 popupPos{};
                     static std::string inputBuffer{};
-                    if (ImGui::Button(u8"스크립트 파일 만들기"_c_str))
+                    if (ImGui::Selectable(u8"스크립트 파일 만들기"_c_str))
                     {
                         popupPos = ImGui::GetMousePos();
                         inputBuffer.clear();
@@ -355,10 +356,13 @@ void GameObject::OnInspectorStay()
 
                     for (auto& key : engineCore->ComponentFactory.GetNewComponentKeyList())
                     {
-                        if (ImGui::Button(key.c_str() + 6))
+                        if (filter.PassFilter(key.c_str() + 6))
                         {
-                            UmCommandManager.Do<Command::EditorScene::AddComponentCommand>(selectObject, key);
-                            ImGui::CloseCurrentPopup();
+                            if (ImGui::Selectable(key.c_str() + 6))
+                            {
+                                UmCommandManager.Do<Command::EditorScene::AddComponentCommand>(selectObject, key);
+                                ImGui::CloseCurrentPopup();
+                            }
                         }
                     }
                 }
