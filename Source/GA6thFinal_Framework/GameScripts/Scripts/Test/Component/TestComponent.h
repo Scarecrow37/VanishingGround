@@ -35,18 +35,16 @@ public:
 
     const std::vector<float>& GetfloatVector() const { return ReflectFields->floatVector; }
 
-    GETTER(int, Work) { return _work; }
-    SETTER(int, Work) { _work = value; }
+    GETTER(int, Work) { return ReflectFields->Work; }
+    SETTER(int, Work) { ReflectFields->Work = value; }
     PROPERTY(Work)
 
-    GETTER(int, Move) { return _move; }
-    SETTER(int, Move) { _move = value; }
+    GETTER(int, Move) { return ReflectFields->Move; }
+    SETTER(int, Move) { ReflectFields->Move = value; }
     PROPERTY(Move)
 
 private:
     Vector3 testVector3;
-    int _work;
-    int _move;
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)
@@ -57,6 +55,8 @@ protected:
     std::vector<float> floatVector{};
     std::string         objectName = "";
     std::array<float, 3> testVector3{};
+    int Work;
+    int Move;
     REFLECT_FIELDS_END(TestComponent)
 
 protected:
