@@ -232,33 +232,49 @@ EditorHierarchyTool::~EditorHierarchyTool()
 void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
 {
     static const char* GameObjectKey  = typeid(GameObject).name();
-    if (ImGui::MenuItem(GameObjectKey))
+    if (ImGui::BeginMenu("Object"))
     {
         static const char* GameObjectName = GameObjectKey + 6;
-        UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(GameObjectKey, GameObject::Helper::GenerateUniqueName(GameObjectName));
+        if (ImGui::MenuItem(GameObjectName))
+        {
+            UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
+                GameObjectKey, GameObject::Helper::GenerateUniqueName(GameObjectName));
+        }
+        ImGui::EndMenu();
     }
+
     if (ImGui::BeginMenu("Light"))
     {
+        GameObject* light = nullptr;
         if (ImGui::MenuItem("Directional light"))
         {
-            GameObject* light = nullptr;
             UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
                 GameObjectKey, GameObject::Helper::GenerateUniqueName("Directional light"), &light);
             light->AddComponent<DirectionalLight>();            
         }
         if (ImGui::MenuItem("Point light"))
         {
-            GameObject* light = nullptr;
             UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
                 GameObjectKey, GameObject::Helper::GenerateUniqueName("Point light"), &light);
             light->AddComponent<PointLight>();            
         }
         if (ImGui::MenuItem("Spot light"))
         {
-            GameObject* light = nullptr;
             UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
                 GameObjectKey, GameObject::Helper::GenerateUniqueName("Spot light"), &light);
             light->AddComponent<SpotLight>();
+        }
+        ImGui::EndMenu();
+    }
+
+    if (ImGui::BeginMenu("Mesh"))
+    {
+        GameObject* mesh = nullptr;
+        if (ImGui::MenuItem("Static Mesh"))
+        {
+            UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
+                GameObjectKey, GameObject::Helper::GenerateUniqueName("Static Mesh"), &mesh);
+            mesh->AddComponent<StaticMeshRenderer>();
         }
         ImGui::EndMenu();
     }
