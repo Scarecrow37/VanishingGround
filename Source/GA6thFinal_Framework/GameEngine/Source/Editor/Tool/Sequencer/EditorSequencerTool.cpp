@@ -5,9 +5,23 @@ EditorSequencerTool::EditorSequencerTool()
 {
     SetLabel("Sequencer");
     _timelineSystem = new TimelineSystem;
+    _sequencer      = new EditorSequencer();
+    _sequencer->SetSystem(_timelineSystem);
 }
 
-EditorSequencerTool::~EditorSequencerTool() {}
+EditorSequencerTool::~EditorSequencerTool() 
+{
+    if (_timelineSystem)
+    {
+        delete _timelineSystem;
+        _timelineSystem = nullptr;
+    }
+    if (_sequencer)
+    {
+        delete _sequencer;
+        _sequencer = nullptr;
+    }
+}
 
 void EditorSequencerTool::OnTickGui() 
 {
@@ -72,6 +86,10 @@ void EditorSequencerTool::OnFrameRender()
         ImGui::Separator();
         notify->GetEvent()->ImGuiDrawPropertys();
     }
+    ImGui::Separator();
+    ImGui::BeginChild("SequencerCanvas", ImVec2(0, 0), true);
+    _sequencer->Render();
+    ImGui::EndChild();
 }
 
 void EditorSequencerTool::OnFrameEnd() {}

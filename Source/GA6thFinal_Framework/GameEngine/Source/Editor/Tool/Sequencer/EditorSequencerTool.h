@@ -23,6 +23,7 @@ public:
 
 private:
     TimelineSystem* _timelineSystem = nullptr;
+    EditorSequencer* _sequencer     = nullptr;
 };
 
 class TestTimeLineEvent : public ITimelineEvent
