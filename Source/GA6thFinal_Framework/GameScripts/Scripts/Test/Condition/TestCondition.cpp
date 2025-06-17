@@ -1,13 +1,28 @@
 ﻿#include "TestCondition.h"
 
-REGISTER_CLASS(FSMConditionFactory, TestCondition)
+REGISTER_CLASS(FSMConditionFactory, TestWorkCondition)
 
-TestCondition::TestCondition() 
+TestWorkCondition::TestWorkCondition() 
 {
 
 }
 
-TestCondition::~TestCondition()
+TestWorkCondition::~TestWorkCondition()
 {
 
+}
+
+void TestWorkCondition::OnAwake() 
+{
+
+}
+
+void TestWorkCondition::OnStart() 
+{
+
+}
+
+bool TestWorkCondition::Evaluate()
+{
+    return false;
 }

@@ -1,10 +1,18 @@
 ﻿#pragma once
 #include "GameCore/FSM/FiniteStateMachine.h"
 
-class TestCondition : public FSMCondition
+
+class TestWorkCondition : public FSMCondition
 {
 public:
-    TestCondition();
-    virtual ~TestCondition() override;
+    TestWorkCondition();
+    virtual ~TestWorkCondition() override;
 
+    void OnAwake() override;
+    void OnStart() override;
+
+    bool Evaluate() override;
+
+private:
+    class TestComponent* testComponent;
 };
