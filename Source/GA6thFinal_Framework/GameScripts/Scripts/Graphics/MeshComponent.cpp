@@ -15,7 +15,7 @@ MeshComponent::~MeshComponent()
     }
 }
 
-void MeshComponent::MakeMeshRenderer(MESH_RENDER_TYPE renderType, const Matrix& world)
+void MeshComponent::MakeMeshRenderer(MeshRenderType renderType, const Matrix& world)
 {
     if (nullptr == _pMeshRenderer)
     {

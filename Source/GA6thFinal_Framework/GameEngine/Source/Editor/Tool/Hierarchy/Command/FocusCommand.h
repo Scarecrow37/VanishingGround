@@ -9,7 +9,8 @@ namespace Command
             using Super = Command::Inspector::FocusObject;
 
         public:
-            FocusCommand(std::weak_ptr<GameObject> oldWp, std::weak_ptr<GameObject> newWp) : FocusObject(oldWp, newWp)
+            FocusCommand(std::weak_ptr<GameObject> oldWp, std::weak_ptr<GameObject> newWp, std::string_view commandName = "Focus") 
+                : FocusObject(oldWp, newWp, commandName)
             {
             }
             virtual ~FocusCommand() override;

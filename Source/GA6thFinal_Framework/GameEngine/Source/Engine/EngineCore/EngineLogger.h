@@ -3,21 +3,26 @@
 class ELogger
 {
     friend class EngineCores;
+    inline static LogLocation* messageLocation = nullptr;
     ELogger();
     ~ELogger();
 
 public:
     /// <summary>
-    /// Log를 남깁니다.
+    /// Log를 source_location과 함께 남깁니다.
     /// </summary>
-    /// <param name="logLevel :">LogLevel에 정의된 constexpr 값을
-    /// 사용합니다.</param> <param name="message :">내용</param> <param
-    /// name="location :">콜러의 정보를 위한 매개변수입니다. 기본값
-    /// 사용해야합니다.</param>
+    /// <param name="logLevel :">LogLevel에 정의된 constexpr 값을사용합니다.</param> 
+    /// <param name="message :">내용</param> 
+    /// <param name="location :">콜러의 정보를 위한 매개변수입니다. 기본값을 사용해야합니다.</param>
     void Log(
         int logLevel, 
         std::string_view message,
         const LogLocation location = std::source_location::current());
+
+    /// <summary>
+    /// 로그 정보 없이 메시지만 남깁니다.
+    /// </summary>
+    void Message(int logLevel, std::string_view message);
 
     /// <summary>
     /// 프로그램 실행중 생성된 모든 로그 메시지를 반환합니다.
@@ -42,9 +47,19 @@ public:
     /// <param name="logLevel :">지울 로그 레벨</param>
     void LogMessagesClear(int logLevel = NULL);
 
+    inline static bool IsMessageLocation(const LogLocation& location) 
+    { 
+        if (nullptr == messageLocation)
+        {
+            return false;
+        }
+        else
+        {
+            return false == ((*messageLocation) != location);
+        }
+    }
 private:
-    std::vector<std::tuple<int, std::string, LogLocation>>
-        _logMessages;
+    std::vector<std::tuple<int, std::string, LogLocation>> _logMessages;
 };
 
 inline auto ELogger::GetLogMessages(int logLevelFilter)

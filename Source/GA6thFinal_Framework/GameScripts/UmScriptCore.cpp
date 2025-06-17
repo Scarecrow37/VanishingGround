@@ -5,8 +5,9 @@ using namespace Global;
 
 UMREALSCRIPTS_DECLSPEC void InitalizeUmrealScript(const std::shared_ptr<EngineCores> engineCores, ImGuiContext* ImguiContext)
 {
-    Global::engineCore = engineCores;  //코어 동기화
+    Global::engineCore = engineCores;        //코어 동기화
     ImGui::SetCurrentContext(ImguiContext);  //Imguicontext 동기화
+    UmFactoryRegister.InvokeRegister();      //Factory 초기화
 }
 
 static bool IncludeInProject(const std::filesystem::path& filePath);

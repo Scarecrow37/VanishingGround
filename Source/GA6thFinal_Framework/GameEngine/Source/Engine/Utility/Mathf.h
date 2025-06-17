@@ -61,4 +61,21 @@ namespace Mathf
 	{
 		return (std::max)(first, FindMaxValue(args...));
 	};
+
+    /// <summary>
+    /// 0이 되지 않도록 Clamp 합니다.
+    /// </summary>
+    /// <param name="value :">value</param>
+    /// <param name="clampValue :">clamp value</param>
+    /// <returns></returns>
+    inline float ClampScale(float value, float clampValue)
+    {
+        if (value > 0.0f && value < clampValue)
+            return clampValue;
+        else if (value < 0.0f && value > -clampValue)
+            return -clampValue;
+        else if (value == 0.0f)
+            return clampValue; 
+        return value;
+    }
 }

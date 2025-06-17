@@ -64,7 +64,7 @@ namespace Global
      EditorModule();
      ~EditorModule();
 
- public:
+ private:
      void PreInitialize() override;
      void ModuleInitialize() override;
 
@@ -79,16 +79,54 @@ namespace Global
      void Update();
 
  public:
+     /// <summary>
+     /// 팝업 박스를 엽니다.
+     /// </summary>
+     /// <param name="name">팝업 박스의 타이틀</param>
+     /// <param name="content">팝업 박스에 나타낼 내용이 구현된 함수</param>
      void OpenPopupBox(const std::string& name, std::function<void()> content);
 
+     /// <summary>
+     /// Gui레이아웃을 처음 킨 레이아웃으로 초기화합니다.
+     /// </summary>
      void ResetGuiLayout();
+     /// <summary>
+     /// Gui레이아웃을 프로젝트의 마지막 세팅 값으로 되돌립니다.
+     /// </summary>
+     void UndoGuiLayout();
 
- public:
-     /* 에디터 디버그 모드 */
+     /// <summary>
+     /// 지정된 포커스 영역이 없는지 확인합니다.
+     /// </summary>
+     /// <returns>지정된 포커스 영역이 하나도 없으면 true, 하나 이상 있으면 false를 반환합니다.</returns>
+     bool IsFocusAreaEmpty() const;
+     /// <summary>
+     /// 해당 ID의 Label에 포커스 영역이 지정되어 있는지 확인합니다.
+     /// </summary>
+     /// <param name="id">포커스 영역의 Label값 입니다.</param>
+     /// <returns></returns>
+     bool IsFocusedArea(const char* id) const;
+     /// <summary>
+     /// 문자열에 해당하는 포커스 영역을 지정합니다.
+     /// </summary>
+     /// <param name="id">포커스 영역의 Label값 입니다.</param>
+     void SetFocusArea(const char* id);
+     /// <summary>
+     /// 해당 문자열의 포커스 영역을 해제합니다.
+     /// </summary>
+     /// <param name="id">포커스 영역의 Label값 입니다.</param>
+     void UnsetFocusArea(const char* id);
+
+     /// <summary>
+     /// 에디터의 디버그 모드 여부를 설정합니다.
+     /// </summary>
+     /// <param name="v">디버그 모드 사용 여부입니다.</param>
      inline void SetDebugMode(bool v) { _isDebug = v; }
+     /// <summary>
+     /// 에디터가 디버그 모드인지 확인합니다.
+     /// </summary>
+     /// <returns></returns>
      inline bool IsDebugMode() const { return _isDebug; }
-
-     inline bool IsLock() const { return (false == _popupBoxSystem.IsEmpty()); }
 
      inline EditorGuiSystem&        GetDockWindowSystem() { return _guiSystem; }
      inline EditorPopupBoxSystem&   GetPopupBoxSystem() { return _popupBoxSystem; }
@@ -103,13 +141,17 @@ namespace Global
 
  private:
      bool _isDebug = false;
-     std::string _imGuiIniData;   // ImGui 설정 데이터
+     std::string _imGuiIniDataFromIniFile; // ImGui 설정 데이터
+     std::string _imGuiIniDataFromSetting;
 
-     EditorGuiSystem            _guiSystem;   // 에디터 도킹 윈도우 시스템
-     EditorPopupBoxSystem       _popupBoxSystem;     // 에디터 모달 팝업 시스템
+     EditorGuiSystem _guiSystem;                    // 에디터 도킹 윈도우 시스템
+     EditorPopupBoxSystem _popupBoxSystem;          // 에디터 모달 팝업 시스템
 
-     bool _isFirstTick     = true;
-     bool _isRefreshLayout = false;
+     std::unordered_set<ImGuiID> _focusAreaList;        // ImGui 락 아이디들
+
+     std::queue<std::function<void()>> _eventQueue; // 팝업 박스 큐
+
+     bool _isFirstTick = true;
 
  public:
     //플레이 모드 관리용
@@ -124,6 +166,7 @@ namespace Global
             return _isPlay;
         }
         void Play();
+        void Pause();
         void Stop();
         void SetPlayModeColor();
         void SetPlayModeColor(ImVec4 (&playModeColors)[ImGuiCol_COUNT]);
@@ -137,6 +180,7 @@ namespace Global
         #endif
         File::Guid _playSceneGuid;
         ImVec4 _playModeColors[ImGuiCol_COUNT];
+        bool _isPause;
     }
     PlayMode;
 

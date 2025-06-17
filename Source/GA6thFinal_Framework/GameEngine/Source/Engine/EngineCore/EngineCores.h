@@ -17,6 +17,7 @@ public:
     Application& App;
     GraphicsCore Graphics;
     ECommandManager CommandManager;
+    EFactoryRegister FactoryRegister;
     ReflectHelper::ImGuiDraw::InputAutoSetting ImGuiDrawPropertysSetting;
 private:
     LogLocation::EngineLocationInfo LocationInfo;
@@ -87,3 +88,4 @@ namespace Global
 #define UmApplication UmCore->App
 #define UmFileSystem UmCore->FileSystem
 #define UmCommandManager UmCore->CommandManager
+#define UmFactoryRegister UmCore->FactoryRegister

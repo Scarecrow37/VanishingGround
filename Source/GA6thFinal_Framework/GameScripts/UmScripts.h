@@ -23,14 +23,27 @@ UMREALSCRIPT_NEWCOMPONENT(CLASS_NAME)
 //이 아래는 컴포넌트 생성 함수들을 추가합니다.
 //CreateScriptFile() 함수에서 직접 수정하기 때문에 주의해야 합니다.
 
-#include "Scripts\Test\TestComponent.h"
+#include "Scripts\Test\Component\TestComponent.h"
 UMREAL_COMPONENT(TestComponent)
 
 #include "Scripts\Graphics/MeshComponent.h"
-//UMREAL_COMPONENT(MeshComponent)   //Base 컴포넌트여서 Export 되면 안됩니다.
 
 #include "Scripts\Graphics\StaticMeshRenderer.h"
 UMREAL_COMPONENT(StaticMeshRenderer)
 
 //#include "Scripts\Graphics/SkeletalMeshRenderer.h"
 //UMREAL_COMPONENT(SkeletalMeshRenderer)
+
+#include "Scripts/GameCore/FSM/FiniteStateMachine.h"
+UMREAL_COMPONENT(FiniteStateMachine)
+
+#include "Scripts/Light/Base/LightComponent.h"
+
+#include "Scripts/Light/DirectionalLight.h"
+UMREAL_COMPONENT(DirectionalLight)
+
+#include "Scripts/Light/PointLight.h"
+UMREAL_COMPONENT(PointLight)
+
+#include "Scripts/Light/SpotLight.h"
+UMREAL_COMPONENT(SpotLight)

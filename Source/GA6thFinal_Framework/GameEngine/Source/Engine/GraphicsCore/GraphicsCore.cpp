@@ -1,7 +1,7 @@
 ﻿#include "pch.h"
 #include "GraphicsCore.h"
 
-void GraphicsCore::Initialize(HWND hwnd, UINT width, UINT height, FEATURE_LEVEL feature)
+void GraphicsCore::Initialize(HWND hwnd, UINT width, UINT height, FeatureLevel feature)
 {
     Device.SetUpDevice(hwnd, width, height, feature);
     ViewManager.Initialize();
@@ -9,7 +9,7 @@ void GraphicsCore::Initialize(HWND hwnd, UINT width, UINT height, FEATURE_LEVEL 
     Device.ResetCommands();
     Renderer.Initialize();
 
-    auto commandList = Device.GetCommandList().Get();
+    auto commandList = Device.GetCommandList();
     commandList->Close();
     Device.RegisterCommand(commandList,MESH_RENDER_LIST);
     Device.ExecuteCommand(MESH_RENDER_LIST);
@@ -19,10 +19,14 @@ void GraphicsCore::Initialize(HWND hwnd, UINT width, UINT height, FEATURE_LEVEL 
     UmDevice.ResetComputeCommands();
 }
 
-void GraphicsCore::UpdateAnimation(const float deltaTime) {}
-
-void GraphicsCore::Update()
+void GraphicsCore::UpdateAnimation(const float deltaTime)
 {
+    AnimationCore.Update(deltaTime);
+}
+
+void GraphicsCore::Update(const float deltaTime)
+{
+    LightCore.Update(deltaTime);
     Renderer.Update();
 }
 

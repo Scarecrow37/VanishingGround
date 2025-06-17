@@ -6,6 +6,13 @@ class BaseMesh;
 
 class GBufferPass : public RenderPass
 {
+    enum MeshType
+    {
+        STATIC,
+        SKELTAL,
+        END
+    };
+
 public:
     GBufferPass() = default;
     virtual ~GBufferPass();
@@ -18,18 +25,17 @@ public:
 
 private:
     void InitShaderAndPSO();
-    void DrawStaticTwoSidedMesh(ID3D12GraphicsCommandList* commandList);
+    void DrawMeshes(ID3D12GraphicsCommandList* commandList, const std::vector<MeshRenderer*>& meshes, MeshType type);
+
+    /*void           DrawTwoSidedStaticMesh(ID3D12GraphicsCommandList* commandList);
+    void DrawTwoSidedSkeletalMesh(ID3D12GraphicsCommandList* commandList);
     void DrawStaticMeshes(ID3D12GraphicsCommandList*                     commandList,
                           const std::vector<std::pair<BaseMesh*, UINT>>& meshes);
     void DrawSkeletalMeshes(ID3D12GraphicsCommandList*                     commandList,
-                          const std::vector<std::pair<BaseMesh*, UINT>>& meshes);
+                          const std::vector<std::pair<BaseMesh*, UINT>>& meshes);*/
 
 private:
-    enum MeshType
-    {
-        STATIC,
-        SKELTAL
-    };
+    
  
     std::vector<std::shared_ptr<ShaderBuilder>> _shader;
 

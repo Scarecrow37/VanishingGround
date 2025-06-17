@@ -2,13 +2,18 @@
 
 TestComponent::TestComponent()
 {
-    ObjectDrop.SetDragDropFunc([this]
+    ObjectDrop.SetInputAutoEvent([this]
     {
-        if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropTransform::KEY))
+        if (ImGui::BeginDragDropTarget())
         {
-            using Data = DragDropTransform::Data;
-            Data* data = (Data*)payLoad->Data;
-            ReflectFields->objectName = data->pTransform->gameObject->Name;
+            if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropTransform::KEY))
+            {
+                using Data                = DragDropTransform::Data;
+                Data* data                = (Data*)payLoad->Data;
+                ReflectFields->objectName = data->pTransform->gameObject->Name;
+            }
+
+            ImGui::EndDragDropTarget();
         }
     });
 

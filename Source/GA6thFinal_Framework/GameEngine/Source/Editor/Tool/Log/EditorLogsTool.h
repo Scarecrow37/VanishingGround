@@ -24,7 +24,6 @@ protected:
 private:
     void ResetLogColor();
     void ResetLogFilter();
-    void PrintLog(const std::tuple<int, std::string, LogLocation>& log);
     void ShowFilter();
 
 private:

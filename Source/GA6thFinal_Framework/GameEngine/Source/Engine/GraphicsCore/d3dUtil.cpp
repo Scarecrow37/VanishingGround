@@ -6,21 +6,25 @@ Microsoft::WRL::ComPtr<ID3D12Resource> d3dUtil::CreateDefaultBuffer(
 
     Microsoft::WRL::ComPtr<ID3D12Resource>& uploadBuffer)
 {
+    HRESULT hr = S_OK;
+
     ComPtr<ID3D12Resource>  defaultBuffer;
     CD3DX12_HEAP_PROPERTIES heapPropertyDefault(D3D12_HEAP_TYPE_DEFAULT);
     CD3DX12_HEAP_PROPERTIES heapPropertyUPLOAD(D3D12_HEAP_TYPE_UPLOAD);
     CD3DX12_RESOURCE_DESC   defaultBufferDesc = CD3DX12_RESOURCE_DESC::Buffer(byteSize);
     CD3DX12_RESOURCE_DESC   uploadBufferDesc  = CD3DX12_RESOURCE_DESC::Buffer(byteSize);
     // 실제 기본 버퍼 자원을 생성한다
-    FAILED_CHECK_BREAK(device->CreateCommittedResource(&heapPropertyDefault, D3D12_HEAP_FLAG_NONE, &defaultBufferDesc,
-                                                  D3D12_RESOURCE_STATE_COMMON, nullptr,
-                                                  IID_PPV_ARGS(defaultBuffer.GetAddressOf())));
+    hr = device->CreateCommittedResource(&heapPropertyDefault, D3D12_HEAP_FLAG_NONE, &defaultBufferDesc,
+                                         D3D12_RESOURCE_STATE_COMMON, nullptr,
+                                         IID_PPV_ARGS(&defaultBuffer));
+    FAILED_CHECK_MESSAGE(hr, L"d3dUtil::CreateDefaultBuffer Failed");
 
     // CPU 메모리의 자료를 기본 버퍼에 복사
     // 임시 업로드 힙을 생성
-    FAILED_CHECK_BREAK(device->CreateCommittedResource(&heapPropertyUPLOAD, D3D12_HEAP_FLAG_NONE, &uploadBufferDesc,
+    hr = device->CreateCommittedResource(&heapPropertyUPLOAD, D3D12_HEAP_FLAG_NONE, &uploadBufferDesc,
                                                   D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
-                                                  IID_PPV_ARGS(uploadBuffer.GetAddressOf())));
+                                                  IID_PPV_ARGS(&uploadBuffer));
+    FAILED_CHECK_MESSAGE(hr, L"d3dUtil::CreateDefaultBuffer Failed");
 
     // 기본 버퍼에 복사할 자료를 서술
     D3D12_SUBRESOURCE_DATA subResourceData = {};

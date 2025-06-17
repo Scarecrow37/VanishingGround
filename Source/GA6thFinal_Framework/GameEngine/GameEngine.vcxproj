@@ -297,6 +297,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Source\Editor\Menu\Model\EditorModelMenu.h" />
+    <ClInclude Include="Source\Editor\Tool\Hierarchy\HierarchyFindTool.h" />
+    <ClInclude Include="Source\Editor\Tool\Scene\Command\EditorSceneCommands.h" />
+    <ClInclude Include="Source\Engine\EngineCore\FactoryRegister.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\AnimationCore.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\Light.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\LightCore.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\SkyBoxPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\SkyBoxRenderTechnique.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\SkyBox.h" />
@@ -310,7 +316,7 @@
     <ClInclude Include="Source\Engine\EditorCore\Interface\IEditorObject.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\d3dUtil.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\FBXConverter.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\RendererBase.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\GraphicsBase.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\MeshRenderer.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\RendererFileEvent.h" />
     <ClInclude Include="Source\Engine\FileSystem\Type\FileSystemSetting.h" />
@@ -386,7 +392,6 @@
     <ClInclude Include="Source\Engine\GraphicsCore\DX12Practice.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Enums.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Externs.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\FBXImporter.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Font.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\FontManager.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\FrameResource.h" />
@@ -408,7 +413,6 @@
     <ClInclude Include="Source\Engine\GraphicsCore\Sphere.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Structs.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\StructuredBuffer.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\TempObject.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Texture.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\VIBuffer.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\ViewManager.h" />
@@ -463,6 +467,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Editor\Menu\Model\EditorModelMenu.cpp" />
+    <ClCompile Include="Source\Editor\Tool\Hierarchy\HierarchyFindTool.cpp" />
+    <ClCompile Include="Source\Editor\Tool\Scene\Command\EditorSceneCommands.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\AnimationCore.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\Light.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\LightCore.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\SkyBoxPass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\SkyBoxRenderTechnique.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\SkyBox.cpp" />
@@ -598,7 +609,6 @@
     <ClCompile Include="Source\Engine\GraphicsCore\Camera.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\Cylinder.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\Device.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\FBXImporter.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\Font.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\FontManager.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\FrameResource.cpp" />
@@ -618,7 +628,6 @@
     <ClCompile Include="Source\Engine\GraphicsCore\Skeleton.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\Sphere.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\StructuredBuffer.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\TempObject.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\Texture.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\VIBuffer.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\ViewManager.cpp" />

@@ -13,10 +13,10 @@ FontManager::~FontManager()
 {
 }
 
-HRESULT FontManager::Initialize(const UINT numFonts)
+void FontManager::Initialize(const UINT numFonts)
 {
 	HRESULT hr = S_OK;
-	ComPtr<ID3D12Device> device = UmDevice.GetDevice();
+	ID3D12Device* device = UmDevice.GetDevice();
 
 	D3D12_DESCRIPTOR_HEAP_DESC desc
 	{
@@ -26,8 +26,8 @@ HRESULT FontManager::Initialize(const UINT numFonts)
 		.NodeMask = 0,
 	};
 
-	hr = device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(_fontHeap.GetAddressOf()));
-	FAILED_CHECK_BREAK(hr);
+	hr = device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&_fontHeap));
+    FAILED_CHECK_MESSAGE(hr, L"FontManager::Initialize device->CreateDescriptorHeap Failed");
 
 	try
 	{
@@ -35,7 +35,7 @@ HRESULT FontManager::Initialize(const UINT numFonts)
 		// 추후에는 UI 전용 타겟에 z 정렬 후 출력할 예정		
 		RenderTargetState rtState(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_D24_UNORM_S8_UINT);
 		//SpriteBatchPipelineStateDescription psd(rtState);
-		ResourceUploadBatch resourceUpload(device.Get());
+		ResourceUploadBatch resourceUpload(device);
 		resourceUpload.Begin();
 		
 		D3D12_VIEWPORT viewport = UmDevice.GetMainViewport();
@@ -47,13 +47,11 @@ HRESULT FontManager::Initialize(const UINT numFonts)
 	catch (std::exception& e)
 	{
 		std::filesystem::path msg = e.what();	
-		ASSERT(false, L"Font creation failed!");
+		GRAPHICS_ASSERT(false, L"Font creation failed!");
 	}
 
 	_maxFonts = numFonts;
 	_offset = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-
-    return hr;
 }
 
 std::shared_ptr<Font> FontManager::LoadFont(std::wstring_view filePath)
@@ -62,7 +60,7 @@ std::shared_ptr<Font> FontManager::LoadFont(std::wstring_view filePath)
 	{
 		if (_numFonts >= _maxFonts)
 		{
-			ASSERT(false, L"Font creation failed!\n Maximum number exceeded");
+            GRAPHICS_ASSERT(false, L"Font creation failed!\n Maximum number exceeded");
 			return nullptr;
 		}
 

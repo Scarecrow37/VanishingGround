@@ -3,7 +3,7 @@ namespace File
 {
     namespace Flag
     {
-        using EventAction = UINT64;
+        using EventAction = DWORD;
         enum EventActionFlags
         {
             FILE_EVENT_ACTION_UNKNOWN  = 0,      // 에러
@@ -17,10 +17,12 @@ namespace File
 
     struct FileEventData
     {
-        File::Path            LParam    = "";
-        File::Path            RParam    = "";
+        std::unordered_map<Flag::EventAction, File::Path> LParamTable;
+        std::unordered_map<Flag::EventAction, File::Path> RParamTable;
         Flag::EventAction     EventType = Flag::FILE_EVENT_ACTION_UNKNOWN;
         File::FileInformation FileInfo  = {};
+        const File::Path& GetLParam(Flag::EventAction action) const;
+        const File::Path& GetRParam(Flag::EventAction action) const;
     };
 
     using FileID = LONGLONG;
@@ -33,17 +35,21 @@ namespace File
         using CallBackFunc      = std::function<void(const FileEventData&)>;
         using FileEventQueue    = std::deque<std::pair<DWORD, FileInformation>>;
         using FileEventTable    = std::unordered_map<FileID, FileEventData>;
+
     public:
         FileEventObserver();
         ~FileEventObserver();
+
     public:
         void SetCallbackFunc(const CallBackFunc& callback);
         void SetObservingPath(const Path& path);
         bool Start();
         void Stop();
+
     private:
         void SetHandles();
         void SetThread();
+
     private:
         /* EventProcessing 메서드. 큐에 쌓인 이벤트를 하나씩 콜백해줍니다. */
         void EventProcessingThread();
@@ -80,6 +86,7 @@ namespace File
         std::atomic<bool>       _request;       // 큐를 보낼 요청
         std::atomic<bool>       _isStart;       // Start 호출 여부
         std::atomic<bool>       _isObserving;   // 옵저버 스레드의 시작 여부
+
     private:
         constexpr static DWORD NOTIFY_FILTERS =
             FILE_NOTIFY_CHANGE_SECURITY | FILE_NOTIFY_CHANGE_CREATION |
