@@ -85,7 +85,15 @@ void FiniteStateMachine::DeserializedReflectEvent()
     IsValidEntryPoint();
 }
 
-void FiniteStateMachine::ImguiDrawTransition() 
+void FiniteStateMachine::ImGuiDrawDebug() 
+{
+    //const char* entryStateName = IsValidEntryPoint() ? typeid(*_transitions[ReflectFields->EntryTransitionID].CurrState).name() : STR_NULL;
+    //ImGui::Text("Entry : %s", entryStateName);
+    const char* currStateName = _currState ? typeid(*_currState).name() : STR_NULL;
+    ImGui::Text("State : %s", currStateName);
+}
+
+void FiniteStateMachine::ImguiDrawTransition()
 {
     int removeIndex = -1;
     if (ImGui::BeginTable("Transition", 5, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
@@ -417,6 +425,8 @@ void FiniteStateMachine::ImGuiDrawPropertysEvent()
 {
     ImGui::PushID(this);
     {
+        ImGuiDrawDebug();
+
         ImguiDrawTransition();
 
         if (ImGui::CollapsingHeader("States"))

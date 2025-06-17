@@ -27,8 +27,8 @@ public:
         }   
     };
 
-private:
-   
+private: 
+    void ImGuiDrawDebug();
     void ImguiDrawTransition();
 
     static const char* SelectStateImguiChild();
