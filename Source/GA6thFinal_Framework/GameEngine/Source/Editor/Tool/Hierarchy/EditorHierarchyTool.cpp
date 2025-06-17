@@ -232,26 +232,32 @@ EditorHierarchyTool::~EditorHierarchyTool()
 void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
 {
     static const char* GameObjectKey  = typeid(GameObject).name();
-    static const char* GameObjectName = GameObjectKey + 6;
-    if (ImGui::MenuItem(GameObjectName))
+    if (ImGui::MenuItem(GameObjectKey))
     {
+        static const char* GameObjectName = GameObjectKey + 6;
         UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(GameObjectKey, GameObject::Helper::GenerateUniqueName(GameObjectName));
     }
     if (ImGui::BeginMenu("Light"))
     {
         if (ImGui::MenuItem("Directional light"))
         {
-            auto light = NewGameObject(GameObject::Helper::GenerateUniqueName("Directional light"));
+            GameObject* light = nullptr;
+            UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
+                GameObjectKey, GameObject::Helper::GenerateUniqueName("Directional light"), &light);
             light->AddComponent<DirectionalLight>();            
         }
         if (ImGui::MenuItem("Point light"))
         {
-            auto light = NewGameObject(GameObject::Helper::GenerateUniqueName("Point light"));
+            GameObject* light = nullptr;
+            UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
+                GameObjectKey, GameObject::Helper::GenerateUniqueName("Point light"), &light);
             light->AddComponent<PointLight>();            
         }
         if (ImGui::MenuItem("Spot light"))
         {
-            auto light = NewGameObject(GameObject::Helper::GenerateUniqueName("Spot light"));
+            GameObject* light = nullptr;
+            UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
+                GameObjectKey, GameObject::Helper::GenerateUniqueName("Spot light"), &light);
             light->AddComponent<SpotLight>();
         }
         ImGui::EndMenu();
