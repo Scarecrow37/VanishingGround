@@ -18,7 +18,7 @@ public:
     /// </summary>
     virtual void OnStart() = 0;
 
-    inline FiniteStateMachine& GetFSM() { &_owner; }
+    inline FiniteStateMachine& GetFSM() { return *_owner; }
 private:
     FiniteStateMachine* _owner = nullptr;
 };

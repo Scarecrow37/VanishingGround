@@ -31,11 +31,14 @@ private:
    
     void ImguiDrawTransition();
 
-    static const char* AddStateImguiPopUp();
+    static const char* SelectStateImguiChild();
+    const char* SelectMyStateImguiChild(bool enableAnyState = false);
     void ImguiDrawStates();
 
-    static const char* AddConditionImguiPopup();
+    static const char* SlectConditionImguiChild();
+    const char* SelectMyConditionImguiChild();
     void ImguiDrawCondiitons();
+
 
 public:
     /// <summary>
@@ -45,6 +48,25 @@ public:
     /// <param name="condition :">전이 조건</param>
     /// <param name="nextState :">변경될 상태</param>
     void AddTransition(std::string_view state, std::string_view condition, std::string_view nextState);
+
+    /// <summary>
+    /// 모든 상황에서 전이가 가능한 전이 객체를 추가합니다.
+    /// </summary>
+    /// <param name="condition :">전이 조건</param>
+    /// <param name="nextState :">변경될 상태</param>
+    void AddAnyTransition(std::string_view condition, std::string_view nextState);
+
+    /// <summary>
+    /// 전이 객체를 제거합니다.
+    /// </summary>
+    /// <param name="index :">제거할 전이객체의 인덱스</param>
+    void EraseTransition(int index);
+
+    /// <summary>
+    /// FSM의 시작 상태를 설정합니다.
+    /// </summary>
+    /// <param name="index :">사용할 시작점의 인덱스</param>
+    void SetEntryTransition(int index);
 
 public:
     /// <summary>
@@ -90,9 +112,10 @@ private:
         auto stateFind = _stateMap.find(key);
         if (stateFind == _stateMap.end())
         {
-            FSMState* instance = FSMStateFactory::NewInstanceWithKey(key);
+            FSMState* instance = MakeState(key);
             if (instance)
             {
+                instance->_owner = this;
                 _stateMap[key].reset(instance);
             }
             else
@@ -157,9 +180,10 @@ private:
         auto conditionFind = _conditionMap.find(key);
         if (conditionFind == _conditionMap.end())
         {
-            FSMCondition* instance = FSMConditionFactory::NewInstanceWithKey(key);
+            FSMCondition* instance = MakeCondition(key);
             if (instance)
             {
+                instance->_owner = this;
                 _conditionMap[key].reset(instance);
             }
             else
@@ -202,7 +226,9 @@ private:
     int       _nextOrder;
 
 private:
-    void EraseTransition(int index);
+    FSMState*     MakeState(std::string_view key);
+    FSMCondition* MakeCondition(std::string_view key);
+
     void CheckTransitionCodition(Transition& transition);
 
 private:

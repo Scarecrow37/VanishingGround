@@ -17,7 +17,7 @@ FiniteStateMachine::~FiniteStateMachine() = default;
 bool FiniteStateMachine::IsValidEntryPoint()
 {
     int startIndex = ReflectFields->EntryTransitionID;
-    if (0 <= startIndex && startIndex < _transitions.size())
+    if (0 <= startIndex && startIndex < _transitions.size() && nullptr != _transitions[startIndex].CurrState)
     {
         return true;
     }
@@ -43,7 +43,7 @@ void FiniteStateMachine::SerializedReflectEvent()
     ReflectFields->TransitionReflectDatas.clear();
     for (auto& transition : _transitions)
     {
-        const char* currState = typeid(*transition.CurrState).name();
+        const char* currState = transition.CurrState ? typeid(*transition.CurrState).name() : STR_NULL;
         const char* nextState = typeid(*transition.NextState).name();
         const char* condition = typeid(*transition.Condition).name();
         ReflectFields->TransitionReflectDatas.push_back({currState, condition, nextState});
@@ -54,9 +54,10 @@ void FiniteStateMachine::DeserializedReflectEvent()
 {
     for (auto& [key, data] : ReflectFields->StateReflectDatas)
     {
-        FSMState* state = FSMStateFactory::NewInstanceWithKey(key);
+        FSMState* state = MakeState(key);
         if (state)
         {
+            state->_owner = this;
             _stateMap[key].reset(state);
             _stateMap[key]->DeserializedReflectFields(data);
         }
@@ -64,9 +65,10 @@ void FiniteStateMachine::DeserializedReflectEvent()
 
     for (auto& [key, data] : ReflectFields->ConditionReflectDatas)
     {
-        FSMCondition* condition = FSMConditionFactory::NewInstanceWithKey(key);
+        FSMCondition* condition = MakeCondition(key);
         if (condition)
         {
+            condition->_owner = this;
             _conditionMap[key].reset(condition);
             _conditionMap[key]->DeserializedReflectFields(data);
         }
@@ -102,11 +104,11 @@ void FiniteStateMachine::ImguiDrawTransition()
             {
                 ImGui::TableNextRow();
                 ImGui::TableSetColumnIndex(0);
-                if (i != ReflectFields->EntryTransitionID)
+                if (transition.NextState && i != ReflectFields->EntryTransitionID)
                 {
                     if (ImGui::Button("Set entry"))
                     {
-                        ReflectFields->EntryTransitionID = i;
+                        SetEntryTransition(i);
                     }
                 }
                 else
@@ -114,9 +116,12 @@ void FiniteStateMachine::ImguiDrawTransition()
                     ImGui::Text("Entry");
                 }
                 ImGui::TableSetColumnIndex(1);
-                ImGui::Text(typeid(*transition.CurrState).name() + 6);
+                const char* currState = transition.CurrState ? typeid(*transition.CurrState).name() + 6 : "Any State";
+                ImGui::Text(currState);
                 ImGui::TableSetColumnIndex(2);
                 ImGui::Text(typeid(*transition.Condition).name() + 6);
+                ImGui::DragInt("Order", &transition.Condition->ReflectFields->Order);
+                ImGuiHelper::HoveredToolTip(u8"전이 조건의 우선 순위입니다. (낮을수록 우선됩니다.)"_c_str);
                 ImGui::TableSetColumnIndex(3);
                 ImGui::Text(typeid(*transition.NextState).name() + 6);
                 ImGui::TableSetColumnIndex(4);
@@ -149,13 +154,17 @@ void FiniteStateMachine::ImguiDrawTransition()
         static std::string condition;
         static std::string nextState;
         ImGui::BeginDisabled();
-        ImGui::InputText("State", &state);
+        {
+            static std::string anyState = "Any State";
+            std::string* pState = state == STR_NULL ? &anyState : &state;
+            ImGui::InputText("State", pState);
+        }     
         ImGui::EndDisabled();
         ImGui::SameLine();
         if (ImGui::BeginMenu("##State"))
         {
-            const char* stateSel = AddStateImguiPopUp();
-            if (stateSel)
+            const char* stateSel = SelectMyStateImguiChild(true);
+            if (nullptr != stateSel)
             {
                 state = stateSel;
             }
@@ -167,7 +176,7 @@ void FiniteStateMachine::ImguiDrawTransition()
         ImGui::SameLine();
         if (ImGui::BeginMenu("##Condition"))
         {
-            const char* conditionSel = AddConditionImguiPopup();
+            const char* conditionSel = SelectMyConditionImguiChild();
             if (conditionSel)
             {
                 condition = conditionSel;
@@ -180,14 +189,14 @@ void FiniteStateMachine::ImguiDrawTransition()
         ImGui::SameLine();
         if (ImGui::BeginMenu("##Next state"))
         {
-            const char* stateSel = AddStateImguiPopUp();
+            const char* stateSel = SelectMyStateImguiChild();
             if (stateSel)
             {
                 nextState = stateSel;
             }
             ImGui::EndMenu();
         }
-        if (false == state.empty()     && 
+        if (false == state.empty()     &&   
             false == condition.empty() && 
             false == nextState.empty())
         {
@@ -212,7 +221,7 @@ void FiniteStateMachine::ImguiDrawTransition()
     }
 }
 
-const char* FiniteStateMachine::AddStateImguiPopUp()
+const char* FiniteStateMachine::SelectStateImguiChild()
 {
     const char* addKey = nullptr;
     if (ImGui::BeginChild("ConstructorsChild", ImVec2(0, 100), ImGuiChildFlags_AutoResizeX, ImGuiWindowFlags_AlwaysVerticalScrollbar))
@@ -234,15 +243,72 @@ const char* FiniteStateMachine::AddStateImguiPopUp()
     return addKey;
 }
 
-const char* FiniteStateMachine::AddConditionImguiPopup()
+const char* FiniteStateMachine::SelectMyStateImguiChild(bool enableAnyState)
 {
     const char* addKey = nullptr;
-    if (ImGui::BeginChild("ConstructorsChild", ImVec2(0, 100), ImGuiChildFlags_AutoResizeX,
+    if (ImGui::BeginChild("StateChild", ImVec2(0, 100), ImGuiChildFlags_AutoResizeX,
+                          ImGuiWindowFlags_AlwaysVerticalScrollbar))
+    {
+        static ImGuiTextFilter filter;
+        filter.Draw("Search");
+        if (enableAnyState)
+        {
+            if (filter.PassFilter("Any State"))
+            {
+                if (ImGui::Selectable("Any State"))
+                {
+                    addKey = STR_NULL;
+                }
+                ImGuiHelper::HoveredToolTip(u8"어떤 상태에서든 전이가 가능한 상태입니다."_c_str);
+            }
+        }
+        for (auto& [key, state] : _stateMap)
+        {
+            if (filter.PassFilter(key.c_str() + 6))
+            {
+                if (ImGui::Selectable(key.c_str() + 6))
+                {
+                    addKey = key.c_str();
+                }
+            }
+        }
+        ImGui::EndChild();
+    }
+    return addKey;
+}
+
+const char* FiniteStateMachine::SlectConditionImguiChild()
+{
+    const char* addKey = nullptr;
+    if (ImGui::BeginChild("ConditionChild", ImVec2(0, 100), ImGuiChildFlags_AutoResizeX,
         ImGuiWindowFlags_AlwaysVerticalScrollbar))
     {
         static ImGuiTextFilter filter;
         filter.Draw("Search");
         for (auto& [key, func] : FSMConditionFactory::GetInstanceConstructors())
+        {
+            if (filter.PassFilter(key.c_str() + 6))
+            {
+                if (ImGui::Selectable(key.c_str() + 6))
+                {
+                    addKey = key.c_str();
+                }
+            }
+        }
+        ImGui::EndChild();
+    }
+    return addKey;
+}
+
+const char* FiniteStateMachine::SelectMyConditionImguiChild()
+{
+    const char* addKey = nullptr;
+    if (ImGui::BeginChild("ConstructorsChild", ImVec2(0, 100), ImGuiChildFlags_AutoResizeX,
+                          ImGuiWindowFlags_AlwaysVerticalScrollbar))
+    {
+        static ImGuiTextFilter filter;
+        filter.Draw("Search");
+        for (auto& [key, ptr] : _conditionMap)
         {
             if (filter.PassFilter(key.c_str() + 6))
             {
@@ -283,16 +349,20 @@ void FiniteStateMachine::ImguiDrawCondiitons()
 void FiniteStateMachine::AddTransition(std::string_view state, std::string_view condition, std::string_view nextState)
 {
     bool isValid = true;
+    bool isAnyState = state == STR_NULL;
     auto currStateIter = _stateMap.find(state.data());
     auto conditionIter = _conditionMap.find(condition.data());
     auto nextStateIter = _stateMap.find(nextState.data());
-    isValid &= currStateIter != _stateMap.end();
+    if (false == isAnyState)
+    {
+        isValid &= currStateIter != _stateMap.end();
+    }   
     isValid &= conditionIter != _conditionMap.end();
     isValid &= nextStateIter != _stateMap.end();
     if (true == isValid)
     {
         Transition trans{};
-        trans.CurrState = currStateIter->second.get();
+        trans.CurrState = isAnyState ? nullptr : currStateIter->second.get();
         trans.Condition = conditionIter->second.get();
         trans.NextState = nextStateIter->second.get();
         auto [iter, result] = _transitionSet.insert(trans);
@@ -309,6 +379,11 @@ void FiniteStateMachine::AddTransition(std::string_view state, std::string_view 
     {
         UmLogger.Log(LogLevel::LEVEL_WARNING, u8"찾을수 없는 전이 객체 입니다."_c_str);
     }
+}
+
+void FiniteStateMachine::AddAnyTransition(std::string_view condition, std::string_view nextState) 
+{
+    AddTransition(STR_NULL, condition, nextState);
 }
 
 void FiniteStateMachine::ImguiDrawStates() 
@@ -350,7 +425,7 @@ void FiniteStateMachine::ImGuiDrawPropertysEvent()
         }
         if (ImGui::BeginPopup("AddStatePopup"))
         {
-            const char* addKey = AddStateImguiPopUp();
+            const char* addKey = SelectStateImguiChild();
             if (nullptr != addKey)
             {
                 AddStateWithKey(addKey);
@@ -369,7 +444,7 @@ void FiniteStateMachine::ImGuiDrawPropertysEvent()
         }
         if (ImGui::BeginPopup("AddConditionPopup"))
         {
-            const char* addKey = AddConditionImguiPopup();
+            const char* addKey = SlectConditionImguiChild();
             if (nullptr != addKey)
             {
                 AddConditionWithKey(addKey);
@@ -388,7 +463,7 @@ void FiniteStateMachine::Awake()
     if (true == IsValidEntryPoint())
     {
         Transition& transition = _transitions[ReflectFields->EntryTransitionID];
-        _currState = transition.CurrState;
+        _nextState = transition.CurrState;
     }
     else
     {
@@ -399,25 +474,66 @@ void FiniteStateMachine::Awake()
 void FiniteStateMachine::Start() 
 {
     OnStartFSMEntities();
-
-    if (nullptr != _currState)
-    {
-        _currState->OnEnter();
-    }
 }
 
-void FiniteStateMachine::EraseTransition(int index) 
+FSMState* FiniteStateMachine::MakeState(std::string_view key)
+{
+    FSMState* state = FSMStateFactory::NewInstanceWithKey(key);
+    if (state)
+    {
+        state->_owner = this;
+    }
+    return state;
+}
+
+FSMCondition* FiniteStateMachine::MakeCondition(std::string_view key)
+{
+    FSMCondition* condition = FSMConditionFactory::NewInstanceWithKey(key);
+    if (condition)
+    {
+        condition->_owner = this;
+    }
+    return condition;
+}
+
+void FiniteStateMachine::EraseTransition(int index)
 {
     _transitionSet.erase(_transitions[index]);
     _transitions.erase(_transitions.begin() + index);
 }
 
+void FiniteStateMachine::SetEntryTransition(int index) 
+{
+    if (0 <= index && index < _transitions.size())
+    {
+        if (nullptr != _transitions[index].CurrState)
+        {
+            ReflectFields->EntryTransitionID = index;
+        }
+        else
+        {
+            UmLogger.Log(LogLevel::LEVEL_WARNING, u8"Any State는 Entry로 설정할 수 없습니다."_c_str);
+        }     
+    }
+    else
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, u8"존재하지 않는 전이 객체 입니다."_c_str);
+    }
+}
+
 void FiniteStateMachine::CheckTransitionCodition(Transition& transition) 
 {
-    if (true == transition.Condition->Evaluate())
+    int conditionOrder = transition.Condition->ReflectFields->Order;
+    if (nullptr == _nextState || conditionOrder < _nextOrder)
     {
-        _nextState = transition.NextState;
-        _nextOrder = transition.Condition->ReflectFields->Order;
+        if (true == transition.Condition->Evaluate())
+        {
+            if (_currState != transition.NextState)
+            {
+                _nextState = transition.NextState;
+                _nextOrder = conditionOrder;
+            }
+        }
     }
 }
 
@@ -451,24 +567,19 @@ void FiniteStateMachine::ChangeTransition()
     {
         for (auto& transition : _transitions)
         {
-            if (transition.CurrState == _currState)
+            if (transition.CurrState == nullptr || transition.CurrState == _currState)
             {
-                int conditionOrder = transition.Condition->ReflectFields->Order;
-                if (nullptr != _nextState && conditionOrder < _nextOrder)
-                {
-                    CheckTransitionCodition(transition);
-                }
-                else
-                {
-                    CheckTransitionCodition(transition);
-                }
+                CheckTransitionCodition(transition);
             }
         }
     }
 
     if (nullptr != _nextState)
     {
-        _currState->OnExit();
+        if (_currState)
+        {
+            _currState->OnExit();         
+        }
         _currState = _nextState;
         _currState->OnEnter();
         _nextState = nullptr;
