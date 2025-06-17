@@ -16,11 +16,6 @@ void EditorSequencerTool::OnTickGui()
 
 void EditorSequencerTool::OnStartGui() 
 {
-    _timelineSystem->SetActive(true);
-    _timelineSystem->SetMaxFrame(5.0f);
-    _timelineSystem->AddNotify("TestNotify1", 1.0f, []() { UmLogger.Log(1, "Timeline TestNotify1 Triggered at 1.0s"); });
-    _timelineSystem->AddNotify("TestNotify2", 3.0f, []() { UmLogger.Log(1, "Timeline TestNotify2 Triggered at 3.0s"); });
-    _timelineSystem->AddNotify("TestNotify3", 3.0f, []() { UmLogger.Log(1, "Timeline TestNotify3 Triggered at 3.0s"); });
 }
 
 void EditorSequencerTool::OnEndGui() {}
@@ -31,19 +26,51 @@ void EditorSequencerTool::OnPostFrameBegin() {}
 
 void EditorSequencerTool::OnFrameRender() 
 {
+    static bool firstTick    = true;
+    if (firstTick)
+    {
+        firstTick = false;
+        float max = 5.0f;
+        _timelineSystem->Play();
+        _timelineSystem->SetMaxFrame(max);
+        _timelineSystem->AddNotify<TestTimeLineEvent>(1.0f)->Time = 1.0f;
+        _timelineSystem->AddNotify<TestTimeLineEvent>(3.0f)->Time = 3.0f;
+        _timelineSystem->AddNotify<TestTimeLineEvent>(3.0f)->Time = 3.0f;
+        _timelineSystem->AddNotify<TestTimeLineEvent>(1.5f)->Time = 1.5f;
+        _timelineSystem->AddNotify<TestTimeLineEvent>(max)->Time  = max;
+        _timelineSystem->AddNotify<TestTimeLineEvent>(0.0f)->Time = 0.0f;
+    }
+
     float maxFrame = _timelineSystem->GetMaxFrame();
     float currentFrame = _timelineSystem->GetCurrentFrame();
     ImGui::SliderFloat("Current Frame", &currentFrame, 0.0f, maxFrame);
 
-    static bool isActive = _timelineSystem->IsActive();
+    bool isActive = _timelineSystem->IsPlaying();
     if (ImGui::Checkbox("Active", &isActive))
     {
-        _timelineSystem->SetActive(isActive);
+        isActive ? _timelineSystem->Play() : _timelineSystem->Stop();
     }
-    static bool isLoop = _timelineSystem->IsLoop();
+    bool isLoop = _timelineSystem->HasFlags(TimelineSystem::TIMELINESYSTEM_FLAGS_LOOP);
     if (ImGui::Checkbox("Loop", &isLoop))
     {
-        _timelineSystem->SetLoop(isLoop);
+        _timelineSystem->ToggleFlags(TimelineSystem::TIMELINESYSTEM_FLAGS_LOOP);
+    }
+    bool isNotifyDisable = _timelineSystem->HasFlags(TimelineSystem::TIMELINESYSTEM_FLAGS_NOTIFY_DISABLED);
+    if (ImGui::Checkbox("Notify Disable", &isNotifyDisable))
+    {
+        _timelineSystem->ToggleFlags(TimelineSystem::TIMELINESYSTEM_FLAGS_NOTIFY_DISABLED);
+    }
+    bool isCounter = _timelineSystem->HasFlags(TimelineSystem::TIMELINESYSTEM_FLAGS_USE_COUNTER);
+    if (ImGui::Checkbox("Use Counter", &isCounter))
+    {
+        _timelineSystem->ToggleFlags(TimelineSystem::TIMELINESYSTEM_FLAGS_USE_COUNTER);
+    }
+
+    auto list = _timelineSystem->GetTimelineNotifyList();
+    for (const auto& notify : list)
+    {
+        ImGui::Separator();
+        notify->GetEvent()->ImGuiDrawPropertys();
     }
 }
 
@@ -56,3 +83,10 @@ void EditorSequencerTool::OnFrameFocusStay() {}
 void EditorSequencerTool::OnFrameFocusExit() {}
 
 void EditorSequencerTool::OnFramePopupOpened() {}
+
+REGISTER_CLASS(TimelineSystem, TestTimeLineEvent)
+void TestTimeLineEvent::OnNotified(float time)
+{
+    std::string message = "Timeline TestNotify Triggered at " + std::to_string(time) + "s";
+    UmLogger.Log(1, message);
+}
