@@ -196,8 +196,6 @@ namespace File
         _path = newPath;
         _name = _path.filename().string();
 
-        LoadMeta();
-
         std::vector<std::pair<FString, FString>>  table;
 
         for (auto& [name, wpContext] : _contextTable)
@@ -220,8 +218,6 @@ namespace File
     {
         _path = newPath;
         _name = _path.filename().string();
-
-        LoadMeta();
 
         std::vector<std::pair<FString, FString>> table;
 

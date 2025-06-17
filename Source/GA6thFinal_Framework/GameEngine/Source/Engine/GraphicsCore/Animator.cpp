@@ -1,15 +1,36 @@
 ﻿#include "pch.h"
 #include "Animator.h"
-#include "Engine/GraphicsCore/Skeleton.h"
-#include "Engine/GraphicsCore/Animation.h"
-
-unsigned int Animator::_globalID = 0;
-constexpr unsigned int MAX_BONE_MATRIX = 128;
+#include "Skeleton.h"
+#include "Animation.h"
 
 Animator::Animator()
-	: _ID(_globalID++)
-	, _maxSplit(1)
+	: _maxSplit(1)
 {
+}
+
+const Matrix* Animator::FindBoneMatrix(const char* boneName) const
+{
+    Bone& rootBone = _skeleton->GetRootBone();
+
+    std::queue<Bone*> bfs;
+    bfs.push(&rootBone);
+
+    while (!bfs.empty())
+    {
+        Bone* curr = bfs.front();
+        bfs.pop();
+
+        if (boneName == curr->Name)
+        {
+            return &curr->Final;
+        }
+        for (auto& child : curr->Children)
+        {
+            bfs.push(&child);
+        }
+    }
+
+    return nullptr;
 }
 
 void Animator::Initialize(std::wstring_view filePath, std::shared_ptr<Skeleton> skeleton)
@@ -24,10 +45,34 @@ void Animator::Initialize(std::wstring_view filePath, std::shared_ptr<Skeleton> 
 	_currTransforms.resize(MAX_BONE_MATRIX);
 	_prevTransforms.resize(MAX_BONE_MATRIX);
 	_blendMatrixMask.resize(MAX_BONE_MATRIX);
+
+    _isInitialize = true;
+}
+
+void Animator::Initialize(std::shared_ptr<Animation> animation, std::shared_ptr<Skeleton> skeleton)
+{
+    if (nullptr == animation || nullptr == skeleton)
+        return;
+
+    _animation = animation;
+    _skeleton  = skeleton;
+    _controllers.resize(1);
+    _prevControllers.resize(1);
+    _blends.resize(1);
+
+    _animationTransforms.resize(MAX_BONE_MATRIX);
+    _currTransforms.resize(MAX_BONE_MATRIX);
+    _prevTransforms.resize(MAX_BONE_MATRIX);
+    _blendMatrixMask.resize(MAX_BONE_MATRIX);
+
+    _isInitialize = true;
 }
 
 void Animator::Update(const float deltaTime)
 {
+    if (!_isInitialize)
+        return;
+
 	XMMATRIX identity = XMMatrixIdentity();
 
 	for (unsigned int i = 0; i < _maxSplit; i++)
@@ -35,9 +80,9 @@ void Animator::Update(const float deltaTime)
 		const Animation::Channel& animation = _animation->_animations[_controllers[i].Animation.data()];
 		_controllers[i].PlayTime += _controllers[i].Speed * deltaTime;
 	
-		if (_controllers[i].PlayTime >= animation.lastTime)
+		if (_controllers[i].PlayTime >= animation.LastTime)
 		{
-			_controllers[i].PlayTime = fmod(_controllers[i].PlayTime, animation.lastTime);
+			_controllers[i].PlayTime = fmod(_controllers[i].PlayTime, animation.LastTime);
 		}
 	}
 
@@ -87,11 +132,6 @@ void Animator::Update(const float deltaTime)
 	}
 }
 
-void Animator::Release()
-{
-	delete this;
-}
-
 void Animator::ChangeAnimation(const char* animation)
 {
 	for (unsigned int i = 0; i < _maxSplit; i++)
@@ -114,7 +154,7 @@ void Animator::ChangeAnimation(const char* animation, const unsigned int ID)
 	_prevControllers[ID] = _controllers[ID];
 	_controllers[ID].Animation = animation;
 	_controllers[ID].PlayTime = 0.f;
-	_controllers[ID].LastTime = iter->second.lastTime;
+	_controllers[ID].LastTime = iter->second.LastTime;
 }
 
 void Animator::SyncPartialAnimation(unsigned int parentID, unsigned int childID)
@@ -150,7 +190,7 @@ void Animator::SplitBone(const unsigned int ID, const char* boneName)
 {
 	if (_maxSplit <= ID)
 	{
-		ASSERT(false, L"Greater than the number of bones you set.");
+        GRAPHICS_ASSERT(false, L"Greater than the number of bones you set.");
 		return;
 	}
 
@@ -170,7 +210,7 @@ void Animator::SetAnimationSpeed(float speed, unsigned int ID)
 {
 	if (_maxSplit <= ID)
 	{
-		ASSERT(false, L"Greater than the number of bones you set.");
+        GRAPHICS_ASSERT(false, L"Greater than the number of bones you set.");
 		return;
 	}
 
@@ -211,31 +251,31 @@ void Animator::UpdateAnimationTransform(Bone& skeletion,
 										std::vector<Controller>& controllers, 
 										std::vector<Matrix>& transforms)
 {
-	Controller& current = controllers[_boneMask[skeletion.name]];
-	auto iter = _animation->_animations[current.Animation.data()].boneTransforms.find(skeletion.name);
+	Controller& current = controllers[_boneMask[skeletion.Name]];
+	auto iter = _animation->_animations[current.Animation.data()].BoneTransforms.find(skeletion.Name);
 	
-	XMMATRIX localTransform = skeletion.local;
+	XMMATRIX localTransform = skeletion.Local;
 
-	if (iter != _animation->_animations[current.Animation.data()].boneTransforms.end())
+	if (iter != _animation->_animations[current.Animation.data()].BoneTransforms.end())
 	{
 		Animation::BoneTransformTrack& keyFrame = iter->second;
 	
-		XMMATRIX scale = XMMatrixScalingFromVector(InterpolationVector3(keyFrame.scales, current.PlayTime));
-		XMMATRIX rotation = XMMatrixRotationQuaternion(InterpolationVector4(keyFrame.rotations, current.PlayTime));
-		XMMATRIX position = XMMatrixTranslationFromVector(InterpolationVector3(keyFrame.positions, current.PlayTime));
+		XMMATRIX scale = XMMatrixScalingFromVector(InterpolationVector3(keyFrame.Scales, current.PlayTime));
+		XMMATRIX rotation = XMMatrixRotationQuaternion(InterpolationVector4(keyFrame.Rotations, current.PlayTime));
+		XMMATRIX position = XMMatrixTranslationFromVector(InterpolationVector3(keyFrame.Positions, current.PlayTime));
 
 		localTransform = scale * rotation * position;
 	}
 
 	XMMATRIX globalTransform = localTransform * parentTransform;
 
-	if (-1 != skeletion.id)
+	if (-1 != skeletion.ID)
 	{
-		skeletion.anim = globalTransform;
-		transforms[skeletion.id] = XMMatrixTranspose(skeletion.offset * globalTransform);
+		skeletion.Final = globalTransform;
+		transforms[skeletion.ID] = XMMatrixTranspose(skeletion.Offset * globalTransform);
 	}
 
-	for (Bone& child : skeletion.children)
+	for (Bone& child : skeletion.Children)
 	{
 		UpdateAnimationTransform(child, globalTransform, controllers, transforms);
 	}
@@ -299,9 +339,9 @@ XMMATRIX Animator::BlendAnimation(const Matrix& m0, const Matrix& m1, const floa
 
 void Animator::BoneMasking(const Bone* bone, int mask)
 {	
-	_boneMask[bone->name] = mask;
-	if (-1 != bone->id) _blendMatrixMask[bone->id] = mask;
+	_boneMask[bone->Name] = mask;
+	if (-1 != bone->ID) _blendMatrixMask[bone->ID] = mask;
 
-	for (auto& child : bone->children)
+	for (auto& child : bone->Children)
 		BoneMasking(&child, mask);
 }

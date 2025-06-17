@@ -112,6 +112,12 @@ public:
     GETTER(const Quaternion&, Rotation) { return _rotation; }
     PROPERTY(Rotation)
 
+    GETTER_ONLY(const Vector3&, Forward)
+    { 
+        return _forward;
+    }
+    PROPERTY(Forward)
+
     SETTER(const Vector3&, EulerAngle)
     {
         if (_eulerAngle == value)
@@ -119,8 +125,7 @@ public:
 
         _hasChanged = true;
         _eulerAngle = value;
-        Quaternion newRotation =
-            Quaternion::CreateFromYawPitchRoll(_eulerAngle * Mathf::Deg2Rad);
+        Quaternion newRotation = Quaternion::CreateFromYawPitchRoll(_eulerAngle * Mathf::Deg2Rad);
         _rotation = newRotation;
     }
     GETTER(const Vector3&, EulerAngle) { return _eulerAngle; }
@@ -132,7 +137,7 @@ public:
             return;
 
         _hasChanged = true;
-        _scale      = value;
+        _scale = value;
     }
     GETTER(const Vector3&, Scale) { return _scale; }
     PROPERTY(Scale)
@@ -268,7 +273,7 @@ public:
     /// 월드 역행렬 입니다.
     /// </summary>
     /// <returns></returns>
-    const Matrix& GetInversWorldMatrix() { return _inversWorldMatrix; };
+    const Matrix& GetInversWorldMatrix() { return _inversWorldMatrix; }
 
 private:
     GameObject& _gameObject;
@@ -315,6 +320,7 @@ private:
     bool       _hasChanged;
     Vector3    _position;
     Quaternion _rotation;
+    Vector3    _forward;
     Vector3    _eulerAngle;
     Vector3    _scale;
 

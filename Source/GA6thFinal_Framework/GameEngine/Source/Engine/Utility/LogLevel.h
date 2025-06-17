@@ -102,6 +102,16 @@ public:
         return *this;
     }
 
+    bool operator!=(const LogLocation& rhs) const
+    { 
+        bool result = 
+            this->_column != rhs._column     && 
+            this->_file != rhs._file         &&
+            this->_function != rhs._function &&
+            this->_line != rhs._line;
+        return result;
+    }
+
     ~LogLocation() = default;
     constexpr uint_least32_t         line() const noexcept { return *_line; }
     constexpr uint_least32_t         column() const noexcept { return *_column; }

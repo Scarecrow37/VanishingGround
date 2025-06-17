@@ -33,11 +33,7 @@ namespace File
         if (nullptr == _eventCallback)
             return false;
 
-        if (true == _eventProcessingThread.joinable())
-            _eventProcessingThread.join();
-
-        if (true == _eventObservingThread.joinable())
-            _eventObservingThread.join();
+        Stop();
 
         if (false == _isStart)
         {
@@ -55,8 +51,18 @@ namespace File
         if (true == _isStart)
         {
             _isStart = false;
-            _eventProcessingThread.join();
-            _eventObservingThread.join();
+            if (true == _eventProcessingThread.joinable())
+            {
+                _eventProcessingThread.join();
+            }
+            if (true == _eventObservingThread.joinable())
+            {
+                _eventObservingThread.join();
+            }
+            if (TRUE == CloseHandle(_hDirectory))
+            {
+                _hDirectory = NULL;
+            }
             OutputLog(L"FileEventObserver thread is joined");
         }
     }
@@ -71,15 +77,15 @@ namespace File
             {
                 throw std::system_error(GetLastError(), std::system_category());
             }
-
-            _hDirectory = CreateFileW(
-                _path.c_str(),                                  // 감시할 디렉토리 경로
-                FILE_LIST_DIRECTORY,                            // 디렉토리 목록 조회 권한
+            // 디렉터리 핸들을 비동기 모드로 가져온다.
+            _hDirectory = CreateFile(
+                _path.c_str(),                                          // 감시할 디렉토리 경로
+                FILE_LIST_DIRECTORY,                                    // 디렉토리 목록 조회 권한
                 FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, // 공유 가능
-                nullptr,                                        // 보안 속성 없음
-                OPEN_EXISTING,                                  // 기존에 존재해야 함
-                FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED,  // 디렉토리 열기 허용 + 비동기 IO
-                HANDLE(0));                                         // 템플릿 파일 없음
+                nullptr,                                                // 보안 속성 없음
+                OPEN_EXISTING,                                          // 기존에 존재해야 함
+                FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED,      // 디렉토리 열기 허용 + 비동기 IO
+                HANDLE(0));                                             // 템플릿 파일 없음
 
             if (INVALID_HANDLE_VALUE == _hDirectory)
             {
@@ -140,7 +146,7 @@ namespace File
             auto itr = _fileEventTable.find(info.FileId);
             if (itr == _fileEventTable.end())
             {
-                _fileEventTable[info.FileId] = {"", "", Flag::FILE_EVENT_ACTION_UNKNOWN, info};
+                _fileEventTable[info.FileId] = {{}, {}, Flag::FILE_EVENT_ACTION_UNKNOWN, info};
             }
         }
 
@@ -152,26 +158,28 @@ namespace File
             {
                 auto& [secondAction, secondInfo] = _sendEventQueue[1];
 
-                bool checkFile = firstInfo.FileId == secondInfo.FileId;
+                bool isSameFileID = firstInfo.FileId == secondInfo.FileId;
 
-                if (true == checkFile)
+                // 파일 ID가 서로 같을 때
+                if (true == isSameFileID)
                 {
-                    // 이동 (현재 인덱스: removed, 다음 인덱스: added)
                     if (FILE_ACTION_REMOVED == firstAction && FILE_ACTION_ADDED == secondAction)
                     {
-                        _fileEventTable[firstInfo.FileId].EventType |= Flag::FILE_EVENT_ACTION_MOVED;
-                        _fileEventTable[firstInfo.FileId].LParam = firstInfo.FilePath.generic_wstring();
-                        _fileEventTable[firstInfo.FileId].RParam = secondInfo.FilePath.generic_wstring();
+                        DWORD eventType = Flag::FILE_EVENT_ACTION_MOVED;
+                        _fileEventTable[firstInfo.FileId].EventType |= eventType;
+                        _fileEventTable[firstInfo.FileId].LParamTable[eventType] = firstInfo.FilePath.generic_wstring();
+                        _fileEventTable[firstInfo.FileId].RParamTable[eventType] = secondInfo.FilePath.generic_wstring();
                         _sendEventQueue.pop_front();
                         _sendEventQueue.pop_front();
+                        
                         continue;
                     }
-                    else if (FILE_ACTION_RENAMED_OLD_NAME == firstAction &&
-                             FILE_ACTION_RENAMED_NEW_NAME == secondAction)
+                    else if (FILE_ACTION_RENAMED_OLD_NAME == firstAction && FILE_ACTION_RENAMED_NEW_NAME == secondAction)
                     {
-                        _fileEventTable[firstInfo.FileId].EventType |= Flag::FILE_EVENT_ACTION_RENAMED;
-                        _fileEventTable[firstInfo.FileId].LParam = firstInfo.FilePath.generic_wstring();
-                        _fileEventTable[firstInfo.FileId].RParam = secondInfo.FilePath.generic_wstring();
+                        DWORD eventType = Flag::FILE_EVENT_ACTION_RENAMED;
+                        _fileEventTable[firstInfo.FileId].EventType |= eventType;
+                        _fileEventTable[firstInfo.FileId].LParamTable[eventType] = firstInfo.FilePath.generic_wstring();
+                        _fileEventTable[firstInfo.FileId].RParamTable[eventType] = secondInfo.FilePath.generic_wstring();
                         _sendEventQueue.pop_front();
                         _sendEventQueue.pop_front();
                         continue;
@@ -180,22 +188,28 @@ namespace File
             }
             if (FILE_ACTION_ADDED == firstAction)
             {
-                _fileEventTable[firstInfo.FileId].EventType |= Flag::FILE_EVENT_ACTION_ADDED;
-                _fileEventTable[firstInfo.FileId].LParam = firstInfo.FilePath.generic_wstring();
+                DWORD eventType = Flag::FILE_EVENT_ACTION_ADDED;
+                _fileEventTable[firstInfo.FileId].EventType |= eventType;
+                _fileEventTable[firstInfo.FileId].LParamTable[eventType] = firstInfo.FilePath.generic_wstring();
+                _fileEventTable[firstInfo.FileId].RParamTable[eventType] = L"";
                 _sendEventQueue.pop_front();
                 continue;
             }
             else if (FILE_ACTION_REMOVED == firstAction)
             {
-                _fileEventTable[firstInfo.FileId].EventType |= Flag::FILE_EVENT_ACTION_REMOVED;
-                _fileEventTable[firstInfo.FileId].LParam = firstInfo.FilePath.generic_wstring();
+                DWORD eventType = Flag::FILE_EVENT_ACTION_REMOVED;
+                _fileEventTable[firstInfo.FileId].EventType |= eventType;
+                _fileEventTable[firstInfo.FileId].LParamTable[eventType] = firstInfo.FilePath.generic_wstring();
+                _fileEventTable[firstInfo.FileId].RParamTable[eventType] = L"";
                 _sendEventQueue.pop_front();
                 continue;
             }
             else if (FILE_ACTION_MODIFIED == firstAction)
             {
-                _fileEventTable[firstInfo.FileId].EventType |= Flag::FILE_EVENT_ACTION_MODIFIED;
-                _fileEventTable[firstInfo.FileId].LParam = firstInfo.FilePath.generic_wstring();
+                DWORD eventType = Flag::FILE_EVENT_ACTION_MODIFIED;
+                _fileEventTable[firstInfo.FileId].EventType |= eventType;
+                _fileEventTable[firstInfo.FileId].LParamTable[eventType] = firstInfo.FilePath.generic_wstring();
+                _fileEventTable[firstInfo.FileId].RParamTable[eventType] = L"";
                 _sendEventQueue.pop_front();
                 continue;
             }
@@ -231,6 +245,7 @@ namespace File
 
         do
         {
+            // 변경 이벤트 수집
             RecieveFileEvents();
             if (true == _request)
             {
@@ -239,10 +254,13 @@ namespace File
             }
         } while (true == _isStart);
 
+         // 현재 작업 중인 IO요청을 강제 취소해 달라는 신호를 보냄
         CancelIoEx(_hDirectory, &_overlapped);
+        // 작업이 완료될 때까지 대기
         GetOverlappedResult(_hDirectory, &_overlapped, &bytesReturned, TRUE);
+        // IO작업이 완전히 끝났는지 확인 후 핸들 닫기
         CloseHandle(_overlapped.hEvent);
-
+        _overlapped  = {};
         _isObserving = false;
         _cv.notify_all();
     }
@@ -250,13 +268,13 @@ namespace File
     bool FileEventObserver::SetEventListener()
     {
         return ReadDirectoryChangesExW(
-            _hDirectory,
-            _recievedBytes,
-            sizeof(_recievedBytes),
-            TRUE, 
-            NOTIFY_FILTERS, 
-            &_bytesReturned,
-            &_overlapped, 
+            _hDirectory,            // 모티너링 대상 디렉터리 핸들
+            _recievedBytes,         // 수신 결과 반환 버퍼의 포인터
+            sizeof(_recievedBytes), // 수신 결과 버퍼의 크기
+            TRUE,                   // TRUE: 하위 디렉터리도 감지 범위에 포함, FALSE: 현재 디렉터리만 감지
+            NOTIFY_FILTERS,         // 감지할 이벤트 필터
+            &_bytesReturned,        // 수신 받은 크기
+            &_overlapped,           // 비동기 IO를 위한 OVERLAPPED 구조체의 포인터
             NULL,
             ReadDirectoryNotifyExtendedInformation 
         );
@@ -264,9 +282,11 @@ namespace File
 
     void FileEventObserver::RecieveFileEvents()
     {
-        static bool listen = false;
-        DWORD       bytes  = {};
+        static bool listen;
+        DWORD bytes;
 
+        bytes  = {};
+        listen = false;
         while (true)
         {
             // 파일 디렉터리 변경을 감지함
@@ -336,9 +356,9 @@ namespace File
     {
         const auto& [lParam, rParam, event, info] = data;
         wstr += L"(LParam: ";
-        wstr += lParam.wstring();
+        wstr += data.GetLParam(event).wstring();
         wstr += L", RParam: ";
-        wstr += rParam.wstring();
+        wstr += data.GetRParam(event).wstring();
         wstr += L", EventType: ";
         if (event & Flag::FILE_EVENT_ACTION_RENAMED)
         {
@@ -375,5 +395,21 @@ namespace File
             OutputLog(L"FileEventObserver send file event " + wstr);
         }
 #endif
+    }
+    const File::Path& FileEventData::GetLParam(Flag::EventAction action) const
+    {
+        auto itr = LParamTable.find(action);
+        if (itr != LParamTable.end())
+            return itr->second;
+        else
+            return NULL_PATH;
+    }
+    const File::Path& FileEventData::GetRParam(Flag::EventAction action) const
+    {
+        auto itr = RParamTable.find(action);
+        if (itr != RParamTable.end())
+            return itr->second;
+        else
+            return NULL_PATH;
     }
 } // namespace File

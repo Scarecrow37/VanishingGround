@@ -71,12 +71,12 @@ bool EditorModule::LoadSetting(const File::Path& path)
                 _isDebug = node["debug"].as<bool>();
 
             if (node["imGuiIniData"])
-                _imGuiIniData = node["imGuiIniData"].as<std::string>();
+                _imGuiIniDataFromSetting = node["imGuiIniData"].as<std::string>();
 
             if (node["GuiToolData"])
                 _guiSystem.LoadGuiSettingFromMemory(node["GuiToolData"]);
 
-            ResetGuiLayout();
+            UndoGuiLayout();
 
             return true;
         }
@@ -87,31 +87,28 @@ bool EditorModule::LoadSetting(const File::Path& path)
 
 void EditorModule::Update()
 {
-    bool isLock = IsLock();
-
-    if (true == isLock)
-        ImGui::BeginDisabled();
-
-    /* ========GUI Update======== */ 
     _popupBoxSystem.OnTickGui();
-
     _guiSystem.OnTickGui();
-    _guiSystem.OnDrawGui();
-    /* =========================== */
 
-    if (true == isLock)
+    bool isPopupEmpty = _popupBoxSystem.IsEmpty();
+    if (false == isPopupEmpty)
+        ImGui::BeginDisabled();
+    
+    _guiSystem.OnDrawGui();
+
+    if (false == isPopupEmpty)
         ImGui::EndDisabled();
 
     _popupBoxSystem.OnDrawGui();
 
-    if (true == _isRefreshLayout)
+    if (false == _eventQueue.empty())
     {
-        _isRefreshLayout = false;
-        ImGui::LoadIniSettingsFromMemory(_imGuiIniData.c_str());
+        _eventQueue.front()();
+        _eventQueue.pop();
     }
     if (true == _isFirstTick)
     {
-        _imGuiIniData = ImGui::SaveIniSettingsToMemory();
+        _imGuiIniDataFromIniFile = ImGui::SaveIniSettingsToMemory();
         _isFirstTick = false;
     }
 }
@@ -123,7 +120,52 @@ void EditorModule::OpenPopupBox(const std::string& name, std::function<void()> c
 
 void EditorModule::ResetGuiLayout() 
 {
-    _isRefreshLayout = true;
+    _eventQueue.push([this]() {
+        ImGui::LoadIniSettingsFromMemory(_imGuiIniDataFromIniFile.c_str());
+        ImGui::GetIO().IniFilename = nullptr; // 인스턴스가 파괴될 때까지 저장하지 않음
+    });
+}
+
+void EditorModule::UndoGuiLayout() 
+{
+    _eventQueue.push([this]() {
+        ImGui::LoadIniSettingsFromMemory(_imGuiIniDataFromSetting.c_str());
+        ImGui::GetIO().IniFilename = nullptr; // 인스턴스가 파괴될 때까지 저장하지 않음
+    });
+}
+
+bool EditorModule::IsFocusAreaEmpty() const
+{
+    return _focusAreaList.empty();
+}
+
+bool EditorModule::IsFocusedArea(const char* id) const
+{
+    ImGuiID imguiId = ImHashStr(id);
+    if (_focusAreaList.find(imguiId) != _focusAreaList.end())
+    {
+        return true;
+    }
+    return false;
+}
+
+void EditorModule::SetFocusArea(const char* id)
+{
+    ImGuiID imguiId = ImHashStr(id);
+    if (_focusAreaList.find(imguiId) == _focusAreaList.end())
+    {
+        _focusAreaList.insert(imguiId);
+    }
+}
+
+void EditorModule::UnsetFocusArea(const char* id)
+{
+    ImGuiID imguiId = ImHashStr(id);
+    auto    itr     = _focusAreaList.find(imguiId);
+    if (itr != _focusAreaList.end())
+    {
+        _focusAreaList.erase(itr);
+    }
 }
 
 void EditorModule::SetGuiThemeStyle()
@@ -215,6 +257,23 @@ void EditorModule::EditorPlayMode::Play()
             #ifdef _UMEDITOR
             _isPlay = true;
             #endif // _UMEDITOR
+        }
+    }
+}
+
+void EditorModule::EditorPlayMode::Pause() 
+{
+    if (_isPlay)
+    {
+        if (true == _isPause)
+        {
+            UmTime.TimeScale = 1.f;
+            _isPause = false;
+        }
+        else
+        {
+            UmTime.TimeScale = 0.f;
+            _isPause = true;
         }
     }
 }

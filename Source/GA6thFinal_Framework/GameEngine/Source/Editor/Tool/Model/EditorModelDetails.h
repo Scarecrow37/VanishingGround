@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+class Animator;
 class MeshRenderer;
 class FBXConverter;
 class EditorModelDetails : public EditorTool
@@ -50,8 +51,17 @@ private:
     void SaveModel();
 
 private:
-    std::unique_ptr<MeshRenderer>        _meshRenderer;
     Matrix                               _worldMatrix;
     std::filesystem::path                _filePath;
+    std::shared_ptr<Animator>            _animator;
+    std::unique_ptr<MeshRenderer>        _meshRenderer;
+    std::unique_ptr<Light>               _mainLight;
     unsigned int                         _selectedMeshIndex = 0;
+    unsigned int                         _currentAnimationIndex = 0;
+
+    // Light Property
+    Vector3 _direction;
+    Vector3 _color;
+    Vector3 _ambient;
+    float   _intensity;
 };

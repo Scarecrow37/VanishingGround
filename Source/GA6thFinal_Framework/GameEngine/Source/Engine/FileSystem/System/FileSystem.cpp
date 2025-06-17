@@ -606,11 +606,14 @@ void EFileSystem::ReadDirectory(const File::Path& path)
     File::Path extesion = path.extension();
     File::Path genPath  = path.generic_string();
 
-    if (true == IsValidExtension(extesion))
+    bool isValidExt = IsValidExtension(extesion);
+    bool isDirectory = fs::is_directory(genPath);
+
+    if (true == isDirectory || true == isValidExt)
     {
         RegisterContext(genPath);
     }
-    if (true == fs::is_directory(genPath))
+    if (true == isDirectory)
     {
         for (const auto& entry : fs::recursive_directory_iterator(genPath))
         {
@@ -627,12 +630,7 @@ void EFileSystem::RegisterContext(const File::Path& path)
     if (false == fs::exists(path))
         return;
 
-    // 확장자가 유효하지 않으면 return
-    if (false == IsValidExtension(path.extension()))
-        return;
-
      auto find = GetContext(path);
-
      if (false != find.expired())
      {
          std::shared_ptr<Context> context;
@@ -641,7 +639,15 @@ void EFileSystem::RegisterContext(const File::Path& path)
          absPath      = absPath.generic_wstring();
          if (true == fs::is_regular_file(absPath))
          {
-             context = std::make_shared<FileContext>(absPath);
+             // 확장자가 유효하지 않으면 return
+             if (true == IsValidExtension(path.extension()))
+             {
+                 context = std::make_shared<FileContext>(absPath);
+             }
+             else
+             {
+                 return;
+             }
          }
          else if (true == fs::is_directory(absPath))
          {

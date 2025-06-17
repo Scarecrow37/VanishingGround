@@ -11,13 +11,13 @@ void SkyBox::Initialize()
 {
     _box->InitializeInverted(1000.f, 1000.f, 1000.f, 0);
     HRESULT hr = S_OK;
-    ComPtr<ID3D12Device> device = UmDevice.GetDevice();
+    ID3D12Device* device = UmDevice.GetDevice();
     D3D12_DESCRIPTOR_HEAP_DESC hpDesc{.Type           = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
                                       .NumDescriptors = 3,
                                       .Flags          = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
                                       .NodeMask       = 0};
-    hr = device->CreateDescriptorHeap(&hpDesc, IID_PPV_ARGS(_descriptorHeap.GetAddressOf()));
-    FAILED_CHECK_BREAK(hr);
+    hr = device->CreateDescriptorHeap(&hpDesc, IID_PPV_ARGS(&_descriptorHeap));
+    FAILED_CHECK_MESSAGE(hr, L"SkyBox::Initialize device->CreateDescriptorHeap Failed");
     CreateComputePSO();
 }
 
@@ -30,17 +30,16 @@ void SkyBox::SetTexture(std::string path)
     std::wstring widePath(path.begin(), path.end()); // UTF-8 → UTF-16 변환
 
     HRESULT hr = LoadFromHDRFile(widePath.c_str(), &metadata, image);
-    FAILED_CHECK_BREAK(hr);
+    FAILED_CHECK_MESSAGE(hr, L"SkyBox::SetTexture LoadFromHDRFile Failed");
 
     const Image* img = image.GetImage(0, 0, 0);
 
     size_t                     imageSize    = img->slicePitch;
-    ID3D12Device*              pDevice      = UmDevice.GetDevice().Get();
-    ID3D12GraphicsCommandList* pCommandList = UmDevice.GetCommandList().Get();
+    ID3D12Device*              pDevice      = UmDevice.GetDevice();
+    ID3D12GraphicsCommandList* pCommandList = UmDevice.GetCommandList();
 
     // DirectXTex에서 가져온 포맷 사용 (보통 R32G32B32A32_FLOAT)
-    _skyboxhdrTexture =
-        CreateTexture2D(pDevice, static_cast<int>(metadata.width), static_cast<int>(metadata.height), metadata.format);
+    _skyboxhdrTexture = CreateTexture2D(pDevice, static_cast<int>(metadata.width), static_cast<int>(metadata.height), metadata.format);
 
     UploadToTexture2D(pDevice, pCommandList, _skyboxhdrTexture.Get(), img->pixels, imageSize);
 
@@ -48,11 +47,12 @@ void SkyBox::SetTexture(std::string path)
     CreateHDRSRV(_skyboxhdrTexture.Get());
 
     // Create CubeMap texture (UAV)
-    const UINT             cubeSize = 512;
+    const UINT cubeSize = 512;
     _skyboxCubeMap      = CreateCubeMap(pDevice, cubeSize, DXGI_FORMAT_R32G32B32A32_FLOAT);
     CreateUAV(_skyboxCubeMap.Get());
     CreateSRV(_skyboxCubeMap.Get());
     SetPipelineState();
+
     // Dispatch compute shader per face (0~5)
     for (UINT face = 0; face < 6; ++face)
     {
@@ -99,9 +99,11 @@ ComPtr<ID3D12Resource> SkyBox::CreateTexture2D(ID3D12Device* device, int w, int 
     desc.Layout                      = D3D12_TEXTURE_LAYOUT_UNKNOWN;
     desc.Flags                       = D3D12_RESOURCE_FLAG_NONE;
     auto property = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+
     ComPtr<ID3D12Resource>  texture;
-    FAILED_CHECK_BREAK(device->CreateCommittedResource(
-        &property, D3D12_HEAP_FLAG_NONE, &desc, D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_PPV_ARGS(&texture)));
+    HRESULT                hr = S_OK;
+    hr = device->CreateCommittedResource(&property, D3D12_HEAP_FLAG_NONE, &desc, D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_PPV_ARGS(&texture));
+    FAILED_CHECK_MESSAGE(hr, L"SkyBox::CreateTexture2D device->CreateCommittedResource Failed");
 
     return texture;
 }
@@ -121,9 +123,9 @@ ComPtr<ID3D12Resource> SkyBox::CreateCubeMap(ID3D12Device* device, UINT size, DX
     auto property                    = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
 
     ComPtr<ID3D12Resource> texture;
-    FAILED_CHECK_BREAK(device->CreateCommittedResource(&property, D3D12_HEAP_FLAG_NONE, &desc,
-                                                       D3D12_RESOURCE_STATE_UNORDERED_ACCESS, nullptr,
-                                                       IID_PPV_ARGS(&texture)));
+    HRESULT                hr = S_OK;
+    hr = device->CreateCommittedResource(&property, D3D12_HEAP_FLAG_NONE, &desc, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, nullptr, IID_PPV_ARGS(&texture));
+    FAILED_CHECK_MESSAGE(hr, L"SkyBox::CreateCubeMap device->CreateCommittedResource Failed");
 
     return texture;
 }
@@ -143,12 +145,16 @@ void SkyBox::UploadToTexture2D(ID3D12Device* device, ID3D12GraphicsCommandList* 
 
     ComPtr<ID3D12Resource> uploadResrouce;
    
-    FAILED_CHECK_BREAK(device->CreateCommittedResource(&heapProperty, D3D12_HEAP_FLAG_NONE, &bufferDesc,
-                                                       D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
-                                                       IID_PPV_ARGS(&uploadResrouce)));
+    HRESULT hr = S_OK;
+    hr         = device->CreateCommittedResource(&heapProperty, D3D12_HEAP_FLAG_NONE, &bufferDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&uploadResrouce));
+    FAILED_CHECK_MESSAGE(hr, L"SkyBox::UploadToTexture2D device->CreateCommittedResource Failed");
+
     void*         mappedData = nullptr;
     CD3DX12_RANGE readRange(0, 0);
-    FAILED_CHECK_BREAK(uploadResrouce->Map(0, &readRange, &mappedData));
+
+    hr = uploadResrouce->Map(0, &readRange, &mappedData);
+    FAILED_CHECK_MESSAGE(hr, L"SkyBox::UploadToTexture2D uploadResrouce->Map Failed");
+
     memcpy(mappedData, data, dataSize);
     uploadResrouce->Unmap(0, nullptr);
 
@@ -170,9 +176,7 @@ void SkyBox::UploadToTexture2D(ID3D12Device* device, ID3D12GraphicsCommandList* 
 
     commandList->CopyTextureRegion(&dst, 0, 0, 0, &src, nullptr);
 
-    auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(
-        texture, D3D12_RESOURCE_STATE_COPY_DEST,
-        D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE); 
+    auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(texture, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     commandList->ResourceBarrier(1, &barrier);
 
     UmDevice.UploadResource(uploadResrouce);
@@ -185,6 +189,7 @@ void SkyBox::CreateHDRSRV(ID3D12Resource* resource)
     srvDesc.Format                  = resource->GetDesc().Format;
     srvDesc.ViewDimension           = D3D12_SRV_DIMENSION_TEXTURE2D;
     srvDesc.Texture2D.MipLevels     = 1;
+
     UINT _shaderResourceDescriptorSize   = UmDevice.GetCBVSRVUAVDescriptorSize();
     _hdrSRVCPU.ptr = _descriptorHeap->GetCPUDescriptorHandleForHeapStart().ptr + _shaderResourceDescriptorSize;
     _hdrSRVGPU.ptr = _descriptorHeap->GetGPUDescriptorHandleForHeapStart().ptr + _shaderResourceDescriptorSize;
@@ -200,6 +205,7 @@ void SkyBox::CreateSRV(ID3D12Resource* resource)
     srvDesc.TextureCube.MipLevels       = 1;
     _cubeSRVCPU.ptr = _descriptorHeap->GetCPUDescriptorHandleForHeapStart().ptr;
     _cubeSRVGPU.ptr = _descriptorHeap->GetGPUDescriptorHandleForHeapStart().ptr;
+
     UmDevice.GetDevice()->CreateShaderResourceView(resource, &srvDesc, _cubeSRVCPU);
 }
 
@@ -226,20 +232,20 @@ void SkyBox::CreateComputePSO()
     _shader->SetShader(L"../Shaders/cs_cube_texture_convertor.hlsl",ShaderBuilder::Type::CS);
     _shader->EndBuild();
 
-    ComPtr<ID3D12Device>               device = UmDevice.GetDevice();
+    ID3D12Device*               device = UmDevice.GetDevice();
     D3D12_COMPUTE_PIPELINE_STATE_DESC psodesc{};
     HRESULT                            hr = S_OK;
-    psodesc.pRootSignature                = _shader->GetRootSignature().Get();
+    psodesc.pRootSignature                = _shader->GetRootSignature();
     psodesc.CS                            = _shader->GetShaderByteCode(ShaderBuilder::Type::CS);
     psodesc.Flags                         = D3D12_PIPELINE_STATE_FLAG_NONE;
 
-    hr = device->CreateComputePipelineState(&psodesc, IID_PPV_ARGS(_computePSO.GetAddressOf()));
-    FAILED_CHECK_BREAK(hr);
+    hr = device->CreateComputePipelineState(&psodesc, IID_PPV_ARGS(&_computePSO));
+    FAILED_CHECK_MESSAGE(hr, L"SkyBox::CreateComputePSO device->CreateComputePipelineState Failed");
 }
 
 void SkyBox::BindResources(UINT cubeSize, UINT faceIndex) 
 {
-    ID3D12GraphicsCommandList* cmdList = UmDevice.GetCommandList().Get();
+    ID3D12GraphicsCommandList* cmdList = UmDevice.GetCommandList();
 
     struct CubeConvertConstants
     {
@@ -251,23 +257,21 @@ void SkyBox::BindResources(UINT cubeSize, UINT faceIndex)
     CubeConvertConstants cb{};
     cb.FaceIndex = faceIndex;
     cb.CubeSize  = cubeSize;
-    ComPtr<ID3D12Resource> _cb;
-    UmDevice.CreateConstantBuffer(&cb,sizeof(CubeConvertConstants),_cb);
 
-    cmdList->SetComputeRootSignature(_shader->GetRootSignature().Get());
-    cmdList->SetComputeRootDescriptorTable(_shader->GetRootSignatureIndex("EquirectangularMap"),
-                                                _hdrSRVGPU);  
-    cmdList->SetComputeRootDescriptorTable(_shader->GetRootSignatureIndex("CubeMap"),
-                                               _cubeUAVGPU);
-    cmdList->SetComputeRootConstantBufferView(_shader->GetRootSignatureIndex("CubeMapInfo"),
-                                              _cb->GetGPUVirtualAddress());
+    ComPtr<ID3D12Resource> _cb;
+    UmDevice.CreateConstantBuffer(&cb, sizeof(CubeConvertConstants), _cb);
+
+    cmdList->SetComputeRootSignature(_shader->GetRootSignature());
+    cmdList->SetComputeRootDescriptorTable(_shader->GetRootParameterIndex("EquirectangularMap"), _hdrSRVGPU);
+    cmdList->SetComputeRootDescriptorTable(_shader->GetRootParameterIndex("CubeMap"), _cubeUAVGPU);
+    cmdList->SetComputeRootConstantBufferView(_shader->GetRootParameterIndex("CubeMapInfo"), _cb->GetGPUVirtualAddress());
     _cbs.push_back(_cb);
 }
 
 void SkyBox::SetPipelineState() 
 {
-    ComPtr<ID3D12GraphicsCommandList> cmdList = UmDevice.GetCommandList();
+    ID3D12GraphicsCommandList* cmdList = UmDevice.GetCommandList();
     cmdList->SetPipelineState(_computePSO.Get());
-    cmdList->SetComputeRootSignature(_shader->GetRootSignature().Get());
-    cmdList->SetDescriptorHeaps(1,_descriptorHeap.GetAddressOf());
+    cmdList->SetComputeRootSignature(_shader->GetRootSignature());
+    cmdList->SetDescriptorHeaps(1, &_descriptorHeap);
 }

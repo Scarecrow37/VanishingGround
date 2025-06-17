@@ -3,13 +3,16 @@
 Component::Component(Type type)
     : 
     _className(), 
-    _gameObect(nullptr),
+    _gameObject(&staticDummyObject),
     _type(type)
 {
 
 }
 
-Component::~Component() = default;
+Component::~Component()
+{
+    UnsetOverrideFlags();
+}
 
 Component::InitFlags::InitFlags() :
     _isAwake(false),
