@@ -27,6 +27,8 @@ void GraphicsCore::Initialize(HWND hwnd, UINT width, UINT height, FeatureLevel f
 
 
     //test
+
+
     auto effect = UmParticleManager.RegisterEffect();
     effect->SetPosition({0, 0, 10});
     effect->SetLifetime(15.f);
@@ -43,13 +45,13 @@ void GraphicsCore::Initialize(HWND hwnd, UINT width, UINT height, FeatureLevel f
     emitter->SetStartOpacity(0.5f);
     emitter->SetEndOpacity(0.f);
     emitter->SetVelocity({0, 0, 0});
-    emitter->SetEmissionRate(6);
+    emitter->SetEmissionRate(60);
     emitter->SetLocatorFactor({0, 0, 0});
     emitter->SetParticleMass(0.f);
-    emitter->SetParticleDistributionOffset(0.1f);
+    emitter->SetParticleDistributionOffset(1);
 
-    auto effect1 = UmParticleManager.RegisterEffect();
-    effect1->SetPosition({0, 0, 35});
+        auto effect1 = UmParticleManager.RegisterEffect();
+    effect1->SetPosition({0, 0, 20});
     effect1->SetLifetime(15.f);
     auto emitter1 = UmParticleManager.RegisterEmitter(effect1, 100000, 1000, 20, LocationShape::SPHERE);
     emitter1->SetEmitterLifetime(15.f);
@@ -64,12 +66,32 @@ void GraphicsCore::Initialize(HWND hwnd, UINT width, UINT height, FeatureLevel f
     emitter1->SetStartOpacity(0.5f);
     emitter1->SetEndOpacity(0.f);
     emitter1->SetVelocity({0, 0, 0});
-    emitter1->SetEmissionRate(6);
+    emitter1->SetEmissionRate(60);
     emitter1->SetLocatorFactor({0, 0, 0});
     emitter1->SetParticleMass(0.f);
-    emitter1->SetParticleDistributionOffset(0.1f);
+    emitter1->SetParticleDistributionOffset(1);
 
-
+    
+    auto effect2 = UmParticleManager.RegisterEffect();
+    effect2->SetPosition({5, 0, 20});
+    effect2->SetLifetime(15.f);
+    auto emitter2 = UmParticleManager.RegisterEmitter(effect2, 100000, 1000, 20, LocationShape::SPHERE);
+    emitter2->SetEmitterLifetime(15.f);
+    static_cast<SpriteModule*>(emitter2->_particleRenderModule)
+        ->LoadAlbedoTexture(L"../../../Resource/Assets/ParticleTexture/defaultSmoke.jpg");
+    emitter2->SetParticleLifetime(1.f);
+    emitter2->SetStartScale({0.5f, 0.5f, 1, 1});
+    emitter2->SetEndScale({0.5f, 0.5f, 1, 1});
+    // emitter2->SetEndScale({0.08f, 0.08f, 1, 1});
+    emitter2->SetStartColor({1, 0, 0});
+    emitter2->SetEndColor({1, 0, 0});
+    emitter2->SetStartOpacity(0.5f);
+    emitter2->SetEndOpacity(0.f);
+    emitter2->SetVelocity({0, 0, 0});
+    emitter2->SetEmissionRate(60);
+    emitter2->SetLocatorFactor({0, 0, 0});
+    emitter2->SetParticleMass(0.f);
+    emitter2->SetParticleDistributionOffset(1);
 
 }
 

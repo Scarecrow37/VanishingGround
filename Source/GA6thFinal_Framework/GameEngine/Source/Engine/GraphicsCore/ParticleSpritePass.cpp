@@ -62,7 +62,7 @@ void ParticleSpritePass::Begin(ID3D12GraphicsCommandList* commandlist)
 
         // 디스크립터 힙 내 복사 위치 계산
         D3D12_CPU_DESCRIPTOR_HANDLE destHandle = heapStart;
-        destHandle.ptr += _descriptorSize * (1 + i); // 0번은 StructuredBuffer SRV라면 1번부터 텍스처
+        destHandle.ptr += _descriptorSize * i; // 0번은 StructuredBuffer SRV라면 1번부터 텍스처
 
         // 디스크립터 복사
         device->CopyDescriptorsSimple(1,          // 복사할 디스크립터 개수

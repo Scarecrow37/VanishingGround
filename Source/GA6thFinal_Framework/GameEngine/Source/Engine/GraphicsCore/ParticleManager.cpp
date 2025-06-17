@@ -94,9 +94,9 @@ void ParticleManager::Update(const float deltaTime)
                         auto particle = *particlePool[i];
                         particle.SetEmitterIndex(emitterIndex);
                         _totalParticles.push_back(particle);
-                        _totalCount++;
+                        //_totalCount++;
                     }
-                    //_totalCount += emitter->GetActiveParticleCount()+1;
+                    _totalCount += emitter->GetActiveParticleCount()+1;
                     emitterIndex++;
                 }
             }
@@ -680,7 +680,7 @@ void ParticleManager::UpdateParticleResources(float deltaTime)
     lastFrameTime     = currentTime;
 
     // 컴퓨트 셰이더 디스패치
-    mvpConstants.deltaTime = deltaTime;
+    mvpConstants.deltaTime = delta;
 
     FAILED_CHECK_MESSAGE(_mvpConstantBuffer->Map(0, nullptr, &mappedData),L"");
     memcpy(mappedData, &mvpConstants, sizeof(MVPConstants));
@@ -1026,6 +1026,13 @@ void ParticleManager::PerformRadixSort()
         _radixSortCommandList->ResourceBarrier(1, &barrier);
 
         _radixSortCommandList->Dispatch(1, 1, 1);
+
+
+
+
+
+
+
 
         // === 스캐터 (재배열) 단계 ===
         _radixSortCommandList->SetPipelineState(_scatterPSO.Get());

@@ -61,7 +61,11 @@ void cs_main(uint3 id : SV_DispatchThreadID)
 {
     // 스레드 인덱스 범위 검증
     if (id.x >= g_numParticles)
+    {
+        g_sortKeys[id.x] = 0;
+        g_sortValues[id.x] = 0;
         return;
+    }
     
     // 안전한 메모리 액세스를 위한 추가 검증
     if (id.x >= 1000000) // 최대 파티클 수 제한 (1M)
@@ -75,7 +79,7 @@ void cs_main(uint3 id : SV_DispatchThreadID)
     
     
     // Back-to-front 정렬을 위한 음수 처리
-    float depth = -rawDepth;
+    float depth = rawDepth;
     
     // Depth 양자화로 플리커링 방지
     depth = QuantizeDepth(depth);
