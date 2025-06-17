@@ -104,16 +104,20 @@ void FiniteStateMachine::ImguiDrawTransition()
             {
                 ImGui::TableNextRow();
                 ImGui::TableSetColumnIndex(0);
-                if (transition.NextState && i != ReflectFields->EntryTransitionID)
+                bool isAnyState = nullptr == transition.CurrState;
+                if (false == isAnyState)
                 {
-                    if (ImGui::Button("Set entry"))
+                    if (i != ReflectFields->EntryTransitionID)
                     {
-                        SetEntryTransition(i);
+                        if (ImGui::Button("Set entry"))
+                        {
+                            SetEntryTransition(i);
+                        }
                     }
-                }
-                else
-                {
-                    ImGui::Text("Entry");
+                    else
+                    {
+                        ImGui::Text("Entry");
+                    }
                 }
                 ImGui::TableSetColumnIndex(1);
                 const char* currState = transition.CurrState ? typeid(*transition.CurrState).name() + 6 : "Any State";
