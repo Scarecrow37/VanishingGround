@@ -296,9 +296,11 @@
   <ItemGroup>
     <ClInclude Include="Scripts\GameCore\FSM\Factory\FSMConditionFactory.h" />
     <ClInclude Include="Scripts\GameCore\FSM\Factory\FSMStateFactory.h" />
+    <ClInclude Include="Scripts\GameCore\FSM\IFSMEntity.h" />
     <ClInclude Include="Scripts\GameCore\FSM\FSMCondition.h" />
     <ClInclude Include="Scripts\GameCore\FSM\FSMState.h" />
     <ClInclude Include="Scripts\Test\Condition\TestCondition.h" />
+    <ClInclude Include="Scripts\Test\Condition\TestMoveCondition.h" />
     <ClInclude Include="Scripts\Test\State\MyState.h" />
     <ClInclude Include="Scripts\Test\State\TestState.h" />
     <ClInclude Include="Scripts\Graphics\StaticMeshRenderer.h" />
@@ -318,6 +320,7 @@
     <ClCompile Include="Scripts\GameCore\FSM\FSMCondition.cpp" />
     <ClCompile Include="Scripts\GameCore\FSM\FSMState.cpp" />
     <ClCompile Include="Scripts\Test\Condition\TestCondition.cpp" />
+    <ClCompile Include="Scripts\Test\Condition\TestMoveCondition.cpp" />
     <ClCompile Include="Scripts\Test\State\MyState.cpp" />
     <ClCompile Include="Scripts\Test\State\TestState.cpp" />
     <ClCompile Include="Scripts\Graphics\StaticMeshRenderer.cpp" />
