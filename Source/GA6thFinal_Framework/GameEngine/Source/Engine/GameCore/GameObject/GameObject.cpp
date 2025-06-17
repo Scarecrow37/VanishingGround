@@ -118,7 +118,6 @@ void GameObject::OnInspectorStay()
         }
         ImGui::SameLine();
         ImGui::Checkbox("Debug", &isDebug);
-        ImGui::Separator();
 
         bool isPrefab = IsPrefabInstance();
         GameObject* pPrefabObject = PrefabInstance; 
@@ -149,7 +148,6 @@ void GameObject::OnInspectorStay()
                 ImGui::InputText("Prefab GUID", &tempPath, ImGuiInputTextFlags_ReadOnly);
             }
             ImGui::PopStyleColor(2);
-            ImGui::Separator();
         }
 
         if (isDebug)
