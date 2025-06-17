@@ -1,12 +1,20 @@
 ﻿#pragma once
-#include "UmFramework.h"
+#include "IFSMEntity.h"
 
-class FSMCondition : public ReflectSerializer
+class FSMCondition : public IFSMEntity
 {
 public:
     FSMCondition() = default;
     virtual ~FSMCondition() override = default;
 
-    REFLECT_FIELDS_BEGIN(ReflectSerializer)
+    /// <summary>
+    /// 전이 조건 검사 함수
+    /// </summary>
+    /// <returns></returns>
+    virtual bool Evaluate() = 0;
+
+    REFLECT_FIELDS_BEGIN(IFSMEntity)
+    //전이 조건의 우선순위를 결정합니다. 숫자가 낮을수록 우선순위가 높습니다.
+    int Order = 0;
     REFLECT_FIELDS_END(FSMCondition)
 };
