@@ -17,7 +17,8 @@ std::shared_ptr<TObject> NewGameObject(
 //함수는 일단 선언만. 구현은 나중에. 
 class GameObject : 
     public ReflectSerializer,
-    public IEditorObject
+    public IEditorObject,
+    public ITimeInvoker
 {
     friend class EGameObjectFactory;
     friend class EComponentFactory;
@@ -147,6 +148,9 @@ public:
     { 
         return _weakPtr; 
     }
+
+    // ITimeInvoker을(를) 통해 상속됨
+    std::weak_ptr<ITimeInvoker> GetWeakInvoker() override;
 
     /// <summary>
     /// <para> 전달받은 GameObject가 속해있는 Scene을 반환합니다. </para>

@@ -458,6 +458,12 @@ void GameObject::DeserializedReflectEvent()
     }
 }
 
+std::weak_ptr<ITimeInvoker> GameObject::GetWeakInvoker()
+{
+    auto ptr = GetWeakPtr().lock();
+    return std::weak_ptr<ITimeInvoker>(ptr);
+}
+
 bool GameObject::AddTag(std::string_view tag)
 {
     auto [iter, result] = ReflectFields->_tags.insert(tag.data());
