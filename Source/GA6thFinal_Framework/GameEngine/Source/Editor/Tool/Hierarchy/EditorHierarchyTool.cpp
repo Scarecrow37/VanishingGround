@@ -346,7 +346,7 @@ void EditorHierarchyTool::KeyboardEvent()
         bool holdCtrl = ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftCtrl);
         if (holdCtrl)
         {
-            if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_S))
+            if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_S, false))
             {
                 Scene* scene = UmSceneManager.GetMainScene();
                 if (scene)
@@ -360,7 +360,7 @@ void EditorHierarchyTool::KeyboardEvent()
 
         if (this->IsFocusFrame() || _editorSceneTool->IsFocusFrame() || _editorFindTool->IsFocusFrame())
         {
-            if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_Delete))
+            if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_Delete, false))
             {
                 if (false == HierarchyFocusObjWeak.expired())
                 {
