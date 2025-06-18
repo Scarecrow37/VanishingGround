@@ -39,7 +39,7 @@ public:
     }
 
     // ITimeInvoker을(를) 통해 상속됨
-    std::weak_ptr<ITimeInvoker> GetWeakInvoker() override;
+    virtual std::weak_ptr<ITimeInvoker> GetWeakInvoker() override;
 
 protected:
     /// <summary>
@@ -281,8 +281,3 @@ inline void Component::UnsetOverrideFlags()
     }
 }
 
-std::weak_ptr<ITimeInvoker> Component::GetWeakInvoker()
-{
-    auto ptr = GetWeakPtr().lock();
-    return std::weak_ptr<ITimeInvoker>(ptr);
-}
