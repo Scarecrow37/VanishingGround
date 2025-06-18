@@ -12,7 +12,8 @@ TimelineNotify::~TimelineNotify()
 }
 
 TimelineSystem::TimelineSystem() 
-    : _maxFrame(0.0f)
+    : _minFrame(0.0f)
+    , _maxFrame(0.0f)
     , _currFrame(0.0f)
     , _prevFrame(0.0f)
     , _isPlaying(true)
@@ -96,10 +97,10 @@ void TimelineSystem::Update()
         {
             if (true == HasFlags(TIMELINESYSTEM_FLAGS_LOOP))
             {
-                _currFrame = _currFrame - _maxFrame;
+                _currFrame += _minFrame - _maxFrame;
                 // overflow에 대한 처리
                 ProcessNotifies(_prevFrame, _maxFrame);
-                ProcessNotifies(0.0f, _currFrame);
+                ProcessNotifies(_minFrame, _currFrame);
             }
             else
             {
@@ -118,13 +119,13 @@ void TimelineSystem::Update()
 void TimelineSystem::Play()
 {
     _isPlaying = true;
-    SetCurrentFrame(0.0f, true);
+    SetCurrentFrame(_minFrame, true);
 }
 
 void TimelineSystem::Stop() 
 {
     _isPlaying = false;
-    SetCurrentFrame(0.0f, true);
+    SetCurrentFrame(_minFrame, true);
 }
 
 void TimelineSystem::Resume() 
@@ -144,23 +145,25 @@ void TimelineSystem::ClearNotifies()
 
 void TimelineSystem::ResetFrame() 
 {
-    _currFrame = 0.0f;
-    _prevFrame = 0.0f;
+    _currFrame = _minFrame;
+    _prevFrame = _minFrame;
 }
 
-void TimelineSystem::SetMaxFrame(float maxFrame) 
+void TimelineSystem::SetMinFrame(float minFrame) 
 {
-    if (maxFrame < 0.0f)
-    {
-        return;
-    }
+    _minFrame = minFrame;
+    _currFrame = ImClamp(_currFrame, _minFrame, _maxFrame);
+}
+
+void TimelineSystem::SetMaxFrame(float maxFrame)
+{
     _maxFrame = maxFrame;
-    _currFrame = ImClamp(_currFrame, 0.0f, _maxFrame);
+    _currFrame = ImClamp(_currFrame, _minFrame, _maxFrame);
 }
 
 void TimelineSystem::SetCurrentFrame(float frame, bool pass/* = false*/)
 {
-    _currFrame = std::min(frame, 0.0f); // 최대치는 넘어도 된다. 업데이트때 처리하기 때문
+    _currFrame = std::min(frame, _minFrame); // 최대치는 넘어도 된다. 업데이트때 처리하기 때문
     if (true == pass || _prevFrame > _currFrame)
     {
         _currFrame = _prevFrame;

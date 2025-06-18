@@ -46,6 +46,7 @@ void EditorSequencerTool::OnFrameRender()
         firstTick = false;
         float max = 5.0f;
         _timelineSystem->Play();
+        _timelineSystem->SetMinFrame(-1.0f);
         _timelineSystem->SetMaxFrame(max);
         _timelineSystem->AddNotify<TestTimeLineEvent>(1.0f)->Time = 1.0f;
         _timelineSystem->AddNotify<TestTimeLineEvent>(3.0f)->Time = 3.0f;
@@ -56,8 +57,9 @@ void EditorSequencerTool::OnFrameRender()
     }
 
     float maxFrame = _timelineSystem->GetMaxFrame();
+    float minFrame     = _timelineSystem->GetMinFrame();
     float currentFrame = _timelineSystem->GetCurrentFrame();
-    ImGui::SliderFloat("Current Frame", &currentFrame, 0.0f, maxFrame);
+    ImGui::SliderFloat("Current Frame", &currentFrame, minFrame, maxFrame);
 
     bool isActive = _timelineSystem->IsPlaying();
     if (ImGui::Checkbox("Active", &isActive))

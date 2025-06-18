@@ -42,7 +42,8 @@ public:
     ImU32 LowerBgColor      = IM_COL32(40, 40, 40, 255);
     ImU32 ThickLineColor    = IM_COL32(120, 120, 120, 200);
     ImU32 ThinLineColor     = IM_COL32(60, 60, 60, 200);
-    ImU32 FollowLineColor   = IM_COL32(255, 100, 100, 200);
+    ImU32 FollowLineColor   = IM_COL32(100, 255, 100, 200);
+    ImU32 CurFrameLineColor = IM_COL32(255, 150, 150, 200);
 
     float ZoomScale = 1.0f;     // 0 ~ 1 (입실론 값도 고려해야함)
     float UnitSize = 100.0f;

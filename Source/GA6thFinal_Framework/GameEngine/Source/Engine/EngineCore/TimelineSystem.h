@@ -96,6 +96,7 @@ public:
 
     void ResetFrame();
 
+    void SetMinFrame(float minFrame);
     void SetMaxFrame(float maxFrame);
 
     void SetCurrentFrame(float frame, bool pass = false);
@@ -109,6 +110,7 @@ public:
 
     /* Getter */
     inline float    GetMaxFrame() const { return _maxFrame; }
+    inline float    GetMinFrame() const { return _minFrame; }
     inline float    GetCurrentFrame() const { return _currFrame; }
     inline float    GetPreviousFrame() const { return _prevFrame; }
     inline bool     IsPlaying() const { return _isPlaying; }
@@ -121,6 +123,7 @@ private:
     static bool CompareNotifyToAsending(const TimelineNotify* a, const TimelineNotify* b);
 
 private:
+    float _minFrame;
     float _maxFrame;
     float _currFrame;
     float _prevFrame;

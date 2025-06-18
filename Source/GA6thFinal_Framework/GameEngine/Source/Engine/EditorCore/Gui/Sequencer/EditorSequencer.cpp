@@ -97,8 +97,12 @@ void EditorSequencer::DrawCanvas()
     ImVec2 snapPos = ImVec2(0.0f, 0.0f);
 
     ImDrawList*  drawList = ImGui::GetWindowDrawList();
-    const ImVec2 windowPos = ImGui::GetCursorScreenPos();
-    const ImVec2 canvasSize = ImGui::GetContentRegionAvail();
+    const ImVec2 windowPos  = _canvasRect.Min;
+    const ImVec2 canvasSize = _canvasRect.GetSize();
+
+    const float currentFrame = _system->GetCurrentFrame();
+    const float minFrame     = _system->GetMinFrame();
+    const float maxFrame     = _system->GetMaxFrame();
 
     //////////////////////////////////////////////////////////////////////////////////////////////////
     // Draw Line
@@ -162,6 +166,9 @@ void EditorSequencer::DrawCanvas()
         std::string frameText = std::format("{:.3f}", indexX);
         drawList->AddText(start + ImVec2(5.0f, 0), ImColor(1.0f, 1.0f, 1.0f, 1.0f), frameText.c_str());
     }
+    // Draw Current Frame Line
+    
+
 }
 
 int EditorSequencer::GetLineUnit() const
