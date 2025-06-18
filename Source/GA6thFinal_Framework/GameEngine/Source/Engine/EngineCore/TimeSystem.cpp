@@ -46,6 +46,7 @@ bool ETimeSystem::TimeSystemFixedUpdate()
 void ETimeSystem::UpdateInvokeFunctions() 
 {
     bool erase = false;
+    float deltaTime = (float)_deltaTime;
     for (auto& [weak, delay, func, elapsed] : _safeInvokeFunctions)
     {
         if (true == weak.expired())
@@ -54,7 +55,7 @@ void ETimeSystem::UpdateInvokeFunctions()
         }
         else
         {
-            elapsed += _deltaTime;
+            elapsed += deltaTime;
             if (delay <= elapsed)
             {
                 func();
@@ -74,7 +75,7 @@ void ETimeSystem::UpdateInvokeFunctions()
     erase = false;
     for (auto& [delay, func, elapsed] : _unsafeInvokeFunctions)
     {
-        elapsed += _deltaTime;
+        elapsed += deltaTime;
         if (delay <= elapsed)
         {
             func();
