@@ -305,7 +305,7 @@ namespace ReflectHelper
 
                     if constexpr (StdHelper::is_std_array_v<OriginType>)
                     {
-                        if (ImGui::CollapsingHeader((const char*)name.data()))
+                        if (ImGui::TreeNodeEx((const char*)name.data()))
                         {
                             if constexpr (std::ranges::range<decltype(*value)>)
                             {
@@ -316,13 +316,14 @@ namespace ReflectHelper
                                     i++;
                                 }
                             }
+                            ImGui::TreePop();
                         }
                     }
                     else if constexpr (StdHelper::is_std_vector_v<OriginType>)
                     {
                         if constexpr (std::ranges::range<decltype(*value)>)
                         {
-                            if (ImGui::CollapsingHeader((const char*)name.data()))
+                            if (ImGui::TreeNodeEx((const char*)name.data()))
                             {
                                 int i = 0;
                                 for (auto& val : *value)
@@ -344,6 +345,7 @@ namespace ReflectHelper
                                         isEdit = true;
                                     }
                                 }
+                                ImGui::TreePop();
                             }
                         }
                     }

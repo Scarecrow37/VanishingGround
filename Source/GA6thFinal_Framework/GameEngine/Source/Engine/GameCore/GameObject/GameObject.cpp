@@ -386,7 +386,7 @@ void GameObject::OnInspectorStay()
 
 void GameObject::ImguiEditTags() 
 {
-    if (ImGui::CollapsingHeader("Tags", ImGuiTreeNodeFlags_::ImGuiTreeNodeFlags_DefaultOpen))
+    if (ImGui::TreeNodeEx("Tags", ImGuiTreeNodeFlags_::ImGuiTreeNodeFlags_DefaultOpen))
     {
         static std::vector<std::string> eraseList;
         for (auto iter = ReflectFields->_tags.begin(); iter != ReflectFields->_tags.end(); ++iter)
@@ -436,6 +436,7 @@ void GameObject::ImguiEditTags()
             }
             ImGui::EndPopup();
         }
+        ImGui::TreePop();
     }
     ImGui::Separator();
 }
