@@ -1,22 +1,24 @@
 ﻿#include "pch.h"
 
 HierarchyFindTool::HierarchyFindTool() 
+    : 
+    _tagFilter(STR_NULL)
 {
     SetLabel("Hierarchy Finder");
     SetDockLayout(ImGuiDir_Left);
 }
 
-HierarchyFindTool::~HierarchyFindTool() 
+HierarchyFindTool::~HierarchyFindTool()
 {
 
 }
 
-void HierarchyFindTool::OnTickGui() 
+void HierarchyFindTool::OnTickGui()
 {
 
 }
 
-void HierarchyFindTool::OnStartGui() 
+void HierarchyFindTool::OnStartGui()
 {
     _ownerDockWindow = GetOwnerDockWindow();
 }
@@ -27,57 +29,52 @@ void HierarchyFindTool::OnPreFrameBegin() {}
 
 void HierarchyFindTool::OnPostFrameBegin() {}
 
-void HierarchyFindTool::OnFrameRender() 
+void HierarchyFindTool::OnFrameRender()
 {
     DrawFinder();
     DrawFindList();
 }
 
-void HierarchyFindTool::OnFrameClipped() {}
+void HierarchyFindTool::OnFrameClipped()
+{
+
+}
 
 void HierarchyFindTool::OnFrameEnd() {}
 
-void HierarchyFindTool::OnFrameFocusEnter() {}
+void HierarchyFindTool::OnFrameFocusEnter()
+{
+    FindWithTagFilter();
+}
 
 void HierarchyFindTool::OnFrameFocusStay() {}
 
-void HierarchyFindTool::OnFrameFocusExit() {}
+void HierarchyFindTool::OnFrameFocusExit()
+{
+    FindWithTagFilter();
+}
 
 void HierarchyFindTool::OnFramePopupOpened() {}
 
-void HierarchyFindTool::DrawFinder() 
+void HierarchyFindTool::DrawFinder()
 {
-    static FindType findType;
-   
-    if (ImGui::Button("Find with name"))
+    if (ImGui::Button("Tag filter"))
     {
-        findType = FindType::NAME;
         ImGui::OpenPopup("Find popup");
     }
     ImGui::SameLine();
-    if (ImGui::Button("Find with tag"))
+    if (ImGui::Button("Reset"))
     {
-        findType = FindType::TAG;
-        ImGui::OpenPopup("Find popup");
+        _tagFilter = STR_NULL;
     }
+    _nameFilter.Draw("Search");
 
     if (ImGui::BeginPopup("Find popup"))
     {
-        static std::string findBuffer;
-        ImGui::InputText("##FindNameInput", &findBuffer);
+        ImGui::InputText("##FindNameInput", &_tagFilter);
         if (ImGui::IsKeyReleased(ImGuiKey_Enter) || ImGui::Button("Find"))
         {
-            switch (findType)
-            {
-            case HierarchyFindTool::FindType::NAME:
-                _findList = GameObject::FindGameObjects(findBuffer);
-                break;
-            case HierarchyFindTool::FindType::TAG:
-                _findList = GameObject::FindGameObjectsWithTag(findBuffer);
-                break;
-            default:
-                break;
-            }
+            FindWithTagFilter();
             ImGui::CloseCurrentPopup();
         }
         ImGui::SameLine();
@@ -91,38 +88,69 @@ void HierarchyFindTool::DrawFinder()
     ImGui::Separator();
 }
 
-void HierarchyFindTool::DrawFindList() 
+void HierarchyFindTool::DrawFindList()
 {
-    bool expired = false;
-    for (auto& item : _findList)
+    if (_tagFilter != STR_NULL)
     {
-        if (false == item.expired())
+        bool expired = false;
+        for (auto& item : _findList)
         {
-            auto object = item.lock();
-            ImGui::PushID(object.get());
+            if (false == item.expired())
             {
-                if (object->IsValid())
+                auto object = item.lock();
+                ImGui::PushID(object.get());
                 {
-                    if (ImGuiHelper::TreeStyleTextButton(object->ToString().data()))
+                    if (object->IsValid())
+                    {
+                        std::string_view name = object->ToString();
+                        if (_nameFilter.PassFilter(name.data()))
+                        {
+                            if (ImGui::Selectable(name.data()))
+                            {
+                                EditorHierarchyTool::HierarchyFocusObjWeak = object;
+                                EditorInspectorTool::SetFocusObject(object);
+                            }
+                        }
+                    }
+                }
+                ImGui::PopID();
+            }
+            else
+            {
+                expired = true;
+            }
+        }
+
+        if (expired)
+        {
+            std::erase_if(_findList, [](std::weak_ptr<GameObject>& obj) { return obj.expired(); });
+        }
+    }
+    else
+    {
+        for (auto& object : ESceneManager::Engine::GetRuntimeObjects())
+        {
+            if (object->IsValid())
+            {
+                std::string_view name = object->ToString();
+                if (_nameFilter.PassFilter(name.data()))
+                {
+                    if (ImGui::Selectable(name.data()))
                     {
                         EditorHierarchyTool::HierarchyFocusObjWeak = object;
+                        EditorInspectorTool::SetFocusObject(object);
                     }
                 }
             }
-            ImGui::PopID();
         }
-        else
-        {
-            expired = true;
-        }
-    }
-
-    if (expired)
-    {
-        std::erase_if(_findList, [](std::weak_ptr<GameObject>& obj) 
-        { 
-            return obj.expired();
-        });
     }
     ImGui::Separator();
+}
+
+void HierarchyFindTool::FindWithTagFilter() 
+{
+    if (_tagFilter != STR_NULL)
+    {
+        _findList = GameObject::FindGameObjectsWithTag(_tagFilter);
+    }
 }
