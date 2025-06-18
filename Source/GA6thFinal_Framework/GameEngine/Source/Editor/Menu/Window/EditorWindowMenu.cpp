@@ -42,6 +42,26 @@ void EditorMenuTools::OnMenu()
             }
             ImGui::EndMenu();
         }
+        if (ImGui::BeginMenu("Focus"))
+        {
+            for (auto& [key, tool] : _dockWindowTable)
+            {
+                const char* label  = tool->GetLabel().c_str();
+                if (ImGui::MenuItem(label, nullptr))
+                {
+                    tool->SetFocusFrame();
+                }
+            }
+            for (auto& [key, tool] : _editorToolTable)
+            {
+                const char* label  = tool->GetLabel().c_str();
+                if (ImGui::MenuItem(label, nullptr))
+                {
+                    tool->SetFocusFrame();
+                }
+            }
+            ImGui::EndMenu();
+        }
         ImGui::EndMenu();
     }
 }

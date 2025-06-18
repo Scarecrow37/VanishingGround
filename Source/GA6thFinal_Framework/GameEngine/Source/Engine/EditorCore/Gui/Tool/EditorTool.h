@@ -149,7 +149,6 @@ public:
     inline void                     ToggleLock() { ReflectFields->IsLock = ReflectFields->IsLock == true ? false : true; }
     inline bool                     IsLock() const { return ReflectFields->IsLock; }
    
-
     /*                              사이즈 조정 설정 */
     inline void                     SetSize(const ImVec2& size) { _size = {true, size}; }
     inline ImVec2                   GetSize() const { return _size.second; }
@@ -168,6 +167,7 @@ public:
     /*                              Begin과 End 사이의 작업 중인지 여부 */
     inline bool                     IsBeginningFrame() const { return _isBeginningFrame; }
     /*                              해당 프레임이 포커싱 중인지 여부 */ 
+    inline void                     SetFocusFrame() const { ImGui::SetWindowFocus(GetLabel().c_str()); }
     inline bool                     IsFocusFrame() const { return _isFrameFocused; }
     /*                              해당 객체가 도킹 윈도우인지 반환 */
     inline bool                     IsDockWindow() const { return _isDockWindow; }
