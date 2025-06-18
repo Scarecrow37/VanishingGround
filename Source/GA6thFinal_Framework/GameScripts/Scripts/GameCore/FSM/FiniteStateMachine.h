@@ -149,11 +149,11 @@ public:
     /// </summary>
     /// <typeparam name="T"></typeparam>
     template <FSM_STATE_BASE T>
-    void AddState()
+    T* AddState()
     {
         static_assert(std::is_base_of_v<FSMState, T>, "T is not derived from State.");
         const char* key = typeid(T).name();
-        AddStateToKey(key);
+        return static_cast<T*>(AddStateToKey(key));
     }
 
     /// <summary>
@@ -181,8 +181,9 @@ private:
     /// State를 등록합니다.
     /// </summary>
     /// <param name="stateTypeIdName"></param>
-    void AddStateToKey(std::string_view stateTypeIdName)
+    FSMState* AddStateToKey(std::string_view stateTypeIdName)
     {
+        FSMState* state = nullptr;
         const char* key = stateTypeIdName.data();
         auto stateFind = _stateMap.find(key);
         if (stateFind == _stateMap.end())
@@ -192,6 +193,7 @@ private:
             {
                 instance->_owner = this;
                 _stateMap[key].reset(instance);
+                state = instance;
             }
             else
             {
@@ -202,6 +204,7 @@ private:
         {
             UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"이미 등록된 State 타입입니다.");
         }
+        return state;
     }
 
     FSMState* GetStateToKey(std::string_view key)
@@ -223,11 +226,11 @@ private:
 
 public:
     template <FSM_CONDITION_BASE T>
-    void AddCondition()
+    T* AddCondition()
     {
         static_assert(std::is_base_of_v<FSMCondition, T>, "T is not derived from Condition.");
         const char* key = typeid(T).name();
-        AddConditionToKey(key);
+        return static_cast<T*>(AddConditionToKey(key));
     }
 
     template <FSM_CONDITION_BASE T>
@@ -251,8 +254,9 @@ private:
     /// Condition을 등록합니다.
     /// </summary>
     /// <param name="conditionTypeIdName"></param>
-    void AddConditionToKey(std::string_view conditionTypeIdName)
+    FSMCondition* AddConditionToKey(std::string_view conditionTypeIdName)
     {
+        FSMCondition* condition = nullptr;
         const char* key = conditionTypeIdName.data();
         auto conditionFind = _conditionMap.find(key);
         if (conditionFind == _conditionMap.end())
@@ -262,6 +266,7 @@ private:
             {
                 instance->_owner = this;
                 _conditionMap[key].reset(instance);
+                condition = instance;
             }
             else
             {
@@ -272,6 +277,7 @@ private:
         {
             UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"이미 등록된 Condition 타입입니다.");
         }
+        return condition;
     }
 
     FSMCondition* GetConditionToKey(std::string_view key)
