@@ -294,10 +294,14 @@ std::vector<std::shared_ptr<GameObject>> EGameObjectFactory::MakeObjectsGraphToY
 
                 if (true == isPrefabInstance)
                 {
-                    bool result = UmComponentFactory.ParsingYamlToOverrideFlags(component, *sceneComponentNodeIter);
-                    if (true == result)
+                    const YAML::Node& currSceneNodes = *sceneNodes; 
+                    if (sceneComponentNodeIter != currSceneNodes["Components"].end())
                     {
-                        ++sceneComponentNodeIter;
+                        bool result = UmComponentFactory.ParsingYamlToOverrideFlags(component, *sceneComponentNodeIter);
+                        if (true == result)
+                        {
+                            ++sceneComponentNodeIter;
+                        }
                     }
                 }
             }

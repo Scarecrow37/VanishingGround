@@ -42,6 +42,8 @@ public:
     inline static const char* ICON_STOP = "\xef\x8a\x8d";
     inline static const char* ICON_PAUSE = "\xef\x8a\x8b";
 
+    inline static const char* ICON_LIST = "\xEF\x80\xA2"; // f00b
+
     static constexpr std::string UnicodeToUTF8(unsigned int codepoint)
     {
         std::string out;
