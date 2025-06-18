@@ -10,6 +10,7 @@
 #include "RenderScene.h"
 #include "RendererFileEvent.h"
 #include "SkyBoxRenderTechnique.h"
+#include "BloomTechnique.h"
 #include "Sphere.h"
 
 Renderer::Renderer()
@@ -109,10 +110,9 @@ void Renderer::Initialize()
 
     std::shared_ptr<RenderScene> editorScene = std::make_shared<RenderScene>("Editor");
     editorScene->InitializeRenderScene();
-    std::shared_ptr<SkyBoxRenderTechnique> skyTech = std::make_shared<SkyBoxRenderTechnique>();
-    editorScene->AddRenderTechnique(skyTech);
-    std::shared_ptr<PBRLitTechnique> pbrTech = std::make_shared<PBRLitTechnique>();
-    editorScene->AddRenderTechnique(pbrTech);
+    editorScene->AddRenderTechnique(std::make_shared<SkyBoxRenderTechnique>());
+    editorScene->AddRenderTechnique(std::make_shared<PBRLitTechnique>());
+    editorScene->AddRenderTechnique(std::make_shared<BloomTechnique>());
     _renderScenes["Editor"] = editorScene;
 
     if constexpr (IS_EDITOR)
@@ -141,11 +141,11 @@ void Renderer::Update()
 
 void Renderer::Render()
 {
-    ComPtr<ID3D12GraphicsCommandList> commandList = UmDevice.GetCommandList();
+    ID3D12GraphicsCommandList* commandList = UmDevice.GetCommandList();
 
     for (auto& renderScene : _renderScenes)
     {
-        renderScene.second->Execute(commandList.Get());
+        renderScene.second->Execute(commandList);
     }
     if constexpr (IS_EDITOR)
         UmDevice.SetBackBuffer();

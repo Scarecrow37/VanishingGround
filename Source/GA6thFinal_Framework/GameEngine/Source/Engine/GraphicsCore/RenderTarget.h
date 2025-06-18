@@ -13,7 +13,7 @@ public:
     const UINT                         GetID() const { return _ID; }
 
 public:
-    void Initialize(DXGI_FORMAT format, FLOAT clearColor);
+    void Initialize(UINT width, UINT height, DXGI_FORMAT format, FLOAT clearColor);
     void CreateShaderResourceView();
 
 public:

@@ -98,7 +98,6 @@ void GBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
     auto                  cameraData             = _ownerScene->_cameraBuffer->GetGPUVirtualAddress();
 
 
-
     commandList->SetPipelineState(_psos[STATIC_ONE_SIDED].Get());
     commandList->SetGraphicsRootSignature(_shader[MeshType::STATIC]->GetRootSignature());
     commandList->SetGraphicsRootConstantBufferView(_shader[MeshType::STATIC]->GetRootParameterIndex("cameraData"), cameraData);
@@ -204,13 +203,16 @@ void GBufferPass::InitShaderAndPSO()
 void GBufferPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, const std::vector<MeshRenderer*>& meshes,
                              MeshType type)
 {
-    UINT param[2]{0, MAX_BONE_MATRIX};
+    UINT param[3]{0, MAX_BONE_MATRIX, 0};
     for (auto& component : meshes)
     {
         const auto& model = component->GetModel();
+        param[2]          = component->GetCustomDepth();
+
         for (auto& mesh : model->GetMeshes())
         {
-            commandList->SetGraphicsRoot32BitConstants(_shader[type]->GetRootParameterIndex("bit32_2_objectData"), 2, param, 0);
+            param[2] = 1; // 임시
+            commandList->SetGraphicsRoot32BitConstants(_shader[type]->GetRootParameterIndex("bit32_3_objectData"), 3, param, 0);
             param[0]++;
             mesh->Render(commandList);
         }

@@ -6,6 +6,7 @@
 MeshRenderer::MeshRenderer(MeshRenderType type, const Matrix& worldMatrix)
     : _type(type)
     , _worldMatrix(worldMatrix)
+    , _customDepth(0)
 {
 }
 

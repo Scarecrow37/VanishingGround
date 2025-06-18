@@ -301,8 +301,12 @@
     <ClInclude Include="Source\Editor\Tool\Scene\Command\EditorSceneCommands.h" />
     <ClInclude Include="Source\Engine\EngineCore\FactoryRegister.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\AnimationCore.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\BlendPass.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\BrightExtractPass.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\DownSamplePass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Light.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\LightCore.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\BloomTechnique.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\SkyBoxPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\SkyBoxRenderTechnique.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\SkyBox.h" />
@@ -345,6 +349,7 @@
     <ClInclude Include="Source\Engine\EditorCore\Gui\PopupBox\EditorPopupBox.h" />
     <ClInclude Include="Source\Engine\EditorCore\System\EditorPopupBoxSystem.h" />
     <ClInclude Include="Source\Editor\DragDropTypes\DragDropAsset.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\UpSamplePass.h" />
     <ClInclude Include="Source\Engine\Imgui\GraphEditor.h" />
     <ClInclude Include="Source\Engine\Imgui\ImCurveEdit.h" />
     <ClInclude Include="Source\Engine\Imgui\ImGradient.h" />
@@ -472,8 +477,12 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\AnimationCore.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\BlendPass.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\BrightExtractPass.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\DownSamplePass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\Light.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\LightCore.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\BloomTechnique.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\SkyBoxPass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\SkyBoxRenderTechnique.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\SkyBox.cpp" />
@@ -535,6 +544,7 @@
     <ClCompile Include="Source\Engine\EditorCore\Gui\PopupBox\EditorPopupBox.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\System\EditorPopupBoxSystem.cpp" />
     <ClCompile Include="Source\Editor\DragDropTypes\DragDropAsset.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\UpSamplePass.cpp" />
     <ClCompile Include="Source\Engine\Imgui\GraphEditor.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">NotUsing</PrecompiledHeader>

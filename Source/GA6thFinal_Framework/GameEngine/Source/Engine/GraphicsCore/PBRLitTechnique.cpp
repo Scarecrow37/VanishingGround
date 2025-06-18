@@ -1,8 +1,7 @@
 ﻿#include "pch.h"
 #include "PBRLitTechnique.h"
-#include "GBufferPass.h"
 #include "DeferredPBRLitPass.h"
-#include "Shader.h"
+#include "GBufferPass.h"
 #include "RenderScene.h"
 #include "RenderTarget.h"
 
@@ -24,7 +23,7 @@ void PBRLitTechnique::Initialize(ID3D12GraphicsCommandList* commandList)
         commandList->ResourceBarrier(1, &br);
     }
     // mesh lighting target 상태 전이하기.
-    ID3D12Resource* meshRT = _ownerScene->_meshLightingTarget->GetResource();
+    ID3D12Resource*          meshRT = _ownerScene->_meshLightingTarget->GetResource();
     CD3DX12_RESOURCE_BARRIER br     = CD3DX12_RESOURCE_BARRIER::Transition(meshRT, D3D12_RESOURCE_STATE_COMMON,
                                                                            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     commandList->ResourceBarrier(1, &br);
@@ -49,11 +48,9 @@ void PBRLitTechnique::InitGBufferPass()
             .left = 0, .top = 0, .right = (LONG)UmDevice.GetMode().Width, .bottom = (LONG)UmDevice.GetMode().Height};
     gBufferPass->Initialize(viewport, scissor);
     AddRenderPass(gBufferPass);
-
-
 }
 
-void PBRLitTechnique::InitDeferredPass() 
+void PBRLitTechnique::InitDeferredPass()
 {
     std::shared_ptr<DeferredPBRLitPass> litPass = std::make_shared<DeferredPBRLitPass>();
     litPass->SetOwnerScene(_ownerScene);

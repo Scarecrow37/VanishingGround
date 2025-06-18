@@ -1,37 +1,37 @@
 ﻿#include "pch.h"
 #include "RenderTarget.h"
 
-void RenderTarget::Initialize(DXGI_FORMAT format, FLOAT clearColor)
-{
-    clearValue                  = clearColor;
-    _format                     = format;
+void RenderTarget::Initialize(UINT width, UINT height, DXGI_FORMAT format, FLOAT clearColor)
+{    
+    clearValue                 = clearColor;
+    _format                    = format;
 
-    ID3D12Device*       device = UmDevice.GetDevice();
-    D3D12_RESOURCE_DESC  desc{.Dimension        = D3D12_RESOURCE_DIMENSION_TEXTURE2D,
-                              .Width            = UmDevice.GetMode().Width,
-                              .Height           = UmDevice.GetMode().Height,
-                              .DepthOrArraySize = 1,
-                              .MipLevels        = 1,
-                              .Format           = _format,
-                              .SampleDesc{.Count   = UmDevice.GetMSAAState() ? (UINT)4 : (UINT)1,
-                                          .Quality = UmDevice.GetMSAAState() ? UmDevice.GetMSAAQuality() - 1 : (UINT)0},
-                              .Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN,
-                              .Flags  = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET};
+    D3D12_RESOURCE_DESC desc{.Dimension        = D3D12_RESOURCE_DIMENSION_TEXTURE2D,
+                             .Width            = width,
+                             .Height           = height,
+                             .DepthOrArraySize = 1,
+                             .MipLevels        = 1,
+                             .Format           = format,
+                             .SampleDesc{.Count   = UmDevice.GetMSAAState() ? (UINT)4 : (UINT)1,
+                                         .Quality = UmDevice.GetMSAAState() ? UmDevice.GetMSAAQuality() - 1 : (UINT)0},
+                             .Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN,
+                             .Flags  = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET};
 
     CD3DX12_HEAP_PROPERTIES property(D3D12_HEAP_TYPE_DEFAULT);
-    
+
     D3D12_CLEAR_VALUE clearValue{
-        .Format = _format,
-        .Color  = {clearColor, clearColor, clearColor,1.f},
+        .Format = format,
+        .Color  = {clearColor, clearColor, clearColor, 1.f},
     };
 
-    // committedReosurce로 임시로 생성
-    UmDevice.GetDevice()->CreateCommittedResource(&property, D3D12_HEAP_FLAG_NONE, &desc,
-                                                        D3D12_RESOURCE_STATE_COMMON, &clearValue,
-                                                        IID_PPV_ARGS(&_resource));
+    ID3D12Device* device = UmDevice.GetDevice();
+    HRESULT       hr     = S_OK;
+
+    hr = device->CreateCommittedResource(&property, D3D12_HEAP_FLAG_NONE, &desc, D3D12_RESOURCE_STATE_COMMON, &clearValue, IID_PPV_ARGS(&_resource));
+    FAILED_CHECK_MESSAGE(hr, L"RenderTarget::Initialize CreateCommittedResource Failed");
 
     UmViewManager.AddDescriptorHeap(ViewManager::Type::RENDER_TARGET, _rtvHandle);
-    UmDevice.GetDevice()->CreateRenderTargetView(_resource.Get(), nullptr, _rtvHandle);
+    device->CreateRenderTargetView(_resource.Get(), nullptr, _rtvHandle);    
 }
 
 void RenderTarget::CreateShaderResourceView()

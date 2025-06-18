@@ -87,6 +87,7 @@ public:
 
     // 후처리시 필요한 사실상 통상적 메쉬 그리기가 이루어진, 음영처리가 완성된 타겟 하나
     std::shared_ptr<RenderTarget> _meshLightingTarget;
+    std::shared_ptr<RenderTarget> _finalTarget;
 
     // frame단위로 사용하는 depth stencil buffer
     D3D12_CPU_DESCRIPTOR_HANDLE _depthStencilHandle;

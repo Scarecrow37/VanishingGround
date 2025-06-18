@@ -68,7 +68,7 @@ PSOutput WriteGuBuffer(PSInput input)
     //5. depth
     output.depth = input.position.z;
     // SWTODO : 나중에 마스킹값 받는거 처리
-    output.customDepth = 0;
+    output.customDepth = objectData.CustomDepth;
     return output;
 }
 

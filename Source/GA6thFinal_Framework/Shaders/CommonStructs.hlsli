@@ -1,3 +1,6 @@
+#ifndef __COMMON_STRUCTS__
+#define __COMMON_STRUCTS__
+
 #define MAX_DIRECTIONAL_LIGHT 4
 #define MAX_POINT_LIGHT 32
 #define MAX_SPOT_LIGHT 16
@@ -63,4 +66,14 @@ struct ObjectData
 {
     uint ID;
     uint Offset;
+    uint CustomDepth;
 };
+
+struct PostProcessData
+{
+    float2 ScreenSize;
+    float2 TexelSize;
+    uint PostProcessMask;
+};
+
+#endif
