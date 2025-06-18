@@ -16,14 +16,14 @@ FiniteStateMachine::~FiniteStateMachine() = default;
 
 bool FiniteStateMachine::IsValidEntryPoint()
 {
-    int startIndex = ReflectFields->EntryTransitionID;
-    if (0 <= startIndex && startIndex < _transitions.size() && nullptr != _transitions[startIndex].CurrState)
+    const char* startState = ReflectFields->EntryState.c_str();
+    if (_stateMap.find(startState) != _stateMap.end())
     {
         return true;
     }
     else
     {
-        ReflectFields->EntryTransitionID = -1;
+        ReflectFields->EntryState = STR_NULL;
         return false;
     }
 }
@@ -79,7 +79,7 @@ void FiniteStateMachine::DeserializedReflectEvent()
         std::string_view currState = transition[0];
         std::string_view condition = transition[1];
         std::string_view nextState = transition[2];
-        AddTransition(currState, condition, nextState);
+        AddTransitionToKey(currState, condition, nextState);
     }
 
     IsValidEntryPoint();
@@ -115,11 +115,12 @@ void FiniteStateMachine::ImguiDrawTransition()
                 bool isAnyState = nullptr == transition.CurrState;
                 if (false == isAnyState)
                 {
-                    if (i != ReflectFields->EntryTransitionID)
+                    const char* stateName = typeid(*transition.CurrState).name();
+                    if (stateName != ReflectFields->EntryState)
                     {
                         if (ImGui::Button("Set entry"))
                         {
-                            SetEntryTransition(i);
+                            SetEntryStateToKey(stateName);
                         }
                     }
                     else
@@ -149,7 +150,7 @@ void FiniteStateMachine::ImguiDrawTransition()
 
     if (0 <= removeIndex)
     {
-        EraseTransition(removeIndex);
+        EraseTransitionToIndex(removeIndex);
     }
 
     if (ImGui::Button("Add Transition"))
@@ -216,7 +217,7 @@ void FiniteStateMachine::ImguiDrawTransition()
             {
                 if (ImGui::Button("Add"))
                 {
-                    AddTransition(state, condition, nextState);
+                    AddTransitionToKey(state, condition, nextState);
                     state.clear();
                     condition.clear();
                     nextState.clear();
@@ -354,11 +355,11 @@ void FiniteStateMachine::ImguiDrawCondiitons()
 
     if (nullptr != removeKey)
     {
-        RemoveConditionWithKey(removeKey);
+        RemoveConditionToKey(removeKey);
     }
 }
 
-void FiniteStateMachine::AddTransition(std::string_view state, std::string_view condition, std::string_view nextState)
+void FiniteStateMachine::AddTransitionToKey(std::string_view state, std::string_view condition, std::string_view nextState)
 {
     bool isValid = true;
     bool isAnyState = state == STR_NULL;
@@ -393,9 +394,28 @@ void FiniteStateMachine::AddTransition(std::string_view state, std::string_view 
     }
 }
 
-void FiniteStateMachine::AddAnyTransition(std::string_view condition, std::string_view nextState) 
+void FiniteStateMachine::AddAnyTransitionToKey(std::string_view condition, std::string_view nextState) 
 {
-    AddTransition(STR_NULL, condition, nextState);
+    AddTransitionToKey(STR_NULL, condition, nextState);
+}
+
+void FiniteStateMachine::EraseTransition(const Transition& eraseTransition)
+{
+    int index = -1;
+    for (int i = 0; i < _transitions.size(); ++i)
+    {
+        Transition& transition = _transitions[i];
+        if (transition == eraseTransition)
+        {
+            index = i;
+            break;
+        }
+    }
+
+    if (0 <= index)
+    {
+        EraseTransitionToIndex(index);
+    }
 }
 
 void FiniteStateMachine::ImguiDrawStates() 
@@ -417,7 +437,7 @@ void FiniteStateMachine::ImguiDrawStates()
 
     if (nullptr != removeKey)
     {
-        RemoveStateWithKey(removeKey);
+        RemoveStateToKey(removeKey);
     }
 }
 
@@ -442,7 +462,7 @@ void FiniteStateMachine::ImGuiDrawPropertysEvent()
             const char* addKey = SelectStateImguiChild();
             if (nullptr != addKey)
             {
-                AddStateWithKey(addKey);
+                AddStateToKey(addKey);
                 ImGui::CloseCurrentPopup();
             }
             ImGui::EndPopup();
@@ -461,7 +481,7 @@ void FiniteStateMachine::ImGuiDrawPropertysEvent()
             const char* addKey = SlectConditionImguiChild();
             if (nullptr != addKey)
             {
-                AddConditionWithKey(addKey);
+                AddConditionToKey(addKey);
                 ImGui::CloseCurrentPopup();
             }
             ImGui::EndPopup();
@@ -473,21 +493,19 @@ void FiniteStateMachine::ImGuiDrawPropertysEvent()
 void FiniteStateMachine::Awake() 
 {
     OnAwakeFSMEntities();
-
-    if (true == IsValidEntryPoint())
-    {
-        Transition& transition = _transitions[ReflectFields->EntryTransitionID];
-        _nextState = transition.CurrState;
-    }
-    else
-    {
-        UmLogger.Log(LogLevel::LEVEL_WARNING, u8"FSM의 EntryPoint가 설정되지 않았습니다."_c_str);
-    }
 }
 
 void FiniteStateMachine::Start() 
 {
     OnStartFSMEntities();
+    if (true == IsValidEntryPoint())
+    {
+        _nextState = GetStateToKey(ReflectFields->EntryState);
+    }
+    else
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, u8"FSM의 EntryPoint가 설정되지 않았습니다."_c_str);
+    }
 }
 
 FSMState* FiniteStateMachine::MakeState(std::string_view key)
@@ -510,30 +528,21 @@ FSMCondition* FiniteStateMachine::MakeCondition(std::string_view key)
     return condition;
 }
 
-void FiniteStateMachine::EraseTransition(int index)
+void FiniteStateMachine::EraseTransitionToIndex(int index)
 {
     _transitionSet.erase(_transitions[index]);
     _transitions.erase(_transitions.begin() + index);
 }
 
-void FiniteStateMachine::SetEntryTransition(int index) 
+void FiniteStateMachine::SetEntryStateToKey(std::string_view key) 
 {
-    if (0 <= index && index < _transitions.size())
+    FSMState* state = GetStateToKey(key);
+    if (state)
     {
-        if (nullptr != _transitions[index].CurrState)
-        {
-            ReflectFields->EntryTransitionID = index;
-        }
-        else
-        {
-            UmLogger.Log(LogLevel::LEVEL_WARNING, u8"Any State는 Entry로 설정할 수 없습니다."_c_str);
-        }     
-    }
-    else
-    {
-        UmLogger.Log(LogLevel::LEVEL_WARNING, u8"존재하지 않는 전이 객체 입니다."_c_str);
+        ReflectFields->EntryState = key;
     }
 }
+
 
 void FiniteStateMachine::CheckTransitionCodition(Transition& transition) 
 {

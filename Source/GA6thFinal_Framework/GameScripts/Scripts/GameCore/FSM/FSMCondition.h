@@ -18,3 +18,6 @@ public:
     int Order = 0;
     REFLECT_FIELDS_END(FSMCondition)
 };
+
+template <typename T>
+concept FSM_CONDITION_BASE = std::is_base_of_v<FSMCondition, T>;
