@@ -388,7 +388,7 @@ void GameObject::ImguiEditTags()
 {
     if (ImGui::CollapsingHeader("Tags", ImGuiTreeNodeFlags_::ImGuiTreeNodeFlags_DefaultOpen))
     {
-        static std::vector<std::set<std::string>::iterator> eraseList;
+        static std::vector<std::string> eraseList;
         for (auto iter = ReflectFields->_tags.begin(); iter != ReflectFields->_tags.end(); ++iter)
         {
             ImGui::BulletText("%s", iter->c_str());
@@ -396,19 +396,17 @@ void GameObject::ImguiEditTags()
             std::string buttonLabel = "Remove##" + *iter;
             if (ImGui::SmallButton(buttonLabel.c_str()))
             {
-                eraseList.push_back(iter);
+                eraseList.push_back(*iter);
             }                
         }
 
         if (false == eraseList.empty())
         {
-            for (auto& iter : eraseList)
+            for (auto& key : eraseList)
             {
-                ESceneManager::Engine::EraseGameObjectTag(this, *iter);
-                ReflectFields->_tags.erase(iter);
+                RemoveTag(key);
             }
             eraseList.clear();
-
             GetScene().IsDirty = true;
         }
 
@@ -426,11 +424,7 @@ void GameObject::ImguiEditTags()
 
             if (ImGui::IsKeyReleased(ImGuiKey_Enter) || ImGui::Button("Add"))
             {                
-                auto [iter, result] = ReflectFields->_tags.insert(tagInputBuffer);
-                if (result)
-                {
-                    ESceneManager::Engine::InsertGameObjectTag(this, tagInputBuffer);
-                }
+                AddTag(tagInputBuffer);
                 ImGui::CloseCurrentPopup();
 
                 GetScene().IsDirty = true;
@@ -463,6 +457,23 @@ void GameObject::DeserializedReflectEvent()
     }
 }
 
+bool GameObject::AddTag(std::string_view tag)
+{
+    auto [iter, result] = ReflectFields->_tags.insert(tag.data());
+    if (true == result)
+    {
+        ESceneManager::Engine::InsertGameObjectTag(this, tag);
+    }
+    return result;
+}
+
+bool GameObject::RemoveTag(std::string_view tag) 
+{
+    ESceneManager::Engine::EraseGameObjectTag(this, tag);
+    auto result = ReflectFields->_tags.erase(tag.data());
+    return 0 < result;
+}
+
 std::string GameObject::Helper::GenerateUniqueName(std::string_view baseName)
 {
     size_t                    count   = 0;
@@ -475,3 +486,4 @@ std::string GameObject::Helper::GenerateUniqueName(std::string_view baseName)
     }
     return name;
 }
+

@@ -169,7 +169,7 @@ public:
     /// <returns></returns>
     bool IsValid() const
     {
-        return STR_NULL != _ownerScene;
+        return STR_NULL != _ownerScene && 0 <= _instanceID;
     }
 
     /// <summary>
@@ -239,6 +239,19 @@ public:
     /// </summary>
     inline int GetComponentIndex(const Component* pComponent) const;
 
+    /// <summary>
+    /// 태그를 추가합니다.
+    /// </summary>
+    /// <param name="tag :">추가할 태그</param>
+    /// <returns>성공 여부</returns>
+    bool AddTag(std::string_view tag);
+
+    /// <summary>
+    /// 태그를 제거합니다.
+    /// </summary>
+    /// <param name="tag :">추가할 태그</param>
+    /// <returns>성공 여부</returns>
+    bool RemoveTag(std::string_view tag);
 
  private:
     //IEditorObject에서 상속됨
@@ -460,3 +473,5 @@ inline int GameObject::GetComponentIndex(const Component* pComponent) const
     }
     return -1;
 }
+
+
