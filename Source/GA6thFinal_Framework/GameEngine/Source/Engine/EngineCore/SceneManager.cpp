@@ -234,7 +234,14 @@ std::weak_ptr<GameObject> ESceneManager::Engine::FindGameObjectWithName(std::str
     auto findIter = engineCore->SceneManager._runtimeObjectsUnorderedMap.find(name.data());
     if (findIter != engineCore->SceneManager._runtimeObjectsUnorderedMap.end() && !findIter->second.empty())
     {
-        findObject = *findIter->second.begin();
+        for (auto& object : findIter->second)
+        {
+            if (true == object->IsValid())
+            {
+                findObject = object->GetWeakPtr();
+                break;
+            }
+        }
     }
     return findObject;
 }
@@ -247,7 +254,10 @@ std::vector<std::weak_ptr<GameObject>> ESceneManager::Engine::FindGameObjectsWit
     {
         for (auto& obj : findIter->second)
         {
-            findObjects.emplace_back(obj);
+            if (true == obj->IsValid())
+            {
+                findObjects.emplace_back(obj);
+            }
         }
     }
     return findObjects;
@@ -259,8 +269,14 @@ std::weak_ptr<GameObject> ESceneManager::Engine::FindGameObjectWithTag(std::stri
     auto findIter = engineCore->SceneManager._runtimeObjectsTagMap.find(tag.data());
     if (findIter != engineCore->SceneManager._runtimeObjectsTagMap.end() && !findIter->second.empty())
     {
-        GameObject* object = *findIter->second.begin();
-        findObject = object->GetWeakPtr();
+        for (auto& object : findIter->second)
+        {
+            if (true == object->IsValid())
+            {
+                findObject = object->GetWeakPtr();
+                break;
+            }
+        }
     }
     return findObject;
 }
@@ -273,7 +289,10 @@ std::vector<std::weak_ptr<GameObject>> ESceneManager::Engine::FindGameObjectsWit
     {
         for (auto& obj : findIter->second)
         {
-            findObjects.emplace_back(obj->GetWeakPtr());
+            if (true == obj->IsValid())
+            {
+                findObjects.emplace_back(obj->GetWeakPtr());
+            }
         }
     }
     return findObjects;
