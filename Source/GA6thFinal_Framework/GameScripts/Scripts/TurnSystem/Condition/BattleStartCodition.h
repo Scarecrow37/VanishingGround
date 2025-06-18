@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "GameCore/FSM/FiniteStateMachine.h"
 
+class BattleStartPhase;
 class BattleStartCodition : public FSMCondition
 {
 public:
@@ -13,5 +14,5 @@ protected:
     bool Evaluate() override;
 
 private:
-    bool _isBattleStart;
+    BattleStartPhase* _battleStartPhase;
 };

@@ -10,7 +10,8 @@ class TurnMode : public Component
 {
     USING_PROPERTY(TurnMode)
 public:
-    REFLECT_PROPERTY()
+    REFLECT_PROPERTY(
+    )
 
 public:
     TurnMode();
@@ -28,7 +29,6 @@ private:
 
 private:
     FiniteStateMachine* _finiteStateMachine = nullptr;
-
     std::vector<TurnActor*> _trunList;
 
 protected:
@@ -88,4 +88,5 @@ protected:
     /// </summary>
     virtual void OnApplicationQuit() {};
 
+    virtual void ImGuiDrawPropertysEvent() override;
 };

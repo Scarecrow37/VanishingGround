@@ -11,7 +11,4 @@ protected:
     void OnAwake() override;
     void OnStart() override;
     bool Evaluate() override;
-
-private:
-    bool _isRoundStart;
 };

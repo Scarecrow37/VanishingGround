@@ -1,9 +1,13 @@
 ﻿#include "BattleStartCodition.h"
+#include "../State/BattleStartPhase.h"
+
+REGISTER_CLASS(FSMConditionFactory, BattleStartCodition)
 
 BattleStartCodition::BattleStartCodition() 
-    : 
-    _isBattleStart(false) 
+    :
+    _battleStartPhase(nullptr)
 {
+
 }
 
 BattleStartCodition::~BattleStartCodition() 
@@ -12,9 +16,12 @@ BattleStartCodition::~BattleStartCodition()
 
 void BattleStartCodition::OnAwake() {}
 
-void BattleStartCodition::OnStart() {}
+void BattleStartCodition::OnStart() 
+{
+    _battleStartPhase = GetFSM().GetState<BattleStartPhase>();
+}
 
 bool BattleStartCodition::Evaluate()
 {
-    return _isBattleStart;
+    return _battleStartPhase->IsEndPhase();
 }

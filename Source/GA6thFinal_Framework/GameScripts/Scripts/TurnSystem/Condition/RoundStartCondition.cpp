@@ -3,8 +3,6 @@
 REGISTER_CLASS(FSMConditionFactory, RoundStartCondition)
 
 RoundStartCondition::RoundStartCondition() 
-    : 
-    _isRoundStart(false)
 {
 
 }
@@ -26,5 +24,5 @@ void RoundStartCondition::OnStart()
 
 bool RoundStartCondition::Evaluate()
 {
-    return _isRoundStart;
+    return true;
 }
