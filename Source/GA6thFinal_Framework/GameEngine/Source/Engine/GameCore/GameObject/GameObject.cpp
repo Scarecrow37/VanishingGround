@@ -481,6 +481,12 @@ bool GameObject::RemoveTag(std::string_view tag)
     return 0 < result;
 }
 
+bool GameObject::CompareTag(std::string_view tag)
+{
+    bool result = ReflectFields->_tags.find(tag.data()) != ReflectFields->_tags.end();
+    return result;
+}
+
 std::string GameObject::Helper::GenerateUniqueName(std::string_view baseName)
 {
     size_t                    count   = 0;

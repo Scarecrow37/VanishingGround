@@ -257,6 +257,13 @@ public:
     /// <returns>성공 여부</returns>
     bool RemoveTag(std::string_view tag);
 
+    /// <summary>
+    /// 이 오브젝트에 해당 태그 존재 여부를 반환합니다.
+    /// </summary>
+    /// <param name="tag :">태그</param>
+    /// <returns>존재 여부</returns>
+    bool CompareTag(std::string_view tag);
+
  private:
     //IEditorObject에서 상속됨
 
