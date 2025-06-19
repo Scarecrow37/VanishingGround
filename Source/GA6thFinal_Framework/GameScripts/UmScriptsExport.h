@@ -51,5 +51,12 @@ UMREAL_COMPONENT(SpotLight)
 #include "Scripts\TurnSystem/TurnMode/TurnMode.h"
 UMREAL_COMPONENT(TurnMode)
 
-#include "Scripts\TurnSystem/TurnActor/TurnActor.h"
-UMREAL_COMPONENT(TurnActor)
+#include "Scripts/TurnSystem/TurnActor/TurnActor.h"
+
+#include "Scripts/TurnSystem/TurnActor/Character/CharacterBase.h"
+
+#include "Scripts/TurnSystem/TurnActor/Character/Player/Player.h"
+UMREAL_COMPONENT(Player)
+
+#include "Scripts/TurnSystem/TurnActor/Character/Enemy/Enemy.h"
+UMREAL_COMPONENT(Enemy)
