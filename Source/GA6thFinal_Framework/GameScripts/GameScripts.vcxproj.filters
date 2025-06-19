@@ -75,10 +75,10 @@
     <ClInclude Include="Scripts\TurnSystem\Condition\RoundStartCondition.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\State\BattleStartPhase.h">
+    <ClInclude Include="Scripts\TurnSystem\State\CombatStartPhase.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\Condition\BattleStartCodition.h">
+    <ClInclude Include="Scripts\TurnSystem\Condition\CombatStartCodition.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -137,10 +137,10 @@
     <ClCompile Include="Scripts\TurnSystem\Condition\RoundStartCondition.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\State\BattleStartPhase.cpp">
+    <ClCompile Include="Scripts\TurnSystem\State\CombatStartPhase.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\Condition\BattleStartCodition.cpp">
+    <ClCompile Include="Scripts\TurnSystem\Condition\CombatStartCodition.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

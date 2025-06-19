@@ -1,11 +1,11 @@
 ﻿#pragma once
 #include "GameCore/FSM/FiniteStateMachine.h"
 
-class BattleStartPhase : public FSMState
+class CombatStartPhase : public FSMState
 {
 public:
-    BattleStartPhase();
-    virtual ~BattleStartPhase() override;
+    CombatStartPhase();
+    virtual ~CombatStartPhase() override;
 
     bool IsEndPhase() { return _phaseEnd; }
 
