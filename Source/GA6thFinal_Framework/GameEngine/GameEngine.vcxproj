@@ -418,6 +418,7 @@
     <ClInclude Include="Source\Engine\GraphicsCore\ViewManager.h" />
     <ClInclude Include="Source\Engine\Utility\LogLevel.h" />
     <ClInclude Include="Source\Engine\Utility\Mathf.h" />
+    <ClInclude Include="Source\Engine\Utility\Random.h" />
     <ClInclude Include="Source\Engine\Utility\stlHelper.h" />
     <ClInclude Include="Source\Engine\ClassCore\ReflectHelper.h" />
     <ClInclude Include="Source\Engine\EditorCore\Gui\EditorGui.h" />
