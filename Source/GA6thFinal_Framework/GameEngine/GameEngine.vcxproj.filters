@@ -609,7 +609,7 @@
     <ClInclude Include="Source\Engine\GraphicsCore\BrightExtractPass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\BlendPass.h">
+    <ClInclude Include="Source\Engine\GraphicsCore\UpScalePass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\GraphicsCore\DownScalePass.h">
@@ -1064,7 +1064,7 @@
     <ClCompile Include="Source\Engine\GraphicsCore\BrightExtractPass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\BlendPass.cpp">
+    <ClCompile Include="Source\Engine\GraphicsCore\UpScalePass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\DownScalePass.cpp">

@@ -67,9 +67,7 @@ void DownScalePass::Draw(ID3D12GraphicsCommandList* commandList)
 {
     const auto&           mode     = UmDevice.GetMode();
     auto                  resource = UmViewManager.GetShaderResourceHeap();
-    ID3D12DescriptorHeap* hps[]    = {
-        resource,
-    };
+    ID3D12DescriptorHeap* hps[]    = { resource, };
 
     auto&       multiRenderTargetManager = UmMultiRenderTargetManager;
     const auto& mipmapTarget             = multiRenderTargetManager.GetRenderTargetGroup("Mipmap");

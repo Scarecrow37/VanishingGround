@@ -1,21 +1,21 @@
 ﻿#include "pch.h"
-#include "BlendPass.h"
+#include "UpScalePass.h"
 #include "Quad.h"
 #include "RenderScene.h"
 #include "RenderTarget.h"
 
-BlendPass::BlendPass() {}
+UpScalePass::UpScalePass() {}
 
-BlendPass::~BlendPass() {}
+UpScalePass::~UpScalePass() {}
 
-void BlendPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& sissorRect)
+void UpScalePass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& sissorRect)
 {
     __super::Initialize(viewPort, sissorRect);
 
     _shader = std::make_unique<ShaderBuilder>();
     _shader->BeginBuild();
     _shader->SetShader(L"../Shaders/vs_quad.hlsl", ShaderBuilder::Type::VS);
-    _shader->SetShader(L"../Shaders/ps_blend.hlsl", ShaderBuilder::Type::PS);
+    _shader->SetShader(L"../Shaders/ps_up_scale.hlsl", ShaderBuilder::Type::PS);
     _shader->EndBuild(ShaderBuilder::BindType::DIRECT);
 
     ID3D12Device*                      device = UmDevice.GetDevice();
@@ -36,10 +36,10 @@ void BlendPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& sis
     
     HRESULT hr = S_OK;
     hr         = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(&_pipelineState));
-    FAILED_CHECK_MESSAGE(hr, L"BlendPass::Initialize device->CreateGraphicsPipelineState Failed");
+    FAILED_CHECK_MESSAGE(hr, L"UpScalePass::Initialize device->CreateGraphicsPipelineState Failed");
 }
 
-void BlendPass::Begin(ID3D12GraphicsCommandList* commandList)
+void UpScalePass::Begin(ID3D12GraphicsCommandList* commandList)
 {
     _finalRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
     _finalRenderTarget->ClearRenderTarget(commandList);
@@ -49,18 +49,13 @@ void BlendPass::Begin(ID3D12GraphicsCommandList* commandList)
     commandList->RSSetScissorRects(1, &_sissorRect);
 }
 
-void BlendPass::End(ID3D12GraphicsCommandList* commandList)
-{
-    _finalRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-}
-
-void BlendPass::Draw(ID3D12GraphicsCommandList* commandList)
+void UpScalePass::Draw(ID3D12GraphicsCommandList* commandList)
 {
     const auto&           mode     = UmDevice.GetMode();
     auto                  resource = UmViewManager.GetShaderResourceHeap();
-    ID3D12DescriptorHeap* hps[]    = {
-        resource,
-    };
+    ID3D12DescriptorHeap* hps[]    = {resource};
+
+    PostProcessData postProcessData{.TexelSize = {(float)mode.Width, (float)mode.Height}};
 
     const auto& mipmapTarget = UmMultiRenderTargetManager.GetRenderTargetGroup("Mipmap");
 
@@ -68,12 +63,17 @@ void BlendPass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
     commandList->SetDescriptorHeaps(_countof(hps), hps);
 
+    commandList->SetGraphicsRoot32BitConstants(_shader->GetRootParameterIndex("bit32_5_postProcessData"), 5, &postProcessData, 0);
     commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("screenTexture"), _meshRenderTarget->GetSRVHandle());
     commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("grayScaleTexture1024x1024"), mipmapTarget[0]->GetSRVHandle());
     commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("grayScaleTexture512x512"), mipmapTarget[1]->GetSRVHandle());
     commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("grayScaleTexture256x256"), mipmapTarget[2]->GetSRVHandle());
     commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("grayScaleTexture128x128"), mipmapTarget[3]->GetSRVHandle());
 
-    // quad draw하기
     _ownerScene->_frameQuad->Render(commandList);
+}
+
+void UpScalePass::End(ID3D12GraphicsCommandList* commandList)
+{
+    _finalRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }

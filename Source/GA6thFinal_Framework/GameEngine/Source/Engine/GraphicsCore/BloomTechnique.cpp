@@ -2,7 +2,7 @@
 #include "BloomTechnique.h"
 #include "BrightExtractPass.h"
 #include "DownScalePass.h"
-#include "BlendPass.h"
+#include "UpScalePass.h"
 
 BloomTechnique::BloomTechnique() {}
 
@@ -25,7 +25,7 @@ void BloomTechnique::Initialize(ID3D12GraphicsCommandList* commandList)
     pass->Initialize(viewport, scissor);
     AddRenderPass(std::move(pass));
 
-    pass = std::make_unique<BlendPass>();
+    pass = std::make_unique<UpScalePass>();
     pass->SetOwnerScene(_ownerScene);
     pass->Initialize(viewport, scissor);
     AddRenderPass(std::move(pass));
