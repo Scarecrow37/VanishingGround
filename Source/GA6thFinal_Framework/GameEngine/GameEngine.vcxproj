@@ -715,6 +715,7 @@
     <ClCompile Include="Source\Engine\Utility\ImguiHelper.cpp" />
     <ClCompile Include="Source\Engine\Utility\LogLevel.cpp" />
     <ClCompile Include="Source\Engine\Utility\Mathf.cpp" />
+    <ClCompile Include="Source\Engine\Utility\Random.cpp" />
     <ClCompile Include="Source\Engine\Utility\utfHelper.cpp" />
     <ClCompile Include="Source\Engine\ApplicationCore\Application.cpp" />
     <ClCompile Include="Source\pch.cpp">
