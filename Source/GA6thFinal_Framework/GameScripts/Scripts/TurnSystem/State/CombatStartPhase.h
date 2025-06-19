@@ -7,7 +7,13 @@ public:
     CombatStartPhase();
     virtual ~CombatStartPhase() override;
 
-    bool IsEndPhase() { return _phaseEnd; }
+    bool IsEndPhase() const { return _phaseEnd; }
+    
+public:
+    /// <summary>
+    /// 캐릭터들의 스텟을 초기화합니다.
+    /// </summary>
+    void ResetCharacterStats();
 
 protected:
     void OnAwake() override;
