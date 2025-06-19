@@ -27,9 +27,6 @@ public:
     //
     ID3D12Resource*                GetComputeOutputResource() 
     {
-        if (isSorted)
-            return _sortedOutputBuffer.Get();
-        else
             return _particleOutputBuffer.Get(); 
     }
     ID3D12GraphicsCommandList*     GetRenderCommandList() { return _renderCommandList.Get(); }

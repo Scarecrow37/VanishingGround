@@ -6,8 +6,11 @@
 #include "Model.h"
 #include "Texture.h"
 #include "Quad.h"
+#include "StructuredBuffer.h"
 
- ParticleSpritePass::~ParticleSpritePass() {}
+ ParticleSpritePass::ParticleSpritePass() {}
+
+ParticleSpritePass::~ParticleSpritePass() {}
 
 void ParticleSpritePass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& sissorRect)
 {
@@ -21,24 +24,38 @@ void ParticleSpritePass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_
 
     //refactoring needed
     _particleRenderCommandList = UmParticleManager.GetRenderCommandList();
+    _albedoTextureIDs = std::vector<int>(100,-1);
 
 
+    UINT buffersize = 100 * sizeof(int);
+        // 상수 버퍼는 항상 256바이트 정렬되어야 함
+    UINT alignedBufferSize = (buffersize + 255) & ~255;
 
+    D3D12_RESOURCE_DESC bufferDesc = CD3DX12_RESOURCE_DESC::Buffer(buffersize);
+
+    // 2. Upload Heap에 업로드 버퍼 생성 (CPU 접근 가능)
+    auto uploadProperty = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+
+    FAILED_CHECK_MESSAGE(
+        UmDevice.GetDevice()->CreateCommittedResource(&uploadProperty, D3D12_HEAP_FLAG_NONE, &bufferDesc,
+                                                      D3D12_RESOURCE_STATE_GENERIC_READ, // Upload Heap 필수 상태
+                                                      nullptr, IID_PPV_ARGS(&_textureIdConstantBuffer)),
+        L"");
+
+    _textureIDBuffer = std::make_unique<StructuredBuffer>();
+    _textureIDBuffer->Initialize(sizeof(int), 100);
 }
 
 void ParticleSpritePass::Begin(ID3D12GraphicsCommandList* commandlist)
 {
 
-    UmParticleManager.ResetRenderCommandObject();
-    _particleRenderCommandList->OMSetRenderTargets(1, &_ownerScene->_meshLightingTarget->GetRTVHandle(), FALSE,
-                                                   &_ownerScene->_depthStencilHandle);
+    //_particleRenderCommandList->OMSetRenderTargets(1, &_ownerScene->_meshLightingTarget->GetRTVHandle(), FALSE,
+    //                                               &_ownerScene->_depthStencilHandle);
+
     _particleRenderCommandList->RSSetViewports(1, &_viewPort);
     _particleRenderCommandList->RSSetScissorRects(1, &_sissorRect);
 
-    //float blendfactor[] = {0.f, 0.f, 0.f, 0.f};
-    //float blendfactor[] = {0.5f, 0.5f, 0.5f, 0.5f};
-    float blendfactor[] = {1, 1, 1, 1};
-    _particleRenderCommandList->OMSetBlendFactor(blendfactor);
+
     ComPtr<ID3D12Resource> resource = UmParticleManager.GetComputeOutputResource();
 
     CD3DX12_RESOURCE_BARRIER computeOutputBarrior = CD3DX12_RESOURCE_BARRIER::Transition(
@@ -46,32 +63,44 @@ void ParticleSpritePass::Begin(ID3D12GraphicsCommandList* commandlist)
 
     _particleRenderCommandList->ResourceBarrier(1, &computeOutputBarrior);
 
-        CD3DX12_RESOURCE_BARRIER dsBarrier = CD3DX12_RESOURCE_BARRIER::Transition(
-        _ownerScene->_depthStencilBuffer.Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_DEPTH_WRITE);
-    _particleRenderCommandList->ResourceBarrier(1, &dsBarrier);
+
+
+
+        CD3DX12_RESOURCE_BARRIER barriers[] = {
+        CD3DX12_RESOURCE_BARRIER::Transition(_accumlateBuffer.Get(), D3D12_RESOURCE_STATE_COMMON,
+                                             D3D12_RESOURCE_STATE_UNORDERED_ACCESS),
+        CD3DX12_RESOURCE_BARRIER::Transition(_revelageBuffer.Get(), D3D12_RESOURCE_STATE_COMMON,
+                                             D3D12_RESOURCE_STATE_UNORDERED_ACCESS),
+    };
+        _particleRenderCommandList->ResourceBarrier(_countof(barriers), barriers);
+
 
 
     auto albedoTextures = UmParticleManager.GetActiveAlbedos();
-    auto device         = UmDevice.GetDevice();
-    D3D12_CPU_DESCRIPTOR_HANDLE heapStart      = _descriptorheap->GetCPUDescriptorHandleForHeapStart();
-
+    std::fill(_albedoTextureIDs.begin(), _albedoTextureIDs.end(), -1);
     for (int i = 0; i < albedoTextures.size();++i)
     {
-        // 각 Texture 객체의 SRV CPU 핸들 얻기
-        D3D12_CPU_DESCRIPTOR_HANDLE srcHandle = albedoTextures[i]->GetCPUHandle();
-
-        // 디스크립터 힙 내 복사 위치 계산
-        D3D12_CPU_DESCRIPTOR_HANDLE destHandle = heapStart;
-        destHandle.ptr += _descriptorSize * i; // 0번은 StructuredBuffer SRV라면 1번부터 텍스처
-
-        // 디스크립터 복사
-        device->CopyDescriptorsSimple(1,          // 복사할 디스크립터 개수
-                                      destHandle, // 목적지(디스크립터 힙 내)
-                                      srcHandle,  // 소스(각 Texture의 SRV)
-                                      D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+        _albedoTextureIDs[i] = albedoTextures[i]->GetID();
     }
 
+    _textureIDBuffer->CopyStructuredBuffer(commandlist, _albedoTextureIDs.data(), albedoTextures.size() * sizeof(int));
+    /*void* mappedData = nullptr;
+    _textureIdConstantBuffer->Map(0, nullptr, &mappedData);
+    memcpy(mappedData, _albedoTextureIDs.data(), albedoTextures.size() * sizeof(int));
+    _textureIdConstantBuffer->Unmap(0, nullptr);*/
 
+    // Clear Accumulation (float4)
+    float clearAccum[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+    _particleRenderCommandList->ClearUnorderedAccessViewFloat(_oitUAVHandles[0].GPU, _oitUAVCPUHeapHandles[0].CPU,
+                                                              _accumlateBuffer.Get(),
+                                                              clearAccum, 0,
+                                                              nullptr);
+
+    // Clear Revealage (float)
+    float clearReveal[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+    _particleRenderCommandList->ClearUnorderedAccessViewFloat(_oitUAVHandles[1].GPU, _oitUAVCPUHeapHandles[1].CPU,
+                                                              _revelageBuffer.Get(), clearReveal, 0,
+                                                              nullptr);
 
 
 }
@@ -83,18 +112,15 @@ void ParticleSpritePass::End(ID3D12GraphicsCommandList* commandlist)
     CD3DX12_RESOURCE_BARRIER computeOutputBarrior = CD3DX12_RESOURCE_BARRIER::Transition(
         resource.Get(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COMMON);
 
-    CD3DX12_RESOURCE_BARRIER meshLightingBarrior = CD3DX12_RESOURCE_BARRIER::Transition(
-        _ownerScene->_meshLightingTarget->GetResource() , D3D12_RESOURCE_STATE_RENDER_TARGET,
-        D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    _particleRenderCommandList->ResourceBarrier(1, &computeOutputBarrior);
 
-    D3D12_RESOURCE_BARRIER barriors[] = {computeOutputBarrior, meshLightingBarrior};
-
-    _particleRenderCommandList->ResourceBarrier(2, barriors);
-
-    CD3DX12_RESOURCE_BARRIER br = CD3DX12_RESOURCE_BARRIER::Transition(
-        _ownerScene->_depthStencilBuffer.Get(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_PRESENT);
-
-    _particleRenderCommandList->ResourceBarrier(1, &br);
+            CD3DX12_RESOURCE_BARRIER barriers[] = {
+        CD3DX12_RESOURCE_BARRIER::Transition(_accumlateBuffer.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+                                             D3D12_RESOURCE_STATE_COMMON),
+        CD3DX12_RESOURCE_BARRIER::Transition(_revelageBuffer.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+                                             D3D12_RESOURCE_STATE_COMMON),
+    };
+    _particleRenderCommandList->ResourceBarrier(_countof(barriers), barriers);
     
 }
 
@@ -104,25 +130,36 @@ void ParticleSpritePass::Draw(ID3D12GraphicsCommandList* commandlist)
 
     ComPtr<ID3D12Device> device         = UmDevice.GetDevice();
     ID3D12DescriptorHeap* hps[] = {
-        _descriptorheap.Get(),
+        UmViewManager.GetShaderResourceHeap(),
     };
 
 
+    ///TODO: albedo texture 바인딩 마무리
     _particleRenderCommandList->SetDescriptorHeaps(_countof(hps), hps);
-    D3D12_GPU_DESCRIPTOR_HANDLE descHeapPtr = _descriptorheap->GetGPUDescriptorHandleForHeapStart();
+    D3D12_GPU_DESCRIPTOR_HANDLE descHeapPtr =
+        UmViewManager.GetShaderResourceHeap()->GetGPUDescriptorHandleForHeapStart();
     
     _particleRenderCommandList->SetGraphicsRootSignature(_spriteParticleShaderBuilder->GetRootSignature());
-    // StructuredBuffer (t0)
+
+    /*_particleRenderCommandList->SetGraphicsRootConstantBufferView(
+        _spriteParticleShaderBuilder->GetRootParameterIndex("texID"), _textureIdConstantBuffer->GetGPUVirtualAddress());*/
+
+    _particleRenderCommandList->SetGraphicsRootShaderResourceView(
+        _spriteParticleShaderBuilder->GetRootParameterIndex("texID"), _textureIDBuffer->GetGPUVirtualAddress());
+
+    _particleRenderCommandList->SetGraphicsRootDescriptorTable(
+        _spriteParticleShaderBuilder->GetRootParameterIndex("gAccumTex"), _oitUAVHandles[0].GPU);
+    _particleRenderCommandList->SetGraphicsRootDescriptorTable(
+        _spriteParticleShaderBuilder->GetRootParameterIndex("gRevealTex"), _oitUAVHandles[1].GPU);
+
+
     auto outputResource = UmParticleManager.GetComputeOutputResource();
-    _particleRenderCommandList->SetGraphicsRootShaderResourceView(0, outputResource->GetGPUVirtualAddress());
+    _particleRenderCommandList->SetGraphicsRootShaderResourceView(
+        _spriteParticleShaderBuilder->GetRootParameterIndex("particleInfo"), outputResource->GetGPUVirtualAddress());
 
-
-    //// GPU 핸들 계산 (1번 슬롯부터 연속된 텍스처 테이블)
-    //descHeapPtr.ptr += _descriptorSize * 1; // 0번이 StructuredBuffer라면 1번부터
 
     // 디스크립터 테이블 바인딩 (루트 파라미터 인덱스는 RootSignature에 따라 다름)
-    _particleRenderCommandList->SetGraphicsRootDescriptorTable(
-        _spriteParticleShaderBuilder->GetRootParameterIndex("AlbedoTextures"), descHeapPtr);
+    _particleRenderCommandList->SetGraphicsRootDescriptorTable(_spriteParticleShaderBuilder->GetRootParameterIndex("textures"), descHeapPtr);
 
     _particleRenderCommandList->SetPipelineState(_psos[0].Get());
 
@@ -145,19 +182,6 @@ void ParticleSpritePass::InitializePSO()
 {
 
 
-    D3D12_BLEND_DESC blendDesc       = {};
-    blendDesc.AlphaToCoverageEnable  = FALSE;
-    blendDesc.IndependentBlendEnable = TRUE;
-    auto& rtDesc                     = blendDesc.RenderTarget[0];
-    rtDesc.BlendEnable               = TRUE;
-    rtDesc.SrcBlend                  = D3D12_BLEND_SRC_ALPHA;
-    rtDesc.DestBlend                 = D3D12_BLEND_INV_SRC_ALPHA;
-    rtDesc.BlendOp                   = D3D12_BLEND_OP_ADD;
-    rtDesc.SrcBlendAlpha             = D3D12_BLEND_ONE;
-    rtDesc.DestBlendAlpha            = D3D12_BLEND_ONE;
-    rtDesc.BlendOpAlpha              = D3D12_BLEND_OP_ADD;
-    rtDesc.RenderTargetWriteMask     = D3D12_COLOR_WRITE_ENABLE_ALL;
-    
 
 
     // static two side.
@@ -168,8 +192,8 @@ void ParticleSpritePass::InitializePSO()
     ZeroMemory(&psodesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
     psodesc.RasterizerState                        = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
     psodesc.RasterizerState.CullMode               = D3D12_CULL_MODE_NONE;
-    //psodesc.BlendState                             = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-    psodesc.BlendState                             = blendDesc;
+    psodesc.BlendState                             = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+    //psodesc.BlendState                             = blendDesc;
     psodesc.DepthStencilState                      = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
     psodesc.DepthStencilState.DepthEnable          = FALSE;
     //psodesc.DSVFormat                              = DXGI_FORMAT_D24_UNORM_S8_UINT;
@@ -192,16 +216,16 @@ void ParticleSpritePass::InitializePSO()
 
 void ParticleSpritePass::InitializeDescriptorHeap() 
 {
-    D3D12_DESCRIPTOR_HEAP_DESC heapDesc{};
-    heapDesc.NumDescriptors = 101; // max emitter count *2 + structured buffer srv
-    heapDesc.Type           = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-    heapDesc.Flags          = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-    FAILED_CHECK_MESSAGE(
-        UmDevice.GetDevice()->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(_descriptorheap.GetAddressOf())), L"");
-
-    _descriptorSize = UmDevice.GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-
-    //CD3DX12_CPU_DESCRIPTOR_HANDLE handle(_descriptorheap->GetCPUDescriptorHandleForHeapStart());
+//    D3D12_DESCRIPTOR_HEAP_DESC heapDesc{};
+//    heapDesc.NumDescriptors = 101; // max emitter count *2 + structured buffer srv
+//    heapDesc.Type           = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+//    heapDesc.Flags          = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+//    FAILED_CHECK_MESSAGE(
+//        UmDevice.GetDevice()->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(_descriptorheap.GetAddressOf())), L"");
+//
+//    _descriptorSize = UmDevice.GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+//
+//    //CD3DX12_CPU_DESCRIPTOR_HANDLE handle(_descriptorheap->GetCPUDescriptorHandleForHeapStart());
     //D3D12_SHADER_RESOURCE_VIEW_DESC particleOutputSrvDesc{};
     //particleOutputSrvDesc.Format                     = DXGI_FORMAT_UNKNOWN;
     //particleOutputSrvDesc.ViewDimension              = D3D12_SRV_DIMENSION_BUFFER;
@@ -213,4 +237,13 @@ void ParticleSpritePass::InitializeDescriptorHeap()
     //ID3D12Resource* resource                         = UmParticleManager.GetComputeOutputResource().Get();
     //UmDevice.GetDevice()->CreateShaderResourceView(resource, &particleOutputSrvDesc, handle);
 
+}
+
+void ParticleSpritePass::SetAccumulationBuffers(ComPtr<ID3D12Resource> color, ComPtr<ID3D12Resource> alpha,
+    std::vector<DescriptorHandles> handle, std::vector<DescriptorHandles> cpuheaphandle)
+{
+    _accumlateBuffer = color;
+    _revelageBuffer  = alpha;
+    _oitUAVHandles   = handle;
+    _oitUAVCPUHeapHandles = cpuheaphandle;
 }

@@ -103,26 +103,13 @@ void ParticleManager::Update(const float deltaTime)
         }
     }
 
-    //simulate & sorting
-    {
+    //simulate
 
         // dispatch particle compute shader
         {
             DispatchParticleCompute(delta);
         }
 
-        // sort particles
-        {
-            // Radix Sort를 사용한 파티클 정렬
-            //isSorted = false;
-            if (_totalCount > 0)
-            {
-                ExtractDepthKeys();
-                PerformRadixSort();
-                ReorderParticleOutput();
-            }
-        }
-    }
 
 
     // update particle lifecycle
@@ -213,6 +200,7 @@ void ParticleManager::IntializeGraphicsCommandObject()
     FAILED_CHECK_MESSAGE(device->CreateCommandList(desc.NodeMask, desc.Type, _renderAllocator.Get(), nullptr,
                                                  IID_PPV_ARGS(_renderCommandList.GetAddressOf())),
                          L"ParticleManager::IntializeGraphicsCommandObject() device->CreateCommandList Failed");
+    _renderCommandList->SetName(L"particle render commandlist");
     _renderCommandList->Close();
 }
 void ParticleManager::InitializeParticleComputeShader()

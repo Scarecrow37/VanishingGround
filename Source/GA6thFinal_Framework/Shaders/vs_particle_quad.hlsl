@@ -21,7 +21,8 @@ struct VSOutput
     float3 biTangent : BINORMAL;
     float2 uv : TEXCOORD;
     float4 color : COLOR0;
-    uint emitterIndex : TEXCOORD1; 
+    float depth : TEXCOORD1;
+    nointerpolation int emitterIndex : CUSTOM_FLAG;
 
 };
 
@@ -37,6 +38,8 @@ VSOutput vs_main(VSInput input)
     output.color = instanceInfo.Color;
     output.emitterIndex = instanceInfo.EmitterIndex;
     
+
     output.uv = input.uv;
+    output.depth = output.position.z / output.position.w;
     return output;
 }
