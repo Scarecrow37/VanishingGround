@@ -49,13 +49,14 @@ private:
     void CreateDefaultResource();
     void CreateDefaultGeometry();
     void CreateDefaultTexture();
+    void CreateDefaultRenderTarget();
 
 private:
     std::unique_ptr<RendererFileEvent> _rendererFileEvent;
 
 private:
     std::vector<std::pair<bool, MeshRenderer*>>                   _components;
-    std::unordered_map<std::string, std::shared_ptr<RenderScene>> _renderScenes;
+    std::unordered_map<std::string, std::unique_ptr<RenderScene>> _renderScenes;
     UINT                                                          _currnetState;
     std::list<std::shared_ptr<Resource>>                          _defaultResource;
 };

@@ -3,8 +3,6 @@
 
 void RenderTarget::Initialize(UINT width, UINT height, DXGI_FORMAT format, FLOAT clearColor)
 {    
-    clearValue                 = clearColor;
-    _format                    = format;
 
     D3D12_RESOURCE_DESC desc{.Dimension        = D3D12_RESOURCE_DIMENSION_TEXTURE2D,
                              .Width            = width,
@@ -31,14 +29,20 @@ void RenderTarget::Initialize(UINT width, UINT height, DXGI_FORMAT format, FLOAT
     FAILED_CHECK_MESSAGE(hr, L"RenderTarget::Initialize CreateCommittedResource Failed");
 
     UmViewManager.AddDescriptorHeap(ViewManager::Type::RENDER_TARGET, _rtvHandle);
-    device->CreateRenderTargetView(_resource.Get(), nullptr, _rtvHandle);    
+    device->CreateRenderTargetView(_resource.Get(), nullptr, _rtvHandle);
+
+    _clearValue = {clearColor, clearColor, clearColor, 1.f};
+
+    _mode.Width = width;
+    _mode.Height = height;
+    _mode.Format = format;    
 }
 
 void RenderTarget::CreateShaderResourceView()
 {
     // Srv 생성하기(RenderTarget에 대한)
     D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-    srvDesc.Format                          = _format;
+    srvDesc.Format                          = _mode.Format;
     srvDesc.ViewDimension                   = D3D12_SRV_DIMENSION_TEXTURE2D;
     srvDesc.Texture2D.MostDetailedMip       = 0;
     srvDesc.Texture2D.MipLevels             = 1;
@@ -47,4 +51,15 @@ void RenderTarget::CreateShaderResourceView()
     UmViewManager.AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _srvHandle);
     UmDevice.GetDevice()->CreateShaderResourceView(_resource.Get(), &srvDesc, _srvHandle.CPU);
     _ID = UmViewManager.GetNumShaderResourceView() - 1;
+}
+
+void RenderTarget::TransitionResource(ID3D12GraphicsCommandList* commandList, D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after)
+{
+    auto br = CD3DX12_RESOURCE_BARRIER::Transition(_resource.Get(), before, after);
+    commandList->ResourceBarrier(1, &br);
+}
+
+void RenderTarget::ClearRenderTarget(ID3D12GraphicsCommandList* commandList)
+{    
+    commandList->ClearRenderTargetView(_rtvHandle, _clearValue, 0, nullptr);
 }

@@ -1,19 +1,15 @@
 ﻿#pragma once
 #include "RenderPass.h"
 
-class DownSamplePass : public RenderPass
+class DownScalePass : public RenderPass
 {
 public:
-    DownSamplePass();
-    virtual ~DownSamplePass();
+    DownScalePass();
+    virtual ~DownScalePass();
 
 public:
     void Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& sissorRect) override;
     void Begin(ID3D12GraphicsCommandList* commandList) override;
     void End(ID3D12GraphicsCommandList* commandList) override;
     void Draw(ID3D12GraphicsCommandList* commandList) override;
-
-private:
-    ComPtr<ID3D12Resource> _resource;
-    DescriptorHandles      _handle;
 };
