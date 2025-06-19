@@ -88,7 +88,7 @@ void EditorLogsTool::OnPreFrameBegin()
             reverse     = !reverse;
         }
         ImVec4& defaultTextColor         = ImGui::GetStyle().Colors[ImGuiCol_Text];
-        auto& [level, message, location] = _drawLogList.back();
+        auto& [level, message, location] = UmLogger.GetLogMessages().back();
         ImVec4 logTextColor              = ImGuiHelper::ArrayToImVec4(ReflectFields->LogColorTable[level]);
         ImVec4 lerpColor                 = reverse ? ImGuiHelper::ImVec4Lerp(logTextColor, defaultTextColor, t)
                                                    : ImGuiHelper::ImVec4Lerp(defaultTextColor, logTextColor, t);

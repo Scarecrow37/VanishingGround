@@ -12,7 +12,9 @@ public:
     REFLECT_PROPERTY(
         ObjectDrop, 
         TestVector3,
-        ReflectFields->floatVector
+        ReflectFields->floatVector,
+        Work,
+        Move
         )
 
     GETTER_ONLY(std::string_view, ObjectDrop)
@@ -33,6 +35,14 @@ public:
 
     const std::vector<float>& GetfloatVector() const { return ReflectFields->floatVector; }
 
+    GETTER(int, Work) { return ReflectFields->Work; }
+    SETTER(int, Work) { ReflectFields->Work = value; }
+    PROPERTY(Work)
+
+    GETTER(int, Move) { return ReflectFields->Move; }
+    SETTER(int, Move) { ReflectFields->Move = value; }
+    PROPERTY(Move)
+
 private:
     Vector3 testVector3;
 
@@ -45,7 +55,10 @@ protected:
     std::vector<float> floatVector{};
     std::string         objectName = "";
     std::array<float, 3> testVector3{};
+    int Work;
+    int Move;
     REFLECT_FIELDS_END(TestComponent)
+
 protected:
     virtual void Reset() override;
     virtual void Awake() override;

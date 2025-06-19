@@ -158,13 +158,12 @@ namespace File
             {
                 auto& [secondAction, secondInfo] = _sendEventQueue[1];
 
-                bool checkFile = firstInfo.FileId == secondInfo.FileId;
+                bool isSameFileID = firstInfo.FileId == secondInfo.FileId;
 
-                if (true == checkFile)
+                // 파일 ID가 서로 같을 때
+                if (true == isSameFileID)
                 {
-                    // 이동 (현재 인덱스: removed, 다음 인덱스: added)
-                    if (FILE_ACTION_REMOVED == firstAction &&
-                        FILE_ACTION_ADDED == secondAction)
+                    if (FILE_ACTION_REMOVED == firstAction && FILE_ACTION_ADDED == secondAction)
                     {
                         DWORD eventType = Flag::FILE_EVENT_ACTION_MOVED;
                         _fileEventTable[firstInfo.FileId].EventType |= eventType;
@@ -175,8 +174,7 @@ namespace File
                         
                         continue;
                     }
-                    else if (FILE_ACTION_RENAMED_OLD_NAME == firstAction &&
-                             FILE_ACTION_RENAMED_NEW_NAME == secondAction)
+                    else if (FILE_ACTION_RENAMED_OLD_NAME == firstAction && FILE_ACTION_RENAMED_NEW_NAME == secondAction)
                     {
                         DWORD eventType = Flag::FILE_EVENT_ACTION_RENAMED;
                         _fileEventTable[firstInfo.FileId].EventType |= eventType;

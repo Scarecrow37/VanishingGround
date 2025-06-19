@@ -27,8 +27,8 @@ public:
     void Clear();
 
 public:
-    inline const auto& GetCommandFromUndoStack(int index) const { return _undoStack[index]; }
-    inline const auto& GetCommandFromRedoStack(int index) const { return _redoStack[index]; }
+    inline const std::shared_ptr<UmCommand>& GetCommandFromUndoStack(int index) const { return _undoStack[index]; }
+    inline const std::shared_ptr<UmCommand>& GetCommandFromRedoStack(int index) const { return _redoStack[index]; }
 
     inline int GetUndoStackSize() const { return static_cast<int>(_undoStack.size()); }
     inline int GetRedoStackSize() const { return static_cast<int>(_redoStack.size()); }
