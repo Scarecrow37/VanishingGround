@@ -24,6 +24,7 @@ TurnMode::~TurnMode() = default;
 
 void TurnMode::MakeTurnList() 
 {
+    _turnList.clear();
     auto players = GameObject::FindGameObjectsWithTag(Player::TAG);
     for (auto& weak : players)
     {
@@ -94,12 +95,12 @@ void TurnMode::BuildTurnModeFSM()
         _finiteStateMachine = &AddComponent<FiniteStateMachine>();
 
         //State
-        _finiteStateMachine->AddState<CombatStartPhase>();
-        _finiteStateMachine->AddState<RoundStartPhase>();
+        _systemStates.CombatStartPhase = _finiteStateMachine->AddState<CombatStartPhase>();
+        _systemStates.RoundStartPhase  = _finiteStateMachine->AddState<RoundStartPhase>();
 
         //Condition
-        _finiteStateMachine->AddCondition<CombatStartCodition>();
-        _finiteStateMachine->AddCondition<RoundStartCondition>();
+        _systemConditions.CombatStartCodition = _finiteStateMachine->AddCondition<CombatStartCodition>();
+        _systemConditions.RoundStartCondition = _finiteStateMachine->AddCondition<RoundStartCondition>();
 
         //Entry
         _finiteStateMachine->SetEntryState<CombatStartPhase>();

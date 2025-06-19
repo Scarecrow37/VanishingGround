@@ -58,10 +58,36 @@ private:
     void BuildTurnModeFSM();
 
 private:
-    FiniteStateMachine* _finiteStateMachine = nullptr;
+    FiniteStateMachine* _finiteStateMachine   = nullptr;
 
     int _roundCount;
     std::deque<TurnActor*> _turnList;
+
+private:
+    struct SystemStates
+    {
+        class CombatStartPhase* CombatStartPhase = nullptr;
+        class RoundStartPhase*  RoundStartPhase  = nullptr;
+    } _systemStates;
+
+    struct SystemCondition
+    {
+        class CombatStartCodition* CombatStartCodition = nullptr;
+        class RoundStartCondition* RoundStartCondition = nullptr;
+    } _systemConditions;
+
+public:
+    GETTER_ONLY(const SystemStates&, States) { return _systemStates; }
+    /// <summary>
+    /// TurnMode FSM의 State 객체들 입니다.
+    /// </summary>
+    PROPERTY(States)
+
+    /// <summary>
+    /// TurnMode용 FSM의 Condition 객체들 입니다.
+    /// </summary>
+    GETTER_ONLY(const SystemCondition&, Conditions) { return _systemConditions; }
+    PROPERTY(Conditions)
 
 protected:
     /// <summary>
