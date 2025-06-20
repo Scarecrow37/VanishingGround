@@ -96,58 +96,62 @@ void FiniteStateMachine::ImGuiDrawDebug()
 void FiniteStateMachine::ImguiDrawTransition()
 {
     int removeIndex = -1;
-    if (ImGui::BeginTable("Transition", 5, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+    if(ImGui::TreeNodeEx("Transition", ImGuiTreeNodeFlags_DefaultOpen))
     {
-        ImGui::TableSetupColumn("Entry");
-        ImGui::TableSetupColumn("State");
-        ImGui::TableSetupColumn("Condition");
-        ImGui::TableSetupColumn("Next");
-        ImGui::TableSetupColumn("Remove");
-        ImGui::TableHeadersRow();
-
-        for (int i = 0; i < _transitions.size(); ++i)
+        if (ImGui::BeginTable("Transition##Table", 5, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
         {
-            Transition& transition = _transitions[i];
-            ImGui::PushID(&transition);
+            ImGui::TableSetupColumn("Entry");
+            ImGui::TableSetupColumn("State");
+            ImGui::TableSetupColumn("Condition");
+            ImGui::TableSetupColumn("Next");
+            ImGui::TableSetupColumn("Remove");
+            ImGui::TableHeadersRow();
+
+            for (int i = 0; i < _transitions.size(); ++i)
             {
-                ImGui::TableNextRow();
-                ImGui::TableSetColumnIndex(0);
-                bool isAnyState = nullptr == transition.CurrState;
-                if (false == isAnyState)
+                Transition& transition = _transitions[i];
+                ImGui::PushID(&transition);
                 {
-                    const char* stateName = typeid(*transition.CurrState).name();
-                    if (stateName != ReflectFields->EntryState)
+                    ImGui::TableNextRow();
+                    ImGui::TableSetColumnIndex(0);
+                    bool isAnyState = nullptr == transition.CurrState;
+                    if (false == isAnyState)
                     {
-                        if (ImGui::Button("Set entry"))
+                        const char* stateName = typeid(*transition.CurrState).name();
+                        if (stateName != ReflectFields->EntryState)
                         {
-                            SetEntryStateToKey(stateName);
+                            if (ImGui::Button("Set entry"))
+                            {
+                                SetEntryStateToKey(stateName);
+                            }
+                        }
+                        else
+                        {
+                            ImGui::Text("Entry");
                         }
                     }
-                    else
+                    ImGui::TableSetColumnIndex(1);
+                    const char* currState =
+                        transition.CurrState ? typeid(*transition.CurrState).name() + 6 : "Any State";
+                    ImGui::Text(currState);
+                    ImGui::TableSetColumnIndex(2);
+                    ImGui::Text(typeid(*transition.Condition).name() + 6);
+                    ImGui::DragInt("Order", &transition.Condition->ReflectFields->Order);
+                    ImGuiHelper::HoveredToolTip(u8"전이 조건의 우선 순위입니다. (낮을수록 우선됩니다.)"_c_str);
+                    ImGui::TableSetColumnIndex(3);
+                    ImGui::Text(typeid(*transition.NextState).name() + 6);
+                    ImGui::TableSetColumnIndex(4);
+                    if (ImGui::Button("Remove"))
                     {
-                        ImGui::Text("Entry");
+                        removeIndex = i;
                     }
                 }
-                ImGui::TableSetColumnIndex(1);
-                const char* currState = transition.CurrState ? typeid(*transition.CurrState).name() + 6 : "Any State";
-                ImGui::Text(currState);
-                ImGui::TableSetColumnIndex(2);
-                ImGui::Text(typeid(*transition.Condition).name() + 6);
-                ImGui::DragInt("Order", &transition.Condition->ReflectFields->Order);
-                ImGuiHelper::HoveredToolTip(u8"전이 조건의 우선 순위입니다. (낮을수록 우선됩니다.)"_c_str);
-                ImGui::TableSetColumnIndex(3);
-                ImGui::Text(typeid(*transition.NextState).name() + 6);
-                ImGui::TableSetColumnIndex(4);
-                if (ImGui::Button("Remove"))
-                {
-                    removeIndex = i;
-                }
+                ImGui::PopID();
             }
-            ImGui::PopID();
+            ImGui::EndTable();
         }
-        ImGui::EndTable();
+        ImGui::TreePop();
     }
-
     if (0 <= removeIndex)
     {
         EraseTransitionToIndex(removeIndex);
