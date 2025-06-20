@@ -621,6 +621,9 @@
     <ClInclude Include="Source\Engine\InputCore\Adapter\Controller\XInput\XInputAdapter.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Utility\Random.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\pch.cpp">
@@ -1077,6 +1080,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\InputCore\Adapter\Controller\XInput\XInputAdapter.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Utility\Random.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

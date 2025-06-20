@@ -55,8 +55,8 @@ protected:
     std::vector<float> floatVector{};
     std::string         objectName = "";
     std::array<float, 3> testVector3{};
-    int Work;
-    int Move;
+    int Work = 0;
+    int Move = 0;
     REFLECT_FIELDS_END(TestComponent)
 
 protected:

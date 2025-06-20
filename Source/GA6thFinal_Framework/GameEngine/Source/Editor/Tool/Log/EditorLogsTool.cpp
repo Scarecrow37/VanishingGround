@@ -170,7 +170,7 @@ void EditorLogsTool::OnFrameRender()
     clipper.Begin(static_cast<int>(_drawLogList.size()));
     while (clipper.Step())
     {
-        std::string logText;
+        static std::string logText;
         for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; ++i)
         {
             logText.clear();
