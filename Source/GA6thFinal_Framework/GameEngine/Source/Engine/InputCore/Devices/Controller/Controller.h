@@ -10,6 +10,7 @@ namespace Input
     /// </summary>
     class Controller
     {
+    public:
         /// <summary>
         /// 컨트롤러의 식별자입니다.
         /// </summary>

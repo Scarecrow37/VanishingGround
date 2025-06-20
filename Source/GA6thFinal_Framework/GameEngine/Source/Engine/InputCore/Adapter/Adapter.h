@@ -1,5 +1,8 @@
 ﻿#pragma once
 
-class Adapter
+namespace Input
 {
-};
+    class Adapter
+    {
+    };
+}
