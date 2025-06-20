@@ -41,7 +41,7 @@ public:
     void SortTurnList();
 
     /// <summary>
-    /// 가장 우선순위가 높은 TurnActor를 List에서 지우고 반환합니다.
+    /// 가장 우선순위가 높은 TurnActor를 List에서 지우고 턴을 실행합니다.
     /// </summary>
     /// <returns></returns>
     TurnActor* PopTurnList();
@@ -62,6 +62,7 @@ private:
 
     int _roundCount;
     std::deque<TurnActor*> _turnList;
+    TurnActor* _currTurnActor;
 
 private:
     struct SystemStates

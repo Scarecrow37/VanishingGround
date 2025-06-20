@@ -3,12 +3,12 @@
 #include "TurnSystem/TurnActor/TurnActor.h"
 
 //Condition
-#include "TurnSystem/Condition/CombatStartCodition.h"
-#include "TurnSystem/Condition/RoundStartCondition.h"
+#include "Condition/CombatStartCodition.h"
+#include "Condition/RoundStartCondition.h"
 
 //State
-#include "TurnSystem/State/CombatStartPhase.h"
-#include "TurnSystem/State/RoundStartPhase.h"   
+#include "State/CombatStartPhase.h"
+#include "State/RoundStartPhase.h"   
 
 //Character
 #include "TurnSystem/TurnActor/Character/Player/Player.h"
@@ -78,13 +78,18 @@ void TurnMode::SortTurnList()
 
 TurnActor* TurnMode::PopTurnList()
 {
-    TurnActor* turnMode = nullptr;
-    if (false == _turnList.empty())
+    _currTurnActor = nullptr;
+    while (false == _turnList.empty())
     {
-        turnMode = _turnList.front();
+        _currTurnActor = _turnList.front();
         _turnList.pop_front();
+        if (_currTurnActor->State == TurnActor::STATE::Wait)
+        {
+            break;
+        }
+        _currTurnActor = nullptr;
     }
-    return turnMode;
+    return _currTurnActor;
 }
 
 void TurnMode::BuildTurnModeFSM() 
