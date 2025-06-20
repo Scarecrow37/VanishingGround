@@ -15,8 +15,8 @@ namespace Input
         /// 컨트롤러의 식별자입니다.
         /// </summary>
         using ID                       = unsigned char;
-        static constexpr ID MAX_COUNT  = 4;
-        static constexpr ID INVALID_ID = MAX_COUNT;
+        static constexpr ID MAX_CONNECTION_COUNT  = 4;
+        static constexpr ID INVALID_ID = MAX_CONNECTION_COUNT;
 
         /// <summary>
         /// 컨트로러 버튼의 타입에 대한 비트을 정의합니다.

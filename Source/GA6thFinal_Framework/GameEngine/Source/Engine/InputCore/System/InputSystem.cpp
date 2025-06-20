@@ -1,4 +1,5 @@
-﻿#include "InputSystem.h"
+﻿#include "pch.h"
+#include "InputSystem.h"
 
 void Input::System::CreateDevice(Controller* controller)
 {

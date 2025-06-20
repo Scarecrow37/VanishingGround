@@ -11,6 +11,7 @@ namespace Input
     class ControllerAdapter : public Adapter
     {
     public:
+        ControllerAdapter()                                    = default;
         ControllerAdapter(const ControllerAdapter&)            = delete;
         ControllerAdapter& operator=(const ControllerAdapter&) = delete;
         ControllerAdapter(ControllerAdapter&&)                 = delete;
@@ -18,6 +19,6 @@ namespace Input
         virtual ~ControllerAdapter()                           = default;
 
         [[nodiscard]] virtual Controller::ID Connect() const                                                 = 0;
-        virtual Result                       ReceiveState(Controller::ID id, Controller::State& state) const = 0;
+        virtual Result                       ReceiveState(Controller::ID id, Controller::State* state) const = 0;
     };
 } // namespace Input
