@@ -1,5 +1,10 @@
 ﻿#include "TurnActor.h"
-TurnActor::TurnActor() = default;
+TurnActor::TurnActor() 
+    : 
+    _currState(STATE::Dead)
+{
+
+}
 TurnActor::~TurnActor() = default;
 
 void TurnActor::Awake() 

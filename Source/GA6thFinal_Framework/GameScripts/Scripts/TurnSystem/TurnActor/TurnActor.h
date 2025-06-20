@@ -5,9 +5,16 @@ class TurnActor : public Component
     USING_PROPERTY(TurnActor)
 public:
     inline static constexpr const char* TAG = "TurnActor";
+    enum class STATE
+    {
+        Dead,
+        Wait,
+        Play,
+    };
 
 public:
     REFLECT_PROPERTY(
+        State,
         RandomSpeed, 
         RoundSpeed
         )
@@ -34,12 +41,18 @@ public:
     }
     PROPERTY(RoundSpeed)
 
+    STATE SetState(STATE value) { return _currState = value; }
+    //SETTER(STATE, State) { _currState = value; }
+    GETTER_ONLY(STATE, State) { return _currState; }
+    PROPERTY(State)
+
 protected:
     REFLECT_FIELDS_BEGIN(Component)
     REFLECT_FIELDS_END(TurnActor)
 
 private:
     int _randomSpeed = 0;
+    STATE _currState;
 
 protected:
     /// <summary>
