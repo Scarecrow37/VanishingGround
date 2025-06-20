@@ -1,22 +1,54 @@
 ﻿#include "pch.h"
 #include "TimelineSystem.h"
 
-TimelineNotify::TimelineNotify(float time, ITimelineEvent* event)
+TimelineNotify::TimelineNotify()
 {
-    ReflectFields->Time      = time;
-    ReflectFields->EventName = typeid(*event).name();
-    _event = event;
 }
 TimelineNotify::~TimelineNotify() 
 {
 }
 
+void TimelineNotify::Notify()
+{
+    _event->OnNotified(Time);
+}
+
+void TimelineNotify::SetNotifyEvent(float time, std::string_view typeNameID) 
+{
+    if (nullptr != _event)
+    {
+        delete _event;
+        _event = nullptr;
+    }
+
+    ReflectFields->TimeData      = time;
+    ReflectFields->EventNameData = typeNameID;
+
+    _event = FactoryConstructor<ITimelineEvent>::NewInstanceWithKey(ReflectFields->EventNameData);
+}
+
+void TimelineNotify::SerializedReflectEvent() 
+{
+    if (nullptr != _event)
+    {
+        ReflectFields->SerializedData = _event->SerializedReflectFields();
+    }
+}
+
+void TimelineNotify::DeserializedReflectEvent() 
+{
+    _event = FactoryConstructor<ITimelineEvent>::NewInstanceWithKey(ReflectFields->EventNameData);
+    if (nullptr != _event)
+    {
+        _event->DeserializedReflectFields(ReflectFields->SerializedData);
+    }
+}
+
 TimelineSystem::TimelineSystem() 
-    : _minFrame(0.0f)
-    , _maxFrame(0.0f)
-    , _currFrame(0.0f)
+    : _currFrame(0.0f)
     , _prevFrame(0.0f)
-    , _isPlaying(true)
+    , _isActie(true)
+    , _isPlaying(false)
 {
 }
 
@@ -30,7 +62,7 @@ bool TimelineSystem::RemoveNotifyFromEvent(ITimelineEvent* event)
     for (auto it = _timelineNotifyQueue.begin(); it != _timelineNotifyQueue.end(); ++it)
     {
         TimelineNotify* notify = (*it);
-        if (notify->GetEvent() == event)
+        if (notify->Event == event)
         {
             _timelineNotifyQueue.erase(it);
             return true;
@@ -54,9 +86,9 @@ bool TimelineSystem::ChangeNotifyTimeFromEvent(ITimelineEvent* event, float newT
 {
     for (auto& notify : _timelineNotifyQueue)
     {
-        if (notify->GetEvent() == event)
+        if (notify->Event == event)
         {
-            notify->SetTime(newTime);
+            notify->Time = newTime;
             Sort();
             return true;
         }
@@ -70,7 +102,7 @@ bool TimelineSystem::ChangeNotifyTimeFromIndex(size_t index, float newTime)
     {
         return false;
     }
-    _timelineNotifyQueue[index]->SetTime(newTime);
+    _timelineNotifyQueue[index]->Time = newTime;
     Sort();
     return true;
 }
@@ -86,46 +118,63 @@ TimelineNotify* TimelineSystem::GetNotifyFromIndex(size_t index) const
 
 void TimelineSystem::Update()
 {
-    if (true == IsPlaying())
+    if (GetMaxFrame() < GetMinFrame())
     {
-        _prevFrame = _currFrame;
-        if (true == HasFlags(TIMELINESYSTEM_FLAGS_USE_COUNTER))
+        return;
+    }
+    if (true == IsActive())
+    {
+        if (true == IsPlaying() && true == HasFlags(TIMELINESYSTEM_FLAGS_USE_COUNTER))
         {
-            _currFrame += UmTime.DeltaTime();
+            SetCurrentFrame(_currFrame + UmTime.DeltaTime());
         }
-        if (_currFrame >= _maxFrame)
+        if (true == IsDirty())
         {
-            if (true == HasFlags(TIMELINESYSTEM_FLAGS_LOOP))
+            // 이전 프레임이 현재 프레임보다 높다면 최대 값을 넘어가서 돌아왔다고 판단.
+            if (_prevFrame > _currFrame)
             {
-                _currFrame += _minFrame - _maxFrame;
-                // overflow에 대한 처리
-                ProcessNotifies(_prevFrame, _maxFrame);
-                ProcessNotifies(_minFrame, _currFrame);
+                ProcessNotifies(_prevFrame, GetMaxFrame());
+                ProcessNotifies(GetMinFrame(), _currFrame);
             }
             else
             {
-                _currFrame = _maxFrame;
-                ProcessNotifies(_prevFrame, _maxFrame);
-                Stop();
+                ProcessNotifies(_prevFrame, _currFrame);
             }
         }
-        else
+        _prevFrame = _currFrame;
+        if (true == IsPlaying() && true == HasFlags(TIMELINESYSTEM_FLAGS_USE_COUNTER))
         {
-            ProcessNotifies(_prevFrame, _currFrame);
+            if (_currFrame >= GetMaxFrame())
+            {
+                if (true == HasFlags(TIMELINESYSTEM_FLAGS_LOOP))
+                {
+                    _currFrame += GetMinFrame() - GetMaxFrame();
+                }
+                else
+                {
+                    SetCurrentFrame(GetMaxFrame(), true);
+                    Pause();
+                }
+            }
         }
     }
+}
+
+void TimelineSystem::SetActive(bool active) 
+{
+    _isActie = active;
 }
 
 void TimelineSystem::Play()
 {
     _isPlaying = true;
-    SetCurrentFrame(_minFrame, true);
+    SetCurrentFrame(GetMinFrame(), true);
 }
 
 void TimelineSystem::Stop() 
 {
     _isPlaying = false;
-    SetCurrentFrame(_minFrame, true);
+    SetCurrentFrame(GetMinFrame(), true);
 }
 
 void TimelineSystem::Resume() 
@@ -143,52 +192,51 @@ void TimelineSystem::ClearNotifies()
     _timelineNotifyQueue.clear();
 }
 
-void TimelineSystem::ResetFrame() 
-{
-    _currFrame = _minFrame;
-    _prevFrame = _minFrame;
-}
-
 void TimelineSystem::SetMinFrame(float minFrame) 
 {
-    _minFrame = minFrame;
-    _currFrame = ImClamp(_currFrame, _minFrame, _maxFrame);
+    ReflectFields->MinFrame = minFrame;
+    _currFrame = ImClamp(_currFrame, GetMinFrame(), GetMaxFrame());
 }
 
 void TimelineSystem::SetMaxFrame(float maxFrame)
 {
-    _maxFrame = maxFrame;
-    _currFrame = ImClamp(_currFrame, _minFrame, _maxFrame);
+    ReflectFields->MaxFrame = maxFrame;
+    _currFrame = ImClamp(_currFrame, GetMinFrame(), GetMaxFrame());
 }
 
 void TimelineSystem::SetCurrentFrame(float frame, bool pass/* = false*/)
 {
-    _currFrame = std::min(frame, _minFrame); // 최대치는 넘어도 된다. 업데이트때 처리하기 때문
-    if (true == pass || _prevFrame > _currFrame)
+    _currFrame = frame < GetMinFrame() ? GetMinFrame() : frame;
+    if (true == pass || false == IsActive())
     {
-        _currFrame = _prevFrame;
+        _prevFrame = _currFrame;
     }
+}
+
+bool TimelineSystem::IsDirty()
+{
+    return _currFrame != _prevFrame;
 }
 
 void TimelineSystem::ProcessNotifies(float startTime, float endTime)
 {
-    if (startTime == endTime || true == HasFlags(TIMELINESYSTEM_FLAGS_NOTIFY_DISABLED))
+    if (startTime >= endTime || true == HasFlags(TIMELINESYSTEM_FLAGS_NOTIFY_DISABLED))
     {
         return;
     }
 
-    auto comp = [](const TimelineNotify* notify, float time) { return notify->GetTime() < time; };
+    auto comp = [](const TimelineNotify* notify, float time) { return notify->Time < time; };
 
     auto beginIt = std::lower_bound(_timelineNotifyQueue.begin(), _timelineNotifyQueue.end(), startTime, comp);
 
     for (auto it = beginIt; it != _timelineNotifyQueue.end(); ++it)
     {
         TimelineNotify* notify = (*it);
-        if (notify->GetTime() > endTime)
+        if (notify->Time > endTime)
         {
             break;
         }
-        else if (nullptr != notify->GetEvent())
+        else if (nullptr != notify->Event)
         {
             notify->Notify();
         }
@@ -202,5 +250,27 @@ void TimelineSystem::Sort()
 
 bool TimelineSystem::CompareNotifyToAsending(const TimelineNotify* a, const TimelineNotify* b)
 {
-    return a->GetTime() < b->GetTime();
+    return a->Time < b->Time;
+}
+
+void TimelineSystem::SerializedReflectEvent() 
+{
+    ReflectFields->SerializedDataList.clear();
+    for (const auto& notify : _timelineNotifyQueue)
+    {
+        if (nullptr != notify)
+        {
+            ReflectFields->SerializedDataList.push_back(notify->SerializedReflectFields());
+        }
+    }
+}
+
+void TimelineSystem::DeserializedReflectEvent() 
+{
+    for (const auto& data : ReflectFields->SerializedDataList)
+    {
+        TimelineNotify* notify = new TimelineNotify();
+        notify->DeserializedReflectFields(data);
+        _timelineNotifyQueue.push_back(notify);
+    }
 }

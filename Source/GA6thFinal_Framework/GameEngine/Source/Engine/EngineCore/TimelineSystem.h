@@ -15,26 +15,35 @@ class TimelineNotify : public ReflectSerializer
 {
     USING_PROPERTY(TimelineNotify)
 public:
-    REFLECT_PROPERTY()
-    TimelineNotify(float time, ITimelineEvent* event);
-    TimelineNotify() = default;
+    TimelineNotify();
     virtual ~TimelineNotify();
 
 public:
-    inline void Notify() { _event->OnNotified(ReflectFields->Time); }
+    void Notify();
+    void SetNotifyEvent(float time, std::string_view typeNameID);
 
-    inline void  SetTime(float time) { ReflectFields->Time = time; }
-    inline float GetTime() const { return ReflectFields->Time; }
+    REFLECT_PROPERTY(EventName, Time)
 
-    inline void            SetEvent(ITimelineEvent* event) { _event = event; }
-    inline ITimelineEvent* GetEvent() const { return _event; }
+    GETTER_ONLY(const char*, EventName) { return ReflectFields->EventNameData.c_str(); }
+    PROPERTY(EventName)
+
+    GETTER(float, Time) { return ReflectFields->TimeData; }
+    SETTER(float, Time) { ReflectFields->TimeData = value; }
+    PROPERTY(Time)
+
+    GETTER_ONLY(ITimelineEvent*, Event) { return _event; }
+    PROPERTY(Event)
 
 protected:
     ITimelineEvent* _event = nullptr;
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
-    float       Time = 0.0f;
-    std::string EventName = "";
+    float       TimeData = 0.0f;
+    std::string EventNameData = "";
+    std::string SerializedData = "";
     REFLECT_FIELDS_END(TimelineNotify)
+
+    virtual void SerializedReflectEvent() override;
+    virtual void DeserializedReflectEvent() override;
 };
 
 using TimeLineSystemFlags = int;
@@ -48,7 +57,7 @@ public:
     {
         TIMELINESYSTEM_FLAGS_NONE            = 0,
         TIMELINESYSTEM_FLAGS_USE_COUNTER     = 1 << 0, // 카운터 사용 여부. (매 틱 독자적으로 DeltaTime을 더한다.)
-        TIMELINESYSTEM_FLAGS_LOOP            = 1 << 2, // 루프 여부.
+        TIMELINESYSTEM_FLAGS_LOOP            = 1 << 2, // 루프 여부. (카운터 사용 시에 만)
         TIMELINESYSTEM_FLAGS_NOTIFY_DISABLED = 1 << 3  // 알림 비활성화 여부. (NotifyEvent가 호출되지 않음.)
     };
 
@@ -62,16 +71,23 @@ public:
     {
         static_assert(std::is_base_of_v<ITimelineEvent, T>, "T is not derived from ITimelineEvent.");
         const char* key = typeid(T).name();
-        ITimelineEvent* instance = NewInstanceWithKey(key);
+        TimelineNotify* notify = new TimelineNotify();
+        notify->SetNotifyEvent(time, key);
+        _timelineNotifyQueue.push_back(notify);
+        Sort();
+        return _timelineNotifyQueue.back()->_event;
+    }
+
+    ITimelineEvent* AddNotify(float time, std::string_view typenameID)
+    {
+        ITimelineEvent* instance = NewInstanceWithKey(typenameID);
         if (nullptr != instance)
         {
             TimelineNotify* notify = new TimelineNotify();
-            notify->SetTime(time);
-            notify->SetEvent(instance);
+            notify->SetNotifyEvent(time, typenameID);
             _timelineNotifyQueue.push_back(notify);
-            
             Sort();
-            return static_cast<T*>(instance);
+            return instance;
         }
         return nullptr;
     }
@@ -87,6 +103,7 @@ public:
 public:
     void Update();
 
+    void SetActive(bool active);
     void Play();
     void Stop();
     void Resume();
@@ -94,40 +111,50 @@ public:
 
     void ClearNotifies();
 
-    void ResetFrame();
-
     void SetMinFrame(float minFrame);
     void SetMaxFrame(float maxFrame);
 
     void SetCurrentFrame(float frame, bool pass = false);
 
     /* Flags */
-    inline void SetFlags(TimeLineSystemFlags flags) { _flags = flags; }
-    inline void AddFlags(TimeLineSystemFlags flags) { _flags |= flags; }
-    inline void RemoveFlags(TimeLineSystemFlags flags) { _flags &= ~flags; }
-    inline void ToggleFlags(TimeLineSystemFlags flags) { _flags ^= flags; }
-    inline bool HasFlags(TimeLineSystemFlags flags) const { return _flags & flags; }
+    inline void SetFlags(TimeLineSystemFlags flags) { ReflectFields->Flags = flags; }
+    inline void AddFlags(TimeLineSystemFlags flags) { ReflectFields->Flags |= flags; }
+    inline void RemoveFlags(TimeLineSystemFlags flags) { ReflectFields->Flags &= ~flags; }
+    inline void ToggleFlags(TimeLineSystemFlags flags) { ReflectFields->Flags ^= flags; }
+    inline bool HasFlags(TimeLineSystemFlags flags) const { return ReflectFields->Flags & flags; }
 
     /* Getter */
-    inline float    GetMaxFrame() const { return _maxFrame; }
-    inline float    GetMinFrame() const { return _minFrame; }
+    inline float    GetMaxFrame() const { return ReflectFields->MaxFrame; }
+    inline float    GetMinFrame() const { return ReflectFields->MinFrame; }
     inline float    GetCurrentFrame() const { return _currFrame; }
     inline float    GetPreviousFrame() const { return _prevFrame; }
+    inline bool     IsActive() const { return _isActie; }
     inline bool     IsPlaying() const { return _isPlaying; }
     inline size_t   GetNotifyCount() const { return _timelineNotifyQueue.size(); }
+    inline bool     IsVaildFrame(float frame) const { return frame >= GetMinFrame() && frame <= GetMaxFrame(); }
     inline const TimelineList& GetTimelineNotifyList() const { return _timelineNotifyQueue; }
 
 private:
+    bool IsDirty();
     void ProcessNotifies(float startTime, float endTime);
     void Sort();
     static bool CompareNotifyToAsending(const TimelineNotify* a, const TimelineNotify* b);
 
 private:
-    float _minFrame;
-    float _maxFrame;
     float _currFrame;
     float _prevFrame;
+    bool  _isActie;
     bool  _isPlaying;
-    int   _flags;
     TimelineList _timelineNotifyQueue;
+
+    REFLECT_FIELDS_BEGIN(ReflectSerializer)
+    float MinFrame  = 0.0f;
+    float MaxFrame  = 0.0f;
+    int   Flags     = 0;
+    std::vector<std::string> SerializedDataList;
+    REFLECT_FIELDS_END(TimelineSystem)
+
+private:
+    virtual void SerializedReflectEvent() override;
+    virtual void DeserializedReflectEvent() override;
 };

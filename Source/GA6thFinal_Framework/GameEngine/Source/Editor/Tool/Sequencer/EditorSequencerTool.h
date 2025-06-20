@@ -21,9 +21,16 @@ public:
     virtual void OnFrameFocusExit();
     virtual void OnFramePopupOpened();
 
+    void SerializedReflectEvent() override;
+    void DeserializedReflectEvent() override;
+
 private:
     TimelineSystem* _timelineSystem = nullptr;
     EditorSequencer* _sequencer     = nullptr;
+
+    REFLECT_FIELDS_BEGIN(EditorTool)
+    std::string SerializedData;
+    REFLECT_FIELDS_END(EditorSequencerTool)
 };
 
 class TestTimeLineEvent : public ITimelineEvent
