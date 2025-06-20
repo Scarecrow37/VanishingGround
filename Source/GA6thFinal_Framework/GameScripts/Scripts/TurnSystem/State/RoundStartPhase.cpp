@@ -5,7 +5,8 @@ REGISTER_CLASS(FSMStateFactory, RoundStartPhase)
 
 RoundStartPhase::RoundStartPhase() 
     :
-    _turnMode(nullptr) 
+    _turnMode(nullptr), 
+    _currTurnActor(nullptr) 
 {
 
 }
