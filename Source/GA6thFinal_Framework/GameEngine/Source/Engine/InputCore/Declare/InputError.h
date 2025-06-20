@@ -9,5 +9,5 @@ namespace Input
     constexpr Result ERROR_NO_CHANGE     = 2;
     constexpr Result ERROR_WRONG_ID      = 3;
     constexpr Result ERROR_NOT_CONNECTED = 4;
-    constexpr Result ERROR_UNKOWN        = 5;
+    constexpr Result ERROR_UNKOWN        = 255;
 } // namespace Input
