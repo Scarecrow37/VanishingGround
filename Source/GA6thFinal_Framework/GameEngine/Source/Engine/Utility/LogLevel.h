@@ -84,6 +84,7 @@ public:
         std::unordered_set<uint_least32_t> columnInfoSet;
     };
    
+    LogLocation(const nullptr_t& null);
     LogLocation(const std::source_location& location);
     LogLocation(const LogLocation& rhs) 
     { 

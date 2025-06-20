@@ -234,6 +234,37 @@ namespace ReflectHelper
                             }
                         }
                     }
+                    else if constexpr (std::is_enum_v<remove_view_type>)
+                    {
+                        constexpr auto enumeratorArray = rfl::get_enumerator_array<remove_view_type>();
+                        remove_view_type input = val;
+                        auto enumToStrig = rfl::enum_to_string(input);
+                        if (ImGui::BeginCombo(name, enumToStrig.data()))
+                        {
+                            for (auto& [name, value] : enumeratorArray)
+                            {
+                                bool isSelected = input == value;
+
+                                if (ImGui::Selectable(name.data(), isSelected))
+                                {
+                                    input = value;
+                                    isEdit = true;
+                                }
+                                if (isSelected)
+                                    ImGui::SetItemDefaultFocus();
+                            }
+                            ImGui::EndCombo();
+                        }
+
+                        if constexpr (isProperty == false || isSetter == true)
+                        {
+                            if (isEdit)
+                            {
+                                val = input;
+                                result = true;
+                            }
+                        }
+                    }
                     else
                     {
                         EngineLog(LogLevel::LEVEL_WARNING,
@@ -305,7 +336,7 @@ namespace ReflectHelper
 
                     if constexpr (StdHelper::is_std_array_v<OriginType>)
                     {
-                        if (ImGui::CollapsingHeader((const char*)name.data()))
+                        if (ImGui::TreeNodeEx((const char*)name.data()))
                         {
                             if constexpr (std::ranges::range<decltype(*value)>)
                             {
@@ -316,13 +347,14 @@ namespace ReflectHelper
                                     i++;
                                 }
                             }
+                            ImGui::TreePop();
                         }
                     }
                     else if constexpr (StdHelper::is_std_vector_v<OriginType>)
                     {
                         if constexpr (std::ranges::range<decltype(*value)>)
                         {
-                            if (ImGui::CollapsingHeader((const char*)name.data()))
+                            if (ImGui::TreeNodeEx((const char*)name.data()))
                             {
                                 int i = 0;
                                 for (auto& val : *value)
@@ -344,6 +376,7 @@ namespace ReflectHelper
                                         isEdit = true;
                                     }
                                 }
+                                ImGui::TreePop();
                             }
                         }
                     }
