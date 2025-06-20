@@ -32,7 +32,6 @@ void CombatStartPhase::ResetCharacterStats()
             {
                 character->SetHP(character->MaxHP);
                 character->SetMP(character->MaxMP);
-                character->SetState(TurnActor::STATE::Wait);
             }
         }
     }
