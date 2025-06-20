@@ -11,28 +11,31 @@ namespace Input
     class Controller
     {
         /// <summary>
-        /// 컨트로러 버튼의 타입에 대한 비트을 정의합니다.
-        /// </summary>
-        using Button                    = unsigned short;
-        constexpr Button DPAD_UP        = 0x0001;
-        constexpr Button DPAD_DOWN      = 0x0002;
-        constexpr Button DPAD_LEFT      = 0x0004;
-        constexpr Button DPAD_RIGHT     = 0x0008;
-        constexpr Button START          = 0x0010;
-        constexpr Button BACK           = 0x0020;
-        constexpr Button LEFT_THUMB     = 0x0040;
-        constexpr Button RIGHT_THUMB    = 0x0080;
-        constexpr Button LEFT_SHOULDER  = 0x0100;
-        constexpr Button RIGHT_SHOULDER = 0x0200;
-        constexpr Button A              = 0x1000;
-        constexpr Button B              = 0x2000;
-        constexpr Button X              = 0x4000;
-        constexpr Button Y              = 0x8000;
-
-        /// <summary>
         /// 컨트롤러의 식별자입니다.
         /// </summary>
         using ID = unsigned char;
+        static constexpr ID MAX_COUNT = 4;
+        static constexpr ID INVALID_ID = MAX_COUNT;
+
+        /// <summary>
+        /// 컨트로러 버튼의 타입에 대한 비트을 정의합니다.
+        /// </summary>
+        using Button                    = unsigned short;
+        static constexpr Button DPAD_UP        = 0x0001;
+        static constexpr Button DPAD_DOWN      = 0x0002;
+        static constexpr Button DPAD_LEFT      = 0x0004;
+        static constexpr Button DPAD_RIGHT     = 0x0008;
+        static constexpr Button START          = 0x0010;
+        static constexpr Button BACK           = 0x0020;
+        static constexpr Button LEFT_THUMB     = 0x0040;
+        static constexpr Button RIGHT_THUMB    = 0x0080;
+        static constexpr Button LEFT_SHOULDER  = 0x0100;
+        static constexpr Button RIGHT_SHOULDER = 0x0200;
+        static constexpr Button A              = 0x1000;
+        static constexpr Button B              = 0x2000;
+        static constexpr Button X              = 0x4000;
+        static constexpr Button Y              = 0x8000;
+
 
         /// <summary>
         /// 엄지 막대의 위치에 대한 값입니다.
@@ -41,9 +44,9 @@ namespace Input
         /// </summary>
         struct ThumbStickAxis
         {
-            float x;
-            float y;
-            float magnitude;
+            float X;
+            float Y;
+            float Magnitude;
         };
 
         /// <summary>
@@ -65,7 +68,7 @@ namespace Input
         {
             using Generation = DWORD;
 
-            Generation     Generation;
+            Generation     StateGeneration;
             ThumbStickAxis LeftThumbStickAxis;
             ThumbStickAxis RightThumbStickAxis;
             TriggerValue   LeftTrigger;
@@ -74,27 +77,71 @@ namespace Input
         };
 
     public:
-        Controller(const Adapter* adapter);
+        explicit Controller(const Adapter* adapter);
 
+        /// <summary>
+        /// 컨트롤러를 연결합니다.
+        /// 성능상의 이유로 매 프레임마다 호출하지 않고 몇 초 간격을 두고 호출하는 것이 좋습니다.
+        /// </summary>
+        /// <returns>연결에 성공하면 INPUT_ERROR_SUCCESS, 연결에 실패하면 INPUT_ERROR_NOT_CONNECTED가 반환됩니다.</returns>
         Result Connect();
 
-        bool IsConnected() const;
+        /// <summary>
+        /// 연결되어 있는지 여부를 확인합니다.
+        /// </summary>
+        /// <returns>연결되어 있으면 true, 그렇지 않으면 false를 반환합니다.</returns>
+        [[nodiscard]] bool IsConnected() const;
 
+        /// <summary>
+        /// 상태를 갱신하고 결과를 반환합니다.
+        /// </summary>
+        /// <returns>상태 갱신 작업의 결과를 나타내는 Result 객체입니다.</returns>
         Result UpdateState();
 
-        ThumbStickAxis GetLeftThumbStickAxis() const;
+        /// <summary>
+        /// 왼쪽 엄지스틱의 축 값을 반환합니다.
+        /// </summary>
+        /// <returns>왼쪽 엄지스틱의 현재 축 값을 나타내는 ThumbStickAxis 객체입니다.</returns>
+        [[nodiscard]] ThumbStickAxis GetLeftThumbStickAxis() const;
 
-        ThumbStickAxis GetRightThumbStickAxis() const;
+        /// <summary>
+        /// 오른쪽 엄지스틱의 축 값을 반환합니다.
+        /// </summary>
+        /// <returns>오른쪽 엄지스틱의 축 값을 나타내는 ThumbStickAxis 객체를 반환합니다.</returns>
+        [[nodiscard]] ThumbStickAxis GetRightThumbStickAxis() const;
 
-        TriggerValue GetLeftTrigger() const;
+        /// <summary>
+        /// 왼쪽 트리거의 값을 반환합니다.
+        /// </summary>
+        /// <returns>왼쪽 트리거의 현재 값을 나타내는 TriggerValue 객체입니다.</returns>
+        [[nodiscard]] TriggerValue GetLeftTrigger() const;
 
-        TriggerValue GetRightTrigger() const;
+        /// <summary>
+        /// 오른쪽 트리거의 값을 반환합니다.
+        /// </summary>
+        /// <returns>오른쪽 트리거의 현재 값을 나타내는 TriggerValue 객체입니다.</returns>
+        [[nodiscard]] TriggerValue GetRightTrigger() const;
 
-        bool IsButtonDown(Button button) const;
+        /// <summary>
+        /// 버튼이 눌려 있는지 여부를 확인합니다.
+        /// </summary>
+        /// <param name="button">상태를 확인할 버튼입니다.</param>
+        /// <returns>버튼이 눌려 있으면 true, 그렇지 않으면 false를 반환합니다.</returns>
+        [[nodiscard]] bool IsButtonDown(Button button) const;
 
-        bool IsButtonUp(Button button) const;
+        /// <summary>
+        /// 버튼이 눌려 있지 않은지 확인합니다.
+        /// </summary>
+        /// <param name="button">상태를 확인할 버튼입니다.</param>
+        /// <returns>버튼이 올라가 있으면 true, 그렇지 않으면 false를 반환합니다.</returns>
+        [[nodiscard]] bool IsButtonUp(Button button) const;
 
-        ID GetID() const;
+        /// <summary>
+        /// 컨트롤러의 ID를 반환합니다.
+        /// </summary>
+        /// <returns>컨트롤러의 ID를 반환합니다.</returns>
+        [[nodiscard]] ID GetID() const;
+
     private:
         const Adapter* _adapter;
 
