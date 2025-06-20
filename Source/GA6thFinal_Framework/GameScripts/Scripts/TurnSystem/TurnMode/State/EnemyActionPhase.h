@@ -1,11 +1,11 @@
 ﻿#pragma once
-#include "Base/GetTurnModeBaseS.h"
+#include "Base/TurnModeStateBase.h"
 
 /*
 * 몬스터 행동 페이즈용 State 입니다.
 * 몬스터를 행동 모드로 전환합니다.
 */
-class EnemyActionPhase : public GetTurnModeBaseS
+class EnemyActionPhase : public TurnModeStateBase
 {
 public:
     EnemyActionPhase();

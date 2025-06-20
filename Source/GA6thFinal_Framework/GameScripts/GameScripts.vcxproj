@@ -305,7 +305,7 @@
     <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\CheckRoundEndExit.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\CheckTurnEmpty.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\CheckTurnEndCondition.h" />
-    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\Base\GetTurnModeBaseC.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\Base\TurnModeConditionBase.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\CheckRoundStartExit.h" />
     <ClInclude Include="Scripts\GameCore\FSM\AlwaysTransitionCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\CheckTurnNotEmpty.h" />
@@ -314,7 +314,7 @@
     <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\RoundStartCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnMode\State\RoundEndPhase.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnMode\State\TurnListEmptyState.h" />
-    <ClInclude Include="Scripts\TurnSystem\TurnMode\State\Base\GetTurnModeBaseS.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\State\Base\TurnModeStateBase.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnMode\State\CheckPlayerState.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnMode\State\CombatStartPhase.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnMode\State\EnemyActionPhase.h" />
@@ -342,7 +342,7 @@
     <ClCompile Include="Scripts\Graphics\StaticMeshRenderer.cpp" />
     <ClCompile Include="Scripts\Light\Base\LightComponent.cpp" />
     <ClCompile Include="Scripts\Test\Component\TestComponent.cpp" />
-    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\Base\GetTurnModeBaseC.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\Base\TurnModeConditionBase.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\CheckRoundEndExit.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\CheckRoundStartExit.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\CheckTurnEmpty.cpp" />
@@ -351,7 +351,7 @@
     <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\EnemyActionCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\PlayerActionCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\RoundStartCondition.cpp" />
-    <ClCompile Include="Scripts\TurnSystem\TurnMode\State\Base\GetTurnModeBaseS.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\State\Base\TurnModeStateBase.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnMode\State\CheckPlayerState.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnMode\State\CombatStartPhase.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnMode\State\EnemyActionPhase.cpp" />

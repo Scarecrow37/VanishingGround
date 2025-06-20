@@ -18,7 +18,7 @@ void PlayerActionPhase::OnAwake()
 
 void PlayerActionPhase::OnStart() 
 {
-    GetTurnModeBaseS::OnStart();
+    TurnModeStateBase::OnStart();
 }
 
 void PlayerActionPhase::OnEnter() 

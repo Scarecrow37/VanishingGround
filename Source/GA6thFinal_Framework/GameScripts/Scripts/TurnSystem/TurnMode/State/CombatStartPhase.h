@@ -1,11 +1,11 @@
 ﻿#pragma once
-#include "Base/GetTurnModeBaseS.h"
+#include "Base/TurnModeStateBase.h"
 
 /*
 * 전투 시작 페이즈 입니다.
 * 전투 시작시 연출 및 초기화를 담당합니다.
 */
-class CombatStartPhase : public GetTurnModeBaseS
+class CombatStartPhase : public TurnModeStateBase
 {
 public:
     CombatStartPhase();

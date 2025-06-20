@@ -12,7 +12,7 @@ void CheckRoundEndExit::OnAwake() {}
 
 void CheckRoundEndExit::OnStart() 
 {
-    GetTurnModeBaseC::OnStart();
+    TurnModeConditionBase::OnStart();
 }
 
 bool CheckRoundEndExit::Evaluate()
