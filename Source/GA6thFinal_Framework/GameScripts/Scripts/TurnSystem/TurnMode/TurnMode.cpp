@@ -5,10 +5,13 @@
 //Condition
 #include "Condition/CombatStartCodition.h"
 #include "Condition/RoundStartCondition.h"
+#include "Condition/PlayerActionCondition.h"
+#include "Condition/EnemyActionCondition.h"
 
 //State
 #include "State/CombatStartPhase.h"
 #include "State/RoundStartPhase.h"   
+#include "State/PlayerActionPhase.h"
 
 //Character
 #include "TurnSystem/TurnActor/Character/Player/Player.h"
@@ -16,7 +19,8 @@
 
 TurnMode::TurnMode() 
     : 
-    _roundCount(0) 
+    _roundCount(0), 
+    _currTurnActor(nullptr)
 {
 
 }
@@ -102,17 +106,21 @@ void TurnMode::BuildTurnModeFSM()
         //State
         _systemStates.CombatStartPhase = _finiteStateMachine->AddState<CombatStartPhase>();
         _systemStates.RoundStartPhase  = _finiteStateMachine->AddState<RoundStartPhase>();
+        _systemStates.PlayerActionPhase = _finiteStateMachine->AddState<PlayerActionPhase>();
 
         //Condition
         _systemConditions.CombatStartCodition = _finiteStateMachine->AddCondition<CombatStartCodition>();
         _systemConditions.RoundStartCondition = _finiteStateMachine->AddCondition<RoundStartCondition>();
+        _systemConditions.PlayerActionCondition = _finiteStateMachine->AddCondition<PlayerActionCondition>();
+        _systemConditions.EnemyActionCondition  = _finiteStateMachine->AddCondition<EnemyActionCondition>();
 
         //Entry
         _finiteStateMachine->SetEntryState<CombatStartPhase>();
 
         //Transition    
         _finiteStateMachine->AddTransition<CombatStartPhase, RoundStartCondition, RoundStartPhase>();
-        
+        _finiteStateMachine->AddTransition<RoundStartPhase, PlayerActionCondition, PlayerActionPhase>(); 
+        _finiteStateMachine->AddTransition<RoundStartPhase, EnemyActionCondition, CombatStartPhase>();  //테스트임
     }
 }
 

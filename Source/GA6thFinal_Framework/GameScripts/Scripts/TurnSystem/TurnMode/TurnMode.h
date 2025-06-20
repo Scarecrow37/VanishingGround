@@ -46,6 +46,11 @@ public:
     /// <returns></returns>
     TurnActor* PopTurnList();
 
+    /// <summary>
+    /// 현재 턴 실행중인 Actor를 반환합니다.
+    /// </summary>
+    TurnActor* GetCurrTurnActor() const { return _currTurnActor; }
+
 public:
     GETTER_ONLY(int, RoundCount) { return _roundCount; }
     PROPERTY(RoundCount)
@@ -69,12 +74,15 @@ private:
     {
         class CombatStartPhase* CombatStartPhase = nullptr;
         class RoundStartPhase*  RoundStartPhase  = nullptr;
+        class PlayerActionPhase* PlayerActionPhase = nullptr;
     } _systemStates;
 
     struct SystemCondition
     {
-        class CombatStartCodition* CombatStartCodition = nullptr;
-        class RoundStartCondition* RoundStartCondition = nullptr;
+        class CombatStartCodition*   CombatStartCodition    = nullptr;
+        class RoundStartCondition*   RoundStartCondition    = nullptr;
+        class PlayerActionCondition* PlayerActionCondition  = nullptr;
+        class EnemyActionCondition*  EnemyActionCondition   = nullptr;
     } _systemConditions;
 
 public:
