@@ -12,7 +12,7 @@ void EnemyActionPhase::OnAwake() {}
 
 void EnemyActionPhase::OnStart() 
 {
-    GetTurnModeBase::OnStart();
+    GetTurnModeBaseS::OnStart();
 }
 
 void EnemyActionPhase::OnEnter() 

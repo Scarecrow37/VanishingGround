@@ -1,7 +1,7 @@
 ﻿#pragma once
-#include "Base/GetTurnModeBase.h"
+#include "Base/GetTurnModeBaseS.h"
 
-class PlayerActionPhase : public GetTurnModeBase
+class PlayerActionPhase : public GetTurnModeBaseS
 {
 public:
     PlayerActionPhase();

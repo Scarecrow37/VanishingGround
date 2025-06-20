@@ -1,7 +1,7 @@
 ﻿#pragma once
-#include "Base/GetTurnModeBase.h"
+#include "Base/GetTurnModeBaseS.h"
 
-class RoundStartPhase : public GetTurnModeBase
+class RoundStartPhase : public GetTurnModeBaseS
 {
 public:
     RoundStartPhase();
