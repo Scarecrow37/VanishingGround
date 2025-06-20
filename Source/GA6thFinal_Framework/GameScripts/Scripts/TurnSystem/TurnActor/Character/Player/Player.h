@@ -49,4 +49,7 @@ protected:
     
 
     void OnTurnStart() override;
+
+    // CharacterBase을(를) 통해 상속됨
+    void OnTurnEnd() override;
 };
