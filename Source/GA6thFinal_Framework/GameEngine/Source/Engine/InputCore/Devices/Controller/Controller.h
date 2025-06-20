@@ -13,14 +13,14 @@ namespace Input
         /// <summary>
         /// 컨트롤러의 식별자입니다.
         /// </summary>
-        using ID = unsigned char;
-        static constexpr ID MAX_COUNT = 4;
+        using ID                       = unsigned char;
+        static constexpr ID MAX_COUNT  = 4;
         static constexpr ID INVALID_ID = MAX_COUNT;
 
         /// <summary>
         /// 컨트로러 버튼의 타입에 대한 비트을 정의합니다.
         /// </summary>
-        using Button                    = unsigned short;
+        using Button                           = unsigned short;
         static constexpr Button DPAD_UP        = 0x0001;
         static constexpr Button DPAD_DOWN      = 0x0002;
         static constexpr Button DPAD_LEFT      = 0x0004;
@@ -35,7 +35,6 @@ namespace Input
         static constexpr Button B              = 0x2000;
         static constexpr Button X              = 0x4000;
         static constexpr Button Y              = 0x8000;
-
 
         /// <summary>
         /// 엄지 막대의 위치에 대한 값입니다.
@@ -66,7 +65,7 @@ namespace Input
         /// </summary>
         struct State
         {
-            using Generation = DWORD;
+            using Generation = unsigned long;
 
             Generation     StateGeneration;
             ThumbStickAxis LeftThumbStickAxis;
@@ -83,7 +82,8 @@ namespace Input
         /// 컨트롤러를 연결합니다.
         /// 성능상의 이유로 매 프레임마다 호출하지 않고 몇 초 간격을 두고 호출하는 것이 좋습니다.
         /// </summary>
-        /// <returns>연결에 성공하면 INPUT_ERROR_SUCCESS, 연결에 실패하면 INPUT_ERROR_NOT_CONNECTED가 반환됩니다.</returns>
+        /// <returns>연결에 성공하면 INPUT_ERROR_SUCCESS, 연결에 실패하면 INPUT_ERROR_NOT_CONNECTED가
+        /// 반환됩니다.</returns>
         Result Connect();
 
         /// <summary>
@@ -145,7 +145,7 @@ namespace Input
     private:
         const Adapter* _adapter;
 
-        ID _id;
+        ID    _id;
         State _state;
     };
 } // namespace Input

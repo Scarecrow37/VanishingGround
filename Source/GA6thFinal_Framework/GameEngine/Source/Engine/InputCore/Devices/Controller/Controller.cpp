@@ -1,16 +1,14 @@
-﻿#include "pch.h"
-#include "Controller.h"
+﻿#include "Controller.h"
+#include "pch.h"
 
 namespace Input
 {
-    Controller::Controller(const Adapter* adapter) : _adapter(adapter), _id(INVALID_ID), _state{}
-    {
-        
-    }
+    Controller::Controller(const Adapter* adapter) : _adapter(adapter), _id(INVALID_ID), _state{} {}
 
     Result Controller::Connect()
     {
-        if (IsConnected()) return INPUT_ERROR_SUCCESS;
+        if (IsConnected())
+            return INPUT_ERROR_SUCCESS;
         //_id = _adapter->Connect();
         return IsConnected() ? INPUT_ERROR_SUCCESS : INPUT_ERROR_NOT_CONNECTED;
     }
@@ -22,7 +20,8 @@ namespace Input
 
     Result Controller::UpdateState()
     {
-        if (!IsConnected()) return INPUT_ERROR_NOT_CONNECTED;
+        if (!IsConnected())
+            return INPUT_ERROR_NOT_CONNECTED;
         // return _adapter->ReceiveState(_id, &_state);
     }
 
@@ -61,5 +60,4 @@ namespace Input
         return _id;
     }
 
-
-}
+} // namespace Input
