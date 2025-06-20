@@ -1,7 +1,12 @@
 ﻿#include "pch.h"
 using namespace Global;
 
-LogLocation::LogLocation(const std::source_location& location) 
+LogLocation::LogLocation(const nullptr_t& null) 
+{
+
+}
+
+LogLocation::LogLocation(const std::source_location& location)
 {
     LogLocation::EngineLocationInfo& locationInfo = engineCore->LocationInfo;
     {

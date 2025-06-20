@@ -27,3 +27,9 @@ int Component::GetIndex() const
 {
     return gameObject->GetComponentIndex(this);
 }
+
+std::weak_ptr<ITimeInvoker> Component::GetWeakInvoker()
+{
+    auto ptr = GetWeakPtr().lock();
+    return std::weak_ptr<ITimeInvoker>(ptr);
+}

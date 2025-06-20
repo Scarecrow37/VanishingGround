@@ -25,6 +25,18 @@ public:
             }
             return false;
         }   
+
+        inline bool operator==(const Transition& b) const
+        {
+            void* pointersA[3] = {this->CurrState, this->Condition, this->NextState};
+            void* pointersB[3] = {b.CurrState, b.Condition, b.NextState};
+            for (int i = 0; i < 3; ++i)
+            {
+                if (pointersA[i] != pointersB[i])
+                    return false;
+            }
+            return true;
+        }
     };
 
 private: 
@@ -39,66 +51,129 @@ private:
     const char* SelectMyConditionImguiChild();
     void ImguiDrawCondiitons();
 
-
 public:
+    /// <summary>
+    /// 전이 객체를 추가합니다.
+    /// </summary>
+    template <FSM_STATE_BASE StateType, FSM_CONDITION_BASE ConditionType, FSM_STATE_BASE NextStateType>
+    void AddTransition()
+    {
+        const char* stateKey     = typeid(StateType).name();
+        const char* conditionKey = typeid(ConditionType).name();
+        const char* nextStateKey = typeid(NextStateType).name();
+        AddTransitionToKey(stateKey, conditionKey, nextStateKey);
+    }
+
+    /// <summary>
+    /// 모든 상황에서 전이가 가능한 전이 객체를 추가합니다.
+    /// </summary>
+    template <FSM_CONDITION_BASE ConditionType, FSM_STATE_BASE NextStateType>
+    void AddTransition()
+    {
+        const char* conditionKey = typeid(ConditionType).name();
+        const char* nextStateKey = typeid(NextStateType).name();
+        AddAnyTransitionToKey(conditionKey, nextStateKey);
+    }
+
+    /// <summary>
+    /// 전이 객체를 제거합니다.
+    /// </summary>
+    template <FSM_STATE_BASE StateType, FSM_CONDITION_BASE ConditionType, FSM_STATE_BASE NextStateType>
+    void EraseTransition()
+    {
+        Transition eraseTransition{};
+        eraseTransition.CurrState = GetState<StateType>();
+        eraseTransition.Condition = GetCondition<ConditionType>();
+        eraseTransition.NextState = GetState<NextStateType>();
+        EraseTransition(eraseTransition);
+    }
+
+    /// <summary>
+    /// 전이 객체를 제거합니다.
+    /// </summary>
+    template <FSM_CONDITION_BASE ConditionType, FSM_STATE_BASE NextStateType>
+    void EraseTransition()
+    {
+        Transition eraseTransition{};
+        eraseTransition.CurrState = nullptr;
+        eraseTransition.Condition = GetCondition<ConditionType>();
+        eraseTransition.NextState = GetState<NextStateType>();
+        EraseTransition(eraseTransition);
+    }
+
+    /// <summary>
+    /// FSM의 시작 상태를 설정합니다.
+    /// </summary>
+    template <FSM_STATE_BASE StateType>
+    void SetEntryState()
+    {
+        const char* key = typeid(StateType).name();
+        SetEntryStateToKey(key);
+    }
+
+private:
     /// <summary>
     /// 전이 객체를 추가합니다.
     /// </summary>
     /// <param name="state :">대상 상태</param>
     /// <param name="condition :">전이 조건</param>
     /// <param name="nextState :">변경될 상태</param>
-    void AddTransition(std::string_view state, std::string_view condition, std::string_view nextState);
+    void AddTransitionToKey(std::string_view state, std::string_view condition, std::string_view nextState);
 
     /// <summary>
     /// 모든 상황에서 전이가 가능한 전이 객체를 추가합니다.
     /// </summary>
     /// <param name="condition :">전이 조건</param>
     /// <param name="nextState :">변경될 상태</param>
-    void AddAnyTransition(std::string_view condition, std::string_view nextState);
+    void AddAnyTransitionToKey(std::string_view condition, std::string_view nextState);
+
+    /// <summary>
+    /// 전이 객체를 제거합니다.
+    /// </summary>
+    void EraseTransition(const Transition& eraseTransition);
 
     /// <summary>
     /// 전이 객체를 제거합니다.
     /// </summary>
     /// <param name="index :">제거할 전이객체의 인덱스</param>
-    void EraseTransition(int index);
+    void EraseTransitionToIndex(int index);
 
     /// <summary>
     /// FSM의 시작 상태를 설정합니다.
     /// </summary>
-    /// <param name="index :">사용할 시작점의 인덱스</param>
-    void SetEntryTransition(int index);
+    void SetEntryStateToKey(std::string_view key);
 
 public:
     /// <summary>
     /// FSM에서 사용할 State를 추가합니다.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    template<typename T>
-    void AddState()
+    template <FSM_STATE_BASE T>
+    T* AddState()
     {
         static_assert(std::is_base_of_v<FSMState, T>, "T is not derived from State.");
         const char* key = typeid(T).name();
-        AddStateWithKey(key);
+        return static_cast<T*>(AddStateToKey(key));
     }
 
     /// <summary>
     /// FSM에 등록된 State를 가져옵니다.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    template<typename T>
+    template <FSM_STATE_BASE T>
     T* GetState()
     {
         static_assert(std::is_base_of_v<FSMState, T>, "T is not derived from State.");
         const char* key = typeid(T).name();
-        return static_cast<T*>(GetStateWithKey(key)); 
+        return static_cast<T*>(GetStateToKey(key)); 
     }
 
-    template<typename T>
+    template <FSM_STATE_BASE T>
     bool RemoveState()
     {
         static_assert(std::is_base_of_v<FSMState, T>, "T is not derived from State.");
         const char* key = typeid(T).name();
-        return RemoveStateWithKey(key);
+        return RemoveStateToKey(key);
     }
 
 private:
@@ -106,8 +181,9 @@ private:
     /// State를 등록합니다.
     /// </summary>
     /// <param name="stateTypeIdName"></param>
-    void AddStateWithKey(std::string_view stateTypeIdName)
+    FSMState* AddStateToKey(std::string_view stateTypeIdName)
     {
+        FSMState* state = nullptr;
         const char* key = stateTypeIdName.data();
         auto stateFind = _stateMap.find(key);
         if (stateFind == _stateMap.end())
@@ -117,6 +193,7 @@ private:
             {
                 instance->_owner = this;
                 _stateMap[key].reset(instance);
+                state = instance;
             }
             else
             {
@@ -127,46 +204,49 @@ private:
         {
             UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"이미 등록된 State 타입입니다.");
         }
+        return state;
     }
 
-    FSMState* GetStateWithKey(std::string_view key)
+    FSMState* GetStateToKey(std::string_view key)
     {
+        FSMState* result = nullptr;
         auto stateFind = _stateMap.find(key.data());
         if (stateFind != _stateMap.end())
         {
-            return stateFind->second.get();
+            result = stateFind->second.get();
         }
+        return result;
     }
 
-    bool RemoveStateWithKey(std::string_view key) 
+    bool RemoveStateToKey(std::string_view key) 
     { 
         size_t count = _stateMap.erase(key.data());
         return 0 > count;
     }
 
 public:
-    template <typename T>
-    void AddCondition()
+    template <FSM_CONDITION_BASE T>
+    T* AddCondition()
     {
         static_assert(std::is_base_of_v<FSMCondition, T>, "T is not derived from Condition.");
         const char* key = typeid(T).name();
-        AddConditionWithKey(key);
+        return static_cast<T*>(AddConditionToKey(key));
     }
 
-    template <typename T>
+    template <FSM_CONDITION_BASE T>
     T* GetCondition()
     {
         static_assert(std::is_base_of_v<FSMCondition, T>, "T is not derived from Condition.");
         const char* key = typeid(T).name();
-        return static_cast<T*>(GetConditionWithKey(key));
+        return static_cast<T*>(GetConditionToKey(key));
     }
 
-    template <typename T>
+    template <FSM_CONDITION_BASE T>
     bool RemoveCondition()
     {
         static_assert(std::is_base_of_v<FSMCondition, T>, "T is not derived from Condition.");
         const char* key = typeid(T).name();
-        return RemoveConditionWithKey(key);
+        return RemoveConditionToKey(key);
     }
 
 private:
@@ -174,8 +254,9 @@ private:
     /// Condition을 등록합니다.
     /// </summary>
     /// <param name="conditionTypeIdName"></param>
-    void AddConditionWithKey(std::string_view conditionTypeIdName)
+    FSMCondition* AddConditionToKey(std::string_view conditionTypeIdName)
     {
+        FSMCondition* condition = nullptr;
         const char* key = conditionTypeIdName.data();
         auto conditionFind = _conditionMap.find(key);
         if (conditionFind == _conditionMap.end())
@@ -185,6 +266,7 @@ private:
             {
                 instance->_owner = this;
                 _conditionMap[key].reset(instance);
+                condition = instance;
             }
             else
             {
@@ -195,18 +277,21 @@ private:
         {
             UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"이미 등록된 Condition 타입입니다.");
         }
+        return condition;
     }
 
-    FSMCondition* GetConditionWithKey(std::string_view key)
+    FSMCondition* GetConditionToKey(std::string_view key)
     {
+        FSMCondition* result = nullptr;
         auto conditionFind = _conditionMap.find(key.data());
         if (conditionFind != _conditionMap.end())
         {
-            return conditionFind->second.get();
+            result = conditionFind->second.get();
         }
+        return result;
     }
 
-    bool RemoveConditionWithKey(std::string_view key)
+    bool RemoveConditionToKey(std::string_view key)
     {
         size_t count = _conditionMap.erase(key.data());
         return 0 > count;
@@ -249,7 +334,7 @@ protected:
     std::unordered_map<std::string, std::string> StateReflectDatas;
     std::unordered_map<std::string, std::string> ConditionReflectDatas;
     std::vector<std::array<std::string, 3>>      TransitionReflectDatas;
-    int EntryTransitionID = -1;
+    std::string EntryState = STR_NULL;
     REFLECT_FIELDS_END(FiniteStateMachine)
 
     /*
