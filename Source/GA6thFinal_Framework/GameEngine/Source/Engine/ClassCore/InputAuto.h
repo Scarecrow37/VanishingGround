@@ -234,6 +234,37 @@ namespace ReflectHelper
                             }
                         }
                     }
+                    else if constexpr (std::is_enum_v<remove_view_type>)
+                    {
+                        constexpr auto enumeratorArray = rfl::get_enumerator_array<remove_view_type>();
+                        remove_view_type input = val;
+                        auto enumToStrig = rfl::enum_to_string(input);
+                        if (ImGui::BeginCombo(name, enumToStrig.data()))
+                        {
+                            for (auto& [name, value] : enumeratorArray)
+                            {
+                                bool isSelected = input == value;
+
+                                if (ImGui::Selectable(name.data(), isSelected))
+                                {
+                                    input = value;
+                                    isEdit = true;
+                                }
+                                if (isSelected)
+                                    ImGui::SetItemDefaultFocus();
+                            }
+                            ImGui::EndCombo();
+                        }
+
+                        if constexpr (isProperty == false || isSetter == true)
+                        {
+                            if (isEdit)
+                            {
+                                val = input;
+                                result = true;
+                            }
+                        }
+                    }
                     else
                     {
                         EngineLog(LogLevel::LEVEL_WARNING,
