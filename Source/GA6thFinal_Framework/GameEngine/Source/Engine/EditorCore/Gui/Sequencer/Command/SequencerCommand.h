@@ -77,14 +77,7 @@ namespace Command
         class RemoveNotify : public UmCommand
         {
         public:
-            RemoveNotify(std::weak_ptr<TimelineSystem> system, TimelineNotify* notify)
-                : UmCommand("RemoveNotify")
-                , _timelineSystem(system)
-                , _notify(notify)
-                , _time(-FLT_MAX)
-                , _typeNameID("")
-            {
-            }
+            RemoveNotify(std::weak_ptr<TimelineSystem> system, TimelineNotify* notify);
             virtual ~RemoveNotify() = default;
 
         private:

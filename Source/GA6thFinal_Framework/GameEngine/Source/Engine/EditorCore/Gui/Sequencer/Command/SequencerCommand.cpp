@@ -54,6 +54,12 @@ namespace Command
                 return;
             system->RemoveNotifyFromNotify(&_notify);
         }
+
+        RemoveNotify::RemoveNotify(std::weak_ptr<TimelineSystem> system, TimelineNotify* notify)
+            : UmCommand("RemoveNotify"), _timelineSystem(system), _notify(notify), _time(notify->Time),
+              _typeNameID(notify->EventName)
+        {
+        }
         void RemoveNotify::Execute() 
         {
             auto system = _timelineSystem.lock();
@@ -67,7 +73,7 @@ namespace Command
         void RemoveNotify::Undo() 
         {
             auto system = _timelineSystem.lock();
-            if (nullptr == system || nullptr == _notify)
+            if (nullptr == system)
                 return;
             _notify = system->AddNotify(_time, _typeNameID);
         }

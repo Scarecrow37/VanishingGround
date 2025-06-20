@@ -48,6 +48,12 @@ private:
     DragState GetDragState(const char* id) const;
     size_t    GetDraggingCount() const;
     bool      IsDragging(DragState state) const;
+
+    void OpenPopup(const char* id);
+    bool BeginPopup(const char* id);
+    void EndPopup();
+    bool IsPopupOpened();
+    void UpdatePopup();
     
 public:
     std::shared_ptr<TimelineSystem> _system;
@@ -72,6 +78,7 @@ public:
     ImVec2 _ZoomPosition;
 
     std::unordered_map<ImGuiID, DragState> _dragState;
+    std::unordered_map<std::string, bool> _popupState;
 
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
     ImU32 UpperBgColor          = IM_COL32(20, 20, 20, 255);

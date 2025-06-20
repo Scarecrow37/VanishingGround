@@ -67,6 +67,8 @@ bool EditorSequencer::Begin()
     WheelZooming();
     CanvasDragging();
 
+    UpdatePopup();
+
     ImGui::PushClipRect(_canvasRect.Min, _canvasRect.Max, true);
 
     _canvasUpperHeight  = 20.0f;
@@ -276,17 +278,35 @@ void EditorSequencer::DrawCanvas()
 
     // Draw Notify
     const auto& notifyList = _system->GetTimelineNotifyList();
-    for (const auto& notify : notifyList)
+    std::vector<TimelineNotify*> removeList;
+    TimelineNotify* popupDest = nullptr;
+    for (int i = 0; i < notifyList.size(); ++i)
     {
+        auto* notify = notifyList[i];
         if (nullptr == notify)
         {
             continue;
         }
-        float  lenght = 5.0f;
-        ImVec2 point = ImVec2(offsetX + (notify->Time * unitDistane), _canvasRectLower.GetHeight() * 0.5f) + _canvasRectLower.Min;
-        ImRect rect = ImRect(point - ImVec2(lenght, lenght), point + ImVec2(lenght, lenght)); 
-      
+        float  lenght  = 5.0f;
+        float  padding = 5.0f; 
+        ImVec2 point   = ImVec2(offsetX + (notify->Time * unitDistane), padding) + _canvasRectLower.Min;
+        ImRect rect    = ImRect(point - ImVec2(lenght, lenght), point + ImVec2(lenght, lenght));
 
+        bool isHovered          = rect.Contains(io.MousePos);
+        bool isMouseRBReleased  = ImGui::IsMouseReleased(ImGuiMouseButton_Right);
+        if (true == isHovered && true == isMouseRBReleased)
+        {
+            OpenPopup("NotifyPopup");
+            popupDest = notify;
+        }
+        if (BeginPopup("NotifyPopup"))
+        {
+            if (ImGui::MenuItem("Remove Notify"))
+            {
+                removeList.push_back(notify);
+            }
+            EndPopup();
+        }
         drawList->PathLineTo(point + ImVec2(0.0f, lenght));
         drawList->PathLineTo(point + ImVec2(-lenght, 0.0f));
         drawList->PathLineTo(point + ImVec2(0.0f, -lenght));
@@ -295,6 +315,11 @@ void EditorSequencer::DrawCanvas()
         bool isValid = notify->Time >= minFrame && notify->Time <= maxFrame;
         drawList->PathFillConvex(isValid ? ReflectFields->NotifyColor : ReflectFields->InvalidColor);
         Interactions.emplace_back(point, point);
+    }
+   
+    for (auto* notify : removeList)
+    {
+        UmCommandManager.Do<Command::Sequencer::RemoveNotify>(_system, notify);
     }
 
     // ProcessInterction
@@ -318,7 +343,7 @@ void EditorSequencer::DrawCanvas()
     {
         ImVec2 linePos     = isSnapped ? snapPos : mousePos;
         float canvasSapceX = -_viewPosition.x + linePos.x / ReflectFields->ViewScale;
-        if (false == _isOpenedPopup)
+        if (false == IsPopupOpened())
         {
             _cursorPosition = linePos;
             _cursorFrame = GetFrameFromXToFloat(canvasSapceX, ReflectFields->UnitSize);
@@ -405,11 +430,10 @@ bool EditorSequencer::ContextMenu()
     DragState state = GetDragState("CanvasFrame");
     if (true == isMouseRBReleased && true == isLowerContain && DRAG_STATE_NONE == state)
     {
-        ImGui::OpenPopup("LowerContextMenu");
-        _isOpenedPopup = true;
+        OpenPopup("LowerContextMenu");
     }
 
-    if (ImGui::BeginPopupContextItem("LowerContextMenu"))
+    if (BeginPopup("LowerContextMenu"))
     {
         if (ImGui::BeginMenu("Add Notify"))
         {
@@ -423,11 +447,7 @@ bool EditorSequencer::ContextMenu()
             }
             ImGui::EndMenu();
         }
-        ImGui::EndPopup();
-    }
-    else
-    {
-        _isOpenedPopup = false;
+        EndPopup();
     }
     return _isOpenedPopup;
 }
@@ -520,6 +540,49 @@ size_t EditorSequencer::GetDraggingCount() const
 bool EditorSequencer::IsDragging(DragState state) const
 {
     return (DRAG_STATE_START == state || DRAG_STATE_DRAGGING == state);
+}
+
+void EditorSequencer::OpenPopup(const char* id) 
+{
+    _popupState[id] = true;
+    ImGui::OpenPopup(id);
+}
+
+bool EditorSequencer::BeginPopup(const char* id)
+{
+    if (true == _popupState[id])
+    {
+        if (ImGui::BeginPopupContextItem(id))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+void EditorSequencer::EndPopup()
+{
+    ImGui::EndPopup();
+}
+
+bool EditorSequencer::IsPopupOpened() 
+{
+    for (auto& [key, opened] : _popupState)
+    {
+        if (true == opened)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+void EditorSequencer::UpdatePopup() 
+{
+    for (auto& [key, opened] : _popupState)
+    {
+        opened = ImGui::IsPopupOpen(key.c_str());
+    }
 }
 
 EditorSequencer::DragState EditorSequencer::BeginDragState(const char* id, const ImRect& dragRect, ImGuiMouseButton mouseType)
