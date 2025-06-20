@@ -312,6 +312,7 @@
     <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\PlayerActionCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\RoundStartCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\CombatStartCodition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\State\RoundEndPhase.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnMode\State\TurnListEmptyState.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnMode\State\Base\GetTurnModeBaseS.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnMode\State\CheckPlayerState.h" />
@@ -355,6 +356,7 @@
     <ClCompile Include="Scripts\TurnSystem\TurnMode\State\CombatStartPhase.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnMode\State\EnemyActionPhase.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnMode\State\PlayerActionPhase.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\State\RoundEndPhase.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnMode\State\RoundStartPhase.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnMode\State\TurnListEmptyState.cpp" />
     <ClCompile Include="UmScriptCore.cpp" />
