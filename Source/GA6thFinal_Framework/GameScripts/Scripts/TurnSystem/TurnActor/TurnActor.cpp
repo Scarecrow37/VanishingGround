@@ -19,6 +19,12 @@ void TurnActor::Revive()
     OnRevive();
 }
 
+void TurnActor::MyTurnEnd() 
+{
+    _currState = STATE::Wait;
+    OnTurnEnd();
+}
+
 void TurnActor::Awake() 
 {
     gameObject->AddTag(TAG);

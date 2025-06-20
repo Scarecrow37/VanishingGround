@@ -41,6 +41,13 @@ public:
 protected:
     virtual void OnRevive() = 0;
     virtual void OnTurnStart() = 0;
+    virtual void OnTurnEnd() = 0;
+
+protected:
+    /// <summary>
+    /// 턴 종료를 요청합니다. OnTurnEnd를 호출합니다.
+    /// </summary>
+    virtual void MyTurnEnd() final;
 
 public:
     GETTER_ONLY(int, RandomSpeed) { return _randomSpeed; }
