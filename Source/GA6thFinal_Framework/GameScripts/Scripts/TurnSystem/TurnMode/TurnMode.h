@@ -78,11 +78,12 @@ private:
 private:
     struct SystemStates
     {
-        class CombatStartPhase*  CombatStartPhase  = nullptr;
-        class RoundStartPhase*   RoundStartPhase   = nullptr;
-        class PlayerActionPhase* PlayerActionPhase = nullptr;
-        class EnemyActionPhase*  EnemyActionPhase  = nullptr;
-        class CheckPlayerState*  CheckPlayerState  = nullptr;
+        class CombatStartPhase*   CombatStartPhase  = nullptr;
+        class RoundStartPhase*    RoundStartPhase   = nullptr;
+        class PlayerActionPhase*  PlayerActionPhase = nullptr;
+        class EnemyActionPhase*   EnemyActionPhase  = nullptr;
+        class CheckPlayerState*   CheckPlayerState  = nullptr;
+        class TurnListEmptyState* TurnListEmptyState = nullptr;
     } _systemStates;
 
     struct SystemCondition
@@ -92,6 +93,9 @@ private:
         class PlayerActionCondition* PlayerActionCondition  = nullptr;
         class EnemyActionCondition*  EnemyActionCondition   = nullptr;
         class CheckPlayerCondition*  CheckPlayerCondition   = nullptr;
+        class CheckTurnEndCondition* CheckTurnEndCondition = nullptr;
+        class CheckTurnEmpty*        CheckTurnEmpty         = nullptr;
+        class CheckTurnNotEmpty*     CheckTurnNotEmpty      = nullptr;
     } _systemConditions;
 
 public:
