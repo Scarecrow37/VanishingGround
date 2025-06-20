@@ -61,24 +61,20 @@ void TurnMode::MakeTurnList()
 
 void TurnMode::SortTurnList()
 {
-    for (auto& actor : _turnList)
+    if (false == _turnList.empty())
     {
-        actor->SetRandomSpeed(Random::Range(0, 6));
-    }
-    std::sort(_turnList.begin(), _turnList.end(), [](TurnActor* actorA, TurnActor* actorB) 
-    {
-        int speedA = actorA->RoundSpeed;
-        int speedB = actorB->RoundSpeed;
-        if (speedA != speedB)
+        for (auto& actor : _turnList)
         {
-            return speedA > speedB;
+            actor->SetRandomSpeed(Random::Range(0, 6));
         }
-        else
+        std::shuffle(_turnList.begin(), _turnList.end(), Random::GetEngine());
+        std::sort(_turnList.begin(), _turnList.end(), [](TurnActor* actorA, TurnActor* actorB) 
         {
-            // Coin toss: 50% 확률로 actorA가 우선
-            return Random::Range(0, 1) == 1;
-        }      
-    });
+            int speedA = actorA->RoundSpeed;
+            int speedB = actorB->RoundSpeed;
+            return speedA > speedB;
+        });
+    }
 }
 
 TurnActor* TurnMode::PopTurnList()
