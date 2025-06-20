@@ -13,6 +13,11 @@ void Player::Awake()
     gameObject->AddTag(TAG);
 }
 
+void Player::OnTurnStart() 
+{
+    UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"Player 턴 시작");
+}
+
 int Player::GetSpeed()
 {
     return 0;

@@ -16,6 +16,12 @@ void Enemy::Awake()
     gameObject->AddTag(TAG);
 }
 
+void Enemy::OnTurnStart() 
+{
+    std::string message = std::format("{} {}", gameObject->ToString(), (const char*)u8"턴 시작.");
+    UmLogger.Message(LogLevel::LEVEL_TRACE, message);
+}
+
 int Enemy::GetSpeed()
 {
     return Speed;

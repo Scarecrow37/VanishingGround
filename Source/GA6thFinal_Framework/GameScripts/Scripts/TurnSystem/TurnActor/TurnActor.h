@@ -24,8 +24,18 @@ public:
     virtual ~TurnActor();
 
 public:
+    /// <summary>
+    /// TurnActor의 턴을 시작합니다. OnTurnStart를 호출합니다.
+    /// </summary>
+    virtual void PlayTurn() final;
+
+public:
     virtual int GetSpeed() = 0;
 
+protected:
+    virtual void OnTurnStart() = 0;
+
+public:
     GETTER_ONLY(int, RandomSpeed) { return _randomSpeed; }
     PROPERTY(RandomSpeed)
     void SetRandomSpeed(int randomSpeed) 
@@ -41,7 +51,6 @@ public:
     }
     PROPERTY(RoundSpeed)
 
-    STATE SetState(STATE value) { return _currState = value; }
     //SETTER(STATE, State) { _currState = value; }
     GETTER_ONLY(STATE, State) { return _currState; }
     PROPERTY(State)

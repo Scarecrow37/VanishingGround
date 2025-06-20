@@ -33,4 +33,7 @@ protected:
     /// <para> 게임 오브젝트의 Active가 false 상태인 경우 Awake 함수는 true가 될때까지 호출되지 않습니다.      </para>
     /// </summary>
     virtual void Awake();
+
+    // CharacterBase을(를) 통해 상속됨
+    void OnTurnStart() override;
 };
