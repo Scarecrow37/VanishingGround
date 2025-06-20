@@ -68,7 +68,7 @@ void EditorSceneTool::OnFrameRender()
     _window = ImGui::GetCurrentWindow();
     if (ImGui::IsWindowHovered())
     {
-        if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_MouseRight))
+        if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_MouseRight, false))
         {
             ImGui::SetWindowFocus();
         }
@@ -158,16 +158,16 @@ void EditorSceneTool::UpdateKeyboardShortcuts()
 {
     if (false == ImGui::IsKeyDown(ImGuiKey_MouseRight))
     {
-        if (ImGui::IsKeyPressed(ImGuiKey_W))
+        if (ImGui::IsKeyPressed(ImGuiKey_W, false))
             _drawManipulateDesc.Operation = ImGuizmo::TRANSLATE;
-        if (ImGui::IsKeyPressed(ImGuiKey_E))
+        if (ImGui::IsKeyPressed(ImGuiKey_E, false))
             _drawManipulateDesc.Operation = ImGuizmo::ROTATE;
-        if (ImGui::IsKeyPressed(ImGuiKey_R))
+        if (ImGui::IsKeyPressed(ImGuiKey_R, false))
             _drawManipulateDesc.Operation = ImGuizmo::SCALE;
-        if (ImGui::IsKeyPressed(ImGuiKey_T))
+        if (ImGui::IsKeyPressed(ImGuiKey_T, false))
             _drawManipulateDesc.Operation = ImGuizmo::UNIVERSAL;
 
-        if (ImGui::IsKeyPressed(ImGuiKey_X))
+        if (ImGui::IsKeyPressed(ImGuiKey_X, false))
         {
             if (_drawManipulateDesc.Mode == ImGuizmo::MODE::LOCAL)
             {
@@ -179,7 +179,7 @@ void EditorSceneTool::UpdateKeyboardShortcuts()
             }
         }      
 
-        if (ImGui::IsKeyPressed(ImGuiKey_F))
+        if (ImGui::IsKeyPressed(ImGuiKey_F, false))
         {
             SetCameraToFocusObject();
         }
@@ -211,7 +211,7 @@ void EditorSceneTool::DrawManipulate()
 
             if (isLeftShiftHold)    
             {
-                if (IsFocusFrame() && ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_D))
+                if (IsFocusFrame() && ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_D, false))
                 {
                     UmCommandManager.Do<Command::EditorScene::DuplicateCommand>(pObject.get());
                 }

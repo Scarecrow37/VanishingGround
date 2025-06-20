@@ -81,6 +81,7 @@ constexpr const char* STR_NULL = "null";
 #include <typeindex>
 #include <string_view>
 #include <concurrent_queue.h>
+#include <random>
 
 //ThirdParty
 #include "pugixml/pugixml.hpp"
@@ -107,6 +108,7 @@ using namespace DirectX::SimpleMath;
 using namespace Microsoft::WRL;
 
 //Utility
+#include "Engine/Utility/Random.h"
 #include "Engine/Utility/LogLevel.h"
 #include "Engine/Utility/utfHelper.h"
 #include "Engine/Utility/DumpUtility.h"

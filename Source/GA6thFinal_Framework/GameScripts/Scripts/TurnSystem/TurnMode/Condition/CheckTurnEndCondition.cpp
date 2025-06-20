@@ -1,0 +1,26 @@
+﻿#include "CheckTurnEndCondition.h"
+#include "TurnSystem/TurnActor/TurnActor.h"
+#include "TurnSystem/TurnMode/TurnMode.h"
+
+REGISTER_CLASS(FSMConditionFactory, CheckTurnEndCondition)
+
+CheckTurnEndCondition::CheckTurnEndCondition() {}
+
+CheckTurnEndCondition::~CheckTurnEndCondition() {}
+
+void CheckTurnEndCondition::OnAwake() {}
+
+void CheckTurnEndCondition::OnStart() 
+{
+    GetTurnModeBaseC::OnStart();
+}
+
+bool CheckTurnEndCondition::Evaluate()
+{
+    TurnActor* currActor = _turnMode->GetCurrTurnActor();
+    if (currActor)
+    {
+        return TurnActor::STATE::Wait == currActor->State;
+    }
+    return false;
+}

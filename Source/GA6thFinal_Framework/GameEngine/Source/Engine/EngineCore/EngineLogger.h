@@ -1,9 +1,9 @@
 ﻿#pragma once
+#include <Engine/Utility/LogLevel.h>
 
 class ELogger
 {
     friend class EngineCores;
-    inline static LogLocation* messageLocation = nullptr;
     ELogger();
     ~ELogger();
 
@@ -47,18 +47,15 @@ public:
     /// <param name="logLevel :">지울 로그 레벨</param>
     void LogMessagesClear(int logLevel = NULL);
 
-    inline static bool IsMessageLocation(const LogLocation& location) 
-    { 
-        if (nullptr == messageLocation)
-        {
-            return false;
-        }
-        else
-        {
-            return false == ((*messageLocation) != location);
-        }
-    }
+    /// <summary>
+    /// LogLocation이 메시지인지 확인합니다.
+    /// </summary>
+    /// <param name="location"></param>
+    /// <returns></returns>
+    bool IsMessageLocation(const LogLocation& location);
+
 private:
+    LogLocation _messageLocation;
     std::vector<std::tuple<int, std::string, LogLocation>> _logMessages;
 };
 
