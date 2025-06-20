@@ -1,6 +1,10 @@
 ﻿#pragma once
 #include "Base/GetTurnModeBaseS.h"
 
+/*
+* 플레이어 행동 페이즈 State 입니다.
+* 플레이어를 행동 모드로 전환해야합니다.
+*/
 class PlayerActionPhase : public GetTurnModeBaseS
 {
 public:
