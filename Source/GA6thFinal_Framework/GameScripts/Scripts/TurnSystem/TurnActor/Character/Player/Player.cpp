@@ -13,7 +13,16 @@ void Player::Awake()
     gameObject->AddTag(TAG);
 }
 
-void Player::OnTurnStart() 
+void Player::Update() 
+{
+    bool isMyTurn = IsMyTurn;
+    if (true == isMyTurn)
+    {
+        gameObject->transform->Rotation *= Quaternion::CreateFromYawPitchRoll(0, 45, 0) * Mathf::Deg2Rad * UmTime.DeltaTime();
+    }
+}
+
+void Player::OnTurnStart()
 {
     UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"Player 턴 시작");
     UmTime.Invoke(this, 1.f, []() { UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"Player 턴 종료 3"); });

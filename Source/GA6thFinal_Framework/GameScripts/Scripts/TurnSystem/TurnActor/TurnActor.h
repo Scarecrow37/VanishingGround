@@ -16,7 +16,8 @@ public:
     REFLECT_PROPERTY(
         State,
         RandomSpeed, 
-        RoundSpeed
+        RoundSpeed,
+        IsMyTurn
         )
 
 public:
@@ -67,7 +68,16 @@ public:
 
     //SETTER(STATE, State) { _currState = value; }
     GETTER_ONLY(STATE, State) { return _currState; }
+    /*
+    * 현재 상태입니다.
+    */
     PROPERTY(State)
+
+    /*
+    * 현재 턴 여부를 반환합니다.
+    */
+    GETTER_ONLY(bool, IsMyTurn) { return _currState == STATE::Play; }
+    PROPERTY(IsMyTurn)
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)

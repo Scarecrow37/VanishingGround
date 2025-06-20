@@ -47,9 +47,12 @@ protected:
     /// </summary>
     virtual void Awake();
     
-
-    void OnTurnStart() override;
+    /// <summary>
+    /// Update 는 프레임당 한 번 호출됩니다.
+    /// </summary>
+    virtual void Update();
 
     // CharacterBase을(를) 통해 상속됨
+    void OnTurnStart() override;
     void OnTurnEnd() override;
 };
