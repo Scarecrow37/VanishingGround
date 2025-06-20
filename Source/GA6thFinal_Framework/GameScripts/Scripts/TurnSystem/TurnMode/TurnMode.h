@@ -75,6 +75,7 @@ private:
         class CombatStartPhase* CombatStartPhase = nullptr;
         class RoundStartPhase*  RoundStartPhase  = nullptr;
         class PlayerActionPhase* PlayerActionPhase = nullptr;
+        class EnemyActionPhase*  EnemyActionPhase  = nullptr;
     } _systemStates;
 
     struct SystemCondition

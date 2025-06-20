@@ -2,6 +2,8 @@
 #include "TurnSystem/TurnMode/TurnMode.h"
 #include "TurnSystem/TurnActor/Character/Player/Player.h"
 
+REGISTER_CLASS(FSMConditionFactory, PlayerActionCondition)
+
 PlayerActionCondition::PlayerActionCondition() {}
 
 PlayerActionCondition::~PlayerActionCondition() {}

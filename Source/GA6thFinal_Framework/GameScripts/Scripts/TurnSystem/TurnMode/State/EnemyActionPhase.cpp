@@ -2,6 +2,8 @@
 #include "TurnSystem/TurnMode/TurnMode.h"
 #include "TurnSystem/TurnActor/TurnActor.h"
 
+REGISTER_CLASS(FSMStateFactory, EnemyActionPhase)
+
 EnemyActionPhase::EnemyActionPhase() {}
 
 EnemyActionPhase::~EnemyActionPhase() {}

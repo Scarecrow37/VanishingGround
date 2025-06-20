@@ -12,6 +12,7 @@
 #include "State/CombatStartPhase.h"
 #include "State/RoundStartPhase.h"   
 #include "State/PlayerActionPhase.h"
+#include "State/EnemyActionPhase.h"
 
 //Character
 #include "TurnSystem/TurnActor/Character/Player/Player.h"
@@ -107,6 +108,7 @@ void TurnMode::BuildTurnModeFSM()
         _systemStates.CombatStartPhase = _finiteStateMachine->AddState<CombatStartPhase>();
         _systemStates.RoundStartPhase  = _finiteStateMachine->AddState<RoundStartPhase>();
         _systemStates.PlayerActionPhase = _finiteStateMachine->AddState<PlayerActionPhase>();
+        _systemStates.EnemyActionPhase  = _finiteStateMachine->AddState<EnemyActionPhase>();
 
         //Condition
         _systemConditions.CombatStartCodition = _finiteStateMachine->AddCondition<CombatStartCodition>();
@@ -120,7 +122,7 @@ void TurnMode::BuildTurnModeFSM()
         //Transition    
         _finiteStateMachine->AddTransition<CombatStartPhase, RoundStartCondition, RoundStartPhase>();
         _finiteStateMachine->AddTransition<RoundStartPhase, PlayerActionCondition, PlayerActionPhase>(); 
-        _finiteStateMachine->AddTransition<RoundStartPhase, EnemyActionCondition, CombatStartPhase>();  //테스트임
+        _finiteStateMachine->AddTransition<RoundStartPhase, EnemyActionCondition, EnemyActionPhase>(); 
     }
 }
 
@@ -131,6 +133,47 @@ void TurnMode::Awake()
 
 void TurnMode::ImGuiDrawPropertysEvent() 
 {
+    if(ImGui::TreeNodeEx("Current", ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        TurnActor* actor = GetCurrTurnActor(); 
+        if (nullptr != actor)
+        {
+            if (ImGui::BeginTable("Transition", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+            {
+                ImGui::PushID(actor);
+                {
+                    ImGui::TableSetupColumn("Name");
+                    ImGui::TableSetupColumn("Type");
+                    ImGui::TableSetupColumn("State");
+                    ImGui::TableSetupColumn("Round Speed");
+                    ImGui::TableHeadersRow();
+
+                    ImGui::TableNextRow();
+                    ImGui::TableSetColumnIndex(0);
+                    if (ImGui::Selectable(actor->gameObject->ToString().data()))
+                    {
+                    }
+                    ImGui::TableSetColumnIndex(1);
+                    ImGui::Selectable(typeid(*actor).name() + 6);
+                    ImGui::TableSetColumnIndex(2);
+                    TurnActor::STATE currState = actor->State;
+                    ImGui::Text(rfl::enum_to_string(currState).data());
+                    ImGui::TableSetColumnIndex(3);
+                    int roundSpeed = actor->RoundSpeed;
+                    ImGui::Text("%d", roundSpeed);
+                }
+                ImGui::PopID();
+                ImGui::EndTable();
+            } 
+        }
+        else
+        {
+            ImGui::Text(STR_NULL);
+        }  
+        ImGui::TreePop();
+    }
+
+
     if (ImGui::TreeNodeEx("TurnList", ImGuiTreeNodeFlags_DefaultOpen))
     {
         if (ImGui::BeginTable("Transition", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
