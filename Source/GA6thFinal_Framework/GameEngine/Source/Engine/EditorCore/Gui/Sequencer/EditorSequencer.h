@@ -26,12 +26,12 @@ private:
     bool IsDragging(int button) const;
 
     int   GetLineUnit() const;
-    int   GetFrameToInt(float x, float unitSize) const;
-    float GetFrameToFloat(float x, float unitSize) const;
-
-    void  SetViewPositionXFromFrame(float frame);
+    int   GetFrameFromXToInt(float x, float unitSize) const;
+    float GetFrameFromXToFloat(float x, float unitSize) const;
 
     ImVec2 PositionToCanvasSapce(const ImVec2& pos) const;
+
+    void PathLines(ImDrawList* drawList, ImVec2* points, size_t pointCount) const;
 
 public:
     TimelineSystem* _system;

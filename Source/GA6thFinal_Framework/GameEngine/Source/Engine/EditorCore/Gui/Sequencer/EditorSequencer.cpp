@@ -150,7 +150,7 @@ void EditorSequencer::DrawCanvas()
     //////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Draw Unit Lines
-    int unitFrame = GetFrameToInt(-_viewPosition.x, ReflectFields->UnitSize);
+    int unitFrame = GetFrameFromXToInt(-_viewPosition.x, ReflectFields->UnitSize);
     for (float x = startX; x < canvasSize.x; x += unitDistane, ++unitFrame)
     {
         if (unitFrame % lineUnit != 0)
@@ -217,22 +217,13 @@ void EditorSequencer::DrawCanvas()
             bool isMouseDown = ImGui::IsMouseDown(ImGuiMouseButton_Left);
             // Dragging이 이미 true면 마우스가 벗어나도 누른 상태에선 계속 true여야 한다.
             _isDraggingStampBar = _isDraggingStampBar ? isMouseDown : isHovered && isMouseDown;
-
             if (true == _isDraggingStampBar)
             {
                 float frame = ImClamp(_indicateFrame, minFrame, maxFrame);
                 _system->SetCurrentFrame(frame);
             }
-            // TopLeft
-            drawList->PathLineTo(rect.GetTL());
-            // TopRight
-            drawList->PathLineTo(rect.GetTR());
-            // BottomRight
-            drawList->PathLineTo(rect.GetBR());
-            // Tip Center
-            drawList->PathLineTo(start);
-            // BottomLeft
-            drawList->PathLineTo(rect.GetBL());
+            ImVec2 points[5] = {rect.GetBL(), rect.GetTL(), rect.GetTR(), rect.GetBR(), start };
+            PathLines(drawList, points, 5);
             // 최종 그리기
             ImU32 color = isHovered ? ReflectFields->CurFrameLineColor + 20 : ReflectFields->CurFrameLineColor;
             drawList->PathFillConvex(color);
@@ -257,7 +248,6 @@ void EditorSequencer::DrawCanvas()
         drawList->PathLineTo(point + ImVec2(lenght, 0.0f));
 
         bool isValid = notify->Time >= minFrame && notify->Time <= maxFrame;
-
         drawList->PathFillConvex(isValid ? ReflectFields->NotifyColor : ReflectFields->InvalidColor);
         Interactions.emplace_back(point, point);
     }
@@ -285,7 +275,7 @@ void EditorSequencer::DrawCanvas()
         float canvasSapceX = -_viewPosition.x + linePosX / ReflectFields->ViewScale;
         if (false == _isOpenedPopup)
         {
-            _indicateFrame = GetFrameToFloat(canvasSapceX, ReflectFields->UnitSize);
+            _indicateFrame = GetFrameFromXToFloat(canvasSapceX, ReflectFields->UnitSize);
         }
        
         //ImVec2 start = ImVec2(linePosX, _canvasUpperHeight) + _canvasRectUpper.Min;
@@ -434,22 +424,24 @@ int EditorSequencer::GetLineUnit() const
     return unitFactor;
 }
 
-int EditorSequencer::GetFrameToInt(float x, float unitSize) const
+int EditorSequencer::GetFrameFromXToInt(float x, float unitSize) const
 {
-    return static_cast<int>(GetFrameToFloat(x, unitSize));
+    return static_cast<int>(GetFrameFromXToFloat(x, unitSize));
 }
 
-float EditorSequencer::GetFrameToFloat(float x, float unitSize) const
+float EditorSequencer::GetFrameFromXToFloat(float x, float unitSize) const
 {
     return x / unitSize;
 }
-
-void EditorSequencer::SetViewPositionXFromFrame(float frame) 
-{
-    _viewPosition.x = ReflectFields->UnitSize * frame;
-}
-
 ImVec2 EditorSequencer::PositionToCanvasSapce(const ImVec2& pos) const
 {
     return ImVec2(_viewPosition + pos) * ReflectFields->ViewScale;
+}
+
+void EditorSequencer::PathLines(ImDrawList* drawList, ImVec2* points, size_t pointCount) const 
+{
+    for (size_t i = 0; i < pointCount; ++i)
+    {
+        drawList->PathLineTo(points[i]);
+    }
 }
