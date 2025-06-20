@@ -25,7 +25,7 @@ public:
     void DeserializedReflectEvent() override;
 
 private:
-    TimelineSystem* _timelineSystem = nullptr;
+    std::shared_ptr<TimelineSystem> _timelineSystem;
     EditorSequencer* _sequencer     = nullptr;
 
     REFLECT_FIELDS_BEGIN(EditorTool)

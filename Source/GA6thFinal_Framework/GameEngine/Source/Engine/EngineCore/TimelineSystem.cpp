@@ -6,6 +6,11 @@ TimelineNotify::TimelineNotify()
 }
 TimelineNotify::~TimelineNotify() 
 {
+    if (nullptr != _event)
+    {
+        delete _event;
+        _event = nullptr;
+    }
 }
 
 void TimelineNotify::Notify()
@@ -57,13 +62,29 @@ TimelineSystem::~TimelineSystem()
     ClearNotifies();
 }
 
-bool TimelineSystem::RemoveNotifyFromEvent(ITimelineEvent* event)
+bool TimelineSystem::RemoveNotifyFromEvent(ITimelineEvent** event)
 {
     for (auto it = _timelineNotifyQueue.begin(); it != _timelineNotifyQueue.end(); ++it)
     {
-        TimelineNotify* notify = (*it);
-        if (notify->Event == event)
+        if ((*it)->Event == (*event))
         {
+            delete (*it);
+            (*event) = nullptr;
+            _timelineNotifyQueue.erase(it);
+            return true;
+        }
+    }
+    return false;
+}
+
+bool TimelineSystem::RemoveNotifyFromNotify(TimelineNotify** notify)
+{
+    for (auto it = _timelineNotifyQueue.begin(); it != _timelineNotifyQueue.end(); ++it)
+    {
+        if ((*it) == (*notify))
+        {
+            delete (*notify);
+            (*notify) = nullptr;
             _timelineNotifyQueue.erase(it);
             return true;
         }

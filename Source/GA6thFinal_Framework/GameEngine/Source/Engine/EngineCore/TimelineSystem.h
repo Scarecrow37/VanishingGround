@@ -67,7 +67,7 @@ public:
 
 public:
     template<typename T> 
-    T* AddNotify(float time)
+    TimelineNotify* AddNotify(float time)
     {
         static_assert(std::is_base_of_v<ITimelineEvent, T>, "T is not derived from ITimelineEvent.");
         const char* key = typeid(T).name();
@@ -75,24 +75,20 @@ public:
         notify->SetNotifyEvent(time, key);
         _timelineNotifyQueue.push_back(notify);
         Sort();
-        return _timelineNotifyQueue.back()->_event;
+        return notify;
     }
 
-    ITimelineEvent* AddNotify(float time, std::string_view typenameID)
+    TimelineNotify* AddNotify(float time, std::string_view typenameID)
     {
-        ITimelineEvent* instance = NewInstanceWithKey(typenameID);
-        if (nullptr != instance)
-        {
-            TimelineNotify* notify = new TimelineNotify();
-            notify->SetNotifyEvent(time, typenameID);
-            _timelineNotifyQueue.push_back(notify);
-            Sort();
-            return instance;
-        }
-        return nullptr;
+        TimelineNotify* notify = new TimelineNotify();
+        notify->SetNotifyEvent(time, typenameID);
+        _timelineNotifyQueue.push_back(notify);
+        Sort();
+        return notify;
     }
 
-    bool RemoveNotifyFromEvent(ITimelineEvent* event);
+    bool RemoveNotifyFromEvent(ITimelineEvent** event);
+    bool RemoveNotifyFromNotify(TimelineNotify** notify);
     bool RemoveNotifyFromIndex(size_t index);
 
     bool ChangeNotifyTimeFromEvent(ITimelineEvent* event, float newTime);

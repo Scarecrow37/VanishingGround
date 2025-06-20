@@ -4,18 +4,13 @@
 EditorSequencerTool::EditorSequencerTool() 
 {
     SetLabel("Sequencer");
-    _timelineSystem = new TimelineSystem;
+    _timelineSystem = std::make_shared<TimelineSystem>();
     _sequencer      = new EditorSequencer();
     _sequencer->SetSystem(_timelineSystem);
 }
 
 EditorSequencerTool::~EditorSequencerTool() 
 {
-    if (_timelineSystem)
-    {
-        delete _timelineSystem;
-        _timelineSystem = nullptr;
-    }
     if (_sequencer)
     {
         delete _sequencer;

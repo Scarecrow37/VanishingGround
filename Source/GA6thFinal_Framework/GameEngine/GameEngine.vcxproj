@@ -296,6 +296,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Engine\EditorCore\Gui\Sequencer\Command\SequencerCommand.h" />
     <ClInclude Include="Source\Engine\EditorCore\Gui\Sequencer\EditorSequencer.h" />
     <ClInclude Include="Source\Editor\Tool\Sequencer\EditorSequencerTool.h" />
     <ClInclude Include="Source\Editor\Menu\Model\EditorModelMenu.h" />
@@ -469,6 +470,7 @@
     <ClInclude Include="Source\Engine\EngineCore\TimelineSystem.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Engine\EditorCore\Gui\Sequencer\Command\SequencerCommand.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\Gui\Sequencer\EditorSequencer.cpp" />
     <ClCompile Include="Source\Editor\Tool\Sequencer\EditorSequencerTool.cpp" />
     <ClCompile Include="Source\Editor\Menu\Model\EditorModelMenu.cpp" />

@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "Command/SequencerCommand.h"
 
 class TimelineSystem;
 
@@ -11,7 +12,10 @@ public:
 public:
     void Render();
 
-    inline void SetSystem(TimelineSystem* system) { _system = system; }
+    inline void SetSystem(std::shared_ptr<TimelineSystem> system) { _system = system; }
+
+    ImVec2 GetFrameSize() const;
+    ImVec2 GetFramePosition() const;
 
 private:
     bool Begin();
@@ -20,10 +24,9 @@ private:
     void DrawCanvas();
 
     bool WheelZooming();
-    bool Dragging();
+    bool CanvasDragging();
     bool ContextMenu();
     bool IsWheelZooming() const;
-    bool IsDragging(int button) const;
 
     int   GetLineUnit() const;
     int   GetFrameFromXToInt(float x, float unitSize) const;
@@ -33,14 +36,26 @@ private:
 
     void PathLines(ImDrawList* drawList, ImVec2* points, size_t pointCount) const;
 
+    enum DragState
+    {
+        DRAG_STATE_NONE = 0,
+        DRAG_STATE_START,
+        DRAG_STATE_DRAGGING,
+        DRAG_STATE_END
+    };
+    void      SetDragState(const char* id, DragState state);
+    DragState BeginDragState(const char* id, const ImRect& dragRect, ImGuiMouseButton mouseType);
+    DragState GetDragState(const char* id) const;
+    size_t    GetDraggingCount() const;
+    bool      IsDragging(DragState state) const;
+    
 public:
-    TimelineSystem* _system;
+    std::shared_ptr<TimelineSystem> _system;
 
     bool _useSnapping;
-    bool _isDraggingCanvas;
-    bool _isDraggingStampBar;
     bool _isOpenedPopup;
 
+    float _cursorFrame;
     float _indicateFrame;
 
     ImRect _frameRect;
@@ -52,8 +67,11 @@ public:
     float  _viewLerpTarget;
     float  _zoomMin;
     float  _zoomMax;
+    ImVec2 _cursorPosition;
     ImVec2 _viewPosition;
     ImVec2 _ZoomPosition;
+
+    std::unordered_map<ImGuiID, DragState> _dragState;
 
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
     ImU32 UpperBgColor          = IM_COL32(20, 20, 20, 255);
