@@ -25,6 +25,12 @@ public:
 
 public:
     /// <summary>
+    /// 라운드 카운트를 0으로 초기화합니다.
+    /// </summary>
+    /// <returns></returns>
+    void ResetRoundCount() { _roundCount = 0; }
+
+    /// <summary>
     /// 라운드를 증가시킵니다.
     /// </summary>
     /// <returns></returns>
@@ -92,7 +98,7 @@ private:
         class RoundStartCondition*   RoundStartCondition    = nullptr;
         class PlayerActionCondition* PlayerActionCondition  = nullptr;
         class EnemyActionCondition*  EnemyActionCondition   = nullptr;
-        class CheckPlayerCondition*  CheckPlayerCondition   = nullptr;
+        class CheckRoundStartEnd*  CheckRoundStartEnd   = nullptr;
         class CheckTurnEndCondition* CheckTurnEndCondition = nullptr;
         class CheckTurnEmpty*        CheckTurnEmpty         = nullptr;
         class CheckTurnNotEmpty*     CheckTurnNotEmpty      = nullptr;

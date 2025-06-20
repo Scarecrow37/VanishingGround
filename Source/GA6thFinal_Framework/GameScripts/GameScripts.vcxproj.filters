@@ -75,7 +75,7 @@
     <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\Base\GetTurnModeBaseC.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\CheckPlayerCondition.h">
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\CheckRoundStartEnd.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Scripts\GameCore\FSM\AlwaysTransitionCondition.h">
@@ -88,9 +88,6 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\RoundStartCondition.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\CombatStartCodition.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Scripts\TurnSystem\TurnMode\State\Base\GetTurnModeBaseS.h">
@@ -188,10 +185,7 @@
     <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\Base\GetTurnModeBaseC.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\CheckPlayerCondition.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\CombatStartCodition.cpp">
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\CheckRoundStartEnd.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\EnemyActionCondition.cpp">

@@ -19,6 +19,7 @@ void RoundStartPhase::OnStart()
 
 void RoundStartPhase::OnEnter() 
 {
+    _isPhaseEnd = false;
     int currRound = _turnMode->AddRoundCount();
     std::string message = std::format("{}{}", currRound, (const char*)u8"라운드 시작!!!!");
     UmLogger.Message(LogLevel::LEVEL_DEBUG, message);
@@ -28,6 +29,8 @@ void RoundStartPhase::OnEnter()
 
     _turnMode->SortTurnList();
     UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"턴 정렬 완료.");
+
+    _isPhaseEnd = true;
 }
 
 void RoundStartPhase::OnExit() 

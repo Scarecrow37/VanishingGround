@@ -1,12 +1,20 @@
 ﻿#pragma once
-#include "GameCore/FSM/FiniteStateMachine.h"
+#include "Base/GetTurnModeBaseS.h"
 
-class CombatStartPhase : public FSMState
+/*
+* 전투 시작 페이즈 입니다.
+* 전투 시작시 연출 및 초기화를 담당합니다.
+*/
+class CombatStartPhase : public GetTurnModeBaseS
 {
 public:
     CombatStartPhase();
     virtual ~CombatStartPhase() override;
 
+    /// <summary>
+    /// 페이즈 종료 여부를 반환합니다.
+    /// </summary>
+    /// <returns></returns>
     bool IsEndPhase() const { return _phaseEnd; }
     
 public:

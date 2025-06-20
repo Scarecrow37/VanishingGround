@@ -1,5 +1,6 @@
 ﻿#include "CombatStartPhase.h"
 #include "TurnSystem/TurnActor/Character/CharacterBase.h"
+#include "TurnSystem/TurnMode/TurnMode.h"
 
 REGISTER_CLASS(FSMStateFactory, CombatStartPhase)
 
@@ -38,11 +39,16 @@ void CombatStartPhase::ResetCharacterStats()
 
 void CombatStartPhase::OnAwake() {}
 
-void CombatStartPhase::OnStart() {}
+void CombatStartPhase::OnStart() 
+{
+    GetTurnModeBaseS::OnStart();
+}
 
 void CombatStartPhase::OnEnter() 
 {
+    _turnMode->ResetRoundCount();
     ResetCharacterStats();
+
     UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"배틀 시작...3");
     UmTime.Invoke(&GetFSM(), 1.f, [this]() { UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"배틀 시작...2"); });
     UmTime.Invoke(&GetFSM(), 2.f, [this]() { UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"배틀 시작...1"); });

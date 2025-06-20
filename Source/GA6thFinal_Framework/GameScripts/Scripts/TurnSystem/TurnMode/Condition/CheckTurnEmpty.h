@@ -1,6 +1,9 @@
 ﻿#pragma once
 #include "Base/GetTurnModeBaseC.h"
 
+/*
+* TurnList 항목이 비어있는지 확인하는 조건 입니다.
+*/
 class CheckTurnEmpty : public GetTurnModeBaseC
 {
 public:
