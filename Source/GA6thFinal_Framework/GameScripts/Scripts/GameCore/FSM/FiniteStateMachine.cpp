@@ -96,7 +96,7 @@ void FiniteStateMachine::ImGuiDrawDebug()
 void FiniteStateMachine::ImguiDrawTransition()
 {
     int removeIndex = -1;
-    if(ImGui::TreeNodeEx("Transition", ImGuiTreeNodeFlags_DefaultOpen))
+    if(ImGui::TreeNodeEx("Transition"))
     {
         if (ImGui::BeginTable("Transition##Table", 5, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
         {
