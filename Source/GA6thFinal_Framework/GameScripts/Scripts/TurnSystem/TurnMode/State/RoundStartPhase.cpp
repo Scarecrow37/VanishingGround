@@ -5,8 +5,7 @@ REGISTER_CLASS(FSMStateFactory, RoundStartPhase)
 
 RoundStartPhase::RoundStartPhase() 
     :
-    _turnMode(nullptr), 
-    _currTurnActor(nullptr) 
+    _turnMode(nullptr)
 {
 
 }
@@ -32,12 +31,12 @@ void RoundStartPhase::OnEnter()
     _turnMode->SortTurnList();
     UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"턴 정렬 완료.");
 
-    _currTurnActor = _turnMode->PopTurnList();   
+    _turnMode->PopTurnList();   
 }
 
 void RoundStartPhase::OnExit() 
 {
-    _currTurnActor = nullptr;
+    
 }
 
 void RoundStartPhase::OnUpdate() 

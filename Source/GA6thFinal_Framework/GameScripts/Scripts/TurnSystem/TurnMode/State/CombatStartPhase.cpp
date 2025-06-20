@@ -1,5 +1,5 @@
 ﻿#include "CombatStartPhase.h"
-#include "../TurnActor/Character/CharacterBase.h"
+#include "TurnSystem/TurnActor/Character/CharacterBase.h"
 
 REGISTER_CLASS(FSMStateFactory, CombatStartPhase)
 

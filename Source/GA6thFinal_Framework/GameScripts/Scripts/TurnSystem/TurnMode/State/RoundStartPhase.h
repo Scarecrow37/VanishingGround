@@ -16,10 +16,6 @@ protected:
     void OnExit() override;
     void OnUpdate() override;
 
-public:
-    TurnActor* GetCurrTurnActor() { return _currTurnActor; }
-
 private:
     TurnMode* _turnMode;
-    TurnActor* _currTurnActor;
 };
