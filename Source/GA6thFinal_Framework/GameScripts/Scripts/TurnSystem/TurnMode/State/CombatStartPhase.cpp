@@ -30,8 +30,7 @@ void CombatStartPhase::ResetCharacterStats()
             }
             if (nullptr != character)
             {
-                character->SetHP(character->MaxHP);
-                character->SetMP(character->MaxMP);
+                character->Revive();
             }
         }
     }
