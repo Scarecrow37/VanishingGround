@@ -21,20 +21,21 @@ namespace ReflectHelper
 struct ReflectSerializer
 {
 protected:
-    /*
-    직렬화 직전 자동으로 호출되는 이벤트 함수입니다.
-    직접 override 해서 사용합니다.
-    */
+    /// <summary>
+    /// <para> 직렬화 직전 자동으로 호출되는 이벤트 함수입니다. </para>
+    /// <para> 직접 override 해서 사용합니다.                 </para>
+    /// </summary>
     virtual void SerializedReflectEvent() {}
-    /*
-    역직렬화 이후 자동으로 호출되는 이벤트 함수 입니다.
-    직접 override 해서 사용합니다.
-    */
+  
+    /// <summary>
+    /// <para> 역직렬화 이후 자동으로 호출되는 이벤트 함수 입니다.  </para>
+    /// <para> 직접 override 해서 사용합니다.                     </para>
+    /// </summary>
     virtual void DeserializedReflectEvent() {}
 
-    /*
-    ImGuiDrawPropertys() 호출 이후 콜되는 이벤트 함수입니다.
-    */
+    /// <summary>
+    /// <para>  ImGuiDrawPropertys() 호출 이후 콜되는 이벤트 함수입니다. </para>
+    /// </summary>
     virtual void ImGuiDrawPropertysEvent() {}
 
 public:

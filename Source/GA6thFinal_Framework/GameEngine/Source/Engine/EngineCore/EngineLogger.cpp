@@ -1,6 +1,6 @@
 ﻿#include "pch.h"
 
-static std::pair<std::string, std::string> GetCurrentTimestamp()
+static std::pair<std::string, std::string> GetCurrentTimestamp() 
 {
     using namespace std::chrono;
     auto now        = system_clock::now();
@@ -21,6 +21,8 @@ static std::pair<std::string, std::string> GetCurrentTimestamp()
 }
 
 ELogger::ELogger() 
+    :
+    _messageLocation(nullptr)
 {
 
 }
@@ -45,12 +47,7 @@ void ELogger::Message(int logLevel, std::string_view message)
 
     if (LogLevel::IsLogLevel(logLevel))
     {
-        if (nullptr == messageLocation)
-        {
-            static LogLocation messageLocationinstance(std::source_location::current());
-            messageLocation = &messageLocationinstance;
-        }
-        _logMessages.emplace_back(logLevel, logMessage, *messageLocation);
+        _logMessages.emplace_back(logLevel, logMessage, _messageLocation);
     }
 }
 
@@ -71,5 +68,10 @@ void ELogger::LogMessagesClear(int logLevel)
                 return level == logLevel;
             });
     }
+}
+
+bool ELogger::IsMessageLocation(const LogLocation& location)
+{
+    return false == (_messageLocation != location);
 }
 

@@ -18,9 +18,6 @@
     <ClInclude Include="UmScriptCore.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="UmScripts.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Scripts\Test\Component\TestComponent.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -36,13 +33,7 @@
     <ClInclude Include="Scripts\GameCore\FSM\FSMState.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Scripts\Test\State\TestState.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Scripts\GameCore\FSM\FiniteStateMachine.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\Test\State\MyState.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Scripts\Light\Base\LightComponent.h">
@@ -66,13 +57,79 @@
     <ClInclude Include="Scripts\GameCore\FSM\Factory\FSMConditionFactory.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Scripts\Test\Condition\TestCondition.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Scripts\GameCore\FSM\IFSMEntity.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Scripts\Test\Condition\TestMoveCondition.h">
+    <ClInclude Include="UmScriptsExport.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\TurnMode.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\TurnActor.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\CheckTurnEndCondition.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\Base\GetTurnModeBaseC.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\CheckRoundStartExit.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\GameCore\FSM\AlwaysTransitionCondition.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\EnemyActionCondition.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\PlayerActionCondition.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\RoundStartCondition.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\State\Base\GetTurnModeBaseS.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\State\CheckPlayerState.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\State\CombatStartPhase.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\State\EnemyActionPhase.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\State\PlayerActionPhase.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\State\RoundStartPhase.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\CharacterBase.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\Player.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Enemy.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\State\TurnListEmptyState.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\CheckTurnEmpty.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\CheckTurnNotEmpty.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\State\RoundEndPhase.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\CheckRoundEndExit.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -81,9 +138,6 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="UmScriptCore.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="UmScripts.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Scripts\Test\Component\TestComponent.cpp">
@@ -101,13 +155,7 @@
     <ClCompile Include="Scripts\GameCore\FSM\FSMState.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\Test\State\TestState.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Scripts\GameCore\FSM\FiniteStateMachine.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\Test\State\MyState.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Scripts\Light\Base\LightComponent.cpp">
@@ -125,10 +173,76 @@
     <ClCompile Include="Scripts\GameCore\FSM\FSMCondition.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\Test\Condition\TestCondition.cpp">
+    <ClCompile Include="UmScriptsExport.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\Test\Condition\TestMoveCondition.cpp">
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\TurnMode.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\TurnActor.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\GameCore\FSM\AlwaysTransitionCondition.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\Base\GetTurnModeBaseC.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\CheckRoundStartExit.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\EnemyActionCondition.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\PlayerActionCondition.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\RoundStartCondition.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\State\Base\GetTurnModeBaseS.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\State\CheckPlayerState.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\State\CombatStartPhase.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\State\EnemyActionPhase.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\State\PlayerActionPhase.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\State\RoundStartPhase.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\CharacterBase.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\Player.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Enemy.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\CheckTurnEndCondition.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\State\TurnListEmptyState.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\CheckTurnEmpty.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\CheckTurnNotEmpty.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\State\RoundEndPhase.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\CheckRoundEndExit.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
