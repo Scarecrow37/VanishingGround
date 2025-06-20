@@ -18,7 +18,8 @@ void Player::Update()
     bool isMyTurn = IsMyTurn;
     if (true == isMyTurn)
     {
-        gameObject->transform->Rotation *= Quaternion::CreateFromYawPitchRoll(0, 45, 0) * Mathf::Deg2Rad * UmTime.DeltaTime();
+        Vector3 delta = Vector3(0, 1080, 0) * Mathf::Deg2Rad * UmTime.DeltaTime();
+        gameObject->transform->Rotation *= Quaternion::CreateFromYawPitchRoll(delta);
     }
 }
 

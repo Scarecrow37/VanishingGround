@@ -16,6 +16,16 @@ void Enemy::Awake()
     gameObject->AddTag(TAG);
 }
 
+void Enemy::Update() 
+{
+    bool isMyTurn = IsMyTurn;
+    if (isMyTurn)
+    {
+        Vector3 delta = Vector3(0, 1080, 0) * Mathf::Deg2Rad * UmTime.DeltaTime();
+        gameObject->transform->Rotation *= Quaternion::CreateFromYawPitchRoll(delta);
+    }
+}
+
 void Enemy::OnTurnStart() 
 {
     std::string message = std::format("{} {}", gameObject->ToString(), (const char*)u8"턴 시작.");
