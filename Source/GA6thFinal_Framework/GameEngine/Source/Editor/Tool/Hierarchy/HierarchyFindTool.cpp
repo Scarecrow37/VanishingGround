@@ -130,7 +130,7 @@ void HierarchyFindTool::DrawFindList()
     {
         for (auto& object : ESceneManager::Engine::GetRuntimeObjects())
         {
-            if (object->IsValid())
+            if (object && object->IsValid())
             {
                 std::string_view name = object->ToString();
                 if (_nameFilter.PassFilter(name.data()))
