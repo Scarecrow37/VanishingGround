@@ -135,6 +135,9 @@ void EditorSequencer::DrawCanvas()
     bool isSnapped = false;
     ImVec2 snapPos = ImVec2(0.0f, 0.0f);
 
+    std::vector<InteractionData> Interactions;
+    Interactions.reserve(20);
+
     //////////////////////////////////////////////////////////////////////////////////////////////////
     // Draw Background
     //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -145,25 +148,9 @@ void EditorSequencer::DrawCanvas()
     //////////////////////////////////////////////////////////////////////////////////////////////////
     // Draw Line
     //////////////////////////////////////////////////////////////////////////////////////////////////
-    std::vector<InteractionData> Interactions;
-    Interactions.reserve(20);
-
-    int unitFrame = GetFrameToInt(-_viewPosition.x, ReflectFields->UnitSize);
-
-    // Draw Min, Max Lines
-    {
-        ImVec2 canvasHeight = ImVec2(0.0f, _canvasRectLower.GetHeight());
-        ImVec2 minStart     = ImVec2(validRectMin.x, _canvasRectLower.Min.y);
-        ImVec2 minEnd       = minStart + canvasHeight;
-        ImVec2 maxStart     = ImVec2(validRectMax.x, _canvasRectLower.Min.y);
-        ImVec2 maxEnd       = maxStart + canvasHeight;
-        drawList->AddLine(minStart, minEnd, ReflectFields->ThinLineColor, 1.0f);
-        drawList->AddLine(maxStart, maxEnd, ReflectFields->ThinLineColor, 1.0f);
-        Interactions.emplace_back(minStart, minEnd);
-        Interactions.emplace_back(maxStart, maxEnd);
-    }
 
     // Draw Unit Lines
+    int unitFrame = GetFrameToInt(-_viewPosition.x, ReflectFields->UnitSize);
     for (float x = startX; x < canvasSize.x; x += unitDistane, ++unitFrame)
     {
         if (unitFrame % lineUnit != 0)
@@ -180,6 +167,32 @@ void EditorSequencer::DrawCanvas()
         drawList->AddLine(middle, end, ReflectFields->ThinLineColor, 1.0f);
         Interactions.emplace_back(middle, end);
     }
+
+    // Draw Min, Max Lines
+    {
+        ImVec2 minStart     = ImVec2(validRectMin.x, _canvasRect.Min.y);
+        ImVec2 minEnd       = ImVec2(minStart.x, _canvasRectLower.Max.y);
+        ImVec2 maxStart     = ImVec2(validRectMax.x, _canvasRect.Min.y);
+        ImVec2 maxEnd       = ImVec2(maxStart.x, _canvasRectLower.Max.y);
+        float  len          = _canvasRectUpper.GetHeight() * 0.2f;
+        {
+            drawList->AddLine(minStart, minEnd, ReflectFields->MinMaxLineColor, 1.0f);
+            drawList->PathLineTo(minStart);
+            drawList->PathLineTo(minStart + ImVec2(0.0f, len));
+            drawList->PathLineTo(minStart + ImVec2(len, 0.0f));
+            drawList->PathFillConvex(ReflectFields->MinMaxLineColor);
+            Interactions.emplace_back(minStart, minEnd);
+        }
+        {
+            drawList->AddLine(maxStart, maxEnd, ReflectFields->MinMaxLineColor, 1.0f);
+            drawList->PathLineTo(maxStart);
+            drawList->PathLineTo(maxStart + ImVec2(0.0f, len));
+            drawList->PathLineTo(maxStart + ImVec2(-len, 0.0f));
+            drawList->PathFillConvex(ReflectFields->MinMaxLineColor);
+            Interactions.emplace_back(maxStart, maxEnd);
+        }
+    }
+
     // Draw Current Frame Line
     {
         ImVec2 linePos     = ImVec2(curFrame * ReflectFields->UnitSize, 0.0f);
@@ -190,26 +203,26 @@ void EditorSequencer::DrawCanvas()
 
         drawList->AddLine(start, end, ReflectFields->CurFrameLineColor, 2.0f);
         if (false == _isDraggingStampBar)
-        {
+        {   // 스탬프바 드래깅 중이 아닐 때만 상호작용을 한다.
             Interactions.emplace_back(start, end);
         }
         { // Draw Point Rect
             float  tipDepth = 0.3f;
             ImVec2 size(_canvasUpperHeight * 0.5f, _canvasUpperHeight);
             ImVec2 pos(start.x - (size.x * 0.5f), start.y - size.y);
-            ImRect rect(pos, pos + size - ImVec2(0.f, 1.0f - tipDepth));
+            ImRect rect(pos, pos + (size * ImVec2(1.0f, 1.0f - tipDepth)));
             ImRect pointRect(pos, pos + size);
 
             bool isHovered   = pointRect.Contains(io.MousePos);
             bool isMouseDown = ImGui::IsMouseDown(ImGuiMouseButton_Left);
-            _isDraggingStampBar = (true == isHovered) && (true == isMouseDown);
+            // Dragging이 이미 true면 마우스가 벗어나도 누른 상태에선 계속 true여야 한다.
+            _isDraggingStampBar = _isDraggingStampBar ? isMouseDown : isHovered && isMouseDown;
 
             if (true == _isDraggingStampBar)
             {
                 float frame = ImClamp(_indicateFrame, minFrame, maxFrame);
                 _system->SetCurrentFrame(frame);
             }
-
             // TopLeft
             drawList->PathLineTo(rect.GetTL());
             // TopRight
@@ -220,16 +233,15 @@ void EditorSequencer::DrawCanvas()
             drawList->PathLineTo(start);
             // BottomLeft
             drawList->PathLineTo(rect.GetBL());
-
             // 최종 그리기
-            ImU32 color = _isDraggingStampBar ? ReflectFields->CurFrameLineColor + 20 : ReflectFields->CurFrameLineColor;
+            ImU32 color = isHovered ? ReflectFields->CurFrameLineColor + 20 : ReflectFields->CurFrameLineColor;
             drawList->PathFillConvex(color);
         }
     }
 
     // Draw Notify
-    const auto& notifyQueue = _system->GetTimelineNotifyList();
-    for (const auto& notify : notifyQueue)
+    const auto& notifyList = _system->GetTimelineNotifyList();
+    for (const auto& notify : notifyList)
     {
         if (nullptr == notify)
         {

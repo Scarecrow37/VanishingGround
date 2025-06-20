@@ -273,4 +273,5 @@ void TimelineSystem::DeserializedReflectEvent()
         notify->DeserializedReflectFields(data);
         _timelineNotifyQueue.push_back(notify);
     }
+    Sort();
 }

@@ -61,6 +61,7 @@ public:
     ImU32 LowerVaildBgColor     = IM_COL32(50, 50, 50, 255);
     ImU32 ThickLineColor        = IM_COL32(120, 120, 120, 200);
     ImU32 ThinLineColor         = IM_COL32(80, 80, 80, 200);
+    ImU32 MinMaxLineColor       = IM_COL32(100, 100, 225, 200);
     ImU32 FollowLineColor       = IM_COL32(100, 255, 100, 200);
     ImU32 CurFrameLineColor     = IM_COL32(255, 150, 150, 200);
     ImU32 NotifyColor           = IM_COL32(0, 255, 255, 200);
