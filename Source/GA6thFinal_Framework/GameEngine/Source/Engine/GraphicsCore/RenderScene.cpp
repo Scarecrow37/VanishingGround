@@ -181,9 +181,7 @@ void RenderScene::CreateRenderTarget()
     renderTarget          = std::make_unique<RenderTarget>();
     renderTarget->Initialize(mode.Width, mode.Height, DXGI_FORMAT_R32G32B32A32_FLOAT, 0.247f);
     renderTarget->CreateShaderResourceView();
-    
-    auto br = CD3DX12_RESOURCE_BARRIER::Transition(renderTarget->GetResource(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-    commandList->ResourceBarrier(1, &br);
+    renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
     multiRenderTargetManager.AddRenderTarget(_meshRenderTargetName, std::move(renderTarget));
 
@@ -191,9 +189,7 @@ void RenderScene::CreateRenderTarget()
     renderTarget     = std::make_unique<RenderTarget>();
     renderTarget->Initialize(mode.Width, mode.Height, DXGI_FORMAT_R32G32B32A32_FLOAT, 0.247f);
     renderTarget->CreateShaderResourceView();
-
-    br = CD3DX12_RESOURCE_BARRIER::Transition(renderTarget->GetResource(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-    commandList->ResourceBarrier(1, &br);
+    renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
     multiRenderTargetManager.AddRenderTarget(_finalTargetName, std::move(renderTarget));
 }

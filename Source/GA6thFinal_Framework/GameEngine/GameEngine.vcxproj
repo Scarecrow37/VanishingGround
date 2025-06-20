@@ -301,6 +301,8 @@
     <ClInclude Include="Source\Editor\Tool\Scene\Command\EditorSceneCommands.h" />
     <ClInclude Include="Source\Engine\EngineCore\FactoryRegister.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\AnimationCore.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\BlurXPass.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\BlurYPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\UpScalePass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\BrightExtractPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\DownScalePass.h" />
@@ -476,6 +478,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\AnimationCore.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\BlurXPass.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\BlurYPass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\UpScalePass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\BrightExtractPass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\DownScalePass.cpp" />

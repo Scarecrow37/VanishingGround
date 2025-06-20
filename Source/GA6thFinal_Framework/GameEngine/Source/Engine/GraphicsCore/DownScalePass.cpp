@@ -43,29 +43,15 @@ void DownScalePass::Begin(ID3D12GraphicsCommandList* commandList)
 {
     const auto& mipmapTarget = UmMultiRenderTargetManager.GetRenderTargetGroup("Mipmap");
 
-    for (UINT i = 0; i < 4; i++)
+    for (UINT i = 0; i < MAX_MIPMAP_LEVEL; i++)
     {
         mipmapTarget[i]->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
         mipmapTarget[i]->ClearRenderTarget(commandList);
     }
 }
 
-void DownScalePass::End(ID3D12GraphicsCommandList* commandList)
-{
-    auto&       multiRenderTargetManager = UmMultiRenderTargetManager;
-    const auto& mipmapTarget             = multiRenderTargetManager.GetRenderTargetGroup("Mipmap");
-    for (UINT i = 0; i < 4; i++)
-    {
-        mipmapTarget[i]->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-    }
-
-    const auto& usedRenderTargets = multiRenderTargetManager.GetUsedRenderTargets();
-    multiRenderTargetManager.ReturnRenderTarget(usedRenderTargets.front().get());
-}
-
 void DownScalePass::Draw(ID3D12GraphicsCommandList* commandList)
 {
-    const auto&           mode     = UmDevice.GetMode();
     auto                  resource = UmViewManager.GetShaderResourceHeap();
     ID3D12DescriptorHeap* hps[]    = { resource, };
 
@@ -73,17 +59,19 @@ void DownScalePass::Draw(ID3D12GraphicsCommandList* commandList)
     const auto& mipmapTarget             = multiRenderTargetManager.GetRenderTargetGroup("Mipmap");
     const auto& usedRenderTargets        = multiRenderTargetManager.GetUsedRenderTargets();
 
+    _renderTarget = usedRenderTargets.front().get();
+
     commandList->SetPipelineState(_pipelineState.Get());
     commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
     commandList->SetDescriptorHeaps(_countof(hps), hps);
 
-    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("brightExtractTexture"), usedRenderTargets.front()->GetSRVHandle());
+    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("brightExtractTexture"), _renderTarget->GetSRVHandle());
     
     D3D12_VIEWPORT viewPort = {0.f, 0.f, 1024.f, 1024.f};
     D3D12_RECT     sissorRect = {0, 0, 1024, 1024};
 
     // Down sample 4번
-    for (UINT i = 0; i < 4; i++)
+    for (UINT i = 0; i < MAX_MIPMAP_LEVEL; i++)
     {
         commandList->OMSetRenderTargets(1, &mipmapTarget[i]->GetRTVHandle(), NULL, nullptr);
         commandList->RSSetViewports(1, &viewPort);
@@ -97,4 +85,17 @@ void DownScalePass::Draw(ID3D12GraphicsCommandList* commandList)
         sissorRect.right >>= 1;
         sissorRect.bottom >>= 1;
     }
+}
+
+void DownScalePass::End(ID3D12GraphicsCommandList* commandList)
+{
+    auto&       multiRenderTargetManager = UmMultiRenderTargetManager;
+    const auto& mipmapTarget             = multiRenderTargetManager.GetRenderTargetGroup("Mipmap");
+
+    for (UINT i = 0; i < MAX_MIPMAP_LEVEL; i++)
+    {
+        mipmapTarget[i]->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    }
+
+    multiRenderTargetManager.ReturnRenderTarget(_renderTarget);
 }

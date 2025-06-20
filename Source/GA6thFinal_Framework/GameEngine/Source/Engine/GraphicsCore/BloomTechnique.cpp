@@ -3,6 +3,8 @@
 #include "BrightExtractPass.h"
 #include "DownScalePass.h"
 #include "UpScalePass.h"
+#include "BlurXPass.h"
+#include "BlurYPass.h"
 
 BloomTechnique::BloomTechnique() {}
 
@@ -26,6 +28,16 @@ void BloomTechnique::Initialize(ID3D12GraphicsCommandList* commandList)
     AddRenderPass(std::move(pass));
 
     pass = std::make_unique<UpScalePass>();
+    pass->SetOwnerScene(_ownerScene);
+    pass->Initialize(viewport, scissor);
+    AddRenderPass(std::move(pass));
+
+    pass = std::make_unique<BlurXPass>();
+    pass->SetOwnerScene(_ownerScene);
+    pass->Initialize(viewport, scissor);
+    AddRenderPass(std::move(pass));
+
+    pass = std::make_unique<BlurYPass>();
     pass->SetOwnerScene(_ownerScene);
     pass->Initialize(viewport, scissor);
     AddRenderPass(std::move(pass));

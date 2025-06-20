@@ -6,6 +6,7 @@ constexpr UINT MAX_DIRECTIONAL_LIGHT  = 4;
 constexpr UINT MAX_POINT_LIGHT        = 32;
 constexpr UINT MAX_SPOT_LIGHT         = 16;
 constexpr UINT MAX_LIGHT              = MAX_DIRECTIONAL_LIGHT + MAX_POINT_LIGHT + MAX_SPOT_LIGHT;
+constexpr UINT MAX_MIPMAP_LEVEL       = 5;
 
 enum class FeatureLevel { LEVEL_11_0, LEVEL_12_0, LEVEL_12_1 };
 

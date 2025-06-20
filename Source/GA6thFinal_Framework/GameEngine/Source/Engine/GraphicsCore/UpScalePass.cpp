@@ -16,7 +16,7 @@ void UpScalePass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& s
     _shader->BeginBuild();
     _shader->SetShader(L"../Shaders/vs_quad.hlsl", ShaderBuilder::Type::VS);
     _shader->SetShader(L"../Shaders/ps_up_scale.hlsl", ShaderBuilder::Type::PS);
-    _shader->EndBuild(ShaderBuilder::BindType::DIRECT);
+    _shader->EndBuild(ShaderBuilder::BindType::TABLE);
 
     ID3D12Device*                      device = UmDevice.GetDevice();
     D3D12_GRAPHICS_PIPELINE_STATE_DESC psodesc{};
@@ -41,39 +41,35 @@ void UpScalePass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& s
 
 void UpScalePass::Begin(ID3D12GraphicsCommandList* commandList)
 {
-    _finalRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    _finalRenderTarget->ClearRenderTarget(commandList);
-    
-    commandList->OMSetRenderTargets(1, &_finalRenderTarget->GetRTVHandle(), FALSE, nullptr);
+    auto renderTarget = UmMultiRenderTargetManager.GetAvailableRenderTarget();
+    renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    renderTarget->ClearRenderTarget(commandList);
+
+    commandList->OMSetRenderTargets(1, &renderTarget->GetRTVHandle(), TRUE, nullptr);
     commandList->RSSetViewports(1, &_viewPort);
     commandList->RSSetScissorRects(1, &_sissorRect);
 }
 
 void UpScalePass::Draw(ID3D12GraphicsCommandList* commandList)
 {
-    const auto&           mode     = UmDevice.GetMode();
     auto                  resource = UmViewManager.GetShaderResourceHeap();
     ID3D12DescriptorHeap* hps[]    = {resource};
-
-    PostProcessData postProcessData{.TexelSize = {(float)mode.Width, (float)mode.Height}};
 
     const auto& mipmapTarget = UmMultiRenderTargetManager.GetRenderTargetGroup("Mipmap");
 
     commandList->SetPipelineState(_pipelineState.Get());
     commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
     commandList->SetDescriptorHeaps(_countof(hps), hps);
-
-    commandList->SetGraphicsRoot32BitConstants(_shader->GetRootParameterIndex("bit32_5_postProcessData"), 5, &postProcessData, 0);
-    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("screenTexture"), _meshRenderTarget->GetSRVHandle());
-    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("grayScaleTexture1024x1024"), mipmapTarget[0]->GetSRVHandle());
-    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("grayScaleTexture512x512"), mipmapTarget[1]->GetSRVHandle());
-    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("grayScaleTexture256x256"), mipmapTarget[2]->GetSRVHandle());
-    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("grayScaleTexture128x128"), mipmapTarget[3]->GetSRVHandle());
+    
+    commandList->SetGraphicsRoot32BitConstants(_shader->GetRootParameterIndex("bit32_1_numTextures"), 1, &MAX_MIPMAP_LEVEL, 0);
+    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("textures"), mipmapTarget[0]->GetSRVHandle());
 
     _ownerScene->_frameQuad->Render(commandList);
 }
 
 void UpScalePass::End(ID3D12GraphicsCommandList* commandList)
 {
-    _finalRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    const auto& renderTargets = UmMultiRenderTargetManager.GetUsedRenderTargets();
+    auto        renderTarget  = renderTargets.front().get();
+    renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }
