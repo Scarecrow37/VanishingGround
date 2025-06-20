@@ -1,15 +1,16 @@
 ﻿#include "pch.h"
 #include "Controller.h"
+#include "../../Adapter/Controller/ControllerAdapter.h"
 
 namespace Input
 {
-    Controller::Controller(const Adapter* adapter) : _adapter(adapter), _id(INVALID_ID), _state{} {}
+    Controller::Controller(const ControllerAdapter* adapter) : _adapter(adapter), _id(INVALID_ID), _state{} {}
 
     Result Controller::Connect()
     {
         if (IsConnected())
             return INPUT_ERROR_SUCCESS;
-        //_id = _adapter->Connect();
+        _id = _adapter->Connect();
         return IsConnected() ? INPUT_ERROR_SUCCESS : INPUT_ERROR_NOT_CONNECTED;
     }
 
@@ -22,7 +23,7 @@ namespace Input
     {
         if (!IsConnected())
             return INPUT_ERROR_NOT_CONNECTED;
-        // return _adapter->ReceiveState(_id, &_state);
+        return _adapter->ReceiveState(_id, &_state);
     }
 
     Controller::ThumbStickAxis Controller::GetLeftThumbStickAxis() const

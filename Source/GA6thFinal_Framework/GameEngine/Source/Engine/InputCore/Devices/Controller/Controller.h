@@ -3,7 +3,7 @@
 
 namespace Input
 {
-    class Adapter;
+    class ControllerAdapter;
 
     /// <summary>
     /// 게임 컨트롤러의 상태를 관리하고 입력을 조회하는 클래스입니다.
@@ -77,7 +77,7 @@ namespace Input
         };
 
     public:
-        explicit Controller(const Adapter* adapter);
+        explicit Controller(const ControllerAdapter* adapter);
 
         /// <summary>
         /// 컨트롤러를 연결합니다.
@@ -144,7 +144,7 @@ namespace Input
         [[nodiscard]] ID GetID() const;
 
     private:
-        const Adapter* _adapter;
+        const ControllerAdapter* _adapter;
 
         ID    _id;
         State _state;
