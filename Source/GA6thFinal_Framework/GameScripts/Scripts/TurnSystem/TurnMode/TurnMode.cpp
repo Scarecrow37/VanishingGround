@@ -7,12 +7,14 @@
 #include "Condition/RoundStartCondition.h"
 #include "Condition/PlayerActionCondition.h"
 #include "Condition/EnemyActionCondition.h"
+#include "Condition/CheckPlayerCondition.h"
 
 //State
 #include "State/CombatStartPhase.h"
 #include "State/RoundStartPhase.h"   
 #include "State/PlayerActionPhase.h"
 #include "State/EnemyActionPhase.h"
+#include "State/CheckPlayerState.h"
 
 //Character
 #include "TurnSystem/TurnActor/Character/Player/Player.h"
@@ -105,20 +107,23 @@ void TurnMode::BuildTurnModeFSM()
         _systemStates.RoundStartPhase  = _finiteStateMachine->AddState<RoundStartPhase>();
         _systemStates.PlayerActionPhase = _finiteStateMachine->AddState<PlayerActionPhase>();
         _systemStates.EnemyActionPhase  = _finiteStateMachine->AddState<EnemyActionPhase>();
+        _systemStates.CheckPlayerState  = _finiteStateMachine->AddState<CheckPlayerState>();
 
         //Condition
         _systemConditions.CombatStartCodition = _finiteStateMachine->AddCondition<CombatStartCodition>();
         _systemConditions.RoundStartCondition = _finiteStateMachine->AddCondition<RoundStartCondition>();
         _systemConditions.PlayerActionCondition = _finiteStateMachine->AddCondition<PlayerActionCondition>();
         _systemConditions.EnemyActionCondition  = _finiteStateMachine->AddCondition<EnemyActionCondition>();
+        _systemConditions.CheckPlayerCondition  = _finiteStateMachine->AddCondition<CheckPlayerCondition>();
 
         //Entry
         _finiteStateMachine->SetEntryState<CombatStartPhase>();
 
         //Transition    
         _finiteStateMachine->AddTransition<CombatStartPhase, RoundStartCondition, RoundStartPhase>();
-        _finiteStateMachine->AddTransition<RoundStartPhase, PlayerActionCondition, PlayerActionPhase>(); 
-        _finiteStateMachine->AddTransition<RoundStartPhase, EnemyActionCondition, EnemyActionPhase>(); 
+        _finiteStateMachine->AddTransition<RoundStartPhase, CheckPlayerCondition, CheckPlayerState>();
+        _finiteStateMachine->AddTransition<CheckPlayerState, PlayerActionCondition, PlayerActionPhase>();
+        _finiteStateMachine->AddTransition<CheckPlayerState, EnemyActionCondition, EnemyActionPhase>();
     }
 }
 

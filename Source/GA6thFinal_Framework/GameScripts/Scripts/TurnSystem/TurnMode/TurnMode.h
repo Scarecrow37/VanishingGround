@@ -51,6 +51,12 @@ public:
     /// </summary>
     TurnActor* GetCurrTurnActor() const { return _currTurnActor; }
 
+    /// <summary>
+    /// 턴 대기중인 Actor의 개수를 반환합니다.
+    /// </summary>
+    /// <returns></returns>
+    int GetPendingActorCount() const { return (int)_turnList.size(); }
+
 public:
     GETTER_ONLY(int, RoundCount) { return _roundCount; }
     PROPERTY(RoundCount)
@@ -72,10 +78,11 @@ private:
 private:
     struct SystemStates
     {
-        class CombatStartPhase* CombatStartPhase = nullptr;
-        class RoundStartPhase*  RoundStartPhase  = nullptr;
+        class CombatStartPhase*  CombatStartPhase  = nullptr;
+        class RoundStartPhase*   RoundStartPhase   = nullptr;
         class PlayerActionPhase* PlayerActionPhase = nullptr;
         class EnemyActionPhase*  EnemyActionPhase  = nullptr;
+        class CheckPlayerState*  CheckPlayerState  = nullptr;
     } _systemStates;
 
     struct SystemCondition
@@ -84,6 +91,7 @@ private:
         class RoundStartCondition*   RoundStartCondition    = nullptr;
         class PlayerActionCondition* PlayerActionCondition  = nullptr;
         class EnemyActionCondition*  EnemyActionCondition   = nullptr;
+        class CheckPlayerCondition*  CheckPlayerCondition   = nullptr;
     } _systemConditions;
 
 public:
