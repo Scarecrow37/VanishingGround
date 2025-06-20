@@ -34,14 +34,14 @@ private:
     virtual void OnFramePopupOpened();
 
 private:
-    enum class FindType
-    {
-        NAME,
-        TAG
-    };
     void DrawFinder();
     void DrawFindList();
+
+    void FindWithTagFilter();
+
 private:
     EditorDockWindow* _ownerDockWindow = nullptr;
     std::vector<std::weak_ptr<GameObject>> _findList;
+    std::string _tagFilter;
+    ImGuiTextFilter _nameFilter;
 };

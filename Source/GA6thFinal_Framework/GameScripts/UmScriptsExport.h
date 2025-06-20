@@ -23,11 +23,10 @@ UMREALSCRIPT_NEWCOMPONENT(CLASS_NAME)
 //이 아래는 컴포넌트 생성 함수들을 추가합니다.
 //CreateScriptFile() 함수에서 직접 수정하기 때문에 주의해야 합니다.
 
-#include "Scripts\Test\TestComponent.h"
+#include "Scripts\Test\Component\TestComponent.h"
 UMREAL_COMPONENT(TestComponent)
 
 #include "Scripts\Graphics/MeshComponent.h"
-//UMREAL_COMPONENT(MeshComponent)   //Base 컴포넌트여서 Export 되면 안됩니다.
 
 #include "Scripts\Graphics\StaticMeshRenderer.h"
 UMREAL_COMPONENT(StaticMeshRenderer)
@@ -48,3 +47,16 @@ UMREAL_COMPONENT(PointLight)
 
 #include "Scripts/Light/SpotLight.h"
 UMREAL_COMPONENT(SpotLight)
+
+#include "Scripts\TurnSystem/TurnMode/TurnMode.h"
+UMREAL_COMPONENT(TurnMode)
+
+#include "Scripts/TurnSystem/TurnActor/TurnActor.h"
+
+#include "Scripts/TurnSystem/TurnActor/Character/CharacterBase.h"
+
+#include "Scripts/TurnSystem/TurnActor/Character/Player/Player.h"
+UMREAL_COMPONENT(Player)
+
+#include "Scripts/TurnSystem/TurnActor/Character/Enemy/Enemy.h"
+UMREAL_COMPONENT(Enemy)

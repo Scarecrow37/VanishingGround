@@ -108,6 +108,7 @@ using namespace DirectX::SimpleMath;
 using namespace Microsoft::WRL;
 
 //Utility
+#include "Engine/Utility/Random.h"
 #include "Engine/Utility/LogLevel.h"
 #include "Engine/Utility/utfHelper.h"
 #include "Engine/Utility/DumpUtility.h"

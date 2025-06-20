@@ -7,9 +7,9 @@ RenderTechnique::RenderTechnique()
     _renderPasses.reserve(10);
 }
 
-void RenderTechnique::AddRenderPass(std::shared_ptr<RenderPass> pass)
+void RenderTechnique::AddRenderPass(std::unique_ptr<RenderPass> pass)
 {
-    _renderPasses.push_back(pass);
+    _renderPasses.push_back(std::move(pass));
 }
 
 void RenderTechnique::Execute(ID3D12GraphicsCommandList* commadList)

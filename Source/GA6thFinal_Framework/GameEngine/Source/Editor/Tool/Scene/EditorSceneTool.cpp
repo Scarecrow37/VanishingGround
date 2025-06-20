@@ -51,6 +51,7 @@ void EditorSceneTool::OnStartGui()
     GRAPHICS_ASSERT(nullptr != camera, L"Camera is nullptr");
 
     _camera->SetTarget(camera);
+    _dockWindow = GetOwnerDockWindow();
 }
 
 void EditorSceneTool::OnPreFrameBegin()
@@ -67,7 +68,7 @@ void EditorSceneTool::OnFrameRender()
     _window = ImGui::GetCurrentWindow();
     if (ImGui::IsWindowHovered())
     {
-        if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_MouseRight))
+        if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_MouseRight, false))
         {
             ImGui::SetWindowFocus();
         }
@@ -157,16 +158,16 @@ void EditorSceneTool::UpdateKeyboardShortcuts()
 {
     if (false == ImGui::IsKeyDown(ImGuiKey_MouseRight))
     {
-        if (ImGui::IsKeyPressed(ImGuiKey_W))
+        if (ImGui::IsKeyPressed(ImGuiKey_W, false))
             _drawManipulateDesc.Operation = ImGuizmo::TRANSLATE;
-        if (ImGui::IsKeyPressed(ImGuiKey_E))
+        if (ImGui::IsKeyPressed(ImGuiKey_E, false))
             _drawManipulateDesc.Operation = ImGuizmo::ROTATE;
-        if (ImGui::IsKeyPressed(ImGuiKey_R))
+        if (ImGui::IsKeyPressed(ImGuiKey_R, false))
             _drawManipulateDesc.Operation = ImGuizmo::SCALE;
-        if (ImGui::IsKeyPressed(ImGuiKey_T))
+        if (ImGui::IsKeyPressed(ImGuiKey_T, false))
             _drawManipulateDesc.Operation = ImGuizmo::UNIVERSAL;
 
-        if (ImGui::IsKeyPressed(ImGuiKey_X))
+        if (ImGui::IsKeyPressed(ImGuiKey_X, false))
         {
             if (_drawManipulateDesc.Mode == ImGuizmo::MODE::LOCAL)
             {
@@ -178,7 +179,7 @@ void EditorSceneTool::UpdateKeyboardShortcuts()
             }
         }      
 
-        if (ImGui::IsKeyPressed(ImGuiKey_F))
+        if (ImGui::IsKeyPressed(ImGuiKey_F, false))
         {
             SetCameraToFocusObject();
         }
@@ -208,9 +209,9 @@ void EditorSceneTool::DrawManipulate()
             _isUsing         = ImGuizmo::IsUsing();
             _isOver          = ImGuizmo::IsOver();
 
-            if (isLeftShiftHold)
+            if (isLeftShiftHold)    
             {
-                if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_D))
+                if (IsFocusFrame() && ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_D, false))
                 {
                     UmCommandManager.Do<Command::EditorScene::DuplicateCommand>(pObject.get());
                 }
@@ -294,31 +295,31 @@ void EditorSceneTool::DrawSceneView()
     ImGui::SetCursorScreenPos(ImVec2(moveIconPos.x + damp.x, moveIconPos.y + damp.y));
     
     static std::shared_ptr<Texture> moveIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/Move.png");
-    D3D12_GPU_DESCRIPTOR_HANDLE moveIconHandle = moveIconTexture->GetGPUHandle();
+    static D3D12_GPU_DESCRIPTOR_HANDLE moveIconHandle = moveIconTexture->GetGPUHandle();
 
     static std::shared_ptr<Texture> rotationIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/Rotate.png");
-    D3D12_GPU_DESCRIPTOR_HANDLE rotationIconHandle = rotationIconTexture->GetGPUHandle();
+    static D3D12_GPU_DESCRIPTOR_HANDLE rotationIconHandle = rotationIconTexture->GetGPUHandle();
 
     static std::shared_ptr<Texture> scaleIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/Scale.png");
-    D3D12_GPU_DESCRIPTOR_HANDLE scaleIconHandle = scaleIconTexture->GetGPUHandle();
+    static D3D12_GPU_DESCRIPTOR_HANDLE scaleIconHandle = scaleIconTexture->GetGPUHandle();
 
     static std::shared_ptr<Texture> transformIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/Transform.png");
-    D3D12_GPU_DESCRIPTOR_HANDLE transformIconHandle = transformIconTexture->GetGPUHandle();
+    static D3D12_GPU_DESCRIPTOR_HANDLE transformIconHandle = transformIconTexture->GetGPUHandle();
 
     static std::shared_ptr<Texture> worldIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/World.png");
-    D3D12_GPU_DESCRIPTOR_HANDLE worldIconHandle = worldIconTexture->GetGPUHandle();
+    static D3D12_GPU_DESCRIPTOR_HANDLE worldIconHandle = worldIconTexture->GetGPUHandle();
 
     static std::shared_ptr<Texture> localIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/Local.png");
-    D3D12_GPU_DESCRIPTOR_HANDLE localIconHandle = localIconTexture->GetGPUHandle();
+    static D3D12_GPU_DESCRIPTOR_HANDLE localIconHandle = localIconTexture->GetGPUHandle();
 
     static std::shared_ptr<Texture> gridSnapIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/GridSnap.png");
-    D3D12_GPU_DESCRIPTOR_HANDLE gridSnapIconHandle = gridSnapIconTexture->GetGPUHandle();
+    static D3D12_GPU_DESCRIPTOR_HANDLE gridSnapIconHandle = gridSnapIconTexture->GetGPUHandle();
 
     static std::shared_ptr<Texture> toggleLeftTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/ToggleLeft.png");
-    D3D12_GPU_DESCRIPTOR_HANDLE toggleLeftHandle = toggleLeftTexture->GetGPUHandle();
+    static D3D12_GPU_DESCRIPTOR_HANDLE toggleLeftHandle = toggleLeftTexture->GetGPUHandle();
 
     static std::shared_ptr<Texture> toggleRightTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/ToggleRight.png");
-    D3D12_GPU_DESCRIPTOR_HANDLE toggleRightHandle = toggleRightTexture->GetGPUHandle();
+    static D3D12_GPU_DESCRIPTOR_HANDLE toggleRightHandle = toggleRightTexture->GetGPUHandle();
 
     auto ImageButtonOperation = [&](ImGuizmo::OPERATION op) 
     {

@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "RenderPass.h"
+
 class SkyBox;
 class SkyBoxPass : public RenderPass
 {

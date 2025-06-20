@@ -11,24 +11,28 @@ public:
 
 public:
     enum class Type { VS, HS, DS, GS, PS, CS, MS, AS, END };
+    enum class BindType { TABLE, DIRECT };
 
 public:
     ID3D12RootSignature*         GetRootSignature() const { return _rootSignature.Get(); }
-    const D3D12_SHADER_BYTECODE& GetShaderByteCode(ShaderBuilder::Type type) const { return _shaderByteCodes[(int)type]; }
+    const D3D12_SHADER_BYTECODE& GetShaderByteCode(ShaderBuilder::Type type) const
+    {
+        return _shaderByteCodes[(int)type];
+    }
     const D3D12_INPUT_LAYOUT_DESC& GetInputLayout() const { return _inputLayout; }
     UINT                           GetRootParameterIndex(std::string_view tag) const;
 
 public:
     void BeginBuild();
-    void EndBuild();
+    void EndBuild(BindType type = BindType::TABLE);
     void SetShader(std::wstring_view filePath, ShaderBuilder::Type type);
 
 private:
-    void CreateRootSignature();
+    void CreateRootSignatureTable();
+    void CreateRootSignatureDirect();
     void CreateRootSignature_ver0();
     void CreateInputLayout(ComPtr<ID3D12ShaderReflection> shaderReflection, const D3D12_SHADER_DESC& shaderDesc);
-    void CreateStaticSampler(D3D12_FILTER filter, D3D12_TEXTURE_ADDRESS_MODE addressMode, UINT shaderRegister,
-                             D3D12_STATIC_SAMPLER_DESC& desc);
+    void CreateStaticSampler(D3D12_FILTER filter, D3D12_TEXTURE_ADDRESS_MODE addressMode, UINT shaderRegister, D3D12_STATIC_SAMPLER_DESC& desc);
     D3D12_STATIC_SAMPLER_DESC FindStaticSampler(std::string_view tag);
 
 private:

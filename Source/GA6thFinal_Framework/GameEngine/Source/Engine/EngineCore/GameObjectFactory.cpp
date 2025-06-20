@@ -258,7 +258,11 @@ std::vector<std::shared_ptr<GameObject>> EGameObjectFactory::MakeObjectsGraphToY
                 {
                     std::vector<std::weak_ptr<GameObject>>& instanceList = _prefabInstanceList[prefab];
                     instanceList.emplace_back(currObject);
-                    ParsingYamlToGameObject(currObject.get(), currNode);
+                    if (nullptr != pSceneObjectNode)
+                    {
+                        const YAML::Node& currSceneNodes = *sceneNodes;
+                        ParsingYamlToGameObject(currObject.get(), currSceneNodes);
+                    }
                 }
                 else
                 {
@@ -294,10 +298,14 @@ std::vector<std::shared_ptr<GameObject>> EGameObjectFactory::MakeObjectsGraphToY
 
                 if (true == isPrefabInstance)
                 {
-                    bool result = UmComponentFactory.ParsingYamlToOverrideFlags(component, *sceneComponentNodeIter);
-                    if (true == result)
+                    const YAML::Node& currSceneNodes = *sceneNodes; 
+                    if (sceneComponentNodeIter != currSceneNodes["Components"].end())
                     {
-                        ++sceneComponentNodeIter;
+                        bool result = UmComponentFactory.ParsingYamlToOverrideFlags(component, *sceneComponentNodeIter);
+                        if (true == result)
+                        {
+                            ++sceneComponentNodeIter;
+                        }
                     }
                 }
             }

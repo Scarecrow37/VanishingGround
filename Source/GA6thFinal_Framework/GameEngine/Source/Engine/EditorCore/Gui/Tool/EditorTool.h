@@ -32,25 +32,51 @@ public:
     virtual void OnEndGui() override {};
 
 private:
-    /* Begin 호출 전에 호출 */
+    /// <summary>
+    /// ImGui::Begin 호출 직전에 호출됩니다.
+    /// </summary>
     virtual void OnPreFrameBegin();
 
-    /* Begin 호출 직후 호출 */
+    /// <summary>
+    /// ImGui::Begin 호출 직후에 호출됩니다.
+    /// </summary>
     virtual void OnPostFrameBegin();
-    
-    /* Begin 호출 후 클리핑 테스트를 통과한 후 호출 */
-    virtual void OnFrameRender();
+
+    /// <summary>
+    /// Gui의 프레임이 클리핑이 될 때 1회 호출됩니다.
+    /// </summary>
     virtual void OnFrameClipped();
 
-    /* End 호출 후에 호출 */
+    /// <summary>
+    /// ImGui::End 호출 직후에 호출됩니다.
+    /// </summary>
     virtual void OnFrameEnd();
 
     /* 프레임이 포커싱 될 때 호출 (OnPostFrameBegin 후에 호출) */
+
+    /// <summary>
+    /// 프레임이 포커싱 상태에 진입되었을 때 1회 호출됩니다.
+    /// </summary>
     virtual void OnFrameFocusEnter();
+
+    /// <summary>
+    /// 프레임이 포커싱 상태에 있는 동안 매 프레임마다 호출됩니다.
+    /// </summary>
     virtual void OnFrameFocusStay();
+
+    /// <summary>
+    /// 프레임이 포커싱 상태에서 벗어났을 때 1회 호출됩니다.
+    /// </summary>
     virtual void OnFrameFocusExit();
 
-    /* Popup창 호출 성공 시 호출 (OnPreFrameBegin 전에 호출) */
+    /// <summary>
+    /// ImGui::Begin 호출 후 클리핑 테스트를 통과할 시 호출됩니다.
+    /// </summary>
+    virtual void OnFrameRender();
+
+    /// <summary>
+    /// 프레임 Tab의 팝업이 열렸을 때 호출됩니다.
+    /// </summary>
     virtual void OnFramePopupOpened();
 
 private:
@@ -123,7 +149,6 @@ public:
     inline void                     ToggleLock() { ReflectFields->IsLock = ReflectFields->IsLock == true ? false : true; }
     inline bool                     IsLock() const { return ReflectFields->IsLock; }
    
-
     /*                              사이즈 조정 설정 */
     inline void                     SetSize(const ImVec2& size) { _size = {true, size}; }
     inline ImVec2                   GetSize() const { return _size.second; }
@@ -142,6 +167,7 @@ public:
     /*                              Begin과 End 사이의 작업 중인지 여부 */
     inline bool                     IsBeginningFrame() const { return _isBeginningFrame; }
     /*                              해당 프레임이 포커싱 중인지 여부 */ 
+    inline void                     SetFocusFrame() const { ImGui::SetWindowFocus(GetLabel().c_str()); }
     inline bool                     IsFocusFrame() const { return _isFrameFocused; }
     /*                              해당 객체가 도킹 윈도우인지 반환 */
     inline bool                     IsDockWindow() const { return _isDockWindow; }

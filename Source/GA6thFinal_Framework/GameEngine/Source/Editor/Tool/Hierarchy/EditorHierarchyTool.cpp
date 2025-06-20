@@ -232,27 +232,49 @@ EditorHierarchyTool::~EditorHierarchyTool()
 void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
 {
     static const char* GameObjectKey  = typeid(GameObject).name();
-    static const char* GameObjectName = GameObjectKey + 6;
-    if (ImGui::MenuItem(GameObjectName))
+    if (ImGui::BeginMenu("Object"))
     {
-        UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(GameObjectKey, GameObject::Helper::GenerateUniqueName(GameObjectName));
+        static const char* GameObjectName = GameObjectKey + 6;
+        if (ImGui::MenuItem(GameObjectName))
+        {
+            UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
+                GameObjectKey, GameObject::Helper::GenerateUniqueName(GameObjectName));
+        }
+        ImGui::EndMenu();
     }
+
     if (ImGui::BeginMenu("Light"))
     {
+        GameObject* light = nullptr;
         if (ImGui::MenuItem("Directional light"))
         {
-            auto light = NewGameObject(GameObject::Helper::GenerateUniqueName("Directional light"));
+            UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
+                GameObjectKey, GameObject::Helper::GenerateUniqueName("Directional light"), &light);
             light->AddComponent<DirectionalLight>();            
         }
         if (ImGui::MenuItem("Point light"))
         {
-            auto light = NewGameObject(GameObject::Helper::GenerateUniqueName("Point light"));
+            UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
+                GameObjectKey, GameObject::Helper::GenerateUniqueName("Point light"), &light);
             light->AddComponent<PointLight>();            
         }
         if (ImGui::MenuItem("Spot light"))
         {
-            auto light = NewGameObject(GameObject::Helper::GenerateUniqueName("Spot light"));
+            UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
+                GameObjectKey, GameObject::Helper::GenerateUniqueName("Spot light"), &light);
             light->AddComponent<SpotLight>();
+        }
+        ImGui::EndMenu();
+    }
+
+    if (ImGui::BeginMenu("Mesh"))
+    {
+        GameObject* mesh = nullptr;
+        if (ImGui::MenuItem("Static Mesh"))
+        {
+            UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
+                GameObjectKey, GameObject::Helper::GenerateUniqueName("Static Mesh"), &mesh);
+            mesh->AddComponent<StaticMeshRenderer>();
         }
         ImGui::EndMenu();
     }
@@ -319,12 +341,12 @@ void EditorHierarchyTool::HierarchyRightClickEvent() const
 
 void EditorHierarchyTool::KeyboardEvent() 
 {
-    if (_dockWindow->IsFocusFrame())
+    if (Global::editorModule->IsFocusAreaEmpty() && _dockWindow->IsFocusFrame())
     {
         bool holdCtrl = ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftCtrl);
         if (holdCtrl)
         {
-            if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_S))
+            if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_S, false))
             {
                 Scene* scene = UmSceneManager.GetMainScene();
                 if (scene)
@@ -338,7 +360,7 @@ void EditorHierarchyTool::KeyboardEvent()
 
         if (this->IsFocusFrame() || _editorSceneTool->IsFocusFrame() || _editorFindTool->IsFocusFrame())
         {
-            if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_Delete))
+            if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_Delete, false))
             {
                 if (false == HierarchyFocusObjWeak.expired())
                 {

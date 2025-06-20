@@ -20,8 +20,9 @@ void GraphicsCore::Initialize(HWND hwnd, UINT width, UINT height, FeatureLevel f
     Device.ExecuteCommand(MESH_RENDER_LIST);
     Device.GPUSync();
 
-    UmDevice.ResetCommands();
-    UmDevice.ResetComputeCommands();
+    Device.ResetCommands();
+    Device.ResetComputeCommands();
+ 
 
 
 

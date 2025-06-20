@@ -2,7 +2,8 @@
 
 //참고 Unity Game Loop https://docs.unity3d.com/kr/2022.3/Manual/ExecutionOrder.html
 class Component abstract :
-    public ReflectSerializer
+    public ReflectSerializer,
+    public ITimeInvoker
 {
     inline static GameObject staticDummyObject;
     friend class GameObject;
@@ -36,6 +37,9 @@ public:
     {
         return _weakPtr;
     }
+
+    // ITimeInvoker을(를) 통해 상속됨
+    virtual std::weak_ptr<ITimeInvoker> GetWeakInvoker() override;
 
 protected:
     /// <summary>
@@ -234,7 +238,6 @@ private:
     /// 프리팹용 OverrideFlag들을 해제합니다. 에디터 모드에서만 동작합니다.
     /// </summary>
     inline void UnsetOverrideFlags();
-
 };
 
 template <IS_BASE_COMPONENT_C TComponent>
@@ -277,3 +280,4 @@ inline void Component::UnsetOverrideFlags()
         });
     }
 }
+
