@@ -4,8 +4,6 @@
 REGISTER_CLASS(FSMStateFactory, RoundStartPhase)
 
 RoundStartPhase::RoundStartPhase() 
-    :
-    _turnMode(nullptr)
 {
 
 }
@@ -16,7 +14,7 @@ void RoundStartPhase::OnAwake() {}
 
 void RoundStartPhase::OnStart() 
 {
-    _turnMode = GetFSM().GetComponent<TurnMode>();
+    GetTurnModeBase::OnStart();
 }
 
 void RoundStartPhase::OnEnter() 

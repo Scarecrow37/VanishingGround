@@ -1,9 +1,7 @@
 ﻿#pragma once
-#include "GameCore/FSM/FiniteStateMachine.h"
+#include "Base/GetTurnModeBase.h"
 
-class TurnMode;
-class TurnActor;
-class RoundStartPhase : public FSMState
+class RoundStartPhase : public GetTurnModeBase
 {
 public:
     RoundStartPhase();
@@ -15,7 +13,4 @@ protected:
     void OnEnter() override;
     void OnExit() override;
     void OnUpdate() override;
-
-private:
-    TurnMode* _turnMode;
 };
