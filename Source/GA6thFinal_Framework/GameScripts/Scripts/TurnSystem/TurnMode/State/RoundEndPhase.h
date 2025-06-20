@@ -11,10 +11,20 @@ public:
     RoundEndPhase();
     virtual ~RoundEndPhase() override;
 
+    /// <summary>
+    /// 페이즈 종료 여부를 반환합니다.
+    /// </summary>
+    /// <returns></returns>
+    bool IsPhaseEnd() const { return _isPhaseEnd; }
+
 protected:
     void OnAwake() override;
     void OnStart() override;
     void OnEnter() override;
     void OnExit() override;
     void OnUpdate() override;
+
+private:
+    bool _isPhaseEnd = false;
+
 };

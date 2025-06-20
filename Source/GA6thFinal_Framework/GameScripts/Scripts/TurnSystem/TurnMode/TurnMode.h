@@ -84,24 +84,26 @@ private:
 private:
     struct SystemStates
     {
-        class CombatStartPhase*   CombatStartPhase  = nullptr;
-        class RoundStartPhase*    RoundStartPhase   = nullptr;
-        class PlayerActionPhase*  PlayerActionPhase = nullptr;
-        class EnemyActionPhase*   EnemyActionPhase  = nullptr;
-        class CheckPlayerState*   CheckPlayerState  = nullptr;
+        class CombatStartPhase*   CombatStartPhase   = nullptr;
+        class RoundStartPhase*    RoundStartPhase    = nullptr;
+        class RoundEndPhase*      RoundEndPhase      = nullptr;
+        class PlayerActionPhase*  PlayerActionPhase  = nullptr;
+        class EnemyActionPhase*   EnemyActionPhase   = nullptr;
+        class CheckPlayerState*   CheckPlayerState   = nullptr;
         class TurnListEmptyState* TurnListEmptyState = nullptr;
     } _systemStates;
 
     struct SystemCondition
     {
-        class CombatStartCodition*   CombatStartCodition    = nullptr;
-        class RoundStartCondition*   RoundStartCondition    = nullptr;
-        class PlayerActionCondition* PlayerActionCondition  = nullptr;
-        class EnemyActionCondition*  EnemyActionCondition   = nullptr;
-        class CheckRoundStartExit*  CheckRoundStartExit   = nullptr;
+        class CombatStartCodition*   CombatStartCodition   = nullptr;
+        class RoundStartCondition*   RoundStartCondition   = nullptr;
+        class PlayerActionCondition* PlayerActionCondition = nullptr;
+        class EnemyActionCondition*  EnemyActionCondition  = nullptr;
+        class CheckRoundStartExit*   CheckRoundStartExit   = nullptr;
+        class CheckRoundEndExit*     CheckRoundEndExit     = nullptr;
         class CheckTurnEndCondition* CheckTurnEndCondition = nullptr;
-        class CheckTurnEmpty*        CheckTurnEmpty         = nullptr;
-        class CheckTurnNotEmpty*     CheckTurnNotEmpty      = nullptr;
+        class CheckTurnEmpty*        CheckTurnEmpty        = nullptr;
+        class CheckTurnNotEmpty*     CheckTurnNotEmpty     = nullptr;
     } _systemConditions;
 
 public:
