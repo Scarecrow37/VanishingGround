@@ -120,10 +120,11 @@ void TurnMode::ImGuiDrawPropertysEvent()
 {
     if (ImGui::TreeNodeEx("TurnList", ImGuiTreeNodeFlags_DefaultOpen))
     {
-        if (ImGui::BeginTable("Transition", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+        if (ImGui::BeginTable("Transition", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
         {
             ImGui::TableSetupColumn("Name");
             ImGui::TableSetupColumn("Type");
+            ImGui::TableSetupColumn("State");
             ImGui::TableSetupColumn("Round Speed");
             ImGui::TableHeadersRow();
             for (auto& actor : _turnList)
@@ -138,6 +139,9 @@ void TurnMode::ImGuiDrawPropertysEvent()
                     ImGui::TableSetColumnIndex(1);
                     ImGui::Selectable(typeid(*actor).name() + 6);
                     ImGui::TableSetColumnIndex(2);
+                    TurnActor::STATE currState = actor->State;
+                    ImGui::Text(rfl::enum_to_string(currState).data());
+                    ImGui::TableSetColumnIndex(3);
                     int roundSpeed = actor->RoundSpeed;
                     ImGui::Text("%d", roundSpeed);
                 }
