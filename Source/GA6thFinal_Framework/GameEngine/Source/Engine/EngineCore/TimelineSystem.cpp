@@ -1,10 +1,15 @@
 ﻿#include "pch.h"
 #include "TimelineSystem.h"
 
-TimelineNotify::TimelineNotify()
+TimelineNotify::TimelineNotify(UINT id) 
 {
+    _event                        = nullptr;
+    ReflectFields->TimeData       = 0.0f;
+    ReflectFields->NotifyID       = id;
+    ReflectFields->EventNameData  = "";
+    ReflectFields->SerializedData = "";
 }
-TimelineNotify::~TimelineNotify() 
+TimelineNotify::~TimelineNotify()
 {
     if (nullptr != _event)
     {
@@ -30,6 +35,11 @@ void TimelineNotify::SetNotifyEvent(float time, std::string_view typeNameID)
     ReflectFields->EventNameData = typeNameID;
 
     _event = FactoryConstructor<ITimelineEvent>::NewInstanceWithKey(ReflectFields->EventNameData);
+}
+
+bool TimelineNotify::IsValidID() const
+{
+    return ReflectFields->NotifyID != UINT_MAX;
 }
 
 void TimelineNotify::SerializedReflectEvent() 
@@ -62,6 +72,21 @@ TimelineSystem::~TimelineSystem()
     ClearNotifies();
 }
 
+bool TimelineSystem::RemoveNotifyFromID(UINT id)
+{
+    for (auto it = _timelineNotifyQueue.begin(); it != _timelineNotifyQueue.end(); ++it)
+    {
+        if ((*it)->ID == id)
+        {
+            delete (*it);
+            _timelineNotifyQueue.erase(it);
+            _idToNotifyTable.erase(id);
+            return true;
+        }
+    }
+    return false;
+}
+
 bool TimelineSystem::RemoveNotifyFromEvent(ITimelineEvent** event)
 {
     for (auto it = _timelineNotifyQueue.begin(); it != _timelineNotifyQueue.end(); ++it)
@@ -71,6 +96,7 @@ bool TimelineSystem::RemoveNotifyFromEvent(ITimelineEvent** event)
             delete (*it);
             (*event) = nullptr;
             _timelineNotifyQueue.erase(it);
+            _idToNotifyTable.erase((*it)->ID);
             return true;
         }
     }
@@ -84,7 +110,6 @@ bool TimelineSystem::RemoveNotifyFromNotify(TimelineNotify** notify)
         if ((*it) == (*notify))
         {
             delete (*notify);
-            (*notify) = nullptr;
             _timelineNotifyQueue.erase(it);
             return true;
         }
@@ -98,8 +123,11 @@ bool TimelineSystem::RemoveNotifyFromIndex(size_t index)
     {
         return false;
     }
+    UINT id = _timelineNotifyQueue[index]->ID;
     auto it = _timelineNotifyQueue.begin() + index;
+    delete (*it);
     _timelineNotifyQueue.erase(it);
+    _idToNotifyTable.erase(id);
     return true;
 }
 
@@ -126,6 +154,16 @@ bool TimelineSystem::ChangeNotifyTimeFromIndex(size_t index, float newTime)
     _timelineNotifyQueue[index]->Time = newTime;
     Sort();
     return true;
+}
+
+TimelineNotify* TimelineSystem::GetNotifyFromID(UINT id) const
+{
+    auto it = _idToNotifyTable.find(id);
+    if (it != _idToNotifyTable.end())
+    {
+        return it->second;
+    }
+    return nullptr;
 }
 
 TimelineNotify* TimelineSystem::GetNotifyFromIndex(size_t index) const

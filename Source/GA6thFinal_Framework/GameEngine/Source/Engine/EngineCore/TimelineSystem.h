@@ -15,16 +15,17 @@ class TimelineNotify : public ReflectSerializer
 {
     USING_PROPERTY(TimelineNotify)
 public:
-    TimelineNotify();
+    TimelineNotify(UINT id = UINT_MAX);
     virtual ~TimelineNotify();
 
 public:
     void Notify();
     void SetNotifyEvent(float time, std::string_view typeNameID);
+    bool IsValidID() const;
 
-    REFLECT_PROPERTY(EventName, Time)
+    REFLECT_PROPERTY(EventName, Time, ID)
 
-    GETTER_ONLY(const char*, EventName) { return ReflectFields->EventNameData.c_str(); }
+    GETTER_ONLY(std::string_view, EventName) { return ReflectFields->EventNameData.c_str(); }
     PROPERTY(EventName)
 
     GETTER(float, Time) { return ReflectFields->TimeData; }
@@ -34,10 +35,14 @@ public:
     GETTER_ONLY(ITimelineEvent*, Event) { return _event; }
     PROPERTY(Event)
 
+    GETTER_ONLY(int, ID) { return ReflectFields->NotifyID; }
+    PROPERTY(ID)
+
 protected:
     ITimelineEvent* _event = nullptr;
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
     float       TimeData = 0.0f;
+    UINT        NotifyID = 0;
     std::string EventNameData = "";
     std::string SerializedData = "";
     REFLECT_FIELDS_END(TimelineNotify)
@@ -71,22 +76,26 @@ public:
     {
         static_assert(std::is_base_of_v<ITimelineEvent, T>, "T is not derived from ITimelineEvent.");
         const char* key = typeid(T).name();
-        TimelineNotify* notify = new TimelineNotify();
-        notify->SetNotifyEvent(time, key);
-        _timelineNotifyQueue.push_back(notify);
-        Sort();
-        return notify;
+        return AddNotify(time, key);
     }
 
-    TimelineNotify* AddNotify(float time, std::string_view typenameID)
+    TimelineNotify* AddNotify(float time, std::string_view typenameID, UINT id = UINT_MAX)
     {
-        TimelineNotify* notify = new TimelineNotify();
+        UINT uniqueID = (id == UINT_MAX) ? GetUniqueID() : id;
+        auto it = _idToNotifyTable.find(uniqueID);
+        if (it != _idToNotifyTable.end())
+        {
+            return it->second;
+        }
+        TimelineNotify* notify   = new TimelineNotify(uniqueID);
         notify->SetNotifyEvent(time, typenameID);
         _timelineNotifyQueue.push_back(notify);
+        _idToNotifyTable[uniqueID] = notify;
         Sort();
         return notify;
     }
 
+    bool RemoveNotifyFromID(UINT id);
     bool RemoveNotifyFromEvent(ITimelineEvent** event);
     bool RemoveNotifyFromNotify(TimelineNotify** notify);
     bool RemoveNotifyFromIndex(size_t index);
@@ -94,6 +103,7 @@ public:
     bool ChangeNotifyTimeFromEvent(ITimelineEvent* event, float newTime);
     bool ChangeNotifyTimeFromIndex(size_t index, float newTime);
 
+    TimelineNotify* GetNotifyFromID(UINT id) const;
     TimelineNotify* GetNotifyFromIndex(size_t index) const;
 
 public:
@@ -129,6 +139,7 @@ public:
     inline size_t   GetNotifyCount() const { return _timelineNotifyQueue.size(); }
     inline bool     IsVaildFrame(float frame) const { return frame >= GetMinFrame() && frame <= GetMaxFrame(); }
     inline const TimelineList& GetTimelineNotifyList() const { return _timelineNotifyQueue; }
+    inline UINT     GetUniqueID() { return ++ReflectFields->UniqueID; }
 
 private:
     bool IsDirty();
@@ -142,11 +153,13 @@ private:
     bool  _isActie;
     bool  _isPlaying;
     TimelineList _timelineNotifyQueue;
+    std::unordered_map<UINT, TimelineNotify*> _idToNotifyTable;
 
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
     float MinFrame  = 0.0f;
     float MaxFrame  = 0.0f;
     int   Flags     = 0;
+    UINT  UniqueID  = 0;
     std::vector<std::string> SerializedDataList;
     REFLECT_FIELDS_END(TimelineSystem)
 

@@ -110,8 +110,11 @@ void EditorSequencerTool::OnFrameRender()
         _timelineSystem->ToggleFlags(TimelineSystem::TIMELINESYSTEM_FLAGS_USE_COUNTER);
     }
 
+    for (const auto& notify : _timelineSystem->GetTimelineNotifyList())
+    {
+        notify->ImGuiDrawPropertys();
+    }
 
-    //snap
     ImGui::Checkbox("Use Snapping", &_sequencer->_useSnapping);
 
     ImGui::BeginChild("SequencerCanvas", ImVec2(0, 0), true);

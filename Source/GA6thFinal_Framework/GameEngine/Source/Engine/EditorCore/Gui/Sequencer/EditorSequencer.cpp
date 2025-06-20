@@ -4,7 +4,6 @@
 EditorSequencer::EditorSequencer() 
     : _system(nullptr)
     , _useSnapping(false)
-    , _isOpenedPopup(false)
     , _canvasRect({})
     , _canvasUpperHeight(10.0f)
     , _viewLerpTarget(1.0f)
@@ -279,7 +278,6 @@ void EditorSequencer::DrawCanvas()
     // Draw Notify
     const auto& notifyList = _system->GetTimelineNotifyList();
     std::vector<TimelineNotify*> removeList;
-    TimelineNotify* popupDest = nullptr;
     for (int i = 0; i < notifyList.size(); ++i)
     {
         auto* notify = notifyList[i];
@@ -296,16 +294,8 @@ void EditorSequencer::DrawCanvas()
         bool isMouseRBReleased  = ImGui::IsMouseReleased(ImGuiMouseButton_Right);
         if (true == isHovered && true == isMouseRBReleased)
         {
+            _popupDest = notify;
             OpenPopup("NotifyPopup");
-            popupDest = notify;
-        }
-        if (BeginPopup("NotifyPopup"))
-        {
-            if (ImGui::MenuItem("Remove Notify"))
-            {
-                removeList.push_back(notify);
-            }
-            EndPopup();
         }
         drawList->PathLineTo(point + ImVec2(0.0f, lenght));
         drawList->PathLineTo(point + ImVec2(-lenght, 0.0f));
@@ -316,7 +306,15 @@ void EditorSequencer::DrawCanvas()
         drawList->PathFillConvex(isValid ? ReflectFields->NotifyColor : ReflectFields->InvalidColor);
         Interactions.emplace_back(point, point);
     }
-   
+    if (BeginPopup("NotifyPopup") && nullptr != _popupDest)
+    {
+        if (ImGui::MenuItem("Remove Notify"))
+        {
+            removeList.push_back(_popupDest);
+            _popupDest == nullptr;
+        }
+        EndPopup();
+    }
     for (auto* notify : removeList)
     {
         UmCommandManager.Do<Command::Sequencer::RemoveNotify>(_system, notify);
@@ -449,7 +447,7 @@ bool EditorSequencer::ContextMenu()
         }
         EndPopup();
     }
-    return _isOpenedPopup;
+    return true;
 }
 
 bool EditorSequencer::IsWheelZooming() const
@@ -552,7 +550,7 @@ bool EditorSequencer::BeginPopup(const char* id)
 {
     if (true == _popupState[id])
     {
-        if (ImGui::BeginPopupContextItem(id))
+        if (ImGui::BeginPopup(id))
         {
             return true;
         }

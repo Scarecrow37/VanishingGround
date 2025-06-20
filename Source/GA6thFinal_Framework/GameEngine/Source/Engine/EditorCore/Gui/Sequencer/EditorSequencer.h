@@ -57,9 +57,9 @@ private:
     
 public:
     std::shared_ptr<TimelineSystem> _system;
+    TimelineNotify* _popupDest = nullptr;
 
     bool _useSnapping;
-    bool _isOpenedPopup;
 
     float _cursorFrame;
     float _indicateFrame;
@@ -78,7 +78,7 @@ public:
     ImVec2 _ZoomPosition;
 
     std::unordered_map<ImGuiID, DragState> _dragState;
-    std::unordered_map<std::string, bool> _popupState;
+    std::unordered_map<std::string, bool>  _popupState;
 
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
     ImU32 UpperBgColor          = IM_COL32(20, 20, 20, 255);

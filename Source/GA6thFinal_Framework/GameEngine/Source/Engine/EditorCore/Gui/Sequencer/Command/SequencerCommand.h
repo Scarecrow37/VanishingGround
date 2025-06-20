@@ -57,8 +57,10 @@ namespace Command
             AddNotify(std::weak_ptr<TimelineSystem> system, float time, std::string_view typeNameID)
                 : UmCommand("AddNotify")
                 , _timelineSystem(system)
+                , _notify(nullptr)
                 , _time(time)
                 , _typeNameID(typeNameID)
+                , _id(UINT_MAX)
             {
             }
             virtual ~AddNotify() = default;
@@ -69,9 +71,10 @@ namespace Command
             void Undo() override;
 
             std::weak_ptr<TimelineSystem> _timelineSystem;
+            TimelineNotify* _notify; 
             float _time;
             std::string _typeNameID;
-            TimelineNotify* _notify = nullptr; 
+            UINT _id;
         };
 
         class RemoveNotify : public UmCommand
@@ -89,6 +92,7 @@ namespace Command
             TimelineNotify* _notify;    
             float _time;     
             std::string _typeNameID;    
+            UINT _id;
         };
 
         class ChangeNotifyTime : public UmCommand

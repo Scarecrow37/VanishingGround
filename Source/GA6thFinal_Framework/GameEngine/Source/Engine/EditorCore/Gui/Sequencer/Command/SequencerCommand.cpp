@@ -44,7 +44,11 @@ namespace Command
             auto system = _timelineSystem.lock();
             if (nullptr == system)
                 return;
-            _notify = system->AddNotify(_time, _typeNameID);
+            _notify = system->AddNotify(_time, _typeNameID, _id);
+            if (UINT_MAX == _id)
+            {
+                _id = _notify->ID;
+            }
         }
 
         void AddNotify::Undo() 
@@ -52,12 +56,12 @@ namespace Command
             auto system = _timelineSystem.lock();
             if (nullptr == system)
                 return;
-            system->RemoveNotifyFromNotify(&_notify);
+            system->RemoveNotifyFromID(_id);
         }
 
         RemoveNotify::RemoveNotify(std::weak_ptr<TimelineSystem> system, TimelineNotify* notify)
             : UmCommand("RemoveNotify"), _timelineSystem(system), _notify(notify), _time(notify->Time),
-              _typeNameID(notify->EventName)
+              _typeNameID(notify->EventName), _id(notify->ID)
         {
         }
         void RemoveNotify::Execute() 
@@ -65,9 +69,7 @@ namespace Command
             auto system = _timelineSystem.lock();
             if (nullptr == system || nullptr == _notify)
                 return;
-            _time = _notify->Time;
-            _typeNameID = _notify->EventName;
-            system->RemoveNotifyFromNotify(&_notify);
+            system->RemoveNotifyFromID(_id);
         }
 
         void RemoveNotify::Undo() 
@@ -75,7 +77,7 @@ namespace Command
             auto system = _timelineSystem.lock();
             if (nullptr == system)
                 return;
-            _notify = system->AddNotify(_time, _typeNameID);
+            _notify = system->AddNotify(_time, _typeNameID, _id);
         }
 
         ChangeNotifyTime::ChangeNotifyTime(std::weak_ptr<TimelineSystem> system, TimelineNotify* notify,
