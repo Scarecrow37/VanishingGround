@@ -98,7 +98,7 @@ private:
         class RoundStartCondition*   RoundStartCondition    = nullptr;
         class PlayerActionCondition* PlayerActionCondition  = nullptr;
         class EnemyActionCondition*  EnemyActionCondition   = nullptr;
-        class CheckRoundStartEnd*  CheckRoundStartEnd   = nullptr;
+        class CheckRoundStartExit*  CheckRoundStartExit   = nullptr;
         class CheckTurnEndCondition* CheckTurnEndCondition = nullptr;
         class CheckTurnEmpty*        CheckTurnEmpty         = nullptr;
         class CheckTurnNotEmpty*     CheckTurnNotEmpty      = nullptr;

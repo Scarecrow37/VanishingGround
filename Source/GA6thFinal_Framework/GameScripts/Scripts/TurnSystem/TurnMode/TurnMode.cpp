@@ -7,7 +7,7 @@
 #include "Condition/RoundStartCondition.h"
 #include "Condition/PlayerActionCondition.h"
 #include "Condition/EnemyActionCondition.h"
-#include "Condition/CheckRoundStartEnd.h"
+#include "Condition/CheckRoundStartExit.h"
 #include "Condition/CheckTurnEndCondition.h"
 #include "Condition/CheckTurnEmpty.h"
 #include "Condition/CheckTurnNotEmpty.h"
@@ -15,6 +15,7 @@
 //State
 #include "State/CombatStartPhase.h"
 #include "State/RoundStartPhase.h"   
+#include "State/RoundEndPhase.h"
 #include "State/PlayerActionPhase.h"
 #include "State/EnemyActionPhase.h"
 #include "State/CheckPlayerState.h"
@@ -119,7 +120,7 @@ void TurnMode::BuildTurnModeFSM()
         _systemConditions.RoundStartCondition   = _finiteStateMachine->AddCondition<RoundStartCondition>();
         _systemConditions.PlayerActionCondition = _finiteStateMachine->AddCondition<PlayerActionCondition>();
         _systemConditions.EnemyActionCondition  = _finiteStateMachine->AddCondition<EnemyActionCondition>();
-        _systemConditions.CheckRoundStartEnd    = _finiteStateMachine->AddCondition<CheckRoundStartEnd>();
+        _systemConditions.CheckRoundStartExit    = _finiteStateMachine->AddCondition<CheckRoundStartExit>();
         _systemConditions.CheckTurnEndCondition = _finiteStateMachine->AddCondition<CheckTurnEndCondition>();
         _systemConditions.CheckTurnEmpty        = _finiteStateMachine->AddCondition<CheckTurnEmpty>();
         _systemConditions.CheckTurnNotEmpty     = _finiteStateMachine->AddCondition<CheckTurnNotEmpty>();
@@ -129,7 +130,7 @@ void TurnMode::BuildTurnModeFSM()
 
         //Transition    
         _finiteStateMachine->AddTransition<CombatStartPhase, RoundStartCondition, RoundStartPhase>();
-        _finiteStateMachine->AddTransition<RoundStartPhase, CheckRoundStartEnd, CheckPlayerState>();
+        _finiteStateMachine->AddTransition<RoundStartPhase, CheckRoundStartExit, CheckPlayerState>();
 
         _finiteStateMachine->AddTransition<CheckPlayerState, PlayerActionCondition, PlayerActionPhase>();
         _finiteStateMachine->AddTransition<PlayerActionPhase, CheckTurnEndCondition, TurnListEmptyState>();
@@ -138,6 +139,8 @@ void TurnMode::BuildTurnModeFSM()
         _finiteStateMachine->AddTransition<EnemyActionPhase, CheckTurnEndCondition, TurnListEmptyState>();
 
         _finiteStateMachine->AddTransition<TurnListEmptyState, CheckTurnNotEmpty, CheckPlayerState>();
+        _finiteStateMachine->AddTransition<TurnListEmptyState, CheckTurnEmpty, RoundEndPhase>();
+
 
     }
 }

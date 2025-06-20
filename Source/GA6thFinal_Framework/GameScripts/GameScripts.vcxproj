@@ -305,7 +305,7 @@
     <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\CheckTurnEmpty.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\CheckTurnEndCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\Base\GetTurnModeBaseC.h" />
-    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\CheckRoundStartEnd.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\CheckRoundStartExit.h" />
     <ClInclude Include="Scripts\GameCore\FSM\AlwaysTransitionCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\CheckTurnNotEmpty.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\EnemyActionCondition.h" />
@@ -342,7 +342,7 @@
     <ClCompile Include="Scripts\Light\Base\LightComponent.cpp" />
     <ClCompile Include="Scripts\Test\Component\TestComponent.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\Base\GetTurnModeBaseC.cpp" />
-    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\CheckRoundStartEnd.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\CheckRoundStartExit.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\CheckTurnEmpty.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\CheckTurnEndCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\CheckTurnNotEmpty.cpp" />

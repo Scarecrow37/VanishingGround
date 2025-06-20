@@ -4,11 +4,11 @@
 /*
 * 라운드 시작 연출이 종료됬는지 확인합니다.
 */
-class CheckRoundStartEnd : public GetTurnModeBaseC
+class CheckRoundStartExit : public GetTurnModeBaseC
 {
 public:
-    CheckRoundStartEnd();
-    virtual ~CheckRoundStartEnd();
+    CheckRoundStartExit();
+    virtual ~CheckRoundStartExit();
 
     void OnAwake() override;
     void OnStart() override;
