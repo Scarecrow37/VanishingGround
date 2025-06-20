@@ -1,9 +1,13 @@
 ﻿#pragma once
+#include "../../Declare/InputError.h"
 
 namespace Input
 {
     class Adapter;
 
+    /// <summary>
+    /// 게임 컨트롤러의 상태를 관리하고 입력을 조회하는 클래스입니다.
+    /// </summary>
     class Controller
     {
         /// <summary>
@@ -72,9 +76,29 @@ namespace Input
     public:
         Controller(const Adapter* adapter);
 
+        Result Connect();
+
+        bool IsConnected() const;
+
+        Result UpdateState();
+
+        ThumbStickAxis GetLeftThumbStickAxis() const;
+
+        ThumbStickAxis GetRightThumbStickAxis() const;
+
+        TriggerValue GetLeftTrigger() const;
+
+        TriggerValue GetRightTrigger() const;
+
+        bool IsButtonDown(Button button) const;
+
+        bool IsButtonUp(Button button) const;
+
+        ID GetID() const;
     private:
         const Adapter* _adapter;
 
         ID _id;
+        State _state;
     };
 } // namespace Input
