@@ -16,8 +16,6 @@ public:
     void                   DeleteEffect(UINT);
     void                   Update(const float deltaTime);
 
-    // 임시 render
-    void Render();
 
     UINT                                  GetTotalCount() const { return _totalCount; }
     UINT                                  GetMaxCount() const { return _maxParticles; }
@@ -163,4 +161,10 @@ private:
     std::vector<std::shared_ptr<Texture>> _activeEmitterNormals;
 
     UINT _totalCount = 0;
+
+
+    float _elapsedTimer = 0.f;
+
+
+
 };

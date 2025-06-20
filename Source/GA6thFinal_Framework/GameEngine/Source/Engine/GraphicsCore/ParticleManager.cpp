@@ -64,6 +64,15 @@ void ParticleManager::Update(const float deltaTime)
         delta = 0;
     }
 
+    //_elapsedTimer += deltaTime;
+
+    //_pariticleEffects[0]->SetRotation(Quaternion::CreateFromAxisAngle({0, 1, 0}, _elapsedTimer));
+
+
+
+
+
+
     for (auto effect : _pariticleEffects)
     {
         effect->Update(delta);
@@ -649,6 +658,10 @@ void ParticleManager::UpdateParticleResources(float deltaTime)
     MVPConstants mvpConstants;
     mvpConstants.ViewMatrix           = _camera->GetViewMatrix().Transpose();
     mvpConstants.ViewRotInvMatrix     = _camera->GetViewMatrix().Transpose();
+
+
+
+
     mvpConstants.ViewRotInvMatrix._14 = 0.0f;
     mvpConstants.ViewRotInvMatrix._24 = 0.0f;
     mvpConstants.ViewRotInvMatrix._34 = 0.0f;

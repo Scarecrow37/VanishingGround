@@ -55,12 +55,7 @@ void ParticleResolvePass::Draw(ID3D12GraphicsCommandList* commandList)
     _particleRenderCommandList->SetPipelineState(_resolvePSO.Get());
     _particleRenderCommandList->SetGraphicsRootSignature(_resolveShaderBuilder->GetRootSignature());
 
-    //UINT uintValues[2] = {UmDevice.GetMode().Width, UmDevice.GetMode().Height}; // 전달할 uint 값들
-    //_particleRenderCommandList->SetGraphicsRoot32BitConstants(_resolveShaderBuilder->GetRootParameterIndex("bit32_2_resolution"),
-    //                                           2,          // Num32BitValuesToSet (설정할 32비트 값의 개수)
-    //                                           uintValues, // pSrcData (소스 데이터)
-    //                                           0           // DestOffsetIn32BitValues (오프셋)
-    //);
+
     _particleRenderCommandList->SetGraphicsRootDescriptorTable(
         _resolveShaderBuilder->GetRootParameterIndex("gAccumTex"), _oitSRVHandles[0].GPU);
     _particleRenderCommandList->SetGraphicsRootDescriptorTable(

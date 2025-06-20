@@ -141,9 +141,6 @@ void ParticleSpritePass::Draw(ID3D12GraphicsCommandList* commandlist)
     
     _particleRenderCommandList->SetGraphicsRootSignature(_spriteParticleShaderBuilder->GetRootSignature());
 
-    /*_particleRenderCommandList->SetGraphicsRootConstantBufferView(
-        _spriteParticleShaderBuilder->GetRootParameterIndex("texID"), _textureIdConstantBuffer->GetGPUVirtualAddress());*/
-
     _particleRenderCommandList->SetGraphicsRootShaderResourceView(
         _spriteParticleShaderBuilder->GetRootParameterIndex("texID"), _textureIDBuffer->GetGPUVirtualAddress());
 

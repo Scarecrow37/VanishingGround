@@ -1,9 +1,4 @@
 #include "CommonData.hlsli"
-//struct textureIDs
-//{
-//    int textureID[100];
-//};
-//ConstantBuffer<textureIDs> texID;
 
 StructuredBuffer<int> texID;
 
@@ -11,6 +6,8 @@ StructuredBuffer<int> texID;
 RasterizerOrderedTexture2D<float4> gAccumTex;
 RasterizerOrderedTexture2D<float> gRevealTex;
 
+//RWTexture2D<float4> gAccumTex;
+//RWTexture2D<float> gRevealTex;
 
 Texture2D textures[];
 
@@ -29,28 +26,42 @@ struct PSInput
 
 float4 ps_main(PSInput input) : SV_Target
 {
+    // 1. 텍스처 샘플링 최소화
     int emitIndex = input.emitterIndex;
     int albedoID = texID[emitIndex];
     float factor = textures[albedoID].Sample(samPoint_clamp, input.uv);
+    
+    // 2. 알파 계산 간소화
     float alpha = input.color.a * factor;
+    clip(alpha > 0.01f);
     
-    // 깊이 기반 가중치 계산 (예: McGuire & Bavoil)
-    //float wDepth = pow(saturate(input.depth), 1.5);
-    float wDepth = pow(1.0 - saturate(input.depth), 1.5);
+    // 3. 가중치 계산 최적화
+    float depth = input.depth;
+    clip(depth > 0.95f);
+    float depth2 = depth * depth; // 제곱 캐싱
+    float depth6 = depth2 * depth2 * depth2; // 6제곱 효율적 계산
     
-    float minAlpha = 0.03f;
-    float adjAlpha = max(alpha, minAlpha);
-    float weight = adjAlpha * max(0.01, min(3000.0,
-                   10.0 / (0.00001 + pow(abs(input.depth) / 5.0, 2) +
-                                  pow(abs(input.depth) / 200.0, 6))));
+    // 사전 계산된 상수 활용
+    static const float denom_const = 0.00001f;
+    static const float div5 = 1.0f / 25.0f; // (1/5)^2
+    static const float div200 = 1.0f / (200.0f * 200.0f * 200.0f * 200.0f * 200.0f * 200.0f);
     
-    gAccumTex[uint2(input.position.xy)] += float4(input.color.rgb * alpha * weight, alpha *weight);
-    gRevealTex[uint2(input.position.xy)] += alpha;
+    float denominator = denom_const +
+                       (depth2 * div5) +
+                       (depth6 * div200);
+    
+    float weight = alpha * 10.0f / denominator;
+    
+    // 4. UAV 쓰기 최적화
+    float3 color_contrib = input.color.rgb * alpha * weight;
+    float alpha_contrib = alpha * weight;
+    
+    gAccumTex[uint2(input.position.xy)] += float4(color_contrib, alpha_contrib) * 0.5f;
+    gRevealTex[uint2(input.position.xy)] += alpha*0.5f;
+    
+    // 5. 불필요한 출력 제거
+    //return float4(color_contrib, alpha_contrib);
+    return float4(0,0,0,0);
 
-    
-    float4 output = float4(input.color.rgb, input.color.a * factor);
-    return output;
-    
-    
-    
 }
+

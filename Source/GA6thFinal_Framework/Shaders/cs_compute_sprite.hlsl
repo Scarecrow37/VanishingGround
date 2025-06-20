@@ -57,12 +57,6 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
     output.paddings = (float3) 0;
 
     output.EmitterIndex = input.emitterIndex;
-//    float4x4 translationMat = float4x4(
-//1, 0, 0, input.position.x,
-//0, 1, 0, input.position.y,
-//0, 0, 1, input.position.z,
-//0, 0, 0, 1
-//);
     float4x4 translationMat = float4x4(
 1, 0, 0, 0,
 0, 1, 0, 0,
@@ -70,11 +64,18 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
 input.position.x, input.position.y, input.position.z, 1
 );
 
+  
+    
     
     output.FinalMatrix = scaleMat;
-    output.FinalMatrix = mul(scaleMat, mvp.ViewRotInvMatrix);
-    output.FinalMatrix = mul(output.FinalMatrix, translationMat);
-    output.FinalMatrix = mul(output.FinalMatrix, emitter.WorldMatrix);
+    output.FinalMatrix = mul(scaleMat, translationMat);
+    //output.FinalMatrix = mul(output.FinalMatrix, mvp.ViewRotInvMatrix);
+    output.FinalMatrix = mul(output.FinalMatrix, emitter.WorldMatrix); 
+    output.FinalMatrix = mul(output.FinalMatrix, mvp.ViewRotInvMatrix);
+    
+
+    
+    
     output.FinalMatrix = mul(output.FinalMatrix, mvp.ViewMatrix);
     output.FinalMatrix = mul(output.FinalMatrix, mvp.ProjMatrix);
     

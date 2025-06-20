@@ -15,7 +15,7 @@ DirectX::SimpleMath::Vector3 SphereLocator::EmitLocate()
 {
   
     Vector3 location = {_randomVal(), _randomVal(), _randomVal()};
-    while (location.Length() > 1)
+    while (location.Length() >= 1)
     {
         location = {_randomVal(), _randomVal(), _randomVal()};
     }
@@ -202,20 +202,12 @@ void ParticleEmitter::AwakeParticle(UINT index)
     Vector3 offset = {_emitLocator->_randomVal(), _emitLocator->_randomVal(), _emitLocator->_randomVal()};
 
     Vector4 location = {1, 1, 1, 1};
-    location.x       = _emitLocator->EmitLocate().x + _emitLocator->_randomVal() * _particleDistributionOffset;
-    location.y       = _emitLocator->EmitLocate().y + _emitLocator->_randomVal() * _particleDistributionOffset;
-    location.z       = _emitLocator->EmitLocate().z + _emitLocator->_randomVal() * _particleDistributionOffset;
-
-    
-
+    location.x       = _emitLocator->EmitLocate().x + offset.x * _particleDistributionOffset;
+    location.y       = _emitLocator->EmitLocate().y + offset.y * _particleDistributionOffset;
+    location.z       = _emitLocator->EmitLocate().z + offset.z * _particleDistributionOffset;
 
     _particlePool[index]->SetPosition(location);
     _particlePool[index]->SetVelocity(_velocity);
-
-
-
-
-
     _particlePool[index]->SetStartColor(_startColor);
     _particlePool[index]->SetStartOpacity(_startOpacity);
     _particlePool[index]->SetEndColor(_endColor);

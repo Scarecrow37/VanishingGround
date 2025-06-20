@@ -17,8 +17,9 @@ ShaderBuilder::ShaderBuilder()
 		CreateStaticSampler(D3D12_FILTER_MIN_MAG_MIP_POINT, D3D12_TEXTURE_ADDRESS_MODE_CLAMP, 1, _staticSamplers["samPoint_clamp"]);
 		CreateStaticSampler(D3D12_FILTER_MIN_MAG_MIP_LINEAR, D3D12_TEXTURE_ADDRESS_MODE_WRAP, 2, _staticSamplers["samLinear_wrap"]);
 		CreateStaticSampler(D3D12_FILTER_MIN_MAG_MIP_LINEAR, D3D12_TEXTURE_ADDRESS_MODE_CLAMP, 3, _staticSamplers["samLinear_clamp"]);
-		CreateStaticSampler(D3D12_FILTER_ANISOTROPIC, D3D12_TEXTURE_ADDRESS_MODE_WRAP, 4, _staticSamplers["samAnistropic_wrap"]);
-		CreateStaticSampler(D3D12_FILTER_ANISOTROPIC, D3D12_TEXTURE_ADDRESS_MODE_CLAMP, 5, _staticSamplers["samAnistropic_clamp"]);
+		CreateStaticSampler(D3D12_FILTER_MIN_MAG_MIP_LINEAR, D3D12_TEXTURE_ADDRESS_MODE_BORDER, 4, _staticSamplers["samLinear_border"]);
+		CreateStaticSampler(D3D12_FILTER_ANISOTROPIC, D3D12_TEXTURE_ADDRESS_MODE_WRAP, 5, _staticSamplers["samAnistropic_wrap"]);
+		CreateStaticSampler(D3D12_FILTER_ANISOTROPIC, D3D12_TEXTURE_ADDRESS_MODE_CLAMP, 6, _staticSamplers["samAnistropic_clamp"]);
 
 		_isFirstInitialize = true;
 	}
@@ -483,6 +484,6 @@ void ShaderBuilder::CreateStaticSampler(D3D12_FILTER filter, D3D12_TEXTURE_ADDRE
 	samplerDesc.ShaderRegister = shaderRegister;
 	samplerDesc.RegisterSpace = 0;
 	samplerDesc.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-
+    samplerDesc.BorderColor               = D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE ;
 	desc = samplerDesc;
 }
