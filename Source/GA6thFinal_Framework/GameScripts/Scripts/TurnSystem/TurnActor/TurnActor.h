@@ -29,10 +29,17 @@ public:
     /// </summary>
     virtual void PlayTurn() final;
 
+    /// <summary>
+    /// Actor의 상태를 초기화합니다. (부활)
+    /// OnRevive를 호출합니다.
+    /// </summary>
+    virtual void Revive() final;
+
 public:
     virtual int GetSpeed() = 0;
 
 protected:
+    virtual void OnRevive() = 0;
     virtual void OnTurnStart() = 0;
 
 public:

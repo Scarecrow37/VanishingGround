@@ -12,3 +12,10 @@ void CharacterBase::Awake()
     Base::Awake();
     gameObject->AddTag(TAG);
 }
+
+void CharacterBase::OnRevive() 
+{
+    _hp = MaxHP;
+    _mp = MaxMP;
+}
+

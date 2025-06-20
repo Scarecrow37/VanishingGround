@@ -13,6 +13,12 @@ void TurnActor::PlayTurn()
     OnTurnStart();
 }
 
+void TurnActor::Revive() 
+{
+    _currState = STATE::Wait;
+    OnRevive();
+}
+
 void TurnActor::Awake() 
 {
     gameObject->AddTag(TAG);
