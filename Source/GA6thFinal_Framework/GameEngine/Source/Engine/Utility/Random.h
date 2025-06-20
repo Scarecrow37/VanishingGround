@@ -4,6 +4,12 @@ class Random
 {
 public:
     /// <summary>
+    /// mt19937 엔진을 반환합니다
+    /// </summary>
+    /// <returns></returns>
+    inline static std::mt19937& GetEngine() { return engine; }
+
+    /// <summary>
     /// 시드를 고정하고 싶을때 사용합니다.
     /// </summary>
     /// <param name="seed :">사용할 시드</param>
