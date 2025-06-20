@@ -187,123 +187,135 @@ void GameObject::OnInspectorStay()
                 ImGui::PushID(component.get());
                 {
                     const char* className = component->ClassName();
-                    ImGui::Text(className);
-                    ImGui::SameLine();
-                    if (ImGui::Button("Destroy Component"))
+                    auto componentContextPopup = [&]() 
                     {
-                        if (false == editorModule->PlayMode.IsPlay())
+                        if (ImGui::BeginPopupContextItem("Component Context Popup"))
                         {
-                            UmCommandManager.Do<Command::EditorScene::DestroyComponentCommand>(component.get());
-                        }
-                        else
-                        {
-                            GameObject::Destroy(component.get());
-                        }
-                    }
-
-                    if (originPrefab != nullptr)
-                    {
-                        // 오버라이딩 맴버 여부 확인
-                        static std::unordered_map<std::string, std::pair<std::string, void*>> overrideMap;
-                        int reflectFieldsCount = 0;
-                        overrideMap.clear();
-                        component->applyReflectFields([&](std::string_view rflName, void* pData) 
-                        {
-                            std::string_view propertyName;
-                            if (true == UmGameObjectFactory.IsOverrideField(pData, &propertyName))
+                            if (ImGui::MenuItem("Destroy Component"))
                             {
-                                overrideMap[propertyName.data()] = std::make_pair(rflName.data(), pData);
-                            }
-                            reflectFieldsCount++;
-                        });
-
-                        //Override 검증용
-                        UmCore->ImGuiDrawPropertysSetting.InputEndEvent = [&](bool result, std::string_view name) 
-                        {
-                            if (result == true)
-                            {
-                                SetSceneDirtyFlag(result, name);
-                                if (originPrefab != nullptr)
+                                if (false == editorModule->PlayMode.IsPlay())
                                 {
-                                    int myNumber = -1;
-                                    int level    = 0;
-                                    Transform::ForeachBFS(pPrefabObject->_transform, [&](Transform* curr) {
-                                        if (curr == &_transform)
-                                        {
-                                            myNumber = level;
-                                        }
-                                        level++;
-                                    });
-                                    if (myNumber > -1)
+                                    UmCommandManager.Do<Command::EditorScene::DestroyComponentCommand>(component.get());
+                                }
+                                else
+                                {
+                                    GameObject::Destroy(component.get());
+                                }
+                            }
+                            ImGui::EndPopup();
+                        }
+                    };
+
+                    if (ImGui::CollapsingHeader(className, ImGuiTreeNodeFlags_DefaultOpen))
+                    {
+                        componentContextPopup();
+                        if (originPrefab != nullptr)
+                        {
+                            // 오버라이딩 맴버 여부 확인
+                            static std::unordered_map<std::string, std::pair<std::string, void*>> overrideMap;
+                            int reflectFieldsCount = 0;
+                            overrideMap.clear();
+                            component->applyReflectFields([&](std::string_view rflName, void* pData) {
+                                std::string_view propertyName;
+                                if (true == UmGameObjectFactory.IsOverrideField(pData, &propertyName))
+                                {
+                                    overrideMap[propertyName.data()] = std::make_pair(rflName.data(), pData);
+                                }
+                                reflectFieldsCount++;
+                            });
+
+                            // Override 검증용
+                            UmCore->ImGuiDrawPropertysSetting.InputEndEvent = [&](bool result, std::string_view name) {
+                                if (result == true)
+                                {
+                                    SetSceneDirtyFlag(result, name);
+                                    if (originPrefab != nullptr)
                                     {
-                                        if (overrideMap.size() < reflectFieldsCount)
-                                        {
-                                            using namespace ReflectHelper::json;
-                                            GameObject* prefab = (*originPrefab)[myNumber].get();
-                                            Component*  prefabComponent = prefab->GetComponentAtIndex<Component>(i);
-                                            if (prefabComponent != nullptr)
+                                        int myNumber = -1;
+                                        int level    = 0;
+                                        Transform::ForeachBFS(pPrefabObject->_transform, [&](Transform* curr) {
+                                            if (curr == &_transform)
                                             {
-                                                std::string prefabData = prefabComponent->SerializedReflectFields();
-                                                yyjson_doc* prefabDoc =
-                                                yyjson_read(prefabData.c_str(), prefabData.size(), 0);
-                                                yyjson_val* prefabRoot = yyjson_doc_get_root(prefabDoc);
-
-                                                std::string myData = component->SerializedReflectFields();
-                                                yyjson_doc* myDoc  = yyjson_read(myData.c_str(), myData.size(), 0);
-                                                yyjson_val* myRoot = yyjson_doc_get_root(myDoc);
-
-                                                component->applyReflectFields([&](std::string_view rflName, void* pData) 
+                                                myNumber = level;
+                                            }
+                                            level++;
+                                        });
+                                        if (myNumber > -1)
+                                        {
+                                            if (overrideMap.size() < reflectFieldsCount)
+                                            {
+                                                using namespace ReflectHelper::json;
+                                                GameObject* prefab          = (*originPrefab)[myNumber].get();
+                                                Component*  prefabComponent = prefab->GetComponentAtIndex<Component>(i);
+                                                if (prefabComponent != nullptr)
                                                 {
-                                                    yyjson_val* prefabVal = yyjson_obj_get(prefabRoot, rflName.data());
-                                                    char* prefabCStr = yyjsonValToCStr(prefabVal);
+                                                    std::string prefabData = prefabComponent->SerializedReflectFields();
+                                                    yyjson_doc* prefabDoc =
+                                                        yyjson_read(prefabData.c_str(), prefabData.size(), 0);
+                                                    yyjson_val* prefabRoot = yyjson_doc_get_root(prefabDoc);
 
-                                                    yyjson_val* myVal  = yyjson_obj_get(myRoot, rflName.data());
-                                                    char* myCStr = yyjsonValToCStr(myVal);
+                                                    std::string myData = component->SerializedReflectFields();
+                                                    yyjson_doc* myDoc  = yyjson_read(myData.c_str(), myData.size(), 0);
+                                                    yyjson_val* myRoot = yyjson_doc_get_root(myDoc);
 
-                                                    if (prefabCStr != nullptr && myCStr != nullptr)
-                                                    {
-                                                        if (0 != std ::strcmp(prefabCStr, myCStr))
-                                                        {
-                                                            UmGameObjectFactory.SetOverrideFlag(pData, name);
-                                                        }
+                                                    component->applyReflectFields(
+                                                        [&](std::string_view rflName, void* pData) {
+                                                            yyjson_val* prefabVal =
+                                                                yyjson_obj_get(prefabRoot, rflName.data());
+                                                            char* prefabCStr = yyjsonValToCStr(prefabVal);
 
-                                                        SAFE_FREE(prefabCStr);
-                                                        SAFE_FREE(myCStr);
-                                                    }
-                                                });
+                                                            yyjson_val* myVal  = yyjson_obj_get(myRoot, rflName.data());
+                                                            char*       myCStr = yyjsonValToCStr(myVal);
 
-                                                yyjson_doc_free(prefabDoc);
-                                                yyjson_doc_free(myDoc);
+                                                            if (prefabCStr != nullptr && myCStr != nullptr)
+                                                            {
+                                                                if (0 != std ::strcmp(prefabCStr, myCStr))
+                                                                {
+                                                                    UmGameObjectFactory.SetOverrideFlag(pData, name);
+                                                                }
+
+                                                                SAFE_FREE(prefabCStr);
+                                                                SAFE_FREE(myCStr);
+                                                            }
+                                                        });
+
+                                                    yyjson_doc_free(prefabDoc);
+                                                    yyjson_doc_free(myDoc);
+                                                }
                                             }
                                         }
                                     }
                                 }
-                            }
 
-                            auto overrideIter = overrideMap.find(name.data());
-                            if (overrideIter != overrideMap.end())
-                            {
-                                auto& [name, pair] = *overrideIter;
-                                auto& [rflName, pData] = pair;
-                                ImGui::PushID(pData);
+                                auto overrideIter = overrideMap.find(name.data());
+                                if (overrideIter != overrideMap.end())
                                 {
-                                    ImGui::SameLine();
-                                    if (ImGui::Button("Revert"))
+                                    auto& [name, pair]     = *overrideIter;
+                                    auto& [rflName, pData] = pair;
+                                    ImGui::PushID(pData);
                                     {
-                                        UmGameObjectFactory.UnsetOverrideFlag(pData);
-                                        UmComponentFactory.RevertOverrideField(component.get(), rflName.data());
-                                        GetScene().IsDirty = true;
+                                        ImGui::SameLine();
+                                        if (ImGui::Button("Revert"))
+                                        {
+                                            UmGameObjectFactory.UnsetOverrideFlag(pData);
+                                            UmComponentFactory.RevertOverrideField(component.get(), rflName.data());
+                                            GetScene().IsDirty = true;
+                                        }
                                     }
+                                    ImGui::PopID();
                                 }
-                                ImGui::PopID();
-                            }
-                        };
+                            };
+                        }
+                        else
+                        {
+                            UmCore->ImGuiDrawPropertysSetting.InputEndEvent = SetSceneDirtyFlag;
+                        }
+                        component->ImGuiDrawPropertys();
                     }
                     else
                     {
-                        UmCore->ImGuiDrawPropertysSetting.InputEndEvent = SetSceneDirtyFlag;
+                        componentContextPopup();
                     }
-                    component->ImGuiDrawPropertys();
 
                     ImGui::Separator();
                 }
