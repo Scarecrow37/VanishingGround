@@ -21,15 +21,13 @@ void RoundStartPhase::OnEnter()
 {
     int currRound = _turnMode->AddRoundCount();
     std::string message = std::format("{}{}", currRound, (const char*)u8"라운드 시작!!!!");
-    UmLogger.Message(LogLevel::LEVEL_TRACE, message);
+    UmLogger.Message(LogLevel::LEVEL_DEBUG, message);
 
     _turnMode->MakeTurnList();
     UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"턴 리스트 생성.");
 
     _turnMode->SortTurnList();
     UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"턴 정렬 완료.");
-
-    _turnMode->PopTurnList();   
 }
 
 void RoundStartPhase::OnExit() 
