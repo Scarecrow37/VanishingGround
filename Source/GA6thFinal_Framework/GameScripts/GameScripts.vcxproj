@@ -299,7 +299,7 @@
     <ClInclude Include="Scripts\GameCore\FSM\IFSMEntity.h" />
     <ClInclude Include="Scripts\GameCore\FSM\FSMCondition.h" />
     <ClInclude Include="Scripts\GameCore\FSM\FSMState.h" />
-    <ClInclude Include="Scripts\Graphics\StaticMeshRenderer.h" />
+    <ClInclude Include="Scripts\Mesh\StaticMeshRenderer.h" />
     <ClInclude Include="Scripts\Light\Base\LightComponent.h" />
     <ClInclude Include="Scripts\Test\Component\TestComponent.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\CheckRoundEndExit.h" />
@@ -322,8 +322,8 @@
     <ClInclude Include="Scripts\TurnSystem\TurnMode\State\RoundStartPhase.h" />
     <ClInclude Include="UmScriptCore.h" />
     <ClInclude Include="UmScriptsExport.h" />
-    <ClInclude Include="Scripts\Graphics\SkeletalMeshRenderer.h" />
-    <ClInclude Include="Scripts\Graphics\MeshComponent.h" />
+    <ClInclude Include="Scripts\Mesh\SkeletalMeshRenderer.h" />
+    <ClInclude Include="Scripts\Mesh\MeshComponent.h" />
     <ClInclude Include="Scripts\GameCore\FSM\FiniteStateMachine.h" />
     <ClInclude Include="Scripts\Light\DirectionalLight.h" />
     <ClInclude Include="Scripts\Light\PointLight.h" />
@@ -339,7 +339,7 @@
     <ClCompile Include="Scripts\GameCore\FSM\AlwaysTransitionCondition.cpp" />
     <ClCompile Include="Scripts\GameCore\FSM\FSMCondition.cpp" />
     <ClCompile Include="Scripts\GameCore\FSM\FSMState.cpp" />
-    <ClCompile Include="Scripts\Graphics\StaticMeshRenderer.cpp" />
+    <ClCompile Include="Scripts\Mesh\StaticMeshRenderer.cpp" />
     <ClCompile Include="Scripts\Light\Base\LightComponent.cpp" />
     <ClCompile Include="Scripts\Test\Component\TestComponent.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\Base\TurnModeConditionBase.cpp" />
@@ -361,8 +361,8 @@
     <ClCompile Include="Scripts\TurnSystem\TurnMode\State\TurnListEmptyState.cpp" />
     <ClCompile Include="UmScriptCore.cpp" />
     <ClCompile Include="UmScriptsExport.cpp" />
-    <ClCompile Include="Scripts\Graphics\SkeletalMeshRenderer.cpp" />
-    <ClCompile Include="Scripts\Graphics\MeshComponent.cpp" />
+    <ClCompile Include="Scripts\Mesh\SkeletalMeshRenderer.cpp" />
+    <ClCompile Include="Scripts\Mesh\MeshComponent.cpp" />
     <ClCompile Include="Scripts\GameCore\FSM\FiniteStateMachine.cpp" />
     <ClCompile Include="Scripts\Light\DirectionalLight.cpp" />
     <ClCompile Include="Scripts\Light\PointLight.cpp" />
