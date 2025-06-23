@@ -291,10 +291,10 @@ public:
         static void SetSceneMainCamera(CameraComponent* camera);
 
         /// <summary>
-        /// 전달받은 카메라 컴포넌트가 메인 카메라면 메인카메라에서 해제합니다.
+        /// 메인카메라를 해제합니다.
         /// </summary>
         /// <param name="camera"></param>
-        static void ResetSceneMainCamera(CameraComponent* camera);
+        static void ResetSceneMainCamera();
     };
 
 public:

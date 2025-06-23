@@ -488,17 +488,17 @@ bool ESceneManager::Engine::EraseGameObjectTag(GameObject* gameObject, std::stri
 void ESceneManager::Engine::SetSceneMainCamera(CameraComponent* camera)
 {
     ESceneManager& sceneManager = UmSceneManager;
-    sceneManager._mainCamera = camera;
     if (nullptr != sceneManager._mainCamera)
     {
-        UmRenderer.SetCamera("Game", sceneManager._mainCamera->GetCamera());
+        sceneManager._mainCamera->ResetMainCamera();
     }
+    sceneManager._mainCamera = camera;
 }
 
-void ESceneManager::Engine::ResetSceneMainCamera(CameraComponent* camera) 
+void ESceneManager::Engine::ResetSceneMainCamera() 
 {
     ESceneManager& sceneManager = UmSceneManager;
-    if (camera == sceneManager._mainCamera)
+    if (sceneManager._mainCamera)
     {
         sceneManager._mainCamera = nullptr;
     }
@@ -981,7 +981,11 @@ void ESceneManager::ObjectsAddRuntime()
         {
             CameraComponent* camera = static_cast<CameraComponent*>(component.get());
             std::shared_ptr<Camera> newCamera(new Camera);
-            camera->SetCamera(newCamera);
+            camera->SetTarget(newCamera);
+            if (true == camera->IsMainCamera)
+            {
+                camera->SetMainCamera();
+            }
         }
     }
     _addComponentsQueue.clear();

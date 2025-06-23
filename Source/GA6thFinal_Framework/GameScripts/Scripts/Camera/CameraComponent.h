@@ -7,9 +7,8 @@ class CameraComponent : public Component
 public:
     REFLECT_PROPERTY(
         FOV, 
-        Width, 
-        Height,
-        Aspect
+        Width, Height,
+        Aspect, IsMainCamera
         )
 
 public:
@@ -23,7 +22,7 @@ public:
     bool IsDirty() const { return _isDirty; }
 
     /*Camera 객체를 설정합니다. 이미 설정되어 있으면 설정할 수 없습니다.*/
-    bool SetCamera(const std::shared_ptr<Camera>& camera) 
+    bool SetTarget(const std::shared_ptr<Camera>& camera) 
     {
         bool result = false;
         if (nullptr != camera && nullptr == _camera)
@@ -67,7 +66,18 @@ public:
     {
         if (nullptr != _camera)
         {
+            ReflectFields->IsMainCam = true;
             ESceneManager::Engine::SetSceneMainCamera(this);
+            UmRenderer.SetCamera("Game", _camera);
+        }
+    }
+
+    void ResetMainCamera() 
+    { 
+        if (true == ReflectFields->IsMainCam)
+        {
+            ReflectFields->IsMainCam = false;
+            ESceneManager::Engine::ResetSceneMainCamera();
         }
     }
 
@@ -117,6 +127,13 @@ public:
     }
     PROPERTY(Far)
 
+    GETTER_ONLY(bool, IsMainCamera)
+    {
+        return ReflectFields->IsMainCam;
+    }
+    //이 카메라의 메인 카메라 여부를 반환합니다.
+    PROPERTY(IsMainCamera)
+
 protected:
     REFLECT_FIELDS_BEGIN(Component)
     float FovDegree = 80.f;
@@ -124,6 +141,7 @@ protected:
     float Height = 1080.f;
     float Near = 0.1f;
     float Far = 1000.f;
+    bool IsMainCam = false;
     REFLECT_FIELDS_END(CameraComponent)
 
     /// <summary>

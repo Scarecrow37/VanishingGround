@@ -8,7 +8,10 @@ CameraComponent::CameraComponent()
 }
 CameraComponent::~CameraComponent()
 {
-    ESceneManager::Engine::ResetSceneMainCamera(this);
+    if (true == ReflectFields->IsMainCam)
+    {
+        ResetMainCamera();
+    }
 }
 
 void CameraComponent::ImGuiDrawPropertysEvent() 
@@ -19,3 +22,4 @@ void CameraComponent::ImGuiDrawPropertysEvent()
     }
     ImGuiHelper::HoveredToolTip((const char*)u8"메인 카메라로 설정합니다.");
 }
+
