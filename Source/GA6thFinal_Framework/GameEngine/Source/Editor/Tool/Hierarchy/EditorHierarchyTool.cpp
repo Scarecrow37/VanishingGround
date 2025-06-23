@@ -268,6 +268,11 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
             }
         }
         ImGui::EndMenu();
+
+        if (camera != nullptr)
+        {
+            camera->AddTag("Camera");
+        }
     }
 
     if (ImGui::BeginMenu("Light"))
@@ -292,6 +297,11 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
             light->AddComponent<SpotLight>();
         }
         ImGui::EndMenu();
+
+        if (nullptr != light)
+        {
+            light->AddTag("Light");
+        }
     }
 
     if (ImGui::BeginMenu("Mesh"))
