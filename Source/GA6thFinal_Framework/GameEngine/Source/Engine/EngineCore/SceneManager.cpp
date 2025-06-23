@@ -488,11 +488,14 @@ bool ESceneManager::Engine::EraseGameObjectTag(GameObject* gameObject, std::stri
 void ESceneManager::Engine::SetSceneMainCamera(CameraComponent* camera)
 {
     ESceneManager& sceneManager = UmSceneManager;
-    if (nullptr != sceneManager._mainCamera)
+    if (camera != sceneManager._mainCamera)
     {
-        sceneManager._mainCamera->ResetMainCamera();
+        if (nullptr != sceneManager._mainCamera)
+        {
+            sceneManager._mainCamera->ResetMainCamera();
+        }
+        sceneManager._mainCamera = camera;
     }
-    sceneManager._mainCamera = camera;
 }
 
 void ESceneManager::Engine::ResetSceneMainCamera() 
