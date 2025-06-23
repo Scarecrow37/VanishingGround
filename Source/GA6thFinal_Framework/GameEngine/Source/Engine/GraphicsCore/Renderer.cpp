@@ -13,6 +13,7 @@
 #include "SkyBoxRenderTechnique.h"
 #include "BloomTechnique.h"
 #include "ToneMappingTechnique.h"
+#include "ParticleRenderTechnique.h"
 #include "Sphere.h"
 
 Renderer::Renderer()
@@ -135,6 +136,8 @@ void Renderer::Initialize()
     //scene->AddRenderTechnique(std::make_unique<ToneMappingTechnique>());
     _renderScenes["Game"] = std::move(scene);
 
+
+
     if constexpr (IS_EDITOR)
     {
         // Renderer File Event
@@ -155,6 +158,17 @@ void Renderer::Initialize()
         scene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
         scene->AddRenderTechnique(std::make_unique<BloomTechnique>());
         _renderScenes["ModelViewer"] = std::move(scene);                
+
+        
+          std::unique_ptr<RenderScene> particleScene = std::make_unique<RenderScene>("ParticleEditor");
+        particleScene->InitializeRenderScene();
+        particleScene->AddRenderTechnique(std::make_unique<ParticleRenderTechnique>());
+        UmParticleManager.SetCamera(particleScene->GetCamera());
+        _renderScenes["ParticleEditor"] = std::move(particleScene);
+
+    
+
+
     }
 }
 
@@ -410,8 +424,9 @@ void Renderer::ImguiEnd()
     ImGui::Render();
 
     ID3D12DescriptorHeap* descriptorHeaps[] = {UmViewManager.GetShaderResourceHeap()};
-    UmDevice.GetCommandList()->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
-    ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), UmDevice.GetCommandList());
+    auto                  commandList       = UmDevice.GetImguiCommandList();
+    commandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+    ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandList);
 
     if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
     {

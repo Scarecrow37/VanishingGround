@@ -97,6 +97,12 @@
     <Filter Include="GraphicsCore\Resource\ShaderBlob">
       <UniqueIdentifier>{269d6efd-b9fd-480e-903e-d56777bc8493}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GraphicsCore\ParticleCore">
+      <UniqueIdentifier>{88169691-a9c9-44bd-a7f0-a33433907f77}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsCore\ParticleCore\Particle">
+      <UniqueIdentifier>{c099d55e-cbf9-48fc-886f-6812ccfc7f06}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\pch.h">
@@ -645,6 +651,39 @@
     <ClInclude Include="Source\Engine\GraphicsCore\ToneMappingTechnique.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\ParticleEffect.h">
+      <Filter>GraphicsCore\ParticleCore</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\ParticleEmitter.h">
+      <Filter>GraphicsCore\ParticleCore</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\ParticleManager.h">
+      <Filter>GraphicsCore\ParticleCore</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\Particle.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\ParticleHelper.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\ParticleRenderTechnique.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\ParticleSpritePass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\ParticleResolvePass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectViewer.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectHierarchy.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectDetails.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\pch.cpp">
@@ -1125,6 +1164,51 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\ToneMappingTechnique.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\ParticleEffect.cpp">
+      <Filter>GraphicsCore\ParticleCore</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\ParticleEmitter.cpp">
+      <Filter>GraphicsCore\ParticleCore</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\ParticleManager.cpp">
+      <Filter>GraphicsCore\ParticleCore</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\Particle.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Menu\Model\EditorModelMenu.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\Model\EditorModelDetails.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\Model\EditorModelHierarchy.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\FBXConverter.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\M_PBR.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\ParticleRenderTechnique.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\ParticleSpritePass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\ParticleResolvePass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectViewer.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectHierarchy.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectDetails.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

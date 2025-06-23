@@ -54,7 +54,7 @@ void RenderScene::RegisterOnRenderQueue(MeshRenderer* component)
     }
 
     _renderQueue.emplace_back(std::make_unique<bool>(false), component);
-    component->_isDestroy = _renderQueue.back().first.get();
+    component->_isDestroyeds.push_back(_renderQueue.back().first.get());
 }
 
 void RenderScene::AddRenderTechnique(std::unique_ptr<RenderTechnique> technique)
@@ -155,6 +155,8 @@ void RenderScene::UpdateRenderScene()
 void RenderScene::Execute(ID3D12GraphicsCommandList* commandList)
 {
     RenderTarget* meshRenderTarget = UmMultiRenderTargetManager.GetRenderTarget(_meshRenderTargetName);
+    auto          descriptorHeap   = UmViewManager.GetShaderResourceHeap();
+    commandList->SetDescriptorHeaps(1, &descriptorHeap);
 
     meshRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
     meshRenderTarget->ClearRenderTarget(commandList);
