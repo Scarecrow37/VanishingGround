@@ -122,6 +122,7 @@ void GameApplication::BuildSceneDock()
     _sceneDock->RegisterGui<HierarchyFindTool>();
     _sceneDock->RegisterGui<EditorInspectorTool>();
     _sceneDock->RegisterGui<EditorSceneTool>();
+    _sceneDock->RegisterGui<EditorGameView>();
     _sceneDock->RegisterGui<EditorLogsTool>();
     _sceneDock->RegisterGui<EditorCommandTool>();
     _sceneDock->RegisterGui<EditorAssetBrowserTool>();

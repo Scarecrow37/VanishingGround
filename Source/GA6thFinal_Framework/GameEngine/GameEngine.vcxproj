@@ -303,6 +303,7 @@
     <ClInclude Include="Source\Engine\GraphicsCore\ParticleSpritePass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\ParticleRenderTechnique.h" />
     <ClInclude Include="Source\Editor\Menu\Model\EditorModelMenu.h" />
+    <ClInclude Include="Source\Editor\Tool\GameView\EditorGameView.h" />
     <ClInclude Include="Source\Editor\Tool\Hierarchy\HierarchyFindTool.h" />
     <ClInclude Include="Source\Editor\Tool\Scene\Command\EditorSceneCommands.h" />
     <ClInclude Include="Source\Engine\EngineCore\FactoryRegister.h" />
@@ -494,10 +495,12 @@
     <ClCompile Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectDetails.cpp" />
     <ClCompile Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectHierarchy.cpp" />
     <ClCompile Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectViewer.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\GraphicsBase.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\ParticleResolvePass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\ParticleSpritePass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\ParticleRenderTechnique.cpp" />
     <ClCompile Include="Source\Editor\Menu\Model\EditorModelMenu.cpp" />
+    <ClCompile Include="Source\Editor\Tool\GameView\EditorGameView.cpp" />
     <ClCompile Include="Source\Editor\Tool\Hierarchy\HierarchyFindTool.cpp" />
     <ClCompile Include="Source\Editor\Tool\Scene\Command\EditorSceneCommands.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>

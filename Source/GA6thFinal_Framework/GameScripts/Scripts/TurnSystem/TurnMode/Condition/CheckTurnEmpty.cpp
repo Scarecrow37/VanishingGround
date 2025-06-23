@@ -11,7 +11,7 @@ void CheckTurnEmpty::OnAwake() {}
 
 void CheckTurnEmpty::OnStart() 
 {
-    GetTurnModeBaseC::OnStart();
+    TurnModeConditionBase::OnStart();
 }
 
 bool CheckTurnEmpty::Evaluate()

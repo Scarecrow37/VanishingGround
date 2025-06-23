@@ -1,6 +1,6 @@
 ﻿#include "pch.h"
 
-Component::Component(Type type)
+Component::Component(TYPE type)
     : 
     _className(), 
     _gameObject(&staticDummyObject),

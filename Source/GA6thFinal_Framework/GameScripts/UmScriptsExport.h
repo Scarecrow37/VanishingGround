@@ -26,9 +26,9 @@ UMREALSCRIPT_NEWCOMPONENT(CLASS_NAME)
 #include "Scripts\Test\Component\TestComponent.h"
 UMREAL_COMPONENT(TestComponent)
 
-#include "Scripts\Graphics/MeshComponent.h"
+#include "Scripts/Mesh/MeshComponent.h"
 
-#include "Scripts\Graphics\StaticMeshRenderer.h"
+#include "Scripts/Mesh/StaticMeshRenderer.h"
 UMREAL_COMPONENT(StaticMeshRenderer)
 
 //#include "Scripts\Graphics/SkeletalMeshRenderer.h"
@@ -60,3 +60,6 @@ UMREAL_COMPONENT(Player)
 
 #include "Scripts/TurnSystem/TurnActor/Character/Enemy/Enemy.h"
 UMREAL_COMPONENT(Enemy)
+
+#include "Scripts\Camera/CameraComponent.h"
+UMREAL_COMPONENT(CameraComponent)
