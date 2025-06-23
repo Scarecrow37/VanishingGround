@@ -990,10 +990,6 @@ void ESceneManager::ObjectsAddRuntime()
             CameraComponent* camera = static_cast<CameraComponent*>(component.get());
             std::shared_ptr<Camera> newCamera(new Camera);
             camera->SetTarget(newCamera);
-            if (true == camera->IsMainCamera)
-            {
-                camera->SetMainCamera();
-            }
         }
     }
     _addComponentsQueue.clear();

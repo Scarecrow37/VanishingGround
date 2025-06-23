@@ -32,6 +32,10 @@ public:
             _isDirty = true;
             UpdatePerspective();
             UpdateView();
+            if (true == ReflectFields->IsMainCam)
+            {
+                UmRenderer.SetCamera("Game", _camera);
+            }
         }
         return result;
     }
@@ -69,10 +73,10 @@ public:
     {
         if (nullptr != _camera)
         {
-            ReflectFields->IsMainCam = true;
-            ESceneManager::Engine::SetSceneMainCamera(this);
             UmRenderer.SetCamera("Game", _camera);
         }
+        ReflectFields->IsMainCam = true;
+        ESceneManager::Engine::SetSceneMainCamera(this);
     }
 
     void ResetMainCamera() 
