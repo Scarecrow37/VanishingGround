@@ -509,7 +509,6 @@
     <ClCompile Include="Source\Engine\GraphicsCore\BlurXPass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\BlurYPass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\BlendTechnique.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\GraphicsBase.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\UnorderedAccessView.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\UpScalePass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\BrightExtractPass.cpp" />

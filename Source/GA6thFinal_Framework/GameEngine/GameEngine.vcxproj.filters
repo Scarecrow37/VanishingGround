@@ -1208,9 +1208,6 @@
     <ClCompile Include="Source\Editor\Tool\GameView\EditorGameView.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\GraphicsBase.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\UnorderedAccessView.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
