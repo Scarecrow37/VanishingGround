@@ -29,7 +29,6 @@ void SkyBoxPass::Draw(ID3D12GraphicsCommandList* commandList)
     bool isActive = _skyBox->HasTexture();
     if (isActive)
     {
-        _skyBox->SetDescriptorHeap(commandList);
         commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
         commandList->SetGraphicsRootConstantBufferView(_shader->GetRootParameterIndex("cameraData"), _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
         commandList->SetPipelineState(_pipelineState.Get());

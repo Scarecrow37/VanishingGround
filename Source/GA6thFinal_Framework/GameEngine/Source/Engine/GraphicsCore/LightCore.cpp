@@ -24,7 +24,7 @@ void LightCore::RegisterLight(std::string_view sceneName, Light* light)
     }
 
     lights.emplace_back(std::make_unique<bool>(false), light);
-    light->_isDestroy = lights.back().first.get();
+    light->_isDestroyeds.push_back(lights.back().first.get());
 }
 
 void LightCore::Update(const float deltaTime)

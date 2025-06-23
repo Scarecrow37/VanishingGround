@@ -14,6 +14,7 @@
 #include "MultiRenderTargetManager.h"
 #include "ResourceManager.h"
 #include "ViewManager.h"
+#include "ParticleManager.h"
 
 #include "Defines.h"
 #include "Externs.h"
@@ -28,6 +29,7 @@ public:
     ViewManager              ViewManager;
     ResourceManager          ResourceManager;
     MultiRenderTargetManager MultiRenderTargetManager;
+    ParticleManager ParticleManager;    
 
 public:
     void Initialize(HWND hwnd, UINT width, UINT height, FeatureLevel feature);

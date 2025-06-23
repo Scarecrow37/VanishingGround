@@ -40,12 +40,10 @@ void DeferredPBRLitPass::Begin(ID3D12GraphicsCommandList* commandList)
 void DeferredPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
 {
     auto                  resource = UmViewManager.GetShaderResourceHeap();
-    ID3D12DescriptorHeap* hps[] = { resource, };
 
     commandList->SetPipelineState(_pipelineState.Get());
     commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
 
-    commandList->SetDescriptorHeaps(_countof(hps), hps);
     commandList->SetGraphicsRoot32BitConstants(_shader->GetRootParameterIndex("bit32_3_numLight"), 3, &_ownerScene->_numLight, 0);
     commandList->SetGraphicsRoot32BitConstants(_shader->GetRootParameterIndex("bit32_7_gBufferID"), 7, s_gBufferIndex.data(), 0);
     commandList->SetGraphicsRootConstantBufferView(_shader->GetRootParameterIndex("cameraData"), _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
