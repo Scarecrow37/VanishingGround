@@ -27,8 +27,10 @@ public:
         bool result = false;
         if (nullptr != camera && nullptr == _camera)
         {
+            result = true;
             _camera = camera;
-            result  = true;
+            _isDirty = true;
+            UpdatePerspective();
         }
         return result;
     }
