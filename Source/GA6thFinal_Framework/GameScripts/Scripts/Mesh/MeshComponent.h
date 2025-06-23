@@ -8,6 +8,9 @@ class MeshComponent abstract : public Component
 public:
     REFLECT_PROPERTY()
 
+private:
+    std::unique_ptr<MeshRenderer> _pMeshRenderer;
+
 public:
     MeshComponent();
     virtual ~MeshComponent();
@@ -21,9 +24,6 @@ public:
 
     //meshRenderer 입니다. MakeMeshRenderer를 호출해야만 생성됩니다.
     const std::unique_ptr<MeshRenderer>& Renderer;
-
-private:
-    std::unique_ptr<MeshRenderer> _pMeshRenderer;
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)

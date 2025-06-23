@@ -504,6 +504,11 @@ void ESceneManager::Engine::ResetSceneMainCamera()
     }
 }
 
+CameraComponent* ESceneManager::Engine::GetMainCamera()
+{
+    return UmSceneManager._mainCamera;
+}
+
 void ESceneManager::CreateEmptySceneAndLoad(std::string_view name, std::string_view outPath, const std::function<void()>& loadEvent) 
 {
     if (UmComponentFactory.HasScript() == false)

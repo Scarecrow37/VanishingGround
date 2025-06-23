@@ -645,6 +645,9 @@
     <ClInclude Include="Source\Engine\GraphicsCore\ToneMappingTechnique.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Editor\Tool\GameView\EditorGameView.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\pch.cpp">
@@ -1125,6 +1128,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\ToneMappingTechnique.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\GameView\EditorGameView.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

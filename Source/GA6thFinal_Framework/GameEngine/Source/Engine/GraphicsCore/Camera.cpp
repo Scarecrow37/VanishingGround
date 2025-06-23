@@ -17,8 +17,9 @@ void Camera::SetupPerspective(float fovDegree, float aspect, float nearZ, float 
 
 void Camera::SetWorldMatrix(const Matrix& worldMatrix) 
 {
-    _world = worldMatrix;
-    _view  = XMMatrixInverse(nullptr, _world);
+    Matrix matrix = worldMatrix;
+    Vector3 scale;
+    matrix.Decompose(scale, _rotation, _position);
 }
 
 void Camera::SetRotation(const Vector3& rotation)

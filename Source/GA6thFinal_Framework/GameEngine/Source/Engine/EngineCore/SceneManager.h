@@ -295,6 +295,12 @@ public:
         /// </summary>
         /// <param name="camera"></param>
         static void ResetSceneMainCamera();
+
+        /// <summary>
+        /// 메인 카메라를 반환합니다.
+        /// </summary>
+        /// <returns></returns>
+        static CameraComponent* GetMainCamera();
     };
 
 public:
