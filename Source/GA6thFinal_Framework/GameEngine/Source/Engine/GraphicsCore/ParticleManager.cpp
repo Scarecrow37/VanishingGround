@@ -34,57 +34,6 @@ void ParticleManager::Initialize(UINT maxParticles)
     InitializeRadixSortPSO();
     CreateRadixSortResources();
 
-
-        // test
-    auto effect = UmParticleManager.RegisterEffect();
-    effect->SetPosition({0, 0, 30});
-    effect->SetLifetime(150.f);
-    auto emitter = UmParticleManager.RegisterEmitter(effect, 100000, 1000, 20, LocationShape::SPHERE);
-    emitter->SetEmitterLifetime(150.f);
-    static_cast<SpriteModule*>(emitter->_particleRenderModule)
-        ->LoadAlbedoTexture(L"../../../Resource/Assets/ParticleTexture/defaultSmoke.jpg");
-    emitter->SetParticleLifetime(3.f);
-    emitter->SetStartScale({0.1f, 0.1f, 1, 1});
-    emitter->SetEndScale({0.1f, 0.1f, 1, 1});
-    emitter->SetStartScale({0.2f, 0.2f, 1, 1});
-    emitter->SetEndScale({0.2f, 0.2f, 1, 1});
-    emitter->SetStartColor({1, 1, 1});
-    emitter->SetEndColor({1, 1, 1});
-    emitter->SetStartOpacity(0.07f);
-    emitter->SetEndOpacity(0.f);
-    emitter->SetVelocity({0, 0, 0});
-    emitter->SetEmissionRate(10000);
-    //emitter->SetLocatorFactor({10, 12, 8});
-    emitter->SetLocatorFactor({2, 2, 2});
-    emitter->SetParticleMass(0.f);
-    emitter->SetParticleDistributionOffset(1.f);
-
-            // test
-
-    //auto emitter1 = UmParticleManager.RegisterEmitter(effect, 100000, 1000, 20, LocationShape::SPHERE);
-    //emitter1->SetEmitterLifetime(150.f);
-    //static_cast<SpriteModule*>(emitter1->_particleRenderModule)
-    //    ->LoadAlbedoTexture(L"../../../Resource/Assets/ParticleTexture/defaultSmoke.jpg");
-    //emitter1->SetParticleLifetime(1.f);
-    //emitter1->SetStartScale({0.2f, 0.2f, 1, 1});
-    //emitter1->SetEndScale({0.2f, 0.2f, 1, 1});
-    //emitter1->SetStartColor({0, 1, 1});
-    //emitter1->SetEndColor({0, 1, 1});
-    //emitter1->SetStartOpacity(0.08f);
-    //emitter1->SetEndOpacity(0.08f);
-    //emitter1->SetVelocity({0, 0, 0});
-    //emitter1->SetEmissionRate(5000);
-    //emitter1->SetLocatorFactor({10, 1, 10});
-    //// emitter1->SetLocatorFactor({2, 2, 2});
-    //emitter1->SetParticleMass(0.f);
-    //emitter1->SetParticleDistributionOffset(0.0f);
-
-
-
-
-
-
-
 }
 ParticleEffect* ParticleManager::RegisterEffect()
 {
@@ -104,7 +53,7 @@ ParticleEmitter* ParticleManager::RegisterEmitter(class ParticleEffect* effect, 
 void ParticleManager::Update(const float deltaTime)
 {
     float delta = deltaTime;
-    if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_Space))
+    if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_Space))
     {
         pauseFlag = false == pauseFlag;
     }
@@ -113,15 +62,6 @@ void ParticleManager::Update(const float deltaTime)
     {
         delta = 0;
     }
-
-    //_elapsedTimer += deltaTime;
-
-    //_pariticleEffects[0]->SetRotation(Quaternion::CreateFromAxisAngle({1, 0, 0}, XM_PIDIV2));
-
-
-
-
-
 
     for (auto effect : _pariticleEffects)
     {
@@ -162,12 +102,12 @@ void ParticleManager::Update(const float deltaTime)
         }
     }
 
-    //simulate
+    // simulate
 
-        // dispatch particle compute shader
-        {
-            DispatchParticleCompute(delta);
-        }
+    // dispatch particle compute shader
+    {
+        DispatchParticleCompute(delta);
+    }
 
 
 
