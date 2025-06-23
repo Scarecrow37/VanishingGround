@@ -1,37 +1,21 @@
 ﻿#include "CameraComponent.h"
 CameraComponent::CameraComponent() 
     : 
-    Component(TYPE::CAMERA) 
+    Component(TYPE::CAMERA),
+    _isDirty(false) 
 {
 
 }
-CameraComponent::~CameraComponent() = default;
-
-void CameraComponent::UpdatePerspective()
+CameraComponent::~CameraComponent()
 {
-    if (nullptr != _camera && true == _isDirty)
-    {
-        float fov = FOV;
-        float aspect = Aspect;
-        float nearZ = Near;
-        float farZ = Far;
-        _camera->SetupPerspective(fov, aspect, nearZ, farZ);
-        _isDirty = false;
-    }
+    ESceneManager::Engine::ResetSceneMainCamera(this);
 }
 
-void CameraComponent::UpdateView() const 
+void CameraComponent::ImGuiDrawPropertysEvent() 
 {
-    if (nullptr != _camera)
+    if (ImGui::Button("Set As Main"))
     {
-        _camera->Update();
+        SetMainCamera();
     }
-}
-
-void CameraComponent::SetMainCamera() 
-{
-    if (nullptr != _camera)
-    {
-
-    }
+    ImGuiHelper::HoveredToolTip((const char*)u8"메인 카메라로 설정합니다.");
 }

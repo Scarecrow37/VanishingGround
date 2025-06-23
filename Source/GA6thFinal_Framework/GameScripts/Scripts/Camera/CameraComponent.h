@@ -1,7 +1,6 @@
 ﻿#pragma once
 #include "UmFramework.h"
 
-class Camera;
 class CameraComponent : public Component
 {
     USING_PROPERTY(CameraComponent)
@@ -23,14 +22,54 @@ public:
     */
     bool IsDirty() const { return _isDirty; }
 
+    /*Camera 객체를 설정합니다. 이미 설정되어 있으면 설정할 수 없습니다.*/
+    bool SetCamera(const std::shared_ptr<Camera>& camera) 
+    {
+        bool result = false;
+        if (nullptr != camera && nullptr == _camera)
+        {
+            _camera = camera;
+            result  = true;
+        }
+        return result;
+    }
+
+    /*Camera를 반환합니다.*/
+    const std::shared_ptr<Camera>& GetCamera() const { return _camera; }
+
     /*카메라의 투영 행렬을 업데이트 합니다.*/
-    void UpdatePerspective();
+    void UpdatePerspective()
+    {
+        if (nullptr != _camera && true == _isDirty)
+        {
+            float fov    = FOV;
+            float aspect = Aspect;
+            float nearZ  = Near;
+            float farZ   = Far;
+            _camera->SetupPerspective(fov, aspect, nearZ, farZ);
+            _isDirty = false;
+        }
+    }
 
     /*카메라의 뷰행렬을 업데이트 합니다.*/
-    void UpdateView() const;
+    void UpdateView() const
+    {
+        if (nullptr != _camera)
+        {
+            Transform& transform = gameObject->transform;
+            const Matrix& worldMatrix = transform.GetWorldMatrix();
+            _camera->SetWorldMatrix(worldMatrix);
+        }
+    }
 
     /*이 카메라를 메인 카메라로 설정합니다.*/
-    void SetMainCamera();
+    void SetMainCamera()
+    {
+        if (nullptr != _camera)
+        {
+            ESceneManager::Engine::SetSceneMainCamera(this);
+        }
+    }
 
 public:
     GETTER(float, FOV) { return ReflectFields->FovDegree; }
@@ -86,6 +125,11 @@ protected:
     float Near = 0.1f;
     float Far = 1000.f;
     REFLECT_FIELDS_END(CameraComponent)
+
+    /// <summary>
+    /// <para>  ImGuiDrawPropertys() 호출 이후 콜되는 이벤트 함수입니다. </para>
+    /// </summary>
+    virtual void ImGuiDrawPropertysEvent() override;
 
 private:
     bool _isDirty;
