@@ -52,8 +52,6 @@ void BlurYPass::Begin(ID3D12GraphicsCommandList* commandList)
 void BlurYPass::Draw(ID3D12GraphicsCommandList* commandList)
 {
     const auto&           mode     = UmDevice.GetMode();
-    auto                  resource = UmViewManager.GetShaderResourceHeap();
-    ID3D12DescriptorHeap* hps[]    = {resource};
     PostProcessData       postProcessData{.TexelSize = {1.f / (float)mode.Width, 1.f / (float)mode.Height}};
 
     auto&       multiRenderTargetManager = UmMultiRenderTargetManager;
@@ -61,7 +59,6 @@ void BlurYPass::Draw(ID3D12GraphicsCommandList* commandList)
 
     commandList->SetPipelineState(_pipelineState.Get());
     commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
-    commandList->SetDescriptorHeaps(_countof(hps), hps);
 
     commandList->SetGraphicsRoot32BitConstants(_shader->GetRootParameterIndex("bit32_5_postProcessData"), 5, &postProcessData, 0);
     commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("screenTexture"), _meshRenderTarget->GetSRVHandle());

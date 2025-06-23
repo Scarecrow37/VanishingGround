@@ -53,8 +53,6 @@ void BrightExtractPass::Begin(ID3D12GraphicsCommandList* commandList)
 void BrightExtractPass::Draw(ID3D12GraphicsCommandList* commandList)
 {
     const auto&           mode     = UmDevice.GetMode();
-    auto                  resource = UmViewManager.GetShaderResourceHeap();
-    ID3D12DescriptorHeap* hps[]    = {resource};
     PostProcessData postProcessData{.ScreenSize      = {(float)mode.Width, (float)mode.Height},
                                     .PostProcessMask = PostProcess::BLOOM};
 
@@ -62,7 +60,6 @@ void BrightExtractPass::Draw(ID3D12GraphicsCommandList* commandList)
 
     commandList->SetPipelineState(_pipelineState.Get());
     commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
-    commandList->SetDescriptorHeaps(_countof(hps), hps);
 
     commandList->SetGraphicsRoot32BitConstants(_shader->GetRootParameterIndex("bit32_5_postProcessData"), 5, &postProcessData, 0);
     commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("screenTexture"), _meshRenderTarget->GetSRVHandle());

@@ -410,7 +410,7 @@ void Renderer::ImguiEnd()
     ImGui::Render();
 
     ID3D12DescriptorHeap* descriptorHeaps[] = {UmViewManager.GetShaderResourceHeap()};
-    UmDevice.GetCommandList()->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+    //UmDevice.GetCommandList()->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
     ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), UmDevice.GetCommandList());
 
     if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)

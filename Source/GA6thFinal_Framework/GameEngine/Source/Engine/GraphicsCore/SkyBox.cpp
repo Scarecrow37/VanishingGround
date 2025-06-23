@@ -10,12 +10,8 @@ void SkyBox::Initialize()
 {
     _box->InitializeInverted(1000.f, 1000.f, 1000.f, 0);
     HRESULT hr = S_OK;
-    ID3D12Device* device = UmDevice.GetDevice();
-    D3D12_DESCRIPTOR_HEAP_DESC hpDesc{.Type           = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
-                                      .NumDescriptors = 3,
-                                      .Flags          = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
-                                      .NodeMask       = 0};
-    hr = device->CreateDescriptorHeap(&hpDesc, IID_PPV_ARGS(&_descriptorHeap));
+    
+    
     FAILED_CHECK_MESSAGE(hr, L"SkyBox::Initialize device->CreateDescriptorHeap Failed");
     CreateComputePSO();
 }
@@ -64,14 +60,8 @@ void SkyBox::SetTexture(std::string path)
 
 void SkyBox::Render(ID3D12GraphicsCommandList* commnadList, UINT rootParameterIndex)
 {
-    commnadList->SetGraphicsRootDescriptorTable(rootParameterIndex, _cubeSRVGPU);
+    commnadList->SetGraphicsRootDescriptorTable(rootParameterIndex, _cubeSRVHandles.GPU);
     _box->Render(commnadList);
-}
-
-void SkyBox::SetDescriptorHeap(ID3D12GraphicsCommandList* commnadList) 
-{
-    ID3D12DescriptorHeap* hps[] = {_descriptorHeap.Get()};
-    commnadList->SetDescriptorHeaps(_countof(hps), hps);
 }
 
 void SkyBox::ResetResource() 
@@ -189,10 +179,8 @@ void SkyBox::CreateHDRSRV(ID3D12Resource* resource)
     srvDesc.ViewDimension           = D3D12_SRV_DIMENSION_TEXTURE2D;
     srvDesc.Texture2D.MipLevels     = 1;
 
-    UINT _shaderResourceDescriptorSize   = UmDevice.GetCBVSRVUAVDescriptorSize();
-    _hdrSRVCPU.ptr = _descriptorHeap->GetCPUDescriptorHandleForHeapStart().ptr + _shaderResourceDescriptorSize;
-    _hdrSRVGPU.ptr = _descriptorHeap->GetGPUDescriptorHandleForHeapStart().ptr + _shaderResourceDescriptorSize;
-    UmDevice.GetDevice()->CreateShaderResourceView(resource, &srvDesc, _hdrSRVCPU);
+    UmViewManager.AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _hdrSRVHandles);
+    UmDevice.GetDevice() ->CreateShaderResourceView(resource, &srvDesc, _hdrSRVHandles.CPU);
 }
 
 void SkyBox::CreateSRV(ID3D12Resource* resource)
@@ -202,10 +190,9 @@ void SkyBox::CreateSRV(ID3D12Resource* resource)
     srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
     srvDesc.TextureCube.MostDetailedMip = 0;
     srvDesc.TextureCube.MipLevels       = 1;
-    _cubeSRVCPU.ptr = _descriptorHeap->GetCPUDescriptorHandleForHeapStart().ptr;
-    _cubeSRVGPU.ptr = _descriptorHeap->GetGPUDescriptorHandleForHeapStart().ptr;
-
-    UmDevice.GetDevice()->CreateShaderResourceView(resource, &srvDesc, _cubeSRVCPU);
+    
+    UmViewManager.AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _cubeSRVHandles);
+    UmDevice.GetDevice()->CreateShaderResourceView(resource, &srvDesc, _cubeSRVHandles.CPU);
 }
 
 void SkyBox::CreateUAV(ID3D12Resource* resource)
@@ -218,10 +205,8 @@ void SkyBox::CreateUAV(ID3D12Resource* resource)
     uavDesc.Texture2DArray.PlaneSlice      = 0;
     uavDesc.Texture2DArray.ArraySize       = 6;
 
-    UINT _shaderResourceDescriptorSize = UmDevice.GetCBVSRVUAVDescriptorSize();
-    _cubeUAVCPU.ptr = _descriptorHeap->GetCPUDescriptorHandleForHeapStart().ptr + (_shaderResourceDescriptorSize*2);
-    _cubeUAVGPU.ptr = _descriptorHeap->GetGPUDescriptorHandleForHeapStart().ptr + (_shaderResourceDescriptorSize*2);
-    UmDevice.GetDevice()->CreateUnorderedAccessView(resource, nullptr, &uavDesc, _cubeUAVCPU);
+    UmViewManager.AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _cubeUAVHandles);
+    UmDevice.GetDevice()->CreateUnorderedAccessView(resource, nullptr, &uavDesc, _cubeUAVHandles.CPU);
 }
 
 void SkyBox::CreateComputePSO()
@@ -261,8 +246,8 @@ void SkyBox::BindResources(UINT cubeSize, UINT faceIndex)
     UmDevice.CreateConstantBuffer(&cb, sizeof(CubeConvertConstants), _cb);
 
     cmdList->SetComputeRootSignature(_shader->GetRootSignature());
-    cmdList->SetComputeRootDescriptorTable(_shader->GetRootParameterIndex("EquirectangularMap"), _hdrSRVGPU);
-    cmdList->SetComputeRootDescriptorTable(_shader->GetRootParameterIndex("CubeMap"), _cubeUAVGPU);
+    cmdList->SetComputeRootDescriptorTable(_shader->GetRootParameterIndex("EquirectangularMap"), _hdrSRVHandles.GPU);
+    cmdList->SetComputeRootDescriptorTable(_shader->GetRootParameterIndex("CubeMap"), _cubeUAVHandles.GPU);
     cmdList->SetComputeRootConstantBufferView(_shader->GetRootParameterIndex("CubeMapInfo"), _cb->GetGPUVirtualAddress());
     _cbs.push_back(_cb);
 }
@@ -272,5 +257,7 @@ void SkyBox::SetPipelineState()
     ID3D12GraphicsCommandList* cmdList = UmDevice.GetCommandList();
     cmdList->SetPipelineState(_computePSO.Get());
     cmdList->SetComputeRootSignature(_shader->GetRootSignature());
-    cmdList->SetDescriptorHeaps(1,_descriptorHeap.GetAddressOf());
+    
+    auto descriptorHeap = UmViewManager.GetShaderResourceHeap();
+    cmdList->SetDescriptorHeaps(1, &descriptorHeap);
 }

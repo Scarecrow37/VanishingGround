@@ -102,13 +102,10 @@ void GBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
         }
     }
 
-    UINT                  currentBackBufferIndex = UmDevice.GetCurrentBackBufferIndex();
-    ID3D12DescriptorHeap* dh                     = UmViewManager.GetShaderResourceHeap();
-    ID3D12DescriptorHeap* hps[]                  = { dh, };
-
-    auto                  resource               = dh->GetGPUDescriptorHandleForHeapStart();
-    auto&                 frameResource          = _ownerScene->_frameResources[currentBackBufferIndex];
-    auto                  cameraData             = _ownerScene->_cameraBuffer->GetGPUVirtualAddress();
+    UINT  currentBackBufferIndex    = UmDevice.GetCurrentBackBufferIndex();
+    auto  resource                  = UmViewManager.GetShaderResourceHeap()->GetGPUDescriptorHandleForHeapStart();
+    auto  cameraData                = _ownerScene->_cameraBuffer->GetGPUVirtualAddress();
+    auto& frameResource             = _ownerScene->_frameResources[currentBackBufferIndex];
 
 
     commandList->SetPipelineState(_psos[STATIC_ONE_SIDED].Get());
@@ -118,7 +115,6 @@ void GBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
     frameResource->SetFrameResource(FrameResource::Type::TRANSFORM, _shaders[MeshType::STATIC]->GetRootParameterIndex("worldMatrices"), commandList);
     frameResource->SetFrameResource(FrameResource::Type::MATERIAL, _shaders[MeshType::STATIC]->GetRootParameterIndex("material"), commandList);
 
-    commandList->SetDescriptorHeaps(_countof(hps), hps);
     commandList->SetGraphicsRootDescriptorTable(_shaders[MeshType::STATIC]->GetRootParameterIndex("textures"), resource);
     DrawMeshes(commandList, meshes[MeshType::STATIC], MeshType::STATIC);
 
