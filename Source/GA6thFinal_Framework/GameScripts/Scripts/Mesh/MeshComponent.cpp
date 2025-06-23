@@ -21,6 +21,7 @@ void MeshComponent::MakeMeshRenderer(MeshRenderType renderType, const Matrix& wo
     {
         _pMeshRenderer.reset(new MeshRenderer(renderType, world));
         _pMeshRenderer->RegisterRenderQueue("Editor");
+        _pMeshRenderer->RegisterRenderQueue("Game");
     } 
     else
     {
