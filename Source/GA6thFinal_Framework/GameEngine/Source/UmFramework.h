@@ -44,6 +44,7 @@ constexpr const char* STR_NULL = "null";
 #include <d3dcompiler.h>
 #include <wrl.h>
 #include <Xinput.h>
+#include <dxcapi.h>
 
 #pragma comment(lib, "d3d12")
 #pragma comment(lib, "dxgi")
