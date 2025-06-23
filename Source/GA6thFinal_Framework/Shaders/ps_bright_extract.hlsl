@@ -18,9 +18,9 @@ float4 ps_main(PS_INPUT input) : SV_TARGET
     float4 color = screenTexture.Sample(samLinear_wrap, input.uv);
         
     float luminance = dot(color.rgb, float3(0.2126, 0.7152, 0.0722));
-    float threshold = 0.5f;
+    float threshold = 1.0f;
     
-    float4 result = max(0, luminance - threshold) * 2 * CalculatePostProcessMask(customDepthTexture, input.uv);
+    float4 result = max(0, luminance - threshold) * CalculatePostProcessMask(customDepthTexture, input.uv);
 
     return result;
 }

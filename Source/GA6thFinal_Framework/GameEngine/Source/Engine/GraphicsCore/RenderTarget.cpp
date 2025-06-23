@@ -2,8 +2,7 @@
 #include "RenderTarget.h"
 
 void RenderTarget::Initialize(UINT width, UINT height, DXGI_FORMAT format, FLOAT clearColor)
-{    
-
+{
     D3D12_RESOURCE_DESC desc{.Dimension        = D3D12_RESOURCE_DIMENSION_TEXTURE2D,
                              .Width            = width,
                              .Height           = height,

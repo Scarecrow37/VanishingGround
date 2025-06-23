@@ -3,6 +3,7 @@
 #include "Quad.h"
 #include "RenderScene.h"
 #include "RenderTarget.h"
+#include "UnorderedAccessView.h"
 
 BlurYPass::BlurYPass() {}
 
@@ -41,18 +42,15 @@ void BlurYPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& sis
 
 void BlurYPass::Begin(ID3D12GraphicsCommandList* commandList)
 {
-    _finalRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    _finalRenderTarget->ClearRenderTarget(commandList);
-
-    commandList->OMSetRenderTargets(1, &_finalRenderTarget->GetRTVHandle(), FALSE, nullptr);
+    commandList->OMSetRenderTargets(0, nullptr, FALSE, nullptr);
     commandList->RSSetViewports(1, &_viewPort);
     commandList->RSSetScissorRects(1, &_sissorRect);
 }
 
 void BlurYPass::Draw(ID3D12GraphicsCommandList* commandList)
 {
-    const auto&           mode     = UmDevice.GetMode();
-    PostProcessData       postProcessData{.TexelSize = {1.f / (float)mode.Width, 1.f / (float)mode.Height}};
+    const auto&     mode = UmDevice.GetMode();
+    PostProcessData postProcessData{.TexelSize = {1.f / (float)mode.Width, 1.f / (float)mode.Height}};
 
     auto&       multiRenderTargetManager = UmMultiRenderTargetManager;
     const auto& usedRenderTargets        = multiRenderTargetManager.GetUsedRenderTargets();
@@ -61,8 +59,8 @@ void BlurYPass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
 
     commandList->SetGraphicsRoot32BitConstants(_shader->GetRootParameterIndex("bit32_5_postProcessData"), 5, &postProcessData, 0);
-    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("screenTexture"), _meshRenderTarget->GetSRVHandle());
     commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("sourceTexture"), usedRenderTargets.front()->GetSRVHandle());
+    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("accumulation"), _ownerScene->_accumulationBuffer->GetUAVHandle());
 
     _ownerScene->_frameQuad->Render(commandList);
 }
@@ -72,6 +70,4 @@ void BlurYPass::End(ID3D12GraphicsCommandList* commandList)
     auto&       multiRenderTargetManager = UmMultiRenderTargetManager;
     const auto& usedRenderTargets        = multiRenderTargetManager.GetUsedRenderTargets();
     multiRenderTargetManager.ReturnRenderTarget(usedRenderTargets.back().get());
-
-    _finalRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }
