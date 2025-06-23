@@ -149,6 +149,12 @@ protected:
     /// </summary>
     virtual void ImGuiDrawPropertysEvent() override;
 
+    /// <summary>
+    /// <para> 역직렬화 이후 자동으로 호출되는 이벤트 함수 입니다.  </para>
+    /// <para> 직접 override 해서 사용합니다.                     </para>
+    /// </summary>
+    virtual void DeserializedReflectEvent() override;
+
 private:
     bool _isDirty;
     std::shared_ptr<Camera> _camera;
