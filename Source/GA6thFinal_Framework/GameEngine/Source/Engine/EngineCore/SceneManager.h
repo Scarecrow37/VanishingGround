@@ -6,6 +6,7 @@ class GraphicsBase;
 class MeshComponent;
 class LightComponent;
 class Model;
+class Camera;
 namespace Command::EditorScene
 {
     class NewGameObjectCommand;
@@ -283,6 +284,11 @@ public:
         /// <param name="tag :">태그</param>
         /// <returns></returns>
         static bool EraseGameObjectTag(GameObject* gameObject, std::string_view tag); 
+
+        /// <summary>
+        /// 게임을 렌더링할 메인 카메라를 설정합니다.
+        /// </summary>
+        static void SetMainCamera(const std::shared_ptr<Camera>& camera);
     };
 
 public:
@@ -528,6 +534,9 @@ private:
 
     //Scene에 실행중인 Render component들
     std::vector<std::weak_ptr<MeshComponent>> _runtimeMeshComponents;
+
+    //현재 Scene의 MainCamera
+    std::shared_ptr<Camera> _mainCamera;
 
 private:
     // 이전에 로드한 씬 이름입니다.

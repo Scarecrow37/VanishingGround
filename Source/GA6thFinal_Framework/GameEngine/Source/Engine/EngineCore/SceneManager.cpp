@@ -484,6 +484,12 @@ bool ESceneManager::Engine::EraseGameObjectTag(GameObject* gameObject, std::stri
     return true;
 }
 
+void ESceneManager::Engine::SetMainCamera(const std::shared_ptr<Camera>& camera)
+{
+    UmSceneManager._mainCamera = camera;
+
+}
+
 void ESceneManager::CreateEmptySceneAndLoad(std::string_view name, std::string_view outPath, const std::function<void()>& loadEvent) 
 {
     if (UmComponentFactory.HasScript() == false)

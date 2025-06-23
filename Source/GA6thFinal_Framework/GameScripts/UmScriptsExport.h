@@ -60,3 +60,6 @@ UMREAL_COMPONENT(Player)
 
 #include "Scripts/TurnSystem/TurnActor/Character/Enemy/Enemy.h"
 UMREAL_COMPONENT(Enemy)
+
+#include "Scripts\Camera/CameraComponent.h"
+UMREAL_COMPONENT(CameraComponent)
