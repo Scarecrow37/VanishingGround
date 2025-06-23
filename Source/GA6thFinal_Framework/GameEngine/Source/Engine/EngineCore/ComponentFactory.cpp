@@ -195,6 +195,7 @@ bool EComponentFactory::InitalizeComponentFactory()
                     if (true == camera->IsMainCamera)
                     {
                         camera->SetMainCamera();
+                        camera->UpdatePerspective();
                     }
                 }
             }
