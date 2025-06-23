@@ -54,10 +54,13 @@ public:
     void CreateIndexBuffer(void* data, UINT size, DXGI_FORMAT format, ComPtr<ID3D12Resource>& buffer,
                            D3D12_INDEX_BUFFER_VIEW& view);
     void CreateConstantBuffer(void* data, UINT size, ComPtr<ID3D12Resource>& buffer);
-    void CreateDefaultBuffer(UINT size, ComPtr<ID3D12Resource>& buffer);
-
+    void CreateDefaultBuffer(UINT size, const D3D12_RESOURCE_FLAGS flags, const D3D12_RESOURCE_STATES initState,
+	ComPtr<ID3D12Resource>& buffer);
+    void CreateUploadBuffer(UINT size, const D3D12_RESOURCE_FLAGS flags, const D3D12_RESOURCE_STATES initState,
+	ComPtr<ID3D12Resource>& buffer);
     void CreateCommandList(ComPtr<ID3D12CommandAllocator>& allocator, ComPtr<ID3D12GraphicsCommandList>& commandList,
                            CommandType type);
+    ComPtr<ID3D12RootSignature> CreateRootSignature(const D3D12_ROOT_SIGNATURE_DESC& desc);
     void RegisterCommand(ID3D12CommandList* commandList, CommandListType type);
     void ExecuteCommand(CommandListType type);
 
@@ -124,4 +127,9 @@ private:
 
     // UploadBuffer 생명주기를 관리 할 UploadBuffer container
     std::vector<ComPtr<ID3D12Resource>> _uploadResources;
+
+
+/// DXR
+private:
+    void CheckDXRSupport();
 };

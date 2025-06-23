@@ -1,7 +1,7 @@
-﻿#include "pch.h"
-#include "d3dUtil.h"
+﻿#include "d3dUtil.h"
+#include "pch.h"
 
-Microsoft::WRL::ComPtr<ID3D12Resource> d3dUtil::CreateDefaultBuffer(
+Microsoft::WRL::ComPtr<ID3D12Resource> d3dUtil::CreateBufferWithData(
     ID3D12Device* device, ID3D12GraphicsCommandList* cmdList, const void* initData, UINT64 byteSize,
 
     Microsoft::WRL::ComPtr<ID3D12Resource>& uploadBuffer)
@@ -15,15 +15,13 @@ Microsoft::WRL::ComPtr<ID3D12Resource> d3dUtil::CreateDefaultBuffer(
     CD3DX12_RESOURCE_DESC   uploadBufferDesc  = CD3DX12_RESOURCE_DESC::Buffer(byteSize);
     // 실제 기본 버퍼 자원을 생성한다
     hr = device->CreateCommittedResource(&heapPropertyDefault, D3D12_HEAP_FLAG_NONE, &defaultBufferDesc,
-                                         D3D12_RESOURCE_STATE_COMMON, nullptr,
-                                         IID_PPV_ARGS(&defaultBuffer));
+                                         D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&defaultBuffer));
     FAILED_CHECK_MESSAGE(hr, L"d3dUtil::CreateDefaultBuffer Failed");
 
     // CPU 메모리의 자료를 기본 버퍼에 복사
     // 임시 업로드 힙을 생성
     hr = device->CreateCommittedResource(&heapPropertyUPLOAD, D3D12_HEAP_FLAG_NONE, &uploadBufferDesc,
-                                                  D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
-                                                  IID_PPV_ARGS(&uploadBuffer));
+                                         D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&uploadBuffer));
     FAILED_CHECK_MESSAGE(hr, L"d3dUtil::CreateDefaultBuffer Failed");
 
     // 기본 버퍼에 복사할 자료를 서술
@@ -51,4 +49,80 @@ Microsoft::WRL::ComPtr<ID3D12Resource> d3dUtil::CreateDefaultBuffer(
     // been executed.
 
     return defaultBuffer;
+}
+
+UINT d3dUtil::AlignTo(UINT value, UINT alignment)
+{
+    return (((value + alignment - 1) / alignment) * alignment);
+}
+
+IDxcBlob* d3dUtil::CompileShaderLibrary(LPCWSTR fileName)
+{
+    static IDxcCompiler*       pCompiler = nullptr;
+    static IDxcLibrary*        pLibrary  = nullptr;
+    static IDxcIncludeHandler* dxcIncludeHandler;
+
+    HRESULT hr = S_OK;
+
+    // Initialize the DXC compiler and compiler helper
+    if (!pCompiler)
+    {
+        hr = DxcCreateInstance(CLSID_DxcCompiler, __uuidof(IDxcCompiler), reinterpret_cast<void**>(&pCompiler));
+        FAILED_CHECK_MESSAGE(hr, L"d3dUtil::CompileShaderLibrary : Failed Create CLSID_DxcCompiler");
+        hr = DxcCreateInstance(CLSID_DxcLibrary, __uuidof(IDxcLibrary), reinterpret_cast<void**>(&pLibrary));
+        FAILED_CHECK_MESSAGE(hr, L"d3dUtil::CompileShaderLibrary : Failed Create CLSID_DxcLibrary");
+        hr = pLibrary->CreateIncludeHandler(&dxcIncludeHandler);
+        FAILED_CHECK_MESSAGE(hr, L"d3dUtil::CompileShaderLibrary : FAILED Create IncludeHandler");
+    }
+    // Open and read the file
+    std::ifstream shaderFile(fileName);
+    if (shaderFile.good() == false)
+    {
+        throw std::logic_error("Cannot find shader file");
+    }
+    std::stringstream strStream;
+    strStream << shaderFile.rdbuf();
+    std::string sShader = strStream.str();
+
+    // Create blob from the string
+    IDxcBlobEncoding* pTextBlob;
+    hr = pLibrary->CreateBlobWithEncodingFromPinned(LPBYTE(sShader.c_str()), static_cast<uint32_t>(sShader.size()), 0,
+                                                    &pTextBlob);
+    FAILED_CHECK_MESSAGE(hr,L"d3dUtil::CompileShaderLibrary : pLibrary->CreateBlobWithEncodingFromPinned Failed");
+
+    // Compile
+    IDxcOperationResult* pResult;
+    hr = pCompiler->Compile(pTextBlob, fileName, L"", L"lib_6_3", nullptr, 0, nullptr, 0, dxcIncludeHandler, &pResult);
+    FAILED_CHECK_MESSAGE(hr, L"d3dUtil::CompileShaderLibrary : pCompiler->Compile Failed");
+
+
+    // Verify the result
+    HRESULT resultCode;
+    hr = pResult->GetStatus(&resultCode);
+    FAILED_CHECK_MESSAGE(hr, L"d3dUtil::CompileShaderLibrary : pResult->GetStatus Failed")
+    if (FAILED(resultCode))
+    {
+        IDxcBlobEncoding* pError;
+        hr = pResult->GetErrorBuffer(&pError);
+        if (FAILED(hr))
+        {
+            throw std::logic_error("Failed to get shader compiler error");
+        }
+
+        // Convert error blob to a string
+        std::vector<char> infoLog(pError->GetBufferSize() + 1);
+        memcpy(infoLog.data(), pError->GetBufferPointer(), pError->GetBufferSize());
+        infoLog[pError->GetBufferSize()] = 0;
+
+        std::string errorMsg = "Shader Compiler Error:\n";
+        errorMsg.append(infoLog.data());
+
+        MessageBoxA(nullptr, errorMsg.c_str(), "Error!", MB_OK);
+        throw std::logic_error("Failed compile shader");
+    }
+
+    IDxcBlob* pBlob;
+    hr = pResult->GetResult(&pBlob);
+    FAILED_CHECK_MESSAGE(hr, L"d3dUtil::CompileShaderLibrary : pBlob->GetResult Failed");
+    return pBlob;
 }

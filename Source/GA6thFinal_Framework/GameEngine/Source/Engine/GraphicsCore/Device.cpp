@@ -31,6 +31,10 @@ void Device::SetUpDevice(HWND hwnd, UINT width, UINT height, FeatureLevel featur
     }
 
     CreateDeviceAndSwapChain(hwnd, d3dFeature);
+    if (Renderer::IsRaytracing)
+    {
+        CheckDXRSupport();
+    }
 }
 
 void Device::Initialize()
@@ -473,7 +477,7 @@ void Device::CreateVertexBuffer(void* data, UINT size, UINT stride, ComPtr<ID3D1
     if (data)
     {
         ComPtr<ID3D12Resource> uploadBuffer;
-        buffer = d3dUtil::CreateDefaultBuffer(_device.Get(), _commandList.Get(), data, size, uploadBuffer);
+        buffer = d3dUtil::CreateBufferWithData(_device.Get(), _commandList.Get(), data, size, uploadBuffer);
 
         _uploadResources.push_back(uploadBuffer);
     }
@@ -483,12 +487,13 @@ void Device::CreateVertexBuffer(void* data, UINT size, UINT stride, ComPtr<ID3D1
     view.StrideInBytes  = stride;
 }
 
-void Device::CreateIndexBuffer(void* data, UINT size, DXGI_FORMAT format, ComPtr<ID3D12Resource>& buffer, D3D12_INDEX_BUFFER_VIEW& view)
+void Device::CreateIndexBuffer(void* data, UINT size, DXGI_FORMAT format, ComPtr<ID3D12Resource>& buffer,
+                               D3D12_INDEX_BUFFER_VIEW& view)
 {
     if (data)
     {
         ComPtr<ID3D12Resource> uploadBuffer;
-        buffer = d3dUtil::CreateDefaultBuffer(_device.Get(), _commandList.Get(), data, size, uploadBuffer);
+        buffer = d3dUtil::CreateBufferWithData(_device.Get(), _commandList.Get(), data, size, uploadBuffer);
 
         _uploadResources.push_back(uploadBuffer);
     }
@@ -509,7 +514,8 @@ void Device::CreateConstantBuffer(void* data, UINT size, ComPtr<ID3D12Resource>&
 }
 
 
-void Device::CreateDefaultBuffer(UINT size, ComPtr<ID3D12Resource>& buffer)
+void Device::CreateDefaultBuffer(UINT size, const D3D12_RESOURCE_FLAGS flags, const D3D12_RESOURCE_STATES initState,
+                                 ComPtr<ID3D12Resource>& buffer)
 {
 
     D3D12_HEAP_PROPERTIES hp = {};
@@ -531,15 +537,49 @@ void Device::CreateDefaultBuffer(UINT size, ComPtr<ID3D12Resource>& buffer)
     rd.SampleDesc.Count    = 1;
     rd.SampleDesc.Quality  = 0;
     rd.Layout              = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-    rd.Flags               = D3D12_RESOURCE_FLAG_NONE;
+    rd.Flags               = flags;
 
     // 버퍼 생성.
     ID3D12Resource* pBuff = nullptr;
 
     HRESULT hr = S_OK;
-    hr = _device->CreateCommittedResource(&hp, D3D12_HEAP_FLAG_NONE, &rd, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&buffer));
+    hr = _device->CreateCommittedResource(&hp, D3D12_HEAP_FLAG_NONE, &rd, initState, nullptr, IID_PPV_ARGS(&buffer));
     FAILED_CHECK_MESSAGE(hr, L"Device::CreateDefaultBuffer _device->CreateCommittedResource Failed");
 }
+
+void Device::CreateUploadBuffer(UINT size, const D3D12_RESOURCE_FLAGS flags, const D3D12_RESOURCE_STATES initState,
+                                ComPtr<ID3D12Resource>& buffer)
+{
+    D3D12_HEAP_PROPERTIES hp = {};
+    hp.Type                  = D3D12_HEAP_TYPE_UPLOAD;
+    hp.CPUPageProperty       = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+    hp.MemoryPoolPreference  = D3D12_MEMORY_POOL_UNKNOWN;
+    hp.CreationNodeMask      = 0;
+    hp.VisibleNodeMask       = 0;
+
+    // 버퍼에 저장될 자원 정보 설정
+    D3D12_RESOURCE_DESC rd = {};
+    rd.Dimension           = D3D12_RESOURCE_DIMENSION_BUFFER; // 자원 형식 : "버퍼"
+    rd.Alignment           = 0;    // 기본 정렬 64KB (D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT)
+    rd.Width               = size; // 저장할 자원(데이터)의 크기.
+    rd.Height              = 1;
+    rd.DepthOrArraySize    = 1;
+    rd.MipLevels           = 1;
+    rd.Format              = DXGI_FORMAT_UNKNOWN;
+    rd.SampleDesc.Count    = 1;
+    rd.SampleDesc.Quality  = 0;
+    rd.Layout              = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+    rd.Flags               = flags;
+
+    // 버퍼 생성.
+    ID3D12Resource* pBuff = nullptr;
+
+    HRESULT hr = S_OK;
+    hr = _device->CreateCommittedResource(&hp, D3D12_HEAP_FLAG_NONE, &rd, initState, nullptr, IID_PPV_ARGS(&buffer));
+    FAILED_CHECK_MESSAGE(hr, L"Device::CreateUploadBuffer _device->CreateCommittedResource Failed");
+}
+
+
 
 void Device::CreateCommandList(ComPtr<ID3D12CommandAllocator>& allocator, ComPtr<ID3D12GraphicsCommandList>& commandList, CommandType type)
 {
@@ -571,6 +611,27 @@ void Device::CreateCommandList(ComPtr<ID3D12CommandAllocator>& allocator, ComPtr
     FAILED_CHECK_MESSAGE(hr, L"Device::CreateCommandList _device->CreateCommandList Failed");
 
     commandList->Close();
+}
+
+ComPtr<ID3D12RootSignature> Device::CreateRootSignature(const D3D12_ROOT_SIGNATURE_DESC& desc)
+{
+    ComPtr<ID3D10Blob> pSigBlob;
+    ComPtr<ID3D10Blob> pErrorBlob;
+
+    HRESULT hr = D3D12SerializeRootSignature(&desc, D3D_ROOT_SIGNATURE_VERSION_1, &pSigBlob, &pErrorBlob);
+    if (FAILED(hr))
+    {
+        std::string msg(static_cast<const char*>(pErrorBlob->GetBufferPointer()), pErrorBlob->GetBufferSize());
+        OutputDebugStringA(msg.c_str());
+        return nullptr;
+    }
+
+    ComPtr<ID3D12RootSignature> pRootSig;
+    HRESULT                     hr = S_OK;
+    hr = _device->CreateRootSignature(0, pSigBlob->GetBufferPointer(), pSigBlob->GetBufferSize(),
+                                      IID_PPV_ARGS(pRootSig.GetAddressOf()));
+    FAILED_CHECK_MESSAGE(hr, L"Deivce::CreateRootSignature _device->CreateRootSignautre Failed");
+    return pRootSig;
 }
 
 void Device::RegisterCommand(ID3D12CommandList* commandList, CommandListType type)
@@ -609,4 +670,19 @@ void Device::CreateComputeCommandObject()
     HRESULT hr = S_OK;
     hr         = _device->CreateCommandQueue(&desc, IID_PPV_ARGS(&_computeCommandQueue));
     FAILED_CHECK_MESSAGE(hr, L"Device::CreateComputeCommandObject _device->CreateCommandQueue Failed");
+}
+
+
+void Device::CheckDXRSupport() 
+{
+    D3D12_FEATURE_DATA_D3D12_OPTIONS5 options5{};
+    HRESULT                           hr = S_OK;
+    hr = _device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &options5, sizeof(options5));
+    FAILED_CHECK_MESSAGE(hr, L"Device::CheckDXRSupport _device->CheckFeatureSupport Failed");
+
+    if (options5.RaytracingTier < D3D12_RAYTRACING_TIER_1_0)
+    {
+        hr = E_FAIL;
+    }
+    FAILED_CHECK_MESSAGE(hr, L"This Device not supported ray tracing");
 }

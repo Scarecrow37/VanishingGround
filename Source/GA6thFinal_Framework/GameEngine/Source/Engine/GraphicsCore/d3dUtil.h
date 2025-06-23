@@ -19,7 +19,15 @@ public:
         return (byteSize + 255) & ~255;
     }
 
-    static Microsoft::WRL::ComPtr<ID3D12Resource> CreateDefaultBuffer(
+    static Microsoft::WRL::ComPtr<ID3D12Resource> CreateBufferWithData(
         ID3D12Device* device, ID3D12GraphicsCommandList* cmdList, const void* initData, UINT64 byteSize,
         Microsoft::WRL::ComPtr<ID3D12Resource>& uploadBuffer);
+    static UINT AlignTo(UINT value, UINT alignment);
+    static IDxcBlob* CompileShaderLibrary(LPCWSTR fileName);
+};
+struct AccelerationStructureBuffers
+{
+    ComPtr<ID3D12Resource> pScratch;
+    ComPtr<ID3D12Resource> pResult;
+    ComPtr<ID3D12Resource> pInstanceDesc;
 };
