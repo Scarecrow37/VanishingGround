@@ -25,6 +25,7 @@ void CameraComponent::ImGuiDrawPropertysEvent()
 
 void CameraComponent::DeserializedReflectEvent() 
 {
-
+    UpdatePerspective();
+    UpdateView();
 }
 
