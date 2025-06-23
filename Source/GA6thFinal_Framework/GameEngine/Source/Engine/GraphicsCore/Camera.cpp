@@ -15,6 +15,12 @@ void Camera::SetupPerspective(float fovDegree, float aspect, float nearZ, float 
     _projectionInverse = XMMatrixInverse(nullptr, _projection);
 }
 
+void Camera::SetWorldMatrix(const Matrix& worldMatrix) 
+{
+    _world = worldMatrix;
+    _view  = XMMatrixInverse(nullptr, _world);
+}
+
 void Camera::SetRotation(const Vector3& rotation)
 {
     _rotation = Quaternion::CreateFromYawPitchRoll(rotation);
