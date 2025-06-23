@@ -117,9 +117,9 @@ void EditorSequencerTool::OnFrameRender()
 
     ImGui::Checkbox("Use Snapping", &_sequencer->_useSnapping);
 
-    ImGui::BeginChild("SequencerCanvas", ImVec2(0, 0), true);
-    _sequencer->Show();
-    ImGui::EndChild();
+    //ImGui::BeginChild("SequencerCanvas", ImVec2(0, 0), true);
+    _sequencer->Show(true);
+    //ImGui::EndChild();
 }
 
 void EditorSequencerTool::OnFrameEnd() {}

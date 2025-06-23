@@ -18,8 +18,12 @@ private:
     void BuildSceneDock();
     void BuildModelDock();
 
+    void BuildSequenceDock();
+
     EditorModule*     _editorModule = nullptr;
     EditorDockWindow* _rootDock     = nullptr;
     EditorDockWindow* _sceneDock    = nullptr;
     EditorDockWindow* _modelDock    = nullptr;
+
+    EditorDockWindow* _sequenceDock = nullptr;
 };

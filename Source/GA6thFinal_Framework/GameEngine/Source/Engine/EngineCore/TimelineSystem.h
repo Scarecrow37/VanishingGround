@@ -32,28 +32,28 @@ public:
     void SetNotifyTime(float time);
     bool IsValidID() const;
 
-    REFLECT_PROPERTY(EventName, Time, ID)
+    REFLECT_PROPERTY(ID, Label, EventName, Time)
 
+    GETTER_ONLY(UINT, ID) { return ReflectFields->NotifyID; }
+    PROPERTY(ID)
+    GETTER(std::string_view, Label) { return ReflectFields->Label.c_str(); }
+    SETTER(std::string_view, Label) { ReflectFields->Label = value; }
+    PROPERTY(Label)
     GETTER_ONLY(std::string_view, EventName) { return ReflectFields->EventNameData.c_str(); }
     PROPERTY(EventName)
-
-    GETTER(float, Time) { return ReflectFields->TimeData; }
-    SETTER(float, Time) { ReflectFields->TimeData = value; }
+    GETTER_ONLY(float, Time) { return ReflectFields->TimeData; }
     PROPERTY(Time)
-
     GETTER_ONLY(ITimelineEvent*, Event) { return _event; }
     PROPERTY(Event)
-
-    GETTER_ONLY(int, ID) { return ReflectFields->NotifyID; }
-    PROPERTY(ID)
 
 protected:
     ITimelineEvent* _event = nullptr;
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
-    float       TimeData = 0.0f;
-    UINT        NotifyID = 0;
-    std::string EventNameData = "";
-    std::string SerializedData = "";
+    UINT        NotifyID        = 0;
+    float       TimeData        = 0.0f;
+    std::string Label           = "";
+    std::string EventNameData   = "";
+    std::string SerializedData  = "";
     REFLECT_FIELDS_END(TimelineNotify)
 
     virtual void SerializedReflectEvent() override;
@@ -87,11 +87,11 @@ public:
     /// <param name="time">TimelineEvent가 호출 될 시간 값</param>
     /// <returns>추가한 Notify의 포인터</returns>
     template<typename T> 
-    TimelineNotify* AddNotify(float time)
+    TimelineNotify* AddNotify(std::string_view label, float time)
     {
         static_assert(std::is_base_of_v<ITimelineEvent, T>, "T is not derived from ITimelineEvent.");
         const char* key = typeid(T).name();
-        return AddNotify(time, key);
+        return AddNotify(label, time, key);
     }
 
     /// <summary>
@@ -101,7 +101,7 @@ public:
     /// <param name="typenameID">TimelineEvent 객체의 TypeName 값</param>
     /// <param name="id">Notify가 등록될 id입니다. default 인자로 호출 시 기본 값이 등록됩니다.</param>
     /// <returns>이미 추가된 id라면 기존 Notify의 포인터를, 추가된 적 없는 id라면 새로 추가한 Notify의 포인터를 반환합니다.</returns>
-    TimelineNotify* AddNotify(std::string_view typenameID, float time, UINT id = UINT_MAX)
+    TimelineNotify* AddNotify(std::string_view label, std::string_view typenameID, float time, UINT id = UINT_MAX)
     {
         UINT uniqueID = (id == UINT_MAX) ? GetUniqueID() : id;
         auto it = _idToNotifyTable.find(uniqueID);
@@ -111,6 +111,7 @@ public:
         }
         TimelineNotify* notify   = new TimelineNotify(uniqueID);
         notify->SetNotifyEventAndTime(typenameID, time);
+        notify->Label = label;
         _timelineNotifyQueue.push_back(notify);
         _idToNotifyTable[uniqueID] = notify;
         Sort();

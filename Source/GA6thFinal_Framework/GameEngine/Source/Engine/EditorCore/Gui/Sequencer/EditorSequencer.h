@@ -18,13 +18,14 @@ public:
     /// <summary>
     /// Sequencer용 Gui를 렌더링합니다.
     /// 따로 Frame을 열지 않고 렌더링합니다.
+    /// <param name="debug">디버깅 정보를 출력할지 여부</param>
     /// </summary>
-    void Show();
+    void Show(bool debug = false);
 
     /// <summary>
-    /// 
+    /// Sequencer에서 사용할 TimelineSystem을 설정합니다.
     /// </summary>
-    /// <param name="system"></param>
+    /// <param name="system">해당 System에 대한 shared_ptr입니다.</param>
     inline void SetSystem(std::shared_ptr<TimelineSystem> system) { _system = system; }
 
     /// <summary>
@@ -49,7 +50,7 @@ private:
     bool Begin();
     void End();
     void DrawToolBar();
-    void DrawCanvas();
+    void DrawCanvas(bool debug);
 
     bool WheelZooming();
     bool CanvasDragging();
@@ -76,16 +77,9 @@ private:
     DragState GetDragState(const char* id) const;
     size_t    GetDraggingCount() const;
     bool      IsDragging(DragState state) const;
-
-    void OpenPopup(const char* id);
-    bool BeginPopup(const char* id);
-    void EndPopup();
-    bool IsPopupOpened();
-    void UpdatePopup();
     
 public:
     std::shared_ptr<TimelineSystem> _system; // System WeakPtr
-    TimelineNotify* _popupDest; 
 
     bool    _useSnapping;           // Snap 사용 여부
 
@@ -106,7 +100,6 @@ public:
     ImVec2  _zoomPosition;          
 
     std::unordered_map<ImGuiID, DragState> _dragState;
-    std::unordered_map<std::string, bool>  _popupState;
 
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
     ImU32 UpperBgColor          = IM_COL32(20, 20, 20, 255);    // Sequencer 상단 배경색
@@ -120,10 +113,10 @@ public:
     ImU32 NotifyColor           = IM_COL32(0, 255, 255, 200);   // Notify 색상
     ImU32 InvalidColor          = IM_COL32(255, 0, 0, 100);     // 유효하지 않은 대상에 대한 색상
 
-    float ZoomScale = 1.0f;          // View에 대한 줌 스케일
-    float UnitSize = 100.0f;         // Frame을 표시할 때 사용하는 단위 크기 (1 Frame당 픽셀 크기)
-    float ViewLerpScale = 0.02f;     // View 보간 스케일 (0.0f ~ 1.0f)
-    float ViewScale     = 1.0f;      // 현재 View의 스케일
+    float ZoomScale     = 1.0f;         // View에 대한 줌 스케일
+    float UnitSize      = 100.0f;       // Frame을 표시할 때 사용하는 단위 크기 (1 Frame당 픽셀 크기)
+    float ViewLerpScale = 0.05f;        // View 보간 스케일 (0.0f ~ 1.0f)
+    float ViewScale     = 1.0f;         // 현재 View의 스케일
 
     std::string SerializedData = ""; // 직렬화된 데이터
     REFLECT_FIELDS_END(EditorSequencer)
