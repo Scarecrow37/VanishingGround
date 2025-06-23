@@ -246,17 +246,6 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
     if (ImGui::BeginMenu("Camera"))
     {
         GameObject* camera =  nullptr;
-        if (ImGui::MenuItem("Main camera"))
-        {
-            UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
-                GameObjectKey, GameObject::Helper::GenerateUniqueName("Main camera"), &camera);
-
-            if (camera)
-            {
-                CameraComponent& cameraComponent = camera->AddComponent<CameraComponent>();
-                cameraComponent.SetMainCamera();
-            }
-        }
         if (ImGui::MenuItem("Camera"))
         {
             UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
