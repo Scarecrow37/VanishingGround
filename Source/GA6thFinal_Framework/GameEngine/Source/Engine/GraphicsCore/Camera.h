@@ -10,6 +10,7 @@ public:
 
 public:
 	void SetupPerspective(float fovDegree, float aspect, float nearZ, float farZ);
+    void SetWorldMatrix(const Matrix& worldMatrix);
 	void SetRotation(const Vector3& rotation);
 	void SetRotation(const Quaternion& rotation);
 	void SetPosition(const Vector3& position);

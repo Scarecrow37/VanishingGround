@@ -642,6 +642,9 @@
     <ClInclude Include="Source\Engine\GraphicsCore\BlendTechnique.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Editor\Tool\GameView\EditorGameView.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Engine\GraphicsCore\ParticleEffect.h">
       <Filter>GraphicsCore\ParticleCore</Filter>
     </ClInclude>
@@ -1200,6 +1203,12 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectDetails.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\GameView\EditorGameView.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\GraphicsBase.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\UnorderedAccessView.cpp">

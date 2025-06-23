@@ -479,7 +479,7 @@ void EditorSceneTool::RayPicker()
         false == _isUsingStart && 
         false == _isUsingEnd)
     {
-        if (ImGui::IsWindowHovered() && ImGui::IsKeyReleased(ImGuiKey_MouseLeft))
+        if (IsFocusFrame() && ImGui::IsWindowHovered() && ImGui::IsKeyReleased(ImGuiKey_MouseLeft))
         {
             ImGuiIO& io = ImGui::GetIO();
             if (io.MousePos.x >= _sceneClienttLeft && io.MousePos.y >= _sceneClientTop &&

@@ -1,10 +1,10 @@
 ﻿#pragma once
-#include "Base/GetTurnModeBaseS.h"
+#include "Base/TurnModeStateBase.h"
 
 /// <summary>
 /// 턴 리스트가 비어있는지 확인하는 상태입니다.
 /// </summary>
-class TurnListEmptyState : public GetTurnModeBaseS
+class TurnListEmptyState : public TurnModeStateBase
 {
 public:
     TurnListEmptyState();

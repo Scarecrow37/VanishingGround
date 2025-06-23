@@ -12,7 +12,7 @@ void CheckTurnEndCondition::OnAwake() {}
 
 void CheckTurnEndCondition::OnStart() 
 {
-    GetTurnModeBaseC::OnStart();
+    TurnModeConditionBase::OnStart();
 }
 
 bool CheckTurnEndCondition::Evaluate()

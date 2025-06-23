@@ -4,11 +4,11 @@
 /// <summary>
 /// TurnMode를 Start에서 가져와주는 베이스 클래스입니다.
 /// </summary>
-class GetTurnModeBaseC : public FSMCondition
+class TurnModeStateBase : public FSMState
 {
 public:
-    GetTurnModeBaseC();
-    virtual ~GetTurnModeBaseC() override;
+    TurnModeStateBase();
+    virtual ~TurnModeStateBase() override;
 
 protected:
     void OnStart() override;
