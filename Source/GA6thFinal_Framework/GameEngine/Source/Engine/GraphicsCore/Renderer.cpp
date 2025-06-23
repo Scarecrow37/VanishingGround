@@ -15,6 +15,9 @@
 #include "ToneMappingTechnique.h"
 #include "Sphere.h"
 
+// 임시 값->나중에 설정할 수 있게 바꾸면 될듯.
+bool Renderer::IsRaytracing = true;
+
 Renderer::Renderer()
     : _currnetState(0)
 {
