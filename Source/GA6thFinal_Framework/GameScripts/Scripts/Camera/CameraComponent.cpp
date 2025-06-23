@@ -25,6 +25,6 @@ void CameraComponent::ImGuiDrawPropertysEvent()
 
 void CameraComponent::DeserializedReflectEvent() 
 {
-
+    _isDirty = true;
 }
 
