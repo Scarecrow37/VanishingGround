@@ -1,7 +1,6 @@
 ﻿#include "pch.h"
 #include "SkyBox.h"
 #include "Box.h"
-#include "ShaderBuilder.h"
 
 SkyBox::SkyBox() : _box{std::make_unique<Box>()}, _hasTexture{false} {}
 

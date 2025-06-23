@@ -1,3 +1,6 @@
+#ifndef __FUNCTION__
+#define __FUNCTION__
+
 #include "CommonData.hlsli"
 
 float3 FresnelSchlick(float cosTheta, float3 F0);
@@ -118,3 +121,12 @@ float Attenuation(float3 attenuation, float distance, float range)
     
     return result;
 }
+
+float CalculatePostProcessMask(Texture2D<uint> customDepthTexture, float2 uv)
+{
+    uint mask = customDepthTexture.Load(int3(uv * postProcessData.ScreenSize, 0));
+    float result = min(postProcessData.PostProcessMask & mask, 1);
+    return result;
+}
+
+#endif
