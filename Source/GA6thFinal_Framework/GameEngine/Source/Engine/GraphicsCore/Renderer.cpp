@@ -24,7 +24,7 @@ Renderer::~Renderer() {}
 
 D3D12_GPU_DESCRIPTOR_HANDLE Renderer::GetRenderSceneImage(std::string_view renderSceneName)
 {
-    auto iter = _renderScenes.find(std::string(renderSceneName));
+    auto iter = _renderScenes.find(renderSceneName.data());
 
     if (iter == _renderScenes.end())
     {
@@ -39,17 +39,32 @@ D3D12_GPU_DESCRIPTOR_HANDLE Renderer::GetRenderSceneImage(std::string_view rende
 
 std::shared_ptr<Camera> Renderer::GetCamera(std::string_view renderSceneName)
 {
-    auto iter = _renderScenes.find(std::string(renderSceneName));
+    auto iter = _renderScenes.find(renderSceneName.data());
 
     if (iter == _renderScenes.end())
     {
-        std::wstring msg = L"Renderer::GetRenderSceneImage: RenderSceneName '" +
+        std::wstring msg = L"Renderer::GetCamera: RenderSceneName '" +
                            std::wstring(renderSceneName.begin(), renderSceneName.end()) + L"' is not registered.";
         GRAPHICS_ASSERT(false, msg.c_str());
     }
 
     auto& scene = iter->second;
     return scene->GetCamera();
+}
+
+void Renderer::SetCamera(std::string_view renderSceneName, std::shared_ptr<Camera> camera)
+{
+    auto iter = _renderScenes.find(renderSceneName.data());
+
+    if (iter == _renderScenes.end())
+    {
+        std::wstring msg = L"Renderer::SetCamera: RenderSceneName '" +
+                           std::wstring(renderSceneName.begin(), renderSceneName.end()) + L"' is not registered.";
+        GRAPHICS_ASSERT(false, msg.c_str());
+    }
+
+    auto& scene = iter->second;
+    scene->SetCamera(camera);
 }
 
 void Renderer::RegisterRenderQueue(std::string_view sceneName, MeshRenderer* component)
@@ -110,26 +125,33 @@ void Renderer::Initialize()
 {
     CreateDefaultResource();
 
-    std::unique_ptr<RenderScene> editorScene = std::make_unique<RenderScene>("Editor");
-    editorScene->InitializeRenderScene();
-    editorScene->AddRenderTechnique(std::make_unique<SkyBoxRenderTechnique>());
-    editorScene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
-    editorScene->AddRenderTechnique(std::make_unique<BloomTechnique>());
-    //editorScene->AddRenderTechnique(std::make_unique<ToneMappingTechnique>());
+    std::unique_ptr<RenderScene> scene;
 
-    _renderScenes["Editor"] = std::move(editorScene);
+    scene = std::make_unique<RenderScene>("Game");
+    scene->InitializeRenderScene();
+    scene->AddRenderTechnique(std::make_unique<SkyBoxRenderTechnique>());
+    scene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
+    scene->AddRenderTechnique(std::make_unique<BloomTechnique>());
+    //scene->AddRenderTechnique(std::make_unique<ToneMappingTechnique>());
+    _renderScenes["Game"] = std::move(scene);
 
     if constexpr (IS_EDITOR)
     {
-        // Model Viewer Scene
-        std::unique_ptr<RenderScene> modelViewerScene = std::make_unique<RenderScene>("ModelViewer");
-        modelViewerScene->InitializeRenderScene();
-        modelViewerScene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
-        _renderScenes["ModelViewer"] = std::move(modelViewerScene);        
-
         // Renderer File Event
         _rendererFileEvent = std::make_unique<RendererFileEvent>();
         UmFileSystem.RegisterFileEventSubscriber(_rendererFileEvent.get(), {".png", ".dds", ".fbx", ".UmModel"});
+
+        // Editor Scene
+        scene = std::make_unique<RenderScene>("Editor");
+        scene->AddRenderTechnique(std::make_unique<SkyBoxRenderTechnique>());
+        scene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
+        _renderScenes["Editor"] = std::move(scene);
+
+        // Model Viewer Scene
+        scene = std::make_unique<RenderScene>("ModelViewer");
+        scene->InitializeRenderScene();
+        scene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
+        _renderScenes["ModelViewer"] = std::move(scene);                
     }
 }
 
