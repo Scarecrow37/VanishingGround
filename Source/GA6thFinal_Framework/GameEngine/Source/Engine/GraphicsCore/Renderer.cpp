@@ -146,12 +146,14 @@ void Renderer::Initialize()
         scene->InitializeRenderScene();
         scene->AddRenderTechnique(std::make_unique<SkyBoxRenderTechnique>());
         scene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
+        scene->AddRenderTechnique(std::make_unique<BloomTechnique>());
         _renderScenes["Editor"] = std::move(scene);
 
         // Model Viewer Scene
         scene = std::make_unique<RenderScene>("ModelViewer");
         scene->InitializeRenderScene();
         scene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
+        scene->AddRenderTechnique(std::make_unique<BloomTechnique>());
         _renderScenes["ModelViewer"] = std::move(scene);                
     }
 }
