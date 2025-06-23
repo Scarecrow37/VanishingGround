@@ -31,6 +31,7 @@ public:
             _camera = camera;
             _isDirty = true;
             UpdatePerspective();
+            UpdateView();
         }
         return result;
     }
