@@ -24,7 +24,7 @@ Renderer::~Renderer() {}
 
 D3D12_GPU_DESCRIPTOR_HANDLE Renderer::GetRenderSceneImage(std::string_view renderSceneName)
 {
-    auto iter = _renderScenes.find(std::string(renderSceneName));
+    auto iter = _renderScenes.find(renderSceneName.data());
 
     if (iter == _renderScenes.end())
     {
@@ -39,17 +39,32 @@ D3D12_GPU_DESCRIPTOR_HANDLE Renderer::GetRenderSceneImage(std::string_view rende
 
 std::shared_ptr<Camera> Renderer::GetCamera(std::string_view renderSceneName)
 {
-    auto iter = _renderScenes.find(std::string(renderSceneName));
+    auto iter = _renderScenes.find(renderSceneName.data());
 
     if (iter == _renderScenes.end())
     {
-        std::wstring msg = L"Renderer::GetRenderSceneImage: RenderSceneName '" +
+        std::wstring msg = L"Renderer::GetCamera: RenderSceneName '" +
                            std::wstring(renderSceneName.begin(), renderSceneName.end()) + L"' is not registered.";
         GRAPHICS_ASSERT(false, msg.c_str());
     }
 
     auto& scene = iter->second;
     return scene->GetCamera();
+}
+
+void Renderer::SetCamera(std::string_view renderSceneName, std::shared_ptr<Camera> camera)
+{
+    auto iter = _renderScenes.find(renderSceneName.data());
+
+    if (iter == _renderScenes.end())
+    {
+        std::wstring msg = L"Renderer::SetCamera: RenderSceneName '" +
+                           std::wstring(renderSceneName.begin(), renderSceneName.end()) + L"' is not registered.";
+        GRAPHICS_ASSERT(false, msg.c_str());
+    }
+
+    auto& scene = iter->second;
+    scene->SetCamera(camera);
 }
 
 void Renderer::RegisterRenderQueue(std::string_view sceneName, MeshRenderer* component)

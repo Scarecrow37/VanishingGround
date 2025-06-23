@@ -24,6 +24,9 @@ public:
     std::shared_ptr<Camera>     GetCamera(std::string_view renderSceneName);
 
 public:
+    void SetCamera(std::string_view renderSceneName, std::shared_ptr<Camera> camera);
+
+public:
     void RegisterRenderQueue(std::string_view sceneName, MeshRenderer* component);
 
     // 에디터나 게임씬 말고 다른 에디터 뷰에서 스카이 박스를 띄우고싶을수도 있으니 함수 오버로딩.

@@ -20,6 +20,7 @@ public:
     SkyBox*                     GetSkyBox() { return _skyBox.get(); };
 
 public:
+    void SetCamera(std::shared_ptr<Camera> camera) { _camera = camera; }
     void SetSkyBox(std::string_view path);
 
 public:
