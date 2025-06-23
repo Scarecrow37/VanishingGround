@@ -1497,9 +1497,15 @@ void ESceneManager::SceneResourceManager::Update(SceneResourceManager& manager)
                                 models.ModelUseComponentList[guid].emplace_back(pMeshComponent);
                                 UmSceneManager._runtimeMeshComponents.emplace_back(pMeshComponent);
 
+                                bool isActive = pMeshComponent->gameObject->ActiveInHierarchy;
+                                isActive &= pMeshComponent->Enable;
                                 if (false == pMeshComponent->_gameObject->IsValid())
                                 {
                                     pMeshComponent->Renderer->SetActive(false);
+                                }
+                                else
+                                {
+                                    pMeshComponent->Renderer->SetActive(isActive);
                                 }
                             }
                         }
