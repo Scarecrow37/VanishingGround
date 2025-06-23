@@ -12,6 +12,7 @@
 #include "RendererFileEvent.h"
 #include "SkyBoxRenderTechnique.h"
 #include "BloomTechnique.h"
+#include "ToneMappingTechnique.h"
 #include "Sphere.h"
 
 Renderer::Renderer()
@@ -114,6 +115,8 @@ void Renderer::Initialize()
     editorScene->AddRenderTechnique(std::make_unique<SkyBoxRenderTechnique>());
     editorScene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
     editorScene->AddRenderTechnique(std::make_unique<BloomTechnique>());
+    //editorScene->AddRenderTechnique(std::make_unique<ToneMappingTechnique>());
+
     _renderScenes["Editor"] = std::move(editorScene);
 
     if constexpr (IS_EDITOR)
