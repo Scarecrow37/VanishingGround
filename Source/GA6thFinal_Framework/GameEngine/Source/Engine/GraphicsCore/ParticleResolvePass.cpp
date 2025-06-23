@@ -5,6 +5,8 @@
 #include "ShaderBuilder.h"
 #include "ParticleResolvePass.h"
 
+ ParticleResolvePass::ParticleResolvePass() {}
+
 ParticleResolvePass::~ParticleResolvePass() {}
 
 void ParticleResolvePass::Initialize(const D3D12_VIEWPORT& viewport, const D3D12_RECT& scissorRect)
@@ -20,7 +22,8 @@ void ParticleResolvePass::Begin(ID3D12GraphicsCommandList* commandList)
 {
     _particleRenderCommandList->RSSetViewports(1, &_viewPort);
     _particleRenderCommandList->RSSetScissorRects(1, &_sissorRect);
-    _particleRenderCommandList->OMSetRenderTargets(1, &_ownerScene->_meshLightingTarget->GetRTVHandle(), FALSE,
+    _finalRenderTarget->ClearRenderTarget(_particleRenderCommandList);
+    _particleRenderCommandList->OMSetRenderTargets(1, &_finalRenderTarget->GetRTVHandle(), FALSE,
                                                    nullptr);
 
     CD3DX12_RESOURCE_BARRIER barriers[] = {

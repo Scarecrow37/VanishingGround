@@ -4,8 +4,8 @@ class ParticleRenderTechnique : public RenderTechnique
 {
 
 public:
-    ParticleRenderTechnique()          = default;
-    virtual ~ParticleRenderTechnique() = default;
+    ParticleRenderTechnique()          ;
+    virtual ~ParticleRenderTechnique() ;
 
 public:
     void Initialize(ID3D12GraphicsCommandList* commandList) override;

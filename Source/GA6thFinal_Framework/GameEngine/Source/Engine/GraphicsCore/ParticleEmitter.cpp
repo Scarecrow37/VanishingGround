@@ -14,11 +14,19 @@ void EmitLocator::RandomInitialize()
 DirectX::SimpleMath::Vector3 SphereLocator::EmitLocate()
 {
   
-    Vector3 location = {_randomVal(), _randomVal(), _randomVal()};
-    while (location.Length() >= 1)
+   // 방향 벡터 생성 (단위 구면에서 균등 분포)
+    Vector3 direction;
+    do
     {
-        location = {_randomVal(), _randomVal(), _randomVal()};
-    }
+        direction = {_randomVal(), _randomVal(), _randomVal()};
+    } while (direction.LengthSquared() > 1.0f);
+    direction.Normalize();
+
+    // 균등한 반지름 분포 (r³이 균등)
+    float u      = (_randomVal() + 1.0f) * 0.5f; // [0,1] 범위로 변환
+    float radius = pow(u, 1.0f / 3.0f);
+
+    Vector3 location = direction * radius;
     return {location.x * _factor.x, location.y * _factor.y, location.z * _factor.z};
 }
 
@@ -53,19 +61,30 @@ DirectX::SimpleMath::Vector3 ConeLocator::EmitLocate()
 
 DirectX::SimpleMath::Vector3 TorusLocator::EmitLocate() 
 {
-    Vector3 location = Vector3(_randomVal() , 0, _randomVal());
-    location *= _factor.x;
-    while (location.Length() > _factor.x || location.Length() < _factor.z)
-    {
-        location = Vector3(_randomVal(), 0, _randomVal());
-        location *= _factor.x;
-    }
-    //float length = location.Length();
-    //float range  = std::sqrtf(_factor.x * (_factor.x - 2 * _factor.z) - length * (length - 2 * _factor.z));
-    //location.y   = _randomVal() * range * _factor.y;
+    // 랜덤 값을 [0,1] 범위로 매핑
+    auto mapTo01 = [&]() { return (_randomVal() + 1.0f) * 0.5f; };
+
+    // 각도는 균등 분포 [0, 2π]
+    float angle = 2.0f * XM_PI * mapTo01();
+
+    // 링에서 균등한 반지름 분포 계산
+    float innerRadius = 1.0f;                  // 내부 반지름
+    float outerRadius = _factor.x / _factor.z; // 외부 반지름 (ratio)
+
+    // 면적 보정을 위한 반지름 계산: r = √(u(R²-r²) + r²)
+    float u             = mapTo01();
+    float radiusSquared = u * (outerRadius * outerRadius - innerRadius * innerRadius) + innerRadius * innerRadius;
+    float radius        = std::sqrt(radiusSquared);
+
+    // 극좌표를 직교좌표로 변환
+    Vector3 location;
+    location.x = radius * std::cos(angle);
+    location.y = 0;
+    location.z = radius * std::sin(angle);
+
+    // 스케일 적용
+    location *= _factor.z;
     return location;
-
-
 }
 
 DirectX::SimpleMath::Vector3 MeshSurfaceLocator::EmitLocate() 
@@ -202,9 +221,10 @@ void ParticleEmitter::AwakeParticle(UINT index)
     Vector3 offset = {_emitLocator->_randomVal(), _emitLocator->_randomVal(), _emitLocator->_randomVal()};
 
     Vector4 location = {1, 1, 1, 1};
-    location.x       = _emitLocator->EmitLocate().x + offset.x * _particleDistributionOffset;
-    location.y       = _emitLocator->EmitLocate().y + offset.y * _particleDistributionOffset;
-    location.z       = _emitLocator->EmitLocate().z + offset.z * _particleDistributionOffset;
+    Vector3 tempPos = _emitLocator->EmitLocate();
+    location.x      = tempPos.x + offset.x * _particleDistributionOffset;
+    location.y      = tempPos.y + offset.y * _particleDistributionOffset;
+    location.z      = tempPos.z + offset.z * _particleDistributionOffset;
 
     _particlePool[index]->SetPosition(location);
     _particlePool[index]->SetVelocity(_velocity);
@@ -274,10 +294,6 @@ void ParticleEmitter::Update(float deltaTime)
     _translationMatrix = Matrix::CreateTranslation(_emitterPosition);
     _rotationMatrix    = Matrix::CreateFromQuaternion(_emitterRotation);
     _worldMatrix       = _rotationMatrix * _translationMatrix * _effectWorldMatrix;
-    for (int i = 0; i < _activeParticleCount; ++i)
-    {
-        // particle update code.
-    }
 }
 
 void ParticleEmitter::SetLocatorFactor(const Vector3& factor) 

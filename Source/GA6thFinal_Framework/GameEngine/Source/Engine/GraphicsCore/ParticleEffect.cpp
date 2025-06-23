@@ -19,7 +19,6 @@ void ParticleEffect::Update(float deltaTime)
         return;
     }
 
-   // _scaleMatrix = Matrix::CreateScale(_scale);
     _rotationMatrix = Matrix::CreateFromQuaternion(_rotation);
     _translationMatrix = Matrix::CreateTranslation(_position);
 

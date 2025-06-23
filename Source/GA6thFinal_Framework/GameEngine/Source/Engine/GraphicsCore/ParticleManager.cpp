@@ -35,6 +35,56 @@ void ParticleManager::Initialize(UINT maxParticles)
     CreateRadixSortResources();
 
 
+        // test
+    auto effect = UmParticleManager.RegisterEffect();
+    effect->SetPosition({0, 0, 30});
+    effect->SetLifetime(150.f);
+    auto emitter = UmParticleManager.RegisterEmitter(effect, 100000, 1000, 20, LocationShape::SPHERE);
+    emitter->SetEmitterLifetime(150.f);
+    static_cast<SpriteModule*>(emitter->_particleRenderModule)
+        ->LoadAlbedoTexture(L"../../../Resource/Assets/ParticleTexture/defaultSmoke.jpg");
+    emitter->SetParticleLifetime(3.f);
+    emitter->SetStartScale({0.1f, 0.1f, 1, 1});
+    emitter->SetEndScale({0.1f, 0.1f, 1, 1});
+    emitter->SetStartScale({0.2f, 0.2f, 1, 1});
+    emitter->SetEndScale({0.2f, 0.2f, 1, 1});
+    emitter->SetStartColor({1, 1, 1});
+    emitter->SetEndColor({1, 1, 1});
+    emitter->SetStartOpacity(0.07f);
+    emitter->SetEndOpacity(0.f);
+    emitter->SetVelocity({0, 0, 0});
+    emitter->SetEmissionRate(10000);
+    //emitter->SetLocatorFactor({10, 12, 8});
+    emitter->SetLocatorFactor({2, 2, 2});
+    emitter->SetParticleMass(0.f);
+    emitter->SetParticleDistributionOffset(1.f);
+
+            // test
+
+    //auto emitter1 = UmParticleManager.RegisterEmitter(effect, 100000, 1000, 20, LocationShape::SPHERE);
+    //emitter1->SetEmitterLifetime(150.f);
+    //static_cast<SpriteModule*>(emitter1->_particleRenderModule)
+    //    ->LoadAlbedoTexture(L"../../../Resource/Assets/ParticleTexture/defaultSmoke.jpg");
+    //emitter1->SetParticleLifetime(1.f);
+    //emitter1->SetStartScale({0.2f, 0.2f, 1, 1});
+    //emitter1->SetEndScale({0.2f, 0.2f, 1, 1});
+    //emitter1->SetStartColor({0, 1, 1});
+    //emitter1->SetEndColor({0, 1, 1});
+    //emitter1->SetStartOpacity(0.08f);
+    //emitter1->SetEndOpacity(0.08f);
+    //emitter1->SetVelocity({0, 0, 0});
+    //emitter1->SetEmissionRate(5000);
+    //emitter1->SetLocatorFactor({10, 1, 10});
+    //// emitter1->SetLocatorFactor({2, 2, 2});
+    //emitter1->SetParticleMass(0.f);
+    //emitter1->SetParticleDistributionOffset(0.0f);
+
+
+
+
+
+
+
 }
 ParticleEffect* ParticleManager::RegisterEffect()
 {
@@ -66,7 +116,7 @@ void ParticleManager::Update(const float deltaTime)
 
     //_elapsedTimer += deltaTime;
 
-    //_pariticleEffects[0]->SetRotation(Quaternion::CreateFromAxisAngle({0, 1, 0}, _elapsedTimer));
+    //_pariticleEffects[0]->SetRotation(Quaternion::CreateFromAxisAngle({1, 0, 0}, XM_PIDIV2));
 
 
 
@@ -84,11 +134,11 @@ void ParticleManager::Update(const float deltaTime)
     _totalCount       = 0;
     for (auto effect : _pariticleEffects)
     {
-        //if (true == effect->GetActiveFlag())
+        if (true == effect->GetActiveFlag())
         {
             for (auto emitter : effect->GetEmitterList())
             {
-                //if (true == emitter->GetActiveFlag())
+                if (true == emitter->GetActiveFlag())
                 {
                     if (ParticleType::SPRITE == emitter->_particleType)
                     {
@@ -657,20 +707,20 @@ void ParticleManager::UpdateParticleResources(float deltaTime)
     // 3. MVP 상수 버퍼 업데이트
     MVPConstants mvpConstants;
     mvpConstants.ViewMatrix           = _camera->GetViewMatrix().Transpose();
-    mvpConstants.ViewRotInvMatrix     = _camera->GetViewMatrix().Transpose();
+    Matrix viewrotinv = _camera->GetViewMatrix();
 
+      XMFLOAT3X3 rotV;
+        XMStoreFloat3x3(&rotV, viewrotinv);
 
+    // 2) 전치(transpose)하여 역회전 행렬 생성
+    XMMATRIX Rv  = XMLoadFloat3x3(&rotV);
+    XMMATRIX RvT = XMMatrixTranspose(Rv);
 
+    // 3) SimpleMath::Matrix로 변환하여 반환
 
-    mvpConstants.ViewRotInvMatrix._14 = 0.0f;
-    mvpConstants.ViewRotInvMatrix._24 = 0.0f;
-    mvpConstants.ViewRotInvMatrix._34 = 0.0f;
-    mvpConstants.ViewRotInvMatrix._41 = 0.0f;
-    mvpConstants.ViewRotInvMatrix._42 = 0.0f;
-    mvpConstants.ViewRotInvMatrix._43 = 0.0f;
-    mvpConstants.ViewRotInvMatrix._44 = 1.0f;
-    mvpConstants.ViewRotInvMatrix     = mvpConstants.ViewRotInvMatrix.Invert();
+    XMStoreFloat4x4(&mvpConstants.ViewRotInvMatrix, RvT);
 
+    //mvpConstants.ViewRotInvMatrix = mvpConstants.ViewRotInvMatrix.Transpose();
     mvpConstants.ProjMatrix = _camera->GetProjectionMatrix().Transpose();
 
     mvpConstants.CameraPos =

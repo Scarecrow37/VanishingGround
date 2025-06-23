@@ -3,7 +3,7 @@
 class ParticleResolvePass : public RenderPass
 {
 public:
-    ParticleResolvePass() = default;
+    ParticleResolvePass() ;
     virtual ~ParticleResolvePass();
 
     void Initialize(const D3D12_VIEWPORT& viewport, const D3D12_RECT& scissorRect) override;

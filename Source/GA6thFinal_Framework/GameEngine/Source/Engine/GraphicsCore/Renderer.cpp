@@ -117,16 +117,6 @@ void Renderer::Initialize()
     editorScene->AddRenderTechnique(std::make_unique<BloomTechnique>());
     _renderScenes["Editor"] = std::move(editorScene);
 
-    std::shared_ptr<RenderScene> particleScene = std::make_shared<RenderScene>("Particle");
-    particleScene->InitializeRenderScene();
-    std::shared_ptr<ParticleRenderTechnique> particleTech = std::make_shared<ParticleRenderTechnique>();
-    particleScene->AddRenderTechnique(particleTech);
-
-
-
-
-    UmParticleManager.SetCamera(particleScene->GetCamera());
-    _renderScenes["Particle"] = particleScene;
 
 
     if constexpr (IS_EDITOR)
@@ -140,6 +130,17 @@ void Renderer::Initialize()
         // Renderer File Event
         _rendererFileEvent = std::make_unique<RendererFileEvent>();
         UmFileSystem.RegisterFileEventSubscriber(_rendererFileEvent.get(), {".png", ".dds", ".fbx", ".UmModel"});
+
+        
+          std::unique_ptr<RenderScene> particleScene = std::make_unique<RenderScene>("ParticleEditor");
+        particleScene->InitializeRenderScene();
+        particleScene->AddRenderTechnique(std::make_unique<ParticleRenderTechnique>());
+        UmParticleManager.SetCamera(particleScene->GetCamera());
+        _renderScenes["ParticleEditor"] = std::move(particleScene);
+
+    
+
+
     }
 }
 

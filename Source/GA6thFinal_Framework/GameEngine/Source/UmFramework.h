@@ -198,6 +198,10 @@ using namespace Microsoft::WRL;
 #include "Editor/Tool/Model/EditorModelHierarchy.h"
 #include "Editor/Tool/Command/EditorCommandTool.h"
 
+#include "Editor/Tool/ParticleEffect/EditorParticleEffectDetails.h"
+#include "Editor/Tool/ParticleEffect/EditorParticleEffectViewer.h"
+#include "Editor/Tool/ParticleEffect/EditorParticleEffectHierarchy.h"
+
 // Editor Menu
 #include "Editor/Menu/Project/EditorProjectMenu.h"
 #include "Editor/Menu/Window/EditorWindowMenu.h"

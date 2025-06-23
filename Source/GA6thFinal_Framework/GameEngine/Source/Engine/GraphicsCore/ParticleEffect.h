@@ -26,7 +26,6 @@ public:
 
 protected:
 
-    Matrix                             _scaleMatrix;
     Matrix                             _rotationMatrix;
     Matrix                             _translationMatrix;
     Matrix                             _worldMatrix;

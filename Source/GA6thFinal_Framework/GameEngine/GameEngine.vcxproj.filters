@@ -654,6 +654,15 @@
     <ClInclude Include="Source\Engine\GraphicsCore\ParticleResolvePass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectViewer.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectHierarchy.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectDetails.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\pch.cpp">
@@ -1152,6 +1161,15 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\ParticleResolvePass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectViewer.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectHierarchy.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectDetails.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

@@ -67,13 +67,21 @@ input.position.x, input.position.y, input.position.z, 1
   
     
     
+    
+    float4x4 worldrot = float4x4(
+    emitter.WorldMatrix._11, emitter.WorldMatrix._21, emitter.WorldMatrix._31, 0,
+    emitter.WorldMatrix._12, emitter.WorldMatrix._22, emitter.WorldMatrix._32, 0,
+    emitter.WorldMatrix._13, emitter.WorldMatrix._23, emitter.WorldMatrix._33, 0,
+    0, 0, 0, 1
+);
+    
     output.FinalMatrix = scaleMat;
-    output.FinalMatrix = mul(scaleMat, translationMat);
-    //output.FinalMatrix = mul(output.FinalMatrix, mvp.ViewRotInvMatrix);
+    output.FinalMatrix = mul(output.FinalMatrix, translationMat);
+
     output.FinalMatrix = mul(output.FinalMatrix, emitter.WorldMatrix); 
     output.FinalMatrix = mul(output.FinalMatrix, mvp.ViewRotInvMatrix);
+    output.FinalMatrix = mul(output.FinalMatrix, worldrot ); 
     
-
     
     
     output.FinalMatrix = mul(output.FinalMatrix, mvp.ViewMatrix);
