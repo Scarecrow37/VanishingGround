@@ -304,8 +304,15 @@
     <ClInclude Include="Source\Editor\Tool\Scene\Command\EditorSceneCommands.h" />
     <ClInclude Include="Source\Engine\EngineCore\FactoryRegister.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\AnimationCore.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\BlurXPass.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\BlurYPass.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\ToneMappingTechnique.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\UpScalePass.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\BrightExtractPass.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\DownScalePass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Light.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\LightCore.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\BloomTechnique.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\SkyBoxPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\SkyBoxRenderTechnique.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\SkyBox.h" />
@@ -357,6 +364,12 @@
     <ClInclude Include="Source\Engine\GraphicsCore\Animator.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\M_PBR.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Material.h" />
+    <ClInclude Include="Source\Engine\InputCore\Adapter\Adapter.h" />
+    <ClInclude Include="Source\Engine\InputCore\Adapter\Controller\ControllerAdapter.h" />
+    <ClInclude Include="Source\Engine\InputCore\Adapter\Controller\XInput\XInputAdapter.h" />
+    <ClInclude Include="Source\Engine\InputCore\Declare\InputError.h" />
+    <ClInclude Include="Source\Engine\InputCore\Devices\Controller\Controller.h" />
+    <ClInclude Include="Source\Engine\InputCore\System\InputSystem.h" />
     <ClInclude Include="Source\Engine\Utility\EditorHelper.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\RenderPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\RenderTechnique.h" />
@@ -480,8 +493,15 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\AnimationCore.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\BlurXPass.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\BlurYPass.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\ToneMappingTechnique.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\UpScalePass.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\BrightExtractPass.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\DownScalePass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\Light.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\LightCore.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\BloomTechnique.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\SkyBoxPass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\SkyBoxRenderTechnique.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\SkyBox.cpp" />
@@ -573,6 +593,11 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Source\Engine\InputCore\Adapter\Adapter.cpp" />
+    <ClCompile Include="Source\Engine\InputCore\Adapter\Controller\ControllerAdapter.cpp" />
+    <ClCompile Include="Source\Engine\InputCore\Adapter\Controller\XInput\XInputAdapter.cpp" />
+    <ClCompile Include="Source\Engine\InputCore\Devices\Controller\Controller.cpp" />
+    <ClCompile Include="Source\Engine\InputCore\System\InputSystem.cpp" />
     <ClCompile Include="Source\Engine\Utility\EditorHelper.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\RenderPass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\RenderTechnique.cpp" />
