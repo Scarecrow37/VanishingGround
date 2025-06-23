@@ -5,8 +5,8 @@ class ESceneManager;
 class GraphicsBase;
 class MeshComponent;
 class LightComponent;
+class CameraComponent;
 class Model;
-class Camera;
 namespace Command::EditorScene
 {
     class NewGameObjectCommand;
@@ -288,7 +288,13 @@ public:
         /// <summary>
         /// 게임을 렌더링할 메인 카메라를 설정합니다.
         /// </summary>
-        static void SetMainCamera(const std::shared_ptr<Camera>& camera);
+        static void SetSceneMainCamera(CameraComponent* camera);
+
+        /// <summary>
+        /// 전달받은 카메라 컴포넌트가 메인 카메라면 메인카메라에서 해제합니다.
+        /// </summary>
+        /// <param name="camera"></param>
+        static void ResetSceneMainCamera(CameraComponent* camera);
     };
 
 public:
@@ -536,7 +542,7 @@ private:
     std::vector<std::weak_ptr<MeshComponent>> _runtimeMeshComponents;
 
     //현재 Scene의 MainCamera
-    std::shared_ptr<Camera> _mainCamera;
+    CameraComponent* _mainCamera;
 
 private:
     // 이전에 로드한 씬 이름입니다.

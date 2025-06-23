@@ -28,6 +28,7 @@ std::filesystem::path ESceneManager::GetSettingFilePath()
 }
 
 ESceneManager::ESceneManager() 
+    : _mainCamera(nullptr) 
 {
    
 }
@@ -484,10 +485,23 @@ bool ESceneManager::Engine::EraseGameObjectTag(GameObject* gameObject, std::stri
     return true;
 }
 
-void ESceneManager::Engine::SetMainCamera(const std::shared_ptr<Camera>& camera)
+void ESceneManager::Engine::SetSceneMainCamera(CameraComponent* camera)
 {
-    UmSceneManager._mainCamera = camera;
+    ESceneManager& sceneManager = UmSceneManager;
+    sceneManager._mainCamera = camera;
+    if (nullptr != sceneManager._mainCamera)
+    {
+        UmRenderer.SetCamera("Game", sceneManager._mainCamera->GetCamera());
+    }
+}
 
+void ESceneManager::Engine::ResetSceneMainCamera(CameraComponent* camera) 
+{
+    ESceneManager& sceneManager = UmSceneManager;
+    if (camera == sceneManager._mainCamera)
+    {
+        sceneManager._mainCamera = nullptr;
+    }
 }
 
 void ESceneManager::CreateEmptySceneAndLoad(std::string_view name, std::string_view outPath, const std::function<void()>& loadEvent) 
@@ -743,6 +757,21 @@ void ESceneManager::ObjectsLateUpdate()
 
 void ESceneManager::ObjectsMatrixUpdate()
 {
+    if (nullptr != _mainCamera)
+    {
+        if (true == _mainCamera->IsDirty())
+        {
+            _mainCamera->UpdatePerspective();
+        }
+        
+        Transform& transform = _mainCamera->gameObject->transform;
+        if (true == transform._hasChanged)
+        {
+            transform.UpdateMatrix();
+            _mainCamera->UpdateView();
+        }
+    }
+
     static std::unordered_set<Transform*> updateCheckSet;
     for (auto& obj : _runtimeObjects)
     {
@@ -946,6 +975,13 @@ void ESceneManager::ObjectsAddRuntime()
         {
             _waitAwakeVec.push_back(component);
             _waitStartVec.push_back(component);
+        }
+
+        if (component->_type == Component::TYPE::CAMERA)
+        {
+            CameraComponent* camera = static_cast<CameraComponent*>(component.get());
+            std::shared_ptr<Camera> newCamera(new Camera);
+            camera->SetCamera(newCamera);
         }
     }
     _addComponentsQueue.clear();
