@@ -35,6 +35,7 @@ public:
             if (true == ReflectFields->IsMainCam)
             {
                 UmRenderer.SetCamera("Game", _camera);
+                ESceneManager::Engine::SetSceneMainCamera(this);
             }
         }
         return result;
