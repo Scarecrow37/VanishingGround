@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "Renderer.h"
+#include "RenderTarget.h"
 #include "Box.h"
 #include "Cylinder.h"
 #include "GeoSphere.h"
@@ -10,6 +11,8 @@
 #include "RenderScene.h"
 #include "RendererFileEvent.h"
 #include "SkyBoxRenderTechnique.h"
+#include "BloomTechnique.h"
+#include "ToneMappingTechnique.h"
 #include "Sphere.h"
 
 Renderer::Renderer()
@@ -21,7 +24,7 @@ Renderer::~Renderer() {}
 
 D3D12_GPU_DESCRIPTOR_HANDLE Renderer::GetRenderSceneImage(std::string_view renderSceneName)
 {
-    auto iter = _renderScenes.find(std::string(renderSceneName));
+    auto iter = _renderScenes.find(renderSceneName.data());
 
     if (iter == _renderScenes.end())
     {
@@ -30,23 +33,38 @@ D3D12_GPU_DESCRIPTOR_HANDLE Renderer::GetRenderSceneImage(std::string_view rende
         GRAPHICS_ASSERT(false, msg.c_str());
     }
 
-    auto scene = iter->second;
+    auto& scene = iter->second;
     return scene->GetFinalImage();
 }
 
 std::shared_ptr<Camera> Renderer::GetCamera(std::string_view renderSceneName)
 {
-    auto iter = _renderScenes.find(std::string(renderSceneName));
+    auto iter = _renderScenes.find(renderSceneName.data());
 
     if (iter == _renderScenes.end())
     {
-        std::wstring msg = L"Renderer::GetRenderSceneImage: RenderSceneName '" +
+        std::wstring msg = L"Renderer::GetCamera: RenderSceneName '" +
                            std::wstring(renderSceneName.begin(), renderSceneName.end()) + L"' is not registered.";
         GRAPHICS_ASSERT(false, msg.c_str());
     }
 
-    auto scene = iter->second;
+    auto& scene = iter->second;
     return scene->GetCamera();
+}
+
+void Renderer::SetCamera(std::string_view renderSceneName, std::shared_ptr<Camera> camera)
+{
+    auto iter = _renderScenes.find(renderSceneName.data());
+
+    if (iter == _renderScenes.end())
+    {
+        std::wstring msg = L"Renderer::SetCamera: RenderSceneName '" +
+                           std::wstring(renderSceneName.begin(), renderSceneName.end()) + L"' is not registered.";
+        GRAPHICS_ASSERT(false, msg.c_str());
+    }
+
+    auto& scene = iter->second;
+    scene->SetCamera(camera);
 }
 
 void Renderer::RegisterRenderQueue(std::string_view sceneName, MeshRenderer* component)
@@ -58,7 +76,7 @@ void Renderer::RegisterRenderQueue(std::string_view sceneName, MeshRenderer* com
         GRAPHICS_ASSERT(false, L"Renderer::RegisterRenderQueue : Render Scene Not Registered.");
     }
 
-    auto scene = iter->second;
+    auto& scene = iter->second;
     scene->RegisterOnRenderQueue(component);
 }
 
@@ -71,22 +89,22 @@ void Renderer::SetSkyBox(std::string_view sceneName, std::string_view path)
         GRAPHICS_ASSERT(false, L"Renderer::RegisterRenderQueue : Render Scene Not Registered.");
     }
 
-    auto scene = iter->second;
+    auto& scene = iter->second;
     scene->SetSkyBox(path);
 }
 
 void Renderer::SetSkyBox(std::string_view path)
 {
     // 얼추 게임 씬 나오면 그거 바꿔야할텐데.
-    auto iter = _renderScenes.find("Editor");
-    auto scene = iter->second;
+    auto  iter  = _renderScenes.find("Editor");
+    auto& scene = iter->second;
     scene->SetSkyBox(path);
 }
 
 void Renderer::ResetSkyBox()
 {
-    auto iter  = _renderScenes.find("Editor");
-    auto scene = iter->second;
+    auto iter = _renderScenes.find("Editor");
+    auto& scene = iter->second;
     scene->ResetSkyBox();
 }
 
@@ -99,7 +117,7 @@ void Renderer::ResetSkyBox(std::string_view sceneName)
         GRAPHICS_ASSERT(false, L"Renderer::RegisterRenderQueue : Render Scene Not Registered.");
     }
 
-    auto scene = iter->second;
+    auto& scene = iter->second;
     scene->ResetSkyBox();
 }
 
@@ -107,25 +125,34 @@ void Renderer::Initialize()
 {
     CreateDefaultResource();
 
-    std::shared_ptr<RenderScene> editorScene = std::make_shared<RenderScene>("Editor");
-    editorScene->InitializeRenderScene();
-    std::shared_ptr<SkyBoxRenderTechnique> skyTech = std::make_shared<SkyBoxRenderTechnique>();
-    editorScene->AddRenderTechnique(skyTech);
-    std::shared_ptr<PBRLitTechnique> pbrTech = std::make_shared<PBRLitTechnique>();
-    editorScene->AddRenderTechnique(pbrTech);
-    _renderScenes["Editor"] = editorScene;
+    std::unique_ptr<RenderScene> scene;
+
+    scene = std::make_unique<RenderScene>("Game");
+    scene->InitializeRenderScene();
+    scene->AddRenderTechnique(std::make_unique<SkyBoxRenderTechnique>());
+    scene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
+    scene->AddRenderTechnique(std::make_unique<BloomTechnique>());
+    //scene->AddRenderTechnique(std::make_unique<ToneMappingTechnique>());
+    _renderScenes["Game"] = std::move(scene);
 
     if constexpr (IS_EDITOR)
     {
-        // Model Viewer Scene
-        std::shared_ptr<RenderScene> modelViewerScene = std::make_shared<RenderScene>("ModelViewer");
-        modelViewerScene->InitializeRenderScene();
-        modelViewerScene->AddRenderTechnique(std::make_shared<PBRLitTechnique>());
-        _renderScenes["ModelViewer"] = modelViewerScene;        
-
         // Renderer File Event
         _rendererFileEvent = std::make_unique<RendererFileEvent>();
         UmFileSystem.RegisterFileEventSubscriber(_rendererFileEvent.get(), {".png", ".dds", ".fbx", ".UmModel"});
+
+        // Editor Scene
+        scene = std::make_unique<RenderScene>("Editor");
+        scene->InitializeRenderScene();
+        scene->AddRenderTechnique(std::make_unique<SkyBoxRenderTechnique>());
+        scene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
+        _renderScenes["Editor"] = std::move(scene);
+
+        // Model Viewer Scene
+        scene = std::make_unique<RenderScene>("ModelViewer");
+        scene->InitializeRenderScene();
+        scene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
+        _renderScenes["ModelViewer"] = std::move(scene);                
     }
 }
 
@@ -141,11 +168,11 @@ void Renderer::Update()
 
 void Renderer::Render()
 {
-    ComPtr<ID3D12GraphicsCommandList> commandList = UmDevice.GetCommandList();
+    ID3D12GraphicsCommandList* commandList = UmDevice.GetCommandList();
 
     for (auto& renderScene : _renderScenes)
     {
-        renderScene.second->Execute(commandList.Get());
+        renderScene.second->Execute(commandList);
     }
     if constexpr (IS_EDITOR)
         UmDevice.SetBackBuffer();
@@ -153,16 +180,19 @@ void Renderer::Render()
 
 void Renderer::Flip()
 {
-    UmDevice.Execute();
-    UmDevice.Flip();
-    UmDevice.ResetCommands();
-    UmDevice.ResetComputeCommands();
+    auto& device = UmDevice;
+
+    device.Execute();
+    device.Flip();
+    device.ResetCommands();
+    device.ResetComputeCommands();
 }
 
 void Renderer::CreateDefaultResource()
 {
     CreateDefaultGeometry();
     CreateDefaultTexture();
+    CreateDefaultRenderTarget();
 }
 
 void Renderer::CreateDefaultGeometry()
@@ -193,41 +223,43 @@ void Renderer::CreateDefaultGeometry()
     std::shared_ptr<Model>    geometry;
     std::unique_ptr<BaseMesh> baseMesh;
 
+    auto& resourceManager = UmResourceManager;
+
     baseMesh = std::move(box);
     geometry = std::make_shared<Model>();
     geometry->AddMesh(std::move(baseMesh));
     _defaultResource.push_back(geometry);
-    UmResourceManager.AddResource(L"Box", geometry);
+    resourceManager.AddResource(L"Box", geometry);
 
     baseMesh = std::move(cylinder);
     geometry = std::make_shared<Model>();
     geometry->AddMesh(std::move(baseMesh));
     _defaultResource.push_back(geometry);
-    UmResourceManager.AddResource(L"Cylinder", geometry);
+    resourceManager.AddResource(L"Cylinder", geometry);
 
     baseMesh = std::move(sphere);
     geometry = std::make_shared<Model>();
     geometry->AddMesh(std::move(baseMesh));
     _defaultResource.push_back(geometry);
-    UmResourceManager.AddResource(L"Sphere", geometry);
+    resourceManager.AddResource(L"Sphere", geometry);
 
     baseMesh = std::move(geoSphere);
     geometry = std::make_shared<Model>();
     geometry->AddMesh(std::move(baseMesh));
     _defaultResource.push_back(geometry);
-    UmResourceManager.AddResource(L"GeoSphere", geometry);
+    resourceManager.AddResource(L"GeoSphere", geometry);
 
     baseMesh = std::move(grid);
     geometry = std::make_shared<Model>();
     geometry->AddMesh(std::move(baseMesh));
     _defaultResource.push_back(geometry);
-    UmResourceManager.AddResource(L"Grid", geometry);
+    resourceManager.AddResource(L"Grid", geometry);
 
     baseMesh = std::move(quad);
     geometry = std::make_shared<Model>();
     geometry->AddMesh(std::move(baseMesh));
     _defaultResource.push_back(geometry);
-    UmResourceManager.AddResource(L"Quad", geometry);
+    resourceManager.AddResource(L"Quad", geometry);
 }
 
 void Renderer::CreateDefaultTexture()
@@ -281,6 +313,30 @@ void Renderer::CreateDefaultTexture()
     _defaultResource.push_back(textureResource);
 
     UmDevice.UploadResource(uploadHeap);
+}
+
+void Renderer::CreateDefaultRenderTarget()
+{
+    std::unique_ptr<RenderTarget> renderTarget;
+    std::initializer_list<std::string_view> defaultRenderTargets = {"1024x1024", "512x512", "256x256", "128x128", "64x64", "32x32", "16x16", "8x8", "4x4", "2x2", "1x1"};
+    UINT size[]{1024, 1024};
+
+    auto& multiRenderTargetManager = UmMultiRenderTargetManager;
+    for (auto& defaultRenderTarget : defaultRenderTargets)
+    {
+        renderTarget = std::make_unique<RenderTarget>();
+        renderTarget->Initialize(size[0], size[1], DXGI_FORMAT_R32G32B32A32_FLOAT, 0.f);
+        renderTarget->CreateShaderResourceView();
+        size[0] >>= 1;
+        size[1] >>= 1;
+
+        multiRenderTargetManager.AddRenderTarget(defaultRenderTarget, std::move(renderTarget));
+        multiRenderTargetManager.AddRenderTargetGroup("Mipmap", defaultRenderTarget.data());
+    }
+
+    auto mode = UmDevice.GetMode();
+    mode.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    multiRenderTargetManager.InitializeRenderTargetPool(4, mode);
 }
 
 void Renderer::InitializeImgui()

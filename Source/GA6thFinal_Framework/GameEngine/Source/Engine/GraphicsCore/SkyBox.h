@@ -1,6 +1,6 @@
 ﻿#pragma once
+
 class Box;
-class ShaderBuilder;
 class SkyBox
 {
 public:

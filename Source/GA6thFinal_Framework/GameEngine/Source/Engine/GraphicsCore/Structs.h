@@ -90,3 +90,10 @@ struct DescriptorHandles
     D3D12_CPU_DESCRIPTOR_HANDLE CPU;
     D3D12_GPU_DESCRIPTOR_HANDLE GPU;
 };
+
+struct PostProcessData
+{
+    Vector2      ScreenSize;
+    Vector2      TexelSize;
+    unsigned int PostProcessMask;
+};

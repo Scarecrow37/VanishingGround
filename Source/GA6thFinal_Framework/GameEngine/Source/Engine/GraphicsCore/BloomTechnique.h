@@ -1,17 +1,13 @@
 ﻿#pragma once
 #include "RenderTechnique.h"
 
-class PBRLitTechnique : public RenderTechnique
+class BloomTechnique : public RenderTechnique
 {
 public:
-    PBRLitTechnique();
-    virtual ~PBRLitTechnique();
+    BloomTechnique();
+    virtual ~BloomTechnique();
 
 public:
     void Initialize(ID3D12GraphicsCommandList* commandList) override;
     void Execute(ID3D12GraphicsCommandList* commandList) override;
-
-private:
-    void InitGBufferPass();
-    void InitDeferredPass();
 };

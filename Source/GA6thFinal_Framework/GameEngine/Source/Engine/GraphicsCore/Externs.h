@@ -6,3 +6,4 @@
 #define UmResourceManager Global::engineCore->Graphics.ResourceManager
 #define UmAnimationCore Global::engineCore->Graphics.AnimationCore
 #define UmLightCore Global::engineCore->Graphics.LightCore
+#define UmMultiRenderTargetManager Global::engineCore->Graphics.MultiRenderTargetManager

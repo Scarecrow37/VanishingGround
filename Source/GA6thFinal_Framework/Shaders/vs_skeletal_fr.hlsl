@@ -22,20 +22,15 @@ struct VSOutput
     float4 worldPosition : POSITION;
 };
 
-struct BoneTransform
-{
-    matrix Transform;
-};
-
 StructuredBuffer<matrix> worldMatrices;
-StructuredBuffer<BoneTransform> boneMatrices;
+StructuredBuffer<matrix> boneMatrices;
 
 VSOutput vs_main(VSInput input)
 {    
-    matrix boneTransform = mul(input.blendWeights.x, boneMatrices[objectData.ID * objectData.Offset + input.blendIndices.x].Transform);
-    boneTransform += mul(input.blendWeights.y, boneMatrices[objectData.ID * objectData.Offset + input.blendIndices.y].Transform);
-    boneTransform += mul(input.blendWeights.z, boneMatrices[objectData.ID * objectData.Offset + input.blendIndices.z].Transform);
-    boneTransform += mul(input.blendWeights.w, boneMatrices[objectData.ID * objectData.Offset + input.blendIndices.w].Transform);
+    matrix boneTransform = mul(input.blendWeights.x, boneMatrices[objectData.ID * objectData.Offset + input.blendIndices.x]);
+    boneTransform += mul(input.blendWeights.y, boneMatrices[objectData.ID * objectData.Offset + input.blendIndices.y]);
+    boneTransform += mul(input.blendWeights.z, boneMatrices[objectData.ID * objectData.Offset + input.blendIndices.z]);
+    boneTransform += mul(input.blendWeights.w, boneMatrices[objectData.ID * objectData.Offset + input.blendIndices.w]);
     matrix worldTransform = mul(boneTransform, worldMatrices[objectData.ID]);
     
     VSOutput output = (VSOutput) 0;

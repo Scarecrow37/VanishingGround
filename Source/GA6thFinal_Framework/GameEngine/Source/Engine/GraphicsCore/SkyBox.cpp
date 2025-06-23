@@ -1,7 +1,6 @@
 ﻿#include "pch.h"
 #include "SkyBox.h"
 #include "Box.h"
-#include "ShaderBuilder.h"
 
 SkyBox::SkyBox() : _box{std::make_unique<Box>()}, _hasTexture{false} {}
 
@@ -273,5 +272,5 @@ void SkyBox::SetPipelineState()
     ID3D12GraphicsCommandList* cmdList = UmDevice.GetCommandList();
     cmdList->SetPipelineState(_computePSO.Get());
     cmdList->SetComputeRootSignature(_shader->GetRootSignature());
-    cmdList->SetDescriptorHeaps(1, &_descriptorHeap);
+    cmdList->SetDescriptorHeaps(1,_descriptorHeap.GetAddressOf());
 }
