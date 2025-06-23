@@ -110,26 +110,33 @@ void Renderer::Initialize()
 {
     CreateDefaultResource();
 
-    std::unique_ptr<RenderScene> editorScene = std::make_unique<RenderScene>("Editor");
-    editorScene->InitializeRenderScene();
-    editorScene->AddRenderTechnique(std::make_unique<SkyBoxRenderTechnique>());
-    editorScene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
-    editorScene->AddRenderTechnique(std::make_unique<BloomTechnique>());
-    //editorScene->AddRenderTechnique(std::make_unique<ToneMappingTechnique>());
+    std::unique_ptr<RenderScene> scene;
 
-    _renderScenes["Editor"] = std::move(editorScene);
+    scene = std::make_unique<RenderScene>("Game");
+    scene->InitializeRenderScene();
+    scene->AddRenderTechnique(std::make_unique<SkyBoxRenderTechnique>());
+    scene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
+    scene->AddRenderTechnique(std::make_unique<BloomTechnique>());
+    //scene->AddRenderTechnique(std::make_unique<ToneMappingTechnique>());
+    _renderScenes["Game"] = std::move(scene);
 
     if constexpr (IS_EDITOR)
     {
-        // Model Viewer Scene
-        std::unique_ptr<RenderScene> modelViewerScene = std::make_unique<RenderScene>("ModelViewer");
-        modelViewerScene->InitializeRenderScene();
-        modelViewerScene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
-        _renderScenes["ModelViewer"] = std::move(modelViewerScene);        
-
         // Renderer File Event
         _rendererFileEvent = std::make_unique<RendererFileEvent>();
         UmFileSystem.RegisterFileEventSubscriber(_rendererFileEvent.get(), {".png", ".dds", ".fbx", ".UmModel"});
+
+        // Editor Scene
+        scene = std::make_unique<RenderScene>("Editor");
+        scene->AddRenderTechnique(std::make_unique<SkyBoxRenderTechnique>());
+        scene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
+        _renderScenes["Editor"] = std::move(scene);
+
+        // Model Viewer Scene
+        scene = std::make_unique<RenderScene>("ModelViewer");
+        scene->InitializeRenderScene();
+        scene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
+        _renderScenes["ModelViewer"] = std::move(scene);                
     }
 }
 
