@@ -2,7 +2,7 @@
 
 LightComponent::LightComponent() 
     :
-    Component(Component::Type::Light),
+    Component(Component::TYPE::LIGHT),
     _light(std::make_unique<Light>()),
     Lighting(*_light)
 {

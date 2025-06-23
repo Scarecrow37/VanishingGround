@@ -166,14 +166,14 @@ void ESceneManager::Engine::SetGameObjectActive(GameObject* pObject, bool value)
                                 }
                             }
 
-                            if (Component::Type::RENDER == component->_type)
+                            if (Component::TYPE::RENDER == component->_type)
                             {
                                 auto& meshActiveQueue = value ? sceneManager._meshSetActiveQueue.first
                                                               : sceneManager._meshSetActiveQueue.second;
                                 MeshComponent* meshComponent   = static_cast<MeshComponent*>(component.get());
                                 meshActiveQueue.push_back(meshComponent->Renderer.get());
                             }
-                            else if (Component::Type::Light == component->_type)
+                            else if (Component::TYPE::LIGHT == component->_type)
                             {
                                 auto& lightActiveQueue = value ? sceneManager._meshSetActiveQueue.first
                                                                : sceneManager._meshSetActiveQueue.second;
@@ -210,14 +210,14 @@ void ESceneManager::Engine::SetComponentEnable(Component* component, bool value)
             }
             
             // 메시 컴포넌트들은 meshRenderer의 SetActive도 변경해야함.
-            if (Component::Type::RENDER == component->_type)
+            if (Component::TYPE::RENDER == component->_type)
             {
                 auto& meshActiveQueue = value ? sceneManager._meshSetActiveQueue.first 
                                               : sceneManager._meshSetActiveQueue.second;
                 MeshComponent* meshComponent = static_cast<MeshComponent*>(component);
                 meshActiveQueue.push_back(meshComponent->Renderer.get());
             }
-            else if (Component::Type::Light == component->_type)
+            else if (Component::TYPE::LIGHT == component->_type)
             {
                 auto& lightActiveQueue = value ? sceneManager._meshSetActiveQueue.first 
                                                : sceneManager._meshSetActiveQueue.second;
