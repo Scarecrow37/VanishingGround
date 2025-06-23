@@ -296,6 +296,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectDetails.h" />
+    <ClInclude Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectHierarchy.h" />
+    <ClInclude Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectViewer.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\ParticleResolvePass.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\ParticleSpritePass.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\ParticleRenderTechnique.h" />
     <ClInclude Include="Source\Editor\Menu\Model\EditorModelMenu.h" />
     <ClInclude Include="Source\Editor\Tool\Hierarchy\HierarchyFindTool.h" />
     <ClInclude Include="Source\Editor\Tool\Scene\Command\EditorSceneCommands.h" />
@@ -325,6 +331,7 @@
     <ClInclude Include="Source\Engine\GraphicsCore\FBXConverter.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\GraphicsBase.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\MeshRenderer.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\ParticleHelper.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\RendererFileEvent.h" />
     <ClInclude Include="Source\Engine\FileSystem\Type\FileSystemSetting.h" />
     <ClInclude Include="Source\Engine\FileSystem\Type\FileData.h" />
@@ -348,6 +355,10 @@
     <ClInclude Include="Source\Engine\GameCore\Component\MissingComponent.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\DeferredPBRLitPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\GBufferPass.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\Particle.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\ParticleEffect.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\ParticleEmitter.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\ParticleManager.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\PBRLitTechnique.h" />
     <ClInclude Include="Source\Engine\EditorCore\Gui\PopupBox\EditorPopupBox.h" />
     <ClInclude Include="Source\Engine\EditorCore\System\EditorPopupBoxSystem.h" />
@@ -480,6 +491,12 @@
     <ClInclude Include="ThirdParty\include\UmYaml-cpp.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectDetails.cpp" />
+    <ClCompile Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectHierarchy.cpp" />
+    <ClCompile Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectViewer.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\ParticleResolvePass.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\ParticleSpritePass.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\ParticleRenderTechnique.cpp" />
     <ClCompile Include="Source\Editor\Menu\Model\EditorModelMenu.cpp" />
     <ClCompile Include="Source\Editor\Tool\Hierarchy\HierarchyFindTool.cpp" />
     <ClCompile Include="Source\Editor\Tool\Scene\Command\EditorSceneCommands.cpp">
@@ -505,6 +522,7 @@
     <ClCompile Include="Source\Engine\GraphicsCore\d3dUtil.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\FBXConverter.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\MeshRenderer.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\Particle.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\RendererFileEvent.cpp" />
     <ClCompile Include="Source\Editor\DynamicCamera\EditorDynamicCamera.cpp" />
     <ClCompile Include="Source\Editor\Tool\Model\EditorModelTool.cpp" />
@@ -548,6 +566,9 @@
     <ClCompile Include="Source\Engine\GameCore\Component\MissingComponent.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\DeferredPBRLitPass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\GBufferPass.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\ParticleEffect.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\ParticleEmitter.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\ParticleManager.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\PBRLitTechnique.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\Animator.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\M_PBR.cpp" />

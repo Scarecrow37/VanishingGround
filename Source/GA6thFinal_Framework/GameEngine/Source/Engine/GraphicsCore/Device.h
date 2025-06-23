@@ -11,6 +11,7 @@ public:
     ID3D12CommandQueue*        GetCommandQueue() const { return _commandQueue.Get(); }
     ID3D12CommandQueue*        GetComputeCommandQueue() const { return _computeCommandQueue.Get(); }
     ID3D12GraphicsCommandList* GetCommandList() const { return _commandList.Get(); }
+    ID3D12GraphicsCommandList* GetImguiCommandList() const { return _imguiCommandList.Get(); }
     ID3D12GraphicsCommandList* GetComputeCommandList() const { return _computeCommandList.Get(); }
     const DXGI_MODE_DESC&      GetMode() const { return _mode; }
 
@@ -116,6 +117,8 @@ private:
     // TODO : temp 나중에 commandList manager생기고 삭제하기? 수정하기?
     ComPtr<ID3D12GraphicsCommandList> _commandList;
     ComPtr<ID3D12CommandAllocator>    _commandAllocator;
+    ComPtr<ID3D12GraphicsCommandList> _imguiCommandList;
+    ComPtr<ID3D12CommandAllocator>    _imguiCommandAllocator;
 
     // compute 관련 command 객체들
     ComPtr<ID3D12CommandQueue>        _computeCommandQueue;
