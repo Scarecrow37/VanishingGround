@@ -143,6 +143,7 @@ void Renderer::Initialize()
 
         // Editor Scene
         scene = std::make_unique<RenderScene>("Editor");
+        scene->InitializeRenderScene();
         scene->AddRenderTechnique(std::make_unique<SkyBoxRenderTechnique>());
         scene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
         _renderScenes["Editor"] = std::move(scene);
