@@ -44,7 +44,7 @@ namespace Command
             auto system = _timelineSystem.lock();
             if (nullptr == system)
                 return;
-            _notify = system->AddNotify(_time, _typeNameID, _id);
+            _notify = system->AddNotify(_typeNameID, _time, _id);
             if (UINT_MAX == _id)
             {
                 _id = _notify->ID;
@@ -77,7 +77,7 @@ namespace Command
             auto system = _timelineSystem.lock();
             if (nullptr == system)
                 return;
-            _notify = system->AddNotify(_time, _typeNameID, _id);
+            _notify = system->AddNotify(_typeNameID, _time, _id);
         }
 
         ChangeNotifyTime::ChangeNotifyTime(std::weak_ptr<TimelineSystem> system, TimelineNotify* notify,
@@ -92,7 +92,7 @@ namespace Command
             auto system = _timelineSystem.lock();
             if (nullptr == system || _notify == nullptr)
                 return;
-            _notify->SetNotifyEvent(_changedTime, _changedTypeNameID);
+            _notify->SetNotifyEventAndTime(_changedTypeNameID, _changedTime);
         }
 
         void ChangeNotifyTime::Undo() 
@@ -100,7 +100,7 @@ namespace Command
             auto system = _timelineSystem.lock();
             if (nullptr == system || _notify == nullptr)
                 return;
-            _notify->SetNotifyEvent(_previousTime, _previousTypeNameID);
+            _notify->SetNotifyEventAndTime(_previousTypeNameID, _previousTime);
         }
     } // namespace Sequencer
 } // namespace Command

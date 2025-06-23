@@ -23,7 +23,7 @@ void TimelineNotify::Notify()
     _event->OnNotified(Time);
 }
 
-void TimelineNotify::SetNotifyEvent(float time, std::string_view typeNameID) 
+void TimelineNotify::SetNotifyEventAndTime(std::string_view typeNameID, float time)
 {
     if (nullptr != _event)
     {
@@ -35,6 +35,22 @@ void TimelineNotify::SetNotifyEvent(float time, std::string_view typeNameID)
     ReflectFields->EventNameData = typeNameID;
 
     _event = FactoryConstructor<ITimelineEvent>::NewInstanceWithKey(ReflectFields->EventNameData);
+}
+
+void TimelineNotify::SetNotifyEvent(std::string_view typeNameID)
+{
+    if (nullptr != _event)
+    {
+        delete _event;
+        _event = nullptr;
+    }
+    ReflectFields->EventNameData = typeNameID;
+    _event = FactoryConstructor<ITimelineEvent>::NewInstanceWithKey(ReflectFields->EventNameData);
+}
+
+void TimelineNotify::SetNotifyTime(float time)
+{
+    ReflectFields->TimeData = time;
 }
 
 bool TimelineNotify::IsValidID() const
@@ -117,44 +133,29 @@ bool TimelineSystem::RemoveNotifyFromNotify(TimelineNotify** notify)
     return false;
 }
 
-bool TimelineSystem::RemoveNotifyFromIndex(size_t index)
+bool TimelineSystem::ChangeNotifyTime(UINT id, float time)
 {
-    if (index < 0 || index >= _timelineNotifyQueue.size())
+    TimelineNotify* notify = GetNotifyFromID(id);
+    if (nullptr != notify)
     {
-        return false;
-    }
-    UINT id = _timelineNotifyQueue[index]->ID;
-    auto it = _timelineNotifyQueue.begin() + index;
-    delete (*it);
-    _timelineNotifyQueue.erase(it);
-    _idToNotifyTable.erase(id);
-    return true;
-}
-
-bool TimelineSystem::ChangeNotifyTimeFromEvent(ITimelineEvent* event, float newTime)
-{
-    for (auto& notify : _timelineNotifyQueue)
-    {
-        if (notify->Event == event)
-        {
-            notify->Time = newTime;
-            Sort();
-            return true;
-        }
+        notify->SetNotifyTime(time);
+        return true;
     }
     return false;
 }
 
-bool TimelineSystem::ChangeNotifyTimeFromIndex(size_t index, float newTime)
+bool TimelineSystem::ChangeNotifyEvent(UINT id, std::string_view typeNameID)
 {
-    if (index < 0 || index >= _timelineNotifyQueue.size())
+    TimelineNotify* notify = GetNotifyFromID(id);
+    if (nullptr != notify)
     {
-        return false;
+        notify->SetNotifyEvent(typeNameID);
+        return true;
     }
-    _timelineNotifyQueue[index]->Time = newTime;
-    Sort();
-    return true;
+    return false;
 }
+
+
 
 TimelineNotify* TimelineSystem::GetNotifyFromID(UINT id) const
 {
@@ -164,15 +165,6 @@ TimelineNotify* TimelineSystem::GetNotifyFromID(UINT id) const
         return it->second;
     }
     return nullptr;
-}
-
-TimelineNotify* TimelineSystem::GetNotifyFromIndex(size_t index) const
-{
-    if (index < 0 || index >= _timelineNotifyQueue.size())
-    {
-        throw std::out_of_range("Index out of range in TimelineSystem::GetNotifyFromIndex");
-    }
-    return _timelineNotifyQueue[index];
 }
 
 void TimelineSystem::Update()

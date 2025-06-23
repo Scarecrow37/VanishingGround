@@ -1,5 +1,9 @@
 ﻿#pragma once
 
+/// <summary>
+/// TimelineEvent의 인터페이스입니다.
+/// TimelineEvent는 TimelineNotify에 의해 특정 시간에 호출되는 이벤트입니다.
+/// </summary>
 class ITimelineEvent : public ReflectSerializer
 {
     USING_PROPERTY(ITimelineEvent)
@@ -11,6 +15,9 @@ public:
     REFLECT_FIELDS_END(ITimelineEvent)
 };
 
+/// <summary>
+/// TimelineEvent를 특정 시간에 맞춰 호출해주는 객체입니다.
+/// </summary>
 class TimelineNotify : public ReflectSerializer
 {
     USING_PROPERTY(TimelineNotify)
@@ -20,7 +27,9 @@ public:
 
 public:
     void Notify();
-    void SetNotifyEvent(float time, std::string_view typeNameID);
+    void SetNotifyEventAndTime(std::string_view typeNameID, float time);
+    void SetNotifyEvent(std::string_view typeNameID);
+    void SetNotifyTime(float time);
     bool IsValidID() const;
 
     REFLECT_PROPERTY(EventName, Time, ID)
@@ -71,6 +80,12 @@ public:
     ~TimelineSystem();
 
 public:
+    /// <summary>
+    /// Notify를 추가합니다.
+    /// </summary>
+    /// <typeparam name="T">추가할 TimelineEvent 클래스</typeparam>
+    /// <param name="time">TimelineEvent가 호출 될 시간 값</param>
+    /// <returns>추가한 Notify의 포인터</returns>
     template<typename T> 
     TimelineNotify* AddNotify(float time)
     {
@@ -79,7 +94,14 @@ public:
         return AddNotify(time, key);
     }
 
-    TimelineNotify* AddNotify(float time, std::string_view typenameID, UINT id = UINT_MAX)
+    /// <summary>
+    /// TypeName을 통해 Notify를 추가합니다.
+    /// </summary>
+    /// <param name="time">TimelineEvent가 호출 될 시간 값</param>
+    /// <param name="typenameID">TimelineEvent 객체의 TypeName 값</param>
+    /// <param name="id">Notify가 등록될 id입니다. default 인자로 호출 시 기본 값이 등록됩니다.</param>
+    /// <returns>이미 추가된 id라면 기존 Notify의 포인터를, 추가된 적 없는 id라면 새로 추가한 Notify의 포인터를 반환합니다.</returns>
+    TimelineNotify* AddNotify(std::string_view typenameID, float time, UINT id = UINT_MAX)
     {
         UINT uniqueID = (id == UINT_MAX) ? GetUniqueID() : id;
         auto it = _idToNotifyTable.find(uniqueID);
@@ -88,23 +110,67 @@ public:
             return it->second;
         }
         TimelineNotify* notify   = new TimelineNotify(uniqueID);
-        notify->SetNotifyEvent(time, typenameID);
+        notify->SetNotifyEventAndTime(typenameID, time);
         _timelineNotifyQueue.push_back(notify);
         _idToNotifyTable[uniqueID] = notify;
         Sort();
         return notify;
     }
 
+    /// <summary>
+    /// ID를 통해 Notify를 제거합니다.
+    /// </summary>
+    /// <param name="id">제거할 Notify의 ID값</param>
+    /// <returns>
+    /// <para>제거에 성공할 시 true를 반환합니다.</para>
+    /// <para>해당 인자를 통해 객체를 찾지 못하면 false를 반환합니다.</para>
+    /// </returns>
     bool RemoveNotifyFromID(UINT id);
+    /// <summary>
+    /// ITimelineEvent를 통해 Notify를 제거합니다.
+    /// 제거에 성공하면, 인자로 넣은 ITimelineEvent포인터의 포인터를 nullptr로 설정합니다.
+    /// </summary>
+    /// <param name="event">제거할 Notify의 ITimelineEvent 이중 포인터</param>
+    /// <returns>
+    /// <para>제거에 성공할 시 true를 반환합니다.</para>
+    /// <para>해당 인자를 통해 객체를 찾지 못하면 false를 반환합니다.</para>
+    /// </returns>
     bool RemoveNotifyFromEvent(ITimelineEvent** event);
+    /// <summary>
+    /// TimelineNotify를 통해 Notify를 제거합니다.
+    /// 제거에 성공하면, 인자로 넣은 TimelineNotify포인터의 포인터를 nullptr로 설정합니다.
+    /// </summary>
+    /// <param name="event">제거할 Notify의 TimelineNotify 이중 포인터</param>
+    /// <returns>
+    /// <para>제거에 성공할 시 true를 반환합니다.</para>
+    /// <para>해당 인자를 통해 객체를 찾지 못하면 false를 반환합니다.</para>
+    /// </returns>
     bool RemoveNotifyFromNotify(TimelineNotify** notify);
-    bool RemoveNotifyFromIndex(size_t index);
 
-    bool ChangeNotifyTimeFromEvent(ITimelineEvent* event, float newTime);
-    bool ChangeNotifyTimeFromIndex(size_t index, float newTime);
+    /// <summary>
+    /// Notify의 시간을 변경합니다.
+    /// </summary>
+    /// <param name="id">변경할 Notify의 ID값</param>
+    /// <param name="time">변경할 시간</param>
+    /// <returns></returns>
+    bool ChangeNotifyTime(UINT id, float time);
+    /// <summary>
+    /// Notify의 이벤트를 변경합니다.
+    /// </summary>
+    /// <param name="id">변경할 Notify의 ID값</param>
+    /// <param name="typeNameID">변경할 이벤트 객체의 TypeNameID</param>
+    /// <returns></returns>
+    bool ChangeNotifyEvent(UINT id, std::string_view typeNameID);
 
+    /// <summary>
+    /// ID로부터 Notify를 찾습니다.
+    /// </summary>
+    /// <param name="id">찾을 Notify의 ID값</param>
+    /// <returns>
+    /// <para>찾는데 성공하면 해당 ID값의 TimelineNotify의 포인터를 반환합니다.</para>
+    /// <para>실패하면 nullptr을 반환합니다.</para>
+    /// </returns>
     TimelineNotify* GetNotifyFromID(UINT id) const;
-    TimelineNotify* GetNotifyFromIndex(size_t index) const;
 
 public:
     void Update();
@@ -122,14 +188,14 @@ public:
 
     void SetCurrentFrame(float frame, bool pass = false);
 
-    /* Flags */
+    /*/// Flags ///*/
     inline void SetFlags(TimeLineSystemFlags flags) { ReflectFields->Flags = flags; }
     inline void AddFlags(TimeLineSystemFlags flags) { ReflectFields->Flags |= flags; }
     inline void RemoveFlags(TimeLineSystemFlags flags) { ReflectFields->Flags &= ~flags; }
     inline void ToggleFlags(TimeLineSystemFlags flags) { ReflectFields->Flags ^= flags; }
     inline bool HasFlags(TimeLineSystemFlags flags) const { return ReflectFields->Flags & flags; }
 
-    /* Getter */
+    /*/// Get ///*/
     inline float    GetMaxFrame() const { return ReflectFields->MaxFrame; }
     inline float    GetMinFrame() const { return ReflectFields->MinFrame; }
     inline float    GetCurrentFrame() const { return _currFrame; }

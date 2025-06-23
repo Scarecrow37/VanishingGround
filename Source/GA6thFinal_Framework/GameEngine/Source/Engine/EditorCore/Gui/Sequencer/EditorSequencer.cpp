@@ -3,16 +3,16 @@
 
 EditorSequencer::EditorSequencer() 
     : _system(nullptr)
+    , _popupDest(nullptr)
     , _useSnapping(false)
-    , _canvasRect({})
+    , _cursorFrame(0.0f)
+    , _indicateFrame(0.0f)
     , _canvasUpperHeight(10.0f)
     , _viewLerpTarget(1.0f)
     , _zoomMin(0.05f)
     , _zoomMax(2.0f)
     , _viewPosition(ImVec2(0, 0))
-    , _ZoomPosition(ImVec2(0, 0)),
-      _cursorFrame(0.0f)
-    , _indicateFrame(0.0f)
+    , _zoomPosition(ImVec2(0, 0))
 {
 }
 
@@ -20,7 +20,7 @@ EditorSequencer::~EditorSequencer()
 {
 }
 
-void EditorSequencer::Render() 
+void EditorSequencer::Show()
 {
     if (nullptr == _system)
     {
@@ -28,7 +28,7 @@ void EditorSequencer::Render()
     }
     ImGui::PushID(_system.get());
 
-    DrawToolBar();
+    //DrawToolBar();
 
     if(Begin())
     {
@@ -37,16 +37,6 @@ void EditorSequencer::Render()
     End();
 
     ImGui::PopID();
-}
-
-ImVec2 EditorSequencer::GetFrameSize() const
-{
-    return _frameRect.GetSize();
-}
-
-ImVec2 EditorSequencer::GetFramePosition() const
-{
-    return _frameRect.Min;
 }
 
 bool EditorSequencer::Begin() 
@@ -382,16 +372,16 @@ bool EditorSequencer::WheelZooming()
             _viewLerpTarget *= 1.1f * ReflectFields->ZoomScale;
         }
         _viewLerpTarget = ImClamp(_viewLerpTarget, _zoomMin, _zoomMax);
-        _ZoomPosition = io.MousePos - _frameRect.Min;
+        _zoomPosition   = io.MousePos - _frameRect.Min;
     }
 
     float& viewScale = ReflectFields->ViewScale;
-    if (false == std::isnan(_ZoomPosition.x))
+    if (false == std::isnan(_zoomPosition.x))
     {
         ImVec2 mouseWPosPre, mouseWPosPost;
-        mouseWPosPre.x  = _ZoomPosition.x / viewScale;
-        viewScale       = ImLerp(ReflectFields->ViewScale, _viewLerpTarget, ReflectFields->ViewLerpScale);
-        mouseWPosPost.x = _ZoomPosition.x / viewScale;
+        mouseWPosPre.x  = _zoomPosition.x / viewScale;
+        viewScale       = ImLerp(viewScale, _viewLerpTarget, ReflectFields->ViewLerpScale);
+        mouseWPosPost.x = _zoomPosition.x / viewScale;
         _viewPosition += mouseWPosPost - mouseWPosPre;
     }
 
