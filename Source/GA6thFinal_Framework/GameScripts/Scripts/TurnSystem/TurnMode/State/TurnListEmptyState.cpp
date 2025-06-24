@@ -10,7 +10,7 @@ void TurnListEmptyState::OnAwake() {}
 
 void TurnListEmptyState::OnStart() 
 {
-    GetTurnModeBaseS::OnStart();
+    TurnModeStateBase::OnStart();
 
 }
 

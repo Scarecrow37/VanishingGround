@@ -185,6 +185,15 @@ bool EComponentFactory::InitalizeComponentFactory()
             {
                 newComponent->DeserializedReflectFields(reflectData); // 데이터 복구
             }          
+            if (Component::TYPE::CAMERA == newComponent->_type)
+            {
+                CameraComponent* camera = static_cast<CameraComponent*>(newComponent.get());
+                if (camera->GetCamera() == nullptr)
+                {
+                    std::shared_ptr<Camera> newCamera{new Camera};
+                    camera->SetTarget(newCamera);
+                }
+            }
         }     
     }
 

@@ -194,11 +194,16 @@ using namespace Microsoft::WRL;
 #include "Editor/Tool/Hierarchy/EditorHierarchyTool.h"
 #include "Editor/Tool/Hierarchy/HierarchyFindTool.h"
 #include "Editor/Tool/Scene/EditorSceneTool.h"
+#include "Editor/Tool/GameView/EditorGameView.h"
 #include "Editor/Tool/Log/EditorLogsTool.h"
 #include "Editor/Tool/Model/EditorModelDetails.h"
 #include "Editor/Tool/Model/EditorModelTool.h"
 #include "Editor/Tool/Model/EditorModelHierarchy.h"
 #include "Editor/Tool/Command/EditorCommandTool.h"
+
+#include "Editor/Tool/ParticleEffect/EditorParticleEffectDetails.h"
+#include "Editor/Tool/ParticleEffect/EditorParticleEffectViewer.h"
+#include "Editor/Tool/ParticleEffect/EditorParticleEffectHierarchy.h"
 
 // Editor Menu
 #include "Editor/Menu/Project/EditorProjectMenu.h"

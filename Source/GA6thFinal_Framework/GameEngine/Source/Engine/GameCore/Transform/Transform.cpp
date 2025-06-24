@@ -161,7 +161,8 @@ Transform* Transform::Find(std::string_view name) const
 
 void Transform::UpdateMatrix()
 {
-    ForeachDFS(*this, [](Transform* curr) 
+    Transform* root = _root ? _root : this;
+    ForeachDFS(*root, [](Transform* curr) 
     {
         curr->_localMatrix = Matrix::CreateScale(curr->_scale) *
                              Matrix::CreateFromQuaternion(curr->_rotation) *

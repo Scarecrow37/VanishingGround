@@ -41,7 +41,7 @@ void CombatStartPhase::OnAwake() {}
 
 void CombatStartPhase::OnStart() 
 {
-    GetTurnModeBaseS::OnStart();
+    TurnModeStateBase::OnStart();
 }
 
 void CombatStartPhase::OnEnter() 

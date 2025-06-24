@@ -1,11 +1,11 @@
 ﻿#pragma once
-#include "Base/GetTurnModeBaseS.h"
+#include "Base/TurnModeStateBase.h"
 
 /*
 * 라운드 종료 페이즈용 State 입니다.
 * 라운드 종료 연출을 실행해야합니다.
 */
-class RoundEndPhase : public GetTurnModeBaseS
+class RoundEndPhase : public TurnModeStateBase
 {
 public:
     RoundEndPhase();

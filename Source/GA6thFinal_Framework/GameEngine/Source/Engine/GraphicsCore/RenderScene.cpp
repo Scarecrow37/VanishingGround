@@ -1,19 +1,21 @@
 ﻿#include "pch.h"
 #include "RenderScene.h"
+#include "Animator.h"
 #include "FrameResource.h"
+#include "Light.h"
+#include "MeshRenderer.h"
 #include "Model.h"
 #include "Quad.h"
 #include "RenderTarget.h"
 #include "RenderTechnique.h"
-#include "MeshRenderer.h"
 #include "SkyBox.h"
-#include "Animator.h"
-#include "Light.h"
+#include "UnorderedAccessView.h"
 
 RenderScene::RenderScene(std::string_view name)
     : _frameQuad{std::make_unique<Quad>()}
     , _frameShader{std::make_unique<ShaderBuilder>()}
     , _skyBox{std::make_unique<SkyBox>()}
+    , _accumulationBuffer{std::make_unique<UnorderedAccessView>()}
     , _name(name)
 {
     _lightDatas.resize(MAX_LIGHT);
@@ -39,13 +41,18 @@ void RenderScene::InitializeRenderScene()
     CreateDepthStencil();
     CreateFrameQuadAndFrameShader();
     CreateFramePSO();
-    CreateSrvDescriptorHeap();
     CreateFrameResource();
+
+    DXGI_MODE_DESC mode = UmDevice.GetMode();
+    mode.Format         = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    _accumulationBuffer->Initialize(mode);
+    _accumulationBuffer->TransitionResource(UmDevice.GetCommandList(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }
 
 void RenderScene::RegisterOnRenderQueue(MeshRenderer* component)
 {
-    auto iter = std::find_if(_renderQueue.begin(), _renderQueue.end(), [](const auto& pair) { return !pair.first.get(); });
+    auto iter =
+        std::find_if(_renderQueue.begin(), _renderQueue.end(), [](const auto& pair) { return !pair.first.get(); });
 
     if (iter != _renderQueue.end())
     {
@@ -54,7 +61,7 @@ void RenderScene::RegisterOnRenderQueue(MeshRenderer* component)
     }
 
     _renderQueue.emplace_back(std::make_unique<bool>(false), component);
-    component->_isDestroy = _renderQueue.back().first.get();
+    component->_isDestroyeds.push_back(_renderQueue.back().first.get());
 }
 
 void RenderScene::AddRenderTechnique(std::unique_ptr<RenderTechnique> technique)
@@ -67,7 +74,7 @@ void RenderScene::AddRenderTechnique(std::unique_ptr<RenderTechnique> technique)
 
 void RenderScene::UpdateRenderScene()
 {
-    // 카메라 업데이트 
+    // 카메라 업데이트
     _camera->Update();
 
     // 비활성된 컴포넌트 제거
@@ -124,7 +131,7 @@ void RenderScene::UpdateRenderScene()
 
         if (MeshRenderType::SKELETAL == type)
         {
-            auto animator = component->GetAnimator();            
+            auto animator = component->GetAnimator();
             if (animator) memcpy(&boneMatrixes, animator->GetAnimationTransform(), sizeof(BoneMatrixes));
         }
 
@@ -144,7 +151,7 @@ void RenderScene::UpdateRenderScene()
         }
     }
 
-    UINT size = static_cast<UINT>(_worldMatrixes.size());
+    UINT                       size        = static_cast<UINT>(_worldMatrixes.size());
     ID3D12GraphicsCommandList* commandList = UmDevice.GetCommandList();
 
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, _worldMatrixes.data(), size * sizeof(XMMATRIX), FrameResource::Type::TRANSFORM);
@@ -155,9 +162,14 @@ void RenderScene::UpdateRenderScene()
 void RenderScene::Execute(ID3D12GraphicsCommandList* commandList)
 {
     RenderTarget* meshRenderTarget = UmMultiRenderTargetManager.GetRenderTarget(_meshRenderTargetName);
+    auto          descriptorHeap   = UmViewManager.GetShaderResourceHeap();
+    commandList->SetDescriptorHeaps(1, &descriptorHeap);
 
     meshRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
     meshRenderTarget->ClearRenderTarget(commandList);
+
+    _accumulationBuffer->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+    _accumulationBuffer->ClearUnorderedAccessView(commandList);
 
     for (auto& tech : _techniques)
     {
@@ -172,9 +184,9 @@ void RenderScene::ResetSkyBox()
 
 void RenderScene::CreateRenderTarget()
 {
-    auto  mode                                  = UmDevice.GetMode();
-    auto  commandList                           = UmDevice.GetCommandList();
-    auto& multiRenderTargetManager              = UmMultiRenderTargetManager;
+    auto                          mode                     = UmDevice.GetMode();
+    auto                          commandList              = UmDevice.GetCommandList();
+    auto&                         multiRenderTargetManager = UmMultiRenderTargetManager;
     std::unique_ptr<RenderTarget> renderTarget;
 
     _meshRenderTargetName = _name + "_MeshRenderTarget";
@@ -194,7 +206,7 @@ void RenderScene::CreateRenderTarget()
     multiRenderTargetManager.AddRenderTarget(_finalTargetName, std::move(renderTarget));
 }
 
-void RenderScene::CreateDepthStencil() 
+void RenderScene::CreateDepthStencil()
 {
     auto& device = UmDevice;
 
@@ -216,7 +228,9 @@ void RenderScene::CreateDepthStencil()
     CD3DX12_HEAP_PROPERTIES property(D3D12_HEAP_TYPE_DEFAULT);
 
     HRESULT hr = S_OK;
-    hr         = device.GetDevice()->CreateCommittedResource(&property, D3D12_HEAP_FLAG_NONE, &depthDesc, D3D12_RESOURCE_STATE_PRESENT, &optClear, IID_PPV_ARGS(&_depthStencilBuffer));
+    hr         = device.GetDevice()->CreateCommittedResource(&property, D3D12_HEAP_FLAG_NONE, &depthDesc,
+                                                             D3D12_RESOURCE_STATE_PRESENT, &optClear,
+                                                             IID_PPV_ARGS(&_depthStencilBuffer));
     FAILED_CHECK_MESSAGE(hr, L"RenderScene::CreateDepthStencil device.GetDevice()->CreateCommittedResource Failed");
 
     D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc{.Format        = device.GetDepthStencilFormat(),
@@ -237,38 +251,25 @@ void RenderScene::CreateFrameQuadAndFrameShader()
 }
 
 void RenderScene::CreateFramePSO()
-{    
-    D3D12_GRAPHICS_PIPELINE_STATE_DESC psodesc;
-    ZeroMemory(&psodesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
-    psodesc.RasterizerState       = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-    psodesc.BlendState            = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-    psodesc.DepthStencilState     = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-    psodesc.SampleMask            = UINT_MAX;
-    psodesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-    psodesc.InputLayout           = _frameShader->GetInputLayout();
-    psodesc.NumRenderTargets      = 1;
-    psodesc.RTVFormats[0]         = UmDevice.GetMode().Format;
-    psodesc.DSVFormat             = DXGI_FORMAT_D24_UNORM_S8_UINT;
-    psodesc.pRootSignature        = _frameShader->GetRootSignature();
-    psodesc.SampleDesc            = {1, 0};
-    psodesc.VS                    = _frameShader->GetShaderByteCode(ShaderBuilder::Type::VS);
-    psodesc.PS                    = _frameShader->GetShaderByteCode(ShaderBuilder::Type::PS);
+{
+    D3D12_GRAPHICS_PIPELINE_STATE_DESC psodesc = {};
+    psodesc.RasterizerState                    = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+    psodesc.BlendState                         = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+    psodesc.DepthStencilState                  = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+    psodesc.SampleMask                         = UINT_MAX;
+    psodesc.PrimitiveTopologyType              = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+    psodesc.InputLayout                        = _frameShader->GetInputLayout();
+    psodesc.NumRenderTargets                   = 1;
+    psodesc.RTVFormats[0]                      = UmDevice.GetMode().Format;
+    psodesc.DSVFormat                          = DXGI_FORMAT_D24_UNORM_S8_UINT;
+    psodesc.pRootSignature                     = _frameShader->GetRootSignature();
+    psodesc.SampleDesc                         = {1, 0};
+    psodesc.VS                                 = _frameShader->GetShaderByteCode(ShaderBuilder::Type::VS);
+    psodesc.PS                                 = _frameShader->GetShaderByteCode(ShaderBuilder::Type::PS);
 
     ID3D12Device* device = UmDevice.GetDevice();
     HRESULT       hr     = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(&_framePSO));
     FAILED_CHECK_MESSAGE(hr, L"RenderScene::CreateFramePSO device->CreateGraphicsPipelineState Faild");
-}
-
-void RenderScene::CreateSrvDescriptorHeap() 
-{
-    D3D12_DESCRIPTOR_HEAP_DESC desc = {};
-    desc.NumDescriptors             = 3;
-    desc.Type                       = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-    desc.Flags                      = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-
-    ID3D12Device* device = UmDevice.GetDevice();
-    HRESULT hr = device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&_srvDescriptorHeap));
-    FAILED_CHECK_MESSAGE(hr, L"RenderScene::CreateSrvDescriptorHeap device->CreateDescriptorHeap Failed");
 }
 
 void RenderScene::CreateFrameResource()
@@ -288,7 +289,7 @@ void RenderScene::CreateFrameResource()
     UmDevice.CreateConstantBuffer(nullptr, sizeof(LightData) * MAX_LIGHT, _lightBuffer);
 }
 
-void RenderScene::CreateCamera() 
+void RenderScene::CreateCamera()
 {
     _camera = std::make_shared<Camera>();
 
