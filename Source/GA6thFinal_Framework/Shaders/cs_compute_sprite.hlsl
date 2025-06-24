@@ -42,9 +42,11 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
     
     float3 dragpos = emitter.dragPoint.xyz;
     float3 dragdir = dragpos - preCalculatePos;
-    float dragfactor = 1 / length(dragdir);
-    float3 dragforce = dragfactor * dragfactor * emitter.dragforce.y * -dragdir * emitter.dragPoint.w * input.age;
-    input.velocity += acceleration + dragforce;
+    float draggable = min(0.1f, length(dragdir) - emitter.dragforce.x);
+
+    float dragfactor = 0.5f / draggable;
+    float3 dragforce = dragfactor *  emitter.dragforce.y * dragdir * emitter.dragPoint.w * input.age;
+    input.velocity += dragforce;
 
     input.position.xyz += input.velocity * input.age;
 
