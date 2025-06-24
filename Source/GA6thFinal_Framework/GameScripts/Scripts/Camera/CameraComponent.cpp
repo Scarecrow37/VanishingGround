@@ -1,4 +1,6 @@
-﻿#include "CameraComponent.h"
+﻿#include "pchScripts.h"
+#include "CameraComponent.h"
+
 CameraComponent::CameraComponent() 
     : 
     Component(TYPE::CAMERA),

@@ -211,8 +211,8 @@
 			<SDLCheck>true</SDLCheck>
 			<PreprocessorDefinitions>_DEBUG;UMREALSCRIPTS_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);UMREALSCRIPTS_EXPORT;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
 			<ConformanceMode>true</ConformanceMode>
-			<PrecompiledHeader>NotUsing</PrecompiledHeader>
-			<PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+			<PrecompiledHeader>Use</PrecompiledHeader>
+			<PrecompiledHeaderFile>pchScripts.h</PrecompiledHeaderFile>
 			<LanguageStandard>stdcpp20</LanguageStandard>
 			<AdditionalIncludeDirectories>$(SolutionDir)GameScripts\;$(SolutionDir)GameScripts\Scripts\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
 			<MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -231,8 +231,8 @@
 			<SDLCheck>true</SDLCheck>
 			<PreprocessorDefinitions>_DEBUG;UMREALSCRIPTS_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);UMREALSCRIPTS_EXPORT;_CRT_SECURE_NO_WARNINGS;_UMEDITOR</PreprocessorDefinitions>
 			<ConformanceMode>true</ConformanceMode>
-			<PrecompiledHeader>NotUsing</PrecompiledHeader>
-			<PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+			<PrecompiledHeader>Use</PrecompiledHeader>
+			<PrecompiledHeaderFile>pchScripts.h</PrecompiledHeaderFile>
 			<LanguageStandard>stdcpp20</LanguageStandard>
 			<AdditionalIncludeDirectories>$(SolutionDir)GameScripts\;$(SolutionDir)GameScripts\Scripts\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
 			<MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -253,8 +253,8 @@
 			<SDLCheck>true</SDLCheck>
 			<PreprocessorDefinitions>NDEBUG;UMREALSCRIPTS_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);UMREALSCRIPTS_EXPORT;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
 			<ConformanceMode>true</ConformanceMode>
-			<PrecompiledHeader>NotUsing</PrecompiledHeader>
-			<PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+			<PrecompiledHeader>Use</PrecompiledHeader>
+			<PrecompiledHeaderFile>pchScripts.h</PrecompiledHeaderFile>
 			<LanguageStandard>stdcpp20</LanguageStandard>
 			<AdditionalIncludeDirectories>$(SolutionDir)GameScripts\;$(SolutionDir)GameScripts\Scripts\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
 			<MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -277,8 +277,8 @@
 			<SDLCheck>true</SDLCheck>
 			<PreprocessorDefinitions>NDEBUG;UMREALSCRIPTS_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);UMREALSCRIPTS_EXPORT;_CRT_SECURE_NO_WARNINGS;_UMEDITOR</PreprocessorDefinitions>
 			<ConformanceMode>true</ConformanceMode>
-			<PrecompiledHeader>NotUsing</PrecompiledHeader>
-			<PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+			<PrecompiledHeader>Use</PrecompiledHeader>
+			<PrecompiledHeaderFile>pchScripts.h</PrecompiledHeaderFile>
 			<LanguageStandard>stdcpp20</LanguageStandard>
 			<AdditionalIncludeDirectories>$(SolutionDir)GameScripts\;$(SolutionDir)GameScripts\Scripts\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
 			<MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -301,6 +301,10 @@
 		<ClInclude Include="Scripts\GameCore\FSM\FSMState.h" />
 		<ClInclude Include="Scripts\Mesh\StaticMeshRenderer.h" />
 		<ClInclude Include="Scripts\Light\Base\LightComponent.h" />
+		<ClInclude Include="Scripts\Stats\CharacterStatsComponent.h" />
+		<ClInclude Include="Scripts\Stats\Enemy\EnemyStats.h" />
+		<ClInclude Include="pchScripts.h" />
+		<ClInclude Include="Scripts\Stats\Player\PlayerStats.h" />
 		<ClInclude Include="Scripts\Test\Component\TestComponent.h" />
 		<ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\CheckRoundEndExit.h" />
 		<ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\CheckTurnEmpty.h" />
@@ -322,7 +326,6 @@
 		<ClInclude Include="Scripts\TurnSystem\TurnMode\State\RoundStartPhase.h" />
 		<ClInclude Include="UmScriptCore.h" />
 		<ClInclude Include="UmScriptsExport.h" />
-		<ClInclude Include="Scripts\Mesh\SkeletalMeshRenderer.h" />
 		<ClInclude Include="Scripts\Mesh\MeshComponent.h" />
 		<ClInclude Include="Scripts\GameCore\FSM\FiniteStateMachine.h" />
 		<ClInclude Include="Scripts\Light\DirectionalLight.h" />
@@ -334,14 +337,31 @@
 		<ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\Player.h" />
 		<ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Enemy.h" />
 		<ClInclude Include="Scripts\Camera\CameraComponent.h" />
+		<ClInclude Include="Scripts\Stats\CharacterStats.h" />
+		<ClInclude Include="Scripts\Stats\Player\PlayerStatsComponent.h" />
+		<ClInclude Include="Scripts\Stats\Enemy\EnemyStatsComponent.h" />
 	</ItemGroup>
 	<ItemGroup>
-		<ClCompile Include="dllmain.cpp" />
-		<ClCompile Include="Scripts\GameCore\FSM\AlwaysTransitionCondition.cpp" />
-		<ClCompile Include="Scripts\GameCore\FSM\FSMCondition.cpp" />
-		<ClCompile Include="Scripts\GameCore\FSM\FSMState.cpp" />
+		<ClCompile Include="dllmain.cpp">
+			<PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+			<PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">Use</PrecompiledHeader>
+			<PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+			<PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">Use</PrecompiledHeader>
+		</ClCompile>
+		<ClCompile Include="Scripts\GameCore\FSM\AlwaysTransitionCondition.cpp">
+			<PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+			<PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">Use</PrecompiledHeader>
+			<PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+			<PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">Use</PrecompiledHeader>
+		</ClCompile>
 		<ClCompile Include="Scripts\Mesh\StaticMeshRenderer.cpp" />
 		<ClCompile Include="Scripts\Light\Base\LightComponent.cpp" />
+		<ClCompile Include="pchScripts.cpp">
+			<PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+			<PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">Create</PrecompiledHeader>
+			<PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+			<PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">Create</PrecompiledHeader>
+		</ClCompile>
 		<ClCompile Include="Scripts\Test\Component\TestComponent.cpp" />
 		<ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\Base\TurnModeConditionBase.cpp" />
 		<ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\CheckRoundEndExit.cpp" />
@@ -362,8 +382,12 @@
 		<ClCompile Include="Scripts\TurnSystem\TurnMode\State\TurnListEmptyState.cpp" />
 		<ClCompile Include="UmScriptCore.cpp" />
 		<ClCompile Include="UmScriptsExport.cpp" />
-		<ClCompile Include="Scripts\Mesh\SkeletalMeshRenderer.cpp" />
-		<ClCompile Include="Scripts\Mesh\MeshComponent.cpp" />
+		<ClCompile Include="Scripts\Mesh\MeshComponent.cpp">
+			<PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+			<PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">Use</PrecompiledHeader>
+			<PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+			<PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">Use</PrecompiledHeader>
+		</ClCompile>
 		<ClCompile Include="Scripts\GameCore\FSM\FiniteStateMachine.cpp" />
 		<ClCompile Include="Scripts\Light\DirectionalLight.cpp" />
 		<ClCompile Include="Scripts\Light\PointLight.cpp" />
@@ -374,6 +398,9 @@
 		<ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\Player.cpp" />
 		<ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Enemy.cpp" />
 		<ClCompile Include="Scripts\Camera\CameraComponent.cpp" />
+		<ClCompile Include="Scripts\Stats\CharacterStatsComponent.cpp" />
+		<ClCompile Include="Scripts\Stats\Player\PlayerStatsComponent.cpp" />
+		<ClCompile Include="Scripts\Stats\Enemy\EnemyStatsComponent.cpp" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="cpp.hint" />

@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "../CharacterBase.h"
 
+class EnemyStatsComponent;
 class Enemy : public CharacterBase
 {
     USING_PROPERTY(Enemy)
@@ -12,8 +13,7 @@ public:
         Speed
         )
 
-    SETTER(int, Speed) { ReflectFields->Speed = std::clamp(value, -99, 99); }
-    GETTER(int, Speed) { return ReflectFields->Speed; }
+    GETTER_ONLY(int, Speed) { return GetSpeed(); }
     PROPERTY(Speed)
 public:
     Enemy();
@@ -21,11 +21,14 @@ public:
 
 protected:
     REFLECT_FIELDS_BEGIN(CharacterBase)
-    int Speed = 0;
     REFLECT_FIELDS_END(Enemy)
 
 public:
     int GetSpeed() override;
+
+private:
+    EnemyStatsComponent* _enemyStats = nullptr;
+    EnemyStatsComponent* GetEnemyStats();
 
 protected:
     /// <summary>
@@ -39,4 +42,5 @@ protected:
     // CharacterBase을(를) 통해 상속됨
     void OnTurnStart() override;
     void OnTurnEnd() override;
+    CharacterStats* GetCharacterStats() override;
 };

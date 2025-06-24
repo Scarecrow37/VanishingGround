@@ -1,4 +1,5 @@
-﻿#include "TestComponent.h"
+﻿#include "pchScripts.h"
+#include "TestComponent.h"
 
 TestComponent::TestComponent()
 {

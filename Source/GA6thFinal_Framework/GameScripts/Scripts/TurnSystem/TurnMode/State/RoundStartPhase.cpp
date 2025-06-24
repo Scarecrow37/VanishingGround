@@ -1,4 +1,5 @@
-﻿#include "RoundStartPhase.h"
+﻿#include "pchScripts.h"
+#include "RoundStartPhase.h"
 #include "TurnSystem/TurnMode/TurnMode.h"
 
 REGISTER_CLASS(FSMStateFactory, RoundStartPhase)
