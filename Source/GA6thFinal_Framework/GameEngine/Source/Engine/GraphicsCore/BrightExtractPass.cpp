@@ -42,7 +42,7 @@ void BrightExtractPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_R
 void BrightExtractPass::Begin(ID3D12GraphicsCommandList* commandList)
 {    
     _renderTarget = UmMultiRenderTargetManager.GetAvailableRenderTarget();
-    _renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    _renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
     _renderTarget->ClearRenderTarget(commandList);
 
     commandList->OMSetRenderTargets(1, &_renderTarget->GetRTVHandle(), FALSE, nullptr);
@@ -70,5 +70,5 @@ void BrightExtractPass::Draw(ID3D12GraphicsCommandList* commandList)
 
 void BrightExtractPass::End(ID3D12GraphicsCommandList* commandList)
 {
-    _renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    _renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }

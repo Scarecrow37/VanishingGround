@@ -1,4 +1,5 @@
-﻿#include "MeshComponent.h"
+﻿#include "pchScripts.h"
+#include "MeshComponent.h"
 
 MeshComponent::MeshComponent() 
     : 

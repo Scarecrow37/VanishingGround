@@ -45,7 +45,7 @@ void DownScalePass::Begin(ID3D12GraphicsCommandList* commandList)
 
     for (UINT i = 0; i < MAX_MIPMAP_LEVEL; i++)
     {
-        mipmapTarget[i]->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
+        mipmapTarget[i]->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
         mipmapTarget[i]->ClearRenderTarget(commandList);
     }
 }
@@ -90,7 +90,7 @@ void DownScalePass::End(ID3D12GraphicsCommandList* commandList)
 
     for (UINT i = 0; i < MAX_MIPMAP_LEVEL; i++)
     {
-        mipmapTarget[i]->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+        mipmapTarget[i]->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     }
 
     multiRenderTargetManager.ReturnRenderTarget(_renderTarget);

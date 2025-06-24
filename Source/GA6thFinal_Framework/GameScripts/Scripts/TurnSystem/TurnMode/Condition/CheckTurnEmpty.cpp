@@ -1,4 +1,5 @@
-﻿#include "CheckTurnEmpty.h"
+﻿#include "pchScripts.h"
+#include "CheckTurnEmpty.h"
 #include "TurnSystem/TurnMode/TurnMode.h"
 
 REGISTER_CLASS(FSMConditionFactory, CheckTurnEmpty)

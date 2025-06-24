@@ -1,4 +1,5 @@
-﻿#include "TurnModeStateBase.h"
+﻿#include "pchScripts.h"
+#include "TurnModeStateBase.h"
 #include "TurnSystem/TurnMode/TurnMode.h"
 
 TurnModeStateBase::TurnModeStateBase() {}

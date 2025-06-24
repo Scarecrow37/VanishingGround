@@ -81,22 +81,15 @@ void ParticleSpritePass::Begin(ID3D12GraphicsCommandList* commandlist)
 }
 
 void ParticleSpritePass::End(ID3D12GraphicsCommandList* commandlist)
-{
-
+{     
     ComPtr<ID3D12Resource>   resource             = UmParticleManager.GetComputeOutputResource();
     CD3DX12_RESOURCE_BARRIER computeOutputBarrior = CD3DX12_RESOURCE_BARRIER::Transition(
         resource.Get(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COMMON);
 
     _particleRenderCommandList->ResourceBarrier(1, &computeOutputBarrior);
 
-    auto br = CD3DX12_RESOURCE_BARRIER::Transition(_ownerScene->_depthStencilBuffer.Get(),
-                                                   D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_PRESENT);
-    _particleRenderCommandList->ResourceBarrier(1, &br);
-
-    _accumlateBuffer->TransitionResource(_particleRenderCommandList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
-                                         D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-    _revealageBuffer->TransitionResource(_particleRenderCommandList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
-                                         D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    _accumlateBuffer->TransitionResource(_particleRenderCommandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    _revealageBuffer->TransitionResource(_particleRenderCommandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }
 
 void ParticleSpritePass::Draw(ID3D12GraphicsCommandList* commandlist)

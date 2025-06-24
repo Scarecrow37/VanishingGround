@@ -1,4 +1,5 @@
-﻿#include "DirectionalLight.h"
+﻿#include "pchScripts.h"
+#include "DirectionalLight.h"
 #include "Engine/GraphicsCore/Light.h"
 
 DirectionalLight::DirectionalLight()

@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include "UmFramework.h"
 #include "MeshComponent.h"
 
 class StaticMeshRenderer : public MeshComponent

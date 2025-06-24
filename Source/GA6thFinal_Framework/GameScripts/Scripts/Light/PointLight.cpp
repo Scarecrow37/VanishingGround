@@ -1,4 +1,5 @@
-﻿#include "PointLight.h"
+﻿#include "pchScripts.h"
+#include "PointLight.h"
 #include "Engine/GraphicsCore/Light.h"
 
 PointLight::PointLight()

@@ -1,4 +1,5 @@
-﻿#include "CheckPlayerState.h"
+﻿#include "pchScripts.h"
+#include "CheckPlayerState.h"
 #include "TurnSystem/TurnMode/TurnMode.h"
 
 REGISTER_CLASS(FSMStateFactory, CheckPlayerState)
