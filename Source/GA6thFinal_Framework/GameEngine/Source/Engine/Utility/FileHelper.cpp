@@ -242,12 +242,7 @@ namespace File
     bool ShowFileDialogEx(IN const FileDialogDesc& desc, OUT std::vector<File::Path>& out)
     {
         // COM 초기화
-        HRESULT hr = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
-        if (FAILED(hr))
-        {
-            return false;
-        }
-
+        HRESULT hr;
         IFileDialog* pDialog = nullptr;
 
         // === 다이얼로그 생성 ===
@@ -261,7 +256,6 @@ namespace File
         }
         if (FAILED(hr))
         {
-            CoUninitialize();
             return false;
         }
 
@@ -381,7 +375,6 @@ namespace File
             }
         }
         pDialog->Release();
-        CoUninitialize();
         return isGetPath;
     }
 } 
