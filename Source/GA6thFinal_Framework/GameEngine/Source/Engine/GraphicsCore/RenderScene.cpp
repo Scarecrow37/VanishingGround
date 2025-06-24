@@ -161,12 +161,8 @@ void RenderScene::UpdateRenderScene()
 
 void RenderScene::Execute(ID3D12GraphicsCommandList* commandList)
 {
-    RenderTarget* meshRenderTarget = UmMultiRenderTargetManager.GetRenderTarget(_meshRenderTargetName);
-    auto          descriptorHeap   = UmViewManager.GetShaderResourceHeap();
-    commandList->SetDescriptorHeaps(1, &descriptorHeap);
-
-    meshRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    meshRenderTarget->ClearRenderTarget(commandList);
+    auto descriptorHeap = UmViewManager.GetShaderResourceHeap();
+    commandList->SetDescriptorHeaps(1, &descriptorHeap);    
 
     _accumulationBuffer->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
     _accumulationBuffer->ClearUnorderedAccessView(commandList);
