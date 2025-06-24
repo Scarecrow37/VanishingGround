@@ -3,22 +3,23 @@
 
 #include "CommonData.hlsli"
 
-float3 FresnelSchlick(float cosTheta, float3 F0);
-float NormalDistributionGGX(float3 N, float3 H, float roughness);
-float GeometrySchlickGGX(float NdotV, float roughness);
-float GeometrySmith(float3 N, float3 V, float3 L, float roughness);
-float3 DiffuseBRDF(float3 N, float3 V, float3 L, float3 albedo, float metallic, float roughness);
-float3 CalculateDirectional(DirectionalLight light, float3 N, float3 V, float3 albedo, float metallic, float roughness);
-float3 CalculatePoint(PointLight light, float3 N, float3 V, float3 albedo, float metallic, float roughness, float3 fragPos);
-float3 CalculateSpot(SpotLight light, float3 N, float3 V, float3 albedo, float metallic, float roughness, float3 fragPos);
-float Attenuation(float3 attenuation, float distance, float range);
+inline float3 GammaToLinearSpace(float3 sRGB)
+{
+    return sRGB * (sRGB * (sRGB * 0.305306011 + 0.682171111) + 0.012522878);
+}
 
-float3 FresnelSchlick(float cosTheta, float3 F0)
+inline float3 LinearToGammaSpace(float3 linRGB)
+{
+    linRGB = max(linRGB, float3(0.0, 0.0, 0.0));
+    return max(1.055 * pow(linRGB, 0.416666667) - 0.055, 0.0);
+}
+
+inline float3 FresnelSchlick(float cosTheta, float3 F0)
 {
     return F0 + (1.f - F0) * pow(1.f - cosTheta, 5);
 }
 
-float NormalDistributionGGX(float3 N, float3 H, float roughness)
+inline float NormalDistributionGGX(float3 N, float3 H, float roughness)
 {
     float a = roughness * roughness;
     float a2 = a * a;
@@ -29,7 +30,7 @@ float NormalDistributionGGX(float3 N, float3 H, float roughness)
     return a2 / (PI * denom * denom + Epsilon);
 }
 
-float GeometrySchlickGGX(float NdotV, float roughness)
+inline float GeometrySchlickGGX(float NdotV, float roughness)
 {
     float r = roughness + 1;
     float k = (r * r) / 8.f;
@@ -37,7 +38,7 @@ float GeometrySchlickGGX(float NdotV, float roughness)
     return NdotV / (NdotV * (1.f - k) + k + Epsilon);
 }
 
-float GeometrySmith(float3 N, float3 V, float3 L, float roughness)
+inline float GeometrySmith(float3 N, float3 V, float3 L, float roughness)
 {
     float NdotV = saturate(dot(N, V));
     float NdotL = saturate(dot(N, L));
@@ -45,7 +46,7 @@ float GeometrySmith(float3 N, float3 V, float3 L, float roughness)
     return GeometrySchlickGGX(NdotV, roughness) * GeometrySchlickGGX(NdotL, roughness);
 }
 
-float3 DiffuseBRDF(float3 N, float3 V, float3 L, float3 albedo, float metallic, float roughness)
+inline float3 DiffuseBRDF(float3 N, float3 V, float3 L, float3 albedo, float metallic, float roughness)
 {
     float3 H = normalize(V + L);
     float  NdotL = saturate(dot(N, L));
@@ -63,37 +64,7 @@ float3 DiffuseBRDF(float3 N, float3 V, float3 L, float3 albedo, float metallic, 
     return (diffuse + specular) * NdotL;
 }
 
-float3 CalculateDirectional(DirectionalLight light, float3 N, float3 V, float3 albedo, float metallic, float roughness)
-{
-    float3 L = -light.Direction;    
-    return DiffuseBRDF(N, V, L, albedo, metallic, roughness) * light.Color * light.Intensity;
-}
-
-float3 CalculatePoint(PointLight light, float3 N, float3 V, float3 albedo, float metallic, float roughness, float3 fragPos)
-{
-    float3 L = light.Position - fragPos;
-    float distance = length(L);
-    L = normalize(L);    
-    float attenuation = Attenuation(light.Attenuation, distance, light.Range);
-        
-    return DiffuseBRDF(N, V, L, albedo, metallic, roughness) * attenuation * light.Color * light.Intensity;
-}
-
-float3 CalculateSpot(SpotLight light, float3 N, float3 V, float3 albedo, float metallic, float roughness, float3 fragPos)
-{
-    float3 L = light.Position - fragPos;
-    float distance = length(L);
-    L = normalize(L);
-
-    float theta = dot(-L, normalize(light.Direction.xyz));
-    float epsilon = light.InnerCone - light.OuterCone;
-    float intensity = saturate((theta - light.OuterCone) / max(epsilon, 1e-4)) * light.Intensity;
-    float attenuation = Attenuation(light.Attenuation, distance, light.Range);
-
-    return DiffuseBRDF(N, V, L, albedo, metallic, roughness) * attenuation * light.Color * light.Intensity;
-}
-
-float Attenuation(float3 attenuation, float distance, float range)
+inline float Attenuation(float3 attenuation, float distance, float range)
 {
     //float result = 1.f / (attenuation.r + attenuation.g * distance + attenuation.b * distance * distance);
     //result *= 2;
@@ -122,7 +93,37 @@ float Attenuation(float3 attenuation, float distance, float range)
     return result;
 }
 
-float CalculatePostProcessMask(Texture2D<uint> customDepthTexture, float2 uv)
+inline float3 CalculateDirectional(DirectionalLight light, float3 N, float3 V, float3 albedo, float metallic, float roughness)
+{
+    float3 L = -light.Direction;    
+    return DiffuseBRDF(N, V, L, albedo, metallic, roughness) * light.Color * light.Intensity;
+}
+
+inline float3 CalculatePoint(PointLight light, float3 N, float3 V, float3 albedo, float metallic, float roughness, float3 fragPos)
+{
+    float3 L = light.Position - fragPos;
+    float distance = length(L);
+    L = normalize(L);    
+    float attenuation = Attenuation(light.Attenuation, distance, light.Range);
+        
+    return DiffuseBRDF(N, V, L, albedo, metallic, roughness) * attenuation * light.Color * light.Intensity;
+}
+
+inline float3 CalculateSpot(SpotLight light, float3 N, float3 V, float3 albedo, float metallic, float roughness, float3 fragPos)
+{
+    float3 L = light.Position - fragPos;
+    float distance = length(L);
+    L = normalize(L);
+
+    float theta = dot(-L, normalize(light.Direction.xyz));
+    float epsilon = light.InnerCone - light.OuterCone;
+    float intensity = saturate((theta - light.OuterCone) / max(epsilon, 1e-4)) * light.Intensity;
+    float attenuation = Attenuation(light.Attenuation, distance, light.Range);
+
+    return DiffuseBRDF(N, V, L, albedo, metallic, roughness) * attenuation * light.Color * light.Intensity;
+}
+
+inline float CalculatePostProcessMask(Texture2D<uint> customDepthTexture, float2 uv)
 {
     uint mask = customDepthTexture.Load(int3(uv * postProcessData.ScreenSize, 0));
     float result = min(postProcessData.PostProcessMask & mask, 1);

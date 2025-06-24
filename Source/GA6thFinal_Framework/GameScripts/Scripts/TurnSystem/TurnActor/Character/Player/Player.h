@@ -55,4 +55,22 @@ protected:
     // CharacterBase을(를) 통해 상속됨
     void OnTurnStart() override;
     void OnTurnEnd() override;
+
+
+    /// <summary>
+    /// <para> 직렬화 직전 자동으로 호출되는 이벤트 함수입니다. </para>
+    /// <para> 직접 override 해서 사용합니다.                 </para>
+    /// </summary>
+    virtual void SerializedReflectEvent() {}
+
+    /// <summary>
+    /// <para> 역직렬화 이후 자동으로 호출되는 이벤트 함수 입니다.  </para>
+    /// <para> 직접 override 해서 사용합니다.                     </para>
+    /// </summary>
+    virtual void DeserializedReflectEvent() {}
+
+    /// <summary>
+    /// <para>  ImGuiDrawPropertys() 호출 이후 콜되는 이벤트 함수입니다. </para>
+    /// </summary>
+    virtual void ImGuiDrawPropertysEvent();
 };

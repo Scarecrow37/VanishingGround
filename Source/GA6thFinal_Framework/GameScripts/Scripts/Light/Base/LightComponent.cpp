@@ -2,12 +2,13 @@
 
 LightComponent::LightComponent() 
     :
-    Component(Component::Type::Light),
+    Component(Component::TYPE::LIGHT),
     _light(std::make_unique<Light>()),
     Lighting(*_light)
 {
     LightCore& lightCore = UmLightCore;
     lightCore.RegisterLight("Editor", _light.get());
+    lightCore.RegisterLight("Game", _light.get());
     Lighting.SetActive(true);
 }
 

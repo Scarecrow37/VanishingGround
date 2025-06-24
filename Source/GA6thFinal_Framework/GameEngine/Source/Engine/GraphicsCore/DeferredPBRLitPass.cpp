@@ -14,7 +14,6 @@ void DeferredPBRLitPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_
 
     InitShaderAndPSO();
 
-
     static bool isInitialized = false;
     if (!isInitialized)
     {
@@ -32,6 +31,9 @@ void DeferredPBRLitPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_
 
 void DeferredPBRLitPass::Begin(ID3D12GraphicsCommandList* commandList)
 {
+    _meshRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    _meshRenderTarget->ClearRenderTarget(commandList);
+
     commandList->OMSetRenderTargets(1, &_meshRenderTarget->GetRTVHandle(), FALSE, nullptr);
     commandList->RSSetViewports(1, &_viewPort);
     commandList->RSSetScissorRects(1, &_sissorRect);
@@ -39,13 +41,11 @@ void DeferredPBRLitPass::Begin(ID3D12GraphicsCommandList* commandList)
 
 void DeferredPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
 {
-    auto                  resource = UmViewManager.GetShaderResourceHeap();
-    ID3D12DescriptorHeap* hps[] = { resource, };
+    auto resource = UmViewManager.GetShaderResourceHeap();
 
     commandList->SetPipelineState(_pipelineState.Get());
     commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
 
-    commandList->SetDescriptorHeaps(_countof(hps), hps);
     commandList->SetGraphicsRoot32BitConstants(_shader->GetRootParameterIndex("bit32_3_numLight"), 3, &_ownerScene->_numLight, 0);
     commandList->SetGraphicsRoot32BitConstants(_shader->GetRootParameterIndex("bit32_7_gBufferID"), 7, s_gBufferIndex.data(), 0);
     commandList->SetGraphicsRootConstantBufferView(_shader->GetRootParameterIndex("cameraData"), _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
@@ -58,8 +58,7 @@ void DeferredPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
 
 void DeferredPBRLitPass::End(ID3D12GraphicsCommandList* commandList)
 {
-    auto br = CD3DX12_RESOURCE_BARRIER::Transition(_meshRenderTarget->GetResource(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-    commandList->ResourceBarrier(1, &br);
+    _meshRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }
 
 void DeferredPBRLitPass::InitShaderAndPSO()

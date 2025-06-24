@@ -10,7 +10,7 @@ void RoundEndPhase::OnAwake() {}
 
 void RoundEndPhase::OnStart() 
 {
-    GetTurnModeBaseS::OnStart();
+    TurnModeStateBase::OnStart();
 }
 
 void RoundEndPhase::OnEnter() 

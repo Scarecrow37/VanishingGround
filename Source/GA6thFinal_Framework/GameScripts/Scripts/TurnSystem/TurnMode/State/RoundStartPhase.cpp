@@ -14,7 +14,7 @@ void RoundStartPhase::OnAwake() {}
 
 void RoundStartPhase::OnStart() 
 {
-    GetTurnModeBaseS::OnStart();
+    TurnModeStateBase::OnStart();
 }
 
 void RoundStartPhase::OnEnter() 

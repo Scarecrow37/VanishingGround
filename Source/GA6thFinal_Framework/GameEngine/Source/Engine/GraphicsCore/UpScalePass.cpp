@@ -52,14 +52,10 @@ void UpScalePass::Begin(ID3D12GraphicsCommandList* commandList)
 
 void UpScalePass::Draw(ID3D12GraphicsCommandList* commandList)
 {
-    auto                  resource = UmViewManager.GetShaderResourceHeap();
-    ID3D12DescriptorHeap* hps[]    = {resource};
-
     const auto& mipmapTarget = UmMultiRenderTargetManager.GetRenderTargetGroup("Mipmap");
 
     commandList->SetPipelineState(_pipelineState.Get());
     commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
-    commandList->SetDescriptorHeaps(_countof(hps), hps);
     
     commandList->SetGraphicsRoot32BitConstants(_shader->GetRootParameterIndex("bit32_1_numTextures"), 1, &MAX_MIPMAP_LEVEL, 0);
     commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("textures"), mipmapTarget[0]->GetSRVHandle());

@@ -12,21 +12,23 @@ class Component abstract :
     USING_PROPERTY(Component)
 
 public:
-    enum class Type
+    enum class TYPE
     {
         // 일반
         GENERIC,    
         // 렌더러
         RENDER,
         // 조명
-        Light,
+        LIGHT,
+        // 카메라
+        CAMERA,
     };
 
     /// <summary>
     /// 생성시 타입 플래그를 지정해줘야합니다.
     /// </summary>
     /// <param name="isMeshComponent"></param>
-    Component(Type type = Type::GENERIC);
+    Component(TYPE type = TYPE::GENERIC);
     virtual ~Component();
 
     /// <summary>
@@ -148,7 +150,7 @@ public:
     /// 이 컴포넌트의 타입입니다.
     /// </summary>
     /// <returns>컴포넌트의 타입</returns>
-    Component::Type GetType() const
+    Component::TYPE GetType() const
     {
         return _type;
     }
@@ -228,7 +230,7 @@ private:
     };
     InitFlags _initFlags;
 
-    const Type _type;
+    const TYPE _type;
     std::string _className;
     GameObject* _gameObject;
     std::weak_ptr<Component> _weakPtr;

@@ -1,10 +1,10 @@
 ﻿#pragma once
-#include "Base/GetTurnModeBaseC.h"
+#include "Base/TurnModeConditionBase.h"
 
 /*
 * 라운드 시작 연출이 종료됬는지 확인합니다.
 */
-class CheckRoundStartExit : public GetTurnModeBaseC
+class CheckRoundStartExit : public TurnModeConditionBase
 {
 public:
     CheckRoundStartExit();

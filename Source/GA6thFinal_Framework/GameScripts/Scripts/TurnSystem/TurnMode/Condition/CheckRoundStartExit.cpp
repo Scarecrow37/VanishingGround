@@ -21,7 +21,7 @@ void CheckRoundStartExit::OnAwake()
 
 void CheckRoundStartExit::OnStart() 
 {
-    GetTurnModeBaseC::OnStart();
+    TurnModeConditionBase::OnStart();
 }
 
 bool CheckRoundStartExit::Evaluate()

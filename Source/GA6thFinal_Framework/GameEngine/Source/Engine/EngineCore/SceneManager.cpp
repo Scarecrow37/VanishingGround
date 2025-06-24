@@ -28,6 +28,7 @@ std::filesystem::path ESceneManager::GetSettingFilePath()
 }
 
 ESceneManager::ESceneManager() 
+    : _mainCamera(nullptr) 
 {
    
 }
@@ -166,14 +167,14 @@ void ESceneManager::Engine::SetGameObjectActive(GameObject* pObject, bool value)
                                 }
                             }
 
-                            if (Component::Type::RENDER == component->_type)
+                            if (Component::TYPE::RENDER == component->_type)
                             {
                                 auto& meshActiveQueue = value ? sceneManager._meshSetActiveQueue.first
                                                               : sceneManager._meshSetActiveQueue.second;
                                 MeshComponent* meshComponent   = static_cast<MeshComponent*>(component.get());
                                 meshActiveQueue.push_back(meshComponent->Renderer.get());
                             }
-                            else if (Component::Type::Light == component->_type)
+                            else if (Component::TYPE::LIGHT == component->_type)
                             {
                                 auto& lightActiveQueue = value ? sceneManager._meshSetActiveQueue.first
                                                                : sceneManager._meshSetActiveQueue.second;
@@ -210,14 +211,14 @@ void ESceneManager::Engine::SetComponentEnable(Component* component, bool value)
             }
             
             // 메시 컴포넌트들은 meshRenderer의 SetActive도 변경해야함.
-            if (Component::Type::RENDER == component->_type)
+            if (Component::TYPE::RENDER == component->_type)
             {
                 auto& meshActiveQueue = value ? sceneManager._meshSetActiveQueue.first 
                                               : sceneManager._meshSetActiveQueue.second;
                 MeshComponent* meshComponent = static_cast<MeshComponent*>(component);
                 meshActiveQueue.push_back(meshComponent->Renderer.get());
             }
-            else if (Component::Type::Light == component->_type)
+            else if (Component::TYPE::LIGHT == component->_type)
             {
                 auto& lightActiveQueue = value ? sceneManager._meshSetActiveQueue.first 
                                                : sceneManager._meshSetActiveQueue.second;
@@ -484,6 +485,33 @@ bool ESceneManager::Engine::EraseGameObjectTag(GameObject* gameObject, std::stri
     return true;
 }
 
+void ESceneManager::Engine::SetSceneMainCamera(CameraComponent* camera)
+{
+    ESceneManager& sceneManager = UmSceneManager;
+    if (camera != sceneManager._mainCamera)
+    {
+        if (nullptr != sceneManager._mainCamera)
+        {
+            sceneManager._mainCamera->ResetMainCamera();
+        }
+        sceneManager._mainCamera = camera;
+    }
+}
+
+void ESceneManager::Engine::ResetSceneMainCamera() 
+{
+    ESceneManager& sceneManager = UmSceneManager;
+    if (sceneManager._mainCamera)
+    {
+        sceneManager._mainCamera = nullptr;
+    }
+}
+
+CameraComponent* ESceneManager::Engine::GetMainCamera()
+{
+    return UmSceneManager._mainCamera;
+}
+
 void ESceneManager::CreateEmptySceneAndLoad(std::string_view name, std::string_view outPath, const std::function<void()>& loadEvent) 
 {
     if (UmComponentFactory.HasScript() == false)
@@ -737,6 +765,21 @@ void ESceneManager::ObjectsLateUpdate()
 
 void ESceneManager::ObjectsMatrixUpdate()
 {
+    if (nullptr != _mainCamera)
+    {
+        if (true == _mainCamera->IsDirty())
+        {
+            _mainCamera->UpdatePerspective();
+        }
+        
+        Transform& transform = _mainCamera->gameObject->transform;
+        if (true == transform._hasChanged)
+        {
+            transform.UpdateMatrix();
+            _mainCamera->UpdateView();
+        }
+    }
+
     static std::unordered_set<Transform*> updateCheckSet;
     for (auto& obj : _runtimeObjects)
     {
@@ -940,6 +983,13 @@ void ESceneManager::ObjectsAddRuntime()
         {
             _waitAwakeVec.push_back(component);
             _waitStartVec.push_back(component);
+        }
+
+        if (component->_type == Component::TYPE::CAMERA)
+        {
+            CameraComponent* camera = static_cast<CameraComponent*>(component.get());
+            std::shared_ptr<Camera> newCamera(new Camera);
+            camera->SetTarget(newCamera);
         }
     }
     _addComponentsQueue.clear();
@@ -1442,9 +1492,15 @@ void ESceneManager::SceneResourceManager::Update(SceneResourceManager& manager)
                                 models.ModelUseComponentList[guid].emplace_back(pMeshComponent);
                                 UmSceneManager._runtimeMeshComponents.emplace_back(pMeshComponent);
 
+                                bool isActive = pMeshComponent->gameObject->ActiveInHierarchy;
+                                isActive &= pMeshComponent->Enable;
                                 if (false == pMeshComponent->_gameObject->IsValid())
                                 {
                                     pMeshComponent->Renderer->SetActive(false);
+                                }
+                                else
+                                {
+                                    pMeshComponent->Renderer->SetActive(isActive);
                                 }
                             }
                         }

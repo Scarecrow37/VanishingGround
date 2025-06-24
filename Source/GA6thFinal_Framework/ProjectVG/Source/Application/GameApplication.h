@@ -17,13 +17,13 @@ private:
     void BuildRootDock();
     void BuildSceneDock();
     void BuildModelDock();
-
+    void BuildEffectDock();
     void BuildSequenceDock();
 
     EditorModule*     _editorModule = nullptr;
     EditorDockWindow* _rootDock     = nullptr;
     EditorDockWindow* _sceneDock    = nullptr;
     EditorDockWindow* _modelDock    = nullptr;
-
+    EditorDockWindow* _effectDock   = nullptr;
     EditorDockWindow* _sequenceDock = nullptr;
 };

@@ -52,9 +52,6 @@ void DownScalePass::Begin(ID3D12GraphicsCommandList* commandList)
 
 void DownScalePass::Draw(ID3D12GraphicsCommandList* commandList)
 {
-    auto                  resource = UmViewManager.GetShaderResourceHeap();
-    ID3D12DescriptorHeap* hps[]    = { resource, };
-
     auto&       multiRenderTargetManager = UmMultiRenderTargetManager;
     const auto& mipmapTarget             = multiRenderTargetManager.GetRenderTargetGroup("Mipmap");
     const auto& usedRenderTargets        = multiRenderTargetManager.GetUsedRenderTargets();
@@ -63,7 +60,6 @@ void DownScalePass::Draw(ID3D12GraphicsCommandList* commandList)
 
     commandList->SetPipelineState(_pipelineState.Get());
     commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
-    commandList->SetDescriptorHeaps(_countof(hps), hps);
 
     commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("brightExtractTexture"), _renderTarget->GetSRVHandle());
     

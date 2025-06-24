@@ -12,7 +12,8 @@
 #include "RendererFileEvent.h"
 #include "SkyBoxRenderTechnique.h"
 #include "BloomTechnique.h"
-#include "ToneMappingTechnique.h"
+#include "BlendTechnique.h"
+#include "ParticleRenderTechnique.h"
 #include "Sphere.h"
 
 Renderer::Renderer()
@@ -132,7 +133,7 @@ void Renderer::Initialize()
     scene->AddRenderTechnique(std::make_unique<SkyBoxRenderTechnique>());
     scene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
     scene->AddRenderTechnique(std::make_unique<BloomTechnique>());
-    //scene->AddRenderTechnique(std::make_unique<ToneMappingTechnique>());
+    scene->AddRenderTechnique(std::make_unique<BlendTechnique>());
     _renderScenes["Game"] = std::move(scene);
 
     if constexpr (IS_EDITOR)
@@ -146,13 +147,22 @@ void Renderer::Initialize()
         scene->InitializeRenderScene();
         scene->AddRenderTechnique(std::make_unique<SkyBoxRenderTechnique>());
         scene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
+        scene->AddRenderTechnique(std::make_unique<BlendTechnique>());
         _renderScenes["Editor"] = std::move(scene);
 
         // Model Viewer Scene
         scene = std::make_unique<RenderScene>("ModelViewer");
         scene->InitializeRenderScene();
         scene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
-        _renderScenes["ModelViewer"] = std::move(scene);                
+        scene->AddRenderTechnique(std::make_unique<BlendTechnique>());
+        _renderScenes["ModelViewer"] = std::move(scene);
+        
+        scene = std::make_unique<RenderScene>("ParticleEditor");
+        scene->InitializeRenderScene();
+        scene->AddRenderTechnique(std::make_unique<ParticleRenderTechnique>());
+        scene->AddRenderTechnique(std::make_unique<BlendTechnique>());
+        UmParticleManager.SetCamera(scene->GetCamera());
+        _renderScenes["ParticleEditor"] = std::move(scene);
     }
 }
 
@@ -408,8 +418,9 @@ void Renderer::ImguiEnd()
     ImGui::Render();
 
     ID3D12DescriptorHeap* descriptorHeaps[] = {UmViewManager.GetShaderResourceHeap()};
-    UmDevice.GetCommandList()->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
-    ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), UmDevice.GetCommandList());
+    auto                  commandList       = UmDevice.GetImguiCommandList();
+    commandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+    ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandList);
 
     if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
     {

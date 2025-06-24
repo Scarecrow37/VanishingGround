@@ -35,6 +35,7 @@ GameApplication::GameApplication()
         BuildSceneDock();
         BuildModelDock();
         BuildSequenceDock();
+        BuildEffectDock();
     }
 }
 
@@ -122,6 +123,7 @@ void GameApplication::BuildSceneDock()
     _sceneDock->RegisterGui<HierarchyFindTool>();
     _sceneDock->RegisterGui<EditorInspectorTool>();
     _sceneDock->RegisterGui<EditorSceneTool>();
+    _sceneDock->RegisterGui<EditorGameView>();
     _sceneDock->RegisterGui<EditorLogsTool>();
     _sceneDock->RegisterGui<EditorCommandTool>();
     _sceneDock->RegisterGui<EditorAssetBrowserTool>();
@@ -161,6 +163,38 @@ void GameApplication::BuildModelDock()
     // Menu
     _modelDock->RegisterGui<EditorModelMenu>();
     _modelDock->RegisterGui<EditorMenuTools>(_modelDock);
+}
+
+void GameApplication::BuildEffectDock() 
+{
+
+    auto& dockSystem = _editorModule->GetDockWindowSystem();
+
+    _effectDock = dockSystem.RegisterDockWindow("EffectDock", _rootDock);
+
+    ImGuiWindowClass imguiwindowClass;
+    imguiwindowClass.ClassId               = ImHashStr("EffectDockID");
+    imguiwindowClass.DockingAllowUnclassed = false;
+    imguiwindowClass.DockingAlwaysTabBar   = true;
+
+    int imguiWindowFlag = ImGuiWindowFlags_MenuBar;
+    int dockWindowFlag  = ImGuiDockNodeFlags_NoWindowMenuButton | ImGuiDockNodeFlags_NoCloseButton;
+
+    _effectDock->SetWindowClass(imguiwindowClass);
+    _effectDock->SetImGuiWindowFlag(imguiWindowFlag);
+    _effectDock->SetImGuiDockNodeFlag(dockWindowFlag);
+
+    _effectDock->CreateDockLayoutNode(ImGuiDir::ImGuiDir_Right, 0.25f);
+    _effectDock->CreateDockLayoutNode(ImGuiDir::ImGuiDir_Down, 0.40f);
+    _effectDock->CreateDockLayoutNode(ImGuiDir::ImGuiDir_Left, 0.30f);
+    _effectDock->CreateDockLayoutNode(ImGuiDir::ImGuiDir_Up, 0.50f);
+
+    // Menu
+    _effectDock->RegisterGui<EditorParticleEffectViewer>();
+    _effectDock->RegisterGui<EditorParticleEffectDetails>();
+    _effectDock->RegisterGui<EditorParticleEffectHierarchy>();
+    _effectDock->RegisterGui<EditorMenuTools>(_effectDock);
+
 }
 
 void GameApplication::BuildSequenceDock() 

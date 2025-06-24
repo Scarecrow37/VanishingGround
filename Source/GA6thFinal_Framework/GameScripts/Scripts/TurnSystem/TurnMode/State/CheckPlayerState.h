@@ -1,10 +1,10 @@
 ﻿#pragma once
-#include "Base/GetTurnModeBaseS.h"
+#include "Base/TurnModeStateBase.h"
 
 /*
 * 현재 선택된 CurrActor가 Player인지 확인하는 상태입니다.
 */
-class CheckPlayerState : public GetTurnModeBaseS
+class CheckPlayerState : public TurnModeStateBase
 {
 public:
     CheckPlayerState();

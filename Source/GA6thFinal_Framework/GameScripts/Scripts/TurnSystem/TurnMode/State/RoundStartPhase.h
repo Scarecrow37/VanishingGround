@@ -1,12 +1,12 @@
 ﻿#pragma once
-#include "Base/GetTurnModeBaseS.h"
+#include "Base/TurnModeStateBase.h"
 
 /*
 * 라운드 시작 상태입니다.
 * 라운드 시작 연출을 실행합니다.
 * 라운드의 증가, TurnList 생성합니다.
 */
-class RoundStartPhase : public GetTurnModeBaseS
+class RoundStartPhase : public TurnModeStateBase
 {
 public:
     RoundStartPhase();

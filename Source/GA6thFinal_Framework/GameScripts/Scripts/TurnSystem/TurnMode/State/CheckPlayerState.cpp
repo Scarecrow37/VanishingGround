@@ -11,7 +11,7 @@ void CheckPlayerState::OnAwake() {}
 
 void CheckPlayerState::OnStart() 
 {
-    GetTurnModeBaseS::OnStart();
+    TurnModeStateBase::OnStart();
 }
 
 void CheckPlayerState::OnEnter() 

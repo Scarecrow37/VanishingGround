@@ -40,6 +40,11 @@ void Player::OnTurnEnd()
     UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"Player 턴 종료.");
 }
 
+void Player::ImGuiDrawPropertysEvent() 
+{
+
+}
+
 int Player::GetSpeed()
 {
     return 0;

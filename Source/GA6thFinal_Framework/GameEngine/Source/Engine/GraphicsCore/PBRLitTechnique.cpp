@@ -22,16 +22,16 @@ void PBRLitTechnique::Execute(ID3D12GraphicsCommandList* commandList)
 
 void PBRLitTechnique::InitGBufferPass()
 {
-    std::unique_ptr<GBufferPass> pass = std::make_unique<GBufferPass>();
-    pass->SetOwnerScene(_ownerScene);
     D3D12_VIEWPORT viewport{.TopLeftX = 0,
                             .TopLeftY = 0,
                             .Width    = (FLOAT)UmDevice.GetMode().Width,
                             .Height   = (FLOAT)UmDevice.GetMode().Height,
                             .MinDepth = 0.f,
                             .MaxDepth = 1.f};
-    D3D12_RECT     scissor{
-            .left = 0, .top = 0, .right = (LONG)UmDevice.GetMode().Width, .bottom = (LONG)UmDevice.GetMode().Height};
+    D3D12_RECT     scissor{.left = 0, .top = 0, .right = (LONG)UmDevice.GetMode().Width, .bottom = (LONG)UmDevice.GetMode().Height};
+
+    std::unique_ptr<GBufferPass> pass = std::make_unique<GBufferPass>();
+    pass->SetOwnerScene(_ownerScene);
     pass->Initialize(viewport, scissor);
     AddRenderPass(std::move(pass));
 }
