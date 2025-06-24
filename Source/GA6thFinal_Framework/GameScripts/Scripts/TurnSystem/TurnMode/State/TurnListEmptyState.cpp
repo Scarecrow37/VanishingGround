@@ -1,4 +1,5 @@
-﻿#include "TurnListEmptyState.h"
+﻿#include "pchScripts.h"
+#include "TurnListEmptyState.h"
 
 REGISTER_CLASS(FSMStateFactory, TurnListEmptyState)
 

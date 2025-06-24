@@ -1,4 +1,6 @@
-﻿#include "Player.h"
+﻿#include "pchScripts.h"
+#include "Player.h"
+
 Player::Player()
 {
     MaxHP      = 100;

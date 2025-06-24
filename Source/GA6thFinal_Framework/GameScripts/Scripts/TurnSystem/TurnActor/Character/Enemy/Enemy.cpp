@@ -1,4 +1,5 @@
-﻿#include "Enemy.h"
+﻿#include "pchScripts.h"
+#include "Enemy.h"
 
 Enemy::Enemy()
 {

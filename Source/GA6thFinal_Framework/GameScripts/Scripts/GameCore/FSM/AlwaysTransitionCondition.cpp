@@ -1,4 +1,5 @@
-﻿#include "AlwaysTransitionCondition.h"
+﻿#include "pchScripts.h"
+#include "AlwaysTransitionCondition.h"
 
 REGISTER_CLASS(FSMConditionFactory, AlwaysTransitionCondition)
 

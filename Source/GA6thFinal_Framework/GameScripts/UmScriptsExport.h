@@ -63,3 +63,9 @@ UMREAL_COMPONENT(Enemy)
 
 #include "Scripts\Camera/CameraComponent.h"
 UMREAL_COMPONENT(CameraComponent)
+
+#include "Scripts/Stats/CharacterStatsComponent.h"
+
+
+#include "Scripts\Stats/Player/PlayerStatsComponent.h"
+UMREAL_COMPONENT(PlayerStatsComponent)
