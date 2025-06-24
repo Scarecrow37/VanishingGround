@@ -9,6 +9,7 @@ class Camera;
 class MeshRenderer;
 class SkyBox;
 class UnorderedAccessView;
+class DepthStencilView;
 class RenderScene
 {
 public:
@@ -62,17 +63,16 @@ public:
     std::shared_ptr<Camera>                     _camera;
     NumLight                                    _numLight;
 
-    UINT                        _currentFrameIndex = 0;
-    D3D12_CPU_DESCRIPTOR_HANDLE _depthStencilHandle;
-
     std::unique_ptr<Quad>                _frameQuad;
     std::unique_ptr<SkyBox>              _skyBox;
     std::unique_ptr<ShaderBuilder>       _frameShader;
     std::unique_ptr<UnorderedAccessView> _accumulationBuffer;
+    std::unique_ptr<DepthStencilView>    _depthStencilView;
 
     // Buffers
-    ComPtr<ID3D12Resource>      _depthStencilBuffer;
     ComPtr<ID3D12Resource>      _cameraBuffer;
     ComPtr<ID3D12Resource>      _lightBuffer;
     ComPtr<ID3D12PipelineState> _framePSO;
+
+    UINT _currentFrameIndex = 0;
 };

@@ -33,6 +33,21 @@ const Matrix* Animator::FindBoneMatrix(const char* boneName) const
     return nullptr;
 }
 
+float Animator::GetCurrentAnimationLastTime() const
+{
+    return _controllers[0].LastTime;
+}
+
+float Animator::GetCurrentAnimationPlayTime() const
+{
+    return _controllers[0].PlayTime;
+}
+
+void Animator::SetAnimationTime(float time) 
+{
+    _controllers[0].PlayTime = time;
+}
+
 void Animator::Initialize(std::wstring_view filePath, std::shared_ptr<Skeleton> skeleton)
 {
 	_animation = UmResourceManager.LoadResource<Animation>(filePath);
