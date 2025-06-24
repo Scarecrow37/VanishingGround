@@ -37,6 +37,8 @@ void BlurXPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& sis
     HRESULT hr = S_OK;
     hr         = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(&_pipelineState));
     FAILED_CHECK_MESSAGE(hr, L"BlurXPass::Initialize device->CreateGraphicsPipelineState Failed");
+
+    _parameterName = std::format("bit32_{}_postProcessData", MAX_MIPMAP_LEVEL);
 }
 
 void BlurXPass::Begin(ID3D12GraphicsCommandList* commandList)
@@ -61,9 +63,9 @@ void BlurXPass::Draw(ID3D12GraphicsCommandList* commandList)
     const auto& usedRenderTargets        = multiRenderTargetManager.GetUsedRenderTargets();
 
     commandList->SetPipelineState(_pipelineState.Get());
-    commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
+    commandList->SetGraphicsRootSignature(_shader->GetRootSignature());    
 
-    commandList->SetGraphicsRoot32BitConstants(_shader->GetRootParameterIndex("bit32_5_postProcessData"), 5, &postProcessData, 0);
+    commandList->SetGraphicsRoot32BitConstants(_shader->GetRootParameterIndex(_parameterName.data()), MAX_MIPMAP_LEVEL, &postProcessData, 0);
     commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("sourceTexture"), usedRenderTargets.front()->GetSRVHandle());
        
     _ownerScene->_frameQuad->Render(commandList);
