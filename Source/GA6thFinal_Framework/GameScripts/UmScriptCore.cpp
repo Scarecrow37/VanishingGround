@@ -94,7 +94,7 @@ UMREALSCRIPTS_DECLSPEC void CreateUmrealcSriptFile(const char* fileName)
         wofs.open(filePath, std::ios::trunc);
         if (wofs.is_open())
         {
-            wofs << std::format(L"#include \"pch.h\"")                               << L"\n";
+            wofs << std::format(L"#include \"pchScripts.h\"")                        << L"\n";
             wofs << std::format(L"#include \"{}.h\"", ClassName)                     << L"\n";
             wofs << std::format(L"{0}::{0}() = default;", ClassName)                 << L"\n";
             wofs << std::format(L"{0}::~{0}() = default;", ClassName)                << L"\n";
