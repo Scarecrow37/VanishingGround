@@ -26,6 +26,7 @@ void ParticleResolvePass::Begin(ID3D12GraphicsCommandList* commandlist)
 
     _particleRenderCommandList->RSSetViewports(1, &_viewPort);
     _particleRenderCommandList->RSSetScissorRects(1, &_sissorRect);
+
     _meshRenderTarget->ClearRenderTarget(_particleRenderCommandList);
     _particleRenderCommandList->OMSetRenderTargets(1, &_meshRenderTarget->GetRTVHandle(), FALSE, nullptr);
 }

@@ -35,8 +35,23 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
     // 1. 위치 업데이트
     float3 acceleration = float3(0, -9.8, 0) * input.mass;
     //float3 dragForce = -input.velocity * dragCoefficient;
-    input.velocity += acceleration * input.age;
-    input.position.xyz += input.velocity * input.age ;
+    
+    input.velocity += acceleration;
+    float3 preCalculatePos = float3(0, 0, 0);
+    preCalculatePos += input.velocity * input.age;
+    
+    float3 dragpos = emitter.dragPoint.xyz;
+    float3 dragdir = dragpos - preCalculatePos;
+    float dragfactor = 1 / length(dragdir);
+    float3 dragforce = dragfactor * dragfactor * emitter.dragforce.y * -dragdir * emitter.dragPoint.w * input.age;
+    input.velocity += acceleration + dragforce;
+
+    input.position.xyz += input.velocity * input.age;
+
+    
+    
+
+    
     
     // 2. 에미터 월드 변환 적용
     float4 worldPos = mul(float4(input.position.xyz, 1.0), emitter.WorldMatrix);

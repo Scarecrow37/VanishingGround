@@ -68,10 +68,6 @@ void ParticleSpritePass::Begin(ID3D12GraphicsCommandList* commandlist)
 
     _particleRenderCommandList->ResourceBarrier(1, &computeOutputBarrior);
 
-    //_accumlateBuffer->TransitionResource(_particleRenderCommandList, D3D12_RESOURCE_STATE_COMMON,
-    //                                     D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-    //_revealageBuffer->TransitionResource(_particleRenderCommandList, D3D12_RESOURCE_STATE_COMMON,
-    //                                     D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
     auto albedoTextures = UmParticleManager.GetActiveAlbedos();
     std::fill(_albedoTextureIDs.begin(), _albedoTextureIDs.end(), -1);
@@ -105,7 +101,7 @@ void ParticleSpritePass::End(ID3D12GraphicsCommandList* commandlist)
 
 void ParticleSpritePass::Draw(ID3D12GraphicsCommandList* commandlist)
 {
-    //auto customDepthTarget = UmMultiRenderTargetManager.GetRenderTarget("CustomDepth");
+    auto customDepthTarget = UmMultiRenderTargetManager.GetRenderTarget("CustomDepth");
 
     ComPtr<ID3D12Device>  device = UmDevice.GetDevice();
     ID3D12DescriptorHeap* hps[]  = {
@@ -154,10 +150,6 @@ void ParticleSpritePass::InitializeShader()
 
 void ParticleSpritePass::InitializePSO() 
 {
-
-
-
-
     // static two side.
     ComPtr<ID3D12Device>               device = UmDevice.GetDevice();
     D3D12_GRAPHICS_PIPELINE_STATE_DESC psodesc;

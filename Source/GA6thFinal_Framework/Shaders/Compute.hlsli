@@ -44,7 +44,9 @@ struct ParticleOutput
 struct EmitterInfo
 {
     float4x4 WorldMatrix;
-    
+    float4 dragPoint;
+    float4 dragforce;
+
 };
 
 

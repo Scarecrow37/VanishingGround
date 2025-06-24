@@ -24,7 +24,7 @@ struct PSInput
     nointerpolation int emitterIndex : CUSTOM_FLAG;
 };
 
-float4 ps_main(PSInput input) : SV_Target
+uint ps_main(PSInput input) : SV_Target
 {
     // 1. 텍스처 샘플링 최소화
     int emitIndex = input.emitterIndex;
@@ -37,31 +37,34 @@ float4 ps_main(PSInput input) : SV_Target
     
     // 3. 가중치 계산 최적화
     float depth = input.depth;
-    clip(depth > 0.95f);
+    clip(depth < 0.95f);
     float depth2 = depth * depth; // 제곱 캐싱
     float depth6 = depth2 * depth2 * depth2; // 6제곱 효율적 계산
     
     // 사전 계산된 상수 활용
-    static const float denom_const = 0.00001f;
-    static const float div5 = 1.0f / 25.0f; // (1/5)^2
-    static const float div200 = 1.0f / (200.0f * 200.0f * 200.0f * 200.0f * 200.0f * 200.0f);
+    static const float denom_const = 0.001f;
+    // (1/5)^2 = 1/25 = 0.04
+    static const float div5 =0.04f;
+    
+    // 1/200^6 = 1/ 6400000000 = 0.000000000000015625
+    static const float div200 = 0.000000000000015625f;
     
     float denominator = denom_const +
                        (depth2 * div5) +
                        (depth6 * div200);
     
-    float weight = alpha * 10.0f / denominator;
+    float weight = alpha * 1.0f / denominator;
     
     // 4. UAV 쓰기 최적화
     float3 color_contrib = input.color.rgb * alpha * weight;
     float alpha_contrib = alpha * weight;
     
-    gAccumTex[uint2(input.position.xy)] += float4(color_contrib, alpha_contrib) * 0.5f;
-    gRevealTex[uint2(input.position.xy)] += alpha*0.5f;
+    gAccumTex[uint2(input.position.xy)] += float4(color_contrib, alpha_contrib) ;
+    gRevealTex[uint2(input.position.xy)] += alpha;
     
     // 5. 불필요한 출력 제거
-    return float4(color_contrib, alpha_contrib);
-    //return 1;
+    //return float4(color_contrib, alpha_contrib);
+    return 1;
 
 }
 

@@ -89,12 +89,41 @@ DirectX::SimpleMath::Vector3 TorusLocator::EmitLocate()
 
 DirectX::SimpleMath::Vector3 MeshSurfaceLocator::EmitLocate() 
 {
-    Vector3 offset = {_randomVal() * _factor.x, _randomVal() * _factor.y, _randomVal() * _factor.z};
     if (false == _vertices.empty())
-        return _vertices[static_cast<UINT>(_randomVal() * (_vertices.size() - 1))] + offset;
+    {
+        float temp  = ((_randomVal() + 1) * 0.5f);
+        UINT index = static_cast<UINT>(temp* (_vertices.size() - 1));
+        return Vector3(_vertices[index].x * 0.1f, _vertices[index].y * 0.1f, _vertices[index].z * 0.1f);
+    }
 
     else
         return {0, 0, 0};
+}
+
+void MeshSurfaceLocator::LerpVertices() 
+{
+    /*  for (int i = 0; i < _vertices.size(); i += 3)
+      {
+          auto newVector =
+              (meshVertices[meshIndices[i]] + meshVertices[meshIndices[i + 1]] + meshVertices[meshIndices[i + 2]]) *
+              0.333f;
+          auto newVector1 = (meshVertices[meshIndices[i]] + newVector) * 0.5f;
+          auto newVector2 = (meshVertices[meshIndices[i + 1]] + newVector) * 0.5f;
+          auto newVector3 = (meshVertices[meshIndices[i + 2]] + newVector) * 0.5f;
+
+          auto newVector4 = (meshVertices[meshIndices[i]] + meshVertices[meshIndices[i + 2]]) * 0.5f;
+          auto newVector5 = (meshVertices[meshIndices[i + 1]] + meshVertices[meshIndices[i + 2]]) * 0.5f;
+          auto newVector6 = (meshVertices[meshIndices[i + 1]] + meshVertices[meshIndices[i]]) * 0.5f;
+          meshVertices.push_back(newVector);
+          meshVertices.push_back(newVector1);
+          meshVertices.push_back(newVector2);
+          meshVertices.push_back(newVector3);
+          meshVertices.push_back(newVector4);
+          meshVertices.push_back(newVector5);
+          meshVertices.push_back(newVector6);
+      }*/
+
+
 }
 
 void SpriteModule::SetFrameInfo(Vector4 frameInfo) 
