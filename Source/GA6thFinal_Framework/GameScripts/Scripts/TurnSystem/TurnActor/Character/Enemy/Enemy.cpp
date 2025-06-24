@@ -14,6 +14,11 @@ void Enemy::Awake()
 {
     Base::Awake();
     gameObject->AddTag(TAG);
+
+    if (nullptr == GetEnemyStats())
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"Enemy Stats를 추가해주세요");
+    }
 }
 
 void Enemy::Update() 
