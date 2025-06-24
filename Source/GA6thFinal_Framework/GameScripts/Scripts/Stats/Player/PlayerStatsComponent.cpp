@@ -7,11 +7,6 @@ PlayerStatsComponent::~PlayerStatsComponent() = default;
 
 CharacterStats* PlayerStatsComponent::NewCharacterStats()
 {
-    return new PlayerStats;
-}
-
-void CharacterStatsComponent::Reset()
-{
-    CharacterStats* newStats = NewCharacterStats();
-    _stats.reset(newStats);
+    _stats = new PlayerStats;
+    return _stats;
 }

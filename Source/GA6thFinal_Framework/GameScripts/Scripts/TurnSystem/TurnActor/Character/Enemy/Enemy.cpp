@@ -1,12 +1,11 @@
 ﻿#include "pchScripts.h"
 #include "Enemy.h"
+#include "Stats/Enemy/EnemyStats.h"
+#include "Stats/Enemy/EnemyStatsComponent.h"
 
 Enemy::Enemy()
 {
-    MaxHP      = 100;
-    MaxMP      = 100;
-    ChainCount = 0;
-    Speed      = 0;
+
 }
 
 Enemy::~Enemy() = default;
@@ -53,7 +52,33 @@ void Enemy::OnTurnEnd()
     UmLogger.Message(LogLevel::LEVEL_TRACE, message);
 }
 
+CharacterStats* Enemy::GetCharacterStats()
+{
+    CharacterStats* stats = nullptr;
+    EnemyStatsComponent* statsComponent = GetEnemyStats();
+    if (nullptr != statsComponent)
+    {
+        stats = statsComponent->GetStats();
+    }
+    return stats;
+}
+
 int Enemy::GetSpeed()
 {
-    return Speed;
+    int speed = 0;
+    EnemyStatsComponent* stats = GetEnemyStats();
+    if (nullptr != stats)
+    {
+        speed = stats->GetStats()->Speed;
+    }
+    return speed;
+}
+
+EnemyStatsComponent* Enemy::GetEnemyStats()
+{
+    if (nullptr == _enemyStats)
+    {
+        _enemyStats = GetComponent<EnemyStatsComponent>();
+    }      
+    return _enemyStats;
 }

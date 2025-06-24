@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "Stats/CharacterStatsComponent.h"
 
-class PlayerStats;
+struct PlayerStats;
 class PlayerStatsComponent : public CharacterStatsComponent
 {
     USING_PROPERTY(PlayerStatsComponent)
@@ -20,6 +20,6 @@ protected:
     // 이 함수를 override 해서 CharacterStats를 동적할당해 반환해야 합니다.
     CharacterStats* NewCharacterStats() override;
 private:
-    PlayerStats* _stats;
+    PlayerStats* _stats = nullptr;
 
 };

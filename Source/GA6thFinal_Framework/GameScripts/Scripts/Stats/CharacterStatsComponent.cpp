@@ -19,3 +19,9 @@ void CharacterStatsComponent::ImGuiDrawPropertysEvent()
 {
     _stats->ImGuiDrawPropertys();
 }
+
+void CharacterStatsComponent::Reset()
+{
+    CharacterStats* newStats = NewCharacterStats();
+    _stats.reset(newStats);
+}

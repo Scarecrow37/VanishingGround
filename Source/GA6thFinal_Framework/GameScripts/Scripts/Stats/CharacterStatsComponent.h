@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "UmFramework.h"
 
-class CharacterStats;
+struct CharacterStats;
 class CharacterStatsComponent abstract : public Component
 {
     USING_PROPERTY(CharacterStatsComponent)

@@ -1,5 +1,39 @@
 ﻿#include "pchScripts.h"
 #include "CharacterBase.h"
+#include "Stats/CharacterStats.h"
+
+int CharacterBase::GetMaxHP()
+{
+    int maxHP = 0;
+    CharacterStats* stats = GetCharacterStats();
+    if (nullptr != stats)
+    {
+        maxHP = stats->MaxHP;
+    }
+    return maxHP;
+}
+
+int CharacterBase::GetMaxMP()
+{
+    int maxMP = 0;
+    CharacterStats* stats = GetCharacterStats();
+    if (nullptr != stats)
+    {
+        maxMP = stats->MaxMP;
+    }
+    return maxMP;
+}
+
+int CharacterBase::GetChainCount()
+{
+    int chainCount =0;
+    CharacterStats* stats = GetCharacterStats();
+    if (nullptr != stats)
+    {
+        chainCount = stats->ChainCount;
+    }
+    return chainCount;
+}
 
 CharacterBase::CharacterBase() : 
     _hp(0), 
