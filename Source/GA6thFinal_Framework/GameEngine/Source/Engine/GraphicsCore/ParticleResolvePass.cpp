@@ -21,8 +21,8 @@ void ParticleResolvePass::Initialize(const D3D12_VIEWPORT& viewport, const D3D12
 
 void ParticleResolvePass::Begin(ID3D12GraphicsCommandList* commandList)
 {
-    //_meshRenderTarget->TransitionResource(_particleRenderCommandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-    //                                      D3D12_RESOURCE_STATE_RENDER_TARGET);
+    _meshRenderTarget->TransitionResource(_particleRenderCommandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+                                          D3D12_RESOURCE_STATE_RENDER_TARGET);
 
     _particleRenderCommandList->RSSetViewports(1, &_viewPort);
     _particleRenderCommandList->RSSetScissorRects(1, &_sissorRect);

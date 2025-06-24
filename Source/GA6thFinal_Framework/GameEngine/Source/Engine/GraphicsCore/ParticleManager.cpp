@@ -28,57 +28,6 @@ void ParticleManager::Initialize(UINT maxParticles)
 
     
     
-    // test
-    auto effect = UmParticleManager.RegisterEffect();
-    effect->SetPosition({0, 0, 30});
-    effect->SetLifetime(150.f);
-    auto emitter = UmParticleManager.RegisterEmitter(effect, 100000, 1000, 20, LocationShape::SPHERE);
-    emitter->SetEmitterLifetime(150.f);
-    static_cast<SpriteModule*>(emitter->_particleRenderModule)
-        ->LoadAlbedoTexture(L"../../../Resource/Assets/ParticleTexture/defaultSmoke.jpg");
-    emitter->SetVelocityType(VelocityScaleType::POINT);
-
-    emitter->SetParticleLifetime(3.f);
-    emitter->SetStartScale({0.1f, 0.1f, 1, 1});
-    emitter->SetEndScale({0.1f, 0.1f, 1, 1});
-    emitter->SetStartScale({0.2f, 0.2f, 1, 1});
-    emitter->SetEndScale({0.2f, 0.2f, 1, 1});
-    emitter->SetStartColor({1, 0.3f, 0});
-    emitter->SetEndColor({0, 0, 0});
-    emitter->SetStartOpacity(0.1f);
-    emitter->SetEndOpacity(0.05f);
-    emitter->SetVelocityFactor({10, 0, 0});
-    emitter->SetEmissionRate(2000);
-    // emitter->SetLocatorFactor({10, 12, 8});
-    emitter->SetLocatorFactor({2, 2, 2});
-    emitter->SetParticleMass(1.f);
-    emitter->SetParticleDistributionOffset(1.f);
-    emitter->SetSpawnBurstCount(5000);
-    emitter->SetSpawnBurstFlag(true);
-
-    auto emitter1 = UmParticleManager.RegisterEmitter(effect, 100000, 1000, 20, LocationShape::SPHERE);
-    emitter1->SetEmitterLifetime(150.f);
-    static_cast<SpriteModule*>(emitter1->_particleRenderModule)
-        ->LoadAlbedoTexture(L"../../../Resource/Assets/ParticleTexture/defaultSmoke.jpg");
-    emitter1->SetVelocityType(VelocityScaleType::POINT);
-
-    emitter1->SetParticleLifetime(3.f);
-    emitter1->SetStartScale({0.1f, 0.1f, 1, 1});
-    emitter1->SetEndScale({0.1f, 0.1f, 1, 1});
-    emitter1->SetStartScale({0.2f, 0.2f, 1, 1});
-    emitter1->SetEndScale({0.2f, 0.2f, 1, 1});
-    emitter1->SetStartColor({1, 0.5f, 0});
-    emitter1->SetEndColor({0, 0, 0});
-    emitter1->SetStartOpacity(0.1f);
-    emitter1->SetEndOpacity(0.05f);
-    emitter1->SetVelocityFactor({10, 0, 0});
-    emitter1->SetEmissionRate(2000);
-    // emitter1->SetLocatorFactor({10, 12, 8});
-    emitter1->SetLocatorFactor({1.5f, 1.5f, 1.5f});
-    emitter1->SetParticleMass(1.f);
-    emitter1->SetParticleDistributionOffset(1.f);
-    emitter1->SetSpawnBurstCount(5000);
-    emitter1->SetSpawnBurstFlag(true);
 
 
 
@@ -145,16 +94,16 @@ void ParticleManager::ResetRenderCommandObject()
 
 void ParticleManager::InitializeComputeCommandObject()
 {
-        D3D12_COMMAND_QUEUE_DESC desc{
+    D3D12_COMMAND_QUEUE_DESC desc{
             .Type     = D3D12_COMMAND_LIST_TYPE_COMPUTE,
             .Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL,
             .Flags    = D3D12_COMMAND_QUEUE_FLAG_NONE,
             .NodeMask = 0,
         };
     {
-            HRESULT hr = S_OK;
+        HRESULT hr = S_OK;
         hr = UmDevice.GetDevice()->CreateCommandAllocator(desc.Type, IID_PPV_ARGS(&_computeAllocator));
-            FAILED_CHECK_MESSAGE(hr, L"ParticleManager::InitializeComputeCommandObject UmDevice.GetDevice()->CreateCommandAllocator Failed",);
+        FAILED_CHECK_MESSAGE(hr, L"ParticleManager::InitializeComputeCommandObject UmDevice.GetDevice()->CreateCommandAllocator Failed");
 
 
         FAILED_CHECK_MESSAGE(
@@ -214,7 +163,7 @@ void ParticleManager::InitializeParticleComputeShader()
             GRAPHICS_ASSERT(SUCCEEDED(hr), errorMessage.c_str());
         }
 
-        FAILED_CHECK_MESSAGE(hr, L"D3DCompileFromFile Failed",);
+        FAILED_CHECK_MESSAGE(hr, L"D3DCompileFromFile Failed");
     }
     // axial billboard sprite particle compute shader
     {
@@ -239,7 +188,7 @@ void ParticleManager::InitializeParticleComputeShader()
             GRAPHICS_ASSERT(SUCCEEDED(hr), errorMessage.c_str());
         }
 
-        FAILED_CHECK_MESSAGE(hr, L"D3DCompileFromFile Failed",);
+        FAILED_CHECK_MESSAGE(hr, L"D3DCompileFromFile Failed");
     }
     // mesh particle compute shader
     {
@@ -264,7 +213,7 @@ void ParticleManager::InitializeParticleComputeShader()
             GRAPHICS_ASSERT(SUCCEEDED(hr), errorMessage.c_str());
         }
 
-        FAILED_CHECK_MESSAGE(hr, L"D3DCompileFromFile Failed",);
+        FAILED_CHECK_MESSAGE(hr, L"D3DCompileFromFile Failed");
     }
 }
 void ParticleManager::InitializeParticleComputeRootSignature()
@@ -299,7 +248,7 @@ void ParticleManager::InitializeParticleComputeRootSignature()
         rootParameters[3].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
 
         D3D12_ROOT_SIGNATURE_DESC rootSignDesc;
-        rootSignDesc.NumParameters     = rootParameters.size();
+        rootSignDesc.NumParameters     = (UINT)rootParameters.size();
         rootSignDesc.pParameters       = rootParameters.data();
         rootSignDesc.Flags             = D3D12_ROOT_SIGNATURE_FLAG_NONE;
         rootSignDesc.NumStaticSamplers = 0;
@@ -315,13 +264,13 @@ void ParticleManager::InitializeParticleComputeRootSignature()
             GRAPHICS_ASSERT(SUCCEEDED(hr), errorMessage.c_str());
         }
 
-        FAILED_CHECK_MESSAGE(hr,L"D3D12SerializeRootSignature Failed",);
+        FAILED_CHECK_MESSAGE(hr,L"ParticleManager::InitializeParticleComputeRootSignature D3D12SerializeRootSignature Failed");
 
         ComPtr<ID3D12RootSignature> rootSignature;
         hr = UmDevice.GetDevice()->CreateRootSignature(0, serializedRootSig->GetBufferPointer(),
                                                        serializedRootSig->GetBufferSize(),
                                                        IID_PPV_ARGS(_computeSpriteRootSignature.GetAddressOf()));
-        FAILED_CHECK_MESSAGE(hr,L"CreateRootSignature Failed",);
+        FAILED_CHECK_MESSAGE(hr,L"ParticleManager::InitializeParticleComputeRootSignature CreateRootSignature Failed");
     }
     // initialize mesh root signature;
     {
@@ -353,7 +302,7 @@ void ParticleManager::InitializeParticleComputeRootSignature()
         rootParameters[3].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
 
         D3D12_ROOT_SIGNATURE_DESC rootSignDesc;
-        rootSignDesc.NumParameters     = rootParameters.size();
+        rootSignDesc.NumParameters     = (UINT)rootParameters.size();
         rootSignDesc.pParameters       = rootParameters.data();
         rootSignDesc.Flags             = D3D12_ROOT_SIGNATURE_FLAG_NONE;
         rootSignDesc.NumStaticSamplers = 0;
@@ -577,7 +526,7 @@ void ParticleManager::CopyActiveParticles()
                     }
                     _emitterMatrix.push_back({emitter->GetWorldMatrix().Transpose()});
                     auto& particlePool = emitter->GetParticlePool();
-                    for (int i = 0; i < emitter->GetActiveParticleCount(); i++)
+                    for (UINT i = 0; i < emitter->GetActiveParticleCount(); i++)
                     {
 
                         auto particle = *particlePool[i];
@@ -639,7 +588,7 @@ void ParticleManager::DispatchParticleCompute(float deltaTime)
     _computeCommandList->SetComputeRootUnorderedAccessView(3, _particleOutputBuffer->GetGPUVirtualAddress());
 
     // 6. 디스패치
-    UINT numThreadGroups = (_totalParticles.size() + 31) / 32; // 32개 스레드 그룹으로 나누기
+    UINT numThreadGroups = static_cast<UINT>((_totalParticles.size() + 31) / 32); // 32개 스레드 그룹으로 나누기
     _computeCommandList->Dispatch(numThreadGroups, 1, 1);
 
     computeOutputBarrior = CD3DX12_RESOURCE_BARRIER::Transition(

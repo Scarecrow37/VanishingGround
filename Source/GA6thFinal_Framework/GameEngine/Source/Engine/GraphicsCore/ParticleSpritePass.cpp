@@ -75,7 +75,7 @@ void ParticleSpritePass::Begin(ID3D12GraphicsCommandList* commandlist)
         _albedoTextureIDs[i] = albedoTextures[i]->GetID();
     }
 
-    _textureIDBuffer->CopyStructuredBuffer(commandlist, _albedoTextureIDs.data(), albedoTextures.size() * sizeof(int));
+    _textureIDBuffer->CopyStructuredBuffer(commandlist, _albedoTextureIDs.data(), static_cast<UINT>(albedoTextures.size() * sizeof(int)));
 
 
 }

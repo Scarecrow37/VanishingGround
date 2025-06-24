@@ -139,7 +139,7 @@ public:
 
     inline std::vector<class Particle*>& GetParticlePool() { return _particlePool; }
 
-    UINT GetActiveParticleCount() const { return _activeParticleCount; }
+    UINT GetActiveParticleCount() const { return (UINT)_activeParticleCount; }
 
 protected:
     void InitializeLocator(LocationShape locatorShape, Vector3 factor);

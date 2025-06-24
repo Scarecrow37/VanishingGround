@@ -105,7 +105,8 @@ void SpriteModule::SetFrameInfo(Vector4 frameInfo)
 
 void SpriteModule::SetFrameInfo(int widthCount, int heightCount, int startIndex, int totalCount) 
 {
-    _initialFrameInfo = Vector4(widthCount, heightCount, startIndex, totalCount);
+    _initialFrameInfo =
+        Vector4((float)widthCount, (float)heightCount, (float)startIndex, static_cast<float>(totalCount));
     CalculateFrameInfos();
 }
 
@@ -283,7 +284,7 @@ void ParticleEmitter::UpdateParticleLifeCycle(float deltaTime)
             index = _activeParticleCount;
         }
         _activeParticleCount++;
-        AwakeParticle(index);
+        AwakeParticle(static_cast<UINT>(index));
         newParticles--;
     }
 }
