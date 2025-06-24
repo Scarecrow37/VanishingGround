@@ -7,6 +7,7 @@
 #include "Texture.h"
 #include "Quad.h"
 #include "StructuredBuffer.h"
+#include "UnorderedAccessView.h"
 
  ParticleSpritePass::ParticleSpritePass() {}
 
@@ -49,9 +50,6 @@ void ParticleSpritePass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_
 void ParticleSpritePass::Begin(ID3D12GraphicsCommandList* commandlist)
 {
 
-    //_particleRenderCommandList->OMSetRenderTargets(1, &_ownerScene->_meshLightingTarget->GetRTVHandle(), FALSE,
-    //                                               &_ownerScene->_depthStencilHandle);
-
     _particleRenderCommandList->RSSetViewports(1, &_viewPort);
     _particleRenderCommandList->RSSetScissorRects(1, &_sissorRect);
 
@@ -63,16 +61,10 @@ void ParticleSpritePass::Begin(ID3D12GraphicsCommandList* commandlist)
 
     _particleRenderCommandList->ResourceBarrier(1, &computeOutputBarrior);
 
-
-
-
-        CD3DX12_RESOURCE_BARRIER barriers[] = {
-        CD3DX12_RESOURCE_BARRIER::Transition(_accumlateBuffer.Get(), D3D12_RESOURCE_STATE_COMMON,
-                                             D3D12_RESOURCE_STATE_UNORDERED_ACCESS),
-        CD3DX12_RESOURCE_BARRIER::Transition(_revelageBuffer.Get(), D3D12_RESOURCE_STATE_COMMON,
-                                             D3D12_RESOURCE_STATE_UNORDERED_ACCESS),
-    };
-        _particleRenderCommandList->ResourceBarrier(_countof(barriers), barriers);
+    //_accumlateBuffer->TransitionResource(_particleRenderCommandList, D3D12_RESOURCE_STATE_COMMON,
+    //                                     D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+    //_revealageBuffer->TransitionResource(_particleRenderCommandList, D3D12_RESOURCE_STATE_COMMON,
+    //                                     D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
 
 
@@ -83,45 +75,25 @@ void ParticleSpritePass::Begin(ID3D12GraphicsCommandList* commandlist)
         _albedoTextureIDs[i] = albedoTextures[i]->GetID();
     }
 
-    _textureIDBuffer->CopyStructuredBuffer(commandlist, _albedoTextureIDs.data(), albedoTextures.size() * sizeof(int));
-    /*void* mappedData = nullptr;
-    _textureIdConstantBuffer->Map(0, nullptr, &mappedData);
-    memcpy(mappedData, _albedoTextureIDs.data(), albedoTextures.size() * sizeof(int));
-    _textureIdConstantBuffer->Unmap(0, nullptr);*/
-
-    // Clear Accumulation (float4)
-    float clearAccum[4] = {0.0f, 0.0f, 0.0f, 0.0f};
-    _particleRenderCommandList->ClearUnorderedAccessViewFloat(_oitUAVHandles[0].GPU, _oitUAVCPUHeapHandles[0].CPU,
-                                                              _accumlateBuffer.Get(),
-                                                              clearAccum, 0,
-                                                              nullptr);
-
-    // Clear Revealage (float)
-    float clearReveal[4] = {0.0f, 0.0f, 0.0f, 0.0f};
-    _particleRenderCommandList->ClearUnorderedAccessViewFloat(_oitUAVHandles[1].GPU, _oitUAVCPUHeapHandles[1].CPU,
-                                                              _revelageBuffer.Get(), clearReveal, 0,
-                                                              nullptr);
+    _textureIDBuffer->CopyStructuredBuffer(commandlist, _albedoTextureIDs.data(), static_cast<UINT>(albedoTextures.size() * sizeof(int)));
 
 
 }
 
 void ParticleSpritePass::End(ID3D12GraphicsCommandList* commandlist)
 {
-
+     
     ComPtr<ID3D12Resource>   resource             = UmParticleManager.GetComputeOutputResource();
     CD3DX12_RESOURCE_BARRIER computeOutputBarrior = CD3DX12_RESOURCE_BARRIER::Transition(
         resource.Get(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COMMON);
 
     _particleRenderCommandList->ResourceBarrier(1, &computeOutputBarrior);
 
-            CD3DX12_RESOURCE_BARRIER barriers[] = {
-        CD3DX12_RESOURCE_BARRIER::Transition(_accumlateBuffer.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
-                                             D3D12_RESOURCE_STATE_COMMON),
-        CD3DX12_RESOURCE_BARRIER::Transition(_revelageBuffer.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
-                                             D3D12_RESOURCE_STATE_COMMON),
-    };
-    _particleRenderCommandList->ResourceBarrier(_countof(barriers), barriers);
-    
+    _accumlateBuffer->TransitionResource(_particleRenderCommandList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+                                         D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    _revealageBuffer->TransitionResource(_particleRenderCommandList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+                                         D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+
 }
 
 void ParticleSpritePass::Draw(ID3D12GraphicsCommandList* commandlist)
@@ -129,13 +101,17 @@ void ParticleSpritePass::Draw(ID3D12GraphicsCommandList* commandlist)
 
 
     ComPtr<ID3D12Device> device         = UmDevice.GetDevice();
-    ID3D12DescriptorHeap* hps[] = {
+    ID3D12DescriptorHeap* hps[]  = {
         UmViewManager.GetShaderResourceHeap(),
     };
 
 
     ///TODO: albedo texture 바인딩 마무리
     _particleRenderCommandList->SetDescriptorHeaps(_countof(hps), hps);
+    _accumlateBuffer->ClearUnorderedAccessView(_particleRenderCommandList);
+    _revealageBuffer->ClearUnorderedAccessView(_particleRenderCommandList);
+
+
     D3D12_GPU_DESCRIPTOR_HANDLE descHeapPtr =
         UmViewManager.GetShaderResourceHeap()->GetGPUDescriptorHandleForHeapStart();
     
@@ -145,9 +121,9 @@ void ParticleSpritePass::Draw(ID3D12GraphicsCommandList* commandlist)
         _spriteParticleShaderBuilder->GetRootParameterIndex("texID"), _textureIDBuffer->GetGPUVirtualAddress());
 
     _particleRenderCommandList->SetGraphicsRootDescriptorTable(
-        _spriteParticleShaderBuilder->GetRootParameterIndex("gAccumTex"), _oitUAVHandles[0].GPU);
+        _spriteParticleShaderBuilder->GetRootParameterIndex("gAccumTex"), _accumlateBuffer->GetUAVHandle());
     _particleRenderCommandList->SetGraphicsRootDescriptorTable(
-        _spriteParticleShaderBuilder->GetRootParameterIndex("gRevealTex"), _oitUAVHandles[1].GPU);
+        _spriteParticleShaderBuilder->GetRootParameterIndex("gRevealTex"), _revealageBuffer->GetUAVHandle());
 
 
     auto outputResource = UmParticleManager.GetComputeOutputResource();
@@ -236,11 +212,8 @@ void ParticleSpritePass::InitializeDescriptorHeap()
 
 }
 
-void ParticleSpritePass::SetAccumulationBuffers(ComPtr<ID3D12Resource> color, ComPtr<ID3D12Resource> alpha,
-    std::vector<DescriptorHandles> handle, std::vector<DescriptorHandles> cpuheaphandle)
+void ParticleSpritePass::SetAccumulationBuffers(UnorderedAccessView* color, UnorderedAccessView* alpha)
 {
     _accumlateBuffer = color;
-    _revelageBuffer  = alpha;
-    _oitUAVHandles   = handle;
-    _oitUAVCPUHeapHandles = cpuheaphandle;
+    _revealageBuffer  = alpha;
 }

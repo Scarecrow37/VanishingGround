@@ -4,6 +4,7 @@
 #include "RenderTarget.h"
 #include "ShaderBuilder.h"
 #include "ParticleResolvePass.h"
+#include "UnorderedAccessView.h"
 
  ParticleResolvePass::ParticleResolvePass() {}
 
@@ -20,31 +21,35 @@ void ParticleResolvePass::Initialize(const D3D12_VIEWPORT& viewport, const D3D12
 
 void ParticleResolvePass::Begin(ID3D12GraphicsCommandList* commandList)
 {
+    _meshRenderTarget->TransitionResource(_particleRenderCommandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+                                          D3D12_RESOURCE_STATE_RENDER_TARGET);
+
     _particleRenderCommandList->RSSetViewports(1, &_viewPort);
     _particleRenderCommandList->RSSetScissorRects(1, &_sissorRect);
-    _finalRenderTarget->ClearRenderTarget(_particleRenderCommandList);
-    _particleRenderCommandList->OMSetRenderTargets(1, &_finalRenderTarget->GetRTVHandle(), FALSE,
+    _meshRenderTarget->ClearRenderTarget(_particleRenderCommandList);
+    _particleRenderCommandList->OMSetRenderTargets(1, &_meshRenderTarget->GetRTVHandle(), FALSE,
                                                    nullptr);
+    //_accumlateBuffer->TransitionResource(_particleRenderCommandList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+    //                                     D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    //_revealageBuffer->TransitionResource(_particleRenderCommandList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+    //                                     D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
-    CD3DX12_RESOURCE_BARRIER barriers[] = {
-        CD3DX12_RESOURCE_BARRIER::Transition(_accumlateBuffer.Get(), D3D12_RESOURCE_STATE_COMMON,
-                                             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE),
-        CD3DX12_RESOURCE_BARRIER::Transition(_revealageBuffer.Get(), D3D12_RESOURCE_STATE_COMMON,
-                                             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE),
-    };
-    _particleRenderCommandList->ResourceBarrier(_countof(barriers), barriers);
+
+
 }
 
 void ParticleResolvePass::End(ID3D12GraphicsCommandList* commandList)
 {
 
-    CD3DX12_RESOURCE_BARRIER barriers[] = {
-        CD3DX12_RESOURCE_BARRIER::Transition(_accumlateBuffer.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-                                             D3D12_RESOURCE_STATE_COMMON),
-        CD3DX12_RESOURCE_BARRIER::Transition(_revealageBuffer.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-                                             D3D12_RESOURCE_STATE_COMMON),
-    };
-    _particleRenderCommandList->ResourceBarrier(_countof(barriers), barriers);
+    _accumlateBuffer->TransitionResource(_particleRenderCommandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+                                         D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+    _revealageBuffer->TransitionResource(_particleRenderCommandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+                                         D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+
+    _meshRenderTarget->TransitionResource(_particleRenderCommandList, D3D12_RESOURCE_STATE_RENDER_TARGET,
+                                          D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+
+
 }
 
 void ParticleResolvePass::Draw(ID3D12GraphicsCommandList* commandList)
@@ -60,13 +65,15 @@ void ParticleResolvePass::Draw(ID3D12GraphicsCommandList* commandList)
 
 
     _particleRenderCommandList->SetGraphicsRootDescriptorTable(
-        _resolveShaderBuilder->GetRootParameterIndex("gAccumTex"), _oitSRVHandles[0].GPU);
+        _resolveShaderBuilder->GetRootParameterIndex("gAccumTex"), _accumlateBuffer->GetSRVHandle());
     _particleRenderCommandList->SetGraphicsRootDescriptorTable(
-        _resolveShaderBuilder->GetRootParameterIndex("gRevealTex"), _oitSRVHandles[1].GPU);
+        _resolveShaderBuilder->GetRootParameterIndex("gRevealTex"), _revealageBuffer->GetSRVHandle());
 
     _particleRenderCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 
+    _accumlateBuffer->ResourceBarrier(_particleRenderCommandList);
+    _revealageBuffer->ResourceBarrier(_particleRenderCommandList);
     _ownerScene->_frameQuad->Render(_particleRenderCommandList);
 
 
@@ -74,14 +81,10 @@ void ParticleResolvePass::Draw(ID3D12GraphicsCommandList* commandList)
 
 }
 
-void ParticleResolvePass::SetAccumulationBuffers(ComPtr<ID3D12Resource> color, ComPtr<ID3D12Resource> alpha,
-                                                 std::vector<DescriptorHandles> handle)
+void ParticleResolvePass::SetAccumulationBuffers(UnorderedAccessView* color, UnorderedAccessView* alpha)
 {
-    {
         _accumlateBuffer = color;
         _revealageBuffer = alpha;
-        _oitSRVHandles   = handle;
-    }
 }
 
 void ParticleResolvePass::InitializeShader()

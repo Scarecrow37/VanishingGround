@@ -3,6 +3,7 @@
 class Quad;
 class ShaderBuilder;
 class StructuredBuffer;
+class UnorderedAccessView;
 class ParticleSpritePass : public RenderPass
 {
 public:
@@ -14,9 +15,7 @@ public:
     void Begin(ID3D12GraphicsCommandList* commandList) override;
     void End(ID3D12GraphicsCommandList* commandList) override;
     void Draw(ID3D12GraphicsCommandList* commandList) override;
-    void SetAccumulationBuffers(ComPtr<ID3D12Resource> color, ComPtr<ID3D12Resource> alpha,
-                                std::vector<DescriptorHandles> handle, std::vector<DescriptorHandles> cpuheaphandle
-                                );
+    void SetAccumulationBuffers(UnorderedAccessView* color, UnorderedAccessView* alpha);
 
 private:
     void InitializeShader();
@@ -35,11 +34,8 @@ private:
     ID3D12GraphicsCommandList* _particleRenderCommandList;
     std::shared_ptr<Model>     _particleQuad;
 
-    ComPtr<ID3D12Resource>         _accumlateBuffer;
-    ComPtr<ID3D12Resource>         _revelageBuffer;
-    std::vector<DescriptorHandles> _oitUAVHandles;
-    std::vector<DescriptorHandles> _oitUAVCPUHeapHandles;
-
+    UnorderedAccessView* _accumlateBuffer;
+    UnorderedAccessView* _revealageBuffer;
 
     std::vector<int>                  _albedoTextureIDs;
     std::unique_ptr<StructuredBuffer> _textureIDBuffer;

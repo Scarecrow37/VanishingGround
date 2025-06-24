@@ -9,7 +9,7 @@ class ParticleEffect
     UMPARTICLE_PROPERTY(float, _age, Age,0.f);
     UMPARTICLE_PROPERTY(float, _lifetime, Lifetime,5.f);
     UMPARTICLE_PROPERTY(bool, _activeFlag, ActiveFlag, true);
-
+    UMPARTICLE_PROPERTY(std::string, _effectName, EffectName, "");
 
 
 
