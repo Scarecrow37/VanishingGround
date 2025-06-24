@@ -134,6 +134,8 @@ public:
                     ParticleType particleType = ParticleType::SPRITE);
     void Update(float deltaTime);
     void UpdateParticleLifeCycle(float deltaTime);
+    void Reset();
+
 
     inline std::vector<class Particle*>& GetParticlePool() { return _particlePool; }
 
@@ -151,14 +153,21 @@ protected:
     UMPARTICLE_PROPERTY(float, _emitterLifetime, EmitterLifetime, 5.f);
     UMPARTICLE_PROPERTY(SIZE_T, _maxParticles, MaxParticles, 10000);
     UMPARTICLE_PROPERTY(float, _emissionRate, EmissionRate, 5000.f);
+    UMPARTICLE_PROPERTY(float, _startDelay, StartDelay, 0.f);
     UMPARTICLE_PROPERTY(bool, _spawnBurstFlag, SpawnBurstFlag, false);
     UMPARTICLE_PROPERTY(float, _spawnBurstCount, SpawnBurstCount, 5000);
+    UMPARTICLE_PROPERTY(std::string, _emitterName, EmitterName, "");
+    bool _delayFlag = false;
+    float _delayTimer = 0.f;
+
+    bool _isSpawnBursted = false;
 
     Matrix GetWorldMatrix() const { return _worldMatrix; }
 
     std::vector<class Particle*> _particlePool;
 
-    void ScaleVelocity();
+    void ScaleVelocity(Vector3 pos);
+    void ScaleVelFromPoint(Vector3 pos);
 
 
     std::function<Vector3(void)> _velocityScalingFunciton;

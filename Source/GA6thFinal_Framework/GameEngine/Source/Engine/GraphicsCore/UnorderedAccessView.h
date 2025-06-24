@@ -13,6 +13,8 @@ public:
     void ClearUnorderedAccessView(ID3D12GraphicsCommandList* commandList);
     void ResourceBarrier(ID3D12GraphicsCommandList* commandList);
     void TransitionResource(ID3D12GraphicsCommandList* commandList, D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after);
+    void SetName(std::wstring name);
+
 
 private:
     DescriptorHandles            _srvHandle;

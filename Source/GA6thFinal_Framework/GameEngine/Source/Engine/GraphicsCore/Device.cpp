@@ -192,6 +192,10 @@ void Device::CreateCommandQueue()
     _commandList->Close();
     _imguiCommandList->Close();
     _commandQueue->SetName(L"GraphicsQueue");
+    _commandList->SetName(L"GraphicsCmdList");
+    _imguiCommandList->SetName(L"imguiCmdList");
+
+
 }
 
 void Device::CreateSyncObject()
@@ -405,12 +409,9 @@ void Device::Execute()
 {
     auto br = CD3DX12_RESOURCE_BARRIER::Transition(_swapChainBuffer[_renderTargetIndex].Get(),
                                                    D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
-    if (IS_EDITOR)
-        _imguiCommandList->ResourceBarrier(1, &br);
-    else 
-        _commandList->ResourceBarrier(1, &br);
-    
-    
+
+    _imguiCommandList->ResourceBarrier(1, &br);
+
     _computeCommandList->Close();
     _commandList->Close();
     _imguiCommandList->Close();

@@ -227,6 +227,8 @@ void ParticleEmitter::AwakeParticle(UINT index)
     location.z      = tempPos.z + offset.z * _particleDistributionOffset;
 
     _particlePool[index]->SetPosition(location);
+    ScaleVelocity({location.x, location.y, location.z});
+
     _particlePool[index]->SetVelocity(_velocity);
     _particlePool[index]->SetStartColor(_startColor);
     _particlePool[index]->SetStartOpacity(_startOpacity);
@@ -260,12 +262,17 @@ void ParticleEmitter::UpdateParticleLifeCycle(float deltaTime)
     // 새 파티클 생성
     size_t newParticles = 0;
     _emissionThreshold += deltaTime * _emissionRate;
+    if (true == _spawnBurstFlag && false == _isSpawnBursted)
+    {
+        _emissionThreshold += _spawnBurstCount;
+        _isSpawnBursted = true;
+    }
     if (_emissionThreshold >= 1)
     {
         newParticles = static_cast<size_t>(_emissionThreshold);
         _emissionThreshold -= newParticles;
     }
-    while (0 < newParticles && !_inactiveParticleIndices.empty())
+    while (0 < newParticles && false == _inactiveParticleIndices.empty())
     {
         size_t index = _inactiveParticleIndices.top();
         _inactiveParticleIndices.pop();
@@ -282,8 +289,38 @@ void ParticleEmitter::UpdateParticleLifeCycle(float deltaTime)
 }
 
 
+void ParticleEmitter::Reset() 
+{
+    _delayFlag = _activeFlag = false;
+    _delayTimer              = 0.f;
+    _emitterAge              = 0.f;
+    for (size_t i = 0; i < _maxParticles; ++i)
+    {
+        _particlePool[i] = new Particle();
+    }
+}
+
 void ParticleEmitter::Update(float deltaTime) 
 {
+    if (false == _delayFlag)
+    {
+
+        _delayTimer += deltaTime;
+        if (_delayTimer >= _startDelay)
+        {
+            _activeFlag = true;
+            _delayFlag  = true;
+        }
+        else
+        {
+            _activeFlag = false;
+            return;
+        }
+    }
+
+
+
+
     _emitterAge += deltaTime;
     if (_emitterAge >= _emitterLifetime)
     {
@@ -303,7 +340,12 @@ void ParticleEmitter::SetLocatorFactor(const Vector3& factor)
 
 void ParticleEmitter::SetVelocityType(VelocityScaleType velType) 
 {
+    _velocityType = velType;
+}
 
+void ParticleEmitter::SetVelocityFactor(const Vector3& factor) 
+{
+    _velocityFactor = factor;
 }
 
 void ParticleEmitter::InitializeLocator(LocationShape locatorShape , Vector3 factor) 
@@ -335,7 +377,7 @@ void ParticleEmitter::InitializeLocator(LocationShape locatorShape , Vector3 fac
 
 }
 
-void ParticleEmitter::ScaleVelocity() 
+void ParticleEmitter::ScaleVelocity(Vector3 pos) 
 {
     switch (_velocityType)
     {
@@ -345,6 +387,8 @@ void ParticleEmitter::ScaleVelocity()
         // scale, radius
     case VelocityScaleType::CONE:
     case VelocityScaleType::POINT:
+        ScaleVelFromPoint(pos);
+        break;
     case VelocityScaleType::CUSTOM:
         _velocity = _velocityScalingFunciton();
         break;
@@ -353,5 +397,12 @@ void ParticleEmitter::ScaleVelocity()
         break;
     }
 
+}
+
+void ParticleEmitter::ScaleVelFromPoint(Vector3 pos) 
+{
+    Vector3 temp = pos - _emitterPosition;
+    temp.Normalize();
+    _velocity = temp * _velocityFactor.x;
 }
 

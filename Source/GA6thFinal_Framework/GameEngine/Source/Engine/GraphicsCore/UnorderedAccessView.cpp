@@ -69,3 +69,8 @@ void UnorderedAccessView::TransitionResource(ID3D12GraphicsCommandList* commandL
     auto br = CD3DX12_RESOURCE_BARRIER::Transition(_resource.Get(), before, after);
     commandList->ResourceBarrier(1, &br);
 }
+
+void UnorderedAccessView::SetName(std::wstring name) 
+{
+    _resource->SetName(name.c_str());
+}
