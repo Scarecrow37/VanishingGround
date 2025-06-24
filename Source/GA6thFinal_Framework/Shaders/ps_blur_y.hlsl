@@ -9,8 +9,8 @@ struct PS_INPUT
     float2 uv : TEXCOORD;
 };
 
-Texture2D screenTexture;
 Texture2D sourceTexture;
+RWTexture2D<float4> accumulation;
 
 float4 ps_main(PS_INPUT input) : SV_TARGET
 {
@@ -25,5 +25,7 @@ float4 ps_main(PS_INPUT input) : SV_TARGET
         result += sourceTexture.Sample(samLinear_clamp, float2(input.uv + indices[i] * step)) * GaussianWeight[i];
     }
     
-    return float4(result.rgb, 1) + screenTexture.Sample(samLinear_wrap, input.uv);
+    accumulation[(uint2)input.position.xy] += float4(result.rgb, 1);
+
+    return float4(0.f, 0.f, 0.f, 0.f);
 }

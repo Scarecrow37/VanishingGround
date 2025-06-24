@@ -12,7 +12,7 @@
 #include "RendererFileEvent.h"
 #include "SkyBoxRenderTechnique.h"
 #include "BloomTechnique.h"
-#include "ToneMappingTechnique.h"
+#include "BlendTechnique.h"
 #include "ParticleRenderTechnique.h"
 #include "Sphere.h"
 
@@ -133,10 +133,8 @@ void Renderer::Initialize()
     scene->AddRenderTechnique(std::make_unique<SkyBoxRenderTechnique>());
     scene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
     scene->AddRenderTechnique(std::make_unique<BloomTechnique>());
-    //scene->AddRenderTechnique(std::make_unique<ToneMappingTechnique>());
+    scene->AddRenderTechnique(std::make_unique<BlendTechnique>());
     _renderScenes["Game"] = std::move(scene);
-
-
 
     if constexpr (IS_EDITOR)
     {
@@ -149,26 +147,22 @@ void Renderer::Initialize()
         scene->InitializeRenderScene();
         scene->AddRenderTechnique(std::make_unique<SkyBoxRenderTechnique>());
         scene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
-        scene->AddRenderTechnique(std::make_unique<BloomTechnique>());
+        scene->AddRenderTechnique(std::make_unique<BlendTechnique>());
         _renderScenes["Editor"] = std::move(scene);
 
         // Model Viewer Scene
         scene = std::make_unique<RenderScene>("ModelViewer");
         scene->InitializeRenderScene();
         scene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
-        scene->AddRenderTechnique(std::make_unique<BloomTechnique>());
-        _renderScenes["ModelViewer"] = std::move(scene);                
-
+        scene->AddRenderTechnique(std::make_unique<BlendTechnique>());
+        _renderScenes["ModelViewer"] = std::move(scene);
         
-          std::unique_ptr<RenderScene> particleScene = std::make_unique<RenderScene>("ParticleEditor");
-        particleScene->InitializeRenderScene();
-        particleScene->AddRenderTechnique(std::make_unique<ParticleRenderTechnique>());
-        UmParticleManager.SetCamera(particleScene->GetCamera());
-        _renderScenes["ParticleEditor"] = std::move(particleScene);
-
-    
-
-
+        scene = std::make_unique<RenderScene>("ParticleEditor");
+        scene->InitializeRenderScene();
+        scene->AddRenderTechnique(std::make_unique<ParticleRenderTechnique>());
+        scene->AddRenderTechnique(std::make_unique<BlendTechnique>());
+        UmParticleManager.SetCamera(scene->GetCamera());
+        _renderScenes["ParticleEditor"] = std::move(scene);
     }
 }
 

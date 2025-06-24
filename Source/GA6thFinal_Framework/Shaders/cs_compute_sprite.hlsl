@@ -64,10 +64,6 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
 input.position.x, input.position.y, input.position.z, 1
 );
 
-  
-    
-    
-    
     float4x4 worldrot = float4x4(
     emitter.WorldMatrix._11, emitter.WorldMatrix._21, emitter.WorldMatrix._31, 0,
     emitter.WorldMatrix._12, emitter.WorldMatrix._22, emitter.WorldMatrix._32, 0,

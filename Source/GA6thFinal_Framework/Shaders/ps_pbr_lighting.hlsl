@@ -37,7 +37,8 @@ float4 ps_main(PSInput input) : SV_Target0
     float depth = textures[DEPTH].Sample(samLinear_wrap, input.uv).r;
     float3 albedo = textures[BASECOLOR].Sample(samLinear_wrap, input.uv).rgb;
     clip(1.f - Epsilon - depth);
-    albedo = pow(albedo, 2.2);
+    albedo = GammaToLinearSpace(albedo);
+    //pow(albedo, 2.2);
     
     float3 normal = textures[NORMAL].Sample(samLinear_wrap, input.uv).rgb;
    
@@ -76,7 +77,7 @@ float4 ps_main(PSInput input) : SV_Target0
     // 임시로 albedo 색상에 상수값으로 환경광 표현
     float3 ambient = 0.3;
     ambient *= albedo;
-    diffuse = pow(diffuse, 1.0 / 2.2);
+    //diffuse = pow(diffuse, 1.0 / 2.2);
     float3 color = diffuse;//+ambient;
 
     return float4(color, 1.0);

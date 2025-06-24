@@ -333,9 +333,6 @@
     <ClInclude Include="Source\Engine\GraphicsCore\FrameResource.h">
       <Filter>GraphicsCore\FrameResource</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\FX.h">
-      <Filter>GraphicsCore\FX</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\GraphicsCore\GeometryGenerator.h">
       <Filter>GraphicsCore\Mesh\Geometry</Filter>
     </ClInclude>
@@ -438,9 +435,6 @@
     <ClInclude Include="Source\Engine\GraphicsCore\Animator.h">
       <Filter>GraphicsCore\Animator</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\Material.h">
-      <Filter>GraphicsCore\Material</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\GraphicsCore\PBRLitTechnique.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -541,9 +535,6 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\GraphicsCore\FBXConverter.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\M_PBR.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Editor\Tool\Model\EditorModelHierarchy.h">
@@ -648,7 +639,7 @@
     <ClInclude Include="Source\Engine\GraphicsCore\BlurYPass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\ToneMappingTechnique.h">
+    <ClInclude Include="Source\Engine\GraphicsCore\BlendTechnique.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Editor\Tool\GameView\EditorGameView.h">
@@ -685,6 +676,12 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectDetails.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\UnorderedAccessView.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\BlendPass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -878,9 +875,6 @@
     <ClCompile Include="Source\Engine\GraphicsCore\FrameResource.cpp">
       <Filter>GraphicsCore\FrameResource</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\FX.cpp">
-      <Filter>GraphicsCore\FX</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\GeometryGenerator.cpp">
       <Filter>GraphicsCore\Mesh\Geometry</Filter>
     </ClCompile>
@@ -979,9 +973,6 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\Animator.cpp">
       <Filter>GraphicsCore\Animator</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\Material.cpp">
-      <Filter>GraphicsCore\Material</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\PBRLitTechnique.cpp">
       <Filter>소스 파일</Filter>
@@ -1091,9 +1082,6 @@
     <ClCompile Include="Source\Engine\GraphicsCore\FBXConverter.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\M_PBR.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="ThirdParty\include\pugixml\pugixml.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -1166,7 +1154,10 @@
     <ClCompile Include="Source\Engine\GraphicsCore\BlurYPass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\ToneMappingTechnique.cpp">
+    <ClCompile Include="Source\Engine\GraphicsCore\BlendTechnique.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\GraphicsBase.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\ParticleEffect.cpp">
@@ -1217,7 +1208,10 @@
     <ClCompile Include="Source\Editor\Tool\GameView\EditorGameView.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\GraphicsBase.cpp">
+    <ClCompile Include="Source\Engine\GraphicsCore\UnorderedAccessView.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\BlendPass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

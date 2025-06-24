@@ -8,6 +8,7 @@ class Quad;
 class Camera;
 class MeshRenderer;
 class SkyBox;
+class UnorderedAccessView;
 class RenderScene
 {
 public:
@@ -42,7 +43,6 @@ private:
     void CreateDepthStencil();
     void CreateFrameQuadAndFrameShader();
     void CreateFramePSO();
-    void CreateSrvDescriptorHeap();
     void CreateFrameResource();
     void CreateCamera();
 
@@ -52,27 +52,27 @@ public:
     std::string                                                  _finalTargetName;
     std::vector<std::unique_ptr<RenderTechnique>>                _techniques;
     std::vector<std::pair<std::unique_ptr<bool>, MeshRenderer*>> _renderQueue;
-
+    
     // Frame Resource
-    std::vector<std::unique_ptr<FrameResource>>                  _frameResources;
-    std::vector<LightData>                                       _lightDatas;
-    std::vector<XMMATRIX>                                        _worldMatrixes;
-    std::vector<BoneMatrixes>                                    _boneMatrixes;
-    std::vector<MaterialID>                                      _materialIDs;
-    std::shared_ptr<Camera>                                      _camera;    
-    NumLight                                                     _numLight;
+    std::vector<std::unique_ptr<FrameResource>> _frameResources;
+    std::vector<LightData>                      _lightDatas;
+    std::vector<XMMATRIX>                       _worldMatrixes;
+    std::vector<BoneMatrixes>                   _boneMatrixes;
+    std::vector<MaterialID>                     _materialIDs;
+    std::shared_ptr<Camera>                     _camera;
+    NumLight                                    _numLight;
 
-    UINT                                                         _currentFrameIndex = 0;
-    D3D12_CPU_DESCRIPTOR_HANDLE                                  _depthStencilHandle;
+    UINT                        _currentFrameIndex = 0;
+    D3D12_CPU_DESCRIPTOR_HANDLE _depthStencilHandle;
 
-    std::unique_ptr<Quad>                                        _frameQuad;
-    std::unique_ptr<SkyBox>                                      _skyBox;
-    std::unique_ptr<ShaderBuilder>                               _frameShader;
+    std::unique_ptr<Quad>                _frameQuad;
+    std::unique_ptr<SkyBox>              _skyBox;
+    std::unique_ptr<ShaderBuilder>       _frameShader;
+    std::unique_ptr<UnorderedAccessView> _accumulationBuffer;
 
     // Buffers
-    ComPtr<ID3D12Resource>                                       _depthStencilBuffer;
-    ComPtr<ID3D12Resource>                                       _cameraBuffer;
-    ComPtr<ID3D12Resource>                                       _lightBuffer;
-    ComPtr<ID3D12PipelineState>                                  _framePSO;
-    ComPtr<ID3D12DescriptorHeap>                                 _srvDescriptorHeap;
+    ComPtr<ID3D12Resource>      _depthStencilBuffer;
+    ComPtr<ID3D12Resource>      _cameraBuffer;
+    ComPtr<ID3D12Resource>      _lightBuffer;
+    ComPtr<ID3D12PipelineState> _framePSO;
 };

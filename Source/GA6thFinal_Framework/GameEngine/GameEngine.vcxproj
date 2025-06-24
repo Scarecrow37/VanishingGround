@@ -299,6 +299,7 @@
     <ClInclude Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectDetails.h" />
     <ClInclude Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectHierarchy.h" />
     <ClInclude Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectViewer.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\BlendPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\ParticleResolvePass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\ParticleSpritePass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\ParticleRenderTechnique.h" />
@@ -310,7 +311,8 @@
     <ClInclude Include="Source\Engine\GraphicsCore\AnimationCore.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\BlurXPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\BlurYPass.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\ToneMappingTechnique.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\BlendTechnique.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\UnorderedAccessView.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\UpScalePass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\BrightExtractPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\DownScalePass.h" />
@@ -371,8 +373,6 @@
     <ClInclude Include="Source\Engine\Imgui\ImSequencer.h" />
     <ClInclude Include="Source\Engine\Imgui\ImZoomSlider.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Animator.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\M_PBR.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\Material.h" />
     <ClInclude Include="Source\Engine\InputCore\Adapter\Adapter.h" />
     <ClInclude Include="Source\Engine\InputCore\Adapter\Controller\ControllerAdapter.h" />
     <ClInclude Include="Source\Engine\InputCore\Adapter\Controller\XInput\XInputAdapter.h" />
@@ -420,7 +420,6 @@
     <ClInclude Include="Source\Engine\GraphicsCore\Font.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\FontManager.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\FrameResource.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\FX.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\GeometryGenerator.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\GeoSphere.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\GraphicsCore.h" />
@@ -496,6 +495,7 @@
     <ClCompile Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectHierarchy.cpp" />
     <ClCompile Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectViewer.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\GraphicsBase.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\BlendPass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\ParticleResolvePass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\ParticleSpritePass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\ParticleRenderTechnique.cpp" />
@@ -508,7 +508,8 @@
     <ClCompile Include="Source\Engine\GraphicsCore\AnimationCore.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\BlurXPass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\BlurYPass.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\ToneMappingTechnique.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\BlendTechnique.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\UnorderedAccessView.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\UpScalePass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\BrightExtractPass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\DownScalePass.cpp" />
@@ -574,8 +575,6 @@
     <ClCompile Include="Source\Engine\GraphicsCore\ParticleManager.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\PBRLitTechnique.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\Animator.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\M_PBR.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\Material.cpp" />
     <ClCompile Include="Source\Editor\DragDropTypes\DragDropTransform.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\Gui\PopupBox\EditorPopupBox.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\System\EditorPopupBoxSystem.cpp" />
@@ -662,7 +661,6 @@
     <ClCompile Include="Source\Engine\GraphicsCore\Font.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\FontManager.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\FrameResource.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\FX.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\GeometryGenerator.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\GeoSphere.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\GraphicsCore.cpp" />
