@@ -60,8 +60,8 @@ float4 ps_main(PSInput input) : SV_Target
     gRevealTex[uint2(input.position.xy)] += alpha*0.5f;
     
     // 5. 불필요한 출력 제거
-    //return float4(color_contrib, alpha_contrib);
-    return float4(0,0,0,0);
+    return float4(color_contrib, alpha_contrib);
+    //return 1;
 
 }
 
