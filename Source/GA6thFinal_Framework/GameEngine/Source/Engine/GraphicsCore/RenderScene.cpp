@@ -10,12 +10,10 @@
 #include "RenderTechnique.h"
 #include "SkyBox.h"
 #include "UnorderedAccessView.h"
+#include "DepthStencilView.h"
 
 RenderScene::RenderScene(std::string_view name)
-    : _frameQuad{std::make_unique<Quad>()}
-    , _frameShader{std::make_unique<ShaderBuilder>()}
-    , _skyBox{std::make_unique<SkyBox>()}
-    , _accumulationBuffer{std::make_unique<UnorderedAccessView>()}
+    : _skyBox{std::make_unique<SkyBox>()}
     , _name(name)
 {
     _lightDatas.resize(MAX_LIGHT);
@@ -45,8 +43,10 @@ void RenderScene::InitializeRenderScene()
 
     DXGI_MODE_DESC mode = UmDevice.GetMode();
     mode.Format         = DXGI_FORMAT_R32G32B32A32_FLOAT;
+
+    _accumulationBuffer = std::make_unique<UnorderedAccessView>();
     _accumulationBuffer->Initialize(mode);
-    _accumulationBuffer->TransitionResource(UmDevice.GetCommandList(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    _accumulationBuffer->TransitionResource(UmDevice.GetCommandList(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }
 
 void RenderScene::RegisterOnRenderQueue(MeshRenderer* component)
@@ -164,13 +164,22 @@ void RenderScene::Execute(ID3D12GraphicsCommandList* commandList)
     auto descriptorHeap = UmViewManager.GetShaderResourceHeap();
     commandList->SetDescriptorHeaps(1, &descriptorHeap);    
 
-    _accumulationBuffer->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+    _accumulationBuffer->TransitionResource(commandList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
     _accumulationBuffer->ClearUnorderedAccessView(commandList);
+
+    auto meshRenderTarget = UmMultiRenderTargetManager.GetRenderTarget(_meshRenderTargetName);
+    meshRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    meshRenderTarget->ClearRenderTarget(commandList);
+
+    _depthStencilView->TransitionResource(commandList, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+    _depthStencilView->ClearDepthStencilView(commandList);
 
     for (auto& tech : _techniques)
     {
         tech->Execute(commandList);
     }
+
+    _depthStencilView->TransitionResource(commandList, D3D12_RESOURCE_STATE_PRESENT);
 }
 
 void RenderScene::ResetSkyBox()
@@ -189,7 +198,7 @@ void RenderScene::CreateRenderTarget()
     renderTarget          = std::make_unique<RenderTarget>();
     renderTarget->Initialize(mode.Width, mode.Height, DXGI_FORMAT_R32G32B32A32_FLOAT, 0.247f);
     renderTarget->CreateShaderResourceView();
-    renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
     multiRenderTargetManager.AddRenderTarget(_meshRenderTargetName, std::move(renderTarget));
 
@@ -197,49 +206,27 @@ void RenderScene::CreateRenderTarget()
     renderTarget     = std::make_unique<RenderTarget>();
     renderTarget->Initialize(mode.Width, mode.Height, DXGI_FORMAT_R32G32B32A32_FLOAT, 0.247f);
     renderTarget->CreateShaderResourceView();
-    renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
     multiRenderTargetManager.AddRenderTarget(_finalTargetName, std::move(renderTarget));
 }
 
 void RenderScene::CreateDepthStencil()
 {
-    auto& device = UmDevice;
+    _depthStencilView = std::make_unique<DepthStencilView>();
 
-    UmViewManager.AddDescriptorHeap(ViewManager::Type::DEPTH_STENCIL, _depthStencilHandle);
-
-    D3D12_RESOURCE_DESC depthDesc{.Dimension        = D3D12_RESOURCE_DIMENSION_TEXTURE2D,
-                                  .Alignment        = 0,
-                                  .Width            = device.GetMode().Width,
-                                  .Height           = device.GetMode().Height,
-                                  .DepthOrArraySize = 1,
-                                  .MipLevels        = 1,
-                                  .Format           = DXGI_FORMAT_R24G8_TYPELESS,
-                                  .SampleDesc{.Count   = device.GetMSAAState() ? (UINT)4 : (UINT)1,
-                                              .Quality = device.GetMSAAState() ? (device.GetMSAAQuality() - 1) : 0},
-                                  .Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN,
-                                  .Flags  = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL};
-
-    D3D12_CLEAR_VALUE optClear{.Format = device.GetDepthStencilFormat(), .DepthStencil{.Depth = 1.f, .Stencil = 0}};
-    CD3DX12_HEAP_PROPERTIES property(D3D12_HEAP_TYPE_DEFAULT);
-
-    HRESULT hr = S_OK;
-    hr         = device.GetDevice()->CreateCommittedResource(&property, D3D12_HEAP_FLAG_NONE, &depthDesc,
-                                                             D3D12_RESOURCE_STATE_PRESENT, &optClear,
-                                                             IID_PPV_ARGS(&_depthStencilBuffer));
-    FAILED_CHECK_MESSAGE(hr, L"RenderScene::CreateDepthStencil device.GetDevice()->CreateCommittedResource Failed");
-
-    D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc{.Format        = device.GetDepthStencilFormat(),
-                                          .ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D,
-                                          .Flags         = D3D12_DSV_FLAG_NONE};
-
-    device.GetDevice()->CreateDepthStencilView(_depthStencilBuffer.Get(), &dsvDesc, _depthStencilHandle);
+    auto mode = UmDevice.GetMode();
+    mode.Format = DXGI_FORMAT_R24G8_TYPELESS;
+    _depthStencilView->Initialize(mode);
 }
 
 void RenderScene::CreateFrameQuadAndFrameShader()
 {
     // 화면 크기만한 quad만들기. NDC 좌표계로
+    _frameQuad = std::make_unique<Quad>();
     _frameQuad->Initialize(-1.f, 1.f, 2.f, 2.f, 0.f);
+
+    _frameShader = std::make_unique<ShaderBuilder>();
     _frameShader->BeginBuild();
     _frameShader->SetShader(L"../Shaders/vs_quad.hlsl", ShaderBuilder::Type::VS);
     _frameShader->SetShader(L"../Shaders/ps_quad_frame.hlsl", ShaderBuilder::Type::PS);

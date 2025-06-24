@@ -24,7 +24,7 @@ void RenderTarget::Initialize(UINT width, UINT height, DXGI_FORMAT format, FLOAT
     ID3D12Device* device = UmDevice.GetDevice();
     HRESULT       hr     = S_OK;
 
-    hr = device->CreateCommittedResource(&property, D3D12_HEAP_FLAG_NONE, &desc, D3D12_RESOURCE_STATE_COMMON, &clearValue, IID_PPV_ARGS(&_resource));
+    hr = device->CreateCommittedResource(&property, D3D12_HEAP_FLAG_NONE, &desc, D3D12_RESOURCE_STATE_RENDER_TARGET, &clearValue, IID_PPV_ARGS(&_resource));
     FAILED_CHECK_MESSAGE(hr, L"RenderTarget::Initialize CreateCommittedResource Failed");
 
     UmViewManager.AddDescriptorHeap(ViewManager::Type::RENDER_TARGET, _rtvHandle);
@@ -35,6 +35,8 @@ void RenderTarget::Initialize(UINT width, UINT height, DXGI_FORMAT format, FLOAT
     _mode.Width = width;
     _mode.Height = height;
     _mode.Format = format;    
+
+    _currentState = D3D12_RESOURCE_STATE_RENDER_TARGET;
 }
 
 void RenderTarget::CreateShaderResourceView()
@@ -50,12 +52,6 @@ void RenderTarget::CreateShaderResourceView()
     UmViewManager.AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _srvHandle);
     UmDevice.GetDevice()->CreateShaderResourceView(_resource.Get(), &srvDesc, _srvHandle.CPU);
     _ID = UmViewManager.GetNumShaderResourceView() - 1;
-}
-
-void RenderTarget::TransitionResource(ID3D12GraphicsCommandList* commandList, D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after)
-{
-    auto br = CD3DX12_RESOURCE_BARRIER::Transition(_resource.Get(), before, after);
-    commandList->ResourceBarrier(1, &br);
 }
 
 void RenderTarget::ClearRenderTarget(ID3D12GraphicsCommandList* commandList)

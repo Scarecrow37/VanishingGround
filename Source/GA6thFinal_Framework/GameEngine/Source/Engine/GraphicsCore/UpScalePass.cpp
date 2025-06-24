@@ -42,7 +42,7 @@ void UpScalePass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& s
 void UpScalePass::Begin(ID3D12GraphicsCommandList* commandList)
 {
     auto renderTarget = UmMultiRenderTargetManager.GetAvailableRenderTarget();
-    renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
     renderTarget->ClearRenderTarget(commandList);
 
     commandList->OMSetRenderTargets(1, &renderTarget->GetRTVHandle(), TRUE, nullptr);
@@ -67,5 +67,5 @@ void UpScalePass::End(ID3D12GraphicsCommandList* commandList)
 {
     const auto& renderTargets = UmMultiRenderTargetManager.GetUsedRenderTargets();
     auto        renderTarget  = renderTargets.front().get();
-    renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }

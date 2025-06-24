@@ -21,8 +21,7 @@ void ParticleResolvePass::Initialize(const D3D12_VIEWPORT& viewport, const D3D12
 
 void ParticleResolvePass::Begin(ID3D12GraphicsCommandList* commandList)
 {
-    _meshRenderTarget->TransitionResource(_particleRenderCommandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-                                          D3D12_RESOURCE_STATE_RENDER_TARGET);
+    _meshRenderTarget->TransitionResource(_particleRenderCommandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
     _particleRenderCommandList->RSSetViewports(1, &_viewPort);
     _particleRenderCommandList->RSSetScissorRects(1, &_sissorRect);
@@ -40,16 +39,9 @@ void ParticleResolvePass::Begin(ID3D12GraphicsCommandList* commandList)
 
 void ParticleResolvePass::End(ID3D12GraphicsCommandList* commandList)
 {
-
-    _accumlateBuffer->TransitionResource(_particleRenderCommandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-                                         D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-    _revealageBuffer->TransitionResource(_particleRenderCommandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-                                         D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-
-    _meshRenderTarget->TransitionResource(_particleRenderCommandList, D3D12_RESOURCE_STATE_RENDER_TARGET,
-                                          D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-
-
+    _accumlateBuffer->TransitionResource(_particleRenderCommandList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+    _revealageBuffer->TransitionResource(_particleRenderCommandList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+    _meshRenderTarget->TransitionResource(_particleRenderCommandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }
 
 void ParticleResolvePass::Draw(ID3D12GraphicsCommandList* commandList)
