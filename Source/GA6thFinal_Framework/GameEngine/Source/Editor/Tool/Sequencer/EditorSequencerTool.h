@@ -1,6 +1,9 @@
 ﻿#pragma once
 #include "Engine/EngineCore/TimelineSystem.h"
 
+class EditorModelDetails;
+class Animator;
+
 class EditorSequencerTool : public EditorTool
 {
 public:
@@ -28,7 +31,8 @@ private:
     std::shared_ptr<TimelineSystem> _timelineSystem;
     EditorSequencer* _sequencer     = nullptr;
 
-    Model* _model = nullptr; // 예시로 모델을 추가할 수 있습니다.
+    EditorModelDetails* _editorModelDetails = nullptr;
+    Animator* _animator = nullptr;
 
     REFLECT_FIELDS_BEGIN(EditorTool)
     std::string SerializedData;

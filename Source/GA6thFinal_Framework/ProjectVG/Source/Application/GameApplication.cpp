@@ -159,6 +159,7 @@ void GameApplication::BuildModelDock()
     _modelDock->RegisterGui<EditorModelTool>();
     _modelDock->RegisterGui<EditorModelDetails>();
     _modelDock->RegisterGui<EditorModelHierarchy>();
+    _modelDock->RegisterGui<EditorSequencerTool>();
 
     // Menu
     _modelDock->RegisterGui<EditorModelMenu>();
@@ -220,7 +221,7 @@ void GameApplication::BuildSequenceDock()
     _sequenceDock->CreateDockLayoutNode(ImGuiDir::ImGuiDir_Left, 0.30f);
     _sequenceDock->CreateDockLayoutNode(ImGuiDir::ImGuiDir_Up, 0.50f);
 
-    _sequenceDock->RegisterGui<EditorSequencerTool>();
+    //_sequenceDock->RegisterGui<EditorSequencerTool>();
 
     // Menu
     _sequenceDock->RegisterGui<EditorMenuTools>(_sequenceDock);

@@ -1,9 +1,12 @@
 ﻿#include "pch.h"
 #include "EditorSequencerTool.h"
 
+#include "Engine/GraphicsCore/Animator.h"
+
 EditorSequencerTool::EditorSequencerTool() 
 {
     SetLabel("Sequencer");
+    SetDockLayout(ImGuiDir_Down);
     _timelineSystem = std::make_shared<TimelineSystem>();
     _sequencer      = new EditorSequencer();
     _sequencer->SetSystem(_timelineSystem);
@@ -24,17 +27,14 @@ static float scale       = 1.0f;
 
 void EditorSequencerTool::OnTickGui() 
 {
-    //elapsedTime += UmTime.DeltaTime() * scale;
-    //if (elapsedTime > max)
-    //{
-    //    elapsedTime += min - max;
-    //}
-    //_timelineSystem->SetCurrentFrame(elapsedTime);
     _timelineSystem->Update();
 }
 
 void EditorSequencerTool::OnStartGui() 
 {
+    auto&             system    = Global::editorModule->GetDockWindowSystem();
+    EditorDockWindow* modelDock = system.GetDockWindow("ModelDock");
+    _editorModelDetails         = modelDock->GetGui<EditorModelDetails>();
 }
 
 void EditorSequencerTool::OnEndGui() {}
@@ -52,13 +52,6 @@ void EditorSequencerTool::OnFrameRender()
         _timelineSystem->Play();
         _timelineSystem->SetMinFrame(min);
         _timelineSystem->SetMaxFrame(max);
-        //_timelineSystem->AddNotify<TestTimeLineEvent>(min)->Time  = min;
-        //_timelineSystem->AddNotify<TestTimeLineEvent>(1.0f)->Time = 1.0f;
-        //_timelineSystem->AddNotify<TestTimeLineEvent>(3.0f)->Time = 3.0f;
-        //_timelineSystem->AddNotify<TestTimeLineEvent>(3.0f)->Time = 3.0f;
-        //_timelineSystem->AddNotify<TestTimeLineEvent>(1.5f)->Time = 1.5f;
-        //_timelineSystem->AddNotify<TestTimeLineEvent>(max)->Time  = max;
-        //_timelineSystem->AddNotify<TestTimeLineEvent>(0.0f)->Time = 0.0f;
         _timelineSystem->AddNotify<TestTimeLineEvent>("TestNotify1", 0.0f);
         _timelineSystem->AddNotify<TestTimeLineEvent>("TestNotify2", 1.5f);
     }
@@ -67,57 +60,62 @@ void EditorSequencerTool::OnFrameRender()
     float minFrame     = _timelineSystem->GetMinFrame();
     float currentFrame = _timelineSystem->GetCurrentFrame();
 
-    if (ImGui::SliderFloat("Scale", &scale, 0.0f, 10.0f))
-    {
-
-    }
-
-    if (ImGui::SliderFloat("Current Frame", &currentFrame, minFrame, maxFrame))
-    {
-        _timelineSystem->SetCurrentFrame(currentFrame, false);
-    }
-
-    if (ImGui::DragFloat("Max Frame", &maxFrame, 0.1f, -FLT_MAX, FLT_MAX))
-    {
-        _timelineSystem->SetMaxFrame(maxFrame);
-    }
-    if (ImGui::DragFloat("Min Frame", &minFrame, 0.1f, -FLT_MAX, FLT_MAX))
-    {
-        _timelineSystem->SetMinFrame(minFrame);
-    }
+    //if (ImGui::SliderFloat("Scale", &scale, 0.0f, 10.0f))
+    //{
+    //
+    //}
+    //
+    //if (ImGui::SliderFloat("Current Frame", &currentFrame, minFrame, maxFrame))
+    //{
+    //    _timelineSystem->SetCurrentFrame(currentFrame, false);
+    //}
+    //
+    //if (ImGui::DragFloat("Max Frame", &maxFrame, 0.1f, -FLT_MAX, FLT_MAX))
+    //{
+    //    _timelineSystem->SetMaxFrame(maxFrame);
+    //}
+    //if (ImGui::DragFloat("Min Frame", &minFrame, 0.1f, -FLT_MAX, FLT_MAX))
+    //{
+    //    _timelineSystem->SetMinFrame(minFrame);
+    //}
 
     bool isActive = _timelineSystem->IsActive();
     if (ImGui::Checkbox("Active", &isActive))
     {
         _timelineSystem->SetActive(isActive);
     }
+    ImGui::SameLine();
     bool isPlaying = _timelineSystem->IsPlaying();
     if (ImGui::Checkbox("Playing", &isPlaying))
     {
         isPlaying ? _timelineSystem->Play() : _timelineSystem->Stop();
     }
+    ImGui::SameLine();
     bool isLoop = _timelineSystem->HasFlags(TimelineSystem::TIMELINESYSTEM_FLAGS_LOOP);
     if (ImGui::Checkbox("Loop", &isLoop))
     {
         _timelineSystem->ToggleFlags(TimelineSystem::TIMELINESYSTEM_FLAGS_LOOP);
     }
+    ImGui::SameLine();
     bool isNotifyDisable = _timelineSystem->HasFlags(TimelineSystem::TIMELINESYSTEM_FLAGS_NOTIFY_DISABLED);
     if (ImGui::Checkbox("Notify Disable", &isNotifyDisable))
     {
         _timelineSystem->ToggleFlags(TimelineSystem::TIMELINESYSTEM_FLAGS_NOTIFY_DISABLED);
     }
+    ImGui::SameLine();
     bool isCounter = _timelineSystem->HasFlags(TimelineSystem::TIMELINESYSTEM_FLAGS_USE_COUNTER);
     if (ImGui::Checkbox("Use Counter", &isCounter))
     {
         _timelineSystem->ToggleFlags(TimelineSystem::TIMELINESYSTEM_FLAGS_USE_COUNTER);
     }
-    if (ImGui::CollapsingHeader("Timeline Notifies"))
-    {
-        for (const auto& notify : _timelineSystem->GetTimelineNotifyList())
-        {
-            notify->ImGuiDrawPropertys();
-        }
-    }
+    ImGui::SameLine();
+    //if (ImGui::CollapsingHeader("Timeline Notifies"))
+    //{
+    //    for (const auto& notify : _timelineSystem->GetTimelineNotifyList())
+    //    {
+    //        notify->ImGuiDrawPropertys();
+    //    }
+    //}
 
     ImGui::Checkbox("Use Snapping", &_sequencer->_useSnapping);
 
