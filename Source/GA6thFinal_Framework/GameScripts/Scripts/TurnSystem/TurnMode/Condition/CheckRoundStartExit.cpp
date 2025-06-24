@@ -1,4 +1,5 @@
-﻿#include "CheckRoundStartExit.h"
+﻿#include "pchScripts.h"
+#include "CheckRoundStartExit.h"
 #include "TurnSystem/TurnMode/TurnMode.h"
 #include "TurnSystem/TurnMode/State/RoundStartPhase.h"
 

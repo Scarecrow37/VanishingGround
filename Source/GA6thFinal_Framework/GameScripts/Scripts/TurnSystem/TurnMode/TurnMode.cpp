@@ -1,4 +1,5 @@
-﻿#include "TurnMode.h"
+﻿#include "pchScripts.h"
+#include "TurnMode.h"
 #include "GameCore/FSM/FiniteStateMachine.h"
 #include "TurnSystem/TurnActor/TurnActor.h"
 

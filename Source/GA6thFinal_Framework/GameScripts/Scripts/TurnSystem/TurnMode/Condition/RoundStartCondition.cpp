@@ -1,4 +1,5 @@
-﻿#include "RoundStartCondition.h"
+﻿#include "pchScripts.h"
+#include "RoundStartCondition.h"
 #include "../State/CombatStartPhase.h"
 
 REGISTER_CLASS(FSMConditionFactory, RoundStartCondition)
