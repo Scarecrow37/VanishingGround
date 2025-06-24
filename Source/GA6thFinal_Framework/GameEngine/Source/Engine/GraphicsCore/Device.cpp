@@ -132,6 +132,7 @@ void Device::Execute()
 
     _computeCommandList->Close();
     _commandList->Close();
+
     _imguiCommandList->Close();
     _postProcessCommandList->Close();
 
@@ -164,15 +165,14 @@ void Device::Execute()
 
     // [5] 파티클 렌더 실행 (Graphics Queue)
     ExecuteCommand(PARTICLE_RENDER_LIST);
-    SignalGraphicsQueue(PARTICLE_RENDER_FENCE);
-    
-    // [6] 포트스 프로세싱 렌더 실행 (Graphics Queue)
-    ExecuteCommand(POST_PROCESS_LIST);
-    SignalGraphicsQueue(POST_PROCESS_FENCE);
+    SignalGraphicsQueue(PARTICLE_RENDER_FENCE);    
 
-    // [7] 임구이 렌더 전 동기화
+    ExecuteCommand(POST_PROCESS_LIST);
+
+    // [6] 임구이 렌더 전 동기화
     // 그래픽 큐 작업 완료 대기
     _commandQueue->Wait(_graphicsFences[PARTICLE_RENDER_FENCE].Get(), _lastGraphicsFenceValues[PARTICLE_RENDER_FENCE]);
+
     // [8] 임구이 렌더 실행 (Graphics Queue)
     ExecuteCommand(IMGUI_RENDER_LIST);
 }

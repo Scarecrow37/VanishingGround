@@ -33,7 +33,7 @@ uint ps_main(PSInput input) : SV_Target
     
     // 2. 알파 계산 간소화
     float alpha = input.color.a * factor;
-    clip(alpha > 0.01f);
+    clip(alpha-0.01f);
     
     // 3. 가중치 계산 최적화
     float depth = input.depth;
@@ -64,7 +64,7 @@ uint ps_main(PSInput input) : SV_Target
     
     // 5. 불필요한 출력 제거
     //return float4(color_contrib, alpha_contrib);
-    return 1;
+    return ceil(alpha);
 
 }
 

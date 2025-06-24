@@ -8,6 +8,7 @@
 #include "Quad.h"
 #include "StructuredBuffer.h"
 #include "UnorderedAccessView.h"
+#include "DepthStencilView.h"
 
  ParticleSpritePass::ParticleSpritePass() {}
 
@@ -49,14 +50,11 @@ void ParticleSpritePass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_
 void ParticleSpritePass::Begin(ID3D12GraphicsCommandList* commandlist)
 {
     auto customDepthTarget = UmMultiRenderTargetManager.GetRenderTarget("CustomDepth");
-    customDepthTarget->TransitionResource(_particleRenderCommandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-                                          D3D12_RESOURCE_STATE_RENDER_TARGET);
-    auto br = CD3DX12_RESOURCE_BARRIER::Transition(_ownerScene->_depthStencilBuffer.Get(), D3D12_RESOURCE_STATE_PRESENT,
-                                                   D3D12_RESOURCE_STATE_DEPTH_WRITE);
-    _particleRenderCommandList->ResourceBarrier(1, &br);
+    customDepthTarget->TransitionResource(_particleRenderCommandList,    D3D12_RESOURCE_STATE_RENDER_TARGET);
+
 
     _particleRenderCommandList->OMSetRenderTargets(1, &customDepthTarget->GetRTVHandle(), FALSE,
-                                                   &_ownerScene->_depthStencilHandle);
+                                                   &_ownerScene->_depthStencilView->GetDSVHandle());
 
     _particleRenderCommandList->RSSetViewports(1, &_viewPort);
     _particleRenderCommandList->RSSetScissorRects(1, &_sissorRect);
