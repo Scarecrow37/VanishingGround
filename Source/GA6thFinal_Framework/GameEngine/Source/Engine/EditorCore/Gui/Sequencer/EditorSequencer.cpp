@@ -445,9 +445,10 @@ bool EditorSequencer::WheelZooming()
 
 bool EditorSequencer::CanvasDragging()
 {
-    ImGuiIO& io = ImGui::GetIO();
-    const char* id = "CanvasFrame";
-    DragState state = BeginDragState(id, _canvasRect, ImGuiMouseButton_Right, false);
+    ImGuiIO&     io = ImGui::GetIO();
+    const char*  id = "CanvasFrame";
+    int       flags = DRAG_FLAG_LOCK | DRAG_FLAG_MOVED;
+    DragState state = BeginDragState(id, _canvasRect, ImGuiMouseButton_Right, flags);
     bool isDragging = IsDragging(state);
     if (true == isDragging)
     {
@@ -464,20 +465,17 @@ bool EditorSequencer::CanvasDragging()
 bool EditorSequencer::ContextMenu()
 {
     ImGuiIO& io = ImGui::GetIO();
-    bool isMouseRBReleased = ImGui::IsMouseReleased(ImGuiMouseButton_Right);
-    bool isMouseLBReleased = ImGui::IsMouseReleased(ImGuiMouseButton_Left);
+    bool isMouseRBUp    = ImGui::IsMouseReleased(ImGuiMouseButton_Right);
+    bool isMouseLBUp    = ImGui::IsMouseReleased(ImGuiMouseButton_Left);
     bool isContain      = _canvasRect.Contains(io.MousePos);
     bool isUpperContain = _canvasRectUpper.Contains(io.MousePos);
     bool isLowerContain = _canvasRectLower.Contains(io.MousePos);
-    bool isDragging     = IsDragging();
+    bool isMouseMoved   = io.MouseDelta.x >= 1.0f || io.MouseDelta.x <= -1.0f;
 
-    DragState state = GetDragState("CanvasFrame");
-    if (true == isMouseRBReleased && true == isLowerContain && DRAG_STATE_NONE == state)
+    DragState dragState = GetDragState("CanvasFrame");
+    if (true == isMouseRBUp && true == isLowerContain && DRAG_STATE_NONE == dragState)
     {
-        if (false == isDragging)
-        {
-            ImGui::OpenPopup("LowerContextMenu");
-        }
+        ImGui::OpenPopup("LowerContextMenu");
     }
 
     if (ImGui::BeginPopup("LowerContextMenu"))
@@ -628,9 +626,12 @@ bool EditorSequencer::IsDragging() const
     return 0 != _dragState.size();
 }
 
-EditorSequencer::DragState EditorSequencer::BeginDragState(const char* id, const ImRect& dragRect, ImGuiMouseButton mouseType, bool lock)
+EditorSequencer::DragState EditorSequencer::BeginDragState(const char* id, const ImRect& dragRect, ImGuiMouseButton mouseType, int flags)
 {
-    if (true == lock && DRAG_STATE_NONE == GetDragState(id) && true == IsDragging())
+    bool isLockFlag = (flags & DRAG_FLAG_LOCK);
+    bool isMovedFlag = (flags & DRAG_FLAG_MOVED);
+
+    if (true == isLockFlag && DRAG_STATE_NONE == GetDragState(id) && true == IsDragging())
     {   // 나를 제외한 이미 드래그 상태가 존재하면 리턴
         return DRAG_STATE_NONE;
     }
@@ -645,7 +646,9 @@ EditorSequencer::DragState EditorSequencer::BeginDragState(const char* id, const
     {
         case DRAG_STATE_NONE: 
         {
-        if (isRectHovered && isMouseDown && isMoved)
+            bool flagsTrigger = (isMovedFlag && isMoved && isMouseDown) ||
+                (!isMovedFlag && isMouseClicked);
+            if (isRectHovered && flagsTrigger)
             {
                 dragState = DRAG_STATE_START;
                 SetDragState(id, dragState);

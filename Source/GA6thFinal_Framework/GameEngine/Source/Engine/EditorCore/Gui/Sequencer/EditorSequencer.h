@@ -78,8 +78,14 @@ private:
         DRAG_STATE_DRAGGING,
         DRAG_STATE_END
     }; 
+    enum DragFlags
+    {
+        DRAG_FLAG_NONE      = 0,
+        DRAG_FLAG_LOCK      = 1 << 0, // 다른 드래그 상태가 존재하면 드래그 상태를 트리거하지 않습니다.
+        DRAG_FLAG_MOVED     = 1 << 1  // 마우스가 움직일 때만 드래그 상태가 트리거 됩니다.
+    };
     void      SetDragState(const char* id, DragState state);
-    DragState BeginDragState(const char* id, const ImRect& dragRect, ImGuiMouseButton mouseType, bool lock = false);
+    DragState BeginDragState(const char* id, const ImRect& dragRect, ImGuiMouseButton mouseType, int flags = DRAG_FLAG_NONE);
     bool      RemoveDragState(const char* id);
     DragState GetDragState(const char* id) const;
     size_t    GetDraggingCount() const;

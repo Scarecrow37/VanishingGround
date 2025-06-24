@@ -111,7 +111,6 @@ void EditorSequencerTool::OnFrameRender()
     {
         _timelineSystem->ToggleFlags(TimelineSystem::TIMELINESYSTEM_FLAGS_USE_COUNTER);
     }
-    
     if (ImGui::CollapsingHeader("Timeline Notifies"))
     {
         for (const auto& notify : _timelineSystem->GetTimelineNotifyList())
@@ -119,13 +118,12 @@ void EditorSequencerTool::OnFrameRender()
             notify->ImGuiDrawPropertys();
         }
     }
- 
 
     ImGui::Checkbox("Use Snapping", &_sequencer->_useSnapping);
 
-    //ImGui::BeginChild("SequencerCanvas", ImVec2(0, 0), true);
+    ImGui::BeginChild("SequencerCanvas", ImVec2(0, 0), true, ImGuiWindowFlags_NoScrollWithMouse);
     _sequencer->Show(true);
-    //ImGui::EndChild();
+    ImGui::EndChild();
 }
 
 void EditorSequencerTool::OnFrameEnd() {}

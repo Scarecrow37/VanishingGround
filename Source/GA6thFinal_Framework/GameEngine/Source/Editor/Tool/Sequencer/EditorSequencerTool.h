@@ -28,6 +28,8 @@ private:
     std::shared_ptr<TimelineSystem> _timelineSystem;
     EditorSequencer* _sequencer     = nullptr;
 
+    Model* _model = nullptr; // 예시로 모델을 추가할 수 있습니다.
+
     REFLECT_FIELDS_BEGIN(EditorTool)
     std::string SerializedData;
     REFLECT_FIELDS_END(EditorSequencerTool)
