@@ -59,6 +59,8 @@ void EditorSequencerTool::OnFrameRender()
         //_timelineSystem->AddNotify<TestTimeLineEvent>(1.5f)->Time = 1.5f;
         //_timelineSystem->AddNotify<TestTimeLineEvent>(max)->Time  = max;
         //_timelineSystem->AddNotify<TestTimeLineEvent>(0.0f)->Time = 0.0f;
+        _timelineSystem->AddNotify<TestTimeLineEvent>("TestNotify1", 0.0f);
+        _timelineSystem->AddNotify<TestTimeLineEvent>("TestNotify2", 1.5f);
     }
 
     float maxFrame     = _timelineSystem->GetMaxFrame();
@@ -109,11 +111,15 @@ void EditorSequencerTool::OnFrameRender()
     {
         _timelineSystem->ToggleFlags(TimelineSystem::TIMELINESYSTEM_FLAGS_USE_COUNTER);
     }
-
-    for (const auto& notify : _timelineSystem->GetTimelineNotifyList())
+    
+    if (ImGui::CollapsingHeader("Timeline Notifies"))
     {
-        notify->ImGuiDrawPropertys();
+        for (const auto& notify : _timelineSystem->GetTimelineNotifyList())
+        {
+            notify->ImGuiDrawPropertys();
+        }
     }
+ 
 
     ImGui::Checkbox("Use Snapping", &_sequencer->_useSnapping);
 

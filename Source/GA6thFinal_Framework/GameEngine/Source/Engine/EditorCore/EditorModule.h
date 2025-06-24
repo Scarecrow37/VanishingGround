@@ -147,9 +147,9 @@ namespace Global
      EditorGuiSystem _guiSystem;                    // 에디터 도킹 윈도우 시스템
      EditorPopupBoxSystem _popupBoxSystem;          // 에디터 모달 팝업 시스템
 
-     std::unordered_set<ImGuiID> _focusAreaList;        // ImGui 락 아이디들
+     std::unordered_set<ImGuiID> _focusAreaList;    // ImGui 락 아이디들
 
-     std::queue<std::function<void()>> _eventQueue; // 팝업 박스 큐
+     std::queue<std::function<void()>> _eventQueue; // 이벤트 큐
 
      bool _isFirstTick = true;
 

@@ -86,6 +86,12 @@ bool EditorSequencer::Begin()
 void EditorSequencer::End() 
 {
     ImGui::PopClipRect();
+
+    if (false == _eventQueue.empty())
+    {
+        _eventQueue.front()();
+        _eventQueue.pop();
+    }
 }
 
 void EditorSequencer::DrawToolBar() 
@@ -176,14 +182,14 @@ void EditorSequencer::DrawCanvas(bool debug)
         ImVec2 end   = ImVec2(start.x, _canvasRectLower.Max.y);
 
         ImRect dragRect(start + ImVec2(-2.0f, 0.0f), end + ImVec2(2.0f, 0.0f));
-        DragState state = BeginDragState("MinFrameLine", dragRect, ImGuiMouseButton_Left);
+        DragState state = BeginDragState("MinFrameLine", dragRect, ImGuiMouseButton_Left, true);
         switch (state)
         {
         case DRAG_STATE_NONE:
             Interactions.emplace_back(start, end);
             break;
         case DRAG_STATE_START:
-            UmCommandManager.Do<Command::Sequencer::ChangeMinFrame>(_system, minFrame);
+            ChangeMinFrame(minFrame);
             break;
         case DRAG_STATE_DRAGGING:
             _system->SetMinFrame(_cursorFrame);
@@ -203,14 +209,14 @@ void EditorSequencer::DrawCanvas(bool debug)
         ImVec2 end   = ImVec2(start.x, _canvasRectLower.Max.y);
 
         ImRect dragRect(start + ImVec2(-2.0f, 0.0f), end + ImVec2(2.0f, 0.0f));
-        DragState state = BeginDragState("MaxFrameLine", dragRect, ImGuiMouseButton_Left);
+        DragState state = BeginDragState("MaxFrameLine", dragRect, ImGuiMouseButton_Left, true);
         switch (state)
         {
         case DRAG_STATE_NONE:
             Interactions.emplace_back(start, end);
             break;
         case DRAG_STATE_START:
-            UmCommandManager.Do<Command::Sequencer::ChangeMaxFrame>(_system, maxFrame);
+            ChangeMaxFrame(maxFrame);
             break;
         case DRAG_STATE_DRAGGING:
             _system->SetMaxFrame(_cursorFrame);
@@ -270,7 +276,6 @@ void EditorSequencer::DrawCanvas(bool debug)
 
     // Draw Notify
     const auto& notifyList = _system->GetTimelineNotifyList();
-    std::vector<TimelineNotify*> removeList;
     for (int i = 0; i < notifyList.size(); ++i)
     {
         auto* notify = notifyList[i];
@@ -278,19 +283,36 @@ void EditorSequencer::DrawCanvas(bool debug)
         {
             continue;
         }
-        float  lenght  = 5.0f;
-        float  padding = 5.0f; 
+        std::string_view label = notify->Label;
+        ImVec2 textSize = ImGui::CalcTextSize(label.data());
+
+        float  lenght  = textSize.y;
+        float  padding = lenght * 2; 
         ImVec2 point   = ImVec2(offsetX + (notify->Time * unitDistane), padding) + _canvasRectLower.Min;
         ImRect rect    = ImRect(point - ImVec2(lenght, lenght), point + ImVec2(lenght, lenght));
 
+        DragState state = BeginDragState(label.data(), rect, ImGuiMouseButton_Left, true);
+        switch (state)
+        {
+        case DRAG_STATE_NONE:
+            Interactions.emplace_back(point, point);
+            break;
+        case DRAG_STATE_START:
+        
+            break;
+        case DRAG_STATE_DRAGGING:
+            notify->SetNotifyTime(_indicateFrame);
+            break;
+        default:
+            break;
+        }
+
         bool   isHovered          = rect.Contains(io.MousePos);
         bool   isMouseRBReleased  = ImGui::IsMouseReleased(ImGuiMouseButton_Right);
-
+        bool   isDragging         = IsDragging();
         ImGui::PushID(notify);
-        if (true == isHovered && true == isMouseRBReleased)
+        if (false == isDragging && true == isHovered && true == isMouseRBReleased)
         {
-            //_popupDest = notify;
-            //OpenPopup("NotifyPopup");
             ImGui::OpenPopup("NotifyPopup");
         }
         if (ImGui::BeginPopup("NotifyPopup"))
@@ -305,25 +327,41 @@ void EditorSequencer::DrawCanvas(bool debug)
             }
             if (ImGui::MenuItem("Remove Notify"))
             {
-                removeList.push_back(notify);
+                RemoveNotify(notify);
             }
             ImGui::EndPopup();
         }
         ImGui::PopID();
 
-        drawList->PathLineTo(point + ImVec2(0.0f, lenght));
-        drawList->PathLineTo(point + ImVec2(-lenght, 0.0f));
-        drawList->PathLineTo(point + ImVec2(0.0f, -lenght));
-        drawList->PathLineTo(point + ImVec2(lenght, 0.0f));
-
-        bool isValid = notify->Time >= minFrame && notify->Time <= maxFrame;
-        drawList->PathFillConvex(isValid ? ReflectFields->NotifyColor : ReflectFields->InvalidColor);
-        Interactions.emplace_back(point, point);
-    }
-    
-    for (auto* notify : removeList)
-    {
-        UmCommandManager.Do<Command::Sequencer::RemoveNotify>(_system, notify);
+        bool isValid = notify->Time < minFrame && notify->Time > maxFrame;
+        UINT color   = IsDragging(state) ? ReflectFields->NotifyColor + 300000 : ReflectFields->NotifyColor;
+        color = isValid ? ReflectFields->InvalidColor : color;
+        {
+            float offset = lenght * 0.5f;
+            ImVec2 points[4] = {
+                point + ImVec2(0.0f, offset), 
+                point + ImVec2(-offset, 0.0f),
+                point + ImVec2(0.0f, -offset),
+                point + ImVec2(offset, 0.0f)
+            };
+            PathLines(drawList, points, 4);
+           
+            drawList->PathFillConvex(color);
+        }
+        {
+            ImVec2 offset = ImVec2(textSize.x, textSize.y * 0.5f) * 1.2f;
+            ImVec2 points[4] = {
+                point + ImVec2(0.0f,      offset.y), 
+                point + ImVec2(offset.x,  offset.y),
+                point + ImVec2(offset.x, -offset.y),
+                point + ImVec2(0,        -offset.y)
+            };
+            PathLines(drawList, points, 4);
+            bool isValid = notify->Time >= minFrame && notify->Time <= maxFrame;
+            drawList->PathFillConvex(color);
+            ImVec2 textPoint = points[3] + (ImVec2(offset.x - textSize.x, 0.0f) * 0.5f);
+            drawList->AddText(textPoint, IM_COL32(0, 0, 0, 255), label.data());
+        }
     }
 
     // ProcessInterction
@@ -409,7 +447,7 @@ bool EditorSequencer::CanvasDragging()
 {
     ImGuiIO& io = ImGui::GetIO();
     const char* id = "CanvasFrame";
-    DragState state = BeginDragState(id, _canvasRect, ImGuiMouseButton_Right);
+    DragState state = BeginDragState(id, _canvasRect, ImGuiMouseButton_Right, false);
     bool isDragging = IsDragging(state);
     if (true == isDragging)
     {
@@ -431,11 +469,15 @@ bool EditorSequencer::ContextMenu()
     bool isContain      = _canvasRect.Contains(io.MousePos);
     bool isUpperContain = _canvasRectUpper.Contains(io.MousePos);
     bool isLowerContain = _canvasRectLower.Contains(io.MousePos);
+    bool isDragging     = IsDragging();
 
     DragState state = GetDragState("CanvasFrame");
     if (true == isMouseRBReleased && true == isLowerContain && DRAG_STATE_NONE == state)
     {
-        ImGui::OpenPopup("LowerContextMenu");
+        if (false == isDragging)
+        {
+            ImGui::OpenPopup("LowerContextMenu");
+        }
     }
 
     if (ImGui::BeginPopup("LowerContextMenu"))
@@ -447,7 +489,7 @@ bool EditorSequencer::ContextMenu()
             {
                 if (ImGui::MenuItem(key.c_str() + 6))
                 {
-                    UmCommandManager.Do<Command::Sequencer::AddNotify>(_system, _indicateFrame, "", key);
+                    AddNotify(_indicateFrame, "", key);
                 }
             }
             ImGui::EndMenu();
@@ -464,6 +506,41 @@ bool EditorSequencer::IsWheelZooming() const
     bool isMouseValid = ImGui::IsMousePosValid();
     bool isWheelMoved = (io.MouseWheel < -FLT_EPSILON || io.MouseWheel > FLT_EPSILON);
     return isContain && isMouseValid && isWheelMoved;
+}
+
+void EditorSequencer::AddNotify(float time, std::string_view label, std::string_view typeNameID) 
+{
+    _eventQueue.push([this, time, label, typeNameID]() {
+        UmCommandManager.Do<Command::Sequencer::AddNotify>(_system, time, label, typeNameID);
+    });
+}
+
+void EditorSequencer::RemoveNotify(TimelineNotify* notify)
+{
+    _eventQueue.push([this, notify]() { 
+        UmCommandManager.Do<Command::Sequencer::RemoveNotify>(_system, notify); 
+        });
+}
+
+void EditorSequencer::ChangeNotify(TimelineNotify* notify, float time, std::string_view label, std::string_view typeNameID) 
+{
+    _eventQueue.push([this, notify, time, label, typeNameID]() {
+        UmCommandManager.Do<Command::Sequencer::ChangeNotify>(_system, notify, time, label, typeNameID);
+    });
+}
+
+void EditorSequencer::ChangeMinFrame(float frame) 
+{
+    _eventQueue.push([this, frame]() {
+        UmCommandManager.Do<Command::Sequencer::ChangeMinFrame>(_system, frame); 
+        });
+}
+
+void EditorSequencer::ChangeMaxFrame(float frame) 
+{
+    _eventQueue.push([this, frame]() { 
+        UmCommandManager.Do<Command::Sequencer::ChangeMaxFrame>(_system, frame); 
+        });
 }
 
 int EditorSequencer::GetLineUnit() const
@@ -531,15 +608,14 @@ EditorSequencer::DragState EditorSequencer::GetDragState(const char* id) const
 
 size_t EditorSequencer::GetDraggingCount() const
 {
-    size_t count = 0;
-    for (const auto& [key, value] : _dragState)
-    {
-        if (DRAG_STATE_DRAGGING == value)
-        {
-            ++count;
-        }
-    }
-    return count;
+    return _dragState.size();
+}
+
+bool EditorSequencer::CanDrag(const ImRect& dragRect) const
+{
+    ImGuiIO& io          = ImGui::GetIO();
+    bool     isRectHovered = dragRect.Contains(_cursorPosition + _canvasRect.Min);
+    return isRectHovered;
 }
 
 bool EditorSequencer::IsDragging(DragState state) const
@@ -547,8 +623,17 @@ bool EditorSequencer::IsDragging(DragState state) const
     return (DRAG_STATE_START == state || DRAG_STATE_DRAGGING == state);
 }
 
-EditorSequencer::DragState EditorSequencer::BeginDragState(const char* id, const ImRect& dragRect, ImGuiMouseButton mouseType)
+bool EditorSequencer::IsDragging() const
 {
+    return 0 != _dragState.size();
+}
+
+EditorSequencer::DragState EditorSequencer::BeginDragState(const char* id, const ImRect& dragRect, ImGuiMouseButton mouseType, bool lock)
+{
+    if (true == lock && DRAG_STATE_NONE == GetDragState(id) && true == IsDragging())
+    {   // 나를 제외한 이미 드래그 상태가 존재하면 리턴
+        return DRAG_STATE_NONE;
+    }
     ImGuiIO& io          = ImGui::GetIO();
     DragState dragState  = GetDragState(id);
     bool isRectHovered   = dragRect.Contains(io.MousePos);
@@ -563,17 +648,25 @@ EditorSequencer::DragState EditorSequencer::BeginDragState(const char* id, const
         if (isRectHovered && isMouseDown && isMoved)
             {
                 dragState = DRAG_STATE_START;
+                SetDragState(id, dragState);
             }
             break;
         }
         case DRAG_STATE_START: 
         {
             dragState = isMouseDown ? DRAG_STATE_DRAGGING : DRAG_STATE_END;
+            SetDragState(id, dragState);
             break;
         }
         case DRAG_STATE_DRAGGING: 
         {
             dragState = isMouseDown ? DRAG_STATE_DRAGGING : DRAG_STATE_END;
+            SetDragState(id, dragState);
+            break;
+        }
+        case DRAG_STATE_END: 
+        {
+            RemoveDragState(id);
             break;
         }
         default: 
@@ -582,6 +675,20 @@ EditorSequencer::DragState EditorSequencer::BeginDragState(const char* id, const
             break;
         }
     }
-    SetDragState(id, dragState);
     return dragState;
+}
+
+bool EditorSequencer::RemoveDragState(const char* id)
+{
+    if (nullptr != id)
+    {
+        ImGuiID hash = ImHashStr(id);
+        auto    it   = _dragState.find(hash);
+        if (it != _dragState.end())
+        {
+            _dragState.erase(it);
+            return true;
+        }
+    }
+    return false;
 }

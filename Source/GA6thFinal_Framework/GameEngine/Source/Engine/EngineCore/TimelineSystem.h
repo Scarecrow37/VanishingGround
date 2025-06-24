@@ -36,7 +36,7 @@ public:
 
     GETTER_ONLY(UINT, ID) { return ReflectFields->NotifyID; }
     PROPERTY(ID)
-    GETTER(std::string_view, Label) { return ReflectFields->Label.c_str(); }
+    GETTER(std::string_view, Label) { return ReflectFields->Label; }
     SETTER(std::string_view, Label) { ReflectFields->Label = value; }
     PROPERTY(Label)
     GETTER_ONLY(std::string_view, EventName) { return ReflectFields->EventNameData.c_str(); }
@@ -91,7 +91,7 @@ public:
     {
         static_assert(std::is_base_of_v<ITimelineEvent, T>, "T is not derived from ITimelineEvent.");
         const char* key = typeid(T).name();
-        return AddNotify(label, time, key);
+        return AddNotify(label, key, time);
     }
 
     /// <summary>

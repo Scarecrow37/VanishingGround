@@ -16,10 +16,10 @@ public:
 
 public:
     /// <summary>
-    /// Sequencer용 Gui를 렌더링합니다.
-    /// 따로 Frame을 열지 않고 렌더링합니다.
-    /// <param name="debug">디버깅 정보를 출력할지 여부</param>
+    /// <para>Sequencer용 Gui를 렌더링합니다.</para>
+    /// <para>따로 Frame을 열지 않고 렌더링합니다.</para>
     /// </summary>
+    /// <param name="debug">디버깅 정보를 출력할지 여부</param>
     void Show(bool debug = false);
 
     /// <summary>
@@ -57,6 +57,12 @@ private:
     bool ContextMenu();
     bool IsWheelZooming() const;
 
+    void AddNotify(float time, std::string_view label, std::string_view typeNameID);
+    void RemoveNotify(TimelineNotify* notify);
+    void ChangeNotify(TimelineNotify* notify, float time, std::string_view label, std::string_view typeNameID);
+    void ChangeMinFrame(float frame);
+    void ChangeMaxFrame(float frame);
+
     int   GetLineUnit() const;
     int   GetFrameFromXToInt(float x, float unitSize) const;
     float GetFrameFromXToFloat(float x, float unitSize) const;
@@ -71,12 +77,15 @@ private:
         DRAG_STATE_START,
         DRAG_STATE_DRAGGING,
         DRAG_STATE_END
-    };
+    }; 
     void      SetDragState(const char* id, DragState state);
-    DragState BeginDragState(const char* id, const ImRect& dragRect, ImGuiMouseButton mouseType);
+    DragState BeginDragState(const char* id, const ImRect& dragRect, ImGuiMouseButton mouseType, bool lock = false);
+    bool      RemoveDragState(const char* id);
     DragState GetDragState(const char* id) const;
     size_t    GetDraggingCount() const;
+    bool      CanDrag(const ImRect& dragRect) const;
     bool      IsDragging(DragState state) const;
+    bool      IsDragging() const;
     
 public:
     std::shared_ptr<TimelineSystem> _system; // System WeakPtr
@@ -95,11 +104,13 @@ public:
     float   _viewLerpTarget;        // 보간 중인 최종 뷰의 타겟 위치
     float   _zoomMin;               // 줌 최소 값
     float   _zoomMax;               // 줌 최대 값
-    ImVec2  _cursorPosition;        
+    ImVec2  _cursorPosition;        // 마우스 커서 위치 (스냅도 적용)
     ImVec2  _viewPosition;          
     ImVec2  _zoomPosition;          
 
     std::unordered_map<ImGuiID, DragState> _dragState;
+
+    std::queue<std::function<void()>> _eventQueue;
 
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
     ImU32 UpperBgColor          = IM_COL32(20, 20, 20, 255);    // Sequencer 상단 배경색
