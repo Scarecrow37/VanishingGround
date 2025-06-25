@@ -27,6 +27,15 @@ void TurnActor::Revive()
     }
 }
 
+void TurnActor::Dead() 
+{
+    if (_currState != STATE::Dead)
+    {
+        _currState = STATE::Dead;
+        OnDead();
+    }
+}
+
 void TurnActor::EndTurn() 
 {
     if (_currState == STATE::Play)

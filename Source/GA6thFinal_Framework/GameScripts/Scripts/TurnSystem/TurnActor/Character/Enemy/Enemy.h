@@ -41,7 +41,11 @@ protected:
 
 public:
     /*Enemy의 턴을 종료합니다.*/
-    void                EndTurnEnemy();
+    virtual void EndTurn() override;
+
+    /*Enemy를 Dead 상태로 만듭니다.*/
+    virtual void Dead() override;
+
     FiniteStateMachine& GetFSM() { return *_finiteStateMachine; }
     const EnemyStates&  GetFSMStates() { return _fsmStates; }
 
@@ -55,7 +59,9 @@ protected:
     virtual void Update();
 
     // CharacterBase을(를) 통해 상속됨
-    void OnTurnStart() override;
-    void OnTurnEnd() override;
+    virtual void OnRevive() override;
+    virtual void OnDead() override;
+    virtual void OnTurnStart() override;
+    virtual void OnTurnEnd() override;
     CharacterStats* GetCharacterStats() override;
 };

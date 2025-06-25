@@ -34,19 +34,26 @@ public:
     /// <summary>
     /// TurnActor의 턴을 시작합니다. OnTurnStart를 호출합니다.
     /// </summary>
-    virtual void PlayTurn() final;
+    virtual void PlayTurn();
 
     /// <summary>
     /// Actor의 상태를 초기화합니다. (부활)
     /// OnRevive를 호출합니다.
     /// </summary>
-    virtual void Revive() final;
+    virtual void Revive();
+
+    /// <summary>
+    /// Actor를 사망 상태로 합니다.
+    /// OnDead를 호출합니다.
+    /// </summary>
+    virtual void Dead();
 
 public:
     virtual int GetSpeed() = 0;
 
 protected:
     virtual void OnRevive() = 0;
+    virtual void OnDead() = 0;
     virtual void OnTurnStart() = 0;
     virtual void OnTurnEnd() = 0;
 
@@ -54,7 +61,7 @@ protected:
     /// <summary>
     /// 턴 종료를 요청합니다. OnTurnEnd를 호출합니다.
     /// </summary>
-    virtual void EndTurn() final;
+    virtual void EndTurn();
 
 public:
     GETTER_ONLY(int, RandomSpeed) { return _randomSpeed; }

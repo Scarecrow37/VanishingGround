@@ -59,5 +59,5 @@ protected:
     /// </summary>
     virtual void Awake();
 
-    void OnRevive() override;
+    virtual void OnRevive() override;
 };

@@ -47,6 +47,16 @@ void Player::OnTurnEnd()
     UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"Player 턴 종료.");
 }
 
+void Player::OnRevive() 
+{
+    Base::OnRevive();
+}
+
+void Player::OnDead() 
+{
+    UmLogger.Message(LogLevel::LEVEL_DEBUG, (const char*)u8"플레이어 사망!!!");
+}
+
 void Player::ImGuiDrawPropertysEvent() 
 {
 
@@ -123,9 +133,14 @@ void Player::BuildPlayerFSM()
     }
 }
 
-void Player::EndTurnPlayer() 
+void Player::EndTurn()
 {
     EndTurn();
+}
+
+void Player::Dead()
+{
+    TurnActor::Dead();
 }
 
 int Player::GetSpeed()

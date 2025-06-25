@@ -1,6 +1,7 @@
 ﻿#include "pchScripts.h"
 #include "PlayerDeadState.h"
 #include <GameCore/FSM/Factory/FSMStateFactory.h>
+#include <TurnSystem/TurnActor/Character/Player/Player.h>
 
 REGISTER_CLASS(FSMStateFactory, PlayerDeadState)
 
@@ -26,7 +27,7 @@ void PlayerDeadState::OnStart()
 
 void PlayerDeadState::OnEnter() 
 {
-    UmLogger.Message(LogLevel::LEVEL_DEBUG, (const char*)u8"플레이어 사망!!!");
+    GetPlayer().Dead();
 }
 
 void PlayerDeadState::OnExit() 
