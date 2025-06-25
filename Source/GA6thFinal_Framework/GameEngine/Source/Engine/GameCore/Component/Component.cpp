@@ -4,7 +4,8 @@ Component::Component(TYPE type)
     : 
     _className(), 
     _gameObject(&staticDummyObject),
-    _type(type)
+    _type(type),
+    _enableInHierarchy(true)
 {
 
 }
@@ -32,4 +33,9 @@ std::weak_ptr<ITimeInvoker> Component::GetWeakInvoker()
 {
     auto ptr = GetWeakPtr().lock();
     return std::weak_ptr<ITimeInvoker>(ptr);
+}
+
+void Component::UpdateEnableInHierarchy()
+{
+    _enableInHierarchy = gameObject->ActiveInHierarchy && ReflectFields->_enable;
 }

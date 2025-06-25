@@ -77,6 +77,7 @@ void Transform::SetParent(Transform* p)
         }
     }
     _hasChanged = true;
+    GameObject::Engine::UpdateActiveInHierarchy(&_gameObject);
 }
 
 void Transform::SetParent(Transform& p)

@@ -177,14 +177,17 @@ void EditorLogsTool::OnFrameRender()
             auto& [level, message, location] = _drawLogList[i];
             ImGui::PushID(&message);
             logText += message;
+            int lineBreaks = 1;
             bool isLog = false == UmLogger.IsMessageLocation(location);
             if (true == isLog)
             {
                 logText += std::format("\n{}, line : {}", location.function_name(), location.line());
+                ++lineBreaks;
             }
             ImGui::PushStyleColor(ImGuiCol_Text, ImGuiHelper::ArrayToImVec4(ReflectFields->LogColorTable[level]));
             ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4());
-            ImGui::InputTextMultiline("##message", &logText, {regionAvail.x, 50}, ImGuiInputTextFlags_ReadOnly);
+            float lineHeight = ImGui::GetTextLineHeightWithSpacing();
+            ImGui::InputTextMultiline("##message", &logText, {regionAvail.x, lineHeight * lineBreaks + 3}, ImGuiInputTextFlags_ReadOnly);
             if (isLog && ImGui::IsItemHovered())
             {
                 ImGuiHelper::HoveredToolTip(u8"우클릭으로 해당 파일로 이동합니다."_c_str);
