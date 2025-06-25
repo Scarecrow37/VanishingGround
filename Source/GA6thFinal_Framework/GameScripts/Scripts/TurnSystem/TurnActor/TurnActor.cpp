@@ -11,20 +11,29 @@ TurnActor::~TurnActor() = default;
 
 void TurnActor::PlayTurn() 
 {
-    _currState = STATE::Play;
-    OnTurnStart();
+    if (_currState == STATE::Wait)
+    {
+        _currState = STATE::Play;
+        OnTurnStart();
+    }
 }
 
 void TurnActor::Revive() 
 {
-    _currState = STATE::Wait;
-    OnRevive();
+    if (_currState == STATE::Dead)
+    {
+        _currState = STATE::Wait;
+        OnRevive();
+    }
 }
 
-void TurnActor::MyTurnEnd() 
+void TurnActor::EndTurn() 
 {
-    _currState = STATE::Wait;
-    OnTurnEnd();
+    if (_currState == STATE::Play)
+    {
+        _currState = STATE::Wait;
+        OnTurnEnd();
+    }
 }
 
 void TurnActor::Awake() 

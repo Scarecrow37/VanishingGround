@@ -26,6 +26,12 @@ public:
 
 public:
     /// <summary>
+    /// 현재 엑터의 상태를 반환합니다.
+    /// </summary>
+    /// <returns></returns>
+    TurnActor::STATE GetActorState() const { return _currState; }
+
+    /// <summary>
     /// TurnActor의 턴을 시작합니다. OnTurnStart를 호출합니다.
     /// </summary>
     virtual void PlayTurn() final;
@@ -48,7 +54,7 @@ protected:
     /// <summary>
     /// 턴 종료를 요청합니다. OnTurnEnd를 호출합니다.
     /// </summary>
-    virtual void MyTurnEnd() final;
+    virtual void EndTurn() final;
 
 public:
     GETTER_ONLY(int, RandomSpeed) { return _randomSpeed; }
