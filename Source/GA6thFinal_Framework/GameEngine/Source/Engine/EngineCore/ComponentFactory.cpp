@@ -574,8 +574,20 @@ std::shared_ptr<Component> EComponentFactory::MakeComponentToYaml(GameObject* ow
     }
     std::string Type = node["Type"].as<std::string>();
     std::shared_ptr<Component> component = NewComponent(Type);
-    ResetComponent(ownerObject, component);
     std::string ReflectFields = node["ReflectFields"].as<std::string>();
-    component->DeserializedReflectFields(ReflectFields);
+    if (component == nullptr)
+    {
+        // 없어진 컴포넌트면 Missing으로 대체 
+        std::shared_ptr<MissingComponent> missing = NewMissingComponent();
+        missing->ReflectFields->typeName    = Type;
+        missing->ReflectFields->reflectData = ReflectFields;
+        component = missing;
+        ResetComponent(ownerObject, component);
+    }
+    else
+    {
+        ResetComponent(ownerObject, component);
+        component->DeserializedReflectFields(ReflectFields);
+    }
     return component;
 }
