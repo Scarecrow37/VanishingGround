@@ -113,8 +113,10 @@ void Device::ResetCommands()
 {
     _commandAllocator->Reset();
     _commandList->Reset(_commandAllocator.Get(), nullptr);
+
     _imguiCommandAllocator->Reset();
     _imguiCommandList->Reset(_imguiCommandAllocator.Get(), nullptr);
+
     _postProcessCommandAllocator->Reset();
     _postProcessCommandList->Reset(_postProcessCommandAllocator.Get(), nullptr);
 }
@@ -492,10 +494,6 @@ void Device::CreateCommandQueue()
     CreateCommandList(_commandAllocator, _commandList, CommandType::DIRECT);
     CreateCommandList(_imguiCommandAllocator, _imguiCommandList, CommandType::DIRECT);
     CreateCommandList(_postProcessCommandAllocator, _postProcessCommandList, CommandType::DIRECT);
-
-    _commandList->Close();
-    _imguiCommandList->Close();
-    _postProcessCommandList->Close();
 
     _commandQueue->SetName(L"GraphicsQueue");
     _commandList->SetName(L"GraphicsCmdList");

@@ -26,6 +26,9 @@ public:
 
         /*엔진 Fixed Update를 제어하기 위한 함수. true를 반환하면 Fixed Update를 호출하면 됨.*/
         static bool TimeSystemFixedUpdate();
+
+        /*Invoke 대기열을 clear 합니다.*/
+        static void CleanUpInvokeFuntions();
     };
 private:
     /*엔진 Update를 제어하기 위한 함수. 매프레임 호출해야함.*/

@@ -127,6 +127,13 @@ public:
     //  컴포넌트의 활성화 여부입니다.
     PROPERTY(Enable);
 
+    GETTER_ONLY(const bool&, EnableInHierarchy)
+    {
+        return _enableInHierarchy;
+    }
+    // 컴포넌트의 하이러키 기준 활성화 여부입니다.
+    PROPERTY(EnableInHierarchy);
+
     REFLECT_PROPERTY(
         Enable
     )
@@ -234,12 +241,19 @@ private:
     std::string _className;
     GameObject* _gameObject;
     std::weak_ptr<Component> _weakPtr;
+    bool _enableInHierarchy;
 
 private:
     /// <summary>
     /// 프리팹용 OverrideFlag들을 해제합니다. 에디터 모드에서만 동작합니다.
     /// </summary>
     inline void UnsetOverrideFlags();
+
+    /// <summary>
+    /// _enableInHierarchy을 갱신합니다.
+    /// </summary>
+    void UpdateEnableInHierarchy();
+
 };
 
 template <IS_BASE_COMPONENT_C TComponent>
@@ -282,4 +296,6 @@ inline void Component::UnsetOverrideFlags()
         });
     }
 }
+
+
 
