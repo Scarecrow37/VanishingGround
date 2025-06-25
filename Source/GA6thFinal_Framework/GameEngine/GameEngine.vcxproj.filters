@@ -696,6 +696,9 @@
     <ClInclude Include="Source\Engine\EditorCore\Gui\Sequencer\Command\SequencerCommand.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\EditorCore\Utillity\EditorDragState.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\pch.cpp">
@@ -1196,9 +1199,6 @@
     <ClCompile Include="Source\Engine\GraphicsCore\FBXConverter.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\M_PBR.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\ParticleRenderTechnique.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -1236,6 +1236,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\EditorCore\Gui\Sequencer\Command\SequencerCommand.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\EditorCore\Utillity\EditorDragState.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

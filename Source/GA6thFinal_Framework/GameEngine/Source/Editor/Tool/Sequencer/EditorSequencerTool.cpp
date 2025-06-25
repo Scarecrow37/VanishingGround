@@ -27,14 +27,12 @@ static float scale       = 1.0f;
 
 void EditorSequencerTool::OnTickGui() 
 {
-    _timelineSystem->Update();
 }
 
 void EditorSequencerTool::OnStartGui() 
 {
-    auto&             system    = Global::editorModule->GetDockWindowSystem();
-    EditorDockWindow* modelDock = system.GetDockWindow("ModelDock");
-    _editorModelDetails         = modelDock->GetGui<EditorModelDetails>();
+    auto& system    = Global::editorModule->GetDockWindowSystem();
+    auto* modelDock = system.GetDockWindow("ModelDock");
 }
 
 void EditorSequencerTool::OnEndGui() {}
@@ -52,76 +50,29 @@ void EditorSequencerTool::OnFrameRender()
         _timelineSystem->Play();
         _timelineSystem->SetMinFrame(min);
         _timelineSystem->SetMaxFrame(max);
-        _timelineSystem->AddNotify<TestTimeLineEvent>("TestNotify1", 0.0f);
-        _timelineSystem->AddNotify<TestTimeLineEvent>("TestNotify2", 1.5f);
     }
 
     float maxFrame     = _timelineSystem->GetMaxFrame();
     float minFrame     = _timelineSystem->GetMinFrame();
     float currentFrame = _timelineSystem->GetCurrentFrame();
-
-    //if (ImGui::SliderFloat("Scale", &scale, 0.0f, 10.0f))
-    //{
-    //
-    //}
-    //
-    //if (ImGui::SliderFloat("Current Frame", &currentFrame, minFrame, maxFrame))
-    //{
-    //    _timelineSystem->SetCurrentFrame(currentFrame, false);
-    //}
-    //
-    //if (ImGui::DragFloat("Max Frame", &maxFrame, 0.1f, -FLT_MAX, FLT_MAX))
-    //{
-    //    _timelineSystem->SetMaxFrame(maxFrame);
-    //}
-    //if (ImGui::DragFloat("Min Frame", &minFrame, 0.1f, -FLT_MAX, FLT_MAX))
-    //{
-    //    _timelineSystem->SetMinFrame(minFrame);
-    //}
-
-    bool isActive = _timelineSystem->IsActive();
-    if (ImGui::Checkbox("Active", &isActive))
-    {
-        _timelineSystem->SetActive(isActive);
-    }
-    ImGui::SameLine();
-    bool isPlaying = _timelineSystem->IsPlaying();
-    if (ImGui::Checkbox("Playing", &isPlaying))
-    {
-        isPlaying ? _timelineSystem->Play() : _timelineSystem->Stop();
-    }
-    ImGui::SameLine();
-    bool isLoop = _timelineSystem->HasFlags(TimelineSystem::TIMELINESYSTEM_FLAGS_LOOP);
-    if (ImGui::Checkbox("Loop", &isLoop))
-    {
-        _timelineSystem->ToggleFlags(TimelineSystem::TIMELINESYSTEM_FLAGS_LOOP);
-    }
-    ImGui::SameLine();
-    bool isNotifyDisable = _timelineSystem->HasFlags(TimelineSystem::TIMELINESYSTEM_FLAGS_NOTIFY_DISABLED);
-    if (ImGui::Checkbox("Notify Disable", &isNotifyDisable))
-    {
-        _timelineSystem->ToggleFlags(TimelineSystem::TIMELINESYSTEM_FLAGS_NOTIFY_DISABLED);
-    }
-    ImGui::SameLine();
-    bool isCounter = _timelineSystem->HasFlags(TimelineSystem::TIMELINESYSTEM_FLAGS_USE_COUNTER);
-    if (ImGui::Checkbox("Use Counter", &isCounter))
-    {
-        _timelineSystem->ToggleFlags(TimelineSystem::TIMELINESYSTEM_FLAGS_USE_COUNTER);
-    }
-    ImGui::SameLine();
-    //if (ImGui::CollapsingHeader("Timeline Notifies"))
-    //{
-    //    for (const auto& notify : _timelineSystem->GetTimelineNotifyList())
-    //    {
-    //        notify->ImGuiDrawPropertys();
-    //    }
-    //}
-
     ImGui::Checkbox("Use Snapping", &_sequencer->_useSnapping);
 
-    ImGui::BeginChild("SequencerCanvas", ImVec2(0, 0), true, ImGuiWindowFlags_NoScrollWithMouse);
+    _timelineSystem->Update();
+
+    ImVec2 availSize = ImGui::GetContentRegionAvail();
+    ImGui::BeginChild("SequencerCanvas", ImVec2(availSize.x - 400, availSize.y), true,
+                      ImGuiWindowFlags_NoScrollWithMouse);
     _sequencer->Show(true);
     ImGui::EndChild();
+    ImGui::SameLine();
+    availSize = ImGui::GetContentRegionAvail();
+    ImGui::BeginChild("SequencerDetail", ImVec2(availSize), true);
+    if (ImGui::CollapsingHeader("Timeline Notifies"))
+    {
+        ShowTimelineNotifies();
+    }
+    ImGui::EndChild();
+   
 }
 
 void EditorSequencerTool::OnFrameEnd() {}
@@ -144,9 +95,47 @@ void EditorSequencerTool::DeserializedReflectEvent()
     _timelineSystem->DeserializedReflectFields(ReflectFields->SerializedData);
 }
 
-REGISTER_CLASS(TimelineSystem, TestTimeLineEvent)
-void TestTimeLineEvent::OnNotified(float time)
+void EditorSequencerTool::ShowTimelineNotifies() 
 {
-    std::string message = "Timeline TestNotify Triggered at " + std::to_string(time) + "s";
-    UmLogger.Log(1, message);
+    for (const auto& notify : _timelineSystem->GetTimelineNotifyList())
+    {
+        ImGui::PushID(notify);
+
+        char             buf[64];
+        std::string_view label = notify->Label;
+        float            time  = notify->Time;
+        UINT             id    = notify->ID;
+        strcpy_s(buf, label.data()); // copy the label to a buffer
+        ImGui::Text("Label: ");
+        ImGui::SameLine();
+        if (ImGui::InputText("Label", buf, sizeof(buf)))
+        {
+            notify->Label = buf; // update the label in the notify
+        }
+        ImGui::Text("Time: %.2f", time);
+        ImGui::Text("ID: %d", id);
+        if (ImGui::TreeNodeEx("Event", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            std::string_view eventName = notify->EventName;
+            ImGui::Text("Event Name: %s", eventName.data() + 6);
+            notify->Event->ImGuiDrawPropertys();
+            ImGui::TreePop();
+        }
+        ImGui::Separator();
+
+        ImGui::PopID();
+    }
+}
+
+REGISTER_CLASS(TimelineSystem, TestTimeLineEvent_1)
+void TestTimeLineEvent_1::OnNotified(float time)
+{
+    std::string message = "TestTimeLineEvent_1 Notify at " + std::to_string(time) + "s";
+    UmLogger.Log(2, message);
+}
+REGISTER_CLASS(TimelineSystem, TestTimeLineEvent_2)
+void TestTimeLineEvent_2::OnNotified(float time) 
+{
+    std::string message = "TestTimeLineEvent_2 Notify at " + std::to_string(time) + "s";
+    UmLogger.Log(2, message);
 }

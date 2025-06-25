@@ -28,20 +28,20 @@ public:
     void DeserializedReflectEvent() override;
 
 private:
+    void ShowTimelineNotifies();
+
+private:
     std::shared_ptr<TimelineSystem> _timelineSystem;
     EditorSequencer* _sequencer     = nullptr;
-
-    EditorModelDetails* _editorModelDetails = nullptr;
-    Animator* _animator = nullptr;
 
     REFLECT_FIELDS_BEGIN(EditorTool)
     std::string SerializedData;
     REFLECT_FIELDS_END(EditorSequencerTool)
 };
 
-class TestTimeLineEvent : public ITimelineEvent
+class TestTimeLineEvent_1 : public ITimelineEvent
 {
-    USING_PROPERTY(TestTimeLineEvent)
+    USING_PROPERTY(TestTimeLineEvent_1)
 private:
     // ITimelineEvent을(를) 통해 상속됨
     void OnNotified(float time) override;
@@ -55,5 +55,29 @@ public:
 private:
     float _time;
     REFLECT_FIELDS_BEGIN(ITimelineEvent)
-    REFLECT_FIELDS_END(TestTimeLineEvent)
+    REFLECT_FIELDS_END(TestTimeLineEvent_1)
+};
+
+class TestTimeLineEvent_2 : public ITimelineEvent
+{
+    USING_PROPERTY(TestTimeLineEvent_2)
+private:
+    // ITimelineEvent을(를) 통해 상속됨
+    void OnNotified(float time) override;
+
+public:
+    REFLECT_PROPERTY(Time)
+    GETTER(float, Time) { return _time; }
+    SETTER(float, Time) { _time = value; }
+    PROPERTY(Time)
+
+private:
+    float _time;
+    REFLECT_FIELDS_BEGIN(ITimelineEvent)
+    REFLECT_FIELDS_END(TestTimeLineEvent_2)
+};
+
+class AnimationNotify
+{
+
 };

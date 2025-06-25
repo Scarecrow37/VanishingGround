@@ -46,6 +46,12 @@ public:
     /// <returns>Gui영역의 위치 ImVec2</returns>
     ImVec2 GetRectPosition() const { return _frameRect.Min; }
 
+    /// <summary>
+    /// Sequencer의 뷰 위치를 설정합니다.
+    /// </summary>
+    /// <param name="pos"></param>
+    inline void SetViewPosition(const ImVec2& pos) { _viewPosition = pos; }
+
 private:
     bool Begin();
     void End();
@@ -55,7 +61,6 @@ private:
     bool WheelZooming();
     bool CanvasDragging();
     bool ContextMenu();
-    bool IsWheelZooming() const;
 
     void AddNotify(float time, std::string_view label, std::string_view typeNameID);
     void RemoveNotify(TimelineNotify* notify);
@@ -71,32 +76,8 @@ private:
 
     void PathLines(ImDrawList* drawList, ImVec2* points, size_t pointCount) const;
 
-    enum DragState
-    {
-        DRAG_STATE_NONE = 0,
-        DRAG_STATE_START,
-        DRAG_STATE_DRAGGING,
-        DRAG_STATE_END
-    }; 
-    enum DragFlags
-    {
-        DRAG_FLAG_NONE      = 0,
-        DRAG_FLAG_LOCK      = 1 << 0, // 다른 드래그 상태가 존재하면 드래그 상태를 트리거하지 않습니다.
-        DRAG_FLAG_MOVED     = 1 << 1  // 마우스가 움직일 때만 드래그 상태가 트리거 됩니다.
-    };
-    void      SetDragState(UINT id, DragState state);
-    void      SetDragState(const char* id, DragState state);
-    DragState BeginDragState(UINT id, const ImRect& dragRect, ImGuiMouseButton mouseType, int flags = DRAG_FLAG_NONE);
-    DragState BeginDragState(const char* id, const ImRect& dragRect, ImGuiMouseButton mouseType, int flags = DRAG_FLAG_NONE);
-    bool      RemoveDragState(UINT id);
-    bool      RemoveDragState(const char* id);
-    DragState GetDragState(const char* id) const;
-    DragState GetDragState(UINT id) const;
-    size_t    GetDraggingCount() const;
-    bool      CanDrag(const ImRect& dragRect) const;
-    bool      IsDragging(DragState state) const;
-    bool      IsDragging() const;
-    
+    int GetInteractionState(const ImRect& rect) const;
+
 public:
     std::shared_ptr<TimelineSystem> _system; // System WeakPtr
 
@@ -118,27 +99,38 @@ public:
     ImVec2  _viewPosition;          
     ImVec2  _zoomPosition;          
 
-    std::unordered_map<ImGuiID, DragState> _dragState;
+    EditorDragState dragHandler;    // 드래그 상태 관리
 
     std::queue<std::function<void()>> _eventQueue;
 
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
-    ImU32 UpperBgColor          = IM_COL32(20, 20, 20, 255);    // Sequencer 상단 배경색
-    ImU32 LowerInvaildBgColor   = IM_COL32(30, 30, 30, 255);    // Sequencer 하단 배경색 (유효하지 않은 경우)
-    ImU32 LowerVaildBgColor     = IM_COL32(50, 50, 50, 255);    // Sequencer 하단 배경색 (유효한 경우)
-    ImU32 ThickLineColor        = IM_COL32(120, 120, 120, 200); // 두꺼운 선 색상
-    ImU32 ThinLineColor         = IM_COL32(80, 80, 80, 200);    // 얇은 선 색상
-    ImU32 MinMaxLineColor       = IM_COL32(100, 100, 225, 200); // 최소/최대 프레임 선 색상
-    ImU32 FollowLineColor       = IM_COL32(100, 255, 100, 200); // 현재 프레임 선 색상
-    ImU32 CurFrameLineColor     = IM_COL32(255, 150, 150, 200); // 현재 프레임 선 색상
-    ImU32 NotifyColor           = IM_COL32(0, 255, 255, 200);   // Notify 색상
-    ImU32 InvalidColor          = IM_COL32(255, 0, 0, 100);     // 유효하지 않은 대상에 대한 색상
+    float ZoomScale     = 1.0f;   // View에 대한 줌 스케일
+    float UnitSize      = 100.0f; // Frame을 표시할 때 사용하는 단위 크기 (1 Frame당 픽셀 크기)
+    float ViewLerpScale = 0.05f;  // View 보간 스케일 (0.0f ~ 1.0f)
+    float ViewScale     = 1.0f;   // 현재 View의 스케일
 
-    float ZoomScale     = 1.0f;         // View에 대한 줌 스케일
-    float UnitSize      = 100.0f;       // Frame을 표시할 때 사용하는 단위 크기 (1 Frame당 픽셀 크기)
-    float ViewLerpScale = 0.05f;        // View 보간 스케일 (0.0f ~ 1.0f)
-    float ViewScale     = 1.0f;         // 현재 View의 스케일
+    std::string SerializedData        = "";                           // 직렬화된 데이터
 
-    std::string SerializedData = ""; // 직렬화된 데이터
+    /* Color (0 = default, 1 = hovered, 2 = pressed */
+    // Sequencer 상단 배경색
+    std::array<ImU32, 3> UpperBgColor = {IM_COL32(20, 20, 20, 255), 0, 0};    
+     // Sequencer 하단 배경색 (유효하지 않은 경우)
+    std::array<ImU32, 3> LowerInvaildBgColor = {IM_COL32(30, 30, 30, 255), 0, 0};   
+    // Sequencer 하단 배경색 (유효한 경우)                                            
+    std::array<ImU32, 3> LowerVaildBgColor = {IM_COL32(50, 50, 50, 255), 0, 0};    
+    // 두꺼운 선 색상                                                                
+    std::array<ImU32, 3> ThickLineColor = {IM_COL32(120, 120, 120, 200), 0, 0}; 
+     // 얇은 선 색상                                                                 
+    std::array<ImU32, 3> ThinLineColor = {IM_COL32(80, 80, 80, 200), 0, 0};   
+    // 최소/최대 프레임 선 색상                                                       
+    std::array<ImU32, 3> MinMaxLineColor = {IM_COL32(100, 100, 225, 200), IM_COL32(60, 60, 200, 200), IM_COL32(100, 100, 225, 255) }; 
+     // 현재 프레임 선 색상                                                          
+    std::array<ImU32, 3> FollowLineColor = {IM_COL32(100, 255, 100, 200), IM_COL32(60, 200, 60, 200), IM_COL32(100, 255, 100, 255) }; 
+    // 현재 프레임 선 색상                                                           
+    std::array<ImU32, 3> CurFrameLineColor = {IM_COL32(255, 150, 150, 200), IM_COL32(230, 120, 120, 200), IM_COL32(200, 100, 100, 200) }; 
+    // Notify 색상                                                                  
+    std::array<ImU32, 3> NotifyColor = {IM_COL32(0, 255, 255, 200), IM_COL32(0, 255, 255, 150), IM_COL32(0, 255, 255, 255)};
+    // 유효하지 않은 대상에 대한 색상                                                 
+    std::array<ImU32, 3> InvalidColor = {IM_COL32(255, 0, 0, 100), 0, 0 };     
     REFLECT_FIELDS_END(EditorSequencer)
 };

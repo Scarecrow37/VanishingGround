@@ -139,6 +139,7 @@ bool TimelineSystem::ChangeNotifyTime(UINT id, float time)
     if (nullptr != notify)
     {
         notify->SetNotifyTime(time);
+        Sort();
         return true;
     }
     return false;
