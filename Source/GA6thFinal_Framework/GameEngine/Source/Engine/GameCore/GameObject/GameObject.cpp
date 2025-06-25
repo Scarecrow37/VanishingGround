@@ -527,6 +527,11 @@ void GameObject::Engine::ResetActiveInHierarchy(GameObject* obj)
         }          
         curr = curr->Parent;
     }
+
+    for (auto& component : obj->_components)
+    {
+        component->UpdateEnableInHierarchy();
+    }
 }
 
 void GameObject::Engine::UpdateActiveInHierarchy(GameObject* obj)
@@ -537,5 +542,9 @@ void GameObject::Engine::UpdateActiveInHierarchy(GameObject* obj)
         Transform* parent = currTr->Parent;
         bool parentActiveInHierarchy = parent ? parent->gameObject->_activeInHierarchy : true;
         curr->_activeInHierarchy = parentActiveInHierarchy && curr->ReflectFields->_activeSelf;
+        for (auto& component : curr->_components)
+        {
+            component->UpdateEnableInHierarchy();
+        }
     });
 }
