@@ -2,6 +2,7 @@
 #include "Enemy.h"
 #include "Stats/Enemy/EnemyStats.h"
 #include "Stats/Enemy/EnemyStatsComponent.h"
+#include <GameCore/FSM/FiniteStateMachine.h>
 
 Enemy::Enemy()
 {
@@ -10,10 +11,13 @@ Enemy::Enemy()
 
 Enemy::~Enemy() = default;
 
-void Enemy::Awake() 
+void Enemy::EndTurnEnemy() {}
+
+void Enemy::Awake()
 {
     Base::Awake();
     gameObject->AddTag(TAG);
+    BuildEnemyFSM();
 
     if (nullptr == GetEnemyStats())
     {
@@ -86,4 +90,17 @@ EnemyStatsComponent* Enemy::GetEnemyStats()
         _enemyStats = GetComponent<EnemyStatsComponent>();
     }      
     return _enemyStats;
+}
+
+void Enemy::BuildEnemyFSM() 
+{
+    _finiteStateMachine = GetComponent<FiniteStateMachine>();
+    if (nullptr == _finiteStateMachine)
+    {
+        _finiteStateMachine = &AddComponent<FiniteStateMachine>();
+
+        //Condition
+
+        //State
+    }
 }
