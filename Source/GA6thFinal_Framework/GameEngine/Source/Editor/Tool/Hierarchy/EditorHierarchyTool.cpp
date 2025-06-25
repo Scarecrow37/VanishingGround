@@ -11,6 +11,8 @@ using namespace u8_literals;
 using namespace Global;
 using namespace Command::Hierarchy;
 
+static EditorSceneTool* staticEditorScenTool = nullptr;
+
 void EditorHierarchyTool::TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>& focusObject)
 {
     auto TreeDoubleClickEvent = [&node]() {
@@ -100,6 +102,22 @@ void EditorHierarchyTool::TransformTreeNode(Transform& node, const std::shared_p
                 ImGui::EndMenu();
             }   
             ImGui::EndPopup();
+            ImGui::Separator();
+
+            if (nullptr == node.Parent)
+            {
+                if (ImGui::MenuItem("Align With View"))
+                {
+                    Matrix sceneCameraMatrix = staticEditorScenTool->GetCameraMatrix();
+                    Vector3 pos;
+                    Vector3 scale;
+                    Quaternion rot;
+                    sceneCameraMatrix.Decompose(scale, rot, pos); 
+                    node.Position = pos;
+                    node.Rotation = rot;
+                }
+                ImGuiHelper::HoveredToolTip((const char*)u8"이 오브젝트의 Transform을 Scene View의 값으로 설정합니다.");
+            }
         }
     };
 
@@ -321,6 +339,7 @@ void EditorHierarchyTool::OnStartGui()
 {
     _dockWindow = GetOwnerDockWindow();
     _editorSceneTool = _dockWindow->GetGui<EditorSceneTool>();
+    staticEditorScenTool = _editorSceneTool;
     _editorFindTool  = _dockWindow->GetGui<HierarchyFindTool>();
 }
 

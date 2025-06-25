@@ -45,6 +45,11 @@ void EditorSceneTool::SetManipulateObject(std::weak_ptr<GameObject>& object)
     pSceneTool->_manipulateObject = object;
 }
 
+const Matrix& EditorSceneTool::GetCameraMatrix()
+{
+    return _camera->GetCamera()->GetWorldMatrix();
+}
+
 void EditorSceneTool::OnStartGui()
 {
     std::shared_ptr<Camera> camera = UmRenderer.GetCamera("Editor");
