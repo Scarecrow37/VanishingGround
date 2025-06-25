@@ -1,4 +1,6 @@
-﻿#include "TurnActor.h"
+﻿#include "pchScripts.h"
+#include "TurnActor.h"
+
 TurnActor::TurnActor() 
     : 
     _currState(STATE::Dead)

@@ -45,7 +45,7 @@ void DownScalePass::Begin(ID3D12GraphicsCommandList* commandList)
 
     for (UINT i = 0; i < MAX_MIPMAP_LEVEL; i++)
     {
-        mipmapTarget[i]->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
+        mipmapTarget[i]->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
         mipmapTarget[i]->ClearRenderTarget(commandList);
     }
 }
@@ -66,7 +66,6 @@ void DownScalePass::Draw(ID3D12GraphicsCommandList* commandList)
     D3D12_VIEWPORT viewPort = {0.f, 0.f, 1024.f, 1024.f};
     D3D12_RECT     sissorRect = {0, 0, 1024, 1024};
 
-    // Down sample 4번
     for (UINT i = 0; i < MAX_MIPMAP_LEVEL; i++)
     {
         commandList->OMSetRenderTargets(1, &mipmapTarget[i]->GetRTVHandle(), NULL, nullptr);
@@ -90,7 +89,7 @@ void DownScalePass::End(ID3D12GraphicsCommandList* commandList)
 
     for (UINT i = 0; i < MAX_MIPMAP_LEVEL; i++)
     {
-        mipmapTarget[i]->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+        mipmapTarget[i]->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     }
 
     multiRenderTargetManager.ReturnRenderTarget(_renderTarget);

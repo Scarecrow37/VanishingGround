@@ -6,6 +6,7 @@
 #include "Model.h"
 #include "RenderScene.h"
 #include "RenderTarget.h"
+#include "DepthStencilView.h"
 
 GBufferPass::~GBufferPass() {}
 
@@ -47,7 +48,7 @@ void GBufferPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& s
 
         for (UINT i = 0; i < GBuffer::GBUFFER_END; i++)
         {
-            gBufferGroup[i]->TransitionResource(commandList, D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+            gBufferGroup[i]->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
             _gBufferHandles[i] = gBufferGroup[i]->GetRTVHandle();
         }
 
@@ -65,16 +66,12 @@ void GBufferPass::Begin(ID3D12GraphicsCommandList* commandList)
 
     for (UINT i = 0; i < GBuffer::GBUFFER_END; i++)
     {
-        gBufferGroup[i]->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
+        gBufferGroup[i]->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
         gBufferGroup[i]->ClearRenderTarget(commandList);
         _gBufferHandles[i] = gBufferGroup[i]->GetRTVHandle();
     }
 
-    auto br = CD3DX12_RESOURCE_BARRIER::Transition(_ownerScene->_depthStencilBuffer.Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_DEPTH_WRITE);
-    commandList->ResourceBarrier(1, &br);
-    commandList->ClearDepthStencilView(_ownerScene->_depthStencilHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
-
-    commandList->OMSetRenderTargets(GBuffer::GBUFFER_END, _gBufferHandles.data(), FALSE, &_ownerScene->_depthStencilHandle);
+    commandList->OMSetRenderTargets(GBuffer::GBUFFER_END, _gBufferHandles.data(), FALSE, &_ownerScene->_depthStencilView->GetDSVHandle());
     commandList->RSSetViewports(1, &_viewPort);
     commandList->RSSetScissorRects(1, &_sissorRect);
 }
@@ -107,7 +104,6 @@ void GBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
     auto  cameraData                = _ownerScene->_cameraBuffer->GetGPUVirtualAddress();
     auto& frameResource             = _ownerScene->_frameResources[currentBackBufferIndex];
 
-
     commandList->SetPipelineState(_psos[STATIC_ONE_SIDED].Get());
     commandList->SetGraphicsRootSignature(_shaders[MeshType::STATIC]->GetRootSignature());
     commandList->SetGraphicsRootConstantBufferView(_shaders[MeshType::STATIC]->GetRootParameterIndex("cameraData"), cameraData);
@@ -133,13 +129,11 @@ void GBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
 void GBufferPass::End(ID3D12GraphicsCommandList* commandList)
 {
     const auto& gBufferGroup = UmMultiRenderTargetManager.GetRenderTargetGroup("GBuffer");
+
     for (auto& gBuffer : gBufferGroup)
     {
-        gBuffer->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+        gBuffer->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     }
-
-    auto br = CD3DX12_RESOURCE_BARRIER::Transition(_ownerScene->_depthStencilBuffer.Get(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_PRESENT);
-    commandList->ResourceBarrier(1, &br);
 }
 
 void GBufferPass::InitShaderAndPSO()

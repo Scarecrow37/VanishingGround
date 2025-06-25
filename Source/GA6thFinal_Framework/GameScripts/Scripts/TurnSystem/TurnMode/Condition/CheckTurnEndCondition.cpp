@@ -1,4 +1,5 @@
-﻿#include "CheckTurnEndCondition.h"
+﻿#include "pchScripts.h"
+#include "CheckTurnEndCondition.h"
 #include "TurnSystem/TurnActor/TurnActor.h"
 #include "TurnSystem/TurnMode/TurnMode.h"
 

@@ -1,4 +1,5 @@
-﻿#include "SpotLight.h"
+﻿#include "pchScripts.h"
+#include "SpotLight.h"
 SpotLight::SpotLight() = default;
 SpotLight::~SpotLight() = default;
 

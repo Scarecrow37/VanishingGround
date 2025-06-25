@@ -43,7 +43,7 @@ void BlurXPass::Begin(ID3D12GraphicsCommandList* commandList)
 {
     auto renderTarget = UmMultiRenderTargetManager.GetAvailableRenderTarget();
     
-    renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
     renderTarget->ClearRenderTarget(commandList);
 
     commandList->OMSetRenderTargets(1, &renderTarget->GetRTVHandle(), FALSE, nullptr);
@@ -61,7 +61,7 @@ void BlurXPass::Draw(ID3D12GraphicsCommandList* commandList)
     const auto& usedRenderTargets        = multiRenderTargetManager.GetUsedRenderTargets();
 
     commandList->SetPipelineState(_pipelineState.Get());
-    commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
+    commandList->SetGraphicsRootSignature(_shader->GetRootSignature());    
 
     commandList->SetGraphicsRoot32BitConstants(_shader->GetRootParameterIndex("bit32_5_postProcessData"), 5, &postProcessData, 0);
     commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("sourceTexture"), usedRenderTargets.front()->GetSRVHandle());
@@ -74,6 +74,6 @@ void BlurXPass::End(ID3D12GraphicsCommandList* commandList)
     auto&       multiRenderTargetManager = UmMultiRenderTargetManager;
     const auto& usedRenderTargets        = multiRenderTargetManager.GetUsedRenderTargets();
 
-    usedRenderTargets.back()->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    usedRenderTargets.back()->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     multiRenderTargetManager.ReturnRenderTarget(usedRenderTargets.front().get());
 }

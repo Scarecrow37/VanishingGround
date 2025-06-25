@@ -1,5 +1,7 @@
 ﻿#pragma once
 #include "RenderTechnique.h"
+
+class UnorderedAccessView;
 class ParticleRenderTechnique : public RenderTechnique
 {
 
@@ -19,11 +21,8 @@ private:
     void CreateWBOITResources();  // 리소스 생성
     void ReleaseWBOITResources(); // 필요 시 자원 해제
 
-
-    ComPtr<ID3D12Resource> _accumlateBuffer;
-    ComPtr<ID3D12Resource> _revealageBuffer;
-
-    ComPtr<ID3D12DescriptorHeap> _cpuHeap; 
+    std::shared_ptr<UnorderedAccessView> _accumlateBuffer;
+    std::shared_ptr<UnorderedAccessView> _revealageBuffer;
 
 
 

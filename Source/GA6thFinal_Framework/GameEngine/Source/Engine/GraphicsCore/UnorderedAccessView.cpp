@@ -50,6 +50,8 @@ void UnorderedAccessView::Initialize(DXGI_MODE_DESC mode)
     UmViewManager.AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _srvHandle);
     device->CreateShaderResourceView(_resource.Get(), &srvDesc, _srvHandle.CPU);
     _ID = UmViewManager.GetNumShaderResourceView() - 1;    
+
+    _currentState = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
 }
 
 void UnorderedAccessView::ClearUnorderedAccessView(ID3D12GraphicsCommandList* commandList)
@@ -61,11 +63,5 @@ void UnorderedAccessView::ClearUnorderedAccessView(ID3D12GraphicsCommandList* co
 void UnorderedAccessView::ResourceBarrier(ID3D12GraphicsCommandList* commandList)
 {
     auto br = CD3DX12_RESOURCE_BARRIER::UAV(_resource.Get());
-    commandList->ResourceBarrier(1, &br);
-}
-
-void UnorderedAccessView::TransitionResource(ID3D12GraphicsCommandList* commandList, D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after)
-{
-    auto br = CD3DX12_RESOURCE_BARRIER::Transition(_resource.Get(), before, after);
     commandList->ResourceBarrier(1, &br);
 }

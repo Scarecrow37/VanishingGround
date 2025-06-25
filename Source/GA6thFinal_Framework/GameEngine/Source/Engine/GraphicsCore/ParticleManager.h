@@ -53,6 +53,8 @@ private:
 
     void CreateDescriptors();
 
+    void CopyActiveParticles();
+
     void DispatchParticleCompute(float deltaTime);
     void UpdateParticleResources(float deltaTime);
 
@@ -92,57 +94,6 @@ private:
     ComPtr<ID3D12Resource> _particleInputUploadBuffer;
     ComPtr<ID3D12Resource> _emitterInfoUploadBuffer;
 
-private:
-    ComPtr<ID3D12CommandAllocator>    _depthExtractAllocator;
-    ComPtr<ID3D12GraphicsCommandList> _depthExtractCommandList;
-
-    ComPtr<ID3D12CommandAllocator>    _radixSortAllocator;
-    ComPtr<ID3D12GraphicsCommandList> _radixSortCommandList;
-
-    ComPtr<ID3D12CommandAllocator>    _reorderAllocator;
-    ComPtr<ID3D12GraphicsCommandList> _reorderCommandList;
-
-    ComPtr<ID3D12CommandAllocator>    _validateAllocator;
-    ComPtr<ID3D12GraphicsCommandList> _validateCommandList;
-
-
-
-
-
-    // Radix Sort 관련 리소스
-    ComPtr<ID3D12Resource> _sortKeysBuffer;      // 정렬 키 버퍼
-    ComPtr<ID3D12Resource> _sortValuesBuffer;    // 정렬 값 버퍼
-    ComPtr<ID3D12Resource> _sortKeysAltBuffer;   // 대체 키 버퍼 (ping-pong)
-    ComPtr<ID3D12Resource> _sortValuesAltBuffer; // 대체 값 버퍼 (ping-pong)
-    ComPtr<ID3D12Resource> _histogramBuffer;     // 히스토그램 버퍼
-    ComPtr<ID3D12Resource> _prefixSumBuffer;     // 접두사 합 버퍼
-    std::vector<ComPtr<ID3D12Resource>> _sortConstantBuffer;  // 정렬 상수 버퍼
-
-    // Radix Sort 컴퓨트 셰이더
-    ComPtr<ID3DBlob> _depthExtractShaderBlob;
-    ComPtr<ID3DBlob> _histogramShaderBlob;
-    ComPtr<ID3DBlob> _prefixSumShaderBlob;
-    ComPtr<ID3DBlob> _scatterShaderBlob;
-    ComPtr<ID3DBlob> _reorderShaderBlob;
-
-    // 파이프라인 상태
-    ComPtr<ID3D12PipelineState> _depthExtractPSO;
-    ComPtr<ID3D12PipelineState> _histogramPSO;
-    ComPtr<ID3D12PipelineState> _prefixSumPSO;
-    ComPtr<ID3D12PipelineState> _scatterPSO;
-    ComPtr<ID3D12PipelineState> _reorderPSO;
-
-    // 루트 시그니처
-    ComPtr<ID3D12RootSignature> _radixSortRootSignature;
-
-    // 새로운 메서드 선언
-    void InitializeRadixSortShaders();
-    void InitializeRadixSortRootSignature();
-    void InitializeRadixSortPSO();
-    void CreateRadixSortResources();
-    void PerformRadixSort();
-    void ExtractDepthKeys();
-    void ReorderParticleOutput();
 
 private:
     UINT _currentBufferIndex;

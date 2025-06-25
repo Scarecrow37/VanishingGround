@@ -1,5 +1,7 @@
 ﻿#pragma once
 #include "RenderPass.h"
+
+class UnorderedAccessView;
 class ParticleResolvePass : public RenderPass
 {
 public:
@@ -10,8 +12,7 @@ public:
     void Begin(ID3D12GraphicsCommandList* commandList) override;
     void End(ID3D12GraphicsCommandList* commandList) override;
     void Draw(ID3D12GraphicsCommandList* commandList) override;
-    void SetAccumulationBuffers(ComPtr<ID3D12Resource> color, ComPtr<ID3D12Resource> alpha,
-                                std::vector<DescriptorHandles> handle);
+    void SetAccumulationBuffers(UnorderedAccessView* color, UnorderedAccessView* alpha);
 
 private:
     void InitializeShader();
@@ -25,7 +26,9 @@ private:
     ID3D12GraphicsCommandList*     _particleRenderCommandList;
     UINT                           _descriptorSize;
 
-    ComPtr<ID3D12Resource>         _accumlateBuffer;
-    ComPtr<ID3D12Resource>         _revealageBuffer;
-    std::vector<DescriptorHandles> _oitSRVHandles;
+
+    
+    UnorderedAccessView* _accumlateBuffer;
+    UnorderedAccessView* _revealageBuffer;
+
 };
