@@ -1,8 +1,6 @@
 ﻿#include "pch.h"
 #include "GraphicsCore.h"
-// 임시
-#include "ParticleEffect.h"
-#include "ParticleEmitter.h"
+
 void GraphicsCore::Initialize(HWND hwnd, UINT width, UINT height, FeatureLevel feature)
 {
     Device.SetUpDevice(hwnd, width, height, feature);
@@ -14,8 +12,13 @@ void GraphicsCore::Initialize(HWND hwnd, UINT width, UINT height, FeatureLevel f
 
     auto commandList = Device.GetCommandList();
     commandList->Close();
+
     auto imguiCommandList = Device.GetImguiCommandList();
     imguiCommandList->Close();
+
+    auto postProcessCommandList = Device.GetPostProcessCommandList();
+    postProcessCommandList->Close();
+
     Device.RegisterCommand(commandList,MESH_RENDER_LIST);
     Device.ExecuteCommand(MESH_RENDER_LIST);
     Device.GPUSync();
