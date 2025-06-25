@@ -30,10 +30,10 @@ uint ps_main(PSInput input) : SV_Target
     int emitIndex = input.emitterIndex;
     int albedoID = texID[emitIndex];
     float factor = textures[albedoID].Sample(samPoint_clamp, input.uv);
+    clip(input.color.a - 0.01f);
     
     // 2. 알파 계산 간소화
     float alpha = input.color.a * factor;
-    clip(alpha-0.01f);
     
     // 3. 가중치 계산 최적화
     float depth = input.depth;
@@ -57,10 +57,10 @@ uint ps_main(PSInput input) : SV_Target
     
     
     // 4. UAV 쓰기 최적화
-    float3 color_contrib = input.color.rgb * alpha * weight*weight;
-    float alpha_contrib = alpha * weight * weight;
+    float3 color_contrib = input.color.rgb * alpha*factor * weight * weight;
+    float alpha_contrib = alpha * factor * weight * weight;
     
-    gAccumTex[uint2(input.position.xy)] += float4(color_contrib, alpha_contrib) ;
+    gAccumTex[uint2(input.position.xy)] += float4(color_contrib, alpha_contrib) * 0.9f ;
     
     
     //float3 finalcolor = gAccumTex[uint2(input.position.xy)].rgb;

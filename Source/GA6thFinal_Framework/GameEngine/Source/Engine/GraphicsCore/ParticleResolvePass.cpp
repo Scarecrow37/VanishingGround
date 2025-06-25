@@ -112,7 +112,7 @@ void ParticleResolvePass::InitializePSO()
     //psoDesc.BlendState                    = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
     psoDesc.BlendState                    = blendDesc;
     psoDesc.DepthStencilState             = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-    psoDesc.DepthStencilState.DepthEnable = TRUE;
+    psoDesc.DepthStencilState.DepthEnable = FALSE;
     psoDesc.SampleDesc.Count              = 1;
 
     ComPtr<ID3D12Device> device = UmDevice.GetDevice();
