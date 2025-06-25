@@ -2,6 +2,15 @@
 #include "Player.h"
 #include "Stats/Player/PlayerStats.h"
 #include "Stats/Player/PlayerStatsComponent.h"
+#include "GameCore/FSM/FiniteStateMachine.h"
+
+//Condition
+#include "Condition/PlayerStartCondition.h"
+#include "Condition/PlayerExitCondition.h"
+
+//State
+#include "State/PlayerTurnWaitState.h"
+#include "State/PlayerPlayTurnState.h"
 
 Player::Player()
 {
@@ -13,6 +22,7 @@ void Player::Awake()
 {
     Base::Awake();
     gameObject->AddTag(TAG);
+    BuildPlayerFSM();
 
     if (nullptr == GetPlayerStats())
     {
@@ -22,24 +32,12 @@ void Player::Awake()
 
 void Player::Update() 
 {
-    bool isMyTurn = IsMyTurn;
-    if (true == isMyTurn)
-    {
-        Vector3 delta = Vector3(0, 1080, 0) * Mathf::Deg2Rad * UmTime.DeltaTime();
-        gameObject->transform->Rotation *= Quaternion::CreateFromYawPitchRoll(delta);
-    }
+
 }
 
 void Player::OnTurnStart()
 {
     UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"Player 턴 시작");
-    UmTime.Invoke(this, 1.f, []() { UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"Player 턴 종료 3"); });
-    UmTime.Invoke(this, 2.f, []() { UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"Player 턴 종료 2"); });
-    UmTime.Invoke(this, 3.f, [this]() 
-    { 
-        UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"Player 턴 종료 1"); 
-    });
-    UmTime.Invoke(this, 4.f, [this]() { this->MyTurnEnd(); });
 }
 
 void Player::OnTurnEnd() 
@@ -92,6 +90,35 @@ int Player::GetShield()
         shield = playerStats->GetStats()->Shield;
     }
     return shield;
+}
+
+void Player::BuildPlayerFSM() 
+{
+    _finiteStateMachine = GetComponent<FiniteStateMachine>();
+    if (nullptr == _finiteStateMachine)
+    {
+        _finiteStateMachine = &AddComponent<FiniteStateMachine>();
+
+        //Conditions
+        _finiteStateMachine->AddCondition<PlayerStartCondition>();
+        _finiteStateMachine->AddCondition<PlayerExitCondition>();
+
+        //States
+        _fsmStates.PlayerTurnWaitState = _finiteStateMachine->AddState<PlayerTurnWaitState>();
+        _fsmStates.PlayerPlayTurnState = _finiteStateMachine->AddState<PlayerPlayTurnState>();
+
+        //Transition
+        _finiteStateMachine->AddTransition<PlayerTurnWaitState, PlayerStartCondition, PlayerPlayTurnState>();
+        _finiteStateMachine->AddTransition<PlayerPlayTurnState, PlayerExitCondition, PlayerTurnWaitState>();
+
+        //Entry
+        _finiteStateMachine->SetEntryState<PlayerTurnWaitState>();
+    }
+}
+
+void Player::EndTurnPlayer() 
+{
+    EndTurn();
 }
 
 int Player::GetSpeed()
