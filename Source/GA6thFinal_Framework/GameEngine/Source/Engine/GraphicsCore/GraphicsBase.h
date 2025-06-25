@@ -10,13 +10,13 @@ public:
     virtual ~GraphicsBase() = default;
 
 public:
-    bool IsActive() const { return _isActive; }
+    bool IsActive() const { return _isActive ? *_isActive : false; }
 
 public:
-    void SetActive(bool isActive) { _isActive = isActive; }
+    void SetActive(bool* isActive) { _isActive = isActive; }
     void SetDestroy();
 
 private:
-    bool  _isActive  = false;
     std::vector<bool*> _isDestroyeds;
+    bool*              _isActive{nullptr};
 };

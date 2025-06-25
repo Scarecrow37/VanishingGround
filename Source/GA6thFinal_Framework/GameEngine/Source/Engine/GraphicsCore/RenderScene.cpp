@@ -120,8 +120,11 @@ void RenderScene::UpdateRenderScene()
         if (!component->IsActive())
             continue;
 
-        const auto  type      = component->GetType();
         const auto& model     = component->GetModel();
+        if (!model)
+            continue;
+
+        const auto  type      = component->GetType();
         const auto& meshes    = model->GetMeshes();
         const auto& materials = model->GetMaterials();
         const auto& textures  = model->GetTextures();

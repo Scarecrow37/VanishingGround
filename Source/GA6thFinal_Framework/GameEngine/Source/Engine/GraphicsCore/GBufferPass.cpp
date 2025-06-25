@@ -85,6 +85,10 @@ void GBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
         if (!component->IsActive())
             continue;
 
+        const auto& model = component->GetModel();
+        if (!model)
+            continue;
+
         const auto type = component->GetType();
 
         switch (type)
