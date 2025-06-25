@@ -19,7 +19,7 @@ void PlayerDeadCondition::OnStart()
 
 bool PlayerDeadCondition::Evaluate()
 {
-    float hp = GetPlayer().HP;
+    int hp = GetPlayer().HP;
     bool isDead = 0 >= hp;
     return isDead;
 }
