@@ -1,5 +1,6 @@
 ﻿#pragma once
-#include "../CharacterBase.h"
+#include "TurnSystem/TurnActor/Character/CharacterBase.h"
+
 class Player : public CharacterBase
 {
     USING_PROPERTY(Player)
@@ -12,18 +13,13 @@ public:
         Shield
     )
 
-    SETTER(int, ManaRegenRate)
-    {
-        ReflectFields->ManaRegenRate = std::clamp(value,1, 999);
-    }
-    GETTER(int, ManaRegenRate) 
+    GETTER_ONLY(int, ManaRegenRate) 
     { 
-        return ReflectFields->ManaRegenRate;
+        return GetManaRegenRate();
     }
     PROPERTY(ManaRegenRate)
 
-    SETTER(int, Shield) { ReflectFields->Shield = std::clamp(value, 1, 999); }
-    GETTER(int, Shield) { return ReflectFields->Shield; }
+    GETTER_ONLY(int, Shield) { return GetShield(); }
     PROPERTY(Shield)
 
 public:
@@ -32,13 +28,18 @@ public:
 
 protected:
     REFLECT_FIELDS_BEGIN(CharacterBase)
-    int ManaRegenRate = 0;
-    int Shield        = 0;
     REFLECT_FIELDS_END(Player)
+
+private:
+    class PlayerStatsComponent* _playerStats = nullptr;
+    PlayerStatsComponent* GetPlayerStats();
+    int GetManaRegenRate();
+    int GetShield();
 
 public:
     // CharacterBase을(를) 통해 상속됨
     int GetSpeed() override;
+    CharacterStats* GetCharacterStats() override;
 
 protected:
     /// <summary>

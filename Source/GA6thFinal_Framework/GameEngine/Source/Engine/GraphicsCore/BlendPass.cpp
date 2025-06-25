@@ -42,10 +42,10 @@ void BlendPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& sis
 
 void BlendPass::Begin(ID3D12GraphicsCommandList* commandList)
 {
-    _finalRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    _finalRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
     _finalRenderTarget->ClearRenderTarget(commandList);
 
-    _ownerScene->_accumulationBuffer->TransitionResource(commandList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    _ownerScene->_accumulationBuffer->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
     commandList->OMSetRenderTargets(1, &_finalRenderTarget->GetRTVHandle(), FALSE, nullptr);
     commandList->RSSetViewports(1, &_viewPort);
@@ -65,5 +65,5 @@ void BlendPass::Draw(ID3D12GraphicsCommandList* commandList)
 
 void BlendPass::End(ID3D12GraphicsCommandList* commandList)
 {
-    _finalRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    _finalRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }

@@ -1,4 +1,5 @@
-﻿#include "EnemyActionCondition.h"
+﻿#include "pchScripts.h"
+#include "EnemyActionCondition.h"
 
 REGISTER_CLASS(FSMConditionFactory, EnemyActionCondition)
 

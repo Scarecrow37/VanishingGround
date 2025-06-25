@@ -26,12 +26,12 @@ void DeferredPBRLitPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_
         }
 
         isInitialized = true;
-    } 
+    }
 }
 
 void DeferredPBRLitPass::Begin(ID3D12GraphicsCommandList* commandList)
 {
-    _meshRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    _meshRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
     _meshRenderTarget->ClearRenderTarget(commandList);
 
     commandList->OMSetRenderTargets(1, &_meshRenderTarget->GetRTVHandle(), FALSE, nullptr);
@@ -58,7 +58,7 @@ void DeferredPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
 
 void DeferredPBRLitPass::End(ID3D12GraphicsCommandList* commandList)
 {
-    _meshRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    _meshRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }
 
 void DeferredPBRLitPass::InitShaderAndPSO()

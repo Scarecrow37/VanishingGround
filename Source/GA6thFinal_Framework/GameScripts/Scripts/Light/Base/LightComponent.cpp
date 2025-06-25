@@ -1,4 +1,5 @@
-﻿#include "LightComponent.h"
+﻿#include "pchScripts.h"
+#include "LightComponent.h"
 
 LightComponent::LightComponent() 
     :

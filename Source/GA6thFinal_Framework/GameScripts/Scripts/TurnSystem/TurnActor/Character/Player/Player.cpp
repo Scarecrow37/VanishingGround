@@ -1,9 +1,11 @@
-﻿#include "Player.h"
+﻿#include "pchScripts.h"
+#include "Player.h"
+#include "Stats/Player/PlayerStats.h"
+#include "Stats/Player/PlayerStatsComponent.h"
+
 Player::Player()
 {
-    MaxHP      = 100;
-    MaxMP      = 100;
-    ChainCount = 0;
+
 }
 Player::~Player() = default;
 
@@ -43,6 +45,48 @@ void Player::OnTurnEnd()
 void Player::ImGuiDrawPropertysEvent() 
 {
 
+}
+
+CharacterStats* Player::GetCharacterStats()
+{
+    CharacterStats* stats = nullptr;
+    PlayerStatsComponent* playerStatsComponent = GetPlayerStats();
+    if (nullptr != playerStatsComponent)
+    {
+        stats = playerStatsComponent->GetStats();
+    }
+    return stats;
+}
+
+PlayerStatsComponent* Player::GetPlayerStats()
+{
+    if (nullptr == _playerStats)
+    {
+        _playerStats = GetComponent<PlayerStatsComponent>();
+    }  
+    return _playerStats;
+}
+
+int Player::GetManaRegenRate()
+{
+    int manaRegenRate = 0;
+    PlayerStatsComponent* playerStats = GetPlayerStats();
+    if (playerStats)
+    {
+        manaRegenRate = playerStats->GetStats()->ManaRegenRate;
+    }
+    return manaRegenRate;
+}
+
+int Player::GetShield()
+{
+    int shield = 0;
+    PlayerStatsComponent* playerStats = GetPlayerStats();
+    if (playerStats)
+    {
+        shield = playerStats->GetStats()->Shield;
+    }
+    return shield;
 }
 
 int Player::GetSpeed()

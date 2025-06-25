@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "../TurnActor.h"
 
+struct CharacterStats;
 class CharacterBase abstract : public TurnActor
 {
     USING_PROPERTY(CharacterBase)
@@ -16,41 +17,35 @@ public:
         ChainCount
         )
 
-    SETTER(int, MaxHP)
-    { 
-        ReflectFields->MaxHP = std::clamp(value, 1, 99999);       
-    }
-    GETTER(int, MaxHP)
-    {
-        return ReflectFields->MaxHP;
-    }
+    GETTER_ONLY(int, MaxHP) { return GetMaxHP(); }
     PROPERTY(MaxHP)
 
-    SETTER(int, MaxMP) { ReflectFields->MaxMP = std::clamp(value, 1, 999); }
-    GETTER(int, MaxMP) { return ReflectFields->MaxMP; }
+    GETTER_ONLY(int, MaxMP) { return GetMaxMP(); }
     PROPERTY(MaxMP)
     
-    SETTER(int, ChainCount) { ReflectFields->ChainCount = std::clamp(value, 0, 99); }
-    GETTER(int, ChainCount) { return ReflectFields->ChainCount; }
+    GETTER_ONLY(int, ChainCount) { return GetChainCount(); }
     PROPERTY(ChainCount)
 
-    int SetHP(int value) { return _hp = std::clamp(value, 0, ReflectFields->MaxHP); }
     GETTER_ONLY(int, HP) { return _hp; }
     PROPERTY(HP)
 
-    int SetMP(int value) { return _mp = std::clamp(value, 0, ReflectFields->MaxMP); }
     GETTER_ONLY(int, MP) { return _mp; }
     PROPERTY(MP)
+
+private:
+    int GetMaxHP();
+    int GetMaxMP();
+    int GetChainCount();
 
 public:
     CharacterBase();
     virtual ~CharacterBase();
 
 protected:
+    virtual CharacterStats* GetCharacterStats() = 0;
+
+protected:
     REFLECT_FIELDS_BEGIN(TurnActor)
-    int MaxHP = 0;
-    int MaxMP = 0;
-    int ChainCount = 0;
     REFLECT_FIELDS_END(CharacterBase)
 
 private:

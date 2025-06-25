@@ -1,4 +1,5 @@
-﻿#include "CombatStartPhase.h"
+﻿#include "pchScripts.h"
+#include "CombatStartPhase.h"
 #include "TurnSystem/TurnActor/Character/CharacterBase.h"
 #include "TurnSystem/TurnMode/TurnMode.h"
 

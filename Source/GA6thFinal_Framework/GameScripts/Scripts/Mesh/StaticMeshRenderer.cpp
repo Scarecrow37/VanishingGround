@@ -1,4 +1,6 @@
-﻿#include "StaticMeshRenderer.h"
+﻿#include "pchScripts.h"
+#include "StaticMeshRenderer.h"
+
 StaticMeshRenderer::StaticMeshRenderer() 
 {    
     FilePath.SetInputAutoEvent([this]()
