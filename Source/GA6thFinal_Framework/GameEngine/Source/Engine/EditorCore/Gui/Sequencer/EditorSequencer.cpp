@@ -1,6 +1,6 @@
 ﻿#include "pch.h"
 #include "EditorSequencer.h"
-#include "Engine/TimelineSystem/TimelineSystem.h"
+#include "Engine/TimelineCore/TimelineSystem.h"
 
 EditorSequencer::EditorSequencer() 
     : _system(nullptr)
