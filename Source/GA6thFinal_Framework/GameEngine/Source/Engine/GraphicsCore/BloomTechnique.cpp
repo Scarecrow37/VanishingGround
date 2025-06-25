@@ -45,13 +45,6 @@ void BloomTechnique::Initialize(ID3D12GraphicsCommandList* commandList)
 
 void BloomTechnique::Execute(ID3D12GraphicsCommandList* commandList)
 {
-    if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_B))
-    {
-        pauseFlag = false == pauseFlag;
-    }
-    if (pauseFlag)
-    {
-
     ID3D12GraphicsCommandList* postProcessCommandList = UmDevice.GetPostProcessCommandList();
     auto                       descriptorHeap         = UmViewManager.GetShaderResourceHeap();
 

@@ -54,6 +54,24 @@ namespace ReflectHelper
                             }
                         }
                     }
+                    else if constexpr (std::is_same_v<remove_view_type, unsigned int>)
+                    {
+                        unsigned int input = val;
+                        isEdit = ImGui::InputScalar(name, ImGuiDataType_U32, &input, &setting._int.step,
+                                                    &setting._int.step_fast, nullptr, setting._int.flags);
+
+                        if constexpr (isProperty == false || isSetter == true)
+                        {
+                            if (isEdit)
+                            {
+                                val = input;
+                            }
+                            if (ImGui::IsItemDeactivatedAfterEdit())
+                            {
+                                result = true;
+                            }
+                        }
+                    }
                     else if constexpr (std::is_same_v<remove_view_type, float>)
                     {
                         float input = val;
