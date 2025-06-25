@@ -1,20 +1,17 @@
 ﻿#pragma once
 #include "MeshComponent.h"
 
-class StaticMeshRenderer : public MeshComponent
+class SkeletalMeshRenderer : public MeshComponent
 {
-    USING_PROPERTY(StaticMeshRenderer)
+    USING_PROPERTY(SkeletalMeshRenderer)
 
 public:
-    StaticMeshRenderer();
-    virtual ~StaticMeshRenderer() override;
+    SkeletalMeshRenderer();
+    virtual ~SkeletalMeshRenderer() override;
 
 public:
     REFLECT_PROPERTY(FilePath)
-    GETTER_ONLY(std::string, FilePath)
-    { 
-        return _guidRef.ToPath().string();
-    }
+    GETTER_ONLY(std::string, FilePath) { return _guidRef.ToPath().string(); }
     PROPERTY(FilePath)
 
 public:
@@ -22,7 +19,7 @@ public:
 
     REFLECT_FIELDS_BEGIN(Component)
     std::string Guid;
-    REFLECT_FIELDS_END(StaticMeshRenderer)
+    REFLECT_FIELDS_END(SkeletalMeshRenderer)
 
 protected:
     virtual void Reset() override;

@@ -1,16 +1,16 @@
 ﻿#include "pchScripts.h"
-#include "StaticMeshRenderer.h"
+#include "SkeletalMeshRenderer.h"
 
-StaticMeshRenderer::StaticMeshRenderer() 
-{    
-    FilePath.SetInputAutoEvent([this]()
-    { 
+SkeletalMeshRenderer::SkeletalMeshRenderer() 
+{
+    FilePath.SetInputAutoEvent([this]() 
+    {
         if (ImGui::BeginDragDropTarget())
         {
             if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
             {
                 DragDropAsset::Data* data    = (DragDropAsset::Data*)payLoad->Data;
-                auto context = data->pContext->lock();
+                auto                 context = data->pContext->lock();
                 if (nullptr != context)
                 {
                     const auto& path      = context->GetPath();
@@ -25,28 +25,25 @@ StaticMeshRenderer::StaticMeshRenderer()
             }
             ImGui::EndDragDropTarget();
         }
-    });    
+    });
 }
 
-StaticMeshRenderer::~StaticMeshRenderer() 
+SkeletalMeshRenderer::~SkeletalMeshRenderer() {}
+
+void SkeletalMeshRenderer::Reset() 
+{
+    MakeMeshRenderer(MeshRenderType::SKELETAL, gameObject->transform->GetWorldMatrix());
+}
+
+void SkeletalMeshRenderer::SerializedReflectEvent() 
 {
 
 }
 
-void StaticMeshRenderer::Reset()
-{
-    MakeMeshRenderer(MeshRenderType::STATIC, gameObject->transform->GetWorldMatrix());
-}
-
-void StaticMeshRenderer::SerializedReflectEvent() 
-{
-
-}
-
-void StaticMeshRenderer::DeserializedReflectEvent() 
+void SkeletalMeshRenderer::DeserializedReflectEvent() 
 {
     File::Guid guid = ReflectFields->Guid;
-    _guidRef = guid;
+    _guidRef        = guid;
     if (false == guid.IsNull())
     {
         UmSceneManager.ResourceManager.RequestModelResource(this, _guidRef);
