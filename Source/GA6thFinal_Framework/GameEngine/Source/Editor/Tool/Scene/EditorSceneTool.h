@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include <yyjson.c>
 
 class GameObject;
 class EditorDynamicCamera;
