@@ -76,8 +76,3 @@ private:
     REFLECT_FIELDS_BEGIN(ITimelineEvent)
     REFLECT_FIELDS_END(TestTimeLineEvent_2)
 };
-
-class AnimationNotify
-{
-
-};
