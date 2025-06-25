@@ -49,7 +49,8 @@ void Enemy::OnRevive()
     Base::OnRevive();
 }
 
-void Enemy::OnDead() {
+void Enemy::OnDead() 
+{
 
 }
 

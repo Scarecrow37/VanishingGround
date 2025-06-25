@@ -54,6 +54,7 @@ void Player::OnRevive()
 
 void Player::OnDead() 
 {
+    Base::OnDead();
     UmLogger.Message(LogLevel::LEVEL_DEBUG, (const char*)u8"플레이어 사망!!!");
 }
 
@@ -135,12 +136,13 @@ void Player::BuildPlayerFSM()
 
 void Player::EndTurn()
 {
+    Base::EndTurn();
     EndTurn();
 }
 
 void Player::Dead()
 {
-    TurnActor::Dead();
+    Base::Dead();
 }
 
 int Player::GetSpeed()

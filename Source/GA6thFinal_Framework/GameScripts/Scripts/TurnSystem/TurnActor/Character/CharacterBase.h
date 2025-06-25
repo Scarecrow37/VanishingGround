@@ -60,4 +60,5 @@ protected:
     virtual void Awake();
 
     virtual void OnRevive() override;
+    virtual void OnDead() override;
 };
