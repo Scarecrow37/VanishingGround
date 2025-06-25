@@ -114,7 +114,7 @@ void EditorHierarchyTool::TransformTreeNode(Transform& node, const std::shared_p
                     node.Position = pos;
                     node.Rotation = rot;
                 }
-                ImGuiHelper::HoveredToolTip((const char*)u8"이 오브젝트의 Transform을 Scene View의 값으로 설정합니다.");
+                ImGuiHelper::HoveredToolTip((const char*)u8"이 오브젝트의 위치와 회전을 Scene View의 값으로 설정합니다.");
             }
             ImGui::EndPopup();
         }
