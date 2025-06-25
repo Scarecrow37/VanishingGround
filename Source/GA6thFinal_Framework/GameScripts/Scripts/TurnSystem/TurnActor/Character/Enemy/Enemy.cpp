@@ -48,7 +48,7 @@ void Enemy::OnTurnStart()
         UmLogger.Message(LogLevel::LEVEL_TRACE, message);
     });
 
-    UmTime.Invoke(this, 4.f, [=](){ this->MyTurnEnd(); });
+    UmTime.Invoke(this, 4.f, [=](){ this->EndTurn(); });
 }
 
 void Enemy::OnTurnEnd() 
