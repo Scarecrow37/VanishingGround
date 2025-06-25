@@ -51,5 +51,4 @@ void BloomTechnique::Execute(ID3D12GraphicsCommandList* commandList)
     postProcessCommandList->SetDescriptorHeaps(1, &descriptorHeap);
 
     __super::Execute(postProcessCommandList);
-    }
 }
