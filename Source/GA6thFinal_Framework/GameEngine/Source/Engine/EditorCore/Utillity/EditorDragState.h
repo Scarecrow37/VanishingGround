@@ -2,8 +2,8 @@
 
 class EditorDragState
 {
-    using State = int;
 public:
+    using State = int;
     enum EState
     {
         DRAG_STATE_NONE = 0,
