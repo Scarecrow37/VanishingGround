@@ -28,7 +28,7 @@ public:
 public:
     virtual void OnTickGui() override {}
     virtual void OnStartGui() override {};
-    virtual void OnDrawGui() override;
+    virtual void OnDrawGui() override final;
     virtual void OnEndGui() override {};
 
 private:

@@ -21,5 +21,10 @@ void BlendTechnique::Initialize(ID3D12GraphicsCommandList* commandList)
 
 void BlendTechnique::Execute(ID3D12GraphicsCommandList* commandList)
 {
-    __super::Execute(commandList);
+    ID3D12GraphicsCommandList* postProcessCommandList = UmDevice.GetCommandList();
+    auto                       descriptorHeap         = UmViewManager.GetShaderResourceHeap();
+
+    postProcessCommandList->SetDescriptorHeaps(1, &descriptorHeap);
+
+    __super::Execute(postProcessCommandList);
 }

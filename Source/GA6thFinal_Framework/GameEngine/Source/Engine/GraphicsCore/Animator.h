@@ -29,6 +29,11 @@ public:
 public:
 	const Matrix* GetAnimationTransform() const { return _animationTransforms.data(); }
     const Matrix* FindBoneMatrix(const char* boneName) const;
+    float         GetCurrentAnimationLastTime() const;
+    float         GetCurrentAnimationPlayTime() const;
+
+public:
+    void SetAnimationTime(float time);
 
 public:
     void Initialize(std::wstring_view filePath, std::shared_ptr<Skeleton> skeleton);
