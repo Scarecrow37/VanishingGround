@@ -14,6 +14,11 @@ void Enemy::Awake()
 {
     Base::Awake();
     gameObject->AddTag(TAG);
+
+    if (nullptr == GetEnemyStats())
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"Enemy Stats를 추가해주세요");
+    }
 }
 
 void Enemy::Update() 
@@ -43,7 +48,7 @@ void Enemy::OnTurnStart()
         UmLogger.Message(LogLevel::LEVEL_TRACE, message);
     });
 
-    UmTime.Invoke(this, 4.f, [=](){ this->MyTurnEnd(); });
+    UmTime.Invoke(this, 4.f, [=](){ this->EndTurn(); });
 }
 
 void Enemy::OnTurnEnd() 

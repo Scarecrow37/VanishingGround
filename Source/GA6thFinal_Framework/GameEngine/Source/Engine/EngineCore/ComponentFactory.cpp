@@ -525,7 +525,7 @@ std::shared_ptr<MissingComponent> EComponentFactory::NewMissingComponent()
 void EComponentFactory::ResetComponent(GameObject* ownerObject, std::shared_ptr<Component>& component)
 {
     //여긴 엔진에서 사용하기 위한 초기화 코드 
-    component->_className = (typeid(*component).name() + 5);
+    component->_className = (typeid(*component).name() + 6);
     component->_gameObject = ownerObject;
     component->_weakPtr = component;
     component->Reset();
