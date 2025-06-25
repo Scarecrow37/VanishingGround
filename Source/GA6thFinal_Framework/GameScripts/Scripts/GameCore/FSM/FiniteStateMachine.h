@@ -197,12 +197,14 @@ private:
             }
             else
             {
-                UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"존재하지 않는 State 입니다..");
+                std::string message = std::format("{} {}", key, (const char*)u8"존재하지 않는 State 입니다.");
+                UmLogger.Log(LogLevel::LEVEL_WARNING, message);
             }
         }
         else
         {
-            UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"이미 등록된 State 타입입니다.");
+            std::string message = std::format("{} {}", key, (const char*)u8"이미 등록된 State 타입입니다.");
+            UmLogger.Log(LogLevel::LEVEL_WARNING, message);
         }
         return state;
     }
@@ -270,12 +272,14 @@ private:
             }
             else
             {
-                UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"존재하지 않는 Condidtion 입니다.");
+                std::string message = std::format("{} {}", key, (const char*)u8"존재하지 않는 Condidtion 입니다.");
+                UmLogger.Log(LogLevel::LEVEL_WARNING, message);
             }
         }
         else
         {
-            UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"이미 등록된 Condition 타입입니다.");
+            std::string message = std::format("{} {}", key, (const char*)u8"이미 등록된 Condition 타입입니다.");
+            UmLogger.Log(LogLevel::LEVEL_WARNING, message);
         }
         return condition;
     }

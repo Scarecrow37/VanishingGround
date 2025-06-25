@@ -140,14 +140,24 @@ void ESceneManager::Engine::SetGameObjectActive(GameObject* pObject, bool value)
         GameObject* gameObject = pObject;
         if (gameObject->ReflectFields->_activeSelf != value)
         {
-            //컴포넌트들의 On__able 함수를 호출하도록 합니다.
+            //bool 변경 대기열에 추가
             auto& [WaitSet, WaitVec, WaitValue] = value ? sceneManager._onEnableQueue : sceneManager._onDisableQueue;
-            WaitValue.emplace_back(&gameObject->ReflectFields->_activeSelf);                
-            if (value == true)
+            WaitValue.emplace_back(&gameObject->ReflectFields->_activeSelf);   
+
+            //ActiveInHierarchy Update 대기열에 추가
+            auto& [UpdateSet, UpdateQueue] = value ? sceneManager._updateEnableQueue : sceneManager._updateDisableQueue;
+            auto [iter, result] = UpdateSet.insert(gameObject);
+            if (true == result)
             {
-                gameObject->ReflectFields->_activeSelf = true; //ActiveInHierarchy 검증용                        
+                UpdateQueue.push_back(gameObject);
             }
 
+            //컴포넌트들의 On__able 함수를 호출하도록 합니다.
+            if (value == true)
+            {
+                gameObject->ReflectFields->_activeSelf = true; //ActiveInHierarchy 검증용  
+                GameObject::Engine::UpdateActiveInHierarchy(gameObject);
+            }
             Transform::ForeachDFS(gameObject->_transform, 
             [&](Transform* curr) 
             {
@@ -185,10 +195,10 @@ void ESceneManager::Engine::SetGameObjectActive(GameObject* pObject, bool value)
                     }
                 }                   
             });  
-
             if (value == true)
             {
                 gameObject->ReflectFields->_activeSelf = false; //ActiveInHierarchy 검증용
+                GameObject::Engine::UpdateActiveInHierarchy(gameObject);
             }
         }
     }
@@ -821,6 +831,7 @@ void ESceneManager::ObjectsOnEnable()
 {
     auto& [OnEnableSet, OnEnableVec, OnEnableValue] = _onEnableQueue;
     auto& RenderEnableQueue = _meshSetActiveQueue.first;
+    auto& [UpdateSet, UpdateQueue] = _updateEnableQueue;
     for (auto& value : OnEnableValue)
     {
         *value = true;  
@@ -833,25 +844,35 @@ void ESceneManager::ObjectsOnEnable()
             mesh->SetActive(true);
         }
     }
-
-    if (_isPlay)
+      
+    for (auto& object : UpdateQueue)
     {
-        for (auto& component : OnEnableVec)
+        GameObject::Engine::UpdateActiveInHierarchy(object);
+    }
+
+    for (auto& component : OnEnableVec)
+    {
+        component->UpdateEnableInHierarchy();
+        if (_isPlay)
         {
             component->OnEnable();
         }
     }
-
+    
     OnEnableSet.clear();
     OnEnableVec.clear();
     OnEnableValue.clear();
     RenderEnableQueue.clear();
+    UpdateQueue.clear();
+    UpdateSet.clear();
+    UpdateQueue.clear();
 }
 
 void ESceneManager::ObjectsOnDisable()
 {
     auto& [OnDisableSet, OnDisableVec, OnDisableValue] = _onDisableQueue;
     auto& RenderDisableQueue = _meshSetActiveQueue.second;
+    auto& [UpdateSet, UpdateQueue] = _updateDisableQueue;
 
     for (auto& value : OnDisableValue)
     {
@@ -866,18 +887,26 @@ void ESceneManager::ObjectsOnDisable()
         }
     }
 
-    if (_isPlay)
+    for (auto& object : UpdateQueue)
     {
-        for (auto& component : OnDisableVec)
+        GameObject::Engine::UpdateActiveInHierarchy(object);
+    }
+
+    for (auto& component : OnDisableVec)
+    {
+        component->UpdateEnableInHierarchy();
+        if (_isPlay)
         {
             component->OnDisable();
         }
     }
-
+    
     OnDisableSet.clear();
     OnDisableVec.clear();
     OnDisableValue.clear();
     RenderDisableQueue.clear();
+    UpdateSet.clear();
+    UpdateQueue.clear();
 }
 
 void ESceneManager::ObjectsDestroy()
@@ -973,6 +1002,7 @@ void ESceneManager::ObjectsAddRuntime()
             _runtimeObjects.resize(id + 1);
         }
         _runtimeObjects[id] = gameObject;
+        GameObject::Engine::ResetActiveInHierarchy(gameObject.get());     
     }
     _addGameObjectsQueue.clear();
 
@@ -991,13 +1021,14 @@ void ESceneManager::ObjectsAddRuntime()
             std::shared_ptr<Camera> newCamera(new Camera);
             camera->SetTarget(newCamera);
         }
+        component->UpdateEnableInHierarchy();
     }
     _addComponentsQueue.clear();
 }
 
 bool ESceneManager::IsRuntimeActive(std::shared_ptr<GameObject>& obj)
 {
-    return obj.get() != nullptr && obj->ActiveInHierarchy_property_getter();
+    return obj.get() != nullptr && obj->ActiveInHierarchy_property_getter() && obj->IsValid();
 }
 
 void ESceneManager::NotInitDestroyComponentEraseToWaitVec(Component* destroyComponent)

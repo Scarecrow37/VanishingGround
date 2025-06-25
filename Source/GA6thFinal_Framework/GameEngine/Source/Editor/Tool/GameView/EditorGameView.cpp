@@ -36,6 +36,10 @@ void EditorGameView::OnFrameRender()
             size.x = std::round(fullSize.x);
             size.y = std::round(size.x / aspect);
         }
+
+        ImVec2 centerOffset = ImVec2((fullSize.x - size.x) * 0.5f, (fullSize.y - size.y) * 0.5f);
+        ImVec2 startPos = ImGui::GetWindowPos() + contentMin + centerOffset;
+        ImGui::SetCursorScreenPos(startPos);
         ImGui::Image((ImTextureID)gpuHandle.ptr, size);
     }
 }

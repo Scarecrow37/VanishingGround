@@ -19,8 +19,8 @@ void EngineCoresModule::ModuleUnInitialize()
         UmCommandManager.Clear();
     }
     ESceneManager::Engine::CleanupSceneManager();
+    ETimeSystem::Engine::CleanUpInvokeFuntions();
     engineCore->ComponentFactory.UninitalizeComponentFactory();
-    //engineCore->Graphics.ResourceManager.Clear();
     engineCore->Graphics.Device.Finalize();
     SafeEngineCoresPtr::Engine::DestroyEngineCores();
 }

@@ -42,7 +42,8 @@ GameObject::GameObject()
     _ownerScene(STR_NULL),
     _prefabGuid(STR_NULL),
     _components(),
-    _instanceID(-1)
+    _instanceID(-1),
+    _activeInHierarchy(true)
 {
 
 }
@@ -154,6 +155,7 @@ void GameObject::OnInspectorStay()
         {
             ImGui::PushStyleColor(ImGuiCol_Text, DEBUG_TEXT_COLOR);   
             ImGui::Text("Instance ID : %d", _instanceID);
+            ImGui::Text("ActiveInHierarchy : %s", _activeInHierarchy ? "true" : "false");
             ImGui::PopStyleColor();
         }
 
@@ -512,3 +514,28 @@ std::string GameObject::Helper::GenerateUniqueName(std::string_view baseName)
     return name;
 }
 
+void GameObject::Engine::ResetActiveInHierarchy(GameObject* obj) 
+{
+    Transform* curr = &obj->_transform;
+    curr->gameObject->_activeInHierarchy = true;
+    while (curr != nullptr)
+    {
+        if (false == curr->gameObject->ReflectFields->_activeSelf)
+        {
+            curr->gameObject->_activeInHierarchy = false;   
+            break;
+        }          
+        curr = curr->Parent;
+    }
+}
+
+void GameObject::Engine::UpdateActiveInHierarchy(GameObject* obj)
+{
+    Transform::ForeachBFS(obj->_transform, [](Transform* currTr) 
+    {
+        GameObject* curr = &currTr->gameObject;
+        Transform* parent = currTr->Parent;
+        bool parentActiveInHierarchy = parent ? parent->gameObject->_activeInHierarchy : true;
+        curr->_activeInHierarchy = parentActiveInHierarchy && curr->ReflectFields->_activeSelf;
+    });
+}
