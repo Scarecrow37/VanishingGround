@@ -20,8 +20,8 @@ float4 ps_main(PS_INPUT input) : SV_TARGET
     float luminance = dot(color.rgb, float3(0.2126, 0.7152, 0.0722));
     float threshold = 1.0f;
     
-    //float4 result = max(0, luminance - threshold) * CalculatePostProcessMask(customDepthTexture, input.uv);
+    float4 result = max(0, luminance - threshold) * CalculatePostProcessMask(customDepthTexture, input.uv);
 
-    //return result;
-    return color * CalculatePostProcessMask(customDepthTexture, input.uv);
+    return result;
+    //return color * CalculatePostProcessMask(customDepthTexture, input.uv);
 }

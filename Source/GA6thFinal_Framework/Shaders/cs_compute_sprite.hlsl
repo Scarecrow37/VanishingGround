@@ -42,10 +42,10 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
     
     float3 dragpos = emitter.dragPoint.xyz;
     float3 dragdir = dragpos - preCalculatePos;
-    float draggable = min(0.1f, length(dragdir) - emitter.dragforce.x);
-
-    float dragfactor = 0.5f / draggable;
-    float3 dragforce = dragfactor *  emitter.dragforce.y * dragdir * emitter.dragPoint.w * input.age;
+    //dragdir = normalize(dragdir);
+    float draggable = min(1.f, length(dragdir) - emitter.dragforce.x);
+    float dragfactor = 0.1f / draggable;
+    float3 dragforce = dragfactor * dragfactor * emitter.dragforce.y * dragdir * emitter.dragPoint.w * input.age;
     input.velocity += dragforce;
 
     input.position.xyz += input.velocity * input.age;
@@ -91,9 +91,9 @@ input.position.x, input.position.y, input.position.z, 1
     output.FinalMatrix = scaleMat;
     output.FinalMatrix = mul(output.FinalMatrix, translationMat);
 
+    //output.FinalMatrix = mul(output.FinalMatrix, worldrot ); 
     output.FinalMatrix = mul(output.FinalMatrix, emitter.WorldMatrix); 
     output.FinalMatrix = mul(output.FinalMatrix, mvp.ViewRotInvMatrix);
-    output.FinalMatrix = mul(output.FinalMatrix, worldrot ); 
     
     
     

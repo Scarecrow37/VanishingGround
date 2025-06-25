@@ -37,7 +37,6 @@ uint ps_main(PSInput input) : SV_Target
     
     // 3. 가중치 계산 최적화
     float depth = input.depth;
-    clip(depth < 0.95f);
     float depth2 = depth * depth; // 제곱 캐싱
     float depth6 = depth2 * depth2 * depth2; // 6제곱 효율적 계산
     
@@ -54,17 +53,27 @@ uint ps_main(PSInput input) : SV_Target
                        (depth6 * div200);
     
     float weight = alpha * 1.0f / denominator;
+    clip(weight - 0.01f);
+    
     
     // 4. UAV 쓰기 최적화
-    float3 color_contrib = input.color.rgb * alpha * weight;
-    float alpha_contrib = alpha * weight;
+    float3 color_contrib = input.color.rgb * alpha * weight*weight;
+    float alpha_contrib = alpha * weight * weight;
     
     gAccumTex[uint2(input.position.xy)] += float4(color_contrib, alpha_contrib) ;
+    
+    
+    //float3 finalcolor = gAccumTex[uint2(input.position.xy)].rgb;
+    //finalcolor = finalcolor / length(finalcolor) ;
+    //gAccumTex[uint2(input.position.xy)] = float4(finalcolor, gAccumTex[uint2(input.position.xy)].a) ;
+    
+    
+    
     gRevealTex[uint2(input.position.xy)] += alpha;
     
     // 5. 불필요한 출력 제거
     //return float4(color_contrib, alpha_contrib);
-    return ceil(alpha);
+    return ceil(alpha-0.1f);
 
 }
 

@@ -65,7 +65,7 @@ void BlurXPass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->SetPipelineState(_pipelineState.Get());
     commandList->SetGraphicsRootSignature(_shader->GetRootSignature());    
 
-    commandList->SetGraphicsRoot32BitConstants(_shader->GetRootParameterIndex(_parameterName.data()), MAX_MIPMAP_LEVEL, &postProcessData, 0);
+    commandList->SetGraphicsRoot32BitConstants(_shader->GetRootParameterIndex("bit32_5_postProcessData"), 5, &postProcessData, 0);
     commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("sourceTexture"), usedRenderTargets.front()->GetSRVHandle());
        
     _ownerScene->_frameQuad->Render(commandList);

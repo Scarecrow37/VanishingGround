@@ -288,6 +288,8 @@ void ParticleEmitter::UpdateParticleLifeCycle(float deltaTime)
             _inactiveParticleIndices.push(_activeParticleCount);
         }
     }
+    if (true == _endFlag)
+        return;
 
     // 새 파티클 생성
     size_t newParticles = 0;
@@ -352,12 +354,18 @@ void ParticleEmitter::Update(float deltaTime)
 
 
     _emitterAge += deltaTime;
+    if (_emitterAge >= _emitterLifetime-_particleLifetime)
+    {
+        _endFlag = true;
+        //return;
+    }
     if (_emitterAge >= _emitterLifetime)
     {
         _emitterAge = 0;
         _activeFlag = false;
         return;
     }
+
     _translationMatrix = Matrix::CreateTranslation(_emitterPosition);
     _rotationMatrix    = Matrix::CreateFromQuaternion(_emitterRotation);
     _worldMatrix       = _rotationMatrix * _translationMatrix * _effectWorldMatrix;
@@ -431,7 +439,8 @@ void ParticleEmitter::ScaleVelocity(Vector3 pos)
 
 void ParticleEmitter::ScaleVelFromPoint(Vector3 pos) 
 {
-    Vector3 temp = pos - _emitterPosition;
+    Vector3 worldpos = {_worldMatrix._41, _worldMatrix._42, _worldMatrix._43};
+    Vector3 temp      = pos - worldpos;
     temp.Normalize();
     _velocity = temp * _velocityFactor.x;
 }
