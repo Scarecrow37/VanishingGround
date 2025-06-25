@@ -52,7 +52,7 @@ void ParticleSpritePass::Begin(ID3D12GraphicsCommandList* commandlist)
     auto customDepthTarget = UmMultiRenderTargetManager.GetRenderTarget("CustomDepth");
     customDepthTarget->TransitionResource(_particleRenderCommandList,    D3D12_RESOURCE_STATE_RENDER_TARGET);
 
-
+    _ownerScene->_depthStencilView->TransitionResource(_particleRenderCommandList, D3D12_RESOURCE_STATE_DEPTH_WRITE);
     _particleRenderCommandList->OMSetRenderTargets(1, &customDepthTarget->GetRTVHandle(), FALSE,
                                                    &_ownerScene->_depthStencilView->GetDSVHandle());
 
@@ -86,6 +86,7 @@ void ParticleSpritePass::End(ID3D12GraphicsCommandList* commandlist)
 
     _particleRenderCommandList->ResourceBarrier(1, &computeOutputBarrior);
 
+    _ownerScene->_depthStencilView->TransitionResource(_particleRenderCommandList, D3D12_RESOURCE_STATE_PRESENT);
     _accumlateBuffer->TransitionResource(_particleRenderCommandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     _revealageBuffer->TransitionResource(_particleRenderCommandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }
@@ -152,7 +153,7 @@ void ParticleSpritePass::InitializePSO()
     psodesc.BlendState                             = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
     //psodesc.BlendState                             = blendDesc;
     psodesc.DepthStencilState                      = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-    psodesc.DepthStencilState.DepthEnable          = FALSE;
+    psodesc.DepthStencilState.DepthEnable          = TRUE;
     //psodesc.DSVFormat                              = DXGI_FORMAT_D24_UNORM_S8_UINT;
 
     psodesc.SampleMask                             = UINT_MAX;
@@ -160,7 +161,7 @@ void ParticleSpritePass::InitializePSO()
     psodesc.InputLayout                            = _spriteParticleShaderBuilder->GetInputLayout();
     psodesc.NumRenderTargets                       = 1;
     psodesc.RTVFormats[0]                          = DXGI_FORMAT_R32_UINT;
-    //psodesc.DSVFormat                              = DXGI_FORMAT_D24_UNORM_S8_UINT;
+    psodesc.DSVFormat                              = DXGI_FORMAT_D24_UNORM_S8_UINT;
     psodesc.pRootSignature                         = _spriteParticleShaderBuilder->GetRootSignature();
     psodesc.SampleDesc                             = {1, 0};
     psodesc.VS = _spriteParticleShaderBuilder->GetShaderByteCode(ShaderBuilder::Type::VS);
