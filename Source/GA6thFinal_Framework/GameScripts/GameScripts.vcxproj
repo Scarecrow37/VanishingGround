@@ -309,8 +309,10 @@
     <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\Base\EnemyConditionBase.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\State\Base\EnemyStateBase.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\Base\PlayerConditionBase.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\PlayerDeadCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\PlayerStartCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\PlayerExitCondition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\State\PlayerDeadState.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\State\Base\PlayerStateBase.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\State\PlayerPlayTurnState.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\State\PlayerTurnWaitState.h" />
@@ -374,9 +376,11 @@
     <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\Base\EnemyConditionBase.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\State\Base\EnemyStateBase.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\Base\PlayerConditionBase.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\PlayerDeadCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\PlayerExitCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\PlayerStartCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\State\Base\PlayerStateBase.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\State\PlayerDeadState.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\State\PlayerPlayTurnState.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\State\PlayerTurnWaitState.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\Base\TurnModeConditionBase.cpp" />

@@ -171,6 +171,18 @@
     <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\PlayerExitCondition.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\Base\EnemyConditionBase.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\State\Base\EnemyStateBase.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\PlayerDeadCondition.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\State\PlayerDeadState.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -306,6 +318,18 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\PlayerExitCondition.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\Base\EnemyConditionBase.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\State\Base\EnemyStateBase.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\PlayerDeadCondition.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\State\PlayerDeadState.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

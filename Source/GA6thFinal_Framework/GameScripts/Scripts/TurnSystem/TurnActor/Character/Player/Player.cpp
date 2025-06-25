@@ -7,10 +7,12 @@
 //Condition
 #include "Condition/PlayerStartCondition.h"
 #include "Condition/PlayerExitCondition.h"
+#include "Condition/PlayerDeadCondition.h"
 
 //State
 #include "State/PlayerTurnWaitState.h"
 #include "State/PlayerPlayTurnState.h"
+#include "State/PlayerDeadState.h"
 
 Player::Player()
 {
@@ -102,14 +104,19 @@ void Player::BuildPlayerFSM()
         //Conditions
         _finiteStateMachine->AddCondition<PlayerStartCondition>();
         _finiteStateMachine->AddCondition<PlayerExitCondition>();
+        _finiteStateMachine->AddCondition<PlayerDeadCondition>();
 
         //States
         _fsmStates.PlayerTurnWaitState = _finiteStateMachine->AddState<PlayerTurnWaitState>();
         _fsmStates.PlayerPlayTurnState = _finiteStateMachine->AddState<PlayerPlayTurnState>();
+        _fsmStates.PlayerDeadState     = _finiteStateMachine->AddState<PlayerDeadState>();
 
         //Transition
         _finiteStateMachine->AddTransition<PlayerTurnWaitState, PlayerStartCondition, PlayerPlayTurnState>();
         _finiteStateMachine->AddTransition<PlayerPlayTurnState, PlayerExitCondition, PlayerTurnWaitState>();
+
+        _finiteStateMachine->AddTransition<PlayerDeadCondition, PlayerDeadState>();
+        _finiteStateMachine->AddTransition<PlayerDeadState, PlayerExitCondition, PlayerTurnWaitState>();
 
         //Entry
         _finiteStateMachine->SetEntryState<PlayerTurnWaitState>();
