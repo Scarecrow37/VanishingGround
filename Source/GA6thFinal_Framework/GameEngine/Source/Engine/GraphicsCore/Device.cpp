@@ -168,7 +168,6 @@ void Device::Execute()
     
     // [6] 포트스 프로세싱 렌더 실행 (Graphics Queue)
     ExecuteCommand(POST_PROCESS_LIST);
-    SignalGraphicsQueue(POST_PROCESS_FENCE);
 
     // [7] 임구이 렌더 전 동기화
     // 그래픽 큐 작업 완료 대기
