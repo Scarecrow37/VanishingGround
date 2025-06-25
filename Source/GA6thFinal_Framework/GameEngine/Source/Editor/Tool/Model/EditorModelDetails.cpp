@@ -72,9 +72,23 @@ void EditorModelDetails::OnFrameRender()
             const auto& animationNames = animation->GetAnimations();
             ImGui::Text("Animation");
             ImGui::SameLine();
-            if (ImGui::Combo("##Animation", (int*)&_currentAnimationIndex, animationNames.data(), (int)animationNames.size()))
+
+            if (ImGui::BeginCombo("##Animation", animationNames[_currentAnimationIndex]))
             {
-                _animator->ChangeAnimation(animationNames[_currentAnimationIndex]);
+                for (int i = 0; i < animationNames.size(); ++i)
+                {
+                    bool isSelected = (_currentAnimationIndex == i);
+                    if (ImGui::Selectable(animationNames[i], isSelected))
+                    {
+                        if (_currentAnimationIndex != i)
+                            _currentAnimationIndex = i;
+                        _animator->ChangeAnimation(animationNames[_currentAnimationIndex]);
+                    }
+                    // 선택된 항목은 포커스를 줌
+                    if (isSelected)
+                        ImGui::SetItemDefaultFocus();
+                }
+                ImGui::EndCombo();
             }
         }
 

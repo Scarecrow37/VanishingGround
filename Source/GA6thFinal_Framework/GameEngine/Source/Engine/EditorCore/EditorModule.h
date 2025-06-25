@@ -90,6 +90,7 @@ namespace Global
      /// Gui레이아웃을 처음 킨 레이아웃으로 초기화합니다.
      /// </summary>
      void ResetGuiLayout();
+
      /// <summary>
      /// Gui레이아웃을 프로젝트의 마지막 세팅 값으로 되돌립니다.
      /// </summary>
@@ -100,17 +101,20 @@ namespace Global
      /// </summary>
      /// <returns>지정된 포커스 영역이 하나도 없으면 true, 하나 이상 있으면 false를 반환합니다.</returns>
      bool IsFocusAreaEmpty() const;
+
      /// <summary>
      /// 해당 ID의 Label에 포커스 영역이 지정되어 있는지 확인합니다.
      /// </summary>
      /// <param name="id">포커스 영역의 Label값 입니다.</param>
      /// <returns></returns>
      bool IsFocusedArea(const char* id) const;
+
      /// <summary>
      /// 문자열에 해당하는 포커스 영역을 지정합니다.
      /// </summary>
      /// <param name="id">포커스 영역의 Label값 입니다.</param>
      void SetFocusArea(const char* id);
+
      /// <summary>
      /// 해당 문자열의 포커스 영역을 해제합니다.
      /// </summary>
@@ -122,6 +126,7 @@ namespace Global
      /// </summary>
      /// <param name="v">디버그 모드 사용 여부입니다.</param>
      inline void SetDebugMode(bool v) { _isDebug = v; }
+
      /// <summary>
      /// 에디터가 디버그 모드인지 확인합니다.
      /// </summary>
@@ -147,9 +152,9 @@ namespace Global
      EditorGuiSystem _guiSystem;                    // 에디터 도킹 윈도우 시스템
      EditorPopupBoxSystem _popupBoxSystem;          // 에디터 모달 팝업 시스템
 
-     std::unordered_set<ImGuiID> _focusAreaList;        // ImGui 락 아이디들
+     std::unordered_set<ImGuiID> _focusAreaList;    // ImGui 락 아이디들
 
-     std::queue<std::function<void()>> _eventQueue; // 팝업 박스 큐
+     std::queue<std::function<void()>> _eventQueue; // 이벤트 큐
 
      bool _isFirstTick = true;
 
