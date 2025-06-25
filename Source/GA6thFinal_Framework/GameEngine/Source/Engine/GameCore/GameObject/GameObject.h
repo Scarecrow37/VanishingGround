@@ -276,16 +276,8 @@ public:
 //프로퍼티
 public:
     GETTER_ONLY(bool, ActiveInHierarchy)
-    {
-        Transform* curr = &_transform;
-        while (curr != nullptr)
-        {
-            if (!curr->gameObject->ReflectFields->_activeSelf)
-                return false;
-
-            curr = curr->Parent;
-        }
-        return true;
+    {   
+        return _activeInHierarchy;
     }
     // get : 실제 활성화 여부 (부모가 false면 false)
     PROPERTY(ActiveInHierarchy);
@@ -396,10 +388,18 @@ private:
     File::Guid                               _prefabGuid;
     std::vector<std::shared_ptr<Component>>  _components;
     int                                      _instanceID;
+    bool                                     _activeInHierarchy;
 
 public:
-    //activeInHierarchy와 같음.
-    operator bool() { return ActiveInHierarchy; }
+    struct Engine
+    {
+        static void ResetActiveInHierarchy(GameObject* obj);
+        static void UpdateActiveInHierarchy(GameObject* obj);
+    };
+  
+public:
+    //ActiveInHierarchy와 같음.
+    operator bool() { return _activeInHierarchy; }
     bool operator != (const GameObject& rhs)
     {
         return this != &rhs;

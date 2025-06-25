@@ -75,7 +75,7 @@ private:
     void BuildTurnModeFSM();
 
 private:
-    FiniteStateMachine* _finiteStateMachine   = nullptr;
+    FiniteStateMachine* _finiteStateMachine = nullptr;
 
     int _roundCount;
     std::deque<TurnActor*> _turnList;

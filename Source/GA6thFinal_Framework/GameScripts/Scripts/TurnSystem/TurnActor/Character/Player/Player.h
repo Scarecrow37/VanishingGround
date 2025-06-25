@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "TurnSystem/TurnActor/Character/CharacterBase.h"
 
+class FiniteStateMachine;
 class Player : public CharacterBase
 {
     USING_PROPERTY(Player)
@@ -35,6 +36,21 @@ private:
     PlayerStatsComponent* GetPlayerStats();
     int GetManaRegenRate();
     int GetShield();
+
+private:
+    FiniteStateMachine* _finiteStateMachine = nullptr;
+    void BuildPlayerFSM();
+    struct PlayerStates
+    {
+        class PlayerTurnWaitState* PlayerTurnWaitState = nullptr;
+        class PlayerPlayTurnState* PlayerPlayTurnState = nullptr;
+    } 
+    _fsmStates;
+public:
+    /*플레이어의 턴을 종료합니다.*/
+    void EndTurnPlayer();
+    FiniteStateMachine& GetFSM() { return *_finiteStateMachine; }
+    const PlayerStates& GetFSMStates() { return _fsmStates; }
 
 public:
     // CharacterBase을(를) 통해 상속됨
