@@ -26,8 +26,6 @@ private:
 private:
     std::shared_ptr<ShaderBuilder>           _spriteParticleShaderBuilder;
     std::vector<ComPtr<ID3D12PipelineState>> _psos;
-    ComPtr<ID3D12DescriptorHeap>             _descriptorheap;
-    UINT                                     _descriptorSize;
 
 
     ID3D12GraphicsCommandList* _particleRenderCommandList;
