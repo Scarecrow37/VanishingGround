@@ -127,6 +127,13 @@ public:
     //  컴포넌트의 활성화 여부입니다.
     PROPERTY(Enable);
 
+    GETTER_ONLY(const bool&, EnableInHierarchy)
+    {
+        return _enableInHierarchy;
+    }
+    // 컴포넌트의 하이러키 기준 활성화 여부입니다.
+    PROPERTY(EnableInHierarchy);
+
     REFLECT_PROPERTY(
         Enable
     )

@@ -26,11 +26,32 @@ void ParticleManager::Initialize(UINT maxParticles)
     IntializeGraphicsCommandObject();
     InitializeDescriptorHeap();
 
-    
-    
-
-
-
+    //    auto effect = UmParticleManager.RegisterEffect();
+    // effect->SetPosition({0, 0, 30});
+    // effect->SetLifetime(120.f);
+    // auto emitter = UmParticleManager.RegisterEmitter(effect, 100000, 1000, 20, LocationShape::SPHERE);
+    // emitter->SetEmitterLifetime(120.f);
+    // static_cast<SpriteModule*>(emitter->_particleRenderModule)
+    //     ->LoadAlbedoTexture(L"../../../Resource/Assets/ParticleTexture/defaultSmoke.jpg");
+    // emitter->SetVelocityType(VelocityScaleType::LINEAR);
+    // emitter->SetParticleLifetime(13.f);
+    // emitter->SetStartScale({10.2f, 10.2f, 1, 1});
+    // emitter->SetEndScale({20.2f, 20.2f, 1, 1});
+    // emitter->SetStartColor({0.5f, 0.5f, 1});
+    // emitter->SetEndColor({0.5f, 0.5f, 1});
+    // emitter->SetStartOpacity(0.0f);
+    // emitter->SetEndOpacity(0.088f);
+    // emitter->SetVelocityFactor({0, 0, 0});
+    // emitter->SetEmissionRate(6);
+    ////emitter->SetLocatorFactor({6, 2, 5});
+    // emitter->SetLocatorFactor({4, 4, 4});
+    // emitter->SetLocatorFactor({30, 0, 0});
+    // emitter->SetParticleMass(0.f);
+    // emitter->SetParticleDistributionOffset(0.2f);
+    ////emitter->SetSpawnBurstCount(5000);
+    ////emitter->SetSpawnBurstFlag(true);
+    // emitter->SetDragPoint({0, 10, 30, 0});
+    // emitter->SetDragForce({30, 1, 10, 0});
 
 }
 ParticleEffect* ParticleManager::RegisterEffect()
@@ -60,12 +81,13 @@ void ParticleManager::Update(const float deltaTime)
     {
         delta = 0;
     }
-
+  
     for (auto effect : _pariticleEffects)
     {
         effect->Update(delta);
     }
     // copy active particle data
+    if (false == _pariticleEffects.empty())
     {
         CopyActiveParticles();
     }
@@ -74,8 +96,6 @@ void ParticleManager::Update(const float deltaTime)
     {
         DispatchParticleCompute(delta);
     }
-
-
 
     // update particle lifecycle
     for (auto effect : _pariticleEffects)
@@ -524,17 +544,17 @@ void ParticleManager::CopyActiveParticles()
                         _activeEmitterAlbedos.push_back(
                             static_cast<SpriteModule*>(emitter->_particleRenderModule)->GetAlbedoTexture());
                     }
-                    _emitterMatrix.push_back({emitter->GetWorldMatrix().Transpose()});
+                    _emitterMatrix.push_back(
+                        {emitter->GetWorldMatrix().Transpose(), emitter->GetDragPoint(), emitter->GetDragForce()});
                     auto& particlePool = emitter->GetParticlePool();
                     for (UINT i = 0; i < emitter->GetActiveParticleCount(); i++)
                     {
 
-                        auto particle = *particlePool[i];
+                        auto& particle = *particlePool[i];
                         particle.SetEmitterIndex(emitterIndex);
                         _totalParticles.push_back(particle);
-                        //_totalCount++;
                     }
-                    _totalCount += emitter->GetActiveParticleCount() + 1;
+                    _totalCount += emitter->GetActiveParticleCount();
                     emitterIndex++;
                 }
             }

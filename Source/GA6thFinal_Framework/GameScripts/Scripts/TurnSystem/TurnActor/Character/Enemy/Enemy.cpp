@@ -2,6 +2,7 @@
 #include "Enemy.h"
 #include "Stats/Enemy/EnemyStats.h"
 #include "Stats/Enemy/EnemyStatsComponent.h"
+#include <GameCore/FSM/FiniteStateMachine.h>
 
 Enemy::Enemy()
 {
@@ -10,10 +11,22 @@ Enemy::Enemy()
 
 Enemy::~Enemy() = default;
 
-void Enemy::Awake() 
+void Enemy::EndTurn() 
+{
+    Base::EndTurn();
+
+}
+
+void Enemy::Dead()
+{
+    Base::Dead();
+}
+
+void Enemy::Awake()
 {
     Base::Awake();
     gameObject->AddTag(TAG);
+    BuildEnemyFSM();
 
     if (nullptr == GetEnemyStats())
     {
@@ -31,7 +44,17 @@ void Enemy::Update()
     }
 }
 
-void Enemy::OnTurnStart() 
+void Enemy::OnRevive() 
+{
+    Base::OnRevive();
+}
+
+void Enemy::OnDead() 
+{
+
+}
+
+void Enemy::OnTurnStart()
 {
     std::string message = std::format("{} {}", gameObject->ToString(), (const char*)u8"턴 시작.");
     UmLogger.Message(LogLevel::LEVEL_TRACE, message);
@@ -86,4 +109,17 @@ EnemyStatsComponent* Enemy::GetEnemyStats()
         _enemyStats = GetComponent<EnemyStatsComponent>();
     }      
     return _enemyStats;
+}
+
+void Enemy::BuildEnemyFSM() 
+{
+    _finiteStateMachine = GetComponent<FiniteStateMachine>();
+    if (nullptr == _finiteStateMachine)
+    {
+        _finiteStateMachine = &AddComponent<FiniteStateMachine>();
+
+        //Condition
+
+        //State
+    }
 }

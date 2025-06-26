@@ -87,7 +87,11 @@ void PlayerPlayTurnState::OnUpdate()
         {
             UmLogger.Message(LogLevel::LEVEL_DEBUG,
                              std::format("{}{}{}", u8"플레이어가 "_c_str, selectTarget.data(), u8"을 공격!"_c_str));
-            GetPlayer().EndTurnPlayer();
+            GetPlayer().EndTurn();
+        }
+        if (ImGui::Button("Kill"))
+        {
+            GetPlayer().Dead();
         }
     }
     ImGui::End();

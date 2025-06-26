@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "Engine/GraphicsCore/Model.h"
 #include "Engine/GraphicsCore/Light.h"
+#include "Engine/GraphicsCore/Animator.h"
 #include "UmScripts.h"
 using namespace Global;
 using namespace u8_literals;
@@ -176,21 +177,6 @@ void ESceneManager::Engine::SetGameObjectActive(GameObject* pObject, bool value)
                                     WaitVec.emplace_back(component.get());
                                 }
                             }
-
-                            if (Component::TYPE::RENDER == component->_type)
-                            {
-                                auto& meshActiveQueue = value ? sceneManager._meshSetActiveQueue.first
-                                                              : sceneManager._meshSetActiveQueue.second;
-                                MeshComponent* meshComponent   = static_cast<MeshComponent*>(component.get());
-                                meshActiveQueue.push_back(meshComponent->Renderer.get());
-                            }
-                            else if (Component::TYPE::LIGHT == component->_type)
-                            {
-                                auto& lightActiveQueue = value ? sceneManager._meshSetActiveQueue.first
-                                                               : sceneManager._meshSetActiveQueue.second;
-                                LightComponent* lightComponent   = static_cast<LightComponent*>(component.get());
-                                lightActiveQueue.push_back(&lightComponent->Lighting);
-                            }
                         }
                     }
                 }                   
@@ -218,23 +204,7 @@ void ESceneManager::Engine::SetComponentEnable(Component* component, bool value)
             if (result)
             {
                 WaitVec.push_back(component);
-            }
-            
-            // 메시 컴포넌트들은 meshRenderer의 SetActive도 변경해야함.
-            if (Component::TYPE::RENDER == component->_type)
-            {
-                auto& meshActiveQueue = value ? sceneManager._meshSetActiveQueue.first 
-                                              : sceneManager._meshSetActiveQueue.second;
-                MeshComponent* meshComponent = static_cast<MeshComponent*>(component);
-                meshActiveQueue.push_back(meshComponent->Renderer.get());
-            }
-            else if (Component::TYPE::LIGHT == component->_type)
-            {
-                auto& lightActiveQueue = value ? sceneManager._meshSetActiveQueue.first 
-                                               : sceneManager._meshSetActiveQueue.second;
-                LightComponent* lightComponent = static_cast<LightComponent*>(component);
-                lightActiveQueue.push_back(&lightComponent->Lighting);
-            }
+            }           
         }
     }
 }
@@ -830,19 +800,10 @@ void ESceneManager::ObjectsApplicationQuit()
 void ESceneManager::ObjectsOnEnable()
 {
     auto& [OnEnableSet, OnEnableVec, OnEnableValue] = _onEnableQueue;
-    auto& RenderEnableQueue = _meshSetActiveQueue.first;
     auto& [UpdateSet, UpdateQueue] = _updateEnableQueue;
     for (auto& value : OnEnableValue)
     {
         *value = true;  
-    }
-
-    for (auto& mesh : RenderEnableQueue)
-    {
-        if (nullptr != mesh)
-        {
-            mesh->SetActive(true);
-        }
     }
       
     for (auto& object : UpdateQueue)
@@ -862,7 +823,6 @@ void ESceneManager::ObjectsOnEnable()
     OnEnableSet.clear();
     OnEnableVec.clear();
     OnEnableValue.clear();
-    RenderEnableQueue.clear();
     UpdateQueue.clear();
     UpdateSet.clear();
     UpdateQueue.clear();
@@ -871,20 +831,11 @@ void ESceneManager::ObjectsOnEnable()
 void ESceneManager::ObjectsOnDisable()
 {
     auto& [OnDisableSet, OnDisableVec, OnDisableValue] = _onDisableQueue;
-    auto& RenderDisableQueue = _meshSetActiveQueue.second;
     auto& [UpdateSet, UpdateQueue] = _updateDisableQueue;
 
     for (auto& value : OnDisableValue)
     {
         *value = false;
-    }
-
-    for (auto& mesh : RenderDisableQueue)
-    {
-        if (nullptr != mesh)
-        {
-            mesh->SetActive(false);
-        }
     }
 
     for (auto& object : UpdateQueue)
@@ -904,7 +855,6 @@ void ESceneManager::ObjectsOnDisable()
     OnDisableSet.clear();
     OnDisableVec.clear();
     OnDisableValue.clear();
-    RenderDisableQueue.clear();
     UpdateSet.clear();
     UpdateQueue.clear();
 }
@@ -1021,6 +971,7 @@ void ESceneManager::ObjectsAddRuntime()
             std::shared_ptr<Camera> newCamera(new Camera);
             camera->SetTarget(newCamera);
         }
+
         component->UpdateEnableInHierarchy();
     }
     _addComponentsQueue.clear();
@@ -1522,16 +1473,15 @@ void ESceneManager::SceneResourceManager::Update(SceneResourceManager& manager)
                                 meshRenderer.LoadModel(path.wstring());
                                 models.ModelUseComponentList[guid].emplace_back(pMeshComponent);
                                 UmSceneManager._runtimeMeshComponents.emplace_back(pMeshComponent);
-
-                                bool isActive = pMeshComponent->gameObject->ActiveInHierarchy;
-                                isActive &= pMeshComponent->Enable;
-                                if (false == pMeshComponent->_gameObject->IsValid())
+                                auto& animation = meshRenderer.GetModel()->GetAnimation();
+                                auto& skeleton  = meshRenderer.GetModel()->GetSkeleton();
+                                if (animation != nullptr && skeleton != nullptr)
                                 {
-                                    pMeshComponent->Renderer->SetActive(false);
-                                }
-                                else
-                                {
-                                    pMeshComponent->Renderer->SetActive(isActive);
+                                    std::shared_ptr<Animator> animator(new Animator);
+                                    animator->Initialize(animation, skeleton);
+                                    animator->SetActive(&pMeshComponent->EnableInHierarchy);
+                                    meshRenderer.SetAnimator(animator);
+                                    UmAnimationCore.RegisterAnimator(animator);
                                 }
                             }
                         }

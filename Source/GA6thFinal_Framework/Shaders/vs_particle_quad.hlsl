@@ -30,6 +30,8 @@ VSOutput vs_main(VSInput input)
 {
     VSOutput output = (VSOutput) 0;
     ParticleOutput instanceInfo = particleInfo[input.InstanceID];
+    
+    
     float4 pos = float4(input.position.xyz, 1.f);
     
     output.position = mul(pos, instanceInfo.FinalMatrix);

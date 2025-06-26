@@ -66,7 +66,6 @@ void DownScalePass::Draw(ID3D12GraphicsCommandList* commandList)
     D3D12_VIEWPORT viewPort = {0.f, 0.f, 1024.f, 1024.f};
     D3D12_RECT     sissorRect = {0, 0, 1024, 1024};
 
-    // Down sample 4번
     for (UINT i = 0; i < MAX_MIPMAP_LEVEL; i++)
     {
         commandList->OMSetRenderTargets(1, &mipmapTarget[i]->GetRTVHandle(), NULL, nullptr);
