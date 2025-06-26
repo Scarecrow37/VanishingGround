@@ -971,6 +971,7 @@ void ESceneManager::ObjectsAddRuntime()
             std::shared_ptr<Camera> newCamera(new Camera);
             camera->SetTarget(newCamera);
         }
+
         component->UpdateEnableInHierarchy();
     }
     _addComponentsQueue.clear();
