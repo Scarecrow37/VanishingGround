@@ -37,24 +37,26 @@ void Player::Update()
 
 }
 
-void Player::OnTurnStart()
+int Player::GetSpeed()
 {
+    return 0;
+}
+
+void Player::PlayTurn()
+{
+    Base::PlayTurn();
     UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"Player 턴 시작");
 }
 
-void Player::OnTurnEnd() 
+void Player::EndTurn()
 {
+    Base::EndTurn();
     UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"Player 턴 종료.");
 }
 
-void Player::OnRevive() 
+void Player::Dead()
 {
-    Base::OnRevive();
-}
-
-void Player::OnDead() 
-{
-    Base::OnDead();
+    Base::Dead();
     UmLogger.Message(LogLevel::LEVEL_DEBUG, (const char*)u8"플레이어 사망!!!");
 }
 
@@ -134,18 +136,3 @@ void Player::BuildPlayerFSM()
     }
 }
 
-void Player::EndTurn()
-{
-    Base::EndTurn();
-    EndTurn();
-}
-
-void Player::Dead()
-{
-    Base::Dead();
-}
-
-int Player::GetSpeed()
-{
-    return 0;
-}

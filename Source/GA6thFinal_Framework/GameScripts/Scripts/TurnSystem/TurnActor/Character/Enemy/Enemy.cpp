@@ -11,16 +11,43 @@ Enemy::Enemy()
 
 Enemy::~Enemy() = default;
 
+void Enemy::PlayTurn() 
+{
+    Base::PlayTurn();
+    std::string message = std::format("{} {}", gameObject->ToString(), (const char*)u8"턴 시작.");
+    UmLogger.Message(LogLevel::LEVEL_TRACE, message);
+
+    message = std::format("{} {}", gameObject->ToString(), (const char*)u8"턴 종료 3.");
+    UmTime.Invoke(this, 1.f, [=]() { UmLogger.Message(LogLevel::LEVEL_TRACE, message); });
+
+    message = std::format("{} {}", gameObject->ToString(), (const char*)u8"턴 종료 2.");
+    UmTime.Invoke(this, 2.f, [=]() { UmLogger.Message(LogLevel::LEVEL_TRACE, message); });
+
+    message = std::format("{} {}", gameObject->ToString(), (const char*)u8"턴 종료 1.");
+    UmTime.Invoke(this, 3.f, [=]() { UmLogger.Message(LogLevel::LEVEL_TRACE, message); });
+
+    UmTime.Invoke(this, 4.f, [=]() { this->EndTurn(); });
+}
+
 void Enemy::EndTurn() 
 {
     Base::EndTurn();
+    static std::string message = std::format("{} {}", gameObject->ToString(), (const char*)u8"턴 종료.");
+    UmLogger.Message(LogLevel::LEVEL_TRACE, message);
+}
 
+void Enemy::Revive() 
+{
+    Base::Revive();
 }
 
 void Enemy::Dead()
 {
     Base::Dead();
+    static std::string message = std::format("{} {}", gameObject->ToString(), (const char*)u8"사망.");
+    UmLogger.Message(LogLevel::LEVEL_TRACE, message);
 }
+
 
 void Enemy::Awake()
 {
@@ -42,42 +69,6 @@ void Enemy::Update()
         Vector3 delta = Vector3(0, 1080, 0) * Mathf::Deg2Rad * UmTime.DeltaTime();
         gameObject->transform->Rotation *= Quaternion::CreateFromYawPitchRoll(delta);
     }
-}
-
-void Enemy::OnRevive() 
-{
-    Base::OnRevive();
-}
-
-void Enemy::OnDead() 
-{
-
-}
-
-void Enemy::OnTurnStart()
-{
-    std::string message = std::format("{} {}", gameObject->ToString(), (const char*)u8"턴 시작.");
-    UmLogger.Message(LogLevel::LEVEL_TRACE, message);
-
-    message = std::format("{} {}", gameObject->ToString(), (const char*)u8"턴 종료 3.");
-    UmTime.Invoke(this, 1.f, [=]() { UmLogger.Message(LogLevel::LEVEL_TRACE, message); });
-
-    message = std::format("{} {}", gameObject->ToString(), (const char*)u8"턴 종료 2.");
-    UmTime.Invoke(this, 2.f, [=]() { UmLogger.Message(LogLevel::LEVEL_TRACE, message); });
-
-    message = std::format("{} {}", gameObject->ToString(), (const char*)u8"턴 종료 1.");
-    UmTime.Invoke(this, 3.f, [=]() 
-    {
-        UmLogger.Message(LogLevel::LEVEL_TRACE, message);
-    });
-
-    UmTime.Invoke(this, 4.f, [=](){ this->EndTurn(); });
-}
-
-void Enemy::OnTurnEnd() 
-{
-    static std::string message = std::format("{} {}", gameObject->ToString(), (const char*)u8"턴 종료.");
-    UmLogger.Message(LogLevel::LEVEL_TRACE, message);
 }
 
 CharacterStats* Enemy::GetCharacterStats()

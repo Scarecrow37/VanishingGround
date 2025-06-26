@@ -38,6 +38,9 @@ private:
     int GetChainCount();
 
 public:
+    virtual void Revive() override;
+
+public:
     CharacterBase();
     virtual ~CharacterBase();
 
@@ -59,6 +62,5 @@ protected:
     /// </summary>
     virtual void Awake();
 
-    virtual void OnRevive() override;
-    virtual void OnDead() override;
+    virtual void Dead() override;
 };
