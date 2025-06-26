@@ -92,7 +92,7 @@ void RenderScene::UpdateRenderScene()
     _numLight = {};
     for (auto& [isDestroy, light] : lights)
     {
-        if (!light->_isActive)
+        if (!(*light->_isActive))
             continue;
 
         switch (light->_type)
