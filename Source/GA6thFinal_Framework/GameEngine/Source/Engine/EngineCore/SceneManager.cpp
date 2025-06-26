@@ -411,6 +411,7 @@ void ESceneManager::Engine::SwapPrefabInstance(GameObject* original, GameObject*
         sOrigin->_transform = sRemake->_transform;
         sceneManager.EraseGameObjectMap(sRemake);
         sceneManager.InsertGameObjectMap(sOrigin);
+        GameObject::Engine::UpdateActiveInHierarchy(sOrigin.get());
 
         for (int i = 0; i < sOrigin->GetComponentCount(); ++i)
         {
