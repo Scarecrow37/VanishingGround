@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "Engine/GraphicsCore/Model.h"
 #include "Engine/GraphicsCore/Light.h"
+#include "Engine/GraphicsCore/Animator.h"
 #include "UmScripts.h"
 using namespace Global;
 using namespace u8_literals;
@@ -1471,6 +1472,16 @@ void ESceneManager::SceneResourceManager::Update(SceneResourceManager& manager)
                                 meshRenderer.LoadModel(path.wstring());
                                 models.ModelUseComponentList[guid].emplace_back(pMeshComponent);
                                 UmSceneManager._runtimeMeshComponents.emplace_back(pMeshComponent);
+                                auto& animation = meshRenderer.GetModel()->GetAnimation();
+                                auto& skeleton  = meshRenderer.GetModel()->GetSkeleton();
+                                if (animation != nullptr && skeleton != nullptr)
+                                {
+                                    std::shared_ptr<Animator> animator(new Animator);
+                                    animator->Initialize(animation, skeleton);
+                                    animator->SetActive(&pMeshComponent->EnableInHierarchy);
+                                    meshRenderer.SetAnimator(animator);
+                                    UmAnimationCore.RegisterAnimator(animator);
+                                }
                             }
                         }
                         else
