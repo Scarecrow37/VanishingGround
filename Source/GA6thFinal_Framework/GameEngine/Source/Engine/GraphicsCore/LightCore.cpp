@@ -35,10 +35,7 @@ void LightCore::Update(const float deltaTime)
         lights.erase(first, lights.end());
 
         for (auto& [isDestroy, light] : lights)
-        {
-            if (!light->IsActive())
-                continue;
-
+        {           
             light->Update(deltaTime);
         }
     }

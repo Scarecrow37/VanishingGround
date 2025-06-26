@@ -89,6 +89,10 @@ void GBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
         if (!component->IsActive())
             continue;
 
+        const auto& model = component->GetModel();
+        if (!model)
+            continue;
+
         const auto type     = component->GetType();
         MeshType   meshType = MeshType::END;
 
@@ -103,7 +107,6 @@ void GBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
             break;
         }
 
-        const auto& model       = component->GetModel();
         const auto& meshes      = model->GetMeshes();
         UINT        customDepth = component->GetCustomDepth();
 
