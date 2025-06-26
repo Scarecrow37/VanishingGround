@@ -328,6 +328,7 @@ void ParticleEmitter::Reset()
     _emitterAge              = 0.f;
     for (size_t i = 0; i < _maxParticles; ++i)
     {
+        delete _particlePool[i]; // 기존 파티클 삭제
         _particlePool[i] = new Particle();
     }
 }
@@ -370,6 +371,30 @@ void ParticleEmitter::Update(float deltaTime)
     _rotationMatrix    = Matrix::CreateFromQuaternion(_emitterRotation);
     _worldMatrix       = _rotationMatrix * _translationMatrix * _effectWorldMatrix;
 }
+
+ ParticleEmitter::~ParticleEmitter() 
+ {
+     // 1. Particle 객체들 정리
+     for (auto particle : _particlePool)
+     {
+         delete particle;
+     }
+     _particlePool.clear();
+
+     // 2. EmitLocator 객체 정리
+     delete _emitLocator;
+     _emitLocator = nullptr;
+
+     // 3. ParticleRenderModule 객체 정리
+     delete _particleRenderModule;
+     _particleRenderModule = nullptr;
+
+     // 4. 기타 컨테이너 정리 (안전성을 위해)
+     while (!_inactiveParticleIndices.empty())
+     {
+         _inactiveParticleIndices.pop();
+     }
+ }
 
 void ParticleEmitter::SetLocatorFactor(const Vector3& factor) 
 {

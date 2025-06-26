@@ -108,6 +108,10 @@ class RibbonModule : public ParticleRenderModule
 class ParticleEmitter
 {
 public:
+    ParticleEmitter() {};
+    virtual ~ParticleEmitter();
+
+public:
     /// <summary>
     /// particle rendering type
     /// determine which type to render(ex) sprite, mesh, ribbon)

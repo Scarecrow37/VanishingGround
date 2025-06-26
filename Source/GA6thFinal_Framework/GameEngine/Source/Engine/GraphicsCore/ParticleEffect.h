@@ -14,6 +14,9 @@ class ParticleEffect
 
 
 public:
+    ParticleEffect() {};
+    virtual ~ParticleEffect();
+
     void Initialize(class ParticleManager* particleManager);
     void Update(float deltaTime);
     ParticleEmitter* AddEmitter(SIZE_T maxParticles = 100000, float emissionRate = 500.f, float emitterLifetime = 5.f,

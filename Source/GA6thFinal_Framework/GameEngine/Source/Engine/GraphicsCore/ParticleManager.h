@@ -6,6 +6,7 @@ class ParticleManager
 {
 public:
     ParticleManager();
+    virtual ~ParticleManager();
     float elapsedtimer = 0.f;
 
 

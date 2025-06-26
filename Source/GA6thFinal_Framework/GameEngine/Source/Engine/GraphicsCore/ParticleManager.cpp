@@ -4,6 +4,21 @@
 #include "ParticleManager.h"
 
 ParticleManager::ParticleManager() {}
+
+ParticleManager::~ParticleManager() 
+{
+    for (auto effect : _pariticleEffects)
+    {
+        delete effect;
+    }
+    _pariticleEffects.clear();
+
+    _totalParticles.clear();
+    _emitterMatrix.clear();
+    _activeEmitterAlbedos.clear();
+    _activeEmitterNormals.clear();
+}
+
 void ParticleManager::SetCamera(std::string_view viewName)
 {
     _camera = UmRenderer.GetCamera(viewName);
