@@ -113,8 +113,10 @@ void Device::ResetCommands()
 {
     _commandAllocator->Reset();
     _commandList->Reset(_commandAllocator.Get(), nullptr);
+
     _imguiCommandAllocator->Reset();
     _imguiCommandList->Reset(_imguiCommandAllocator.Get(), nullptr);
+
     _postProcessCommandAllocator->Reset();
     _postProcessCommandList->Reset(_postProcessCommandAllocator.Get(), nullptr);
 }
@@ -132,6 +134,7 @@ void Device::Execute()
 
     _computeCommandList->Close();
     _commandList->Close();
+
     _imguiCommandList->Close();
     _postProcessCommandList->Close();
 
@@ -152,9 +155,9 @@ void Device::Execute()
     // (A) 파티클 컴퓨트 작업 (Compute Queue)
     ExecuteCommand(PARTICLE_COMPUTE_LIST);
     SignalComputeQueue(PARTICLE_COMPUTE_FENCE);
-    // (B) 메시 렌더 작업 (Graphics Queue)
-    ExecuteCommand(MESH_RENDER_LIST);
     SignalGraphicsQueue(MESH_RENDER_FENCE);
+    ExecuteCommand(MESH_RENDER_LIST);
+    // (B) 메시 렌더 작업 (Graphics Queue)
     //--------------------------------------------------
 
     // [4] 파티클 렌더 전 동기화
@@ -168,7 +171,6 @@ void Device::Execute()
     
     // [6] 포트스 프로세싱 렌더 실행 (Graphics Queue)
     ExecuteCommand(POST_PROCESS_LIST);
-    SignalGraphicsQueue(POST_PROCESS_FENCE);
 
     // [7] 임구이 렌더 전 동기화
     // 그래픽 큐 작업 완료 대기
@@ -492,10 +494,6 @@ void Device::CreateCommandQueue()
     CreateCommandList(_commandAllocator, _commandList, CommandType::DIRECT);
     CreateCommandList(_imguiCommandAllocator, _imguiCommandList, CommandType::DIRECT);
     CreateCommandList(_postProcessCommandAllocator, _postProcessCommandList, CommandType::DIRECT);
-
-    _commandList->Close();
-    _imguiCommandList->Close();
-    _postProcessCommandList->Close();
 
     _commandQueue->SetName(L"GraphicsQueue");
     _commandList->SetName(L"GraphicsCmdList");

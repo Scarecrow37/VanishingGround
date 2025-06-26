@@ -32,7 +32,6 @@ void DeferredPBRLitPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_
 void DeferredPBRLitPass::Begin(ID3D12GraphicsCommandList* commandList)
 {
     _meshRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    _meshRenderTarget->ClearRenderTarget(commandList);
 
     commandList->OMSetRenderTargets(1, &_meshRenderTarget->GetRTVHandle(), FALSE, nullptr);
     commandList->RSSetViewports(1, &_viewPort);

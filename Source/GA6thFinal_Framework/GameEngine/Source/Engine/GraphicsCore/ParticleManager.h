@@ -7,6 +7,7 @@ class ParticleManager
 public:
     ParticleManager();
 
+
     void                   Initialize(UINT maxParticles);
     class ParticleEffect*  RegisterEffect();
     class ParticleEmitter* RegisterEmitter(class ParticleEffect* effect, SIZE_T maxParticles = 100000,

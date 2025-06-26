@@ -1,7 +1,7 @@
 ﻿#include "pch.h"
 #include "Engine/GraphicsCore/Model.h"
 #include "Engine/GraphicsCore/Light.h"
-#include <Engine/GraphicsCore/Animator.h>
+#include "Engine/GraphicsCore/Animator.h"
 #include "UmScripts.h"
 using namespace Global;
 using namespace u8_literals;
@@ -141,14 +141,24 @@ void ESceneManager::Engine::SetGameObjectActive(GameObject* pObject, bool value)
         GameObject* gameObject = pObject;
         if (gameObject->ReflectFields->_activeSelf != value)
         {
-            //컴포넌트들의 On__able 함수를 호출하도록 합니다.
+            //bool 변경 대기열에 추가
             auto& [WaitSet, WaitVec, WaitValue] = value ? sceneManager._onEnableQueue : sceneManager._onDisableQueue;
-            WaitValue.emplace_back(&gameObject->ReflectFields->_activeSelf);                
-            if (value == true)
+            WaitValue.emplace_back(&gameObject->ReflectFields->_activeSelf);   
+
+            //ActiveInHierarchy Update 대기열에 추가
+            auto& [UpdateSet, UpdateQueue] = value ? sceneManager._updateEnableQueue : sceneManager._updateDisableQueue;
+            auto [iter, result] = UpdateSet.insert(gameObject);
+            if (true == result)
             {
-                gameObject->ReflectFields->_activeSelf = true; //ActiveInHierarchy 검증용                        
+                UpdateQueue.push_back(gameObject);
             }
 
+            //컴포넌트들의 On__able 함수를 호출하도록 합니다.
+            if (value == true)
+            {
+                gameObject->ReflectFields->_activeSelf = true; //ActiveInHierarchy 검증용  
+                GameObject::Engine::UpdateActiveInHierarchy(gameObject);
+            }
             Transform::ForeachDFS(gameObject->_transform, 
             [&](Transform* curr) 
             {
@@ -167,29 +177,14 @@ void ESceneManager::Engine::SetGameObjectActive(GameObject* pObject, bool value)
                                     WaitVec.emplace_back(component.get());
                                 }
                             }
-
-                            if (Component::TYPE::RENDER == component->_type)
-                            {
-                                auto& meshActiveQueue = value ? sceneManager._meshSetActiveQueue.first
-                                                              : sceneManager._meshSetActiveQueue.second;
-                                MeshComponent* meshComponent   = static_cast<MeshComponent*>(component.get());
-                                meshActiveQueue.push_back(meshComponent->Renderer.get());
-                            }
-                            else if (Component::TYPE::LIGHT == component->_type)
-                            {
-                                auto& lightActiveQueue = value ? sceneManager._meshSetActiveQueue.first
-                                                               : sceneManager._meshSetActiveQueue.second;
-                                LightComponent* lightComponent   = static_cast<LightComponent*>(component.get());
-                                lightActiveQueue.push_back(&lightComponent->Lighting);
-                            }
                         }
                     }
                 }                   
             });  
-
             if (value == true)
             {
                 gameObject->ReflectFields->_activeSelf = false; //ActiveInHierarchy 검증용
+                GameObject::Engine::UpdateActiveInHierarchy(gameObject);
             }
         }
     }
@@ -209,23 +204,7 @@ void ESceneManager::Engine::SetComponentEnable(Component* component, bool value)
             if (result)
             {
                 WaitVec.push_back(component);
-            }
-            
-            // 메시 컴포넌트들은 meshRenderer의 SetActive도 변경해야함.
-            if (Component::TYPE::RENDER == component->_type)
-            {
-                auto& meshActiveQueue = value ? sceneManager._meshSetActiveQueue.first 
-                                              : sceneManager._meshSetActiveQueue.second;
-                MeshComponent* meshComponent = static_cast<MeshComponent*>(component);
-                meshActiveQueue.push_back(meshComponent->Renderer.get());
-            }
-            else if (Component::TYPE::LIGHT == component->_type)
-            {
-                auto& lightActiveQueue = value ? sceneManager._meshSetActiveQueue.first 
-                                               : sceneManager._meshSetActiveQueue.second;
-                LightComponent* lightComponent = static_cast<LightComponent*>(component);
-                lightActiveQueue.push_back(&lightComponent->Lighting);
-            }
+            }           
         }
     }
 }
@@ -821,64 +800,63 @@ void ESceneManager::ObjectsApplicationQuit()
 void ESceneManager::ObjectsOnEnable()
 {
     auto& [OnEnableSet, OnEnableVec, OnEnableValue] = _onEnableQueue;
-    auto& RenderEnableQueue = _meshSetActiveQueue.first;
+    auto& [UpdateSet, UpdateQueue] = _updateEnableQueue;
     for (auto& value : OnEnableValue)
     {
         *value = true;  
     }
-
-    for (auto& mesh : RenderEnableQueue)
+      
+    for (auto& object : UpdateQueue)
     {
-        if (nullptr != mesh)
-        {
-            mesh->SetActive(true);
-        }
+        GameObject::Engine::UpdateActiveInHierarchy(object);
     }
 
-    if (_isPlay)
+    for (auto& component : OnEnableVec)
     {
-        for (auto& component : OnEnableVec)
+        component->UpdateEnableInHierarchy();
+        if (_isPlay)
         {
             component->OnEnable();
         }
     }
-
+    
     OnEnableSet.clear();
     OnEnableVec.clear();
     OnEnableValue.clear();
-    RenderEnableQueue.clear();
+    UpdateQueue.clear();
+    UpdateSet.clear();
+    UpdateQueue.clear();
 }
 
 void ESceneManager::ObjectsOnDisable()
 {
     auto& [OnDisableSet, OnDisableVec, OnDisableValue] = _onDisableQueue;
-    auto& RenderDisableQueue = _meshSetActiveQueue.second;
+    auto& [UpdateSet, UpdateQueue] = _updateDisableQueue;
 
     for (auto& value : OnDisableValue)
     {
         *value = false;
     }
 
-    for (auto& mesh : RenderDisableQueue)
+    for (auto& object : UpdateQueue)
     {
-        if (nullptr != mesh)
-        {
-            mesh->SetActive(false);
-        }
+        GameObject::Engine::UpdateActiveInHierarchy(object);
     }
 
-    if (_isPlay)
+    for (auto& component : OnDisableVec)
     {
-        for (auto& component : OnDisableVec)
+        component->UpdateEnableInHierarchy();
+        if (_isPlay)
         {
             component->OnDisable();
         }
     }
-
+    
     OnDisableSet.clear();
     OnDisableVec.clear();
     OnDisableValue.clear();
-    RenderDisableQueue.clear();
+    UpdateSet.clear();
+    UpdateQueue.clear();
 }
 
 void ESceneManager::ObjectsDestroy()
@@ -974,6 +952,7 @@ void ESceneManager::ObjectsAddRuntime()
             _runtimeObjects.resize(id + 1);
         }
         _runtimeObjects[id] = gameObject;
+        GameObject::Engine::ResetActiveInHierarchy(gameObject.get());     
     }
     _addGameObjectsQueue.clear();
 
@@ -992,13 +971,15 @@ void ESceneManager::ObjectsAddRuntime()
             std::shared_ptr<Camera> newCamera(new Camera);
             camera->SetTarget(newCamera);
         }
+
+        component->UpdateEnableInHierarchy();
     }
     _addComponentsQueue.clear();
 }
 
 bool ESceneManager::IsRuntimeActive(std::shared_ptr<GameObject>& obj)
 {
-    return obj.get() != nullptr && obj->ActiveInHierarchy_property_getter();
+    return obj.get() != nullptr && obj->ActiveInHierarchy_property_getter() && obj->IsValid();
 }
 
 void ESceneManager::NotInitDestroyComponentEraseToWaitVec(Component* destroyComponent)
@@ -1502,16 +1483,15 @@ void ESceneManager::SceneResourceManager::Update(SceneResourceManager& manager)
                                 }
                                 models.ModelUseComponentList[guid].emplace_back(pMeshComponent);
                                 UmSceneManager._runtimeMeshComponents.emplace_back(pMeshComponent);
-
-                                bool isActive = pMeshComponent->gameObject->ActiveInHierarchy;
-                                isActive &= pMeshComponent->Enable;
-                                if (false == pMeshComponent->_gameObject->IsValid())
+                                auto& animation = meshRenderer.GetModel()->GetAnimation();
+                                auto& skeleton  = meshRenderer.GetModel()->GetSkeleton();
+                                if (animation != nullptr && skeleton != nullptr)
                                 {
-                                    pMeshComponent->Renderer->SetActive(false);
-                                }
-                                else
-                                {
-                                    pMeshComponent->Renderer->SetActive(isActive);
+                                    std::shared_ptr<Animator> animator(new Animator);
+                                    animator->Initialize(animation, skeleton);
+                                    animator->SetActive(&pMeshComponent->EnableInHierarchy);
+                                    meshRenderer.SetAnimator(animator);
+                                    UmAnimationCore.RegisterAnimator(animator);
                                 }
                             }
                         }

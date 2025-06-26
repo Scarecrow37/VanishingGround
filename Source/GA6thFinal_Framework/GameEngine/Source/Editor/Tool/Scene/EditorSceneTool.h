@@ -13,6 +13,10 @@ public:
     virtual ~EditorSceneTool();
 
     static void SetManipulateObject(std::weak_ptr<GameObject>& object);
+
+public:
+    const Matrix& GetCameraMatrix();
+
 private:
     inline static EditorSceneTool* pSceneTool = nullptr;
 
