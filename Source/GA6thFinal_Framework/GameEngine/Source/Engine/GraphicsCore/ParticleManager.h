@@ -6,6 +6,7 @@ class ParticleManager
 {
 public:
     ParticleManager();
+    float elapsedtimer = 0.f;
 
 
     void                   Initialize(UINT maxParticles);
