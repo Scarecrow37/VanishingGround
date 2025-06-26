@@ -92,7 +92,7 @@ void RenderScene::UpdateRenderScene()
     _numLight = {};
     for (auto& [isDestroy, light] : lights)
     {
-        if (!light->_isActive)
+        if (nullptr == light->_isActive || !(*light->_isActive))
             continue;
 
         switch (light->_type)
@@ -120,7 +120,7 @@ void RenderScene::UpdateRenderScene()
         if (!component->IsActive())
             continue;
 
-        const auto& model     = component->GetModel();
+        const auto& model = component->GetModel();
         if (!model)
             continue;
 
