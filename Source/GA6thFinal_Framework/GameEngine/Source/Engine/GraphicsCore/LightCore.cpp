@@ -36,6 +36,9 @@ void LightCore::Update(const float deltaTime)
 
         for (auto& [isDestroy, light] : lights)
         {
+            if (!light->IsActive())
+                continue;
+
             light->Update(deltaTime);
         }
     }
