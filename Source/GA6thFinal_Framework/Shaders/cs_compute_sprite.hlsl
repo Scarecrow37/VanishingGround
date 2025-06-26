@@ -85,28 +85,24 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
 0, 0, 1, 0,
 input.position.x, input.position.y, input.position.z, 1
 );
-    float3x3 worldrot = (float3x3) transpose(emitter.WorldMatrix);
-    float4x4 worldinvrot =
-    float4x4(
-    float4(worldrot[0], 0), 
-    float4(worldrot[1], 0), 
-    float4(worldrot[2], 0), 
-    float4(0, 0, 0, 1));
+
+    float4x4 worldrot = float4x4(
+    emitter.WorldMatrix._11, emitter.WorldMatrix._21, emitter.WorldMatrix._31, 0,
+    emitter.WorldMatrix._12, emitter.WorldMatrix._22, emitter.WorldMatrix._32, 0,
+    emitter.WorldMatrix._13, emitter.WorldMatrix._23, emitter.WorldMatrix._33, 0,
+    0, 0, 0, 1
+);
     
-    
-    
-    
-    translationMat = mul(translationMat, emitter.WorldMatrix);
- 
     output.FinalMatrix = scaleMat;
-    output.FinalMatrix = mul(output.FinalMatrix, mvp.ViewRotInvMatrix);
-    output.FinalMatrix = mul(output.FinalMatrix, worldinvrot);
     output.FinalMatrix = mul(output.FinalMatrix, translationMat);
 
+    //output.FinalMatrix = mul(output.FinalMatrix, worldrot ); 
+    output.FinalMatrix = mul(output.FinalMatrix, emitter.WorldMatrix); 
     
     
     
     output.FinalMatrix = mul(output.FinalMatrix, mvp.ViewMatrix);
+    output.FinalMatrix = mul(output.FinalMatrix, mvp.ViewRotInvMatrix);
     output.FinalMatrix = mul(output.FinalMatrix, mvp.ProjMatrix);
     
     
