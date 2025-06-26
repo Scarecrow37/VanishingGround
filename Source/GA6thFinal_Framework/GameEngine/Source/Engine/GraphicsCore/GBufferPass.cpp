@@ -1,12 +1,12 @@
 ﻿#include "pch.h"
 #include "GBufferPass.h"
 #include "BaseMesh.h"
+#include "DepthStencilView.h"
 #include "FrameResource.h"
 #include "MeshRenderer.h"
 #include "Model.h"
 #include "RenderScene.h"
 #include "RenderTarget.h"
-#include "DepthStencilView.h"
 
 GBufferPass::~GBufferPass() {}
 
@@ -44,7 +44,7 @@ void GBufferPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& s
         renderTargetManager.AddRenderTargetGroup("GBuffer", renderTargetNames);
 
         const auto&                gBufferGroup = renderTargetManager.GetRenderTargetGroup("GBuffer");
-        ID3D12GraphicsCommandList* commandList = UmDevice.GetCommandList();
+        ID3D12GraphicsCommandList* commandList  = UmDevice.GetCommandList();
 
         for (UINT i = 0; i < GBuffer::GBUFFER_END; i++)
         {
@@ -78,41 +78,54 @@ void GBufferPass::Begin(ID3D12GraphicsCommandList* commandList)
 
 void GBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
 {
-    std::vector<MeshRenderer*> meshes[MeshType::END];
+    for (auto& data : _renderDatas)
+    {
+        data.clear();
+    }
 
+    UINT instanceID = 0;
     for (auto& [isDestroy, component] : _ownerScene->_renderQueue)
     {
         if (!component->IsActive())
             continue;
 
-        const auto type = component->GetType();
+        const auto type     = component->GetType();
+        MeshType   meshType = MeshType::END;
 
         switch (type)
         {
-        case ::MeshRenderType::STATIC:
-            meshes[MeshType::STATIC].push_back(component);
+        case MeshRenderType::STATIC:
+            meshType = MeshType::STATIC;
             break;
 
-        case ::MeshRenderType::SKELETAL:
-            meshes[MeshType::SKELTAL].push_back(component);
+        case MeshRenderType::SKELETAL:
+            meshType = MeshType::SKELTAL;
             break;
+        }
+
+        const auto& model       = component->GetModel();
+        const auto& meshes      = model->GetMeshes();
+        UINT        customDepth = component->GetCustomDepth();
+
+        for (auto& mesh : meshes)
+        {
+            _renderDatas[meshType].emplace_back(mesh.get(), instanceID++, customDepth);
         }
     }
 
-    UINT  currentBackBufferIndex    = UmDevice.GetCurrentBackBufferIndex();
-    auto  resource                  = UmViewManager.GetShaderResourceHeap()->GetGPUDescriptorHandleForHeapStart();
-    auto  cameraData                = _ownerScene->_cameraBuffer->GetGPUVirtualAddress();
-    auto& frameResource             = _ownerScene->_frameResources[currentBackBufferIndex];
+    UINT  currentBackBufferIndex = UmDevice.GetCurrentBackBufferIndex();
+    auto  resource               = UmViewManager.GetShaderResourceHeap()->GetGPUDescriptorHandleForHeapStart();
+    auto  cameraData             = _ownerScene->_cameraBuffer->GetGPUVirtualAddress();
+    auto& frameResource          = _ownerScene->_frameResources[currentBackBufferIndex];
 
     commandList->SetPipelineState(_psos[STATIC_ONE_SIDED].Get());
     commandList->SetGraphicsRootSignature(_shaders[MeshType::STATIC]->GetRootSignature());
+    commandList->SetGraphicsRootDescriptorTable(_shaders[MeshType::STATIC]->GetRootParameterIndex("textures"), resource);
     commandList->SetGraphicsRootConstantBufferView(_shaders[MeshType::STATIC]->GetRootParameterIndex("cameraData"), cameraData);
 
     frameResource->SetFrameResource(FrameResource::Type::TRANSFORM, _shaders[MeshType::STATIC]->GetRootParameterIndex("worldMatrices"), commandList);
     frameResource->SetFrameResource(FrameResource::Type::MATERIAL, _shaders[MeshType::STATIC]->GetRootParameterIndex("material"), commandList);
-
-    commandList->SetGraphicsRootDescriptorTable(_shaders[MeshType::STATIC]->GetRootParameterIndex("textures"), resource);
-    DrawMeshes(commandList, meshes[MeshType::STATIC], MeshType::STATIC);
+    DrawMeshes(commandList, MeshType::STATIC);
 
     // Skeletal Mesh
     commandList->SetPipelineState(_psos[SKELTAL_ONE_SIDED].Get());
@@ -121,9 +134,8 @@ void GBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
 
     frameResource->SetFrameResource(FrameResource::Type::TRANSFORM, _shaders[MeshType::SKELTAL]->GetRootParameterIndex("worldMatrices"), commandList);
     frameResource->SetFrameResource(FrameResource::Type::BONE_MATRIXES, _shaders[MeshType::SKELTAL]->GetRootParameterIndex("boneMatrices"), commandList);
-    frameResource->SetFrameResource(FrameResource::Type::MATERIAL, _shaders[MeshType::SKELTAL]->GetRootParameterIndex("material"), commandList);   
-
-    DrawMeshes(commandList, meshes[MeshType::SKELTAL], MeshType::SKELTAL);
+    frameResource->SetFrameResource(FrameResource::Type::MATERIAL, _shaders[MeshType::SKELTAL]->GetRootParameterIndex("material"), commandList);
+    DrawMeshes(commandList, MeshType::SKELTAL);
 }
 
 void GBufferPass::End(ID3D12GraphicsCommandList* commandList)
@@ -160,26 +172,26 @@ void GBufferPass::InitShaderAndPSO()
     HRESULT                            hr = S_OK;
     ComPtr<ID3D12PipelineState>        staticTwoSidedPSO;
 
-    psodesc.RasterizerState                        = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-    psodesc.RasterizerState.CullMode               = D3D12_CULL_MODE_NONE;
-    psodesc.BlendState                             = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-    psodesc.DepthStencilState                      = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-    psodesc.SampleMask                             = UINT_MAX;
-    psodesc.PrimitiveTopologyType                  = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-    psodesc.InputLayout                            = _shaders[MeshType::STATIC]->GetInputLayout();
-    psodesc.NumRenderTargets                       = GBuffer::GBUFFER_END;
-    psodesc.RTVFormats[GBuffer::BASECOLOR]         = DXGI_FORMAT_R32G32B32A32_FLOAT;
-    psodesc.RTVFormats[GBuffer::NORMAL]            = DXGI_FORMAT_R32G32B32A32_FLOAT;
-    psodesc.RTVFormats[GBuffer::ORM]               = DXGI_FORMAT_R32G32B32A32_FLOAT;
-    psodesc.RTVFormats[GBuffer::EMISSIVE]          = DXGI_FORMAT_R32G32B32A32_FLOAT;
-    psodesc.RTVFormats[GBuffer::WORLDPOSITION]     = DXGI_FORMAT_R32G32B32A32_FLOAT;
-    psodesc.RTVFormats[GBuffer::DEPTH]             = DXGI_FORMAT_R32_FLOAT;
-    psodesc.RTVFormats[GBuffer::CUSTOMDEPTH]       = DXGI_FORMAT_R32_UINT;
-    psodesc.DSVFormat                              = DXGI_FORMAT_D24_UNORM_S8_UINT;
-    psodesc.pRootSignature                         = _shaders[MeshType::STATIC]->GetRootSignature();
-    psodesc.SampleDesc                             = {1, 0};
-    psodesc.VS = _shaders[MeshType::STATIC]->GetShaderByteCode(ShaderBuilder::Type::VS);
-    psodesc.PS = _shaders[MeshType::STATIC]->GetShaderByteCode(ShaderBuilder::Type::PS);
+    psodesc.RasterizerState                    = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+    psodesc.RasterizerState.CullMode           = D3D12_CULL_MODE_NONE;
+    psodesc.BlendState                         = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+    psodesc.DepthStencilState                  = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+    psodesc.SampleMask                         = UINT_MAX;
+    psodesc.PrimitiveTopologyType              = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+    psodesc.InputLayout                        = _shaders[MeshType::STATIC]->GetInputLayout();
+    psodesc.NumRenderTargets                   = GBuffer::GBUFFER_END;
+    psodesc.RTVFormats[GBuffer::BASECOLOR]     = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    psodesc.RTVFormats[GBuffer::NORMAL]        = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    psodesc.RTVFormats[GBuffer::ORM]           = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    psodesc.RTVFormats[GBuffer::EMISSIVE]      = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    psodesc.RTVFormats[GBuffer::WORLDPOSITION] = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    psodesc.RTVFormats[GBuffer::DEPTH]         = DXGI_FORMAT_R32_FLOAT;
+    psodesc.RTVFormats[GBuffer::CUSTOMDEPTH]   = DXGI_FORMAT_R32_UINT;
+    psodesc.DSVFormat                          = DXGI_FORMAT_D24_UNORM_S8_UINT;
+    psodesc.pRootSignature                     = _shaders[MeshType::STATIC]->GetRootSignature();
+    psodesc.SampleDesc                         = {1, 0};
+    psodesc.VS                                 = _shaders[MeshType::STATIC]->GetShaderByteCode(ShaderBuilder::Type::VS);
+    psodesc.PS                                 = _shaders[MeshType::STATIC]->GetShaderByteCode(ShaderBuilder::Type::PS);
 
     hr = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(&staticTwoSidedPSO));
     FAILED_CHECK_MESSAGE(hr, L"GBufferPass::InitShaderAndPSO device->CreateGraphicsPipelineState Failed");
@@ -213,21 +225,16 @@ void GBufferPass::InitShaderAndPSO()
     _psos.push_back(skeletalOneSidePSO);
 }
 
-void GBufferPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, const std::vector<MeshRenderer*>& meshes,
-                             MeshType type)
+void GBufferPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, MeshType type)
 {
-    UINT param[3]{0, MAX_BONE_MATRIX, 0};
-    for (auto& component : meshes)
+    UINT parameter[3]{0, MAX_BONE_MATRIX, 0};
+    for (auto& [mesh, instanceID, customDepth] : _renderDatas[type])
     {
-        const auto& model = component->GetModel();
-        param[2]          = component->GetCustomDepth();
-
-        for (auto& mesh : model->GetMeshes())
-        {
-            param[2] = 1; // 임시
-            commandList->SetGraphicsRoot32BitConstants(_shaders[type]->GetRootParameterIndex("bit32_3_objectData"), 3, param, 0);
-            param[0]++;
-            mesh->Render(commandList);
-        }
+        parameter[0] = instanceID;
+        parameter[2] = 1; // 임시
+        // parameter[2] = customDepth;
+        commandList->SetGraphicsRoot32BitConstants(_shaders[type]->GetRootParameterIndex("bit32_3_objectData"), 3,
+                                                   parameter, 0);
+        mesh->Render(commandList);
     }
 }

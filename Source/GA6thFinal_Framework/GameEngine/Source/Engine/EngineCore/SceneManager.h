@@ -543,9 +543,6 @@ private:
     std::pair<std::unordered_set<GameObject*>, std::vector<GameObject*>> _updateEnableQueue;
     std::pair<std::unordered_set<GameObject*>, std::vector<GameObject*>> _updateDisableQueue;
 
-    //Renderer의 Enable, Disable 변경 관리용
-    std::pair<std::vector<GraphicsBase*>, std::vector<GraphicsBase*>> _meshSetActiveQueue;
-
     //Scene에 실행중인 Render component들
     std::vector<std::weak_ptr<MeshComponent>> _runtimeMeshComponents;
 

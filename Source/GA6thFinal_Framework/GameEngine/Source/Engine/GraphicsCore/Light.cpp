@@ -5,7 +5,6 @@ Light::Light()
 {
     _data.Color     = {1.f, 1.f, 1.f};
     _data.Intensity = 1.f;
-    SetActive(true);
 }
 
 Light::~Light() {}
