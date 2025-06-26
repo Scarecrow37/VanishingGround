@@ -134,6 +134,7 @@ void Device::Execute()
 
     _computeCommandList->Close();
     _commandList->Close();
+
     _imguiCommandList->Close();
     _postProcessCommandList->Close();
 
@@ -154,9 +155,9 @@ void Device::Execute()
     // (A) 파티클 컴퓨트 작업 (Compute Queue)
     ExecuteCommand(PARTICLE_COMPUTE_LIST);
     SignalComputeQueue(PARTICLE_COMPUTE_FENCE);
-    // (B) 메시 렌더 작업 (Graphics Queue)
-    ExecuteCommand(MESH_RENDER_LIST);
     SignalGraphicsQueue(MESH_RENDER_FENCE);
+    ExecuteCommand(MESH_RENDER_LIST);
+    // (B) 메시 렌더 작업 (Graphics Queue)
     //--------------------------------------------------
 
     // [4] 파티클 렌더 전 동기화
