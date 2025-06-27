@@ -517,15 +517,18 @@ std::string GameObject::Helper::GenerateUniqueName(std::string_view baseName)
 void GameObject::Engine::ResetActiveInHierarchy(GameObject* obj) 
 {
     Transform* curr = &obj->_transform;
-    curr->gameObject->_activeInHierarchy = true;
-    while (curr != nullptr)
+    curr->gameObject->_activeInHierarchy = obj->IsValid();
+    if (true == curr->gameObject->_activeInHierarchy)
     {
-        if (false == curr->gameObject->ReflectFields->_activeSelf)
+        while (curr != nullptr)
         {
-            curr->gameObject->_activeInHierarchy = false;   
-            break;
-        }          
-        curr = curr->Parent;
+            if (false == curr->gameObject->ReflectFields->_activeSelf)
+            {
+                curr->gameObject->_activeInHierarchy = false;
+                break;
+            }
+            curr = curr->Parent;
+        }
     }
 
     for (auto& component : obj->_components)
@@ -542,7 +545,7 @@ void GameObject::Engine::UpdateActiveInHierarchy(GameObject* obj)
         Transform* parent = currTr->Parent;
         bool parentActiveInHierarchy = parent ? parent->gameObject->_activeInHierarchy : true;
         bool prevActive = curr->_activeInHierarchy;
-        bool currActive = parentActiveInHierarchy && curr->ReflectFields->_activeSelf;
+        bool currActive = parentActiveInHierarchy && curr->ReflectFields->_activeSelf && curr->IsValid();
         if (prevActive != currActive)
         {
             curr->_activeInHierarchy = currActive;
