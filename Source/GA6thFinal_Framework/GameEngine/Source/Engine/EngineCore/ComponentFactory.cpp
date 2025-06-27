@@ -194,6 +194,7 @@ bool EComponentFactory::InitalizeComponentFactory()
                     camera->SetTarget(newCamera);
                 }
             }
+            newComponent->UpdateEnableInHierarchy();
         }     
     }
 

@@ -21,6 +21,7 @@ void HierarchyFindTool::OnTickGui()
 void HierarchyFindTool::OnStartGui()
 {
     _ownerDockWindow = GetOwnerDockWindow();
+    _editorHierarchyTool = _ownerDockWindow->GetGui<EditorHierarchyTool>();
 }
 
 void HierarchyFindTool::OnEndGui() {}
@@ -139,6 +140,8 @@ void HierarchyFindTool::DrawFindList()
                     {
                         EditorHierarchyTool::HierarchyFocusObjWeak = object;
                         EditorInspectorTool::SetFocusObject(object);
+                        _editorHierarchyTool->SetFocusFrame();
+                        _editorHierarchyTool->OpenFocusObjectTree();
                     }
                 }
             }

@@ -20,7 +20,7 @@ public:
     ~AnimationCore();
 
 public:
-    void RegisterAnimator(std::shared_ptr<Animator> animator);
+    void RegisterAnimator(Animator* animator);
 
 public:
     void Initialize(const unsigned int maxThread);
@@ -30,15 +30,15 @@ private:
     void WorkerThread(unsigned int index);
 
 private:
-    std::condition_variable                               _cvDone;
-    std::mutex                                            _mutexDone;
-    std::vector<Animator*>                                _components;
-    std::vector<std::unique_ptr<std::condition_variable>> _cvs;
-    std::vector<std::unique_ptr<std::mutex>>              _mutexes;
-    std::vector<std::thread>                              _threads;
-    std::vector<ThreadEvent>                              _threadEvents;
-    unsigned int                                          _remainingTasks{0};
-    unsigned int                                          _maxThread{0};
-    float                                                 _deltaTime{0.f};
-    unsigned int                                          _offset{0};
+    std::condition_variable                                  _cvDone;
+    std::mutex                                               _mutexDone;
+    std::vector<std::pair<std::unique_ptr<bool>, Animator*>> _components;
+    std::vector<std::unique_ptr<std::condition_variable>>    _cvs;
+    std::vector<std::unique_ptr<std::mutex>>                 _mutexes;
+    std::vector<std::thread>                                 _threads;
+    std::vector<ThreadEvent>                                 _threadEvents;
+    unsigned int                                             _remainingTasks{0};
+    unsigned int                                             _maxThread{0};
+    float                                                    _deltaTime{0.f};
+    unsigned int                                             _offset{0};
 };

@@ -705,6 +705,9 @@
     <ClInclude Include="Source\Engine\GraphicsCore\DepthStencilView.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\DebugDrawCore.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\pch.cpp">
@@ -1254,6 +1257,12 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\EditorCore\Utillity\EditorDragState.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\source\DebugDraw.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\DebugDrawCore.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

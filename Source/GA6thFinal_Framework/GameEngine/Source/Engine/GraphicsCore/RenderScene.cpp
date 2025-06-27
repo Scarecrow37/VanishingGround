@@ -92,7 +92,7 @@ void RenderScene::UpdateRenderScene()
     _numLight = {};
     for (auto& [isDestroy, light] : lights)
     {
-        if (!light->_isActive)
+        if (nullptr == light->_isActive || !(*light->_isActive))
             continue;
 
         switch (light->_type)
@@ -120,8 +120,11 @@ void RenderScene::UpdateRenderScene()
         if (!component->IsActive())
             continue;
 
+        const auto& model = component->GetModel();
+        if (!model)
+            continue;
+
         const auto  type      = component->GetType();
-        const auto& model     = component->GetModel();
         const auto& meshes    = model->GetMeshes();
         const auto& materials = model->GetMaterials();
         const auto& textures  = model->GetTextures();
@@ -162,7 +165,7 @@ void RenderScene::UpdateRenderScene()
 void RenderScene::Execute(ID3D12GraphicsCommandList* commandList)
 {
     auto descriptorHeap = UmViewManager.GetShaderResourceHeap();
-    commandList->SetDescriptorHeaps(1, &descriptorHeap);    
+    commandList->SetDescriptorHeaps(1, &descriptorHeap);
 
     _accumulationBuffer->TransitionResource(commandList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
     _accumulationBuffer->ClearUnorderedAccessView(commandList);

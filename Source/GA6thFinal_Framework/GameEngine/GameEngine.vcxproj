@@ -301,6 +301,7 @@
     <ClInclude Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectHierarchy.h" />
     <ClInclude Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectViewer.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\BlendPass.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\DebugDrawCore.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\DepthStencilView.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\ParticleResolvePass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\ParticleSpritePass.h" />
@@ -503,6 +504,7 @@
     <ClCompile Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectDetails.cpp" />
     <ClCompile Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectHierarchy.cpp" />
     <ClCompile Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectViewer.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\DebugDrawCore.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\DepthStencilView.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\GraphicsBase.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\BlendPass.cpp" />
@@ -824,6 +826,12 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Source\Engine\EngineCore\TimelineSystem.cpp" />
+    <ClCompile Include="ThirdParty\source\DebugDraw.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

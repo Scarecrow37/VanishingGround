@@ -21,5 +21,5 @@ void PlayerExitCondition::OnStart() {}
 
 bool PlayerExitCondition::Evaluate()
 {
-    return false == GetPlayer().IsMyTurn;
+    return GetPlayer().GetActorState() == TurnActor::STATE::Wait;
 }

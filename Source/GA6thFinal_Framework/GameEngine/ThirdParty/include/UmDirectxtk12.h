@@ -9,3 +9,4 @@
 #include "directxtk12/SpriteBatch.h"
 #include "directxtk12/SpriteFont.h"
 #include "directxtk12/ResourceUploadBatch.h"
+#include "directxtk12/DebugDraw.h"

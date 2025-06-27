@@ -6,13 +6,21 @@ class SpotLight : public PointLight
     USING_PROPERTY(SpotLight)
 public:
     REFLECT_PROPERTY(
-        ReflectFields->Inner, 
-        ReflectFields->Outer
+        Inner, 
+        Outer
         )
 
 public:
     SpotLight();
     virtual ~SpotLight();
+
+    GETTER(float, Inner) { return ReflectFields->Inner; }
+    SETTER(float, Inner) { ReflectFields->Inner = std::max(value, 0.f); }
+    PROPERTY(Inner)
+
+    GETTER(float, Outer) { return ReflectFields->Outer; }
+    SETTER(float, Outer) { ReflectFields->Outer = std::max(value, 0.f); }
+    PROPERTY(Outer)
 
 protected:
     REFLECT_FIELDS_BEGIN(PointLight)
@@ -27,4 +35,7 @@ protected:
     virtual void DeserializedReflectEvent() override;
 
     virtual void Reset() override;
+
+public:
+    virtual void Update() override;
 };

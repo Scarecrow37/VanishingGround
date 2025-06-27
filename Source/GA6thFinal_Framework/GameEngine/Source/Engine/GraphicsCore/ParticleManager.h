@@ -6,6 +6,9 @@ class ParticleManager
 {
 public:
     ParticleManager();
+    virtual ~ParticleManager();
+    float elapsedtimer = 0.f;
+
 
     void                   Initialize(UINT maxParticles);
     class ParticleEffect*  RegisterEffect();

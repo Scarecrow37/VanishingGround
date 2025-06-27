@@ -138,6 +138,7 @@ void Device::Execute()
 
     _computeCommandList->Close();
     _commandList->Close();
+
     _imguiCommandList->Close();
     _postProcessCommandList->Close();
 
@@ -158,9 +159,9 @@ void Device::Execute()
     // (A) 파티클 컴퓨트 작업 (Compute Queue)
     ExecuteCommand(PARTICLE_COMPUTE_LIST);
     SignalComputeQueue(PARTICLE_COMPUTE_FENCE);
-    // (B) 메시 렌더 작업 (Graphics Queue)
-    ExecuteCommand(MESH_RENDER_LIST);
     SignalGraphicsQueue(MESH_RENDER_FENCE);
+    ExecuteCommand(MESH_RENDER_LIST);
+    // (B) 메시 렌더 작업 (Graphics Queue)
     //--------------------------------------------------
 
     // [4] 파티클 렌더 전 동기화
@@ -223,6 +224,8 @@ void Device::ClearBackBuffer(UINT flag, XMVECTOR color, float depth, UINT stenci
 
 void Device::Flip()
 {
+    _graphicsMemory->Commit(_commandQueue.Get());
+
     _swapChain->Present(0, 0);
     GPUSync();
     ResizeSwapChain();
@@ -520,6 +523,9 @@ void Device::CreateDeviceAndSwapChain(HWND hwnd, D3D_FEATURE_LEVEL feature)
     hr = swapChain->QueryInterface(IID_PPV_ARGS(&_swapChain));
     FAILED_CHECK_MESSAGE(hr, L"Device::CreateDeviceAndSwapChain swapChain->QueryInterface Failed");
     _renderTargetIndex = _swapChain->GetCurrentBackBufferIndex();
+
+    _graphicsMemory = std::make_unique<GraphicsMemory>(_device.Get());
+    //_graphicsMemory->Allocate()
 }
 
 void Device::CreateComputeCommandObject()

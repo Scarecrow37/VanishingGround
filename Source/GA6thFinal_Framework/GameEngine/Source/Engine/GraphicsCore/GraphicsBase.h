@@ -4,19 +4,20 @@ class GraphicsBase
 {
     friend class RenderScene;
     friend class LightCore;
+    friend class AnimationCore;
 
 public:
     GraphicsBase()          = default;
     virtual ~GraphicsBase() = default;
 
 public:
-    bool IsActive() const { return _isActive; }
+    bool IsActive() const { return _isActive ? *_isActive : false; }
 
 public:
-    void SetActive(bool isActive) { _isActive = isActive; }
+    void SetActive(const bool* isActive) { _isActive = isActive; }
     void SetDestroy();
 
 private:
-    bool  _isActive  = false;
     std::vector<bool*> _isDestroyeds;
+    const bool*        _isActive{nullptr};
 };

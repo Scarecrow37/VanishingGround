@@ -24,13 +24,4 @@ private:
     std::shared_ptr<UnorderedAccessView> _accumlateBuffer;
     std::shared_ptr<UnorderedAccessView> _revealageBuffer;
 
-
-
-    std::vector<DescriptorHandles> _oitUAVHandles;
-    std::vector<DescriptorHandles> _oitUAVCpuHandles;
-    std::vector<DescriptorHandles> _oitSRVHandles;
-
-
-
-
 };

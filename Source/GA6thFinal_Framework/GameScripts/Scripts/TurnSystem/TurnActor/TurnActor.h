@@ -5,6 +5,13 @@ class TurnActor : public Component
     USING_PROPERTY(TurnActor)
 public:
     inline static constexpr const char* TAG = "TurnActor";
+    struct DEFINE
+    {
+        inline static constexpr int RANDOMSPEED_MAX = 6;
+        inline static constexpr int RANDOMSPEED_MIN = 0;
+        inline static constexpr int ROUNDSPEED_MAX = 99;
+        inline static constexpr int ROUNDSPEED_MIN = -99;
+    };
     enum class STATE
     {
         Dead,
@@ -34,41 +41,47 @@ public:
     /// <summary>
     /// TurnActor의 턴을 시작합니다. OnTurnStart를 호출합니다.
     /// </summary>
-    virtual void PlayTurn() final;
+    virtual void PlayTurn();
 
     /// <summary>
     /// Actor의 상태를 초기화합니다. (부활)
     /// OnRevive를 호출합니다.
     /// </summary>
-    virtual void Revive() final;
+    virtual void Revive();
+
+    /// <summary>
+    /// Actor를 사망 상태로 합니다.
+    /// OnDead를 호출합니다.
+    /// </summary>
+    virtual void Dead();
+
+    /// <summary>
+    /// 라운드 시작 페이즈 진입시 호출되는 함수입니다.
+    /// </summary>
+    virtual void OnRoundStart();
 
 public:
     virtual int GetSpeed() = 0;
 
 protected:
-    virtual void OnRevive() = 0;
-    virtual void OnTurnStart() = 0;
-    virtual void OnTurnEnd() = 0;
-
-protected:
     /// <summary>
     /// 턴 종료를 요청합니다. OnTurnEnd를 호출합니다.
     /// </summary>
-    virtual void EndTurn() final;
+    virtual void EndTurn();
 
 public:
     GETTER_ONLY(int, RandomSpeed) { return _randomSpeed; }
     PROPERTY(RandomSpeed)
-    void SetRandomSpeed(int randomSpeed) 
-    { 
-        _randomSpeed = randomSpeed; 
-        _randomSpeed = std::clamp(_randomSpeed, 0, 6);
-    }
+    //void SetRandomSpeed(int randomSpeed) 
+    //{ 
+    //    _randomSpeed = randomSpeed; 
+    //    _randomSpeed = std::clamp(_randomSpeed, DEFINE::RANDOMSPEED_MIN, DEFINE::RANDOMSPEED_MAX);
+    //}
 
     GETTER_ONLY(int, RoundSpeed) 
     { 
         int roundSpeed = GetSpeed() + _randomSpeed;
-        return std::clamp(roundSpeed, -99, 99);
+        return std::clamp(roundSpeed, DEFINE::ROUNDSPEED_MIN, DEFINE::ROUNDSPEED_MAX);
     }
     PROPERTY(RoundSpeed)
 

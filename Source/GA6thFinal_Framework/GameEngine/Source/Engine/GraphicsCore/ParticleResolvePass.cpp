@@ -8,7 +8,10 @@
 
  ParticleResolvePass::ParticleResolvePass() {}
 
-ParticleResolvePass::~ParticleResolvePass() {}
+ParticleResolvePass::~ParticleResolvePass() 
+{
+    
+}
 
 void ParticleResolvePass::Initialize(const D3D12_VIEWPORT& viewport, const D3D12_RECT& scissorRect)
 {
@@ -19,42 +22,33 @@ void ParticleResolvePass::Initialize(const D3D12_VIEWPORT& viewport, const D3D12
     _particleRenderCommandList = UmParticleManager.GetRenderCommandList();
 }
 
-void ParticleResolvePass::Begin(ID3D12GraphicsCommandList* commandList)
+void ParticleResolvePass::Begin(ID3D12GraphicsCommandList* commandlist)
 {
     _meshRenderTarget->TransitionResource(_particleRenderCommandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
     _particleRenderCommandList->RSSetViewports(1, &_viewPort);
     _particleRenderCommandList->RSSetScissorRects(1, &_sissorRect);
+
     _meshRenderTarget->ClearRenderTarget(_particleRenderCommandList);
-    _particleRenderCommandList->OMSetRenderTargets(1, &_meshRenderTarget->GetRTVHandle(), FALSE,
-                                                   nullptr);
-    //_accumlateBuffer->TransitionResource(_particleRenderCommandList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
-    //                                     D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-    //_revealageBuffer->TransitionResource(_particleRenderCommandList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
-    //                                     D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-
-
-
+    _particleRenderCommandList->OMSetRenderTargets(1, &_meshRenderTarget->GetRTVHandle(), FALSE, nullptr);
 }
 
-void ParticleResolvePass::End(ID3D12GraphicsCommandList* commandList)
+void ParticleResolvePass::End(ID3D12GraphicsCommandList* commandlist)
 {
     _accumlateBuffer->TransitionResource(_particleRenderCommandList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
     _revealageBuffer->TransitionResource(_particleRenderCommandList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
     _meshRenderTarget->TransitionResource(_particleRenderCommandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }
 
-void ParticleResolvePass::Draw(ID3D12GraphicsCommandList* commandList)
+void ParticleResolvePass::Draw(ID3D12GraphicsCommandList* commandlist)
 {
     ComPtr<ID3D12Device>  device = UmDevice.GetDevice();
     ID3D12DescriptorHeap* hps[]  = {
         UmViewManager.GetShaderResourceHeap(),
     };
     _particleRenderCommandList->SetDescriptorHeaps(_countof(hps), hps);
-
     _particleRenderCommandList->SetPipelineState(_resolvePSO.Get());
     _particleRenderCommandList->SetGraphicsRootSignature(_resolveShaderBuilder->GetRootSignature());
-
 
     _particleRenderCommandList->SetGraphicsRootDescriptorTable(
         _resolveShaderBuilder->GetRootParameterIndex("gAccumTex"), _accumlateBuffer->GetSRVHandle());
@@ -62,7 +56,6 @@ void ParticleResolvePass::Draw(ID3D12GraphicsCommandList* commandList)
         _resolveShaderBuilder->GetRootParameterIndex("gRevealTex"), _revealageBuffer->GetSRVHandle());
 
     _particleRenderCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
 
     _accumlateBuffer->ResourceBarrier(_particleRenderCommandList);
     _revealageBuffer->ResourceBarrier(_particleRenderCommandList);
@@ -93,7 +86,6 @@ void ParticleResolvePass::InitializeShader()
 void ParticleResolvePass::InitializePSO()
 {
 
-    
     D3D12_BLEND_DESC blendDesc       = {};
     blendDesc.AlphaToCoverageEnable  = FALSE;
     blendDesc.IndependentBlendEnable = TRUE;
@@ -107,9 +99,6 @@ void ParticleResolvePass::InitializePSO()
     rtDesc.BlendOpAlpha              = D3D12_BLEND_OP_ADD;
     rtDesc.RenderTargetWriteMask     = D3D12_COLOR_WRITE_ENABLE_ALL;
     
-
-
-
 
     D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
     ZeroMemory(&psoDesc, sizeof(psoDesc));
