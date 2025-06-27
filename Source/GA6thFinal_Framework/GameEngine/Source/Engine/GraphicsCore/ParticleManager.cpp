@@ -4,6 +4,21 @@
 #include "ParticleManager.h"
 
 ParticleManager::ParticleManager() {}
+
+ParticleManager::~ParticleManager() 
+{
+    for (auto effect : _pariticleEffects)
+    {
+        delete effect;
+    }
+    _pariticleEffects.clear();
+
+    _totalParticles.clear();
+    _emitterMatrix.clear();
+    _activeEmitterAlbedos.clear();
+    _activeEmitterNormals.clear();
+}
+
 void ParticleManager::SetCamera(std::string_view viewName)
 {
     _camera = UmRenderer.GetCamera(viewName);
@@ -26,26 +41,28 @@ void ParticleManager::Initialize(UINT maxParticles)
     IntializeGraphicsCommandObject();
     InitializeDescriptorHeap();
 
-    //    auto effect = UmParticleManager.RegisterEffect();
-    // effect->SetPosition({0, 0, 30});
-    // effect->SetLifetime(120.f);
-    // auto emitter = UmParticleManager.RegisterEmitter(effect, 100000, 1000, 20, LocationShape::SPHERE);
-    // emitter->SetEmitterLifetime(120.f);
-    // static_cast<SpriteModule*>(emitter->_particleRenderModule)
-    //     ->LoadAlbedoTexture(L"../../../Resource/Assets/ParticleTexture/defaultSmoke.jpg");
+     //   auto effect = UmParticleManager.RegisterEffect();
+     //effect->SetPosition({0, 0, 30});
+     //   effect->SetRotation( Quaternion::CreateFromAxisAngle({0, 1, 0}, XM_PIDIV2) );
+     //effect->SetLifetime(120.f);
+     //auto emitter = UmParticleManager.RegisterEmitter(effect, 100000, 1000, 20, LocationShape::TORUS);
+     //emitter->SetEmitterLifetime(120.f);
+     //emitter->_emitterRotation = Quaternion::CreateFromAxisAngle({1, 0, 0}, XM_PIDIV2);
+
+     //static_cast<SpriteModule*>(emitter->_particleRenderModule)
+     //    ->LoadAlbedoTexture(L"../../../Resource/Assets/ParticleTexture/defaultSmoke.jpg");
     // emitter->SetVelocityType(VelocityScaleType::LINEAR);
-    // emitter->SetParticleLifetime(13.f);
-    // emitter->SetStartScale({10.2f, 10.2f, 1, 1});
-    // emitter->SetEndScale({20.2f, 20.2f, 1, 1});
+    // emitter->SetParticleLifetime(1.f);
+    // emitter->SetStartScale({0.2f, 0.2f, 1, 1});
+    // emitter->SetEndScale({0.2f, 0.2f, 1, 1});
     // emitter->SetStartColor({0.5f, 0.5f, 1});
     // emitter->SetEndColor({0.5f, 0.5f, 1});
-    // emitter->SetStartOpacity(0.0f);
-    // emitter->SetEndOpacity(0.088f);
+    // emitter->SetStartOpacity(0.28f);
+    // emitter->SetEndOpacity(0.28f);
     // emitter->SetVelocityFactor({0, 0, 0});
-    // emitter->SetEmissionRate(6);
+    // emitter->SetEmissionRate(600);
     ////emitter->SetLocatorFactor({6, 2, 5});
-    // emitter->SetLocatorFactor({4, 4, 4});
-    // emitter->SetLocatorFactor({30, 0, 0});
+    // emitter->SetLocatorFactor({5, 4, 4});
     // emitter->SetParticleMass(0.f);
     // emitter->SetParticleDistributionOffset(0.2f);
     ////emitter->SetSpawnBurstCount(5000);
@@ -81,6 +98,14 @@ void ParticleManager::Update(const float deltaTime)
     {
         delta = 0;
     }
+
+    //elapsedtimer += deltaTime;
+    //Quaternion rot = Quaternion::CreateFromAxisAngle({1, 0, 0}, XM_PIDIV2 * elapsedtimer);
+    //_pariticleEffects[0]->GetEmitterList()[0]->_emitterRotation = rot;
+
+
+
+
   
     for (auto effect : _pariticleEffects)
     {
@@ -651,7 +676,7 @@ void ParticleManager::UpdateParticleResources(float deltaTime)
 
     XMStoreFloat4x4(&mvpConstants.ViewRotInvMatrix, RvT);
 
-    //mvpConstants.ViewRotInvMatrix = mvpConstants.ViewRotInvMatrix.Transpose();
+    mvpConstants.ViewRotInvMatrix = mvpConstants.ViewRotInvMatrix.Transpose();
     mvpConstants.ProjMatrix = _camera->GetProjectionMatrix().Transpose();
 
     mvpConstants.CameraPos =

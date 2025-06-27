@@ -21,6 +21,11 @@ void PointLight::DeserializedReflectEvent()
     _attenuation = Vector3(ReflectFields->Attenuation.data());
 }
 
+void PointLight::ImGuiDrawPropertysEvent() 
+{
+   
+}
+
 void PointLight::Reset() 
 {
     const Vector3& color       = GetColor();

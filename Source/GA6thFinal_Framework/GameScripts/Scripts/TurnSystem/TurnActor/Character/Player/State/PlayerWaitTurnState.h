@@ -4,11 +4,11 @@
 /*
 * 플레이어의 턴을 기다리는 상태입니다.
 */
-class PlayerTurnWaitState : public PlayerStateBase
+class PlayerWaitTurnState : public PlayerStateBase
 {
 public:
-    PlayerTurnWaitState();
-    virtual ~PlayerTurnWaitState() override;
+    PlayerWaitTurnState();
+    virtual ~PlayerWaitTurnState() override;
     bool IsMyTurn();
 protected:
     void OnAwake() override;

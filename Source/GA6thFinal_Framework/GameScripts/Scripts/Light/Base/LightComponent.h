@@ -8,7 +8,7 @@ class LightComponent : public Component
 public:
     REFLECT_PROPERTY(
         LightColor,
-        ReflectFields->Intensity)
+        Intensity)
 
     GETTER(const Color&, LightColor) 
     { 
@@ -33,8 +33,9 @@ public:
     }
     SETTER(float, Intensity) 
     { 
-        ReflectFields->Intensity = value;
+        ReflectFields->Intensity = std::max(value, 0.f);
     }
+    PROPERTY(Intensity)
 
     inline const float& GetIntensity()
     {

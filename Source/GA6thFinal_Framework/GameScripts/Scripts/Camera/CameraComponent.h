@@ -5,6 +5,10 @@ class CameraComponent : public Component
 {
     USING_PROPERTY(CameraComponent)
 public:
+    /*현재 메인카메라로 설정된 카메라 컴포넌트를 반환합니다.*/
+    static CameraComponent* MainCamera() { return ESceneManager::Engine::GetMainCamera(); }
+
+public:
     REFLECT_PROPERTY(
         FOV, 
         Width, Height,

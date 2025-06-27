@@ -321,12 +321,19 @@ std::vector<std::shared_ptr<GameObject>> EGameObjectFactory::MakeObjectsGraphToY
             Transform* pParent     = transformParentLevelMap[ParentIndex];
             currObject->_transform.SetParent(pParent);
         }
-        makeList.push_back(currObject);
 
+        makeList.push_back(currObject);
         if (nullptr != pSceneObjectNode)
         {
            ++sceneNodes;
         }
+    }
+
+    if (true == useResource)
+    {
+        auto& root = makeList.front();
+        root->ReflectFields->_activeSelf = false;
+        GameObject::Engine::UpdateActiveInHierarchy(root.get());
     }
     return makeList;
 }
@@ -422,9 +429,19 @@ void EGameObjectFactory::WriteGameObjectFile(Transform* transform, std::string_v
         }
         ofs.close();
 
+        GameObject& object = transform->gameObject;
         if (false == isExists)
         {
-            _prefabGuidQueue[writePath].emplace_back(transform->gameObject->GetWeakPtr());
+            _prefabGuidQueue[writePath].emplace_back(object.GetWeakPtr());
+        }
+        else
+        {
+            if (object.IsPrefabInstance() == true)
+            {
+                UnpackPrefab(&object);
+            }
+            File::Path path(writePath);
+            PackPrefab(&object, path.ToGuid());
         }
     }  
 }

@@ -5,9 +5,9 @@ class PointLight : public LightComponent
     USING_PROPERTY(PointLight)
 public:
     REFLECT_PROPERTY(
-    Constant, 
-    Linear, 
-    Quadratic,
+    //Constant, 
+    //Linear, 
+    //Quadratic,
     Range
     )
 
@@ -15,6 +15,7 @@ public:
     PointLight();
     virtual ~PointLight();
 
+    /*
     GETTER(float, Constant)
     { 
         return _attenuation.x;
@@ -47,6 +48,7 @@ public:
         std::memcpy(ReflectFields->Attenuation.data(), &_attenuation.x, sizeof(ReflectFields->Attenuation));
     }
     PROPERTY(Quadratic)
+    */
 
     GETTER(float, Range)
     { 
@@ -54,7 +56,7 @@ public:
     }
     SETTER(float, Range)
     { 
-        ReflectFields->Range = value;
+        ReflectFields->Range = std::max(value, 0.f);
     }
     PROPERTY(Range)
 
@@ -82,6 +84,8 @@ protected:
     직접 override 해서 사용합니다.
     */
     virtual void DeserializedReflectEvent() override;
+
+    virtual void ImGuiDrawPropertysEvent() override;
 
     virtual void Reset() override;
 
