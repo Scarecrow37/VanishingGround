@@ -36,11 +36,8 @@ namespace ReflectHelper
                     if constexpr (std::is_same_v<remove_view_type, int>)
                     {
                         int input = val;
-                        isEdit    = ImGui::InputInt(name, 
-                                                    &input, 
-                                                    setting._int.step, 
-                                                    setting._int.step_fast,
-                                                    setting._int.flags);
+                        isEdit    = ImGui::DragScalar(name, ImGuiDataType_S32, &input, setting._int.v_speed, &setting._int.min,
+                                              &setting._int.max, setting._int.format, setting._int.flags);
 
                         if constexpr (isProperty == false || isSetter == true)
                         {
@@ -57,8 +54,8 @@ namespace ReflectHelper
                     else if constexpr (std::is_same_v<remove_view_type, unsigned int>)
                     {
                         unsigned int input = val;
-                        isEdit = ImGui::InputScalar(name, ImGuiDataType_U32, &input, &setting._int.step,
-                                                    &setting._int.step_fast, nullptr, setting._int.flags);
+                        isEdit = ImGui::DragScalar(name, ImGuiDataType_U32, &input, setting._int.v_speed, &setting._int.min,
+                                              &setting._int.max, setting._int.format, setting._int.flags);
 
                         if constexpr (isProperty == false || isSetter == true)
                         {
@@ -75,11 +72,8 @@ namespace ReflectHelper
                     else if constexpr (std::is_same_v<remove_view_type, float>)
                     {
                         float input = val;
-                        isEdit      = ImGui::InputFloat(name, 
-                                                        &input, 
-                                                        setting._float.step,
-                                                        setting._float.step_fast,
-                                                        setting._float.format.c_str(),
+                        isEdit      = ImGui::DragScalar(name, ImGuiDataType_Float, &input, setting._float.v_speed,
+                                                        &setting._float.min, &setting._float.max, setting._float.format,
                                                         setting._float.flags);
 
                         if constexpr (isProperty == false || isSetter == true)
@@ -97,13 +91,9 @@ namespace ReflectHelper
                     else if constexpr (std::is_same_v<remove_view_type, double>)
                     {
                         double input = val;
-                        isEdit =
-                            ImGui::InputDouble(name,
-                                               &input, 
-                                               InputAutoSetting::Double::step,
-                                               setting._double.step_fast,
-                                               setting._double.format.c_str(),
-                                               setting._double.flags);
+                        isEdit       = ImGui::DragScalar(name, ImGuiDataType_Double, &input, setting._double.v_speed,
+                                                         &setting._double.min, &setting._double.max, setting._double.format,
+                                                         setting._double.flags);
 
                         if constexpr (isProperty == false || isSetter == true)
                         {

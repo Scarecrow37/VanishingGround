@@ -14,6 +14,11 @@ void PointLight::DeserializedReflectEvent()
 
 }
 
+void PointLight::ImGuiDrawPropertysEvent() 
+{
+   
+}
+
 void PointLight::Reset() 
 {
     const Vector3& color       = GetColor();

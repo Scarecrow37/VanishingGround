@@ -33,7 +33,7 @@ public:
     }
     SETTER(float, Intensity) 
     { 
-        ReflectFields->Intensity = value;
+        ReflectFields->Intensity = std::max(value, 0.f);
     }
     PROPERTY(Intensity)
 
