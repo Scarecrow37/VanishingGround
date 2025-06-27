@@ -334,8 +334,11 @@ std::vector<std::shared_ptr<GameObject>> EGameObjectFactory::MakeObjectsGraphToY
         auto& root = makeList.front();
         root->ReflectFields->_activeSelf = false;
         GameObject::Engine::UpdateActiveInHierarchy(root.get());
+        for (auto& object : makeList)
+        {
+            object->_ownerScene = STR_NULL;
+        }
     }
-
     return makeList;
 }
 

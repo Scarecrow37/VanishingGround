@@ -156,6 +156,7 @@ void GameObject::OnInspectorStay()
             ImGui::PushStyleColor(ImGuiCol_Text, DEBUG_TEXT_COLOR);   
             ImGui::Text("Instance ID : %d", _instanceID);
             ImGui::Text("ActiveInHierarchy : %s", _activeInHierarchy ? "true" : "false");
+            ImGui::Text("Scene : %s", GetOwnerSceneName().data());
             ImGui::PopStyleColor();
         }
 
