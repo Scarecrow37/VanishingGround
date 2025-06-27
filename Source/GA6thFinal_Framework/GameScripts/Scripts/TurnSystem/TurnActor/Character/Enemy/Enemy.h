@@ -58,10 +58,7 @@ protected:
 
     virtual void Update();
 
-    // CharacterBase을(를) 통해 상속됨
-    virtual void OnRevive() override;
-    virtual void OnDead() override;
-    virtual void OnTurnStart() override;
-    virtual void OnTurnEnd() override;
+    virtual void Revive() override;
+    virtual void PlayTurn() override;
     CharacterStats* GetCharacterStats() override;
 };

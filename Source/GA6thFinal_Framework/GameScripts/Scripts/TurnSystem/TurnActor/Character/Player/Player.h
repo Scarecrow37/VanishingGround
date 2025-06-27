@@ -42,20 +42,21 @@ private:
     void BuildPlayerFSM();
     struct PlayerStates
     {
-        class PlayerTurnWaitState* PlayerTurnWaitState = nullptr;
+        class PlayerWaitTurnState* PlayerWaitTurnState = nullptr;
         class PlayerPlayTurnState* PlayerPlayTurnState = nullptr;
         class PlayerDeadState*     PlayerDeadState     = nullptr;
     } 
     _fsmStates;
 public:
+    /*플레이어의 턴을 시작합니다.*/
+    virtual void PlayTurn() override;
     /*플레이어의 턴을 종료합니다.*/
     virtual void EndTurn() override;
+    /*플레이어를 사망 상태로 만듭니다.*/
+    virtual void Dead() override;
 
     FiniteStateMachine& GetFSM() { return *_finiteStateMachine; }
     const PlayerStates& GetFSMStates() { return _fsmStates; }
-
-    /*플레이어를 사망 상태로 만듭니다.*/
-    virtual void Dead() override;
 
 public:
     // CharacterBase을(를) 통해 상속됨
@@ -73,12 +74,6 @@ protected:
     /// Update 는 프레임당 한 번 호출됩니다.
     /// </summary>
     virtual void Update();
-
-    // CharacterBase을(를) 통해 상속됨
-    virtual void OnTurnStart() override;
-    virtual void OnTurnEnd() override;
-    virtual void OnRevive() override;
-    virtual void OnDead() override;
 
     /// <summary>
     /// <para> 직렬화 직전 자동으로 호출되는 이벤트 함수입니다. </para>

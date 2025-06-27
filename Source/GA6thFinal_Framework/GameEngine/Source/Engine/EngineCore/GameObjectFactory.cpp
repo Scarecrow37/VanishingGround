@@ -335,7 +335,6 @@ std::vector<std::shared_ptr<GameObject>> EGameObjectFactory::MakeObjectsGraphToY
         root->ReflectFields->_activeSelf = false;
         GameObject::Engine::UpdateActiveInHierarchy(root.get());
     }
-
     return makeList;
 }
 

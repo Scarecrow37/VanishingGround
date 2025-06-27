@@ -24,20 +24,22 @@ int CharacterBase::GetMaxMP()
     return maxMP;
 }
 
-int CharacterBase::GetChainCount()
+int CharacterBase::GetMaxChainRoundCount()
 {
-    int chainCount =0;
+    int maxChainCount = 1;
     CharacterStats* stats = GetCharacterStats();
     if (nullptr != stats)
     {
-        chainCount = stats->ChainCount;
+        maxChainCount = stats->MaxChainRoundCount;
     }
-    return chainCount;
+    return maxChainCount;
 }
 
 CharacterBase::CharacterBase() : 
     _hp(0), 
-    _mp(0)
+    _mp(0), 
+    _chainCount(0) , 
+    _chainRoundCount(1) 
 {
 
 }
@@ -49,14 +51,22 @@ void CharacterBase::Awake()
     gameObject->AddTag(TAG);
 }
 
-void CharacterBase::OnRevive() 
+void CharacterBase::Revive() 
 {
+    Base::Revive();
     _hp = MaxHP;
     _mp = MaxMP;
 }
 
-void CharacterBase::OnDead() 
+void CharacterBase::OnRoundStart() 
 {
+    Base::OnRoundStart();
+    DecrementChainRoundCount();
+}
+
+void CharacterBase::Dead() 
+{
+    Base::Dead();
     _hp = 0;
     _mp = 0;
 }
