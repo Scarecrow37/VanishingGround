@@ -294,11 +294,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Scripts\Animation\AnimatorComponent.h" />
     <ClInclude Include="Scripts\GameCore\FSM\Factory\FSMConditionFactory.h" />
     <ClInclude Include="Scripts\GameCore\FSM\Factory\FSMStateFactory.h" />
     <ClInclude Include="Scripts\GameCore\FSM\IFSMEntity.h" />
     <ClInclude Include="Scripts\GameCore\FSM\FSMCondition.h" />
     <ClInclude Include="Scripts\GameCore\FSM\FSMState.h" />
+    <ClInclude Include="Scripts\Mesh\SkeletalMeshRenderer.h" />
     <ClInclude Include="Scripts\Mesh\StaticMeshRenderer.h" />
     <ClInclude Include="Scripts\Light\Base\LightComponent.h" />
     <ClInclude Include="Scripts\Stats\CharacterStatsComponent.h" />
@@ -358,12 +360,14 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">Use</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Scripts\Animation\AnimatorComponent.cpp" />
     <ClCompile Include="Scripts\GameCore\FSM\AlwaysTransitionCondition.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">Use</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Scripts\Mesh\SkeletalMeshRenderer.cpp" />
     <ClCompile Include="Scripts\Mesh\StaticMeshRenderer.cpp" />
     <ClCompile Include="Scripts\Light\Base\LightComponent.cpp" />
     <ClCompile Include="pchScripts.cpp">

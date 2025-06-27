@@ -74,5 +74,5 @@ UMREAL_COMPONENT(PlayerStatsComponent)
 #include "Scripts\Stats/Enemy/EnemyStatsComponent.h"
 UMREAL_COMPONENT(EnemyStatsComponent)
 
-#include "Scripts\Animation/ModelAnimator.h"
-UMREAL_COMPONENT(ModelAnimator)
+#include "Scripts\Animation/AnimatorComponent.h"
+UMREAL_COMPONENT(AnimatorComponent)
