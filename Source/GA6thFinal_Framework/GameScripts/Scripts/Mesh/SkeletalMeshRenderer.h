@@ -12,9 +12,6 @@ public:
 public:
 
 protected:
-    bool HasModel();
-    bool HasAnimator();
-
     void Reset() override;
     void Update() override;
     void SerializedReflectEvent() override;

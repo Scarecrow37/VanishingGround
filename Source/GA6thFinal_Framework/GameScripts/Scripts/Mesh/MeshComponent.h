@@ -15,6 +15,9 @@ public:
     MeshComponent();
     virtual ~MeshComponent();
 
+    bool HasModel();
+    bool HasAnimator();
+
     /// <summary>
     /// 메시 렌더러를 생성합니다. 이미 존재하면 생성하지 않습니다.
     /// </summary>

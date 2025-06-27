@@ -34,16 +34,6 @@ SkeletalMeshRenderer::SkeletalMeshRenderer()
 
 SkeletalMeshRenderer::~SkeletalMeshRenderer() {}
 
-bool SkeletalMeshRenderer::HasModel()
-{
-    return nullptr != Renderer->GetModel();
-}
-
-bool SkeletalMeshRenderer::HasAnimator()
-{
-    return nullptr != Renderer->GetAnimator();
-}
-
 void SkeletalMeshRenderer::Reset()
 {
     MakeMeshRenderer(MeshRenderType::SKELETAL, gameObject->transform->GetWorldMatrix());
