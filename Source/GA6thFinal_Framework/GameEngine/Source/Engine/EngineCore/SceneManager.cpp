@@ -1471,16 +1471,6 @@ void ESceneManager::SceneResourceManager::Update(SceneResourceManager& manager)
                                     models.ModelResource[guid] = UmResourceManager.LoadResource<Model>(path.string());
                                 }
                                 meshRenderer.LoadModel(path.wstring());
-                                auto& animation = meshRenderer.GetModel()->GetAnimation();
-                                auto& skeleton  = meshRenderer.GetModel()->GetSkeleton();
-                                if (animation != nullptr && skeleton != nullptr)
-                                {
-                                    std::shared_ptr<Animator> animator(new Animator);
-                                    animator->Initialize(animation, skeleton);
-                                    meshRenderer.SetAnimator(animator);
-                                    UmAnimationCore.RegisterAnimator(animator);
-                                    animator->SetActive(true);
-                                }
                                 models.ModelUseComponentList[guid].emplace_back(pMeshComponent);
                                 UmSceneManager._runtimeMeshComponents.emplace_back(pMeshComponent);
                                 auto& animation = meshRenderer.GetModel()->GetAnimation();
