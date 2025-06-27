@@ -212,9 +212,12 @@ void EditorHierarchyTool::TransformTreeNode(Transform& node, const std::shared_p
             if (nodeRoot && focusRoot)
             {
                 if (nodeRoot == focusRoot)
-                {
-                    ImGui::SetNextItemOpen(true);
-                    if (&focusObject->transform == &node)
+                {              
+                    if (&focusObject->transform != &node)
+                    {
+                        ImGui::SetNextItemOpen(true);                      
+                    }
+                    else
                     {
                         _isOpenFocusObj = false;
                     }
