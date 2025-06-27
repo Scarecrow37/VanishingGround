@@ -22,11 +22,7 @@ EditorSequencer::~EditorSequencer()
 
 void EditorSequencer::Show(bool debug)
 {
-    if (nullptr == _system)
-    {
-        return;
-    }
-    ImGui::PushID(_system.get());
+    ImGui::PushID(this);
 
     //DrawToolBar();
 
@@ -58,7 +54,10 @@ bool EditorSequencer::Begin()
     _frameRect  = ImRect(windowPos, windowPos + frameSize);
     _canvasRect = ImRect(windowPos, windowPos + canvasSize);
 
-    ContextMenu();
+    if (_system)
+    {
+        ContextMenu();
+    }
     WheelZooming();
     CanvasDragging();
 
@@ -69,9 +68,7 @@ bool EditorSequencer::Begin()
     _canvasRectLower    = ImRect(ImVec2(_canvasRect.Min.x, _canvasRect.Min.y + _canvasUpperHeight), _canvasRect.Max);
     drawList->AddRectFilled(_canvasRectUpper.Min, _canvasRectUpper.Max, ReflectFields->UpperBgColor[0]);
 
-    const float minFrame = _system->GetMinFrame();
-    const float maxFrame = _system->GetMaxFrame();
-    if (maxFrame < minFrame)
+    if (GetMaxFrame() < GetMinFrame())
     {
         drawList->AddText(_canvasRectLower.Min, ImColor(1.0f, 1.0f, 1.0f, 1.0f), "Invalid Min-Max Frame");
         drawList->AddRectFilled(_canvasRectLower.Min, _canvasRectLower.Max, ReflectFields->InvalidColor[0]);
@@ -124,8 +121,8 @@ struct InteractionData
 
 void EditorSequencer::DrawCanvas(bool debug)
 {
-    auto& io = ImGui::GetIO();
-    auto* drawList = ImGui::GetWindowDrawList();
+    auto& io                = ImGui::GetIO();
+    auto* drawList          = ImGui::GetWindowDrawList();
    
     const bool   isContain  = _canvasRect.Contains(io.MousePos);
 
@@ -133,9 +130,9 @@ void EditorSequencer::DrawCanvas(bool debug)
     ImVec2       cursorPos  = _cursorPosition + _canvasRect.Min;
     const ImVec2 canvasSize = _canvasRect.GetSize();
 
-    const float curFrame    = _system->GetCurrentFrame();   // current frame in the timeline
-    const float minFrame    = _system->GetMinFrame();       // minimum frame in the timeline
-    const float maxFrame    = _system->GetMaxFrame();       // maximum frame in the timeline
+    const float curFrame    = GetCurrentFrame();              // current frame in the timeline
+    const float minFrame    = GetMinFrame();            // minimum frame in the timeline
+    const float maxFrame    = GetMaxFrame();                    // maximum frame in the timeline
 
     const int   lineUnit    = GetLineUnit();
     const float unitDistane = ReflectFields->UnitSize * ReflectFields->ViewScale;
@@ -179,6 +176,7 @@ void EditorSequencer::DrawCanvas(bool debug)
     }
 
     // Draw Min, Max Lines
+    if(_system)
     {
         ImVec2 start = ImVec2(validRectMin.x, _canvasRect.Min.y);
         ImVec2 end   = ImVec2(start.x, _canvasRectLower.Max.y);
@@ -207,6 +205,7 @@ void EditorSequencer::DrawCanvas(bool debug)
         drawList->PathLineTo(start + ImVec2(_canvasRectUpper.GetHeight() * 0.7f, 0.0f));
         drawList->PathFillConvex(ReflectFields->MinMaxLineColor[interacted]);
     }
+    if (_system)
     {
         ImVec2 start = ImVec2(validRectMax.x, _canvasRect.Min.y);
         ImVec2 end   = ImVec2(start.x, _canvasRectLower.Max.y);
@@ -237,6 +236,7 @@ void EditorSequencer::DrawCanvas(bool debug)
     }
 
     // Draw Current Frame Line
+    if (_system)
     {
         const char* id = "StampBar";
 
@@ -280,85 +280,90 @@ void EditorSequencer::DrawCanvas(bool debug)
     }
 
     // Draw Notify
-    const auto& notifyList = _system->GetTimelineNotifyList();
-    for (int i = 0; i < notifyList.size(); ++i)
+    if (_system)
     {
-        auto* notify = notifyList[i];
-        if (nullptr == notify)
+        const auto& notifyList = _system->GetTimelineNotifyList();
+        for (int i = 0; i < notifyList.size(); ++i)
         {
-            continue;
-        }
-        std::string_view label = notify->Label;
-        UINT id = notify->ID;
-        ImVec2 textSize = ImGui::CalcTextSize(label.data());
-
-        float  lenght  = textSize.y;
-        float  padding = lenght * 2; 
-        ImVec2 point   = ImVec2(offsetX + (notify->Time * unitDistane), padding) + _canvasRectLower.Min;
-        ImRect rect    = ImRect(point - ImVec2(lenght, lenght), point + ImVec2(lenght, lenght));
-        int    state   = dragHandler.BeginDragState(id, rect, cursorPos, ImGuiMouseButton_Left, EditorDragState::DRAG_FLAG_LOCK);
-        switch (state)
-        {
-        case EditorDragState::DRAG_STATE_NONE:
-            Interactions.emplace_back(point, point);
-            break;
-        case EditorDragState::DRAG_STATE_START:
-            break;
-        case EditorDragState::DRAG_STATE_DRAGGING:
-            _system->ChangeNotifyTime(id, _indicateFrame);
-            break;
-        default:
-            break;
-        }
-
-        bool isHovered   = rect.Contains(io.MousePos);
-        bool isRBMouseUp = ImGui::IsMouseReleased(ImGuiMouseButton_Right);
-        bool isDragging  = dragHandler.IsDragging();
-        ImGui::PushID(notify);
-        if (false == isDragging && true == isHovered && true == isRBMouseUp)
-        {
-            ImGui::OpenPopup("NotifyPopup");
-        }
-        if (ImGui::BeginPopup("NotifyPopup"))
-        {
-            float time = notify->Time;
-            UINT  id   = notify->ID;
-            if (true == debug)
+            auto* notify = notifyList[i];
+            if (nullptr == notify)
             {
-                ImGui::Text("Notify: %f", time);
-                ImGui::Text("ID: %d", id);
-                ImGui::Separator();
+                continue;
             }
-            if (ImGui::MenuItem("Remove Notify"))
+            std::string_view label    = notify->Label;
+            UINT             id       = notify->ID;
+            ImVec2           textSize = ImGui::CalcTextSize(label.data());
+
+            float  lenght  = textSize.y;
+            float  padding = lenght * 2;
+            ImVec2 point   = ImVec2(offsetX + (notify->Time * unitDistane), padding) + _canvasRectLower.Min;
+            ImRect rect    = ImRect(point - ImVec2(lenght, lenght), point + ImVec2(lenght, lenght));
+            int    state =
+                dragHandler.BeginDragState(id, rect, cursorPos, ImGuiMouseButton_Left, EditorDragState::DRAG_FLAG_LOCK);
+            switch (state)
             {
-                RemoveNotify(notify);
+            case EditorDragState::DRAG_STATE_NONE:
+                Interactions.emplace_back(point, point);
+                break;
+            case EditorDragState::DRAG_STATE_START:
+                break;
+            case EditorDragState::DRAG_STATE_DRAGGING:
+                _system->ChangeNotifyTime(id, _indicateFrame);
+                break;
+            default:
+                break;
             }
-            ImGui::EndPopup();
+
+            bool isHovered   = rect.Contains(io.MousePos);
+            bool isRBMouseUp = ImGui::IsMouseReleased(ImGuiMouseButton_Right);
+            bool isDragging  = dragHandler.IsDragging();
+            ImGui::PushID(notify);
+            if (false == isDragging && true == isHovered && true == isRBMouseUp)
+            {
+                ImGui::OpenPopup("NotifyPopup");
+            }
+            if (ImGui::BeginPopup("NotifyPopup"))
+            {
+                float time = notify->Time;
+                UINT  id   = notify->ID;
+                if (true == debug)
+                {
+                    ImGui::Text("Notify: %f", time);
+                    ImGui::Text("ID: %d", id);
+                    ImGui::Separator();
+                }
+                if (ImGui::MenuItem("Remove Notify"))
+                {
+                    RemoveNotify(notify);
+                }
+                ImGui::EndPopup();
+            }
+            ImGui::PopID();
+
+            float  offset    = lenght * 0.5f;
+            ImVec2 txtOffset = ImVec2(textSize.x, textSize.y * 0.5f) * 1.2f;
+            ImRect mainRect  = ImRect(point + ImVec2(-offset, -offset), point + ImVec2(offset, offset));
+            ImRect labelRect = ImRect(point + ImVec2(0.0f, -txtOffset.y), point + txtOffset);
+
+            bool isValid    = notify->Time < minFrame && notify->Time > maxFrame;
+            int  interacted = GetInteractionState(rect);
+            UINT color      = isValid ? ReflectFields->InvalidColor[0] : ReflectFields->NotifyColor[interacted];
+
+            // mainRect
+            float  halfWidth = mainRect.GetWidth() * 0.5f;
+            ImVec2 center    = mainRect.GetCenter();
+            ImVec2 points[4] = {center + ImVec2(0.0f, halfWidth), center + ImVec2(-halfWidth, 0.0f),
+                                center + ImVec2(0.0f, -halfWidth), center + ImVec2(halfWidth, 0.0f)};
+            PathLines(drawList, points, 4);
+            drawList->PathFillConvex(color);
+
+            // labelRect
+            drawList->AddRectFilled(labelRect.Min, labelRect.Max, color);
+            ImVec2 textPoint = labelRect.Min + (ImVec2(txtOffset.x - textSize.x, 0.0f) * 0.5f);
+            drawList->AddText(textPoint, IM_COL32(0, 0, 0, 255), label.data());
         }
-        ImGui::PopID();
-
-        float  offset = lenght * 0.5f;
-        ImVec2 txtOffset = ImVec2(textSize.x, textSize.y * 0.5f) * 1.2f;
-        ImRect mainRect  = ImRect(point + ImVec2(-offset, -offset), point + ImVec2(offset, offset));
-        ImRect labelRect = ImRect(point + ImVec2(0.0f, -txtOffset.y), point + txtOffset);
-
-        bool isValid = notify->Time < minFrame && notify->Time > maxFrame;
-        int  interacted = GetInteractionState(rect);
-        UINT color = isValid ? ReflectFields->InvalidColor[0] : ReflectFields->NotifyColor[interacted];
-
-        // mainRect
-        float  halfWidth = mainRect.GetWidth() * 0.5f;
-        ImVec2 center    = mainRect.GetCenter();
-        ImVec2 points[4] = {center + ImVec2(0.0f, halfWidth),  center + ImVec2(-halfWidth, 0.0f),
-                            center + ImVec2(0.0f, -halfWidth), center + ImVec2(halfWidth, 0.0f)};
-        PathLines(drawList, points, 4);
-        drawList->PathFillConvex(color);
-
-        // labelRect
-        drawList->AddRectFilled(labelRect.Min, labelRect.Max, color);
-        ImVec2 textPoint = labelRect.Min + (ImVec2(txtOffset.x - textSize.x, 0.0f) * 0.5f);
-        drawList->AddText(textPoint, IM_COL32(0, 0, 0, 255), label.data());
     }
+   
 
     // ProcessInterction
     for (const auto& line : Interactions)
@@ -392,7 +397,7 @@ void EditorSequencer::DrawCanvas(bool debug)
         ImVec2 end   = ImVec2(offsetX + (_cursorFrame * unitDistane), _canvasRectLower.GetHeight()) + _canvasRectLower.Min;
 
         std::string frameText = std::format("{:.3f}", _cursorFrame);
-        if (true == _system->IsVaildFrame(_cursorFrame))
+        if (_cursorFrame >= GetMinFrame() && _cursorFrame <= GetMaxFrame())
         {
             drawList->AddText(start + ImVec2(5.0f, 0), ImColor(1.0f, 1.0f, 1.0f, 1.0f), frameText.c_str());
             drawList->AddLine(start, end, ReflectFields->FollowLineColor[0], 2.0f);
@@ -589,4 +594,19 @@ int EditorSequencer::GetInteractionState(const ImRect& rect) const
         state = isMouseDown ? 2 : 1; // 2: Pressed, 1: Hovered
     }
     return state;
+}
+
+float EditorSequencer::GetCurrentFrame() const
+{
+    return _system ? _system->GetCurrentFrame() : 0.0f;
+}
+
+float EditorSequencer::GetMinFrame() const
+{
+    return _system ? _system->GetMinFrame() : 0.0f;
+}
+
+float EditorSequencer::GetMaxFrame() const
+{
+    return _system ? _system->GetMaxFrame() : 0.0f;
 }

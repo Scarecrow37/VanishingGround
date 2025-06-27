@@ -702,7 +702,10 @@
     <ClInclude Include="Source\Engine\GraphicsCore\DepthStencilView.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\TimelineCore\AnimationNotify.h">
+    <ClInclude Include="Source\Engine\TimelineCore\AnimationNotifySet.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Tool\Model\EditorAnimationNotifyTool.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1253,7 +1256,10 @@
     <ClCompile Include="Source\Engine\EditorCore\Utillity\EditorDragState.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\TimelineCore\AnimationNotify.cpp">
+    <ClCompile Include="Source\Engine\TimelineCore\AnimationNotifySet.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\Model\EditorAnimationNotifyTool.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

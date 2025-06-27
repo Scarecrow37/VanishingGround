@@ -185,6 +185,10 @@ using namespace Microsoft::WRL;
 #include "Editor/DragDropTypes/DragDropTransform.h"
 #include "Editor/DragDropTypes/DragDropAsset.h"
 
+//Timeline System
+#include "Engine/TimelineCore/TimelineSystem.h"
+#include "Engine/TimelineCore/AnimationNotifySet.h"
+
 //컴포넌트는 접근 안하는 헤더들
 #ifndef _SCRIPTS_PROJECT
 
@@ -200,6 +204,7 @@ using namespace Microsoft::WRL;
 #include "Editor/Tool/Model/EditorModelDetails.h"
 #include "Editor/Tool/Model/EditorModelTool.h"
 #include "Editor/Tool/Model/EditorModelHierarchy.h"
+#include "Editor/Tool/Model/EditorAnimationNotifyTool.h"
 #include "Editor/Tool/Command/EditorCommandTool.h"
 #include "Editor/Tool/Sequencer/EditorSequencerTool.h"
 

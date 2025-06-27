@@ -45,4 +45,5 @@ private:
     bool _isPlaying = false;
     float _animationFrame = 0.0f;
     std::string _currentAnimationKey = "";
+
 };

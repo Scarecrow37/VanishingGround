@@ -17,6 +17,16 @@ EditorModelDetails::EditorModelDetails()
     SetDockLayout(ImGuiDir_Right);
 }
 
+std::shared_ptr<Model> EditorModelDetails::GetModel() const
+{
+    return _meshRenderer ? _meshRenderer->GetModel() : std::shared_ptr<Model>();
+}
+
+std::shared_ptr<Animator> EditorModelDetails::GetAnimator() const
+{
+    return _animator;
+}
+
 void EditorModelDetails::OnTickGui() {}
 
 void EditorModelDetails::OnStartGui()
@@ -81,7 +91,11 @@ void EditorModelDetails::OnFrameRender()
                     if (ImGui::Selectable(animationNames[i], isSelected))
                     {
                         if (_currentAnimationIndex != i)
+                        {
                             _currentAnimationIndex = i;
+                            _currentAnimationName = animationNames[i];
+                        }
+                           
                         _animator->ChangeAnimation(animationNames[_currentAnimationIndex]);
                     }
                     // 선택된 항목은 포커스를 줌

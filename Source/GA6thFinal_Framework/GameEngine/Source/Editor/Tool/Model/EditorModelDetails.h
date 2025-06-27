@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+class Model;
 class Animator;
 class MeshRenderer;
 class FBXConverter;
@@ -14,6 +15,11 @@ public:
 
 public:
     void SetSelectedMesh(unsigned int index) { _selectedMeshIndex = index; }
+
+    std::shared_ptr<Model>    GetModel() const;
+    std::shared_ptr<Animator> GetAnimator() const;
+
+    inline const std::string& GetCurrentAnimationName() { return _currentAnimationName; }
 
 private:
     virtual void OnTickGui() override;
@@ -41,6 +47,7 @@ private:
 
     /* Popup창 호출 성공 시 호출 (OnPreFrameBegin 전에 호출) */
     virtual void OnFramePopupOpened() override;
+   
 
 private:
     static FBXConverter& GetFBXConverter();
@@ -58,6 +65,7 @@ private:
     std::unique_ptr<Light>               _mainLight;
     unsigned int                         _selectedMeshIndex = 0;
     unsigned int                         _currentAnimationIndex = 0;
+    std::string                          _currentAnimationName  = "";
 
     // Light Property
     Vector3 _direction;

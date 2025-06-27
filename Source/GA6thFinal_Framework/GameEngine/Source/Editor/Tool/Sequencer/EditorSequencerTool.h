@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include "Engine/TimelineCore/TimelineSystem.h"
 
 class EditorModelDetails;
 class Animator;
@@ -11,18 +10,18 @@ public:
     virtual ~EditorSequencerTool();
 
 public:
-    virtual void OnTickGui() override;
-    virtual void OnStartGui() override;
-    virtual void OnEndGui() override;
+    void OnTickGui() override;
+    void OnStartGui() override;
+    void OnEndGui() override;
 
-    virtual void OnPreFrameBegin();
-    virtual void OnPostFrameBegin();
-    virtual void OnFrameRender();
-    virtual void OnFrameEnd();
-    virtual void OnFrameFocusEnter();
-    virtual void OnFrameFocusStay();
-    virtual void OnFrameFocusExit();
-    virtual void OnFramePopupOpened();
+    void OnPreFrameBegin() override;
+    void OnPostFrameBegin() override;
+    void OnFrameRender() override;
+    void OnFrameEnd() override;
+    void OnFrameFocusEnter() override;
+    void OnFrameFocusStay() override;
+    void OnFrameFocusExit() override;
+    void OnFramePopupOpened() override;
 
     void SerializedReflectEvent() override;
     void DeserializedReflectEvent() override;

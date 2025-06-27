@@ -78,6 +78,10 @@ private:
 
     int GetInteractionState(const ImRect& rect) const;
 
+    float GetCurrentFrame() const;
+    float GetMinFrame() const;
+    float GetMaxFrame() const;
+
 public:
     std::shared_ptr<TimelineSystem> _system; // System WeakPtr
 
