@@ -166,8 +166,8 @@ public:
     inline bool                     IsDrawable() const { return _isDrawable; }
     /*                              Begin과 End 사이의 작업 중인지 여부 */
     inline bool                     IsBeginningFrame() const { return _isBeginningFrame; }
-    /*                              해당 프레임이 포커싱 중인지 여부 */ 
     inline void                     SetFocusFrame() const { ImGui::SetWindowFocus(GetLabel().c_str()); }
+    /*                              해당 프레임이 포커싱 중인지 여부 */ 
     inline bool                     IsFocusFrame() const { return _isFrameFocused; }
     /*                              해당 객체가 도킹 윈도우인지 반환 */
     inline bool                     IsDockWindow() const { return _isDockWindow; }

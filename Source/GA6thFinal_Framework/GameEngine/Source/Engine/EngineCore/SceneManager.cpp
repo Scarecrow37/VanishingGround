@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "Engine/GraphicsCore/Model.h"
 #include "Engine/GraphicsCore/Light.h"
+#include "Engine/GraphicsCore/Animator.h"
 #include "UmScripts.h"
 using namespace Global;
 using namespace u8_literals;
@@ -399,23 +400,27 @@ void ESceneManager::Engine::SwapPrefabInstance(GameObject* original, GameObject*
     ESceneManager& sceneManager = UmSceneManager;
     int index = original->GetInstanceID();
     std::shared_ptr<GameObject>& sOrigin = sceneManager._runtimeObjects[index];
-    std::shared_ptr<GameObject>  sRemake = remake->GetWeakPtr().lock();
-    std::swap(sOrigin->_instanceID, sRemake->_instanceID);
-    std::swap(sOrigin->_ownerScene, sRemake->_ownerScene);
-    std::swap(sOrigin, sRemake);
-    std::string objectData = sRemake->SerializedReflectFields();
-    sOrigin->DeserializedReflectFields(objectData);
-    sOrigin->_transform = sRemake->_transform;
-    sceneManager.EraseGameObjectMap(sRemake);
-    sceneManager.InsertGameObjectMap(sOrigin);
-
-    for (int i = 0; i < sOrigin->GetComponentCount(); ++i)
+    if (nullptr != sOrigin)
     {
-        Component* component = sOrigin->GetComponentAtIndex<Component>(i);
-        if (component)
+        std::shared_ptr<GameObject> sRemake = remake->GetWeakPtr().lock();
+        std::swap(sOrigin->_instanceID, sRemake->_instanceID);
+        std::swap(sOrigin->_ownerScene, sRemake->_ownerScene);
+        std::swap(sOrigin, sRemake);
+        std::string objectData = sRemake->SerializedReflectFields();
+        sOrigin->DeserializedReflectFields(objectData);
+        sOrigin->_transform = sRemake->_transform;
+        sceneManager.EraseGameObjectMap(sRemake);
+        sceneManager.InsertGameObjectMap(sOrigin);
+        GameObject::Engine::UpdateActiveInHierarchy(sOrigin.get());
+
+        for (int i = 0; i < sOrigin->GetComponentCount(); ++i)
         {
-            component->_initFlags.SetAwake();
-            component->_initFlags.SetStart();
+            Component* component = sOrigin->GetComponentAtIndex<Component>(i);
+            if (component)
+            {
+                component->_initFlags.SetAwake();
+                component->_initFlags.SetStart();
+            }
         }
     }
 }
@@ -970,6 +975,7 @@ void ESceneManager::ObjectsAddRuntime()
             std::shared_ptr<Camera> newCamera(new Camera);
             camera->SetTarget(newCamera);
         }
+
         component->UpdateEnableInHierarchy();
     }
     _addComponentsQueue.clear();
@@ -1471,6 +1477,16 @@ void ESceneManager::SceneResourceManager::Update(SceneResourceManager& manager)
                                 meshRenderer.LoadModel(path.wstring());
                                 models.ModelUseComponentList[guid].emplace_back(pMeshComponent);
                                 UmSceneManager._runtimeMeshComponents.emplace_back(pMeshComponent);
+                                auto& animation = meshRenderer.GetModel()->GetAnimation();
+                                auto& skeleton  = meshRenderer.GetModel()->GetSkeleton();
+                                if (animation != nullptr && skeleton != nullptr)
+                                {
+                                    std::shared_ptr<Animator> animator(new Animator);
+                                    animator->Initialize(animation, skeleton);
+                                    animator->SetActive(&pMeshComponent->EnableInHierarchy);
+                                    meshRenderer.SetAnimator(animator);
+                                    UmAnimationCore.RegisterAnimator(animator);
+                                }
                             }
                         }
                         else

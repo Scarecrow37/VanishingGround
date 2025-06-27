@@ -44,4 +44,5 @@ private:
     std::vector<std::weak_ptr<GameObject>> _findList;
     std::string _tagFilter;
     ImGuiTextFilter _nameFilter;
+    class EditorHierarchyTool* _editorHierarchyTool = nullptr;
 };

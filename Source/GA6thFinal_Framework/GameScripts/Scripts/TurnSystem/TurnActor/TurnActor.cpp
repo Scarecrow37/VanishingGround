@@ -14,7 +14,6 @@ void TurnActor::PlayTurn()
     if (_currState == STATE::Wait)
     {
         _currState = STATE::Play;
-        OnTurnStart();
     }
 }
 
@@ -23,8 +22,20 @@ void TurnActor::Revive()
     if (_currState == STATE::Dead)
     {
         _currState = STATE::Wait;
-        OnRevive();
     }
+}
+
+void TurnActor::Dead() 
+{
+    if (_currState != STATE::Dead)
+    {
+        _currState = STATE::Dead;
+    }
+}
+
+void TurnActor::OnRoundStart() 
+{
+    _randomSpeed = Random::Range(DEFINE::RANDOMSPEED_MIN, DEFINE::RANDOMSPEED_MAX);
 }
 
 void TurnActor::EndTurn() 
@@ -32,7 +43,6 @@ void TurnActor::EndTurn()
     if (_currState == STATE::Play)
     {
         _currState = STATE::Wait;
-        OnTurnEnd();
     }
 }
 
