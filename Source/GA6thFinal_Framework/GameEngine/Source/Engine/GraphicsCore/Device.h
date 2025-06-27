@@ -24,6 +24,7 @@ public:
     UINT                       GetCurrentBackBufferIndex() { return _renderTargetIndex; }
     D3D12_VIEWPORT             GetMainViewport() { return _mainViewport; }
 
+
 public:
     void SetUpDevice(HWND hwnd, UINT width, UINT height, FeatureLevel feature);
     void Initialize();
@@ -72,6 +73,7 @@ private:
     void SignalGraphicsQueue(int fenceSlot);
 
 private:
+    std::unique_ptr<GraphicsMemory> _graphicsMemory;
     ComPtr<ID3D12Device>       _device;
     ComPtr<IDXGIFactory4>      _dxgiFactory;
     ComPtr<IDXGISwapChain4>    _swapChain;

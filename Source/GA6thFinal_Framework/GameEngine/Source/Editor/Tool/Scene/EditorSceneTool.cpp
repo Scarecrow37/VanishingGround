@@ -85,6 +85,15 @@ void EditorSceneTool::OnFrameRender()
     DrawManipulate();
     RayPicker();
     VertexSnap();
+
+    UmDebugDrawCore.DrawDebugGrid("Editor", _camera->GetPosition(), 5000.f, 40);
+
+
+    BoundingFrustum frustum;
+    BoundingFrustum::CreateFromMatrix(frustum, _camera->GetCamera()->GetProjectionMatrix());
+    //frustum.Transform(frustum, _camera->GetCamera()->GetWorldMatrix());
+
+    //UmDebugDrawCore.Draw("Editor", frustum, DirectX::Colors::Blue);
 }
 
 void EditorSceneTool::OnFrameEnd()

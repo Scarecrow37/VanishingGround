@@ -22,6 +22,7 @@ public:
 public:
     D3D12_GPU_DESCRIPTOR_HANDLE GetRenderSceneImage(std::string_view renderSceneName);
     std::shared_ptr<Camera>     GetCamera(std::string_view renderSceneName);
+    RenderScene*                GetRenderScene(std::string_view renderSceneName);
 
 public:
     void SetCamera(std::string_view renderSceneName, std::shared_ptr<Camera> camera);

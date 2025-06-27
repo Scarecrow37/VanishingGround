@@ -20,3 +20,10 @@ void SpotLight::Reset()
     const float&   outer      = ReflectFields->Outer;
     Lighting.SetSpotLight(color, position, direction, attenuation, range, inner, outer, intensity);
 }
+
+void SpotLight::Update()
+{
+    Vector3 position = transform->Position;
+    Vector3 direction = transform->Forward;
+    UmDebugDrawCore.DrawSpotLight("Editor", position, direction, GetRange(), XMConvertToRadians(ReflectFields->Inner), XMConvertToRadians(ReflectFields->Outer), DirectX::Colors::Green);
+}
