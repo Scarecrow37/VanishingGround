@@ -119,6 +119,18 @@ public:
 
     /// <summary>
     /// <para> 딜레이 시간 이후 함수를 호출해줍니다. </para>
+    /// <para> weakPtr을 통해 유효성 확인이 가능한 함수만 등록 가능합니다. </para>
+    /// </summary>
+    /// <param name="object :">유효성 검사용 ITimeInvoker 객체</param>
+    /// <param name="delay :">지연 시간</param>
+    /// <param name="func :">호출할 함수</param>
+    void Invoke(ITimeInvoker& object, float delay, const std::function<void()>& func)
+    { 
+        Invoke(&object, delay, func);
+    }
+
+    /// <summary>
+    /// <para> 딜레이 시간 이후 함수를 호출해줍니다. </para>
     /// <para> 주의 : 댕글링 접근 가능성이 있는 함수는 꼭 ITimeInvoker를 같이 넘겨야 합니다. </para>
     /// </summary>
     /// <param name="delay"></param>
