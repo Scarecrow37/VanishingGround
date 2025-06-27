@@ -141,6 +141,7 @@ void HierarchyFindTool::DrawFindList()
                         EditorHierarchyTool::HierarchyFocusObjWeak = object;
                         EditorInspectorTool::SetFocusObject(object);
                         _editorHierarchyTool->SetFocusFrame();
+                        _editorHierarchyTool->OpenFocusObjectTree();
                     }
                 }
             }

@@ -9,9 +9,15 @@ public:
     inline static std::weak_ptr<GameObject> HierarchyFocusObjWeak;
     EditorHierarchyTool();
     virtual ~EditorHierarchyTool();
+
+public:
     static void ImGuiNewGameObjectMenuItems();
+
+    /*포커싱된 오브젝트의 트리 노드를 1회 Open 합니다.*/
+    void OpenFocusObjectTree() { _isOpenFocusObj = true; }
+
 private:
-    static void TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>& focusObject);
+    void TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>& focusObject);
 
     virtual void OnStartGui() override;
 
@@ -40,6 +46,7 @@ private:
 
     ImGuiWindow* _window = nullptr;
     bool         _isPlay = false;
+    bool         _isOpenFocusObj = false;
 
     EditorDockWindow* _dockWindow = nullptr;
     EditorSceneTool*  _editorSceneTool = nullptr;
