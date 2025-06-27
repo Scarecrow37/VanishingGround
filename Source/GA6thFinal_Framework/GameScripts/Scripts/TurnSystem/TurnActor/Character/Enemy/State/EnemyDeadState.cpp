@@ -10,7 +10,7 @@ void EnemyDeadState::OnStart() {}
 void EnemyDeadState::OnEnter() 
 {
     GameObject* gameObject = &GetFSM().gameObject;
-    static std::string message = std::format("{} {}", gameObject->ToString(), (const char*)u8"사망.");
+    std::string message = std::format("{} {}", gameObject->ToString(), (const char*)u8"사망.");
     UmLogger.Message(LogLevel::LEVEL_TRACE, message);
 }
 
