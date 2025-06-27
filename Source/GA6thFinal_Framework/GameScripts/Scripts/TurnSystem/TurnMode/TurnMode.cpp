@@ -74,8 +74,9 @@ void TurnMode::SortTurnList()
     {
         for (auto& actor : _turnList)
         {
-            actor->SetRandomSpeed(Random::Range(0, 6));
+            actor->OnRoundStart();
         }
+
         std::shuffle(_turnList.begin(), _turnList.end(), Random::GetEngine());
         std::sort(_turnList.begin(), _turnList.end(), [](TurnActor* actorA, TurnActor* actorB) 
         {
