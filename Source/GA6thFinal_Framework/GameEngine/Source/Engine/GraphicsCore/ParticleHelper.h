@@ -62,6 +62,8 @@ struct ParticleOutput
 struct EmitterInfo
 {
     Matrix WorldMatrix;
+    Vector4 dragPoint;
+    Vector4 dragForce;
 };
 
 struct __declspec(align(16)) MVPConstants

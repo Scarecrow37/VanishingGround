@@ -20,7 +20,6 @@ public:
 private:
     void InitializeShader();
     void InitializePSO();
-    void InitializeDescriptorHeap();
 
 
 

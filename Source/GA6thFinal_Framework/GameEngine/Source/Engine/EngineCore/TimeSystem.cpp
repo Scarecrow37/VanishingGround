@@ -101,3 +101,9 @@ bool ETimeSystem::Engine::TimeSystemFixedUpdate()
 {
 	return engineCore->Time.TimeSystemFixedUpdate();
 }
+
+void ETimeSystem::Engine::CleanUpInvokeFuntions() 
+{
+    engineCore->Time._unsafeInvokeFunctions.clear();
+    engineCore->Time._safeInvokeFunctions.clear();
+}

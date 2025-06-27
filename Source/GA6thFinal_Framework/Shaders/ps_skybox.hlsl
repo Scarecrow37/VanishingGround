@@ -1,4 +1,4 @@
-#include "CommonData.hlsli"
+#include "Function.hlsli"
 TextureCube evnTexture;
 struct VSOutput
 {
@@ -9,6 +9,7 @@ struct VSOutput
 float4 ps_main(VSOutput input) : SV_Target
 {
     float4 color = evnTexture.Sample(samLinear_wrap, input.texCoord);
-    color = pow(color, 1 / 2.2);
+    color.rgb = GammaToLinearSpace(color.rgb) * 10.f;
+    
     return color;
 }

@@ -52,8 +52,10 @@ class MeshSurfaceLocator : public EmitLocator
 public:
     Vector3 EmitLocate();
     void    SetVertices(const std::vector<Vector3>& vertices) { _vertices = vertices; }
+    void    LerpVertices();
 
 private:
+
     std::vector<Vector3> _vertices;
 
 };
@@ -198,4 +200,13 @@ protected :
     UMPARTICLE_PROPERTY(float, _particleLifetime, ParticleLifetime, 1.f);
     UMPARTICLE_PROPERTY(float, _particleMass, ParticleMass, 0.1f);
     UMPARTICLE_PROPERTY(float, _particleDistributionOffset, ParticleDistributionOffset, 1.f);
+
+    //w = drag flag
+    UMPARTICLE_PROPERTY_REF(Vector4, _dragPoint, DragPoint, Vector4(0, 0, 0, 0));
+
+    //x = drag radius y = drag force
+    UMPARTICLE_PROPERTY_REF(Vector4, _dragForce, DragForce, Vector4(0, 0, 0, 0));
+
+    UMPARTICLE_PROPERTY(bool, _endFlag, EndFlag, false);
+
 };

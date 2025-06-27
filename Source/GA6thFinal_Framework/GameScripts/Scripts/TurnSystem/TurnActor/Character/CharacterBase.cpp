@@ -55,3 +55,9 @@ void CharacterBase::OnRevive()
     _mp = MaxMP;
 }
 
+void CharacterBase::OnDead() 
+{
+    _hp = 0;
+    _mp = 0;
+}
+
