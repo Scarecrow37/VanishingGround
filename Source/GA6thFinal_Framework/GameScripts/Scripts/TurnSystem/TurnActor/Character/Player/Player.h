@@ -42,7 +42,7 @@ private:
     void BuildPlayerFSM();
     struct PlayerStates
     {
-        class PlayerTurnWaitState* PlayerTurnWaitState = nullptr;
+        class PlayerWaitTurnState* PlayerWaitTurnState = nullptr;
         class PlayerPlayTurnState* PlayerPlayTurnState = nullptr;
         class PlayerDeadState*     PlayerDeadState     = nullptr;
     } 

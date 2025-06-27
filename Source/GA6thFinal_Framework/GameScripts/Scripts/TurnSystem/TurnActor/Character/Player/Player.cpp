@@ -10,7 +10,7 @@
 #include "Condition/PlayerDeadCondition.h"
 
 //State
-#include "State/PlayerTurnWaitState.h"
+#include "State/PlayerWaitTurnState.h"
 #include "State/PlayerPlayTurnState.h"
 #include "State/PlayerDeadState.h"
 
@@ -120,19 +120,19 @@ void Player::BuildPlayerFSM()
         _finiteStateMachine->AddCondition<PlayerDeadCondition>();
 
         //States
-        _fsmStates.PlayerTurnWaitState = _finiteStateMachine->AddState<PlayerTurnWaitState>();
+        _fsmStates.PlayerWaitTurnState = _finiteStateMachine->AddState<PlayerWaitTurnState>();
         _fsmStates.PlayerPlayTurnState = _finiteStateMachine->AddState<PlayerPlayTurnState>();
         _fsmStates.PlayerDeadState     = _finiteStateMachine->AddState<PlayerDeadState>();
 
         //Transition
-        _finiteStateMachine->AddTransition<PlayerTurnWaitState, PlayerStartCondition, PlayerPlayTurnState>();
-        _finiteStateMachine->AddTransition<PlayerPlayTurnState, PlayerExitCondition, PlayerTurnWaitState>();
+        _finiteStateMachine->AddTransition<PlayerWaitTurnState, PlayerStartCondition, PlayerPlayTurnState>();
+        _finiteStateMachine->AddTransition<PlayerPlayTurnState, PlayerExitCondition, PlayerWaitTurnState>();
 
         _finiteStateMachine->AddTransition<PlayerDeadCondition, PlayerDeadState>();
-        _finiteStateMachine->AddTransition<PlayerDeadState, PlayerExitCondition, PlayerTurnWaitState>();
+        _finiteStateMachine->AddTransition<PlayerDeadState, PlayerExitCondition, PlayerWaitTurnState>();
 
         //Entry
-        _finiteStateMachine->SetEntryState<PlayerTurnWaitState>();
+        _finiteStateMachine->SetEntryState<PlayerWaitTurnState>();
     }
 }
 
