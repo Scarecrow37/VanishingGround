@@ -67,6 +67,10 @@ void EditorSequencerTool::OnFrameRender()
     ImGui::SameLine();
     availSize = ImGui::GetContentRegionAvail();
     ImGui::BeginChild("SequencerDetail", ImVec2(availSize), true);
+    if (ImGui::CollapsingHeader("Sequencer Debug"))
+    {
+        _sequencer->ShowDebugData();
+    }
     if (ImGui::CollapsingHeader("Timeline Notifies"))
     {
         ShowTimelineNotifies();
