@@ -1,6 +1,8 @@
 ﻿#include "pchScripts.h"
 #include "EnemyDeadState.h"
 
+REGISTER_CLASS(FSMStateFactory, EnemyDeadState)
+
 void EnemyDeadState::OnAwake() {}
 
 void EnemyDeadState::OnStart() {}

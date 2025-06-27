@@ -105,9 +105,13 @@ void Enemy::BuildEnemyFSM()
 
         //Condition
         _finiteStateMachine->AddCondition<EnemyStartCondition>();
+        _finiteStateMachine->AddCondition<EnemyEndCondition>();
+        _finiteStateMachine->AddCondition<EnemyDeadCondition>();
 
         //State
         _finiteStateMachine->AddState<EnemyWaitTurnState>();
+        _finiteStateMachine->AddState<EnemyPlayTurnState>();
+        _finiteStateMachine->AddState<EnemyDeadState>();
 
         //Transition
         _finiteStateMachine->AddTransition<EnemyWaitTurnState, EnemyStartCondition, EnemyPlayTurnState>();

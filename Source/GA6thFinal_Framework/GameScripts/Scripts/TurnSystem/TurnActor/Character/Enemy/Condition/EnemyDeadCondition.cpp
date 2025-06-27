@@ -3,6 +3,8 @@
 
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
 
+REGISTER_CLASS(FSMConditionFactory, EnemyDeadCondition)
+
 void EnemyDeadCondition::OnAwake() {}
 
 void EnemyDeadCondition::OnStart() {}
