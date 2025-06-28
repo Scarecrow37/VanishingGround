@@ -19,17 +19,17 @@ void ParticleEffect::Initialize(class ParticleManager* particleManager)
     //_scale = Vector3(random, random, random);
 }
 
-void ParticleEffect::Update(float deltaTime) 
+void ParticleEffect::Update(float deltaTime)
 {
 
-   _age += deltaTime;
+    _age += deltaTime;
     if (_age >= _lifetime)
     {
         _activeFlag = false;
         return;
     }
 
-    _rotationMatrix = Matrix::CreateFromQuaternion(_rotation);
+    _rotationMatrix    = Matrix::CreateFromQuaternion(_rotation);
     _translationMatrix = Matrix::CreateTranslation(_position);
 
     _worldMatrix = _rotationMatrix * _translationMatrix;
@@ -45,11 +45,13 @@ void ParticleEffect::Update(float deltaTime)
 
 ParticleEmitter* ParticleEffect::AddEmitter(SIZE_T maxParticles /*= 100000*/, float emissionRate /*= 500.f*/,
                                 float emitterLifetime /*= 5.f*/, LocationShape locatorShape /*= LocationShape::SPHERE*/,
-                                Vector3 locationFactor /*= Vector3(1, 1, 1)*/)
+                                            Vector3       locationFactor /*= Vector3(1, 1, 1)*/,
+                                            ParticleType  particleType /*= ParticleType::SPRITE*/)
 {
     auto newEmitter = new ParticleEmitter();
-    newEmitter->Initialize(maxParticles, emissionRate, emitterLifetime, locatorShape, locationFactor);
-
+    newEmitter->Initialize(maxParticles, emissionRate, emitterLifetime, locatorShape, locationFactor,particleType);
+    std::string name = "Emitter " + std::to_string(namingIndex) + "-" + std::to_string(emitterNamingIndex++);
+    newEmitter->SetEmitterName(name);
     _particleEmitters.push_back(newEmitter);
     return newEmitter;
 }

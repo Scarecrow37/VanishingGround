@@ -7,7 +7,6 @@ class ParticleManager
 public:
     ParticleManager();
     virtual ~ParticleManager();
-    float elapsedtimer = 0.f;
 
 
     void                   Initialize(UINT maxParticles);
@@ -15,7 +14,8 @@ public:
     class ParticleEmitter* RegisterEmitter(class ParticleEffect* effect, SIZE_T maxParticles = 100000,
                                            float emissionRate = 1000.f, float emitterLifetime = 150.f,
                                            LocationShape locatorShape   = LocationShape::SPHERE,
-                                           Vector3       locationFactor = Vector3(1, 1, 1));
+                                           Vector3       locationFactor = Vector3(1, 1, 1),
+                                           ParticleType  particleType   = ParticleType::SPRITE);
     void                   DeleteEffect(UINT);
     void                   Update(const float deltaTime);
 
@@ -23,14 +23,10 @@ public:
     UINT                                  GetTotalCount() const { return _totalCount; }
     UINT                                  GetMaxCount() const { return _maxParticles; }
     std::vector<std::shared_ptr<Texture>> GetActiveAlbedos() const { return _activeEmitterAlbedos; }
-    //임시
-    bool isSorted = true;
-    //
-    ID3D12Resource*                GetComputeOutputResource() 
-    {
-            return _particleOutputBuffer.Get(); 
-    }
-    ID3D12GraphicsCommandList*     GetRenderCommandList() { return _renderCommandList.Get(); }
+    ID3D12Resource*                       GetComputeOutputResource() { return _particleOutputBuffer.Get(); }
+    ID3D12GraphicsCommandList*            GetRenderCommandList() { return _renderCommandList.Get(); }
+    std::vector<class ParticleEffect*>&   GetEffectList() { return _pariticleEffects; }
+
     void                                  ResetRenderCommandObject();
 
 public:
@@ -118,6 +114,7 @@ private:
 
 
     float _elapsedTimer = 0.f;
+    int   nameingIndex  = 0;
 
 
 

@@ -4,10 +4,7 @@
 
 
  EditorParticleEffectViewer::EditorParticleEffectViewer() 
-         : _camera(std::make_unique<EditorDynamicCamera>()), 
-     _editorParticleEffectDetails(nullptr)
-
-
+         : _camera(std::make_unique<EditorDynamicCamera>())
  {
      SetLabel("Viewer##particleeffect");
      SetDockLayout(ImGuiDir_Up);

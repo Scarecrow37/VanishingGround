@@ -1,6 +1,7 @@
 ﻿#pragma once
 class EditorParticleEffectHierarchy : public EditorTool
 {
+
 public:
     EditorParticleEffectHierarchy();
     virtual ~EditorParticleEffectHierarchy();
@@ -32,6 +33,9 @@ private:
 
 private:
     EditorParticleEffectDetails* _editorParticleEffectDetails;
+    EditorParticleEffectViewer*  _editorParticleEffectViewer;
+    class ParticleEffect* _curEffect = nullptr;
+    void                  ShowCurrentEffects();
 
 
 };

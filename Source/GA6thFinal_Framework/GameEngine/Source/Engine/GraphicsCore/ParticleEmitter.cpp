@@ -47,7 +47,7 @@ DirectX::SimpleMath::Vector3 CylinderLocator::EmitLocate()
 
 DirectX::SimpleMath::Vector3 ConeLocator::EmitLocate() 
 {
-    float   locationY     = (_randomVal() + 2 / 2) * _factor.y;
+    float   locationY     = (_randomVal() + 1) / 2 * _factor.y;
     float   sectionRadius = locationY * std::tan(_factor.x);
     Vector3 location      = Vector3(_randomVal(), 0, _randomVal());
     while (location.Length() > 1)
@@ -61,29 +61,35 @@ DirectX::SimpleMath::Vector3 ConeLocator::EmitLocate()
 
 DirectX::SimpleMath::Vector3 TorusLocator::EmitLocate() 
 {
+    if (_factor.x <= _factor.z)
+    {
+        _factor.z = _factor.x - 0.1f;
+    }
     // 랜덤 값을 [0,1] 범위로 매핑
     auto mapTo01 = [&]() { return (_randomVal() + 1.0f) * 0.5f; };
 
     // 각도는 균등 분포 [0, 2π]
     float angle = 2.0f * XM_PI * mapTo01();
 
-    // 링에서 균등한 반지름 분포 계산
-    float innerRadius = 1.0f;                  // 내부 반지름
-    float outerRadius = _factor.x / _factor.z; // 외부 반지름 (ratio)
 
-    // 면적 보정을 위한 반지름 계산: r = √(u(R²-r²) + r²)
-    float u             = mapTo01();
-    float radiusSquared = u * (outerRadius * outerRadius - innerRadius * innerRadius) + innerRadius * innerRadius;
-    float radius        = std::sqrt(radiusSquared);
+    float radius = _randomVal();
+    radius *= (_factor.x - _factor.z) / 2;
+    radius += (_factor.x + _factor.z) / 2;
+
+
+    float height = _randomVal();
+    float temp   = std::sqrt((_factor.x - radius) * (radius - _factor.z));
+    height *= temp;
+    height *= _factor.y;
+
 
     // 극좌표를 직교좌표로 변환
     Vector3 location;
     location.x = radius * std::cos(angle);
-    location.y = 0;
+    location.y = height;
     location.z = radius * std::sin(angle);
 
     // 스케일 적용
-    location *= _factor.z;
     return location;
 }
 
@@ -164,6 +170,11 @@ std::shared_ptr<Texture> SpriteModule::GetNormalTexture() const
     return _normalTexture;
 }
 
+void SpriteModule::Initialize()
+{
+    LoadAlbedoTexture(L"../../../Resource/Assets/ParticleTexture/defaultSmoke.jpg");
+}
+
 void SpriteModule::CalculateFrameInfos() 
 {
     _preCalculatedFrameInfos.clear();
@@ -233,6 +244,7 @@ void ParticleEmitter::Initialize(SIZE_T maxParticles /*= 100000*/, float emissio
         break;
     }
 
+    _particleRenderModule->Initialize();
     _emitLocator->RandomInitialize();
     _emitLocator->SetFactor(locationFactor);
     _maxParticles = maxParticles;
@@ -252,9 +264,9 @@ void ParticleEmitter::AwakeParticle(UINT index)
 
     Vector4 location = {1, 1, 1, 1};
     Vector3 tempPos = _emitLocator->EmitLocate();
-    location.x      = tempPos.x + offset.x * _particleDistributionOffset;
-    location.y      = tempPos.y + offset.y * _particleDistributionOffset;
-    location.z      = tempPos.z + offset.z * _particleDistributionOffset;
+    location.x      = tempPos.x + offset.x * _particleDistributionOffset.x;
+    location.y      = tempPos.y + offset.y * _particleDistributionOffset.y;
+    location.z      = tempPos.z + offset.z * _particleDistributionOffset.z;
 
     _particlePool[index]->SetPosition(location);
     ScaleVelocity({location.x, location.y, location.z});
@@ -326,10 +338,17 @@ void ParticleEmitter::Reset()
     _delayFlag = _activeFlag = false;
     _delayTimer              = 0.f;
     _emitterAge              = 0.f;
+    _activeParticleCount     = 0;
+    while (false == _inactiveParticleIndices.empty())
+    {
+        _inactiveParticleIndices.pop();
+    }
     for (size_t i = 0; i < _maxParticles; ++i)
     {
         delete _particlePool[i]; // 기존 파티클 삭제
         _particlePool[i] = new Particle();
+        _inactiveParticleIndices.push(i);
+
     }
 }
 
@@ -368,7 +387,7 @@ void ParticleEmitter::Update(float deltaTime)
     }
 
     _translationMatrix = Matrix::CreateTranslation(_emitterPosition);
-    _rotationMatrix    = Matrix::CreateFromQuaternion(_emitterRotation);
+    _rotationMatrix    = Matrix::CreateFromQuaternion(_emitterRotationQ);
     _worldMatrix       = _rotationMatrix * _translationMatrix * _effectWorldMatrix;
 }
 
@@ -406,10 +425,6 @@ void ParticleEmitter::SetVelocityType(VelocityScaleType velType)
     _velocityType = velType;
 }
 
-void ParticleEmitter::SetVelocityFactor(const Vector3& factor) 
-{
-    _velocityFactor = factor;
-}
 
 void ParticleEmitter::InitializeLocator(LocationShape locatorShape , Vector3 factor) 
 {
@@ -449,6 +464,7 @@ void ParticleEmitter::ScaleVelocity(Vector3 pos)
         break;
         // scale, radius
     case VelocityScaleType::CONE:
+
     case VelocityScaleType::POINT:
         ScaleVelFromPoint(pos);
         break;
@@ -469,4 +485,6 @@ void ParticleEmitter::ScaleVelFromPoint(Vector3 pos)
     temp.Normalize();
     _velocity = temp * _velocityFactor.x;
 }
+
+void ParticleEmitter::ScaleVelInCone(Vector3 pos) {}
 
