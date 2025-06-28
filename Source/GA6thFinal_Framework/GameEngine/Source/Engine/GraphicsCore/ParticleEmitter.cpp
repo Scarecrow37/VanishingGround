@@ -200,6 +200,7 @@ void ParticleEmitter::Initialize(SIZE_T maxParticles /*= 100000*/, float emissio
                                  Vector3       locationFactor /*= Vector3(1,1,1)*/,
                                  ParticleType  particleType /*= ParticleType::SPRITE*/)
 {
+    _emitterLifetime = emitterLifetime;
     _particleType = particleType;
     switch (particleType)
     {
