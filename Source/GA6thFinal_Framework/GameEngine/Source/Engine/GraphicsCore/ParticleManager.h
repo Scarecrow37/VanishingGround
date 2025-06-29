@@ -53,6 +53,7 @@ private:
     void CreateDescriptors();
 
     void CopyActiveParticles();
+    void CopyActiveParticlesEditorMode();
 
     void DispatchParticleCompute(float deltaTime);
     void UpdateParticleResources(float deltaTime);
@@ -103,6 +104,8 @@ private:
     bool pauseFlag = false;
 
     UINT _particleEmitterCount = 0;
+
+    class ParticleEffect* _editorCurrentEffect = nullptr;
 
     std::vector<class ParticleEffect*>    _pariticleEffects;
     std::vector<class Particle>           _totalParticles;

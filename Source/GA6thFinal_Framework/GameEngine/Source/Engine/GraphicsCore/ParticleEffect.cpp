@@ -56,7 +56,11 @@ ParticleEmitter* ParticleEffect::AddEmitter(SIZE_T maxParticles /*= 100000*/, fl
     return newEmitter;
 }
 
-void ParticleEffect::RemoveEmitter() {}
+void ParticleEffect::RemoveEmitter() 
+{
+
+
+}
 
 class ParticleEmitter* ParticleEffect::GetEmitter(size_t emitterIndex) 
 {

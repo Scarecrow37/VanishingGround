@@ -482,7 +482,8 @@ void ParticleEmitter::ScaleVelocity(Vector3 pos)
 void ParticleEmitter::ScaleVelFromPoint(Vector3 pos) 
 {
     Vector3 worldpos = {_worldMatrix._41, _worldMatrix._42, _worldMatrix._43};
-    Vector3 temp      = pos - worldpos;
+    Vector3 temp     = pos;
+    //Vector3 temp      = pos - _emitterPosition;
     temp.Normalize();
     _velocity = temp * _velocityFactor.x;
 }

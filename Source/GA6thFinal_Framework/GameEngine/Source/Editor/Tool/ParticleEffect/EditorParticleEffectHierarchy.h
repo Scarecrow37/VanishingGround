@@ -34,8 +34,8 @@ private:
 private:
     EditorParticleEffectDetails* _editorParticleEffectDetails;
     EditorParticleEffectViewer*  _editorParticleEffectViewer;
-    class ParticleEffect* _curEffect = nullptr;
-    void                  ShowCurrentEffects();
-
+    class ParticleEffect*        _curEffect  = nullptr;
+    class ParticleEmitter*       _curEmitter = nullptr;
+    void                         ShowCurrentEffects();
 
 };

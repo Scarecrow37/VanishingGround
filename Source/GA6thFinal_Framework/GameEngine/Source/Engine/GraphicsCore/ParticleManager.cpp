@@ -73,6 +73,8 @@ void ParticleManager::Initialize(UINT maxParticles)
      emitter->SetDragPoint({0, 10, 30, 0});
      emitter->SetDragForce({30, 1, 10, 0});
 
+     _editorCurrentEffect = _pariticleEffects[0];
+
 }
 ParticleEffect* ParticleManager::RegisterEffect()
 {
@@ -105,37 +107,50 @@ void ParticleManager::Update(const float deltaTime)
         delta = 0;
     }
 
-    //elapsedtimer += deltaTime;
-    //Quaternion rot = Quaternion::CreateFromAxisAngle({1, 0, 0}, XM_PIDIV2 * elapsedtimer);
-    //_pariticleEffects[0]->GetEmitterList()[0]->_emitterRotation = rot;
-
-
-
-
-  
-    for (auto effect : _pariticleEffects)
+    if (!IS_EDITOR)
     {
-        effect->Update(delta);
-    }
-    // copy active particle data
-    if (false == _pariticleEffects.empty())
-    {
-        CopyActiveParticles();
-    }
 
-    // dispatch particle compute shader
-    {
-        DispatchParticleCompute(delta);
-    }
-
-    // update particle lifecycle
-    for (auto effect : _pariticleEffects)
-    {
-        if (true == effect->GetActiveFlag())
+        for (auto effect : _pariticleEffects)
         {
-            effect->UpdateParticleLifeCycle(delta);
+            effect->Update(delta);
+        }
+        // copy active particle data
+        if (false == _pariticleEffects.empty())
+        {
+            CopyActiveParticles();
+        }
+
+        // dispatch particle compute shader
+        {
+            DispatchParticleCompute(delta);
+        }
+
+        // update particle lifecycle
+        for (auto effect : _pariticleEffects)
+        {
+            if (true == effect->GetActiveFlag())
+            {
+                effect->UpdateParticleLifeCycle(delta);
+            }
         }
     }
+    else
+    {
+        if (nullptr == _editorCurrentEffect)
+            return;
+        _editorCurrentEffect->Update(delta);
+        CopyActiveParticlesEditorMode();
+        DispatchParticleCompute(delta);
+        if (true == _editorCurrentEffect->GetActiveFlag())
+        {
+            _editorCurrentEffect->UpdateParticleLifeCycle(delta);
+        }
+
+    }
+
+
+
+
 }
 void ParticleManager::ResetRenderCommandObject()
 {
@@ -591,6 +606,40 @@ void ParticleManager::CopyActiveParticles()
             }
         }
     }
+}
+
+void ParticleManager::CopyActiveParticlesEditorMode() 
+{
+    _totalParticles.clear();
+    _emitterMatrix.clear();
+    _activeEmitterAlbedos.clear();
+    UINT emitterIndex = 0;
+    _totalCount       = 0;
+    for (auto emitter : _editorCurrentEffect->GetEmitterList())
+    {
+        if (true == emitter->GetActiveFlag())
+        {
+            if (ParticleType::SPRITE == emitter->_particleType)
+            {
+                _activeEmitterAlbedos.push_back(
+                    static_cast<SpriteModule*>(emitter->_particleRenderModule)->GetAlbedoTexture());
+            }
+            _emitterMatrix.push_back(
+                {emitter->GetWorldMatrix().Transpose(), emitter->GetDragPoint(), emitter->GetDragForce()});
+            auto& particlePool = emitter->GetParticlePool();
+            for (UINT i = 0; i < emitter->GetActiveParticleCount(); i++)
+            {
+
+                auto& particle = *particlePool[i];
+                particle.SetEmitterIndex(emitterIndex);
+                _totalParticles.push_back(particle);
+            }
+            _totalCount += emitter->GetActiveParticleCount();
+            emitterIndex++;
+        }
+    }
+
+
 }
 
 void ParticleManager::DispatchParticleCompute(float deltaTime)
