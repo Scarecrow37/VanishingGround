@@ -86,8 +86,6 @@ void EditorSceneTool::OnFrameRender()
     RayPicker();
     VertexSnap();
 
-    UmDebugDrawCore.DrawDebugGrid("Editor", _camera->GetPosition(), 5000.f, 40);
-
 
     BoundingFrustum frustum;
     BoundingFrustum::CreateFromMatrix(frustum, _camera->GetCamera()->GetProjectionMatrix());

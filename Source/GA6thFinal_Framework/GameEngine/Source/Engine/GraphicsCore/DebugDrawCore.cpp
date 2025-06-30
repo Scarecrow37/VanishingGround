@@ -28,16 +28,6 @@ void XM_CALLCONV DebugDrawCore::Draw(std::string_view sceneName, const BoundingF
     _drawDatas[sceneName].emplace_back(Type::FRUSTUM, color, frustum);
 }
 
-void XM_CALLCONV DebugDrawCore::DrawGrid(std::string_view sceneName, FXMVECTOR xAxis, FXMVECTOR yAxis, FXMVECTOR origin, size_t xdivs, size_t ydivs, GXMVECTOR color)
-{
-    _drawDatas[sceneName].emplace_back(Type::GRID, color, Grid{xAxis, yAxis, origin, xdivs, ydivs});
-}
-
-void XM_CALLCONV DebugDrawCore::DrawDebugGrid(std::string_view sceneName, FXMVECTOR cameraPosition, float farZ, size_t linesPerSide, GXMVECTOR color)
-{
-    _drawDatas[sceneName].emplace_back(Type::DEBUG_GRID, color, DebugGrid{cameraPosition, linesPerSide, farZ});
-}
-
 void XM_CALLCONV DebugDrawCore::DrawRing(std::string_view sceneName, FXMVECTOR origin, FXMVECTOR majorAxis, FXMVECTOR minorAxis, GXMVECTOR color)
 {
     _drawDatas[sceneName].emplace_back(Type::RING, color, DebugRing{origin, majorAxis, minorAxis});
@@ -56,7 +46,7 @@ void XM_CALLCONV DebugDrawCore::DrawSpotLight(std::string_view sceneName, FXMVEC
 void DebugDrawCore::Initialize()
 {
     RenderTargetState              rtState(DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_D24_UNORM_S8_UINT);
-    EffectPipelineStateDescription pd(&VertexPositionColor::InputLayout, CommonStates::Opaque, CommonStates::DepthDefault, CommonStates::CullNone, rtState, D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE);
+    EffectPipelineStateDescription pd(&VertexPositionColor::InputLayout, CommonStates::AlphaBlend, CommonStates::DepthRead, CommonStates::CullNone, rtState, D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE);
 
     _primitiveBatch = std::make_unique<PrimitiveBatch<VertexPositionColor>>(UmDevice.GetDevice());
     try
@@ -70,6 +60,15 @@ void DebugDrawCore::Initialize()
     }
 
     UmDevice.CreateCommandList(_commandAllocator, _commandList, CommandType::DIRECT);
+
+    const auto& mode         = UmDevice.GetMode();
+    auto        renderTarget = std::make_unique<RenderTarget>();
+    renderTarget->Initialize(mode.Width, mode.Height, DXGI_FORMAT_R8G8B8A8_UNORM, 0.247f);
+    renderTarget->CreateShaderResourceView();
+    renderTarget->TransitionResource(UmDevice.GetCommandList(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+
+    UmMultiRenderTargetManager.AddRenderTarget("DebugDrawTarget", std::move(renderTarget));
+    _renderTarget = UmMultiRenderTargetManager.GetRenderTarget("DebugDrawTarget");
 }
 
 void DebugDrawCore::Render()
@@ -122,12 +121,6 @@ void DebugDrawCore::Render()
             case Type::FRUSTUM:
                 ::Draw(_primitiveBatch.get(), std::get<BoundingFrustum>(data.Shape), data.Color);
                 break;
-            case Type::GRID:
-            {
-                const auto& grid = std::get<Grid>(data.Shape);
-                ::DrawGrid(_primitiveBatch.get(), grid.AxisX, grid.AxisY, grid.Origin, grid.DivsX, grid.DivsY, data.Color);
-                break;
-            }
             case Type::RING:
             {
                 const auto& ring = std::get<DebugRing>(data.Shape);
@@ -144,12 +137,6 @@ void DebugDrawCore::Render()
             {
                 const auto& spotLight = std::get<DebugSpotLight>(data.Shape);
                 ::DrawSpotLight(_primitiveBatch.get(), spotLight.Position, spotLight.Direction, spotLight.Range, spotLight.InnerCone, spotLight.OuterCone, 24, data.Color);
-                break;
-            }
-            case Type::DEBUG_GRID:
-            {
-                const auto& debugGrid = std::get<DebugGrid>(data.Shape);
-                ::DrawDebugGrid(_primitiveBatch.get(), debugGrid.CameraPosition, debugGrid.FarZ, debugGrid.LinesPerSide, data.Color);
                 break;
             }
             }
