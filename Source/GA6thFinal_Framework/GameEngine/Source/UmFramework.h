@@ -148,6 +148,7 @@ using namespace Microsoft::WRL;
 #include "Engine/GraphicsCore/GraphicsCore.h"
 
 //Audio Core
+#include "Engine/AudioCore/Declare/Result/AudioResult.h"
 #include "Engine/AudioCore/AudioManager/AudioManager.h"
 
 //Engine Core
