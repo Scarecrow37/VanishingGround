@@ -20,7 +20,5 @@ namespace Input
 
         static void NormalizeStick(SHORT xValue, SHORT yValue, SHORT deadZoneValue,
                                    Controller::ThumbStickAxis* normalizedStick);
-
-        static std::unordered_set<Controller::ID> _connectedControllers;
     };
 } // namespace Input
