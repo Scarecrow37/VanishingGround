@@ -2,15 +2,17 @@
 
 namespace Audio
 {
+    class Sound;
     class EManager
     {
         friend class EngineCores;
-    private:
+
         EManager();
+    public:
         ~EManager();
 
-    public:
         Result Initialize();
+        Result CreateSoundFromWave(const std::filesystem::path& filePath, Sound** sound);
 
     private:
         winrt::com_ptr<IXAudio2> _xAudio2;

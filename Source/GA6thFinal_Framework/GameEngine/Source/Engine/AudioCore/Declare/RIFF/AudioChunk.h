@@ -2,7 +2,7 @@
 
 namespace Audio
 {
-    enum Fourcc : DWORD
+    enum Fourcc : FOURCC
     {
 #ifdef _XBOX
         RIFF = MAKEFOURCC('F', 'F', 'I', 'R'),
@@ -23,11 +23,13 @@ namespace Audio
 
     struct FindChunk
     {
-        Result operator()(std::ifstream& fileStream, Fourcc fourcc, DWORD& chunkSize, DWORD& chunkDataPosition) const;
+        Result operator()(std::ifstream& fileStream, Fourcc fourcc, std::streamsize& chunkSize,
+                          DWORD& chunkDataPosition) const;
     };
 
     struct ReadChunkData
     {
-        Result operator()(std::ifstream& fileStream, void* buffer, DWORD bufferSize, DWORD bufferOffset) const;
+        Result operator()(std::ifstream& fileStream, void* buffer, const std::streamsize& bufferSize,
+                          DWORD bufferOffset) const;
     };
 } // namespace Audio

@@ -23,51 +23,46 @@
 
 namespace Audio
 {
-    Result FindChunk::operator()(std::ifstream& fileStream, const Fourcc fourcc, DWORD& chunkSize,
+    Result FindChunk::operator()(std::ifstream& fileStream, const Fourcc fourcc, std::streamsize& chunkSize,
                                  DWORD& chunkDataPosition) const
     {
         Result result = AUDIO_ERROR_SUCCESS;
 
-        // 파일 포인터를 파일의 시작으로 설정.
-        fileStream.seekg(0, std::ios::beg);
-
         // 초기화
-        DWORD chunkType     = 0;
-        DWORD chunkDataSize = 0;
-        DWORD riffDataSize  = 0;
-        DWORD bytesRead     = 0;
-        DWORD offset        = 0;
+        constexpr std::streamsize fourccCount = sizeof(Fourcc);
+        Fourcc                    format;
+
+        constexpr std::streamsize chunkDataSizeCount = sizeof(DWORD);
+        std::streamsize           chunkDataSize      = 0;
+        std::streamsize           offset             = 0;
+
+        // 파일 포인터를 파일의 시작으로 설정.
+        if (!fileStream.seekg(0, std::ios::beg))
+            result = AUDIO_ERROR_INVALID_FILE_POINTER;
 
         while (result == AUDIO_ERROR_SUCCESS)
         {
-            fileStream.read(reinterpret_cast<char*>(&chunkType), sizeof(DWORD));
-            bytesRead += sizeof(DWORD);
+            if (!fileStream.read(reinterpret_cast<char*>(&format), fourccCount))
+                result = AUDIO_ERROR_FILE_READ_FAIL;
 
-            fileStream.read(reinterpret_cast<char*>(&chunkDataSize), sizeof(DWORD));
-            bytesRead += sizeof(DWORD);
+            if (!fileStream.read(reinterpret_cast<char*>(&chunkDataSize), chunkDataSizeCount))
+                result = AUDIO_ERROR_FILE_READ_FAIL;
 
-            switch (chunkType)
+            if (format == RIFF)
             {
-            case RIFF: // RIFF 청크 (처음 청크)
-            {
-                riffDataSize  = chunkDataSize;
-                chunkDataSize = 4; // 파일 타입 크기 ("WAVE")
-
-                DWORD fileType = 0;
-                fileStream.read(reinterpret_cast<char*>(&fileType), sizeof(DWORD));
-                bytesRead += sizeof(DWORD);
-
-                if (fileType != WAVE)
-                    return AUDIO_ERROR_INVALID_FILE_FORMAT;
+                chunkDataSize = fourccCount;
+                if (!fileStream.seekg(fourccCount, std::ios::cur))
+                    result = AUDIO_ERROR_INVALID_FILE_POINTER;
             }
-            break;
-            default: // 이후 청크
-                fileStream.seekg(chunkDataSize, std::ios::cur);
+            else
+            {
+                if (!fileStream.seekg(chunkDataSize, std::ios::cur))
+                    result = AUDIO_ERROR_INVALID_FILE_POINTER;
             }
 
-            offset += sizeof(DWORD) * 2;
+            offset += fourccCount + chunkDataSizeCount;
 
-            if (chunkType == fourcc)
+            if (format == fourcc)
             {
                 chunkSize         = chunkDataSize;
                 chunkDataPosition = offset;
@@ -76,13 +71,13 @@ namespace Audio
 
             offset += chunkDataSize;
 
-            if (bytesRead >= riffDataSize)
-                return AUDIO_ERROR_FAIL;
+            if (fileStream.eof())
+                result = AUDIO_ERROR_FAIL;
         }
         return result;
     }
 
-    Result ReadChunkData::operator()(std::ifstream& fileStream, void* buffer, const DWORD bufferSize,
+    Result ReadChunkData::operator()(std::ifstream& fileStream, void* buffer, const std::streamsize& bufferSize,
                                      const DWORD bufferOffset) const
     {
         Result result = AUDIO_ERROR_SUCCESS;
