@@ -54,10 +54,7 @@ bool EditorSequencer::Begin()
     _frameRect  = ImRect(windowPos, windowPos + frameSize);
     _canvasRect = ImRect(windowPos, windowPos + canvasSize);
 
-    if (_system)
-    {
-        ContextMenu();
-    }
+    ContextMenu();
     WheelZooming();
     CanvasDragging();
 
@@ -492,7 +489,7 @@ bool EditorSequencer::ContextMenu()
     {
         if (ImGui::BeginMenu("Add Notify"))
         {
-            auto& table = _system->GetInstanceConstructors();
+            auto& table = TimelineSystem::GetInstanceConstructors();
             for (const auto& [key, func] : table)
             {
                 if (ImGui::MenuItem(key.c_str() + 6))
@@ -509,6 +506,8 @@ bool EditorSequencer::ContextMenu()
 
 void EditorSequencer::AddNotify(float time, std::string_view label, std::string_view typeNameID) 
 {
+    if (nullptr == _system)
+        return;
     _eventQueue.push([this, time, label, typeNameID]() {
         UmCommandManager.Do<Command::Sequencer::AddNotify>(_system, time, label, typeNameID);
     });
@@ -516,6 +515,8 @@ void EditorSequencer::AddNotify(float time, std::string_view label, std::string_
 
 void EditorSequencer::RemoveNotify(TimelineNotify* notify)
 {
+    if (nullptr == _system)
+        return;
     _eventQueue.push([this, notify]() { 
         dragHandler.RemoveDragState(notify->ID);
         UmCommandManager.Do<Command::Sequencer::RemoveNotify>(_system, notify); 
@@ -524,6 +525,8 @@ void EditorSequencer::RemoveNotify(TimelineNotify* notify)
 
 void EditorSequencer::ChangeNotify(TimelineNotify* notify, float time, std::string_view label, std::string_view typeNameID) 
 {
+    if (nullptr == _system)
+        return;
     _eventQueue.push([this, notify, time, label, typeNameID]() {
         UmCommandManager.Do<Command::Sequencer::ChangeNotify>(_system, notify, time, label, typeNameID);
     });
@@ -531,6 +534,8 @@ void EditorSequencer::ChangeNotify(TimelineNotify* notify, float time, std::stri
 
 void EditorSequencer::ChangeMinFrame(float frame) 
 {
+    if (nullptr == _system)
+        return;
     _eventQueue.push([this, frame]() {
         UmCommandManager.Do<Command::Sequencer::ChangeMinFrame>(_system, frame); 
         });
@@ -538,6 +543,8 @@ void EditorSequencer::ChangeMinFrame(float frame)
 
 void EditorSequencer::ChangeMaxFrame(float frame) 
 {
+    if (nullptr == _system)
+        return;
     _eventQueue.push([this, frame]() { 
         UmCommandManager.Do<Command::Sequencer::ChangeMaxFrame>(_system, frame); 
         });

@@ -4,6 +4,8 @@
 #include "Engine/GraphicsCore/Animation.h"
 #include "Engine/GraphicsCore/Animator.h"
 
+#include "../Sequencer/EditorSequencerTool.cpp"
+
 EditorAnimationNotifyTool::EditorAnimationNotifyTool() 
 {
     SetLabel("Sequencer##model");
@@ -76,13 +78,16 @@ void EditorAnimationNotifyTool::GetModelDetailsToolInDock()
 
 void EditorAnimationNotifyTool::UpdateTimeline() 
 {
-    auto timeline = _animationNotifySet.GetActiveTimeline();
-    if (nullptr != timeline)
+    auto model    = _modelDetails->GetModel();
+    auto animator = _modelDetails->GetAnimator();
+    if (model && animator)
     {
-        auto model    = _modelDetails->GetModel();
-        auto animator = _modelDetails->GetAnimator();
-        if (model && animator)
+        std::string curAnim  = _modelDetails->GetCurrentAnimationName();
+        _animationNotifySet.SetActiveTimeline(curAnim);
+        auto timeline = _animationNotifySet.GetActiveTimeline();
+        if (nullptr != timeline)
         {
+            _sequencer->SetSystem(timeline);
             timeline->SetMinFrame(0.0f);
             timeline->SetMaxFrame(animator->GetCurrentAnimationLastTime());
             timeline->SetCurrentFrame(animator->GetCurrentAnimationPlayTime());
