@@ -153,6 +153,10 @@ void EditorSceneTool::SetCamera()
     _sceneClientHeight = std::max(_sceneClientHeight, Mathf::Epsilon);
     ReflectFields->CameraAspect = _sceneClientWidth / _sceneClientHeight;
 
+    ReflectFields->CameraFov   = std::max(ReflectFields->CameraFov, 5.f);
+    ReflectFields->CameraNearZ = std::max(ReflectFields->CameraNearZ, 0.1f);
+    ReflectFields->CameraFarZ  = std::max(ReflectFields->CameraFarZ, 10.f);
+
     auto& camera = _camera->GetCamera();
     camera->SetupPerspective(
         ReflectFields->CameraFov,
