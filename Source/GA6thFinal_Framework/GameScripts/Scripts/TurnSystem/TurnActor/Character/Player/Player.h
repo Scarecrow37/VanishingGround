@@ -2,7 +2,7 @@
 #include "TurnSystem/TurnActor/Character/CharacterBase.h"
 
 class FiniteStateMachine;
-class Player : public CharacterBase
+class Player : public CharacterBase, public InputReceiver
 {
     USING_PROPERTY(Player)
 public:
@@ -11,7 +11,10 @@ public:
 public:
     REFLECT_PROPERTY(
         ManaRegenRate, 
-        Shield
+        Shield,
+
+        MoveSpeed, 
+        RotSpeed
     )
 
     GETTER_ONLY(int, ManaRegenRate) 
@@ -22,6 +25,14 @@ public:
 
     GETTER_ONLY(int, Shield) { return GetShield(); }
     PROPERTY(Shield)
+    
+    GETTER(float, MoveSpeed) { return _moveSpeed; }
+    SETTER(float, MoveSpeed) { _moveSpeed = value; }
+    PROPERTY(MoveSpeed)
+
+    GETTER(float, RotSpeed) { return _rotSpeed; }
+    SETTER(float, RotSpeed) { _rotSpeed = value; }
+    PROPERTY(RotSpeed)
 
 public:
     Player();
@@ -30,6 +41,10 @@ public:
 protected:
     REFLECT_FIELDS_BEGIN(CharacterBase)
     REFLECT_FIELDS_END(Player)
+
+    // 테스트 코드
+    float _moveSpeed = 1.f;
+    float _rotSpeed = 360.f;
 
 private:
     class PlayerStatsComponent* _playerStats = nullptr;
@@ -91,4 +106,7 @@ protected:
     /// <para>  ImGuiDrawPropertys() 호출 이후 콜되는 이벤트 함수입니다. </para>
     /// </summary>
     virtual void ImGuiDrawPropertysEvent();
+
+    // InputReceiver을(를) 통해 상속됨
+    void OnInput(Input::Controller* controller) override;
 };
