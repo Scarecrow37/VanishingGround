@@ -373,8 +373,8 @@ void EditorSequencer::DrawCanvas()
         ImVec2 start = ImVec2(lineX, 0.0f) + _canvasRectLower.Min;
         ImVec2 end   = start + ImVec2(0.0f, _canvasRectLower.GetHeight());
 
-        std::string frameText = std::format("{:.3f}", _cursorFrame);
-        if (_cursorFrame >= GetMinFrame() && _cursorFrame <= GetMaxFrame())
+        std::string frameText = std::format("{:.3f}", _mouseFrame);
+        if (_mouseFrame >= GetMinFrame() && _mouseFrame <= GetMaxFrame())
         {
             drawList->AddText(start + ImVec2(5.0f, 0), ImColor(1.0f, 1.0f, 1.0f, 1.0f), frameText.c_str());
             drawList->AddLine(start, end, ReflectFields->FollowLineColor[0], 2.0f);
