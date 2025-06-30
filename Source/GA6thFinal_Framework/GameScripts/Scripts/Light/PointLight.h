@@ -70,9 +70,6 @@ public:
         return ReflectFields->Range;
     }
 
-public:
-    virtual void Update() override;
-
 protected:
     REFLECT_FIELDS_BEGIN(LightComponent)
     std::array<float, 3> Attenuation{1.f, 0.1f, 0.1f};
@@ -89,7 +86,20 @@ protected:
 
     virtual void Reset() override;
 
+public:
+    /// <summary>
+    /// <para> 에디터 Scene View에 DrawDebug를 그리기 위한 함수입니다. </para>
+    /// <para> 에디터 에서만 호출됩니다.                               </para>
+    /// </summary>
+    virtual void OnDrawDebug() override;
+
+    /// <summary>
+    /// <para> 에디터 Scene View에 DrawDebug를 그리기 위한 함수입니다. </para>
+    /// <para> 컴포넌트가 Inspector에 선택되었을때만 호출됩니다. </para>
+    /// <para> 에디터 에서만 호출됩니다. </para>
+    /// </summary>
+    virtual void OnDrawDebugSelected() override;
+
 private:
     Vector3 _attenuation{1.f, 0.1f, 0.1f};
-    BoundingSphere _boundingSphere{Vector3::Zero, 1.f};
 };
