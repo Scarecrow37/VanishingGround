@@ -162,7 +162,6 @@ void Renderer::Initialize()
         scene->AddRenderTechnique(std::make_unique<SkyBoxRenderTechnique>());
         scene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
         scene->AddRenderTechnique(std::make_unique<EndlessGridTechnique>());
-        scene->AddRenderTechnique(std::make_unique<BloomTechnique>());
         scene->AddRenderTechnique(std::make_unique<BlendTechnique>());
         _renderScenes["Editor"] = std::move(scene);
 
