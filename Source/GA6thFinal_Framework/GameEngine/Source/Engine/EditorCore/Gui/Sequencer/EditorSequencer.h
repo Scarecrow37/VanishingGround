@@ -50,13 +50,21 @@ public:
     /// Sequencer의 뷰 위치를 설정합니다.
     /// </summary>
     /// <param name="pos"></param>
-    inline void SetViewPosition(const ImVec2& pos) { _viewPosition = pos; }
+    inline void SetViewPosition(const ImVec2& pos) { _viewPos = pos; }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="id"></param>
+    inline void SetSelectedNotifyID(UINT id = 0) { _seletedNotifyID = id; }
+
+    void ShowDebugData();
 
 private:
     bool Begin();
     void End();
     void DrawToolBar();
-    void DrawCanvas(bool debug);
+    void DrawCanvas();
 
     bool WheelZooming();
     bool CanvasDragging();
@@ -78,6 +86,10 @@ private:
 
     int GetInteractionState(const ImRect& rect) const;
 
+    void DrawNotify(ImDrawList* drawList, TimelineNotify* notify, const ImRect& mainRect);
+    void DragNotify(TimelineNotify* notify, const ImRect& mainRect);
+    void PopupNotify(TimelineNotify* notify, const ImRect& mainRect);
+
     float GetCurrentFrame() const;
     float GetMinFrame() const;
     float GetMaxFrame() const;
@@ -85,27 +97,49 @@ private:
 public:
     std::shared_ptr<TimelineSystem> _system; // System WeakPtr
 
-    bool    _useSnapping;           // Snap 사용 여부
+    UINT    _seletedNotifyID;   // 현재 선택된 Notify의 ID
 
-    float   _cursorFrame;           // 마우스 커서가 위치한 프레임
-    float   _indicateFrame;         // 현재 표시되는 프레임 (클리핑 등으로 인해 마우스 커서가 위치한 프레임과 다를 수 있음)
+    bool    _isDebugMode;
+    bool    _useSnapping;       // Snap 사용 여부
+    bool    _isSnapped;         // 현재 Snap이 적용되었는지 여부
 
-    ImRect  _frameRect;             // Sequencer의 전체 프레임 영역
-    ImRect  _canvasRect;            // Sequencer의 캔버스 전체 영역
-    ImRect  _canvasRectUpper;       // Sequencer의 캔버스 상단 영역 (타임라인 표시 영역)
-    ImRect  _canvasRectLower;       // Sequencer의 캔버스 하단 영역 (타임라인 표시 영역)
-    float   _canvasUpperHeight;     // Sequencer의 캔버스 상단 영역 높이 (하단 영역은 나머지)
+    ImRect _frameRect;          // Sequencer의 전체 프레임 영역
+    ImRect _canvasRect;         // Sequencer의 캔버스 전체 영역
+    ImRect _canvasRectUpper;    // Sequencer의 캔버스 상단 영역 (타임라인 표시 영역)
+    ImRect _canvasRectLower;    // Sequencer의 캔버스 하단 영역 (타임라인 표시 영역)
+    float  _canvasUpperHeight;  // Sequencer의 캔버스 상단 영역 높이 (하단 영역은 나머지)
 
-    float   _viewLerpTarget;        // 보간 중인 최종 뷰의 타겟 위치
-    float   _zoomMin;               // 줌 최소 값
-    float   _zoomMax;               // 줌 최대 값
-    ImVec2  _cursorPosition;        // 마우스 커서 위치 (스냅도 적용)
-    ImVec2  _viewPosition;          
-    ImVec2  _zoomPosition;          
+    ImVec2 _viewPos;
+    ImVec2 _viewToScaledPos;    // 뷰의 위치를 스케일링한 값 (줌 적용된 위치)
+    ImVec2 _zoomPos;
 
-    EditorDragState dragHandler;    // 드래그 상태 관리
+    ImVec2 _mousePos;           // 마우스 커서의 현재 위치 (캔버스 내에서의 위치가 아님)
+    ImVec2 _canvasMousePos;     // 마우스 커서가 캔버스 내에서의 위치
+    float  _mouseFrame;         // 마우스 커서가 위치한 프레임
+
+    ImVec2 _snapPos;
+    ImVec2 _canvasSnapPos;
+
+    ImVec2 _indicatePos;        // 현재 상호작용 등에 사용하는 커서 위치 (스냅, 클램핑 등의 영향을 받아 마우스 커서 위치와 다를 수 있음)
+    ImVec2 _canvasIndicatePos;  // 캔버스 내에서의 _indicatePos
+    float  _indicateFrame;      // 현재 표시되는 프레임 (클리핑 등으로 인해 마우스 커서가 위치한 프레임과 다를 수 있음)
+   
+    float   _unitToScaledSize;  // 단위 크기를 스케일링한 값 (줌 적용된 단위 크기)
+
+    float   _viewLerpTarget;    // 보간 중인 최종 뷰의 타겟 위치
+    float   _zoomMin;           // 줌 최소 값
+    float   _zoomMax;           // 줌 최대 값
+     
+    EditorDragState _dragHandler;    // 드래그 상태 관리
 
     std::queue<std::function<void()>> _eventQueue;
+
+    struct InteractionData
+    {
+        ImVec2 Start;
+        ImVec2 End;
+    };
+    std::vector<InteractionData> _interactionList;
 
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
     float ZoomScale     = 1.0f;   // View에 대한 줌 스케일
@@ -115,7 +149,7 @@ public:
 
     std::string SerializedData        = "";                           // 직렬화된 데이터
 
-    /* Color (0 = default, 1 = hovered, 2 = pressed */
+    /* Color (0 = default, 1 = hovered, 2 = pressed 3 = seleted) */
     // Sequencer 상단 배경색
     std::array<ImU32, 3> UpperBgColor = {IM_COL32(20, 20, 20, 255), 0, 0};    
      // Sequencer 하단 배경색 (유효하지 않은 경우)
@@ -133,7 +167,7 @@ public:
     // 현재 프레임 선 색상                                                           
     std::array<ImU32, 3> CurFrameLineColor = {IM_COL32(255, 150, 150, 200), IM_COL32(230, 120, 120, 200), IM_COL32(200, 100, 100, 200) }; 
     // Notify 색상                                                                  
-    std::array<ImU32, 3> NotifyColor = {IM_COL32(0, 255, 255, 200), IM_COL32(0, 255, 255, 150), IM_COL32(0, 255, 255, 255)};
+    std::array<ImU32, 4> NotifyColor = {IM_COL32(0, 255, 255, 200), IM_COL32(0, 255, 255, 150), IM_COL32(0, 255, 255, 255), IM_COL32(255, 127, 39, 255)};
     // 유효하지 않은 대상에 대한 색상                                                 
     std::array<ImU32, 3> InvalidColor = {IM_COL32(255, 0, 0, 100), 0, 0 };     
     REFLECT_FIELDS_END(EditorSequencer)
