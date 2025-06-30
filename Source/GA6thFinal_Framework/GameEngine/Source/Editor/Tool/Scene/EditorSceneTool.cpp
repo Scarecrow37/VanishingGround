@@ -86,14 +86,7 @@ void EditorSceneTool::OnFrameRender()
     RayPicker();
     VertexSnap();
 
-    UmDebugDrawCore.DrawDebugGrid("Editor", _camera->GetPosition(), 5000.f, 40);
-
-
-    BoundingFrustum frustum;
-    BoundingFrustum::CreateFromMatrix(frustum, _camera->GetCamera()->GetProjectionMatrix());
-    //frustum.Transform(frustum, _camera->GetCamera()->GetWorldMatrix());
-
-    //UmDebugDrawCore.Draw("Editor", frustum, DirectX::Colors::Blue);
+    UmDebugDrawCore.DrawDebugGrid("Editor", _camera->GetPosition(), ReflectFields->CameraFarZ, 40);
 }
 
 void EditorSceneTool::OnFrameEnd()
@@ -438,6 +431,22 @@ void EditorSceneTool::DrawSceneView()
         if (isActive)
         {
             ImGui::PopStyleColor(3);
+        }
+
+        const auto& runtimeObjects = ESceneManager::Engine::GetRuntimeObjects();
+        for (auto& object : runtimeObjects)
+        {
+            if (object && object->IsValid())
+            {
+                for (size_t i = 0; i < object->GetComponentCount(); ++i)
+                {
+                    Component* component = object->GetComponentAtIndex<Component>(i);
+                    if (component)
+                    {
+                        component->OnDrawDebug();
+                    }
+                }
+            }
         }
     };
     
