@@ -1,11 +1,11 @@
 ﻿#pragma once
 #include "RenderPass.h"
 
-class GridPass : public RenderPass
+class EndlessGridPass : public RenderPass
 {
 public:
-    GridPass();
-    virtual ~GridPass();
+    EndlessGridPass();
+    virtual ~EndlessGridPass();
 
 public:
     void Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& sissorRect) override;

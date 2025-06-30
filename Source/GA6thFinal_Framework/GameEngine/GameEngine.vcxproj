@@ -303,8 +303,8 @@
     <ClInclude Include="Source\Engine\GraphicsCore\BlendPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\DebugDrawCore.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\DepthStencilView.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\EndlessGridTechnique.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\GridPass.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\EditorDrawTechnique.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\EndlessGridPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\ParticleResolvePass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\ParticleSpritePass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\ParticleRenderTechnique.h" />
@@ -321,6 +321,7 @@
     <ClInclude Include="Source\Engine\GraphicsCore\BlurYPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\BlendTechnique.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\ResourceBase.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\RimLightPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\UnorderedAccessView.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\UpScalePass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\BrightExtractPass.h" />
@@ -506,10 +507,10 @@
     <ClCompile Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectViewer.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\DebugDrawCore.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\DepthStencilView.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\EndlessGridTechnique.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\EditorDrawTechnique.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\GraphicsBase.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\BlendPass.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\GridPass.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\EndlessGridPass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\ParticleResolvePass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\ParticleSpritePass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\ParticleRenderTechnique.cpp" />
@@ -527,6 +528,7 @@
     <ClCompile Include="Source\Engine\GraphicsCore\BlurYPass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\BlendTechnique.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\ResourceBase.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\RimLightPass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\UnorderedAccessView.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\UpScalePass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\BrightExtractPass.cpp" />

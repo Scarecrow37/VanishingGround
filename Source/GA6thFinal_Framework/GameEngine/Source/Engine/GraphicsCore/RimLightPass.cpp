@@ -1,22 +1,21 @@
 ﻿#include "pch.h"
-#include "GridPass.h"
+#include "RimLightPass.h"
 #include "RenderScene.h"
 #include "RenderTarget.h"
 #include "DepthStencilView.h"
-#include "Quad.h"
 
-GridPass::GridPass() {}
+RimLightPass::RimLightPass() {}
 
-GridPass::~GridPass() {}
+RimLightPass::~RimLightPass() {}
 
-void GridPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& sissorRect)
+void RimLightPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& sissorRect)
 {
     __super::Initialize(viewPort, sissorRect);
 
     _shader = std::make_unique<ShaderBuilder>();
     _shader->BeginBuild();
-    _shader->SetShader(L"../Shaders/vs_grid.hlsl", ShaderBuilder::Type::VS);
-    _shader->SetShader(L"../Shaders/ps_grid.hlsl", ShaderBuilder::Type::PS);
+    _shader->SetShader(L"../Shaders/vs_quad.hlsl", ShaderBuilder::Type::VS);
+    _shader->SetShader(L"../Shaders/ps_rim_light.hlsl", ShaderBuilder::Type::PS);
     _shader->EndBuild(ShaderBuilder::BindType::DIRECT);
 
     ID3D12Device* device = UmDevice.GetDevice();
@@ -52,10 +51,10 @@ void GridPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& siss
     
     HRESULT hr = S_OK;
     hr         = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(&_pipelineState));
-    FAILED_CHECK_MESSAGE(hr, L"GridPass::Initialize device->CreateGraphicsPipelineState Failed");
+    FAILED_CHECK_MESSAGE(hr, L"RimLightPass::Initialize device->CreateGraphicsPipelineState Failed");
 }
 
-void GridPass::Begin(ID3D12GraphicsCommandList* commandList)
+void RimLightPass::Begin(ID3D12GraphicsCommandList* commandList)
 {
     _meshRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
     _ownerScene->_depthStencilView->TransitionResource(commandList, D3D12_RESOURCE_STATE_DEPTH_READ);
@@ -65,7 +64,7 @@ void GridPass::Begin(ID3D12GraphicsCommandList* commandList)
     commandList->RSSetScissorRects(1, &_sissorRect);
 }
 
-void GridPass::Draw(ID3D12GraphicsCommandList* commandList)
+void RimLightPass::Draw(ID3D12GraphicsCommandList* commandList)
 {
     commandList->SetPipelineState(_pipelineState.Get());
     commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
@@ -75,7 +74,7 @@ void GridPass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->DrawInstanced(4, 1, 0, 0);
 }
 
-void GridPass::End(ID3D12GraphicsCommandList* commandList)
+void RimLightPass::End(ID3D12GraphicsCommandList* commandList)
 {
     _meshRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     _ownerScene->_depthStencilView->TransitionResource(commandList, D3D12_RESOURCE_STATE_PRESENT);

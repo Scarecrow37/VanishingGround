@@ -705,10 +705,13 @@
     <ClInclude Include="Source\Engine\GraphicsCore\DebugDrawCore.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\EndlessGridTechnique.h">
+    <ClInclude Include="Source\Engine\GraphicsCore\EditorDrawTechnique.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\GridPass.h">
+    <ClInclude Include="Source\Engine\GraphicsCore\EndlessGridPass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\RimLightPass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1265,10 +1268,13 @@
     <ClCompile Include="Source\Engine\GraphicsCore\DebugDrawCore.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\EndlessGridTechnique.cpp">
+    <ClCompile Include="Source\Engine\GraphicsCore\EditorDrawTechnique.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\GridPass.cpp">
+    <ClCompile Include="Source\Engine\GraphicsCore\EndlessGridPass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\RimLightPass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

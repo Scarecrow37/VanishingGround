@@ -1,21 +1,25 @@
 ﻿#include "pch.h"
 #include "Renderer.h"
+#include "RenderScene.h"
 #include "RenderTarget.h"
+#include "RendererFileEvent.h"
+
+// Geometry
 #include "Box.h"
 #include "Cylinder.h"
 #include "GeoSphere.h"
 #include "Grid.h"
 #include "Model.h"
-#include "PBRLitTechnique.h"
 #include "Quad.h"
-#include "RenderScene.h"
-#include "RendererFileEvent.h"
+#include "Sphere.h"
+
+// Techniques
+#include "PBRLitTechnique.h"
 #include "SkyBoxRenderTechnique.h"
 #include "BloomTechnique.h"
 #include "BlendTechnique.h"
 #include "ParticleRenderTechnique.h"
-#include "Sphere.h"
-#include "EndlessGridTechnique.h"
+#include "EditorDrawTechnique.h"
 
 Renderer::Renderer()
     : _currnetState(0)
@@ -161,7 +165,7 @@ void Renderer::Initialize()
         scene->InitializeRenderScene();
         scene->AddRenderTechnique(std::make_unique<SkyBoxRenderTechnique>());
         scene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
-        scene->AddRenderTechnique(std::make_unique<EndlessGridTechnique>());
+        scene->AddRenderTechnique(std::make_unique<EditorDrawTechnique>());
         scene->AddRenderTechnique(std::make_unique<BlendTechnique>());
         _renderScenes["Editor"] = std::move(scene);
 
