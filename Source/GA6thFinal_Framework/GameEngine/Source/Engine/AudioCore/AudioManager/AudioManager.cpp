@@ -85,4 +85,14 @@ namespace Audio
 
         return AUDIO_ERROR_SUCCESS;
     }
+
+    Result EManager::CreatePlayer(const Sound& sound, SoundPlayer** soundPlayer)
+    {
+        return AUDIO_ERROR_SUCCESS;
+        //constexpr HresultToAudioResult hresultToAudioResult;
+        //HRESULT resultHandle = S_OK;
+
+        //IXAudio2SourceVoice* sourceVoice = nullptr;
+        //resultHandle = _xAudio2->CreateSourceVoice(&sourceVoice, )
+    }
 } // namespace Audio

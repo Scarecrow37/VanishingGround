@@ -3,6 +3,8 @@
 namespace Audio
 {
     class Sound;
+    class SoundPlayer;
+
     class EManager
     {
         friend class EngineCores;
@@ -13,6 +15,7 @@ namespace Audio
 
         Result Initialize();
         Result CreateSoundFromWave(const std::filesystem::path& filePath, Sound** sound);
+        Result CreatePlayer(const Sound& sound, SoundPlayer** soundPlayer);
 
     private:
         winrt::com_ptr<IXAudio2> _xAudio2;
