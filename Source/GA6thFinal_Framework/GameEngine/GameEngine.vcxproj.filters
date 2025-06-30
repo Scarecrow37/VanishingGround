@@ -708,6 +708,12 @@
     <ClInclude Include="Source\Engine\AudioCore\AudioManager\AudioManager.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\AudioCore\Declare\Declare.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\AudioCore\Declare\Result\AudioResult.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\pch.cpp">
@@ -1263,6 +1269,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\AudioCore\AudioManager\AudioManager.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\AudioCore\Declare\Result\AudioResult.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
