@@ -50,6 +50,8 @@ void EditorAnimationNotifyTool::OnFrameRender()
     DrawMenuBar();
     if (_sequencer)
     {
+        DrawTimelines();
+        ImGui::SameLine();
         DrawCanvas();
         ImGui::SameLine();
         DrawDetails();
@@ -136,12 +138,34 @@ void EditorAnimationNotifyTool::DrawMenuBar()
     }
 }
 
+void EditorAnimationNotifyTool::DrawTimelines() 
+{
+    ImVec2 availSize  = ImGui::GetContentRegionAvail();
+    ImVec2 canvasSize = ImVec2(200.0f, availSize.y);
+    ImGui::BeginChild("SequencerTimelines", canvasSize, true);
+    const auto& table = _animationNotifySet.GetTimelineTable();
+    for (const auto& [animKey, timeline] : table)
+    {
+        if (nullptr != timeline)
+        {
+            ImGui::PushID(timeline.get());
+            if (ImGui::Selectable(animKey.c_str(), _animationNotifySet.GetActiveTimeline() == timeline))
+            {
+                _animationNotifySet.SetActiveTimeline(animKey);
+                _sequencer->SetSystem(timeline);
+            }
+            ImGui::PopID();
+        }
+    }
+    ImGui::EndChild();
+}
+
 void EditorAnimationNotifyTool::DrawCanvas() 
 {
     ImVec2 availSize  = ImGui::GetContentRegionAvail();
     ImVec2 canvasSize = ImVec2(availSize.x - 400, availSize.y);
     ImGui::BeginChild("SequencerCanvas", canvasSize, true, ImGuiWindowFlags_NoScrollWithMouse);
-    _sequencer->Show(true);
+    _sequencer->Show();
     ImGui::EndChild();
 }
 

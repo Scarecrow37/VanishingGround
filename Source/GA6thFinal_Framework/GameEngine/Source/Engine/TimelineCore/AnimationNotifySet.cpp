@@ -81,6 +81,23 @@ bool AnimationNotifySet::AddTimeline(std::string_view animKey)
     }
 }
 
+bool AnimationNotifySet::ChangeTimelineName(std::string_view oldAnimKey, std::string_view newAnimKey)
+{
+    auto it = _timelineTable.find(oldAnimKey.data());
+    if (it != _timelineTable.end())
+    {
+        if (HasTimeline(newAnimKey))
+        {
+            return false; // 새 이름으로 타임라인이 이미 존재하는 경우
+        }
+        auto timeline = it->second;
+        _timelineTable.erase(it);
+        _timelineTable[newAnimKey.data()] = timeline; // 새 이름으로 타임라인을 추가
+        return true;
+    }
+    return false;
+}
+
 bool AnimationNotifySet::RemoveTimeline(std::string_view animKey)
 {
     auto it = _timelineTable.find(animKey.data());
@@ -117,6 +134,11 @@ std::shared_ptr<TimelineSystem> AnimationNotifySet::GetTimeline(std::string_view
         return it->second;
     }
     return nullptr;
+}
+
+const std::map<std::string, std::shared_ptr<TimelineSystem>>& AnimationNotifySet::GetTimelineTable() const
+{
+    return _timelineTable;
 }
 
 void AnimationNotifySet::SerializedReflectEvent()

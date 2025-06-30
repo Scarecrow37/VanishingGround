@@ -11,6 +11,16 @@ class TimelineSystem;
 class EditorSequencer : public ReflectSerializer
 {
 public:
+    enum Flags
+    {
+        FLAGS_NONE                      = 0,
+        FLAGS_DEBUG                     = 1 << 0,  // 디버그 모드
+        FLAGS_USE_SNAP                  = 1 << 1,  // Snap 기능 사용 여부
+        FLAGS_USE_DRAG_MIN_MAX_FRAME    = 1 << 2,  // Min/Max 프레임 조정을 잠그는 기능
+        FLAGS_USE_DRAG_FRAME_LINE       = 1 << 3,  // 프레임 라인 조정을 잠그는 기능
+    };
+
+public:
     EditorSequencer();
     virtual ~EditorSequencer();
 
@@ -20,7 +30,7 @@ public:
     /// <para>따로 Frame을 열지 않고 렌더링합니다.</para>
     /// </summary>
     /// <param name="debug">디버깅 정보를 출력할지 여부</param>
-    void Show(bool debug = false);
+    void Show();
 
     /// <summary>
     /// Sequencer에서 사용할 TimelineSystem을 설정합니다.
@@ -57,6 +67,11 @@ public:
     /// </summary>
     /// <param name="id"></param>
     inline void SetSelectedNotifyID(UINT id = 0) { _seletedNotifyID = id; }
+
+    inline void AddFlags(int flags) { _flags |= flags; }
+    inline void RemoveFlags(int flags) { _flags &= ~flags; }
+    inline void ToggleFlags(int flags) { _flags ^= flags; }
+    inline bool HasFlags(int flags) const { return (_flags & flags) != 0; }
 
     void ShowDebugData();
 
@@ -97,11 +112,11 @@ private:
 public:
     std::shared_ptr<TimelineSystem> _system; // System WeakPtr
 
-    UINT    _seletedNotifyID;   // 현재 선택된 Notify의 ID
+    UINT   _seletedNotifyID;    // 현재 선택된 Notify의 ID
 
-    bool    _isDebugMode;
-    bool    _useSnapping;       // Snap 사용 여부
-    bool    _isSnapped;         // 현재 Snap이 적용되었는지 여부
+    UINT   _flags;              // Sequencer의 플래그 (Flags)
+
+    bool   _isSnapped;          // 현재 Snap이 적용되었는지 여부
 
     ImRect _frameRect;          // Sequencer의 전체 프레임 영역
     ImRect _canvasRect;         // Sequencer의 캔버스 전체 영역
@@ -124,11 +139,11 @@ public:
     ImVec2 _canvasIndicatePos;  // 캔버스 내에서의 _indicatePos
     float  _indicateFrame;      // 현재 표시되는 프레임 (클리핑 등으로 인해 마우스 커서가 위치한 프레임과 다를 수 있음)
    
-    float   _unitToScaledSize;  // 단위 크기를 스케일링한 값 (줌 적용된 단위 크기)
+    float  _unitToScaledSize;   // 단위 크기를 스케일링한 값 (줌 적용된 단위 크기)
 
-    float   _viewLerpTarget;    // 보간 중인 최종 뷰의 타겟 위치
-    float   _zoomMin;           // 줌 최소 값
-    float   _zoomMax;           // 줌 최대 값
+    float  _viewLerpTarget;     // 보간 중인 최종 뷰의 타겟 위치
+    float  _zoomMin;            // 줌 최소 값
+    float  _zoomMax;            // 줌 최대 값
      
     EditorDragState _dragHandler;    // 드래그 상태 관리
 

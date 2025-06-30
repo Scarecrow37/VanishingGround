@@ -30,6 +30,7 @@ private:
     void UpdateTimeline();
 
     void DrawMenuBar();
+    void DrawTimelines();
     void DrawCanvas();
     void DrawDetails();
 

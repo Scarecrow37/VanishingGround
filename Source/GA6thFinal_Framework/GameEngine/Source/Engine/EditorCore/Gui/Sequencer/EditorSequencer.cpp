@@ -4,8 +4,7 @@
 
 EditorSequencer::EditorSequencer() 
     : _system(nullptr)
-    , _isDebugMode(false)
-    , _useSnapping(false)
+    , _flags(0)
     , _isSnapped(false)
     , _mouseFrame(0.0f)
     , _indicateFrame(0.0f)
@@ -22,10 +21,8 @@ EditorSequencer::~EditorSequencer()
 {
 }
 
-void EditorSequencer::Show(bool debug)
+void EditorSequencer::Show()
 {
-    _isDebugMode = debug;
-
     if (nullptr == _system)
     {
         return;
@@ -229,8 +226,13 @@ void EditorSequencer::DrawCanvas()
         ImVec2 end   = ImVec2(start.x, _canvasRectLower.Max.y);
 
         ImRect dragRect(start + ImVec2(-2.0f, 0.0f), end + ImVec2(2.0f, 0.0f));
-        int    state = _dragHandler.BeginDragState("MinFrameLine", dragRect, _indicatePos);
-        switch (state)
+        bool   canDrag   = HasFlags(FLAGS_USE_DRAG_MIN_MAX_FRAME);
+        int    dragState = EditorDragState::DRAG_STATE_NONE;
+        if (true == canDrag)
+        {
+            dragState = _dragHandler.BeginDragState("MinFrameLine", dragRect, _indicatePos);
+        }
+        switch (dragState)
         {
         case EditorDragState::DRAG_STATE_NONE:
             _interactionList.emplace_back(start, end);
@@ -258,8 +260,13 @@ void EditorSequencer::DrawCanvas()
         ImVec2 end   = ImVec2(start.x, _canvasRectLower.Max.y);
 
         ImRect dragRect(start + ImVec2(-2.0f, 0.0f), end + ImVec2(2.0f, 0.0f));
-        int    state = _dragHandler.BeginDragState("MaxFrameLine", dragRect, _indicatePos);
-        switch (state)
+        bool   canDrag   = HasFlags(FLAGS_USE_DRAG_MIN_MAX_FRAME);
+        int    dragState = EditorDragState::DRAG_STATE_NONE;
+        if (true == canDrag)
+        {
+            dragState = _dragHandler.BeginDragState("MaxFrameLine", dragRect, _indicatePos);
+        }
+        switch (dragState)
         {
         case EditorDragState::DRAG_STATE_NONE:
             _interactionList.emplace_back(start, end);
@@ -311,12 +318,16 @@ void EditorSequencer::DrawCanvas()
             
             interacted = GetInteractionState(rect);
 
-            int dragState = _dragHandler.BeginDragState(id, pointRect, _indicatePos);
-            bool isDragging = _dragHandler.IsDragging(dragState);
-            if (true == isDragging)
+            bool canDrag    = HasFlags(FLAGS_USE_DRAG_FRAME_LINE);
+            if (true == canDrag)
             {
-                float frame = ImClamp(_indicateFrame, minFrame, maxFrame);
-                _system->SetCurrentFrame(frame);
+                int  dragState  = _dragHandler.BeginDragState(id, pointRect, _indicatePos);
+                bool isDragging = _dragHandler.IsDragging(dragState);
+                if (true == isDragging)
+                {
+                    float frame = ImClamp(_indicateFrame, minFrame, maxFrame);
+                    _system->SetCurrentFrame(frame);
+                }
             }
             ImVec2 points[5] = {rect.GetBL(), rect.GetTL(), rect.GetTR(), rect.GetBR(), start };
             PathLines(drawList, points, 5);
@@ -353,7 +364,7 @@ void EditorSequencer::DrawCanvas()
     // ProcessInterction
     for (const auto& line : _interactionList)
     {
-        if (true == _useSnapping)
+        if (true == HasFlags(FLAGS_USE_SNAP))
         {
             const float snapRange = (_unitToScaledSize * (float)lineUnit) * 0.1f /* = SnapFactor*/;
             // Check if the mouse is within the snapping range
@@ -385,16 +396,20 @@ void EditorSequencer::DrawCanvas()
         ImVec2 end   = start + ImVec2(0.0f, _canvasRectLower.GetHeight());
 
         std::string frameText = std::format("{:.3f}", _mouseFrame);
-        if (_mouseFrame >= GetMinFrame() && _mouseFrame <= GetMaxFrame())
+        ImU32 textColor = ImColor(1.0f, 1.0f, 1.0f, 1.0f);
+        ImU32 lineColor = ReflectFields->FollowLineColor[0];
+        float lineThickness = 2.0f;
+        if (false == _dragHandler.IsDragging())
         {
-            drawList->AddText(start + ImVec2(5.0f, 0), ImColor(1.0f, 1.0f, 1.0f, 1.0f), frameText.c_str());
-            drawList->AddLine(start, end, ReflectFields->FollowLineColor[0], 2.0f);
+            if (_mouseFrame < GetMinFrame() || _mouseFrame > GetMaxFrame())
+            {
+                textColor     = ReflectFields->InvalidColor[0];
+                lineColor     = ReflectFields->InvalidColor[0];
+                lineThickness = 4.0f;
+            }
+            drawList->AddLine(start, end, lineColor, lineThickness);
         }
-        else
-        {
-            drawList->AddText(start + ImVec2(5.0f, 0), ReflectFields->InvalidColor[0], frameText.c_str());
-            drawList->AddLine(start, end, ReflectFields->InvalidColor[0], 4.0f);
-        }
+        drawList->AddText(start + ImVec2(5.0f, 0), textColor, frameText.c_str());
     }
 }
 
@@ -697,7 +712,7 @@ void EditorSequencer::PopupNotify(TimelineNotify* notify, const ImRect& mainRect
     }
     if (ImGui::BeginPopup("NotifyPopup"))
     {
-        if (true == _isDebugMode)
+        if (true == HasFlags(FLAGS_DEBUG))
         {
             ImGui::Text("Notify: %f", time);
             ImGui::Text("ID: %d", id);

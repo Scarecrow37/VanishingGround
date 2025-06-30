@@ -19,9 +19,11 @@ public:
     void SetActiveTimeline(std::string_view animKey);
     std::shared_ptr<TimelineSystem> GetActiveTimeline() const;
     bool AddTimeline(std::string_view animKey);
+    bool ChangeTimelineName(std::string_view oldAnimKey, std::string_view newAnimKey);
     bool RemoveTimeline(std::string_view animKey);
     bool HasTimeline(std::string_view animKey) const;
     std::shared_ptr<TimelineSystem> GetTimeline(std::string_view animKey) const;
+    const std::map<std::string, std::shared_ptr<TimelineSystem>>& GetTimelineTable() const;
 
     const File::Path& GetFilePath() const { return _filePath; }
 
@@ -31,8 +33,8 @@ private:
 
 private:
     File::Path _filePath;
-    std::shared_ptr<TimelineSystem>                                  _activeTimeline = nullptr;
-    std::unordered_map<std::string, std::shared_ptr<TimelineSystem>> _timelineTable;
+    std::shared_ptr<TimelineSystem> _activeTimeline = nullptr; 
+    std::map<std::string, std::shared_ptr<TimelineSystem>> _timelineTable;
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
     // 애니메이션 키 - 타임라인 시스템 매핑
     std::unordered_map<std::string, std::string> SerializeData;
