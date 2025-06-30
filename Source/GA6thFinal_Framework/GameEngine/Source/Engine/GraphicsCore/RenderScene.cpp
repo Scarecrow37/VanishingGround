@@ -120,7 +120,7 @@ void RenderScene::UpdateRenderScene()
         if (!component->IsActive())
             continue;
 
-        const auto& model     = component->GetModel();
+        const auto& model = component->GetModel();
         if (!model)
             continue;
 
@@ -165,7 +165,7 @@ void RenderScene::UpdateRenderScene()
 void RenderScene::Execute(ID3D12GraphicsCommandList* commandList)
 {
     auto descriptorHeap = UmViewManager.GetShaderResourceHeap();
-    commandList->SetDescriptorHeaps(1, &descriptorHeap);    
+    commandList->SetDescriptorHeaps(1, &descriptorHeap);
 
     _accumulationBuffer->TransitionResource(commandList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
     _accumulationBuffer->ClearUnorderedAccessView(commandList);

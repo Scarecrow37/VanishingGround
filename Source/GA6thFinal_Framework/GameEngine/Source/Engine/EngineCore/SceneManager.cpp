@@ -1485,7 +1485,7 @@ void ESceneManager::SceneResourceManager::Update(SceneResourceManager& manager)
                                     animator->Initialize(animation, skeleton);
                                     animator->SetActive(&pMeshComponent->EnableInHierarchy);
                                     meshRenderer.SetAnimator(animator);
-                                    UmAnimationCore.RegisterAnimator(animator);
+                                    UmAnimationCore.RegisterAnimator(animator.get());
                                 }
                             }
                         }

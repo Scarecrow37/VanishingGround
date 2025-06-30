@@ -24,7 +24,7 @@ class Animator : public GraphicsBase
 
 public:
 	Animator();
-	virtual ~Animator() = default;
+	virtual ~Animator();
 
 public:
 	const Matrix* GetAnimationTransform() const { return _animationTransforms.data(); }

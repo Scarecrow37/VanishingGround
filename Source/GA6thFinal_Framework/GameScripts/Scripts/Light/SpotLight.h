@@ -35,4 +35,7 @@ protected:
     virtual void DeserializedReflectEvent() override;
 
     virtual void Reset() override;
+
+public:
+    virtual void Update() override;
 };

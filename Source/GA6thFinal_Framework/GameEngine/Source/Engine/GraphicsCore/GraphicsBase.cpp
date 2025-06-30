@@ -7,4 +7,5 @@ void GraphicsBase::SetDestroy()
     {
         *isDestroy = true;
     }
+    _isDestroyeds.clear();
 }

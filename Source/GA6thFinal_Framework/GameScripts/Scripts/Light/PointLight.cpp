@@ -8,10 +8,17 @@ PointLight::PointLight()
 }
 PointLight::~PointLight() = default;
 
-void PointLight::DeserializedReflectEvent() 
+void PointLight::Update()
+{
+    _boundingSphere.Center = transform->Position;
+    _boundingSphere.Radius = ReflectFields->Range;
+
+    UmDebugDrawCore.Draw("Editor", _boundingSphere, DirectX::Colors::GreenYellow);
+}
+
+void PointLight::DeserializedReflectEvent()
 {
     _attenuation = Vector3(ReflectFields->Attenuation.data());
-
 }
 
 void PointLight::ImGuiDrawPropertysEvent() 

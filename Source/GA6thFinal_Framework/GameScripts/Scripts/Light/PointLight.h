@@ -70,6 +70,9 @@ public:
         return ReflectFields->Range;
     }
 
+public:
+    virtual void Update() override;
+
 protected:
     REFLECT_FIELDS_BEGIN(LightComponent)
     std::array<float, 3> Attenuation{1.f, 0.1f, 0.1f};
@@ -88,4 +91,5 @@ protected:
 
 private:
     Vector3 _attenuation{1.f, 0.1f, 0.1f};
+    BoundingSphere _boundingSphere{Vector3::Zero, 1.f};
 };
