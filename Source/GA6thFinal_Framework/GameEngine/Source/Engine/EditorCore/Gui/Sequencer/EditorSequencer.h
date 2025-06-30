@@ -141,6 +141,9 @@ public:
    
     float  _unitToScaledSize;   // 단위 크기를 스케일링한 값 (줌 적용된 단위 크기)
 
+    ImVec2 _lastNotifyPosition; // 마지막으로 Notify가 위치한 곳
+    ImVec2 _lastNotifySize;     // 마지막으로 Notify가 위치한 곳의 크기
+
     float  _viewLerpTarget;     // 보간 중인 최종 뷰의 타겟 위치
     float  _zoomMin;            // 줌 최소 값
     float  _zoomMax;            // 줌 최대 값

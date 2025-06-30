@@ -39,6 +39,8 @@ public:
     size_t  GetDraggingCount() const;
     bool    IsDragging(State state) const;
     bool    IsDragging() const;
+    bool    IsDraggingOnly(UINT id) const;
+    bool    IsDraggingOnly(const char* id) const;
 
     const std::unordered_map<ImGuiID, State>& GetDragStateTable() const { return _dragState; }
 

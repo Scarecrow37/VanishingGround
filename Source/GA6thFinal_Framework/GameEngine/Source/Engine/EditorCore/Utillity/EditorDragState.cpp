@@ -139,3 +139,14 @@ bool EditorDragState::IsDragging() const
 {
     return 0 != _dragState.size();
 }
+
+bool EditorDragState::IsDraggingOnly(UINT id) const
+{
+    return 1 == _dragState.size() && _dragState.find(id) != _dragState.end();
+}
+
+bool EditorDragState::IsDraggingOnly(const char* id) const
+{
+    ImGuiID hash = ImHashStr(id);
+    return IsDraggingOnly(hash);
+}

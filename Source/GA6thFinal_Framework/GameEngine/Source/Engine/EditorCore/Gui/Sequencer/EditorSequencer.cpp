@@ -226,7 +226,8 @@ void EditorSequencer::DrawCanvas()
         ImVec2 end   = ImVec2(start.x, _canvasRectLower.Max.y);
 
         ImRect dragRect(start + ImVec2(-2.0f, 0.0f), end + ImVec2(2.0f, 0.0f));
-        bool   canDrag   = HasFlags(FLAGS_USE_DRAG_MIN_MAX_FRAME);
+        bool   canDrag = HasFlags(FLAGS_USE_DRAG_MIN_MAX_FRAME) &&
+                       (false == _dragHandler.IsDragging() || _dragHandler.IsDraggingOnly("MinFrameLine"));
         int    dragState = EditorDragState::DRAG_STATE_NONE;
         if (true == canDrag)
         {
@@ -260,7 +261,8 @@ void EditorSequencer::DrawCanvas()
         ImVec2 end   = ImVec2(start.x, _canvasRectLower.Max.y);
 
         ImRect dragRect(start + ImVec2(-2.0f, 0.0f), end + ImVec2(2.0f, 0.0f));
-        bool   canDrag   = HasFlags(FLAGS_USE_DRAG_MIN_MAX_FRAME);
+        bool   canDrag   = HasFlags(FLAGS_USE_DRAG_MIN_MAX_FRAME) && 
+            (false == _dragHandler.IsDragging() || _dragHandler.IsDraggingOnly("MaxFrameLine"));
         int    dragState = EditorDragState::DRAG_STATE_NONE;
         if (true == canDrag)
         {
@@ -318,7 +320,8 @@ void EditorSequencer::DrawCanvas()
             
             interacted = GetInteractionState(rect);
 
-            bool canDrag    = HasFlags(FLAGS_USE_DRAG_FRAME_LINE);
+            bool canDrag = HasFlags(FLAGS_USE_DRAG_FRAME_LINE) &&
+                           (false == _dragHandler.IsDragging() || _dragHandler.IsDraggingOnly(id));
             if (true == canDrag)
             {
                 int  dragState  = _dragHandler.BeginDragState(id, pointRect, _indicatePos);
@@ -339,22 +342,27 @@ void EditorSequencer::DrawCanvas()
 
     // Draw Notify
     const auto& notifyList = _system->GetTimelineNotifyList();
-    std::deque<TimelineNotify*> drawNotifyQueue;
-    for (int i = 0; i < notifyList.size(); ++i)
+    std::unordered_map<int, size_t> paddingGroup; // groupIndex -> 현재 레이어 수
+    for (size_t i = 0; i < notifyList.size(); ++i)
     {
-        if (nullptr != notifyList[i])
-        {
-            if (_seletedNotifyID == notifyList[i]->ID) drawNotifyQueue.push_back(notifyList[i]);
-            else drawNotifyQueue.push_front(notifyList[i]);
-        }
-    }
-    for (int i = 0; i < drawNotifyQueue.size(); ++i)
-    {
-        auto* notify    = drawNotifyQueue[i];
+        auto* notify = notifyList[i];
+        float time   = notify->Time;
+        float unit = (float)GetLineUnit();
+        int   groupIndex = static_cast<int>(std::floor(time / unit));
+        // 현재 그룹에서 사용될 패딩 레이어
+        float layer = (float)paddingGroup[groupIndex]++;
+
         float  lenght   = 7.0f;
-        float  paddingY = 40.0f; 
+        float  paddingY = 40.0f + layer * 25.0f; 
         ImVec2 point    = ImVec2(_viewToScaledPos.x + (notify->Time * _unitToScaledSize), paddingY) + _canvasRectLower.Min;
         ImRect rect     = ImRect(point - ImVec2(lenght, lenght), point + ImVec2(lenght, lenght));
+
+        // line
+        ImVec2 start = ImVec2(_viewToScaledPos.x + ((float)groupIndex * _unitToScaledSize), paddingY) + _canvasRectLower.Min;
+        ImVec2 end = ImVec2(_viewToScaledPos.x + (((float)groupIndex + unit) * _unitToScaledSize), paddingY) + _canvasRectLower.Min;
+        bool   isSelected = (notify->ID == _seletedNotifyID);
+        ImU32  color = isSelected ?  ReflectFields->NotifyColor[3] : IM_COL32(80, 80, 80, 100); 
+        drawList->AddLine(start, end, color, 1.0f);
 
         DrawNotify(drawList, notify, rect);
         DragNotify(notify, rect);
@@ -362,21 +370,33 @@ void EditorSequencer::DrawCanvas()
     }
 
     // ProcessInterction
+    float  minDistance = FLT_MAX;
+    ImVec2 bestSnapPos = _mousePos;
+    bool   foundSnap   = false;
     for (const auto& line : _interactionList)
     {
         if (true == HasFlags(FLAGS_USE_SNAP))
         {
-            const float snapRange = (_unitToScaledSize * (float)lineUnit) * 0.1f /* = SnapFactor*/;
-            // Check if the mouse is within the snapping range
-            bool snapCheck = _mousePos.x >= line.Start.x - snapRange && _mousePos.x <= line.Start.x + snapRange;
-            if (true == isContain && true == snapCheck)
+            const float snapRange = (_unitToScaledSize * (float)lineUnit) * 0.1f;
+            float       distance  = fabsf(_mousePos.x - line.Start.x);
+            if (true == isContain && distance <= snapRange)
             {
-                _isSnapped     = true;
-                _snapPos       = ImVec2(line.Start.x, _mousePos.y);
-                _canvasSnapPos = _snapPos - _canvasRect.Min;
+                if (distance < minDistance)
+                {
+                    minDistance = distance;
+                    bestSnapPos = ImVec2(line.Start.x, _mousePos.y);
+                    foundSnap   = true;
+                }
             }
         }
     }
+    if (true == foundSnap)
+    {
+        _isSnapped     = true;
+        _snapPos       = bestSnapPos;
+        _canvasSnapPos = _snapPos - _canvasRect.Min;
+    }
+
 
     // Draw FollowLine
     if (true == isContain)
@@ -611,10 +631,10 @@ void EditorSequencer::DrawNotify(ImDrawList* drawList, TimelineNotify* notify, c
     float            time  = notify->Time;
     std::string_view label = notify->Label;
 
-    ImVec2 center    = mainRect.GetCenter();
-    ImVec2 textSize  = ImGui::CalcTextSize(label.data());
-    ImVec2 txtOffset = ImVec2(textSize.x, textSize.y * 0.5f) * 1.2f;
-    ImRect labelRect = ImRect(center + ImVec2(0.0f, -txtOffset.y), center + txtOffset);
+    ImVec2 center     = mainRect.GetCenter();
+    ImVec2 textSize   = ImGui::CalcTextSize(label.data());
+    ImVec2 textOffset = ImVec2(textSize.x, textSize.y * 0.5f) * 1.2f;
+    ImRect labelRect  = ImRect(center + ImVec2(0.0f, -textOffset.y), center + textOffset);
 
     bool isValid    = notify->Time < _system->GetMinFrame() && notify->Time > _system->GetMaxFrame();
     bool isSelected = (id == _seletedNotifyID);
@@ -642,7 +662,7 @@ void EditorSequencer::DrawNotify(ImDrawList* drawList, TimelineNotify* notify, c
             ImDrawFlags_RoundCornersAll, 
             3.0f);
     }
-    ImVec2 textPoint = labelRect.Min + (ImVec2(txtOffset.x - textSize.x, 0.0f) * 0.5f);
+    ImVec2 textPoint = labelRect.Min + (ImVec2(textOffset.x - textSize.x, 0.0f) * 0.5f);
     drawList->AddText(textPoint, IM_COL32(0, 0, 0, 255), label.data());
 }
 

@@ -144,6 +144,8 @@ void EditorAnimationNotifyTool::DrawTimelines()
     ImVec2 canvasSize = ImVec2(200.0f, availSize.y);
     ImGui::BeginChild("SequencerTimelines", canvasSize, true);
     const auto& table = _animationNotifySet.GetTimelineTable();
+    ImGui::Text("Timeline Count: %d", table.size());
+    ImGui::Separator();
     for (const auto& [animKey, timeline] : table)
     {
         if (nullptr != timeline)
@@ -153,6 +155,28 @@ void EditorAnimationNotifyTool::DrawTimelines()
             {
                 _animationNotifySet.SetActiveTimeline(animKey);
                 _sequencer->SetSystem(timeline);
+            }
+            if (ImGui::BeginPopupContextItem("TimelineContextMenu"))
+            {
+                if (ImGui::BeginMenu("Add Notify"))
+                {
+                    auto& table = TimelineSystem::GetInstanceConstructors();
+                    for (const auto& [key, func] : table)
+                    {
+                        if (ImGui::MenuItem(key.c_str() + 6))
+                        {
+                            float time = timeline->GetCurrentFrame();
+                            timeline->AddNotify(key.c_str() + 6, key, time);
+                        }
+                    }
+                    ImGui::EndMenu();
+                }
+                if (ImGui::MenuItem("Remove Timeline"))
+                {
+                    _animationNotifySet.RemoveTimeline(animKey);
+                    _sequencer->SetSystem(nullptr);
+                }
+                ImGui::EndPopup();
             }
             ImGui::PopID();
         }
