@@ -53,6 +53,19 @@ std::shared_ptr<Camera> Renderer::GetCamera(std::string_view renderSceneName)
     return scene->GetCamera();
 }
 
+RenderScene* Renderer::GetRenderScene(std::string_view renderSceneName)
+{
+    auto iter = _renderScenes.find(renderSceneName.data());
+    if (iter == _renderScenes.end())
+    {
+        std::wstring msg = L"Renderer::GetRenderScene: RenderSceneName '" +
+                           std::wstring(renderSceneName.begin(), renderSceneName.end()) + L"' is not registered.";
+        GRAPHICS_ASSERT(false, msg.c_str());
+    }
+
+    return iter->second.get();
+}
+
 void Renderer::SetCamera(std::string_view renderSceneName, std::shared_ptr<Camera> camera)
 {
     auto iter = _renderScenes.find(renderSceneName.data());

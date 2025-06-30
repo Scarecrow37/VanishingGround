@@ -8,7 +8,10 @@
 
  ParticleResolvePass::ParticleResolvePass() {}
 
-ParticleResolvePass::~ParticleResolvePass() {}
+ParticleResolvePass::~ParticleResolvePass() 
+{
+    
+}
 
 void ParticleResolvePass::Initialize(const D3D12_VIEWPORT& viewport, const D3D12_RECT& scissorRect)
 {

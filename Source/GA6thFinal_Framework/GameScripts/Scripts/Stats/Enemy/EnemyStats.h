@@ -14,4 +14,5 @@ protected:
     REFLECT_FIELDS_BEGIN(CharacterStats)
     int Speed = 0;
     REFLECT_FIELDS_END(EnemyStats)
+
 };

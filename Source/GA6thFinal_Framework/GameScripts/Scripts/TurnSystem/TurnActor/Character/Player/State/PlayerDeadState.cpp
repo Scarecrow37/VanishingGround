@@ -27,7 +27,7 @@ void PlayerDeadState::OnStart()
 
 void PlayerDeadState::OnEnter() 
 {
-    GetPlayer().Dead();
+    
 }
 
 void PlayerDeadState::OnExit() 

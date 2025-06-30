@@ -3,6 +3,16 @@
 #include "ParticleEmitter.h"
 #include "ParticleEffect.h"
 
+ ParticleEffect::~ParticleEffect() 
+ {
+     // 1. ParticleEmitter 객체들 정리
+     for (auto emitter : _particleEmitters)
+     {
+         delete emitter;
+     }
+     _particleEmitters.clear();
+ }
+
 void ParticleEffect::Initialize(class ParticleManager* particleManager) 
 {
     //float random = rand() % 10;

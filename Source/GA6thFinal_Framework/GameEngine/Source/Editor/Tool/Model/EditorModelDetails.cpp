@@ -32,7 +32,7 @@ void EditorModelDetails::OnTickGui() {}
 void EditorModelDetails::OnStartGui()
 {
     UmRenderer.RegisterRenderQueue("ModelViewer", _meshRenderer.get());
-    UmAnimationCore.RegisterAnimator(_animator);
+    UmAnimationCore.RegisterAnimator(_animator.get());
     UmLightCore.RegisterLight("ModelViewer", _mainLight.get());
 
     _color = Vector3(1.f);
@@ -65,8 +65,8 @@ void EditorModelDetails::OnFrameRender()
 
     if (ImGui::CollapsingHeader("Light Property"))
     {
-        ImGui::ColorPicker3("Color##Light", (float*)&_color);
-        ImGui::ColorPicker3("Ambient##Light", (float*)&_ambient);
+        ImGui::ColorEdit3("Color##Light", (float*)&_color);
+        ImGui::ColorEdit3("Ambient##Light", (float*)&_ambient);
         ImGui::SliderFloat3("Direction##Light", (float*)&_direction, -1.f, 1.f);
         ImGui::SliderFloat("Intensity##Light", &_intensity, 0.f, 1000.f);
     }

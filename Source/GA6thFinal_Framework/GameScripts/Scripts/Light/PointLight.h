@@ -5,9 +5,9 @@ class PointLight : public LightComponent
     USING_PROPERTY(PointLight)
 public:
     REFLECT_PROPERTY(
-    Constant, 
-    Linear, 
-    Quadratic,
+    //Constant, 
+    //Linear, 
+    //Quadratic,
     Range
     )
 
@@ -15,6 +15,7 @@ public:
     PointLight();
     virtual ~PointLight();
 
+    /*
     GETTER(float, Constant)
     { 
         return _attenuation.x;
@@ -47,6 +48,7 @@ public:
         std::memcpy(ReflectFields->Attenuation.data(), &_attenuation.x, sizeof(ReflectFields->Attenuation));
     }
     PROPERTY(Quadratic)
+    */
 
     GETTER(float, Range)
     { 
@@ -54,7 +56,7 @@ public:
     }
     SETTER(float, Range)
     { 
-        ReflectFields->Range = value;
+        ReflectFields->Range = std::max(value, 0.f);
     }
     PROPERTY(Range)
 
@@ -68,6 +70,9 @@ public:
         return ReflectFields->Range;
     }
 
+public:
+    virtual void Update() override;
+
 protected:
     REFLECT_FIELDS_BEGIN(LightComponent)
     std::array<float, 3> Attenuation{1.f, 0.1f, 0.1f};
@@ -80,8 +85,11 @@ protected:
     */
     virtual void DeserializedReflectEvent() override;
 
+    virtual void ImGuiDrawPropertysEvent() override;
+
     virtual void Reset() override;
 
 private:
     Vector3 _attenuation{1.f, 0.1f, 0.1f};
+    BoundingSphere _boundingSphere{Vector3::Zero, 1.f};
 };
