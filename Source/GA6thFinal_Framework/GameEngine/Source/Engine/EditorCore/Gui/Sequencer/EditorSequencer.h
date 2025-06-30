@@ -26,7 +26,7 @@ public:
     /// Sequencer에서 사용할 TimelineSystem을 설정합니다.
     /// </summary>
     /// <param name="system">해당 System에 대한 shared_ptr입니다.</param>
-    inline void SetSystem(std::shared_ptr<TimelineSystem> system) { _system = system; }
+    void SetSystem(std::shared_ptr<TimelineSystem> system);
 
     /// <summary>
     /// Sequencer의 Gui영역을 반환합니다.
@@ -44,7 +44,7 @@ public:
     /// Sequencer의 Gui영역 위치를 반환합니다.
     /// </summary>
     /// <returns>Gui영역의 위치 ImVec2</returns>
-    ImVec2 GetRectPosition() const { return _frameRect.Min; }
+    inline ImVec2 GetRectPosition() const { return _frameRect.Min; }
 
     /// <summary>
     /// Sequencer의 뷰 위치를 설정합니다.

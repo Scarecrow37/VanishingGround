@@ -43,6 +43,17 @@ void EditorSequencer::Show(bool debug)
     ImGui::PopID();
 }
 
+void EditorSequencer::SetSystem(std::shared_ptr<TimelineSystem> system) 
+{
+    // 이미 같은 시스템이 설정되어 있다면 아무 작업도 하지 않음
+    if (system != _system)
+    {  
+         _system = system;
+        SetSelectedNotifyID(0);
+        _dragHandler.ClearDragState();
+    }
+}
+
 void EditorSequencer::ShowDebugData() 
 {
     ImGui::DragFloat("Zoom Scale", &ReflectFields->ViewScale, 0.01f, _zoomMin, _zoomMax);

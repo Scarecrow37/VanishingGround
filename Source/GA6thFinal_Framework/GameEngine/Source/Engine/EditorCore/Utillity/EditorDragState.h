@@ -23,6 +23,7 @@ public:
     ~EditorDragState();
 
 public:
+    void    ClearDragState();
     void    SetDragState(UINT id, State state);
     void    SetDragState(const char* id, State state);
     State   BeginDragState(UINT id, const ImRect& dragRect, const ImVec2& mousePos,

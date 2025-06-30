@@ -7,7 +7,12 @@ EditorDragState::~EditorDragState() {}
 
 using State = EditorDragState::State;
 
-void EditorDragState::SetDragState(UINT id, State state) 
+void EditorDragState::ClearDragState() 
+{
+    _dragState.clear();
+}
+
+void EditorDragState::SetDragState(UINT id, State state)
 {
     _dragState[id] = state;
 }
