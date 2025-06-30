@@ -8,14 +8,6 @@ PointLight::PointLight()
 }
 PointLight::~PointLight() = default;
 
-void PointLight::Update()
-{
-    _boundingSphere.Center = transform->Position;
-    _boundingSphere.Radius = ReflectFields->Range;
-
-    UmDebugDrawCore.Draw("Editor", _boundingSphere, DirectX::Colors::GreenYellow);
-}
-
 void PointLight::DeserializedReflectEvent()
 {
     _attenuation = Vector3(ReflectFields->Attenuation.data());
@@ -34,4 +26,17 @@ void PointLight::Reset()
     float&         intensity   = ReflectFields->Basefields.get().Intensity;
 
     Lighting.SetPointLight(color, transform->Position, attenuation, range, intensity);
+}
+
+void PointLight::OnDrawDebug() 
+{
+
+}
+
+void PointLight::OnDrawDebugSelected() 
+{
+    BoundingSphere sphere;
+    sphere.Center = transform->Position;
+    sphere.Radius = ReflectFields->Range;
+    UmDebugDrawCore.Draw("Editor", sphere, LightComponent::DEBUG_COLOR);
 }

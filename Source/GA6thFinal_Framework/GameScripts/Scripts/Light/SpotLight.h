@@ -37,5 +37,16 @@ protected:
     virtual void Reset() override;
 
 public:
-    virtual void Update() override;
+    /// <summary>
+    /// <para> 에디터 Scene View에 DrawDebug를 그리기 위한 함수입니다. </para>
+    /// <para> 에디터 에서만 호출됩니다.                              </para>
+    /// </summary>
+    virtual void OnDrawDebug() override;
+
+    /// <summary>
+    /// <para> 에디터 Scene View에 DrawDebug를 그리기 위한 함수입니다. </para>
+    /// <para> 컴포넌트가 Inspector에 선택되었을때만 호출됩니다.       </para>
+    /// <para> 에디터 에서만 호출됩니다. </para>
+    /// </summary>
+    virtual void OnDrawDebugSelected() override;
 };
