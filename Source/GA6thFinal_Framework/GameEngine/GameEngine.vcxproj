@@ -296,6 +296,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Engine\AudioCore\AudioManager\AudioManager.h" />
     <ClInclude Include="Source\Engine\EditorCore\Utillity\EditorDragState.h" />
     <ClInclude Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectDetails.h" />
     <ClInclude Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectHierarchy.h" />
@@ -498,6 +499,7 @@
     <ClInclude Include="Source\Engine\EngineCore\TimelineSystem.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Engine\AudioCore\AudioManager\AudioManager.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\Utillity\EditorDragState.cpp" />
     <ClCompile Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectDetails.cpp" />
     <ClCompile Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectHierarchy.cpp" />
