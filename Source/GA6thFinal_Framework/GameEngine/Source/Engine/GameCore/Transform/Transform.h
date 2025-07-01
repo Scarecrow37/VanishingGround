@@ -112,11 +112,14 @@ public:
     GETTER(const Quaternion&, Rotation) { return _rotation; }
     PROPERTY(Rotation)
 
-    GETTER_ONLY(const Vector3&, Forward)
-    { 
-        return _forward;
-    }
+    GETTER_ONLY(const Vector3&, Forward) { return _forward; }
     PROPERTY(Forward)
+
+    GETTER_ONLY(const Vector3&, Up) { return _up; }
+    PROPERTY(Up)
+
+    GETTER_ONLY(const Vector3&, Right) { return _right; }
+    PROPERTY(Right)
 
     SETTER(const Vector3&, EulerAngle)
     {
@@ -321,6 +324,8 @@ private:
     Vector3    _position;
     Quaternion _rotation;
     Vector3    _forward;
+    Vector3    _right;
+    Vector3    _up;
     Vector3    _eulerAngle;
     Vector3    _scale;
 
