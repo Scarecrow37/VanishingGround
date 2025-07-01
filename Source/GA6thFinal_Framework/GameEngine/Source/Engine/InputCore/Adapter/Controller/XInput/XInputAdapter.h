@@ -1,4 +1,5 @@
 ﻿#pragma once
+#pragma comment(lib, "XInput.lib")
 
 #include "../ControllerAdapter.h"
 
