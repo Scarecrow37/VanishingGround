@@ -153,12 +153,14 @@ void SpriteModule::LoadAlbedoTexture(std::wstring filePath)
 void SpriteModule::ChangeAlbedoTexture(std::wstring filePath) 
 {
     _isAlbedoTextureChanged = true;
-    _newAlbedoTexturePath   = filePath;
+    _modelAndTexturePath = filePath;
+    _albedoTexture          = UmResourceManager.LoadResource<Texture>(_modelAndTexturePath);
 }
 
 void SpriteModule::LoadNormalTexture(std::wstring filePath) 
 {
     _albedoTexture = UmResourceManager.LoadResource<Texture>(filePath);
+    _modelAndTexturePath = filePath;
 }
 
 DirectX::SimpleMath::Vector4 SpriteModule::GetInitialFrameInfo() const 
@@ -178,7 +180,7 @@ std::shared_ptr<Texture> SpriteModule::GetNormalTexture() const
 
 void SpriteModule::Initialize()
 {
-    LoadAlbedoTexture(L"../../../Resource/Assets/ParticleTexture/defaultSmoke.jpg");
+    LoadAlbedoTexture(_modelAndTexturePath);
 }
 
 void SpriteModule::CalculateFrameInfos() 
@@ -250,14 +252,14 @@ void SpriteModule::CalculateFrameInfos()
 
 
 
-
  }
 void ParticleEmitter::Initialize(SIZE_T maxParticles /*= 100000*/, float emissionRate /*= 500.f*/,
                                  float         emitterLifetime /*= 5.f*/,
                                  LocationShape locatorShape /*= LocationShape::SPHERE*/,
                                  Vector3       locationFactor /*= Vector3(1,1,1)*/,
-                                 ParticleType  particleType /*= ParticleType::SPRITE*/)
-{
+                                  ParticleType  particleType /*= ParticleType::SPRITE*/,
+                                  std::wstring  meshspritePath /*= L""*/)
+ {
     _emitterLifetime = emitterLifetime;
     _particleType = particleType;
     switch (particleType)
@@ -274,8 +276,10 @@ void ParticleEmitter::Initialize(SIZE_T maxParticles /*= 100000*/, float emissio
     default:
         _particleRenderModule = new SpriteModule();
         break;
-
     }
+    _particleRenderModule->SetModelAndTexturePath(meshspritePath);
+    _particleRenderModule->Initialize();
+
     _locationType = locatorShape;
     switch (_locationType)
     {
@@ -303,7 +307,11 @@ void ParticleEmitter::Initialize(SIZE_T maxParticles /*= 100000*/, float emissio
         break;
     }
 
-    _particleRenderModule->Initialize();
+    
+    
+    
+    
+    
     _emitLocator->RandomInitialize();
     _emitLocator->SetFactor(locationFactor);
     _maxParticles = maxParticles;

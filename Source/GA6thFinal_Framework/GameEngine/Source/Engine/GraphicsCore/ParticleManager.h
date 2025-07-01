@@ -28,7 +28,8 @@ public:
                                            float emissionRate = 1000.f, float emitterLifetime = 150.f,
                                            LocationShape locatorShape   = LocationShape::SPHERE,
                                            Vector3       locationFactor = Vector3(1, 1, 1),
-                                           ParticleType  particleType   = ParticleType::SPRITE);
+                                           ParticleType  particleType   = ParticleType::SPRITE,
+                                          std::wstring  meshspritePath = L"../../../Resource/Assets/ParticleTexture/defaultSmoke.jpg");
     void                   DeleteEffect(class ParticleEffect* effect);
     void                   Update(const float deltaTime);
     void                   UpdateEffectLifeCycle();
@@ -49,6 +50,7 @@ public:
 public:
     void SetCamera(std::string_view viewName);
     void SetCamera(std::shared_ptr<Camera> camera);
+    void SetCurrentEditorEffect(class ParticleEffect* newEffect);
 
 private:
     void InitializeComputeCommandObject();

@@ -27,7 +27,8 @@ public:
     ParticleEmitter* AddEmitter(SIZE_T maxParticles = 100000, float emissionRate = 500.f, float emitterLifetime = 5.f,
                                 LocationShape locatorShape   = LocationShape::SPHERE,
                                 Vector3       locationFactor = Vector3(1, 1, 1),
-                                ParticleType  particleType   = ParticleType::SPRITE);
+                                ParticleType  particleType   = ParticleType::SPRITE,
+                                std::wstring  meshspritePath = L"");
     void             RemoveEmitter(ParticleEmitter* target); 
     class ParticleEmitter*              GetEmitter(size_t emitterIndex);
     std::vector<class ParticleEmitter*> GetEmitterList() { return _particleEmitters; }

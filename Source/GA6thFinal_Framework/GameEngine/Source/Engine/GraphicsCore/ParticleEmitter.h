@@ -70,6 +70,10 @@ class ParticleRenderModule
 {
 public:
     virtual void Initialize() {};
+    UMPARTICLE_PROPERTY_REF(std::wstring, _modelAndTexturePath, ModelAndTexturePath, L"");
+
+
+
 };
 
 class SpriteModule : public ParticleRenderModule
@@ -151,7 +155,7 @@ public:
 
     void Initialize(SIZE_T maxParticles = 100000, float emissionRate = 500.f, float emitterLifetime = 5.f,
                     LocationShape locatorShape = LocationShape::SPHERE, Vector3 locationFactor = Vector3(1, 1, 1),
-                    ParticleType particleType = ParticleType::SPRITE);
+                    ParticleType particleType = ParticleType::SPRITE, std::wstring meshspritePath = L"");
     void Update(float deltaTime);
     void UpdateParticleLifeCycle(float deltaTime);
     void Reset();
@@ -162,7 +166,7 @@ public:
     UINT GetActiveParticleCount() const { return (UINT)_activeParticleCount; }
 
     const Quaternion& GetEmitterRotationQ() const { return _emitterRotationQ; }
-    void              SetGetEmitterRotationQ(const Quaternion& value) 
+    void              SetEmitterRotationQ(const Quaternion& value) 
     { 
         _emitterRotationQ = value; 
         _emitterRotationE = _emitterRotationQ.ToEuler();

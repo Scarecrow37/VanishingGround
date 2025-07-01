@@ -28,7 +28,8 @@
          // Assumes ParticleEmitter has a proper copy constructor
          ParticleEmitter* cloned = new ParticleEmitter(*srcEmitter);
          cloned->Initialize(srcEmitter->GetMaxParticles(),srcEmitter->GetEmissionRate(),srcEmitter->GetEmitterLifetime(),
-             srcEmitter->_locationType,srcEmitter->_emitLocator->GetFactor(), srcEmitter->_particleType);
+             srcEmitter->_locationType,srcEmitter->_emitLocator->GetFactor(), 
+             srcEmitter->_particleType,srcEmitter->_particleRenderModule->GetModelAndTexturePath());
          _particleEmitters.push_back(cloned);
      }
  }
@@ -66,10 +67,11 @@ void ParticleEffect::Update(float deltaTime)
 ParticleEmitter* ParticleEffect::AddEmitter(SIZE_T maxParticles /*= 100000*/, float emissionRate /*= 500.f*/,
                                 float emitterLifetime /*= 5.f*/, LocationShape locatorShape /*= LocationShape::SPHERE*/,
                                             Vector3       locationFactor /*= Vector3(1, 1, 1)*/,
-                                            ParticleType  particleType /*= ParticleType::SPRITE*/)
+                                            ParticleType  particleType /*= ParticleType::SPRITE*/,
+                                            std::wstring  meshspritePath /*= L""*/)
 {
     auto newEmitter = new ParticleEmitter();
-    newEmitter->Initialize(maxParticles, emissionRate, emitterLifetime, locatorShape, locationFactor,particleType);
+    newEmitter->Initialize(maxParticles, emissionRate, emitterLifetime, locatorShape, locationFactor,particleType,meshspritePath);
     std::string name = "Emitter " + std::to_string(namingIndex) + "-" + std::to_string(emitterNamingIndex++);
     newEmitter->SetEmitterName(name);
     _particleEmitters.push_back(newEmitter);
@@ -117,18 +119,5 @@ void ParticleEffect::Reset() {
 
 void ParticleEffect::FlushEmitters() 
 {
-    // erase removed emitter
-    //auto removeEmitterEnd = std::remove_if(_particleEmitters.begin(), _particleEmitters.end(),
-    //                                       [](ParticleEmitter* emitter) { return emitter->GetRemoveFlag(); });
-    //for (auto it = removeEmitterEnd; it != _particleEmitters.end(); ++it)
-    //{
-    //    *it = nullptr;
-    //}
-
-    //_particleEmitters.erase(removeEmitterEnd, _particleEmitters.end());
-
-
-
-
     std::erase_if(_particleEmitters, [](ParticleEmitter* emitter) { return emitter->GetRemoveFlag(); });
 }

@@ -31,6 +31,8 @@ private:
 
     void OnFramePopupOpened() override;
 
+	void Deserialize(const std::string& filepath);
+
 private:
     EditorParticleEffectDetails* _editorParticleEffectDetails;
     EditorParticleEffectViewer*  _editorParticleEffectViewer;

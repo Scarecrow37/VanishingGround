@@ -110,6 +110,7 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
 
      bool isSomethingChanged = false;
 
+     ImGui::Text("");
      // emitter Name
      {
          std::string name = _curEmitter->GetEmitterName();
@@ -118,63 +119,57 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
          ImGui::InputText("##Emitter Name", &name);
          _curEmitter->SetEmitterName(name);
      }
+     ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal, 2.0f);
      //Texture
-
-     if (ParticleType::SPRITE == _curEmitter->_particleType)
      {
-
-         ImGui::Text("Sprite Texture");
-         ImGui::SameLine();
-         // ImGui::Button("Sprite Texture Image", {180,50});
-         D3D12_GPU_DESCRIPTOR_HANDLE gpuhandle =
-             static_cast<SpriteModule*>(_curEmitter->_particleRenderModule)->GetAlbedoTexture()->GetGPUHandle();
-         bool isTextureLoadButtonPressed = ImGui::ImageButton((ImTextureID)gpuhandle.ptr, {100, 100});
-
-         if (true == isTextureLoadButtonPressed)
+         if (ParticleType::SPRITE == _curEmitter->_particleType)
          {
-             HWND                    owner = UmApplication.GetHwnd();
-             LPCWSTR                 title = L"Open sprite texture";
-             std::vector<File::Path> out;
-             if (File::ShowOpenFileDialog(owner, title, L"", {{L"이미지 파일\0", L"*.jpg*\0"}}, false, out))
+
+             ImGui::Text("Sprite Texture");
+             ImGui::SameLine();
+             D3D12_GPU_DESCRIPTOR_HANDLE gpuhandle =
+                 static_cast<SpriteModule*>(_curEmitter->_particleRenderModule)->GetAlbedoTexture()->GetGPUHandle();
+             bool isTextureLoadButtonPressed = ImGui::ImageButton((ImTextureID)gpuhandle.ptr, {100, 100});
+
+             if (true == isTextureLoadButtonPressed)
              {
-                 static_cast<SpriteModule*>(_curEmitter->_particleRenderModule)
-                     ->ChangeAlbedoTexture(out.front().wstring());
-                 isSomethingChanged = true;
+                 HWND                    owner = UmApplication.GetHwnd();
+                 LPCWSTR                 title = L"Open sprite texture";
+                 std::vector<File::Path> out;
+                 if (File::ShowOpenFileDialog(owner, title, L"", {{L"이미지 파일\0", L"*.jpg*\0"}}, false, out))
+                 {
+                     static_cast<SpriteModule*>(_curEmitter->_particleRenderModule)
+                         ->ChangeAlbedoTexture(out.front().wstring());
+                     isSomethingChanged = true;
+                 }
+             }
+         }
+         if (ParticleType::RIBBON == _curEmitter->_particleType)
+         {
+
+             ImGui::Text("Ribbon Texture");
+             ImGui::SameLine();
+             // ImGui::Button("Sprite Texture Image", {180,50});
+             D3D12_GPU_DESCRIPTOR_HANDLE gpuhandle =
+                 static_cast<SpriteModule*>(_curEmitter->_particleRenderModule)->GetAlbedoTexture()->GetGPUHandle();
+             bool isTextureLoadButtonPressed = ImGui::ImageButton((ImTextureID)gpuhandle.ptr, {100, 100});
+
+             if (true == isTextureLoadButtonPressed)
+             {
+                 HWND                    owner = UmApplication.GetHwnd();
+                 LPCWSTR                 title = L"Open Ribbon texture";
+                 std::vector<File::Path> out;
+                 if (File::ShowOpenFileDialog(owner, title, L"", {{L"이미지 파일\0", L"*.jpg*\0"}}, false, out))
+                 {
+                     /*   static_cast<RibbonModule*>(_curEmitter->_particleRenderModule)
+                            ->ChangeAlbedoTexture(out.front().wstring());
+                        (out.front().wstring());*/
+                     isSomethingChanged = true;
+                 }
              }
          }
      }
-
-     if (ParticleType::RIBBON == _curEmitter->_particleType)
-     {
-
-         ImGui::Text("Ribbon Texture");
-         ImGui::SameLine();
-         // ImGui::Button("Sprite Texture Image", {180,50});
-         D3D12_GPU_DESCRIPTOR_HANDLE gpuhandle =
-             static_cast<SpriteModule*>(_curEmitter->_particleRenderModule)->GetAlbedoTexture()->GetGPUHandle();
-         bool isTextureLoadButtonPressed = ImGui::ImageButton((ImTextureID)gpuhandle.ptr, {100, 100});
-
-         if (true == isTextureLoadButtonPressed)
-         {
-             HWND                    owner = UmApplication.GetHwnd();
-             LPCWSTR                 title = L"Open Ribbon texture";
-             std::vector<File::Path> out;
-             if (File::ShowOpenFileDialog(owner, title, L"", {{L"이미지 파일\0", L"*.jpg*\0"}}, false, out))
-             {
-              /*   static_cast<RibbonModule*>(_curEmitter->_particleRenderModule)
-                     ->ChangeAlbedoTexture(out.front().wstring());
-                 (out.front().wstring());*/
-                 isSomethingChanged = true;
-
-             }
-         }
-     }
-
-
-
-
      ImGui::Text("");
-
      //shape location
      {
          float locationFactor[3] = {_curEmitter->_emitLocator->GetFactor().x, _curEmitter->_emitLocator->GetFactor().y,
@@ -331,6 +326,20 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
              _curEmitter->SetSpawnBurstCount(spawnburstCount);
          }
      }
+     // delay
+     {
+         float delay = _curEmitter->GetStartDelay();
+         ImGui::Text("Emission Delay");
+         ImGui::SameLine();
+         bool result = ImGui::InputFloat("##Emission Delay", &delay);
+         if (false == isSomethingChanged)
+             if (true == result)
+                 isSomethingChanged = result;
+         _curEmitter->SetStartDelay(delay);
+     }
+
+
+
      ImGui::Text("");
      //particle lifetime
      {
@@ -351,25 +360,24 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
      ImGui::Text("");
      //velocity
      {
-         static int  selected_row = -1;
+         int  selected_row = -1;
          const char* items[4]     = {"Linear    ", "From Point", "In Cone   ", "Custom    "};
-         static int  selected_idx = 0;
-
-         static std::string selected_value = items[selected_idx];
+         UINT        curIdx         = (UINT)_curEmitter->_velocityType;
+         std::string selected_value = items[curIdx];
 
          // 콤보 박스: 평소엔 선택값만, 클릭하면 확장
          
          ImGui::Text("Velocity Type");
          ImGui::SameLine();
-         if (ImGui::BeginCombo("##Velocity Type", items[selected_idx]))
+         if (ImGui::BeginCombo("##Velocity Type", items[curIdx]))
          {
              for (int n = 0; n < 4; n++)
              {
-                 bool is_selected = (selected_idx == n);
+                 bool is_selected = (curIdx == n);
 
                  if (ImGui::Selectable(items[n], is_selected))
                  {
-                     selected_idx   = n;
+                     curIdx             = n;
                      selected_value = items[n]; // 선택된 값 저장
                      isSomethingChanged = true;
                  }
@@ -378,7 +386,7 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
              }
              ImGui::EndCombo();
          }
-         VelocityScaleType veltype = (VelocityScaleType)selected_idx;
+         VelocityScaleType veltype = (VelocityScaleType)curIdx;
          _curEmitter->SetVelocityType(veltype);
          if (VelocityScaleType::LINEAR == veltype)
          {
@@ -531,6 +539,13 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
                  isSomethingChanged = result;
          _curEmitter->SetParticleDistributionOffset(offset);
      }
+   
+
+
+
+
+
+
      if (true == isSomethingChanged)
      {
          UmParticleManager.RefreshEditor();
@@ -556,16 +571,224 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
 
      {
          bool isSaveButtonPressed = ImGui::Button("Save", {180,50});
-         if (true == isSaveButtonPressed)
+         bool isControlSPressed =
+             ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftCtrl) && 
+             ImGui::IsKeyDown(ImGuiKey::ImGuiKey_S);
+
+         if (true == isSaveButtonPressed||true ==isControlSPressed)
          {
-             Reflect();
+             File::Path path;
+             std::wstring filename;
+             if (File::ShowSaveFileDialog(UmApplication.GetHwnd(), L"Save as vfx file", L"", L"Effect.vfx", {}, path))
+             {
+                 Serialize(path.string());
+             }
+
          }
+        
 
      }
  }
 
- void EditorParticleEffectDetails::Reflect() 
+void EditorParticleEffectDetails::Serialize(std::string filepath)
  {
+     std::ofstream os(filepath, std::ios::binary);
+
+     const std::string effectname = _curEffect->GetEffectName();
+     uint32_t          nameLen    = static_cast<uint32_t>(effectname.size());
+     os.write(reinterpret_cast<const char*>(&nameLen), sizeof(nameLen));
+     os.write(effectname.c_str(), nameLen);
+
+    //lifetime
+    float lifetime = _curEffect->GetLifetime();
+    os.write(reinterpret_cast<const char*>(&lifetime), sizeof(lifetime));
+
+    uint32_t count = static_cast<uint32_t>(_curEffect->GetEmitterList().size());
+    os.write(reinterpret_cast<const char*>(&count), sizeof(count));
+
+    for (const auto* emitter : _curEffect->GetEmitterList())
+    {
+        // name length, name
+        const std::string emittername = emitter->GetEmitterName();
+        uint32_t          nameLen     = static_cast<uint32_t>(emittername.size());
+        os.write(reinterpret_cast<const char*>(&nameLen), sizeof(nameLen));
+        os.write(emittername.c_str(), nameLen);
+
+        // emitter position
+        {
+            auto temp = emitter->GetEmitterPosition();
+            os.write(reinterpret_cast<const char*>(&temp), sizeof(temp));
+        }
+
+        // emitter rotation euler
+        {
+            auto temp = emitter->GetEmitterRotationE();
+            os.write(reinterpret_cast<const char*>(&temp), sizeof(temp));
+        }
+
+        // emitter rotation quaternion
+        {
+            auto temp = emitter->GetEmitterRotationQ();
+            os.write(reinterpret_cast<const char*>(&temp), sizeof(temp));
+        }
 
 
- }
+        // location type
+        {
+            auto temp = emitter->_locationType;
+            os.write(reinterpret_cast<const char*>(&temp), sizeof(temp));
+        }
+        // location factor
+        {
+            auto temp = emitter->_emitLocator->GetFactor();
+            os.write(reinterpret_cast<const char*>(&temp), sizeof(temp));
+        }
+
+        // velocity type
+        {
+            auto temp = emitter->_velocityType;
+            os.write(reinterpret_cast<const char*>(&temp), sizeof(temp));
+        }
+
+        // velocity factor
+        {
+            auto temp = emitter->GetVelocityFactor();
+            os.write(reinterpret_cast<const char*>(&temp), sizeof(temp));
+        }
+
+        // emitter lifetime
+        {
+            float emitterlifetime = emitter->GetEmitterLifetime();
+            os.write(reinterpret_cast<const char*>(&emitterlifetime), sizeof(emitterlifetime));
+        }
+
+        // particle lifetime
+        {
+            float particlelifetime = emitter->GetParticleLifetime();
+            os.write(reinterpret_cast<const char*>(&particlelifetime), sizeof(particlelifetime));
+        }
+
+        // max particles
+        {
+            float maxParticles = emitter->GetMaxParticles();
+            os.write(reinterpret_cast<const char*>(&maxParticles), sizeof(maxParticles));
+        }
+
+        // emission rate
+        {
+            float emissionrate = emitter->GetEmissionRate();
+            os.write(reinterpret_cast<const char*>(&emissionrate), sizeof(emissionrate));
+        }
+
+        // start delay
+        {
+            float startdelay = emitter->GetStartDelay();
+            os.write(reinterpret_cast<const char*>(&startdelay), sizeof(startdelay));
+        }
+
+        // spawn burst flag
+        {
+            float spawnBurst = emitter->GetSpawnBurstFlag();
+            os.write(reinterpret_cast<const char*>(&spawnBurst), sizeof(spawnBurst));
+        }
+
+        // spawn burst count
+        {
+            float spawnBurstCount = emitter->GetSpawnBurstCount();
+            os.write(reinterpret_cast<const char*>(&spawnBurstCount), sizeof(spawnBurstCount));
+        }
+
+        // start color
+        {
+            Vector3 startcolor = emitter->GetStartColor();
+            os.write(reinterpret_cast<const char*>(&startcolor), sizeof(startcolor));
+        }
+
+        // start alpha
+        {
+            float startopacity = emitter->GetStartOpacity();
+            os.write(reinterpret_cast<const char*>(&startopacity), sizeof(startopacity));
+        }
+
+        // end color
+        {
+            Vector3 endcolor = emitter->GetEndColor();
+            os.write(reinterpret_cast<const char*>(&endcolor), sizeof(endcolor));
+        }
+
+        // end alpha
+        {
+            float endopacity = emitter->GetEndOpacity();
+            os.write(reinterpret_cast<const char*>(&endopacity), sizeof(endopacity));
+        }
+
+        // start scale
+        {
+            Vector4 startscale = emitter->GetStartScale();
+            os.write(reinterpret_cast<const char*>(&startscale), sizeof(startscale));
+        }
+
+        // end scale
+        {
+            Vector4 endscale = emitter->GetEndScale();
+            os.write(reinterpret_cast<const char*>(&endscale), sizeof(endscale));
+        }
+
+        // particle mass
+        {
+            float mass = emitter->GetParticleMass();
+            os.write(reinterpret_cast<const char*>(&mass), sizeof(mass));
+        }
+
+        // distribution offset
+        {
+            Vector3 offset = emitter->GetParticleDistributionOffset();
+            os.write(reinterpret_cast<const char*>(&offset), sizeof(offset));
+        }
+
+        // drag point
+        {
+            Vector4 dragpoint = emitter->GetDragPoint();
+            os.write(reinterpret_cast<const char*>(&dragpoint), sizeof(dragpoint));
+        }
+
+        // drag force
+        {
+            Vector4 dragforce = emitter->GetDragForce();
+            os.write(reinterpret_cast<const char*>(&dragforce), sizeof(dragforce));
+        }
+        // render type
+        {
+            auto rendertype = emitter->_particleType;
+            os.write(reinterpret_cast<const char*>(&rendertype), sizeof(rendertype));
+        }
+
+
+
+        // render module file path
+        {
+            const std::wstring modeltexturepath = emitter->_particleRenderModule->GetModelAndTexturePath();
+            int                sizeNeeded =
+                WideCharToMultiByte(CP_UTF8, 0, modeltexturepath.data(), static_cast<int>(modeltexturepath.size()),
+                                    nullptr, 0, nullptr, nullptr);
+            std::string result(sizeNeeded, 0);
+            WideCharToMultiByte(CP_UTF8, 0, modeltexturepath.data(), static_cast<int>(modeltexturepath.size()),
+                                result.data(), sizeNeeded, nullptr, nullptr);
+
+            uint32_t pathnameLen = static_cast<uint32_t>(result.size());
+            os.write(reinterpret_cast<const char*>(&pathnameLen), sizeof(pathnameLen));
+            os.write(result.c_str(), pathnameLen);
+        }
+
+        if (ParticleType::SPRITE == emitter->_particleType)
+        {
+            // frame info
+            Vector4 frameinfo = static_cast<SpriteModule*>(emitter->_particleRenderModule)->GetInitialFrameInfo();
+            os.write(reinterpret_cast<const char*>(&frameinfo), sizeof(frameinfo));
+        }
+
+    }
+    os.close();
+
+}
+
