@@ -9,7 +9,7 @@ struct PS_INPUT
 Texture2D sourceTexture;
 RWTexture2D<float4> accumulation;
 
-float4 ps_main(PS_INPUT input) : SV_TARGET
+void ps_main(PS_INPUT input)
 {
     //float indices[KERNEL_SIZE] = { -4, -3, -2, -1, 0, +1, +2, +3, +4 };
     float indices[KERNEL_SIZE] = { -7, -6, -5, -4, -3, -2, -1, 0, +1, +2, +3, +4, +5, +6, +7 };
@@ -23,6 +23,4 @@ float4 ps_main(PS_INPUT input) : SV_TARGET
     }
     
     accumulation[(uint2)input.position.xy] += float4(result.rgb, 1);
-
-    return float4(0.f, 0.f, 0.f, 0.f);
 }

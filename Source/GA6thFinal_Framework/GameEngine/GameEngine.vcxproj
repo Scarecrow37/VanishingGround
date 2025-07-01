@@ -321,7 +321,7 @@
     <ClInclude Include="Source\Engine\GraphicsCore\BlurYPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\BlendTechnique.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\ResourceBase.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\RimLightPass.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\OutLinePass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\UnorderedAccessView.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\UpScalePass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\BrightExtractPass.h" />
@@ -528,7 +528,7 @@
     <ClCompile Include="Source\Engine\GraphicsCore\BlurYPass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\BlendTechnique.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\ResourceBase.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\RimLightPass.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\OutLinePass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\UnorderedAccessView.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\UpScalePass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\BrightExtractPass.cpp" />

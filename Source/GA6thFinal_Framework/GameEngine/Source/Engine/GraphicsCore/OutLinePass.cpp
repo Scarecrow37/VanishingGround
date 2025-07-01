@@ -1,22 +1,22 @@
 ﻿#include "pch.h"
-#include "BlurYPass.h"
-#include "Quad.h"
+#include "OutLinePass.h"
 #include "RenderScene.h"
 #include "RenderTarget.h"
+#include "Quad.h"
 #include "UnorderedAccessView.h"
 
-BlurYPass::BlurYPass() {}
+OutLinePass::OutLinePass() {}
 
-BlurYPass::~BlurYPass() {}
+OutLinePass::~OutLinePass() {}
 
-void BlurYPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& sissorRect)
+void OutLinePass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& sissorRect)
 {
     __super::Initialize(viewPort, sissorRect);
 
     _shader = std::make_unique<ShaderBuilder>();
     _shader->BeginBuild();
     _shader->SetShader(L"../Shaders/vs_quad.hlsl", ShaderBuilder::Type::VS);
-    _shader->SetShader(L"../Shaders/ps_blur_y.hlsl", ShaderBuilder::Type::PS);
+    _shader->SetShader(L"../Shaders/ps_outline.hlsl", ShaderBuilder::Type::PS);
     _shader->EndBuild(ShaderBuilder::BindType::DIRECT);
 
     ID3D12Device*                      device = UmDevice.GetDevice();
@@ -33,40 +33,41 @@ void BlurYPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& sis
     psodesc.SampleDesc                    = {1, 0};
     psodesc.VS                            = _shader->GetShaderByteCode(ShaderBuilder::Type::VS);
     psodesc.PS                            = _shader->GetShaderByteCode(ShaderBuilder::Type::PS);
-
+    
     HRESULT hr = S_OK;
     hr         = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(&_pipelineState));
-    FAILED_CHECK_MESSAGE(hr, L"BlurYPass::Initialize device->CreateGraphicsPipelineState Failed");
+    FAILED_CHECK_MESSAGE(hr, L"OutLinePass::Initialize device->CreateGraphicsPipelineState Failed");
 }
 
-void BlurYPass::Begin(ID3D12GraphicsCommandList* commandList)
+void OutLinePass::Begin(ID3D12GraphicsCommandList* commandList)
 {
     commandList->OMSetRenderTargets(0, nullptr, FALSE, nullptr);
     commandList->RSSetViewports(1, &_viewPort);
     commandList->RSSetScissorRects(1, &_sissorRect);
 }
 
-void BlurYPass::Draw(ID3D12GraphicsCommandList* commandList)
+void OutLinePass::Draw(ID3D12GraphicsCommandList* commandList)
 {
     const auto&     mode = UmDevice.GetMode();
-    PostProcessData postProcessData{.TexelSize = {1.f / (float)mode.Width, 1.f / (float)mode.Height}};
+    PostProcessData postProcessData{.ScreenSize      = {(float)mode.Width, (float)mode.Height},
+                                    .PostProcessMask = PostProcess::OUTLINE};
+    postProcessData.TexelSize = 1.f / postProcessData.ScreenSize;
 
-    auto&       multiRenderTargetManager = UmMultiRenderTargetManager;
-    const auto& usedRenderTargets        = multiRenderTargetManager.GetUsedRenderTargets();
+    auto worldTarget       = UmMultiRenderTargetManager.GetRenderTarget("WorldPosition");
+    auto customDepthTarget = UmMultiRenderTargetManager.GetRenderTarget("CustomDepth");
 
     commandList->SetPipelineState(_pipelineState.Get());
     commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
-
+    
+    commandList->SetGraphicsRootConstantBufferView(_shader->GetRootParameterIndex("cameraData"), _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
     commandList->SetGraphicsRoot32BitConstants(_shader->GetRootParameterIndex("bit32_5_postProcessData"), 5, &postProcessData, 0);
-    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("sourceTexture"), usedRenderTargets.front()->GetSRVHandle());
+    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("worldTexture"), worldTarget->GetSRVHandle());
+    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("customDepthTexture"), customDepthTarget->GetSRVHandle());
     commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("accumulation"), _ownerScene->_accumulationBuffer->GetUAVHandle());
 
     _ownerScene->_frameQuad->Render(commandList);
 }
 
-void BlurYPass::End(ID3D12GraphicsCommandList* commandList)
+void OutLinePass::End(ID3D12GraphicsCommandList* commandList)
 {
-    auto&       multiRenderTargetManager = UmMultiRenderTargetManager;
-    const auto& usedRenderTargets        = multiRenderTargetManager.GetUsedRenderTargets();
-    multiRenderTargetManager.ReturnRenderTarget(usedRenderTargets.back().get());
 }

@@ -1,11 +1,11 @@
 ﻿#pragma once
 #include "RenderPass.h"
 
-class RimLightPass : public RenderPass
+class OutLinePass : public RenderPass
 {
 public:
-    RimLightPass();
-    virtual ~RimLightPass();
+    OutLinePass();
+    virtual ~OutLinePass();
 
 public:
     void Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& sissorRect) override;

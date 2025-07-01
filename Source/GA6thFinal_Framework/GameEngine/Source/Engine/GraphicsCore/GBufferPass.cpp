@@ -234,10 +234,9 @@ void GBufferPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, MeshType ty
     for (auto& [mesh, instanceID, customDepth] : _renderDatas[type])
     {
         parameter[0] = instanceID;
-        parameter[2] = 1; // 임시
-        // parameter[2] = customDepth;
-        commandList->SetGraphicsRoot32BitConstants(_shaders[type]->GetRootParameterIndex("bit32_3_objectData"), 3,
-                                                   parameter, 0);
+        parameter[2] = customDepth;
+
+        commandList->SetGraphicsRoot32BitConstants(_shaders[type]->GetRootParameterIndex("bit32_3_objectData"), 3, parameter, 0);
         mesh->Render(commandList);
     }
 }
