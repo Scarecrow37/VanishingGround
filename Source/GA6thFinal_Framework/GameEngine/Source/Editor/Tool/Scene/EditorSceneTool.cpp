@@ -85,8 +85,6 @@ void EditorSceneTool::OnFrameRender()
     DrawManipulate();
     RayPicker();
     VertexSnap();
-
-    UmDebugDrawCore.DrawDebugGrid("Editor", _camera->GetPosition(), ReflectFields->CameraFarZ, 40);
 }
 
 void EditorSceneTool::OnFrameEnd()
