@@ -43,4 +43,6 @@ namespace Audio
     EffectCreationException::EffectCreationException(const std::string& message) : AudioException(message) {}
 
     DeviceInvalidatedException::DeviceInvalidatedException(const std::string& message) : AudioException(message) {}
+
+    InvalidHandleException::InvalidHandleException(const std::string& message) : AudioException(message) {}
 } // namespace Audio

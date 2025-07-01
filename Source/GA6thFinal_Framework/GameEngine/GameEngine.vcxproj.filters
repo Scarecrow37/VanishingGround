@@ -714,10 +714,13 @@
     <ClInclude Include="Source\Engine\AudioCore\Sound\AudioSound.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\AudioCore\Player\SoundPlayer.h">
+    <ClInclude Include="Source\Engine\AudioCore\Declare\Exceptions\AudioExceptions.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\AudioCore\Declare\Exceptions\AudioExceptions.h">
+    <ClInclude Include="Source\Engine\AudioCore\Handle\AudioHandle.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\AudioCore\Declare\Types\AudioTypes.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1283,10 +1286,13 @@
     <ClCompile Include="Source\Engine\AudioCore\Sound\AudioSound.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\AudioCore\Player\SoundPlayer.cpp">
+    <ClCompile Include="Source\Engine\AudioCore\Declare\Exceptions\AudioExceptions.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\AudioCore\Declare\Exceptions\AudioExceptions.cpp">
+    <ClCompile Include="Source\Engine\AudioCore\Handle\AudioHandle.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\AudioCore\Declare\Types\AudioTypes.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

@@ -4,11 +4,10 @@ namespace Audio
 {
     class Sound
     {
-        friend std::shared_ptr<SoundPlayer> EManager::CreatePlayer(const std::shared_ptr<Sound>& sound) const;
-        friend class SoundPlayer;
+        friend class EManager;
 
     public:
-        Sound(const WAVEFORMATEXTENSIBLE& format, const XAUDIO2_BUFFER& buffer);
+        Sound(const WAVEFORMATEX& format, const XAUDIO2_BUFFER& buffer);
         Sound(const Sound&)            = delete;
         Sound& operator=(const Sound&) = delete;
         Sound(Sound&& other) noexcept;
@@ -16,7 +15,7 @@ namespace Audio
         ~Sound();
 
     private:
-        WAVEFORMATEXTENSIBLE _format;
+        WAVEFORMATEX _format;
         XAUDIO2_BUFFER       _buffer;
     };
 } // namespace Audio

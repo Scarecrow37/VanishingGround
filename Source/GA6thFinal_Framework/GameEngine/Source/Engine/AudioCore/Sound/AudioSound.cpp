@@ -3,7 +3,7 @@
 
 namespace Audio
 {
-    Sound::Sound(const WAVEFORMATEXTENSIBLE& format, const XAUDIO2_BUFFER& buffer) : _format(format), _buffer(buffer) {}
+    Sound::Sound(const WAVEFORMATEX& format, const XAUDIO2_BUFFER& buffer) : _format(format), _buffer(buffer) {}
 
     Sound::~Sound()
     {

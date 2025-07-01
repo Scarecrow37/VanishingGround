@@ -36,4 +36,10 @@ namespace Audio
     public:
         explicit DeviceInvalidatedException(const std::string& message = "Audio device has been invalidated");
     };
+
+    class InvalidHandleException final : public AudioException
+    {
+    public:
+        explicit InvalidHandleException(const std::string& message = "Invalid audio handle");
+    };
 } // namespace Audio
