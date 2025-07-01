@@ -17,7 +17,8 @@ namespace Audio
         }
     }
 
-    EManager::EManager(EManager&& other) noexcept : _xAudio2(std::move(other._xAudio2)), _masteringVoice(other._masteringVoice)
+    EManager::EManager(EManager&& other) noexcept
+        : _xAudio2(std::move(other._xAudio2)), _masteringVoice(other._masteringVoice)
     {
         other._masteringVoice = nullptr;
     }
@@ -26,8 +27,8 @@ namespace Audio
     {
         if (this == &other)
             return *this;
-        _xAudio2 = std::move(other._xAudio2);
-        _masteringVoice = other._masteringVoice;
+        _xAudio2              = std::move(other._xAudio2);
+        _masteringVoice       = other._masteringVoice;
         other._masteringVoice = nullptr;
         return *this;
     }
@@ -87,9 +88,17 @@ namespace Audio
         return std::make_shared<Sound>(wfx, buffer);
     }
 
-    std::shared_ptr<SoundPlayer> EManager::CreatePlayer(const Sound& sound)
+    std::shared_ptr<SoundPlayer> EManager::CreatePlayer(const std::shared_ptr<Sound>& sound) const
     {
-        // TODO : Implement sound player creation logic
-        return std::make_shared<SoundPlayer>();
+        if (_xAudio2 == nullptr)
+            throw AudioException("Audio manager is not initialized.");
+
+        constexpr ThrowIfFailed throwIfFailed;
+
+        IXAudio2SourceVoice* sourceVoice;
+        throwIfFailed(_xAudio2->CreateSourceVoice(&sourceVoice, reinterpret_cast<const WAVEFORMATEX*>(&sound->_format)),
+                      "Failed to create source voice.");
+
+        return std::make_shared<SoundPlayer>(sourceVoice, sound);
     }
 } // namespace Audio

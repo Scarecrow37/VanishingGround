@@ -19,7 +19,7 @@ namespace Audio
 
         void                          Initialize();
         static std::shared_ptr<Sound> CreateSoundFromWave(const std::filesystem::path& filePath);
-        std::shared_ptr<SoundPlayer>  CreatePlayer(const Sound& sound);
+        std::shared_ptr<SoundPlayer>  CreatePlayer(const std::shared_ptr<Sound>& sound) const;
 
     private:
         winrt::com_ptr<IXAudio2> _xAudio2;
