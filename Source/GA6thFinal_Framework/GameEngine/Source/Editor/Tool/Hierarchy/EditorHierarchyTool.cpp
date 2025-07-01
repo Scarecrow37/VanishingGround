@@ -224,9 +224,10 @@ void EditorHierarchyTool::TransformTreeNode(Transform& node, const std::shared_p
                 }
             }
         }     
-       
+
+        GameObject& gameObject = node.gameObject; 
         ImGuiTreeNodeFlags treeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
-        if (ImGui::TreeNodeEx(node.gameObject->ToString().data(), treeFlags))
+        if (ImGui::TreeNodeEx(gameObject.ToString().data(), treeFlags))
         {
             FocusRectDarw(focusObject.get());
             PopFocusStyle(isPushStyle);
