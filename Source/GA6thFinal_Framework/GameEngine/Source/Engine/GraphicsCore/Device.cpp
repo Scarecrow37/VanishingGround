@@ -15,6 +15,7 @@
 //    _lastGraphicsFenceValues[fenceSlot] = fenceValue;
 //}
 
+
 void Device::SetUpDevice(HWND hwnd, UINT width, UINT height, FeatureLevel feature)
 {
     _mode.Width  = width;
@@ -44,7 +45,7 @@ void Device::SetUpDevice(HWND hwnd, UINT width, UINT height, FeatureLevel featur
     }
 
     CreateDeviceAndSwapChain(hwnd, d3dFeature);
-    if (Renderer::IsRaytracing)
+    if (UmRenderer._isRaytracing)
     {
         CheckDXRSupport();
     }
@@ -277,7 +278,36 @@ void Device::CreateConstantBuffer(void* data, UINT size, ComPtr<ID3D12Resource>&
         UpdateBuffer(buffer, data, size);
 }
 
-void Device::CreateDefaultBuffer(UINT size, ComPtr<ID3D12Resource>& buffer)
+void Device::CreateDefaultBuffer(UINT size, ComPtr<ID3D12Resource>& buffer) 
+{
+    D3D12_HEAP_PROPERTIES hp = {};
+    hp.Type                  = D3D12_HEAP_TYPE_DEFAULT;
+    hp.CPUPageProperty       = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+    hp.MemoryPoolPreference  = D3D12_MEMORY_POOL_UNKNOWN;
+    hp.CreationNodeMask      = 0;
+    hp.VisibleNodeMask       = 0;
+
+    // 버퍼에 저장될 자원 정보 설정
+    D3D12_RESOURCE_DESC rd = {};
+    rd.Dimension           = D3D12_RESOURCE_DIMENSION_BUFFER; // 자원 형식 : "버퍼"
+    rd.Alignment           = 0;    // 기본 정렬 64KB (D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT)
+    rd.Width               = size; // 저장할 자원(데이터)의 크기.
+    rd.Height              = 1;
+    rd.DepthOrArraySize    = 1;
+    rd.MipLevels           = 1;
+    rd.Format              = DXGI_FORMAT_UNKNOWN;
+    rd.SampleDesc.Count    = 1;
+    rd.SampleDesc.Quality  = 0;
+    rd.Layout              = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+    rd.Flags               = D3D12_RESOURCE_FLAG_NONE;
+
+    // 버퍼 생성.
+    ID3D12Resource* pBuff = nullptr;
+
+    HRESULT hr = S_OK;
+    hr = _device->CreateCommittedResource(&hp, D3D12_HEAP_FLAG_NONE, &rd, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&buffer));
+    FAILED_CHECK_MESSAGE(hr, L"Device::CreateDefaultBuffer _device->CreateCommittedResource Failed");
+}
 
 void Device::CreateDefaultBuffer(UINT size, const D3D12_RESOURCE_FLAGS flags, const D3D12_RESOURCE_STATES initState,
                                  ComPtr<ID3D12Resource>& buffer)
@@ -391,7 +421,7 @@ ComPtr<ID3D12RootSignature> Device::CreateRootSignature(const D3D12_ROOT_SIGNATU
     }
 
     ComPtr<ID3D12RootSignature> pRootSig;
-    HRESULT                     hr = S_OK;
+    hr = S_OK;
     hr = _device->CreateRootSignature(0, pSigBlob->GetBufferPointer(), pSigBlob->GetBufferSize(),
                                       IID_PPV_ARGS(pRootSig.GetAddressOf()));
     FAILED_CHECK_MESSAGE(hr, L"Deivce::CreateRootSignature _device->CreateRootSignautre Failed");

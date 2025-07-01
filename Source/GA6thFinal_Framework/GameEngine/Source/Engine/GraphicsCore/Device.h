@@ -8,9 +8,13 @@ public:
 
 public:
     ID3D12Device*              GetDevice() const { return _device.Get(); }
+    template<typename T>
+    T*                         GetQueryDevice() const;
     ID3D12CommandQueue*        GetCommandQueue() const { return _commandQueue.Get(); }
     ID3D12CommandQueue*        GetComputeCommandQueue() const { return _computeCommandQueue.Get(); }
     ID3D12GraphicsCommandList* GetCommandList() const { return _commandList.Get(); }
+    template<typename T>
+    T*                         GetQueryCommandList() const;
     ID3D12GraphicsCommandList* GetImguiCommandList() const { return _imguiCommandList.Get(); }
     ID3D12GraphicsCommandList* GetComputeCommandList() const { return _computeCommandList.Get(); }
     ID3D12GraphicsCommandList* GetPostProcessCommandList() const { return _postProcessCommandList.Get(); }
@@ -58,8 +62,6 @@ public:
 	ComPtr<ID3D12Resource>& buffer);
     void CreateUploadBuffer(UINT size, const D3D12_RESOURCE_FLAGS flags, const D3D12_RESOURCE_STATES initState,
 	ComPtr<ID3D12Resource>& buffer);
-    void CreateCommandList(ComPtr<ID3D12CommandAllocator>& allocator, ComPtr<ID3D12GraphicsCommandList>& commandList,
-                           CommandType type);
     ComPtr<ID3D12RootSignature> CreateRootSignature(const D3D12_ROOT_SIGNATURE_DESC& desc);
     void RegisterCommand(ID3D12CommandList* commandList, CommandListType type);
     void ExecuteCommand(CommandListType type);
@@ -135,3 +137,19 @@ private:
 private:
     void CheckDXRSupport();
 };
+
+template <typename T>
+inline T* Device::GetQueryDevice() const
+{
+    T* result = nullptr;
+    _device->QueryInterface(__uuidof(T), reinterpret_cast<void**>(&result));
+    return result;
+}
+
+template <typename T>
+inline T* Device::GetQueryCommandList() const
+{
+    T*      result = nullptr;
+    _commandList->QueryInterface(__uuidof(T), reinterpret_cast<void**>(&result));
+    return result;
+}

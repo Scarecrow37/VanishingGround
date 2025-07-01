@@ -11,6 +11,7 @@ public:
 
 public:
     void Initialize(DXGI_MODE_DESC mode);
+    void InitializeForBuffer(UINT elementSize, UINT elementCount);
     void ClearUnorderedAccessView(ID3D12GraphicsCommandList* commandList);
     void ResourceBarrier(ID3D12GraphicsCommandList* commandList);    
 

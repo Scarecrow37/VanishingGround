@@ -1,5 +1,5 @@
-﻿#include "d3dUtil.h"
-#include "pch.h"
+﻿#include "pch.h"
+#include "d3dUtil.h"
 
 Microsoft::WRL::ComPtr<ID3D12Resource> d3dUtil::CreateBufferWithData(
     ID3D12Device* device, ID3D12GraphicsCommandList* cmdList, const void* initData, UINT64 byteSize,

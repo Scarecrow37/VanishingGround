@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "RenderScene.h"
 #include "Animator.h"
+#include "DepthStencilView.h"
 #include "FrameResource.h"
 #include "Light.h"
 #include "MeshRenderer.h"
@@ -10,11 +11,8 @@
 #include "RenderTechnique.h"
 #include "SkyBox.h"
 #include "UnorderedAccessView.h"
-#include "DepthStencilView.h"
 
-RenderScene::RenderScene(std::string_view name)
-    : _skyBox{std::make_unique<SkyBox>()}
-    , _name(name)
+RenderScene::RenderScene(std::string_view name) : _skyBox{std::make_unique<SkyBox>()}, _name(name)
 {
     _lightDatas.resize(MAX_LIGHT);
 }
@@ -135,7 +133,8 @@ void RenderScene::UpdateRenderScene()
         if (MeshRenderType::SKELETAL == type)
         {
             auto animator = component->GetAnimator();
-            if (animator) memcpy(&boneMatrixes, animator->GetAnimationTransform(), sizeof(BoneMatrixes));
+            if (animator)
+                memcpy(&boneMatrixes, animator->GetAnimationTransform(), sizeof(BoneMatrixes));
         }
 
         UINT size = (UINT)meshes.size();
@@ -157,9 +156,34 @@ void RenderScene::UpdateRenderScene()
     UINT                       size        = static_cast<UINT>(_worldMatrixes.size());
     ID3D12GraphicsCommandList* commandList = UmDevice.GetCommandList();
 
-    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, _worldMatrixes.data(), size * sizeof(XMMATRIX), FrameResource::Type::TRANSFORM);
-    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, _boneMatrixes.data(), size * sizeof(BoneMatrixes), FrameResource::Type::BONE_MATRIXES);
-    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, _materialIDs.data(), size * sizeof(MaterialID), FrameResource::Type::MATERIAL);
+    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, _worldMatrixes.data(),
+                                                              size * sizeof(XMMATRIX), FrameResource::Type::TRANSFORM);
+    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(
+        commandList, _boneMatrixes.data(), size * sizeof(BoneMatrixes), FrameResource::Type::BONE_MATRIXES);
+    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, _materialIDs.data(),
+                                                              size * sizeof(MaterialID), FrameResource::Type::MATERIAL);
+
+    ClassifyMesh();
+}
+
+void RenderScene::ClassifyMesh()
+{
+    _staticMesh.clear();
+    _skeletalMesh.clear();
+    for (auto& model : _renderQueue)
+    {
+        switch (model.second->GetType())
+        {
+        case MeshRenderType::STATIC:
+            _staticMesh.push_back(model.second);
+            break;
+        case MeshRenderType::SKELETAL:
+            _skeletalMesh.push_back(model.second);
+            break;
+        default:
+            break;
+        }
+    }
 }
 
 void RenderScene::Execute(ID3D12GraphicsCommandList* commandList)
@@ -218,7 +242,7 @@ void RenderScene::CreateDepthStencil()
 {
     _depthStencilView = std::make_unique<DepthStencilView>();
 
-    auto mode = UmDevice.GetMode();
+    auto mode   = UmDevice.GetMode();
     mode.Format = DXGI_FORMAT_R24G8_TYPELESS;
     _depthStencilView->Initialize(mode);
 }

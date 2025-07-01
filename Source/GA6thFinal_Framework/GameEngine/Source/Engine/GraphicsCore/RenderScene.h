@@ -32,6 +32,7 @@ public:
 
 public:
     void UpdateRenderScene();
+    void ClassifyMesh();
     void RenderOnBackBuffer(ID3D12GraphicsCommandList* commandList);
     void RenderOnEditor(ID3D12GraphicsCommandList* commandList);
     void Execute(ID3D12GraphicsCommandList* commandList);
@@ -54,6 +55,10 @@ public:
     std::vector<std::unique_ptr<RenderTechnique>>                _techniques;
     std::vector<std::pair<std::unique_ptr<bool>, MeshRenderer*>> _renderQueue;
     
+    // mesh 분리
+    std::vector<MeshRenderer*> _staticMesh;
+    std::vector<MeshRenderer*> _skeletalMesh;
+
     // Frame Resource
     std::vector<std::unique_ptr<FrameResource>> _frameResources;
     std::vector<LightData>                      _lightDatas;

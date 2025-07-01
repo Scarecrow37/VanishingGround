@@ -50,6 +50,7 @@ constexpr const char* STR_NULL = "null";
 #pragma comment(lib, "dxgi")
 #pragma comment(lib, "Dbghelp.lib")
 #pragma comment(lib, "d3dcompiler")
+#pragma comment(lib, "dxcompiler")
 
 //CRT
 #include <tchar.h>

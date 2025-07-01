@@ -14,10 +14,10 @@
 #include "BloomTechnique.h"
 #include "BlendTechnique.h"
 #include "ParticleRenderTechnique.h"
+#include "RayTracingTechnique.h"
 #include "Sphere.h"
 
 // 임시 값->나중에 설정할 수 있게 바꾸면 될듯.
-bool Renderer::IsRaytracing = true;
 
 Renderer::Renderer()
     : _currnetState(0)
@@ -162,7 +162,10 @@ void Renderer::Initialize()
         scene = std::make_unique<RenderScene>("Editor");
         scene->InitializeRenderScene();
         scene->AddRenderTechnique(std::make_unique<SkyBoxRenderTechnique>());
-        scene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
+        if (_isRaytracing)
+            scene->AddRenderTechnique(std::make_unique<RayTracingTechnique>());
+        else
+            scene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
         scene->AddRenderTechnique(std::make_unique<BloomTechnique>());
         scene->AddRenderTechnique(std::make_unique<BlendTechnique>());
         _renderScenes["Editor"] = std::move(scene);

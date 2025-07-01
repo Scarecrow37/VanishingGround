@@ -9,3 +9,4 @@
 #define UmMultiRenderTargetManager Global::engineCore->Graphics.MultiRenderTargetManager
 #define UmParticleManager Global::engineCore->Graphics.ParticleManager
 #define UmDebugDrawCore Global::engineCore->Graphics.DebugDrawCore
+#define UmAccelerationStructureManager Global::engineCore->Graphics.AccelerationStructureManager;

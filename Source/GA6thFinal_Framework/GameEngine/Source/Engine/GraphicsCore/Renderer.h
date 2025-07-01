@@ -63,6 +63,7 @@ private:
     std::unordered_map<std::string, std::unique_ptr<RenderScene>> _renderScenes;
     UINT                                                          _currnetState;
     std::list<std::shared_ptr<Resource>>                          _defaultResource;
+
 public:
-    static bool IsRaytracing;
+    bool _isRaytracing = true;
 };

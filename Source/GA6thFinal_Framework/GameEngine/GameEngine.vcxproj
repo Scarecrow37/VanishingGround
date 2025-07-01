@@ -296,6 +296,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Engine\GraphicsCore\DXRDrawStaticMeshPass.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\RayTracingTechnique.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\AccelerationStructureManager.h" />
     <ClInclude Include="Source\Engine\EditorCore\Utillity\EditorDragState.h" />
     <ClInclude Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectDetails.h" />
     <ClInclude Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectHierarchy.h" />
@@ -321,7 +324,6 @@
     <ClInclude Include="Source\Engine\GraphicsCore\ResourceBase.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\UnorderedAccessView.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\dxcapi.use.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\ToneMappingTechnique.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\UpScalePass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\BrightExtractPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\DownScalePass.h" />
@@ -500,6 +502,9 @@
     <ClInclude Include="Source\Engine\EngineCore\TimelineSystem.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Engine\GraphicsCore\DXRDrawStaticMeshPass.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\RayTracingTechnique.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\AccelerationStructureManager.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\Utillity\EditorDragState.cpp" />
     <ClCompile Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectDetails.cpp" />
     <ClCompile Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectHierarchy.cpp" />
@@ -527,7 +532,6 @@
     <ClCompile Include="Source\Engine\GraphicsCore\ResourceBase.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\UnorderedAccessView.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\dxcapi.use.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\ToneMappingTechnique.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\UpScalePass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\BrightExtractPass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\DownScalePass.cpp" />

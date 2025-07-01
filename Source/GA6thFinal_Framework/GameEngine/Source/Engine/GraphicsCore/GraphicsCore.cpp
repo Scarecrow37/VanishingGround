@@ -9,6 +9,8 @@ void GraphicsCore::Initialize(HWND hwnd, UINT width, UINT height, FeatureLevel f
     Device.ResetCommands();
     ParticleManager.Initialize(MAX_PARTICLE);
     Renderer.Initialize();    
+    if (Renderer._isRaytracing)
+        AccelerationStructureManager.Initialize(10000);
 
     auto commandList = Device.GetCommandList();
     commandList->Close();

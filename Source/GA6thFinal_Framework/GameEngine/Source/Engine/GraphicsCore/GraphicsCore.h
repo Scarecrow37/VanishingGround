@@ -16,6 +16,7 @@
 #include "ResourceManager.h"
 #include "ViewManager.h"
 #include "ParticleManager.h"
+#include "AccelerationStructureManager.h"
 
 #include "Defines.h"
 #include "Externs.h"
@@ -35,7 +36,7 @@ public:
     ResourceManager          ResourceManager;
     MultiRenderTargetManager MultiRenderTargetManager;
     ParticleManager          ParticleManager;
-
+    AccelerationStructureManager AccelerationStructureManager;
 #ifdef _DEBUG
     DebugDrawCore DebugDrawCore;
 #endif
