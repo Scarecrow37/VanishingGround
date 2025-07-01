@@ -1596,7 +1596,7 @@ void ESceneManager::InputSystem::UpdateInput()
                 UpdateTracker(buttonIndex);
                 for (int actionIndex = 0; actionIndex < buttons.size(); ++actionIndex)
                 {
-                    Action action = (Action)actionIndex;
+                    Action action  = (Action)actionIndex;
                     auto&  actions = buttons[actionIndex];
                     for (auto& [component, event] : actions)
                     {
