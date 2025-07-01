@@ -30,3 +30,16 @@ void CameraComponent::DeserializedReflectEvent()
     _isDirty = true;
 }
 
+void CameraComponent::OnDrawDebug() 
+{
+
+}
+
+void CameraComponent::OnDrawDebugSelected() 
+{
+    BoundingFrustum frustum;
+    BoundingFrustum::CreateFromMatrix(frustum, _camera->GetProjectionMatrix());
+    frustum.Transform(frustum, _camera->GetWorldMatrix());
+    UmDebugDrawCore.Draw("Editor", frustum, DEBUG_COLOR);
+}
+

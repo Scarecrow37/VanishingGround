@@ -85,15 +85,6 @@ void EditorSceneTool::OnFrameRender()
     DrawManipulate();
     RayPicker();
     VertexSnap();
-
-    UmDebugDrawCore.DrawDebugGrid("Editor", _camera->GetPosition(), 5000.f, 40);
-
-
-    BoundingFrustum frustum;
-    BoundingFrustum::CreateFromMatrix(frustum, _camera->GetCamera()->GetProjectionMatrix());
-    //frustum.Transform(frustum, _camera->GetCamera()->GetWorldMatrix());
-
-    //UmDebugDrawCore.Draw("Editor", frustum, DirectX::Colors::Blue);
 }
 
 void EditorSceneTool::OnFrameEnd()
@@ -159,6 +150,10 @@ void EditorSceneTool::SetCamera()
     _sceneClientHeight = _sceneClientBottom - _sceneClientTop;
     _sceneClientHeight = std::max(_sceneClientHeight, Mathf::Epsilon);
     ReflectFields->CameraAspect = _sceneClientWidth / _sceneClientHeight;
+
+    ReflectFields->CameraFov   = std::max(ReflectFields->CameraFov, 5.f);
+    ReflectFields->CameraNearZ = std::max(ReflectFields->CameraNearZ, 0.1f);
+    ReflectFields->CameraFarZ  = std::max(ReflectFields->CameraFarZ, 10.f);
 
     auto& camera = _camera->GetCamera();
     camera->SetupPerspective(
@@ -438,6 +433,22 @@ void EditorSceneTool::DrawSceneView()
         if (isActive)
         {
             ImGui::PopStyleColor(3);
+        }
+
+        const auto& runtimeObjects = ESceneManager::Engine::GetRuntimeObjects();
+        for (auto& object : runtimeObjects)
+        {
+            if (object && object->IsValid())
+            {
+                for (size_t i = 0; i < object->GetComponentCount(); ++i)
+                {
+                    Component* component = object->GetComponentAtIndex<Component>(i);
+                    if (component)
+                    {
+                        component->OnDrawDebug();
+                    }
+                }
+            }
         }
     };
     

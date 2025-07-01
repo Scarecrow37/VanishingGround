@@ -16,6 +16,7 @@
 #include "ParticleRenderTechnique.h"
 #include "RayTracingTechnique.h"
 #include "Sphere.h"
+#include "EndlessGridTechnique.h"
 
 // 임시 값->나중에 설정할 수 있게 바꾸면 될듯.
 
@@ -166,6 +167,8 @@ void Renderer::Initialize()
             scene->AddRenderTechnique(std::make_unique<RayTracingTechnique>());
         else
             scene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
+        scene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
+        scene->AddRenderTechnique(std::make_unique<EndlessGridTechnique>());
         scene->AddRenderTechnique(std::make_unique<BloomTechnique>());
         scene->AddRenderTechnique(std::make_unique<BlendTechnique>());
         _renderScenes["Editor"] = std::move(scene);

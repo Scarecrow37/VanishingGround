@@ -314,6 +314,7 @@ void GameObject::OnInspectorStay()
                             UmCore->ImGuiDrawPropertysSetting.InputEndEvent = SetSceneDirtyFlag;
                         }
                         component->ImGuiDrawPropertys();
+                        component->OnDrawDebugSelected();
                     }
                     else
                     {

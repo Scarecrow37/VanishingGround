@@ -9,6 +9,7 @@ public:
 
 public:
     const D3D12_CPU_DESCRIPTOR_HANDLE& GetDSVHandle() const { return _handle; }
+    const DXGI_FORMAT                  GetFormat() const { return _format; }
 
 public:
     void Initialize(DXGI_MODE_DESC mode);
@@ -16,4 +17,5 @@ public:
 
 private:
     D3D12_CPU_DESCRIPTOR_HANDLE _handle{};
+    DXGI_FORMAT                 _format;
 };
