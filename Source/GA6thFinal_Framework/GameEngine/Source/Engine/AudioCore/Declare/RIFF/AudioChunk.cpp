@@ -23,11 +23,8 @@
 
 namespace Audio
 {
-    Result FindChunk::operator()(std::ifstream& fileStream, const Fourcc fourcc, std::streamsize& chunkSize,
-                                 DWORD& chunkDataPosition) const
+    std::pair<std::streamsize, DWORD> FindChunk::operator()(std::ifstream& fileStream, const Fourcc fourcc) const
     {
-        Result result = AUDIO_ERROR_SUCCESS;
-
         // 초기화
         constexpr std::streamsize fourccCount = sizeof(Fourcc);
         Fourcc                    format;
@@ -37,58 +34,43 @@ namespace Audio
         std::streamsize           offset             = 0;
 
         // 파일 포인터를 파일의 시작으로 설정.
-        if (!fileStream.seekg(0, std::ios::beg))
-            result = AUDIO_ERROR_INVALID_FILE_POINTER;
+        fileStream.seekg(0, std::ios::beg);
 
-        while (result == AUDIO_ERROR_SUCCESS)
+        while (fileStream.eof())
         {
-            if (!fileStream.read(reinterpret_cast<char*>(&format), fourccCount))
-                result = AUDIO_ERROR_FILE_READ_FAIL;
-
-            if (!fileStream.read(reinterpret_cast<char*>(&chunkDataSize), chunkDataSizeCount))
-                result = AUDIO_ERROR_FILE_READ_FAIL;
+            fileStream.read(reinterpret_cast<char*>(&format), fourccCount);
+            fileStream.read(reinterpret_cast<char*>(&chunkDataSize), chunkDataSizeCount);
 
             if (format == RIFF)
             {
                 chunkDataSize = fourccCount;
-                if (!fileStream.seekg(fourccCount, std::ios::cur))
-                    result = AUDIO_ERROR_INVALID_FILE_POINTER;
+                fileStream.seekg(fourccCount, std::ios::cur);
             }
             else
             {
-                if (!fileStream.seekg(chunkDataSize, std::ios::cur))
-                    result = AUDIO_ERROR_INVALID_FILE_POINTER;
+                fileStream.seekg(chunkDataSize, std::ios::cur);
             }
 
             offset += fourccCount + chunkDataSizeCount;
 
             if (format == fourcc)
             {
-                chunkSize         = chunkDataSize;
-                chunkDataPosition = offset;
-                return AUDIO_ERROR_SUCCESS;
+                return std::make_pair(chunkDataSize, offset);
             }
 
             offset += chunkDataSize;
-
-            if (fileStream.eof())
-                result = AUDIO_ERROR_FAIL;
         }
-        return result;
+        throw AudioException("Chunk not found: " + std::to_string(fourcc));
     }
 
-    Result ReadChunkData::operator()(std::ifstream& fileStream, void* buffer, const std::streamsize& bufferSize,
+    void ReadChunkData::operator()(std::ifstream& fileStream, void* buffer, const std::streamsize& bufferSize,
                                      const DWORD bufferOffset) const
     {
-        Result result = AUDIO_ERROR_SUCCESS;
-
         fileStream.seekg(bufferOffset, std::ios::beg);
 
         fileStream.read(static_cast<char*>(buffer), bufferSize);
 
-        if (fileStream.gcount() != static_cast<std::streamsize>(bufferSize))
-            result = AUDIO_ERROR_FILE_READ_FAIL;
-
-        return result;
+        if (fileStream.gcount() != bufferSize)
+            throw AudioException("Failed to read chunk data: " + std::to_string(bufferSize));
     }
 } // namespace Audio

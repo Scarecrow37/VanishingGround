@@ -23,13 +23,12 @@ namespace Audio
 
     struct FindChunk
     {
-        Result operator()(std::ifstream& fileStream, Fourcc fourcc, std::streamsize& chunkSize,
-                          DWORD& chunkDataPosition) const;
+        std::pair<std::streamsize, DWORD> operator()(std::ifstream& fileStream, Fourcc fourcc) const;
     };
 
     struct ReadChunkData
     {
-        Result operator()(std::ifstream& fileStream, void* buffer, const std::streamsize& bufferSize,
+        void operator()(std::ifstream& fileStream, void* buffer, const std::streamsize& bufferSize,
                           DWORD bufferOffset) const;
     };
 } // namespace Audio

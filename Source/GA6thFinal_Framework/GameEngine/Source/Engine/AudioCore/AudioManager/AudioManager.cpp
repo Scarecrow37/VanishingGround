@@ -1,98 +1,95 @@
 ﻿#include "pch.h"
 #include "AudioManager.h"
 #include "Engine/AudioCore/Declare/RIFF/AudioChunk.h"
+#include "Engine/AudioCore/Player/SoundPlayer.h"
 #include "Engine/AudioCore/Sound/AudioSound.h"
 
 namespace Audio
 {
     EManager::EManager() = default;
 
-    EManager::~EManager() = default;
-
-    Result EManager::Initialize()
+    EManager::~EManager()
     {
-        constexpr HresultToAudioResult hresultToAudioResult;
-        HRESULT                        resultHandle = S_OK;
-
-        resultHandle = XAudio2Create(_xAudio2.put(), 0, XAUDIO2_DEFAULT_PROCESSOR);
-        if (FAILED(resultHandle))
-            return hresultToAudioResult(resultHandle);
-
-        resultHandle = _xAudio2->CreateMasteringVoice(&_masteringVoice);
-        if (FAILED(resultHandle))
-            return hresultToAudioResult(resultHandle);
-
-        return AUDIO_ERROR_SUCCESS;
+        if (_masteringVoice)
+        {
+            _masteringVoice->DestroyVoice();
+            _masteringVoice = nullptr;
+        }
     }
 
-    Result EManager::CreateSoundFromWave(const std::filesystem::path& filePath, Sound** sound)
+    EManager::EManager(EManager&& other) noexcept : _xAudio2(std::move(other._xAudio2)), _masteringVoice(other._masteringVoice)
     {
-        constexpr HresultToAudioResult hresultToAudioResult;
-        Result                         result = AUDIO_ERROR_SUCCESS;
+        other._masteringVoice = nullptr;
+    }
 
-        std::ifstream fileStream(filePath, std::ios::binary);
-        if (!fileStream.is_open())
-            return AUDIO_ERROR_FILE_NOT_FOUND;
+    EManager& EManager::operator=(EManager&& other) noexcept
+    {
+        if (this == &other)
+            return *this;
+        _xAudio2 = std::move(other._xAudio2);
+        _masteringVoice = other._masteringVoice;
+        other._masteringVoice = nullptr;
+        return *this;
+    }
+
+    void EManager::Initialize()
+    {
+        constexpr ThrowIfFailed throwIfFailed;
+
+        throwIfFailed(XAudio2Create(_xAudio2.put(), 0, XAUDIO2_DEFAULT_PROCESSOR), "Failed to create XAudio2 instance");
+
+        throwIfFailed(_xAudio2->CreateMasteringVoice(&_masteringVoice), "Failed to create mastering voice");
+    }
+
+    std::shared_ptr<Sound> EManager::CreateSoundFromWave(const std::filesystem::path& filePath)
+    {
+        std::ifstream fileStream;
+        fileStream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+        fileStream.open(filePath, std::ios::binary);
 
         constexpr FindChunk     findChunk;
         constexpr ReadChunkData readChunkData;
 
-        std::streamsize chunkSize;
-        DWORD chunkPosition;
-
         // Find the RIFF chunk
-        result = findChunk(fileStream, RIFF, chunkSize, chunkPosition);
-        if (result != AUDIO_ERROR_SUCCESS)
-            return result;
+        auto [riffSize, riffPosition] = findChunk(fileStream, RIFF);
 
         Fourcc fileType;
-        result = readChunkData(fileStream, &fileType, chunkSize, chunkPosition);
-        if (result != AUDIO_ERROR_SUCCESS)
-            return result;
+        readChunkData(fileStream, &fileType, riffSize, riffPosition);
 
         if (fileType != WAVE)
-            return AUDIO_ERROR_INVALID_FILE_FORMAT;
+            throw AudioException("Invalid file format: Not a WAVE file");
 
         // Find the fmt chunk
-        result = findChunk(fileStream, FMT, chunkSize, chunkPosition);
-        if (result != AUDIO_ERROR_SUCCESS)
-            return result;
+        auto [fmtSize, fmtPosition] = findChunk(fileStream, FMT);
 
         WAVEFORMATEXTENSIBLE wfx{};
-        result = readChunkData(fileStream, &wfx, chunkSize, chunkPosition);
-        if (result != AUDIO_ERROR_SUCCESS)
-            return result;
+        readChunkData(fileStream, &wfx, fmtSize, fmtPosition);
 
         // Find the data chunk
-        result = findChunk(fileStream, DATA, chunkSize, chunkPosition);
-        if (result != AUDIO_ERROR_SUCCESS)
-            return result;
+        auto [dataSize, dataPosition] = findChunk(fileStream, DATA);
 
-        BYTE* audioData = new BYTE[chunkSize];
-        result            = readChunkData(fileStream, audioData, chunkSize, chunkPosition);
-        if (result != AUDIO_ERROR_SUCCESS)
+        BYTE* audioData = new BYTE[dataSize];
+        try
+        {
+            readChunkData(fileStream, audioData, dataSize, dataPosition);
+        }
+        catch (...)
         {
             delete[] audioData;
-            return result;
+            throw;
         }
 
         XAUDIO2_BUFFER buffer{};
-        buffer.AudioBytes = chunkSize;
+        buffer.AudioBytes = static_cast<UINT32>(dataSize);
         buffer.pAudioData = audioData;
         buffer.Flags      = XAUDIO2_END_OF_STREAM; // Indicates the end of the stream
 
-        *sound = new Sound(wfx, buffer);
-
-        return AUDIO_ERROR_SUCCESS;
+        return std::make_shared<Sound>(wfx, buffer);
     }
 
-    Result EManager::CreatePlayer(const Sound& sound, SoundPlayer** soundPlayer)
+    std::shared_ptr<SoundPlayer> EManager::CreatePlayer(const Sound& sound)
     {
-        return AUDIO_ERROR_SUCCESS;
-        //constexpr HresultToAudioResult hresultToAudioResult;
-        //HRESULT resultHandle = S_OK;
-
-        //IXAudio2SourceVoice* sourceVoice = nullptr;
-        //resultHandle = _xAudio2->CreateSourceVoice(&sourceVoice, )
+        // TODO : Implement sound player creation logic
+        return std::make_shared<SoundPlayer>();
     }
 } // namespace Audio
