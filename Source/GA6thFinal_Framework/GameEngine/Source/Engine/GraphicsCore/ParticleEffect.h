@@ -10,11 +10,16 @@ class ParticleEffect
     UMPARTICLE_PROPERTY(bool, _activeFlag, ActiveFlag, true);
     UMPARTICLE_PROPERTY(std::string, _effectName, EffectName, "");
 
+    
+    
+    //flag for play once
+    UMPARTICLE_PROPERTY(bool, _playFlag, PlayFlag, false);
 
 
 public:
     ParticleEffect() {};
     virtual ~ParticleEffect();
+    ParticleEffect(const ParticleEffect& other);
 
 
     void             Initialize(class ParticleManager* particleManager);
@@ -23,11 +28,19 @@ public:
                                 LocationShape locatorShape   = LocationShape::SPHERE,
                                 Vector3       locationFactor = Vector3(1, 1, 1),
                                 ParticleType  particleType   = ParticleType::SPRITE);
-    void             RemoveEmitter();
+    void             RemoveEmitter(ParticleEmitter* target); 
     class ParticleEmitter*              GetEmitter(size_t emitterIndex);
     std::vector<class ParticleEmitter*> GetEmitterList() { return _particleEmitters; }
 
     void UpdateParticleLifeCycle(float deltaTime);
+
+    void Play();
+    void Reset();
+
+
+
+    void FlushEmitters();
+
 
 protected:
 

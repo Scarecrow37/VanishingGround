@@ -105,6 +105,11 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
 
  void EditorParticleEffectDetails::ShowEmitterDetails()
  {
+     if (nullptr == _curEmitter)
+         return;
+
+     bool isSomethingChanged = false;
+
      // emitter Name
      {
          std::string name = _curEmitter->GetEmitterName();
@@ -113,13 +118,69 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
          ImGui::InputText("##Emitter Name", &name);
          _curEmitter->SetEmitterName(name);
      }
+     //Texture
+
+     if (ParticleType::SPRITE == _curEmitter->_particleType)
+     {
+
+         ImGui::Text("Sprite Texture");
+         ImGui::SameLine();
+         // ImGui::Button("Sprite Texture Image", {180,50});
+         D3D12_GPU_DESCRIPTOR_HANDLE gpuhandle =
+             static_cast<SpriteModule*>(_curEmitter->_particleRenderModule)->GetAlbedoTexture()->GetGPUHandle();
+         bool isTextureLoadButtonPressed = ImGui::ImageButton((ImTextureID)gpuhandle.ptr, {100, 100});
+
+         if (true == isTextureLoadButtonPressed)
+         {
+             HWND                    owner = UmApplication.GetHwnd();
+             LPCWSTR                 title = L"Open sprite texture";
+             std::vector<File::Path> out;
+             if (File::ShowOpenFileDialog(owner, title, L"", {{L"이미지 파일\0", L"*.jpg*\0"}}, false, out))
+             {
+                 static_cast<SpriteModule*>(_curEmitter->_particleRenderModule)
+                     ->ChangeAlbedoTexture(out.front().wstring());
+                 isSomethingChanged = true;
+             }
+         }
+     }
+
+     if (ParticleType::RIBBON == _curEmitter->_particleType)
+     {
+
+         ImGui::Text("Ribbon Texture");
+         ImGui::SameLine();
+         // ImGui::Button("Sprite Texture Image", {180,50});
+         D3D12_GPU_DESCRIPTOR_HANDLE gpuhandle =
+             static_cast<SpriteModule*>(_curEmitter->_particleRenderModule)->GetAlbedoTexture()->GetGPUHandle();
+         bool isTextureLoadButtonPressed = ImGui::ImageButton((ImTextureID)gpuhandle.ptr, {100, 100});
+
+         if (true == isTextureLoadButtonPressed)
+         {
+             HWND                    owner = UmApplication.GetHwnd();
+             LPCWSTR                 title = L"Open Ribbon texture";
+             std::vector<File::Path> out;
+             if (File::ShowOpenFileDialog(owner, title, L"", {{L"이미지 파일\0", L"*.jpg*\0"}}, false, out))
+             {
+              /*   static_cast<RibbonModule*>(_curEmitter->_particleRenderModule)
+                     ->ChangeAlbedoTexture(out.front().wstring());
+                 (out.front().wstring());*/
+                 isSomethingChanged = true;
+
+             }
+         }
+     }
+
+
+
+
+     ImGui::Text("");
+
      //shape location
      {
+         float locationFactor[3] = {_curEmitter->_emitLocator->GetFactor().x, _curEmitter->_emitLocator->GetFactor().y,
+                                    _curEmitter->_emitLocator->GetFactor().z};
          if (LocationShape::SPHERE == _curEmitter->_locationType)
          {
-             float locationFactor[3] = {_curEmitter->_emitLocator->GetFactor().x,
-                                        _curEmitter->_emitLocator->GetFactor().y,
-                                        _curEmitter->_emitLocator->GetFactor().z};
 
              ImGui::Text("Emitter Shape Factor");
              ImGui::Text("X");
@@ -131,13 +192,9 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
              ImGui::Text("Z");
              ImGui::SameLine();
              ImGui::SliderFloat("##Emitter Shape Factor z", &(locationFactor[2]), -10, 10);
-             _curEmitter->_emitLocator->SetFactor({locationFactor[0], locationFactor[1], locationFactor[2]});
          }
          if (LocationShape::CUBE == _curEmitter->_locationType)
          {
-             float locationFactor[3] = {_curEmitter->_emitLocator->GetFactor().x,
-                                        _curEmitter->_emitLocator->GetFactor().y,
-                                        _curEmitter->_emitLocator->GetFactor().z};
 
              ImGui::Text("Emitter Shape Factor");
              ImGui::Text("X");
@@ -149,13 +206,10 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
              ImGui::Text("Z");
              ImGui::SameLine();
              ImGui::SliderFloat("##Emitter Shape Factor z", &(locationFactor[2]), -10, 10);
-             _curEmitter->_emitLocator->SetFactor({locationFactor[0], locationFactor[1], locationFactor[2]});
          }
          if (LocationShape::CYLINDER == _curEmitter->_locationType)
          {
-             float locationFactor[3] = {_curEmitter->_emitLocator->GetFactor().x,
-                                        _curEmitter->_emitLocator->GetFactor().y,
-                                        _curEmitter->_emitLocator->GetFactor().z};
+
 
              ImGui::Text("Emitter Shape Factor");
              ImGui::Text("X");
@@ -167,13 +221,9 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
              ImGui::Text("Height");
              ImGui::SameLine();
              ImGui::SliderFloat("##Emitter Shape Factor y", &(locationFactor[1]), -10, 10);
-             _curEmitter->_emitLocator->SetFactor({locationFactor[0], locationFactor[1], locationFactor[2]});
          }
          if (LocationShape::CONE == _curEmitter->_locationType)
          {
-             float locationFactor[3] = {_curEmitter->_emitLocator->GetFactor().x,
-                                        _curEmitter->_emitLocator->GetFactor().y,
-                                        _curEmitter->_emitLocator->GetFactor().z};
 
              ImGui::Text("Emitter Shape Factor");
              ImGui::Text("cone radius");
@@ -182,13 +232,9 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
              ImGui::Text("cone height");
              ImGui::SameLine();
              ImGui::SliderFloat("##Emitter Shape Factor y", &(locationFactor[1]), -10, 10);
-             _curEmitter->_emitLocator->SetFactor({locationFactor[0], locationFactor[1], locationFactor[2]});
          }
          if (LocationShape::TORUS == _curEmitter->_locationType)
          {
-             float locationFactor[3] = {_curEmitter->_emitLocator->GetFactor().x,
-                                        _curEmitter->_emitLocator->GetFactor().y,
-                                        _curEmitter->_emitLocator->GetFactor().z};
 
              ImGui::Text("Emitter Shape Factor");
              ImGui::Text("outer radius");
@@ -204,8 +250,12 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
              {
                  locationFactor[2] = locationFactor[0] - 0.1f;
              }
-             _curEmitter->_emitLocator->SetFactor({locationFactor[0], locationFactor[1], locationFactor[2]});
          }
+         Vector3 temp = _curEmitter->_emitLocator->GetFactor();
+         if (locationFactor[0] != temp.x || locationFactor[1] != temp.y || locationFactor[2] != temp.z)
+             isSomethingChanged = true;
+
+         _curEmitter->_emitLocator->SetFactor({locationFactor[0], locationFactor[1], locationFactor[2]});
 
      }
      ImGui::Text("");
@@ -217,8 +267,10 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
 
          ImGui::Text("Emitter Local Position");
          ImGui::SameLine();
-         ImGui::SliderFloat3("##Emitter Local Position", emitterPos, -10, 10);
-
+         bool result = ImGui::SliderFloat3("##Emitter Local Position", emitterPos, -10, 10);
+         if (false == isSomethingChanged)
+             if (true == result)
+                 isSomethingChanged = result;
          _curEmitter->SetEmitterPosition({emitterPos[0], emitterPos[1], emitterPos[2]});
      }
      // emitter rotation
@@ -228,7 +280,10 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
          float   emitterRotation[3] = {temp.x, temp.y, temp.z};
          ImGui::Text("Emitter Local Rotation");
          ImGui::SameLine();
-         ImGui::SliderFloat3("##Emitter Local Rotation", emitterRotation, -180, 180);
+         bool result = ImGui::SliderFloat3("##Emitter Local Rotation", emitterRotation, -180, 180);
+         if (false == isSomethingChanged)
+             if (true == result)
+                 isSomethingChanged = result;
          _curEmitter->SetEmitterRotationE({emitterRotation[0] / 180.f * XM_PI, emitterRotation[1] / 180.f * XM_PI,
                                            emitterRotation[2] / 180.f * XM_PI});
      }
@@ -237,11 +292,10 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
          float lifetime = _curEmitter->GetEmitterLifetime();
          ImGui::Text("Emitter Lifetime");
          ImGui::SameLine();
-         ImGui::InputFloat("##Emitter Lifetime", &lifetime);
-         if (lifetime != _curEmitter->GetEmitterLifetime())
-         {
-             _curEmitter->Reset();
-         }
+         bool result = ImGui::InputFloat("##Emitter Lifetime", &lifetime);
+         if (false == isSomethingChanged)
+             if (true == result)
+                 isSomethingChanged = result;
          _curEmitter->SetEmitterLifetime(lifetime);
      }
      // emission rate
@@ -249,7 +303,10 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
          float rate = _curEmitter->GetEmissionRate();
          ImGui::Text("Emission Rate");
          ImGui::SameLine();
-         ImGui::InputFloat("##Emission Rate", &rate);
+         bool result = ImGui::InputFloat("##Emission Rate", &rate);
+         if (false == isSomethingChanged)
+             if (true == result)
+                 isSomethingChanged = result;
          _curEmitter->SetEmissionRate(rate);
      }
      // spawn burst flag & count
@@ -257,14 +314,20 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
          bool spawnburstFlag = _curEmitter->GetSpawnBurstFlag();
          ImGui::Text("Spawn Burst");
          ImGui::SameLine();
-         ImGui::Checkbox("##Spawn Burst", &spawnburstFlag);
+         bool result = ImGui::Checkbox("##Spawn Burst", &spawnburstFlag);
+         if (false == isSomethingChanged)
+             if (true == result)
+                 isSomethingChanged = result;
          _curEmitter->SetSpawnBurstFlag(spawnburstFlag);
          if (true == spawnburstFlag)
          {
              float spawnburstCount = _curEmitter->GetSpawnBurstCount();
              ImGui::Text("Spawn Burst Count");
              ImGui::SameLine();
-             ImGui::InputFloat("##Spawn Burst Count", &spawnburstCount);
+             bool result = ImGui::InputFloat("##Spawn Burst Count", &spawnburstCount);
+             if (false == isSomethingChanged)
+                 if (true == result)
+                     isSomethingChanged = result;
              _curEmitter->SetSpawnBurstCount(spawnburstCount);
          }
      }
@@ -275,7 +338,10 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
          float particleLifetime = _curEmitter->GetParticleLifetime();
          ImGui::Text("Particle Lifetime");
          ImGui::SameLine();
-         ImGui::InputFloat("##Particle Lifetime", &particleLifetime);
+         bool result = ImGui::InputFloat("##Particle Lifetime", &particleLifetime);
+         if (false == isSomethingChanged)
+             if (true == result)
+                 isSomethingChanged = result;
          if (particleLifetime >= lifetime)
          {
              particleLifetime = lifetime;
@@ -300,10 +366,12 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
              for (int n = 0; n < 4; n++)
              {
                  bool is_selected = (selected_idx == n);
+
                  if (ImGui::Selectable(items[n], is_selected))
                  {
                      selected_idx   = n;
                      selected_value = items[n]; // 선택된 값 저장
+                     isSomethingChanged = true;
                  }
                  if (is_selected)
                      ImGui::SetItemDefaultFocus();
@@ -317,7 +385,10 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
              Vector3 vel = _curEmitter->GetVelocityFactor();
              ImGui::Text("Velocity Scale");
              ImGui::SameLine();
-             ImGui::SliderFloat3("##Velocity Scale", (float*)&vel,-1000,1000);
+             bool result = ImGui::SliderFloat3("##Velocity Scale", (float*)&vel,-1000,1000);
+             if (false == isSomethingChanged)
+                 if (true == result)
+                     isSomethingChanged = result;
              _curEmitter->SetVelocityFactor(vel);
          }
          if (VelocityScaleType::POINT == veltype)
@@ -326,7 +397,10 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
              float   temp = vel.x;
              ImGui::Text("Velocity Scale");
              ImGui::SameLine();
-             ImGui::SliderFloat("##Velocity Scale", (float*)&temp, -1000, 1000);
+             bool result = ImGui::SliderFloat("##Velocity Scale", (float*)&temp, -1000, 1000);
+             if (false == isSomethingChanged)
+                 if (true == result)
+                     isSomethingChanged = result;
              vel.x = temp;
              _curEmitter->SetVelocityFactor(vel);
          }
@@ -340,13 +414,19 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
          Vector3 startcolor = _curEmitter->GetStartColor();
          ImGui::Text("Start Color");
          ImGui::SameLine();
-         ImGui::ColorEdit3("##Start Color", (float*)&startcolor);
+         bool result  = ImGui::ColorEdit3("##Start Color", (float*)&startcolor);
+         if (false == isSomethingChanged)
+             if (true == result)
+                 isSomethingChanged = result;
          _curEmitter->SetStartColor(startcolor);
 
          Vector3 endcolor = _curEmitter->GetEndColor();
          ImGui::Text("End Color");
          ImGui::SameLine();
-         ImGui::ColorEdit3("##End Color", (float*)&endcolor);
+         result = ImGui::ColorEdit3("##End Color", (float*)&endcolor);
+         if (false == isSomethingChanged)
+             if (true == result)
+                 isSomethingChanged = result;
          _curEmitter->SetEndColor(endcolor);
 
 
@@ -354,13 +434,19 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
          float StartAlpha = _curEmitter->GetStartOpacity();
          ImGui::Text("Start Alpha");
          ImGui::SameLine();
-         ImGui::SliderFloat("##Start Alpha", &StartAlpha, 0, 1);
+         result = ImGui::SliderFloat("##Start Alpha", &StartAlpha, 0, 1);
+         if (false == isSomethingChanged)
+             if (true == result)
+                 isSomethingChanged = result;
          _curEmitter->SetStartOpacity(StartAlpha);
 
          float EndAlpha = _curEmitter->GetEndOpacity();
          ImGui::Text("End Alpha");
          ImGui::SameLine(); 
-         ImGui::SliderFloat("##End Alpha", &EndAlpha, 0, 1);
+         result = ImGui::SliderFloat("##End Alpha", &EndAlpha, 0, 1);
+         if (false == isSomethingChanged)
+             if (true == result)
+                 isSomethingChanged = result;
          _curEmitter->SetEndOpacity(EndAlpha);
      }
      ImGui::Text("");
@@ -373,7 +459,10 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
              float   startScale[2] = {startscale.x, startscale.y};
              ImGui::Text("Start Scale");
              ImGui::SameLine();
-             ImGui::InputFloat2("##Start Scale", (float*)&startScale);
+             bool result  = ImGui::InputFloat2("##Start Scale", (float*)&startScale);
+             if (false == isSomethingChanged)
+                 if (true == result)
+                     isSomethingChanged = result;
              startscale.x = startScale[0];
              startscale.y = startScale[1];
              _curEmitter->SetStartScale(startscale);
@@ -382,7 +471,10 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
              float   endScale[2] = {endscale.x, endscale.y};
              ImGui::Text("End Scale");
              ImGui::SameLine();
-             ImGui::InputFloat2("##End Scale", (float*)&endScale);
+             result = ImGui::InputFloat2("##End Scale", (float*)&endScale);
+             if (false == isSomethingChanged)
+                 if (true == result)
+                     isSomethingChanged = result;
              endscale.x = endScale[0];
              endscale.y = endScale[1];
              _curEmitter->SetEndScale(endscale);
@@ -394,7 +486,10 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
              float startScale[3] = {startscale.x, startscale.y, startscale.z};
              ImGui::Text("Start Scale");
              ImGui::SameLine();
-             ImGui::InputFloat3("##Start Scale", (float*)&startScale);
+             bool result = ImGui::InputFloat3("##Start Scale", (float*)&startScale);
+             if (false == isSomethingChanged)
+                 if (true == result)
+                     isSomethingChanged = result;
              startscale.x = startScale[0];
              startscale.y = startScale[1];
              startscale.z = startScale[2];
@@ -404,7 +499,10 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
              float   endScale[3] = {endscale.x, endscale.y, endscale.z};
              ImGui::Text("End Scale");
              ImGui::SameLine();
-             ImGui::InputFloat3("##End Scale", (float*)&endScale);
+             result  = ImGui::InputFloat3("##End Scale", (float*)&endScale);
+             if (false == isSomethingChanged)
+                 if (true == result)
+                     isSomethingChanged = result;
              endscale.x = endScale[0];
              endscale.y = endScale[1];
              endscale.z = endScale[2];
@@ -417,17 +515,26 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
          float mass = _curEmitter->GetParticleMass();
          ImGui::Text("Particle Mass");
          ImGui::SameLine();
-         ImGui::InputFloat("##Particle Mass", &mass);
+         bool result = ImGui::InputFloat("##Particle Mass", &mass);
+         if (false == isSomethingChanged)
+             if (true == result)
+                 isSomethingChanged = result;
          _curEmitter->SetParticleMass(mass);
 
 
          Vector3 offset = _curEmitter->GetParticleDistributionOffset();
          ImGui::Text("Distribution Offset");
          ImGui::SameLine();
-         ImGui::InputFloat3("##Distribution Offset", (float*)&offset);
+         result = ImGui::InputFloat3("##Distribution Offset", (float*)&offset);
+         if (false == isSomethingChanged)
+             if (true == result)
+                 isSomethingChanged = result;
          _curEmitter->SetParticleDistributionOffset(offset);
      }
-
+     if (true == isSomethingChanged)
+     {
+         UmParticleManager.RefreshEditor();
+     }
 
 
  }
@@ -446,6 +553,19 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
          ImGui::InputFloat("##Effect Lifetime", &lifetime);
          _curEffect->SetLifetime(lifetime);
      }
+
+     {
+         bool isSaveButtonPressed = ImGui::Button("Save", {180,50});
+         if (true == isSaveButtonPressed)
+         {
+             Reflect();
+         }
+
+     }
+ }
+
+ void EditorParticleEffectDetails::Reflect() 
+ {
 
 
  }

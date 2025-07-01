@@ -11,13 +11,30 @@ public:
 
     void                   Initialize(UINT maxParticles);
     class ParticleEffect*  RegisterEffect();
+
+
+    /// <summary>
+    /// Create new ParticleEffect.
+    /// </summary>
+    /// <param name="effect"></param>
+    /// <param name="maxParticles"></param>
+    /// <param name="emissionRate"></param>
+    /// <param name="emitterLifetime"></param>
+    /// <param name="locatorShape"></param>
+    /// <param name="locationFactor"></param>
+    /// <param name="particleType"></param>
+    /// <returns></returns>
     class ParticleEmitter* RegisterEmitter(class ParticleEffect* effect, SIZE_T maxParticles = 100000,
                                            float emissionRate = 1000.f, float emitterLifetime = 150.f,
                                            LocationShape locatorShape   = LocationShape::SPHERE,
                                            Vector3       locationFactor = Vector3(1, 1, 1),
                                            ParticleType  particleType   = ParticleType::SPRITE);
-    void                   DeleteEffect(UINT);
+    void                   DeleteEffect(class ParticleEffect* effect);
     void                   Update(const float deltaTime);
+    void                   UpdateEffectLifeCycle();
+    void                   RefreshEditor();
+    class ParticleEffect*  GetCurrentEditorEffect() { return _editorCurrentEffect; }
+
 
 
     UINT                                  GetTotalCount() const { return _totalCount; }
@@ -94,6 +111,11 @@ private:
     ComPtr<ID3D12Resource> _particleInputUploadBuffer;
     ComPtr<ID3D12Resource> _emitterInfoUploadBuffer;
 
+    void RefreshCurrentEditorEffect();
+    bool _editorRefreshFlag = false;
+
+
+
 
 private:
     UINT _currentBufferIndex;
@@ -106,8 +128,11 @@ private:
     UINT _particleEmitterCount = 0;
 
     class ParticleEffect* _editorCurrentEffect = nullptr;
+    class ParticleEffect* _editorCurrentEffectInstance = nullptr;
 
+    std::vector<class ParticleEffect*>    _activePariticleEffects;
     std::vector<class ParticleEffect*>    _pariticleEffects;
+
     std::vector<class Particle>           _totalParticles;
     std::vector<EmitterInfo>              _emitterMatrix;
     std::vector<std::shared_ptr<Texture>> _activeEmitterAlbedos;

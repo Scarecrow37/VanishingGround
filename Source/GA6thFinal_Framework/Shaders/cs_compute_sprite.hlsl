@@ -34,13 +34,13 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
     EmitterInfo emitter = EmitterInfoBuffer[input.emitterIndex];
     ParticleOutput output;
     
+    float3 acceleration = float3(0, -9.8, 0) * input.mass;
+    float3 gravityOffset = acceleration * input.age;
     float ratio = saturate(input.age / input.lifetime);
     float dragCoefficient = 0.9f;
     // 1. 위치 업데이트
-    float3 acceleration = float3(0, -9.8, 0) * input.mass;
     //float3 dragForce = -input.velocity * dragCoefficient;
     
-    input.velocity += acceleration;
     float3 preCalculatePos = float3(0, 0, 0);
     preCalculatePos += input.velocity * input.age;
     
@@ -61,6 +61,8 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
     
     // 2. 에미터 월드 변환 적용
     float4 worldPos = mul(float4(input.position.xyz, 1.0), emitter.WorldMatrix);
+    
+    worldPos.xyz += gravityOffset;
     float4 viewPos = mul(worldPos, mvp.ViewMatrix);
     
     float4 clipPos = mul(clipPos, mvp.ProjMatrix);
@@ -103,6 +105,9 @@ input.position.x, input.position.y, input.position.z, 1
     output.FinalMatrix = mul(output.FinalMatrix, worldinvrot);
     output.FinalMatrix = mul(output.FinalMatrix, translationMat);
 
+    output.FinalMatrix._41 += gravityOffset.x;
+    output.FinalMatrix._42 += gravityOffset.y;
+    output.FinalMatrix._43 += gravityOffset.z;
     
     
     

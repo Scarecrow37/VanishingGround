@@ -150,6 +150,12 @@ void SpriteModule::LoadAlbedoTexture(std::wstring filePath)
     _albedoTexture = UmResourceManager.LoadResource<Texture>(filePath);
 }
 
+void SpriteModule::ChangeAlbedoTexture(std::wstring filePath) 
+{
+    _isAlbedoTextureChanged = true;
+    _newAlbedoTexturePath   = filePath;
+}
+
 void SpriteModule::LoadNormalTexture(std::wstring filePath) 
 {
     _albedoTexture = UmResourceManager.LoadResource<Texture>(filePath);
@@ -194,6 +200,58 @@ void SpriteModule::CalculateFrameInfos()
     }
 }
 
+ ParticleEmitter::~ParticleEmitter() 
+ {
+     // 1. Particle 객체들 정리
+     for (auto particle : _particlePool)
+     {
+         delete particle;
+     }
+     _particlePool.clear();
+
+     // 2. EmitLocator 객체 정리
+     delete _emitLocator;
+     _emitLocator = nullptr;
+
+     // 3. ParticleRenderModule 객체 정리
+     delete _particleRenderModule;
+     _particleRenderModule = nullptr;
+
+     // 4. 기타 컨테이너 정리 (안전성을 위해)
+     while (!_inactiveParticleIndices.empty())
+     {
+         _inactiveParticleIndices.pop();
+     }
+ }
+
+ ParticleEmitter::ParticleEmitter(const ParticleEmitter& other) 
+         : _particleType(other._particleType), _locationType(other._locationType), _velocityType(other._velocityType),
+       _emitterRotationQ(other._emitterRotationQ), _emitterRotationE(other._emitterRotationE),_emitterPosition(other._emitterPosition)
+ {
+     _emitterLifetime           =other.GetEmitterLifetime();
+     _maxParticles              =other.GetMaxParticles();
+     _emissionRate              =other.GetEmissionRate();
+     _startDelay                =other.GetStartDelay();
+     _spawnBurstFlag            =other.GetSpawnBurstFlag();
+     _spawnBurstCount           =other.GetSpawnBurstCount();
+     _emitterName               =other.GetEmitterName();
+     _velocityFactor            =other.GetVelocityFactor();
+     _startColor                =other.GetStartColor();
+     _startOpacity              =other.GetStartOpacity();
+     _endColor                  =other.GetEndColor();
+     _endOpacity                =other.GetEndOpacity();
+     _startScale                =other.GetStartScale();
+     _endScale                  =other.GetEndScale();
+     _particleLifetime          =other.GetParticleLifetime();
+     _particleMass              =other.GetParticleMass();
+     _particleDistributionOffset=other.GetParticleDistributionOffset();
+     _dragPoint                 =other.GetDragPoint();
+     _dragForce                 =other.GetDragForce();
+
+
+
+
+ }
 void ParticleEmitter::Initialize(SIZE_T maxParticles /*= 100000*/, float emissionRate /*= 500.f*/,
                                  float         emitterLifetime /*= 5.f*/,
                                  LocationShape locatorShape /*= LocationShape::SPHERE*/,
@@ -331,6 +389,15 @@ void ParticleEmitter::UpdateParticleLifeCycle(float deltaTime)
         AwakeParticle(static_cast<UINT>(index));
         newParticles--;
     }
+
+
+    SpriteModule* spritemodule = static_cast<SpriteModule*>(_particleRenderModule);
+    if (true == spritemodule->GetTextureChangeFlag())
+    {
+        spritemodule->SetTextureChangeFlag(false);
+        spritemodule->LoadAlbedoTexture(spritemodule->GetNewAlbedoTexturePath());
+    }
+
 }
 
 
@@ -392,31 +459,8 @@ void ParticleEmitter::Update(float deltaTime)
     _worldMatrix       = _rotationMatrix * _translationMatrix * _effectWorldMatrix;
 }
 
- ParticleEmitter::~ParticleEmitter() 
- {
-     // 1. Particle 객체들 정리
-     for (auto particle : _particlePool)
-     {
-         delete particle;
-     }
-     _particlePool.clear();
 
-     // 2. EmitLocator 객체 정리
-     delete _emitLocator;
-     _emitLocator = nullptr;
-
-     // 3. ParticleRenderModule 객체 정리
-     delete _particleRenderModule;
-     _particleRenderModule = nullptr;
-
-     // 4. 기타 컨테이너 정리 (안전성을 위해)
-     while (!_inactiveParticleIndices.empty())
-     {
-         _inactiveParticleIndices.pop();
-     }
- }
-
-void ParticleEmitter::SetLocatorFactor(const Vector3& factor) 
+ void ParticleEmitter::SetLocatorFactor(const Vector3& factor) 
 {
     _emitLocator->SetFactor(factor);
 }

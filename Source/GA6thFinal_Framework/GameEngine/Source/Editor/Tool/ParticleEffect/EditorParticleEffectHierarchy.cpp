@@ -105,7 +105,7 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
 
     ImGui::Separator();
 
-    for (const auto effect : UmParticleManager.GetEffectList())
+    ParticleEffect* effect = UmParticleManager.GetCurrentEditorEffect();
     {
         // 부모 노드: 기본 플래그 사용
         ImGuiTreeNodeFlags parent_flags = ImGuiTreeNodeFlags_OpenOnArrow;
@@ -121,7 +121,7 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
         }
         if (parent_open)
         {
-            ImGui::GetStyle().ItemSpacing.y = 25.0f; // 모든 위젯 사이의 기본 세로 간격을 10으로
+            ImGui::GetStyle().ItemSpacing.y = 3.f; // 모든 위젯 사이의 기본 세로 간격을 10으로
 
             // 자식 노드: Leaf 플래그 사용
             ImGuiTreeNodeFlags leaf_flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
@@ -149,6 +149,12 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
                         ImGui::SetCursorPosX(ImGui::GetCursorPosX() + avail - buttonSize.x);
 
                         bool isRemoveButtonPressed = ImGui::Button("Remove Emitter", buttonSize);
+                        if (true == isRemoveButtonPressed)
+                        {
+                            effect->RemoveEmitter(emitter);
+                            _editorParticleEffectDetails->SetCurrentEmitter(nullptr);
+                            UmParticleManager.RefreshEditor();
+                        }
                     }
                 }
             }

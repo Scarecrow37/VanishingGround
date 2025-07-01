@@ -42,7 +42,7 @@ private:
     void ShowEmitterDetails();
     void ShowEffectDetails();
 
-
+    void Reflect();
 
     class ParticleEffect* _curEffect = nullptr;
     class ParticleEmitter* _curEmitter = nullptr;

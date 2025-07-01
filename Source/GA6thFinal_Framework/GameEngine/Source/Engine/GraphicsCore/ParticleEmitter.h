@@ -79,6 +79,7 @@ public:
     void           SetFrameInfo(Vector4 frameInfo);
     void           SetFrameInfo(int widthCount, int heightCount, int startIndex, int totalCount);
     void           LoadAlbedoTexture(std::wstring filePath);
+    void           ChangeAlbedoTexture(std::wstring filePath);
     void           LoadNormalTexture(std::wstring filePath);
 
     Vector4        GetInitialFrameInfo() const;
@@ -88,13 +89,15 @@ public:
 
 
 protected:
+    void                           CalculateFrameInfos();
+
     Vector4                        _initialFrameInfo;
     std::shared_ptr<class Texture> _albedoTexture;
     std::shared_ptr<class Texture> _normalTexture;
     std::vector<Vector4>           _preCalculatedFrameInfos;
-    void                           CalculateFrameInfos();
+    UMPARTICLE_PROPERTY_REF(std::wstring, _newAlbedoTexturePath, NewAlbedoTexturePath, L"");
+    UMPARTICLE_PROPERTY(bool, _isAlbedoTextureChanged, TextureChangeFlag, false);
     UMPARTICLE_PROPERTY(float, _frameDuration, FrameDuration, 1 / 24.f);
-
 
 
 private:
@@ -118,7 +121,11 @@ class ParticleEmitter
 public:
     ParticleEmitter() {};
     virtual ~ParticleEmitter();
+    ParticleEmitter(const ParticleEmitter& other);
 
+
+
+    UMPARTICLE_PROPERTY(std::string, _emitterName, EmitterName, "");
 public:
     /// <summary>
     /// particle rendering type
@@ -175,11 +182,6 @@ protected:
     void AwakeParticle(UINT index);
     UMPARTICLE_PROPERTY_REF(Matrix, _effectWorldMatrix, EffectWorldMatrix, Matrix::Identity);
     UMPARTICLE_PROPERTY_REF(Vector3, _emitterPosition, EmitterPosition, Vector3(0, 0, 0));
-
-
-    //UMPARTICLE_PROPERTY_REF(Quaternion, _emitterRotationQ, EmitterRotationQ, Quaternion::Identity);
-    //UMPARTICLE_PROPERTY_REF(Vector3, _emitterRotationE, EmitterRotationQ, Vector3(0, 0, 0));
-    
     Quaternion _emitterRotationQ = Quaternion::Identity;
     Vector3 _emitterRotationE = Vector3(0, 0, 0);
     
@@ -191,7 +193,6 @@ protected:
     UMPARTICLE_PROPERTY(float, _startDelay, StartDelay, 0.f);
     UMPARTICLE_PROPERTY(bool, _spawnBurstFlag, SpawnBurstFlag, false);
     UMPARTICLE_PROPERTY(float, _spawnBurstCount, SpawnBurstCount, 5000);
-    UMPARTICLE_PROPERTY(std::string, _emitterName, EmitterName, "");
     bool _delayFlag = false;
     float _delayTimer = 0.f;
 
@@ -242,5 +243,9 @@ protected :
     UMPARTICLE_PROPERTY_REF(Vector4, _dragForce, DragForce, Vector4(0, 0, 0, 0));
 
     UMPARTICLE_PROPERTY(bool, _endFlag, EndFlag, false);
+
+
+    UMPARTICLE_PROPERTY(bool, _removeFlag, RemoveFlag, false);
+
 
 };

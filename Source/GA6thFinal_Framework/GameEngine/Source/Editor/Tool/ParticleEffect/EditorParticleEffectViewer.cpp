@@ -76,7 +76,6 @@ void EditorParticleEffectViewer::OnFrameFocusEnter()
 
 void EditorParticleEffectViewer::OnFrameFocusStay()
 {
-    _camera->Update();
 }
 
 void EditorParticleEffectViewer::OnFrameFocusExit()
@@ -86,6 +85,11 @@ void EditorParticleEffectViewer::OnFrameFocusExit()
 
 void EditorParticleEffectViewer::OnFrameRender()
 {
+
+    _camera->Update();
+
+
+
     auto handle = UmRenderer.GetRenderSceneImage("ParticleEditor");
 
     ImVec2 size = ImGui::GetContentRegionAvail();
