@@ -770,7 +770,8 @@ void ESceneManager::ObjectsMatrixUpdate()
             _mainCamera->UpdatePerspective();
         }
         
-        Transform& transform = _mainCamera->gameObject->transform;
+        Transform* root = _mainCamera->gameObject->transform->Root;
+        Transform& transform = root ? *root : _mainCamera->gameObject->transform;
         if (true == transform._hasChanged)
         {
             transform.UpdateMatrix();
