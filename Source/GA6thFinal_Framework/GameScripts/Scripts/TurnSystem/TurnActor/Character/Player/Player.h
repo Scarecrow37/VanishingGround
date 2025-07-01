@@ -2,7 +2,7 @@
 #include "TurnSystem/TurnActor/Character/CharacterBase.h"
 
 class FiniteStateMachine;
-class Player : public CharacterBase, public InputReceiver
+class Player : public CharacterBase
 {
     USING_PROPERTY(Player)
 public:
