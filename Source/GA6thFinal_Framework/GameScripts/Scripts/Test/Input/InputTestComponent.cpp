@@ -59,6 +59,7 @@ void InputTestComponent::UpdateInput()
     if (_leftStickAxis.Magnitude > 0.f)
     {
         _velocity = right * _leftStickAxis.X + forward * _leftStickAxis.Y;
+        _velocity.Normalize();
         _velocity *= _leftStickAxis.Magnitude * dt * MoveSpeed;
         transform->Position += _velocity;
     }
@@ -69,8 +70,11 @@ void InputTestComponent::UpdateInput()
 
     if (_rightStickAxis.Magnitude > 0.f)
     {
-        float angle = _rightStickAxis.X * dt * RotSpeed;
-        transform->Rotate(Vector3::Up, angle);
+        float angle = _rightStickAxis.X * dt * RotSpeed * _rightStickAxis.Magnitude;
+        transform->Rotate(Vector3::Up, angle, Transform::Space::WORLD);
+         
+        angle = _rightStickAxis.Y * dt * RotSpeed * _rightStickAxis.Magnitude;
+        transform->Rotate(Vector3::Right, -angle);
     }
 
     _leftTrriger = 0.f;
