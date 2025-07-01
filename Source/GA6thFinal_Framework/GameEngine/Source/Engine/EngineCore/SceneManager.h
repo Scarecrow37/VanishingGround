@@ -26,6 +26,7 @@ struct Scene
 {
     USING_PROPERTY(Scene)
     friend class ESceneManager;
+
     Scene() = default;
     ~Scene() = default;
 public:
@@ -128,6 +129,7 @@ private:
     static bool RootGameObjectsFilter(GameObject* obj, std::string_view scenePath);
 
 public:
+    class InputSystem;
     static constexpr const char* SCENE_EXTENSION = ".UmScene";
     static constexpr const char* SETTING_FILE_NAME = "SceneManager.setting.json";
     static constexpr const char* EMPTY_SCENE_NAME  = "EmptyScene";
@@ -301,6 +303,12 @@ public:
         /// </summary>
         /// <returns></returns>
         static CameraComponent* GetMainCamera();
+
+        /// <summary>
+        /// 씬 매니저의 InputSystem을 반환합니다.
+        /// </summary>
+        /// <returns></returns>
+        static ESceneManager::InputSystem& GetInputSystem();
     };
 
 public:
@@ -448,6 +456,84 @@ public:
     /// 씬 리소스 관리를 위한 맴버입니다.
     /// </summary>
     SceneResourceManager ResourceManager;
+    
+public:
+    class InputSystem
+    {
+        friend class InputReceiver;
+
+    public:
+        enum class ControllerButton
+        {
+            A,
+            B,
+            X,
+            Y,
+            LEFT_TRIGGER,
+            RIGHT_TRIGGER,
+            LEFT_SHOULDER, 
+            RIGHT_SHOULDER,
+            START,
+            BACK,
+            LEFT_STICK,
+            RIGHT_STICK,
+            DPAD_UP,
+            DPAD_DOWN,
+            DPAD_LEFT,
+            DPAD_RIGHT,
+            UNKNOWN,
+        };
+
+        enum class Action
+        {
+            IDLE,
+            RELEASED, 
+            HELD,
+            PRESSED,
+            UNKNOWN,
+        };
+
+        void UpdateInput();
+
+    private:
+        static constexpr size_t ACTION_COUNT = (size_t)Action::UNKNOWN;
+        static constexpr size_t CONTROLLER_BUTTON_COUNT = (size_t)ControllerButton::UNKNOWN;
+        inline static constexpr Input::Controller::Button INPUT_CONTROLLER_BUTTONS[] = 
+        {
+            Input::Controller::DPAD_UP,
+            Input::Controller::DPAD_DOWN,
+            Input::Controller::DPAD_LEFT,
+            Input::Controller::DPAD_RIGHT,
+            Input::Controller::START,
+            Input::Controller::BACK,
+            Input::Controller::LEFT_THUMB,
+            Input::Controller::RIGHT_THUMB,
+            Input::Controller::LEFT_SHOULDER,
+            Input::Controller::RIGHT_SHOULDER,
+            Input::Controller::A,
+            Input::Controller::B,
+            Input::Controller::X,
+            Input::Controller::Y
+        };
+        static constexpr size_t INPUT_CONTROLLER_BUTTON_COUNT = sizeof(INPUT_CONTROLLER_BUTTONS) / sizeof(Input::Controller::Button);
+
+        Input::XInputAdapter                            _inputAdapter;
+        Input::Controller                               _inputController{&_inputAdapter};
+        bool                                            _isConnect = false;
+        std::array<Action, CONTROLLER_BUTTON_COUNT>     _actionTracker{Action::IDLE,};
+
+        std::array<std::array<std::vector<std::pair<InputReceiver*, std::function<void(const Input::Controller&)>>>, 
+            ACTION_COUNT>,
+            CONTROLLER_BUTTON_COUNT>
+            _receivers;
+
+    private:
+        void UpdateTracker(int button);
+
+    };
+
+private:
+    InputSystem _inputSystem;
 
 private:
 #ifdef _UMEDITOR
@@ -465,6 +551,7 @@ private:
     void ObjectsAwake();             //Awake 예정인 컴포넌트들의 Awake 함수를 호출합니다.
     void ObjectsOnEnable();          //OnEnable 예정인 컴포넌트들의 OnEnable 함수를 호출합니다.
     void ObjectsStart();             //Start 예정인 컴포넌트들의 Start 함수를 호출합니다.
+    void ObjectsInputUpdate();       //Input을 사용하는 Component들의 Event를 Update합니다.
     void ObjectsFixedUpdate();       //FixedUpdate를 호출합니다.
     void ObjectsUpdate();            //Update 를 호출합니다.
     void ObjectsLateUpdate();        //LateUpdate를 호출합니다.

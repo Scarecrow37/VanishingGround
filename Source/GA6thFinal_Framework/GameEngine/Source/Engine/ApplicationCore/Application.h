@@ -194,27 +194,6 @@ private:
     std::vector<std::unique_ptr<IAppModule>> _appModuleList;
     std::vector<MessageHandler>              _messageHandleList;
 
-public:
-    struct AppInputSystem
-    {
-        friend class InputReceiver;
-
-    public:
-       void UpdateInput();
-
-    private:
-        Input::XInputAdapter        _inputAdapter;
-        Input::Controller           _inputController{&_inputAdapter};
-        std::vector<InputReceiver*> _receivers;
-        bool                        _isConnect = false;
-
-        static void PushReceiver(InputReceiver* receiver);
-        static void EraseReceiver(InputReceiver* receiver);
-    };
-
-private: 
-    AppInputSystem _inputSystem;
-
 };
 
 struct ClientHelper

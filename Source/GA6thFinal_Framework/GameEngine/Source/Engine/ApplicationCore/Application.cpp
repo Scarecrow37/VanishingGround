@@ -138,9 +138,6 @@ void Application::Run()
             ETimeSystem::Engine::TimeSystemUpdate();
             float deltaTime = engineCore->Time.DeltaTime();
 
-            //Input Update
-            _inputSystem.UpdateInput();
-
             // Imgui begin
             _imguiDX12Module->ImguiBegin();
 
@@ -315,37 +312,3 @@ void Application::MainEntry::Run()
     Application::App->Run();
 }
 
-void Application::AppInputSystem::UpdateInput() 
-{
-    if (false == _isConnect)
-    {
-        static float elapsedTime = 0.f;
-        elapsedTime += UmTime.UnscaledDeltaTime();
-        if (elapsedTime >= 0.2f)
-        {
-            Input::Result result = _inputController.Connect();
-            if (Input::INPUT_ERROR_SUCCESS == result)
-            {
-                _isConnect = true;
-            }
-        }
-    }
-    else
-    {
-        _inputController.UpdateState();
-        for (auto& receiver : _receivers)
-        {
-            receiver->OnInput(&_inputController);
-        }
-    }
-}
-
-void Application::AppInputSystem::PushReceiver(InputReceiver* receiver)
-{
-    UmApplication._inputSystem._receivers.push_back(receiver);
-}
-
-void Application::AppInputSystem::EraseReceiver(InputReceiver* receiver)
-{
-    std::erase(UmApplication._inputSystem._receivers, receiver);
-}
