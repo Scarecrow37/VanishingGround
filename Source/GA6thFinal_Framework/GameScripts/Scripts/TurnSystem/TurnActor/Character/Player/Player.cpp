@@ -23,7 +23,6 @@ Player::~Player() = default;
 void Player::Awake() 
 {
     Base::Awake();
-    BindInputAction(InputReceiver::ControllerButton::LEFT_TRIGGER, InputReceiver::Action::HELD, this, &Player::OnInput);
     gameObject->AddTag(TAG);
     BuildPlayerFSM();
 
@@ -134,57 +133,5 @@ void Player::BuildPlayerFSM()
 
         //Entry
         _finiteStateMachine->SetEntryState<PlayerWaitTurnState>();
-    }
-}
-
-void Player::OnInput(const Input::Controller& controller) 
-{
-    float dt = UmTime.DeltaTime();
-    using ThumbStickAxis = Input::Controller::ThumbStickAxis;
-    ThumbStickAxis leftAxis = controller.GetLeftThumbStickAxis();
-    Vector3 dir(leftAxis.X, 0.f, leftAxis.Y);
-    transform->Position += dir * _moveSpeed * leftAxis.Magnitude;
-
-    ThumbStickAxis rightAxis = controller.GetRightThumbStickAxis();
-    if (rightAxis.Magnitude > 0)
-    {
-        transform->Rotate(Vector3(rightAxis.Y, rightAxis.X, 0), dt * _rotSpeed * rightAxis.Magnitude);
-    }
-
-    float lt = controller.GetLeftTrigger();
-    if (lt > 0)
-    {
-        UmLogger.Log(LogLevel::LEVEL_TRACE, std::format("Lt : {}", lt));
-    }
-    float rt = controller.GetRightTrigger();
-    if (rt > 0)
-    {
-        UmLogger.Log(LogLevel::LEVEL_TRACE, std::format("Lt : {}", rt));
-    }
-                  
-    const std::pair<const char*, Input::Controller::Button> ButtonList[] = 
-    {
-        {"DPAD_UP", Input::Controller::DPAD_UP},
-        {"DPAD_DOWN", Input::Controller::DPAD_DOWN},
-        {"DPAD_LEFT", Input::Controller::DPAD_LEFT},
-        {"DPAD_RIGHT", Input::Controller::DPAD_RIGHT},
-        {"START", Input::Controller::START},
-        {"BACK", Input::Controller::BACK},
-        {"LEFT_THUMB", Input::Controller::LEFT_THUMB},
-        {"RIGHT_THUMB", Input::Controller::RIGHT_THUMB},
-        {"LEFT_SHOULDER", Input::Controller::LEFT_SHOULDER},
-        {"RIGHT_SHOULDER", Input::Controller::RIGHT_SHOULDER},
-        {"A", Input::Controller::A},
-        {"B", Input::Controller::B},
-        {"X", Input::Controller::X},
-        {"Y", Input::Controller::Y},
-    };
-
-    for (const auto& [name, button] : ButtonList)
-    {
-        if (controller.IsButtonDown(button))
-        {
-            UmLogger.Log(LogLevel::LEVEL_TRACE, name);
-        }
     }
 }
