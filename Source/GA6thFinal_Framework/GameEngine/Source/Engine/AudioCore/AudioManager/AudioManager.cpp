@@ -86,7 +86,7 @@ namespace Audio
         buffer.pAudioData = audioData;
         if (isLoop)
         {
-            buffer.LoopBegin = 0; 
+            buffer.LoopBegin  = 0;
             buffer.LoopLength = 0;
             buffer.LoopCount  = XAUDIO2_LOOP_INFINITE;
         }
@@ -108,42 +108,52 @@ namespace Audio
         IXAudio2SourceVoice* sourceVoice = nullptr;
 
         // Format에 맞는 Pool 찾기
-        std::vector<Generation>*           generations  = nullptr;
-        std::vector<IXAudio2SourceVoice*>* sourceVoices = nullptr;
-        if (_generationMap.contains(hash)) // 없으면 생성
+        std::vector<SourceVoice>*          sourceVoices = nullptr;
+        if (!_sourceVoices.contains(hash)) // 없으면 생성
         {
-            _generationMap[hash] = std::vector<Generation>{};
-            _sourceVoices[hash]  = std::vector<IXAudio2SourceVoice*>{};
+            _sourceVoices.try_emplace(hash, std::vector<SourceVoice>{});
         }
-        generations  = &_generationMap[hash];
-        sourceVoices = &_sourceVoices[hash];
+        sourceVoices = &_sourceVoices.at(hash);
 
         // 미사용 Voice 찾기
-        auto unusedGenerationIterator = std::ranges::find_if(*generations, [](const Generation& gen) {
+        auto unusedSourceVoiceIterator = std::ranges::find_if(*sourceVoices, [](const SourceVoice& sv) {
             static IsUnusedGeneration isUnusedGeneration;
-            return isUnusedGeneration(gen);
+            return isUnusedGeneration(sv.Generation);
         });
 
-        if (unusedGenerationIterator == generations->end()) // 없으면 생성
-        {
-            IXAudio2SourceVoice* tempSourceVoice = nullptr;
-            throwIfFailed(_xAudio2->CreateSourceVoice(&tempSourceVoice, &sound._format),
-                          "Failed to create source voice.");
-            sourceVoices->push_back(tempSourceVoice);
+        const bool notFound = unusedSourceVoiceIterator == sourceVoices->end();
 
-            generations->push_back(0);
-            unusedGenerationIterator = std::prev(generations->end());
+        if (notFound) // 없으면 SourceVoice 생성
+        {
+            sourceVoices->push_back(SourceVoice{.Generation = 0, .Callback = {}, .Voice = nullptr});
+            unusedSourceVoiceIterator = std::prev(sourceVoices->end());
         }
 
-        generation  = IncreaseGeneration()(*unusedGenerationIterator);
-        index       = std::distance(generations->begin(), unusedGenerationIterator);
-        sourceVoice = (*sourceVoices)[index];
+        generation  = IncreaseGeneration()(unusedSourceVoiceIterator->Generation);
+        index       = std::distance(sourceVoices->begin(), unusedSourceVoiceIterator);
+
+        // Handle 생성
+        const Handle handle = {hash, index, generation};
+
+        // Callback 갱신
+        SourceVoice& unusedVoice = sourceVoices->at(index);
+        unusedVoice.Callback     = IncreaseGenerationCallback(this, handle);
+
+        // 필요시 IXAudio2SourceVoice 생성
+        if (notFound)
+        {
+            throwIfFailed(_xAudio2->CreateSourceVoice(&unusedVoice.Voice, &sound._format, 0, XAUDIO2_DEFAULT_FREQ_RATIO,
+                                                      &unusedVoice.Callback),
+                          "Failed to create source voice.");
+        }
+
+        sourceVoice = unusedVoice.Voice;
 
         // Submit 후 시작
         throwIfFailed(sourceVoice->SubmitSourceBuffer(&sound._buffer), "Failed to submit source buffer.");
         throwIfFailed(sourceVoice->Start(0), "Failed to start source voice.");
 
-        return Handle{hash, index, generation};
+        return handle;
     }
 
     void EManager::Stop(const Handle& handle)
@@ -152,19 +162,17 @@ namespace Audio
             throw InvalidHandleException("Invalid handle provided to Stop.");
 
         constexpr ThrowIfFailed throwIfFailed;
-        constexpr IncreaseGeneration increaseGeneration;
 
-        IXAudio2SourceVoice* sourceVoice = _sourceVoices[handle._hash][handle._index];
-        throwIfFailed(sourceVoice->Stop(0), "Failed to stop source voice.");
-        throwIfFailed(sourceVoice->FlushSourceBuffers(), "Failed to flush source buffers.");
+        const SourceVoice& sourceVoice = _sourceVoices.at(handle._hash).at(handle._index);
+        throwIfFailed(sourceVoice.Voice->Stop(0), "Failed to stop source voice.");
 
-        increaseGeneration(_generationMap[handle._hash][handle._index]);
+        ReleaseVoice(handle);
     }
 
     bool EManager::IsValidHandle(const Handle& handle) const
     {
-        return _generationMap.contains(handle._hash) && handle._index >= 0 && handle._index < _generationMap.size() &&
-               handle._generation == _generationMap.at(handle._hash)[handle._index];
+        return _sourceVoices.contains(handle._hash) && handle._index >= 0 && handle._index < _sourceVoices.size() &&
+               handle._generation == _sourceVoices.at(handle._hash).at(handle._index).Generation;
     }
 
     WaveFormatHash EManager::GetWaveFormatHash(const WAVEFORMATEX& waveFormat) const
@@ -182,5 +190,19 @@ namespace Audio
         hashCombine(waveFormat.cbSize);
 
         return seed;
+    }
+
+    void EManager::ReleaseVoice(const Handle& handle)
+    {
+        if (!IsValidHandle(handle))
+            throw InvalidHandleException("Invalid handle provided to ReleaseVoice.");
+
+        constexpr ThrowIfFailed      throwIfFailed;
+        constexpr IncreaseGeneration increaseGeneration;
+
+        SourceVoice& sourceVoice = _sourceVoices.at(handle._hash).at(handle._index);
+        throwIfFailed(sourceVoice.Voice->FlushSourceBuffers(), "Failed to flush source buffers.");
+
+        increaseGeneration(sourceVoice.Generation);
     }
 } // namespace Audio

@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "Engine/AudioCore/Declare/Callback/IncreaseGenerationCallback.h"
 
 namespace Audio
 {
@@ -9,6 +10,14 @@ namespace Audio
     class EManager
     {
         friend class EngineCores;
+        friend class IncreaseGenerationCallback;
+
+        struct SourceVoice
+        {
+            Generation Generation;
+            IncreaseGenerationCallback Callback;
+            IXAudio2SourceVoice* Voice;
+        };
 
         EManager();
 
@@ -29,11 +38,11 @@ namespace Audio
 
     private:
         [[nodiscard]] WaveFormatHash GetWaveFormatHash(const WAVEFORMATEX& waveFormat) const;
+        void                         ReleaseVoice(const Handle& handle);
 
         winrt::com_ptr<IXAudio2> _xAudio2;
         IXAudio2MasteringVoice*  _masteringVoice = nullptr;
 
-        std::unordered_map<WaveFormatHash, std::vector<Generation>>           _generationMap;
-        std::unordered_map<WaveFormatHash, std::vector<IXAudio2SourceVoice*>> _sourceVoices;
+        std::unordered_map<WaveFormatHash, std::vector<SourceVoice>> _sourceVoices;
     };
 } // namespace Audio

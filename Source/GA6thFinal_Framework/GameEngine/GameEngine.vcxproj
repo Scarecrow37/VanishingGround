@@ -297,6 +297,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Source\Engine\AudioCore\AudioManager\AudioManager.h" />
+    <ClInclude Include="Source\Engine\AudioCore\Declare\Callback\IncreaseGenerationCallback.h" />
     <ClInclude Include="Source\Engine\AudioCore\Declare\Exceptions\AudioExceptions.h" />
     <ClInclude Include="Source\Engine\AudioCore\Declare\RIFF\AudioChunk.h" />
     <ClInclude Include="Source\Engine\AudioCore\Declare\Types\AudioTypes.h" />
@@ -505,6 +506,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Engine\AudioCore\AudioManager\AudioManager.cpp" />
+    <ClCompile Include="Source\Engine\AudioCore\Declare\Callback\IncreaseGenerationCallback.cpp" />
     <ClCompile Include="Source\Engine\AudioCore\Declare\Exceptions\AudioExceptions.cpp" />
     <ClCompile Include="Source\Engine\AudioCore\Declare\RIFF\AudioChunk.cpp" />
     <ClCompile Include="Source\Engine\AudioCore\Declare\Types\AudioTypes.cpp" />
