@@ -16,13 +16,14 @@
 
 Player::Player()
 {
-
+   
 }
 Player::~Player() = default;
 
 void Player::Awake() 
 {
     Base::Awake();
+    BindInputAction(InputReceiver::ControllerButton::LEFT_TRIGGER, InputReceiver::Action::HELD, this, &Player::OnInput);
     gameObject->AddTag(TAG);
     BuildPlayerFSM();
 
@@ -136,26 +137,26 @@ void Player::BuildPlayerFSM()
     }
 }
 
-void Player::OnInput(Input::Controller* controller) 
+void Player::OnInput(const Input::Controller& controller) 
 {
     float dt = UmTime.DeltaTime();
     using ThumbStickAxis = Input::Controller::ThumbStickAxis;
-    ThumbStickAxis leftAxis = controller->GetLeftThumbStickAxis();
+    ThumbStickAxis leftAxis = controller.GetLeftThumbStickAxis();
     Vector3 dir(leftAxis.X, 0.f, leftAxis.Y);
     transform->Position += dir * _moveSpeed * leftAxis.Magnitude;
 
-    ThumbStickAxis rightAxis = controller->GetRightThumbStickAxis();
+    ThumbStickAxis rightAxis = controller.GetRightThumbStickAxis();
     if (rightAxis.Magnitude > 0)
     {
         transform->Rotate(Vector3(rightAxis.Y, rightAxis.X, 0), dt * _rotSpeed * rightAxis.Magnitude);
     }
 
-    float lt = controller->GetLeftTrigger();
+    float lt = controller.GetLeftTrigger();
     if (lt > 0)
     {
         UmLogger.Log(LogLevel::LEVEL_TRACE, std::format("Lt : {}", lt));
     }
-    float rt = controller->GetRightTrigger();
+    float rt = controller.GetRightTrigger();
     if (rt > 0)
     {
         UmLogger.Log(LogLevel::LEVEL_TRACE, std::format("Lt : {}", rt));
@@ -181,7 +182,7 @@ void Player::OnInput(Input::Controller* controller)
 
     for (const auto& [name, button] : ButtonList)
     {
-        if (controller->IsButtonDown(button))
+        if (controller.IsButtonDown(button))
         {
             UmLogger.Log(LogLevel::LEVEL_TRACE, name);
         }

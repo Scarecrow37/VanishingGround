@@ -107,6 +107,5 @@ protected:
     /// </summary>
     virtual void ImGuiDrawPropertysEvent();
 
-    // InputReceiver을(를) 통해 상속됨
-    void OnInput(Input::Controller* controller) override;
+    void OnInput(const Input::Controller& controller);
 };
