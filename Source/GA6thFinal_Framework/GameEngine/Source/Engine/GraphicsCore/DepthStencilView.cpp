@@ -44,6 +44,7 @@ void DepthStencilView::Initialize(DXGI_MODE_DESC mode)
     device.GetDevice()->CreateDepthStencilView(_resource.Get(), &dsvDesc, _handle);
 
     _currentState = D3D12_RESOURCE_STATE_PRESENT;
+    _format       = optClear.Format;
 }
 
 void DepthStencilView::ClearDepthStencilView(ID3D12GraphicsCommandList* commandList)
