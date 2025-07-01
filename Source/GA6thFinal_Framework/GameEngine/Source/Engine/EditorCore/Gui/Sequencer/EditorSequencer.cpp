@@ -9,11 +9,15 @@ EditorSequencer::EditorSequencer()
     , _mouseFrame(0.0f)
     , _indicateFrame(0.0f)
     , _canvasUpperHeight(10.0f)
-    , _viewLerpTarget(1.0f)
+    , _viewPos(ImVec2(0, 0))
+    , _viewPosPrev(_viewPos)
+    , _targetViewPos(ImVec2(0, 0))
+    , _viewToScaledPos(ImVec2(0, 0))
+    , _viewScale(1.0f)
+    , _viewScalePrev(_viewScale)
+    , _targetViewScale(1.0f)
     , _zoomMin(0.05f)
     , _zoomMax(10.0f)
-    , _viewPos(ImVec2(0, 0))
-    , _zoomPos(ImVec2(0, 0))
 {
 }
 
@@ -53,9 +57,30 @@ void EditorSequencer::SetSystem(std::shared_ptr<TimelineSystem> system)
 
 void EditorSequencer::ShowDebugData() 
 {
-    ImGui::DragFloat("Zoom Scale", &ReflectFields->ViewScale, 0.01f, _zoomMin, _zoomMax);
-    ImGui::DragFloat2("View Position", &_viewPos.x, 0.1f, -10000.0f, 10000.0f);
     ImGui::Text("Selected Notify ID: %d", _seletedNotifyID);
+    if (ImGui::TreeNodeEx("Transform", ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        ImGui::Text("View Position: (%.2f, %.2f)", _viewPos.x, _viewPos.y);
+        ImGui::Text("View Previous Position: (%.2f, %.2f)", _viewPosPrev.x, _viewPosPrev.y);
+        ImGui::Text("Target View Position: (%.2f, %.2f)", _targetViewPos.x, _targetViewPos.y);
+        ImGui::Text("View Scale: %.2f", _viewScale);
+        ImGui::Text("Previous View Scale: %.2f", _viewScalePrev);
+        ImGui::Text("Target View Scale: %.2f", _targetViewScale);
+        ImGui::Text("Zoom Position: (%.2f, %.2f)", _zoomMousePos.x, _zoomMousePos.y);
+        ImGui::TreePop();
+    }
+    if (ImGui::TreeNodeEx("Rect", ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        ImGui::Text("Frame Rect: (%.2f, %.2f, %.2f, %.2f)", _frameRect.Min.x, _frameRect.Min.y, _frameRect.Max.x,
+                    _frameRect.Max.y);
+        ImGui::Text("Canvas Rect: (%.2f, %.2f, %.2f, %.2f)", _canvasRect.Min.x, _canvasRect.Min.y, _canvasRect.Max.x,
+                    _canvasRect.Max.y);
+        ImGui::Text("Canvas Upper Rect: (%.2f, %.2f, %.2f, %.2f)", _canvasRectUpper.Min.x, _canvasRectUpper.Min.y,
+                    _canvasRectUpper.Max.x, _canvasRectUpper.Max.y);
+        ImGui::Text("Canvas Lower Rect: (%.2f, %.2f, %.2f, %.2f)", _canvasRectLower.Min.x, _canvasRectLower.Min.y,
+                    _canvasRectLower.Max.x, _canvasRectLower.Max.y);
+        ImGui::TreePop();
+    }
     if (ImGui::TreeNodeEx("Mouse", ImGuiTreeNodeFlags_DefaultOpen))
     {
         ImGui::Text("Mouse Position: (%.2f, %.2f)", _mousePos.x, _mousePos.y);
@@ -109,6 +134,8 @@ bool EditorSequencer::Begin()
     WheelZooming();
     CanvasDragging();
 
+    UpdateViewPosition();
+
     ImGui::PushClipRect(_canvasRect.Min, _canvasRect.Max, true);
 
     _canvasUpperHeight  = 20.0f;
@@ -133,7 +160,7 @@ void EditorSequencer::End()
 {
     ImGui::PopClipRect();
 
-    if (false == _eventQueue.empty())
+    while (false == _eventQueue.empty())
     {
         _eventQueue.front()();
         _eventQueue.pop();
@@ -175,8 +202,8 @@ void EditorSequencer::DrawCanvas()
     _canvasMousePos         = io.MousePos - _canvasRect.Min; 
     _snapPos                = ImVec2(0.0f, 0.0f);
     _canvasSnapPos          = ImVec2(0.0f, 0.0f);
-    _viewToScaledPos        = _viewPos * ReflectFields->ViewScale;
-    _unitToScaledSize       = ReflectFields->UnitSize * ReflectFields->ViewScale;
+    _viewToScaledPos        = _viewPos * _viewScale;
+    _unitToScaledSize       = ReflectFields->UnitSize * _viewScale;
 
     const ImVec2 canvasSize = _canvasRect.GetSize();
 
@@ -404,7 +431,7 @@ void EditorSequencer::DrawCanvas()
         _indicatePos       = _isSnapped ? _snapPos : _mousePos;
         _canvasIndicatePos = _isSnapped ? _canvasSnapPos : _canvasMousePos;
 
-        float canvasSapceX   = -_viewPos.x + _canvasIndicatePos.x / ReflectFields->ViewScale;
+        float canvasSapceX   = -_viewPos.x + _canvasIndicatePos.x / _viewScale;
         bool anyPopupOpened = ImGui::IsPopupOpen("", ImGuiPopupFlags_AnyPopupId);
         if (false == anyPopupOpened)
         {
@@ -433,6 +460,29 @@ void EditorSequencer::DrawCanvas()
     }
 }
 
+void EditorSequencer::UpdateViewPosition()
+{
+    float lerpT      = ReflectFields->LerpFactor;
+    _targetViewScale = ImClamp(_targetViewScale, _zoomMin, _zoomMax);
+    _viewPosPrev     = _viewPos;
+    _viewScalePrev   = _viewScale;
+
+    // lerp
+    _viewPos   = ImLerp(_viewPos, _targetViewPos, lerpT);
+    _viewScale = ImLerp(_viewScale, _targetViewScale, lerpT);
+    _viewScale = ImClamp(_viewScale, _zoomMin, _zoomMax);
+   
+    // zoom focus calculation
+    bool isZoomPosInvalid = std::isnan(_zoomMousePos.x);
+    if (false == isZoomPosInvalid)
+    {
+        ImVec2 pre, post;
+        pre.x  = _zoomMousePos.x / _viewScalePrev;
+        post.x = _zoomMousePos.x / _viewScale;
+        AddViewPosition(post - pre);
+    }
+}
+
 bool EditorSequencer::WheelZooming() 
 {
     ImGuiIO& io           = ImGui::GetIO();
@@ -443,29 +493,17 @@ bool EditorSequencer::WheelZooming()
 
     if (true == isZooming)
     {
+        float targetViewScale = _targetViewScale * ReflectFields->ZoomScale;
         if (io.MouseWheel < -FLT_EPSILON)
         {
-            _viewLerpTarget *= 0.9f * ReflectFields->ZoomScale;
+            SetViewScaleDelay(targetViewScale * 0.9f);
         }
-
         if (io.MouseWheel > FLT_EPSILON)
         {
-            _viewLerpTarget *= 1.1f * ReflectFields->ZoomScale;
+            SetViewScaleDelay(targetViewScale * 1.1f);
         }
-        _viewLerpTarget = ImClamp(_viewLerpTarget, _zoomMin, _zoomMax);
-        _zoomPos = io.MousePos - _frameRect.Min;
+        _zoomMousePos = io.MousePos - _frameRect.Min;
     }
-
-    float& viewScale = ReflectFields->ViewScale;
-    if (false == std::isnan(_zoomPos.x))
-    {
-        ImVec2 mouseWPosPre, mouseWPosPost;
-        mouseWPosPre.x  = _zoomPos.x / viewScale;
-        viewScale       = ImLerp(viewScale, _viewLerpTarget, ReflectFields->ViewLerpScale);
-        mouseWPosPost.x = _zoomPos.x / viewScale;
-        _viewPos += mouseWPosPost - mouseWPosPre;
-    }
-
     return isZooming;
 }
 
@@ -486,7 +524,7 @@ bool EditorSequencer::CanvasDragging()
         bool isMoved = (io.MouseDelta.x != 0.0f);
         if (true == isMoved)
         {
-            _viewPos += ImVec2(io.MouseDelta.x / ReflectFields->ViewScale, 0.0f);
+            AddViewPositionDelay(ImVec2(io.MouseDelta.x / _viewScale, 0.0f));
         }
     }
     return isDragging;
@@ -516,7 +554,7 @@ bool EditorSequencer::ContextMenu()
             {
                 if (ImGui::MenuItem(key.c_str() + 6))
                 {
-                    AddNotify(_indicateFrame, "Notify", key);
+                    AddNotify(_indicateFrame, key.c_str() + 6, key);
                 }
             }
             ImGui::EndMenu();
@@ -575,11 +613,11 @@ void EditorSequencer::ChangeMaxFrame(float frame)
 int EditorSequencer::GetLineUnit() const
 {
     int unitFactor = 1;
-    if (ReflectFields->ViewScale < 0.1f)
+    if (_viewScale < 0.1f)
     {
         unitFactor = 10;
     }
-    else if (ReflectFields->ViewScale < 0.4f)
+    else if (_viewScale < 0.4f)
     {
         unitFactor = 5;
     }
@@ -601,7 +639,23 @@ float EditorSequencer::GetFrameFromXToFloat(float x, float unitSize) const
 }
 ImVec2 EditorSequencer::PositionToCanvasSapce(const ImVec2& pos) const
 {
-    return ImVec2(_viewPos + pos) * ReflectFields->ViewScale;
+    return ImVec2(_viewPos + pos) * _viewScale;
+}
+
+ImVec2 EditorSequencer::GetNotifyPosition(UINT id) const
+{
+    ImVec2 result;
+    if (nullptr != _system)
+    {
+        auto notify = _system->GetNotifyFromID(id);
+        if (nullptr != notify)
+        {
+            float time = notify->Time;
+            result.x   = -(time * ReflectFields->UnitSize) + _canvasRectLower.GetWidth() * 0.5f / _viewScale;
+            result.y   = 0.0f; // Y position is not used in this context
+        }
+    }
+    return result;
 }
 
 void EditorSequencer::PathLines(ImDrawList* drawList, ImVec2* points, size_t pointCount) const 
@@ -745,6 +799,16 @@ void EditorSequencer::PopupNotify(TimelineNotify* notify, const ImRect& mainRect
         ImGui::EndPopup();
     }
     ImGui::PopID();
+}
+
+ImVec2 EditorSequencer::GetDeltaPosition() const
+{
+    return _viewPos - _viewPosPrev;
+}
+
+float EditorSequencer::GetDeltaScale() const
+{
+    return _viewScale - _viewScalePrev;
 }
 
 float EditorSequencer::GetCurrentFrame() const

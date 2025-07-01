@@ -50,6 +50,7 @@ bool AnimationNotifySet::LoadFile(const File::Path& filePath)
         DeserializedReflectFields(SerialData);
         _filePath = filePath;
     }
+    return true;
 }
 
 void AnimationNotifySet::ClearTimeline()
@@ -59,20 +60,30 @@ void AnimationNotifySet::ClearTimeline()
 
 void AnimationNotifySet::SetActiveTimeline(std::string_view animKey) 
 {
-    _activeTimeline = GetTimeline(animKey);
+    _activeTimeline = {animKey.data(), GetTimeline(animKey)};
 }
 
 std::shared_ptr<TimelineSystem> AnimationNotifySet::GetActiveTimeline() const
 {
-    return _activeTimeline;
+    return _activeTimeline.second;
 }
 
-bool AnimationNotifySet::AddTimeline(std::string_view animKey) 
+const std::string& AnimationNotifySet::GetActiveTimelineName() const
+{
+    return _activeTimeline.first;
+    // TODO: 여기에 return 문을 삽입합니다.
+}
+
+bool AnimationNotifySet::AddTimeline(std::string_view animKey, bool active)
 {
     bool hasTimeline = HasTimeline(animKey);
     if (false == hasTimeline)
     {
         _timelineTable[animKey.data()] = std::make_shared<TimelineSystem>();
+        if (true == active)
+        {
+            SetActiveTimeline(animKey); // 활성화된 타임라인 설정
+        }
         return true;
     }
     else // 이미 존재하는 타임라인이므로 추가하지 않음
@@ -103,9 +114,10 @@ bool AnimationNotifySet::RemoveTimeline(std::string_view animKey)
     auto it = _timelineTable.find(animKey.data());
     if (it != _timelineTable.end())
     {
-        if (nullptr != it->second && it->second == _activeTimeline)
+        if (nullptr != it->second && it->second == _activeTimeline.second)
         {
-            _activeTimeline = nullptr; // 현재 활성화된 타임라인이 제거되는 경우
+            _activeTimeline.first  = "";      // 현재 활성화된 타임라인이 제거되는 경우
+            _activeTimeline.second = nullptr; // 현재 활성화된 타임라인이 제거되는 경우
         }
         _timelineTable.erase(it);
         return true;
@@ -143,6 +155,7 @@ const std::map<std::string, std::shared_ptr<TimelineSystem>>& AnimationNotifySet
 
 void AnimationNotifySet::SerializedReflectEvent()
 {
+    ReflectFields->SerializeData.clear();
     for (const auto& [animKey, timeline] : _timelineTable)
     {
         if (nullptr != timeline)

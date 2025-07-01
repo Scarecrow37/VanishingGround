@@ -30,6 +30,11 @@ void EditorAnimationNotifyTool::OnTickGui()
     {
         GetModelDetailsToolInDock();
     }
+    while (false == _eventQueue.empty())
+    {
+        _eventQueue.front()();
+        _eventQueue.pop();
+    }
 }
 
 void EditorAnimationNotifyTool::OnStartGui() 
@@ -80,20 +85,30 @@ void EditorAnimationNotifyTool::GetModelDetailsToolInDock()
 
 void EditorAnimationNotifyTool::UpdateTimeline() 
 {
+    auto curDetailAnim = _modelDetails->GetCurrentAnimationName();
+    auto curNotifyAnim = _animationNotifySet.GetActiveTimelineName();
+
+    bool isSameAnim = !curDetailAnim.empty() && !curNotifyAnim.empty() && (curDetailAnim == curNotifyAnim);
+
     auto model    = _modelDetails->GetModel();
     auto animator = _modelDetails->GetAnimator();
-    if (model && animator)
+    if (true == isSameAnim)
     {
-        std::string curAnim  = _modelDetails->GetCurrentAnimationName();
-        _animationNotifySet.SetActiveTimeline(curAnim);
-        auto timeline = _animationNotifySet.GetActiveTimeline();
-        if (nullptr != timeline)
+        if (model && animator)
         {
-            _sequencer->SetSystem(timeline);
-            timeline->SetMinFrame(0.0f);
-            timeline->SetMaxFrame(animator->GetCurrentAnimationLastTime());
-            timeline->SetCurrentFrame(animator->GetCurrentAnimationPlayTime());
+            auto timeline = _animationNotifySet.GetActiveTimeline();
+            if (nullptr != timeline)
+            {
+                timeline->SetMinFrame(0.0f);
+                timeline->SetMaxFrame(animator->GetCurrentAnimationLastTime());
+                timeline->SetCurrentFrame(animator->GetCurrentAnimationPlayTime());
+                _sequencer->RemoveFlags(EditorSequencer::FLAGS_USE_DRAG_FRAME_LINE);
+            }
         }
+    }
+    else
+    {
+        _sequencer->AddFlags(EditorSequencer::FLAGS_USE_DRAG_FRAME_LINE);
     }
 }
 
@@ -114,6 +129,14 @@ void EditorAnimationNotifyTool::DrawMenuBar()
             }
             if (ImGui::MenuItem("Open File"))
             {
+                HWND    owner = UmApplication.GetHwnd();
+                LPCWSTR title = L"Open AnimationNotify File";
+                std::vector<std::pair<LPCWSTR,LPCWSTR>> filters = {{L"AnimationNotify File\0", L"*.UmAnimNotifySet*\0"}, {L"All File\0", L"*.*\0"}};
+                std::vector<File::Path> out;
+                if (File::ShowOpenFileDialog(owner, title, L"", filters, false, out))
+                {
+                    _animationNotifySet.LoadFile(out.front());
+                }
             }
             if (ImGui::MenuItem("Save File"))
             {
@@ -134,6 +157,17 @@ void EditorAnimationNotifyTool::DrawMenuBar()
             }
             ImGui::EndMenu();
         }
+        if (nullptr != _sequencer)
+        {
+            bool useSnap = _sequencer->HasFlags(EditorSequencer::FLAGS_USE_SNAP);
+            ImVec4 trueColor  = ImVec4(0.1f, 0.2f, 0.21f, 0.8f);
+            ImVec4 falseColor = ImVec4(0.5f, 0.5f, 0.5f, 0.5f);
+            if (ImGuiHelper::ToggleButton("Snap", &useSnap, trueColor, falseColor))
+            {
+                _sequencer->ToggleFlags(EditorSequencer::FLAGS_USE_SNAP);
+            }
+        }
+        
         ImGui::EndMenuBar();
     }
 }
@@ -151,11 +185,13 @@ void EditorAnimationNotifyTool::DrawTimelines()
         if (nullptr != timeline)
         {
             ImGui::PushID(timeline.get());
+            // Widget
             if (ImGui::Selectable(animKey.c_str(), _animationNotifySet.GetActiveTimeline() == timeline))
             {
                 _animationNotifySet.SetActiveTimeline(animKey);
                 _sequencer->SetSystem(timeline);
             }
+            // Context
             if (ImGui::BeginPopupContextItem("TimelineContextMenu"))
             {
                 if (ImGui::BeginMenu("Add Notify"))
@@ -165,16 +201,14 @@ void EditorAnimationNotifyTool::DrawTimelines()
                     {
                         if (ImGui::MenuItem(key.c_str() + 6))
                         {
-                            float time = timeline->GetCurrentFrame();
-                            timeline->AddNotify(key.c_str() + 6, key, time);
+                            AddNotify(animKey, key);
                         }
                     }
                     ImGui::EndMenu();
                 }
                 if (ImGui::MenuItem("Remove Timeline"))
                 {
-                    _animationNotifySet.RemoveTimeline(animKey);
-                    _sequencer->SetSystem(nullptr);
+                    RemoveTimeline(animKey);
                 }
                 ImGui::EndPopup();
             }
@@ -220,35 +254,45 @@ void EditorAnimationNotifyTool::DrawDetails()
             _animationNotifySet.LoadFile(out.front());
         }
     }
-
-    auto model    = _modelDetails->GetModel();
-    auto animator = _modelDetails->GetAnimator();
-    if (model && animator)
+    auto curTimeline = _animationNotifySet.GetActiveTimeline();
+    
+    if (ImGui::BeginTabBar("##AnimationNotifyTabs"))
     {
-        std::string curAnim   = _modelDetails->GetCurrentAnimationName();
-        auto        curSystem = _animationNotifySet.GetTimeline(curAnim);
-        if (nullptr == curSystem)
+        if (ImGui::BeginTabItem(_tabLabel[0].c_str()))
         {
-            ImGui::Text("No active timeline selected.");
-            // AddTimeline
-            if (ImGui::Button("Add Timeline"))
-            {
-                _animationNotifySet.AddTimeline(curAnim);
-                _animationNotifySet.SetActiveTimeline(curAnim);
-                auto timeline = _animationNotifySet.GetActiveTimeline();
-                _sequencer->SetSystem(timeline);
-            }
+            ShowNotifyList(curTimeline);
+            ImGui::EndTabItem();
         }
-        else
+        if (ImGui::BeginTabItem(_tabLabel[1].c_str()))
         {
-            // ImGui::Text("Active Timeline: %s", curSystem->GetAnimKey().c_str());
-            ImGui::Text("Current Frame: %.2f", curSystem->GetCurrentFrame());
-            ImGui::Text("Min Frame: %.2f", curSystem->GetMinFrame());
-            ImGui::Text("Max Frame: %.2f", curSystem->GetMaxFrame());
+            UINT selected = _sequencer->GetSelectedNotifyID();
+            ShowNotifyEditTab(curTimeline, selected);
+            ImGui::EndTabItem();
         }
-
-        
+        ImGui::EndTabBar();
     }
+    // auto model    = _modelDetails->GetModel();
+    // auto animator = _modelDetails->GetAnimator();
+    // if (model && animator)
+    //{
+    //     std::string curAnim   = _modelDetails->GetCurrentAnimationName();
+    //     auto        curSystem = _animationNotifySet.GetTimeline(curAnim);
+    //     if (nullptr == curSystem)
+    //     {
+    //         ImGui::Text("No active timeline selected.");
+    //         if (ImGui::Button("Add Timeline"))
+    //         {
+    //             AddTimelineFromAnimation(curAnim);
+    //         }
+    //     }
+    //     else
+    //     {
+    //         ImGui::Text("Current Frame: %.2f", curSystem->GetCurrentFrame());
+    //         ImGui::Text("Min Frame: %.2f", curSystem->GetMinFrame());
+    //         ImGui::Text("Max Frame: %.2f", curSystem->GetMaxFrame());
+    //     }
+    // }
+
     ImGui::EndChild();
     //for (const auto& notify : _timelineSystem->GetTimelineNotifyList())
     //{
@@ -278,4 +322,109 @@ void EditorAnimationNotifyTool::DrawDetails()
     //
     //    ImGui::PopID();
     //}
+}
+
+void EditorAnimationNotifyTool::AddTimelineFromAnimation(std::string_view animKey) 
+{
+    _animationNotifySet.AddTimeline(animKey);
+    _animationNotifySet.SetActiveTimeline(animKey);
+    auto timeline = _animationNotifySet.GetActiveTimeline();
+    _sequencer->SetSystem(timeline);
+
+     _eventQueue.push([this, animKey]() {
+        if (nullptr == _sequencer)
+            return;
+        _animationNotifySet.AddTimeline(animKey, true);
+        auto timeline = _animationNotifySet.GetActiveTimeline();
+        _sequencer->SetSystem(timeline);
+    });
+}
+
+void EditorAnimationNotifyTool::AddNotify(std::string_view animKey, std::string_view typeNameID, float time) 
+{
+     _eventQueue.push([this, animKey, typeNameID, time]() {
+        auto timeline = _animationNotifySet.GetTimeline(animKey);
+        if (nullptr == _sequencer || nullptr == timeline)
+            return;
+        float notifyTime = time;
+        if (time < 0.0f || time > timeline->GetMaxFrame())
+        {
+            notifyTime = timeline->GetCurrentFrame();
+        }
+        timeline->AddNotify(typeNameID.data() + 6, typeNameID, notifyTime);
+    });
+}
+
+void EditorAnimationNotifyTool::RemoveTimeline(std::string_view animKey) 
+{
+    _eventQueue.push([this, animKey]()  {
+        if (nullptr == _sequencer) return;
+        _animationNotifySet.RemoveTimeline(animKey);
+        _sequencer->SetSystem(nullptr);
+    });
+}
+
+bool EditorAnimationNotifyTool::ShowNotifyList(std::shared_ptr<TimelineSystem> system)
+{
+    bool itemClicked = false;
+    if (nullptr == system)
+    {
+        ImGui::Text("No timeline system available.");
+        return itemClicked;
+    }
+    auto notifyList = system->GetTimelineNotifyList();
+    for (const auto& notify : notifyList)
+    {
+        if (nullptr == notify)
+            continue;
+        UINT ID = notify->ID;
+        float time = notify->Time;
+        std::string_view label = notify->Label;
+        ImGui::Selectable(label.data());
+        bool isHovered = ImGui::IsItemHovered();
+        bool isDoubleClicked = ImGui::IsItemClicked(ImGuiMouseButton_Left);
+        if (isHovered)
+        {
+            ImGui::SetTooltip("ID: %d\nTime: %.2f", ID, time);
+        }
+        if (isDoubleClicked)
+        {
+            _sequencer->SetSelectedNotifyID(ID);
+            _sequencer->SetViewPositionFromID(ID);
+            itemClicked = true;
+        }
+    }
+    return itemClicked;
+}
+
+void EditorAnimationNotifyTool::ShowNotifyEditTab(std::shared_ptr<TimelineSystem> system, UINT notifyID) 
+{
+    if (nullptr == system)
+    {
+        ImGui::Text("No timeline system available.");
+        return;
+    }
+    auto notify = system->GetNotifyFromID(notifyID);
+    if (nullptr != notify)
+    {
+        char             buf[64];
+        std::string_view label = notify->Label;
+        float            time  = notify->Time;
+        UINT             id    = notify->ID;
+        strcpy_s(buf, label.data());
+        ImGui::Text("Label: ");
+        ImGui::SameLine();
+        if (ImGui::InputText("##NotifyLabel", buf, sizeof(buf)))
+        {
+            notify->Label = buf;
+        }
+        ImGui::Separator();
+    }
+    else
+    {
+        if (0 == notifyID)
+            ImGui::Text("No notify selected.");
+        else
+            ImGui::Text("Notify with ID %d not found.", notifyID);
+    }
 }

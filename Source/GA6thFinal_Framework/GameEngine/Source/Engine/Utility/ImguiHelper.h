@@ -89,7 +89,7 @@ namespace ImGuiHelper
     토글이 가능한 버튼 (false->true / true->false)
     return: 버튼을 눌렀다 뗄 때
     */
-    static bool ToggleButton(const char* label, bool* v, ImVec4 trueColor, ImVec4 falseColor)
+    static bool ToggleButton(const char* label, bool* v, const ImVec4& trueColor, const ImVec4& falseColor)
     {
         if (v)
         {

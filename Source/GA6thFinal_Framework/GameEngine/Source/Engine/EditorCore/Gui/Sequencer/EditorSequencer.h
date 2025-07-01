@@ -56,17 +56,30 @@ public:
     /// <returns>Gui영역의 위치 ImVec2</returns>
     inline ImVec2 GetRectPosition() const { return _frameRect.Min; }
 
-    /// <summary>
-    /// Sequencer의 뷰 위치를 설정합니다.
-    /// </summary>
-    /// <param name="pos"></param>
-    inline void SetViewPosition(const ImVec2& pos) { _viewPos = pos; }
+    inline ImVec2 GetViewPosition() const { return _viewPos; }
+    inline void AddViewPositionDelay(const ImVec2& pos) { _targetViewPos += pos; }
+    inline void AddViewPosition(const ImVec2& pos) { _viewPos += pos; _targetViewPos += pos; }
+    inline void SetViewPositionDelay(const ImVec2& pos) { _targetViewPos = pos; }
+    inline void SetViewPosition(const ImVec2& pos) { _viewPos = pos; _targetViewPos = pos; }
+    inline void SetViewPositionFromID(UINT id) { SetViewPositionDelay(GetNotifyPosition(id)); }
+
+    inline float GetViewScale() const { return _viewScale; }
+    inline void SetViewScaleDelay(float scale) { _targetViewScale = scale; }
+    inline void SetViewScale(float scale) { _viewScale = scale; _targetViewScale = scale; }
+    inline void AddViewScaleDelay(float scale) { _targetViewScale += scale; }
+    inline void AddViewScale(float scale) { _viewScale += scale; _targetViewScale += scale; }
 
     /// <summary>
     /// 
     /// </summary>
     /// <param name="id"></param>
     inline void SetSelectedNotifyID(UINT id = 0) { _seletedNotifyID = id; }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
+    inline UINT GetSelectedNotifyID() const { return _seletedNotifyID; }
 
     inline void AddFlags(int flags) { _flags |= flags; }
     inline void RemoveFlags(int flags) { _flags &= ~flags; }
@@ -81,6 +94,8 @@ private:
     void DrawToolBar();
     void DrawCanvas();
 
+    void UpdateViewPosition();
+
     bool WheelZooming();
     bool CanvasDragging();
     bool ContextMenu();
@@ -91,23 +106,23 @@ private:
     void ChangeMinFrame(float frame);
     void ChangeMaxFrame(float frame);
 
-    int   GetLineUnit() const;
-    int   GetFrameFromXToInt(float x, float unitSize) const;
-    float GetFrameFromXToFloat(float x, float unitSize) const;
-
     ImVec2 PositionToCanvasSapce(const ImVec2& pos) const;
+    ImVec2 GetNotifyPosition(UINT id) const;
 
     void PathLines(ImDrawList* drawList, ImVec2* points, size_t pointCount) const;
-
-    int GetInteractionState(const ImRect& rect) const;
-
     void DrawNotify(ImDrawList* drawList, TimelineNotify* notify, const ImRect& mainRect);
     void DragNotify(TimelineNotify* notify, const ImRect& mainRect);
     void PopupNotify(TimelineNotify* notify, const ImRect& mainRect);
 
-    float GetCurrentFrame() const;
-    float GetMinFrame() const;
-    float GetMaxFrame() const;
+    int    GetLineUnit() const;
+    int    GetFrameFromXToInt(float x, float unitSize) const;
+    float  GetFrameFromXToFloat(float x, float unitSize) const;
+    int    GetInteractionState(const ImRect& rect) const;
+    ImVec2 GetDeltaPosition() const;
+    float  GetDeltaScale() const;
+    float  GetCurrentFrame() const;
+    float  GetMinFrame() const;
+    float  GetMaxFrame() const;
 
 public:
     std::shared_ptr<TimelineSystem> _system; // System WeakPtr
@@ -124,9 +139,14 @@ public:
     ImRect _canvasRectLower;    // Sequencer의 캔버스 하단 영역 (타임라인 표시 영역)
     float  _canvasUpperHeight;  // Sequencer의 캔버스 상단 영역 높이 (하단 영역은 나머지)
 
-    ImVec2 _viewPos;
+    ImVec2 _viewPos;            // 현재 뷰의 위치 (캔버스 내에서의 위치가 아님)
+    ImVec2 _viewPosPrev;        // 이전 뷰의 위치 (캔버스 내에서의 위치가 아님)
+    ImVec2 _targetViewPos;      // 보간 목표 위치
     ImVec2 _viewToScaledPos;    // 뷰의 위치를 스케일링한 값 (줌 적용된 위치)
-    ImVec2 _zoomPos;
+
+    float  _viewScale;          // 현재 뷰의 스케일 (줌 레벨)
+    float  _viewScalePrev;      // 이전 뷰의 스케일 (줌 레벨)
+    float  _targetViewScale;    // 보간 목표 스케일
 
     ImVec2 _mousePos;           // 마우스 커서의 현재 위치 (캔버스 내에서의 위치가 아님)
     ImVec2 _canvasMousePos;     // 마우스 커서가 캔버스 내에서의 위치
@@ -144,7 +164,7 @@ public:
     ImVec2 _lastNotifyPosition; // 마지막으로 Notify가 위치한 곳
     ImVec2 _lastNotifySize;     // 마지막으로 Notify가 위치한 곳의 크기
 
-    float  _viewLerpTarget;     // 보간 중인 최종 뷰의 타겟 위치
+    ImVec2 _zoomMousePos;       // 줌을 적용할 때의 마우스 위치
     float  _zoomMin;            // 줌 최소 값
     float  _zoomMax;            // 줌 최대 값
      
@@ -162,8 +182,7 @@ public:
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
     float ZoomScale     = 1.0f;   // View에 대한 줌 스케일
     float UnitSize      = 100.0f; // Frame을 표시할 때 사용하는 단위 크기 (1 Frame당 픽셀 크기)
-    float ViewLerpScale = 0.05f;  // View 보간 스케일 (0.0f ~ 1.0f)
-    float ViewScale     = 1.0f;   // 현재 View의 스케일
+    float LerpFactor    = 0.05f;  // View 보간 스케일 (0.0f ~ 1.0f)
 
     std::string SerializedData        = "";                           // 직렬화된 데이터
 

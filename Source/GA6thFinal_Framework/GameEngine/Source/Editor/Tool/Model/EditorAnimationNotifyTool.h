@@ -34,9 +34,19 @@ private:
     void DrawCanvas();
     void DrawDetails();
 
+    void AddTimelineFromAnimation(std::string_view animKey);
+    void AddNotify(std::string_view animKey, std::string_view typeNameID, float time = FLT_MAX);
+    void RemoveTimeline(std::string_view animKey);
+
+    bool ShowNotifyList(std::shared_ptr<TimelineSystem> system);
+    void ShowNotifyEditTab(std::shared_ptr<TimelineSystem> system, UINT notifyID);
+
 private:
     EditorModelDetails* _modelDetails = nullptr;
     EditorSequencer* _sequencer = nullptr;
-
     AnimationNotifySet _animationNotifySet;
+    std::queue<std::function<void()>> _eventQueue;
+
+    // DetailFrame
+    std::string _tabLabel[2]    = {"List", "Edit"};
 };
