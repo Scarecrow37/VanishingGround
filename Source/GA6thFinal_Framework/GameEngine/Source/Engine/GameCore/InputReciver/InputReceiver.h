@@ -34,7 +34,7 @@ private:
 
 /// <summary>
 /// <para> Input 이벤트를 바인딩합니다.                                                      </para>
-/// <para> 바인딩할 함수는 매개변수로 (const Input::Controller&)를 반드시 전달받아야 합니다.    </para>
+/// <para> 바인딩할 함수는 매개변수로 (const Input::Controller&amp;)를 반드시 전달받아야 합니다.    </para>
 /// <para> *마지막 인자는 기본값을 사용해야 로그가 정상적으로 남겨집니다.                       </para>
 /// </summary>
 /// <param name="button :">사용할 버튼입니다.</param>
@@ -61,15 +61,19 @@ inline bool InputReceiver::BindInputAction(ControllerButton button, Action actio
             auto& inputSystem = ESceneManager::Engine::GetInputSystem();
             int   buttonIndex = (int)button;
             int   actionIndex = (int)action;
-            inputSystem._receivers[buttonIndex][actionIndex].emplace_back(
-                instance,
-                [instance, func](const Input::Controller& controller) 
-                { 
-                    if (instance->gameObject->IsValid())
+            if (instance->gameObject->IsValid())
+            {
+                inputSystem._receivers[buttonIndex][actionIndex].emplace_back(
+                    instance, 
+                    [instance, func](const Input::Controller& controller) 
                     {
-                        std::invoke(func, instance, controller); 
-                    }                 
-                });
+                        if (instance->EnableInHierarchy)
+                        {
+                            std::invoke(func, instance, controller);
+                        }
+                    }
+                );
+            }  
         }
         else
         {
