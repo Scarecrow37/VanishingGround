@@ -26,10 +26,10 @@ void Command::EditorScene::DestroyGameObjectCommand::Execute()
     rootObject->ActiveSelf = false;
     UmSceneManager.AddDestroyObjectQueue(rootObject.get());
 
-    if (EditorHierarchyTool::HierarchyFocusObjWeak.lock() == rootObject)
+    if (EditorHierarchyTool::GetFocusObject().lock() == rootObject)
     {
         std::weak_ptr<GameObject> empty;
-        EditorHierarchyTool::HierarchyFocusObjWeak = empty;
+        EditorHierarchyTool::SetFocusObject(empty);
         _isFocus = true;
     }
     if (EditorInspectorTool::GetFocusObject().lock() == rootObject)
@@ -53,7 +53,7 @@ void Command::EditorScene::DestroyGameObjectCommand::Undo()
 
     if (_isFocus)
     {
-        EditorHierarchyTool::HierarchyFocusObjWeak = rootObject;
+        EditorHierarchyTool::SetFocusObject(rootObject);
         EditorInspectorTool::SetFocusObject(rootObject);
     }
 }
@@ -99,10 +99,10 @@ void Command::EditorScene::NewGameObjectCommand::Undo()
     _newObject->ActiveSelf = false;
     _newObject->transform->DetachChildren();
     UmSceneManager.AddDestroyObjectQueue(_newObject.get());
-    if (EditorHierarchyTool::HierarchyFocusObjWeak.lock() == _newObject)
+    if (EditorHierarchyTool::GetFocusObject().lock() == _newObject)
     {
         std::weak_ptr<GameObject> empty;
-        EditorHierarchyTool::HierarchyFocusObjWeak = empty;
+        EditorHierarchyTool::SetFocusObject(empty);
     }
     if (EditorInspectorTool::GetFocusObject().lock() == _newObject)
     {
@@ -226,10 +226,10 @@ void Command::EditorScene::DuplicateCommand::Undo()
     int instanceID = rootObject->GetInstanceID();
     rootObject->ActiveSelf = false;
     UmSceneManager.AddDestroyObjectQueue(rootObject.get());
-    if (EditorHierarchyTool::HierarchyFocusObjWeak.lock() == rootObject)
+    if (EditorHierarchyTool::GetFocusObject().lock() == rootObject)
     {
         std::weak_ptr<GameObject> empty;
-        EditorHierarchyTool::HierarchyFocusObjWeak = empty;
+        EditorHierarchyTool::SetFocusObject(empty);
     }
     if (EditorInspectorTool::GetFocusObject().lock() == rootObject)
     {

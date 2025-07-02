@@ -30,7 +30,3 @@ void MeshComponent::MakeMeshRenderer(MeshRenderType renderType, const Matrix& wo
     }
 }
 
-void MeshComponent::OnDrawDebugSelected()
-{
-    Renderer->SetCustomDepth(PostProcess::OUTLINE);
-}

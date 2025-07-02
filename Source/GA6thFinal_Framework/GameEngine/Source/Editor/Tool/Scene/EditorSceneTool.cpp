@@ -491,9 +491,9 @@ void EditorSceneTool::DrawSceneView()
 
 void EditorSceneTool::SetCameraToFocusObject() 
 {
-    if (false == EditorHierarchyTool::HierarchyFocusObjWeak.expired())
+    if (false == EditorHierarchyTool::GetFocusObject().expired())
     {
-        auto focusObject = EditorHierarchyTool::HierarchyFocusObjWeak.lock();
+        auto focusObject = EditorHierarchyTool::GetFocusObject().lock();
         _camera->SetPosition(focusObject->transform->Position);
     }
 }
@@ -547,7 +547,7 @@ void EditorSceneTool::RayPicker()
                                 intersects = obbWorld.Intersects(rayPos, rayDir, dist);
                                 if (true == intersects)
                                 {
-                                    std::weak_ptr old = EditorHierarchyTool::HierarchyFocusObjWeak;
+                                    std::weak_ptr old = EditorHierarchyTool::GetFocusObject();
                                     UmCommandManager.Do<Command::Hierarchy::FocusCommand>(
                                         old, meshComponent->gameObject->GetWeakPtr());
                                     break;

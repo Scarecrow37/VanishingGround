@@ -32,14 +32,14 @@ namespace Input
             RIGHT_THUMB_BUTTON = 0x00080,
             LEFT_SHOULDER      = 0x00100,
             RIGHT_SHOULDER     = 0x00200,
+            LEFT_TRIGGER       = 0x00400,
+            RIGHT_TRIGGER      = 0x00800,
             A                  = 0x01000,
             B                  = 0x02000,
             X                  = 0x04000,
             Y                  = 0x08000,
             LEFT_THUMB_STICK   = 0x10000,
             RIGHT_THUMB_STICK  = 0x20000,
-            LEFT_TRIGGER       = 0x40000,
-            RIGHT_TRIGGER      = 0x80000,
         };
 
         /// <summary>

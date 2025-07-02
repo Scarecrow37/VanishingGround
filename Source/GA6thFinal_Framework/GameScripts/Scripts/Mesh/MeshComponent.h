@@ -25,9 +25,6 @@ public:
     //meshRenderer 입니다. MakeMeshRenderer를 호출해야만 생성됩니다.
     const std::unique_ptr<MeshRenderer>& Renderer;
 
-public:
-    virtual void OnDrawDebugSelected() override;
-
 protected:
     REFLECT_FIELDS_BEGIN(Component)
     REFLECT_FIELDS_END(MeshComponent)
