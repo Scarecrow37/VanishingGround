@@ -20,6 +20,13 @@ public:
         FLAGS_USE_DRAG_FRAME_LINE       = 1 << 3,  // 프레임 라인 조정을 잠그는 기능
     };
 
+    enum Align
+    {
+        ALIGN_LEFT   = 0,
+        ALIGN_CENTER = 1,
+        ALIGN_RIGHT  = 2,
+    };
+
 public:
     EditorSequencer();
     virtual ~EditorSequencer();
@@ -61,7 +68,7 @@ public:
     inline void AddViewPosition(const ImVec2& pos) { _viewPos += pos; _targetViewPos += pos; }
     inline void SetViewPositionDelay(const ImVec2& pos) { _targetViewPos = pos; }
     inline void SetViewPosition(const ImVec2& pos) { _viewPos = pos; _targetViewPos = pos; }
-    inline void SetViewPositionFromID(UINT id) { SetViewPositionDelay(GetNotifyPosition(id)); }
+    inline void SetViewPositionFromID(UINT id, Align align = ALIGN_LEFT) { SetViewPositionDelay(GetNotifyPosition(id) + GetAlginOffsetFromRect(_canvasRectLower, align)); }
 
     inline float GetViewScale() const { return _viewScale; }
     inline void SetViewScaleDelay(float scale) { _targetViewScale = scale; }
@@ -115,6 +122,8 @@ private:
     void PopupNotify(TimelineNotify* notify, const ImRect& mainRect);
 
     int    GetLineUnit() const;
+    float  GetAlignFactor(Align align) const;
+    ImVec2 GetAlginOffsetFromRect(const ImRect& rect, Align align) const;
     int    GetFrameFromXToInt(float x, float unitSize) const;
     float  GetFrameFromXToFloat(float x, float unitSize) const;
     int    GetInteractionState(const ImRect& rect) const;
@@ -182,7 +191,7 @@ public:
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
     float ZoomScale     = 1.0f;   // View에 대한 줌 스케일
     float UnitSize      = 100.0f; // Frame을 표시할 때 사용하는 단위 크기 (1 Frame당 픽셀 크기)
-    float LerpFactor    = 0.05f;  // View 보간 스케일 (0.0f ~ 1.0f)
+    float LerpFactor    = 0.1f;  // View 보간 스케일 (0.0f ~ 1.0f)
 
     std::string SerializedData        = "";                           // 직렬화된 데이터
 

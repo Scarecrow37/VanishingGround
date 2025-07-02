@@ -65,13 +65,17 @@ private:
     void OnNotified(float time) override;
 
 public:
-    REFLECT_PROPERTY(Time)
+    REFLECT_PROPERTY(Time, Dummy)
     GETTER(float, Time) { return _time; }
     SETTER(float, Time) { _time = value; }
     PROPERTY(Time)
+    GETTER(float, Dummy) { return _dummy; }
+    SETTER(float, Dummy) { _dummy = value; }
+    PROPERTY(Dummy)
 
 private:
     float _time;
+    float _dummy;
     REFLECT_FIELDS_BEGIN(ITimelineEvent)
     REFLECT_FIELDS_END(TestTimeLineEvent_2)
 };

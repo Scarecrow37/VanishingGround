@@ -34,12 +34,21 @@ private:
     void DrawCanvas();
     void DrawDetails();
 
+    void SetTimelineFromAnimation(std::string_view animKey);
     void AddTimelineFromAnimation(std::string_view animKey);
-    void AddNotify(std::string_view animKey, std::string_view typeNameID, float time = FLT_MAX);
-    void RemoveTimeline(std::string_view animKey);
+    void RemoveTimelineFromAnimation(std::string_view animKey);
+    void AddNotify(std::string_view notifyName, std::string_view animKey, std::string_view typeNameID, float time = FLT_MAX);
+    
 
     bool ShowNotifyList(std::shared_ptr<TimelineSystem> system);
     void ShowNotifyEditTab(std::shared_ptr<TimelineSystem> system, UINT notifyID);
+
+    void ShowAvailableTimeline();
+
+    const std::string& GetCurrentDetailAnimName();
+    const std::string& GetCurrentNotifyAnimName();
+
+    bool IsLoadNotifySet() const;
 
 private:
     EditorModelDetails* _modelDetails = nullptr;

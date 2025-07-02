@@ -27,7 +27,93 @@ std::shared_ptr<Animator> EditorModelDetails::GetAnimator() const
     return _animator;
 }
 
-void EditorModelDetails::OnTickGui() {}
+std::shared_ptr<Animation> EditorModelDetails::GetAnimation() const
+{
+    const auto& model = GetModel();
+    if (nullptr != model)
+    {
+        return model->GetAnimation();
+    }
+    return std::shared_ptr<Animation>();
+}
+
+const std::string& EditorModelDetails::GetCurrentAnimationName() const
+{
+    return _currentAnimationName;
+}
+
+void EditorModelDetails::ChangeAnimation(std::string_view anim) 
+{
+    if (nullptr != _animator)
+    {
+        _currentAnimationName = anim.data();
+        _currentAnimationIndex = _animationIndexMap[anim.data()];
+        _animator->ChangeAnimation(anim.data());
+        _animationTime = 0.0f;
+    }
+}
+
+void EditorModelDetails::SetCurrentAnimationSpeed(float speed) 
+{
+    _animationSpeed = speed;
+}
+
+void EditorModelDetails::SetCurrentAnimationTime(float time) 
+{
+    _animationTime = time;
+}
+
+void EditorModelDetails::PlayCurrentAnimation()
+{
+    _isAnimationPlaying = false;
+    _animationTime      = 0.0f;
+}
+
+void EditorModelDetails::ResumeCurrentAnimation()
+{
+    _isAnimationPlaying = true;
+}
+
+void EditorModelDetails::PauseCurrentAnimation() 
+{
+    _isAnimationPlaying = false;
+}
+
+void EditorModelDetails::StopCurrentAnimation() 
+{
+    _isAnimationPlaying = false;
+    _animationTime      = 0.0f;
+}
+
+void EditorModelDetails::OnTickGui()
+{
+    if (nullptr != GetModel() && nullptr != GetAnimator() && nullptr != GetAnimation())
+    {
+        if (true == _isAnimationPlaying)
+        {
+            _animationTime += UmTime.DeltaTime() * _animationSpeed;
+        }
+        _animator->SetAnimationTime(_animationTime);
+        float min = 0.0f;
+        float max = _animator->GetCurrentAnimationLastTime();
+        if (_animationTime > max)
+        {
+            if (true == _isAnimationLooping)
+            {
+                _animationTime -= max; 
+            }
+            else
+            {
+                _animationTime      = max;   // Stop at the end of the animation
+                _isAnimationPlaying = false; // Stop playing when reaching the end
+            }
+        }
+    }
+    else
+    {
+        _animationTime = 0.0f;
+    }
+}
 
 void EditorModelDetails::OnStartGui()
 {
@@ -63,78 +149,148 @@ void EditorModelDetails::OnFrameRender()
     }
     ImGui::EndHorizontal();
 
-    if (ImGui::CollapsingHeader("Light Property"))
+    if (ImGui::TreeNodeEx("Light Property##details"))
     {
         ImGui::ColorEdit3("Color##Light", (float*)&_color);
         ImGui::ColorEdit3("Ambient##Light", (float*)&_ambient);
         ImGui::SliderFloat3("Direction##Light", (float*)&_direction, -1.f, 1.f);
         ImGui::SliderFloat("Intensity##Light", &_intensity, 0.f, 1000.f);
+
+        ImGui::TreePop();
     }
+
+    ImGui::Separator();
 
     const auto& model = _meshRenderer->GetModel();
     if (model)
     {
         const auto type = _meshRenderer->GetType();
-
-        if (MeshRenderType::SKELETAL == type)
+        if (ImGui::TreeNodeEx("Model##details", ImGuiTreeNodeFlags_DefaultOpen))
         {
-            const auto& animation      = model->GetAnimation();
-            const auto& animationNames = animation->GetAnimations();
-            ImGui::Text("Animation");
-            ImGui::SameLine();
-
-            if (ImGui::BeginCombo("##Animation", animationNames[_currentAnimationIndex]))
+            // ReadOnly inputText for file path
+            int flags = ImGuiInputTextFlags_ReadOnly | ImGuiInputTextFlags_AutoSelectAll;
+            std::string filePath  = _filePath.string();
+            char* filePathBuffer  = (char*)filePath.c_str();
+            size_t filePathLength = filePath.length() + 1;
+            ImGui::InputText("File Path##details", filePathBuffer, filePathLength, flags);
+            if (ImGui::IsItemHovered())
             {
-                for (int i = 0; i < animationNames.size(); ++i)
-                {
-                    bool isSelected = (_currentAnimationIndex == i);
-                    if (ImGui::Selectable(animationNames[i], isSelected))
-                    {
-                        if (_currentAnimationIndex != i)
-                        {
-                            _currentAnimationIndex = i;
-                            _currentAnimationName = animationNames[i];
-                        }
-                           
-                        _animator->ChangeAnimation(animationNames[_currentAnimationIndex]);
-                    }
-                    // 선택된 항목은 포커스를 줌
-                    if (isSelected)
-                        ImGui::SetItemDefaultFocus();
-                }
-                ImGui::EndCombo();
+                ImGui::SetTooltip(filePath.c_str());
             }
-        }
+            ImGui::Separator();
 
-        auto& materials = model->GetMaterials();
-        auto& material  = materials[_selectedMeshIndex];
+            if (ImGui::TreeNodeEx("Animation##details", ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                const auto& animation = model->GetAnimation();
+                if (nullptr == animation)
+                {
+                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.3f, 0.3f, 1.0f));
+                    ImGui::Text("this model has no animation data.");
+                    ImGui::PopStyleColor();
+                }
+                else
+                {
+                    const auto& animationNames = animation->GetAnimations();
+                    const char* comboLabel =
+                        _currentAnimationIndex == -1 ? "-" : animationNames[_currentAnimationIndex];
+                    if (ImGui::BeginCombo("##Animation", comboLabel))
+                    {
+                        for (int i = 0; i < animationNames.size(); ++i)
+                        {
+                            bool isSelected = (_currentAnimationIndex == i);
+                            if (ImGui::Selectable(animationNames[i], isSelected))
+                            {
+                                _currentAnimationIndex = i;
+                                _currentAnimationName  = animationNames[i];
+                                ChangeAnimation(animationNames[i]);
+                            }
+                        }
+                        ImGui::EndCombo();
+                    }
 
-        if (ImGui::BeginTable("##material", 2, ImGuiTableFlags_Borders))
-        {
-            ImGui::TableNextRow();
-            ImGui::TableNextColumn();
-            const char* blendModeNames[] = {"Opaque", "Masked", "Translucent", "Additive", "Modulate"};
-            ImGui::Text("Blend Mode");
-            
-            ImGui::TableNextColumn();
-            ImGui::Combo("##blendMode", (int*)&material.Mode, blendModeNames, (int)Material::BlendMode::END);
+                    if (true == _currentAnimationName.empty())
+                    {
+                        ImGui::BeginDisabled();
+                    }
+                    {
+                        bool usePushStyleColor = _isAnimationPlaying;
+                        if (true == usePushStyleColor)
+                            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.2f, 0.8f, 0.2f, 1.0f));
+                        if (ImGui::Button(EditorIcon::ICON_PLAY))
+                            _isAnimationPlaying = !_isAnimationPlaying;
+                        if (true == usePushStyleColor)
+                            ImGui::PopStyleColor();
+                        if (ImGui::IsItemHovered())
+                            ImGui::SetTooltip("Play");
 
-            ImGui::TableNextRow();
-            ImGui::TableNextColumn();
-            const char* shadingModelNames[] = {"Unlit", "Default Lit"};
-            ImGui::Text("Shading Model");
-            
-            ImGui::TableNextColumn();
-            ImGui::Combo("##shadingModel", (int*)&material.Model, shadingModelNames, (int)Material::ShadingModel::END);
-            
-            ImGui::TableNextRow();
-            ImGui::TableNextColumn();
-            ImGui::Text("Two Sided");
-            
-            ImGui::TableNextColumn();
-            ImGui::Checkbox("##Two Sided", &material.IsTwoSided);
+                        ImGui::SameLine();
 
-            ImGui::EndTable();
+                        if (ImGui::Button(EditorIcon::ICON_PAUSE))
+                            PauseCurrentAnimation();
+                        if (ImGui::IsItemHovered())
+                            ImGui::SetTooltip("Pause");
+
+                        ImGui::SameLine();
+
+                        if (ImGui::Button(EditorIcon::ICON_STOP))
+                            StopCurrentAnimation();
+                        if (ImGui::IsItemHovered())
+                            ImGui::SetTooltip("Stop");
+                    }
+                    if (true == _currentAnimationName.empty())
+                    {
+                        ImGui::EndDisabled();
+                    }
+
+                    ImGui::Checkbox("Loop", &_isAnimationLooping);
+
+                    float min = 0.0f;
+                    float max = _animator->GetCurrentAnimationLastTime();
+                    ImGui::SliderFloat("Current Animation Frame", &_animationTime, min, max);
+                    ImGui::DragFloat("Animation Speed", &_animationSpeed, 0.01f);
+                }
+                ImGui::TreePop();
+            }
+            ImGui::Separator();
+
+            auto& materials = model->GetMaterials();
+            auto& material  = materials[_selectedMeshIndex];
+
+            if (ImGui::TreeNodeEx("Material##details", ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                if (ImGui::BeginTable("##material", 2, ImGuiTableFlags_Borders))
+                {
+                    ImGui::TableNextRow();
+                    ImGui::TableNextColumn();
+                    const char* blendModeNames[] = {"Opaque", "Masked", "Translucent", "Additive", "Modulate"};
+                    ImGui::Text("Blend Mode");
+
+                    ImGui::TableNextColumn();
+                    ImGui::Combo("##blendMode", (int*)&material.Mode, blendModeNames, (int)Material::BlendMode::END);
+
+                    ImGui::TableNextRow();
+                    ImGui::TableNextColumn();
+                    const char* shadingModelNames[] = {"Unlit", "Default Lit"};
+                    ImGui::Text("Shading Model");
+
+                    ImGui::TableNextColumn();
+                    ImGui::Combo("##shadingModel", (int*)&material.Model, shadingModelNames,
+                                 (int)Material::ShadingModel::END);
+
+                    ImGui::TableNextRow();
+                    ImGui::TableNextColumn();
+                    ImGui::Text("Two Sided");
+
+                    ImGui::TableNextColumn();
+                    ImGui::Checkbox("##Two Sided", &material.IsTwoSided);
+
+                    ImGui::EndTable();
+                }
+                ImGui::TreePop();
+            }
+            ImGui::Separator();
+
+            ImGui::TreePop();
         }
     }
 }
@@ -174,6 +330,20 @@ void EditorModelDetails::ImportModel()
 
         _filePath = path.front();
         _filePath.replace_extension("UmModel");
+
+        _animationIndexMap.clear();
+        _currentAnimationIndex = -1;
+        _currentAnimationName  = "";
+        auto& animatoion = model->GetAnimation();
+        if (nullptr != animatoion)
+        {
+            auto& animations = animatoion->GetAnimations();
+            for (int i = 0; i < animations.size(); ++i)
+            {
+                _animationIndexMap[animations[i]] = i;
+            }
+        }
+        StopCurrentAnimation();
     }
 }
 

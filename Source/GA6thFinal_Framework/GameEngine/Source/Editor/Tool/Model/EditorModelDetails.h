@@ -2,10 +2,12 @@
 
 class Model;
 class Animator;
+class Animation;
 class MeshRenderer;
 class FBXConverter;
 class EditorModelDetails : public EditorTool
 {
+    using AnimTable = std::unordered_map<std::string, unsigned int>;
     friend class EditorModelTool;
     friend class EditorModelMenu;
     friend class EditorModelHierarchy;
@@ -16,10 +18,18 @@ public:
 public:
     void SetSelectedMesh(unsigned int index) { _selectedMeshIndex = index; }
 
-    std::shared_ptr<Model>    GetModel() const;
-    std::shared_ptr<Animator> GetAnimator() const;
+    std::shared_ptr<Model>     GetModel() const;
+    std::shared_ptr<Animator>  GetAnimator() const;
+    std::shared_ptr<Animation> GetAnimation() const;
+    const std::string&         GetCurrentAnimationName() const;
 
-    inline const std::string& GetCurrentAnimationName() { return _currentAnimationName; }
+    void ChangeAnimation(std::string_view anim);
+    void SetCurrentAnimationSpeed(float speed);
+    void SetCurrentAnimationTime(float time);
+    void PlayCurrentAnimation();
+    void ResumeCurrentAnimation();
+    void PauseCurrentAnimation();
+    void StopCurrentAnimation();
 
 private:
     virtual void OnTickGui() override;
@@ -48,7 +58,6 @@ private:
     /* Popup창 호출 성공 시 호출 (OnPreFrameBegin 전에 호출) */
     virtual void OnFramePopupOpened() override;
    
-
 private:
     static FBXConverter& GetFBXConverter();
 
@@ -58,14 +67,21 @@ private:
     void SaveModel();
 
 private:
-    Matrix                               _worldMatrix;
-    std::filesystem::path                _filePath;
-    std::shared_ptr<Animator>            _animator;
-    std::unique_ptr<MeshRenderer>        _meshRenderer;
-    std::unique_ptr<Light>               _mainLight;
-    unsigned int                         _selectedMeshIndex = 0;
-    unsigned int                         _currentAnimationIndex = 0;
-    std::string                          _currentAnimationName  = "";
+    Matrix                          _worldMatrix;
+    std::filesystem::path           _filePath;
+    std::shared_ptr<Animator>       _animator;
+    std::unique_ptr<MeshRenderer>   _meshRenderer;
+    std::unique_ptr<Light>          _mainLight;
+    unsigned int                    _selectedMeshIndex = 0;
+
+    // Animation Data
+    size_t                          _currentAnimationIndex = 0;
+    std::string                     _currentAnimationName  = "";
+    AnimTable                       _animationIndexMap;
+    float                           _animationSpeed = 1.0f;
+    float                           _animationTime  = 0.0f;
+    bool                            _isAnimationPlaying = false;
+    bool                            _isAnimationLooping = true;
 
     // Light Property
     Vector3 _direction;

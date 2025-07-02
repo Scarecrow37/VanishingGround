@@ -324,7 +324,7 @@ void EditorSequencer::DrawCanvas()
         const char* id = "StampBar";
 
         ImVec2 linePos     = ImVec2(curFrame * ReflectFields->UnitSize, 0.0f);
-        ImVec2 canvasSapce = PositionToCanvasSapce(linePos);
+        ImVec2 canvasSapce = ImVec2(PositionToCanvasSapce(linePos).x, 0.0f);
 
         ImVec2 start = canvasSapce + _canvasRectLower.Min;
         ImVec2 end   = start + ImVec2(0.0f, canvasSize.y);
@@ -628,6 +628,32 @@ int EditorSequencer::GetLineUnit() const
     return unitFactor;
 }
 
+float EditorSequencer::GetAlignFactor(Align align) const
+{
+    // ALIGN_LEFT = 0.0f, ALIGN_CENTER = 0.5f, ALIGN_RIGHT = 1.0f
+    if (align == Align::ALIGN_LEFT)
+    {
+        return 0.0f;
+    }
+    else if (align == Align::ALIGN_CENTER)
+    {
+        return 0.5f;
+    }
+    else if (align == Align::ALIGN_RIGHT)
+    {
+        return 1.0f;
+    }
+    return 0.0f;
+}
+
+ImVec2 EditorSequencer::GetAlginOffsetFromRect(const ImRect& rect, Align align) const
+{
+    ImVec2 result;
+    float alignFactorToView = GetAlignFactor(align) / _viewScale;
+    result = rect.GetSize() * alignFactorToView;
+    return result;
+}
+
 int EditorSequencer::GetFrameFromXToInt(float x, float unitSize) const
 {
     return static_cast<int>(GetFrameFromXToFloat(x, unitSize));
@@ -651,7 +677,7 @@ ImVec2 EditorSequencer::GetNotifyPosition(UINT id) const
         if (nullptr != notify)
         {
             float time = notify->Time;
-            result.x   = -(time * ReflectFields->UnitSize) + _canvasRectLower.GetWidth() * 0.5f / _viewScale;
+            result.x   = -(time * ReflectFields->UnitSize);
             result.y   = 0.0f; // Y position is not used in this context
         }
     }
