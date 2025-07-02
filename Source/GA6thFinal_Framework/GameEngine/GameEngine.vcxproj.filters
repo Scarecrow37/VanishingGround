@@ -600,9 +600,6 @@
     <ClInclude Include="Source\Engine\InputCore\Devices\Controller\Controller.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\InputCore\Declare\InputError.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\InputCore\Adapter\Adapter.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -730,6 +727,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\GameCore\InputReciver\InputReceiver.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\InputCore\Declare\Exceptions\InputExceptions.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1311,6 +1311,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\GridPass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\InputCore\Declare\Exceptions\InputExceptions.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
