@@ -208,8 +208,12 @@ void EditorHierarchyTool::TransformTreeNode(Transform& node, const std::shared_p
         {
             Transform* nodeRoot = node.Root;
             nodeRoot = nodeRoot ? nodeRoot : &node;
-            Transform* focusRoot = focusObject ? focusObject->transform->Root : nullptr;
-            focusRoot = focusRoot ? focusRoot : &focusObject->transform;
+            Transform* focusRoot = nullptr;
+            if (focusObject)
+            {
+                focusRoot = focusObject->transform->Root;
+                focusRoot = focusRoot ? focusRoot : &focusObject->transform;
+            }
             if (nodeRoot && focusRoot)
             {
                 if (nodeRoot == focusRoot)

@@ -236,6 +236,8 @@ void EditorModule::EditorPlayMode::Play()
 {
     if (false == _isPlay)
     {
+        UmCommandManager.Clear();
+
         Scene* scene = UmSceneManager.GetMainScene();
         if (nullptr != scene)
         {
@@ -282,6 +284,8 @@ void EditorModule::EditorPlayMode::Stop()
 {
     if (true == _isPlay)
     {
+        UmCommandManager.Clear();
+
         for (const auto& object : ESceneManager::Engine::GetRuntimeObjects())
         {
             if (object)
