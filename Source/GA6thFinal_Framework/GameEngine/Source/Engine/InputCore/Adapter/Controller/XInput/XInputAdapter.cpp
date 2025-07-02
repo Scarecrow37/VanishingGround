@@ -74,9 +74,9 @@ namespace Input
                 return Controller::X;
             case VK_PAD_Y:
                 return Controller::Y;
-            case VK_PAD_RSHOULDER:
-                return Controller::LEFT_SHOULDER;
             case VK_PAD_LSHOULDER:
+                return Controller::LEFT_SHOULDER;
+            case VK_PAD_RSHOULDER:
                 return Controller::RIGHT_SHOULDER;
             case VK_PAD_LTRIGGER:
                 return Controller::LEFT_TRIGGER;
@@ -138,7 +138,7 @@ namespace Input
 
             if (result == ERROR_SUCCESS)
             {
-                if (xKeystroke.Flags & XINPUT_KEYSTROKE_KEYDOWN && xKeystroke.Flags & XINPUT_KEYSTROKE_KEYUP)
+                if (xKeystroke.Flags & XINPUT_KEYSTROKE_KEYDOWN || xKeystroke.Flags & XINPUT_KEYSTROKE_KEYUP)
                 queue.push_back(VirtualKeyToButton(xKeystroke.VirtualKey));
             }
             else if (result == ERROR_DEVICE_NOT_CONNECTED)
