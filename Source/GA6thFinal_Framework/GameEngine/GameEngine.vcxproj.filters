@@ -597,9 +597,6 @@
     <ClInclude Include="Source\Engine\GraphicsCore\Light.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\InputCore\System\InputSystem.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\InputCore\Devices\Controller\Controller.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -1146,9 +1143,6 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\Light.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\InputCore\System\InputSystem.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\InputCore\Devices\Controller\Controller.cpp">
