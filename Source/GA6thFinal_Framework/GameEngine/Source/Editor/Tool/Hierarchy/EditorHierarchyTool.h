@@ -5,8 +5,11 @@ class HierarchyFindTool;
 class EditorHierarchyTool
     : public EditorTool
 {
-public:
     inline static std::weak_ptr<GameObject> HierarchyFocusObjWeak;
+public:
+    static void SetFocusObject(const std::weak_ptr<GameObject>& object);
+    static const std::weak_ptr<GameObject>& GetFocusObject() { return HierarchyFocusObjWeak; }
+
     EditorHierarchyTool();
     virtual ~EditorHierarchyTool();
 

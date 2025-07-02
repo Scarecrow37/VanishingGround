@@ -108,7 +108,7 @@ void HierarchyFindTool::DrawFindList()
                         {
                             if (ImGui::Selectable(name.data()))
                             {
-                                EditorHierarchyTool::HierarchyFocusObjWeak = object;
+                                EditorHierarchyTool::SetFocusObject(object);
                                 EditorInspectorTool::SetFocusObject(object);
                             }
                         }
@@ -138,7 +138,7 @@ void HierarchyFindTool::DrawFindList()
                 {
                     if (ImGui::Selectable(name.data()))
                     {
-                        EditorHierarchyTool::HierarchyFocusObjWeak = object;
+                        EditorHierarchyTool::SetFocusObject(object);
                         EditorInspectorTool::SetFocusObject(object);
                         _editorHierarchyTool->SetFocusFrame();
                         _editorHierarchyTool->OpenFocusObjectTree();

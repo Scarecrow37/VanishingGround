@@ -5,6 +5,7 @@
 #include "Command/PackPrefabCommand.h"
 #include "Command/DropPrefabCommand.h"
 #include "Engine/GraphicsCore/Light.h"
+#include <Engine/GraphicsCore/MeshRenderer.h>
 #include "UmScripts.h"
 
 using namespace u8_literals;
@@ -257,6 +258,38 @@ void EditorHierarchyTool::TransformTreeNode(Transform& node, const std::shared_p
     }
 }
 
+
+void EditorHierarchyTool::SetFocusObject(const std::weak_ptr<GameObject>& object) 
+{
+    if (false == HierarchyFocusObjWeak.expired())
+    {
+        auto prevFocus = HierarchyFocusObjWeak.lock();
+        for (int i = 0; i < prevFocus->GetComponentCount(); ++i)
+        {
+            MeshComponent* mesh = prevFocus->GetComponentAtIndex<MeshComponent>(i);
+            if (mesh)
+            {
+                mesh->Renderer->SetCustomDepth(0);
+                mesh->Renderer->SetCustomDepth(PostProcess::BLOOM);
+            }
+        }     
+    }
+
+    HierarchyFocusObjWeak = object;
+
+    if (false == HierarchyFocusObjWeak.expired())
+    {
+        auto focus = HierarchyFocusObjWeak.lock();
+        for (int i = 0; i < focus->GetComponentCount(); ++i)
+        {
+            MeshComponent* mesh = focus->GetComponentAtIndex<MeshComponent>(i);
+            if (mesh)
+            {
+                mesh->Renderer->SetCustomDepth(PostProcess::OUTLINE | PostProcess::BLOOM);
+            }
+        }     
+    }
+}
 
 EditorHierarchyTool::EditorHierarchyTool()
 {
