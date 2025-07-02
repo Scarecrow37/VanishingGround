@@ -4,18 +4,18 @@
 class BaseMesh;
 class GBufferPass : public RenderPass
 {
-    enum MeshType
+    enum
     {
         STATIC,
-        SKELTAL,
-        END
+        SKELETAL
     };
-    enum MaterialType
+    enum MeshType
     {
-        STATIC_TWO_SIDED,
         STATIC_ONE_SIDED,
-        SKELTAL_TWO_SIDED,
-        SKELTAL_ONE_SIDED,
+        STATIC_TWO_SIDED,
+        SKELETAL_ONE_SIDED,
+        SKELETAL_TWO_SIDED,
+        END
     };
     struct RenderData
     {
@@ -29,7 +29,7 @@ public:
     virtual ~GBufferPass();
 
 public:
-    void Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& sissorRect) override;
+    void Initialize() override;
     void Begin(ID3D12GraphicsCommandList* commandList) override;
     void Draw(ID3D12GraphicsCommandList* commandList) override;
     void End(ID3D12GraphicsCommandList* commandList) override;

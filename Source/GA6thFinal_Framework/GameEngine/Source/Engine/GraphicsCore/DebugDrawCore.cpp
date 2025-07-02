@@ -60,15 +60,6 @@ void DebugDrawCore::Initialize()
     }
 
     UmDevice.CreateCommandList(_commandAllocator, _commandList, CommandType::DIRECT);
-
-    const auto& mode         = UmDevice.GetMode();
-    auto        renderTarget = std::make_unique<RenderTarget>();
-    renderTarget->Initialize(mode.Width, mode.Height, DXGI_FORMAT_R8G8B8A8_UNORM, 0.247f);
-    renderTarget->CreateShaderResourceView();
-    renderTarget->TransitionResource(UmDevice.GetCommandList(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-
-    UmMultiRenderTargetManager.AddRenderTarget("DebugDrawTarget", std::move(renderTarget));
-    _renderTarget = UmMultiRenderTargetManager.GetRenderTarget("DebugDrawTarget");
 }
 
 void DebugDrawCore::Render()

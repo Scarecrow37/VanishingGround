@@ -8,9 +8,9 @@ BrightExtractPass::BrightExtractPass() {}
 
 BrightExtractPass::~BrightExtractPass() {}
 
-void BrightExtractPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& sissorRect)
+void BrightExtractPass::Initialize()
 {
-    __super::Initialize(viewPort, sissorRect);
+    __super::Initialize();
 
     _shader = std::make_unique<ShaderBuilder>();
     _shader->BeginBuild();
@@ -46,8 +46,8 @@ void BrightExtractPass::Begin(ID3D12GraphicsCommandList* commandList)
     _renderTarget->ClearRenderTarget(commandList);
 
     commandList->OMSetRenderTargets(1, &_renderTarget->GetRTVHandle(), FALSE, nullptr);
-    commandList->RSSetViewports(1, &_viewPort);
-    commandList->RSSetScissorRects(1, &_sissorRect);
+    commandList->RSSetViewports(1, &_renderTarget->GetViewPort());
+    commandList->RSSetScissorRects(1, &_renderTarget->GetScissorRect());
 }
 
 void BrightExtractPass::Draw(ID3D12GraphicsCommandList* commandList)

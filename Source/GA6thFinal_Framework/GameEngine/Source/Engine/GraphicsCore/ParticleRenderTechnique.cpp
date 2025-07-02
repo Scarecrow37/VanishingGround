@@ -12,18 +12,14 @@
 
  void ParticleRenderTechnique::Initialize(ID3D12GraphicsCommandList* commandList)
 {
-
     D3D12_FEATURE_DATA_D3D12_OPTIONS options = {};
-    HRESULT hr = 
-        UmDevice.GetDevice()->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS, &options, sizeof(options));
+    HRESULT hr = UmDevice.GetDevice()->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS, &options, sizeof(options));
 
     if (!options.ROVsSupported)
     {
-
         std::filesystem::path errorMessage = static_cast<const char*>(nullptr);
         GRAPHICS_ASSERT(SUCCEEDED(hr), errorMessage.c_str());
-    }
-        
+    }        
 
     CreateWBOITResources();
     InitializeSpriteParticlePass();
@@ -33,8 +29,6 @@
 void ParticleRenderTechnique::Execute(ID3D12GraphicsCommandList* commandList)
 {
     UmParticleManager.ResetRenderCommandObject();
-
-
 
     auto particleCommandList = UmParticleManager.GetRenderCommandList();
     __super::Execute(commandList);
@@ -47,16 +41,8 @@ void ParticleRenderTechnique::InitializeSpriteParticlePass()
 {
     std::unique_ptr<ParticleSpritePass> spritepass = std::make_unique<ParticleSpritePass>();
     spritepass->SetOwnerScene(_ownerScene);
-    D3D12_VIEWPORT viewport{.TopLeftX = 0,
-                            .TopLeftY = 0,
-                            .Width    = (FLOAT)UmDevice.GetMode().Width,
-                            .Height   = (FLOAT)UmDevice.GetMode().Height,
-                            .MinDepth = 0.f,
-                            .MaxDepth = 1.f};
-    D3D12_RECT     scissor{
-            .left = 0, .top = 0, .right = (LONG)UmDevice.GetMode().Width, .bottom = (LONG)UmDevice.GetMode().Height};
-    spritepass->Initialize(viewport, scissor);
-    spritepass->SetAccumulationBuffers(_accumlateBuffer.get(), _revealageBuffer.get());
+    spritepass->Initialize();
+    spritepass->SetAccumulationBuffers(_accumlateBuffer, _revealageBuffer);
     AddRenderPass(std::move(spritepass));
 }
 
@@ -64,25 +50,18 @@ void ParticleRenderTechnique::InitializeParticleResolvePass()
 {
     std::unique_ptr<ParticleResolvePass> resolvepass = std::make_unique<ParticleResolvePass>();
     resolvepass->SetOwnerScene(_ownerScene);
-    D3D12_VIEWPORT viewport{.TopLeftX = 0,
-                            .TopLeftY = 0,
-                            .Width    = (FLOAT)UmDevice.GetMode().Width,
-                            .Height   = (FLOAT)UmDevice.GetMode().Height,
-                            .MinDepth = 0.f,
-                            .MaxDepth = 1.f};
-    D3D12_RECT     scissor{
-            .left = 0, .top = 0, .right = (LONG)UmDevice.GetMode().Width, .bottom = (LONG)UmDevice.GetMode().Height};
-    resolvepass->Initialize(viewport, scissor);
-    resolvepass->SetAccumulationBuffers(_accumlateBuffer.get(), _revealageBuffer.get());
+    resolvepass->Initialize();
+    resolvepass->SetAccumulationBuffers(_accumlateBuffer, _revealageBuffer);
     AddRenderPass(std::move(resolvepass));
 }
 
 void ParticleRenderTechnique::CreateWBOITResources()
 {
-    _accumlateBuffer = std::make_shared<UnorderedAccessView>();
-    _revealageBuffer = std::make_shared<UnorderedAccessView>();
+    _accumlateBuffer = MakeSharedResource<UnorderedAccessView>();
+    _revealageBuffer = MakeSharedResource<UnorderedAccessView>();
 
-
+    UmDXResourceManager.AddResource(_accumlateBuffer);
+    UmDXResourceManager.AddResource(_revealageBuffer);
 
     DXGI_MODE_DESC mode = UmDevice.GetMode();
     mode.Format         = DXGI_FORMAT_R16G16B16A16_FLOAT;
@@ -190,7 +169,5 @@ void ParticleRenderTechnique::CreateWBOITResources()
         // _oitSRVHandles[1].CPU);
     }
 }
-
-
 
 void ParticleRenderTechnique::ReleaseWBOITResources() {}
