@@ -134,7 +134,7 @@ private:
     float  GetMaxFrame() const;
 
 public:
-    std::shared_ptr<TimelineSystem> _system; // System WeakPtr
+    std::weak_ptr<TimelineSystem> _system; // System WeakPtr
 
     UINT   _seletedNotifyID;    // 현재 선택된 Notify의 ID
 

@@ -48,10 +48,10 @@ public:
     void ResumeAnimation();
 
 private:
-    bool _isAnimationPlaying = false;
-    bool _isAnimationLooping = true;
-    float _animationTime  = 0.0f;
-    float _animationSpeed = 1.0f;
+    float       _animationSpeed      = 1.0f;
+    float       _animationTime       = 0.0f;
+    bool        _isAnimationPlaying  = false;
+    bool        _isAnimationLooping  = true;
     std::string _currentAnimationKey = "";
 
 };

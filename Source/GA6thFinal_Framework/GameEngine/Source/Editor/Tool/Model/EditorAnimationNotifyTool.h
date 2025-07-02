@@ -34,6 +34,10 @@ private:
     void DrawCanvas();
     void DrawDetails();
 
+    bool NewFileWithDialog();
+    bool LoadFileWithDialog();
+    bool SaveFileWithDialog();
+
     void SetTimelineFromAnimation(std::string_view animKey);
     void AddTimelineFromAnimation(std::string_view animKey);
     void RemoveTimelineFromAnimation(std::string_view animKey);

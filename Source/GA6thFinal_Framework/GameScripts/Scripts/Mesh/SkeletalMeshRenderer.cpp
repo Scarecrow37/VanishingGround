@@ -77,67 +77,72 @@ void SkeletalMeshRenderer::ImGuiDrawPropertysEvent()
             
             if (nullptr != animator)
             {
-                const auto& animationNames = animation->GetAnimations();
-                const char* comboLabel = _currentAnimationKey.empty() ? "-" : _currentAnimationKey.c_str();
-                if (ImGui::BeginCombo("##Animation", comboLabel))
+                if (ImGui::TreeNodeEx("Animation##details"))
                 {
-                    for (int i = 0; i < animationNames.size(); ++i)
+                    const auto& animationNames = animation->GetAnimations();
+                    const char* comboLabel     = _currentAnimationKey.empty() ? "-" : _currentAnimationKey.c_str();
+                    if (ImGui::BeginCombo("##Animation", comboLabel))
                     {
-                        bool isSelected = (_currentAnimationKey == animationNames[i]);
-                        if (ImGui::Selectable(animationNames[i], isSelected))
+                        for (int i = 0; i < animationNames.size(); ++i)
                         {
-                            _currentAnimationKey = animationNames[i];
-                            SetCurrentAnimation(animationNames[i]);
+                            bool isSelected = (_currentAnimationKey == animationNames[i]);
+                            if (ImGui::Selectable(animationNames[i], isSelected))
+                            {
+                                _currentAnimationKey = animationNames[i];
+                                SetCurrentAnimation(animationNames[i]);
+                            }
                         }
+                        ImGui::EndCombo();
                     }
-                    ImGui::EndCombo();
-                }
-                if (true == _currentAnimationKey.empty())
-                {
-                    ImGui::BeginDisabled();
-                }
-                {
-                    bool usePushStyleColor = _isAnimationPlaying;
-                    if (true == usePushStyleColor)
-                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.2f, 0.8f, 0.2f, 1.0f));
-                    if (ImGui::Button(EditorIcon::ICON_PLAY))
-                        _isAnimationPlaying = !_isAnimationPlaying;
-                    if (true == usePushStyleColor)
-                        ImGui::PopStyleColor();
-                    if (ImGui::IsItemHovered())
-                        ImGui::SetTooltip("Play");
+                    if (true == _currentAnimationKey.empty())
+                    {
+                        ImGui::BeginDisabled();
+                    }
+                    {
+                        bool usePushStyleColor = _isAnimationPlaying;
+                        if (true == usePushStyleColor)
+                            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.2f, 0.8f, 0.2f, 1.0f));
+                        if (ImGui::Button(EditorIcon::ICON_PLAY))
+                            _isAnimationPlaying = !_isAnimationPlaying;
+                        if (true == usePushStyleColor)
+                            ImGui::PopStyleColor();
+                        if (ImGui::IsItemHovered())
+                            ImGui::SetTooltip("Play");
 
-                    ImGui::SameLine();
+                        ImGui::SameLine();
 
-                    if (ImGui::Button(EditorIcon::ICON_PAUSE))
-                        PauseAnimation();
-                    if (ImGui::IsItemHovered())
-                        ImGui::SetTooltip("Pause");
+                        if (ImGui::Button(EditorIcon::ICON_PAUSE))
+                            PauseAnimation();
+                        if (ImGui::IsItemHovered())
+                            ImGui::SetTooltip("Pause");
 
-                    ImGui::SameLine();
+                        ImGui::SameLine();
 
-                    if (ImGui::Button(EditorIcon::ICON_STOP))
-                        StopAnimation();
-                    if (ImGui::IsItemHovered())
-                        ImGui::SetTooltip("Stop");
-                }
-                if (true == _currentAnimationKey.empty())
-                {
-                    ImGui::EndDisabled();
-                }
+                        if (ImGui::Button(EditorIcon::ICON_STOP))
+                            StopAnimation();
+                        if (ImGui::IsItemHovered())
+                            ImGui::SetTooltip("Stop");
+                    }
+                    if (true == _currentAnimationKey.empty())
+                    {
+                        ImGui::EndDisabled();
+                    }
 
-                ImGui::Checkbox("Loop", &_isAnimationLooping);
-                
-                float min = 0.0f;
-                float max = animator->GetCurrentAnimationLastTime();
-                float cur = animator->GetCurrentAnimationPlayTime();
-                if (ImGui::SliderFloat("Current Animation Frame", &cur, min, max))
-                {
-                    SetAnimationFrame(cur);
-                }
-                if (ImGui::DragFloat("Animation Speed", &_animationSpeed, 0.01f))
-                {
-                    SetAnimationSpeed(_animationSpeed);
+                    ImGui::Checkbox("Loop", &_isAnimationLooping);
+
+                    float min = 0.0f;
+                    float max = animator->GetCurrentAnimationLastTime();
+                    float cur = animator->GetCurrentAnimationPlayTime();
+                    if (ImGui::SliderFloat("Current Animation Frame", &cur, min, max))
+                    {
+                        SetAnimationFrame(cur);
+                    }
+                    if (ImGui::DragFloat("Animation Speed", &_animationSpeed, 0.01f))
+                    {
+                        SetAnimationSpeed(_animationSpeed);
+                    }
+
+                    ImGui::TreePop();
                 }
             }
         }
@@ -152,26 +157,11 @@ void SkeletalMeshRenderer::UpdateAnimation()
 {
     if (HasModel() && HasAnimator())
     {
-        const auto& animator = Renderer->GetAnimator();
-        if (true == _isAnimationPlaying)
-        {
-            _animationTime += UmTime.DeltaTime() * _animationSpeed;
-        }
-        animator->SetAnimationTime(_animationTime);
-        float min = 0.0f;
-        float max = animator->GetCurrentAnimationLastTime();
-        if (_animationTime > max)
-        {
-            if (true == _isAnimationLooping)
-            {
-                _animationTime -= max;
-            }
-            else
-            {
-                _animationTime      = max;   // Stop at the end of the animation
-                _isAnimationPlaying = false; // Stop playing when reaching the end
-            }
-        }
+        auto animator = Renderer->GetAnimator();
+        animator->SetPause(!_isAnimationPlaying);
+        animator->SetLoop(_isAnimationLooping);
+        animator->SetAnimationSpeed(_animationSpeed);
+        _animationTime = animator->GetCurrentAnimationPlayTime();
     }
     else
     {

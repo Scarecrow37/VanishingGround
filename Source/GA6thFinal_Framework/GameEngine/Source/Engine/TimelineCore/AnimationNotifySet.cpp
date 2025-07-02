@@ -5,6 +5,7 @@ using namespace std::filesystem;
 
 bool AnimationNotifySet::NewFile(const File::Path& filePath)
 {
+    Clear();
     std::ofstream fout(filePath);
     if (fout.is_open())
     {
@@ -35,6 +36,7 @@ bool AnimationNotifySet::SaveFile(const File::Path& filePath, bool overwrite)
 
 bool AnimationNotifySet::LoadFile(const File::Path& filePath)
 {
+    Clear();
     if (false == exists(filePath))
     {
         return false;
@@ -53,9 +55,16 @@ bool AnimationNotifySet::LoadFile(const File::Path& filePath)
     return true;
 }
 
+void AnimationNotifySet::Clear() 
+{
+    _filePath = "";
+    ClearTimeline();
+}
+
 void AnimationNotifySet::ClearTimeline()
 {
     _timelineTable.clear();
+    _activeTimeline = {"", nullptr}; 
 }
 
 void AnimationNotifySet::SetActiveTimeline(std::string_view animKey) 

@@ -14,6 +14,7 @@ public:
     bool NewFile(const File::Path& filePath);
     bool SaveFile(const File::Path& filePath, bool overwrite = false);
     bool LoadFile(const File::Path& filePath);
+    void Clear();
     void ClearTimeline();
 
     void SetActiveTimeline(std::string_view animKey);

@@ -121,35 +121,18 @@ void EditorAnimationNotifyTool::DrawMenuBar()
         {
             if (ImGui::MenuItem("New File"))
             {
-                File::Path returnPath;
-                if (File::ShowSaveFileDialog(UmApplication.GetHwnd(), L"New AnimationNotify File", L"",
-                                             AnimationNotifySet::DEFAULT_NAME.c_str(), {}, returnPath))
-                {
-                    _animationNotifySet.NewFile(returnPath);
-                }
+                NewFileWithDialog();
             }
             if (ImGui::MenuItem("Open File"))
             {
-                HWND    owner = UmApplication.GetHwnd();
-                LPCWSTR title = L"Open AnimationNotify File";
-                std::vector<std::pair<LPCWSTR,LPCWSTR>> filters = {{L"AnimationNotify File\0", L"*.UmAnimNotifySet*\0"}, {L"All File\0", L"*.*\0"}};
-                std::vector<File::Path> out;
-                if (File::ShowOpenFileDialog(owner, title, L"", filters, false, out))
-                {
-                    _animationNotifySet.LoadFile(out.front());
-                }
+                LoadFileWithDialog();
             }
             if (ImGui::MenuItem("Save File"))
             {
                 const File::Path& filePath = _animationNotifySet.GetFilePath();
                 if (true == filePath.IsNull())
                 {
-                    File::Path returnPath;
-                    if (File::ShowSaveFileDialog(UmApplication.GetHwnd(), L"Save AnimationNotify File", L"",
-                                                 AnimationNotifySet::DEFAULT_NAME.c_str(), {}, returnPath))
-                    {
-                        _animationNotifySet.SaveFile(returnPath);
-                    }
+                    SaveFileWithDialog();
                 }
                 else
                 {
@@ -303,26 +286,45 @@ void EditorAnimationNotifyTool::DrawDetails()
     std::string pathStr = path.generic_string();
     strcpy_s(pathBuffer, pathStr.c_str());
     ImGui::InputText("##path_input", pathBuffer, IM_ARRAYSIZE(pathBuffer), ImGuiInputTextFlags_ReadOnly);
+    ImVec2 size = ImGui::GetItemRectSize();
     if (ImGui::BeginItemTooltip())
     {
         ImGui::Text(pathStr.c_str());
         ImGui::EndTooltip();
     }
     ImGui::SameLine();
-    if (ImGui::Button(EditorIcon::ICON_FOLDER_OPEN))
+    if (ImGui::Button(EditorIcon::ICON_FILE, ImVec2(size.y, size.y)))
     {
-        HWND    owner = UmApplication.GetHwnd();
-        LPCWSTR title = L"새 애니메이션 노티파이 만들기";
-        LPCWSTR defaultPath = L"";
-        std::vector<std::pair<LPCWSTR,LPCWSTR>> filter = {{L"애니메이션 노티파이 파일\0", L"*.UmAnimNotifySet*\0"}, {L"모든 파일\0", L"*.*\0"}};
-        std::vector<File::Path> out;
-        if (File::ShowOpenFileDialog(owner, title, defaultPath, filter, false, out))
+        NewFileWithDialog();
+    }
+    if (ImGui::IsItemHovered())
+        ImGui::SetTooltip("New AnimationNotify Set");
+
+    ImGui::SameLine();
+    if (ImGui::Button(EditorIcon::ICON_FOLDER_OPEN, ImVec2(size.y, size.y)))
+    {
+        LoadFileWithDialog();
+    }
+    if (ImGui::IsItemHovered()) 
+        ImGui::SetTooltip("Open AnimationNotify Set");
+
+    ImGui::SameLine();
+    if (ImGui::Button(EditorIcon::ICON_FILE_SAVE, ImVec2(size.y, size.y)))
+    {
+        const File::Path& filePath = _animationNotifySet.GetFilePath();
+        if (true == filePath.IsNull())
         {
-            _animationNotifySet.LoadFile(out.front());
+            SaveFileWithDialog();
+        }
+        else
+        {
+            _animationNotifySet.SaveFile(filePath);
         }
     }
+    if (ImGui::IsItemHovered())
+        ImGui::SetTooltip("Save AnimationNotify Set");
+
     auto curTimeline = _animationNotifySet.GetActiveTimeline();
-    
     if (ImGui::BeginTabBar("##AnimationNotifyTabs"))
     {
         if (ImGui::BeginTabItem(_tabLabel[0].c_str()))
@@ -339,6 +341,60 @@ void EditorAnimationNotifyTool::DrawDetails()
         ImGui::EndTabBar();
     }
     ImGui::EndChild();
+}
+
+bool EditorAnimationNotifyTool::NewFileWithDialog()
+{
+    File::Path out;
+    LPCWSTR    title        = L"New AnimationNotify File";
+    LPCWSTR    initialDir   = L"";
+    LPCWSTR    defaultName  = AnimationNotifySet::DEFAULT_NAME.c_str();
+
+    if (File::ShowSaveFileDialog(UmApplication.GetHwnd(), title, initialDir, defaultName, {}, out))
+    {
+        _animationNotifySet.NewFile(out);
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool EditorAnimationNotifyTool::LoadFileWithDialog()
+{
+    std::vector<File::Path> out;
+    HWND    owner   = UmApplication.GetHwnd();
+    LPCWSTR title   = L"Open AnimationNotify File";
+    std::vector<std::pair<LPCWSTR, LPCWSTR>> filters = {{L"AnimationNotify File\0", L"*.UmAnimNotifySet*\0"},
+                                                        {L"All File\0", L"*.*\0"}};
+    
+    if (File::ShowOpenFileDialog(owner, title, L"", filters, false, out))
+    {
+        _animationNotifySet.LoadFile(out.front());
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool EditorAnimationNotifyTool::SaveFileWithDialog() 
+{
+    File::Path returnPath;
+    LPCWSTR    title       = L"Save AnimationNotify File";
+    LPCWSTR    initialDir  = L"";
+    LPCWSTR    defaultName = AnimationNotifySet::DEFAULT_NAME.c_str();
+    if (File::ShowSaveFileDialog(UmApplication.GetHwnd(), title, initialDir, defaultName, {}, returnPath))
+    {
+        _animationNotifySet.SaveFile(returnPath);
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 void EditorAnimationNotifyTool::SetTimelineFromAnimation(std::string_view animKey) 

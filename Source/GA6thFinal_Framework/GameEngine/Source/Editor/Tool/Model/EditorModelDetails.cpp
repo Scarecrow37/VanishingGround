@@ -125,6 +125,8 @@ void EditorModelDetails::OnStartGui()
     _mainLight->SetDirectionalLight(_color, _ambient, _direction, _intensity);
 
     _mainLight->SetActive(&_isLightActive);
+
+    UpdateModelTransform();
 }
 
 void EditorModelDetails::OnEndGui() {}
@@ -181,22 +183,36 @@ void EditorModelDetails::OnFrameRender()
             if (ImGui::TreeNodeEx("Transform##details", ImGuiTreeNodeFlags_DefaultOpen))
             {
                 bool isDirty = false;
-
-                if (ImGui::Button("Reset Transform"))
                 {
-                    _position = Vector3(0.f);
-                    _rotation = Vector3(0.f);
-                    _scale    = Vector3(1.f);
-                    isDirty   = true;
+                    ImGui::Text("Position: ");
+                    ImGui::DragFloat3("##position", &_position.x) ? isDirty = true : isDirty;
+                    ImGui::SameLine();
+                    if (ImGui::Button("Reset##position"))
+                    {
+                        _position = Vector3::Zero;
+                        isDirty   = true;
+                    }
                 }
-
-                ImGui::Text("Position: ");
-                ImGui::DragFloat3("##position", &_position.x) ? isDirty = true : isDirty;
-                ImGui::Text("Rotation: ");
-                ImGui::DragFloat3("##rotation", &_rotation.x) ? isDirty = true : isDirty;
-                ImGui::Text("Scale: ");
-                ImGui::DragFloat3("##scale", &_scale.x) ? isDirty = true : isDirty;
-
+                {
+                    ImGui::Text("Rotation: ");
+                    ImGui::DragFloat3("##rotation", &_rotation.x) ? isDirty = true : isDirty;
+                    ImGui::SameLine();
+                    if (ImGui::Button("Reset##rotation"))
+                    {
+                        _rotation = Vector3::Zero;
+                        isDirty   = true;
+                    }
+                }
+                {
+                    ImGui::Text("Scale: ");
+                    ImGui::DragFloat3("##scale", &_scale.x) ? isDirty = true : isDirty;
+                    ImGui::SameLine();
+                    if (ImGui::Button("Reset##scale"))
+                    {
+                        _scale = Vector3::One;
+                        isDirty   = true;
+                    }
+                }
                 if (isDirty)
                 {
                     UpdateModelTransform();

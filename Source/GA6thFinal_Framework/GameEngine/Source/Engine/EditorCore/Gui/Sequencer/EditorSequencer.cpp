@@ -3,7 +3,7 @@
 #include "Engine/TimelineCore/TimelineSystem.h"
 
 EditorSequencer::EditorSequencer() 
-    : _system(nullptr)
+    : _system()
     , _flags(0)
     , _isSnapped(false)
     , _mouseFrame(0.0f)
@@ -27,7 +27,7 @@ EditorSequencer::~EditorSequencer()
 
 void EditorSequencer::Show()
 {
-    if (nullptr == _system)
+    if (true == _system.expired())
     {
         return;
     }
@@ -47,7 +47,7 @@ void EditorSequencer::Show()
 void EditorSequencer::SetSystem(std::shared_ptr<TimelineSystem> system) 
 {
     // 이미 같은 시스템이 설정되어 있다면 아무 작업도 하지 않음
-    if (system != _system)
+    if (system != _system.lock())
     {  
          _system = system;
         SetSelectedNotifyID(0);
@@ -169,29 +169,35 @@ void EditorSequencer::End()
 
 void EditorSequencer::DrawToolBar() 
 {
-    ImGui::PushStyleColor(ImGuiCol_Button, 0);
-    ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f); // 모서리 라운딩 정도
-    if (ImGui::Button(EditorIcon::ICON_FILE_SAVE))
+    if (false == _system.expired())
     {
-        ReflectFields->SerializedData = _system->SerializedReflectFields();
+        auto system = _system.lock();
+        ImGui::PushStyleColor(ImGuiCol_Button, 0);
+        ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f); // 모서리 라운딩 정도
+        if (ImGui::Button(EditorIcon::ICON_FILE_SAVE))
+        {
+            ReflectFields->SerializedData = system->SerializedReflectFields();
+        }
+        if (ImGui::Button(EditorIcon::ICON_PLAY))
+        {
+            system->Play();
+        }
+        ImGui::SameLine();
+        if (ImGui::Button(EditorIcon::ICON_PAUSE))
+        {
+            system->Pause();
+        }
+        ImGui::PopStyleVar();
+        ImGui::PopStyleColor();
     }
-    if (ImGui::Button(EditorIcon::ICON_PLAY))
-    {
-        _system->Play();
-    }
-    ImGui::SameLine();
-    if (ImGui::Button(EditorIcon::ICON_PAUSE))
-    {
-        _system->Pause();
-    }
-    ImGui::PopStyleVar();
-    ImGui::PopStyleColor();
 }
 
 void EditorSequencer::DrawCanvas()
 {
     _isSnapped = false;
     _interactionList.clear();
+
+    auto system = _system.lock();
 
     auto& io = ImGui::GetIO();
     auto* drawList = ImGui::GetWindowDrawList();
@@ -247,7 +253,7 @@ void EditorSequencer::DrawCanvas()
     }
 
     // Draw Min, Max Lines
-    if(_system)
+    if (system)
     {
         ImVec2 start = ImVec2(validRectMin.x, _canvasRect.Min.y);
         ImVec2 end   = ImVec2(start.x, _canvasRectLower.Max.y);
@@ -269,7 +275,7 @@ void EditorSequencer::DrawCanvas()
             ChangeMinFrame(minFrame);
             break;
         case EditorDragState::DRAG_STATE_DRAGGING:
-            _system->SetMinFrame(_mouseFrame);
+            system->SetMinFrame(_mouseFrame);
             break;
         default:
             break;
@@ -282,7 +288,7 @@ void EditorSequencer::DrawCanvas()
         drawList->PathLineTo(start + ImVec2(_canvasRectUpper.GetHeight() * 0.7f, 0.0f));
         drawList->PathFillConvex(ReflectFields->MinMaxLineColor[interacted]);
     }
-    if (_system)
+    if (system)
     {
         ImVec2 start = ImVec2(validRectMax.x, _canvasRect.Min.y);
         ImVec2 end   = ImVec2(start.x, _canvasRectLower.Max.y);
@@ -304,7 +310,7 @@ void EditorSequencer::DrawCanvas()
             ChangeMaxFrame(maxFrame);
             break;
         case EditorDragState::DRAG_STATE_DRAGGING:
-            _system->SetMaxFrame(_mouseFrame);
+            system->SetMaxFrame(_mouseFrame);
             break;
         default:
             break;
@@ -319,7 +325,7 @@ void EditorSequencer::DrawCanvas()
     }
 
     // Draw Current Frame Line
-    if (_system)
+    if (system)
     {
         const char* id = "StampBar";
 
@@ -356,7 +362,7 @@ void EditorSequencer::DrawCanvas()
                 if (true == isDragging)
                 {
                     float frame = ImClamp(_indicateFrame, minFrame, maxFrame);
-                    _system->SetCurrentFrame(frame);
+                    system->SetCurrentFrame(frame);
                 }
             }
             ImVec2 points[5] = {rect.GetBL(), rect.GetTL(), rect.GetTR(), rect.GetBR(), start };
@@ -368,7 +374,7 @@ void EditorSequencer::DrawCanvas()
     }
 
     // Draw Notify
-    const auto& notifyList = _system->GetTimelineNotifyList();
+    const auto&                     notifyList = system->GetTimelineNotifyList();
     std::unordered_map<int, size_t> paddingGroup; // groupIndex -> 현재 레이어 수
     for (size_t i = 0; i < notifyList.size(); ++i)
     {
@@ -566,7 +572,7 @@ bool EditorSequencer::ContextMenu()
 
 void EditorSequencer::AddNotify(float time, std::string_view label, std::string_view typeNameID) 
 {
-    if (nullptr == _system)
+    if (true == _system.expired())
         return;
     _eventQueue.push([this, time, label, typeNameID]() {
         UmCommandManager.Do<Command::Sequencer::AddNotify>(_system, time, label, typeNameID);
@@ -575,7 +581,7 @@ void EditorSequencer::AddNotify(float time, std::string_view label, std::string_
 
 void EditorSequencer::RemoveNotify(TimelineNotify* notify)
 {
-    if (nullptr == _system)
+    if (true == _system.expired())
         return;
     _eventQueue.push([this, notify]() { 
         _dragHandler.RemoveDragState(notify->ID);
@@ -585,7 +591,7 @@ void EditorSequencer::RemoveNotify(TimelineNotify* notify)
 
 void EditorSequencer::ChangeNotify(TimelineNotify* notify, float time, std::string_view label, std::string_view typeNameID) 
 {
-    if (nullptr == _system)
+    if (true == _system.expired())
         return;
     _eventQueue.push([this, notify, time, label, typeNameID]() {
         UmCommandManager.Do<Command::Sequencer::ChangeNotify>(_system, notify, time, label, typeNameID);
@@ -594,7 +600,7 @@ void EditorSequencer::ChangeNotify(TimelineNotify* notify, float time, std::stri
 
 void EditorSequencer::ChangeMinFrame(float frame) 
 {
-    if (nullptr == _system)
+    if (true == _system.expired())
         return;
     _eventQueue.push([this, frame]() {
         UmCommandManager.Do<Command::Sequencer::ChangeMinFrame>(_system, frame); 
@@ -603,7 +609,7 @@ void EditorSequencer::ChangeMinFrame(float frame)
 
 void EditorSequencer::ChangeMaxFrame(float frame) 
 {
-    if (nullptr == _system)
+    if (true == _system.expired())
         return;
     _eventQueue.push([this, frame]() { 
         UmCommandManager.Do<Command::Sequencer::ChangeMaxFrame>(_system, frame); 
@@ -671,9 +677,10 @@ ImVec2 EditorSequencer::PositionToCanvasSapce(const ImVec2& pos) const
 ImVec2 EditorSequencer::GetNotifyPosition(UINT id) const
 {
     ImVec2 result;
-    if (nullptr != _system)
+    if (false == _system.expired())
     {
-        auto notify = _system->GetNotifyFromID(id);
+        auto system = _system.lock();
+        auto notify = system->GetNotifyFromID(id);
         if (nullptr != notify)
         {
             float time = notify->Time;
@@ -707,6 +714,8 @@ int EditorSequencer::GetInteractionState(const ImRect& rect) const
 
 void EditorSequencer::DrawNotify(ImDrawList* drawList, TimelineNotify* notify, const ImRect& mainRect)
 {
+    auto system = _system.lock();
+
     UINT             id    = notify->ID;
     float            time  = notify->Time;
     std::string_view label = notify->Label;
@@ -716,7 +725,7 @@ void EditorSequencer::DrawNotify(ImDrawList* drawList, TimelineNotify* notify, c
     ImVec2 textOffset = ImVec2(textSize.x, textSize.y * 0.5f) * 1.2f;
     ImRect labelRect  = ImRect(center + ImVec2(0.0f, -textOffset.y), center + textOffset);
 
-    bool isValid    = notify->Time < _system->GetMinFrame() && notify->Time > _system->GetMaxFrame();
+    bool isValid    = notify->Time < system->GetMinFrame() && notify->Time > system->GetMaxFrame();
     bool isSelected = (id == _seletedNotifyID);
     int  interacted = isSelected ? 3 : GetInteractionState(mainRect);
     UINT color      = isValid ? ReflectFields->InvalidColor[0] : ReflectFields->NotifyColor[interacted];
@@ -753,6 +762,8 @@ void EditorSequencer::DragNotify(TimelineNotify* notify, const ImRect& mainRect)
         return;
     }
 
+    auto system = _system.lock();
+
     const float time = notify->Time;
     const UINT  id   = notify->ID;
     ImVec2 center    = mainRect.GetCenter();
@@ -771,7 +782,7 @@ void EditorSequencer::DragNotify(TimelineNotify* notify, const ImRect& mainRect)
     case EditorDragState::DRAG_STATE_START:
         break;
     case EditorDragState::DRAG_STATE_DRAGGING:
-        _system->ChangeNotifyTime(id, _indicateFrame);
+        system->ChangeNotifyTime(id, _indicateFrame);
         break;
     default:
         break;
@@ -839,15 +850,24 @@ float EditorSequencer::GetDeltaScale() const
 
 float EditorSequencer::GetCurrentFrame() const
 {
-    return _system ? _system->GetCurrentFrame() : 0.0f;
+    if (true == _system.expired())
+        return 0.0f;
+    auto system = _system.lock();
+    return system->GetCurrentFrame();
 }
 
 float EditorSequencer::GetMinFrame() const
 {
-    return _system ? _system->GetMinFrame() : 0.0f;
+    if (true == _system.expired())
+        return 0.0f;
+    auto system = _system.lock();
+    return system->GetMinFrame();
 }
 
 float EditorSequencer::GetMaxFrame() const
 {
-    return _system ? _system->GetMaxFrame() : 0.0f;
+    if (true == _system.expired())
+        return 0.0f;
+    auto system = _system.lock();
+    return system->GetMaxFrame();
 }
