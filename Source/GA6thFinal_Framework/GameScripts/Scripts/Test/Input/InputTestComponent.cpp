@@ -23,12 +23,14 @@ void InputTestComponent::Awake()
     BindInputAction(ControllerButton::DPAD_RIGHT, Action::PRESSED, this, &InputTestComponent::OnButton);
     BindInputAction(ControllerButton::DPAD_UP, Action::PRESSED, this, &InputTestComponent::OnButton);
     BindInputAction(ControllerButton::DPAD_DOWN, Action::PRESSED, this, &InputTestComponent::OnButton);
+    BindInputAction(ControllerButton::LEFT_THUMB_BUTTON, Action::PRESSED, this, &InputTestComponent::OnButton);
+    BindInputAction(ControllerButton::RIGHT_THUMB_BUTTON, Action::PRESSED, this, &InputTestComponent::OnButton);
 
     BindInputAction(ControllerButton::LEFT_TRIGGER, Action::HELD, this, &InputTestComponent::OnTrigger);
     BindInputAction(ControllerButton::RIGHT_TRIGGER, Action::HELD, this, &InputTestComponent::OnTrigger);
 
-    BindInputAction(ControllerButton::LEFT_STICK, Action::HELD, this, &InputTestComponent::OnThumbStick);
-    BindInputAction(ControllerButton::RIGHT_STICK, Action::HELD, this, &InputTestComponent::OnThumbStick);
+    BindInputAction(ControllerButton::LEFT_THUMB_STICK, Action::HELD, this, &InputTestComponent::OnThumbStick);
+    BindInputAction(ControllerButton::RIGHT_THUMB_STICK, Action::HELD, this, &InputTestComponent::OnThumbStick);
 }
 
 void InputTestComponent::Update() 
