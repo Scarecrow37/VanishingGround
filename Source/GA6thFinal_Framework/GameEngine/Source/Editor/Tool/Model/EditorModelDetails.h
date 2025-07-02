@@ -83,6 +83,9 @@ private:
     bool                            _isAnimationPlaying = false;
     bool                            _isAnimationLooping = true;
 
+    bool _isModelActive = true;
+    bool _isLightActive = true;
+
     // Light Property
     Vector3 _direction;
     Vector3 _color;

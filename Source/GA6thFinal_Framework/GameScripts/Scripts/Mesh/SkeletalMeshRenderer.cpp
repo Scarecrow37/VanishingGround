@@ -41,21 +41,12 @@ void SkeletalMeshRenderer::Reset()
 
 void SkeletalMeshRenderer::Update()
 {
-    if (HasModel() && HasAnimator())
-    {
-        const auto& animator = Renderer->GetAnimator();
-        if (true == _isPlaying)
-        {
-            _animationFrame += UmTime.DeltaTime();
-            const float maxFrame = animator->GetCurrentAnimationLastTime();
-            _animationFrame = std::clamp(_animationFrame, 0.0f, maxFrame);
-        }
-        animator->SetAnimationTime(_animationFrame);
-    }
-    else
-    {
-        _animationFrame = 0.0f;
-    }
+    UpdateAnimation();
+}
+
+void SkeletalMeshRenderer::OnDrawDebug() 
+{
+    UpdateAnimation();
 }
 
 void SkeletalMeshRenderer::SerializedReflectEvent() 
@@ -86,44 +77,67 @@ void SkeletalMeshRenderer::ImGuiDrawPropertysEvent()
             
             if (nullptr != animator)
             {
-                ImGui::Text("Animation");
-                ImGui::SameLine();
-                if (ImGui::BeginCombo("##Animation", _currentAnimationKey.c_str()))
+                const auto& animationNames = animation->GetAnimations();
+                const char* comboLabel = _currentAnimationKey.empty() ? "-" : _currentAnimationKey.c_str();
+                if (ImGui::BeginCombo("##Animation", comboLabel))
                 {
                     for (int i = 0; i < animationNames.size(); ++i)
                     {
-                        bool isSelected = strcmp(animationNames[i], _currentAnimationKey.c_str()) == 0;
+                        bool isSelected = (_currentAnimationKey == animationNames[i]);
                         if (ImGui::Selectable(animationNames[i], isSelected))
                         {
+                            _currentAnimationKey = animationNames[i];
                             SetCurrentAnimation(animationNames[i]);
                         }
-                        // 선택된 항목은 포커스를 줌
-                        if (true == isSelected)
-                        {
-                            ImGui::SetItemDefaultFocus();
-                        } 
                     }
                     ImGui::EndCombo();
                 }
+                if (true == _currentAnimationKey.empty())
+                {
+                    ImGui::BeginDisabled();
+                }
+                {
+                    bool usePushStyleColor = _isAnimationPlaying;
+                    if (true == usePushStyleColor)
+                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.2f, 0.8f, 0.2f, 1.0f));
+                    if (ImGui::Button(EditorIcon::ICON_PLAY))
+                        _isAnimationPlaying = !_isAnimationPlaying;
+                    if (true == usePushStyleColor)
+                        ImGui::PopStyleColor();
+                    if (ImGui::IsItemHovered())
+                        ImGui::SetTooltip("Play");
 
-                if (ImGui::Button("Play"))
-                {
-                    PlayAnimation();
+                    ImGui::SameLine();
+
+                    if (ImGui::Button(EditorIcon::ICON_PAUSE))
+                        PauseAnimation();
+                    if (ImGui::IsItemHovered())
+                        ImGui::SetTooltip("Pause");
+
+                    ImGui::SameLine();
+
+                    if (ImGui::Button(EditorIcon::ICON_STOP))
+                        StopAnimation();
+                    if (ImGui::IsItemHovered())
+                        ImGui::SetTooltip("Stop");
                 }
-                ImGui::SameLine();
-                if (ImGui::Button("Stop"))
+                if (true == _currentAnimationKey.empty())
                 {
-                    StopAnimation();
+                    ImGui::EndDisabled();
                 }
-                ImGui::SameLine();
-                if (ImGui::Button("Pause"))
+
+                ImGui::Checkbox("Loop", &_isAnimationLooping);
+                
+                float min = 0.0f;
+                float max = animator->GetCurrentAnimationLastTime();
+                float cur = animator->GetCurrentAnimationPlayTime();
+                if (ImGui::SliderFloat("Current Animation Frame", &cur, min, max))
                 {
-                    PauseAnimation();
+                    SetAnimationFrame(cur);
                 }
-                ImGui::SameLine();
-                if (ImGui::Button("Resume"))
+                if (ImGui::DragFloat("Animation Speed", &_animationSpeed, 0.01f))
                 {
-                    ResumeAnimation();
+                    SetAnimationSpeed(_animationSpeed);
                 }
             }
         }
@@ -131,6 +145,37 @@ void SkeletalMeshRenderer::ImGuiDrawPropertysEvent()
         {
             ImGui::Text("NULL Model");
         }
+    }
+}
+
+void SkeletalMeshRenderer::UpdateAnimation() 
+{
+    if (HasModel() && HasAnimator())
+    {
+        const auto& animator = Renderer->GetAnimator();
+        if (true == _isAnimationPlaying)
+        {
+            _animationTime += UmTime.DeltaTime() * _animationSpeed;
+        }
+        animator->SetAnimationTime(_animationTime);
+        float min = 0.0f;
+        float max = animator->GetCurrentAnimationLastTime();
+        if (_animationTime > max)
+        {
+            if (true == _isAnimationLooping)
+            {
+                _animationTime -= max;
+            }
+            else
+            {
+                _animationTime      = max;   // Stop at the end of the animation
+                _isAnimationPlaying = false; // Stop playing when reaching the end
+            }
+        }
+    }
+    else
+    {
+        _animationTime = 0.0f;
     }
 }
 
@@ -153,41 +198,44 @@ void SkeletalMeshRenderer::SetCurrentAnimation(std::string_view animKey)
 
 void SkeletalMeshRenderer::SetAnimationFrame(float frame) 
 {
-    const float maxFrame = Renderer->GetAnimator()->GetCurrentAnimationLastTime();
-    _animationFrame = std::clamp(frame, 0.0f, maxFrame);
+    auto animator = Renderer->GetAnimator();
+    if (nullptr != animator)
+    {
+        const float maxFrame = Renderer->GetAnimator()->GetCurrentAnimationLastTime();
+        _animationTime = std::clamp(frame, 0.0f, maxFrame);
+        animator->SetAnimationTime(_animationTime);
+    }
+}
+
+void SkeletalMeshRenderer::SetAnimationSpeed(float speed) 
+{
+    auto animator = Renderer->GetAnimator();
+    if (nullptr != animator)
+    {
+        _animationSpeed = std::clamp(speed, 0.0f, 100.0f);
+        animator->SetAnimationSpeed(_animationSpeed);
+    }
 }
 
 void SkeletalMeshRenderer::StopAnimation()
 {
-    if (HasModel() && HasAnimator())
-    {
-        _animationFrame      = 0.0f;
-        _isPlaying           = false;
-    }
+    _animationTime     = 0.0f;
+    _isAnimationPlaying = false;
 }
 
 void SkeletalMeshRenderer::PlayAnimation()
 {
-    if (HasModel() && HasAnimator())
-    {
-        _animationFrame      = 0.0f;
-        _isPlaying           = true;
-    }
+    _animationTime     = 0.0f;
+    _isAnimationPlaying = true;
 }
 
 void SkeletalMeshRenderer::PauseAnimation() 
 {
-    if (HasModel() && HasAnimator())
-    {
-        _isPlaying = false;
-    }
+    _isAnimationPlaying = false;
 }
 
 void SkeletalMeshRenderer::ResumeAnimation() 
 {
-    if (HasModel() && HasAnimator())
-    {
-        _isPlaying = true;
-    }
+    _isAnimationPlaying = true;
 }
 

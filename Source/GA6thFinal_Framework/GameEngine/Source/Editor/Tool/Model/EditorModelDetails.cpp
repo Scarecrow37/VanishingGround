@@ -127,6 +127,8 @@ void EditorModelDetails::OnStartGui()
     _direction = Vector3(0.f, -1.f, 1.f);
     _intensity = 1.f;
     _mainLight->SetDirectionalLight(_color, _ambient, _direction, _intensity);
+
+    _mainLight->SetActive(&_isLightActive);
 }
 
 void EditorModelDetails::OnEndGui() {}
@@ -326,6 +328,7 @@ void EditorModelDetails::ImportModel()
         FBXConverter& fbxConverter = GetFBXConverter();
         fbxConverter.ImportModel(path.front(), model);
         _meshRenderer->SetModel(model);
+        _meshRenderer->SetActive(&_isModelActive);
         _animator->Initialize(model->GetAnimation(), model->GetSkeleton());
         _meshRenderer->SetAnimator(_animator);
 
