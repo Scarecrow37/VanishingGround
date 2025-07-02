@@ -36,7 +36,7 @@ public:
 
 private:
     void InitShaderAndPSO();
-    void DrawMeshes(ID3D12GraphicsCommandList* commandList, MeshType type);
+    void DrawMeshes(ID3D12GraphicsCommandList* commandList, int shaderType, MeshType meshType);
 
 private:
     std::vector<std::unique_ptr<ShaderBuilder>>                   _shaders;

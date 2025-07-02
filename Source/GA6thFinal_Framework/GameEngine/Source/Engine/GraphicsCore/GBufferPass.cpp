@@ -138,7 +138,7 @@ void GBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
 
     frameResource->SetFrameResource(FrameResource::Type::TRANSFORM, _shaders[STATIC]->GetRootParameterIndex("worldMatrices"), commandList);
     frameResource->SetFrameResource(FrameResource::Type::MATERIAL, _shaders[STATIC]->GetRootParameterIndex("material"), commandList);
-    DrawMeshes(commandList, STATIC_ONE_SIDED);
+    DrawMeshes(commandList, STATIC, STATIC_ONE_SIDED);
 
     // Static Two Sided
     commandList->SetPipelineState(_psos[STATIC_TWO_SIDED].Get());
@@ -148,7 +148,7 @@ void GBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
 
     frameResource->SetFrameResource(FrameResource::Type::TRANSFORM, _shaders[STATIC]->GetRootParameterIndex("worldMatrices"), commandList);
     frameResource->SetFrameResource(FrameResource::Type::MATERIAL, _shaders[STATIC]->GetRootParameterIndex("material"), commandList);
-    DrawMeshes(commandList, STATIC_TWO_SIDED);
+    DrawMeshes(commandList, STATIC, STATIC_TWO_SIDED);
 
     // Skeletal One Sided
     commandList->SetPipelineState(_psos[SKELETAL_ONE_SIDED].Get());
@@ -158,7 +158,7 @@ void GBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
     frameResource->SetFrameResource(FrameResource::Type::TRANSFORM, _shaders[SKELETAL]->GetRootParameterIndex("worldMatrices"), commandList);
     frameResource->SetFrameResource(FrameResource::Type::BONE_MATRIXES, _shaders[SKELETAL]->GetRootParameterIndex("boneMatrices"), commandList);
     frameResource->SetFrameResource(FrameResource::Type::MATERIAL, _shaders[SKELETAL]->GetRootParameterIndex("material"), commandList);
-    DrawMeshes(commandList, SKELETAL_ONE_SIDED);
+    DrawMeshes(commandList, SKELETAL, SKELETAL_ONE_SIDED);
 
     // Skeletal Two Sided
     commandList->SetPipelineState(_psos[SKELETAL_TWO_SIDED].Get());
@@ -168,7 +168,7 @@ void GBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
     frameResource->SetFrameResource(FrameResource::Type::TRANSFORM, _shaders[SKELETAL]->GetRootParameterIndex("worldMatrices"), commandList);
     frameResource->SetFrameResource(FrameResource::Type::BONE_MATRIXES, _shaders[SKELETAL]->GetRootParameterIndex("boneMatrices"), commandList);
     frameResource->SetFrameResource(FrameResource::Type::MATERIAL, _shaders[SKELETAL]->GetRootParameterIndex("material"), commandList);
-    DrawMeshes(commandList, SKELETAL_TWO_SIDED);
+    DrawMeshes(commandList, SKELETAL, SKELETAL_TWO_SIDED);
 }
 
 void GBufferPass::End(ID3D12GraphicsCommandList* commandList)
@@ -258,15 +258,15 @@ void GBufferPass::InitShaderAndPSO()
     _psos.push_back(skeletalOneSidePSO);
 }
 
-void GBufferPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, MeshType type)
+void GBufferPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, int shaderType, MeshType meshType)
 {
     UINT parameter[3]{0, MAX_BONE_MATRIX, 0};
-    for (auto& [mesh, instanceID, customDepth] : _renderDatas[type])
+    for (auto& [mesh, instanceID, customDepth] : _renderDatas[meshType])
     {
         parameter[0] = instanceID;
         parameter[2] = customDepth;
 
-        commandList->SetGraphicsRoot32BitConstants(_shaders[type]->GetRootParameterIndex("bit32_3_objectData"), 3, parameter, 0);
+        commandList->SetGraphicsRoot32BitConstants(_shaders[shaderType]->GetRootParameterIndex("bit32_3_objectData"), 3, parameter, 0);
         mesh->Render(commandList);
     }
 }
