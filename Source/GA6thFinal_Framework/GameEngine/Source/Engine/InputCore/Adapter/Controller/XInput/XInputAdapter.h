@@ -12,14 +12,12 @@ namespace Input
     {
     public:
         XInputAdapter() = default;
-        [[nodiscard]] Controller::ID Connect() const override;
-        Result ReceiveState(Controller::ID id, Controller::State* state) const override;
+        [[nodiscard]] Controller::ID                 Connect() const noexcept override;
+        [[nodiscard]] Controller::State              ReceiveState(Controller::ID id) const override;
+        [[nodiscard]] std::queue<Controller::Button> ReceiveQueue(Controller::ID id) const override;
 
     private:
-        static void NormalizeTrigger(BYTE triggerValue, BYTE thresholdValue,
-                                     Controller::TriggerValue* normalizedTrigger);
-
-        static void NormalizeStick(SHORT xValue, SHORT yValue, SHORT deadZoneValue,
-                                   Controller::ThumbStickAxis* normalizedStick);
+        static Controller::TriggerValue   NormalizeTrigger(BYTE triggerValue, BYTE thresholdValue);
+        static Controller::ThumbStickAxis NormalizeStick(SHORT xValue, SHORT yValue, SHORT deadZoneValue);
     };
 } // namespace Input

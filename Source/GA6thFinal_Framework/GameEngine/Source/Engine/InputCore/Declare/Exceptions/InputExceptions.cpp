@@ -3,7 +3,7 @@
 
 namespace Input
 {
-    void ThrowIfFailed::operator()(const long result, const std::string& message) const
+    void ThrowIfFailed::operator()(const DWORD result, const std::string& message) const
     {
         if (result != ERROR_SUCCESS)
         {

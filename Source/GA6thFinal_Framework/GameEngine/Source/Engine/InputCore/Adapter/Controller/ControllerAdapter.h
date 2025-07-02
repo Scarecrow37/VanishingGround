@@ -1,6 +1,5 @@
 ﻿#pragma once
 #include "../../Adapter/Adapter.h"
-#include "../../Declare/InputError.h"
 #include "../../Devices/Controller/Controller.h"
 
 namespace Input
@@ -18,7 +17,8 @@ namespace Input
         ControllerAdapter& operator=(ControllerAdapter&&)      = delete;
         virtual ~ControllerAdapter()                           = default;
 
-        [[nodiscard]] virtual Controller::ID Connect() const                                                 = 0;
-        virtual Result                       ReceiveState(Controller::ID id, Controller::State* state) const = 0;
+        [[nodiscard]] virtual Controller::ID    Connect() const noexcept              = 0;
+        [[nodiscard]] virtual Controller::State ReceiveState(Controller::ID id) const = 0;
+        [[nodiscard]] virtual std::queue<Controller::Button> ReceiveQueue(Controller::ID id) const = 0;
     };
 } // namespace Input
