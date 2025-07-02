@@ -16,6 +16,22 @@
 //}
 
 
+ComPtr<ID3D12Device5> Device::GetDevice5() 
+{
+    ComPtr<ID3D12Device5> result;
+    HRESULT hr = _device->QueryInterface(IID_PPV_ARGS(result.GetAddressOf()));
+    FAILED_CHECK_MESSAGE(hr, L"DEvice::GetDevice5() Failed");
+    return result;
+}
+
+ComPtr<ID3D12GraphicsCommandList4> Device::GetCommandList4()
+{
+    ComPtr<ID3D12GraphicsCommandList4> result;
+    HRESULT        hr = _commandList->QueryInterface(IID_PPV_ARGS(result.GetAddressOf()));
+    FAILED_CHECK_MESSAGE(hr, L"DEvice::GetDevice5() Failed");
+    return result;
+}
+
 void Device::SetUpDevice(HWND hwnd, UINT width, UINT height, FeatureLevel feature)
 {
     _mode.Width  = width;

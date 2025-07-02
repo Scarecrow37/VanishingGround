@@ -296,6 +296,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Engine\GraphicsCore\RTPipelineBuilder.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\ShaderConfig.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\PipelineConfig.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\LocalRootSignature.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\HItProgram.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\GlobalRootSignature.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\ExportAssociation.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\DxilLibrary.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\DXRDrawStaticMeshPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\RayTracingTechnique.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\AccelerationStructureManager.h" />
@@ -504,6 +512,14 @@
     <ClInclude Include="Source\Engine\EngineCore\TimelineSystem.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Engine\GraphicsCore\RTPipelineBuilder.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\ShaderConfig.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\PipelineConfig.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\LocalRootSignature.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\HItProgram.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\GlobalRootSignature.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\ExportAssociation.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\DxilLibrary.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\DXRDrawStaticMeshPass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\RayTracingTechnique.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\AccelerationStructureManager.cpp" />

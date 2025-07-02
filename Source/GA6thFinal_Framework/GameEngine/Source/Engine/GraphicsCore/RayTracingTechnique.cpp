@@ -12,7 +12,9 @@ void RayTracingTechnique::Initialize(ID3D12GraphicsCommandList* commandList)
 
 void RayTracingTechnique::Execute(ID3D12GraphicsCommandList* commandList) 
 {
+    UmAccelerationStructureManager.BeginFrame();
     __super::Execute(commandList);
+    UmAccelerationStructureManager.EndFrame();
 }
 
 void RayTracingTechnique::InitDXRDrawStaticMeshPass() 

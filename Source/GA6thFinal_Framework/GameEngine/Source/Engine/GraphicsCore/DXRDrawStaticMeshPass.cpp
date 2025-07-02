@@ -1,6 +1,8 @@
 ﻿#include "pch.h"
 #include "DXRDrawStaticMeshPass.h"
 #include "RenderTarget.h"
+#include "RenderScene.h"
+
 DXRDrawStaticMeshPass::~DXRDrawStaticMeshPass() {}
 
 void DXRDrawStaticMeshPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& sissorRect) 
@@ -8,12 +10,22 @@ void DXRDrawStaticMeshPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D
     __super::Initialize(viewPort, sissorRect);
 }
 
-void DXRDrawStaticMeshPass::Begin(ID3D12GraphicsCommandList* commandList) {}
+void DXRDrawStaticMeshPass::Begin(ID3D12GraphicsCommandList* commandList) 
+{
+    UmAccelerationStructureManager.RemoveUnUsedStaticMeshes(_ownerScene->_staticMesh);
+}
 
-void DXRDrawStaticMeshPass::Draw(ID3D12GraphicsCommandList* commandList) {}
+void DXRDrawStaticMeshPass::Draw(ID3D12GraphicsCommandList* commandList)
+{
+    for (auto* renderer : _ownerScene->_staticMesh)
+    {
+        UmAccelerationStructureManager.SubmitInstance(renderer);
+    }
+}
 
 void DXRDrawStaticMeshPass::End(ID3D12GraphicsCommandList* commandList) 
 {
+
     _meshRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }
 
