@@ -34,7 +34,20 @@ void EditorParticleEffectHierarchy::OnPreFrameBegin()
 void EditorParticleEffectHierarchy::OnPostFrameBegin()
 {
 
-    ParticleEffect* effect = UmParticleManager.GetCurrentEditorEffect();
+    bool            isnewbuttonpressed = ImGui::Button("New", {180, 50});
+
+     if (true == isnewbuttonpressed)
+    {
+         auto newEffect = UmParticleManager.RegisterEffect();
+         newEffect->SetLifetime(10.f);
+         newEffect->SetEffectName("newEffect");
+        UmParticleManager.SetCurrentEditorEffect(newEffect);
+        _editorParticleEffectDetails->SetCurrentEffect(newEffect);
+        _curEffect = newEffect;
+    }
+
+
+
 
     ImGui::SameLine();
     bool isloadbuttonpressed = ImGui::Button("Load", {180, 50});
@@ -51,6 +64,7 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
         }
     }
 
+    ParticleEffect* effect = UmParticleManager.GetCurrentEditorEffect();
     ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal, 2.f);
 
     if (nullptr == effect)
