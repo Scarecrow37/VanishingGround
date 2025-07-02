@@ -10,7 +10,7 @@
 
 GBufferPass::~GBufferPass() {}
 
-void GBufferPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& sissorRect)
+void GBufferPass::Initialize()
 {
     static bool isInitialized = false;
     if (!isInitialized)
@@ -22,24 +22,24 @@ void GBufferPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& s
             "BaseColor", "Normal", "ORM", "Emissive", "WorldPosition", "Depth", "CustomDepth"};
         auto first = renderTargetNames.begin();
 
-        std::unique_ptr<RenderTarget> renderTarget;
+        SharedResource<RenderTarget> renderTarget;
         for (UINT i = 0; i <= GBuffer::WORLDPOSITION; ++i)
         {
-            renderTarget = std::make_unique<RenderTarget>();
-            renderTarget->Initialize(mode.Width, mode.Height, DXGI_FORMAT_R32G32B32A32_FLOAT, 0.247f);
-            renderTarget->CreateShaderResourceView();
-            renderTargetManager.AddRenderTarget(*(first + i), std::move(renderTarget));
+            renderTarget = MakeSharedResource<RenderTarget>();
+            mode.Format  = DXGI_FORMAT_R32G32B32A32_FLOAT;
+            renderTarget->Initialize(mode, 0.247f);
+            renderTargetManager.AddRenderTarget(*(first + i), renderTarget);
         }
 
-        renderTarget = std::make_unique<RenderTarget>();
-        renderTarget->Initialize(mode.Width, mode.Height, DXGI_FORMAT_R32_FLOAT, 1.f);
-        renderTarget->CreateShaderResourceView();
-        renderTargetManager.AddRenderTarget(*(first + GBuffer::DEPTH), std::move(renderTarget));
+        renderTarget = MakeSharedResource<RenderTarget>();
+        mode.Format  = DXGI_FORMAT_R32_FLOAT;
+        renderTarget->Initialize(mode, 1.f);
+        renderTargetManager.AddRenderTarget(*(first + GBuffer::DEPTH), renderTarget);
 
-        renderTarget = std::make_unique<RenderTarget>();
-        renderTarget->Initialize(mode.Width, mode.Height, DXGI_FORMAT_R32_UINT, 0.f);
-        renderTarget->CreateShaderResourceView();
-        renderTargetManager.AddRenderTarget(*(first + GBuffer::CUSTOMDEPTH), std::move(renderTarget));
+        renderTarget = MakeSharedResource<RenderTarget>();
+        mode.Format  = DXGI_FORMAT_R32_UINT;
+        renderTarget->Initialize(mode, 0.f);
+        renderTargetManager.AddRenderTarget(*(first + GBuffer::CUSTOMDEPTH), renderTarget);
 
         renderTargetManager.AddRenderTargetGroup("GBuffer", renderTargetNames);
 
@@ -55,7 +55,7 @@ void GBufferPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& s
         isInitialized = true;
     }
 
-    __super::Initialize(viewPort, sissorRect);
+    __super::Initialize();
     InitShaderAndPSO();
 }
 
@@ -72,8 +72,8 @@ void GBufferPass::Begin(ID3D12GraphicsCommandList* commandList)
     }
 
     commandList->OMSetRenderTargets(GBuffer::GBUFFER_END, _gBufferHandles.data(), FALSE, &_ownerScene->_depthStencilView->GetDSVHandle());
-    commandList->RSSetViewports(1, &_viewPort);
-    commandList->RSSetScissorRects(1, &_sissorRect);
+    commandList->RSSetViewports(1, &gBufferGroup[0]->GetViewPort());
+    commandList->RSSetScissorRects(1, &gBufferGroup[0]->GetScissorRect());
 }
 
 void GBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
@@ -234,10 +234,9 @@ void GBufferPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, MeshType ty
     for (auto& [mesh, instanceID, customDepth] : _renderDatas[type])
     {
         parameter[0] = instanceID;
-        parameter[2] = 1; // 임시
-        // parameter[2] = customDepth;
-        commandList->SetGraphicsRoot32BitConstants(_shaders[type]->GetRootParameterIndex("bit32_3_objectData"), 3,
-                                                   parameter, 0);
+        parameter[2] = customDepth;
+
+        commandList->SetGraphicsRoot32BitConstants(_shaders[type]->GetRootParameterIndex("bit32_3_objectData"), 3, parameter, 0);
         mesh->Render(commandList);
     }
 }

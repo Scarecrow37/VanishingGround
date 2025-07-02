@@ -8,9 +8,9 @@ UpScalePass::UpScalePass() {}
 
 UpScalePass::~UpScalePass() {}
 
-void UpScalePass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& sissorRect)
+void UpScalePass::Initialize()
 {
-    __super::Initialize(viewPort, sissorRect);
+    __super::Initialize();
 
     _shader = std::make_unique<ShaderBuilder>();
     _shader->BeginBuild();
@@ -46,8 +46,8 @@ void UpScalePass::Begin(ID3D12GraphicsCommandList* commandList)
     renderTarget->ClearRenderTarget(commandList);
 
     commandList->OMSetRenderTargets(1, &renderTarget->GetRTVHandle(), TRUE, nullptr);
-    commandList->RSSetViewports(1, &_viewPort);
-    commandList->RSSetScissorRects(1, &_sissorRect);
+    commandList->RSSetViewports(1, &renderTarget->GetViewPort());
+    commandList->RSSetScissorRects(1, &renderTarget->GetScissorRect());
 }
 
 void UpScalePass::Draw(ID3D12GraphicsCommandList* commandList)
@@ -66,6 +66,6 @@ void UpScalePass::Draw(ID3D12GraphicsCommandList* commandList)
 void UpScalePass::End(ID3D12GraphicsCommandList* commandList)
 {
     const auto& renderTargets = UmMultiRenderTargetManager.GetUsedRenderTargets();
-    auto        renderTarget  = renderTargets.front().get();
+    auto        renderTarget  = renderTargets.front();
     renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }

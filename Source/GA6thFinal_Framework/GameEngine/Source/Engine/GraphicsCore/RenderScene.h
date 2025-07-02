@@ -43,8 +43,6 @@ public:
 private:
     void CreateRenderTarget();
     void CreateDepthStencil();
-    void CreateFrameQuadAndFrameShader();
-    void CreateFramePSO();
     void CreateFrameResource();
     void CreateCamera();
 
@@ -70,9 +68,8 @@ public:
 
     std::unique_ptr<Quad>                _frameQuad;
     std::unique_ptr<SkyBox>              _skyBox;
-    std::unique_ptr<ShaderBuilder>       _frameShader;
-    std::unique_ptr<UnorderedAccessView> _accumulationBuffer;
-    std::unique_ptr<DepthStencilView>    _depthStencilView;
+    SharedResource<UnorderedAccessView>  _accumulationBuffer;
+    SharedResource<DepthStencilView>     _depthStencilView;
 
     // Buffers
     ComPtr<ID3D12Resource>      _cameraBuffer;

@@ -13,9 +13,9 @@ ParticleResolvePass::~ParticleResolvePass()
     
 }
 
-void ParticleResolvePass::Initialize(const D3D12_VIEWPORT& viewport, const D3D12_RECT& scissorRect)
+void ParticleResolvePass::Initialize()
 {
-    __super::Initialize(viewport, scissorRect);
+    __super::Initialize();
     InitializeShader();
     InitializePSO();
     InitializeDescriptorHeap();
@@ -25,12 +25,11 @@ void ParticleResolvePass::Initialize(const D3D12_VIEWPORT& viewport, const D3D12
 void ParticleResolvePass::Begin(ID3D12GraphicsCommandList* commandlist)
 {
     _meshRenderTarget->TransitionResource(_particleRenderCommandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
-
-    _particleRenderCommandList->RSSetViewports(1, &_viewPort);
-    _particleRenderCommandList->RSSetScissorRects(1, &_sissorRect);
-
     _meshRenderTarget->ClearRenderTarget(_particleRenderCommandList);
+
     _particleRenderCommandList->OMSetRenderTargets(1, &_meshRenderTarget->GetRTVHandle(), FALSE, nullptr);
+    _particleRenderCommandList->RSSetViewports(1, &_meshRenderTarget->GetViewPort());
+    _particleRenderCommandList->RSSetScissorRects(1, &_meshRenderTarget->GetScissorRect());
 }
 
 void ParticleResolvePass::End(ID3D12GraphicsCommandList* commandlist)
@@ -43,9 +42,7 @@ void ParticleResolvePass::End(ID3D12GraphicsCommandList* commandlist)
 void ParticleResolvePass::Draw(ID3D12GraphicsCommandList* commandlist)
 {
     ComPtr<ID3D12Device>  device = UmDevice.GetDevice();
-    ID3D12DescriptorHeap* hps[]  = {
-        UmViewManager.GetShaderResourceHeap(),
-    };
+    ID3D12DescriptorHeap* hps[]  = {UmViewManager.GetShaderResourceHeap()};
     _particleRenderCommandList->SetDescriptorHeaps(_countof(hps), hps);
     _particleRenderCommandList->SetPipelineState(_resolvePSO.Get());
     _particleRenderCommandList->SetGraphicsRootSignature(_resolveShaderBuilder->GetRootSignature());
@@ -60,16 +57,12 @@ void ParticleResolvePass::Draw(ID3D12GraphicsCommandList* commandlist)
     _accumlateBuffer->ResourceBarrier(_particleRenderCommandList);
     _revealageBuffer->ResourceBarrier(_particleRenderCommandList);
     _ownerScene->_frameQuad->Render(_particleRenderCommandList);
-
-
-
-
 }
 
-void ParticleResolvePass::SetAccumulationBuffers(UnorderedAccessView* color, UnorderedAccessView* alpha)
+void ParticleResolvePass::SetAccumulationBuffers(SharedResource<UnorderedAccessView> color, SharedResource<UnorderedAccessView> alpha)
 {
-        _accumlateBuffer = color;
-        _revealageBuffer = alpha;
+    _accumlateBuffer = color;
+    _revealageBuffer = alpha;
 }
 
 void ParticleResolvePass::InitializeShader()

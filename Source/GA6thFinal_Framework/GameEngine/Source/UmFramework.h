@@ -43,7 +43,9 @@ constexpr const char* STR_NULL = "null";
 #include <dxgi1_6.h>
 #include <d3dcompiler.h>
 #include <wrl.h>
+#include <winrt/base.h>
 #include <Xinput.h>
+#include <xaudio2.h>
 #include <dxcapi.h>
 
 #pragma comment(lib, "d3d12")
@@ -120,11 +122,16 @@ using namespace Microsoft::WRL;
 #include "Engine/Utility/stlHelper.h"
 #include "Engine/Utility/EditorHelper.h"
 #include "Engine/Utility/Mathf.h"
+#include "Engine/Utility/SharedResource.h"
 
 //Class Core
 #include "Engine/CommandCore/CommandManager.h"
 #include "Engine/ClassCore/TProperty.hpp"
 #include "Engine/ClassCore/ReflectHelper.h"
+
+//Input Core
+#include "Engine/InputCore/Adapter/Controller/XInput/XInputAdapter.h"
+#include "Engine/InputCore/Devices/Controller/Controller.h"
 
 //Application Core
 #include "Engine/AppModule/Interface/IAppModule.h"
@@ -146,6 +153,13 @@ using namespace Microsoft::WRL;
 
 //Graphics
 #include "Engine/GraphicsCore/GraphicsCore.h"
+
+//Audio Core
+#include "Engine/AudioCore/Declare/Types/AudioTypes.h"
+#include "Engine/AudioCore/Declare/Exceptions/AudioExceptions.h"
+#include "Engine/AudioCore/Handle/AudioHandle.h"
+#include "Engine/AudioCore/Declare/Callback/IncreaseGenerationCallback.h"
+#include "Engine/AudioCore/AudioManager/AudioManager.h"
 
 //Engine Core
 #include "Engine/EngineCore/EngineLogger.h"
@@ -178,6 +192,7 @@ using namespace Microsoft::WRL;
 #include "Engine/GameCore/GameObject/GameObject.h"
 #include "Engine/GameCore/Component/Component.h"
 #include "Engine/GameCore/Component/MissingComponent.h"
+#include "Engine/GameCore/InputReciver/InputReceiver.h"
 
 //Application Module
 #include "Engine/AppModule/EngineCoresModule.h"

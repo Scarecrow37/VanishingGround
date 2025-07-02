@@ -30,3 +30,8 @@ void MeshComponent::MakeMeshRenderer(MeshRenderType renderType, const Matrix& wo
         assert(!"이미 MeshRenderer가 존재합니다.");
     }
 }
+
+void MeshComponent::OnDrawDebugSelected()
+{
+    Renderer->SetCustomDepth(PostProcess::OUTLINE);
+}

@@ -36,13 +36,16 @@ void Device::SetUpDevice(HWND hwnd, UINT width, UINT height, FeatureLevel featur
 {
     _mode.Width  = width;
     _mode.Height = height;
-#ifndef NDEBUG
+    _newMode     = _mode;
+
+#ifdef _DEBUG
     ComPtr<ID3D12Debug> debugController;
 
     HRESULT hr = D3D12GetDebugInterface(IID_PPV_ARGS(&debugController));
     FAILED_CHECK_MESSAGE(hr, L"Device::SetUpDevice D3D12GetDebugInterface Failed");
     debugController->EnableDebugLayer();
-#endif // !NDEBUG
+#endif
+
     D3D_FEATURE_LEVEL d3dFeature{};
 
     switch (feature)
@@ -86,27 +89,52 @@ void Device::Finalize()
 
 void Device::OnResize(UINT width, UINT height)
 {
-    _mode.Width  = width;
-    _mode.Height = height;
-    _onResize    = true;
+    _newMode.Width   = width;
+    _newMode.Height = height;
+    _onResize        = true;
 }
 
 void Device::GPUSync()
 {
-    const UINT64 fence = _fenceValue;
+    const UINT64 fence = _graphicsFenceValue;
 
     // Fence 값 갱신
-    _commandQueue->Signal(_fence.Get(), fence);
+    _commandQueue->Signal(_graphicsFence.Get(), fence);
 
-    _fenceValue++;
+    _graphicsFenceValue++;
 
     // GPU 의 현재 Fence 값 확인.
-    if (_fence->GetCompletedValue() < fence)
+    if (_graphicsFence->GetCompletedValue() < fence)
     {
         // 이벤트 설정 : GPU 의 펜스 값이 fence 와 동일해지면 이벤트가 발생됨.
-        _fence->SetEventOnCompletion(fence, _fenceEvent);
+        _graphicsFence->SetEventOnCompletion(fence, _fenceEvent);
 
         // 대기...
+        ::WaitForSingleObject(_fenceEvent, INFINITE);
+    }
+}
+
+void Device::FullGpuSync()
+{
+    UINT64 fence = _computeFenceValue;
+
+    _computeCommandQueue->Signal(_computeFence.Get(), fence);
+    _computeFenceValue++;
+    
+    if (_computeFence->GetCompletedValue() < fence)
+    {
+        _computeFence->SetEventOnCompletion(fence, _fenceEvent);
+        ::WaitForSingleObject(_fenceEvent, INFINITE);
+    }
+
+    fence = _graphicsFenceValue;
+
+    _commandQueue->Signal(_graphicsFence.Get(), fence);
+    _graphicsFenceValue++;
+
+    if (_graphicsFence->GetCompletedValue() < fence)
+    {
+        _graphicsFence->SetEventOnCompletion(fence, _fenceEvent);
         ::WaitForSingleObject(_fenceEvent, INFINITE);
     }
 }
@@ -472,29 +500,13 @@ void Device::ExecuteCommand(CommandListType type)
     _commandLists[type].clear();
 }
 
-void Device::SetViewPort()
-{
-    D3D12_VIEWPORT viewPort{
-        .TopLeftX = 0,
-        .TopLeftY = 0,
-        .Width    = (FLOAT)_mode.Width,
-        .Height   = (FLOAT)_mode.Height,
-        .MinDepth = 0.0f,
-        .MaxDepth = 1.0f,
-    };
-
-    // g_CmdList->RSSetViewports(1, &vp);
-    _mainViewport = viewPort;
-}
-
 void Device::ResizeSwapChain()
 {
     if (!_onResize)
         return;
 
-    GRAPHICS_ASSERT(_device || _swapChain, L"");
+    GRAPHICS_ASSERT(_device || _swapChain, L"");    
 
-    GPUSync();
     _commandList->Reset(_commandAllocator.Get(), nullptr);
 
     CreateBackBuffer();
@@ -503,16 +515,22 @@ void Device::ResizeSwapChain()
 
     RegisterCommand(_commandList.Get(), MESH_RENDER_LIST);
     ExecuteCommand(MESH_RENDER_LIST);
-    GPUSync();
+    
+    FullGpuSync();
 
     _mainViewport.TopLeftX = 0;
     _mainViewport.TopLeftY = 0;
-    _mainViewport.Width    = static_cast<float>(_mode.Width);
-    _mainViewport.Height   = static_cast<float>(_mode.Height);
+    _mainViewport.Width    = static_cast<float>(_newMode.Width);
+    _mainViewport.Height   = static_cast<float>(_newMode.Height);
     _mainViewport.MinDepth = 0.0f;
     _mainViewport.MaxDepth = 1.0f;
 
-    _mainrRect = {0, 0, static_cast<long>(_mode.Width), static_cast<long>(_mode.Height)};
+    _mainrRect = {0, 0, static_cast<long>(_newMode.Width), static_cast<long>(_newMode.Height)};
+
+    DXGI_MODE_DESC prevMode = _mode;
+    _mode                   = _newMode;
+    UmDXResourceManager.ResizeResource(prevMode);
+
     _onResize  = false;
 }
 
@@ -618,10 +636,15 @@ void Device::CreateCommandQueue()
 void Device::CreateSyncObject()
 {
     HRESULT hr = S_OK;
-    hr         = _device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&_fence));
+    hr         = _device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&_graphicsFence));
     FAILED_CHECK_MESSAGE(hr, L"Device::CreateSyncObject _device->CreateFence Failed");
 
-    _fenceValue = 1;
+    hr = _device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&_computeFence));
+    FAILED_CHECK_MESSAGE(hr, L"Device::CreateSyncObject _device->CreateFence Failed");
+
+    _graphicsFenceValue = 1;
+    _computeFenceValue = 1;
+
     _fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
     GRAPHICS_ASSERT(nullptr != _fenceEvent, L"Device::CreateSyncObject CreateEvent Failed");
 
@@ -639,14 +662,14 @@ void Device::CreateSyncObject()
 
 void Device::CreateBackBuffer()
 {
-    _mode.Format = _backBufferFormat;
+    _newMode.Format = _backBufferFormat;
     for (auto & swapChain : _swapChainBuffer)
     {
         swapChain.Reset();
     }
 
     HRESULT hr = S_OK;
-    hr         = _swapChain->ResizeBuffers(SWAPCHAIN_BUFFER_COUNT, _mode.Width, _mode.Height, _mode.Format, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH);
+    hr         = _swapChain->ResizeBuffers(SWAPCHAIN_BUFFER_COUNT, _newMode.Width, _newMode.Height, _newMode.Format, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH);
     FAILED_CHECK_MESSAGE(hr, L"Device::CreateBackBuffer _swapChain->ResizeBuffers Failed");
 
     _renderTargetIndex = _swapChain->GetCurrentBackBufferIndex();

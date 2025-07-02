@@ -8,9 +8,9 @@ DownScalePass::DownScalePass() {}
 
 DownScalePass::~DownScalePass() {}
 
-void DownScalePass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& sissorRect)
+void DownScalePass::Initialize()
 {
-    __super::Initialize(viewPort, sissorRect);
+    __super::Initialize();
 
     _shader = std::make_unique<ShaderBuilder>();
     _shader->BeginBuild();
@@ -56,7 +56,7 @@ void DownScalePass::Draw(ID3D12GraphicsCommandList* commandList)
     const auto& mipmapTarget             = multiRenderTargetManager.GetRenderTargetGroup("Mipmap");
     const auto& usedRenderTargets        = multiRenderTargetManager.GetUsedRenderTargets();
 
-    _renderTarget = usedRenderTargets.front().get();
+    _renderTarget = usedRenderTargets.front();
 
     commandList->SetPipelineState(_pipelineState.Get());
     commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
