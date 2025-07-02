@@ -22,7 +22,7 @@ public:
 
     GETTER_ONLY(int, Shield) { return GetShield(); }
     PROPERTY(Shield)
-
+    
 public:
     Player();
     virtual ~Player();

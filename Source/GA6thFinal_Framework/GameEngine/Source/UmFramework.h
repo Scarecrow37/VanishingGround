@@ -126,6 +126,10 @@ using namespace Microsoft::WRL;
 #include "Engine/ClassCore/TProperty.hpp"
 #include "Engine/ClassCore/ReflectHelper.h"
 
+//Input Core
+#include "Engine/InputCore/Adapter/Controller/XInput/XInputAdapter.h"
+#include "Engine/InputCore/Devices/Controller/Controller.h"
+
 //Application Core
 #include "Engine/AppModule/Interface/IAppModule.h"
 #include "Engine/ApplicationCore/Application.h"
@@ -184,6 +188,7 @@ using namespace Microsoft::WRL;
 #include "Engine/GameCore/GameObject/GameObject.h"
 #include "Engine/GameCore/Component/Component.h"
 #include "Engine/GameCore/Component/MissingComponent.h"
+#include "Engine/GameCore/InputReciver/InputReceiver.h"
 
 //Application Module
 #include "Engine/AppModule/EngineCoresModule.h"

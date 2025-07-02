@@ -37,6 +37,23 @@ namespace Input
         static constexpr Button X              = 0x4000;
         static constexpr Button Y              = 0x8000;
 
+        static constexpr std::pair<const char*, Button> BUTTON_FLAG_LIST[] = {
+            {"DPAD_UP", 0x0001},
+            {"DPAD_DOWN", 0x0002},
+            {"DPAD_LEFT", 0x0004},
+            {"DPAD_RIGHT", 0x0008},
+            {"START", 0x0010},
+            {"BACK", 0x0020},
+            {"LEFT_THUMB", 0x0040},
+            {"RIGHT_THUMB", 0x0080},
+            {"LEFT_SHOULDER", 0x0100},
+            {"RIGHT_SHOULDER", 0x0200},
+            {"A", 0x1000},
+            {"B", 0x2000},
+            {"X", 0x4000},
+            {"Y", 0x8000},
+        };
+
         /// <summary>
         /// 엄지 막대의 위치에 대한 값입니다.
         /// X축, Y축 모두 값의 범위는 -1.0 ~ 1.0 사이입니다.
