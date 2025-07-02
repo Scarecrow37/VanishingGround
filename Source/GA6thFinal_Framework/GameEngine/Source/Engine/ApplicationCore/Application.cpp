@@ -79,6 +79,13 @@ void Application::Initialize(HINSTANCE hInstance)
     //윈도우 생성
     CreateWindowClient();
 
+    //CoInitialize
+    HRESULT hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
+    if (FAILED(hr))
+    {
+        __debugbreak();
+    }
+
     //모듈 초기화
     InitModules();
 
@@ -103,6 +110,9 @@ void Application::UnInitialize()
 {
     //모듈 해제
     UnInitModules();
+
+    //CoUninitialize
+    CoUninitialize();
 
     //해제 완료
     OnShutdownComplete();
@@ -301,3 +311,4 @@ void Application::MainEntry::Run()
 {
     Application::App->Run();
 }
+

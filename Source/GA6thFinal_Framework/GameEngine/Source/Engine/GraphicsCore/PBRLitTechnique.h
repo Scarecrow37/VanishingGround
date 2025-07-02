@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "RenderTechnique.h"
+
 class PBRLitTechnique : public RenderTechnique
 {
 public:

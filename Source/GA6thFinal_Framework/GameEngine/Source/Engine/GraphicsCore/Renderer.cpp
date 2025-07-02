@@ -1,16 +1,25 @@
 ﻿#include "pch.h"
 #include "Renderer.h"
+#include "RenderScene.h"
+#include "RenderTarget.h"
+#include "RendererFileEvent.h"
+
+// Geometry
 #include "Box.h"
 #include "Cylinder.h"
 #include "GeoSphere.h"
 #include "Grid.h"
 #include "Model.h"
-#include "PBRLitTechnique.h"
 #include "Quad.h"
-#include "RenderScene.h"
-#include "RendererFileEvent.h"
-#include "SkyBoxRenderTechnique.h"
 #include "Sphere.h"
+
+// Techniques
+#include "PBRLitTechnique.h"
+#include "SkyBoxRenderTechnique.h"
+#include "BloomTechnique.h"
+#include "BlendTechnique.h"
+#include "ParticleRenderTechnique.h"
+#include "EditorDrawTechnique.h"
 
 Renderer::Renderer()
     : _currnetState(0)
@@ -21,7 +30,7 @@ Renderer::~Renderer() {}
 
 D3D12_GPU_DESCRIPTOR_HANDLE Renderer::GetRenderSceneImage(std::string_view renderSceneName)
 {
-    auto iter = _renderScenes.find(std::string(renderSceneName));
+    auto iter = _renderScenes.find(renderSceneName.data());
 
     if (iter == _renderScenes.end())
     {
@@ -30,23 +39,51 @@ D3D12_GPU_DESCRIPTOR_HANDLE Renderer::GetRenderSceneImage(std::string_view rende
         GRAPHICS_ASSERT(false, msg.c_str());
     }
 
-    auto scene = iter->second;
+    auto& scene = iter->second;
     return scene->GetFinalImage();
 }
 
 std::shared_ptr<Camera> Renderer::GetCamera(std::string_view renderSceneName)
 {
-    auto iter = _renderScenes.find(std::string(renderSceneName));
+    auto iter = _renderScenes.find(renderSceneName.data());
 
     if (iter == _renderScenes.end())
     {
-        std::wstring msg = L"Renderer::GetRenderSceneImage: RenderSceneName '" +
+        std::wstring msg = L"Renderer::GetCamera: RenderSceneName '" +
                            std::wstring(renderSceneName.begin(), renderSceneName.end()) + L"' is not registered.";
         GRAPHICS_ASSERT(false, msg.c_str());
     }
 
-    auto scene = iter->second;
+    auto& scene = iter->second;
     return scene->GetCamera();
+}
+
+RenderScene* Renderer::GetRenderScene(std::string_view renderSceneName)
+{
+    auto iter = _renderScenes.find(renderSceneName.data());
+    if (iter == _renderScenes.end())
+    {
+        std::wstring msg = L"Renderer::GetRenderScene: RenderSceneName '" +
+                           std::wstring(renderSceneName.begin(), renderSceneName.end()) + L"' is not registered.";
+        GRAPHICS_ASSERT(false, msg.c_str());
+    }
+
+    return iter->second.get();
+}
+
+void Renderer::SetCamera(std::string_view renderSceneName, std::shared_ptr<Camera> camera)
+{
+    auto iter = _renderScenes.find(renderSceneName.data());
+
+    if (iter == _renderScenes.end())
+    {
+        std::wstring msg = L"Renderer::SetCamera: RenderSceneName '" +
+                           std::wstring(renderSceneName.begin(), renderSceneName.end()) + L"' is not registered.";
+        GRAPHICS_ASSERT(false, msg.c_str());
+    }
+
+    auto& scene = iter->second;
+    scene->SetCamera(camera);
 }
 
 void Renderer::RegisterRenderQueue(std::string_view sceneName, MeshRenderer* component)
@@ -58,8 +95,18 @@ void Renderer::RegisterRenderQueue(std::string_view sceneName, MeshRenderer* com
         GRAPHICS_ASSERT(false, L"Renderer::RegisterRenderQueue : Render Scene Not Registered.");
     }
 
-    auto scene = iter->second;
+    auto& scene = iter->second;
     scene->RegisterOnRenderQueue(component);
+}
+
+void Renderer::RegisterRenderQueue(MeshRenderer* component)
+{
+    RegisterRenderQueue("Game", component);
+
+    if constexpr (IS_EDITOR)
+    {
+        RegisterRenderQueue("Editor", component);
+    }
 }
 
 void Renderer::SetSkyBox(std::string_view sceneName, std::string_view path) 
@@ -71,23 +118,28 @@ void Renderer::SetSkyBox(std::string_view sceneName, std::string_view path)
         GRAPHICS_ASSERT(false, L"Renderer::RegisterRenderQueue : Render Scene Not Registered.");
     }
 
-    auto scene = iter->second;
+    auto& scene = iter->second;
     scene->SetSkyBox(path);
 }
 
 void Renderer::SetSkyBox(std::string_view path)
 {
-    // 얼추 게임 씬 나오면 그거 바꿔야할텐데.
-    auto iter = _renderScenes.find("Editor");
-    auto scene = iter->second;
-    scene->SetSkyBox(path);
+    SetSkyBox("Game", path);
+
+    if constexpr (IS_EDITOR)
+    {
+        SetSkyBox("Editor", path);
+    }
 }
 
 void Renderer::ResetSkyBox()
 {
-    auto iter  = _renderScenes.find("Editor");
-    auto scene = iter->second;
-    scene->ResetSkyBox();
+    ResetSkyBox("Game");
+
+    if constexpr (IS_EDITOR)
+    {
+        ResetSkyBox("Editor");
+    }
 }
 
 void Renderer::ResetSkyBox(std::string_view sceneName) 
@@ -99,7 +151,7 @@ void Renderer::ResetSkyBox(std::string_view sceneName)
         GRAPHICS_ASSERT(false, L"Renderer::RegisterRenderQueue : Render Scene Not Registered.");
     }
 
-    auto scene = iter->second;
+    auto& scene = iter->second;
     scene->ResetSkyBox();
 }
 
@@ -107,25 +159,45 @@ void Renderer::Initialize()
 {
     CreateDefaultResource();
 
-    std::shared_ptr<RenderScene> editorScene = std::make_shared<RenderScene>("Editor");
-    editorScene->InitializeRenderScene();
-    std::shared_ptr<SkyBoxRenderTechnique> skyTech = std::make_shared<SkyBoxRenderTechnique>();
-    editorScene->AddRenderTechnique(skyTech);
-    std::shared_ptr<PBRLitTechnique> pbrTech = std::make_shared<PBRLitTechnique>();
-    editorScene->AddRenderTechnique(pbrTech);
-    _renderScenes["Editor"] = editorScene;
+    std::unique_ptr<RenderScene> scene;
+
+    scene = std::make_unique<RenderScene>("Game");
+    scene->InitializeRenderScene();
+    scene->AddRenderTechnique(std::make_unique<SkyBoxRenderTechnique>());
+    scene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
+    scene->AddRenderTechnique(std::make_unique<BloomTechnique>());
+    scene->AddRenderTechnique(std::make_unique<BlendTechnique>());
+    _renderScenes["Game"] = std::move(scene);
+
+    // Renderer File Event
+    _rendererFileEvent = std::make_unique<RendererFileEvent>();
+    UmFileSystem.RegisterFileEventSubscriber(_rendererFileEvent.get(), {".png", ".dds", ".fbx", ".hdr", ".UmModel"});
 
     if constexpr (IS_EDITOR)
     {
-        // Model Viewer Scene
-        std::shared_ptr<RenderScene> modelViewerScene = std::make_shared<RenderScene>("ModelViewer");
-        modelViewerScene->InitializeRenderScene();
-        modelViewerScene->AddRenderTechnique(std::make_shared<PBRLitTechnique>());
-        _renderScenes["ModelViewer"] = modelViewerScene;        
+        // Editor Scene
+        scene = std::make_unique<RenderScene>("Editor");
+        scene->InitializeRenderScene();
+        scene->AddRenderTechnique(std::make_unique<SkyBoxRenderTechnique>());
+        scene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
+        scene->AddRenderTechnique(std::make_unique<EditorDrawTechnique>());
+        scene->AddRenderTechnique(std::make_unique<BlendTechnique>());
+        _renderScenes["Editor"] = std::move(scene);
 
-        // Renderer File Event
-        _rendererFileEvent = std::make_unique<RendererFileEvent>();
-        UmFileSystem.RegisterFileEventSubscriber(_rendererFileEvent.get(), {".png", ".dds", ".fbx", ".UmModel"});
+        // Model Viewer Scene
+        scene = std::make_unique<RenderScene>("ModelViewer");
+        scene->InitializeRenderScene();
+        scene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
+        scene->AddRenderTechnique(std::make_unique<BlendTechnique>());
+        _renderScenes["ModelViewer"] = std::move(scene);
+        
+        scene = std::make_unique<RenderScene>("ParticleEditor");
+        scene->InitializeRenderScene();
+        scene->AddRenderTechnique(std::make_unique<ParticleRenderTechnique>());
+        scene->AddRenderTechnique(std::make_unique<BloomTechnique>());
+        scene->AddRenderTechnique(std::make_unique<BlendTechnique>());
+        UmParticleManager.SetCamera(scene->GetCamera());
+        _renderScenes["ParticleEditor"] = std::move(scene);
     }
 }
 
@@ -141,11 +213,11 @@ void Renderer::Update()
 
 void Renderer::Render()
 {
-    ComPtr<ID3D12GraphicsCommandList> commandList = UmDevice.GetCommandList();
+    ID3D12GraphicsCommandList* commandList = UmDevice.GetCommandList();
 
     for (auto& renderScene : _renderScenes)
     {
-        renderScene.second->Execute(commandList.Get());
+        renderScene.second->Execute(commandList);
     }
     if constexpr (IS_EDITOR)
         UmDevice.SetBackBuffer();
@@ -153,16 +225,19 @@ void Renderer::Render()
 
 void Renderer::Flip()
 {
-    UmDevice.Execute();
-    UmDevice.Flip();
-    UmDevice.ResetCommands();
-    UmDevice.ResetComputeCommands();
+    auto& device = UmDevice;
+
+    device.Execute();
+    device.Flip();
+    device.ResetCommands();
+    device.ResetComputeCommands();
 }
 
 void Renderer::CreateDefaultResource()
 {
     CreateDefaultGeometry();
     CreateDefaultTexture();
+    CreateDefaultRenderTarget();
 }
 
 void Renderer::CreateDefaultGeometry()
@@ -193,41 +268,43 @@ void Renderer::CreateDefaultGeometry()
     std::shared_ptr<Model>    geometry;
     std::unique_ptr<BaseMesh> baseMesh;
 
+    auto& resourceManager = UmResourceManager;
+
     baseMesh = std::move(box);
     geometry = std::make_shared<Model>();
     geometry->AddMesh(std::move(baseMesh));
     _defaultResource.push_back(geometry);
-    UmResourceManager.AddResource(L"Box", geometry);
+    resourceManager.AddResource(L"Box", geometry);
 
     baseMesh = std::move(cylinder);
     geometry = std::make_shared<Model>();
     geometry->AddMesh(std::move(baseMesh));
     _defaultResource.push_back(geometry);
-    UmResourceManager.AddResource(L"Cylinder", geometry);
+    resourceManager.AddResource(L"Cylinder", geometry);
 
     baseMesh = std::move(sphere);
     geometry = std::make_shared<Model>();
     geometry->AddMesh(std::move(baseMesh));
     _defaultResource.push_back(geometry);
-    UmResourceManager.AddResource(L"Sphere", geometry);
+    resourceManager.AddResource(L"Sphere", geometry);
 
     baseMesh = std::move(geoSphere);
     geometry = std::make_shared<Model>();
     geometry->AddMesh(std::move(baseMesh));
     _defaultResource.push_back(geometry);
-    UmResourceManager.AddResource(L"GeoSphere", geometry);
+    resourceManager.AddResource(L"GeoSphere", geometry);
 
     baseMesh = std::move(grid);
     geometry = std::make_shared<Model>();
     geometry->AddMesh(std::move(baseMesh));
     _defaultResource.push_back(geometry);
-    UmResourceManager.AddResource(L"Grid", geometry);
+    resourceManager.AddResource(L"Grid", geometry);
 
     baseMesh = std::move(quad);
     geometry = std::make_shared<Model>();
     geometry->AddMesh(std::move(baseMesh));
     _defaultResource.push_back(geometry);
-    UmResourceManager.AddResource(L"Quad", geometry);
+    resourceManager.AddResource(L"Quad", geometry);
 }
 
 void Renderer::CreateDefaultTexture()
@@ -283,13 +360,37 @@ void Renderer::CreateDefaultTexture()
     UmDevice.UploadResource(uploadHeap);
 }
 
+void Renderer::CreateDefaultRenderTarget()
+{
+    std::initializer_list<std::string_view> defaultRenderTargets = {"1024x1024", "512x512", "256x256", "128x128", "64x64", "32x32", "16x16", "8x8", "4x4", "2x2", "1x1"};
+    SharedResource<RenderTarget> renderTarget;
+    auto&                        multiRenderTargetManager = UmMultiRenderTargetManager;
+    DXGI_MODE_DESC               mode{.Width = 1024, .Height = 1024, .Format = DXGI_FORMAT_R32G32B32A32_FLOAT};
+
+    for (auto& defaultRenderTarget : defaultRenderTargets)
+    {
+        renderTarget = MakeSharedResource<RenderTarget>();
+        renderTarget->Initialize(mode, 0.f);
+
+        mode.Width >>= 1;
+        mode.Height >>= 1;
+
+        multiRenderTargetManager.AddRenderTarget(defaultRenderTarget, renderTarget);
+        multiRenderTargetManager.AddRenderTargetGroup("Mipmap", defaultRenderTarget.data());
+    }
+
+    mode = UmDevice.GetMode();
+    mode.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    multiRenderTargetManager.InitializeRenderTargetPool(4, mode);
+}
+
 void Renderer::InitializeImgui()
 {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
+    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;     // IF using Docking Branch
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;   // Enable Multi-Viewport / Platform Windows
 
@@ -352,8 +453,9 @@ void Renderer::ImguiEnd()
     ImGui::Render();
 
     ID3D12DescriptorHeap* descriptorHeaps[] = {UmViewManager.GetShaderResourceHeap()};
-    UmDevice.GetCommandList()->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
-    ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), UmDevice.GetCommandList());
+    auto                  commandList       = UmDevice.GetImguiCommandList();
+    commandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+    ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandList);
 
     if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
     {

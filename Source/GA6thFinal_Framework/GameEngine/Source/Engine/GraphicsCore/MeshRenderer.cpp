@@ -6,6 +6,7 @@
 MeshRenderer::MeshRenderer(MeshRenderType type, const Matrix& worldMatrix)
     : _type(type)
     , _worldMatrix(worldMatrix)
+    , _customDepth(0)
 {
 }
 
@@ -27,8 +28,8 @@ void MeshRenderer::SetModel(std::shared_ptr<Model> model)
 
     if (model->GetAnimation())
         _type = MeshRenderType::SKELETAL;
-
-    SetActive(true);
+    else
+        _type = MeshRenderType::STATIC;
 }
 
 void MeshRenderer::SetAnimator(std::shared_ptr<Animator> animator)
@@ -41,6 +42,11 @@ void MeshRenderer::RegisterRenderQueue(std::string_view sceneName)
     UmRenderer.RegisterRenderQueue(sceneName, this);
 }
 
+void MeshRenderer::RegisterRenderQueue()
+{
+    UmRenderer.RegisterRenderQueue(this);
+}
+
 void MeshRenderer::LoadModel(std::wstring_view filePath)
 {
     _model = UmResourceManager.LoadResource<Model>(filePath);
@@ -50,6 +56,4 @@ void MeshRenderer::LoadModel(std::wstring_view filePath)
         _animator = std::make_shared<Animator>();
         _animator->Initialize(_model->GetAnimation(), _model->GetSkeleton());
     }
-
-    SetActive(true);
 }

@@ -77,6 +77,7 @@ void Transform::SetParent(Transform* p)
         }
     }
     _hasChanged = true;
+    GameObject::Engine::UpdateActiveInHierarchy(&_gameObject);
 }
 
 void Transform::SetParent(Transform& p)
@@ -161,7 +162,8 @@ Transform* Transform::Find(std::string_view name) const
 
 void Transform::UpdateMatrix()
 {
-    ForeachDFS(*this, [](Transform* curr) 
+    Transform* root = _root ? _root : this;
+    ForeachDFS(*root, [](Transform* curr) 
     {
         curr->_localMatrix = Matrix::CreateScale(curr->_scale) *
                              Matrix::CreateFromQuaternion(curr->_rotation) *
@@ -175,8 +177,16 @@ void Transform::UpdateMatrix()
             curr->_worldMatrix = curr->_localMatrix * curr->_parent->_worldMatrix;
         }
         curr->_inversWorldMatrix = curr->_worldMatrix.Invert();
+
         curr->_forward = Vector3(curr->_worldMatrix._31, curr->_worldMatrix._32, curr->_worldMatrix._33);
         curr->_forward.Normalize();
+
+        curr->_up = Vector3(curr->_worldMatrix._21, curr->_worldMatrix._22, curr->_worldMatrix._23);
+        curr->_up.Normalize();
+
+        curr->_right = Vector3(curr->_worldMatrix._11, curr->_worldMatrix._12, curr->_worldMatrix._13);
+        curr->_right.Normalize();
+
         curr->_hasChanged = false;
     });
 }

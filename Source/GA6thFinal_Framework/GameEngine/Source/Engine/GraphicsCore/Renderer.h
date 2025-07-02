@@ -22,9 +22,14 @@ public:
 public:
     D3D12_GPU_DESCRIPTOR_HANDLE GetRenderSceneImage(std::string_view renderSceneName);
     std::shared_ptr<Camera>     GetCamera(std::string_view renderSceneName);
+    RenderScene*                GetRenderScene(std::string_view renderSceneName);
+
+public:
+    void SetCamera(std::string_view renderSceneName, std::shared_ptr<Camera> camera);
 
 public:
     void RegisterRenderQueue(std::string_view sceneName, MeshRenderer* component);
+    void RegisterRenderQueue(MeshRenderer* component);
 
     // 에디터나 게임씬 말고 다른 에디터 뷰에서 스카이 박스를 띄우고싶을수도 있으니 함수 오버로딩.
     void SetSkyBox(std::string_view sceneName, std::string_view path);
@@ -49,13 +54,14 @@ private:
     void CreateDefaultResource();
     void CreateDefaultGeometry();
     void CreateDefaultTexture();
+    void CreateDefaultRenderTarget();
 
 private:
     std::unique_ptr<RendererFileEvent> _rendererFileEvent;
 
 private:
     std::vector<std::pair<bool, MeshRenderer*>>                   _components;
-    std::unordered_map<std::string, std::shared_ptr<RenderScene>> _renderScenes;
+    std::unordered_map<std::string, std::unique_ptr<RenderScene>> _renderScenes;
     UINT                                                          _currnetState;
     std::list<std::shared_ptr<Resource>>                          _defaultResource;
 };

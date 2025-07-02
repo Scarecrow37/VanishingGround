@@ -32,6 +32,4 @@ private:
 
     std::unordered_map<std::string, EditorPopupBox*> _popupBoxTable;
     std::deque<EditorPopupBox*>                      _popupBoxQueue;
-
-    
 };

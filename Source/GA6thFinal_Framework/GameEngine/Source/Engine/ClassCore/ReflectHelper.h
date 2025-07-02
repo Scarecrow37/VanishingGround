@@ -21,20 +21,21 @@ namespace ReflectHelper
 struct ReflectSerializer
 {
 protected:
-    /*
-    직렬화 직전 자동으로 호출되는 이벤트 함수입니다.
-    직접 override 해서 사용합니다.
-    */
+    /// <summary>
+    /// <para> 직렬화 직전 자동으로 호출되는 이벤트 함수입니다. </para>
+    /// <para> 직접 override 해서 사용합니다.                 </para>
+    /// </summary>
     virtual void SerializedReflectEvent() {}
-    /*
-    역직렬화 이후 자동으로 호출되는 이벤트 함수 입니다.
-    직접 override 해서 사용합니다.
-    */
+  
+    /// <summary>
+    /// <para> 역직렬화 이후 자동으로 호출되는 이벤트 함수 입니다.  </para>
+    /// <para> 직접 override 해서 사용합니다.                     </para>
+    /// </summary>
     virtual void DeserializedReflectEvent() {}
 
-    /*
-    ImGuiDrawPropertys() 호출 이후 콜되는 이벤트 함수입니다.
-    */
+    /// <summary>
+    /// <para>  ImGuiDrawPropertys() 호출 이후 콜되는 이벤트 함수입니다. </para>
+    /// </summary>
     virtual void ImGuiDrawPropertysEvent() {}
 
 public:
@@ -259,25 +260,29 @@ namespace ReflectHelper
         {
             struct Int
             {
-                int                 step      = 0;
-                int                 step_fast = 0;
-                ImGuiInputTextFlags flags     = 0;
+                float            v_speed = 1.f;
+                int              min     = 0;
+                int              max     = 0;
+                const char*      format  = "%d";
+                ImGuiSliderFlags flags   = 0;
             } _int;
 
             struct Float
             {
-                float               step      = 0;
-                float               step_fast = 0;
-                std::string         format    = "%.3f";
-                ImGuiInputTextFlags flags     = 0;
+                float            v_speed = 0.1f;
+                float            min     = 0.f;
+                float            max     = 0.f;
+                const char*      format  = "%.3f";
+                ImGuiSliderFlags flags   = 0;
             } _float;
 
             struct Double
             {
-                double              step      = 0;
-                double              step_fast = 0;
-                std::string         format    = "%.6f";
-                ImGuiInputTextFlags flags     = 0;
+                float            v_speed = 0.01f;
+                double           min     = 0.0;
+                double           max     = 0.0;
+                const char*      format  = "%.6f";
+                ImGuiSliderFlags flags   = 0;
             } _double;
 
             struct String

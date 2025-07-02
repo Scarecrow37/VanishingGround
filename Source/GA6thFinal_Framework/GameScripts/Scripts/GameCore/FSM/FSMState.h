@@ -23,3 +23,6 @@ public:
     REFLECT_FIELDS_BEGIN(IFSMEntity)
     REFLECT_FIELDS_END(FSMState)
 };
+
+template <typename T>
+concept FSM_STATE_BASE = std::is_base_of_v<FSMState, T>;

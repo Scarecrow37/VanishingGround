@@ -1,7 +1,6 @@
 ﻿#include "pch.h"
 #include "FrameResource.h"
 #include "StructuredBuffer.h"
-#include "ShaderBuilder.h"
 
 FrameResource::FrameResource() {}
 

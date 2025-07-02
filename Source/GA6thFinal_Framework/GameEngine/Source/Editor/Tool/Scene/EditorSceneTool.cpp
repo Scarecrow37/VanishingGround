@@ -45,6 +45,11 @@ void EditorSceneTool::SetManipulateObject(std::weak_ptr<GameObject>& object)
     pSceneTool->_manipulateObject = object;
 }
 
+const Matrix& EditorSceneTool::GetCameraMatrix()
+{
+    return _camera->GetCamera()->GetWorldMatrix();
+}
+
 void EditorSceneTool::OnStartGui()
 {
     std::shared_ptr<Camera> camera = UmRenderer.GetCamera("Editor");
@@ -68,7 +73,7 @@ void EditorSceneTool::OnFrameRender()
     _window = ImGui::GetCurrentWindow();
     if (ImGui::IsWindowHovered())
     {
-        if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_MouseRight))
+        if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_MouseRight, false))
         {
             ImGui::SetWindowFocus();
         }
@@ -146,6 +151,10 @@ void EditorSceneTool::SetCamera()
     _sceneClientHeight = std::max(_sceneClientHeight, Mathf::Epsilon);
     ReflectFields->CameraAspect = _sceneClientWidth / _sceneClientHeight;
 
+    ReflectFields->CameraFov   = std::max(ReflectFields->CameraFov, 5.f);
+    ReflectFields->CameraNearZ = std::max(ReflectFields->CameraNearZ, 0.1f);
+    ReflectFields->CameraFarZ  = std::max(ReflectFields->CameraFarZ, 10.f);
+
     auto& camera = _camera->GetCamera();
     camera->SetupPerspective(
         ReflectFields->CameraFov,
@@ -158,16 +167,16 @@ void EditorSceneTool::UpdateKeyboardShortcuts()
 {
     if (false == ImGui::IsKeyDown(ImGuiKey_MouseRight))
     {
-        if (ImGui::IsKeyPressed(ImGuiKey_W))
+        if (ImGui::IsKeyPressed(ImGuiKey_W, false))
             _drawManipulateDesc.Operation = ImGuizmo::TRANSLATE;
-        if (ImGui::IsKeyPressed(ImGuiKey_E))
+        if (ImGui::IsKeyPressed(ImGuiKey_E, false))
             _drawManipulateDesc.Operation = ImGuizmo::ROTATE;
-        if (ImGui::IsKeyPressed(ImGuiKey_R))
+        if (ImGui::IsKeyPressed(ImGuiKey_R, false))
             _drawManipulateDesc.Operation = ImGuizmo::SCALE;
-        if (ImGui::IsKeyPressed(ImGuiKey_T))
+        if (ImGui::IsKeyPressed(ImGuiKey_T, false))
             _drawManipulateDesc.Operation = ImGuizmo::UNIVERSAL;
 
-        if (ImGui::IsKeyPressed(ImGuiKey_X))
+        if (ImGui::IsKeyPressed(ImGuiKey_X, false))
         {
             if (_drawManipulateDesc.Mode == ImGuizmo::MODE::LOCAL)
             {
@@ -179,7 +188,7 @@ void EditorSceneTool::UpdateKeyboardShortcuts()
             }
         }      
 
-        if (ImGui::IsKeyPressed(ImGuiKey_F))
+        if (ImGui::IsKeyPressed(ImGuiKey_F, false))
         {
             SetCameraToFocusObject();
         }
@@ -211,7 +220,7 @@ void EditorSceneTool::DrawManipulate()
 
             if (isLeftShiftHold)    
             {
-                if (IsFocusFrame() && ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_D))
+                if (IsFocusFrame() && ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_D, false))
                 {
                     UmCommandManager.Do<Command::EditorScene::DuplicateCommand>(pObject.get());
                 }
@@ -425,6 +434,22 @@ void EditorSceneTool::DrawSceneView()
         {
             ImGui::PopStyleColor(3);
         }
+
+        const auto& runtimeObjects = ESceneManager::Engine::GetRuntimeObjects();
+        for (auto& object : runtimeObjects)
+        {
+            if (object && object->IsValid())
+            {
+                for (size_t i = 0; i < object->GetComponentCount(); ++i)
+                {
+                    Component* component = object->GetComponentAtIndex<Component>(i);
+                    if (component)
+                    {
+                        component->OnDrawDebug();
+                    }
+                }
+            }
+        }
     };
     
     static bool showSettings = true;
@@ -466,9 +491,9 @@ void EditorSceneTool::DrawSceneView()
 
 void EditorSceneTool::SetCameraToFocusObject() 
 {
-    if (false == EditorHierarchyTool::HierarchyFocusObjWeak.expired())
+    if (false == EditorHierarchyTool::GetFocusObject().expired())
     {
-        auto focusObject = EditorHierarchyTool::HierarchyFocusObjWeak.lock();
+        auto focusObject = EditorHierarchyTool::GetFocusObject().lock();
         _camera->SetPosition(focusObject->transform->Position);
     }
 }
@@ -479,7 +504,7 @@ void EditorSceneTool::RayPicker()
         false == _isUsingStart && 
         false == _isUsingEnd)
     {
-        if (ImGui::IsWindowHovered() && ImGui::IsKeyReleased(ImGuiKey_MouseLeft))
+        if (IsFocusFrame() && ImGui::IsWindowHovered() && ImGui::IsKeyReleased(ImGuiKey_MouseLeft))
         {
             ImGuiIO& io = ImGui::GetIO();
             if (io.MousePos.x >= _sceneClienttLeft && io.MousePos.y >= _sceneClientTop &&
@@ -522,7 +547,7 @@ void EditorSceneTool::RayPicker()
                                 intersects = obbWorld.Intersects(rayPos, rayDir, dist);
                                 if (true == intersects)
                                 {
-                                    std::weak_ptr old = EditorHierarchyTool::HierarchyFocusObjWeak;
+                                    std::weak_ptr old = EditorHierarchyTool::GetFocusObject();
                                     UmCommandManager.Do<Command::Hierarchy::FocusCommand>(
                                         old, meshComponent->gameObject->GetWeakPtr());
                                     break;

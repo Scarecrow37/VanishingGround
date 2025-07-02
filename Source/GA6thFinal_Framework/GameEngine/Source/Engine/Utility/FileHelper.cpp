@@ -26,7 +26,7 @@ namespace File
             return S_OK;
         }
     }
-    bool CreateFolder(const File::Path& path) 
+    bool CreateFolder(const File::Path& path)
     {
         bool isExists    = fs::exists(path);
         bool isDirectory = (false == path.has_extension());
@@ -46,7 +46,7 @@ namespace File
         return false;
     }
 
-    bool CreateFolderEx(const File::Path& path, bool processDup) 
+    bool CreateFolderEx(const File::Path& path, bool processDup)
     {
         bool isExists    = fs::exists(path);
         bool isDirectory = (false == path.has_extension());
@@ -68,12 +68,12 @@ namespace File
     {
         File::Path AbsPath = fs::absolute(path);
 
-        HINSTANCE hr = ShellExecuteW(NULL,         // 부모 윈도우 핸들
-                                     L"open",      // 작업(“open”, “edit”, “print” 등)
+        HINSTANCE hr = ShellExecuteW(NULL,            // 부모 윈도우 핸들
+                                     L"open",         // 작업(“open”, “edit”, “print” 등)
                                      AbsPath.c_str(), // 실행할 파일 경로
-                                     NULL,         // 커맨드라인 인자
-                                     NULL, // 기본 디렉터리
-                                     SW_SHOWNORMAL // 창 표시 방식
+                                     NULL,            // 커맨드라인 인자
+                                     NULL,            // 기본 디렉터리
+                                     SW_SHOWNORMAL    // 창 표시 방식
         );
         if (reinterpret_cast<UINT_PTR>(hr) <= 32)
         {
@@ -155,18 +155,18 @@ namespace File
         File::Path name      = path.stem();
         File::Path parent    = path.parent_path();
         File::Path extension = path.extension();
-       
+
         if (false == fs::exists(path))
         {
             return path;
         }
         else
         {
-            File::Path newPath = path;
+            File::Path  newPath = path;
             std::string tail;
             for (int index = 2; index <= maxIndex; ++index)
             {
-                tail = " (" + std::to_string(index) + ")";
+                tail    = " (" + std::to_string(index) + ")";
                 newPath = parent / (name + tail + extension);
                 if (false == fs::exists(newPath))
                 {
@@ -188,12 +188,12 @@ namespace File
         }
 
         FileDialogDesc desc;
-        desc.Owner              = owner;
-        desc.Title              = title;
-        desc.InitialDirectory   = initialDir;
-        desc.DefaultFileName    = L""; // 초기 파일 이름은 없음
-        desc.Filters            = filters;
-        desc.Flags              = flags;
+        desc.Owner            = owner;
+        desc.Title            = title;
+        desc.InitialDirectory = initialDir;
+        desc.DefaultFileName  = L""; // 초기 파일 이름은 없음
+        desc.Filters          = filters;
+        desc.Flags            = flags;
 
         return ShowFileDialogEx(desc, out);
     }
@@ -202,11 +202,11 @@ namespace File
                                   const std::vector<std::pair<LPCWSTR, LPCWSTR>>& filters, OUT File::Path& out)
     {
         std::vector<File::Path> outPath;
-        DWORD flags = DIRECTORY_DIALOG_FLAG_SAVE_FILE;
+        DWORD                   flags = DIRECTORY_DIALOG_FLAG_SAVE_FILE;
 
         FileDialogDesc desc;
-        desc.Owner = owner;
-        desc.Title = title;
+        desc.Owner            = owner;
+        desc.Title            = title;
         desc.InitialDirectory = initialDir;
         desc.DefaultFileName  = defaultName;
         desc.Filters          = filters;
@@ -223,11 +223,11 @@ namespace File
     bool File::ShowOpenFolderDialog(HWND owner, LPCWSTR title, LPCWSTR initialDir, OUT File::Path& out)
     {
         std::vector<File::Path> outPath;
-        DWORD flags = DIRECTORY_DIALOG_FLAG_OPEN_FILE | DIRECTORY_DIALOG_FLAG_PICK_FOLDER;
+        DWORD                   flags = DIRECTORY_DIALOG_FLAG_OPEN_FILE | DIRECTORY_DIALOG_FLAG_PICK_FOLDER;
 
         FileDialogDesc desc;
-        desc.Owner = owner;
-        desc.Title = title;
+        desc.Owner            = owner;
+        desc.Title            = title;
         desc.InitialDirectory = initialDir;
         desc.DefaultFileName  = L""; // 초기 파일 이름은 없음
         desc.Filters          = {};
@@ -241,147 +241,154 @@ namespace File
 
     bool ShowFileDialogEx(IN const FileDialogDesc& desc, OUT std::vector<File::Path>& out)
     {
-        // COM 초기화
-        HRESULT hr = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
-        if (FAILED(hr))
-        {
-            return false;
-        }
-
-        IFileDialog* pDialog = nullptr;
-
-        // === 다이얼로그 생성 ===
-        if (desc.Flags & DIRECTORY_DIALOG_FLAG_SAVE_FILE)
-        {
-            hr = CoCreateInstance(CLSID_FileSaveDialog, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pDialog));
-        }
-        else
-        {
-            hr = CoCreateInstance(CLSID_FileOpenDialog, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pDialog));
-        }
-        if (FAILED(hr))
-        {
-            CoUninitialize();
-            return false;
-        }
-
-        // === 타이틀 설정 ===
-        pDialog->SetTitle(desc.Title);
-
-        // === 옵션 설정 ===
-        DWORD options = 0;
-        pDialog->GetOptions(&options);
-        options |= FOS_FORCEFILESYSTEM | FOS_NOCHANGEDIR | FOS_PATHMUSTEXIST; // 기본
-        if (desc.Flags & DIRECTORY_DIALOG_FLAG_PICK_FOLDER)
-        {
-            options |= FOS_PICKFOLDERS; // 폴더 선택
-        }
-        if (desc.Flags & DIRECTORY_DIALOG_FLAG_ALLOW_MULTISELECT)
-        {
-            options |= FOS_ALLOWMULTISELECT; // Ctrl/Shift로 다중 파일 선택 허용
-        }
-        if (desc.Flags & DIRECTORY_DIALOG_FLAG_SAVE_FILE)
-        {
-            options |= FOS_OVERWRITEPROMPT; // 저장 시 덮어쓰기 경고 (SaveDialog 전용)
-        }
-        pDialog->SetOptions(options); // 옵션 설정
-
-        // === 필터 설정 ===
-        if (false == desc.Filters.empty())
-        {
-            std::vector<COMDLG_FILTERSPEC> specs;
-            specs.reserve(desc.Filters.size());
-            for (const auto& [name, spec] : desc.Filters)
+        bool        result = false;
+        std::thread tr([&]() {
+            // COM 초기화
+            HRESULT hr = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
+            if (FAILED(hr))
             {
-                specs.push_back({name, spec});
+                return false;
             }
-            pDialog->SetFileTypes(static_cast<UINT>(specs.size()), specs.data());
-            pDialog->SetFileTypeIndex(1); // 첫 번째 필터 선택
-        }
 
-        // === 기본 폴더 설정 ===
-        fs::path defaultAbsPath = desc.InitialDirectory;
-        if (true == defaultAbsPath.empty())
-        {
-            defaultAbsPath = UmFileSystem.GetRootPath();
-        }
-        defaultAbsPath         = fs::absolute(defaultAbsPath);
-        IShellItem* folderItem = nullptr;
-        hr = SHCreateItemFromParsingName(defaultAbsPath.c_str(), nullptr, IID_PPV_ARGS(&folderItem));
-        if (SUCCEEDED(hr))
-        {
-            pDialog->SetFolder(folderItem); // 기본 폴더 설정
-            folderItem->Release();
-        }
+            IFileDialog* pDialog = nullptr;
 
-        // === 기본 파일 이름 설정 ===
-        if (desc.Flags & DIRECTORY_DIALOG_FLAG_SAVE_FILE)
-        {
-            // 저장 플래그에만 적용
-            pDialog->SetFileName(desc.DefaultFileName);
-        }
-
-        // 다이얼로그 실행
-        bool isGetPath = false;
-        hr             = pDialog->Show(desc.Owner);
-        if (SUCCEEDED(hr))
-        {
-            if ((desc.Flags & DIRECTORY_DIALOG_FLAG_ALLOW_MULTISELECT) &&
-                (desc.Flags & DIRECTORY_DIALOG_FLAG_OPEN_FILE))
+            // === 다이얼로그 생성 ===
+            if (desc.Flags & DIRECTORY_DIALOG_FLAG_SAVE_FILE)
             {
-                IFileOpenDialog* openDlg = nullptr;
-                hr                       = pDialog->QueryInterface(IID_PPV_ARGS(&openDlg));
-                if (FAILED(hr))
-
-                if (SUCCEEDED(hr))
-                {
-                    IShellItemArray* pItems = nullptr;
-                    hr                      = openDlg->GetResults(&pItems);
-                    if (SUCCEEDED(hr) && nullptr != pItems)
-                    {
-                        DWORD count = 0;
-                        pItems->GetCount(&count);
-                        for (DWORD i = 0; i < count; ++i)
-                        {
-                            IShellItem* pItem = nullptr;
-                            hr                = pItems->GetItemAt(i, &pItem);
-                            if (SUCCEEDED(hr))
-                            {
-                                PWSTR pszFilePath = nullptr;
-                                hr                = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
-                                if (SUCCEEDED(hr))
-                                {
-                                    out.emplace_back(pszFilePath);
-                                    CoTaskMemFree(pszFilePath);
-                                    isGetPath = true;
-                                }
-                                pItem->Release();
-                            }
-                        }
-                        pItems->Release();
-                    }
-                }
+                hr = CoCreateInstance(CLSID_FileSaveDialog, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pDialog));
             }
             else
             {
-                IShellItem* pItem = nullptr;
-                hr                = pDialog->GetResult(&pItem);
-                if (SUCCEEDED(hr) && pItem)
+                hr = CoCreateInstance(CLSID_FileOpenDialog, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pDialog));
+            }
+            if (FAILED(hr))
+            {
+                CoUninitialize();
+                return false;
+            }
+
+            // === 타이틀 설정 ===
+            pDialog->SetTitle(desc.Title);
+
+            // === 옵션 설정 ===
+            DWORD options = 0;
+            pDialog->GetOptions(&options);
+            options |= FOS_FORCEFILESYSTEM | FOS_NOCHANGEDIR | FOS_PATHMUSTEXIST; // 기본
+            if (desc.Flags & DIRECTORY_DIALOG_FLAG_PICK_FOLDER)
+            {
+                options |= FOS_PICKFOLDERS; // 폴더 선택
+            }
+            if (desc.Flags & DIRECTORY_DIALOG_FLAG_ALLOW_MULTISELECT)
+            {
+                options |= FOS_ALLOWMULTISELECT; // Ctrl/Shift로 다중 파일 선택 허용
+            }
+            if (desc.Flags & DIRECTORY_DIALOG_FLAG_SAVE_FILE)
+            {
+                options |= FOS_OVERWRITEPROMPT; // 저장 시 덮어쓰기 경고 (SaveDialog 전용)
+            }
+            pDialog->SetOptions(options); // 옵션 설정
+
+            // === 필터 설정 ===
+            if (false == desc.Filters.empty())
+            {
+                std::vector<COMDLG_FILTERSPEC> specs;
+                specs.reserve(desc.Filters.size());
+                for (const auto& [name, spec] : desc.Filters)
                 {
-                    LPWSTR pszFilePath = nullptr;
-                    hr                 = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
-                    if (SUCCEEDED(hr))
+                    specs.push_back({name, spec});
+                }
+                pDialog->SetFileTypes(static_cast<UINT>(specs.size()), specs.data());
+                pDialog->SetFileTypeIndex(1); // 첫 번째 필터 선택
+            }
+
+            // === 기본 폴더 설정 ===
+            fs::path defaultAbsPath = desc.InitialDirectory;
+            if (true == defaultAbsPath.empty())
+            {
+                defaultAbsPath = UmFileSystem.GetRootPath();
+            }
+            defaultAbsPath         = fs::absolute(defaultAbsPath);
+            IShellItem* folderItem = nullptr;
+            hr = SHCreateItemFromParsingName(defaultAbsPath.c_str(), nullptr, IID_PPV_ARGS(&folderItem));
+            if (SUCCEEDED(hr))
+            {
+                pDialog->SetFolder(folderItem); // 기본 폴더 설정
+                folderItem->Release();
+            }
+
+            // === 기본 파일 이름 설정 ===
+            if (desc.Flags & DIRECTORY_DIALOG_FLAG_SAVE_FILE)
+            {
+                // 저장 플래그에만 적용
+                pDialog->SetFileName(desc.DefaultFileName);
+            }
+
+            // 다이얼로그 실행
+            bool isGetPath = false;
+            hr             = pDialog->Show(NULL);
+            if (SUCCEEDED(hr))
+            {
+                if ((desc.Flags & DIRECTORY_DIALOG_FLAG_ALLOW_MULTISELECT) &&
+                    (desc.Flags & DIRECTORY_DIALOG_FLAG_OPEN_FILE))
+                {
+                    IFileOpenDialog* openDlg = nullptr;
+                    hr                       = pDialog->QueryInterface(IID_PPV_ARGS(&openDlg));
+                    if (FAILED(hr))
+
+                        if (SUCCEEDED(hr))
+                        {
+                            IShellItemArray* pItems = nullptr;
+                            hr                      = openDlg->GetResults(&pItems);
+                            if (SUCCEEDED(hr) && nullptr != pItems)
+                            {
+                                DWORD count = 0;
+                                pItems->GetCount(&count);
+                                for (DWORD i = 0; i < count; ++i)
+                                {
+                                    IShellItem* pItem = nullptr;
+                                    hr                = pItems->GetItemAt(i, &pItem);
+                                    if (SUCCEEDED(hr))
+                                    {
+                                        PWSTR pszFilePath = nullptr;
+                                        hr                = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
+                                        if (SUCCEEDED(hr))
+                                        {
+                                            out.emplace_back(pszFilePath);
+                                            CoTaskMemFree(pszFilePath);
+                                            isGetPath = true;
+                                        }
+                                        pItem->Release();
+                                    }
+                                }
+                                pItems->Release();
+                            }
+                        }
+                }
+                else
+                {
+                    IShellItem* pItem = nullptr;
+                    hr                = pDialog->GetResult(&pItem);
+                    if (SUCCEEDED(hr) && pItem)
                     {
-                        out.emplace_back(pszFilePath);
-                        CoTaskMemFree(pszFilePath);
-                        isGetPath = true;
+                        LPWSTR pszFilePath = nullptr;
+                        hr                 = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
+                        if (SUCCEEDED(hr))
+                        {
+                            out.emplace_back(pszFilePath);
+                            CoTaskMemFree(pszFilePath);
+                            isGetPath = true;
+                        }
+                        pItem->Release();
                     }
-                    pItem->Release();
                 }
             }
-        }
-        pDialog->Release();
-        CoUninitialize();
-        return isGetPath;
+            pDialog->Release();
+            CoUninitialize();
+            result = isGetPath;
+            return isGetPath;
+        });
+        tr.join();
+        return result;
     }
-} 
+
+} // namespace File

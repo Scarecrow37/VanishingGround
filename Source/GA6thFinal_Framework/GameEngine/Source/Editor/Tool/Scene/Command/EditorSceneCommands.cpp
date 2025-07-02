@@ -25,10 +25,16 @@ void Command::EditorScene::DestroyGameObjectCommand::Execute()
     int instanceID         = rootObject->GetInstanceID();
     rootObject->ActiveSelf = false;
     UmSceneManager.AddDestroyObjectQueue(rootObject.get());
-    if (EditorHierarchyTool::HierarchyFocusObjWeak.lock() == rootObject)
+
+    if (EditorHierarchyTool::GetFocusObject().lock() == rootObject)
     {
         std::weak_ptr<GameObject> empty;
-        EditorHierarchyTool::HierarchyFocusObjWeak = empty;
+        EditorHierarchyTool::SetFocusObject(empty);
+        _isFocus = true;
+    }
+    if (EditorInspectorTool::GetFocusObject().lock() == rootObject)
+    {
+        std::weak_ptr<GameObject> empty;
         EditorInspectorTool::SetFocusObject(empty);
         _isFocus = true;
     }
@@ -47,13 +53,18 @@ void Command::EditorScene::DestroyGameObjectCommand::Undo()
 
     if (_isFocus)
     {
-        EditorHierarchyTool::HierarchyFocusObjWeak = rootObject;
+        EditorHierarchyTool::SetFocusObject(rootObject);
         EditorInspectorTool::SetFocusObject(rootObject);
     }
 }
 
-Command::EditorScene::NewGameObjectCommand::NewGameObjectCommand(std::string_view type_id, std::string_view name)
-    : UmCommand("New GameObject"), _typeName(type_id), _newName(name), _active(true)
+Command::EditorScene::NewGameObjectCommand::NewGameObjectCommand(std::string_view type_id, std::string_view name,
+                                                                 GameObject** pOutObject)
+    : 
+    UmCommand("New GameObject"), 
+    _typeName(type_id), 
+    _newName(name), _active(true), 
+    _pOutObject(pOutObject)
 {
 }
 
@@ -63,6 +74,11 @@ void Command::EditorScene::NewGameObjectCommand::Execute()
     {
         _newObject  = UmGameObjectFactory.NewGameObject(_typeName, _newName);
         _ownerScene = _newObject->GetOwnerSceneName();
+        if (nullptr != _pOutObject)
+        {
+            *_pOutObject = _newObject.get();
+            _pOutObject  = nullptr;
+        }
     }
     else
     {
@@ -83,10 +99,14 @@ void Command::EditorScene::NewGameObjectCommand::Undo()
     _newObject->ActiveSelf = false;
     _newObject->transform->DetachChildren();
     UmSceneManager.AddDestroyObjectQueue(_newObject.get());
-    if (EditorHierarchyTool::HierarchyFocusObjWeak.lock() == _newObject)
+    if (EditorHierarchyTool::GetFocusObject().lock() == _newObject)
     {
         std::weak_ptr<GameObject> empty;
-        EditorHierarchyTool::HierarchyFocusObjWeak = empty;
+        EditorHierarchyTool::SetFocusObject(empty);
+    }
+    if (EditorInspectorTool::GetFocusObject().lock() == _newObject)
+    {
+        std::weak_ptr<GameObject> empty;
         EditorInspectorTool::SetFocusObject(empty);
     }
 }
@@ -104,6 +124,7 @@ void Command::EditorScene::DestroyComponentCommand::Execute()
     if (false == _ownerObject.expired())
     {
         UmSceneManager.AddDestroyComponentQueue(_destroyComponent.get());
+        _destroyComponent->Enable = false;
     }
 }
 
@@ -205,10 +226,14 @@ void Command::EditorScene::DuplicateCommand::Undo()
     int instanceID = rootObject->GetInstanceID();
     rootObject->ActiveSelf = false;
     UmSceneManager.AddDestroyObjectQueue(rootObject.get());
-    if (EditorHierarchyTool::HierarchyFocusObjWeak.lock() == rootObject)
+    if (EditorHierarchyTool::GetFocusObject().lock() == rootObject)
     {
         std::weak_ptr<GameObject> empty;
-        EditorHierarchyTool::HierarchyFocusObjWeak = empty;
+        EditorHierarchyTool::SetFocusObject(empty);
+    }
+    if (EditorInspectorTool::GetFocusObject().lock() == rootObject)
+    {
+        std::weak_ptr<GameObject> empty;
         EditorInspectorTool::SetFocusObject(empty);
     }
     rootObject->GetScene().IsDirty = true;

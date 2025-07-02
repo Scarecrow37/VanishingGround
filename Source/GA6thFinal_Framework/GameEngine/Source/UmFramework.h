@@ -43,6 +43,9 @@ constexpr const char* STR_NULL = "null";
 #include <dxgi1_6.h>
 #include <d3dcompiler.h>
 #include <wrl.h>
+#include <winrt/base.h>
+#include <Xinput.h>
+#include <xaudio2.h>
 
 #pragma comment(lib, "d3d12")
 #pragma comment(lib, "dxgi")
@@ -81,6 +84,7 @@ constexpr const char* STR_NULL = "null";
 #include <typeindex>
 #include <string_view>
 #include <concurrent_queue.h>
+#include <random>
 
 //ThirdParty
 #include "pugixml/pugixml.hpp"
@@ -107,6 +111,7 @@ using namespace DirectX::SimpleMath;
 using namespace Microsoft::WRL;
 
 //Utility
+#include "Engine/Utility/Random.h"
 #include "Engine/Utility/LogLevel.h"
 #include "Engine/Utility/utfHelper.h"
 #include "Engine/Utility/DumpUtility.h"
@@ -115,11 +120,17 @@ using namespace Microsoft::WRL;
 #include "Engine/Utility/stlHelper.h"
 #include "Engine/Utility/EditorHelper.h"
 #include "Engine/Utility/Mathf.h"
+#include "Engine/Utility/SharedResource.h"
 
 //Class Core
 #include "Engine/CommandCore/CommandManager.h"
 #include "Engine/ClassCore/TProperty.hpp"
 #include "Engine/ClassCore/ReflectHelper.h"
+
+//Input Core
+#include "Engine/InputCore/Declare/Exceptions/InputExceptions.h"
+#include "Engine/InputCore/Adapter/Controller/XInput/XInputAdapter.h"
+#include "Engine/InputCore/Devices/Controller/Controller.h"
 
 //Application Core
 #include "Engine/AppModule/Interface/IAppModule.h"
@@ -142,6 +153,13 @@ using namespace Microsoft::WRL;
 //Graphics
 #include "Engine/GraphicsCore/GraphicsCore.h"
 
+//Audio Core
+#include "Engine/AudioCore/Declare/Types/AudioTypes.h"
+#include "Engine/AudioCore/Declare/Exceptions/AudioExceptions.h"
+#include "Engine/AudioCore/Handle/AudioHandle.h"
+#include "Engine/AudioCore/Declare/Callback/IncreaseGenerationCallback.h"
+#include "Engine/AudioCore/AudioManager/AudioManager.h"
+
 //Engine Core
 #include "Engine/EngineCore/EngineLogger.h"
 #include "Engine/EngineCore/TimeSystem.h"
@@ -154,11 +172,13 @@ using namespace Microsoft::WRL;
 //Editor Core
 #include "Engine/EditorCore/Interface/IEditorObject.h"
 #include "Engine/EditorCore/Interface/IEditorCycle.h"
+#include "Engine/EditorCore/Utillity/EditorDragState.h"
 #include "Engine/EditorCore/Gui/EditorGui.h"
 #include "Engine/EditorCore/Gui/Tool/EditorTool.h"
 #include "Engine/EditorCore/Gui/Menu/EditorMenu.h"
 #include "Engine/EditorCore/Gui/PopupBox/EditorPopupBox.h"
 #include "Engine/EditorCore/Gui/DockWindow/EditorDockWindow.h"
+#include "Engine/EditorCore/Gui/Sequencer/EditorSequencer.h"
 #include "Engine/EditorCore/System/EditorPopupBoxSystem.h"
 #include "Engine/EditorCore/System/EditorGuiSystem.h"
 #include "Engine/EditorCore/EditorModule.h"
@@ -171,6 +191,7 @@ using namespace Microsoft::WRL;
 #include "Engine/GameCore/GameObject/GameObject.h"
 #include "Engine/GameCore/Component/Component.h"
 #include "Engine/GameCore/Component/MissingComponent.h"
+#include "Engine/GameCore/InputReciver/InputReceiver.h"
 
 //Application Module
 #include "Engine/AppModule/EngineCoresModule.h"
@@ -179,6 +200,10 @@ using namespace Microsoft::WRL;
 //DragDropTypes
 #include "Editor/DragDropTypes/DragDropTransform.h"
 #include "Editor/DragDropTypes/DragDropAsset.h"
+
+//Timeline System
+#include "Engine/TimelineCore/TimelineSystem.h"
+#include "Engine/TimelineCore/AnimationNotifySet.h"
 
 //컴포넌트는 접근 안하는 헤더들
 #ifndef _SCRIPTS_PROJECT
@@ -190,11 +215,18 @@ using namespace Microsoft::WRL;
 #include "Editor/Tool/Hierarchy/EditorHierarchyTool.h"
 #include "Editor/Tool/Hierarchy/HierarchyFindTool.h"
 #include "Editor/Tool/Scene/EditorSceneTool.h"
+#include "Editor/Tool/GameView/EditorGameView.h"
 #include "Editor/Tool/Log/EditorLogsTool.h"
 #include "Editor/Tool/Model/EditorModelDetails.h"
 #include "Editor/Tool/Model/EditorModelTool.h"
 #include "Editor/Tool/Model/EditorModelHierarchy.h"
+#include "Editor/Tool/Model/EditorAnimationNotifyTool.h"
 #include "Editor/Tool/Command/EditorCommandTool.h"
+#include "Editor/Tool/Sequencer/EditorSequencerTool.h"
+
+#include "Editor/Tool/ParticleEffect/EditorParticleEffectDetails.h"
+#include "Editor/Tool/ParticleEffect/EditorParticleEffectViewer.h"
+#include "Editor/Tool/ParticleEffect/EditorParticleEffectHierarchy.h"
 
 // Editor Menu
 #include "Editor/Menu/Project/EditorProjectMenu.h"

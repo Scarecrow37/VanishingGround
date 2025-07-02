@@ -26,10 +26,11 @@ namespace Command
         class NewGameObjectCommand : public UmCommand
         {
         public:
-            NewGameObjectCommand(std::string_view type_id, std::string_view name);
+            NewGameObjectCommand(std::string_view type_id, std::string_view name, GameObject** pOutObject = nullptr);
             virtual ~NewGameObjectCommand() = default;
 
         private:
+            GameObject**                _pOutObject;
             std::shared_ptr<GameObject> _newObject;
             std::string                 _ownerScene;
             std::string                 _newName;

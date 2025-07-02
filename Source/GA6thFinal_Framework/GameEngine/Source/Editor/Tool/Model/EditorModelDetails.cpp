@@ -17,12 +17,105 @@ EditorModelDetails::EditorModelDetails()
     SetDockLayout(ImGuiDir_Right);
 }
 
-void EditorModelDetails::OnTickGui() {}
+std::shared_ptr<Model> EditorModelDetails::GetModel() const
+{
+    return _meshRenderer ? _meshRenderer->GetModel() : std::shared_ptr<Model>();
+}
+
+std::shared_ptr<Animator> EditorModelDetails::GetAnimator() const
+{
+    return _animator;
+}
+
+std::shared_ptr<Animation> EditorModelDetails::GetAnimation() const
+{
+    const auto& model = GetModel();
+    if (nullptr != model)
+    {
+        return model->GetAnimation();
+    }
+    return std::shared_ptr<Animation>();
+}
+
+const std::string& EditorModelDetails::GetCurrentAnimationName() const
+{
+    return _currentAnimationName;
+}
+
+void EditorModelDetails::ChangeAnimation(std::string_view anim) 
+{
+    if (nullptr != _animator)
+    {
+        _currentAnimationName = anim.data();
+        _currentAnimationIndex = _animationIndexMap[anim.data()];
+        _animator->ChangeAnimation(anim.data());
+        _animationTime = 0.0f;
+    }
+}
+
+void EditorModelDetails::SetCurrentAnimationSpeed(float speed) 
+{
+    _animationSpeed = speed;
+}
+
+void EditorModelDetails::SetCurrentAnimationTime(float time) 
+{
+    _animationTime = time;
+}
+
+void EditorModelDetails::PlayCurrentAnimation()
+{
+    _isAnimationPlaying = false;
+    if (nullptr != _animator)
+    {
+        _animator->SetAnimationTime(0.0f);
+    }
+}
+
+void EditorModelDetails::ResumeCurrentAnimation()
+{
+    _isAnimationPlaying = true;
+}
+
+void EditorModelDetails::PauseCurrentAnimation() 
+{
+    _isAnimationPlaying = false;
+}
+
+void EditorModelDetails::StopCurrentAnimation() 
+{
+    _isAnimationPlaying = false;
+    if (nullptr != _animator)
+    {
+        _animator->SetAnimationTime(0.0f);
+    }
+}
+
+void EditorModelDetails::UpdateModelTransform() 
+{
+    Matrix matScale     = Matrix::CreateScale(_scale);
+    Matrix matRotation  = Matrix::CreateFromYawPitchRoll(_rotation.y, _rotation.x, _rotation.z);
+    Matrix matTranslate = Matrix::CreateTranslation(_position);
+
+    // 변환 순서: S  R  T
+    _worldMatrix = matScale * matRotation * matTranslate;
+}
+
+void EditorModelDetails::OnTickGui()
+{
+    if (nullptr != GetModel() && nullptr != GetAnimator() && nullptr != GetAnimation())
+    {
+        _animator->SetPause(!_isAnimationPlaying);
+        _animator->SetLoop(_isAnimationLooping);
+        _animator->SetAnimationSpeed(_animationSpeed);
+        _animationTime = _animator->GetCurrentAnimationPlayTime();
+        _animator->Update(UmTime.DeltaTime());
+    }
+}
 
 void EditorModelDetails::OnStartGui()
 {
     UmRenderer.RegisterRenderQueue("ModelViewer", _meshRenderer.get());
-    UmAnimationCore.RegisterAnimator(_animator);
     UmLightCore.RegisterLight("ModelViewer", _mainLight.get());
 
     _color = Vector3(1.f);
@@ -30,6 +123,10 @@ void EditorModelDetails::OnStartGui()
     _direction = Vector3(0.f, -1.f, 1.f);
     _intensity = 1.f;
     _mainLight->SetDirectionalLight(_color, _ambient, _direction, _intensity);
+
+    _mainLight->SetActive(&_isLightActive);
+
+    UpdateModelTransform();
 }
 
 void EditorModelDetails::OnEndGui() {}
@@ -53,60 +150,190 @@ void EditorModelDetails::OnFrameRender()
     }
     ImGui::EndHorizontal();
 
-    if (ImGui::CollapsingHeader("Light Property"))
+    if (ImGui::TreeNodeEx("Light Property##details"))
     {
-        ImGui::ColorPicker3("Color##Light", (float*)&_color);
-        ImGui::ColorPicker3("Ambient##Light", (float*)&_ambient);
+        ImGui::ColorEdit3("Color##Light", (float*)&_color);
+        ImGui::ColorEdit3("Ambient##Light", (float*)&_ambient);
         ImGui::SliderFloat3("Direction##Light", (float*)&_direction, -1.f, 1.f);
         ImGui::SliderFloat("Intensity##Light", &_intensity, 0.f, 1000.f);
+
+        ImGui::TreePop();
     }
+
+    ImGui::Separator();
 
     const auto& model = _meshRenderer->GetModel();
     if (model)
     {
         const auto type = _meshRenderer->GetType();
-
-        if (MeshRenderType::SKELETAL == type)
+        if (ImGui::TreeNodeEx("Model##details", ImGuiTreeNodeFlags_DefaultOpen))
         {
-            const auto& animation      = model->GetAnimation();
-            const auto& animationNames = animation->GetAnimations();
-            ImGui::Text("Animation");
-            ImGui::SameLine();
-            if (ImGui::Combo("##Animation", (int*)&_currentAnimationIndex, animationNames.data(), (int)animationNames.size()))
+            // ReadOnly inputText for file path
+            int flags = ImGuiInputTextFlags_ReadOnly | ImGuiInputTextFlags_AutoSelectAll;
+            std::string filePath  = _filePath.string();
+            char* filePathBuffer  = (char*)filePath.c_str();
+            size_t filePathLength = filePath.length() + 1;
+            ImGui::InputText("File Path##details", filePathBuffer, filePathLength, flags);
+            if (ImGui::IsItemHovered())
             {
-                _animator->ChangeAnimation(animationNames[_currentAnimationIndex]);
+                ImGui::SetTooltip(filePath.c_str());
             }
-        }
+            ImGui::Separator();
 
-        auto& materials = model->GetMaterials();
-        auto& material  = materials[_selectedMeshIndex];
+            if (ImGui::TreeNodeEx("Transform##details", ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                bool isDirty = false;
+                {
+                    ImGui::Text("Position: ");
+                    ImGui::DragFloat3("##position", &_position.x) ? isDirty = true : isDirty;
+                    ImGui::SameLine();
+                    if (ImGui::Button("Reset##position"))
+                    {
+                        _position = Vector3::Zero;
+                        isDirty   = true;
+                    }
+                }
+                {
+                    ImGui::Text("Rotation: ");
+                    ImGui::DragFloat3("##rotation", &_rotation.x) ? isDirty = true : isDirty;
+                    ImGui::SameLine();
+                    if (ImGui::Button("Reset##rotation"))
+                    {
+                        _rotation = Vector3::Zero;
+                        isDirty   = true;
+                    }
+                }
+                {
+                    ImGui::Text("Scale: ");
+                    ImGui::DragFloat3("##scale", &_scale.x) ? isDirty = true : isDirty;
+                    ImGui::SameLine();
+                    if (ImGui::Button("Reset##scale"))
+                    {
+                        _scale = Vector3::One;
+                        isDirty   = true;
+                    }
+                }
+                if (isDirty)
+                {
+                    UpdateModelTransform();
+                }
+                ImGui::TreePop();
+            }
 
-        if (ImGui::BeginTable("##material", 2, ImGuiTableFlags_Borders))
-        {
-            ImGui::TableNextRow();
-            ImGui::TableNextColumn();
-            const char* blendModeNames[] = {"Opaque", "Masked", "Translucent", "Additive", "Modulate"};
-            ImGui::Text("Blend Mode");
-            
-            ImGui::TableNextColumn();
-            ImGui::Combo("##blendMode", (int*)&material.Mode, blendModeNames, (int)Material::BlendMode::END);
+            ImGui::Separator();
 
-            ImGui::TableNextRow();
-            ImGui::TableNextColumn();
-            const char* shadingModelNames[] = {"Unlit", "Default Lit"};
-            ImGui::Text("Shading Model");
-            
-            ImGui::TableNextColumn();
-            ImGui::Combo("##shadingModel", (int*)&material.Model, shadingModelNames, (int)Material::ShadingModel::END);
-            
-            ImGui::TableNextRow();
-            ImGui::TableNextColumn();
-            ImGui::Text("Two Sided");
-            
-            ImGui::TableNextColumn();
-            ImGui::Checkbox("##Two Sided", &material.IsTwoSided);
+            if (ImGui::TreeNodeEx("Animation##details", ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                const auto& animation = model->GetAnimation();
+                if (nullptr == animation)
+                {
+                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.3f, 0.3f, 1.0f));
+                    ImGui::Text("this model has no animation data.");
+                    ImGui::PopStyleColor();
+                }
+                else
+                {
+                    const auto& animationNames = animation->GetAnimations();
+                    const char* comboLabel =
+                        _currentAnimationIndex == -1 ? "-" : animationNames[_currentAnimationIndex];
+                    if (ImGui::BeginCombo("##Animation", comboLabel))
+                    {
+                        for (int i = 0; i < animationNames.size(); ++i)
+                        {
+                            bool isSelected = (_currentAnimationIndex == i);
+                            if (ImGui::Selectable(animationNames[i], isSelected))
+                            {
+                                _currentAnimationIndex = i;
+                                _currentAnimationName  = animationNames[i];
+                                ChangeAnimation(animationNames[i]);
+                            }
+                        }
+                        ImGui::EndCombo();
+                    }
 
-            ImGui::EndTable();
+                    if (true == _currentAnimationName.empty())
+                    {
+                        ImGui::BeginDisabled();
+                    }
+                    {
+                        bool usePushStyleColor = _isAnimationPlaying;
+                        if (true == usePushStyleColor)
+                            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.2f, 0.8f, 0.2f, 1.0f));
+                        if (ImGui::Button(EditorIcon::ICON_PLAY))
+                            _isAnimationPlaying = !_isAnimationPlaying;
+                        if (true == usePushStyleColor)
+                            ImGui::PopStyleColor();
+                        if (ImGui::IsItemHovered())
+                            ImGui::SetTooltip("Play");
+
+                        ImGui::SameLine();
+
+                        if (ImGui::Button(EditorIcon::ICON_PAUSE))
+                            PauseCurrentAnimation();
+                        if (ImGui::IsItemHovered())
+                            ImGui::SetTooltip("Pause");
+
+                        ImGui::SameLine();
+
+                        if (ImGui::Button(EditorIcon::ICON_STOP))
+                            StopCurrentAnimation();
+                        if (ImGui::IsItemHovered())
+                            ImGui::SetTooltip("Stop");
+                    }
+                    if (true == _currentAnimationName.empty())
+                    {
+                        ImGui::EndDisabled();
+                    }
+
+                    ImGui::Checkbox("Loop", &_isAnimationLooping);
+
+                    float min = 0.0f;
+                    float max = _animator->GetCurrentAnimationLastTime();
+                    ImGui::SliderFloat("Current Animation Frame", &_animationTime, min, max);
+                    ImGui::DragFloat("Animation Speed", &_animationSpeed, 0.01f);
+                }
+                ImGui::TreePop();
+            }
+            ImGui::Separator();
+
+            auto& materials = model->GetMaterials();
+            auto& material  = materials[_selectedMeshIndex];
+
+            if (ImGui::TreeNodeEx("Material##details", ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                if (ImGui::BeginTable("##material", 2, ImGuiTableFlags_Borders))
+                {
+                    ImGui::TableNextRow();
+                    ImGui::TableNextColumn();
+                    const char* blendModeNames[] = {"Opaque", "Masked", "Translucent", "Additive", "Modulate"};
+                    ImGui::Text("Blend Mode");
+
+                    ImGui::TableNextColumn();
+                    ImGui::Combo("##blendMode", (int*)&material.Mode, blendModeNames, (int)Material::BlendMode::END);
+
+                    ImGui::TableNextRow();
+                    ImGui::TableNextColumn();
+                    const char* shadingModelNames[] = {"Unlit", "Default Lit"};
+                    ImGui::Text("Shading Model");
+
+                    ImGui::TableNextColumn();
+                    ImGui::Combo("##shadingModel", (int*)&material.Model, shadingModelNames,
+                                 (int)Material::ShadingModel::END);
+
+                    ImGui::TableNextRow();
+                    ImGui::TableNextColumn();
+                    ImGui::Text("Two Sided");
+
+                    ImGui::TableNextColumn();
+                    ImGui::Checkbox("##Two Sided", &material.IsTwoSided);
+
+                    ImGui::EndTable();
+                }
+                ImGui::TreePop();
+            }
+            ImGui::Separator();
+
+            ImGui::TreePop();
         }
     }
 }
@@ -141,11 +368,25 @@ void EditorModelDetails::ImportModel()
         FBXConverter& fbxConverter = GetFBXConverter();
         fbxConverter.ImportModel(path.front(), model);
         _meshRenderer->SetModel(model);
+        _meshRenderer->SetActive(&_isModelActive);
         _animator->Initialize(model->GetAnimation(), model->GetSkeleton());
         _meshRenderer->SetAnimator(_animator);
-
         _filePath = path.front();
         _filePath.replace_extension("UmModel");
+
+        _animationIndexMap.clear();
+        _currentAnimationIndex = -1;
+        _currentAnimationName  = "";
+        auto& animatoion = model->GetAnimation();
+        if (nullptr != animatoion)
+        {
+            auto& animations = animatoion->GetAnimations();
+            for (int i = 0; i < animations.size(); ++i)
+            {
+                _animationIndexMap[animations[i]] = i;
+            }
+        }
+        StopCurrentAnimation();
     }
 }
 

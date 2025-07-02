@@ -2,7 +2,8 @@
 
 //참고 Unity Game Loop https://docs.unity3d.com/kr/2022.3/Manual/ExecutionOrder.html
 class Component abstract :
-    public ReflectSerializer
+    public ReflectSerializer,
+    public ITimeInvoker
 {
     inline static GameObject staticDummyObject;
     friend class GameObject;
@@ -11,21 +12,23 @@ class Component abstract :
     USING_PROPERTY(Component)
 
 public:
-    enum class Type
+    enum class TYPE
     {
         // 일반
         GENERIC,    
         // 렌더러
         RENDER,
         // 조명
-        Light,
+        LIGHT,
+        // 카메라
+        CAMERA,
     };
 
     /// <summary>
     /// 생성시 타입 플래그를 지정해줘야합니다.
     /// </summary>
     /// <param name="isMeshComponent"></param>
-    Component(Type type = Type::GENERIC);
+    Component(TYPE type = TYPE::GENERIC);
     virtual ~Component();
 
     /// <summary>
@@ -36,6 +39,9 @@ public:
     {
         return _weakPtr;
     }
+
+    // ITimeInvoker을(를) 통해 상속됨
+    virtual std::weak_ptr<ITimeInvoker> GetWeakInvoker() override;
 
 protected:
     /// <summary>
@@ -95,6 +101,20 @@ protected:
     virtual void OnApplicationQuit() {};
 
 public:
+    /// <summary>
+    /// <para> 에디터 Scene View에 DrawDebug를 그리기 위한 함수입니다. </para>
+    /// <para> 에디터 에서만 호출됩니다.                               </para>
+    /// </summary>
+    virtual void OnDrawDebug() {};
+
+    /// <summary>
+    /// <para> 에디터 Scene View에 DrawDebug를 그리기 위한 함수입니다. </para>
+    /// <para> 컴포넌트가 Inspector에 선택되었을때만 호출됩니다. </para>
+    /// <para> 에디터 에서만 호출됩니다. </para>
+    /// </summary>
+    virtual void OnDrawDebugSelected() {};
+
+public:
     GETTER_ONLY(GameObject&, gameObject)
     {
         return *_gameObject;
@@ -121,6 +141,13 @@ public:
     //  컴포넌트의 활성화 여부입니다.
     PROPERTY(Enable);
 
+    GETTER_ONLY(const bool&, EnableInHierarchy)
+    {
+        return _enableInHierarchy;
+    }
+    // 컴포넌트의 하이러키 기준 활성화 여부입니다.
+    PROPERTY(EnableInHierarchy);
+
     REFLECT_PROPERTY(
         Enable
     )
@@ -144,7 +171,7 @@ public:
     /// 이 컴포넌트의 타입입니다.
     /// </summary>
     /// <returns>컴포넌트의 타입</returns>
-    Component::Type GetType() const
+    Component::TYPE GetType() const
     {
         return _type;
     }
@@ -224,16 +251,22 @@ private:
     };
     InitFlags _initFlags;
 
-    const Type _type;
+    const TYPE _type;
     std::string _className;
     GameObject* _gameObject;
     std::weak_ptr<Component> _weakPtr;
+    bool _enableInHierarchy;
 
 private:
     /// <summary>
     /// 프리팹용 OverrideFlag들을 해제합니다. 에디터 모드에서만 동작합니다.
     /// </summary>
     inline void UnsetOverrideFlags();
+
+    /// <summary>
+    /// _enableInHierarchy을 갱신합니다.
+    /// </summary>
+    void UpdateEnableInHierarchy();
 
 };
 
@@ -277,3 +310,6 @@ inline void Component::UnsetOverrideFlags()
         });
     }
 }
+
+
+

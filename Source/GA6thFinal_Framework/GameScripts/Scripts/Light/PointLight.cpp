@@ -1,4 +1,5 @@
-﻿#include "PointLight.h"
+﻿#include "pchScripts.h"
+#include "PointLight.h"
 #include "Engine/GraphicsCore/Light.h"
 
 PointLight::PointLight()
@@ -7,10 +8,14 @@ PointLight::PointLight()
 }
 PointLight::~PointLight() = default;
 
-void PointLight::DeserializedReflectEvent() 
+void PointLight::DeserializedReflectEvent()
 {
     _attenuation = Vector3(ReflectFields->Attenuation.data());
+}
 
+void PointLight::ImGuiDrawPropertysEvent() 
+{
+   
 }
 
 void PointLight::Reset() 
@@ -21,4 +26,17 @@ void PointLight::Reset()
     float&         intensity   = ReflectFields->Basefields.get().Intensity;
 
     Lighting.SetPointLight(color, transform->Position, attenuation, range, intensity);
+}
+
+void PointLight::OnDrawDebug() 
+{
+
+}
+
+void PointLight::OnDrawDebugSelected() 
+{
+    BoundingSphere sphere;
+    sphere.Center = transform->Position;
+    sphere.Radius = ReflectFields->Range;
+    UmDebugDrawCore.Draw("Editor", sphere, LightComponent::DEBUG_COLOR);
 }

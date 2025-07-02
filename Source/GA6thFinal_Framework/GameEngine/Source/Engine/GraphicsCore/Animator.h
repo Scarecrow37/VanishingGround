@@ -24,11 +24,23 @@ class Animator : public GraphicsBase
 
 public:
 	Animator();
-	virtual ~Animator() = default;
+	virtual ~Animator();
 
 public:
 	const Matrix* GetAnimationTransform() const { return _animationTransforms.data(); }
     const Matrix* FindBoneMatrix(const char* boneName) const;
+    float         GetCurrentAnimationLastTime(unsigned int ID = 0) const;
+    float         GetCurrentAnimationPlayTime(unsigned int ID = 0) const;
+    float         GetCurrentAnimationSpeed(unsigned int ID = 0) const;
+    bool          IsPaused() const;
+    bool          IsLoop() const;
+
+    void          SetAnimationTime(float time);
+    void          SetAnimationTime(float time, unsigned int ID);
+    void          SetAnimationSpeed(float speed);
+    void          SetAnimationSpeed(float speed, unsigned int ID);
+    void          SetPause(bool isPause);
+    void          SetLoop(bool isLoop);
 
 public:
     void Initialize(std::wstring_view filePath, std::shared_ptr<Skeleton> skeleton);
@@ -42,8 +54,7 @@ public:
 	bool IsLastFrame(float interval, unsigned int ID) const;
 	void SetUpSplitBone(unsigned int maxSplit);
 	void SplitBone(unsigned int ID, const char* boneName);
-	void SetAnimationSpeed(float speed);
-	void SetAnimationSpeed(float speed, unsigned int ID);
+	
 	void MakeParent(const char* parent, const char* child);
 
 private:
@@ -84,4 +95,6 @@ private:
 	unsigned int							_maxSplit{ 0 };	
 	bool                                    _isBlending{false};
     bool                                    _isInitialize{false};
+    bool                                    _isPause{false};
+    bool                                    _isLoop{true};
 };

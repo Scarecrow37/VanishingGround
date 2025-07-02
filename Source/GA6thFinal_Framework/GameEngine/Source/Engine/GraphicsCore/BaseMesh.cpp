@@ -42,3 +42,8 @@ void BaseMesh::Render(ID3D12GraphicsCommandList* commandList)
 {
 	_viBuffer->DrawIndexedInstanced(commandList);
 }
+
+void BaseMesh::Render(ID3D12GraphicsCommandList* commandList, UINT instanceCount) 
+{
+    _viBuffer->DrawIndexedInstanced(commandList, instanceCount);
+}

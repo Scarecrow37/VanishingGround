@@ -5,6 +5,7 @@ class ESceneManager;
 class GraphicsBase;
 class MeshComponent;
 class LightComponent;
+class CameraComponent;
 class Model;
 namespace Command::EditorScene
 {
@@ -25,6 +26,7 @@ struct Scene
 {
     USING_PROPERTY(Scene)
     friend class ESceneManager;
+
     Scene() = default;
     ~Scene() = default;
 public:
@@ -127,6 +129,7 @@ private:
     static bool RootGameObjectsFilter(GameObject* obj, std::string_view scenePath);
 
 public:
+    class InputSystem;
     static constexpr const char* SCENE_EXTENSION = ".UmScene";
     static constexpr const char* SETTING_FILE_NAME = "SceneManager.setting.json";
     static constexpr const char* EMPTY_SCENE_NAME  = "EmptyScene";
@@ -283,6 +286,29 @@ public:
         /// <param name="tag :">태그</param>
         /// <returns></returns>
         static bool EraseGameObjectTag(GameObject* gameObject, std::string_view tag); 
+
+        /// <summary>
+        /// 게임을 렌더링할 메인 카메라를 설정합니다.
+        /// </summary>
+        static void SetSceneMainCamera(CameraComponent* camera);
+
+        /// <summary>
+        /// 메인카메라를 해제합니다.
+        /// </summary>
+        /// <param name="camera"></param>
+        static void ResetSceneMainCamera();
+
+        /// <summary>
+        /// 메인 카메라를 반환합니다.
+        /// </summary>
+        /// <returns></returns>
+        static CameraComponent* GetMainCamera();
+
+        /// <summary>
+        /// 씬 매니저의 InputSystem을 반환합니다.
+        /// </summary>
+        /// <returns></returns>
+        static ESceneManager::InputSystem& GetInputSystem();
     };
 
 public:
@@ -430,6 +456,68 @@ public:
     /// 씬 리소스 관리를 위한 맴버입니다.
     /// </summary>
     SceneResourceManager ResourceManager;
+    
+public:
+    class InputSystem
+    {
+        friend class InputReceiver;
+
+    public:
+        enum class ControllerButton
+        {
+            DPAD_UP,
+            DPAD_DOWN,
+            DPAD_LEFT,
+            DPAD_RIGHT,
+            START,
+            BACK,
+            LEFT_THUMB_BUTTON,
+            RIGHT_THUMB_BUTTON,
+            LEFT_SHOULDER,
+            RIGHT_SHOULDER,
+            LEFT_TRIGGER,
+            RIGHT_TRIGGER,
+            A,
+            B,
+            X,
+            Y,
+            LEFT_THUMB_STICK,
+            RIGHT_THUMB_STICK,
+            UNKNOWN
+        };
+
+        enum class Action
+        {
+            IDLE,
+            RELEASED, 
+            HELD,
+            PRESSED,
+            UNKNOWN
+        };
+
+        void UpdateInput();
+
+    private:
+        static constexpr size_t ACTION_COUNT = (size_t)Action::UNKNOWN;
+        static constexpr size_t CONTROLLER_BUTTON_COUNT = (size_t)ControllerButton::UNKNOWN;
+
+        Input::XInputAdapter                            _inputAdapter;
+        Input::Controller                               _inputController{&_inputAdapter};
+        bool                                            _isConnect = false;
+        std::array<Action, CONTROLLER_BUTTON_COUNT>     _actionTracker{Action::IDLE,};
+
+        std::array<std::array<std::vector<std::pair<InputReceiver*, std::function<void(const Input::Controller&)>>>, 
+            ACTION_COUNT>,
+            CONTROLLER_BUTTON_COUNT>
+            _receivers;
+
+    private:
+        void UpdateTracker(Input::Controller::Button button);
+
+    };
+
+private:
+    InputSystem _inputSystem;
 
 private:
 #ifdef _UMEDITOR
@@ -447,6 +535,7 @@ private:
     void ObjectsAwake();             //Awake 예정인 컴포넌트들의 Awake 함수를 호출합니다.
     void ObjectsOnEnable();          //OnEnable 예정인 컴포넌트들의 OnEnable 함수를 호출합니다.
     void ObjectsStart();             //Start 예정인 컴포넌트들의 Start 함수를 호출합니다.
+    void ObjectsInputUpdate();       //Input을 사용하는 Component들의 Event를 Update합니다.
     void ObjectsFixedUpdate();       //FixedUpdate를 호출합니다.
     void ObjectsUpdate();            //Update 를 호출합니다.
     void ObjectsLateUpdate();        //LateUpdate를 호출합니다.
@@ -522,12 +611,14 @@ private:
     //OnEnable, OnDisable을 set과 같이 관리
     std::tuple<std::unordered_set<Component*>, std::vector<Component*>, std::vector<bool*>> _onEnableQueue;
     std::tuple<std::unordered_set<Component*>, std::vector<Component*>, std::vector<bool*>> _onDisableQueue;
-
-    //Renderer의 Enable, Disable 변경 관리용
-    std::pair<std::vector<GraphicsBase*>, std::vector<GraphicsBase*>> _meshSetActiveQueue;
+    std::pair<std::unordered_set<GameObject*>, std::vector<GameObject*>> _updateEnableQueue;
+    std::pair<std::unordered_set<GameObject*>, std::vector<GameObject*>> _updateDisableQueue;
 
     //Scene에 실행중인 Render component들
     std::vector<std::weak_ptr<MeshComponent>> _runtimeMeshComponents;
+
+    //현재 Scene의 MainCamera
+    CameraComponent* _mainCamera;
 
 private:
     // 이전에 로드한 씬 이름입니다.

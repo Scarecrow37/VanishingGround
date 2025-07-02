@@ -193,6 +193,7 @@ private:
     std::unordered_set<std::string>          _moduleSet;
     std::vector<std::unique_ptr<IAppModule>> _appModuleList;
     std::vector<MessageHandler>              _messageHandleList;
+
 };
 
 struct ClientHelper

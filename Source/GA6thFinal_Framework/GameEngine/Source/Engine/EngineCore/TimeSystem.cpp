@@ -21,12 +21,14 @@ void ETimeSystem::TimeSystemUpdate()
 	_time += tickTime * (LONGLONG)TimeScale;
 
 	_unscaledDeltaTime = double(tickTime) / double(_frequency.QuadPart);
-	_deltaTime			= (std::min)(_unscaledDeltaTime * TimeScale, MaximumDeltaTime);
+	_deltaTime = (std::min)(_unscaledDeltaTime * TimeScale, MaximumDeltaTime);
 
 	if (FixedTimeStep > std::numeric_limits<double>::epsilon())
 	{
 		_elapsedFixedTime += _deltaTime;
 	}
+
+    UpdateInvokeFunctions();
 }
 
 bool ETimeSystem::TimeSystemFixedUpdate()
@@ -41,6 +43,55 @@ bool ETimeSystem::TimeSystemFixedUpdate()
 	return false;
 }
 
+void ETimeSystem::UpdateInvokeFunctions() 
+{
+    bool erase = false;
+    float deltaTime = (float)_deltaTime;
+    for (auto& [weak, delay, func, elapsed] : _safeInvokeFunctions)
+    {
+        if (true == weak.expired())
+        {
+            erase = true;
+        }
+        else
+        {
+            elapsed += deltaTime;
+            if (delay <= elapsed)
+            {
+                func();
+                erase = true;
+            }
+        }
+    }
+    if (erase)
+    {
+        std::erase_if(_safeInvokeFunctions, [](auto& tuple) 
+        { 
+            auto& [weak, delay, func, elapsed] = tuple;
+            return weak.expired() || delay <= elapsed;
+        });
+    }
+
+    erase = false;
+    for (auto& [delay, func, elapsed] : _unsafeInvokeFunctions)
+    {
+        elapsed += deltaTime;
+        if (delay <= elapsed)
+        {
+            func();
+            erase = true;
+        }
+    }
+    if (erase)
+    {
+        std::erase_if(_unsafeInvokeFunctions, [](auto& tuple) 
+        {
+            auto& [delay, func, elapsed] = tuple;
+            return delay <= elapsed;
+        });
+    }
+}
+
 void ETimeSystem::Engine::TimeSystemUpdate()
 {
 	engineCore->Time.TimeSystemUpdate();
@@ -49,4 +100,10 @@ void ETimeSystem::Engine::TimeSystemUpdate()
 bool ETimeSystem::Engine::TimeSystemFixedUpdate()
 {
 	return engineCore->Time.TimeSystemFixedUpdate();
+}
+
+void ETimeSystem::Engine::CleanUpInvokeFuntions() 
+{
+    engineCore->Time._unsafeInvokeFunctions.clear();
+    engineCore->Time._safeInvokeFunctions.clear();
 }

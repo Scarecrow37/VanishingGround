@@ -17,7 +17,8 @@ std::shared_ptr<TObject> NewGameObject(
 //함수는 일단 선언만. 구현은 나중에. 
 class GameObject : 
     public ReflectSerializer,
-    public IEditorObject
+    public IEditorObject,
+    public ITimeInvoker
 {
     friend class EGameObjectFactory;
     friend class EComponentFactory;
@@ -148,6 +149,9 @@ public:
         return _weakPtr; 
     }
 
+    // ITimeInvoker을(를) 통해 상속됨
+    virtual std::weak_ptr<ITimeInvoker> GetWeakInvoker() override;
+
     /// <summary>
     /// <para> 전달받은 GameObject가 속해있는 Scene을 반환합니다. </para>
     /// </summary>
@@ -169,7 +173,7 @@ public:
     /// <returns></returns>
     bool IsValid() const
     {
-        return STR_NULL != _ownerScene;
+        return STR_NULL != _ownerScene && 0 <= _instanceID;
     }
 
     /// <summary>
@@ -239,6 +243,26 @@ public:
     /// </summary>
     inline int GetComponentIndex(const Component* pComponent) const;
 
+    /// <summary>
+    /// 태그를 추가합니다.
+    /// </summary>
+    /// <param name="tag :">추가할 태그</param>
+    /// <returns>성공 여부</returns>
+    bool AddTag(std::string_view tag);
+
+    /// <summary>
+    /// 태그를 제거합니다.
+    /// </summary>
+    /// <param name="tag :">추가할 태그</param>
+    /// <returns>성공 여부</returns>
+    bool RemoveTag(std::string_view tag);
+
+    /// <summary>
+    /// 이 오브젝트에 해당 태그 존재 여부를 반환합니다.
+    /// </summary>
+    /// <param name="tag :">태그</param>
+    /// <returns>존재 여부</returns>
+    bool CompareTag(std::string_view tag);
 
  private:
     //IEditorObject에서 상속됨
@@ -252,16 +276,8 @@ public:
 //프로퍼티
 public:
     GETTER_ONLY(bool, ActiveInHierarchy)
-    {
-        Transform* curr = &_transform;
-        while (curr != nullptr)
-        {
-            if (!curr->gameObject->ReflectFields->_activeSelf)
-                return false;
-
-            curr = curr->Parent;
-        }
-        return true;
+    {   
+        return _activeInHierarchy;
     }
     // get : 실제 활성화 여부 (부모가 false면 false)
     PROPERTY(ActiveInHierarchy);
@@ -372,10 +388,18 @@ private:
     File::Guid                               _prefabGuid;
     std::vector<std::shared_ptr<Component>>  _components;
     int                                      _instanceID;
+    bool                                     _activeInHierarchy;
 
 public:
-    //activeInHierarchy와 같음.
-    operator bool() { return ActiveInHierarchy; }
+    struct Engine
+    {
+        static void ResetActiveInHierarchy(GameObject* obj);
+        static void UpdateActiveInHierarchy(GameObject* obj);
+    };
+  
+public:
+    //ActiveInHierarchy와 같음.
+    operator bool() { return _activeInHierarchy; }
     bool operator != (const GameObject& rhs)
     {
         return this != &rhs;
@@ -460,3 +484,5 @@ inline int GameObject::GetComponentIndex(const Component* pComponent) const
     }
     return -1;
 }
+
+

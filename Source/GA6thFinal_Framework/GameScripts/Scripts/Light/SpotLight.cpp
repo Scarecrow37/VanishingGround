@@ -1,4 +1,5 @@
-﻿#include "SpotLight.h"
+﻿#include "pchScripts.h"
+#include "SpotLight.h"
 SpotLight::SpotLight() = default;
 SpotLight::~SpotLight() = default;
 
@@ -18,4 +19,17 @@ void SpotLight::Reset()
     const float&   inner       = ReflectFields->Inner;
     const float&   outer      = ReflectFields->Outer;
     Lighting.SetSpotLight(color, position, direction, attenuation, range, inner, outer, intensity);
+}
+
+void SpotLight::OnDrawDebug() 
+{
+
+}
+
+void SpotLight::OnDrawDebugSelected() 
+{
+    Vector3 position  = transform->Position;
+    Vector3 direction = transform->Forward;
+    UmDebugDrawCore.DrawSpotLight("Editor", position, direction, GetRange(), XMConvertToRadians(ReflectFields->Inner),
+                                  XMConvertToRadians(ReflectFields->Outer), LightComponent::DEBUG_COLOR);
 }

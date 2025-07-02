@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "Engine/GraphicsCore/Model.h"
 #include "Engine/GraphicsCore/Light.h"
+#include "Engine/GraphicsCore/Animator.h"
 #include "UmScripts.h"
 using namespace Global;
 using namespace u8_literals;
@@ -28,6 +29,7 @@ std::filesystem::path ESceneManager::GetSettingFilePath()
 }
 
 ESceneManager::ESceneManager() 
+    : _mainCamera(nullptr) 
 {
    
 }
@@ -100,6 +102,7 @@ void ESceneManager::SceneUpdate()
     ObjectsOnEnable();
     ObjectsAwake();
     ObjectsStart();
+    ObjectsInputUpdate();
     while (ETimeSystem::Engine::TimeSystemFixedUpdate())
     {
         ObjectsFixedUpdate();
@@ -139,14 +142,24 @@ void ESceneManager::Engine::SetGameObjectActive(GameObject* pObject, bool value)
         GameObject* gameObject = pObject;
         if (gameObject->ReflectFields->_activeSelf != value)
         {
-            //컴포넌트들의 On__able 함수를 호출하도록 합니다.
+            //bool 변경 대기열에 추가
             auto& [WaitSet, WaitVec, WaitValue] = value ? sceneManager._onEnableQueue : sceneManager._onDisableQueue;
-            WaitValue.emplace_back(&gameObject->ReflectFields->_activeSelf);                
-            if (value == true)
+            WaitValue.emplace_back(&gameObject->ReflectFields->_activeSelf);   
+
+            //ActiveInHierarchy Update 대기열에 추가
+            auto& [UpdateSet, UpdateQueue] = value ? sceneManager._updateEnableQueue : sceneManager._updateDisableQueue;
+            auto [iter, result] = UpdateSet.insert(gameObject);
+            if (true == result)
             {
-                gameObject->ReflectFields->_activeSelf = true; //ActiveInHierarchy 검증용                        
+                UpdateQueue.push_back(gameObject);
             }
 
+            //컴포넌트들의 On__able 함수를 호출하도록 합니다.
+            if (value == true)
+            {
+                gameObject->ReflectFields->_activeSelf = true; //ActiveInHierarchy 검증용  
+                GameObject::Engine::UpdateActiveInHierarchy(gameObject);
+            }
             Transform::ForeachDFS(gameObject->_transform, 
             [&](Transform* curr) 
             {
@@ -165,29 +178,14 @@ void ESceneManager::Engine::SetGameObjectActive(GameObject* pObject, bool value)
                                     WaitVec.emplace_back(component.get());
                                 }
                             }
-
-                            if (Component::Type::RENDER == component->_type)
-                            {
-                                auto& meshActiveQueue = value ? sceneManager._meshSetActiveQueue.first
-                                                              : sceneManager._meshSetActiveQueue.second;
-                                MeshComponent* meshComponent   = static_cast<MeshComponent*>(component.get());
-                                meshActiveQueue.push_back(meshComponent->Renderer.get());
-                            }
-                            else if (Component::Type::Light == component->_type)
-                            {
-                                auto& lightActiveQueue = value ? sceneManager._meshSetActiveQueue.first
-                                                               : sceneManager._meshSetActiveQueue.second;
-                                LightComponent* lightComponent   = static_cast<LightComponent*>(component.get());
-                                lightActiveQueue.push_back(&lightComponent->Lighting);
-                            }
                         }
                     }
                 }                   
             });  
-
             if (value == true)
             {
                 gameObject->ReflectFields->_activeSelf = false; //ActiveInHierarchy 검증용
+                GameObject::Engine::UpdateActiveInHierarchy(gameObject);
             }
         }
     }
@@ -207,23 +205,7 @@ void ESceneManager::Engine::SetComponentEnable(Component* component, bool value)
             if (result)
             {
                 WaitVec.push_back(component);
-            }
-            
-            // 메시 컴포넌트들은 meshRenderer의 SetActive도 변경해야함.
-            if (Component::Type::RENDER == component->_type)
-            {
-                auto& meshActiveQueue = value ? sceneManager._meshSetActiveQueue.first 
-                                              : sceneManager._meshSetActiveQueue.second;
-                MeshComponent* meshComponent = static_cast<MeshComponent*>(component);
-                meshActiveQueue.push_back(meshComponent->Renderer.get());
-            }
-            else if (Component::Type::Light == component->_type)
-            {
-                auto& lightActiveQueue = value ? sceneManager._meshSetActiveQueue.first 
-                                               : sceneManager._meshSetActiveQueue.second;
-                LightComponent* lightComponent = static_cast<LightComponent*>(component);
-                lightActiveQueue.push_back(&lightComponent->Lighting);
-            }
+            }           
         }
     }
 }
@@ -234,7 +216,14 @@ std::weak_ptr<GameObject> ESceneManager::Engine::FindGameObjectWithName(std::str
     auto findIter = engineCore->SceneManager._runtimeObjectsUnorderedMap.find(name.data());
     if (findIter != engineCore->SceneManager._runtimeObjectsUnorderedMap.end() && !findIter->second.empty())
     {
-        findObject = *findIter->second.begin();
+        for (auto& object : findIter->second)
+        {
+            if (true == object->IsValid())
+            {
+                findObject = object->GetWeakPtr();
+                break;
+            }
+        }
     }
     return findObject;
 }
@@ -247,7 +236,10 @@ std::vector<std::weak_ptr<GameObject>> ESceneManager::Engine::FindGameObjectsWit
     {
         for (auto& obj : findIter->second)
         {
-            findObjects.emplace_back(obj);
+            if (true == obj->IsValid())
+            {
+                findObjects.emplace_back(obj);
+            }
         }
     }
     return findObjects;
@@ -259,8 +251,14 @@ std::weak_ptr<GameObject> ESceneManager::Engine::FindGameObjectWithTag(std::stri
     auto findIter = engineCore->SceneManager._runtimeObjectsTagMap.find(tag.data());
     if (findIter != engineCore->SceneManager._runtimeObjectsTagMap.end() && !findIter->second.empty())
     {
-        GameObject* object = *findIter->second.begin();
-        findObject = object->GetWeakPtr();
+        for (auto& object : findIter->second)
+        {
+            if (true == object->IsValid())
+            {
+                findObject = object->GetWeakPtr();
+                break;
+            }
+        }
     }
     return findObject;
 }
@@ -273,7 +271,10 @@ std::vector<std::weak_ptr<GameObject>> ESceneManager::Engine::FindGameObjectsWit
     {
         for (auto& obj : findIter->second)
         {
-            findObjects.emplace_back(obj->GetWeakPtr());
+            if (true == obj->IsValid())
+            {
+                findObjects.emplace_back(obj->GetWeakPtr());
+            }
         }
     }
     return findObjects;
@@ -400,23 +401,27 @@ void ESceneManager::Engine::SwapPrefabInstance(GameObject* original, GameObject*
     ESceneManager& sceneManager = UmSceneManager;
     int index = original->GetInstanceID();
     std::shared_ptr<GameObject>& sOrigin = sceneManager._runtimeObjects[index];
-    std::shared_ptr<GameObject>  sRemake = remake->GetWeakPtr().lock();
-    std::swap(sOrigin->_instanceID, sRemake->_instanceID);
-    std::swap(sOrigin->_ownerScene, sRemake->_ownerScene);
-    std::swap(sOrigin, sRemake);
-    std::string objectData = sRemake->SerializedReflectFields();
-    sOrigin->DeserializedReflectFields(objectData);
-    sOrigin->_transform = sRemake->_transform;
-    sceneManager.EraseGameObjectMap(sRemake);
-    sceneManager.InsertGameObjectMap(sOrigin);
-
-    for (int i = 0; i < sOrigin->GetComponentCount(); ++i)
+    if (nullptr != sOrigin)
     {
-        Component* component = sOrigin->GetComponentAtIndex<Component>(i);
-        if (component)
+        std::shared_ptr<GameObject> sRemake = remake->GetWeakPtr().lock();
+        std::swap(sOrigin->_instanceID, sRemake->_instanceID);
+        std::swap(sOrigin->_ownerScene, sRemake->_ownerScene);
+        std::swap(sOrigin, sRemake);
+        std::string objectData = sRemake->SerializedReflectFields();
+        sOrigin->DeserializedReflectFields(objectData);
+        sOrigin->_transform = sRemake->_transform;
+        sceneManager.EraseGameObjectMap(sRemake);
+        sceneManager.InsertGameObjectMap(sOrigin);
+        GameObject::Engine::UpdateActiveInHierarchy(sOrigin.get());
+
+        for (int i = 0; i < sOrigin->GetComponentCount(); ++i)
         {
-            component->_initFlags.SetAwake();
-            component->_initFlags.SetStart();
+            Component* component = sOrigin->GetComponentAtIndex<Component>(i);
+            if (component)
+            {
+                component->_initFlags.SetAwake();
+                component->_initFlags.SetStart();
+            }
         }
     }
 }
@@ -463,6 +468,38 @@ bool ESceneManager::Engine::EraseGameObjectTag(GameObject* gameObject, std::stri
    
     objectSet.erase(objIter);
     return true;
+}
+
+void ESceneManager::Engine::SetSceneMainCamera(CameraComponent* camera)
+{
+    ESceneManager& sceneManager = UmSceneManager;
+    if (camera != sceneManager._mainCamera)
+    {
+        if (nullptr != sceneManager._mainCamera)
+        {
+            sceneManager._mainCamera->ResetMainCamera();
+        }
+        sceneManager._mainCamera = camera;
+    }
+}
+
+void ESceneManager::Engine::ResetSceneMainCamera() 
+{
+    ESceneManager& sceneManager = UmSceneManager;
+    if (sceneManager._mainCamera)
+    {
+        sceneManager._mainCamera = nullptr;
+    }
+}
+
+CameraComponent* ESceneManager::Engine::GetMainCamera()
+{
+    return UmSceneManager._mainCamera;
+}
+
+ESceneManager::InputSystem& ESceneManager::Engine::GetInputSystem()
+{
+    return UmSceneManager._inputSystem;
 }
 
 void ESceneManager::CreateEmptySceneAndLoad(std::string_view name, std::string_view outPath, const std::function<void()>& loadEvent) 
@@ -665,6 +702,14 @@ void ESceneManager::ObjectsStart()
         });
 }
 
+void ESceneManager::ObjectsInputUpdate() 
+{
+    if (_isPlay)
+    {
+        _inputSystem.UpdateInput();
+    }
+}
+
 void ESceneManager::ObjectsFixedUpdate()
 {
     for (auto& obj : _runtimeObjects)
@@ -718,6 +763,22 @@ void ESceneManager::ObjectsLateUpdate()
 
 void ESceneManager::ObjectsMatrixUpdate()
 {
+    if (nullptr != _mainCamera)
+    {
+        if (true == _mainCamera->IsDirty())
+        {
+            _mainCamera->UpdatePerspective();
+        }
+        
+        Transform* root = _mainCamera->gameObject->transform->Root;
+        Transform& transform = root ? *root : _mainCamera->gameObject->transform;
+        if (true == transform._hasChanged)
+        {
+            transform.UpdateMatrix();
+            _mainCamera->UpdateView();
+        }
+    }
+
     static std::unordered_set<Transform*> updateCheckSet;
     for (auto& obj : _runtimeObjects)
     {
@@ -758,64 +819,63 @@ void ESceneManager::ObjectsApplicationQuit()
 void ESceneManager::ObjectsOnEnable()
 {
     auto& [OnEnableSet, OnEnableVec, OnEnableValue] = _onEnableQueue;
-    auto& RenderEnableQueue = _meshSetActiveQueue.first;
+    auto& [UpdateSet, UpdateQueue] = _updateEnableQueue;
     for (auto& value : OnEnableValue)
     {
         *value = true;  
     }
-
-    for (auto& mesh : RenderEnableQueue)
+      
+    for (auto& object : UpdateQueue)
     {
-        if (nullptr != mesh)
-        {
-            mesh->SetActive(true);
-        }
+        GameObject::Engine::UpdateActiveInHierarchy(object);
     }
 
-    if (_isPlay)
+    for (auto& component : OnEnableVec)
     {
-        for (auto& component : OnEnableVec)
+        component->UpdateEnableInHierarchy();
+        if (_isPlay)
         {
             component->OnEnable();
         }
     }
-
+    
     OnEnableSet.clear();
     OnEnableVec.clear();
     OnEnableValue.clear();
-    RenderEnableQueue.clear();
+    UpdateQueue.clear();
+    UpdateSet.clear();
+    UpdateQueue.clear();
 }
 
 void ESceneManager::ObjectsOnDisable()
 {
     auto& [OnDisableSet, OnDisableVec, OnDisableValue] = _onDisableQueue;
-    auto& RenderDisableQueue = _meshSetActiveQueue.second;
+    auto& [UpdateSet, UpdateQueue] = _updateDisableQueue;
 
     for (auto& value : OnDisableValue)
     {
         *value = false;
     }
 
-    for (auto& mesh : RenderDisableQueue)
+    for (auto& object : UpdateQueue)
     {
-        if (nullptr != mesh)
-        {
-            mesh->SetActive(false);
-        }
+        GameObject::Engine::UpdateActiveInHierarchy(object);
     }
 
-    if (_isPlay)
+    for (auto& component : OnDisableVec)
     {
-        for (auto& component : OnDisableVec)
+        component->UpdateEnableInHierarchy();
+        if (_isPlay)
         {
             component->OnDisable();
         }
     }
-
+    
     OnDisableSet.clear();
     OnDisableVec.clear();
     OnDisableValue.clear();
-    RenderDisableQueue.clear();
+    UpdateSet.clear();
+    UpdateQueue.clear();
 }
 
 void ESceneManager::ObjectsDestroy()
@@ -911,6 +971,7 @@ void ESceneManager::ObjectsAddRuntime()
             _runtimeObjects.resize(id + 1);
         }
         _runtimeObjects[id] = gameObject;
+        GameObject::Engine::ResetActiveInHierarchy(gameObject.get());     
     }
     _addGameObjectsQueue.clear();
 
@@ -922,13 +983,22 @@ void ESceneManager::ObjectsAddRuntime()
             _waitAwakeVec.push_back(component);
             _waitStartVec.push_back(component);
         }
+
+        if (component->_type == Component::TYPE::CAMERA)
+        {
+            CameraComponent* camera = static_cast<CameraComponent*>(component.get());
+            std::shared_ptr<Camera> newCamera(new Camera);
+            camera->SetTarget(newCamera);
+        }
+
+        component->UpdateEnableInHierarchy();
     }
     _addComponentsQueue.clear();
 }
 
 bool ESceneManager::IsRuntimeActive(std::shared_ptr<GameObject>& obj)
 {
-    return obj.get() != nullptr && obj->ActiveInHierarchy_property_getter();
+    return obj.get() != nullptr && obj->ActiveInHierarchy_property_getter() && obj->IsValid();
 }
 
 void ESceneManager::NotInitDestroyComponentEraseToWaitVec(Component* destroyComponent)
@@ -1422,10 +1492,15 @@ void ESceneManager::SceneResourceManager::Update(SceneResourceManager& manager)
                                 meshRenderer.LoadModel(path.wstring());
                                 models.ModelUseComponentList[guid].emplace_back(pMeshComponent);
                                 UmSceneManager._runtimeMeshComponents.emplace_back(pMeshComponent);
-
-                                if (false == pMeshComponent->_gameObject->IsValid())
+                                auto& animation = meshRenderer.GetModel()->GetAnimation();
+                                auto& skeleton  = meshRenderer.GetModel()->GetSkeleton();
+                                if (animation != nullptr && skeleton != nullptr)
                                 {
-                                    pMeshComponent->Renderer->SetActive(false);
+                                    std::shared_ptr<Animator> animator(new Animator);
+                                    animator->Initialize(animation, skeleton);
+                                    animator->SetActive(&pMeshComponent->EnableInHierarchy);
+                                    meshRenderer.SetAnimator(animator);
+                                    UmAnimationCore.RegisterAnimator(animator.get());
                                 }
                             }
                         }
@@ -1491,5 +1566,160 @@ ESceneManager::SceneResourceManager::SceneResourceManager()
 
 ESceneManager::SceneResourceManager::~SceneResourceManager() 
 {
+
+}
+
+void ESceneManager::InputSystem::UpdateInput()
+{
+    if (false == _isConnect)
+    {
+        static float elapsedTime = 0.f;
+        elapsedTime += UmTime.UnscaledDeltaTime();
+        if (elapsedTime >= 0.2f)
+        {
+            try
+            {
+                _inputController.Connect();
+                _isConnect = true;
+                UmLogger.Log(LogLevel::LEVEL_DEBUG, (const char*)u8"컨트롤러 연결됨!");
+            }
+            catch (...)
+            {
+                // 예외 처리: 컨트롤러 연결 실패
+            }
+            elapsedTime = 0.f;
+        }
+    }
+    else
+    {
+        try
+        {
+            _inputController.UpdateState();
+            const auto& queue = _inputController.GetButtonQueue();
+            if (false == queue.empty())
+            {
+                for (const auto& flag : queue)
+                {
+                    UpdateTracker(flag);
+                }
+            }
+
+            for (int buttonIndex = 0; buttonIndex < _receivers.size(); ++buttonIndex)
+            {
+                auto& buttons = _receivers[buttonIndex];
+                for (int actionIndex = 0; actionIndex < buttons.size(); ++actionIndex)
+                {
+                    Action action  = (Action)actionIndex;
+                    auto&  actions = buttons[actionIndex];
+                    for (auto& [component, event] : actions)
+                    {
+                        Action& actionTracker = _actionTracker[buttonIndex];
+                        if (action == actionTracker)
+                        {
+                            event(_inputController);                       
+                        }
+
+                        switch (actionTracker)
+                        {
+                        case Action::PRESSED:
+                            actionTracker = Action::HELD;
+                            break;
+                        case Action::RELEASED:
+                            actionTracker = Action::IDLE;
+                        default:
+                            break;
+                        }
+
+                    }
+                }
+            }
+        }
+        catch (const Input::DeviceNotConnectedException& exception)
+        {
+            UmLogger.Log(LogLevel::LEVEL_DEBUG, exception.what());
+            UmLogger.Log(LogLevel::LEVEL_DEBUG, (const char*)u8"컨트롤러 해제됨!");
+            _isConnect = false;
+        }
+        catch (const Input::InputException& exception)
+        {
+            UmLogger.Log(LogLevel::LEVEL_DEBUG, exception.what());
+#ifdef _DEBUG
+            throw;
+#endif
+        }
+
+    }
+}
+
+void ESceneManager::InputSystem::UpdateTracker(Input::Controller::Button button)
+{
+    int index = std::countr_zero((unsigned int)button); 
+    Action& action = _actionTracker[index];
+    bool    isDown = false;
+
+    switch (button)
+    {
+    case Input::Controller::DPAD_UP:
+    case Input::Controller::DPAD_DOWN:
+    case Input::Controller::DPAD_LEFT:
+    case Input::Controller::DPAD_RIGHT:
+    case Input::Controller::START:
+    case Input::Controller::BACK:
+    case Input::Controller::LEFT_THUMB_BUTTON:
+    case Input::Controller::RIGHT_THUMB_BUTTON:
+    case Input::Controller::LEFT_SHOULDER:
+    case Input::Controller::RIGHT_SHOULDER:
+    case Input::Controller::A:
+    case Input::Controller::B:
+    case Input::Controller::X:
+    case Input::Controller::Y:
+        isDown = _inputController.IsButtonDown(button);
+        break;
+    case Input::Controller::LEFT_THUMB_STICK:
+        isDown = 0.f < _inputController.GetLeftThumbStickAxis().Magnitude;
+        break;
+    case Input::Controller::RIGHT_THUMB_STICK:
+        isDown = 0.f < _inputController.GetRightThumbStickAxis().Magnitude;
+        break;
+    case Input::Controller::LEFT_TRIGGER:
+        isDown = 0.f < _inputController.GetLeftTrigger();
+        break;
+    case Input::Controller::RIGHT_TRIGGER:
+        isDown = 0.f < _inputController.GetRightTrigger();
+        break;
+    default:
+        break;
+    }
+
+    if (true == isDown)
+    {
+        switch (action)
+        {
+        case ESceneManager::InputSystem::Action::PRESSED:
+            action = Action::HELD;
+            break;
+        case ESceneManager::InputSystem::Action::RELEASED:
+        case ESceneManager::InputSystem::Action::IDLE:
+            action = Action::PRESSED;
+            break;
+        default:
+            break;
+        }
+    }
+    else
+    {
+        switch (action)
+        {
+        case ESceneManager::InputSystem::Action::PRESSED:
+        case ESceneManager::InputSystem::Action::HELD:
+            action = Action::RELEASED;
+            break;
+        case ESceneManager::InputSystem::Action::RELEASED:
+            action = Action::IDLE;
+            break;
+        default:
+            break;
+        }
+    }
 
 }

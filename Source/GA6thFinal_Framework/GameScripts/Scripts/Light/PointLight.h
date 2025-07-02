@@ -5,9 +5,9 @@ class PointLight : public LightComponent
     USING_PROPERTY(PointLight)
 public:
     REFLECT_PROPERTY(
-    Constant, 
-    Linear, 
-    Quadratic,
+    //Constant, 
+    //Linear, 
+    //Quadratic,
     Range
     )
 
@@ -15,6 +15,7 @@ public:
     PointLight();
     virtual ~PointLight();
 
+    /*
     GETTER(float, Constant)
     { 
         return _attenuation.x;
@@ -47,6 +48,7 @@ public:
         std::memcpy(ReflectFields->Attenuation.data(), &_attenuation.x, sizeof(ReflectFields->Attenuation));
     }
     PROPERTY(Quadratic)
+    */
 
     GETTER(float, Range)
     { 
@@ -54,7 +56,7 @@ public:
     }
     SETTER(float, Range)
     { 
-        ReflectFields->Range = value;
+        ReflectFields->Range = std::max(value, 0.f);
     }
     PROPERTY(Range)
 
@@ -80,7 +82,23 @@ protected:
     */
     virtual void DeserializedReflectEvent() override;
 
+    virtual void ImGuiDrawPropertysEvent() override;
+
     virtual void Reset() override;
+
+public:
+    /// <summary>
+    /// <para> 에디터 Scene View에 DrawDebug를 그리기 위한 함수입니다. </para>
+    /// <para> 에디터 에서만 호출됩니다.                               </para>
+    /// </summary>
+    virtual void OnDrawDebug() override;
+
+    /// <summary>
+    /// <para> 에디터 Scene View에 DrawDebug를 그리기 위한 함수입니다. </para>
+    /// <para> 컴포넌트가 Inspector에 선택되었을때만 호출됩니다. </para>
+    /// <para> 에디터 에서만 호출됩니다. </para>
+    /// </summary>
+    virtual void OnDrawDebugSelected() override;
 
 private:
     Vector3 _attenuation{1.f, 0.1f, 0.1f};

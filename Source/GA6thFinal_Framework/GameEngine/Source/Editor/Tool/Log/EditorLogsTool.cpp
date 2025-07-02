@@ -139,6 +139,9 @@ void EditorLogsTool::OnFrameRender()
     }
 
     ImGui::SameLine();
+    ImGui::Checkbox("Auto Scroll", &ReflectFields->AutoScroll);
+
+    ImGui::SameLine();
     float windowWidth = ImGui::GetWindowContentRegionMax().x;
     ImGui::SetCursorPosX(windowWidth - buttonSize.x);
     if (ImGui::Button("Clear", buttonSize))
@@ -148,7 +151,6 @@ void EditorLogsTool::OnFrameRender()
         engineCore->Logger.LogMessagesClear();
         prevLogCount = 0;
     }
-
     if (_editFilter)
     {
         _drawLogList.clear();
@@ -170,7 +172,7 @@ void EditorLogsTool::OnFrameRender()
     clipper.Begin(static_cast<int>(_drawLogList.size()));
     while (clipper.Step())
     {
-        std::string logText;
+        static std::string logText;
         for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; ++i)
         {
             logText.clear();
@@ -184,7 +186,8 @@ void EditorLogsTool::OnFrameRender()
             }
             ImGui::PushStyleColor(ImGuiCol_Text, ImGuiHelper::ArrayToImVec4(ReflectFields->LogColorTable[level]));
             ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4());
-            ImGui::InputTextMultiline("##message", &logText, {regionAvail.x, 50}, ImGuiInputTextFlags_ReadOnly);
+            float lineHeight = ImGui::GetTextLineHeightWithSpacing();
+            ImGui::InputTextMultiline("##message", &logText, {regionAvail.x, lineHeight * 2 + 3}, ImGuiInputTextFlags_ReadOnly);
             if (isLog && ImGui::IsItemHovered())
             {
                 ImGuiHelper::HoveredToolTip(u8"우클릭으로 해당 파일로 이동합니다."_c_str);
@@ -199,9 +202,13 @@ void EditorLogsTool::OnFrameRender()
     }
     if (_isMessagePush)
     {
-        ImGui::SetScrollHereY(1.0f);
+        if (ReflectFields->AutoScroll)
+        {
+            ImGui::SetScrollHereY(1.0f);
+        }    
         _isMessagePush = false;
     }
+
     ImGui::EndChild();
 }
 

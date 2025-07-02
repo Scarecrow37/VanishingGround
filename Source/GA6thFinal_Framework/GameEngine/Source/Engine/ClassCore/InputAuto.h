@@ -36,11 +36,26 @@ namespace ReflectHelper
                     if constexpr (std::is_same_v<remove_view_type, int>)
                     {
                         int input = val;
-                        isEdit    = ImGui::InputInt(name, 
-                                                    &input, 
-                                                    setting._int.step, 
-                                                    setting._int.step_fast,
-                                                    setting._int.flags);
+                        isEdit    = ImGui::DragScalar(name, ImGuiDataType_S32, &input, setting._int.v_speed, &setting._int.min,
+                                              &setting._int.max, setting._int.format, setting._int.flags);
+
+                        if constexpr (isProperty == false || isSetter == true)
+                        {
+                            if (isEdit)
+                            {
+                                val = input;
+                            }
+                            if (ImGui::IsItemDeactivatedAfterEdit())
+                            {
+                                result = true;
+                            }
+                        }
+                    }
+                    else if constexpr (std::is_same_v<remove_view_type, unsigned int>)
+                    {
+                        unsigned int input = val;
+                        isEdit = ImGui::DragScalar(name, ImGuiDataType_U32, &input, setting._int.v_speed, &setting._int.min,
+                                              &setting._int.max, setting._int.format, setting._int.flags);
 
                         if constexpr (isProperty == false || isSetter == true)
                         {
@@ -57,11 +72,8 @@ namespace ReflectHelper
                     else if constexpr (std::is_same_v<remove_view_type, float>)
                     {
                         float input = val;
-                        isEdit      = ImGui::InputFloat(name, 
-                                                        &input, 
-                                                        setting._float.step,
-                                                        setting._float.step_fast,
-                                                        setting._float.format.c_str(),
+                        isEdit      = ImGui::DragScalar(name, ImGuiDataType_Float, &input, setting._float.v_speed,
+                                                        &setting._float.min, &setting._float.max, setting._float.format,
                                                         setting._float.flags);
 
                         if constexpr (isProperty == false || isSetter == true)
@@ -79,13 +91,9 @@ namespace ReflectHelper
                     else if constexpr (std::is_same_v<remove_view_type, double>)
                     {
                         double input = val;
-                        isEdit =
-                            ImGui::InputDouble(name,
-                                               &input, 
-                                               InputAutoSetting::Double::step,
-                                               setting._double.step_fast,
-                                               setting._double.format.c_str(),
-                                               setting._double.flags);
+                        isEdit       = ImGui::DragScalar(name, ImGuiDataType_Double, &input, setting._double.v_speed,
+                                                         &setting._double.min, &setting._double.max, setting._double.format,
+                                                         setting._double.flags);
 
                         if constexpr (isProperty == false || isSetter == true)
                         {
@@ -234,6 +242,37 @@ namespace ReflectHelper
                             }
                         }
                     }
+                    else if constexpr (std::is_enum_v<remove_view_type>)
+                    {
+                        constexpr auto enumeratorArray = rfl::get_enumerator_array<remove_view_type>();
+                        remove_view_type input = val;
+                        auto enumToStrig = rfl::enum_to_string(input);
+                        if (ImGui::BeginCombo(name, enumToStrig.data()))
+                        {
+                            for (auto& [name, value] : enumeratorArray)
+                            {
+                                bool isSelected = input == value;
+
+                                if (ImGui::Selectable(name.data(), isSelected))
+                                {
+                                    input = value;
+                                    isEdit = true;
+                                }
+                                if (isSelected)
+                                    ImGui::SetItemDefaultFocus();
+                            }
+                            ImGui::EndCombo();
+                        }
+
+                        if constexpr (isProperty == false || isSetter == true)
+                        {
+                            if (isEdit)
+                            {
+                                val = input;
+                                result = true;
+                            }
+                        }
+                    }
                     else
                     {
                         EngineLog(LogLevel::LEVEL_WARNING,
@@ -305,7 +344,7 @@ namespace ReflectHelper
 
                     if constexpr (StdHelper::is_std_array_v<OriginType>)
                     {
-                        if (ImGui::CollapsingHeader((const char*)name.data()))
+                        if (ImGui::TreeNodeEx((const char*)name.data()))
                         {
                             if constexpr (std::ranges::range<decltype(*value)>)
                             {
@@ -316,13 +355,14 @@ namespace ReflectHelper
                                     i++;
                                 }
                             }
+                            ImGui::TreePop();
                         }
                     }
                     else if constexpr (StdHelper::is_std_vector_v<OriginType>)
                     {
                         if constexpr (std::ranges::range<decltype(*value)>)
                         {
-                            if (ImGui::CollapsingHeader((const char*)name.data()))
+                            if (ImGui::TreeNodeEx((const char*)name.data()))
                             {
                                 int i = 0;
                                 for (auto& val : *value)
@@ -344,6 +384,7 @@ namespace ReflectHelper
                                         isEdit = true;
                                     }
                                 }
+                                ImGui::TreePop();
                             }
                         }
                     }

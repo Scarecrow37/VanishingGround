@@ -1,85 +1,74 @@
 ﻿#include "pch.h"
 #include "DeferredPBRLitPass.h"
-#include "ShaderBuilder.h"
 #include "RenderTarget.h"
 #include "RenderScene.h"
 #include "Quad.h"
 
 DeferredPBRLitPass::~DeferredPBRLitPass() {}
 
-void DeferredPBRLitPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& sissorRect)
+void DeferredPBRLitPass::Initialize()
 {
-    __super::Initialize(viewPort, sissorRect);
-
-    D3D12_DESCRIPTOR_HEAP_DESC desc{.Type           = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
-                                    .NumDescriptors = RenderScene::GBuffer::END,
-                                    .Flags          = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
-                                    .NodeMask       = 0};
+    __super::Initialize();
 
     InitShaderAndPSO();
 }
 
 void DeferredPBRLitPass::Begin(ID3D12GraphicsCommandList* commandList)
 {
-    commandList->OMSetRenderTargets(1, &_ownerScene->_meshLightingTarget->GetRTVHandle(), FALSE, nullptr);
+    _meshRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
-    commandList->RSSetViewports(1, &_viewPort);
-    commandList->RSSetScissorRects(1, &_sissorRect);
-}
-
-void DeferredPBRLitPass::End(ID3D12GraphicsCommandList* commandList) 
-{
-    ID3D12Resource* rt = _ownerScene->_meshLightingTarget->GetResource();
-    auto br = CD3DX12_RESOURCE_BARRIER::Transition(rt, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-    commandList->ResourceBarrier(1, &br);
+    commandList->OMSetRenderTargets(1, &_meshRenderTarget->GetRTVHandle(), FALSE, nullptr);
+    commandList->RSSetViewports(1, &_meshRenderTarget->GetViewPort());
+    commandList->RSSetScissorRects(1, &_meshRenderTarget->GetScissorRect());
 }
 
 void DeferredPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
 {
-    auto                  resource = UmViewManager.GetShaderResourceHeap();
-    ID3D12DescriptorHeap* hps[] = { resource, };
-
     commandList->SetPipelineState(_pipelineState.Get());
     commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
 
-    commandList->SetDescriptorHeaps(_countof(hps), hps);
+    SharedResource<RenderTarget> renderTarget = UmMultiRenderTargetManager.GetRenderTarget("BaseColor");
+
     commandList->SetGraphicsRoot32BitConstants(_shader->GetRootParameterIndex("bit32_3_numLight"), 3, &_ownerScene->_numLight, 0);
-    commandList->SetGraphicsRoot32BitConstants(_shader->GetRootParameterIndex("bit32_7_gBufferID"), 7, _ownerScene->_gBufferIndex.data(), 0);
     commandList->SetGraphicsRootConstantBufferView(_shader->GetRootParameterIndex("cameraData"), _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
     commandList->SetGraphicsRootConstantBufferView(_shader->GetRootParameterIndex("lightData"), _ownerScene->_lightBuffer->GetGPUVirtualAddress());
-    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("textures"), resource->GetGPUDescriptorHandleForHeapStart());
+    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("textures"), renderTarget->GetSRVHandle());
 
     //quad draw하기
     _ownerScene->_frameQuad->Render(commandList);
 }
 
+void DeferredPBRLitPass::End(ID3D12GraphicsCommandList* commandList)
+{
+    _meshRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+}
+
 void DeferredPBRLitPass::InitShaderAndPSO()
 {
-    _shader = std::make_shared<ShaderBuilder>();
+    _shader = std::make_unique<ShaderBuilder>();
     _shader->BeginBuild();
     _shader->SetShader(L"../Shaders/vs_quad.hlsl", ShaderBuilder::Type::VS);
     _shader->SetShader(L"../Shaders/ps_pbr_lighting.hlsl", ShaderBuilder::Type::PS);
     _shader->EndBuild();
 
     ID3D12Device*                      device = UmDevice.GetDevice();
-    D3D12_GRAPHICS_PIPELINE_STATE_DESC psodesc;
+    D3D12_GRAPHICS_PIPELINE_STATE_DESC psodesc{};
     HRESULT                            hr = S_OK;
-    ZeroMemory(&psodesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
-    psodesc.RasterizerState          = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-    psodesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
-    psodesc.BlendState               = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-    psodesc.DepthStencilState        = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-    //depth 안쓸거임
+
+    psodesc.RasterizerState               = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+    psodesc.RasterizerState.CullMode      = D3D12_CULL_MODE_NONE;
+    psodesc.BlendState                    = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+    psodesc.DepthStencilState             = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
     psodesc.DepthStencilState.DepthEnable = FALSE;
-    psodesc.SampleMask               = UINT_MAX;
-    psodesc.PrimitiveTopologyType    = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-    psodesc.InputLayout              = _shader->GetInputLayout();
-    psodesc.NumRenderTargets         = 1;
-    psodesc.RTVFormats[0]            = DXGI_FORMAT_R32G32B32A32_FLOAT;
-    psodesc.pRootSignature           = _shader->GetRootSignature();
-    psodesc.SampleDesc               = {1, 0};
-    psodesc.VS                       = _shader->GetShaderByteCode(ShaderBuilder::Type::VS);
-    psodesc.PS                       = _shader->GetShaderByteCode(ShaderBuilder::Type::PS);
+    psodesc.SampleMask                    = UINT_MAX;
+    psodesc.PrimitiveTopologyType         = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+    psodesc.InputLayout                   = _shader->GetInputLayout();
+    psodesc.NumRenderTargets              = 1;
+    psodesc.RTVFormats[0]                 = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    psodesc.pRootSignature                = _shader->GetRootSignature();
+    psodesc.SampleDesc                    = {1, 0};
+    psodesc.VS                            = _shader->GetShaderByteCode(ShaderBuilder::Type::VS);
+    psodesc.PS                            = _shader->GetShaderByteCode(ShaderBuilder::Type::PS);
 
     hr = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(&_pipelineState));
     FAILED_CHECK_MESSAGE(hr, L"DeferredPBRLitPass::InitShaderAndPSO device->CreateGraphicsPipelineState Failed");

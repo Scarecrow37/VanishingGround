@@ -3,55 +3,46 @@
 #include "SkyBox.h"
 #include "RenderTarget.h"
 #include "RenderScene.h"
-#include "ShaderBuilder.h"
 
 SkyBoxPass::SkyBoxPass() {}
 
 SkyBoxPass::~SkyBoxPass() {}
 
-void SkyBoxPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& sissorRect) 
+void SkyBoxPass::Initialize() 
 {
+    __super::Initialize();
+
     _skyBox = _ownerScene->GetSkyBox();
-    __super::Initialize(viewPort, sissorRect);
     InitShaderAndPSO();
     _skyBox->Initialize();
-    
-    //예시로 남겨둠.
-    // File::Path fileName  = L"../../../Resource/Assets/skybox/kloppenheim_05_puresky_4k.hdr";
-    // File::Path assetPath = UmFileSystem.GetAssetPath();
-    // File::Path result    = assetPath / fileName;
-    //_skyBox->SetTexture(result.string());
 }
 
 void SkyBoxPass::Begin(ID3D12GraphicsCommandList* commandList) 
 {
-    commandList->OMSetRenderTargets(1, &_ownerScene->_meshLightingTarget->GetRTVHandle(), FALSE, nullptr);
+    commandList->OMSetRenderTargets(1, &_meshRenderTarget->GetRTVHandle(), FALSE, nullptr);
+    commandList->RSSetViewports(1, &_meshRenderTarget->GetViewPort());
+    commandList->RSSetScissorRects(1, &_meshRenderTarget->GetScissorRect());
+}
 
-    commandList->RSSetViewports(1, &_viewPort);
-    commandList->RSSetScissorRects(1, &_sissorRect);
+void SkyBoxPass::Draw(ID3D12GraphicsCommandList* commandList)
+{
+    bool isActive = _skyBox->HasTexture();
+    if (isActive)
+    {
+        commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
+        commandList->SetGraphicsRootConstantBufferView(_shader->GetRootParameterIndex("cameraData"), _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
+        commandList->SetPipelineState(_pipelineState.Get());
+        _skyBox->Render(commandList, _shader->GetRootParameterIndex("evnTexture"));
+    }
 }
 
 void SkyBoxPass::End(ID3D12GraphicsCommandList* commandList) 
 {
 }
 
-void SkyBoxPass::Draw(ID3D12GraphicsCommandList* commandList) 
-{
-    bool isActive = _skyBox->HasTexture();
-    if (isActive)
-    {
-        _skyBox->SetDescriptorHeap(commandList);
-        commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
-        commandList->SetGraphicsRootConstantBufferView(_shader->GetRootParameterIndex("cameraData"),
-                                                       _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
-        commandList->SetPipelineState(_pipelineState.Get());
-        _skyBox->Render(commandList, _shader->GetRootParameterIndex("evnTexture"));
-    }
-}
-
 void SkyBoxPass::InitShaderAndPSO() 
 {
-    _shader = std::make_shared<ShaderBuilder>();
+    _shader = std::make_unique<ShaderBuilder>();
     _shader->BeginBuild();
     _shader->SetShader(L"../Shaders/vs_skybox.hlsl", ShaderBuilder::Type::VS);
     _shader->SetShader(L"../Shaders/ps_skybox.hlsl", ShaderBuilder::Type::PS);
@@ -61,11 +52,9 @@ void SkyBoxPass::InitShaderAndPSO()
     HRESULT                            hr = S_OK;
 
     D3D12_GRAPHICS_PIPELINE_STATE_DESC psodesc{};
-    psodesc.RasterizerState          = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-    psodesc.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
-    psodesc.BlendState               = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-    psodesc.DepthStencilState        = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-    // depth 안쓸거임
+    psodesc.RasterizerState               = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+    psodesc.BlendState                    = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+    psodesc.DepthStencilState             = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
     psodesc.DepthStencilState.DepthEnable = FALSE;
     psodesc.SampleMask                    = UINT_MAX;
     psodesc.PrimitiveTopologyType         = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;

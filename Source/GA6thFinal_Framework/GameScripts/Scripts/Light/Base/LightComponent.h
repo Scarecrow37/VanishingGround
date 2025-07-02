@@ -5,10 +5,13 @@
 class LightComponent : public Component
 {
     USING_PROPERTY(LightComponent)
+protected:
+    inline static const XMVECTORF32 DEBUG_COLOR = DirectX::Colors::Red;
+
 public:
     REFLECT_PROPERTY(
         LightColor,
-        ReflectFields->Intensity)
+        Intensity)
 
     GETTER(const Color&, LightColor) 
     { 
@@ -33,8 +36,9 @@ public:
     }
     SETTER(float, Intensity) 
     { 
-        ReflectFields->Intensity = value;
+        ReflectFields->Intensity = std::max(value, 0.f);
     }
+    PROPERTY(Intensity)
 
     inline const float& GetIntensity()
     {

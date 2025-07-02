@@ -1,16 +1,27 @@
 ﻿#pragma once
 #include "RenderPass.h"
 
-class ShaderBuilder;
 class BaseMesh;
-
 class GBufferPass : public RenderPass
 {
-    enum MeshType
+    enum
     {
         STATIC,
-        SKELTAL,
+        SKELETAL
+    };
+    enum MeshType
+    {
+        STATIC_ONE_SIDED,
+        STATIC_TWO_SIDED,
+        SKELETAL_ONE_SIDED,
+        SKELETAL_TWO_SIDED,
         END
+    };
+    struct RenderData
+    {
+        BaseMesh* mesh;
+        UINT      instanceID;
+        UINT      customDepth;
     };
 
 public:
@@ -18,34 +29,18 @@ public:
     virtual ~GBufferPass();
 
 public:
-    void Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& sissorRect) override;
+    void Initialize() override;
     void Begin(ID3D12GraphicsCommandList* commandList) override;
-    void End(ID3D12GraphicsCommandList* commandList) override;
     void Draw(ID3D12GraphicsCommandList* commandList) override;
+    void End(ID3D12GraphicsCommandList* commandList) override;
 
 private:
     void InitShaderAndPSO();
-    void DrawMeshes(ID3D12GraphicsCommandList* commandList, const std::vector<MeshRenderer*>& meshes, MeshType type);
-
-    /*void           DrawTwoSidedStaticMesh(ID3D12GraphicsCommandList* commandList);
-    void DrawTwoSidedSkeletalMesh(ID3D12GraphicsCommandList* commandList);
-    void DrawStaticMeshes(ID3D12GraphicsCommandList*                     commandList,
-                          const std::vector<std::pair<BaseMesh*, UINT>>& meshes);
-    void DrawSkeletalMeshes(ID3D12GraphicsCommandList*                     commandList,
-                          const std::vector<std::pair<BaseMesh*, UINT>>& meshes);*/
+    void DrawMeshes(ID3D12GraphicsCommandList* commandList, int shaderType, MeshType meshType);
 
 private:
-    
- 
-    std::vector<std::shared_ptr<ShaderBuilder>> _shader;
-
-    enum MeshRenderType
-    {
-        STATIC_TWO_SIDED,
-        STATIC_ONE_SIDED,
-        SKELTAL_TWO_SIDED,
-        SKELTAL_ONE_SIDED,
-    };
-    std::vector<ComPtr<ID3D12PipelineState>> _psos;
-    std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _gbufferHandle;
+    std::vector<std::unique_ptr<ShaderBuilder>>                   _shaders;
+    std::vector<ComPtr<ID3D12PipelineState>>                      _psos;
+    std::array<D3D12_CPU_DESCRIPTOR_HANDLE, GBuffer::GBUFFER_END> _gBufferHandles;
+    std::vector<RenderData>                                       _renderDatas[MeshType::END];
 };

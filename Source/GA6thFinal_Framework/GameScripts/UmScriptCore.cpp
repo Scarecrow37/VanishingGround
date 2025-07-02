@@ -1,4 +1,5 @@
-﻿#include "UmFramework.h"
+﻿#include "pchScripts.h"
+#include "UmFramework.h"
 #include "UmScriptCore.h"
 
 using namespace Global;
@@ -13,7 +14,7 @@ UMREALSCRIPTS_DECLSPEC void InitalizeUmrealScript(const std::shared_ptr<EngineCo
 static bool IncludeInProject(const std::filesystem::path& filePath);
 
 constexpr const wchar_t* SCRIPT_PROJECT_PATH   = L"..\\GameScripts";
-constexpr const wchar_t* UMREAL_SCRIPTS_HEADER = L"..\\GameScripts\\UmScripts.h";
+constexpr const wchar_t* UMREAL_SCRIPTS_HEADER = L"..\\GameScripts\\UmScriptsExport.h";
 
 UMREALSCRIPTS_DECLSPEC void CreateUmrealcSriptFile(const char* fileName)
 {
@@ -93,7 +94,8 @@ UMREALSCRIPTS_DECLSPEC void CreateUmrealcSriptFile(const char* fileName)
         wofs.open(filePath, std::ios::trunc);
         if (wofs.is_open())
         {
-            wofs << std::format(L"#include \"{}.h\"", ClassName)                  << L"\n";
+            wofs << std::format(L"#include \"pchScripts.h\"")                        << L"\n";
+            wofs << std::format(L"#include \"{}.h\"", ClassName)                     << L"\n";
             wofs << std::format(L"{0}::{0}() = default;", ClassName)                 << L"\n";
             wofs << std::format(L"{0}::~{0}() = default;", ClassName)                << L"\n";
         }
