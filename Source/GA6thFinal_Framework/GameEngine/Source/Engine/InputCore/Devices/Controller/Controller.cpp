@@ -70,7 +70,7 @@ namespace Input
         return _id;
     }
 
-    std::queue<Controller::Button> Controller::GetButtonQueue() const noexcept
+    std::vector<Controller::Button> Controller::GetButtonQueue() const noexcept
     {
         return _queue;
     }

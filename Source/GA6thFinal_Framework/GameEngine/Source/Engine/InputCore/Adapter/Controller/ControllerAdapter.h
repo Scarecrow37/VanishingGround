@@ -19,6 +19,6 @@ namespace Input
 
         [[nodiscard]] virtual Controller::ID    Connect() const noexcept              = 0;
         [[nodiscard]] virtual Controller::State ReceiveState(Controller::ID id) const = 0;
-        [[nodiscard]] virtual std::queue<Controller::Button> ReceiveQueue(Controller::ID id) const = 0;
+        [[nodiscard]] virtual std::vector<Controller::Button> ReceiveQueue(Controller::ID id) const = 0;
     };
 } // namespace Input

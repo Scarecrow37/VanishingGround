@@ -14,7 +14,7 @@ namespace Input
         XInputAdapter() = default;
         [[nodiscard]] Controller::ID                 Connect() const noexcept override;
         [[nodiscard]] Controller::State              ReceiveState(Controller::ID id) const override;
-        [[nodiscard]] std::queue<Controller::Button> ReceiveQueue(Controller::ID id) const override;
+        [[nodiscard]] std::vector<Controller::Button> ReceiveQueue(Controller::ID id) const override;
 
     private:
         static Controller::TriggerValue   NormalizeTrigger(BYTE triggerValue, BYTE thresholdValue);

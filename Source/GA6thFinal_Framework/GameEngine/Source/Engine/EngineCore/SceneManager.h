@@ -506,14 +506,18 @@ public:
             Input::Controller::DPAD_RIGHT,
             Input::Controller::START,
             Input::Controller::BACK,
-            Input::Controller::LEFT_THUMB,
-            Input::Controller::RIGHT_THUMB,
+            Input::Controller::LEFT_THUMB_BUTTON,
+            Input::Controller::RIGHT_THUMB_BUTTON,
             Input::Controller::LEFT_SHOULDER,
             Input::Controller::RIGHT_SHOULDER,
             Input::Controller::A,
             Input::Controller::B,
             Input::Controller::X,
-            Input::Controller::Y
+            Input::Controller::Y,
+            Input::Controller::LEFT_THUMB_STICK,
+            Input::Controller::RIGHT_THUMB_STICK,
+            Input::Controller::LEFT_TRIGGER,
+            Input::Controller::RIGHT_TRIGGER,
         };
         static constexpr size_t INPUT_CONTROLLER_BUTTON_COUNT = sizeof(INPUT_CONTROLLER_BUTTONS) / sizeof(Input::Controller::Button);
 

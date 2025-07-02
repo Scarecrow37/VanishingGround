@@ -123,11 +123,11 @@ namespace Input
     }
 
 
-    std::queue<Controller::Button> XInputAdapter::ReceiveQueue(const Controller::ID id) const
+    std::vector<Controller::Button> XInputAdapter::ReceiveQueue(const Controller::ID id) const
     {
         constexpr ThrowIfFailed throwIfFailed;
 
-        std::queue<Controller::Button> queue;
+        std::vector<Controller::Button> queue;
 
         DWORD result = ERROR_SUCCESS;
 
@@ -138,7 +138,8 @@ namespace Input
 
             if (result == ERROR_SUCCESS)
             {
-                queue.push(VirtualKeyToButton(xKeystroke.VirtualKey));
+                if (xKeystroke.Flags & XINPUT_KEYSTROKE_KEYDOWN && xKeystroke.Flags & XINPUT_KEYSTROKE_KEYUP)
+                queue.push_back(VirtualKeyToButton(xKeystroke.VirtualKey));
             }
             else if (result == ERROR_DEVICE_NOT_CONNECTED)
             {

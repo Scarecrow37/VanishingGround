@@ -170,13 +170,13 @@ namespace Input
         /// 버튼 큐를 반환합니다. 큐는 매 업데이트마다 갱신됩니다.
         /// </summary>
         /// <returns>저장된 Button 객체들의 std::queue를 반환합니다.</returns>
-        [[nodiscard]] std::queue<Button> GetButtonQueue() const noexcept;
+        [[nodiscard]] std::vector<Button> GetButtonQueue() const noexcept;
 
     private:
         const ControllerAdapter* _adapter;
 
         ID    _id;
         State _state;
-        std::queue<Button> _queue;
+        std::vector<Button> _queue;
     };
 } // namespace Input
