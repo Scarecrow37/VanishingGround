@@ -43,7 +43,9 @@ constexpr const char* STR_NULL = "null";
 #include <dxgi1_6.h>
 #include <d3dcompiler.h>
 #include <wrl.h>
+#include <winrt/base.h>
 #include <Xinput.h>
+#include <xaudio2.h>
 
 #pragma comment(lib, "d3d12")
 #pragma comment(lib, "dxgi")
@@ -148,6 +150,13 @@ using namespace Microsoft::WRL;
 
 //Graphics
 #include "Engine/GraphicsCore/GraphicsCore.h"
+
+//Audio Core
+#include "Engine/AudioCore/Declare/Types/AudioTypes.h"
+#include "Engine/AudioCore/Declare/Exceptions/AudioExceptions.h"
+#include "Engine/AudioCore/Handle/AudioHandle.h"
+#include "Engine/AudioCore/Declare/Callback/IncreaseGenerationCallback.h"
+#include "Engine/AudioCore/AudioManager/AudioManager.h"
 
 //Engine Core
 #include "Engine/EngineCore/EngineLogger.h"
