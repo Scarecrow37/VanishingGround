@@ -107,7 +107,7 @@ namespace Audio
         IXAudio2SourceVoice* sourceVoice = nullptr;
 
         // Format에 맞는 Pool 찾기
-        std::vector<SourceVoice>*          sourceVoices = nullptr;
+        std::vector<SourceVoice>* sourceVoices = nullptr;
         if (!_sourceVoices.contains(hash)) // 없으면 생성
         {
             _sourceVoices.try_emplace(hash, std::vector<SourceVoice>{});
@@ -128,8 +128,8 @@ namespace Audio
             unusedSourceVoiceIterator = std::prev(sourceVoices->end());
         }
 
-        generation  = IncreaseGeneration()(unusedSourceVoiceIterator->Generation);
-        index       = std::distance(sourceVoices->begin(), unusedSourceVoiceIterator);
+        generation = IncreaseGeneration()(unusedSourceVoiceIterator->Generation);
+        index      = std::distance(sourceVoices->begin(), unusedSourceVoiceIterator);
 
         // Handle 생성
         const Handle handle = {hash, index, generation};
@@ -168,7 +168,7 @@ namespace Audio
         ReleaseVoice(handle);
     }
 
-    bool EManager::IsValidHandle(const Handle& handle) const
+    bool EManager::IsValidHandle(const Handle& handle) const noexcept
     {
         return _sourceVoices.contains(handle._hash) && handle._index >= 0 && handle._index < _sourceVoices.size() &&
                handle._generation == _sourceVoices.at(handle._hash).at(handle._index).Generation;

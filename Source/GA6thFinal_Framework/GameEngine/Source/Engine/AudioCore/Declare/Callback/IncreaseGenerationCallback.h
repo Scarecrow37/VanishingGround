@@ -20,6 +20,6 @@ namespace Audio
 
     private:
         EManager* _manager;
-        Handle _handle;
+        Handle    _handle;
     };
 } // namespace Audio
