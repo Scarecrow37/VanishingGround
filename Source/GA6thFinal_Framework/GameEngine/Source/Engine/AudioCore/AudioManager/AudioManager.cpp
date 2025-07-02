@@ -1,7 +1,7 @@
 ﻿#include "pch.h"
 #include "AudioManager.h"
 #include "Engine/AudioCore/Declare/RIFF/AudioChunk.h"
-#include "Engine/AudioCore/Sound/AudioSource.h"
+#include "Engine/AudioCore/Source/AudioSource.h"
 
 namespace Audio
 {

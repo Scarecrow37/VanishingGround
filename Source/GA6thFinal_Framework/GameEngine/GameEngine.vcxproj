@@ -302,7 +302,7 @@
     <ClInclude Include="Source\Engine\AudioCore\Declare\RIFF\AudioChunk.h" />
     <ClInclude Include="Source\Engine\AudioCore\Declare\Types\AudioTypes.h" />
     <ClInclude Include="Source\Engine\AudioCore\Handle\AudioHandle.h" />
-    <ClInclude Include="Source\Engine\AudioCore\Sound\AudioSource.h" />
+    <ClInclude Include="Source\Engine\AudioCore\Source\AudioSource.h" />
     <ClInclude Include="Source\Engine\EditorCore\Utillity\EditorDragState.h" />
     <ClInclude Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectDetails.h" />
     <ClInclude Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectHierarchy.h" />
@@ -514,7 +514,7 @@
     <ClCompile Include="Source\Engine\AudioCore\Declare\RIFF\AudioChunk.cpp" />
     <ClCompile Include="Source\Engine\AudioCore\Declare\Types\AudioTypes.cpp" />
     <ClCompile Include="Source\Engine\AudioCore\Handle\AudioHandle.cpp" />
-    <ClCompile Include="Source\Engine\AudioCore\Sound\AudioSource.cpp" />
+    <ClCompile Include="Source\Engine\AudioCore\Source\AudioSource.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\Utillity\EditorDragState.cpp" />
     <ClCompile Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectDetails.cpp" />
     <ClCompile Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectHierarchy.cpp" />
