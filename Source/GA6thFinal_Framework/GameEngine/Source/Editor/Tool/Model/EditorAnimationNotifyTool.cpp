@@ -4,8 +4,6 @@
 #include "Engine/GraphicsCore/Animation.h"
 #include "Engine/GraphicsCore/Animator.h"
 
-#include "../Sequencer/EditorSequencerTool.cpp"
-
 EditorAnimationNotifyTool::EditorAnimationNotifyTool() 
 {
     SetLabel("Sequencer##model");
