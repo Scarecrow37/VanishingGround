@@ -1,75 +1,106 @@
 ﻿#include "pch.h"
+#include "UmScripts.h"
 using namespace Global;
+using namespace u8_literals;
+
+
+#define SAFE_FREE(ptr) if(ptr != nullptr) free(ptr)
 
 EComponentFactory::EComponentFactory()
 {
-    SetDllDirectory(EComponentFactory::Engine::SCRIPTS_DLL_PATH);
+   
 }
 EComponentFactory::~EComponentFactory() = default;
 
 bool EComponentFactory::InitalizeComponentFactory()
-{
-    //복구해야할 컴포넌트 항목들
-    static std::vector<std::tuple<GameObject*, std::string, int>> addList;
+{  
+    if constexpr (Application::IsEditor())
+    {
+        if (true == editorModule->PlayMode.IsPlay())
+        {
+            engineCore->Logger.Log(LogLevel::LEVEL_WARNING, "You cannot build while in Play Mode.");
+            return false;
+        }
+
+        DWORD exitCodeOut{};
+        if (!dllUtility::RunBatchFile(Engine::BUILD_BATCH_PATH, &exitCodeOut))
+        {
+            engineCore->Logger.Log(LogLevel::LEVEL_ERROR, "Scripts build Fail!");
+            return false;
+        }
+    }
+    else
+    {
+        if (m_scriptsDll != NULL)
+            return false;
+    }
+
+    static std::vector<std::tuple<GameObject*, std::string, int, std::string>> addList; //복구해야할 컴포넌트 항목들
     addList.clear();
 
-    DWORD exitCodeOut{};
-    if (!dllUtility::RunBatchFile(Engine::BUILD_BATCH_PATH, &exitCodeOut))
-    {
-        engineCore->EngineLogger.Log(LogLevel::LEVEL_ERROR, "Scripts build Fail!");
-        return false;
-    }
-      
+    SetForegroundWindow(UmApplication.GetHwnd());
     if (m_scriptsDll != NULL)
     {
+        //커맨드 Clear
+        UmCommandManager.Clear();
+
         //모든 컴포넌트 자원 회수
-        for (auto& [key, wptr] : m_ComponentInstanceVec)
+        for (auto& [key, wptr] : _componentInstanceVec)
         {
             if (auto component = wptr.lock())
             {
-                int index = component->GetComponentIndex();
-                addList.emplace_back(component->_gameObect, key, index);
-                component->_gameObect->_components[index].reset(); //컴포넌트 파괴
+                int index = component->GetIndex();
+                addList.emplace_back(component->_gameObject, key, index, component->SerializedReflectFields());
+                component->_gameObject->_components[index].reset(); //컴포넌트 파괴
             }
         }
-        m_ComponentInstanceVec.clear();
+        _componentInstanceVec.clear();
 
         FreeLibrary(m_scriptsDll);
         m_scriptsDll = NULL;
     }
-
-    m_NewScriptsFunctionMap.clear();
+    _newScriptsFunctionMap.clear();
     m_NewScriptsKeyVec.clear();
+
+    if constexpr (true == Application::IsEditor())
+    {
+        SetDllDirectory(EComponentFactory::Engine::SCRIPTS_DLL_PATH);
+    }
     m_scriptsDll = LoadLibraryW(L"GameScripts.dll");
     if (m_scriptsDll == NULL)
     {
-        assert(!"DLL Load Fail");
+        //DLL Load Fail
+        __debugbreak();
         return false;
     }
 
-    //기존 DLL, PDB 삭제
-    std::filesystem::path prevPath = EComponentFactory::Engine::SCRIPTS_DLL_PATH;
-    prevPath /= L"Prev_GameScripts.dll";
-    if (std::filesystem::exists(prevPath))
+    if constexpr (true == Application::IsEditor())
     {
-        std::error_code ec;
-        std::filesystem::remove(prevPath, ec);
-        if (ec) 
+        //기존 DLL, PDB 삭제
+        std::filesystem::path prevPath = EComponentFactory::Engine::SCRIPTS_DLL_PATH;
+        prevPath /= L"Prev_GameScripts.dll";
+        if (std::filesystem::exists(prevPath))
         {
-            __debugbreak(); //삭제 실패
+            std::error_code ec;
+            std::filesystem::remove(prevPath, ec);
+            if (ec) 
+            {
+                __debugbreak(); //삭제 실패
+            }
+        }
+        prevPath.replace_extension(L".pdb");
+        if (std::filesystem::exists(prevPath))
+        {
+            std::error_code ec;
+            std::filesystem::remove(prevPath, ec);
+            if (ec)
+            {
+                __debugbreak(); //삭제 실패
+            }
         }
     }
-    prevPath.replace_extension(L".pdb");
-    if (std::filesystem::exists(prevPath))
-    {
-        std::error_code ec;
-        std::filesystem::remove(prevPath, ec);
-        if (ec)
-        {
-            __debugbreak(); //삭제 실패
-        }
-    }
-
+    
+    //스크립트 파일 생성 함수 등록
     std::vector<std::string> funcList = dllUtility::GetDLLFuntionNameList(m_scriptsDll);
     MakeScriptFunc = (MakeUmScriptsFile)GetProcAddress(m_scriptsDll, funcList[0].c_str());
     if (funcList[0] != "CreateUmrealcSriptFile")
@@ -80,6 +111,7 @@ bool EComponentFactory::InitalizeComponentFactory()
         return false;
     }
 
+    //스크립트 초기화 함수 등록
     if (funcList[1] != "InitalizeUmrealScript")
     {
         FreeLibrary(m_scriptsDll);
@@ -88,10 +120,13 @@ bool EComponentFactory::InitalizeComponentFactory()
         return false;
     }
     auto InitDLLCores = (InitScripts)GetProcAddress(m_scriptsDll, funcList[1].c_str());
+    std::shared_ptr<EngineCores> cores = engineCore;
     InitDLLCores(
-        engineCore,
+        cores,
         ImGui::GetCurrentContext());
 
+    //스크립트 생성자들 등록
+    AddEngineComponentsToScripts();
     for (size_t i = 0; i < funcList.size(); i++)
     {
         std::string& funcName = funcList[i];
@@ -100,29 +135,71 @@ bool EComponentFactory::InitalizeComponentFactory()
             auto NewComponentFunc = (NewScripts)GetProcAddress(m_scriptsDll, funcName.c_str());
             Component* component = NewComponentFunc();
             const char* key = typeid(*component).name();
-            m_NewScriptsFunctionMap[key] = NewComponentFunc;
+            _newScriptsFunctionMap[key] = NewComponentFunc;
             m_NewScriptsKeyVec.emplace_back(key);
             delete component;
         }
     }
+    std::sort(m_NewScriptsKeyVec.begin(), m_NewScriptsKeyVec.end());
 
     //파괴된 컴포넌트 재생성 및 복구
-    for (auto& [gameObject, key, index] : addList)
+    MissingComponent missingTemp;
+    for (auto& [gameObject, key, index, reflectData] : addList)
     {
-        auto findIter = m_NewScriptsFunctionMap.find(key);
-        if (findIter != m_NewScriptsFunctionMap.end())
+        bool isMissing = false;
+        if (key == typeid(MissingComponent).name())
+        {
+            //Missing 컴포넌트면 데이터 복구
+            missingTemp.DeserializedReflectFields(reflectData);
+            key = missingTemp.ReflectFields->typeName;
+            isMissing = true;
+        }
+        std::shared_ptr<Component> newComponent;
+        auto findIter = _newScriptsFunctionMap.find(key);
+        bool isFind   = findIter != _newScriptsFunctionMap.end();
+        if (isFind)
         {
             //컴포넌트 존재하면 다시 생성
-            std::shared_ptr<Component> newComponent = NewComponent(key);
-            ResetComponent(gameObject, newComponent.get()); //엔진에서 사용하기 위해 초기화
-            newComponent->_initFlags.SetAwake();            //초기화 플래그 설정
-            newComponent->_initFlags.SetStart();            //초기화 플래그 설정
-            newComponent->_index = index;                  //인덱스 제대로 재설정
-            gameObject->_components[index] = newComponent;
+            newComponent = NewComponent(key);
         }
+        else
+        {
+            //없어진 컴포넌트면 Missing으로 대체
+            std::shared_ptr<MissingComponent> missing = NewMissingComponent();
+            missing->ReflectFields->typeName = key;
+            missing->ReflectFields->reflectData = reflectData;
+            newComponent = std::move(missing);
+        }
+        ResetComponent(gameObject, newComponent);       // 엔진에서 사용하기 위해 초기화
+        newComponent->_initFlags.SetAwake();            // 초기화 플래그 설정
+        newComponent->_initFlags.SetStart();            // 초기화 플래그 설정
+        gameObject->_components[index] = newComponent;  
+        if (isFind == true)
+        {
+            if (isMissing == true)
+            {
+                //Missing 컴포넌트면 데이터 복구
+                reflectData = missingTemp.ReflectFields->reflectData;
+            }
+            if (reflectData.empty() == false)
+            {
+                newComponent->DeserializedReflectFields(reflectData); // 데이터 복구
+            }          
+            if (Component::TYPE::CAMERA == newComponent->_type)
+            {
+                CameraComponent* camera = static_cast<CameraComponent*>(newComponent.get());
+                if (camera->GetCamera() == nullptr)
+                {
+                    std::shared_ptr<Camera> newCamera{new Camera};
+                    camera->SetTarget(newCamera);
+                }
+            }
+            newComponent->UpdateEnableInHierarchy();
+        }     
     }
+
     //존재 안하는거는 전부 제거
-    for (auto& [gameObject, key, index] : addList)
+    for (auto& [gameObject, key, index, reflectData] : addList)
     {
         std::erase_if(gameObject->_components, [](auto& sptr)
             {
@@ -138,58 +215,380 @@ void EComponentFactory::UninitalizeComponentFactory()
     if (m_scriptsDll != NULL)
     {
         //모든 컴포넌트 자원 회수
-        for (auto& [key, wptr] : m_ComponentInstanceVec)
+        for (auto& [key, wptr] : _componentInstanceVec)
         {
             if (auto component = wptr.lock())
             {
-                int index = component->GetComponentIndex();
-                component->_gameObect->_components[index].reset(); //컴포넌트 파괴
+                int index = component->GetIndex();
+                if (0 <= index)
+                {
+                    component->_gameObject->_components[index].reset(); // 컴포넌트 파괴
+                }             
             }
         }
-        m_ComponentInstanceVec.clear();
+        _componentInstanceVec.clear();
         FreeLibrary(m_scriptsDll);
         m_scriptsDll = NULL;
     }
 }
 
-bool EComponentFactory::AddComponentToObject(GameObject* ownerObject, std::string_view typeid_name)
+Component* EComponentFactory::AddComponentToObject(GameObject* ownerObject, std::string_view typeid_name)
 {
     if(std::shared_ptr<Component> sptr_component = NewComponent(typeid_name))
     {
         const char* name = typeid_name.data();
-        ResetComponent(ownerObject, sptr_component.get());
-        ownerObject->_components.emplace_back(sptr_component);  //오브젝트에 추가
+        ResetComponent(ownerObject, sptr_component);
         ESceneManager::Engine::AddComponentToLifeCycle(sptr_component); //씬에 등록
-        return true;
+        return sptr_component.get();
     }
-    return false;
+    return nullptr;
 }
 
 void EComponentFactory::MakeScriptFile(const char* fileName) const
 {
-    MakeScriptFunc(fileName);
+    if (m_scriptsDll != NULL)
+    {
+        MakeScriptFunc(fileName);
+    }
+    else
+    {
+        engineCore->Logger.Log(LogLevel::LEVEL_WARNING, u8"Script DLL을 빌드해주세요!"_c_str);
+    }
+}
+
+YAML::Node EComponentFactory::SerializeToYaml(Component* component)
+{
+    if (UmComponentFactory.HasScript() == false)
+    {
+        if (UmComponentFactory.InitalizeComponentFactory() == false)
+        {
+            UmLogger.Log(LogLevel::LEVEL_FATAL, u8"스크립트 빌드 에러 해결 필요."_c_str);
+            __debugbreak();
+            UmApplication.Quit();
+            return YAML::Node();
+        }
+    }
+    return MakeYamlToComponent(component);
+}
+
+bool EComponentFactory::ParsingYamlToOverrideFlags(Component* component, const YAML::Node& componentNode) 
+{
+    bool result = false;
+    int SerializedVersion = 0;
+    const YAML::Node& node = componentNode;
+    if (node["SerializedVersion"])
+    {
+        SerializedVersion = node["SerializedVersion"].as<int>();
+    }
+
+    if (0 < SerializedVersion)
+    {
+        if constexpr (Application::IsEditor())
+        {
+            const char* componentType = typeid(*component).name();
+            std::string nodeType = componentNode["Type"].as<std::string>();
+            if (nodeType == componentType)
+            {                     
+                if (node["OverrideFlags"])
+                {
+                    const YAML::Node& overrideFlagsNode = node["OverrideFlags"];
+                    if (false == overrideFlagsNode.IsNull())
+                    {
+                        std::string propertyName;
+                        std::vector<std::string> overrideFieldNames;
+                        component->applyReflectFields([&](std::string_view name, void* pData) 
+                        {
+                            if (overrideFlagsNode[name.data()])
+                            {
+                                propertyName = overrideFlagsNode[name.data()].as<std::string>();
+                                UmGameObjectFactory.SetOverrideFlag(pData, propertyName);
+                                overrideFieldNames.emplace_back(name.data());
+                            }
+                        });
+
+                        if (false == overrideFieldNames.empty())
+                        {
+                            using namespace ReflectHelper::json;
+
+                            std::string prefabData = component->SerializedReflectFields();
+                            yyjson_doc* prefabDoc  = yyjson_read(prefabData.c_str(), prefabData.size(), 0);
+                            yyjson_mut_doc* prefabMutDoc = yyjson_doc_mut_copy(prefabDoc, nullptr);
+                            yyjson_mut_val* prefabRoot = yyjson_mut_doc_get_root(prefabMutDoc);
+
+                            std::string myData = componentNode["ReflectFields"].as<std::string>();
+                            yyjson_doc* myDoc  = yyjson_read(myData.c_str(), myData.size(), 0);
+                            yyjson_val* myRoot = yyjson_doc_get_root(myDoc);
+
+                            bool isWrite = false;
+                            for (auto& name : overrideFieldNames)
+                            {
+                                yyjson_val* myVal = yyjson_obj_get(myRoot, name.data());
+                                if (myVal)
+                                {
+                                    yyjson_mut_val* prefabVal = yyjson_mut_obj_get(prefabRoot, name.data());
+                                    if (prefabVal)
+                                    {
+                                        yyjson_mut_val* prefabKey = yyjson_mut_strcpy(prefabMutDoc, name.data());
+                                        yyjson_mut_val* prefabVal = yyjson_val_mut_copy(prefabMutDoc, myVal);
+                                        yyjson_mut_obj_replace(prefabRoot, prefabKey, prefabVal);
+
+                                        isWrite = true;
+                                    }
+                                }
+                            }
+                            
+                            if (isWrite)
+                            {
+                                char* str = yyjson_mut_write(prefabMutDoc, 0, nullptr);
+                                if (str)
+                                {
+                                    component->DeserializedReflectFields(str);
+                                    SAFE_FREE(str);
+                                }
+                            }
+
+                            yyjson_doc_free(prefabDoc);
+                            yyjson_mut_doc_free(prefabMutDoc);
+                            yyjson_doc_free(myDoc);
+                        }
+                    }
+                }
+                result = true;
+            }
+        }
+    }
+    return result;
+}
+
+Component* EComponentFactory::AddComponentToYamlLifeCycle(GameObject* ownerObject, YAML::Node* componentNode)
+{
+    if (UmComponentFactory.HasScript() == false)
+    {
+        if (UmComponentFactory.InitalizeComponentFactory() == false)
+        {
+            UmLogger.Log(LogLevel::LEVEL_FATAL, u8"스크립트 빌드 에러 해결 필요."_c_str);
+            __debugbreak();
+            UmApplication.Quit();
+            return nullptr;
+        }
+    }
+    std::shared_ptr<Component> component;
+    if (component = MakeComponentToYaml(ownerObject, componentNode))
+    {
+        ESceneManager::Engine::AddComponentToLifeCycle(component); // 씬에 등록
+    }
+    else
+    {
+        return nullptr;
+    }
+    return component.get();
+}
+
+Component* EComponentFactory::AddComponentToYamlNow(GameObject* ownerObject, YAML::Node* componentNode)
+{
+    if (UmComponentFactory.HasScript() == false)
+    {
+        if (UmComponentFactory.InitalizeComponentFactory() == false)
+        {
+            UmLogger.Log(LogLevel::LEVEL_FATAL, u8"스크립트 빌드 에러 해결 필요."_c_str);
+            __debugbreak();
+            UmApplication.Quit();
+            return nullptr;
+        }
+    }
+    std::shared_ptr<Component> component;
+    if (component = MakeComponentToYaml(ownerObject, componentNode))
+    {
+        component->_gameObject->_components.emplace_back(component); //바로 추가
+    }
+    else
+    {
+        return nullptr;
+    }
+    return component.get();
+}
+
+void EComponentFactory::InsertComponentToObject(GameObject* object, std::shared_ptr<Component>& component, int index) 
+{
+    object->_components.insert(object->_components.begin() + index, component);
+}
+
+bool EComponentFactory::RevertOverrideField(Component* component, std::string_view fieldName)
+{
+    bool result = false;
+    if constexpr (Application::IsEditor())
+    {
+        EGameObjectFactory& gameObjectFactory = UmGameObjectFactory;
+        GameObject* prefabInstance = component->gameObject->PrefabInstance;
+        if (nullptr != prefabInstance)
+        {
+            const std::vector<std::shared_ptr<GameObject>>* prefabList = gameObjectFactory.GetOriginPrefab(prefabInstance->_prefabGuid);
+            if (nullptr != prefabList)
+            {
+                int prefabIndex = -1;
+                int currIndex = 0;
+                Transform::ForeachBFS(prefabInstance->_transform, [&](Transform* curr) 
+                {
+                    if (&component->gameObject == &curr->gameObject)
+                    {
+                        prefabIndex = currIndex;
+                    }
+                    currIndex++;
+                });
+
+                if (0 <= prefabIndex)
+                {
+                    GameObject* prefab = (*prefabList)[prefabIndex].get();
+                    Component* prefabComponent = prefab->GetComponentAtIndex<Component>(component->GetIndex());
+                    if (typeid(*component) == typeid(*prefabComponent))
+                    {
+                        using namespace ReflectHelper::json;
+                        std::string prefabData = prefabComponent->SerializedReflectFields();
+                        yyjson_doc* prefabDoc = yyjson_read(prefabData.c_str(), prefabData.size(), 0);
+                        yyjson_val* prefabRoot = yyjson_doc_get_root(prefabDoc);
+
+                        std::string myData = component->SerializedReflectFields();
+                        yyjson_doc* myDoc = yyjson_read(myData.c_str(), myData.size(), 0);
+                        yyjson_mut_doc* myMutDoc = yyjson_doc_mut_copy(myDoc, nullptr);
+                        yyjson_mut_val* myRoot = yyjson_mut_doc_get_root(myMutDoc);
+
+                        bool isWrite = false;
+                        yyjson_val* prefabVal = yyjson_obj_get(prefabRoot, fieldName.data());
+                        if (prefabVal)
+                        {
+                            yyjson_mut_val* myVal = yyjson_mut_obj_get(myRoot, fieldName.data());
+                            if (myVal)
+                            {
+                                yyjson_mut_val* myKey = yyjson_mut_strcpy(myMutDoc, fieldName.data());
+                                yyjson_mut_val* myVal = yyjson_val_mut_copy(myMutDoc, prefabVal);
+                                yyjson_mut_obj_replace(myRoot, myKey, myVal);
+                                isWrite = true;
+                            }
+                        }
+                        
+                        if (isWrite)
+                        {
+                            char* str = yyjson_mut_write(myMutDoc, 0, nullptr);
+                            if (str)
+                            {
+                                component->DeserializedReflectFields(str);
+                                SAFE_FREE(str);
+                            }
+                        }
+
+                        yyjson_doc_free(prefabDoc);
+                        yyjson_doc_free(myDoc);
+                        yyjson_mut_doc_free(myMutDoc);
+
+                        result = true;
+                    }
+                }
+            }
+        }
+    }
+
+    if (result == false)
+    {
+        UmLogger.Log(LogLevel::LEVEL_ERROR, u8"프리팹 구조와 오브젝트 구조가 다릅니다."_c_str);
+    }
+    return result;
+}
+
+void EComponentFactory::AddEngineComponentsToScripts() 
+{
+    for (auto& [key, func] : _engineComponets)
+    {
+        _newScriptsFunctionMap[key] = func;
+        m_NewScriptsKeyVec.emplace_back(key);
+    }
 }
 
 std::shared_ptr<Component> EComponentFactory::NewComponent(std::string_view typeid_name)
 {
     std::shared_ptr<Component> newComponent;
-    auto findIter = m_NewScriptsFunctionMap.find(typeid_name.data());
-    if (findIter != m_NewScriptsFunctionMap.end())
+    auto findIter = _newScriptsFunctionMap.find(typeid_name.data());
+    if (findIter != _newScriptsFunctionMap.end())
     {
         auto& [name, func] = *findIter;
         newComponent.reset(func());                                //컴포넌트 생성
-        m_ComponentInstanceVec.emplace_back(name, newComponent);   //추적용 weak_ptr 생성 
+        _componentInstanceVec.emplace_back(name, newComponent);   //추적용 weak_ptr 생성 
     }
     return newComponent;
 }
 
-void EComponentFactory::ResetComponent(GameObject* ownerObject, Component* component)
+std::shared_ptr<MissingComponent> EComponentFactory::NewMissingComponent()
+{
+    std::shared_ptr<MissingComponent> missing = std::make_shared<MissingComponent>();
+    _componentInstanceVec.emplace_back(typeid(MissingComponent).name(), missing);
+    return missing;
+}
+
+void EComponentFactory::ResetComponent(GameObject* ownerObject, std::shared_ptr<Component>& component)
 {
     //여긴 엔진에서 사용하기 위한 초기화 코드 
-    component->_className = (typeid(*component).name() + 5);
-    component->_gameObect = ownerObject;
-    component->_index = (int)ownerObject->_components.size();
-
+    component->_className = (typeid(*component).name() + 6);
+    component->_gameObject = ownerObject;
+    component->_weakPtr = component;
     component->Reset();
     //end
+}
+
+YAML::Node EComponentFactory::MakeYamlToComponent(Component* component)
+{
+    constexpr int SerializedVersion = 1;
+    YAML::Node node;
+    if constexpr (0 < SerializedVersion)
+    {
+        node["SerializedVersion"] = SerializedVersion;
+    }
+    node["Type"] = typeid(*component).name();
+    node["ReflectFields"] = component->SerializedReflectFields();
+    if constexpr (0 < SerializedVersion)
+    {
+        if constexpr (Application::IsEditor())
+        {
+            YAML::Node overrideFlagsNode;
+            std::string_view propertyName;
+            component->applyReflectFields([&](std::string_view name, void* pData) 
+            {
+                if (true == UmGameObjectFactory.IsOverrideField(pData, &propertyName))
+                {
+                    overrideFlagsNode[name.data()] = propertyName;
+                }
+            });
+            if (false == overrideFlagsNode.IsNull())
+            {
+                node["OverrideFlags"] = overrideFlagsNode;
+            }
+        }
+    }
+    return node;
+}
+
+std::shared_ptr<Component> EComponentFactory::MakeComponentToYaml(GameObject* ownerObject, YAML::Node* pComponentNode)
+{
+    int SerializedVersion = 0;
+    YAML::Node& node = *pComponentNode;
+    if (node["SerializedVersion"])
+    {
+        SerializedVersion = node["SerializedVersion"].as<int>();
+    }
+    std::string Type = node["Type"].as<std::string>();
+    std::shared_ptr<Component> component = NewComponent(Type);
+    std::string ReflectFields = node["ReflectFields"].as<std::string>();
+    if (component == nullptr)
+    {
+        // 없어진 컴포넌트면 Missing으로 대체 
+        std::shared_ptr<MissingComponent> missing = NewMissingComponent();
+        missing->ReflectFields->typeName    = Type;
+        missing->ReflectFields->reflectData = ReflectFields;
+        component = missing;
+        ResetComponent(ownerObject, component);
+    }
+    else
+    {
+        ResetComponent(ownerObject, component);
+        component->DeserializedReflectFields(ReflectFields);
+    }
+    return component;
 }

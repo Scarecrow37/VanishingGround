@@ -11,6 +11,13 @@ namespace Mathf
 	/*radian angle 기준 Epsilon*/
 	constexpr float AngleEpsilon = 0.001f;
 
+    /*이거 왜 SimpleMath에 없음?*/
+    constexpr Matrix IdentityMatrix = Matrix(
+        1.f, 0, 0, 0,
+        0, 1.f, 0, 0,
+        0, 0, 1.f, 0,
+        0, 0, 0, 1.f);
+
 	//선형 보간
 	float Lerp(float startfloat, float endfloat, float t);
 
@@ -54,4 +61,21 @@ namespace Mathf
 	{
 		return (std::max)(first, FindMaxValue(args...));
 	};
+
+    /// <summary>
+    /// 0이 되지 않도록 Clamp 합니다.
+    /// </summary>
+    /// <param name="value :">value</param>
+    /// <param name="clampValue :">clamp value</param>
+    /// <returns></returns>
+    inline float ClampScale(float value, float clampValue)
+    {
+        if (value > 0.0f && value < clampValue)
+            return clampValue;
+        else if (value < 0.0f && value > -clampValue)
+            return -clampValue;
+        else if (value == 0.0f)
+            return clampValue; 
+        return value;
+    }
 }

@@ -1,0 +1,7 @@
+﻿#include "pch.h"
+#include "ComputeShader.h"
+
+void ComputeShader::LoadResource(const std::filesystem::path& filePath)
+{
+    CompileShader(filePath.c_str(), "cs_main", "cs_5_1");
+}

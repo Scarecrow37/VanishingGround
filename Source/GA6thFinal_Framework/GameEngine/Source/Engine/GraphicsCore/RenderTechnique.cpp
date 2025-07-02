@@ -1,0 +1,23 @@
+﻿#include "pch.h"
+#include "RenderTechnique.h"
+#include "RenderPass.h"
+
+RenderTechnique::RenderTechnique()
+{
+    _renderPasses.reserve(10);
+}
+
+void RenderTechnique::AddRenderPass(std::unique_ptr<RenderPass> pass)
+{
+    _renderPasses.push_back(std::move(pass));
+}
+
+void RenderTechnique::Execute(ID3D12GraphicsCommandList* commadList)
+{
+    for (auto& pass : _renderPasses)
+    {
+        pass->Begin(commadList);
+        pass->Draw(commadList);
+        pass->End(commadList);
+    }
+}

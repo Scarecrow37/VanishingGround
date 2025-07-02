@@ -1,6 +1,7 @@
 ﻿#pragma once
 class GameObject;
 class Component;
+class MissingComponent;
 class EngineCores;
 
 template<typename T>
@@ -13,19 +14,51 @@ public:
     //엔진 접근용 네임스페이스
     struct Engine
     {
-        //dll 경로
+        static constexpr const wchar_t* SCRIPTS_DLL_EDITOR_DEBUG_PATH = L"..\\GameScripts\\bin\\DebugEditor";
+        static constexpr const wchar_t* BUILD_BATCH_EDITOR_DEBUG_PATH = L"..\\GameScripts\\build_debug_editor.bat";
+
+        static constexpr const wchar_t* SCRIPTS_DLL_EDITOR_RELEASE_PATH = L"..\\GameScripts\\bin\\ReleaseEditor";
+        static constexpr const wchar_t* BUILD_BATCH_EDITOR_RELEASE_PATH = L"..\\GameScripts\\build_release_editor.bat";
+
+        static constexpr const wchar_t* SCRIPTS_DLL_DEBUG_PATH = L"..\\GameScripts\\bin\\Debug";
+        static constexpr const wchar_t* BUILD_BATCH_DEBUG_PATH = L"..\\GameScripts\\build_debug.bat";
+
+        static constexpr const wchar_t* SCRIPTS_DLL_RELEASE_PATH = L"..\\GameScripts\\bin\\Release";
+        static constexpr const wchar_t* BUILD_BATCH_RELEASE_PATH = L"..\\GameScripts\\build_release.bat";
+#ifdef _UMEDITOR
 #ifdef _DEBUG
-        static constexpr const wchar_t* SCRIPTS_DLL_PATH = L"..\\GameScripts\\bin\\Debug";
-        static constexpr const wchar_t* BUILD_BATCH_PATH = L"..\\GameScripts\\build_debug.bat";
+        static constexpr const wchar_t* SCRIPTS_DLL_PATH = SCRIPTS_DLL_EDITOR_DEBUG_PATH;
+        static constexpr const wchar_t* BUILD_BATCH_PATH = BUILD_BATCH_EDITOR_DEBUG_PATH;
 #else
-        static constexpr const wchar_t* SCRIPTS_DLL_PATH = L"..\\GameScripts\\bin\\Release";
-        static constexpr const wchar_t* BUILD_BATCH_PATH = L"..\\GameScripts\\build_release.bat";
+        static constexpr const wchar_t* SCRIPTS_DLL_PATH = SCRIPTS_DLL_EDITOR_RELEASE_PATH;
+        static constexpr const wchar_t* BUILD_BATCH_PATH = BUILD_BATCH_EDITOR_RELEASE_PATH;
 #endif
+#else
+#ifdef _DEBUG
+        static constexpr const wchar_t* SCRIPTS_DLL_PATH = SCRIPTS_DLL_DEBUG_PATH;
+        static constexpr const wchar_t* BUILD_BATCH_PATH = BUILD_BATCH_DEBUG_PATH;
+#else
+        static constexpr const wchar_t* SCRIPTS_DLL_PATH = SCRIPTS_DLL_RELEASE_PATH;
+        static constexpr const wchar_t* BUILD_BATCH_PATH = BUILD_BATCH_RELEASE_PATH;
+#endif
+#endif  
     };
 
 private:
     EComponentFactory();
     ~EComponentFactory();
+
+    /// <summary>
+    /// <para> 엔진 컴포넌트를 등록하는 함수입니다. 생성자에서 호출해야 합니다.            </para>
+    /// <para> 이 컴포넌트들은 m_NewScriptsKeyVec와 _newScriptsFunctionMap에 추가됩니다. </para>
+    /// </summary>
+    /// <typeparam name="TGameObject :">등록할 타입 파라미터</typeparam>
+    template <IS_BASE_COMPONENT_C TComponent>
+    inline void RegisterEngineComponent()
+    {
+        const char* key = typeid(TComponent).name();
+        _engineComponets.emplace_back(key, []()->Component*{ return new TComponent; });
+    }
 
 public:
     /// <summary>
@@ -38,7 +71,7 @@ public:
     bool InitalizeComponentFactory();
 
     /// <summary>
-    /// 스크립트 DLL을 언로드합니다.
+    /// 스크립트 DLL을 언로드합니다. 모든 컴포넌트들이 파괴됩니다.
     /// </summary>
     void UninitalizeComponentFactory();
 
@@ -48,15 +81,39 @@ public:
     /// <param name="ownerObject :">컴포넌트를 추가할 오브젝트</param>
     /// <param name="typeid_name :">컴포넌트 typeid().name()</param>
     /// <returns>성공 여부</returns>
-    bool AddComponentToObject(GameObject* ownerObject, std::string_view typeid_name);
+    Component* AddComponentToObject(GameObject* ownerObject, std::string_view typeid_name);
 
     /// <summary>
     /// 스크립트 DLL의 모든 컴포넌트 생성 키들을 반환합니다.
     /// </summary>
     /// <returns></returns>
-    const std::vector<std::string>& GetNewComponentFuncList()
+    const std::vector<std::string>& GetNewComponentKeyList()
     {
         return m_NewScriptsKeyVec;
+    }
+
+    /// <summary>
+    /// 스크립트 DLL 여부를 확인합니다.
+    /// </summary>
+    /// <returns></returns>
+    inline bool HasScript() const
+    { 
+        return (m_scriptsDll != NULL) ? true : false;
+    }
+
+    /// <summary>
+    /// 컴포넌트 존재 유무를 확인합니다.
+    /// </summary>
+    /// <param name="typeid_name :">확인할 컴포넌트 typeid_name</param>
+    /// <returns></returns>
+    bool HasComponent(std::string_view typeid_name)
+    {
+        auto findIter = _newScriptsFunctionMap.find(typeid_name.data());
+        if (findIter != _newScriptsFunctionMap.end())
+        {
+            return true;
+        }
+        return false;
     }
 
     /// <summary>
@@ -65,26 +122,81 @@ public:
     /// </summary>
     /// <param name="fileName :">사용할 파일 이름</param>
     void MakeScriptFile(const char* fileName) const;
+
+    /// <summary>
+    /// 컴포넌트를 YAML로 직렬화합니다.
+    /// </summary>
+    YAML::Node SerializeToYaml(Component* component);
+
+    /// <summary>
+    /// Override된 맴버만 덮어씌웁니다.
+    /// </summary>
+    /// <param name="component :">대상 Component</param>
+    /// <param name="componentNode :">Scene 파일에 직렬화된 Component Node</param>
+    /// <returns>같은 타입의 컴포넌트면 true 아니면 false입니다.</returns>
+    bool ParsingYamlToOverrideFlags(Component* component, const YAML::Node& componentNode);
+
+    /// <summary>
+    /// Yaml 형식으로 직렬화된 컴포넌트를 런타임 오브젝트에 추가합니다. 
+    /// </summary>
+    /// <returns></returns>
+    Component* AddComponentToYamlLifeCycle(GameObject* ownerObject, YAML::Node* componentNode);
+
+    /// <summary>
+    /// Yaml 형식으로 직렬화된 컴포넌트를 즉시 오브젝트에 추가합니다. (리소스 프리팹 전용)
+    /// </summary>
+    /// <returns></returns>
+    Component* AddComponentToYamlNow(GameObject* ownerObject, YAML::Node* componentNode);
+
+    /// <summary>
+    /// 컴포넌트를 오브젝트에 바로 추가합니다.
+    /// </summary>
+    /// <param name="object :">대상</param>
+    /// <param name="component :">컴포넌트</param>
+    /// <param name="index :">번호</param>
+    void InsertComponentToObject(GameObject* object, std::shared_ptr<Component>& component, int index);
+
+    /// <summary>
+    /// PrefabOverrideField를 Prefab의 값으로 Revert합니다.
+    /// </summary>
+    /// <param name="component"></param>
+    /// <param name="fieldName"></param>
+    /// <returns></returns>
+    bool RevertOverrideField(Component* component, std::string_view fieldName);
+
 private:
     using InitScripts = void(*)(const std::shared_ptr<EngineCores>, ImGuiContext*);
     using MakeUmScriptsFile = void(*)(const char* fileName);
     using NewScripts = Component*(*)();
 
-   std::vector<std::pair<std::string, std::weak_ptr<Component>>> m_ComponentInstanceVec;
+   std::vector<std::pair<std::string, std::weak_ptr<Component>>> _componentInstanceVec;
 
     HMODULE m_scriptsDll{};
-    std::map<std::string, NewScripts> m_NewScriptsFunctionMap{};
+    std::map<std::string, std::function<Component*()>> _newScriptsFunctionMap{};
     std::vector<std::string> m_NewScriptsKeyVec{}; 
+
+    std::vector<std::pair<std::string, std::function<Component*()>>> _engineComponets;
 
     MakeUmScriptsFile MakeScriptFunc = nullptr;
 private:
+    //엔진 컴포넌트들을 m_NewScriptsFunctionMap에 등록하는 함수.
+    void AddEngineComponentsToScripts();
+
     //컴포넌트를 동적할당후 shared_ptr로 반환합니다.
     //매개변수로 생성할 컴포넌트 typeid().name()을 전달해야합니다.
     std::shared_ptr<Component> NewComponent(std::string_view typeid_name);
 
+    //내부에서 사용하는 Missing Component 생성용 함수
+    std::shared_ptr<MissingComponent> NewMissingComponent();
+
     //컴포넌트를 엔진에 사용하기 위해 초기화합니다.
     //초기화 후 컴포넌트의 Reset을 호출합니다.
-    void ResetComponent(GameObject* ownerObject, Component* component);
+    void ResetComponent(GameObject* ownerObject, std::shared_ptr<Component>& component);
 
+    //컴포넌트를 Yaml로 직렬화
+    YAML::Node MakeYamlToComponent(Component* component);
+
+    //Yaml로 컴포넌트 생성 Reset도 호출함.
+    std::shared_ptr<Component> MakeComponentToYaml(GameObject* ownerObject, YAML::Node* componentNode);
 
 };

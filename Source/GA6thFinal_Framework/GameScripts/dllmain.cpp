@@ -1,4 +1,5 @@
-﻿#include <Windows.h>
+﻿#include "pchScripts.h"
+#include <Windows.h>
 
 BOOL APIENTRY DllMain( HMODULE hModule,
                        DWORD  ul_reason_for_call,
@@ -9,6 +10,7 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     {
     case DLL_PROCESS_ATTACH:
     case DLL_THREAD_ATTACH:
+        break;
     case DLL_THREAD_DETACH:
     case DLL_PROCESS_DETACH:
         break;

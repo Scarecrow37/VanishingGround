@@ -5,15 +5,22 @@ using namespace Global;
 void EngineCoresModule::PreInitialize()
 {
     SafeEngineCoresPtr::Engine::CreateEngineCores();
-    //engineCore->ComponentFactory.InitalizeComponentFactory();
-    engineCore->SceneManager.CreateScene("EmptyScene");
-    engineCore->SceneManager.LoadScene("EmptyScene");
+    ESceneManager::Engine::RegisterFileEvents();
+    EGameObjectFactory::Engine::RegisterFileEvents();
+
+    const SIZE& clientSize = UmApplication.GetClientSize();
+    engineCore->Graphics.Initialize(engineCore->App.GetHwnd(), clientSize.cx, clientSize.cy, FeatureLevel::LEVEL_12_0);
 }
 
-void EngineCoresModule::PreUnInitialize()
+void EngineCoresModule::ModuleUnInitialize()
 {
+    if constexpr (Application::IsEditor())
+    {
+        UmCommandManager.Clear();
+    }
     ESceneManager::Engine::CleanupSceneManager();
+    ETimeSystem::Engine::CleanUpInvokeFuntions();
     engineCore->ComponentFactory.UninitalizeComponentFactory();
+    engineCore->Graphics.Device.Finalize();
     SafeEngineCoresPtr::Engine::DestroyEngineCores();
 }
-

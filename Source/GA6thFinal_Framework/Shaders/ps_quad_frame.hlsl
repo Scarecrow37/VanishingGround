@@ -1,0 +1,17 @@
+#include "CommonData.hlsli"
+
+Texture2D screen : register(t0);
+Texture2D UI : register(t1);
+
+struct PSInput
+{
+    float4 position : SV_POSITION;
+    float2 uv : TEXCOORD;
+};
+
+float4 ps_main(PSInput input) : SV_Target
+{
+    float4 screenPixel = screen.Sample(samLinear_wrap, input.uv);
+    
+    return screenPixel;
+}
