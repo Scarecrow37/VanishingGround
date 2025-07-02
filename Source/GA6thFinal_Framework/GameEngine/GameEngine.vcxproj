@@ -303,6 +303,7 @@
     <ClInclude Include="Source\Engine\GraphicsCore\BlendPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\DebugDrawCore.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\DepthStencilView.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\DXResourceManager.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\EditorDrawTechnique.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\EndlessGridPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\ParticleResolvePass.h" />
@@ -453,6 +454,7 @@
     <ClInclude Include="Source\Engine\Utility\LogLevel.h" />
     <ClInclude Include="Source\Engine\Utility\Mathf.h" />
     <ClInclude Include="Source\Engine\Utility\Random.h" />
+    <ClInclude Include="Source\Engine\Utility\SharedResource.h" />
     <ClInclude Include="Source\Engine\Utility\stlHelper.h" />
     <ClInclude Include="Source\Engine\ClassCore\ReflectHelper.h" />
     <ClInclude Include="Source\Engine\EditorCore\Gui\EditorGui.h" />
@@ -507,6 +509,7 @@
     <ClCompile Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectViewer.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\DebugDrawCore.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\DepthStencilView.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\DXResourceManager.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\EditorDrawTechnique.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\GraphicsBase.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\BlendPass.cpp" />
@@ -783,6 +786,7 @@
     <ClCompile Include="Source\Engine\Utility\LogLevel.cpp" />
     <ClCompile Include="Source\Engine\Utility\Mathf.cpp" />
     <ClCompile Include="Source\Engine\Utility\Random.cpp" />
+    <ClCompile Include="Source\Engine\Utility\SharedResource.cpp" />
     <ClCompile Include="Source\Engine\Utility\utfHelper.cpp" />
     <ClCompile Include="Source\Engine\ApplicationCore\Application.cpp" />
     <ClCompile Include="Source\pch.cpp">

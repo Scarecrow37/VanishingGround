@@ -1,14 +1,33 @@
 ﻿#include "pch.h"
 #include "RenderTarget.h"
 
-void RenderTarget::Initialize(UINT width, UINT height, DXGI_FORMAT format, FLOAT clearColor)
+void RenderTarget::Initialize(DXGI_MODE_DESC mode, FLOAT clearColor)
+{
+    _clearValue = {clearColor, clearColor, clearColor, 1.f};
+
+    _mode = mode;
+
+    _currentState = D3D12_RESOURCE_STATE_RENDER_TARGET;
+
+    _viewPort = {.Width = (FLOAT)mode.Width, .Height = (FLOAT)mode.Height, .MinDepth = 0.f, .MaxDepth = 1.f};
+    _scissorRect = {.right = (LONG)mode.Width, .bottom = (LONG)mode.Height};
+
+    UmViewManager.AddDescriptorHeap(ViewManager::Type::RENDER_TARGET, _rtvHandle);
+    CreateRenderTargetView();
+
+    UmViewManager.AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _srvHandle);
+    _ID = UmViewManager.GetNumShaderResourceView() - 1;
+    CreateShaderResourceView();
+}
+
+void RenderTarget::CreateRenderTargetView()
 {
     D3D12_RESOURCE_DESC desc{.Dimension        = D3D12_RESOURCE_DIMENSION_TEXTURE2D,
-                             .Width            = width,
-                             .Height           = height,
+                             .Width            = _mode.Width,
+                             .Height           = _mode.Height,
                              .DepthOrArraySize = 1,
                              .MipLevels        = 1,
-                             .Format           = format,
+                             .Format           = _mode.Format,
                              .SampleDesc{.Count   = UmDevice.GetMSAAState() ? (UINT)4 : (UINT)1,
                                          .Quality = UmDevice.GetMSAAState() ? UmDevice.GetMSAAQuality() - 1 : (UINT)0},
                              .Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN,
@@ -16,32 +35,21 @@ void RenderTarget::Initialize(UINT width, UINT height, DXGI_FORMAT format, FLOAT
 
     CD3DX12_HEAP_PROPERTIES property(D3D12_HEAP_TYPE_DEFAULT);
 
-    D3D12_CLEAR_VALUE clearValue{
-        .Format = format,
-        .Color  = {clearColor, clearColor, clearColor, 1.f},
-    };
+    D3D12_CLEAR_VALUE clearValue{.Format = _mode.Format,
+                                 .Color  = {_clearValue.x, _clearValue.y, _clearValue.z, _clearValue.w}};
 
     ID3D12Device* device = UmDevice.GetDevice();
     HRESULT       hr     = S_OK;
 
-    hr = device->CreateCommittedResource(&property, D3D12_HEAP_FLAG_NONE, &desc, D3D12_RESOURCE_STATE_RENDER_TARGET, &clearValue, IID_PPV_ARGS(&_resource));
+    hr = device->CreateCommittedResource(&property, D3D12_HEAP_FLAG_NONE, &desc, D3D12_RESOURCE_STATE_RENDER_TARGET,
+                                         &clearValue, IID_PPV_ARGS(&_resource));
     FAILED_CHECK_MESSAGE(hr, L"RenderTarget::Initialize CreateCommittedResource Failed");
-
-    UmViewManager.AddDescriptorHeap(ViewManager::Type::RENDER_TARGET, _rtvHandle);
+    
     device->CreateRenderTargetView(_resource.Get(), nullptr, _rtvHandle);
-
-    _clearValue = {clearColor, clearColor, clearColor, 1.f};
-
-    _mode.Width = width;
-    _mode.Height = height;
-    _mode.Format = format;    
-
-    _currentState = D3D12_RESOURCE_STATE_RENDER_TARGET;
 }
 
 void RenderTarget::CreateShaderResourceView()
-{
-    // Srv 생성하기(RenderTarget에 대한)
+{   
     D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
     srvDesc.Format                          = _mode.Format;
     srvDesc.ViewDimension                   = D3D12_SRV_DIMENSION_TEXTURE2D;
@@ -49,12 +57,23 @@ void RenderTarget::CreateShaderResourceView()
     srvDesc.Texture2D.MipLevels             = 1;
     srvDesc.Shader4ComponentMapping         = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
-    UmViewManager.AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _srvHandle);
-    UmDevice.GetDevice()->CreateShaderResourceView(_resource.Get(), &srvDesc, _srvHandle.CPU);
-    _ID = UmViewManager.GetNumShaderResourceView() - 1;
+    UmDevice.GetDevice()->CreateShaderResourceView(_resource.Get(), &srvDesc, _srvHandle.CPU);    
 }
 
 void RenderTarget::ClearRenderTarget(ID3D12GraphicsCommandList* commandList)
 {    
     commandList->ClearRenderTargetView(_rtvHandle, _clearValue, 0, nullptr);
+}
+
+void RenderTarget::ResizeResource(DXGI_MODE_DESC mode)
+{
+    _mode = mode;
+
+    _currentState = D3D12_RESOURCE_STATE_RENDER_TARGET;
+
+    _viewPort    = {.Width = (FLOAT)mode.Width, .Height = (FLOAT)mode.Height, .MinDepth = 0.f, .MaxDepth = 1.f};
+    _scissorRect = {.right = (LONG)mode.Width, .bottom = (LONG)mode.Height};
+
+    CreateRenderTargetView();
+    CreateShaderResourceView();
 }

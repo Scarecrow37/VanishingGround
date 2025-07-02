@@ -9,9 +9,9 @@ BlendPass::BlendPass() {}
 
 BlendPass::~BlendPass() {}
 
-void BlendPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& sissorRect)
+void BlendPass::Initialize()
 {
-    __super::Initialize(viewPort, sissorRect);
+    __super::Initialize();
 
     _shader = std::make_unique<ShaderBuilder>();
     _shader->BeginBuild();
@@ -64,8 +64,8 @@ void BlendPass::Begin(ID3D12GraphicsCommandList* commandList)
 
     _ownerScene->_accumulationBuffer->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
-    commandList->RSSetViewports(1, &_viewPort);
-    commandList->RSSetScissorRects(1, &_sissorRect);
+    commandList->RSSetViewports(1, &_finalRenderTarget->GetViewPort());
+    commandList->RSSetScissorRects(1, &_finalRenderTarget->GetScissorRect());
 }
 
 void BlendPass::Draw(ID3D12GraphicsCommandList* commandList)

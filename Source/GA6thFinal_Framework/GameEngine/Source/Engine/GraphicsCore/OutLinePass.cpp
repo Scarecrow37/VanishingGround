@@ -9,9 +9,9 @@ OutLinePass::OutLinePass() {}
 
 OutLinePass::~OutLinePass() {}
 
-void OutLinePass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& sissorRect)
+void OutLinePass::Initialize()
 {
-    __super::Initialize(viewPort, sissorRect);
+    __super::Initialize();
 
     _shader = std::make_unique<ShaderBuilder>();
     _shader->BeginBuild();
@@ -42,8 +42,8 @@ void OutLinePass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& s
 void OutLinePass::Begin(ID3D12GraphicsCommandList* commandList)
 {
     commandList->OMSetRenderTargets(0, nullptr, FALSE, nullptr);
-    commandList->RSSetViewports(1, &_viewPort);
-    commandList->RSSetScissorRects(1, &_sissorRect);
+    commandList->RSSetViewports(1, &_meshRenderTarget->GetViewPort());
+    commandList->RSSetScissorRects(1, &_meshRenderTarget->GetScissorRect());
 }
 
 void OutLinePass::Draw(ID3D12GraphicsCommandList* commandList)

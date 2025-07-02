@@ -9,7 +9,7 @@ Animator::Animator()
 
 Animator::~Animator()
 {
-    SetDestroy();
+    //SetDestroy();
 }
 
 const Matrix* Animator::FindBoneMatrix(const char* boneName) const

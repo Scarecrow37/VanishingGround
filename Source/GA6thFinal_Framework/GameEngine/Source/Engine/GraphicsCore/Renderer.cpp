@@ -347,24 +347,24 @@ void Renderer::CreateDefaultTexture()
 
 void Renderer::CreateDefaultRenderTarget()
 {
-    std::unique_ptr<RenderTarget> renderTarget;
     std::initializer_list<std::string_view> defaultRenderTargets = {"1024x1024", "512x512", "256x256", "128x128", "64x64", "32x32", "16x16", "8x8", "4x4", "2x2", "1x1"};
-    UINT size[]{1024, 1024};
+    SharedResource<RenderTarget> renderTarget;
+    auto&                        multiRenderTargetManager = UmMultiRenderTargetManager;
+    DXGI_MODE_DESC               mode{.Width = 1024, .Height = 1024, .Format = DXGI_FORMAT_R32G32B32A32_FLOAT};
 
-    auto& multiRenderTargetManager = UmMultiRenderTargetManager;
     for (auto& defaultRenderTarget : defaultRenderTargets)
     {
-        renderTarget = std::make_unique<RenderTarget>();
-        renderTarget->Initialize(size[0], size[1], DXGI_FORMAT_R32G32B32A32_FLOAT, 0.f);
-        renderTarget->CreateShaderResourceView();
-        size[0] >>= 1;
-        size[1] >>= 1;
+        renderTarget = MakeSharedResource<RenderTarget>();
+        renderTarget->Initialize(mode, 0.f);
 
-        multiRenderTargetManager.AddRenderTarget(defaultRenderTarget, std::move(renderTarget));
+        mode.Width >>= 1;
+        mode.Height >>= 1;
+
+        multiRenderTargetManager.AddRenderTarget(defaultRenderTarget, renderTarget);
         multiRenderTargetManager.AddRenderTargetGroup("Mipmap", defaultRenderTarget.data());
     }
 
-    auto mode = UmDevice.GetMode();
+    mode = UmDevice.GetMode();
     mode.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
     multiRenderTargetManager.InitializeRenderTargetPool(4, mode);
 }

@@ -118,6 +118,7 @@ using namespace Microsoft::WRL;
 #include "Engine/Utility/stlHelper.h"
 #include "Engine/Utility/EditorHelper.h"
 #include "Engine/Utility/Mathf.h"
+#include "Engine/Utility/SharedResource.h"
 
 //Class Core
 #include "Engine/CommandCore/CommandManager.h"
