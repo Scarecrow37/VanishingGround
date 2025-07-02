@@ -313,8 +313,9 @@
     <ClInclude Include="Source\Engine\GraphicsCore\BlendPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\DebugDrawCore.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\DepthStencilView.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\EndlessGridTechnique.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\GridPass.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\DXResourceManager.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\EditorDrawTechnique.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\EndlessGridPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\ParticleResolvePass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\ParticleSpritePass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\ParticleRenderTechnique.h" />
@@ -331,6 +332,7 @@
     <ClInclude Include="Source\Engine\GraphicsCore\BlurYPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\BlendTechnique.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\ResourceBase.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\OutLinePass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\UnorderedAccessView.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\UpScalePass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\BrightExtractPass.h" />
@@ -395,9 +397,8 @@
     <ClInclude Include="Source\Engine\InputCore\Adapter\Adapter.h" />
     <ClInclude Include="Source\Engine\InputCore\Adapter\Controller\ControllerAdapter.h" />
     <ClInclude Include="Source\Engine\InputCore\Adapter\Controller\XInput\XInputAdapter.h" />
-    <ClInclude Include="Source\Engine\InputCore\Declare\InputError.h" />
+    <ClInclude Include="Source\Engine\InputCore\Declare\Exceptions\InputExceptions.h" />
     <ClInclude Include="Source\Engine\InputCore\Devices\Controller\Controller.h" />
-    <ClInclude Include="Source\Engine\InputCore\System\InputSystem.h" />
     <ClInclude Include="Source\Engine\Utility\EditorHelper.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\RenderPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\RenderTechnique.h" />
@@ -462,6 +463,7 @@
     <ClInclude Include="Source\Engine\Utility\LogLevel.h" />
     <ClInclude Include="Source\Engine\Utility\Mathf.h" />
     <ClInclude Include="Source\Engine\Utility\Random.h" />
+    <ClInclude Include="Source\Engine\Utility\SharedResource.h" />
     <ClInclude Include="Source\Engine\Utility\stlHelper.h" />
     <ClInclude Include="Source\Engine\ClassCore\ReflectHelper.h" />
     <ClInclude Include="Source\Engine\EditorCore\Gui\EditorGui.h" />
@@ -526,10 +528,11 @@
     <ClCompile Include="Source\Engine\GameCore\InputReciver\InputReceiver.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\DebugDrawCore.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\DepthStencilView.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\EndlessGridTechnique.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\DXResourceManager.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\EditorDrawTechnique.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\GraphicsBase.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\BlendPass.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\GridPass.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\EndlessGridPass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\ParticleResolvePass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\ParticleSpritePass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\ParticleRenderTechnique.cpp" />
@@ -547,6 +550,7 @@
     <ClCompile Include="Source\Engine\GraphicsCore\BlurYPass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\BlendTechnique.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\ResourceBase.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\OutLinePass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\UnorderedAccessView.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\UpScalePass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\BrightExtractPass.cpp" />
@@ -650,8 +654,8 @@
     <ClCompile Include="Source\Engine\InputCore\Adapter\Adapter.cpp" />
     <ClCompile Include="Source\Engine\InputCore\Adapter\Controller\ControllerAdapter.cpp" />
     <ClCompile Include="Source\Engine\InputCore\Adapter\Controller\XInput\XInputAdapter.cpp" />
+    <ClCompile Include="Source\Engine\InputCore\Declare\Exceptions\InputExceptions.cpp" />
     <ClCompile Include="Source\Engine\InputCore\Devices\Controller\Controller.cpp" />
-    <ClCompile Include="Source\Engine\InputCore\System\InputSystem.cpp" />
     <ClCompile Include="Source\Engine\Utility\EditorHelper.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\RenderPass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\RenderTechnique.cpp" />
@@ -801,6 +805,7 @@
     <ClCompile Include="Source\Engine\Utility\LogLevel.cpp" />
     <ClCompile Include="Source\Engine\Utility\Mathf.cpp" />
     <ClCompile Include="Source\Engine\Utility\Random.cpp" />
+    <ClCompile Include="Source\Engine\Utility\SharedResource.cpp" />
     <ClCompile Include="Source\Engine\Utility\utfHelper.cpp" />
     <ClCompile Include="Source\Engine\ApplicationCore\Application.cpp" />
     <ClCompile Include="Source\pch.cpp">

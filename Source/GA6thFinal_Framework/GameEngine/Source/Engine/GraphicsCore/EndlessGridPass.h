@@ -1,19 +1,15 @@
 ﻿#pragma once
 #include "RenderPass.h"
 
-class RenderTarget;
-class BrightExtractPass : public RenderPass
+class EndlessGridPass : public RenderPass
 {
 public:
-    BrightExtractPass();
-    virtual ~BrightExtractPass();
+    EndlessGridPass();
+    virtual ~EndlessGridPass();
 
 public:
     void Initialize() override;
     void Begin(ID3D12GraphicsCommandList* commandList) override;
     void Draw(ID3D12GraphicsCommandList* commandList) override;
     void End(ID3D12GraphicsCommandList* commandList) override;
-
-private:
-    RenderTarget* _renderTarget{nullptr};
 };

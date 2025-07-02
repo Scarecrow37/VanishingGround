@@ -1577,23 +1577,32 @@ void ESceneManager::InputSystem::UpdateInput()
         elapsedTime += UmTime.UnscaledDeltaTime();
         if (elapsedTime >= 0.2f)
         {
-            Input::Result result = _inputController.Connect();
-            if (Input::INPUT_ERROR_SUCCESS == result)
+            try
             {
+                _inputController.Connect();
                 _isConnect = true;
                 UmLogger.Log(LogLevel::LEVEL_DEBUG, (const char*)u8"컨트롤러 연결됨!");
+            }
+            catch (...)
+            {
+                // 예외 처리: 컨트롤러 연결 실패
             }
             elapsedTime = 0.f;
         }
     }
     else
     {
-        Input::Result result = _inputController.UpdateState();
-        if (Input::INPUT_ERROR_NO_CHANGE == result || Input::INPUT_ERROR_SUCCESS == result)
-        {                    
+        try
+        {
+            _inputController.UpdateState();
             for (int buttonIndex = 0; buttonIndex < _receivers.size(); ++buttonIndex)
             {
                 auto& buttons = _receivers[buttonIndex];
+                //const auto& queue = _inputController.GetButtonQueue();
+                //for (const auto& button : queue)
+                //{
+                //    // ...
+                //}
                 UpdateTracker(buttonIndex);
                 for (int actionIndex = 0; actionIndex < buttons.size(); ++actionIndex)
                 {
@@ -1609,11 +1618,19 @@ void ESceneManager::InputSystem::UpdateInput()
                 }
             }       
         }
-        else
+        catch (const Input::DeviceNotConnectedException& exception)
         {
+            UmLogger.Log(LogLevel::LEVEL_DEBUG, exception.what());
             UmLogger.Log(LogLevel::LEVEL_DEBUG, (const char*)u8"컨트롤러 해제됨!");
             _isConnect = false;
-        }     
+        }
+        catch (const Input::InputException& exception)
+        {
+            UmLogger.Log(LogLevel::LEVEL_DEBUG, exception.what());
+#ifdef _DEBUG
+            throw;
+#endif
+        }
     }
 }
 

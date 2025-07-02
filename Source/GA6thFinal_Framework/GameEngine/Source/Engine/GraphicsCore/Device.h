@@ -7,23 +7,23 @@ public:
     ~Device() = default;
 
 public:
-    ID3D12Device*              GetDevice() const { return _device.Get(); }
-    ID3D12CommandQueue*        GetCommandQueue() const { return _commandQueue.Get(); }
-    ID3D12CommandQueue*        GetComputeCommandQueue() const { return _computeCommandQueue.Get(); }
-    ID3D12GraphicsCommandList* GetCommandList() const { return _commandList.Get(); }
-    ID3D12GraphicsCommandList* GetImguiCommandList() const { return _imguiCommandList.Get(); }
-    ID3D12GraphicsCommandList* GetComputeCommandList() const { return _computeCommandList.Get(); }
-    ID3D12GraphicsCommandList* GetPostProcessCommandList() const { return _postProcessCommandList.Get(); }
-    const DXGI_MODE_DESC&      GetMode() const { return _mode; }
-    UINT                       GetRTVDescriptorSize() { return _rtvDescriptorSize; }
-    UINT                       GetCBVSRVUAVDescriptorSize() { return _cbvSrvUavDescriptorSize; }
-    UINT                       GetDSVDescriptorSize() { return _dsvDescriptorSize; }
-    DXGI_FORMAT                GetBackBufferFormat() { return _backBufferFormat; }
-    bool                       GetMSAAState() { return _4xMSAAState; }
-    UINT                       GetMSAAQuality() { return _4xMSAAQuality; }
-    UINT                       GetCurrentBackBufferIndex() { return _renderTargetIndex; }
-    D3D12_VIEWPORT             GetMainViewport() { return _mainViewport; }
-
+    ID3D12Device*                      GetDevice() const { return _device.Get(); }
+    ID3D12CommandQueue*                GetCommandQueue() const { return _commandQueue.Get(); }
+    ID3D12CommandQueue*                GetComputeCommandQueue() const { return _computeCommandQueue.Get(); }
+    ID3D12GraphicsCommandList*         GetCommandList() const { return _commandList.Get(); }
+    ID3D12GraphicsCommandList*         GetImguiCommandList() const { return _imguiCommandList.Get(); }
+    ID3D12GraphicsCommandList*         GetComputeCommandList() const { return _computeCommandList.Get(); }
+    ID3D12GraphicsCommandList*         GetPostProcessCommandList() const { return _postProcessCommandList.Get(); }
+    const DXGI_MODE_DESC&              GetMode() const { return _mode; }
+    UINT                               GetRTVDescriptorSize() { return _rtvDescriptorSize; }
+    UINT                               GetCBVSRVUAVDescriptorSize() { return _cbvSrvUavDescriptorSize; }
+    UINT                               GetDSVDescriptorSize() { return _dsvDescriptorSize; }
+    DXGI_FORMAT                        GetBackBufferFormat() { return _backBufferFormat; }
+    bool                               GetMSAAState() { return _4xMSAAState; }
+    UINT                               GetMSAAQuality() { return _4xMSAAQuality; }
+    UINT                               GetCurrentBackBufferIndex() { return _renderTargetIndex; }
+    D3D12_VIEWPORT                     GetMainViewport() { return _mainViewport; }
+    const D3D12_CPU_DESCRIPTOR_HANDLE& GetBackBufferHandle() const { return _renderTargetHandles[_renderTargetIndex]; }
 
 public:
     void SetUpDevice(HWND hwnd, UINT width, UINT height, FeatureLevel feature);
@@ -33,6 +33,7 @@ public:
 public:
     void OnResize(UINT width, UINT height);
     void GPUSync();
+    void FullGpuSync();
 
     void UploadResource(ComPtr<ID3D12Resource> uploadResource);
     void SetBackBuffer();
@@ -58,7 +59,6 @@ public:
     void ExecuteCommand(CommandListType type);
 
 private:
-    void SetViewPort();
     void ResizeSwapChain();
     void CreateDeviceAndSwapChain(HWND hwnd, D3D_FEATURE_LEVEL feature);
     void CreateComputeCommandObject();
@@ -74,13 +74,15 @@ private:
 
 private:
     std::unique_ptr<GraphicsMemory> _graphicsMemory;
-    ComPtr<ID3D12Device>       _device;
-    ComPtr<IDXGIFactory4>      _dxgiFactory;
-    ComPtr<IDXGISwapChain4>    _swapChain;
-    ComPtr<ID3D12CommandQueue> _commandQueue;
-    ComPtr<ID3D12Fence>        _fence;
-    UINT64                     _fenceValue = 0;
-    HANDLE                     _fenceEvent;
+    ComPtr<ID3D12Device>            _device;
+    ComPtr<IDXGIFactory4>           _dxgiFactory;
+    ComPtr<IDXGISwapChain4>         _swapChain;
+    ComPtr<ID3D12CommandQueue>      _commandQueue;
+    ComPtr<ID3D12Fence>             _graphicsFence;
+    ComPtr<ID3D12Fence>             _computeFence;
+    UINT64                          _graphicsFenceValue = 0;
+    UINT64                          _computeFenceValue  = 0;
+    HANDLE                          _fenceEvent;
 
     std::vector<ComPtr<ID3D12Fence>> _graphicsFences;
     std::vector<UINT64>              _lastGraphicsFenceValues;
@@ -104,6 +106,7 @@ private:
     DXGI_FORMAT     _backBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
 
     DXGI_MODE_DESC                               _mode;
+    DXGI_MODE_DESC                               _newMode;
     bool                                         _onResize = true;
     std::vector<std::vector<ID3D12CommandList*>> _commandLists;
 

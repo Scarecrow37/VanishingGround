@@ -34,6 +34,7 @@ public:
 
 public:
     void SetAnimationTime(float time);
+    void SetPause(bool isPause) { _isPause = isPause; }
 
 public:
     void Initialize(std::wstring_view filePath, std::shared_ptr<Skeleton> skeleton);
@@ -89,4 +90,5 @@ private:
 	unsigned int							_maxSplit{ 0 };	
 	bool                                    _isBlending{false};
     bool                                    _isInitialize{false};
+    bool                                    _isPause{false};
 };

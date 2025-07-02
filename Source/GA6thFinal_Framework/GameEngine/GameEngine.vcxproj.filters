@@ -597,13 +597,7 @@
     <ClInclude Include="Source\Engine\GraphicsCore\Light.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\InputCore\System\InputSystem.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\InputCore\Devices\Controller\Controller.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\InputCore\Declare\InputError.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\InputCore\Adapter\Adapter.h">
@@ -732,13 +726,25 @@
     <ClInclude Include="Source\Engine\AudioCore\Declare\Callback\IncreaseGenerationCallback.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\EndlessGridTechnique.h">
+    <ClInclude Include="Source\Engine\GraphicsCore\EditorDrawTechnique.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\GridPass.h">
+    <ClInclude Include="Source\Engine\GraphicsCore\EndlessGridPass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\OutLinePass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Utility\SharedResource.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\DXResourceManager.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\GameCore\InputReciver\InputReceiver.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\InputCore\Declare\Exceptions\InputExceptions.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1175,9 +1181,6 @@
     <ClCompile Include="Source\Engine\GraphicsCore\Light.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\InputCore\System\InputSystem.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\InputCore\Devices\Controller\Controller.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -1319,10 +1322,22 @@
     <ClCompile Include="Source\Engine\GameCore\InputReciver\InputReceiver.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\EndlessGridTechnique.cpp">
+    <ClCompile Include="Source\Engine\GraphicsCore\EditorDrawTechnique.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\GridPass.cpp">
+    <ClCompile Include="Source\Engine\GraphicsCore\EndlessGridPass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\OutLinePass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Utility\SharedResource.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\DXResourceManager.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\InputCore\Declare\Exceptions\InputExceptions.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\TimelineCore\AnimationNotifySet.cpp">

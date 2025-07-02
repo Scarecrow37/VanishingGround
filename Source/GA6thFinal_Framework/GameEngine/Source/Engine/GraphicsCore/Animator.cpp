@@ -99,7 +99,7 @@ void Animator::Initialize(std::shared_ptr<Animation> animation, std::shared_ptr<
 
 void Animator::Update(const float deltaTime)
 {
-    if (!_isInitialize)
+    if (!_isInitialize && _isPause)
         return;
 
 	XMMATRIX identity = XMMatrixIdentity();

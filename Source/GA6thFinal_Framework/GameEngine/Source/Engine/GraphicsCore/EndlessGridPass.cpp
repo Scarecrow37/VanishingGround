@@ -1,17 +1,16 @@
 ﻿#include "pch.h"
-#include "GridPass.h"
+#include "EndlessGridPass.h"
 #include "RenderScene.h"
 #include "RenderTarget.h"
 #include "DepthStencilView.h"
-#include "Quad.h"
 
-GridPass::GridPass() {}
+EndlessGridPass::EndlessGridPass() {}
 
-GridPass::~GridPass() {}
+EndlessGridPass::~EndlessGridPass() {}
 
-void GridPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& sissorRect)
+void EndlessGridPass::Initialize()
 {
-    __super::Initialize(viewPort, sissorRect);
+    __super::Initialize();
 
     _shader = std::make_unique<ShaderBuilder>();
     _shader->BeginBuild();
@@ -52,20 +51,20 @@ void GridPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& siss
     
     HRESULT hr = S_OK;
     hr         = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(&_pipelineState));
-    FAILED_CHECK_MESSAGE(hr, L"GridPass::Initialize device->CreateGraphicsPipelineState Failed");
+    FAILED_CHECK_MESSAGE(hr, L"EndlessGridPass::Initialize device->CreateGraphicsPipelineState Failed");
 }
 
-void GridPass::Begin(ID3D12GraphicsCommandList* commandList)
+void EndlessGridPass::Begin(ID3D12GraphicsCommandList* commandList)
 {
     _meshRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
     _ownerScene->_depthStencilView->TransitionResource(commandList, D3D12_RESOURCE_STATE_DEPTH_READ);
 
     commandList->OMSetRenderTargets(1, &_meshRenderTarget->GetRTVHandle(), FALSE, &_ownerScene->_depthStencilView->GetDSVHandle());
-    commandList->RSSetViewports(1, &_viewPort);
-    commandList->RSSetScissorRects(1, &_sissorRect);
+    commandList->RSSetViewports(1, &_meshRenderTarget->GetViewPort());
+    commandList->RSSetScissorRects(1, &_meshRenderTarget->GetScissorRect());
 }
 
-void GridPass::Draw(ID3D12GraphicsCommandList* commandList)
+void EndlessGridPass::Draw(ID3D12GraphicsCommandList* commandList)
 {
     commandList->SetPipelineState(_pipelineState.Get());
     commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
@@ -75,7 +74,7 @@ void GridPass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->DrawInstanced(4, 1, 0, 0);
 }
 
-void GridPass::End(ID3D12GraphicsCommandList* commandList)
+void EndlessGridPass::End(ID3D12GraphicsCommandList* commandList)
 {
     _meshRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     _ownerScene->_depthStencilView->TransitionResource(commandList, D3D12_RESOURCE_STATE_PRESENT);

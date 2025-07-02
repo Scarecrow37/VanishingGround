@@ -9,9 +9,9 @@ BlendPass::BlendPass() {}
 
 BlendPass::~BlendPass() {}
 
-void BlendPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& sissorRect)
+void BlendPass::Initialize()
 {
-    __super::Initialize(viewPort, sissorRect);
+    __super::Initialize();
 
     _shader = std::make_unique<ShaderBuilder>();
     _shader->BeginBuild();
@@ -21,19 +21,28 @@ void BlendPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& sis
 
     ID3D12Device*                      device = UmDevice.GetDevice();
     D3D12_GRAPHICS_PIPELINE_STATE_DESC psodesc = {};
-    psodesc.RasterizerState                    = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-    psodesc.BlendState                         = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-    psodesc.DepthStencilState                  = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-    psodesc.DepthStencilState.DepthEnable      = FALSE;
-    psodesc.SampleMask                         = UINT_MAX;
-    psodesc.PrimitiveTopologyType              = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-    psodesc.InputLayout                        = _shader->GetInputLayout();
-    psodesc.NumRenderTargets                   = 1;
-    psodesc.RTVFormats[0]                      = DXGI_FORMAT_R32G32B32A32_FLOAT;
-    psodesc.pRootSignature                     = _shader->GetRootSignature();
-    psodesc.SampleDesc                         = {1, 0};
-    psodesc.VS                                 = _shader->GetShaderByteCode(ShaderBuilder::Type::VS);
-    psodesc.PS                                 = _shader->GetShaderByteCode(ShaderBuilder::Type::PS);
+
+    psodesc.RasterizerState               = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+    psodesc.BlendState                    = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+    psodesc.DepthStencilState             = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+    psodesc.DepthStencilState.DepthEnable = FALSE;
+    psodesc.SampleMask                    = UINT_MAX;
+    psodesc.PrimitiveTopologyType         = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+    psodesc.InputLayout                   = _shader->GetInputLayout();
+    psodesc.NumRenderTargets              = 1;
+    psodesc.pRootSignature                = _shader->GetRootSignature();
+    psodesc.SampleDesc                    = {1, 0};
+    psodesc.VS                            = _shader->GetShaderByteCode(ShaderBuilder::Type::VS);
+    psodesc.PS                            = _shader->GetShaderByteCode(ShaderBuilder::Type::PS);
+
+    if constexpr (IS_EDITOR)
+    {
+        psodesc.RTVFormats[0]                 = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    }
+    else
+    {        
+        psodesc.RTVFormats[0]                 = DXGI_FORMAT_R8G8B8A8_UNORM;
+    }
 
     HRESULT hr = S_OK;
     hr         = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(&_pipelineState));
@@ -42,14 +51,21 @@ void BlendPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& sis
 
 void BlendPass::Begin(ID3D12GraphicsCommandList* commandList)
 {
-    _finalRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    _finalRenderTarget->ClearRenderTarget(commandList);
+    if constexpr (IS_EDITOR)
+    {
+        _finalRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
+        _finalRenderTarget->ClearRenderTarget(commandList);
+        commandList->OMSetRenderTargets(1, &_finalRenderTarget->GetRTVHandle(), FALSE, nullptr);
+    }
+    else
+    {
+        commandList->OMSetRenderTargets(1, &UmDevice.GetBackBufferHandle(), FALSE, nullptr);
+    }
 
     _ownerScene->_accumulationBuffer->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
-    commandList->OMSetRenderTargets(1, &_finalRenderTarget->GetRTVHandle(), FALSE, nullptr);
-    commandList->RSSetViewports(1, &_viewPort);
-    commandList->RSSetScissorRects(1, &_sissorRect);
+    commandList->RSSetViewports(1, &_finalRenderTarget->GetViewPort());
+    commandList->RSSetScissorRects(1, &_finalRenderTarget->GetScissorRect());
 }
 
 void BlendPass::Draw(ID3D12GraphicsCommandList* commandList)
@@ -65,5 +81,8 @@ void BlendPass::Draw(ID3D12GraphicsCommandList* commandList)
 
 void BlendPass::End(ID3D12GraphicsCommandList* commandList)
 {
-    _finalRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    if constexpr (IS_EDITOR)
+    {
+        _finalRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    }
 }

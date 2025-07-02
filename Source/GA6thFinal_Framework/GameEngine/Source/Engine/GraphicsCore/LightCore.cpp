@@ -27,6 +27,16 @@ void LightCore::RegisterLight(std::string_view sceneName, Light* light)
     light->_isDestroyeds.push_back(lights.back().first.get());
 }
 
+void LightCore::RegisterLight(Light* light)
+{
+    RegisterLight("Game", light);
+
+    if constexpr (IS_EDITOR)
+    {
+        RegisterLight("Editor", light);
+    }
+}
+
 void LightCore::Update(const float deltaTime)
 {
     for (auto& [sceneName, lights] : _lights)

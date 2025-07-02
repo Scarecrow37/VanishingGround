@@ -120,6 +120,7 @@ using namespace Microsoft::WRL;
 #include "Engine/Utility/stlHelper.h"
 #include "Engine/Utility/EditorHelper.h"
 #include "Engine/Utility/Mathf.h"
+#include "Engine/Utility/SharedResource.h"
 
 //Class Core
 #include "Engine/CommandCore/CommandManager.h"
@@ -127,6 +128,7 @@ using namespace Microsoft::WRL;
 #include "Engine/ClassCore/ReflectHelper.h"
 
 //Input Core
+#include "Engine/InputCore/Declare/Exceptions/InputExceptions.h"
 #include "Engine/InputCore/Adapter/Controller/XInput/XInputAdapter.h"
 #include "Engine/InputCore/Devices/Controller/Controller.h"
 

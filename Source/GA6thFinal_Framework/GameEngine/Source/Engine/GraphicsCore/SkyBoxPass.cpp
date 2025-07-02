@@ -8,9 +8,9 @@ SkyBoxPass::SkyBoxPass() {}
 
 SkyBoxPass::~SkyBoxPass() {}
 
-void SkyBoxPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& sissorRect) 
+void SkyBoxPass::Initialize() 
 {
-    __super::Initialize(viewPort, sissorRect);
+    __super::Initialize();
 
     _skyBox = _ownerScene->GetSkyBox();
     InitShaderAndPSO();
@@ -20,8 +20,8 @@ void SkyBoxPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& si
 void SkyBoxPass::Begin(ID3D12GraphicsCommandList* commandList) 
 {
     commandList->OMSetRenderTargets(1, &_meshRenderTarget->GetRTVHandle(), FALSE, nullptr);
-    commandList->RSSetViewports(1, &_viewPort);
-    commandList->RSSetScissorRects(1, &_sissorRect);
+    commandList->RSSetViewports(1, &_meshRenderTarget->GetViewPort());
+    commandList->RSSetScissorRects(1, &_meshRenderTarget->GetScissorRect());
 }
 
 void SkyBoxPass::Draw(ID3D12GraphicsCommandList* commandList)

@@ -13,6 +13,10 @@ public:
     void Initialize(DXGI_MODE_DESC mode);
     void ClearUnorderedAccessView(ID3D12GraphicsCommandList* commandList);
     void ResourceBarrier(ID3D12GraphicsCommandList* commandList);    
+    virtual void ResizeResource(DXGI_MODE_DESC mode) override;
+
+private:
+    void CreateUnorderedAccessView();
 
 private:
     DescriptorHandles            _srvHandle;
