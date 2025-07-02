@@ -311,3 +311,4 @@ void Application::MainEntry::Run()
 {
     Application::App->Run();
 }
+

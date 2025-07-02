@@ -17,12 +17,14 @@ EditorModelDetails::EditorModelDetails()
     SetDockLayout(ImGuiDir_Right);
 }
 
-void EditorModelDetails::OnTickGui() {}
+void EditorModelDetails::OnTickGui()
+{
+    _animator->Update(UmTime.DeltaTime());
+}
 
 void EditorModelDetails::OnStartGui()
 {
     UmRenderer.RegisterRenderQueue("ModelViewer", _meshRenderer.get());
-    UmAnimationCore.RegisterAnimator(_animator.get());
     UmLightCore.RegisterLight("ModelViewer", _mainLight.get());
 
     _color = Vector3(1.f);

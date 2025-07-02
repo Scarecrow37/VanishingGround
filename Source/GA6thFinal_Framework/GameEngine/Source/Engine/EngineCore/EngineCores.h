@@ -18,6 +18,8 @@ public:
     GraphicsCore Graphics;
     ECommandManager CommandManager;
     EFactoryRegister FactoryRegister;
+    Audio::EManager AudioManager;
+
     ReflectHelper::ImGuiDraw::InputAutoSetting ImGuiDrawPropertysSetting;
 private:
     LogLocation::EngineLocationInfo LocationInfo;
@@ -89,3 +91,4 @@ namespace Global
 #define UmFileSystem UmCore->FileSystem
 #define UmCommandManager UmCore->CommandManager
 #define UmFactoryRegister UmCore->FactoryRegister
+#define UmAudioManager UmCore->AudioManager

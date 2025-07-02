@@ -16,7 +16,7 @@
 
 Player::Player()
 {
-
+   
 }
 Player::~Player() = default;
 
@@ -135,4 +135,3 @@ void Player::BuildPlayerFSM()
         _finiteStateMachine->SetEntryState<PlayerWaitTurnState>();
     }
 }
-
