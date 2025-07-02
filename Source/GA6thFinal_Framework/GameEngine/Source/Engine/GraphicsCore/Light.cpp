@@ -69,8 +69,10 @@ void Light::Update(const float deltaTime)
         _data.float3_2 = *_float3_2;
         _data.float3_3 = *_float3_3;
         _data.float_1  = *_float_1;
-        _data.float_2  = *_float_2;
-        _data.float_3  = *_float_3;
+        //_data.float_2  = *_float_2;
+        //_data.float_3  = *_float_3;
+        _data.float_2  = cosf(XMConvertToRadians(*_float_2));
+        _data.float_3  = cosf(XMConvertToRadians(*_float_3));
         break;
     }       
 }

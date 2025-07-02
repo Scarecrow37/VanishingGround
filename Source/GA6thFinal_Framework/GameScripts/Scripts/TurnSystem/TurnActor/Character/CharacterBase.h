@@ -11,10 +11,12 @@ public:
 public:
     REFLECT_PROPERTY(
         HP,
-        MP,
         MaxHP, 
+        MP,
         MaxMP, 
-        ChainCount
+        ChainCount, 
+        ChainRoundCount,
+        MaxChainRoundCount
         )
 
     GETTER_ONLY(int, MaxHP) { return GetMaxHP(); }
@@ -23,7 +25,9 @@ public:
     GETTER_ONLY(int, MaxMP) { return GetMaxMP(); }
     PROPERTY(MaxMP)
     
-    GETTER_ONLY(int, ChainCount) { return GetChainCount(); }
+    int SetChainCount(int value) { return _chainCount = std::clamp(value, 0, 99); }
+    GETTER_ONLY(int, ChainCount) { return _chainCount; }
+    //현재 연격 수
     PROPERTY(ChainCount)
 
     GETTER_ONLY(int, HP) { return _hp; }
@@ -32,10 +36,31 @@ public:
     GETTER_ONLY(int, MP) { return _mp; }
     PROPERTY(MP)
 
+    GETTER_ONLY(int, MaxChainRoundCount) { return GetMaxChainRoundCount(); }
+    PROPERTY(MaxChainRoundCount)
+
+    //체인 라운드 카운트를 계산합니다.
+    int DecrementChainRoundCount() 
+    { 
+        _chainRoundCount = std::clamp(_chainRoundCount - 1, 0, GetMaxChainRoundCount());
+        if (_chainRoundCount == 0)
+        {
+            _chainCount = 0;
+            _chainRoundCount = GetMaxChainRoundCount();
+        }
+        return _chainRoundCount;
+    }
+    GETTER_ONLY(int, ChainRoundCount) { return _chainRoundCount; }
+    PROPERTY(ChainRoundCount)
+
 private:
     int GetMaxHP();
     int GetMaxMP();
-    int GetChainCount();
+    int GetMaxChainRoundCount();
+
+public:
+    virtual void Revive() override;
+    virtual void OnRoundStart() override;
 
 public:
     CharacterBase();
@@ -51,6 +76,8 @@ protected:
 private:
     int _hp;
     int _mp;
+    int _chainCount;
+    int _chainRoundCount;
 
 protected:
     /// <summary>
@@ -59,5 +86,5 @@ protected:
     /// </summary>
     virtual void Awake();
 
-    void OnRevive() override;
+    virtual void Dead() override;
 };

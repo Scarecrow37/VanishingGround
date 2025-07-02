@@ -4,6 +4,7 @@ class GraphicsBase
 {
     friend class RenderScene;
     friend class LightCore;
+    friend class AnimationCore;
 
 public:
     GraphicsBase()          = default;

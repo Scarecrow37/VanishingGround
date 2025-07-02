@@ -9,9 +9,9 @@ BlurYPass::BlurYPass() {}
 
 BlurYPass::~BlurYPass() {}
 
-void BlurYPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& sissorRect)
+void BlurYPass::Initialize()
 {
-    __super::Initialize(viewPort, sissorRect);
+    __super::Initialize();
 
     _shader = std::make_unique<ShaderBuilder>();
     _shader->BeginBuild();
@@ -28,8 +28,7 @@ void BlurYPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& sis
     psodesc.SampleMask                    = UINT_MAX;
     psodesc.PrimitiveTopologyType         = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
     psodesc.InputLayout                   = _shader->GetInputLayout();
-    psodesc.NumRenderTargets              = 1;
-    psodesc.RTVFormats[0]                 = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    psodesc.NumRenderTargets              = 0;
     psodesc.pRootSignature                = _shader->GetRootSignature();
     psodesc.SampleDesc                    = {1, 0};
     psodesc.VS                            = _shader->GetShaderByteCode(ShaderBuilder::Type::VS);
@@ -43,8 +42,8 @@ void BlurYPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& sis
 void BlurYPass::Begin(ID3D12GraphicsCommandList* commandList)
 {
     commandList->OMSetRenderTargets(0, nullptr, FALSE, nullptr);
-    commandList->RSSetViewports(1, &_viewPort);
-    commandList->RSSetScissorRects(1, &_sissorRect);
+    commandList->RSSetViewports(1, &_meshRenderTarget->GetViewPort());
+    commandList->RSSetScissorRects(1, &_meshRenderTarget->GetScissorRect());
 }
 
 void BlurYPass::Draw(ID3D12GraphicsCommandList* commandList)
@@ -69,5 +68,5 @@ void BlurYPass::End(ID3D12GraphicsCommandList* commandList)
 {
     auto&       multiRenderTargetManager = UmMultiRenderTargetManager;
     const auto& usedRenderTargets        = multiRenderTargetManager.GetUsedRenderTargets();
-    multiRenderTargetManager.ReturnRenderTarget(usedRenderTargets.back().get());
+    multiRenderTargetManager.ReturnRenderTarget(usedRenderTargets.back());
 }

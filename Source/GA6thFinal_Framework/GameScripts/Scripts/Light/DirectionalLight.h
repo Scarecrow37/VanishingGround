@@ -3,6 +3,10 @@
 class DirectionalLight : public LightComponent
 {
     USING_PROPERTY(DirectionalLight)
+protected:
+    inline static constexpr float DEBUG_LINE_LENGTH = 50.f;
+    inline static constexpr float DEBUG_LINE_RADIUS = 10.f;
+
 public:
     REFLECT_PROPERTY(
         Ambient)
@@ -35,6 +39,19 @@ protected:
     virtual void DeserializedReflectEvent() override;
 
     virtual void Reset() override;
+
+    /// <summary>
+    /// <para> 에디터 Scene View에 DrawDebug를 그리기 위한 함수입니다. </para>
+    /// <para> 에디터 에서만 호출됩니다.                              </para>
+    /// </summary>
+    virtual void OnDrawDebug() override;
+
+    /// <summary>
+    /// <para> 에디터 Scene View에 DrawDebug를 그리기 위한 함수입니다. </para>
+    /// <para> 컴포넌트가 Inspector에 선택되었을때만 호출됩니다.       </para>
+    /// <para> 에디터 에서만 호출됩니다. </para>
+    /// </summary>
+    virtual void OnDrawDebugSelected() override;
 
 private:
     Color _ambient{1.f, 1.f, 1.f, 1.f};

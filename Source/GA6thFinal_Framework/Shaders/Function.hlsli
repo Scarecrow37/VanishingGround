@@ -113,14 +113,15 @@ inline float3 CalculateSpot(SpotLight light, float3 N, float3 V, float3 albedo, 
 {
     float3 L = light.Position - fragPos;
     float distance = length(L);
-    L = normalize(L);
+    L /= distance;
+    float theta = dot(-L, normalize(light.Direction));
 
-    float theta = dot(-L, normalize(light.Direction.xyz));
     float epsilon = light.InnerCone - light.OuterCone;
-    float intensity = saturate((theta - light.OuterCone) / max(epsilon, 1e-4)) * light.Intensity;
+    float spotIntensity = saturate((theta - light.OuterCone) / max(epsilon, 1e-4));
+
     float attenuation = Attenuation(light.Attenuation, distance, light.Range);
 
-    return DiffuseBRDF(N, V, L, albedo, metallic, roughness) * attenuation * light.Color * light.Intensity;
+    return DiffuseBRDF(N, V, L, albedo, metallic, roughness) * attenuation * spotIntensity * light.Intensity * light.Color;
 }
 
 inline float CalculatePostProcessMask(Texture2D<uint> customDepthTexture, float2 uv)
@@ -128,6 +129,13 @@ inline float CalculatePostProcessMask(Texture2D<uint> customDepthTexture, float2
     uint mask = customDepthTexture.Load(int3(uv * postProcessData.ScreenSize, 0));
     float result = min(postProcessData.PostProcessMask & mask, 1);
     return result;
+}
+
+inline float3 RimLight(float3 N, float3 V, float rimPower, float rimIntensity)
+{
+    float rim = saturate(1.0f - dot(N, V));
+    rim = pow(rim, rimPower);
+    return rim * rimIntensity;
 }
 
 #endif

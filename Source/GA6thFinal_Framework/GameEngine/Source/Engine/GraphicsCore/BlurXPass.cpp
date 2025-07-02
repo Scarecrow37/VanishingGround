@@ -8,9 +8,9 @@ BlurXPass::BlurXPass() {}
 
 BlurXPass::~BlurXPass() {}
 
-void BlurXPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& sissorRect)
+void BlurXPass::Initialize()
 {
-    __super::Initialize(viewPort, sissorRect);
+    __super::Initialize();
 
     _shader = std::make_unique<ShaderBuilder>();
     _shader->BeginBuild();
@@ -47,8 +47,8 @@ void BlurXPass::Begin(ID3D12GraphicsCommandList* commandList)
     renderTarget->ClearRenderTarget(commandList);
 
     commandList->OMSetRenderTargets(1, &renderTarget->GetRTVHandle(), FALSE, nullptr);
-    commandList->RSSetViewports(1, &_viewPort);
-    commandList->RSSetScissorRects(1, &_sissorRect);
+    commandList->RSSetViewports(1, &renderTarget->GetViewPort());
+    commandList->RSSetScissorRects(1, &renderTarget->GetScissorRect());
 }
 
 void BlurXPass::Draw(ID3D12GraphicsCommandList* commandList)
@@ -75,5 +75,5 @@ void BlurXPass::End(ID3D12GraphicsCommandList* commandList)
     const auto& usedRenderTargets        = multiRenderTargetManager.GetUsedRenderTargets();
 
     usedRenderTargets.back()->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-    multiRenderTargetManager.ReturnRenderTarget(usedRenderTargets.front().get());
+    multiRenderTargetManager.ReturnRenderTarget(usedRenderTargets.front());
 }

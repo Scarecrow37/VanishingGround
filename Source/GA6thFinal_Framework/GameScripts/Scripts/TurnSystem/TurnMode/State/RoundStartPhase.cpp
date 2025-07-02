@@ -5,6 +5,8 @@
 REGISTER_CLASS(FSMStateFactory, RoundStartPhase)
 
 RoundStartPhase::RoundStartPhase() 
+    : 
+    _isPhaseEnd(false) 
 {
 
 }

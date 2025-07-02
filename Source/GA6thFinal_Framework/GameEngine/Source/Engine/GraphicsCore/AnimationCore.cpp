@@ -18,9 +18,18 @@ AnimationCore::~AnimationCore()
         thread.join();
 }
 
-void AnimationCore::RegisterAnimator(std::shared_ptr<Animator> animator)
+void AnimationCore::RegisterAnimator(Animator* animator)
 {
-    _components.push_back(animator.get());
+    auto iter = std::find_if(_components.begin(), _components.end(), [](const auto& pair) { return !pair.first.get(); });
+
+    if (iter != _components.end())
+    {
+        GRAPHICS_ASSERT(false, L"AnimationCore::RegisterAnimator : Already registered animator.");
+        return;
+    }
+
+    _components.emplace_back(std::make_unique<bool>(false), animator);
+    animator->_isDestroyeds.push_back(_components.back().first.get());
 }
 
 void AnimationCore::Initialize(const unsigned int maxThread)
@@ -43,10 +52,13 @@ void AnimationCore::Update(const float deltaTime)
 {
     unsigned int size = (unsigned int)_components.size();
 
+    auto first = std::remove_if(_components.begin(), _components.end(), [](const auto& pair) { return *pair.first; });
+    _components.erase(first, _components.end());
+
     // Animator가 64개 미만이면 스레드를 사용하지 않음
     if (size < 64)
     {
-        for (auto& component : _components)
+        for (auto& [isDestroy, component] : _components)
             component->Update(deltaTime);
     }
     else
@@ -87,7 +99,7 @@ void AnimationCore::WorkerThread(unsigned int index)
             }
 
             for (unsigned int i = start; i < end; i++)
-                _components[i]->Update(_deltaTime);
+                _components[i].second->Update(_deltaTime);
 
             {
                 std::scoped_lock nestLock(_mutexDone);

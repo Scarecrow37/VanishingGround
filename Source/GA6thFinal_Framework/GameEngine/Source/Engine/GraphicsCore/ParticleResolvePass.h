@@ -8,11 +8,11 @@ public:
     ParticleResolvePass() ;
     virtual ~ParticleResolvePass();
 
-    void Initialize(const D3D12_VIEWPORT& viewport, const D3D12_RECT& scissorRect) override;
+    void Initialize() override;
     void Begin(ID3D12GraphicsCommandList* commandList) override;
     void End(ID3D12GraphicsCommandList* commandList) override;
     void Draw(ID3D12GraphicsCommandList* commandList) override;
-    void SetAccumulationBuffers(UnorderedAccessView* color, UnorderedAccessView* alpha);
+    void SetAccumulationBuffers(SharedResource<UnorderedAccessView> color, SharedResource<UnorderedAccessView> alpha);
 
 private:
     void InitializeShader();
@@ -28,7 +28,7 @@ private:
 
 
     
-    UnorderedAccessView* _accumlateBuffer;
-    UnorderedAccessView* _revealageBuffer;
+    SharedResource<UnorderedAccessView> _accumlateBuffer;
+    SharedResource<UnorderedAccessView> _revealageBuffer;
 
 };

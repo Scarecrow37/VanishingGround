@@ -203,8 +203,31 @@ void EditorHierarchyTool::TransformTreeNode(Transform& node, const std::shared_p
     {
         ImGui::PushID(&node);
         bool isPushStyle = PushFocusStyle();
-        if (ImGui::TreeNodeEx(node.gameObject->ToString().data(),
-                              ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth))
+        if (_isOpenFocusObj)
+        {
+            Transform* nodeRoot = node.Root;
+            nodeRoot = nodeRoot ? nodeRoot : &node;
+            Transform* focusRoot = focusObject->transform->Root;
+            focusRoot = focusRoot ? focusRoot : &focusObject->transform;
+            if (nodeRoot && focusRoot)
+            {
+                if (nodeRoot == focusRoot)
+                {              
+                    if (&focusObject->transform != &node)
+                    {
+                        ImGui::SetNextItemOpen(true);                      
+                    }
+                    else
+                    {
+                        _isOpenFocusObj = false;
+                    }
+                }
+            }
+        }     
+
+        GameObject& gameObject = node.gameObject; 
+        ImGuiTreeNodeFlags treeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
+        if (ImGui::TreeNodeEx(gameObject.ToString().data(), treeFlags))
         {
             FocusRectDarw(focusObject.get());
             PopFocusStyle(isPushStyle);
@@ -437,63 +460,68 @@ void EditorHierarchyTool::OnFrameRender()
     KeyboardEvent();
 
     const auto& scenes = engineCore->SceneManager.GetLoadedScenes();
-    for (auto& pScene : scenes)
+    if (false == scenes.empty())
     {
-        ImGui::PushID(pScene);
+        for (auto& pScene : scenes)
         {
-            Scene& scene = *pScene;
-            if (scene.isLoaded == false)
-                continue;
-
-            std::string sName = scene.Name;
-            bool isCollapsingOpen = ImGui::CollapsingHeader(sName.c_str(), ImGuiTreeNodeFlags_::ImGuiTreeNodeFlags_DefaultOpen);
-            if (ImGui::BeginPopupContextItem("RightClick"))
+            ImGui::PushID(pScene);
             {
-                if (true == _isPlay)
-                {
-                    ImGui::BeginDisabled();
-                }
+                Scene& scene = *pScene;
+                if (scene.isLoaded == false)
+                    continue;
 
-                if (ImGui::MenuItem("Save Scene"))
+                std::string sName = scene.Name;
+                bool        isCollapsingOpen =
+                    ImGui::CollapsingHeader(sName.c_str(), ImGuiTreeNodeFlags_::ImGuiTreeNodeFlags_DefaultOpen);
+                if (ImGui::BeginPopupContextItem("RightClick"))
                 {
-                    std::filesystem::path writePath = (std::string)scene.Path;
-                    writePath = std::filesystem::relative(writePath, UmFileSystem.GetAssetPath()).parent_path();
-                    UmSceneManager.WriteSceneToFile(scene, writePath.string(), true);
-                    ImGui::CloseCurrentPopup();
-                }
-
-                if (ImGui::MenuItem("Unload Scene"))
-                {
-                    std::string path = scene.Path;
-                    UmSceneManager.UnloadScene(path);
-                    ImGui::CloseCurrentPopup();
-                }
-
-                if (true == _isPlay)
-                {
-                    ImGui::EndDisabled();
-                }
-                ImGui::EndPopup();
-            }
-            if (true == scene.IsDirty)
-            {
-                ImGui::SameLine();
-                ImGui::Text("*");
-            }  
-            if (isCollapsingOpen)
-            {
-                auto rootObjects = scene.GetRootGameObjects();
-                for (auto& obj : rootObjects)
-                {
-                    ImGui::PushID(obj.get());
+                    if (true == _isPlay)
                     {
-                        TransformTreeNode(obj->transform, focusObject);
+                        ImGui::BeginDisabled();
                     }
-                    ImGui::PopID();
+
+                    if (ImGui::MenuItem("Save Scene"))
+                    {
+                        std::filesystem::path writePath = (std::string)scene.Path;
+                        writePath = std::filesystem::relative(writePath, UmFileSystem.GetAssetPath()).parent_path();
+                        UmSceneManager.WriteSceneToFile(scene, writePath.string(), true);
+                        ImGui::CloseCurrentPopup();
+                    }
+
+                    if (ImGui::MenuItem("Unload Scene"))
+                    {
+                        std::string path = scene.Path;
+                        UmSceneManager.UnloadScene(path);
+                        ImGui::CloseCurrentPopup();
+                    }
+
+                    if (true == _isPlay)
+                    {
+                        ImGui::EndDisabled();
+                    }
+                    ImGui::EndPopup();
+                }
+                if (true == scene.IsDirty)
+                {
+                    ImGui::SameLine();
+                    ImGui::Text("*");
+                }
+                if (isCollapsingOpen)
+                {
+                    auto rootObjects = scene.GetRootGameObjects();
+                    for (auto& obj : rootObjects)
+                    {
+                        ImGui::PushID(obj.get());
+                        {
+                            TransformTreeNode(obj->transform, focusObject);
+                        }
+                        ImGui::PopID();
+                    }
                 }
             }
-        }      
-        ImGui::PopID();
+            ImGui::PopID();
+        }
+        _isOpenFocusObj = false;
     }
 
     if (_isPlay)

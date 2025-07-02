@@ -4,29 +4,13 @@
 #include "RenderScene.h"
 #include "Quad.h"
 
-std::vector<UINT> DeferredPBRLitPass::s_gBufferIndex;
-
 DeferredPBRLitPass::~DeferredPBRLitPass() {}
 
-void DeferredPBRLitPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& sissorRect)
+void DeferredPBRLitPass::Initialize()
 {
-    __super::Initialize(viewPort, sissorRect);
+    __super::Initialize();
 
     InitShaderAndPSO();
-
-    static bool isInitialized = false;
-    if (!isInitialized)
-    {
-        const auto& renderTargetGroup = UmMultiRenderTargetManager.GetRenderTargetGroup("GBuffer");
-        s_gBufferIndex.reserve(GBuffer::GBUFFER_END);
-
-        for (auto& gBuffer : renderTargetGroup)
-        {
-            s_gBufferIndex.push_back(gBuffer->GetID());
-        }
-
-        isInitialized = true;
-    }
 }
 
 void DeferredPBRLitPass::Begin(ID3D12GraphicsCommandList* commandList)
@@ -34,22 +18,21 @@ void DeferredPBRLitPass::Begin(ID3D12GraphicsCommandList* commandList)
     _meshRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
     commandList->OMSetRenderTargets(1, &_meshRenderTarget->GetRTVHandle(), FALSE, nullptr);
-    commandList->RSSetViewports(1, &_viewPort);
-    commandList->RSSetScissorRects(1, &_sissorRect);
+    commandList->RSSetViewports(1, &_meshRenderTarget->GetViewPort());
+    commandList->RSSetScissorRects(1, &_meshRenderTarget->GetScissorRect());
 }
 
 void DeferredPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
 {
-    auto resource = UmViewManager.GetShaderResourceHeap();
-
     commandList->SetPipelineState(_pipelineState.Get());
     commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
 
+    SharedResource<RenderTarget> renderTarget = UmMultiRenderTargetManager.GetRenderTarget("BaseColor");
+
     commandList->SetGraphicsRoot32BitConstants(_shader->GetRootParameterIndex("bit32_3_numLight"), 3, &_ownerScene->_numLight, 0);
-    commandList->SetGraphicsRoot32BitConstants(_shader->GetRootParameterIndex("bit32_7_gBufferID"), 7, s_gBufferIndex.data(), 0);
     commandList->SetGraphicsRootConstantBufferView(_shader->GetRootParameterIndex("cameraData"), _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
     commandList->SetGraphicsRootConstantBufferView(_shader->GetRootParameterIndex("lightData"), _ownerScene->_lightBuffer->GetGPUVirtualAddress());
-    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("textures"), resource->GetGPUDescriptorHandleForHeapStart());
+    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("textures"), renderTarget->GetSRVHandle());
 
     //quad draw하기
     _ownerScene->_frameQuad->Render(commandList);

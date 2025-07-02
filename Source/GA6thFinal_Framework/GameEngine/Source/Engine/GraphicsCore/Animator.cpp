@@ -5,7 +5,10 @@
 
 Animator::Animator()
 	: _maxSplit(1)
-{
+{}
+
+Animator::~Animator()
+{   
 }
 
 const Matrix* Animator::FindBoneMatrix(const char* boneName) const

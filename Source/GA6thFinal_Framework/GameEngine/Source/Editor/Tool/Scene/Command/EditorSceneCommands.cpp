@@ -124,6 +124,7 @@ void Command::EditorScene::DestroyComponentCommand::Execute()
     if (false == _ownerObject.expired())
     {
         UmSceneManager.AddDestroyComponentQueue(_destroyComponent.get());
+        _destroyComponent->Enable = false;
     }
 }
 

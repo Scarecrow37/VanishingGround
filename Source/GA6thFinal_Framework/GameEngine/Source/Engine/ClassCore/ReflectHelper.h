@@ -260,25 +260,29 @@ namespace ReflectHelper
         {
             struct Int
             {
-                int                 step      = 0;
-                int                 step_fast = 0;
-                ImGuiInputTextFlags flags     = 0;
+                float            v_speed = 1.f;
+                int              min     = 0;
+                int              max     = 0;
+                const char*      format  = "%d";
+                ImGuiSliderFlags flags   = 0;
             } _int;
 
             struct Float
             {
-                float               step      = 0;
-                float               step_fast = 0;
-                std::string         format    = "%.3f";
-                ImGuiInputTextFlags flags     = 0;
+                float            v_speed = 0.1f;
+                float            min     = 0.f;
+                float            max     = 0.f;
+                const char*      format  = "%.3f";
+                ImGuiSliderFlags flags   = 0;
             } _float;
 
             struct Double
             {
-                double              step      = 0;
-                double              step_fast = 0;
-                std::string         format    = "%.6f";
-                ImGuiInputTextFlags flags     = 0;
+                float            v_speed = 0.01f;
+                double           min     = 0.0;
+                double           max     = 0.0;
+                const char*      format  = "%.6f";
+                ImGuiSliderFlags flags   = 0;
             } _double;
 
             struct String

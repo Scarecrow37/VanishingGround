@@ -10,7 +10,7 @@
 
 GBufferPass::~GBufferPass() {}
 
-void GBufferPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& sissorRect)
+void GBufferPass::Initialize()
 {
     static bool isInitialized = false;
     if (!isInitialized)
@@ -22,24 +22,24 @@ void GBufferPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& s
             "BaseColor", "Normal", "ORM", "Emissive", "WorldPosition", "Depth", "CustomDepth"};
         auto first = renderTargetNames.begin();
 
-        std::unique_ptr<RenderTarget> renderTarget;
+        SharedResource<RenderTarget> renderTarget;
         for (UINT i = 0; i <= GBuffer::WORLDPOSITION; ++i)
         {
-            renderTarget = std::make_unique<RenderTarget>();
-            renderTarget->Initialize(mode.Width, mode.Height, DXGI_FORMAT_R32G32B32A32_FLOAT, 0.247f);
-            renderTarget->CreateShaderResourceView();
-            renderTargetManager.AddRenderTarget(*(first + i), std::move(renderTarget));
+            renderTarget = MakeSharedResource<RenderTarget>();
+            mode.Format  = DXGI_FORMAT_R32G32B32A32_FLOAT;
+            renderTarget->Initialize(mode, 0.247f);
+            renderTargetManager.AddRenderTarget(*(first + i), renderTarget);
         }
 
-        renderTarget = std::make_unique<RenderTarget>();
-        renderTarget->Initialize(mode.Width, mode.Height, DXGI_FORMAT_R32_FLOAT, 1.f);
-        renderTarget->CreateShaderResourceView();
-        renderTargetManager.AddRenderTarget(*(first + GBuffer::DEPTH), std::move(renderTarget));
+        renderTarget = MakeSharedResource<RenderTarget>();
+        mode.Format  = DXGI_FORMAT_R32_FLOAT;
+        renderTarget->Initialize(mode, 1.f);
+        renderTargetManager.AddRenderTarget(*(first + GBuffer::DEPTH), renderTarget);
 
-        renderTarget = std::make_unique<RenderTarget>();
-        renderTarget->Initialize(mode.Width, mode.Height, DXGI_FORMAT_R32_UINT, 0.f);
-        renderTarget->CreateShaderResourceView();
-        renderTargetManager.AddRenderTarget(*(first + GBuffer::CUSTOMDEPTH), std::move(renderTarget));
+        renderTarget = MakeSharedResource<RenderTarget>();
+        mode.Format  = DXGI_FORMAT_R32_UINT;
+        renderTarget->Initialize(mode, 0.f);
+        renderTargetManager.AddRenderTarget(*(first + GBuffer::CUSTOMDEPTH), renderTarget);
 
         renderTargetManager.AddRenderTargetGroup("GBuffer", renderTargetNames);
 
@@ -55,7 +55,7 @@ void GBufferPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& s
         isInitialized = true;
     }
 
-    __super::Initialize(viewPort, sissorRect);
+    __super::Initialize();
     InitShaderAndPSO();
 }
 
@@ -72,8 +72,8 @@ void GBufferPass::Begin(ID3D12GraphicsCommandList* commandList)
     }
 
     commandList->OMSetRenderTargets(GBuffer::GBUFFER_END, _gBufferHandles.data(), FALSE, &_ownerScene->_depthStencilView->GetDSVHandle());
-    commandList->RSSetViewports(1, &_viewPort);
-    commandList->RSSetScissorRects(1, &_sissorRect);
+    commandList->RSSetViewports(1, &gBufferGroup[0]->GetViewPort());
+    commandList->RSSetScissorRects(1, &gBufferGroup[0]->GetScissorRect());
 }
 
 void GBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
@@ -94,25 +94,34 @@ void GBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
             continue;
 
         const auto type     = component->GetType();
-        MeshType   meshType = MeshType::END;
-
-        switch (type)
-        {
-        case MeshRenderType::STATIC:
-            meshType = MeshType::STATIC;
-            break;
-
-        case MeshRenderType::SKELETAL:
-            meshType = MeshType::SKELTAL;
-            break;
-        }
+        MeshType   meshType = MeshType::END;        
 
         const auto& meshes      = model->GetMeshes();
+        const auto& materials   = model->GetMaterials();
         UINT        customDepth = component->GetCustomDepth();
+        size_t      size        = meshes.size();
 
-        for (auto& mesh : meshes)
+        for (size_t i = 0; i < size; i++)
         {
-            _renderDatas[meshType].emplace_back(mesh.get(), instanceID++, customDepth);
+            const auto& material = materials[i];
+
+            switch (type)
+            {
+            case MeshRenderType::STATIC:
+                if (material.IsTwoSided)
+                    meshType = STATIC_TWO_SIDED;
+                else
+                    meshType = STATIC_ONE_SIDED;
+                break;
+
+            case MeshRenderType::SKELETAL:
+                if (material.IsTwoSided)
+                    meshType = SKELETAL_TWO_SIDED;
+                else
+                    meshType = SKELETAL_ONE_SIDED;
+                break;
+            }
+            _renderDatas[meshType].emplace_back(meshes[i].get(), instanceID++, customDepth);
         }
     }
 
@@ -121,24 +130,45 @@ void GBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
     auto  cameraData             = _ownerScene->_cameraBuffer->GetGPUVirtualAddress();
     auto& frameResource          = _ownerScene->_frameResources[currentBackBufferIndex];
 
+    // Static One Sided
     commandList->SetPipelineState(_psos[STATIC_ONE_SIDED].Get());
-    commandList->SetGraphicsRootSignature(_shaders[MeshType::STATIC]->GetRootSignature());
-    commandList->SetGraphicsRootDescriptorTable(_shaders[MeshType::STATIC]->GetRootParameterIndex("textures"), resource);
-    commandList->SetGraphicsRootConstantBufferView(_shaders[MeshType::STATIC]->GetRootParameterIndex("cameraData"), cameraData);
+    commandList->SetGraphicsRootSignature(_shaders[STATIC]->GetRootSignature());
+    commandList->SetGraphicsRootDescriptorTable(_shaders[STATIC]->GetRootParameterIndex("textures"), resource);
+    commandList->SetGraphicsRootConstantBufferView(_shaders[STATIC]->GetRootParameterIndex("cameraData"), cameraData);
 
-    frameResource->SetFrameResource(FrameResource::Type::TRANSFORM, _shaders[MeshType::STATIC]->GetRootParameterIndex("worldMatrices"), commandList);
-    frameResource->SetFrameResource(FrameResource::Type::MATERIAL, _shaders[MeshType::STATIC]->GetRootParameterIndex("material"), commandList);
-    DrawMeshes(commandList, MeshType::STATIC);
+    frameResource->SetFrameResource(FrameResource::Type::TRANSFORM, _shaders[STATIC]->GetRootParameterIndex("worldMatrices"), commandList);
+    frameResource->SetFrameResource(FrameResource::Type::MATERIAL, _shaders[STATIC]->GetRootParameterIndex("material"), commandList);
+    DrawMeshes(commandList, STATIC_ONE_SIDED);
 
-    // Skeletal Mesh
-    commandList->SetPipelineState(_psos[SKELTAL_ONE_SIDED].Get());
-    commandList->SetGraphicsRootSignature(_shaders[MeshType::SKELTAL]->GetRootSignature());
-    commandList->SetGraphicsRootConstantBufferView(_shaders[MeshType::SKELTAL]->GetRootParameterIndex("cameraData"), cameraData);
+    // Static Two Sided
+    commandList->SetPipelineState(_psos[STATIC_TWO_SIDED].Get());
+    commandList->SetGraphicsRootSignature(_shaders[STATIC]->GetRootSignature());
+    commandList->SetGraphicsRootDescriptorTable(_shaders[STATIC]->GetRootParameterIndex("textures"), resource);
+    commandList->SetGraphicsRootConstantBufferView(_shaders[STATIC]->GetRootParameterIndex("cameraData"), cameraData);
 
-    frameResource->SetFrameResource(FrameResource::Type::TRANSFORM, _shaders[MeshType::SKELTAL]->GetRootParameterIndex("worldMatrices"), commandList);
-    frameResource->SetFrameResource(FrameResource::Type::BONE_MATRIXES, _shaders[MeshType::SKELTAL]->GetRootParameterIndex("boneMatrices"), commandList);
-    frameResource->SetFrameResource(FrameResource::Type::MATERIAL, _shaders[MeshType::SKELTAL]->GetRootParameterIndex("material"), commandList);
-    DrawMeshes(commandList, MeshType::SKELTAL);
+    frameResource->SetFrameResource(FrameResource::Type::TRANSFORM, _shaders[STATIC]->GetRootParameterIndex("worldMatrices"), commandList);
+    frameResource->SetFrameResource(FrameResource::Type::MATERIAL, _shaders[STATIC]->GetRootParameterIndex("material"), commandList);
+    DrawMeshes(commandList, STATIC_TWO_SIDED);
+
+    // Skeletal One Sided
+    commandList->SetPipelineState(_psos[SKELETAL_ONE_SIDED].Get());
+    commandList->SetGraphicsRootSignature(_shaders[SKELETAL]->GetRootSignature());
+    commandList->SetGraphicsRootConstantBufferView(_shaders[SKELETAL]->GetRootParameterIndex("cameraData"), cameraData);
+
+    frameResource->SetFrameResource(FrameResource::Type::TRANSFORM, _shaders[SKELETAL]->GetRootParameterIndex("worldMatrices"), commandList);
+    frameResource->SetFrameResource(FrameResource::Type::BONE_MATRIXES, _shaders[SKELETAL]->GetRootParameterIndex("boneMatrices"), commandList);
+    frameResource->SetFrameResource(FrameResource::Type::MATERIAL, _shaders[SKELETAL]->GetRootParameterIndex("material"), commandList);
+    DrawMeshes(commandList, SKELETAL_ONE_SIDED);
+
+    // Skeletal Two Sided
+    commandList->SetPipelineState(_psos[SKELETAL_TWO_SIDED].Get());
+    commandList->SetGraphicsRootSignature(_shaders[SKELETAL]->GetRootSignature());
+    commandList->SetGraphicsRootConstantBufferView(_shaders[SKELETAL]->GetRootParameterIndex("cameraData"), cameraData);
+
+    frameResource->SetFrameResource(FrameResource::Type::TRANSFORM, _shaders[SKELETAL]->GetRootParameterIndex("worldMatrices"), commandList);
+    frameResource->SetFrameResource(FrameResource::Type::BONE_MATRIXES, _shaders[SKELETAL]->GetRootParameterIndex("boneMatrices"), commandList);
+    frameResource->SetFrameResource(FrameResource::Type::MATERIAL, _shaders[SKELETAL]->GetRootParameterIndex("material"), commandList);
+    DrawMeshes(commandList, SKELETAL_TWO_SIDED);
 }
 
 void GBufferPass::End(ID3D12GraphicsCommandList* commandList)
@@ -181,7 +211,7 @@ void GBufferPass::InitShaderAndPSO()
     psodesc.DepthStencilState                  = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
     psodesc.SampleMask                         = UINT_MAX;
     psodesc.PrimitiveTopologyType              = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-    psodesc.InputLayout                        = _shaders[MeshType::STATIC]->GetInputLayout();
+    psodesc.InputLayout                        = _shaders[STATIC]->GetInputLayout();
     psodesc.NumRenderTargets                   = GBuffer::GBUFFER_END;
     psodesc.RTVFormats[GBuffer::BASECOLOR]     = DXGI_FORMAT_R32G32B32A32_FLOAT;
     psodesc.RTVFormats[GBuffer::NORMAL]        = DXGI_FORMAT_R32G32B32A32_FLOAT;
@@ -191,10 +221,10 @@ void GBufferPass::InitShaderAndPSO()
     psodesc.RTVFormats[GBuffer::DEPTH]         = DXGI_FORMAT_R32_FLOAT;
     psodesc.RTVFormats[GBuffer::CUSTOMDEPTH]   = DXGI_FORMAT_R32_UINT;
     psodesc.DSVFormat                          = DXGI_FORMAT_D24_UNORM_S8_UINT;
-    psodesc.pRootSignature                     = _shaders[MeshType::STATIC]->GetRootSignature();
+    psodesc.pRootSignature                     = _shaders[STATIC]->GetRootSignature();
     psodesc.SampleDesc                         = {1, 0};
-    psodesc.VS                                 = _shaders[MeshType::STATIC]->GetShaderByteCode(ShaderBuilder::Type::VS);
-    psodesc.PS                                 = _shaders[MeshType::STATIC]->GetShaderByteCode(ShaderBuilder::Type::PS);
+    psodesc.VS                                 = _shaders[STATIC]->GetShaderByteCode(ShaderBuilder::Type::VS);
+    psodesc.PS                                 = _shaders[STATIC]->GetShaderByteCode(ShaderBuilder::Type::PS);
 
     hr = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(&staticTwoSidedPSO));
     FAILED_CHECK_MESSAGE(hr, L"GBufferPass::InitShaderAndPSO device->CreateGraphicsPipelineState Failed");
@@ -211,10 +241,10 @@ void GBufferPass::InitShaderAndPSO()
     // skeletal two side.
     ComPtr<ID3D12PipelineState> skeletalTwoSidePSO;
     psodesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
-    psodesc.InputLayout              = _shaders[MeshType::SKELTAL]->GetInputLayout();
-    psodesc.pRootSignature           = _shaders[MeshType::SKELTAL]->GetRootSignature();
-    psodesc.VS                       = _shaders[MeshType::SKELTAL]->GetShaderByteCode(ShaderBuilder::Type::VS);
-    psodesc.PS                       = _shaders[MeshType::SKELTAL]->GetShaderByteCode(ShaderBuilder::Type::PS);
+    psodesc.InputLayout              = _shaders[SKELETAL]->GetInputLayout();
+    psodesc.pRootSignature           = _shaders[SKELETAL]->GetRootSignature();
+    psodesc.VS                       = _shaders[SKELETAL]->GetShaderByteCode(ShaderBuilder::Type::VS);
+    psodesc.PS                       = _shaders[SKELETAL]->GetShaderByteCode(ShaderBuilder::Type::PS);
 
     hr = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(&skeletalTwoSidePSO));
     FAILED_CHECK_MESSAGE(hr, L"GBufferPass::InitShaderAndPSO device->CreateGraphicsPipelineState Failed");
@@ -234,10 +264,9 @@ void GBufferPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, MeshType ty
     for (auto& [mesh, instanceID, customDepth] : _renderDatas[type])
     {
         parameter[0] = instanceID;
-        parameter[2] = 1; // 임시
-        // parameter[2] = customDepth;
-        commandList->SetGraphicsRoot32BitConstants(_shaders[type]->GetRootParameterIndex("bit32_3_objectData"), 3,
-                                                   parameter, 0);
+        parameter[2] = customDepth;
+
+        commandList->SetGraphicsRoot32BitConstants(_shaders[type]->GetRootParameterIndex("bit32_3_objectData"), 3, parameter, 0);
         mesh->Render(commandList);
     }
 }

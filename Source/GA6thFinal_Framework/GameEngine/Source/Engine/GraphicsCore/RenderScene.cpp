@@ -37,16 +37,19 @@ void RenderScene::InitializeRenderScene()
     CreateCamera();
     CreateRenderTarget();
     CreateDepthStencil();
-    CreateFrameQuadAndFrameShader();
-    CreateFramePSO();
     CreateFrameResource();
+
+    _frameQuad = std::make_unique<Quad>();
+    _frameQuad->Initialize(-1.f, 1.f, 2.f, 2.f, 0.f);
 
     DXGI_MODE_DESC mode = UmDevice.GetMode();
     mode.Format         = DXGI_FORMAT_R32G32B32A32_FLOAT;
 
-    _accumulationBuffer = std::make_unique<UnorderedAccessView>();
+    _accumulationBuffer = MakeSharedResource<UnorderedAccessView>();
     _accumulationBuffer->Initialize(mode);
     _accumulationBuffer->TransitionResource(UmDevice.GetCommandList(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+
+    UmDXResourceManager.AddResource(_accumulationBuffer);
 }
 
 void RenderScene::RegisterOnRenderQueue(MeshRenderer* component)
@@ -85,6 +88,8 @@ void RenderScene::UpdateRenderScene()
     Vector4    cameraPos = Vector4(_camera->GetWorldMatrix().Translation());
     CameraData cameraData{.View       = XMMatrixTranspose(_camera->GetViewMatrix()),
                           .Projection = XMMatrixTranspose(_camera->GetProjectionMatrix()),
+                          .ViewInverse       = XMMatrixTranspose(_camera->GetWorldMatrix()),
+                          .ProejctionInverse = XMMatrixTranspose(_camera->GetProjectionInverseMatrix()),
                           .Position   = cameraPos};
 
     auto& lights = UmLightCore.GetLights(_name.c_str());
@@ -195,67 +200,33 @@ void RenderScene::CreateRenderTarget()
     auto                          mode                     = UmDevice.GetMode();
     auto                          commandList              = UmDevice.GetCommandList();
     auto&                         multiRenderTargetManager = UmMultiRenderTargetManager;
-    std::unique_ptr<RenderTarget> renderTarget;
+    SharedResource<RenderTarget>  renderTarget;
+    mode.Format           = DXGI_FORMAT_R32G32B32A32_FLOAT;
 
     _meshRenderTargetName = _name + "_MeshRenderTarget";
-    renderTarget          = std::make_unique<RenderTarget>();
-    renderTarget->Initialize(mode.Width, mode.Height, DXGI_FORMAT_R32G32B32A32_FLOAT, 0.247f);
-    renderTarget->CreateShaderResourceView();
+    renderTarget          = MakeSharedResource<RenderTarget>();
+    renderTarget->Initialize(mode, 0.247f);
     renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
-    multiRenderTargetManager.AddRenderTarget(_meshRenderTargetName, std::move(renderTarget));
+    multiRenderTargetManager.AddRenderTarget(_meshRenderTargetName, renderTarget);
 
     _finalTargetName = _name + "_FinalTarget";
-    renderTarget     = std::make_unique<RenderTarget>();
-    renderTarget->Initialize(mode.Width, mode.Height, DXGI_FORMAT_R32G32B32A32_FLOAT, 0.247f);
-    renderTarget->CreateShaderResourceView();
+    renderTarget     = MakeSharedResource<RenderTarget>();
+    renderTarget->Initialize(mode, 0.247f);
     renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
-    multiRenderTargetManager.AddRenderTarget(_finalTargetName, std::move(renderTarget));
+    multiRenderTargetManager.AddRenderTarget(_finalTargetName, renderTarget);
 }
 
 void RenderScene::CreateDepthStencil()
 {
-    _depthStencilView = std::make_unique<DepthStencilView>();
+    _depthStencilView = MakeSharedResource<DepthStencilView>();
 
     auto mode = UmDevice.GetMode();
     mode.Format = DXGI_FORMAT_R24G8_TYPELESS;
     _depthStencilView->Initialize(mode);
-}
 
-void RenderScene::CreateFrameQuadAndFrameShader()
-{
-    // 화면 크기만한 quad만들기. NDC 좌표계로
-    _frameQuad = std::make_unique<Quad>();
-    _frameQuad->Initialize(-1.f, 1.f, 2.f, 2.f, 0.f);
-
-    _frameShader = std::make_unique<ShaderBuilder>();
-    _frameShader->BeginBuild();
-    _frameShader->SetShader(L"../Shaders/vs_quad.hlsl", ShaderBuilder::Type::VS);
-    _frameShader->SetShader(L"../Shaders/ps_quad_frame.hlsl", ShaderBuilder::Type::PS);
-    _frameShader->EndBuild();
-}
-
-void RenderScene::CreateFramePSO()
-{
-    D3D12_GRAPHICS_PIPELINE_STATE_DESC psodesc = {};
-    psodesc.RasterizerState                    = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-    psodesc.BlendState                         = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-    psodesc.DepthStencilState                  = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-    psodesc.SampleMask                         = UINT_MAX;
-    psodesc.PrimitiveTopologyType              = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-    psodesc.InputLayout                        = _frameShader->GetInputLayout();
-    psodesc.NumRenderTargets                   = 1;
-    psodesc.RTVFormats[0]                      = UmDevice.GetMode().Format;
-    psodesc.DSVFormat                          = DXGI_FORMAT_D24_UNORM_S8_UINT;
-    psodesc.pRootSignature                     = _frameShader->GetRootSignature();
-    psodesc.SampleDesc                         = {1, 0};
-    psodesc.VS                                 = _frameShader->GetShaderByteCode(ShaderBuilder::Type::VS);
-    psodesc.PS                                 = _frameShader->GetShaderByteCode(ShaderBuilder::Type::PS);
-
-    ID3D12Device* device = UmDevice.GetDevice();
-    HRESULT       hr     = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(&_framePSO));
-    FAILED_CHECK_MESSAGE(hr, L"RenderScene::CreateFramePSO device->CreateGraphicsPipelineState Faild");
+    UmDXResourceManager.AddResource(_depthStencilView);
 }
 
 void RenderScene::CreateFrameResource()

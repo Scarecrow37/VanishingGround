@@ -3,6 +3,11 @@
 
 namespace Input
 {
+    namespace
+    {
+        std::unordered_set<Controller::ID> ConnectedControllers;
+    }
+
     Controller::ID XInputAdapter::Connect() const
     {
         for (Controller::ID id = 0; id < Controller::MAX_CONNECTION_COUNT; ++id)
@@ -10,9 +15,9 @@ namespace Input
             XINPUT_STATE xState{};
             if (const DWORD result = XInputGetState(id, &xState);
                 result == ERROR_SUCCESS && 
-                !_connectedControllers.contains(id))
+                !ConnectedControllers.contains(id))
             {
-                _connectedControllers.insert(id);
+                ConnectedControllers.insert(id);
                 return id;
             }
         }
@@ -40,7 +45,7 @@ namespace Input
             return INPUT_ERROR_SUCCESS;
         }
         case ERROR_DEVICE_NOT_CONNECTED:
-            _connectedControllers.erase(id);
+            ConnectedControllers.erase(id);
             return INPUT_ERROR_LOST_DEVICE;
         default:
             return INPUT_ERROR_UNKNOWN;
