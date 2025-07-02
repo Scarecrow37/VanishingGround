@@ -288,6 +288,7 @@ void EditorHierarchyTool::SetFocusObject(const std::weak_ptr<GameObject>& object
                 mesh->Renderer->SetCustomDepth(PostProcess::OUTLINE | PostProcess::BLOOM);
             }
         }     
+        _isOpenFocusObj = true;
     }
 }
 

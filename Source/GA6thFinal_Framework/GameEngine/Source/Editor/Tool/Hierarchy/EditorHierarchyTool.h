@@ -6,6 +6,8 @@ class EditorHierarchyTool
     : public EditorTool
 {
     inline static std::weak_ptr<GameObject> HierarchyFocusObjWeak;
+    inline static bool                      _isOpenFocusObj = false;
+
 public:
     static void SetFocusObject(const std::weak_ptr<GameObject>& object);
     static const std::weak_ptr<GameObject>& GetFocusObject() { return HierarchyFocusObjWeak; }
@@ -49,7 +51,6 @@ private:
 
     ImGuiWindow* _window = nullptr;
     bool         _isPlay = false;
-    bool         _isOpenFocusObj = false;
 
     EditorDockWindow* _dockWindow = nullptr;
     EditorSceneTool*  _editorSceneTool = nullptr;
