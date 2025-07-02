@@ -28,6 +28,8 @@ void MeshRenderer::SetModel(std::shared_ptr<Model> model)
 
     if (model->GetAnimation())
         _type = MeshRenderType::SKELETAL;
+    else
+        _type = MeshRenderType::STATIC;
 }
 
 void MeshRenderer::SetAnimator(std::shared_ptr<Animator> animator)

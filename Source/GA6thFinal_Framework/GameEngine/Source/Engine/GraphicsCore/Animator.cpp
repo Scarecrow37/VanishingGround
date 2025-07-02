@@ -39,17 +39,28 @@ const Matrix* Animator::FindBoneMatrix(const char* boneName) const
 
 float Animator::GetCurrentAnimationLastTime() const
 {
-    return _controllers[0].LastTime;
+    if (false == _controllers.empty())
+    {
+        return _controllers[0].LastTime;
+    }
+    return 0.0f;
 }
 
 float Animator::GetCurrentAnimationPlayTime() const
 {
-    return _controllers[0].PlayTime;
+    if (false == _controllers.empty())
+    {
+        return _controllers[0].PlayTime;
+    }
+    return 0.0f;
 }
 
 void Animator::SetAnimationTime(float time) 
 {
-    _controllers[0].PlayTime = time;
+    if (false == _controllers.empty())
+    {
+        _controllers[0].PlayTime = time;
+    }
 }
 
 void Animator::Initialize(std::wstring_view filePath, std::shared_ptr<Skeleton> skeleton)
