@@ -123,10 +123,11 @@ void EditorModelDetails::OnTickGui()
 
     if (nullptr != GetModel() && nullptr != GetAnimator() && nullptr != GetAnimation())
     {
-        _animator->SetPause(_isAnimationPlaying);
+        _animator->SetPause(!_isAnimationPlaying);
         _animator->SetLoop(_isAnimationLooping);
         _animator->SetAnimationSpeed(_animationSpeed);
         _animationTime = _animator->GetCurrentAnimationPlayTime();
+        _animator->Update(UmTime.DeltaTime());
     }
 }
 
