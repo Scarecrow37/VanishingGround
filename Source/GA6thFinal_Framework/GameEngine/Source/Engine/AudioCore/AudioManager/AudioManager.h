@@ -1,9 +1,8 @@
 ﻿#pragma once
-#include "Engine/AudioCore/Declare/Callback/IncreaseGenerationCallback.h"
 
 namespace Audio
 {
-    class Sound;
+    class Source;
     class SoundPlayer;
     class Handle;
 
@@ -29,9 +28,9 @@ namespace Audio
         EManager& operator=(EManager&& other) noexcept;
 
         void                 Initialize();
-        static Sound         CreateSoundFromWave(const std::filesystem::path& filePath , bool isLoop = false);
+        static Source         CreateSoundFromWave(const std::filesystem::path& filePath , bool isLoop = false);
 
-        [[nodiscard]] Handle Play(const Sound& sound);
+        [[nodiscard]] Handle Play(const Source& sound);
         void                 Stop(const Handle& handle);
 
         [[nodiscard]] bool IsValidHandle(const Handle& handle) const;

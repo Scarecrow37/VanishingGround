@@ -1,8 +1,7 @@
 ﻿#include "pch.h"
 #include "AudioManager.h"
 #include "Engine/AudioCore/Declare/RIFF/AudioChunk.h"
-#include "Engine/AudioCore/Handle/AudioHandle.h"
-#include "Engine/AudioCore/Sound/AudioSound.h"
+#include "Engine/AudioCore/Sound/AudioSource.h"
 
 namespace Audio
 {
@@ -42,7 +41,7 @@ namespace Audio
         throwIfFailed(_xAudio2->CreateMasteringVoice(&_masteringVoice), "Failed to create mastering voice");
     }
 
-    Sound EManager::CreateSoundFromWave(const std::filesystem::path& filePath, const bool isLoop)
+    Source EManager::CreateSoundFromWave(const std::filesystem::path& filePath, const bool isLoop)
     {
         std::ifstream fileStream;
         fileStream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
@@ -91,10 +90,10 @@ namespace Audio
             buffer.LoopCount  = XAUDIO2_LOOP_INFINITE;
         }
 
-        return Sound{wfx, buffer};
+        return Source{wfx, buffer};
     }
 
-    Handle EManager::Play(const Sound& sound)
+    Handle EManager::Play(const Source& sound)
     {
         if (_xAudio2 == nullptr)
             throw AudioException("Audio manager is not initialized.");

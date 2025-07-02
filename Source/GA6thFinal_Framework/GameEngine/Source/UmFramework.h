@@ -153,8 +153,9 @@ using namespace Microsoft::WRL;
 
 //Audio Core
 #include "Engine/AudioCore/Declare/Types/AudioTypes.h"
-#include "Engine/AudioCore/Handle/AudioHandle.h"
 #include "Engine/AudioCore/Declare/Exceptions/AudioExceptions.h"
+#include "Engine/AudioCore/Handle/AudioHandle.h"
+#include "Engine/AudioCore/Declare/Callback/IncreaseGenerationCallback.h"
 #include "Engine/AudioCore/AudioManager/AudioManager.h"
 
 //Engine Core

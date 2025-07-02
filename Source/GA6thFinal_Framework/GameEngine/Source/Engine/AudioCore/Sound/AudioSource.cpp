@@ -1,21 +1,21 @@
 ﻿#include "pch.h"
-#include "AudioSound.h"
+#include "AudioSource.h"
 
 namespace Audio
 {
-    Sound::Sound(const WAVEFORMATEX& format, const XAUDIO2_BUFFER& buffer) : _format(format), _buffer(buffer) {}
+    Source::Source(const WAVEFORMATEX& format, const XAUDIO2_BUFFER& buffer) : _format(format), _buffer(buffer) {}
 
-    Sound::~Sound()
+    Source::~Source()
     {
         delete[] _buffer.pAudioData;
     }
 
-    Sound::Sound(Sound&& other) noexcept : _format(other._format), _buffer(other._buffer)
+    Source::Source(Source&& other) noexcept : _format(other._format), _buffer(other._buffer)
     {
         other._buffer.pAudioData = nullptr;
     }
 
-    Sound& Sound::operator=(Sound&& other) noexcept
+    Source& Source::operator=(Source&& other) noexcept
     {
         if (this == &other)
             return *this;
