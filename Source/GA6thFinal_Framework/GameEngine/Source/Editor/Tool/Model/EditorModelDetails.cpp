@@ -159,7 +159,6 @@ void EditorModelDetails::ImportModel()
         _meshRenderer->SetModel(model);
         _animator->Initialize(model->GetAnimation(), model->GetSkeleton());
         _meshRenderer->SetAnimator(_animator);
-
         _filePath = path.front();
         _filePath.replace_extension("UmModel");
     }

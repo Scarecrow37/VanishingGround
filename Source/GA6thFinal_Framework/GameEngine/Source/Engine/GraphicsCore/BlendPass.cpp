@@ -59,7 +59,7 @@ void BlendPass::Begin(ID3D12GraphicsCommandList* commandList)
     }
     else
     {
-        UmDevice.SetBackBuffer();
+        commandList->OMSetRenderTargets(1, &UmDevice.GetBackBufferHandle(), FALSE, nullptr);
     }
 
     _ownerScene->_accumulationBuffer->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
