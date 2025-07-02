@@ -1595,28 +1595,44 @@ void ESceneManager::InputSystem::UpdateInput()
         try
         {
             _inputController.UpdateState();
+            const auto& queue = _inputController.GetButtonQueue();
+            if (false == queue.empty())
+            {
+                for (const auto& flag : queue)
+                {
+                    UpdateTracker(flag);
+                }
+            }
+
             for (int buttonIndex = 0; buttonIndex < _receivers.size(); ++buttonIndex)
             {
                 auto& buttons = _receivers[buttonIndex];
-                //const auto& queue = _inputController.GetButtonQueue();
-                //for (const auto& button : queue)
-                //{
-                //    // ...
-                //}
-                UpdateTracker(buttonIndex);
                 for (int actionIndex = 0; actionIndex < buttons.size(); ++actionIndex)
                 {
                     Action action  = (Action)actionIndex;
                     auto&  actions = buttons[actionIndex];
                     for (auto& [component, event] : actions)
                     {
-                        if (action == _actionTracker[buttonIndex])
+                        Action& actionTracker = _actionTracker[buttonIndex];
+                        if (action == actionTracker)
                         {
-                            event(_inputController);
+                            event(_inputController);                       
                         }
+
+                        switch (actionTracker)
+                        {
+                        case Action::PRESSED:
+                            actionTracker = Action::HELD;
+                            break;
+                        case Action::RELEASED:
+                            actionTracker = Action::IDLE;
+                        default:
+                            break;
+                        }
+
                     }
                 }
-            }       
+            }
         }
         catch (const Input::DeviceNotConnectedException& exception)
         {
@@ -1631,68 +1647,50 @@ void ESceneManager::InputSystem::UpdateInput()
             throw;
 #endif
         }
+
     }
 }
 
-void ESceneManager::InputSystem::UpdateTracker(int index) 
+void ESceneManager::InputSystem::UpdateTracker(Input::Controller::Button button)
 {
-    ControllerButton button = (ControllerButton)index;
-    bool             isDown = false;
+    int index = std::countr_zero((unsigned int)button); 
+    Action& action = _actionTracker[index];
+    bool    isDown = false;
+
     switch (button)
     {
-    case ESceneManager::InputSystem::ControllerButton::A:
-        isDown = _inputController.IsButtonDown(Input::Controller::A);     
+    case Input::Controller::DPAD_UP:
+    case Input::Controller::DPAD_DOWN:
+    case Input::Controller::DPAD_LEFT:
+    case Input::Controller::DPAD_RIGHT:
+    case Input::Controller::START:
+    case Input::Controller::BACK:
+    case Input::Controller::LEFT_THUMB_BUTTON:
+    case Input::Controller::RIGHT_THUMB_BUTTON:
+    case Input::Controller::LEFT_SHOULDER:
+    case Input::Controller::RIGHT_SHOULDER:
+    case Input::Controller::A:
+    case Input::Controller::B:
+    case Input::Controller::X:
+    case Input::Controller::Y:
+        isDown = _inputController.IsButtonDown(button);
         break;
-    case ESceneManager::InputSystem::ControllerButton::B:
-        isDown = _inputController.IsButtonDown(Input::Controller::B);     
-        break;
-    case ESceneManager::InputSystem::ControllerButton::X:
-        isDown = _inputController.IsButtonDown(Input::Controller::X);     
-        break;
-    case ESceneManager::InputSystem::ControllerButton::Y:
-        isDown = _inputController.IsButtonDown(Input::Controller::Y);     
-        break;
-    case ESceneManager::InputSystem::ControllerButton::LEFT_SHOULDER:
-        isDown = _inputController.IsButtonDown(Input::Controller::LEFT_SHOULDER);     
-        break;
-    case ESceneManager::InputSystem::ControllerButton::RIGHT_SHOULDER:
-        isDown = _inputController.IsButtonDown(Input::Controller::RIGHT_SHOULDER);     
-        break;
-    case ESceneManager::InputSystem::ControllerButton::DPAD_UP:
-        isDown = _inputController.IsButtonDown(Input::Controller::DPAD_UP);     
-        break;
-    case ESceneManager::InputSystem::ControllerButton::DPAD_DOWN:
-        isDown = _inputController.IsButtonDown(Input::Controller::DPAD_DOWN);     
-        break;
-    case ESceneManager::InputSystem::ControllerButton::DPAD_LEFT:
-        isDown = _inputController.IsButtonDown(Input::Controller::DPAD_LEFT);     
-        break;
-    case ESceneManager::InputSystem::ControllerButton::DPAD_RIGHT:
-        isDown = _inputController.IsButtonDown(Input::Controller::DPAD_RIGHT);     
-        break;
-    case ESceneManager::InputSystem::ControllerButton::START:
-        isDown = _inputController.IsButtonDown(Input::Controller::START);     
-        break;
-    case ESceneManager::InputSystem::ControllerButton::BACK:
-        isDown = _inputController.IsButtonDown(Input::Controller::BACK);     
-        break;
-    case ESceneManager::InputSystem::ControllerButton::LEFT_TRIGGER:
-        isDown = 0.f < _inputController.GetLeftTrigger();
-        break;
-    case ESceneManager::InputSystem::ControllerButton::RIGHT_TRIGGER:
-        isDown = 0.f < _inputController.GetRightTrigger();
-        break;
-    case ESceneManager::InputSystem::ControllerButton::LEFT_STICK:
+    case Input::Controller::LEFT_THUMB_STICK:
         isDown = 0.f < _inputController.GetLeftThumbStickAxis().Magnitude;
         break;
-    case ESceneManager::InputSystem::ControllerButton::RIGHT_STICK:
+    case Input::Controller::RIGHT_THUMB_STICK:
         isDown = 0.f < _inputController.GetRightThumbStickAxis().Magnitude;
+        break;
+    case Input::Controller::LEFT_TRIGGER:
+        isDown = 0.f < _inputController.GetLeftTrigger();
+        break;
+    case Input::Controller::RIGHT_TRIGGER:
+        isDown = 0.f < _inputController.GetRightTrigger();
         break;
     default:
         break;
     }
 
-    Action& action = _actionTracker[index];
     if (true == isDown)
     {
         switch (action)
@@ -1723,4 +1721,5 @@ void ESceneManager::InputSystem::UpdateTracker(int index)
             break;
         }
     }
+
 }
