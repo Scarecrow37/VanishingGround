@@ -549,7 +549,6 @@ void EditorAnimationNotifyTool::ShowNotifyEditTab(std::shared_ptr<TimelineSystem
             {
                 if (ImGui::TreeNodeEx("Event Properties", ImGuiTreeNodeFlags_DefaultOpen))
                 {
-                    ImGui::Text("Event Name: %s", eventName.data() + 6);
                     notify->Event->ImGuiDrawPropertys();
                     ImGui::TreePop();
                 }
