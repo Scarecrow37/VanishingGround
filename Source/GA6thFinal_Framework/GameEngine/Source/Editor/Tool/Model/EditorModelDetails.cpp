@@ -66,7 +66,10 @@ void EditorModelDetails::SetCurrentAnimationTime(float time)
 void EditorModelDetails::PlayCurrentAnimation()
 {
     _isAnimationPlaying = false;
-    _animationTime      = 0.0f;
+    if (nullptr != _animator)
+    {
+        _animator->SetAnimationTime(0.0f);
+    }
 }
 
 void EditorModelDetails::ResumeCurrentAnimation()
@@ -82,38 +85,48 @@ void EditorModelDetails::PauseCurrentAnimation()
 void EditorModelDetails::StopCurrentAnimation() 
 {
     _isAnimationPlaying = false;
-    _animationTime      = 0.0f;
+    if (nullptr != _animator)
+    {
+        _animator->SetAnimationTime(0.0f);
+    }
 }
 
 void EditorModelDetails::OnTickGui()
 {
+    //if (nullptr != GetModel() && nullptr != GetAnimator() && nullptr != GetAnimation())
+    //{
+    //    _animator->SetPause(_isAnimationPlaying);
+    //    if (true == _isAnimationPlaying)
+    //    {
+    //        _animationTime += UmTime.DeltaTime() * _animationSpeed;
+    //    }
+    //    _animator->SetAnimationTime(_animationTime);
+    //    float min = 0.0f;
+    //    float max = _animator->GetCurrentAnimationLastTime();
+    //    if (_animationTime > max)
+    //    {
+    //        if (true == _isAnimationLooping)
+    //        {
+    //            _animationTime -= max; 
+    //        }
+    //        else
+    //        {
+    //            _animationTime      = max;   // Stop at the end of the animation
+    //            _isAnimationPlaying = false; // Stop playing when reaching the end
+    //        }
+    //    }
+    //}
+    //else
+    //{
+    //    _animationTime = 0.0f;
+    //}
+
     if (nullptr != GetModel() && nullptr != GetAnimator() && nullptr != GetAnimation())
     {
-        _animator->Update(UmTime.DeltaTime());
-
-        if (true == _isAnimationPlaying)
-        {
-            _animationTime += UmTime.DeltaTime() * _animationSpeed;
-        }
-        _animator->SetAnimationTime(_animationTime);
-        float min = 0.0f;
-        float max = _animator->GetCurrentAnimationLastTime();
-        if (_animationTime > max)
-        {
-            if (true == _isAnimationLooping)
-            {
-                _animationTime -= max; 
-            }
-            else
-            {
-                _animationTime      = max;   // Stop at the end of the animation
-                _isAnimationPlaying = false; // Stop playing when reaching the end
-            }
-        }
-    }
-    else
-    {
-        _animationTime = 0.0f;
+        _animator->SetPause(_isAnimationPlaying);
+        _animator->SetLoop(_isAnimationLooping);
+        _animator->SetAnimationSpeed(_animationSpeed);
+        _animationTime = _animator->GetCurrentAnimationPlayTime();
     }
 }
 
