@@ -23,6 +23,7 @@ public:
 
 public:
     void RegisterRenderQueue(std::string_view sceneName);
+    void RegisterRenderQueue();
     void LoadModel(std::wstring_view filePath);
 
 private:

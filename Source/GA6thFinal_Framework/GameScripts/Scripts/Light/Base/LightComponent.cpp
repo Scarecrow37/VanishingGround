@@ -9,8 +9,7 @@ LightComponent::LightComponent()
 {
     LightCore& lightCore = UmLightCore;
     Lighting.SetActive(&EnableInHierarchy);
-    lightCore.RegisterLight("Editor", _light.get());
-    lightCore.RegisterLight("Game", _light.get());
+    lightCore.RegisterLight(_light.get());
 }
 
 LightComponent::~LightComponent() 

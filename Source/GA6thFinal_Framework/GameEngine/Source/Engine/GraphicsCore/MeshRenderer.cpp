@@ -40,6 +40,11 @@ void MeshRenderer::RegisterRenderQueue(std::string_view sceneName)
     UmRenderer.RegisterRenderQueue(sceneName, this);
 }
 
+void MeshRenderer::RegisterRenderQueue()
+{
+    UmRenderer.RegisterRenderQueue(this);
+}
+
 void MeshRenderer::LoadModel(std::wstring_view filePath)
 {
     _model = UmResourceManager.LoadResource<Model>(filePath);
