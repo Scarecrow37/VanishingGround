@@ -38,7 +38,8 @@ private:
 protected:
     REFLECT_FIELDS_BEGIN(EditorTool)
     std::unordered_map<int, std::array<float, 4>> LogColorTable;
-    std::unordered_map<int, bool> LogFilterTable;
+    std::unordered_map<int, bool> LogFilterTable;   
+    bool AutoScroll = true;
     REFLECT_FIELDS_END(EditorLogsTool)
 
 };

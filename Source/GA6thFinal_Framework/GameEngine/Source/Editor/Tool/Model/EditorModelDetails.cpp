@@ -89,6 +89,8 @@ void EditorModelDetails::OnTickGui()
 {
     if (nullptr != GetModel() && nullptr != GetAnimator() && nullptr != GetAnimation())
     {
+        _animator->Update(UmTime.DeltaTime());
+
         if (true == _isAnimationPlaying)
         {
             _animationTime += UmTime.DeltaTime() * _animationSpeed;
@@ -118,7 +120,6 @@ void EditorModelDetails::OnTickGui()
 void EditorModelDetails::OnStartGui()
 {
     UmRenderer.RegisterRenderQueue("ModelViewer", _meshRenderer.get());
-    UmAnimationCore.RegisterAnimator(_animator.get());
     UmLightCore.RegisterLight("ModelViewer", _mainLight.get());
 
     _color = Vector3(1.f);

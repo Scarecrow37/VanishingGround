@@ -4,6 +4,9 @@
 class CameraComponent : public Component
 {
     USING_PROPERTY(CameraComponent)
+protected:
+    inline static const XMVECTORF32 DEBUG_COLOR = DirectX::Colors::Green;
+
 public:
     /*현재 메인카메라로 설정된 카메라 컴포넌트를 반환합니다.*/
     static CameraComponent* MainCamera() { return ESceneManager::Engine::GetMainCamera(); }
@@ -12,7 +15,8 @@ public:
     REFLECT_PROPERTY(
         FOV, 
         Width, Height,
-        Aspect, IsMainCamera
+        Aspect, Near, Far,
+        IsMainCamera
         )
 
 public:
@@ -97,7 +101,7 @@ public:
     GETTER(float, FOV) { return ReflectFields->FovDegree; }
     SETTER(float, FOV) 
     { 
-        ReflectFields->FovDegree = value; 
+        ReflectFields->FovDegree = std::max(value, 5.f); 
         _isDirty = true;
     }
     //카메라의 Field of View 입니다.
@@ -106,7 +110,7 @@ public:
     GETTER(float, Width) { return ReflectFields->Width; }
     SETTER(float, Width) 
     { 
-        ReflectFields->Width = value; 
+        ReflectFields->Width = std::max(value, 100.f);
         _isDirty = true;
     }
     PROPERTY(Width)
@@ -114,7 +118,7 @@ public:
     GETTER(float, Height) { return ReflectFields->Height; }
     SETTER(float, Height) 
     { 
-        ReflectFields->Height = value; 
+        ReflectFields->Height = std::max(value, 100.f);
         _isDirty = true;
     }
     PROPERTY(Height)
@@ -126,7 +130,7 @@ public:
     GETTER(float, Near) { return ReflectFields->Near; }
     SETTER(float, Near) 
     { 
-        ReflectFields->Near = value; 
+        ReflectFields->Near = std::max(value, 0.1f);
         _isDirty = true;
     }
     PROPERTY(Near)
@@ -134,7 +138,7 @@ public:
     GETTER(float, Far) { return ReflectFields->Far; }
     SETTER(float, Far) 
     { 
-        ReflectFields->Far = value; 
+        ReflectFields->Far = std::max(value, 10.f);
         _isDirty = true;
     }
     PROPERTY(Far)
@@ -166,6 +170,19 @@ protected:
     /// <para> 직접 override 해서 사용합니다.                     </para>
     /// </summary>
     virtual void DeserializedReflectEvent() override;
+
+    /// <summary>
+    /// <para> 에디터 Scene View에 DrawDebug를 그리기 위한 함수입니다. </para>
+    /// <para> 에디터 에서만 호출됩니다.                              </para>
+    /// </summary>
+    virtual void OnDrawDebug() override;
+
+    /// <summary>
+    /// <para> 에디터 Scene View에 DrawDebug를 그리기 위한 함수입니다. </para>
+    /// <para> 컴포넌트가 Inspector에 선택되었을때만 호출됩니다.       </para>
+    /// <para> 에디터 에서만 호출됩니다. </para>
+    /// </summary>
+    virtual void OnDrawDebugSelected() override;
 
 private:
     bool _isDirty;

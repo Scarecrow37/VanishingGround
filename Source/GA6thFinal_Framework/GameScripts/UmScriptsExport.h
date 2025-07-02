@@ -73,3 +73,6 @@ UMREAL_COMPONENT(PlayerStatsComponent)
 
 #include "Scripts\Stats/Enemy/EnemyStatsComponent.h"
 UMREAL_COMPONENT(EnemyStatsComponent)
+
+#include "Scripts\Test/Input/InputTestComponent.h"
+UMREAL_COMPONENT(InputTestComponent)

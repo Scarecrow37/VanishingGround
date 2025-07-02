@@ -85,6 +85,8 @@ void RenderScene::UpdateRenderScene()
     Vector4    cameraPos = Vector4(_camera->GetWorldMatrix().Translation());
     CameraData cameraData{.View       = XMMatrixTranspose(_camera->GetViewMatrix()),
                           .Projection = XMMatrixTranspose(_camera->GetProjectionMatrix()),
+                          .ViewInverse       = XMMatrixTranspose(_camera->GetWorldMatrix()),
+                          .ProejctionInverse = XMMatrixTranspose(_camera->GetProjectionInverseMatrix()),
                           .Position   = cameraPos};
 
     auto& lights = UmLightCore.GetLights(_name.c_str());

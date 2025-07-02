@@ -102,6 +102,7 @@ void ESceneManager::SceneUpdate()
     ObjectsOnEnable();
     ObjectsAwake();
     ObjectsStart();
+    ObjectsInputUpdate();
     while (ETimeSystem::Engine::TimeSystemFixedUpdate())
     {
         ObjectsFixedUpdate();
@@ -496,6 +497,11 @@ CameraComponent* ESceneManager::Engine::GetMainCamera()
     return UmSceneManager._mainCamera;
 }
 
+ESceneManager::InputSystem& ESceneManager::Engine::GetInputSystem()
+{
+    return UmSceneManager._inputSystem;
+}
+
 void ESceneManager::CreateEmptySceneAndLoad(std::string_view name, std::string_view outPath, const std::function<void()>& loadEvent) 
 {
     if (UmComponentFactory.HasScript() == false)
@@ -696,6 +702,14 @@ void ESceneManager::ObjectsStart()
         });
 }
 
+void ESceneManager::ObjectsInputUpdate() 
+{
+    if (_isPlay)
+    {
+        _inputSystem.UpdateInput();
+    }
+}
+
 void ESceneManager::ObjectsFixedUpdate()
 {
     for (auto& obj : _runtimeObjects)
@@ -756,7 +770,8 @@ void ESceneManager::ObjectsMatrixUpdate()
             _mainCamera->UpdatePerspective();
         }
         
-        Transform& transform = _mainCamera->gameObject->transform;
+        Transform* root = _mainCamera->gameObject->transform->Root;
+        Transform& transform = root ? *root : _mainCamera->gameObject->transform;
         if (true == transform._hasChanged)
         {
             transform.UpdateMatrix();
@@ -1552,4 +1567,143 @@ ESceneManager::SceneResourceManager::SceneResourceManager()
 ESceneManager::SceneResourceManager::~SceneResourceManager() 
 {
 
+}
+
+void ESceneManager::InputSystem::UpdateInput()
+{
+    if (false == _isConnect)
+    {
+        static float elapsedTime = 0.f;
+        elapsedTime += UmTime.UnscaledDeltaTime();
+        if (elapsedTime >= 0.2f)
+        {
+            Input::Result result = _inputController.Connect();
+            if (Input::INPUT_ERROR_SUCCESS == result)
+            {
+                _isConnect = true;
+                UmLogger.Log(LogLevel::LEVEL_DEBUG, (const char*)u8"컨트롤러 연결됨!");
+            }
+            elapsedTime = 0.f;
+        }
+    }
+    else
+    {
+        Input::Result result = _inputController.UpdateState();
+        if (Input::INPUT_ERROR_NO_CHANGE == result || Input::INPUT_ERROR_SUCCESS == result)
+        {                    
+            for (int buttonIndex = 0; buttonIndex < _receivers.size(); ++buttonIndex)
+            {
+                auto& buttons = _receivers[buttonIndex];
+                UpdateTracker(buttonIndex);
+                for (int actionIndex = 0; actionIndex < buttons.size(); ++actionIndex)
+                {
+                    Action action  = (Action)actionIndex;
+                    auto&  actions = buttons[actionIndex];
+                    for (auto& [component, event] : actions)
+                    {
+                        if (action == _actionTracker[buttonIndex])
+                        {
+                            event(_inputController);
+                        }
+                    }
+                }
+            }       
+        }
+        else
+        {
+            UmLogger.Log(LogLevel::LEVEL_DEBUG, (const char*)u8"컨트롤러 해제됨!");
+            _isConnect = false;
+        }     
+    }
+}
+
+void ESceneManager::InputSystem::UpdateTracker(int index) 
+{
+    ControllerButton button = (ControllerButton)index;
+    bool             isDown = false;
+    switch (button)
+    {
+    case ESceneManager::InputSystem::ControllerButton::A:
+        isDown = _inputController.IsButtonDown(Input::Controller::A);     
+        break;
+    case ESceneManager::InputSystem::ControllerButton::B:
+        isDown = _inputController.IsButtonDown(Input::Controller::B);     
+        break;
+    case ESceneManager::InputSystem::ControllerButton::X:
+        isDown = _inputController.IsButtonDown(Input::Controller::X);     
+        break;
+    case ESceneManager::InputSystem::ControllerButton::Y:
+        isDown = _inputController.IsButtonDown(Input::Controller::Y);     
+        break;
+    case ESceneManager::InputSystem::ControllerButton::LEFT_SHOULDER:
+        isDown = _inputController.IsButtonDown(Input::Controller::LEFT_SHOULDER);     
+        break;
+    case ESceneManager::InputSystem::ControllerButton::RIGHT_SHOULDER:
+        isDown = _inputController.IsButtonDown(Input::Controller::RIGHT_SHOULDER);     
+        break;
+    case ESceneManager::InputSystem::ControllerButton::DPAD_UP:
+        isDown = _inputController.IsButtonDown(Input::Controller::DPAD_UP);     
+        break;
+    case ESceneManager::InputSystem::ControllerButton::DPAD_DOWN:
+        isDown = _inputController.IsButtonDown(Input::Controller::DPAD_DOWN);     
+        break;
+    case ESceneManager::InputSystem::ControllerButton::DPAD_LEFT:
+        isDown = _inputController.IsButtonDown(Input::Controller::DPAD_LEFT);     
+        break;
+    case ESceneManager::InputSystem::ControllerButton::DPAD_RIGHT:
+        isDown = _inputController.IsButtonDown(Input::Controller::DPAD_RIGHT);     
+        break;
+    case ESceneManager::InputSystem::ControllerButton::START:
+        isDown = _inputController.IsButtonDown(Input::Controller::START);     
+        break;
+    case ESceneManager::InputSystem::ControllerButton::BACK:
+        isDown = _inputController.IsButtonDown(Input::Controller::BACK);     
+        break;
+    case ESceneManager::InputSystem::ControllerButton::LEFT_TRIGGER:
+        isDown = 0.f < _inputController.GetLeftTrigger();
+        break;
+    case ESceneManager::InputSystem::ControllerButton::RIGHT_TRIGGER:
+        isDown = 0.f < _inputController.GetRightTrigger();
+        break;
+    case ESceneManager::InputSystem::ControllerButton::LEFT_STICK:
+        isDown = 0.f < _inputController.GetLeftThumbStickAxis().Magnitude;
+        break;
+    case ESceneManager::InputSystem::ControllerButton::RIGHT_STICK:
+        isDown = 0.f < _inputController.GetRightThumbStickAxis().Magnitude;
+        break;
+    default:
+        break;
+    }
+
+    Action& action = _actionTracker[index];
+    if (true == isDown)
+    {
+        switch (action)
+        {
+        case ESceneManager::InputSystem::Action::PRESSED:
+            action = Action::HELD;
+            break;
+        case ESceneManager::InputSystem::Action::RELEASED:
+        case ESceneManager::InputSystem::Action::IDLE:
+            action = Action::PRESSED;
+            break;
+        default:
+            break;
+        }
+    }
+    else
+    {
+        switch (action)
+        {
+        case ESceneManager::InputSystem::Action::PRESSED:
+        case ESceneManager::InputSystem::Action::HELD:
+            action = Action::RELEASED;
+            break;
+        case ESceneManager::InputSystem::Action::RELEASED:
+            action = Action::IDLE;
+            break;
+        default:
+            break;
+        }
+    }
 }

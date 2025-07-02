@@ -1,5 +1,6 @@
 ﻿#include "../include/directxtk12/DebugDraw.h"
 #include <vector>
+#include <algorithm>
 
 using namespace DirectX;
 
@@ -369,43 +370,62 @@ void XM_CALLCONV DrawDebugGrid(DirectX::PrimitiveBatch<DirectX::VertexPositionCo
     float height = fabsf(XMVectorGetY(cameraPosition));
     height       = max(height, 10.f);
 
-    float mainSpacing = powf(10.f, roundf(log10f(height * 1.f)));
+    float mainSpacing = powf(10.f, roundf(log10f(height)));
     float subSpacing  = mainSpacing * 0.1f;
 
-    XMVECTOR gridOrigin = XMVectorSet(roundf(XMVectorGetX(cameraPosition) / mainSpacing) * mainSpacing, 0.f,
-                                      roundf(XMVectorGetZ(cameraPosition) / mainSpacing) * mainSpacing, 1.f);
+    /*XMVECTOR gridOrigin = XMVectorSet(roundf(XMVectorGetX(cameraPosition) / mainSpacing) * mainSpacing, 0.f,
+                                      roundf(XMVectorGetZ(cameraPosition) / mainSpacing) * mainSpacing, 1.f);*/
 
-    auto drawLines = [&](float spacing, int count, XMVECTOR color) {
+    float gridSnapX = fmodf(XMVectorGetX(cameraPosition), mainSpacing);
+    float gridSnapZ = fmodf(XMVectorGetZ(cameraPosition), mainSpacing);
+
+    XMVECTOR gridOrigin = XMVectorSet(XMVectorGetX(cameraPosition) - gridSnapX, 0.f, XMVectorGetZ(cameraPosition) - gridSnapZ, 1.f);
+
+    auto drawLines = [&](float spacing, int count, XMVECTOR baseColor, bool isMajor) {
         for (int i = -count; i <= count; ++i)
         {
             float offset = float(i) * spacing;
 
-            {
-                XMVECTOR from = gridOrigin + XMVectorSet(offset, 0, -farZ, 0);
-                XMVECTOR to   = gridOrigin + XMVectorSet(offset, 0, farZ, 0);
+            if (!isMajor && fmodf(offset, mainSpacing) == 0.f)
+                continue;
 
-                if (0.f != from.m128_f32[0])
-                {
-                    VertexPositionColor line[] = {{from, color}, {to, color}};
-                    batch->Draw(D3D_PRIMITIVE_TOPOLOGY_LINELIST, line, 2);
-                }
+            XMVECTOR fromX = gridOrigin + XMVectorSet(offset, 0, -farZ, 0);
+            XMVECTOR toX   = gridOrigin + XMVectorSet(offset, 0, +farZ, 0);
+            XMVECTOR fromZ = gridOrigin + XMVectorSet(-farZ, 0, offset, 0);
+            XMVECTOR toZ   = gridOrigin + XMVectorSet(+farZ, 0, offset, 0);
+
+            // 중간점과 카메라 거리 계산 (감쇄)
+            XMVECTOR midX = XMVectorLerp(fromX, toX, 0.5f);
+            XMVECTOR midZ = XMVectorLerp(fromZ, toZ, 0.5f);
+
+            float distX = XMVectorGetX(XMVector3Length(midX - cameraPosition));
+            float distZ = XMVectorGetX(XMVector3Length(midZ - cameraPosition));
+            
+            float fadeX = 1.0f - std::clamp((distX - 5.f) / 20.f, 0.0f, 1.0f);
+            float fadeZ = 1.0f - std::clamp((distZ - 5.f) / 20.f, 0.0f, 1.0f);            
+
+            XMVECTOR fadedColorX = XMVectorSetW(baseColor, 0.f);
+            XMVECTOR fadedColorZ = XMVectorSetW(baseColor, 0.f);
+
+            // 중심축 제외
+            if (fromX.m128_f32[0] != 0.f)
+            {
+                VertexPositionColor vx[] = {{fromX, fadedColorX}, {toX, fadedColorX}};
+                batch->Draw(D3D_PRIMITIVE_TOPOLOGY_LINELIST, vx, 2);
             }
-
+            if (fromZ.m128_f32[2] != 0.f)
             {
-                XMVECTOR from = gridOrigin + XMVectorSet(-farZ, 0, offset, 0);
-                XMVECTOR to   = gridOrigin + XMVectorSet(farZ, 0, offset, 0);
-
-                if (0.f != from.m128_f32[2])
-                {
-                    VertexPositionColor line[] = {{from, color}, {to, color}};
-                    batch->Draw(D3D_PRIMITIVE_TOPOLOGY_LINELIST, line, 2);
-                }
+                VertexPositionColor vz[] = {{fromZ, fadedColorZ}, {toZ, fadedColorZ}};
+                batch->Draw(D3D_PRIMITIVE_TOPOLOGY_LINELIST, vz, 2);
             }
         }
     };
-    
-    drawLines(subSpacing, (int)linesPerSide * 10, {0.3f, 0.3f, 0.3f, 1.f});
-    drawLines(mainSpacing, (int)linesPerSide, Colors::White);
+
+    // 서브 라인    
+    drawLines(subSpacing, 1 == subSpacing ? int(linesPerSide) * 100 : int(linesPerSide) * 10, XMVectorSet(0.3f, 0.3f, 0.3f, 1.f), false);
+
+    // 메인 라인
+    drawLines(mainSpacing, int(linesPerSide), XMVectorSet(1.f, 1.f, 1.f, 1.f), true);
     
     VertexPositionColor xAxis[] = {{XMVectorSet(-farZ, 0, 0, 1), Colors::Red},
                                    {XMVectorSet(farZ, 0, 0, 1), Colors::Red}};

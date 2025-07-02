@@ -5,6 +5,9 @@
 class LightComponent : public Component
 {
     USING_PROPERTY(LightComponent)
+protected:
+    inline static const XMVECTORF32 DEBUG_COLOR = DirectX::Colors::Red;
+
 public:
     REFLECT_PROPERTY(
         LightColor,
