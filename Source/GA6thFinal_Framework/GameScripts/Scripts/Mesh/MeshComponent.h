@@ -16,6 +16,18 @@ public:
     virtual ~MeshComponent();
 
     /// <summary>
+    /// 렌더러가 Model을 가지고 있는지 확인합니다
+    /// </summary>
+    /// <returns>Model이 등록되어 있으면 true, 아니면 false를 반환합니다.</returns>
+    bool HasModel();
+
+    /// <summary>
+    /// 렌더러가 Animator를 가지고 있는지 확인합니다
+    /// </summary>
+    /// <returns>Animator가 등록되어 있으면 true, 아니면 false를 반환합니다.</returns>
+    bool HasAnimator();
+
+    /// <summary>
     /// 메시 렌더러를 생성합니다. 이미 존재하면 생성하지 않습니다.
     /// </summary>
     /// <param name="renderType"></param>

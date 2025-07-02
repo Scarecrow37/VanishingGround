@@ -31,6 +31,9 @@ UMREAL_COMPONENT(TestComponent)
 #include "Scripts/Mesh/StaticMeshRenderer.h"
 UMREAL_COMPONENT(StaticMeshRenderer)
 
+#include "Scripts/Mesh/SkeletalMeshRenderer.h"
+UMREAL_COMPONENT(SkeletalMeshRenderer)
+
 //#include "Scripts\Graphics/SkeletalMeshRenderer.h"
 //UMREAL_COMPONENT(SkeletalMeshRenderer)
 
@@ -73,3 +76,6 @@ UMREAL_COMPONENT(EnemyStatsComponent)
 
 #include "Scripts\Test/Input/InputTestComponent.h"
 UMREAL_COMPONENT(InputTestComponent)
+
+#include "Scripts\Timeline/AnimationEventListener.h"
+UMREAL_COMPONENT(AnimationEventListener)

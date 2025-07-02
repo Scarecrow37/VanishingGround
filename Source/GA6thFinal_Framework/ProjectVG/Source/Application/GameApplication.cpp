@@ -34,7 +34,6 @@ GameApplication::GameApplication()
         BuildRootDock();
         BuildSceneDock();
         BuildModelDock();
-        BuildSequenceDock();
         BuildEffectDock();
     }
     else
@@ -163,6 +162,8 @@ void GameApplication::BuildModelDock()
     _modelDock->RegisterGui<EditorModelTool>();
     _modelDock->RegisterGui<EditorModelDetails>();
     _modelDock->RegisterGui<EditorModelHierarchy>();
+    _modelDock->RegisterGui<EditorAnimationNotifyTool>();
+    _modelDock->RegisterGui<EditorSequencerTool>();
 
     // Menu
     _modelDock->RegisterGui<EditorModelMenu>();
@@ -199,33 +200,4 @@ void GameApplication::BuildEffectDock()
     _effectDock->RegisterGui<EditorParticleEffectHierarchy>();
     _effectDock->RegisterGui<EditorMenuTools>(_effectDock);
 
-}
-
-void GameApplication::BuildSequenceDock() 
-{
-    auto& dockSystem = _editorModule->GetDockWindowSystem();
-
-    _sequenceDock = dockSystem.RegisterDockWindow("Sequence##DockWindow", _rootDock);
-
-    ImGuiWindowClass imguiwindowClass;
-    imguiwindowClass.ClassId               = ImHashStr("SequenceDockID");
-    imguiwindowClass.DockingAllowUnclassed = false;
-    imguiwindowClass.DockingAlwaysTabBar   = true;
-
-    int imguiWindowFlag = ImGuiWindowFlags_MenuBar;
-    int dockWindowFlag  = ImGuiDockNodeFlags_NoWindowMenuButton | ImGuiDockNodeFlags_NoCloseButton;
-
-    _sequenceDock->SetWindowClass(imguiwindowClass);
-    _sequenceDock->SetImGuiWindowFlag(imguiWindowFlag);
-    _sequenceDock->SetImGuiDockNodeFlag(dockWindowFlag);
-
-    _sequenceDock->CreateDockLayoutNode(ImGuiDir::ImGuiDir_Right, 0.25f);
-    _sequenceDock->CreateDockLayoutNode(ImGuiDir::ImGuiDir_Down, 0.40f);
-    _sequenceDock->CreateDockLayoutNode(ImGuiDir::ImGuiDir_Left, 0.30f);
-    _sequenceDock->CreateDockLayoutNode(ImGuiDir::ImGuiDir_Up, 0.50f);
-
-    _sequenceDock->RegisterGui<EditorSequencerTool>();
-
-    // Menu
-    _sequenceDock->RegisterGui<EditorMenuTools>(_sequenceDock);
 }

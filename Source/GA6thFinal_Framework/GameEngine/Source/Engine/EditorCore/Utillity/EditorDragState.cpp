@@ -7,7 +7,12 @@ EditorDragState::~EditorDragState() {}
 
 using State = EditorDragState::State;
 
-void EditorDragState::SetDragState(UINT id, State state) 
+void EditorDragState::ClearDragState() 
+{
+    _dragState.clear();
+}
+
+void EditorDragState::SetDragState(UINT id, State state)
 {
     _dragState[id] = state;
 }
@@ -133,4 +138,15 @@ bool EditorDragState::IsDragging(State state) const
 bool EditorDragState::IsDragging() const
 {
     return 0 != _dragState.size();
+}
+
+bool EditorDragState::IsDraggingOnly(UINT id) const
+{
+    return 1 == _dragState.size() && _dragState.find(id) != _dragState.end();
+}
+
+bool EditorDragState::IsDraggingOnly(const char* id) const
+{
+    ImGuiID hash = ImHashStr(id);
+    return IsDraggingOnly(hash);
 }

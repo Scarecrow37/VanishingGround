@@ -675,7 +675,7 @@
     <ClInclude Include="Source\Engine\GraphicsCore\BlendPass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\EngineCore\TimelineSystem.h">
+    <ClInclude Include="Source\Engine\TimelineCore\TimelineSystem.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Editor\Tool\Sequencer\EditorSequencerTool.h">
@@ -697,6 +697,12 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\GraphicsCore\DebugDrawCore.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\TimelineCore\AnimationNotifySet.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Tool\Model\EditorAnimationNotifyTool.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\AudioCore\AudioManager\AudioManager.h">
@@ -1271,7 +1277,7 @@
     <ClCompile Include="Source\Engine\GraphicsCore\DepthStencilView.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\EngineCore\TimelineSystem.cpp">
+    <ClCompile Include="Source\Engine\TimelineCore\TimelineSystem.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Editor\Tool\Sequencer\EditorSequencerTool.cpp">
@@ -1332,6 +1338,12 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\InputCore\Declare\Exceptions\InputExceptions.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\TimelineCore\AnimationNotifySet.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\Model\EditorAnimationNotifyTool.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

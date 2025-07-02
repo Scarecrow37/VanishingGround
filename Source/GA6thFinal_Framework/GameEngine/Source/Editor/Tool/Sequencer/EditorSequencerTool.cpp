@@ -10,6 +10,12 @@ EditorSequencerTool::EditorSequencerTool()
     _timelineSystem = std::make_shared<TimelineSystem>();
     _sequencer      = new EditorSequencer();
     _sequencer->SetSystem(_timelineSystem);
+    
+    UINT flags = EditorSequencer::FLAGS_DEBUG | 
+                 EditorSequencer::FLAGS_USE_SNAP |
+                 EditorSequencer::FLAGS_USE_DRAG_MIN_MAX_FRAME | 
+                 EditorSequencer::FLAGS_USE_DRAG_FRAME_LINE;
+    _sequencer->AddFlags(flags);
 }
 
 EditorSequencerTool::~EditorSequencerTool() 
@@ -20,10 +26,6 @@ EditorSequencerTool::~EditorSequencerTool()
         _sequencer = nullptr;
     }
 }
-static float max         = 5.5f;
-static float min         = -1.5f;
-static float elapsedTime = 0.0f;
-static float scale       = 1.0f;
 
 void EditorSequencerTool::OnTickGui() 
 {
@@ -48,25 +50,34 @@ void EditorSequencerTool::OnFrameRender()
     {
         firstTick = false;
         _timelineSystem->Play();
-        _timelineSystem->SetMinFrame(min);
-        _timelineSystem->SetMaxFrame(max);
+        _timelineSystem->SetMinFrame(0.0f);
+        _timelineSystem->SetMaxFrame(5.0f);
     }
 
     float maxFrame     = _timelineSystem->GetMaxFrame();
     float minFrame     = _timelineSystem->GetMinFrame();
     float currentFrame = _timelineSystem->GetCurrentFrame();
-    ImGui::Checkbox("Use Snapping", &_sequencer->_useSnapping);
+
+    bool useSnapping = _sequencer->HasFlags(EditorSequencer::FLAGS_USE_SNAP);
+    if (ImGui::Checkbox("Use Snapping", &useSnapping))
+    {
+        _sequencer->ToggleFlags(EditorSequencer::FLAGS_USE_SNAP);
+    }
 
     _timelineSystem->Update();
 
     ImVec2 availSize = ImGui::GetContentRegionAvail();
     ImGui::BeginChild("SequencerCanvas", ImVec2(availSize.x - 400, availSize.y), true,
                       ImGuiWindowFlags_NoScrollWithMouse);
-    _sequencer->Show(true);
+    _sequencer->Show();
     ImGui::EndChild();
     ImGui::SameLine();
     availSize = ImGui::GetContentRegionAvail();
     ImGui::BeginChild("SequencerDetail", ImVec2(availSize), true);
+    if (ImGui::CollapsingHeader("Sequencer Debug"))
+    {
+        _sequencer->ShowDebugData();
+    }
     if (ImGui::CollapsingHeader("Timeline Notifies"))
     {
         ShowTimelineNotifies();
