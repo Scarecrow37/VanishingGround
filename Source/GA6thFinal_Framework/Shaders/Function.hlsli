@@ -131,4 +131,11 @@ inline float CalculatePostProcessMask(Texture2D<uint> customDepthTexture, float2
     return result;
 }
 
+inline float3 RimLight(float3 N, float3 V, float rimPower, float rimIntensity)
+{
+    float rim = saturate(1.0f - dot(N, V));
+    rim = pow(rim, rimPower);
+    return rim * rimIntensity;
+}
+
 #endif

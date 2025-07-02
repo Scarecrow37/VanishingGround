@@ -14,9 +14,9 @@
 
 ParticleSpritePass::~ParticleSpritePass() {}
 
-void ParticleSpritePass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& sissorRect)
+void ParticleSpritePass::Initialize()
 {
-    __super::Initialize(viewPort, sissorRect);
+    __super::Initialize();
     _particleQuad = UmResourceManager.LoadResource<Model>("Quad");
 
     
@@ -56,8 +56,8 @@ void ParticleSpritePass::Begin(ID3D12GraphicsCommandList* commandlist)
     _particleRenderCommandList->OMSetRenderTargets(1, &customDepthTarget->GetRTVHandle(), FALSE,
                                                    &_ownerScene->_depthStencilView->GetDSVHandle());
 
-    _particleRenderCommandList->RSSetViewports(1, &_viewPort);
-    _particleRenderCommandList->RSSetScissorRects(1, &_sissorRect);
+    _particleRenderCommandList->RSSetViewports(1, &customDepthTarget->GetViewPort());
+    _particleRenderCommandList->RSSetScissorRects(1, &customDepthTarget->GetScissorRect());
 
     ComPtr<ID3D12Resource> resource = UmParticleManager.GetComputeOutputResource();
 
@@ -174,8 +174,8 @@ void ParticleSpritePass::InitializePSO()
 
 
 
-void ParticleSpritePass::SetAccumulationBuffers(UnorderedAccessView* color, UnorderedAccessView* alpha)
+void ParticleSpritePass::SetAccumulationBuffers(SharedResource<UnorderedAccessView> color, SharedResource<UnorderedAccessView> alpha)
 {
     _accumlateBuffer = color;
-    _revealageBuffer  = alpha;
+    _revealageBuffer = alpha;
 }

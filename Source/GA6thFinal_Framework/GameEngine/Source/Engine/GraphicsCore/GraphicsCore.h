@@ -16,6 +16,7 @@
 #include "ResourceManager.h"
 #include "ViewManager.h"
 #include "ParticleManager.h"
+#include "DXResourceManager.h"
 
 #include "Defines.h"
 #include "Externs.h"
@@ -35,6 +36,7 @@ public:
     ResourceManager          ResourceManager;
     MultiRenderTargetManager MultiRenderTargetManager;
     ParticleManager          ParticleManager;
+    DXResourceManager        DXResourceManager;
 
 #ifdef _DEBUG
     DebugDrawCore DebugDrawCore;

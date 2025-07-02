@@ -24,5 +24,6 @@ enum FenceType { MESH_COMPUTE_FENCE, PARTICLE_COMPUTE_FENCE,MESH_RENDER_FENCE, P
 
 enum PostProcess
 {
-    BLOOM = 1 << 0
+    BLOOM = 1 << 0,
+    OUTLINE = 1 << 1,
 };

@@ -8,7 +8,7 @@ void GraphicsCore::Initialize(HWND hwnd, UINT width, UINT height, FeatureLevel f
     Device.Initialize(); 
     Device.ResetCommands();
     ParticleManager.Initialize(MAX_PARTICLE);
-    Renderer.Initialize();    
+    Renderer.Initialize();
 
     auto commandList = Device.GetCommandList();
     commandList->Close();

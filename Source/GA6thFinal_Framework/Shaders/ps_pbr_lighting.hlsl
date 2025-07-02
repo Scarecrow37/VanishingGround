@@ -3,34 +3,18 @@
 struct PSInput
 {
     float4 position : SV_POSITION;
-    float3 normal : NORMAL;
-    float3 tangent : TANGENT;
-    float3 biTangent : BINORMAL;
     float2 uv : TEXCOORD;
 };
 
-
-struct GbufferID
-{
-    uint BaseColor;
-    uint Normal;
-    uint Orm;
-    uint Emissive;
-    uint WorldPosition;
-    uint Depth;
-    uint CumstomDepth;
-};
-
-ConstantBuffer<GbufferID> bit32_7_gBufferID;
 Texture2D textures[];
 
-#define BASECOLOR bit32_7_gBufferID.BaseColor
-#define NORMAL bit32_7_gBufferID.Normal
-#define ORM bit32_7_gBufferID.Orm
-#define EMISSIVE bit32_7_gBufferID.Emissive
-#define WORLDPOSITION bit32_7_gBufferID.WorldPosition
-#define DEPTH bit32_7_gBufferID.Depth
-#define CUMSTOMDEPTH bit32_7_gBufferID.CumstomDepth
+#define BASECOLOR 0
+#define NORMAL 1
+#define ORM 2
+#define EMISSIVE 3
+#define WORLDPOSITION 4
+#define DEPTH 5
+#define CUMSTOMDEPTH 6
 
 float4 ps_main(PSInput input) : SV_Target0
 {

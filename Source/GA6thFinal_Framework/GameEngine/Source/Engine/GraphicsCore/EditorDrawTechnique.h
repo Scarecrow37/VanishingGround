@@ -1,11 +1,11 @@
 ﻿#pragma once
 #include "RenderTechnique.h"
 
-class EndlessGridTechnique : public RenderTechnique
+class EditorDrawTechnique : public RenderTechnique
 {
 public:
-    EndlessGridTechnique();
-    virtual ~EndlessGridTechnique();
+    EditorDrawTechnique();
+    virtual ~EditorDrawTechnique();
 
 public:
     void Initialize(ID3D12GraphicsCommandList* commandList) override;
