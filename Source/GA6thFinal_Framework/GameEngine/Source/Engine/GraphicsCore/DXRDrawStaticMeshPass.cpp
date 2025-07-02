@@ -5,9 +5,9 @@
 
 DXRDrawStaticMeshPass::~DXRDrawStaticMeshPass() {}
 
-void DXRDrawStaticMeshPass::Initialize(const D3D12_VIEWPORT& viewPort, const D3D12_RECT& sissorRect) 
+void DXRDrawStaticMeshPass::Initialize() 
 {
-    __super::Initialize(viewPort, sissorRect);
+    __super::Initialize();
 }
 
 void DXRDrawStaticMeshPass::Begin(ID3D12GraphicsCommandList* commandList) 

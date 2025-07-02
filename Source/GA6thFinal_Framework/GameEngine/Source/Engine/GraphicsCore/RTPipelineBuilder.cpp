@@ -20,9 +20,8 @@ void RTPipelineBuilder::SetHitGroupRootSignature(const D3D12_ROOT_SIGNATURE_DESC
 {
     _hitGroupRootDesc = root;
 }
-
-ComPtr<ID3D12StateObject> RTPipelineBuilder::BuildPipelineStateObject(ID3D12Device5* device)
-{
-    std::vector<D3D12_STATE_SUBOBJECT> subObject;
-
-}
+//
+//ComPtr<ID3D12StateObject> RTPipelineBuilder::BuildPipelineStateObject(ID3D12Device5* device)
+//{
+//    return ComPtr<ID3D12StateObject>();
+//}

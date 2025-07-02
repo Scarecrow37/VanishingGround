@@ -21,7 +21,6 @@
 #include "ParticleRenderTechnique.h"
 #include "EditorDrawTechnique.h"
 #include "RayTracingTechnique.h"
-#include "EndlessGridTechnique.h"
 
 // 임시 값->나중에 설정할 수 있게 바꾸면 될듯.
 

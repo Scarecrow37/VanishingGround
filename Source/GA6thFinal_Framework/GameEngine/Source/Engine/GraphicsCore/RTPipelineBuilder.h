@@ -30,7 +30,7 @@ public:
     void SetRayGenRootSignature(const D3D12_ROOT_SIGNATURE_DESC& root);
     void SetHitGroupRootSignature(const D3D12_ROOT_SIGNATURE_DESC& root);
 
-    ComPtr<ID3D12StateObject> BuildPipelineStateObject(ID3D12Device5* device);
+    //ComPtr<ID3D12StateObject> BuildPipelineStateObject(ID3D12Device5* device);
 
 private:
     std::vector<ShaderEntry> _shaders;

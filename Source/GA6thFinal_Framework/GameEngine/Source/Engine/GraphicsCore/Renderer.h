@@ -65,5 +65,5 @@ private:
     std::list<std::shared_ptr<Resource>>                          _defaultResource;
 
 public:
-    bool _isRaytracing = true;
+    bool _isRaytracing = false;
 };
