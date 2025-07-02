@@ -29,6 +29,6 @@ namespace Audio
     struct ReadChunkData
     {
         void operator()(std::ifstream& fileStream, void* buffer, const std::streamsize& bufferSize,
-                          DWORD bufferOffset) const;
+                        DWORD bufferOffset) const;
     };
 } // namespace Audio
