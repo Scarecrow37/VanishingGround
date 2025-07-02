@@ -30,6 +30,9 @@ public:
     void ResumeCurrentAnimation();
     void PauseCurrentAnimation();
     void StopCurrentAnimation();
+    
+private:
+    void UpdateModelTransform();
 
 private:
     virtual void OnTickGui() override;
@@ -68,6 +71,10 @@ private:
 
 private:
     Matrix                          _worldMatrix;
+    Vector3                         _position;
+    Vector3                         _rotation;
+    Vector3                         _scale;
+
     std::filesystem::path           _filePath;
     std::shared_ptr<Animator>       _animator;
     std::unique_ptr<MeshRenderer>   _meshRenderer;

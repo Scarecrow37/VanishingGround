@@ -91,36 +91,18 @@ void EditorModelDetails::StopCurrentAnimation()
     }
 }
 
+void EditorModelDetails::UpdateModelTransform() 
+{
+    Matrix matScale     = Matrix::CreateScale(_scale);
+    Matrix matRotation  = Matrix::CreateFromYawPitchRoll(_rotation.y, _rotation.x, _rotation.z);
+    Matrix matTranslate = Matrix::CreateTranslation(_position);
+
+    // 변환 순서: S  R  T
+    _worldMatrix = matScale * matRotation * matTranslate;
+}
+
 void EditorModelDetails::OnTickGui()
 {
-    //if (nullptr != GetModel() && nullptr != GetAnimator() && nullptr != GetAnimation())
-    //{
-    //    _animator->SetPause(_isAnimationPlaying);
-    //    if (true == _isAnimationPlaying)
-    //    {
-    //        _animationTime += UmTime.DeltaTime() * _animationSpeed;
-    //    }
-    //    _animator->SetAnimationTime(_animationTime);
-    //    float min = 0.0f;
-    //    float max = _animator->GetCurrentAnimationLastTime();
-    //    if (_animationTime > max)
-    //    {
-    //        if (true == _isAnimationLooping)
-    //        {
-    //            _animationTime -= max; 
-    //        }
-    //        else
-    //        {
-    //            _animationTime      = max;   // Stop at the end of the animation
-    //            _isAnimationPlaying = false; // Stop playing when reaching the end
-    //        }
-    //    }
-    //}
-    //else
-    //{
-    //    _animationTime = 0.0f;
-    //}
-
     if (nullptr != GetModel() && nullptr != GetAnimator() && nullptr != GetAnimation())
     {
         _animator->SetPause(!_isAnimationPlaying);
@@ -194,6 +176,34 @@ void EditorModelDetails::OnFrameRender()
             {
                 ImGui::SetTooltip(filePath.c_str());
             }
+            ImGui::Separator();
+
+            if (ImGui::TreeNodeEx("Transform##details", ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                bool isDirty = false;
+
+                if (ImGui::Button("Reset Transform"))
+                {
+                    _position = Vector3(0.f);
+                    _rotation = Vector3(0.f);
+                    _scale    = Vector3(1.f);
+                    isDirty   = true;
+                }
+
+                ImGui::Text("Position: ");
+                ImGui::DragFloat3("##position", &_position.x) ? isDirty = true : isDirty;
+                ImGui::Text("Rotation: ");
+                ImGui::DragFloat3("##rotation", &_rotation.x) ? isDirty = true : isDirty;
+                ImGui::Text("Scale: ");
+                ImGui::DragFloat3("##scale", &_scale.x) ? isDirty = true : isDirty;
+
+                if (isDirty)
+                {
+                    UpdateModelTransform();
+                }
+                ImGui::TreePop();
+            }
+
             ImGui::Separator();
 
             if (ImGui::TreeNodeEx("Animation##details", ImGuiTreeNodeFlags_DefaultOpen))
