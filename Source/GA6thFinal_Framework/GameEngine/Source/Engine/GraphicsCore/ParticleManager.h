@@ -40,7 +40,7 @@ public:
 
     UINT                                  GetTotalCount() const { return _totalCount; }
     UINT                                  GetMaxCount() const { return _maxParticles; }
-    std::vector<std::shared_ptr<Texture>> GetActiveAlbedos() const { return _activeEmitterAlbedos; }
+    std::vector<Texture*> GetActiveAlbedos() const { return _activeEmitterAlbedos; }
     ID3D12Resource*                       GetComputeOutputResource() { return _particleOutputBuffer.Get(); }
     ID3D12GraphicsCommandList*            GetRenderCommandList() { return _renderCommandList.Get(); }
     std::vector<class ParticleEffect*>&   GetEffectList() { return _pariticleEffects; }
@@ -137,8 +137,8 @@ private:
 
     std::vector<class Particle>           _totalParticles;
     std::vector<EmitterInfo>              _emitterMatrix;
-    std::vector<std::shared_ptr<Texture>> _activeEmitterAlbedos;
-    std::vector<std::shared_ptr<Texture>> _activeEmitterNormals;
+    std::vector<Texture*> _activeEmitterAlbedos;
+    std::vector<Texture*> _activeEmitterNormals;
 
     UINT _totalCount = 0;
 

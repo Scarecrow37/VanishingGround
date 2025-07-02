@@ -168,15 +168,20 @@ DirectX::SimpleMath::Vector4 SpriteModule::GetInitialFrameInfo() const
     return _initialFrameInfo;
 }
 
-std::shared_ptr<class Texture> SpriteModule::GetAlbedoTexture() const
+Texture* SpriteModule::GetAlbedoTexture() const
 {
-    return _albedoTexture;
+    return _albedoTexture.get();
 }
 
-std::shared_ptr<Texture> SpriteModule::GetNormalTexture() const 
+Texture* SpriteModule::GetNormalTexture() const 
 {
-    return _normalTexture;
+    return _normalTexture.get();
 }
+
+ SpriteModule::~SpriteModule() 
+ {
+
+ }
 
 void SpriteModule::Initialize()
 {

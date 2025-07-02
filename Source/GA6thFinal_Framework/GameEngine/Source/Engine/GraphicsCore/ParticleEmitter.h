@@ -69,6 +69,7 @@ private:
 class ParticleRenderModule
 {
 public:
+    virtual ~ParticleRenderModule() {};
     virtual void Initialize() {};
     UMPARTICLE_PROPERTY_REF(std::wstring, _modelAndTexturePath, ModelAndTexturePath, L"");
 
@@ -79,6 +80,8 @@ public:
 class SpriteModule : public ParticleRenderModule
 {
 public:
+    virtual ~SpriteModule();
+    
     void           Initialize() override;
     void           SetFrameInfo(Vector4 frameInfo);
     void           SetFrameInfo(int widthCount, int heightCount, int startIndex, int totalCount);
@@ -87,8 +90,8 @@ public:
     void           LoadNormalTexture(std::wstring filePath);
 
     Vector4        GetInitialFrameInfo() const;
-    std::shared_ptr<class Texture> GetAlbedoTexture() const;
-    std::shared_ptr<class Texture> GetNormalTexture() const;
+    class Texture* GetAlbedoTexture() const;
+    class Texture* GetNormalTexture() const;
 
 
 
@@ -103,8 +106,6 @@ protected:
     UMPARTICLE_PROPERTY(bool, _isAlbedoTextureChanged, TextureChangeFlag, false);
     UMPARTICLE_PROPERTY(float, _frameDuration, FrameDuration, 1 / 24.f);
 
-
-private:
 };
 
 class MeshModule : public ParticleRenderModule
