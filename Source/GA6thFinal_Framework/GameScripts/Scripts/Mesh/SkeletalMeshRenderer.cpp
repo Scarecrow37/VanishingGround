@@ -228,4 +228,3 @@ void SkeletalMeshRenderer::ResumeAnimation()
 {
     _isAnimationPlaying = true;
 }
-

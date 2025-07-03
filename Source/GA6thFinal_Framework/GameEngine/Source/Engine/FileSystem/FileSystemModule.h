@@ -10,9 +10,6 @@ namespace File
     struct FileEventData;
 } // namespace File
 
-class FileSystemModule;
-class SampleFileEventSubscriber;
-
 /*
 FileSystemModule은 파일 시스템을 셋업하고, 비동기적으로 받은 이벤트를
 엔진에 동기적으로 전달하는 모듈이다.
