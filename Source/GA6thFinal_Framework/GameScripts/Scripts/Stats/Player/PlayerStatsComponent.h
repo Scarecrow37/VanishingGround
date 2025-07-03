@@ -1,8 +1,8 @@
 ﻿#pragma once
-#include "Stats/CharacterStatsComponent.h"
+#include "Stats/TurnActorStatsComponent.h"
 
 struct PlayerStats;
-class PlayerStatsComponent : public CharacterStatsComponent
+class PlayerStatsComponent : public TurnActorStatsComponent
 {
     USING_PROPERTY(PlayerStatsComponent)
 public:
@@ -14,11 +14,12 @@ public:
     virtual ~PlayerStatsComponent();
 
 protected:
-    REFLECT_FIELDS_BEGIN(CharacterStatsComponent)
+    REFLECT_FIELDS_BEGIN(TurnActorStatsComponent)
     REFLECT_FIELDS_END(PlayerStatsComponent)
 
     // 이 함수를 override 해서 CharacterStats를 동적할당해 반환해야 합니다.
-    CharacterStats* NewCharacterStats() override;
+    TurnActorStats* NewTurnActorStats() override;
+
 private:
     PlayerStats* _stats = nullptr;
 
