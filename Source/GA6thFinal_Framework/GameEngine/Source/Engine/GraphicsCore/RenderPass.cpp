@@ -1,6 +1,5 @@
 ﻿#include "pch.h"
 #include "RenderPass.h"
-#include "RenderScene.h"
 
 RenderPass::RenderPass()
     : _ownerScene(nullptr) {}

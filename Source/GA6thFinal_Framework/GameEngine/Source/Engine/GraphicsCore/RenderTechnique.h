@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 class RenderPass;
-class RenderScene;
 class RenderTechnique
 {
 public:

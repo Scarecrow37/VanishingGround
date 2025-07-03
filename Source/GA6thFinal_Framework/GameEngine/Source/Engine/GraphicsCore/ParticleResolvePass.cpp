@@ -1,10 +1,5 @@
 ﻿#include "pch.h"
-#include "Quad.h"
-#include "RenderScene.h"
-#include "RenderTarget.h"
-#include "ShaderBuilder.h"
 #include "ParticleResolvePass.h"
-#include "UnorderedAccessView.h"
 
  ParticleResolvePass::ParticleResolvePass() {}
 

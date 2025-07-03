@@ -5,12 +5,8 @@
 #include "Light.h"
 #include "MeshRenderer.h"
 #include "Model.h"
-#include "Quad.h"
-#include "RenderTarget.h"
 #include "RenderTechnique.h"
 #include "SkyBox.h"
-#include "UnorderedAccessView.h"
-#include "DepthStencilView.h"
 
 RenderScene::RenderScene(std::string_view name)
     : _skyBox{std::make_unique<SkyBox>()}
@@ -114,8 +110,8 @@ void RenderScene::UpdateRenderScene()
         }
     }
 
-    UmDevice.UpdateBuffer(_cameraBuffer, &cameraData, sizeof(CameraData));
-    UmDevice.UpdateBuffer(_lightBuffer, _lightDatas.data(), sizeof(LightData) * MAX_LIGHT);
+    _cameraBuffer->UpdateBuffer(&cameraData);
+    _lightBuffer->UpdateBuffer(_lightDatas.data());
 
     _worldMatrixes.clear();
     _boneMatrixes.clear();
@@ -236,14 +232,13 @@ void RenderScene::CreateFrameResource()
     {
         _frameResources[i] = std::make_unique<FrameResource>();
         _frameResources[i]->Initialize(1000);
-    }
-    // 임시 : 메인 카메라를 통해 Camera ConstantBuffer 만들기.
-    CameraData cameraData{.View       = _camera->GetViewMatrix(),
-                          .Projection = _camera->GetProjectionMatrix(),
-                          .Position   = {0.f, 0.f, -5.f, 1.f}};
+    }    
 
-    UmDevice.CreateConstantBuffer(&cameraData, sizeof(CameraData), _cameraBuffer);
-    UmDevice.CreateConstantBuffer(nullptr, sizeof(LightData) * MAX_LIGHT, _lightBuffer);
+    _cameraBuffer = std::make_unique<ConstantBufferView>();
+    _cameraBuffer->Initialize(sizeof(CameraData));
+
+    _lightBuffer = std::make_unique<ConstantBufferView>();
+    _lightBuffer->Initialize(sizeof(LightData) * MAX_LIGHT);
 }
 
 void RenderScene::CreateCamera()

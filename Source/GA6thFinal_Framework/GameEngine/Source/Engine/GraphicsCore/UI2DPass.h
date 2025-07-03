@@ -1,11 +1,11 @@
 ﻿#pragma once
 #include "RenderPass.h"
 
-class BrightExtractPass : public RenderPass
+class UI2DPass : public RenderPass
 {
 public:
-    BrightExtractPass();
-    virtual ~BrightExtractPass();
+    UI2DPass();
+    virtual ~UI2DPass();
 
 public:
     void Initialize() override;
@@ -14,5 +14,5 @@ public:
     void End(ID3D12GraphicsCommandList* commandList) override;
 
 private:
-    RenderTarget* _renderTarget{nullptr};
+    ConstantBufferView _2DCamera;
 };

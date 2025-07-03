@@ -1,7 +1,5 @@
 ﻿#pragma once
 
-class RenderScene;
-class RenderTarget;
 class RenderPass
 {
 public:

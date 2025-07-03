@@ -3,7 +3,6 @@
 class Shader;
 class FrameResource;
 class MeshRenderer;
-class RenderScene;
 class RendererFileEvent;
 class Resource;
 class Renderer

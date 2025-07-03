@@ -1,9 +1,6 @@
 ﻿#pragma once
 #include "RenderPass.h"
-class Quad;
-class ShaderBuilder;
-class StructuredBuffer;
-class UnorderedAccessView;
+
 class ParticleSpritePass : public RenderPass
 {
 public:
@@ -21,12 +18,9 @@ private:
     void InitializeShader();
     void InitializePSO();
 
-
-
 private:
     std::shared_ptr<ShaderBuilder>           _spriteParticleShaderBuilder;
     std::vector<ComPtr<ID3D12PipelineState>> _psos;
-
 
     ID3D12GraphicsCommandList* _particleRenderCommandList;
     std::shared_ptr<Model>     _particleQuad;

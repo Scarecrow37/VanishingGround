@@ -1,7 +1,5 @@
 ﻿#include "pch.h"
 #include "Renderer.h"
-#include "RenderScene.h"
-#include "RenderTarget.h"
 #include "RendererFileEvent.h"
 
 // Geometry

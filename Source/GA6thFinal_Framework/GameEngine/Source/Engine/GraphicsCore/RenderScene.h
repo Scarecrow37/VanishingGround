@@ -1,15 +1,11 @@
 ﻿#pragma once
 
-class RenderTarget;
 class RenderPass;
 class RenderTechnique;
 class FrameResource;
-class Quad;
 class Camera;
 class MeshRenderer;
 class SkyBox;
-class UnorderedAccessView;
-class DepthStencilView;
 class RenderScene
 {
 public:
@@ -51,7 +47,7 @@ public:
     std::string                                                  _finalTargetName;
     std::vector<std::unique_ptr<RenderTechnique>>                _techniques;
     std::vector<std::pair<std::unique_ptr<bool>, MeshRenderer*>> _renderQueue;
-    
+
     // Frame Resource
     std::vector<std::unique_ptr<FrameResource>> _frameResources;
     std::vector<LightData>                      _lightDatas;
@@ -61,15 +57,15 @@ public:
     std::shared_ptr<Camera>                     _camera;
     NumLight                                    _numLight;
 
-    std::unique_ptr<Quad>                _frameQuad;
-    std::unique_ptr<SkyBox>              _skyBox;
-    SharedResource<UnorderedAccessView>  _accumulationBuffer;
-    SharedResource<DepthStencilView>     _depthStencilView;
+    std::unique_ptr<Quad>               _frameQuad;
+    std::unique_ptr<SkyBox>             _skyBox;
+    SharedResource<UnorderedAccessView> _accumulationBuffer;
+    SharedResource<DepthStencilView>    _depthStencilView;
 
     // Buffers
-    ComPtr<ID3D12Resource>      _cameraBuffer;
-    ComPtr<ID3D12Resource>      _lightBuffer;
-    ComPtr<ID3D12PipelineState> _framePSO;
+    std::unique_ptr<ConstantBufferView> _cameraBuffer;
+    std::unique_ptr<ConstantBufferView> _lightBuffer;
+    ComPtr<ID3D12PipelineState>         _framePSO;
 
     UINT _currentFrameIndex = 0;
 };

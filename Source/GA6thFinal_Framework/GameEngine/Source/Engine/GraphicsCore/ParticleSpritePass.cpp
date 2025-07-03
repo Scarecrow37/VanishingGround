@@ -1,16 +1,8 @@
 ﻿#include "pch.h"
 #include "ParticleSpritePass.h"
-#include "ShaderBuilder.h"
-#include "RenderTarget.h"
-#include "RenderScene.h"
 #include "Model.h"
-#include "Texture.h"
-#include "Quad.h"
-#include "StructuredBuffer.h"
-#include "UnorderedAccessView.h"
-#include "DepthStencilView.h"
 
- ParticleSpritePass::ParticleSpritePass() {}
+ParticleSpritePass::ParticleSpritePass() {}
 
 ParticleSpritePass::~ParticleSpritePass() {}
 

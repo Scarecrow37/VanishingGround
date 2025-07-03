@@ -1,7 +1,6 @@
 ﻿#pragma once
 #include "RenderPass.h"
 
-class UnorderedAccessView;
 class ParticleResolvePass : public RenderPass
 {
 public:
@@ -25,10 +24,7 @@ private:
     ComPtr<ID3D12DescriptorHeap>   _descriptorHeap;
     ID3D12GraphicsCommandList*     _particleRenderCommandList;
     UINT                           _descriptorSize;
-
-
     
     SharedResource<UnorderedAccessView> _accumlateBuffer;
     SharedResource<UnorderedAccessView> _revealageBuffer;
-
 };

@@ -2,8 +2,6 @@
 #include "PBRLitTechnique.h"
 #include "DeferredPBRLitPass.h"
 #include "GBufferPass.h"
-#include "RenderScene.h"
-#include "RenderTarget.h"
 
 PBRLitTechnique::PBRLitTechnique() {}
 

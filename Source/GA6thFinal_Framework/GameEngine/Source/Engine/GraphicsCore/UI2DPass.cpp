@@ -1,11 +1,11 @@
 ﻿#include "pch.h"
-#include "BlendPass.h"
+#include "UI2DPass.h"
 
-BlendPass::BlendPass() {}
+UI2DPass::UI2DPass() {}
 
-BlendPass::~BlendPass() {}
+UI2DPass::~UI2DPass() {}
 
-void BlendPass::Initialize()
+void UI2DPass::Initialize()
 {
     __super::Initialize();
 
@@ -15,7 +15,7 @@ void BlendPass::Initialize()
     _shader->SetShader(L"../Shaders/ps_blend.hlsl", ShaderBuilder::Type::PS);
     _shader->EndBuild(ShaderBuilder::BindType::DIRECT);
 
-    ID3D12Device*                      device = UmDevice.GetDevice();
+    ID3D12Device*                      device  = UmDevice.GetDevice();
     D3D12_GRAPHICS_PIPELINE_STATE_DESC psodesc = {};
 
     psodesc.RasterizerState               = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
@@ -33,19 +33,19 @@ void BlendPass::Initialize()
 
     if constexpr (IS_EDITOR)
     {
-        psodesc.RTVFormats[0]                 = DXGI_FORMAT_R32G32B32A32_FLOAT;
+        psodesc.RTVFormats[0] = DXGI_FORMAT_R32G32B32A32_FLOAT;
     }
     else
-    {        
-        psodesc.RTVFormats[0]                 = DXGI_FORMAT_R8G8B8A8_UNORM;
+    {
+        psodesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
     }
 
     HRESULT hr = S_OK;
     hr         = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(&_pipelineState));
-    FAILED_CHECK_MESSAGE(hr, L"BlendPass::Initialize device->CreateGraphicsPipelineState Failed");
+    FAILED_CHECK_MESSAGE(hr, L"UI2DPass::Initialize device->CreateGraphicsPipelineState Failed");
 }
 
-void BlendPass::Begin(ID3D12GraphicsCommandList* commandList)
+void UI2DPass::Begin(ID3D12GraphicsCommandList* commandList)
 {
     if constexpr (IS_EDITOR)
     {
@@ -64,18 +64,20 @@ void BlendPass::Begin(ID3D12GraphicsCommandList* commandList)
     commandList->RSSetScissorRects(1, &_finalRenderTarget->GetScissorRect());
 }
 
-void BlendPass::Draw(ID3D12GraphicsCommandList* commandList)
+void UI2DPass::Draw(ID3D12GraphicsCommandList* commandList)
 {
     commandList->SetPipelineState(_pipelineState.Get());
     commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
 
-    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("screenTexture"), _meshRenderTarget->GetSRVHandle());
-    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("sourceTexture"), _ownerScene->_accumulationBuffer->GetSRVHandle());
+    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("screenTexture"),
+                                                _meshRenderTarget->GetSRVHandle());
+    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("sourceTexture"),
+                                                _ownerScene->_accumulationBuffer->GetSRVHandle());
 
     _ownerScene->_frameQuad->Render(commandList);
 }
 
-void BlendPass::End(ID3D12GraphicsCommandList* commandList)
+void UI2DPass::End(ID3D12GraphicsCommandList* commandList)
 {
     if constexpr (IS_EDITOR)
     {

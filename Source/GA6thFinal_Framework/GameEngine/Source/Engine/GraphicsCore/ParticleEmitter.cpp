@@ -1,6 +1,4 @@
 ﻿#include "pch.h"
-#include "Quad.h"
-#include "Texture.h"
 #include "Particle.h"
 #include "ParticleEmitter.h"
 

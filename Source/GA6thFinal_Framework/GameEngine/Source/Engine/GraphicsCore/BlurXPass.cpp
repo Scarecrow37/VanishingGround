@@ -1,8 +1,5 @@
 ﻿#include "pch.h"
 #include "BlurXPass.h"
-#include "Quad.h"
-#include "RenderScene.h"
-#include "RenderTarget.h"
 
 BlurXPass::BlurXPass() {}
 

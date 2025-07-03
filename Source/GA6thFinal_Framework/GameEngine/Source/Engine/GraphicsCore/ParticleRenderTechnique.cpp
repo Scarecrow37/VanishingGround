@@ -1,10 +1,7 @@
 ﻿#include "pch.h"
 #include "ParticleResolvePass.h"
 #include "ParticleSpritePass.h"
-#include "RenderScene.h"
-#include "RenderTarget.h"
 #include "ParticleRenderTechnique.h"
-#include "UnorderedAccessView.h"
 
  ParticleRenderTechnique::ParticleRenderTechnique() {}
 

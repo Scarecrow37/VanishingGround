@@ -1,12 +1,9 @@
 ﻿#include "pch.h"
 #include "GBufferPass.h"
 #include "BaseMesh.h"
-#include "DepthStencilView.h"
 #include "FrameResource.h"
 #include "MeshRenderer.h"
 #include "Model.h"
-#include "RenderScene.h"
-#include "RenderTarget.h"
 
 GBufferPass::~GBufferPass() {}
 

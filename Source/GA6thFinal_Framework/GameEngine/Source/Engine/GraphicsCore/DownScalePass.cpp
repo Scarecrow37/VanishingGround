@@ -1,8 +1,5 @@
 ﻿#include "pch.h"
 #include "DownScalePass.h"
-#include "Quad.h"
-#include "RenderScene.h"
-#include "RenderTarget.h"
 
 DownScalePass::DownScalePass() {}
 
