@@ -1492,15 +1492,18 @@ void ESceneManager::SceneResourceManager::Update(SceneResourceManager& manager)
                                 meshRenderer.LoadModel(path.wstring());
                                 models.ModelUseComponentList[guid].emplace_back(pMeshComponent);
                                 UmSceneManager._runtimeMeshComponents.emplace_back(pMeshComponent);
-                                auto& animation = meshRenderer.GetModel()->GetAnimation();
-                                auto& skeleton  = meshRenderer.GetModel()->GetSkeleton();
-                                if (animation != nullptr && skeleton != nullptr)
+                                if (meshRenderer.GetType() == MeshRenderType::SKELETAL)
                                 {
-                                    std::shared_ptr<Animator> animator(new Animator);
-                                    animator->Initialize(animation, skeleton);
-                                    animator->SetActive(&pMeshComponent->EnableInHierarchy);
-                                    meshRenderer.SetAnimator(animator);
-                                    UmAnimationCore.RegisterAnimator(animator.get());
+                                    auto& animation = meshRenderer.GetModel()->GetAnimation();
+                                    auto& skeleton  = meshRenderer.GetModel()->GetSkeleton();
+                                    if (animation != nullptr && skeleton != nullptr)
+                                    {
+                                        std::shared_ptr<Animator> animator(new Animator);
+                                        animator->Initialize(animation, skeleton);
+                                        animator->SetActive(&pMeshComponent->EnableInHierarchy);
+                                        meshRenderer.SetAnimator(animator);
+                                        UmAnimationCore.RegisterAnimator(animator.get());
+                                    }
                                 }
                             }
                         }
