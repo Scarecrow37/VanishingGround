@@ -1,20 +1,20 @@
 ﻿#pragma once
 #include "UmFramework.h"
 
-struct CharacterStats;
-class CharacterStatsComponent abstract : public Component
+class TurnActorStats;
+class TurnActorStatsComponent abstract : public Component
 {
-    USING_PROPERTY(CharacterStatsComponent)
+    USING_PROPERTY(TurnActorStatsComponent)
 public:
     REFLECT_PROPERTY()
 
 public:
-    CharacterStatsComponent();
-    virtual ~CharacterStatsComponent();
+    TurnActorStatsComponent();
+    virtual ~TurnActorStatsComponent();
 
 protected:
     // 이 함수를 override 해서 CharacterStats를 동적할당해 반환해야 합니다.
-    virtual CharacterStats* NewCharacterStats() = 0;
+    virtual TurnActorStats* NewTurnActorStats() = 0;
 
     // Reset override시 CharacterStats::Reset() 호출 필요.
     virtual void Reset() override;
@@ -22,7 +22,7 @@ protected:
 protected:
     REFLECT_FIELDS_BEGIN(Component)
     std::string StatsData{};
-    REFLECT_FIELDS_END(CharacterStatsComponent)
+    REFLECT_FIELDS_END(TurnActorStatsComponent)
 
     /// <summary>
     /// <para> 직렬화 직전 자동으로 호출되는 이벤트 함수입니다. </para>
@@ -42,5 +42,6 @@ protected:
     virtual void ImGuiDrawPropertysEvent() override;
 
 private:
-    std::unique_ptr<CharacterStats> _stats;
+    std::unique_ptr<TurnActorStats> _stats;
+
 };

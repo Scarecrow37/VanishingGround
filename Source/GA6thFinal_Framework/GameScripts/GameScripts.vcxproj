@@ -302,10 +302,12 @@
 		<ClInclude Include="Scripts\Mesh\SkeletalMeshRenderer.h" />
 		<ClInclude Include="Scripts\Mesh\StaticMeshRenderer.h" />
 		<ClInclude Include="Scripts\Light\Base\LightComponent.h" />
-		<ClInclude Include="Scripts\Stats\CharacterStatsComponent.h" />
+		<ClInclude Include="Scripts\Stats\TurnActorStats.h" />
+		<ClInclude Include="Scripts\Stats\TurnActorStatsComponent.h" />
 		<ClInclude Include="Scripts\Stats\Enemy\EnemyStats.h" />
 		<ClInclude Include="pchScripts.h" />
 		<ClInclude Include="Scripts\Stats\Player\PlayerStats.h" />
+		<ClInclude Include="Scripts\Stats\Weapon\WeaponStats.h" />
 		<ClInclude Include="Scripts\Test\Component\TestComponent.h" />
 		<ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\Base\EnemyConditionBase.h" />
 		<ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\EnemyDeadCondition.h" />
@@ -359,6 +361,7 @@
 		<ClInclude Include="Scripts\Stats\Enemy\EnemyStatsComponent.h" />
 		<ClInclude Include="Scripts\Test\Input\InputTestComponent.h" />
 		<ClInclude Include="Scripts\Timeline\AnimationEventListener.h" />
+		<ClInclude Include="Scripts\Stats\Weapon\WeaponStatsComponent.h" />
 	</ItemGroup>
 	<ItemGroup>
 		<ClCompile Include="dllmain.cpp">
@@ -434,11 +437,12 @@
 		<ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\Player.cpp" />
 		<ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Enemy.cpp" />
 		<ClCompile Include="Scripts\Camera\CameraComponent.cpp" />
-		<ClCompile Include="Scripts\Stats\CharacterStatsComponent.cpp" />
+		<ClCompile Include="Scripts\Stats\TurnActorStatsComponent.cpp" />
 		<ClCompile Include="Scripts\Stats\Player\PlayerStatsComponent.cpp" />
 		<ClCompile Include="Scripts\Stats\Enemy\EnemyStatsComponent.cpp" />
 		<ClCompile Include="Scripts\Test\Input\InputTestComponent.cpp" />
 		<ClCompile Include="Scripts\Timeline\AnimationEventListener.cpp" />
+		<ClCompile Include="Scripts\Stats\Weapon\WeaponStatsComponent.cpp" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="cpp.hint" />

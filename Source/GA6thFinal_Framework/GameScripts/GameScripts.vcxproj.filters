@@ -129,7 +129,7 @@
     <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\CheckRoundEndExit.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Scripts\Stats\CharacterStatsComponent.h">
+    <ClInclude Include="Scripts\Stats\TurnActorStatsComponent.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Scripts\Stats\Enemy\EnemyStats.h">
@@ -202,6 +202,18 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Scripts\Mesh\SkeletalMeshRenderer.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\Test\Input\InputTestComponent.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\Timeline\AnimationEventListener.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\Stats\Weapon\WeaponStats.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\Stats\TurnActorStats.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -314,7 +326,7 @@
     <ClCompile Include="Scripts\Camera\CameraComponent.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\Stats\CharacterStatsComponent.cpp">
+    <ClCompile Include="Scripts\Stats\TurnActorStatsComponent.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Scripts\Stats\Player\PlayerStatsComponent.cpp">
@@ -372,6 +384,12 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Scripts\Mesh\SkeletalMeshRenderer.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\Test\Input\InputTestComponent.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\Timeline\AnimationEventListener.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

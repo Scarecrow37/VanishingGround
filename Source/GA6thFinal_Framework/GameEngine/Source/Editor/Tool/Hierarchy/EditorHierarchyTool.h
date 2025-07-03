@@ -1,6 +1,7 @@
 ﻿#pragma once
 class EditorSceneTool;
 class HierarchyFindTool;
+struct Scene;
 
 class EditorHierarchyTool
     : public EditorTool
@@ -11,6 +12,13 @@ class EditorHierarchyTool
 public:
     static void SetFocusObject(const std::weak_ptr<GameObject>& object);
     static const std::weak_ptr<GameObject>& GetFocusObject() { return static_hierarchyFocusObjWeak; }
+
+    /// <summary>
+    /// 씬을 현재 상태로 저장합니다.
+    /// </summary>
+    /// <param name="scene"></param>
+    /// <returns></returns>
+    static bool SaveScene(Scene& scene);
 
     EditorHierarchyTool();
     virtual ~EditorHierarchyTool();
@@ -55,5 +63,21 @@ private:
     EditorDockWindow* _dockWindow = nullptr;
     EditorSceneTool*  _editorSceneTool = nullptr;
     HierarchyFindTool* _editorFindTool = nullptr;
+
+protected:
+    REFLECT_FIELDS_BEGIN(EditorTool)
+    REFLECT_FIELDS_END(EditorHierarchyTool)
+        
+    /*
+    직렬화 직전 자동으로 호출되는 이벤트 함수입니다.
+    직접 override 해서 사용합니다.
+    */
+    virtual void SerializedReflectEvent() override;
+    /*
+    역직렬화 이후 자동으로 호출되는 이벤트 함수 입니다.
+    직접 override 해서 사용합니다.
+    */
+    virtual void DeserializedReflectEvent() override;
+
 };
 
