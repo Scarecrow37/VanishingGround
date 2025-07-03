@@ -603,24 +603,33 @@ void EFileSystem::ReadDirectory()
 
 void EFileSystem::ReadDirectory(const File::Path& path) 
 {
-    File::Path extesion = path.extension();
-    File::Path genPath  = path.generic_string();
+    std::stack<File::Path> dirStack;
+    dirStack.push(path);
 
-    bool isValidExt = IsValidExtension(extesion);
-    bool isDirectory = fs::is_directory(genPath);
+    while (!dirStack.empty())
+    {
+        File::Path curPath  = dirStack.top();
+        dirStack.pop();
 
-    if (true == isDirectory || true == isValidExt)
-    {
-        RegisterContext(genPath);
-    }
-    if (true == isDirectory)
-    {
-        for (const auto& entry : fs::recursive_directory_iterator(genPath))
+        File::Path extesion = curPath.extension();
+        File::Path genPath  = curPath.generic_string();
+        bool isValidExt     = IsValidExtension(extesion);
+        bool isDirectory    = fs::is_directory(genPath);
+
+        if (true == isDirectory || true == isValidExt)
         {
-            // 경로를 재네릭화
-            File::Path genericPath = entry.path().generic_string();
-            ReadDirectory(genericPath);
+            RegisterContext(genPath);
         }
+        if (true == isDirectory)
+        {
+            for (const auto& entry : fs::directory_iterator(genPath))
+            {
+                File::Path entryPath        = entry.path();
+                File::Path genericEntryPath = entryPath.generic_string();
+                dirStack.push(genericEntryPath);
+            }
+        }
+       
     }
 }
 

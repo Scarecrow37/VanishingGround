@@ -17,6 +17,7 @@ void FileSystemModule::PreInitialize()
 
 void FileSystemModule::ModuleInitialize()
 {
+    // FileSystemModule is Only Call Editor Mode
     HWND hwnd = UmApplication.GetHwnd();
     DragAcceptFiles(hwnd, TRUE);
 
@@ -35,7 +36,8 @@ void FileSystemModule::PreUnInitialize()
 }
 
 void FileSystemModule::ModuleUnInitialize() 
-{}
+{
+}
 
 void FileSystemModule::OnRequestedSave() 
 {
