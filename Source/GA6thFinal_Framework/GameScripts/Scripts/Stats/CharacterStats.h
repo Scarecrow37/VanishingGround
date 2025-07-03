@@ -1,6 +1,7 @@
 ﻿#pragma once
-#include "UmFramework.h"
-struct CharacterStats : public ReflectSerializer
+#include "TurnActorStats.h"
+
+struct CharacterStats : public TurnActorStats
 {
     USING_PROPERTY(CharacterStats)
     REFLECT_PROPERTY(MaxHP, MaxMP, MaxChainRoundCount)
@@ -19,7 +20,7 @@ struct CharacterStats : public ReflectSerializer
     PROPERTY(MaxChainRoundCount)
 
 protected:
-    REFLECT_FIELDS_BEGIN(ReflectSerializer)
+    REFLECT_FIELDS_BEGIN(TurnActorStats)
     int MaxHP      = 100;
     int MaxMP      = 100;
     int MaxChainRoundCount = 1;

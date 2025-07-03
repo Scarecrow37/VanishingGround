@@ -296,6 +296,14 @@ void EditorHierarchyTool::SetFocusObject(const std::weak_ptr<GameObject>& object
     }
 }
 
+bool EditorHierarchyTool::SaveScene(Scene& scene)
+{
+    std::filesystem::path writePath = (std::string)scene.Path;
+    writePath                       = std::filesystem::relative(writePath, UmFileSystem.GetAssetPath()).parent_path();
+    UmSceneManager.WriteSceneToFile(scene, writePath.string(), true);
+    return true;
+}
+
 EditorHierarchyTool::EditorHierarchyTool()
 {
     SetLabel("Hierarchy");
@@ -489,6 +497,20 @@ void EditorHierarchyTool::KeyboardEvent()
     }
 }
 
+void EditorHierarchyTool::SerializedReflectEvent() 
+{
+    const auto& scenes = engineCore->SceneManager.GetLoadedScenes();
+    for (auto& scene : scenes)
+    {
+        SaveScene(*scene);
+    }
+}
+
+void EditorHierarchyTool::DeserializedReflectEvent() 
+{
+
+}
+
 void EditorHierarchyTool::OnFrameRender()
 {
     std::shared_ptr<GameObject> focusObject = static_hierarchyFocusObjWeak.lock();
@@ -520,9 +542,7 @@ void EditorHierarchyTool::OnFrameRender()
 
                     if (ImGui::MenuItem("Save Scene"))
                     {
-                        std::filesystem::path writePath = (std::string)scene.Path;
-                        writePath = std::filesystem::relative(writePath, UmFileSystem.GetAssetPath()).parent_path();
-                        UmSceneManager.WriteSceneToFile(scene, writePath.string(), true);
+                        SaveScene(scene);
                         ImGui::CloseCurrentPopup();
                     }
 

@@ -399,28 +399,31 @@ void ESceneManager::Engine::LoadStartScene()
 void ESceneManager::Engine::SwapPrefabInstance(GameObject* original, GameObject* remake)
 {
     ESceneManager& sceneManager = UmSceneManager;
-    int index = original->GetInstanceID();
-    std::shared_ptr<GameObject>& sOrigin = sceneManager._runtimeObjects[index];
-    if (nullptr != sOrigin)
+    if (original->IsValid())
     {
-        std::shared_ptr<GameObject> sRemake = remake->GetWeakPtr().lock();
-        std::swap(sOrigin->_instanceID, sRemake->_instanceID);
-        std::swap(sOrigin->_ownerScene, sRemake->_ownerScene);
-        std::swap(sOrigin, sRemake);
-        std::string objectData = sRemake->SerializedReflectFields();
-        sOrigin->DeserializedReflectFields(objectData);
-        sOrigin->_transform = sRemake->_transform;
-        sceneManager.EraseGameObjectMap(sRemake);
-        sceneManager.InsertGameObjectMap(sOrigin);
-        GameObject::Engine::UpdateActiveInHierarchy(sOrigin.get());
-
-        for (int i = 0; i < sOrigin->GetComponentCount(); ++i)
+        int index = original->GetInstanceID();
+        std::shared_ptr<GameObject>& sOrigin = sceneManager._runtimeObjects[index];
+        if (nullptr != sOrigin)
         {
-            Component* component = sOrigin->GetComponentAtIndex<Component>(i);
-            if (component)
+            std::shared_ptr<GameObject> sRemake = remake->GetWeakPtr().lock();
+            std::swap(sOrigin->_instanceID, sRemake->_instanceID);
+            std::swap(sOrigin->_ownerScene, sRemake->_ownerScene);
+            std::swap(sOrigin, sRemake);
+            std::string objectData = sRemake->SerializedReflectFields();
+            sOrigin->DeserializedReflectFields(objectData);
+            sOrigin->_transform = sRemake->_transform;
+            sceneManager.EraseGameObjectMap(sRemake);
+            sceneManager.InsertGameObjectMap(sOrigin);
+            GameObject::Engine::UpdateActiveInHierarchy(sOrigin.get());
+
+            for (int i = 0; i < sOrigin->GetComponentCount(); ++i)
             {
-                component->_initFlags.SetAwake();
-                component->_initFlags.SetStart();
+                Component* component = sOrigin->GetComponentAtIndex<Component>(i);
+                if (component)
+                {
+                    component->_initFlags.SetAwake();
+                    component->_initFlags.SetStart();
+                }
             }
         }
     }
@@ -1492,15 +1495,18 @@ void ESceneManager::SceneResourceManager::Update(SceneResourceManager& manager)
                                 meshRenderer.LoadModel(path.wstring());
                                 models.ModelUseComponentList[guid].emplace_back(pMeshComponent);
                                 UmSceneManager._runtimeMeshComponents.emplace_back(pMeshComponent);
-                                auto& animation = meshRenderer.GetModel()->GetAnimation();
-                                auto& skeleton  = meshRenderer.GetModel()->GetSkeleton();
-                                if (animation != nullptr && skeleton != nullptr)
+                                if (meshRenderer.GetType() == MeshRenderType::SKELETAL)
                                 {
-                                    std::shared_ptr<Animator> animator(new Animator);
-                                    animator->Initialize(animation, skeleton);
-                                    animator->SetActive(&pMeshComponent->EnableInHierarchy);
-                                    meshRenderer.SetAnimator(animator);
-                                    UmAnimationCore.RegisterAnimator(animator.get());
+                                    auto& animation = meshRenderer.GetModel()->GetAnimation();
+                                    auto& skeleton  = meshRenderer.GetModel()->GetSkeleton();
+                                    if (animation != nullptr && skeleton != nullptr)
+                                    {
+                                        std::shared_ptr<Animator> animator(new Animator);
+                                        animator->Initialize(animation, skeleton);
+                                        animator->SetActive(&pMeshComponent->EnableInHierarchy);
+                                        meshRenderer.SetAnimator(animator);
+                                        UmAnimationCore.RegisterAnimator(animator.get());
+                                    }
                                 }
                             }
                         }

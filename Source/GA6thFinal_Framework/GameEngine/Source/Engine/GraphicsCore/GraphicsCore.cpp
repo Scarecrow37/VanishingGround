@@ -26,9 +26,7 @@ void GraphicsCore::Initialize(HWND hwnd, UINT width, UINT height, FeatureLevel f
     Device.ResetCommands();
     Device.ResetComputeCommands();
 
-#ifdef _DEBUG
     DebugDrawCore.Initialize();
-#endif
  }
 
 void GraphicsCore::UpdateAnimation(const float deltaTime)
@@ -45,10 +43,7 @@ void GraphicsCore::Update(const float deltaTime)
 
 void GraphicsCore::Render()
 {
-#ifdef _DEBUG
     DebugDrawCore.Render();
-#endif
-
     Renderer.Render();
 }
 
