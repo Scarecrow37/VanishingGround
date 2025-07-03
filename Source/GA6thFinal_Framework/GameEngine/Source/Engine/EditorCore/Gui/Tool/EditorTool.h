@@ -79,6 +79,16 @@ private:
     /// </summary>
     virtual void OnFramePopupOpened();
 
+public:
+    /// <summary>
+    /// Dock을 분리합니다.
+    /// </summary>
+    void DetachToDock();
+    /// <summary>
+    /// Dock을 기존 레이아웃에 다시 위치시킵니다. (Demo::동작 보장이 안됨.)
+    /// </summary>
+    void AttachToDock();
+
 private:
     void PushStyle();
     void PopStyle();
@@ -118,6 +128,7 @@ private:
     bool                            _isFrameDisable         = false;    // [Internal] BeginDisabled 호출 여부
     bool                            _isFrameFocused         = false;    // [Internal] 이전 FrameFocus 여부
     bool                            _isFrameDrawed          = false;    // [Internal] 이전 FrameRender 호출 여부
+    ImGuiID                         _lastDockID             = 0;        // [Internal] 마지막 도킹 ID 
 
 public:
     inline void                     SetWindowClass(const ImGuiWindowClass& windowClass) { _imGuiWindowClass = windowClass; }

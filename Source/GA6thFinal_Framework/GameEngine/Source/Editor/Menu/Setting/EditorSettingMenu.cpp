@@ -19,7 +19,8 @@ void EditorMenuEditorSetting::OnMenu()
             }
             if (ImGui::MenuItem("Reset Layout"))
             {
-                editor->ResetGuiLayout();
+                auto& system = editor->GetDockWindowSystem();
+                system.ResetLayout();
             }
             ImGui::EndMenu();
         }

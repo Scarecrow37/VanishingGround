@@ -80,7 +80,12 @@ void EditorSequencerTool::OnFrameRender()
     }
     if (ImGui::CollapsingHeader("Timeline Notifies"))
     {
-        ShowTimelineNotifies();
+        //ShowTimelineNotifies();
+        auto window = GetImGuiWindow();
+        ImGui::Text("DockId: %d", window->DockId);
+        ImGui::Text("DockIsActive: %d", window->DockIsActive);
+        ImGui::Text("DockNode: %p", window->DockNode);
+        ImGui::Text("DockNode: %p", window->DockNodeAsHost);
     }
     ImGui::EndChild();
    

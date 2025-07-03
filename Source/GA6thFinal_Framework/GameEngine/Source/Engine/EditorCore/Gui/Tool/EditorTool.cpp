@@ -59,6 +59,23 @@ void EditorTool::OnFrameFocusStay() {}
 void EditorTool::OnFrameFocusExit() {}
 void EditorTool::OnFramePopupOpened() {}
 
+void EditorTool::DetachToDock() 
+{
+    if (nullptr != _ownerDockWindow)
+    {
+        ImGui::SetWindowDock(_imguiWindow, 0, ImGuiCond_Always);
+    }
+}
+
+void EditorTool::AttachToDock() 
+{
+    if (nullptr != _ownerDockWindow)
+    {
+        ImGuiID dockID = _ownerDockWindow->GetDockSplitID(GetDockLayout());
+        ImGui::SetWindowDock(_imguiWindow, dockID, ImGuiCond_Always);
+    }
+}
+
 void EditorTool::PushStyle() 
 {
     if (true == HasEditorToolFlags(EDITORTOOL_FLAGS_NO_PADDING))
@@ -86,6 +103,9 @@ void EditorTool::BeginFrame()
     // 속한 도킹스페이스가 있으면 윈도우 클래스 지정
     if (nullptr != owner)
     {
+        if (true == owner->IsBuildingDockLayout())
+            owner->SetGuiDockLayout(this);
+
         auto& windowClass = owner->GetWindowClass();
         ImGui::SetNextWindowClass(&windowClass);
     }
@@ -132,12 +152,6 @@ void EditorTool::InitFrame()
             ImVec2 clientPos = ImGui::GetMainViewport()->Pos;
             ImGui::SetNextWindowPos(clientPos + _pos.second, ImGuiCond_FirstUseEver);
             _pos.first = false;
-        }
-        // Init DockLayout
-        if (nullptr != _ownerDockWindow)
-        {
-            _ownerDockWindow->SetDockBuildWindow(_label, _dockLayout.second);
-            _dockLayout.first = false;
         }
     }
 }
