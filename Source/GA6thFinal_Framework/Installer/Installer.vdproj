@@ -93,12 +93,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_037FDE2A5F7641B18CB462EF67E1EF6E"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_039F17E6C09049CAA42EEDD8ADCA30DC"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -705,12 +699,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_1AC300D8EEE6453FA3E6C68B4181AE33"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_1ADFBFBDA31149F287261B5473D42A9D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -724,6 +712,12 @@
         "Entry"
         {
         "MsmKey" = "8:_1B48EE8944394E51A51790962701801A"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_1B769567DBBB4112B44C04D3BB0BDE2D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -886,6 +880,12 @@
         "Entry"
         {
         "MsmKey" = "8:_2266A161750E462C850CCB6FC83FE5E1"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_227CE9B3F71844D5A114FD8A1D462238"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -2187,12 +2187,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_4FA815B0C50D42239E5AFB2D32730493"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_4FB2FDC018744477943AAB035010BD34"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -2607,12 +2601,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_5E9432003E374D88AD7D17A79DA979CC"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_5EB53FA98EAB4F778DBC5B49DA34A1A4"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -2865,6 +2853,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_662DADCDE9584F8A9FCB0B6052302DFC"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_662E1A6158C14ED89932F4EA081E075D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -2925,6 +2919,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_694575FB216E4BC5923FBDD72726C47C"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_69D2A2E952774E5E9F05490C91328FFF"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -2938,6 +2938,12 @@
         "Entry"
         {
         "MsmKey" = "8:_6A8D5C86A95B400DB927D074719B1A47"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_6AC123E5D0764DB1BC8D2CAA4DA80F7F"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -3136,6 +3142,12 @@
         "Entry"
         {
         "MsmKey" = "8:_7097020E9E8849A6885760906A5B15C0"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_70BA6C395DFB43F995B1C3E24D7D3471"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -4509,12 +4521,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_A215415D4D6E436CA419D7742E92728E"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_A2F12F848B1D4004A97735E5BF484FC1"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -4605,12 +4611,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_A7AD8F27FCA34C8BA83CC37DC2B011F8"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_A7F21567421148DA84E1A2AFBE2728C7"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -4690,12 +4690,6 @@
         "Entry"
         {
         "MsmKey" = "8:_AC0E8608CE5E49218236AA4DAB217258"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_AC11643785EB4D48B1C803D0875CB8FF"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -4858,12 +4852,6 @@
         "Entry"
         {
         "MsmKey" = "8:_B32A5485ABBA4D3BBEA9C12E1A23FF84"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_B34341766AF4463F90115284A7558528"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -5722,12 +5710,6 @@
         "Entry"
         {
         "MsmKey" = "8:_D07BF254883E436D948B59C3D47AD064"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_D0DF186709D14EB0B6F1E728AD7432DC"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -6765,12 +6747,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_F3C6C0E5F17F4B6BA6B3A0542EE94D65"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_F3E56BF7A1B24713BB7E49EEDC322020"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -7503,26 +7479,6 @@
             "TargetName" = "8:Profiler.h"
             "Tag" = "8:"
             "Folder" = "8:_F068524E79C147DD80807580C1F74A11"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_037FDE2A5F7641B18CB462EF67E1EF6E"
-            {
-            "SourcePath" = "8:..\\GameEngine\\bin\\ReleaseEditor\\GameEngine.lib"
-            "TargetName" = "8:GameEngine.lib"
-            "Tag" = "8:"
-            "Folder" = "8:_8CD023A4EB2E400E88232F5F4BD1CCB9"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -9557,26 +9513,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1AC300D8EEE6453FA3E6C68B4181AE33"
-            {
-            "SourcePath" = "8:..\\GameScripts\\bin\\ReleaseEditor\\GameScripts.dll"
-            "TargetName" = "8:GameScripts.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_5F0FA457F6A34D5F8ED4218D89E72E9D"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1ADFBFBDA31149F287261B5473D42A9D"
             {
             "SourcePath" = "8:..\\GameEngine\\Source\\Engine\\Imgui\\crude_json.h"
@@ -9623,6 +9559,26 @@
             "TargetName" = "8:MemoryIOWrapper.h"
             "Tag" = "8:"
             "Folder" = "8:_F068524E79C147DD80807580C1F74A11"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1B769567DBBB4112B44C04D3BB0BDE2D"
+            {
+            "SourcePath" = "8:..\\GameEngine\\Source\\Editor\\Tool\\Scene\\EditorSceneTool.cpp"
+            "TargetName" = "8:EditorSceneTool.cpp"
+            "Tag" = "8:"
+            "Folder" = "8:_9D40F15F90D644D390FFB6E1C41AB833"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -10163,6 +10119,26 @@
             "TargetName" = "8:ImGuizmo.cpp"
             "Tag" = "8:"
             "Folder" = "8:_C36FD0EA01664442A67605B13C32A6B1"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_227CE9B3F71844D5A114FD8A1D462238"
+            {
+            "SourcePath" = "8:..\\GameScripts.sln"
+            "TargetName" = "8:GameScripts.sln"
+            "Tag" = "8:"
+            "Folder" = "8:_8F40E98B052A4546870F24792BFD6B45"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -14477,26 +14453,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4FA815B0C50D42239E5AFB2D32730493"
-            {
-            "SourcePath" = "8:..\\GameScripts.sln"
-            "TargetName" = "8:GameScripts.sln"
-            "Tag" = "8:"
-            "Folder" = "8:_8F40E98B052A4546870F24792BFD6B45"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4FB2FDC018744477943AAB035010BD34"
             {
             "SourcePath" = "8:..\\GameEngine\\Source\\Editor\\Tool\\AssetBrowser\\EditorAssetBrowserTool.h"
@@ -15877,26 +15833,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5E9432003E374D88AD7D17A79DA979CC"
-            {
-            "SourcePath" = "8:..\\GA6thFinal_Framework.sln"
-            "TargetName" = "8:GA6thFinal_Framework.sln"
-            "Tag" = "8:"
-            "Folder" = "8:_8F40E98B052A4546870F24792BFD6B45"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5EB53FA98EAB4F778DBC5B49DA34A1A4"
             {
             "SourcePath" = "8:..\\GameEngine\\ThirdParty\\include\\rfl\\parsing\\Parser_box.hpp"
@@ -16737,6 +16673,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_662DADCDE9584F8A9FCB0B6052302DFC"
+            {
+            "SourcePath" = "8:..\\GameEngine\\bin\\ReleaseEditor\\GameEngine.lib"
+            "TargetName" = "8:GameEngine.lib"
+            "Tag" = "8:"
+            "Folder" = "8:_8CD023A4EB2E400E88232F5F4BD1CCB9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_662E1A6158C14ED89932F4EA081E075D"
             {
             "SourcePath" = "8:..\\GameEngine\\Source\\Engine\\Utility\\Random.cpp"
@@ -16937,6 +16893,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_694575FB216E4BC5923FBDD72726C47C"
+            {
+            "SourcePath" = "8:..\\GA6thFinal_Framework.sln"
+            "TargetName" = "8:GA6thFinal_Framework.sln"
+            "Tag" = "8:"
+            "Folder" = "8:_8F40E98B052A4546870F24792BFD6B45"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_69D2A2E952774E5E9F05490C91328FFF"
             {
             "SourcePath" = "8:..\\Shaders\\ps_blend.hlsl"
@@ -16983,6 +16959,26 @@
             "TargetName" = "8:SpriteFont.h"
             "Tag" = "8:"
             "Folder" = "8:_C389DEBDF2CE491D901C0FF79D26522F"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6AC123E5D0764DB1BC8D2CAA4DA80F7F"
+            {
+            "SourcePath" = "8:..\\GameEngine\\Source\\Engine\\GraphicsCore\\GraphicsCore.h"
+            "TargetName" = "8:GraphicsCore.h"
+            "Tag" = "8:"
+            "Folder" = "8:_AD0BCD7A7EDD472AACB2BB70583B0B17"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -17643,6 +17639,26 @@
             "TargetName" = "8:pugiconfig.hpp"
             "Tag" = "8:"
             "Folder" = "8:_61899AD9C32A4B87B8455A4FB9257B86"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_70BA6C395DFB43F995B1C3E24D7D3471"
+            {
+            "SourcePath" = "8:..\\GameEngine\\bin\\ReleaseEditor\\GameEngine.pdb"
+            "TargetName" = "8:GameEngine.pdb"
+            "Tag" = "8:"
+            "Folder" = "8:_8CD023A4EB2E400E88232F5F4BD1CCB9"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -22217,26 +22233,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A215415D4D6E436CA419D7742E92728E"
-            {
-            "SourcePath" = "8:..\\GameEngine\\bin\\ReleaseEditor\\GameEngine.pdb"
-            "TargetName" = "8:GameEngine.pdb"
-            "Tag" = "8:"
-            "Folder" = "8:_8CD023A4EB2E400E88232F5F4BD1CCB9"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A2F12F848B1D4004A97735E5BF484FC1"
             {
             "SourcePath" = "8:..\\GameEngine\\ThirdParty\\include\\directx\\d3dx12_property_format_table.h"
@@ -22537,26 +22533,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A7AD8F27FCA34C8BA83CC37DC2B011F8"
-            {
-            "SourcePath" = "8:..\\GameScripts\\bin\\ReleaseEditor\\GameScripts.pdb"
-            "TargetName" = "8:GameScripts.pdb"
-            "Tag" = "8:"
-            "Folder" = "8:_5F0FA457F6A34D5F8ED4218D89E72E9D"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A7F21567421148DA84E1A2AFBE2728C7"
             {
             "SourcePath" = "8:..\\GameEngine\\ThirdParty\\include\\rfl\\json\\schema\\Type.hpp"
@@ -22823,26 +22799,6 @@
             "TargetName" = "8:TestComponent.h"
             "Tag" = "8:"
             "Folder" = "8:_D1BBFFF4796A4BCDAB11403F49298854"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_AC11643785EB4D48B1C803D0875CB8FF"
-            {
-            "SourcePath" = "8:..\\GameEngine\\Source\\Editor\\Tool\\Scene\\EditorSceneTool.cpp"
-            "TargetName" = "8:EditorSceneTool.cpp"
-            "Tag" = "8:"
-            "Folder" = "8:_9D40F15F90D644D390FFB6E1C41AB833"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -23383,26 +23339,6 @@
             "TargetName" = "8:Base64.hpp"
             "Tag" = "8:"
             "Folder" = "8:_F068524E79C147DD80807580C1F74A11"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B34341766AF4463F90115284A7558528"
-            {
-            "SourcePath" = "8:..\\GameScripts\\bin\\ReleaseEditor\\GameScripts.exp"
-            "TargetName" = "8:GameScripts.exp"
-            "Tag" = "8:"
-            "Folder" = "8:_5F0FA457F6A34D5F8ED4218D89E72E9D"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -26263,26 +26199,6 @@
             "TargetName" = "8:emitter.h"
             "Tag" = "8:"
             "Folder" = "8:_81D10A51E5BF4FDEB24768F51C82953B"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D0DF186709D14EB0B6F1E728AD7432DC"
-            {
-            "SourcePath" = "8:..\\GameScripts\\bin\\ReleaseEditor\\GameScripts.lib"
-            "TargetName" = "8:GameScripts.lib"
-            "Tag" = "8:"
-            "Folder" = "8:_5F0FA457F6A34D5F8ED4218D89E72E9D"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -29737,26 +29653,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F3C6C0E5F17F4B6BA6B3A0542EE94D65"
-            {
-            "SourcePath" = "8:..\\GameEngine\\Source\\Engine\\GraphicsCore\\GraphicsCore.h"
-            "TargetName" = "8:GraphicsCore.h"
-            "Tag" = "8:"
-            "Folder" = "8:_AD0BCD7A7EDD472AACB2BB70583B0B17"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F3E56BF7A1B24713BB7E49EEDC322020"
             {
             "SourcePath" = "8:..\\GameEngine\\Source\\Engine\\Imgui\\imgui_widgets.cpp"
@@ -32818,28 +32714,6 @@
                                     }
                                 }
                             }
-                            "{9EF0B969-E518-4E46-987F-47570745A589}:_DC332A43781743E0B36B0DA165D682ED"
-                            {
-                            "Name" = "8:bin"
-                            "AlwaysCreate" = "11:FALSE"
-                            "Condition" = "8:"
-                            "Transitive" = "11:FALSE"
-                            "Property" = "8:_653A6A59943D4B3ABC8F8A43E80E5EE5"
-                                "Folders"
-                                {
-                                    "{9EF0B969-E518-4E46-987F-47570745A589}:_5F0FA457F6A34D5F8ED4218D89E72E9D"
-                                    {
-                                    "Name" = "8:ReleaseEditor"
-                                    "AlwaysCreate" = "11:FALSE"
-                                    "Condition" = "8:"
-                                    "Transitive" = "11:FALSE"
-                                    "Property" = "8:_6844DFE4E5E144DE93785CBEAA405BC3"
-                                        "Folders"
-                                        {
-                                        }
-                                    }
-                                }
-                            }
                         }
                     }
                     "{9EF0B969-E518-4E46-987F-47570745A589}:_C9F999A467504237A1A8D969B48D3969"
@@ -32904,15 +32778,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Umreal Engine"
-        "ProductCode" = "8:{CBEDFD89-A19C-47FD-A0B7-D3183C4688AF}"
-        "PackageCode" = "8:{3213FF89-A40F-441D-80CD-F152BA5C3F8D}"
+        "ProductCode" = "8:{E2E61EDE-CB2A-4F44-9B0B-628485381BAF}"
+        "PackageCode" = "8:{AE592A25-67E5-4A46-AA44-69B62D9058B9}"
         "UpgradeCode" = "8:{43C62E9B-CAB0-4C45-9035-CFD2A4296D61}"
         "AspNetVersion" = "8:"
         "RestartWWWService" = "11:FALSE"
-        "RemovePreviousVersions" = "11:FALSE"
+        "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.2.0"
+        "ProductVersion" = "8:1.2.3"
         "Manufacturer" = "8:Studio UM"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:https://github.com/Scarecrow37/VanishingGround/issues"
