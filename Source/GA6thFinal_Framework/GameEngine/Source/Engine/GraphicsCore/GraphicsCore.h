@@ -21,9 +21,7 @@
 #include "Defines.h"
 #include "Externs.h"
 
-#ifdef _DEBUG
 #include "DebugDrawCore.h"
-#endif
 
 class GraphicsCore
 {
@@ -37,10 +35,7 @@ public:
     MultiRenderTargetManager MultiRenderTargetManager;
     ParticleManager          ParticleManager;
     DXResourceManager        DXResourceManager;
-
-#ifdef _DEBUG
-    DebugDrawCore DebugDrawCore;
-#endif
+    DebugDrawCore            DebugDrawCore;
 
 public:
     void Initialize(HWND hwnd, UINT width, UINT height, FeatureLevel feature);
