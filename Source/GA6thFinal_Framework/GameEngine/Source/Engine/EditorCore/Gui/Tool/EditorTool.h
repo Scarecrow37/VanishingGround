@@ -83,11 +83,11 @@ public:
     /// <summary>
     /// Dock을 분리합니다.
     /// </summary>
-    void DetachToDock();
+    void DetachLayoutToDock();
     /// <summary>
     /// Dock을 기존 레이아웃에 다시 위치시킵니다. (Demo::동작 보장이 안됨.)
     /// </summary>
-    void AttachToDock();
+    void ResetLayoutToDock();
 
 private:
     void PushStyle();

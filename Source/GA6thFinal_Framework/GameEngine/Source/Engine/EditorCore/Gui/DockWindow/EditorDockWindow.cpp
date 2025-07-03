@@ -2,7 +2,12 @@
 #include "EditorDockWindow.h"
 
 EditorDockWindow::EditorDockWindow() 
-: _needBuildDockLayout(true), _dockWindowOptionFlags(0) {}
+: _needBuildDockLayout(true)
+, _isBuildingDockLayout(false)
+, _dockWindowOptionFlags(0)
+, _dockSplitMainID(0)
+, _imGuiDockFlags(0)
+{}
 
 EditorDockWindow::~EditorDockWindow() 
 {
@@ -182,12 +187,6 @@ bool EditorDockWindow::BeginBuildDockLayout()
             _dockSplitIDTable[direction] = id;
         }
         _dockSplitIDTable[ImGuiDir_None] = dock_main_id;
-
-        //// Gui를 순회하며 Layout에 맞게 Build
-        //for (auto& [label, tool] : _editorToolTable)
-        //{
-        //    SetGuiDockLayout(tool);
-        //}
         return true;
     }
     return false;

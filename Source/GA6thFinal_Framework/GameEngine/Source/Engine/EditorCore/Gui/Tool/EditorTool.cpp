@@ -59,7 +59,7 @@ void EditorTool::OnFrameFocusStay() {}
 void EditorTool::OnFrameFocusExit() {}
 void EditorTool::OnFramePopupOpened() {}
 
-void EditorTool::DetachToDock() 
+void EditorTool::DetachLayoutToDock()
 {
     if (nullptr != _ownerDockWindow)
     {
@@ -67,7 +67,7 @@ void EditorTool::DetachToDock()
     }
 }
 
-void EditorTool::AttachToDock() 
+void EditorTool::ResetLayoutToDock()
 {
     if (nullptr != _ownerDockWindow)
     {
