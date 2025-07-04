@@ -1,9 +1,10 @@
 ﻿#include "pch.h"
 #include "Controller.h"
+#include "Adapter.h"
 
 namespace Input
 {
-    Controller::Controller(const ControllerAdapter* adapter) : _adapter(adapter), _id(INVALID_ID), _state{} {}
+    Controller::Controller(const Adapter* adapter) : _adapter(adapter), _id(ControllerTypes::INVALID_ID), _state{} {}
 
     void Controller::Connect()
     {
@@ -16,7 +17,7 @@ namespace Input
 
     bool Controller::IsConnected() const noexcept
     {
-        return _id != INVALID_ID;
+        return _id != ControllerTypes::INVALID_ID;
     }
 
     void Controller::UpdateState()
@@ -30,7 +31,7 @@ namespace Input
         }
         catch (const DeviceNotConnectedException&)
         {
-            _id = INVALID_ID;
+            _id = ControllerTypes::INVALID_ID;
             throw;
         }
     }
