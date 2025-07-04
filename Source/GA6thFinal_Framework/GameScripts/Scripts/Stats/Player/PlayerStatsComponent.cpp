@@ -5,7 +5,7 @@
 PlayerStatsComponent::PlayerStatsComponent() = default;
 PlayerStatsComponent::~PlayerStatsComponent() = default;
 
-CharacterStats* PlayerStatsComponent::NewCharacterStats()
+TurnActorStats* PlayerStatsComponent::NewTurnActorStats()
 {
     _stats = new PlayerStats;
     return _stats;

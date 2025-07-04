@@ -121,6 +121,7 @@ void EditorModule::OpenPopupBox(const std::string& name, std::function<void()> c
 void EditorModule::ResetGuiLayout() 
 {
     _eventQueue.push([this]() {
+        ImGui::ClearIniSettings();
         ImGui::LoadIniSettingsFromMemory(_imGuiIniDataFromIniFile.c_str());
         ImGui::GetIO().IniFilename = nullptr; // 인스턴스가 파괴될 때까지 저장하지 않음
     });
@@ -129,6 +130,7 @@ void EditorModule::ResetGuiLayout()
 void EditorModule::UndoGuiLayout() 
 {
     _eventQueue.push([this]() {
+        ImGui::ClearIniSettings();
         ImGui::LoadIniSettingsFromMemory(_imGuiIniDataFromSetting.c_str());
         ImGui::GetIO().IniFilename = nullptr; // 인스턴스가 파괴될 때까지 저장하지 않음
     });
@@ -236,6 +238,8 @@ void EditorModule::EditorPlayMode::Play()
 {
     if (false == _isPlay)
     {
+        UmCommandManager.Clear();
+
         Scene* scene = UmSceneManager.GetMainScene();
         if (nullptr != scene)
         {
@@ -282,6 +286,8 @@ void EditorModule::EditorPlayMode::Stop()
 {
     if (true == _isPlay)
     {
+        UmCommandManager.Clear();
+
         for (const auto& object : ESceneManager::Engine::GetRuntimeObjects())
         {
             if (object)

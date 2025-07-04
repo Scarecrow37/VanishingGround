@@ -143,9 +143,9 @@ void EditorAssetBrowserTool::ShowFolderDirectoryPath(spFolderContext context)
         ImVec2 pos        = ImGui::GetCursorPos();
         {
            
-            const char* icon        = EditorIcon::ICON_CIRCLE_ARROW_LEFT;
-            ImVec2      size        = ImGui::CalcTextSize(icon);
-            int         flags       = canUndo ? ImGuiSelectableFlags_None : ImGuiSelectableFlags_Disabled;
+            const char* icon  = EditorIcon::ICON_CIRCLE_ARROW_LEFT;
+            ImVec2      size  = ImGui::CalcTextSize(icon);
+            int         flags = canUndo ? ImGuiSelectableFlags_None : ImGuiSelectableFlags_Disabled;
 
             if (ImGui::Selectable(icon, false, flags, size))
             {

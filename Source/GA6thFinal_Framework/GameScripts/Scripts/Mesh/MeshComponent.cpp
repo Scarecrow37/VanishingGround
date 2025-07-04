@@ -1,5 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "MeshComponent.h"
+#include <Engine/GraphicsCore/Animator.h>
 
 MeshComponent::MeshComponent() 
     : 
@@ -13,7 +14,22 @@ MeshComponent::~MeshComponent()
     if (Renderer)
     {
         Renderer->SetDestroy();
+        const std::shared_ptr<Animator>& animator = Renderer->GetAnimator();
+        if (animator)
+        {
+            animator->SetDestroy();
+        }     
     }
+}
+
+bool MeshComponent::HasModel()
+{
+    return nullptr != Renderer->GetModel();
+}
+
+bool MeshComponent::HasAnimator()
+{
+    return nullptr != Renderer->GetAnimator();
 }
 
 void MeshComponent::MakeMeshRenderer(MeshRenderType renderType, const Matrix& world)
@@ -30,7 +46,3 @@ void MeshComponent::MakeMeshRenderer(MeshRenderType renderType, const Matrix& wo
     }
 }
 
-void MeshComponent::OnDrawDebugSelected()
-{
-    Renderer->SetCustomDepth(PostProcess::OUTLINE);
-}

@@ -25,7 +25,7 @@ class EFileSystem
 
 public:
     EFileSystem();
-    ~EFileSystem();
+    ~EFileSystem() = default;
 
 public:
     bool LoadGameDirectory();

@@ -324,6 +324,7 @@ void TimelineSystem::DeserializedReflectEvent()
         TimelineNotify* notify = new TimelineNotify();
         notify->DeserializedReflectFields(data);
         _timelineNotifyQueue.push_back(notify);
+        _idToNotifyTable[notify->ID] = notify;
     }
     Sort();
 }

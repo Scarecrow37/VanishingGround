@@ -597,18 +597,6 @@
     <ClInclude Include="Source\Engine\GraphicsCore\Light.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\InputCore\Devices\Controller\Controller.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\InputCore\Adapter\Adapter.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\InputCore\Adapter\Controller\ControllerAdapter.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\InputCore\Adapter\Controller\XInput\XInputAdapter.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Utility\Random.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -675,7 +663,7 @@
     <ClInclude Include="Source\Engine\GraphicsCore\BlendPass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\EngineCore\TimelineSystem.h">
+    <ClInclude Include="Source\Engine\TimelineCore\TimelineSystem.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Editor\Tool\Sequencer\EditorSequencerTool.h">
@@ -699,6 +687,12 @@
     <ClInclude Include="Source\Engine\GraphicsCore\DebugDrawCore.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+        <ClInclude Include="Source\Engine\TimelineCore\AnimationNotifySet.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Tool\Model\EditorAnimationNotifyTool.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Engine\GraphicsCore\EditorDrawTechnique.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -715,9 +709,6 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\GameCore\InputReciver\InputReceiver.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\InputCore\Declare\Exceptions\InputExceptions.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1154,18 +1145,6 @@
     <ClCompile Include="Source\Engine\GraphicsCore\Light.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\InputCore\Devices\Controller\Controller.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\InputCore\Adapter\Adapter.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\InputCore\Adapter\Controller\ControllerAdapter.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\InputCore\Adapter\Controller\XInput\XInputAdapter.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\Utility\Random.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -1250,7 +1229,7 @@
     <ClCompile Include="Source\Engine\GraphicsCore\DepthStencilView.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\EngineCore\TimelineSystem.cpp">
+    <ClCompile Include="Source\Engine\TimelineCore\TimelineSystem.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Editor\Tool\Sequencer\EditorSequencerTool.cpp">
@@ -1289,7 +1268,10 @@
     <ClCompile Include="Source\Engine\GraphicsCore\DXResourceManager.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\InputCore\Declare\Exceptions\InputExceptions.cpp">
+    <ClCompile Include="Source\Engine\TimelineCore\AnimationNotifySet.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\Model\EditorAnimationNotifyTool.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

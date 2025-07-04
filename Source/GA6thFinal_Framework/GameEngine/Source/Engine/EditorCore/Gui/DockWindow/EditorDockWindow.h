@@ -58,12 +58,16 @@ public:
     bool RegisterChildDockWindow(EditorDockWindow* childDockWindow);
 
     /* DockBuild */
+    bool IsBuildingDockLayout() const;
     void CreateDockLayoutNode(ImGuiDir direction, float ratio);
-    bool SetDockBuildWindow(const std::string& label, ImGuiDir direction);
+    bool SetGuiDockLayout(EditorTool* tool);
+    ImGuiID GetDockSplitID(int split) const;
+    void RequestBuildDockLayout();
 
 private:
-    /* 최초로 에디터를 킬 경우 초기 툴의 DockSpace 공간 지정 */
-    void InitDockLayout();
+    /* 초기 툴의 DockSpace 공간 빌드 */
+    bool BeginBuildDockLayout();
+    void EndBuildDockLayout();
     /* DockSpace를 현재의 Flag, Style 기반으로 등록 */
     void SubmitDockSpace();
     /* DockWindow Flag 업데이트 (SubmitDockSpace 이전에 호출해야 함) */
@@ -80,7 +84,8 @@ private:
     MenuTable                           _editorMenuTable;           /* 등록된 메뉴 리스트 */
     DockWindowTable                     _dockWindowTable;           /* 등록된 도킹 윈도우 리스트 */
 
-    bool                                _isDockBuilding = false;    /* 도킹 빌드 중인지 여부 */
+    bool                                _needBuildDockLayout;       /* 도킹 빌드 중인지 여부 */
+    bool                                _isBuildingDockLayout;      /* 도킹 빌드 중인지 여부 */
     int                                 _dockWindowOptionFlags;     /* 도킹 윈도우 플래그 값 */
 
     ImGuiID                             _dockSplitMainID;           /* 메인 도킹영역에 대한 ID값 */

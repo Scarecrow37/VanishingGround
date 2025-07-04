@@ -2,8 +2,8 @@
 
 class EditorDragState
 {
-    using State = int;
 public:
+    using State = int;
     enum EState
     {
         DRAG_STATE_NONE = 0,
@@ -23,11 +23,14 @@ public:
     ~EditorDragState();
 
 public:
+    void    ClearDragState();
     void    SetDragState(UINT id, State state);
     void    SetDragState(const char* id, State state);
-    State   BeginDragState(UINT id, const ImRect& dragRect, const ImVec2& mousePos, ImGuiMouseButton mouseType,
+    State   BeginDragState(UINT id, const ImRect& dragRect, const ImVec2& mousePos,
+                           ImGuiMouseButton mouseType = ImGuiMouseButton_Left,
                            int flags = DRAG_FLAG_NONE);
-    State   BeginDragState(const char* id, const ImRect& dragRect, const ImVec2& mousePos, ImGuiMouseButton mouseType,
+    State   BeginDragState(const char* id, const ImRect& dragRect, const ImVec2& mousePos,
+                           ImGuiMouseButton mouseType = ImGuiMouseButton_Left,
                            int flags = DRAG_FLAG_NONE);
     bool    RemoveDragState(UINT id);
     bool    RemoveDragState(const char* id);
@@ -36,6 +39,10 @@ public:
     size_t  GetDraggingCount() const;
     bool    IsDragging(State state) const;
     bool    IsDragging() const;
+    bool    IsDraggingOnly(UINT id) const;
+    bool    IsDraggingOnly(const char* id) const;
+
+    const std::unordered_map<ImGuiID, State>& GetDragStateTable() const { return _dragState; }
 
 private:
     std::unordered_map<ImGuiID, State> _dragState;

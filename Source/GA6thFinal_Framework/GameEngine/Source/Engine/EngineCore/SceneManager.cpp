@@ -399,28 +399,31 @@ void ESceneManager::Engine::LoadStartScene()
 void ESceneManager::Engine::SwapPrefabInstance(GameObject* original, GameObject* remake)
 {
     ESceneManager& sceneManager = UmSceneManager;
-    int index = original->GetInstanceID();
-    std::shared_ptr<GameObject>& sOrigin = sceneManager._runtimeObjects[index];
-    if (nullptr != sOrigin)
+    if (original->IsValid())
     {
-        std::shared_ptr<GameObject> sRemake = remake->GetWeakPtr().lock();
-        std::swap(sOrigin->_instanceID, sRemake->_instanceID);
-        std::swap(sOrigin->_ownerScene, sRemake->_ownerScene);
-        std::swap(sOrigin, sRemake);
-        std::string objectData = sRemake->SerializedReflectFields();
-        sOrigin->DeserializedReflectFields(objectData);
-        sOrigin->_transform = sRemake->_transform;
-        sceneManager.EraseGameObjectMap(sRemake);
-        sceneManager.InsertGameObjectMap(sOrigin);
-        GameObject::Engine::UpdateActiveInHierarchy(sOrigin.get());
-
-        for (int i = 0; i < sOrigin->GetComponentCount(); ++i)
+        int index = original->GetInstanceID();
+        std::shared_ptr<GameObject>& sOrigin = sceneManager._runtimeObjects[index];
+        if (nullptr != sOrigin)
         {
-            Component* component = sOrigin->GetComponentAtIndex<Component>(i);
-            if (component)
+            std::shared_ptr<GameObject> sRemake = remake->GetWeakPtr().lock();
+            std::swap(sOrigin->_instanceID, sRemake->_instanceID);
+            std::swap(sOrigin->_ownerScene, sRemake->_ownerScene);
+            std::swap(sOrigin, sRemake);
+            std::string objectData = sRemake->SerializedReflectFields();
+            sOrigin->DeserializedReflectFields(objectData);
+            sOrigin->_transform = sRemake->_transform;
+            sceneManager.EraseGameObjectMap(sRemake);
+            sceneManager.InsertGameObjectMap(sOrigin);
+            GameObject::Engine::UpdateActiveInHierarchy(sOrigin.get());
+
+            for (int i = 0; i < sOrigin->GetComponentCount(); ++i)
             {
-                component->_initFlags.SetAwake();
-                component->_initFlags.SetStart();
+                Component* component = sOrigin->GetComponentAtIndex<Component>(i);
+                if (component)
+                {
+                    component->_initFlags.SetAwake();
+                    component->_initFlags.SetStart();
+                }
             }
         }
     }
@@ -1492,15 +1495,18 @@ void ESceneManager::SceneResourceManager::Update(SceneResourceManager& manager)
                                 meshRenderer.LoadModel(path.wstring());
                                 models.ModelUseComponentList[guid].emplace_back(pMeshComponent);
                                 UmSceneManager._runtimeMeshComponents.emplace_back(pMeshComponent);
-                                auto& animation = meshRenderer.GetModel()->GetAnimation();
-                                auto& skeleton  = meshRenderer.GetModel()->GetSkeleton();
-                                if (animation != nullptr && skeleton != nullptr)
+                                if (meshRenderer.GetType() == MeshRenderType::SKELETAL)
                                 {
-                                    std::shared_ptr<Animator> animator(new Animator);
-                                    animator->Initialize(animation, skeleton);
-                                    animator->SetActive(&pMeshComponent->EnableInHierarchy);
-                                    meshRenderer.SetAnimator(animator);
-                                    UmAnimationCore.RegisterAnimator(animator.get());
+                                    auto& animation = meshRenderer.GetModel()->GetAnimation();
+                                    auto& skeleton  = meshRenderer.GetModel()->GetSkeleton();
+                                    if (animation != nullptr && skeleton != nullptr)
+                                    {
+                                        std::shared_ptr<Animator> animator(new Animator);
+                                        animator->Initialize(animation, skeleton);
+                                        animator->SetActive(&pMeshComponent->EnableInHierarchy);
+                                        meshRenderer.SetAnimator(animator);
+                                        UmAnimationCore.RegisterAnimator(animator.get());
+                                    }
                                 }
                             }
                         }
@@ -1518,19 +1524,23 @@ void ESceneManager::SceneResourceManager::Update(SceneResourceManager& manager)
 
 void ESceneManager::SceneResourceManager::RequestModelResource(const MeshComponent* meshComponent, const File::Guid& guid)
 {
-    File::Path path = UmFileSystem.GetPathFromGuid(guid);
-    if (false == path.IsNull())
+    if (meshComponent->gameObject->IsValid())
     {
-        if (auto sharedPtr = meshComponent->GetWeakPtr().lock())
+        File::Path path = UmFileSystem.GetPathFromGuid(guid);
+        if (false == path.IsNull())
         {
-            std::weak_ptr<MeshComponent> weakPtr = std::static_pointer_cast<MeshComponent>(sharedPtr);
-            auto                         pair    = std::make_pair(weakPtr, guid);
-            _models.ModelLoadQueue.push(pair);
+            if (auto sharedPtr = meshComponent->GetWeakPtr().lock())
+            {
+                std::weak_ptr<MeshComponent> weakPtr = std::static_pointer_cast<MeshComponent>(sharedPtr);
+                auto                         pair    = std::make_pair(weakPtr, guid);
+                _models.ModelLoadQueue.push(pair);
+            }
         }
-    }
-    else
-    {
-        UmLogger.Log(LogLevel::LEVEL_WARNING, std::format("{}{}", guid.string(), u8"는 존재하지 않는 리소스입니다."_c_str));
+        else
+        {
+            UmLogger.Log(LogLevel::LEVEL_WARNING,
+                         std::format("{}{}", guid.string(), u8"는 존재하지 않는 리소스입니다."_c_str));
+        }
     }
 }
 
@@ -1595,28 +1605,44 @@ void ESceneManager::InputSystem::UpdateInput()
         try
         {
             _inputController.UpdateState();
+            const auto& queue = _inputController.GetButtonQueue();
+            if (false == queue.empty())
+            {
+                for (const auto& flag : queue)
+                {
+                    UpdateTracker(flag);
+                }
+            }
+
             for (int buttonIndex = 0; buttonIndex < _receivers.size(); ++buttonIndex)
             {
                 auto& buttons = _receivers[buttonIndex];
-                //const auto& queue = _inputController.GetButtonQueue();
-                //for (const auto& button : queue)
-                //{
-                //    // ...
-                //}
-                UpdateTracker(buttonIndex);
                 for (int actionIndex = 0; actionIndex < buttons.size(); ++actionIndex)
                 {
                     Action action  = (Action)actionIndex;
                     auto&  actions = buttons[actionIndex];
                     for (auto& [component, event] : actions)
                     {
-                        if (action == _actionTracker[buttonIndex])
+                        Action& actionTracker = _actionTracker[buttonIndex];
+                        if (action == actionTracker)
                         {
-                            event(_inputController);
+                            event(_inputController);                       
                         }
+
+                        switch (actionTracker)
+                        {
+                        case Action::PRESSED:
+                            actionTracker = Action::HELD;
+                            break;
+                        case Action::RELEASED:
+                            actionTracker = Action::IDLE;
+                        default:
+                            break;
+                        }
+
                     }
                 }
-            }       
+            }
         }
         catch (const Input::DeviceNotConnectedException& exception)
         {
@@ -1631,68 +1657,50 @@ void ESceneManager::InputSystem::UpdateInput()
             throw;
 #endif
         }
+
     }
 }
 
-void ESceneManager::InputSystem::UpdateTracker(int index) 
+void ESceneManager::InputSystem::UpdateTracker(Input::Controller::Button button)
 {
-    ControllerButton button = (ControllerButton)index;
-    bool             isDown = false;
+    int index = std::countr_zero((unsigned int)button); 
+    Action& action = _actionTracker[index];
+    bool    isDown = false;
+
     switch (button)
     {
-    case ESceneManager::InputSystem::ControllerButton::A:
-        isDown = _inputController.IsButtonDown(Input::Controller::A);     
+    case Input::Controller::Button::DPAD_UP:
+    case Input::Controller::Button::DPAD_DOWN:
+    case Input::Controller::Button::DPAD_LEFT:
+    case Input::Controller::Button::DPAD_RIGHT:
+    case Input::Controller::Button::START:
+    case Input::Controller::Button::BACK:
+    case Input::Controller::Button::LEFT_THUMB_BUTTON:
+    case Input::Controller::Button::RIGHT_THUMB_BUTTON:
+    case Input::Controller::Button::LEFT_SHOULDER:
+    case Input::Controller::Button::RIGHT_SHOULDER:
+    case Input::Controller::Button::A:
+    case Input::Controller::Button::B:
+    case Input::Controller::Button::X:
+    case Input::Controller::Button::Y:
+        isDown = _inputController.IsButtonDown(button);
         break;
-    case ESceneManager::InputSystem::ControllerButton::B:
-        isDown = _inputController.IsButtonDown(Input::Controller::B);     
-        break;
-    case ESceneManager::InputSystem::ControllerButton::X:
-        isDown = _inputController.IsButtonDown(Input::Controller::X);     
-        break;
-    case ESceneManager::InputSystem::ControllerButton::Y:
-        isDown = _inputController.IsButtonDown(Input::Controller::Y);     
-        break;
-    case ESceneManager::InputSystem::ControllerButton::LEFT_SHOULDER:
-        isDown = _inputController.IsButtonDown(Input::Controller::LEFT_SHOULDER);     
-        break;
-    case ESceneManager::InputSystem::ControllerButton::RIGHT_SHOULDER:
-        isDown = _inputController.IsButtonDown(Input::Controller::RIGHT_SHOULDER);     
-        break;
-    case ESceneManager::InputSystem::ControllerButton::DPAD_UP:
-        isDown = _inputController.IsButtonDown(Input::Controller::DPAD_UP);     
-        break;
-    case ESceneManager::InputSystem::ControllerButton::DPAD_DOWN:
-        isDown = _inputController.IsButtonDown(Input::Controller::DPAD_DOWN);     
-        break;
-    case ESceneManager::InputSystem::ControllerButton::DPAD_LEFT:
-        isDown = _inputController.IsButtonDown(Input::Controller::DPAD_LEFT);     
-        break;
-    case ESceneManager::InputSystem::ControllerButton::DPAD_RIGHT:
-        isDown = _inputController.IsButtonDown(Input::Controller::DPAD_RIGHT);     
-        break;
-    case ESceneManager::InputSystem::ControllerButton::START:
-        isDown = _inputController.IsButtonDown(Input::Controller::START);     
-        break;
-    case ESceneManager::InputSystem::ControllerButton::BACK:
-        isDown = _inputController.IsButtonDown(Input::Controller::BACK);     
-        break;
-    case ESceneManager::InputSystem::ControllerButton::LEFT_TRIGGER:
-        isDown = 0.f < _inputController.GetLeftTrigger();
-        break;
-    case ESceneManager::InputSystem::ControllerButton::RIGHT_TRIGGER:
-        isDown = 0.f < _inputController.GetRightTrigger();
-        break;
-    case ESceneManager::InputSystem::ControllerButton::LEFT_STICK:
+    case Input::Controller::Button::LEFT_THUMB_STICK:
         isDown = 0.f < _inputController.GetLeftThumbStickAxis().Magnitude;
         break;
-    case ESceneManager::InputSystem::ControllerButton::RIGHT_STICK:
+    case Input::Controller::Button::RIGHT_THUMB_STICK:
         isDown = 0.f < _inputController.GetRightThumbStickAxis().Magnitude;
+        break;
+    case Input::Controller::Button::LEFT_TRIGGER:
+        isDown = 0.f < _inputController.GetLeftTrigger();
+        break;
+    case Input::Controller::Button::RIGHT_TRIGGER:
+        isDown = 0.f < _inputController.GetRightTrigger();
         break;
     default:
         break;
     }
 
-    Action& action = _actionTracker[index];
     if (true == isDown)
     {
         switch (action)
@@ -1723,4 +1731,5 @@ void ESceneManager::InputSystem::UpdateTracker(int index)
             break;
         }
     }
+
 }
