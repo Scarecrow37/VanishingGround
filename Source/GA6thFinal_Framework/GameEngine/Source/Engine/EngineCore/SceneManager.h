@@ -501,7 +501,7 @@ public:
         static constexpr size_t ACTION_COUNT = (size_t)Action::UNKNOWN;
         static constexpr size_t CONTROLLER_BUTTON_COUNT = (size_t)ControllerButton::UNKNOWN;
 
-        Input::XInputAdapter                            _inputAdapter;
+        Input::Adapter                                  _inputAdapter;
         Input::Controller                               _inputController{&_inputAdapter};
         bool                                            _isConnect = false;
         std::array<Action, CONTROLLER_BUTTON_COUNT>     _actionTracker{Action::IDLE,};

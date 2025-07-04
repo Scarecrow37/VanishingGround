@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "Controller.h"
+#include "ControllerTypes.h"
 
 namespace Input
 {
@@ -10,12 +10,12 @@ namespace Input
     {
     public:
         Adapter() = default;
-        [[nodiscard]] Controller::ID                  Connect() const noexcept;
-        [[nodiscard]] Controller::State               ReceiveState(Controller::ID id) const;
-        [[nodiscard]] std::vector<Controller::Button> ReceiveQueue(Controller::ID id) const;
+        [[nodiscard]] ControllerTypes::ID                  Connect() const noexcept;
+        [[nodiscard]] ControllerTypes::State               ReceiveState(ControllerTypes::ID id) const;
+        [[nodiscard]] std::vector<ControllerTypes::Button> ReceiveQueue(ControllerTypes::ID id) const;
 
     private:
-        static Controller::TriggerValue   NormalizeTrigger(BYTE triggerValue, BYTE thresholdValue);
-        static Controller::ThumbStickAxis NormalizeStick(SHORT xValue, SHORT yValue, SHORT deadZoneValue);
+        static ControllerTypes::TriggerValue NormalizeTrigger(unsigned char triggerValue, unsigned char thresholdValue);
+        static ControllerTypes::ThumbStickAxis NormalizeStick(short xValue, short yValue, short deadZoneValue);
     };
 } // namespace Input
