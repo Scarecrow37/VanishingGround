@@ -22,7 +22,6 @@ public:
     bool                               GetMSAAState() { return _4xMSAAState; }
     UINT                               GetMSAAQuality() { return _4xMSAAQuality; }
     UINT                               GetCurrentBackBufferIndex() { return _renderTargetIndex; }
-    D3D12_VIEWPORT                     GetMainViewport() { return _mainViewport; }
     const D3D12_CPU_DESCRIPTOR_HANDLE& GetBackBufferHandle() const { return _renderTargetHandles[_renderTargetIndex]; }
 
 public:
