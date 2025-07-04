@@ -18,20 +18,25 @@ void FileSystemModule::PreInitialize()
 void FileSystemModule::ModuleInitialize()
 {
     // FileSystemModule is Only Call Editor Mode
-    HWND hwnd = UmApplication.GetHwnd();
-    DragAcceptFiles(hwnd, TRUE);
+    if constexpr (true == IS_EDITOR)
+    {
+        HWND hwnd = UmApplication.GetHwnd();
+        DragAcceptFiles(hwnd, TRUE);
+        const MessageHandler msgHandler(FileSystemWinProc, 0);
 
-    const MessageHandler msgHandler(FileSystemWinProc, 0);
-
-    UmApplication.AddMessageHandler(msgHandler);
-    UmFileSystem.ObserverSetUp([this](const Event& event) { RecieveFileEvent(event); });
+        UmApplication.AddMessageHandler(msgHandler);
+        UmFileSystem.ObserverSetUp([this](const Event& event) { RecieveFileEvent(event); });
+    }
     auto accessExt = {".txt", ".png", ".dds", ".hdr"};
     UmFileSystem.RegisterFileEventSubscriber(this, accessExt);
 }
 
 void FileSystemModule::PreUnInitialize() 
 {
-    UmFileSystem.ObserverShutDown();
+    if constexpr (true == IS_EDITOR)
+    {
+        UmFileSystem.ObserverShutDown();
+    }
     UmFileSystem.Clear();
 }
 

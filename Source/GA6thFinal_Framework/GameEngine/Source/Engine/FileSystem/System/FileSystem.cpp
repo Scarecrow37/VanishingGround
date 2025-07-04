@@ -8,14 +8,9 @@ using namespace u8_literals;
 EFileSystem::EFileSystem() 
 {
     _originPath = fs::current_path().generic_wstring();
-    _extToSubscriberTable["null"] = EventSubscriberSet{};
+    _extToSubscriberTable[STR_NULL] = EventSubscriberSet{};
 }
 
-EFileSystem::~EFileSystem() 
-{
-    Clear();
-    ObserverShutDown();
-}
 
 bool EFileSystem::LoadGameDirectory()
 {
