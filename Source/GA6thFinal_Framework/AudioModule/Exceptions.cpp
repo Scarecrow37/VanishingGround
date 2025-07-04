@@ -3,7 +3,7 @@
 
 namespace Audio
 {
-    // TODO
+    // TODO : Remove this
     //void ThrowIfFailed::operator()(const HRESULT result, const std::string& message) const
     //{
     //    if (FAILED(result))

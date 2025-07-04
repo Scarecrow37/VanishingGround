@@ -7,7 +7,7 @@ namespace Audio
     /// </summary>
     class Handle
     {
-        friend class EManager;
+        friend class System;
 
     public:
         /// <summary>

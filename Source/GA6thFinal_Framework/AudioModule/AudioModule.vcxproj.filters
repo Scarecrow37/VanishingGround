@@ -16,6 +16,15 @@
     <Filter Include="Exceptions">
       <UniqueIdentifier>{0b3f2dea-7b4c-4788-8426-d2b226d379a3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="System">
+      <UniqueIdentifier>{39deb36a-126b-4a9c-8209-f487e3decdfd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Types">
+      <UniqueIdentifier>{0158d6c9-dc05-4d3e-857e-1063dd8c3cd8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Handle">
+      <UniqueIdentifier>{6aff9f40-c4c8-4e0f-aff7-4aaf7a75b335}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -30,6 +39,15 @@
     <ClInclude Include="Exceptions.h">
       <Filter>Exceptions</Filter>
     </ClInclude>
+    <ClInclude Include="Types.h">
+      <Filter>Types</Filter>
+    </ClInclude>
+    <ClInclude Include="Handle.h">
+      <Filter>Handle</Filter>
+    </ClInclude>
+    <ClInclude Include="System.h">
+      <Filter>System</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -37,6 +55,15 @@
     </ClCompile>
     <ClCompile Include="Exceptions.cpp">
       <Filter>Exceptions</Filter>
+    </ClCompile>
+    <ClCompile Include="System.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="Types.cpp">
+      <Filter>Types</Filter>
+    </ClCompile>
+    <ClCompile Include="Handle.cpp">
+      <Filter>Handle</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
