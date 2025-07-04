@@ -41,10 +41,5 @@ void BloomTechnique::Initialize(ID3D12GraphicsCommandList* commandList)
 
 void BloomTechnique::Execute(ID3D12GraphicsCommandList* commandList)
 {
-    ID3D12GraphicsCommandList* postProcessCommandList = UmDevice.GetPostProcessCommandList();
-    auto                       descriptorHeap         = UmViewManager.GetShaderResourceHeap();
-
-    postProcessCommandList->SetDescriptorHeaps(1, &descriptorHeap);
-
-    __super::Execute(postProcessCommandList);
+    __super::Execute(commandList);
 }

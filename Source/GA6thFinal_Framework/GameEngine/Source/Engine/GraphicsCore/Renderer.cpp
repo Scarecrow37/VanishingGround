@@ -108,6 +108,29 @@ void Renderer::RegisterRenderQueue(MeshRenderer* component)
     }
 }
 
+void Renderer::RegisterRenderQueue(std::string_view sceneName, UIRenderer* component)
+{
+    auto iter = _renderScenes.find(sceneName.data());
+
+    if (iter == _renderScenes.end())
+    {
+        GRAPHICS_ASSERT(false, L"Renderer::RegisterRenderQueue : Render Scene Not Registered.");
+    }
+
+    auto& scene = iter->second;
+    scene->RegisterOnRenderQueue(component);
+}
+
+void Renderer::RegisterRenderQueue(UIRenderer* component)
+{
+    RegisterRenderQueue("Game", component);
+
+    if constexpr (IS_EDITOR)
+    {
+        RegisterRenderQueue("Editor", component);
+    }
+}
+
 void Renderer::SetSkyBox(std::string_view sceneName, std::string_view path) 
 {
     auto iter = _renderScenes.find(sceneName.data());

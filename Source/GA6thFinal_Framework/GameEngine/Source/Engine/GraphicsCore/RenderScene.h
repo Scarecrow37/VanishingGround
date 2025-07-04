@@ -6,6 +6,7 @@ class FrameResource;
 class Camera;
 class MeshRenderer;
 class SkyBox;
+class UIRenderer;
 class RenderScene
 {
 public:
@@ -24,6 +25,7 @@ public:
 public:
     void InitializeRenderScene();
     void RegisterOnRenderQueue(MeshRenderer* component);
+    void RegisterOnRenderQueue(UIRenderer* component);
     void AddRenderTechnique(std::unique_ptr<RenderTechnique> technique);
 
 public:
@@ -42,12 +44,13 @@ private:
     void CreateCamera();
 
 public:
-    std::string                                                  _name;
-    std::string                                                  _meshRenderTargetName;
-    std::string                                                  _finalTargetName;
+    std::string _name;
+    std::string _meshRenderTargetName;
+    std::string _finalTargetName;
+
     std::vector<std::unique_ptr<RenderTechnique>>                _techniques;
     std::vector<std::pair<std::unique_ptr<bool>, MeshRenderer*>> _renderQueue;
-    std::vector<std::pair<std::unique_ptr<bool>, void*>>         _renderUIQueue;
+    std::vector<std::pair<std::unique_ptr<bool>, UIRenderer*>>   _renderUIQueue;
 
     // Frame Resource
     std::vector<std::unique_ptr<FrameResource>> _frameResources;

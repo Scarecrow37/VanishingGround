@@ -7,6 +7,7 @@
 #include "Model.h"
 #include "RenderTechnique.h"
 #include "SkyBox.h"
+#include "UIRenderer.h"
 
 RenderScene::RenderScene(std::string_view name)
     : _skyBox{std::make_unique<SkyBox>()}
@@ -50,8 +51,7 @@ void RenderScene::InitializeRenderScene()
 
 void RenderScene::RegisterOnRenderQueue(MeshRenderer* component)
 {
-    auto iter =
-        std::find_if(_renderQueue.begin(), _renderQueue.end(), [](const auto& pair) { return !pair.first.get(); });
+    auto iter = std::find_if(_renderQueue.begin(), _renderQueue.end(), [](const auto& pair) { return !pair.first.get(); });
 
     if (iter != _renderQueue.end())
     {
@@ -61,6 +61,20 @@ void RenderScene::RegisterOnRenderQueue(MeshRenderer* component)
 
     _renderQueue.emplace_back(std::make_unique<bool>(false), component);
     component->_isDestroyeds.push_back(_renderQueue.back().first.get());
+}
+
+void RenderScene::RegisterOnRenderQueue(UIRenderer* component)
+{
+    auto iter = std::find_if(_renderUIQueue.begin(), _renderUIQueue.end(), [](const auto& pair) { return !pair.first.get(); });
+
+    if (iter != _renderUIQueue.end())
+    {
+        GRAPHICS_ASSERT(false, L"RenderScene::RegisterRenderQueue : Already registered component.");
+        return;
+    }
+
+    _renderUIQueue.emplace_back(std::make_unique<bool>(false), component);
+    component->_isDestroyeds.push_back(_renderUIQueue.back().first.get());
 }
 
 void RenderScene::AddRenderTechnique(std::unique_ptr<RenderTechnique> technique)

@@ -13,7 +13,7 @@ void RenderPass::SetOwnerScene(RenderScene* owner)
 
 void RenderPass::Initialize()
 {
-    _meshRenderTarget  = UmMultiRenderTargetManager.GetRenderTarget(_ownerScene->_meshRenderTargetName);
+    _meshRenderTarget  = UmMultiRenderTargetManager.GetRenderTarget(_ownerScene->_meshRenderTargetName);   
     _finalRenderTarget = UmMultiRenderTargetManager.GetRenderTarget(_ownerScene->_finalTargetName);
 }
 
