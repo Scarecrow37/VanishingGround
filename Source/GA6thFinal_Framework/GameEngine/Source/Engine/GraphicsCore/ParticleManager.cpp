@@ -19,6 +19,10 @@ ParticleManager::~ParticleManager()
         if (effect)
             delete effect;
     }
+
+    if (_editorCurrentEffect)
+        delete _editorCurrentEffect;
+
     _activePariticleEffects.clear();
 
     _totalParticles.clear();
@@ -628,8 +632,8 @@ void ParticleManager::CopyActiveParticles()
                         _activeEmitterAlbedos.push_back(
                             static_cast<SpriteModule*>(emitter->_particleRenderModule)->GetAlbedoTexture());
                     }
-                    _emitterMatrix.push_back(
-                        {emitter->GetWorldMatrix().Transpose(), emitter->GetDragPoint(), emitter->GetDragForce()});
+                    _emitterMatrix.push_back({emitter->GetWorldMatrix().Transpose(), emitter->GetDragPoint(),
+                                              emitter->GetDragForce(), emitter->GetVortexForce()});
                     auto& particlePool = emitter->GetParticlePool();
                     for (UINT i = 0; i < emitter->GetActiveParticleCount(); i++)
                     {
@@ -663,8 +667,8 @@ void ParticleManager::CopyActiveParticlesEditorMode()
                 _activeEmitterAlbedos.push_back(
                     static_cast<SpriteModule*>(emitter->_particleRenderModule)->GetAlbedoTexture());
             }
-            _emitterMatrix.push_back(
-                {emitter->GetWorldMatrix().Transpose(), emitter->GetDragPoint(), emitter->GetDragForce()});
+            _emitterMatrix.push_back({emitter->GetWorldMatrix().Transpose(), emitter->GetDragPoint(),
+                                      emitter->GetDragForce(), emitter->GetVortexForce()});
             auto& particlePool = emitter->GetParticlePool();
             for (UINT i = 0; i < emitter->GetActiveParticleCount(); i++)
             {

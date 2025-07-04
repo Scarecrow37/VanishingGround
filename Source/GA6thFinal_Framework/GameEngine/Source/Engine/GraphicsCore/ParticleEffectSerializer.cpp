@@ -169,6 +169,13 @@ void ParticleEffectSerializer::Serialize(ParticleEffect* effect, File::Path dest
             Vector4 dragforce = emitter->GetDragForce();
             os.write(reinterpret_cast<const char*>(&dragforce), sizeof(dragforce));
         }
+        // drag force
+        {
+            Vector4 vortex = emitter->GetVortexForce();
+            os.write(reinterpret_cast<const char*>(&vortex), sizeof(vortex));
+        }
+
+
         // render type
         {
             auto rendertype = emitter->_particleType;
@@ -254,6 +261,7 @@ ParticleEffect* ParticleEffectSerializer::Deserialize(File::Path filepath)
         Vector3           distributionOffset;
         Vector4           dragPoint;
         Vector4           dragForce;
+        Vector4           vortexForce;
         ParticleType      particleType;
 
         is.read(reinterpret_cast<char*>(&emitterPosition), sizeof(emitterPosition));
@@ -280,6 +288,7 @@ ParticleEffect* ParticleEffectSerializer::Deserialize(File::Path filepath)
         is.read(reinterpret_cast<char*>(&distributionOffset), sizeof(distributionOffset));
         is.read(reinterpret_cast<char*>(&dragPoint), sizeof(dragPoint));
         is.read(reinterpret_cast<char*>(&dragForce), sizeof(dragForce));
+        is.read(reinterpret_cast<char*>(&vortexForce), sizeof(vortexForce));
         is.read(reinterpret_cast<char*>(&particleType), sizeof(particleType));
 
         // texture path
@@ -321,6 +330,7 @@ ParticleEffect* ParticleEffectSerializer::Deserialize(File::Path filepath)
             emitter->SetParticleDistributionOffset(distributionOffset);
             emitter->SetDragPoint(dragPoint);
             emitter->SetDragForce(dragForce);
+            emitter->SetVortexForce(vortexForce);
         }
     }
 

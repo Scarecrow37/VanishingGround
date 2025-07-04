@@ -36,22 +36,34 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
     
     float3 acceleration = float3(0, -9.8, 0) * input.mass;
     float3 gravityOffset = acceleration * input.age;
-
-
-
     float ratio = saturate(input.age / input.lifetime);
-    float dragCoefficient = emitter.dragforce.z/2;
-
-    float3 newPos = input.velocity * input.age;
-    float newposlen = length(newPos);
-    float3 dragforce = dragCoefficient * newPos * ratio * ratio * dragCoefficient;
-    float dragforcelen = length(dragforce);
-    float3 normaldrag = normalize(dragforce);
-    newPos = newPos - normaldrag * min(dragforcelen, newposlen);
-    input.position.xyz += newPos;
     
     
+    float dragCoefficient = emitter.dragforce.z;
+    float decay = exp(-dragCoefficient * input.age);
 
+    
+    float3 r = input.position.xyz;
+    
+    float3 vortexAxis = emitter.vortexForce.xyz; // 방향 + 세기 포함
+    float vortexAttenuation = emitter.vortexForce.w; // 거리 감쇠 계수
+    float vortexStrength = length(vortexAxis);
+    float strength = vortexStrength / (1.0 + vortexAttenuation * length(r) );
+    float3 axisDir = normalize(vortexAxis);
+    
+    
+    float3 vortexVelocity = cross(axisDir, r) * strength;
+    float3 vortexDisplacement = vortexVelocity * input.age;
+    float3 posAfterVortex = input.position.xyz + vortexDisplacement;
+    float3 dragPos = (input.velocity / max(dragCoefficient, 0.01f)) * (1 - decay);
+    
+    
+    
+    
+    
+    input.position.xyz += dragPos + vortexDisplacement;
+    
+    
     
     
 

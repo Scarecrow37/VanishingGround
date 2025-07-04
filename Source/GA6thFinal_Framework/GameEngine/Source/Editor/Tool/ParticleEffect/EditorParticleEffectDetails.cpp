@@ -565,6 +565,23 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
          _curEmitter->SetDragForce(force);
      }
 
+     // vortex
+     {
+         Vector4 force = _curEmitter->GetVortexForce();
+         ImGui::Text("Vortex Force");
+         ImGui::SameLine();
+         bool result = ImGui::SliderFloat4("##Vortex Force", (float*)&force, -1000, 1000);
+         if (false == isSomethingChanged)
+             if (true == result)
+                 isSomethingChanged = result;
+         if (force.Length() <= 0)
+             force = {0.1f, 0.1f, 0.1f};
+         _curEmitter->SetVortexForce(force);
+     }
+
+
+
+
      if (true == isSomethingChanged)
      {
          UmParticleManager.RefreshEditor();

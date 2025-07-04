@@ -63,6 +63,7 @@ struct EmitterInfo
     Matrix WorldMatrix;
     Vector4 dragPoint;
     Vector4 dragForce;
+    Vector4 vortexForce;
 };
 
 struct __declspec(align(16)) MVPConstants
