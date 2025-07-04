@@ -180,6 +180,7 @@ void SkeletalMeshRenderer::SetCurrentAnimation(std::string_view animKey)
         const auto& animation      = model->GetAnimation();
         const auto& animationNames = animation->GetAnimations();
         animator->ChangeAnimation(_currentAnimationKey.c_str());
+        SetAnimationFrame(0.0f);
     }
     else
     {
