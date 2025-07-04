@@ -1665,32 +1665,32 @@ void ESceneManager::InputSystem::UpdateTracker(Input::Controller::Button button)
 
     switch (button)
     {
-    case Input::Controller::DPAD_UP:
-    case Input::Controller::DPAD_DOWN:
-    case Input::Controller::DPAD_LEFT:
-    case Input::Controller::DPAD_RIGHT:
-    case Input::Controller::START:
-    case Input::Controller::BACK:
-    case Input::Controller::LEFT_THUMB_BUTTON:
-    case Input::Controller::RIGHT_THUMB_BUTTON:
-    case Input::Controller::LEFT_SHOULDER:
-    case Input::Controller::RIGHT_SHOULDER:
-    case Input::Controller::A:
-    case Input::Controller::B:
-    case Input::Controller::X:
-    case Input::Controller::Y:
+    case Input::Controller::Button::DPAD_UP:
+    case Input::Controller::Button::DPAD_DOWN:
+    case Input::Controller::Button::DPAD_LEFT:
+    case Input::Controller::Button::DPAD_RIGHT:
+    case Input::Controller::Button::START:
+    case Input::Controller::Button::BACK:
+    case Input::Controller::Button::LEFT_THUMB_BUTTON:
+    case Input::Controller::Button::RIGHT_THUMB_BUTTON:
+    case Input::Controller::Button::LEFT_SHOULDER:
+    case Input::Controller::Button::RIGHT_SHOULDER:
+    case Input::Controller::Button::A:
+    case Input::Controller::Button::B:
+    case Input::Controller::Button::X:
+    case Input::Controller::Button::Y:
         isDown = _inputController.IsButtonDown(button);
         break;
-    case Input::Controller::LEFT_THUMB_STICK:
+    case Input::Controller::Button::LEFT_THUMB_STICK:
         isDown = 0.f < _inputController.GetLeftThumbStickAxis().Magnitude;
         break;
-    case Input::Controller::RIGHT_THUMB_STICK:
+    case Input::Controller::Button::RIGHT_THUMB_STICK:
         isDown = 0.f < _inputController.GetRightThumbStickAxis().Magnitude;
         break;
-    case Input::Controller::LEFT_TRIGGER:
+    case Input::Controller::Button::LEFT_TRIGGER:
         isDown = 0.f < _inputController.GetLeftTrigger();
         break;
-    case Input::Controller::RIGHT_TRIGGER:
+    case Input::Controller::Button::RIGHT_TRIGGER:
         isDown = 0.f < _inputController.GetRightTrigger();
         break;
     default:

@@ -1,16 +1,24 @@
 ﻿#include "pch.h"
-#include "XInputAdapter.h"
+#include "Adapter.h"
+
+#define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
+// Windows Header Files
+#include <windows.h>
+
+#include <Xinput.h>
+
+#pragma comment(lib, "XInput.lib")
 
 namespace Input
 {
     namespace
     {
-        std::unordered_set<Controller::ID> ConnectedControllers;
+        std::unordered_set<ControllerTypes::ID> ConnectedControllers;
     }
 
-    Controller::ID XInputAdapter::Connect() const noexcept
+    ControllerTypes::ID Adapter::Connect() const noexcept
     {
-        for (Controller::ID id = 0; id < Controller::MAX_CONNECTION_COUNT; ++id)
+        for (ControllerTypes::ID id = 0; id < ControllerTypes::MAX_CONNECTION_COUNT; ++id)
         {
             XINPUT_STATE xState{};
             if (const DWORD result = XInputGetState(id, &xState);
@@ -20,15 +28,14 @@ namespace Input
                 return id;
             }
         }
-        return Controller::INVALID_ID;
+        return ControllerTypes::INVALID_ID;
     }
 
-    Controller::State XInputAdapter::ReceiveState(const Controller::ID id) const
+    ControllerTypes::State Adapter::ReceiveState(const ControllerTypes::ID id) const
     {
-        constexpr ThrowIfFailed throwIfFailed;
 
-        XINPUT_STATE      xState{};
-        Controller::State state{};
+        XINPUT_STATE           xState{};
+        ControllerTypes::State state{};
 
         const DWORD result = XInputGetState(id, &xState);
         if (result == ERROR_DEVICE_NOT_CONNECTED)
@@ -45,59 +52,59 @@ namespace Input
             NormalizeStick(xState.Gamepad.sThumbRX, xState.Gamepad.sThumbRY, XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE);
         state.LeftTrigger      = NormalizeTrigger(xState.Gamepad.bLeftTrigger, XINPUT_GAMEPAD_TRIGGER_THRESHOLD);
         state.RightTrigger     = NormalizeTrigger(xState.Gamepad.bRightTrigger, XINPUT_GAMEPAD_TRIGGER_THRESHOLD);
-        unsigned short buttons = static_cast<Controller::Button>(xState.Gamepad.wButtons);
+        unsigned short buttons = xState.Gamepad.wButtons;
         if (state.LeftThumbStickAxis.Magnitude > 0)
-            buttons |= Controller::LEFT_THUMB_STICK;
+            buttons |= ControllerTypes::LEFT_THUMB_STICK;
         if (state.RightThumbStickAxis.Magnitude > 0)
-            buttons |= Controller::RIGHT_THUMB_STICK;
+            buttons |= ControllerTypes::RIGHT_THUMB_STICK;
         if (state.LeftTrigger > 0)
-            buttons |= Controller::LEFT_TRIGGER;
+            buttons |= ControllerTypes::LEFT_TRIGGER;
         if (state.RightTrigger > 0)
-            buttons |= Controller::RIGHT_TRIGGER;
-        state.Buttons         = static_cast<Controller::Button>(buttons);
+            buttons |= ControllerTypes::RIGHT_TRIGGER;
+        state.Buttons         = static_cast<ControllerTypes::Button>(buttons);
         state.StateGeneration = xState.dwPacketNumber;
 
         return state;
     }
 
-    namespace 
+    namespace
     {
-        Controller::Button VirtualKeyToButton(const WORD virtualKey)
+        ControllerTypes::Button VirtualKeyToButton(const WORD virtualKey)
         {
             switch (virtualKey)
             {
             case VK_PAD_A:
-                return Controller::A;
+                return ControllerTypes::A;
             case VK_PAD_B:
-                return Controller::B;
+                return ControllerTypes::B;
             case VK_PAD_X:
-                return Controller::X;
+                return ControllerTypes::X;
             case VK_PAD_Y:
-                return Controller::Y;
+                return ControllerTypes::Y;
             case VK_PAD_LSHOULDER:
-                return Controller::LEFT_SHOULDER;
+                return ControllerTypes::LEFT_SHOULDER;
             case VK_PAD_RSHOULDER:
-                return Controller::RIGHT_SHOULDER;
+                return ControllerTypes::RIGHT_SHOULDER;
             case VK_PAD_LTRIGGER:
-                return Controller::LEFT_TRIGGER;
+                return ControllerTypes::LEFT_TRIGGER;
             case VK_PAD_RTRIGGER:
-                return Controller::RIGHT_TRIGGER;
+                return ControllerTypes::RIGHT_TRIGGER;
             case VK_PAD_DPAD_UP:
-                return Controller::DPAD_UP;
+                return ControllerTypes::DPAD_UP;
             case VK_PAD_DPAD_DOWN:
-                return Controller::DPAD_DOWN;
+                return ControllerTypes::DPAD_DOWN;
             case VK_PAD_DPAD_LEFT:
-                return Controller::DPAD_LEFT;
+                return ControllerTypes::DPAD_LEFT;
             case VK_PAD_DPAD_RIGHT:
-                return Controller::DPAD_RIGHT;
+                return ControllerTypes::DPAD_RIGHT;
             case VK_PAD_START:
-                return Controller::START;
+                return ControllerTypes::START;
             case VK_PAD_BACK:
-                return Controller::BACK;
+                return ControllerTypes::BACK;
             case VK_PAD_LTHUMB_PRESS:
-                return Controller::LEFT_THUMB_BUTTON;
+                return ControllerTypes::LEFT_THUMB_BUTTON;
             case VK_PAD_RTHUMB_PRESS:
-                return Controller::RIGHT_THUMB_BUTTON;
+                return ControllerTypes::RIGHT_THUMB_BUTTON;
             case VK_PAD_LTHUMB_UP:
             case VK_PAD_LTHUMB_DOWN:
             case VK_PAD_LTHUMB_RIGHT:
@@ -106,7 +113,7 @@ namespace Input
             case VK_PAD_LTHUMB_UPRIGHT:
             case VK_PAD_LTHUMB_DOWNRIGHT:
             case VK_PAD_LTHUMB_DOWNLEFT:
-                return Controller::LEFT_THUMB_STICK;
+                return ControllerTypes::LEFT_THUMB_STICK;
             case VK_PAD_RTHUMB_UP:
             case VK_PAD_RTHUMB_DOWN:
             case VK_PAD_RTHUMB_RIGHT:
@@ -115,19 +122,16 @@ namespace Input
             case VK_PAD_RTHUMB_UPRIGHT:
             case VK_PAD_RTHUMB_DOWNRIGHT:
             case VK_PAD_RTHUMB_DOWNLEFT:
-                return Controller::RIGHT_THUMB_STICK;
+                return ControllerTypes::RIGHT_THUMB_STICK;
             default:
-                return static_cast<Controller::Button>(0);
+                return static_cast<ControllerTypes::Button>(0);
             }
         }
-    }
+    } // namespace
 
-
-    std::vector<Controller::Button> XInputAdapter::ReceiveQueue(const Controller::ID id) const
+    std::vector<ControllerTypes::Button> Adapter::ReceiveQueue(const ControllerTypes::ID id) const
     {
-        constexpr ThrowIfFailed throwIfFailed;
-
-        std::vector<Controller::Button> queue;
+        std::vector<ControllerTypes::Button> queue;
 
         DWORD result = ERROR_SUCCESS;
 
@@ -139,7 +143,7 @@ namespace Input
             if (result == ERROR_SUCCESS)
             {
                 if (xKeystroke.Flags & XINPUT_KEYSTROKE_KEYDOWN || xKeystroke.Flags & XINPUT_KEYSTROKE_KEYUP)
-                queue.push_back(VirtualKeyToButton(xKeystroke.VirtualKey));
+                    queue.push_back(VirtualKeyToButton(xKeystroke.VirtualKey));
             }
             else if (result == ERROR_DEVICE_NOT_CONNECTED)
             {
@@ -159,12 +163,12 @@ namespace Input
         return queue;
     }
 
-    Controller::TriggerValue XInputAdapter::NormalizeTrigger(const BYTE triggerValue, const BYTE thresholdValue)
+    ControllerTypes::TriggerValue Adapter::NormalizeTrigger(const unsigned char triggerValue, const unsigned char thresholdValue)
     {
         const float trigger   = triggerValue;
         const float threshold = thresholdValue;
 
-        Controller::TriggerValue result = 0;
+        ControllerTypes::TriggerValue result = 0;
 
         if (trigger > threshold)
         {
@@ -181,14 +185,15 @@ namespace Input
         return result;
     }
 
-    Controller::ThumbStickAxis XInputAdapter::NormalizeStick(const SHORT xValue, const SHORT yValue, const SHORT deadZoneValue)
+    ControllerTypes::ThumbStickAxis Adapter::NormalizeStick(const short xValue, const short yValue,
+                                                            const short deadZoneValue)
     {
         const float x         = xValue;
         const float y         = yValue;
         const float deadZone  = deadZoneValue;
         const float magnitude = std::sqrt(x * x + y * y);
 
-        Controller::ThumbStickAxis result{};
+        ControllerTypes::ThumbStickAxis result{};
 
         if (magnitude > deadZone)
         {
