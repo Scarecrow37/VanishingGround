@@ -1,0 +1,21 @@
+﻿#pragma once
+#include "Controller.h"
+
+namespace Input
+{
+    /// <summary>
+    /// XInputAdapter는 XInput을 사용하여 컨트롤러의 연결 및 상태 수신을 위한 인터페이스를 제공합니다.
+    /// </summary>
+    class Adapter
+    {
+    public:
+        Adapter() = default;
+        [[nodiscard]] Controller::ID                  Connect() const noexcept;
+        [[nodiscard]] Controller::State               ReceiveState(Controller::ID id) const;
+        [[nodiscard]] std::vector<Controller::Button> ReceiveQueue(Controller::ID id) const;
+
+    private:
+        static Controller::TriggerValue   NormalizeTrigger(BYTE triggerValue, BYTE thresholdValue);
+        static Controller::ThumbStickAxis NormalizeStick(SHORT xValue, SHORT yValue, SHORT deadZoneValue);
+    };
+} // namespace Input
