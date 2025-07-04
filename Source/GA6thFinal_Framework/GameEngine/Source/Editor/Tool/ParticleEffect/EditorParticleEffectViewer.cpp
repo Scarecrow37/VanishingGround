@@ -68,7 +68,7 @@ void EditorParticleEffectViewer::OnFrameEnd()
 
 void EditorParticleEffectViewer::OnFrameFocusEnter()
 {
-
+    UmParticleManager.SetCamera("ParticleEditor");
 }
 
 void EditorParticleEffectViewer::OnFrameFocusStay()

@@ -31,6 +31,8 @@ private:
 
     virtual void OnFrameEnd() override;
 
+    virtual void OnFrameFocusEnter() override;
+
     virtual void OnFrameFocusStay() override;
 
 private:

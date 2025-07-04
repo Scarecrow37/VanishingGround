@@ -360,6 +360,7 @@
 		<ClInclude Include="Scripts\Test\Input\InputTestComponent.h" />
 		<ClInclude Include="Scripts\Timeline\AnimationEventListener.h" />
 		<ClInclude Include="Scripts\Particle\TestParticle.h" />
+		<ClInclude Include="Scripts\Particle\ParticleComponent.h" />
 	</ItemGroup>
 	<ItemGroup>
 		<ClCompile Include="dllmain.cpp">
@@ -441,6 +442,7 @@
 		<ClCompile Include="Scripts\Test\Input\InputTestComponent.cpp" />
 		<ClCompile Include="Scripts\Timeline\AnimationEventListener.cpp" />
 		<ClCompile Include="Scripts\Particle\TestParticle.cpp" />
+		<ClCompile Include="Scripts\Particle\ParticleComponent.cpp" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="cpp.hint" />

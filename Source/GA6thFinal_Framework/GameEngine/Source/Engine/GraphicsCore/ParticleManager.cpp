@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "ParticleEmitter.h"
 #include "ParticleEffect.h"
+#include "ParticleEffectSerializer.h"
 #include "ParticleManager.h"
 
 ParticleManager::ParticleManager() {}
@@ -45,6 +46,10 @@ void ParticleManager::Initialize(UINT maxParticles)
     IntializeGraphicsCommandObject();
     InitializeDescriptorHeap();
 
+    UmFileSystem.RegisterFileEventSubscriber(&ParticleSerializer, {".vfx"});
+
+
+
 }
 ParticleEffect* ParticleManager::RegisterEffect()
 {
@@ -53,7 +58,7 @@ ParticleEffect* ParticleManager::RegisterEffect()
     std::string name = "Effect" + std::to_string(nameingIndex++);
     newEffect->SetEffectName(name);
 
-    if(false == IS_EDITOR)
+    if(nullptr == _editorCurrentEffect)
         _pariticleEffects.push_back(newEffect);
     return newEffect;
 }
@@ -81,14 +86,16 @@ void ParticleManager::Update(const float deltaTime)
 
 
 
-    if (false == IS_EDITOR)
+            if (nullptr == _editorCurrentEffect)
     {
+
+
         for (auto effect : _activePariticleEffects)
         {
             effect->Update(delta);
         }
         if (false == _activePariticleEffects.empty())
-        {
+        { 
             CopyActiveParticles();
         }
 

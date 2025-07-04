@@ -82,3 +82,6 @@ UMREAL_COMPONENT(AnimationEventListener)
 
 #include "Scripts\Particle/TestParticle.h"
 UMREAL_COMPONENT(TestParticle)
+
+#include "Scripts\Particle/ParticleComponent.h"
+UMREAL_COMPONENT(ParticleComponent)

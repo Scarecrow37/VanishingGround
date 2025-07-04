@@ -3,6 +3,79 @@
 #include "ParticleEffect.h"
 #include "ParticleEffectSerializer.h"
 
+void ParticleEffectSerializer::OnFileRegistered(const File::Path& path)
+{
+    
+}
+
+void ParticleEffectSerializer::OnFileUnregistered(const File::Path& path)
+{
+    
+}
+
+void ParticleEffectSerializer::OnFileModified(const File::Path& path)
+{
+    
+}
+
+
+void ParticleEffectSerializer::OnFileRemoved(const File::Path& path)
+{
+    
+}
+
+
+void ParticleEffectSerializer::OnFileRenamed(const File::Path& oldPath, const File::Path& newPath)
+{
+    
+}
+
+
+void ParticleEffectSerializer::OnFileMoved(const File::Path& oldPath, const File::Path& newPath)
+{
+    
+}
+
+void ParticleEffectSerializer::OnRequestedSave()
+{
+    
+}
+
+void ParticleEffectSerializer::OnPostRequestedSave()
+{
+    
+}
+
+void ParticleEffectSerializer::OnRequestedLoad()
+{
+    
+}
+
+void ParticleEffectSerializer::OnPostRequestedLoad()
+{
+    
+}
+
+void ParticleEffectSerializer::OnRequestedInspect(const File::Path& path)
+{
+    
+}
+
+void ParticleEffectSerializer::OnRequestedOpen(const File::Path& path)
+{
+    
+}
+
+void ParticleEffectSerializer::OnRequestedCopy(const File::Path& path)
+{
+    
+}
+
+void ParticleEffectSerializer::OnRequestedPaste(const File::Path& path)
+{
+    
+}
+
 void ParticleEffectSerializer::Serialize(ParticleEffect* effect, File::Path destPath)
 {
     std::ofstream os(destPath.string(), std::ios::binary);

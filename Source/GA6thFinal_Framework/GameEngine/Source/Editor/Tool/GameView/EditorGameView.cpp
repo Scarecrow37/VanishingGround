@@ -9,6 +9,11 @@ EditorGameView::EditorGameView()
 
 EditorGameView::~EditorGameView() {}
 
+void EditorGameView::OnFrameFocusEnter() 
+{
+    UmParticleManager.SetCamera("Game");
+}
+
 void EditorGameView::OnFrameRender() 
 {
     CameraComponent* camera = ESceneManager::Engine::GetMainCamera();

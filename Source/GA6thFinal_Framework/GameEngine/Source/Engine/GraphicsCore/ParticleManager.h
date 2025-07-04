@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "Particle.h"
 #include "ParticleHelper.h"
-
+#include "ParticleEffectSerializer.h"
 class ParticleManager
 {
 public:
@@ -47,6 +47,11 @@ public:
     std::vector<class ParticleEffect*>&   GetEffectList() { return _pariticleEffects; }
 
     void                                  ResetRenderCommandObject();
+
+public:
+    ParticleEffectSerializer ParticleSerializer;
+
+
 
 public:
     void SetCamera(std::string_view viewName);

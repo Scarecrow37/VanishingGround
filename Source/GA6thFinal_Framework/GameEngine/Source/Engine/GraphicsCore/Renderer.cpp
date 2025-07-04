@@ -164,13 +164,15 @@ void Renderer::Initialize()
     scene->InitializeRenderScene();
     scene->AddRenderTechnique(std::make_unique<SkyBoxRenderTechnique>());
     scene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
+    scene->AddRenderTechnique(std::make_unique<ParticleRenderTechnique>());
     scene->AddRenderTechnique(std::make_unique<BloomTechnique>());
     scene->AddRenderTechnique(std::make_unique<BlendTechnique>());
     _renderScenes["Game"] = std::move(scene);
 
     // Renderer File Event
     _rendererFileEvent = std::make_unique<RendererFileEvent>();
-    UmFileSystem.RegisterFileEventSubscriber(_rendererFileEvent.get(), {".png", ".dds", ".fbx", ".hdr", ".UmModel"});
+    UmFileSystem.RegisterFileEventSubscriber(_rendererFileEvent.get(),
+                                             {".png", ".dds", ".fbx", ".hdr", ".UmModel", ".jpg"});
 
     if constexpr (IS_EDITOR)
     {
@@ -179,6 +181,7 @@ void Renderer::Initialize()
         scene->InitializeRenderScene();
         scene->AddRenderTechnique(std::make_unique<SkyBoxRenderTechnique>());
         scene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
+        scene->AddRenderTechnique(std::make_unique<ParticleRenderTechnique>());
         scene->AddRenderTechnique(std::make_unique<EditorDrawTechnique>());
         scene->AddRenderTechnique(std::make_unique<BlendTechnique>());
         _renderScenes["Editor"] = std::move(scene);
@@ -192,9 +195,7 @@ void Renderer::Initialize()
         
         scene = std::make_unique<RenderScene>("ParticleEditor");
         scene->InitializeRenderScene();
-        //scene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
         scene->AddRenderTechnique(std::make_unique<ParticleRenderTechnique>());
-
         scene->AddRenderTechnique(std::make_unique<EditorDrawTechnique>());
         scene->AddRenderTechnique(std::make_unique<BloomTechnique>());
         scene->AddRenderTechnique(std::make_unique<BlendTechnique>());

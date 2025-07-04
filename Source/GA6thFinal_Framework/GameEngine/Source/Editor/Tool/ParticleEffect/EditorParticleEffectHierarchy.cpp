@@ -1,7 +1,7 @@
 ﻿#include "pch.h"
-#include "EditorParticleEffectHierarchy.h"
 #include "Engine/GraphicsCore/ParticleEffect.h"
 #include "Engine/GraphicsCore/ParticleEmitter.h"
+#include "EditorParticleEffectHierarchy.h"
  EditorParticleEffectHierarchy::EditorParticleEffectHierarchy() 
  {
      SetLabel("Hierarchy##particleeffect");
@@ -56,7 +56,7 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
         std::vector<File::Path> out;
         if (File::ShowOpenFileDialog(owner, title, L"", {{L"\0", L"*.vfx*\0"}}, false, out))
         {
-            auto effect = UmParticleSerializer.Deserialize(out.front());
+            auto effect = UmParticleManager.ParticleSerializer.Deserialize(out.front());
             UmParticleManager.SetCurrentEditorEffect(effect);
             _editorParticleEffectDetails->SetCurrentEffect(effect);
             _curEffect = effect;
@@ -76,7 +76,7 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
             std::wstring filename;
             if (File::ShowSaveFileDialog(UmApplication.GetHwnd(), L"Save as vfx file", L"", L"Effect.vfx", {}, path))
             {
-                UmParticleSerializer.Serialize(_curEffect,path);
+                UmParticleManager.ParticleSerializer.Serialize(_curEffect, path);
             }
         }
     }
