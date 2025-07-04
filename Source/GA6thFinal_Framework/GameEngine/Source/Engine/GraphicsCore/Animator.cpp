@@ -192,8 +192,8 @@ void Animator::Update(const float deltaTime)
 		{
             if (true == _isLoop)
             {
-                bool isDevByZero = (animation.LastTime == 0.0f); // max frame이 0일 경우 예외
-                _controllers[i].PlayTime = true == isDevByZero ? 0.0f : fmod(_controllers[i].PlayTime, animation.LastTime);
+                bool isDevByZero = (0.0f == animation.LastTime); // max frame이 0일 경우 예외
+                _controllers[i].PlayTime = isDevByZero ? 0.0f : fmod(_controllers[i].PlayTime, animation.LastTime);
             }
             else
             {
