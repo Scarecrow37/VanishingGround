@@ -1,9 +1,5 @@
 ﻿#include "pch.h"
 #include "BlurYPass.h"
-#include "Quad.h"
-#include "RenderScene.h"
-#include "RenderTarget.h"
-#include "UnorderedAccessView.h"
 
 BlurYPass::BlurYPass() {}
 

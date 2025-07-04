@@ -64,7 +64,7 @@ namespace Audio
     }
 
     void ReadChunkData::operator()(std::ifstream& fileStream, void* buffer, const std::streamsize& bufferSize,
-                                     const DWORD bufferOffset) const
+                                   const DWORD bufferOffset) const
     {
         fileStream.seekg(bufferOffset, std::ios::beg);
 

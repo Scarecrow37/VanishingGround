@@ -1,8 +1,5 @@
 ﻿#include "pch.h"
 #include "DebugDrawCore.h"
-#include "RenderScene.h"
-#include "RenderTarget.h"
-#include "DepthStencilView.h"
 
 DebugDrawCore::DebugDrawCore() {}
 

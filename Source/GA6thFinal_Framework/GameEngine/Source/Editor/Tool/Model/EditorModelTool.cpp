@@ -7,7 +7,7 @@ EditorModelTool::EditorModelTool()
     , _editorModelDetails(nullptr)
 {
     SetLabel("Viewer##model");  
-    SetDockLayout(ImGuiDir_Up);
+    SetDockLayout(ImGuiDir_Down);
 }
 
 void EditorModelTool::OnTickGui()

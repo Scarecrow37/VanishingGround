@@ -1,7 +1,6 @@
 ﻿#pragma once
 #include "RenderPass.h"
 
-class RenderTarget;
 class DownScalePass : public RenderPass
 {
 public:

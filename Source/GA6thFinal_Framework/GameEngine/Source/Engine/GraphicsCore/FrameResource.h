@@ -1,6 +1,5 @@
 ﻿#pragma once
 
-class StructuredBuffer;
 class FrameResource
 {
 public:

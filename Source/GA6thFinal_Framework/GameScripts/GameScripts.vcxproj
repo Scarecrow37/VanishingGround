@@ -299,6 +299,7 @@
 		<ClInclude Include="Scripts\GameCore\FSM\IFSMEntity.h" />
 		<ClInclude Include="Scripts\GameCore\FSM\FSMCondition.h" />
 		<ClInclude Include="Scripts\GameCore\FSM\FSMState.h" />
+		<ClInclude Include="Scripts\Mesh\SkeletalMeshRenderer.h" />
 		<ClInclude Include="Scripts\Mesh\StaticMeshRenderer.h" />
 		<ClInclude Include="Scripts\Light\Base\LightComponent.h" />
 		<ClInclude Include="Scripts\Stats\CharacterStatsComponent.h" />
@@ -357,6 +358,7 @@
 		<ClInclude Include="Scripts\Stats\Player\PlayerStatsComponent.h" />
 		<ClInclude Include="Scripts\Stats\Enemy\EnemyStatsComponent.h" />
 		<ClInclude Include="Scripts\Test\Input\InputTestComponent.h" />
+		<ClInclude Include="Scripts\Timeline\AnimationEventListener.h" />
 		<ClInclude Include="Scripts\Particle\TestParticle.h" />
 	</ItemGroup>
 	<ItemGroup>
@@ -372,6 +374,7 @@
 			<PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
 			<PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">Use</PrecompiledHeader>
 		</ClCompile>
+		<ClCompile Include="Scripts\Mesh\SkeletalMeshRenderer.cpp" />
 		<ClCompile Include="Scripts\Mesh\StaticMeshRenderer.cpp" />
 		<ClCompile Include="Scripts\Light\Base\LightComponent.cpp" />
 		<ClCompile Include="pchScripts.cpp">
@@ -436,6 +439,7 @@
 		<ClCompile Include="Scripts\Stats\Player\PlayerStatsComponent.cpp" />
 		<ClCompile Include="Scripts\Stats\Enemy\EnemyStatsComponent.cpp" />
 		<ClCompile Include="Scripts\Test\Input\InputTestComponent.cpp" />
+		<ClCompile Include="Scripts\Timeline\AnimationEventListener.cpp" />
 		<ClCompile Include="Scripts\Particle\TestParticle.cpp" />
 	</ItemGroup>
 	<ItemGroup>

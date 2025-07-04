@@ -170,8 +170,9 @@ void Device::Execute()
     // (A) 파티클 컴퓨트 작업 (Compute Queue)
     ExecuteCommand(PARTICLE_COMPUTE_LIST);
     SignalComputeQueue(PARTICLE_COMPUTE_FENCE);
-    SignalGraphicsQueue(MESH_RENDER_FENCE);
+
     ExecuteCommand(MESH_RENDER_LIST);
+    SignalGraphicsQueue(MESH_RENDER_FENCE);
     // (B) 메시 렌더 작업 (Graphics Queue)
     //--------------------------------------------------
 
@@ -180,17 +181,13 @@ void Device::Execute()
     _commandQueue->Wait(_graphicsFences[PARTICLE_COMPUTE_FENCE].Get(), _lastGraphicsFenceValues[PARTICLE_COMPUTE_FENCE]);
     _commandQueue->Wait(_graphicsFences[MESH_RENDER_FENCE].Get(), _lastGraphicsFenceValues[MESH_RENDER_FENCE]);
 
-    // [5] 파티클 렌더 실행 (Graphics Queue)
-    ExecuteCommand(PARTICLE_RENDER_LIST);
-    SignalGraphicsQueue(PARTICLE_RENDER_FENCE);
+    //// [5] 파티클 렌더 실행 (Graphics Queue)
+    //ExecuteCommand(PARTICLE_RENDER_LIST);
     
     // [6] 포트스 프로세싱 렌더 실행 (Graphics Queue)
     ExecuteCommand(POST_PROCESS_LIST);
 
-    // [7] 임구이 렌더 전 동기화
-    // 그래픽 큐 작업 완료 대기
-    _commandQueue->Wait(_graphicsFences[PARTICLE_RENDER_FENCE].Get(), _lastGraphicsFenceValues[PARTICLE_RENDER_FENCE]);
-    // [8] 임구이 렌더 실행 (Graphics Queue)
+    // [7] 임구이 렌더 실행 (Graphics Queue)
     ExecuteCommand(IMGUI_RENDER_LIST);
 }
 
@@ -415,9 +412,6 @@ void Device::ResizeSwapChain()
 void Device::CreateDeviceAndSwapChain(HWND hwnd, D3D_FEATURE_LEVEL feature)
 {
     HRESULT hr = S_OK;
-
-    hr = CreateDXGIFactory2(0, IID_PPV_ARGS(&_dxgiFactory));
-    FAILED_CHECK_MESSAGE(hr, L"Device::CreateDeviceAndSwapChain CreateDXGIFactory2 Failed");
 
     hr = CreateDXGIFactory2(0, IID_PPV_ARGS(&_dxgiFactory));
     FAILED_CHECK_MESSAGE(hr, L"Device::CreateDeviceAndSwapChain CreateDXGIFactory2 Failed");

@@ -491,9 +491,9 @@ void EditorSceneTool::DrawSceneView()
 
 void EditorSceneTool::SetCameraToFocusObject() 
 {
-    if (false == EditorHierarchyTool::HierarchyFocusObjWeak.expired())
+    if (false == EditorHierarchyTool::GetFocusObject().expired())
     {
-        auto focusObject = EditorHierarchyTool::HierarchyFocusObjWeak.lock();
+        auto focusObject = EditorHierarchyTool::GetFocusObject().lock();
         _camera->SetPosition(focusObject->transform->Position);
     }
 }
@@ -527,35 +527,51 @@ void EditorSceneTool::RayPicker()
                 Vector3 rayDir = Vector3(rayMax) - Vector3(rayMin);
                 rayDir.Normalize();
 
-                auto& meshComponents = UmSceneManager.GetMeshComponents();
-                bool  intersects     = false;
-                for (auto& weakMesh : meshComponents)
+                const std::vector<std::weak_ptr<MeshComponent>>& meshWeakComponents = UmSceneManager.GetMeshComponents();
+                std::vector<std::shared_ptr<MeshComponent>> meshComponents;
+                meshComponents.reserve(meshWeakComponents.size());
+                for (auto& weakMesh : meshWeakComponents)
                 {
-                    if (auto meshComponent = weakMesh.lock())
+                    if (std::shared_ptr<MeshComponent> mesh = weakMesh.lock())
                     {
-                        if (meshComponent->Enable && meshComponent->gameObject->ActiveInHierarchy)
+                        meshComponents.push_back(mesh);
+                    }           
+                }
+
+                const Vector3& camPosition = _camera->GetPosition();
+                std::ranges::sort(meshComponents, 
+                    [&camPosition](const std::shared_ptr<MeshComponent>& a, const std::shared_ptr<MeshComponent>& b) 
+                    {
+                        float disA = Vector3::DistanceSquared(camPosition, a->transform->Position);
+                        float disB = Vector3::DistanceSquared(camPosition, b->transform->Position);
+                        return disA < disB;
+                    });
+
+                bool intersects = false;
+                for (auto& meshComponent : meshComponents)
+                {
+                    if (meshComponent->Enable && meshComponent->gameObject->ActiveInHierarchy)
+                    {
+                        auto& meshes = meshComponent->Renderer->GetModel()->GetMeshes();
+                        for (auto& baseMesh : meshes)
                         {
-                            auto& meshes = meshComponent->Renderer->GetModel()->GetMeshes();
-                            for (auto& baseMesh : meshes)
+                            const BoundingOrientedBox& obb = baseMesh->GetBoundingBox();
+                            BoundingOrientedBox        obbWorld;
+                            const Matrix& worldMatrix = meshComponent->gameObject->transform->GetWorldMatrix();
+                            obb.Transform(obbWorld, worldMatrix);
+
+                            float dist = 0.f;
+                            intersects = obbWorld.Intersects(rayPos, rayDir, dist);
+                            if (true == intersects)
                             {
-                                const BoundingOrientedBox& obb = baseMesh->GetBoundingBox();
-                                BoundingOrientedBox        obbWorld;
-                                const Matrix& worldMatrix = meshComponent->gameObject->transform->GetWorldMatrix();
-                                obb.Transform(obbWorld, worldMatrix);
-
-                                float dist = 0.f;
-                                intersects = obbWorld.Intersects(rayPos, rayDir, dist);
-                                if (true == intersects)
-                                {
-                                    std::weak_ptr old = EditorHierarchyTool::HierarchyFocusObjWeak;
-                                    UmCommandManager.Do<Command::Hierarchy::FocusCommand>(
-                                        old, meshComponent->gameObject->GetWeakPtr());
-                                    break;
-                                }
+                                std::weak_ptr old = EditorHierarchyTool::GetFocusObject();
+                                UmCommandManager.Do<Command::Hierarchy::FocusCommand>(
+                                    old, meshComponent->gameObject->GetWeakPtr());
+                                break;
                             }
-                        }                       
-                    }
-
+                        }
+                    }                       
+                    
                     if (true == intersects)
                     {
                         break;

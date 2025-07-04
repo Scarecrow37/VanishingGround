@@ -5,6 +5,7 @@
 #include "Command/PackPrefabCommand.h"
 #include "Command/DropPrefabCommand.h"
 #include "Engine/GraphicsCore/Light.h"
+#include <Engine/GraphicsCore/MeshRenderer.h>
 #include "UmScripts.h"
 
 using namespace u8_literals;
@@ -19,7 +20,7 @@ void EditorHierarchyTool::TransformTreeNode(Transform& node, const std::shared_p
         bool result = ImGui::IsMouseReleased(ImGuiMouseButton_Left) && ImGui::IsItemHovered();
         if (result)
         {
-            auto oldWp = EditorHierarchyTool::HierarchyFocusObjWeak;
+            auto oldWp = EditorHierarchyTool::static_hierarchyFocusObjWeak;
             auto newWp = node.gameObject->GetWeakPtr();
             if (false == EditorInspectorTool::IsLockFocus() && false == EditorInspectorTool::IsFocusObject(newWp))
             {
@@ -203,12 +204,16 @@ void EditorHierarchyTool::TransformTreeNode(Transform& node, const std::shared_p
     {
         ImGui::PushID(&node);
         bool isPushStyle = PushFocusStyle();
-        if (_isOpenFocusObj)
+        if (static_isOpenFocusObj)
         {
             Transform* nodeRoot = node.Root;
             nodeRoot = nodeRoot ? nodeRoot : &node;
-            Transform* focusRoot = focusObject->transform->Root;
-            focusRoot = focusRoot ? focusRoot : &focusObject->transform;
+            Transform* focusRoot = nullptr;
+            if (focusObject)
+            {
+                focusRoot = focusObject->transform->Root;
+                focusRoot = focusRoot ? focusRoot : &focusObject->transform;
+            }
             if (nodeRoot && focusRoot)
             {
                 if (nodeRoot == focusRoot)
@@ -219,7 +224,7 @@ void EditorHierarchyTool::TransformTreeNode(Transform& node, const std::shared_p
                     }
                     else
                     {
-                        _isOpenFocusObj = false;
+                        static_isOpenFocusObj = false;
                     }
                 }
             }
@@ -257,6 +262,39 @@ void EditorHierarchyTool::TransformTreeNode(Transform& node, const std::shared_p
     }
 }
 
+
+void EditorHierarchyTool::SetFocusObject(const std::weak_ptr<GameObject>& object) 
+{
+    if (false == static_hierarchyFocusObjWeak.expired())
+    {
+        auto prevFocus = static_hierarchyFocusObjWeak.lock();
+        for (int i = 0; i < prevFocus->GetComponentCount(); ++i)
+        {
+            MeshComponent* mesh = prevFocus->GetComponentAtIndex<MeshComponent>(i);
+            if (mesh)
+            {
+                mesh->Renderer->SetCustomDepth(0);
+                mesh->Renderer->SetCustomDepth(PostProcess::BLOOM);
+            }
+        }     
+    }
+
+    static_hierarchyFocusObjWeak = object;
+
+    if (false == static_hierarchyFocusObjWeak.expired())
+    {
+        auto focus = static_hierarchyFocusObjWeak.lock();
+        for (int i = 0; i < focus->GetComponentCount(); ++i)
+        {
+            MeshComponent* mesh = focus->GetComponentAtIndex<MeshComponent>(i);
+            if (mesh)
+            {
+                mesh->Renderer->SetCustomDepth(PostProcess::OUTLINE | PostProcess::BLOOM);
+            }
+        }     
+        static_isOpenFocusObj = true;
+    }
+}
 
 EditorHierarchyTool::EditorHierarchyTool()
 {
@@ -440,9 +478,9 @@ void EditorHierarchyTool::KeyboardEvent()
         {
             if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_Delete, false))
             {
-                if (false == HierarchyFocusObjWeak.expired())
+                if (false == static_hierarchyFocusObjWeak.expired())
                 {
-                    auto object = HierarchyFocusObjWeak.lock();
+                    auto object                = static_hierarchyFocusObjWeak.lock();
                     object->GetScene().IsDirty = true;
                     UmCommandManager.Do<Command::EditorScene::DestroyGameObjectCommand>(object.get());
                 }             
@@ -453,7 +491,7 @@ void EditorHierarchyTool::KeyboardEvent()
 
 void EditorHierarchyTool::OnFrameRender()
 {
-    std::shared_ptr<GameObject> focusObject = HierarchyFocusObjWeak.lock();
+    std::shared_ptr<GameObject> focusObject = static_hierarchyFocusObjWeak.lock();
     _window = ImGui::GetCurrentWindow();
     HierarchyRightClickEvent();
     HierarchyDropEvent();
@@ -521,7 +559,7 @@ void EditorHierarchyTool::OnFrameRender()
             }
             ImGui::PopID();
         }
-        _isOpenFocusObj = false;
+        static_isOpenFocusObj = false;
     }
 
     if (_isPlay)

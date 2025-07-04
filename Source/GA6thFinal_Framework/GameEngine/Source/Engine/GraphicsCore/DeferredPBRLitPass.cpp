@@ -1,8 +1,5 @@
 ﻿#include "pch.h"
 #include "DeferredPBRLitPass.h"
-#include "RenderTarget.h"
-#include "RenderScene.h"
-#include "Quad.h"
 
 DeferredPBRLitPass::~DeferredPBRLitPass() {}
 

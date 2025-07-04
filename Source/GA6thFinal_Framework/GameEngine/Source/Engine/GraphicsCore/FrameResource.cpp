@@ -1,6 +1,5 @@
 ﻿#include "pch.h"
 #include "FrameResource.h"
-#include "StructuredBuffer.h"
 
 FrameResource::FrameResource() {}
 

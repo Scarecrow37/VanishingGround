@@ -5,8 +5,13 @@ class HierarchyFindTool;
 class EditorHierarchyTool
     : public EditorTool
 {
+    inline static std::weak_ptr<GameObject> static_hierarchyFocusObjWeak;
+    inline static bool                      static_isOpenFocusObj = false;
+
 public:
-    inline static std::weak_ptr<GameObject> HierarchyFocusObjWeak;
+    static void SetFocusObject(const std::weak_ptr<GameObject>& object);
+    static const std::weak_ptr<GameObject>& GetFocusObject() { return static_hierarchyFocusObjWeak; }
+
     EditorHierarchyTool();
     virtual ~EditorHierarchyTool();
 
@@ -14,7 +19,7 @@ public:
     static void ImGuiNewGameObjectMenuItems();
 
     /*포커싱된 오브젝트의 트리 노드를 1회 Open 합니다.*/
-    void OpenFocusObjectTree() { _isOpenFocusObj = true; }
+    void OpenFocusObjectTree() { static_isOpenFocusObj = true; }
 
 private:
     void TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>& focusObject);
@@ -46,7 +51,6 @@ private:
 
     ImGuiWindow* _window = nullptr;
     bool         _isPlay = false;
-    bool         _isOpenFocusObj = false;
 
     EditorDockWindow* _dockWindow = nullptr;
     EditorSceneTool*  _editorSceneTool = nullptr;

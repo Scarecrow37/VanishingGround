@@ -1,9 +1,5 @@
 ﻿#include "pch.h"
 #include "OutLinePass.h"
-#include "RenderScene.h"
-#include "RenderTarget.h"
-#include "Quad.h"
-#include "UnorderedAccessView.h"
 
 OutLinePass::OutLinePass() {}
 

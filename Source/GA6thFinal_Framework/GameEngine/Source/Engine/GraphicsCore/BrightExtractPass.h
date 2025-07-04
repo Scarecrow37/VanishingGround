@@ -1,7 +1,6 @@
 ﻿#pragma once
 #include "RenderPass.h"
 
-class RenderTarget;
 class BrightExtractPass : public RenderPass
 {
 public:

@@ -465,23 +465,25 @@ public:
     public:
         enum class ControllerButton
         {
-            A,
-            B,
-            X,
-            Y,
-            LEFT_TRIGGER,
-            RIGHT_TRIGGER,
-            LEFT_SHOULDER, 
-            RIGHT_SHOULDER,
-            START,
-            BACK,
-            LEFT_STICK,
-            RIGHT_STICK,
             DPAD_UP,
             DPAD_DOWN,
             DPAD_LEFT,
             DPAD_RIGHT,
-            UNKNOWN,
+            START,
+            BACK,
+            LEFT_THUMB_BUTTON,
+            RIGHT_THUMB_BUTTON,
+            LEFT_SHOULDER,
+            RIGHT_SHOULDER,
+            LEFT_TRIGGER,
+            RIGHT_TRIGGER,
+            A,
+            B,
+            X,
+            Y,
+            LEFT_THUMB_STICK,
+            RIGHT_THUMB_STICK,
+            UNKNOWN
         };
 
         enum class Action
@@ -490,7 +492,7 @@ public:
             RELEASED, 
             HELD,
             PRESSED,
-            UNKNOWN,
+            UNKNOWN
         };
 
         void UpdateInput();
@@ -498,24 +500,6 @@ public:
     private:
         static constexpr size_t ACTION_COUNT = (size_t)Action::UNKNOWN;
         static constexpr size_t CONTROLLER_BUTTON_COUNT = (size_t)ControllerButton::UNKNOWN;
-        inline static constexpr Input::Controller::Button INPUT_CONTROLLER_BUTTONS[] = 
-        {
-            Input::Controller::DPAD_UP,
-            Input::Controller::DPAD_DOWN,
-            Input::Controller::DPAD_LEFT,
-            Input::Controller::DPAD_RIGHT,
-            Input::Controller::START,
-            Input::Controller::BACK,
-            Input::Controller::LEFT_THUMB,
-            Input::Controller::RIGHT_THUMB,
-            Input::Controller::LEFT_SHOULDER,
-            Input::Controller::RIGHT_SHOULDER,
-            Input::Controller::A,
-            Input::Controller::B,
-            Input::Controller::X,
-            Input::Controller::Y
-        };
-        static constexpr size_t INPUT_CONTROLLER_BUTTON_COUNT = sizeof(INPUT_CONTROLLER_BUTTONS) / sizeof(Input::Controller::Button);
 
         Input::XInputAdapter                            _inputAdapter;
         Input::Controller                               _inputController{&_inputAdapter};
@@ -528,7 +512,7 @@ public:
             _receivers;
 
     private:
-        void UpdateTracker(int button);
+        void UpdateTracker(Input::Controller::Button button);
 
     };
 

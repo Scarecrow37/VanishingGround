@@ -1,8 +1,5 @@
 ﻿#include "pch.h"
 #include "EndlessGridPass.h"
-#include "RenderScene.h"
-#include "RenderTarget.h"
-#include "DepthStencilView.h"
 
 EndlessGridPass::EndlessGridPass() {}
 

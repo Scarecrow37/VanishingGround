@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "RenderTechnique.h"
+
 class SkyBoxRenderTechnique:public RenderTechnique
 {
 public:

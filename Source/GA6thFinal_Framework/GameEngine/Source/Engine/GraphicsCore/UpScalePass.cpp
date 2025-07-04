@@ -1,8 +1,5 @@
 ﻿#include "pch.h"
 #include "UpScalePass.h"
-#include "Quad.h"
-#include "RenderScene.h"
-#include "RenderTarget.h"
 
 UpScalePass::UpScalePass() {}
 

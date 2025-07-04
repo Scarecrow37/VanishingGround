@@ -1,7 +1,5 @@
 ﻿#include "pch.h"
 #include "Renderer.h"
-#include "RenderScene.h"
-#include "RenderTarget.h"
 #include "RendererFileEvent.h"
 
 // Geometry
@@ -20,6 +18,7 @@
 #include "BlendTechnique.h"
 #include "ParticleRenderTechnique.h"
 #include "EditorDrawTechnique.h"
+#include "UITechnique.h"
 
 Renderer::Renderer()
     : _currnetState(0)
@@ -99,6 +98,16 @@ void Renderer::RegisterRenderQueue(std::string_view sceneName, MeshRenderer* com
     scene->RegisterOnRenderQueue(component);
 }
 
+void Renderer::RegisterRenderQueue(MeshRenderer* component)
+{
+    RegisterRenderQueue("Game", component);
+
+    if constexpr (IS_EDITOR)
+    {
+        RegisterRenderQueue("Editor", component);
+    }
+}
+
 void Renderer::SetSkyBox(std::string_view sceneName, std::string_view path) 
 {
     auto iter = _renderScenes.find(sceneName.data());
@@ -114,17 +123,22 @@ void Renderer::SetSkyBox(std::string_view sceneName, std::string_view path)
 
 void Renderer::SetSkyBox(std::string_view path)
 {
-    // 얼추 게임 씬 나오면 그거 바꿔야할텐데.
-    auto  iter  = _renderScenes.find("Editor");
-    auto& scene = iter->second;
-    scene->SetSkyBox(path);
+    SetSkyBox("Game", path);
+
+    if constexpr (IS_EDITOR)
+    {
+        SetSkyBox("Editor", path);
+    }
 }
 
 void Renderer::ResetSkyBox()
 {
-    auto iter = _renderScenes.find("Editor");
-    auto& scene = iter->second;
-    scene->ResetSkyBox();
+    ResetSkyBox("Game");
+
+    if constexpr (IS_EDITOR)
+    {
+        ResetSkyBox("Editor");
+    }
 }
 
 void Renderer::ResetSkyBox(std::string_view sceneName) 
@@ -154,12 +168,12 @@ void Renderer::Initialize()
     scene->AddRenderTechnique(std::make_unique<BlendTechnique>());
     _renderScenes["Game"] = std::move(scene);
 
+    // Renderer File Event
+    _rendererFileEvent = std::make_unique<RendererFileEvent>();
+    UmFileSystem.RegisterFileEventSubscriber(_rendererFileEvent.get(), {".png", ".dds", ".fbx", ".hdr", ".UmModel"});
+
     if constexpr (IS_EDITOR)
     {
-        // Renderer File Event
-        _rendererFileEvent = std::make_unique<RendererFileEvent>();
-        UmFileSystem.RegisterFileEventSubscriber(_rendererFileEvent.get(), {".png", ".dds", ".fbx", ".UmModel"});
-
         // Editor Scene
         scene = std::make_unique<RenderScene>("Editor");
         scene->InitializeRenderScene();

@@ -11,9 +11,7 @@ BloomTechnique::BloomTechnique() {}
 BloomTechnique::~BloomTechnique() {}
 
 void BloomTechnique::Initialize(ID3D12GraphicsCommandList* commandList)
-{
-    const auto&    mode = UmDevice.GetMode();
-
+{    
     std::unique_ptr<RenderPass> pass;
     pass = std::make_unique<BrightExtractPass>();
     pass->SetOwnerScene(_ownerScene);

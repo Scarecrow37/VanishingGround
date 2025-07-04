@@ -1,8 +1,5 @@
 ﻿#include "pch.h"
 #include "BrightExtractPass.h"
-#include "Quad.h"
-#include "RenderScene.h"
-#include "RenderTarget.h"
 
 BrightExtractPass::BrightExtractPass() {}
 

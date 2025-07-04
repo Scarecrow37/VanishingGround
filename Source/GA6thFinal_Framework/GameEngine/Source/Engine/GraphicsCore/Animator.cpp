@@ -36,19 +36,109 @@ const Matrix* Animator::FindBoneMatrix(const char* boneName) const
     return nullptr;
 }
 
-float Animator::GetCurrentAnimationLastTime() const
+float Animator::GetCurrentAnimationLastTime(unsigned int ID) const
 {
-    return _controllers[0].LastTime;
+    if (ID >= _controllers.size())
+    {
+        GRAPHICS_ASSERT(false, L"Greater than the number of controllers you set.");
+        return 0.0f;
+    }
+
+    if (false == _controllers.empty())
+    {
+        return _controllers[ID].LastTime;
+    }
+    return 0.0f;
 }
 
-float Animator::GetCurrentAnimationPlayTime() const
+float Animator::GetCurrentAnimationPlayTime(unsigned int ID) const
 {
-    return _controllers[0].PlayTime;
+    if (ID >= _controllers.size())
+    {
+        GRAPHICS_ASSERT(false, L"Greater than the number of controllers you set.");
+        return 0.0f;
+    }
+
+    if (false == _controllers.empty())
+    {
+        return _controllers[ID].PlayTime;
+    }
+    return 0.0f;
+}
+
+float Animator::GetCurrentAnimationSpeed(unsigned int ID) const
+{
+    if (ID >= _controllers.size())
+    {
+        GRAPHICS_ASSERT(false, L"Greater than the number of controllers you set.");
+        return 0.0f;
+    }
+    if (false == _controllers.empty())
+    {
+        return _controllers[ID].Speed;
+    }
+    return 0.0f;
+}
+
+bool Animator::IsPaused() const
+{
+    return _isPause;
+}
+
+bool Animator::IsLoop() const
+{
+    return _isLoop;
 }
 
 void Animator::SetAnimationTime(float time) 
 {
-    _controllers[0].PlayTime = time;
+    for (unsigned int i = 0; i < _maxSplit; i++)
+    {
+        _controllers[i].PlayTime = time;
+    }
+}
+
+void Animator::SetAnimationTime(float time, unsigned int ID)
+{
+    if (ID >= _controllers.size())
+    {
+        GRAPHICS_ASSERT(false, L"Greater than the number of controllers you set.");
+        return;
+    }
+
+    if (false == _controllers.empty())
+    {
+        _controllers[0].PlayTime = time;
+    }
+}
+
+void Animator::SetAnimationSpeed(float speed)
+{
+    for (unsigned int i = 0; i < _maxSplit; i++)
+    {
+        _controllers[i].Speed = speed;
+    }
+}
+
+void Animator::SetAnimationSpeed(float speed, unsigned int ID)
+{
+    if (_maxSplit <= ID)
+    {
+        GRAPHICS_ASSERT(false, L"Greater than the number of bones you set.");
+        return;
+    }
+
+    _controllers[ID].Speed = speed;
+}
+
+void Animator::SetPause(bool isPause)
+{
+    _isPause = isPause;
+}
+
+void Animator::SetLoop(bool isLoop) 
+{
+    _isLoop = isLoop;
 }
 
 void Animator::Initialize(std::wstring_view filePath, std::shared_ptr<Skeleton> skeleton)
@@ -88,7 +178,7 @@ void Animator::Initialize(std::shared_ptr<Animation> animation, std::shared_ptr<
 
 void Animator::Update(const float deltaTime)
 {
-    if (!_isInitialize)
+    if (!_isInitialize || _isPause)
         return;
 
 	XMMATRIX identity = XMMatrixIdentity();
@@ -100,7 +190,14 @@ void Animator::Update(const float deltaTime)
 	
 		if (_controllers[i].PlayTime >= animation.LastTime)
 		{
-			_controllers[i].PlayTime = fmod(_controllers[i].PlayTime, animation.LastTime);
+            if (true == _isLoop)
+            {
+                _controllers[i].PlayTime = fmod(_controllers[i].PlayTime, animation.LastTime);
+            }
+            else
+            {
+                _controllers[i].PlayTime = animation.LastTime;
+            }
 		}
 	}
 
@@ -214,25 +311,6 @@ void Animator::SplitBone(const unsigned int ID, const char* boneName)
 
 	_skeleton->SplitBone(ID, boneName);
 	BoneMasking(_skeleton->GetBone(ID), ID);
-}
-
-void Animator::SetAnimationSpeed(float speed)
-{
-	for (unsigned int i = 0; i < _maxSplit; i++)
-	{
-		_controllers[i].Speed = speed;
-	}
-}
-
-void Animator::SetAnimationSpeed(float speed, unsigned int ID)
-{
-	if (_maxSplit <= ID)
-	{
-        GRAPHICS_ASSERT(false, L"Greater than the number of bones you set.");
-		return;
-	}
-
-	_controllers[ID].Speed = speed;
 }
 
 void Animator::MakeParent(const char* parent, const char* child)

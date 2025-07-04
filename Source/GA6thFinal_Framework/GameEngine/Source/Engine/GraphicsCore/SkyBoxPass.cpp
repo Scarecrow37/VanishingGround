@@ -1,8 +1,6 @@
 ﻿#include "pch.h"
 #include "SkyBoxPass.h"
 #include "SkyBox.h"
-#include "RenderTarget.h"
-#include "RenderScene.h"
 
 SkyBoxPass::SkyBoxPass() {}
 

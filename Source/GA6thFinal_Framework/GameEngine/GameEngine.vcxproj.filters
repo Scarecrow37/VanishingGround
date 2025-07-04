@@ -312,9 +312,6 @@
     <ClInclude Include="Source\Engine\GraphicsCore\Defines.h">
       <Filter>GraphicsCore\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\DX12Practice.h">
-      <Filter>GraphicsCore\Headers</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\GraphicsCore\Enums.h">
       <Filter>GraphicsCore\Headers</Filter>
     </ClInclude>
@@ -597,13 +594,7 @@
     <ClInclude Include="Source\Engine\GraphicsCore\Light.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\InputCore\System\InputSystem.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\InputCore\Devices\Controller\Controller.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\InputCore\Declare\InputError.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\InputCore\Adapter\Adapter.h">
@@ -681,7 +672,7 @@
     <ClInclude Include="Source\Engine\GraphicsCore\BlendPass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\EngineCore\TimelineSystem.h">
+    <ClInclude Include="Source\Engine\TimelineCore\TimelineSystem.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Editor\Tool\Sequencer\EditorSequencerTool.h">
@@ -703,6 +694,12 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\GraphicsCore\DebugDrawCore.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\TimelineCore\AnimationNotifySet.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Tool\Model\EditorAnimationNotifyTool.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\AudioCore\AudioManager\AudioManager.h">
@@ -742,6 +739,24 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\GameCore\InputReciver\InputReceiver.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\InputCore\Declare\Exceptions\InputExceptions.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\UI2DPass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\UI3DPass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\UITechnique.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\ConstantBufferView.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\Headers.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\GraphicsCore\ParticleEffectSerializer.h">
@@ -1181,9 +1196,6 @@
     <ClCompile Include="Source\Engine\GraphicsCore\Light.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\InputCore\System\InputSystem.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\InputCore\Devices\Controller\Controller.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -1280,7 +1292,7 @@
     <ClCompile Include="Source\Engine\GraphicsCore\DepthStencilView.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\EngineCore\TimelineSystem.cpp">
+    <ClCompile Include="Source\Engine\TimelineCore\TimelineSystem.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Editor\Tool\Sequencer\EditorSequencerTool.cpp">
@@ -1338,6 +1350,36 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\DXResourceManager.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\InputCore\Declare\Exceptions\InputExceptions.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\UI2DPass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\UI3DPass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\UITechnique.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\UI2DPass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\UI3DPass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\UITechnique.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\TimelineCore\AnimationNotifySet.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\Model\EditorAnimationNotifyTool.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\ConstantBufferView.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\ParticleEffectSerializer.cpp">
