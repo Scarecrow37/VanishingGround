@@ -23,11 +23,12 @@ void FileSystemModule::ModuleInitialize()
         HWND hwnd = UmApplication.GetHwnd();
         DragAcceptFiles(hwnd, TRUE);
         const MessageHandler msgHandler(FileSystemWinProc, 0);
-
         UmApplication.AddMessageHandler(msgHandler);
+
         UmFileSystem.ObserverSetUp([this](const Event& event) { RecieveFileEvent(event); });
     }
-    auto accessExt = {".txt", ".png", ".dds", ".hdr"};
+
+    auto accessExt = {".txt", ".png", ".dds", ".hdr", ".UmAnimNotifySet"};
     UmFileSystem.RegisterFileEventSubscriber(this, accessExt);
 }
 
