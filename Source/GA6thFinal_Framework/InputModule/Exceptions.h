@@ -2,11 +2,6 @@
 
 namespace Input
 {
-    struct ThrowIfFailed
-    {
-        void operator()(DWORD result, const std::string& message) const;
-    };
-
     /// <summary>
     /// 입력 예외가 발생했을 때 사용하는 예외 클래스입니다.
     /// </summary>

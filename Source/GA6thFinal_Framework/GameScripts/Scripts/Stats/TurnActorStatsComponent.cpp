@@ -1,0 +1,27 @@
+﻿#include "pchScripts.h"
+#include "CharacterStats.h"
+#include "TurnActorStatsComponent.h"
+
+TurnActorStatsComponent::TurnActorStatsComponent() = default;
+TurnActorStatsComponent::~TurnActorStatsComponent() = default;
+
+void TurnActorStatsComponent::SerializedReflectEvent() 
+{
+    ReflectFields->StatsData = _stats->SerializedReflectFields();
+}
+
+void TurnActorStatsComponent::DeserializedReflectEvent() 
+{
+    _stats->DeserializedReflectFields(ReflectFields->StatsData);
+}
+
+void TurnActorStatsComponent::ImGuiDrawPropertysEvent() 
+{
+    _stats->ImGuiDrawPropertys();
+}
+
+void TurnActorStatsComponent::Reset()
+{
+    TurnActorStats* newStats = NewTurnActorStats();
+    _stats.reset(newStats);
+}

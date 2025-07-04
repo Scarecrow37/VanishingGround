@@ -136,7 +136,8 @@ void DebugDrawCore::Render()
         renderTarget->TransitionResource(_commandList.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
         renderScene->_depthStencilView->TransitionResource(_commandList.Get(), D3D12_RESOURCE_STATE_PRESENT);
     }
-    
+    _drawDatas.clear();
+
     _commandList->Close();
     UmDevice.RegisterCommand(_commandList.Get(), CommandListType::DEBUG_RENDER_LIST);
 }

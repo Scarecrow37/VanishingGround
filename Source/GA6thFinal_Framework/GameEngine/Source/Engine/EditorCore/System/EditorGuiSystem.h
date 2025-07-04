@@ -22,6 +22,8 @@ public:
     EditorDockWindow* GetDockWindow(const std::string& label) const;
     EditorDockWindow* operator[](const std::string& label) const;
 
+    void ResetLayout();
+
     YAML::Node SaveGuiSettingToMemory();
     void       LoadGuiSettingFromMemory(YAML::Node node);
 
