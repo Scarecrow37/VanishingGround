@@ -182,10 +182,6 @@ void SkeletalMeshRenderer::SetCurrentAnimation(std::string_view animKey)
         animator->ChangeAnimation(_currentAnimationKey.c_str());
         SetAnimationFrame(0.0f);
     }
-    else
-    {
-        return;
-    }
 }
 
 void SkeletalMeshRenderer::SetAnimationFrame(float frame) 
@@ -211,13 +207,13 @@ void SkeletalMeshRenderer::SetAnimationSpeed(float speed)
 
 void SkeletalMeshRenderer::StopAnimation()
 {
-    _animationTime     = 0.0f;
+    SetAnimationFrame(0.0f);
     _isAnimationPlaying = false;
 }
 
 void SkeletalMeshRenderer::PlayAnimation()
 {
-    _animationTime     = 0.0f;
+    SetAnimationFrame(0.0f);
     _isAnimationPlaying = true;
 }
 
