@@ -180,10 +180,7 @@ void SkeletalMeshRenderer::SetCurrentAnimation(std::string_view animKey)
         const auto& animation      = model->GetAnimation();
         const auto& animationNames = animation->GetAnimations();
         animator->ChangeAnimation(_currentAnimationKey.c_str());
-    }
-    else
-    {
-        return;
+        SetAnimationFrame(0.0f);
     }
 }
 
@@ -210,13 +207,13 @@ void SkeletalMeshRenderer::SetAnimationSpeed(float speed)
 
 void SkeletalMeshRenderer::StopAnimation()
 {
-    _animationTime     = 0.0f;
+    SetAnimationFrame(0.0f);
     _isAnimationPlaying = false;
 }
 
 void SkeletalMeshRenderer::PlayAnimation()
 {
-    _animationTime     = 0.0f;
+    SetAnimationFrame(0.0f);
     _isAnimationPlaying = true;
 }
 
