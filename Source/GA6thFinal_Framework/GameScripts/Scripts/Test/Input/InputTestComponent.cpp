@@ -6,7 +6,7 @@ InputTestComponent::InputTestComponent()
     _rightTrriger = 0.f;
     _leftStickAxis = {0.f,};
     _rightStickAxis = {0.f,};
-}\
+}
 InputTestComponent::~InputTestComponent() = default;
 
 void InputTestComponent::Awake() 
