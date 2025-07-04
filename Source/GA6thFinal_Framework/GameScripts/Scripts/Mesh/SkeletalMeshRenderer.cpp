@@ -66,6 +66,7 @@ void SkeletalMeshRenderer::DeserializedReflectEvent()
 
 void SkeletalMeshRenderer::ImGuiDrawPropertysEvent() 
 {
+    ImGui::Separator();
     if (nullptr != Renderer)
     {
         const auto& model = Renderer->GetModel();

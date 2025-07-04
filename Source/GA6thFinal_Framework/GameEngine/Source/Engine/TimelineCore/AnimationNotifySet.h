@@ -35,7 +35,7 @@ private:
     void DeserializedReflectEvent() override;
 
 private:
-    File::Path _filePath;
+    File::Path _filePath = File::NULL_PATH;
     std::pair<std::string, std::shared_ptr<TimelineSystem>> _activeTimeline = { "", nullptr }; 
     std::map<std::string, std::shared_ptr<TimelineSystem>>  _timelineTable;
     REFLECT_FIELDS_BEGIN(ReflectSerializer)

@@ -5,7 +5,7 @@ using namespace std::filesystem;
 
 void AnimationNotifySet::Clear()
 {
-    _filePath = "";
+    _filePath = File::NULL_PATH;
     ClearTimeline();
 }
 
@@ -17,7 +17,7 @@ void AnimationNotifySet::ClearTimeline()
 
 bool AnimationNotifySet::IsLoadedFile() const
 {
-    return _filePath.IsNull();
+    return false == _filePath.IsNull();
 }
 
 bool AnimationNotifySet::NewFile(const File::Path& filePath)

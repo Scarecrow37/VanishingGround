@@ -30,6 +30,9 @@ public:
     void SetAnimationNotifyFromGuid(const File::Guid& guid);
     void SetAnimationNotifyFromPath(const File::Path& path);
 
+private:
+    void DrawGuiNotifiesTable();
+
 protected:
     File::GuidRef         _guidRef;
     File::Path            _filePath;
@@ -39,6 +42,9 @@ protected:
     REFLECT_FIELDS_BEGIN(Component)
     std::string Guid;
     REFLECT_FIELDS_END(AnimationEventListener)
+
+    // ImGui
+    std::string _debugTimelineName;
 };
 
 class TestTimeLineEvent_1 : public ITimelineEvent
