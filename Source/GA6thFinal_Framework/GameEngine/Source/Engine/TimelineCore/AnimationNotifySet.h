@@ -11,13 +11,15 @@ public:
     inline static const File::Path EXTENSION = L".UmAnimNotifySet";
 
 public:
-    bool NewFile(const File::Path& filePath);
-    bool SaveFile(const File::Path& filePath, bool overwrite = false);
-    bool LoadFile(const File::Path& filePath);
     void Clear();
     void ClearTimeline();
 
-    void SetActiveTimeline(std::string_view animKey);
+    bool IsLoadedFile() const;
+    bool NewFile(const File::Path& filePath);
+    bool SaveFile(const File::Path& filePath, bool overwrite = false);
+    bool LoadFile(const File::Path& filePath);
+    
+    bool SetActiveTimeline(std::string_view animKey);
     std::shared_ptr<TimelineSystem> GetActiveTimeline() const;
     const std::string& GetActiveTimelineName() const;
     bool AddTimeline(std::string_view animKey, bool active = false);
@@ -26,15 +28,14 @@ public:
     bool HasTimeline(std::string_view animKey) const;
     std::shared_ptr<TimelineSystem> GetTimeline(std::string_view animKey) const;
     const std::map<std::string, std::shared_ptr<TimelineSystem>>& GetTimelineTable() const;
-
-    const File::Path& GetFilePath() const { return _filePath; }
+    const File::Path& GetFilePath() const;
 
 private:
     void SerializedReflectEvent() override;
     void DeserializedReflectEvent() override;
 
 private:
-    File::Path _filePath;
+    File::Path _filePath = File::NULL_PATH;
     std::pair<std::string, std::shared_ptr<TimelineSystem>> _activeTimeline = { "", nullptr }; 
     std::map<std::string, std::shared_ptr<TimelineSystem>>  _timelineTable;
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
