@@ -50,20 +50,17 @@ void ParticleSpritePass::Initialize()
 void ParticleSpritePass::Begin(ID3D12GraphicsCommandList* commandlist)
 {
     auto customDepthTarget = UmMultiRenderTargetManager.GetRenderTarget("CustomDepth");
-    customDepthTarget->TransitionResource(_particleRenderCommandList,    D3D12_RESOURCE_STATE_RENDER_TARGET);
+    customDepthTarget->TransitionResource(_particleRenderCommandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
-    _ownerScene->_depthStencilView->TransitionResource(_particleRenderCommandList, D3D12_RESOURCE_STATE_DEPTH_WRITE);
-    _particleRenderCommandList->OMSetRenderTargets(1, &customDepthTarget->GetRTVHandle(), FALSE,
-                                                   &_ownerScene->_depthStencilView->GetDSVHandle());
+    _ownerScene->_depthStencilView->TransitionResource(_particleRenderCommandList, D3D12_RESOURCE_STATE_DEPTH_READ);
+    _particleRenderCommandList->OMSetRenderTargets(1, &customDepthTarget->GetRTVHandle(), FALSE, &_ownerScene->_depthStencilView->GetDSVHandle());
 
     _particleRenderCommandList->RSSetViewports(1, &customDepthTarget->GetViewPort());
     _particleRenderCommandList->RSSetScissorRects(1, &customDepthTarget->GetScissorRect());
 
     ComPtr<ID3D12Resource> resource = UmParticleManager.GetComputeOutputResource();
 
-    CD3DX12_RESOURCE_BARRIER computeOutputBarrior = CD3DX12_RESOURCE_BARRIER::Transition(
-        resource.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
-
+    CD3DX12_RESOURCE_BARRIER computeOutputBarrior = CD3DX12_RESOURCE_BARRIER::Transition( resource.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
     _particleRenderCommandList->ResourceBarrier(1, &computeOutputBarrior);
 
 
@@ -74,8 +71,7 @@ void ParticleSpritePass::Begin(ID3D12GraphicsCommandList* commandlist)
         _albedoTextureIDs[i] = albedoTextures[i]->GetID();
     }
 
-    _textureIDBuffer->CopyStructuredBuffer(_particleRenderCommandList, _albedoTextureIDs.data(),
-                                           static_cast<UINT>(albedoTextures.size() * sizeof(int)));
+    _textureIDBuffer->CopyStructuredBuffer(_particleRenderCommandList, _albedoTextureIDs.data(), static_cast<UINT>(albedoTextures.size() * sizeof(int)));
 }
 
 void ParticleSpritePass::End(ID3D12GraphicsCommandList* commandlist)
@@ -89,6 +85,11 @@ void ParticleSpritePass::End(ID3D12GraphicsCommandList* commandlist)
     _ownerScene->_depthStencilView->TransitionResource(_particleRenderCommandList, D3D12_RESOURCE_STATE_PRESENT);
     _accumlateBuffer->TransitionResource(_particleRenderCommandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     _revealageBuffer->TransitionResource(_particleRenderCommandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    
+    auto customDepthTarget = UmMultiRenderTargetManager.GetRenderTarget("CustomDepth");
+    customDepthTarget->TransitionResource(_particleRenderCommandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+
+
 }
 
 void ParticleSpritePass::Draw(ID3D12GraphicsCommandList* commandlist)
@@ -151,11 +152,7 @@ void ParticleSpritePass::InitializePSO()
     psodesc.RasterizerState                        = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
     psodesc.RasterizerState.CullMode               = D3D12_CULL_MODE_NONE;
     psodesc.BlendState                             = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-    //psodesc.BlendState                             = blendDesc;
-    psodesc.DepthStencilState                      = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-    psodesc.DepthStencilState.DepthEnable          = TRUE;
-    //psodesc.DSVFormat                              = DXGI_FORMAT_D24_UNORM_S8_UINT;
-
+    psodesc.DepthStencilState             = CommonStates::DepthRead;
     psodesc.SampleMask                             = UINT_MAX;
     psodesc.PrimitiveTopologyType                  = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
     psodesc.InputLayout                            = _spriteParticleShaderBuilder->GetInputLayout();

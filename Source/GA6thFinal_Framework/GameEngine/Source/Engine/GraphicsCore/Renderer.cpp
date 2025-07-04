@@ -178,7 +178,10 @@ void Renderer::Initialize()
         
         scene = std::make_unique<RenderScene>("ParticleEditor");
         scene->InitializeRenderScene();
+        //scene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
         scene->AddRenderTechnique(std::make_unique<ParticleRenderTechnique>());
+
+        scene->AddRenderTechnique(std::make_unique<EditorDrawTechnique>());
         scene->AddRenderTechnique(std::make_unique<BloomTechnique>());
         scene->AddRenderTechnique(std::make_unique<BlendTechnique>());
         UmParticleManager.SetCamera(scene->GetCamera());

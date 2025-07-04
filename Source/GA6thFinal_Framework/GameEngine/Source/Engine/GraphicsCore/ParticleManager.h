@@ -33,9 +33,10 @@ public:
     void                   DeleteEffect(class ParticleEffect* effect);
     void                   Update(const float deltaTime);
     void                   UpdateEffectLifeCycle();
+    void                   UpdateEditorLifeCycle();
     void                   RefreshEditor();
     class ParticleEffect*  GetCurrentEditorEffect() { return _editorCurrentEffect; }
-
+    UMPARTICLE_PROPERTY(bool, _isAutoRefresh, AutoRefresh, false);
 
 
     UINT                                  GetTotalCount() const { return _totalCount; }
@@ -146,6 +147,8 @@ private:
     float _elapsedTimer = 0.f;
     int   nameingIndex  = 0;
 
+
+   UMPARTICLE_PROPERTY(float, _deltaScale, DeltaScale, 1.f);
 
 
 };

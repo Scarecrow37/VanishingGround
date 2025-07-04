@@ -42,8 +42,6 @@ private:
     void ShowEmitterDetails();
     void ShowEffectDetails();
 
-    void Serialize(std::string filepath);
-    void Deserialize(const std::string& filepath);
 
     class ParticleEffect* _curEffect = nullptr;
     class ParticleEmitter* _curEmitter = nullptr;

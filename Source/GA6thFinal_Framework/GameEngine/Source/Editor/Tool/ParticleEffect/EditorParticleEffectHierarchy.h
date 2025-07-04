@@ -31,6 +31,8 @@ private:
 
     void OnFramePopupOpened() override;
 
+    void Serialize(std::string filepath);
+
 	void Deserialize(const std::string& filepath);
 
 private:
@@ -40,4 +42,7 @@ private:
     class ParticleEmitter*       _curEmitter = nullptr;
     void                         ShowCurrentEffects();
 
+
+    bool ctrlOflag = true;
+    bool ctrlSflag = true;
 };

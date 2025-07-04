@@ -73,3 +73,6 @@ UMREAL_COMPONENT(EnemyStatsComponent)
 
 #include "Scripts\Test/Input/InputTestComponent.h"
 UMREAL_COMPONENT(InputTestComponent)
+
+#include "Scripts\Particle/TestParticle.h"
+UMREAL_COMPONENT(TestParticle)

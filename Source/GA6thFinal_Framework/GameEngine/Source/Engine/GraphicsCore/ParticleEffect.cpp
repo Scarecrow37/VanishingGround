@@ -24,7 +24,6 @@
      _particleEmitters.reserve(other._particleEmitters.size());
      for (auto* srcEmitter : other._particleEmitters)
      {
-         if(nullptr==srcEmitter) continue;
          // Assumes ParticleEmitter has a proper copy constructor
          ParticleEmitter* cloned = new ParticleEmitter(*srcEmitter);
          cloned->Initialize(srcEmitter->GetMaxParticles(),srcEmitter->GetEmissionRate(),srcEmitter->GetEmitterLifetime(),
@@ -98,13 +97,6 @@ void ParticleEffect::UpdateParticleLifeCycle(float deltaTime)
             emitter->UpdateParticleLifeCycle(deltaTime);
         }
     }
-
-
-
-
-
-
-
 }
 
 void ParticleEffect::Play() 
@@ -112,12 +104,29 @@ void ParticleEffect::Play()
     _playFlag = true;
 }
 
-
-void ParticleEffect::Reset() {
-
+void ParticleEffect::Reset() 
+{
+    _age = 0;
+    for (auto emitter : _particleEmitters)
+    {
+        emitter->Reset();
+    }
+    _activeFlag = true;
 }
 
-void ParticleEffect::FlushEmitters() 
+void ParticleEffect::FlushEmitters()
 {
-    std::erase_if(_particleEmitters, [](ParticleEmitter* emitter) { return emitter->GetRemoveFlag(); });
+
+    for (auto it = _particleEmitters.begin(); it != _particleEmitters.end();)
+    {
+        if ((*it)->GetRemoveFlag())
+        {
+            delete *it; // 메모리 해제
+            it = _particleEmitters.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
 }

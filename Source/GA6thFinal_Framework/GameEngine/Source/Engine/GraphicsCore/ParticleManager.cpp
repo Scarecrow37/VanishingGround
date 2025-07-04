@@ -9,27 +9,17 @@ ParticleManager::~ParticleManager()
 {
     for (auto effect : _pariticleEffects)
     {
-        delete effect;
+        if (effect)
+            delete effect;
     }
     _pariticleEffects.clear();
 
     for (auto effect : _activePariticleEffects)
     {
-        delete effect;
+        if (effect)
+            delete effect;
     }
     _activePariticleEffects.clear();
-
-    //if (nullptr != _editorCurrentEffect)
-    //{
-    //    delete _editorCurrentEffect;
-    //}
-    //if (nullptr != _editorCurrentEffectInstance)
-    //{
-    //    delete _editorCurrentEffectInstance;
-    //}
-
-
-
 
     _totalParticles.clear();
     _emitterMatrix.clear();
@@ -51,41 +41,6 @@ void ParticleManager::Initialize(UINT maxParticles)
     IntializeGraphicsCommandObject();
     InitializeDescriptorHeap();
 
-    //auto effect = UmParticleManager.RegisterEffect();
-    //effect->SetPosition({0, 0, 30});
-    //// effect->SetRotation(Quaternion::CreateFromAxisAngle({0, 1, 0}, XM_PIDIV2));
-    //effect->SetLifetime(120.f);
-    //effect->SetEffectName("testeffect");
-
-    //auto emitter = UmParticleManager.RegisterEmitter(effect, 100000, 1000, 20, LocationShape::TORUS, {5, 4, 3},
-    //                                                 ParticleType::SPRITE,
-    //                                                 L"../../../Resource/Assets/ParticleTexture/defaultSmoke.jpg");
-    //emitter->SetEmitterLifetime(120.f);
-    //emitter->SetEmitterRotationE({XM_PIDIV2, 0, 0});
-    //emitter->SetEmitterName("testemitter");
-
-    //static_cast<SpriteModule*>(emitter->_particleRenderModule)
-    //    ->LoadAlbedoTexture(L"../../../Resource/Assets/ParticleTexture/defaultSmoke.jpg");
-    //emitter->SetVelocityType(VelocityScaleType::LINEAR);
-    //emitter->SetParticleLifetime(1.f);
-    //emitter->SetStartScale({0.2f, 0.2f, 1, 1});
-    //emitter->SetEndScale({0.2f, 0.2f, 1, 1});
-    //emitter->SetStartColor({0.5f, 0.5f, 1});
-    //emitter->SetEndColor({0.5f, 0.5f, 1});
-    //emitter->SetStartOpacity(0.28f);
-    //emitter->SetEndOpacity(0.28f);
-    //emitter->SetVelocityFactor({0, 0, 0});
-    //emitter->SetEmissionRate(600);
-    //// emitter->SetLocatorFactor({6, 2, 5});
-    //emitter->SetLocatorFactor({5, 4, 4});
-    //emitter->SetParticleMass(0.f);
-    //emitter->SetParticleDistributionOffset({0.2f, 0.2f, 0.2f});
-    //// emitter->SetSpawnBurstCount(5000);
-    //// emitter->SetSpawnBurstFlag(true);
-    //emitter->SetDragPoint({0, 10, 30, 0});
-    //emitter->SetDragForce({30, 1, 10, 0});
-
-    //_editorCurrentEffect = _pariticleEffects[0];
 }
 ParticleEffect* ParticleManager::RegisterEffect()
 {
@@ -93,7 +48,9 @@ ParticleEffect* ParticleManager::RegisterEffect()
     newEffect->Initialize(this);
     std::string name = "Effect" + std::to_string(nameingIndex++);
     newEffect->SetEffectName(name);
-    _pariticleEffects.push_back(newEffect);
+
+    if(false == IS_EDITOR)
+        _pariticleEffects.push_back(newEffect);
     return newEffect;
 }
 ParticleEmitter* ParticleManager::RegisterEmitter(class ParticleEffect* effect, SIZE_T maxParticles /*= 100000*/,
@@ -116,50 +73,49 @@ void ParticleManager::DeleteEffect(ParticleEffect* target)
 
 void ParticleManager::Update(const float deltaTime)
 {
-    float delta = deltaTime;
-    //if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_Space))
-    //{
-    //    pauseFlag = false == pauseFlag;
-    //}
+    float delta = deltaTime *_deltaScale;
 
-    //if (true == pauseFlag)
-    //{
-    //    delta = 0;
-    //}
 
-    for (auto effect : _activePariticleEffects)
-    {
-        effect->Update(delta);
-    }
-    if (false == _activePariticleEffects.empty())
-    {
-        CopyActiveParticles();
-    }
 
+    if (false == IS_EDITOR)
     {
-        DispatchParticleCompute(delta);
-    }
-
-    // update particle lifecycle
-    for (auto effect : _activePariticleEffects)
-    {
-        if (true == effect->GetActiveFlag())
+        for (auto effect : _activePariticleEffects)
         {
-            effect->UpdateParticleLifeCycle(delta);
+            effect->Update(delta);
         }
+        if (false == _activePariticleEffects.empty())
+        {
+            CopyActiveParticles();
+        }
+
+        DispatchParticleCompute(delta);
+
+        for (auto effect : _activePariticleEffects)
+        {
+            if (true == effect->GetActiveFlag())
+            {
+                effect->UpdateParticleLifeCycle(delta);
+            }
+        }
+
+        UpdateEffectLifeCycle();
+
     }
-
-
-    //if (false == IS_EDITOR)
-    UpdateEffectLifeCycle();
-
-    if (IS_EDITOR)
+    else
     {
-
         if (nullptr == _editorCurrentEffect)
             return;
-        if (true == _activePariticleEffects.empty())
-            _editorCurrentEffect->Play();
+        _editorCurrentEffect->Update(delta);
+        CopyActiveParticlesEditorMode();
+        DispatchParticleCompute(delta);
+        if (true == _editorCurrentEffect->GetActiveFlag())
+        {
+            _editorCurrentEffect->UpdateParticleLifeCycle(delta);
+        }
+        UpdateEditorLifeCycle();
+
+        if (false == _editorCurrentEffect->GetActiveFlag() && true == _isAutoRefresh)
+            RefreshEditor();
 
         if (true == _editorRefreshFlag)
             RefreshCurrentEditorEffect();
@@ -169,8 +125,20 @@ void ParticleManager::Update(const float deltaTime)
 
 void ParticleManager::UpdateEffectLifeCycle() 
 {
- 
-    std::erase_if(_activePariticleEffects, [](ParticleEffect* effect) { return !effect->GetActiveFlag(); });
+    // erase_if 전에 메모리 해제
+    for (auto it = _activePariticleEffects.begin(); it != _activePariticleEffects.end();)
+    {
+        if (!(*it)->GetActiveFlag())
+        {
+            delete *it; // 메모리 해제
+            it = _activePariticleEffects.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
+
     for (auto newEffect : _pariticleEffects)
     {
         if (true == newEffect->GetPlayFlag())
@@ -188,6 +156,17 @@ void ParticleManager::UpdateEffectLifeCycle()
  
         }
     }
+}
+
+void ParticleManager::UpdateEditorLifeCycle()
+{
+    if (true == _editorCurrentEffect->GetPlayFlag())
+    {
+        _editorCurrentEffect->SetPlayFlag(false);
+        _editorCurrentEffect->Reset();
+    }
+
+
 }
 
 void ParticleManager::RefreshEditor() 
@@ -212,6 +191,7 @@ void ParticleManager::SetCamera(std::shared_ptr<Camera> camera)
 
 void ParticleManager::SetCurrentEditorEffect(class ParticleEffect* newEffect) 
 {
+    delete _editorCurrentEffect;
     _editorCurrentEffect = newEffect;
     RefreshEditor();
 }
@@ -672,6 +652,8 @@ void ParticleManager::CopyActiveParticlesEditorMode()
     _activeEmitterAlbedos.clear();
     UINT emitterIndex = 0;
     _totalCount       = 0;
+    if (false == _editorCurrentEffect->GetActiveFlag())
+        return;
     for (auto emitter : _editorCurrentEffect->GetEmitterList())
     {
         if (true == emitter->GetActiveFlag())
@@ -831,23 +813,11 @@ void ParticleManager::RefreshCurrentEditorEffect()
 {
     if (false == IS_EDITOR)
         return;
-
     _editorCurrentEffect->FlushEmitters();
-    if (false == _activePariticleEffects.empty())
-        delete _activePariticleEffects[0];
-
-    _editorCurrentEffect->SetPlayFlag(false);
-    ParticleEffect* newInstance = new ParticleEffect(*_editorCurrentEffect);
-    newInstance->Reset();
-    newInstance->SetPlayFlag(true);
-    // active 벡터에 추가
-    if (false == _activePariticleEffects.empty())
-        _activePariticleEffects[0] = newInstance;
-    else
-        _activePariticleEffects.push_back(newInstance);
-
-    _editorCurrentEffectInstance = newInstance;
+    _editorCurrentEffect->Reset();
+    _editorCurrentEffect->Play();
     _editorRefreshFlag = false;
+
 }
 
 //===============================================================

@@ -153,8 +153,7 @@ void SpriteModule::LoadAlbedoTexture(std::wstring filePath)
 void SpriteModule::ChangeAlbedoTexture(std::wstring filePath) 
 {
     _isAlbedoTextureChanged = true;
-    _modelAndTexturePath = filePath;
-    _albedoTexture          = UmResourceManager.LoadResource<Texture>(_modelAndTexturePath);
+    _newAlbedoTexturePath = filePath;
 }
 
 void SpriteModule::LoadNormalTexture(std::wstring filePath) 
@@ -417,6 +416,7 @@ void ParticleEmitter::UpdateParticleLifeCycle(float deltaTime)
 void ParticleEmitter::Reset() 
 {
     _delayFlag = _activeFlag = false;
+    _endFlag                 = false;
     _delayTimer              = 0.f;
     _emitterAge              = 0.f;
     _activeParticleCount     = 0;
@@ -426,8 +426,6 @@ void ParticleEmitter::Reset()
     }
     for (size_t i = 0; i < _maxParticles; ++i)
     {
-        delete _particlePool[i]; // 기존 파티클 삭제
-        _particlePool[i] = new Particle();
         _inactiveParticleIndices.push(i);
 
     }
@@ -545,5 +543,10 @@ void ParticleEmitter::ScaleVelFromPoint(Vector3 pos)
     _velocity = temp * _velocityFactor.x;
 }
 
-void ParticleEmitter::ScaleVelInCone(Vector3 pos) {}
+void ParticleEmitter::ScaleVelInCone(Vector3 pos) 
+{
+
+
+
+}
 

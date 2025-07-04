@@ -35,7 +35,6 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
 {
 
     bool            isnewbuttonpressed = ImGui::Button("New", {180, 50});
-
      if (true == isnewbuttonpressed)
     {
          auto newEffect = UmParticleManager.RegisterEffect();
@@ -46,27 +45,68 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
         _curEffect = newEffect;
     }
 
-
-
-
     ImGui::SameLine();
+
     bool isloadbuttonpressed = ImGui::Button("Load", {180, 50});
-    bool isControlOPressed   = ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftCtrl) && ImGui::IsKeyDown(ImGuiKey::ImGuiKey_O);
+    bool isControlOPressed   = ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_O,false);
     if (true == isloadbuttonpressed || true == isControlOPressed)
     {
-
         HWND                    owner = UmApplication.GetHwnd();
         LPCWSTR                 title = L"Load vfx file";
         std::vector<File::Path> out;
         if (File::ShowOpenFileDialog(owner, title, L"", {{L"\0", L"*.vfx*\0"}}, false, out))
         {
-            Deserialize(out.front().string());
+            auto effect = UmParticleSerializer.Deserialize(out.front());
+            UmParticleManager.SetCurrentEditorEffect(effect);
+            _editorParticleEffectDetails->SetCurrentEffect(effect);
+            _curEffect = effect;
         }
     }
 
     ParticleEffect* effect = UmParticleManager.GetCurrentEditorEffect();
-    ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal, 2.f);
+    if (nullptr != effect)
+    {
+        bool isSaveButtonPressed = ImGui::Button("Save", {180, 50});
+        bool isControlSPressed =
+            ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_S, false);
 
+        if (true == isSaveButtonPressed || true == isControlSPressed)
+        {
+            File::Path   path;
+            std::wstring filename;
+            if (File::ShowSaveFileDialog(UmApplication.GetHwnd(), L"Save as vfx file", L"", L"Effect.vfx", {}, path))
+            {
+                UmParticleSerializer.Serialize(_curEffect,path);
+            }
+        }
+    }
+
+
+
+    bool isrefreshbutton = ImGui::Button("refresh", {100, 30});
+    if (true == isrefreshbutton)
+    {
+        UmParticleManager.RefreshEditor();
+
+    }
+
+    ImGui::SameLine();
+    
+    bool isAutorefresh = UmParticleManager.GetAutoRefresh();
+    ImGui::Checkbox("Auto Refresh", &isAutorefresh);
+    UmParticleManager.SetAutoRefresh(isAutorefresh);
+
+    float deltaScale = UmParticleManager.GetDeltaScale();
+    ImGui::SliderFloat("Time Speed",&deltaScale, 0.f,2.f);
+    UmParticleManager.SetDeltaScale(deltaScale);
+
+
+
+
+
+
+    ImGui::Text("current particle count : %d",UmParticleManager.GetTotalCount());
+    ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal, 2.f);
     if (nullptr == effect)
     {
         return;
@@ -138,19 +178,14 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
         auto emitter =
             UmParticleManager.RegisterEmitter(_curEffect, 100000, 1000, 20, locationType, {0, 0, 0}, particleType);
     }
-
-
     bool isSomeoneChanged   = false;
-
-
-    ImGui::Separator();
-
+    ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal,2.f);
     {
         // 부모 노드: 기본 플래그 사용
         ImGuiTreeNodeFlags parent_flags = ImGuiTreeNodeFlags_OpenOnArrow;
         bool               parent_open  = ImGui::TreeNodeEx(effect->GetEffectName().c_str(), parent_flags);
 
-        effect->SetPosition({0,0,0});
+        effect->SetPosition({0,10,0});
         bool isHovered      = ImGui::IsItemHovered();
         bool isMouseClicked = ImGui::IsMouseClicked(0);
         if (true == isHovered && true == isMouseClicked)
@@ -200,7 +235,6 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
             ImGui::TreePop();
         }
     }
-
 }
 
 void EditorParticleEffectHierarchy::OnFrameClipped() {
@@ -209,6 +243,7 @@ void EditorParticleEffectHierarchy::OnFrameClipped() {
 
 void EditorParticleEffectHierarchy::OnFrameEnd()
 {
+
 }
 
 void EditorParticleEffectHierarchy::OnFrameFocusEnter()
@@ -228,6 +263,11 @@ void EditorParticleEffectHierarchy::OnFrameFocusExit()
 void EditorParticleEffectHierarchy::OnFramePopupOpened()
 {
 
+}
+
+void EditorParticleEffectHierarchy::Serialize(std::string filepath) 
+{
+    
 }
 
 void EditorParticleEffectHierarchy::Deserialize(const std::string& filepath)
@@ -352,10 +392,8 @@ void EditorParticleEffectHierarchy::Deserialize(const std::string& filepath)
             emitter->SetDragPoint(dragPoint);
             emitter->SetDragForce(dragForce);
         }
-        UmParticleManager.SetCurrentEditorEffect(newEffect);
-        _editorParticleEffectDetails->SetCurrentEffect(newEffect);
-        _curEffect = newEffect;
     }
+
 
     is.close();
 }

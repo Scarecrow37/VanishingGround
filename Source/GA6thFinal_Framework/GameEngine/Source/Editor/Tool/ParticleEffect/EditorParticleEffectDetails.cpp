@@ -51,6 +51,10 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
      if (nullptr == _curEmitter && nullptr != _curEffect)
          ShowEffectDetails();
 
+
+
+
+
  }
 
  void EditorParticleEffectDetails::OnFrameClipped()
@@ -412,7 +416,17 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
              vel.x = temp;
              _curEmitter->SetVelocityFactor(vel);
          }
-
+         if (VelocityScaleType::CONE == veltype)
+         {
+             Vector3 vel = _curEmitter->GetVelocityFactor();
+             ImGui::Text("Velocity Scale");
+             ImGui::SameLine();
+             bool result = ImGui::SliderFloat3("##Velocity Scale", (float*)&vel, -1000, 1000);
+             if (false == isSomethingChanged)
+                 if (true == result)
+                     isSomethingChanged = result;
+             _curEmitter->SetVelocityFactor(vel);
+         }
 
 
      }
@@ -539,12 +553,17 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
                  isSomethingChanged = result;
          _curEmitter->SetParticleDistributionOffset(offset);
      }
-   
-
-
-
-
-
+     //drag
+     {
+         Vector4 force = _curEmitter->GetDragForce();
+         ImGui::Text("Drag Force");
+         ImGui::SameLine();
+         bool result = ImGui::SliderFloat4("##Drag Force", (float*)&force, -1000, 1000);
+         if (false == isSomethingChanged)
+             if (true == result)
+                 isSomethingChanged = result;
+         _curEmitter->SetDragForce(force);
+     }
 
      if (true == isSomethingChanged)
      {
@@ -569,226 +588,7 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
          _curEffect->SetLifetime(lifetime);
      }
 
-     {
-         bool isSaveButtonPressed = ImGui::Button("Save", {180,50});
-         bool isControlSPressed =
-             ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftCtrl) && 
-             ImGui::IsKeyDown(ImGuiKey::ImGuiKey_S);
-
-         if (true == isSaveButtonPressed||true ==isControlSPressed)
-         {
-             File::Path path;
-             std::wstring filename;
-             if (File::ShowSaveFileDialog(UmApplication.GetHwnd(), L"Save as vfx file", L"", L"Effect.vfx", {}, path))
-             {
-                 Serialize(path.string());
-             }
-
-         }
-        
-
-     }
+     
  }
 
-void EditorParticleEffectDetails::Serialize(std::string filepath)
- {
-     std::ofstream os(filepath, std::ios::binary);
-
-     const std::string effectname = _curEffect->GetEffectName();
-     uint32_t          nameLen    = static_cast<uint32_t>(effectname.size());
-     os.write(reinterpret_cast<const char*>(&nameLen), sizeof(nameLen));
-     os.write(effectname.c_str(), nameLen);
-
-    //lifetime
-    float lifetime = _curEffect->GetLifetime();
-    os.write(reinterpret_cast<const char*>(&lifetime), sizeof(lifetime));
-
-    uint32_t count = static_cast<uint32_t>(_curEffect->GetEmitterList().size());
-    os.write(reinterpret_cast<const char*>(&count), sizeof(count));
-
-    for (const auto* emitter : _curEffect->GetEmitterList())
-    {
-        // name length, name
-        const std::string emittername = emitter->GetEmitterName();
-        uint32_t          nameLen     = static_cast<uint32_t>(emittername.size());
-        os.write(reinterpret_cast<const char*>(&nameLen), sizeof(nameLen));
-        os.write(emittername.c_str(), nameLen);
-
-        // emitter position
-        {
-            auto temp = emitter->GetEmitterPosition();
-            os.write(reinterpret_cast<const char*>(&temp), sizeof(temp));
-        }
-
-        // emitter rotation euler
-        {
-            auto temp = emitter->GetEmitterRotationE();
-            os.write(reinterpret_cast<const char*>(&temp), sizeof(temp));
-        }
-
-        // emitter rotation quaternion
-        {
-            auto temp = emitter->GetEmitterRotationQ();
-            os.write(reinterpret_cast<const char*>(&temp), sizeof(temp));
-        }
-
-
-        // location type
-        {
-            auto temp = emitter->_locationType;
-            os.write(reinterpret_cast<const char*>(&temp), sizeof(temp));
-        }
-        // location factor
-        {
-            auto temp = emitter->_emitLocator->GetFactor();
-            os.write(reinterpret_cast<const char*>(&temp), sizeof(temp));
-        }
-
-        // velocity type
-        {
-            auto temp = emitter->_velocityType;
-            os.write(reinterpret_cast<const char*>(&temp), sizeof(temp));
-        }
-
-        // velocity factor
-        {
-            auto temp = emitter->GetVelocityFactor();
-            os.write(reinterpret_cast<const char*>(&temp), sizeof(temp));
-        }
-
-        // emitter lifetime
-        {
-            float emitterlifetime = emitter->GetEmitterLifetime();
-            os.write(reinterpret_cast<const char*>(&emitterlifetime), sizeof(emitterlifetime));
-        }
-
-        // particle lifetime
-        {
-            float particlelifetime = emitter->GetParticleLifetime();
-            os.write(reinterpret_cast<const char*>(&particlelifetime), sizeof(particlelifetime));
-        }
-
-        // max particles
-        {
-            float maxParticles = emitter->GetMaxParticles();
-            os.write(reinterpret_cast<const char*>(&maxParticles), sizeof(maxParticles));
-        }
-
-        // emission rate
-        {
-            float emissionrate = emitter->GetEmissionRate();
-            os.write(reinterpret_cast<const char*>(&emissionrate), sizeof(emissionrate));
-        }
-
-        // start delay
-        {
-            float startdelay = emitter->GetStartDelay();
-            os.write(reinterpret_cast<const char*>(&startdelay), sizeof(startdelay));
-        }
-
-        // spawn burst flag
-        {
-            float spawnBurst = emitter->GetSpawnBurstFlag();
-            os.write(reinterpret_cast<const char*>(&spawnBurst), sizeof(spawnBurst));
-        }
-
-        // spawn burst count
-        {
-            float spawnBurstCount = emitter->GetSpawnBurstCount();
-            os.write(reinterpret_cast<const char*>(&spawnBurstCount), sizeof(spawnBurstCount));
-        }
-
-        // start color
-        {
-            Vector3 startcolor = emitter->GetStartColor();
-            os.write(reinterpret_cast<const char*>(&startcolor), sizeof(startcolor));
-        }
-
-        // start alpha
-        {
-            float startopacity = emitter->GetStartOpacity();
-            os.write(reinterpret_cast<const char*>(&startopacity), sizeof(startopacity));
-        }
-
-        // end color
-        {
-            Vector3 endcolor = emitter->GetEndColor();
-            os.write(reinterpret_cast<const char*>(&endcolor), sizeof(endcolor));
-        }
-
-        // end alpha
-        {
-            float endopacity = emitter->GetEndOpacity();
-            os.write(reinterpret_cast<const char*>(&endopacity), sizeof(endopacity));
-        }
-
-        // start scale
-        {
-            Vector4 startscale = emitter->GetStartScale();
-            os.write(reinterpret_cast<const char*>(&startscale), sizeof(startscale));
-        }
-
-        // end scale
-        {
-            Vector4 endscale = emitter->GetEndScale();
-            os.write(reinterpret_cast<const char*>(&endscale), sizeof(endscale));
-        }
-
-        // particle mass
-        {
-            float mass = emitter->GetParticleMass();
-            os.write(reinterpret_cast<const char*>(&mass), sizeof(mass));
-        }
-
-        // distribution offset
-        {
-            Vector3 offset = emitter->GetParticleDistributionOffset();
-            os.write(reinterpret_cast<const char*>(&offset), sizeof(offset));
-        }
-
-        // drag point
-        {
-            Vector4 dragpoint = emitter->GetDragPoint();
-            os.write(reinterpret_cast<const char*>(&dragpoint), sizeof(dragpoint));
-        }
-
-        // drag force
-        {
-            Vector4 dragforce = emitter->GetDragForce();
-            os.write(reinterpret_cast<const char*>(&dragforce), sizeof(dragforce));
-        }
-        // render type
-        {
-            auto rendertype = emitter->_particleType;
-            os.write(reinterpret_cast<const char*>(&rendertype), sizeof(rendertype));
-        }
-
-
-
-        // render module file path
-        {
-            const std::wstring modeltexturepath = emitter->_particleRenderModule->GetModelAndTexturePath();
-            int                sizeNeeded =
-                WideCharToMultiByte(CP_UTF8, 0, modeltexturepath.data(), static_cast<int>(modeltexturepath.size()),
-                                    nullptr, 0, nullptr, nullptr);
-            std::string result(sizeNeeded, 0);
-            WideCharToMultiByte(CP_UTF8, 0, modeltexturepath.data(), static_cast<int>(modeltexturepath.size()),
-                                result.data(), sizeNeeded, nullptr, nullptr);
-
-            uint32_t pathnameLen = static_cast<uint32_t>(result.size());
-            os.write(reinterpret_cast<const char*>(&pathnameLen), sizeof(pathnameLen));
-            os.write(result.c_str(), pathnameLen);
-        }
-
-        if (ParticleType::SPRITE == emitter->_particleType)
-        {
-            // frame info
-            Vector4 frameinfo = static_cast<SpriteModule*>(emitter->_particleRenderModule)->GetInitialFrameInfo();
-            os.write(reinterpret_cast<const char*>(&frameinfo), sizeof(frameinfo));
-        }
-
-    }
-    os.close();
-
-}
 

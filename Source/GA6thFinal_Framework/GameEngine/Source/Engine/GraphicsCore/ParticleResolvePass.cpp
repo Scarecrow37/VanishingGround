@@ -25,7 +25,6 @@ void ParticleResolvePass::Initialize()
 void ParticleResolvePass::Begin(ID3D12GraphicsCommandList* commandlist)
 {
     _meshRenderTarget->TransitionResource(_particleRenderCommandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    _meshRenderTarget->ClearRenderTarget(_particleRenderCommandList);
 
     _particleRenderCommandList->OMSetRenderTargets(1, &_meshRenderTarget->GetRTVHandle(), FALSE, nullptr);
     _particleRenderCommandList->RSSetViewports(1, &_meshRenderTarget->GetViewPort());

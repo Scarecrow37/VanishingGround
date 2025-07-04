@@ -357,6 +357,7 @@
 		<ClInclude Include="Scripts\Stats\Player\PlayerStatsComponent.h" />
 		<ClInclude Include="Scripts\Stats\Enemy\EnemyStatsComponent.h" />
 		<ClInclude Include="Scripts\Test\Input\InputTestComponent.h" />
+		<ClInclude Include="Scripts\Particle\TestParticle.h" />
 	</ItemGroup>
 	<ItemGroup>
 		<ClCompile Include="dllmain.cpp">
@@ -435,6 +436,7 @@
 		<ClCompile Include="Scripts\Stats\Player\PlayerStatsComponent.cpp" />
 		<ClCompile Include="Scripts\Stats\Enemy\EnemyStatsComponent.cpp" />
 		<ClCompile Include="Scripts\Test\Input\InputTestComponent.cpp" />
+		<ClCompile Include="Scripts\Particle\TestParticle.cpp" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="cpp.hint" />
