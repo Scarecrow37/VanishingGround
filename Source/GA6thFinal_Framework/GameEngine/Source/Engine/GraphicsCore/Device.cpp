@@ -162,8 +162,8 @@ void Device::Execute()
     ExecuteCommand(MESH_COMPUTE_LIST);
     SignalComputeQueue(MESH_COMPUTE_FENCE);
 
-    // [2] 컴퓨트 큐 작업 완료 대기 (Graphics Queue)
-    _commandQueue->Wait(_graphicsFences[MESH_COMPUTE_FENCE].Get(), _lastGraphicsFenceValues[MESH_COMPUTE_FENCE]);
+    //// [2] 컴퓨트 큐 작업 완료 대기 (Graphics Queue)
+    //_commandQueue->Wait(_graphicsFences[MESH_COMPUTE_FENCE].Get(), _lastGraphicsFenceValues[MESH_COMPUTE_FENCE]);
 
     // [3] 병렬 실행: 파티클 컴퓨트 + 메시 렌더
     //--------------------------------------------------
@@ -171,16 +171,17 @@ void Device::Execute()
     ExecuteCommand(PARTICLE_COMPUTE_LIST);
     SignalComputeQueue(PARTICLE_COMPUTE_FENCE);
 
-    ExecuteCommand(MESH_RENDER_LIST);
-    SignalGraphicsQueue(MESH_RENDER_FENCE);
+    /*ExecuteCommand(MESH_RENDER_LIST);
+    SignalGraphicsQueue(MESH_RENDER_FENCE);*/
     // (B) 메시 렌더 작업 (Graphics Queue)
     //--------------------------------------------------
 
     // [4] 파티클 렌더 전 동기화
     // 컴퓨트 큐 + 그래픽 큐 작업 모두 완료 대기
+    _commandQueue->Wait(_graphicsFences[MESH_COMPUTE_LIST].Get(), _lastGraphicsFenceValues[MESH_COMPUTE_LIST]);
     _commandQueue->Wait(_graphicsFences[PARTICLE_COMPUTE_FENCE].Get(), _lastGraphicsFenceValues[PARTICLE_COMPUTE_FENCE]);
-    _commandQueue->Wait(_graphicsFences[MESH_RENDER_FENCE].Get(), _lastGraphicsFenceValues[MESH_RENDER_FENCE]);
 
+    ExecuteCommand(MESH_RENDER_LIST);
     //// [5] 파티클 렌더 실행 (Graphics Queue)
     //ExecuteCommand(PARTICLE_RENDER_LIST);
     

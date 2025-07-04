@@ -20,5 +20,4 @@ protected:
     DXGI_MODE_DESC         _mode;
     ComPtr<ID3D12Resource> _resource;
     D3D12_RESOURCE_STATES  _currentState;
-    std::unordered_map<ID3D12GraphicsCommandList*, D3D12_RESOURCE_STATES> _currentStates;
 };
