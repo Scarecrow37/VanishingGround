@@ -82,3 +82,6 @@ UMREAL_COMPONENT(AnimationEventListener)
 
 #include "Scripts\Stats/Weapon/WeaponStatsComponent.h"
 UMREAL_COMPONENT(WeaponStatsComponent)
+
+#include "Scripts\Stats/WeaponTable/WeaponTableComponent.h"
+UMREAL_COMPONENT(WeaponTableComponent)

@@ -307,6 +307,7 @@
     <ClInclude Include="Scripts\Stats\Enemy\EnemyStats.h" />
     <ClInclude Include="pchScripts.h" />
     <ClInclude Include="Scripts\Stats\Player\PlayerStats.h" />
+    <ClInclude Include="Scripts\Stats\WeaponTable\WeaponTableComponent.h" />
     <ClInclude Include="Scripts\Stats\Weapon\WeaponStats.h" />
     <ClInclude Include="Scripts\Test\Component\TestComponent.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\Base\EnemyConditionBase.h" />
@@ -385,6 +386,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Scripts\Stats\WeaponTable\WeaponTableComponent.cpp" />
     <ClCompile Include="Scripts\Test\Component\TestComponent.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\Base\EnemyConditionBase.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\EnemyDeadCondition.cpp" />

@@ -1524,19 +1524,23 @@ void ESceneManager::SceneResourceManager::Update(SceneResourceManager& manager)
 
 void ESceneManager::SceneResourceManager::RequestModelResource(const MeshComponent* meshComponent, const File::Guid& guid)
 {
-    File::Path path = UmFileSystem.GetPathFromGuid(guid);
-    if (false == path.IsNull())
+    if (meshComponent->gameObject->IsValid())
     {
-        if (auto sharedPtr = meshComponent->GetWeakPtr().lock())
+        File::Path path = UmFileSystem.GetPathFromGuid(guid);
+        if (false == path.IsNull())
         {
-            std::weak_ptr<MeshComponent> weakPtr = std::static_pointer_cast<MeshComponent>(sharedPtr);
-            auto                         pair    = std::make_pair(weakPtr, guid);
-            _models.ModelLoadQueue.push(pair);
+            if (auto sharedPtr = meshComponent->GetWeakPtr().lock())
+            {
+                std::weak_ptr<MeshComponent> weakPtr = std::static_pointer_cast<MeshComponent>(sharedPtr);
+                auto                         pair    = std::make_pair(weakPtr, guid);
+                _models.ModelLoadQueue.push(pair);
+            }
         }
-    }
-    else
-    {
-        UmLogger.Log(LogLevel::LEVEL_WARNING, std::format("{}{}", guid.string(), u8"는 존재하지 않는 리소스입니다."_c_str));
+        else
+        {
+            UmLogger.Log(LogLevel::LEVEL_WARNING,
+                         std::format("{}{}", guid.string(), u8"는 존재하지 않는 리소스입니다."_c_str));
+        }
     }
 }
 
