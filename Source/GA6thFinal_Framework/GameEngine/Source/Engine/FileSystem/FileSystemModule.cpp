@@ -17,10 +17,12 @@ void FileSystemModule::PreInitialize()
 
 void FileSystemModule::ModuleInitialize()
 {
-    HWND hwnd = UmApplication.GetHwnd();
-    DragAcceptFiles(hwnd, TRUE);
-
-    const MessageHandler msgHandler(FileSystemWinProc, 0);
+    // FileSystemModule is Only Call Editor Mode
+    if constexpr (true == IS_EDITOR)
+    {
+        HWND hwnd = UmApplication.GetHwnd();
+        DragAcceptFiles(hwnd, TRUE);
+        const MessageHandler msgHandler(FileSystemWinProc, 0);
 
     UmApplication.AddMessageHandler(msgHandler);
     UmFileSystem.ObserverSetUp([this](const Event& event) { RecieveFileEvent(event); });
@@ -30,12 +32,16 @@ void FileSystemModule::ModuleInitialize()
 
 void FileSystemModule::PreUnInitialize() 
 {
-    UmFileSystem.ObserverShutDown();
+    if constexpr (true == IS_EDITOR)
+    {
+        UmFileSystem.ObserverShutDown();
+    }
     UmFileSystem.Clear();
 }
 
 void FileSystemModule::ModuleUnInitialize() 
-{}
+{
+}
 
 void FileSystemModule::OnRequestedSave() 
 {

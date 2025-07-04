@@ -11,8 +11,9 @@ namespace File
 } // namespace File
 
 /*
-FileSystemModule은 파일 시스템을 셋업하고, 비동기적으로 받은 이벤트를
+FileSystemModule은 파일 시스템을 셋업하고, Observer를 통해 비동기적으로 받은 이벤트를
 엔진에 동기적으로 전달하는 모듈이다.
+Editor모드에서만 생성 및 사용하며, Game빌드 시에는 사용하지 않는다.
 */
 class FileSystemModule 
     : public IAppModule
@@ -24,6 +25,7 @@ class FileSystemModule
 public:
     FileSystemModule();
     ~FileSystemModule();
+
 public:
     void PreInitialize() override;
     void ModuleInitialize() override;
@@ -33,6 +35,7 @@ public:
 
     void OnRequestedSave() override;
     void OnRequestedLoad() override;
+
 public:
 
     void Update();
