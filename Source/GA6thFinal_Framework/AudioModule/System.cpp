@@ -37,7 +37,7 @@ namespace Audio
                 // 파일 포인터를 파일의 시작으로 설정.
                 fileStream.seekg(0, std::ios::beg);
 
-                while (fileStream.eof())
+                while (!fileStream.eof())
                 {
                     fileStream.read(reinterpret_cast<char*>(&format), FOURCC_COUNT);
                     fileStream.read(reinterpret_cast<char*>(&chunkDataSize), CHUNK_DATA_SIZE_COUNT);
