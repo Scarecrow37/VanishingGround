@@ -18,6 +18,7 @@
 #include "BlendTechnique.h"
 #include "ParticleRenderTechnique.h"
 #include "EditorDrawTechnique.h"
+#include "UITechnique.h"
 
 Renderer::Renderer()
     : _currnetState(0)

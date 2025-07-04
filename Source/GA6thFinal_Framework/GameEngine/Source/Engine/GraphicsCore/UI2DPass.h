@@ -14,5 +14,6 @@ public:
     void End(ID3D12GraphicsCommandList* commandList) override;
 
 private:
-    ConstantBufferView _2DCamera;
+    std::unique_ptr<Camera>             _2DCamera;
+    std::unique_ptr<ConstantBufferView> _cameraBuffer;
 };

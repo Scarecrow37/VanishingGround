@@ -47,6 +47,7 @@ public:
     std::string                                                  _finalTargetName;
     std::vector<std::unique_ptr<RenderTechnique>>                _techniques;
     std::vector<std::pair<std::unique_ptr<bool>, MeshRenderer*>> _renderQueue;
+    std::vector<std::pair<std::unique_ptr<bool>, void*>>         _renderUIQueue;
 
     // Frame Resource
     std::vector<std::unique_ptr<FrameResource>> _frameResources;
