@@ -362,6 +362,7 @@
 		<ClInclude Include="Scripts\Test\Input\InputTestComponent.h" />
 		<ClInclude Include="Scripts\Timeline\AnimationEventListener.h" />
 		<ClInclude Include="Scripts\Stats\Weapon\WeaponStatsComponent.h" />
+		<ClInclude Include="Scripts\Stats\WeaponTable\WeaponTableComponent.h" />
 	</ItemGroup>
 	<ItemGroup>
 		<ClCompile Include="dllmain.cpp">
@@ -443,6 +444,7 @@
 		<ClCompile Include="Scripts\Test\Input\InputTestComponent.cpp" />
 		<ClCompile Include="Scripts\Timeline\AnimationEventListener.cpp" />
 		<ClCompile Include="Scripts\Stats\Weapon\WeaponStatsComponent.cpp" />
+		<ClCompile Include="Scripts\Stats\WeaponTable\WeaponTableComponent.cpp" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="cpp.hint" />
