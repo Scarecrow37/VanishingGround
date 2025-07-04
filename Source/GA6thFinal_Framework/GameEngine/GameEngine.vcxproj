@@ -296,9 +296,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Engine\AudioCore\AudioManager\AudioManager.h" />
-    <ClInclude Include="Source\Engine\AudioCore\Declare\Callback\IncreaseGenerationCallback.h" />
-    <ClInclude Include="Source\Engine\AudioCore\Source\AudioSource.h" />
     <ClInclude Include="Source\Engine\EditorCore\Utillity\EditorDragState.h" />
     <ClInclude Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectDetails.h" />
     <ClInclude Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectHierarchy.h" />
@@ -506,9 +503,6 @@
     <ClInclude Include="Source\Engine\EngineCore\TimelineSystem.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Engine\AudioCore\AudioManager\AudioManager.cpp" />
-    <ClCompile Include="Source\Engine\AudioCore\Declare\Callback\IncreaseGenerationCallback.cpp" />
-    <ClCompile Include="Source\Engine\AudioCore\Source\AudioSource.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\Utillity\EditorDragState.cpp" />
     <ClCompile Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectDetails.cpp" />
     <ClCompile Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectHierarchy.cpp" />
@@ -851,6 +845,11 @@
     <None Include="Source\Engine\Imgui\imgui_bezier_math.inl" />
     <None Include="Source\Engine\Imgui\imgui_extra_math.inl" />
     <None Include="Source\Engine\Imgui\imgui_node_editor_internal.inl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AudioModule\AudioModule.vcxproj">
+      <Project>{c0aa9053-aa4a-4f8e-9865-59aa31873b8c}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -25,6 +25,12 @@
     <Filter Include="Handle">
       <UniqueIdentifier>{6aff9f40-c4c8-4e0f-aff7-4aaf7a75b335}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source">
+      <UniqueIdentifier>{ffa700ac-b84e-4d90-911f-c84ac2eaaf29}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Callback">
+      <UniqueIdentifier>{40658823-65b1-4088-9110-95e0fafe74cb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -48,6 +54,12 @@
     <ClInclude Include="System.h">
       <Filter>System</Filter>
     </ClInclude>
+    <ClInclude Include="Source.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Callback.h">
+      <Filter>Callback</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -64,6 +76,12 @@
     </ClCompile>
     <ClCompile Include="Handle.cpp">
       <Filter>Handle</Filter>
+    </ClCompile>
+    <ClCompile Include="Source.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Callback.cpp">
+      <Filter>Callback</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

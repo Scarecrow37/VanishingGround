@@ -10,7 +10,7 @@ namespace Audio
     /// </summary>
     class Source
     {
-        friend class EManager;
+        friend class System;
 
     public:
         Source(const Source&)            = delete;
