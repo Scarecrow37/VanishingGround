@@ -2,11 +2,6 @@
 
 namespace Audio
 {
-    struct ThrowIfFailed
-    {
-        void operator()(HRESULT result, const std::string& message) const;
-    };
-
     /// <summary>
     /// 오디오 관련 예외를 나타내는 예외 클래스입니다.
     /// </summary>

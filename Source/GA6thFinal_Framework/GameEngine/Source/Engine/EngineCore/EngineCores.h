@@ -18,7 +18,7 @@ public:
     GraphicsCore Graphics;
     ECommandManager CommandManager;
     EFactoryRegister FactoryRegister;
-    Audio::EManager AudioManager;
+    Audio::System AudioManager;
 
     ReflectHelper::ImGuiDraw::InputAutoSetting ImGuiDrawPropertysSetting;
 private:
