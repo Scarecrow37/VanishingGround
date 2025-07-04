@@ -2,13 +2,12 @@
 
 namespace Audio
 {
-    class EManager;
+    class System;
 
-    class IncreaseGenerationCallback final : public IXAudio2VoiceCallback
+    class Callback final : public IXAudio2VoiceCallback
     {
     public:
-        IncreaseGenerationCallback();
-        IncreaseGenerationCallback(EManager* manager, const Handle& handle);
+        Callback();
 
         void STDMETHODCALLTYPE OnVoiceProcessingPassStart(UINT32) override {}
         void STDMETHODCALLTYPE OnVoiceProcessingPassEnd() override {}
@@ -18,8 +17,9 @@ namespace Audio
         void STDMETHODCALLTYPE OnLoopEnd(void* pBufferContext) override {}
         void STDMETHODCALLTYPE OnVoiceError(void* pBufferContext, HRESULT) override {}
 
+        void SetOnBufferEndCallback(std::function<void()> callback) { _onBufferEnd = std::move(callback); }
+
     private:
-        EManager* _manager;
-        Handle    _handle;
+        std::function<void()> _onBufferEnd;
     };
 } // namespace Audio

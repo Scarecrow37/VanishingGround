@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "Callback.h"
 
 namespace Audio
 {
@@ -9,26 +10,25 @@ namespace Audio
     /// <summary>
     /// 오디오 소스를 관리하고 재생, 정지, 생성 등의 기능을 제공하는 클래스입니다.
     /// </summary>
-    class EManager
+    class System
     {
         friend class EngineCores;
-        friend class IncreaseGenerationCallback;
 
         struct SourceVoice
         {
-            Generation                 Generation;
-            IncreaseGenerationCallback Callback;
-            IXAudio2SourceVoice*       Voice;
+            Generation           Generation;
+            Callback             Callback;
+            IXAudio2SourceVoice* Voice;
         };
 
-        EManager();
+        System();
 
     public:
-        ~EManager();
-        EManager(const EManager&)            = delete;
-        EManager& operator=(const EManager&) = delete;
-        EManager(EManager&& other) noexcept;
-        EManager& operator=(EManager&& other) noexcept;
+        ~System();
+        System(const System&)            = delete;
+        System& operator=(const System&) = delete;
+        System(System&& other) noexcept;
+        System& operator=(System&& other) noexcept;
 
         /// <summary>
         /// 초기화 작업을 수행합니다. 최초 1회 호출되어야 합니다.
@@ -65,8 +65,7 @@ namespace Audio
         [[nodiscard]] bool IsValidHandle(const Handle& handle) const noexcept;
 
     private:
-        [[nodiscard]] WaveFormatHash GetWaveFormatHash(const WAVEFORMATEX& waveFormat) const;
-        void                         ReleaseVoice(const Handle& handle);
+        void ReleaseVoice(const Handle& handle);
 
         winrt::com_ptr<IXAudio2> _xAudio2;
         IXAudio2MasteringVoice*  _masteringVoice = nullptr;
