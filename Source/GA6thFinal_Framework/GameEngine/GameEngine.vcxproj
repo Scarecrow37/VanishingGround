@@ -400,11 +400,6 @@
     <ClInclude Include="Source\Engine\Imgui\ImSequencer.h" />
     <ClInclude Include="Source\Engine\Imgui\ImZoomSlider.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Animator.h" />
-    <ClInclude Include="Source\Engine\InputCore\Adapter\Adapter.h" />
-    <ClInclude Include="Source\Engine\InputCore\Adapter\Controller\ControllerAdapter.h" />
-    <ClInclude Include="Source\Engine\InputCore\Adapter\Controller\XInput\XInputAdapter.h" />
-    <ClInclude Include="Source\Engine\InputCore\Declare\Exceptions\InputExceptions.h" />
-    <ClInclude Include="Source\Engine\InputCore\Devices\Controller\Controller.h" />
     <ClInclude Include="Source\Engine\Utility\EditorHelper.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\RenderPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\RenderTechnique.h" />
@@ -661,11 +656,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Source\Engine\InputCore\Adapter\Adapter.cpp" />
-    <ClCompile Include="Source\Engine\InputCore\Adapter\Controller\ControllerAdapter.cpp" />
-    <ClCompile Include="Source\Engine\InputCore\Adapter\Controller\XInput\XInputAdapter.cpp" />
-    <ClCompile Include="Source\Engine\InputCore\Declare\Exceptions\InputExceptions.cpp" />
-    <ClCompile Include="Source\Engine\InputCore\Devices\Controller\Controller.cpp" />
     <ClCompile Include="Source\Engine\Utility\EditorHelper.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\RenderPass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\RenderTechnique.cpp" />
@@ -873,6 +863,11 @@
     <None Include="Source\Engine\Imgui\imgui_bezier_math.inl" />
     <None Include="Source\Engine\Imgui\imgui_extra_math.inl" />
     <None Include="Source\Engine\Imgui\imgui_node_editor_internal.inl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\InputModule\InputModule.vcxproj">
+      <Project>{c56311d7-823b-4cea-bc18-4e55f615ad78}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
