@@ -70,6 +70,7 @@ void WeaponTableComponent::Awake()
     if (nullptr == static_instance)
     {
         static_instance = this;
+        gameObject->AddTag(TAG);
     }
     else
     {

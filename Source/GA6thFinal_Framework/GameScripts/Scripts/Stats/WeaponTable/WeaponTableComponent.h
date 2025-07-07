@@ -8,6 +8,7 @@ class WeaponTableComponent : public Component
     inline static WeaponTableComponent* static_instance = nullptr;
 
 public:
+    inline static constexpr char TAG[] = "WeaponTable";
     static WeaponTableComponent* GetInstance() { return static_instance; }
 public:
     WeaponTableComponent();
