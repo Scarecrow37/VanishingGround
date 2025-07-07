@@ -1,7 +1,6 @@
 #include "CommonData.hlsli"
 
-Texture2D screen : register(t0);
-Texture2D UI : register(t1);
+Texture2D screenTexture : register(t0);
 
 struct PSInput
 {
@@ -11,7 +10,5 @@ struct PSInput
 
 float4 ps_main(PSInput input) : SV_Target
 {
-    float4 screenPixel = screen.Sample(samLinear_wrap, input.uv);
-    
-    return screenPixel;
+    return screenTexture.Sample(samLinear_wrap, input.uv);
 }

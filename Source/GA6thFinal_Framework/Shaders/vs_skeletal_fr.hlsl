@@ -34,9 +34,6 @@ VSOutput vs_main(VSInput input)
     matrix worldTransform = mul(boneTransform, worldMatrices[objectData.ID]);
     
     VSOutput output = (VSOutput) 0;
-    float3 normal = normalize(input.normal);
-    float3 tangent = normalize(input.tangent);
-    float3 biTangent = normalize(input.biTangent);
     
     output.position = mul(input.position, worldTransform);
     
@@ -44,9 +41,9 @@ VSOutput vs_main(VSInput input)
     output.position = mul(output.position, cameraData.View);
     output.position = mul(output.position, cameraData.Projection);
     
-    output.normal = normalize(mul(normal, (float3x3) worldTransform));
-    output.tangent = normalize(mul(tangent, (float3x3) worldTransform));
-    output.biTangent = normalize(mul(biTangent, (float3x3) worldTransform));
+    output.normal = normalize(mul(input.normal, (float3x3) worldTransform));
+    output.tangent = normalize(mul(input.tangent, (float3x3) worldTransform));
+    output.biTangent = normalize(mul(input.biTangent, (float3x3) worldTransform));
     
     output.uv = input.uv;
 
