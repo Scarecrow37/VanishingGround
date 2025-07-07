@@ -871,6 +871,11 @@
       <Project>{c56311d7-823b-4cea-bc18-4e55f615ad78}</Project>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AudioModule\AudioModule.vcxproj">
+      <Project>{c0aa9053-aa4a-4f8e-9865-59aa31873b8c}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -4,7 +4,6 @@
 struct WeaponStats : public TurnActorStats
 {
     USING_PROPERTY(WeaponStats)
-
     enum class WeaponType
     {
         SWORD,    // 검
@@ -43,12 +42,30 @@ struct WeaponStats : public TurnActorStats
 
 protected:
     REFLECT_FIELDS_BEGIN(TurnActorStats)
-    std::string Name;
+    std::string Name = "Default Sword";
     WeaponType  Type = WeaponType::SWORD;
     int         HitDamage = 1;
     int         CriticalDamage = 2;
     int         Speed = 0;
     int         AttackCount = 1;
     REFLECT_FIELDS_END(WeaponStats)
+
+public:
+    WeaponStats(const WeaponStats& rhs) 
+    {     
+        auto& myRf = *ReflectFields;
+        auto& rhsRf = *rhs.ReflectFields;
+        myRf = rhsRf;
+    }
+    WeaponStats& operator=(const WeaponStats& rhs)
+    {
+        if (this != &rhs)
+        {
+            auto& myRf  = *ReflectFields;
+            auto& rhsRf = *rhs.ReflectFields;
+            myRf        = rhsRf;
+        }
+        return *this;
+    }
 
 };
