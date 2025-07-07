@@ -48,7 +48,10 @@ void TurnMode::MakeTurnList()
             Player* player = object->GetComponent<Player>();
             if (nullptr != player)
             {
-                _turnList.push_back(player);
+                for (int i = 0; i < player->EQUIP_WEAPONS_SIZE; i++)
+                {
+                    _turnList.emplace_back(i, player);
+                }       
             }
         }
     }
@@ -62,7 +65,7 @@ void TurnMode::MakeTurnList()
             Enemy* enemy = object->GetComponent<Enemy>();
             if (nullptr != enemy)
             {
-                _turnList.push_back(enemy);
+                _turnList.emplace_back(-1, enemy);
             }
         }
     }
@@ -72,16 +75,18 @@ void TurnMode::SortTurnList()
 {
     if (false == _turnList.empty())
     {
-        for (auto& actor : _turnList)
+        for (auto& turnSlot : _turnList)
         {
+            auto& [slot, actor] = turnSlot;
             actor->OnRoundStart();
         }
 
         std::shuffle(_turnList.begin(), _turnList.end(), Random::GetEngine());
-        std::sort(_turnList.begin(), _turnList.end(), [](TurnActor* actorA, TurnActor* actorB) 
+        std::sort(_turnList.begin(), _turnList.end(),
+        [this](std::pair<int, TurnActor*>& turnSlotA, std::pair<int, TurnActor*>& turnSlotB) 
         {
-            int speedA = actorA->RoundSpeed;
-            int speedB = actorB->RoundSpeed;
+            int speedA = GetRealRoundSpeed(turnSlotA);
+            int speedB = GetRealRoundSpeed(turnSlotB);
             return speedA > speedB;
         });
     }
@@ -92,10 +97,17 @@ TurnActor* TurnMode::PopTurnList()
     _currTurnActor = nullptr;
     while (false == _turnList.empty())
     {
-        _currTurnActor = _turnList.front();
+        auto& actorSlot = _turnList.front();
+        auto& [slot, actor] = actorSlot;
+        _currTurnActor      = actor;
         _turnList.pop_front();
         if (_currTurnActor->State == TurnActor::STATE::Wait)
         {
+            if (true == IsPlayerActorSlot(actorSlot))
+            {
+                Player* player = static_cast<Player*>(actor);
+                player->SetCurrentWeaponSlot(slot);
+            }
             break;
         }
         _currTurnActor = nullptr;
@@ -150,6 +162,23 @@ void TurnMode::BuildTurnModeFSM()
 
 
     }
+}
+
+int TurnMode::GetRealRoundSpeed(const std::pair<int, TurnActor*>& turnActor)
+{
+    bool isPlayer = IsPlayerActorSlot(turnActor);
+    auto& [slot, actor] = turnActor;
+    int roundSpeed      = 0;
+    if (isPlayer)
+    {
+        Player* player = static_cast<Player*>(actor);
+        roundSpeed = player->GetRoundSpeedToSlot(slot);
+    }
+    else
+    {
+        roundSpeed = actor->RoundSpeed;
+    }
+    return roundSpeed;
 }
 
 void TurnMode::Awake() 
@@ -209,8 +238,9 @@ void TurnMode::ImGuiDrawPropertysEvent()
             ImGui::TableSetupColumn("State");
             ImGui::TableSetupColumn("Round Speed");
             ImGui::TableHeadersRow();
-            for (auto& actor : _turnList)
+            for (auto& turnSlot : _turnList)
             {
+                auto& [slot, actor] = turnSlot;
                 ImGui::PushID(actor);
                 {
                     ImGui::TableNextRow();
@@ -224,7 +254,7 @@ void TurnMode::ImGuiDrawPropertysEvent()
                     TurnActor::STATE currState = actor->State;
                     ImGui::Text(rfl::enum_to_string(currState).data());
                     ImGui::TableSetColumnIndex(3);
-                    int roundSpeed = actor->RoundSpeed;
+                    int roundSpeed = GetRealRoundSpeed(turnSlot);
                     ImGui::Text("%d", roundSpeed);
                 }
                 ImGui::PopID();
