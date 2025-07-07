@@ -88,3 +88,6 @@ UMREAL_COMPONENT(WeaponTableComponent)
 
 #include "Scripts\Particle/TestParticle.h"
 UMREAL_COMPONENT(TestParticle)
+
+#include "Scripts\Test/UI/TestUI.h"
+UMREAL_COMPONENT(TestUI)

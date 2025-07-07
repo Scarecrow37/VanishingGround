@@ -729,9 +729,6 @@
     <ClInclude Include="Source\Engine\GameCore\InputReciver\InputReceiver.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\InputCore\Declare\Exceptions\InputExceptions.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\GraphicsCore\UI2DPass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -751,6 +748,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\GraphicsCore\UIRenderer.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\UIPassBase.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1331,9 +1331,6 @@
     <ClCompile Include="Source\Engine\GraphicsCore\DXResourceManager.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\InputCore\Declare\Exceptions\InputExceptions.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\UI2DPass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -1365,6 +1362,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\UIRenderer.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\UIPassBase.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

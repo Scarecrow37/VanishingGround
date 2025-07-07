@@ -38,6 +38,11 @@ public:
     void ResetSkyBox();
 
 private:
+    void UpdateGlobal();
+    void UpdateObject();
+    void UpdateUI();
+
+ private:
     void CreateRenderTarget();
     void CreateDepthStencil();
     void CreateFrameResource();
@@ -57,8 +62,9 @@ public:
     std::vector<LightData>                      _lightDatas;
     std::vector<XMMATRIX>                       _worldMatrices;
     std::vector<BoneMatrices>                   _boneMatrices;
-    std::vector<XMMATRIX>                       _uiMatrices;
     std::vector<MaterialID>                     _materialIDs;
+    std::vector<XMMATRIX>                       _uiMatrices;
+    std::vector<UIMaterial>                     _uiMaterials;
     std::shared_ptr<Camera>                     _camera;
     NumLight                                    _numLight;
 

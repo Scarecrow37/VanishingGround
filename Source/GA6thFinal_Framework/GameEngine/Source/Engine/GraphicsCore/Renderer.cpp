@@ -182,7 +182,7 @@ void Renderer::Initialize()
     CreateDefaultResource();
 
     std::unique_ptr<RenderScene> scene;
-
+    
     scene = std::make_unique<RenderScene>("Game");
     scene->InitializeRenderScene();
     scene->AddRenderTechnique(std::make_unique<SkyBoxRenderTechnique>());
@@ -204,8 +204,9 @@ void Renderer::Initialize()
         scene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
         scene->AddRenderTechnique(std::make_unique<EditorDrawTechnique>());
         scene->AddRenderTechnique(std::make_unique<BlendTechnique>());
+        scene->AddRenderTechnique(std::make_unique<UITechnique>());
         _renderScenes["Editor"] = std::move(scene);
-
+    
         // Model Viewer Scene
         scene = std::make_unique<RenderScene>("ModelViewer");
         scene->InitializeRenderScene();
@@ -217,7 +218,7 @@ void Renderer::Initialize()
         scene->InitializeRenderScene();
         //scene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
         scene->AddRenderTechnique(std::make_unique<ParticleRenderTechnique>());
-
+    
         scene->AddRenderTechnique(std::make_unique<EditorDrawTechnique>());
         scene->AddRenderTechnique(std::make_unique<BloomTechnique>());
         scene->AddRenderTechnique(std::make_unique<BlendTechnique>());
@@ -271,24 +272,22 @@ void Renderer::CreateDefaultGeometry()
     box->Initialize(1.f, 1.f, 1.f);
 
     std::unique_ptr<Sphere> sphere = std::make_unique<Sphere>();
-    sphere                         = std::make_unique<Sphere>();
     sphere->Initialize(1.f, 20, 20);
 
     std::unique_ptr<GeoSphere> geoSphere = std::make_unique<GeoSphere>();
-    geoSphere                            = std::make_unique<GeoSphere>();
     geoSphere->Initialize(1.f, 5);
 
     std::unique_ptr<Cylinder> cylinder = std::make_unique<Cylinder>();
-    cylinder                           = std::make_unique<Cylinder>();
     cylinder->Initialize(0.5f, 0.3f, 2.f, 20, 20);
 
     std::unique_ptr<Grid> grid = std::make_unique<Grid>();
-    grid                       = std::make_unique<Grid>();
     grid->Initialize(20.f, 30.f, 4, 4);
 
     std::unique_ptr<Quad> quad = std::make_unique<Quad>();
-    quad                       = std::make_unique<Quad>();
     quad->Initialize(-1.0f, 1.0f, 2.0f, 2.0f, 0.0f);
+
+    std::unique_ptr<Quad> halfQuad = std::make_unique<Quad>();
+    halfQuad->Initialize(-0.5f, 0.5f, 1.0f, 1.0f, 0.0f);
 
     std::shared_ptr<Model>    geometry;
     std::unique_ptr<BaseMesh> baseMesh;
@@ -330,6 +329,12 @@ void Renderer::CreateDefaultGeometry()
     geometry->AddMesh(std::move(baseMesh));
     _defaultResource.push_back(geometry);
     resourceManager.AddResource(L"Quad", geometry);
+
+    baseMesh = std::move(halfQuad);
+    geometry = std::make_shared<Model>();
+    geometry->AddMesh(std::move(baseMesh));
+    _defaultResource.push_back(geometry);
+    resourceManager.AddResource(L"HalfQuad", geometry);
 }
 
 void Renderer::CreateDefaultTexture()

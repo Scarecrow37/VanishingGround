@@ -1,7 +1,7 @@
 ﻿#pragma once
-#include "RenderPass.h"
+#include "UIPassBase.h"
 
-class UI2DPass : public RenderPass
+class UI2DPass : public UIPassBase
 {
 public:
     UI2DPass(const std::vector<UINT>& instanceIDs);
@@ -14,8 +14,6 @@ public:
     void End(ID3D12GraphicsCommandList* commandList) override;
 
 private:
-    const std::vector<UINT>&            _instanceIDs;
     std::unique_ptr<Camera>             _2DCamera;
     std::unique_ptr<ConstantBufferView> _cameraBuffer;
-    std::unique_ptr<ConstantBufferView> _instnaceIDBuffer;
 };

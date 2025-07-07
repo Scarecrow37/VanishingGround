@@ -19,3 +19,8 @@ void UIRenderer::RegisterRenderQueue()
 {
     UmRenderer.RegisterRenderQueue(this);
 }
+
+void UIRenderer::LoadTexture(std::wstring_view filePath)
+{
+    _texture = UmResourceManager.LoadResource<Texture>(filePath);
+}

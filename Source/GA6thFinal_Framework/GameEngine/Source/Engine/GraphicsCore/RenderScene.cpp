@@ -51,6 +51,9 @@ void RenderScene::InitializeRenderScene()
 
 void RenderScene::RegisterOnRenderQueue(MeshRenderer* component)
 {
+    if (nullptr == component)
+        return;
+
     auto iter = std::find_if(_meshRenderQueue.begin(), _meshRenderQueue.end(), [](const auto& pair) { return !pair.first.get(); });
 
     if (iter != _meshRenderQueue.end())
@@ -65,6 +68,9 @@ void RenderScene::RegisterOnRenderQueue(MeshRenderer* component)
 
 void RenderScene::RegisterOnRenderQueue(UIRenderer* component)
 {
+    if (nullptr == component)
+        return;
+
     auto iter = std::find_if(_uiRenderQueue.begin(), _uiRenderQueue.end(), [](const auto& pair) { return !pair.first.get(); });
 
     if (iter != _uiRenderQueue.end())
@@ -87,17 +93,51 @@ void RenderScene::AddRenderTechnique(std::unique_ptr<RenderTechnique> technique)
 
 void RenderScene::UpdateRenderScene()
 {
-    // 카메라 업데이트
+    UpdateGlobal();
+    UpdateObject();
+    UpdateUI();
+
+    ID3D12GraphicsCommandList* commandList = UmDevice.GetCommandList();
+
+    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, FrameResourceType::TRANSFORM, _worldMatrices.data(), (UINT)_worldMatrices.size());
+    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, FrameResourceType::BONE_MATRICES, _boneMatrices.data(), (UINT)_boneMatrices.size());
+    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, FrameResourceType::MATERIAL, _materialIDs.data(), (UINT)_materialIDs.size());
+    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, FrameResourceType::UI_TRANSFORM, _uiMatrices.data(), (UINT)_uiMatrices.size());
+    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, FrameResourceType::UI_MATERIAL, _uiMaterials.data(), (UINT)_uiMaterials.size());
+}
+
+void RenderScene::Execute(ID3D12GraphicsCommandList* commandList)
+{
+    auto descriptorHeap = UmViewManager.GetShaderResourceHeap();
+    commandList->SetDescriptorHeaps(1, &descriptorHeap);
+
+    _accumulationBuffer->TransitionResource(commandList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+    _accumulationBuffer->ClearUnorderedAccessView(commandList);
+
+    auto meshRenderTarget = UmMultiRenderTargetManager.GetRenderTarget(_meshRenderTargetName);
+    meshRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    meshRenderTarget->ClearRenderTarget(commandList);
+
+    _depthStencilView->TransitionResource(commandList, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+    _depthStencilView->ClearDepthStencilView(commandList);
+
+    for (auto& tech : _techniques)
+    {
+        tech->Execute(commandList);
+    }
+
+    _depthStencilView->TransitionResource(commandList, D3D12_RESOURCE_STATE_PRESENT);
+}
+
+void RenderScene::ResetSkyBox()
+{
+    _skyBox->ResetResource();
+}
+
+void RenderScene::UpdateGlobal()
+{
+    _currentFrameIndex = UmDevice.GetCurrentBackBufferIndex();
     _camera->Update();
-
-    // 비활성된 컴포넌트 제거
-    auto meshFirst = std::remove_if(_meshRenderQueue.begin(), _meshRenderQueue.end(), [](const auto& pair) { return *pair.first; });
-    _meshRenderQueue.erase(meshFirst, _meshRenderQueue.end());
-
-    auto uiFirst = std::remove_if(_uiRenderQueue.begin(), _uiRenderQueue.end(), [](const auto& pair) { return *pair.first; });
-    _uiRenderQueue.erase(uiFirst, _uiRenderQueue.end());
-
-    _currentFrameIndex   = UmDevice.GetCurrentBackBufferIndex();
 
     CameraData cameraData{.View              = XMMatrixTranspose(_camera->GetViewMatrix()),
                           .Projection        = XMMatrixTranspose(_camera->GetProjectionMatrix()),
@@ -129,11 +169,16 @@ void RenderScene::UpdateRenderScene()
 
     _cameraBuffer->UpdateBuffer(&cameraData);
     _lightBuffer->UpdateBuffer(_lightDatas.data());
+}
+
+void RenderScene::UpdateObject()
+{
+    auto first = std::remove_if(_meshRenderQueue.begin(), _meshRenderQueue.end(), [](const auto& pair) { return *pair.first; });
+    _meshRenderQueue.erase(first, _meshRenderQueue.end());    
 
     _worldMatrices.clear();
     _boneMatrices.clear();
     _materialIDs.clear();
-    _uiMatrices.clear();
     for (auto& [isDestroy, component] : _meshRenderQueue)
     {
         if (!component->IsActive())
@@ -172,50 +217,32 @@ void RenderScene::UpdateRenderScene()
             _materialIDs.push_back(materialID);
         }
     }
+}
 
+void RenderScene::UpdateUI()
+{    
+    auto first = std::remove_if(_uiRenderQueue.begin(), _uiRenderQueue.end(), [](const auto& pair) { return *pair.first; });
+    _uiRenderQueue.erase(first, _uiRenderQueue.end());
+
+    _uiMatrices.clear();
+    _uiMaterials.clear();
     for (auto& [isDestroy, component] : _uiRenderQueue)
     {
         if (!component->IsActive())
             continue;
-        
-        XMMATRIX world = XMMatrixTranspose(component->GetWorldMatrix());
+
+        auto texture = component->GetTexture();
+        if (nullptr == texture)
+            continue;
+
+        auto     size    = texture->GetSize();
+        XMMATRIX scale   = XMMatrixScaling((float)size.cx, (float)size.cy, 1.f);
+        XMMATRIX world   = XMMatrixTranspose(scale * XMMATRIX(component->GetWorldMatrix()));
         _uiMatrices.push_back(world);
+
+        UIMaterial material{.ID = texture->GetID(), .Alpha = 1.f};
+        _uiMaterials.push_back(material);
     }
-
-    ID3D12GraphicsCommandList* commandList = UmDevice.GetCommandList();
-
-    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, FrameResourceType::TRANSFORM, _worldMatrices.data());
-    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, FrameResourceType::BONE_MATRIXES, _boneMatrices.data());
-    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, FrameResourceType::MATERIAL, _materialIDs.data());
-    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, FrameResourceType::UI, _uiMatrices.data());
-}
-
-void RenderScene::Execute(ID3D12GraphicsCommandList* commandList)
-{
-    auto descriptorHeap = UmViewManager.GetShaderResourceHeap();
-    commandList->SetDescriptorHeaps(1, &descriptorHeap);
-
-    _accumulationBuffer->TransitionResource(commandList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-    _accumulationBuffer->ClearUnorderedAccessView(commandList);
-
-    auto meshRenderTarget = UmMultiRenderTargetManager.GetRenderTarget(_meshRenderTargetName);
-    meshRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    meshRenderTarget->ClearRenderTarget(commandList);
-
-    _depthStencilView->TransitionResource(commandList, D3D12_RESOURCE_STATE_DEPTH_WRITE);
-    _depthStencilView->ClearDepthStencilView(commandList);
-
-    for (auto& tech : _techniques)
-    {
-        tech->Execute(commandList);
-    }
-
-    _depthStencilView->TransitionResource(commandList, D3D12_RESOURCE_STATE_PRESENT);
-}
-
-void RenderScene::ResetSkyBox()
-{
-    _skyBox->ResetResource();
 }
 
 void RenderScene::CreateRenderTarget()
@@ -271,7 +298,10 @@ void RenderScene::CreateFrameResource()
         _frameResources[i]->AddFrameResource(sizeof(MaterialID), MAX_OBJECTS);
 
         // UI Transform
-        _frameResources[i]->AddFrameResource(sizeof(XMMATRIX), 1000);
+        _frameResources[i]->AddFrameResource(sizeof(XMMATRIX), MAX_OBJECTS);
+
+        // UI Material
+        _frameResources[i]->AddFrameResource(sizeof(XMMATRIX), MAX_OBJECTS);
     }
 
     _cameraBuffer = std::make_unique<ConstantBufferView>();

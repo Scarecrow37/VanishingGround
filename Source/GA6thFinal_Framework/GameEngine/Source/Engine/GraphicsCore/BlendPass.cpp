@@ -15,9 +15,9 @@ void BlendPass::Initialize(RenderScene* ownerScene)
     _shader->SetShader(L"../Shaders/ps_blend.hlsl", ShaderBuilder::Type::PS);
     _shader->EndBuild(ShaderBuilder::BindType::DIRECT);
 
-    ID3D12Device*                      device = UmDevice.GetDevice();
+    ID3D12Device* device = UmDevice.GetDevice();
+   
     D3D12_GRAPHICS_PIPELINE_STATE_DESC psodesc = {};
-
     psodesc.RasterizerState               = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
     psodesc.BlendState                    = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
     psodesc.DepthStencilState             = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);

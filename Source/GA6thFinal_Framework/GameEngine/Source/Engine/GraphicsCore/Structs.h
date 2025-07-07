@@ -34,6 +34,12 @@ struct MaterialID
     UINT ID[4];
 };
 
+struct UIMaterial
+{
+    UINT ID;
+    float Alpha;
+};
+
 struct Material
 {
 #undef OPAQUE

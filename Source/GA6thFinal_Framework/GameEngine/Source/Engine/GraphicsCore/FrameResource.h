@@ -11,10 +11,10 @@ public:
     void AddFrameResource(UINT stride, UINT numObject);
 
 public:
-    void CopyStructuredBuffer(ID3D12GraphicsCommandList* commandList, UINT index, void* data);
+    void CopyStructuredBuffer(ID3D12GraphicsCommandList* commandList, UINT index, void* data, UINT size);
 
 private:
-    std::vector<std::pair<UINT, std::unique_ptr<StructuredBuffer>>> _structuredBuffers;
-    UINT64                                                          _fenceValue{0};
-    UINT                                                            _handleSize{0};
+    std::vector<std::unique_ptr<StructuredBuffer>> _structuredBuffers;
+    UINT64                                         _fenceValue{0};
+    UINT                                           _handleSize{0};
 };

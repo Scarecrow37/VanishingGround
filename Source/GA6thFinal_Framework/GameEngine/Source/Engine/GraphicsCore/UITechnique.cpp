@@ -15,9 +15,9 @@ void UITechnique::Initialize(ID3D12GraphicsCommandList* commandList)
     pass->Initialize(_ownerScene);
     AddRenderPass(std::move(pass));
 
-    pass = std::make_unique<UI3DPass>();
+    /*pass = std::make_unique<UI3DPass>();
     pass->Initialize(_ownerScene);
-    AddRenderPass(std::move(pass));
+    AddRenderPass(std::move(pass));*/
 }
 
 void UITechnique::Execute(ID3D12GraphicsCommandList* commandList)
@@ -30,7 +30,7 @@ void UITechnique::Execute(ID3D12GraphicsCommandList* commandList)
     {
         if (!component->IsActive())
             continue;
-        
+
         UIType type = component->GetType();
         _renderDatas[type].push_back(index++);
     }
