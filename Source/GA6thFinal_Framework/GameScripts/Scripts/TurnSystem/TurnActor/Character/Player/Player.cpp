@@ -122,7 +122,7 @@ WeaponStats Player::EquipWeapon(int slot, const WeaponStats& weaponStats)
 
 void Player::SetCurrentWeaponSlot(int slot)
 {
-    slot = std::clamp(slot, 0, (int)EQUIP_WEAPONS_SIZE);
+    slot = std::clamp(slot, 0, (int)EQUIP_WEAPONS_SIZE - 1);
     _currentWeaponSlot = slot;
 }
 
