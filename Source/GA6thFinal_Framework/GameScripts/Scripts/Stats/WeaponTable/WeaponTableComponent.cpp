@@ -9,6 +9,17 @@ WeaponTableComponent::~WeaponTableComponent()
     }
 }
 
+const WeaponStats* WeaponTableComponent::GetWeaponToName(std::string_view name)
+{
+    WeaponStats* result = nullptr;
+    auto findIter = _weaponTable.find(name.data());
+    if (findIter != _weaponTable.end())
+    {
+        result = &findIter->second;
+    }
+    return result;
+}
+
 bool WeaponTableComponent::RenameWeapon(WeaponStats& weapon, std::string_view newName)
 {
     bool result = false;
@@ -65,17 +76,15 @@ bool WeaponTableComponent::EraseWeapon(WeaponStats& weapon)
     return result;
 }
 
+void WeaponTableComponent::Reset() 
+{
+    static_instance = this;
+    gameObject->AddTag(TAG);
+}
+
 void WeaponTableComponent::Awake()
 {
-    if (nullptr == static_instance)
-    {
-        static_instance = this;
-        gameObject->AddTag(TAG);
-    }
-    else
-    {
-        GameObject::Destroy(this);
-    }
+
 }
 
 void WeaponTableComponent::ImGuiDrawPropertysEvent()
@@ -101,21 +110,6 @@ void WeaponTableComponent::ImGuiDrawPropertysEvent()
                     }
                     ImGui::EndPopup();
                 }
-            };
-
-            auto GetWeaponTypeColor = [&](WeaponStats::WeaponType type) 
-            {
-                constexpr std::array<ImVec4, 3> typeColorTable;
-                switch (type)
-                {
-                case WeaponStats::WeaponType::SWORD:
-                    return ImVec4(1.0f, 0.7f, 0.2f, 1.0f); // 밝은 황금빛 오렌지
-                case WeaponStats::WeaponType::DAGGER:
-                    return ImVec4(0.8f, 0.5f, 0.2f, 1.0f); // 견고한 갈색
-                case WeaponStats::WeaponType::WARHAMMER:
-                    return ImVec4(0.2f, 0.9f, 0.9f, 1.0f); // 선명한 시안
-                }
-                return ImVec4(0.6f, 0.6f, 0.6f, 1.0f); // 기본 회색 (다른 타입 또는 알 수 없는 타입)
             };
 
             int itemID = 0;
