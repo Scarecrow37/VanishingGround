@@ -5,9 +5,9 @@ OutLinePass::OutLinePass() {}
 
 OutLinePass::~OutLinePass() {}
 
-void OutLinePass::Initialize()
+void OutLinePass::Initialize(RenderScene* ownerScene)
 {
-    __super::Initialize();
+    __super::Initialize(ownerScene);
 
     _shader = std::make_unique<ShaderBuilder>();
     _shader->BeginBuild();

@@ -5,9 +5,9 @@ ParticleSpritePass::ParticleSpritePass() {}
 
 ParticleSpritePass::~ParticleSpritePass() {}
 
-void ParticleSpritePass::Initialize()
+void ParticleSpritePass::Initialize(RenderScene* ownerScene)
 {
-    __super::Initialize();
+    __super::Initialize(ownerScene);
     
     InitializeShader();
     InitializePSO();

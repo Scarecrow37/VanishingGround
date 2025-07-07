@@ -49,14 +49,15 @@ public:
     std::string _finalTargetName;
 
     std::vector<std::unique_ptr<RenderTechnique>>                _techniques;
-    std::vector<std::pair<std::unique_ptr<bool>, MeshRenderer*>> _renderQueue;
-    std::vector<std::pair<std::unique_ptr<bool>, UIRenderer*>>   _renderUIQueue;
+    std::vector<std::pair<std::unique_ptr<bool>, MeshRenderer*>> _meshRenderQueue;
+    std::vector<std::pair<std::unique_ptr<bool>, UIRenderer*>>   _uiRenderQueue;
 
     // Frame Resource
     std::vector<std::unique_ptr<FrameResource>> _frameResources;
     std::vector<LightData>                      _lightDatas;
-    std::vector<XMMATRIX>                       _worldMatrixes;
-    std::vector<BoneMatrixes>                   _boneMatrixes;
+    std::vector<XMMATRIX>                       _worldMatrices;
+    std::vector<BoneMatrices>                   _boneMatrices;
+    std::vector<XMMATRIX>                       _uiMatrices;
     std::vector<MaterialID>                     _materialIDs;
     std::shared_ptr<Camera>                     _camera;
     NumLight                                    _numLight;

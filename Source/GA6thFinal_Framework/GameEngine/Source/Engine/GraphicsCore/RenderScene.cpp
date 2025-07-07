@@ -51,30 +51,30 @@ void RenderScene::InitializeRenderScene()
 
 void RenderScene::RegisterOnRenderQueue(MeshRenderer* component)
 {
-    auto iter = std::find_if(_renderQueue.begin(), _renderQueue.end(), [](const auto& pair) { return !pair.first.get(); });
+    auto iter = std::find_if(_meshRenderQueue.begin(), _meshRenderQueue.end(), [](const auto& pair) { return !pair.first.get(); });
 
-    if (iter != _renderQueue.end())
+    if (iter != _meshRenderQueue.end())
     {
         GRAPHICS_ASSERT(false, L"RenderScene::RegisterRenderQueue : Already registered component.");
         return;
     }
 
-    _renderQueue.emplace_back(std::make_unique<bool>(false), component);
-    component->_isDestroyeds.push_back(_renderQueue.back().first.get());
+    _meshRenderQueue.emplace_back(std::make_unique<bool>(false), component);
+    component->_isDestroyeds.push_back(_meshRenderQueue.back().first.get());
 }
 
 void RenderScene::RegisterOnRenderQueue(UIRenderer* component)
 {
-    auto iter = std::find_if(_renderUIQueue.begin(), _renderUIQueue.end(), [](const auto& pair) { return !pair.first.get(); });
+    auto iter = std::find_if(_uiRenderQueue.begin(), _uiRenderQueue.end(), [](const auto& pair) { return !pair.first.get(); });
 
-    if (iter != _renderUIQueue.end())
+    if (iter != _uiRenderQueue.end())
     {
         GRAPHICS_ASSERT(false, L"RenderScene::RegisterRenderQueue : Already registered component.");
         return;
     }
 
-    _renderUIQueue.emplace_back(std::make_unique<bool>(false), component);
-    component->_isDestroyeds.push_back(_renderUIQueue.back().first.get());
+    _uiRenderQueue.emplace_back(std::make_unique<bool>(false), component);
+    component->_isDestroyeds.push_back(_uiRenderQueue.back().first.get());
 }
 
 void RenderScene::AddRenderTechnique(std::unique_ptr<RenderTechnique> technique)
@@ -91,16 +91,19 @@ void RenderScene::UpdateRenderScene()
     _camera->Update();
 
     // 비활성된 컴포넌트 제거
-    auto first = std::remove_if(_renderQueue.begin(), _renderQueue.end(), [](const auto& pair) { return *pair.first; });
-    _renderQueue.erase(first, _renderQueue.end());
+    auto meshFirst = std::remove_if(_meshRenderQueue.begin(), _meshRenderQueue.end(), [](const auto& pair) { return *pair.first; });
+    _meshRenderQueue.erase(meshFirst, _meshRenderQueue.end());
+
+    auto uiFirst = std::remove_if(_uiRenderQueue.begin(), _uiRenderQueue.end(), [](const auto& pair) { return *pair.first; });
+    _uiRenderQueue.erase(uiFirst, _uiRenderQueue.end());
 
     _currentFrameIndex   = UmDevice.GetCurrentBackBufferIndex();
-    Vector4    cameraPos = Vector4(_camera->GetWorldMatrix().Translation());
-    CameraData cameraData{.View       = XMMatrixTranspose(_camera->GetViewMatrix()),
-                          .Projection = XMMatrixTranspose(_camera->GetProjectionMatrix()),
+
+    CameraData cameraData{.View              = XMMatrixTranspose(_camera->GetViewMatrix()),
+                          .Projection        = XMMatrixTranspose(_camera->GetProjectionMatrix()),
                           .ViewInverse       = XMMatrixTranspose(_camera->GetWorldMatrix()),
                           .ProejctionInverse = XMMatrixTranspose(_camera->GetProjectionInverseMatrix()),
-                          .Position   = cameraPos};
+                          .Position          = Vector4(_camera->GetPosition())};
 
     auto& lights = UmLightCore.GetLights(_name.c_str());
 
@@ -127,10 +130,11 @@ void RenderScene::UpdateRenderScene()
     _cameraBuffer->UpdateBuffer(&cameraData);
     _lightBuffer->UpdateBuffer(_lightDatas.data());
 
-    _worldMatrixes.clear();
-    _boneMatrixes.clear();
+    _worldMatrices.clear();
+    _boneMatrices.clear();
     _materialIDs.clear();
-    for (auto& [isDestroy, component] : _renderQueue)
+    _uiMatrices.clear();
+    for (auto& [isDestroy, component] : _meshRenderQueue)
     {
         if (!component->IsActive())
             continue;
@@ -145,20 +149,20 @@ void RenderScene::UpdateRenderScene()
         const auto& textures  = model->GetTextures();
 
         XMMATRIX     world = XMMatrixTranspose(component->GetWorldMatrix());
-        BoneMatrixes boneMatrixes{};
+        BoneMatrices boneMatrices{};
 
         if (MeshRenderType::SKELETAL == type)
         {
             auto animator = component->GetAnimator();
-            if (animator) memcpy(&boneMatrixes, animator->GetAnimationTransform(), sizeof(BoneMatrixes));
+            if (animator) memcpy(&boneMatrices, animator->GetAnimationTransform(), sizeof(BoneMatrices));
         }
 
         UINT size = (UINT)meshes.size();
 
         for (UINT i = 0; i < size; i++)
         {
-            _worldMatrixes.push_back(world);
-            _boneMatrixes.push_back(boneMatrixes);
+            _worldMatrices.push_back(world);
+            _boneMatrices.push_back(boneMatrices);
 
             MaterialID materialID{};
             for (UINT j = 0; j < 4; j++)
@@ -169,12 +173,21 @@ void RenderScene::UpdateRenderScene()
         }
     }
 
-    UINT                       size        = static_cast<UINT>(_worldMatrixes.size());
+    for (auto& [isDestroy, component] : _uiRenderQueue)
+    {
+        if (!component->IsActive())
+            continue;
+        
+        XMMATRIX world = XMMatrixTranspose(component->GetWorldMatrix());
+        _uiMatrices.push_back(world);
+    }
+
     ID3D12GraphicsCommandList* commandList = UmDevice.GetCommandList();
 
-    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, _worldMatrixes.data(), size * sizeof(XMMATRIX), FrameResource::Type::TRANSFORM);
-    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, _boneMatrixes.data(), size * sizeof(BoneMatrixes), FrameResource::Type::BONE_MATRIXES);
-    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, _materialIDs.data(), size * sizeof(MaterialID), FrameResource::Type::MATERIAL);
+    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, FrameResourceType::TRANSFORM, _worldMatrices.data());
+    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, FrameResourceType::BONE_MATRIXES, _boneMatrices.data());
+    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, FrameResourceType::MATERIAL, _materialIDs.data());
+    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, FrameResourceType::UI, _uiMatrices.data());
 }
 
 void RenderScene::Execute(ID3D12GraphicsCommandList* commandList)
@@ -242,11 +255,24 @@ void RenderScene::CreateDepthStencil()
 void RenderScene::CreateFrameResource()
 {
     _frameResources.resize(SWAPCHAIN_BUFFER_COUNT);
+
+    constexpr UINT MAX_OBJECTS = 1000;
     for (UINT i = 0; i < SWAPCHAIN_BUFFER_COUNT; ++i)
     {
         _frameResources[i] = std::make_unique<FrameResource>();
-        _frameResources[i]->Initialize(1000);
-    }    
+
+        // Object Transform
+        _frameResources[i]->AddFrameResource(sizeof(XMMATRIX), MAX_OBJECTS);
+
+        // Object BoneTransform
+        _frameResources[i]->AddFrameResource(sizeof(XMMATRIX) * MAX_BONE_MATRIX, MAX_OBJECTS);
+
+        // Material
+        _frameResources[i]->AddFrameResource(sizeof(MaterialID), MAX_OBJECTS);
+
+        // UI Transform
+        _frameResources[i]->AddFrameResource(sizeof(XMMATRIX), 1000);
+    }
 
     _cameraBuffer = std::make_unique<ConstantBufferView>();
     _cameraBuffer->Initialize(sizeof(CameraData));

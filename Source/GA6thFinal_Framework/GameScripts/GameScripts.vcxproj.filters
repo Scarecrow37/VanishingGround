@@ -219,6 +219,12 @@
     <ClInclude Include="Scripts\Stats\Weapon\WeaponStatsComponent.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Scripts\Stats\WeaponTable\WeaponTableComponent.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\Particle\TestParticle.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -396,6 +402,12 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Scripts\Stats\Weapon\WeaponStatsComponent.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\Stats\WeaponTable\WeaponTableComponent.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\Particle\TestParticle.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

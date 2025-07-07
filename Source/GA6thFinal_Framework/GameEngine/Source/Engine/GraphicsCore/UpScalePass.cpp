@@ -5,9 +5,9 @@ UpScalePass::UpScalePass() {}
 
 UpScalePass::~UpScalePass() {}
 
-void UpScalePass::Initialize()
+void UpScalePass::Initialize(RenderScene* ownerScene)
 {
-    __super::Initialize();
+    __super::Initialize(ownerScene);
 
     _shader = std::make_unique<ShaderBuilder>();
     _shader->BeginBuild();

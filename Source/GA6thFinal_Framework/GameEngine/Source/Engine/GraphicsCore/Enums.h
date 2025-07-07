@@ -22,6 +22,10 @@ enum CommandListType { COMPUTE_LIST, RENDER_LIST, DEBUG_RENDER_LIST, IMGUI_RENDE
 
 enum FenceType { COMPUTE_FENCE, RENDER_FENCE, FENCE_END };
 
+enum FrameResourceType { TRANSFORM, BONE_MATRIXES, MATERIAL, UI, FRAME_TYPE_END };
+
+enum UIType { MODE_2D, MODE_25D, MODE_3D, UI_TYPE_END };
+
 enum PostProcess
 {
     BLOOM = 1 << 0,

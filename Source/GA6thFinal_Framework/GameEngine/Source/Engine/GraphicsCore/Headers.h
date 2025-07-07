@@ -1,15 +1,18 @@
 ﻿#pragma once
 
-#include "Camera.h"
 #include "Device.h"
-#include "ShaderBuilder.h"
-#include "Texture.h"
+
 #include "ConstantBufferView.h"
 #include "DepthStencilView.h"
-#include "RenderTarget.h"
-#include "UnorderedAccessView.h"
 #include "StructuredBuffer.h"
+#include "UnorderedAccessView.h"
+
+#include "Camera.h"
 #include "Quad.h"
+#include "Texture.h"
+#include "ShaderBuilder.h"
+
+#include "RenderTarget.h"
 #include "RenderScene.h"
 
 #include "AnimationCore.h"

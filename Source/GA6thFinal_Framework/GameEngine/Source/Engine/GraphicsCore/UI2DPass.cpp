@@ -1,13 +1,16 @@
 ﻿#include "pch.h"
 #include "UI2DPass.h"
 
-UI2DPass::UI2DPass() {}
+UI2DPass::UI2DPass(const std::vector<UINT>& instanceIDs)
+    : _instanceIDs(instanceIDs)
+{
+}
 
 UI2DPass::~UI2DPass() {}
 
-void UI2DPass::Initialize()
+void UI2DPass::Initialize(RenderScene* ownerScene)
 {
-    __super::Initialize();
+    __super::Initialize(ownerScene);
 
     const auto& mode = UmDevice.GetMode();
 
@@ -17,10 +20,18 @@ void UI2DPass::Initialize()
     _cameraBuffer = std::make_unique<ConstantBufferView>();
     _cameraBuffer->Initialize(sizeof(CameraData));
 
+    CameraData cameraData{.View              = XMMatrixTranspose(_2DCamera->GetViewMatrix()),
+                          .Projection        = XMMatrixTranspose(_2DCamera->GetProjectionMatrix()),
+                          .ViewInverse       = XMMatrixTranspose(_2DCamera->GetWorldMatrix()),
+                          .ProejctionInverse = XMMatrixTranspose(_2DCamera->GetProjectionInverseMatrix()),
+                          .Position          = Vector4(_2DCamera->GetPosition())};
+
+    _cameraBuffer->UpdateBuffer(&cameraData);
+
     _shader = std::make_unique<ShaderBuilder>();
     _shader->BeginBuild();
-    _shader->SetShader(L"../Shaders/vs_quad.hlsl", ShaderBuilder::Type::VS);
-    _shader->SetShader(L"../Shaders/ps_blend.hlsl", ShaderBuilder::Type::PS);
+    _shader->SetShader(L"../Shaders/vs_ui_fr.hlsl", ShaderBuilder::Type::VS);
+    _shader->SetShader(L"../Shaders/ps_ui.hlsl", ShaderBuilder::Type::PS);
     _shader->EndBuild(ShaderBuilder::BindType::DIRECT);
 
     ID3D12Device*                      device  = UmDevice.GetDevice();
@@ -45,20 +56,11 @@ void UI2DPass::Initialize()
 }
 
 void UI2DPass::Begin(ID3D12GraphicsCommandList* commandList)
-{
-    if constexpr (IS_EDITOR)
-    {
-        _finalRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
-        _finalRenderTarget->ClearRenderTarget(commandList);
-        commandList->OMSetRenderTargets(1, &_finalRenderTarget->GetRTVHandle(), FALSE, nullptr);
-    }
-    else
-    {
-        commandList->OMSetRenderTargets(1, &UmDevice.GetBackBufferHandle(), FALSE, nullptr);
-    }
+{    
+    _finalRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    _finalRenderTarget->ClearRenderTarget(commandList);
 
-    _ownerScene->_accumulationBuffer->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-
+    commandList->OMSetRenderTargets(1, &_finalRenderTarget->GetRTVHandle(), FALSE, nullptr);
     commandList->RSSetViewports(1, &_finalRenderTarget->GetViewPort());
     commandList->RSSetScissorRects(1, &_finalRenderTarget->GetScissorRect());
 }
@@ -68,18 +70,12 @@ void UI2DPass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->SetPipelineState(_pipelineState.Get());
     commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
 
-    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("screenTexture"),
-                                                _meshRenderTarget->GetSRVHandle());
-    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("sourceTexture"),
-                                                _ownerScene->_accumulationBuffer->GetSRVHandle());
+    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("screenTexture"), _meshRenderTarget->GetSRVHandle());
 
-    _ownerScene->_frameQuad->Render(commandList);
+    _ownerScene->_frameQuad->Render(commandList, _instanceIDs.size());
 }
 
 void UI2DPass::End(ID3D12GraphicsCommandList* commandList)
-{
-    if constexpr (IS_EDITOR)
-    {
-        _finalRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-    }
+{    
+    _finalRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }

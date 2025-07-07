@@ -5,9 +5,9 @@ UI3DPass::UI3DPass() {}
 
 UI3DPass::~UI3DPass() {}
 
-void UI3DPass::Initialize()
+void UI3DPass::Initialize(RenderScene* ownerScene)
 {
-    __super::Initialize();
+    __super::Initialize(ownerScene);
 
     _shader = std::make_unique<ShaderBuilder>();
     _shader->BeginBuild();

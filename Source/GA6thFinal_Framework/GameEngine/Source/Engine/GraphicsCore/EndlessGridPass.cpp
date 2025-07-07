@@ -5,9 +5,9 @@ EndlessGridPass::EndlessGridPass() {}
 
 EndlessGridPass::~EndlessGridPass() {}
 
-void EndlessGridPass::Initialize()
+void EndlessGridPass::Initialize(RenderScene* ownerScene)
 {
-    __super::Initialize();
+    __super::Initialize(ownerScene);
 
     _shader = std::make_unique<ShaderBuilder>();
     _shader->BeginBuild();
