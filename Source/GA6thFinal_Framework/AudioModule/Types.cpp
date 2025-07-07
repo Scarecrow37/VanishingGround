@@ -1,5 +1,5 @@
 ﻿#include "pch.h"
-#include "AudioTypes.h"
+#include "Types.h"
 
 namespace Audio
 {

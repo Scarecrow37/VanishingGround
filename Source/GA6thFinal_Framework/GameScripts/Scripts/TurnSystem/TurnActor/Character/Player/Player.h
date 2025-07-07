@@ -1,12 +1,14 @@
 ﻿#pragma once
 #include "TurnSystem/TurnActor/Character/CharacterBase.h"
+#include <Stats/Weapon/WeaponStats.h>
 
 class FiniteStateMachine;
 class Player : public CharacterBase
 {
     USING_PROPERTY(Player)
 public:
-    inline static constexpr const char* TAG = "Player";
+    inline static constexpr const char* TAG                = "Player";
+    inline static constexpr size_t      EQUIP_WEAPONS_SIZE = 4;
 
 public:
     REFLECT_PROPERTY(
@@ -29,6 +31,7 @@ public:
 
 protected:
     REFLECT_FIELDS_BEGIN(CharacterBase)
+    std::array<std::string, EQUIP_WEAPONS_SIZE> EquipWeaponsData;
     REFLECT_FIELDS_END(Player)
 
 private:
@@ -63,6 +66,23 @@ public:
     int GetSpeed() override;
     CharacterStats* GetCharacterStats() override;
 
+//Weapon
+public:
+    /// <summary>
+    /// 무기를 slot에 장착합니다.
+    /// 기존에 장착되어있던 무기는 반환되며 제거됩니다.
+    /// 잘못된 slot을 접근시 WeaponStats는 0 damege 무기를 반환합니다.
+    /// </summary>
+    /// <param name="slot :">장착할 슬롯</param>
+    WeaponStats EquipWeapon(int slot, const WeaponStats& weaponStats);
+
+private:
+    /*장착된 무기들*/
+    std::array<WeaponStats, EQUIP_WEAPONS_SIZE> _equipWeapons;
+
+    /*에디터용 무기 Imgui 함수*/
+    void ImguiEquipWeapons();
+
 protected:
     /// <summary>
     /// <para> 이 함수는 항상 Start 함수 전에 호출되며 프리팹이 인스턴스화 된 직후에 호출됩니다.                </para>
@@ -79,13 +99,13 @@ protected:
     /// <para> 직렬화 직전 자동으로 호출되는 이벤트 함수입니다. </para>
     /// <para> 직접 override 해서 사용합니다.                 </para>
     /// </summary>
-    virtual void SerializedReflectEvent() {}
+    virtual void SerializedReflectEvent() override;
 
     /// <summary>
     /// <para> 역직렬화 이후 자동으로 호출되는 이벤트 함수 입니다.  </para>
     /// <para> 직접 override 해서 사용합니다.                     </para>
     /// </summary>
-    virtual void DeserializedReflectEvent() {}
+    virtual void DeserializedReflectEvent() override;
 
     /// <summary>
     /// <para>  ImGuiDrawPropertys() 호출 이후 콜되는 이벤트 함수입니다. </para>

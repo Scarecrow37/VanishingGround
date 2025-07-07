@@ -18,8 +18,8 @@ public:
     GraphicsCore Graphics;
     ECommandManager CommandManager;
     EFactoryRegister FactoryRegister;
-    Audio::EManager AudioManager;
     ParticleEffectSerializer ParticleSerializer;
+    Audio::System AudioManager;
 
     ReflectHelper::ImGuiDraw::InputAutoSetting ImGuiDrawPropertysSetting;
 private:
