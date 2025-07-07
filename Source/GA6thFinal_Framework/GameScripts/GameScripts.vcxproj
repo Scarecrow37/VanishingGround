@@ -362,7 +362,6 @@
     <ClInclude Include="Scripts\Stats\Enemy\EnemyStatsComponent.h" />
     <ClInclude Include="Scripts\Test\Input\InputTestComponent.h" />
     <ClInclude Include="Scripts\Timeline\AnimationEventListener.h" />
-    <ClInclude Include="Scripts\Stats\Weapon\WeaponStatsComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -444,7 +443,6 @@
     <ClCompile Include="Scripts\Stats\Enemy\EnemyStatsComponent.cpp" />
     <ClCompile Include="Scripts\Test\Input\InputTestComponent.cpp" />
     <ClCompile Include="Scripts\Timeline\AnimationEventListener.cpp" />
-    <ClCompile Include="Scripts\Stats\Weapon\WeaponStatsComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
