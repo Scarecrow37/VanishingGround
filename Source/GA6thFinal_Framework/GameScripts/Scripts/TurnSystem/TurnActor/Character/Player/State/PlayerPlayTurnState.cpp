@@ -83,6 +83,9 @@ void PlayerPlayTurnState::OnUpdate()
             ImGui::EndCombo();
         }
 
+        Player&      player = GetPlayer();
+        WeaponStats& weapon = const_cast<WeaponStats&>(player.GetCurrentWeaponStats());
+        weapon.ImGuiDrawPropertys();
         if (ImGui::Button("Attack") && selectTarget != STR_NULL)
         {
             UmLogger.Message(LogLevel::LEVEL_DEBUG,
