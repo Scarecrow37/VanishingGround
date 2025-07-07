@@ -56,13 +56,20 @@ void Player::DeserializedReflectEvent()
 
 int Player::GetSpeed()
 {
-    return 0;
+    return _equipWeapons[_currentWeaponSlot].Speed;
+}
+
+int Player::GetRandomSpeed()
+{
+    return _equipWeapons[_currentWeaponSlot].RandomSpeed;
 }
 
 void Player::PlayTurn()
 {
     Base::PlayTurn();
-    UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"Player 턴 시작");
+    std::string_view weaponName = GetCurrentWeaponStats().Name;
+    std::string      message    = std::format("{}{}{}", (const char*)u8"Player 턴 시작. ", "Weapon : ", weaponName);
+    UmLogger.Message(LogLevel::LEVEL_TRACE, message);
 }
 
 void Player::EndTurn()
@@ -94,6 +101,15 @@ CharacterStats* Player::GetCharacterStats()
     return stats;
 }
 
+void Player::OnRoundStart() 
+{
+    Base::OnRoundStart();
+    for (auto& weapons : _equipWeapons)
+    {
+        weapons.RollRandomSpeed();
+    }
+}
+
 WeaponStats Player::EquipWeapon(int slot, const WeaponStats& weaponStats)
 {
     WeaponStats originWeapon;
@@ -102,6 +118,19 @@ WeaponStats Player::EquipWeapon(int slot, const WeaponStats& weaponStats)
         originWeapon = _equipWeapons[slot];
     }
     return originWeapon;
+}
+
+void Player::SetCurrentWeaponSlot(int slot)
+{
+    slot = std::clamp(slot, 0, (int)EQUIP_WEAPONS_SIZE);
+    _currentWeaponSlot = slot;
+}
+
+int Player::GetRoundSpeedToSlot(int slot)
+{
+    int speed = _equipWeapons[slot].Speed;
+    int roundSpeed = _equipWeapons[slot].RandomSpeed;
+    return speed + roundSpeed;
 }
 
 void Player::ImguiEquipWeapons() 
@@ -180,17 +209,6 @@ PlayerStatsComponent* Player::GetPlayerStats()
         _playerStats = GetComponent<PlayerStatsComponent>();
     }  
     return _playerStats;
-}
-
-int Player::GetManaRegenRate()
-{
-    int manaRegenRate = 0;
-    PlayerStatsComponent* playerStats = GetPlayerStats();
-    if (playerStats)
-    {
-        manaRegenRate = playerStats->GetStats()->ManaRegenRate;
-    }
-    return manaRegenRate;
 }
 
 int Player::GetShield()
