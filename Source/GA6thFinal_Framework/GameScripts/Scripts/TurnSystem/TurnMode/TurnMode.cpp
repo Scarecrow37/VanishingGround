@@ -51,7 +51,8 @@ void TurnMode::MakeTurnList()
                 for (int i = 0; i < player->EQUIP_WEAPONS_SIZE; i++)
                 {
                     _turnList.emplace_back(i, player);
-                }       
+                }
+                player->OnRoundStart();
             }
         }
     }
@@ -66,6 +67,7 @@ void TurnMode::MakeTurnList()
             if (nullptr != enemy)
             {
                 _turnList.emplace_back(-1, enemy);
+                enemy->OnRoundStart();
             }
         }
     }
@@ -75,12 +77,6 @@ void TurnMode::SortTurnList()
 {
     if (false == _turnList.empty())
     {
-        for (auto& turnSlot : _turnList)
-        {
-            auto& [slot, actor] = turnSlot;
-            actor->OnRoundStart();
-        }
-
         std::shuffle(_turnList.begin(), _turnList.end(), Random::GetEngine());
         std::sort(_turnList.begin(), _turnList.end(),
         [this](std::pair<int, TurnActor*>& turnSlotA, std::pair<int, TurnActor*>& turnSlotB) 
