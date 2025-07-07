@@ -59,13 +59,13 @@ public:
     }
     WeaponStats& operator=(const WeaponStats& rhs)
     {
-        if (this == &rhs)
+        if (this != &rhs)
         {
-            return *this;
+            auto& myRf  = *ReflectFields;
+            auto& rhsRf = *rhs.ReflectFields;
+            myRf        = rhsRf;
         }
-        auto& myRf = *ReflectFields;
-        auto& rhsRf = *rhs.ReflectFields;
-        myRf = rhsRf;
+        return *this;
     }
 
 };
