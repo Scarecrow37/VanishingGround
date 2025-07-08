@@ -11,7 +11,7 @@ UI25DPass::~UI25DPass() {}
 
 void UI25DPass::Initialize(RenderScene* ownerScene)
 {
-    __super::Initialize(ownerScene);
+    __super::Initialize(ownerScene);    
 
     _shader = std::make_unique<ShaderBuilder>();
     _shader->BeginBuild();
@@ -93,7 +93,7 @@ void UI25DPass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->SetGraphicsRootConstantBufferView(_shader->GetRootParameterIndex("cameraData"), _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
     commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("textures"), resource);
 
-    _ownerScene->_frameQuad->Render(commandList, (UINT)_instanceIDs.size());
+    _halfQuad->Render(commandList, (UINT)_instanceIDs.size());
 }
 
 void UI25DPass::End(ID3D12GraphicsCommandList* commandList)

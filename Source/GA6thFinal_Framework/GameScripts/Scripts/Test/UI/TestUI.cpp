@@ -2,7 +2,7 @@
 #include "TestUI.h"
 #include "Engine/GraphicsCore/UIRenderer.h"
 
-TestUI::TestUI() : _type(UIType::MODE_2D)
+TestUI::TestUI()
 {
     FilePath.SetInputAutoEvent([this]() {
         if (ImGui::BeginDragDropTarget())
@@ -45,8 +45,20 @@ void TestUI::Reset()
 void TestUI::ImGuiDrawPropertysEvent()
 {
     const char* texts[] = {"2D", "2.5D", "3D"};
-    if (ImGui::Combo("UIType##ui", (int*)&_type, texts, 3))
+    if (ImGui::Combo("UIType##ui", (int*)&ReflectFields->Type, texts, 3))
     {
-        _uiRenderer->SetType(_type);
+        _uiRenderer->SetType((UIType)ReflectFields->Type);
+    }
+}
+
+void TestUI::DeserializedReflectEvent()
+{
+    File::Guid guid = ReflectFields->Guid;
+    auto       path = guid.ToPath();
+
+    if (!path.IsNull())
+    {
+        _uiRenderer->LoadTexture(path.c_str());
+        _uiRenderer->SetType((UIType)ReflectFields->Type);
     }
 }

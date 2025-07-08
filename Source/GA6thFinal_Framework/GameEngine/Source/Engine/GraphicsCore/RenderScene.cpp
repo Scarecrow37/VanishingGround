@@ -244,8 +244,8 @@ void RenderScene::UpdateUI()
             scale = XMMatrixScaling((float)size.cx, (float)size.cy, 1.f);
             break;
         case UIType::MODE_25D: {
-            float aspect = (float)size.cx / (float)size.cy;
-            scale = XMMatrixScaling(aspect, 1.f, 1.f);
+            float ratio = (float)size.cx / (float)size.cy;
+            scale       = XMMatrixScaling(ratio, 1.f, 1.f);
         }
         default:
             break;

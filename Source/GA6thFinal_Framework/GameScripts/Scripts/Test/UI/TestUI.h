@@ -17,16 +17,17 @@ public:
 protected:
     void Reset() override;
     void ImGuiDrawPropertysEvent() override;
+    void DeserializedReflectEvent() override;
 
 protected:
     File::GuidRef _guidRef;
 
     REFLECT_FIELDS_BEGIN(Component)
     std::string Guid;
+    int         Type;
     REFLECT_FIELDS_END(TestUI)
 
 private:
     std::unique_ptr<UIRenderer> _uiRenderer;
     bool                        _isActive = true;
-    UIType                      _type;
 };

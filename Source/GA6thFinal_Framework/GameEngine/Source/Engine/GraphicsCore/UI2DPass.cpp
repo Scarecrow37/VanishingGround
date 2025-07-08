@@ -21,11 +21,8 @@ void UI2DPass::Initialize(RenderScene* ownerScene)
     _cameraBuffer = std::make_unique<ConstantBufferView>();
     _cameraBuffer->Initialize(sizeof(CameraData));
 
-    CameraData cameraData{.View              = XMMatrixTranspose(_2DCamera->GetViewMatrix()),
-                          .Projection        = XMMatrixTranspose(_2DCamera->GetProjectionMatrix()),
-                          .ViewInverse       = XMMatrixTranspose(_2DCamera->GetWorldMatrix()),
-                          .ProejctionInverse = XMMatrixTranspose(_2DCamera->GetProjectionInverseMatrix()),
-                          .Position          = Vector4(_2DCamera->GetPosition())};
+    CameraData cameraData{.View       = XMMatrixIdentity(),
+                          .Projection = XMMatrixTranspose(_2DCamera->GetProjectionMatrix())};
 
     _cameraBuffer->UpdateBuffer(&cameraData);
 
