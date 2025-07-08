@@ -50,7 +50,7 @@ void Transform::DetachChildren()
 
 void Transform::SetParent(Transform* p, bool worldPositionStays)
 {
-    auto SetWorldPositionStaysMatrix = [this, p, worldPositionStays]() 
+    auto ComputeLocalTransform = [this, p, worldPositionStays]() 
     {
         // World PositionStays 조건
         if (worldPositionStays)
@@ -73,7 +73,7 @@ void Transform::SetParent(Transform* p, bool worldPositionStays)
 
     if (p == nullptr)
     {
-        SetWorldPositionStaysMatrix();
+        ComputeLocalTransform();
         EraseParent();
     }
     else //부모 관계 변경
@@ -86,7 +86,7 @@ void Transform::SetParent(Transform* p, bool worldPositionStays)
                 return;
             }    
            
-            SetWorldPositionStaysMatrix();        
+            ComputeLocalTransform();        
             //부모 적용
             EraseParent();
             {
