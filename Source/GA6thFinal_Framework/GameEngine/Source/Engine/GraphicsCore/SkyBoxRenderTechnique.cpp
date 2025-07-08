@@ -1,7 +1,6 @@
 ﻿#include "pch.h"
 #include "SkyBoxRenderTechnique.h"
 #include "SkyBoxPass.h"
-#include "RenderScene.h"
 
 SkyBoxRenderTechnique::SkyBoxRenderTechnique() {}
 
@@ -20,7 +19,6 @@ void SkyBoxRenderTechnique::Execute(ID3D12GraphicsCommandList* commadList)
 void SkyBoxRenderTechnique::InitSkyBoxPass() 
 {
     std::unique_ptr<SkyBoxPass> pass = std::make_unique<SkyBoxPass>();
-    pass->SetOwnerScene(_ownerScene);
-    pass->Initialize();
+    pass->Initialize(_ownerScene);
     AddRenderPass(std::move(pass));
 }

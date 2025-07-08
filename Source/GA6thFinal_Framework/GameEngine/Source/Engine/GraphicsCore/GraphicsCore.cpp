@@ -16,11 +16,8 @@ void GraphicsCore::Initialize(HWND hwnd, UINT width, UINT height, FeatureLevel f
     auto imguiCommandList = Device.GetImguiCommandList();
     imguiCommandList->Close();
 
-    auto postProcessCommandList = Device.GetPostProcessCommandList();
-    postProcessCommandList->Close();
-
-    Device.RegisterCommand(commandList,MESH_RENDER_LIST);
-    Device.ExecuteCommand(MESH_RENDER_LIST);
+    Device.RegisterCommand(commandList,RENDER_LIST);
+    Device.ExecuteCommand(RENDER_LIST);
     Device.GPUSync();
 
     Device.ResetCommands();

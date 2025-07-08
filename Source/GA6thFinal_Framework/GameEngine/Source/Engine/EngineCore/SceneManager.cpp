@@ -568,6 +568,8 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
         _setting.MainScene = scene->Path;
         _addComponentsQueue.clear();
         _addGameObjectsQueue.clear();
+        _waitAwakeVec.clear();
+        _waitStartVec.clear();
         _lodedSceneList.clear();
         UmCommandManager.Clear();
         SetRendererSkyBox(scene);
@@ -974,7 +976,7 @@ void ESceneManager::ObjectsAddRuntime()
             _runtimeObjects.resize(id + 1);
         }
         _runtimeObjects[id] = gameObject;
-        GameObject::Engine::ResetActiveInHierarchy(gameObject.get());     
+        GameObject::Engine::UpdateActiveInHierarchy(gameObject.get());     
     }
     _addGameObjectsQueue.clear();
 
@@ -993,7 +995,6 @@ void ESceneManager::ObjectsAddRuntime()
             std::shared_ptr<Camera> newCamera(new Camera);
             camera->SetTarget(newCamera);
         }
-
         component->UpdateEnableInHierarchy();
     }
     _addComponentsQueue.clear();
