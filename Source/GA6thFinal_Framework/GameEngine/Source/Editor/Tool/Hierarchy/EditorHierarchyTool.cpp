@@ -398,6 +398,12 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
                 GameObjectKey, GameObject::Helper::GenerateUniqueName("Static Mesh"), &mesh);
             mesh->AddComponent<StaticMeshRenderer>();
         }
+        if (ImGui::MenuItem("Skeletal Mesh"))
+        {
+            UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
+                GameObjectKey, GameObject::Helper::GenerateUniqueName("Skeletal Mesh"), &mesh);
+            mesh->AddComponent<SkeletalMeshRenderer>();
+        }
         ImGui::EndMenu();
     }
 }
