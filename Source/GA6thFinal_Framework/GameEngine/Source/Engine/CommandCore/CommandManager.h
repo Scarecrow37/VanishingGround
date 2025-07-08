@@ -26,7 +26,8 @@ public:
 
     void Clear();
 
-public:
+    void SetMaxCommandSize(size_t size);
+
     inline const std::shared_ptr<UmCommand>& GetCommandFromUndoStack(int index) const { return _undoStack[index]; }
     inline const std::shared_ptr<UmCommand>& GetCommandFromRedoStack(int index) const { return _redoStack[index]; }
 
@@ -37,6 +38,10 @@ public:
     inline const auto UndoStackEnd() const { return _undoStack.end(); }
     inline const auto RedoStackBegin() const { return _redoStack.begin(); }
     inline const auto RedoStackEnd() const { return _redoStack.end(); }
+
+    inline bool IsEmpty() const { IsUndoEmpty() && IsRedoEmpty(); }
+    inline bool IsUndoEmpty() const { _undoStack.empty(); }
+    inline bool IsRedoEmpty() const { _redoStack.empty(); }
 
 private:
     void ClampCommandStack();
