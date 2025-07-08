@@ -93,7 +93,6 @@ void EditorSceneTool::OnFrameEnd()
 
 void EditorSceneTool::OnFrameFocusEnter() 
 {
-    UmParticleManager.SetCamera("Editor");
 }
 
 void EditorSceneTool::OnFrameFocusStay()
