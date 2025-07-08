@@ -1,7 +1,10 @@
 ﻿#pragma once
 #include "../CharacterBase.h"
+#include "Enum/EnemyEnum.h"
 
 class EnemyStatsComponent;
+class FSMState;
+
 class Enemy : public CharacterBase
 {
     USING_PROPERTY(Enemy)
@@ -10,17 +13,23 @@ public:
 
 public:
     REFLECT_PROPERTY(
-        Speed
+        Speed, Type
         )
 
     GETTER_ONLY(int, Speed) { return GetSpeed(); }
     PROPERTY(Speed)
+
+    SETTER(EnemyType, Type) { ReflectFields->Type = value; }
+    GETTER(EnemyType, Type) { return ReflectFields->Type; }
+    PROPERTY(Type)
+
 public:
     Enemy();
     virtual ~Enemy();
 
 protected:
     REFLECT_FIELDS_BEGIN(CharacterBase)
+    EnemyType Type = EnemyType::MONSTER_A;
     REFLECT_FIELDS_END(Enemy)
 
 public:
@@ -32,10 +41,13 @@ private:
 
 protected:
     class FiniteStateMachine* _finiteStateMachine = nullptr;
+
     void BuildEnemyFSM();
     struct EnemyStates
     {
-        
+        FSMState* WaitTurn;     // 턴 종료 상태
+        FSMState* PlayTurn;     // 턴 시작 상태
+        FSMState* Dead;         // 사망 상태
     } 
     _fsmStates;
 
