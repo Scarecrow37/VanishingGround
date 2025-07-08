@@ -198,8 +198,9 @@ public:
     /// Transform을 root로 만듭니다.               </para>
     /// </summary>
     /// <param name="p :">부모로 설정할 대상</param>
-    void SetParent(Transform* p);
-    void SetParent(Transform& p);
+    /// <param name="worldPositionStays :">월드 좌표 유지 여부입니다.</param>
+    void SetParent(Transform* p, bool worldPositionStays = true);
+    void SetParent(Transform& p, bool worldPositionStays = true);
 
     /// <summary>
     /// <para>
