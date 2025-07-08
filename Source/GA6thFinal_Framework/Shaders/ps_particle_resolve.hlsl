@@ -24,7 +24,7 @@ float4 ps_main(PSInput input) : SV_Target
     float4 accum = gAccumTex.Sample(samLinear_border, uv);
     float reveal = gRevealTex.Sample(samLinear_border, uv).r;
     float3 color = accum.rgb / max(accum.a, 1e-6);
-    reveal = reveal * accum.a * accum.a;
+    reveal = reveal * accum.a ;
     return float4(color, reveal);
 
 }

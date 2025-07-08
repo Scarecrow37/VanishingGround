@@ -309,11 +309,6 @@ void ParticleEmitter::Initialize(SIZE_T maxParticles /*= 100000*/, float emissio
         break;
     }
 
-    
-    
-    
-    
-    
     _emitLocator->RandomInitialize();
     _emitLocator->SetFactor(locationFactor);
     _maxParticles = maxParticles;
@@ -341,14 +336,7 @@ void ParticleEmitter::AwakeParticle(UINT index)
     ScaleVelocity({location.x, location.y, location.z});
 
     _particlePool[index]->SetVelocity(_velocity);
-    _particlePool[index]->SetStartColor(_startColor);
-    _particlePool[index]->SetStartOpacity(_startOpacity);
-    _particlePool[index]->SetEndColor(_endColor);
-    _particlePool[index]->SetEndOpacity(_endOpacity);
-    _particlePool[index]->SetStartScale(_startScale);
-    _particlePool[index]->SetEndScale(_endScale);
     _particlePool[index]->SetAge(0.f);
-    _particlePool[index]->SetLifetime(_particleLifetime);
     _particlePool[index]->SetMass(_particleMass);
     auto spritemodule = static_cast<SpriteModule*>(_particleRenderModule);
     Vector4 frameInfo    = {spritemodule->GetFrameDuration(), 0, 0, 0};
@@ -362,7 +350,7 @@ void ParticleEmitter::UpdateParticleLifeCycle(float deltaTime)
     for (int i = 0; i < _activeParticleCount; ++i)
     {
         _particlePool[i]->SetAge(_particlePool[i]->GetAge() + deltaTime);
-        if (_particlePool[i]->GetAge() >= _particlePool[i]->GetLifetime())
+        if (_particlePool[i]->GetAge() >= _particleLifetime)
         {
             _activeParticleCount--;
             std::swap(_particlePool[i], _particlePool[_activeParticleCount]);

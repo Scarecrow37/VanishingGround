@@ -1,11 +1,10 @@
 ﻿#pragma once
 #include "RenderPass.h"
-
-class BrightExtractPass : public RenderPass
+class ParticleBrightExtractPass : public RenderPass
 {
 public:
- BrightExtractPass();
-    virtual ~BrightExtractPass();
+    ParticleBrightExtractPass();
+    virtual ~ParticleBrightExtractPass();
 
 public:
     void Initialize() override;

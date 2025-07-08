@@ -15,6 +15,7 @@
 #include "PBRLitTechnique.h"
 #include "SkyBoxRenderTechnique.h"
 #include "BloomTechnique.h"
+#include "ParticleBloomTechnique.h"
 #include "BlendTechnique.h"
 #include "ParticleRenderTechnique.h"
 #include "EditorDrawTechnique.h"
@@ -196,7 +197,7 @@ void Renderer::Initialize()
         scene = std::make_unique<RenderScene>("ParticleEditor");
         scene->InitializeRenderScene();
         scene->AddRenderTechnique(std::make_unique<ParticleRenderTechnique>());
-        scene->AddRenderTechnique(std::make_unique<EditorDrawTechnique>());
+        //scene->AddRenderTechnique(std::make_unique<EditorDrawTechnique>());
         scene->AddRenderTechnique(std::make_unique<BloomTechnique>());
         scene->AddRenderTechnique(std::make_unique<BlendTechnique>());
         UmParticleManager.SetCamera(scene->GetCamera());

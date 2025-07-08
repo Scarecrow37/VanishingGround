@@ -1,6 +1,6 @@
 ﻿#pragma once
-#include "UmFramework.h"
 #include "Engine/GraphicsCore/ParticleEffect.h"
+#include "UmFramework.h"
 class ParticleComponent : public Component
 {
     USING_PROPERTY(ParticleComponent)
@@ -14,21 +14,24 @@ public:
 
     void PlayEffect();
 
-    
-
 public:
     ParticleComponent();
     virtual ~ParticleComponent();
 
-   File::GuidRef _guidRef;
-   File::Path _filepath;
+    File::GuidRef _guidRef;
+    File::Path    _filepath;
 
-   protected:
-   REFLECT_FIELDS_BEGIN(Component)
-   std::string Guid;
-   REFLECT_FIELDS_END(ParticleComponent)
+protected:
+    REFLECT_FIELDS_BEGIN(Component)
+    std::string Guid;
+    REFLECT_FIELDS_END(ParticleComponent)
 
-   ParticleEffect* _effect;
-   void Update() override;
-   void DeserializedReflectEvent() override;
+    ParticleEffect* _effect;
+    void            Update() override;
+    void            DeserializedReflectEvent() override;
+
+private:
+    float age       = 0.f;
+    float lifetime  = 0.f;
+    bool isplaying = false;
 };

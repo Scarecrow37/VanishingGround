@@ -43,7 +43,7 @@ uint ps_main(PSInput input) : SV_Target
     // 사전 계산된 상수 활용
     static const float denom_const = 0.001f;
     // (1/5)^2 = 1/25 = 0.04
-    static const float div5 =0.04f;
+    static const float div5 = 0.04f;
     
     // 1/200^6 = 1/ 6400000000 = 0.000000000000015625
     static const float div200 = 0.000000000000015625f;
@@ -57,23 +57,16 @@ uint ps_main(PSInput input) : SV_Target
     
     
     // 4. UAV 쓰기 최적화
-    float3 color_contrib = input.color.rgb * alpha*factor * weight * weight;
-    float alpha_contrib = alpha * factor * weight * weight;
+    float3 color_contrib = input.color.rgb * alpha * factor * weight;
+    float alpha_contrib = alpha * factor * weight;
     
-    gAccumTex[uint2(input.position.xy)] += float4(color_contrib, alpha_contrib) * 0.8f ;
-    
-    
-    //float3 finalcolor = gAccumTex[uint2(input.position.xy)].rgb;
-    //finalcolor = finalcolor / length(finalcolor);
-    //gAccumTex[uint2(input.position.xy)] = float4(finalcolor, gAccumTex[uint2(input.position.xy)].a);
+    gAccumTex[uint2(input.position.xy)] += float4(color_contrib, alpha_contrib);
     
     
     
     gRevealTex[uint2(input.position.xy)] += alpha;
     
-    // 5. 불필요한 출력 제거
-    //return float4(color_contrib, alpha_contrib);
-    return ceil(alpha-0.1f);
+
+    return ceil(alpha - 0.1f);
 
 }
-

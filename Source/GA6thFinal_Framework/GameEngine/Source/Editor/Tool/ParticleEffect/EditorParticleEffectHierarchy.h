@@ -31,9 +31,9 @@ private:
 
     void OnFramePopupOpened() override;
 
-    void Serialize(std::string filepath);
+ //   void Serialize(std::string filepath);
 
-	void Deserialize(const std::string& filepath);
+	//void Deserialize(const std::string& filepath);
 
 private:
     EditorParticleEffectDetails* _editorParticleEffectDetails;

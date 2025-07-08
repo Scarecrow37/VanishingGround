@@ -22,7 +22,7 @@ public:
  void OnFileMoved(const File::Path& oldPath, const File::Path& newPath) override;
  public:
     void                  Serialize(class ParticleEffect* effect, File::Path destPath);
-    class ParticleEffect* Deserialize(File::Path filePath);
+     class ParticleEffect* Deserialize(File::Path filePath, bool isEditor);
 
 
 };

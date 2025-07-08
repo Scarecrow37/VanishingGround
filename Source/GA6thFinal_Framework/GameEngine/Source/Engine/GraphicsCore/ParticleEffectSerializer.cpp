@@ -280,7 +280,7 @@ void ParticleEffectSerializer::Serialize(ParticleEffect* effect, File::Path dest
     os.close();
 }
 
-ParticleEffect* ParticleEffectSerializer::Deserialize(File::Path filepath)
+ParticleEffect* ParticleEffectSerializer::Deserialize(File::Path filepath,bool isEditor)
 {
     std::ifstream is(filepath.string(), std::ios::binary);
     if (!is.is_open())
@@ -295,7 +295,11 @@ ParticleEffect* ParticleEffectSerializer::Deserialize(File::Path filepath)
     float lifetime = 0.f;
     is.read(reinterpret_cast<char*>(&lifetime), sizeof(lifetime));
 
-    auto newEffect = UmParticleManager.RegisterEffect();
+    ParticleEffect* newEffect = nullptr; 
+    if (true == isEditor)
+        newEffect = UmParticleManager.RegisterEffectOnEditor();
+    else
+        newEffect = UmParticleManager.RegisterEffect();
     newEffect->SetLifetime(lifetime);
     newEffect->SetEffectName(effectname);
 

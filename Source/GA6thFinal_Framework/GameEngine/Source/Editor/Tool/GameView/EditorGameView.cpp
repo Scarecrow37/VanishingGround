@@ -11,7 +11,6 @@ EditorGameView::~EditorGameView() {}
 
 void EditorGameView::OnFrameFocusEnter() 
 {
-    UmParticleManager.SetCamera("Game");
 }
 
 void EditorGameView::OnFrameRender() 

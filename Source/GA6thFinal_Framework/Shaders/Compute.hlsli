@@ -1,29 +1,13 @@
 struct ParticleInput
 {
-
     float4 position;
     float4 frameinfo; // duration, elapsedTime, currentIndex, isLoop
-    float4 startScale;
-    float4 endScale;
-    
-    float3 color;
-    float  opacity;
-    float3 startColor;
-    float  startopacity;
-    float3 endColor;
-    float  endopacity;
-
-    
     float3 axis;
     float age;
-    
     float3 velocity;
-    int emitterIndex;
-    
-    float4 scale;
-    float lifetime;
     float mass;
-    float2 paddings;
+    int emitterIndex;
+    float3 paddings;
 };
 
 
@@ -47,7 +31,11 @@ struct EmitterInfo
     float4 dragPoint;
     float4 dragforce;
     float4 vortexForce;
-
+    float4 startScale;
+    float4 endScale;
+    float4 startColor;
+    float4 endColor;
+    float4 particlelifetime;
 };
 
 

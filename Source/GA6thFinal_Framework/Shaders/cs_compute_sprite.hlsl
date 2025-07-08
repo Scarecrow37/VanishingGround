@@ -36,7 +36,7 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
     
     float3 acceleration = float3(0, -9.8, 0) * input.mass;
     float3 gravityOffset = acceleration * input.age;
-    float ratio = saturate(input.age / input.lifetime);
+    float ratio = saturate(input.age / emitter.particlelifetime);
     
     
     float dragCoefficient = emitter.dragforce.z;
@@ -68,17 +68,17 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
     
 
         // 6. 색상 보간
-    float3 outputColor = lerp(input.startColor, input.endColor, ratio);
-    float outputOpacity = lerp(input.startopacity, input.endopacity, ratio);
+    float3 outputColor = lerp(emitter.startColor.rgb, emitter.endColor.rgb, ratio);
+    float outputOpacity = lerp(emitter.startColor.a, emitter.endColor.rgb, ratio);
     output.Color = float4(outputColor, outputOpacity);
    
     // 4. 스케일 적용
     float4x4 scaleMat = CreateScaleMatrix(
-        lerp(float4(input.startScale.xy, 1, 1), float4(input.endScale.xy, 1, 1), ratio)
+        lerp(float4(emitter.startScale.xy, 1, 1), float4(emitter.endScale.xy, 1, 1), ratio)
     );
     
     float4 worldPos = mul(float4(input.position.xyz, 1.0), emitter.WorldMatrix);
-    worldPos.xyz += gravityOffset;
+    worldPos.xyz += gravityOffset*input.age;
     float4 viewPos = mul(worldPos, mvp.ViewMatrix);
     
     output.position = viewPos;

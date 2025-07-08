@@ -21,7 +21,7 @@ ParticleComponent::ParticleComponent()
                         _guidRef            = path.ToGuid();
                         ReflectFields->Guid = _guidRef.string();
 
-                        _effect = UmParticleManager.ParticleSerializer.Deserialize(path);
+                        _effect = UmParticleManager.ParticleSerializer.Deserialize(path,false);
                     }
                 }
             }
@@ -41,6 +41,14 @@ void ParticleComponent::Update()
         {
             PlayEffect();
         }
+    if (true == isplaying)
+    {
+        age += UmTime.DeltaTime();
+        if (age >= _effect->GetLifetime())
+        {
+            isplaying = false;
+        }
+    }
 
 }
 
@@ -48,13 +56,18 @@ void ParticleComponent::DeserializedReflectEvent()
 {
     File::Guid guid = ReflectFields->Guid;
     _guidRef        = guid;
+    _filepath       = guid;
     if (false == guid.IsNull())
     {
-        _effect = UmParticleManager.ParticleSerializer.Deserialize(guid);
+        _effect = UmParticleManager.ParticleSerializer.Deserialize(guid,false);
     }
 }
 
 void ParticleComponent::PlayEffect() 
 {
-    _effect->Play();
+    if (false == isplaying)
+    {
+        _effect->Play();
+        isplaying = true;
+    }
 }

@@ -46,6 +46,12 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
  void EditorParticleEffectDetails::OnPostFrameBegin()
  {
 
+     if (nullptr == UmParticleManager.GetCurrentEditorEffect())
+     {
+         _curEffect = nullptr;
+         return;
+     }
+
      if (nullptr != _curEmitter && nullptr == _curEffect)
          ShowEmitterDetails();
      if (nullptr == _curEmitter && nullptr != _curEffect)
