@@ -1,33 +1,17 @@
 ﻿#include "pch.h"
-#include "UI2DPass.h"
+#include "UI25DPass.h"
 #include "FrameResource.h"
 
-UI2DPass::UI2DPass(const std::vector<UINT>& instanceIDs)
+UI25DPass::UI25DPass(const std::vector<UINT>& instanceIDs)
     : UIPassBase(instanceIDs)
 {
 }
 
-UI2DPass::~UI2DPass() {}
+UI25DPass::~UI25DPass() {}
 
-void UI2DPass::Initialize(RenderScene* ownerScene)
+void UI25DPass::Initialize(RenderScene* ownerScene)
 {
     __super::Initialize(ownerScene);
-
-    const auto& mode = UmDevice.GetMode();
-
-    _2DCamera = std::make_unique<Camera>();
-    _2DCamera->SetupOrthographic((float)mode.Width, (float)mode.Height, 0.1f, 100.f);
-
-    _cameraBuffer = std::make_unique<ConstantBufferView>();
-    _cameraBuffer->Initialize(sizeof(CameraData));
-
-    CameraData cameraData{.View              = XMMatrixTranspose(_2DCamera->GetViewMatrix()),
-                          .Projection        = XMMatrixTranspose(_2DCamera->GetProjectionMatrix()),
-                          .ViewInverse       = XMMatrixTranspose(_2DCamera->GetWorldMatrix()),
-                          .ProejctionInverse = XMMatrixTranspose(_2DCamera->GetProjectionInverseMatrix()),
-                          .Position          = Vector4(_2DCamera->GetPosition())};
-
-    _cameraBuffer->UpdateBuffer(&cameraData);
 
     _shader = std::make_unique<ShaderBuilder>();
     _shader->BeginBuild();
@@ -37,19 +21,19 @@ void UI2DPass::Initialize(RenderScene* ownerScene)
 
     ID3D12Device* device = UmDevice.GetDevice();
 
-    D3D12_BLEND_DESC blendDesc                 = {};
-    blendDesc.AlphaToCoverageEnable            = FALSE;
-    blendDesc.IndependentBlendEnable           = FALSE;
+    D3D12_BLEND_DESC blendDesc       = {};
+    blendDesc.AlphaToCoverageEnable  = FALSE;
+    blendDesc.IndependentBlendEnable = FALSE;
 
-    auto& rtDesc                               = blendDesc.RenderTarget[0];
-    rtDesc.BlendEnable                         = TRUE;
-    rtDesc.SrcBlend                            = D3D12_BLEND_SRC_ALPHA;
-    rtDesc.DestBlend                           = D3D12_BLEND_INV_SRC_ALPHA;
-    rtDesc.BlendOp                             = D3D12_BLEND_OP_ADD;
-    rtDesc.SrcBlendAlpha                       = D3D12_BLEND_ZERO;
-    rtDesc.DestBlendAlpha                      = D3D12_BLEND_ONE;
-    rtDesc.BlendOpAlpha                        = D3D12_BLEND_OP_ADD;
-    rtDesc.RenderTargetWriteMask               = D3D12_COLOR_WRITE_ENABLE_ALL;
+    auto& rtDesc                 = blendDesc.RenderTarget[0];
+    rtDesc.BlendEnable           = TRUE;
+    rtDesc.SrcBlend              = D3D12_BLEND_SRC_ALPHA;
+    rtDesc.DestBlend             = D3D12_BLEND_INV_SRC_ALPHA;
+    rtDesc.BlendOp               = D3D12_BLEND_OP_ADD;
+    rtDesc.SrcBlendAlpha         = D3D12_BLEND_ZERO;
+    rtDesc.DestBlendAlpha        = D3D12_BLEND_ONE;
+    rtDesc.BlendOpAlpha          = D3D12_BLEND_OP_ADD;
+    rtDesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 
     D3D12_GRAPHICS_PIPELINE_STATE_DESC psodesc = {};
     psodesc.RasterizerState                    = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
@@ -71,8 +55,8 @@ void UI2DPass::Initialize(RenderScene* ownerScene)
     FAILED_CHECK_MESSAGE(hr, L"UI2DPass::Initialize device->CreateGraphicsPipelineState Failed");
 }
 
-void UI2DPass::Begin(ID3D12GraphicsCommandList* commandList)
-{
+void UI25DPass::Begin(ID3D12GraphicsCommandList* commandList)
+{    
     auto& depthStencilView = _ownerScene->_depthStencilView;
 
     depthStencilView->TransitionResource(commandList, D3D12_RESOURCE_STATE_DEPTH_WRITE);
@@ -94,7 +78,7 @@ void UI2DPass::Begin(ID3D12GraphicsCommandList* commandList)
     __super::UpdateBuffer(commandList);
 }
 
-void UI2DPass::Draw(ID3D12GraphicsCommandList* commandList)
+void UI25DPass::Draw(ID3D12GraphicsCommandList* commandList)
 {
     commandList->SetPipelineState(_pipelineState.Get());
     commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
@@ -106,13 +90,13 @@ void UI2DPass::Draw(ID3D12GraphicsCommandList* commandList)
     frameResource->SetFrameResource(FrameResourceType::UI_TRANSFORM, _shader->GetRootParameterIndex("worldMatrices"), commandList);
     frameResource->SetFrameResource(FrameResourceType::UI_MATERIAL, _shader->GetRootParameterIndex("material"), commandList);
     __super::SetResource(_shader->GetRootParameterIndex("IDs"), commandList);
-    commandList->SetGraphicsRootConstantBufferView(_shader->GetRootParameterIndex("cameraData"), _cameraBuffer->GetGPUVirtualAddress());
+    commandList->SetGraphicsRootConstantBufferView(_shader->GetRootParameterIndex("cameraData"), _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
     commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("textures"), resource);
 
-    _halfQuad->Render(commandList, (UINT)_instanceIDs.size());
+    _ownerScene->_frameQuad->Render(commandList, (UINT)_instanceIDs.size());
 }
 
-void UI2DPass::End(ID3D12GraphicsCommandList* commandList)
+void UI25DPass::End(ID3D12GraphicsCommandList* commandList)
 {    
     _finalRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }

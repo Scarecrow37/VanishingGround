@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "UITechnique.h"
 #include "UI2DPass.h"
+#include "UI25DPass.h"
 #include "UI3DPass.h"
 #include "UIRenderer.h"
 
@@ -12,6 +13,10 @@ void UITechnique::Initialize(ID3D12GraphicsCommandList* commandList)
 {
     std::unique_ptr<RenderPass> pass;
     pass = std::make_unique<UI2DPass>(_renderDatas[MODE_2D]);
+    pass->Initialize(_ownerScene);
+    AddRenderPass(std::move(pass));
+
+    pass = std::make_unique<UI25DPass>(_renderDatas[MODE_25D]);
     pass->Initialize(_ownerScene);
     AddRenderPass(std::move(pass));
 

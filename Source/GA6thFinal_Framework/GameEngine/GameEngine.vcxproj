@@ -303,6 +303,7 @@
     <ClInclude Include="Source\Editor\Tool\Model\EditorAnimationNotifyTool.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\ConstantBufferView.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Headers.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\UI25DPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\UIPassBase.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\UIRenderer.h" />
     <ClInclude Include="Source\Engine\TimelineCore\AnimationNotifySet.h" />
@@ -491,6 +492,7 @@
   <ItemGroup>
     <ClCompile Include="Source\Editor\Tool\Model\EditorAnimationNotifyTool.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\ConstantBufferView.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\UI25DPass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\UIPassBase.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\UIRenderer.cpp" />
     <ClCompile Include="Source\Engine\TimelineCore\AnimationNotifySet.cpp" />

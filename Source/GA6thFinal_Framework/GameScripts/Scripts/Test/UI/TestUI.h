@@ -16,6 +16,7 @@ public:
 
 protected:
     void Reset() override;
+    void ImGuiDrawPropertysEvent() override;
 
 protected:
     File::GuidRef _guidRef;
@@ -27,4 +28,5 @@ protected:
 private:
     std::unique_ptr<UIRenderer> _uiRenderer;
     bool                        _isActive = true;
+    UIType                      _type;
 };
