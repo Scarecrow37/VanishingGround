@@ -41,7 +41,22 @@ public:
 
     GETTER_ONLY(int, ChildCount) 
     { 
-        return (int)_childsList.size(); 
+        if constexpr (Application::IsEditor())
+        {
+            int validCount = 0;
+            for (Transform* child : _childsList)
+            {
+                if (child && child->_gameObject.IsValid())
+                {
+                    validCount++;
+                }
+            }
+            return validCount;
+        }
+        else
+        {
+            return (int)_childsList.size(); 
+        } 
     }
     // https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Transform-childCount.html
     // get : 자식의 개수를 반환합니다.
@@ -211,11 +226,33 @@ public:
     /// <returns>성공시 해당 자식의 포인터. 실패시 nullptr</returns>
     Transform* GetChild(int index) const
     {
-        Transform* child = nullptr;
-        if (index < _childsList.size())
+        Transform* child = nullptr; 
+        if (0 <= index)
         {
-            child = _childsList[index];
-        }
+            if constexpr (Application::IsEditor())
+            {
+                int validChildCounter = 0;
+                for (Transform* curr : _childsList)
+                {
+                    if (curr && curr->_gameObject.IsValid())
+                    {
+                        if (validChildCounter == index)
+                        {
+                            child = curr;
+                            break;
+                        }
+                        ++validChildCounter;
+                    }
+                }
+            }
+            else
+            {
+                if (index < _childsList.size())
+                {
+                    child = _childsList[index];
+                }
+            }
+        }  
         return child;
     }
 
