@@ -85,3 +85,6 @@ UMREAL_COMPONENT(WeaponTableComponent)
 
 #include "Scripts\Test/DevTools/FPSCounter.h"
 UMREAL_COMPONENT(FPSCounter)
+
+#include "Scripts/UI/UIRoot/UIRoot.h"
+UMREAL_COMPONENT(UIRoot)

@@ -401,6 +401,42 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
         }
         ImGui::EndMenu();
     }
+
+    if (ImGui::BeginMenu("UI"))
+    {
+        GameObject* ui = nullptr;
+        if (ImGui::MenuItem("UI Root"))
+        {
+            UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
+            GameObjectKey, GameObject::Helper::GenerateUniqueName("UI Root"), &ui);
+            ui->AddComponent<UIRoot>();
+        }
+        if (ImGui::BeginMenu("Panels"))
+        {
+            if (ImGui::MenuItem("Temp"))
+            {
+                // TODO;
+            }
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("Wrappers"))
+        {
+            if (ImGui::MenuItem("Temp"))
+            {
+                // TODO;
+            }
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("Elements"))
+        {
+            if (ImGui::MenuItem("Temp"))
+            {
+                // TODO;
+            }
+            ImGui::EndMenu();
+        }
+        ImGui::EndMenu();
+    }
 }
 
 void EditorHierarchyTool::OnStartGui()
