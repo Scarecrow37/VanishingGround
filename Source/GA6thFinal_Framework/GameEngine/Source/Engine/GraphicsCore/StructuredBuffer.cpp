@@ -46,7 +46,7 @@ void StructuredBuffer::Initialize(UINT64 stride, UINT numElements)
 
 	UmDevice.GetCommandList()->ResourceBarrier(1, &barrier);
 
-    _stride = stride;
+    _stride = (UINT)stride;
 }
 
 void StructuredBuffer::CopyStructuredBuffer(ID3D12GraphicsCommandList* commandList, void* data, UINT count)
