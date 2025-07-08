@@ -2,22 +2,7 @@
 
 #include "Enums.h"
 #include "Structs.h"
-
-#include "Camera.h"
-#include "Device.h"
-#include "Texture.h"
-#include "ShaderBuilder.h"
-
-#include "Renderer.h"
-#include "AnimationCore.h"
-#include "LightCore.h"
-
-#include "MultiRenderTargetManager.h"
-#include "ResourceManager.h"
-#include "ViewManager.h"
-#include "ParticleManager.h"
-#include "DXResourceManager.h"
-
+#include "Headers.h"
 #include "Defines.h"
 #include "Externs.h"
 

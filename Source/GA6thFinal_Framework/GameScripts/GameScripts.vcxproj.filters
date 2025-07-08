@@ -219,6 +219,12 @@
     <ClInclude Include="Scripts\Stats\WeaponTable\WeaponTableComponent.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Scripts\Test\DevTools\FPSCounter.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\Test\UI\TestUI.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -398,7 +404,16 @@
     <ClCompile Include="Scripts\Stats\WeaponTable\WeaponTableComponent.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Scripts\Stats\WeaponTable\WeaponTableComponent.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\Test\DevTools\FPSCounter.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
     <ClCompile Include="Scripts\Stats\Weapon\WeaponStats.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\Test\UI\TestUI.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

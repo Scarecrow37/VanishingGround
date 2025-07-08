@@ -69,40 +69,56 @@ private:
 class ParticleRenderModule
 {
 public:
+    virtual ~ParticleRenderModule() {};
+    virtual void Initialize() {};
+    UMPARTICLE_PROPERTY_REF(std::wstring, _modelAndTexturePath, ModelAndTexturePath, L"");
+
+
+
 };
 
 class SpriteModule : public ParticleRenderModule
 {
 public:
+    virtual ~SpriteModule();
+    
+    void           Initialize() override;
     void           SetFrameInfo(Vector4 frameInfo);
     void           SetFrameInfo(int widthCount, int heightCount, int startIndex, int totalCount);
     void           LoadAlbedoTexture(std::wstring filePath);
+    void           ChangeAlbedoTexture(std::wstring filePath);
     void           LoadNormalTexture(std::wstring filePath);
 
     Vector4        GetInitialFrameInfo() const;
-    std::shared_ptr<class Texture> GetAlbedoTexture() const;
-    std::shared_ptr<class Texture> GetNormalTexture() const;
+    class Texture* GetAlbedoTexture() const;
+    class Texture* GetNormalTexture() const;
+
+
 
 protected:
+    void                           CalculateFrameInfos();
+
     Vector4                        _initialFrameInfo;
     std::shared_ptr<class Texture> _albedoTexture;
     std::shared_ptr<class Texture> _normalTexture;
     std::vector<Vector4>           _preCalculatedFrameInfos;
-    void                           CalculateFrameInfos();
+    UMPARTICLE_PROPERTY_REF(std::wstring, _newAlbedoTexturePath, NewAlbedoTexturePath, L"");
+    UMPARTICLE_PROPERTY(bool, _isAlbedoTextureChanged, TextureChangeFlag, false);
     UMPARTICLE_PROPERTY(float, _frameDuration, FrameDuration, 1 / 24.f);
 
-
-
-private:
 };
 
 class MeshModule : public ParticleRenderModule
 {
     
+public:
+    void Initialize() override {};
 };
 class RibbonModule : public ParticleRenderModule
 {
 
+public:
+    void Initialize() override {};
 };
 
 class ParticleEmitter
@@ -110,7 +126,11 @@ class ParticleEmitter
 public:
     ParticleEmitter() {};
     virtual ~ParticleEmitter();
+    ParticleEmitter(const ParticleEmitter& other);
 
+
+
+    UMPARTICLE_PROPERTY(std::string, _emitterName, EmitterName, "");
 public:
     /// <summary>
     /// particle rendering type
@@ -133,11 +153,10 @@ public:
     /// </summary>
     VelocityScaleType _velocityType = VelocityScaleType::LINEAR;
     void              SetVelocityType(VelocityScaleType velType);
-    void              SetVelocityFactor(const Vector3& factor);
 
     void Initialize(SIZE_T maxParticles = 100000, float emissionRate = 500.f, float emitterLifetime = 5.f,
                     LocationShape locatorShape = LocationShape::SPHERE, Vector3 locationFactor = Vector3(1, 1, 1),
-                    ParticleType particleType = ParticleType::SPRITE);
+                    ParticleType particleType = ParticleType::SPRITE, std::wstring meshspritePath = L"");
     void Update(float deltaTime);
     void UpdateParticleLifeCycle(float deltaTime);
     void Reset();
@@ -147,13 +166,30 @@ public:
 
     UINT GetActiveParticleCount() const { return (UINT)_activeParticleCount; }
 
+    const Quaternion& GetEmitterRotationQ() const { return _emitterRotationQ; }
+    void              SetEmitterRotationQ(const Quaternion& value) 
+    { 
+        _emitterRotationQ = value; 
+        _emitterRotationE = _emitterRotationQ.ToEuler();
+    }
+
+    const Vector3& GetEmitterRotationE() const { return _emitterRotationE; }
+    void           SetEmitterRotationE(const Vector3& value) 
+    {
+        _emitterRotationE = value; 
+        _emitterRotationQ = Quaternion::CreateFromYawPitchRoll(_emitterRotationE);
+    }
+
+
 protected:
     void InitializeLocator(LocationShape locatorShape, Vector3 factor);
 
     void AwakeParticle(UINT index);
     UMPARTICLE_PROPERTY_REF(Matrix, _effectWorldMatrix, EffectWorldMatrix, Matrix::Identity);
-    Vector3    _emitterPosition;
-    Quaternion _emitterRotation;
+    UMPARTICLE_PROPERTY_REF(Vector3, _emitterPosition, EmitterPosition, Vector3(0, 0, 0));
+    Quaternion _emitterRotationQ = Quaternion::Identity;
+    Vector3 _emitterRotationE = Vector3(0, 0, 0);
+    
     UMPARTICLE_PROPERTY(bool, _activeFlag, ActiveFlag, true);
     UMPARTICLE_PROPERTY(float, _emitterAge, EmitterAge, 0.f);
     UMPARTICLE_PROPERTY(float, _emitterLifetime, EmitterLifetime, 5.f);
@@ -162,7 +198,6 @@ protected:
     UMPARTICLE_PROPERTY(float, _startDelay, StartDelay, 0.f);
     UMPARTICLE_PROPERTY(bool, _spawnBurstFlag, SpawnBurstFlag, false);
     UMPARTICLE_PROPERTY(float, _spawnBurstCount, SpawnBurstCount, 5000);
-    UMPARTICLE_PROPERTY(std::string, _emitterName, EmitterName, "");
     bool _delayFlag = false;
     float _delayTimer = 0.f;
 
@@ -174,6 +209,7 @@ protected:
 
     void ScaleVelocity(Vector3 pos);
     void ScaleVelFromPoint(Vector3 pos);
+    void ScaleVelInCone(Vector3 pos);
 
 
     std::function<Vector3(void)> _velocityScalingFunciton;
@@ -182,7 +218,7 @@ protected :
     float _emissionThreshold;
 
     // particle pooling
-    SIZE_T             _activeParticleCount;
+    SIZE_T             _activeParticleCount = 0;
     std::stack<SIZE_T> _inactiveParticleIndices;
 
     // rotation, translation matrix for scene graph ( manager - system - emitter - particles )
@@ -192,8 +228,8 @@ protected :
     Matrix _worldMatrix;
 
     // initial value for particles for lerp
-    Vector3 _velocityFactor = Vector3(0, 0, 0);
     UMPARTICLE_PROPERTY_REF(Vector3, _velocity, Velocity, Vector3(1, 1, 1));
+    UMPARTICLE_PROPERTY_REF(Vector3, _velocityFactor, VelocityFactor, Vector3(0, 0, 0));
     UMPARTICLE_PROPERTY_REF(Vector3, _startColor, StartColor, Vector3(1, 1, 1));
     UMPARTICLE_PROPERTY(float, _startOpacity, StartOpacity, 0.f);
     UMPARTICLE_PROPERTY_REF(Vector3, _endColor, EndColor, Vector3(1, 1, 1));
@@ -203,7 +239,7 @@ protected :
 
     UMPARTICLE_PROPERTY(float, _particleLifetime, ParticleLifetime, 1.f);
     UMPARTICLE_PROPERTY(float, _particleMass, ParticleMass, 0.1f);
-    UMPARTICLE_PROPERTY(float, _particleDistributionOffset, ParticleDistributionOffset, 1.f);
+    UMPARTICLE_PROPERTY_REF(Vector3, _particleDistributionOffset, ParticleDistributionOffset, Vector3(0,0,0));
 
     //w = drag flag
     UMPARTICLE_PROPERTY_REF(Vector4, _dragPoint, DragPoint, Vector4(0, 0, 0, 0));
@@ -212,5 +248,9 @@ protected :
     UMPARTICLE_PROPERTY_REF(Vector4, _dragForce, DragForce, Vector4(0, 0, 0, 0));
 
     UMPARTICLE_PROPERTY(bool, _endFlag, EndFlag, false);
+
+
+    UMPARTICLE_PROPERTY(bool, _removeFlag, RemoveFlag, false);
+
 
 };
