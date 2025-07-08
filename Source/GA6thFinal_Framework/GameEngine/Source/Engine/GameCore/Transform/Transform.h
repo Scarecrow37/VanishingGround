@@ -41,8 +41,9 @@ public:
 
     GETTER_ONLY(int, ChildCount) 
     { 
-        return (int)_childsList.size(); 
+        return GetChildCount();
     }
+    int GetChildCount();
     // https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Transform-childCount.html
     // get : 자식의 개수를 반환합니다.
     // return : int
@@ -209,15 +210,7 @@ public:
     /// </summary>
     /// <param name="index :">자식의 인덱스</param>
     /// <returns>성공시 해당 자식의 포인터. 실패시 nullptr</returns>
-    Transform* GetChild(int index) const
-    {
-        Transform* child = nullptr;
-        if (index < _childsList.size())
-        {
-            child = _childsList[index];
-        }
-        return child;
-    }
+    Transform* GetChild(int index) const;
 
     /// <summary>
     /// https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Transform.Find.html

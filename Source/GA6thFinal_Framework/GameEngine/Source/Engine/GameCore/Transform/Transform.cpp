@@ -20,6 +20,26 @@ Transform::~Transform()
     EraseParent();
 }
 
+int Transform::GetChildCount()
+{
+    if constexpr (Application::IsEditor())
+    {
+        int validCount = 0;
+        for (Transform* child : _childsList)
+        {
+            if (child && child->_gameObject.IsValid())
+            {
+                validCount++;
+            }
+        }
+        return validCount;
+    }
+    else
+    {
+        return (int)_childsList.size();
+    }
+}
+
 std::weak_ptr<GameObject> Transform::GetWeakPtr()
 {
     return _gameObject.GetWeakPtr();
@@ -112,6 +132,37 @@ void Transform::SetParent(Transform& p, bool worldPositionStays)
     SetParent(&p, worldPositionStays);
 }
 
+Transform* Transform::GetChild(int index) const
+{
+    Transform* child = nullptr;
+    if (0 <= index)
+    {
+        if constexpr (Application::IsEditor())
+        {
+            int validChildCounter = 0;
+            for (Transform* curr : _childsList)
+            {
+                if (curr && curr->_gameObject.IsValid())
+                {
+                    if (validChildCounter == index)
+                    {
+                        child = curr;
+                        break;
+                    }
+                    ++validChildCounter;
+                }
+            }
+        }
+        else
+        {
+            if (index < _childsList.size())
+            {
+                child = _childsList[index];
+            }
+        }
+    }
+    return child;
+}
 
 void Transform::EraseParent()
 {
