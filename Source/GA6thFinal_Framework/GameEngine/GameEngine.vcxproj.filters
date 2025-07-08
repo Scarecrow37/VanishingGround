@@ -114,36 +114,6 @@
     <ClInclude Include="Source\UmFramework.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Imgui\imconfig.h">
-      <Filter>헤더 파일\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Imgui\imgui.h">
-      <Filter>헤더 파일\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Imgui\imgui_impl_dx11.h">
-      <Filter>헤더 파일\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Imgui\imgui_impl_dx12.h">
-      <Filter>헤더 파일\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Imgui\imgui_internal.h">
-      <Filter>헤더 파일\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Imgui\imgui_stdlib.h">
-      <Filter>헤더 파일\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Imgui\imstb_rectpack.h">
-      <Filter>헤더 파일\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Imgui\imstb_textedit.h">
-      <Filter>헤더 파일\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Imgui\imstb_truetype.h">
-      <Filter>헤더 파일\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Imgui\imgui_impl_win32.h">
-      <Filter>헤더 파일\imgui</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\EngineCore\TimeSystem.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -182,24 +152,6 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\GameCore\Transform\Transform.h">
       <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Imgui\imgui_node_editor_internal.h">
-      <Filter>헤더 파일\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Imgui\imgui_node_editor.h">
-      <Filter>헤더 파일\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Imgui\imgui_extra_math.h">
-      <Filter>헤더 파일\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Imgui\imgui_canvas.h">
-      <Filter>헤더 파일\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Imgui\imgui_bezier_math.h">
-      <Filter>헤더 파일\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Imgui\crude_json.h">
-      <Filter>헤더 파일\imgui</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\ApplicationCore\Application.h">
       <Filter>헤더 파일</Filter>
@@ -398,24 +350,6 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\GraphicsCore\RenderTechnique.h">
       <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Imgui\GraphEditor.h">
-      <Filter>헤더 파일\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Imgui\ImCurveEdit.h">
-      <Filter>헤더 파일\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Imgui\ImGradient.h">
-      <Filter>헤더 파일\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Imgui\ImGuizmo.h">
-      <Filter>헤더 파일\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Imgui\ImSequencer.h">
-      <Filter>헤더 파일\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Imgui\ImZoomSlider.h">
-      <Filter>헤더 파일\imgui</Filter>
     </ClInclude>
     <ClInclude Include="Source\Editor\DragDropTypes\DragDropAsset.h">
       <Filter>헤더 파일</Filter>
@@ -684,7 +618,7 @@
     <ClInclude Include="Source\Engine\GraphicsCore\DebugDrawCore.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-        <ClInclude Include="Source\Engine\TimelineCore\AnimationNotifySet.h">
+    <ClInclude Include="Source\Engine\TimelineCore\AnimationNotifySet.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Editor\Tool\Model\EditorAnimationNotifyTool.h">
@@ -740,33 +674,6 @@
     <ClCompile Include="Source\Engine\Utility\DumpUtility.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\imgui.cpp">
-      <Filter>소스 파일\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\imgui_demo.cpp">
-      <Filter>소스 파일\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\imgui_draw.cpp">
-      <Filter>소스 파일\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\imgui_impl_dx11.cpp">
-      <Filter>소스 파일\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\imgui_impl_dx12.cpp">
-      <Filter>소스 파일\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\imgui_stdlib.cpp">
-      <Filter>소스 파일\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\imgui_tables.cpp">
-      <Filter>소스 파일\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\imgui_widgets.cpp">
-      <Filter>소스 파일\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\imgui_impl_win32.cpp">
-      <Filter>소스 파일\imgui</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\EngineCore\TimeSystem.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -799,18 +706,6 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\GameCore\Transform\Transform.cpp">
       <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\crude_json.cpp">
-      <Filter>소스 파일\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\imgui_canvas.cpp">
-      <Filter>소스 파일\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\imgui_node_editor.cpp">
-      <Filter>소스 파일\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\imgui_node_editor_api.cpp">
-      <Filter>소스 파일\imgui</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\ApplicationCore\Application.cpp">
       <Filter>소스 파일</Filter>
@@ -988,21 +883,6 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\RenderTechnique.cpp">
       <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\GraphEditor.cpp">
-      <Filter>소스 파일\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\ImCurveEdit.cpp">
-      <Filter>소스 파일\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\ImGradient.cpp">
-      <Filter>소스 파일\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\ImGuizmo.cpp">
-      <Filter>소스 파일\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\ImSequencer.cpp">
-      <Filter>소스 파일\imgui</Filter>
     </ClCompile>
     <ClCompile Include="Source\Editor\DragDropTypes\DragDropAsset.cpp">
       <Filter>소스 파일</Filter>
@@ -1327,15 +1207,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Source\Engine\Imgui\imgui_node_editor_internal.inl">
-      <Filter>소스 파일\imgui</Filter>
-    </None>
-    <None Include="Source\Engine\Imgui\imgui_extra_math.inl">
-      <Filter>소스 파일\imgui</Filter>
-    </None>
-    <None Include="Source\Engine\Imgui\imgui_bezier_math.inl">
-      <Filter>소스 파일\imgui</Filter>
-    </None>
     <None Include="cpp.hint" />
   </ItemGroup>
 </Project>
