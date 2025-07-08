@@ -228,7 +228,10 @@
     <ClInclude Include="Scripts\UI\Base\UIComponent.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Scripts\UI\Elements\ImageElement.h">
+    <ClInclude Include="Scripts\UI\Elements\Image\ImageElement.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\UI\Elements\Text\TextElement.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -422,7 +425,10 @@
     <ClCompile Include="Scripts\UI\Base\UIComponent.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\UI\Elements\ImageElement.cpp">
+    <ClCompile Include="Scripts\UI\Elements\Image\ImageElement.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\UI\Elements\Text\TextElement.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

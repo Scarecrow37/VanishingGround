@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "../Base/UIComponent.h"
+#include "../../Base/UIComponent.h"
 #include "UmFramework.h"
 
 class ImageElement : public UIComponent
@@ -17,6 +17,8 @@ protected:
     REFLECT_FIELDS_BEGIN(UIComponent)
     std::string Guid;
     REFLECT_FIELDS_END(ImageElement)
+
+    void DeserializedReflectEvent() override;
 
 private:
     File::GuidRef _guidRef;

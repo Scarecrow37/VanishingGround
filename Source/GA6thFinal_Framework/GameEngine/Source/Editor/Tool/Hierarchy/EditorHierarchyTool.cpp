@@ -435,6 +435,12 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
                     GameObjectKey, GameObject::Helper::GenerateUniqueName("Image Element"), &ui);
                 ui->AddComponent<ImageElement>();
             }
+            if (ImGui::MenuItem("Text Element"))
+            {
+                UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
+                    GameObjectKey, GameObject::Helper::GenerateUniqueName("Text Element"), &ui);
+                ui->AddComponent<TextElement>();
+            }
             ImGui::EndMenu();
         }
         ImGui::EndMenu();
