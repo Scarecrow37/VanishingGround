@@ -568,6 +568,8 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
         _setting.MainScene = scene->Path;
         _addComponentsQueue.clear();
         _addGameObjectsQueue.clear();
+        _waitAwakeVec.clear();
+        _waitStartVec.clear();
         _lodedSceneList.clear();
         UmCommandManager.Clear();
         SetRendererSkyBox(scene);
