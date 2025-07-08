@@ -28,34 +28,53 @@ private:
     ///////////////////////////////////
     // MonsterA
     ///////////////////////////////////
+
     void BuildAIModel23000();
     void BuildAIModel23001();
-    void Action22000();
+
+    // 찢어 발기기(구현 X)
+    void Action22000(); 
+    // 기습(구현 X)
     void Action22001();
-    void Action22002();
-    void Action22003();
-    void Action22004();
+    // 확인 사살(구현 X)
+    void Action22002(); 
+    // 연기(?) 베기(구현 X)
+    void Action22003(); 
+    // 피의 의식(구현 X)
+    void Action22004(); 
 
     ///////////////////////////////////
-    // MonsterB Action
+    // MonsterB
     ///////////////////////////////////
+
     void BuildAIModel23010();
     void BuildAIModel23011();
-    void Action22010();
-    void Action22011();
-    void Action22012();
-    void Action22013();
+
+    // 두려움의 중얼거림(구현 X)
+    void Action22010(); 
+    // 떨리는 중얼거림(구현 X)
+    void Action22011(); 
+    // 절망(구현 X)
+    void Action22012(); 
+    // 소멸의 찬가(구현 X)
+    void Action22013(); 
+    // 웅크리기(구현 X)
     void Action22014();
 
     //================================
     // Condition
     //================================
+
+    // 플레이어 출혈 여부(구현 X)
     bool IsPlayerBleeding();
 
     //================================
     // Debugging
     //================================
+    
+    // 액션 ID에 해당하는 액션 이름을 반환합니다.
     std::string_view GetActionName(int actionID) const;
+    // 현재 액션을 로그로 출력합니다.
     void LogCurrentAction();
 
 private:
