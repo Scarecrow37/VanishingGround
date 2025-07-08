@@ -19,6 +19,7 @@ TestUI::TestUI()
                     {
                         _guidRef            = path.ToGuid();
                         ReflectFields->Guid = _guidRef.string();
+
                         _uiRenderer->LoadTexture(path.c_str());
                     }
                 }
@@ -39,4 +40,25 @@ void TestUI::Reset()
     _uiRenderer = std::make_unique<UIRenderer>(transform->GetWorldMatrix(), UIType::MODE_2D);
     _uiRenderer->RegisterRenderQueue();
     _uiRenderer->SetActive(&_isActive);
+}
+
+void TestUI::ImGuiDrawPropertysEvent()
+{
+    const char* texts[] = {"2D", "2.5D", "3D"};
+    if (ImGui::Combo("UIType##ui", (int*)&ReflectFields->Type, texts, 3))
+    {
+        _uiRenderer->SetType((UIType)ReflectFields->Type);
+    }
+}
+
+void TestUI::DeserializedReflectEvent()
+{
+    File::Guid guid = ReflectFields->Guid;
+    auto       path = guid.ToPath();
+
+    if (!path.IsNull())
+    {
+        _uiRenderer->LoadTexture(path.c_str());
+        _uiRenderer->SetType((UIType)ReflectFields->Type);
+    }
 }

@@ -13,6 +13,9 @@ public:
     const Texture* GetTexture() const { return _texture.get(); }
 
 public:
+    void SetType(UIType type) { _type = type; }
+
+public:
     void RegisterRenderQueue(std::string_view sceneName);
     void RegisterRenderQueue();
     void LoadTexture(std::wstring_view filePath);

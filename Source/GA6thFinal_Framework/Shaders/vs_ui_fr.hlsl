@@ -24,7 +24,7 @@ VSOutput vs_main(VSInput input)
 {
     VSOutput output = (VSOutput) 0;
     
-    float4 position = float4(input.position.xy, 1, 1);
+    float4 position = float4(input.position.xyz, 1);
     uint ID = IDs[input.instanceID];
         
     output.position = mul(position, worldMatrices[ID]);

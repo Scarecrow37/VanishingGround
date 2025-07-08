@@ -235,8 +235,22 @@ void RenderScene::UpdateUI()
         if (nullptr == texture)
             continue;
 
-        auto     size    = texture->GetSize();
-        XMMATRIX scale   = XMMatrixScaling((float)size.cx, (float)size.cy, 1.f);
+        auto     size = texture->GetSize();
+        XMMATRIX scale = XMMatrixIdentity();
+        
+        switch (component->GetType())
+        {
+        case UIType::MODE_2D:
+            scale = XMMatrixScaling((float)size.cx, (float)size.cy, 1.f);
+            break;
+        case UIType::MODE_25D:
+        {
+            float ratio = (float)size.cx / (float)size.cy;
+            scale       = XMMatrixScaling(ratio, 1.f, 1.f);
+            break;
+        }
+        }
+        
         XMMATRIX world   = XMMatrixTranspose(scale * XMMATRIX(component->GetWorldMatrix()));
         _uiMatrices.push_back(world);
 
