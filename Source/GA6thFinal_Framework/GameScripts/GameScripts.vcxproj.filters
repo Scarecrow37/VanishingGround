@@ -228,6 +228,9 @@
     <ClInclude Include="Scripts\UI\Base\UIComponent.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Scripts\UI\Elements\ImageElement.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -417,6 +420,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Scripts\UI\Base\UIComponent.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\UI\Elements\ImageElement.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

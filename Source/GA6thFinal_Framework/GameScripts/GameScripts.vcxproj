@@ -345,6 +345,7 @@
     <ClInclude Include="Scripts\TurnSystem\TurnMode\State\PlayerActionPhase.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnMode\State\RoundStartPhase.h" />
     <ClInclude Include="Scripts\UI\Base\UIComponent.h" />
+    <ClInclude Include="Scripts\UI\Elements\ImageElement.h" />
     <ClInclude Include="Scripts\UI\UIRoot\UIRoot.h" />
     <ClInclude Include="UmScriptCore.h" />
     <ClInclude Include="UmScriptsExport.h" />
@@ -425,6 +426,7 @@
     <ClCompile Include="Scripts\TurnSystem\TurnMode\State\RoundStartPhase.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnMode\State\TurnListEmptyState.cpp" />
     <ClCompile Include="Scripts\UI\Base\UIComponent.cpp" />
+    <ClCompile Include="Scripts\UI\Elements\ImageElement.cpp" />
     <ClCompile Include="Scripts\UI\UIRoot\UIRoot.cpp" />
     <ClCompile Include="UmScriptCore.cpp" />
     <ClCompile Include="UmScriptsExport.cpp" />

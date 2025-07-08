@@ -429,9 +429,11 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
         }
         if (ImGui::BeginMenu("Elements"))
         {
-            if (ImGui::MenuItem("Temp"))
+            if (ImGui::MenuItem("Image Element"))
             {
-                // TODO;
+                UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
+                    GameObjectKey, GameObject::Helper::GenerateUniqueName("Image Element"), &ui);
+                ui->AddComponent<ImageElement>();
             }
             ImGui::EndMenu();
         }

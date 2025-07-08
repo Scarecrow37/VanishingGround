@@ -88,3 +88,6 @@ UMREAL_COMPONENT(FPSCounter)
 
 #include "Scripts/UI/UIRoot/UIRoot.h"
 UMREAL_COMPONENT(UIRoot)
+
+#include "Scripts/UI/Elements/ImageElement.h"
+UMREAL_COMPONENT(ImageElement)

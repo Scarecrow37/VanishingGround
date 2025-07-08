@@ -5,7 +5,7 @@ class UIRoot : public UIComponent
 {
     USING_PROPERTY(UIRoot)
 
-    protected:
+protected:
     REFLECT_FIELDS_BEGIN(UIComponent)
 
     REFLECT_FIELDS_END(UIRoot)
