@@ -48,20 +48,46 @@ void Transform::DetachChildren()
     }
 }
 
-void Transform::SetParent(Transform* p)
+void Transform::SetParent(Transform* p, bool worldPositionStays)
 {
+    auto SetWorldPositionStaysMatrix = [this, p, worldPositionStays]() 
+    {
+        // World PositionStays 조건
+        if (worldPositionStays)
+        {
+            const Matrix& myWorldMatrix = this->GetWorldMatrix();
+            Matrix        myLocalMatrix;
+            if (p)
+            {
+                const Matrix& parentWorldMatrix = p->GetWorldMatrix();
+                Matrix parntInversMatrix = parentWorldMatrix.Invert();
+                myLocalMatrix = myWorldMatrix * parntInversMatrix;
+            }
+            else
+            {
+                myLocalMatrix = myWorldMatrix;
+            }
+            myLocalMatrix.Decompose(_scale, _rotation, _position);
+        }
+    };
+
     if (p == nullptr)
     {
+        SetWorldPositionStaysMatrix();
         EraseParent();
     }
     else //부모 관계 변경
     {
         if (p->gameObject->GetOwnerSceneName() == gameObject->GetOwnerSceneName())
         {
+            //부모 관계가 가능한지 검증
             if (p == this || p->IsDescendantOf(this))
             {
                 return;
-            }
+            }    
+           
+            SetWorldPositionStaysMatrix();        
+            //부모 적용
             EraseParent();
             {
                 _parent = p;
@@ -77,12 +103,13 @@ void Transform::SetParent(Transform* p)
         }
     }
     _hasChanged = true;
+    UpdateMatrix();
     GameObject::Engine::UpdateActiveInHierarchy(&_gameObject);
 }
 
-void Transform::SetParent(Transform& p)
+void Transform::SetParent(Transform& p, bool worldPositionStays)
 {
-    SetParent(&p);
+    SetParent(&p, worldPositionStays);
 }
 
 
