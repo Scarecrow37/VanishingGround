@@ -132,6 +132,11 @@ void EnemyAI::Refresh()
     if (nullptr != _currNode)
     {
         _currNode->Refresh();
+        bool isActionNode = _currNode->IsActionNode();
+        if (false == isActionNode)
+        {   // 조건노드는 다음 노드로 전환
+            Tansition();
+        }
     }
 }
 
@@ -145,15 +150,7 @@ void EnemyAI::Tansition()
         {
             _currNode = nextptr;
             bool isActionNode = _currNode->IsActionNode();
-            if (true == isActionNode)
-            {
-                ++_transitionCount;
-            }
-            else
-            {
-                Refresh();
-                Tansition(); // 조건 노드인 경우 갱신하고 한번 더 전이 시도
-            }
+            ++_transitionCount;
         }
     }
 }
