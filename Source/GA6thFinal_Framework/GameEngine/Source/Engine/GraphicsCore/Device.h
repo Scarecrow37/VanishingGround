@@ -13,7 +13,6 @@ public:
     ID3D12GraphicsCommandList*         GetCommandList() const { return _commandList.Get(); }
     ID3D12GraphicsCommandList*         GetImguiCommandList() const { return _imguiCommandList.Get(); }
     ID3D12GraphicsCommandList*         GetComputeCommandList() const { return _computeCommandList.Get(); }
-    ID3D12GraphicsCommandList*         GetPostProcessCommandList() const { return _postProcessCommandList.Get(); }
     const DXGI_MODE_DESC&              GetMode() const { return _mode; }
     UINT                               GetRTVDescriptorSize() { return _rtvDescriptorSize; }
     UINT                               GetCBVSRVUAVDescriptorSize() { return _cbvSrvUavDescriptorSize; }
@@ -22,7 +21,6 @@ public:
     bool                               GetMSAAState() { return _4xMSAAState; }
     UINT                               GetMSAAQuality() { return _4xMSAAQuality; }
     UINT                               GetCurrentBackBufferIndex() { return _renderTargetIndex; }
-    D3D12_VIEWPORT                     GetMainViewport() { return _mainViewport; }
     const D3D12_CPU_DESCRIPTOR_HANDLE& GetBackBufferHandle() const { return _renderTargetHandles[_renderTargetIndex]; }
 
 public:
@@ -115,8 +113,6 @@ private:
     ComPtr<ID3D12CommandAllocator>    _commandAllocator;
     ComPtr<ID3D12GraphicsCommandList> _imguiCommandList;
     ComPtr<ID3D12CommandAllocator>    _imguiCommandAllocator;
-    ComPtr<ID3D12GraphicsCommandList> _postProcessCommandList;
-    ComPtr<ID3D12CommandAllocator>    _postProcessCommandAllocator;
 
     // compute 관련 command 객체들
     ComPtr<ID3D12CommandQueue>        _computeCommandQueue;

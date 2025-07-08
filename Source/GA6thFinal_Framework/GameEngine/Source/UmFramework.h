@@ -150,6 +150,8 @@ using namespace Microsoft::WRL;
 
 //Graphics
 #include "Engine/GraphicsCore/GraphicsCore.h"
+#include "Engine/GraphicsCore/ParticleEffectSerializer.h"
+
 
 //Audio Module
 #include "../AudioModule/AudioModule.h"

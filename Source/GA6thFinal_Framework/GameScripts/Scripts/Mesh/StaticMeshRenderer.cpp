@@ -19,7 +19,7 @@ StaticMeshRenderer::StaticMeshRenderer()
                     {
                         _guidRef            = path.ToGuid();
                         ReflectFields->Guid = _guidRef.string();
-                        UmSceneManager.ResourceManager.RequestModelResource(this, _guidRef);
+                        UmSceneManager.ResourceManager.RequestModelResource(this, _guidRef, [this]() { LoadModel(); });
                     }
                 }
             }
@@ -31,6 +31,19 @@ StaticMeshRenderer::StaticMeshRenderer()
 StaticMeshRenderer::~StaticMeshRenderer() 
 {
 
+}
+
+void StaticMeshRenderer::LoadModel() 
+{
+    if (Renderer)
+    {
+        std::string path = FilePath;
+        if (path != File::NULL_PATH)
+        {
+            std::wstring modelPath = U8ToWString(path);
+            Renderer->LoadModel(modelPath);
+        } 
+    }
 }
 
 void StaticMeshRenderer::Reset()
@@ -49,6 +62,6 @@ void StaticMeshRenderer::DeserializedReflectEvent()
     _guidRef = guid;
     if (false == guid.IsNull())
     {
-        UmSceneManager.ResourceManager.RequestModelResource(this, _guidRef);
+        UmSceneManager.ResourceManager.RequestModelResource(this, _guidRef, [this]() { LoadModel(); });
     }
 }

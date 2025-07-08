@@ -17,15 +17,19 @@ void Texture::CreateShaderResourceView()
 
     D3D12_SHADER_RESOURCE_VIEW_DESC srvd{};
 
-    srvd.Format                  = _resource->GetDesc().Format;
+    auto desc                    = _resource->GetDesc();
+    srvd.Format                  = desc.Format;
     srvd.ViewDimension           = D3D12_SRV_DIMENSION_TEXTURE2D;
     srvd.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
     // srvd.Texture2D = { 0, -1, 0, 0 };											//기본지정.
-    srvd.Texture2D.MipLevels = _resource->GetDesc().MipLevels; // 밉멥레벨 수동지정.(상동)
+    srvd.Texture2D.MipLevels = desc.MipLevels; // 밉멥레벨 수동지정.(상동)
 
     device->CreateShaderResourceView(_resource.Get(), &srvd, _handle.CPU);
 
     _ID = UmViewManager.GetNumShaderResourceView() - 1;
+
+    _size.cx = (LONG)desc.Width;
+    _size.cy = (LONG)desc.Height;
 }
 
 void Texture::LoadResource(const std::filesystem::path& filePath)

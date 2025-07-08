@@ -15,10 +15,7 @@ public:
 
 public:
     ID3D12RootSignature*         GetRootSignature() const { return _rootSignature.Get(); }
-    const D3D12_SHADER_BYTECODE& GetShaderByteCode(ShaderBuilder::Type type) const
-    {
-        return _shaderByteCodes[(int)type];
-    }
+    const D3D12_SHADER_BYTECODE& GetShaderByteCode(ShaderBuilder::Type type) const { return _shaderByteCodes[(int)type]; }
     const D3D12_INPUT_LAYOUT_DESC& GetInputLayout() const { return _inputLayout; }
     UINT                           GetRootParameterIndex(std::string_view tag) const;
 

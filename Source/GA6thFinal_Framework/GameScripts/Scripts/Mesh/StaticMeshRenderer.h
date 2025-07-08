@@ -16,6 +16,8 @@ public:
         return _guidRef.ToPath().string();
     }
     PROPERTY(FilePath)
+private:
+    void LoadModel();
 
 public:
     File::GuidRef _guidRef;

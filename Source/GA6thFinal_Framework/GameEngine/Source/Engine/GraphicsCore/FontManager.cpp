@@ -38,7 +38,7 @@ void FontManager::Initialize(const UINT numFonts)
 		ResourceUploadBatch resourceUpload(device);
 		resourceUpload.Begin();
 		
-		D3D12_VIEWPORT viewport = UmDevice.GetMainViewport();
+		//D3D12_VIEWPORT viewport = UmDevice.GetMainViewport();
 		//_spriteBatch = std::make_shared<SpriteBatch>(device.Get(), resourceUpload, psd, &viewport);
 
 		//auto uploadFinish = resourceUpload.End(Global::device.GetCommandQueue().Get());
