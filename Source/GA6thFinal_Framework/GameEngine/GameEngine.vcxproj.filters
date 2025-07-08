@@ -684,7 +684,7 @@
     <ClInclude Include="Source\Engine\GraphicsCore\DebugDrawCore.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\TimelineCore\AnimationNotifySet.h">
+        <ClInclude Include="Source\Engine\TimelineCore\AnimationNotifySet.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Editor\Tool\Model\EditorAnimationNotifyTool.h">
