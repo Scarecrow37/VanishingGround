@@ -1,16 +1,13 @@
 ﻿#include "pch.h"
 #include "BrightExtractPass.h"
-#include "Quad.h"
-#include "RenderScene.h"
-#include "RenderTarget.h"
 
 BrightExtractPass::BrightExtractPass() {}
 
 BrightExtractPass::~BrightExtractPass() {}
 
-void BrightExtractPass::Initialize()
+void BrightExtractPass::Initialize(RenderScene* ownerScene)
 {
-    __super::Initialize();
+    __super::Initialize(ownerScene);
 
     _shader = std::make_unique<ShaderBuilder>();
     _shader->BeginBuild();

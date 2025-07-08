@@ -222,7 +222,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <AdditionalLibraryDirectories>$(SolutionDir)GameEngine\bin\$(Configuration)\;$(SolutionDir)GameEngine\ThirdParty\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>GameEngine.lib;InputModule.lib;AudioModule.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>GameEngine.lib;InputModule.lib;AudioModule.lib;ImGuiThirdParty.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">
@@ -242,7 +242,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <AdditionalLibraryDirectories>$(SolutionDir)GameEngine\bin\$(Configuration)\;$(SolutionDir)GameEngine\ThirdParty\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>GameEngine.lib;InputModule.lib;AudioModule.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>GameEngine.lib;InputModule.lib;AudioModule.lib;ImGuiThirdParty.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -266,7 +266,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <AdditionalLibraryDirectories>$(SolutionDir)GameEngine\bin\$(Configuration)\;$(SolutionDir)GameEngine\ThirdParty\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>GameEngine.lib;InputModule.lib;AudioModule.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>GameEngine.lib;InputModule.lib;AudioModule.lib;ImGuiThirdParty.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">
@@ -290,7 +290,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <AdditionalLibraryDirectories>$(SolutionDir)GameEngine\bin\$(Configuration)\;$(SolutionDir)GameEngine\ThirdParty\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>GameEngine.lib;InputModule.lib;AudioModule.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>GameEngine.lib;InputModule.lib;AudioModule.lib;ImGuiThirdParty.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -310,6 +310,7 @@
     <ClInclude Include="Scripts\Stats\WeaponTable\WeaponTableComponent.h" />
     <ClInclude Include="Scripts\Stats\Weapon\WeaponStats.h" />
     <ClInclude Include="Scripts\Test\Component\TestComponent.h" />
+    <ClInclude Include="Scripts\Test\UI\TestUI.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\Base\EnemyConditionBase.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\EnemyDeadCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\EnemyEndCondition.h" />
@@ -334,11 +335,8 @@
     <ClInclude Include="Scripts\GameCore\FSM\AlwaysTransitionCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\CheckTurnNotEmpty.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\EnemyActionCondition.h" />
-    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\GameClearCondition.h" />
-    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\GameOverCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\PlayerActionCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\RoundStartCondition.h" />
-    <ClInclude Include="Scripts\TurnSystem\TurnMode\State\GameClearState.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnMode\State\RoundEndPhase.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnMode\State\TurnListEmptyState.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnMode\State\Base\TurnModeStateBase.h" />
@@ -347,7 +345,6 @@
     <ClInclude Include="Scripts\TurnSystem\TurnMode\State\EnemyActionPhase.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnMode\State\PlayerActionPhase.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnMode\State\RoundStartPhase.h" />
-    <ClInclude Include="Scripts\TurnSystem\TurnMode\State\GameOverState.h" />
     <ClInclude Include="UmScriptCore.h" />
     <ClInclude Include="UmScriptsExport.h" />
     <ClInclude Include="Scripts\Mesh\MeshComponent.h" />
@@ -393,6 +390,7 @@
     <ClCompile Include="Scripts\Stats\WeaponTable\WeaponTableComponent.cpp" />
     <ClCompile Include="Scripts\Stats\Weapon\WeaponStats.cpp" />
     <ClCompile Include="Scripts\Test\Component\TestComponent.cpp" />
+    <ClCompile Include="Scripts\Test\UI\TestUI.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\Base\EnemyConditionBase.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\EnemyDeadCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\EnemyEndCondition.cpp" />
@@ -416,16 +414,12 @@
     <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\CheckTurnEndCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\CheckTurnNotEmpty.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\EnemyActionCondition.cpp" />
-    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\GameClearCondition.cpp" />
-    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\GameOverCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\PlayerActionCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\RoundStartCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnMode\State\Base\TurnModeStateBase.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnMode\State\CheckPlayerState.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnMode\State\CombatStartPhase.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnMode\State\EnemyActionPhase.cpp" />
-    <ClCompile Include="Scripts\TurnSystem\TurnMode\State\GameClearState.cpp" />
-    <ClCompile Include="Scripts\TurnSystem\TurnMode\State\GameOverState.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnMode\State\PlayerActionPhase.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnMode\State\RoundEndPhase.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnMode\State\RoundStartPhase.cpp" />

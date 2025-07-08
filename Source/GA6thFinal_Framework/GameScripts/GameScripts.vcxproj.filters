@@ -222,16 +222,7 @@
     <ClInclude Include="Scripts\Test\DevTools\FPSCounter.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnMode\State\GameOverState.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\GameOverCondition.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnMode\State\GameClearState.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\GameClearCondition.h">
+    <ClInclude Include="Scripts\Test\UI\TestUI.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -413,22 +404,16 @@
     <ClCompile Include="Scripts\Stats\WeaponTable\WeaponTableComponent.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\Stats\Weapon\WeaponStats.cpp">
+    <ClCompile Include="Scripts\Stats\WeaponTable\WeaponTableComponent.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Scripts\Test\DevTools\FPSCounter.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnMode\State\GameOverState.cpp">
+    <ClCompile Include="Scripts\Stats\Weapon\WeaponStats.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\GameOverCondition.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnMode\State\GameClearState.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\GameClearCondition.cpp">
+    <ClCompile Include="Scripts\Test\UI\TestUI.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

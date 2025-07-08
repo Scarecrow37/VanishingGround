@@ -3,7 +3,6 @@
 
 struct Bone;
 class Skeleton;
-class Transform;
 class Animation;
 class Animator : public GraphicsBase
 {

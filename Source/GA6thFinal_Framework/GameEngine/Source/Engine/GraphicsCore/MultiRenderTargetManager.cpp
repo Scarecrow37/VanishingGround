@@ -1,6 +1,5 @@
 ﻿#include "pch.h"
 #include "MultiRenderTargetManager.h"
-#include "RenderTarget.h"
 
 MultiRenderTargetManager::MultiRenderTargetManager() {}
 

@@ -73,12 +73,14 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
+    <EnableUnitySupport>true</EnableUnitySupport>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
+    <EnableUnitySupport>true</EnableUnitySupport>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
@@ -86,6 +88,7 @@
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <EnableUnitySupport>true</EnableUnitySupport>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
@@ -93,6 +96,7 @@
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <EnableUnitySupport>true</EnableUnitySupport>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -296,13 +300,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-      <ClInclude Include="Source\Editor\Tool\Model\EditorAnimationNotifyTool.h" />
+    <ClInclude Include="Source\Editor\Tool\Model\EditorAnimationNotifyTool.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\ConstantBufferView.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\Headers.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\UIPassBase.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\UIRenderer.h" />
     <ClInclude Include="Source\Engine\TimelineCore\AnimationNotifySet.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\ParticleEffectSerializer.h" />
     <ClInclude Include="Source\Engine\EditorCore\Utillity\EditorDragState.h" />
     <ClInclude Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectDetails.h" />
     <ClInclude Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectHierarchy.h" />
     <ClInclude Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectViewer.h" />
     <ClInclude Include="Source\Engine\GameCore\InputReciver\InputReceiver.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\UI2DPass.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\UI3DPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\BlendPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\DebugDrawCore.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\DepthStencilView.h" />
@@ -326,6 +337,7 @@
     <ClInclude Include="Source\Engine\GraphicsCore\BlendTechnique.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\ResourceBase.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\OutLinePass.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\UITechnique.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\UnorderedAccessView.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\UpScalePass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\BrightExtractPass.h" />
@@ -380,12 +392,6 @@
     <ClInclude Include="Source\Engine\EditorCore\Gui\PopupBox\EditorPopupBox.h" />
     <ClInclude Include="Source\Engine\EditorCore\System\EditorPopupBoxSystem.h" />
     <ClInclude Include="Source\Editor\DragDropTypes\DragDropAsset.h" />
-    <ClInclude Include="Source\Engine\Imgui\GraphEditor.h" />
-    <ClInclude Include="Source\Engine\Imgui\ImCurveEdit.h" />
-    <ClInclude Include="Source\Engine\Imgui\ImGradient.h" />
-    <ClInclude Include="Source\Engine\Imgui\ImGuizmo.h" />
-    <ClInclude Include="Source\Engine\Imgui\ImSequencer.h" />
-    <ClInclude Include="Source\Engine\Imgui\ImZoomSlider.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Animator.h" />
     <ClInclude Include="Source\Engine\Utility\EditorHelper.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\RenderPass.h" />
@@ -422,7 +428,6 @@
     <ClInclude Include="Source\Engine\GraphicsCore\Cylinder.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Defines.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Device.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\DX12Practice.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Enums.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Externs.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Font.h" />
@@ -466,22 +471,6 @@
     <ClInclude Include="Source\Engine\GameCore\Component\Component.h" />
     <ClInclude Include="Source\Engine\GameCore\GameObject\GameObject.h" />
     <ClInclude Include="Source\Engine\GameCore\Transform\Transform.h" />
-    <ClInclude Include="Source\Engine\Imgui\crude_json.h" />
-    <ClInclude Include="Source\Engine\Imgui\imgui_bezier_math.h" />
-    <ClInclude Include="Source\Engine\Imgui\imgui_canvas.h" />
-    <ClInclude Include="Source\Engine\Imgui\imgui_extra_math.h" />
-    <ClInclude Include="Source\Engine\Imgui\imgui_impl_dx11.h" />
-    <ClInclude Include="Source\Engine\Imgui\imgui_impl_dx12.h" />
-    <ClInclude Include="Source\Engine\Imgui\imconfig.h" />
-    <ClInclude Include="Source\Engine\Imgui\imgui.h" />
-    <ClInclude Include="Source\Engine\Imgui\imgui_impl_win32.h" />
-    <ClInclude Include="Source\Engine\Imgui\imgui_internal.h" />
-    <ClInclude Include="Source\Engine\Imgui\imgui_node_editor.h" />
-    <ClInclude Include="Source\Engine\Imgui\imgui_node_editor_internal.h" />
-    <ClInclude Include="Source\Engine\Imgui\imstb_rectpack.h" />
-    <ClInclude Include="Source\Engine\Imgui\imstb_textedit.h" />
-    <ClInclude Include="Source\Engine\Imgui\imstb_truetype.h" />
-    <ClInclude Include="Source\Engine\Imgui\imgui_stdlib.h" />
     <ClInclude Include="Source\Engine\ClassCore\TProperty.hpp" />
     <ClInclude Include="Source\Engine\Utility\dllUtility.h" />
     <ClInclude Include="Source\Engine\Utility\ImguiHelper.h" />
@@ -500,13 +489,19 @@
     <ClInclude Include="Source\Engine\TimelineCore\TimelineSystem.h" />
   </ItemGroup>
   <ItemGroup>
-      <ClCompile Include="Source\Editor\Tool\Model\EditorAnimationNotifyTool.cpp" />
+    <ClCompile Include="Source\Editor\Tool\Model\EditorAnimationNotifyTool.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\ConstantBufferView.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\UIPassBase.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\UIRenderer.cpp" />
     <ClCompile Include="Source\Engine\TimelineCore\AnimationNotifySet.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\ParticleEffectSerializer.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\Utillity\EditorDragState.cpp" />
     <ClCompile Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectDetails.cpp" />
     <ClCompile Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectHierarchy.cpp" />
     <ClCompile Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectViewer.cpp" />
     <ClCompile Include="Source\Engine\GameCore\InputReciver\InputReceiver.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\UI2DPass.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\UI3DPass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\DebugDrawCore.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\DepthStencilView.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\DXResourceManager.cpp" />
@@ -532,6 +527,7 @@
     <ClCompile Include="Source\Engine\GraphicsCore\BlendTechnique.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\ResourceBase.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\OutLinePass.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\UITechnique.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\UnorderedAccessView.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\UpScalePass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\BrightExtractPass.cpp" />
@@ -602,36 +598,6 @@
     <ClCompile Include="Source\Engine\EditorCore\Gui\PopupBox\EditorPopupBox.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\System\EditorPopupBoxSystem.cpp" />
     <ClCompile Include="Source\Editor\DragDropTypes\DragDropAsset.cpp" />
-    <ClCompile Include="Source\Engine\Imgui\GraphEditor.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\ImCurveEdit.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\ImGradient.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\ImGuizmo.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\ImSequencer.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="Source\Engine\Utility\EditorHelper.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\RenderPass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\RenderTechnique.cpp" />
@@ -697,84 +663,6 @@
     <ClCompile Include="Source\Engine\GraphicsCore\Texture.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\VIBuffer.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\ViewManager.cpp" />
-    <ClCompile Include="Source\Engine\Imgui\crude_json.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\imgui_canvas.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\imgui_impl_dx11.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\imgui_impl_dx12.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\imgui_impl_win32.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\imgui.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\imgui_demo.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\imgui_draw.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\imgui_node_editor.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\imgui_node_editor_api.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\imgui_tables.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\imgui_widgets.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\imgui_stdlib.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="Source\Engine\Utility\dllUtility.cpp" />
     <ClCompile Include="Source\Engine\Utility\FileHelper.cpp" />
     <ClCompile Include="Source\Engine\Utility\ImguiHelper.cpp" />
@@ -836,11 +724,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
-    <None Include="Source\Engine\Imgui\imgui_bezier_math.inl" />
-    <None Include="Source\Engine\Imgui\imgui_extra_math.inl" />
-    <None Include="Source\Engine\Imgui\imgui_node_editor_internal.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ImGuiThirdParty\ImGuiThirdParty.vcxproj">
+      <Project>{da5bbfb7-c4fb-4663-9ddc-4d4b5ec82d5f}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\InputModule\InputModule.vcxproj">
       <Project>{c56311d7-823b-4cea-bc18-4e55f615ad78}</Project>
     </ProjectReference>

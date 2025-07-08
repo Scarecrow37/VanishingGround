@@ -1,14 +1,11 @@
 ﻿#include "pch.h"
 #include "DeferredPBRLitPass.h"
-#include "RenderTarget.h"
-#include "RenderScene.h"
-#include "Quad.h"
 
 DeferredPBRLitPass::~DeferredPBRLitPass() {}
 
-void DeferredPBRLitPass::Initialize()
+void DeferredPBRLitPass::Initialize(RenderScene* ownerScene)
 {
-    __super::Initialize();
+    __super::Initialize(ownerScene);
 
     InitShaderAndPSO();
 }
