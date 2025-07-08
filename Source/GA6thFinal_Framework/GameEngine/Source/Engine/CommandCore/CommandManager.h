@@ -39,9 +39,9 @@ public:
     inline const auto RedoStackBegin() const { return _redoStack.begin(); }
     inline const auto RedoStackEnd() const { return _redoStack.end(); }
 
-    inline bool IsEmpty() const { IsUndoEmpty() && IsRedoEmpty(); }
-    inline bool IsUndoEmpty() const { _undoStack.empty(); }
-    inline bool IsRedoEmpty() const { _redoStack.empty(); }
+    inline bool IsEmpty() const { return IsUndoEmpty() && IsRedoEmpty(); }
+    inline bool IsUndoEmpty() const { return _undoStack.empty(); }
+    inline bool IsRedoEmpty() const { return _redoStack.empty(); }
 
 private:
     void ClampCommandStack();
