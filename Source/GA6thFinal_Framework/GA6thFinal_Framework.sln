@@ -18,6 +18,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "InputModule", "InputModule\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AudioModule", "AudioModule\AudioModule.vcxproj", "{C0AA9053-AA4A-4F8E-9865-59AA31873B8C}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ImGuiThirdParty", "ImGuiThirdParty\ImGuiThirdParty.vcxproj", "{DA5BBFB7-C4FB-4663-9DDC-4D4B5EC82D5F}"
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UserInterfaceModule", "UserInterfaceModule\UserInterfaceModule.vcxproj", "{133FD9DA-4BDB-4DA1-BE06-D61D62371F74}"
 EndProject
 Global
@@ -112,6 +114,22 @@ Global
 		{C0AA9053-AA4A-4F8E-9865-59AA31873B8C}.ReleaseEditor|x64.Build.0 = ReleaseEditor|x64
 		{C0AA9053-AA4A-4F8E-9865-59AA31873B8C}.ReleaseEditor|x86.ActiveCfg = Release|Win32
 		{C0AA9053-AA4A-4F8E-9865-59AA31873B8C}.ReleaseEditor|x86.Build.0 = Release|Win32
+		{DA5BBFB7-C4FB-4663-9DDC-4D4B5EC82D5F}.Debug|x64.ActiveCfg = Debug|x64
+		{DA5BBFB7-C4FB-4663-9DDC-4D4B5EC82D5F}.Debug|x64.Build.0 = Debug|x64
+		{DA5BBFB7-C4FB-4663-9DDC-4D4B5EC82D5F}.Debug|x86.ActiveCfg = Debug|Win32
+		{DA5BBFB7-C4FB-4663-9DDC-4D4B5EC82D5F}.Debug|x86.Build.0 = Debug|Win32
+		{DA5BBFB7-C4FB-4663-9DDC-4D4B5EC82D5F}.DebugEditor|x64.ActiveCfg = DebugEditor|x64
+		{DA5BBFB7-C4FB-4663-9DDC-4D4B5EC82D5F}.DebugEditor|x64.Build.0 = DebugEditor|x64
+		{DA5BBFB7-C4FB-4663-9DDC-4D4B5EC82D5F}.DebugEditor|x86.ActiveCfg = Debug|Win32
+		{DA5BBFB7-C4FB-4663-9DDC-4D4B5EC82D5F}.DebugEditor|x86.Build.0 = Debug|Win32
+		{DA5BBFB7-C4FB-4663-9DDC-4D4B5EC82D5F}.Release|x64.ActiveCfg = Release|x64
+		{DA5BBFB7-C4FB-4663-9DDC-4D4B5EC82D5F}.Release|x64.Build.0 = Release|x64
+		{DA5BBFB7-C4FB-4663-9DDC-4D4B5EC82D5F}.Release|x86.ActiveCfg = Release|Win32
+		{DA5BBFB7-C4FB-4663-9DDC-4D4B5EC82D5F}.Release|x86.Build.0 = Release|Win32
+		{DA5BBFB7-C4FB-4663-9DDC-4D4B5EC82D5F}.ReleaseEditor|x64.ActiveCfg = ReleaseEditor|x64
+		{DA5BBFB7-C4FB-4663-9DDC-4D4B5EC82D5F}.ReleaseEditor|x64.Build.0 = ReleaseEditor|x64
+		{DA5BBFB7-C4FB-4663-9DDC-4D4B5EC82D5F}.ReleaseEditor|x86.ActiveCfg = Release|Win32
+		{DA5BBFB7-C4FB-4663-9DDC-4D4B5EC82D5F}.ReleaseEditor|x86.Build.0 = Release|Win32
 		{133FD9DA-4BDB-4DA1-BE06-D61D62371F74}.Debug|x64.ActiveCfg = Debug|x64
 		{133FD9DA-4BDB-4DA1-BE06-D61D62371F74}.Debug|x64.Build.0 = Debug|x64
 		{133FD9DA-4BDB-4DA1-BE06-D61D62371F74}.Debug|x86.ActiveCfg = Debug|Win32
