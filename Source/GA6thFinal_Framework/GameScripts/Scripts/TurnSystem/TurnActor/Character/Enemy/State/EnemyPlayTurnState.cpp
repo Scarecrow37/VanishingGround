@@ -54,7 +54,7 @@ void EnemyPlayTurnState::OnExit()
     
 void EnemyPlayTurnState::OnUpdate()
 {
-    ProcessAction();
+    //ProcessAction();
 }
 
 void EnemyPlayTurnState::ProcessAction() 
