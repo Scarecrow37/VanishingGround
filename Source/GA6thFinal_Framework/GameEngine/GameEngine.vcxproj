@@ -301,12 +301,19 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Source\Editor\Tool\Model\EditorAnimationNotifyTool.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\ConstantBufferView.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\Headers.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\UIPassBase.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\UIRenderer.h" />
     <ClInclude Include="Source\Engine\TimelineCore\AnimationNotifySet.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\ParticleEffectSerializer.h" />
     <ClInclude Include="Source\Engine\EditorCore\Utillity\EditorDragState.h" />
     <ClInclude Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectDetails.h" />
     <ClInclude Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectHierarchy.h" />
     <ClInclude Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectViewer.h" />
     <ClInclude Include="Source\Engine\GameCore\InputReciver\InputReceiver.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\UI2DPass.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\UI3DPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\BlendPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\DebugDrawCore.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\DepthStencilView.h" />
@@ -330,6 +337,7 @@
     <ClInclude Include="Source\Engine\GraphicsCore\BlendTechnique.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\ResourceBase.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\OutLinePass.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\UITechnique.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\UnorderedAccessView.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\UpScalePass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\BrightExtractPass.h" />
@@ -420,7 +428,6 @@
     <ClInclude Include="Source\Engine\GraphicsCore\Cylinder.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Defines.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Device.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\DX12Practice.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Enums.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Externs.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Font.h" />
@@ -483,12 +490,18 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Editor\Tool\Model\EditorAnimationNotifyTool.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\ConstantBufferView.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\UIPassBase.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\UIRenderer.cpp" />
     <ClCompile Include="Source\Engine\TimelineCore\AnimationNotifySet.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\ParticleEffectSerializer.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\Utillity\EditorDragState.cpp" />
     <ClCompile Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectDetails.cpp" />
     <ClCompile Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectHierarchy.cpp" />
     <ClCompile Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectViewer.cpp" />
     <ClCompile Include="Source\Engine\GameCore\InputReciver\InputReceiver.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\UI2DPass.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\UI3DPass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\DebugDrawCore.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\DepthStencilView.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\DXResourceManager.cpp" />
@@ -514,6 +527,7 @@
     <ClCompile Include="Source\Engine\GraphicsCore\BlendTechnique.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\ResourceBase.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\OutLinePass.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\UITechnique.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\UnorderedAccessView.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\UpScalePass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\BrightExtractPass.cpp" />

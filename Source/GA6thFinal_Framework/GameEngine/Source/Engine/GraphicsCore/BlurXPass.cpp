@@ -1,16 +1,13 @@
 ﻿#include "pch.h"
 #include "BlurXPass.h"
-#include "Quad.h"
-#include "RenderScene.h"
-#include "RenderTarget.h"
 
 BlurXPass::BlurXPass() {}
 
 BlurXPass::~BlurXPass() {}
 
-void BlurXPass::Initialize()
+void BlurXPass::Initialize(RenderScene* ownerScene)
 {
-    __super::Initialize();
+    __super::Initialize(ownerScene);
 
     _shader = std::make_unique<ShaderBuilder>();
     _shader->BeginBuild();

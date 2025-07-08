@@ -2,8 +2,6 @@
 #include "PBRLitTechnique.h"
 #include "DeferredPBRLitPass.h"
 #include "GBufferPass.h"
-#include "RenderScene.h"
-#include "RenderTarget.h"
 
 PBRLitTechnique::PBRLitTechnique() {}
 
@@ -23,15 +21,13 @@ void PBRLitTechnique::Execute(ID3D12GraphicsCommandList* commandList)
 void PBRLitTechnique::InitGBufferPass()
 {    
     std::unique_ptr<GBufferPass> pass = std::make_unique<GBufferPass>();
-    pass->SetOwnerScene(_ownerScene);
-    pass->Initialize();
+    pass->Initialize(_ownerScene);
     AddRenderPass(std::move(pass));
 }
 
 void PBRLitTechnique::InitDeferredPass()
 {    
     std::unique_ptr<DeferredPBRLitPass> pass = std::make_unique<DeferredPBRLitPass>();
-    pass->SetOwnerScene(_ownerScene);
-    pass->Initialize();
+    pass->Initialize(_ownerScene);
     AddRenderPass(std::move(pass));
 }

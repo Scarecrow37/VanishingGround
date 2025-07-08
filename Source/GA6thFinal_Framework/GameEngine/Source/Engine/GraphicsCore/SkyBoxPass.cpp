@@ -1,16 +1,14 @@
 ﻿#include "pch.h"
 #include "SkyBoxPass.h"
 #include "SkyBox.h"
-#include "RenderTarget.h"
-#include "RenderScene.h"
 
 SkyBoxPass::SkyBoxPass() {}
 
 SkyBoxPass::~SkyBoxPass() {}
 
-void SkyBoxPass::Initialize() 
+void SkyBoxPass::Initialize(RenderScene* ownerScene)
 {
-    __super::Initialize();
+    __super::Initialize(ownerScene);
 
     _skyBox = _ownerScene->GetSkyBox();
     InitShaderAndPSO();

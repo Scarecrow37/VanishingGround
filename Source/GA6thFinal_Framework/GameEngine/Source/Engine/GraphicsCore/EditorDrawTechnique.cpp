@@ -11,13 +11,11 @@ void EditorDrawTechnique::Initialize(ID3D12GraphicsCommandList* commandList)
 {
     std::unique_ptr<RenderPass> pass;
     pass = std::make_unique<EndlessGridPass>();
-    pass->SetOwnerScene(_ownerScene);
-    pass->Initialize();
+    pass->Initialize(_ownerScene);
     AddRenderPass(std::move(pass));
 
     pass = std::make_unique<OutLinePass>();
-    pass->SetOwnerScene(_ownerScene);
-    pass->Initialize();
+    pass->Initialize(_ownerScene);
     AddRenderPass(std::move(pass));
 }
 

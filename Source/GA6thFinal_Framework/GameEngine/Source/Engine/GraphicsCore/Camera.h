@@ -7,9 +7,11 @@ public:
 	const Matrix& GetViewMatrix() const { return _view; }
 	const Matrix& GetProjectionMatrix() const { return _projection; }
     const Matrix& GetProjectionInverseMatrix() const { return _projectionInverse; }
+    const Vector3 GetPosition() const { return _world.Translation(); }
 
 public:
 	void SetupPerspective(float fovDegree, float aspect, float nearZ, float farZ);
+    void SetupOrthographic(float width, float height, float nearZ, float farZ);
     void SetWorldMatrix(const Matrix& worldMatrix);
 	void SetRotation(const Vector3& rotation);
 	void SetRotation(const Quaternion& rotation);

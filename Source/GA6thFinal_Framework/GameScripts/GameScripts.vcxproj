@@ -310,6 +310,7 @@
     <ClInclude Include="Scripts\Stats\WeaponTable\WeaponTableComponent.h" />
     <ClInclude Include="Scripts\Stats\Weapon\WeaponStats.h" />
     <ClInclude Include="Scripts\Test\Component\TestComponent.h" />
+    <ClInclude Include="Scripts\Test\UI\TestUI.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\Base\EnemyConditionBase.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\EnemyDeadCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\EnemyEndCondition.h" />
@@ -389,6 +390,7 @@
     <ClCompile Include="Scripts\Stats\WeaponTable\WeaponTableComponent.cpp" />
     <ClCompile Include="Scripts\Stats\Weapon\WeaponStats.cpp" />
     <ClCompile Include="Scripts\Test\Component\TestComponent.cpp" />
+    <ClCompile Include="Scripts\Test\UI\TestUI.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\Base\EnemyConditionBase.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\EnemyDeadCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\EnemyEndCondition.cpp" />
