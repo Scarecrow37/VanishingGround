@@ -24,7 +24,7 @@ float4 ps_main(PSInput input) : SV_Target
     
     float4 color = textures[material[ID].ID].Sample(samLinear_wrap, input.uv);
     
-    color.a *= material[ID].Alpha;;
+    color.a *= material[ID].Alpha;
     color.rgb *= color.a;   
     
     return color;
