@@ -19,7 +19,8 @@ public:
 public:
     void SetModel(std::shared_ptr<Model> model);
     void SetAnimator(std::shared_ptr<Animator> animator);
-    void SetCustomDepth(UINT customDepth) { _customDepth = customDepth; }
+    void OnCustomDepth(UINT customDepth) { _customDepth |= customDepth; }
+    void OffCustomDepth(UINT customDepth) { _customDepth &= ~customDepth; }
 
 public:
     void RegisterRenderQueue(std::string_view sceneName);

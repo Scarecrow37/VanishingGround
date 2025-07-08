@@ -5,22 +5,20 @@ FrameResource::FrameResource() {}
 
 FrameResource::~FrameResource() {}
 
-void FrameResource::SetFrameResource(Type type, UINT rootParametorIndex, ID3D12GraphicsCommandList* commandList)
+void FrameResource::SetFrameResource(UINT index, UINT rootParametorIndex, ID3D12GraphicsCommandList* commandList)
 {
-    commandList->SetGraphicsRootShaderResourceView(rootParametorIndex, _structuredBuffer[type]->GetGPUVirtualAddress());
+    commandList->SetGraphicsRootShaderResourceView(rootParametorIndex, _structuredBuffers[index]->GetGPUVirtualAddress());
 }
 
-void FrameResource::Initialize(const UINT numObjects)
+void FrameResource::AddFrameResource(UINT stride, UINT numObject)
 {
-    for (auto& buffer : _structuredBuffer)
-        buffer = std::make_unique<StructuredBuffer>();
+    std::unique_ptr<StructuredBuffer> buffer = std::make_unique<StructuredBuffer>();
+    buffer->Initialize(stride, numObject);
 
-    _structuredBuffer[Type::TRANSFORM]->Initialize(sizeof(XMMATRIX), numObjects);
-    _structuredBuffer[Type::BONE_MATRIXES]->Initialize(sizeof(BoneMatrixes), numObjects);
-    _structuredBuffer[Type::MATERIAL]->Initialize(sizeof(MaterialID), numObjects);
+    _structuredBuffers.push_back(std::move(buffer));
 }
 
-void FrameResource::CopyStructuredBuffer(ID3D12GraphicsCommandList* commandList, void* data, UINT size, FrameResource::Type type)
+void FrameResource::CopyStructuredBuffer(ID3D12GraphicsCommandList* commandList, UINT index, void* data, UINT size)
 {
-    _structuredBuffer[type]->CopyStructuredBuffer(commandList, data, size);
+    _structuredBuffers[index]->CopyStructuredBuffer(commandList, data, size);
 }

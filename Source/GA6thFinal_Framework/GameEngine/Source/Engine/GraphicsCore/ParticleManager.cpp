@@ -126,7 +126,7 @@ void ParticleManager::Update(const float deltaTime)
         if (nullptr == _editorCurrentEffect)
         {
             _computeCommandList->Close();
-            UmDevice.RegisterCommand(_computeCommandList.Get(), PARTICLE_COMPUTE_LIST);
+            UmDevice.RegisterCommand(_computeCommandList.Get(), COMPUTE_LIST);
             return;
         }
         _editorCurrentEffect->Update(delta);
@@ -134,7 +134,7 @@ void ParticleManager::Update(const float deltaTime)
         DispatchParticleComputeEditorMode(delta);
 
         _computeCommandList->Close();
-        UmDevice.RegisterCommand(_computeCommandList.Get(), PARTICLE_COMPUTE_LIST);
+        UmDevice.RegisterCommand(_computeCommandList.Get(), COMPUTE_LIST);
 
         if (true == _editorCurrentEffect->GetActiveFlag())
         {

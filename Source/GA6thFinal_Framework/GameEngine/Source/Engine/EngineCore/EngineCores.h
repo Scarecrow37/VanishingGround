@@ -18,7 +18,7 @@ public:
     GraphicsCore Graphics;
     ECommandManager CommandManager;
     EFactoryRegister FactoryRegister;
-    Audio::EManager AudioManager;
+    Audio::System AudioManager;
 
     ReflectHelper::ImGuiDraw::InputAutoSetting ImGuiDrawPropertysSetting;
 private:
@@ -92,4 +92,3 @@ namespace Global
 #define UmCommandManager UmCore->CommandManager
 #define UmFactoryRegister UmCore->FactoryRegister
 #define UmAudioManager UmCore->AudioManager
-//#define UmParticleSerializer UmCore->GraphicsCore.ParticleManager.ParticleEffectSerializer

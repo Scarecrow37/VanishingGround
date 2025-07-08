@@ -936,6 +936,7 @@ void EditorSceneTool::ManipulateCommand::Execute()
         object->transform->Position = _curr.Position;
         object->transform->Rotation = _curr.Rotation;
         object->transform->Scale    = _curr.Scale;
+        object->GetScene().IsDirty = true;
     }
 }
 
@@ -947,5 +948,6 @@ void EditorSceneTool::ManipulateCommand::Undo()
         object->transform->Position = _prev.Position;
         object->transform->Rotation = _prev.Rotation;
         object->transform->Scale    = _prev.Scale;
+        object->GetScene().IsDirty  = true;
     }
 }

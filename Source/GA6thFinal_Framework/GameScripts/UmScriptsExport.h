@@ -67,7 +67,7 @@ UMREAL_COMPONENT(Enemy)
 #include "Scripts\Camera/CameraComponent.h"
 UMREAL_COMPONENT(CameraComponent)
 
-#include "Scripts/Stats/CharacterStatsComponent.h"
+#include "Scripts/Stats/TurnActorStatsComponent.h"
 #include "Scripts\Stats/Player/PlayerStatsComponent.h"
 UMREAL_COMPONENT(PlayerStatsComponent)
 
@@ -80,8 +80,14 @@ UMREAL_COMPONENT(InputTestComponent)
 #include "Scripts\Timeline/AnimationEventListener.h"
 UMREAL_COMPONENT(AnimationEventListener)
 
+#include "Scripts\Stats/WeaponTable/WeaponTableComponent.h"
+UMREAL_COMPONENT(WeaponTableComponent)
+
 #include "Scripts\Particle/TestParticle.h"
 UMREAL_COMPONENT(TestParticle)
+
+#include "Scripts\Test/UI/TestUI.h"
+UMREAL_COMPONENT(TestUI)
 
 #include "Scripts\Particle/ParticleComponent.h"
 UMREAL_COMPONENT(ParticleComponent)

@@ -30,7 +30,7 @@ uint ps_main(PSInput input) : SV_Target
     // 1. 텍스처 샘플링 최소화
     int emitIndex = input.emitterIndex;
     int albedoID = texID[emitIndex];
-    float factor = textures[albedoID].Sample(samPoint_clamp, input.uv);
+    float factor = textures[albedoID].Sample(samPoint_clamp, input.uv).r;
     
     // 2. 알파 계산 간소화
     float alpha = input.color.a * factor;

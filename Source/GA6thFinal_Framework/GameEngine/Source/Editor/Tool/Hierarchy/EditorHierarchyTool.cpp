@@ -273,8 +273,7 @@ void EditorHierarchyTool::SetFocusObject(const std::weak_ptr<GameObject>& object
             MeshComponent* mesh = prevFocus->GetComponentAtIndex<MeshComponent>(i);
             if (mesh)
             {
-                mesh->Renderer->SetCustomDepth(0);
-                mesh->Renderer->SetCustomDepth(PostProcess::BLOOM);
+                mesh->Renderer->OffCustomDepth(PostProcess::OUTLINE);
             }
         }     
     }
@@ -289,11 +288,19 @@ void EditorHierarchyTool::SetFocusObject(const std::weak_ptr<GameObject>& object
             MeshComponent* mesh = focus->GetComponentAtIndex<MeshComponent>(i);
             if (mesh)
             {
-                mesh->Renderer->SetCustomDepth(PostProcess::OUTLINE | PostProcess::BLOOM);
+                mesh->Renderer->OnCustomDepth(PostProcess::OUTLINE);
             }
         }     
         static_isOpenFocusObj = true;
     }
+}
+
+bool EditorHierarchyTool::SaveScene(Scene& scene)
+{
+    std::filesystem::path writePath = (std::string)scene.Path;
+    writePath                       = std::filesystem::relative(writePath, UmFileSystem.GetAssetPath()).parent_path();
+    UmSceneManager.WriteSceneToFile(scene, writePath.string(), true);
+    return true;
 }
 
 EditorHierarchyTool::EditorHierarchyTool()
@@ -489,6 +496,20 @@ void EditorHierarchyTool::KeyboardEvent()
     }
 }
 
+void EditorHierarchyTool::SerializedReflectEvent() 
+{
+    const auto& scenes = engineCore->SceneManager.GetLoadedScenes();
+    for (auto& scene : scenes)
+    {
+        SaveScene(*scene);
+    }
+}
+
+void EditorHierarchyTool::DeserializedReflectEvent() 
+{
+
+}
+
 void EditorHierarchyTool::OnFrameRender()
 {
     std::shared_ptr<GameObject> focusObject = static_hierarchyFocusObjWeak.lock();
@@ -520,9 +541,7 @@ void EditorHierarchyTool::OnFrameRender()
 
                     if (ImGui::MenuItem("Save Scene"))
                     {
-                        std::filesystem::path writePath = (std::string)scene.Path;
-                        writePath = std::filesystem::relative(writePath, UmFileSystem.GetAssetPath()).parent_path();
-                        UmSceneManager.WriteSceneToFile(scene, writePath.string(), true);
+                        SaveScene(scene);
                         ImGui::CloseCurrentPopup();
                     }
 

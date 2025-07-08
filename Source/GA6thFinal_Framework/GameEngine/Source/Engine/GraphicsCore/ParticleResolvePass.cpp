@@ -5,9 +5,9 @@ ParticleResolvePass::ParticleResolvePass() {}
 
 ParticleResolvePass::~ParticleResolvePass() {}
 
-void ParticleResolvePass::Initialize()
+void ParticleResolvePass::Initialize(RenderScene* ownerScene)
 {
-    __super::Initialize();
+    __super::Initialize(ownerScene);
     InitializeShader();
     InitializePSO();
 }

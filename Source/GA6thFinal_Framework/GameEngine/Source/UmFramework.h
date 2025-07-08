@@ -128,9 +128,7 @@ using namespace Microsoft::WRL;
 #include "Engine/ClassCore/ReflectHelper.h"
 
 //Input Core
-#include "Engine/InputCore/Declare/Exceptions/InputExceptions.h"
-#include "Engine/InputCore/Adapter/Controller/XInput/XInputAdapter.h"
-#include "Engine/InputCore/Devices/Controller/Controller.h"
+#include "../InputModule/InputModule.h"
 
 //Application Core
 #include "Engine/AppModule/Interface/IAppModule.h"
@@ -156,11 +154,7 @@ using namespace Microsoft::WRL;
 
 
 //Audio Core
-#include "Engine/AudioCore/Declare/Types/AudioTypes.h"
-#include "Engine/AudioCore/Declare/Exceptions/AudioExceptions.h"
-#include "Engine/AudioCore/Handle/AudioHandle.h"
-#include "Engine/AudioCore/Declare/Callback/IncreaseGenerationCallback.h"
-#include "Engine/AudioCore/AudioManager/AudioManager.h"
+#include "../AudioModule/AudioModule.h"
 
 //Engine Core
 #include "Engine/EngineCore/EngineLogger.h"

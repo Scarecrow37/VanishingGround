@@ -3,9 +3,9 @@
 
 DeferredPBRLitPass::~DeferredPBRLitPass() {}
 
-void DeferredPBRLitPass::Initialize()
+void DeferredPBRLitPass::Initialize(RenderScene* ownerScene)
 {
-    __super::Initialize();
+    __super::Initialize(ownerScene);
 
     InitShaderAndPSO();
 }

@@ -72,7 +72,7 @@ void DebugDrawCore::Render()
         _basicEffect->SetView(camera->GetViewMatrix());
         _basicEffect->SetProjection(camera->GetProjectionMatrix());
 
-        auto renderTarget = UmMultiRenderTargetManager.GetRenderTarget(renderScene->_meshRenderTargetName);
+        auto renderTarget = UmMultiRenderTargetManager.GetRenderTarget(renderScene->_finalTargetName);
         renderTarget->TransitionResource(_commandList.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET);
         renderScene->_depthStencilView->TransitionResource(_commandList.Get(), D3D12_RESOURCE_STATE_DEPTH_WRITE);
 
@@ -136,7 +136,8 @@ void DebugDrawCore::Render()
         renderTarget->TransitionResource(_commandList.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
         renderScene->_depthStencilView->TransitionResource(_commandList.Get(), D3D12_RESOURCE_STATE_PRESENT);
     }
-    
+    _drawDatas.clear();
+
     _commandList->Close();
-    UmDevice.RegisterCommand(_commandList.Get(), CommandListType::POST_PROCESS_LIST);
+    UmDevice.RegisterCommand(_commandList.Get(), CommandListType::DEBUG_RENDER_LIST);
 }

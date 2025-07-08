@@ -4,7 +4,7 @@
 EnemyStatsComponent::EnemyStatsComponent() = default;
 EnemyStatsComponent::~EnemyStatsComponent() = default;
 
-CharacterStats* EnemyStatsComponent::NewCharacterStats()
+TurnActorStats* EnemyStatsComponent::NewTurnActorStats()
 {
     _stats = new EnemyStats;
     return _stats;

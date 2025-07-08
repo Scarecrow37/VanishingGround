@@ -14,37 +14,27 @@ void BloomTechnique::Initialize(ID3D12GraphicsCommandList* commandList)
 {    
     std::unique_ptr<RenderPass> pass;
     pass = std::make_unique<BrightExtractPass>();
-    pass->SetOwnerScene(_ownerScene);
-    pass->Initialize();
+    pass->Initialize(_ownerScene);
     AddRenderPass(std::move(pass));
 
     pass = std::make_unique<DownScalePass>();
-    pass->SetOwnerScene(_ownerScene);
-    pass->Initialize();
+    pass->Initialize(_ownerScene);
     AddRenderPass(std::move(pass));
 
     pass = std::make_unique<UpScalePass>();
-    pass->SetOwnerScene(_ownerScene);
-    pass->Initialize();
+    pass->Initialize(_ownerScene);
     AddRenderPass(std::move(pass));
 
     pass = std::make_unique<BlurXPass>();
-    pass->SetOwnerScene(_ownerScene);
-    pass->Initialize();
+    pass->Initialize(_ownerScene);
     AddRenderPass(std::move(pass));
 
     pass = std::make_unique<BlurYPass>();
-    pass->SetOwnerScene(_ownerScene);
-    pass->Initialize();
+    pass->Initialize(_ownerScene);
     AddRenderPass(std::move(pass));
 }
 
 void BloomTechnique::Execute(ID3D12GraphicsCommandList* commandList)
 {
-    ID3D12GraphicsCommandList* postProcessCommandList = UmDevice.GetPostProcessCommandList();
-    auto                       descriptorHeap         = UmViewManager.GetShaderResourceHeap();
-
-    postProcessCommandList->SetDescriptorHeaps(1, &descriptorHeap);
-
-    __super::Execute(postProcessCommandList);
+    __super::Execute(commandList);
 }

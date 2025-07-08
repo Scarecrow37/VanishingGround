@@ -137,16 +137,3 @@ void EditorSequencerTool::ShowTimelineNotifies()
         ImGui::PopID();
     }
 }
-
-REGISTER_CLASS(TimelineSystem, TestTimeLineEvent_1)
-void TestTimeLineEvent_1::OnNotified(float time)
-{
-    std::string message = "TestTimeLineEvent_1 Notify at " + std::to_string(time) + "s";
-    UmLogger.Log(2, message);
-}
-REGISTER_CLASS(TimelineSystem, TestTimeLineEvent_2)
-void TestTimeLineEvent_2::OnNotified(float time) 
-{
-    std::string message = "TestTimeLineEvent_2 Notify at " + std::to_string(time) + "s";
-    UmLogger.Log(2, message);
-}

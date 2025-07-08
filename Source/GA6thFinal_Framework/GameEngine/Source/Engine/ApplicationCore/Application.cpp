@@ -42,11 +42,7 @@ Application::Application()
     //필수 모듈들
     AddModule<EngineCoresModule>();
     _imguiDX12Module = AddModule<ImGuiDX12Module>();
-
-    if constexpr(true == Application::IsEditor())
-    {
-        _filesystemModule = AddModule<FileSystemModule>();
-    }
+    _filesystemModule = AddModule<FileSystemModule>();
 }
 
 bool Application::AppMessageHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
