@@ -62,6 +62,7 @@ public:
 
 public:
     virtual int GetSpeed() = 0;
+    virtual int GetRandomSpeed() { return _randomSpeed; }
 
 protected:
     /// <summary>
@@ -71,6 +72,7 @@ protected:
 
 public:
     GETTER_ONLY(int, RandomSpeed) { return _randomSpeed; }
+    //TurnActor에서 OnRoundStart 진입시 자동으로 랜덤한 값이 부여됩니다.
     PROPERTY(RandomSpeed)
     //void SetRandomSpeed(int randomSpeed) 
     //{ 
@@ -80,7 +82,7 @@ public:
 
     GETTER_ONLY(int, RoundSpeed) 
     { 
-        int roundSpeed = GetSpeed() + _randomSpeed;
+        int roundSpeed = GetSpeed() + GetRandomSpeed();
         return std::clamp(roundSpeed, DEFINE::ROUNDSPEED_MIN, DEFINE::ROUNDSPEED_MAX);
     }
     PROPERTY(RoundSpeed)

@@ -33,7 +33,7 @@ protected:
     REFLECT_FIELDS_END(Enemy)
 
 public:
-    int GetSpeed() override;
+    virtual int GetSpeed() override;
 
 private:
     EnemyStatsComponent* _enemyStats = nullptr;
