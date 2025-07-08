@@ -225,10 +225,10 @@
     <ClInclude Include="Scripts\Stats\WeaponTable\WeaponTableComponent.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\AI\EnemyAI.h">
+    <ClInclude Include="Scripts\Test\DevTools\FPSCounter.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\AI\23000\EnemyAI23000.h">
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\AI\EnemyAI.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -416,10 +416,10 @@
     <ClCompile Include="Scripts\Stats\WeaponTable\WeaponTableComponent.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\AI\EnemyAI.cpp">
+    <ClCompile Include="Scripts\Test\DevTools\FPSCounter.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\AI\23000\EnemyAI23000.cpp">
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\AI\EnemyAI.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
