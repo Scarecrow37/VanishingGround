@@ -319,7 +319,7 @@ std::vector<std::shared_ptr<GameObject>> EGameObjectFactory::MakeObjectsGraphToY
         {
             int        ParentIndex = transformNode["ParentIndex"].as<int>();
             Transform* pParent     = transformParentLevelMap[ParentIndex];
-            currObject->_transform.SetParent(pParent);
+            currObject->_transform.SetParent(pParent, false);
         }
 
         makeList.push_back(currObject);
