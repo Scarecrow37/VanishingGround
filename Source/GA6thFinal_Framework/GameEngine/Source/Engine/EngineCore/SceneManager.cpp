@@ -97,7 +97,7 @@ void ESceneManager::SceneUpdate()
 #ifdef _UMEDITOR
     _isPlay = editorModule->PlayMode.IsPlay();
 #endif
-    SceneResourceManager::Update(ResourceManager);
+    SceneResourceManager::Engine::Update(ResourceManager);
     ObjectsAddRuntime();
     ObjectsOnEnable();
     ObjectsAwake();
@@ -402,30 +402,33 @@ void ESceneManager::Engine::SwapPrefabInstance(GameObject* original, GameObject*
     if (original->IsValid())
     {
         int index = original->GetInstanceID();
-        std::shared_ptr<GameObject>& sOrigin = sceneManager._runtimeObjects[index];
-        if (nullptr != sOrigin)
+        if (0 <= index && index < sceneManager._runtimeObjects.size())
         {
-            std::shared_ptr<GameObject> sRemake = remake->GetWeakPtr().lock();
-            std::swap(sOrigin->_instanceID, sRemake->_instanceID);
-            std::swap(sOrigin->_ownerScene, sRemake->_ownerScene);
-            std::swap(sOrigin, sRemake);
-            std::string objectData = sRemake->SerializedReflectFields();
-            sOrigin->DeserializedReflectFields(objectData);
-            sOrigin->_transform = sRemake->_transform;
-            sceneManager.EraseGameObjectMap(sRemake);
-            sceneManager.InsertGameObjectMap(sOrigin);
-            GameObject::Engine::UpdateActiveInHierarchy(sOrigin.get());
-
-            for (int i = 0; i < sOrigin->GetComponentCount(); ++i)
+            std::shared_ptr<GameObject>& sOrigin = sceneManager._runtimeObjects[index];
+            if (nullptr != sOrigin)
             {
-                Component* component = sOrigin->GetComponentAtIndex<Component>(i);
-                if (component)
+                std::shared_ptr<GameObject> sRemake = remake->GetWeakPtr().lock();
+                std::swap(sOrigin->_instanceID, sRemake->_instanceID);
+                std::swap(sOrigin->_ownerScene, sRemake->_ownerScene);
+                std::swap(sOrigin, sRemake);
+                std::string objectData = sRemake->SerializedReflectFields();
+                sOrigin->DeserializedReflectFields(objectData);
+                sOrigin->_transform = sRemake->_transform;
+                sceneManager.EraseGameObjectMap(sRemake);
+                sceneManager.InsertGameObjectMap(sOrigin);
+                GameObject::Engine::UpdateActiveInHierarchy(sOrigin.get());
+
+                for (int i = 0; i < sOrigin->GetComponentCount(); ++i)
                 {
-                    component->_initFlags.SetAwake();
-                    component->_initFlags.SetStart();
+                    Component* component = sOrigin->GetComponentAtIndex<Component>(i);
+                    if (component)
+                    {
+                        component->_initFlags.SetAwake();
+                        component->_initFlags.SetStart();
+                    }
                 }
             }
-        }
+        }    
     }
 }
 
@@ -995,6 +998,11 @@ void ESceneManager::ObjectsAddRuntime()
             std::shared_ptr<Camera> newCamera(new Camera);
             camera->SetTarget(newCamera);
         }
+        else if (component->_type == Component::TYPE::RENDER)
+        {
+            auto sptrComponent = component->GetWeakPtr().lock();
+            UmSceneManager._runtimeMeshComponents.push_back(std::static_pointer_cast<MeshComponent>(sptrComponent));
+        }
         component->UpdateEnableInHierarchy();
     }
     _addComponentsQueue.clear();
@@ -1468,74 +1476,21 @@ void ESceneManager::EraseSceneGUID(std::string_view sceneName, const File::Guid 
     _sceneDataMap.erase(guid);
 }
 
-void ESceneManager::SceneResourceManager::Update(SceneResourceManager& manager) 
+void ESceneManager::SceneResourceManager::Engine::Update(SceneResourceManager& manager)
 {
-    ModelResources& models = manager._models;
-    {
-        std::pair<std::weak_ptr<MeshComponent>, File::Guid> curr;
-        while (false == models.ModelLoadQueue.empty())
-        {
-            if (true == models.ModelLoadQueue.try_pop(curr))
-            {
-                auto& [weakPtr, guid] = curr;
-                if (false == weakPtr.expired())
-                {
-                    std::shared_ptr<MeshComponent> pMeshComponent = weakPtr.lock();
-                    if (nullptr != pMeshComponent->Renderer)
-                    {
-                        MeshRenderer& meshRenderer = *pMeshComponent->Renderer;
-                        File::Path path = guid.ToPath();
-                        if (false == path.IsNull())
-                        {
-                            if (0 <= pMeshComponent->_gameObject->_instanceID)
-                            {
-                                if (models.ModelResource.find(guid) == models.ModelResource.end())
-                                {
-                                    models.ModelResource[guid] = UmResourceManager.LoadResource<Model>(path.string());
-                                }
-                                meshRenderer.LoadModel(path.wstring());
-                                models.ModelUseComponentList[guid].emplace_back(pMeshComponent);
-                                UmSceneManager._runtimeMeshComponents.emplace_back(pMeshComponent);
-                                if (meshRenderer.GetType() == MeshRenderType::SKELETAL)
-                                {
-                                    auto& animation = meshRenderer.GetModel()->GetAnimation();
-                                    auto& skeleton  = meshRenderer.GetModel()->GetSkeleton();
-                                    if (animation != nullptr && skeleton != nullptr)
-                                    {
-                                        std::shared_ptr<Animator> animator(new Animator);
-                                        animator->Initialize(animation, skeleton);
-                                        animator->SetActive(&pMeshComponent->EnableInHierarchy);
-                                        meshRenderer.SetAnimator(animator);
-                                        UmAnimationCore.RegisterAnimator(animator.get());
-                                    }
-                                }
-                            }
-                        }
-                        else
-                        {
-                            UmLogger.Log(LogLevel::LEVEL_WARNING, std::format("{}{}", guid.string(), (const char*)u8"는 존재하지 않는 리소스입니다."));
-                        }
-                    }
-                }
-            }
-        }
-    }
-
+    manager.UpdateModelResource();
+    manager.UpdateTextureResource();
 }
 
-void ESceneManager::SceneResourceManager::RequestModelResource(const MeshComponent* meshComponent, const File::Guid& guid)
+void ESceneManager::SceneResourceManager::RequestModelResource(const Component* component, const File::Guid& guid, const std::function<void()> func)
 {
-    if (meshComponent->gameObject->IsValid())
+    if (component->gameObject->IsValid())
     {
         File::Path path = UmFileSystem.GetPathFromGuid(guid);
         if (false == path.IsNull())
         {
-            if (auto sharedPtr = meshComponent->GetWeakPtr().lock())
-            {
-                std::weak_ptr<MeshComponent> weakPtr = std::static_pointer_cast<MeshComponent>(sharedPtr);
-                auto                         pair    = std::make_pair(weakPtr, guid);
-                _models.ModelLoadQueue.push(pair);
-            }
+            auto pair = std::make_tuple(component->GetWeakPtr(), guid, func);
+            _models.ResourceLoadQueue.push(pair);
         }
         else
         {
@@ -1545,29 +1500,94 @@ void ESceneManager::SceneResourceManager::RequestModelResource(const MeshCompone
     }
 }
 
-void ESceneManager::SceneResourceManager::ClearModelResource() 
+void ESceneManager::SceneResourceManager::RequestTextureResource(const Component* component, const File::Guid& guid, const std::function<void()> func)
 {
-    for (auto& [guid, resource] : _models.ModelResource)
+    if (component->gameObject->IsValid())
     {
-        auto componentListIter = _models.ModelUseComponentList.find(guid);
-        if (componentListIter != _models.ModelUseComponentList.end())
+        File::Path path = UmFileSystem.GetPathFromGuid(guid);
+        if (false == path.IsNull())
         {
-            auto& [guid, list] = *componentListIter;
-            for (auto& weakPtr : list)
+            auto pair = std::make_tuple(component->GetWeakPtr(), guid, func);
+            _models.ResourceLoadQueue.push(pair);
+        }
+        else
+        {
+            UmLogger.Log(LogLevel::LEVEL_WARNING,
+                         std::format("{}{}", guid.string(), u8"는 존재하지 않는 리소스입니다."_c_str));
+        }
+    }
+}
+
+void ESceneManager::SceneResourceManager::UpdateModelResource()
+{
+    RenderResource<Model>& models = _models;
+    {
+        std::tuple<std::weak_ptr<Component>, File::Guid, std::function<void()>> curr;
+        while (false == models.ResourceLoadQueue.empty())
+        {
+            if (true == models.ResourceLoadQueue.try_pop(curr))
             {
-                if (false == weakPtr.expired())
+                auto& [weakPtr, guid, func] = curr;
+                if (std::shared_ptr<Component> component = weakPtr.lock())
                 {
-                    auto pComponent = weakPtr.lock();
-                    if (nullptr != pComponent->Renderer)
+                    File::Path path = guid.ToPath();
+                    if (false == path.IsNull())
                     {
-                        pComponent->Renderer->SetDestroy();
+                        if (0 <= component->_gameObject->_instanceID)
+                        {
+                            if (models.RenderResource.find(guid) == models.RenderResource.end())
+                            {
+                                models.RenderResource[guid] = UmResourceManager.LoadResource<Model>(path.string());
+                            }
+                            func();
+                        }
+                    }
+                    else
+                    {
+                        UmLogger.Log(
+                            LogLevel::LEVEL_WARNING,
+                            std::format("{}{}", guid.string(), (const char*)u8"는 존재하지 않는 리소스입니다."));
                     }
                 }
             }
         }
     }
-    _models.ModelUseComponentList.clear();
-    _models.ModelResource.clear();
+}
+
+void ESceneManager::SceneResourceManager::UpdateTextureResource() 
+{
+    RenderResource<Texture>& textures = _textures;
+    {
+        std::tuple<std::weak_ptr<Component>, File::Guid, std::function<void()>> curr;
+        while (false == textures.ResourceLoadQueue.empty())
+        {
+            if (true == textures.ResourceLoadQueue.try_pop(curr))
+            {
+                auto& [weakPtr, guid, func] = curr;
+                if (std::shared_ptr<Component> component = weakPtr.lock())
+                {
+                    File::Path path = guid.ToPath();
+                    if (false == path.IsNull())
+                    {
+                        if (0 <= component->_gameObject->_instanceID)
+                        {
+                            if (textures.RenderResource.find(guid) == textures.RenderResource.end())
+                            {
+                                textures.RenderResource[guid] = UmResourceManager.LoadResource<Texture>(path.string());
+                            }
+                            func();
+                        }
+                    }
+                    else
+                    {
+                        UmLogger.Log(
+                            LogLevel::LEVEL_WARNING,
+                            std::format("{}{}", guid.string(), (const char*)u8"는 존재하지 않는 리소스입니다."));
+                    }
+                }
+            }
+        }
+    }
 }
 
 ESceneManager::SceneResourceManager::SceneResourceManager() 
