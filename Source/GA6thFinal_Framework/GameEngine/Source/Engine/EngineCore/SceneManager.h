@@ -426,30 +426,45 @@ public:
         SceneResourceManager();
         ~SceneResourceManager();
 
-        /// <summary>
-        /// 해당 리소스 매니저를 업데이트 합니다.
-        /// </summary>
-        /// <param name="manager"></param>
-        static void Update(SceneResourceManager& manager);
+        struct Engine
+        {
+            /// <summary>
+            /// 해당 리소스 매니저를 업데이트 합니다.
+            /// </summary>
+            /// <param name="manager"></param>
+            static void Update(SceneResourceManager& manager);
+        };
 
         /// <summary>
-        /// MeshComponent의 Model 리소스 로드를 요청합니다.
+        /// Model 리소스 로드를 요청합니다.
         /// </summary>
-        /// <param name="meshComponent :">대상 메시 컴포넌트</param>
+        /// <param name="component :">대상 컴포넌트</param>
         /// <param name="guid :">로드할 리소스의 guid</param>
-        void RequestModelResource(const MeshComponent* meshComponent, const File::Guid& guid);
-         
-        void ClearModelResource();
+        /// <param name="func :">리소스 로드후 호출되는 콜백 함수</param>
+        void RequestModelResource(const Component* component, const File::Guid& guid, const std::function<void()> func);
+        
+        /// <summary>
+        /// Texture 리소스 로드를 요청합니다.
+        /// </summary>
+        /// <param name="component :">대상 컴포넌트</param>
+        /// <param name="guid :">로드할 리소스의 guid</param>
+        /// <param name="func :">리소스 로드후 호출되는 콜백 함수</param>
+        void RequestTextureResource(const Component* component, const File::Guid& guid, const std::function<void()> func);
 
     private:
-        struct ModelResources
-        {
-            Concurrency::concurrent_queue<std::pair<std::weak_ptr<MeshComponent>, File::Guid>> ModelLoadQueue;
-            std::unordered_map<File::Guid, std::shared_ptr<Model>>                             ModelResource;
-            std::unordered_map<File::Guid, std::vector<std::weak_ptr<MeshComponent>>>          ModelUseComponentList;
-        }
-        _models;
+        void UpdateModelResource();
+        void UpdateTextureResource();
 
+        template <typename T>
+        struct RenderResource
+        {
+            using ResourceQueue =  Concurrency::concurrent_queue<std::tuple<std::weak_ptr<Component>, File::Guid, std::function<void()>>>;
+
+            ResourceQueue                                      ResourceLoadQueue;
+            std::unordered_map<File::Guid, std::shared_ptr<T>> RenderResource;
+        };
+        RenderResource<Model>   _models;
+        RenderResource<Texture> _textures;
 
     };
     /// <summary>

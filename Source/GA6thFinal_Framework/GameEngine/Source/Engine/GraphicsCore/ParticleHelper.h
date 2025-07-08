@@ -35,16 +35,15 @@ public:                                                                         
     }
 
 // 초기값이 있는 property 전체 매크로
-#define UMPARTICLE_PROPERTY(type, varName, FuncName, initValue)                                                   \
+#define UMPARTICLE_PROPERTY(type, varName, FuncName, initValue)                                                        \
     PROP_DECL_INIT(type, varName, initValue)                                                                           \
     PROP_GET(type, varName, FuncName)                                                                                  \
     PROP_SET(type, varName, FuncName)
 
-#define UMPARTICLE_PROPERTY_REF(type, varName, FuncName, initValue)                                               \
+#define UMPARTICLE_PROPERTY_REF(type, varName, FuncName, initValue)                                                    \
     PROP_DECL_INIT(type, varName, initValue)                                                                           \
     PROP_GET_REF(type, varName, FuncName)                                                                              \
     PROP_SET_REF(type, varName, FuncName)
-
 
 #define BYTEALIGN(value, alignment) (((value) + ((alignment) - 1)) & ~((alignment) - 1))
 

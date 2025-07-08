@@ -14,18 +14,13 @@ using namespace Command::Hierarchy;
 
 static EditorSceneTool* staticEditorScenTool = nullptr;
 
-void EditorHierarchyTool::TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>& focusObject)
+void EditorHierarchyTool::TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>& focusObject,  GameObject*& outClickNode)
 {
-    auto TreeDoubleClickEvent = [&node]() {
+    auto TreeClickEvent = [&node, &outClickNode]() {
         bool result = ImGui::IsMouseReleased(ImGuiMouseButton_Left) && ImGui::IsItemHovered();
         if (result)
         {
-            auto oldWp = EditorHierarchyTool::static_hierarchyFocusObjWeak;
-            auto newWp = node.gameObject->GetWeakPtr();
-            if (false == EditorInspectorTool::IsLockFocus() && false == EditorInspectorTool::IsFocusObject(newWp))
-            {
-                UmCommandManager.Do<Command::Hierarchy::FocusCommand>(oldWp, newWp);
-            }
+            outClickNode = &node.gameObject;
         }
         return result;
     };
@@ -220,7 +215,7 @@ void EditorHierarchyTool::TransformTreeNode(Transform& node, const std::shared_p
                 {              
                     if (&focusObject->transform != &node)
                     {
-                        ImGui::SetNextItemOpen(true);                      
+                        ImGui::SetNextItemOpen(true);        
                     }
                     else
                     {
@@ -236,7 +231,7 @@ void EditorHierarchyTool::TransformTreeNode(Transform& node, const std::shared_p
         {
             FocusRectDarw(focusObject.get());
             PopFocusStyle(isPushStyle);
-            TreeDoubleClickEvent();
+            TreeClickEvent();
             TreeRightClickEvent();
             TreeDragDropEvent();
 
@@ -245,7 +240,7 @@ void EditorHierarchyTool::TransformTreeNode(Transform& node, const std::shared_p
                 Transform* child = node.GetChild(i);
                 if (child)
                 {
-                    TransformTreeNode(*child, focusObject);
+                    TransformTreeNode(*child, focusObject, outClickNode);
                 }
             }
             ImGui::TreePop();
@@ -254,7 +249,7 @@ void EditorHierarchyTool::TransformTreeNode(Transform& node, const std::shared_p
         {
             FocusRectDarw(focusObject.get());
             PopFocusStyle(isPushStyle);
-            TreeDoubleClickEvent();
+            TreeClickEvent();
             TreeRightClickEvent();
             TreeDragDropEvent();
         }
@@ -273,8 +268,7 @@ void EditorHierarchyTool::SetFocusObject(const std::weak_ptr<GameObject>& object
             MeshComponent* mesh = prevFocus->GetComponentAtIndex<MeshComponent>(i);
             if (mesh)
             {
-                mesh->Renderer->SetCustomDepth(0);
-                mesh->Renderer->SetCustomDepth(PostProcess::BLOOM);
+                mesh->Renderer->OffCustomDepth(PostProcess::OUTLINE);
             }
         }     
     }
@@ -289,7 +283,7 @@ void EditorHierarchyTool::SetFocusObject(const std::weak_ptr<GameObject>& object
             MeshComponent* mesh = focus->GetComponentAtIndex<MeshComponent>(i);
             if (mesh)
             {
-                mesh->Renderer->SetCustomDepth(PostProcess::OUTLINE | PostProcess::BLOOM);
+                mesh->Renderer->OnCustomDepth(PostProcess::OUTLINE);
             }
         }     
         static_isOpenFocusObj = true;
@@ -398,6 +392,12 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
             UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
                 GameObjectKey, GameObject::Helper::GenerateUniqueName("Static Mesh"), &mesh);
             mesh->AddComponent<StaticMeshRenderer>();
+        }
+        if (ImGui::MenuItem("Skeletal Mesh"))
+        {
+            UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
+                GameObjectKey, GameObject::Helper::GenerateUniqueName("Skeletal Mesh"), &mesh);
+            mesh->AddComponent<SkeletalMeshRenderer>();
         }
         ImGui::EndMenu();
     }
@@ -571,7 +571,18 @@ void EditorHierarchyTool::OnFrameRender()
                     {
                         ImGui::PushID(obj.get());
                         {
-                            TransformTreeNode(obj->transform, focusObject);
+                            GameObject* clickNode = nullptr;
+                            TransformTreeNode(obj->transform, focusObject, clickNode);
+                            if (clickNode)
+                            {
+                                auto& oldWp = EditorHierarchyTool::static_hierarchyFocusObjWeak;
+                                auto  newWp = clickNode->GetWeakPtr();
+                                if (false == EditorInspectorTool::IsLockFocus() &&
+                                    false == EditorInspectorTool::IsFocusObject(newWp))
+                                {
+                                    UmCommandManager.Do<Command::Hierarchy::FocusCommand>(oldWp, newWp);
+                                }
+                            }
                         }
                         ImGui::PopID();
                     }
@@ -596,7 +607,18 @@ void EditorHierarchyTool::OnFrameRender()
                 {
                     ImGui::PushID(obj.get());
                     {
-                        TransformTreeNode(obj->transform, focusObject);
+                        GameObject* clickNode = nullptr;
+                        TransformTreeNode(obj->transform, focusObject, clickNode);
+                        if (clickNode)
+                        {
+                            auto& oldWp = EditorHierarchyTool::static_hierarchyFocusObjWeak;
+                            auto  newWp = clickNode->GetWeakPtr();
+                            if (false == EditorInspectorTool::IsLockFocus() &&
+                                false == EditorInspectorTool::IsFocusObject(newWp))
+                            {
+                                UmCommandManager.Do<Command::Hierarchy::FocusCommand>(oldWp, newWp);
+                            }
+                        }
                     }
                     ImGui::PopID();
                 }

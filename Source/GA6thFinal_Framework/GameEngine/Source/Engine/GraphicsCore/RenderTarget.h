@@ -4,7 +4,7 @@
 class RenderTarget : public ResourceBase
 {
 public:
-    RenderTarget()  = default;
+    RenderTarget()          = default;
     virtual ~RenderTarget() = default;
 
 public:

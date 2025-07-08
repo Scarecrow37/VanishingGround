@@ -1,17 +1,25 @@
 ﻿#include "pch.h"
-#include "ParticleEffect.h"
 #include "ParticleEmitter.h"
+#include "ParticleEffect.h"
 #include "ParticleManager.h"
 
 ParticleManager::ParticleManager() {}
 
-ParticleManager::~ParticleManager() 
+ParticleManager::~ParticleManager()
 {
     for (auto effect : _pariticleEffects)
     {
-        delete effect;
+        if (effect)
+            delete effect;
     }
     _pariticleEffects.clear();
+
+    for (auto effect : _activePariticleEffects)
+    {
+        if (effect)
+            delete effect;
+    }
+    _activePariticleEffects.clear();
 
     _totalParticles.clear();
     _emitterMatrix.clear();
@@ -19,14 +27,6 @@ ParticleManager::~ParticleManager()
     _activeEmitterNormals.clear();
 }
 
-void ParticleManager::SetCamera(std::string_view viewName)
-{
-    _camera = UmRenderer.GetCamera(viewName);
-}
-void ParticleManager::SetCamera(std::shared_ptr<Camera> camera)
-{
-    _camera = camera;
-}
 void ParticleManager::Initialize(UINT maxParticles)
 {
     _currentBufferIndex = 0;
@@ -41,123 +41,181 @@ void ParticleManager::Initialize(UINT maxParticles)
     IntializeGraphicsCommandObject();
     InitializeDescriptorHeap();
 
-     //   auto effect = UmParticleManager.RegisterEffect();
-     //effect->SetPosition({0, 0, 30});
-     //   effect->SetRotation( Quaternion::CreateFromAxisAngle({0, 1, 0}, XM_PIDIV2) );
-     //effect->SetLifetime(120.f);
-     //auto emitter = UmParticleManager.RegisterEmitter(effect, 100000, 1000, 20, LocationShape::TORUS);
-     //emitter->SetEmitterLifetime(120.f);
-     //emitter->_emitterRotation = Quaternion::CreateFromAxisAngle({1, 0, 0}, XM_PIDIV2);
-
-     //static_cast<SpriteModule*>(emitter->_particleRenderModule)
-     //    ->LoadAlbedoTexture(L"../../../Resource/Assets/ParticleTexture/defaultSmoke.jpg");
-    // emitter->SetVelocityType(VelocityScaleType::LINEAR);
-    // emitter->SetParticleLifetime(1.f);
-    // emitter->SetStartScale({0.2f, 0.2f, 1, 1});
-    // emitter->SetEndScale({0.2f, 0.2f, 1, 1});
-    // emitter->SetStartColor({0.5f, 0.5f, 1});
-    // emitter->SetEndColor({0.5f, 0.5f, 1});
-    // emitter->SetStartOpacity(0.28f);
-    // emitter->SetEndOpacity(0.28f);
-    // emitter->SetVelocityFactor({0, 0, 0});
-    // emitter->SetEmissionRate(600);
-    ////emitter->SetLocatorFactor({6, 2, 5});
-    // emitter->SetLocatorFactor({5, 4, 4});
-    // emitter->SetParticleMass(0.f);
-    // emitter->SetParticleDistributionOffset(0.2f);
-    ////emitter->SetSpawnBurstCount(5000);
-    ////emitter->SetSpawnBurstFlag(true);
-    // emitter->SetDragPoint({0, 10, 30, 0});
-    // emitter->SetDragForce({30, 1, 10, 0});
-
 }
 ParticleEffect* ParticleManager::RegisterEffect()
 {
     auto newEffect = new ParticleEffect();
     newEffect->Initialize(this);
-    _pariticleEffects.push_back(newEffect);
+    std::string name = "Effect" + std::to_string(nameingIndex++);
+    newEffect->SetEffectName(name);
+
+    if(false == IS_EDITOR)
+        _pariticleEffects.push_back(newEffect);
     return newEffect;
 }
 ParticleEmitter* ParticleManager::RegisterEmitter(class ParticleEffect* effect, SIZE_T maxParticles /*= 100000*/,
                                                   float emissionRate /*= 500.f*/, float emitterLifetime /*= 5.f*/,
                                                   LocationShape locatorShape /*= LocationShape::SPHERE*/,
-                                                  Vector3       locationFactor /*= Vector3(1, 1, 1)*/)
+                                                  Vector3       locationFactor /*= Vector3(1, 1, 1)*/,
+                                                  ParticleType  particleType /*= ParticleType::SPRITE*/,
+                                  std::wstring  meshspritePath /*= L""*/)
 {
-    auto newEmitter = effect->AddEmitter(maxParticles, emissionRate, emitterLifetime, locatorShape, locationFactor);
+    auto newEmitter =
+        effect->AddEmitter(maxParticles, emissionRate, emitterLifetime, locatorShape, locationFactor, particleType,meshspritePath);
     return newEmitter;
 }
+
+void ParticleManager::DeleteEffect(ParticleEffect* target)
+{
+   std::erase_if(_pariticleEffects, [target](ParticleEffect* effect) { return effect == target; });
+}
+
+
 void ParticleManager::Update(const float deltaTime)
 {
-    float delta = deltaTime;
-    if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_Space))
+    float delta = deltaTime *_deltaScale;
+
+
+
+    if (false == IS_EDITOR)
     {
-        pauseFlag = false == pauseFlag;
-    }
-
-    if (true == pauseFlag)
-    {
-        delta = 0;
-    }
-
-    //elapsedtimer += deltaTime;
-    //Quaternion rot = Quaternion::CreateFromAxisAngle({1, 0, 0}, XM_PIDIV2 * elapsedtimer);
-    //_pariticleEffects[0]->GetEmitterList()[0]->_emitterRotation = rot;
-
-
-
-
-  
-    for (auto effect : _pariticleEffects)
-    {
-        effect->Update(delta);
-    }
-    // copy active particle data
-    if (false == _pariticleEffects.empty())
-    {
-        CopyActiveParticles();
-    }
-
-    // dispatch particle compute shader
-    {
-        DispatchParticleCompute(delta);
-    }
-
-    // update particle lifecycle
-    for (auto effect : _pariticleEffects)
-    {
-        if (true == effect->GetActiveFlag())
+        for (auto effect : _activePariticleEffects)
         {
-            effect->UpdateParticleLifeCycle(delta);
+            effect->Update(delta);
+        }
+        if (false == _activePariticleEffects.empty())
+        {
+            CopyActiveParticles();
+        }
+
+        DispatchParticleCompute(delta);
+
+        for (auto effect : _activePariticleEffects)
+        {
+            if (true == effect->GetActiveFlag())
+            {
+                effect->UpdateParticleLifeCycle(delta);
+            }
+        }
+
+        UpdateEffectLifeCycle();
+
+    }
+    else
+    {
+        if (nullptr == _editorCurrentEffect)
+            return;
+        _editorCurrentEffect->Update(delta);
+        CopyActiveParticlesEditorMode();
+        DispatchParticleCompute(delta);
+        if (true == _editorCurrentEffect->GetActiveFlag())
+        {
+            _editorCurrentEffect->UpdateParticleLifeCycle(delta);
+        }
+        UpdateEditorLifeCycle();
+
+        if (false == _editorCurrentEffect->GetActiveFlag() && true == _isAutoRefresh)
+            RefreshEditor();
+
+        if (true == _editorRefreshFlag)
+            RefreshCurrentEditorEffect();
+    }
+
+}
+
+void ParticleManager::UpdateEffectLifeCycle() 
+{
+    // erase_if 전에 메모리 해제
+    for (auto it = _activePariticleEffects.begin(); it != _activePariticleEffects.end();)
+    {
+        if (!(*it)->GetActiveFlag())
+        {
+            delete *it; // 메모리 해제
+            it = _activePariticleEffects.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
+
+    for (auto newEffect : _pariticleEffects)
+    {
+        if (true == newEffect->GetPlayFlag())
+        {
+            newEffect->SetPlayFlag(false);
+            ParticleEffect* newInstance = new ParticleEffect(*newEffect); 
+            newInstance->Reset();
+            newInstance->SetPlayFlag(true);
+
+            // active 벡터에 추가
+            _activePariticleEffects.push_back(newInstance);
+
+            if (newEffect == _editorCurrentEffect)
+                _editorCurrentEffectInstance = newInstance;
+ 
         }
     }
 }
+
+void ParticleManager::UpdateEditorLifeCycle()
+{
+    if (true == _editorCurrentEffect->GetPlayFlag())
+    {
+        _editorCurrentEffect->SetPlayFlag(false);
+        _editorCurrentEffect->Reset();
+    }
+
+
+}
+
+void ParticleManager::RefreshEditor() 
+{
+    _editorRefreshFlag = true;
+}
+
 void ParticleManager::ResetRenderCommandObject()
 {
     _renderAllocator->Reset();
     _renderCommandList->Reset(_renderAllocator.Get(), nullptr);
 }
 
+void ParticleManager::SetCamera(std::string_view viewName)
+{
+    _camera = UmRenderer.GetCamera(viewName);
+}
+void ParticleManager::SetCamera(std::shared_ptr<Camera> camera)
+{
+    _camera = camera;
+}
+
+void ParticleManager::SetCurrentEditorEffect(class ParticleEffect* newEffect) 
+{
+    delete _editorCurrentEffect;
+    _editorCurrentEffect = newEffect;
+    RefreshEditor();
+}
+
 void ParticleManager::InitializeComputeCommandObject()
 {
     D3D12_COMMAND_QUEUE_DESC desc{
-            .Type     = D3D12_COMMAND_LIST_TYPE_COMPUTE,
-            .Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL,
-            .Flags    = D3D12_COMMAND_QUEUE_FLAG_NONE,
-            .NodeMask = 0,
-        };
+        .Type     = D3D12_COMMAND_LIST_TYPE_COMPUTE,
+        .Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL,
+        .Flags    = D3D12_COMMAND_QUEUE_FLAG_NONE,
+        .NodeMask = 0,
+    };
     {
         HRESULT hr = S_OK;
-        hr = UmDevice.GetDevice()->CreateCommandAllocator(desc.Type, IID_PPV_ARGS(&_computeAllocator));
-        FAILED_CHECK_MESSAGE(hr, L"ParticleManager::InitializeComputeCommandObject UmDevice.GetDevice()->CreateCommandAllocator Failed");
-
-
+        hr         = UmDevice.GetDevice()->CreateCommandAllocator(desc.Type, IID_PPV_ARGS(&_computeAllocator));
         FAILED_CHECK_MESSAGE(
-            UmDevice.GetDevice()->CreateCommandList(desc.NodeMask, desc.Type, _computeAllocator.Get(), nullptr,
-                                                        IID_PPV_ARGS(_computeCommandList.GetAddressOf())),
-                L"");
+            hr, L"ParticleManager::InitializeComputeCommandObject UmDevice.GetDevice()->CreateCommandAllocator Failed");
+
+        FAILED_CHECK_MESSAGE(UmDevice.GetDevice()->CreateCommandList(desc.NodeMask, desc.Type, _computeAllocator.Get(),
+                                                                     nullptr,
+                                                                     IID_PPV_ARGS(_computeCommandList.GetAddressOf())),
+                             L"");
         _computeCommandList->Close();
     }
-
 }
 
 void ParticleManager::IntializeGraphicsCommandObject()
@@ -174,7 +232,7 @@ void ParticleManager::IntializeGraphicsCommandObject()
     FAILED_CHECK_MESSAGE(device->CreateCommandAllocator(desc.Type, IID_PPV_ARGS(_renderAllocator.GetAddressOf())),
                          L"ParticleManager::IntializeGraphicsCommandObject() device->CreateCommandAllocator Failed");
     FAILED_CHECK_MESSAGE(device->CreateCommandList(desc.NodeMask, desc.Type, _renderAllocator.Get(), nullptr,
-                                                 IID_PPV_ARGS(_renderCommandList.GetAddressOf())),
+                                                   IID_PPV_ARGS(_renderCommandList.GetAddressOf())),
                          L"ParticleManager::IntializeGraphicsCommandObject() device->CreateCommandList Failed");
     _renderCommandList->SetName(L"particle render commandlist");
     _renderCommandList->Close();
@@ -203,7 +261,7 @@ void ParticleManager::InitializeParticleComputeShader()
 
         if (nullptr != error)
         {
-            
+
             std::filesystem::path errorMessage = static_cast<const char*>(error->GetBufferPointer());
             GRAPHICS_ASSERT(SUCCEEDED(hr), errorMessage.c_str());
         }
@@ -309,13 +367,14 @@ void ParticleManager::InitializeParticleComputeRootSignature()
             GRAPHICS_ASSERT(SUCCEEDED(hr), errorMessage.c_str());
         }
 
-        FAILED_CHECK_MESSAGE(hr,L"ParticleManager::InitializeParticleComputeRootSignature D3D12SerializeRootSignature Failed");
+        FAILED_CHECK_MESSAGE(
+            hr, L"ParticleManager::InitializeParticleComputeRootSignature D3D12SerializeRootSignature Failed");
 
         ComPtr<ID3D12RootSignature> rootSignature;
         hr = UmDevice.GetDevice()->CreateRootSignature(0, serializedRootSig->GetBufferPointer(),
                                                        serializedRootSig->GetBufferSize(),
                                                        IID_PPV_ARGS(_computeSpriteRootSignature.GetAddressOf()));
-        FAILED_CHECK_MESSAGE(hr,L"ParticleManager::InitializeParticleComputeRootSignature CreateRootSignature Failed");
+        FAILED_CHECK_MESSAGE(hr, L"ParticleManager::InitializeParticleComputeRootSignature CreateRootSignature Failed");
     }
     // initialize mesh root signature;
     {
@@ -363,13 +422,13 @@ void ParticleManager::InitializeParticleComputeRootSignature()
             GRAPHICS_ASSERT(SUCCEEDED(hr), errorMessage.c_str());
         }
 
-        FAILED_CHECK_MESSAGE(hr,L"");
+        FAILED_CHECK_MESSAGE(hr, L"");
 
         ComPtr<ID3D12RootSignature> rootSignature;
         hr = UmDevice.GetDevice()->CreateRootSignature(0, serializedRootSig->GetBufferPointer(),
                                                        serializedRootSig->GetBufferSize(),
                                                        IID_PPV_ARGS(_computeMeshRootSignature.GetAddressOf()));
-        FAILED_CHECK_MESSAGE(hr,L"");
+        FAILED_CHECK_MESSAGE(hr, L"");
     }
 }
 void ParticleManager::InitializeParticleComputePSO()
@@ -383,7 +442,7 @@ void ParticleManager::InitializeParticleComputePSO()
         HRESULT hr;
         hr = UmDevice.GetDevice()->CreateComputePipelineState(&computePSODesc,
                                                               IID_PPV_ARGS(_computeSpritePSO.GetAddressOf()));
-        FAILED_CHECK_MESSAGE(hr,L"");
+        FAILED_CHECK_MESSAGE(hr, L"");
     }
     // initialize axial sprite pipeline state object
     {
@@ -396,7 +455,7 @@ void ParticleManager::InitializeParticleComputePSO()
         HRESULT hr;
         hr = UmDevice.GetDevice()->CreateComputePipelineState(&computePSODesc,
                                                               IID_PPV_ARGS(_computeAxialSpritePSO.GetAddressOf()));
-        FAILED_CHECK_MESSAGE(hr,L"");
+        FAILED_CHECK_MESSAGE(hr, L"");
     }
     // initialize mesh pipeline state object
     {
@@ -408,7 +467,7 @@ void ParticleManager::InitializeParticleComputePSO()
         HRESULT hr;
         hr = UmDevice.GetDevice()->CreateComputePipelineState(&computePSODesc,
                                                               IID_PPV_ARGS(_computeMeshPSO.GetAddressOf()));
-        FAILED_CHECK_MESSAGE(hr,L"");
+        FAILED_CHECK_MESSAGE(hr, L"");
     }
 }
 void ParticleManager::InitializeDescriptorHeap()
@@ -451,14 +510,16 @@ void ParticleManager::CreateStructuredBuffer(ComPtr<ID3D12Resource>& resource, C
     D3D12_RESOURCE_DESC bufferDesc      = CD3DX12_RESOURCE_DESC::Buffer(bufferSize);
     auto                defaultProperty = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
     FAILED_CHECK_MESSAGE(UmDevice.GetDevice()->CreateCommittedResource(&defaultProperty, D3D12_HEAP_FLAG_NONE,
-                                                                     &bufferDesc, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&resource)),
+                                                                       &bufferDesc, D3D12_RESOURCE_STATE_COMMON,
+                                                                       nullptr, IID_PPV_ARGS(&resource)),
                          L"");
 
     // 업로드 버퍼 생성 (CPU->GPU 전송용)
     auto uploadProperty = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
 
-    FAILED_CHECK_MESSAGE(UmDevice.GetDevice()->CreateCommittedResource(&uploadProperty, D3D12_HEAP_FLAG_NONE, &bufferDesc,
-                                                                     D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&uploadResource)),
+    FAILED_CHECK_MESSAGE(UmDevice.GetDevice()->CreateCommittedResource(&uploadProperty, D3D12_HEAP_FLAG_NONE,
+                                                                       &bufferDesc, D3D12_RESOURCE_STATE_GENERIC_READ,
+                                                                       nullptr, IID_PPV_ARGS(&uploadResource)),
                          L"");
 }
 void ParticleManager::CreateStructuredBuffer(ComPtr<ID3D12Resource>& resource, UINT bufferSize, UINT stride)
@@ -467,7 +528,8 @@ void ParticleManager::CreateStructuredBuffer(ComPtr<ID3D12Resource>& resource, U
     D3D12_RESOURCE_DESC bufferDesc      = CD3DX12_RESOURCE_DESC::Buffer(bufferSize);
     auto                defaultProperty = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
     FAILED_CHECK_MESSAGE(UmDevice.GetDevice()->CreateCommittedResource(&defaultProperty, D3D12_HEAP_FLAG_NONE,
-                                                                     &bufferDesc, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&resource)),
+                                                                       &bufferDesc, D3D12_RESOURCE_STATE_COMMON,
+                                                                       nullptr, IID_PPV_ARGS(&resource)),
                          L"");
 }
 void ParticleManager::CreateUAVBuffer(ComPtr<ID3D12Resource>& resource, UINT bufferSize, UINT stride)
@@ -478,7 +540,8 @@ void ParticleManager::CreateUAVBuffer(ComPtr<ID3D12Resource>& resource, UINT buf
     auto defaultProperty = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
 
     FAILED_CHECK_MESSAGE(UmDevice.GetDevice()->CreateCommittedResource(&defaultProperty, D3D12_HEAP_FLAG_NONE,
-                                                                     &bufferDesc, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&resource)),
+                                                                       &bufferDesc, D3D12_RESOURCE_STATE_COMMON,
+                                                                       nullptr, IID_PPV_ARGS(&resource)),
                          L"");
 }
 void ParticleManager::CreateConstantBuffer(ComPtr<ID3D12Resource>& resource, UINT bufferSize)
@@ -486,7 +549,7 @@ void ParticleManager::CreateConstantBuffer(ComPtr<ID3D12Resource>& resource, UIN
     // 상수 버퍼는 항상 256바이트 정렬되어야 함
     UINT alignedBufferSize = (bufferSize + 255) & ~255;
 
-    D3D12_RESOURCE_DESC bufferDesc      = CD3DX12_RESOURCE_DESC::Buffer(alignedBufferSize);
+    D3D12_RESOURCE_DESC bufferDesc = CD3DX12_RESOURCE_DESC::Buffer(alignedBufferSize);
 
     // 2. Upload Heap에 업로드 버퍼 생성 (CPU 접근 가능)
     auto uploadProperty = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
@@ -494,11 +557,8 @@ void ParticleManager::CreateConstantBuffer(ComPtr<ID3D12Resource>& resource, UIN
     FAILED_CHECK_MESSAGE(
         UmDevice.GetDevice()->CreateCommittedResource(&uploadProperty, D3D12_HEAP_FLAG_NONE, &bufferDesc,
                                                       D3D12_RESOURCE_STATE_GENERIC_READ, // Upload Heap 필수 상태
-                                                      nullptr, IID_PPV_ARGS(&resource)), L"");
-
-
-
-
+                                                      nullptr, IID_PPV_ARGS(&resource)),
+        L"");
 }
 void ParticleManager::CreateDescriptors()
 {
@@ -548,15 +608,14 @@ void ParticleManager::CreateDescriptors()
     UmDevice.GetDevice()->CreateUnorderedAccessView(_particleOutputBuffer.Get(), nullptr, &particleOutputUavDesc,
                                                     handle);
 }
-
-void ParticleManager::CopyActiveParticles() 
+void ParticleManager::CopyActiveParticles()
 {
     _totalParticles.clear();
     _emitterMatrix.clear();
     _activeEmitterAlbedos.clear();
     UINT emitterIndex = 0;
     _totalCount       = 0;
-    for (auto effect : _pariticleEffects)
+    for (auto effect : _activePariticleEffects)
     {
         if (true == effect->GetActiveFlag())
         {
@@ -586,21 +645,49 @@ void ParticleManager::CopyActiveParticles()
         }
     }
 }
+void ParticleManager::CopyActiveParticlesEditorMode()
+{
+    _totalParticles.clear();
+    _emitterMatrix.clear();
+    _activeEmitterAlbedos.clear();
+    UINT emitterIndex = 0;
+    _totalCount       = 0;
+    if (false == _editorCurrentEffect->GetActiveFlag())
+        return;
+    for (auto emitter : _editorCurrentEffect->GetEmitterList())
+    {
+        if (true == emitter->GetActiveFlag())
+        {
+            if (ParticleType::SPRITE == emitter->_particleType)
+            {
+                _activeEmitterAlbedos.push_back(
+                    static_cast<SpriteModule*>(emitter->_particleRenderModule)->GetAlbedoTexture());
+            }
+            _emitterMatrix.push_back(
+                {emitter->GetWorldMatrix().Transpose(), emitter->GetDragPoint(), emitter->GetDragForce()});
+            auto& particlePool = emitter->GetParticlePool();
+            for (UINT i = 0; i < emitter->GetActiveParticleCount(); i++)
+            {
 
+                auto& particle = *particlePool[i];
+                particle.SetEmitterIndex(emitterIndex);
+                _totalParticles.push_back(particle);
+            }
+            _totalCount += emitter->GetActiveParticleCount();
+            emitterIndex++;
+        }
+    }
+}
 void ParticleManager::DispatchParticleCompute(float deltaTime)
 {
     if (0 >= _totalCount)
         return;
 
-
-    
-        _computeAllocator->Reset();
+    _computeAllocator->Reset();
     _computeCommandList->Reset(_computeAllocator.Get(), _computeSpritePSO.Get());
 
     // 1. 리소스 업데이트
     UpdateParticleResources(deltaTime);
-
-
 
     // upload buffer -> default buf
     CopyFromUploadBuffer();
@@ -640,11 +727,8 @@ void ParticleManager::DispatchParticleCompute(float deltaTime)
         _particleOutputBuffer.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COMMON);
     _computeCommandList->ResourceBarrier(1, &computeOutputBarrior);
 
-
-
     _computeCommandList->Close();
-    UmDevice.RegisterCommand(_computeCommandList.Get(), PARTICLE_COMPUTE_LIST);
-
+    UmDevice.RegisterCommand(_computeCommandList.Get(), COMPUTE_LIST);
 
     // 7. 커맨드 리스트 종료 및 실행
 }
@@ -662,11 +746,11 @@ void ParticleManager::UpdateParticleResources(float deltaTime)
 
     // 3. MVP 상수 버퍼 업데이트
     MVPConstants mvpConstants;
-    mvpConstants.ViewMatrix           = _camera->GetViewMatrix().Transpose();
-    Matrix viewrotinv = _camera->GetViewMatrix();
+    mvpConstants.ViewMatrix = _camera->GetViewMatrix().Transpose();
+    Matrix viewrotinv       = _camera->GetViewMatrix();
 
-      XMFLOAT3X3 rotV;
-        XMStoreFloat3x3(&rotV, viewrotinv);
+    XMFLOAT3X3 rotV;
+    XMStoreFloat3x3(&rotV, viewrotinv);
 
     // 2) 전치(transpose)하여 역회전 행렬 생성
     XMMATRIX Rv  = XMLoadFloat3x3(&rotV);
@@ -677,7 +761,7 @@ void ParticleManager::UpdateParticleResources(float deltaTime)
     XMStoreFloat4x4(&mvpConstants.ViewRotInvMatrix, RvT);
 
     mvpConstants.ViewRotInvMatrix = mvpConstants.ViewRotInvMatrix.Transpose();
-    mvpConstants.ProjMatrix = _camera->GetProjectionMatrix().Transpose();
+    mvpConstants.ProjMatrix       = _camera->GetProjectionMatrix().Transpose();
 
     mvpConstants.CameraPos =
         Vector4(_camera->GetWorldMatrix()._41, _camera->GetWorldMatrix()._42, _camera->GetWorldMatrix()._43, 1);
@@ -689,7 +773,7 @@ void ParticleManager::UpdateParticleResources(float deltaTime)
     // 컴퓨트 셰이더 디스패치
     mvpConstants.deltaTime = delta;
 
-    FAILED_CHECK_MESSAGE(_mvpConstantBuffer->Map(0, nullptr, &mappedData),L"");
+    FAILED_CHECK_MESSAGE(_mvpConstantBuffer->Map(0, nullptr, &mappedData), L"");
     memcpy(mappedData, &mvpConstants, sizeof(MVPConstants));
     _mvpConstantBuffer->Unmap(0, nullptr);
 }
@@ -725,5 +809,15 @@ void ParticleManager::CopyFromUploadBuffer()
                                              D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE)};
     _computeCommandList->ResourceBarrier(_countof(postCopyBarriers), postCopyBarriers);
 }
-//===============================================================
+void ParticleManager::RefreshCurrentEditorEffect() 
+{
+    if (false == IS_EDITOR)
+        return;
+    _editorCurrentEffect->FlushEmitters();
+    _editorCurrentEffect->Reset();
+    _editorCurrentEffect->Play();
+    _editorRefreshFlag = false;
 
+}
+
+//===============================================================
