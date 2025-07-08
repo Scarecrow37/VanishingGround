@@ -12,7 +12,6 @@ public:
     REFLECT_PROPERTY(
         HP,
         MaxHP, 
-        MP,
         MaxMP, 
         ChainCount, 
         ChainRoundCount,
@@ -32,9 +31,6 @@ public:
 
     GETTER_ONLY(int, HP) { return _hp; }
     PROPERTY(HP)
-
-    GETTER_ONLY(int, MP) { return _mp; }
-    PROPERTY(MP)
 
     GETTER_ONLY(int, MaxChainRoundCount) { return GetMaxChainRoundCount(); }
     PROPERTY(MaxChainRoundCount)
@@ -75,7 +71,6 @@ protected:
 
 private:
     int _hp;
-    int _mp;
     int _chainCount;
     int _chainRoundCount;
 
