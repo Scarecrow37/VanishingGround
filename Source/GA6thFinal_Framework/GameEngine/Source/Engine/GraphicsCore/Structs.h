@@ -24,7 +24,7 @@ struct SkeletalMeshVertex : public Vertex
     float BlendWeights[4]{};
 };
 
-struct BoneMatrixes
+struct BoneMatrices
 {
     XMMATRIX matrix[MAX_BONE_MATRIX];
 };
@@ -32,6 +32,12 @@ struct BoneMatrixes
 struct MaterialID
 {
     UINT ID[4];
+};
+
+struct UIMaterial
+{
+    UINT ID;
+    float Alpha;
 };
 
 using VertexBufferID = UINT;
@@ -66,7 +72,7 @@ struct CameraData
     XMMATRIX Projection;
     XMMATRIX ViewInverse;
     XMMATRIX ProejctionInverse;
-    Vector4  Position{0.f, 0.f, -5.f, 1.f};
+    Vector4  Position{0.f, 0.f, 0.f, 1.f};
 };
 
 struct LightData

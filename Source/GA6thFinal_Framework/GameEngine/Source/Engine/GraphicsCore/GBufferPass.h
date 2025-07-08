@@ -29,14 +29,14 @@ public:
     virtual ~GBufferPass();
 
 public:
-    void Initialize() override;
+    void Initialize(RenderScene* ownerScene) override;
     void Begin(ID3D12GraphicsCommandList* commandList) override;
     void Draw(ID3D12GraphicsCommandList* commandList) override;
     void End(ID3D12GraphicsCommandList* commandList) override;
 
 private:
     void InitShaderAndPSO();
-    void DrawMeshes(ID3D12GraphicsCommandList* commandList, MeshType type);
+    void DrawMeshes(ID3D12GraphicsCommandList* commandList, int shaderType, MeshType meshType);
 
 private:
     std::vector<std::unique_ptr<ShaderBuilder>>                   _shaders;

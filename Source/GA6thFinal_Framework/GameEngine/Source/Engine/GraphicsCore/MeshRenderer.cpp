@@ -48,6 +48,8 @@ void MeshRenderer::SetModel(std::shared_ptr<Model> model)
             _skeletaMesheInstances[i] = instance;
         }
     }
+    else
+        _type = MeshRenderType::STATIC;
 }
 
 void MeshRenderer::SetAnimator(std::shared_ptr<Animator> animator)
@@ -58,6 +60,11 @@ void MeshRenderer::SetAnimator(std::shared_ptr<Animator> animator)
 void MeshRenderer::RegisterRenderQueue(std::string_view sceneName)
 {
     UmRenderer.RegisterRenderQueue(sceneName, this);
+}
+
+void MeshRenderer::RegisterRenderQueue()
+{
+    UmRenderer.RegisterRenderQueue(this);
 }
 
 void MeshRenderer::LoadModel(std::wstring_view filePath)

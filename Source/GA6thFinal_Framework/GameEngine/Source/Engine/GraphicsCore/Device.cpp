@@ -165,9 +165,6 @@ void Device::ResetCommands()
 
     _imguiCommandAllocator->Reset();
     _imguiCommandList->Reset(_imguiCommandAllocator.Get(), nullptr);
-
-    _postProcessCommandAllocator->Reset();
-    _postProcessCommandList->Reset(_postProcessCommandAllocator.Get(), nullptr);
 }
 
 void Device::ResetComputeCommands()
@@ -183,48 +180,26 @@ void Device::Execute()
 
     _computeCommandList->Close();
     _commandList->Close();
-
     _imguiCommandList->Close();
-    _postProcessCommandList->Close();
 
-    RegisterCommand(_computeCommandList.Get(), MESH_COMPUTE_LIST);
-    RegisterCommand(_commandList.Get(), MESH_RENDER_LIST);
+    RegisterCommand(_computeCommandList.Get(), COMPUTE_LIST);
+    RegisterCommand(_commandList.Get(), RENDER_LIST);
     RegisterCommand(_imguiCommandList.Get(),IMGUI_RENDER_LIST);
-    RegisterCommand(_postProcessCommandList.Get(), POST_PROCESS_LIST);
 
-    // [1] 메시 컴퓨트 작업 (Compute Queue)
-    ExecuteCommand(MESH_COMPUTE_LIST);
-    SignalComputeQueue(MESH_COMPUTE_FENCE);
+    // [1] Compute (Compute Queue)
+    ExecuteCommand(COMPUTE_LIST);
+    SignalComputeQueue(COMPUTE_FENCE);
+   
+    // [2] 렌더 전 동기화
+    _commandQueue->Wait(_graphicsFences[COMPUTE_FENCE].Get(), _lastGraphicsFenceValues[COMPUTE_FENCE]);
 
-    // [2] 컴퓨트 큐 작업 완료 대기 (Graphics Queue)
-    _commandQueue->Wait(_graphicsFences[MESH_COMPUTE_FENCE].Get(), _lastGraphicsFenceValues[MESH_COMPUTE_FENCE]);
+    // [3] Render (Graphics Queue)
+    ExecuteCommand(RENDER_LIST);
 
-    // [3] 병렬 실행: 파티클 컴퓨트 + 메시 렌더
-    //--------------------------------------------------
-    // (A) 파티클 컴퓨트 작업 (Compute Queue)
-    ExecuteCommand(PARTICLE_COMPUTE_LIST);
-    SignalComputeQueue(PARTICLE_COMPUTE_FENCE);
-    SignalGraphicsQueue(MESH_RENDER_FENCE);
-    ExecuteCommand(MESH_RENDER_LIST);
-    // (B) 메시 렌더 작업 (Graphics Queue)
-    //--------------------------------------------------
+    // [4] DebugDraw (Graphics Queue)
+    ExecuteCommand(DEBUG_RENDER_LIST);
 
-    // [4] 파티클 렌더 전 동기화
-    // 컴퓨트 큐 + 그래픽 큐 작업 모두 완료 대기
-    _commandQueue->Wait(_graphicsFences[PARTICLE_COMPUTE_FENCE].Get(), _lastGraphicsFenceValues[PARTICLE_COMPUTE_FENCE]);
-    _commandQueue->Wait(_graphicsFences[MESH_RENDER_FENCE].Get(), _lastGraphicsFenceValues[MESH_RENDER_FENCE]);
-
-    // [5] 파티클 렌더 실행 (Graphics Queue)
-    ExecuteCommand(PARTICLE_RENDER_LIST);
-    SignalGraphicsQueue(PARTICLE_RENDER_FENCE);
-    
-    // [6] 포트스 프로세싱 렌더 실행 (Graphics Queue)
-    ExecuteCommand(POST_PROCESS_LIST);
-
-    // [7] 임구이 렌더 전 동기화
-    // 그래픽 큐 작업 완료 대기
-    _commandQueue->Wait(_graphicsFences[PARTICLE_RENDER_FENCE].Get(), _lastGraphicsFenceValues[PARTICLE_RENDER_FENCE]);
-    // [8] 임구이 렌더 실행 (Graphics Queue)
+    // [5] ImGui (Graphics Queue)
     ExecuteCommand(IMGUI_RENDER_LIST);
 }
 
@@ -481,19 +456,13 @@ void Device::ExecuteCommand(CommandListType type)
 {
     switch (type)
     {
-    case CommandListType::MESH_RENDER_LIST:
-    case CommandListType::PARTICLE_RENDER_LIST:
-        _commandQueue->ExecuteCommandLists(static_cast<UINT>(_commandLists[type].size()), _commandLists[type].data());
-        break;
-    case CommandListType::MESH_COMPUTE_LIST:
-    case CommandListType::PARTICLE_COMPUTE_LIST:
-        _computeCommandQueue->ExecuteCommandLists(static_cast<UINT>(_commandLists[type].size()), _commandLists[type].data());
-        break;
+    case CommandListType::DEBUG_RENDER_LIST:
     case CommandListType::IMGUI_RENDER_LIST:
+    case CommandListType::RENDER_LIST:
         _commandQueue->ExecuteCommandLists(static_cast<UINT>(_commandLists[type].size()), _commandLists[type].data());
         break;
-    case CommandListType::POST_PROCESS_LIST:
-        _commandQueue->ExecuteCommandLists(static_cast<UINT>(_commandLists[type].size()), _commandLists[type].data());
+    case CommandListType::COMPUTE_LIST:
+        _computeCommandQueue->ExecuteCommandLists(static_cast<UINT>(_commandLists[type].size()), _commandLists[type].data());
         break;
     }
 
@@ -513,8 +482,8 @@ void Device::ResizeSwapChain()
 
     _commandList->Close();
 
-    RegisterCommand(_commandList.Get(), MESH_RENDER_LIST);
-    ExecuteCommand(MESH_RENDER_LIST);
+    RegisterCommand(_commandList.Get(), RENDER_LIST);
+    ExecuteCommand(RENDER_LIST);
     
     FullGpuSync();
 
@@ -537,9 +506,6 @@ void Device::ResizeSwapChain()
 void Device::CreateDeviceAndSwapChain(HWND hwnd, D3D_FEATURE_LEVEL feature)
 {
     HRESULT hr = S_OK;
-
-    hr = CreateDXGIFactory2(0, IID_PPV_ARGS(&_dxgiFactory));
-    FAILED_CHECK_MESSAGE(hr, L"Device::CreateDeviceAndSwapChain CreateDXGIFactory2 Failed");
 
     hr = CreateDXGIFactory2(0, IID_PPV_ARGS(&_dxgiFactory));
     FAILED_CHECK_MESSAGE(hr, L"Device::CreateDeviceAndSwapChain CreateDXGIFactory2 Failed");
@@ -625,12 +591,10 @@ void Device::CreateCommandQueue()
 
     CreateCommandList(_commandAllocator, _commandList, CommandType::DIRECT);
     CreateCommandList(_imguiCommandAllocator, _imguiCommandList, CommandType::DIRECT);
-    CreateCommandList(_postProcessCommandAllocator, _postProcessCommandList, CommandType::DIRECT);
 
     _commandQueue->SetName(L"GraphicsQueue");
     _commandList->SetName(L"GraphicsCmdList");
     _imguiCommandList->SetName(L"imguiCmdList");
-    _postProcessCommandList->SetName(L"PostProcessCmdList");
 }
 
 void Device::CreateSyncObject()
@@ -652,7 +616,7 @@ void Device::CreateSyncObject()
     _lastGraphicsFenceValues.resize(FENCE_END);
     _fenceValues.resize(FENCE_END);
 
-    for (UINT i = MESH_COMPUTE_FENCE; i < FENCE_END; ++i)
+    for (UINT i = 0; i < FENCE_END; ++i)
     {
         hr = _device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&_graphicsFences[i]));
         FAILED_CHECK_MESSAGE(hr, L"Device::CreateSyncObject _device->CreateFence Failed");

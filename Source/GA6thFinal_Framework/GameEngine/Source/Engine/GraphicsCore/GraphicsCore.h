@@ -2,29 +2,11 @@
 
 #include "Enums.h"
 #include "Structs.h"
-
-#include "Camera.h"
-#include "Device.h"
-#include "Texture.h"
-#include "ShaderBuilder.h"
-
-#include "Renderer.h"
-#include "AnimationCore.h"
-#include "LightCore.h"
-
-#include "MultiRenderTargetManager.h"
-#include "ResourceManager.h"
-#include "ViewManager.h"
-#include "ParticleManager.h"
-#include "AccelerationStructureManager.h"
-#include "DXResourceManager.h"
-
+#include "Headers.h"
 #include "Defines.h"
 #include "Externs.h"
 
-#ifdef _DEBUG
 #include "DebugDrawCore.h"
-#endif
 
 class GraphicsCore
 {
@@ -39,10 +21,7 @@ public:
     ParticleManager          ParticleManager;
     AccelerationStructureManager AccelerationStructureManager;
     DXResourceManager        DXResourceManager;
-
-#ifdef _DEBUG
-    DebugDrawCore DebugDrawCore;
-#endif
+    DebugDrawCore            DebugDrawCore;
 
 public:
     void Initialize(HWND hwnd, UINT width, UINT height, FeatureLevel feature);

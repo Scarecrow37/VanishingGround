@@ -28,54 +28,14 @@ StaticMeshRenderer::StaticMeshRenderer()
     });    
 }
 
-StaticMeshRenderer::~StaticMeshRenderer()
+StaticMeshRenderer::~StaticMeshRenderer() 
 {
-    
+
 }
 
 void StaticMeshRenderer::Reset()
 {
     MakeMeshRenderer(MeshRenderType::STATIC, gameObject->transform->GetWorldMatrix());
-}
-
-void StaticMeshRenderer::Awake()
-{
-
-}
-
-void StaticMeshRenderer::Start()
-{
-
-}
-
-void StaticMeshRenderer::OnEnable()
-{
-    
-}
-
-void StaticMeshRenderer::OnDisable()
-{
-    
-}
-
-void StaticMeshRenderer::Update() 
-{
-  
-}
-
-void StaticMeshRenderer::FixedUpdate() 
-{
-
-}
-
-void StaticMeshRenderer::OnDestroy()
-{
-   
-}
-
-void StaticMeshRenderer::OnApplicationQuit() 
-{
-
 }
 
 void StaticMeshRenderer::SerializedReflectEvent() 

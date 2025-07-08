@@ -26,11 +26,11 @@ struct PSInput
 
 uint ps_main(PSInput input) : SV_Target
 {
+    clip(input.color.a - 0.02f);
     // 1. 텍스처 샘플링 최소화
     int emitIndex = input.emitterIndex;
     int albedoID = texID[emitIndex];
     float factor = textures[albedoID].Sample(samPoint_clamp, input.uv);
-    clip(input.color.a - 0.01f);
     
     // 2. 알파 계산 간소화
     float alpha = input.color.a * factor;
@@ -60,12 +60,12 @@ uint ps_main(PSInput input) : SV_Target
     float3 color_contrib = input.color.rgb * alpha*factor * weight * weight;
     float alpha_contrib = alpha * factor * weight * weight;
     
-    gAccumTex[uint2(input.position.xy)] += float4(color_contrib, alpha_contrib) * 0.9f ;
+    gAccumTex[uint2(input.position.xy)] += float4(color_contrib, alpha_contrib) * 0.8f ;
     
     
     //float3 finalcolor = gAccumTex[uint2(input.position.xy)].rgb;
-    //finalcolor = finalcolor / length(finalcolor) ;
-    //gAccumTex[uint2(input.position.xy)] = float4(finalcolor, gAccumTex[uint2(input.position.xy)].a) ;
+    //finalcolor = finalcolor / length(finalcolor);
+    //gAccumTex[uint2(input.position.xy)] = float4(finalcolor, gAccumTex[uint2(input.position.xy)].a);
     
     
     

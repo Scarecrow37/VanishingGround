@@ -130,8 +130,7 @@ using namespace Microsoft::WRL;
 #include "Engine/ClassCore/ReflectHelper.h"
 
 //Input Core
-#include "Engine/InputCore/Adapter/Controller/XInput/XInputAdapter.h"
-#include "Engine/InputCore/Devices/Controller/Controller.h"
+#include "../InputModule/InputModule.h"
 
 //Application Core
 #include "Engine/AppModule/Interface/IAppModule.h"
@@ -153,13 +152,11 @@ using namespace Microsoft::WRL;
 
 //Graphics
 #include "Engine/GraphicsCore/GraphicsCore.h"
+#include "Engine/GraphicsCore/ParticleEffectSerializer.h"
+
 
 //Audio Core
-#include "Engine/AudioCore/Declare/Types/AudioTypes.h"
-#include "Engine/AudioCore/Declare/Exceptions/AudioExceptions.h"
-#include "Engine/AudioCore/Handle/AudioHandle.h"
-#include "Engine/AudioCore/Declare/Callback/IncreaseGenerationCallback.h"
-#include "Engine/AudioCore/AudioManager/AudioManager.h"
+#include "../AudioModule/AudioModule.h"
 
 //Engine Core
 #include "Engine/EngineCore/EngineLogger.h"
@@ -202,6 +199,10 @@ using namespace Microsoft::WRL;
 #include "Editor/DragDropTypes/DragDropTransform.h"
 #include "Editor/DragDropTypes/DragDropAsset.h"
 
+//Timeline System
+#include "Engine/TimelineCore/TimelineSystem.h"
+#include "Engine/TimelineCore/AnimationNotifySet.h"
+
 //컴포넌트는 접근 안하는 헤더들
 #ifndef _SCRIPTS_PROJECT
 
@@ -217,6 +218,7 @@ using namespace Microsoft::WRL;
 #include "Editor/Tool/Model/EditorModelDetails.h"
 #include "Editor/Tool/Model/EditorModelTool.h"
 #include "Editor/Tool/Model/EditorModelHierarchy.h"
+#include "Editor/Tool/Model/EditorAnimationNotifyTool.h"
 #include "Editor/Tool/Command/EditorCommandTool.h"
 #include "Editor/Tool/Sequencer/EditorSequencerTool.h"
 

@@ -1,16 +1,13 @@
 ﻿#include "pch.h"
 #include "GBufferPass.h"
 #include "BaseMesh.h"
-#include "DepthStencilView.h"
 #include "FrameResource.h"
 #include "MeshRenderer.h"
 #include "Model.h"
-#include "RenderScene.h"
-#include "RenderTarget.h"
 
 GBufferPass::~GBufferPass() {}
 
-void GBufferPass::Initialize()
+void GBufferPass::Initialize(RenderScene* ownerScene)
 {
     static bool isInitialized = false;
     if (!isInitialized)
@@ -55,7 +52,7 @@ void GBufferPass::Initialize()
         isInitialized = true;
     }
 
-    __super::Initialize();
+    __super::Initialize(ownerScene);
     InitShaderAndPSO();
 }
 
@@ -84,7 +81,7 @@ void GBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
     }
 
     UINT instanceID = 0;
-    for (auto& [isDestroy, component] : _ownerScene->_renderQueue)
+    for (auto& [isDestroy, component] : _ownerScene->_meshRenderQueue)
     {
         if (!component->IsActive())
             continue;
@@ -136,9 +133,9 @@ void GBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->SetGraphicsRootDescriptorTable(_shaders[STATIC]->GetRootParameterIndex("textures"), resource);
     commandList->SetGraphicsRootConstantBufferView(_shaders[STATIC]->GetRootParameterIndex("cameraData"), cameraData);
 
-    frameResource->SetFrameResource(FrameResource::Type::TRANSFORM, _shaders[STATIC]->GetRootParameterIndex("worldMatrices"), commandList);
-    frameResource->SetFrameResource(FrameResource::Type::MATERIAL, _shaders[STATIC]->GetRootParameterIndex("material"), commandList);
-    DrawMeshes(commandList, STATIC_ONE_SIDED);
+    frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _shaders[STATIC]->GetRootParameterIndex("worldMatrices"), commandList);
+    frameResource->SetFrameResource(FrameResourceType::MATERIAL, _shaders[STATIC]->GetRootParameterIndex("material"), commandList);
+    DrawMeshes(commandList, STATIC, STATIC_ONE_SIDED);
 
     // Static Two Sided
     commandList->SetPipelineState(_psos[STATIC_TWO_SIDED].Get());
@@ -146,29 +143,29 @@ void GBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->SetGraphicsRootDescriptorTable(_shaders[STATIC]->GetRootParameterIndex("textures"), resource);
     commandList->SetGraphicsRootConstantBufferView(_shaders[STATIC]->GetRootParameterIndex("cameraData"), cameraData);
 
-    frameResource->SetFrameResource(FrameResource::Type::TRANSFORM, _shaders[STATIC]->GetRootParameterIndex("worldMatrices"), commandList);
-    frameResource->SetFrameResource(FrameResource::Type::MATERIAL, _shaders[STATIC]->GetRootParameterIndex("material"), commandList);
-    DrawMeshes(commandList, STATIC_TWO_SIDED);
+    frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _shaders[STATIC]->GetRootParameterIndex("worldMatrices"), commandList);
+    frameResource->SetFrameResource(FrameResourceType::MATERIAL, _shaders[STATIC]->GetRootParameterIndex("material"), commandList);
+    DrawMeshes(commandList, STATIC, STATIC_TWO_SIDED);
 
     // Skeletal One Sided
     commandList->SetPipelineState(_psos[SKELETAL_ONE_SIDED].Get());
     commandList->SetGraphicsRootSignature(_shaders[SKELETAL]->GetRootSignature());
     commandList->SetGraphicsRootConstantBufferView(_shaders[SKELETAL]->GetRootParameterIndex("cameraData"), cameraData);
 
-    frameResource->SetFrameResource(FrameResource::Type::TRANSFORM, _shaders[SKELETAL]->GetRootParameterIndex("worldMatrices"), commandList);
-    frameResource->SetFrameResource(FrameResource::Type::BONE_MATRIXES, _shaders[SKELETAL]->GetRootParameterIndex("boneMatrices"), commandList);
-    frameResource->SetFrameResource(FrameResource::Type::MATERIAL, _shaders[SKELETAL]->GetRootParameterIndex("material"), commandList);
-    DrawMeshes(commandList, SKELETAL_ONE_SIDED);
+    frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _shaders[SKELETAL]->GetRootParameterIndex("worldMatrices"), commandList);
+    frameResource->SetFrameResource(FrameResourceType::BONE_MATRICES, _shaders[SKELETAL]->GetRootParameterIndex("boneMatrices"), commandList);
+    frameResource->SetFrameResource(FrameResourceType::MATERIAL, _shaders[SKELETAL]->GetRootParameterIndex("material"), commandList);
+    DrawMeshes(commandList, SKELETAL, SKELETAL_ONE_SIDED);
 
     // Skeletal Two Sided
     commandList->SetPipelineState(_psos[SKELETAL_TWO_SIDED].Get());
     commandList->SetGraphicsRootSignature(_shaders[SKELETAL]->GetRootSignature());
     commandList->SetGraphicsRootConstantBufferView(_shaders[SKELETAL]->GetRootParameterIndex("cameraData"), cameraData);
 
-    frameResource->SetFrameResource(FrameResource::Type::TRANSFORM, _shaders[SKELETAL]->GetRootParameterIndex("worldMatrices"), commandList);
-    frameResource->SetFrameResource(FrameResource::Type::BONE_MATRIXES, _shaders[SKELETAL]->GetRootParameterIndex("boneMatrices"), commandList);
-    frameResource->SetFrameResource(FrameResource::Type::MATERIAL, _shaders[SKELETAL]->GetRootParameterIndex("material"), commandList);
-    DrawMeshes(commandList, SKELETAL_TWO_SIDED);
+    frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _shaders[SKELETAL]->GetRootParameterIndex("worldMatrices"), commandList);
+    frameResource->SetFrameResource(FrameResourceType::BONE_MATRICES, _shaders[SKELETAL]->GetRootParameterIndex("boneMatrices"), commandList);
+    frameResource->SetFrameResource(FrameResourceType::MATERIAL, _shaders[SKELETAL]->GetRootParameterIndex("material"), commandList);
+    DrawMeshes(commandList, SKELETAL, SKELETAL_TWO_SIDED);
 }
 
 void GBufferPass::End(ID3D12GraphicsCommandList* commandList)
@@ -258,15 +255,15 @@ void GBufferPass::InitShaderAndPSO()
     _psos.push_back(skeletalOneSidePSO);
 }
 
-void GBufferPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, MeshType type)
+void GBufferPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, int shaderType, MeshType meshType)
 {
     UINT parameter[3]{0, MAX_BONE_MATRIX, 0};
-    for (auto& [mesh, instanceID, customDepth] : _renderDatas[type])
+    for (auto& [mesh, instanceID, customDepth] : _renderDatas[meshType])
     {
         parameter[0] = instanceID;
         parameter[2] = customDepth;
 
-        commandList->SetGraphicsRoot32BitConstants(_shaders[type]->GetRootParameterIndex("bit32_3_objectData"), 3, parameter, 0);
+        commandList->SetGraphicsRoot32BitConstants(_shaders[shaderType]->GetRootParameterIndex("bit32_3_objectData"), 3, parameter, 0);
         mesh->Render(commandList);
     }
 }

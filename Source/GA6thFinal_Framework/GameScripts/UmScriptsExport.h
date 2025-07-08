@@ -31,6 +31,9 @@ UMREAL_COMPONENT(TestComponent)
 #include "Scripts/Mesh/StaticMeshRenderer.h"
 UMREAL_COMPONENT(StaticMeshRenderer)
 
+#include "Scripts/Mesh/SkeletalMeshRenderer.h"
+UMREAL_COMPONENT(SkeletalMeshRenderer)
+
 //#include "Scripts\Graphics/SkeletalMeshRenderer.h"
 //UMREAL_COMPONENT(SkeletalMeshRenderer)
 
@@ -64,7 +67,7 @@ UMREAL_COMPONENT(Enemy)
 #include "Scripts\Camera/CameraComponent.h"
 UMREAL_COMPONENT(CameraComponent)
 
-#include "Scripts/Stats/CharacterStatsComponent.h"
+#include "Scripts/Stats/TurnActorStatsComponent.h"
 #include "Scripts\Stats/Player/PlayerStatsComponent.h"
 UMREAL_COMPONENT(PlayerStatsComponent)
 
@@ -73,3 +76,15 @@ UMREAL_COMPONENT(EnemyStatsComponent)
 
 #include "Scripts\Test/Input/InputTestComponent.h"
 UMREAL_COMPONENT(InputTestComponent)
+
+#include "Scripts\Timeline/AnimationEventListener.h"
+UMREAL_COMPONENT(AnimationEventListener)
+
+#include "Scripts\Stats/WeaponTable/WeaponTableComponent.h"
+UMREAL_COMPONENT(WeaponTableComponent)
+
+#include "Scripts\Particle/TestParticle.h"
+UMREAL_COMPONENT(TestParticle)
+
+#include "Scripts\Test/UI/TestUI.h"
+UMREAL_COMPONENT(TestUI)

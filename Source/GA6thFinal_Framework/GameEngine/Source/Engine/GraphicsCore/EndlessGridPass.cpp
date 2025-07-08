@@ -1,16 +1,13 @@
 ﻿#include "pch.h"
 #include "EndlessGridPass.h"
-#include "RenderScene.h"
-#include "RenderTarget.h"
-#include "DepthStencilView.h"
 
 EndlessGridPass::EndlessGridPass() {}
 
 EndlessGridPass::~EndlessGridPass() {}
 
-void EndlessGridPass::Initialize()
+void EndlessGridPass::Initialize(RenderScene* ownerScene)
 {
-    __super::Initialize();
+    __super::Initialize(ownerScene);
 
     _shader = std::make_unique<ShaderBuilder>();
     _shader->BeginBuild();
@@ -28,8 +25,8 @@ void EndlessGridPass::Initialize()
     rtDesc.SrcBlend                  = D3D12_BLEND_SRC_ALPHA;
     rtDesc.DestBlend                 = D3D12_BLEND_INV_SRC_ALPHA;
     rtDesc.BlendOp                   = D3D12_BLEND_OP_ADD;
-    rtDesc.SrcBlendAlpha             = D3D12_BLEND_ONE;
-    rtDesc.DestBlendAlpha            = D3D12_BLEND_ZERO;
+    rtDesc.SrcBlendAlpha             = D3D12_BLEND_ZERO;
+    rtDesc.DestBlendAlpha            = D3D12_BLEND_ONE;
     rtDesc.BlendOpAlpha              = D3D12_BLEND_OP_ADD;
     rtDesc.RenderTargetWriteMask     = D3D12_COLOR_WRITE_ENABLE_ALL;
 

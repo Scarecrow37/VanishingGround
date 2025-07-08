@@ -296,6 +296,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Editor\Tool\Model\EditorAnimationNotifyTool.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\ConstantBufferView.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\Headers.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\UIPassBase.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\UIRenderer.h" />
+    <ClInclude Include="Source\Engine\TimelineCore\AnimationNotifySet.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\ParticleEffectSerializer.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\RTPipeline.h" />
     <ClInclude Include="Source\Engine\AudioCore\AudioManager\AudioManager.h" />
     <ClInclude Include="Source\Engine\AudioCore\Declare\Callback\IncreaseGenerationCallback.h" />
@@ -320,6 +327,8 @@
     <ClInclude Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectHierarchy.h" />
     <ClInclude Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectViewer.h" />
     <ClInclude Include="Source\Engine\GameCore\InputReciver\InputReceiver.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\UI2DPass.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\UI3DPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\BlendPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\DebugDrawCore.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\DepthStencilView.h" />
@@ -343,6 +352,7 @@
     <ClInclude Include="Source\Engine\GraphicsCore\BlendTechnique.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\ResourceBase.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\OutLinePass.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\UITechnique.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\UnorderedAccessView.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\dxcapi.use.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\UpScalePass.h" />
@@ -405,12 +415,6 @@
     <ClInclude Include="Source\Engine\Imgui\ImSequencer.h" />
     <ClInclude Include="Source\Engine\Imgui\ImZoomSlider.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Animator.h" />
-    <ClInclude Include="Source\Engine\InputCore\Adapter\Adapter.h" />
-    <ClInclude Include="Source\Engine\InputCore\Adapter\Controller\ControllerAdapter.h" />
-    <ClInclude Include="Source\Engine\InputCore\Adapter\Controller\XInput\XInputAdapter.h" />
-    <ClInclude Include="Source\Engine\InputCore\Declare\InputError.h" />
-    <ClInclude Include="Source\Engine\InputCore\Devices\Controller\Controller.h" />
-    <ClInclude Include="Source\Engine\InputCore\System\InputSystem.h" />
     <ClInclude Include="Source\Engine\Utility\EditorHelper.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\RenderPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\RenderTechnique.h" />
@@ -446,7 +450,6 @@
     <ClInclude Include="Source\Engine\GraphicsCore\Cylinder.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Defines.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Device.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\DX12Practice.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Enums.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Externs.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Font.h" />
@@ -521,7 +524,7 @@
     <ClInclude Include="ThirdParty\include\UmDirectXTex.h" />
     <ClInclude Include="ThirdParty\include\UmDirectxtk12.h" />
     <ClInclude Include="ThirdParty\include\UmYaml-cpp.h" />
-    <ClInclude Include="Source\Engine\EngineCore\TimelineSystem.h" />
+    <ClInclude Include="Source\Engine\TimelineCore\TimelineSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Engine\GraphicsCore\RTPipeline.cpp" />
@@ -543,11 +546,19 @@
     <ClCompile Include="Source\Engine\AudioCore\Declare\Types\AudioTypes.cpp" />
     <ClCompile Include="Source\Engine\AudioCore\Handle\AudioHandle.cpp" />
     <ClCompile Include="Source\Engine\AudioCore\Source\AudioSource.cpp" />
+    <ClCompile Include="Source\Editor\Tool\Model\EditorAnimationNotifyTool.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\ConstantBufferView.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\UIPassBase.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\UIRenderer.cpp" />
+    <ClCompile Include="Source\Engine\TimelineCore\AnimationNotifySet.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\ParticleEffectSerializer.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\Utillity\EditorDragState.cpp" />
     <ClCompile Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectDetails.cpp" />
     <ClCompile Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectHierarchy.cpp" />
     <ClCompile Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectViewer.cpp" />
     <ClCompile Include="Source\Engine\GameCore\InputReciver\InputReceiver.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\UI2DPass.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\UI3DPass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\DebugDrawCore.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\DepthStencilView.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\DXResourceManager.cpp" />
@@ -573,6 +584,7 @@
     <ClCompile Include="Source\Engine\GraphicsCore\BlendTechnique.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\ResourceBase.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\OutLinePass.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\UITechnique.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\UnorderedAccessView.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\dxcapi.use.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\UpScalePass.cpp" />
@@ -674,11 +686,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Source\Engine\InputCore\Adapter\Adapter.cpp" />
-    <ClCompile Include="Source\Engine\InputCore\Adapter\Controller\ControllerAdapter.cpp" />
-    <ClCompile Include="Source\Engine\InputCore\Adapter\Controller\XInput\XInputAdapter.cpp" />
-    <ClCompile Include="Source\Engine\InputCore\Devices\Controller\Controller.cpp" />
-    <ClCompile Include="Source\Engine\InputCore\System\InputSystem.cpp" />
     <ClCompile Include="Source\Engine\Utility\EditorHelper.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\RenderPass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\RenderTechnique.cpp" />
@@ -873,19 +880,29 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Source\Engine\EngineCore\TimelineSystem.cpp" />
     <ClCompile Include="ThirdParty\source\DebugDraw.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Source\Engine\TimelineCore\TimelineSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
     <None Include="Source\Engine\Imgui\imgui_bezier_math.inl" />
     <None Include="Source\Engine\Imgui\imgui_extra_math.inl" />
     <None Include="Source\Engine\Imgui\imgui_node_editor_internal.inl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\InputModule\InputModule.vcxproj">
+      <Project>{c56311d7-823b-4cea-bc18-4e55f615ad78}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AudioModule\AudioModule.vcxproj">
+      <Project>{c0aa9053-aa4a-4f8e-9865-59aa31873b8c}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
