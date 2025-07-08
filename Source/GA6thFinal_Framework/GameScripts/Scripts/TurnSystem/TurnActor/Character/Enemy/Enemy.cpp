@@ -92,7 +92,7 @@ EnemyStatsComponent* Enemy::GetEnemyStats()
     if (nullptr == _enemyStats)
     {
         _enemyStats = GetComponent<EnemyStatsComponent>();
-    }      
+    }
     return _enemyStats;
 }
 
@@ -109,9 +109,9 @@ void Enemy::BuildEnemyFSM()
         _finiteStateMachine->AddCondition<EnemyDeadCondition>();
 
         //State
-        _finiteStateMachine->AddState<EnemyWaitTurnState>();
-        _finiteStateMachine->AddState<EnemyPlayTurnState>();
-        _finiteStateMachine->AddState<EnemyDeadState>();
+        _fsmStates.WaitTurn = _finiteStateMachine->AddState<EnemyWaitTurnState>();
+        _fsmStates.PlayTurn = _finiteStateMachine->AddState<EnemyPlayTurnState>();
+        _fsmStates.Dead     = _finiteStateMachine->AddState<EnemyDeadState>();
 
         //Transition
         _finiteStateMachine->AddTransition<EnemyWaitTurnState, EnemyStartCondition, EnemyPlayTurnState>();

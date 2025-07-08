@@ -21,6 +21,7 @@ protected:
     void ImGuiDrawPropertysEvent() override;
 
 private:
+    void LoadModel();
     void UpdateAnimation();
 
 public:
