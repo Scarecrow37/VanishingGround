@@ -151,7 +151,8 @@ void EnemyAI::Tansition()
             }
             else
             {
-                Tansition(); // 조건 노드인 경우 한번 더 전이 시도
+                Refresh();
+                Tansition(); // 조건 노드인 경우 갱신하고 한번 더 전이 시도
             }
         }
     }
