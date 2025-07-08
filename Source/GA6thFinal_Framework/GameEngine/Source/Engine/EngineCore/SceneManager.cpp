@@ -974,7 +974,7 @@ void ESceneManager::ObjectsAddRuntime()
             _runtimeObjects.resize(id + 1);
         }
         _runtimeObjects[id] = gameObject;
-        GameObject::Engine::ResetActiveInHierarchy(gameObject.get());     
+        GameObject::Engine::UpdateActiveInHierarchy(gameObject.get());     
     }
     _addGameObjectsQueue.clear();
 
@@ -993,7 +993,6 @@ void ESceneManager::ObjectsAddRuntime()
             std::shared_ptr<Camera> newCamera(new Camera);
             camera->SetTarget(newCamera);
         }
-
         component->UpdateEnableInHierarchy();
     }
     _addComponentsQueue.clear();
