@@ -18,8 +18,11 @@ protected:
     std::string Guid;
     REFLECT_FIELDS_END(ImageElement)
 
-    void DeserializedReflectEvent() override;
+    void Reset() override;
+    void OnDestroy() override;
+
 
 private:
-    File::GuidRef _guidRef;
+    std::unique_ptr<UIRenderer> _renderer;
+    File::GuidRef               _guidRef;
 };

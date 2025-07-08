@@ -1,5 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "ImageElement.h"
+#include "Engine/GraphicsCore/UIRenderer.h"
 
 ImageElement::ImageElement()
 {
@@ -12,11 +13,11 @@ ImageElement::ImageElement()
                 if (const auto context = data->pContext->lock(); nullptr != context)
                 {
                     const auto& path = context->GetPath();
-                    if (const auto extension = path.extension(); extension == L".png")
+                    if (const auto extension = path.extension(); extension == L".png" || extension == L"jpeg")
                     {
                         _guidRef            = path.ToGuid();
                         ReflectFields->Guid = _guidRef.string();
-                        // TODO: UmSceneManager.ResourceManager.RequestModelResource(this, _guidRef);
+                        _renderer->LoadTexture(path.c_str());
                     }
                 }
             }
@@ -25,12 +26,17 @@ ImageElement::ImageElement()
     });
 }
 
-void ImageElement::DeserializedReflectEvent()
+void ImageElement::Reset()
 {
-    const File::Guid guid = ReflectFields->Guid;
-    _guidRef              = guid;
-    if (false == guid.IsNull())
-    {
-        // TODO: UmSceneManager.ResourceManager.RequestModelResource(this, _guidRef);
-    }
+    UIComponent::Reset();
+    _renderer = std::make_unique<UIRenderer>(transform->GetWorldMatrix(), UIType::MODE_2D);
+    _renderer->RegisterRenderQueue();
+    _renderer->SetActive(&EnableInHierarchy);
+}
+
+void ImageElement::OnDestroy()
+{
+    UIComponent::OnDestroy();
+    if (_renderer)
+        _renderer->SetDestroy();
 }
