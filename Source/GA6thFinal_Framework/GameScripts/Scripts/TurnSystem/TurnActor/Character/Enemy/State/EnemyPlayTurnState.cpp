@@ -44,7 +44,7 @@ void EnemyPlayTurnState::OnEnter()
 
     UmTime.Invoke(&GetFSM(), 2.f, [=]() { GetEnemy().EndTurn(); });
 
-    ProcessAction();
+    LogCurrentAction();
 }
 
 void EnemyPlayTurnState::OnExit() 
@@ -60,23 +60,12 @@ void EnemyPlayTurnState::OnExit()
     
 void EnemyPlayTurnState::OnUpdate()
 {
-    //ProcessAction();
+    ProcessAction();
 }
 
 void EnemyPlayTurnState::ProcessAction() 
 {
-    ReflectFields->AIModelID = _aiModel.GetCurrentActionID();
-    auto actionIt = _actionTable.find(ReflectFields->AIModelID);
-    if (actionIt != _actionTable.end())
-    {
-        actionIt->second(); // 액션 실행
-    }
-    else
-    {
-        GameObject* gameObject = &GetFSM().gameObject;
-        std::string message    = std::format("{}: {}", gameObject->ToString(), (const char*)u8"알 수 없는 액션 ID입니다.");
-        UmLogger.Message(LogLevel::LEVEL_ERROR, message);
-    }
+   
 }
 
 void EnemyPlayTurnState::SetAIModel(EnemyType type)
@@ -266,5 +255,16 @@ bool EnemyPlayTurnState::IsPlayerBleeding()
 
 void EnemyPlayTurnState::LogCurrentAction() 
 {
-
+    int actionID = _aiModel.GetCurrentActionID();
+    auto actionIt = _actionTable.find(actionID);
+    if (actionIt != _actionTable.end())
+    {
+        actionIt->second(); // 액션 실행
+    }
+    else
+    {
+        GameObject* gameObject = &GetFSM().gameObject;
+        std::string message = std::format("{}: {}", gameObject->ToString(), (const char*)u8"알 수 없는 액션 ID입니다.");
+        UmLogger.Message(LogLevel::LEVEL_ERROR, message);
+    }
 }

@@ -62,6 +62,5 @@ private:
     std::unordered_map<int, std::function<void()>> _actionTable;
 
     REFLECT_FIELDS_BEGIN(EnemyStateBase)
-    int AIModelID = 0; // AI 모델 ID
     REFLECT_FIELDS_END(EnemyPlayTurnState)
 };
