@@ -223,7 +223,7 @@ bool EnemyPlayTurnState::IsPlayerBleeding()
 
 #define GET_ACTION_NAME(actionID, str)  \
 case actionID:                          \
-actionName = (const char*)str;          \
+actionName = str;                       \
 break;
 
 std::string_view EnemyPlayTurnState::GetActionName(int actionID) const
@@ -231,16 +231,16 @@ std::string_view EnemyPlayTurnState::GetActionName(int actionID) const
     static std::string actionName;
     switch (actionID)
     {
-        GET_ACTION_NAME(22000, u8"찢어 발기기")
-        GET_ACTION_NAME(22001, u8"기습")
-        GET_ACTION_NAME(22002, u8"확인 사살")
-        GET_ACTION_NAME(22003, u8"목격자 제거")
-        GET_ACTION_NAME(22004, u8"피의 의식")
-        GET_ACTION_NAME(22010, u8"두려움의 중얼거림")
-        GET_ACTION_NAME(22011, u8"떨리는 중얼거림")
-        GET_ACTION_NAME(22012, u8"절망")
-        GET_ACTION_NAME(22013, u8"소멸의 찬가")
-        GET_ACTION_NAME(22014, u8"웅크리기")
+        GET_ACTION_NAME(22000, "찢어 발기기")
+        GET_ACTION_NAME(22001, "기습")
+        GET_ACTION_NAME(22002, "확인 사살")
+        GET_ACTION_NAME(22003, "목격자 제거")
+        GET_ACTION_NAME(22004, "피의 의식")
+        GET_ACTION_NAME(22010, "두려움의 중얼거림")
+        GET_ACTION_NAME(22011, "떨리는 중얼거림")
+        GET_ACTION_NAME(22012, "절망")
+        GET_ACTION_NAME(22013, "소멸의 찬가")
+        GET_ACTION_NAME(22014, "웅크리기")
     default:
         break;
     }
@@ -251,7 +251,7 @@ void EnemyPlayTurnState::LogCurrentAction()
 {
     int actionID = _aiModel.GetCurrentActionID();
     GameObject* gameObject = &GetFSM().gameObject;
-    std::string message = std::format("{} {}", gameObject->ToString(), GetActionName(actionID));
+    std::string message = std::format("{} {}", gameObject->ToString(), GetActionName(actionID).data());
     UmLogger.Message(LogLevel::LEVEL_DEBUG, message);
     
 }
