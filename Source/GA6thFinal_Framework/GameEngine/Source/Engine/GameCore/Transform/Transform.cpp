@@ -60,8 +60,8 @@ void Transform::SetParent(Transform* p, bool worldPositionStays)
             if (p)
             {
                 const Matrix& parentWorldMatrix = p->GetWorldMatrix();
-                Matrix parntInversMatrix = parentWorldMatrix.Invert();
-                myLocalMatrix = myWorldMatrix * parntInversMatrix;
+                Matrix parentInverseMatrix  = parentWorldMatrix.Invert();
+                myLocalMatrix = myWorldMatrix * parentInverseMatrix ;
             }
             else
             {
