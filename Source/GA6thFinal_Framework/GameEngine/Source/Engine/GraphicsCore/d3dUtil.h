@@ -23,7 +23,7 @@ public:
         ID3D12Device* device, ID3D12GraphicsCommandList* cmdList, const void* initData, UINT64 byteSize,
         Microsoft::WRL::ComPtr<ID3D12Resource>& uploadBuffer);
     static UINT AlignTo(UINT value, UINT alignment);
-    static IDxcBlob* CompileShaderLibrary(LPCWSTR fileName);
+    static ComPtr<IDxcBlob> CompileShaderLibrary(LPCWSTR fileName, LPCWSTR targetName);
 };
 struct AccelerationStructureBuffers
 {

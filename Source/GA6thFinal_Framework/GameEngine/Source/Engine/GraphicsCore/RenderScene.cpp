@@ -175,15 +175,21 @@ void RenderScene::ClassifyMesh()
 {
     _staticMesh.clear();
     _skeletalMesh.clear();
-    for (auto& model : _renderQueue)
+    for (auto& [isActive,component] : _renderQueue)
     {
-        switch (model.second->GetType())
+        if (!component->IsActive())
+            continue;
+        const auto& model = component->GetModel();
+        if (!model)
+            continue;
+
+        switch (component->GetType())
         {
         case MeshRenderType::STATIC:
-            _staticMesh.push_back(model.second);
+            _staticMesh.push_back(component);
             break;
         case MeshRenderType::SKELETAL:
-            _skeletalMesh.push_back(model.second);
+            _skeletalMesh.push_back(component);
             break;
         default:
             break;

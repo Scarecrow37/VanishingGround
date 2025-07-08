@@ -4,7 +4,17 @@ class StructuredBuffer;
 class FrameResource
 {
 public:
-    enum Type { TRANSFORM, BONE_MATRIXES, MATERIAL, END };
+    enum Type
+    {
+        TRANSFORM,
+        BONE_MATRIXES,
+        MATERIAL,
+        STATIC_MESH_MATERIAL,
+        SKELETAL_MESH_MATERIAL,
+        VERTEX_BUFFER_ID,
+        INDEX_BUFFER_ID,
+        END
+    };
 
 public:
     FrameResource();

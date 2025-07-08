@@ -34,6 +34,9 @@ struct MaterialID
     UINT ID[4];
 };
 
+using VertexBufferID = UINT;
+using IndexBufferID = UINT;
+
 struct Material
 {
 #undef OPAQUE

@@ -19,6 +19,10 @@ void FrameResource::Initialize(const UINT numObjects)
     _structuredBuffer[Type::TRANSFORM]->Initialize(sizeof(XMMATRIX), numObjects);
     _structuredBuffer[Type::BONE_MATRIXES]->Initialize(sizeof(BoneMatrixes), numObjects);
     _structuredBuffer[Type::MATERIAL]->Initialize(sizeof(MaterialID), numObjects);
+    _structuredBuffer[Type::STATIC_MESH_MATERIAL]->Initialize(sizeof(MaterialID), numObjects);
+    _structuredBuffer[Type::SKELETAL_MESH_MATERIAL]->Initialize(sizeof(MaterialID), numObjects);
+    _structuredBuffer[Type::VERTEX_BUFFER_ID]->Initialize(sizeof(VertexBufferID), numObjects);
+    _structuredBuffer[Type::INDEX_BUFFER_ID]->Initialize(sizeof(IndexBufferID), numObjects);
 }
 
 void FrameResource::CopyStructuredBuffer(ID3D12GraphicsCommandList* commandList, void* data, UINT size, FrameResource::Type type)

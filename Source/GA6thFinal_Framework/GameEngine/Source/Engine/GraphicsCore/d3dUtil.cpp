@@ -56,7 +56,7 @@ UINT d3dUtil::AlignTo(UINT value, UINT alignment)
     return (((value + alignment - 1) / alignment) * alignment);
 }
 
-IDxcBlob* d3dUtil::CompileShaderLibrary(LPCWSTR fileName)
+ComPtr<IDxcBlob> d3dUtil::CompileShaderLibrary(LPCWSTR fileName,LPCWSTR targetName)
 {
     static IDxcCompiler*       pCompiler = nullptr;
     static IDxcLibrary*        pLibrary  = nullptr;
@@ -92,7 +92,7 @@ IDxcBlob* d3dUtil::CompileShaderLibrary(LPCWSTR fileName)
 
     // Compile
     IDxcOperationResult* pResult;
-    hr = pCompiler->Compile(pTextBlob, fileName, L"", L"lib_6_3", nullptr, 0, nullptr, 0, dxcIncludeHandler, &pResult);
+    hr = pCompiler->Compile(pTextBlob, fileName, L"", targetName, nullptr, 0, nullptr, 0, dxcIncludeHandler, &pResult);
     FAILED_CHECK_MESSAGE(hr, L"d3dUtil::CompileShaderLibrary : pCompiler->Compile Failed");
 
 
@@ -121,8 +121,8 @@ IDxcBlob* d3dUtil::CompileShaderLibrary(LPCWSTR fileName)
         throw std::logic_error("Failed compile shader");
     }
 
-    IDxcBlob* pBlob;
-    hr = pResult->GetResult(&pBlob);
+    ComPtr<IDxcBlob> pBlob;
+    hr = pResult->GetResult(pBlob.GetAddressOf());
     FAILED_CHECK_MESSAGE(hr, L"d3dUtil::CompileShaderLibrary : pBlob->GetResult Failed");
     return pBlob;
 }

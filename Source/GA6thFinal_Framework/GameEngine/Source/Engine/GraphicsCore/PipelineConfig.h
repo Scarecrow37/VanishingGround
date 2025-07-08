@@ -1,11 +1,12 @@
 ﻿#pragma once
-class PipelineConfig
+struct PipelineConfig
 {
-    PipelineConfig(const uint32_t maxTraceRecursiondDepth)
+    PipelineConfig(const uint32_t maxTraceRecursionDepth)
     {
-        config.MaxTraceRecursionDepth = maxTraceRecursiondDepth;
-        subObject.Type                = D3D12_STATE_SUBOBJECT_TYPE_RAYTRACING_SHADER_CONFIG;
-        subObject.pDesc               = &config;
+        config.MaxTraceRecursionDepth = maxTraceRecursionDepth;
+
+        subObject.Type  = D3D12_STATE_SUBOBJECT_TYPE_RAYTRACING_PIPELINE_CONFIG;
+        subObject.pDesc = &config;
     }
     D3D12_RAYTRACING_PIPELINE_CONFIG config{};
     D3D12_STATE_SUBOBJECT            subObject{};

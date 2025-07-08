@@ -296,6 +296,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Engine\GraphicsCore\RTPipeline.h" />
     <ClInclude Include="Source\Engine\AudioCore\AudioManager\AudioManager.h" />
     <ClInclude Include="Source\Engine\AudioCore\Declare\Callback\IncreaseGenerationCallback.h" />
     <ClInclude Include="Source\Engine\AudioCore\Declare\Exceptions\AudioExceptions.h" />
@@ -523,6 +524,7 @@
     <ClInclude Include="Source\Engine\EngineCore\TimelineSystem.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Engine\GraphicsCore\RTPipeline.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\RTPipelineBuilder.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\ShaderConfig.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\PipelineConfig.cpp" />

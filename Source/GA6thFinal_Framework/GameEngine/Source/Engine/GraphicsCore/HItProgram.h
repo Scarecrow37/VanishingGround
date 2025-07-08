@@ -1,7 +1,7 @@
 ﻿#pragma once
-struct HItProgram
+struct HitProgram
 {
-    HItProgram(const LPCWSTR ahsExport, const LPCWSTR chsExport, const std::wstring& name)
+    HitProgram(const LPCWSTR ahsExport, const LPCWSTR chsExport, const std::wstring& name) : exportName{name}
     {
         desc                        = {};
         desc.AnyHitShaderImport     = ahsExport;
