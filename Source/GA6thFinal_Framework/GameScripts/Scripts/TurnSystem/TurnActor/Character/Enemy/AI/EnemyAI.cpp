@@ -135,12 +135,12 @@ void EnemyAI::Refresh()
         bool isActionNode = _currNode->IsActionNode();
         if (false == isActionNode)
         {   // 조건노드는 다음 노드로 전환
-            Tansition();
+            Transition();
         }
     }
 }
 
-void EnemyAI::Tansition()
+void EnemyAI::Transition()
 {
     if (nullptr != _currNode)
     {

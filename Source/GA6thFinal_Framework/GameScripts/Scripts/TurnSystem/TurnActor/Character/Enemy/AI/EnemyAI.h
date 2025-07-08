@@ -115,7 +115,7 @@ public:
     /// <para>다음 노드로 넘어갑니다.</para>
     /// <para>다음 노드가 없으면 현재 노드를 유지합니다.</para>
     /// </summary>
-    void Tansition();
+    void Transition();
 
     /// <summary>
     /// 현재 액션 ID를 반환합니다.

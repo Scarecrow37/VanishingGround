@@ -17,12 +17,6 @@ break;
 #define BUILD_ACTION(index)         \
 _actionTable[index] = std::bind(&EnemyPlayTurnState::Action##index, this); \
 
-// switch문 안에 있어야함
-// Action ID값에 해당하는 함수 실행
-#define PROCESS_ACTION(index)       \
-case index:                         \
-BuildAIModel##index();              \
-break;
 
 void EnemyPlayTurnState::OnAwake() 
 {
@@ -54,7 +48,7 @@ void EnemyPlayTurnState::OnExit()
     std::string message = std::format("{} {}", gameObject->ToString(), (const char*)u8"턴 종료.");
     UmLogger.Message(LogLevel::LEVEL_TRACE, message);
 
-    _aiModel.Tansition();
+    _aiModel.Transition();
     _aiModel.Refresh();
 }
     
@@ -65,7 +59,12 @@ void EnemyPlayTurnState::OnUpdate()
 
 void EnemyPlayTurnState::ProcessAction() 
 {
-   
+    int  actionID = _aiModel.GetCurrentActionID();
+    auto actionIt = _actionTable.find(actionID);
+    if (actionIt != _actionTable.end())
+    {
+        actionIt->second(); // 액션 실행
+    }
 }
 
 void EnemyPlayTurnState::SetAIModel(EnemyType type)
@@ -74,7 +73,7 @@ void EnemyPlayTurnState::SetAIModel(EnemyType type)
     switch (type)
     {
     case EnemyType::MONSTER_A: {
-        int index = Random::Range(23000, 23000);
+        int index = Random::Range(23000, 23001);
         switch (index)
         {
             BUILD_AI(23000)
@@ -93,7 +92,6 @@ void EnemyPlayTurnState::SetAIModel(EnemyType type)
         default:
             break;
         }
-        break;
         break;
     }
     case EnemyType::MONSTER_C: {
