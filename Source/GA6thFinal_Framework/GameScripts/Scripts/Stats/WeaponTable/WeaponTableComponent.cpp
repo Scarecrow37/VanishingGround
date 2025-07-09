@@ -20,6 +20,32 @@ const WeaponStats* WeaponTableComponent::GetWeaponToName(std::string_view name)
     return result;
 }
 
+std::string WeaponTableComponent::SaveWeaponTable()
+{
+    ReflectFields->_tableDatas.clear();
+    for (auto& [key, weapon] : _weaponTable)
+    {
+        ReflectFields->_tableDatas.push_back(weapon.SerializedReflectFields());
+    }
+    return rfl::json::write(ReflectFields->_tableDatas);
+}
+
+bool WeaponTableComponent::LoadWeaponTable(std::string_view data) 
+{
+    auto result = rfl::json::read<std::vector<std::string>>(data.data());
+    if (result)
+    {
+        ReflectFields->_tableDatas = result.value();
+        for (auto& weapon : ReflectFields->_tableDatas)
+        {
+            WeaponStats stats;
+            stats.DeserializedReflectFields(weapon);
+            InsertWeapon(stats);
+        }
+    } 
+    return result;
+}
+
 bool WeaponTableComponent::RenameWeapon(WeaponStats& weapon, std::string_view newName)
 {
     bool result = false;
@@ -89,51 +115,185 @@ void WeaponTableComponent::Awake()
 
 void WeaponTableComponent::ImGuiDrawPropertysEvent()
 {
+    if (ImGui::Button("Edit Table "))
+    {
+        _imguiEvent.ShowTableEditor = true;
+    }
+   
+
+    if (_imguiEvent.ShowTableEditor)
+    {
+        ImGuiViewport* viewPort = ImGui::GetMainViewport();
+        ImVec2         center   = viewPort->GetCenter();
+        ImVec2         size     = viewPort->Size;
+        ImGui::SetNextWindowPos(center, ImGuiCond_Once, ImVec2(0.5f, 0.5f));
+        ImGui::SetNextWindowSize(size, ImGuiCond_FirstUseEver);
+        ImGui::Begin("Weapon Table Editor##E05D7DDE-9B06-40B2-A6CC-B7FB0632FD33", &_imguiEvent.ShowTableEditor, ImGuiWindowFlags_MenuBar);
+        if (ImGui::BeginMenuBar())
+        {
+            if (ImGui::MenuItem("Save Table"))
+            {
+                std::wstring desktopPath;
+                PWSTR        pszPath = NULL; // 경로를 저장할 와이드 문자열 포인터
+                HRESULT      hr      = SHGetKnownFolderPath(FOLDERID_Desktop, 0, NULL, &pszPath);
+                if (SUCCEEDED(hr))
+                {
+                    desktopPath = pszPath;
+                }
+                else
+                {
+                    desktopPath = L"C:";
+                }
+
+                if (pszPath)
+                {
+                    CoTaskMemFree(pszPath);
+                }
+
+                File::Path out;
+                if (File::ShowSaveFileDialog(NULL, L"저장할 경로를 선택하세요.", desktopPath.c_str(),
+                                             L"WeaponTable.WpTable", {{L"WpTable\0", L"*.WpTable*\0"}}, out))
+                {
+                    bool isWrite = true;
+                    if (std::filesystem::exists(out))
+                    {
+                        int result =
+                            MessageBoxW(UmApplication.GetHwnd(),      // 부모 윈도우 핸들
+                                        L"파일을 덮어쓰시겠습니까?",  // 메시지 내용 (설명)
+                                        L"이미 존재하는 파일입니다.", // 메시지 박스 제목
+                                        MB_OKCANCEL | MB_ICONQUESTION // 버튼 구성 (확인/취소) 및 아이콘(물음표)
+                            );
+                        switch (result)
+                        {
+                        case IDOK:
+                            isWrite = true;
+                            break;
+                        case IDCANCEL:
+                        default:
+                            isWrite = false;
+                            break;
+                        }
+                    }
+
+                    if (isWrite)
+                    {
+                        std::ofstream ofs(out, std::ios::trunc);
+                        if (ofs.is_open())
+                        {
+                            ofs << SaveWeaponTable();
+                            ofs.close();
+                        }
+                    }
+                }
+            }
+            if (ImGui::MenuItem("Load Table"))
+            {
+                std::wstring desktopPath;
+                PWSTR        pszPath = NULL;
+                HRESULT      hr      = SHGetKnownFolderPath(FOLDERID_Desktop, 0, NULL, &pszPath);
+                if (SUCCEEDED(hr))
+                {
+                    desktopPath = pszPath;
+                }
+                else
+                {
+                    desktopPath = L"C:";
+                }
+
+                if (pszPath)
+                {
+                    CoTaskMemFree(pszPath);
+                }
+
+                std::vector<File::Path> out;
+                if (File::ShowOpenFileDialog(NULL, L"로드할 파일을 선택하세요.", desktopPath.c_str(),
+                                             {{L"WpTable\0", L"*.WpTable*\0"}}, false, out))
+                {
+                    if (std::filesystem::exists(out.front()))
+                    {
+                        std::ifstream ifs(out.front());
+
+                        if (ifs.is_open())
+                        {
+                            std::string content((std::istreambuf_iterator<char>(ifs)),
+                                                std::istreambuf_iterator<char>());
+                            LoadWeaponTable(content);
+                            ifs.close();
+                        }
+                    }
+                }
+                gameObject->GetScene().IsDirty = true;
+            }
+            ImGui::EndMenuBar();
+        }
+        ImGuiTableEditor();
+        ImGui::End();
+    }
+}
+
+void WeaponTableComponent::ImGuiTableEditor() 
+{
     if (ImGui::TreeNodeEx("Weapon Table", ImGuiTreeNodeFlags_DefaultOpen))
     {
-        for (auto& [key, weapon] : _weaponTable)
+        if (ImGui::BeginTable("Weapon Stats", 6, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
         {
-            auto RightClickContext = [&]() 
-            {
-                if (ImGui::BeginPopupContextItem())
-                {
-                    if (ImGui::MenuItem("Rename"))
-                    {
-                        _imguiEvent.RenameBuffer    = key;
-                        _imguiEvent.SelectWeapon    = &weapon;
-                        _imguiEvent.OpenRenamePopup = true;
-                    }
-                    if (ImGui::MenuItem("Delete"))
-                    {
-                        _imguiEvent.DeleteTableBuffer = key;      
-                        _imguiEvent.OpenDeletePopup   = true;
-                    }
-                    ImGui::EndPopup();
-                }
-            };
+            ImGui::TableSetupColumn("Name");
+            ImGui::TableSetupColumn("Type");
+            ImGui::TableSetupColumn("Hit Damage");
+            ImGui::TableSetupColumn("Critical Damage");
+            ImGui::TableSetupColumn("Speed");
+            ImGui::TableSetupColumn("Attack Count");
+            ImGui::TableHeadersRow();
 
-            int itemID = 0;
-            ImGui::PushStyleColor(ImGuiCol_Text, GetWeaponTypeColor(weapon.Type));
-            if (ImGui::TreeNodeEx(key.data(), ImGuiTreeNodeFlags_OpenOnArrow))
+            for (auto& [key, weapon] : _weaponTable)
             {
-                RightClickContext(); // TreeNode가 열렸을 때도 컨텍스트 메뉴가 동작하도록 안으로 이동
-                if (ImGui::BeginTable(key.data(), 1, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+                auto RightClickContext = [&]() {
+                    if (ImGui::BeginPopupContextItem())
+                    {
+                        if (ImGui::MenuItem("Rename"))
+                        {
+                            _imguiEvent.RenameBuffer    = key;
+                            _imguiEvent.SelectWeapon    = &weapon;
+                            _imguiEvent.OpenRenamePopup = true;
+                        }
+                        if (ImGui::MenuItem("Delete"))
+                        {
+                            _imguiEvent.DeleteTableBuffer = key;
+                            _imguiEvent.OpenDeletePopup   = true;
+                        }
+                        ImGui::EndPopup();
+                    }
+                };
+
+                int itemID = 0;
+                ImGui::PushStyleColor(ImGuiCol_Text, GetWeaponTypeColor(weapon.Type));
+                ImGui::PushID(itemID++);
                 {
                     ImGui::TableNextRow();
                     ImGui::TableSetColumnIndex(0);
-                    ImGui::PushID(itemID++);
-                    weapon.ImGuiDrawPropertys();
-                    ImGui::PopID(); // 고유 ID 끝
-                    ImGui::EndTable();
-                } 
-                ImGui::TreePop();
-            }
-            else
-            {
-                RightClickContext();
-            }
-            ImGui::PopStyleColor(1);
-        }
+                    ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.Name, UmCore->ImGuiDrawPropertysSetting);
+                    RightClickContext();
+                    ImGui::TableSetColumnIndex(1);
+                    ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.Type, UmCore->ImGuiDrawPropertysSetting);
+                    RightClickContext();
+                    ImGui::TableSetColumnIndex(2);
+                    ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.HitDamage, UmCore->ImGuiDrawPropertysSetting);      
+                    RightClickContext();
+                    ImGui::TableSetColumnIndex(3);
+                    ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.CriticalDamage, UmCore->ImGuiDrawPropertysSetting);
+                    RightClickContext();
+                    ImGui::TableSetColumnIndex(4);
+                    ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.Speed, UmCore->ImGuiDrawPropertysSetting);
+                    RightClickContext();
+                    ImGui::TableSetColumnIndex(5);
+                    ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.AttackCount, UmCore->ImGuiDrawPropertysSetting);       
+                    RightClickContext();
+                }
+                ImGui::PopID();
+                ImGui::PopStyleColor(1);
+            }     
+            ImGui::EndTable();
+        } 
         ImGui::TreePop();
     }
 
@@ -152,8 +312,8 @@ void WeaponTableComponent::ImGuiDrawPropertysEvent()
         ImGui::Separator();
         if (ImGui::Button("OK", ImVec2(120, 0)))
         {
-            _imguiEvent.DeleteTableBuffer = STR_NULL;
             EraseWeapon(_weaponTable[_imguiEvent.DeleteTableBuffer]);
+            _imguiEvent.DeleteTableBuffer = STR_NULL;
             ImGui::CloseCurrentPopup();
         }
         ImGui::SameLine();
