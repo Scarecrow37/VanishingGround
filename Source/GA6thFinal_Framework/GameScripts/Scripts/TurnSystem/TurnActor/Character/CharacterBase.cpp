@@ -37,7 +37,6 @@ int CharacterBase::GetMaxChainRoundCount()
 
 CharacterBase::CharacterBase() : 
     _hp(0), 
-    _mp(0), 
     _chainCount(0) , 
     _chainRoundCount(1) 
 {
@@ -55,7 +54,6 @@ void CharacterBase::Revive()
 {
     Base::Revive();
     _hp = MaxHP;
-    _mp = MaxMP;
 }
 
 void CharacterBase::OnRoundStart() 
@@ -68,6 +66,5 @@ void CharacterBase::Dead()
 {
     Base::Dead();
     _hp = 0;
-    _mp = 0;
 }
 
