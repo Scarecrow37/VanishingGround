@@ -8,7 +8,8 @@ public:
 	const Matrix& GetProjectionMatrix() const { return _projection; }
     const Matrix& GetProjectionInverseMatrix() const { return _projectionInverse; }
     const Vector3 GetPosition() const { return _world.Translation(); }
-
+    const Quaternion& GetRotation() const { return _rotation; }
+        
 public:
 	void SetupPerspective(float fovDegree, float aspect, float nearZ, float farZ);
     void SetupOrthographic(float width, float height, float nearZ, float farZ);
