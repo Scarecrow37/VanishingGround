@@ -234,6 +234,21 @@
     <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\AI\EnemyAI.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Scripts\DamageSystem\DamageSystem.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\GameClearCondition.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\GameOverCondition.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\State\GameClearState.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\State\GameOverState.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
     <ClInclude Include="Scripts\Particle\ParticleComponent.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -432,9 +447,6 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\AI\EnemyAI.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\Particle\ParticleComponent.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
