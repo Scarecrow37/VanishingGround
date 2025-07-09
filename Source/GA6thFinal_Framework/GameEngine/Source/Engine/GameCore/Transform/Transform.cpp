@@ -287,7 +287,12 @@ void Transform::CallUIDetachParent(Transform* target, Transform* prevParent)
         if (Component::TYPE::UI == component->GetType())
         {
             UIComponent* uiComponent = static_cast<UIComponent*>(component);
-            uiComponent->OnDetachParent(&prevParent->gameObject);
+            GameObject*  prevObject  = nullptr;
+            if (prevParent)
+            {
+                prevObject = &prevParent->gameObject;
+            }
+            uiComponent->OnDetachParent(prevObject);
         }
     }
 }
@@ -301,7 +306,12 @@ void Transform::CallUIAttachChild(Transform* target, Transform* newChild)
         if (Component::TYPE::UI == component->GetType())
         {
             UIComponent* uiComponent = static_cast<UIComponent*>(component);
-            uiComponent->OnAttachChild(&newChild->gameObject);
+            GameObject*  newChildObject = nullptr;
+            if (newChild)
+            {
+                newChildObject = &newChild->gameObject;
+            }
+            uiComponent->OnAttachChild(newChildObject);
         }
     }
 }
