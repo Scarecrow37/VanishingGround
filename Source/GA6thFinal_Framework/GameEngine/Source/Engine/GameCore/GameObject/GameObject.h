@@ -455,6 +455,24 @@ inline TComponent* GameObject::GetComponentAtIndex(size_t index) const
     }
 }
 
+template <>
+inline Component* GameObject::GetComponentAtIndex(size_t index) const
+{
+    Component* result = nullptr;
+    if (index >= _components.size())
+    {
+        return result;
+    }
+    else
+    {
+        if (nullptr != _components[index])
+        {
+            result = _components[index].get();
+        }
+        return result;
+    }
+}
+
 template<IS_BASE_COMPONENT_C TComponent>
 inline std::vector<TComponent*> GameObject::GetComponents() const
 {
