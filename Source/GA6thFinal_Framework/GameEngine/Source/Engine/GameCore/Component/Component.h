@@ -22,6 +22,8 @@ public:
         LIGHT,
         // 카메라
         CAMERA,
+        // UI
+        UI,
     };
 
     /// <summary>
