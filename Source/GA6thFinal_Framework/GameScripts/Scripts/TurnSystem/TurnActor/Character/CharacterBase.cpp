@@ -40,8 +40,8 @@ CharacterBase::CharacterBase() :
     _chainCount(0) , 
     _chainRoundCount(1) 
 {
-
 }
+
 CharacterBase::~CharacterBase() = default;
 
 void CharacterBase::Awake() 
@@ -56,15 +56,31 @@ void CharacterBase::Revive()
     _hp = MaxHP;
 }
 
+void CharacterBase::Dead()
+{
+    Base::Dead();
+    _hp = 0;
+
+    _tokenSystem.Clear();
+}
+
 void CharacterBase::OnRoundStart() 
 {
     Base::OnRoundStart();
     DecrementChainRoundCount();
+
+    if (State != STATE::Dead)
+    {
+        _tokenSystem.OnRoundStart(this);
+    }
 }
 
-void CharacterBase::Dead() 
+void CharacterBase::OnRoundEnd()
 {
-    Base::Dead();
-    _hp = 0;
-}
+    Base::OnRoundEnd();
 
+    if (State != STATE::Dead)
+    {
+        _tokenSystem.OnRoundEnd(this);
+    }
+}

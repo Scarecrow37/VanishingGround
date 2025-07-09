@@ -1,6 +1,70 @@
 ﻿#include "pchScripts.h"
 #include "TokenSystem.h"
 
+void TokenSystem::OnRoundStart(CharacterBase* owner) 
+{
+    for (auto& [tokenID, token] : _tokenTable)
+    {
+        if (token)
+        {
+            token->OnRoundStart(owner);
+        }
+    }
+}
+
+void TokenSystem::OnRoundEnd(CharacterBase* owner) 
+{
+    for (auto& [tokenID, token] : _tokenTable)
+    {
+        if (token)
+        {
+            token->OnRoundEnd(owner);
+        }
+    }
+}
+
+void TokenSystem::OnTurnStart(CharacterBase* owner) 
+{
+    for (auto& [tokenID, token] : _tokenTable)
+    {
+        if (token)
+        {
+            token->OnTurnStart(owner);
+        }
+    }
+}
+
+void TokenSystem::OnTurnEnd(CharacterBase* owner) 
+{
+    for (auto& [tokenID, token] : _tokenTable)
+    {
+        if (token)
+        {
+            token->OnTurnEnd(owner);
+        }
+    }
+}
+
+void TokenSystem::OnHit(CharacterBase* owner) 
+{
+    for (auto& [tokenID, token] : _tokenTable)
+    {
+        if (token)
+        {
+            token->OnHit(owner);
+        }
+    }
+}
+
+void TokenSystem::Clear() 
+{
+    for (auto& [tokenID, token] : _tokenTable)
+    {
+        delete token;
+    }
+    _tokenTable.clear();
+}
+
 IToken* TokenSystem::FindToken(int tokenID)
 {
     return FindTokenEx(tokenID);

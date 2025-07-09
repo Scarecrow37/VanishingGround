@@ -1,9 +1,5 @@
 ﻿#include "pchScripts.h"
 #include "Token.h"
-
-Token::Token(int tokenID) : _tokenID(tokenID), _stackCount(0) {}
-Token::~Token() {}
-
 UINT8 Token::GetStackCount() const
 {
     return _stackCount;
@@ -13,11 +9,7 @@ UINT8 Token::GetMaxStackCount() const
 {
     return _maxStackCount;
 }
-UINT8 Token::GetTokenID() const
-{
-    return _tokenID;
-}
-
+ 
 void Token::ClearStack() 
 {
     _stackCount = 0;
