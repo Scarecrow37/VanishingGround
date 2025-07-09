@@ -1,7 +1,11 @@
 ﻿#include "pch.h"
 #include "UI3DPass.h"
+#include "FrameResource.h"
 
-UI3DPass::UI3DPass() {}
+UI3DPass::UI3DPass(const std::vector<UINT>& instanceIDs)
+    : UIPassBase(instanceIDs)
+{
+}
 
 UI3DPass::~UI3DPass() {}
 
@@ -11,33 +15,47 @@ void UI3DPass::Initialize(RenderScene* ownerScene)
 
     _shader = std::make_unique<ShaderBuilder>();
     _shader->BeginBuild();
-    _shader->SetShader(L"../Shaders/vs_quad.hlsl", ShaderBuilder::Type::VS);
-    _shader->SetShader(L"../Shaders/ps_blend.hlsl", ShaderBuilder::Type::PS);
-    _shader->EndBuild(ShaderBuilder::BindType::DIRECT);
+    _shader->SetShader(L"../Shaders/vs_ui_fr.hlsl", ShaderBuilder::Type::VS);
+    _shader->SetShader(L"../Shaders/ps_ui.hlsl", ShaderBuilder::Type::PS);
+    _shader->EndBuild(ShaderBuilder::BindType::TABLE);
 
-    ID3D12Device*                      device = UmDevice.GetDevice();
+    ID3D12Device* device = UmDevice.GetDevice();
+
+    D3D12_BLEND_DESC blendDesc       = {};
+    blendDesc.AlphaToCoverageEnable  = FALSE;
+    blendDesc.IndependentBlendEnable = FALSE;
+
+    auto& rtDesc                 = blendDesc.RenderTarget[0];
+    rtDesc.BlendEnable           = TRUE;
+    rtDesc.SrcBlend              = D3D12_BLEND_SRC_ALPHA;
+    rtDesc.DestBlend             = D3D12_BLEND_INV_SRC_ALPHA;
+    rtDesc.BlendOp               = D3D12_BLEND_OP_ADD;
+    rtDesc.SrcBlendAlpha         = D3D12_BLEND_ZERO;
+    rtDesc.DestBlendAlpha        = D3D12_BLEND_ONE;
+    rtDesc.BlendOpAlpha          = D3D12_BLEND_OP_ADD;
+    rtDesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+
     D3D12_GRAPHICS_PIPELINE_STATE_DESC psodesc = {};
-
-    psodesc.RasterizerState               = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-    psodesc.BlendState                    = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-    psodesc.DepthStencilState             = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-    psodesc.DepthStencilState.DepthEnable = FALSE;
-    psodesc.SampleMask                    = UINT_MAX;
-    psodesc.PrimitiveTopologyType         = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-    psodesc.InputLayout                   = _shader->GetInputLayout();
-    psodesc.NumRenderTargets              = 1;
-    psodesc.pRootSignature                = _shader->GetRootSignature();
-    psodesc.SampleDesc                    = {1, 0};
-    psodesc.VS                            = _shader->GetShaderByteCode(ShaderBuilder::Type::VS);
-    psodesc.PS                            = _shader->GetShaderByteCode(ShaderBuilder::Type::PS);
+    psodesc.RasterizerState                    = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+    psodesc.BlendState                         = blendDesc;
+    psodesc.DepthStencilState                  = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+    psodesc.DSVFormat                          = _ownerScene->_depthStencilView->GetFormat();
+    psodesc.SampleMask                         = UINT_MAX;
+    psodesc.PrimitiveTopologyType              = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+    psodesc.InputLayout                        = _shader->GetInputLayout();
+    psodesc.NumRenderTargets                   = 1;
+    psodesc.pRootSignature                     = _shader->GetRootSignature();
+    psodesc.SampleDesc                         = {1, 0};
+    psodesc.VS                                 = _shader->GetShaderByteCode(ShaderBuilder::Type::VS);
+    psodesc.PS                                 = _shader->GetShaderByteCode(ShaderBuilder::Type::PS);
 
     if constexpr (IS_EDITOR)
     {
-        psodesc.RTVFormats[0]                 = DXGI_FORMAT_R32G32B32A32_FLOAT;
+        psodesc.RTVFormats[0] = DXGI_FORMAT_R32G32B32A32_FLOAT;
     }
     else
-    {        
-        psodesc.RTVFormats[0]                 = DXGI_FORMAT_R8G8B8A8_UNORM;
+    {
+        psodesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
     }
 
     HRESULT hr = S_OK;
@@ -45,40 +63,21 @@ void UI3DPass::Initialize(RenderScene* ownerScene)
     FAILED_CHECK_MESSAGE(hr, L"UI3DPass::Initialize device->CreateGraphicsPipelineState Failed");
 }
 
-void UI3DPass::Begin(ID3D12GraphicsCommandList* commandList)
-{
-    if constexpr (IS_EDITOR)
-    {
-        _finalRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
-        _finalRenderTarget->ClearRenderTarget(commandList);
-        commandList->OMSetRenderTargets(1, &_finalRenderTarget->GetRTVHandle(), FALSE, nullptr);
-    }
-    else
-    {
-        commandList->OMSetRenderTargets(1, &UmDevice.GetBackBufferHandle(), FALSE, nullptr);
-    }
-
-    _ownerScene->_accumulationBuffer->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-
-    commandList->RSSetViewports(1, &_finalRenderTarget->GetViewPort());
-    commandList->RSSetScissorRects(1, &_finalRenderTarget->GetScissorRect());
-}
-
 void UI3DPass::Draw(ID3D12GraphicsCommandList* commandList)
 {
     commandList->SetPipelineState(_pipelineState.Get());
     commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
 
-    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("screenTexture"), _meshRenderTarget->GetSRVHandle());
-    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("sourceTexture"), _ownerScene->_accumulationBuffer->GetSRVHandle());
+    UINT  currentBackBufferIndex = UmDevice.GetCurrentBackBufferIndex();
+    auto  resource               = UmViewManager.GetShaderResourceHeap()->GetGPUDescriptorHandleForHeapStart();
+    auto& frameResource          = _ownerScene->_frameResources[currentBackBufferIndex];
 
-    _ownerScene->_frameQuad->Render(commandList);
-}
+    frameResource->SetFrameResource(FrameResourceType::UI_TRANSFORM, _shader->GetRootParameterIndex("worldMatrices"), commandList);
+    frameResource->SetFrameResource(FrameResourceType::UI_MATERIAL, _shader->GetRootParameterIndex("material"), commandList);
 
-void UI3DPass::End(ID3D12GraphicsCommandList* commandList)
-{
-    if constexpr (IS_EDITOR)
-    {
-        _finalRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-    }
+    commandList->SetGraphicsRootShaderResourceView(_shader->GetRootParameterIndex("IDs"), _instanceIDBuffer->GetGPUVirtualAddress());
+    commandList->SetGraphicsRootConstantBufferView(_shader->GetRootParameterIndex("cameraData"), _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
+    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("textures"), resource);
+
+    _halfQuad->Render(commandList, (UINT)_instanceIDs.size());
 }

@@ -11,7 +11,9 @@ UI25DPass::~UI25DPass() {}
 
 void UI25DPass::Initialize(RenderScene* ownerScene)
 {
-    __super::Initialize(ownerScene);    
+    __super::Initialize(ownerScene);
+
+    _cameraData.View = XMMatrixTranspose(XMMatrixLookAtLH({0.f, 0.f, -1.f}, {0.f, 0.f, 1.f}, {0.f, 1.f, 0.f}));
 
     _shader = std::make_unique<ShaderBuilder>();
     _shader->BeginBuild();
@@ -43,60 +45,32 @@ void UI25DPass::Initialize(RenderScene* ownerScene)
     psodesc.SampleMask                         = UINT_MAX;
     psodesc.PrimitiveTopologyType              = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
     psodesc.InputLayout                        = _shader->GetInputLayout();
-    psodesc.RTVFormats[0]                      = DXGI_FORMAT_R32G32B32A32_FLOAT;
     psodesc.NumRenderTargets                   = 1;
     psodesc.pRootSignature                     = _shader->GetRootSignature();
     psodesc.SampleDesc                         = {1, 0};
     psodesc.VS                                 = _shader->GetShaderByteCode(ShaderBuilder::Type::VS);
     psodesc.PS                                 = _shader->GetShaderByteCode(ShaderBuilder::Type::PS);
 
+    if constexpr (IS_EDITOR)
+    {
+        psodesc.RTVFormats[0] = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    }
+    else
+    {
+        psodesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+    }
+
     HRESULT hr = S_OK;
     hr         = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(&_pipelineState));
-    FAILED_CHECK_MESSAGE(hr, L"UI2DPass::Initialize device->CreateGraphicsPipelineState Failed");
+    FAILED_CHECK_MESSAGE(hr, L"UI25DPass::Initialize device->CreateGraphicsPipelineState Failed");
 }
 
 void UI25DPass::Begin(ID3D12GraphicsCommandList* commandList)
 {    
-    auto& depthStencilView = _ownerScene->_depthStencilView;
-
-    depthStencilView->TransitionResource(commandList, D3D12_RESOURCE_STATE_DEPTH_WRITE);
-    depthStencilView->ClearDepthStencilView(commandList);
-
-    if constexpr (IS_EDITOR)
-    {
-        _finalRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
-        commandList->OMSetRenderTargets(1, &_finalRenderTarget->GetRTVHandle(), FALSE, &depthStencilView->GetDSVHandle());
-    }
-    else
-    {
-        commandList->OMSetRenderTargets(1, &UmDevice.GetBackBufferHandle(), FALSE, &depthStencilView->GetDSVHandle());
-    }
-
-    commandList->RSSetViewports(1, &_finalRenderTarget->GetViewPort());
-    commandList->RSSetScissorRects(1, &_finalRenderTarget->GetScissorRect());
-
+    _cameraData.Projection = XMMatrixTranspose(_ownerScene->_camera->GetProjectionMatrix());
+    _cameraBuffer->UpdateBuffer(&_cameraData);
+    
     __super::UpdateBuffer(commandList);
-}
 
-void UI25DPass::Draw(ID3D12GraphicsCommandList* commandList)
-{
-    commandList->SetPipelineState(_pipelineState.Get());
-    commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
-
-    UINT  currentBackBufferIndex = UmDevice.GetCurrentBackBufferIndex();
-    auto  resource               = UmViewManager.GetShaderResourceHeap()->GetGPUDescriptorHandleForHeapStart();
-    auto& frameResource          = _ownerScene->_frameResources[currentBackBufferIndex];
-
-    frameResource->SetFrameResource(FrameResourceType::UI_TRANSFORM, _shader->GetRootParameterIndex("worldMatrices"), commandList);
-    frameResource->SetFrameResource(FrameResourceType::UI_MATERIAL, _shader->GetRootParameterIndex("material"), commandList);
-    __super::SetResource(_shader->GetRootParameterIndex("IDs"), commandList);
-    commandList->SetGraphicsRootConstantBufferView(_shader->GetRootParameterIndex("cameraData"), _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
-    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("textures"), resource);
-
-    _halfQuad->Render(commandList, (UINT)_instanceIDs.size());
-}
-
-void UI25DPass::End(ID3D12GraphicsCommandList* commandList)
-{    
-    _finalRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    __super::Begin(commandList);
 }
