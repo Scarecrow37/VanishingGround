@@ -1,6 +1,5 @@
 ﻿#include "pchScripts.h"
 #include "Token.h"
-#include "TokenSystem.h"
 
 UINT8 Token::GetStackCount() const
 {

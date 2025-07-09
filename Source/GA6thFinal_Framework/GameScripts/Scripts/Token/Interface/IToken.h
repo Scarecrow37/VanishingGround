@@ -3,7 +3,7 @@ class CharacterBase;
 
 class IToken
 {
-private:
+protected:
     virtual void OnRoundStart(CharacterBase* owner) = 0;
     virtual void OnRoundEnd(CharacterBase* owner)   = 0;
     virtual void OnTurnStart(CharacterBase* owner)  = 0;

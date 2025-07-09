@@ -42,6 +42,8 @@ void EnemyPlayTurnState::OnEnter()
 
     auto& enemy = GetEnemy();
     enemy.GetTokenSystem().OnTurnStart(&enemy);
+
+    ProcessAction();
 }
 
 void EnemyPlayTurnState::OnExit() 
@@ -160,8 +162,28 @@ void EnemyPlayTurnState::BuildAIModel23001()
     _aiModel.SetCurrentNode("#1");
 }
 
+#include <TurnSystem/TurnActor/Character/Player/Player.h>
+#include <Token/Object/BleedToken.h>
 void EnemyPlayTurnState::Action22000()
 {
+    auto player = GameObject::FindGameObjectsWithTag(Player::TAG);
+    if (false == player.empty())
+    {
+        auto& wpPlayer = player.front();
+        if (false == wpPlayer.expired())
+        {
+            auto object = wpPlayer.lock();
+            if (object)
+            {
+                auto playerComp = object->GetComponent<Player>();
+                if (playerComp)
+                {
+                    // 플레이어에게 출혈 토큰을 추가합니다.
+                    playerComp->GetTokenSystem().AddTokenStackFromID(BleedToken::ID, 1);
+                }
+            }
+        }
+    }
 }
 
 void EnemyPlayTurnState::Action22001()
@@ -260,5 +282,4 @@ void EnemyPlayTurnState::LogCurrentAction()
     GameObject* gameObject = &GetFSM().gameObject;
     std::string message = std::format("{} {}", gameObject->ToString(), GetActionName(actionID));
     UmLogger.Message(LogLevel::LEVEL_DEBUG, message);
-    
 }
