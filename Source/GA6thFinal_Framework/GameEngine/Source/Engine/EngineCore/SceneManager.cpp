@@ -1508,7 +1508,7 @@ void ESceneManager::SceneResourceManager::RequestTextureResource(const Component
         if (false == path.IsNull())
         {
             auto pair = std::make_tuple(component->GetWeakPtr(), guid, func);
-            _models.ResourceLoadQueue.push(pair);
+            _textures.ResourceLoadQueue.push(pair);
         }
         else
         {
