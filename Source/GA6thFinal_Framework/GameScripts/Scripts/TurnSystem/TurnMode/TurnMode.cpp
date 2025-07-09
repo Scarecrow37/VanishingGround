@@ -13,6 +13,8 @@
 #include "Condition/CheckTurnEndCondition.h"
 #include "Condition/CheckTurnEmpty.h"
 #include "Condition/CheckTurnNotEmpty.h"
+#include "Condition/GameOverCondition.h"
+#include "Condition/GameClearCondition.h"
 
 //State
 #include "State/CombatStartPhase.h"
@@ -22,6 +24,8 @@
 #include "State/EnemyActionPhase.h"
 #include "State/CheckPlayerState.h"
 #include "State/TurnListEmptyState.h"
+#include "State/GameOverState.h"
+#include "State/GameClearState.h"
 
 //Character
 #include "TurnSystem/TurnActor/Character/Player/Player.h"
@@ -126,6 +130,8 @@ void TurnMode::BuildTurnModeFSM()
         _systemStates.EnemyActionPhase   = _finiteStateMachine->AddState<EnemyActionPhase>();
         _systemStates.CheckPlayerState   = _finiteStateMachine->AddState<CheckPlayerState>();
         _systemStates.TurnListEmptyState = _finiteStateMachine->AddState<TurnListEmptyState>();
+        _systemStates.GameOverState      = _finiteStateMachine->AddState<GameOverState>();
+        _systemStates.GameClearState     = _finiteStateMachine->AddState<GameClearState>();
 
         //Condition
         _finiteStateMachine->AddCondition<AlwaysTransitionCondition>();
@@ -137,6 +143,8 @@ void TurnMode::BuildTurnModeFSM()
         _systemConditions.CheckTurnEndCondition = _finiteStateMachine->AddCondition<CheckTurnEndCondition>();
         _systemConditions.CheckTurnEmpty        = _finiteStateMachine->AddCondition<CheckTurnEmpty>();
         _systemConditions.CheckTurnNotEmpty     = _finiteStateMachine->AddCondition<CheckTurnNotEmpty>();
+        _systemConditions.GameOverCondition     = _finiteStateMachine->AddCondition<GameOverCondition>();
+        _systemConditions.GameClearCondition    = _finiteStateMachine->AddCondition<GameClearCondition>();
 
         //Entry
         _finiteStateMachine->SetEntryState<CombatStartPhase>();
@@ -156,7 +164,8 @@ void TurnMode::BuildTurnModeFSM()
         _finiteStateMachine->AddTransition<TurnListEmptyState, CheckTurnEmpty, RoundEndPhase>();
         _finiteStateMachine->AddTransition<RoundEndPhase, CheckRoundEndExit, RoundStartPhase>();
 
-
+        _finiteStateMachine->AddTransition<GameOverCondition, GameOverState>();
+        _finiteStateMachine->AddTransition<GameClearCondition, GameClearState>();
     }
 }
 

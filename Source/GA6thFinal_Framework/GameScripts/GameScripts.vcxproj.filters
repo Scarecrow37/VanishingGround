@@ -234,16 +234,19 @@
     <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\AI\EnemyAI.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Scripts\UI\UIRoot\UIRoot.h">
+    <ClInclude Include="Scripts\DamageSystem\DamageSystem.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Scripts\UI\Base\UIComponent.h">
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\GameClearCondition.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Scripts\UI\Elements\Image\ImageElement.h">
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\GameOverCondition.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Scripts\UI\Elements\Text\TextElement.h">
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\State\GameClearState.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\State\GameOverState.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -443,16 +446,16 @@
     <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\AI\EnemyAI.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\UI\UIRoot\UIRoot.cpp">
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\GameClearCondition.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\UI\Base\UIComponent.cpp">
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\GameOverCondition.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\UI\Elements\Image\ImageElement.cpp">
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\State\GameClearState.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\UI\Elements\Text\TextElement.cpp">
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\State\GameOverState.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

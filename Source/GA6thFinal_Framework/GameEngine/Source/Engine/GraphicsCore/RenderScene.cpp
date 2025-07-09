@@ -7,7 +7,7 @@
 #include "Model.h"
 #include "RenderTechnique.h"
 #include "SkyBox.h"
-#include "UIRenderer.h"
+#include "SpriteRenderer.h"
 
 RenderScene::RenderScene(std::string_view name)
     : _skyBox{std::make_unique<SkyBox>()}
@@ -66,7 +66,7 @@ void RenderScene::RegisterOnRenderQueue(MeshRenderer* component)
     component->_isDestroyeds.push_back(_meshRenderQueue.back().first.get());
 }
 
-void RenderScene::RegisterOnRenderQueue(UIRenderer* component)
+void RenderScene::RegisterOnRenderQueue(SpriteRenderer* component)
 {
     if (nullptr == component)
         return;
@@ -235,9 +235,33 @@ void RenderScene::UpdateUI()
         if (nullptr == texture)
             continue;
 
-        auto     size    = texture->GetSize();
-        XMMATRIX scale   = XMMatrixScaling((float)size.cx, (float)size.cy, 1.f);
-        XMMATRIX world   = XMMatrixTranspose(scale * XMMATRIX(component->GetWorldMatrix()));
+        auto     size = component->GetSize();
+        XMMATRIX world = component->GetWorldMatrix();
+        XMMATRIX scale = XMMatrixIdentity();
+        
+        switch (component->GetType())
+        {
+        case SpriteType::MODE_2D:
+            scale = XMMatrixScaling((float)size.cx, (float)size.cy, 1.f);
+            break;        
+        case SpriteType::MODE_3D:
+        {
+            XMVECTOR s, r, t;
+            XMMatrixDecompose(&s, &r, &t, world);
+
+            XMVECTOR combine = XMQuaternionMultiply(r, _camera->GetRotation());
+            world = XMMatrixScalingFromVector(s) * XMMatrixRotationQuaternion(combine) * XMMatrixTranslationFromVector(t);
+            [[fallthrough]];
+        }
+        case SpriteType::MODE_25D:
+        {
+            float ratio = (float)size.cx / (float)size.cy;
+            scale       = XMMatrixScaling(ratio, 1.f, 1.f);
+            break;
+        }
+        }
+        
+        world = XMMatrixTranspose(scale * world);
         _uiMatrices.push_back(world);
 
         UIMaterial material{.ID = texture->GetID(), .Alpha = 1.f};

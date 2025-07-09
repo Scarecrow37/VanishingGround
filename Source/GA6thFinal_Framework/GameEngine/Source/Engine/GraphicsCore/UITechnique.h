@@ -12,5 +12,5 @@ public:
     void Execute(ID3D12GraphicsCommandList* commandList) override;
 
 private:
-    std::vector<UINT> _renderDatas[UI_TYPE_END];
+    std::vector<UINT> _renderDatas[SPRITE_TYPE_END];
 };

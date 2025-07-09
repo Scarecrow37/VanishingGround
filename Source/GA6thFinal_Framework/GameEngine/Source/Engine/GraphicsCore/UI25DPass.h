@@ -1,11 +1,11 @@
 ﻿#pragma once
 #include "UIPassBase.h"
 
-class UI2DPass : public UIPassBase
+class UI25DPass : public UIPassBase
 {
 public:
-    UI2DPass(const std::vector<UINT>& instanceIDs);
-    virtual ~UI2DPass();
+    UI25DPass(const std::vector<UINT>& instanceIDs);
+    virtual ~UI25DPass();
 
 public:
     void Initialize(RenderScene* ownerScene) override;

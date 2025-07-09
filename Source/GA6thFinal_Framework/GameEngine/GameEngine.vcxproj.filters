@@ -660,10 +660,13 @@
     <ClInclude Include="Source\Engine\GraphicsCore\ParticleEffectSerializer.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\UIRenderer.h">
+    <ClInclude Include="Source\Engine\GraphicsCore\SpriteRenderer.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\GraphicsCore\UIPassBase.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\UI25DPass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1199,10 +1202,13 @@
     <ClCompile Include="Source\Engine\GraphicsCore\ParticleEffectSerializer.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\UIRenderer.cpp">
+    <ClCompile Include="Source\Engine\GraphicsCore\SpriteRenderer.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\UIPassBase.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\UI25DPass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

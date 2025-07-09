@@ -1,17 +1,19 @@
 ﻿#include "pch.h"
-#include "UI3DPass.h"
+#include "UI25DPass.h"
 #include "FrameResource.h"
 
-UI3DPass::UI3DPass(const std::vector<UINT>& instanceIDs)
+UI25DPass::UI25DPass(const std::vector<UINT>& instanceIDs)
     : UIPassBase(instanceIDs)
 {
 }
 
-UI3DPass::~UI3DPass() {}
+UI25DPass::~UI25DPass() {}
 
-void UI3DPass::Initialize(RenderScene* ownerScene)
+void UI25DPass::Initialize(RenderScene* ownerScene)
 {
     __super::Initialize(ownerScene);
+
+    _cameraData.View = XMMatrixTranspose(XMMatrixLookAtLH({0.f, 0.f, -1.f}, {0.f, 0.f, 1.f}, {0.f, 1.f, 0.f}));
 
     _shader = std::make_unique<ShaderBuilder>();
     _shader->BeginBuild();
@@ -60,24 +62,15 @@ void UI3DPass::Initialize(RenderScene* ownerScene)
 
     HRESULT hr = S_OK;
     hr         = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(&_pipelineState));
-    FAILED_CHECK_MESSAGE(hr, L"UI3DPass::Initialize device->CreateGraphicsPipelineState Failed");
+    FAILED_CHECK_MESSAGE(hr, L"UI25DPass::Initialize device->CreateGraphicsPipelineState Failed");
 }
 
-void UI3DPass::Draw(ID3D12GraphicsCommandList* commandList)
-{
-    commandList->SetPipelineState(_pipelineState.Get());
-    commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
+void UI25DPass::Begin(ID3D12GraphicsCommandList* commandList)
+{    
+    _cameraData.Projection = XMMatrixTranspose(_ownerScene->_camera->GetProjectionMatrix());
+    _cameraBuffer->UpdateBuffer(&_cameraData);
+    
+    __super::UpdateBuffer(commandList);
 
-    UINT  currentBackBufferIndex = UmDevice.GetCurrentBackBufferIndex();
-    auto  resource               = UmViewManager.GetShaderResourceHeap()->GetGPUDescriptorHandleForHeapStart();
-    auto& frameResource          = _ownerScene->_frameResources[currentBackBufferIndex];
-
-    frameResource->SetFrameResource(FrameResourceType::UI_TRANSFORM, _shader->GetRootParameterIndex("worldMatrices"), commandList);
-    frameResource->SetFrameResource(FrameResourceType::UI_MATERIAL, _shader->GetRootParameterIndex("material"), commandList);
-
-    commandList->SetGraphicsRootShaderResourceView(_shader->GetRootParameterIndex("IDs"), _instanceIDBuffer->GetGPUVirtualAddress());
-    commandList->SetGraphicsRootConstantBufferView(_shader->GetRootParameterIndex("cameraData"), _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
-    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("textures"), resource);
-
-    _halfQuad->Render(commandList, (UINT)_instanceIDs.size());
+    __super::Begin(commandList);
 }

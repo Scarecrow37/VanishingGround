@@ -303,8 +303,9 @@
     <ClInclude Include="Source\Editor\Tool\Model\EditorAnimationNotifyTool.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\ConstantBufferView.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Headers.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\UI25DPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\UIPassBase.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\UIRenderer.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\SpriteRenderer.h" />
     <ClInclude Include="Source\Engine\TimelineCore\AnimationNotifySet.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\ParticleEffectSerializer.h" />
     <ClInclude Include="Source\Engine\EditorCore\Utillity\EditorDragState.h" />
@@ -491,8 +492,9 @@
   <ItemGroup>
     <ClCompile Include="Source\Editor\Tool\Model\EditorAnimationNotifyTool.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\ConstantBufferView.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\UI25DPass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\UIPassBase.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\UIRenderer.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\SpriteRenderer.cpp" />
     <ClCompile Include="Source\Engine\TimelineCore\AnimationNotifySet.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\ParticleEffectSerializer.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\Utillity\EditorDragState.cpp" />
