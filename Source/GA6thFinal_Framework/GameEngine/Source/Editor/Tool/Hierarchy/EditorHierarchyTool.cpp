@@ -436,10 +436,10 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
                 ui->AddComponent<TextElement>();
             }
             ImGui::EndMenu();
-            if (ui != nullptr)
-                ui->AddTag("UI");
         }
         ImGui::EndMenu();
+        if (ui != nullptr)
+            ui->AddTag("UI");
     }
 }
 
