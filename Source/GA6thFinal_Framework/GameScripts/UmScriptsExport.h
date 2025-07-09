@@ -100,3 +100,6 @@ UMREAL_COMPONENT(TextElement)
 
 #include "Scripts\UI/Panels/GridPanel.h"
 UMREAL_COMPONENT(GridPanel)
+
+#include "Scripts\WeaponSystem/WeaponSystem.h"
+UMREAL_COMPONENT(WeaponSystem)

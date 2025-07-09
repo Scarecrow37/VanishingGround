@@ -55,7 +55,7 @@ void Transform::DetachChildren()
         {
             child->_root = nullptr;
             child->_parent = nullptr;
-            SetChildsRootParent(this);
+            child->SetChildsRootParent(child);
         }
     }
     if (_childsList.empty() == false)
