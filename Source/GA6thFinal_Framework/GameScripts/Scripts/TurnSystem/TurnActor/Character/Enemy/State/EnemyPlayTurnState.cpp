@@ -179,7 +179,8 @@ void EnemyPlayTurnState::Action22000()
                 if (playerComp)
                 {
                     // 플레이어에게 출혈 토큰을 추가합니다.
-                    playerComp->GetTokenSystem().AddTokenStackFromID(BleedToken::ID, 1);
+                    auto& system = playerComp->GetTokenSystem();
+                    system.AddTokenStackFromID(BleedToken::ID, 1);
                 }
             }
         }
@@ -260,6 +261,7 @@ std::string_view EnemyPlayTurnState::GetActionName(int actionID) const
     static std::string actionName;
     switch (actionID)
     {
+        GET_ACTION_NAME(0, u8"유효하지 않은 액션 ID")
         GET_ACTION_NAME(22000, u8"찢어 발기기")
         GET_ACTION_NAME(22001, u8"기습")
         GET_ACTION_NAME(22002, u8"확인 사살")

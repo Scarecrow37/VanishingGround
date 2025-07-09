@@ -74,6 +74,7 @@ void TokenSystem::AddTokenStackFromID(int tokenID, UINT8 count)
     if (nullptr == token)
     {
         token = CreateTokenInstanceFromID(tokenID);
+        _tokenTable[tokenID] = token;
     }
     if (token)
     {
@@ -87,6 +88,7 @@ void TokenSystem::SetTokenStackFromID(int tokenID, UINT8 count)
     if (nullptr == token)
     {
         token = CreateTokenInstanceFromID(tokenID);
+        _tokenTable[tokenID] = token;
     }
     if (token)
     {
@@ -160,7 +162,8 @@ Token* TokenSystem::CreateTokenInstanceFromID(int tokenID)
     auto it = _tokenIDFactoryTable.find(tokenID);
     if (it != _tokenIDFactoryTable.end())
     {
-        return it->second();
+        auto* instance = it->second();
+        return instance;
     }
     return nullptr;
 }
@@ -170,7 +173,8 @@ Token* TokenSystem::CreateTokenInstanceFromName(std::string_view tokenName)
     auto it = _tokenNameFactoryTable.find(tokenName.data());
     if (it != _tokenNameFactoryTable.end())
     {
-        return it->second();
+        auto* instance = it->second();
+        return instance;
     }
     return nullptr;
 }

@@ -27,16 +27,21 @@ void PlayerPlayTurnState::OnAwake()
 void PlayerPlayTurnState::OnStart() 
 {
     _isStart = true;
+    auto& player = GetPlayer();
 }
 
 void PlayerPlayTurnState::OnEnter() 
 {
-    
+    auto& player = GetPlayer();
+    player.GetTokenSystem().OnTurnStart(&player);
 }
 
 void PlayerPlayTurnState::OnExit() 
 {
     _isStart = false;
+
+    auto& player = GetPlayer();
+    player.GetTokenSystem().OnTurnEnd(&player);
 }
 
 void PlayerPlayTurnState::OnUpdate() 
