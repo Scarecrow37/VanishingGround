@@ -4,6 +4,7 @@
 SpriteRenderer::SpriteRenderer(const Matrix& world, SpriteType type)
     : _worldMatrix(world)
     , _type(type)
+    , _size()
 {
 }
 
@@ -22,4 +23,5 @@ void SpriteRenderer::RegisterRenderQueue()
 void SpriteRenderer::LoadTexture(std::wstring_view filePath)
 {
     _texture = UmResourceManager.LoadResource<Texture>(filePath);
+    _size    = _texture->GetSize();
 }

@@ -32,4 +32,5 @@ protected:
 
 private:
     std::unique_ptr<SpriteRenderer> _spriteRenderer;
+    SIZE                            _size;
 };

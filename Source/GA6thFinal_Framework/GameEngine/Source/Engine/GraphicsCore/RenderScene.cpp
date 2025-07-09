@@ -235,7 +235,7 @@ void RenderScene::UpdateUI()
         if (nullptr == texture)
             continue;
 
-        auto     size = texture->GetSize();
+        auto     size = component->GetSize();
         XMMATRIX world = component->GetWorldMatrix();
         XMMATRIX scale = XMMatrixIdentity();
         
@@ -243,13 +243,7 @@ void RenderScene::UpdateUI()
         {
         case SpriteType::MODE_2D:
             scale = XMMatrixScaling((float)size.cx, (float)size.cy, 1.f);
-            break;
-        case SpriteType::MODE_25D:
-        {
-            float ratio = (float)size.cx / (float)size.cy;
-            scale       = XMMatrixScaling(ratio, 1.f, 1.f);
-            break;
-        }
+            break;        
         case SpriteType::MODE_3D:
         {
             XMVECTOR s, r, t;
@@ -257,6 +251,11 @@ void RenderScene::UpdateUI()
 
             XMVECTOR combine = XMQuaternionMultiply(r, _camera->GetRotation());
             world = XMMatrixScalingFromVector(s) * XMMatrixRotationQuaternion(combine) * XMMatrixTranslationFromVector(t);
+        }
+        case SpriteType::MODE_25D:
+        {
+            float ratio = (float)size.cx / (float)size.cy;
+            scale       = XMMatrixScaling(ratio, 1.f, 1.f);
             break;
         }
         }

@@ -49,6 +49,11 @@ void TestUI::ImGuiDrawPropertysEvent()
     {
         _spriteRenderer->SetType((SpriteType)ReflectFields->Type);
     }
+
+    if (ImGui::DragInt2("Size##ui", (int*)&_size))
+    {
+        _spriteRenderer->SetSize(_size);
+    }
 }
 
 void TestUI::DeserializedReflectEvent()
@@ -76,6 +81,7 @@ void TestUI::LoadTexture()
         {
             std::wstring filePath = U8ToWString(path);
             _spriteRenderer->LoadTexture(filePath);
+            _size = _spriteRenderer->GetSize();
         }
     }
 }
