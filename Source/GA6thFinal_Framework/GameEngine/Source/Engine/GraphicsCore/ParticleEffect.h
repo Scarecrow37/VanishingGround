@@ -7,14 +7,18 @@ class ParticleEffect
     UMPARTICLE_PROPERTY_REF(Vector3, _position, Position , Vector3(0,0,0));
     UMPARTICLE_PROPERTY(float, _age, Age,0.f);
     UMPARTICLE_PROPERTY(float, _lifetime, Lifetime,5.f);
-    UMPARTICLE_PROPERTY(bool, _activeFlag, ActiveFlag, true);
+    UMPARTICLE_PROPERTY(bool, _activeFlag, ActiveFlag, false);
     UMPARTICLE_PROPERTY(std::string, _effectName, EffectName, "");
 
     
     
-    //flag for play once
+    // flag for play once
     UMPARTICLE_PROPERTY(bool, _playFlag, PlayFlag, false);
+    bool _removeFlag = false;
 
+public:
+    void SetRemoveFlag(bool flag) { _removeFlag = flag; }
+    bool GetRemoveFlag() const { return _removeFlag; }
 
 public:
     ParticleEffect() {};

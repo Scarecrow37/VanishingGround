@@ -155,7 +155,7 @@ void ParticleEffectSerializer::Serialize(ParticleEffect* effect, File::Path dest
 
         // max particles
         {
-            float maxParticles = emitter->GetMaxParticles();
+            float maxParticles = static_cast<float>(emitter->GetMaxParticles());
             os.write(reinterpret_cast<const char*>(&maxParticles), sizeof(maxParticles));
         }
 
@@ -323,7 +323,7 @@ ParticleEffect* ParticleEffectSerializer::Deserialize(File::Path filepath,bool i
         Vector3           velocityFactor;
         float             emitterLifetime;
         float             particleLifetime;
-        float             maxParticles;
+        float               maxParticles;
         float             emissionRate;
         float             startDelay;
         float             spawnBurstFlag;
@@ -385,7 +385,7 @@ ParticleEffect* ParticleEffectSerializer::Deserialize(File::Path filepath,bool i
         }
         {
             auto emitter =
-                UmParticleManager.RegisterEmitter(newEffect, maxParticles, emissionRate, emitterLifetime, locationType,
+                UmParticleManager.RegisterEmitter(newEffect, static_cast<SIZE_T>(maxParticles), emissionRate, emitterLifetime, locationType,
                                                   locatorFactor, particleType, modelTexturePath);
             emitter->SetEmitterName(emitterName);
             emitter->SetEmitterPosition(emitterPosition);

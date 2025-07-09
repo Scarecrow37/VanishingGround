@@ -20,16 +20,33 @@ ParticleComponent::ParticleComponent()
                         _filepath           = path;
                         _guidRef            = path.ToGuid();
                         ReflectFields->Guid = _guidRef.string();
-
+                        if (_effect)  
+                        {
+                            _effect->SetRemoveFlag(true);
+                        }
                         _effect = UmParticleManager.ParticleSerializer.Deserialize(path,false);
+                        _effect->SetPlayFlag(false);
+                        _effect->SetActiveFlag(false);
                     }
                 }
             }
             ImGui::EndDragDropTarget();
         }
     });
+    if (_effect)
+    {
+        _effect->SetPlayFlag(false);
+    }
 }
-ParticleComponent::~ParticleComponent() = default;
+ParticleComponent::~ParticleComponent()
+{
+    if (_effect)
+    {
+        _effect->SetActiveFlag(false);
+        UmParticleManager.DeleteEffect(_effect);
+        _effect = nullptr;
+    }
+}
 
 void ParticleComponent::Update()
 {
@@ -37,7 +54,7 @@ void ParticleComponent::Update()
     _effect->SetPosition(gameObject->transform->Position);
 
     if (IS_EDITOR)
-        if (ImGui::IsKeyPressed(ImGuiKey_Space))
+        if (ImGui::IsKeyDown(ImGuiKey_Space))
         {
             PlayEffect();
         }
@@ -47,6 +64,7 @@ void ParticleComponent::Update()
         if (age >= _effect->GetLifetime())
         {
             isplaying = false;
+            age       = 0;
         }
     }
 

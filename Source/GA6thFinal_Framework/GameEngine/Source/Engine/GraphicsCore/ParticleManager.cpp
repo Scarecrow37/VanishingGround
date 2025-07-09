@@ -8,24 +8,15 @@ ParticleManager::ParticleManager() {}
 
 ParticleManager::~ParticleManager()
 {
-    for (auto effect : _pariticleEffects)
+    for (auto effect : _particleEffects)
     {
-        if (effect)
-
+        if (nullptr!= effect)
             delete effect;
     }
-    _pariticleEffects.clear();
-
-    for (auto effect : _activePariticleEffects)
-    {
-        if (effect)
-            delete effect;
-    }
+    _particleEffects.clear();
 
     if (_editorCurrentEffect)
         delete _editorCurrentEffect;
-
-    _activePariticleEffects.clear();
 
     _totalParticles.clear();
     _emitterMatrix.clear();
@@ -56,7 +47,7 @@ ParticleEffect* ParticleManager::RegisterEffect()
     std::string name = "Effect" + std::to_string(nameingIndex++);
     newEffect->SetEffectName(name);
 
-    _pariticleEffects.push_back(newEffect);
+    _particleEffects.push_back(newEffect);
     return newEffect;
 }
 
@@ -84,7 +75,21 @@ ParticleEmitter* ParticleManager::RegisterEmitter(class ParticleEffect* effect, 
 
 void ParticleManager::DeleteEffect(ParticleEffect* target)
 {
-   std::erase_if(_pariticleEffects, [target](ParticleEffect* effect) { return effect == target; });
+    target->SetRemoveFlag(true);
+
+        // erase_if 전에 메모리 해제
+    for (auto it = _particleEffects.begin(); it != _particleEffects.end();)
+    {
+        if (target == (*it))
+        {
+            delete *it; // 메모리 해제
+            it = _particleEffects.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
 }
 
 
@@ -98,12 +103,12 @@ void ParticleManager::Update(const float deltaTime)
     //game view
     {
 
-        for (auto effect : _pariticleEffects)
+        for (auto effect : _particleEffects)
         {
             if (true == effect->GetActiveFlag())
                 effect->Update(delta);
         }
-        if (false == _pariticleEffects.empty())
+        if (false == _particleEffects.empty())
         {
             CopyActiveParticles();
         }
@@ -111,7 +116,7 @@ void ParticleManager::Update(const float deltaTime)
         _computeCommandList->Reset(_computeAllocator.Get(), _computeSpritePSO.Get());
         DispatchParticleCompute(delta);
 
-        for (auto effect : _pariticleEffects)
+        for (auto effect : _particleEffects)
         {
             if (true == effect->GetActiveFlag())
             {
@@ -152,21 +157,21 @@ void ParticleManager::Update(const float deltaTime)
 
 void ParticleManager::UpdateEffectLifeCycle() 
 {
-    //// erase_if 전에 메모리 해제
-    //for (auto it = _activePariticleEffects.begin(); it != _activePariticleEffects.end();)
-    //{
-    //    if (!(*it)->GetActiveFlag())
-    //    {
-    //        delete *it; // 메모리 해제
-    //        it = _activePariticleEffects.erase(it);
-    //    }
-    //    else
-    //    {
-    //        ++it;
-    //    }
-    //}
+    // erase_if 전에 메모리 해제
+    for (auto it = _particleEffects.begin(); it != _particleEffects.end();)
+    {
+        if (true == (*it)->GetRemoveFlag())
+         {
+             delete *it; // 메모리 해제
+             it = _particleEffects.erase(it);
+         }
+         else
+         {
+             ++it;
+         }
+     }
 
-    for (auto newEffect : _pariticleEffects)
+    for (auto newEffect : _particleEffects)
     {
         if (true == newEffect->GetPlayFlag())
         {
@@ -177,6 +182,8 @@ void ParticleManager::UpdateEffectLifeCycle()
         }
 
     }
+
+
 }
 
 void ParticleManager::UpdateEditorLifeCycle()
@@ -576,7 +583,7 @@ void ParticleManager::CopyActiveParticles()
     _activeEmitterAlbedos.clear();
     UINT emitterIndex = 0;
     _totalCount       = 0;
-    for (auto effect : _pariticleEffects)
+    for (auto effect : _particleEffects)
     {
         if (true == effect->GetActiveFlag())
         {
@@ -682,12 +689,11 @@ void ParticleManager::UpdateParticleResources(float deltaTime)
     mvpConstants.CameraPos =
         Vector4(_camera->GetWorldMatrix()._41, _camera->GetWorldMatrix()._42, _camera->GetWorldMatrix()._43, 1);
 
-    float currentTime = UmTime.Time();
-    float delta       = currentTime - lastFrameTime;
-    lastFrameTime     = currentTime;
-
-    // 컴퓨트 셰이더 디스패치
-    mvpConstants.deltaTime = delta;
+    //float currentTime = UmTime.Time();
+    //float delta       = currentTime - lastFrameTime;
+    //lastFrameTime     = currentTime;
+    //mvpConstants.deltaTime = delta;
+    mvpConstants.deltaTime = deltaTime;
 
     FAILED_CHECK_MESSAGE(_mvpConstantBuffer->Map(0, nullptr, &mappedData), L"");
     memcpy(mappedData, &mvpConstants, sizeof(MVPConstants));
@@ -832,12 +838,11 @@ void ParticleManager::UpdateParticleResourcesEditorMode(float deltaTime)
     mvpConstants.CameraPos =
         Vector4(_camera->GetWorldMatrix()._41, _camera->GetWorldMatrix()._42, _camera->GetWorldMatrix()._43, 1);
 
-    float currentTime = UmTime.Time();
-    float delta       = currentTime - lastFrameTime;
-    lastFrameTime     = currentTime;
-
-    // 컴퓨트 셰이더 디스패치
-    mvpConstants.deltaTime = delta;
+    // float currentTime = UmTime.Time();
+    // float delta       = currentTime - lastFrameTime;
+    // lastFrameTime     = currentTime;
+    // mvpConstants.deltaTime = delta;
+    mvpConstants.deltaTime = deltaTime;
 
     FAILED_CHECK_MESSAGE(_editorMvpConstantBuffer->Map(0, nullptr, &mappedData), L"");
     memcpy(mappedData, &mvpConstants, sizeof(MVPConstants));

@@ -25,7 +25,7 @@ public:
     /// <param name="locationFactor"></param>
     /// <param name="particleType"></param>
     /// <returns></returns>
-    class ParticleEmitter* RegisterEmitter(class ParticleEffect* effect, SIZE_T maxParticles = 100000,
+    class ParticleEmitter* RegisterEmitter(class ParticleEffect* effect, SIZE_T maxParticles = 10000,
                                            float emissionRate = 1000.f, float emitterLifetime = 150.f,
                                            LocationShape locatorShape   = LocationShape::SPHERE,
                                            Vector3       locationFactor = Vector3(1, 1, 1),
@@ -59,7 +59,7 @@ public:
     {
         if ("Game" == _currentRenderscene->_name || "Editor" == _currentRenderscene->_name)
             return _activeEmitterAlbedos;
-        else if ("ParticleEditor" == _currentRenderscene->_name)
+        else // ("ParticleEditor" == _currentRenderscene->_name)
             return _activeEditorAlbedos;
     }
 
@@ -73,7 +73,7 @@ public:
             return nullptr;
     }
     ID3D12GraphicsCommandList*            GetRenderCommandList() { return _renderCommandList.Get(); }
-    std::vector<class ParticleEffect*>&   GetEffectList() { return _pariticleEffects; }
+    std::vector<class ParticleEffect*>&   GetEffectList() { return _particleEffects; }
 
 public:
     ParticleEffectSerializer ParticleSerializer;
@@ -174,7 +174,10 @@ private:
     class ParticleEffect* _editorCurrentEffectInstance = nullptr;
 
     std::vector<class ParticleEffect*>    _activePariticleEffects;
-    std::vector<class ParticleEffect*>    _pariticleEffects;
+    std::vector<class ParticleEffect*>    _particleEffects;
+
+
+
 
     std::vector<class Particle>           _totalParticles;
     std::vector<class Particle>           _editorTotalParticles;
