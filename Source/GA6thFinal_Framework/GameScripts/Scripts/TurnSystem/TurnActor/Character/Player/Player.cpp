@@ -4,6 +4,7 @@
 #include "Stats/Player/PlayerStatsComponent.h"
 #include "GameCore/FSM/FiniteStateMachine.h"
 #include <Stats/WeaponTable/WeaponTableComponent.h>
+#include <WeaponSystem/WeaponSystem.h>
 
 //Condition
 #include "Condition/PlayerStartCondition.h"
@@ -40,36 +41,57 @@ void Player::Update()
 
 void Player::SerializedReflectEvent() 
 {
-    for (size_t i = 0; i < EQUIP_WEAPONS_SIZE; ++i)
-    {
-        ReflectFields->EquipWeaponsData[i] = _equipWeapons[i].SerializedReflectFields();
-    }
+   
 }
 
 void Player::DeserializedReflectEvent() 
 {
-    for (size_t i = 0; i < EQUIP_WEAPONS_SIZE; ++i)
-    {
-        _equipWeapons[i].DeserializedReflectFields(ReflectFields->EquipWeaponsData[i]);
-    }
+
 }
 
 int Player::GetSpeed()
 {
-    return _equipWeapons[_currentWeaponSlot].Speed;
+    WeaponSystem* system = WeaponSystem::GetInstance();
+    if (system)
+    {
+        return system->GetCurrentWeaponStats().Speed;
+    }
+    else
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, u8" WeaponSystem이 존재하지 않습니다.");
+        return 0;
+    }   
 }
 
 int Player::GetRandomSpeed()
 {
-    return _equipWeapons[_currentWeaponSlot].RandomSpeed;
+
+    WeaponSystem* system = WeaponSystem::GetInstance();
+    if (system)
+    {
+        return system->GetCurrentWeaponStats().RandomSpeed;
+    }
+    else
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, u8" WeaponSystem이 존재하지 않습니다.");
+        return 0;
+    }   
 }
 
 void Player::PlayTurn()
 {
     Base::PlayTurn();
-    std::string_view weaponName = GetCurrentWeaponStats().Name;
-    std::string      message    = std::format("{}{}{}", (const char*)u8"Player 턴 시작. ", "Weapon : ", weaponName);
-    UmLogger.Message(LogLevel::LEVEL_TRACE, message);
+    WeaponSystem* system = WeaponSystem::GetInstance();
+    if (system)
+    {
+        std::string_view weaponName = system->GetCurrentWeaponStats().Name;
+        std::string      message    = std::format("{}{}{}", (const char*)u8"Player 턴 시작. ", "Weapon : ", weaponName);
+        UmLogger.Message(LogLevel::LEVEL_TRACE, message);
+    }
+    else
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, u8" WeaponSystem이 존재하지 않습니다.");
+    }     
 }
 
 void Player::EndTurn()
@@ -87,7 +109,7 @@ void Player::Dead()
 
 void Player::ImGuiDrawPropertysEvent()
 {
-    ImguiEquipWeapons();
+   
 }
 
 CharacterStats* Player::GetCharacterStats()
@@ -104,102 +126,6 @@ CharacterStats* Player::GetCharacterStats()
 void Player::OnRoundStart() 
 {
     Base::OnRoundStart();
-    for (auto& weapons : _equipWeapons)
-    {
-        weapons.RollRandomSpeed();
-    }
-}
-
-WeaponStats Player::EquipWeapon(int slot, const WeaponStats& weaponStats)
-{
-    WeaponStats originWeapon;
-    if (0 <= slot && slot < _equipWeapons.size())
-    {
-        originWeapon = _equipWeapons[slot];
-    }
-    return originWeapon;
-}
-
-void Player::SetCurrentWeaponSlot(int slot)
-{
-    slot = std::clamp(slot, 0, (int)EQUIP_WEAPONS_SIZE - 1);
-    _currentWeaponSlot = slot;
-}
-
-int Player::GetRoundSpeedToSlot(int slot)
-{
-    int speed = _equipWeapons[slot].Speed;
-    int roundSpeed = _equipWeapons[slot].RandomSpeed;
-    return speed + roundSpeed;
-}
-
-void Player::ImguiEquipWeapons() 
-{
-    if (ImGui::TreeNodeEx("Weapons", ImGuiTreeNodeFlags_DefaultOpen))
-    {
-        static const WeaponStats* changeWeaponSelect = nullptr;
-        auto RightClickContext = [&](int id) 
-        {
-            if (ImGui::BeginPopupContextItem())
-            {
-                if (ImGui::BeginMenu("Change"))
-                {
-                    WeaponTableComponent* weaponTable = WeaponTableComponent::GetInstance();
-                    if (weaponTable)
-                    {
-                        static ImGuiTextFilter filter;
-                        filter.Draw("filter");
-                        for (auto& [name, stats] : weaponTable->GetWeaponTable())
-                        {
-                            if (filter.PassFilter(name.c_str()))
-                            {
-                                ImGui::PushStyleColor(ImGuiCol_Text, WeaponTableComponent::GetWeaponTypeColor(stats.Type));
-                                if (ImGui::Selectable(name.c_str()))
-                                {
-                                    changeWeaponSelect = &stats;
-                                }
-                                ImGui::PopStyleColor(1);
-                            }
-                        }
-                    }
-                    ImGui::EndMenu();
-                }
-                ImGui::EndPopup();
-            }
-        };
-
-        int itemID = 0;
-        for (auto& weapon : _equipWeapons)
-        {        
-            ImGui::PushStyleColor(ImGuiCol_Text, WeaponTableComponent::GetWeaponTypeColor(weapon.Type));
-            ImGui::PushID(itemID++);
-            std::string_view weaponName = weapon.Name;
-            if (ImGui::TreeNodeEx(weaponName.data(), ImGuiTreeNodeFlags_OpenOnArrow))
-            {
-                RightClickContext(itemID);
-                if (ImGui::BeginTable(weaponName.data(), 1, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
-                {
-                    ImGui::TableNextRow();
-                    ImGui::TableSetColumnIndex(0);
-                    weapon.ImGuiDrawPropertys();
-                    ImGui::EndTable();
-                }
-                ImGui::TreePop();
-            }
-            else
-            {
-                RightClickContext(itemID);
-            }
-            if (nullptr != changeWeaponSelect)
-            {
-                weapon = *changeWeaponSelect;
-                changeWeaponSelect = nullptr;
-            }
-            ImGui::PopID(); 
-            ImGui::PopStyleColor(1);
-        }
-        ImGui::TreePop();
-    }
 }
 
 PlayerStatsComponent* Player::GetPlayerStats()

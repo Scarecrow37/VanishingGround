@@ -3,6 +3,7 @@
 #include <GameCore/FSM/FiniteStateMachine.h>
 #include <TurnSystem/TurnActor/Character/Player/Player.h>
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
+#include <WeaponSystem/WeaponSystem.h>
 
 using namespace u8_literals;
 
@@ -89,21 +90,29 @@ void PlayerPlayTurnState::OnUpdate()
             ImGui::EndCombo();
         }
 
-        Player&      player = GetPlayer();
-        WeaponStats& weapon = const_cast<WeaponStats&>(player.GetCurrentWeaponStats());
-        weapon.ImGuiDrawPropertys();
-        if (ImGui::Button("Attack") && selectTarget != nullptr)
+        WeaponSystem* weaponSystem = WeaponSystem::GetInstance();
+        if (weaponSystem)
         {
-            UmLogger.Message(LogLevel::LEVEL_DEBUG,
-                             std::format("{}{}{}", u8"플레이어가 "_c_str, selectName.data(), u8"을 공격!"_c_str));
+            Player&      player = GetPlayer();
+            WeaponStats& weapon = const_cast<WeaponStats&>(weaponSystem->GetCurrentWeaponStats());
+            weapon.ImGuiDrawPropertys();
+            if (ImGui::Button("Attack") && selectTarget != nullptr)
+            {
+                UmLogger.Message(LogLevel::LEVEL_DEBUG,
+                                 std::format("{}{}{}", u8"플레이어가 "_c_str, selectName.data(), u8"을 공격!"_c_str));
 
-            GetPlayer().EndTurn();
-            selectTarget->Dead();
-            selectTarget = nullptr; 
+                GetPlayer().EndTurn();
+                selectTarget->Dead();
+                selectTarget = nullptr;
+            }
+            if (ImGui::Button("Kill"))
+            {
+                GetPlayer().Dead();
+            }
         }
-        if (ImGui::Button("Kill"))
+        else
         {
-            GetPlayer().Dead();
+            UmLogger.Message(LogLevel::LEVEL_DEBUG, u8"Weapon System이 존재하지 않습니다.");
         }
     }
     ImGui::End();
