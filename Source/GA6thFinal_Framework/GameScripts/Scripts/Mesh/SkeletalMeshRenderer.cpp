@@ -23,7 +23,7 @@ SkeletalMeshRenderer::SkeletalMeshRenderer()
                     {
                         _guidRef            = path.ToGuid();
                         ReflectFields->Guid = _guidRef.string();
-                        UmSceneManager.ResourceManager.RequestModelResource(this, _guidRef);
+                        UmSceneManager.ResourceManager.RequestModelResource(this, _guidRef, [this](){ LoadModel(); });
                     }
                 }
             }
@@ -60,7 +60,7 @@ void SkeletalMeshRenderer::DeserializedReflectEvent()
     _guidRef        = guid;
     if (false == guid.IsNull())
     {
-        UmSceneManager.ResourceManager.RequestModelResource(this, _guidRef);
+        UmSceneManager.ResourceManager.RequestModelResource(this, _guidRef, [this]() { LoadModel();});
     }
 }
 
@@ -225,4 +225,33 @@ void SkeletalMeshRenderer::PauseAnimation()
 void SkeletalMeshRenderer::ResumeAnimation() 
 {
     _isAnimationPlaying = true;
+}
+
+void SkeletalMeshRenderer::LoadModel()
+{
+    if (Renderer)
+    {
+        const auto& animator = Renderer->GetAnimator();
+        if (animator)
+        {
+            animator->SetDestroy();
+        }
+
+        std::string path = FilePath;
+        if (path != File::NULL_PATH)
+        {
+            std::wstring modelPath = U8ToWString(path);
+            Renderer->LoadModel(modelPath);
+            auto& animation = Renderer->GetModel()->GetAnimation();
+            auto& skeleton  = Renderer->GetModel()->GetSkeleton();
+            if (animation != nullptr && skeleton != nullptr)
+            {
+                std::shared_ptr<Animator> animator(new Animator);
+                animator->Initialize(animation, skeleton);
+                animator->SetActive(&EnableInHierarchy);
+                Renderer->SetAnimator(animator);
+                UmAnimationCore.RegisterAnimator(animator.get());
+            }
+        }
+    }
 }

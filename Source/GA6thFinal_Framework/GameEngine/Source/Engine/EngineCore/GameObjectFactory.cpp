@@ -185,30 +185,33 @@ YAML::Node EGameObjectFactory::SerializeToYaml(GameObject* gameObject)
     int parentIndex = 0;
     bool isPrefabInstance = gameObject->IsPrefabInstance();
     Transform::ForeachBFS(
-        gameObject->_transform, 
-        [&](Transform* curr) 
+    gameObject->_transform, 
+    [&](Transform* curr) 
+    {
+        if (curr->gameObject->IsValid())
         {
-            //오브젝트 직렬화
+            // 오브젝트 직렬화
             YAML::Node objectNode = MakeYamlToGameObject(&curr->gameObject);
 
-            //컴포넌트들 직렬화
+            // 컴포넌트들 직렬화
             for (auto& component : curr->gameObject->_components)
             {
                 YAML::Node componentNode = UmComponentFactory.SerializeToYaml(component.get());
                 objectNode["Components"].push_back(componentNode);
             }
 
-            //Transform 직렬화
-            transformParentLevelMap[curr] = parentIndex;
-            YAML::Node transformNode = objectNode["Transform"].as<YAML::Node>();
+            // Transform 직렬화
+            transformParentLevelMap[curr]   = parentIndex;
+            YAML::Node transformNode        = objectNode["Transform"].as<YAML::Node>();
             transformNode["TransformIndex"] = parentIndex;
             if (curr->Parent != nullptr)
             {
                 transformNode["ParentIndex"] = transformParentLevelMap[curr->Parent];
-            }                     
+            }
             ++parentIndex;
             nodes.push_back(objectNode);
-        });
+        }
+    });
     return nodes;
 }
 
