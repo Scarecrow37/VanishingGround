@@ -2,7 +2,7 @@
 #include "ImageElement.h"
 #include "Engine/GraphicsCore/UIRenderer.h"
 
-ImageElement::ImageElement()
+ImageElement::ImageElement() : _renderer{}, _guidRef{}
 {
     FilePath.SetInputAutoEvent([this]() {
         if (ImGui::BeginDragDropTarget())
@@ -17,7 +17,8 @@ ImageElement::ImageElement()
                     {
                         _guidRef            = path.ToGuid();
                         ReflectFields->Guid = _guidRef.string();
-                        _renderer->LoadTexture(path.c_str());
+                        UmSceneManager.ResourceManager.RequestTextureResource(
+                            this, _guidRef, [this, path]() { _renderer->LoadTexture(path.c_str()); });
                     }
                 }
             }
@@ -26,17 +27,16 @@ ImageElement::ImageElement()
     });
 }
 
+ImageElement::~ImageElement()
+{
+    if (_renderer)
+        _renderer->SetDestroy();
+}
+
 void ImageElement::Reset()
 {
     UIComponent::Reset();
     _renderer = std::make_unique<UIRenderer>(transform->GetWorldMatrix(), UIType::MODE_2D);
     _renderer->RegisterRenderQueue();
     _renderer->SetActive(&EnableInHierarchy);
-}
-
-void ImageElement::OnDestroy()
-{
-    UIComponent::OnDestroy();
-    if (_renderer)
-        _renderer->SetDestroy();
 }

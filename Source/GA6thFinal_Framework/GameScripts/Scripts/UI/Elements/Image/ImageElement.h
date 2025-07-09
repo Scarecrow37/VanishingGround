@@ -8,6 +8,7 @@ class ImageElement : public UIComponent
 
 public:
     ImageElement();
+    ~ImageElement() override;
 
     REFLECT_PROPERTY(FilePath)
     GETTER_ONLY(std::string, FilePath) { return _guidRef.ToPath().string(); }
@@ -19,8 +20,6 @@ protected:
     REFLECT_FIELDS_END(ImageElement)
 
     void Reset() override;
-    void OnDestroy() override;
-
 
 private:
     std::unique_ptr<UIRenderer> _renderer;
