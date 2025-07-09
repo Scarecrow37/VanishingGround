@@ -29,8 +29,7 @@ ImageElement::ImageElement() : _renderer{}, _guidRef{}
 
 ImageElement::~ImageElement()
 {
-    if (_renderer)
-        _renderer->SetDestroy();
+    if (_renderer) _renderer->SetDestroy();
 }
 
 void ImageElement::Reset()
