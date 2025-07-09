@@ -81,7 +81,7 @@ void TokenSystem::AddTokenStackFromID(int tokenID, UINT8 count)
     }
 }
 
-void TokenSystem::SetTokenStack(int tokenID, UINT8 count)
+void TokenSystem::SetTokenStackFromID(int tokenID, UINT8 count)
 {
     auto* token = FindTokenEx(tokenID);
     if (nullptr == token)
@@ -91,21 +91,41 @@ void TokenSystem::SetTokenStack(int tokenID, UINT8 count)
     if (token)
     {
         token->SetStack(count);
+        bool isValid = CheckValidToken(tokenID);
+        if (false == isValid)
+        {   // 스택이 0이 되면 토큰을 제거합니다.
+            RemoveTokenFromID(tokenID);
+        }
     }
 }
 
-void TokenSystem::RemoveTokenStack(int tokenID, UINT8 count)
+void TokenSystem::RemoveTokenStackFromID(int tokenID, UINT8 count)
 {
     auto* token = FindTokenEx(tokenID);
     if (token)
     {
         token->RemoveStack(count);
+        bool isValid = CheckValidToken(tokenID);
+        if (false == isValid)
+        {   // 스택이 0이 되면 토큰을 제거합니다.
+            RemoveTokenFromID(tokenID);
+        }
     }
 }
 
-IToken* TokenSystem::FindToken(int tokenID)
+IToken* TokenSystem::FindTokenFromID(int tokenID)
 {
     return FindTokenEx(tokenID);
+}
+
+void TokenSystem::RemoveTokenFromID(int tokenID)
+{
+    auto* token = FindTokenEx(tokenID);
+    if (token)
+    {
+        _tokenTable.erase(tokenID);
+        delete token;
+    }
 }
 
 Token* TokenSystem::FindTokenEx(int tokenID)
@@ -118,18 +138,21 @@ Token* TokenSystem::FindTokenEx(int tokenID)
     return nullptr;
 }
 
-void TokenSystem::CheckValidToken(int tokenID) 
+Token* TokenSystem::FindTokenEx(std::string_view tokenName)
+{
+    int id = GetTokenIDFromName(tokenName);
+    return FindTokenEx(id);
+}
+
+bool TokenSystem::CheckValidTokenFromID(int tokenID)
 {
     auto* token = FindTokenEx(tokenID);
     if (token)
     {
         UINT8 stackCount = token->GetStackCount();
-        if (0 == stackCount)
-        {
-            _tokenTable.erase(tokenID);
-            delete token;
-        }
+        return 0 < stackCount;
     }
+    return false;
 }
 
 Token* TokenSystem::CreateTokenInstanceFromID(int tokenID)
@@ -150,4 +173,25 @@ Token* TokenSystem::CreateTokenInstanceFromName(std::string_view tokenName)
         return it->second();
     }
     return nullptr;
+}
+
+int TokenSystem::GetTokenIDFromName(std::string_view tokenName) const
+{
+    auto it = _tokenNameToIDTable.find(tokenName.data());
+    if (it != _tokenNameToIDTable.end())
+    {
+        return it->second;
+    }
+    return 0;
+}
+
+const std::string& TokenSystem::GetTokenNameFromID(int tokenID) const
+{
+    auto it = _tokenIDToNameTable.find(tokenID);
+    if (it != _tokenIDToNameTable.end())
+    {
+        return it->second;
+    }
+    static const std::string emptyString;
+    return emptyString; // 토큰이 존재하지 않으면 빈 문자열 반환
 }

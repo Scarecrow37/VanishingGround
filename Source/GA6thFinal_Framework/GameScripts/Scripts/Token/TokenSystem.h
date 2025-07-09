@@ -19,31 +19,31 @@ public:
     /// <summary>
     /// 라운드가 시작될 때 호출됩니다. 모든 토큰에 대해 OnRoundStart를 호출합니다.
     /// </summary>
-    /// <param name="owner"></param>
+    /// <param name="owner">호출한 주체의 CharacterBase객체</param>
     void OnRoundStart(CharacterBase* owner);
 
     /// <summary>
     /// 라운드가 끝날 때 호출됩니다. 모든 토큰에 대해 OnRoundEnd를 호출합니다.
     /// </summary>
-    /// <param name="owner"></param>
+    /// <param name="owner">호출한 주체의 CharacterBase객체</param>
     void OnRoundEnd(CharacterBase* owner);
 
     /// <summary>
     /// 턴이 시작될 때 호출됩니다. 모든 토큰에 대해 OnTurnStart를 호출합니다.
     /// </summary>
-    /// <param name="owner"></param>
+    /// <param name="owner">호출한 주체의 CharacterBase객체</param>
     void OnTurnStart(CharacterBase* owner);  
 
     /// <summary>
     /// 턴이 끝날 때 호출됩니다. 모든 토큰에 대해 OnTurnEnd를 호출합니다.
     /// </summary>
-    /// <param name="owner"></param>
+    /// <param name="owner">호출한 주체의 CharacterBase객체</param>
     void OnTurnEnd(CharacterBase* owner); 
 
     /// <summary>
     /// CharacterBase가 Hit 당했을 때 호출됩니다. 모든 토큰에 대해 OnHit를 호출합니다.
     /// </summary>
-    /// <param name="owner"></param>
+    /// <param name="owner">호출한 주체의 CharacterBase객체</param>
     void OnHit(CharacterBase* owner);
 
 public:
@@ -55,39 +55,43 @@ public:
     void AddTokenStackFromID(int tokenID, UINT8 count);
 
     /// <summary>
-    /// 토큰 스택 카운트를 설정합니다. 만약 해당 토큰이 존재하지 않는다면 새로 생성합니다.
+    /// <para>토큰 스택 카운트를 설정합니다. 만약 해당 토큰이 존재하지 않는다면 새로 생성합니다.</para>
+    /// <para>만약 토큰이 존재하지 않으면 아무런 동작도 하지 않습니다.</para>
     /// </summary>
     /// <param name="tokenID">해당 토큰의 ID</param>
     /// <param name="count">제거할 카운트 수</param>
-    void SetTokenStack(int tokenID, UINT8 count);
+    void SetTokenStackFromID(int tokenID, UINT8 count);
 
     /// <summary>
-    /// 토큰 스택 카운트를 제거합니다. 만약 토큰이 존재하지 않으면 아무런 동작도 하지 않습니다.
+    /// <para>토큰 스택 카운트를 제거합니다. 스택이 0이 되면 토큰을 제거합니다.</para>
+    /// <para>만약 토큰이 존재하지 않으면 아무런 동작도 하지 않습니다.</para>
     /// </summary>
     /// <param name="tokenID">해당 토큰의 ID</param>
     /// <param name="count">제거할 카운트 수</param>
-    void RemoveTokenStack(int tokenID, UINT8 count);
+    void RemoveTokenStackFromID(int tokenID, UINT8 count);
 
     /// <summary>
     /// 해당 토큰의 ID로 토큰을 찾아 반환합니다. 만약 해당 토큰이 존재하지 않으면 nullptr을 반환합니다.
     /// </summary>
     /// <param name="tokenID">해당 토큰의 ID</param>
     /// <returns></returns>
-    IToken* FindToken(int tokenID);
+    IToken* FindTokenFromID(int tokenID);
 
-private:
     /// <summary>
-    /// Token을 ID로 찾아 반환합니다.시스템 내부에서만 사용하는 함수입니다.
+    /// 토큰을 제거합니다. 토큰이 존재하지 않으면 아무런 동작도 하지 않습니다.
     /// </summary>
     /// <param name="tokenID">해당 토큰의 ID</param>
-    /// <returns></returns>
+    void RemoveTokenFromID(int tokenID);
+
+private:
     Token* FindTokenEx(int tokenID);
+    Token* FindTokenEx(std::string_view tokenName);
 
     /// <summary>
     /// 유효한 토큰인지 확인합니다. (ex. 스택 카운트가 0이 아닌지 등)
     /// </summary>
     /// <param name="tokenID">해당 토큰의 ID</param>
-    void CheckValidToken(int tokenID);
+    bool CheckValidTokenFromID(int tokenID);
 
     /// <summary>
     /// 토큰 ID를 통해 토큰 인스턴스를 생성합니다.
@@ -103,11 +107,16 @@ private:
     /// <returns>생성된 토큰의 주소 값</returns>
     Token* CreateTokenInstanceFromName(std::string_view tokenName);
 
+    int GetTokenIDFromName(std::string_view tokenName) const;
+    const std::string& GetTokenNameFromID(int tokenID) const;
+
 private:
     std::unordered_map<int, Token*> _tokenTable;
 
     inline static std::unordered_map<int, std::function<Token*()>> _tokenIDFactoryTable;
     inline static std::unordered_map<std::string, std::function<Token*()>> _tokenNameFactoryTable;
+    inline static std::unordered_map<std::string, int> _tokenNameToIDTable;
+    inline static std::unordered_map<int, std::string> _tokenIDToNameTable;
 };
 
 template <typename T>
@@ -135,5 +144,7 @@ inline static bool TokenSystem::RegisterToken()
         assert(false && "토큰 등록 중 Name 충돌이 발생했습니다.");
         return false;
     }
+    _tokenNameToIDTable[T::NAME] = T::ID;
+    _tokenIDToNameTable[T::ID]   = T::NAME;
     return true;
 }
