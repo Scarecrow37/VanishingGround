@@ -7,6 +7,10 @@ class ImageElement : public UIComponent
 
 public:
     ImageElement();
+    ImageElement(const ImageElement&) = delete;
+    ImageElement& operator=(const ImageElement&) = delete;
+    ImageElement(ImageElement&&)                 = delete;
+    ImageElement& operator=(ImageElement&&)      = delete;
     ~ImageElement() override;
 
     REFLECT_PROPERTY(FilePath)
@@ -19,8 +23,11 @@ protected:
     REFLECT_FIELDS_END(ImageElement)
 
     void Reset() override;
+    void DeserializedReflectEvent() override;
 
 private:
+    void LoadTexture();
+
     std::unique_ptr<SpriteRenderer> _renderer;
-    File::GuidRef               _guidRef;
+    File::GuidRef                   _guidRef;
 };

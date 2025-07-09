@@ -17,8 +17,8 @@ ImageElement::ImageElement()
                     {
                         _guidRef            = path.ToGuid();
                         ReflectFields->Guid = _guidRef.string();
-                        UmSceneManager.ResourceManager.RequestTextureResource(
-                            this, _guidRef, [this, path]() { _renderer->LoadTexture(path.c_str()); });
+                        UmSceneManager.ResourceManager.RequestTextureResource(this, _guidRef,
+                                                                              [this]() { LoadTexture(); });
                     }
                 }
             }
@@ -29,13 +29,48 @@ ImageElement::ImageElement()
 
 ImageElement::~ImageElement()
 {
-    if (_renderer) _renderer->SetDestroy();
+    if (_renderer)
+        _renderer->SetDestroy();
 }
 
 void ImageElement::Reset()
 {
     UIComponent::Reset();
-    _renderer = std::make_unique<SpriteRenderer>(transform->GetWorldMatrix(), SpriteType::MODE_2D);
-    _renderer->RegisterRenderQueue();
-    _renderer->SetActive(&EnableInHierarchy);
+    try
+    {
+        _renderer = std::make_unique<SpriteRenderer>(transform->GetWorldMatrix(), SpriteType::MODE_2D);
+        _renderer->RegisterRenderQueue();
+        _renderer->SetActive(&EnableInHierarchy);
+    }
+    catch (...)
+    {
+        UmLogger.Log(LogLevel::LEVEL_ERROR, u8"SpriteRenderer 생성에 실패했습니다.");
+        throw;
+    }
+}
+
+void ImageElement::DeserializedReflectEvent()
+{
+    UIComponent::DeserializedReflectEvent();
+
+    const File::Guid guid = ReflectFields->Guid;
+    if (const auto path = guid.ToPath(); !path.IsNull())
+    {
+        _guidRef            = path.ToGuid();
+        UmSceneManager.ResourceManager.RequestTextureResource(this, _guidRef, [this]() { LoadTexture(); });
+    }
+}
+
+void ImageElement::LoadTexture()
+{
+    if (_renderer)
+    {
+        const std::string path = FilePath;
+        if (path != File::NULL_PATH)
+        {
+            const std::wstring filePath = U8ToWString(path);
+            _renderer->LoadTexture(filePath);
+            _size = _renderer->GetSize();
+        }
+    }
 }
