@@ -83,6 +83,9 @@ UMREAL_COMPONENT(AnimationEventListener)
 #include "Scripts\Stats/WeaponTable/WeaponTableComponent.h"
 UMREAL_COMPONENT(WeaponTableComponent)
 
+#include "Scripts\Test/DevTools/FPSCounter.h"
+UMREAL_COMPONENT(FPSCounter)
+
 #include "Scripts\Particle/TestParticle.h"
 UMREAL_COMPONENT(TestParticle)
 

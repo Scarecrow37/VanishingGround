@@ -10,7 +10,10 @@ public:
 
 protected:
     Enemy& GetEnemy();
+    REFLECT_FIELDS_BEGIN(FSMState)
+    REFLECT_FIELDS_END(EnemyStateBase)
 
 private:
     Enemy* _enemy = nullptr;
+  
 };
