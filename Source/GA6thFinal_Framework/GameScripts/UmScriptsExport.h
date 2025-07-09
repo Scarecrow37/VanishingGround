@@ -97,6 +97,3 @@ UMREAL_COMPONENT(ImageElement)
 
 #include "Scripts/UI/Elements/Text/TextElement.h"
 UMREAL_COMPONENT(TextElement)
-
-#include "Scripts\UI/Elements/Button/ButtonElement.h"
-UMREAL_COMPONENT(ButtonElement)
