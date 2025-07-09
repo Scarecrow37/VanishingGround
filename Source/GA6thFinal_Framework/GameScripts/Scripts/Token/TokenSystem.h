@@ -11,37 +11,37 @@ public:
     template<typename T>
     static bool RegisterToken();
 
-        /// <summary>
+    /// <summary>
     /// 테이블의 토큰을 모두 제거합니다.
     /// </summary>
     void Clear();
 
     /// <summary>
-    /// 
+    /// 라운드가 시작될 때 호출됩니다. 모든 토큰에 대해 OnRoundStart를 호출합니다.
     /// </summary>
     /// <param name="owner"></param>
     void OnRoundStart(CharacterBase* owner);
 
     /// <summary>
-    /// 
+    /// 라운드가 끝날 때 호출됩니다. 모든 토큰에 대해 OnRoundEnd를 호출합니다.
     /// </summary>
     /// <param name="owner"></param>
     void OnRoundEnd(CharacterBase* owner);
 
     /// <summary>
-    /// 
+    /// 턴이 시작될 때 호출됩니다. 모든 토큰에 대해 OnTurnStart를 호출합니다.
     /// </summary>
     /// <param name="owner"></param>
     void OnTurnStart(CharacterBase* owner);  
 
     /// <summary>
-    /// 
+    /// 턴이 끝날 때 호출됩니다. 모든 토큰에 대해 OnTurnEnd를 호출합니다.
     /// </summary>
     /// <param name="owner"></param>
     void OnTurnEnd(CharacterBase* owner); 
 
     /// <summary>
-    /// 
+    /// CharacterBase가 Hit 당했을 때 호출됩니다. 모든 토큰에 대해 OnHit를 호출합니다.
     /// </summary>
     /// <param name="owner"></param>
     void OnHit(CharacterBase* owner);
@@ -52,21 +52,21 @@ public:
     /// </summary>
     /// <param name="tokenID">해당 토큰의 ID</param>
     /// <param name="count">제거할 카운트 수</param>
-    void AddTokenStackFromID(int tokenID, size_t count);
+    void AddTokenStackFromID(int tokenID, UINT8 count);
 
     /// <summary>
     /// 토큰 스택 카운트를 설정합니다. 만약 해당 토큰이 존재하지 않는다면 새로 생성합니다.
     /// </summary>
     /// <param name="tokenID">해당 토큰의 ID</param>
     /// <param name="count">제거할 카운트 수</param>
-    void SetTokenStack(int tokenID, size_t count);
+    void SetTokenStack(int tokenID, UINT8 count);
 
     /// <summary>
     /// 토큰 스택 카운트를 제거합니다. 만약 토큰이 존재하지 않으면 아무런 동작도 하지 않습니다.
     /// </summary>
     /// <param name="tokenID">해당 토큰의 ID</param>
     /// <param name="count">제거할 카운트 수</param>
-    void RemoveTokenStack(int tokenID, size_t count);
+    void RemoveTokenStack(int tokenID, UINT8 count);
 
     /// <summary>
     /// 해당 토큰의 ID로 토큰을 찾아 반환합니다. 만약 해당 토큰이 존재하지 않으면 nullptr을 반환합니다.
@@ -136,16 +136,4 @@ inline static bool TokenSystem::RegisterToken()
         return false;
     }
     return true;
-}
-
-template <typename T>
-inline void TokenSystem::AddTokenStack(size_t count)
-{
-    auto* token = FindTokenEx(T::ID);
-    if (nullptr == token)
-    {
-        token = new T();
-        _tokenTable[T::ID] = token;
-    }
-    token->AddStack(count);
 }

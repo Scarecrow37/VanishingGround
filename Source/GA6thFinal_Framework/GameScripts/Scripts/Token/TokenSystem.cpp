@@ -68,7 +68,7 @@ void TokenSystem::OnHit(CharacterBase* owner)
     }
 }
 
-void TokenSystem::AddTokenStackFromID(int tokenID, size_t count)
+void TokenSystem::AddTokenStackFromID(int tokenID, UINT8 count)
 {
     auto* token = FindTokenEx(tokenID);
     if (nullptr == token)
@@ -81,7 +81,7 @@ void TokenSystem::AddTokenStackFromID(int tokenID, size_t count)
     }
 }
 
-void TokenSystem::SetTokenStack(int tokenID, size_t count)
+void TokenSystem::SetTokenStack(int tokenID, UINT8 count)
 {
     auto* token = FindTokenEx(tokenID);
     if (nullptr == token)
@@ -94,7 +94,7 @@ void TokenSystem::SetTokenStack(int tokenID, size_t count)
     }
 }
 
-void TokenSystem::RemoveTokenStack(int tokenID, size_t count) 
+void TokenSystem::RemoveTokenStack(int tokenID, UINT8 count)
 {
     auto* token = FindTokenEx(tokenID);
     if (token)
