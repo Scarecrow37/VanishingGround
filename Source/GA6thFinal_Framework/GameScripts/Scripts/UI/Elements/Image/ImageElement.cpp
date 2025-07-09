@@ -1,8 +1,8 @@
 ﻿#include "pchScripts.h"
 #include "ImageElement.h"
-#include "Engine/GraphicsCore/UIRenderer.h"
+#include "Engine/GraphicsCore/SpriteRenderer.h"
 
-ImageElement::ImageElement() : _renderer{}, _guidRef{}
+ImageElement::ImageElement()
 {
     FilePath.SetInputAutoEvent([this]() {
         if (ImGui::BeginDragDropTarget())
@@ -35,7 +35,7 @@ ImageElement::~ImageElement()
 void ImageElement::Reset()
 {
     UIComponent::Reset();
-    _renderer = std::make_unique<UIRenderer>(transform->GetWorldMatrix(), UIType::MODE_2D);
+    _renderer = std::make_unique<SpriteRenderer>(transform->GetWorldMatrix(), SpriteType::MODE_2D);
     _renderer->RegisterRenderQueue();
     _renderer->SetActive(&EnableInHierarchy);
 }

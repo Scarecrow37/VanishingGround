@@ -21,6 +21,6 @@ protected:
     void Reset() override;
 
 private:
-    std::unique_ptr<UIRenderer> _renderer;
+    std::unique_ptr<SpriteRenderer> _renderer;
     File::GuidRef               _guidRef;
 };
