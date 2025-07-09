@@ -449,6 +449,21 @@
     <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\AI\EnemyAI.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\GameClearCondition.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\GameOverCondition.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\State\GameClearState.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\State\GameOverState.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\Particle\ParticleComponent.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

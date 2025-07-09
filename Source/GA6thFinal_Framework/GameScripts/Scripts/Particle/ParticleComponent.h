@@ -35,4 +35,5 @@ private:
     float age       = 0.f;
     float lifetime  = 0.f;
     bool isplaying = false;
+    void  LoadParticle();
 };

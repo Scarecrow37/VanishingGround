@@ -11,7 +11,7 @@ struct WeaponStats : public TurnActorStats
         WARHAMMER // 대형 망치
     };
     
-    REFLECT_PROPERTY(Name, Type, HitDamage, CriticalDamage, Speed, AttackCount)
+    REFLECT_PROPERTY(Name, Type, HitDamage, CriticalDamage, Speed, AttackCount, RandomSpeed)
 
     GETTER_ONLY(std::string_view, Name) { return ReflectFields->Name; }
     void SetName(std::string_view name) { ReflectFields->Name = name; }
@@ -37,6 +37,11 @@ struct WeaponStats : public TurnActorStats
     SETTER(int, AttackCount) { ReflectFields->AttackCount = value; }
     PROPERTY(AttackCount)
 
+    /*랜덤 속도를 갱신합니다.*/
+    int RollRandomSpeed();
+    GETTER_ONLY(int, RandomSpeed) { return _randomSpeed; }
+    PROPERTY(RandomSpeed)
+    
     WeaponStats() = default;
     virtual ~WeaponStats() override = default;
 
@@ -49,6 +54,7 @@ protected:
     int         Speed = 0;
     int         AttackCount = 1;
     REFLECT_FIELDS_END(WeaponStats)
+    int _randomSpeed = 0;
 
 public:
     WeaponStats(const WeaponStats& rhs) 

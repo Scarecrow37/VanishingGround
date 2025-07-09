@@ -20,13 +20,8 @@ ParticleComponent::ParticleComponent()
                         _filepath           = path;
                         _guidRef            = path.ToGuid();
                         ReflectFields->Guid = _guidRef.string();
-                        if (_effect)  
-                        {
-                            _effect->SetRemoveFlag(true);
-                        }
-                        _effect = UmParticleManager.ParticleSerializer.Deserialize(path,false);
-                        _effect->SetPlayFlag(false);
-                        _effect->SetActiveFlag(false);
+                        LoadParticle();
+                    
                     }
                 }
             }
@@ -35,10 +30,6 @@ ParticleComponent::ParticleComponent()
     });
     if (_effect)
     {
-        for (auto emitter : _effect->GetEmitterList())
-        {
-            emitter->_particleRenderModule->Initialize();
-        }
         _effect->SetPlayFlag(false);
     }
 }
@@ -78,10 +69,34 @@ void ParticleComponent::DeserializedReflectEvent()
 {
     File::Guid guid = ReflectFields->Guid;
     _guidRef        = guid;
-    _filepath       = guid;
+    _filepath       = guid.ToPath();
     if (false == guid.IsNull())
     {
-        _effect = UmParticleManager.ParticleSerializer.Deserialize(guid,false);
+        LoadParticle();
+    }
+}
+
+void ParticleComponent::LoadParticle() 
+{
+    if (_effect)
+    {
+        _effect->SetRemoveFlag(true);
+    }
+    UmParticleManager.ParticleSerializer.PreDeserialize(_filepath);
+    const auto& paths = UmParticleManager.ParticleSerializer.GetUsedTexturePaths();
+    for (int i = 0; i < paths.size(); ++i)
+    {
+        File::Path texPath = paths[i];
+        texPath            = std::filesystem::absolute(texPath);
+        File::Guid guid    = texPath.ToGuid();
+        if (i < paths.size() - 1)
+            UmSceneManager.ResourceManager.RequestTextureResource(this, guid, []() {});
+        else
+            UmSceneManager.ResourceManager.RequestTextureResource(this, guid, [this]() {
+                _effect = UmParticleManager.ParticleSerializer.Deserialize(_filepath, false);
+                _effect->SetPlayFlag(false);
+                _effect->SetActiveFlag(false);
+            });
     }
 }
 
