@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "UmFramework.h"
 
-class UIRenderer;
+class SpriteRenderer;
 class TestUI : public Component
 {
     USING_PROPERTY(TestUI)
@@ -19,6 +19,9 @@ protected:
     void ImGuiDrawPropertysEvent() override;
     void DeserializedReflectEvent() override;
 
+private:
+    void LoadTexture();
+
 protected:
     File::GuidRef _guidRef;
 
@@ -28,6 +31,6 @@ protected:
     REFLECT_FIELDS_END(TestUI)
 
 private:
-    std::unique_ptr<UIRenderer> _uiRenderer;
-    bool                        _isActive = true;
+    std::unique_ptr<SpriteRenderer> _spriteRenderer;
+    SIZE                            _size;
 };

@@ -50,6 +50,9 @@ public:
     /// <returns></returns>
     const std::map<std::string, WeaponStats>& GetWeaponTable() { return _weaponTable; }
 
+    std::string SaveWeaponTable();
+    bool        LoadWeaponTable(std::string_view data);
+
 private:
     bool RenameWeapon(WeaponStats& weapon, std::string_view newName);
     bool InsertWeapon(WeaponStats& weapon);
@@ -61,6 +64,8 @@ private:
 private:
     struct ImguiEvent
     {
+        bool ShowTableEditor = false;
+
         std::string DeleteTableBuffer = STR_NULL;
         bool        OpenDeletePopup   = false;
 
@@ -81,6 +86,8 @@ protected:
     /// </summary>
     virtual void ImGuiDrawPropertysEvent() override;
 
+    void ImGuiTableEditor();
+
     /// <summary>
     /// <para> 직렬화 직전 자동으로 호출되는 이벤트 함수입니다. </para>
     /// <para> 직접 override 해서 사용합니다.                 </para>
@@ -92,6 +99,5 @@ protected:
     /// <para> 직접 override 해서 사용합니다.                     </para>
     /// </summary>
     virtual void DeserializedReflectEvent() override;
-
 
 };

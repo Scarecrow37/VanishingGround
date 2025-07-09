@@ -21,7 +21,6 @@
 #include "UITechnique.h"
 
 Renderer::Renderer()
-    : _currnetState(0)
 {
 }
 
@@ -108,7 +107,7 @@ void Renderer::RegisterRenderQueue(MeshRenderer* component)
     }
 }
 
-void Renderer::RegisterRenderQueue(std::string_view sceneName, UIRenderer* component)
+void Renderer::RegisterRenderQueue(std::string_view sceneName, SpriteRenderer* component)
 {
     auto iter = _renderScenes.find(sceneName.data());
 
@@ -121,7 +120,7 @@ void Renderer::RegisterRenderQueue(std::string_view sceneName, UIRenderer* compo
     scene->RegisterOnRenderQueue(component);
 }
 
-void Renderer::RegisterRenderQueue(UIRenderer* component)
+void Renderer::RegisterRenderQueue(SpriteRenderer* component)
 {
     RegisterRenderQueue("Game", component);
 
