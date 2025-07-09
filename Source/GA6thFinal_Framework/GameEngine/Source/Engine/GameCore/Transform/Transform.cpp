@@ -1,4 +1,5 @@
 ﻿#include "pch.h"
+#include <UmScripts.h>
 
 Transform::Transform(GameObject& owner)
     :
@@ -267,4 +268,33 @@ void Transform::UpdateMatrix()
 
         curr->_hasChanged = false;
     });
+}
+
+void Transform::CallUIDetachParent(Transform* target, Transform* prevParent)
+{
+    GameObject& gameObject = target->gameObject;
+    for (size_t i = 0; i < gameObject.GetComponentCount(); ++i)
+    {
+        Component* component = gameObject.GetComponentAtIndex<Component>(i);
+        if (Component::TYPE::UI == component->GetType())
+        {
+            UIComponent* uiComponent = static_cast<UIComponent*>(component);
+            uiComponent->OnDetachParent(&prevParent->gameObject);
+        }
+    }
+
+}
+
+void Transform::CallUIAttachChild(Transform* target, Transform* newChild)
+{
+    GameObject& gameObject = target->gameObject;
+    for (size_t i = 0; i < gameObject.GetComponentCount(); ++i)
+    {
+        Component* component = gameObject.GetComponentAtIndex<Component>(i);
+        if (Component::TYPE::UI == component->GetType())
+        {
+            UIComponent* uiComponent = static_cast<UIComponent*>(component);
+            uiComponent->OnAttachChild(&newChild->gameObject);
+        }
+    }
 }
