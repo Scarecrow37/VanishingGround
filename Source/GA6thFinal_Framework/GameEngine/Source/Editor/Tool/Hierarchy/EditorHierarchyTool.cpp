@@ -405,9 +405,11 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
         }
         if (ImGui::BeginMenu("Panels"))
         {
-            if (ImGui::MenuItem("Temp"))
+            if (ImGui::MenuItem("Grid Panel"))
             {
-                // TODO;
+                UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
+                    GameObjectKey, GameObject::Helper::GenerateUniqueName("Grid Panel"), &ui);
+                ui->AddComponent<GridPanel>();
             }
             ImGui::EndMenu();
         }
