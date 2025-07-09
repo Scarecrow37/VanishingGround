@@ -1,6 +1,5 @@
 ﻿#pragma once
 #include "../../Base/UIComponent.h"
-#include "UmFramework.h"
 
 class ImageElement : public UIComponent
 {
