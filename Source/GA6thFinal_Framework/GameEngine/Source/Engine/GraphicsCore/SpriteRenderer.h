@@ -1,19 +1,19 @@
 ﻿#pragma once
 #include "GraphicsBase.h"
 
-class UIRenderer : public GraphicsBase
+class SpriteRenderer : public GraphicsBase
 {
 public:
-    UIRenderer(const Matrix& world, UIType type);
-    virtual ~UIRenderer();
+    SpriteRenderer(const Matrix& world, SpriteType type);
+    virtual ~SpriteRenderer();
 
 public:
     const Matrix&  GetWorldMatrix() const { return _worldMatrix; }
-    const UIType   GetType() const { return _type; }
+    const SpriteType GetType() const { return _type; }
     const Texture* GetTexture() const { return _texture.get(); }
 
 public:
-    void SetType(UIType type) { _type = type; }
+    void SetType(SpriteType type) { _type = type; }
 
 public:
     void RegisterRenderQueue(std::string_view sceneName);
@@ -23,5 +23,5 @@ public:
 private:
     std::shared_ptr<Texture> _texture;
     const Matrix&            _worldMatrix;
-    UIType                   _type;
+    SpriteType               _type;
 };

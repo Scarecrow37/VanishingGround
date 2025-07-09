@@ -1,0 +1,25 @@
+﻿#include "pch.h"
+#include "SpriteRenderer.h"
+
+SpriteRenderer::SpriteRenderer(const Matrix& world, SpriteType type)
+    : _worldMatrix(world)
+    , _type(type)
+{
+}
+
+SpriteRenderer::~SpriteRenderer() {}
+
+void SpriteRenderer::RegisterRenderQueue(std::string_view sceneName)
+{
+    UmRenderer.RegisterRenderQueue(sceneName, this);
+}
+
+void SpriteRenderer::RegisterRenderQueue()
+{
+    UmRenderer.RegisterRenderQueue(this);
+}
+
+void SpriteRenderer::LoadTexture(std::wstring_view filePath)
+{
+    _texture = UmResourceManager.LoadResource<Texture>(filePath);
+}
