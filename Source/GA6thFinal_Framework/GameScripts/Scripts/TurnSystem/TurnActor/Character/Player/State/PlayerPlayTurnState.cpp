@@ -63,8 +63,8 @@ void PlayerPlayTurnState::OnUpdate()
 
         if (ImGui::BeginCombo("Target Enemy##9A48EE30-CB5F-48AC-9740-DDF8118AAC49", selectName.data()))
         {
-            auto enemys = GameObject::FindGameObjectsWithTag(Enemy::TAG);
-            for (auto& weak : enemys)
+            auto enemies = GameObject::FindGameObjectsWithTag(Enemy::TAG);
+            for (auto& weak : enemies)
             {
                 if (false == weak.expired())
                 {

@@ -298,7 +298,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Scripts\DamageSystem\DamegeSystem.h" />
+    <ClInclude Include="Scripts\DamageSystem\DamageSystem.h" />
     <ClInclude Include="Scripts\GameCore\FSM\Factory\FSMConditionFactory.h" />
     <ClInclude Include="Scripts\GameCore\FSM\Factory\FSMStateFactory.h" />
     <ClInclude Include="Scripts\GameCore\FSM\IFSMEntity.h" />
