@@ -8,23 +8,144 @@ public:
     ~TokenSystem() = default;
 
 public:
-    void OnRoundStart(CharacterBase* owner);
-    void OnRoundEnd(CharacterBase* owner);
-    void OnTurnStart(CharacterBase* owner);  
-    void OnTurnEnd(CharacterBase* owner); 
-    void OnHit(CharacterBase* owner);
+    template<typename T>
+    static bool RegisterToken();
 
+        /// <summary>
+    /// 테이블의 토큰을 모두 제거합니다.
+    /// </summary>
     void Clear();
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="owner"></param>
+    void OnRoundStart(CharacterBase* owner);
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="owner"></param>
+    void OnRoundEnd(CharacterBase* owner);
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="owner"></param>
+    void OnTurnStart(CharacterBase* owner);  
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="owner"></param>
+    void OnTurnEnd(CharacterBase* owner); 
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="owner"></param>
+    void OnHit(CharacterBase* owner);
+
 public:
+    /// <summary>
+    /// 토큰 스택 카운트를 추가합니다. 만약 해당 토큰이 존재하지 않는다면 새로 생성합니다.
+    /// </summary>
+    /// <param name="tokenID">해당 토큰의 ID</param>
+    /// <param name="count">제거할 카운트 수</param>
+    void AddTokenStackFromID(int tokenID, size_t count);
+
+    /// <summary>
+    /// 토큰 스택 카운트를 설정합니다. 만약 해당 토큰이 존재하지 않는다면 새로 생성합니다.
+    /// </summary>
+    /// <param name="tokenID">해당 토큰의 ID</param>
+    /// <param name="count">제거할 카운트 수</param>
+    void SetTokenStack(int tokenID, size_t count);
+
+    /// <summary>
+    /// 토큰 스택 카운트를 제거합니다. 만약 토큰이 존재하지 않으면 아무런 동작도 하지 않습니다.
+    /// </summary>
+    /// <param name="tokenID">해당 토큰의 ID</param>
+    /// <param name="count">제거할 카운트 수</param>
+    void RemoveTokenStack(int tokenID, size_t count);
+
+    /// <summary>
+    /// 해당 토큰의 ID로 토큰을 찾아 반환합니다. 만약 해당 토큰이 존재하지 않으면 nullptr을 반환합니다.
+    /// </summary>
+    /// <param name="tokenID">해당 토큰의 ID</param>
+    /// <returns></returns>
     IToken* FindToken(int tokenID);
-    void    SetTokenStack(int tokenID, size_t count);
-    void    AddTokenStack(int tokenID, size_t count);
-    void    RemoveTokenStack(int tokenID, size_t count);
 
 private:
-    Token*  FindTokenEx(int tokenID);
+    /// <summary>
+    /// Token을 ID로 찾아 반환합니다.시스템 내부에서만 사용하는 함수입니다.
+    /// </summary>
+    /// <param name="tokenID">해당 토큰의 ID</param>
+    /// <returns></returns>
+    Token* FindTokenEx(int tokenID);
+
+    /// <summary>
+    /// 유효한 토큰인지 확인합니다. (ex. 스택 카운트가 0이 아닌지 등)
+    /// </summary>
+    /// <param name="tokenID">해당 토큰의 ID</param>
+    void CheckValidToken(int tokenID);
+
+    /// <summary>
+    /// 토큰 ID를 통해 토큰 인스턴스를 생성합니다.
+    /// </summary>
+    /// <param name="tokenID">생성할 토큰의 ID</param>
+    /// <returns>생성된 토큰의 주소 값</returns>
+    Token* CreateTokenInstanceFromID(int tokenID);
+
+    /// <summary>
+    /// 토큰 Name를 통해 토큰 인스턴스를 생성합니다.
+    /// </summary>
+    /// <param name="tokenName">생성할 토큰의 Name</param>
+    /// <returns>생성된 토큰의 주소 값</returns>
+    Token* CreateTokenInstanceFromName(std::string_view tokenName);
 
 private:
     std::unordered_map<int, Token*> _tokenTable;
+
+    inline static std::unordered_map<int, std::function<Token*()>> _tokenIDFactoryTable;
+    inline static std::unordered_map<std::string, std::function<Token*()>> _tokenNameFactoryTable;
 };
+
+template <typename T>
+inline static bool TokenSystem::RegisterToken()
+{
+    static_assert(std::is_base_of_v<Token, T>, "T must be derived from Token");
+    std::function<Token*()> factoryFunc = []() { return new T(); };
+    auto idIter = _tokenIDFactoryTable.find(T::ID);
+    auto nameIter = _tokenNameFactoryTable.find(T::NAME);
+    if (idIter == _tokenIDFactoryTable.end())
+    {
+        _tokenIDFactoryTable[T::ID] = factoryFunc;
+    }
+    else
+    {
+        assert(false && "토큰 등록 중 ID 충돌이 발생했습니다.");
+        return false;
+    }
+    if (nameIter == _tokenNameFactoryTable.end())
+    {
+        _tokenNameFactoryTable[T::NAME] = factoryFunc;
+    }
+    else
+    {
+        assert(false && "토큰 등록 중 Name 충돌이 발생했습니다.");
+        return false;
+    }
+    return true;
+}
+
+template <typename T>
+inline void TokenSystem::AddTokenStack(size_t count)
+{
+    auto* token = FindTokenEx(T::ID);
+    if (nullptr == token)
+    {
+        token = new T();
+        _tokenTable[T::ID] = token;
+    }
+    token->AddStack(count);
+}

@@ -1,22 +1,18 @@
 ﻿#pragma once
+#include "Interface/IToken.h"
 
-class CharacterBase;
+// @brief 토큰의 기본 멤버입니다. 이걸 추가하지 않으면 System에 추가가 불가능합니다
+#define TOKEN_DATA(id, name)\
+public:\
+static constexpr int ID = id;\
+static constexpr const char* NAME = name;
 
-class IToken
-{
-private:
-    virtual void OnRoundStart(CharacterBase* owner) = 0;
-    virtual void OnRoundEnd(CharacterBase* owner)   = 0;
-    virtual void OnTurnStart(CharacterBase* owner)  = 0;
-    virtual void OnTurnEnd(CharacterBase* owner)    = 0;
-    virtual void OnHit(CharacterBase* owner)        = 0;
-
-public:
-    virtual int   GetTokenID() const    = 0;
-    virtual UINT8 GetStackCount() const = 0;
-    virtual UINT8 GetMaxStackCount() const = 0;
-
-};
+// @brief 토큰을 등록하는 매크로입니다. 이걸 사용하지 않으면 토큰이 System에 등록되지 않습니다.
+#define REGISTER_TOKEN(CLASS)\
+namespace TokenRegister  {                                                                                  \
+namespace CLASS##Register  {                                                                                \
+        static bool IsRegister = TokenSystem::RegisterToken<CLASS>();                                       \
+    }}                                                       
 
 class Token : public IToken
 {
@@ -30,7 +26,6 @@ public:
     virtual void OnTurnStart(CharacterBase* owner)  override = 0;
     virtual void OnTurnEnd(CharacterBase* owner)    override = 0;
     virtual void OnHit(CharacterBase* owner)        override = 0;
-    virtual int  GetTokenID() const                 override = 0;
 
 public:
     UINT8   GetStackCount() const override;
