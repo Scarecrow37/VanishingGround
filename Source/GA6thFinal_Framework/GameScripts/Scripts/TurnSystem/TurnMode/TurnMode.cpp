@@ -2,6 +2,7 @@
 #include "TurnMode.h"
 #include "GameCore/FSM/FiniteStateMachine.h"
 #include "TurnSystem/TurnActor/TurnActor.h"
+#include <WeaponSystem/WeaponSystem.h>
 
 //Condition
 #include "GameCore/FSM/AlwaysTransitionCondition.h"
@@ -52,7 +53,7 @@ void TurnMode::MakeTurnList()
             Player* player = object->GetComponent<Player>();
             if (nullptr != player)
             {
-                for (int i = 0; i < player->EQUIP_WEAPONS_SIZE; i++)
+                for (int i = 0; i < WeaponSystem::EQUIP_WEAPONS_SIZE; i++)
                 {
                     _turnList.emplace_back(i, player);
                 }
@@ -105,8 +106,15 @@ TurnActor* TurnMode::PopTurnList()
         {
             if (true == IsPlayerActorSlot(actorSlot))
             {
-                Player* player = static_cast<Player*>(actor);
-                player->SetCurrentWeaponSlot(slot);
+                WeaponSystem* weaponSystem = WeaponSystem::GetInstance();
+                if (weaponSystem)
+                {
+                    weaponSystem->SetCurrentWeaponSlot(slot);
+                }
+                else
+                {
+                    UmLogger.Log(LogLevel::LEVEL_WARNING, u8"Weapon System이 존재하지 않습니다.");
+                }        
             }
             break;
         }
@@ -176,8 +184,15 @@ int TurnMode::GetRealRoundSpeed(const std::pair<int, TurnActor*>& turnActor)
     int roundSpeed      = 0;
     if (isPlayer)
     {
-        Player* player = static_cast<Player*>(actor);
-        roundSpeed = player->GetRoundSpeedToSlot(slot);
+        WeaponSystem* weaponSystem = WeaponSystem::GetInstance();
+        if (weaponSystem)
+        {
+            roundSpeed = weaponSystem->GetRoundSpeedToSlot(slot);
+        }
+        else
+        {
+            UmLogger.Log(LogLevel::LEVEL_WARNING, u8"Weapon System이 존재하지 않습니다.");
+        }
     }
     else
     {

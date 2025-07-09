@@ -1,6 +1,7 @@
 ﻿#include "pchScripts.h"
 #include "RoundStartPhase.h"
 #include "TurnSystem/TurnMode/TurnMode.h"
+#include <WeaponSystem/WeaponSystem.h>
 
 REGISTER_CLASS(FSMStateFactory, RoundStartPhase)
 
@@ -23,6 +24,8 @@ void RoundStartPhase::OnStart()
 void RoundStartPhase::OnEnter() 
 {
     _isPhaseEnd = false;
+    _weaponSystem->RoolRandomSpeed();
+
     int currRound = _turnMode->AddRoundCount();
     std::string message = std::format("{}{}", currRound, (const char*)u8"라운드 시작!!!!===========================================================");
     UmLogger.Message(LogLevel::LEVEL_DEBUG, message);
