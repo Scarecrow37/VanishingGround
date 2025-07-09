@@ -91,7 +91,7 @@ void TokenSystem::SetTokenStackFromID(int tokenID, UINT8 count)
     if (token)
     {
         token->SetStack(count);
-        bool isValid = CheckValidToken(tokenID);
+        bool isValid = CheckValidTokenFromID(tokenID);
         if (false == isValid)
         {   // 스택이 0이 되면 토큰을 제거합니다.
             RemoveTokenFromID(tokenID);
@@ -105,7 +105,7 @@ void TokenSystem::RemoveTokenStackFromID(int tokenID, UINT8 count)
     if (token)
     {
         token->RemoveStack(count);
-        bool isValid = CheckValidToken(tokenID);
+        bool isValid = CheckValidTokenFromID(tokenID);
         if (false == isValid)
         {   // 스택이 0이 되면 토큰을 제거합니다.
             RemoveTokenFromID(tokenID);
