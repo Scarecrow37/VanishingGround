@@ -106,7 +106,9 @@ void ParticleManager::Update(const float deltaTime)
         for (auto effect : _particleEffects)
         {
             if (true == effect->GetActiveFlag())
+            {
                 effect->Update(delta);
+            }
         }
         if (false == _particleEffects.empty())
         {

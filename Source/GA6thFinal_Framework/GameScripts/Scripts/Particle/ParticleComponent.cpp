@@ -35,6 +35,10 @@ ParticleComponent::ParticleComponent()
     });
     if (_effect)
     {
+        for (auto emitter : _effect->GetEmitterList())
+        {
+            emitter->_particleRenderModule->Initialize();
+        }
         _effect->SetPlayFlag(false);
     }
 }

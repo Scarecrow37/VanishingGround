@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "Engine/GraphicsCore/ParticleEffect.h"
+#include "Engine/GraphicsCore/ParticleEmitter.h"
 #include "UmFramework.h"
 class ParticleComponent : public Component
 {
