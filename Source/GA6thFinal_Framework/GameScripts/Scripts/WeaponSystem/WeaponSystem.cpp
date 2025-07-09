@@ -37,7 +37,7 @@ void WeaponSystem::ImGuiDrawPropertysEvent()
     ImguiEquipWeapons();
 }
 
-void WeaponSystem::RoolRandomSpeed()
+void WeaponSystem::RollRandomSpeed()
 {
     for (auto& weapons : _equipWeapons)
     {
@@ -51,6 +51,7 @@ WeaponStats WeaponSystem::EquipWeapon(int slot, const WeaponStats& weaponStats)
     if (0 <= slot && slot < _equipWeapons.size())
     {
         originWeapon = _equipWeapons[slot];
+        _equipWeapons[slot] = weaponStats;
     }
     return originWeapon;
 }

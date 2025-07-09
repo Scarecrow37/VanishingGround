@@ -53,7 +53,7 @@ public:
     /// <summary>
     /// 모든 무기에 Random Speed를 계산합니다.
     /// </summary>
-    void RoolRandomSpeed();
+    void RollRandomSpeed();
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)

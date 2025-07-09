@@ -24,9 +24,10 @@ void RoundStartPhase::OnStart()
 void RoundStartPhase::OnEnter() 
 {
     _isPhaseEnd = false;
-    _weaponSystem->RoolRandomSpeed();
 
+    _weaponSystem->RollRandomSpeed();
     int currRound = _turnMode->AddRoundCount();
+
     std::string message = std::format("{}{}", currRound, (const char*)u8"라운드 시작!!!!===========================================================");
     UmLogger.Message(LogLevel::LEVEL_DEBUG, message);
 
