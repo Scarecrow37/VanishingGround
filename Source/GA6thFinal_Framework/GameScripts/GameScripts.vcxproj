@@ -306,6 +306,7 @@
     <ClInclude Include="Scripts\Mesh\SkeletalMeshRenderer.h" />
     <ClInclude Include="Scripts\Mesh\StaticMeshRenderer.h" />
     <ClInclude Include="Scripts\Light\Base\LightComponent.h" />
+    <ClInclude Include="Scripts\Particle\ParticleComponent.h" />
     <ClInclude Include="Scripts\Stats\TurnActorStats.h" />
     <ClInclude Include="Scripts\Stats\TurnActorStatsComponent.h" />
     <ClInclude Include="Scripts\Stats\Enemy\EnemyStats.h" />
@@ -393,6 +394,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Scripts\Particle\ParticleComponent.cpp" />
     <ClCompile Include="Scripts\Stats\WeaponTable\WeaponTableComponent.cpp" />
     <ClCompile Include="Scripts\Stats\Weapon\WeaponStats.cpp" />
     <ClCompile Include="Scripts\Test\Component\TestComponent.cpp" />
