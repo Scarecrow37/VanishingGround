@@ -251,6 +251,7 @@ void RenderScene::UpdateUI()
 
             XMVECTOR combine = XMQuaternionMultiply(r, _camera->GetRotation());
             world = XMMatrixScalingFromVector(s) * XMMatrixRotationQuaternion(combine) * XMMatrixTranslationFromVector(t);
+            [[fallthrough]];
         }
         case SpriteType::MODE_25D:
         {
