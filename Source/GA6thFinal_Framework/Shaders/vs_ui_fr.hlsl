@@ -28,6 +28,7 @@ VSOutput vs_main(VSInput input)
     uint ID = IDs[input.instanceID];
         
     output.position = mul(position, worldMatrices[ID]);
+    output.position = mul(output.position, cameraData.View);
     output.position = mul(output.position, cameraData.Projection);
     
     output.uv = input.uv;

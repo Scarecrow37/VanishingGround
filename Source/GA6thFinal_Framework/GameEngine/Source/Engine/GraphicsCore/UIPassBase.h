@@ -9,14 +9,19 @@ public:
 
 public:
     void Initialize(RenderScene* ownerScene) override;
+    void Begin(ID3D12GraphicsCommandList* commandList) override;
+    void Draw(ID3D12GraphicsCommandList* commandList) override;
+    void End(ID3D12GraphicsCommandList* commandList) override;
 
 protected:
     void UpdateBuffer(ID3D12GraphicsCommandList* commandList);
     void SetResource(UINT rootParameterIndex, ID3D12GraphicsCommandList* commandList);
 
 protected:
-    const std::vector<UINT>&          _instanceIDs;
-    std::unique_ptr<StructuredBuffer> _instanceIDBuffer;
-    std::shared_ptr<Model>            _quadModel;
-    BaseMesh*                         _halfQuad;
+    CameraData                          _cameraData;
+    std::shared_ptr<Model>              _quadModel;
+    std::unique_ptr<ConstantBufferView> _cameraBuffer;
+    const std::vector<UINT>&            _instanceIDs;
+    std::unique_ptr<StructuredBuffer>   _instanceIDBuffer;
+    BaseMesh*                           _halfQuad;
 };
