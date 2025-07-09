@@ -4,6 +4,9 @@ class UIComponent : public Component
 {
     USING_PROPERTY(UIComponent)
 
+public:
+    UIComponent();
+
 protected:
     REFLECT_FIELDS_BEGIN(Component)
 
