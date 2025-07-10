@@ -39,6 +39,11 @@ void EnemyPlayTurnState::OnEnter()
     UmTime.Invoke(&GetFSM(), 2.f, [=]() { GetEnemy().EndTurn(); });
 
     LogCurrentAction();
+
+    auto& enemy = GetEnemy();
+    enemy.OnTurnStart();
+
+    ProcessAction();
 }
 
 void EnemyPlayTurnState::OnExit() 
@@ -48,6 +53,10 @@ void EnemyPlayTurnState::OnExit()
     std::string message = std::format("{} {}", gameObject->ToString(), (const char*)u8"턴 종료.");
     UmLogger.Message(LogLevel::LEVEL_TRACE, message);
 
+    auto& enemy = GetEnemy();
+    enemy.OnTurnEnd();
+
+    // Enemy의 턴이 종료시 액션을 선언.
     _aiModel.Transition();
     _aiModel.Refresh();
 }
@@ -153,8 +162,16 @@ void EnemyPlayTurnState::BuildAIModel23001()
     _aiModel.SetCurrentNode("#1");
 }
 
+#include <TurnSystem/TurnActor/Character/Player/Player.h>
 void EnemyPlayTurnState::Action22000()
 {
+    auto player = Player::GetInstance();
+    if (player)
+    {
+        // 플레이어에게 출혈 토큰을 추가합니다.
+        auto& system = player->GetTokenSystem();
+        system.AddTokenStackFromID(Bleed1Token::ID, 1);
+    }
 }
 
 void EnemyPlayTurnState::Action22001()
@@ -171,6 +188,13 @@ void EnemyPlayTurnState::Action22003()
 
 void EnemyPlayTurnState::Action22004()
 {
+    auto player = Player::GetInstance();
+    if (player)
+    {
+        // 플레이어에게 출혈 토큰을 추가합니다.
+        auto& system = player->GetTokenSystem();
+        system.AddTokenStackFromID(Bleed1Token::ID, 1);
+    }
 }
 
 void EnemyPlayTurnState::BuildAIModel23010() 
@@ -231,6 +255,7 @@ std::string_view EnemyPlayTurnState::GetActionName(int actionID) const
     static std::string actionName;
     switch (actionID)
     {
+        GET_ACTION_NAME(0, u8"유효하지 않은 액션 ID")
         GET_ACTION_NAME(22000, u8"찢어 발기기")
         GET_ACTION_NAME(22001, u8"기습")
         GET_ACTION_NAME(22002, u8"확인 사살")
@@ -253,5 +278,4 @@ void EnemyPlayTurnState::LogCurrentAction()
     GameObject* gameObject = &GetFSM().gameObject;
     std::string message = std::format("{} {}", gameObject->ToString(), GetActionName(actionID));
     UmLogger.Message(LogLevel::LEVEL_DEBUG, message);
-    
 }

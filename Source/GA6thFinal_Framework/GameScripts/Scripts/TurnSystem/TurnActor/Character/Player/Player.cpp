@@ -18,12 +18,22 @@
 
 Player::Player()
 {
-   
 }
-Player::~Player() = default;
+
+Player::~Player()
+{
+    if (this == static_instance)
+    {
+        static_instance = nullptr;
+    }
+}
 
 void Player::Awake() 
 {
+    if (nullptr == static_instance)
+    {
+        static_instance = this;
+    }
     Base::Awake();
     gameObject->AddTag(TAG);
     BuildPlayerFSM();
@@ -123,10 +133,6 @@ CharacterStats* Player::GetCharacterStats()
     return stats;
 }
 
-void Player::OnRoundStart() 
-{
-    Base::OnRoundStart();
-}
 
 PlayerStatsComponent* Player::GetPlayerStats()
 {
@@ -175,4 +181,54 @@ void Player::BuildPlayerFSM()
         //Entry
         _finiteStateMachine->SetEntryState<PlayerWaitTurnState>();
     }
+}
+
+void Player::OnCombatStart()
+{
+    Base::OnCombatStart();
+}
+
+void Player::OnRoundStart()
+{
+    Base::OnRoundStart();
+}
+
+void Player::OnRoundEnd()
+{
+    Base::OnRoundEnd();
+}
+
+void Player::OnTurnStart()
+{
+    Base::OnTurnStart();
+}
+
+void Player::OnTurnEnd()
+{
+    Base::OnTurnEnd();
+}
+
+void Player::OnHit()
+{
+    Base::OnHit();
+}
+
+void Player::OnDead()
+{
+    Base::OnDead();
+}
+
+void Player::OnKill(CharacterBase* destination)
+{
+    Base::OnKill(destination);
+}
+
+void Player::OnTokenAdded(int tokenID)
+{
+    Base::OnTokenAdded(tokenID);
+}
+
+void Player::OnTokenRemoved(int tokenID)
+{
+    Base::OnTokenRemoved(tokenID);
 }

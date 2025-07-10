@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "../TurnActor.h"
+#include "Token/TokenSystem.h"
 
 struct CharacterStats;
 class CharacterBase abstract : public TurnActor
@@ -56,7 +57,9 @@ private:
 
 public:
     virtual void Revive() override;
-    virtual void OnRoundStart() override;
+    virtual void Dead() override;
+
+    inline TokenSystem& GetTokenSystem() { return _tokenSystem; }
 
 public:
     CharacterBase();
@@ -74,12 +77,24 @@ private:
     int _chainCount;
     int _chainRoundCount;
 
+    TokenSystem _tokenSystem;
+
 protected:
     /// <summary>
     /// <para> 이 함수는 항상 Start 함수 전에 호출되며 프리팹이 인스턴스화 된 직후에 호출됩니다.                </para>
     /// <para> 게임 오브젝트의 Active가 false 상태인 경우 Awake 함수는 true가 될때까지 호출되지 않습니다.      </para>
     /// </summary>
-    virtual void Awake();
+    virtual void Awake() override;
 
-    virtual void Dead() override;
+public:
+    virtual void OnCombatStart() override;
+    virtual void OnRoundStart() override;
+    virtual void OnRoundEnd() override;
+    virtual void OnTurnStart() override;
+    virtual void OnTurnEnd() override;
+    virtual void OnHit() override;
+    virtual void OnDead() override;
+    virtual void OnKill(CharacterBase* destination) override;
+    virtual void OnTokenAdded(int tokenID) override;
+    virtual void OnTokenRemoved(int tokenID) override;
 };

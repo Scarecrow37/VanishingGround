@@ -298,6 +298,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Scripts\Interface\ITriggerType.h" />
+    <ClInclude Include="Scripts\Token\Object\Bleed\Bleed1Token.h" />
     <ClInclude Include="Scripts\DamageSystem\DamageSystem.h" />
     <ClInclude Include="Scripts\GameCore\FSM\Factory\FSMConditionFactory.h" />
     <ClInclude Include="Scripts\GameCore\FSM\Factory\FSMStateFactory.h" />
@@ -316,6 +318,9 @@
     <ClInclude Include="Scripts\Stats\Weapon\WeaponStats.h" />
     <ClInclude Include="Scripts\Test\Component\TestComponent.h" />
     <ClInclude Include="Scripts\Test\UI\TestUI.h" />
+    <ClInclude Include="Scripts\Token\Interface\IToken.h" />
+    <ClInclude Include="Scripts\Token\Token.h" />
+    <ClInclude Include="Scripts\Token\TokenSystem.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\AI\EnemyAI.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\Base\EnemyConditionBase.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\EnemyDeadCondition.h" />
@@ -383,6 +388,7 @@
     <ClInclude Include="Scripts\WeaponSystem\WeaponSystem.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Scripts\Token\Object\Bleed\Bleed1Token.cpp" />
     <ClCompile Include="dllmain.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">Use</PrecompiledHeader>
@@ -408,6 +414,9 @@
     <ClCompile Include="Scripts\Stats\Weapon\WeaponStats.cpp" />
     <ClCompile Include="Scripts\Test\Component\TestComponent.cpp" />
     <ClCompile Include="Scripts\Test\UI\TestUI.cpp" />
+    <ClCompile Include="Scripts\Token\Interface\IToken.cpp" />
+    <ClCompile Include="Scripts\Token\Token.cpp" />
+    <ClCompile Include="Scripts\Token\TokenSystem.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\AI\EnemyAI.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\Base\EnemyConditionBase.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\EnemyDeadCondition.cpp" />
