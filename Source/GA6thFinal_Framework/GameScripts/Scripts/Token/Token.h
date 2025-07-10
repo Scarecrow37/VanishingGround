@@ -5,7 +5,7 @@
 #define TOKEN_DATA(id, name)                \
 public:                                     \
 static constexpr int ID = id;               \
-static constexpr const char* NAME = name;
+static constexpr const char8_t* NAME = u8##name;
 
 // @brief 토큰을 등록하는 매크로입니다. 이걸 사용하지 않으면 토큰이 System에 등록되지 않습니다.
 // #include<Token/TokenSystem.h>을 포함해야합니다.
@@ -15,11 +15,12 @@ namespace CLASS##Register  {                                            \
         static bool IsRegister = TokenSystem::RegisterToken<CLASS>();   \
     }}                                                       
 
-class Token : public IToken
+class Token : public ReflectSerializer, public IToken
 {
+    USING_PROPERTY(Token)
 public:
-    Token() = default;
-    virtual ~Token() = default;
+    Token();
+    virtual ~Token();
 
 public: // 콜백에 대한 자세한 주석은 ITriggerType.h를 참고하세요.
     virtual void OnCombatStart(CharacterBase* source) override                                  {};
@@ -46,6 +47,7 @@ public:
 
 private:
     UINT16  _stackCount = 0;
-    UINT16  _maxStackCount = UINT16_MAX;
-    
+    REFLECT_FIELDS_BEGIN(ReflectSerializer)   
+    UINT16  MaxStackCount = UINT16_MAX;
+    REFLECT_FIELDS_END(Token)
 };

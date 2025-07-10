@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include <Token/Token.h>
-#include <Token/Object/Bleed/Bleed1Token.h>
+#include <Token/Object/Bleed/BleedToken.h>
 
 class TokenSystem
 {
@@ -71,7 +71,7 @@ public:
     /// </summary>
     /// <param name="tokenID">해당 토큰의 ID</param>
     /// <param name="count">제거할 카운트 수</param>
-    void AddTokenStackFromID(int tokenID, UINT16 count);
+    void AddTokenStackFromID(int tokenID, UINT16 count = 1);
 
     /// <summary>
     /// <para>토큰 스택 카운트를 설정합니다. 만약 해당 토큰이 존재하지 않는다면 새로 생성합니다.</para>
@@ -87,7 +87,7 @@ public:
     /// </summary>
     /// <param name="tokenID">해당 토큰의 ID</param>
     /// <param name="count">제거할 카운트 수</param>
-    void RemoveTokenStackFromID(int tokenID, UINT16 count);
+    void RemoveTokenStackFromID(int tokenID, UINT16 count = 1);
 
     /// <summary>
     /// 해당 토큰의 ID로 토큰을 찾아 반환합니다. 만약 해당 토큰이 존재하지 않으면 nullptr을 반환합니다.
@@ -132,6 +132,7 @@ private:
 private:
     CharacterBase* _owner;
     std::unordered_map<int, Token*> _tokenTable;
+    std::vector<std::function<void()>> _eventQueue;
 
 public:
     /// <summary>
@@ -155,11 +156,13 @@ inline static bool TokenSystem::RegisterToken()
 {
     static_assert(std::is_base_of_v<Token, T>, "T must be derived from Token");
     std::function<Token*()> factoryFunc = []() { return new T(); };
-    auto idIter = _tokenIDFactoryTable.find(T::ID);
-    auto nameIter = _tokenNameFactoryTable.find(T::NAME);
+    int ID = T::ID;
+    std::string name = (const char*)T::NAME;
+    auto idIter = _tokenIDFactoryTable.find(ID);
+    auto nameIter = _tokenNameFactoryTable.find(name);
     if (idIter == _tokenIDFactoryTable.end())
     {
-        _tokenIDFactoryTable[T::ID] = factoryFunc;
+        _tokenIDFactoryTable[ID] = factoryFunc;
     }
     else
     {
@@ -168,14 +171,14 @@ inline static bool TokenSystem::RegisterToken()
     }
     if (nameIter == _tokenNameFactoryTable.end())
     {
-        _tokenNameFactoryTable[T::NAME] = factoryFunc;
+        _tokenNameFactoryTable[name] = factoryFunc;
     }
     else
     {
         assert(false && "토큰 등록 중 Name 충돌이 발생했습니다.");
         return false;
     }
-    _tokenNameToIDTable[T::NAME] = T::ID;
-    _tokenIDToNameTable[T::ID]   = T::NAME;
+    _tokenNameToIDTable[name] = ID;
+    _tokenIDToNameTable[ID]      = name;
     return true;
 }

@@ -1,6 +1,10 @@
 ﻿#include "pchScripts.h"
 #include "Token.h"
 
+Token::Token() = default;
+
+Token::~Token() = default;
+
 UINT16 Token::GetStackCount() const
 {
     return _stackCount;
@@ -8,7 +12,7 @@ UINT16 Token::GetStackCount() const
 
 UINT16 Token::GetMaxStackCount() const
 {
-    return _maxStackCount;
+    return ReflectFields->MaxStackCount;
 }
  
 void Token::ClearStack() 
@@ -18,13 +22,13 @@ void Token::ClearStack()
 
 void Token::SetStack(UINT16 count)
 {
-    _stackCount = std::clamp(count, (UINT16)0, _maxStackCount);
+    _stackCount = std::clamp(count, (UINT16)0, ReflectFields->MaxStackCount);
 }
 
 void Token::AddStack(UINT16 count)
 {
     _stackCount += count;
-    _stackCount = std::min(_stackCount, _maxStackCount);
+    _stackCount = std::min(_stackCount, ReflectFields->MaxStackCount);
 }
 
 void Token::RemoveStack(UINT16 count)
@@ -34,5 +38,5 @@ void Token::RemoveStack(UINT16 count)
 
 void Token::SetMaxStackCount(UINT16 maxStack)
 {
-    _maxStackCount = maxStack;
+    ReflectFields->MaxStackCount = maxStack;
 }

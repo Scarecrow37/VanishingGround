@@ -133,7 +133,7 @@ void TokenSystem::NotifyTokenRemoved(int tokenID)
     }
 }
 
-void TokenSystem::AddTokenStackFromID(int tokenID, UINT16 count)
+void TokenSystem::AddTokenStackFromID(int tokenID, UINT16 count /* = 1 */)
 {
     auto* token = FindTokenEx(tokenID);
     if (nullptr == token)
@@ -175,7 +175,7 @@ void TokenSystem::SetTokenStackFromID(int tokenID, UINT16 count)
     }
 }
 
-void TokenSystem::RemoveTokenStackFromID(int tokenID, UINT16 count)
+void TokenSystem::RemoveTokenStackFromID(int tokenID, UINT16 count /* = 1 */)
 {
     auto* token = FindTokenEx(tokenID);
     if (token)
