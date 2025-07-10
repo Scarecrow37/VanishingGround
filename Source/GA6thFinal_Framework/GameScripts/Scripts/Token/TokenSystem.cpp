@@ -15,7 +15,7 @@ TokenSystem::TokenSystem(CharacterBase* owner)
 
 void TokenSystem::Clear()
 {
-    for (auto& [tokenID, token] : _tokenTable)
+    for (auto& token : _tokenInstances)
     {
         if (token && 0 < token->GetStackCount())
         {
@@ -26,7 +26,7 @@ void TokenSystem::Clear()
 
 void TokenSystem::NotifyCombatStart()
 {
-    for (auto& [tokenID, token] : _tokenTable)
+    for (auto& token : _tokenInstances)
     {
         if (token && 0 < token->GetStackCount())
         {
@@ -37,7 +37,7 @@ void TokenSystem::NotifyCombatStart()
 
 void TokenSystem::NotifyRoundStart()
 {
-    for (auto& [tokenID, token] : _tokenTable)
+    for (auto& token : _tokenInstances)
     {
         if (token && 0 < token->GetStackCount())
         {
@@ -48,7 +48,7 @@ void TokenSystem::NotifyRoundStart()
 
 void TokenSystem::NotifyRoundEnd()
 {
-    for (auto& [tokenID, token] : _tokenTable)
+    for (auto& token : _tokenInstances)
     {
         if (token)
         {
@@ -59,7 +59,7 @@ void TokenSystem::NotifyRoundEnd()
 
 void TokenSystem::NotifyTurnStart()
 {
-    for (auto& [tokenID, token] : _tokenTable)
+    for (auto& token : _tokenInstances)
     {
         if (token && 0 < token->GetStackCount())
         {
@@ -70,7 +70,7 @@ void TokenSystem::NotifyTurnStart()
 
 void TokenSystem::NotifyTurnEnd()
 {
-    for (auto& [tokenID, token] : _tokenTable)
+    for (auto& token : _tokenInstances)
     {
         if (token && 0 < token->GetStackCount())
         {
@@ -81,7 +81,7 @@ void TokenSystem::NotifyTurnEnd()
 
 void TokenSystem::NotifyHit()
 {
-    for (auto& [tokenID, token] : _tokenTable)
+    for (auto& token : _tokenInstances)
     {
         if (token && 0 < token->GetStackCount())
         {
@@ -92,7 +92,7 @@ void TokenSystem::NotifyHit()
 
 void TokenSystem::NotifyDead()
 {
-    for (auto& [tokenID, token] : _tokenTable)
+    for (auto& token : _tokenInstances)
     {
         if (token && 0 < token->GetStackCount())
         {
@@ -103,7 +103,7 @@ void TokenSystem::NotifyDead()
 
 void TokenSystem::NotifyKill(CharacterBase* destination)
 {
-    for (auto& [tokenID, token] : _tokenTable)
+    for (auto& token : _tokenInstances)
     {
         if (token && 0 < token->GetStackCount())
         {
@@ -114,7 +114,7 @@ void TokenSystem::NotifyKill(CharacterBase* destination)
 
 void TokenSystem::NotifyTokenAdded(int tokenID)
 {
-    for (auto& [tokenID, token] : _tokenTable)
+    for (auto& token : _tokenInstances)
     {
         if (token && 0 < token->GetStackCount())
         {
@@ -125,7 +125,7 @@ void TokenSystem::NotifyTokenAdded(int tokenID)
 
 void TokenSystem::NotifyTokenRemoved(int tokenID)
 {
-    for (auto& [tokenID, token] : _tokenTable)
+    for (auto& token : _tokenInstances)
     {
         if (token && 0 < token->GetStackCount())
         {
@@ -232,9 +232,17 @@ void TokenSystem::InitTokenInstance()
         if (token)
         {
             _tokenTable[tokenID] = token;
-            token->SetDirtyCallback([this](int id){ UpdateToken(id); });
+            token->SetDirtyCountCallback([this](int id) { UpdateToken(id); });
+            token->SetDirtyOrderCallback([this](int id) { SortByOrder(); });
         }
     }
+}
+
+void TokenSystem::SortByOrder() 
+{   // 토큰을 Order에 따라 내림차순으로 정렬합니다.
+    std::sort(_tokenInstances.begin(), _tokenInstances.end(),
+              [](Token* a, Token* b) { return a->GetTokenOrder() > b->GetTokenOrder(); 
+        });
 }
 
 void TokenSystem::UpdateToken(int tokenID)

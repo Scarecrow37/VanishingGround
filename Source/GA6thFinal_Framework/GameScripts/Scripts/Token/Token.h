@@ -43,18 +43,25 @@ public: // 콜백에 대한 자세한 주석은 ITriggerType.h를 참고하세�
 public:
     UINT16  GetStackCount() const override;
     UINT16  GetMaxStackCount() const override;
+    int     GetTokenOrder() const;
     void    ClearStack();
     void    SetStack(UINT16 count);
     void    AddStack(UINT16 count = 1);
     void    RemoveStack(UINT16 count = 1);
     void    SetMaxStackCount(UINT16 maxStack);
-    void    SetDirtyCallback(std::function<void(int)> callback);
+    void    SetDirtyCountCallback(std::function<void(int)> callback);
+    void    SetDirtyOrderCallback(std::function<void(int)> callback);
+    void    SetTokenOrder(int order);
 
 protected:
     UINT16  _stackCount = 0;
-    REFLECT_FIELDS_BEGIN(ReflectSerializer)   
-    UINT16  MaxStackCount = UINT16_MAX;
+    REFLECT_FIELDS_BEGIN(ReflectSerializer)
+    // 토큰의 실행 우선 순위
+    inline static int    Order = 0;
+    // 토큰의 최대 스택 수
+    inline static UINT16 MaxStackCount = UINT16_MAX;
     REFLECT_FIELDS_END(Token)
 
-    std::function<void(int)> _dirtyCallback; // 스택이 변경되었을 때 호출되는 콜백 함수
+    std::function<void(int)> _dirtyCountCallback; // 스택이 변경되었을 때 호출되는 콜백 함수
+    std::function<void(int)> _dirtyOrderCallback; // 스택이 변경되었을 때 호출되는 콜백 함수
 };

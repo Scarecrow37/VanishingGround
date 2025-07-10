@@ -112,6 +112,11 @@ private:
     void InitTokenInstance();
 
     /// <summary>
+    /// 토큰 리스트를 정렬합니다. (내림차순)
+    /// </summary>
+    void SortByOrder();
+
+    /// <summary>
     /// 해당 토큰에 대한 업데이트를 수행합니다.
     /// </summary>
     /// <param name="token"></param>
@@ -145,8 +150,9 @@ private:
 
 private:
     CharacterBase* _owner;
+    std::vector<Token*>             _tokenInstances;    // 토큰 인스턴스 리스트
     std::unordered_map<int, Token*> _tokenTable;        // 모든 토큰 테이블 (스택 카운트가 0인 토큰도 포함)
-    std::unordered_map<int, Token*> _validTokenTable; // 유효한 토큰 테이블 (스택 카운트가 0이 아닌 토큰만 포함)
+    std::unordered_map<int, Token*> _validTokenTable;   // 유효한 토큰 테이블 (스택 카운트가 0이 아닌 토큰만 포함)
 
 public:
     /// <summary>

@@ -47,7 +47,7 @@ class ShockResistance2Token : public Token
     USING_PROPERTY(ShockResistance2Token)
     REFLECT_FIELDS_BEGIN(Token)
     // 충격 저항률 1.0f = 100%
-    inline static constexpr float ResistanceRate = 1.5f;
+    inline static float ResistanceRate = 1.5f;
     REFLECT_FIELDS_END(ShockResistance2Token)
     TOKEN_DATA(16009, "충격 저항Ⅱ")
 
@@ -67,7 +67,7 @@ class ShockResistance3Token : public Token
     USING_PROPERTY(ShockResistance3Token)
     REFLECT_FIELDS_BEGIN(Token)
     // 충격 저항률 1.0f = 100%
-    inline static constexpr float ResistanceRate = 2.0f;
+    inline static float ResistanceRate = 2.0f;
     REFLECT_FIELDS_END(ShockResistance3Token)
     TOKEN_DATA(16010, "충격 저항Ⅲ")
 

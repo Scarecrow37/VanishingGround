@@ -14,6 +14,11 @@ UINT16 Token::GetMaxStackCount() const
 {
     return ReflectFields->MaxStackCount;
 }
+
+int Token::GetTokenOrder() const
+{
+    return ReflectFields->Order;
+}
  
 void Token::ClearStack() 
 {
@@ -26,9 +31,9 @@ void Token::SetStack(UINT16 count)
     if (resultCount != _stackCount)
     {
         _stackCount = resultCount;
-        if (_dirtyCallback)
+        if (_dirtyCountCallback)
         {
-            _dirtyCallback(GetTokenID()); // 스택이 변경되었을 때 콜백 호출
+            _dirtyCountCallback(GetTokenID()); // 스택이 변경되었을 때 콜백 호출
         }
     }
 }
@@ -41,9 +46,9 @@ void Token::AddStack(UINT16 count)
         if (resultCount != _stackCount)
         {
             _stackCount = resultCount;
-            if (_dirtyCallback)
+            if (_dirtyCountCallback)
             {
-                _dirtyCallback(GetTokenID()); // 스택이 변경되었을 때 콜백 호출
+                _dirtyCountCallback(GetTokenID()); // 스택이 변경되었을 때 콜백 호출
             }
         }
     }
@@ -57,9 +62,9 @@ void Token::RemoveStack(UINT16 count)
         if (resultCount != _stackCount)
         {
             _stackCount = resultCount;
-            if (_dirtyCallback)
+            if (_dirtyCountCallback)
             {
-                _dirtyCallback(GetTokenID()); // 스택이 변경되었을 때 콜백 호출
+                _dirtyCountCallback(GetTokenID()); // 스택이 변경되었을 때 콜백 호출
             }
         }
     }
@@ -70,7 +75,24 @@ void Token::SetMaxStackCount(UINT16 maxStack)
     ReflectFields->MaxStackCount = maxStack;
 }
 
-void Token::SetDirtyCallback(std::function<void(int)> callback)
+void Token::SetDirtyCountCallback(std::function<void(int)> callback)
 {
-    _dirtyCallback = callback;
+    _dirtyCountCallback = callback;
+}
+
+void Token::SetDirtyOrderCallback(std::function<void(int)> callback) 
+{
+    _dirtyOrderCallback = callback;
+}
+
+void Token::SetTokenOrder(int order)
+{
+    if (ReflectFields->Order != order)
+    {
+        ReflectFields->Order = order;
+        if (_dirtyOrderCallback)
+        {
+            _dirtyOrderCallback(GetTokenID()); // 순서가 변경되었을 때 콜백 호출
+        }
+    }
 }
