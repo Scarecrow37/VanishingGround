@@ -36,6 +36,7 @@ bool WeaponTableComponent::LoadWeaponTable(std::string_view data)
     if (result)
     {
         ReflectFields->_tableDatas = result.value();
+        _weaponTable.clear();
         for (auto& weapon : ReflectFields->_tableDatas)
         {
             WeaponStats stats;
@@ -136,7 +137,7 @@ void WeaponTableComponent::ImGuiDrawPropertysEvent()
                 std::wstring_view desktopPath = File::GetDesktopPath();
                 File::Path out;
                 if (File::ShowSaveFileDialog(NULL, L"저장할 경로를 선택하세요.", desktopPath.data(),
-                                             L"WeaponTable.WpTable", {{L"WpTable\0", L"*.WpTable*\0"}}, out))
+                                             L"WeaponTable.WpTable", {{L"무기 테이블 파일\0", L"*.WpTable\0"}}, out))
                 {
                     bool isWrite = true;
                     if (std::filesystem::exists(out))
@@ -175,7 +176,7 @@ void WeaponTableComponent::ImGuiDrawPropertysEvent()
                 std::wstring_view desktopPath = File::GetDesktopPath();
                 std::vector<File::Path> out;
                 if (File::ShowOpenFileDialog(NULL, L"로드할 파일을 선택하세요.", desktopPath.data(),
-                                             {{L"WpTable\0", L"*.WpTable*\0"}}, false, out))
+                                             {{L"무기 테이블 파일\0", L"*.WpTable\0"}}, false, out))
                 {
                     if (std::filesystem::exists(out.front()))
                     {
@@ -351,6 +352,7 @@ void WeaponTableComponent::SerializedReflectEvent()
 
 void WeaponTableComponent::DeserializedReflectEvent() 
 {
+    _weaponTable.clear();
     for (auto& weapon : ReflectFields->_tableDatas)
     {
         WeaponStats stats;
