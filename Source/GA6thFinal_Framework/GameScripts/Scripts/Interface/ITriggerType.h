@@ -45,4 +45,9 @@ private:
     /// <summary>객체가 토큰이 제거되었을 때 호출됩니다.</summary>
     /// <param name="source">호출한 CharacterBase 객체입니다.</param>
     virtual void OnTokenRemoved(CharacterBase* source, int tokenID) = 0;
+
+    // QTE에 대한 인자가 뭐가 들어가야될지 몰라서 보류
+    //virtual void OnQTEStart(CharacterBase* source) = 0;
+    //
+    //virtual void OnQTEEnd(CharacterBase* source)   = 0;
 };

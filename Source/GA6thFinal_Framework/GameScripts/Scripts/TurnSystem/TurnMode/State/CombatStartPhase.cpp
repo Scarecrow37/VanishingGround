@@ -98,6 +98,9 @@ void CombatStartPhase::NotifyCombatStart()
     }
     for (auto& enemy : _enemies)
     {
-        enemy->OnCombatStart();
+        if (enemy)
+        {
+            enemy->OnCombatStart();
+        }
     }
 }
