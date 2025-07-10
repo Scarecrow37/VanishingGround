@@ -1,49 +1,60 @@
 ﻿#include "pch.h"
 #include "DebugDrawCore.h"
 
-DebugDrawCore::DebugDrawCore() {}
+DebugDrawCore::DebugDrawCore() = default;
 
-DebugDrawCore::~DebugDrawCore() {}
+DebugDrawCore::~DebugDrawCore() = default;
 
 void XM_CALLCONV DebugDrawCore::Draw(std::string_view sceneName, const BoundingSphere& sphere, FXMVECTOR color)
 {
-    _drawDatas[sceneName].emplace_back(Type::SPHERE, color, sphere);
+    _drawDatas[sceneName].emplace_back(ShapeType::SPHERE, color, sphere);
 }
 
 void XM_CALLCONV DebugDrawCore::Draw(std::string_view sceneName, const BoundingBox& box, FXMVECTOR color)
 {
-    _drawDatas[sceneName].emplace_back(Type::BOX, color, box);
+    _drawDatas[sceneName].emplace_back(ShapeType::BOX, color, box);
 }
 
 void XM_CALLCONV DebugDrawCore::Draw(std::string_view sceneName, const BoundingOrientedBox& obb, FXMVECTOR color)
-{    
-    _drawDatas[sceneName].emplace_back(Type::OBB, color, obb);
+{
+    _drawDatas[sceneName].emplace_back(ShapeType::OBB, color, obb);
 }
 
 void XM_CALLCONV DebugDrawCore::Draw(std::string_view sceneName, const BoundingFrustum& frustum, FXMVECTOR color)
-{    
-    _drawDatas[sceneName].emplace_back(Type::FRUSTUM, color, frustum);
+{
+    _drawDatas[sceneName].emplace_back(ShapeType::FRUSTUM, color, frustum);
 }
 
-void XM_CALLCONV DebugDrawCore::DrawRing(std::string_view sceneName, FXMVECTOR origin, FXMVECTOR majorAxis, FXMVECTOR minorAxis, GXMVECTOR color)
+void XM_CALLCONV DebugDrawCore::DrawRing(std::string_view sceneName, FXMVECTOR origin, FXMVECTOR majorAxis,
+                                         FXMVECTOR minorAxis, GXMVECTOR color)
 {
-    _drawDatas[sceneName].emplace_back(Type::RING, color, DebugRing{origin, majorAxis, minorAxis});
+    _drawDatas[sceneName].emplace_back(ShapeType::RING, color, DebugRing{origin, majorAxis, minorAxis});
 }
 
-void XM_CALLCONV DebugDrawCore::DrawRay(std::string_view sceneName, FXMVECTOR origin, FXMVECTOR direction, bool normalize, FXMVECTOR color)
+void XM_CALLCONV DebugDrawCore::DrawRay(std::string_view sceneName, FXMVECTOR origin, FXMVECTOR direction,
+                                        bool normalize, FXMVECTOR color)
 {
-    _drawDatas[sceneName].emplace_back(Type::RAY, color, DebugRay{origin, direction, normalize});
+    _drawDatas[sceneName].emplace_back(ShapeType::RAY, color, DebugRay{origin, direction, normalize});
 }
 
-void XM_CALLCONV DebugDrawCore::DrawSpotLight(std::string_view sceneName, FXMVECTOR position, FXMVECTOR direction, float range, float innerCone, float outerCone, FXMVECTOR color)
+void XM_CALLCONV DebugDrawCore::DrawSpotLight(std::string_view sceneName, FXMVECTOR position, FXMVECTOR direction,
+                                              float range, float innerCone, float outerCone, FXMVECTOR color)
 {
-    _drawDatas[sceneName].emplace_back(Type::SPOT_LIGHT, color, DebugSpotLight{position, direction, range, innerCone, outerCone});
+    _drawDatas[sceneName].emplace_back(ShapeType::SPOT_LIGHT, color,
+                                       DebugSpotLight{position, direction, range, innerCone, outerCone});
+}
+
+void DebugDrawCore::Draw(const std::string_view sceneName, const DebugQuad& quad, FXMVECTOR color)
+{
+    _drawDatas[sceneName].emplace_back(ShapeType::QUAD, color, quad);
 }
 
 void DebugDrawCore::Initialize()
 {
     RenderTargetState              rtState(DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_D24_UNORM_S8_UINT);
-    EffectPipelineStateDescription pd(&VertexPositionColor::InputLayout, CommonStates::AlphaBlend, CommonStates::DepthRead, CommonStates::CullNone, rtState, D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE);
+    EffectPipelineStateDescription pd(&VertexPositionColor::InputLayout, CommonStates::AlphaBlend,
+                                      CommonStates::DepthRead, CommonStates::CullNone, rtState,
+                                      D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE);
 
     _primitiveBatch = std::make_unique<PrimitiveBatch<VertexPositionColor>>(UmDevice.GetDevice());
     try
@@ -62,7 +73,7 @@ void DebugDrawCore::Initialize()
 void DebugDrawCore::Render()
 {
     _commandAllocator->Reset();
-    _commandList->Reset(_commandAllocator.Get(), nullptr);    
+    _commandList->Reset(_commandAllocator.Get(), nullptr);
 
     for (const auto& [sceneName, datas] : _drawDatas)
     {
@@ -80,13 +91,14 @@ void DebugDrawCore::Render()
         D3D12_VIEWPORT viewPort{.TopLeftX = 0.f,
                                 .TopLeftY = 0.f,
                                 .Width    = static_cast<FLOAT>(mode.Width),
-                                .Height   = static_cast<FLOAT>(mode.Height),                                
+                                .Height   = static_cast<FLOAT>(mode.Height),
                                 .MinDepth = 0.f,
                                 .MaxDepth = 1.f};
         D3D12_RECT     scissorRect{
                 .left = 0, .top = 0, .right = static_cast<LONG>(mode.Width), .bottom = static_cast<LONG>(mode.Height)};
-        
-        _commandList->OMSetRenderTargets(1, &renderTarget->GetRTVHandle(), NULL, &renderScene->_depthStencilView->GetDSVHandle());
+
+        _commandList->OMSetRenderTargets(1, &renderTarget->GetRTVHandle(), NULL,
+                                         &renderScene->_depthStencilView->GetDSVHandle());
         _commandList->RSSetViewports(1, &viewPort);
         _commandList->RSSetScissorRects(1, &scissorRect);
 
@@ -95,36 +107,51 @@ void DebugDrawCore::Render()
 
         for (const auto& data : datas)
         {
+            XMVECTOR color = XMLoadFloat4(&data.Color);
             switch (data.Type)
             {
-            case Type::SPHERE:
-                ::Draw(_primitiveBatch.get(), std::get<BoundingSphere>(data.Shape), data.Color);
+            case ShapeType::SPHERE:
+                ::Draw(_primitiveBatch.get(), std::get<BoundingSphere>(data.Shape), color);
                 break;
-            case Type::BOX:
-                ::Draw(_primitiveBatch.get(), std::get<BoundingBox>(data.Shape), data.Color);
+            case ShapeType::BOX:
+                ::Draw(_primitiveBatch.get(), std::get<BoundingBox>(data.Shape), color);
                 break;
-            case Type::OBB:
-                ::Draw(_primitiveBatch.get(), std::get<BoundingOrientedBox>(data.Shape), data.Color);
+            case ShapeType::OBB:
+                ::Draw(_primitiveBatch.get(), std::get<BoundingOrientedBox>(data.Shape), color);
                 break;
-            case Type::FRUSTUM:
-                ::Draw(_primitiveBatch.get(), std::get<BoundingFrustum>(data.Shape), data.Color);
+            case ShapeType::FRUSTUM:
+                ::Draw(_primitiveBatch.get(), std::get<BoundingFrustum>(data.Shape), color);
                 break;
-            case Type::RING:
-            {
-                const auto& ring = std::get<DebugRing>(data.Shape);
-                ::DrawRing(_primitiveBatch.get(), ring.Origin, ring.MajorAxis, ring.MinorAxis, data.Color);
-                break;
-            }
-            case Type::RAY:
-            {
-                const auto& ray = std::get<DebugRay>(data.Shape);
-                ::DrawRay(_primitiveBatch.get(), ray.Origin, ray.Direction, ray.Normalize, data.Color);
+            case ShapeType::RING: {
+                const auto&    ring      = std::get<DebugRing>(data.Shape);
+                const XMVECTOR origin    = XMLoadFloat3(&ring.Origin);
+                const XMVECTOR majorAxis = XMLoadFloat3(&ring.MajorAxis);
+                const XMVECTOR minorAxis = XMLoadFloat3(&ring.MinorAxis);
+                ::DrawRing(_primitiveBatch.get(), origin, majorAxis, minorAxis, color);
                 break;
             }
-            case Type::SPOT_LIGHT:
-            {
-                const auto& spotLight = std::get<DebugSpotLight>(data.Shape);
-                ::DrawSpotLight(_primitiveBatch.get(), spotLight.Position, spotLight.Direction, spotLight.Range, spotLight.InnerCone, spotLight.OuterCone, 24, data.Color);
+            case ShapeType::RAY: {
+                const auto&    ray       = std::get<DebugRay>(data.Shape);
+                const XMVECTOR origin    = XMLoadFloat3(&ray.Origin);
+                const XMVECTOR direction = XMLoadFloat3(&ray.Direction);
+                ::DrawRay(_primitiveBatch.get(), origin, direction, ray.Normalize, color);
+                break;
+            }
+            case ShapeType::SPOT_LIGHT: {
+                const auto&    spotLight = std::get<DebugSpotLight>(data.Shape);
+                const XMVECTOR position  = XMLoadFloat3(&spotLight.Position);
+                const XMVECTOR direction = XMLoadFloat3(&spotLight.Direction);
+                ::DrawSpotLight(_primitiveBatch.get(), position, direction, spotLight.Range, spotLight.InnerCone,
+                                spotLight.OuterCone, 24, color);
+                break;
+            }
+            case ShapeType::QUAD: {
+                const auto& quad   = std::get<DebugQuad>(data.Shape);
+                XMVECTOR    pointA = XMLoadFloat3(&quad.PointA);
+                XMVECTOR    pointB = XMLoadFloat3(&quad.PointB);
+                XMVECTOR    pointC = XMLoadFloat3(&quad.PointC);
+                XMVECTOR    pointD = XMLoadFloat3(&quad.PointD);
+                ::DrawQuad(_primitiveBatch.get(), pointA, pointB, pointC, pointD, color);
                 break;
             }
             }
