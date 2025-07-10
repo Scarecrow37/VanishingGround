@@ -1151,7 +1151,7 @@ YAML::Node ESceneManager::SerializeToYaml(const Scene& scene)
     auto rootObjects = scene.GetRootGameObjects();
     for (auto& object : rootObjects)
     {
-        YAML::Node objectNode = UmGameObjectFactory.SerializeToYaml(object.get());
+        YAML::Node objectNode = UmGameObjectFactory.SerializeToYaml(object.get(), true);
         sceneNode["GameObjects"].push_back(objectNode);
     }
     return sceneNode;
