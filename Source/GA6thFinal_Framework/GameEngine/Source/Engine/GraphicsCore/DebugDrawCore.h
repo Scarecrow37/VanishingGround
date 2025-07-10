@@ -114,8 +114,13 @@ public:
     void Initialize();
     void Render();
 
+
 private:
-    std::unordered_map<std::string_view, std::vector<DrawData>> _drawDatas;
+    void Draw2D(const std::vector<DrawData>& drawDatas);
+    void Draw3D(const std::vector<DrawData>& drawDatas);
+
+private:
+    std::unordered_map<std::string_view, std::pair<std::vector<DrawData>, std::vector<DrawData>>> _drawDatas;
     std::unique_ptr<PrimitiveBatch<VertexPositionColor>>        _primitiveBatch;
     std::unique_ptr<BasicEffect>                                _basicEffect;
     ComPtr<ID3D12GraphicsCommandList>                           _commandList;
