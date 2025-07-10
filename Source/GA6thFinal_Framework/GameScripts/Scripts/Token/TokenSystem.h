@@ -1,5 +1,6 @@
 ﻿#pragma once
-#include "Token.h"
+#include <Token/Token.h>
+#include <Token/Object/BleedToken.h>
 
 class TokenSystem
 {
@@ -52,7 +53,7 @@ public:
     /// </summary>
     /// <param name="tokenID">해당 토큰의 ID</param>
     /// <param name="count">제거할 카운트 수</param>
-    void AddTokenStackFromID(int tokenID, UINT8 count);
+    void AddTokenStackFromID(int tokenID, UINT16 count);
 
     /// <summary>
     /// <para>토큰 스택 카운트를 설정합니다. 만약 해당 토큰이 존재하지 않는다면 새로 생성합니다.</para>
@@ -60,7 +61,7 @@ public:
     /// </summary>
     /// <param name="tokenID">해당 토큰의 ID</param>
     /// <param name="count">제거할 카운트 수</param>
-    void SetTokenStackFromID(int tokenID, UINT8 count);
+    void SetTokenStackFromID(int tokenID, UINT16 count);
 
     /// <summary>
     /// <para>토큰 스택 카운트를 제거합니다. 스택이 0이 되면 토큰을 제거합니다.</para>
@@ -68,7 +69,7 @@ public:
     /// </summary>
     /// <param name="tokenID">해당 토큰의 ID</param>
     /// <param name="count">제거할 카운트 수</param>
-    void RemoveTokenStackFromID(int tokenID, UINT8 count);
+    void RemoveTokenStackFromID(int tokenID, UINT16 count);
 
     /// <summary>
     /// 해당 토큰의 ID로 토큰을 찾아 반환합니다. 만약 해당 토큰이 존재하지 않으면 nullptr을 반환합니다.
@@ -114,6 +115,8 @@ private:
     std::unordered_map<int, Token*> _tokenTable;
 
     inline static std::unordered_map<int, std::function<Token*()>> _tokenIDFactoryTable;
+
+    // Runtime token type information
     inline static std::unordered_map<std::string, std::function<Token*()>> _tokenNameFactoryTable;
     inline static std::unordered_map<std::string, int> _tokenNameToIDTable;
     inline static std::unordered_map<int, std::string> _tokenIDToNameTable;

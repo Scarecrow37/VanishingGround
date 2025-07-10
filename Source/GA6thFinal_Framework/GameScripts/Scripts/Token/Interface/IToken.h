@@ -11,6 +11,6 @@ protected:
     virtual void OnHit(CharacterBase* owner)        = 0;
 
 public:
-    virtual UINT8       GetStackCount() const       = 0;
-    virtual UINT8       GetMaxStackCount() const    = 0;
+    virtual UINT16       GetStackCount() const       = 0;
+    virtual UINT16       GetMaxStackCount() const    = 0;
 };
