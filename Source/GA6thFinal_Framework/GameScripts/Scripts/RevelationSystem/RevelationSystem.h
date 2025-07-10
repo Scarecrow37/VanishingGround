@@ -8,6 +8,8 @@
 class RevelationSystem : public Component, public FactoryConstructor<RevelationActionBase>
 {
     USING_PROPERTY(RevelationSystem)      
+    using ActionDataType = std::vector<std::pair<std::string, std::string>>;
+    using ElementDataType = std::vector<std::pair<std::string, std::string>>;
 public:
     static RevelationSystem* GetInstance() { return static_instance; }
 
@@ -68,6 +70,32 @@ public:
     /// <returns></returns>
     bool EraseElement(std::string_view elementName);
 
+    /// <summary>
+    /// ElementTable을 Json으로 직렬화해 반환합니다.
+    /// </summary>
+    /// <returns></returns>
+    std::string SaveElementTable() 
+    { 
+        ElementsToElementDatas();
+        return rfl::json::write(ReflectFields->RevelationElementDatas); 
+    }
+
+    /// <summary>
+    /// Json으로 직렬화한 Element Table을 역직렬화 합니다.
+    /// </summary>
+    /// <param name="data :">json 형식의 문자열</param>
+    /// <returns>결과</returns>
+    bool LoadElementTable(std::string_view data)
+    {
+        auto result = rfl::json::read<ElementDataType>(data);
+        if (result)
+        {
+            ReflectFields->RevelationElementDatas = result.value();
+            ElementDatasToElements();
+        }
+        return result;
+    }
+
 private:
     bool _tableEditorOpen = false;
 
@@ -89,8 +117,8 @@ public:
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)
-    std::vector<std::pair<std::string, std::string>> RevelationActionDatas;
-    std::vector<std::pair<std::string, std::string>> RevelationElementDatas;
+    ActionDataType  RevelationActionDatas;
+    ElementDataType RevelationElementDatas;
     REFLECT_FIELDS_END(RevelationSystem)
 
     void ActionsToActionDatas();
@@ -124,5 +152,6 @@ private:
 private:
     std::unordered_map<std::string, std::unique_ptr<RevelationActionBase>> _actions;
     std::unordered_map<std::string, RevelationElement>                     _elements;
+    ImVec2                                                                 _tableEditorCenterPos{};
 
 };

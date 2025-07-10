@@ -115,21 +115,21 @@ public:
         }
     }
 
-    ImVec4 GetGradeColor() 
+    ImU32 GetGradeColor() 
     { 
         RevelationGrade garde = ReflectFields->Grade;
         switch (garde)
         {
         case RevelationGrade::COMMON:
-            return {255, 255, 255, 1};
+            return ImColor{255, 255, 255, 255};
         case RevelationGrade::RARE:
-            return {45, 205, 255, 1};
+            return ImColor{45, 205, 255, 255};
         case RevelationGrade::LEGENDARY:
-            return {245, 200, 0, 1};
+            return ImColor{245, 200, 0, 255};
         case RevelationGrade::EXTINCTION:
-            return {210, 0, 170, 1};
+            return ImColor{210, 0, 170, 255};
         default:
-            return {100, 100, 100, 1};
+            return ImColor{100, 100, 100, 255};
         }
     }
 

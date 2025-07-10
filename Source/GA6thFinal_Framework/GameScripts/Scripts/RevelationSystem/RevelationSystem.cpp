@@ -94,6 +94,7 @@ void RevelationSystem::DrawImGuiElementTableEditor()
     {
         _imguiEvent.OpenDeletePopup = false;
         ImGui::OpenPopup("Element Table Delete Modal Popup");
+        ImGui::SetNextWindowPos(_tableEditorCenterPos, 0, ImVec2(0.5f, 0.5f));
     }
 
     if (ImGui::BeginPopupModal("Element Table Delete Modal Popup"))
@@ -241,6 +242,78 @@ void RevelationSystem::ImGuiDrawPropertysEvent()
         ImGui::Begin("Revelation Table Editor##93BDE7E1-62AF-49F4-8FCD-3115FC907146", &_tableEditorOpen,
                      ImGuiWindowFlags_MenuBar);
         {
+            ImVec2 currentWindowPos  = ImGui::GetWindowPos();
+            ImVec2 currentWindowSize = ImGui::GetWindowSize();
+            _tableEditorCenterPos    = ImVec2(currentWindowPos.x + currentWindowSize.x * 0.5f,
+                                              currentWindowPos.y + currentWindowSize.y * 0.5f);
+
+            if (ImGui::BeginMenuBar())
+            {
+                if (ImGui::MenuItem("Save Table"))
+                {
+                    std::wstring_view desktopPath = File::GetDesktopPath();
+                    File::Path        out;
+                    if (File::ShowSaveFileDialog(NULL, L"저장할 경로를 선택하세요.", desktopPath.data(),
+                                                 L"RevelationTable.RtTable", {{L"계시 테이블 파일\0", L"*.RtTable\0"}},
+                                                 out))
+                    {
+                        bool isWrite = true;
+                        if (std::filesystem::exists(out))
+                        {
+                            int result =
+                                MessageBoxW(UmApplication.GetHwnd(),      // 부모 윈도우 핸들
+                                            L"파일을 덮어쓰시겠습니까?",  // 메시지 내용 (설명)
+                                            L"이미 존재하는 파일입니다.", // 메시지 박스 제목
+                                            MB_OKCANCEL | MB_ICONQUESTION // 버튼 구성 (확인/취소) 및 아이콘(물음표)
+                                );
+                            switch (result)
+                            {
+                            case IDOK:
+                                isWrite = true;
+                                break;
+                            case IDCANCEL:
+                            default:
+                                isWrite = false;
+                                break;
+                            }
+                        }
+
+                        if (isWrite)
+                        {
+                            std::ofstream ofs(out, std::ios::trunc);
+                            if (ofs.is_open())
+                            {
+                                ofs << SaveElementTable();
+                                ofs.close();
+                            }
+                        }
+                    }
+                }
+                if (ImGui::MenuItem("Load Table"))
+                {
+                    std::wstring_view       desktopPath = File::GetDesktopPath();
+                    std::vector<File::Path> out;
+                    if (File::ShowOpenFileDialog(NULL, L"로드할 파일을 선택하세요.", desktopPath.data(),
+                                                 {{L"계시 테이블 파일\0", L"*.RtTable\0"}}, false, out))
+                    {
+                        if (std::filesystem::exists(out.front()))
+                        {
+                            std::ifstream ifs(out.front());
+
+                            if (ifs.is_open())
+                            {
+                                std::string content((std::istreambuf_iterator<char>(ifs)),
+                                                    std::istreambuf_iterator<char>());
+                                LoadElementTable(content);
+                                ifs.close();
+                            }
+                        }
+                    }
+                    gameObject->GetScene().IsDirty = true;
+                }
+                ImGui::EndMenuBar();
+            }
+
             DrawImGuiElementTableEditor();
         }
         ImGui::End();
