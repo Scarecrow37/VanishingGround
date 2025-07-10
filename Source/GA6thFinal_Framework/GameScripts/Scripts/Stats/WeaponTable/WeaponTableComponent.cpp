@@ -133,25 +133,9 @@ void WeaponTableComponent::ImGuiDrawPropertysEvent()
         {
             if (ImGui::MenuItem("Save Table"))
             {
-                std::wstring desktopPath;
-                PWSTR        pszPath = NULL; // 경로를 저장할 와이드 문자열 포인터
-                HRESULT      hr      = SHGetKnownFolderPath(FOLDERID_Desktop, 0, NULL, &pszPath);
-                if (SUCCEEDED(hr))
-                {
-                    desktopPath = pszPath;
-                }
-                else
-                {
-                    desktopPath = L"C:";
-                }
-
-                if (pszPath)
-                {
-                    CoTaskMemFree(pszPath);
-                }
-
+                std::wstring_view desktopPath = File::GetDesktopPath();
                 File::Path out;
-                if (File::ShowSaveFileDialog(NULL, L"저장할 경로를 선택하세요.", desktopPath.c_str(),
+                if (File::ShowSaveFileDialog(NULL, L"저장할 경로를 선택하세요.", desktopPath.data(),
                                              L"WeaponTable.WpTable", {{L"WpTable\0", L"*.WpTable*\0"}}, out))
                 {
                     bool isWrite = true;
@@ -188,25 +172,9 @@ void WeaponTableComponent::ImGuiDrawPropertysEvent()
             }
             if (ImGui::MenuItem("Load Table"))
             {
-                std::wstring desktopPath;
-                PWSTR        pszPath = NULL;
-                HRESULT      hr      = SHGetKnownFolderPath(FOLDERID_Desktop, 0, NULL, &pszPath);
-                if (SUCCEEDED(hr))
-                {
-                    desktopPath = pszPath;
-                }
-                else
-                {
-                    desktopPath = L"C:";
-                }
-
-                if (pszPath)
-                {
-                    CoTaskMemFree(pszPath);
-                }
-
+                std::wstring_view desktopPath = File::GetDesktopPath();
                 std::vector<File::Path> out;
-                if (File::ShowOpenFileDialog(NULL, L"로드할 파일을 선택하세요.", desktopPath.c_str(),
+                if (File::ShowOpenFileDialog(NULL, L"로드할 파일을 선택하세요.", desktopPath.data(),
                                              {{L"WpTable\0", L"*.WpTable*\0"}}, false, out))
                 {
                     if (std::filesystem::exists(out.front()))
