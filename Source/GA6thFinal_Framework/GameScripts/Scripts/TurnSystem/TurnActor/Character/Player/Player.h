@@ -60,7 +60,6 @@ public:
     virtual int GetSpeed() override;
     virtual int GetRandomSpeed() override;
     CharacterStats* GetCharacterStats() override;
-    virtual void    OnRoundStart() override;
 
 protected:
     /// <summary>
@@ -90,4 +89,16 @@ protected:
     /// <para>  ImGuiDrawPropertys() 호출 이후 콜되는 이벤트 함수입니다. </para>
     /// </summary>
     virtual void ImGuiDrawPropertysEvent();
+
+public:
+    virtual void OnCombatStart() override;
+    virtual void OnRoundStart() override;
+    virtual void OnRoundEnd() override;
+    virtual void OnTurnStart() override;
+    virtual void OnTurnEnd() override;
+    virtual void OnHit() override;
+    virtual void OnDead() override;
+    virtual void OnKill(CharacterBase* destination) override;
+    virtual void OnTokenAdded(int tokenID) override;
+    virtual void OnTokenRemoved(int tokenID) override;
 };

@@ -58,8 +58,6 @@ private:
 public:
     virtual void Revive() override;
     virtual void Dead() override;
-    virtual void OnRoundStart() override;
-    virtual void OnRoundEnd() override;
 
     inline TokenSystem& GetTokenSystem() { return _tokenSystem; }
 
@@ -87,4 +85,16 @@ protected:
     /// <para> 게임 오브젝트의 Active가 false 상태인 경우 Awake 함수는 true가 될때까지 호출되지 않습니다.      </para>
     /// </summary>
     virtual void Awake() override;
+
+public:
+    virtual void OnCombatStart() override;
+    virtual void OnRoundStart() override;
+    virtual void OnRoundEnd() override;
+    virtual void OnTurnStart() override;
+    virtual void OnTurnEnd() override;
+    virtual void OnHit() override;
+    virtual void OnDead() override;
+    virtual void OnKill(CharacterBase* destination) override;
+    virtual void OnTokenAdded(int tokenID) override;
+    virtual void OnTokenRemoved(int tokenID) override;
 };

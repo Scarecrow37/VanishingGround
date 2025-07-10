@@ -1,5 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "TokenSystem.h"
+#include <TurnSystem/TurnActor/Character/CharacterBase.h>
 
 TokenSystem::TokenSystem(CharacterBase* owner) 
     : _tokenTable(), _owner(owner)
@@ -20,6 +21,17 @@ void TokenSystem::Clear()
         }
     }
     _tokenTable.clear();
+}
+
+void TokenSystem::NotifyCombatStart()
+{
+    for (auto& [tokenID, token] : _tokenTable)
+    {
+        if (token)
+        {
+            token->OnCombatStart(_owner);
+        }
+    }
 }
 
 void TokenSystem::NotifyRoundStart()
@@ -132,7 +144,10 @@ void TokenSystem::AddTokenStackFromID(int tokenID, UINT16 count)
     if (token)
     {
         token->AddStack(count);
-        NotifyTokenAdded(tokenID);
+        if (_owner)
+        {
+            _owner->OnTokenAdded(tokenID); 
+        }
     }
 }
 
@@ -171,7 +186,10 @@ void TokenSystem::RemoveTokenStackFromID(int tokenID, UINT16 count)
         {   // 스택이 0이 되면 토큰을 제거합니다.
             RemoveTokenFromID(tokenID);
         }
-        NotifyTokenRemoved(tokenID);
+        if (_owner)
+        {
+            _owner->OnTokenRemoved(tokenID);
+        }
     }
 }
 
