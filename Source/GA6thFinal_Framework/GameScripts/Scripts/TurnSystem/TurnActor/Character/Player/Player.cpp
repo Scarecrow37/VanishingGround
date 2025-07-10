@@ -18,9 +18,19 @@
 
 Player::Player()
 {
-   
+    if (nullptr == static_instance)
+    {
+        static_instance = this;
+    }
 }
-Player::~Player() = default;
+
+Player::~Player()
+{
+    if (this == static_instance)
+    {
+        static_instance = nullptr;
+    }
+}
 
 void Player::Awake() 
 {
