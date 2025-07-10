@@ -20,12 +20,23 @@ public:
     FactoryConstructor() = default;
     virtual ~FactoryConstructor() = default;
 
+    /// <summary>
+    /// 팩토리에 생성자를 등록합니다. 키로는 클래스의 typeid().name()이 사용됩니다.
+    /// </summary>
+    /// <param name="key :">키</param>
+    /// <param name="func :">함수</param>
+    /// <returns></returns>
     inline static bool RegisterConstructor(std::string_view key, std::function<T*()> func)
     {
         _staticConstructorMap[key.data()] = func;
         return true;
     }
 
+    /// <summary>
+    /// 팩토리에 등록된 객체를 생성하는 템플릿 함수입니다.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
     template<typename T>
     inline static T* NewInstance()
     {
@@ -33,6 +44,11 @@ public:
         NewInstanceWithKey(key);
     }
 
+    /// <summary>
+    /// 직접 키를통해 인스턴스를 생성합니다.
+    /// </summary>
+    /// <param name="key :">생성할 객체 키</param>
+    /// <returns></returns>
     inline static T* NewInstanceWithKey(std::string_view key)
     {
         auto findIter = _staticConstructorMap.find(key.data());
@@ -43,6 +59,10 @@ public:
         return nullptr;
     }
 
+    /// <summary>
+    /// 팩토리에 등록된 모든 생성자들을 반환해줍니다.
+    /// </summary>
+    /// <returns></returns>
     inline static const std::unordered_map<std::string, std::function<T*()>>& GetInstanceConstructors()
     {
         return _staticConstructorMap;
