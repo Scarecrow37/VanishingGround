@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include <Token/Token.h>
-#include <Token/Object/BleedToken.h>
+#include <Token/Object/Bleed/Bleed1Token.h>
 
 class TokenSystem
 {
