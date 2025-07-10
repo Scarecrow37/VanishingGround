@@ -35,6 +35,8 @@ protected:
     void OnExit() override;
     void OnUpdate() override;
 
+    void NotifyCombatStart();
+
 private:
     bool                _phaseEnd;
     Player*             _player;

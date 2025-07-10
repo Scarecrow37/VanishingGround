@@ -89,5 +89,8 @@ UMREAL_COMPONENT(FPSCounter)
 #include "Scripts\Test/UI/TestUI.h"
 UMREAL_COMPONENT(TestUI)
 
+#include "Scripts\WeaponSystem/WeaponSystem.h"
+UMREAL_COMPONENT(WeaponSystem)
+
 #include "Scripts\Test/Text/TestText.h"
 UMREAL_COMPONENT(TestText)

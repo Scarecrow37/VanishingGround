@@ -1,6 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "AnimationEventListener.h"
-#include "Scripts/Mesh/SkeletalMeshRenderer.h"
+#include <Scripts/Mesh/SkeletalMeshRenderer.h>
 
 AnimationEventListener::AnimationEventListener()
 {
