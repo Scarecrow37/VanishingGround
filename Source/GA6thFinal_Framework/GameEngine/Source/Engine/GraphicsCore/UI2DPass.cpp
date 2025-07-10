@@ -69,7 +69,8 @@ void UI2DPass::Begin(ID3D12GraphicsCommandList* commandList)
 {
     const auto& mode = UmDevice.GetMode();
 
-    _cameraData.Projection = XMMatrixTranspose(XMMatrixOrthographicLH((float)mode.Width, (float)mode.Height, 0.1f, 1000.f));
+    _cameraData.Projection =
+        XMMatrixTranspose(XMMatrixOrthographicOffCenterLH(0,(float)mode.Width, (float)mode.Height,0, 0.1f, 1000.f));
     _cameraBuffer->UpdateBuffer(&_cameraData);
 
     __super::UpdateBuffer(commandList);
