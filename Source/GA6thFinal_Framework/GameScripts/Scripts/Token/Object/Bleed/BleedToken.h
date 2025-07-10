@@ -10,7 +10,7 @@ private:
 
 private:
     REFLECT_FIELDS_BEGIN(Token)
-    UINT16 BleedDamage = 10;
+    UINT16 TickDamage = 10;
     REFLECT_FIELDS_END(Bleed1Token)
 };
 
@@ -23,7 +23,7 @@ private:
 
 private:
     REFLECT_FIELDS_BEGIN(Token)
-    UINT16 BleedDamage = 20;
+    UINT16 TickDamage = 20;
     REFLECT_FIELDS_END(Bleed2Token)
 };
 
@@ -36,6 +36,6 @@ private:
 
 private:
     REFLECT_FIELDS_BEGIN(Token)
-    UINT16 BleedDamage = 40;
+    UINT16 TickDamage = 40;
     REFLECT_FIELDS_END(Bleed3Token)
 };

@@ -298,6 +298,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Scripts\Token\Object\Poison\PoisonToken.h" />
     <ClInclude Include="Scripts\Interface\ITriggerType.h" />
     <ClInclude Include="Scripts\Token\Object\Bleed\BleedToken.h" />
     <ClInclude Include="Scripts\DamageSystem\DamageSystem.h" />
@@ -383,6 +384,7 @@
     <ClInclude Include="Scripts\WeaponSystem\WeaponSystem.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Scripts\Token\Object\Poison\PoisonToken.cpp" />
     <ClCompile Include="Scripts\Token\Object\Bleed\BleedToken.cpp" />
     <ClCompile Include="dllmain.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
