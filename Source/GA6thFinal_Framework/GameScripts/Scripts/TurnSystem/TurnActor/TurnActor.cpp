@@ -33,16 +33,6 @@ void TurnActor::Dead()
     }
 }
 
-void TurnActor::OnRoundStart() 
-{
-    _randomSpeed = Random::Range(DEFINE::RANDOMSPEED_MIN, DEFINE::RANDOMSPEED_MAX);
-}
-
-void TurnActor::OnRoundEnd() 
-{
-
-}
-
 void TurnActor::EndTurn() 
 {
     if (_currState == STATE::Play)
@@ -55,3 +45,26 @@ void TurnActor::Awake()
 {
     gameObject->AddTag(TAG);
 }
+
+void TurnActor::OnCombatStart() {}
+
+void TurnActor::OnRoundStart()
+{
+    _randomSpeed = Random::Range(DEFINE::RANDOMSPEED_MIN, DEFINE::RANDOMSPEED_MAX);
+}
+
+void TurnActor::OnRoundEnd() {}
+
+void TurnActor::OnTurnStart() {}
+
+void TurnActor::OnTurnEnd() {}
+
+void TurnActor::OnHit() {}
+
+void TurnActor::OnDead() {}
+
+void TurnActor::OnKill(CharacterBase* destination) {}
+
+void TurnActor::OnTokenAdded(int tokenID) {}
+
+void TurnActor::OnTokenRemoved(int tokenID) {}

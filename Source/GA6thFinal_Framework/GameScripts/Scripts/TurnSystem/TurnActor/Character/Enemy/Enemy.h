@@ -73,4 +73,16 @@ protected:
     virtual void Revive() override;
     virtual void PlayTurn() override;
     CharacterStats* GetCharacterStats() override;
+
+public:
+    virtual void OnCombatStart() override;
+    virtual void OnRoundStart() override;
+    virtual void OnRoundEnd() override;
+    virtual void OnTurnStart() override;
+    virtual void OnTurnEnd() override;
+    virtual void OnHit() override;
+    virtual void OnDead() override;
+    virtual void OnKill(CharacterBase* destination) override;
+    virtual void OnTokenAdded(int tokenID) override;
+    virtual void OnTokenRemoved(int tokenID) override;
 };

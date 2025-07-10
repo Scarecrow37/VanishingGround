@@ -1,5 +1,8 @@
 ﻿#pragma once
 #include "UmFramework.h"
+
+class CharacterBase;
+
 class TurnActor : public Component
 {
     USING_PROPERTY(TurnActor)
@@ -58,18 +61,6 @@ public:
     /// </summary>
     virtual void Dead();
 
-    /// <summary>
-    /// 라운드 시작 페이즈 진입 시 호출되는 함수입니다.
-    /// TurnMode에서 MakeTurnList시 호출됩니다.
-    /// </summary>
-    virtual void OnRoundStart();
-
-    /// <summary>
-    /// 라운드 종료 페이즈 진입 시 호출되는 함수입니다.
-    /// RoundEndPhase에서 NotifyRoundEnd를 통해 호출됩니다.
-    /// </summary>
-    virtual void OnRoundEnd();
-
 public:
     virtual int GetSpeed() = 0;
     virtual int GetRandomSpeed() { return _randomSpeed; }
@@ -125,4 +116,14 @@ protected:
     /// </summary>
     virtual void Awake();
 
+    virtual void OnCombatStart();
+    virtual void OnRoundStart();
+    virtual void OnRoundEnd();
+    virtual void OnTurnStart();
+    virtual void OnTurnEnd();
+    virtual void OnHit();
+    virtual void OnDead();
+    virtual void OnKill(CharacterBase* destination);
+    virtual void OnTokenAdded(int tokenID);
+    virtual void OnTokenRemoved(int tokenID);
 };

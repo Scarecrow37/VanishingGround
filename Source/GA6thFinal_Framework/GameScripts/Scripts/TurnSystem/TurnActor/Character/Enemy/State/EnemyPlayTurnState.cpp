@@ -41,7 +41,7 @@ void EnemyPlayTurnState::OnEnter()
     LogCurrentAction();
 
     auto& enemy = GetEnemy();
-    enemy.GetTokenSystem().NotifyTurnStart();
+    enemy.OnTurnStart();
 
     ProcessAction();
 }
@@ -54,7 +54,7 @@ void EnemyPlayTurnState::OnExit()
     UmLogger.Message(LogLevel::LEVEL_TRACE, message);
 
     auto& enemy = GetEnemy();
-    enemy.GetTokenSystem().NotifyTurnEnd();
+    enemy.OnTurnEnd();
 
     // Enemy의 턴이 종료시 액션을 선언.
     _aiModel.Transition();
@@ -188,6 +188,13 @@ void EnemyPlayTurnState::Action22003()
 
 void EnemyPlayTurnState::Action22004()
 {
+    auto player = Player::GetInstance();
+    if (player)
+    {
+        // 플레이어에게 출혈 토큰을 추가합니다.
+        auto& system = player->GetTokenSystem();
+        system.AddTokenStackFromID(BleedToken::ID, 1);
+    }
 }
 
 void EnemyPlayTurnState::BuildAIModel23010() 

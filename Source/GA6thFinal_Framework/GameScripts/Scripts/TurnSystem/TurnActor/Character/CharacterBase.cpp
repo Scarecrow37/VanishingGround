@@ -65,23 +65,62 @@ void CharacterBase::Dead()
     _tokenSystem.NotifyDead();
 }
 
-void CharacterBase::OnRoundStart() 
+void CharacterBase::OnCombatStart() 
+{
+    _tokenSystem.NotifyCombatStart();
+}
+
+void CharacterBase::OnRoundStart()
 {
     Base::OnRoundStart();
     DecrementChainRoundCount();
-
-    if (State != STATE::Dead)
-    {
-        _tokenSystem.NotifyRoundStart();
-    }
+    _tokenSystem.NotifyRoundStart();
 }
 
 void CharacterBase::OnRoundEnd()
 {
     Base::OnRoundEnd();
+    _tokenSystem.NotifyRoundEnd();
+}
 
-    if (State != STATE::Dead)
-    {
-        _tokenSystem.NotifyRoundEnd();
-    }
+void CharacterBase::OnTurnStart()
+{
+    Base::OnTurnStart();
+    _tokenSystem.NotifyTurnStart();
+}
+
+void CharacterBase::OnTurnEnd() 
+{
+    Base::OnTurnEnd();
+    _tokenSystem.NotifyTurnEnd();
+}
+
+void CharacterBase::OnHit() 
+{
+    Base::OnHit();
+    _tokenSystem.NotifyHit();
+}
+
+void CharacterBase::OnDead() 
+{
+    Base::OnDead();
+    _tokenSystem.NotifyDead();
+}
+
+void CharacterBase::OnKill(CharacterBase* destination) 
+{
+    Base::OnKill(destination);
+    _tokenSystem.NotifyKill(destination);
+}
+
+void CharacterBase::OnTokenAdded(int tokenID) 
+{
+    Base::OnTokenAdded(tokenID);
+    _tokenSystem.NotifyTokenAdded(tokenID);
+}
+
+void CharacterBase::OnTokenRemoved(int tokenID) 
+{
+    Base::OnTokenRemoved(tokenID);
+    _tokenSystem.NotifyTokenRemoved(tokenID);
 }

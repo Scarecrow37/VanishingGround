@@ -15,6 +15,11 @@ public:
     void Clear();
 
     /// <summary>
+    /// 전투가 시작될 때 호출됩니다. 모든 토큰에 해당 이벤트를 알려줍니다.
+    /// </summary>
+    void NotifyCombatStart();
+
+    /// <summary>
     /// 라운드가 시작될 때 호출됩니다. 모든 토큰에 해당 이벤트를 알려줍니다.
     /// </summary>
     void NotifyRoundStart();
@@ -50,7 +55,6 @@ public:
     /// <param name="destination">처치된 대상</param>
     void NotifyKill(CharacterBase* destination);
 
-private:
     /// <summary>
     /// CharacterBase가 토큰을 얻었을 때 호출됩니다.
     /// </summary>
