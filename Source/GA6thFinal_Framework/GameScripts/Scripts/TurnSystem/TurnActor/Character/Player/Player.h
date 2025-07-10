@@ -6,8 +6,11 @@ class FiniteStateMachine;
 class Player : public CharacterBase
 {
     USING_PROPERTY(Player)
+    inline static Player* static_instance = nullptr;
+
 public:
     inline static constexpr const char* TAG = "Player";
+  
 
 public:
     REFLECT_PROPERTY(
@@ -48,6 +51,7 @@ public:
     /*플레이어를 사망 상태로 만듭니다.*/
     virtual void Dead() override;
 
+    inline static Player* GetInstance() { return static_instance; }
     FiniteStateMachine& GetFSM() { return *_finiteStateMachine; }
     const PlayerStates& GetFSMStates() { return _fsmStates; }
 

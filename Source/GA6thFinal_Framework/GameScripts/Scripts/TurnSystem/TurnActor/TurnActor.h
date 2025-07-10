@@ -14,8 +14,11 @@ public:
     };
     enum class STATE
     {
+        // 액터가 사망한 상태입니다.
         Dead,
+        // 액터가 턴을 기다리는 상태입니다.
         Wait,
+        // 액터가 턴을 진행중인 상태입니다.
         Play,
     };
 
@@ -56,9 +59,16 @@ public:
     virtual void Dead();
 
     /// <summary>
-    /// 라운드 시작 페이즈 진입시 호출되는 함수입니다.
+    /// 라운드 시작 페이즈 진입 시 호출되는 함수입니다.
+    /// TurnMode에서 MakeTurnList시 호출됩니다.
     /// </summary>
     virtual void OnRoundStart();
+
+    /// <summary>
+    /// 라운드 종료 페이즈 진입 시 호출되는 함수입니다.
+    /// RoundEndPhase에서 NotifyRoundEnd를 통해 호출됩니다.
+    /// </summary>
+    virtual void OnRoundEnd();
 
 public:
     virtual int GetSpeed() = 0;

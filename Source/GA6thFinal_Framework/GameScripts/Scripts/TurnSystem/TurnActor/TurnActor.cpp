@@ -38,6 +38,11 @@ void TurnActor::OnRoundStart()
     _randomSpeed = Random::Range(DEFINE::RANDOMSPEED_MIN, DEFINE::RANDOMSPEED_MAX);
 }
 
+void TurnActor::OnRoundEnd() 
+{
+
+}
+
 void TurnActor::EndTurn() 
 {
     if (_currState == STATE::Play)
