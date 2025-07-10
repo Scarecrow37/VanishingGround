@@ -48,7 +48,7 @@ public:
     void    SetMaxStackCount(UINT16 maxStack);
     void    SetDirtyCallback(std::function<void(int)> callback);
 
-private:
+protected:
     UINT16  _stackCount = 0;
     REFLECT_FIELDS_BEGIN(ReflectSerializer)   
     UINT16  MaxStackCount = UINT16_MAX;

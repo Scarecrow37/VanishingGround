@@ -20,7 +20,7 @@ void Bleed1Token::OnTurnStart(CharacterBase* owner)
     );
     UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
     // TODO: 출혈 데미지 적용
-    // owner->TakeDamage(1); 
+    // owner->TakeDamage(ReflectFields->BleedDamage); 
     RemoveStack();
 }
 
@@ -37,7 +37,7 @@ void Bleed2Token::OnTurnStart(CharacterBase* owner)
     );
     UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
     // TODO: 출혈 데미지 적용
-    // owner->TakeDamage(1);
+    // owner->TakeDamage(ReflectFields->BleedDamage);
     RemoveStack();
 }
 
@@ -54,6 +54,6 @@ void Bleed3Token::OnTurnStart(CharacterBase* owner)
     );
     UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
     // TODO: 출혈 데미지 적용
-    // owner->TakeDamage(1);
+    // owner->TakeDamage(ReflectFields->BleedDamage);
     RemoveStack();
 }
