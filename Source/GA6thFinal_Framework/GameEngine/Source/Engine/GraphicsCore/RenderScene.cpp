@@ -8,6 +8,7 @@
 #include "RenderTechnique.h"
 #include "SkyBox.h"
 #include "SpriteRenderer.h"
+#include "FontRenderer.h"
 
 RenderScene::RenderScene(std::string_view name)
     : _skyBox{std::make_unique<SkyBox>()}
@@ -81,6 +82,23 @@ void RenderScene::RegisterOnRenderQueue(SpriteRenderer* component)
 
     _uiRenderQueue.emplace_back(std::make_unique<bool>(false), component);
     component->_isDestroyeds.push_back(_uiRenderQueue.back().first.get());
+}
+
+void RenderScene::RegisterOnRenderQueue(FontRenderer* component)
+{
+    if (nullptr == component)
+        return;
+
+    auto iter = std::find_if(_fontRenderQueue.begin(), _fontRenderQueue.end(), [](const auto& pair) { return !pair.first.get(); });
+
+    if (iter != _fontRenderQueue.end())
+    {
+        GRAPHICS_ASSERT(false, L"RenderScene::RegisterRenderQueue : Already registered component.");
+        return;
+    }
+
+    _fontRenderQueue.emplace_back(std::make_unique<bool>(false), component);
+    component->_isDestroyeds.push_back(_fontRenderQueue.back().first.get());
 }
 
 void RenderScene::AddRenderTechnique(std::unique_ptr<RenderTechnique> technique)
@@ -266,6 +284,10 @@ void RenderScene::UpdateUI()
         UIMaterial material{.ID = texture->GetID(), .Alpha = 1.f};
         _uiMaterials.push_back(material);
     }
+}
+
+void RenderScene::UpdateFont()
+{
 }
 
 void RenderScene::CreateRenderTarget()

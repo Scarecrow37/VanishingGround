@@ -2,8 +2,6 @@
 #include "Font.h"
 
 Font::Font()
-	: _maxTextLength(0)
-	, _color(1.0f, 1.0f, 1.0f, 1.0f)
 {
 }
 
@@ -11,45 +9,19 @@ Font::~Font()
 {
 }
 
-void Font::SetMaxTextLength(const UINT size)
-{
-	_text.resize(size);
-}
-
-void Font::SetText(std::wstring_view text)
-{
-	if (text.size() > _maxTextLength)
-	{
-		GRAPHICS_ASSERT(false, L"Font text size is too long.");
-		return;
-	}
-
-	lstrcpy(_text.data(), text.data());
-}
-
 void Font::LoadResource(const std::filesystem::path& filePath)
 {
-	_filePath = filePath;
-}
+    ID3D12Device*       device = UmDevice.GetDevice();
+    ResourceUploadBatch resourceUpload(device);
 
-void Font::Initialize(D3D12_CPU_DESCRIPTOR_HANDLE cpu, D3D12_GPU_DESCRIPTOR_HANDLE gpu)
-{
-	ID3D12Device* device = UmDevice.GetDevice();
-	ResourceUploadBatch resourceUpload(device);
-	resourceUpload.Begin();
+    UmViewManager.AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _handle);
 
-	_font = std::make_unique<DirectX::DX12::SpriteFont>(device, resourceUpload, _filePath.c_str(), cpu, gpu);
-	auto uploadFinish = resourceUpload.End(UmDevice.GetCommandQueue());
+    resourceUpload.Begin();
 
-	uploadFinish.wait();
+    _font = std::make_unique<DirectX::DX12::SpriteFont>(device, resourceUpload, filePath.c_str(), _handle.CPU, _handle.GPU);
+    auto uploadFinish = resourceUpload.End(UmDevice.GetCommandQueue());
 
-	_font->SetDefaultCharacter(L'_');
-	_maxTextLength = 256;
-	_text.resize(_maxTextLength);
-}
+    uploadFinish.wait();
 
-void Font::Draw(std::shared_ptr<SpriteBatch>& spriteBatch)
-{
-	//_font->DrawString(spriteBatch.get(), _text.c_str(), _position, _color, _rotation, _origin, _scale);
-	_font->DrawString(spriteBatch.get(), _text.c_str(), _position, _color, 0.0f, _origin, _scale);
+    _font->SetDefaultCharacter(L'_');
 }

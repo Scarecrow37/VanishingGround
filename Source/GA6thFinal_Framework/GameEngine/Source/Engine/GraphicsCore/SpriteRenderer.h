@@ -8,6 +8,10 @@ public:
     virtual ~SpriteRenderer();
 
 public:
+    void RegisterComponent(std::string_view sceneName) override;
+    void RegisterComponent() override;
+
+public:
     const Matrix&    GetWorldMatrix() const { return _worldMatrix; }
     const SpriteType GetType() const { return _type; }
     const Texture*   GetTexture() const { return _texture.get(); }
@@ -18,8 +22,6 @@ public:
     void SetSize(SIZE size) { _size = size; }
 
 public:
-    void RegisterRenderQueue(std::string_view sceneName);
-    void RegisterRenderQueue();
     void LoadTexture(std::wstring_view filePath);
 
 private:

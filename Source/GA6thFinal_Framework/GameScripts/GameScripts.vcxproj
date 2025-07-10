@@ -375,6 +375,7 @@
     <ClInclude Include="Scripts\Test\Input\InputTestComponent.h" />
     <ClInclude Include="Scripts\Timeline\AnimationEventListener.h" />
     <ClInclude Include="Scripts\Test\DevTools\FPSCounter.h" />
+    <ClInclude Include="Scripts\Test\Text\TestText.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -464,6 +465,7 @@
     <ClCompile Include="Scripts\Test\Input\InputTestComponent.cpp" />
     <ClCompile Include="Scripts\Timeline\AnimationEventListener.cpp" />
     <ClCompile Include="Scripts\Test\DevTools\FPSCounter.cpp" />
+    <ClCompile Include="Scripts\Test\Text\TestText.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

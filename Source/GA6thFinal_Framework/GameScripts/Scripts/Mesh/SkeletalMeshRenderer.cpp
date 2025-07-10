@@ -249,8 +249,8 @@ void SkeletalMeshRenderer::LoadModel()
                 std::shared_ptr<Animator> animator(new Animator);
                 animator->Initialize(animation, skeleton);
                 animator->SetActive(&EnableInHierarchy);
+                animator->RegisterComponent();
                 Renderer->SetAnimator(animator);
-                UmAnimationCore.RegisterAnimator(animator.get());
             }
         }
     }
