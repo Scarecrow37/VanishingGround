@@ -3,7 +3,7 @@
 
 class BleedToken : public Token
 {
-    TOKEN_DATA(10001, "BleedToken")
+    TOKEN_DATA(16000, "BleedToken")
 private:
     // Token을(를) 통해 상속됨
     void OnRoundStart(CharacterBase* owner) override;
