@@ -50,15 +50,16 @@ public:
     /// <param name="dest">처치된 대상</param>
     void NotifyKill(CharacterBase* destinatiNotify);
 
+private:
     /// <summary>
     /// CharacterBase가 토큰을 얻었을 때 호출됩니다.
     /// </summary>
-    void NotifyTokenAdded();
+    void NotifyTokenAdded(int tokenID);
 
     /// <summary>
     /// CharacterBase가 토큰을 잃었을 때 호출됩니다.
     /// </summary>
-    void NotifyTokenRemoved();
+    void NotifyTokenRemoved(int tokenID);
 
 public:
     /// <summary>

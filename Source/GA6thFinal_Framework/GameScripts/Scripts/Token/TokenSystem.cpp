@@ -99,24 +99,24 @@ void TokenSystem::NotifyKill(CharacterBase* destination)
     }
 }
 
-void TokenSystem::NotifyTokenAdded()
+void TokenSystem::NotifyTokenAdded(int tokenID)
 {
     for (auto& [tokenID, token] : _tokenTable)
     {
         if (token)
         {
-            token->OnTokenAdded(_owner);
+            token->OnTokenAdded(_owner, tokenID);
         }
     }
 }
 
-void TokenSystem::NotifyTokenRemoved()
+void TokenSystem::NotifyTokenRemoved(int tokenID)
 {
     for (auto& [tokenID, token] : _tokenTable)
     {
         if (token)
         {
-            token->OnTokenRemoved(_owner);
+            token->OnTokenRemoved(_owner, tokenID);
         }
     }
 }
@@ -132,6 +132,7 @@ void TokenSystem::AddTokenStackFromID(int tokenID, UINT16 count)
     if (token)
     {
         token->AddStack(count);
+        NotifyTokenAdded(tokenID);
     }
 }
 
@@ -145,11 +146,18 @@ void TokenSystem::SetTokenStackFromID(int tokenID, UINT16 count)
     }
     if (token)
     {
-        token->SetStack(count);
-        bool isValid = CheckValidTokenFromID(tokenID);
-        if (false == isValid)
-        {   // 스택이 0이 되면 토큰을 제거합니다.
-            RemoveTokenFromID(tokenID);
+        UINT16 curCount = token->GetStackCount();
+        UINT16 delta    = count - curCount;
+        // 음수면 스택을 줄이는 것, 양수면 스택을 늘리는 것
+        if (delta < 0)
+        { 
+            delta = std::abs(delta);
+            token->RemoveStack(delta);
+        }
+        else if (delta > 0)
+        { 
+            delta = std::abs(delta);
+            token->AddStack(delta);
         }
     }
 }
@@ -165,6 +173,7 @@ void TokenSystem::RemoveTokenStackFromID(int tokenID, UINT16 count)
         {   // 스택이 0이 되면 토큰을 제거합니다.
             RemoveTokenFromID(tokenID);
         }
+        NotifyTokenRemoved(tokenID);
     }
 }
 
