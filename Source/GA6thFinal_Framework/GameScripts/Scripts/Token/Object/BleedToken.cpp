@@ -1,6 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "BleedToken.h"
-
+#include "TurnSystem/TurnActor/Character/CharacterBase.h"
 #include<Token/TokenSystem.h>
 REGISTER_TOKEN(BleedToken)
 
@@ -13,7 +13,8 @@ void BleedToken::OnTurnStart(CharacterBase* owner)
     UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"출혈 발생!");
     // TODO: 출혈 데미지 적용
     // owner->TakeDamage(1); 
-    RemoveStack();
+    auto& system = owner->GetTokenSystem();
+    system.RemoveTokenStackFromID(ID, 1);
 }
 
 void BleedToken::OnTurnEnd(CharacterBase* owner) {}
