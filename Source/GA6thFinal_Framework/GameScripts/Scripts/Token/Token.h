@@ -2,10 +2,12 @@
 #include "Interface/IToken.h"
 
 // @brief 토큰의 기본 멤버입니다. 이걸 추가하지 않으면 System에 추가가 불가능합니다
-#define TOKEN_DATA(id, name)                \
-public:                                     \
-static constexpr int ID = id;               \
-static constexpr const char8_t* NAME = u8##name;
+#define TOKEN_DATA(id, name)                                                    \
+public:                                                                         \
+static constexpr int ID = id;                                                   \
+static constexpr const char8_t* NAME = u8##name;                                \
+inline int         GetTokenID() const  override { return ID; }                  \
+inline const char* GetTokenName() const override { return (const char*)NAME; }   
 
 // @brief 토큰을 등록하는 매크로입니다. 이걸 사용하지 않으면 토큰이 System에 등록되지 않습니다.
 // #include<Token/TokenSystem.h>을 포함해야합니다.
@@ -44,10 +46,13 @@ public:
     void    AddStack(UINT16 count = 1);
     void    RemoveStack(UINT16 count = 1);
     void    SetMaxStackCount(UINT16 maxStack);
+    void    SetDirtyCallback(std::function<void(int)> callback);
 
 private:
     UINT16  _stackCount = 0;
     REFLECT_FIELDS_BEGIN(ReflectSerializer)   
     UINT16  MaxStackCount = UINT16_MAX;
     REFLECT_FIELDS_END(Token)
+
+    std::function<void(int)> _dirtyCallback; // 스택이 변경되었을 때 호출되는 콜백 함수
 };

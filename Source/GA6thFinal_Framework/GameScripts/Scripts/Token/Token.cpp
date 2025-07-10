@@ -22,21 +22,55 @@ void Token::ClearStack()
 
 void Token::SetStack(UINT16 count)
 {
-    _stackCount = std::clamp(count, (UINT16)0, ReflectFields->MaxStackCount);
+    UINT16 resultCount = std::clamp(count, (UINT16)0, ReflectFields->MaxStackCount);
+    if (resultCount != _stackCount)
+    {
+        _stackCount = resultCount;
+        if (_dirtyCallback)
+        {
+            _dirtyCallback(GetTokenID()); // 스택이 변경되었을 때 콜백 호출
+        }
+    }
 }
 
 void Token::AddStack(UINT16 count)
 {
-    _stackCount += count;
-    _stackCount = std::min(_stackCount, ReflectFields->MaxStackCount);
+    if (0 < count)
+    {
+        UINT16 resultCount = std::min((UINT16)(_stackCount + count), ReflectFields->MaxStackCount);
+        if (resultCount != _stackCount)
+        {
+            _stackCount = resultCount;
+            if (_dirtyCallback)
+            {
+                _dirtyCallback(GetTokenID()); // 스택이 변경되었을 때 콜백 호출
+            }
+        }
+    }
 }
 
 void Token::RemoveStack(UINT16 count)
 {
-    _stackCount = _stackCount <= count ? (UINT16)0 : _stackCount - count;
+    if (0 < count)
+    {
+        UINT16 resultCount = _stackCount <= count ? (UINT16)0 : (UINT16)(_stackCount - count);
+        if (resultCount != _stackCount)
+        {
+            _stackCount = resultCount;
+            if (_dirtyCallback)
+            {
+                _dirtyCallback(GetTokenID()); // 스택이 변경되었을 때 콜백 호출
+            }
+        }
+    }
 }
 
 void Token::SetMaxStackCount(UINT16 maxStack)
 {
     ReflectFields->MaxStackCount = maxStack;
+}
+
+void Token::SetDirtyCallback(std::function<void(int)> callback)
+{
+    _dirtyCallback = callback;
 }

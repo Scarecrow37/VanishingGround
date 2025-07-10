@@ -9,10 +9,11 @@ REGISTER_TOKEN(Bleed3Token)
 
 void Bleed1Token::OnTurnStart(CharacterBase* owner)
 {
-    std::string msg = std::format("{}{} {}{} {}{}",
-        owner->gameObject->ToString(),
-        "에게서",
-        (const char*)NAME,
+    GameObject& gameObject = owner->gameObject;
+    std::string msg = std::format("{}{} {}{}{}{}",
+        gameObject.ToString(),
+        (const char*)u8"에게서",
+        GetTokenName(),
         (const char*)u8"의 토큰이 발동했습니다. (",
         GetStackCount(),
         (const char*)u8"스택)"
@@ -20,16 +21,16 @@ void Bleed1Token::OnTurnStart(CharacterBase* owner)
     UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
     // TODO: 출혈 데미지 적용
     // owner->TakeDamage(1); 
-    auto& system = owner->GetTokenSystem();
-    system.RemoveTokenStackFromID(ID, 1);
+    RemoveStack();
 }
 
 void Bleed2Token::OnTurnStart(CharacterBase* owner)
 {
-   std::string msg = std::format("{}{} {}{} {}{}",
-        owner->gameObject->ToString(),
-        "에게서",
-        (const char*)NAME,
+    GameObject& gameObject = owner->gameObject;
+    std::string msg = std::format("{}{} {}{}{}{}",
+        gameObject.ToString(),
+        (const char*)u8"에게서",
+        GetTokenName(),
         (const char*)u8"의 토큰이 발동했습니다. (",
         GetStackCount(),
         (const char*)u8"스택)"
@@ -37,16 +38,16 @@ void Bleed2Token::OnTurnStart(CharacterBase* owner)
     UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
     // TODO: 출혈 데미지 적용
     // owner->TakeDamage(1);
-    auto& system = owner->GetTokenSystem();
-    system.RemoveTokenStackFromID(ID, 1);
+    RemoveStack();
 }
 
 void Bleed3Token::OnTurnStart(CharacterBase* owner)
 {
-    std::string msg = std::format("{}{} {}{} {}{}",
-        owner->gameObject->ToString(),
-        "에게서",
-        (const char*)NAME,
+    GameObject& gameObject = owner->gameObject;
+    std::string msg = std::format("{}{} {}{}{}{}",
+        gameObject.ToString(),
+        (const char*)u8"에게서",
+        GetTokenName(),
         (const char*)u8"의 토큰이 발동했습니다. (",
         GetStackCount(),
         (const char*)u8"스택)"
@@ -54,6 +55,5 @@ void Bleed3Token::OnTurnStart(CharacterBase* owner)
     UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
     // TODO: 출혈 데미지 적용
     // owner->TakeDamage(1);
-    auto& system = owner->GetTokenSystem();
-    system.RemoveTokenStackFromID(ID, 1);
+    RemoveStack();
 }

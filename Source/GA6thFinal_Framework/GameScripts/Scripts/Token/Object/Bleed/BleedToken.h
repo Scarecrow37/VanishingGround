@@ -17,7 +17,7 @@ private:
 
 class Bleed3Token : public Token
 {
-    TOKEN_DATA(16002, "출혈III")
+    TOKEN_DATA(16002, "출혈Ⅲ")
 private:
     void OnTurnStart(CharacterBase* owner) override;
 };

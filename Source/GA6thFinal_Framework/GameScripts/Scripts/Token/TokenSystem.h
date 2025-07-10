@@ -67,23 +67,21 @@ public:
 
 public:
     /// <summary>
-    /// 토큰 스택 카운트를 추가합니다. 만약 해당 토큰이 존재하지 않는다면 새로 생성합니다.
+    /// 토큰 스택을 카운트만큼 추가합니다. 
     /// </summary>
     /// <param name="tokenID">해당 토큰의 ID</param>
     /// <param name="count">제거할 카운트 수</param>
     void AddTokenStackFromID(int tokenID, UINT16 count = 1);
 
     /// <summary>
-    /// <para>토큰 스택 카운트를 설정합니다. 만약 해당 토큰이 존재하지 않는다면 새로 생성합니다.</para>
-    /// <para>만약 토큰이 존재하지 않으면 아무런 동작도 하지 않습니다.</para>
+    /// <para>토큰 스택을 카운트만큼 설정합니다.</para>
     /// </summary>
     /// <param name="tokenID">해당 토큰의 ID</param>
     /// <param name="count">제거할 카운트 수</param>
     void SetTokenStackFromID(int tokenID, UINT16 count);
 
     /// <summary>
-    /// <para>토큰 스택 카운트를 제거합니다. 스택이 0이 되면 토큰을 제거합니다.</para>
-    /// <para>만약 토큰이 존재하지 않으면 아무런 동작도 하지 않습니다.</para>
+    /// <para>토큰 스택을 카운트만큼 제거합니다.</para>
     /// </summary>
     /// <param name="tokenID">해당 토큰의 ID</param>
     /// <param name="count">제거할 카운트 수</param>
@@ -102,7 +100,22 @@ public:
     /// <param name="tokenID">해당 토큰의 ID</param>
     void RemoveTokenFromID(int tokenID);
 
+    bool HasToken(int tokenID) const;
+
+    bool IsEmpty() const;
+
 private:
+    /// <summary>
+    /// 토큰 테이블에 모든 인스턴스를 초기화합니다.
+    /// </summary>
+    void InitTokenInstance();
+
+    /// <summary>
+    /// 해당 토큰에 대한 업데이트를 수행합니다.
+    /// </summary>
+    /// <param name="token"></param>
+    void UpdateToken(int tokenID);
+
     Token* FindTokenEx(int tokenID);
     Token* FindTokenEx(std::string_view tokenName);
 
@@ -120,7 +133,7 @@ private:
     Token* CreateTokenInstanceFromID(int tokenID);
 
     /// <summary>
-    /// 토큰 Name를 통해 토큰 인스턴스를 생성합니다.
+    /// 토큰 Name을 통해 토큰 인스턴스를 생성합니다.
     /// </summary>
     /// <param name="tokenName">생성할 토큰의 Name</param>
     /// <returns>생성된 토큰의 주소 값</returns>
@@ -131,8 +144,8 @@ private:
 
 private:
     CharacterBase* _owner;
-    std::unordered_map<int, Token*> _tokenTable;
-    std::vector<std::function<void()>> _eventQueue;
+    std::unordered_map<int, Token*> _tokenTable;        // 모든 토큰 테이블 (스택 카운트가 0인 토큰도 포함)
+    std::unordered_map<int, Token*> _vaildTokenTable;   // 유효한 토큰 테이블 (스택 카운트가 0이 아닌 토큰만 포함)
 
 public:
     /// <summary>
