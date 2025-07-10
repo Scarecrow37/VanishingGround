@@ -18,17 +18,17 @@
 
 Player::Player()
 {
-    if (nullptr == Instance)
+    if (nullptr == static_instance)
     {
-        Instance = this;
+        static_instance = this;
     }
 }
 
 Player::~Player()
 {
-    if (this == Instance)
+    if (this == static_instance)
     {
-        Instance = nullptr;
+        static_instance = nullptr;
     }
 }
 
