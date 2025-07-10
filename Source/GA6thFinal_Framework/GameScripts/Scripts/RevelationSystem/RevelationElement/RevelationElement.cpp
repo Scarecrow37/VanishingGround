@@ -12,7 +12,6 @@ void RevelationElement::ImGuiDrawPropertysEvent()
         {
             ReflectFields->Action = STR_NULL;
         }
-        SetImGuiTableIndex();
         if (ImGui::BeginCombo("Action", ReflectFields->Action.c_str()))
         {
             for (auto& [key, func] : constructorsMap)

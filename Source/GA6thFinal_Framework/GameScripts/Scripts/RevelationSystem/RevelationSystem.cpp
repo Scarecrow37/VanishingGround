@@ -75,6 +75,7 @@ void RevelationSystem::DrawImGuiElementTableEditor()
             ImGui::PushStyleColor(ImGuiCol_Text, element.GetGradeColor());
             ImGui::PushID(itemID++);
             {
+                ImGui::TableNextRow();
                 element.SetImGuiTableIndex();
                 UmCore->ImGuiDrawPropertysSetting.InputEndEvent = [&](bool edit, std::string_view name) 
                 {

@@ -129,7 +129,7 @@ public:
         case RevelationGrade::EXTINCTION:
             return {210, 0, 170, 1};
         default:
-            return {200, 200, 200, 1};
+            return {100, 100, 100, 1};
         }
     }
 
