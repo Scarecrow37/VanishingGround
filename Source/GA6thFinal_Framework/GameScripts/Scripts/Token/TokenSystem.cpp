@@ -220,7 +220,7 @@ bool TokenSystem::HasToken(int tokenID) const
 
 bool TokenSystem::IsEmpty() const
 {
-    return _vaildTokenTable.empty();
+    return _validTokenTable.empty();
 }
 
 void TokenSystem::InitTokenInstance()
@@ -246,11 +246,11 @@ void TokenSystem::UpdateToken(int tokenID)
         UINT16 count = token->GetStackCount();
         if (0 < count)
         {
-            _vaildTokenTable[token->GetTokenID()] = token;  // 유효한 토큰 테이블에 추가
+            _validTokenTable[token->GetTokenID()] = token;  // 유효한 토큰 테이블에 추가
         }
         else
         {
-            _vaildTokenTable.erase(token->GetTokenID());    // 유효한 토큰 테이블에서 제거
+            _validTokenTable.erase(token->GetTokenID());    // 유효한 토큰 테이블에서 제거
         }
     }
 }
