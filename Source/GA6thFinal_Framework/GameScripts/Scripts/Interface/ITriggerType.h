@@ -40,9 +40,9 @@ private:
 
     /// <summary>객체가 토큰을 얻었을 때 호출됩니다.</summary>
     /// <param name="source">호출한 CharacterBase 객체입니다.</param>
-    virtual void OnTokenAdded(CharacterBase* source) = 0;
+    virtual void OnTokenAdded(CharacterBase* source, int tokenID) = 0;
 
     /// <summary>객체가 토큰이 제거되었을 때 호출됩니다.</summary>
     /// <param name="source">호출한 CharacterBase 객체입니다.</param>
-    virtual void OnTokenRemoved(CharacterBase* source) = 0;
+    virtual void OnTokenRemoved(CharacterBase* source, int tokenID) = 0;
 };

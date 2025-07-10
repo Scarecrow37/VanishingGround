@@ -41,7 +41,7 @@ void EnemyPlayTurnState::OnEnter()
     LogCurrentAction();
 
     auto& enemy = GetEnemy();
-    enemy.GetTokenSystem().OnTurnStart(&enemy);
+    enemy.GetTokenSystem().NotifyTurnStart();
 
     ProcessAction();
 }
@@ -54,7 +54,7 @@ void EnemyPlayTurnState::OnExit()
     UmLogger.Message(LogLevel::LEVEL_TRACE, message);
 
     auto& enemy = GetEnemy();
-    enemy.GetTokenSystem().OnTurnEnd(&enemy);
+    enemy.GetTokenSystem().NotifyTurnStart();
 
     // Enemy의 턴이 종료시 액션을 선언.
     _aiModel.Transition();

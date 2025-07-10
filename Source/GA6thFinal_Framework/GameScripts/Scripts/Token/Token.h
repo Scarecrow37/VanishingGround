@@ -29,8 +29,8 @@ public: // 콜백에 대한 자세한 주석은 ITriggerType.h를 참고하세�
     virtual void OnHit(CharacterBase* owner) override                               = 0;
     virtual void OnDead(CharacterBase* owner) override                              = 0;
     virtual void OnKill(CharacterBase* source, CharacterBase* destination) override = 0;
-    virtual void OnTokenAdded(CharacterBase* owner) override                        = 0;
-    virtual void OnTokenRemoved(CharacterBase* owner) override                      = 0;
+    virtual void OnTokenAdded(CharacterBase* owner, int tokenID) override                        = 0;
+    virtual void OnTokenRemoved(CharacterBase* owner, int tokenID) override                      = 0;
 
 public:
     UINT16  GetStackCount() const override;
