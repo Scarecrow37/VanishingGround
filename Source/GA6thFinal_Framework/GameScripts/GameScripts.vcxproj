@@ -362,6 +362,8 @@
     <ClInclude Include="Scripts\TurnSystem\TurnMode\State\EnemyActionPhase.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnMode\State\PlayerActionPhase.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnMode\State\RoundStartPhase.h" />
+    <ClInclude Include="Scripts\Token\Object\Stun\StunToken.h" />
+    <ClInclude Include="Scripts\Token\Object\Shock\ShockToken.h" />
     <ClInclude Include="UmScriptCore.h" />
     <ClInclude Include="UmScriptsExport.h" />
     <ClInclude Include="Scripts\Mesh\MeshComponent.h" />
@@ -452,6 +454,8 @@
     <ClCompile Include="Scripts\TurnSystem\TurnMode\State\RoundEndPhase.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnMode\State\RoundStartPhase.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnMode\State\TurnListEmptyState.cpp" />
+    <ClCompile Include="Scripts\Token\Object\Stun\StunToken.cpp" />
+    <ClCompile Include="Scripts\Token\Object\Shock\ShockToken.cpp" />
     <ClCompile Include="UmScriptCore.cpp" />
     <ClCompile Include="UmScriptsExport.cpp" />
     <ClCompile Include="Scripts\Mesh\MeshComponent.cpp">
