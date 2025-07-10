@@ -242,8 +242,8 @@ void RenderScene::UpdateUI()
         switch (component->GetType())
         {
         case SpriteType::MODE_2D:
-            scale = XMMatrixScaling((float)size.cx, (float)size.cy, 1.f);
-            break;        
+            scale = XMMatrixScaling((float)size.cx, (float)-size.cy, 1.f);
+            break;
         case SpriteType::MODE_3D:
         {
             XMVECTOR s, r, t;

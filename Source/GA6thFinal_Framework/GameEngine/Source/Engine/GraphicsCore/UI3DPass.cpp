@@ -36,7 +36,7 @@ void UI3DPass::Initialize(RenderScene* ownerScene)
     rtDesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 
     D3D12_GRAPHICS_PIPELINE_STATE_DESC psodesc = {};
-    psodesc.RasterizerState                    = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+    psodesc.RasterizerState                    = CommonStates::CullNone;
     psodesc.BlendState                         = blendDesc;
     psodesc.DepthStencilState                  = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
     psodesc.DSVFormat                          = _ownerScene->_depthStencilView->GetFormat();
@@ -63,21 +63,15 @@ void UI3DPass::Initialize(RenderScene* ownerScene)
     FAILED_CHECK_MESSAGE(hr, L"UI3DPass::Initialize device->CreateGraphicsPipelineState Failed");
 }
 
-void UI3DPass::Draw(ID3D12GraphicsCommandList* commandList)
+void UI3DPass::Begin(ID3D12GraphicsCommandList* commandList)
 {
-    commandList->SetPipelineState(_pipelineState.Get());
-    commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
+    const auto& mode = UmDevice.GetMode();
 
-    UINT  currentBackBufferIndex = UmDevice.GetCurrentBackBufferIndex();
-    auto  resource               = UmViewManager.GetShaderResourceHeap()->GetGPUDescriptorHandleForHeapStart();
-    auto& frameResource          = _ownerScene->_frameResources[currentBackBufferIndex];
+    _cameraData.View       = XMMatrixTranspose(_ownerScene->_camera->GetViewMatrix());
+    _cameraData.Projection = XMMatrixTranspose(_ownerScene->_camera->GetProjectionMatrix());
+    _cameraBuffer->UpdateBuffer(&_cameraData);
 
-    frameResource->SetFrameResource(FrameResourceType::UI_TRANSFORM, _shader->GetRootParameterIndex("worldMatrices"), commandList);
-    frameResource->SetFrameResource(FrameResourceType::UI_MATERIAL, _shader->GetRootParameterIndex("material"), commandList);
+    __super::UpdateBuffer(commandList);
 
-    commandList->SetGraphicsRootShaderResourceView(_shader->GetRootParameterIndex("IDs"), _instanceIDBuffer->GetGPUVirtualAddress());
-    commandList->SetGraphicsRootConstantBufferView(_shader->GetRootParameterIndex("cameraData"), _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
-    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("textures"), resource);
-
-    _halfQuad->Render(commandList, (UINT)_instanceIDs.size());
+    __super::Begin(commandList);
 }
