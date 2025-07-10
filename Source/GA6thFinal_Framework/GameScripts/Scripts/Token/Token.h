@@ -21,12 +21,16 @@ public:
     Token() = default;
     virtual ~Token() = default;
 
-public:
-    virtual void OnRoundStart(CharacterBase* owner) = 0;
-    virtual void OnRoundEnd(CharacterBase* owner)   = 0;
-    virtual void OnTurnStart(CharacterBase* owner)  = 0;
-    virtual void OnTurnEnd(CharacterBase* owner)    = 0;
-    virtual void OnHit(CharacterBase* owner)        = 0;
+public: // 콜백에 대한 자세한 주석은 ITriggerType.h를 참고하세요.
+    virtual void OnRoundStart(CharacterBase* owner) override                        = 0;
+    virtual void OnRoundEnd(CharacterBase* owner) override                          = 0;
+    virtual void OnTurnStart(CharacterBase* owner) override                         = 0;
+    virtual void OnTurnEnd(CharacterBase* owner) override                           = 0;
+    virtual void OnHit(CharacterBase* owner) override                               = 0;
+    virtual void OnDead(CharacterBase* owner) override                              = 0;
+    virtual void OnKill(CharacterBase* source, CharacterBase* destination) override = 0;
+    virtual void OnTokenAdded(CharacterBase* owner) override                        = 0;
+    virtual void OnTokenRemoved(CharacterBase* owner) override                      = 0;
 
 public:
     UINT16  GetStackCount() const override;

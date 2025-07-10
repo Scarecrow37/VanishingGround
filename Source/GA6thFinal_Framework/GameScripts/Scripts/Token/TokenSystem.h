@@ -5,47 +5,60 @@
 class TokenSystem
 {
 public:
-    TokenSystem()  = default;
+    TokenSystem(CharacterBase* owner);
     ~TokenSystem() = default;
 
 public:
-    template<typename T>
-    static bool RegisterToken();
-
     /// <summary>
     /// 테이블의 토큰을 모두 제거합니다.
     /// </summary>
     void Clear();
 
     /// <summary>
-    /// 라운드가 시작될 때 호출됩니다. 모든 토큰에 대해 OnRoundStart를 호출합니다.
+    /// 라운드가 시작될 때 호출됩니다. 모든 토큰에 해당 이벤트를 알려줍니다.
     /// </summary>
-    /// <param name="owner">호출한 주체의 CharacterBase객체</param>
-    void OnRoundStart(CharacterBase* owner);
+    void NotifyRoundStart();
 
     /// <summary>
-    /// 라운드가 끝날 때 호출됩니다. 모든 토큰에 대해 OnRoundEnd를 호출합니다.
+    /// 라운드가 끝날 때 호출됩니다. 모든 토큰에 해당 이벤트를 알려줍니다.
     /// </summary>
-    /// <param name="owner">호출한 주체의 CharacterBase객체</param>
-    void OnRoundEnd(CharacterBase* owner);
+    void NotifyRoundEnd();
 
     /// <summary>
-    /// 턴이 시작될 때 호출됩니다. 모든 토큰에 대해 OnTurnStart를 호출합니다.
+    /// 턴이 시작될 때 호출됩니다. 모든 토큰에 해당 이벤트를 알려줍니다.
     /// </summary>
-    /// <param name="owner">호출한 주체의 CharacterBase객체</param>
-    void OnTurnStart(CharacterBase* owner);  
+    void NotifyTurnStart();  
 
     /// <summary>
-    /// 턴이 끝날 때 호출됩니다. 모든 토큰에 대해 OnTurnEnd를 호출합니다.
+    /// 턴이 끝날 때 호출됩니다. 모든 토큰에 해당 이벤트를 알려줍니다.
     /// </summary>
-    /// <param name="owner">호출한 주체의 CharacterBase객체</param>
-    void OnTurnEnd(CharacterBase* owner); 
+    void NotifyTurnEnd(); 
 
     /// <summary>
-    /// CharacterBase가 Hit 당했을 때 호출됩니다. 모든 토큰에 대해 OnHit를 호출합니다.
+    /// CharacterBase가 Hit 당했을 때 호출됩니다. 모든 토큰에 해당 이벤트를 알려줍니다.
     /// </summary>
-    /// <param name="owner">호출한 주체의 CharacterBase객체</param>
-    void OnHit(CharacterBase* owner);
+    void NotifyHit();
+
+    /// <summary>
+    /// CharacterBase가 사망했을 때 호출됩니다. 모든 토큰에 해당 이벤트를 알려줍니다.
+    /// </summary>
+    void NotifyDead();
+
+    /// <summary>
+    /// CharacterBase가 대상을 처치 시 호출됩니다.
+    /// </summary>
+    /// <param name="dest">처치된 대상</param>
+    void NotifyKill(CharacterBase* destinatiNotify);
+
+    /// <summary>
+    /// CharacterBase가 토큰을 얻었을 때 호출됩니다.
+    /// </summary>
+    void NotifyTokenAdded();
+
+    /// <summary>
+    /// CharacterBase가 토큰을 잃었을 때 호출됩니다.
+    /// </summary>
+    void NotifyTokenRemoved();
 
 public:
     /// <summary>
@@ -112,11 +125,21 @@ private:
     const std::string& GetTokenNameFromID(int tokenID) const;
 
 private:
+    CharacterBase* _owner;
     std::unordered_map<int, Token*> _tokenTable;
 
-    inline static std::unordered_map<int, std::function<Token*()>> _tokenIDFactoryTable;
+public:
+    /// <summary>
+    /// 토큰을 등록합니다. 직접 호출하지 않고 define을 통해 등록합니다.
+    /// </summary>
+    /// <typeparam name="T">Token 클래스 타입입니다.</typeparam>
+    /// <returns>등록 성공 여부입니다.</returns>
+    template <typename T>
+    static bool RegisterToken();
 
+private:
     // Runtime token type information
+    inline static std::unordered_map<int, std::function<Token*()>> _tokenIDFactoryTable;
     inline static std::unordered_map<std::string, std::function<Token*()>> _tokenNameFactoryTable;
     inline static std::unordered_map<std::string, int> _tokenNameToIDTable;
     inline static std::unordered_map<int, std::string> _tokenIDToNameTable;

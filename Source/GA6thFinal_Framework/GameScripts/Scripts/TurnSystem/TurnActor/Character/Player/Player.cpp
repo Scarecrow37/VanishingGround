@@ -18,9 +18,19 @@
 
 Player::Player()
 {
-   
+    if (nullptr == Instance)
+    {
+        Instance = this;
+    }
 }
-Player::~Player() = default;
+
+Player::~Player()
+{
+    if (this == Instance)
+    {
+        Instance = nullptr;
+    }
+}
 
 void Player::Awake() 
 {

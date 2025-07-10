@@ -1,6 +1,15 @@
 ﻿#include "pchScripts.h"
 #include "TokenSystem.h"
 
+TokenSystem::TokenSystem(CharacterBase* owner) 
+    : _tokenTable(), _owner(owner)
+{
+    if (nullptr == _owner)
+    {
+        assert(false && "TokenSystem requires a valid CharacterBase owner.");
+    }
+}
+
 void TokenSystem::Clear()
 {
     for (auto& [tokenID, token] : _tokenTable)
@@ -13,57 +22,101 @@ void TokenSystem::Clear()
     _tokenTable.clear();
 }
 
-void TokenSystem::OnRoundStart(CharacterBase* owner) 
+void TokenSystem::NotifyRoundStart()
 {
     for (auto& [tokenID, token] : _tokenTable)
     {
         if (token)
         {
-            token->OnRoundStart(owner);
+            token->OnRoundStart(_owner);
         }
     }
 }
 
-void TokenSystem::OnRoundEnd(CharacterBase* owner) 
+void TokenSystem::NotifyRoundEnd()
 {
     for (auto& [tokenID, token] : _tokenTable)
     {
         if (token)
         {
-            token->OnRoundEnd(owner);
+            token->OnRoundEnd(_owner);
         }
     }
 }
 
-void TokenSystem::OnTurnStart(CharacterBase* owner) 
+void TokenSystem::NotifyTurnStart()
 {
     for (auto& [tokenID, token] : _tokenTable)
     {
         if (token)
         {
-            token->OnTurnStart(owner);
+            token->OnTurnStart(_owner);
         }
     }
 }
 
-void TokenSystem::OnTurnEnd(CharacterBase* owner) 
+void TokenSystem::NotifyTurnEnd()
 {
     for (auto& [tokenID, token] : _tokenTable)
     {
         if (token)
         {
-            token->OnTurnEnd(owner);
+            token->OnTurnEnd(_owner);
         }
     }
 }
 
-void TokenSystem::OnHit(CharacterBase* owner) 
+void TokenSystem::NotifyHit()
 {
     for (auto& [tokenID, token] : _tokenTable)
     {
         if (token)
         {
-            token->OnHit(owner);
+            token->OnHit(_owner);
+        }
+    }
+}
+
+void TokenSystem::NotifyDead()
+{
+    for (auto& [tokenID, token] : _tokenTable)
+    {
+        if (token)
+        {
+            token->OnDead(_owner);
+        }
+    }
+}
+
+void TokenSystem::NotifyKill(CharacterBase* destination)
+{
+    for (auto& [tokenID, token] : _tokenTable)
+    {
+        if (token)
+        {
+            token->OnKill(_owner, destination);
+        }
+    }
+}
+
+void TokenSystem::NotifyTokenAdded()
+{
+    for (auto& [tokenID, token] : _tokenTable)
+    {
+        if (token)
+        {
+            token->OnTokenAdded(_owner);
+        }
+    }
+}
+
+void TokenSystem::NotifyTokenRemoved()
+{
+    for (auto& [tokenID, token] : _tokenTable)
+    {
+        if (token)
+        {
+            token->OnTokenRemoved(_owner);
         }
     }
 }

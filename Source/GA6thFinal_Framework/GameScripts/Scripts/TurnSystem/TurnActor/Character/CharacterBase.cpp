@@ -38,7 +38,8 @@ int CharacterBase::GetMaxChainRoundCount()
 CharacterBase::CharacterBase() : 
     _hp(0), 
     _chainCount(0) , 
-    _chainRoundCount(1) 
+    _chainRoundCount(1) ,
+    _tokenSystem(this)
 {
 }
 
@@ -61,7 +62,7 @@ void CharacterBase::Dead()
     Base::Dead();
     _hp = 0;
 
-    _tokenSystem.Clear();
+    _tokenSystem.NotifyDead();
 }
 
 void CharacterBase::OnRoundStart() 
@@ -71,7 +72,7 @@ void CharacterBase::OnRoundStart()
 
     if (State != STATE::Dead)
     {
-        _tokenSystem.OnRoundStart(this);
+        _tokenSystem.NotifyTurnStart();
     }
 }
 
@@ -81,6 +82,6 @@ void CharacterBase::OnRoundEnd()
 
     if (State != STATE::Dead)
     {
-        _tokenSystem.OnRoundEnd(this);
+        _tokenSystem.NotifyRoundEnd();
     }
 }

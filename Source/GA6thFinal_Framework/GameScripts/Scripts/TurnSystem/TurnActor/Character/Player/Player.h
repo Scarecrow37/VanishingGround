@@ -8,6 +8,7 @@ class Player : public CharacterBase
     USING_PROPERTY(Player)
 public:
     inline static constexpr const char* TAG = "Player";
+    inline static Player* Instance = nullptr;
 
 public:
     REFLECT_PROPERTY(
