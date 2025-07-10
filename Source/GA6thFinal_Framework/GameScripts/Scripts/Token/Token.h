@@ -7,7 +7,8 @@ public:                                                                         
 static constexpr int ID = id;                                                   \
 static constexpr const char8_t* NAME = u8##name;                                \
 inline int         GetTokenID() const  override { return ID; }                  \
-inline const char* GetTokenName() const override { return (const char*)NAME; }   
+inline const char* GetTokenName() const override { return (const char*)NAME; }  \
+using Data = reflect_fields_struct;
 
 // @brief 토큰을 등록하는 매크로입니다. 이걸 사용하지 않으면 토큰이 System에 등록되지 않습니다.
 // #include<Token/TokenSystem.h>을 포함해야합니다.
@@ -20,6 +21,7 @@ namespace CLASS##Register  {                                            \
 class Token : public ReflectSerializer, public IToken
 {
     USING_PROPERTY(Token)
+  
 public:
     Token();
     virtual ~Token();

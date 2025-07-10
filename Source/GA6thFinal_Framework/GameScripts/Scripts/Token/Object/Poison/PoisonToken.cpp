@@ -7,7 +7,7 @@ REGISTER_TOKEN(Poison1Token)
 REGISTER_TOKEN(Poison2Token)
 REGISTER_TOKEN(Poison3Token)
 
-void Poison1Token::OnTurnStart(CharacterBase* owner) 
+void Poison1Token::OnTurnStart(CharacterBase* owner)
 {   
     GameObject& gameObject = owner->gameObject;
     std::string msg = std::format("{}{} {}{}{}{}",

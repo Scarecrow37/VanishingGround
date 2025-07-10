@@ -202,8 +202,7 @@ void TokenSystem::RemoveTokenFromID(int tokenID)
     auto* token = FindTokenEx(tokenID);
     if (token)
     {
-        _tokenTable.erase(tokenID);
-        delete token;
+        token->SetStack(0); // 스택을 0으로 설정하여 토큰을 제거합니다.
     }
 }
 
