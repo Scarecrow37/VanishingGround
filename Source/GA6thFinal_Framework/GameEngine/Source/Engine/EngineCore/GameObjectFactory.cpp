@@ -167,7 +167,7 @@ std::shared_ptr<GameObject> EGameObjectFactory::NewGameObject(std::string_view t
     return sptr_object;
 }
 
-YAML::Node EGameObjectFactory::SerializeToYaml(GameObject* gameObject)
+YAML::Node EGameObjectFactory::SerializeToYaml(GameObject* gameObject, bool onlyVaildObject)
 {
     if (UmComponentFactory.HasScript() == false)
     {
@@ -188,7 +188,7 @@ YAML::Node EGameObjectFactory::SerializeToYaml(GameObject* gameObject)
     gameObject->_transform, 
     [&](Transform* curr) 
     {
-        if (curr->gameObject->IsValid())
+        if (false == onlyVaildObject || true == curr->gameObject->IsValid())
         {
             // 오브젝트 직렬화
             YAML::Node objectNode = MakeYamlToGameObject(&curr->gameObject);
@@ -211,6 +211,7 @@ YAML::Node EGameObjectFactory::SerializeToYaml(GameObject* gameObject)
             ++parentIndex;
             nodes.push_back(objectNode);
         }
+
     });
     return nodes;
 }
