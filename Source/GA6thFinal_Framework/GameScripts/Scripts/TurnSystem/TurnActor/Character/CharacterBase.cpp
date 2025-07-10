@@ -72,7 +72,7 @@ void CharacterBase::OnRoundStart()
 
     if (State != STATE::Dead)
     {
-        _tokenSystem.NotifyTurnStart();
+        _tokenSystem.NotifyRoundStart();
     }
 }
 

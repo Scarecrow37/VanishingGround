@@ -147,16 +147,14 @@ void TokenSystem::SetTokenStackFromID(int tokenID, UINT16 count)
     if (token)
     {
         UINT16 curCount = token->GetStackCount();
-        UINT16 delta    = count - curCount;
+        int    delta    = static_cast<int>(count) - static_cast<int>(curCount);
         // 음수면 스택을 줄이는 것, 양수면 스택을 늘리는 것
         if (delta < 0)
-        { 
-            delta = std::abs(delta);
-            token->RemoveStack(delta);
+        {
+            token->RemoveStack(-delta);
         }
         else if (delta > 0)
-        { 
-            delta = std::abs(delta);
+        {
             token->AddStack(delta);
         }
     }

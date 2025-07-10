@@ -27,7 +27,6 @@ void PlayerPlayTurnState::OnAwake()
 void PlayerPlayTurnState::OnStart() 
 {
     _isStart = true;
-    auto& player = GetPlayer();
 }
 
 void PlayerPlayTurnState::OnEnter() 

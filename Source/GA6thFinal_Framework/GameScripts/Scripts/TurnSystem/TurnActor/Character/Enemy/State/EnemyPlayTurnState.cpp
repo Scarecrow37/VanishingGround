@@ -54,7 +54,7 @@ void EnemyPlayTurnState::OnExit()
     UmLogger.Message(LogLevel::LEVEL_TRACE, message);
 
     auto& enemy = GetEnemy();
-    enemy.GetTokenSystem().NotifyTurnStart();
+    enemy.GetTokenSystem().NotifyTurnEnd();
 
     // Enemy의 턴이 종료시 액션을 선언.
     _aiModel.Transition();
@@ -165,24 +165,12 @@ void EnemyPlayTurnState::BuildAIModel23001()
 #include <TurnSystem/TurnActor/Character/Player/Player.h>
 void EnemyPlayTurnState::Action22000()
 {
-    auto player = GameObject::FindGameObjectsWithTag(Player::TAG);
-    if (false == player.empty())
+    auto player = Player::GetInstance();
+    if (player)
     {
-        auto& wpPlayer = player.front();
-        if (false == wpPlayer.expired())
-        {
-            auto object = wpPlayer.lock();
-            if (object)
-            {
-                auto playerComp = object->GetComponent<Player>();
-                if (playerComp)
-                {
-                    // 플레이어에게 출혈 토큰을 추가합니다.
-                    auto& system = playerComp->GetTokenSystem();
-                    system.AddTokenStackFromID(BleedToken::ID, 1);
-                }
-            }
-        }
+        // 플레이어에게 출혈 토큰을 추가합니다.
+        auto& system = player->GetTokenSystem();
+        system.AddTokenStackFromID(BleedToken::ID, 1);
     }
 }
 

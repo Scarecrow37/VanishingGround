@@ -47,8 +47,8 @@ public:
     /// <summary>
     /// CharacterBase가 대상을 처치 시 호출됩니다.
     /// </summary>
-    /// <param name="dest">처치된 대상</param>
-    void NotifyKill(CharacterBase* destinatiNotify);
+    /// <param name="destination">처치된 대상</param>
+    void NotifyKill(CharacterBase* destination);
 
 private:
     /// <summary>
