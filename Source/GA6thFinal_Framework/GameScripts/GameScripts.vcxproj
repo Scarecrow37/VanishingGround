@@ -299,7 +299,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Scripts\Interface\ITriggerType.h" />
-    <ClInclude Include="Scripts\Token\Object\BleedToken.h" />
+    <ClInclude Include="Scripts\Token\Object\Bleed\Bleed1Token.h" />
     <ClInclude Include="Scripts\DamageSystem\DamageSystem.h" />
     <ClInclude Include="Scripts\GameCore\FSM\Factory\FSMConditionFactory.h" />
     <ClInclude Include="Scripts\GameCore\FSM\Factory\FSMStateFactory.h" />
@@ -383,7 +383,7 @@
     <ClInclude Include="Scripts\WeaponSystem\WeaponSystem.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Scripts\Token\Object\BleedToken.cpp" />
+    <ClCompile Include="Scripts\Token\Object\Bleed\Bleed1Token.cpp" />
     <ClCompile Include="dllmain.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">Use</PrecompiledHeader>

@@ -249,7 +249,7 @@
     <ClInclude Include="Scripts\TurnSystem\TurnMode\State\GameOverState.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Scripts\Token\Object\BleedToken.h">
+    <ClInclude Include="Scripts\Token\Object\Bleed\Bleed1Token.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Scripts\Token\Interface\IToken.h">
@@ -476,7 +476,7 @@
     <ClCompile Include="Scripts\TurnSystem\TurnMode\State\GameOverState.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\Token\Object\BleedToken.cpp">
+    <ClCompile Include="Scripts\Token\Object\Bleed\Bleed1Token.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Scripts\Token\Interface\IToken.cpp">

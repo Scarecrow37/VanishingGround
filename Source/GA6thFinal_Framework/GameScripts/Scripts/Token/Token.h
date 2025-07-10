@@ -22,15 +22,16 @@ public:
     virtual ~Token() = default;
 
 public: // 콜백에 대한 자세한 주석은 ITriggerType.h를 참고하세요.
-    virtual void OnRoundStart(CharacterBase* owner) override                        = 0;
-    virtual void OnRoundEnd(CharacterBase* owner) override                          = 0;
-    virtual void OnTurnStart(CharacterBase* owner) override                         = 0;
-    virtual void OnTurnEnd(CharacterBase* owner) override                           = 0;
-    virtual void OnHit(CharacterBase* owner) override                               = 0;
-    virtual void OnDead(CharacterBase* owner) override                              = 0;
-    virtual void OnKill(CharacterBase* source, CharacterBase* destination) override = 0;
-    virtual void OnTokenAdded(CharacterBase* owner, int tokenID) override                        = 0;
-    virtual void OnTokenRemoved(CharacterBase* owner, int tokenID) override                      = 0;
+    virtual void OnCombatStart(CharacterBase* source) override                                  = 0;
+    virtual void OnRoundStart(CharacterBase* owner) override                                    = 0;
+    virtual void OnRoundEnd(CharacterBase* owner) override                                      = 0;
+    virtual void OnTurnStart(CharacterBase* owner) override                                     = 0;
+    virtual void OnTurnEnd(CharacterBase* owner) override                                       = 0;
+    virtual void OnHit(CharacterBase* owner) override                                           = 0;
+    virtual void OnDead(CharacterBase* owner) override                                          = 0;
+    virtual void OnKill(CharacterBase* source, CharacterBase* destination) override             = 0;
+    virtual void OnTokenAdded(CharacterBase* owner, int tokenID) override                       = 0;
+    virtual void OnTokenRemoved(CharacterBase* owner, int tokenID) override                     = 0;
 
 public:
     UINT16  GetStackCount() const override;
@@ -44,4 +45,5 @@ public:
 private:
     UINT16  _stackCount = 0;
     UINT16  _maxStackCount = UINT16_MAX;
+    
 };
