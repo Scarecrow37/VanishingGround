@@ -116,12 +116,11 @@ void WeaponTableComponent::Awake()
 
 void WeaponTableComponent::ImGuiDrawPropertysEvent()
 {
-    if (ImGui::Button("Edit Table "))
+    if (ImGui::Button("Table Editor"))
     {
         _imguiEvent.ShowTableEditor = true;
     }
    
-
     if (_imguiEvent.ShowTableEditor)
     {
         ImGuiViewport* viewPort = ImGui::GetMainViewport();
@@ -129,7 +128,9 @@ void WeaponTableComponent::ImGuiDrawPropertysEvent()
         ImVec2         size     = viewPort->Size;
         ImGui::SetNextWindowPos(center, ImGuiCond_Once, ImVec2(0.5f, 0.5f));
         ImGui::SetNextWindowSize(size, ImGuiCond_FirstUseEver);
-        ImGui::Begin("Weapon Table Editor##E05D7DDE-9B06-40B2-A6CC-B7FB0632FD33", &_imguiEvent.ShowTableEditor, ImGuiWindowFlags_MenuBar);
+        ImGui::Begin("Weapon Table Editor##A65EBAA8-31D3-410C-A0AB-512CD9402EA0",
+                     &_imguiEvent.ShowTableEditor, ImGuiWindowFlags_MenuBar);
+
         if (ImGui::BeginMenuBar())
         {
             if (ImGui::MenuItem("Save Table"))
@@ -196,75 +197,72 @@ void WeaponTableComponent::ImGuiDrawPropertysEvent()
             ImGui::EndMenuBar();
         }
         ImGuiTableEditor();
+
         ImGui::End();
     }
 }
 
 void WeaponTableComponent::ImGuiTableEditor() 
 {
-    if (ImGui::TreeNodeEx("Weapon Table", ImGuiTreeNodeFlags_DefaultOpen))
+    if (ImGui::BeginTable("Weapon Stats", 6, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
     {
-        if (ImGui::BeginTable("Weapon Stats", 6, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+        ImGui::TableSetupColumn("Name");
+        ImGui::TableSetupColumn("Type");
+        ImGui::TableSetupColumn("Hit Damage");
+        ImGui::TableSetupColumn("Critical Damage");
+        ImGui::TableSetupColumn("Speed");
+        ImGui::TableSetupColumn("Attack Count");
+        ImGui::TableHeadersRow();
+
+        for (auto& [key, weapon] : _weaponTable)
         {
-            ImGui::TableSetupColumn("Name");
-            ImGui::TableSetupColumn("Type");
-            ImGui::TableSetupColumn("Hit Damage");
-            ImGui::TableSetupColumn("Critical Damage");
-            ImGui::TableSetupColumn("Speed");
-            ImGui::TableSetupColumn("Attack Count");
-            ImGui::TableHeadersRow();
-
-            for (auto& [key, weapon] : _weaponTable)
-            {
-                auto RightClickContext = [&]() {
-                    if (ImGui::BeginPopupContextItem())
-                    {
-                        if (ImGui::MenuItem("Rename"))
-                        {
-                            _imguiEvent.RenameBuffer    = key;
-                            _imguiEvent.SelectWeapon    = &weapon;
-                            _imguiEvent.OpenRenamePopup = true;
-                        }
-                        if (ImGui::MenuItem("Delete"))
-                        {
-                            _imguiEvent.DeleteTableBuffer = key;
-                            _imguiEvent.OpenDeletePopup   = true;
-                        }
-                        ImGui::EndPopup();
-                    }
-                };
-
-                int itemID = 0;
-                ImGui::PushStyleColor(ImGuiCol_Text, GetWeaponTypeColor(weapon.Type));
-                ImGui::PushID(itemID++);
+            auto RightClickContext = [&]() {
+                if (ImGui::BeginPopupContextItem())
                 {
-                    ImGui::TableNextRow();
-                    ImGui::TableSetColumnIndex(0);
-                    ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.Name, UmCore->ImGuiDrawPropertysSetting);
-                    RightClickContext();
-                    ImGui::TableSetColumnIndex(1);
-                    ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.Type, UmCore->ImGuiDrawPropertysSetting);
-                    RightClickContext();
-                    ImGui::TableSetColumnIndex(2);
-                    ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.HitDamage, UmCore->ImGuiDrawPropertysSetting);      
-                    RightClickContext();
-                    ImGui::TableSetColumnIndex(3);
-                    ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.CriticalDamage, UmCore->ImGuiDrawPropertysSetting);
-                    RightClickContext();
-                    ImGui::TableSetColumnIndex(4);
-                    ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.Speed, UmCore->ImGuiDrawPropertysSetting);
-                    RightClickContext();
-                    ImGui::TableSetColumnIndex(5);
-                    ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.AttackCount, UmCore->ImGuiDrawPropertysSetting);       
-                    RightClickContext();
+                    if (ImGui::MenuItem("Rename"))
+                    {
+                        _imguiEvent.RenameBuffer    = key;
+                        _imguiEvent.SelectWeapon    = &weapon;
+                        _imguiEvent.OpenRenamePopup = true;
+                    }
+                    if (ImGui::MenuItem("Delete"))
+                    {
+                        _imguiEvent.DeleteTableBuffer = key;
+                        _imguiEvent.OpenDeletePopup   = true;
+                    }
+                    ImGui::EndPopup();
                 }
-                ImGui::PopID();
-                ImGui::PopStyleColor(1);
-            }     
-            ImGui::EndTable();
-        } 
-        ImGui::TreePop();
-    }
+            };
+
+            int itemID = 0;
+            ImGui::PushStyleColor(ImGuiCol_Text, GetWeaponTypeColor(weapon.Type));
+            ImGui::PushID(itemID++);
+            {
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+                ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.Name, UmCore->ImGuiDrawPropertysSetting);
+                RightClickContext();
+                ImGui::TableSetColumnIndex(1);
+                ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.Type, UmCore->ImGuiDrawPropertysSetting);
+                RightClickContext();
+                ImGui::TableSetColumnIndex(2);
+                ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.HitDamage, UmCore->ImGuiDrawPropertysSetting);
+                RightClickContext();
+                ImGui::TableSetColumnIndex(3);
+                ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.CriticalDamage, UmCore->ImGuiDrawPropertysSetting);
+                RightClickContext();
+                ImGui::TableSetColumnIndex(4);
+                ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.Speed, UmCore->ImGuiDrawPropertysSetting);
+                RightClickContext();
+                ImGui::TableSetColumnIndex(5);
+                ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.AttackCount, UmCore->ImGuiDrawPropertysSetting);
+                RightClickContext();
+            }
+            ImGui::PopID();
+            ImGui::PopStyleColor(1);
+        }
+        ImGui::EndTable();
+    } 
 
     if (_imguiEvent.OpenDeletePopup)
     {
