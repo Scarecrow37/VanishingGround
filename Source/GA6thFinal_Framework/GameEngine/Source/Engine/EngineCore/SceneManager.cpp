@@ -9,7 +9,7 @@ using namespace u8_literals;
 void Scene::IsDirty_property_setter(const std::remove_cvref_t<bool>& value) 
 {
 #ifdef _UMEDITOR
-    if (false == editorModule->PlayMode.IsPlay())
+    if (false == ESceneManager::Engine::IsPlayMode(UmSceneManager))
     {
         _isDirty = value;
     }

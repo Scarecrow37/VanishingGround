@@ -309,6 +309,13 @@ public:
         /// </summary>
         /// <returns></returns>
         static ESceneManager::InputSystem& GetInputSystem();
+
+        /// <summary>
+        /// 현재 플레이 모드 여부를 반환합니다.
+        /// </summary>
+        /// <param name="sceneManager"></param>
+        /// <returns></returns>
+        static constexpr bool IsPlayMode(ESceneManager& sceneManager) { return sceneManager._isPlay; }
     };
 
 public:
