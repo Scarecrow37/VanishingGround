@@ -11,4 +11,9 @@ private:
     void OnTurnStart(CharacterBase* owner) override;
     void OnTurnEnd(CharacterBase* owner) override;
     void OnHit(CharacterBase* owner) override;
+    void OnCombatStart(CharacterBase* source) override;
+    void OnDead(CharacterBase* owner) override;
+    void OnKill(CharacterBase* source, CharacterBase* destination) override;
+    void OnTokenAdded(CharacterBase* owner, int tokenID) override;
+    void OnTokenRemoved(CharacterBase* owner, int tokenID) override;
 };

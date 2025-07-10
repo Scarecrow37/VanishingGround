@@ -19,3 +19,13 @@ void BleedToken::OnTurnStart(CharacterBase* owner)
 void BleedToken::OnTurnEnd(CharacterBase* owner) {}
 
 void BleedToken::OnHit(CharacterBase* owner) {}
+
+void BleedToken::OnCombatStart(CharacterBase* source) {}
+
+void BleedToken::OnDead(CharacterBase* owner) {}
+
+void BleedToken::OnKill(CharacterBase* source, CharacterBase* destination) {}
+
+void BleedToken::OnTokenAdded(CharacterBase* owner, int tokenID) {}
+
+void BleedToken::OnTokenRemoved(CharacterBase* owner, int tokenID) {}

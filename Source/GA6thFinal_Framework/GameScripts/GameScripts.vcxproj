@@ -298,6 +298,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Scripts\Interface\ITriggerType.h" />
     <ClInclude Include="Scripts\Token\Object\BleedToken.h" />
     <ClInclude Include="Scripts\DamageSystem\DamageSystem.h" />
     <ClInclude Include="Scripts\GameCore\FSM\Factory\FSMConditionFactory.h" />
@@ -382,7 +383,6 @@
     <ClInclude Include="Scripts\WeaponSystem\WeaponSystem.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Scripts\Interface\ITriggerType.h" />
     <ClCompile Include="Scripts\Token\Object\BleedToken.cpp" />
     <ClCompile Include="dllmain.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
