@@ -1,6 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "TestUI.h"
-#include "Engine/GraphicsCore/UIRenderer.h"
+#include "Engine/GraphicsCore/SpriteRenderer.h"
 
 TestUI::TestUI()
 {
@@ -19,7 +19,8 @@ TestUI::TestUI()
                     {
                         _guidRef            = path.ToGuid();
                         ReflectFields->Guid = _guidRef.string();
-                        _uiRenderer->LoadTexture(path.c_str());
+
+                        UmSceneManager.ResourceManager.RequestTextureResource(this, _guidRef, [this]() { LoadTexture(); });
                     }
                 }
             }
@@ -30,13 +31,57 @@ TestUI::TestUI()
 
 TestUI::~TestUI()
 {
-    if (_uiRenderer)
-        _uiRenderer->SetDestroy();
+    if (_spriteRenderer)
+        _spriteRenderer->SetDestroy();
 }
 
 void TestUI::Reset()
 {
-    _uiRenderer = std::make_unique<UIRenderer>(transform->GetWorldMatrix(), UIType::MODE_2D);
-    _uiRenderer->RegisterRenderQueue();
-    _uiRenderer->SetActive(&_isActive);
+    _spriteRenderer = std::make_unique<SpriteRenderer>(transform->GetWorldMatrix(), SpriteType::MODE_2D);
+    _spriteRenderer->RegisterComponent();
+    _spriteRenderer->SetActive(&EnableInHierarchy);
+}
+
+void TestUI::ImGuiDrawPropertysEvent()
+{
+    const char* texts[] = {"2D", "2.5D", "3D"};
+    if (ImGui::Combo("UIType##ui", (int*)&ReflectFields->Type, texts, 3))
+    {
+        _spriteRenderer->SetType((SpriteType)ReflectFields->Type);
+    }
+
+    if (ImGui::DragInt2("Size##ui", (int*)&_size))
+    {
+        _spriteRenderer->SetSize(_size);
+    }
+}
+
+void TestUI::DeserializedReflectEvent()
+{
+    File::Guid guid = ReflectFields->Guid;
+    auto       path = guid.ToPath();
+
+    if (!path.IsNull())
+    {
+        _guidRef            = path.ToGuid();
+        ReflectFields->Guid = _guidRef.string();
+
+        UmSceneManager.ResourceManager.RequestTextureResource(this, _guidRef, [this]() { LoadTexture(); });
+
+        _spriteRenderer->SetType((SpriteType)ReflectFields->Type);
+    }
+}
+
+void TestUI::LoadTexture()
+{
+    if (_spriteRenderer)
+    {
+        std::string path = FilePath;
+        if (path != File::NULL_PATH)
+        {
+            std::wstring filePath = U8ToWString(path);
+            _spriteRenderer->LoadTexture(filePath);
+            _size = _spriteRenderer->GetSize();
+        }
+    }
 }

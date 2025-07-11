@@ -42,7 +42,6 @@ void Enemy::Dead()
     Base::Dead();
 }
 
-
 void Enemy::Awake()
 {
     Base::Awake();
@@ -92,7 +91,7 @@ EnemyStatsComponent* Enemy::GetEnemyStats()
     if (nullptr == _enemyStats)
     {
         _enemyStats = GetComponent<EnemyStatsComponent>();
-    }      
+    }
     return _enemyStats;
 }
 
@@ -109,9 +108,9 @@ void Enemy::BuildEnemyFSM()
         _finiteStateMachine->AddCondition<EnemyDeadCondition>();
 
         //State
-        _finiteStateMachine->AddState<EnemyWaitTurnState>();
-        _finiteStateMachine->AddState<EnemyPlayTurnState>();
-        _finiteStateMachine->AddState<EnemyDeadState>();
+        _fsmStates.WaitTurn = _finiteStateMachine->AddState<EnemyWaitTurnState>();
+        _fsmStates.PlayTurn = _finiteStateMachine->AddState<EnemyPlayTurnState>();
+        _fsmStates.Dead     = _finiteStateMachine->AddState<EnemyDeadState>();
 
         //Transition
         _finiteStateMachine->AddTransition<EnemyWaitTurnState, EnemyStartCondition, EnemyPlayTurnState>();
@@ -121,4 +120,54 @@ void Enemy::BuildEnemyFSM()
         //Entry
         _finiteStateMachine->SetEntryState<EnemyWaitTurnState>();
     }
+}
+
+void Enemy::OnCombatStart()
+{
+    Base::OnCombatStart();
+}
+
+void Enemy::OnRoundStart()
+{
+    Base::OnRoundStart();
+}
+
+void Enemy::OnRoundEnd()
+{
+    Base::OnRoundEnd();
+}
+
+void Enemy::OnTurnStart()
+{
+    Base::OnTurnStart();
+}
+
+void Enemy::OnTurnEnd()
+{
+    Base::OnTurnEnd();
+}
+
+void Enemy::OnHit()
+{
+    Base::OnHit();
+}
+
+void Enemy::OnDead()
+{
+    Base::OnDead();
+}
+
+void Enemy::OnKill(CharacterBase* destination)
+{
+    Base::OnKill(destination);
+}
+
+void Enemy::OnTokenAdded(int tokenID)
+{
+    Base::OnTokenAdded(tokenID);
+}
+
+void Enemy::OnTokenRemoved(int tokenID)
+{
+    Base::OnTokenRemoved(tokenID);
 }

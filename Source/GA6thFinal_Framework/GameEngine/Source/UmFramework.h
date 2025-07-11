@@ -94,18 +94,18 @@ constexpr const char* STR_NULL = "null";
 #include "UmAssimp.h"
 
 #define IMGUI_DEFINE_MATH_OPERATORS
-#include "Engine/Imgui/imgui.h"
-#include "Engine/Imgui/imgui_stdlib.h"
-#include "Engine/Imgui/imgui_impl_win32.h"
-#include "Engine/Imgui/imgui_impl_dx12.h"
-#include "Engine/Imgui/imgui_node_editor.h"
-#include "Engine/Imgui/imgui_internal.h"
+#include "../ImGuiThirdParty/imgui.h"
+#include "../ImGuiThirdParty/imgui_stdlib.h"
+#include "../ImGuiThirdParty/imgui_impl_win32.h"
+#include "../ImGuiThirdParty/imgui_impl_dx12.h"
+#include "../ImGuiThirdParty/imgui_node_editor.h"
+#include "../ImGuiThirdParty/imgui_internal.h"
 
-#include "Engine/Imgui/ImGuizmo.h"
-#include "Engine/Imgui/ImSequencer.h"
-#include "Engine/Imgui/ImZoomSlider.h"
-#include "Engine/Imgui/ImCurveEdit.h"
-#include "Engine/Imgui/GraphEditor.h"
+#include "../ImGuiThirdParty/ImGuizmo.h"
+#include "../ImGuiThirdParty/ImSequencer.h"
+#include "../ImGuiThirdParty/ImZoomSlider.h"
+#include "../ImGuiThirdParty/ImCurveEdit.h"
+#include "../ImGuiThirdParty/GraphEditor.h"
 
 //namespace
 using namespace DirectX;

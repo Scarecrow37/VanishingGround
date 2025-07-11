@@ -13,12 +13,12 @@ SharedResource<RenderTarget> MultiRenderTargetManager::GetRenderTarget(std::stri
     return iter->second;
 }
 
-const std::vector<SharedResource<RenderTarget>>& MultiRenderTargetManager::GetRenderTargetGroup(std::string_view groupName) const
+const std::vector<SharedResource<RenderTarget>>& MultiRenderTargetManager::GetRenderTargetGroup(std::string_view groupName)
 {
     auto iter = _renderTargetGroup.find(groupName.data());
     GRAPHICS_ASSERT(iter != _renderTargetGroup.end(), L"RenderTargetGroup with the given name does not exist");
     
-    return iter->second;
+    return _renderTargetGroup[groupName.data()];
 }
 
 SharedResource<RenderTarget> MultiRenderTargetManager::GetAvailableRenderTarget()

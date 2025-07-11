@@ -2,6 +2,7 @@
 #include "TurnMode.h"
 #include "GameCore/FSM/FiniteStateMachine.h"
 #include "TurnSystem/TurnActor/TurnActor.h"
+#include <WeaponSystem/WeaponSystem.h>
 
 //Condition
 #include "GameCore/FSM/AlwaysTransitionCondition.h"
@@ -13,6 +14,8 @@
 #include "Condition/CheckTurnEndCondition.h"
 #include "Condition/CheckTurnEmpty.h"
 #include "Condition/CheckTurnNotEmpty.h"
+#include "Condition/GameOverCondition.h"
+#include "Condition/GameClearCondition.h"
 
 //State
 #include "State/CombatStartPhase.h"
@@ -22,6 +25,8 @@
 #include "State/EnemyActionPhase.h"
 #include "State/CheckPlayerState.h"
 #include "State/TurnListEmptyState.h"
+#include "State/GameOverState.h"
+#include "State/GameClearState.h"
 
 //Character
 #include "TurnSystem/TurnActor/Character/Player/Player.h"
@@ -48,7 +53,11 @@ void TurnMode::MakeTurnList()
             Player* player = object->GetComponent<Player>();
             if (nullptr != player)
             {
-                _turnList.push_back(player);
+                for (int i = 0; i < WeaponSystem::EQUIP_WEAPONS_SIZE; i++)
+                {
+                    _turnList.emplace_back(i, player);
+                }
+                player->OnRoundStart();
             }
         }
     }
@@ -62,7 +71,8 @@ void TurnMode::MakeTurnList()
             Enemy* enemy = object->GetComponent<Enemy>();
             if (nullptr != enemy)
             {
-                _turnList.push_back(enemy);
+                _turnList.emplace_back(-1, enemy);
+                enemy->OnRoundStart();
             }
         }
     }
@@ -72,16 +82,12 @@ void TurnMode::SortTurnList()
 {
     if (false == _turnList.empty())
     {
-        for (auto& actor : _turnList)
-        {
-            actor->OnRoundStart();
-        }
-
         std::shuffle(_turnList.begin(), _turnList.end(), Random::GetEngine());
-        std::sort(_turnList.begin(), _turnList.end(), [](TurnActor* actorA, TurnActor* actorB) 
+        std::sort(_turnList.begin(), _turnList.end(),
+        [this](std::pair<int, TurnActor*>& turnSlotA, std::pair<int, TurnActor*>& turnSlotB) 
         {
-            int speedA = actorA->RoundSpeed;
-            int speedB = actorB->RoundSpeed;
+            int speedA = GetRealRoundSpeed(turnSlotA);
+            int speedB = GetRealRoundSpeed(turnSlotB);
             return speedA > speedB;
         });
     }
@@ -92,10 +98,24 @@ TurnActor* TurnMode::PopTurnList()
     _currTurnActor = nullptr;
     while (false == _turnList.empty())
     {
-        _currTurnActor = _turnList.front();
+        auto& actorSlot = _turnList.front();
+        auto& [slot, actor] = actorSlot;
+        _currTurnActor      = actor;
         _turnList.pop_front();
         if (_currTurnActor->State == TurnActor::STATE::Wait)
         {
+            if (true == IsPlayerActorSlot(actorSlot))
+            {
+                WeaponSystem* weaponSystem = WeaponSystem::GetInstance();
+                if (weaponSystem)
+                {
+                    weaponSystem->SetCurrentWeaponSlot(slot);
+                }
+                else
+                {
+                    UmLogger.Log(LogLevel::LEVEL_WARNING, u8"Weapon System이 존재하지 않습니다.");
+                }        
+            }
             break;
         }
         _currTurnActor = nullptr;
@@ -118,6 +138,8 @@ void TurnMode::BuildTurnModeFSM()
         _systemStates.EnemyActionPhase   = _finiteStateMachine->AddState<EnemyActionPhase>();
         _systemStates.CheckPlayerState   = _finiteStateMachine->AddState<CheckPlayerState>();
         _systemStates.TurnListEmptyState = _finiteStateMachine->AddState<TurnListEmptyState>();
+        _systemStates.GameOverState      = _finiteStateMachine->AddState<GameOverState>();
+        _systemStates.GameClearState     = _finiteStateMachine->AddState<GameClearState>();
 
         //Condition
         _finiteStateMachine->AddCondition<AlwaysTransitionCondition>();
@@ -129,6 +151,8 @@ void TurnMode::BuildTurnModeFSM()
         _systemConditions.CheckTurnEndCondition = _finiteStateMachine->AddCondition<CheckTurnEndCondition>();
         _systemConditions.CheckTurnEmpty        = _finiteStateMachine->AddCondition<CheckTurnEmpty>();
         _systemConditions.CheckTurnNotEmpty     = _finiteStateMachine->AddCondition<CheckTurnNotEmpty>();
+        _systemConditions.GameOverCondition     = _finiteStateMachine->AddCondition<GameOverCondition>();
+        _systemConditions.GameClearCondition    = _finiteStateMachine->AddCondition<GameClearCondition>();
 
         //Entry
         _finiteStateMachine->SetEntryState<CombatStartPhase>();
@@ -148,8 +172,33 @@ void TurnMode::BuildTurnModeFSM()
         _finiteStateMachine->AddTransition<TurnListEmptyState, CheckTurnEmpty, RoundEndPhase>();
         _finiteStateMachine->AddTransition<RoundEndPhase, CheckRoundEndExit, RoundStartPhase>();
 
-
+        _finiteStateMachine->AddTransition<GameOverCondition, GameOverState>();
+        _finiteStateMachine->AddTransition<GameClearCondition, GameClearState>();
     }
+}
+
+int TurnMode::GetRealRoundSpeed(const std::pair<int, TurnActor*>& turnActor)
+{
+    bool isPlayer = IsPlayerActorSlot(turnActor);
+    auto& [slot, actor] = turnActor;
+    int roundSpeed      = 0;
+    if (isPlayer)
+    {
+        WeaponSystem* weaponSystem = WeaponSystem::GetInstance();
+        if (weaponSystem)
+        {
+            roundSpeed = weaponSystem->GetRoundSpeedToSlot(slot);
+        }
+        else
+        {
+            UmLogger.Log(LogLevel::LEVEL_WARNING, u8"Weapon System이 존재하지 않습니다.");
+        }
+    }
+    else
+    {
+        roundSpeed = actor->RoundSpeed;
+    }
+    return roundSpeed;
 }
 
 void TurnMode::Awake() 
@@ -209,8 +258,9 @@ void TurnMode::ImGuiDrawPropertysEvent()
             ImGui::TableSetupColumn("State");
             ImGui::TableSetupColumn("Round Speed");
             ImGui::TableHeadersRow();
-            for (auto& actor : _turnList)
+            for (auto& turnSlot : _turnList)
             {
+                auto& [slot, actor] = turnSlot;
                 ImGui::PushID(actor);
                 {
                     ImGui::TableNextRow();
@@ -224,7 +274,7 @@ void TurnMode::ImGuiDrawPropertysEvent()
                     TurnActor::STATE currState = actor->State;
                     ImGui::Text(rfl::enum_to_string(currState).data());
                     ImGui::TableSetColumnIndex(3);
-                    int roundSpeed = actor->RoundSpeed;
+                    int roundSpeed = GetRealRoundSpeed(turnSlot);
                     ImGui::Text("%d", roundSpeed);
                 }
                 ImGui::PopID();

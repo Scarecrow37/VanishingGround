@@ -4,6 +4,7 @@
 class FiniteStateMachine;
 class TurnActor;
 class Enemy;
+class Player;
 
 /*
 * 턴을 관리하는 컴포넌트입니다.
@@ -74,11 +75,22 @@ protected:
 private:
     void BuildTurnModeFSM();
 
+    /*slot 값을 통해 플레이어 엑터인지 확인합니다.*/
+    bool IsPlayerActorSlot(const std::pair<int, TurnActor*>& turnActor)
+    {
+        auto& [slot, actor] = turnActor;
+        return 0 <= slot;
+    }
+
+    /*slot 값을 통해 실제 RoundSpeed를 반환합니다.*/
+    int GetRealRoundSpeed(const std::pair<int, TurnActor*>& turnActor);
+
 private:
     FiniteStateMachine* _finiteStateMachine = nullptr;
 
     int _roundCount;
-    std::deque<TurnActor*> _turnList;
+    /*플레이어의 무기 slot 번호를 함께 저장합니다. int 값이 -1이면 Enemy, 0 이상이면 Player 입니다.*/
+    std::deque<std::pair<int, TurnActor*>> _turnList;
     TurnActor* _currTurnActor;
 
 private:
@@ -91,6 +103,8 @@ private:
         class EnemyActionPhase*   EnemyActionPhase   = nullptr;
         class CheckPlayerState*   CheckPlayerState   = nullptr;
         class TurnListEmptyState* TurnListEmptyState = nullptr;
+        class GameOverState*      GameOverState      = nullptr;
+        class GameClearState*     GameClearState     = nullptr;
     } _systemStates;
 
     struct SystemCondition
@@ -104,6 +118,8 @@ private:
         class CheckTurnEndCondition* CheckTurnEndCondition = nullptr;
         class CheckTurnEmpty*        CheckTurnEmpty        = nullptr;
         class CheckTurnNotEmpty*     CheckTurnNotEmpty     = nullptr;
+        class GameOverCondition*     GameOverCondition     = nullptr;
+        class GameClearCondition*    GameClearCondition    = nullptr;
     } _systemConditions;
 
 public:
@@ -113,10 +129,10 @@ public:
     /// </summary>
     PROPERTY(States)
 
+    GETTER_ONLY(const SystemCondition&, Conditions) { return _systemConditions; }
     /// <summary>
     /// TurnMode용 FSM의 Condition 객체들 입니다.
     /// </summary>
-    GETTER_ONLY(const SystemCondition&, Conditions) { return _systemConditions; }
     PROPERTY(Conditions)
 
 protected:

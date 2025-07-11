@@ -11,6 +11,16 @@ Animator::~Animator()
 {   
 }
 
+void Animator::RegisterComponent(std::string_view sceneName)
+{
+    UmAnimationCore.RegisterAnimator(this);
+}
+
+void Animator::RegisterComponent()
+{
+    UmAnimationCore.RegisterAnimator(this);
+}
+
 const Matrix* Animator::FindBoneMatrix(const char* boneName) const
 {
     Bone& rootBone = _skeleton->GetRootBone();

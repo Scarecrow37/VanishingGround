@@ -74,6 +74,7 @@
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <OutDir>$(ProjectDir)bin\$(Configuration)\</OutDir>
+    <EnableUnitySupport>true</EnableUnitySupport>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -81,6 +82,7 @@
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <OutDir>$(ProjectDir)bin\$(Configuration)\</OutDir>
+    <EnableUnitySupport>true</EnableUnitySupport>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -89,6 +91,7 @@
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
     <OutDir>$(ProjectDir)bin\$(Configuration)\</OutDir>
+    <EnableUnitySupport>true</EnableUnitySupport>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -97,6 +100,7 @@
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
     <OutDir>$(ProjectDir)bin\$(Configuration)\</OutDir>
+    <EnableUnitySupport>true</EnableUnitySupport>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings" />
@@ -222,7 +226,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <AdditionalLibraryDirectories>$(SolutionDir)GameEngine\bin\$(Configuration)\;$(SolutionDir)GameEngine\ThirdParty\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>GameEngine.lib;InputModule.lib;AudioModule.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>GameEngine.lib;InputModule.lib;AudioModule.lib;ImGuiThirdParty.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">
@@ -242,7 +246,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <AdditionalLibraryDirectories>$(SolutionDir)GameEngine\bin\$(Configuration)\;$(SolutionDir)GameEngine\ThirdParty\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>GameEngine.lib;InputModule.lib;AudioModule.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>GameEngine.lib;InputModule.lib;AudioModule.lib;ImGuiThirdParty.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -266,7 +270,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <AdditionalLibraryDirectories>$(SolutionDir)GameEngine\bin\$(Configuration)\;$(SolutionDir)GameEngine\ThirdParty\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>GameEngine.lib;InputModule.lib;AudioModule.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>GameEngine.lib;InputModule.lib;AudioModule.lib;ImGuiThirdParty.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">
@@ -290,10 +294,15 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <AdditionalLibraryDirectories>$(SolutionDir)GameEngine\bin\$(Configuration)\;$(SolutionDir)GameEngine\ThirdParty\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>GameEngine.lib;InputModule.lib;AudioModule.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>GameEngine.lib;InputModule.lib;AudioModule.lib;ImGuiThirdParty.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Scripts\Test\Text\TestText.h" />
+    <ClInclude Include="Scripts\Token\Object\Poison\PoisonToken.h" />
+    <ClInclude Include="Scripts\Interface\ITriggerType.h" />
+    <ClInclude Include="Scripts\Token\Object\Bleed\BleedToken.h" />
+    <ClInclude Include="Scripts\DamageSystem\DamageSystem.h" />
     <ClInclude Include="Scripts\GameCore\FSM\Factory\FSMConditionFactory.h" />
     <ClInclude Include="Scripts\GameCore\FSM\Factory\FSMStateFactory.h" />
     <ClInclude Include="Scripts\GameCore\FSM\IFSMEntity.h" />
@@ -302,7 +311,6 @@
     <ClInclude Include="Scripts\Mesh\SkeletalMeshRenderer.h" />
     <ClInclude Include="Scripts\Mesh\StaticMeshRenderer.h" />
     <ClInclude Include="Scripts\Light\Base\LightComponent.h" />
-    <ClInclude Include="Scripts\Particle\TestParticle.h" />
     <ClInclude Include="Scripts\Stats\TurnActorStats.h" />
     <ClInclude Include="Scripts\Stats\TurnActorStatsComponent.h" />
     <ClInclude Include="Scripts\Stats\Enemy\EnemyStats.h" />
@@ -311,10 +319,16 @@
     <ClInclude Include="Scripts\Stats\WeaponTable\WeaponTableComponent.h" />
     <ClInclude Include="Scripts\Stats\Weapon\WeaponStats.h" />
     <ClInclude Include="Scripts\Test\Component\TestComponent.h" />
+    <ClInclude Include="Scripts\Test\UI\TestUI.h" />
+    <ClInclude Include="Scripts\Token\Interface\IToken.h" />
+    <ClInclude Include="Scripts\Token\Token.h" />
+    <ClInclude Include="Scripts\Token\TokenSystem.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\AI\EnemyAI.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\Base\EnemyConditionBase.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\EnemyDeadCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\EnemyEndCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\EnemyStartCondition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Enum\EnemyEnum.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\State\Base\EnemyStateBase.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\State\EnemyDeadState.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\State\EnemyPlayTurnState.h" />
@@ -335,8 +349,12 @@
     <ClInclude Include="Scripts\GameCore\FSM\AlwaysTransitionCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\CheckTurnNotEmpty.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\EnemyActionCondition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\GameClearCondition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\GameOverCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\PlayerActionCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\RoundStartCondition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\State\GameClearState.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\State\GameOverState.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnMode\State\RoundEndPhase.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnMode\State\TurnListEmptyState.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnMode\State\Base\TurnModeStateBase.h" />
@@ -345,6 +363,8 @@
     <ClInclude Include="Scripts\TurnSystem\TurnMode\State\EnemyActionPhase.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnMode\State\PlayerActionPhase.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnMode\State\RoundStartPhase.h" />
+    <ClInclude Include="Scripts\Token\Object\Stun\StunToken.h" />
+    <ClInclude Include="Scripts\Token\Object\Shock\ShockToken.h" />
     <ClInclude Include="UmScriptCore.h" />
     <ClInclude Include="UmScriptsExport.h" />
     <ClInclude Include="Scripts\Mesh\MeshComponent.h" />
@@ -363,9 +383,13 @@
     <ClInclude Include="Scripts\Stats\Enemy\EnemyStatsComponent.h" />
     <ClInclude Include="Scripts\Test\Input\InputTestComponent.h" />
     <ClInclude Include="Scripts\Timeline\AnimationEventListener.h" />
-    <ClInclude Include="Scripts\Test\UI\TestUI.h" />
+    <ClInclude Include="Scripts\Test\DevTools\FPSCounter.h" />
+    <ClInclude Include="Scripts\WeaponSystem\WeaponSystem.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Scripts\Test\Text\TestText.cpp" />
+    <ClCompile Include="Scripts\Token\Object\Poison\PoisonToken.cpp" />
+    <ClCompile Include="Scripts\Token\Object\Bleed\BleedToken.cpp" />
     <ClCompile Include="dllmain.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">Use</PrecompiledHeader>
@@ -387,9 +411,14 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Scripts\Particle\TestParticle.cpp" />
     <ClCompile Include="Scripts\Stats\WeaponTable\WeaponTableComponent.cpp" />
+    <ClCompile Include="Scripts\Stats\Weapon\WeaponStats.cpp" />
     <ClCompile Include="Scripts\Test\Component\TestComponent.cpp" />
+    <ClCompile Include="Scripts\Test\UI\TestUI.cpp" />
+    <ClCompile Include="Scripts\Token\Interface\IToken.cpp" />
+    <ClCompile Include="Scripts\Token\Token.cpp" />
+    <ClCompile Include="Scripts\Token\TokenSystem.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\AI\EnemyAI.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\Base\EnemyConditionBase.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\EnemyDeadCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\EnemyEndCondition.cpp" />
@@ -413,16 +442,22 @@
     <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\CheckTurnEndCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\CheckTurnNotEmpty.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\EnemyActionCondition.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\GameClearCondition.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\GameOverCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\PlayerActionCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\RoundStartCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnMode\State\Base\TurnModeStateBase.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnMode\State\CheckPlayerState.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnMode\State\CombatStartPhase.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnMode\State\EnemyActionPhase.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\State\GameClearState.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\State\GameOverState.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnMode\State\PlayerActionPhase.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnMode\State\RoundEndPhase.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnMode\State\RoundStartPhase.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnMode\State\TurnListEmptyState.cpp" />
+    <ClCompile Include="Scripts\Token\Object\Stun\StunToken.cpp" />
+    <ClCompile Include="Scripts\Token\Object\Shock\ShockToken.cpp" />
     <ClCompile Include="UmScriptCore.cpp" />
     <ClCompile Include="UmScriptsExport.cpp" />
     <ClCompile Include="Scripts\Mesh\MeshComponent.cpp">
@@ -446,7 +481,8 @@
     <ClCompile Include="Scripts\Stats\Enemy\EnemyStatsComponent.cpp" />
     <ClCompile Include="Scripts\Test\Input\InputTestComponent.cpp" />
     <ClCompile Include="Scripts\Timeline\AnimationEventListener.cpp" />
-    <ClCompile Include="Scripts\Test\UI\TestUI.cpp" />
+    <ClCompile Include="Scripts\Test\DevTools\FPSCounter.cpp" />
+    <ClCompile Include="Scripts\WeaponSystem\WeaponSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

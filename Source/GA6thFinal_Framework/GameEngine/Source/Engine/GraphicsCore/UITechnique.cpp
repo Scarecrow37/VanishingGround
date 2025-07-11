@@ -1,8 +1,9 @@
 ﻿#include "pch.h"
 #include "UITechnique.h"
 #include "UI2DPass.h"
+#include "UI25DPass.h"
 #include "UI3DPass.h"
-#include "UIRenderer.h"
+#include "SpriteRenderer.h"
 
 UITechnique::UITechnique() {}
 
@@ -15,9 +16,13 @@ void UITechnique::Initialize(ID3D12GraphicsCommandList* commandList)
     pass->Initialize(_ownerScene);
     AddRenderPass(std::move(pass));
 
-    /*pass = std::make_unique<UI3DPass>();
+    pass = std::make_unique<UI25DPass>(_renderDatas[MODE_25D]);
     pass->Initialize(_ownerScene);
-    AddRenderPass(std::move(pass));*/
+    AddRenderPass(std::move(pass));
+
+    pass = std::make_unique<UI3DPass>(_renderDatas[MODE_3D]);
+    pass->Initialize(_ownerScene);
+    AddRenderPass(std::move(pass));
 }
 
 void UITechnique::Execute(ID3D12GraphicsCommandList* commandList)
@@ -31,7 +36,10 @@ void UITechnique::Execute(ID3D12GraphicsCommandList* commandList)
         if (!component->IsActive())
             continue;
 
-        UIType type = component->GetType();
+        if (nullptr == component->GetTexture())
+            continue;
+
+        SpriteType type = component->GetType();
         _renderDatas[type].push_back(index++);
     }
 

@@ -6,38 +6,31 @@ class FiniteStateMachine;
 class Player : public CharacterBase
 {
     USING_PROPERTY(Player)
+    inline static Player* static_instance = nullptr;
+
 public:
-    inline static constexpr const char* TAG                = "Player";
-    inline static constexpr size_t      EQUIP_WEAPONS_SIZE = 4;
+    inline static constexpr const char* TAG = "Player";
+  
 
 public:
     REFLECT_PROPERTY(
-        ManaRegenRate, 
         Shield
     )
 
-    GETTER_ONLY(int, ManaRegenRate) 
-    { 
-        return GetManaRegenRate();
-    }
-    PROPERTY(ManaRegenRate)
-
     GETTER_ONLY(int, Shield) { return GetShield(); }
     PROPERTY(Shield)
-    
+
 public:
     Player();
     virtual ~Player();
 
 protected:
     REFLECT_FIELDS_BEGIN(CharacterBase)
-    std::array<std::string, EQUIP_WEAPONS_SIZE> EquipWeaponsData;
     REFLECT_FIELDS_END(Player)
 
 private:
     class PlayerStatsComponent* _playerStats = nullptr;
     PlayerStatsComponent* GetPlayerStats();
-    int GetManaRegenRate();
     int GetShield();
 
 private:
@@ -58,30 +51,15 @@ public:
     /*플레이어를 사망 상태로 만듭니다.*/
     virtual void Dead() override;
 
+    inline static Player* GetInstance() { return static_instance; }
     FiniteStateMachine& GetFSM() { return *_finiteStateMachine; }
     const PlayerStates& GetFSMStates() { return _fsmStates; }
 
 public:
     // CharacterBase을(를) 통해 상속됨
-    int GetSpeed() override;
+    virtual int GetSpeed() override;
+    virtual int GetRandomSpeed() override;
     CharacterStats* GetCharacterStats() override;
-
-//Weapon
-public:
-    /// <summary>
-    /// 무기를 slot에 장착합니다.
-    /// 기존에 장착되어있던 무기는 반환되며 제거됩니다.
-    /// 잘못된 slot을 접근시 WeaponStats는 0 damege 무기를 반환합니다.
-    /// </summary>
-    /// <param name="slot :">장착할 슬롯</param>
-    WeaponStats EquipWeapon(int slot, const WeaponStats& weaponStats);
-
-private:
-    /*장착된 무기들*/
-    std::array<WeaponStats, EQUIP_WEAPONS_SIZE> _equipWeapons;
-
-    /*에디터용 무기 Imgui 함수*/
-    void ImguiEquipWeapons();
 
 protected:
     /// <summary>
@@ -111,4 +89,16 @@ protected:
     /// <para>  ImGuiDrawPropertys() 호출 이후 콜되는 이벤트 함수입니다. </para>
     /// </summary>
     virtual void ImGuiDrawPropertysEvent();
+
+public:
+    virtual void OnCombatStart() override;
+    virtual void OnRoundStart() override;
+    virtual void OnRoundEnd() override;
+    virtual void OnTurnStart() override;
+    virtual void OnTurnEnd() override;
+    virtual void OnHit() override;
+    virtual void OnDead() override;
+    virtual void OnKill(CharacterBase* destination) override;
+    virtual void OnTokenAdded(int tokenID) override;
+    virtual void OnTokenRemoved(int tokenID) override;
 };

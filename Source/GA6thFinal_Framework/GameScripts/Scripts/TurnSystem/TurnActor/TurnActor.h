@@ -1,5 +1,8 @@
 ﻿#pragma once
 #include "UmFramework.h"
+
+class CharacterBase;
+
 class TurnActor : public Component
 {
     USING_PROPERTY(TurnActor)
@@ -14,8 +17,11 @@ public:
     };
     enum class STATE
     {
+        // 액터가 사망한 상태입니다.
         Dead,
+        // 액터가 턴을 기다리는 상태입니다.
         Wait,
+        // 액터가 턴을 진행중인 상태입니다.
         Play,
     };
 
@@ -55,13 +61,9 @@ public:
     /// </summary>
     virtual void Dead();
 
-    /// <summary>
-    /// 라운드 시작 페이즈 진입시 호출되는 함수입니다.
-    /// </summary>
-    virtual void OnRoundStart();
-
 public:
     virtual int GetSpeed() = 0;
+    virtual int GetRandomSpeed() { return _randomSpeed; }
 
 protected:
     /// <summary>
@@ -71,6 +73,7 @@ protected:
 
 public:
     GETTER_ONLY(int, RandomSpeed) { return _randomSpeed; }
+    //TurnActor에서 OnRoundStart 진입시 자동으로 랜덤한 값이 부여됩니다.
     PROPERTY(RandomSpeed)
     //void SetRandomSpeed(int randomSpeed) 
     //{ 
@@ -80,7 +83,7 @@ public:
 
     GETTER_ONLY(int, RoundSpeed) 
     { 
-        int roundSpeed = GetSpeed() + _randomSpeed;
+        int roundSpeed = GetSpeed() + GetRandomSpeed();
         return std::clamp(roundSpeed, DEFINE::ROUNDSPEED_MIN, DEFINE::ROUNDSPEED_MAX);
     }
     PROPERTY(RoundSpeed)
@@ -113,4 +116,14 @@ protected:
     /// </summary>
     virtual void Awake();
 
+    virtual void OnCombatStart();
+    virtual void OnRoundStart();
+    virtual void OnRoundEnd();
+    virtual void OnTurnStart();
+    virtual void OnTurnEnd();
+    virtual void OnHit();
+    virtual void OnDead();
+    virtual void OnKill(CharacterBase* destination);
+    virtual void OnTokenAdded(int tokenID);
+    virtual void OnTokenRemoved(int tokenID);
 };

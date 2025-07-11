@@ -3,6 +3,7 @@
 #include <GameCore/FSM/FiniteStateMachine.h>
 #include <TurnSystem/TurnActor/Character/Player/Player.h>
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
+#include <WeaponSystem/WeaponSystem.h>
 
 using namespace u8_literals;
 
@@ -30,12 +31,16 @@ void PlayerPlayTurnState::OnStart()
 
 void PlayerPlayTurnState::OnEnter() 
 {
-    
+    auto& player = GetPlayer();
+    player.GetTokenSystem().NotifyTurnStart();
 }
 
 void PlayerPlayTurnState::OnExit() 
 {
     _isStart = false;
+
+    auto& player = GetPlayer();
+    player.GetTokenSystem().NotifyTurnEnd();
 }
 
 void PlayerPlayTurnState::OnUpdate() 
@@ -54,11 +59,17 @@ void PlayerPlayTurnState::OnUpdate()
 
     ImGui::Begin("Player Turn##9A48EE30-CB5F-48AC-9740-DDF8118AAC49");
     {
-        static std::string selectTarget{STR_NULL};
-        if (ImGui::BeginCombo("Target Enemy##9A48EE30-CB5F-48AC-9740-DDF8118AAC49", selectTarget.data()))
+        static Enemy* selectTarget{nullptr};
+        std::string_view selectName = STR_NULL;
+        if (selectTarget)
         {
-            auto enemys = GameObject::FindGameObjectsWithTag(Enemy::TAG);
-            for (auto& weak : enemys)
+            selectName = selectTarget->gameObject->Name;
+        }
+
+        if (ImGui::BeginCombo("Target Enemy##9A48EE30-CB5F-48AC-9740-DDF8118AAC49", selectName.data()))
+        {
+            auto enemies = GameObject::FindGameObjectsWithTag(Enemy::TAG);
+            for (auto& weak : enemies)
             {
                 if (false == weak.expired())
                 {
@@ -73,7 +84,7 @@ void PlayerPlayTurnState::OnUpdate()
                             {
                                 if (ImGui::Selectable(enemy->ToString().data()))
                                 {
-                                    selectTarget = enemy->ToString();
+                                    selectTarget = enemyComponent;
                                 }
                             }
                         }
@@ -83,15 +94,29 @@ void PlayerPlayTurnState::OnUpdate()
             ImGui::EndCombo();
         }
 
-        if (ImGui::Button("Attack") && selectTarget != STR_NULL)
+        WeaponSystem* weaponSystem = WeaponSystem::GetInstance();
+        if (weaponSystem)
         {
-            UmLogger.Message(LogLevel::LEVEL_DEBUG,
-                             std::format("{}{}{}", u8"플레이어가 "_c_str, selectTarget.data(), u8"을 공격!"_c_str));
-            GetPlayer().EndTurn();
+            Player&      player = GetPlayer();
+            WeaponStats& weapon = const_cast<WeaponStats&>(weaponSystem->GetCurrentWeaponStats());
+            weapon.ImGuiDrawPropertys();
+            if (ImGui::Button("Attack") && selectTarget != nullptr)
+            {
+                UmLogger.Message(LogLevel::LEVEL_DEBUG,
+                                 std::format("{}{}{}", u8"플레이어가 "_c_str, selectName.data(), u8"을 공격!"_c_str));
+
+                GetPlayer().EndTurn();
+                selectTarget->Dead();
+                selectTarget = nullptr;
+            }
+            if (ImGui::Button("Kill"))
+            {
+                GetPlayer().Dead();
+            }
         }
-        if (ImGui::Button("Kill"))
+        else
         {
-            GetPlayer().Dead();
+            UmLogger.Message(LogLevel::LEVEL_DEBUG, u8"Weapon System이 존재하지 않습니다.");
         }
     }
     ImGui::End();

@@ -80,7 +80,7 @@ UMREALSCRIPTS_DECLSPEC void CreateUmrealcSriptFile(const char* fileName)
             wofs <<             LR"()"                                                              << L"\n";
             wofs <<             LR"(public:)"                                                       << L"\n";
             wofs <<   std::format(L"    {}();", ClassName)                                          << L"\n";
-            wofs <<   std::format(L"    virtual ~{}();", ClassName)                                 << L"\n";
+            wofs <<   std::format(L"    ~{}() override;", ClassName)                                << L"\n";
             wofs <<             LR"()"                                                              << L"\n";
             wofs <<             LR"(protected:)"                                                    << L"\n";
             wofs <<             LR"(    REFLECT_FIELDS_BEGIN(Component))"                           << L"\n";

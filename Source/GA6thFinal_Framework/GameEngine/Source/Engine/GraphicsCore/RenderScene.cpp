@@ -8,7 +8,8 @@
 #include "Model.h"
 #include "RenderTechnique.h"
 #include "SkyBox.h"
-#include "UIRenderer.h"
+#include "SpriteRenderer.h"
+#include "FontRenderer.h"
 
 RenderScene::RenderScene(std::string_view name) : _skyBox{std::make_unique<SkyBox>()}, _name(name)
 {
@@ -65,7 +66,7 @@ void RenderScene::RegisterOnRenderQueue(MeshRenderer* component)
     component->_isDestroyeds.push_back(_meshRenderQueue.back().first.get());
 }
 
-void RenderScene::RegisterOnRenderQueue(UIRenderer* component)
+void RenderScene::RegisterOnRenderQueue(SpriteRenderer* component)
 {
     if (nullptr == component)
         return;
@@ -82,6 +83,23 @@ void RenderScene::RegisterOnRenderQueue(UIRenderer* component)
     component->_isDestroyeds.push_back(_uiRenderQueue.back().first.get());
 }
 
+void RenderScene::RegisterOnRenderQueue(FontRenderer* component)
+{
+    if (nullptr == component)
+        return;
+
+    auto iter = std::find_if(_fontRenderQueue.begin(), _fontRenderQueue.end(), [](const auto& pair) { return !pair.first.get(); });
+
+    if (iter != _fontRenderQueue.end())
+    {
+        GRAPHICS_ASSERT(false, L"RenderScene::RegisterRenderQueue : Already registered component.");
+        return;
+    }
+
+    _fontRenderQueue.emplace_back(std::make_unique<bool>(false), component);
+    component->_isDestroyeds.push_back(_fontRenderQueue.back().first.get());
+}
+
 void RenderScene::AddRenderTechnique(std::unique_ptr<RenderTechnique> technique)
 {
     ID3D12GraphicsCommandList* commandList = UmDevice.GetCommandList();
@@ -95,6 +113,8 @@ void RenderScene::UpdateRenderScene()
     UpdateGlobal();
     UpdateObject();
     UpdateUI();
+    UpdateFont();
+
     ID3D12GraphicsCommandList* commandList = UmDevice.GetCommandList();
 
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, FrameResourceType::TRANSFORM, _worldMatrices.data(), (UINT)_worldMatrices.size());
@@ -106,15 +126,23 @@ void RenderScene::UpdateRenderScene()
 
 void RenderScene::Execute(ID3D12GraphicsCommandList* commandList)
 {
-    auto descriptorHeap = UmViewManager.GetShaderResourceHeap();
+    auto& graphics       = Global::engineCore->Graphics;
+    auto  descriptorHeap = graphics.ViewManager.GetShaderResourceHeap();
     commandList->SetDescriptorHeaps(1, &descriptorHeap);
 
     _accumulationBuffer->TransitionResource(commandList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
     _accumulationBuffer->ClearUnorderedAccessView(commandList);
 
-    auto meshRenderTarget = UmMultiRenderTargetManager.GetRenderTarget(_meshRenderTargetName);
+    auto meshRenderTarget = graphics.MultiRenderTargetManager.GetRenderTarget(_meshRenderTargetName);
     meshRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
     meshRenderTarget->ClearRenderTarget(commandList);
+
+    const auto& gBuffers = graphics.MultiRenderTargetManager.GetRenderTargetGroup("GBuffer");
+    for (auto& buffer : gBuffers)
+    {
+        buffer->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
+        buffer->ClearRenderTarget(commandList);
+    }
 
     _depthStencilView->TransitionResource(commandList, D3D12_RESOURCE_STATE_DEPTH_WRITE);
     _depthStencilView->ClearDepthStencilView(commandList);
@@ -125,6 +153,7 @@ void RenderScene::Execute(ID3D12GraphicsCommandList* commandList)
     }
 
     _depthStencilView->TransitionResource(commandList, D3D12_RESOURCE_STATE_PRESENT);
+
 }
 
 void RenderScene::ResetSkyBox()
@@ -260,14 +289,44 @@ void RenderScene::UpdateUI()
         if (nullptr == texture)
             continue;
 
-        auto     size    = texture->GetSize();
-        XMMATRIX scale   = XMMatrixScaling((float)size.cx, (float)size.cy, 1.f);
-        XMMATRIX world   = XMMatrixTranspose(scale * XMMATRIX(component->GetWorldMatrix()));
+        auto     size = component->GetSize();
+        XMMATRIX world = component->GetWorldMatrix();
+        XMMATRIX scale = XMMatrixIdentity();
+        
+        switch (component->GetType())
+        {
+        case SpriteType::MODE_2D:
+            scale = XMMatrixScaling((float)size.cx, (float)size.cy, 1.f);
+            break;        
+        case SpriteType::MODE_3D:
+        {
+            XMVECTOR s, r, t;
+            XMMatrixDecompose(&s, &r, &t, world);
+
+            XMVECTOR combine = XMQuaternionMultiply(r, _camera->GetRotation());
+            world = XMMatrixScalingFromVector(s) * XMMatrixRotationQuaternion(combine) * XMMatrixTranslationFromVector(t);
+            [[fallthrough]];
+        }
+        case SpriteType::MODE_25D:
+        {
+            float ratio = (float)size.cx / (float)size.cy;
+            scale       = XMMatrixScaling(ratio, 1.f, 1.f);
+            break;
+        }
+        }
+        
+        world = XMMatrixTranspose(scale * world);
         _uiMatrices.push_back(world);
 
         UIMaterial material{.ID = texture->GetID(), .Alpha = 1.f};
         _uiMaterials.push_back(material);
     }
+}
+
+void RenderScene::UpdateFont()
+{
+    auto first = std::remove_if(_fontRenderQueue.begin(), _fontRenderQueue.end(), [](const auto& pair) { return *pair.first; });
+    _fontRenderQueue.erase(first, _fontRenderQueue.end());
 }
 
 void RenderScene::CreateRenderTarget()

@@ -37,12 +37,12 @@ int CharacterBase::GetMaxChainRoundCount()
 
 CharacterBase::CharacterBase() : 
     _hp(0), 
-    _mp(0), 
     _chainCount(0) , 
-    _chainRoundCount(1) 
+    _chainRoundCount(1) ,
+    _tokenSystem(this)
 {
-
 }
+
 CharacterBase::~CharacterBase() = default;
 
 void CharacterBase::Awake() 
@@ -55,19 +55,72 @@ void CharacterBase::Revive()
 {
     Base::Revive();
     _hp = MaxHP;
-    _mp = MaxMP;
 }
 
-void CharacterBase::OnRoundStart() 
-{
-    Base::OnRoundStart();
-    DecrementChainRoundCount();
-}
-
-void CharacterBase::Dead() 
+void CharacterBase::Dead()
 {
     Base::Dead();
     _hp = 0;
-    _mp = 0;
+
+    _tokenSystem.NotifyDead();
 }
 
+void CharacterBase::OnCombatStart() 
+{
+    _tokenSystem.NotifyCombatStart();
+}
+
+void CharacterBase::OnRoundStart()
+{
+    Base::OnRoundStart();
+    DecrementChainRoundCount();
+    _tokenSystem.NotifyRoundStart();
+}
+
+void CharacterBase::OnRoundEnd()
+{
+    Base::OnRoundEnd();
+    _tokenSystem.NotifyRoundEnd();
+}
+
+void CharacterBase::OnTurnStart()
+{
+    Base::OnTurnStart();
+    _tokenSystem.NotifyTurnStart();
+}
+
+void CharacterBase::OnTurnEnd() 
+{
+    Base::OnTurnEnd();
+    _tokenSystem.NotifyTurnEnd();
+}
+
+void CharacterBase::OnHit() 
+{
+    Base::OnHit();
+    _tokenSystem.NotifyHit();
+}
+
+void CharacterBase::OnDead() 
+{
+    Base::OnDead();
+    _tokenSystem.NotifyDead();
+}
+
+void CharacterBase::OnKill(CharacterBase* destination) 
+{
+    Base::OnKill(destination);
+    _tokenSystem.NotifyKill(destination);
+}
+
+void CharacterBase::OnTokenAdded(int tokenID) 
+{
+    Base::OnTokenAdded(tokenID);
+    _tokenSystem.NotifyTokenAdded(tokenID);
+}
+
+void CharacterBase::OnTokenRemoved(int tokenID) 
+{
+    Base::OnTokenRemoved(tokenID);
+    _tokenSystem.NotifyTokenRemoved(tokenID);
+}

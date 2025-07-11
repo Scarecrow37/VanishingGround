@@ -12,17 +12,18 @@
 #include "Sphere.h"
 
 // Techniques
-#include "PBRLitTechnique.h"
-#include "SkyBoxRenderTechnique.h"
-#include "BloomTechnique.h"
 #include "BlendTechnique.h"
+#include "BloomTechnique.h"
+#include "EditorDrawTechnique.h"
+#include "FontTechnique.h"
+#include "PBRLitTechnique.h"
 #include "ParticleRenderTechnique.h"
 #include "EditorDrawTechnique.h"
 #include "RayTracingTechnique.h"
+#include "SkyBoxRenderTechnique.h"
 #include "UITechnique.h"
 
 Renderer::Renderer()
-    : _currnetState(0)
 {
 }
 
@@ -109,7 +110,7 @@ void Renderer::RegisterRenderQueue(MeshRenderer* component)
     }
 }
 
-void Renderer::RegisterRenderQueue(std::string_view sceneName, UIRenderer* component)
+void Renderer::RegisterRenderQueue(std::string_view sceneName, SpriteRenderer* component)
 {
     auto iter = _renderScenes.find(sceneName.data());
 
@@ -122,7 +123,30 @@ void Renderer::RegisterRenderQueue(std::string_view sceneName, UIRenderer* compo
     scene->RegisterOnRenderQueue(component);
 }
 
-void Renderer::RegisterRenderQueue(UIRenderer* component)
+void Renderer::RegisterRenderQueue(SpriteRenderer* component)
+{
+    RegisterRenderQueue("Game", component);
+
+    if constexpr (IS_EDITOR)
+    {
+        RegisterRenderQueue("Editor", component);
+    }
+}
+
+void Renderer::RegisterRenderQueue(std::string_view sceneName, FontRenderer* component)
+{
+    auto iter = _renderScenes.find(sceneName.data());
+
+    if (iter == _renderScenes.end())
+    {
+        GRAPHICS_ASSERT(false, L"Renderer::RegisterRenderQueue : Render Scene Not Registered.");
+    }
+
+    auto& scene = iter->second;
+    scene->RegisterOnRenderQueue(component);
+}
+
+void Renderer::RegisterRenderQueue(FontRenderer* component)
 {
     RegisterRenderQueue("Game", component);
 
@@ -190,11 +214,13 @@ void Renderer::Initialize()
     scene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
     scene->AddRenderTechnique(std::make_unique<BloomTechnique>());
     scene->AddRenderTechnique(std::make_unique<BlendTechnique>());
+    scene->AddRenderTechnique(std::make_unique<UITechnique>());
+    scene->AddRenderTechnique(std::make_unique<FontTechnique>());
     _renderScenes["Game"] = std::move(scene);
 
     // Renderer File Event
     _rendererFileEvent = std::make_unique<RendererFileEvent>();
-    UmFileSystem.RegisterFileEventSubscriber(_rendererFileEvent.get(), {".png", ".dds", ".fbx", ".hdr", ".UmModel"});
+    UmFileSystem.RegisterFileEventSubscriber(_rendererFileEvent.get(), {".png", ".dds", ".fbx", ".hdr", ".UmModel", ".sfont"});
 
     if constexpr (IS_EDITOR)
     {
@@ -210,6 +236,7 @@ void Renderer::Initialize()
         scene->AddRenderTechnique(std::make_unique<EditorDrawTechnique>());
         scene->AddRenderTechnique(std::make_unique<BlendTechnique>());
         scene->AddRenderTechnique(std::make_unique<UITechnique>());
+        scene->AddRenderTechnique(std::make_unique<FontTechnique>());
         _renderScenes["Editor"] = std::move(scene);
     
         // Model Viewer Scene
@@ -438,9 +465,22 @@ void Renderer::InitializeImgui()
         style.Colors[ImGuiCol_WindowBg].w = 1.0f;
     }
 
-    ImFontConfig fontConfig{};
-    ImFont*      mainFont = io.Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\malgun.ttf", 20.0f, &fontConfig,
-                                                         io.Fonts->GetGlyphRangesKorean());
+    // 폰트 경로는 실제 폰트 파일로 바꿔주세요
+    ImFontConfig fontConfig;
+    fontConfig.OversampleH = 3;
+    fontConfig.OversampleV = 3;
+    fontConfig.PixelSnapH  = true;
+
+    // 유니코드 범위 설정 (한글 + 로마 숫자 포함)
+    static const ImWchar customRanges[] = {
+        0x0020, 0x00FF, // 기본 라틴
+        0x1100, 0x11FF, // 한글 자모
+        0x3130, 0x318F, // 한글 자모 (호환)
+        0xAC00, 0xD7AF, // 한글 완성형
+        0x2160, 0x2188, // 로마 숫자!!!
+        0,              // 종료
+    };
+    ImFont* mainFont = io.Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\malgun.ttf", 20.0f, &fontConfig, customRanges);
 
     std::string fontFileName = "Font Awesome 6 Free-Regular-400.ttf";
     File::Path  fontPath     = UmFileSystem.GetRootPath();

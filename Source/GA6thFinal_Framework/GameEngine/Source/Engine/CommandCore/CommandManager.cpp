@@ -95,6 +95,12 @@ void ECommandManager::Clear()
     _redoStack.clear();
 }
 
+void ECommandManager::SetMaxCommandSize(size_t size) 
+{
+    _maxCommandSize = size;
+    ClampCommandStack();
+}
+
 void ECommandManager::ClampCommandStack()
 {
     if (_undoStack.size() > _maxCommandSize)
