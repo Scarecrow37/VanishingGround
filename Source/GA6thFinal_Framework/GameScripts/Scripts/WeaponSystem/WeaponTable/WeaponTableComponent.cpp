@@ -284,7 +284,7 @@ void WeaponTableComponent::ImGuiTableEditor()
             ImGui::CloseCurrentPopup();
         }
         ImGui::SameLine();
-        if (ImGui::Button("Cancel", ImVec2(120, 0)))
+        if (ImGui::Button("Cancel", ImVec2(120, 0)) || ImGui::IsKeyReleased(ImGuiKey_Escape))
         {
             _imguiEvent.DeleteTableBuffer = STR_NULL;
             ImGui::CloseCurrentPopup();
