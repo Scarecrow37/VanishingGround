@@ -298,6 +298,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Scripts\Test\Text\TestText.h" />
     <ClInclude Include="Scripts\Token\Object\Poison\PoisonToken.h" />
     <ClInclude Include="Scripts\Interface\ITriggerType.h" />
     <ClInclude Include="Scripts\Token\Object\Bleed\BleedToken.h" />
@@ -386,6 +387,7 @@
     <ClInclude Include="Scripts\WeaponSystem\WeaponSystem.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Scripts\Test\Text\TestText.cpp" />
     <ClCompile Include="Scripts\Token\Object\Poison\PoisonToken.cpp" />
     <ClCompile Include="Scripts\Token\Object\Bleed\BleedToken.cpp" />
     <ClCompile Include="dllmain.cpp">

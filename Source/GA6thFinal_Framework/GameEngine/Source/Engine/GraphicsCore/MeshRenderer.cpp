@@ -14,6 +14,16 @@ MeshRenderer::~MeshRenderer()
 {
 }
 
+void MeshRenderer::RegisterComponent(std::string_view sceneName)
+{
+    UmRenderer.RegisterRenderQueue(sceneName, this);
+}
+
+void MeshRenderer::RegisterComponent()
+{
+    UmRenderer.RegisterRenderQueue(this);
+}
+
 std::shared_ptr<Animator> MeshRenderer::GetAnimator() const
 {
     if (MeshRenderType::SKELETAL != _type)
@@ -35,16 +45,6 @@ void MeshRenderer::SetModel(std::shared_ptr<Model> model)
 void MeshRenderer::SetAnimator(std::shared_ptr<Animator> animator)
 {
     _animator = animator;
-}
-
-void MeshRenderer::RegisterRenderQueue(std::string_view sceneName)
-{
-    UmRenderer.RegisterRenderQueue(sceneName, this);
-}
-
-void MeshRenderer::RegisterRenderQueue()
-{
-    UmRenderer.RegisterRenderQueue(this);
 }
 
 void MeshRenderer::LoadModel(std::wstring_view filePath)
