@@ -16,6 +16,8 @@ protected:
 
     void OnDrawDebugSelected() override;
 
+    void OnAttachChild(GameObject* childGameObject) override;
+
 private:
     SIZE _size;
 };

@@ -23,4 +23,10 @@ void UIRoot::OnDrawDebugSelected()
     UmDebugDrawCore.Draw("Editor", {{0, 0}, _size}, DirectX::Colors::Yellow);
 }
 
+void UIRoot::OnAttachChild(GameObject* childGameObject)
+{
+    UIComponent::OnAttachChild(childGameObject);
+    childGameObject->AddComponent<UIRootSlot>();
+}
+
 UIRootSlot::UIRootSlot() = default;
