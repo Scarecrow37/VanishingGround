@@ -32,6 +32,9 @@ public:
     void SetPivot(float value) { _pivot = value; }
     float GetPivot() const { return _pivot; }
 
+    void SetMoveScale(float value) { _moveScale = std::clamp(value, 0.1f, 1000.f); }
+    float GetMoveScale() const { return _moveScale; }
+
 public:
     void Update();
 
