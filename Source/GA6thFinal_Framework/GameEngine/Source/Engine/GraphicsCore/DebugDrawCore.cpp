@@ -25,19 +25,23 @@ void XM_CALLCONV DebugDrawCore::Draw(std::string_view sceneName, const BoundingF
     _drawDatas[sceneName].second.emplace_back(ShapeType::FRUSTUM, color, frustum);
 }
 
-void XM_CALLCONV DebugDrawCore::DrawRing(std::string_view sceneName, FXMVECTOR origin, FXMVECTOR majorAxis, FXMVECTOR minorAxis, GXMVECTOR color)
+void XM_CALLCONV DebugDrawCore::DrawRing(std::string_view sceneName, FXMVECTOR origin, FXMVECTOR majorAxis,
+                                         FXMVECTOR minorAxis, GXMVECTOR color)
 {
     _drawDatas[sceneName].second.emplace_back(ShapeType::RING, color, DebugRing{origin, majorAxis, minorAxis});
 }
 
-void XM_CALLCONV DebugDrawCore::DrawRay(std::string_view sceneName, FXMVECTOR origin, FXMVECTOR direction, bool normalize, FXMVECTOR color)
+void XM_CALLCONV DebugDrawCore::DrawRay(std::string_view sceneName, FXMVECTOR origin, FXMVECTOR direction,
+                                        bool normalize, FXMVECTOR color)
 {
     _drawDatas[sceneName].second.emplace_back(ShapeType::RAY, color, DebugRay{origin, direction, normalize});
 }
 
-void XM_CALLCONV DebugDrawCore::DrawSpotLight(std::string_view sceneName, FXMVECTOR position, FXMVECTOR direction, float range, float innerCone, float outerCone, FXMVECTOR color)
+void XM_CALLCONV DebugDrawCore::DrawSpotLight(std::string_view sceneName, FXMVECTOR position, FXMVECTOR direction,
+                                              float range, float innerCone, float outerCone, FXMVECTOR color)
 {
-    _drawDatas[sceneName].second.emplace_back(ShapeType::SPOT_LIGHT, color, DebugSpotLight{position, direction, range, innerCone, outerCone});
+    _drawDatas[sceneName].second.emplace_back(ShapeType::SPOT_LIGHT, color,
+                                              DebugSpotLight{position, direction, range, innerCone, outerCone});
 }
 
 void DebugDrawCore::Draw(const std::string_view sceneName, const DebugQuad& quad, FXMVECTOR color)
@@ -86,18 +90,21 @@ void DebugDrawCore::Render()
                                 .Height   = static_cast<FLOAT>(mode.Height),
                                 .MinDepth = 0.f,
                                 .MaxDepth = 1.f};
-        D3D12_RECT     scissorRect{.left = 0, .top = 0, .right = static_cast<LONG>(mode.Width), .bottom = static_cast<LONG>(mode.Height)};
+        D3D12_RECT     scissorRect{
+                .left = 0, .top = 0, .right = static_cast<LONG>(mode.Width), .bottom = static_cast<LONG>(mode.Height)};
 
-        _commandList->OMSetRenderTargets(1, &renderTarget->GetRTVHandle(), NULL, &renderScene->_depthStencilView->GetDSVHandle());
+        _commandList->OMSetRenderTargets(1, &renderTarget->GetRTVHandle(), NULL,
+                                         &renderScene->_depthStencilView->GetDSVHandle());
         _commandList->RSSetViewports(1, &viewPort);
         _commandList->RSSetScissorRects(1, &scissorRect);
 
         _basicEffect->SetView(XMMatrixLookAtLH({0.f, 0.f, -1.f}, {0.f, 0.f, 1.f}, {0.f, 1.f, 0.f}));
-        _basicEffect->SetProjection(XMMatrixOrthographicOffCenterLH(0.f, (float)mode.Width, (float)mode.Height, 0.f, 0.1f, 1000.f));
+        _basicEffect->SetProjection(
+            XMMatrixOrthographicOffCenterLH(0.f, (float)mode.Width, (float)mode.Height, 0.f, 0.1f, 1000.f));
         _basicEffect->Apply(_commandList.Get());
 
         _primitiveBatch->Begin(_commandList.Get());
-       
+
         Draw2D(datas.first);
 
         _primitiveBatch->End();
@@ -125,27 +132,29 @@ void DebugDrawCore::Render()
     UmDevice.RegisterCommand(_commandList.Get(), CommandListType::DEBUG_RENDER_LIST);
 }
 
-void DebugDrawCore::Draw2D(const std::vector<DrawData>& drawDatas)
+void DebugDrawCore::Draw2D(const std::vector<DrawData>& drawDatas) const
 {
     for (const auto& data : drawDatas)
     {
-        XMVECTOR color = XMLoadFloat4(&data.Color);
+        const XMVECTOR color = XMLoadFloat4(&data.Color);
         switch (data.Type)
         {
         case ShapeType::QUAD: {
-            const auto& quad   = std::get<DebugQuad>(data.Shape);
-            XMVECTOR    pointA = XMLoadFloat3(&quad.PointA);
-            XMVECTOR    pointB = XMLoadFloat3(&quad.PointB);
-            XMVECTOR    pointC = XMLoadFloat3(&quad.PointC);
-            XMVECTOR    pointD = XMLoadFloat3(&quad.PointD);
+            const auto&    quad   = std::get<DebugQuad>(data.Shape);
+            const XMVECTOR pointA = XMLoadFloat3(&quad.PointA);
+            const XMVECTOR pointB = XMLoadFloat3(&quad.PointB);
+            const XMVECTOR pointC = XMLoadFloat3(&quad.PointC);
+            const XMVECTOR pointD = XMLoadFloat3(&quad.PointD);
             ::DrawQuad(_primitiveBatch.get(), pointA, pointB, pointC, pointD, color);
             break;
         }
+        default:
+            break;
         }
     }
 }
 
-void DebugDrawCore::Draw3D(const std::vector<DrawData>& drawDatas)
+void DebugDrawCore::Draw3D(const std::vector<DrawData>& drawDatas) const
 {
     for (const auto& data : drawDatas)
     {
@@ -187,6 +196,8 @@ void DebugDrawCore::Draw3D(const std::vector<DrawData>& drawDatas)
                             spotLight.OuterCone, 24, color);
             break;
         }
+        default:
+            break;
         }
     }
 }

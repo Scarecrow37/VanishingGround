@@ -116,8 +116,8 @@ public:
 
 
 private:
-    void Draw2D(const std::vector<DrawData>& drawDatas);
-    void Draw3D(const std::vector<DrawData>& drawDatas);
+    void Draw2D(const std::vector<DrawData>& drawDatas) const;
+    void Draw3D(const std::vector<DrawData>& drawDatas) const;
 
 private:
     std::unordered_map<std::string_view, std::pair<std::vector<DrawData>, std::vector<DrawData>>> _drawDatas;

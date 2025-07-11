@@ -7,6 +7,7 @@ class UIComponent : public Component
 
 public:
     UIComponent();
+    UIComponent(POINT point, SIZE size);
 
     REFLECT_PROPERTY(Point, Size)
 
@@ -35,8 +36,13 @@ protected:
     /// <param name="previousParentGameObject">이전에 연결되어 있던 부모 GameObject에 대한 포인터입니다.</param>
     virtual void OnDetachParent(GameObject* previousParentGameObject) {};
 
+    void OnDrawDebug() override;
+
     void OnDrawDebugSelected() override;
+
 
     POINT _point;
     SIZE  _size;
+
+    bool _isSelected;
 };
