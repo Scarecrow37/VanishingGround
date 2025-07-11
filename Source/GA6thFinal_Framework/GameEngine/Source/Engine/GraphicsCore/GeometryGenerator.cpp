@@ -20,71 +20,43 @@ GeometryGenerator::MeshData GeometryGenerator::CreateBox(float width,
     float d2 = 0.5f * depth;
 
     // Fill in the front face vertex data.
-    v[0] =
-        Vertex(-w2, -h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-    v[1] =
-        Vertex(-w2, +h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-    v[2] =
-        Vertex(+w2, +h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
-    v[3] =
-        Vertex(+w2, -h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+    v[0] = Vertex(-w2, -h2, -d2, 0.0f, 1.0f);
+    v[1] = Vertex(-w2, +h2, -d2, 0.0f, 0.0f);
+    v[2] = Vertex(+w2, +h2, -d2, 1.0f, 0.0f);
+    v[3] = Vertex(+w2, -h2, -d2, 1.0f, 1.0f);
 
     // Fill in the back face vertex data.
-    v[4] =
-        Vertex(-w2, -h2, +d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
-    v[5] =
-        Vertex(+w2, -h2, +d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-    v[6] =
-        Vertex(+w2, +h2, +d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-    v[7] =
-        Vertex(-w2, +h2, +d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+    v[4] = Vertex(-w2, -h2, +d2, 1.0f, 1.0f);
+    v[5] = Vertex(+w2, -h2, +d2, 0.0f, 1.0f);
+    v[6] = Vertex(+w2, +h2, +d2, 0.0f, 0.0f);
+    v[7] = Vertex(-w2, +h2, +d2, 1.0f, 0.0f);
 
     // Fill in the top face vertex data.
-    v[8] =
-        Vertex(-w2, +h2, -d2, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-    v[9] =
-        Vertex(-w2, +h2, +d2, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-    v[10] =
-        Vertex(+w2, +h2, +d2, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
-    v[11] =
-        Vertex(+w2, +h2, -d2, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+    v[8]  = Vertex(-w2, +h2, -d2, 0.0f, 1.0f);
+    v[9]  = Vertex(-w2, +h2, +d2, 0.0f, 0.0f);
+    v[10] = Vertex(+w2, +h2, +d2, 1.0f, 0.0f);
+    v[11] = Vertex(+w2, +h2, -d2, 1.0f, 1.0f);
 
     // Fill in the bottom face vertex data.
-    v[12] =
-        Vertex(-w2, -h2, -d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
-    v[13] =
-        Vertex(+w2, -h2, -d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-    v[14] =
-        Vertex(+w2, -h2, +d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-    v[15] =
-        Vertex(-w2, -h2, +d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+    v[12] = Vertex(-w2, -h2, -d2, 1.0f, 1.0f);
+    v[13] = Vertex(+w2, -h2, -d2, 0.0f, 1.0f);
+    v[14] = Vertex(+w2, -h2, +d2, 0.0f, 0.0f);
+    v[15] = Vertex(-w2, -h2, +d2, 1.0f, 0.0f);
 
     // Fill in the left face vertex data.
-    v[16] =
-        Vertex(-w2, -h2, +d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f);
-    v[17] =
-        Vertex(-w2, +h2, +d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f);
-    v[18] =
-        Vertex(-w2, +h2, -d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f);
-    v[19] =
-        Vertex(-w2, -h2, -d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f);
+    v[16] = Vertex(-w2, -h2, +d2, 0.0f, 1.0f);
+    v[17] = Vertex(-w2, +h2, +d2, 0.0f, 0.0f);
+    v[18] = Vertex(-w2, +h2, -d2, 1.0f, 0.0f);
+    v[19] = Vertex(-w2, -h2, -d2, 1.0f, 1.0f);
 
     // Fill in the right face vertex data.
-    v[20] =
-        Vertex(+w2, -h2, -d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f);
-    v[21] =
-        Vertex(+w2, +h2, -d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f);
-    v[22] =
-        Vertex(+w2, +h2, +d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f);
-    v[23] =
-        Vertex(+w2, -h2, +d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
+    v[20] = Vertex(+w2, -h2, -d2, 0.0f, 1.0f);
+    v[21] = Vertex(+w2, +h2, -d2, 0.0f, 0.0f);
+    v[22] = Vertex(+w2, +h2, +d2, 1.0f, 0.0f);
+    v[23] = Vertex(+w2, -h2, +d2, 1.0f, 1.0f);
 
     meshData.vertices.assign(&v[0], &v[24]);
     
-    for (int i = 0; i < 24; i++)
-    {
-        v[i].biTangent = XMVector3Cross(v[i].normal, v[i].tangent);
-    }
     //
     // Create the indices.
     //
@@ -158,47 +130,42 @@ GeometryGenerator::MeshData GeometryGenerator::CreateInvertedBox(float width, fl
     float d2 = 0.5f * depth;
 
     // Fill in the front face vertex data.
-    v[0] = Vertex(-w2, -h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-    v[1] = Vertex(-w2, +h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-    v[2] = Vertex(+w2, +h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
-    v[3] = Vertex(+w2, -h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+    v[0] = Vertex(-w2, -h2, -d2, 0.0f, 1.0f);
+    v[1] = Vertex(-w2, +h2, -d2, 0.0f, 0.0f);
+    v[2] = Vertex(+w2, +h2, -d2, 1.0f, 0.0f);
+    v[3] = Vertex(+w2, -h2, -d2, 1.0f, 1.0f);
 
     // Fill in the back face vertex data.
-    v[4] = Vertex(-w2, -h2, +d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
-    v[5] = Vertex(+w2, -h2, +d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-    v[6] = Vertex(+w2, +h2, +d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-    v[7] = Vertex(-w2, +h2, +d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+    v[4] = Vertex(-w2, -h2, +d2, 1.0f, 1.0f);
+    v[5] = Vertex(+w2, -h2, +d2, 0.0f, 1.0f);
+    v[6] = Vertex(+w2, +h2, +d2, 0.0f, 0.0f);
+    v[7] = Vertex(-w2, +h2, +d2, 1.0f, 0.0f);
 
     // Fill in the top face vertex data.
-    v[8]  = Vertex(-w2, +h2, -d2, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-    v[9]  = Vertex(-w2, +h2, +d2, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-    v[10] = Vertex(+w2, +h2, +d2, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
-    v[11] = Vertex(+w2, +h2, -d2, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+    v[8]  = Vertex(-w2, +h2, -d2, 0.0f, 1.0f);
+    v[9]  = Vertex(-w2, +h2, +d2, 0.0f, 0.0f);
+    v[10] = Vertex(+w2, +h2, +d2, 1.0f, 0.0f);
+    v[11] = Vertex(+w2, +h2, -d2, 1.0f, 1.0f);
 
     // Fill in the bottom face vertex data.
-    v[12] = Vertex(-w2, -h2, -d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
-    v[13] = Vertex(+w2, -h2, -d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-    v[14] = Vertex(+w2, -h2, +d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-    v[15] = Vertex(-w2, -h2, +d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+    v[12] = Vertex(-w2, -h2, -d2, 1.0f, 1.0f);
+    v[13] = Vertex(+w2, -h2, -d2, 0.0f, 1.0f);
+    v[14] = Vertex(+w2, -h2, +d2, 0.0f, 0.0f);
+    v[15] = Vertex(-w2, -h2, +d2, 1.0f, 0.0f);
 
     // Fill in the left face vertex data.
-    v[16] = Vertex(-w2, -h2, +d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f);
-    v[17] = Vertex(-w2, +h2, +d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f);
-    v[18] = Vertex(-w2, +h2, -d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f);
-    v[19] = Vertex(-w2, -h2, -d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f);
+    v[16] = Vertex(-w2, -h2, +d2, 0.0f, 1.0f);
+    v[17] = Vertex(-w2, +h2, +d2, 0.0f, 0.0f);
+    v[18] = Vertex(-w2, +h2, -d2, 1.0f, 0.0f);
+    v[19] = Vertex(-w2, -h2, -d2, 1.0f, 1.0f);
 
     // Fill in the right face vertex data.
-    v[20] = Vertex(+w2, -h2, -d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f);
-    v[21] = Vertex(+w2, +h2, -d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f);
-    v[22] = Vertex(+w2, +h2, +d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f);
-    v[23] = Vertex(+w2, -h2, +d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
+    v[20] = Vertex(+w2, -h2, -d2, 0.0f, 1.0f);
+    v[21] = Vertex(+w2, +h2, -d2, 0.0f, 0.0f);
+    v[22] = Vertex(+w2, +h2, +d2, 1.0f, 0.0f);
+    v[23] = Vertex(+w2, -h2, +d2, 1.0f, 1.0f);
 
     meshData.vertices.assign(&v[0], &v[24]);
-
-    for (int i = 0; i < 24; i++)
-    {
-        v[i].biTangent = XMVector3Cross(v[i].normal, v[i].tangent);
-    }
 
     //
     // Create the indices (reversed winding for inside view).
@@ -264,11 +231,9 @@ GeometryGenerator::MeshData GeometryGenerator::CreateSphere(float radius,
 {
     MeshData meshData;
 
-    Vertex topVertex(0.0f, +radius, 0.0f, 0.0f, +1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-        0.0f, 0.0f);
+    Vertex topVertex(0.0f, +radius, 0.0f, 0.0f, 0.0f);
     topVertex.position.w = 1.0f;
-    Vertex bottomVertex(0.0f, -radius, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f,
-        0.0f, 0.0f, 1.0f);
+    Vertex bottomVertex(0.0f, -radius, 0.0f, 0.0f, 1.0f);
     bottomVertex.position.w = 1.0f;
     meshData.vertices.push_back(topVertex);
 
@@ -288,21 +253,10 @@ GeometryGenerator::MeshData GeometryGenerator::CreateSphere(float radius,
             v.position.x = radius * sinf(phi) * cosf(theta);
             v.position.y = radius * cosf(phi);
             v.position.z = radius * sinf(phi) * sinf(theta);
-            v.position.w = 1.f;
-            v.tangent.x = -radius * sinf(phi) * sinf(theta);
-            v.tangent.y = 0.0f;
-            v.tangent.z = +radius * sinf(phi) * cosf(theta);
-            
-            XMVECTOR T = XMLoadFloat3(&v.tangent);
-            XMStoreFloat3(&v.tangent, XMVector3Normalize(T));
-
-            XMVECTOR p = XMLoadFloat4(&v.position);
-            XMStoreFloat3(&v.normal, XMVector3Normalize(p));
+            v.position.w = 1.f;                       
 
             v.texcoord.x = theta / XM_2PI;
             v.texcoord.y = phi / XM_PI;
-
-            v.biTangent = XMVector3Cross(v.normal, v.tangent);
 
             meshData.vertices.push_back(v);
         }
@@ -400,9 +354,6 @@ GeometryGenerator::MeshData GeometryGenerator::CreateGeosphere(
         newPos.w = 1.0f;
         meshData.vertices[i].position = newPos;
 
-        // Store normal (XMFLOAT3)
-        XMStoreFloat3(&meshData.vertices[i].normal, n);
-
         // For texcoords
         float x = meshData.vertices[i].position.x;
         float y = meshData.vertices[i].position.y;
@@ -416,14 +367,6 @@ GeometryGenerator::MeshData GeometryGenerator::CreateGeosphere(
 
         meshData.vertices[i].texcoord.x = theta / XM_2PI;
         meshData.vertices[i].texcoord.y = phi / XM_PI;
-
-        // Partial derivative of position with respect to theta (tangent vector)
-        meshData.vertices[i].tangent.x = -radius * sinf(phi) * sinf(theta);
-        meshData.vertices[i].tangent.y = 0.0f;
-        meshData.vertices[i].tangent.z = +radius * sinf(phi) * cosf(theta);
-        meshData.vertices[i].biTangent = XMVector3Cross(meshData.vertices[i].normal, meshData.vertices[i].tangent);
-        XMVECTOR T = XMLoadFloat3(&meshData.vertices[i].tangent);
-        XMStoreFloat3(&meshData.vertices[i].tangent, XMVector3Normalize(T));
     }
 
     return meshData;
@@ -460,16 +403,9 @@ GeometryGenerator::MeshData GeometryGenerator::CreateCylinder(
             vertex.texcoord.x = (float)j / sliceCount;
             vertex.texcoord.y = 1.0f - (float)i / stackcount;
 
-            vertex.tangent = XMFLOAT3(-s, 0.0f, c);
-
             float dr = bottomRadius - topRadius;
             XMFLOAT3 bitangent(dr * c, -height, dr * s);
 
-            XMVECTOR T = XMLoadFloat3(&vertex.tangent);
-            XMVECTOR B = XMLoadFloat3(&bitangent);
-            XMVECTOR N = XMVector3Normalize(XMVector3Cross(T, B));
-            XMStoreFloat3(&vertex.normal, N);
-            XMStoreFloat3(&vertex.biTangent, B);
             meshData.vertices.push_back(vertex);
         }
     }
@@ -521,9 +457,6 @@ GeometryGenerator::MeshData GeometryGenerator::CreateGrid(float width, float dep
             uint32 index = i * (n + 1) + j;
 
             meshData.vertices[index].position = XMFLOAT4(x, 0.0f, z, 1.f);
-            meshData.vertices[index].normal = XMFLOAT3(0.0f, 1.0f, 0.0f);
-            meshData.vertices[index].tangent = XMFLOAT3(1.0f, 0.0f, 0.0f);
-            meshData.vertices[index].biTangent = XMFLOAT3(0.0f, 0.0f, 1.0f);
             meshData.vertices[index].texcoord.x = static_cast<float>(j);
             meshData.vertices[index].texcoord.y = static_cast<float>(i);
         }
@@ -564,22 +497,10 @@ GeometryGenerator::MeshData GeometryGenerator::CreateQuad(float x, float y,
     meshData.indices32.resize(6);
 
     // position coordinates specified in NDC space.
-    meshData.vertices[0] = Vertex(x, y - h, depth, 0.0f, 0.0f, -1.0f, 1.0f,
-        0.0f, 0.0f, 0.0f, 1.0f);
-
-    meshData.vertices[1] =
-        Vertex(x, y, depth, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-
-    meshData.vertices[2] = Vertex(x + w, y, depth, 0.0f, 0.0f, -1.0f, 1.0f,
-        0.0f, 0.0f, 1.0f, 0.0f);
-
-    meshData.vertices[3] = Vertex(x + w, y - h, depth, 0.0f, 0.0f, -1.0f, 1.0f,
-        0.0f, 0.0f, 1.0f, 1.0f);
-
-    for (size_t i = 0; i < 4; ++i)
-    {
-        meshData.vertices[i].biTangent = XMVector3Cross(meshData.vertices[i].normal, meshData.vertices[i].tangent);
-    }
+    meshData.vertices[0] = Vertex(x, y - h, depth, 0.0f, 1.0f);
+    meshData.vertices[1] = Vertex(x, y, depth, 0.0f, 0.0f);
+    meshData.vertices[2] = Vertex(x + w, y, depth, 1.0f, 0.0f);
+    meshData.vertices[3] = Vertex(x + w, y - h, depth, 1.0f, 1.0f);
 
     meshData.indices32[0] = 0;
     meshData.indices32[1] = 1;
@@ -640,27 +561,14 @@ GeometryGenerator::Vertex GeometryGenerator::MidPoint(const Vertex& v0, const Ve
     XMVECTOR p0 = XMLoadFloat4(&v0.position);
     XMVECTOR p1 = XMLoadFloat4(&v1.position);
 
-    XMVECTOR n0 = XMLoadFloat3(&v0.normal);
-    XMVECTOR n1 = XMLoadFloat3(&v1.normal);
-
-    XMVECTOR tan0 = XMLoadFloat3(&v0.tangent);
-    XMVECTOR tan1 = XMLoadFloat3(&v1.tangent);
-
-    XMVECTOR biTan0 = XMLoadFloat3(&v0.biTangent);
-    XMVECTOR biTan1 = XMLoadFloat3(&v1.biTangent);
-
     XMVECTOR tex0 = XMLoadFloat2(&v0.texcoord);
     XMVECTOR tex1 = XMLoadFloat2(&v1.texcoord);
 
     XMVECTOR pos = 0.5f * (p0 + p1);
-    XMVECTOR normal = XMVector3Normalize(0.5f * (n0 + n1));
-    XMVECTOR tangent = XMVector3Normalize(0.5f * (tan0 + tan1));
     XMVECTOR tex = 0.5f * (tex0 + tex1);
 
     Vertex v;
     XMStoreFloat4(&v.position, pos); 
-    XMStoreFloat3(&v.normal, normal);
-    XMStoreFloat3(&v.tangent, tangent);
     XMStoreFloat2(&v.texcoord, tex);
 
     return v;
@@ -682,13 +590,11 @@ void GeometryGenerator::BuildCylinderTopCap(float bottomRadius, float topRadius,
 
         float u = x / height + 0.5f;
         float v = z / height + 0.5f;
-        Vertex vertex = Vertex(x, y, z, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, u, v);
-        vertex.biTangent = XMVector3Cross(vertex.normal, vertex.tangent);
+        Vertex vertex = Vertex(x, y, z, u, v);
         meshData.vertices.push_back(vertex);
     }
 
-    meshData.vertices.push_back(
-        Vertex(0.0f, y, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.5f, 0.5f));
+    meshData.vertices.push_back(Vertex(0.0f, y, 0.0f, 0.5f, 0.5f));
     uint32 centerIndex = (uint32)meshData.vertices.size() - 1;
 
     for (uint32 i = 0; i < sliceCount; ++i)
@@ -715,13 +621,11 @@ void GeometryGenerator::BuildCylinderBottomCap(float bottomRadius,
         float u = x / height + 0.5f;
         float v = z / height + 0.5f;
 
-        Vertex vertex = Vertex(x, y, z, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, u, v);
-        vertex.biTangent = XMVector3Cross(vertex.normal, vertex.tangent);
+        Vertex vertex = Vertex(x, y, z, u, v);
         meshData.vertices.push_back(vertex);
     }
 
-    meshData.vertices.push_back(
-        Vertex(0.0f, y, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.5f, 0.5f));
+    meshData.vertices.push_back(Vertex(0.0f, y, 0.0f, 0.5f, 0.5f));
 
     uint32 centerIndex = (uint32)meshData.vertices.size() - 1;
 

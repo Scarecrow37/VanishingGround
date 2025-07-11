@@ -3,9 +3,6 @@
 struct Vertex
 {
     Vector4 Position;
-    Vector3 Normal;
-    Vector3 Tangent;
-    Vector3 BiTangent;
     Vector2 UV;
 };
 
@@ -15,10 +12,10 @@ struct StaticMeshVertex
     Vector3 Normal;
     Vector3 Tangent;
     Vector3 BiTangent;
-    Vector2 UV;
+    Vector2 UV[2];
 };
 
-struct SkeletalMeshVertex : public Vertex
+struct SkeletalMeshVertex : public StaticMeshVertex
 {
     UINT  BlendIndices[4]{};
     float BlendWeights[4]{};

@@ -5,6 +5,7 @@
 #include "Skeleton.h"
 #include "Animation.h"
 #include "VIBuffer.h"
+#include "../../../../XAtlasThirdParty/xatlas.h"
 
 FBXConverter::FBXConverter()
 	: _boneCount(0)
@@ -195,13 +196,33 @@ void FBXConverter::LoadMesh(aiNode* node,
 
                 if (mesh->mTextureCoords[0])
                 {
-                    vertices[i].UV = XMVectorSet(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y, 0.f, 0.f);
+                    vertices[i].UV[0] = XMVectorSet(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y, 0.f, 0.f);
                 }
                 else
                 {
-                    vertices[i].UV = Vector2::Zero;
-                }
+                    vertices[i].UV[0] = Vector2::Zero;
+                }                
 			}
+        };
+
+    auto GenerateLightmapUV = [](auto& vertices, auto& indices, UINT vertexStride)
+        {
+            xatlas::Atlas*   atlas = xatlas::Create();
+            xatlas::MeshDecl meshDecl;
+            meshDecl.vertexCount          = (uint32_t)vertices.size();
+            meshDecl.vertexPositionData   = vertices.data();
+            meshDecl.vertexPositionStride = vertexStride;
+            meshDecl.indexCount           = (uint32_t)indices.size();
+            meshDecl.indexData            = indices.data();
+            meshDecl.indexFormat          = xatlas::IndexFormat::UInt32;
+            xatlas::AddMesh(atlas, meshDecl);
+            xatlas::Generate(atlas, xatlas::ChartOptions(), xatlas::PackOptions());
+
+            for (size_t i = 0; i < vertices.size(); ++i)
+            {
+                vertices[i].UV[1] = Vector2(atlas->meshes[0].vertexArray[i].uv);
+            }
+            xatlas::Destroy(atlas);
         };
 
     if (_isStaticMesh)
@@ -225,6 +246,15 @@ void FBXConverter::LoadMesh(aiNode* node,
             _indices.back().emplace_back(face.mIndices[j]);
         }
     }
+
+    if (_isStaticMesh)
+    {
+        GenerateLightmapUV(_staticVertices.back(), _indices.back(), sizeof(StaticMeshVertex));
+    }
+    else
+    {
+        GenerateLightmapUV(_skeletalVertices.back(), _indices.back(), sizeof(SkeletalMeshVertex));
+    }    
 
     if (!_isStaticMesh)
     {

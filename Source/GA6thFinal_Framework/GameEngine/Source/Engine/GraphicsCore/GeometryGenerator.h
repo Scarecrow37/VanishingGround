@@ -9,23 +9,17 @@ public:
     {
         Vertex() {}
 
-        Vertex(const XMFLOAT4 pos, const XMFLOAT3 norm, const XMFLOAT3 tan,
-            const XMFLOAT2 uv)
-            : position{ pos }, normal{ norm }, tangent{ tan }, texcoord{ uv }
+        Vertex(const XMFLOAT4 pos, const XMFLOAT2 uv)
+            : position{pos}, texcoord{uv}
         {
         }
 
-        Vertex(float px, float py, float pz, float nx, float ny, float nz,
-            float tx, float ty, float tz, float u, float v)
-            : position{ px, py, pz, 1.0f }, normal{ nx, ny, nz }, tangent{ tx, ty, tz },
-            texcoord{ u, v }
+        Vertex(float px, float py, float pz, float u, float v)
+            : position{px, py, pz, 1.0f}, texcoord{u, v}
         {
         }
 
         Vector4 position;
-        Vector3 normal;
-        Vector3 tangent;
-        Vector3 biTangent = {0.f,0.f,0.f};
         Vector2 texcoord;
     };
 
