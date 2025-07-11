@@ -8,15 +8,7 @@ static constexpr int ID = id;                                                   
 static constexpr const char8_t* NAME = u8##name;                                \
 inline int         GetTokenID() const  override { return ID; }                  \
 inline const char* GetTokenName() const override { return (const char*)NAME; }  \
-using Data = reflect_fields_struct;
-
-// @brief 토큰을 등록하는 매크로입니다. 이걸 사용하지 않으면 토큰이 System에 등록되지 않습니다.
-// #include<Token/TokenSystem.h>을 포함해야합니다.
-#define REGISTER_TOKEN(CLASS)                                           \
-namespace TokenRegister  {                                              \
-namespace CLASS##Register  {                                            \
-        static bool IsRegister = TokenSystem::RegisterToken<CLASS>();   \
-    }}                                                       
+using Data = reflect_fields_struct; 
 
 class Token : public ReflectSerializer, public IToken
 {
@@ -25,6 +17,13 @@ class Token : public ReflectSerializer, public IToken
 public:
     Token();
     virtual ~Token();
+    REFLECT_PROPERTY(Order)
+
+    GETTER(int, Order) { return ReflectFields->Order; }
+    SETTER(int, Order) { SetTokenOrder(value); }
+    PROPERTY(Order)
+    //GETTER_ONLY(int, MaxStackCount) { return static_cast<int>(MaxStackCount); }
+    //PROPERTY(MaxStackCount)
 
 public: // 콜백에 대한 자세한 주석은 ITriggerType.h를 참고하세요.
     virtual void OnCombatStart(CharacterBase* source) override                                  {};
@@ -52,6 +51,10 @@ public:
     void    SetDirtyCountCallback(std::function<void(int)> callback);
     void    SetDirtyOrderCallback(std::function<void(int)> callback);
     void    SetTokenOrder(int order);
+    auto    GetReflectFields()
+    { 
+        return reinterpret_cast<Token::reflect_fields_struct*>(get_reflect_fields());
+    }
 
 protected:
     UINT16  _stackCount = 0;

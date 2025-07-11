@@ -91,3 +91,6 @@ UMREAL_COMPONENT(TestUI)
 
 #include "Scripts\WeaponSystem/WeaponSystem.h"
 UMREAL_COMPONENT(WeaponSystem)
+
+#include "Scripts/Token/TokenSystem.h"
+UMREAL_COMPONENT(TokenSystem)

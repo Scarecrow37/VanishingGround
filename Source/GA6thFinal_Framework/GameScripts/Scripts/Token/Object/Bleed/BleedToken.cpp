@@ -2,7 +2,7 @@
 #include "BleedToken.h"
 
 #include <TurnSystem/TurnActor/Character/CharacterBase.h>
-#include <Token/TokenSystem.h>
+#include <Token/TokenManager.h>
 REGISTER_TOKEN(Bleed1Token)
 REGISTER_TOKEN(Bleed2Token)
 REGISTER_TOKEN(Bleed3Token)

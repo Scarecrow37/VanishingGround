@@ -2,7 +2,7 @@
 #include "PoisonToken.h"
 
 #include <TurnSystem/TurnActor/Character/CharacterBase.h>
-#include <Token/TokenSystem.h>
+#include <Token/TokenManager.h>
 REGISTER_TOKEN(Poison1Token)
 REGISTER_TOKEN(Poison2Token)
 REGISTER_TOKEN(Poison3Token)

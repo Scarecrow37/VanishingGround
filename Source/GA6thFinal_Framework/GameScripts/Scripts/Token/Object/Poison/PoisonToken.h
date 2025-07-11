@@ -5,12 +5,13 @@ class Poison1Token : public Token
 {
     USING_PROPERTY(Poison1Token)
     TOKEN_DATA(16003, "중독Ⅰ")
+    REFLECT_PROPERTY()
 private:
     void OnTurnStart(CharacterBase* owner) override;
 
 private:
     REFLECT_FIELDS_BEGIN(Token)
-    UINT16 TickDamage = 15;
+    int TickDamage = 15;
     REFLECT_FIELDS_END(Poison1Token)
 };
 
@@ -23,7 +24,7 @@ private:
 
 private:
     REFLECT_FIELDS_BEGIN(Token)
-    UINT16 TickDamage = 30;
+    int TickDamage = 30;
     REFLECT_FIELDS_END(Poison2Token)
 };
 
@@ -36,6 +37,6 @@ private:
 
 private:
     REFLECT_FIELDS_BEGIN(Token)
-    UINT16 TickDamage = 60;
+    int TickDamage = 60;
     REFLECT_FIELDS_END(Poison3Token)
 };
