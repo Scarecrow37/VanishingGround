@@ -1,4 +1,4 @@
 ﻿#include "pchScripts.h"
 #include "UIComponent.h"
 
-UIComponent::UIComponent() = default;
+UIComponent::UIComponent() : Component(TYPE::UI) {}
