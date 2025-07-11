@@ -58,9 +58,12 @@ void RevelationElement::DeserializedReflectEvent()
     const auto&       actionFactory = system->GetActionFactory();
     auto              iter          = actionFactory.find(ReflectFields->ActionName.data());
 
-    if (iter != actionFactory.end())
+    if (system)
     {
-        _action.reset(iter->second());
+        if (iter != actionFactory.end())
+        {
+            _action.reset(iter->second());
+        }
     }
 }
 
