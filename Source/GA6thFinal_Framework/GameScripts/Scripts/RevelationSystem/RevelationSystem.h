@@ -5,7 +5,7 @@
 class RevelationSystem : public Component, public FactoryConstructor<RevelationActionBase>
 {
     USING_PROPERTY(RevelationSystem)      
-    using ActionDataType = std::vector<std::pair<std::string, std::string>>;
+    using ActionDataType = std::unordered_map<std::string, std::string>;
     using ElementDataType = std::vector<std::string>;
 public:
     static RevelationSystem* GetInstance() { return static_instance; }
@@ -15,29 +15,11 @@ public:
     ~RevelationSystem() override;
 
 public:
-    /// <summary>
-    /// 액션을 가져옵니다.
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <returns></returns>
-    template<typename T>
-    RevelationActionBase* GetAction()
+    const std::unordered_map<std::string, std::function<RevelationActionBase* ()>>& GetActionFactory()
     {
-        static_assert(std::is_base_of_v<RevelationActionBase, T>("T must be derived from RevelationActionBase."));
-        return GetActionToName(typeid(T).name());
+        return _actionConstructors;
     }
-
-    /// <summary>
-    /// 액션을 typeid로 가져옵니다
-    /// </summary>
-    /// <param name="typeidName"></param>
-    /// <returns></returns>
-    RevelationActionBase* GetActionToName(std::string_view typeidName) 
-    { 
-        const char* key = typeidName.data();
-        return _actions[key].get(); 
-    }
-
+    
     /// <summary>
     /// Element를 가져옵니다.
     /// </summary>
@@ -147,8 +129,11 @@ private:
     inline static RevelationSystem* static_instance = nullptr;
 
 private:
-    std::unordered_map<std::string, std::unique_ptr<RevelationActionBase>> _actions;
-    std::unordered_map<std::string, RevelationElement>                     _elements;
-    ImVec2                                                                 _tableEditorCenterPos{};
+    std::unordered_map<std::string, RevelationElement>                      _elements;
+    std::unordered_map<std::string, std::function<RevelationActionBase*()>> _actionConstructors;
+    ImVec2                                                                  _tableEditorCenterPos{};
+
+private:
+    void ResetActions();
 
 };

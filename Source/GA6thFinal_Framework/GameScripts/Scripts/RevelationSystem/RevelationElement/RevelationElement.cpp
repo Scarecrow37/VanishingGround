@@ -7,22 +7,75 @@ void RevelationElement::ImGuiDrawPropertysEvent()
     RevelationSystem* system = RevelationSystem::GetInstance();
     if (system)
     {
-        const auto& constructorsMap = system->GetInstanceConstructors();
-        if (constructorsMap.find(ReflectFields->Action) == constructorsMap.end())
+        std::string_view selectName = STR_NULL;
+        if (_action)
         {
-            ReflectFields->Action = STR_NULL;
+            selectName = _action->GetActionInfo();
         }
-        if (ImGui::BeginCombo("Action", ReflectFields->Action.c_str()))
+
+        if (_action)
         {
-            for (auto& [key, func] : constructorsMap)
+            ImGui::Checkbox("Edit", &_showActionEditor);
+            ImGui::SameLine();
+        }
+
+        if (ImGui::BeginCombo("Action", selectName.data()))
+        {
+            for (auto& [key, func] : system->GetActionFactory())
             {
-                if (ImGui::Selectable(key.c_str()))
+                if (ImGui::Selectable(key.data()))
                 {
-                    ReflectFields->Action = key;
+                    _action.reset(func());
                 }
             }
             ImGui::EndCombo();
         }
+
+        if (_action)
+        {
+            if (_showActionEditor)
+                _action->ImGuiDrawPropertys();
+        }
     }
     _imguiDrawIndex = 0;
+}
+
+void RevelationElement::SerializedReflectEvent() 
+{
+    if (_action)
+    {
+        ReflectFields->ActionName = (std::string_view)_action->Name;
+    }    
+    else
+    {
+        ReflectFields->ActionName = STR_NULL;
+    }
+}
+
+void RevelationElement::DeserializedReflectEvent() 
+{
+    RevelationSystem* system        = RevelationSystem::GetInstance();
+    const auto&       actionFactory = system->GetActionFactory();
+    auto              iter          = actionFactory.find(ReflectFields->ActionName.data());
+
+    if (iter != actionFactory.end())
+    {
+        _action.reset(iter->second());
+    }
+}
+
+void RevelationElement::DeepCopyAction(const RevelationActionBase& action) 
+{
+    RevelationSystem* system        = RevelationSystem::GetInstance();
+    const auto&       actionFactory = system->GetActionFactory();
+    std::string_view  actionName    = action.Name;
+    auto              iter          = actionFactory.find(actionName.data());
+
+    if (iter != actionFactory.end())
+    {
+        _action.reset(iter->second());
+        RevelationActionBase& rhs  = const_cast<RevelationActionBase&>(action);
+        std::string           data = rhs.SerializedReflectFields();
+        _action->DeserializedReflectFields(data);
+    }
 }

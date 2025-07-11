@@ -82,9 +82,7 @@ public:
     //계시 이름
     PROPERTY(Name)
 
-    GETTER_ONLY(std::string_view, Action) { return ReflectFields->Action; }
-    //바인딩된 액션
-    PROPERTY(Action)
+    RevelationActionBase* GetAction() { return _action.get(); }
 
 protected:
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
@@ -95,13 +93,18 @@ protected:
     int                     ConditionValueB = 5;                                              // 조건값 B
     RevelationKeyword       Keyword         = RevelationKeyword::DEFAULT;                     // 키워드
     RevelationGrade         Grade           = RevelationGrade::COMMON;                        // 등급
-    std::string             Action          = STR_NULL; // 해당되는 액션에 대한 key
+    std::string             ActionName      = STR_NULL; 
     REFLECT_FIELDS_END(RevelationElement)
+
+    std::unique_ptr<RevelationActionBase> _action;
 
     /// <summary>
     /// <para>  ImGuiDrawPropertys() 호출 이후 콜되는 이벤트 함수입니다. </para>
     /// </summary>
     void ImGuiDrawPropertysEvent() override;
+
+    void SerializedReflectEvent() override;
+    void DeserializedReflectEvent() override;
 
 public:
     /// <summary>
@@ -134,10 +137,12 @@ public:
     }
 
 private:
-    int _imguiDrawIndex = 0;
+    int  _imguiDrawIndex = 0;
+    bool _showActionEditor = false;
 
 private:
     using DatasType = reflect_fields_struct;
+    void DeepCopyAction(const RevelationActionBase& action);
     RevelationElement& CopyElement(const RevelationElement& rhs)
     {
         if (this == &rhs)
@@ -147,6 +152,10 @@ private:
         DatasType& myDatas = *ReflectFields;
         const DatasType& rhsDatas = *rhs.ReflectFields;
         myDatas = rhsDatas;
+        if (rhs._action)
+        {
+            DeepCopyAction(*rhs._action);
+        }
         return *this;
     }
 

@@ -176,21 +176,25 @@ void RevelationSystem::DrawImGuiElementTableEditor()
 void RevelationSystem::ActionsToActionDatas() 
 {
     ReflectFields->RevelationActionDatas.clear();
-    for (auto& [key, action] : _actions)
+    for (auto& [key, element] : _elements)
     {
-        std::string data = action->SerializedReflectFields();
-        ReflectFields->RevelationActionDatas.emplace_back(key, data);
+        if (auto action = element.GetAction())
+        {
+            std::string data = action->SerializedReflectFields();
+            ReflectFields->RevelationActionDatas[key] = data;
+        }
     }
 }
 
-void RevelationSystem::ActionDatasToActions() 
+void RevelationSystem::ActionDatasToActions()
 {
-    _actions.clear();
-    for (int i = 0; i < ReflectFields->RevelationActionDatas.size(); ++i)
+    for (auto& [key, element] : _elements)
     {
-        auto& [key, data]            = ReflectFields->RevelationActionDatas[i];
-        RevelationActionBase* action = _actions[key].get();
-        action->DeserializedReflectFields(data);
+        if (auto action = element.GetAction())
+        {
+            std::string data = ReflectFields->RevelationActionDatas[key];
+            action->DeserializedReflectFields(data);
+        }
     }
 }
 
@@ -218,14 +222,14 @@ void RevelationSystem::ElementDatasToElements()
 
 void RevelationSystem::SerializedReflectEvent()
 {
-    ActionsToActionDatas();
     ElementsToElementDatas();
+    ActionsToActionDatas();
 }
 
 void RevelationSystem::DeserializedReflectEvent() 
 {
-    ActionDatasToActions();
     ElementDatasToElements();
+    ActionDatasToActions();
 }
 
 void RevelationSystem::ImGuiDrawPropertysEvent() 
@@ -326,11 +330,19 @@ void RevelationSystem::ImGuiDrawPropertysEvent()
 void RevelationSystem::Reset()
 {
     static_instance = this;
+    ResetActions();
+}
 
-    _actions.clear();
+void RevelationSystem::ResetActions() 
+{
+    _actionConstructors.clear();
+    std::unique_ptr<RevelationActionBase> actionTemp;
+
     const auto& construtors = GetInstanceConstructors();
     for (auto& [key, func] : construtors)
     {
-        _actions[key].reset(func());
+        actionTemp.reset(func());
+        std::string_view name = actionTemp->Name;
+        _actionConstructors[name.data()] = func;
     }
 }
