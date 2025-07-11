@@ -15,13 +15,6 @@ public:
     void RegisterComponent() override;
 
 public:
-    const Vector4& GetColor() const { return _color; }
-    const Vector3& GetPosition() const { return _position; }
-    const Vector2& GetScale() const { return _scale; }
-    const Vector2& GetOrigin() const { return _origin; }
-    const float&   GetRotation() const { return _rotation; }
-
-public:
     void SetColor(const Vector4& color) { _color = color; }
     void SetPosition(const Vector3& position) { _position = position; }
     void SetScale(const Vector2& scale) { _scale = scale; }

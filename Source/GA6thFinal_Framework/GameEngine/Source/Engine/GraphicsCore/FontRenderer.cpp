@@ -4,6 +4,7 @@
 
 FontRenderer::FontRenderer()
 	: _color(1.0f, 1.0f, 1.0f, 1.0f)
+    , _scale(1.f, 1.f)
 {
 }
 

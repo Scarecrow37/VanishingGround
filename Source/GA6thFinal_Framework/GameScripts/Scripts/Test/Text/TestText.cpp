@@ -27,6 +27,9 @@ TestText::TestText()
             ImGui::EndDragDropTarget();
         }
     });
+
+    ReflectFields->Color = {1.0f, 1.0f, 1.0f, 1.0f};
+    ReflectFields->Scale = {1.f, 1.f};
 }
 
 TestText::~TestText()
@@ -44,34 +47,29 @@ void TestText::Reset()
 
 void TestText::ImGuiDrawPropertysEvent()
 {
-    Vector4 color = _fontRenderer->GetColor();
-    if (ImGui::ColorEdit4("Color##text", &color.x))
+    if (ImGui::ColorEdit4("Color##text", &ReflectFields->Color[0]))
     {
-        _fontRenderer->SetColor(color);
+        _fontRenderer->SetColor(Vector4(&ReflectFields->Color[0]));
     }
 
-    Vector3 position = _fontRenderer->GetPosition();
-    if (ImGui::DragFloat3("Position##text", &position.x))
+    if (ImGui::DragFloat3("Position##text", &ReflectFields->Position[0]))
     {
-        _fontRenderer->SetPosition(position);
+        _fontRenderer->SetPosition(Vector3(&ReflectFields->Position[0]));
     }
 
-    Vector2 scale = _fontRenderer->GetScale();
-    if (ImGui::DragFloat2("Scale##text", &scale.x))
+    if (ImGui::DragFloat2("Scale##text", &ReflectFields->Scale[0]))
     {
-        _fontRenderer->SetScale(scale);
+        _fontRenderer->SetScale(Vector2(&ReflectFields->Scale[0]));
     }
 
-    Vector2 origin = _fontRenderer->GetOrigin();
-    if (ImGui::DragFloat2("Origin##text", &origin.x))
+    if (ImGui::DragFloat2("Origin##text", &ReflectFields->Origin[0]))
     {
-        _fontRenderer->SetOrigin(origin);
+        _fontRenderer->SetOrigin(Vector2(&ReflectFields->Origin[0]));
     }
 
-    std::string text;
-    if (ImGui::InputText("Text##text", &text))
+    if (ImGui::InputText("Text##text", &ReflectFields->Text))
     {
-        std::wstring t = U8ToWString(text);
+        std::wstring t = U8ToWString(ReflectFields->Text);
         _fontRenderer->SetText(t);
     }
 }
@@ -99,6 +97,13 @@ void TestText::LoadFont()
         {
             std::wstring filePath = U8ToWString(path);
             _fontRenderer->LoadFont(filePath);
+
+            _fontRenderer->SetText(U8ToWString(ReflectFields->Text));
+            _fontRenderer->SetColor(Vector4(&ReflectFields->Color[0]));
+            _fontRenderer->SetPosition(Vector3(&ReflectFields->Position[0]));
+            _fontRenderer->SetScale(Vector2(&ReflectFields->Scale[0]));
+            _fontRenderer->SetOrigin(Vector2(&ReflectFields->Origin[0]));
+            _fontRenderer->SetRotation(ReflectFields->Rotation);
         }
     }
 }
