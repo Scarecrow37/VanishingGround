@@ -17,7 +17,7 @@ public:
         // 일반
         GENERIC,    
         // 렌더러
-        RENDER,
+        MESH,
         // 조명
         LIGHT,
         // 카메라

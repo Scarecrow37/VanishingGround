@@ -260,9 +260,10 @@ void EditorHierarchyTool::SetFocusObject(const std::weak_ptr<GameObject>& object
         auto prevFocus = static_hierarchyFocusObjWeak.lock();
         for (int i = 0; i < prevFocus->GetComponentCount(); ++i)
         {
-            MeshComponent* mesh = prevFocus->GetComponentAtIndex<MeshComponent>(i);
-            if (mesh)
+            Component* component = prevFocus->GetComponentAtIndex<Component>(i);
+            if (component->GetType() == Component::TYPE::MESH)
             {
+                MeshComponent* mesh = static_cast<MeshComponent*>(component);
                 mesh->Renderer->OffCustomDepth(PostProcess::OUTLINE);
             }
         }
@@ -275,9 +276,10 @@ void EditorHierarchyTool::SetFocusObject(const std::weak_ptr<GameObject>& object
         auto focus = static_hierarchyFocusObjWeak.lock();
         for (int i = 0; i < focus->GetComponentCount(); ++i)
         {
-            MeshComponent* mesh = focus->GetComponentAtIndex<MeshComponent>(i);
-            if (mesh)
+            Component* component = focus->GetComponentAtIndex<Component>(i);
+            if (component->GetType() == Component::TYPE::MESH)
             {
+                MeshComponent* mesh = static_cast<MeshComponent*>(component);
                 mesh->Renderer->OnCustomDepth(PostProcess::OUTLINE);
             }
         }
