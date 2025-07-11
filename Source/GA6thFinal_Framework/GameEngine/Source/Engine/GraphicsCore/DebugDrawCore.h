@@ -82,6 +82,11 @@ class DebugDrawCore
     {
         XMFLOAT3 PointA;
         XMFLOAT3 PointB;
+        DebugLine(const POINT pointA, const POINT pointB)
+            : PointA(static_cast<float>(pointA.x), static_cast<float>(pointA.y), 0),
+              PointB(static_cast<float>(pointB.x), static_cast<float>(pointB.y), 0)
+        {
+        }
         DebugLine(FXMVECTOR pointA, FXMVECTOR pointB)
         {
             XMStoreFloat3(&PointA, pointA);
