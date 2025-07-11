@@ -8,7 +8,18 @@ class RevelationSystem : public Component, public FactoryConstructor<RevelationA
     using ActionDataType = std::unordered_map<std::string, std::string>;
     using ElementDataType = std::vector<std::string>;
 public:
-    static RevelationSystem* GetInstance() { return static_instance; }
+    static RevelationSystem* GetInstance() 
+    {
+        if (static_instance)
+        {
+            return static_instance; 
+        }
+        else
+        {
+            UmLogger.Log(LogLevel::LEVEL_WARNING, u8"Revelation System이 존재하지 않습니다.!!!!!!!!");
+            return nullptr;
+        }
+    }
 
 public:
     RevelationSystem();
