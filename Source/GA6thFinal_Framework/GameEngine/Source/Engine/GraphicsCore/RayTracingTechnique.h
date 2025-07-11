@@ -12,4 +12,10 @@ public:
     void Execute(ID3D12GraphicsCommandList* commandList) override;
 private:
     void InitDXRDrawStaticMeshPass();
+
+private:
+
+//private:
+//    std::vector<Vertex> _unifiedVertices;
+//    std::vector<
 };

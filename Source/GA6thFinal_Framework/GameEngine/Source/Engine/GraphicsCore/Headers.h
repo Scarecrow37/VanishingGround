@@ -24,3 +24,4 @@
 #include "ParticleManager.h"
 #include "ResourceManager.h"
 #include "ViewManager.h"
+#include "AccelerationStructureManager.h"

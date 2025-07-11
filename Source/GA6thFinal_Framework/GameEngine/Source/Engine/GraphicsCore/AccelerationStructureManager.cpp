@@ -31,6 +31,7 @@ void AccelerationStructureManager::Initialize(UINT maxInstance)
                                  D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE, _topLevelBuffers->pResult);
     UmDevice.CreateUploadBuffer(static_cast<UINT>(prebuildInfo.ScratchDataSizeInBytes), D3D12_RESOURCE_FLAG_NONE,
                                 D3D12_RESOURCE_STATE_GENERIC_READ, _topLevelBuffers->pInstanceDesc);
+    UmViewManager.AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _topLevelBuffersSRV);
 }
 
 void AccelerationStructureManager::BeginFrame()
@@ -217,7 +218,7 @@ void AccelerationStructureManager::BuildOrUpdateTLAS(ID3D12Device5* device, ID3D
         
         D3D12_RAYTRACING_INSTANCE_DESC desc{};
         memcpy(desc.Transform, &m3x4, sizeof(desc.Transform));
-        desc.InstanceContributionToHitGroupIndex = p.InstanceID;
+        desc.InstanceID = p.InstanceID;
         desc.InstanceContributionToHitGroupIndex = p.HitGroupIndex;
         desc.InstanceMask                        = 0xFF;
         desc.Flags                               = p.Flags;

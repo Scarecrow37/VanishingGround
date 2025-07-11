@@ -25,4 +25,5 @@ public:
     static RootSignatureDesc CreateRayGenRootDesc();
     static RootSignatureDesc CreateHitRootDesc();
     static RootSignatureDesc CreateMissRootDesc();
+    static RootSignatureDesc CreateGlobalRootDesc();
 };

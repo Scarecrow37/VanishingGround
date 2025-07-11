@@ -12,6 +12,7 @@ void RayTracingTechnique::Initialize(ID3D12GraphicsCommandList* commandList)
 
 void RayTracingTechnique::Execute(ID3D12GraphicsCommandList* commandList) 
 {
+    //UnifiedVIBuffer();
     UmAccelerationStructureManager.BeginFrame();
     __super::Execute(commandList);
 }
@@ -19,7 +20,6 @@ void RayTracingTechnique::Execute(ID3D12GraphicsCommandList* commandList)
 void RayTracingTechnique::InitDXRDrawStaticMeshPass() 
 {
     std::unique_ptr<DXRDrawStaticMeshPass> pass = std::make_unique<DXRDrawStaticMeshPass>();
-    pass->SetOwnerScene(_ownerScene);
-    pass->Initialize();
+    pass->Initialize(_ownerScene);
     AddRenderPass(std::move(pass));
 }

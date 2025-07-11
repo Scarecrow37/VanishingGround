@@ -4,6 +4,7 @@
 
 void VIBuffer::Initialize(const VIBuffer::Descriptor& descriptor)
 {
+    ID3D12Device* device = UmDevice.GetDevice();
     UmDevice.CreateVertexBuffer(descriptor.vertexData, 
 								descriptor.vertexSize, 
 								descriptor.vertexStride, 
@@ -18,6 +19,28 @@ void VIBuffer::Initialize(const VIBuffer::Descriptor& descriptor)
 
 	_indexCount = descriptor.indexCount;
     _vertexCount = descriptor.vertexSize/descriptor.vertexStride;
+
+    if (UmRenderer._isRaytracing)
+    {
+        _vertexBufferID = UmViewManager.GetNumVertexBuffer();
+        _indexBufferID  = UmViewManager.GetNumIndexBuffer();
+        UmViewManager.AddDescriptorHeap(ViewManager::Type::VERTEX_BUFFER_SHADER_RESOURCE, _vertexBufferSrv);
+        UmViewManager.AddDescriptorHeap(ViewManager::Type::INDEX_BUFFER_SHADER_RESOURCE, _indexBufferSrv);
+
+
+        D3D12_SHADER_RESOURCE_VIEW_DESC srvd{};
+        srvd.ViewDimension              = D3D12_SRV_DIMENSION_BUFFER;
+        srvd.Shader4ComponentMapping    = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+        srvd.Format                     = DXGI_FORMAT_UNKNOWN;
+        srvd.Buffer.NumElements         = _vertexCount;
+        srvd.Buffer.StructureByteStride = descriptor.vertexStride;
+        srvd.Buffer.FirstElement        = 0;
+        device->CreateShaderResourceView(_vertexBuffer.Get(), &srvd, _vertexBufferSrv.CPU);
+
+        srvd.Buffer.NumElements         = _indexCount;
+        srvd.Buffer.StructureByteStride = sizeof(UINT);
+        device->CreateShaderResourceView(_indexBuffer.Get(), &srvd, _indexBufferSrv.CPU);
+    }
 }
 
 void VIBuffer::DrawIndexedInstanced(ID3D12GraphicsCommandList* commandList, UINT instanceCount)

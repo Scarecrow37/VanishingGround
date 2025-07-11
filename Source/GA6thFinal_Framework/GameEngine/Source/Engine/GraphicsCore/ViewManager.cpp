@@ -1,13 +1,33 @@
 ﻿#include "pch.h"
 #include "ViewManager.h"
 
+const UINT64 ViewManager::GetVertexBufferSrvPtr()
+{
+    UINT64 heapStartPtr = _shaderResourceHeap->GetGPUDescriptorHandleForHeapStart().ptr;
+    UINT64 returnValue;
+    heapStartPtr += (_vertexSrvStartIndex * _shaderResourceDescriptorSize);
+    returnValue = heapStartPtr;
+    return returnValue;
+}
+
+const UINT64 ViewManager::GetIndexBufferSrvPtr()
+{
+    UINT64 heapStartPtr = _shaderResourceHeap->GetGPUDescriptorHandleForHeapStart().ptr;
+    UINT64 returnValue;
+    heapStartPtr += (_indexSrvStartIndex * _shaderResourceDescriptorSize);
+    returnValue = heapStartPtr;
+    return returnValue;
+}
+
 void ViewManager::Initialize()
 {
     HRESULT                    hr     = S_OK;
     ID3D12Device*              device = UmDevice.GetDevice();
     D3D12_DESCRIPTOR_HEAP_DESC desc{};
 
-    desc.NumDescriptors = 1000;
+    if (!UmRenderer._isRaytracing) desc.NumDescriptors = 1000;
+    else desc.NumDescriptors = 5000;
+
     desc.Type           = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
     desc.Flags          = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 
@@ -59,6 +79,20 @@ void ViewManager::AddDescriptorHeap(const ViewManager::Type type, D3D12_CPU_DESC
         handle.ptr += offset;
         _numDepthStencil++;
         break;
+
+    case ViewManager::Type::VERTEX_BUFFER_SHADER_RESOURCE:
+        offset = _renderTargetDescriptorSize * (_numVertexSrv+_vertexSrvStartIndex);
+        handle = _shaderResourceHeap->GetCPUDescriptorHandleForHeapStart();
+        handle.ptr += offset;
+        _numVertexSrv++;
+        break;
+
+    case ViewManager::Type::INDEX_BUFFER_SHADER_RESOURCE:
+        offset = _renderTargetDescriptorSize * (_numIndexSrv+ _indexSrvStartIndex);
+        handle = _shaderResourceHeap->GetCPUDescriptorHandleForHeapStart();
+        handle.ptr += offset;
+        _numIndexSrv++;
+        break;
     }
 }
 
@@ -89,6 +123,20 @@ void ViewManager::AddDescriptorHeap(const ViewManager::Type type, DescriptorHand
         handle.CPU = _depthStencilHeap->GetCPUDescriptorHandleForHeapStart();
         handle.CPU.ptr += offset;
         _numDepthStencil++;
+        break;
+
+    case ViewManager::Type::VERTEX_BUFFER_SHADER_RESOURCE:
+        offset = _renderTargetDescriptorSize * (_numVertexSrv + _vertexSrvStartIndex);
+        handle.CPU = _shaderResourceHeap->GetCPUDescriptorHandleForHeapStart();
+        handle.CPU.ptr += offset;
+        _numVertexSrv++;
+        break;
+
+    case ViewManager::Type::INDEX_BUFFER_SHADER_RESOURCE:
+        offset = _renderTargetDescriptorSize * (_numIndexSrv + _indexSrvStartIndex);
+        handle.CPU = _shaderResourceHeap->GetCPUDescriptorHandleForHeapStart();
+        handle.CPU.ptr += offset;
+        _numIndexSrv++;
         break;
     }
 }

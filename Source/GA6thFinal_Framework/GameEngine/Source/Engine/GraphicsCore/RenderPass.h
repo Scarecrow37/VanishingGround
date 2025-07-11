@@ -14,7 +14,6 @@ public:
 
 protected:
     RenderScene*     _ownerScene{nullptr};
-
     std::unique_ptr<ShaderBuilder> _shader;
     ComPtr<ID3D12PipelineState>    _pipelineState;
 

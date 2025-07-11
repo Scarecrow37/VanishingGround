@@ -1,48 +1,35 @@
 ﻿#include "pch.h"
 #include "DXRDrawStaticMeshPass.h"
-#include "RenderTarget.h"
-#include "RenderScene.h"
-#include "RTPipeline.h"
+#include "ExportAssociation.h"
+#include "GlobalRootSignature.h"
 #include "HitProgram.h"
 #include "LocalRootSignature.h"
-#include "ExportAssociation.h"
-#include "ShaderConfig.h"
-#include "PipelineConfig.h"
-#include "GlobalRootSignature.h"
 #include "MeshRenderer.h"
 #include "Model.h"
+#include "PipelineConfig.h"
+#include "RTPipeline.h"
+#include "RenderScene.h"
+#include "RenderTarget.h"
+#include "ShaderConfig.h"
+#include "d3dUtil.h"
+#include "SkyBox.h"
+#include "FrameResource.h"
 
 DXRDrawStaticMeshPass::~DXRDrawStaticMeshPass() {}
 
-void DXRDrawStaticMeshPass::Initialize() 
+void DXRDrawStaticMeshPass::Initialize(RenderScene* ownerScene)
 {
-    __super::Initialize();
+    __super::Initialize(ownerScene);
     CreateStateObject();
+    CreateShaderResource();
+    CreateShaderTable();
 }
 
-void DXRDrawStaticMeshPass::Begin(ID3D12GraphicsCommandList* commandList) 
+void DXRDrawStaticMeshPass::Begin(ID3D12GraphicsCommandList* commandList)
 {
+    UINT currentBackBufferIndex = _ownerScene->_currentFrameIndex;
     UmAccelerationStructureManager.RemoveUnUsedStaticMeshes(_ownerScene->_staticMesh);
-    
-    // statice mesh의 descriptor heap에서의 texture id 상수버퍼 값 갱신을 위한 분류
-    for (auto& componenet : _ownerScene->_staticMesh)
-    {
-        const auto& model  = componenet->GetModel();
-        const auto& meshes = model->GetMeshes();
-        const auto& textures = model->GetTextures();
-        UINT        size   = static_cast<UINT>(meshes.size());
-        
-        for (UINT i = 0; i < size; ++i)
-        {
-            MaterialID MaterialID{};
-            
-            for (UINT j = 0; j < 4; ++j)
-            {
-                MaterialID.ID[j] = textures[i][j]->GetID();
-            }
-            _staticMeshMaterialID.push_back(MaterialID);
-        }
-    }
+    UpdateStaticMeshVIBufferID(commandList);
 }
 
 void DXRDrawStaticMeshPass::Draw(ID3D12GraphicsCommandList* commandList)
@@ -55,7 +42,7 @@ void DXRDrawStaticMeshPass::Draw(ID3D12GraphicsCommandList* commandList)
     UmAccelerationStructureManager.EndFrame();
 }
 
-void DXRDrawStaticMeshPass::End(ID3D12GraphicsCommandList* commandList) 
+void DXRDrawStaticMeshPass::End(ID3D12GraphicsCommandList* commandList)
 {
     UINT  currentBackBufferIndex = UmDevice.GetCurrentBackBufferIndex();
     auto  resource               = UmViewManager.GetShaderResourceHeap()->GetGPUDescriptorHandleForHeapStart();
@@ -66,7 +53,7 @@ void DXRDrawStaticMeshPass::End(ID3D12GraphicsCommandList* commandList)
 
 void DXRDrawStaticMeshPass::CreateStateObject()
 {
-    std::array<D3D12_STATE_SUBOBJECT, 11> subobjects{};
+    std::array<D3D12_STATE_SUBOBJECT, 12> subobjects{};
     uint32_t                              index = 0;
 
     DxilLibrary dxilLibrary = RTPipeline::CreateDxilLibrary();
@@ -89,26 +76,28 @@ void DXRDrawStaticMeshPass::CreateStateObject()
     ExportAssociation hitRootAssociation(&RTPipeline::ClosestHitShader, 1, &(subobjects[hitRootIndex]));
     subobjects[index++] = hitRootAssociation.subObject; // 5
 
-    D3D12_ROOT_SIGNATURE_DESC emptyDesc{};
-    emptyDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE;
-    LocalRootSignature missRootSignature(emptyDesc);
+    LocalRootSignature missRootSignature(RTPipeline::CreateMissRootDesc().desc);
     subobjects[index] = missRootSignature.subObject; // 6
+
+    const uint32_t    missRootIndex = index++;
+    ExportAssociation missRootAssociation(&RTPipeline::MissShader, 1, &(subobjects[missRootIndex]));
+    subobjects[index++] = missRootAssociation.subObject; // 7
 
     // payload size float4+uint
     ShaderConfig shaderConfig(sizeof(float) * 2, sizeof(float) * (4 + 1));
-    subobjects[index] = shaderConfig.subObject; // 7
+    subobjects[index] = shaderConfig.subObject; // 8
 
-    const uint32_t    shaderConfigIndex = index++;
-    const WCHAR*      shaderExports[] = {RTPipeline::MissShader, RTPipeline::ClosestHitShader, RTPipeline::RayGenShader};
+    const uint32_t shaderConfigIndex = index++;
+    const WCHAR*   shaderExports[]   = {RTPipeline::MissShader, RTPipeline::ClosestHitShader, RTPipeline::RayGenShader};
     ExportAssociation configAssociation(shaderExports, _countof(shaderExports), &(subobjects[shaderConfigIndex]));
-    subobjects[index++] = configAssociation.subObject; // 8
+    subobjects[index++] = configAssociation.subObject; // 9
 
     PipelineConfig config(7 + 1);
-    subobjects[index++] = config.subObject; // 9
+    subobjects[index++] = config.subObject; // 10
 
-    GlobalRootSignature root({});
-    _emptyRootsignature = root.rootSignature;
-    subobjects[index++] = root.subObject; // 10
+    GlobalRootSignature root(RTPipeline::CreateGlobalRootDesc().desc);
+    _globalRootsignature = root.rootSignature;
+    subobjects[index++]  = root.subObject; // 11
 
     D3D12_STATE_OBJECT_DESC desc;
     desc.NumSubobjects = index;
@@ -116,39 +105,153 @@ void DXRDrawStaticMeshPass::CreateStateObject()
     desc.Type          = D3D12_STATE_OBJECT_TYPE_RAYTRACING_PIPELINE;
 
     ComPtr<ID3D12Device5> device5 = UmDevice.GetDevice5();
-    HRESULT               hr      = device5->CreateStateObject(&desc, IID_PPV_ARGS(_pipelineState.GetAddressOf()));
+    HRESULT               hr      = device5->CreateStateObject(&desc, IID_PPV_ARGS(_pso.GetAddressOf()));
     FAILED_CHECK_MESSAGE(hr, L"DXRDrawStaticMeshPass::CreateHitRootDesc() failed Create RT Pipeline stateObject ");
 }
 
-D3D12_ROOT_SIGNATURE_DESC DXRDrawStaticMeshPass::CreateRayGenRootDest()
+void DXRDrawStaticMeshPass::CreateShaderTable()
 {
-    static CD3DX12_DESCRIPTOR_RANGE ranges[5];
-    ranges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 0);     // Output(u0)
-    ranges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 5, 0);     // t0~t4
-    ranges[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 4, 5);     // t5~t8 (Texture2D[])
-    ranges[3].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 5, 0); // b0~b4
-    ranges[4].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, 2, 0); // s0~s1
+    // 0) 공통 상수 정의
+    constexpr UINT bytesId  = D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES;         // 32
+    constexpr UINT bytesArgs = sizeof(D3D12_GPU_DESCRIPTOR_HANDLE);           //  8
+    constexpr UINT aligeRec = D3D12_RAYTRACING_SHADER_RECORD_BYTE_ALIGNMENT; // 32
 
-    static CD3DX12_ROOT_PARAMETER rootParams[5];
-    rootParams[0].InitAsDescriptorTable(1, &ranges[0]);
-    rootParams[1].InitAsDescriptorTable(1, &ranges[1]);
-    rootParams[2].InitAsDescriptorTable(1, &ranges[2]);
-    rootParams[3].InitAsDescriptorTable(1, &ranges[3]);
-    rootParams[4].InitAsDescriptorTable(1, &ranges[4]);
+    const UINT raygenSize = d3dUtil::AlignTo(bytesId + 3 * bytesArgs, aligeRec);
+    const UINT missSize = d3dUtil::AlignTo(bytesId +  bytesArgs, aligeRec);
+    const UINT hitSize    = bytesId + 12 * bytesArgs;
+    _shaderTableEntrySize = std::max({raygenSize, missSize, hitSize});
+    const UINT recordCount = 3;
+    const UINT tableSize   = _shaderTableEntrySize * recordCount;
+    // 1) 업로드 버퍼 생성
+    UmDevice.CreateUploadBuffer(tableSize, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_GENERIC_READ, _shaderTable);
+    // 2) Shader Identifier 가져오기
+    ComPtr<ID3D12StateObjectProperties> props;
+    _pso->QueryInterface(IID_PPV_ARGS(props.GetAddressOf()));
 
-    D3D12_ROOT_SIGNATURE_DESC desc = {};
-    desc.NumParameters             = _countof(rootParams);
-    desc.pParameters               = rootParams;
-    desc.NumStaticSamplers         = 0;
-    desc.pStaticSamplers           = nullptr;
-    desc.Flags                     = D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE; // DXR에서는 Local로
+    const void* ID_RGS  = props->GetShaderIdentifier(RTPipeline::RayGenShader);
+    const void* ID_MISS = props->GetShaderIdentifier(RTPipeline::MissShader);
+    const void* ID_HIT  = props->GetShaderIdentifier(RTPipeline::HitGroup);
+    // 3) Shader Table 레코드 작성
+    uint8_t* p = nullptr;
+    _shaderTable->Map(0, nullptr, reinterpret_cast<void**>(&p));
+    /* ── 4‑1) Ray Generation ────────────────────────────────────────── */
+    {
+        memcpy(p, ID_RGS, bytesId);
+        // RootParam#1 : SRV t0 테이블 핸들
+        *reinterpret_cast<UINT64*>(p + bytesId) = UmAccelerationStructureManager.GetTopLevelSRV().GPU.ptr;
+        // RootParam#1 : SRV t0 테이블 핸들
+        *reinterpret_cast<UINT64*>(p + bytesId + bytesArgs) = _outputResourceUAV->GetUAVHandle().ptr;
+    }
+    /* ── 4‑2) Miss Generation ────────────────────────────────────────── */
+    p += _shaderTableEntrySize;
+    {
+        memcpy(p, ID_MISS, bytesId);
+        // RootParam#0 : envTexture(t4) 테이블 핸들
+        *reinterpret_cast<UINT64*>(p + bytesId) = _ownerScene->_skyBox->GetCubeMapSRV().ptr;
+    }
+    /* ── 4‑3) Hit Group ─────────────────────────────────────────────── */
+    p += _shaderTableEntrySize;
+    {
+        memcpy(p, ID_HIT, bytesId);
+        uint8_t* a = p + bytesId;
+        // SRV t0 rtScene
+        *reinterpret_cast<UINT64*>(a) = UmAccelerationStructureManager.GetTopLevelSRV().GPU.ptr;
+        a += bytesArgs; 
+        // SRV t4 evnTexture
+        *reinterpret_cast<UINT64*>(a) = _ownerScene->_skyBox->GetCubeMapSRV().ptr;
+        a += bytesArgs; 
+        // SRV t5 Vertices
+        *reinterpret_cast<UINT64*>(a) = UmViewManager.GetVertexBufferSrvPtr();
+        a += bytesArgs; 
+        // SRV t2005 Indices
+        *reinterpret_cast<UINT64*>(a) = UmViewManager.GetIndexBufferSrvPtr();
+        a += bytesArgs;
+        // SRV t4005~ textures
+        *reinterpret_cast<UINT64*>(a) = UmViewManager.GetShaderResourceHeap()->GetGPUDescriptorHandleForHeapStart().ptr;
+    }
 
-    return desc;
+    _shaderTable->Unmap(0, nullptr);
 }
 
-// ClosestHit 루트 시그니처는 RayGen과 동일하게 사용 가능하므로
-// 별도로 분리할 필요 없고 동일 함수 호출 권장.
-D3D12_ROOT_SIGNATURE_DESC DXRDrawStaticMeshPass::CreateHitRootDesc()
+void DXRDrawStaticMeshPass::CreateShaderResource()
 {
-    return CreateRayGenRootDest();
+    _outputResourceUAV = MakeSharedResource<UnorderedAccessView>();
+    DXGI_MODE_DESC mode = UmDevice.GetMode();
+    mode.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    _outputResourceUAV->Initialize(mode);
+    UmDXResourceManager.AddResource(_outputResourceUAV);
 }
+
+void DXRDrawStaticMeshPass::UpdateStaticMeshVIBufferID(ID3D12GraphicsCommandList* commandList)
+{
+    _vertexBufferIDs.clear();
+    _indexBufferIDs.clear();
+    for (auto& component : _ownerScene->_staticMesh)
+    {
+        const auto& model = component->GetModel();
+        const auto& meshes = model->GetMeshes();
+        
+        UINT size = static_cast<UINT>(meshes.size());
+        for (UINT i = 0; i < size; ++i)
+        {
+            const auto& vibuffer = meshes[i]->GetVIBuffer();
+            UINT        vertexBufferID = vibuffer->_vertexBufferID;
+            UINT        indexbufferID = vibuffer->_indexBufferID;
+
+            _vertexBufferIDs.push_back(vertexBufferID);
+            _indexBufferIDs.push_back(indexbufferID);
+        }
+    }
+    UINT currentFrameIndex = _ownerScene->_currentFrameIndex;
+    _ownerScene->_frameResources[currentFrameIndex]->CopyStructuredBuffer(
+        commandList, 
+        FrameResourceType::VERTEX_BUFFER_ID, 
+        _vertexBufferIDs.data(),
+        static_cast<UINT>(_vertexBufferIDs.size()));
+
+    _ownerScene->_frameResources[currentFrameIndex]->CopyStructuredBuffer(
+        commandList, 
+        FrameResourceType::INDEX_BUFFER_ID, 
+        _indexBufferIDs.data(),
+        static_cast<UINT>(_indexBufferIDs.size()));
+}
+
+void DXRDrawStaticMeshPass::WriteCommand()
+{
+    ComPtr<ID3D12GraphicsCommandList4> cmdList4 = UmDevice.GetCommandList4();
+    
+    D3D12_DISPATCH_RAYS_DESC rayTraceDesc{};
+    DXGI_MODE_DESC           mode = _outputResourceUAV->GetMode();
+    rayTraceDesc.Width            = mode.Width;
+    rayTraceDesc.Height           = mode.Height;
+    rayTraceDesc.Depth            = 1;
+
+    // raygen 1개
+    rayTraceDesc.RayGenerationShaderRecord.StartAddress =
+        _shaderTable->GetGPUVirtualAddress() + 0 * _shaderTableEntrySize;
+    rayTraceDesc.RayGenerationShaderRecord.SizeInBytes = _shaderTableEntrySize;
+    rayTraceDesc.RayGenerationShaderRecord.StartAddress = _shaderTableEntrySize * 1;
+
+    // miss 1개
+    const size_t missOffset = 1 * _shaderTableEntrySize;
+    rayTraceDesc.MissShaderTable.StartAddress = _shaderTable->GetGPUVirtualAddress() + missOffset;
+    rayTraceDesc.MissShaderTable.SizeInBytes   = _shaderTableEntrySize;
+    rayTraceDesc.MissShaderTable.StrideInBytes = _shaderTableEntrySize * 1;
+
+    // hit 1개
+    const size_t hitOffset = 2 * _shaderTableEntrySize;
+    rayTraceDesc.HitGroupTable.StartAddress = _shaderTable->GetGPUVirtualAddress() + hitOffset;
+    rayTraceDesc.HitGroupTable.SizeInBytes  = _shaderTableEntrySize;
+    rayTraceDesc.HitGroupTable.StrideInBytes = _shaderTableEntrySize * 1;
+
+    auto cameraData = _ownerScene->_cameraBuffer->GetGPUVirtualAddress();
+    auto lightData  = _ownerScene->_lightBuffer->GetGPUVirtualAddress();
+
+    //bind
+    cmdList4->SetComputeRootSignature(_globalRootsignature.Get());
+    cmdList4->SetComputeRootConstantBufferView(0, cameraData);
+    cmdList4->SetComputeRootConstantBufferView(1, lightData);
+    cmdList4->SetComputeRoot32BitConstants(2, 3, &_ownerScene->_numLight, 0);
+    
+}
+

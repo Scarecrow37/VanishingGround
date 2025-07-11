@@ -69,4 +69,5 @@ private:
 
 public:
     bool _isRaytracing = true;
+    //bool _isRaytracing = false;
 };

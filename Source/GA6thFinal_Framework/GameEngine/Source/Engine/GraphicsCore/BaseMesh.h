@@ -24,6 +24,7 @@ private:
     BoundingOrientedBox       _boundingBox;
     std::unique_ptr<VIBuffer> _viBuffer;
     char*                     _vertices;
+    char*                     _indices;
     unsigned int              _vertexStride;
     unsigned int              _vertexSize;
 };

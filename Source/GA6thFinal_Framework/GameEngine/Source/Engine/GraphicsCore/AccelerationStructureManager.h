@@ -29,6 +29,7 @@ public:
     
     // getter
     const AccelerationStructureBuffers& GetTopLevel() const { return *_topLevelBuffers; }
+    const DescriptorHandles&            GetTopLevelSRV() const { return _topLevelBuffersSRV; }
 
 private:
     // 내부 BLAS 캐시
@@ -44,6 +45,7 @@ private:
 
     // TLAS
     std::shared_ptr<AccelerationStructureBuffers> _topLevelBuffers;
+    DescriptorHandles                             _topLevelBuffersSRV;
     std::vector<MeshInstanceDesc>                 _pendingInstances;
 
     // 임시 GPU 인스턴스-desc 업로드 버퍼

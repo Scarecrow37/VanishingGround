@@ -7,7 +7,9 @@ public:
     {
         SHADER_RESOURCE,
         RENDER_TARGET,
-        DEPTH_STENCIL
+        DEPTH_STENCIL,
+        VERTEX_BUFFER_SHADER_RESOURCE,
+        INDEX_BUFFER_SHADER_RESOURCE
     };
 
 public:
@@ -19,6 +21,10 @@ public:
     ID3D12DescriptorHeap* GetRenderTargetHeap() const { return _renderTargetHeap.Get(); }
     ID3D12DescriptorHeap* GetDepthStencilHeap() const { return _depthStencilHeap.Get(); }
     const UINT            GetNumShaderResourceView() const { return _numShaderResource; }
+    const UINT64          GetVertexBufferSrvPtr();
+    const UINT64          GetIndexBufferSrvPtr();
+    UINT                  GetNumVertexBuffer() { return _numVertexSrv; }
+    UINT                  GetNumIndexBuffer() { return _numIndexSrv; }
 
 public:
     void Initialize();
@@ -38,4 +44,9 @@ private:
     UINT _numShaderResource{1};
     UINT _numRenderTarget{0};
     UINT _numDepthStencil{0};
+
+    UINT _vertexSrvStartIndex{1000};
+    UINT _indexSrvStartIndex{3000};
+    UINT _numVertexSrv{0};
+    UINT _numIndexSrv{0};
 };

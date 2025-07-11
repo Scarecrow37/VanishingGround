@@ -539,13 +539,6 @@
     <ClCompile Include="Source\Engine\GraphicsCore\DXRDrawStaticMeshPass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\RayTracingTechnique.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\AccelerationStructureManager.cpp" />
-    <ClCompile Include="Source\Engine\AudioCore\AudioManager\AudioManager.cpp" />
-    <ClCompile Include="Source\Engine\AudioCore\Declare\Callback\IncreaseGenerationCallback.cpp" />
-    <ClCompile Include="Source\Engine\AudioCore\Declare\Exceptions\AudioExceptions.cpp" />
-    <ClCompile Include="Source\Engine\AudioCore\Declare\RIFF\AudioChunk.cpp" />
-    <ClCompile Include="Source\Engine\AudioCore\Declare\Types\AudioTypes.cpp" />
-    <ClCompile Include="Source\Engine\AudioCore\Handle\AudioHandle.cpp" />
-    <ClCompile Include="Source\Engine\AudioCore\Source\AudioSource.cpp" />
     <ClCompile Include="Source\Editor\Tool\Model\EditorAnimationNotifyTool.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\ConstantBufferView.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\UIPassBase.cpp" />

@@ -95,7 +95,6 @@ void RenderScene::UpdateRenderScene()
     UpdateGlobal();
     UpdateObject();
     UpdateUI();
-
     ID3D12GraphicsCommandList* commandList = UmDevice.GetCommandList();
 
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, FrameResourceType::TRANSFORM, _worldMatrices.data(), (UINT)_worldMatrices.size());
@@ -216,17 +215,6 @@ void RenderScene::UpdateObject()
             _materialIDs.push_back(materialID);
         }
     }
-
-    UINT                       size        = static_cast<UINT>(_worldMatrixes.size());
-    ID3D12GraphicsCommandList* commandList = UmDevice.GetCommandList();
-
-    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, _worldMatrixes.data(),
-                                                              size * sizeof(XMMATRIX), FrameResource::Type::TRANSFORM);
-    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(
-        commandList, _boneMatrixes.data(), size * sizeof(BoneMatrixes), FrameResource::Type::BONE_MATRIXES);
-    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, _materialIDs.data(),
-                                                              size * sizeof(MaterialID), FrameResource::Type::MATERIAL);
-
     ClassifyMesh();
 }
 
@@ -234,7 +222,7 @@ void RenderScene::ClassifyMesh()
 {
     _staticMesh.clear();
     _skeletalMesh.clear();
-    for (auto& [isActive,component] : _renderQueue)
+    for (auto& [isDestroy,component] : _meshRenderQueue)
     {
         if (!component->IsActive())
             continue;
@@ -339,6 +327,12 @@ void RenderScene::CreateFrameResource()
 
         // UI Material
         _frameResources[i]->AddFrameResource(sizeof(XMMATRIX), MAX_OBJECTS);
+
+        // Vertex Buffer ID
+        _frameResources[i]->AddFrameResource(sizeof(VertexBufferID), MAX_OBJECTS);
+
+        // Index Buffer ID
+        _frameResources[i]->AddFrameResource(sizeof(IndexBufferID), MAX_OBJECTS);
     }
 
     _cameraBuffer = std::make_unique<ConstantBufferView>();

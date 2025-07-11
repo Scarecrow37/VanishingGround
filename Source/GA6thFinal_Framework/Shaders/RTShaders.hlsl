@@ -5,7 +5,9 @@
 #define NORMAL 1
 #define ORM 2
 #define EMISSIVE 3
-
+// mesh갯수나 texture 갯수는 unbounded이기 때문에 이런식으로 사용
+// descriptor heap size == 2000
+#define MAX_MESH 2000
 // Retrieve hit world position.
 float3 HitWorldPosition()
 {
@@ -64,10 +66,11 @@ RWTexture2D<float4> Output : register(u0);
 
 StructuredBuffer<uint> vertex_buffer_id: register(t1); //chs
 StructuredBuffer<uint> index_buffer_id : register(t2); //chs
-
-StructuredBuffer<Material> material : register(t3); //chs//-> texture id.??
+StructuredBuffer<Material> material : register(t3); //chs//-> texture id.??=
 TextureCube evnTexture : register(t4); //chs
-Texture2D textures[] : register(t5); //chs
+StructuredBuffer<RayVertex> Vertices[MAX_MESH] : register(t5);
+StructuredBuffer<uint> Indices[MAX_MESH] : register(t2005);
+Texture2D textures[] : register(t4005); //chs
 
 struct RayPayload
 {
@@ -80,40 +83,41 @@ struct ShadowPayload
     bool hit;
 };
 
-float3 CalculateAttribeNoraml(in BuiltInTriangleIntersectionAttributes attribs,uint normalId)
+float3 CalculateAttribeNoraml(in BuiltInTriangleIntersectionAttributes attribs,uint normalId,uint indexID,uint vertexID)
 {
+    //mesh 단위 blas에서의 삼각형 번호.
     uint baseIndex = PrimitiveIndex() * 3;
     uint3 indices = uint3(
-    Indices[baseIndex],
-    Indices[baseIndex + 1],
-    Indices[baseIndex + 2]
+    Indices[indexID][baseIndex],
+    Indices[indexID][baseIndex + 1],
+    Indices[indexID][baseIndex + 2]
 );
     float3 vN[3] =
     {
-        Vertices[indices[0]].normal,
-        Vertices[indices[1]].normal,
-        Vertices[indices[2]].normal
+        Vertices[vertexID][indices[0]].normal,
+        Vertices[vertexID][indices[1]].normal,
+        Vertices[vertexID][indices[2]].normal
     };
 
     float3 vT[3] =
     {
-        Vertices[indices[0]].tangent,
-        Vertices[indices[1]].tangent,
-        Vertices[indices[2]].tangent
+        Vertices[vertexID][indices[0]].tangent,
+        Vertices[vertexID][indices[1]].tangent,
+        Vertices[vertexID][indices[2]].tangent
     };
 
     float3 vB[3] =
     {
-        Vertices[indices[0]].bitangent,
-        Vertices[indices[1]].bitangent,
-        Vertices[indices[2]].bitangent
+        Vertices[vertexID][indices[0]].bitangent,
+        Vertices[vertexID][indices[1]].bitangent,
+        Vertices[vertexID][indices[2]].bitangent
     };
     
     float2 uv[3] =
     {
-        Vertices[indices[0]].uv,
-        Vertices[indices[1]].uv,
-        Vertices[indices[2]].uv
+        Vertices[vertexID][indices[0]].uv,
+        Vertices[vertexID][indices[1]].uv,
+        Vertices[vertexID][indices[2]].uv
     };
     float2 hitUV = HitAttribute2(uv, attribs);
     
@@ -214,18 +218,24 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
     uint normalID = material[objectData.ID].ID[NORMAL];
     uint ORMID = material[objectData.ID].ID[ORM];
     uint emissiveID = material[objectData.ID].ID[EMISSIVE];
+    uint instanceID = InstanceID();
+    
+    uint vertexID = vertex_buffer_id[instanceID];
+    uint indexID = index_buffer_id[instanceID];
     
     float3 hitPosition = HitWorldPosition();
-    float3 normal = CalculateAttribeNoraml(attribs,normalID);
+    float3 normal = CalculateAttribeNoraml(attribs,normalID,indexID,vertexID);
     float3 view = normalize(WorldRayOrigin() - hitPosition);
     uint baseIndex = PrimitiveIndex() * 3;
-    uint3 indices = uint3(Indices[baseIndex], Indices[baseIndex + 1], Indices[baseIndex + 2]);
+    uint3 indices = uint3(Indices[indexID][baseIndex], 
+                          Indices[indexID][baseIndex + 1], 
+                          Indices[indexID][baseIndex + 2]);
 
     float2 uv[3] =
     {
-        Vertices[indices[0]].uv,
-        Vertices[indices[1]].uv,
-        Vertices[indices[2]].uv
+        Vertices[vertexID][indices[0]].uv,
+        Vertices[vertexID][indices[1]].uv,
+        Vertices[vertexID][indices[2]].uv
     };
     float2 hitUV = HitAttribute2(uv, attribs);
     float3 albedo = textures[diffuseID].SampleLevel(samLinear_wrap, hitUV, 0).rgb;

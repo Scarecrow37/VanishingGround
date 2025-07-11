@@ -16,7 +16,6 @@ public:
     ComPtr<ID3D12GraphicsCommandList4>      GetCommandList4();
     ID3D12GraphicsCommandList*  GetImguiCommandList() const { return _imguiCommandList.Get(); }
     ID3D12GraphicsCommandList*  GetComputeCommandList() const { return _computeCommandList.Get(); }
-    ID3D12GraphicsCommandList*  GetPostProcessCommandList() const { return _postProcessCommandList.Get(); }
     const DXGI_MODE_DESC&       GetMode() const { return _mode; }
     UINT                        GetRTVDescriptorSize() { return _rtvDescriptorSize; }
     UINT                        GetCBVSRVUAVDescriptorSize() { return _cbvSrvUavDescriptorSize; }
@@ -26,21 +25,6 @@ public:
     UINT                        GetMSAAQuality() { return _4xMSAAQuality; }
     UINT                        GetCurrentBackBufferIndex() { return _renderTargetIndex; }
     D3D12_VIEWPORT              GetMainViewport() { return _mainViewport; }
-
-    ID3D12Device*                      GetDevice() const { return _device.Get(); }
-    ID3D12CommandQueue*                GetCommandQueue() const { return _commandQueue.Get(); }
-    ID3D12CommandQueue*                GetComputeCommandQueue() const { return _computeCommandQueue.Get(); }
-    ID3D12GraphicsCommandList*         GetCommandList() const { return _commandList.Get(); }
-    ID3D12GraphicsCommandList*         GetImguiCommandList() const { return _imguiCommandList.Get(); }
-    ID3D12GraphicsCommandList*         GetComputeCommandList() const { return _computeCommandList.Get(); }
-    const DXGI_MODE_DESC&              GetMode() const { return _mode; }
-    UINT                               GetRTVDescriptorSize() { return _rtvDescriptorSize; }
-    UINT                               GetCBVSRVUAVDescriptorSize() { return _cbvSrvUavDescriptorSize; }
-    UINT                               GetDSVDescriptorSize() { return _dsvDescriptorSize; }
-    DXGI_FORMAT                        GetBackBufferFormat() { return _backBufferFormat; }
-    bool                               GetMSAAState() { return _4xMSAAState; }
-    UINT                               GetMSAAQuality() { return _4xMSAAQuality; }
-    UINT                               GetCurrentBackBufferIndex() { return _renderTargetIndex; }
     const D3D12_CPU_DESCRIPTOR_HANDLE& GetBackBufferHandle() const { return _renderTargetHandles[_renderTargetIndex]; }
 
 public:
