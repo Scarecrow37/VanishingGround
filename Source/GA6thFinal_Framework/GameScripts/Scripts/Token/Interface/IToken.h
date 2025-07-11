@@ -18,6 +18,8 @@ private: // ITriggerType을(를) 통해 상속됨.
     virtual void OnTokenRemoved(CharacterBase* owner, int tokenID) override                      = 0;
 
 public:
-    virtual UINT16  GetStackCount() const      = 0;
-    virtual UINT16  GetMaxStackCount() const   = 0;
+    virtual int         GetTokenID() const          = 0;
+    virtual const char* GetTokenName() const        = 0;
+    virtual UINT16      GetStackCount() const       = 0;
+    virtual UINT16      GetMaxStackCount() const    = 0;
 };

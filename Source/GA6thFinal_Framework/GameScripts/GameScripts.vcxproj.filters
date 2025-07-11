@@ -249,7 +249,7 @@
     <ClInclude Include="Scripts\TurnSystem\TurnMode\State\GameOverState.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Scripts\Token\Object\Bleed\Bleed1Token.h">
+    <ClInclude Include="Scripts\Token\Object\Bleed\BleedToken.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Scripts\Token\Interface\IToken.h">
@@ -267,13 +267,13 @@
     <ClInclude Include="Scripts\Interface\ITriggerType.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Scripts\RevelationSystem\RevelationAction\Base\RevelationActionBase.h">
+    <ClInclude Include="Scripts\Token\Object\Poison\PoisonToken.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Scripts\RevelationSystem\RevelationSystem.h">
+    <ClInclude Include="Scripts\Token\Object\Stun\StunToken.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Scripts\RevelationSystem\RevelationElement\RevelationElement.h">
+    <ClInclude Include="Scripts\Token\Object\Shock\ShockToken.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -485,7 +485,7 @@
     <ClCompile Include="Scripts\TurnSystem\TurnMode\State\GameOverState.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\Token\Object\Bleed\Bleed1Token.cpp">
+    <ClCompile Include="Scripts\Token\Object\Bleed\BleedToken.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Scripts\Token\Interface\IToken.cpp">
@@ -500,10 +500,13 @@
     <ClCompile Include="Scripts\WeaponSystem\WeaponSystem.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\RevelationSystem\RevelationSystem.cpp">
+    <ClCompile Include="Scripts\Token\Object\Poison\PoisonToken.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\RevelationSystem\RevelationElement\RevelationElement.cpp">
+    <ClCompile Include="Scripts\Token\Object\Stun\StunToken.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\Token\Object\Shock\ShockToken.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

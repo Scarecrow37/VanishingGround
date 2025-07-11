@@ -298,11 +298,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Scripts\Token\Object\Poison\PoisonToken.h" />
     <ClInclude Include="Scripts\Interface\ITriggerType.h" />
-    <ClInclude Include="Scripts\RevelationSystem\RevelationAction\Base\RevelationActionBase.h" />
-    <ClInclude Include="Scripts\RevelationSystem\RevelationSystem.h" />
-    <ClInclude Include="Scripts\RevelationSystem\RevelationElement\RevelationElement.h" />
-    <ClInclude Include="Scripts\Token\Object\Bleed\Bleed1Token.h" />
+    <ClInclude Include="Scripts\Token\Object\Bleed\BleedToken.h" />
     <ClInclude Include="Scripts\DamageSystem\DamageSystem.h" />
     <ClInclude Include="Scripts\GameCore\FSM\Factory\FSMConditionFactory.h" />
     <ClInclude Include="Scripts\GameCore\FSM\Factory\FSMStateFactory.h" />
@@ -364,6 +362,8 @@
     <ClInclude Include="Scripts\TurnSystem\TurnMode\State\EnemyActionPhase.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnMode\State\PlayerActionPhase.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnMode\State\RoundStartPhase.h" />
+    <ClInclude Include="Scripts\Token\Object\Stun\StunToken.h" />
+    <ClInclude Include="Scripts\Token\Object\Shock\ShockToken.h" />
     <ClInclude Include="UmScriptCore.h" />
     <ClInclude Include="UmScriptsExport.h" />
     <ClInclude Include="Scripts\Mesh\MeshComponent.h" />
@@ -386,9 +386,8 @@
     <ClInclude Include="Scripts\WeaponSystem\WeaponSystem.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Scripts\RevelationSystem\RevelationSystem.cpp" />
-    <ClCompile Include="Scripts\RevelationSystem\RevelationElement\RevelationElement.cpp" />
-    <ClCompile Include="Scripts\Token\Object\Bleed\Bleed1Token.cpp" />
+    <ClCompile Include="Scripts\Token\Object\Poison\PoisonToken.cpp" />
+    <ClCompile Include="Scripts\Token\Object\Bleed\BleedToken.cpp" />
     <ClCompile Include="dllmain.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">Use</PrecompiledHeader>
@@ -455,6 +454,8 @@
     <ClCompile Include="Scripts\TurnSystem\TurnMode\State\RoundEndPhase.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnMode\State\RoundStartPhase.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnMode\State\TurnListEmptyState.cpp" />
+    <ClCompile Include="Scripts\Token\Object\Stun\StunToken.cpp" />
+    <ClCompile Include="Scripts\Token\Object\Shock\ShockToken.cpp" />
     <ClCompile Include="UmScriptCore.cpp" />
     <ClCompile Include="UmScriptsExport.cpp" />
     <ClCompile Include="Scripts\Mesh\MeshComponent.cpp">

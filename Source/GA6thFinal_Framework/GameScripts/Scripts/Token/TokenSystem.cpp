@@ -9,25 +9,26 @@ TokenSystem::TokenSystem(CharacterBase* owner)
     {
         assert(false && "TokenSystem requires a valid CharacterBase owner.");
     }
+    // 토큰 테이블 초기화
+    InitTokenInstance();
 }
 
 void TokenSystem::Clear()
 {
-    for (auto& [tokenID, token] : _tokenTable)
+    for (auto& token : _tokenInstances)
     {
-        if (token)
+        if (token && 0 < token->GetStackCount())
         {
-            delete token;
+            token->SetStack(0); // 스택을 0으로 설정하여 토큰을 초기화합니다.
         }
     }
-    _tokenTable.clear();
 }
 
 void TokenSystem::NotifyCombatStart()
 {
-    for (auto& [tokenID, token] : _tokenTable)
+    for (auto& token : _tokenInstances)
     {
-        if (token)
+        if (token && 0 < token->GetStackCount())
         {
             token->OnCombatStart(_owner);
         }
@@ -36,9 +37,9 @@ void TokenSystem::NotifyCombatStart()
 
 void TokenSystem::NotifyRoundStart()
 {
-    for (auto& [tokenID, token] : _tokenTable)
+    for (auto& token : _tokenInstances)
     {
-        if (token)
+        if (token && 0 < token->GetStackCount())
         {
             token->OnRoundStart(_owner);
         }
@@ -47,7 +48,7 @@ void TokenSystem::NotifyRoundStart()
 
 void TokenSystem::NotifyRoundEnd()
 {
-    for (auto& [tokenID, token] : _tokenTable)
+    for (auto& token : _tokenInstances)
     {
         if (token)
         {
@@ -58,9 +59,9 @@ void TokenSystem::NotifyRoundEnd()
 
 void TokenSystem::NotifyTurnStart()
 {
-    for (auto& [tokenID, token] : _tokenTable)
+    for (auto& token : _tokenInstances)
     {
-        if (token)
+        if (token && 0 < token->GetStackCount())
         {
             token->OnTurnStart(_owner);
         }
@@ -69,9 +70,9 @@ void TokenSystem::NotifyTurnStart()
 
 void TokenSystem::NotifyTurnEnd()
 {
-    for (auto& [tokenID, token] : _tokenTable)
+    for (auto& token : _tokenInstances)
     {
-        if (token)
+        if (token && 0 < token->GetStackCount())
         {
             token->OnTurnEnd(_owner);
         }
@@ -80,9 +81,9 @@ void TokenSystem::NotifyTurnEnd()
 
 void TokenSystem::NotifyHit()
 {
-    for (auto& [tokenID, token] : _tokenTable)
+    for (auto& token : _tokenInstances)
     {
-        if (token)
+        if (token && 0 < token->GetStackCount())
         {
             token->OnHit(_owner);
         }
@@ -91,9 +92,9 @@ void TokenSystem::NotifyHit()
 
 void TokenSystem::NotifyDead()
 {
-    for (auto& [tokenID, token] : _tokenTable)
+    for (auto& token : _tokenInstances)
     {
-        if (token)
+        if (token && 0 < token->GetStackCount())
         {
             token->OnDead(_owner);
         }
@@ -102,9 +103,9 @@ void TokenSystem::NotifyDead()
 
 void TokenSystem::NotifyKill(CharacterBase* destination)
 {
-    for (auto& [tokenID, token] : _tokenTable)
+    for (auto& token : _tokenInstances)
     {
-        if (token)
+        if (token && 0 < token->GetStackCount())
         {
             token->OnKill(_owner, destination);
         }
@@ -113,9 +114,9 @@ void TokenSystem::NotifyKill(CharacterBase* destination)
 
 void TokenSystem::NotifyTokenAdded(int tokenID)
 {
-    for (auto& [tokenID, token] : _tokenTable)
+    for (auto& token : _tokenInstances)
     {
-        if (token)
+        if (token && 0 < token->GetStackCount())
         {
             token->OnTokenAdded(_owner, tokenID);
         }
@@ -124,23 +125,22 @@ void TokenSystem::NotifyTokenAdded(int tokenID)
 
 void TokenSystem::NotifyTokenRemoved(int tokenID)
 {
-    for (auto& [tokenID, token] : _tokenTable)
+    for (auto& token : _tokenInstances)
     {
-        if (token)
+        if (token && 0 < token->GetStackCount())
         {
             token->OnTokenRemoved(_owner, tokenID);
         }
     }
 }
 
-void TokenSystem::AddTokenStackFromID(int tokenID, UINT16 count)
+void TokenSystem::AddTokenStackFromID(int tokenID, UINT16 count /* = 1 */)
 {
-    auto* token = FindTokenEx(tokenID);
-    if (nullptr == token)
-    {
-        token = CreateTokenInstanceFromID(tokenID);
-        _tokenTable[tokenID] = token;
+    if (0 == count)
+    {   // 추가할 스택이 0이면 아무것도 하지 않습니다. (이벤트를 호출하지 않기 위해 필요)
+        return;
     }
+    auto* token = FindTokenEx(tokenID);
     if (token)
     {
         token->AddStack(count);
@@ -154,15 +154,14 @@ void TokenSystem::AddTokenStackFromID(int tokenID, UINT16 count)
 void TokenSystem::SetTokenStackFromID(int tokenID, UINT16 count)
 {
     auto* token = FindTokenEx(tokenID);
-    if (nullptr == token)
-    {
-        token = CreateTokenInstanceFromID(tokenID);
-        _tokenTable[tokenID] = token;
-    }
     if (token)
     {
         UINT16 curCount = token->GetStackCount();
-        int    delta    = static_cast<int>(count) - static_cast<int>(curCount);
+        if (curCount == count)
+        {   // 현재 스택과 설정하려는 스택이 같으면 아무것도 하지 않습니다. (이벤트를 호출하지 않기 위해 필요)
+            return;
+        }
+        int delta = static_cast<int>(count) - static_cast<int>(curCount);
         // 음수면 스택을 줄이는 것, 양수면 스택을 늘리는 것
         if (delta < 0)
         {
@@ -175,17 +174,17 @@ void TokenSystem::SetTokenStackFromID(int tokenID, UINT16 count)
     }
 }
 
-void TokenSystem::RemoveTokenStackFromID(int tokenID, UINT16 count)
+void TokenSystem::RemoveTokenStackFromID(int tokenID, UINT16 count /* = 1 */)
 {
+    if (0 == count)
+    {   // 제거할 스택이 0이면 아무것도 하지 않습니다. (이벤트를 호출하지 않기 위해 필요)
+        return;
+    }
     auto* token = FindTokenEx(tokenID);
     if (token)
     {
         token->RemoveStack(count);
         bool isValid = CheckValidTokenFromID(tokenID);
-        if (false == isValid)
-        {   // 스택이 0이 되면 토큰을 제거합니다.
-            RemoveTokenFromID(tokenID);
-        }
         if (_owner)
         {
             _owner->OnTokenRemoved(tokenID);
@@ -203,19 +202,80 @@ void TokenSystem::RemoveTokenFromID(int tokenID)
     auto* token = FindTokenEx(tokenID);
     if (token)
     {
-        _tokenTable.erase(tokenID);
-        delete token;
+        token->SetStack(0); // 스택을 0으로 설정하여 토큰을 제거합니다.
+    }
+}
+
+bool TokenSystem::HasToken(int tokenID) const
+{
+    auto it = _tokenTable.find(tokenID);
+    if (it != _tokenTable.end())
+    {
+        bool isValid = 0 < it->second->GetStackCount();
+        return isValid;                                
+    }
+    return false;
+}
+
+bool TokenSystem::IsEmpty() const
+{
+    return _validTokenTable.empty();
+}
+
+void TokenSystem::InitTokenInstance()
+{
+    // 테이블에 존재하는 토큰을 모두 초기화합니다.
+    _tokenTable.clear();
+    for (const auto& [tokenID, factory] : _tokenIDFactoryTable)
+    {
+        auto* token = factory();
+        if (token)
+        {
+            _tokenTable[tokenID] = token;
+            token->SetDirtyCountCallback([this](int id) { UpdateToken(id); });
+            token->SetDirtyOrderCallback([this](int id) { SortByOrder(); });
+        }
+    }
+}
+
+void TokenSystem::SortByOrder() 
+{   // 토큰을 Order에 따라 내림차순으로 정렬합니다.
+    std::sort(_tokenInstances.begin(), _tokenInstances.end(),
+              [](Token* a, Token* b) { return a->GetTokenOrder() > b->GetTokenOrder(); 
+        });
+}
+
+void TokenSystem::UpdateToken(int tokenID)
+{
+    auto token = FindTokenEx(tokenID);
+    if (token)
+    {
+        UINT16 count = token->GetStackCount();
+        if (0 < count)
+        {
+            _validTokenTable[token->GetTokenID()] = token;  // 유효한 토큰 테이블에 추가
+        }
+        else
+        {
+            _validTokenTable.erase(token->GetTokenID());    // 유효한 토큰 테이블에서 제거
+        }
     }
 }
 
 Token* TokenSystem::FindTokenEx(int tokenID)
 {
+    Token* result = nullptr;
     auto it = _tokenTable.find(tokenID);
     if (it != _tokenTable.end())
     {
-        return it->second;
+        result = it->second;
     }
-    return nullptr;
+    else
+    {
+        result = CreateTokenInstanceFromID(tokenID);
+        _tokenTable[tokenID] = result;
+    }
+    return result;
 }
 
 Token* TokenSystem::FindTokenEx(std::string_view tokenName)
