@@ -41,7 +41,7 @@ public:
     inline static T* NewInstance()
     {
         const char* key = typeid(T).name();
-        NewInstanceWithKey(key);
+        return NewInstanceWithKey(key);
     }
 
     /// <summary>
