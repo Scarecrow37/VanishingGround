@@ -35,6 +35,14 @@ void RevelationSystem::RollRoundElement()
     {
         _roundElementList.resize(ReflectFields->RevelationsPerRound);
     }  
+
+    //뽑힌 횟수 계산
+    for (auto& element : _roundElementList)
+    {
+        std::string_view name = element->Name;
+        _elementTotalAppearances[name.data()]++;
+    }
+    ++_totalRollCount;
 }
 
 bool RevelationSystem::InsertElement(const RevelationElement& element) 
@@ -436,6 +444,7 @@ void RevelationSystem::ImGuiDrawPlayerElementEditor()
     if (ImGui::TreeNodeEx("Player Elements", ImGuiTreeNodeFlags_DefaultOpen))
     {
         TreeToolTip();
+        std::unique_ptr<RevelationElement>* eraseSelect = nullptr;
         for (auto& element : _playerElementList)
         {
             ImGui::PushID(&element);
@@ -450,22 +459,39 @@ void RevelationSystem::ImGuiDrawPlayerElementEditor()
             {
                 if (ImGui::Selectable(STR_NULL))
                 {
-                    element.reset();
+                    eraseSelect = &element;
                 }
                 for (auto& [key, tableElement] : _elementsTable)
                 {
                     if (ImGui::Selectable(key.data()))
                     {
                         element.reset(new RevelationElement(tableElement));
+                        _roundElementList.clear();
                     }
                 }
                 ImGui::EndCombo();
             }
+            if (name != STR_NULL)
+            {
+                float count = (float)_elementTotalAppearances[name.data()];
+                if (count > 0 && _totalRollCount > 0)
+                {
+                    float percentage = count / (float)_totalRollCount;
+                    ImGui::SameLine();
+                    ImGui::Text("%f%%", percentage);
+                }            
+            }      
             if (false == elementEmpty)
             {
                 ImGui::PopStyleColor();
             }     
             ImGui::PopID();
+        }
+        if (eraseSelect)
+        {
+            eraseSelect->reset();
+            eraseSelect = nullptr;
+            _roundElementList.clear();
         }
         ImGui::TreePop();
     }
