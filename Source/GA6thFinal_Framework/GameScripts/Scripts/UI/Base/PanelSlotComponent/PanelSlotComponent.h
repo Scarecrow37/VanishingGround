@@ -3,7 +3,6 @@
 
 class PanelSlotComponent : public UIComponent
 {
-    friend class Transform;
     USING_PROPERTY(PanelSlotComponent)
 
 public:

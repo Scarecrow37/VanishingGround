@@ -3,7 +3,6 @@
 
 class AreaUIComponent : public UIComponent
 {
-    friend class Transform;
     USING_PROPERTY(AreaUIComponent)
 
 public:
@@ -32,4 +31,10 @@ protected:
     void ImGuiDrawPropertysEvent() override;
 
     virtual void ResetArea() {};
+
+private:
+    void DrawDebugQuad(FXMVECTOR color) const;
+
+    POINT* _scopePoint;
+    SIZE* _scopeSize;
 };

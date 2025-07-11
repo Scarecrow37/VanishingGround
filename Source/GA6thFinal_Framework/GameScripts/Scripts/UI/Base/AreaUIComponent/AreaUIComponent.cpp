@@ -6,17 +6,13 @@ AreaUIComponent::AreaUIComponent() = default;
 void AreaUIComponent::OnDrawDebug()
 {
     UIComponent::OnDrawDebug();
-    const POINT point = Point;
-    const SIZE size = Size;
-    UmDebugDrawCore.Draw("Editor", {point, size});
+    DrawDebugQuad(DirectX::Colors::White);
 }
 
 void AreaUIComponent::OnDrawDebugSelected()
 {
     UIComponent::OnDrawDebugSelected();
-    const POINT point = Point;
-    const SIZE  size  = Size;
-    UmDebugDrawCore.Draw("Editor", {point, size}, DirectX::Colors::Yellow);
+    DrawDebugQuad(DirectX::Colors::Yellow);
 }
 
 void AreaUIComponent::ImGuiDrawPropertysEvent()
@@ -26,5 +22,22 @@ void AreaUIComponent::ImGuiDrawPropertysEvent()
     {
         ResetArea();
     }
+}
+
+void AreaUIComponent::DrawDebugQuad(FXMVECTOR color) const
+{
+    POINT point = Point;
+    if (_scopePoint)
+    {
+        point.x = _scopePoint->x;
+        point.y = _scopePoint->y;
+    }
+    SIZE  size  = Size;
+    if (_scopeSize)
+    {
+        size.cx = _scopeSize->cx;
+        size.cy = _scopeSize->cy;
+    }
+    UmDebugDrawCore.Draw("Editor", {point, size}, color);
 }
 
