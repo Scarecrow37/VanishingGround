@@ -343,6 +343,12 @@ void RevelationSystem::ResetActions()
     {
         actionTemp.reset(func());
         std::string_view name = actionTemp->Name;
+        auto             findIter = construtors.find(name.data());
+        if (findIter != construtors.end())
+        {
+            std::string message = std::format("{} {}", (const char*)u8"이름이 같은 Revelation Action이 존재합니다.", typeid(*actionTemp).name());
+            UmLogger.Log(LogLevel::LEVEL_WARNING, message);
+        }
         _actionConstructors[name.data()] = func;
     }
 }
