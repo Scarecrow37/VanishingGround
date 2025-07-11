@@ -7,6 +7,7 @@ class MeshComponent;
 class LightComponent;
 class CameraComponent;
 class Model;
+class Font;
 namespace Command::EditorScene
 {
     class NewGameObjectCommand;
@@ -458,10 +459,15 @@ public:
         /// <param name="func :">리소스 로드후 호출되는 콜백 함수</param>
         void RequestTextureResource(const Component* component, const File::Guid& guid, const std::function<void()> func);
 
-    private:
-        void UpdateModelResource();
-        void UpdateTextureResource();
+        /// <summary>
+        /// Font 리소스 로드를 요청합니다.
+        /// </summary>
+        /// <param name="component :">대상 컴포넌트</param>
+        /// <param name="guid :">로드할 리소스의 guid</param>
+        /// <param name="func :">리소스 로드후 호출되는 콜백 함수</param>
+        void RequestFontResource(const Component* component, const File::Guid& guid, const std::function<void()> func);
 
+    private:
         template <typename T>
         struct RenderResource
         {
@@ -472,7 +478,10 @@ public:
         };
         RenderResource<Model>   _models;
         RenderResource<Texture> _textures;
+        RenderResource<Font>    _fonts;
 
+        template <typename T>
+        void UpdateRenderResource(RenderResource<T>& resource);
     };
     /// <summary>
     /// 씬 리소스 관리를 위한 맴버입니다.
