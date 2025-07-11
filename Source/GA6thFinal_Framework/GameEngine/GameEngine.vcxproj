@@ -738,6 +738,9 @@
     <ProjectReference Include="..\InputModule\InputModule.vcxproj">
       <Project>{c56311d7-823b-4cea-bc18-4e55f615ad78}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\XAtlasThirdParty\XAtlasThirdParty.vcxproj">
+      <Project>{d9c8c7d3-184c-422d-a9bb-5e283b3b7571}</Project>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AudioModule\AudioModule.vcxproj">

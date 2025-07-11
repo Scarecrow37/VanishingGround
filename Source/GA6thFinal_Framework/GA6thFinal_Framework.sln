@@ -20,6 +20,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AudioModule", "AudioModule\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ImGuiThirdParty", "ImGuiThirdParty\ImGuiThirdParty.vcxproj", "{DA5BBFB7-C4FB-4663-9DDC-4D4B5EC82D5F}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XAtlasThirdParty", "XAtlasThirdParty\XAtlasThirdParty.vcxproj", "{D9C8C7D3-184C-422D-A9BB-5E283B3B7571}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ThridParties", "ThridParties", "{C8D5274F-AC00-46C7-1F8D-E88E81087A52}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -128,9 +132,29 @@ Global
 		{DA5BBFB7-C4FB-4663-9DDC-4D4B5EC82D5F}.ReleaseEditor|x64.Build.0 = ReleaseEditor|x64
 		{DA5BBFB7-C4FB-4663-9DDC-4D4B5EC82D5F}.ReleaseEditor|x86.ActiveCfg = Release|Win32
 		{DA5BBFB7-C4FB-4663-9DDC-4D4B5EC82D5F}.ReleaseEditor|x86.Build.0 = Release|Win32
+		{D9C8C7D3-184C-422D-A9BB-5E283B3B7571}.Debug|x64.ActiveCfg = Debug|x64
+		{D9C8C7D3-184C-422D-A9BB-5E283B3B7571}.Debug|x64.Build.0 = Debug|x64
+		{D9C8C7D3-184C-422D-A9BB-5E283B3B7571}.Debug|x86.ActiveCfg = Debug|Win32
+		{D9C8C7D3-184C-422D-A9BB-5E283B3B7571}.Debug|x86.Build.0 = Debug|Win32
+		{D9C8C7D3-184C-422D-A9BB-5E283B3B7571}.DebugEditor|x64.ActiveCfg = DebugEditor|x64
+		{D9C8C7D3-184C-422D-A9BB-5E283B3B7571}.DebugEditor|x64.Build.0 = DebugEditor|x64
+		{D9C8C7D3-184C-422D-A9BB-5E283B3B7571}.DebugEditor|x86.ActiveCfg = Debug|Win32
+		{D9C8C7D3-184C-422D-A9BB-5E283B3B7571}.DebugEditor|x86.Build.0 = Debug|Win32
+		{D9C8C7D3-184C-422D-A9BB-5E283B3B7571}.Release|x64.ActiveCfg = Release|x64
+		{D9C8C7D3-184C-422D-A9BB-5E283B3B7571}.Release|x64.Build.0 = Release|x64
+		{D9C8C7D3-184C-422D-A9BB-5E283B3B7571}.Release|x86.ActiveCfg = Release|Win32
+		{D9C8C7D3-184C-422D-A9BB-5E283B3B7571}.Release|x86.Build.0 = Release|Win32
+		{D9C8C7D3-184C-422D-A9BB-5E283B3B7571}.ReleaseEditor|x64.ActiveCfg = ReleaseEditor|x64
+		{D9C8C7D3-184C-422D-A9BB-5E283B3B7571}.ReleaseEditor|x64.Build.0 = ReleaseEditor|x64
+		{D9C8C7D3-184C-422D-A9BB-5E283B3B7571}.ReleaseEditor|x86.ActiveCfg = Release|Win32
+		{D9C8C7D3-184C-422D-A9BB-5E283B3B7571}.ReleaseEditor|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{DA5BBFB7-C4FB-4663-9DDC-4D4B5EC82D5F} = {C8D5274F-AC00-46C7-1F8D-E88E81087A52}
+		{D9C8C7D3-184C-422D-A9BB-5E283B3B7571} = {C8D5274F-AC00-46C7-1F8D-E88E81087A52}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B4644428-6DCA-4D0E-82B3-7C42C4F1F5AD}
