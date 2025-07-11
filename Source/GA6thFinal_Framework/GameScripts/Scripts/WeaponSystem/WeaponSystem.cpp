@@ -1,6 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "WeaponSystem.h"
-#include <Stats/WeaponTable/WeaponTableComponent.h>
+#include <WeaponSystem/WeaponTable/WeaponTableComponent.h>
 
 WeaponSystem::WeaponSystem() = default;
 WeaponSystem::~WeaponSystem()

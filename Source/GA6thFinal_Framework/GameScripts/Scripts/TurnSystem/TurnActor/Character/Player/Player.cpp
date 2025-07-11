@@ -3,7 +3,7 @@
 #include "Stats/Player/PlayerStats.h"
 #include "Stats/Player/PlayerStatsComponent.h"
 #include "GameCore/FSM/FiniteStateMachine.h"
-#include <Stats/WeaponTable/WeaponTableComponent.h>
+#include <WeaponSystem/WeaponTable/WeaponTableComponent.h>
 #include <WeaponSystem/WeaponSystem.h>
 
 //Condition

@@ -298,6 +298,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Scripts\RevelationSystem\RevelationAction\Base\RevelationActionBase.h" />
+    <ClInclude Include="Scripts\RevelationSystem\RevelationAction\Critical\CriticalDamageAction.h" />
+    <ClInclude Include="Scripts\RevelationSystem\RevelationElement\RevelationElement.h" />
+    <ClInclude Include="Scripts\RevelationSystem\RevelationSystem.h" />
     <ClInclude Include="Scripts\Test\Text\TestText.h" />
     <ClInclude Include="Scripts\Token\Object\Poison\PoisonToken.h" />
     <ClInclude Include="Scripts\Interface\ITriggerType.h" />
@@ -316,7 +320,7 @@
     <ClInclude Include="Scripts\Stats\Enemy\EnemyStats.h" />
     <ClInclude Include="pchScripts.h" />
     <ClInclude Include="Scripts\Stats\Player\PlayerStats.h" />
-    <ClInclude Include="Scripts\Stats\WeaponTable\WeaponTableComponent.h" />
+    <ClInclude Include="Scripts\WeaponSystem\WeaponTable\WeaponTableComponent.h" />
     <ClInclude Include="Scripts\Stats\Weapon\WeaponStats.h" />
     <ClInclude Include="Scripts\Test\Component\TestComponent.h" />
     <ClInclude Include="Scripts\Test\UI\TestUI.h" />
@@ -387,6 +391,9 @@
     <ClInclude Include="Scripts\WeaponSystem\WeaponSystem.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Scripts\RevelationSystem\RevelationAction\Critical\CriticalDamageAction.cpp" />
+    <ClCompile Include="Scripts\RevelationSystem\RevelationElement\RevelationElement.cpp" />
+    <ClCompile Include="Scripts\RevelationSystem\RevelationSystem.cpp" />
     <ClCompile Include="Scripts\Test\Text\TestText.cpp" />
     <ClCompile Include="Scripts\Token\Object\Poison\PoisonToken.cpp" />
     <ClCompile Include="Scripts\Token\Object\Bleed\BleedToken.cpp" />
@@ -411,7 +418,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Scripts\Stats\WeaponTable\WeaponTableComponent.cpp" />
+    <ClCompile Include="Scripts\WeaponSystem\WeaponTable\WeaponTableComponent.cpp" />
     <ClCompile Include="Scripts\Stats\Weapon\WeaponStats.cpp" />
     <ClCompile Include="Scripts\Test\Component\TestComponent.cpp" />
     <ClCompile Include="Scripts\Test\UI\TestUI.cpp" />
