@@ -4,7 +4,7 @@
 
 MeshComponent::MeshComponent() 
     : 
-    Component(Component::TYPE::RENDER),
+    Component(Component::TYPE::MESH),
     Renderer(_pMeshRenderer)
 {
   
