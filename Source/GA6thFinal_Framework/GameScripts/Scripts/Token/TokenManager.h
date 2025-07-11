@@ -110,7 +110,7 @@ private:
     void InitTokenInstance();
 
     /// <summary>
-    /// 토큰 리스트를 정렬합니다. (내림차순)
+    /// 토큰 리스트를 정렬합니다. (오름차순)
     /// </summary>
     void SortByOrder();
 

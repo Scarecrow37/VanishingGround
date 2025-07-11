@@ -242,9 +242,9 @@ void TokenManager::InitTokenInstance()
 }
 
 void TokenManager::SortByOrder() 
-{   // 토큰을 Order에 따라 내림차순으로 정렬합니다.
+{   // 토큰을 Order에 따라 오름차순 정렬합니다.
     std::sort(_tokenInstances.begin(), _tokenInstances.end(),
-              [](Token* a, Token* b) { return a->GetTokenOrder() > b->GetTokenOrder(); 
+              [](Token* a, Token* b) { return a->GetTokenOrder() < b->GetTokenOrder(); 
         });
 }
 
