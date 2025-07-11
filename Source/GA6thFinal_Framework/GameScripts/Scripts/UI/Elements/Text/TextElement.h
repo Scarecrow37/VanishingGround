@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "../../Base/UIComponent.h"
+#include "../../Base/UIComponent/UIComponent.h"
 
 class TextElement : public UIComponent
 {

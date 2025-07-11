@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "../Base/UIComponent.h"
+#include "UI/Base/PanelSlotComponent/PanelSlotComponent.h"
 
 class UIRoot : public UIComponent
 {
@@ -10,9 +10,24 @@ public:
 
 protected:
     REFLECT_FIELDS_BEGIN(UIComponent)
-
     REFLECT_FIELDS_END(UIRoot)
 
+    void OnDrawDebug() override;
+
+    void OnDrawDebugSelected() override;
+
 private:
-    bool _isShowEditor;
+    SIZE _size;
+};
+
+class UIRootSlot : public PanelSlotComponent
+{
+    USING_PROPERTY(UIRootSlot)
+
+public:
+    UIRootSlot();
+
+protected:
+    REFLECT_FIELDS_BEGIN(PanelSlotComponent)
+    REFLECT_FIELDS_END(UIRootSlot)
 };

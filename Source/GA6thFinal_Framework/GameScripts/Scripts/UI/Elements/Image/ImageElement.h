@@ -1,7 +1,7 @@
 ﻿#pragma once
-#include "../../Base/UIComponent.h"
+#include "UI/Base/AreaUIComponent/AreaUIComponent.h"
 
-class ImageElement : public UIComponent
+class ImageElement : public AreaUIComponent
 {
     USING_PROPERTY(ImageElement)
 
@@ -18,7 +18,7 @@ public:
     PROPERTY(FilePath)
 
 protected:
-    REFLECT_FIELDS_BEGIN(UIComponent)
+    REFLECT_FIELDS_BEGIN(AreaUIComponent)
     std::string Guid;
     REFLECT_FIELDS_END(ImageElement)
 

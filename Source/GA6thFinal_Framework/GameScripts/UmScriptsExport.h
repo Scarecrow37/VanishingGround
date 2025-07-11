@@ -92,6 +92,9 @@ UMREAL_COMPONENT(TestUI)
 #include "Scripts/UI/UIRoot/UIRoot.h"
 UMREAL_COMPONENT(UIRoot)
 
+#include "Scripts/UI/Elements/Dummy/DummyElement.h"
+UMREAL_COMPONENT(DummyElement)
+
 #include "Scripts/UI/Elements/Image/ImageElement.h"
 UMREAL_COMPONENT(ImageElement)
 

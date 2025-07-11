@@ -423,6 +423,12 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
         }
         if (ImGui::BeginMenu("Elements"))
         {
+            if (ImGui::MenuItem("Dummy Element"))
+            {
+                UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
+                    GameObjectKey, GameObject::Helper::GenerateUniqueName("Dummy Element"), &ui);
+                ui->AddComponent<DummyElement>();
+            }
             if (ImGui::MenuItem("Image Element"))
             {
                 UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(

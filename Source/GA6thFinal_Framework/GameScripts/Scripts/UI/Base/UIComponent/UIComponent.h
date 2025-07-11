@@ -7,21 +7,9 @@ class UIComponent : public Component
 
 public:
     UIComponent();
-    UIComponent(POINT point, SIZE size);
-
-    REFLECT_PROPERTY(Point, Size)
-
-    GETTER(POINT, Point) { return _point; }
-    SETTER(POINT, Point) { _point = value; }
-    PROPERTY(Point)
-
-    GETTER(SIZE, Size) { return _size; }
-    SETTER(SIZE, Size) { _size = value; }
-    PROPERTY(Size)
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)
-
     REFLECT_FIELDS_END(UIComponent)
 
     /// <summary>
@@ -35,14 +23,4 @@ protected:
     /// </summary>
     /// <param name="previousParentGameObject">이전에 연결되어 있던 부모 GameObject에 대한 포인터입니다.</param>
     virtual void OnDetachParent(GameObject* previousParentGameObject) {};
-
-    void OnDrawDebug() override;
-
-    void OnDrawDebugSelected() override;
-
-
-    POINT _point;
-    SIZE  _size;
-
-    bool _isSelected;
 };

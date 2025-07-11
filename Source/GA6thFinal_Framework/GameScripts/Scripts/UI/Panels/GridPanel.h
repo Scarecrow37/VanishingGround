@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "UI/Base/UIComponent.h"
+#include "UI/Base/UIComponent/UIComponent.h"
 
 class GridPanel : public UIComponent
 {
