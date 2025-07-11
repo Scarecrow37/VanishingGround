@@ -114,6 +114,7 @@ void RenderScene::UpdateRenderScene()
     UpdateGlobal();
     UpdateObject();
     UpdateUI();
+    UpdateFont();
 
     ID3D12GraphicsCommandList* commandList = UmDevice.GetCommandList();
 
@@ -298,6 +299,8 @@ void RenderScene::UpdateUI()
 
 void RenderScene::UpdateFont()
 {
+    auto first = std::remove_if(_fontRenderQueue.begin(), _fontRenderQueue.end(), [](const auto& pair) { return *pair.first; });
+    _fontRenderQueue.erase(first, _fontRenderQueue.end());
 }
 
 void RenderScene::CreateRenderTarget()
