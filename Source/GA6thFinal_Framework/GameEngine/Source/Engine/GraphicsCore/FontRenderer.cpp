@@ -3,8 +3,7 @@
 #include "Font.h"
 
 FontRenderer::FontRenderer()
-	: _maxTextLength(0)
-	, _color(1.0f, 1.0f, 1.0f, 1.0f)
+	: _color(1.0f, 1.0f, 1.0f, 1.0f)
 {
 }
 
@@ -21,24 +20,24 @@ void FontRenderer::RegisterComponent()
     UmRenderer.RegisterRenderQueue(this);
 }
 
-void FontRenderer::SetMaxTextLength(const UINT size)
-{
-	_text.resize(size);
-}
-
 void FontRenderer::SetText(std::wstring_view text)
 {
-	if (text.size() > _maxTextLength)
-	{
-		GRAPHICS_ASSERT(false, L"Font text size is too long.");
-		return;
-	}
+    _text = text;
+}
 
-	lstrcpy(_text.data(), text.data());
+void FontRenderer::LoadFont(std::wstring_view filePath)
+{
+    _font = UmResourceManager.LoadResource<Font>(filePath);
 }
 
 void FontRenderer::Draw(SpriteBatch* spriteBatch)
 {
-    auto font = _font->GetFont();
-    font->DrawString(spriteBatch, _text.c_str(), _position, _color, XMConvertToRadians(_rotation), _origin, _scale, SpriteEffects_None, _position.z);
+    if (_font)
+    {
+        auto font = _font->GetFont();
+        if (font)
+        {
+            font->DrawString(spriteBatch, _text.c_str(), _position, _color, XMConvertToRadians(_rotation), _origin, _scale, SpriteEffects_None, _position.z);
+        }
+    }
 }

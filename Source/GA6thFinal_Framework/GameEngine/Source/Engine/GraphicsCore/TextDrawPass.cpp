@@ -2,8 +2,8 @@
 #include "TextDrawPass.h"
 #include "FontRenderer.h"
 
-TextDrawPass::TextDrawPass()
-    : _spriteBatch(nullptr)
+TextDrawPass::TextDrawPass(SpriteBatch* spriteBatch)
+    : _spriteBatch(spriteBatch)
 {
 }
 
@@ -19,7 +19,7 @@ void TextDrawPass::Initialize(RenderScene* ownerScene)
 void TextDrawPass::Begin(ID3D12GraphicsCommandList* commandList)
 {
     auto& depthStencilView = _ownerScene->_depthStencilView;
-    depthStencilView->TransitionResource(commandList, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+    depthStencilView->TransitionResource(commandList, D3D12_RESOURCE_STATE_DEPTH_READ);
 
     if constexpr (IS_EDITOR)
     {
@@ -47,9 +47,5 @@ void TextDrawPass::Draw(ID3D12GraphicsCommandList* commandList)
 }
 
 void TextDrawPass::End(ID3D12GraphicsCommandList* commandList)
-{
-    if constexpr (IS_EDITOR)
-    {
-        _finalRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-    }
+{    
 }

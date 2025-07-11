@@ -218,7 +218,7 @@ void Renderer::Initialize()
 
     // Renderer File Event
     _rendererFileEvent = std::make_unique<RendererFileEvent>();
-    UmFileSystem.RegisterFileEventSubscriber(_rendererFileEvent.get(), {".png", ".dds", ".fbx", ".hdr", ".UmModel"});
+    UmFileSystem.RegisterFileEventSubscriber(_rendererFileEvent.get(), {".png", ".dds", ".fbx", ".hdr", ".UmModel", ".sfont"});
 
     if constexpr (IS_EDITOR)
     {

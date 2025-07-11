@@ -126,15 +126,23 @@ void RenderScene::UpdateRenderScene()
 
 void RenderScene::Execute(ID3D12GraphicsCommandList* commandList)
 {
-    auto descriptorHeap = UmViewManager.GetShaderResourceHeap();
+    auto& graphics       = Global::engineCore->Graphics;
+    auto  descriptorHeap = graphics.ViewManager.GetShaderResourceHeap();
     commandList->SetDescriptorHeaps(1, &descriptorHeap);
 
     _accumulationBuffer->TransitionResource(commandList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
     _accumulationBuffer->ClearUnorderedAccessView(commandList);
 
-    auto meshRenderTarget = UmMultiRenderTargetManager.GetRenderTarget(_meshRenderTargetName);
+    auto meshRenderTarget = graphics.MultiRenderTargetManager.GetRenderTarget(_meshRenderTargetName);
     meshRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
     meshRenderTarget->ClearRenderTarget(commandList);
+
+    const auto& gBuffers = graphics.MultiRenderTargetManager.GetRenderTargetGroup("GBuffer");
+    for (auto& buffer : gBuffers)
+    {
+        buffer->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
+        buffer->ClearRenderTarget(commandList);
+    }
 
     _depthStencilView->TransitionResource(commandList, D3D12_RESOURCE_STATE_DEPTH_WRITE);
     _depthStencilView->ClearDepthStencilView(commandList);
@@ -145,6 +153,7 @@ void RenderScene::Execute(ID3D12GraphicsCommandList* commandList)
     }
 
     _depthStencilView->TransitionResource(commandList, D3D12_RESOURCE_STATE_PRESENT);
+
 }
 
 void RenderScene::ResetSkyBox()

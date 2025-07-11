@@ -41,9 +41,7 @@ void FontTechnique::Initialize(ID3D12GraphicsCommandList* commandList)
             ResourceUploadBatch                 resourceUpload(device.GetDevice());
             resourceUpload.Begin();
 
-            const auto&    mode = device.GetMode();
-            D3D12_VIEWPORT viewport{.Width = (float)mode.Width, .Height = (float)mode.Height, .MaxDepth = 1.f};
-            spriteBatch = std::make_unique<SpriteBatch>(device.GetDevice(), resourceUpload, psd, &viewport);
+            spriteBatch = std::make_unique<SpriteBatch>(device.GetDevice(), resourceUpload, psd);
 
             auto uploadFinish = resourceUpload.End(device.GetCommandQueue());
             uploadFinish.wait();
@@ -58,7 +56,7 @@ void FontTechnique::Initialize(ID3D12GraphicsCommandList* commandList)
     }
 
     std::unique_ptr<RenderPass> pass;
-    pass = std::make_unique<TextDrawPass>();
+    pass = std::make_unique<TextDrawPass>(spriteBatch.get());
     pass->Initialize(_ownerScene);
     AddRenderPass(std::move(pass));
 }
@@ -74,4 +72,10 @@ void FontTechnique::Execute(ID3D12GraphicsCommandList* commandList)
     __super::Execute(commandList);
 
     spriteBatch->End();
+
+    if constexpr (IS_EDITOR)
+    {
+        RenderTarget* renderTarget = UmMultiRenderTargetManager.GetRenderTarget(_ownerScene->_finalTargetName);
+        renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    }
 }

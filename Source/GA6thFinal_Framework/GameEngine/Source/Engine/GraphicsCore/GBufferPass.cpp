@@ -38,18 +38,18 @@ void GBufferPass::Initialize(RenderScene* ownerScene)
         renderTarget->Initialize(mode, 0.f);
         renderTargetManager.AddRenderTarget(*(first + GBuffer::CUSTOMDEPTH), renderTarget);
 
-        renderTargetManager.AddRenderTargetGroup("GBuffer", renderTargetNames);
-
-        const auto&                gBufferGroup = renderTargetManager.GetRenderTargetGroup("GBuffer");
-        ID3D12GraphicsCommandList* commandList  = UmDevice.GetCommandList();
-
-        for (UINT i = 0; i < GBuffer::GBUFFER_END; i++)
-        {
-            gBufferGroup[i]->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-            _gBufferHandles[i] = gBufferGroup[i]->GetRTVHandle();
-        }
+        renderTargetManager.AddRenderTargetGroup("GBuffer", renderTargetNames);        
 
         isInitialized = true;
+    }
+
+    const auto&                gBufferGroup = UmMultiRenderTargetManager.GetRenderTargetGroup("GBuffer");
+    ID3D12GraphicsCommandList* commandList  = UmDevice.GetCommandList();
+
+    for (UINT i = 0; i < GBuffer::GBUFFER_END; i++)
+    {
+        gBufferGroup[i]->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+        _gBufferHandles[i] = gBufferGroup[i]->GetRTVHandle();
     }
 
     __super::Initialize(ownerScene);
@@ -58,15 +58,7 @@ void GBufferPass::Initialize(RenderScene* ownerScene)
 
 void GBufferPass::Begin(ID3D12GraphicsCommandList* commandList)
 {
-    // GBuffer -> RENDER_TARGET 전이 + Clear
     const auto& gBufferGroup = UmMultiRenderTargetManager.GetRenderTargetGroup("GBuffer");
-
-    for (UINT i = 0; i < GBuffer::GBUFFER_END; i++)
-    {
-        gBufferGroup[i]->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
-        gBufferGroup[i]->ClearRenderTarget(commandList);
-        _gBufferHandles[i] = gBufferGroup[i]->GetRTVHandle();
-    }
 
     commandList->OMSetRenderTargets(GBuffer::GBUFFER_END, _gBufferHandles.data(), FALSE, &_ownerScene->_depthStencilView->GetDSVHandle());
     commandList->RSSetViewports(1, &gBufferGroup[0]->GetViewPort());

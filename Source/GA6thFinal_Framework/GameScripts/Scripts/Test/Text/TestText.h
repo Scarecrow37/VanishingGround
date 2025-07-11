@@ -6,7 +6,9 @@ class TestText : public Component
 {
     USING_PROPERTY(TestText)
 public:
-    REFLECT_PROPERTY()
+    REFLECT_PROPERTY(FilePath)
+    GETTER_ONLY(std::string, FilePath) { return _guidRef.ToPath().string(); }
+    PROPERTY(FilePath)
 
 public:
     TestText();

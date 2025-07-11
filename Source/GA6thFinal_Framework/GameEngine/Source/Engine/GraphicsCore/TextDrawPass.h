@@ -4,7 +4,7 @@
 class TextDrawPass : public RenderPass
 {
 public:
-    TextDrawPass();
+    TextDrawPass(SpriteBatch* spriteBatch);
     virtual ~TextDrawPass();
 
 public:
