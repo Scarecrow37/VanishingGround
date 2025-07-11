@@ -80,7 +80,7 @@ UMREAL_COMPONENT(InputTestComponent)
 #include "Scripts\Timeline/AnimationEventListener.h"
 UMREAL_COMPONENT(AnimationEventListener)
 
-#include "Scripts\Stats/WeaponTable/WeaponTableComponent.h"
+#include "Scripts\WeaponSystem/WeaponTable/WeaponTableComponent.h"
 UMREAL_COMPONENT(WeaponTableComponent)
 
 #include "Scripts\Test/DevTools/FPSCounter.h"
