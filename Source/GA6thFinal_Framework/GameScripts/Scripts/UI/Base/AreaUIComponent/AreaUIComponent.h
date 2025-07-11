@@ -21,7 +21,6 @@ public:
 
 protected:
     REFLECT_FIELDS_BEGIN(UIComponent)
-
     REFLECT_FIELDS_END(AreaUIComponent)
 
     void OnDrawDebug() override;
