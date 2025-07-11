@@ -39,7 +39,7 @@ bool RevelationSystem::EraseElement(std::string_view elementName)
 
 void RevelationSystem::DrawImGuiElementTableEditor() 
 {
-    if (ImGui::BeginTable("Weapon Stats", 8, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+    if (ImGui::BeginTable("Revelation Stats", 8, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
     {                      
         ImGui::TableSetupColumn("ImageGuid");
         ImGui::TableSetupColumn("Name");
