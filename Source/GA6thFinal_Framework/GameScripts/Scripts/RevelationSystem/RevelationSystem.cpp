@@ -7,6 +7,36 @@ RevelationSystem::RevelationSystem()
 }
 RevelationSystem::~RevelationSystem() = default;
 
+std::unique_ptr<RevelationElement> RevelationSystem::EquipPlayerElement(int slot, const RevelationElement& element)
+{
+    std::unique_ptr<RevelationElement> prevElement = std::move(_playerElementList[slot]);
+    _playerElementList[slot].reset(new RevelationElement(element));
+    return prevElement;
+}
+
+void RevelationSystem::RollRoundElement() 
+{
+    _roundElementList.clear();
+
+    //실제 존재하는 계시만 리스트에 넣는다
+    for (auto& element : _playerElementList)
+    {
+        if (element)
+        {
+            _roundElementList.push_back(element.get());
+        }
+    }
+
+    //랜덤 셔플
+    std::ranges::shuffle(_roundElementList, Random::GetEngine());
+
+    //사용 가능한 개수만 남긴다.
+    if (ReflectFields->RevelationsPerRound < _roundElementList.size())
+    {
+        _roundElementList.resize(ReflectFields->RevelationsPerRound);
+    }  
+}
+
 bool RevelationSystem::InsertElement(const RevelationElement& element) 
 {
     std::string_view key      = element.Name;
@@ -371,6 +401,7 @@ void RevelationSystem::ImGuiDrawPropertysEvent()
     }
 
     ImGuiDrawPlayerElementEditor();
+    ImGuiDrawRoundElementList();
 }
 
 void RevelationSystem::Reset()
@@ -401,12 +432,13 @@ void RevelationSystem::ResetActions()
 
 void RevelationSystem::ImGuiDrawPlayerElementEditor() 
 {
+    auto TreeToolTip = []() { ImGuiHelper::HoveredToolTip(u8"플레이어가 장착중인 계시 리스트 입니다."); };
     if (ImGui::TreeNodeEx("Player Elements", ImGuiTreeNodeFlags_DefaultOpen))
     {
+        TreeToolTip();
         for (auto& element : _playerElementList)
         {
             ImGui::PushID(&element);
-            ImGui::Separator();    
             std::string_view name = STR_NULL;
             bool elementEmpty = element == nullptr;
             if (false == elementEmpty)
@@ -433,9 +465,43 @@ void RevelationSystem::ImGuiDrawPlayerElementEditor()
             {
                 ImGui::PopStyleColor();
             }     
-            ImGui::Separator();
             ImGui::PopID();
         }
         ImGui::TreePop();
+    }
+    else
+    {
+        TreeToolTip();
+    }
+}
+
+void RevelationSystem::ImGuiDrawRoundElementList()
+{
+    auto TreeToolTip = []() { ImGuiHelper::HoveredToolTip(u8"현재 활성화된 계시 항목 입니다."); };
+    auto RollButton = [this]() 
+    {
+        ImGui::SameLine();
+        if (ImGui::Button("Roll Round Elements"))
+        {
+            RollRoundElement();
+        }
+        ImGuiHelper::HoveredToolTip(u8"랜덤으로 계시를 뽑습니다.");
+    };
+    if (ImGui::TreeNodeEx("Round Elements", ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        RollButton();
+        for (auto& element : _roundElementList)
+        {
+            std::string_view name = element->Name;
+            ImGui::PushStyleColor(ImGuiCol_Text, element->GetGradeColor());
+            ImGui::Text(name.data());
+            ImGui::Separator();
+            ImGui::PopStyleColor();
+        }
+        ImGui::TreePop();
+    }
+    else
+    {
+        RollButton();
     }
 }

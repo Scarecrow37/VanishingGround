@@ -26,12 +26,31 @@ public:
     ~RevelationSystem() override;
 
 public:
+    /// <summary>
+    /// 특정 슬롯에 Element를 장착합니다.
+    /// </summary>
+    /// <param name="slot :">장착할 슬롯</param>
+    /// <param name="element :">장비 정보</param>
+    /// <returns>기존 장착된 장비. 없으면 nullptr</returns>
+    std::unique_ptr<RevelationElement> EquipPlayerElement(int slot, const RevelationElement& element);
+
+    /// <summary>
+    /// 이번 라운드 활성화 계시를 랜덤으로 뽑습니다.
+    /// </summary>
+    void RollRoundElement();
+
+    /// <summary>
+    /// 이번 라운드에 활성화된 계시 항목을 반환합니다.
+    /// </summary>
+    /// <returns></returns>
+    const std::vector<RevelationElement*>& GetRoundElementList() { return _roundElementList; }
+
+public:
     const std::unordered_map<std::string, std::function<RevelationActionBase* ()>>& GetActionFactory()
     {
         return _actionConstructors;
     }
-    
-
+     
     /// <summary>
     /// 새로운 Element를 테이블에 추가합니다.
     /// </summary>
@@ -109,6 +128,7 @@ public:
     GETTER(int, MaxRevelations) { return ReflectFields->MaxRevelations; }
     SETTER(int, MaxRevelations) 
     { 
+        _roundElementList.clear();
         ReflectFields->MaxRevelations = std::max(value, 1); 
         _playerElementList.resize(ReflectFields->MaxRevelations);
     }
@@ -116,7 +136,10 @@ public:
     PROPERTY(MaxRevelations)
 
     GETTER(int, RevelationsPerRound) { return ReflectFields->RevelationsPerRound; }
-    SETTER(int, RevelationsPerRound) { ReflectFields->RevelationsPerRound = value; }
+    SETTER(int, RevelationsPerRound) 
+    { 
+        ReflectFields->RevelationsPerRound = std::max(value, 1);
+    }
     // 라운드당 뽑는 계시 개수
     PROPERTY(RevelationsPerRound)
 
@@ -169,9 +192,11 @@ private:
     void ResetActions();
 
 private:
-    std::vector<std::unique_ptr<RevelationElement>> _playerElementList; // 플레이어가 사용중인 계시
+    std::vector<std::unique_ptr<RevelationElement>> _playerElementList; // 플레이어가 사용중인 계시 (인벤토리)
+    std::vector<RevelationElement*>                 _roundElementList; //이번 라운드에 효과가 발동된 계시 (뽑힌 계시)
 
 private:
     void ImGuiDrawPlayerElementEditor();
+    void ImGuiDrawRoundElementList();
 
 };
