@@ -1,16 +1,20 @@
 ﻿#include "pchScripts.h"
 #include "RevelationSystem.h"
-RevelationSystem::RevelationSystem() = default;
+RevelationSystem::RevelationSystem() 
+{
+    MaxRevelations.SetInputAutoEvent([]() { ImGuiHelper::HoveredToolTip(u8"최대 계시 수용량"); });
+    RevelationsPerRound.SetInputAutoEvent([]() { ImGuiHelper::HoveredToolTip(u8"라운드당 뽑는 계시 개수"); });
+}
 RevelationSystem::~RevelationSystem() = default;
 
 bool RevelationSystem::InsertElement(const RevelationElement& element) 
 {
     std::string_view key      = element.Name;
     bool             result   = false;
-    auto             findIter = _elements.find(key.data());
-    if (findIter == _elements.end())
+    auto             findIter = _elementsTable.find(key.data());
+    if (findIter == _elementsTable.end())
     {
-        RevelationElement& myElement = _elements[key.data()];
+        RevelationElement& myElement = _elementsTable[key.data()];
         myElement                    = element;
         result                       = true;
     }
@@ -24,10 +28,10 @@ bool RevelationSystem::InsertElement(const RevelationElement& element)
 bool RevelationSystem::EraseElement(std::string_view elementName)
 {
     bool result   = false;
-    auto findIter = _elements.find(elementName.data());
-    if (findIter != _elements.end())
+    auto findIter = _elementsTable.find(elementName.data());
+    if (findIter != _elementsTable.end())
     {
-        _elements.erase(findIter);
+        _elementsTable.erase(findIter);
         result = true;
     }
     else
@@ -51,7 +55,7 @@ void RevelationSystem::DrawImGuiElementTableEditor()
         ImGui::TableSetupColumn("Action");
         ImGui::TableHeadersRow();
 
-        for (auto& [key, element] : _elements)
+        for (auto& [key, element] : _elementsTable)
         {
             auto RightClickContext = [&]() {
                 if (ImGui::BeginPopupContextItem())
@@ -176,7 +180,7 @@ void RevelationSystem::DrawImGuiElementTableEditor()
 void RevelationSystem::ActionsToActionDatas() 
 {
     ReflectFields->RevelationActionDatas.clear();
-    for (auto& [key, element] : _elements)
+    for (auto& [key, element] : _elementsTable)
     {
         if (auto action = element.GetAction())
         {
@@ -188,7 +192,7 @@ void RevelationSystem::ActionsToActionDatas()
 
 void RevelationSystem::ActionDatasToActions()
 {
-    for (auto& [key, element] : _elements)
+    for (auto& [key, element] : _elementsTable)
     {
         if (auto action = element.GetAction())
         {
@@ -201,7 +205,7 @@ void RevelationSystem::ActionDatasToActions()
 void RevelationSystem::ElementsToElementDatas() 
 {
     ReflectFields->RevelationElementDatas.clear();
-    for (auto& [key, element] : _elements)
+    for (auto& [key, element] : _elementsTable)
     {
         std::string data = element.SerializedReflectFields();
         ReflectFields->RevelationElementDatas.emplace_back(data);
@@ -210,7 +214,7 @@ void RevelationSystem::ElementsToElementDatas()
 
 void RevelationSystem::ElementDatasToElements() 
 {
-    _elements.clear();
+    _elementsTable.clear();
     for (auto& data : ReflectFields->RevelationElementDatas)
     {
         RevelationElement element;
@@ -220,16 +224,56 @@ void RevelationSystem::ElementDatasToElements()
     }
 }
 
+void RevelationSystem::PlayerElementDatasToPlayerElements() 
+{
+    _playerElementList.resize(ReflectFields->MaxRevelations);
+    for (size_t i = 0; i < ReflectFields->PlayerElementDatas.size(); i++)
+    {
+        std::string_view data = ReflectFields->PlayerElementDatas[i];
+        if (i < _playerElementList.size())
+        {
+            if (data != STR_NULL)
+            {
+                auto findIter = _elementsTable.find(data.data());
+                if (findIter != _elementsTable.end())
+                {
+                    _playerElementList[i].reset(new RevelationElement(findIter->second));
+                }      
+            }   
+        }
+    }
+
+}
+
+void RevelationSystem::PlayerElementsToPlayerElementDatas() 
+{
+    ReflectFields->PlayerElementDatas.clear();
+    for (auto& playerElement : _playerElementList)
+    {
+        if (playerElement)
+        {
+            std::string_view name = playerElement->Name;
+            ReflectFields->PlayerElementDatas.emplace_back(name.data());
+        }
+        else
+        {
+            ReflectFields->PlayerElementDatas.emplace_back(STR_NULL);
+        }
+    }
+}
+
 void RevelationSystem::SerializedReflectEvent()
 {
     ElementsToElementDatas();
     ActionsToActionDatas();
+    PlayerElementsToPlayerElementDatas();
 }
 
 void RevelationSystem::DeserializedReflectEvent() 
 {
     ElementDatasToElements();
     ActionDatasToActions();
+    PlayerElementDatasToPlayerElements();
 }
 
 void RevelationSystem::ImGuiDrawPropertysEvent() 
@@ -325,6 +369,8 @@ void RevelationSystem::ImGuiDrawPropertysEvent()
         }
         ImGui::End();
     }
+
+    ImGuiDrawPlayerElementEditor();
 }
 
 void RevelationSystem::Reset()
@@ -350,5 +396,46 @@ void RevelationSystem::ResetActions()
             UmLogger.Log(LogLevel::LEVEL_WARNING, message);
         }
         _actionConstructors[name.data()] = func;
+    }
+}
+
+void RevelationSystem::ImGuiDrawPlayerElementEditor() 
+{
+    if (ImGui::TreeNodeEx("Player Elements", ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        for (auto& element : _playerElementList)
+        {
+            ImGui::PushID(&element);
+            ImGui::Separator();    
+            std::string_view name = STR_NULL;
+            bool elementEmpty = element == nullptr;
+            if (false == elementEmpty)
+            {
+                ImGui::PushStyleColor(ImGuiCol_Text, element->GetGradeColor());
+                name = element->Name;
+            }
+            if (ImGui::BeginCombo("##5794D456-E0A6-4F6C-844B-07D94A6401C6", name.data()))
+            {
+                if (ImGui::Selectable(STR_NULL))
+                {
+                    element.reset();
+                }
+                for (auto& [key, tableElement] : _elementsTable)
+                {
+                    if (ImGui::Selectable(key.data()))
+                    {
+                        element.reset(new RevelationElement(tableElement));
+                    }
+                }
+                ImGui::EndCombo();
+            }
+            if (false == elementEmpty)
+            {
+                ImGui::PopStyleColor();
+            }     
+            ImGui::Separator();
+            ImGui::PopID();
+        }
+        ImGui::TreePop();
     }
 }
