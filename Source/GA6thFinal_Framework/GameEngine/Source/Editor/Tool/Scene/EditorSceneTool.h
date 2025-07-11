@@ -130,7 +130,8 @@ public:
         ReflectFields->CameraNearZ,
         ReflectFields->CameraFarZ, 
         ReflectFields->CameraRotateSpeed, 
-        ReflectFields->CameraPivot
+        ReflectFields->CameraPivot, 
+        ReflectFields->CameraMoveSpeed
         )
 
     void UpdateCameraSetting();
