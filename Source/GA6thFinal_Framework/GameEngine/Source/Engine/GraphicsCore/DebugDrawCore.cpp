@@ -49,6 +49,11 @@ void DebugDrawCore::Draw(const std::string_view sceneName, const DebugQuad& quad
     _drawDatas[sceneName].first.emplace_back(ShapeType::QUAD, color, quad);
 }
 
+void DebugDrawCore::Draw(const std::string_view sceneName, const DebugLine& line, FXMVECTOR color)
+{
+    _drawDatas[sceneName].first.emplace_back(ShapeType::LINE, color, line);
+}
+
 void DebugDrawCore::Initialize()
 {
     RenderTargetState              rtState(DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_D24_UNORM_S8_UINT);
@@ -132,9 +137,9 @@ void DebugDrawCore::Render()
     UmDevice.RegisterCommand(_commandList.Get(), CommandListType::DEBUG_RENDER_LIST);
 }
 
-void DebugDrawCore::Draw2D(const std::vector<DrawData>& drawDatas) const
+void DebugDrawCore::Draw2D(const std::vector<DrawData>& drawData) const
 {
-    for (const auto& data : drawDatas)
+    for (const auto& data : drawData)
     {
         const XMVECTOR color = XMLoadFloat4(&data.Color);
         switch (data.Type)
@@ -148,15 +153,22 @@ void DebugDrawCore::Draw2D(const std::vector<DrawData>& drawDatas) const
             ::DrawQuad(_primitiveBatch.get(), pointA, pointB, pointC, pointD, color);
             break;
         }
+        case ShapeType::LINE: {
+            const auto&    line   = std::get<DebugLine>(data.Shape);
+            const XMVECTOR pointA = XMLoadFloat3(&line.PointA);
+            const XMVECTOR pointB = XMLoadFloat3(&line.PointB);
+            ::DrawLine(_primitiveBatch.get(), pointA, pointB, color);
+            break;
+        }
         default:
             break;
         }
     }
 }
 
-void DebugDrawCore::Draw3D(const std::vector<DrawData>& drawDatas) const
+void DebugDrawCore::Draw3D(const std::vector<DrawData>& drawData) const
 {
-    for (const auto& data : drawDatas)
+    for (const auto& data : drawData)
     {
         XMVECTOR color = XMLoadFloat4(&data.Color);
         switch (data.Type)

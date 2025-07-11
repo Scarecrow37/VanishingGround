@@ -11,7 +11,8 @@ class DebugDrawCore
         RING,
         RAY,
         SPOT_LIGHT,
-        QUAD
+        QUAD,
+        LINE,
     };
 
     struct DebugRing
@@ -77,8 +78,19 @@ class DebugDrawCore
         }
     };
 
+    struct DebugLine
+    {
+        XMFLOAT3 PointA;
+        XMFLOAT3 PointB;
+        DebugLine(FXMVECTOR pointA, FXMVECTOR pointB)
+        {
+            XMStoreFloat3(&PointA, pointA);
+            XMStoreFloat3(&PointB, pointB);
+        }
+    };
+
     using DrawShape = std::variant<BoundingSphere, BoundingBox, BoundingOrientedBox, BoundingFrustum, DebugRing,
-                                   DebugRay, DebugSpotLight, DebugQuad>;
+                                   DebugRay, DebugSpotLight, DebugQuad, DebugLine>;
     struct DrawData
     {
         ShapeType Type;
@@ -110,14 +122,16 @@ public:
                                    float innerCone, float outerCone, FXMVECTOR color = DirectX::Colors::White);
     void XM_CALLCONV Draw(std::string_view sceneName, const DebugQuad& quad, FXMVECTOR color = DirectX::Colors::White);
 
+    void XM_CALLCONV Draw(std::string_view sceneName, const DebugLine& line, FXMVECTOR color = DirectX::Colors::White);
+
 public:
     void Initialize();
     void Render();
 
 
 private:
-    void Draw2D(const std::vector<DrawData>& drawDatas) const;
-    void Draw3D(const std::vector<DrawData>& drawDatas) const;
+    void Draw2D(const std::vector<DrawData>& drawData) const;
+    void Draw3D(const std::vector<DrawData>& drawData) const;
 
 private:
     std::unordered_map<std::string_view, std::pair<std::vector<DrawData>, std::vector<DrawData>>> _drawDatas;
