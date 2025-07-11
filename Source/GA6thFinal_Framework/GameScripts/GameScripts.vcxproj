@@ -386,7 +386,6 @@
     <ClInclude Include="Scripts\WeaponSystem\WeaponSystem.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Scripts\RevelationSystem\RevelationAction\Base\RevelationActionBase.cpp" />
     <ClCompile Include="Scripts\RevelationSystem\RevelationSystem.cpp" />
     <ClCompile Include="Scripts\RevelationSystem\RevelationElement\RevelationElement.cpp" />
     <ClCompile Include="Scripts\Token\Object\Bleed\Bleed1Token.cpp" />

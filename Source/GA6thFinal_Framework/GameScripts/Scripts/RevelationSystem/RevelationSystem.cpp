@@ -200,16 +200,19 @@ void RevelationSystem::ElementsToElementDatas()
     for (auto& [key, element] : _elements)
     {
         std::string data = element.SerializedReflectFields();
-        ReflectFields->RevelationElementDatas.emplace_back(key, data);
+        ReflectFields->RevelationElementDatas.emplace_back(data);
     }
 }
 
 void RevelationSystem::ElementDatasToElements() 
 {
     _elements.clear();
-    for (auto& [key, data] : ReflectFields->RevelationElementDatas)
+    for (auto& data : ReflectFields->RevelationElementDatas)
     {
-        _elements[key].DeserializedReflectFields(data);
+        RevelationElement element;
+        element.DeserializedReflectFields(data);
+        std::string_view key = element.Name;
+        InsertElement(element);
     }
 }
 

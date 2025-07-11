@@ -273,7 +273,7 @@
     <ClInclude Include="Scripts\RevelationSystem\RevelationSystem.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Scripts\RevelationSystem\Revelation\Revelation.h">
+    <ClInclude Include="Scripts\RevelationSystem\RevelationElement\RevelationElement.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -500,10 +500,10 @@
     <ClCompile Include="Scripts\WeaponSystem\WeaponSystem.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\RevelationSystem\RevelationAction\Base\RevelationActionBase.cpp">
+    <ClCompile Include="Scripts\RevelationSystem\RevelationSystem.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\RevelationSystem\RevelationSystem.cpp">
+    <ClCompile Include="Scripts\RevelationSystem\RevelationElement\RevelationElement.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
