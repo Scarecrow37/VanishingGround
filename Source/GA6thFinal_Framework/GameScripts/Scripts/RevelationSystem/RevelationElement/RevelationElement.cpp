@@ -71,11 +71,14 @@ void RevelationElement::DeepCopyAction(const RevelationActionBase& action)
     std::string_view  actionName    = action.Name;
     auto              iter          = actionFactory.find(actionName.data());
 
-    if (iter != actionFactory.end())
+    if (system)
     {
-        _action.reset(iter->second());
-        RevelationActionBase& rhs  = const_cast<RevelationActionBase&>(action);
-        std::string           data = rhs.SerializedReflectFields();
-        _action->DeserializedReflectFields(data);
+        if (iter != actionFactory.end())
+        {
+            _action.reset(iter->second());
+            RevelationActionBase& rhs  = const_cast<RevelationActionBase&>(action);
+            std::string           data = rhs.SerializedReflectFields();
+            _action->DeserializedReflectFields(data);
+        }
     }
 }
