@@ -12,4 +12,6 @@ public:
 protected:
     REFLECT_FIELDS_BEGIN(UIComponent)
     REFLECT_FIELDS_END(PanelSlotComponent)
+
+    void OnDetachParent(GameObject* previousParentGameObject) override;
 };
