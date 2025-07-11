@@ -70,7 +70,7 @@ void ImageElement::LoadTexture()
         {
             const std::wstring filePath = U8ToWString(path);
             _renderer->LoadTexture(filePath);
-            _size = _renderer->GetSize();
+            Size = _renderer->GetSize();
         }
     }
 }

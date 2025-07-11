@@ -1,20 +1,22 @@
 ﻿#include "pchScripts.h"
 #include "AreaUIComponent.h"
 
-AreaUIComponent::AreaUIComponent() : _point{0, 0}, _size{200, 100}
-{
-}
+AreaUIComponent::AreaUIComponent() = default;
 
 void AreaUIComponent::OnDrawDebug()
 {
     UIComponent::OnDrawDebug();
-    UmDebugDrawCore.Draw("Editor", {_point, _size});
+    const POINT point = Point;
+    const SIZE size = Size;
+    UmDebugDrawCore.Draw("Editor", {point, size});
 }
 
 void AreaUIComponent::OnDrawDebugSelected()
 {
     UIComponent::OnDrawDebugSelected();
-    UmDebugDrawCore.Draw("Editor", {_point, _size}, DirectX::Colors::Yellow);
+    const POINT point = Point;
+    const SIZE  size  = Size;
+    UmDebugDrawCore.Draw("Editor", {point, size}, DirectX::Colors::Yellow);
 }
 
 void AreaUIComponent::ImGuiDrawPropertysEvent()

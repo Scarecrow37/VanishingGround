@@ -21,7 +21,7 @@ public:
 protected:
     REFLECT_FIELDS_BEGIN(AreaUIComponent)
     unsigned int Columns = 1;
-    unsigned int Rows = 1;
+    unsigned int Rows    = 1;
     REFLECT_FIELDS_END(GridPanel)
 
     void OnAttachChild(GameObject* childGameObject) override;
@@ -30,21 +30,49 @@ protected:
 
     void OnDrawDebugSelected() override;
 
+    void Reset() override;
+
 private:
     void DrawLine(FXMVECTOR color) const;
-
 };
 
 class GridPanelSlot : public PanelSlotComponent
 {
+    friend GridPanel;
     USING_PROPERTY(GridPanelSlot)
 public:
-    GridPanelSlot()           = default;
-    ~GridPanelSlot() override = default;
+    GridPanelSlot();
 
-    REFLECT_PROPERTY()
+    REFLECT_PROPERTY(Column, Row)
+
+    GETTER(unsigned int, Column) { return ReflectFields->Column; }
+    SETTER(unsigned int, Column)
+    {
+        if (nullptr == _gridPanel)
+            return;
+        const unsigned int columns = _gridPanel->Columns;
+        ReflectFields->Column      = std::clamp(value, 0u, columns - 1);
+    }
+    PROPERTY(Column)
+
+    GETTER(unsigned int, Row) { return ReflectFields->Row; }
+    SETTER(unsigned int, Row)
+    {
+        if (nullptr == _gridPanel)
+            return;
+        const unsigned int rows = _gridPanel->Rows;
+        ReflectFields->Row      = std::clamp(value, 0u, rows - 1);
+    }
+    PROPERTY(Row)
 
 protected:
     REFLECT_FIELDS_BEGIN(PanelSlotComponent)
+    unsigned int Column = 0;
+    unsigned int Row    = 0;
     REFLECT_FIELDS_END(GridPanelSlot)
+
+private:
+    void SetGridPanel(GridPanel* gridPanel);
+
+    GridPanel* _gridPanel;
 };
