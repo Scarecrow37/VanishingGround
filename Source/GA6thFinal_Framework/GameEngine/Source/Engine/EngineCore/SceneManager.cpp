@@ -998,7 +998,7 @@ void ESceneManager::ObjectsAddRuntime()
             std::shared_ptr<Camera> newCamera(new Camera);
             camera->SetTarget(newCamera);
         }
-        else if (component->_type == Component::TYPE::RENDER)
+        else if (component->_type == Component::TYPE::MESH)
         {
             auto sptrComponent = component->GetWeakPtr().lock();
             UmSceneManager._runtimeMeshComponents.push_back(std::static_pointer_cast<MeshComponent>(sptrComponent));

@@ -261,7 +261,7 @@ void EditorHierarchyTool::SetFocusObject(const std::weak_ptr<GameObject>& object
         for (int i = 0; i < prevFocus->GetComponentCount(); ++i)
         {
             Component* component = prevFocus->GetComponentAtIndex<Component>(i);
-            if (component->GetType() == Component::TYPE::RENDER)
+            if (component->GetType() == Component::TYPE::MESH)
             {
                 MeshComponent* mesh = static_cast<MeshComponent*>(component);
                 mesh->Renderer->OffCustomDepth(PostProcess::OUTLINE);
@@ -277,7 +277,7 @@ void EditorHierarchyTool::SetFocusObject(const std::weak_ptr<GameObject>& object
         for (int i = 0; i < focus->GetComponentCount(); ++i)
         {
             Component* component = focus->GetComponentAtIndex<Component>(i);
-            if (component->GetType() == Component::TYPE::RENDER)
+            if (component->GetType() == Component::TYPE::MESH)
             {
                 MeshComponent* mesh = static_cast<MeshComponent*>(component);
                 mesh->Renderer->OnCustomDepth(PostProcess::OUTLINE);
