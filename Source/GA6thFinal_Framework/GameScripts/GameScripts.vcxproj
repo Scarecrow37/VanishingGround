@@ -298,6 +298,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Scripts\RevelationSystem\RevelationAction\Base\RevelationActionBase.h" />
+    <ClInclude Include="Scripts\RevelationSystem\RevelationElement\RevelationElement.h" />
+    <ClInclude Include="Scripts\RevelationSystem\RevelationSystem.h" />
     <ClInclude Include="Scripts\Token\Object\Poison\PoisonToken.h" />
     <ClInclude Include="Scripts\Interface\ITriggerType.h" />
     <ClInclude Include="Scripts\Token\Object\Bleed\BleedToken.h" />
@@ -386,6 +389,8 @@
     <ClInclude Include="Scripts\WeaponSystem\WeaponSystem.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Scripts\RevelationSystem\RevelationElement\RevelationElement.cpp" />
+    <ClCompile Include="Scripts\RevelationSystem\RevelationSystem.cpp" />
     <ClCompile Include="Scripts\Token\Object\Poison\PoisonToken.cpp" />
     <ClCompile Include="Scripts\Token\Object\Bleed\BleedToken.cpp" />
     <ClCompile Include="dllmain.cpp">
