@@ -10,12 +10,12 @@ SpriteRenderer::SpriteRenderer(const Matrix& world, SpriteType type)
 
 SpriteRenderer::~SpriteRenderer() {}
 
-void SpriteRenderer::RegisterRenderQueue(std::string_view sceneName)
+void SpriteRenderer::RegisterComponent(std::string_view sceneName)
 {
     UmRenderer.RegisterRenderQueue(sceneName, this);
 }
 
-void SpriteRenderer::RegisterRenderQueue()
+void SpriteRenderer::RegisterComponent()
 {
     UmRenderer.RegisterRenderQueue(this);
 }

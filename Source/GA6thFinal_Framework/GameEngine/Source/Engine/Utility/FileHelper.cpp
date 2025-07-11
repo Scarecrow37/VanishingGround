@@ -391,4 +391,27 @@ namespace File
         return result;
     }
 
+    std::wstring_view GetDesktopPath()
+    {
+        static std::wstring desktopPath;
+        if (true == desktopPath.empty())
+        {
+            PWSTR   pszPath = NULL; // 경로를 저장할 와이드 문자열 포인터
+            HRESULT hr      = SHGetKnownFolderPath(FOLDERID_Desktop, 0, NULL, &pszPath);
+            if (SUCCEEDED(hr))
+            {
+                desktopPath = pszPath;
+            }
+            else
+            {
+                desktopPath = L"C:";
+            }
+
+            if (pszPath)
+            {
+                CoTaskMemFree(pszPath);
+            }
+        }
+        return desktopPath;
+    }
 } // namespace File

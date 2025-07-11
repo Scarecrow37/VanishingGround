@@ -12,12 +12,13 @@
 #include "Sphere.h"
 
 // Techniques
-#include "PBRLitTechnique.h"
-#include "SkyBoxRenderTechnique.h"
-#include "BloomTechnique.h"
 #include "BlendTechnique.h"
-#include "ParticleRenderTechnique.h"
+#include "BloomTechnique.h"
 #include "EditorDrawTechnique.h"
+#include "FontTechnique.h"
+#include "PBRLitTechnique.h"
+#include "ParticleRenderTechnique.h"
+#include "SkyBoxRenderTechnique.h"
 #include "UITechnique.h"
 
 Renderer::Renderer()
@@ -130,6 +131,29 @@ void Renderer::RegisterRenderQueue(SpriteRenderer* component)
     }
 }
 
+void Renderer::RegisterRenderQueue(std::string_view sceneName, FontRenderer* component)
+{
+    auto iter = _renderScenes.find(sceneName.data());
+
+    if (iter == _renderScenes.end())
+    {
+        GRAPHICS_ASSERT(false, L"Renderer::RegisterRenderQueue : Render Scene Not Registered.");
+    }
+
+    auto& scene = iter->second;
+    scene->RegisterOnRenderQueue(component);
+}
+
+void Renderer::RegisterRenderQueue(FontRenderer* component)
+{
+    RegisterRenderQueue("Game", component);
+
+    if constexpr (IS_EDITOR)
+    {
+        RegisterRenderQueue("Editor", component);
+    }
+}
+
 void Renderer::SetSkyBox(std::string_view sceneName, std::string_view path) 
 {
     auto iter = _renderScenes.find(sceneName.data());
@@ -188,11 +212,13 @@ void Renderer::Initialize()
     scene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
     scene->AddRenderTechnique(std::make_unique<BloomTechnique>());
     scene->AddRenderTechnique(std::make_unique<BlendTechnique>());
+    scene->AddRenderTechnique(std::make_unique<UITechnique>());
+    scene->AddRenderTechnique(std::make_unique<FontTechnique>());
     _renderScenes["Game"] = std::move(scene);
 
     // Renderer File Event
     _rendererFileEvent = std::make_unique<RendererFileEvent>();
-    UmFileSystem.RegisterFileEventSubscriber(_rendererFileEvent.get(), {".png", ".dds", ".fbx", ".hdr", ".UmModel"});
+    UmFileSystem.RegisterFileEventSubscriber(_rendererFileEvent.get(), {".png", ".dds", ".fbx", ".hdr", ".UmModel", ".sfont"});
 
     if constexpr (IS_EDITOR)
     {
@@ -204,6 +230,7 @@ void Renderer::Initialize()
         scene->AddRenderTechnique(std::make_unique<EditorDrawTechnique>());
         scene->AddRenderTechnique(std::make_unique<BlendTechnique>());
         scene->AddRenderTechnique(std::make_unique<UITechnique>());
+        scene->AddRenderTechnique(std::make_unique<FontTechnique>());
         _renderScenes["Editor"] = std::move(scene);
     
         // Model Viewer Scene

@@ -80,7 +80,7 @@ UMREAL_COMPONENT(InputTestComponent)
 #include "Scripts\Timeline/AnimationEventListener.h"
 UMREAL_COMPONENT(AnimationEventListener)
 
-#include "Scripts\Stats/WeaponTable/WeaponTableComponent.h"
+#include "Scripts\WeaponSystem/WeaponTable/WeaponTableComponent.h"
 UMREAL_COMPONENT(WeaponTableComponent)
 
 #include "Scripts\Test/DevTools/FPSCounter.h"
@@ -91,6 +91,12 @@ UMREAL_COMPONENT(TestUI)
 
 #include "Scripts\WeaponSystem/WeaponSystem.h"
 UMREAL_COMPONENT(WeaponSystem)
+
+#include "Scripts\Test/Text/TestText.h"
+UMREAL_COMPONENT(TestText)
+
+#include "Scripts\RevelationSystem/RevelationSystem.h"
+UMREAL_COMPONENT(RevelationSystem)
 
 #include "Scripts/Token/TokenSystem.h"
 UMREAL_COMPONENT(TokenSystem)

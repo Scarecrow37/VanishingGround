@@ -2,6 +2,7 @@
 #include "Engine/GraphicsCore/Model.h"
 #include "Engine/GraphicsCore/Light.h"
 #include "Engine/GraphicsCore/Animator.h"
+#include <Engine/GraphicsCore/Font.h>
 #include "UmScripts.h"
 using namespace Global;
 using namespace u8_literals;
@@ -9,7 +10,7 @@ using namespace u8_literals;
 void Scene::IsDirty_property_setter(const std::remove_cvref_t<bool>& value) 
 {
 #ifdef _UMEDITOR
-    if (false == editorModule->PlayMode.IsPlay())
+    if (false == ESceneManager::Engine::IsPlayMode(UmSceneManager))
     {
         _isDirty = value;
     }
@@ -1476,10 +1477,44 @@ void ESceneManager::EraseSceneGUID(std::string_view sceneName, const File::Guid 
     _sceneDataMap.erase(guid);
 }
 
+template <typename T>
+void ESceneManager::SceneResourceManager::UpdateRenderResource(RenderResource<T>& resource)
+{
+    std::tuple<std::weak_ptr<Component>, File::Guid, std::function<void()>> curr;
+    while (false == resource.ResourceLoadQueue.empty())
+    {
+        if (true == resource.ResourceLoadQueue.try_pop(curr))
+        {
+            auto& [weakPtr, guid, func] = curr;
+            if (std::shared_ptr<Component> component = weakPtr.lock())
+            {
+                File::Path path = guid.ToPath();
+                if (false == path.IsNull())
+                {
+                    if (component->_gameObject->IsValid())
+                    {
+                        if (resource.RenderResource.find(guid) == resource.RenderResource.end())
+                        {
+                            resource.RenderResource[guid] = UmResourceManager.LoadResource<T>(path.string());
+                        }
+                        func();
+                    }
+                }
+                else
+                {
+                    UmLogger.Log(LogLevel::LEVEL_WARNING,
+                                 std::format("{}{}", guid.string(), (const char*)u8"는 존재하지 않는 리소스입니다."));
+                }
+            }
+        }
+    }
+}
+
 void ESceneManager::SceneResourceManager::Engine::Update(SceneResourceManager& manager)
 {
-    manager.UpdateModelResource();
-    manager.UpdateTextureResource();
+    manager.UpdateRenderResource(manager._models);
+    manager.UpdateRenderResource(manager._textures);
+    manager.UpdateRenderResource(manager._fonts);
 }
 
 void ESceneManager::SceneResourceManager::RequestModelResource(const Component* component, const File::Guid& guid, const std::function<void()> func)
@@ -1518,74 +1553,21 @@ void ESceneManager::SceneResourceManager::RequestTextureResource(const Component
     }
 }
 
-void ESceneManager::SceneResourceManager::UpdateModelResource()
+void ESceneManager::SceneResourceManager::RequestFontResource(const Component* component, const File::Guid& guid,
+                                                              const std::function<void()> func)
 {
-    RenderResource<Model>& models = _models;
+    if (component->gameObject->IsValid())
     {
-        std::tuple<std::weak_ptr<Component>, File::Guid, std::function<void()>> curr;
-        while (false == models.ResourceLoadQueue.empty())
+        File::Path path = UmFileSystem.GetPathFromGuid(guid);
+        if (false == path.IsNull())
         {
-            if (true == models.ResourceLoadQueue.try_pop(curr))
-            {
-                auto& [weakPtr, guid, func] = curr;
-                if (std::shared_ptr<Component> component = weakPtr.lock())
-                {
-                    File::Path path = guid.ToPath();
-                    if (false == path.IsNull())
-                    {
-                        if (0 <= component->_gameObject->_instanceID)
-                        {
-                            if (models.RenderResource.find(guid) == models.RenderResource.end())
-                            {
-                                models.RenderResource[guid] = UmResourceManager.LoadResource<Model>(path.string());
-                            }
-                            func();
-                        }
-                    }
-                    else
-                    {
-                        UmLogger.Log(
-                            LogLevel::LEVEL_WARNING,
-                            std::format("{}{}", guid.string(), (const char*)u8"는 존재하지 않는 리소스입니다."));
-                    }
-                }
-            }
+            auto pair = std::make_tuple(component->GetWeakPtr(), guid, func);
+            _fonts.ResourceLoadQueue.push(pair);
         }
-    }
-}
-
-void ESceneManager::SceneResourceManager::UpdateTextureResource() 
-{
-    RenderResource<Texture>& textures = _textures;
-    {
-        std::tuple<std::weak_ptr<Component>, File::Guid, std::function<void()>> curr;
-        while (false == textures.ResourceLoadQueue.empty())
+        else
         {
-            if (true == textures.ResourceLoadQueue.try_pop(curr))
-            {
-                auto& [weakPtr, guid, func] = curr;
-                if (std::shared_ptr<Component> component = weakPtr.lock())
-                {
-                    File::Path path = guid.ToPath();
-                    if (false == path.IsNull())
-                    {
-                        if (0 <= component->_gameObject->_instanceID)
-                        {
-                            if (textures.RenderResource.find(guid) == textures.RenderResource.end())
-                            {
-                                textures.RenderResource[guid] = UmResourceManager.LoadResource<Texture>(path.string());
-                            }
-                            func();
-                        }
-                    }
-                    else
-                    {
-                        UmLogger.Log(
-                            LogLevel::LEVEL_WARNING,
-                            std::format("{}{}", guid.string(), (const char*)u8"는 존재하지 않는 리소스입니다."));
-                    }
-                }
-            }
+            UmLogger.Log(LogLevel::LEVEL_WARNING,
+                         std::format("{}{}", guid.string(), u8"는 존재하지 않는 리소스입니다."_c_str));
         }
     }
 }
