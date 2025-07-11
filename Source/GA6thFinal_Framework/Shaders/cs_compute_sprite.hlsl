@@ -69,7 +69,7 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
 
         // 6. 색상 보간
     float3 outputColor = lerp(emitter.startColor.rgb, emitter.endColor.rgb, ratio);
-    float outputOpacity = lerp(emitter.startColor.a, emitter.endColor.rgb, ratio);
+    float outputOpacity = lerp(emitter.startColor.a, emitter.endColor.a, ratio);
     output.Color = float4(outputColor, outputOpacity);
    
     // 4. 스케일 적용

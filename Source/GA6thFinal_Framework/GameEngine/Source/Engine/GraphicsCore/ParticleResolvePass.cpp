@@ -68,7 +68,7 @@ void ParticleResolvePass::InitializePSO()
     rtDesc.DestBlend                 = D3D12_BLEND_INV_SRC_ALPHA;
     rtDesc.BlendOp                   = D3D12_BLEND_OP_ADD;
     rtDesc.SrcBlendAlpha             = D3D12_BLEND_ONE;
-    rtDesc.DestBlendAlpha            = D3D12_BLEND_INV_SRC_ALPHA;
+    rtDesc.DestBlendAlpha            = D3D12_BLEND_ONE;
     rtDesc.BlendOpAlpha              = D3D12_BLEND_OP_ADD;
     rtDesc.RenderTargetWriteMask     = D3D12_COLOR_WRITE_ENABLE_ALL;
     

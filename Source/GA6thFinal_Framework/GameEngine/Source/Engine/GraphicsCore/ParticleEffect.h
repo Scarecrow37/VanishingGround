@@ -3,18 +3,26 @@
 
 class ParticleEffect
 {
-    UMPARTICLE_PROPERTY_REF(Quaternion, _rotation, Rotation, Quaternion::Identity);
-    UMPARTICLE_PROPERTY_REF(Vector3, _position, Position , Vector3(0,0,0));
+
+
     UMPARTICLE_PROPERTY(float, _age, Age,0.f);
     UMPARTICLE_PROPERTY(float, _lifetime, Lifetime,5.f);
     UMPARTICLE_PROPERTY(bool, _activeFlag, ActiveFlag, false);
     UMPARTICLE_PROPERTY(std::string, _effectName, EffectName, "");
 
     
-    
+    const Matrix* _parentWorldMatrix;
+
     // flag for play once
     UMPARTICLE_PROPERTY(bool, _playFlag, PlayFlag, false);
     bool _removeFlag = false;
+
+public:
+    Vector3* _position = nullptr;
+    Vector3* _rotation = nullptr;
+    Vector3* _scale    = nullptr;
+
+
 
 public:
     void SetRemoveFlag(bool flag) { _removeFlag = flag; }
@@ -51,8 +59,10 @@ protected:
 
     Matrix                             _rotationMatrix;
     Matrix                             _translationMatrix;
+    Matrix                             _scaleMatrix;
     Matrix                             _worldMatrix;
     std::vector<class ParticleEmitter*> _particleEmitters;
+    bool                                _isPlaying = false;
 
 
     int namingIndex = 0;

@@ -5,6 +5,8 @@
 class EmitLocator
 {
 public:
+    EmitLocator() = default;
+    virtual ~EmitLocator() = default;
     void            RandomInitialize();
     virtual Vector3 EmitLocate() = 0;
     Vector3         GetFactor() const { return _factor; }
@@ -50,14 +52,16 @@ public:
 class MeshSurfaceLocator : public EmitLocator
 {
 public:
+    ~MeshSurfaceLocator();
     Vector3 EmitLocate();
-    void    SetVertices(const std::vector<Vector3>& vertices) { _vertices = vertices; }
-    void    LerpVertices();
+    void    LoadVerticesFromModel(File::Path modelPath);
+    File::Path GetModelPath() const { return _targetModelPath; }
 
 private:
-
-    std::vector<Vector3> _vertices;
-
+    File::Path                   _targetModelPath;
+    std::shared_ptr<class Model> _targetModel;
+    std::vector<UINT>            _vertexCountPerMesh;
+    UINT                         _totalVertexCount = 0;
 };
 
 /// <summary>

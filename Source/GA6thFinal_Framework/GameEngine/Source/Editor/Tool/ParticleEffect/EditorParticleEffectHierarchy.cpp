@@ -100,19 +100,16 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
     UmParticleManager.SetAutoRefresh(isAutorefresh);
 
     float deltaScale = UmParticleManager.GetDeltaScale();
-    ImGui::SliderFloat("Time Speed",&deltaScale, 0.f,2.f);
+    ImGui::SliderFloat("Time Speed", &deltaScale, 0.f, 2.f);
     UmParticleManager.SetDeltaScale(deltaScale);
 
-
-
-        if (nullptr == UmParticleManager.GetCurrentEditorEffect())
+    if (nullptr == UmParticleManager.GetCurrentEditorEffect())
     {
         _curEffect = nullptr;
         return;
     }
 
-
-    ImGui::Text("current particle count : %d",UmParticleManager.GetTotalCount());
+    ImGui::Text("current particle count : %d", UmParticleManager.GetTotalCount());
     ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal, 2.f);
 
 
@@ -121,31 +118,6 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
     ParticleType  particleType;
 
     ImGui::BeginGroup();
-    //location combobox
-    {
-        static int  shapeRow      = -1;
-        const char* shapeitems[6] = {"Sphere      ", "Cube        ", "Cylinder    ",
-                                     "Cone        ", "Torus       ", "Mesh Surface"};
-        static int  shapeIdx      = 0;
-        ImGui::Text("Emission Shape");
-        ImGui::SetNextItemWidth(130);
-        ImGui::SameLine();
-        if (ImGui::BeginCombo("##Emission Shape", shapeitems[shapeIdx]))
-        {
-            for (int n = 0; n < 6; n++)
-            {
-                bool is_selected = (shapeIdx == n);
-                if (ImGui::Selectable(shapeitems[n], is_selected))
-                {
-                    shapeIdx = n;
-                }
-                if (is_selected)
-                    ImGui::SetItemDefaultFocus();
-            }
-            ImGui::EndCombo();
-        }
-        locationType = (LocationShape)shapeIdx;
-    }
     //particleType combobox
     {
 
@@ -171,15 +143,67 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
         }
         particleType = (ParticleType)renderIdx;
     }
+    //location combobox
+    {
+        static int  shapeRow      = -1;
+        const char* shapeitems[6] = {"Sphere      ", "Cube        ", "Cylinder    ",
+                                     "Cone        ", "Torus       ", "Mesh Surface"};
+        static int  shapeIdx      = 0;
+        ImGui::Text("Emission Shape");
+        ImGui::SetNextItemWidth(130);
+        ImGui::SameLine();
+        if (ImGui::BeginCombo("##Emission Shape", shapeitems[shapeIdx]))
+        {
+            for (int n = 0; n < 6; n++)
+            {
+                bool is_selected = (shapeIdx == n);
+                if (ImGui::Selectable(shapeitems[n], is_selected))
+                {
+                    shapeIdx = n;
+                }
+                if (is_selected)
+                    ImGui::SetItemDefaultFocus();
+            }
+            ImGui::EndCombo();
+        }
+        locationType = (LocationShape)shapeIdx;
+    }
+
+    if (LocationShape::MESH_SURFACE == locationType)
+    {
+        currentmeshsurfacepath = std::filesystem::absolute(currentmeshsurfacepath);
+        ImGui::Text(currentmeshsurfacepath.string().c_str());
+        bool isLoadModelButtonPressed = ImGui::Button("load target model", {250, 30});
+        if (true == isLoadModelButtonPressed)
+        {
+
+            HWND                    owner = UmApplication.GetHwnd();
+            LPCWSTR                 title = L"Load fbx file";
+            std::vector<File::Path> out;
+            if (File::ShowOpenFileDialog(UmApplication.GetHwnd(),title, L"",
+                                         {{L"Model Files (*.fbx;*.UmModel)", L"*.fbx; *.UmModel\0\0"}}, false, out))
+            {
+                currentmeshsurfacepath = out.front();
+            }
+        }
+        currentmeshsurfacepath = std::filesystem::absolute(currentmeshsurfacepath);
+    }
     ImGui::EndGroup();
     ImGui::SameLine();
+
+
     bool isAddButtonPressed = ImGui::Button("Add new Emitter", {180, ImGui::GetFrameHeight() * 2.f});
-
-
     if (true == isAddButtonPressed)
     {
         auto emitter =
             UmParticleManager.RegisterEmitter(_curEffect, 100000, 1000, 20, locationType, {0, 0, 0}, particleType);
+        if (LocationShape::MESH_SURFACE == locationType)
+        {
+            static_cast<MeshSurfaceLocator*>(emitter->_emitLocator)->LoadVerticesFromModel(currentmeshsurfacepath);
+        }
+
+
+
     }
     bool isSomeoneChanged   = false;
     ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal,2.f);
@@ -188,7 +212,7 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
         ImGuiTreeNodeFlags parent_flags = ImGuiTreeNodeFlags_OpenOnArrow;
         bool               parent_open  = ImGui::TreeNodeEx(effect->GetEffectName().c_str(), parent_flags);
 
-        effect->SetPosition({0,10,0});
+        effect->_position   = &defaultpos;
         bool isHovered      = ImGui::IsItemHovered();
         bool isMouseClicked = ImGui::IsMouseClicked(0);
         if (true == isHovered && true == isMouseClicked)

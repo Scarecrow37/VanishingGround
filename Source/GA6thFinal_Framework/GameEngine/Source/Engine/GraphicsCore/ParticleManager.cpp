@@ -388,60 +388,60 @@ void ParticleManager::InitializeParticleComputeRootSignature()
                                                        IID_PPV_ARGS(_computeSpriteRootSignature.GetAddressOf()));
         FAILED_CHECK_MESSAGE(hr, L"ParticleManager::InitializeParticleComputeRootSignature CreateRootSignature Failed");
     }
-    //// initialize mesh root signature;
-    //{
+    // initialize mesh root signature;
+    {
 
-    //    std::vector<D3D12_ROOT_PARAMETER> rootParameters;
-    //    rootParameters.resize(4);
+        //std::vector<D3D12_ROOT_PARAMETER> rootParameters;
+        //rootParameters.resize(4);
 
-    //    rootParameters[0].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
-    //    rootParameters[0].Descriptor.ShaderRegister = 0; // b0
-    //    rootParameters[0].Descriptor.RegisterSpace  = 0;
-    //    rootParameters[0].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
+        //rootParameters[0].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
+        //rootParameters[0].Descriptor.ShaderRegister = 0; // b0
+        //rootParameters[0].Descriptor.RegisterSpace  = 0;
+        //rootParameters[0].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
 
-    //    // SRV (t0)
-    //    rootParameters[1].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_SRV;
-    //    rootParameters[1].Descriptor.ShaderRegister = 0; // t0
-    //    rootParameters[1].Descriptor.RegisterSpace  = 0;
-    //    rootParameters[1].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
+        //// SRV (t0)
+        //rootParameters[1].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_SRV;
+        //rootParameters[1].Descriptor.ShaderRegister = 0; // t0
+        //rootParameters[1].Descriptor.RegisterSpace  = 0;
+        //rootParameters[1].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
 
-    //    // SRV (t1)
-    //    rootParameters[2].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_SRV;
-    //    rootParameters[2].Descriptor.ShaderRegister = 1; // t1
-    //    rootParameters[2].Descriptor.RegisterSpace  = 0;
-    //    rootParameters[2].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
+        //// SRV (t1)
+        //rootParameters[2].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_SRV;
+        //rootParameters[2].Descriptor.ShaderRegister = 1; // t1
+        //rootParameters[2].Descriptor.RegisterSpace  = 0;
+        //rootParameters[2].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
 
-    //    // UAV (u0)
-    //    rootParameters[3].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_UAV;
-    //    rootParameters[3].Descriptor.ShaderRegister = 0; // u0
-    //    rootParameters[3].Descriptor.RegisterSpace  = 0;
-    //    rootParameters[3].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
+        //// UAV (u0)
+        //rootParameters[3].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_UAV;
+        //rootParameters[3].Descriptor.ShaderRegister = 0; // u0
+        //rootParameters[3].Descriptor.RegisterSpace  = 0;
+        //rootParameters[3].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
 
-    //    D3D12_ROOT_SIGNATURE_DESC rootSignDesc;
-    //    rootSignDesc.NumParameters     = (UINT)rootParameters.size();
-    //    rootSignDesc.pParameters       = rootParameters.data();
-    //    rootSignDesc.Flags             = D3D12_ROOT_SIGNATURE_FLAG_NONE;
-    //    rootSignDesc.NumStaticSamplers = 0;
-    //    rootSignDesc.pStaticSamplers   = nullptr;
+        //D3D12_ROOT_SIGNATURE_DESC rootSignDesc;
+        //rootSignDesc.NumParameters     = (UINT)rootParameters.size();
+        //rootSignDesc.pParameters       = rootParameters.data();
+        //rootSignDesc.Flags             = D3D12_ROOT_SIGNATURE_FLAG_NONE;
+        //rootSignDesc.NumStaticSamplers = 0;
+        //rootSignDesc.pStaticSamplers   = nullptr;
 
-    //    ComPtr<ID3DBlob> serializedRootSig;
-    //    ComPtr<ID3DBlob> error;
-    //    HRESULT          hr = D3D12SerializeRootSignature(&rootSignDesc, D3D_ROOT_SIGNATURE_VERSION_1,
-    //                                                      serializedRootSig.GetAddressOf(), error.GetAddressOf());
-    //    if (nullptr != error)
-    //    {
-    //        std::filesystem::path errorMessage = static_cast<const char*>(error->GetBufferPointer());
-    //        GRAPHICS_ASSERT(SUCCEEDED(hr), errorMessage.c_str());
-    //    }
+        //ComPtr<ID3DBlob> serializedRootSig;
+        //ComPtr<ID3DBlob> error;
+        //HRESULT          hr = D3D12SerializeRootSignature(&rootSignDesc, D3D_ROOT_SIGNATURE_VERSION_1,
+        //                                                  serializedRootSig.GetAddressOf(), error.GetAddressOf());
+        //if (nullptr != error)
+        //{
+        //    std::filesystem::path errorMessage = static_cast<const char*>(error->GetBufferPointer());
+        //    GRAPHICS_ASSERT(SUCCEEDED(hr), errorMessage.c_str());
+        //}
 
-    //    FAILED_CHECK_MESSAGE(hr, L"");
+        //FAILED_CHECK_MESSAGE(hr, L"");
 
-    //    ComPtr<ID3D12RootSignature> rootSignature;
-    //    hr = UmDevice.GetDevice()->CreateRootSignature(0, serializedRootSig->GetBufferPointer(),
-    //                                                   serializedRootSig->GetBufferSize(),
-    //                                                   IID_PPV_ARGS(_computeMeshRootSignature.GetAddressOf()));
-    //    FAILED_CHECK_MESSAGE(hr, L"");
-    //}
+        //ComPtr<ID3D12RootSignature> rootSignature;
+        //hr = UmDevice.GetDevice()->CreateRootSignature(0, serializedRootSig->GetBufferPointer(),
+        //                                               serializedRootSig->GetBufferSize(),
+        //                                               IID_PPV_ARGS(_computeMeshRootSignature.GetAddressOf()));
+        //FAILED_CHECK_MESSAGE(hr, L"");
+    }
 }
 void ParticleManager::InitializeParticleComputePSO()
 {
@@ -456,31 +456,31 @@ void ParticleManager::InitializeParticleComputePSO()
                                                               IID_PPV_ARGS(_computeSpritePSO.GetAddressOf()));
         FAILED_CHECK_MESSAGE(hr, L"");
     }
-    //// initialize axial sprite pipeline state object
-    //{
-    //    D3D12_COMPUTE_PIPELINE_STATE_DESC computePSODesc = {};
-    //    ZeroMemory(&computePSODesc, sizeof(D3D12_COMPUTE_PIPELINE_STATE_DESC));
-    //    computePSODesc.CS             = {_computeAxialSpriteShaderBlob->GetBufferPointer(),
-    //                                     _computeAxialSpriteShaderBlob->GetBufferSize()};
-    //    computePSODesc.pRootSignature = _computeSpriteRootSignature.Get();
+    // initialize axial sprite pipeline state object
+    {
+        //D3D12_COMPUTE_PIPELINE_STATE_DESC computePSODesc = {};
+        //ZeroMemory(&computePSODesc, sizeof(D3D12_COMPUTE_PIPELINE_STATE_DESC));
+        //computePSODesc.CS             = {_computeAxialSpriteShaderBlob->GetBufferPointer(),
+        //                                 _computeAxialSpriteShaderBlob->GetBufferSize()};
+        //computePSODesc.pRootSignature = _computeSpriteRootSignature.Get();
 
-    //    HRESULT hr;
-    //    hr = UmDevice.GetDevice()->CreateComputePipelineState(&computePSODesc,
-    //                                                          IID_PPV_ARGS(_computeAxialSpritePSO.GetAddressOf()));
-    //    FAILED_CHECK_MESSAGE(hr, L"");
-    //}
-    //// initialize mesh pipeline state object
-    //{
-    //    D3D12_COMPUTE_PIPELINE_STATE_DESC computePSODesc = {};
-    //    ZeroMemory(&computePSODesc, sizeof(D3D12_COMPUTE_PIPELINE_STATE_DESC));
-    //    computePSODesc.CS = {_computeMeshShaderBlob->GetBufferPointer(), _computeMeshShaderBlob->GetBufferSize()};
-    //    computePSODesc.pRootSignature = _computeMeshRootSignature.Get();
+        //HRESULT hr;
+        //hr = UmDevice.GetDevice()->CreateComputePipelineState(&computePSODesc,
+        //                                                      IID_PPV_ARGS(_computeAxialSpritePSO.GetAddressOf()));
+        //FAILED_CHECK_MESSAGE(hr, L"");
+    }
+    // initialize mesh pipeline state object
+    {
+        //D3D12_COMPUTE_PIPELINE_STATE_DESC computePSODesc = {};
+        //ZeroMemory(&computePSODesc, sizeof(D3D12_COMPUTE_PIPELINE_STATE_DESC));
+        //computePSODesc.CS = {_computeMeshShaderBlob->GetBufferPointer(), _computeMeshShaderBlob->GetBufferSize()};
+        //computePSODesc.pRootSignature = _computeMeshRootSignature.Get();
 
-    //    HRESULT hr;
-    //    hr = UmDevice.GetDevice()->CreateComputePipelineState(&computePSODesc,
-    //                                                          IID_PPV_ARGS(_computeMeshPSO.GetAddressOf()));
-    //    FAILED_CHECK_MESSAGE(hr, L"");
-    //}
+        //HRESULT hr;
+        //hr = UmDevice.GetDevice()->CreateComputePipelineState(&computePSODesc,
+        //                                                      IID_PPV_ARGS(_computeMeshPSO.GetAddressOf()));
+        //FAILED_CHECK_MESSAGE(hr, L"");
+    }
 }
 void ParticleManager::InitializeDescriptorHeap()
 {
@@ -500,8 +500,7 @@ void ParticleManager::CreateParticleResources()
     // 1. 파티클 입력 버퍼 (SRV - t0)
     UINT particleInputSize = _maxParticles * sizeof(Particle);
     CreateStructuredBuffer(_particleInputBuffer, _particleInputUploadBuffer, particleInputSize, sizeof(Particle));
-    CreateStructuredBuffer(_editorParticleInputBuffer, _editorParticleInputUploadBuffer, particleInputSize,
-                           sizeof(Particle));
+    CreateStructuredBuffer(_editorParticleInputBuffer, _editorParticleInputUploadBuffer, particleInputSize,  sizeof(Particle));
 
     // 2. 에미터 정보 버퍼 (SRV - t1)
     UINT emitterInfoSize = _maxEmitters * sizeof(EmitterInfo);
@@ -514,11 +513,14 @@ void ParticleManager::CreateParticleResources()
     _particleOutputBuffer->SetName(L"particle output");
     CreateUAVBuffer(_editorOutputBuffer, particleOutputSize, sizeof(ParticleOutput));
     _editorOutputBuffer->SetName(L"editor output");
+    CreateUAVBuffer(_gameViewOutputBuffer, particleOutputSize, sizeof(ParticleOutput));
+    _gameViewOutputBuffer->SetName(L"game view output");
 
     // 4. MVP 상수 버퍼 (CBV - b0)
     UINT mvpConstantSize = sizeof(MVPConstants); // 256바이트 정렬
     CreateConstantBuffer(_mvpConstantBuffer, mvpConstantSize);
     CreateConstantBuffer(_editorMvpConstantBuffer, mvpConstantSize);
+    CreateConstantBuffer(_gameViewMvpConstantBuffer, mvpConstantSize);
 }
 void ParticleManager::CreateStructuredBuffer(ComPtr<ID3D12Resource>& resource, ComPtr<ID3D12Resource>& uploadResource,
                                              UINT bufferSize, UINT stride)
@@ -631,30 +633,53 @@ void ParticleManager::DispatchParticleCompute(float deltaTime)
 
     // upload buffer -> default buf
     CopyFromUploadBuffer();
+    if (IS_EDITOR)
+    {
+        CD3DX12_RESOURCE_BARRIER computeOutputBarrior = CD3DX12_RESOURCE_BARRIER::Transition(
+            _particleOutputBuffer.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+        _computeCommandList->ResourceBarrier(1, &computeOutputBarrior);
 
-    CD3DX12_RESOURCE_BARRIER computeOutputBarrior = CD3DX12_RESOURCE_BARRIER::Transition(
-        _particleOutputBuffer.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-    _computeCommandList->ResourceBarrier(1, &computeOutputBarrior);
+        _computeCommandList->SetComputeRootSignature(_computeSpriteRootSignature.Get());
 
-    _computeCommandList->SetComputeRootSignature(_computeSpriteRootSignature.Get());
+        _computeCommandList->SetComputeRootConstantBufferView(0, _mvpConstantBuffer->GetGPUVirtualAddress());
+        _computeCommandList->SetComputeRootShaderResourceView(1, _particleInputBuffer->GetGPUVirtualAddress());
 
-    _computeCommandList->SetComputeRootConstantBufferView(0, _mvpConstantBuffer->GetGPUVirtualAddress());
-    _computeCommandList->SetComputeRootShaderResourceView(1, _particleInputBuffer->GetGPUVirtualAddress());
+        _computeCommandList->SetComputeRootShaderResourceView(2, _emitterInfoBuffer->GetGPUVirtualAddress());
 
-    _computeCommandList->SetComputeRootShaderResourceView(2, _emitterInfoBuffer->GetGPUVirtualAddress());
+        _computeCommandList->SetComputeRootUnorderedAccessView(3, _particleOutputBuffer->GetGPUVirtualAddress());
 
-    _computeCommandList->SetComputeRootUnorderedAccessView(3, _particleOutputBuffer->GetGPUVirtualAddress());
+        // 6. 디스패치
+        UINT numThreadGroups = static_cast<UINT>((_totalParticles.size() + 31) / 32); // 32개 스레드 그룹으로 나누기
+        _computeCommandList->Dispatch(numThreadGroups, 1, 1);
 
-    // 6. 디스패치
-    UINT numThreadGroups = static_cast<UINT>((_totalParticles.size() + 31) / 32); // 32개 스레드 그룹으로 나누기
-    _computeCommandList->Dispatch(numThreadGroups, 1, 1);
+        computeOutputBarrior = CD3DX12_RESOURCE_BARRIER::Transition(
+            _particleOutputBuffer.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COMMON);
+        _computeCommandList->ResourceBarrier(1, &computeOutputBarrior);
+    }
 
-    computeOutputBarrior = CD3DX12_RESOURCE_BARRIER::Transition(
-        _particleOutputBuffer.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COMMON);
-    _computeCommandList->ResourceBarrier(1, &computeOutputBarrior);
+    {
+        CD3DX12_RESOURCE_BARRIER computeOutputBarrior = CD3DX12_RESOURCE_BARRIER::Transition(
+            _particleOutputBuffer.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+        _computeCommandList->ResourceBarrier(1, &computeOutputBarrior);
 
+        _computeCommandList->SetComputeRootSignature(_computeSpriteRootSignature.Get());
 
-    // 7. 커맨드 리스트 종료 및 실행
+        _computeCommandList->SetComputeRootConstantBufferView(0, _gameViewMvpConstantBuffer->GetGPUVirtualAddress());
+        _computeCommandList->SetComputeRootShaderResourceView(1, _particleInputBuffer->GetGPUVirtualAddress());
+
+        _computeCommandList->SetComputeRootShaderResourceView(2, _emitterInfoBuffer->GetGPUVirtualAddress());
+
+        _computeCommandList->SetComputeRootUnorderedAccessView(3, _gameViewOutputBuffer->GetGPUVirtualAddress());
+
+        // 6. 디스패치
+        UINT numThreadGroups = static_cast<UINT>((_totalParticles.size() + 31) / 32); // 32개 스레드 그룹으로 나누기
+        _computeCommandList->Dispatch(numThreadGroups, 1, 1);
+
+        computeOutputBarrior = CD3DX12_RESOURCE_BARRIER::Transition(
+            _particleOutputBuffer.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COMMON);
+        _computeCommandList->ResourceBarrier(1, &computeOutputBarrior);
+    }
+
 }
 void ParticleManager::UpdateParticleResources(float deltaTime)
 {
@@ -667,39 +692,68 @@ void ParticleManager::UpdateParticleResources(float deltaTime)
     _emitterInfoUploadBuffer->Map(0, nullptr, &mappedData);
     memcpy(mappedData, _emitterMatrix.data(), _emitterMatrix.size() * sizeof(EmitterInfo));
     _emitterInfoUploadBuffer->Unmap(0, nullptr);
-    
-    SetCamera("Game");
-    // 3. MVP 상수 버퍼 업데이트
-    MVPConstants mvpConstants;
-    mvpConstants.ViewMatrix = _camera->GetViewMatrix().Transpose();
-    Matrix viewrotinv       = _camera->GetViewMatrix();
+    {
+        SetCamera("Editor");
+        // 3. MVP 상수 버퍼 업데이트
+        MVPConstants mvpConstants;
+        mvpConstants.ViewMatrix = _camera->GetViewMatrix().Transpose();
+        Matrix viewrotinv       = _camera->GetViewMatrix();
 
-    XMFLOAT3X3 rotV;
-    XMStoreFloat3x3(&rotV, viewrotinv);
+        XMFLOAT3X3 rotV;
+        XMStoreFloat3x3(&rotV, viewrotinv);
 
-    // 2) 전치(transpose)하여 역회전 행렬 생성
-    XMMATRIX Rv  = XMLoadFloat3x3(&rotV);
-    XMMATRIX RvT = XMMatrixTranspose(Rv);
+        // 2) 전치(transpose)하여 역회전 행렬 생성
+        XMMATRIX Rv  = XMLoadFloat3x3(&rotV);
+        XMMATRIX RvT = XMMatrixTranspose(Rv);
 
-    // 3) SimpleMath::Matrix로 변환하여 반환
+        // 3) SimpleMath::Matrix로 변환하여 반환
 
-    XMStoreFloat4x4(&mvpConstants.ViewRotInvMatrix, RvT);
+        XMStoreFloat4x4(&mvpConstants.ViewRotInvMatrix, RvT);
 
-    mvpConstants.ViewRotInvMatrix = mvpConstants.ViewRotInvMatrix.Transpose();
-    mvpConstants.ProjMatrix       = _camera->GetProjectionMatrix().Transpose();
+        mvpConstants.ViewRotInvMatrix = mvpConstants.ViewRotInvMatrix.Transpose();
+        mvpConstants.ProjMatrix       = _camera->GetProjectionMatrix().Transpose();
 
-    mvpConstants.CameraPos =
-        Vector4(_camera->GetWorldMatrix()._41, _camera->GetWorldMatrix()._42, _camera->GetWorldMatrix()._43, 1);
+        mvpConstants.CameraPos =
+            Vector4(_camera->GetWorldMatrix()._41, _camera->GetWorldMatrix()._42, _camera->GetWorldMatrix()._43, 1);
 
-    //float currentTime = UmTime.Time();
-    //float delta       = currentTime - lastFrameTime;
-    //lastFrameTime     = currentTime;
-    //mvpConstants.deltaTime = delta;
-    mvpConstants.deltaTime = deltaTime;
+        mvpConstants.deltaTime = deltaTime;
 
-    FAILED_CHECK_MESSAGE(_mvpConstantBuffer->Map(0, nullptr, &mappedData), L"");
-    memcpy(mappedData, &mvpConstants, sizeof(MVPConstants));
-    _mvpConstantBuffer->Unmap(0, nullptr);
+        FAILED_CHECK_MESSAGE(_mvpConstantBuffer->Map(0, nullptr, &mappedData), L"");
+        memcpy(mappedData, &mvpConstants, sizeof(MVPConstants));
+        _mvpConstantBuffer->Unmap(0, nullptr);
+    }
+    {
+
+        SetCamera("Game");
+        // 3. MVP 상수 버퍼 업데이트
+        MVPConstants gamveViewMvpConstants;
+        gamveViewMvpConstants.ViewMatrix = _camera->GetViewMatrix().Transpose();
+        Matrix viewrotinv                = _camera->GetViewMatrix();
+
+        XMFLOAT3X3 rotV;
+        XMStoreFloat3x3(&rotV, viewrotinv);
+
+        // 2) 전치(transpose)하여 역회전 행렬 생성
+        XMMATRIX Rv  = XMLoadFloat3x3(&rotV);
+        XMMATRIX RvT = XMMatrixTranspose(Rv);
+
+        // 3) SimpleMath::Matrix로 변환하여 반환
+
+        XMStoreFloat4x4(&gamveViewMvpConstants.ViewRotInvMatrix, RvT);
+
+        gamveViewMvpConstants.ViewRotInvMatrix = gamveViewMvpConstants.ViewRotInvMatrix.Transpose();
+        gamveViewMvpConstants.ProjMatrix       = _camera->GetProjectionMatrix().Transpose();
+
+        gamveViewMvpConstants.CameraPos =
+            Vector4(_camera->GetWorldMatrix()._41, _camera->GetWorldMatrix()._42, _camera->GetWorldMatrix()._43, 1);
+
+        gamveViewMvpConstants.deltaTime = deltaTime;
+
+        FAILED_CHECK_MESSAGE(_gameViewMvpConstantBuffer->Map(0, nullptr, &mappedData), L"");
+        memcpy(mappedData, &gamveViewMvpConstants, sizeof(MVPConstants));
+        _gameViewMvpConstantBuffer->Unmap(0, nullptr);
+    }
+
 }
 void ParticleManager::CopyFromUploadBuffer()
 {

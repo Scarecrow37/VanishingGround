@@ -65,8 +65,12 @@ public:
 
     ID3D12Resource*                       GetComputeOutputResource() 
     {
-        if ("Game" == _currentRenderscene->_name || "Editor" == _currentRenderscene->_name)
+        if ("Editor" == _currentRenderscene->_name)
             return _particleOutputBuffer.Get();
+
+        else if ("Game" == _currentRenderscene->_name)
+            return _gameViewOutputBuffer.Get();
+
         else if ("ParticleEditor" == _currentRenderscene->_name)
             return _editorOutputBuffer.Get();
         else
@@ -77,8 +81,6 @@ public:
 
 public:
     ParticleEffectSerializer ParticleSerializer;
-
-
 
 public:
     void SetCamera(std::string_view viewName);
@@ -151,6 +153,11 @@ private:
     ComPtr<ID3D12Resource> _editorMvpConstantBuffer;   // MVP 상수 버퍼 (CBV - b0)
     ComPtr<ID3D12Resource> _editorParticleInputUploadBuffer;
     ComPtr<ID3D12Resource> _editorEmitterInfoUploadBuffer;
+
+    ComPtr<ID3D12Resource> _gameViewOutputBuffer;        // 출력 파티클 데이터 (UAV - u0)
+    ComPtr<ID3D12Resource> _gameViewMvpConstantBuffer;   // MVP 상수 버퍼 (CBV - b0)
+
+
 
 
 

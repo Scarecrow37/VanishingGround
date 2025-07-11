@@ -256,6 +256,19 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
                  locationFactor[2] = locationFactor[0] - 0.1f;
              }
          }
+         if (LocationShape::MESH_SURFACE == _curEmitter->_locationType)
+         {
+             ImGui::Text("Emitter Shape Factor");
+             ImGui::Text("X");
+             ImGui::SameLine();
+             ImGui::SliderFloat("##Emitter Shape Factor x", &(locationFactor[0]), -10, 10);
+             ImGui::Text("Y");
+             ImGui::SameLine();
+             ImGui::SliderFloat("##Emitter Shape Factor y", &(locationFactor[1]), -10, 10);
+             ImGui::Text("Z");
+             ImGui::SameLine();
+             ImGui::SliderFloat("##Emitter Shape Factor z", &(locationFactor[2]), -10, 10);
+         }
          Vector3 temp = _curEmitter->_emitLocator->GetFactor();
          if (locationFactor[0] != temp.x || locationFactor[1] != temp.y || locationFactor[2] != temp.z)
              isSomethingChanged = true;

@@ -122,6 +122,15 @@ void ParticleEffectSerializer::Serialize(ParticleEffect* effect, File::Path dest
         {
             auto temp = emitter->_locationType;
             os.write(reinterpret_cast<const char*>(&temp), sizeof(temp));
+            if (LocationShape::MESH_SURFACE == emitter->_locationType)
+            {
+                auto meshlocator = static_cast<MeshSurfaceLocator*>(emitter->_emitLocator);
+                File::Path modelPath = meshlocator->GetModelPath();
+                SIZE_T          nameLen     = modelPath.string().size();
+                os.write(reinterpret_cast<const char*>(&nameLen), sizeof(nameLen));
+                os.write(modelPath.string().c_str(), nameLen);
+            }
+
         }
         // location factor
         {
@@ -340,11 +349,27 @@ ParticleEffect* ParticleEffectSerializer::Deserialize(File::Path filepath,bool i
         Vector4           dragForce;
         Vector4           vortexForce;
         ParticleType      particleType;
+        std::string         modelpath;
 
         is.read(reinterpret_cast<char*>(&emitterPosition), sizeof(emitterPosition));
         is.read(reinterpret_cast<char*>(&emitterRotationE), sizeof(emitterRotationE));
         is.read(reinterpret_cast<char*>(&emitterRotationQ), sizeof(emitterRotationQ));
         is.read(reinterpret_cast<char*>(&locationType), sizeof(locationType));
+        if (LocationShape::MESH_SURFACE == locationType)
+        {
+            /*       File::Path modelPath = File::NULL_PATH;
+                   SIZE_T     nameLen   = modelPath.string().size();
+                   os.write(reinterpret_cast<const char*>(&nameLen), sizeof(nameLen));
+                   os.write(modelPath.string().c_str(), nameLen);*/
+
+
+            SIZE_T nameLen = 0;
+            is.read(reinterpret_cast<char*>(&nameLen), sizeof(nameLen));
+            modelpath = std::string(nameLen, '\0');
+            is.read(&modelpath[0], nameLen);
+        }
+
+
         is.read(reinterpret_cast<char*>(&locatorFactor), sizeof(locatorFactor));
         is.read(reinterpret_cast<char*>(&velocityType), sizeof(velocityType));
         is.read(reinterpret_cast<char*>(&velocityFactor), sizeof(velocityFactor));
@@ -387,6 +412,10 @@ ParticleEffect* ParticleEffectSerializer::Deserialize(File::Path filepath,bool i
             auto emitter =
                 UmParticleManager.RegisterEmitter(newEffect, static_cast<SIZE_T>(maxParticles), emissionRate, emitterLifetime, locationType,
                                                   locatorFactor, particleType, modelTexturePath);
+            if (LocationShape::MESH_SURFACE == locationType)
+            {
+                static_cast<MeshSurfaceLocator*>(emitter->_emitLocator)->LoadVerticesFromModel(File::Path(modelpath));
+            }
             emitter->SetEmitterName(emitterName);
             emitter->SetEmitterPosition(emitterPosition);
             emitter->SetEmitterRotationE(emitterRotationE);
@@ -419,6 +448,7 @@ ParticleEffect* ParticleEffectSerializer::Deserialize(File::Path filepath,bool i
 void ParticleEffectSerializer::PreDeserialize(File::Path filepath)
 {
     UsedTexturePaths.clear();
+    UsedModelPaths.clear();
 
      std::ifstream is(filepath.string(), std::ios::binary);
     if (!is.is_open())
@@ -470,11 +500,24 @@ void ParticleEffectSerializer::PreDeserialize(File::Path filepath)
         Vector4           dragForce;
         Vector4           vortexForce;
         ParticleType      particleType;
+        std::string       modelpath;
 
         is.read(reinterpret_cast<char*>(&emitterPosition), sizeof(emitterPosition));
         is.read(reinterpret_cast<char*>(&emitterRotationE), sizeof(emitterRotationE));
         is.read(reinterpret_cast<char*>(&emitterRotationQ), sizeof(emitterRotationQ));
         is.read(reinterpret_cast<char*>(&locationType), sizeof(locationType));
+        if (LocationShape::MESH_SURFACE == locationType)
+        {
+            SIZE_T nameLen = 0;
+            is.read(reinterpret_cast<char*>(&nameLen), sizeof(nameLen));
+            modelpath = std::string(nameLen, '\0');
+            is.read(&modelpath[0], nameLen);
+            UsedModelPaths.push_back(File::Path(modelpath));
+        
+        }
+
+
+
         is.read(reinterpret_cast<char*>(&locatorFactor), sizeof(locatorFactor));
         is.read(reinterpret_cast<char*>(&velocityType), sizeof(velocityType));
         is.read(reinterpret_cast<char*>(&velocityFactor), sizeof(velocityFactor));
@@ -516,7 +559,6 @@ void ParticleEffectSerializer::PreDeserialize(File::Path filepath)
         }
 
         UsedTexturePaths.push_back(utf8Path);
-
 
 
     }

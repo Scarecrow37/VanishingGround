@@ -45,23 +45,10 @@ ParticleComponent::~ParticleComponent()
 
 void ParticleComponent::Update()
 {
-    _effect->SetRotation(gameObject->transform->Rotation);
-    _effect->SetPosition(gameObject->transform->Position);
+    
 
-    if (IS_EDITOR)
-        if (ImGui::IsKeyDown(ImGuiKey_Space))
-        {
-            PlayEffect();
-        }
-    if (true == isplaying)
-    {
-        age += UmTime.DeltaTime();
-        if (age >= _effect->GetLifetime())
-        {
-            isplaying = false;
-            age       = 0;
-        }
-    }
+
+
 
 }
 
@@ -74,6 +61,22 @@ void ParticleComponent::DeserializedReflectEvent()
     {
         LoadParticle();
     }
+    Position = Vector3(ReflectFields->PositionArray[0], ReflectFields->PositionArray[1], ReflectFields->PositionArray[2]);
+    Rotation = Vector3(ReflectFields->RotationArray[0], ReflectFields->RotationArray[1], ReflectFields->RotationArray[2]);
+    Scale = Vector3(ReflectFields->ScaleArray[0], ReflectFields->ScaleArray[1], ReflectFields->ScaleArray[2]);
+
+}
+
+void ParticleComponent::ImGuiDrawPropertysEvent() 
+{
+    if (ImGui::Button("Play"))
+    {
+        if (IS_EDITOR)
+        {
+            PlayEffect();
+        }
+        
+    }
 }
 
 void ParticleComponent::LoadParticle() 
@@ -83,6 +86,15 @@ void ParticleComponent::LoadParticle()
         _effect->SetRemoveFlag(true);
     }
     UmParticleManager.ParticleSerializer.PreDeserialize(_filepath);
+    const auto& modelpaths = UmParticleManager.ParticleSerializer.GetUsedModelPaths();
+
+    for (int i = 0; i < modelpaths.size(); ++i)
+    {
+        File::Path texPath = modelpaths[i];
+        texPath            = std::filesystem::absolute(texPath);
+        File::Guid guid    = texPath.ToGuid();
+        UmSceneManager.ResourceManager.RequestModelResource(this, guid, []() {});
+    }
     const auto& paths = UmParticleManager.ParticleSerializer.GetUsedTexturePaths();
     for (int i = 0; i < paths.size(); ++i)
     {
@@ -96,15 +108,17 @@ void ParticleComponent::LoadParticle()
                 _effect = UmParticleManager.ParticleSerializer.Deserialize(_filepath, false);
                 _effect->SetPlayFlag(false);
                 _effect->SetActiveFlag(false);
+                _effect->_position = &_positionVector;
+                _effect->_rotation = &_rotationVector;
+                _effect->_scale    = &_scaleVector;
+                _effect->_parentWorldMatrix = &transform->GetWorldMatrix();
             });
     }
+
 }
 
 void ParticleComponent::PlayEffect() 
 {
-    if (false == isplaying)
-    {
-        _effect->Play();
-        isplaying = true;
-    }
+    _effect->Play();
+
 }

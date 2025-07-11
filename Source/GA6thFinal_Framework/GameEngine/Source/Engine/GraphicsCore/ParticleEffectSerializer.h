@@ -25,8 +25,9 @@ public:
     class ParticleEffect*   Deserialize(File::Path filePath, bool isEditor);
     void                    PreDeserialize(File::Path filePath);
     std::vector<File::Path> GetUsedTexturePaths() { return UsedTexturePaths; }
-
+    std::vector<File::Path> GetUsedModelPaths() const { return UsedModelPaths; }
 
 private:
     std::vector<File::Path> UsedTexturePaths;
+    std::vector<File::Path> UsedModelPaths;
 };

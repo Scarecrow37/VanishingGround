@@ -1,7 +1,7 @@
 ﻿#include "pch.h"
 #include "Particle.h"
 #include "ParticleEmitter.h"
-
+#include "Model.h"
 void EmitLocator::RandomInitialize() 
 {
     _randomGenerator = std::mt19937(_randomizer());
@@ -91,41 +91,63 @@ DirectX::SimpleMath::Vector3 TorusLocator::EmitLocate()
     return location;
 }
 
+ MeshSurfaceLocator::~MeshSurfaceLocator() 
+ {
+     _targetModel = nullptr;
+ }
+
 DirectX::SimpleMath::Vector3 MeshSurfaceLocator::EmitLocate() 
 {
-    if (false == _vertices.empty())
+    if (nullptr != _targetModel)
     {
         float temp  = ((_randomVal() + 1) * 0.5f);
-        UINT index = static_cast<UINT>(temp* (_vertices.size() - 1));
-        return Vector3(_vertices[index].x * 0.1f, _vertices[index].y * 0.1f, _vertices[index].z * 0.1f);
+        UINT index = static_cast<UINT>(temp* (_totalVertexCount-1));
+        UINT  tempIdx = 0;
+        int   meshIdx = 0;
+        int   vertexoffset = 0;
+        for (auto count : _vertexCountPerMesh)
+        {
+            if (index >= tempIdx && index < tempIdx + count)
+            {
+                vertexoffset = index - tempIdx;
+                break;
+            }
+            tempIdx += count;
+            meshIdx++;
+        }
+
+        char* vertices;
+        UINT  stride, size;
+        auto& mesh = _targetModel->GetMeshes()[meshIdx];
+        mesh->GetVertexInfo(vertices, stride, size);
+        
+        Vertex* targetVertex = reinterpret_cast<Vertex*>(vertices);
+        targetVertex += vertexoffset;
+
+        return Vector3(targetVertex->Position.x * _factor.x, targetVertex->Position.y * _factor.y,
+                       targetVertex->Position.z * _factor.z);
     }
 
     else
         return {0, 0, 0};
 }
 
-void MeshSurfaceLocator::LerpVertices() 
+void MeshSurfaceLocator::LoadVerticesFromModel(File::Path modelPath)
 {
-    /*  for (int i = 0; i < _vertices.size(); i += 3)
-      {
-          auto newVector =
-              (meshVertices[meshIndices[i]] + meshVertices[meshIndices[i + 1]] + meshVertices[meshIndices[i + 2]]) *
-              0.333f;
-          auto newVector1 = (meshVertices[meshIndices[i]] + newVector) * 0.5f;
-          auto newVector2 = (meshVertices[meshIndices[i + 1]] + newVector) * 0.5f;
-          auto newVector3 = (meshVertices[meshIndices[i + 2]] + newVector) * 0.5f;
+    _targetModelPath = modelPath;
 
-          auto newVector4 = (meshVertices[meshIndices[i]] + meshVertices[meshIndices[i + 2]]) * 0.5f;
-          auto newVector5 = (meshVertices[meshIndices[i + 1]] + meshVertices[meshIndices[i + 2]]) * 0.5f;
-          auto newVector6 = (meshVertices[meshIndices[i + 1]] + meshVertices[meshIndices[i]]) * 0.5f;
-          meshVertices.push_back(newVector);
-          meshVertices.push_back(newVector1);
-          meshVertices.push_back(newVector2);
-          meshVertices.push_back(newVector3);
-          meshVertices.push_back(newVector4);
-          meshVertices.push_back(newVector5);
-          meshVertices.push_back(newVector6);
-      }*/
+    _targetModel = UmResourceManager.LoadResource<Model>(modelPath.string());
+    _vertexCountPerMesh.clear();
+    for (auto& mesh : _targetModel->GetMeshes())
+    {
+        char* tempvertex;
+        UINT    stride;
+        UINT    size;
+        mesh->GetVertexInfo(tempvertex,stride, size);
+        _vertexCountPerMesh.push_back(size);
+        _totalVertexCount += size;
+
+    }
 
 
 }
