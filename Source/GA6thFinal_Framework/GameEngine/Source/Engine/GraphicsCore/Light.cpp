@@ -9,6 +9,16 @@ Light::Light()
 
 Light::~Light() {}
 
+void Light::RegisterComponent(std::string_view sceneName)
+{
+    UmLightCore.RegisterLight(sceneName, this);
+}
+
+void Light::RegisterComponent()
+{
+    UmLightCore.RegisterLight(this);
+}
+
 void Light::SetDirectionalLight(const Vector3& color, const Vector3& ambient, const Vector3& direction,
                                 const float& intensity)
 {

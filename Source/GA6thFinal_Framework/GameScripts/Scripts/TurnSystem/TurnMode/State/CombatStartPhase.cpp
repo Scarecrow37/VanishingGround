@@ -76,6 +76,8 @@ void CombatStartPhase::OnEnter()
     UmTime.Invoke(&GetFSM(), 1.f, [this]() { UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"배틀 시작...2"); });
     UmTime.Invoke(&GetFSM(), 2.f, [this]() { UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"배틀 시작...1"); });
     UmTime.Invoke(&GetFSM(), 3.f, [this]() { this->_phaseEnd = true; });
+
+    NotifyCombatStart();
 }
 
 void CombatStartPhase::OnExit() 
@@ -86,4 +88,19 @@ void CombatStartPhase::OnExit()
 void CombatStartPhase::OnUpdate() 
 {
 
+}
+
+void CombatStartPhase::NotifyCombatStart() 
+{
+    if (_player)
+    {
+        _player->OnCombatStart();
+    }
+    for (auto& enemy : _enemies)
+    {
+        if (enemy)
+        {
+            enemy->OnCombatStart();
+        }
+    }
 }

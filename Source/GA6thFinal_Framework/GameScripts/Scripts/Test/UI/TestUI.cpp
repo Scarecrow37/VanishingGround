@@ -38,7 +38,7 @@ TestUI::~TestUI()
 void TestUI::Reset()
 {
     _spriteRenderer = std::make_unique<SpriteRenderer>(transform->GetWorldMatrix(), SpriteType::MODE_2D);
-    _spriteRenderer->RegisterRenderQueue();
+    _spriteRenderer->RegisterComponent();
     _spriteRenderer->SetActive(&EnableInHierarchy);
 }
 

@@ -17,6 +17,10 @@ public:
     void SetActive(const bool* isActive) { _isActive = isActive; }
     void SetDestroy();
 
+public:
+    virtual void RegisterComponent(std::string_view sceneName) = 0;
+    virtual void RegisterComponent() = 0;
+
 private:
     std::vector<bool*> _isDestroyeds;
     const bool*        _isActive{nullptr};

@@ -302,7 +302,10 @@
   <ItemGroup>
     <ClInclude Include="Source\Editor\Tool\Model\EditorAnimationNotifyTool.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\ConstantBufferView.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\FontRenderer.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\FontTechnique.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Headers.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\TextDrawPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\UI25DPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\UIPassBase.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\SpriteRenderer.h" />
@@ -432,7 +435,6 @@
     <ClInclude Include="Source\Engine\GraphicsCore\Enums.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Externs.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Font.h" />
-    <ClInclude Include="Source\Engine\GraphicsCore\FontManager.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\FrameResource.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\GeometryGenerator.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\GeoSphere.h" />
@@ -492,6 +494,9 @@
   <ItemGroup>
     <ClCompile Include="Source\Editor\Tool\Model\EditorAnimationNotifyTool.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\ConstantBufferView.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\FontRenderer.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\FontTechnique.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\TextDrawPass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\UI25DPass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\UIPassBase.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\SpriteRenderer.cpp" />
@@ -645,7 +650,6 @@
     <ClCompile Include="Source\Engine\GraphicsCore\Cylinder.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\Device.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\Font.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\FontManager.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\FrameResource.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\GeometryGenerator.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\GeoSphere.cpp" />

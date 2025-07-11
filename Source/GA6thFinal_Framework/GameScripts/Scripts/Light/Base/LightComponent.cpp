@@ -7,9 +7,8 @@ LightComponent::LightComponent()
     _light(std::make_unique<Light>()),
     Lighting(*_light)
 {
-    LightCore& lightCore = UmLightCore;
+    Lighting.RegisterComponent();
     Lighting.SetActive(&EnableInHierarchy);
-    lightCore.RegisterLight(_light.get());
 }
 
 LightComponent::~LightComponent() 
