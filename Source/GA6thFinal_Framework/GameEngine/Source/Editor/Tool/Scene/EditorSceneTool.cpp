@@ -436,6 +436,7 @@ void EditorSceneTool::DrawSceneView()
         }
 
         const auto& runtimeObjects = ESceneManager::Engine::GetRuntimeObjects();
+        auto        focusObject    = EditorHierarchyTool::GetFocusObject().lock();
         for (auto& object : runtimeObjects)
         {
             if (object && object->IsValid())
@@ -445,7 +446,10 @@ void EditorSceneTool::DrawSceneView()
                     Component* component = object->GetComponentAtIndex<Component>(i);
                     if (component)
                     {
-                        component->OnDrawDebug();
+                        if (nullptr == focusObject || object != focusObject)
+                        {
+                            component->OnDrawDebug();
+                        }                   
                     }
                 }
             }
