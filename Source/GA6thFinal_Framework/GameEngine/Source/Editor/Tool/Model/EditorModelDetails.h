@@ -5,6 +5,7 @@ class Animator;
 class Animation;
 class MeshRenderer;
 class FBXConverter;
+class EditorModelTool;
 class EditorModelDetails : public EditorTool
 {
     using AnimTable = std::unordered_map<std::string, unsigned int>;

@@ -34,9 +34,8 @@ private:
     /* Popup창 호출 성공 시 호출 (OnPreFrameBegin 전에 호출) */
     virtual void OnFramePopupOpened() override;
 
-private:
-    void ImportFBX(const std::filesystem::path& path);
-    void ExportFBX();
+public:
+    inline const std::unique_ptr<EditorDynamicCamera>& GetCamera() { return _camera; }
 
 private:
     std::unique_ptr<EditorDynamicCamera> _camera;

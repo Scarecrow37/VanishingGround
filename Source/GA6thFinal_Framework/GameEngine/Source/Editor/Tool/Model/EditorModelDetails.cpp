@@ -9,7 +9,7 @@
 
 EditorModelDetails::EditorModelDetails()
     : _meshRenderer(std::make_unique<MeshRenderer>(MeshRenderType::STATIC, _worldMatrix))
-    , _animator(std::make_shared<Animator>())
+    , _animator()
     , _mainLight(std::make_unique<Light>())
     , _selectedMeshIndex(0)
 {
@@ -149,6 +149,9 @@ void EditorModelDetails::OnFrameRender()
         ExportModel();
     }
     ImGui::EndHorizontal();
+    if (ImGui::TreeNodeEx("Camera Property##details"))
+    {
+    }
 
     if (ImGui::TreeNodeEx("Light Property##details"))
     {
@@ -369,24 +372,36 @@ void EditorModelDetails::ImportModel()
         fbxConverter.ImportModel(path.front(), model);
         _meshRenderer->SetModel(model);
         _meshRenderer->SetActive(&_isModelActive);
-        _animator->Initialize(model->GetAnimation(), model->GetSkeleton());
-        _meshRenderer->SetAnimator(_animator);
         _filePath = path.front();
         _filePath.replace_extension("UmModel");
 
-        _animationIndexMap.clear();
         _currentAnimationIndex = -1;
         _currentAnimationName  = "";
-        auto& animatoion = model->GetAnimation();
-        if (nullptr != animatoion)
+        _animationIndexMap.clear();
+        auto animation = model->GetAnimation();
+        auto skeleton  = model->GetSkeleton();
+        if (animation && skeleton)
         {
-            auto& animations = animatoion->GetAnimations();
+            if (nullptr == _animator)
+            {
+                _animator = std::make_shared<Animator>();
+            }
+            _animator->Initialize(animation, skeleton);
+            _meshRenderer->SetAnimator(_animator);
+            const auto& animations = animation->GetAnimations();
             for (int i = 0; i < animations.size(); ++i)
             {
                 _animationIndexMap[animations[i]] = i;
             }
+            StopCurrentAnimation();
         }
-        StopCurrentAnimation();
+        else
+        {
+            if (_animator)
+            {
+                _animator.reset();
+            }
+        }
     }
 }
 
