@@ -1,7 +1,7 @@
 ﻿#include "pchScripts.h"
 #include "ShockToken.h"
 
-#include <Token/TokenManager.h>
+#include <Token/TokenInventory.h>
 #include <Token/Object/Stun/StunToken.h>
 #include <TurnSystem/TurnActor/Character/CharacterBase.h>
 REGISTER_TOKEN(ShockToken)
@@ -15,7 +15,7 @@ void ShockToken::OnTurnStart(CharacterBase* owner)
     float resistanceRate = 1.0f;
     if (owner)
     {
-        auto& system = owner->GetTokenManager();
+        auto& system = owner->GetTokenInventory();
         if (true == system.HasToken(ShockResistance1Token::ID))
         {
             resistanceRate += ShockResistance1Token::Data::ResistanceRate;

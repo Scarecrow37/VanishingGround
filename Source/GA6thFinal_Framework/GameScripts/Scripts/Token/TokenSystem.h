@@ -5,7 +5,7 @@
 
 // @brief 토큰을 등록하는 매크로입니다. 이걸 사용하지 않으면 토큰이 System에 등록되지 않습니다.
 // @brief Include :
-// @brief <Token/TokenSystem.h> 혹은 <Token/TokenManager.h> 을 포함해야합니다.
+// @brief <Token/TokenSystem.h> 혹은 <Token/TokenInventory.h> 을 포함해야합니다.
 #define REGISTER_TOKEN(CLASS)                                                   \
     namespace TokenRegister                                                     \
     {                                                                           \

@@ -32,7 +32,7 @@ void PlayerPlayTurnState::OnStart()
 void PlayerPlayTurnState::OnEnter() 
 {
     auto& player = GetPlayer();
-    player.GetTokenManager().NotifyTurnStart();
+    player.GetTokenInventory().NotifyTurnStart();
 }
 
 void PlayerPlayTurnState::OnExit() 
@@ -40,7 +40,7 @@ void PlayerPlayTurnState::OnExit()
     _isStart = false;
 
     auto& player = GetPlayer();
-    player.GetTokenManager().NotifyTurnEnd();
+    player.GetTokenInventory().NotifyTurnEnd();
 }
 
 void PlayerPlayTurnState::OnUpdate() 

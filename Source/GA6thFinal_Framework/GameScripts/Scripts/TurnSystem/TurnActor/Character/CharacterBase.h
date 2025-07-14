@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "../TurnActor.h"
-#include "Token/TokenManager.h"
+#include "Token/TokenInventory.h"
 
 struct CharacterStats;
 class CharacterBase abstract : public TurnActor
@@ -59,7 +59,7 @@ public:
     virtual void Revive() override;
     virtual void Dead() override;
 
-    inline TokenManager& GetTokenManager() { return _tokenManager; }
+    inline TokenInventory& GetTokenInventory() { return _tokenInventory; }
 
 public:
     CharacterBase();
@@ -77,7 +77,7 @@ private:
     int _chainCount;
     int _chainRoundCount;
 
-    TokenManager _tokenManager;
+    TokenInventory _tokenInventory;
 
 protected:
     /// <summary>
@@ -97,4 +97,6 @@ public:
     virtual void OnKill(CharacterBase* destination) override;
     virtual void OnTokenAdded(int tokenID) override;
     virtual void OnTokenRemoved(int tokenID) override;
+
+    virtual void ImGuiDrawPropertysEvent() override;
 };

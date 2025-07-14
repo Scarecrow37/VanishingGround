@@ -2,7 +2,7 @@
 #include "StunToken.h"
 
 #include <TurnSystem/TurnActor/Character/CharacterBase.h>
-#include <Token/TokenManager.h>
+#include <Token/TokenInventory.h>
 REGISTER_TOKEN(StunToken)
 
 void StunToken::OnTurnStart(CharacterBase* owner) 
