@@ -25,7 +25,6 @@ static ReflectHelper::ImGuiDraw::InputAutoSetting InitSetting()
 {
     ReflectHelper::ImGuiDraw::InputAutoSetting setting;
     setting._float.format = "%.1f";
-    setting.ShowName = false;
     return setting;
 }
 

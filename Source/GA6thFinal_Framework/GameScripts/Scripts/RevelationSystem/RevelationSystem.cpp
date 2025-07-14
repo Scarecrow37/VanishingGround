@@ -79,10 +79,19 @@ bool RevelationSystem::EraseElement(std::string_view elementName)
     return result;
 }
 
+static ReflectHelper::ImGuiDraw::InputAutoSetting InitSetting()
+{
+    ReflectHelper::ImGuiDraw::InputAutoSetting setting;
+    setting.ShowName = false;
+    return setting;
+}
+
 void RevelationSystem::DrawImGuiElementTableEditor() 
 {
     if (ImGui::BeginTable("Revelation Stats", 8, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
     {                      
+        static ReflectHelper::ImGuiDraw::InputAutoSetting tableSetting = InitSetting();
+
         ImGui::TableSetupColumn("ImageGuid");
         ImGui::TableSetupColumn("Name");
         ImGui::TableSetupColumn("Condition");
@@ -119,12 +128,12 @@ void RevelationSystem::DrawImGuiElementTableEditor()
             {
                 ImGui::TableNextRow();
                 element.SetImGuiTableIndex();
-                UmCore->ImGuiDrawPropertysSetting.InputEndEvent = [&](bool edit, std::string_view name) 
+                tableSetting.InputEndEvent = [&](bool edit, std::string_view name) 
                 {
                     element.SetImGuiTableIndex();
                     RightClickContext();
                 };
-                element.ImGuiDrawPropertys();
+                element.ImGuiDrawPropertys(tableSetting);
             }
             ImGui::PopID();
             ImGui::PopStyleColor(1);

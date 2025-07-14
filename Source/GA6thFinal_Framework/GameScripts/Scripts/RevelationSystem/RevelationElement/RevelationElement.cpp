@@ -49,7 +49,7 @@ void RevelationElement::ImGuiDrawPropertysEvent()
             ImGui::SameLine();
         }
 
-        if (ImGui::BeginCombo("Action", selectName.data()))
+        if (ImGui::BeginCombo("##Action", selectName.data()))
         {
             for (auto& [key, func] : system->GetActionFactory())
             {
@@ -59,6 +59,10 @@ void RevelationElement::ImGuiDrawPropertysEvent()
                 }
             }
             ImGui::EndCombo();
+        }
+        else
+        {
+            ImGuiHelper::HoveredToolTip(selectName.data());
         }
 
         if (_action)
