@@ -5,6 +5,7 @@ class Animator;
 class Animation;
 class MeshRenderer;
 class FBXConverter;
+class EditorModelTool;
 class EditorModelDetails : public EditorTool
 {
     using AnimTable = std::unordered_map<std::string, unsigned int>;
@@ -70,6 +71,8 @@ private:
     void SaveModel();
 
 private:
+    EditorModelTool*                _modelTool = nullptr;
+        
     Matrix                          _worldMatrix;
     Vector3                         _position = Vector3::Zero;
     Vector3                         _rotation = Vector3::Zero;
