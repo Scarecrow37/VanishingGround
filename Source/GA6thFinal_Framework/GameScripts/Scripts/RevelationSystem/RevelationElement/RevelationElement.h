@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "../RevelationAction/Base/RevelationActionBase.h"
+#include "DamageSystem/Interface/IDamageAction.h"
 
 // 연격 조건
 enum class RevelationConditionType
@@ -82,7 +83,11 @@ public:
     //계시 이름
     PROPERTY(Name)
 
+    /*해당 계시의 액션을 반환합니다.*/
     RevelationActionBase* GetAction() { return _action.get(); }
+
+    /*계시 발동 조건 여부를 검사합니다.*/
+    bool Evaluate(CharacterBase* attacker, CharacterBase* target); 
 
 protected:
     REFLECT_FIELDS_BEGIN(ReflectSerializer)

@@ -1,6 +1,36 @@
 ﻿#include "pchScripts.h"
 #include "RevelationElement.h"
 #include <RevelationSystem/RevelationSystem.h>
+#include <TurnSystem/TurnActor/Character/Player/Player.h>
+#include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
+
+bool RevelationElement::Evaluate(CharacterBase* attacker, CharacterBase* target)
+{
+    bool result = false;
+    int chainCount = target->ChainCount;
+    RevelationConditionType condition  = ReflectFields->Condition;
+    switch (condition)
+    {
+    case RevelationConditionType::GREATER_THAN_OR_EQUAL:
+        result = chainCount >= ReflectFields->ConditionValueA;
+        break;
+    case RevelationConditionType::LESS_THAN_OR_EQUAL:
+        result = chainCount <= ReflectFields->ConditionValueA;
+        break;
+    case RevelationConditionType::BETWEEN_INCLUSIVE:
+        result = ReflectFields->ConditionValueA <= chainCount && chainCount <= ReflectFields->ConditionValueA;
+        break;
+    case RevelationConditionType::EQUAL:
+        result = chainCount == ReflectFields->ConditionValueA;
+        break;
+    case RevelationConditionType::MULTIPLE_OF:
+        result = chainCount % ReflectFields->ConditionValueA == 0;
+        break;
+    default:
+        break;
+    }
+    return result;
+}
 
 void RevelationElement::ImGuiDrawPropertysEvent()
 {
