@@ -415,10 +415,8 @@ void EditorModelDetails::ImportModel()
         auto skeleton  = model->GetSkeleton();
         if (animation && skeleton)
         {
-            if (nullptr == _animator)
-            {
-                _animator = std::make_shared<Animator>();
-            }
+            _animator.reset();
+            _animator = std::make_shared<Animator>();
             _animator->Initialize(animation, skeleton);
             _meshRenderer->SetAnimator(_animator);
             const auto& animations = animation->GetAnimations();
