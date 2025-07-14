@@ -22,8 +22,6 @@ void SkyBox::SetTexture(std::wstring_view path)
     ScratchImage image;
     TexMetadata  metadata;
 
-    //std::wstring widePath(path.begin(), path.end()); // UTF-8 → UTF-16 변환
-
     HRESULT hr = LoadFromHDRFile(path.data(), &metadata, image);
     FAILED_CHECK_MESSAGE(hr, L"SkyBox::SetTexture LoadFromHDRFile Failed");
 
