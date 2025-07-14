@@ -97,3 +97,6 @@ UMREAL_COMPONENT(TestText)
 
 #include "Scripts\RevelationSystem/RevelationSystem.h"
 UMREAL_COMPONENT(RevelationSystem)
+
+#include "Scripts/DamageSystem/DamageSystem.h"
+UMREAL_COMPONENT(DamageSystem)
