@@ -30,13 +30,14 @@ class Token : public ReflectSerializer, public IToken
 public:
     Token();
     virtual ~Token();
-    REFLECT_PROPERTY(Order)
+    REFLECT_PROPERTY(Order, MaxStackCount)
 
     GETTER(int, Order) { return ReflectFields->Order; }
     SETTER(int, Order) { SetTokenOrder(value); }
     PROPERTY(Order)
-    // GETTER_ONLY(int, MaxStackCount) { return static_cast<int>(MaxStackCount); }
-    // PROPERTY(MaxStackCount)
+    GETTER(int, MaxStackCount) { return ReflectFields->MaxStackCount; }
+    SETTER(int, MaxStackCount) { SetMaxStackCount(value); }
+    PROPERTY(MaxStackCount)
 
     virtual void ShowReflectFieldView() = 0;
 

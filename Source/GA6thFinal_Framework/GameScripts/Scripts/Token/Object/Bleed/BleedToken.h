@@ -7,14 +7,18 @@ namespace TokenObject
     {
         TOKEN_DATA(16000, "출혈Ⅰ")
         TOKEN_CONSTRUCTOR(Bleed1, 50, 3)
-        REFLECT_PROPERTY(ReflectFields->TickDamage)
+        REFLECT_PROPERTY(
+            ReflectFields->TickDamage,
+            ReflectFields->TransitionCount
+        )
 
     private:
         void OnTurnStart(CharacterBase* owner) override;
 
     public:
         REFLECT_FIELDS_BEGIN(Token)
-        int TickDamage = 10;
+        int TickDamage      = 10; // 매 턴마다 적용되는 데미지
+        int TransitionCount = 4; // 다음 출혈로 전이되는 조건 수
         REFLECT_FIELDS_END(Bleed1)
     };
 
@@ -22,14 +26,18 @@ namespace TokenObject
     {
         TOKEN_DATA(16001, "출혈Ⅱ")
         TOKEN_CONSTRUCTOR(Bleed2, 50, 7)
-        REFLECT_PROPERTY(ReflectFields->TickDamage)
+        REFLECT_PROPERTY(
+            ReflectFields->TickDamage,
+            ReflectFields->TransitionCount
+        )
 
     private:
         void OnTurnStart(CharacterBase* owner) override;
 
     private:
         REFLECT_FIELDS_BEGIN(Token)
-        int TickDamage = 20;
+        int TickDamage      = 20; // 매 턴마다 적용되는 데미지
+        int TransitionCount = 8; // 다음 출혈로 전이되는 조건 수
         REFLECT_FIELDS_END(Bleed2)
     };
 
@@ -44,7 +52,7 @@ namespace TokenObject
 
     private:
         REFLECT_FIELDS_BEGIN(Token)
-        int TickDamage = 40;
+        int TickDamage      = 40; // 매 턴마다 적용되는 데미지
         REFLECT_FIELDS_END(Bleed3)
     };
 }
