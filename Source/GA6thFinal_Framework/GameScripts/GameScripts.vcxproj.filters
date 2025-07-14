@@ -294,6 +294,9 @@
     <ClInclude Include="Scripts\DamageSystem\Interface\IDamageAction.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Scripts\RevelationSystem\RevelationAction\Token\TokenApplyAction.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -540,6 +543,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Scripts\DamageSystem\DamageSystem.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\RevelationSystem\RevelationAction\Token\TokenApplyAction.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
