@@ -64,7 +64,7 @@ void RevelationElement::ImGuiDrawPropertysEvent()
         if (_action)
         {
             if (_showActionEditor)
-                _action->ImGuiDrawPropertys();
+                _action->ImGuiDrawActionEditor();
         }
     }
     _imguiDrawIndex = 0;
