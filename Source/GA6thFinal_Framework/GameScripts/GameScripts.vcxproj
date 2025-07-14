@@ -298,6 +298,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Scripts\DamageSystem\Interface\IDamageAction.h" />
     <ClInclude Include="Scripts\RevelationSystem\RevelationAction\Base\RevelationActionBase.h" />
     <ClInclude Include="Scripts\RevelationSystem\RevelationAction\Critical\CriticalDamageAction.h" />
     <ClInclude Include="Scripts\RevelationSystem\RevelationElement\RevelationElement.h" />
@@ -391,6 +392,7 @@
     <ClInclude Include="Scripts\WeaponSystem\WeaponSystem.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Scripts\DamageSystem\DamageSystem.cpp" />
     <ClCompile Include="Scripts\RevelationSystem\RevelationAction\Critical\CriticalDamageAction.cpp" />
     <ClCompile Include="Scripts\RevelationSystem\RevelationElement\RevelationElement.cpp" />
     <ClCompile Include="Scripts\RevelationSystem\RevelationSystem.cpp" />
