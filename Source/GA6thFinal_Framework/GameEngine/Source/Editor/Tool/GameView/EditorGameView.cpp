@@ -9,6 +9,10 @@ EditorGameView::EditorGameView()
 
 EditorGameView::~EditorGameView() {}
 
+void EditorGameView::OnFrameFocusEnter() 
+{
+}
+
 void EditorGameView::OnFrameRender() 
 {
     CameraComponent* camera = ESceneManager::Engine::GetMainCamera();

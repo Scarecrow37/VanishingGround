@@ -1,5 +1,5 @@
 ﻿#pragma once
-#define MAX_PARTICLE 1000000
+#define MAX_PARTICLE 100000
 // 초기값이 있는 멤버 변수 선언 매크로
 #define PROP_DECL_INIT(type, varName, initValue)                                                                       \
 protected:                                                                                                             \
@@ -63,6 +63,13 @@ struct EmitterInfo
     Matrix WorldMatrix;
     Vector4 dragPoint;
     Vector4 dragForce;
+    Vector4 vortexForce;
+    Vector4 startScale;
+    Vector4 endScale;
+    Vector4 startColor;
+    Vector4 endColor;
+    Vector4 lifetime;
+
 };
 
 struct __declspec(align(16)) MVPConstants
@@ -108,24 +115,3 @@ enum class VelocityScaleType
 
 
 
-// 정렬용 키-값 쌍 구조체
-struct ParticleSortData
-{
-    float depth;         // FinalMatrix._43 값 (정렬 키)
-    UINT  originalIndex; // 원본 파티클 인덱스 (페이로드)
-};
-
-// Radix Sort 상수 버퍼
-struct RadixSortConstants
-{
-    UINT numParticles;
-    UINT currentBit;
-    UINT numThreadGroups;
-    UINT pad;
-};
-
-// Radix Sort 관련 상수
-static const UINT RADIX_BITS          = 4;
-static const UINT RADIX_SIZE          = 1 << RADIX_BITS; // 16
-static const UINT THREADS_PER_GROUP   = 256;
-static const UINT ELEMENTS_PER_THREAD = 4;

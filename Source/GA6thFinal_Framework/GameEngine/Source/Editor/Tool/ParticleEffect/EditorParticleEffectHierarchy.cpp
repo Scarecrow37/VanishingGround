@@ -1,7 +1,7 @@
 ﻿#include "pch.h"
-#include "EditorParticleEffectHierarchy.h"
 #include "Engine/GraphicsCore/ParticleEffect.h"
 #include "Engine/GraphicsCore/ParticleEmitter.h"
+#include "EditorParticleEffectHierarchy.h"
  EditorParticleEffectHierarchy::EditorParticleEffectHierarchy() 
  {
      SetLabel("Hierarchy##particleeffect");
@@ -37,10 +37,9 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
     bool            isnewbuttonpressed = ImGui::Button("New", {180, 50});
      if (true == isnewbuttonpressed)
     {
-         auto newEffect = UmParticleManager.RegisterEffect();
+         auto newEffect = UmParticleManager.RegisterEffectOnEditor();
          newEffect->SetLifetime(10.f);
          newEffect->SetEffectName("newEffect");
-        UmParticleManager.SetCurrentEditorEffect(newEffect);
         _editorParticleEffectDetails->SetCurrentEffect(newEffect);
         _curEffect = newEffect;
     }
@@ -56,7 +55,11 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
         std::vector<File::Path> out;
         if (File::ShowOpenFileDialog(owner, title, L"", {{L"\0", L"*.vfx*\0"}}, false, out))
         {
-            auto effect = UmParticleSerializer.Deserialize(out.front());
+            auto effect = UmParticleManager.ParticleSerializer.Deserialize(out.front(),true);
+            for (auto emitter : effect->GetEmitterList())
+            {
+                emitter->_particleRenderModule->Initialize();
+            }
             UmParticleManager.SetCurrentEditorEffect(effect);
             _editorParticleEffectDetails->SetCurrentEffect(effect);
             _curEffect = effect;
@@ -76,7 +79,7 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
             std::wstring filename;
             if (File::ShowSaveFileDialog(UmApplication.GetHwnd(), L"Save as vfx file", L"", L"Effect.vfx", {}, path))
             {
-                UmParticleSerializer.Serialize(_curEffect,path);
+                UmParticleManager.ParticleSerializer.Serialize(_curEffect, path);
             }
         }
     }
@@ -97,20 +100,17 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
     UmParticleManager.SetAutoRefresh(isAutorefresh);
 
     float deltaScale = UmParticleManager.GetDeltaScale();
-    ImGui::SliderFloat("Time Speed",&deltaScale, 0.f,2.f);
+    ImGui::SliderFloat("Time Speed", &deltaScale, 0.f, 2.f);
     UmParticleManager.SetDeltaScale(deltaScale);
 
-
-
-
-
-
-    ImGui::Text("current particle count : %d",UmParticleManager.GetTotalCount());
-    ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal, 2.f);
-    if (nullptr == effect)
+    if (nullptr == UmParticleManager.GetCurrentEditorEffect())
     {
+        _curEffect = nullptr;
         return;
     }
+
+    ImGui::Text("current particle count : %d", UmParticleManager.GetTotalCount());
+    ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal, 2.f);
 
 
 
@@ -118,31 +118,6 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
     ParticleType  particleType;
 
     ImGui::BeginGroup();
-    //location combobox
-    {
-        static int  shapeRow      = -1;
-        const char* shapeitems[6] = {"Sphere      ", "Cube        ", "Cylinder    ",
-                                     "Cone        ", "Torus       ", "Mesh Surface"};
-        static int  shapeIdx      = 0;
-        ImGui::Text("Emission Shape");
-        ImGui::SetNextItemWidth(130);
-        ImGui::SameLine();
-        if (ImGui::BeginCombo("##Emission Shape", shapeitems[shapeIdx]))
-        {
-            for (int n = 0; n < 6; n++)
-            {
-                bool is_selected = (shapeIdx == n);
-                if (ImGui::Selectable(shapeitems[n], is_selected))
-                {
-                    shapeIdx = n;
-                }
-                if (is_selected)
-                    ImGui::SetItemDefaultFocus();
-            }
-            ImGui::EndCombo();
-        }
-        locationType = (LocationShape)shapeIdx;
-    }
     //particleType combobox
     {
 
@@ -168,15 +143,67 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
         }
         particleType = (ParticleType)renderIdx;
     }
+    //location combobox
+    {
+        static int  shapeRow      = -1;
+        const char* shapeitems[6] = {"Sphere      ", "Cube        ", "Cylinder    ",
+                                     "Cone        ", "Torus       ", "Mesh Surface"};
+        static int  shapeIdx      = 0;
+        ImGui::Text("Emission Shape");
+        ImGui::SetNextItemWidth(130);
+        ImGui::SameLine();
+        if (ImGui::BeginCombo("##Emission Shape", shapeitems[shapeIdx]))
+        {
+            for (int n = 0; n < 6; n++)
+            {
+                bool is_selected = (shapeIdx == n);
+                if (ImGui::Selectable(shapeitems[n], is_selected))
+                {
+                    shapeIdx = n;
+                }
+                if (is_selected)
+                    ImGui::SetItemDefaultFocus();
+            }
+            ImGui::EndCombo();
+        }
+        locationType = (LocationShape)shapeIdx;
+    }
+
+    if (LocationShape::MESH_SURFACE == locationType)
+    {
+        currentmeshsurfacepath = std::filesystem::absolute(currentmeshsurfacepath);
+        ImGui::Text(currentmeshsurfacepath.string().c_str());
+        bool isLoadModelButtonPressed = ImGui::Button("load target model", {250, 30});
+        if (true == isLoadModelButtonPressed)
+        {
+
+            HWND                    owner = UmApplication.GetHwnd();
+            LPCWSTR                 title = L"Load fbx file";
+            std::vector<File::Path> out;
+            if (File::ShowOpenFileDialog(UmApplication.GetHwnd(),title, L"",
+                                         {{L"Model Files (*.fbx;*.UmModel)", L"*.fbx; *.UmModel\0\0"}}, false, out))
+            {
+                currentmeshsurfacepath = out.front();
+            }
+        }
+        currentmeshsurfacepath = std::filesystem::absolute(currentmeshsurfacepath);
+    }
     ImGui::EndGroup();
     ImGui::SameLine();
+
+
     bool isAddButtonPressed = ImGui::Button("Add new Emitter", {180, ImGui::GetFrameHeight() * 2.f});
-
-
     if (true == isAddButtonPressed)
     {
         auto emitter =
             UmParticleManager.RegisterEmitter(_curEffect, 100000, 1000, 20, locationType, {0, 0, 0}, particleType);
+        if (LocationShape::MESH_SURFACE == locationType)
+        {
+            static_cast<MeshSurfaceLocator*>(emitter->_emitLocator)->LoadVerticesFromModel(currentmeshsurfacepath);
+        }
+
+
+
     }
     bool isSomeoneChanged   = false;
     ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal,2.f);
@@ -185,7 +212,7 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
         ImGuiTreeNodeFlags parent_flags = ImGuiTreeNodeFlags_OpenOnArrow;
         bool               parent_open  = ImGui::TreeNodeEx(effect->GetEffectName().c_str(), parent_flags);
 
-        effect->SetPosition({0,10,0});
+        effect->_position   = &defaultpos;
         bool isHovered      = ImGui::IsItemHovered();
         bool isMouseClicked = ImGui::IsMouseClicked(0);
         if (true == isHovered && true == isMouseClicked)
@@ -265,135 +292,3 @@ void EditorParticleEffectHierarchy::OnFramePopupOpened()
 
 }
 
-void EditorParticleEffectHierarchy::Serialize(std::string filepath) 
-{
-    
-}
-
-void EditorParticleEffectHierarchy::Deserialize(const std::string& filepath)
-{
-    std::ifstream is(filepath, std::ios::binary);
-    if (!is.is_open())
-        return;
-
-    uint32_t nameLen = 0;
-    is.read(reinterpret_cast<char*>(&nameLen), sizeof(nameLen));
-    std::string effectname(nameLen, '\0');
-    is.read(&effectname[0], nameLen);
-
-    // lifetime
-    float lifetime = 0.f;
-    is.read(reinterpret_cast<char*>(&lifetime), sizeof(lifetime));
-
-    auto newEffect = UmParticleManager.RegisterEffect();
-    newEffect->SetLifetime(lifetime);
-    newEffect->SetEffectName(effectname);
-
-    uint32_t emitterCount = 0;
-    is.read(reinterpret_cast<char*>(&emitterCount), sizeof(emitterCount));
-
-    for (uint32_t i = 0; i < emitterCount; ++i)
-    {
-
-        uint32_t nameLen = 0;
-        is.read(reinterpret_cast<char*>(&nameLen), sizeof(nameLen));
-        std::string emitterName(nameLen, '\0');
-        is.read(&emitterName[0], nameLen);
-
-        Vector3           emitterPosition;
-        Vector3           emitterRotationE;
-        Quaternion        emitterRotationQ;
-        LocationShape     locationType;
-        Vector3           locatorFactor;
-        VelocityScaleType velocityType;
-        Vector3           velocityFactor;
-        float             emitterLifetime;
-        float             particleLifetime;
-        float             maxParticles;
-        float             emissionRate;
-        float             startDelay;
-        float             spawnBurstFlag;
-        float             spawnBurstCount;
-        Vector3           startColor;
-        float             startOpacity;
-        Vector3           endColor;
-        float             endOpacity;
-        Vector4           startScale;
-        Vector4           endScale;
-        float             particleMass;
-        Vector3           distributionOffset;
-        Vector4           dragPoint;
-        Vector4           dragForce;
-        ParticleType      particleType;
-
-        is.read(reinterpret_cast<char*>(&emitterPosition), sizeof(emitterPosition));
-        is.read(reinterpret_cast<char*>(&emitterRotationE), sizeof(emitterRotationE));
-        is.read(reinterpret_cast<char*>(&emitterRotationQ), sizeof(emitterRotationQ));
-        is.read(reinterpret_cast<char*>(&locationType), sizeof(locationType));
-        is.read(reinterpret_cast<char*>(&locatorFactor), sizeof(locatorFactor));
-        is.read(reinterpret_cast<char*>(&velocityType), sizeof(velocityType));
-        is.read(reinterpret_cast<char*>(&velocityFactor), sizeof(velocityFactor));
-        is.read(reinterpret_cast<char*>(&emitterLifetime), sizeof(emitterLifetime));
-        is.read(reinterpret_cast<char*>(&particleLifetime), sizeof(particleLifetime));
-        is.read(reinterpret_cast<char*>(&maxParticles), sizeof(maxParticles));
-        is.read(reinterpret_cast<char*>(&emissionRate), sizeof(emissionRate));
-        is.read(reinterpret_cast<char*>(&startDelay), sizeof(startDelay));
-        is.read(reinterpret_cast<char*>(&spawnBurstFlag), sizeof(spawnBurstFlag));
-        is.read(reinterpret_cast<char*>(&spawnBurstCount), sizeof(spawnBurstCount));
-        is.read(reinterpret_cast<char*>(&startColor), sizeof(startColor));
-        is.read(reinterpret_cast<char*>(&startOpacity), sizeof(startOpacity));
-        is.read(reinterpret_cast<char*>(&endColor), sizeof(endColor));
-        is.read(reinterpret_cast<char*>(&endOpacity), sizeof(endOpacity));
-        is.read(reinterpret_cast<char*>(&startScale), sizeof(startScale));
-        is.read(reinterpret_cast<char*>(&endScale), sizeof(endScale));
-        is.read(reinterpret_cast<char*>(&particleMass), sizeof(particleMass));
-        is.read(reinterpret_cast<char*>(&distributionOffset), sizeof(distributionOffset));
-        is.read(reinterpret_cast<char*>(&dragPoint), sizeof(dragPoint));
-        is.read(reinterpret_cast<char*>(&dragForce), sizeof(dragForce));
-        is.read(reinterpret_cast<char*>(&particleType), sizeof(particleType));
-
-        // texture path
-        uint32_t pathnameLen = 0;
-        is.read(reinterpret_cast<char*>(&pathnameLen), sizeof(pathnameLen));
-        std::string utf8Path(pathnameLen, '\0');
-        is.read(&utf8Path[0], pathnameLen);
-        int wideSize = MultiByteToWideChar(CP_UTF8, 0, utf8Path.data(), static_cast<int>(utf8Path.size()), nullptr, 0);
-        std::wstring modelTexturePath(wideSize, L'\0');
-        MultiByteToWideChar(CP_UTF8, 0, utf8Path.data(), static_cast<int>(utf8Path.size()), modelTexturePath.data(),
-                            wideSize);
-
-        Vector4 frameInfo{};
-        if (particleType == ParticleType::SPRITE)
-        {
-            is.read(reinterpret_cast<char*>(&frameInfo), sizeof(frameInfo));
-        }
-        {
-            auto emitter =
-                UmParticleManager.RegisterEmitter(newEffect, maxParticles, emissionRate, emitterLifetime, locationType,
-                                                  locatorFactor, particleType, modelTexturePath);
-            emitter->SetEmitterName(emitterName);
-            emitter->SetEmitterPosition(emitterPosition);
-            emitter->SetEmitterRotationE(emitterRotationE);
-            emitter->SetEmitterRotationQ(emitterRotationQ);
-            emitter->SetVelocityType(velocityType);
-            emitter->SetVelocityFactor(velocityFactor);
-            emitter->SetParticleLifetime(particleLifetime);
-            emitter->SetStartDelay(startDelay);
-            emitter->SetSpawnBurstFlag(spawnBurstFlag);
-            emitter->SetSpawnBurstCount(spawnBurstCount);
-            emitter->SetStartColor(startColor);
-            emitter->SetStartOpacity(startOpacity);
-            emitter->SetEndColor(endColor);
-            emitter->SetEndOpacity(endOpacity);
-            emitter->SetStartScale(startScale);
-            emitter->SetEndScale(endScale);
-            emitter->SetParticleMass(particleMass);
-            emitter->SetParticleDistributionOffset(distributionOffset);
-            emitter->SetDragPoint(dragPoint);
-            emitter->SetDragForce(dragForce);
-        }
-    }
-
-
-    is.close();
-}

@@ -212,6 +212,7 @@ void Renderer::Initialize()
     scene->InitializeRenderScene();
     scene->AddRenderTechnique(std::make_unique<SkyBoxRenderTechnique>());
     scene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
+    scene->AddRenderTechnique(std::make_unique<ParticleRenderTechnique>());
     scene->AddRenderTechnique(std::make_unique<BloomTechnique>());
     scene->AddRenderTechnique(std::make_unique<BlendTechnique>());
     scene->AddRenderTechnique(std::make_unique<UITechnique>());
@@ -220,7 +221,7 @@ void Renderer::Initialize()
 
     // Renderer File Event
     _rendererFileEvent = std::make_unique<RendererFileEvent>();
-    UmFileSystem.RegisterFileEventSubscriber(_rendererFileEvent.get(), {".png", ".dds", ".fbx", ".hdr", ".UmModel", ".sfont"});
+    UmFileSystem.RegisterFileEventSubscriber(_rendererFileEvent.get(), {".png", ".dds", ".fbx", ".hdr", ".UmModel", ".sfont" , ".jpg" });
 
     if constexpr (IS_EDITOR)
     {
@@ -248,10 +249,7 @@ void Renderer::Initialize()
         
         scene = std::make_unique<RenderScene>("ParticleEditor");
         scene->InitializeRenderScene();
-        //scene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
         scene->AddRenderTechnique(std::make_unique<ParticleRenderTechnique>());
-    
-        scene->AddRenderTechnique(std::make_unique<EditorDrawTechnique>());
         scene->AddRenderTechnique(std::make_unique<BloomTechnique>());
         scene->AddRenderTechnique(std::make_unique<BlendTechnique>());
         UmParticleManager.SetCamera(scene->GetCamera());

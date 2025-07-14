@@ -31,6 +31,8 @@ private:
 
     virtual void OnFrameEnd() override;
 
+    virtual void OnFrameFocusEnter() override;
+
     virtual void OnFrameFocusStay() override;
 
 private:
@@ -130,7 +132,8 @@ public:
         ReflectFields->CameraNearZ,
         ReflectFields->CameraFarZ, 
         ReflectFields->CameraRotateSpeed, 
-        ReflectFields->CameraPivot
+        ReflectFields->CameraPivot, 
+        ReflectFields->CameraMoveSpeed
         )
 
     void UpdateCameraSetting();

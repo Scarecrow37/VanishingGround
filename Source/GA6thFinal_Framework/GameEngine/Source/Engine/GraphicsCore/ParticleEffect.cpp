@@ -17,7 +17,7 @@
 
 
  ParticleEffect::ParticleEffect(const ParticleEffect& other) 
-         : _rotation(Quaternion::Identity), _position(0,0,0), _age(0), _lifetime(other._lifetime),
+         : _rotation(other._rotation), _position(other._position), _age(0), _lifetime(other._lifetime),
        _activeFlag(other._activeFlag), _effectName(other._effectName), _playFlag(other._playFlag),
        namingIndex(other.namingIndex), emitterNamingIndex(other.emitterNamingIndex)
  {
@@ -26,33 +26,55 @@
      {
          // Assumes ParticleEmitter has a proper copy constructor
          ParticleEmitter* cloned = new ParticleEmitter(*srcEmitter);
-         cloned->Initialize(srcEmitter->GetMaxParticles(),srcEmitter->GetEmissionRate(),srcEmitter->GetEmitterLifetime(),
-             srcEmitter->_locationType,srcEmitter->_emitLocator->GetFactor(), 
-             srcEmitter->_particleType,srcEmitter->_particleRenderModule->GetModelAndTexturePath());
+         cloned->Initialize(srcEmitter->GetMaxParticles(), srcEmitter->GetEmissionRate(),
+                            srcEmitter->GetEmitterLifetime(), srcEmitter->_locationType,
+                            srcEmitter->_emitLocator->GetFactor(), srcEmitter->_particleType,
+                            srcEmitter->_particleRenderModule->GetModelAndTexturePath());
          _particleEmitters.push_back(cloned);
      }
  }
 
- void ParticleEffect::Initialize(class ParticleManager* particleManager)
- {
-
-}
+ void ParticleEffect::Initialize(class ParticleManager* particleManager) {}
 
 void ParticleEffect::Update(float deltaTime)
 {
-
     _age += deltaTime;
     if (_age >= _lifetime)
     {
         _activeFlag = false;
         _playFlag   = false;
+        if (true == _isPlaying)
+        {
+            _isPlaying = false;
+            _age       = 0;
+        }
         return;
     }
+    {
 
-    _rotationMatrix    = Matrix::CreateFromQuaternion(_rotation);
-    _translationMatrix = Matrix::CreateTranslation(_position);
+        if (nullptr != _position)
+            _translationMatrix = Matrix::CreateTranslation(*_position);
+        else
+            _translationMatrix = Matrix::Identity;
 
-    _worldMatrix = _rotationMatrix * _translationMatrix;
+        if (nullptr != _rotation)
+            _rotationMatrix = Matrix::CreateFromQuaternion(
+                Quaternion::CreateFromYawPitchRoll(*_rotation));
+        else
+            _rotationMatrix = Matrix::Identity;
+
+        if (nullptr != _scale)
+            _scaleMatrix = Matrix::CreateScale(*_scale);
+        else
+            _scaleMatrix = Matrix::Identity;
+
+
+    }
+    if (nullptr != _parentWorldMatrix)
+        _worldMatrix = _scaleMatrix * _rotationMatrix * _translationMatrix * *_parentWorldMatrix;
+    else
+        _worldMatrix = _scaleMatrix * _rotationMatrix * _translationMatrix;
+
 
     for (auto emitter : _particleEmitters)
     {
@@ -101,7 +123,11 @@ void ParticleEffect::UpdateParticleLifeCycle(float deltaTime)
 
 void ParticleEffect::Play() 
 {
-    _playFlag = true;
+    if (false == _isPlaying)
+    {
+        _playFlag = true;
+        _isPlaying = true;
+    }
 }
 
 void ParticleEffect::Reset() 

@@ -68,7 +68,6 @@ void EditorParticleEffectViewer::OnFrameEnd()
 
 void EditorParticleEffectViewer::OnFrameFocusEnter()
 {
-
 }
 
 void EditorParticleEffectViewer::OnFrameFocusStay()
