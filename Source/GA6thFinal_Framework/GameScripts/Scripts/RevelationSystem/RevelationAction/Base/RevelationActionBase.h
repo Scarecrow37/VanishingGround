@@ -35,8 +35,5 @@ protected:
 private:
     std::string_view _name;
 
-protected:
-    void Execute(CharacterBase* attacker, CharacterBase* target) override;
-
 };
 
