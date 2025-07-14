@@ -26,6 +26,8 @@ void CriticalDamageAction::ImGuiDrawActionEditor()
     ImGuiDrawPropertys();
 }
 
+void RevelationActionBase::Execute(CharacterBase* attacker, CharacterBase* target) {}
+
 void CriticalDamageAction::DeserializedReflectEvent() 
 {
     UpdateActionInfo();
