@@ -106,7 +106,7 @@ private:
     bool _isOpenEditor = false;
     Token* _selectedToken = nullptr;
     REFLECT_FIELDS_BEGIN(Component)
-    std::string TokenSerializeData;
+    std::unordered_map<int, std::string> TokenSerializeData;
     REFLECT_FIELDS_END(TokenSystem)
 
     // Runtime token type information
@@ -147,6 +147,7 @@ inline bool TokenSystem::RegisterToken()
         return false;
     }
     T* newToken = new T();
+    newToken->SetDirtyOrderCallback([](int id) { SortByOrder(); });
     _tokenInstances.push_back(newToken);
     _tokenIDTable[ID]         = newToken;
     _tokenNameTable[name]     = newToken;

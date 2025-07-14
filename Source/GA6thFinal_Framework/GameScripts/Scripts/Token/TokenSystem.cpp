@@ -35,9 +35,30 @@ void TokenSystem::OnDrawDebug()
 
 void TokenSystem::SerializedReflectEvent() 
 {
+    // 토큰 인스턴스의 데이터를 직렬화합니다.
+    ReflectFields->TokenSerializeData.clear();
+    for (const auto& [id, token] : _tokenIDTable)
+    {
+        if (token)
+        {
+            ReflectFields->TokenSerializeData[id] = token->SerializedReflectFields();
+        }
+    }
 }
 
-void TokenSystem::DeserializedReflectEvent() {}
+void TokenSystem::DeserializedReflectEvent() 
+{
+    // 토큰 인스턴스의 데이터를 역직렬화합니다.
+    for (const auto& [id, data] : ReflectFields->TokenSerializeData)
+    {
+        Token* token = GetTokenFromID(id);
+        if (token)
+        {
+            token->DeserializedReflectFields(data);
+        }
+    }
+    SortByOrder();
+}
 
 void TokenSystem::ImGuiDrawPropertysEvent() 
 {
@@ -155,7 +176,11 @@ Token* TokenSystem::GetTokenFromName(std::string_view name)
 void TokenSystem::SortByOrder()
 { // 토큰을 Order에 따라 오름차순 정렬합니다.
     std::sort(_tokenInstances.begin(), _tokenInstances.end(),
-              [](Token* a, Token* b) { return a->GetTokenOrder() < b->GetTokenOrder(); });
+              [](Token* a, Token* b) { 
+            int aOrder = a->GetTokenOrder();
+            int bOrder = b->GetTokenOrder();
+            return aOrder < bOrder;
+        });
 }
 
 const std::string& TokenSystem::GetTokenNameFromID(int tokenID)

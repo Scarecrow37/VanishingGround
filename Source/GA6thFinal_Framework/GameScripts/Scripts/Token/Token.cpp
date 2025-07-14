@@ -26,4 +26,13 @@ void Token::SetTokenOrder(int order)
     {
         ReflectFields->Order = order;
     }
+    if (_dirtyOrderCallback)
+    {
+        _dirtyOrderCallback(GetTokenID());
+    }
+}
+
+void Token::SetDirtyOrderCallback(std::function<void(int)> callback) 
+{
+    _dirtyOrderCallback = callback;
 }

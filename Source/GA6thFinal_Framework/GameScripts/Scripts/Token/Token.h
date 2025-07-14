@@ -16,6 +16,12 @@ void ShowReflectFieldView() override {                                          
     });                                                                         \
 }
 
+#define TOKEN_CONSTRUCTOR(className, order, maxStack)                           \
+ USING_PROPERTY(className)                                                      \
+    className() {                                                               \
+    SetTokenOrder(order);                                                       \
+    SetMaxStackCount(maxStack);                                                 \
+    }
 
 class Token : public ReflectSerializer, public IToken
 {
@@ -53,12 +59,15 @@ public:
     int  GetTokenOrder() const;
     void SetMaxStackCount(UINT16 maxStack);
     void SetTokenOrder(int order);
+    void SetDirtyOrderCallback(std::function<void(int)> callback);
 
 protected:
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
     // 토큰의 실행 우선 순위
-    inline static int Order = 0;
+    int Order = 0;
     // 토큰의 최대 스택 수
-    inline static int MaxStackCount = 99;
+    int MaxStackCount = 99;
     REFLECT_FIELDS_END(Token)
+
+    std::function<void(int)> _dirtyOrderCallback = nullptr; // 우선순위가 변경되었을 때 호출되는 콜백 함수
 };

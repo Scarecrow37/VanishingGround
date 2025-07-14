@@ -4,8 +4,8 @@ namespace TokenObject
 {
     class Poison1 : public Token
     {
-        USING_PROPERTY(Poison1)
         TOKEN_DATA(16003, "중독Ⅰ")
+        TOKEN_CONSTRUCTOR(Poison1, 50, 3)
         REFLECT_PROPERTY()
     private:
         void OnTurnStart(CharacterBase* owner) override;
@@ -18,8 +18,8 @@ namespace TokenObject
 
     class Poison2 : public Token
     {
-        USING_PROPERTY(Poison2)
         TOKEN_DATA(16004, "중독Ⅱ")
+        TOKEN_CONSTRUCTOR(Poison2, 50, 3)
     private:
         void OnTurnStart(CharacterBase* owner) override;
 
@@ -31,8 +31,8 @@ namespace TokenObject
 
     class Poison3 : public Token
     {
-        USING_PROPERTY(Poison3)
         TOKEN_DATA(16005, "중독Ⅲ")
+        TOKEN_CONSTRUCTOR(Poison3, 50, 3)
     private:
         void OnTurnStart(CharacterBase* owner) override;
 

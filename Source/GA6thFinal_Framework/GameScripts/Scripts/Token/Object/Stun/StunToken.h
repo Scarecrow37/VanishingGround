@@ -4,8 +4,8 @@ namespace TokenObject
 {
     class Stun : public Token
     {
-        USING_PROPERTY(Stun)
         TOKEN_DATA(16007, "기절")
+        TOKEN_CONSTRUCTOR(Stun, 55, 1)
     private:
         void OnTurnStart(CharacterBase* owner) override;
 

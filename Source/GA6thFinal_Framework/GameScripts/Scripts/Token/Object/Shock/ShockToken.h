@@ -10,14 +10,16 @@ namespace TokenObject
     /// </summary>
     class Shock : public Token
     {
-        USING_PROPERTY(Shock)
-        REFLECT_FIELDS_BEGIN(Token)
-        // 충격이 몇 개 쌓이면 기절 토큰을 부여할지
-        inline static int TransitionTriggerCount = 4;
-        REFLECT_FIELDS_END(Shock)
         TOKEN_DATA(16006, "충격")
+        TOKEN_CONSTRUCTOR(Shock, 50, 999)
     private:
         void OnTurnStart(CharacterBase* owner) override;
+
+    private:
+        REFLECT_FIELDS_BEGIN(Token)
+        // 충격이 몇 개 쌓이면 기절 토큰을 부여할지
+        int TransitionTriggerCount = 4;
+        REFLECT_FIELDS_END(Shock)
     };
 
     /// <summary>
@@ -27,15 +29,17 @@ namespace TokenObject
     /// </summary>
     class ShockResistance1 : public Token
     {
-        USING_PROPERTY(ShockResistance1)
-        REFLECT_FIELDS_BEGIN(Token)
-        // 충격 저항률 1.0f = 100%
-        inline static float ResistanceRate = 1.0f;
-        REFLECT_FIELDS_END(ShockResistance1)
         TOKEN_DATA(16008, "충격 저항Ⅰ")
+        TOKEN_CONSTRUCTOR(ShockResistance1, 50, 999)
 
     private:
         void OnTurnStart(CharacterBase* owner) override;
+
+    private:
+        REFLECT_FIELDS_BEGIN(Token)
+        // 충격이 몇 개 쌓이면 기절 토큰을 부여할지
+        float ResistanceRate = 4;
+        REFLECT_FIELDS_END(Shock)
     };
 
     /// <summary>

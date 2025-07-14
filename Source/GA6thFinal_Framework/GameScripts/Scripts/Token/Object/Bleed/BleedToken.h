@@ -5,8 +5,8 @@ namespace TokenObject
 {
     class Bleed1 : public Token
     {
-        USING_PROPERTY(Bleed1)
         TOKEN_DATA(16000, "출혈Ⅰ")
+        TOKEN_CONSTRUCTOR(Bleed1, 50, 3)
         REFLECT_PROPERTY(ReflectFields->TickDamage)
 
     private:
@@ -20,8 +20,8 @@ namespace TokenObject
 
     class Bleed2 : public Token
     {
-        USING_PROPERTY(Bleed2)
         TOKEN_DATA(16001, "출혈Ⅱ")
+        TOKEN_CONSTRUCTOR(Bleed2, 50, 7)
         REFLECT_PROPERTY(ReflectFields->TickDamage)
 
     private:
@@ -35,8 +35,8 @@ namespace TokenObject
 
     class Bleed3 : public Token
     {
-        USING_PROPERTY(Bleed3)
         TOKEN_DATA(16002, "출혈Ⅲ")
+        TOKEN_CONSTRUCTOR(Bleed3, 50, 999)
         REFLECT_PROPERTY(ReflectFields->TickDamage)
 
     private:
