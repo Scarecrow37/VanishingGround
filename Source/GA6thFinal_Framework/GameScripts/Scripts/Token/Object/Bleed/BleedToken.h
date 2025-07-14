@@ -1,41 +1,50 @@
 ﻿#pragma once
 #include <Token/Token.h>
 
-class Bleed1Token : public Token
+namespace TokenObject
 {
-    USING_PROPERTY(Bleed1Token)
-    TOKEN_DATA(16000, "출혈Ⅰ")
-private:
-    void OnTurnStart(CharacterBase* owner) override;
+    class Bleed1 : public Token
+    {
+        USING_PROPERTY(Bleed1)
+        TOKEN_DATA(16000, "출혈Ⅰ")
+        REFLECT_PROPERTY(ReflectFields->TickDamage)
 
-private:
-    REFLECT_FIELDS_BEGIN(Token)
-    UINT16 TickDamage = 10;
-    REFLECT_FIELDS_END(Bleed1Token)
-};
+    private:
+        void OnTurnStart(CharacterBase* owner) override;
 
-class Bleed2Token : public Token
-{
-    USING_PROPERTY(Bleed2Token)
-    TOKEN_DATA(16001, "출혈Ⅱ")
-private:
-    void OnTurnStart(CharacterBase* owner) override;
+    public:
+        REFLECT_FIELDS_BEGIN(Token)
+        int TickDamage = 10;
+        REFLECT_FIELDS_END(Bleed1)
+    };
 
-private:
-    REFLECT_FIELDS_BEGIN(Token)
-    UINT16 TickDamage = 20;
-    REFLECT_FIELDS_END(Bleed2Token)
-};
+    class Bleed2 : public Token
+    {
+        USING_PROPERTY(Bleed2)
+        TOKEN_DATA(16001, "출혈Ⅱ")
+        REFLECT_PROPERTY(ReflectFields->TickDamage)
 
-class Bleed3Token : public Token
-{
-    USING_PROPERTY(Bleed3Token)
-    TOKEN_DATA(16002, "출혈Ⅲ")
-private:
-    void OnTurnStart(CharacterBase* owner) override;
+    private:
+        void OnTurnStart(CharacterBase* owner) override;
 
-private:
-    REFLECT_FIELDS_BEGIN(Token)
-    UINT16 TickDamage = 40;
-    REFLECT_FIELDS_END(Bleed3Token)
-};
+    private:
+        REFLECT_FIELDS_BEGIN(Token)
+        int TickDamage = 20;
+        REFLECT_FIELDS_END(Bleed2)
+    };
+
+    class Bleed3 : public Token
+    {
+        USING_PROPERTY(Bleed3)
+        TOKEN_DATA(16002, "출혈Ⅲ")
+        REFLECT_PROPERTY(ReflectFields->TickDamage)
+
+    private:
+        void OnTurnStart(CharacterBase* owner) override;
+
+    private:
+        REFLECT_FIELDS_BEGIN(Token)
+        int TickDamage = 40;
+        REFLECT_FIELDS_END(Bleed3)
+    };
+}

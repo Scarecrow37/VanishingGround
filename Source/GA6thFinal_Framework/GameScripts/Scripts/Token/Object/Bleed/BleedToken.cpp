@@ -3,57 +3,48 @@
 
 #include <TurnSystem/TurnActor/Character/CharacterBase.h>
 #include <Token/TokenInventory.h>
-REGISTER_TOKEN(Bleed1Token)
-REGISTER_TOKEN(Bleed2Token)
-REGISTER_TOKEN(Bleed3Token)
-
-void Bleed1Token::OnTurnStart(CharacterBase* owner)
+namespace TokenObject
 {
-    GameObject& gameObject = owner->gameObject;
-    std::string msg = std::format("{}{} {}{}{}{}",
-        gameObject.ToString(),
-        (const char*)u8"에게서",
-        GetTokenName(),
-        (const char*)u8"의 토큰이 발동했습니다. (",
-        GetStackCount(),
-        (const char*)u8"스택)"
-    );
-    UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
-    // TODO: 출혈 데미지 적용
-    // owner->TakeDamage(ReflectFields->TickDamage); 
-    RemoveStack();
-}
+    REGISTER_TOKEN(Bleed1)
+    REGISTER_TOKEN(Bleed2)
+    REGISTER_TOKEN(Bleed3)
 
-void Bleed2Token::OnTurnStart(CharacterBase* owner)
-{
-    GameObject& gameObject = owner->gameObject;
-    std::string msg = std::format("{}{} {}{}{}{}",
-        gameObject.ToString(),
-        (const char*)u8"에게서",
-        GetTokenName(),
-        (const char*)u8"의 토큰이 발동했습니다. (",
-        GetStackCount(),
-        (const char*)u8"스택)"
-    );
-    UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
-    // TODO: 출혈 데미지 적용
-    // owner->TakeDamage(ReflectFields->TickDamage);
-    RemoveStack();
-}
+    void Bleed1::OnTurnStart(CharacterBase* owner)
+    {
+        auto& tokenInventory = owner->GetTokenInventory();
+        int   stackCount     = tokenInventory.GetTokenStackFromID(ID);
 
-void Bleed3Token::OnTurnStart(CharacterBase* owner)
-{
-    GameObject& gameObject = owner->gameObject;
-    std::string msg = std::format("{}{} {}{}{}{}",
-        gameObject.ToString(),
-        (const char*)u8"에게서",
-        GetTokenName(),
-        (const char*)u8"의 토큰이 발동했습니다. (",
-        GetStackCount(),
-        (const char*)u8"스택)"
-    );
-    UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
-    // TODO: 출혈 데미지 적용
-    // owner->TakeDamage(ReflectFields->TickDamage);
-    RemoveStack();
-}
+        GameObject& gameObject = owner->gameObject;
+        std::string msg = std::format("{}{} {}{}{}{}", gameObject.ToString(), (const char*)u8"에게서", GetTokenName(),
+                                      (const char*)u8"의 토큰이 발동했습니다. (", stackCount, (const char*)u8"스택)");
+        UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
+        // TODO: 데미지 적용
+        tokenInventory.RemoveTokenStackFromID(ID);
+    }
+
+    void Bleed2::OnTurnStart(CharacterBase* owner)
+    {
+        auto& tokenInventory = owner->GetTokenInventory();
+        int   stackCount     = tokenInventory.GetTokenStackFromID(ID);
+
+        GameObject& gameObject = owner->gameObject;
+        std::string msg = std::format("{}{} {}{}{}{}", gameObject.ToString(), (const char*)u8"에게서", GetTokenName(),
+                                      (const char*)u8"의 토큰이 발동했습니다. (", stackCount, (const char*)u8"스택)");
+        UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
+        // TODO: 데미지 적용
+        tokenInventory.RemoveTokenStackFromID(ID);
+    }
+
+    void Bleed3::OnTurnStart(CharacterBase* owner)
+    {
+        auto& tokenInventory = owner->GetTokenInventory();
+        int   stackCount     = tokenInventory.GetTokenStackFromID(ID);
+
+        GameObject& gameObject = owner->gameObject;
+        std::string msg = std::format("{}{} {}{}{}{}", gameObject.ToString(), (const char*)u8"에게서", GetTokenName(),
+                                      (const char*)u8"의 토큰이 발동했습니다. (", stackCount, (const char*)u8"스택)");
+        UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
+        // TODO: 데미지 적용
+        tokenInventory.RemoveTokenStackFromID(ID);
+    }
+} // namespace TokenObject

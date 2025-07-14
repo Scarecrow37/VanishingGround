@@ -14,6 +14,7 @@ TokenSystem::~TokenSystem()
 void TokenSystem::Reset()
 {
     _staticInstance = this;
+    SortByOrder();
 }
 
 void TokenSystem::OnDrawDebug()
@@ -58,10 +59,10 @@ void TokenSystem::ImGuiDrawDataTable()
         {
             if (token)
             {
-                bool isSelected = (_selectedToken == token.get());
+                bool isSelected = (_selectedToken == token);
                 if (ImGui::Selectable(token->GetTokenName(), isSelected))
                 {
-                    _selectedToken = token.get(); // 선택된 토큰을 저장
+                    _selectedToken = token; // 선택된 토큰을 저장
                 }
             }
         }
@@ -73,11 +74,8 @@ void TokenSystem::ImGuiDrawDataTable()
         if (_selectedToken)
         {
             _selectedToken->ImGuiDrawPropertys();
-            //auto       field = _selectedToken->GetReflectFields();
-            //auto view  = rfl::to_view(*this);
-            //view.apply([&](auto& rflField) {
-            //    ImGui::Text(rflField.name()); // 토큰의 이름을 출력
-            //});
+            ImGui::Separator();
+            _selectedToken->ShowReflectFieldView();
         }
         ImGui::EndChild();
     }
@@ -132,6 +130,32 @@ int TokenSystem::GetTokenIDFromName(std::string_view tokenName)
         return it->second;
     }
     return 0;
+}
+
+Token* TokenSystem::GetTokenFromID(int tokenID)
+{
+    auto it = _tokenIDTable.find(tokenID);
+    if (it != _tokenIDTable.end())
+    {
+        return it->second;
+    }
+    return nullptr;
+}
+
+Token* TokenSystem::GetTokenFromName(std::string_view name)
+{
+    auto it = _tokenNameTable.find(name.data());
+    if (it != _tokenNameTable.end())
+    {
+        return it->second;
+    }
+    return nullptr;
+}
+
+void TokenSystem::SortByOrder()
+{ // 토큰을 Order에 따라 오름차순 정렬합니다.
+    std::sort(_tokenInstances.begin(), _tokenInstances.end(),
+              [](Token* a, Token* b) { return a->GetTokenOrder() < b->GetTokenOrder(); });
 }
 
 const std::string& TokenSystem::GetTokenNameFromID(int tokenID)

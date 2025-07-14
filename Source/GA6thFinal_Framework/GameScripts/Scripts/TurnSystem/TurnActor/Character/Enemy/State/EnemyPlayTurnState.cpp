@@ -170,9 +170,9 @@ void EnemyPlayTurnState::Action22000()
     {
         // 플레이어에게 출혈 토큰을 추가합니다.
         auto& system = player->GetTokenInventory();
-        system.AddTokenStackFromID(Bleed1Token::ID, 2);
-        system.AddTokenStackFromID(Bleed2Token::ID, 2);
-        system.AddTokenStackFromID(Poison2Token::ID, 2);
+        system.AddTokenStackFromID(TokenObject::Bleed1::ID, 2);
+        system.AddTokenStackFromID(TokenObject::Bleed2::ID, 2);
+        system.AddTokenStackFromID(TokenObject::Poison2::ID, 2);
     }
 }
 
@@ -183,8 +183,8 @@ void EnemyPlayTurnState::Action22001()
     {
         // 플레이어에게 출혈 토큰을 추가합니다.
         auto& system = player->GetTokenInventory();
-        system.AddTokenStackFromID(Bleed2Token::ID, 2);
-        system.AddTokenStackFromID(Poison3Token::ID, 3);
+        system.AddTokenStackFromID(TokenObject::Bleed2::ID, 2);
+        system.AddTokenStackFromID(TokenObject::Poison3::ID, 3);
     }
 }
 
@@ -195,7 +195,7 @@ void EnemyPlayTurnState::Action22002()
     {
         // 플레이어에게 출혈 토큰을 추가합니다.
         auto& system = player->GetTokenInventory();
-        system.AddTokenStackFromID(Poison1Token::ID, 4);
+        system.AddTokenStackFromID(TokenObject::Poison1::ID, 4);
     }
 }
 
@@ -210,7 +210,7 @@ void EnemyPlayTurnState::Action22004()
     {
         // 플레이어에게 출혈 토큰을 추가합니다.
         auto& system = player->GetTokenInventory();
-        system.AddTokenStackFromID(Bleed3Token::ID, 1);
+        system.AddTokenStackFromID(TokenObject::Bleed3::ID, 1);
     }
 }
 

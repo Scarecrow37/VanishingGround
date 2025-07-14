@@ -21,7 +21,6 @@ class Token;
 class TokenSystem : public Component
 {
     USING_PROPERTY(TokenSystem)
-
     inline static TokenSystem* _staticInstance;
 
 public:
@@ -70,8 +69,20 @@ public:
     /// <returns></returns>
     static int GetTokenIDFromName(std::string_view tokenName);
 
+    /// <summary>
+    /// 토큰 이름과 ID를 매핑한 테이블입니다.
+    /// </summary>
     static inline const std::unordered_map<std::string, int>& GetTokenNameToIDTable() { return _tokenNameToIDTable; }
+
+    /// <summary>
+    /// 토큰 ID와 테이블을 매핑한 테이블입니다.
+    /// </summary>
     static inline const std::unordered_map<int, std::string>& GetTokenIDToNameTable() { return _tokenIDToNameTable; }
+
+    /// <summary>
+    /// 정렬되어있는 토큰 리스트입니다.
+    /// </summary>
+    static inline const std::vector<Token*>&  GetTokenInstances() { return _tokenInstances; }
 
 public:
     /// <summary>
@@ -82,6 +93,15 @@ public:
     template <typename T>
     static bool RegisterToken();
 
+    static Token* GetTokenFromID(int tokenID);
+    static Token* GetTokenFromName(std::string_view name);
+
+private:
+    /// <summary>
+    /// 토큰 리스트를 정렬합니다. (오름차순)
+    /// </summary>
+    static void SortByOrder();
+
 private:
     bool _isOpenEditor = false;
     Token* _selectedToken = nullptr;
@@ -90,11 +110,13 @@ private:
     REFLECT_FIELDS_END(TokenSystem)
 
     // Runtime token type information
-    inline static std::vector<std::unique_ptr<Token>>                      _tokenInstances;
-    inline static std::unordered_map<int, std::function<Token*()>>         _tokenIDFactoryTable;
-    inline static std::unordered_map<std::string, std::function<Token*()>> _tokenNameFactoryTable;
-    inline static std::unordered_map<std::string, int>                     _tokenNameToIDTable;
-    inline static std::unordered_map<int, std::string>                     _tokenIDToNameTable;
+    inline static std::vector<Token*>                                       _tokenInstances;
+    inline static std::unordered_map<int, Token*>                           _tokenIDTable; 
+    inline static std::unordered_map<std::string, Token*>                   _tokenNameTable; 
+    inline static std::unordered_map<int, std::function<Token*()>>          _tokenIDFactoryTable;
+    inline static std::unordered_map<std::string, std::function<Token*()>>  _tokenNameFactoryTable;
+    inline static std::unordered_map<std::string, int>                      _tokenNameToIDTable;
+    inline static std::unordered_map<int, std::string>                      _tokenIDToNameTable;
 };
 
 template <typename T>
@@ -124,8 +146,11 @@ inline bool TokenSystem::RegisterToken()
         assert(false && "토큰 등록 중 Name 충돌이 발생했습니다.");
         return false;
     }
+    T* newToken = new T();
+    _tokenInstances.push_back(newToken);
+    _tokenIDTable[ID]         = newToken;
+    _tokenNameTable[name]     = newToken;
     _tokenNameToIDTable[name] = ID;
     _tokenIDToNameTable[ID]   = name;
-    _tokenInstances.push_back(std::make_unique<T>());
     return true;
 }
