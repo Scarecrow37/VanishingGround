@@ -396,7 +396,7 @@ namespace ReflectHelper
                         }
                         else
                         {
-                            isEdit = NotArrayTypeFunc(value, nullptr);
+                            isEdit = NotArrayTypeFunc(value, "");
                         }               
                     }
 
