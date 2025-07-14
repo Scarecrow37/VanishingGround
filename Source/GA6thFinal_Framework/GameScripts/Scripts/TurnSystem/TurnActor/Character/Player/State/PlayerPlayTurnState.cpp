@@ -107,7 +107,7 @@ void PlayerPlayTurnState::OnUpdate()
 
                 GetPlayer().EndTurn();
                 //selectTarget->Dead();
-                //selectTarget = nullptr;
+                selectTarget = nullptr;
             }
             if (ImGui::Button("Kill"))
             {

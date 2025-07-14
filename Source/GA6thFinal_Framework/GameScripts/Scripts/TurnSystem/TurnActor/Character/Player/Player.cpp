@@ -119,7 +119,7 @@ void Player::Dead()
 
 void Player::ImGuiDrawPropertysEvent()
 {
-   
+    Base::ImGuiDrawPropertysEvent();
 }
 
 CharacterStats* Player::GetCharacterStats()

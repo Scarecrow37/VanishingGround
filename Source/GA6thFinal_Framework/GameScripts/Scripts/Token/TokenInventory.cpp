@@ -271,13 +271,14 @@ bool TokenInventory::IsEmpty() const
 void TokenInventory::DrawImGuiDebugData() 
 {
     // ValidTokenStack
-    ImGui::BeginChild("ValidTokenStack");
+    ImGui::BeginChild("ValidTokenStack", ImVec2(0, 0), ImGuiChildFlags_AutoResizeY);
     for (size_t i = 0; i < _vaildTokenVector.size(); ++i)
     {
         auto& token = _vaildTokenVector[i];
         if (token)
         {
-            if (ImGui::Selectable(token->GetTokenName(), false))
+            std::string tokenInfo = std::format("{} ({})", token->GetTokenName(), token->GetStackCount());
+            if (ImGui::Selectable(tokenInfo.c_str(), false))
             {
                 // 선택된 토큰에 대한 추가 작업이 필요하면 여기에 작성
             }

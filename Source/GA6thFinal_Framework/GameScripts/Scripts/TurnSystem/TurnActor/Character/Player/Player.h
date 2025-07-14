@@ -88,7 +88,7 @@ protected:
     /// <summary>
     /// <para>  ImGuiDrawPropertys() 호출 이후 콜되는 이벤트 함수입니다. </para>
     /// </summary>
-    virtual void ImGuiDrawPropertysEvent();
+    virtual void ImGuiDrawPropertysEvent() override;
 
 public:
     virtual void OnCombatStart() override;
