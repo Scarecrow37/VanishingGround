@@ -2,7 +2,7 @@
 #include "../Base/RevelationActionBase.h"
 #include <DamageSystem/Interface/IDamageAction.h>
 
-class TokenApplyAction : public RevelationActionBase, public IDamageAction
+class TokenApplyAction : public RevelationActionBase
 {
     USING_PROPERTY(TokenApplyAction)
 public:
