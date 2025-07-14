@@ -35,7 +35,7 @@ private:
     virtual void OnFramePopupOpened() override;
 
 public:
-    inline const std::unique_ptr<EditorDynamicCamera>& GetCamera() { return _camera; }
+    inline const std::unique_ptr<EditorDynamicCamera>& GetCamera() const { return _camera; }
 
 private:
     std::unique_ptr<EditorDynamicCamera> _camera;
