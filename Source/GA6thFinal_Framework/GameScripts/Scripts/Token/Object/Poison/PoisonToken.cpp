@@ -9,7 +9,7 @@ namespace TokenObject
     REGISTER_TOKEN(Poison2)
     REGISTER_TOKEN(Poison3)
 
-    void Poison1::OnTurnStart(CharacterBase* owner)
+    void Poison1::OnEachTurnStart(CharacterBase* owner, CharacterBase* destiantion)
     {
         auto& tokenInventory = owner->GetTokenInventory();
         int   stackCount     = tokenInventory.GetTokenStackFromID(ID);
@@ -22,7 +22,7 @@ namespace TokenObject
         tokenInventory.RemoveTokenStackFromID(ID);
     }
 
-    void Poison2::OnTurnStart(CharacterBase* owner)
+    void Poison2::OnEachTurnStart(CharacterBase* owner, CharacterBase* destiantion)
     {
         auto& tokenInventory = owner->GetTokenInventory();
         int   stackCount     = tokenInventory.GetTokenStackFromID(ID);
@@ -35,7 +35,7 @@ namespace TokenObject
         tokenInventory.RemoveTokenStackFromID(ID);
     }
 
-    void Poison3::OnTurnStart(CharacterBase* owner)
+    void Poison3::OnEachTurnStart(CharacterBase* owner, CharacterBase* destiantion)
     {
         auto& tokenInventory = owner->GetTokenInventory();
         int   stackCount     = tokenInventory.GetTokenStackFromID(ID);

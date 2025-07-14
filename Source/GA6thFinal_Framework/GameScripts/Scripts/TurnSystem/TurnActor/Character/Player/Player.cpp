@@ -198,6 +198,11 @@ void Player::OnRoundEnd()
     Base::OnRoundEnd();
 }
 
+void Player::OnEachTurnStart(CharacterBase* destination) 
+{
+    Base::OnEachTurnStart(destination);
+}
+
 void Player::OnTurnStart()
 {
     Base::OnTurnStart();

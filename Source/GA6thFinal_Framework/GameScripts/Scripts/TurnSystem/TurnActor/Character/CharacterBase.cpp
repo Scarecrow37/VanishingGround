@@ -1,6 +1,7 @@
 ﻿#include "pchScripts.h"
 #include "CharacterBase.h"
 #include "Stats/CharacterStats.h"
+#include "TurnSystem/TurnMode/TurnMode.h"
 
 int CharacterBase::GetMaxHP()
 {
@@ -82,6 +83,12 @@ void CharacterBase::OnRoundEnd()
     // End먼저? 아니면 이벤트 먼저?
     Base::OnRoundEnd();
     _tokenInventory.NotifyRoundEnd();
+}
+
+void CharacterBase::OnEachTurnStart(CharacterBase* destination)
+{
+    Base::OnEachTurnStart(destination);
+    _tokenInventory.NotifyEachTurnStart(destination);
 }
 
 void CharacterBase::OnTurnStart()

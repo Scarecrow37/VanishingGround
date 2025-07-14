@@ -8,7 +8,7 @@ namespace TokenObject
         TOKEN_CONSTRUCTOR(Poison1, 50, 3)
         REFLECT_PROPERTY()
     private:
-        void OnTurnStart(CharacterBase* owner) override;
+        void OnEachTurnStart(CharacterBase* owner, CharacterBase* destiantion) override;
 
     private:
         REFLECT_FIELDS_BEGIN(Token)
@@ -21,7 +21,7 @@ namespace TokenObject
         TOKEN_DATA(16004, "중독Ⅱ")
         TOKEN_CONSTRUCTOR(Poison2, 50, 3)
     private:
-        void OnTurnStart(CharacterBase* owner) override;
+        void OnEachTurnStart(CharacterBase* owner, CharacterBase* destiantion) override;
 
     private:
         REFLECT_FIELDS_BEGIN(Token)
@@ -34,7 +34,7 @@ namespace TokenObject
         TOKEN_DATA(16005, "중독Ⅲ")
         TOKEN_CONSTRUCTOR(Poison3, 50, 3)
     private:
-        void OnTurnStart(CharacterBase* owner) override;
+        void OnEachTurnStart(CharacterBase* owner, CharacterBase* destiantion) override;
 
     private:
         REFLECT_FIELDS_BEGIN(Token)

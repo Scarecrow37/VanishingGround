@@ -40,8 +40,8 @@ void EnemyPlayTurnState::OnEnter()
 
     LogCurrentAction();
 
-    auto& enemy = GetEnemy();
-    enemy.OnTurnStart();
+    //auto& enemy = GetEnemy();
+    //enemy.OnTurnStart();
 
     ProcessAction();
 }
@@ -53,8 +53,8 @@ void EnemyPlayTurnState::OnExit()
     std::string message = std::format("{} {}", gameObject->ToString(), (const char*)u8"턴 종료.");
     UmLogger.Message(LogLevel::LEVEL_TRACE, message);
 
-    auto& enemy = GetEnemy();
-    enemy.OnTurnEnd();
+    //auto& enemy = GetEnemy();
+    //enemy.OnTurnEnd();
 
     // Enemy의 턴이 종료시 액션을 선언.
     _aiModel.Transition();

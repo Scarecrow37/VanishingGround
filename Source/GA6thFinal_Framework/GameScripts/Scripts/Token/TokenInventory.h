@@ -30,6 +30,11 @@ public:
     void NotifyRoundEnd();
 
     /// <summary>
+    /// 라운드가 끝날 때 호출됩니다. 모든 토큰에 해당 이벤트를 알려줍니다.
+    /// </summary>
+    void NotifyEachTurnStart(CharacterBase* destination);
+
+    /// <summary>
     /// 턴이 시작될 때 호출됩니다. 모든 토큰에 해당 이벤트를 알려줍니다.
     /// </summary>
     void NotifyTurnStart();  

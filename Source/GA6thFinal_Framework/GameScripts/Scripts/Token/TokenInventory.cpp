@@ -79,6 +79,23 @@ void TokenInventory::NotifyRoundEnd()
     }
 }
 
+void TokenInventory::NotifyEachTurnStart(CharacterBase* destination) 
+{
+    const auto& instances = TokenSystem::GetTokenInstances();
+    for (auto& instance : instances)
+    {
+        Token* token = instance;
+        if (token)
+        {
+            int count = GetTokenStackFromID(token->GetTokenID());
+            if (0 < count)
+            {
+                token->OnEachTurnStart(_owner, destination);
+            }
+        }
+    }
+}
+
 void TokenInventory::NotifyTurnStart()
 {
     const auto& instances = TokenSystem::GetTokenInstances();

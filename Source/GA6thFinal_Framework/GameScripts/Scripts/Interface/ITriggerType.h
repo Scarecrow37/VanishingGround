@@ -17,6 +17,11 @@ private:
     /// <param name="source">호출한 CharacterBase 객체입니다.</param>
     virtual void OnRoundEnd(CharacterBase* source) = 0;
 
+    /// <summary>존재하는 각 CharacterBase의 턴이 시작될 때 호출됩니다.</summary>
+    /// <param name="source">호출한 CharacterBase 객체입니다.</param>
+    /// <param name="destiantion">턴이 시작된 대상</param>
+    virtual void OnEachTurnStart(CharacterBase* source, CharacterBase* destiantion) = 0;
+
     /// <summary>턴이 시작될 때 호출됩니다.</summary>
     /// <param name="source">호출한 CharacterBase 객체입니다.</param>
     virtual void OnTurnStart(CharacterBase* source) = 0;
@@ -35,7 +40,7 @@ private:
 
     /// <summary>객체가 대상을 처치 시 호출됩니다.</summary>
     /// <param name="source">호출한 CharacterBase 객체입니다.</param>
-    /// <param name="dest">처치된 대상</param>
+    /// <param name="destiantion">처치된 대상</param>
     virtual void OnKill(CharacterBase* source, CharacterBase* destination) = 0;
 
     /// <summary>객체가 토큰을 얻었을 때 호출됩니다.</summary>

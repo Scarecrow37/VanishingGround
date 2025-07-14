@@ -31,16 +31,11 @@ void PlayerPlayTurnState::OnStart()
 
 void PlayerPlayTurnState::OnEnter() 
 {
-    auto& player = GetPlayer();
-    player.GetTokenInventory().NotifyTurnStart();
 }
 
 void PlayerPlayTurnState::OnExit() 
 {
     _isStart = false;
-
-    auto& player = GetPlayer();
-    player.GetTokenInventory().NotifyTurnEnd();
 }
 
 void PlayerPlayTurnState::OnUpdate() 
