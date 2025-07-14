@@ -156,7 +156,7 @@ void Renderer::RegisterRenderQueue(FontRenderer* component)
     }
 }
 
-void Renderer::SetSkyBox(std::string_view sceneName, std::string_view path) 
+void Renderer::SetSkyBox(std::string_view sceneName, std::wstring_view path)
 {
     auto iter = _renderScenes.find(sceneName.data());
 
@@ -169,7 +169,7 @@ void Renderer::SetSkyBox(std::string_view sceneName, std::string_view path)
     scene->SetSkyBox(path);
 }
 
-void Renderer::SetSkyBox(std::string_view path)
+void Renderer::SetSkyBox(std::wstring_view path)
 {
     SetSkyBox("Game", path);
 
