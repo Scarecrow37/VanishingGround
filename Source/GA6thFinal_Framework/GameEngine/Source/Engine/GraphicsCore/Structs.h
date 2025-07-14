@@ -42,6 +42,9 @@ struct UIMaterial
 
 using VertexBufferID = UINT;
 using IndexBufferID = UINT;
+using StaticMeshInstanceID = UINT;
+using SkeletalMeshInstanceID = UINT;
+
 
 struct Material
 {
@@ -74,6 +77,15 @@ struct CameraData
     XMMATRIX ProejctionInverse;
     Vector4  Position{0.f, 0.f, 0.f, 1.f};
 };
+
+struct RayCameraData
+{
+    XMMATRIX View;
+    XMMATRIX Projection;
+    XMMATRIX ViewInverse;
+    XMMATRIX ProejctionInverse;
+};
+
 
 struct LightData
 {

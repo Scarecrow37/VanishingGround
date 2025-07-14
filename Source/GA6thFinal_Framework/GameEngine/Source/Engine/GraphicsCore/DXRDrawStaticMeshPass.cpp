@@ -22,13 +22,13 @@ void DXRDrawStaticMeshPass::Initialize(RenderScene* ownerScene)
     __super::Initialize(ownerScene);
     CreateStateObject();
     CreateShaderResource();
-    CreateShaderTable();
 }
 
 void DXRDrawStaticMeshPass::Begin(ID3D12GraphicsCommandList* commandList)
 {
+    CreateShaderTable();
     UINT currentBackBufferIndex = _ownerScene->_currentFrameIndex;
-    UmAccelerationStructureManager.RemoveUnUsedStaticMeshes(_ownerScene->_staticMesh);
+    _ownerScene->_accelerationStructureManager->RemoveUnUsedStaticMeshes(_ownerScene->_staticMesh);
     UpdateStaticMeshVIBufferID(commandList);
 }
 
@@ -36,10 +36,10 @@ void DXRDrawStaticMeshPass::Draw(ID3D12GraphicsCommandList* commandList)
 {
     for (auto* renderer : _ownerScene->_staticMesh)
     {
-        UmAccelerationStructureManager.SubmitInstance(renderer);
+        _ownerScene->_accelerationStructureManager->SubmitInstance(renderer);
     }
 
-    UmAccelerationStructureManager.EndFrame();
+    _ownerScene->_accelerationStructureManager->EndFrame();
 }
 
 void DXRDrawStaticMeshPass::End(ID3D12GraphicsCommandList* commandList)
@@ -49,6 +49,7 @@ void DXRDrawStaticMeshPass::End(ID3D12GraphicsCommandList* commandList)
     auto  cameraData             = _ownerScene->_cameraBuffer->GetGPUVirtualAddress();
     auto& frameResource          = _ownerScene->_frameResources[currentBackBufferIndex];
     _meshRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    WriteCommand();
 }
 
 void DXRDrawStaticMeshPass::CreateStateObject()
@@ -106,7 +107,7 @@ void DXRDrawStaticMeshPass::CreateStateObject()
 
     ComPtr<ID3D12Device5> device5 = UmDevice.GetDevice5();
     HRESULT               hr      = device5->CreateStateObject(&desc, IID_PPV_ARGS(_pso.GetAddressOf()));
-    FAILED_CHECK_MESSAGE(hr, L"DXRDrawStaticMeshPass::CreateHitRootDesc() failed Create RT Pipeline stateObject ");
+    FAILED_CHECK_MESSAGE(hr, L"DXRDrawStaticMeshPass::CreateStateObject() failed Create RT Pipeline stateObject ");
 }
 
 void DXRDrawStaticMeshPass::CreateShaderTable()
@@ -138,8 +139,8 @@ void DXRDrawStaticMeshPass::CreateShaderTable()
     {
         memcpy(p, ID_RGS, bytesId);
         // RootParam#1 : SRV t0 테이블 핸들
-        *reinterpret_cast<UINT64*>(p + bytesId) = UmAccelerationStructureManager.GetTopLevelSRV().GPU.ptr;
-        // RootParam#1 : SRV t0 테이블 핸들
+        *reinterpret_cast<UINT64*>(p + bytesId) = _ownerScene->_accelerationStructureManager->GetTopLevelSRV().GPU.ptr;
+        // RootParam#2 : UAV u0 테이블 핸들
         *reinterpret_cast<UINT64*>(p + bytesId + bytesArgs) = _outputResourceUAV->GetUAVHandle().ptr;
     }
     /* ── 4‑2) Miss Generation ────────────────────────────────────────── */
@@ -155,7 +156,7 @@ void DXRDrawStaticMeshPass::CreateShaderTable()
         memcpy(p, ID_HIT, bytesId);
         uint8_t* a = p + bytesId;
         // SRV t0 rtScene
-        *reinterpret_cast<UINT64*>(a) = UmAccelerationStructureManager.GetTopLevelSRV().GPU.ptr;
+        *reinterpret_cast<UINT64*>(a) = _ownerScene->_accelerationStructureManager->GetTopLevelSRV().GPU.ptr;
         a += bytesArgs; 
         // SRV t4 evnTexture
         *reinterpret_cast<UINT64*>(a) = _ownerScene->_skyBox->GetCubeMapSRV().ptr;
@@ -219,7 +220,7 @@ void DXRDrawStaticMeshPass::UpdateStaticMeshVIBufferID(ID3D12GraphicsCommandList
 void DXRDrawStaticMeshPass::WriteCommand()
 {
     ComPtr<ID3D12GraphicsCommandList4> cmdList4 = UmDevice.GetCommandList4();
-    
+
     D3D12_DISPATCH_RAYS_DESC rayTraceDesc{};
     DXGI_MODE_DESC           mode = _outputResourceUAV->GetMode();
     rayTraceDesc.Width            = mode.Width;
@@ -230,7 +231,6 @@ void DXRDrawStaticMeshPass::WriteCommand()
     rayTraceDesc.RayGenerationShaderRecord.StartAddress =
         _shaderTable->GetGPUVirtualAddress() + 0 * _shaderTableEntrySize;
     rayTraceDesc.RayGenerationShaderRecord.SizeInBytes = _shaderTableEntrySize;
-    rayTraceDesc.RayGenerationShaderRecord.StartAddress = _shaderTableEntrySize * 1;
 
     // miss 1개
     const size_t missOffset = 1 * _shaderTableEntrySize;
@@ -246,12 +246,20 @@ void DXRDrawStaticMeshPass::WriteCommand()
 
     auto cameraData = _ownerScene->_cameraBuffer->GetGPUVirtualAddress();
     auto lightData  = _ownerScene->_lightBuffer->GetGPUVirtualAddress();
+    auto& frameResource = _ownerScene->_frameResources[_ownerScene->_currentFrameIndex];
 
     //bind
     cmdList4->SetComputeRootSignature(_globalRootsignature.Get());
+
     cmdList4->SetComputeRootConstantBufferView(0, cameraData);
     cmdList4->SetComputeRootConstantBufferView(1, lightData);
     cmdList4->SetComputeRoot32BitConstants(2, 3, &_ownerScene->_numLight, 0);
-    
+    frameResource->SetRayTracingFrameResource(FrameResourceType::VERTEX_BUFFER_ID, 3, cmdList4.Get());
+    frameResource->SetRayTracingFrameResource(FrameResourceType::INDEX_BUFFER_ID, 4, cmdList4.Get());
+    frameResource->SetRayTracingFrameResource(FrameResourceType::MATERIAL, 5, cmdList4.Get());
+    frameResource->SetRayTracingFrameResource(FrameResourceType::STATIC_MESH_INSTANCE_ID, 6, cmdList4.Get());
+
+    cmdList4->SetPipelineState1(_pso.Get());
+    cmdList4->DispatchRays(&rayTraceDesc);
 }
 

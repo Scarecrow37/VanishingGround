@@ -74,6 +74,7 @@ ComPtr<IDxcBlob> d3dUtil::CompileShaderLibrary(LPCWSTR fileName,LPCWSTR targetNa
         hr = pLibrary->CreateIncludeHandler(&dxcIncludeHandler);
         FAILED_CHECK_MESSAGE(hr, L"d3dUtil::CompileShaderLibrary : FAILED Create IncludeHandler");
     }
+
     // Open and read the file
     std::ifstream shaderFile(fileName);
     if (shaderFile.good() == false)
@@ -89,10 +90,20 @@ ComPtr<IDxcBlob> d3dUtil::CompileShaderLibrary(LPCWSTR fileName,LPCWSTR targetNa
     hr = pLibrary->CreateBlobWithEncodingFromPinned(LPBYTE(sShader.c_str()), static_cast<uint32_t>(sShader.size()), 0,
                                                     &pTextBlob);
     FAILED_CHECK_MESSAGE(hr,L"d3dUtil::CompileShaderLibrary : pLibrary->CreateBlobWithEncodingFromPinned Failed");
-
-    // Compile
     IDxcOperationResult* pResult;
-    hr = pCompiler->Compile(pTextBlob, fileName, L"", targetName, nullptr, 0, nullptr, 0, dxcIncludeHandler, &pResult);
+#ifdef _DEBUG
+    LPCWSTR args[] = {
+        L"-Zi", // 디버그 정보
+        L"-Od", // 최적화 비활성화
+        // 그 외 필요 옵션
+    };
+    // Compile
+    hr = pCompiler->Compile(pTextBlob, fileName, L"", targetName, args, _countof(args), nullptr, 0, dxcIncludeHandler,
+                            &pResult);
+#else
+    hr = pCompiler->Compile(pTextBlob, fileName, L"", targetName, nullptr, 0, nullptr, 0, dxcIncludeHandler,
+                            &pResult);
+#endif // _DEBUG
     FAILED_CHECK_MESSAGE(hr, L"d3dUtil::CompileShaderLibrary : pCompiler->Compile Failed");
 
 

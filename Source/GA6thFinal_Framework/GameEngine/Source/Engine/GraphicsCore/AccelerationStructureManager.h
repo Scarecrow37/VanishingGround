@@ -9,7 +9,7 @@ struct MeshInstanceDesc
 {
     const class MeshRenderer* Renderer;
     UINT                      InstanceID;
-    UINT                      HitGroupIndex;
+    UINT                      HitGroupIndex=0;
     D3D12_RAYTRACING_INSTANCE_FLAGS Flags;
     AsBuildClass                    BuildClass;
 };

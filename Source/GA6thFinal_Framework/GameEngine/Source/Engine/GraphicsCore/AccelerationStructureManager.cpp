@@ -32,12 +32,20 @@ void AccelerationStructureManager::Initialize(UINT maxInstance)
     UmDevice.CreateUploadBuffer(static_cast<UINT>(prebuildInfo.ScratchDataSizeInBytes), D3D12_RESOURCE_FLAG_NONE,
                                 D3D12_RESOURCE_STATE_GENERIC_READ, _topLevelBuffers->pInstanceDesc);
     UmViewManager.AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _topLevelBuffersSRV);
+
+    D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc          = {};
+    srvDesc.ViewDimension                            = D3D12_SRV_DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE;
+    srvDesc.Shader4ComponentMapping                  = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+    srvDesc.RaytracingAccelerationStructure.Location = _topLevelBuffers->pResult->GetGPUVirtualAddress();
+
+    UmDevice.GetDevice()->CreateShaderResourceView(nullptr, &srvDesc, _topLevelBuffersSRV.CPU);
 }
 
 void AccelerationStructureManager::BeginFrame()
 {
     _pendingInstances.clear();
     _dynamicBlas.clear();
+    _nextInstanceID = 0;
 }
 
 void AccelerationStructureManager::SubmitInstance(const MeshRenderer* renderer)
@@ -95,7 +103,6 @@ void AccelerationStructureManager::BuildOrUpdateStaticBLAS(ID3D12Device5* device
 {
     if (cache.buf)
     {
-        cache.refCount++;
         return; // 이미 생성함
     }
     std::vector<D3D12_RAYTRACING_GEOMETRY_DESC> geos;
@@ -140,9 +147,11 @@ void AccelerationStructureManager::BuildOrUpdateStaticBLAS(ID3D12Device5* device
     desc.Inputs = inputs;
     desc.ScratchAccelerationStructureData = cache.buf->pScratch->GetGPUVirtualAddress();
     desc.DestAccelerationStructureData = cache.buf->pResult->GetGPUVirtualAddress();
+
+    cmdList->BuildRaytracingAccelerationStructure(&desc, 0, nullptr);
+
     CD3DX12_RESOURCE_BARRIER br           = CD3DX12_RESOURCE_BARRIER::UAV(cache.buf->pResult.Get());
     cmdList->ResourceBarrier(1, &br);
-    cache.refCount=1;
 }
 
 
@@ -269,6 +278,13 @@ void AccelerationStructureManager::BuildOrUpdateTLAS(ID3D12Device5* device, ID3D
         UmDevice.CreateDefaultBuffer(static_cast<UINT>(info.ResultDataMaxSizeInBytes),
                                      D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
                                      D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE, _topLevelBuffers->pResult);
+
+        D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc          = {};
+        srvDesc.ViewDimension                            = D3D12_SRV_DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE;
+        srvDesc.Shader4ComponentMapping                  = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+        srvDesc.RaytracingAccelerationStructure.Location = _topLevelBuffers->pResult->GetGPUVirtualAddress();
+
+        UmDevice.GetDevice()->CreateShaderResourceView(nullptr, &srvDesc, _topLevelBuffersSRV.CPU);
     }
     D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC desc{};
     desc.Inputs = inputs;
@@ -276,5 +292,8 @@ void AccelerationStructureManager::BuildOrUpdateTLAS(ID3D12Device5* device, ID3D
     desc.DestAccelerationStructureData    = _topLevelBuffers->pResult->GetGPUVirtualAddress();
 
     cmdList->BuildRaytracingAccelerationStructure(&desc, 0, nullptr);
+
+    CD3DX12_RESOURCE_BARRIER br = CD3DX12_RESOURCE_BARRIER::UAV(_topLevelBuffers->pResult.Get());
+    cmdList->ResourceBarrier(1, &br);
 }
     

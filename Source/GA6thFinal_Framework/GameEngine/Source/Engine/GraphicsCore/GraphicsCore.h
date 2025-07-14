@@ -19,7 +19,6 @@ public:
     ResourceManager          ResourceManager;
     MultiRenderTargetManager MultiRenderTargetManager;
     ParticleManager          ParticleManager;
-    AccelerationStructureManager AccelerationStructureManager;
     DXResourceManager        DXResourceManager;
     DebugDrawCore            DebugDrawCore;
 

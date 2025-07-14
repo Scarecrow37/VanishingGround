@@ -8,6 +8,7 @@ class MeshRenderer;
 class SkyBox;
 class SpriteRenderer;
 class FontRenderer;
+class AccelerationStructureManager;
 class RenderScene
 {
 public:
@@ -53,6 +54,8 @@ private:
     void CreateCamera();
 
 public:
+    std::unique_ptr<AccelerationStructureManager> _accelerationStructureManager;
+
     std::string _name;
     std::string _meshRenderTargetName;
     std::string _finalTargetName;
@@ -75,6 +78,8 @@ public:
     std::vector<MaterialID>                     _materialIDs;
     std::vector<XMMATRIX>                       _uiMatrices;
     std::vector<UIMaterial>                     _uiMaterials;
+    std::vector<StaticMeshInstanceID>           _staticMeshInstanceIDs;
+    std::vector<SkeletalMeshInstanceID>         _skeletalMeshInstanceIDs;
     std::shared_ptr<Camera>                     _camera;
     NumLight                                    _numLight;
 
@@ -85,6 +90,7 @@ public:
 
     // Buffers
     std::unique_ptr<ConstantBufferView> _cameraBuffer;
+    std::unique_ptr<ConstantBufferView> _RaycameraBuffer;
     std::unique_ptr<ConstantBufferView> _lightBuffer;
     ComPtr<ID3D12PipelineState>         _framePSO;
 

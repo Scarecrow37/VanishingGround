@@ -116,7 +116,7 @@ RTPipeline::RootSignatureDesc RTPipeline::CreateHitRootDesc()
     D3D12_DESCRIPTOR_RANGE cubeMapRange{};
     cubeMapRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
     cubeMapRange.NumDescriptors = 1;
-    cubeMapRange.BaseShaderRegister = 0;
+    cubeMapRange.BaseShaderRegister = 5;
     r.range[1]                      = cubeMapRange;
 
     D3D12_ROOT_PARAMETER cubeMapTable{};
@@ -128,7 +128,7 @@ RTPipeline::RootSignatureDesc RTPipeline::CreateHitRootDesc()
     D3D12_DESCRIPTOR_RANGE verticesRange{};
     verticesRange.RangeType          = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
     verticesRange.NumDescriptors     = 2000; // t5~t2004
-    verticesRange.BaseShaderRegister = 5;
+    verticesRange.BaseShaderRegister = 6;
     r.range[2]                       = verticesRange;
    
     D3D12_ROOT_PARAMETER verticesTable{};
@@ -142,7 +142,7 @@ RTPipeline::RootSignatureDesc RTPipeline::CreateHitRootDesc()
     D3D12_DESCRIPTOR_RANGE indicesRange{};
     indicesRange.RangeType          = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
     indicesRange.NumDescriptors     = 2000; // t2005~t4004
-    indicesRange.BaseShaderRegister = 2005;
+    indicesRange.BaseShaderRegister = 2006;
     r.range[3] = indicesRange;
 
     D3D12_ROOT_PARAMETER indicesTable{};
@@ -156,7 +156,7 @@ RTPipeline::RootSignatureDesc RTPipeline::CreateHitRootDesc()
     D3D12_DESCRIPTOR_RANGE texRange{};
     texRange.RangeType                         = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
     texRange.NumDescriptors                    = 1000; // 무제한
-    texRange.BaseShaderRegister                = 4005;     // t4005~
+    texRange.BaseShaderRegister                = 4006;     // t4005~
     texRange.RegisterSpace                     = 0;
     texRange.OffsetInDescriptorsFromTableStart = 0;
     r.range[4] = texRange;
@@ -184,7 +184,7 @@ RTPipeline::RootSignatureDesc RTPipeline::CreateMissRootDesc()
     r.range[0] = {
         D3D12_DESCRIPTOR_RANGE_TYPE_SRV, // RangeType
         1,                               // NumDescriptors
-        4,                               // BaseShaderRegister = t4
+        5,                               // BaseShaderRegister = t5
         0,                               // RegisterSpace
         0                                // OffsetInDescriptorsFromTableStart
     };
@@ -224,29 +224,29 @@ RTPipeline::RootSignatureDesc RTPipeline::CreateGlobalRootDesc()
     r.rootParams[2].Constants.ShaderRegister = 2;
     r.rootParams[2].Constants.RegisterSpace  = 0;
     r.rootParams[2].ShaderVisibility         = D3D12_SHADER_VISIBILITY_ALL;
-    // b3 bit32_3_objectData
-    r.rootParams[3].ParameterType            = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
-    r.rootParams[3].Constants.Num32BitValues = 3;
-    r.rootParams[3].Constants.ShaderRegister = 3;
-    r.rootParams[3].Constants.RegisterSpace  = 0;
-    r.rootParams[3].ShaderVisibility         = D3D12_SHADER_VISIBILITY_ALL;
 
     // 동일하게 structured buffer들을 gloabl root signature 를 사용.
-    r.rootParams[4].ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
-    r.rootParams[4].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-    r.rootParams[4].Descriptor.ShaderRegister = 1;
+    // vertex buffer id
+    r.rootParams[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
+    r.rootParams[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+    r.rootParams[3].Descriptor.ShaderRegister = 1;
+    r.rootParams[3].Descriptor.RegisterSpace  = 0;
+    // index buffer id
+    r.rootParams[4].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_SRV;
+    r.rootParams[4].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
+    r.rootParams[4].Descriptor.ShaderRegister = 2;
     r.rootParams[4].Descriptor.RegisterSpace  = 0;
-    
+    // material
     r.rootParams[5].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_SRV;
     r.rootParams[5].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
-    r.rootParams[5].Descriptor.ShaderRegister = 2;
+    r.rootParams[5].Descriptor.ShaderRegister = 3;
     r.rootParams[5].Descriptor.RegisterSpace  = 0;
-    
+    // mesh instance id
     r.rootParams[6].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_SRV;
     r.rootParams[6].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
-    r.rootParams[6].Descriptor.ShaderRegister = 3;
+    r.rootParams[6].Descriptor.ShaderRegister = 4;
     r.rootParams[6].Descriptor.RegisterSpace  = 0;
-    
+
     r.staticSampler.resize(7);
     ShaderBuilder builder;
     builder.CreateStaticSampler(D3D12_FILTER_MIN_MAG_MIP_POINT, D3D12_TEXTURE_ADDRESS_MODE_WRAP, 0, r.staticSampler[0]);

@@ -49,28 +49,18 @@ struct Material
 {
     uint ID[4];
 };
-//SamplerState samPoint_wrap : register(s0);
-//SamplerState samPoint_clamp : register(s1);
-//SamplerState samLinear_wrap : register(s2);chs
-//SamplerState samLinear_clamp : register(s3);
-//SamplerState samLinear_border : register(s4);
-//SamplerState samAnistropic_wrap : register(s5);
-//SamplerState samAnistropic_clamp : register(s6);
-//ConstantBuffer<CameraData> cameraData : register(b0);
-//ConstantBuffer<LightData> lightData : register(b1);chs
-//ConstantBuffer<NumLight> bit32_3_numLight : register(b2);chs
-//ConstantBuffer<ObjectData> bit32_3_objectData : register(b3);chs
-//ConstantBuffer<PostProcessData> bit32_5_postProcessData : register(b4);
+
 RaytracingAccelerationStructure RtScene : register(t0); //chs
 RWTexture2D<float4> Output : register(u0);
 
 StructuredBuffer<uint> vertex_buffer_id: register(t1); //chs
 StructuredBuffer<uint> index_buffer_id : register(t2); //chs
 StructuredBuffer<Material> material : register(t3); //chs//-> texture id.??=
-TextureCube evnTexture : register(t4); //chs
-StructuredBuffer<RayVertex> Vertices[MAX_MESH] : register(t5);
-StructuredBuffer<uint> Indices[MAX_MESH] : register(t2005);
-Texture2D textures[] : register(t4005); //chs
+StructuredBuffer<uint> meshInstanceID : register(t4);
+TextureCube evnTexture : register(t5); //chs
+StructuredBuffer<RayVertex> Vertices[MAX_MESH] : register(t6);
+StructuredBuffer<uint> Indices[MAX_MESH] : register(t2006);
+Texture2D textures[] : register(t4006); //chs
 
 struct RayPayload
 {
@@ -144,7 +134,7 @@ bool TraceShadow(float3 origin,float3 dir,float maxT)
     RayDesc sray;
     sray.Origin = origin + dir * 1e-3; // self‑shadow 방지
     sray.Direction = dir;
-    sray.TMin = 0.001;
+    sray.TMin = 0.01;
     sray.TMax = maxT;
 
     // SBTable slot 1 = shadow miss / any‑hit
@@ -178,15 +168,16 @@ void RayGen()
     uint2 launchIndex = DispatchRaysIndex().xy;
     float2 dims = float2(DispatchRaysDimensions().xy);
     float2 d = (((launchIndex + 0.5f) / dims) * 2.f - 1.f);
+    float4x4 viewI = cameraData.ViewInverse;
+    float4x4 projI = cameraData.ProjectionInverse;
 
     RayDesc ray;
-    ray.Origin = mul(cameraData.ViewInverse, float4(0, 0, 0, 1)).xyz;
-
-    float4 target = mul(cameraData.ProjectionInverse, float4(d.x, -d.y, 1, 1));
+    ray.Origin = mul(viewI, float4(0, 0, 0, 1)).xyz;
+    float4 target = mul(projI, float4(d.x, -d.y, 1, 1));
     target /= target.w;
-    ray.Direction = normalize(mul(cameraData.ViewInverse, float4(target.xyz, 0))).xyz;
-    ray.TMin = 0.001;
-    ray.TMax = 1e5;
+    ray.Direction = normalize(mul(viewI, float4(target.xyz, 0))).xyz;
+    ray.TMin = 0.01;
+    ray.TMax = 10000;
 
     RayPayload payload;
     payload.recursionDepth = 0;
@@ -206,6 +197,7 @@ void Miss(inout RayPayload payload)
     float3 dir = normalize(WorldRayDirection());
     float3 sky = evnTexture.SampleLevel(samLinear_wrap, dir,0).rgb;
     payload.color = float4(sky, 1.0);
+    //payload.color = float4(1, 0, 0, 1);
 }
 
 static const uint MAX_RECURSION_DEPTH = 3;
@@ -214,11 +206,13 @@ static const float AMBIENT_INT = 0.3;
 [shader("closesthit")]
 void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttributes attribs)
 {
-    uint diffuseID = material[objectData.ID].ID[DIFFUSE];
-    uint normalID = material[objectData.ID].ID[NORMAL];
-    uint ORMID = material[objectData.ID].ID[ORM];
-    uint emissiveID = material[objectData.ID].ID[EMISSIVE];
     uint instanceID = InstanceID();
+    
+    uint staticMeshInstanceID = meshInstanceID[instanceID];
+    uint diffuseID = material[staticMeshInstanceID].ID[DIFFUSE];
+    uint normalID = material[staticMeshInstanceID].ID[NORMAL];
+    uint ORMID = material[staticMeshInstanceID].ID[ORM];
+    uint emissiveID = material[staticMeshInstanceID].ID[EMISSIVE];
     
     uint vertexID = vertex_buffer_id[instanceID];
     uint indexID = index_buffer_id[instanceID];
@@ -251,7 +245,7 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
     {
         DirectionalLight Ld = lightData.Directional[i];
         float3 L = normalize(-Ld.Direction);
-        if (TraceShadow(hitPosition, L, 1e5) == false)
+        if (TraceShadow(hitPosition, L, 10000) == false)
             directLighting += CalculateDirectional(Ld, normal, view, albedo, metal, rough);
     }
 
@@ -290,8 +284,8 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
         RayDesc reflectionRay;
         reflectionRay.Origin = hitPosition + reflectionDirection * Epsilon;
         reflectionRay.Direction = reflectionDirection;
-        reflectionRay.TMin = 0.001;
-        reflectionRay.TMax = 1e5;
+        reflectionRay.TMin = 0.01;
+        reflectionRay.TMax = 10000;
 
         RayPayload reflectionPayload;
         reflectionPayload.recursionDepth = payload.recursionDepth+ 1;
