@@ -1107,7 +1107,7 @@ void ESceneManager::SetRendererSkyBox(Scene* scene)
             File::Path path = scene->_skyBox.ToPath();
             if (false == path.IsNull())
             {
-                UmRenderer.SetSkyBox(path.string());
+                UmRenderer.SetSkyBox(path.wstring());
             }
         }
     }
@@ -1237,7 +1237,7 @@ bool ESceneManager::SetSkyBox(const File::Path& path)
     }
 
     Engine::SetSceneSkyBoxGuid(*mainScene, guid);
-    UmRenderer.SetSkyBox(path.string());
+    UmRenderer.SetSkyBox(path.wstring());
     mainScene->IsDirty = true;
 
     return true;
