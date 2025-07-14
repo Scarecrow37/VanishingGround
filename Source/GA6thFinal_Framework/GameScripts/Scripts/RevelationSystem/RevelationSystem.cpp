@@ -42,7 +42,7 @@ void RevelationSystem::RollRoundElement()
         std::string_view name = element->Name;
         _elementTotalAppearances[name.data()]++;
     }
-    ++_totalRollCount;
+    _totalRollCount += (int)_roundElementList.size();
 }
 
 bool RevelationSystem::InsertElement(const RevelationElement& element) 
@@ -465,8 +465,14 @@ void RevelationSystem::ImGuiDrawPlayerElementEditor()
                 {
                     if (ImGui::Selectable(key.data()))
                     {
-                        element.reset(new RevelationElement(tableElement));
-                        _roundElementList.clear();
+                        if (element)
+                        {
+                            *element = tableElement;
+                        }
+                        else
+                        {
+                            element.reset(new RevelationElement(tableElement));
+                        }          
                     }
                 }
                 ImGui::EndCombo();
@@ -478,7 +484,7 @@ void RevelationSystem::ImGuiDrawPlayerElementEditor()
                 {
                     float percentage = count / (float)_totalRollCount;
                     ImGui::SameLine();
-                    ImGui::Text("%f%%", percentage);
+                    ImGui::Text("%f%%", percentage * 100.f);
                 }            
             }      
             if (false == elementEmpty)
@@ -489,9 +495,9 @@ void RevelationSystem::ImGuiDrawPlayerElementEditor()
         }
         if (eraseSelect)
         {
+            std::erase(_roundElementList, eraseSelect->get());
             eraseSelect->reset();
-            eraseSelect = nullptr;
-            _roundElementList.clear();
+            eraseSelect = nullptr;          
         }
         ImGui::TreePop();
     }
@@ -509,7 +515,7 @@ void RevelationSystem::ImGuiDrawRoundElementList()
         ImGui::SameLine();
         if (ImGui::Button("Roll Round Elements"))
         {
-            RollRoundElement();
+            RollRoundElement();    
         }
         ImGuiHelper::HoveredToolTip(u8"랜덤으로 계시를 뽑습니다.");
     };
