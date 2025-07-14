@@ -1,6 +1,15 @@
 ﻿#pragma once
 #include "../Base/RevelationActionBase.h"
 
+// 적용 조건
+enum class CriticalDamageCondition
+{
+    // 항상
+    ALWAYS,
+    // 대상 출혈시
+    TARGET_BLEED
+};
+
 class CriticalDamageAction : public RevelationActionBase
 {
     USING_PROPERTY(CriticalDamageAction)
@@ -22,6 +31,7 @@ public:
 protected:
     REFLECT_FIELDS_BEGIN(RevelationActionBase)
     float AdditionalDamage = 0.1f; //치명타 피해 증가량
+    CriticalDamageCondition Condition = CriticalDamageCondition::ALWAYS; // 조건
     REFLECT_FIELDS_END(CriticalDamageAction)
 
     std::string_view GetActionInfo() override;
@@ -33,4 +43,8 @@ private:
     void UpdateActionInfo();
     std::string _actionInfo; 
 
+    void Execute(CharacterBase* attacker, CharacterBase* target) override;
+
+    /*조건 여부를 검사합니다.*/
+    bool Evaluate(CriticalDamageCondition condition, CharacterBase* attacker, CharacterBase* target);
 };
