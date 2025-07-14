@@ -390,7 +390,14 @@ namespace ReflectHelper
                     }
                     else
                     {
-                        isEdit = NotArrayTypeFunc(value, name.data());
+                        if (setting.ShowName)
+                        {
+                            isEdit = NotArrayTypeFunc(value, name.data());
+                        }
+                        else
+                        {
+                            isEdit = NotArrayTypeFunc(value, nullptr);
+                        }               
                     }
 
                     if (setting.InputEndEvent)
