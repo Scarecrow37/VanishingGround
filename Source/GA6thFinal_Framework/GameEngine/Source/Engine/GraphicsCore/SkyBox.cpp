@@ -16,15 +16,15 @@ void SkyBox::Initialize()
     CreateComputePSO();
 }
 
-void SkyBox::SetTexture(std::string path)
+void SkyBox::SetTexture(std::wstring_view path)
 {
     // HDR/EXR 이미지 로드
     ScratchImage image;
     TexMetadata  metadata;
 
-    std::wstring widePath(path.begin(), path.end()); // UTF-8 → UTF-16 변환
+    //std::wstring widePath(path.begin(), path.end()); // UTF-8 → UTF-16 변환
 
-    HRESULT hr = LoadFromHDRFile(widePath.c_str(), &metadata, image);
+    HRESULT hr = LoadFromHDRFile(path.data(), &metadata, image);
     FAILED_CHECK_MESSAGE(hr, L"SkyBox::SetTexture LoadFromHDRFile Failed");
 
     const Image* img = image.GetImage(0, 0, 0);

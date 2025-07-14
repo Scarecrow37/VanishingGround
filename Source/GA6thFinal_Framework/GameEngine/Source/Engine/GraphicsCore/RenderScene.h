@@ -21,7 +21,7 @@ public:
 
 public:
     void SetCamera(std::shared_ptr<Camera> camera) { _camera = camera; }
-    void SetSkyBox(std::string_view path);
+    void SetSkyBox(std::wstring_view path);
 
 public:
     void InitializeRenderScene();
