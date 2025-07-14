@@ -275,7 +275,14 @@ void RevelationSystem::PlayerElementDatasToPlayerElements()
                 auto findIter = _elementsTable.find(data.data());
                 if (findIter != _elementsTable.end())
                 {
-                    _playerElementList[i].reset(new RevelationElement(findIter->second));
+                    if (_playerElementList[i])
+                    {
+                        *_playerElementList[i] = findIter->second;
+                    }
+                    else
+                    {
+                        _playerElementList[i].reset(new RevelationElement(findIter->second));
+                    }                  
                 }      
             }   
         }

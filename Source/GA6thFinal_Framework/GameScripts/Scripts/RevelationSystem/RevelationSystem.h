@@ -128,8 +128,15 @@ public:
     GETTER(int, MaxRevelations) { return ReflectFields->MaxRevelations; }
     SETTER(int, MaxRevelations) 
     { 
-        _roundElementList.clear();
         ReflectFields->MaxRevelations = std::max(value, 1); 
+        if (ReflectFields->MaxRevelations < _playerElementList.size())
+        {
+            for (int i = ReflectFields->MaxRevelations - 1; i < _playerElementList.size(); i++)
+            {
+                RevelationElement* element = _playerElementList[i].get();
+                std::erase(_roundElementList, element);
+            }
+        }
         _playerElementList.resize(ReflectFields->MaxRevelations);
     }
     // 최대 계시 수용량
