@@ -14,7 +14,22 @@ TokenSystem::~TokenSystem()
 void TokenSystem::Reset()
 {
     _staticInstance = this;
+    InitTokenInstance();
     SortByOrder();
+}
+
+void TokenSystem::OnDestroy() 
+{
+    for (auto& token : _tokenInstances)
+    {
+        if (token)
+        {
+            delete token; // 토큰 인스턴스 삭제
+        }
+    }
+    _tokenInstances.clear();
+    _tokenIDTable.clear();
+    _tokenNameTable.clear();
 }
 
 void TokenSystem::OnDrawDebug()
@@ -65,6 +80,25 @@ void TokenSystem::ImGuiDrawPropertysEvent()
     if (ImGui::Button("Open Editor##TokenSystem"))
     {
         _isOpenEditor = !_isOpenEditor;
+    }
+}
+
+void TokenSystem::InitTokenInstance()
+{
+    for (const auto& [id, constructor] : _tokenIDFactoryTable)
+    {
+        auto it = _tokenIDTable.find(id);
+        if (it == _tokenIDTable.end())
+        {
+            Token* newToken = constructor();
+            if (newToken)
+            {
+                newToken->SetDirtyOrderCallback([](int id) { SortByOrder(); });
+                _tokenInstances.push_back(newToken);
+                _tokenIDTable[id]                         = newToken;
+                _tokenNameTable[newToken->GetTokenName()] = newToken;
+            }
+        }
     }
 }
 

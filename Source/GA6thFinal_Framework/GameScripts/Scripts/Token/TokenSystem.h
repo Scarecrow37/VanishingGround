@@ -30,6 +30,8 @@ public:
 
 private:
     void Reset() override; 
+    void OnDestroy() override;
+
     void OnDrawDebug() override;
 
     void SerializedReflectEvent() override;
@@ -37,6 +39,8 @@ private:
     void ImGuiDrawPropertysEvent() override;
 
 private:
+    void InitTokenInstance();
+
     void ImGuiDrawDataTable();
     void ImGuiDrawMenuBar();
 
@@ -146,11 +150,6 @@ inline bool TokenSystem::RegisterToken()
         assert(false && "토큰 등록 중 Name 충돌이 발생했습니다.");
         return false;
     }
-    T* newToken = new T();
-    newToken->SetDirtyOrderCallback([](int id) { SortByOrder(); });
-    _tokenInstances.push_back(newToken);
-    _tokenIDTable[ID]         = newToken;
-    _tokenNameTable[name]     = newToken;
     _tokenNameToIDTable[name] = ID;
     _tokenIDToNameTable[ID]   = name;
     return true;
