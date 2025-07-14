@@ -56,7 +56,10 @@ void EditorModelTool::OnPostFrameBegin()
 
 void EditorModelTool::OnFrameRender()
 {
-    _camera->Update();
+    if (_camera)
+    {
+        _camera->Update();
+    }
 
     auto handle = UmRenderer.GetRenderSceneImage("ModelViewer");
 
