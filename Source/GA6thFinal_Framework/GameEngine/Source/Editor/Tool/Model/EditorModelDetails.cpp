@@ -1,5 +1,7 @@
 ﻿#include "pch.h"
 #include "EditorModelDetails.h"
+#include "EditorModelTool.h"
+#include "Editor/DynamicCamera/EditorDynamicCamera.h"
 #include "Engine/GraphicsCore/FBXConverter.h"
 #include "Engine/GraphicsCore/MeshRenderer.h"
 #include "Engine/GraphicsCore/Model.h"
@@ -127,6 +129,10 @@ void EditorModelDetails::OnStartGui()
     _mainLight->SetActive(&_isLightActive);
 
     UpdateModelTransform();
+
+    auto& system = Global::editorModule->GetDockWindowSystem();
+    auto* modelDock = system.GetDockWindow("ModelDock");
+    _modelTool      = modelDock->GetGui<EditorModelTool>();
 }
 
 void EditorModelDetails::OnEndGui() {}
@@ -149,9 +155,36 @@ void EditorModelDetails::OnFrameRender()
         ExportModel();
     }
     ImGui::EndHorizontal();
+
     if (ImGui::TreeNodeEx("Camera Property##details"))
     {
+        if (_modelTool && _modelTool->GetCamera())
+        {
+            auto& camera = _modelTool->GetCamera();
+            // Speed
+            ImGui::Text("Camera Move Scale: ");
+            float moveScale = camera->GetMoveScale();
+            if (ImGui::SliderFloat("##camera move scale", &moveScale, 0.1f, 1000.f))
+            {
+                camera->SetMoveScale(moveScale);
+            }
+            ImGui::Text("Camera Move Speed: ");
+            float moveSpeed = camera->GetMoveSpeed();
+            if (ImGui::SliderFloat("##camera move speed", &moveSpeed, 0.1f, 100.f))
+            {
+                camera->SetMoveSpeed(moveSpeed);
+            }
+            ImGui::Text("Camera Rotation Speed: ");
+            float rotationSpeed = camera->GetRotationSpeed();
+            if (ImGui::SliderFloat("##camera rotation speed", &rotationSpeed, 0.1f, 50.f))
+            {
+                camera->SetRotationSpeed(rotationSpeed);
+            }
+        }
+        ImGui::TreePop();
     }
+
+    ImGui::Separator();
 
     if (ImGui::TreeNodeEx("Light Property##details"))
     {
@@ -188,7 +221,7 @@ void EditorModelDetails::OnFrameRender()
                 bool isDirty = false;
                 {
                     ImGui::Text("Position: ");
-                    ImGui::DragFloat3("##position", &_position.x) ? isDirty = true : isDirty;
+                    ImGui::DragFloat3("##position", &_position.x, 0.05f) ? isDirty = true : isDirty;
                     ImGui::SameLine();
                     if (ImGui::Button("Reset##position"))
                     {
@@ -198,7 +231,7 @@ void EditorModelDetails::OnFrameRender()
                 }
                 {
                     ImGui::Text("Rotation: ");
-                    ImGui::DragFloat3("##rotation", &_rotation.x) ? isDirty = true : isDirty;
+                    ImGui::DragFloat3("##rotation", &_rotation.x, 0.05f) ? isDirty = true : isDirty;
                     ImGui::SameLine();
                     if (ImGui::Button("Reset##rotation"))
                     {
@@ -208,7 +241,7 @@ void EditorModelDetails::OnFrameRender()
                 }
                 {
                     ImGui::Text("Scale: ");
-                    ImGui::DragFloat3("##scale", &_scale.x) ? isDirty = true : isDirty;
+                    ImGui::DragFloat3("##scale", &_scale.x, 0.05f) ? isDirty = true : isDirty;
                     ImGui::SameLine();
                     if (ImGui::Button("Reset##scale"))
                     {

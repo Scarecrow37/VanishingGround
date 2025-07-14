@@ -71,6 +71,8 @@ private:
     void SaveModel();
 
 private:
+    EditorModelTool*                _modelTool = nullptr;
+        
     Matrix                          _worldMatrix;
     Vector3                         _position = Vector3::Zero;
     Vector3                         _rotation = Vector3::Zero;

@@ -7,7 +7,6 @@ EditorModelTool::EditorModelTool()
     , _editorModelDetails(nullptr)
 {
     SetLabel("Viewer##model");  
-    SetDockLayout(ImGuiDir_Down);
 }
 
 void EditorModelTool::OnTickGui()
@@ -57,11 +56,42 @@ void EditorModelTool::OnPostFrameBegin()
 
 void EditorModelTool::OnFrameRender()
 {
+    _camera->Update();
+
     auto handle = UmRenderer.GetRenderSceneImage("ModelViewer");
 
     ImVec2 size = ImGui::GetContentRegionAvail();
-
+    ImVec2 pos  = ImGui::GetCursorScreenPos();
     ImGui::Image((ImTextureID)handle.ptr, size);
+
+    ImGui::SetCursorScreenPos(pos);
+    float moveSpeed = _camera->GetMoveSpeed();
+    float rotationSpeed = _camera->GetRotationSpeed();
+    int pushCount = 0;
+    if (ImGui::IsKeyDown(ImGuiKey_MouseRight))
+    {
+        ImGuiStyle& style = ImGui::GetStyle();
+        ImVec4 bgCol = style.Colors[ImGuiCol_FrameBg];
+        ImVec4 textCol = style.Colors[ImGuiCol_Text];
+        bgCol.w *= 0.5f;
+        textCol.w *= 0.5f;
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, bgCol);
+        ImGui::PushStyleColor(ImGuiCol_Text, textCol);
+        ++pushCount; ++pushCount;
+    }
+    ImGui::SetNextItemWidth(150.0f);
+    if (ImGui::SliderFloat("Camera Move Speed##camera move speed", &moveSpeed, 0.1f, 100.f, "%.2f",
+                            ImGuiSliderFlags_AlwaysClamp))
+    {
+        _camera->SetMoveSpeed(moveSpeed);
+    }
+    ImGui::SetNextItemWidth(150.0f);
+    if (ImGui::SliderFloat("Camera Rotation Speed##camera rotation speed", &rotationSpeed, 0.1f, 50.f, "%.2f",
+                            ImGuiSliderFlags_AlwaysClamp))
+    {
+        _camera->SetRotationSpeed(rotationSpeed);
+    }
+    ImGui::PopStyleColor(pushCount);
 }
 
 void EditorModelTool::OnFrameClipped() {}
@@ -70,10 +100,7 @@ void EditorModelTool::OnFrameEnd() {}
 
 void EditorModelTool::OnFrameFocusEnter() {}
 
-void EditorModelTool::OnFrameFocusStay()
-{    
-    _camera->Update();
-}
+void EditorModelTool::OnFrameFocusStay() {}
 
 void EditorModelTool::OnFrameFocusExit() {}
 
