@@ -11,16 +11,30 @@ public:
     REFLECT_PROPERTY(Point, Size)
 
     GETTER(POINT, Point) { return ReflectFields->Basefields.get().Point; }
-    SETTER(POINT, Point) { ReflectFields->Basefields.get().Point = value; }
+    SETTER(POINT, Point)
+    {
+        ReflectFields->Basefields.get().Point = value;
+        OnPlacementChange();
+    }
     PROPERTY(Point)
 
     GETTER(SIZE, Size) { return ReflectFields->Basefields.get().Size; }
-    SETTER(SIZE, Size) { ReflectFields->Basefields.get().Size = value; }
+    SETTER(SIZE, Size)
+    {
+        ReflectFields->Basefields.get().Size = value;
+        OnPlacementChange();
+    }
     PROPERTY(Size)
 
 protected:
     REFLECT_FIELDS_BEGIN(PlacementUIComponent)
     REFLECT_FIELDS_END(EditablePlacementUIComponent)
+
+    virtual void OnPlacementChange() {};
+
+    void DrawDebug() override;
+
+    void DrawDebugSelected() override;
 
     void ImGuiDrawPropertysEvent() override;
 };
