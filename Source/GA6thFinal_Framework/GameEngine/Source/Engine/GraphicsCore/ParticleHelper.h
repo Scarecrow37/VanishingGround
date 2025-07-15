@@ -1,5 +1,5 @@
 ﻿#pragma once
-#define MAX_PARTICLE 100000
+#define MAX_PARTICLE 1000000
 // 초기값이 있는 멤버 변수 선언 매크로
 #define PROP_DECL_INIT(type, varName, initValue)                                                                       \
 protected:                                                                                                             \
