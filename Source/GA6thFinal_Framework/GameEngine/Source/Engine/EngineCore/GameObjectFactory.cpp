@@ -352,6 +352,11 @@ std::vector<std::shared_ptr<GameObject>> EGameObjectFactory::MakeObjectsGraphToY
 std::shared_ptr<GameObject> EGameObjectFactory::DeserializeToYaml(YAML::Node* pObjectNode, YAML::Node* sceneObjectNode)
 {
     auto makeList = MakeObjectsGraphToYaml(pObjectNode, false, sceneObjectNode);
+    if (makeList.empty())
+    {
+        return nullptr;
+    }
+
     for (auto& ptr : makeList)
     {
         ESceneManager::Engine::AddGameObjectToLifeCycle(ptr);
