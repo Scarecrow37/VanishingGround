@@ -1,7 +1,8 @@
 ﻿#pragma once
+#include "UI/Base/PlacementUIComponent/PlacementUIComponent.h"
 #include "UI/Base/PanelSlotComponent/PanelSlotComponent.h"
 
-class UIRoot : public UIComponent
+class UIRoot : public PlacementUIComponent
 {
     USING_PROPERTY(UIRoot)
 
@@ -9,27 +10,22 @@ public:
     UIRoot();
 
 protected:
-    REFLECT_FIELDS_BEGIN(UIComponent)
+    REFLECT_FIELDS_BEGIN(PlacementUIComponent)
     REFLECT_FIELDS_END(UIRoot)
-
-    void OnDrawDebug() override;
-
-    void OnDrawDebugSelected() override;
 
     void OnAttachChild(GameObject* childGameObject) override;
 
 private:
-    SIZE _size;
+    void AddSlot(GameObject* gameObject) const;
 };
 
 class UIRootSlot : public PanelSlotComponent
 {
+    friend UIRoot;
     USING_PROPERTY(UIRootSlot)
 
 public:
     UIRootSlot();
 
-protected:
-    REFLECT_FIELDS_BEGIN(PanelSlotComponent)
-    REFLECT_FIELDS_END(UIRootSlot)
+    void PassPlacement() const override;
 };
