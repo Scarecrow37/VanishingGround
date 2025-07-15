@@ -187,26 +187,28 @@ void RayGen()
              0, 1, 0, // hitGroup/miss/callable
              ray, payload);
 
-    Output[launchIndex.xy] = float4(LinearToGammaSpace(payload.color.rgb), 1.f);
+    Output[launchIndex.xy] = float4(payload.color.rgb, 1.f);
 }
 
-static const float4 backBufferColor = float4(0.4, 0.6, 0.2, 1.0);
 [shader("miss")]
 void Miss(inout RayPayload payload)
 {
     float3 dir = normalize(WorldRayDirection());
     float3 sky = evnTexture.SampleLevel(samLinear_wrap, dir,0).rgb;
-    payload.color = float4(sky, 1.0);
-    //payload.color = float4(1, 0, 0, 1);
+    sky = GammaToLinearSpace(sky)*10.f;
+    payload.color = float4(sky, 1.f);
 }
 
 static const uint MAX_RECURSION_DEPTH = 3;
-static const float AMBIENT_INT = 0.3;
 
 [shader("closesthit")]
 void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttributes attribs)
 {
     uint instanceID = InstanceID();
+    //if (InstanceID()==6)
+    //    payload.color = 1;
+    //else
+    //    payload.color = 0;
     
     uint staticMeshInstanceID = meshInstanceID[instanceID];
     uint diffuseID = material[staticMeshInstanceID].ID[DIFFUSE];
@@ -233,7 +235,9 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
     };
     float2 hitUV = HitAttribute2(uv, attribs);
     float3 albedo = textures[diffuseID].SampleLevel(samLinear_wrap, hitUV, 0).rgb;
+    albedo = GammaToLinearSpace(albedo);
     float3 orm = textures[ORMID].SampleLevel(samLinear_wrap, hitUV, 0).rgb;
+    float3 emissive = textures[emissiveID].SampleLevel(samLinear_wrap, hitUV, 0).rgb;
     float ao = orm.r;
     float rough = orm.g;
     float metal = orm.b;
@@ -245,8 +249,8 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
     {
         DirectionalLight Ld = lightData.Directional[i];
         float3 L = normalize(-Ld.Direction);
-        if (TraceShadow(hitPosition, L, 10000) == false)
-            directLighting += CalculateDirectional(Ld, normal, view, albedo, metal, rough);
+        directLighting += CalculateDirectional(Ld, normal, view, albedo, metal, rough);
+        //if (TraceShadow(hitPosition, L, 10000) == false)
     }
 
     // Point
@@ -256,8 +260,8 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
         float3 toL = Lp.Position - hitPosition;
         float dist = length(toL);
         float3 L = toL / dist;
-        if (TraceShadow(hitPosition, L, dist - 0.01) == false)
-            directLighting += CalculatePoint(Lp, normal, view, albedo, metal, rough, hitPosition);
+        directLighting += CalculatePoint(Lp, normal, view, albedo, metal, rough, hitPosition);
+        //if (TraceShadow(hitPosition, L, dist - 0.01) == false)
     }
 
     // Spot
@@ -267,12 +271,12 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
         float3 toL = Ls.Position - hitPosition;
         float dist = length(toL);
         float3 L = toL / dist;
-        if (TraceShadow(hitPosition, L, dist - 0.01) == false)
-            directLighting += CalculateSpot(Ls, normal, view, albedo, metal, rough, hitPosition);
+        directLighting += CalculateSpot(Ls, normal, view, albedo, metal, rough, hitPosition);
+        //if (TraceShadow(hitPosition, L, dist - 0.01) == false)
     }
     ///* 환경광 / IBL  */
-    //float3 envDiffuse = evnTexture.SampleLevel(samLinear_wrap, normal, 0).rgb;
-    //float3 ambientLighting = envDiffuse * albedo* ao* AMBIENT_INT;
+    float3 envDiffuse = evnTexture.SampleLevel(samLinear_wrap, normal, 0).rgb;
+    float3 ambientLighting = envDiffuse * albedo * 1;
 
     /* 반사(거울) – FresnelSchlick 사용 */
     float3 reflectionLighting = 0.0;
@@ -307,9 +311,11 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
         reflectionLighting = reflectionPayload.color.rgb * fresnelFactor;
     }
 
-    /* ⑥ 최종 색 결과 ------------------------------------------------------- */
-    float3 finalcolor = //ambientLighting // 환경광
-      directLighting // 직접광
-      + reflectionLighting; // 반사광 
+    /* 최종 색 결과 ------------------------------------------------------- */
+    float3 finalcolor =
+          emissive+
+          ambientLighting + // 환경광 
+          directLighting + // 직접광  
+          reflectionLighting; // 반사광 
     payload.color = float4(finalcolor, 1.f);
 }

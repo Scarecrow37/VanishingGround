@@ -4,18 +4,14 @@
 const UINT64 ViewManager::GetVertexBufferSrvPtr()
 {
     UINT64 heapStartPtr = _shaderResourceHeap->GetGPUDescriptorHandleForHeapStart().ptr;
-    UINT64 returnValue;
-    heapStartPtr += (_vertexSrvStartIndex * _shaderResourceDescriptorSize);
-    returnValue = heapStartPtr;
+    UINT64 returnValue = heapStartPtr +(_vertexSrvStartIndex * _shaderResourceDescriptorSize);
     return returnValue;
 }
 
 const UINT64 ViewManager::GetIndexBufferSrvPtr()
 {
     UINT64 heapStartPtr = _shaderResourceHeap->GetGPUDescriptorHandleForHeapStart().ptr;
-    UINT64 returnValue;
-    heapStartPtr += (_indexSrvStartIndex * _shaderResourceDescriptorSize);
-    returnValue = heapStartPtr;
+    UINT64 returnValue = heapStartPtr + (_indexSrvStartIndex * _shaderResourceDescriptorSize);
     return returnValue;
 }
 
@@ -81,14 +77,14 @@ void ViewManager::AddDescriptorHeap(const ViewManager::Type type, D3D12_CPU_DESC
         break;
 
     case ViewManager::Type::VERTEX_BUFFER_SHADER_RESOURCE:
-        offset = _renderTargetDescriptorSize * (_numVertexSrv+_vertexSrvStartIndex);
+        offset = _shaderResourceDescriptorSize * (_numVertexSrv + _vertexSrvStartIndex);
         handle = _shaderResourceHeap->GetCPUDescriptorHandleForHeapStart();
         handle.ptr += offset;
         _numVertexSrv++;
         break;
 
     case ViewManager::Type::INDEX_BUFFER_SHADER_RESOURCE:
-        offset = _renderTargetDescriptorSize * (_numIndexSrv+ _indexSrvStartIndex);
+        offset = _shaderResourceDescriptorSize * (_numIndexSrv + _indexSrvStartIndex);
         handle = _shaderResourceHeap->GetCPUDescriptorHandleForHeapStart();
         handle.ptr += offset;
         _numIndexSrv++;
@@ -126,14 +122,14 @@ void ViewManager::AddDescriptorHeap(const ViewManager::Type type, DescriptorHand
         break;
 
     case ViewManager::Type::VERTEX_BUFFER_SHADER_RESOURCE:
-        offset = _renderTargetDescriptorSize * (_numVertexSrv + _vertexSrvStartIndex);
+        offset     = _shaderResourceDescriptorSize * (_numVertexSrv + _vertexSrvStartIndex);
         handle.CPU = _shaderResourceHeap->GetCPUDescriptorHandleForHeapStart();
         handle.CPU.ptr += offset;
         _numVertexSrv++;
         break;
 
     case ViewManager::Type::INDEX_BUFFER_SHADER_RESOURCE:
-        offset = _renderTargetDescriptorSize * (_numIndexSrv + _indexSrvStartIndex);
+        offset     = _shaderResourceDescriptorSize * (_numIndexSrv + _indexSrvStartIndex);
         handle.CPU = _shaderResourceHeap->GetCPUDescriptorHandleForHeapStart();
         handle.CPU.ptr += offset;
         _numIndexSrv++;

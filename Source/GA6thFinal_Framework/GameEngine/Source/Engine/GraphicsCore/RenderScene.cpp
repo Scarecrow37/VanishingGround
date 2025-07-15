@@ -130,7 +130,7 @@ void RenderScene::UpdateRenderScene()
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, FrameResourceType::MATERIAL, _materialIDs.data(), (UINT)_materialIDs.size());
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, FrameResourceType::UI_TRANSFORM, _uiMatrices.data(), (UINT)_uiMatrices.size());
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, FrameResourceType::UI_MATERIAL, _uiMaterials.data(), (UINT)_uiMaterials.size());
-    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, FrameResourceType::VERTEX_BUFFER_ID,
+    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, FrameResourceType::STATIC_MESH_INSTANCE_ID,
                                                               _staticMeshInstanceIDs.data(),
                                                               (UINT)_staticMeshInstanceIDs.size());
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, FrameResourceType::SKELETAL_MESH_INSTANCE_ID,
@@ -186,10 +186,11 @@ void RenderScene::UpdateGlobal()
                           .ProejctionInverse = XMMatrixTranspose(_camera->GetProjectionInverseMatrix()),
                           .Position          = Vector4(_camera->GetPosition())};
 
-    RayCameraData RaycameraData{.View              = _camera->GetViewMatrix(),
+    CameraData RaycameraData{.View           = _camera->GetViewMatrix(),
                           .Projection        = _camera->GetProjectionMatrix(),
                           .ViewInverse       = _camera->GetWorldMatrix(),
-                          .ProejctionInverse = _camera->GetProjectionInverseMatrix()};
+                          .ProejctionInverse = _camera->GetProjectionInverseMatrix(),
+                          .Position          = Vector4(_camera->GetPosition())};
        
 
     auto& lights = UmLightCore.GetLights(_name.c_str());
@@ -437,7 +438,7 @@ void RenderScene::CreateFrameResource()
     _cameraBuffer->Initialize(alignedSize);
 
     _RaycameraBuffer = std::make_unique<ConstantBufferView>();
-    _RaycameraBuffer->Initialize(sizeof(RayCameraData));
+    _RaycameraBuffer->Initialize(alignedSize);
 
     _lightBuffer = std::make_unique<ConstantBufferView>();
     _lightBuffer->Initialize(sizeof(LightData) * MAX_LIGHT);

@@ -230,9 +230,13 @@ void Renderer::Initialize()
         scene->InitializeRenderScene();
         scene->AddRenderTechnique(std::make_unique<SkyBoxRenderTechnique>());
         if (_isRaytracing)
+        {
             scene->AddRenderTechnique(std::make_unique<RayTracingTechnique>());
+        }
         else
+        {
             scene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
+        }
         scene->AddRenderTechnique(std::make_unique<BloomTechnique>());
         scene->AddRenderTechnique(std::make_unique<EditorDrawTechnique>());
         scene->AddRenderTechnique(std::make_unique<BlendTechnique>());

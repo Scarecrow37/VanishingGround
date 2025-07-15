@@ -8,6 +8,7 @@ enum class AsBuildClass
 struct MeshInstanceDesc
 {
     const class MeshRenderer* Renderer;
+    class BaseMesh*              key;
     UINT                      InstanceID;
     UINT                      HitGroupIndex=0;
     D3D12_RAYTRACING_INSTANCE_FLAGS Flags;
@@ -40,7 +41,7 @@ private:
     };
 
     // key = BaseMesh* (모델 공유)
-    std::unordered_map<const class Model*, BlasCache>       _staticBlasMap;
+    std::unordered_map<BaseMesh*, BlasCache>       _staticBlasMap;
     std::vector<std::shared_ptr<AccelerationStructureBuffers>> _dynamicBlas; // 매-프레임 재빌드
 
     // TLAS
@@ -55,8 +56,7 @@ private:
     UINT _maxInstanceCount = 0;
 
     // ---- 내부 helper ----
-    void BuildOrUpdateStaticBLAS(ID3D12Device5* device, ID3D12GraphicsCommandList4* cmdList,
-                                 const MeshRenderer* renderer,
+    void BuildOrUpdateStaticBLAS(ID3D12Device5* device, ID3D12GraphicsCommandList4* cmdList, BaseMesh* mesh,
                                  BlasCache& cache);
     void BuildDynamicBLAS(ID3D12Device5* device, ID3D12GraphicsCommandList4* cmdList, const MeshRenderer* renderer,
                           std::shared_ptr<AccelerationStructureBuffers>& outBuf);

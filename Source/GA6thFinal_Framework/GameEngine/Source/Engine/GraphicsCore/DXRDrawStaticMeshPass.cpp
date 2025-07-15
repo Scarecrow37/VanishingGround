@@ -48,7 +48,6 @@ void DXRDrawStaticMeshPass::End(ID3D12GraphicsCommandList* commandList)
     auto  resource               = UmViewManager.GetShaderResourceHeap()->GetGPUDescriptorHandleForHeapStart();
     auto  cameraData             = _ownerScene->_cameraBuffer->GetGPUVirtualAddress();
     auto& frameResource          = _ownerScene->_frameResources[currentBackBufferIndex];
-    _meshRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     WriteCommand();
 }
 
@@ -117,10 +116,11 @@ void DXRDrawStaticMeshPass::CreateShaderTable()
     constexpr UINT bytesArgs = sizeof(D3D12_GPU_DESCRIPTOR_HANDLE);           //  8
     constexpr UINT aligeRec = D3D12_RAYTRACING_SHADER_RECORD_BYTE_ALIGNMENT; // 32
 
-    const UINT raygenSize = d3dUtil::AlignTo(bytesId + 3 * bytesArgs, aligeRec);
-    const UINT missSize = d3dUtil::AlignTo(bytesId +  bytesArgs, aligeRec);
-    const UINT hitSize    = bytesId + 12 * bytesArgs;
-    _shaderTableEntrySize = std::max({raygenSize, missSize, hitSize});
+    const UINT raygenSize = d3dUtil::AlignTo(bytesId + 2 * bytesArgs, 32);
+    const UINT missSize = d3dUtil::AlignTo(bytesId +  bytesArgs, 32);
+    const UINT hitSize     =  d3dUtil::AlignTo(bytesId + 6 * bytesArgs,32);
+    _shaderTableEntrySize = d3dUtil::AlignTo(std::max({raygenSize, missSize, hitSize}),D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT);
+    
     const UINT recordCount = 3;
     const UINT tableSize   = _shaderTableEntrySize * recordCount;
     // 1) 업로드 버퍼 생성
@@ -143,7 +143,7 @@ void DXRDrawStaticMeshPass::CreateShaderTable()
         // RootParam#2 : UAV u0 테이블 핸들
         *reinterpret_cast<UINT64*>(p + bytesId + bytesArgs) = _outputResourceUAV->GetUAVHandle().ptr;
     }
-    /* ── 4‑2) Miss Generation ────────────────────────────────────────── */
+    /* ── 4‑2) Miss ────────────────────────────────────────── */
     p += _shaderTableEntrySize;
     {
         memcpy(p, ID_MISS, bytesId);
@@ -154,21 +154,17 @@ void DXRDrawStaticMeshPass::CreateShaderTable()
     p += _shaderTableEntrySize;
     {
         memcpy(p, ID_HIT, bytesId);
-        uint8_t* a = p + bytesId;
         // SRV t0 rtScene
-        *reinterpret_cast<UINT64*>(a) = _ownerScene->_accelerationStructureManager->GetTopLevelSRV().GPU.ptr;
-        a += bytesArgs; 
+        *reinterpret_cast<UINT64*>(p + bytesId) = _ownerScene->_accelerationStructureManager->GetTopLevelSRV().GPU.ptr; 
         // SRV t4 evnTexture
-        *reinterpret_cast<UINT64*>(a) = _ownerScene->_skyBox->GetCubeMapSRV().ptr;
-        a += bytesArgs; 
+        *reinterpret_cast<UINT64*>(p + bytesId + (1 * bytesArgs)) = _ownerScene->_skyBox->GetCubeMapSRV().ptr;
         // SRV t5 Vertices
-        *reinterpret_cast<UINT64*>(a) = UmViewManager.GetVertexBufferSrvPtr();
-        a += bytesArgs; 
+        *reinterpret_cast<UINT64*>(p + bytesId + (2 * bytesArgs)) = UmViewManager.GetVertexBufferSrvPtr();
         // SRV t2005 Indices
-        *reinterpret_cast<UINT64*>(a) = UmViewManager.GetIndexBufferSrvPtr();
-        a += bytesArgs;
+        *reinterpret_cast<UINT64*>(p + bytesId + (3 * bytesArgs)) = UmViewManager.GetIndexBufferSrvPtr();
         // SRV t4005~ textures
-        *reinterpret_cast<UINT64*>(a) = UmViewManager.GetShaderResourceHeap()->GetGPUDescriptorHandleForHeapStart().ptr;
+        *reinterpret_cast<UINT64*>(p + bytesId + (4 * bytesArgs)) =
+            UmViewManager.GetShaderResourceHeap()->GetGPUDescriptorHandleForHeapStart().ptr;
     }
 
     _shaderTable->Unmap(0, nullptr);
@@ -176,11 +172,13 @@ void DXRDrawStaticMeshPass::CreateShaderTable()
 
 void DXRDrawStaticMeshPass::CreateShaderResource()
 {
+    ID3D12GraphicsCommandList* cmdlist = UmDevice.GetCommandList();
     _outputResourceUAV = MakeSharedResource<UnorderedAccessView>();
     DXGI_MODE_DESC mode = UmDevice.GetMode();
     mode.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
     _outputResourceUAV->Initialize(mode);
     UmDXResourceManager.AddResource(_outputResourceUAV);
+    _outputResourceUAV->TransitionResource(cmdlist, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 }
 
 void DXRDrawStaticMeshPass::UpdateStaticMeshVIBufferID(ID3D12GraphicsCommandList* commandList)
@@ -220,6 +218,7 @@ void DXRDrawStaticMeshPass::UpdateStaticMeshVIBufferID(ID3D12GraphicsCommandList
 void DXRDrawStaticMeshPass::WriteCommand()
 {
     ComPtr<ID3D12GraphicsCommandList4> cmdList4 = UmDevice.GetCommandList4();
+    _outputResourceUAV->TransitionResource(cmdList4.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
     D3D12_DISPATCH_RAYS_DESC rayTraceDesc{};
     DXGI_MODE_DESC           mode = _outputResourceUAV->GetMode();
@@ -244,7 +243,7 @@ void DXRDrawStaticMeshPass::WriteCommand()
     rayTraceDesc.HitGroupTable.SizeInBytes  = _shaderTableEntrySize;
     rayTraceDesc.HitGroupTable.StrideInBytes = _shaderTableEntrySize * 1;
 
-    auto cameraData = _ownerScene->_cameraBuffer->GetGPUVirtualAddress();
+    auto cameraData = _ownerScene->_RaycameraBuffer->GetGPUVirtualAddress();
     auto lightData  = _ownerScene->_lightBuffer->GetGPUVirtualAddress();
     auto& frameResource = _ownerScene->_frameResources[_ownerScene->_currentFrameIndex];
 
@@ -261,5 +260,8 @@ void DXRDrawStaticMeshPass::WriteCommand()
 
     cmdList4->SetPipelineState1(_pso.Get());
     cmdList4->DispatchRays(&rayTraceDesc);
+    _meshRenderTarget->TransitionResource(cmdList4.Get(), D3D12_RESOURCE_STATE_COPY_DEST);
+    _outputResourceUAV->TransitionResource(cmdList4.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE);
+    cmdList4->CopyResource(_meshRenderTarget->GetResource(), _outputResourceUAV->GetResource());
 }
 

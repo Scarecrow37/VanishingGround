@@ -76,6 +76,7 @@ RTPipeline::RootSignatureDesc RTPipeline::CreateRayGenRootDesc()
     r.desc.Flags         = D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE;
     return r;
 }
+
 RTPipeline::RootSignatureDesc RTPipeline::CreateHitRootDesc()
 {
     RootSignatureDesc r;
@@ -93,25 +94,7 @@ RTPipeline::RootSignatureDesc RTPipeline::CreateHitRootDesc()
     tlasTable.DescriptorTable.NumDescriptorRanges = 1;
     tlasTable.DescriptorTable.pDescriptorRanges   = &r.range[0];
     r.rootParams.push_back(tlasTable); // RootParam #4
-    D3D12_ROOT_PARAMETER tlasParameter{};
-
-    /* ---------- 2 단일 SRV 4개(t1~t4)  ---------- */
-    //const UINT singleSRVRegs[4] = {4};
-    //for (UINT i = 0; i < 4; ++i)
-    //{
-    //    D3D12_DESCRIPTOR_RANGE sRange{};
-    //    sRange.RangeType          = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-    //    sRange.NumDescriptors     = 1;
-    //    sRange.BaseShaderRegister = singleSRVRegs[i]; // t1~t4
-    //    r.range[1+i] = sRange;
-
-    //    D3D12_ROOT_PARAMETER sTable{};
-    //    sTable.ParameterType                       = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-    //    sTable.ShaderVisibility                    = D3D12_SHADER_VISIBILITY_ALL;
-    //    sTable.DescriptorTable.NumDescriptorRanges = 1;
-    //    sTable.DescriptorTable.pDescriptorRanges   = &r.range[5 + i];
-    //    r.rootParams.push_back(sTable); // RootParam #5 ~ #8
-    //}
+  
     /* ---------- 2 cube texture t4---------- */
     D3D12_DESCRIPTOR_RANGE cubeMapRange{};
     cubeMapRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
@@ -124,10 +107,12 @@ RTPipeline::RootSignatureDesc RTPipeline::CreateHitRootDesc()
     cubeMapTable.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
     cubeMapTable.DescriptorTable.NumDescriptorRanges = 1;
     cubeMapTable.DescriptorTable.pDescriptorRanges   = &r.range[1];
+    r.rootParams.push_back(cubeMapTable);
+
     /* ---------- 3 Vertices[2000]  ---------- */
     D3D12_DESCRIPTOR_RANGE verticesRange{};
     verticesRange.RangeType          = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-    verticesRange.NumDescriptors     = 2000; // t5~t2004
+    verticesRange.NumDescriptors     = 2000; // t5~t2005
     verticesRange.BaseShaderRegister = 6;
     r.range[2]                       = verticesRange;
    
@@ -141,7 +126,7 @@ RTPipeline::RootSignatureDesc RTPipeline::CreateHitRootDesc()
     /* ---------- 4 Indices[2000]  ---------- */
     D3D12_DESCRIPTOR_RANGE indicesRange{};
     indicesRange.RangeType          = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-    indicesRange.NumDescriptors     = 2000; // t2005~t4004
+    indicesRange.NumDescriptors     = 2000; // t2006~t4005
     indicesRange.BaseShaderRegister = 2006;
     r.range[3] = indicesRange;
 

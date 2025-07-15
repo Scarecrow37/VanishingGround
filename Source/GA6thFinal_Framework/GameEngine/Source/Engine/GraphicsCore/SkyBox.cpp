@@ -23,6 +23,12 @@ void SkyBox::SetTexture(std::wstring_view path)
     TexMetadata  metadata;
 
     HRESULT hr = LoadFromHDRFile(path.data(), &metadata, image);
+    if (FAILED(hr))
+    {
+        _hasTexture = false;
+        UmLogger.Log(LogLevel::LEVEL_ERROR, u8"HDR Texture 로드에 실패 하였습니다.");
+        return;
+    }
     FAILED_CHECK_MESSAGE(hr, L"SkyBox::SetTexture LoadFromHDRFile Failed");
 
     const Image* img = image.GetImage(0, 0, 0);
