@@ -260,8 +260,9 @@ Command::EditorScene::PasteObjectCommand::~PasteObjectCommand()
 
 }
 
-void Command::EditorScene::PasteObjectCommand::Execute() 
+bool Command::EditorScene::PasteObjectCommand::Execute() 
 {
+    _loadSuccess = false;
     if (false == _yamlData.empty())
     {
         if (true == _destObjects.empty())
@@ -324,11 +325,12 @@ void Command::EditorScene::PasteObjectCommand::Execute()
             Super::Execute();
         }
     }
+    return _loadSuccess;
 }
 
 void Command::EditorScene::PasteObjectCommand::Undo() 
 {
-    if (false == _yamlData.empty())
+    if (true == _loadSuccess && false == _yamlData.empty())
     {
         auto& rootObject               = _destObjects.front();
         rootObject->GetScene().IsDirty = true;

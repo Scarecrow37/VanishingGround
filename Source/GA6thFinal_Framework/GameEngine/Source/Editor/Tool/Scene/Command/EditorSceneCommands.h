@@ -100,7 +100,7 @@ namespace Command
               PasteObjectCommand(std::wstring_view yamlData);
               ~PasteObjectCommand() override;
 
-              void Execute() override;
+              bool Execute() override;
               void Undo() override;
 
         private:
