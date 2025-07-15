@@ -287,11 +287,13 @@ void Command::EditorScene::PasteObjectCommand::Execute()
             }
             catch (const YAML::ParserException& e)
             {
+                const char* what = e.what();
                 _yamlData.clear();
                 _loadSuccess = false;
             }
             catch (const YAML::Exception& e)
             {
+                const char* what = e.what();
                 _yamlData.clear();
                 _loadSuccess = false;
             }
