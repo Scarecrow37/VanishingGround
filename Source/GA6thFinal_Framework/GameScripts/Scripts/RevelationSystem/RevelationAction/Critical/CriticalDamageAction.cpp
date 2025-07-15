@@ -21,13 +21,6 @@ std::string_view CriticalDamageAction::GetActionInfo()
     return _actionInfo;
 }
 
-static ReflectHelper::ImGuiDraw::InputAutoSetting InitSetting()
-{
-    ReflectHelper::ImGuiDraw::InputAutoSetting setting;
-    setting._float.format = "%.1f";
-    return setting;
-}
-
 void CriticalDamageAction::ImGuiDrawActionEditor() 
 {
     constexpr auto conditions = rfl::get_enumerator_array<CriticalDamageCondition>();
@@ -56,7 +49,12 @@ void CriticalDamageAction::ImGuiDrawActionEditor()
         ImGui::EndCombo();
     }
 
-    static ReflectHelper::ImGuiDraw::InputAutoSetting setting = InitSetting();
+    static ReflectHelper::ImGuiDraw::InputAutoSetting setting = [] 
+    {
+        ReflectHelper::ImGuiDraw::InputAutoSetting setting;
+        setting._float.format = "%.1f";
+        return setting;
+    }();
     ImGuiDrawPropertys(setting);
 }
 
