@@ -10,6 +10,18 @@ void PanelSlotComponent::SetPlacement(const POINT point, const SIZE size)
     PassPlacement();
 }
 
+void PanelSlotComponent::PassPlacement(const POINT point, const SIZE size) const
+{
+    for (int i = 0; i < gameObject->GetComponentCount(); ++i)
+    {
+        if (PlacementUIComponent* areaComponent = gameObject->GetComponentAtIndex<PlacementUIComponent>(i))
+        {
+            areaComponent->SetScopePlacement(point, size);
+            break;
+        }
+    }
+}
+
 void PanelSlotComponent::OnDetachParent(GameObject* previousParentGameObject)
 {
     UIComponent::OnDetachParent(previousParentGameObject);

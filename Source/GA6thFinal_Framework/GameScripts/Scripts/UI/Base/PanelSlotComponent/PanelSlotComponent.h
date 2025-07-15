@@ -10,7 +10,8 @@ public:
 
     void SetPlacement(POINT point, SIZE size);
 
-    virtual void PassPlacement() const {}
+    virtual void PassPlacement() const = 0;
+    void         PassPlacement(POINT point, SIZE size) const;
 
 protected:
     REFLECT_FIELDS_BEGIN(PlacementUIComponent)
