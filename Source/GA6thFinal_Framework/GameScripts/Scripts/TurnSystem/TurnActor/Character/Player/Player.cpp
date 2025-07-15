@@ -119,7 +119,7 @@ void Player::Dead()
 
 void Player::ImGuiDrawPropertysEvent()
 {
-   
+    Base::ImGuiDrawPropertysEvent();
 }
 
 CharacterStats* Player::GetCharacterStats()
@@ -196,6 +196,11 @@ void Player::OnRoundStart()
 void Player::OnRoundEnd()
 {
     Base::OnRoundEnd();
+}
+
+void Player::OnEachTurnStart(CharacterBase* destination) 
+{
+    Base::OnEachTurnStart(destination);
 }
 
 void Player::OnTurnStart()

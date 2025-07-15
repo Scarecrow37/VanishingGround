@@ -116,9 +116,11 @@ protected:
     /// </summary>
     virtual void Awake();
 
+public:
     virtual void OnCombatStart();
     virtual void OnRoundStart();
     virtual void OnRoundEnd();
+    virtual void OnEachTurnStart(CharacterBase* destination);
     virtual void OnTurnStart();
     virtual void OnTurnEnd();
     virtual void OnHit();
