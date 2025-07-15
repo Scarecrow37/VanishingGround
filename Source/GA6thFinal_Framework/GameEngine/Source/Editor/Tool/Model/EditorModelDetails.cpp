@@ -205,11 +205,11 @@ void EditorModelDetails::OnFrameRender()
         if (ImGui::TreeNodeEx("Model##details", ImGuiTreeNodeFlags_DefaultOpen))
         {
             // ReadOnly inputText for file path
-            int flags = ImGuiInputTextFlags_ReadOnly | ImGuiInputTextFlags_AutoSelectAll;
+            int inputFlags = ImGuiInputTextFlags_ReadOnly | ImGuiInputTextFlags_AutoSelectAll;
             std::string filePath  = _filePath.string();
             char* filePathBuffer  = (char*)filePath.c_str();
             size_t filePathLength = filePath.length() + 1;
-            ImGui::InputText("File Path##details", filePathBuffer, filePathLength, flags);
+            ImGui::InputText("File Path##details", filePathBuffer, filePathLength, inputFlags);
             if (ImGui::IsItemHovered())
             {
                 ImGui::SetTooltip(filePath.c_str());
@@ -272,7 +272,7 @@ void EditorModelDetails::OnFrameRender()
                     const auto& animationNames = animation->GetAnimations();
                     const char* comboLabel =
                         _currentAnimationIndex == -1 ? "-" : animationNames[_currentAnimationIndex];
-                    if (ImGui::BeginCombo("##Animation", comboLabel))
+                    if (ImGuiHelper::BeginComboInput("##Animation", comboLabel, inputFlags))
                     {
                         for (int i = 0; i < animationNames.size(); ++i)
                         {
@@ -324,7 +324,7 @@ void EditorModelDetails::OnFrameRender()
                     ImGui::Checkbox("Loop", &_isAnimationLooping);
 
                     float min = 0.0f;
-                    float max = _animator->GetCurrentAnimationLastTime();
+                    float max = _animator ? _animator->GetCurrentAnimationLastTime() : 0.0f;
                     ImGui::SliderFloat("Current Animation Frame", &_animationTime, min, max);
                     ImGui::DragFloat("Animation Speed", &_animationSpeed, 0.01f);
                 }

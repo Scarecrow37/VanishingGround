@@ -33,7 +33,41 @@ namespace ImGuiHelper
       Camera* pCamera, 
       Matrix* pObjectMatrix,
       DrawManipulateDesc & desc);
-}
+
+    bool BeginComboInput(const char* label, const char* preview_value, ImGuiInputTextFlags inputTextFlags, ImGuiComboFlags comboFlags)
+    {
+        const ImGuiStyle& style  = ImGui::GetStyle();
+        ImGuiWindow* window = ImGui::GetCurrentWindow();
+        const ImGuiID id = window->GetID(label);
+
+        ImGui::PushID(id);
+
+        const ImGuiID popupID       = ImGui::GetID("##ComboPopup");
+        const ImGuiID buttonID      = ImGui::GetID("##ArrowButton");
+        const float   arrowSize     = (comboFlags & ImGuiComboFlags_NoArrowButton) ? 0.0f : ImGui::GetFrameHeight();
+        const ImVec2  labelSize     = ImGui::CalcTextSize(preview_value, NULL, true);
+        const float   previewWidth  = ((comboFlags & ImGuiComboFlags_WidthFitPreview) && (preview_value != NULL)) ? ImGui::CalcTextSize(preview_value, NULL, true).x : 0.0f;
+        const float   w             = (comboFlags & ImGuiComboFlags_NoPreview) ? arrowSize : ((comboFlags & ImGuiComboFlags_WidthFitPreview) ? (arrowSize + previewWidth + style.FramePadding.x * 2.0f) : ImGui::CalcItemWidth());
+        const ImRect  bb(window->DC.CursorPos, window->DC.CursorPos + ImVec2(w, labelSize.y + style.FramePadding.y * 2.0f));
+        const ImVec2  cursor        = ImGui::GetCursorPos();
+
+        char*  buffer     = (char*)preview_value;
+        size_t bufferSize = strlen(preview_value);
+        ImGui::SetNextItemWidth(w);
+        ImGui::InputText(label, buffer, bufferSize, inputTextFlags);
+        ImGui::SameLine();
+        ImGui::SetCursorPosX(cursor.x + w);
+        bool isPopupOpen = ImGui::IsPopupOpen("##ComboPopup", ImGuiPopupFlags_None);
+        bool isPressed   = ImGui::ArrowButton("##down", ImGuiDir_Down);
+        if (true == isPressed && false == isPopupOpen)
+        {
+            ImGui::OpenPopupEx(popupID, ImGuiPopupFlags_None);
+            isPopupOpen = true;
+        }
+        ImGui::PopID();
+        return ImGui::BeginComboPopup(popupID, bb, comboFlags);
+    }
+} // namespace ImGuiHelper
 
 bool ImGuiHelper::DrawManipulate(
     Camera* pCamera, 
