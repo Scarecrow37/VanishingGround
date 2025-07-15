@@ -107,7 +107,7 @@ namespace Command
               std::wstring                             _yamlData;
               std::vector<std::shared_ptr<GameObject>> _destObjects;
               bool                                     _active;
-              bool                                     _loadSucess;
+              bool                                     _loadSuccess;
               std::string                              _ownerSceneName;
 
         };

@@ -277,23 +277,23 @@ void Command::EditorScene::PasteObjectCommand::Execute()
                     Transform::ForeachBFS(sourceRoot->transform, [&](Transform* curr) {
                         _destObjects.push_back(curr->gameObject->GetWeakPtr().lock());
                     });
-                    _loadSucess = true;
+                    _loadSuccess = true;
                 }
                 else
                 {
                     _yamlData.clear();
-                    _loadSucess = false;
+                    _loadSuccess = false;
                 }
             }
             catch (const YAML::ParserException& e)
             {
                 _yamlData.clear();
-                _loadSucess = false;
+                _loadSuccess = false;
             }
             catch (const YAML::Exception& e)
             {
                 _yamlData.clear();
-                _loadSucess = false;
+                _loadSuccess = false;
             }
         }
         else
@@ -307,7 +307,7 @@ void Command::EditorScene::PasteObjectCommand::Execute()
             }
         }
 
-        if (_loadSucess)
+        if (_loadSuccess)
         {
             auto& rootObject               = _destObjects.front();
             rootObject->GetScene().IsDirty = true;
