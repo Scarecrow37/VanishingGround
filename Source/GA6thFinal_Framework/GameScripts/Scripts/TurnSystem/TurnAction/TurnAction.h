@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <Interface/ITriggerType.h>
 
+//턴 라이프 사이클 사용을 위한 Base 클래스입니다.
 class TurnAction abstract
 {
     friend class TurnMode;
