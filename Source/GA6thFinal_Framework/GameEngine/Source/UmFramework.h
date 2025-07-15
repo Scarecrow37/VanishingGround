@@ -23,7 +23,14 @@ constexpr bool IS_EDITOR = false;
 namespace Global
 {
     //게임 플레이중 여부를 반환합니다.
+#ifdef _UMEDITOR
     extern constexpr bool IsPlay();
+#else
+    constexpr bool IsPlay()
+    {
+        return true;
+    }
+#endif
 }
 
 // 프로젝트 설정 파일들 모아두는 폴더
