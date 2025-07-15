@@ -4,6 +4,10 @@ class CharacterBase;
 
 class ITriggerType
 {
+public:
+    ITriggerType() = default;
+    virtual ~ITriggerType() = default;
+
 private:
     /// <summary>전투가 시작될 때 호출됩니다.</summary>
     /// <param name="source">호출한 CharacterBase 객체입니다.</param>
