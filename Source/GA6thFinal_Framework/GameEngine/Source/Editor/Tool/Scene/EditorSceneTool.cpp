@@ -923,7 +923,7 @@ EditorSceneTool::ManipulateCommand::ManipulateCommand(
 
 EditorSceneTool::ManipulateCommand::~ManipulateCommand() = default;
 
-void EditorSceneTool::ManipulateCommand::Execute() 
+bool EditorSceneTool::ManipulateCommand::Execute() 
 {
     if (false == _target.expired())
     {
@@ -933,6 +933,7 @@ void EditorSceneTool::ManipulateCommand::Execute()
         object->transform->Scale    = _curr.Scale;
         object->GetScene().IsDirty = true;
     }
+    return true;
 }
 
 void EditorSceneTool::ManipulateCommand::Undo() 
