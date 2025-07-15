@@ -14,9 +14,6 @@ protected:
     REFLECT_FIELDS_END(UIRoot)
 
     void OnAttachChild(GameObject* childGameObject) override;
-
-private:
-    void AddSlot(GameObject* gameObject) const;
 };
 
 class UIRootSlot : public PanelSlotComponent
