@@ -1,9 +1,10 @@
 ﻿#pragma once
 #include "UmFramework.h"
+#include <TurnSystem/TurnAction/TurnAction.h>
 
 class CharacterBase;
 
-class TurnActor : public Component
+class TurnActor : public Component, ITriggerType
 {
     USING_PROPERTY(TurnActor)
 public:
@@ -128,4 +129,6 @@ public:
     virtual void OnKill(CharacterBase* destination);
     virtual void OnTokenAdded(int tokenID);
     virtual void OnTokenRemoved(int tokenID);
+    void OnQTEStart() override;
+    void OnQTEEnd() override;
 };

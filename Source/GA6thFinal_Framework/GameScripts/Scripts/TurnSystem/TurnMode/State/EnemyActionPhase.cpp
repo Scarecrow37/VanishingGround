@@ -28,23 +28,17 @@ void EnemyActionPhase::OnEnter()
     if (_turnMode)
     {
         actor->OnTurnStart();
+        _turnMode->ApplyActions([](TurnAction& action) { action.OnTurnStart(); });
 
-        auto* combatStartPhase = _turnMode->States->CombatStartPhase;
+        CombatStartPhase* combatStartPhase = _turnMode->States->CombatStartPhase;
         if (combatStartPhase)
         {
-            Player* player = combatStartPhase->GetPlayer();
-            if (player)
+            CharacterBase* character = static_cast<CharacterBase*>(actor);
+            for (auto& ch : combatStartPhase->GetCharacters())
             {
-                player->OnEachTurnStart(static_cast<CharacterBase*>(actor));
+                ch->OnEachTurnStart(character);
             }
-            const auto& enemies = combatStartPhase->GetEnemies();
-            for (const auto& enemy : enemies)
-            {
-                if (enemy)
-                {
-                    enemy->OnEachTurnStart(static_cast<CharacterBase*>(actor));
-                }
-            }
+            _turnMode->ApplyActions([character](TurnAction& action) { action.OnEachTurnStart(character); });
         }
     }
 }

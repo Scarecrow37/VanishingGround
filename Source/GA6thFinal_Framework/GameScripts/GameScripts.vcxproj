@@ -320,6 +320,7 @@
     <ClInclude Include="Scripts\Stats\Enemy\EnemyStats.h" />
     <ClInclude Include="pchScripts.h" />
     <ClInclude Include="Scripts\Stats\Player\PlayerStats.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnAction.h" />
     <ClInclude Include="Scripts\WeaponSystem\WeaponTable\WeaponTableComponent.h" />
     <ClInclude Include="Scripts\Stats\Weapon\WeaponStats.h" />
     <ClInclude Include="Scripts\Test\Component\TestComponent.h" />
