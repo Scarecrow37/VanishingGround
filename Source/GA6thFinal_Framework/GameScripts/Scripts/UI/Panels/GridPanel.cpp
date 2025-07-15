@@ -113,6 +113,7 @@ void GridPanel::OnPlacementChange()
         {
             if (GridPanelSlot* slot = gameObject.GetComponentAtIndex<GridPanelSlot>(j))
             {
+                slot->SetColumnsAndRows(ReflectFields->Columns, ReflectFields->Rows);
                 slot->SetPlacement(ReflectFields->Basefields.get().Basefields.get().Point,
                                   ReflectFields->Basefields.get().Basefields.get().Size);
             }

@@ -16,11 +16,19 @@ public:
     REFLECT_PROPERTY(Columns, Rows)
 
     GETTER(unsigned int, Columns) { return ReflectFields->Columns; }
-    SETTER(unsigned int, Columns) { ReflectFields->Columns = std::clamp(value, MIN_COLUMNS, MAX_COLUMNS); }
+    SETTER(unsigned int, Columns)
+    {
+        ReflectFields->Columns = std::clamp(value, MIN_COLUMNS, MAX_COLUMNS);
+        OnPlacementChange();
+    }
     PROPERTY(Columns)
 
     GETTER(unsigned int, Rows) { return ReflectFields->Rows; }
-    SETTER(unsigned int, Rows) { ReflectFields->Rows = std::clamp(value, MIN_ROWS, MAX_ROWS); }
+    SETTER(unsigned int, Rows)
+    {
+        ReflectFields->Rows = std::clamp(value, MIN_ROWS, MAX_ROWS);
+        OnPlacementChange();
+    }
     PROPERTY(Rows)
 
 protected:
