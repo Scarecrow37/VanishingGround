@@ -10,7 +10,7 @@ using namespace u8_literals;
 void Scene::IsDirty_property_setter(const std::remove_cvref_t<bool>& value) 
 {
 #ifdef _UMEDITOR
-    if (false == editorModule->PlayMode.IsPlay())
+    if (false == ESceneManager::Engine::IsPlayMode(UmSceneManager))
     {
         _isDirty = value;
     }
@@ -1107,7 +1107,7 @@ void ESceneManager::SetRendererSkyBox(Scene* scene)
             File::Path path = scene->_skyBox.ToPath();
             if (false == path.IsNull())
             {
-                UmRenderer.SetSkyBox(path.string());
+                UmRenderer.SetSkyBox(path.wstring());
             }
         }
     }
@@ -1237,7 +1237,7 @@ bool ESceneManager::SetSkyBox(const File::Path& path)
     }
 
     Engine::SetSceneSkyBoxGuid(*mainScene, guid);
-    UmRenderer.SetSkyBox(path.string());
+    UmRenderer.SetSkyBox(path.wstring());
     mainScene->IsDirty = true;
 
     return true;

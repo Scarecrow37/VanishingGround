@@ -30,8 +30,8 @@ void EditorDynamicCamera::Update()
         if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_MouseWheelY))
         {
             float wheel = io.MouseWheel;
-            _moveScale += wheel * 0.01f;
-            _moveScale = std::clamp(_moveScale, 0.f, 1000.f);
+            _moveScale += wheel * 0.05f;
+            _moveScale = std::clamp(_moveScale, 0.1f, 1000.f);
         }
         _pivotPosition = _position - forward * _pivot;
     }

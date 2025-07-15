@@ -25,7 +25,7 @@ D3D12_GPU_DESCRIPTOR_HANDLE RenderScene::GetFinalImage()
     return finalTarget->GetSRVHandle();
 }
 
-void RenderScene::SetSkyBox(std::string_view path)
+void RenderScene::SetSkyBox(std::wstring_view path)
 {
     _skyBox->SetTexture(path.data());
 }
