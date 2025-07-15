@@ -26,7 +26,7 @@ void CombatStartPhase::ResetCharacterStats()
 {
     _player = nullptr;
     _enemies.clear();
-
+    _characters.clear();
     for (auto& weak : GameObject::FindGameObjectsWithTag(CharacterBase::TAG))
     {
         if (false == weak.expired())
