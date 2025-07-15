@@ -160,6 +160,7 @@ public:
         isDestroy.reset(new bool{false});
         TurnAction* baseAction = static_cast<TurnAction*>(action);
         baseAction->_isDestroy = isDestroy.get();
+        return action;
     }
 
 private:
