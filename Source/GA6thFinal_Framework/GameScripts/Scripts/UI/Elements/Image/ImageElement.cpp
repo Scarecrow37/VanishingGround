@@ -38,9 +38,10 @@ void ImageElement::Reset()
     UIComponent::Reset();
     try
     {
-        _renderer = std::make_unique<SpriteRenderer>(transform->GetWorldMatrix(), SpriteType::MODE_2D);
+        _renderer = std::make_unique<SpriteRenderer>(_worldMatrix, SpriteType::MODE_2D);
         _renderer->RegisterRenderQueue();
         _renderer->SetActive(&EnableInHierarchy);
+        OnPlacementChange();
     }
     catch (...)
     {
@@ -61,6 +62,13 @@ void ImageElement::DeserializedReflectEvent()
     }
 }
 
+void ImageElement::OnPlacementChange()
+{
+    EditablePlacementUIComponent::OnPlacementChange();
+    _renderer->SetSize(ReflectFields->Basefields.get().Basefields.get().Size);
+    UpdateWorldMatrix();
+}
+
 void ImageElement::LoadTexture()
 {
     if (_renderer)
@@ -73,4 +81,16 @@ void ImageElement::LoadTexture()
             Size = _renderer->GetSize();
         }
     }
+}
+
+void ImageElement::UpdateWorldMatrix()
+{
+    const auto  [pointX, pointY] = ReflectFields->Basefields.get().Basefields.get().Point;
+    const auto  [scopeX, scopeY] = ReflectFields->Basefields.get().Basefields.get().ScopePoint;
+    const POINT absolutePoint{.x = pointX + scopeX, .y = pointY + scopeY};
+    const auto  [width, height]  = ReflectFields->Basefields.get().Basefields.get().Size;
+    const Vector3 position{static_cast<float>(absolutePoint.x), static_cast<float>(absolutePoint.y), 0.0f};
+    const Vector3 scale{static_cast<float>(width), static_cast<float>(height), 1.0f};
+
+   _worldMatrix = /*Matrix::CreateScale(scale) * */Matrix::CreateTranslation(position);
 }
