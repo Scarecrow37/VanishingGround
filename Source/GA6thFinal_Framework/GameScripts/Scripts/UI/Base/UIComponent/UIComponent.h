@@ -23,4 +23,12 @@ protected:
     /// </summary>
     /// <param name="previousParentGameObject">이전에 연결되어 있던 부모 GameObject에 대한 포인터입니다.</param>
     virtual void OnDetachParent(GameObject* previousParentGameObject) {};
+
+    void OnDrawDebug() override;
+
+    void OnDrawDebugSelected() override;
+
+    virtual void DrawDebug() {};
+
+    virtual void DrawDebugSelected() {};
 };
