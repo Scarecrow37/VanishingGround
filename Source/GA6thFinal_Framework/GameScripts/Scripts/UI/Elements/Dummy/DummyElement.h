@@ -1,13 +1,13 @@
 ﻿#pragma once
-#include "UI/Base/AreaUIComponent/AreaUIComponent.h"
+#include "UI/Base/EditablePlacementUIComponent/EditablePlacementUIComponent.h"
 
-class DummyElement : public AreaUIComponent
+class DummyElement : public EditablePlacementUIComponent
 {
     USING_PROPERTY(DummyElement)
 public:
     DummyElement();
 
 protected:
-    REFLECT_FIELDS_BEGIN(AreaUIComponent)
+    REFLECT_FIELDS_BEGIN(EditablePlacementUIComponent)
     REFLECT_FIELDS_END(DummyElement)
 };
