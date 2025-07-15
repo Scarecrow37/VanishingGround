@@ -5,6 +5,7 @@
 #include "TurnSystem/TurnMode/TurnMode.h"
 #include <TurnSystem/TurnActor/Character/Player/Player.h>
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
+#include <TurnSystem/TurnAction/TurnAction.h>
 
 REGISTER_CLASS(FSMStateFactory, CombatStartPhase)
 
@@ -25,7 +26,7 @@ void CombatStartPhase::ResetCharacterStats()
 {
     _player = nullptr;
     _enemies.clear();
-
+    _characters.clear();
     for (auto& weak : GameObject::FindGameObjectsWithTag(CharacterBase::TAG))
     {
         if (false == weak.expired())
@@ -44,6 +45,7 @@ void CombatStartPhase::ResetCharacterStats()
             {
                 const auto& type = typeid(*character);
                 character->Revive();
+                _characters.push_back(character);
                 if (typeid(Player) == type)
                 {
                     _player = static_cast<Player*>(character);
@@ -103,4 +105,9 @@ void CombatStartPhase::NotifyCombatStart()
             enemy->OnCombatStart();
         }
     }
+
+    _turnMode->ApplyActions([](TurnAction& action) 
+    { 
+         action.OnCombatStart();
+    });
 }

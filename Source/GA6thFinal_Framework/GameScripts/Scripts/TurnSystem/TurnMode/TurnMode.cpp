@@ -57,7 +57,6 @@ void TurnMode::MakeTurnList()
                 {
                     _turnList.emplace_back(i, player);
                 }
-                player->OnRoundStart();
             }
         }
     }
@@ -72,7 +71,6 @@ void TurnMode::MakeTurnList()
             if (nullptr != enemy)
             {
                 _turnList.emplace_back(-1, enemy);
-                enemy->OnRoundStart();
             }
         }
     }

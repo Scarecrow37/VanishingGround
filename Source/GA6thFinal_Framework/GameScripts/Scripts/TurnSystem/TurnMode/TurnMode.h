@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "UmFramework.h"
+#include "../TurnAction/TurnAction.h"
 
 class FiniteStateMachine;
 class TurnActor;
@@ -123,6 +124,49 @@ private:
     } _systemConditions;
 
 public:
+    /// <summary>
+    /// 실제 활성화된 Action들 순회하면서 함수를 실행시킵니다.
+    /// </summary>
+    /// <returns></returns>
+    void ApplyActions(const std::function<void(TurnAction& action)>& func) 
+    {
+        std::erase_if(_turnActions, [&func](const auto& pair) 
+        {
+            bool result = true;
+            auto& [isDestroy, action] = pair;
+            if (isDestroy)
+            {
+                result = *isDestroy;
+                if (false == result)
+                {
+                    func(*action);
+                }
+            }
+            return result;
+        });
+    };
+
+    /// <summary>
+    /// 턴 라이프 사이클에 액션을 추가합니다.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="action :">해당 객체 포인터</param>
+    /// <returns></returns>
+    template <typename T>
+    T* AddTurnAction(T* action)
+    {
+        static_assert(std::is_base_of_v<TurnAction, T>, "T is not derived from TurnAction.");
+        auto& [isDestroy, action] = _turnActions.emplace_back();
+        isDestroy.reset(new bool{false});
+        TurnAction* baseAction = static_cast<TurnAction*>(action);
+        baseAction->_isDestroy = isDestroy.get();
+        return action;
+    }
+
+private:
+    std::vector<std::pair<std::unique_ptr<bool>, TurnAction*>> _turnActions;
+
+public:
     GETTER_ONLY(const SystemStates&, States) { return _systemStates; }
     /// <summary>
     /// TurnMode FSM의 State 객체들 입니다.
@@ -143,4 +187,5 @@ protected:
     virtual void Awake();
 
     virtual void ImGuiDrawPropertysEvent() override;
+
 };

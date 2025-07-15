@@ -3,6 +3,7 @@
 
 class Enemy;
 class Player;
+class CharacterBase;
 
 /*
 * 전투 시작 페이즈 입니다.
@@ -27,6 +28,7 @@ public:
     void ResetCharacterStats();
     Player* GetPlayer() { return _player; }
     const std::vector<Enemy*>& GetEnemies() { return _enemies; }
+    const std::vector<CharacterBase*>& GetCharacters() { return _characters; }
 
 protected:
     void OnAwake() override;
@@ -38,7 +40,8 @@ protected:
     void NotifyCombatStart();
 
 private:
-    bool                _phaseEnd;
-    Player*             _player;
-    std::vector<Enemy*> _enemies;
+    bool                        _phaseEnd;
+    Player*                     _player;
+    std::vector<Enemy*>         _enemies;
+    std::vector<CharacterBase*> _characters;
 };
