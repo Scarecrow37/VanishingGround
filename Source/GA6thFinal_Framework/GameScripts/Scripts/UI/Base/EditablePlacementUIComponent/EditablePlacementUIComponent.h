@@ -30,8 +30,6 @@ protected:
     REFLECT_FIELDS_BEGIN(PlacementUIComponent)
     REFLECT_FIELDS_END(EditablePlacementUIComponent)
 
-    virtual void OnPlacementChange() {};
-
     void DrawDebug() override;
 
     void DrawDebugSelected() override;
