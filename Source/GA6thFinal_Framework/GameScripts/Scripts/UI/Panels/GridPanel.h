@@ -1,78 +1,104 @@
 ﻿#pragma once
-#include "UI/Base/AreaUIComponent/AreaUIComponent.h"
+#include "UI/Base/EditablePlacementUIComponent/EditablePlacementUIComponent.h"
 #include "UI/Base/PanelSlotComponent/PanelSlotComponent.h"
 
-class GridPanel : public AreaUIComponent
+class GridPanel : public EditablePlacementUIComponent
 {
     USING_PROPERTY(GridPanel)
 public:
+    static constexpr unsigned int MIN_COLUMNS = 1;
+    static constexpr unsigned int MIN_ROWS    = 1;
+    static constexpr unsigned int MAX_COLUMNS = 64;
+    static constexpr unsigned int MAX_ROWS    = 64;
+
     GridPanel();
 
     REFLECT_PROPERTY(Columns, Rows)
 
     GETTER(unsigned int, Columns) { return ReflectFields->Columns; }
-    SETTER(unsigned int, Columns) { ReflectFields->Columns = std::clamp(value, 1u, 64u); }
+    SETTER(unsigned int, Columns) { ReflectFields->Columns = std::clamp(value, MIN_COLUMNS, MAX_COLUMNS); }
     PROPERTY(Columns)
 
     GETTER(unsigned int, Rows) { return ReflectFields->Rows; }
-    SETTER(unsigned int, Rows) { ReflectFields->Rows = std::clamp(value, 1u, 64u); }
+    SETTER(unsigned int, Rows) { ReflectFields->Rows = std::clamp(value, MIN_ROWS, MAX_ROWS); }
     PROPERTY(Rows)
 
 protected:
-    REFLECT_FIELDS_BEGIN(AreaUIComponent)
-    unsigned int Columns = 1;
-    unsigned int Rows    = 1;
+    REFLECT_FIELDS_BEGIN(EditablePlacementUIComponent)
+    unsigned int Columns = MIN_COLUMNS;
+    unsigned int Rows    = MIN_ROWS;
     REFLECT_FIELDS_END(GridPanel)
 
     void OnAttachChild(GameObject* childGameObject) override;
 
-    void OnDrawDebug() override;
+    void DrawDebug() override;
 
-    void OnDrawDebugSelected() override;
+    void DrawDebugSelected() override;
 
-    void Reset() override;
-
-private:
-    void DrawLine(FXMVECTOR color) const;
+    void OnPlacementChange() override;
 };
 
 class GridPanelSlot : public PanelSlotComponent
 {
     friend GridPanel;
     USING_PROPERTY(GridPanelSlot)
+
 public:
+    static constexpr unsigned int MIN_COLUMN      = 0;
+    static constexpr unsigned int MIN_ROW         = 0;
+    static constexpr unsigned int MIN_COLUMN_SPAN = 1;
+    static constexpr unsigned int MIN_ROW_SPAN    = 1;
+
     GridPanelSlot();
 
-    REFLECT_PROPERTY(Column, Row)
+    REFLECT_PROPERTY(Column, Row, ColumnSpan, RowSpan)
 
     GETTER(unsigned int, Column) { return ReflectFields->Column; }
     SETTER(unsigned int, Column)
     {
-        if (nullptr == _gridPanel)
-            return;
-        const unsigned int columns = _gridPanel->Columns;
-        ReflectFields->Column      = std::clamp(value, 0u, columns - 1);
+        ReflectFields->Column = std::clamp(value, MIN_COLUMN, ReflectFields->Columns - 1);
+        ColumnSpan            = ReflectFields->ColumnSpan;
     }
     PROPERTY(Column)
 
     GETTER(unsigned int, Row) { return ReflectFields->Row; }
     SETTER(unsigned int, Row)
     {
-        if (nullptr == _gridPanel)
-            return;
-        const unsigned int rows = _gridPanel->Rows;
-        ReflectFields->Row      = std::clamp(value, 0u, rows - 1);
+        ReflectFields->Row = std::clamp(value, MIN_ROW, ReflectFields->Rows - 1);
+        RowSpan            = ReflectFields->RowSpan;
     }
     PROPERTY(Row)
 
+    GETTER(unsigned int, ColumnSpan) { return ReflectFields->ColumnSpan; }
+    SETTER(unsigned int, ColumnSpan)
+    {
+        ReflectFields->ColumnSpan = std::clamp(value, MIN_COLUMN_SPAN, ReflectFields->Columns - ReflectFields->Column);
+        PassPlacement();
+    }
+    PROPERTY(ColumnSpan)
+
+    GETTER(unsigned int, RowSpan) { return ReflectFields->RowSpan; }
+    SETTER(unsigned int, RowSpan)
+    {
+        ReflectFields->RowSpan = std::clamp(value, MIN_ROW_SPAN, ReflectFields->Rows - ReflectFields->Row);
+        PassPlacement();
+    }
+    PROPERTY(RowSpan)
+
+    void PassPlacement() const override;
+
 protected:
     REFLECT_FIELDS_BEGIN(PanelSlotComponent)
-    unsigned int Column = 0;
-    unsigned int Row    = 0;
+    unsigned int Columns    = GridPanel::MIN_COLUMNS;
+    unsigned int Rows       = GridPanel::MIN_ROWS;
+    unsigned int Column     = MIN_COLUMN;
+    unsigned int Row        = MIN_ROW;
+    unsigned int ColumnSpan = MIN_COLUMN_SPAN;
+    unsigned int RowSpan    = MIN_ROW_SPAN;
     REFLECT_FIELDS_END(GridPanelSlot)
 
 private:
-    void SetGridPanel(GridPanel* gridPanel);
-
-    GridPanel* _gridPanel;
+    void SetColumnsAndRows(unsigned int columns, unsigned int rows);
+    void SetColumns(unsigned int columns);
+    void SetRows(unsigned int rows);
 };
