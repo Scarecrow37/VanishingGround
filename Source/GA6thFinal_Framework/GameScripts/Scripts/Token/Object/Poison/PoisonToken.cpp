@@ -22,7 +22,7 @@ namespace TokenObject
         tokenInventory.RemoveTokenStackFromID(ID);
     }
 
-    void Poison2::OnEachTurnStart(CharacterBase* owner, CharacterBase* destiantion)
+    void TokenObject::Poison2::OnEachTurnStart(CharacterBase* owner, CharacterBase* destination)
     {
         auto& tokenInventory = owner->GetTokenInventory();
         int   stackCount     = tokenInventory.GetTokenStackFromID(ID);
@@ -35,7 +35,7 @@ namespace TokenObject
         tokenInventory.RemoveTokenStackFromID(ID);
     }
 
-    void Poison3::OnEachTurnStart(CharacterBase* owner, CharacterBase* destiantion)
+    void TokenObject::Poison3::OnEachTurnStart(CharacterBase* owner, CharacterBase* destination)
     {
         auto& tokenInventory = owner->GetTokenInventory();
         int   stackCount     = tokenInventory.GetTokenStackFromID(ID);

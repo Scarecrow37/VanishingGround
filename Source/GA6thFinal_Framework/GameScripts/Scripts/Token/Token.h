@@ -45,7 +45,7 @@ public: // 콜백에 대한 자세한 주석은 ITriggerType.h를 참고하세�
     virtual void OnCombatStart(CharacterBase* source) override                                  {};
     virtual void OnRoundStart(CharacterBase* owner) override                                    {};
     virtual void OnRoundEnd(CharacterBase* owner) override                                      {};
-    virtual void OnEachTurnStart(CharacterBase* source, CharacterBase* destiantion) override    {};
+    virtual void OnEachTurnStart(CharacterBase* source, CharacterBase* destination) override    {};
     virtual void OnTurnStart(CharacterBase* owner) override                                     {};
     virtual void OnTurnEnd(CharacterBase* owner) override                                       {};
     virtual void OnHit(CharacterBase* owner) override                                           {};
