@@ -18,6 +18,8 @@ protected:
     SIZE  ScopeSize;
     REFLECT_FIELDS_END(PlacementUIComponent)
 
+    virtual void OnPlacementChange() {};
+
     void ResetPlacement();
 
     void OnDetachParent(GameObject* previousParentGameObject) override;

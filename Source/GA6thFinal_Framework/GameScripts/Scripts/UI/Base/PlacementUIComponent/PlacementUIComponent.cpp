@@ -14,6 +14,7 @@ void PlacementUIComponent::ResetPlacement()
 {
     ReflectFields->Point = POINT{0,0};
     ReflectFields->Size  = ReflectFields->ScopeSize;
+    OnPlacementChange();
 }
 
 
