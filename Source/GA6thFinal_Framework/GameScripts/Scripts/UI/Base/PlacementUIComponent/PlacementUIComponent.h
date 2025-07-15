@@ -20,9 +20,5 @@ protected:
 
     void ResetPlacement();
 
-    void OnDrawDebug() override;
-
-    void OnDrawDebugSelected() override;
-
     void OnDetachParent(GameObject* previousParentGameObject) override;
 };
