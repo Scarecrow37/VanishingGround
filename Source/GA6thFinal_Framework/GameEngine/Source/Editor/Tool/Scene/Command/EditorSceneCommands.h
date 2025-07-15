@@ -92,5 +92,25 @@ namespace Command
             bool                                     _active;
             std::string                              _ownerSceneName;
         };
+
+        class PasteObjectCommand : public Command::Hierarchy::FocusCommand
+        {
+              using Super = FocusCommand;
+        public:
+              PasteObjectCommand(std::wstring_view yamlData);
+              ~PasteObjectCommand() override;
+
+              void Execute() override;
+              void Undo() override;
+
+        private:
+              std::wstring                             _yamlData;
+              std::vector<std::shared_ptr<GameObject>> _destObjects;
+              bool                                     _active;
+              bool                                     _loadSucess;
+              std::string                              _ownerSceneName;
+
+        };
+
     }
 }

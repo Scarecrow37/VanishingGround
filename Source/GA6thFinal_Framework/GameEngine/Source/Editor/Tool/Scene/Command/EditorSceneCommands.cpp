@@ -239,3 +239,105 @@ void Command::EditorScene::DuplicateCommand::Undo()
     rootObject->GetScene().IsDirty = true;
     Super::Undo();
 }
+
+Command::EditorScene::PasteObjectCommand::PasteObjectCommand(std::wstring_view yamlData)
+    : FocusCommand(std::weak_ptr<GameObject>(), std::weak_ptr<GameObject>(), "Paste Object")
+{
+    _yamlData = yamlData;
+    _loadSucess = true;
+}
+
+Command::EditorScene::PasteObjectCommand::~PasteObjectCommand() 
+{
+
+}
+
+void Command::EditorScene::PasteObjectCommand::Execute() 
+{
+    if (false == _yamlData.empty())
+    {
+        if (true == _destObjects.empty())
+        {
+            try
+            {
+                std::string data         = WStringToU8(_yamlData);
+                YAML::Node  yamlInstance = YAML::Load(data);
+                GameObject* sourceRoot   = UmGameObjectFactory.DeserializeToYaml(&yamlInstance).get();
+                if (sourceRoot)
+                {
+                    _oldFocused = EditorHierarchyTool::GetFocusObject();
+                    std::string objName(std::string_view(sourceRoot->Name));
+                    size_t      pos = objName.rfind(" (");
+                    if (pos != std::string::npos && objName.back() == ')')
+                    {
+                        objName = objName.substr(0, pos);
+                    }
+                    sourceRoot->Name = GameObject::Helper::GenerateUniqueName(objName);
+                    _newFocused      = sourceRoot->GetWeakPtr();
+                    Transform::ForeachBFS(sourceRoot->transform, [&](Transform* curr) {
+                        _destObjects.push_back(curr->gameObject->GetWeakPtr().lock());
+                    });
+                    _loadSucess = true;
+                }
+                else
+                {
+                    _yamlData.clear();
+                    _loadSucess = false;
+                }
+            }
+            catch (const YAML::ParserException& e)
+            {
+                _yamlData.clear();
+                _loadSucess = false;
+            }
+            catch (const YAML::Exception& e)
+            {
+                _yamlData.clear();
+                _loadSucess = false;
+            }
+        }
+        else
+        {
+            auto& rootObject       = _destObjects.front();
+            rootObject->ActiveSelf = _active;
+            for (auto& object : _destObjects)
+            {
+                UmSceneManager.SetObjectOwnerScene(object.get(), _ownerSceneName);
+                ESceneManager::Engine::AddGameObjectToLifeCycle(object);
+            }
+        }
+
+        if (_loadSucess)
+        {
+            auto& rootObject               = _destObjects.front();
+            rootObject->GetScene().IsDirty = true;
+            Super::Execute();
+        }
+    }
+}
+
+void Command::EditorScene::PasteObjectCommand::Undo() 
+{
+    if (false == _yamlData.empty())
+    {
+        auto& rootObject               = _destObjects.front();
+        rootObject->GetScene().IsDirty = true;
+
+        int instanceID         = rootObject->GetInstanceID();
+        _active                = rootObject->ActiveSelf;
+        rootObject->ActiveSelf = false;
+        UmSceneManager.AddDestroyObjectQueue(rootObject.get());
+        if (EditorHierarchyTool::GetFocusObject().lock() == rootObject)
+        {
+            std::weak_ptr<GameObject> empty;
+            EditorHierarchyTool::SetFocusObject(empty);
+        }
+        if (EditorInspectorTool::GetFocusObject().lock() == rootObject)
+        {
+            std::weak_ptr<GameObject> empty;
+            EditorInspectorTool::SetFocusObject(empty);
+        }
+        rootObject->GetScene().IsDirty = true;
+        Super::Undo();
+    }
+}
