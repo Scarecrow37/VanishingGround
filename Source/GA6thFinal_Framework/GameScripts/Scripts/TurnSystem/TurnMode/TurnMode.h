@@ -155,7 +155,7 @@ public:
     template <typename T>
     T* AddTurnAction(T* action)
     {
-        static_assert(std::is_base_of_v<TurnAction, T>("T is not derived from TurnAction."));
+        static_assert(std::is_base_of_v<TurnAction, T>, "T is not derived from TurnAction.");
         auto& [isDestroy, action] = _turnActions.emplace_back();
         isDestroy.reset(new bool{false});
         TurnAction* baseAction = static_cast<TurnAction*>(action);
