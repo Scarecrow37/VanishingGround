@@ -1223,6 +1223,9 @@
     <ClCompile Include="Source\Engine\GraphicsCore\TextDrawPass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Source\UmFramework.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

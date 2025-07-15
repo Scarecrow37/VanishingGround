@@ -690,6 +690,7 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Utility\DumpUtility.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\VertexShader.cpp" />
+    <ClCompile Include="Source\UmFramework.cpp" />
     <ClCompile Include="ThirdParty\include\pugixml\pugixml.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">NotUsing</PrecompiledHeader>
