@@ -55,6 +55,8 @@ void TurnActor::OnRoundStart()
 
 void TurnActor::OnRoundEnd() {}
 
+void TurnActor::OnEachTurnStart(CharacterBase* destination) {}
+
 void TurnActor::OnTurnStart() {}
 
 void TurnActor::OnTurnEnd() {}

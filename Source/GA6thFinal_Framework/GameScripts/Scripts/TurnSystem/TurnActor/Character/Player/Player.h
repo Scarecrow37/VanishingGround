@@ -88,12 +88,13 @@ protected:
     /// <summary>
     /// <para>  ImGuiDrawPropertys() 호출 이후 콜되는 이벤트 함수입니다. </para>
     /// </summary>
-    virtual void ImGuiDrawPropertysEvent();
+    virtual void ImGuiDrawPropertysEvent() override;
 
 public:
     virtual void OnCombatStart() override;
     virtual void OnRoundStart() override;
     virtual void OnRoundEnd() override;
+    virtual void OnEachTurnStart(CharacterBase* destination) override;
     virtual void OnTurnStart() override;
     virtual void OnTurnEnd() override;
     virtual void OnHit() override;

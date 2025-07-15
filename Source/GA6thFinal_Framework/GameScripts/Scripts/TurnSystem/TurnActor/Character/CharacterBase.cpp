@@ -1,6 +1,7 @@
 ﻿#include "pchScripts.h"
 #include "CharacterBase.h"
 #include "Stats/CharacterStats.h"
+#include "TurnSystem/TurnMode/TurnMode.h"
 
 int CharacterBase::GetMaxHP()
 {
@@ -39,7 +40,7 @@ CharacterBase::CharacterBase() :
     _hp(0), 
     _chainCount(0) , 
     _chainRoundCount(1) ,
-    _tokenSystem(this)
+    _tokenInventory(this)
 {
 }
 
@@ -62,65 +63,78 @@ void CharacterBase::Dead()
     Base::Dead();
     _hp = 0;
 
-    _tokenSystem.NotifyDead();
+    _tokenInventory.NotifyDead();
 }
 
 void CharacterBase::OnCombatStart() 
 {
-    _tokenSystem.NotifyCombatStart();
+    _tokenInventory.NotifyCombatStart();
 }
 
 void CharacterBase::OnRoundStart()
 {
     Base::OnRoundStart();
     DecrementChainRoundCount();
-    _tokenSystem.NotifyRoundStart();
+    _tokenInventory.NotifyRoundStart();
 }
 
 void CharacterBase::OnRoundEnd()
 {
+    // End먼저? 아니면 이벤트 먼저?
     Base::OnRoundEnd();
-    _tokenSystem.NotifyRoundEnd();
+    _tokenInventory.NotifyRoundEnd();
+}
+
+void CharacterBase::OnEachTurnStart(CharacterBase* destination)
+{
+    Base::OnEachTurnStart(destination);
+    _tokenInventory.NotifyEachTurnStart(destination);
 }
 
 void CharacterBase::OnTurnStart()
 {
     Base::OnTurnStart();
-    _tokenSystem.NotifyTurnStart();
+    _tokenInventory.NotifyTurnStart();
 }
 
 void CharacterBase::OnTurnEnd() 
 {
     Base::OnTurnEnd();
-    _tokenSystem.NotifyTurnEnd();
+    _tokenInventory.NotifyTurnEnd();
 }
 
 void CharacterBase::OnHit() 
 {
     Base::OnHit();
-    _tokenSystem.NotifyHit();
+    _tokenInventory.NotifyHit();
 }
 
 void CharacterBase::OnDead() 
 {
     Base::OnDead();
-    _tokenSystem.NotifyDead();
+    _tokenInventory.NotifyDead();
 }
 
 void CharacterBase::OnKill(CharacterBase* destination) 
 {
     Base::OnKill(destination);
-    _tokenSystem.NotifyKill(destination);
+    _tokenInventory.NotifyKill(destination);
 }
 
 void CharacterBase::OnTokenAdded(int tokenID) 
 {
     Base::OnTokenAdded(tokenID);
-    _tokenSystem.NotifyTokenAdded(tokenID);
+    _tokenInventory.NotifyTokenAdded(tokenID);
 }
 
 void CharacterBase::OnTokenRemoved(int tokenID) 
 {
     Base::OnTokenRemoved(tokenID);
-    _tokenSystem.NotifyTokenRemoved(tokenID);
+    _tokenInventory.NotifyTokenRemoved(tokenID);
+}
+
+void CharacterBase::ImGuiDrawPropertysEvent() 
+{
+    ImGui::Separator();
+    _tokenInventory.DrawImGuiDebugData();
 }

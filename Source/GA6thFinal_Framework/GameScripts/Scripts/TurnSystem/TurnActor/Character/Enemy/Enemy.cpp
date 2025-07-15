@@ -137,6 +137,11 @@ void Enemy::OnRoundEnd()
     Base::OnRoundEnd();
 }
 
+void Enemy::OnEachTurnStart(CharacterBase* destination)
+{
+    Base::OnEachTurnStart(destination);
+}
+
 void Enemy::OnTurnStart()
 {
     Base::OnTurnStart();
