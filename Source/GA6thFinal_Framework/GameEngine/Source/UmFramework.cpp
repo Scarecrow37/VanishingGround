@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 
+#ifdef _UMEDITOR
 namespace Global
 {
     constexpr bool IsPlay()
@@ -14,3 +15,4 @@ namespace Global
         }
     }
 } // namespace Global
+#endif
