@@ -28,7 +28,7 @@ public:
     void ResetCharacterStats();
     Player* GetPlayer() { return _player; }
     const std::vector<Enemy*>& GetEnemies() { return _enemies; }
-    const std::vector<CharacterBase*> GetCharacters() { return _characters; }
+    const std::vector<CharacterBase*>& GetCharacters() { return _characters; }
 
 protected:
     void OnAwake() override;
