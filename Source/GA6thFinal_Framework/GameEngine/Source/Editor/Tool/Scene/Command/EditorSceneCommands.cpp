@@ -244,7 +244,7 @@ Command::EditorScene::PasteObjectCommand::PasteObjectCommand(std::wstring_view y
     : FocusCommand(std::weak_ptr<GameObject>(), std::weak_ptr<GameObject>(), "Paste Object")
 {
     _yamlData = yamlData;
-    _loadSucess = true;
+    _loadSuccess = true;
 }
 
 Command::EditorScene::PasteObjectCommand::~PasteObjectCommand() 
