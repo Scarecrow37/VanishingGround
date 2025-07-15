@@ -28,8 +28,6 @@ void EnemyActionPhase::OnEnter()
     if (_turnMode)
     {
         actor->OnTurnStart();
-        _turnMode->ApplyActions([](TurnAction& action) { action.OnTurnStart(); });
-
         CombatStartPhase* combatStartPhase = _turnMode->States->CombatStartPhase;
         if (combatStartPhase)
         {
@@ -38,7 +36,7 @@ void EnemyActionPhase::OnEnter()
             {
                 ch->OnEachTurnStart(character);
             }
-            _turnMode->ApplyActions([character](TurnAction& action) { action.OnEachTurnStart(character); });
+            _turnMode->ApplyActions([character](TurnAction& action) { action.OnTurnStart(character); });
         }
     }
 }

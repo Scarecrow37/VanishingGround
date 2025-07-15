@@ -13,10 +13,16 @@ class Player;
 class TurnMode : public Component
 {
     USING_PROPERTY(TurnMode)
+    inline static TurnMode* static_instance = nullptr;
 public:
-    REFLECT_PROPERTY(
-        RoundCount
-    )
+    static TurnMode* GetInstance() 
+    { 
+        if (nullptr == static_instance)
+        {
+            UmLogger.Log(LogLevel::LEVEL_WARNING, u8"Turn Mode가 존재하지 않습니다.");
+        }
+        return static_instance;
+    }
 
 public:
     TurnMode();
@@ -66,6 +72,10 @@ public:
     int GetPendingActorCount() const { return (int)_turnList.size(); }
 
 public:
+    REFLECT_PROPERTY(
+        RoundCount
+    )
+
     GETTER_ONLY(int, RoundCount) { return _roundCount; }
     PROPERTY(RoundCount)
 
@@ -156,10 +166,11 @@ public:
     T* AddTurnAction(T* action)
     {
         static_assert(std::is_base_of_v<TurnAction, T>, "T is not derived from TurnAction.");
-        auto& [isDestroy, action] = _turnActions.emplace_back();
+        auto& [isDestroy, newAction] = _turnActions.emplace_back();
         isDestroy.reset(new bool{false});
         TurnAction* baseAction = static_cast<TurnAction*>(action);
         baseAction->_isDestroy = isDestroy.get();
+        newAction              = baseAction;
         return action;
     }
 
@@ -180,11 +191,14 @@ public:
     PROPERTY(Conditions)
 
 protected:
+    void Reset() override;
+
+
     /// <summary>
     /// <para> 이 함수는 항상 Start 함수 전에 호출되며 프리팹이 인스턴스화 된 직후에 호출됩니다.                </para>
     /// <para> 게임 오브젝트의 Active가 false 상태인 경우 Awake 함수는 true가 될때까지 호출되지 않습니다.      </para>
     /// </summary>
-    virtual void Awake();
+    virtual void Awake() override;
 
     virtual void ImGuiDrawPropertysEvent() override;
 

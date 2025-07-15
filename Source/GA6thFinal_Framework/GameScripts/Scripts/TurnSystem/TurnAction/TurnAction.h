@@ -35,13 +35,10 @@ public:
 
     /// <summary>인자로 넘어온 캐릭터의 턴이 시작되면 호출됩니다..</summary>
     /// <param name="destination">턴이 시작된 대상</param>
-    virtual void OnEachTurnStart(CharacterBase* destination) = 0;
+    virtual void OnTurnStart(CharacterBase* destination) = 0;
 
-    /// <summary>턴이 시작될 때 호출됩니다.</summary>
-    virtual void OnTurnStart() = 0;
-
-    /// <summary>턴이 끝날 때 호출됩니다.</summary>
-    virtual void OnTurnEnd() = 0;
+    /// <summary>인자로 넘어온 캐릭터의 턴이 종료되면 호출됩니다.</summary>
+    virtual void OnTurnEnd(CharacterBase* destination) = 0;
 
 private:
     bool* _isDestroy = nullptr;
