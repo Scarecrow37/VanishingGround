@@ -12,9 +12,8 @@ public:
     void OnCombatStart() override;
     void OnRoundStart() override;
     void OnRoundEnd() override;
-    void OnEachTurnStart(CharacterBase* destination) override;
-    void OnTurnStart() override;
-    void OnTurnEnd() override;
+    void OnTurnStart(CharacterBase* destination) override;
+    void OnTurnEnd(CharacterBase* destination) override;
 };
 
 

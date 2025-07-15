@@ -17,30 +17,25 @@ void TestActionComponent::Start()
 
 void TestAction::OnCombatStart()
 {
-    __debugbreak();
+    UmLogger.Log(LogLevel::LEVEL_TRACE, u8"전투 시작");
 }
 
 void TestAction::OnRoundStart()
 {
-    __debugbreak();
+    UmLogger.Log(LogLevel::LEVEL_TRACE, u8"라운드 시작");
 }
 
 void TestAction::OnRoundEnd()
 {
-    __debugbreak();
+    UmLogger.Log(LogLevel::LEVEL_TRACE, u8"라운드 종료");
 }
 
-void TestAction::OnEachTurnStart(CharacterBase* destination)
+void TestAction::OnTurnStart(CharacterBase* destination)
 {
-    __debugbreak();
+    UmLogger.Log(LogLevel::LEVEL_TRACE, u8"턴 시작");
 }
 
-void TestAction::OnTurnStart()
+void TestAction::OnTurnEnd(CharacterBase* destination)
 {
-    __debugbreak();
-}
-
-void TestAction::OnTurnEnd()
-{
-    __debugbreak();
+    UmLogger.Log(LogLevel::LEVEL_TRACE, u8"턴 종료");
 }
