@@ -2,6 +2,12 @@
 #include "UmFrameWork.h"
 #include <Interface/ITriggerType.h>
 
+class CharacterBase;
+class Player;
+class PlayerStats;
+class Enemy;
+class EnemyStats;
+
 //턴 라이프 사이클 사용을 위한 Base 클래스입니다.
 class TurnAction abstract : public ReflectSerializer
 {
@@ -50,6 +56,24 @@ public:
 
     /// <summary>인자로 넘어온 캐릭터의 턴이 종료되면 호출됩니다.</summary>
     virtual void OnTurnEnd(CharacterBase* destination) {}
+
+    /// <summary>
+    /// 플레이어 QTE 종료 후 데미지 계산 전에 호출됩니다.
+    /// </summary>
+    /// <param name="attacker :">플레이어 컴포넌트</param>
+    /// <param name="attackerStats :">실제 데미지 계산에 사용될 스텟</param>
+    /// <param name="target :">공격 당하는 적 컴포넌트</param>
+    /// <param name="targetStats :">실제 데미지 계산에 사용될 스텟</param>
+    virtual void OnPlayerAttackStart(Player& attacker, PlayerStats& attackerStats, Enemy& target, EnemyStats& targetStats) {}
+
+    /// <summary>
+    /// 적의 플레이어 공격 데미지 계산 직전에 호출됩니다.
+    /// </summary>
+    /// <param name="attacker :">적 컴포넌트</param>
+    /// <param name="attackerStats :">실제 계산에 사용되는 적 스텟</param>
+    /// <param name="target :">플레이어 컴포넌트</param>
+    /// <param name="targetStats :">실제 계산에 사용되는 플레이어 스텟</param>
+    virtual void OnEnemyAttackStart(Enemy& attacker, EnemyStats& attackerStats, Player& target, PlayerStats& targetStats) {}
 
 public:
     REFLECT_PROPERTY(Name)
