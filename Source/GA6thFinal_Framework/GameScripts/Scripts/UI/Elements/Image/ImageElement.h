@@ -23,12 +23,13 @@ protected:
     REFLECT_FIELDS_END(ImageElement)
 
     void Reset() override;
+
     void DeserializedReflectEvent() override;
 
     void OnPlacementChange() override;
 
 private:
-    void LoadTexture();
+    void LoadTexture() const;
     void UpdateWorldMatrix();
 
     std::unique_ptr<SpriteRenderer> _renderer;

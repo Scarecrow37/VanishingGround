@@ -41,7 +41,6 @@ void ImageElement::Reset()
         _renderer = std::make_unique<SpriteRenderer>(_worldMatrix, SpriteType::MODE_2D);
         _renderer->RegisterRenderQueue();
         _renderer->SetActive(&EnableInHierarchy);
-        OnPlacementChange();
     }
     catch (...)
     {
@@ -57,40 +56,43 @@ void ImageElement::DeserializedReflectEvent()
     const File::Guid guid = ReflectFields->Guid;
     if (const auto path = guid.ToPath(); !path.IsNull())
     {
-        _guidRef            = path.ToGuid();
-        UmSceneManager.ResourceManager.RequestTextureResource(this, _guidRef, [this]() { LoadTexture(); });
+        _guidRef = path.ToGuid();
+        UmSceneManager.ResourceManager.RequestTextureResource(this, _guidRef, [this]() {
+            LoadTexture();
+            OnPlacementChange();
+        });
     }
 }
 
 void ImageElement::OnPlacementChange()
 {
     EditablePlacementUIComponent::OnPlacementChange();
-    _renderer->SetSize(ReflectFields->Basefields.get().Basefields.get().Size);
+    if (nullptr != _renderer)
+        _renderer->SetSize(ReflectFields->Basefields.get().Basefields.get().Size);
     UpdateWorldMatrix();
 }
 
-void ImageElement::LoadTexture()
+void ImageElement::LoadTexture() const
 {
-    if (_renderer)
+    if (nullptr != _renderer)
     {
         const std::string path = FilePath;
         if (path != File::NULL_PATH)
         {
             const std::wstring filePath = U8ToWString(path);
             _renderer->LoadTexture(filePath);
-            Size = _renderer->GetSize();
         }
     }
 }
 
 void ImageElement::UpdateWorldMatrix()
 {
-    const auto  [pointX, pointY] = ReflectFields->Basefields.get().Basefields.get().Point;
-    const auto  [scopeX, scopeY] = ReflectFields->Basefields.get().Basefields.get().ScopePoint;
+    const auto [pointX, pointY] = ReflectFields->Basefields.get().Basefields.get().Point;
+    const auto [scopeX, scopeY] = ReflectFields->Basefields.get().Basefields.get().ScopePoint;
     const POINT absolutePoint{.x = pointX + scopeX, .y = pointY + scopeY};
-    const auto  [width, height]  = ReflectFields->Basefields.get().Basefields.get().Size;
+    const auto [width, height] = ReflectFields->Basefields.get().Basefields.get().Size;
     const Vector3 position{static_cast<float>(absolutePoint.x), static_cast<float>(absolutePoint.y), 0.0f};
     const Vector3 scale{static_cast<float>(width), static_cast<float>(height), 1.0f};
 
-   _worldMatrix = /*Matrix::CreateScale(scale) * */Matrix::CreateTranslation(position);
+    _worldMatrix = /*Matrix::CreateScale(scale) * */ Matrix::CreateTranslation(position);
 }
