@@ -3,11 +3,14 @@
 #include "Token/TokenInventory.h"
 
 struct CharacterStats;
+class SkeletalMeshRenderer;
+
 class CharacterBase abstract : public TurnActor
 {
     USING_PROPERTY(CharacterBase)
 public:
     inline static constexpr const char* TAG = "Character";
+    inline static constexpr const char* MODEL_NAME = "Model";
 
 public:
     REFLECT_PROPERTY(
@@ -78,6 +81,7 @@ private:
     int _chainRoundCount;
 
     TokenInventory _tokenInventory;
+    SkeletalMeshRenderer* _skeletalMeshRenderer = nullptr;
 
 protected:
     /// <summary>
@@ -85,6 +89,8 @@ protected:
     /// <para> 게임 오브젝트의 Active가 false 상태인 경우 Awake 함수는 true가 될때까지 호출되지 않습니다.      </para>
     /// </summary>
     virtual void Awake() override;
+
+    void InitMeshModel();
 
 public:
     virtual void OnCombatStart() override;

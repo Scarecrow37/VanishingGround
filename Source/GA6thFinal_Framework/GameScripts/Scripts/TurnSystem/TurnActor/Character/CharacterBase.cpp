@@ -3,6 +3,8 @@
 #include "Stats/CharacterStats.h"
 #include "TurnSystem/TurnMode/TurnMode.h"
 
+#include <Mesh/SkeletalMeshRenderer.h>
+
 int CharacterBase::GetMaxHP()
 {
     int maxHP = 0;
@@ -50,6 +52,36 @@ void CharacterBase::Awake()
 {
     Base::Awake();
     gameObject->AddTag(TAG);
+
+    InitMeshModel();
+}
+
+void CharacterBase::InitMeshModel()
+{
+    auto* modelTransform = transform->Find(MODEL_NAME);
+    if (modelTransform)
+    {
+        GameObject& modelObject = modelTransform->gameObject;
+        _skeletalMeshRenderer   = modelObject.GetComponent<SkeletalMeshRenderer>();
+        if (nullptr == _skeletalMeshRenderer)
+        {
+            std::string msg = std::format("{}{}",
+                modelObject.ToString(),
+                (const char*)u8"의 컴포넌트에 SkeletalMeshRenderer가 없습니다."
+            );
+            UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
+        }
+    }
+    else
+    {
+        std::string msg = std::format("{}{} {}{}",
+            gameObject->ToString(), 
+            (const char*)u8"의 자식 오브젝트에",
+            MODEL_NAME, 
+            (const char*)u8"이(가) 없습니다."
+        );
+        UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
+    }
 }
 
 void CharacterBase::Revive() 

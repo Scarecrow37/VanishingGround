@@ -52,6 +52,8 @@ void Enemy::Awake()
     {
         UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"Enemy Stats를 추가해주세요");
     }
+
+    InitMeshModel();
 }
 
 void Enemy::Update() 
@@ -95,7 +97,7 @@ EnemyStatsComponent* Enemy::GetEnemyStats()
     return _enemyStats;
 }
 
-void Enemy::BuildEnemyFSM() 
+void Enemy::BuildEnemyFSM()
 {
     _finiteStateMachine = GetComponent<FiniteStateMachine>();
     if (nullptr == _finiteStateMachine)

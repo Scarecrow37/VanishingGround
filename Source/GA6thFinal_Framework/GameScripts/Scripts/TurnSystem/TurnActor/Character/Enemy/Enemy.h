@@ -45,9 +45,9 @@ protected:
     void BuildEnemyFSM();
     struct EnemyStates
     {
-        FSMState* WaitTurn;     // 턴 종료 상태
-        FSMState* PlayTurn;     // 턴 시작 상태
-        FSMState* Dead;         // 사망 상태
+        FSMState* WaitTurn = nullptr;   // 턴 종료 상태
+        FSMState* PlayTurn = nullptr;   // 턴 시작 상태
+        FSMState* Dead     = nullptr;   // 사망 상태
     } 
     _fsmStates;
 
