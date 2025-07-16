@@ -21,6 +21,7 @@ protected:
     void ImGuiDrawPropertysEvent() override;
 
 private:
+    void LoadModel();
     void UpdateAnimation();
 
 public:
@@ -46,6 +47,12 @@ public:
     void PlayAnimation();
     void PauseAnimation();
     void ResumeAnimation();
+
+    inline const std::string& GetCurrentAnimationName()     const { return _currentAnimationKey; }
+    inline float              GetCurrentAnimationTime()     const { return _animationTime; }
+    inline float              GetCurrentAnimationSpeed()    const { return _animationSpeed; }
+    inline bool               IsAnimationPlaying()          const { return _isAnimationPlaying; }
+    inline bool               IsAnimationLooping()          const { return _isAnimationLooping; }
 
 private:
     float       _animationSpeed      = 1.0f;

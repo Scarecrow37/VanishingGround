@@ -20,6 +20,26 @@ Transform::~Transform()
     EraseParent();
 }
 
+int Transform::GetChildCount()
+{
+    if constexpr (Application::IsEditor())
+    {
+        int validCount = 0;
+        for (Transform* child : _childsList)
+        {
+            if (child && child->_gameObject.IsValid())
+            {
+                validCount++;
+            }
+        }
+        return validCount;
+    }
+    else
+    {
+        return (int)_childsList.size();
+    }
+}
+
 std::weak_ptr<GameObject> Transform::GetWeakPtr()
 {
     return _gameObject.GetWeakPtr();
@@ -34,7 +54,7 @@ void Transform::DetachChildren()
         {
             child->_root = nullptr;
             child->_parent = nullptr;
-            SetChildsRootParent(this);
+            child->SetChildsRootParent(child);
         }
     }
     if (_childsList.empty() == false)
@@ -48,20 +68,46 @@ void Transform::DetachChildren()
     }
 }
 
-void Transform::SetParent(Transform* p)
+void Transform::SetParent(Transform* p, bool worldPositionStays)
 {
+    auto ComputeLocalTransform = [this, p, worldPositionStays]() 
+    {
+        // World PositionStays 조건
+        if (worldPositionStays)
+        {
+            const Matrix& myWorldMatrix = this->GetWorldMatrix();
+            Matrix        myLocalMatrix;
+            if (p)
+            {
+                const Matrix& parentWorldMatrix = p->GetWorldMatrix();
+                Matrix parentInverseMatrix  = parentWorldMatrix.Invert();
+                myLocalMatrix = myWorldMatrix * parentInverseMatrix ;
+            }
+            else
+            {
+                myLocalMatrix = myWorldMatrix;
+            }
+            myLocalMatrix.Decompose(_scale, _rotation, _position);
+        }
+    };
+
     if (p == nullptr)
     {
+        ComputeLocalTransform();
         EraseParent();
     }
     else //부모 관계 변경
     {
         if (p->gameObject->GetOwnerSceneName() == gameObject->GetOwnerSceneName())
         {
+            //부모 관계가 가능한지 검증
             if (p == this || p->IsDescendantOf(this))
             {
                 return;
-            }
+            }    
+           
+            ComputeLocalTransform();        
+            //부모 적용
             EraseParent();
             {
                 _parent = p;
@@ -77,14 +123,46 @@ void Transform::SetParent(Transform* p)
         }
     }
     _hasChanged = true;
+    UpdateMatrix();
     GameObject::Engine::UpdateActiveInHierarchy(&_gameObject);
 }
 
-void Transform::SetParent(Transform& p)
+void Transform::SetParent(Transform& p, bool worldPositionStays)
 {
-    SetParent(&p);
+    SetParent(&p, worldPositionStays);
 }
 
+Transform* Transform::GetChild(int index) const
+{
+    Transform* child = nullptr;
+    if (0 <= index)
+    {
+        if constexpr (Application::IsEditor())
+        {
+            int validChildCounter = 0;
+            for (Transform* curr : _childsList)
+            {
+                if (curr && curr->_gameObject.IsValid())
+                {
+                    if (validChildCounter == index)
+                    {
+                        child = curr;
+                        break;
+                    }
+                    ++validChildCounter;
+                }
+            }
+        }
+        else
+        {
+            if (index < _childsList.size())
+            {
+                child = _childsList[index];
+            }
+        }
+    }
+    return child;
+}
 
 void Transform::EraseParent()
 {

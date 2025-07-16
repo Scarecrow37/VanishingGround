@@ -7,35 +7,51 @@ class ParticleManager
 public:
     ParticleManager();
     virtual ~ParticleManager();
-    float elapsedtimer = 0.f;
 
 
     void                   Initialize(UINT maxParticles);
     class ParticleEffect*  RegisterEffect();
+
+
+    /// <summary>
+    /// Create new ParticleEffect.
+    /// </summary>
+    /// <param name="effect"></param>
+    /// <param name="maxParticles"></param>
+    /// <param name="emissionRate"></param>
+    /// <param name="emitterLifetime"></param>
+    /// <param name="locatorShape"></param>
+    /// <param name="locationFactor"></param>
+    /// <param name="particleType"></param>
+    /// <returns></returns>
     class ParticleEmitter* RegisterEmitter(class ParticleEffect* effect, SIZE_T maxParticles = 100000,
                                            float emissionRate = 1000.f, float emitterLifetime = 150.f,
                                            LocationShape locatorShape   = LocationShape::SPHERE,
-                                           Vector3       locationFactor = Vector3(1, 1, 1));
-    void                   DeleteEffect(UINT);
+                                           Vector3       locationFactor = Vector3(1, 1, 1),
+                                           ParticleType  particleType   = ParticleType::SPRITE,
+                                          std::wstring  meshspritePath = L"../../../Resource/Assets/ParticleTexture/defaultSmoke.jpg");
+    void                   DeleteEffect(class ParticleEffect* effect);
     void                   Update(const float deltaTime);
+    void                   UpdateEffectLifeCycle();
+    void                   UpdateEditorLifeCycle();
+    void                   RefreshEditor();
+    class ParticleEffect*  GetCurrentEditorEffect() { return _editorCurrentEffect; }
+    UMPARTICLE_PROPERTY(bool, _isAutoRefresh, AutoRefresh, false);
 
 
     UINT                                  GetTotalCount() const { return _totalCount; }
     UINT                                  GetMaxCount() const { return _maxParticles; }
-    std::vector<std::shared_ptr<Texture>> GetActiveAlbedos() const { return _activeEmitterAlbedos; }
-    //임시
-    bool isSorted = true;
-    //
-    ID3D12Resource*                GetComputeOutputResource() 
-    {
-            return _particleOutputBuffer.Get(); 
-    }
-    ID3D12GraphicsCommandList*     GetRenderCommandList() { return _renderCommandList.Get(); }
+    std::vector<Texture*> GetActiveAlbedos() const { return _activeEmitterAlbedos; }
+    ID3D12Resource*                       GetComputeOutputResource() { return _particleOutputBuffer.Get(); }
+    ID3D12GraphicsCommandList*            GetRenderCommandList() { return _renderCommandList.Get(); }
+    std::vector<class ParticleEffect*>&   GetEffectList() { return _pariticleEffects; }
+
     void                                  ResetRenderCommandObject();
 
 public:
     void SetCamera(std::string_view viewName);
     void SetCamera(std::shared_ptr<Camera> camera);
+    void SetCurrentEditorEffect(class ParticleEffect* newEffect);
 
 private:
     void InitializeComputeCommandObject();
@@ -57,6 +73,7 @@ private:
     void CreateDescriptors();
 
     void CopyActiveParticles();
+    void CopyActiveParticlesEditorMode();
 
     void DispatchParticleCompute(float deltaTime);
     void UpdateParticleResources(float deltaTime);
@@ -97,6 +114,11 @@ private:
     ComPtr<ID3D12Resource> _particleInputUploadBuffer;
     ComPtr<ID3D12Resource> _emitterInfoUploadBuffer;
 
+    void RefreshCurrentEditorEffect();
+    bool _editorRefreshFlag = false;
+
+
+
 
 private:
     UINT _currentBufferIndex;
@@ -108,17 +130,25 @@ private:
 
     UINT _particleEmitterCount = 0;
 
+    class ParticleEffect* _editorCurrentEffect = nullptr;
+    class ParticleEffect* _editorCurrentEffectInstance = nullptr;
+
+    std::vector<class ParticleEffect*>    _activePariticleEffects;
     std::vector<class ParticleEffect*>    _pariticleEffects;
+
     std::vector<class Particle>           _totalParticles;
     std::vector<EmitterInfo>              _emitterMatrix;
-    std::vector<std::shared_ptr<Texture>> _activeEmitterAlbedos;
-    std::vector<std::shared_ptr<Texture>> _activeEmitterNormals;
+    std::vector<Texture*> _activeEmitterAlbedos;
+    std::vector<Texture*> _activeEmitterNormals;
 
     UINT _totalCount = 0;
 
 
     float _elapsedTimer = 0.f;
+    int   nameingIndex  = 0;
 
+
+   UMPARTICLE_PROPERTY(float, _deltaScale, DeltaScale, 1.f);
 
 
 };

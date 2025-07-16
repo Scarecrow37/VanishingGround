@@ -3,6 +3,8 @@
 #include "Stats/Player/PlayerStats.h"
 #include "Stats/Player/PlayerStatsComponent.h"
 #include "GameCore/FSM/FiniteStateMachine.h"
+#include <WeaponSystem/WeaponTable/WeaponTableComponent.h>
+#include <WeaponSystem/WeaponSystem.h>
 
 //Condition
 #include "Condition/PlayerStartCondition.h"
@@ -16,12 +18,22 @@
 
 Player::Player()
 {
-   
 }
-Player::~Player() = default;
+
+Player::~Player()
+{
+    if (this == static_instance)
+    {
+        static_instance = nullptr;
+    }
+}
 
 void Player::Awake() 
 {
+    if (nullptr == static_instance)
+    {
+        static_instance = this;
+    }
     Base::Awake();
     gameObject->AddTag(TAG);
     BuildPlayerFSM();
@@ -37,15 +49,59 @@ void Player::Update()
 
 }
 
+void Player::SerializedReflectEvent() 
+{
+   
+}
+
+void Player::DeserializedReflectEvent() 
+{
+
+}
+
 int Player::GetSpeed()
 {
-    return 0;
+    WeaponSystem* system = WeaponSystem::GetInstance();
+    if (system)
+    {
+        return system->GetCurrentWeaponStats().Speed;
+    }
+    else
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, u8" WeaponSystem이 존재하지 않습니다.");
+        return 0;
+    }   
+}
+
+int Player::GetRandomSpeed()
+{
+
+    WeaponSystem* system = WeaponSystem::GetInstance();
+    if (system)
+    {
+        return system->GetCurrentWeaponStats().RandomSpeed;
+    }
+    else
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, u8" WeaponSystem이 존재하지 않습니다.");
+        return 0;
+    }   
 }
 
 void Player::PlayTurn()
 {
     Base::PlayTurn();
-    UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"Player 턴 시작");
+    WeaponSystem* system = WeaponSystem::GetInstance();
+    if (system)
+    {
+        std::string_view weaponName = system->GetCurrentWeaponStats().Name;
+        std::string      message    = std::format("{}{}{}", (const char*)u8"Player 턴 시작. ", "Weapon : ", weaponName);
+        UmLogger.Message(LogLevel::LEVEL_TRACE, message);
+    }
+    else
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, u8" WeaponSystem이 존재하지 않습니다.");
+    }     
 }
 
 void Player::EndTurn()
@@ -60,9 +116,20 @@ void Player::Dead()
     UmLogger.Message(LogLevel::LEVEL_DEBUG, (const char*)u8"플레이어 사망!!!");
 }
 
-void Player::ImGuiDrawPropertysEvent() 
-{
+void Player::TakeDamage(int damage)
+{  
+    // TODO: 피격 애니메이션 재생
+    // 예외 사항 - 피격 애니메이션 재생 종료 후 원래 애니메이션으로 돌아가야함.
 
+    // 혹시나 그럴 일 없겠지만 중간에 계산할 연산이 또 있다면 재연산
+    int takeDamage = damage;
+    Base::TakeDamage(takeDamage);
+}
+
+
+void Player::ImGuiDrawPropertysEvent()
+{
+    Base::ImGuiDrawPropertysEvent();
 }
 
 CharacterStats* Player::GetCharacterStats()
@@ -76,6 +143,7 @@ CharacterStats* Player::GetCharacterStats()
     return stats;
 }
 
+
 PlayerStatsComponent* Player::GetPlayerStats()
 {
     if (nullptr == _playerStats)
@@ -83,17 +151,6 @@ PlayerStatsComponent* Player::GetPlayerStats()
         _playerStats = GetComponent<PlayerStatsComponent>();
     }  
     return _playerStats;
-}
-
-int Player::GetManaRegenRate()
-{
-    int manaRegenRate = 0;
-    PlayerStatsComponent* playerStats = GetPlayerStats();
-    if (playerStats)
-    {
-        manaRegenRate = playerStats->GetStats()->ManaRegenRate;
-    }
-    return manaRegenRate;
 }
 
 int Player::GetShield()
@@ -134,4 +191,59 @@ void Player::BuildPlayerFSM()
         //Entry
         _finiteStateMachine->SetEntryState<PlayerWaitTurnState>();
     }
+}
+
+void Player::OnCombatStart()
+{
+    Base::OnCombatStart();
+}
+
+void Player::OnRoundStart()
+{
+    Base::OnRoundStart();
+}
+
+void Player::OnRoundEnd()
+{
+    Base::OnRoundEnd();
+}
+
+void Player::OnEachTurnStart(CharacterBase* destination) 
+{
+    Base::OnEachTurnStart(destination);
+}
+
+void Player::OnTurnStart()
+{
+    Base::OnTurnStart();
+}
+
+void Player::OnTurnEnd()
+{
+    Base::OnTurnEnd();
+}
+
+void Player::OnHit()
+{
+    Base::OnHit();
+}
+
+void Player::OnDead()
+{
+    Base::OnDead();
+}
+
+void Player::OnKill(CharacterBase* destination)
+{
+    Base::OnKill(destination);
+}
+
+void Player::OnTokenAdded(int tokenID)
+{
+    Base::OnTokenAdded(tokenID);
+}
+
+void Player::OnTokenRemoved(int tokenID)
+{
+    Base::OnTokenRemoved(tokenID);
 }

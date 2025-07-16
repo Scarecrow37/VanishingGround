@@ -35,6 +35,14 @@ public:
     EditorAssetBrowserTool();
     virtual ~EditorAssetBrowserTool();
 
+    static EditorAssetBrowserTool* GetInstance();
+
+private:
+    inline static EditorAssetBrowserTool* _staticInstance = nullptr;
+
+public:
+    const File::Path& GetCurrentFocusFolderPath() const;
+
 private:
     virtual void OnStartGui() override;
 

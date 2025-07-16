@@ -19,10 +19,19 @@ public:
         std::string_view message,
         const LogLocation location = std::source_location::current());
 
+    void Log(
+        int logLevel,
+        std::u8string_view message,
+        const LogLocation location = std::source_location::current())
+    {
+        Log(logLevel, (const char*)message.data(), location);
+    }
+
     /// <summary>
     /// 로그 정보 없이 메시지만 남깁니다.
     /// </summary>
     void Message(int logLevel, std::string_view message);
+    void Message(int logLevel, std::u8string_view message) { Message(logLevel, (const char*)message.data()); }
 
     /// <summary>
     /// 프로그램 실행중 생성된 모든 로그 메시지를 반환합니다.

@@ -3,7 +3,6 @@
 
 struct Bone;
 class Skeleton;
-class Transform;
 class Animation;
 class Animator : public GraphicsBase
 {
@@ -25,6 +24,10 @@ class Animator : public GraphicsBase
 public:
 	Animator();
 	virtual ~Animator();
+
+public:
+    void RegisterComponent(std::string_view sceneName) override;
+    void RegisterComponent() override;
 
 public:
 	const Matrix* GetAnimationTransform() const { return _animationTransforms.data(); }

@@ -14,6 +14,16 @@ MeshRenderer::~MeshRenderer()
 {
 }
 
+void MeshRenderer::RegisterComponent(std::string_view sceneName)
+{
+    UmRenderer.RegisterRenderQueue(sceneName, this);
+}
+
+void MeshRenderer::RegisterComponent()
+{
+    UmRenderer.RegisterRenderQueue(this);
+}
+
 std::shared_ptr<Animator> MeshRenderer::GetAnimator() const
 {
     if (MeshRenderType::SKELETAL != _type)
@@ -37,23 +47,13 @@ void MeshRenderer::SetAnimator(std::shared_ptr<Animator> animator)
     _animator = animator;
 }
 
-void MeshRenderer::RegisterRenderQueue(std::string_view sceneName)
-{
-    UmRenderer.RegisterRenderQueue(sceneName, this);
-}
-
-void MeshRenderer::RegisterRenderQueue()
-{
-    UmRenderer.RegisterRenderQueue(this);
-}
-
 void MeshRenderer::LoadModel(std::wstring_view filePath)
 {
     _model = UmResourceManager.LoadResource<Model>(filePath);
 
-    if (MeshRenderType::SKELETAL == _type)
-    {
-        _animator = std::make_shared<Animator>();
-        _animator->Initialize(_model->GetAnimation(), _model->GetSkeleton());
-    }
+    //if (MeshRenderType::SKELETAL == _type)
+    //{
+    //    _animator = std::make_shared<Animator>();
+    //    _animator->Initialize(_model->GetAnimation(), _model->GetSkeleton());
+    //}
 }

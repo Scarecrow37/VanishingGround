@@ -17,7 +17,7 @@ Command::EditorScene::DestroyGameObjectCommand::DestroyGameObjectCommand(GameObj
 
 Command::EditorScene::DestroyGameObjectCommand::~DestroyGameObjectCommand() = default;
 
-void Command::EditorScene::DestroyGameObjectCommand::Execute()
+bool Command::EditorScene::DestroyGameObjectCommand::Execute()
 {
     auto& rootObject               = _destroyObjects.front();
     rootObject->GetScene().IsDirty = true;
@@ -38,6 +38,8 @@ void Command::EditorScene::DestroyGameObjectCommand::Execute()
         EditorInspectorTool::SetFocusObject(empty);
         _isFocus = true;
     }
+
+    return true;
 }
 
 void Command::EditorScene::DestroyGameObjectCommand::Undo()
@@ -68,7 +70,7 @@ Command::EditorScene::NewGameObjectCommand::NewGameObjectCommand(std::string_vie
 {
 }
 
-void Command::EditorScene::NewGameObjectCommand::Execute()
+bool Command::EditorScene::NewGameObjectCommand::Execute()
 {
     if (nullptr == _newObject)
     {
@@ -88,6 +90,8 @@ void Command::EditorScene::NewGameObjectCommand::Execute()
     }
     Scene& scene  = _newObject->GetScene();
     scene.IsDirty = true;
+
+    return true;
 }
 
 void Command::EditorScene::NewGameObjectCommand::Undo()
@@ -119,13 +123,14 @@ Command::EditorScene::DestroyComponentCommand::DestroyComponentCommand(Component
 
 Command::EditorScene::DestroyComponentCommand::~DestroyComponentCommand() {}
 
-void Command::EditorScene::DestroyComponentCommand::Execute()
+bool Command::EditorScene::DestroyComponentCommand::Execute()
 {
     if (false == _ownerObject.expired())
     {
         UmSceneManager.AddDestroyComponentQueue(_destroyComponent.get());
         _destroyComponent->Enable = false;
     }
+    return true;
 }
 
 void Command::EditorScene::DestroyComponentCommand::Undo()
@@ -143,7 +148,7 @@ Command::EditorScene::AddComponentCommand::AddComponentCommand(GameObject* owner
 {
 }
 
-void Command::EditorScene::AddComponentCommand::Execute()
+bool Command::EditorScene::AddComponentCommand::Execute()
 {
     if (false == _ownerObject.expired())
     {
@@ -159,6 +164,7 @@ void Command::EditorScene::AddComponentCommand::Execute()
             UmComponentFactory.InsertComponentToObject(owner.get(), _addComponent, _index);
         }
     }
+    return true;
 }
 
 void Command::EditorScene::AddComponentCommand::Undo()
@@ -183,7 +189,7 @@ Command::EditorScene::DuplicateCommand::DuplicateCommand(GameObject* sourceObjec
 
 Command::EditorScene::DuplicateCommand::~DuplicateCommand() {}
 
-void Command::EditorScene::DuplicateCommand::Execute()
+bool Command::EditorScene::DuplicateCommand::Execute()
 {
     if (true == _destObjects.empty())
     {
@@ -216,6 +222,8 @@ void Command::EditorScene::DuplicateCommand::Execute()
     auto& rootObject = _destObjects.front();
     rootObject->GetScene().IsDirty = true;
     Super::Execute();
+
+    return true;
 }
 
 void Command::EditorScene::DuplicateCommand::Undo()
@@ -238,4 +246,110 @@ void Command::EditorScene::DuplicateCommand::Undo()
     }
     rootObject->GetScene().IsDirty = true;
     Super::Undo();
+}
+
+Command::EditorScene::PasteObjectCommand::PasteObjectCommand(std::wstring_view yamlData)
+    : FocusCommand(std::weak_ptr<GameObject>(), std::weak_ptr<GameObject>(), "Paste Object")
+{
+    _yamlData = yamlData;
+    _loadSuccess = true;
+}
+
+Command::EditorScene::PasteObjectCommand::~PasteObjectCommand() 
+{
+
+}
+
+bool Command::EditorScene::PasteObjectCommand::Execute() 
+{
+    if (false == _yamlData.empty())
+    {
+        if (true == _destObjects.empty())
+        {
+            try
+            {
+                std::string data         = WStringToU8(_yamlData);
+                YAML::Node  yamlInstance = YAML::Load(data);
+                GameObject* sourceRoot   = UmGameObjectFactory.DeserializeToYaml(&yamlInstance).get();
+                if (sourceRoot)
+                {
+                    _oldFocused = EditorHierarchyTool::GetFocusObject();
+                    std::string objName(std::string_view(sourceRoot->Name));
+                    size_t      pos = objName.rfind(" (");
+                    if (pos != std::string::npos && objName.back() == ')')
+                    {
+                        objName = objName.substr(0, pos);
+                    }
+                    sourceRoot->Name = GameObject::Helper::GenerateUniqueName(objName);
+                    _newFocused      = sourceRoot->GetWeakPtr();
+                    Transform::ForeachBFS(sourceRoot->transform, [&](Transform* curr) {
+                        _destObjects.push_back(curr->gameObject->GetWeakPtr().lock());
+                    });
+                    _loadSuccess = true;
+                }
+                else
+                {
+                    _yamlData.clear();
+                    _loadSuccess = false;
+                }
+            }
+            catch (const YAML::ParserException& e)
+            {
+                const char* what = e.what();
+                _yamlData.clear();
+                _loadSuccess = false;
+            }
+            catch (const YAML::Exception& e)
+            {
+                const char* what = e.what();
+                _yamlData.clear();
+                _loadSuccess = false;
+            }
+        }
+        else
+        {
+            auto& rootObject       = _destObjects.front();
+            rootObject->ActiveSelf = _active;
+            for (auto& object : _destObjects)
+            {
+                UmSceneManager.SetObjectOwnerScene(object.get(), _ownerSceneName);
+                ESceneManager::Engine::AddGameObjectToLifeCycle(object);
+            }
+        }
+
+        if (_loadSuccess)
+        {
+            auto& rootObject               = _destObjects.front();
+            rootObject->GetScene().IsDirty = true;
+            Super::Execute();
+        }
+    }
+    return _loadSuccess;
+}
+
+void Command::EditorScene::PasteObjectCommand::Undo() 
+{
+    if (false == _yamlData.empty())
+    {
+        auto& rootObject               = _destObjects.front();
+        rootObject->GetScene().IsDirty = true;
+
+        int instanceID         = rootObject->GetInstanceID();
+        _active                = rootObject->ActiveSelf;
+        _ownerSceneName        = rootObject->GetOwnerSceneName();
+        rootObject->ActiveSelf = false;
+        UmSceneManager.AddDestroyObjectQueue(rootObject.get());
+        if (EditorHierarchyTool::GetFocusObject().lock() == rootObject)
+        {
+            std::weak_ptr<GameObject> empty;
+            EditorHierarchyTool::SetFocusObject(empty);
+        }
+        if (EditorInspectorTool::GetFocusObject().lock() == rootObject)
+        {
+            std::weak_ptr<GameObject> empty;
+            EditorInspectorTool::SetFocusObject(empty);
+        }
+        rootObject->GetScene().IsDirty = true;
+        Super::Undo();
+    }
 }

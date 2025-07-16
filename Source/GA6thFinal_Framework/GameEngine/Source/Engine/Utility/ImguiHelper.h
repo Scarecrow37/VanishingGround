@@ -12,6 +12,18 @@ namespace ImGuiHelper
         CENTER,
     };
 
+    /// <summary>
+    /// Preview 렉트를 인풋 텍스트 기반으로 하는 콤보
+    /// </summary>
+    /// <param name="label"></param>
+    /// <param name="preview_value"></param>
+    /// <param name="inputTextFlags"></param>
+    /// <param name="comboFlags"></param>
+    /// <returns></returns>
+    bool BeginComboInput(const char* label, const char* preview_value,
+                         ImGuiInputTextFlags inputTextFlags = ImGuiInputTextFlags_ReadOnly,
+                         ImGuiComboFlags     comboFlags     = ImGuiComboFlags_None);
+
     /*
     호버링시 둘팁을 여는 텍스트를 생성
     desc = 툴팁에 나타날 텍스트
@@ -294,6 +306,16 @@ namespace ImGuiHelper
     /// <param name="toolTip :">출력할 내용</param>
     /// <returns>마우스 Hovered 여부</returns>
     bool HoveredToolTip(std::string_view toolTip);
+
+    /// <summary>
+    /// 이전 아이템에 마우스가 올라가면 툴팁을 출력합니다.
+    /// </summary>
+    /// <param name="toolTip :">출력할 내용</param>
+    /// <returns>마우스 Hovered 여부</returns>
+    inline bool HoveredToolTip(std::u8string_view toolTip)
+    {
+        return HoveredToolTip((const char*)toolTip.data());
+    }
 
     /// <summary>
     /// ImVec4를 선형보간합니다.

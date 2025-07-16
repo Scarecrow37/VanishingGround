@@ -38,6 +38,8 @@ namespace File
         virtual void OnRequestedCopy(const File::Path& path)                    {}
         /* 파일을 붙여넣었을 때 처리할 동작을 구현 */
         virtual void OnRequestedPaste(const File::Path& path)                   {}
+        /* 파일을 드래그 드랍했을 때 처리할 동작을 구현 */
+        virtual void OnRequestedDragDrop(const File::Path& path)                {}
 
     public:
         /* 대응되는 확장자인지 확인 */

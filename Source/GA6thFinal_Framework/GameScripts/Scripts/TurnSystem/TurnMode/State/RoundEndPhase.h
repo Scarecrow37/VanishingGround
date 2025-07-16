@@ -24,6 +24,11 @@ protected:
     void OnExit() override;
     void OnUpdate() override;
 
+    /// <summary>
+    /// 라운드에 존재하는 객체에게 OnRoundEnd를 호출해줍니다.
+    /// </summary>
+    void NotifyRoundEnd();
+
 private:
     bool _isPhaseEnd = false;
 

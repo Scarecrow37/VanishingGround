@@ -11,6 +11,16 @@ Animator::~Animator()
 {   
 }
 
+void Animator::RegisterComponent(std::string_view sceneName)
+{
+    UmAnimationCore.RegisterAnimator(this);
+}
+
+void Animator::RegisterComponent()
+{
+    UmAnimationCore.RegisterAnimator(this);
+}
+
 const Matrix* Animator::FindBoneMatrix(const char* boneName) const
 {
     Bone& rootBone = _skeleton->GetRootBone();
@@ -192,7 +202,8 @@ void Animator::Update(const float deltaTime)
 		{
             if (true == _isLoop)
             {
-                _controllers[i].PlayTime = fmod(_controllers[i].PlayTime, animation.LastTime);
+                bool isDevByZero = (0.0f == animation.LastTime); // max frame이 0일 경우 예외
+                _controllers[i].PlayTime = isDevByZero ? 0.0f : fmod(_controllers[i].PlayTime, animation.LastTime);
             }
             else
             {
@@ -267,7 +278,7 @@ void Animator::ChangeAnimation(const char* animation, const unsigned int ID)
 	_blends[ID].IsBlending = true;
 
 	_prevControllers[ID] = _controllers[ID];
-	_controllers[ID].Animation = animation;
+	_controllers[ID].Animation = iter->first;
 	_controllers[ID].PlayTime = 0.f;
 	_controllers[ID].LastTime = iter->second.LastTime;
 }

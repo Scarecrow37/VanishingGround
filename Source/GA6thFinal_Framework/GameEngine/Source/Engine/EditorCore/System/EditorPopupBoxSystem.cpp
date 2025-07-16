@@ -34,11 +34,18 @@ void EditorPopupBoxSystem::OnDrawGui()
     if (nullptr != _currentPopupBox)
     {
         auto& popupName = _currentPopupBox->GetName();
+        int   flags     = _currentPopupBox->GetFlags();
         bool  isOpen    = _currentPopupBox->IsOpen();
 
         if (false == _currentPopupBox->IsNull())
         {
-            if (ImGui::BeginPopupModal(popupName.c_str(), &isOpen, ImGuiWindowFlags_AlwaysAutoResize))
+            //ImGuiWindowFlags_AlwaysAutoResize 플래그가 없으면 사이즈 조절
+            if (false == (flags & ImGuiWindowFlags_AlwaysAutoResize))
+            {
+                const ImVec2& size = _currentPopupBox->GetSize();
+                ImGui::SetNextWindowSize(size, ImGuiCond_FirstUseEver);
+            }
+            if (ImGui::BeginPopupModal(popupName.c_str(), &isOpen, flags))
             {
                 _currentPopupBox->GetContent()();
                 ImGui::EndPopup();
@@ -56,15 +63,21 @@ void EditorPopupBoxSystem::OnEndGui()
 {
 }
 
-void EditorPopupBoxSystem::OpenPopupBox(const std::string& name, std::function<void()> content)
+EditorPopupBox* EditorPopupBoxSystem::OpenPopupBox(const std::string& name, std::function<void()> content)
 {
+    EditorPopupBox* instance = nullptr;
     auto itr = _popupBoxTable.find(name);
     if (itr != _popupBoxTable.end())
     {
-        return;
+        instance = itr->second;
     }
-    _popupBoxTable[name] = new EditorPopupBox(name, content);
-    _popupBoxQueue.push_back(_popupBoxTable[name]);
+    else
+    {
+         instance = new EditorPopupBox(name, content);
+        _popupBoxTable[name] = instance;
+        _popupBoxQueue.push_back(_popupBoxTable[name]);
+    }
+    return instance;
 }
 
 bool EditorPopupBoxSystem::IsExistPopupBox(const std::string& name) const

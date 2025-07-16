@@ -83,5 +83,19 @@ namespace File
     bool ShowOpenFolderDialog(HWND owner, LPCWSTR title, LPCWSTR initialDir, OUT File::Path& out);
 
     bool ShowFileDialogEx(IN const FileDialogDesc& desc, OUT std::vector<File::Path>& out);
+
+
+    /// <summary>
+    /// 이 컴퓨터의 바탕화면 경로를 가져옵니다. 실패시 "C:"를 반환합니다.
+    /// </summary>
+    /// <returns>바탕화면 경로</returns>
+    std::wstring_view GetDesktopPath();
+
+    // std::wstring을 클립보드에 복사하는 함수
+    void SetClipboardText(std::wstring_view text);
+
+    // 클립보드에서 std::wstring을 가져오는 함수
+    std::wstring GetClipboardText();
+  
 } // namespace File
 

@@ -114,36 +114,6 @@
     <ClInclude Include="Source\UmFramework.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Imgui\imconfig.h">
-      <Filter>헤더 파일\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Imgui\imgui.h">
-      <Filter>헤더 파일\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Imgui\imgui_impl_dx11.h">
-      <Filter>헤더 파일\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Imgui\imgui_impl_dx12.h">
-      <Filter>헤더 파일\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Imgui\imgui_internal.h">
-      <Filter>헤더 파일\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Imgui\imgui_stdlib.h">
-      <Filter>헤더 파일\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Imgui\imstb_rectpack.h">
-      <Filter>헤더 파일\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Imgui\imstb_textedit.h">
-      <Filter>헤더 파일\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Imgui\imstb_truetype.h">
-      <Filter>헤더 파일\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Imgui\imgui_impl_win32.h">
-      <Filter>헤더 파일\imgui</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\EngineCore\TimeSystem.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -182,24 +152,6 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\GameCore\Transform\Transform.h">
       <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Imgui\imgui_node_editor_internal.h">
-      <Filter>헤더 파일\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Imgui\imgui_node_editor.h">
-      <Filter>헤더 파일\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Imgui\imgui_extra_math.h">
-      <Filter>헤더 파일\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Imgui\imgui_canvas.h">
-      <Filter>헤더 파일\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Imgui\imgui_bezier_math.h">
-      <Filter>헤더 파일\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Imgui\crude_json.h">
-      <Filter>헤더 파일\imgui</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\ApplicationCore\Application.h">
       <Filter>헤더 파일</Filter>
@@ -312,9 +264,6 @@
     <ClInclude Include="Source\Engine\GraphicsCore\Defines.h">
       <Filter>GraphicsCore\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\DX12Practice.h">
-      <Filter>GraphicsCore\Headers</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\GraphicsCore\Enums.h">
       <Filter>GraphicsCore\Headers</Filter>
     </ClInclude>
@@ -347,9 +296,6 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\GraphicsCore\Quad.h">
       <Filter>GraphicsCore\Mesh\Geometry</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\FontManager.h">
-      <Filter>GraphicsCore\Manager</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\GraphicsCore\MultiRenderTargetManager.h">
       <Filter>GraphicsCore\Manager</Filter>
@@ -401,24 +347,6 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\GraphicsCore\RenderTechnique.h">
       <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Imgui\GraphEditor.h">
-      <Filter>헤더 파일\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Imgui\ImCurveEdit.h">
-      <Filter>헤더 파일\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Imgui\ImGradient.h">
-      <Filter>헤더 파일\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Imgui\ImGuizmo.h">
-      <Filter>헤더 파일\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Imgui\ImSequencer.h">
-      <Filter>헤더 파일\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Imgui\ImZoomSlider.h">
-      <Filter>헤더 파일\imgui</Filter>
     </ClInclude>
     <ClInclude Include="Source\Editor\DragDropTypes\DragDropAsset.h">
       <Filter>헤더 파일</Filter>
@@ -597,18 +525,6 @@
     <ClInclude Include="Source\Engine\GraphicsCore\Light.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\InputCore\Devices\Controller\Controller.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\InputCore\Adapter\Adapter.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\InputCore\Adapter\Controller\ControllerAdapter.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\InputCore\Adapter\Controller\XInput\XInputAdapter.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Utility\Random.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -705,27 +621,6 @@
     <ClInclude Include="Source\Editor\Tool\Model\EditorAnimationNotifyTool.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\AudioCore\AudioManager\AudioManager.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\AudioCore\Declare\RIFF\AudioChunk.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\AudioCore\Source\AudioSource.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\AudioCore\Declare\Exceptions\AudioExceptions.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\AudioCore\Handle\AudioHandle.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\AudioCore\Declare\Types\AudioTypes.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\AudioCore\Declare\Callback\IncreaseGenerationCallback.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\GraphicsCore\EditorDrawTechnique.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -744,7 +639,43 @@
     <ClInclude Include="Source\Engine\GameCore\InputReciver\InputReceiver.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\InputCore\Declare\Exceptions\InputExceptions.h">
+    <ClInclude Include="Source\Engine\GraphicsCore\UI2DPass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\UI3DPass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\UITechnique.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\ConstantBufferView.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\Headers.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\ParticleEffectSerializer.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\SpriteRenderer.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\UIPassBase.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\UI25DPass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\FontRenderer.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\FontTechnique.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\TextDrawPass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\FileSystem\Importer\SpriteFontImporter.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -754,33 +685,6 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Utility\DumpUtility.cpp">
       <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\imgui.cpp">
-      <Filter>소스 파일\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\imgui_demo.cpp">
-      <Filter>소스 파일\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\imgui_draw.cpp">
-      <Filter>소스 파일\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\imgui_impl_dx11.cpp">
-      <Filter>소스 파일\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\imgui_impl_dx12.cpp">
-      <Filter>소스 파일\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\imgui_stdlib.cpp">
-      <Filter>소스 파일\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\imgui_tables.cpp">
-      <Filter>소스 파일\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\imgui_widgets.cpp">
-      <Filter>소스 파일\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\imgui_impl_win32.cpp">
-      <Filter>소스 파일\imgui</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\EngineCore\TimeSystem.cpp">
       <Filter>소스 파일</Filter>
@@ -814,18 +718,6 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\GameCore\Transform\Transform.cpp">
       <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\crude_json.cpp">
-      <Filter>소스 파일\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\imgui_canvas.cpp">
-      <Filter>소스 파일\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\imgui_node_editor.cpp">
-      <Filter>소스 파일\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\imgui_node_editor_api.cpp">
-      <Filter>소스 파일\imgui</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\ApplicationCore\Application.cpp">
       <Filter>소스 파일</Filter>
@@ -953,9 +845,6 @@
     <ClCompile Include="Source\Engine\GraphicsCore\Quad.cpp">
       <Filter>GraphicsCore\Mesh\Geometry</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\FontManager.cpp">
-      <Filter>GraphicsCore\Manager</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\MultiRenderTargetManager.cpp">
       <Filter>GraphicsCore\Manager</Filter>
     </ClCompile>
@@ -1003,21 +892,6 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\RenderTechnique.cpp">
       <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\GraphEditor.cpp">
-      <Filter>소스 파일\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\ImCurveEdit.cpp">
-      <Filter>소스 파일\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\ImGradient.cpp">
-      <Filter>소스 파일\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\ImGuizmo.cpp">
-      <Filter>소스 파일\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Imgui\ImSequencer.cpp">
-      <Filter>소스 파일\imgui</Filter>
     </ClCompile>
     <ClCompile Include="Source\Editor\DragDropTypes\DragDropAsset.cpp">
       <Filter>소스 파일</Filter>
@@ -1181,18 +1055,6 @@
     <ClCompile Include="Source\Engine\GraphicsCore\Light.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\InputCore\Devices\Controller\Controller.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\InputCore\Adapter\Adapter.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\InputCore\Adapter\Controller\ControllerAdapter.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\InputCore\Adapter\Controller\XInput\XInputAdapter.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\Utility\Random.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -1298,27 +1160,6 @@
     <ClCompile Include="Source\Engine\GraphicsCore\DebugDrawCore.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\AudioCore\AudioManager\AudioManager.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\AudioCore\Declare\RIFF\AudioChunk.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\AudioCore\Source\AudioSource.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\AudioCore\Declare\Exceptions\AudioExceptions.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\AudioCore\Handle\AudioHandle.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\AudioCore\Declare\Types\AudioTypes.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\AudioCore\Declare\Callback\IncreaseGenerationCallback.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\GameCore\InputReciver\InputReceiver.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -1337,7 +1178,22 @@
     <ClCompile Include="Source\Engine\GraphicsCore\DXResourceManager.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\InputCore\Declare\Exceptions\InputExceptions.cpp">
+    <ClCompile Include="Source\Engine\GraphicsCore\UI2DPass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\UI3DPass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\UITechnique.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\UI2DPass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\UI3DPass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\UITechnique.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\TimelineCore\AnimationNotifySet.cpp">
@@ -1346,17 +1202,38 @@
     <ClCompile Include="Source\Editor\Tool\Model\EditorAnimationNotifyTool.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\ConstantBufferView.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\ParticleEffectSerializer.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\SpriteRenderer.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\UIPassBase.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\UI25DPass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\FontRenderer.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\FontTechnique.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\TextDrawPass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\UmFramework.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\FileSystem\Importer\SpriteFontImporter.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Source\Engine\Imgui\imgui_node_editor_internal.inl">
-      <Filter>소스 파일\imgui</Filter>
-    </None>
-    <None Include="Source\Engine\Imgui\imgui_extra_math.inl">
-      <Filter>소스 파일\imgui</Filter>
-    </None>
-    <None Include="Source\Engine\Imgui\imgui_bezier_math.inl">
-      <Filter>소스 파일\imgui</Filter>
-    </None>
     <None Include="cpp.hint" />
   </ItemGroup>
 </Project>

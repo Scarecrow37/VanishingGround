@@ -14,7 +14,7 @@ namespace Command
             virtual ~DestroyGameObjectCommand();
 
         private:
-            void Execute() override;
+            bool Execute() override;
             void Undo() override;
 
             std::vector<std::shared_ptr<GameObject>> _destroyObjects;
@@ -38,7 +38,7 @@ namespace Command
             bool                        _active;
 
             // UmCommand을(를) 통해 상속됨
-            void Execute() override;
+            bool Execute() override;
             void Undo() override;
         };
 
@@ -49,7 +49,7 @@ namespace Command
             virtual ~DestroyComponentCommand();
 
         private:
-            void Execute() override;
+            bool Execute() override;
             void Undo() override;
 
             std::shared_ptr<Component> _destroyComponent;
@@ -71,7 +71,7 @@ namespace Command
             int                        _index;
 
             // UmCommand을(를) 통해 상속됨
-            void Execute() override;
+            bool Execute() override;
             void Undo() override;
         };
 
@@ -83,7 +83,7 @@ namespace Command
             DuplicateCommand(GameObject* sourceObject);
             virtual ~DuplicateCommand() override;
 
-            virtual void Execute() override;
+            virtual bool Execute() override;
             virtual void Undo() override;
 
         private:
@@ -92,5 +92,25 @@ namespace Command
             bool                                     _active;
             std::string                              _ownerSceneName;
         };
+
+        class PasteObjectCommand : public Command::Hierarchy::FocusCommand
+        {
+              using Super = FocusCommand;
+        public:
+              PasteObjectCommand(std::wstring_view yamlData);
+              ~PasteObjectCommand() override;
+
+              bool Execute() override;
+              void Undo() override;
+
+        private:
+              std::wstring                             _yamlData;
+              std::vector<std::shared_ptr<GameObject>> _destObjects;
+              bool                                     _active;
+              bool                                     _loadSuccess;
+              std::string                              _ownerSceneName;
+
+        };
+
     }
 }

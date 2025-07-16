@@ -1,8 +1,8 @@
 ﻿#pragma once
-#include "Stats/CharacterStatsComponent.h"
+#include "Stats/TurnActorStatsComponent.h"
 
 struct EnemyStats;
-class EnemyStatsComponent : public CharacterStatsComponent
+class EnemyStatsComponent : public TurnActorStatsComponent
 {
     USING_PROPERTY(EnemyStatsComponent)
 public:
@@ -15,11 +15,11 @@ public:
     EnemyStats* GetStats() { return _stats; }
 
 protected:
-    REFLECT_FIELDS_BEGIN(CharacterStatsComponent)
+    REFLECT_FIELDS_BEGIN(TurnActorStatsComponent)
     REFLECT_FIELDS_END(EnemyStatsComponent)
 
     // CharacterStatsComponent을(를) 통해 상속됨
-    CharacterStats* NewCharacterStats() override;
+    TurnActorStats* NewTurnActorStats() override;
 
 private:
     EnemyStats* _stats = nullptr;
