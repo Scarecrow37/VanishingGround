@@ -31,6 +31,7 @@ void PlayerPlayTurnState::OnStart()
 
 void PlayerPlayTurnState::OnEnter() 
 {
+
 }
 
 void PlayerPlayTurnState::OnExit() 
@@ -106,7 +107,7 @@ void PlayerPlayTurnState::OnUpdate()
             }
             if (ImGui::Button("Kill"))
             {
-                GetPlayer().Dead();
+                //GetPlayer().Dead();
             }
         }
         else
