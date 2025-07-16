@@ -611,12 +611,11 @@ void ParticleManager::CopyActiveParticles()
                     auto& particlePool = emitter->GetParticlePool();
                     for (UINT i = 0; i < emitter->GetActiveParticleCount(); i++)
                     {
-
                         auto& particle = *particlePool[i];
                         particle.SetEmitterIndex(emitterIndex);
                         _totalParticles.push_back(particle);
+                        _totalCount++;
                     }
-                    _totalCount += emitter->GetActiveParticleCount();
                     emitterIndex++;
                 }
             }
@@ -717,6 +716,19 @@ void ParticleManager::UpdateParticleResources(float deltaTime)
             Vector4(_camera->GetWorldMatrix()._41, _camera->GetWorldMatrix()._42, _camera->GetWorldMatrix()._43, 1);
 
         mvpConstants.deltaTime = deltaTime;
+        //{
+        //    mvpConstants.ViewMatrix       = Matrix::Identity;
+        //    mvpConstants.ViewRotInvMatrix = Matrix::Identity;
+        //    auto& mode                    = UmDevice.GetMode();
+        //    mvpConstants.ProjMatrix = Matrix::CreateOrthographic(1920.f, 1080.f,0.1f, 1000.f).Transpose();
+
+        //    mvpConstants.CameraPos =
+        //        Vector4(_camera->GetWorldMatrix()._41, _camera->GetWorldMatrix()._42, _camera->GetWorldMatrix()._43, 1);
+        //}
+        //mvpConstants.deltaTime = deltaTime;
+
+
+
 
         FAILED_CHECK_MESSAGE(_mvpConstantBuffer->Map(0, nullptr, &mappedData), L"");
         memcpy(mappedData, &mvpConstants, sizeof(MVPConstants));
@@ -749,8 +761,23 @@ void ParticleManager::UpdateParticleResources(float deltaTime)
 
         gamveViewMvpConstants.deltaTime = deltaTime;
 
+     /*           MVPConstants mvpConstants;
+        {
+            mvpConstants.ViewMatrix       = Matrix::Identity;
+            mvpConstants.ViewRotInvMatrix = Matrix::Identity;
+            auto& mode                    = UmDevice.GetMode();
+            mvpConstants.ProjMatrix       = Matrix::CreateOrthographic(1920.f, 1080.f, 0.1f, 1000.f).Transpose();
+
+            mvpConstants.CameraPos =
+                Vector4(_camera->GetWorldMatrix()._41, _camera->GetWorldMatrix()._42, _camera->GetWorldMatrix()._43, 1);
+        }
+        mvpConstants.deltaTime = deltaTime;
+*/
+
+
         FAILED_CHECK_MESSAGE(_gameViewMvpConstantBuffer->Map(0, nullptr, &mappedData), L"");
         memcpy(mappedData, &gamveViewMvpConstants, sizeof(MVPConstants));
+        //memcpy(mappedData, &mvpConstants, sizeof(MVPConstants));
         _gameViewMvpConstantBuffer->Unmap(0, nullptr);
     }
 
@@ -821,8 +848,8 @@ void ParticleManager::CopyActiveParticlesEditorMode()
                 auto& particle = *particlePool[i];
                 particle.SetEmitterIndex(emitterIndex);
                 _editorTotalParticles.push_back(particle);
+                _editorCount++;
             }
-            _editorCount += emitter->GetActiveParticleCount();
             emitterIndex++;
         }
     }
@@ -894,10 +921,18 @@ void ParticleManager::UpdateParticleResourcesEditorMode(float deltaTime)
     mvpConstants.CameraPos =
         Vector4(_camera->GetWorldMatrix()._41, _camera->GetWorldMatrix()._42, _camera->GetWorldMatrix()._43, 1);
 
-    // float currentTime = UmTime.Time();
-    // float delta       = currentTime - lastFrameTime;
-    // lastFrameTime     = currentTime;
-    // mvpConstants.deltaTime = delta;
+
+    //    MVPConstants mvpConstants;
+    //{
+    //    mvpConstants.ViewMatrix       = Matrix::Identity;
+    //    mvpConstants.ViewRotInvMatrix = Matrix::Identity;
+    //    auto& mode                    = UmDevice.GetMode();
+    //    mvpConstants.ProjMatrix       = Matrix::CreateOrthographic(1920.f, 1080.f, 0.1f, 1000.f).Transpose();
+
+    //    mvpConstants.CameraPos =
+    //        Vector4(_camera->GetWorldMatrix()._41, _camera->GetWorldMatrix()._42, _camera->GetWorldMatrix()._43, 1);
+
+    //}
     mvpConstants.deltaTime = deltaTime;
 
     FAILED_CHECK_MESSAGE(_editorMvpConstantBuffer->Map(0, nullptr, &mappedData), L"");

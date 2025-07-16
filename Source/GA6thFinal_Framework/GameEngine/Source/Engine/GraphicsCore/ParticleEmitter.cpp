@@ -425,6 +425,7 @@ void ParticleEmitter::UpdateParticleLifeCycle(float deltaTime)
 void ParticleEmitter::Reset() 
 {
     _delayFlag = _activeFlag = false;
+    _isSpawnBursted          = false;
     _endFlag                 = false;
     _delayTimer              = 0.f;
     _emitterAge              = 0.f;

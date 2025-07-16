@@ -17,6 +17,10 @@ void ParticleSpritePass::Initialize(RenderScene* ownerScene)
 
     _textureIDBuffer = std::make_unique<StructuredBuffer>();
     _textureIDBuffer->Initialize(sizeof(int), 100);
+
+
+
+
 }
 
 void ParticleSpritePass::Begin(ID3D12GraphicsCommandList* commandList)

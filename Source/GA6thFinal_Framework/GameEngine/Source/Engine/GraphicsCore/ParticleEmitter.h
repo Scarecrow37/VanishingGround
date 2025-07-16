@@ -197,7 +197,7 @@ protected:
     UMPARTICLE_PROPERTY(bool, _activeFlag, ActiveFlag, true);
     UMPARTICLE_PROPERTY(float, _emitterAge, EmitterAge, 0.f);
     UMPARTICLE_PROPERTY(float, _emitterLifetime, EmitterLifetime, 5.f);
-    UMPARTICLE_PROPERTY(SIZE_T, _maxParticles, MaxParticles, 10000);
+    UMPARTICLE_PROPERTY(SIZE_T, _maxParticles, MaxParticles, 100000);
     UMPARTICLE_PROPERTY(float, _emissionRate, EmissionRate, 5000.f);
     UMPARTICLE_PROPERTY(float, _startDelay, StartDelay, 0.f);
     UMPARTICLE_PROPERTY(bool, _spawnBurstFlag, SpawnBurstFlag, false);
