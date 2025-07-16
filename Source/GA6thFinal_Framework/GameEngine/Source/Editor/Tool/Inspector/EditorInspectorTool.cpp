@@ -110,12 +110,13 @@ namespace Command
 {
     namespace Inspector
     {
-        void FocusObject::Execute()
+        bool FocusObject::Execute()
         {
             if (false == _newFocused.expired())
             {
                 EditorInspectorTool::SetFocusObject(_newFocused);
             }
+            return true;
         }
 
         void FocusObject::Undo()
@@ -126,9 +127,10 @@ namespace Command
             }
         }
 
-        void LockFocus::Execute() 
+        bool LockFocus::Execute() 
         {
             EditorInspectorTool::SetLockFocus(_isLock);
+            return true;
         }
 
         void LockFocus::Undo() 
