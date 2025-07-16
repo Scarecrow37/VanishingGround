@@ -40,12 +40,12 @@ void TestAction::OnTurnEnd(CharacterBase* destination)
     UmLogger.Log(LogLevel::LEVEL_TRACE, u8"턴 종료");
 }
 
-std::string_view TestAction::GetActionName()
+const std::string& TestAction::GetActionName()
 {
     return (const char*)u8"테스트 액션";
 }
 
-std::string_view TestAction::GetActionInfo()
+const std::string& TestAction::GetActionInfo()
 {
     return (const char*)u8"테스트 액션 정보";
 }

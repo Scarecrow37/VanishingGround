@@ -21,10 +21,10 @@ public:
             {
                 std::unique_ptr<TurnAction> temp;
                 temp.reset(makeFunc());
-                std::string_view name = temp->GetActionName();
-                if (factory.find(name.data()) == factory.end())
+                const std::string& name = temp->GetActionName();
+                if (factory.find(name) == factory.end())
                 {
-                    factory[name.data()] = makeFunc;
+                    factory[name] = makeFunc;
                 }
                 else
                 {
