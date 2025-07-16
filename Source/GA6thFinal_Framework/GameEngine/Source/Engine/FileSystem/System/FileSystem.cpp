@@ -468,15 +468,15 @@ void EFileSystem::RegisterFileEventSubscriber(FileEventSubscriber* subscriber, c
     if (subscriber == nullptr)
         return;
 
-    for (const auto& ext : exts)
-    {
-        subscriber->_triggerExtTable.insert(ext);
-        _extToSubscriberTable[ext].insert(subscriber);
-    }
     auto itr = _subscriberSet.find(subscriber);
     if (itr == _subscriberSet.end())
     {
         _subscriberSet.insert(subscriber);
+        for (const auto& ext : exts)
+        {
+            subscriber->_triggerExtTable.insert(ext);
+            _extToSubscriberTable[ext].insert(subscriber);
+        }
     }
 }
 

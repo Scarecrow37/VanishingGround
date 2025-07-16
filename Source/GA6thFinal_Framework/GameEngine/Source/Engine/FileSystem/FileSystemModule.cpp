@@ -28,7 +28,7 @@ void FileSystemModule::ModuleInitialize()
         UmFileSystem.ObserverSetUp([this](const Event& event) { RecieveFileEvent(event); });
     }
 
-    auto accessExt = {".txt", ".png", ".dds", ".hdr", ".UmAnimNotifySet"};
+    auto accessExt = {".txt", ".png", ".dds", ".hdr", ".ttf", ".UmAnimNotifySet"};
     UmFileSystem.RegisterFileEventSubscriber(this, accessExt);
 }
 
@@ -140,6 +140,14 @@ void FileSystemModule::ProcessDropFile(const HDROP hDrop)
         {
             UmFileSystem.SaveProjectWithMessageBox();
             UmFileSystem.LoadProjectWithMessageBox(targetPath);
+        }
+        if ("ttf" == extension)
+        {
+            EditorModule* editor = Global::editorModule;
+            if (editor)
+            {
+
+            }
         }
     }
     // 메모리 해제
