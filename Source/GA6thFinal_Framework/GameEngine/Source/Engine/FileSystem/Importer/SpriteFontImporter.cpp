@@ -29,9 +29,9 @@ void Importer::SpriteFontImporter::OnRequestedDragDrop(const File::Path& path)
     }
 }
 
-#define IMGUI_TEXT_BLOCK(text, offset)\
-ImGui::Text(text);                                                                                                 \
-    ImGui::SameLine(offset);\
+#define IMGUI_SEPARATOR_TEXT(text, offset)\
+ImGui::Text(text);\
+ImGui::SameLine(offset);\
 ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);\
 ImGui::SameLine();
 
@@ -55,11 +55,11 @@ void Importer::SpriteFontImporter::DrawImGuiImportSetting()
     if (ImGui::CollapsingHeader("Import Settings##sprite font importer", ImGuiTreeNodeFlags_DefaultOpen))
     {
         const float separatorOffset = 130.0f;
-        IMGUI_TEXT_BLOCK("Font Size", separatorOffset);
+        IMGUI_SEPARATOR_TEXT("Font Size", separatorOffset);
         ImGui::DragInt("##font size", &_fontSize, 1.0f);
         _fontSize = std::max(1, _fontSize); // Clamp
 
-        IMGUI_TEXT_BLOCK("Font Color", separatorOffset);
+        IMGUI_SEPARATOR_TEXT("Font Color", separatorOffset);
         ImGui::ColorEdit4("#font color", (float*)&_fontColor, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
       
     }
