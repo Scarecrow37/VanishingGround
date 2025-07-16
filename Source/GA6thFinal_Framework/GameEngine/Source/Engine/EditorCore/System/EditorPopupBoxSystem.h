@@ -16,7 +16,7 @@ public:
     void OnEndGui() override;
 
 public:
-    void OpenPopupBox(const std::string& name, std::function<void()> content);
+    EditorPopupBox* OpenPopupBox(const std::string& name, std::function<void()> content);
 
     bool IsExistPopupBox(const std::string& name) const;
 

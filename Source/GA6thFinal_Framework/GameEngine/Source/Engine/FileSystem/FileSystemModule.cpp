@@ -28,8 +28,10 @@ void FileSystemModule::ModuleInitialize()
         UmFileSystem.ObserverSetUp([this](const Event& event) { RecieveFileEvent(event); });
     }
 
-    auto accessExt = {".txt", ".png", ".dds", ".hdr", ".UmAnimNotifySet"};
+    auto accessExt = {".txt", ".png", ".dds", ".hdr", ".UmAnimNotifySet", File::PROJECT_EXTENSION};
     UmFileSystem.RegisterFileEventSubscriber(this, accessExt);
+
+    _spriteFontImporter.Initialize();
 }
 
 void FileSystemModule::PreUnInitialize() 
@@ -57,6 +59,16 @@ void FileSystemModule::OnRequestedLoad()
     auto& path = UmFileSystem.GetProjectSettingPath();
     auto  name = File::PROJECT_SETTING_FILENAME;
     UmFileSystem.LoadSetting(path / name);
+}
+
+void FileSystemModule::OnRequestedDragDrop(const File::Path& path) 
+{
+    File::Path extension = path.extension();
+    if (File::PROJECT_EXTENSION == extension)
+    {
+        UmFileSystem.SaveProjectWithMessageBox();
+        UmFileSystem.LoadProjectWithMessageBox(path);
+    }
 }
 
 void FileSystemModule::Update() 
@@ -134,13 +146,7 @@ void FileSystemModule::ProcessDropFile(const HDROP hDrop)
         wchar_t targetPath[MAX_PATH];
         DragQueryFile(hDrop, i, targetPath, MAX_PATH);
 
-        File::Path project = targetPath;
-        File::Path extension = project.extension();
-        if (File::PROJECT_EXTENSION == extension)
-        {
-            UmFileSystem.SaveProjectWithMessageBox();
-            UmFileSystem.LoadProjectWithMessageBox(targetPath);
-        }
+        UmFileSystem.RequestDragDropFile(targetPath);
     }
     // 메모리 해제
     DragFinish(hDrop);
