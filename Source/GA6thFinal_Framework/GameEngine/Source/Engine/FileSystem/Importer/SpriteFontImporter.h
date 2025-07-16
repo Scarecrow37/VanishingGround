@@ -13,6 +13,10 @@ namespace Importer
         bool Initialize();
 
     private:
+        /// <summary>
+        /// 파일 드래그 드롭 이벤트를 처리하는 함수입니다.
+        /// </summary>
+        /// <param name="path">드롭된 파일 경로</param>
         void OnRequestedDragDrop(const File::Path& path) override;
 
         /// <summary>

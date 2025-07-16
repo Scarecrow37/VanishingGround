@@ -85,6 +85,14 @@ namespace Global
      /// <param name="name">팝업 박스의 타이틀</param>
      /// <param name="content">팝업 박스에 나타낼 내용이 구현된 함수</param>
      void OpenPopupBox(const std::string& name, std::function<void()> content);
+
+     /// <summary>
+     /// 팝업 박스를 엽니다.
+     /// </summary>
+     /// <param name="name">팝업 박스의 타이틀</param>
+     /// <param name="size">팝업 박스의 초기 지정 사이즈</param>
+     /// <param name="flags">팝업 박스에 적용할 플래그</param>
+     /// <param name="content">팝업 박스에 나타낼 내용이 구현된 함수</param>
      void OpenPopupBoxEx(const std::string& name, ImVec2 size, int flags, std::function<void()> content);
 
      /// <summary>
