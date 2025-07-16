@@ -479,6 +479,7 @@
     <ClInclude Include="Source\Engine\Utility\ImguiHelper.h" />
     <ClInclude Include="Source\Engine\Utility\utfHelper.h" />
     <ClInclude Include="Source\Engine\ApplicationCore\Application.h" />
+    <ClInclude Include="Source\Engine\FileSystem\Importer\SpriteFontImporter.h" />
     <ClInclude Include="ThirdParty\include\pugixml\pugiconfig.hpp" />
     <ClInclude Include="ThirdParty\include\pugixml\pugixml.hpp" />
     <ClInclude Include="Source\UmFramework.h" />
@@ -690,6 +691,8 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Utility\DumpUtility.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\VertexShader.cpp" />
+    <ClCompile Include="Source\UmFramework.cpp" />
+    <ClCompile Include="Source\Engine\FileSystem\Importer\SpriteFontImporter.cpp" />
     <ClCompile Include="ThirdParty\include\pugixml\pugixml.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">NotUsing</PrecompiledHeader>

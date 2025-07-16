@@ -118,6 +118,16 @@ void EditorModule::OpenPopupBox(const std::string& name, std::function<void()> c
     _popupBoxSystem.OpenPopupBox(name, content);
 }
 
+void EditorModule::OpenPopupBoxEx(const std::string& name, ImVec2 size, int flags, std::function<void()> content) 
+{
+    auto* popup = _popupBoxSystem.OpenPopupBox(name, content);
+    if (popup)
+    {
+        popup->SetFlags(flags);
+        popup->SetSize(size);
+    }
+}
+
 void EditorModule::ResetGuiLayout() 
 {
     _eventQueue.push([this]() {

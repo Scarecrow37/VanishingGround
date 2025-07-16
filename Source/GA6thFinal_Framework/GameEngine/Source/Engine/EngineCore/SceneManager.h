@@ -15,6 +15,7 @@ namespace Command::EditorScene
     class AddComponentCommand;
     class DestroyComponentCommand;
     class DuplicateCommand;
+    class PasteObjectCommand;
 };
 
 //참고 
@@ -746,6 +747,7 @@ public:
     friend class Command::EditorScene::AddComponentCommand;
     friend class Command::EditorScene::DestroyComponentCommand;
     friend class Command::EditorScene::DuplicateCommand;
+    friend class Command::EditorScene::PasteObjectCommand;
 };
 
 inline auto ESceneManager::GetRootGameObjectsByPath(std::string_view path) 

@@ -91,5 +91,11 @@ namespace File
     /// <returns>바탕화면 경로</returns>
     std::wstring_view GetDesktopPath();
 
+    // std::wstring을 클립보드에 복사하는 함수
+    void SetClipboardText(std::wstring_view text);
+
+    // 클립보드에서 std::wstring을 가져오는 함수
+    std::wstring GetClipboardText();
+  
 } // namespace File
 

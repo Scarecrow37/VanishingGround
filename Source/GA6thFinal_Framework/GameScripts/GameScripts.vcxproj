@@ -311,6 +311,7 @@
     <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22000_22009\EnemyAction22000.h" />
     <ClInclude Include="Scripts\RevelationSystem\RevelationAction\Base\RevelationActionBase.h" />
     <ClInclude Include="Scripts\RevelationSystem\RevelationAction\Critical\CriticalDamageAction.h" />
+    <ClInclude Include="Scripts\RevelationSystem\RevelationAction\Token\TokenApplyAction.h" />
     <ClInclude Include="Scripts\RevelationSystem\RevelationElement\RevelationElement.h" />
     <ClInclude Include="Scripts\RevelationSystem\RevelationSystem.h" />
     <ClInclude Include="Scripts\Test\Text\TestText.h" />
@@ -331,6 +332,8 @@
     <ClInclude Include="Scripts\Stats\Enemy\EnemyStats.h" />
     <ClInclude Include="pchScripts.h" />
     <ClInclude Include="Scripts\Stats\Player\PlayerStats.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnActionFactory.h" />
     <ClInclude Include="Scripts\WeaponSystem\WeaponTable\WeaponTableComponent.h" />
     <ClInclude Include="Scripts\Stats\Weapon\WeaponStats.h" />
     <ClInclude Include="Scripts\Test\Component\TestComponent.h" />
@@ -401,6 +404,7 @@
     <ClInclude Include="Scripts\Timeline\AnimationEventListener.h" />
     <ClInclude Include="Scripts\Test\DevTools\FPSCounter.h" />
     <ClInclude Include="Scripts\WeaponSystem\WeaponSystem.h" />
+    <ClInclude Include="Scripts\Test\TurnAction\TestActionComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22000_22009\EnemyAction22001.cpp" />
@@ -414,7 +418,9 @@
     <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22010_22019\EnemyAction22014.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\AnemyActionBase.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22000_22009\EnemyAction22000.cpp" />
+    <ClCompile Include="Scripts\DamageSystem\DamageSystem.cpp" />
     <ClCompile Include="Scripts\RevelationSystem\RevelationAction\Critical\CriticalDamageAction.cpp" />
+    <ClCompile Include="Scripts\RevelationSystem\RevelationAction\Token\TokenApplyAction.cpp" />
     <ClCompile Include="Scripts\RevelationSystem\RevelationElement\RevelationElement.cpp" />
     <ClCompile Include="Scripts\RevelationSystem\RevelationSystem.cpp" />
     <ClCompile Include="Scripts\Test\Text\TestText.cpp" />
@@ -514,6 +520,7 @@
     <ClCompile Include="Scripts\Timeline\AnimationEventListener.cpp" />
     <ClCompile Include="Scripts\Test\DevTools\FPSCounter.cpp" />
     <ClCompile Include="Scripts\WeaponSystem\WeaponSystem.cpp" />
+    <ClCompile Include="Scripts\Test\TurnAction\TestActionComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

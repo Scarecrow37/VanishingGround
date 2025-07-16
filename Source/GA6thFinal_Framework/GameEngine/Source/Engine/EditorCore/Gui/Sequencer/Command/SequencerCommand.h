@@ -31,7 +31,7 @@ namespace Command
 
         private:
             // UmCommand을(를) 통해 상속됨
-            void Execute() override;
+            bool Execute() override;
             void Undo() override;
 
             std::weak_ptr<TimelineSystem> _timelineSystem;
@@ -49,7 +49,7 @@ namespace Command
 
         private:
             // UmCommand을(를) 통해 상속됨
-            void Execute() override;
+            bool Execute() override;
             void Undo() override;
 
             std::weak_ptr<TimelineSystem> _timelineSystem;
@@ -69,7 +69,7 @@ namespace Command
 
         private:
             // UmCommand을(를) 통해 상속됨
-            void Execute() override;
+            bool Execute() override;
             void Undo() override;
 
             std::weak_ptr<TimelineSystem> _timelineSystem;
@@ -88,7 +88,7 @@ namespace Command
 
         private:
             // UmCommand을(를) 통해 상속됨
-            void Execute() override;
+            bool Execute() override;
             void Undo() override;
 
             std::weak_ptr<TimelineSystem> _timelineSystem;
@@ -110,7 +110,7 @@ namespace Command
             virtual ~ChangeNotify() = default;
         private:
             // UmCommand을(를) 통해 상속됨
-            void Execute() override;
+            bool Execute() override;
             void Undo() override;
 
             std::weak_ptr<TimelineSystem> _timelineSystem;
