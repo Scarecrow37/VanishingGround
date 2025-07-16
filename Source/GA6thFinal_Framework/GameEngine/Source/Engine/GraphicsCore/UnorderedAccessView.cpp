@@ -78,9 +78,7 @@ void UnorderedAccessView::CreateUnorderedAccessView()
     srvDesc.Texture2D.MipLevels             = 1;
     srvDesc.Shader4ComponentMapping         = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
-    _ID = UmViewManager.GetNumShaderResourceView() - 1;    
-
-    _currentState = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+    device->CreateShaderResourceView(_resource.Get(), &srvDesc, _srvHandle.CPU);
 }
 
 void UnorderedAccessView::InitializeForBuffer(UINT elementSize, UINT elementCount)

@@ -78,16 +78,6 @@
     <ClCompile Include="Source\Engine\EditorCore\Gui\PopupBox\EditorPopupBox.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\System\EditorPopupBoxSystem.cpp" />
     <ClCompile Include="Source\Editor\DragDropTypes\DragDropAsset.cpp" />
-    <ClCompile Include="Source\Engine\Imgui\GraphEditor.cpp" />
-    <ClCompile Include="Source\Engine\Imgui\ImCurveEdit.cpp" />
-    <ClCompile Include="Source\Engine\Imgui\ImGradient.cpp" />
-    <ClCompile Include="Source\Engine\Imgui\ImGuizmo.cpp" />
-    <ClCompile Include="Source\Engine\Imgui\ImSequencer.cpp" />
-    <ClCompile Include="Source\Engine\InputCore\Adapter\Adapter.cpp" />
-    <ClCompile Include="Source\Engine\InputCore\Adapter\Controller\ControllerAdapter.cpp" />
-    <ClCompile Include="Source\Engine\InputCore\Adapter\Controller\XInput\XInputAdapter.cpp" />
-    <ClCompile Include="Source\Engine\InputCore\Devices\Controller\Controller.cpp" />
-    <ClCompile Include="Source\Engine\InputCore\System\InputSystem.cpp" />
     <ClCompile Include="Source\Engine\Utility\EditorHelper.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\RenderPass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\RenderTechnique.cpp" />
@@ -133,7 +123,6 @@
     <ClCompile Include="Source\Engine\GraphicsCore\Cylinder.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\Device.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\Font.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\FontManager.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\FrameResource.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\GeometryGenerator.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\GeoSphere.cpp" />
@@ -153,19 +142,6 @@
     <ClCompile Include="Source\Engine\GraphicsCore\Texture.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\VIBuffer.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\ViewManager.cpp" />
-    <ClCompile Include="Source\Engine\Imgui\crude_json.cpp" />
-    <ClCompile Include="Source\Engine\Imgui\imgui_canvas.cpp" />
-    <ClCompile Include="Source\Engine\Imgui\imgui_impl_dx11.cpp" />
-    <ClCompile Include="Source\Engine\Imgui\imgui_impl_dx12.cpp" />
-    <ClCompile Include="Source\Engine\Imgui\imgui_impl_win32.cpp" />
-    <ClCompile Include="Source\Engine\Imgui\imgui.cpp" />
-    <ClCompile Include="Source\Engine\Imgui\imgui_demo.cpp" />
-    <ClCompile Include="Source\Engine\Imgui\imgui_draw.cpp" />
-    <ClCompile Include="Source\Engine\Imgui\imgui_node_editor.cpp" />
-    <ClCompile Include="Source\Engine\Imgui\imgui_node_editor_api.cpp" />
-    <ClCompile Include="Source\Engine\Imgui\imgui_tables.cpp" />
-    <ClCompile Include="Source\Engine\Imgui\imgui_widgets.cpp" />
-    <ClCompile Include="Source\Engine\Imgui\imgui_stdlib.cpp" />
     <ClCompile Include="Source\Engine\Utility\dllUtility.cpp" />
     <ClCompile Include="Source\Engine\Utility\FileHelper.cpp" />
     <ClCompile Include="Source\Engine\Utility\ImguiHelper.cpp" />
@@ -182,7 +158,6 @@
     <ClCompile Include="ThirdParty\include\reflectcpp_json.cpp" />
     <ClCompile Include="ThirdParty\include\reflectcpp_yaml.cpp" />
     <ClCompile Include="ThirdParty\include\yyjson.c" />
-    <ClCompile Include="Source\Engine\EngineCore\TimelineSystem.cpp" />
     <ClCompile Include="ThirdParty\source\DebugDraw.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\DxilLibrary.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\ExportAssociation.cpp" />
@@ -192,13 +167,6 @@
     <ClCompile Include="Source\Engine\GraphicsCore\PipelineConfig.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\ShaderConfig.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\RTPipelineBuilder.cpp" />
-    <ClCompile Include="Source\Engine\AudioCore\AudioManager\AudioManager.cpp" />
-    <ClCompile Include="Source\Engine\AudioCore\Declare\Callback\IncreaseGenerationCallback.cpp" />
-    <ClCompile Include="Source\Engine\AudioCore\Declare\Exceptions\AudioExceptions.cpp" />
-    <ClCompile Include="Source\Engine\AudioCore\Declare\RIFF\AudioChunk.cpp" />
-    <ClCompile Include="Source\Engine\AudioCore\Declare\Types\AudioTypes.cpp" />
-    <ClCompile Include="Source\Engine\AudioCore\Handle\AudioHandle.cpp" />
-    <ClCompile Include="Source\Engine\AudioCore\Source\AudioSource.cpp" />
     <ClCompile Include="Source\Engine\GameCore\InputReciver\InputReceiver.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\DXResourceManager.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\EditorDrawTechnique.cpp" />
@@ -206,578 +174,232 @@
     <ClCompile Include="Source\Engine\GraphicsCore\OutLinePass.cpp" />
     <ClCompile Include="Source\Engine\Utility\SharedResource.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\RTPipeline.cpp" />
+    <ClCompile Include="Source\Editor\Tool\Model\EditorAnimationNotifyTool.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\ConstantBufferView.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\FontRenderer.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\FontTechnique.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\TextDrawPass.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\UI25DPass.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\UIPassBase.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\SpriteRenderer.cpp" />
+    <ClCompile Include="Source\Engine\TimelineCore\AnimationNotifySet.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\ParticleEffectSerializer.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\UI2DPass.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\UI3DPass.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\UITechnique.cpp" />
+    <ClCompile Include="Source\Engine\TimelineCore\TimelineSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\pch.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Utility\DumpUtility.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\UmFramework.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\EngineCore\TimeSystem.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\ClassCore\TProperty.hpp">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\ClassCore\ReflectHelper.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Utility\stlHelper.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GameCore\Component\Component.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Utility\dllUtility.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\EngineCore\EngineCores.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GameCore\GameObject\GameObject.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\EngineCore\SceneManager.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\EngineCore\ComponentFactory.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Utility\utfHelper.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\EngineCore\GameObjectFactory.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GameCore\Transform\Transform.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\ApplicationCore\Application.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\AppModule\Interface\IAppModule.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\AppModule\EngineCoresModule.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Utility\ImGuiHelper.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\EditorCore\Gui\EditorGui.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\EditorCore\Gui\Menu\EditorMenu.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\EditorCore\Gui\Tool\EditorTool.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\EngineCore\EngineLogger.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Utility\Mathf.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Utility\LogLevel.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\FileSystem\FileSystemModule.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\EditorCore\EditorModule.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Editor\DragDropTypes\DragDropTransform.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Editor\Tool\AssetBrowser\EditorAssetBrowserTool.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Editor\Tool\Debug\EditorDebugTool.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Editor\Tool\Hierarchy\EditorHierarchyTool.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Editor\Tool\Inspector\EditorInspectorTool.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Editor\Tool\Log\EditorLogsTool.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Editor\Tool\Scene\EditorSceneTool.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Editor\Menu\Project\EditorProjectMenu.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Editor\Menu\Scene\EditorSceneMenu.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Editor\Menu\Setting\EditorSettingMenu.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Editor\Menu\Window\EditorWindowMenu.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\FileSystem\Event\FileEventObserver.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\FileSystem\System\FileSystem.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\FileSystem\Context\FileContext.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\FileSystem\Interface\IFileEventProcesser.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\FileSystem\Type\FileGuidPath.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Utility\FileHelper.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Utility\EditorHelper.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\GraphicsCore.h">
-      <Filter>GraphicsCore</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\Animation.h">
-      <Filter>GraphicsCore\Resource\Animation</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\BaseMesh.h">
-      <Filter>GraphicsCore\Mesh</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\Box.h">
-      <Filter>GraphicsCore\Mesh\Geometry</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\Camera.h">
-      <Filter>GraphicsCore\Camera</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\Cylinder.h">
-      <Filter>GraphicsCore\Mesh\Geometry</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\Defines.h">
-      <Filter>GraphicsCore\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\Enums.h">
-      <Filter>GraphicsCore\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\Externs.h">
-      <Filter>GraphicsCore\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\Structs.h">
-      <Filter>GraphicsCore\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\Device.h">
-      <Filter>GraphicsCore\Device</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\Font.h">
-      <Filter>GraphicsCore\Font</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\FrameResource.h">
-      <Filter>GraphicsCore\FrameResource</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\GeometryGenerator.h">
-      <Filter>GraphicsCore\Mesh\Geometry</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\GeoSphere.h">
-      <Filter>GraphicsCore\Mesh\Geometry</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\Grid.h">
-      <Filter>GraphicsCore\Mesh\Geometry</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\Model.h">
-      <Filter>GraphicsCore\Resource\Model</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\Quad.h">
-      <Filter>GraphicsCore\Mesh\Geometry</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\MultiRenderTargetManager.h">
-      <Filter>GraphicsCore\Manager</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\ResourceManager.h">
-      <Filter>GraphicsCore\Manager</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\ViewManager.h">
-      <Filter>GraphicsCore\Manager</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\Resource.h">
-      <Filter>GraphicsCore\Resource</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\RenderTarget.h">
-      <Filter>GraphicsCore\RenderTarget</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\Renderer.h">
-      <Filter>GraphicsCore\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\ShaderBuilder.h">
-      <Filter>GraphicsCore\Shader</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\AppModule\ImGuiDX12Module.h">
-      <Filter>GraphicsCore\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\Skeleton.h">
-      <Filter>GraphicsCore\Skeleton</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\Sphere.h">
-      <Filter>GraphicsCore\Mesh\Geometry</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\Texture.h">
-      <Filter>GraphicsCore\Resource\Texture</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\StructuredBuffer.h">
-      <Filter>GraphicsCore\StructuredBuffer</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\VIBuffer.h">
-      <Filter>GraphicsCore\VIBuffer</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\GraphicsModule.h">
-      <Filter>GraphicsCore\Module</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\RenderScene.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\RenderPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\RenderTechnique.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Editor\DragDropTypes\DragDropAsset.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\EditorCore\System\EditorPopupBoxSystem.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\EditorCore\Gui\PopupBox\EditorPopupBox.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Editor\Menu\Project\EditorBuildSettingMenu.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\Animator.h">
-      <Filter>GraphicsCore\Animator</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\PBRLitTechnique.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\GBufferPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\DeferredPBRLitPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GameCore\Component\MissingComponent.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\CommandCore\UmCommand.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\CommandCore\CommandManager.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Editor\Tool\Command\EditorCommandTool.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\FileSystem\Type\FileInformation.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\FileSystem\Type\FileData.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\FileSystem\Type\FileSystemSetting.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\Shader.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\VertexShader.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\ComputeShader.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\GeometryShader.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\MeshShader.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\PixelShader.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Editor\Tool\Model\EditorModelTool.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Editor\DynamicCamera\EditorDynamicCamera.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\RendererFileEvent.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\d3dUtil.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Editor\Tool\Hierarchy\Command\FocusCommand.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Editor\Tool\Hierarchy\Command\SetParentCommand.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Editor\Tool\Hierarchy\Command\DetachChildrenCommand.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Editor\Tool\Hierarchy\Command\PackPrefabCommand.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Editor\Tool\Hierarchy\Command\DropPrefabCommand.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\EditorCore\Interface\IEditorObject.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\EditorCore\Gui\DockWindow\EditorDockWindow.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\EditorCore\Interface\IEditorCycle.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\MeshRenderer.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Editor\Menu\Play\EditorPlayMenu.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Editor\Tool\Model\EditorModelDetails.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Editor\Menu\Model\EditorModelMenu.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\FBXConverter.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Editor\Tool\Model\EditorModelHierarchy.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\GraphicsBase.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\ClassCore\Command\InputAutoCommand.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\ClassCore\InputAuto.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\EditorCore\System\EditorGuiSystem.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\SkyBox.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\SkyBoxRenderTechnique.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\SkyBoxPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="ThirdParty\include\pugixml\pugiconfig.hpp">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="ThirdParty\include\pugixml\pugixml.hpp">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="ThirdParty\include\UmAssimp.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="ThirdParty\include\UmDirectXTex.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="ThirdParty\include\UmDirectxtk12.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="ThirdParty\include\UmYaml-cpp.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\FileSystem\Event\FileEventSubscriber.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Editor\Tool\Scene\Command\EditorSceneCommands.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Editor\Tool\Hierarchy\HierarchyFindTool.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\AnimationCore.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\EngineCore\FactoryRegister.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\LightCore.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\Light.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Utility\Random.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\BloomTechnique.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\BrightExtractPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\UpScalePass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\DownScalePass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\BlurXPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\BlurYPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\BlendTechnique.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Editor\Tool\GameView\EditorGameView.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\ParticleEffect.h">
-      <Filter>GraphicsCore\ParticleCore</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\ParticleEmitter.h">
-      <Filter>GraphicsCore\ParticleCore</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\ParticleManager.h">
-      <Filter>GraphicsCore\ParticleCore</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\Particle.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\ParticleHelper.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\ParticleRenderTechnique.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\ParticleSpritePass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\ParticleResolvePass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectViewer.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectHierarchy.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectDetails.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\UnorderedAccessView.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\BlendPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\TimelineCore\TimelineSystem.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Editor\Tool\Sequencer\EditorSequencerTool.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\EditorCore\Gui\Sequencer\EditorSequencer.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\EditorCore\Gui\Sequencer\Command\SequencerCommand.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\EditorCore\Utillity\EditorDragState.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\ResourceBase.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\DepthStencilView.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\DebugDrawCore.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\TimelineCore\AnimationNotifySet.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Editor\Tool\Model\EditorAnimationNotifyTool.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\EditorDrawTechnique.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\EndlessGridPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\OutLinePass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Utility\SharedResource.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\DXResourceManager.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GameCore\InputReciver\InputReceiver.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\UI2DPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\UI3DPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\UITechnique.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\ConstantBufferView.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\Headers.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\ParticleEffectSerializer.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\SpriteRenderer.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\UIPassBase.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\UI25DPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\FontRenderer.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\FontTechnique.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\TextDrawPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
+    <ClInclude Include="Source\Editor\Tool\Model\EditorAnimationNotifyTool.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\ConstantBufferView.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\FontRenderer.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\FontTechnique.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\Headers.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\TextDrawPass.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\UI25DPass.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\UIPassBase.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\SpriteRenderer.h" />
+    <ClInclude Include="Source\Engine\TimelineCore\AnimationNotifySet.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\ParticleEffectSerializer.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\RTPipeline.h" />
+    <ClInclude Include="Source\Engine\AudioCore\AudioManager\AudioManager.h" />
+    <ClInclude Include="Source\Engine\AudioCore\Declare\Callback\IncreaseGenerationCallback.h" />
+    <ClInclude Include="Source\Engine\AudioCore\Declare\Exceptions\AudioExceptions.h" />
+    <ClInclude Include="Source\Engine\AudioCore\Declare\RIFF\AudioChunk.h" />
+    <ClInclude Include="Source\Engine\AudioCore\Declare\Types\AudioTypes.h" />
+    <ClInclude Include="Source\Engine\AudioCore\Handle\AudioHandle.h" />
+    <ClInclude Include="Source\Engine\AudioCore\Source\AudioSource.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\RTPipelineBuilder.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\ShaderConfig.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\PipelineConfig.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\LocalRootSignature.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\HItProgram.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\GlobalRootSignature.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\ExportAssociation.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\DxilLibrary.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\DXRDrawStaticMeshPass.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\RayTracingTechnique.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\AccelerationStructureManager.h" />
+    <ClInclude Include="Source\Engine\EditorCore\Utillity\EditorDragState.h" />
+    <ClInclude Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectDetails.h" />
+    <ClInclude Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectHierarchy.h" />
+    <ClInclude Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectViewer.h" />
+    <ClInclude Include="Source\Engine\GameCore\InputReciver\InputReceiver.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\UI2DPass.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\UI3DPass.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\BlendPass.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\DebugDrawCore.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\DepthStencilView.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\DXResourceManager.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\EditorDrawTechnique.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\EndlessGridPass.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\ParticleResolvePass.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\ParticleSpritePass.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\ParticleRenderTechnique.h" />
+    <ClInclude Include="Source\Engine\EditorCore\Gui\Sequencer\Command\SequencerCommand.h" />
+    <ClInclude Include="Source\Engine\EditorCore\Gui\Sequencer\EditorSequencer.h" />
+    <ClInclude Include="Source\Editor\Tool\Sequencer\EditorSequencerTool.h" />
+    <ClInclude Include="Source\Editor\Menu\Model\EditorModelMenu.h" />
+    <ClInclude Include="Source\Editor\Tool\GameView\EditorGameView.h" />
+    <ClInclude Include="Source\Editor\Tool\Hierarchy\HierarchyFindTool.h" />
+    <ClInclude Include="Source\Editor\Tool\Scene\Command\EditorSceneCommands.h" />
+    <ClInclude Include="Source\Engine\EngineCore\FactoryRegister.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\AnimationCore.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\BlurXPass.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\BlurYPass.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\BlendTechnique.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\ResourceBase.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\OutLinePass.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\UITechnique.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\UnorderedAccessView.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\dxcapi.use.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\UpScalePass.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\BrightExtractPass.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\DownScalePass.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\Light.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\LightCore.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\BloomTechnique.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\SkyBoxPass.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\SkyBoxRenderTechnique.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\SkyBox.h" />
+    <ClInclude Include="Source\Editor\Menu\Play\EditorPlayMenu.h" />
+    <ClInclude Include="Source\Editor\Tool\Model\EditorModelDetails.h" />
+    <ClInclude Include="Source\Editor\Tool\Model\EditorModelHierarchy.h" />
+    <ClInclude Include="Source\Engine\ClassCore\Command\InputAutoCommand.h" />
+    <ClInclude Include="Source\Engine\ClassCore\InputAuto.h" />
+    <ClInclude Include="Source\Engine\EditorCore\Interface\IEditorCycle.h" />
+    <ClInclude Include="Source\Engine\EditorCore\Gui\DockWindow\EditorDockWindow.h" />
+    <ClInclude Include="Source\Engine\EditorCore\Interface\IEditorObject.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\d3dUtil.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\FBXConverter.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\GraphicsBase.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\MeshRenderer.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\ParticleHelper.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\RendererFileEvent.h" />
+    <ClInclude Include="Source\Engine\FileSystem\Type\FileSystemSetting.h" />
+    <ClInclude Include="Source\Engine\FileSystem\Type\FileData.h" />
+    <ClInclude Include="Source\Engine\FileSystem\Type\FileInformation.h" />
+    <ClInclude Include="Source\Editor\Tool\Command\EditorCommandTool.h" />
+    <ClInclude Include="Source\Editor\Tool\Hierarchy\Command\DetachChildrenCommand.h" />
+    <ClInclude Include="Source\Editor\Tool\Hierarchy\Command\DropPrefabCommand.h" />
+    <ClInclude Include="Source\Editor\Tool\Hierarchy\Command\FocusCommand.h" />
+    <ClInclude Include="Source\Editor\Tool\Hierarchy\Command\PackPrefabCommand.h" />
+    <ClInclude Include="Source\Editor\Tool\Hierarchy\Command\SetParentCommand.h" />
+    <ClInclude Include="Source\Engine\CommandCore\CommandManager.h" />
+    <ClInclude Include="Source\Engine\CommandCore\UmCommand.h" />
+    <ClInclude Include="Source\Editor\DynamicCamera\EditorDynamicCamera.h" />
+    <ClInclude Include="Source\Editor\Tool\Model\EditorModelTool.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\ComputeShader.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\GeometryShader.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\MeshShader.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\PixelShader.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\Shader.h" />
+    <ClInclude Include="Source\Editor\Menu\Project\EditorBuildSettingMenu.h" />
+    <ClInclude Include="Source\Engine\GameCore\Component\MissingComponent.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\DeferredPBRLitPass.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\GBufferPass.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\Particle.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\ParticleEffect.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\ParticleEmitter.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\ParticleManager.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\PBRLitTechnique.h" />
+    <ClInclude Include="Source\Engine\EditorCore\Gui\PopupBox\EditorPopupBox.h" />
+    <ClInclude Include="Source\Engine\EditorCore\System\EditorPopupBoxSystem.h" />
+    <ClInclude Include="Source\Editor\DragDropTypes\DragDropAsset.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\Animator.h" />
+    <ClInclude Include="Source\Engine\Utility\EditorHelper.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\RenderPass.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\RenderTechnique.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\RenderScene.h" />
+    <ClInclude Include="Source\Editor\DragDropTypes\DragDropTransform.h" />
+    <ClInclude Include="Source\Editor\Menu\Project\EditorProjectMenu.h" />
+    <ClInclude Include="Source\Editor\Menu\Scene\EditorSceneMenu.h" />
+    <ClInclude Include="Source\Editor\Menu\Setting\EditorSettingMenu.h" />
+    <ClInclude Include="Source\Editor\Menu\Window\EditorWindowMenu.h" />
+    <ClInclude Include="Source\Editor\Tool\AssetBrowser\EditorAssetBrowserTool.h" />
+    <ClInclude Include="Source\Editor\Tool\Debug\EditorDebugTool.h" />
+    <ClInclude Include="Source\Editor\Tool\Hierarchy\EditorHierarchyTool.h" />
+    <ClInclude Include="Source\Editor\Tool\Inspector\EditorInspectorTool.h" />
+    <ClInclude Include="Source\Editor\Tool\Log\EditorLogsTool.h" />
+    <ClInclude Include="Source\Editor\Tool\Scene\EditorSceneTool.h" />
+    <ClInclude Include="Source\Engine\FileSystem\Event\FileEventObserver.h" />
+    <ClInclude Include="Source\Engine\FileSystem\System\FileSystem.h" />
+    <ClInclude Include="Source\Engine\FileSystem\Context\FileContext.h" />
+    <ClInclude Include="Source\Engine\FileSystem\Event\FileEventSubscriber.h" />
+    <ClInclude Include="Source\Engine\FileSystem\Interface\IFileEventProcesser.h" />
+    <ClInclude Include="Source\Engine\FileSystem\FileSystemModule.h" />
+    <ClInclude Include="Source\Engine\EditorCore\Gui\Tool\EditorTool.h" />
+    <ClInclude Include="Source\Engine\EditorCore\System\EditorGuiSystem.h" />
+    <ClInclude Include="Source\Engine\AppModule\EngineCoresModule.h" />
+    <ClInclude Include="Source\Engine\AppModule\ImGuiDX12Module.h" />
+    <ClInclude Include="Source\Engine\AppModule\Interface\IAppModule.h" />
+    <ClInclude Include="Source\Engine\FileSystem\Type\FileGuidPath.h" />
+    <ClInclude Include="Source\Engine\Utility\FileHelper.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\Animation.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\BaseMesh.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\Box.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\Camera.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\Cylinder.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\Defines.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\Device.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\Enums.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\Externs.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\Font.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\FrameResource.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\GeometryGenerator.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\GeoSphere.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\GraphicsCore.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\GraphicsModule.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\Grid.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\Model.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\MultiRenderTargetManager.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\Quad.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\Renderer.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\RenderTarget.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\Resource.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\ResourceManager.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\ShaderBuilder.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\Skeleton.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\Sphere.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\Structs.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\StructuredBuffer.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\Texture.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\VIBuffer.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\ViewManager.h" />
+    <ClInclude Include="Source\Engine\Utility\LogLevel.h" />
+    <ClInclude Include="Source\Engine\Utility\Mathf.h" />
+    <ClInclude Include="Source\Engine\Utility\Random.h" />
+    <ClInclude Include="Source\Engine\Utility\SharedResource.h" />
+    <ClInclude Include="Source\Engine\Utility\stlHelper.h" />
+    <ClInclude Include="Source\Engine\ClassCore\ReflectHelper.h" />
+    <ClInclude Include="Source\Engine\EditorCore\Gui\EditorGui.h" />
+    <ClInclude Include="Source\Engine\EditorCore\Gui\Menu\EditorMenu.h" />
+    <ClInclude Include="Source\Engine\EditorCore\EditorModule.h" />
+    <ClInclude Include="Source\Engine\EngineCore\ComponentFactory.h" />
+    <ClInclude Include="Source\Engine\EngineCore\EngineCores.h" />
+    <ClInclude Include="Source\Engine\EngineCore\EngineLogger.h" />
+    <ClInclude Include="Source\Engine\EngineCore\GameObjectFactory.h" />
+    <ClInclude Include="Source\Engine\EngineCore\SceneManager.h" />
+    <ClInclude Include="Source\Engine\EngineCore\TimeSystem.h" />
+    <ClInclude Include="Source\Engine\GameCore\Component\Component.h" />
+    <ClInclude Include="Source\Engine\GameCore\GameObject\GameObject.h" />
+    <ClInclude Include="Source\Engine\GameCore\Transform\Transform.h" />
+    <ClInclude Include="Source\Engine\ClassCore\TProperty.hpp" />
+    <ClInclude Include="Source\Engine\Utility\dllUtility.h" />
+    <ClInclude Include="Source\Engine\Utility\ImguiHelper.h" />
+    <ClInclude Include="Source\Engine\Utility\utfHelper.h" />
+    <ClInclude Include="Source\Engine\ApplicationCore\Application.h" />
+    <ClInclude Include="ThirdParty\include\pugixml\pugiconfig.hpp" />
+    <ClInclude Include="ThirdParty\include\pugixml\pugixml.hpp" />
+    <ClInclude Include="Source\UmFramework.h" />
+    <ClInclude Include="Source\pch.h" />
+    <ClInclude Include="Source\Engine\Utility\DumpUtility.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\VertexShader.h" />
+    <ClInclude Include="ThirdParty\include\UmAssimp.h" />
+    <ClInclude Include="ThirdParty\include\UmDirectXTex.h" />
+    <ClInclude Include="ThirdParty\include\UmDirectxtk12.h" />
+    <ClInclude Include="ThirdParty\include\UmYaml-cpp.h" />
+    <ClInclude Include="Source\Engine\TimelineCore\TimelineSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\pch.cpp">
@@ -1239,9 +861,6 @@
     <ClCompile Include="Source\Engine\GraphicsCore\DepthStencilView.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\TimelineCore\TimelineSystem.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Editor\Tool\Sequencer\EditorSequencerTool.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -1287,50 +906,8 @@
     <ClCompile Include="Source\Engine\GraphicsCore\UITechnique.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\UI2DPass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\UI3DPass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\UITechnique.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\TimelineCore\AnimationNotifySet.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Editor\Tool\Model\EditorAnimationNotifyTool.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\ConstantBufferView.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\ParticleEffectSerializer.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\SpriteRenderer.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\UIPassBase.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\UI25DPass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\FontRenderer.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\FontTechnique.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\TextDrawPass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
-    <None Include="Source\Engine\Imgui\imgui_bezier_math.inl" />
-    <None Include="Source\Engine\Imgui\imgui_extra_math.inl" />
-    <None Include="Source\Engine\Imgui\imgui_node_editor_internal.inl" />
   </ItemGroup>
 </Project>
