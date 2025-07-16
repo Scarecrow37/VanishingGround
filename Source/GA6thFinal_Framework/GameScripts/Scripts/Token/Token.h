@@ -30,15 +30,18 @@ class Token : public ReflectSerializer, public IToken
 public:
     Token();
     virtual ~Token();
-    REFLECT_PROPERTY(Order, MaxStackCount)
+    REFLECT_PROPERTY(IconGuid, Order, MaxStackCount)
 
+    GETTER(std::string_view, IconGuid) { return ReflectFields->IconGuid; }
+    SETTER(std::string_view, IconGuid) { ReflectFields->IconGuid = value; }
+    PROPERTY(IconGuid)
     GETTER(int, Order) { return ReflectFields->Order; }
     SETTER(int, Order) { SetTokenOrder(value); }
     PROPERTY(Order)
     GETTER(int, MaxStackCount) { return ReflectFields->MaxStackCount; }
     SETTER(int, MaxStackCount) { SetMaxStackCount(value); }
     PROPERTY(MaxStackCount)
-
+    
     virtual void ShowReflectFieldView() = 0;
 
 public: // 콜백에 대한 자세한 주석은 ITriggerType.h를 참고하세요.
@@ -65,6 +68,8 @@ public:
 
 protected:
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
+    // 토큰 아이콘 Guid
+    std::string IconGuid = "";
     // 토큰의 실행 우선 순위
     int Order = 0;
     // 토큰의 최대 스택 수

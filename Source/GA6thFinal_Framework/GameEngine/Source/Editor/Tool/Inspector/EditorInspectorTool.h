@@ -53,7 +53,7 @@ namespace Command
 
         public:
             // UmCommand을(를) 통해 상속됨
-            virtual void Execute() override;
+            virtual bool Execute() override;
             virtual void Undo() override;
 
         protected:
@@ -73,7 +73,7 @@ namespace Command
 
         public:
             // UmCommand을(를) 통해 상속됨
-            void Execute() override;
+            bool Execute() override;
             void Undo() override;
 
         private:

@@ -424,7 +424,17 @@ namespace ReflectHelper
                     }
                     else
                     {
-                        isEdit = NotArrayTypeFunc(value, name.data());
+                        if (setting.ShowName)
+                        {
+                            isEdit = NotArrayTypeFunc(value, name.data());
+                        }
+                        else
+                        {
+                            static std::string idBuffer;
+                            idBuffer  = "##";
+                            idBuffer += name;
+                            isEdit = NotArrayTypeFunc(value, idBuffer.data());
+                        }               
                     }
 
                     if (setting.InputEndEvent)

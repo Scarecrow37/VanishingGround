@@ -1,8 +1,8 @@
 ﻿#pragma once
-#include "RevelationAction/Base/RevelationActionBase.h"
 #include "RevelationElement/RevelationElement.h"
 
-class RevelationSystem : public Component, public FactoryConstructor<RevelationActionBase>
+class TurnAction;
+class RevelationSystem : public Component
 {
     USING_PROPERTY(RevelationSystem)      
     using ActionDataType = std::unordered_map<std::string, std::string>;
@@ -26,27 +26,26 @@ public:
     ~RevelationSystem() override;
 
 public:
-    const std::unordered_map<std::string, std::function<RevelationActionBase* ()>>& GetActionFactory()
-    {
-        return _actionConstructors;
-    }
-    
     /// <summary>
-    /// Element를 가져옵니다.
+    /// 특정 슬롯에 Element를 장착합니다.
     /// </summary>
-    /// <param name="name"></param>
-    /// <returns></returns>
-    const RevelationElement* GetElement(std::string_view name) const
-    { 
-        const RevelationElement* element  = nullptr;
-        auto findIter = _elements.find(name.data());
-        if (findIter != _elements.end())
-        {
-            element = &findIter->second;
-        }
-        return element;
-    }
+    /// <param name="slot :">장착할 슬롯</param>
+    /// <param name="element :">장비 정보</param>
+    /// <returns>기존 장착된 장비. 없으면 nullptr</returns>
+    std::shared_ptr<RevelationElement> EquipPlayerElement(int slot, const RevelationElement& element);
 
+    /// <summary>
+    /// 이번 라운드 활성화 계시를 랜덤으로 뽑습니다.
+    /// </summary>
+    void RollRoundElement();
+
+    /// <summary>
+    /// 이번 라운드에 활성화된 계시 항목을 반환합니다.
+    /// </summary>
+    /// <returns></returns>
+    const std::vector<std::shared_ptr<RevelationElement>>& GetRoundElementList() { return _roundElementList; }
+
+public:     
     /// <summary>
     /// 새로운 Element를 테이블에 추가합니다.
     /// </summary>
@@ -61,27 +60,41 @@ public:
     bool EraseElement(std::string_view elementName);
 
     /// <summary>
-    /// ElementTable을 Json으로 직렬화해 반환합니다.
+    /// ElementTable과 Action들을 Json으로 직렬화해 반환합니다.
     /// </summary>
     /// <returns></returns>
-    std::string SaveElementTable() 
+   std::string SaveElementTable() 
     { 
         ElementsToElementDatas();
-        return rfl::json::write(ReflectFields->RevelationElementDatas); 
+        ActionsToActionDatas();
+        std::string result = rfl::json::write(std::pair{rfl::json::write(ReflectFields->RevelationElementDatas),
+                                                        rfl::json::write(ReflectFields->RevelationActionDatas)});
+        return result; 
     }
 
     /// <summary>
-    /// Json으로 직렬화한 Element Table을 역직렬화 합니다.
+    /// Json으로 직렬화한 Element Table과 Action들을 역직렬화 합니다.
     /// </summary>
     /// <param name="data :">json 형식의 문자열</param>
     /// <returns>결과</returns>
     bool LoadElementTable(std::string_view data)
     {
-        auto result = rfl::json::read<ElementDataType>(data);
+        auto result = rfl::json::read<std::pair<std::string, std::string>>(data.data());
         if (result)
         {
-            ReflectFields->RevelationElementDatas = result.value();
-            ElementDatasToElements();
+            auto& [elementData, actionData] = result.value();
+            auto element = rfl::json::read<ElementDataType>(elementData.data());
+            if (element)
+            {
+                ReflectFields->RevelationElementDatas = element.value();
+                ElementDatasToElements();
+            }
+            auto action = rfl::json::read<ActionDataType>(actionData.data());
+            if (action)
+            {
+                ReflectFields->RevelationActionDatas = action.value();
+                ActionDatasToActions();
+            }
         }
         return result;
     }
@@ -103,12 +116,41 @@ private:
     void DrawImGuiElementTableEditor();
 
 public:
-    REFLECT_PROPERTY()
+    REFLECT_PROPERTY(
+        MaxRevelations, 
+        RevelationsPerRound)
+
+    GETTER(int, MaxRevelations) { return ReflectFields->MaxRevelations; }
+    SETTER(int, MaxRevelations) 
+    { 
+        ReflectFields->MaxRevelations = std::max(value, 1); 
+        if (ReflectFields->MaxRevelations < _playerElementList.size())
+        {
+            for (int i = ReflectFields->MaxRevelations - 1; i < _playerElementList.size(); i++)
+            {
+                std::erase(_roundElementList, _playerElementList[i]);
+            }
+        }
+        _playerElementList.resize(ReflectFields->MaxRevelations);
+    }
+    // 최대 계시 수용량
+    PROPERTY(MaxRevelations)
+
+    GETTER(int, RevelationsPerRound) { return ReflectFields->RevelationsPerRound; }
+    SETTER(int, RevelationsPerRound) 
+    { 
+        ReflectFields->RevelationsPerRound = std::max(value, 1);
+    }
+    // 라운드당 뽑는 계시 개수
+    PROPERTY(RevelationsPerRound)
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)
     ActionDataType  RevelationActionDatas;
     ElementDataType RevelationElementDatas;
+    int             MaxRevelations = 10;    //최대 계시 수용량
+    int             RevelationsPerRound = 3;// 라운드당 계시
+    ElementDataType PlayerElementDatas;
     REFLECT_FIELDS_END(RevelationSystem)
 
     void ActionsToActionDatas();
@@ -116,6 +158,9 @@ protected:
 
     void ElementsToElementDatas();
     void ElementDatasToElements();
+
+    void PlayerElementDatasToPlayerElements();
+    void PlayerElementsToPlayerElementDatas();
 
     /// <summary>
     /// <para> 직렬화 직전 자동으로 호출되는 이벤트 함수입니다. </para>
@@ -140,11 +185,18 @@ private:
     inline static RevelationSystem* static_instance = nullptr;
 
 private:
-    std::unordered_map<std::string, RevelationElement>                      _elements;
-    std::unordered_map<std::string, std::function<RevelationActionBase*()>> _actionConstructors;
+    std::unordered_map<std::string, RevelationElement>                      _elementsTable;         //계시 테이블
     ImVec2                                                                  _tableEditorCenterPos{};
 
 private:
-    void ResetActions();
+    std::vector<std::shared_ptr<RevelationElement>> _playerElementList;       // 플레이어가 사용중인 계시 (인벤토리)
+    std::vector<std::shared_ptr<RevelationElement>> _roundElementList;        // 이번 라운드에 효과가 발동된 계시 (뽑힌 계시)
+    std::unordered_map<std::string, unsigned int>   _elementTotalAppearances; // 계시가 뽑힌 횟수
+    unsigned int                                    _totalRollCount = 0;      //계시를 굴린 횟수
+
+
+private:
+    void ImGuiDrawPlayerElementEditor();
+    void ImGuiDrawRoundElementList();
 
 };
