@@ -51,16 +51,17 @@ public:                                                                         
 
 struct ParticleOutput
 {
-    Matrix FinalMatrix;
-    Vector4   Color;
-    Vector4   FrameInfo;
-    int      EmitterIndex;
-    //Vector3   paddings;
+    Vector4 position; // ribbon -> normal
+    Matrix  FinalMatrix;
+    Vector4 Color;
+    Vector4 FrameInfo;
+    int     EmitterIndex;
+    Vector3   paddings;
 };
 
 struct EmitterInfo
 {
-    Matrix WorldMatrix;
+    Matrix  WorldMatrix;
     Vector4 dragPoint;
     Vector4 dragForce;
     Vector4 vortexForce;
@@ -69,7 +70,8 @@ struct EmitterInfo
     Vector4 startColor;
     Vector4 endColor;
     Vector4 lifetime;
-
+    Vector4 startNormal;
+    Vector4 endNormal;
 };
 
 struct __declspec(align(16)) MVPConstants

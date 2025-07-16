@@ -161,7 +161,7 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
              ImGui::SameLine();
              // ImGui::Button("Sprite Texture Image", {180,50});
              D3D12_GPU_DESCRIPTOR_HANDLE gpuhandle =
-                 static_cast<SpriteModule*>(_curEmitter->_particleRenderModule)->GetAlbedoTexture()->GetGPUHandle();
+                 static_cast<RibbonModule*>(_curEmitter->_particleRenderModule)->GetAlbedoTexture()->GetGPUHandle();
              bool isTextureLoadButtonPressed = ImGui::ImageButton((ImTextureID)gpuhandle.ptr, {100, 100});
 
              if (true == isTextureLoadButtonPressed)
@@ -171,12 +171,41 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
                  std::vector<File::Path> out;
                  if (File::ShowOpenFileDialog(owner, title, L"", {{L"이미지 파일\0", L"*.jpg*\0"}}, false, out))
                  {
-                     /*   static_cast<RibbonModule*>(_curEmitter->_particleRenderModule)
-                            ->ChangeAlbedoTexture(out.front().wstring());
-                        (out.front().wstring());*/
+                     static_cast<RibbonModule*>(_curEmitter->_particleRenderModule)
+                         ->ChangeAlbedoTexture(out.front().wstring());
+                     (out.front().wstring());
                      isSomethingChanged = true;
                  }
              }
+             RibbonModule* ribbonmodule   = static_cast<RibbonModule*>(_curEmitter->_particleRenderModule);
+             {
+                 float startnormal[3] = {ribbonmodule->GetStartNormal().x, ribbonmodule->GetStartNormal().y,
+                                         ribbonmodule->GetStartNormal().z};
+                 ImGui::Text("ribbon start facing normal");
+                 bool result = ImGui::SliderFloat3("##ribbon start facing normal", startnormal, -10, 10);
+                 if (false == isSomethingChanged)
+                     if (true == result)
+                         isSomethingChanged = result;
+                 ribbonmodule->SetStartNormal({startnormal[0], startnormal[1], startnormal[2],0});
+             }
+
+             {
+                 float endnormal[3] = {ribbonmodule->GetEndNormal().x, ribbonmodule->GetEndNormal().y,
+                                         ribbonmodule->GetEndNormal().z};
+                 ImGui::Text("ribbon end facing normal");
+                 bool result = ImGui::SliderFloat3("##ribbon end facing normal", endnormal, -10, 10);
+                 if (false == isSomethingChanged)
+                     if (true == result)
+                         isSomethingChanged = result;
+                 ribbonmodule->SetEndNormal({endnormal[0], endnormal[1], endnormal[2],0});
+
+             }
+
+
+
+
+
+
          }
      }
      ImGui::Text("");
@@ -547,6 +576,33 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
              endscale.x = endScale[0];
              endscale.y = endScale[1];
              endscale.z = endScale[2];
+             _curEmitter->SetEndScale(endscale);
+         }
+         if (ParticleType::RIBBON == _curEmitter->_particleType)
+         {
+
+             Vector4 startscale    = _curEmitter->GetStartScale();
+             float   startScale[2] = {startscale.x, startscale.y};
+             ImGui::Text("Start Scale");
+             ImGui::SameLine();
+             bool result = ImGui::InputFloat2("##Start Scale", (float*)&startScale);
+             if (false == isSomethingChanged)
+                 if (true == result)
+                     isSomethingChanged = result;
+             startscale.x = startScale[0];
+             startscale.y = startScale[1];
+             _curEmitter->SetStartScale(startscale);
+
+             Vector4 endscale    = _curEmitter->GetEndScale();
+             float   endScale[2] = {endscale.x, endscale.y};
+             ImGui::Text("End Scale");
+             ImGui::SameLine();
+             result = ImGui::InputFloat2("##End Scale", (float*)&endScale);
+             if (false == isSomethingChanged)
+                 if (true == result)
+                     isSomethingChanged = result;
+             endscale.x = endScale[0];
+             endscale.y = endScale[1];
              _curEmitter->SetEndScale(endscale);
          }
      }

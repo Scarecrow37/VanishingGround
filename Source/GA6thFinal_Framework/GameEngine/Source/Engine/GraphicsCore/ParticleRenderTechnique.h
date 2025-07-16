@@ -13,6 +13,7 @@ public:
 
 private:
     void InitializeSpriteParticlePass();
+    void InitializeRibbonParticlePass();
     void InitializeParticleResolvePass();
 
     void CreateWBOITResources();  // 리소스 생성

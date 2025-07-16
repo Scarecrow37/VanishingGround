@@ -226,6 +226,42 @@ void SpriteModule::CalculateFrameInfos()
     }
 }
 
+
+/////////////////////////////////////////////////
+RibbonModule::~RibbonModule() 
+{
+    _albedoTexture = nullptr;
+}
+
+void RibbonModule::Initialize() 
+{
+    LoadAlbedoTexture(_modelAndTexturePath);
+}
+
+void RibbonModule::LoadAlbedoTexture(std::wstring filePath) 
+{
+    _albedoTexture = UmResourceManager.LoadResource<Texture>(filePath);
+}
+
+void RibbonModule::ChangeAlbedoTexture(std::wstring filePath) 
+{
+    _isAlbedoTextureChanged = true;
+    _newAlbedoTexturePath   = filePath;
+}
+
+Texture* RibbonModule::GetAlbedoTexture() const 
+{
+    return _albedoTexture.get();
+}
+
+
+
+/////////////////////////////////////////////////
+
+
+
+
+
  ParticleEmitter::~ParticleEmitter() 
  {
      // 1. Particle 객체들 정리
@@ -559,4 +595,5 @@ void ParticleEmitter::ScaleVelInCone(Vector3 pos)
 
 
 }
+
 

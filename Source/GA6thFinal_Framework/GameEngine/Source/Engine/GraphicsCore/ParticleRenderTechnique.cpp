@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "ParticleResolvePass.h"
 #include "ParticleSpritePass.h"
+#include "ParticleRibbonPass.h"
 #include "ParticleRenderTechnique.h"
 
  ParticleRenderTechnique::ParticleRenderTechnique() {}
@@ -20,6 +21,7 @@
 
     CreateWBOITResources();
     InitializeSpriteParticlePass();
+    InitializeRibbonParticlePass();
     InitializeParticleResolvePass();
 }
 
@@ -35,6 +37,16 @@ void ParticleRenderTechnique::InitializeSpriteParticlePass()
     spritepass->Initialize(_ownerScene);
     spritepass->SetAccumulationBuffers(_accumlateBuffer, _revealageBuffer);
     AddRenderPass(std::move(spritepass));
+}
+
+void ParticleRenderTechnique::InitializeRibbonParticlePass() 
+{
+    std::unique_ptr<ParticleRibbonPass> ribbonpass = std::make_unique<ParticleRibbonPass>();
+    ribbonpass->Initialize(_ownerScene);
+    ribbonpass->SetAccumulationBuffers(_accumlateBuffer, _revealageBuffer);
+    AddRenderPass(std::move(ribbonpass));
+
+
 }
 
 void ParticleRenderTechnique::InitializeParticleResolvePass()

@@ -120,9 +120,23 @@ public:
 };
 class RibbonModule : public ParticleRenderModule
 {
-
 public:
-    void Initialize() override {};
+    virtual ~RibbonModule();
+
+    void Initialize() override;
+    void LoadAlbedoTexture(std::wstring filePath);
+    void ChangeAlbedoTexture(std::wstring filePath);
+
+    class Texture* GetAlbedoTexture() const;
+
+protected:
+
+    std::shared_ptr<class Texture> _albedoTexture;
+    std::shared_ptr<class Texture> _normalTexture;
+    UMPARTICLE_PROPERTY_REF(std::wstring, _newAlbedoTexturePath, NewAlbedoTexturePath, L"");
+    UMPARTICLE_PROPERTY(bool, _isAlbedoTextureChanged, TextureChangeFlag, false);
+    UMPARTICLE_PROPERTY_REF(Vector4, _startNormal, StartNormal, Vector4(0, 0, -1, 0));
+    UMPARTICLE_PROPERTY_REF(Vector4, _endNormal, EndNormal, Vector4(0, 0, -1, 0));
 };
 
 class ParticleEmitter

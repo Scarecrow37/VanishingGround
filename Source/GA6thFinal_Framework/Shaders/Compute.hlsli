@@ -14,10 +14,10 @@ struct ParticleInput
 
 struct ParticleOutput
 {
-    float4 position;
+    float4 position; //ribbon -> normal
     float4x4 FinalMatrix;
     float4 Color;
-    float4 FrameInfo;
+    float4 FrameInfo; // ribbon-> x = ribbon width
     int EmitterIndex;
     float3 paddings;
     
@@ -36,6 +36,8 @@ struct EmitterInfo
     float4 startColor;
     float4 endColor;
     float4 particlelifetime;
+    float4 startNormal;
+    float4 endNormal;
 };
 
 

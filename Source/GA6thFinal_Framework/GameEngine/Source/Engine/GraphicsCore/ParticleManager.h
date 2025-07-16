@@ -43,39 +43,21 @@ public:
 
     UMPARTICLE_PROPERTY(bool, _isAutoRefresh, AutoRefresh, false);
 
+    UINT                  GetMaxCount() const;
+    UINT                  GetTotalCount() const;
+    std::vector<Texture*> GetActiveAlbedos() const;
+    ID3D12Resource*       GetComputeOutputResource();
 
-    UINT                                  GetTotalCount() const 
-    { 
-        if ("Game" == _currentRenderscene->_name || "Editor" == _currentRenderscene->_name)
-            return _totalCount;
-        else if ("ParticleEditor" == _currentRenderscene->_name)
-            return _editorCount;
-        else
-            return 0;
-    }
+    UINT                           GetRibbonCount() const;
+    std::vector<std::vector<UINT>> GetRibbonEmitterIndices() const;
+    std::vector<Texture*>          GetActiveRibbonAlbedos() const;
+    ID3D12Resource*                GetRibbonOutputResource();
 
-    UINT                                  GetMaxCount() const { return _maxParticles; }
-    std::vector<Texture*> GetActiveAlbedos() const
-    {
-        if ("Game" == _currentRenderscene->_name || "Editor" == _currentRenderscene->_name)
-            return _activeEmitterAlbedos;
-        else // ("ParticleEditor" == _currentRenderscene->_name)
-            return _activeEditorAlbedos;
-    }
 
-    ID3D12Resource*                       GetComputeOutputResource() 
-    {
-        if ("Editor" == _currentRenderscene->_name)
-            return _particleOutputBuffer.Get();
 
-        else if ("Game" == _currentRenderscene->_name)
-            return _gameViewOutputBuffer.Get();
 
-        else if ("ParticleEditor" == _currentRenderscene->_name)
-            return _editorOutputBuffer.Get();
-        else
-            return nullptr;
-    }
+
+
     ID3D12GraphicsCommandList*            GetRenderCommandList() { return _renderCommandList.Get(); }
     std::vector<class ParticleEffect*>&   GetEffectList() { return _particleEffects; }
 
@@ -108,10 +90,13 @@ private:
     void CopyActiveParticlesEditorMode();
 
     void DispatchParticleCompute(float deltaTime);
+    void DispatchRibbonCompute(float deltaTime);
+
     void UpdateParticleResources(float deltaTime);
     void CopyFromUploadBuffer();
 
     void DispatchParticleComputeEditorMode(float deltaTime);
+    void DispatchRibbonComputeEditorMode(float deltaTime);
     void UpdateParticleResourcesEditorMode(float deltaTime);
     void CopyFromUploadBufferEditorMode();
 
@@ -127,14 +112,13 @@ private:
     ComPtr<ID3D12GraphicsCommandList> _computeCommandList;
 
     ComPtr<ID3D12RootSignature> _computeSpriteRootSignature;
-    ComPtr<ID3D12PipelineState> _computeAxialSpritePSO;
     ComPtr<ID3D12PipelineState> _computeSpritePSO;
-    ComPtr<ID3DBlob>            _computeAxialSpriteShaderBlob;
     ComPtr<ID3DBlob>            _computeSpriteShaderBlob;
 
-    ComPtr<ID3D12RootSignature> _computeMeshRootSignature;
-    ComPtr<ID3D12PipelineState> _computeMeshPSO;
-    ComPtr<ID3DBlob>            _computeMeshShaderBlob;
+    ComPtr<ID3D12RootSignature> _computeRibbonRootSignature;
+    ComPtr<ID3D12PipelineState> _computeRibbonPSO;
+    ComPtr<ID3DBlob>            _computeRibbonShaderBlob;
+
 
     ComPtr<ID3D12DescriptorHeap> _cbvSrvUavHeap;
     UINT                         _descriptorSize;
@@ -146,25 +130,32 @@ private:
     ComPtr<ID3D12Resource> _mvpConstantBuffer;    // MVP 상수 버퍼 (CBV - b0)
     ComPtr<ID3D12Resource> _particleInputUploadBuffer;
     ComPtr<ID3D12Resource> _emitterInfoUploadBuffer;
-
     ComPtr<ID3D12Resource> _editorParticleInputBuffer; // 입력 파티클 데이터 (SRV - t0)
     ComPtr<ID3D12Resource> _editorEmitterInfoBuffer;   // 에미터 정보 (SRV - t1)
     ComPtr<ID3D12Resource> _editorOutputBuffer;        // 출력 파티클 데이터 (UAV - u0)
     ComPtr<ID3D12Resource> _editorMvpConstantBuffer;   // MVP 상수 버퍼 (CBV - b0)
     ComPtr<ID3D12Resource> _editorParticleInputUploadBuffer;
     ComPtr<ID3D12Resource> _editorEmitterInfoUploadBuffer;
-
     ComPtr<ID3D12Resource> _gameViewOutputBuffer;        // 출력 파티클 데이터 (UAV - u0)
     ComPtr<ID3D12Resource> _gameViewMvpConstantBuffer;   // MVP 상수 버퍼 (CBV - b0)
 
-
-
-
+    ComPtr<ID3D12Resource> _ribbonParticleInputBuffer;  // 입력 파티클 데이터 (SRV - t0)
+    ComPtr<ID3D12Resource> _ribbonEmitterInfoBuffer;    // 에미터 정보 (SRV - t1)
+    ComPtr<ID3D12Resource> _ribbonParticleOutputBuffer; // 출력 파티클 데이터 (UAV - u0)
+    ComPtr<ID3D12Resource> _ribbonMvpConstantBuffer;    // MVP 상수 버퍼 (CBV - b0)
+    ComPtr<ID3D12Resource> _ribbonParticleInputUploadBuffer;
+    ComPtr<ID3D12Resource> _ribbonEmitterInfoUploadBuffer;
+    ComPtr<ID3D12Resource> _ribbonEditorParticleInputBuffer; // 입력 파티클 데이터 (SRV - t0)
+    ComPtr<ID3D12Resource> _ribbonEditorEmitterInfoBuffer;   // 에미터 정보 (SRV - t1)
+    ComPtr<ID3D12Resource> _ribbonEditorOutputBuffer;        // 출력 파티클 데이터 (UAV - u0)
+    ComPtr<ID3D12Resource> _ribbonEditorMvpConstantBuffer;   // MVP 상수 버퍼 (CBV - b0)
+    ComPtr<ID3D12Resource> _ribbonEditorParticleInputUploadBuffer;
+    ComPtr<ID3D12Resource> _ribbonEditorEmitterInfoUploadBuffer;
+    ComPtr<ID3D12Resource> _ribbonGameViewOutputBuffer;      // 출력 파티클 데이터 (UAV - u0)
+    ComPtr<ID3D12Resource> _ribbonGameViewMvpConstantBuffer; // MVP 상수 버퍼 (CBV - b0)
 
     void RefreshCurrentEditorEffect();
     bool _editorRefreshFlag = false;
-
-
 
 
 private:
@@ -178,28 +169,32 @@ private:
     UINT _particleEmitterCount = 0;
 
     class ParticleEffect* _editorCurrentEffect = nullptr;
-    class ParticleEffect* _editorCurrentEffectInstance = nullptr;
 
-    std::vector<class ParticleEffect*>    _activePariticleEffects;
     std::vector<class ParticleEffect*>    _particleEffects;
 
+    std::vector<class Particle> _totalParticles;
+    std::vector<class Particle> _editorTotalParticles;
+    std::vector<EmitterInfo>    _emitterMatrix;
+    std::vector<EmitterInfo>    _editorEmitterMatrix;
+    std::vector<Texture*>       _activeEmitterAlbedos;
+    std::vector<Texture*>       _activeEditorAlbedos;
+
+    std::vector<class Particle> _ribbonTotalParticles;
+    std::vector<class Particle> _ribbonEditorTotalParticles;
+    std::vector<EmitterInfo>    _ribbonEmitterMatrix;
+    std::vector<EmitterInfo>    _ribbonEditorEmitterMatrix;
+    std::vector<Texture*>       _ribbonActiveEmitterAlbedos;
+    std::vector<Texture*>       _ribbonActiveEditorAlbedos;
+    std::vector<std::vector<UINT>> _ribbonIndices;
+    std::vector<std::vector<UINT>> _ribbonEditorIndices;
 
 
-
-    std::vector<class Particle>           _totalParticles;
-    std::vector<class Particle>           _editorTotalParticles;
-    
-    std::vector<EmitterInfo>              _emitterMatrix;
-    std::vector<EmitterInfo>              _editorEmitterMatrix;
-
-    std::vector<Texture*> _activeEmitterAlbedos;
-    std::vector<Texture*> _activeEditorAlbedos;
-
-
-    std::vector<Texture*> _activeEmitterNormals;
 
     UINT _totalCount = 0;
     UINT _editorCount = 0;
+
+    UINT _ribbonTotalCount = 0;
+    UINT _ribbonEditorCount = 0;
 
 
     float _elapsedTimer = 0.f;

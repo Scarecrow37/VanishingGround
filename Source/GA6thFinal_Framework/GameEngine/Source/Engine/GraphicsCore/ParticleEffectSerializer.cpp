@@ -285,6 +285,17 @@ void ParticleEffectSerializer::Serialize(ParticleEffect* effect, File::Path dest
             Vector4 frameinfo = static_cast<SpriteModule*>(emitter->_particleRenderModule)->GetInitialFrameInfo();
             os.write(reinterpret_cast<const char*>(&frameinfo), sizeof(frameinfo));
         }
+        else if (ParticleType::RIBBON == emitter->_particleType)
+        {
+            // frame info
+            Vector4 startNormal = static_cast<RibbonModule*>(emitter->_particleRenderModule)->GetStartNormal();
+            Vector4 endNormal = static_cast<RibbonModule*>(emitter->_particleRenderModule)->GetEndNormal();
+            os.write(reinterpret_cast<const char*>(&startNormal), sizeof(startNormal));
+            os.write(reinterpret_cast<const char*>(&endNormal), sizeof(endNormal));
+        }
+
+
+
     }
     os.close();
 }
@@ -350,6 +361,8 @@ ParticleEffect* ParticleEffectSerializer::Deserialize(File::Path filepath,bool i
         Vector4           vortexForce;
         ParticleType      particleType;
         std::string         modelpath;
+        Vector4             startnormal;
+        Vector4             endnormal;
 
         is.read(reinterpret_cast<char*>(&emitterPosition), sizeof(emitterPosition));
         is.read(reinterpret_cast<char*>(&emitterRotationE), sizeof(emitterRotationE));
@@ -408,6 +421,12 @@ ParticleEffect* ParticleEffectSerializer::Deserialize(File::Path filepath,bool i
         {
             is.read(reinterpret_cast<char*>(&frameInfo), sizeof(frameInfo));
         }
+        if (particleType == ParticleType::RIBBON)
+        {
+            is.read(reinterpret_cast<char*>(&startnormal), sizeof(startnormal));
+            is.read(reinterpret_cast<char*>(&endnormal), sizeof(endnormal));
+        }
+
         {
             auto emitter =
                 UmParticleManager.RegisterEmitter(newEffect, static_cast<SIZE_T>(maxParticles), emissionRate, emitterLifetime, locationType,
@@ -437,6 +456,12 @@ ParticleEffect* ParticleEffectSerializer::Deserialize(File::Path filepath,bool i
             emitter->SetDragPoint(dragPoint);
             emitter->SetDragForce(dragForce);
             emitter->SetVortexForce(vortexForce);
+            if (particleType == ParticleType::RIBBON)
+            {
+                RibbonModule* ribbon = static_cast<RibbonModule*>(emitter->_particleRenderModule);
+                ribbon->SetStartNormal(startnormal);
+                ribbon->SetEndNormal(endnormal);
+            }
         }
     }
 
