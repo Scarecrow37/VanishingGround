@@ -85,6 +85,7 @@ namespace Global
      /// <param name="name">팝업 박스의 타이틀</param>
      /// <param name="content">팝업 박스에 나타낼 내용이 구현된 함수</param>
      void OpenPopupBox(const std::string& name, std::function<void()> content);
+     void OpenPopupBoxEx(const std::string& name, ImVec2 size, int flags, std::function<void()> content);
 
      /// <summary>
      /// Gui레이아웃을 처음 킨 레이아웃으로 초기화합니다.
