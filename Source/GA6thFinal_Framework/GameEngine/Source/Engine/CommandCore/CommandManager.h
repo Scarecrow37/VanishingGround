@@ -11,9 +11,12 @@ public:
     {
         static_assert(std::is_base_of<UmCommand, T>::value, "T is not based ICommand");
         std::shared_ptr<UmCommand> ptr = std::make_shared<T>(args...);
-        ptr->Execute();
-        _undoStack.push_back(ptr);
-        _redoStack.clear();
+        bool result = ptr->Execute();
+        if (true == result && false == Global::IsPlay())
+        {
+            _undoStack.push_back(ptr);
+            _redoStack.clear();
+        }
     }
 
     void Undo();
@@ -26,7 +29,8 @@ public:
 
     void Clear();
 
-public:
+    void SetMaxCommandSize(size_t size);
+
     inline const std::shared_ptr<UmCommand>& GetCommandFromUndoStack(int index) const { return _undoStack[index]; }
     inline const std::shared_ptr<UmCommand>& GetCommandFromRedoStack(int index) const { return _redoStack[index]; }
 
@@ -37,6 +41,10 @@ public:
     inline const auto UndoStackEnd() const { return _undoStack.end(); }
     inline const auto RedoStackBegin() const { return _redoStack.begin(); }
     inline const auto RedoStackEnd() const { return _redoStack.end(); }
+
+    inline bool IsEmpty() const { return IsUndoEmpty() && IsRedoEmpty(); }
+    inline bool IsUndoEmpty() const { return _undoStack.empty(); }
+    inline bool IsRedoEmpty() const { return _redoStack.empty(); }
 
 private:
     void ClampCommandStack();

@@ -1,6 +1,7 @@
 ﻿#include "pchScripts.h"
 #include "CharacterBase.h"
 #include "Stats/CharacterStats.h"
+#include "TurnSystem/TurnMode/TurnMode.h"
 
 int CharacterBase::GetMaxHP()
 {
@@ -37,12 +38,12 @@ int CharacterBase::GetMaxChainRoundCount()
 
 CharacterBase::CharacterBase() : 
     _hp(0), 
-    _mp(0), 
     _chainCount(0) , 
-    _chainRoundCount(1) 
+    _chainRoundCount(1) ,
+    _tokenInventory(this)
 {
-
 }
+
 CharacterBase::~CharacterBase() = default;
 
 void CharacterBase::Awake() 
@@ -55,19 +56,85 @@ void CharacterBase::Revive()
 {
     Base::Revive();
     _hp = MaxHP;
-    _mp = MaxMP;
 }
 
-void CharacterBase::OnRoundStart() 
-{
-    Base::OnRoundStart();
-    DecrementChainRoundCount();
-}
-
-void CharacterBase::Dead() 
+void CharacterBase::Dead()
 {
     Base::Dead();
     _hp = 0;
-    _mp = 0;
+
+    _tokenInventory.NotifyDead();
 }
 
+void CharacterBase::OnCombatStart() 
+{
+    _tokenInventory.NotifyCombatStart();
+}
+
+void CharacterBase::OnRoundStart()
+{
+    Base::OnRoundStart();
+    DecrementChainRoundCount();
+    _tokenInventory.NotifyRoundStart();
+}
+
+void CharacterBase::OnRoundEnd()
+{
+    // End먼저? 아니면 이벤트 먼저?
+    Base::OnRoundEnd();
+    _tokenInventory.NotifyRoundEnd();
+}
+
+void CharacterBase::OnEachTurnStart(CharacterBase* destination)
+{
+    Base::OnEachTurnStart(destination);
+    _tokenInventory.NotifyEachTurnStart(destination);
+}
+
+void CharacterBase::OnTurnStart()
+{
+    Base::OnTurnStart();
+    _tokenInventory.NotifyTurnStart();
+}
+
+void CharacterBase::OnTurnEnd() 
+{
+    Base::OnTurnEnd();
+    _tokenInventory.NotifyTurnEnd();
+}
+
+void CharacterBase::OnHit() 
+{
+    Base::OnHit();
+    _tokenInventory.NotifyHit();
+}
+
+void CharacterBase::OnDead() 
+{
+    Base::OnDead();
+    _tokenInventory.NotifyDead();
+}
+
+void CharacterBase::OnKill(CharacterBase* destination) 
+{
+    Base::OnKill(destination);
+    _tokenInventory.NotifyKill(destination);
+}
+
+void CharacterBase::OnTokenAdded(int tokenID) 
+{
+    Base::OnTokenAdded(tokenID);
+    _tokenInventory.NotifyTokenAdded(tokenID);
+}
+
+void CharacterBase::OnTokenRemoved(int tokenID) 
+{
+    Base::OnTokenRemoved(tokenID);
+    _tokenInventory.NotifyTokenRemoved(tokenID);
+}
+
+void CharacterBase::ImGuiDrawPropertysEvent() 
+{
+    ImGui::Separator();
+    _tokenInventory.DrawImGuiDebugData();
+}

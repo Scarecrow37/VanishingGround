@@ -3,6 +3,23 @@
 
 using namespace std::filesystem;
 
+void AnimationNotifySet::Clear()
+{
+    _filePath = File::NULL_PATH;
+    ClearTimeline();
+}
+
+void AnimationNotifySet::ClearTimeline()
+{
+    _timelineTable.clear();
+    _activeTimeline = {"", nullptr};
+}
+
+bool AnimationNotifySet::IsLoadedFile() const
+{
+    return false == _filePath.IsNull();
+}
+
 bool AnimationNotifySet::NewFile(const File::Path& filePath)
 {
     Clear();
@@ -55,21 +72,15 @@ bool AnimationNotifySet::LoadFile(const File::Path& filePath)
     return true;
 }
 
-void AnimationNotifySet::Clear() 
+bool AnimationNotifySet::SetActiveTimeline(std::string_view animKey)
 {
-    _filePath = "";
-    ClearTimeline();
-}
-
-void AnimationNotifySet::ClearTimeline()
-{
-    _timelineTable.clear();
-    _activeTimeline = {"", nullptr}; 
-}
-
-void AnimationNotifySet::SetActiveTimeline(std::string_view animKey) 
-{
-    _activeTimeline = {animKey.data(), GetTimeline(animKey)};
+    auto timeline = GetTimeline(animKey);
+    if (nullptr != timeline && _activeTimeline.second != timeline)
+    {
+        _activeTimeline = {animKey.data(), timeline};
+        return true;
+    }
+    return false;
 }
 
 std::shared_ptr<TimelineSystem> AnimationNotifySet::GetActiveTimeline() const
@@ -160,6 +171,11 @@ std::shared_ptr<TimelineSystem> AnimationNotifySet::GetTimeline(std::string_view
 const std::map<std::string, std::shared_ptr<TimelineSystem>>& AnimationNotifySet::GetTimelineTable() const
 {
     return _timelineTable;
+}
+
+const File::Path& AnimationNotifySet::GetFilePath() const
+{
+    return _filePath;
 }
 
 void AnimationNotifySet::SerializedReflectEvent()

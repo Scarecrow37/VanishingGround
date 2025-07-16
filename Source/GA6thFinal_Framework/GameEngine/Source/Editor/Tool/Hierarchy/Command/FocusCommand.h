@@ -15,7 +15,7 @@ namespace Command
             }
             virtual ~FocusCommand() override;
 
-            virtual void Execute() override;
+            virtual bool Execute() override;
             virtual void Undo() override;
         };
     } 

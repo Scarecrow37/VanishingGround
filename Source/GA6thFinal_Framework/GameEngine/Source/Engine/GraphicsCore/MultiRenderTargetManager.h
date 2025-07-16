@@ -1,6 +1,5 @@
 ﻿#pragma once
 
-class RenderTarget;
 class MultiRenderTargetManager
 {
 public:
@@ -9,7 +8,7 @@ public:
 
 public:
     SharedResource<RenderTarget>                     GetRenderTarget(std::string_view name) const;
-    const std::vector<SharedResource<RenderTarget>>& GetRenderTargetGroup(std::string_view groupName) const;
+    const std::vector<SharedResource<RenderTarget>>& GetRenderTargetGroup(std::string_view groupName);
     SharedResource<RenderTarget>                     GetAvailableRenderTarget();
     const std::list<SharedResource<RenderTarget>>&   GetUsedRenderTargets() const { return _usedRenderTargets; }
 

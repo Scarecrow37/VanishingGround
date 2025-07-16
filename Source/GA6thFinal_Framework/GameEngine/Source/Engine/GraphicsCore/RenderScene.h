@@ -1,15 +1,13 @@
 ﻿#pragma once
 
-class RenderTarget;
 class RenderPass;
 class RenderTechnique;
 class FrameResource;
-class Quad;
 class Camera;
 class MeshRenderer;
 class SkyBox;
-class UnorderedAccessView;
-class DepthStencilView;
+class SpriteRenderer;
+class FontRenderer;
 class RenderScene
 {
 public:
@@ -23,11 +21,13 @@ public:
 
 public:
     void SetCamera(std::shared_ptr<Camera> camera) { _camera = camera; }
-    void SetSkyBox(std::string_view path);
+    void SetSkyBox(std::wstring_view path);
 
 public:
     void InitializeRenderScene();
     void RegisterOnRenderQueue(MeshRenderer* component);
+    void RegisterOnRenderQueue(SpriteRenderer* component);
+    void RegisterOnRenderQueue(FontRenderer* component);
     void AddRenderTechnique(std::unique_ptr<RenderTechnique> technique);
 
 public:
@@ -40,36 +40,47 @@ public:
     void ResetSkyBox();
 
 private:
+    void UpdateGlobal();
+    void UpdateObject();
+    void UpdateUI();
+    void UpdateFont();
+
+ private:
     void CreateRenderTarget();
     void CreateDepthStencil();
     void CreateFrameResource();
     void CreateCamera();
 
 public:
-    std::string                                                  _name;
-    std::string                                                  _meshRenderTargetName;
-    std::string                                                  _finalTargetName;
-    std::vector<std::unique_ptr<RenderTechnique>>                _techniques;
-    std::vector<std::pair<std::unique_ptr<bool>, MeshRenderer*>> _renderQueue;
-    
+    std::string _name;
+    std::string _meshRenderTargetName;
+    std::string _finalTargetName;
+
+    std::vector<std::unique_ptr<RenderTechnique>>                  _techniques;
+    std::vector<std::pair<std::unique_ptr<bool>, MeshRenderer*>>   _meshRenderQueue;
+    std::vector<std::pair<std::unique_ptr<bool>, SpriteRenderer*>> _uiRenderQueue;
+    std::vector<std::pair<std::unique_ptr<bool>, FontRenderer*>>   _fontRenderQueue;
+
     // Frame Resource
     std::vector<std::unique_ptr<FrameResource>> _frameResources;
     std::vector<LightData>                      _lightDatas;
-    std::vector<XMMATRIX>                       _worldMatrixes;
-    std::vector<BoneMatrixes>                   _boneMatrixes;
+    std::vector<XMMATRIX>                       _worldMatrices;
+    std::vector<BoneMatrices>                   _boneMatrices;
     std::vector<MaterialID>                     _materialIDs;
+    std::vector<XMMATRIX>                       _uiMatrices;
+    std::vector<UIMaterial>                     _uiMaterials;
     std::shared_ptr<Camera>                     _camera;
     NumLight                                    _numLight;
 
-    std::unique_ptr<Quad>                _frameQuad;
-    std::unique_ptr<SkyBox>              _skyBox;
-    SharedResource<UnorderedAccessView>  _accumulationBuffer;
-    SharedResource<DepthStencilView>     _depthStencilView;
+    std::unique_ptr<Quad>               _frameQuad;
+    std::unique_ptr<SkyBox>             _skyBox;
+    SharedResource<UnorderedAccessView> _accumulationBuffer;
+    SharedResource<DepthStencilView>    _depthStencilView;
 
     // Buffers
-    ComPtr<ID3D12Resource>      _cameraBuffer;
-    ComPtr<ID3D12Resource>      _lightBuffer;
-    ComPtr<ID3D12PipelineState> _framePSO;
+    std::unique_ptr<ConstantBufferView> _cameraBuffer;
+    std::unique_ptr<ConstantBufferView> _lightBuffer;
+    ComPtr<ID3D12PipelineState>         _framePSO;
 
     UINT _currentFrameIndex = 0;
 };

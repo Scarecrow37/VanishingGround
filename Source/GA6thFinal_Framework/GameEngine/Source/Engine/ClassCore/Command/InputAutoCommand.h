@@ -28,12 +28,14 @@ namespace Command
 
             }
 
-            virtual void Execute() 
+            virtual bool Execute() 
             { 
                 if (false == _weak.expired())
                 {
                     *_pData = _curr; 
+                    return true;
                 }            
+                return false;
             }
             virtual void Undo() 
             { 

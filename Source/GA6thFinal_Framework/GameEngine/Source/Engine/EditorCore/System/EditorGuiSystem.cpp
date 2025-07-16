@@ -105,6 +105,17 @@ EditorDockWindow* EditorGuiSystem::operator[](const std::string& label) const
     return GetDockWindow(label);
 }
 
+void EditorGuiSystem::ResetLayout()
+{
+    for (auto& [label, window] : _dockWindowTable)
+    {
+        if (nullptr != window)
+        {
+            window->RequestBuildDockLayout();
+        }
+    }
+}
+
 YAML::Node EditorGuiSystem::SaveGuiSettingToMemory()
 {
     YAML::Node rootNode;

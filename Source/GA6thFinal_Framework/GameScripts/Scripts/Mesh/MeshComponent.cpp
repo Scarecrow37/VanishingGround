@@ -37,8 +37,9 @@ void MeshComponent::MakeMeshRenderer(MeshRenderType renderType, const Matrix& wo
     if (nullptr == _pMeshRenderer)
     {
         _pMeshRenderer.reset(new MeshRenderer(renderType, world));
-        _pMeshRenderer->RegisterRenderQueue();
+        _pMeshRenderer->RegisterComponent();
         _pMeshRenderer->SetActive(&EnableInHierarchy);
+        _pMeshRenderer->OnCustomDepth(PostProcess::BLOOM);
     } 
     else
     {

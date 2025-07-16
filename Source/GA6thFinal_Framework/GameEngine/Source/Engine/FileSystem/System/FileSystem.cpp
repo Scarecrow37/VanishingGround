@@ -8,14 +8,9 @@ using namespace u8_literals;
 EFileSystem::EFileSystem() 
 {
     _originPath = fs::current_path().generic_wstring();
-    _extToSubscriberTable["null"] = EventSubscriberSet{};
+    _extToSubscriberTable[STR_NULL] = EventSubscriberSet{};
 }
 
-EFileSystem::~EFileSystem() 
-{
-    Clear();
-    ObserverShutDown();
-}
 
 bool EFileSystem::LoadGameDirectory()
 {
@@ -419,6 +414,15 @@ void EFileSystem::RequestPasteFile(const File::Path& path)
     }
 }
 
+void EFileSystem::RequestDragDropFile(const File::Path& path) 
+{
+    const EventSubscriberSet& subscriberSet = GetEventSubscribers(path.extension());
+    for (auto& subscriber : subscriberSet)
+    {
+        subscriber->OnRequestedDragDrop(path);
+    }
+}
+
 void EFileSystem::DrawGuiSettingEditor() 
 {
     if (ImGui::BeginMenuBar())
@@ -473,15 +477,15 @@ void EFileSystem::RegisterFileEventSubscriber(FileEventSubscriber* subscriber, c
     if (subscriber == nullptr)
         return;
 
-    for (const auto& ext : exts)
-    {
-        subscriber->_triggerExtTable.insert(ext);
-        _extToSubscriberTable[ext].insert(subscriber);
-    }
     auto itr = _subscriberSet.find(subscriber);
     if (itr == _subscriberSet.end())
     {
         _subscriberSet.insert(subscriber);
+        for (const auto& ext : exts)
+        {
+            subscriber->_triggerExtTable.insert(ext);
+            _extToSubscriberTable[ext].insert(subscriber);
+        }
     }
 }
 
@@ -603,24 +607,33 @@ void EFileSystem::ReadDirectory()
 
 void EFileSystem::ReadDirectory(const File::Path& path) 
 {
-    File::Path extesion = path.extension();
-    File::Path genPath  = path.generic_string();
+    std::stack<File::Path> dirStack;
+    dirStack.push(path);
 
-    bool isValidExt = IsValidExtension(extesion);
-    bool isDirectory = fs::is_directory(genPath);
+    while (!dirStack.empty())
+    {
+        File::Path curPath  = dirStack.top();
+        dirStack.pop();
 
-    if (true == isDirectory || true == isValidExt)
-    {
-        RegisterContext(genPath);
-    }
-    if (true == isDirectory)
-    {
-        for (const auto& entry : fs::recursive_directory_iterator(genPath))
+        File::Path extesion = curPath.extension();
+        File::Path genPath  = curPath.generic_string();
+        bool isValidExt     = IsValidExtension(extesion);
+        bool isDirectory    = fs::is_directory(genPath);
+
+        if (true == isDirectory || true == isValidExt)
         {
-            // 경로를 재네릭화
-            File::Path genericPath = entry.path().generic_string();
-            ReadDirectory(genericPath);
+            RegisterContext(genPath);
         }
+        if (true == isDirectory)
+        {
+            for (const auto& entry : fs::directory_iterator(genPath))
+            {
+                File::Path entryPath        = entry.path();
+                File::Path genericEntryPath = entryPath.generic_string();
+                dirStack.push(genericEntryPath);
+            }
+        }
+       
     }
 }
 

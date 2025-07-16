@@ -15,6 +15,12 @@ void Camera::SetupPerspective(float fovDegree, float aspect, float nearZ, float 
     _projectionInverse = XMMatrixInverse(nullptr, _projection);
 }
 
+void Camera::SetupOrthographic(float width, float height, float nearZ, float farZ)
+{
+    _projection        = XMMatrixOrthographicLH(width, height, nearZ, farZ);
+    _projectionInverse = XMMatrixInverse(nullptr, _projection);
+}
+
 void Camera::SetWorldMatrix(const Matrix& worldMatrix) 
 {
     Matrix matrix = worldMatrix;

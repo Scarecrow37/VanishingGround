@@ -323,6 +323,12 @@ namespace ReflectHelper
             // 매개변수로 Input 여부랑 접근한 맴버의 이름을 전달해줍니다.
             // ImGuiDrawPropertys() 함수 호출 이후 NULL로 초기화됩니다.
             std::function<void(bool, std::string_view)> InputEndEvent;
+
+            /// <summary>
+            /// 이름 표시 여부 입니다.
+            /// </summary>
+            bool ShowName = true;
+
         };
     } // namespace ImGuiDraw
 

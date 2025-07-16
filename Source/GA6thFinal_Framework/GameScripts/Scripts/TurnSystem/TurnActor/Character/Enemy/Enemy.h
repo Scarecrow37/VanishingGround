@@ -1,7 +1,10 @@
 ﻿#pragma once
 #include "../CharacterBase.h"
+#include "Enum/EnemyEnum.h"
 
 class EnemyStatsComponent;
+class FSMState;
+
 class Enemy : public CharacterBase
 {
     USING_PROPERTY(Enemy)
@@ -10,21 +13,27 @@ public:
 
 public:
     REFLECT_PROPERTY(
-        Speed
+        Speed, Type
         )
 
     GETTER_ONLY(int, Speed) { return GetSpeed(); }
     PROPERTY(Speed)
+
+    SETTER(EnemyType, Type) { ReflectFields->Type = value; }
+    GETTER(EnemyType, Type) { return ReflectFields->Type; }
+    PROPERTY(Type)
+
 public:
     Enemy();
     virtual ~Enemy();
 
 protected:
     REFLECT_FIELDS_BEGIN(CharacterBase)
+    EnemyType Type = EnemyType::MONSTER_A;
     REFLECT_FIELDS_END(Enemy)
 
 public:
-    int GetSpeed() override;
+    virtual int GetSpeed() override;
 
 private:
     EnemyStatsComponent* _enemyStats = nullptr;
@@ -32,10 +41,13 @@ private:
 
 protected:
     class FiniteStateMachine* _finiteStateMachine = nullptr;
+
     void BuildEnemyFSM();
     struct EnemyStates
     {
-        
+        FSMState* WaitTurn;     // 턴 종료 상태
+        FSMState* PlayTurn;     // 턴 시작 상태
+        FSMState* Dead;         // 사망 상태
     } 
     _fsmStates;
 
@@ -61,4 +73,17 @@ protected:
     virtual void Revive() override;
     virtual void PlayTurn() override;
     CharacterStats* GetCharacterStats() override;
+
+public:
+    virtual void OnCombatStart() override;
+    virtual void OnRoundStart() override;
+    virtual void OnRoundEnd() override;
+    virtual void OnEachTurnStart(CharacterBase* destination) override;
+    virtual void OnTurnStart() override;
+    virtual void OnTurnEnd() override;
+    virtual void OnHit() override;
+    virtual void OnDead() override;
+    virtual void OnKill(CharacterBase* destination) override;
+    virtual void OnTokenAdded(int tokenID) override;
+    virtual void OnTokenRemoved(int tokenID) override;
 };

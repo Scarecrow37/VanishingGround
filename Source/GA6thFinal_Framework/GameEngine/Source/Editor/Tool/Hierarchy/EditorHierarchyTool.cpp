@@ -14,18 +14,13 @@ using namespace Command::Hierarchy;
 
 static EditorSceneTool* staticEditorScenTool = nullptr;
 
-void EditorHierarchyTool::TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>& focusObject)
+void EditorHierarchyTool::TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>& focusObject,  GameObject*& outClickNode)
 {
-    auto TreeDoubleClickEvent = [&node]() {
+    auto TreeClickEvent = [&node, &outClickNode]() {
         bool result = ImGui::IsMouseReleased(ImGuiMouseButton_Left) && ImGui::IsItemHovered();
         if (result)
         {
-            auto oldWp = EditorHierarchyTool::static_hierarchyFocusObjWeak;
-            auto newWp = node.gameObject->GetWeakPtr();
-            if (false == EditorInspectorTool::IsLockFocus() && false == EditorInspectorTool::IsFocusObject(newWp))
-            {
-                UmCommandManager.Do<Command::Hierarchy::FocusCommand>(oldWp, newWp);
-            }
+            outClickNode = &node.gameObject;
         }
         return result;
     };
@@ -220,7 +215,7 @@ void EditorHierarchyTool::TransformTreeNode(Transform& node, const std::shared_p
                 {              
                     if (&focusObject->transform != &node)
                     {
-                        ImGui::SetNextItemOpen(true);                      
+                        ImGui::SetNextItemOpen(true);        
                     }
                     else
                     {
@@ -236,7 +231,7 @@ void EditorHierarchyTool::TransformTreeNode(Transform& node, const std::shared_p
         {
             FocusRectDarw(focusObject.get());
             PopFocusStyle(isPushStyle);
-            TreeDoubleClickEvent();
+            TreeClickEvent();
             TreeRightClickEvent();
             TreeDragDropEvent();
 
@@ -245,7 +240,7 @@ void EditorHierarchyTool::TransformTreeNode(Transform& node, const std::shared_p
                 Transform* child = node.GetChild(i);
                 if (child)
                 {
-                    TransformTreeNode(*child, focusObject);
+                    TransformTreeNode(*child, focusObject, outClickNode);
                 }
             }
             ImGui::TreePop();
@@ -254,7 +249,7 @@ void EditorHierarchyTool::TransformTreeNode(Transform& node, const std::shared_p
         {
             FocusRectDarw(focusObject.get());
             PopFocusStyle(isPushStyle);
-            TreeDoubleClickEvent();
+            TreeClickEvent();
             TreeRightClickEvent();
             TreeDragDropEvent();
         }
@@ -273,8 +268,7 @@ void EditorHierarchyTool::SetFocusObject(const std::weak_ptr<GameObject>& object
             MeshComponent* mesh = prevFocus->GetComponentAtIndex<MeshComponent>(i);
             if (mesh)
             {
-                mesh->Renderer->SetCustomDepth(0);
-                mesh->Renderer->SetCustomDepth(PostProcess::BLOOM);
+                mesh->Renderer->OffCustomDepth(PostProcess::OUTLINE);
             }
         }     
     }
@@ -289,11 +283,19 @@ void EditorHierarchyTool::SetFocusObject(const std::weak_ptr<GameObject>& object
             MeshComponent* mesh = focus->GetComponentAtIndex<MeshComponent>(i);
             if (mesh)
             {
-                mesh->Renderer->SetCustomDepth(PostProcess::OUTLINE | PostProcess::BLOOM);
+                mesh->Renderer->OnCustomDepth(PostProcess::OUTLINE);
             }
         }     
         static_isOpenFocusObj = true;
     }
+}
+
+bool EditorHierarchyTool::SaveScene(Scene& scene)
+{
+    std::filesystem::path writePath = (std::string)scene.Path;
+    writePath                       = std::filesystem::relative(writePath, UmFileSystem.GetAssetPath()).parent_path();
+    UmSceneManager.WriteSceneToFile(scene, writePath.string(), true);
+    return true;
 }
 
 EditorHierarchyTool::EditorHierarchyTool()
@@ -391,6 +393,12 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
                 GameObjectKey, GameObject::Helper::GenerateUniqueName("Static Mesh"), &mesh);
             mesh->AddComponent<StaticMeshRenderer>();
         }
+        if (ImGui::MenuItem("Skeletal Mesh"))
+        {
+            UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
+                GameObjectKey, GameObject::Helper::GenerateUniqueName("Skeletal Mesh"), &mesh);
+            mesh->AddComponent<SkeletalMeshRenderer>();
+        }
         ImGui::EndMenu();
     }
 }
@@ -457,36 +465,85 @@ void EditorHierarchyTool::HierarchyRightClickEvent() const
 
 void EditorHierarchyTool::KeyboardEvent() 
 {
-    if (Global::editorModule->IsFocusAreaEmpty() && _dockWindow->IsFocusFrame())
+    if (Global::editorModule->IsFocusAreaEmpty())
     {
-        bool holdCtrl = ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftCtrl);
-        if (holdCtrl)
+        if (_dockWindow->IsFocusFrame())
         {
-            if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_S, false))
+            bool holdCtrl = ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftCtrl);
+            if (holdCtrl)
             {
-                Scene* scene = UmSceneManager.GetMainScene();
-                if (scene)
+                if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_S, false))
                 {
-                    std::filesystem::path writePath = (std::string)scene->Path;
-                    writePath = std::filesystem::relative(writePath, UmFileSystem.GetAssetPath()).parent_path();
-                    UmSceneManager.WriteSceneToFile(*scene, writePath.string(), true);
+                    Scene* scene = UmSceneManager.GetMainScene();
+                    if (scene)
+                    {
+                        std::filesystem::path writePath = (std::string)scene->Path;
+                        writePath = std::filesystem::relative(writePath, UmFileSystem.GetAssetPath()).parent_path();
+                        UmSceneManager.WriteSceneToFile(*scene, writePath.string(), true);
+                    }
+                }
+            }
+
+            if (this->IsFocusFrame() || _editorSceneTool->IsFocusFrame() || _editorFindTool->IsFocusFrame())
+            {
+                if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_Delete, false))
+                {
+                    if (false == static_hierarchyFocusObjWeak.expired())
+                    {
+                        auto object                = static_hierarchyFocusObjWeak.lock();
+                        object->GetScene().IsDirty = true;
+                        UmCommandManager.Do<Command::EditorScene::DestroyGameObjectCommand>(object.get());
+                    }
                 }
             }
         }
 
-        if (this->IsFocusFrame() || _editorSceneTool->IsFocusFrame() || _editorFindTool->IsFocusFrame())
+        if (this->IsFocusFrame())
         {
-            if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_Delete, false))
+            bool holdCtrl = ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftCtrl);
+            if (holdCtrl)
             {
-                if (false == static_hierarchyFocusObjWeak.expired())
+                if (ImGui::IsKeyPressed(ImGuiKey_C, false))
                 {
-                    auto object                = static_hierarchyFocusObjWeak.lock();
-                    object->GetScene().IsDirty = true;
-                    UmCommandManager.Do<Command::EditorScene::DestroyGameObjectCommand>(object.get());
-                }             
-            }              
+                    const auto& weakObject = GetFocusObject();
+                    if (auto object = weakObject.lock())
+                    {
+                        YAML::Node yamlNode = UmGameObjectFactory.SerializeToYaml(object.get(), true);
+                        YAML::Emitter emitter;
+                        emitter << yamlNode;
+                        if (emitter.good())
+                        {
+                            std::wstring yamlDataWstring = U8ToWString(emitter.c_str());
+                            File::SetClipboardText(yamlDataWstring);
+                        }
+                    }         
+                }
+                if (ImGui::IsKeyPressed(ImGuiKey_V, false))
+                {
+                    std::wstring clipboardText = File::GetClipboardText();
+                    if (false == clipboardText.empty())
+                    {
+                        UmCommandManager.Do<Command::EditorScene::PasteObjectCommand>(clipboardText);
+                    }
+                }
+            }
+
         }
     }
+}
+
+void EditorHierarchyTool::SerializedReflectEvent() 
+{
+    const auto& scenes = engineCore->SceneManager.GetLoadedScenes();
+    for (auto& scene : scenes)
+    {
+        SaveScene(*scene);
+    }
+}
+
+void EditorHierarchyTool::DeserializedReflectEvent() 
+{
+
 }
 
 void EditorHierarchyTool::OnFrameRender()
@@ -497,6 +554,10 @@ void EditorHierarchyTool::OnFrameRender()
     HierarchyDropEvent();
     KeyboardEvent();
 
+    ImVec2 size = ImGui::GetContentRegionAvail();
+    size.y -= 25;
+    ImGui::BeginChild("##E8DA04FA-E996-4718-8E2F-3138772C5A32", size);
+    HierarchyRightClickEvent();
     const auto& scenes = engineCore->SceneManager.GetLoadedScenes();
     if (false == scenes.empty())
     {
@@ -520,9 +581,7 @@ void EditorHierarchyTool::OnFrameRender()
 
                     if (ImGui::MenuItem("Save Scene"))
                     {
-                        std::filesystem::path writePath = (std::string)scene.Path;
-                        writePath = std::filesystem::relative(writePath, UmFileSystem.GetAssetPath()).parent_path();
-                        UmSceneManager.WriteSceneToFile(scene, writePath.string(), true);
+                        SaveScene(scene);
                         ImGui::CloseCurrentPopup();
                     }
 
@@ -551,7 +610,18 @@ void EditorHierarchyTool::OnFrameRender()
                     {
                         ImGui::PushID(obj.get());
                         {
-                            TransformTreeNode(obj->transform, focusObject);
+                            GameObject* clickNode = nullptr;
+                            TransformTreeNode(obj->transform, focusObject, clickNode);
+                            if (clickNode)
+                            {
+                                auto& oldWp = EditorHierarchyTool::static_hierarchyFocusObjWeak;
+                                auto  newWp = clickNode->GetWeakPtr();
+                                if (false == EditorInspectorTool::IsLockFocus() &&
+                                    false == EditorInspectorTool::IsFocusObject(newWp))
+                                {
+                                    UmCommandManager.Do<Command::Hierarchy::FocusCommand>(oldWp, newWp);
+                                }
+                            }
                         }
                         ImGui::PopID();
                     }
@@ -576,13 +646,26 @@ void EditorHierarchyTool::OnFrameRender()
                 {
                     ImGui::PushID(obj.get());
                     {
-                        TransformTreeNode(obj->transform, focusObject);
+                        GameObject* clickNode = nullptr;
+                        TransformTreeNode(obj->transform, focusObject, clickNode);
+                        if (clickNode)
+                        {
+                            auto& oldWp = EditorHierarchyTool::static_hierarchyFocusObjWeak;
+                            auto  newWp = clickNode->GetWeakPtr();
+                            if (false == EditorInspectorTool::IsLockFocus() &&
+                                false == EditorInspectorTool::IsFocusObject(newWp))
+                            {
+                                UmCommandManager.Do<Command::Hierarchy::FocusCommand>(oldWp, newWp);
+                            }
+                        }
                     }
                     ImGui::PopID();
                 }
             }
         }
     }
+
+    ImGui::EndChild();
 }
 
 void EditorHierarchyTool::OnFrameEnd() 

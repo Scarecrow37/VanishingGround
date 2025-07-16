@@ -14,7 +14,7 @@ ResourceBase::~ResourceBase()
 void ResourceBase::TransitionResource(ID3D12GraphicsCommandList* commandList, D3D12_RESOURCE_STATES after)
 {
     GRAPHICS_ASSERT(_resource.Get(), L"ResourceBase::TransitionResource: resource is null.");
-
+    
     if (_currentState != after)
     {
         auto br = CD3DX12_RESOURCE_BARRIER::Transition(_resource.Get(), _currentState, after);

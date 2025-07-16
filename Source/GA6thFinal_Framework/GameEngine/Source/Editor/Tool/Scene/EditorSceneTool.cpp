@@ -923,7 +923,7 @@ EditorSceneTool::ManipulateCommand::ManipulateCommand(
 
 EditorSceneTool::ManipulateCommand::~ManipulateCommand() = default;
 
-void EditorSceneTool::ManipulateCommand::Execute() 
+bool EditorSceneTool::ManipulateCommand::Execute() 
 {
     if (false == _target.expired())
     {
@@ -931,7 +931,10 @@ void EditorSceneTool::ManipulateCommand::Execute()
         object->transform->Position = _curr.Position;
         object->transform->Rotation = _curr.Rotation;
         object->transform->Scale    = _curr.Scale;
+        object->GetScene().IsDirty = true;
+        return true;
     }
+    return false;
 }
 
 void EditorSceneTool::ManipulateCommand::Undo() 
@@ -942,5 +945,6 @@ void EditorSceneTool::ManipulateCommand::Undo()
         object->transform->Position = _prev.Position;
         object->transform->Rotation = _prev.Rotation;
         object->transform->Scale    = _prev.Scale;
+        object->GetScene().IsDirty  = true;
     }
 }

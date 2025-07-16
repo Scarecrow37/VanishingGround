@@ -16,7 +16,7 @@ namespace Command
             std::vector<std::weak_ptr<GameObject>> _childrens;
 
             // UmCommand을(를) 통해 상속됨
-            void Execute() override;
+            bool Execute() override;
             void Undo() override;
         };
     } // namespace Hierarchy
