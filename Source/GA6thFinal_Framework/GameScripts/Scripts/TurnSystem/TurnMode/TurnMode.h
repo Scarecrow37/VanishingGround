@@ -1,9 +1,11 @@
 ﻿#pragma once
 #include "UmFramework.h"
+#include "../TurnAction/TurnAction.h"
 
 class FiniteStateMachine;
 class TurnActor;
 class Enemy;
+class Player;
 
 /*
 * 턴을 관리하는 컴포넌트입니다.
@@ -11,10 +13,16 @@ class Enemy;
 class TurnMode : public Component
 {
     USING_PROPERTY(TurnMode)
+    inline static TurnMode* static_instance = nullptr;
 public:
-    REFLECT_PROPERTY(
-        RoundCount
-    )
+    static TurnMode* GetInstance() 
+    { 
+        if (nullptr == static_instance)
+        {
+            UmLogger.Log(LogLevel::LEVEL_WARNING, u8"Turn Mode가 존재하지 않습니다.");
+        }
+        return static_instance;
+    }
 
 public:
     TurnMode();
@@ -64,6 +72,10 @@ public:
     int GetPendingActorCount() const { return (int)_turnList.size(); }
 
 public:
+    REFLECT_PROPERTY(
+        RoundCount
+    )
+
     GETTER_ONLY(int, RoundCount) { return _roundCount; }
     PROPERTY(RoundCount)
 
@@ -74,11 +86,22 @@ protected:
 private:
     void BuildTurnModeFSM();
 
+    /*slot 값을 통해 플레이어 엑터인지 확인합니다.*/
+    bool IsPlayerActorSlot(const std::pair<int, TurnActor*>& turnActor)
+    {
+        auto& [slot, actor] = turnActor;
+        return 0 <= slot;
+    }
+
+    /*slot 값을 통해 실제 RoundSpeed를 반환합니다.*/
+    int GetRealRoundSpeed(const std::pair<int, TurnActor*>& turnActor);
+
 private:
     FiniteStateMachine* _finiteStateMachine = nullptr;
 
     int _roundCount;
-    std::deque<TurnActor*> _turnList;
+    /*플레이어의 무기 slot 번호를 함께 저장합니다. int 값이 -1이면 Enemy, 0 이상이면 Player 입니다.*/
+    std::deque<std::pair<int, TurnActor*>> _turnList;
     TurnActor* _currTurnActor;
 
 private:
@@ -91,6 +114,8 @@ private:
         class EnemyActionPhase*   EnemyActionPhase   = nullptr;
         class CheckPlayerState*   CheckPlayerState   = nullptr;
         class TurnListEmptyState* TurnListEmptyState = nullptr;
+        class GameOverState*      GameOverState      = nullptr;
+        class GameClearState*     GameClearState     = nullptr;
     } _systemStates;
 
     struct SystemCondition
@@ -104,7 +129,53 @@ private:
         class CheckTurnEndCondition* CheckTurnEndCondition = nullptr;
         class CheckTurnEmpty*        CheckTurnEmpty        = nullptr;
         class CheckTurnNotEmpty*     CheckTurnNotEmpty     = nullptr;
+        class GameOverCondition*     GameOverCondition     = nullptr;
+        class GameClearCondition*    GameClearCondition    = nullptr;
     } _systemConditions;
+
+public:
+    /// <summary>
+    /// 실제 활성화된 Action들 순회하면서 함수를 실행시킵니다.
+    /// </summary>
+    /// <returns></returns>
+    void ApplyActions(const std::function<void(TurnAction& action)>& func) 
+    {
+        std::erase_if(_turnActions, [&func](const auto& pair) 
+        {
+            bool result = true;
+            auto& [isDestroy, action] = pair;
+            if (isDestroy)
+            {
+                result = *isDestroy;
+                if (false == result)
+                {
+                    func(*action);
+                }
+            }
+            return result;
+        });
+    };
+
+    /// <summary>
+    /// 턴 라이프 사이클에 액션을 추가합니다.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="action :">해당 객체 포인터</param>
+    /// <returns></returns>
+    template <typename T>
+    T* AddTurnAction(T* action)
+    {
+        static_assert(std::is_base_of_v<TurnAction, T>, "T is not derived from TurnAction.");
+        auto& [isDestroy, newAction] = _turnActions.emplace_back();
+        isDestroy.reset(new bool{false});
+        TurnAction* baseAction = static_cast<TurnAction*>(action);
+        baseAction->_isDestroy = isDestroy.get();
+        newAction              = baseAction;
+        return action;
+    }
+
+private:
+    std::vector<std::pair<std::unique_ptr<bool>, TurnAction*>> _turnActions;
 
 public:
     GETTER_ONLY(const SystemStates&, States) { return _systemStates; }
@@ -113,18 +184,22 @@ public:
     /// </summary>
     PROPERTY(States)
 
+    GETTER_ONLY(const SystemCondition&, Conditions) { return _systemConditions; }
     /// <summary>
     /// TurnMode용 FSM의 Condition 객체들 입니다.
     /// </summary>
-    GETTER_ONLY(const SystemCondition&, Conditions) { return _systemConditions; }
     PROPERTY(Conditions)
 
 protected:
+    void Reset() override;
+
+
     /// <summary>
     /// <para> 이 함수는 항상 Start 함수 전에 호출되며 프리팹이 인스턴스화 된 직후에 호출됩니다.                </para>
     /// <para> 게임 오브젝트의 Active가 false 상태인 경우 Awake 함수는 true가 될때까지 호출되지 않습니다.      </para>
     /// </summary>
-    virtual void Awake();
+    virtual void Awake() override;
 
     virtual void ImGuiDrawPropertysEvent() override;
+
 };

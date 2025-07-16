@@ -9,7 +9,6 @@ class PlayerPlayTurnState : public PlayerStateBase
 public:
     PlayerPlayTurnState();
     virtual ~PlayerPlayTurnState() override;
-
 protected:
     // PlayerStateBase을(를) 통해 상속됨
     void OnAwake() override;

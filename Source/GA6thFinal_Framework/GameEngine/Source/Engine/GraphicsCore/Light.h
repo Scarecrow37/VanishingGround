@@ -19,13 +19,13 @@ public:
     virtual ~Light();
 
 public:
-    void SetDirectionalLight(const Vector3& color, const Vector3& ambient, const Vector3& direction,
-                             const float& intensity);
-    void SetPointLight(const Vector3& color, const Vector3& position, const Vector3& attenuation, const float& range,
-                       const float& intensity);
-    void SetSpotLight(const Vector3& color, const Vector3& position, const Vector3& direction,
-                      const Vector3& attenuation, const float& range, const float& inner, const float& outer,
-                      const float& intensity);
+    void RegisterComponent(std::string_view sceneName) override;
+    void RegisterComponent() override;
+
+public:
+    void SetDirectionalLight(const Vector3& color, const Vector3& ambient, const Vector3& direction, const float& intensity);
+    void SetPointLight(const Vector3& color, const Vector3& position, const Vector3& attenuation, const float& range, const float& intensity);
+    void SetSpotLight(const Vector3& color, const Vector3& position, const Vector3& direction, const Vector3& attenuation, const float& range, const float& inner, const float& outer, const float& intensity);
 
 public:
     void Update(const float deltaTime);

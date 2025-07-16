@@ -1,5 +1,11 @@
 ﻿#include "pchScripts.h"
 #include "RoundEndPhase.h"
+#include <TurnSystem/TurnMode/TurnMode.h>
+#include <TurnSystem/TurnMode/State/CombatStartPhase.h>
+
+//Character
+#include <TurnSystem/TurnActor/Character/Player/Player.h>
+#include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
 
 REGISTER_CLASS(FSMStateFactory, RoundEndPhase)
 
@@ -17,7 +23,11 @@ void RoundEndPhase::OnStart()
 void RoundEndPhase::OnEnter()
 {
     _isPhaseEnd = false;
-    UmLogger.Message(LogLevel::LEVEL_DEBUG, (const char*)u8"라운드를 종료합니다.");
+
+    // [Callback] OnRoundEnd
+    NotifyRoundEnd();
+
+    UmLogger.Message(LogLevel::LEVEL_DEBUG, (const char*)u8"라운드를 종료합니다!!!!===========================================================");
     UmTime.Invoke(&GetFSM(), 1.0f, [&]() { UmLogger.Message(LogLevel::LEVEL_DEBUG, (const char*)u8"다음 라운드까지 3."); });
     UmTime.Invoke(&GetFSM(), 2.0f, [&]() { UmLogger.Message(LogLevel::LEVEL_DEBUG, (const char*)u8"다음 라운드까지 2."); });
     UmTime.Invoke(&GetFSM(), 3.0f, [&]() { UmLogger.Message(LogLevel::LEVEL_DEBUG, (const char*)u8"다음 라운드까지 1."); });
@@ -28,3 +38,19 @@ void RoundEndPhase::OnEnter()
 void RoundEndPhase::OnExit() {}
 
 void RoundEndPhase::OnUpdate() {}
+
+void RoundEndPhase::NotifyRoundEnd()
+{
+    if (_turnMode)
+    {
+        auto* combatStartPhase = _turnMode->States->CombatStartPhase;
+        if (combatStartPhase)
+        {
+            for (auto& character : combatStartPhase->GetCharacters())
+            {
+                character->OnRoundEnd();
+            }
+            _turnMode->ApplyActions([](TurnAction& action) { action.OnRoundEnd(); });
+        }
+    }
+}

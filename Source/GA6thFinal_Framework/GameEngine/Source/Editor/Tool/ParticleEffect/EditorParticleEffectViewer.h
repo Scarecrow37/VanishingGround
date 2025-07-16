@@ -42,5 +42,5 @@ protected:
 
 private:
     std::unique_ptr<EditorDynamicCamera> _camera;
-    EditorParticleEffectDetails*                  _editorParticleEffectDetails;
+    //EditorParticleEffectDetails*                  _editorParticleEffectDetails;
 };

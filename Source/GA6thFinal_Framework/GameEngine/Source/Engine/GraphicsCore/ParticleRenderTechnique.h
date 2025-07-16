@@ -1,7 +1,6 @@
 ﻿#pragma once
 #include "RenderTechnique.h"
 
-class UnorderedAccessView;
 class ParticleRenderTechnique : public RenderTechnique
 {
 public:

@@ -391,4 +391,117 @@ namespace File
         return result;
     }
 
+    std::wstring_view GetDesktopPath()
+    {
+        static std::wstring desktopPath;
+        if (true == desktopPath.empty())
+        {
+            PWSTR   pszPath = NULL; // 경로를 저장할 와이드 문자열 포인터
+            HRESULT hr      = SHGetKnownFolderPath(FOLDERID_Desktop, 0, NULL, &pszPath);
+            if (SUCCEEDED(hr))
+            {
+                desktopPath = pszPath;
+            }
+            else
+            {
+                desktopPath = L"C:";
+            }
+
+            if (pszPath)
+            {
+                CoTaskMemFree(pszPath);
+            }
+        }
+        return desktopPath;
+    }
+
+    void SetClipboardText(std::wstring_view text) 
+    {
+        // 1. 클립보드를 엽니다.
+        if (!OpenClipboard(nullptr))
+        {
+            // 클립보드를 열 수 없으면 실패
+            return;
+        }
+
+        // 2. 클립보드의 기존 내용을 비웁니다.
+        EmptyClipboard();
+
+        // 3. 문자열을 저장할 전역 메모리를 할당합니다.
+        // GMEM_MOVEABLE은 메모리를 필요에 따라 이동하거나 확장할 수 있게 합니다.
+        HGLOBAL hGlobal = GlobalAlloc(GMEM_MOVEABLE, (text.length() + 1) * sizeof(wchar_t));
+        if (hGlobal == NULL)
+        {
+            CloseClipboard();
+            return;
+        }
+
+        // 4. 메모리 핸들을 잠그고 실제 포인터를 얻습니다.
+        LPWSTR pGlobal = static_cast<LPWSTR>(GlobalLock(hGlobal));
+        if (pGlobal == NULL)
+        {
+            GlobalFree(hGlobal);
+            CloseClipboard();
+            return;
+        }
+
+        // 5. 할당된 메모리에 문자열 데이터를 복사합니다.
+        memcpy(pGlobal, text.data(), (text.length() + 1) * sizeof(wchar_t));
+
+        // 6. 메모리 잠금을 해제합니다.
+        GlobalUnlock(hGlobal);
+
+        // 7. 클립보드에 데이터를 설정합니다. 이제부터 이 메모리는 시스템 소유입니다.
+        // 우리가 직접 GlobalFree를 호출하면 안 됩니다.
+        if (SetClipboardData(CF_UNICODETEXT, hGlobal) == NULL)
+        {
+            // 실패했다면 시스템이 소유권을 가져가지 않은 것이므로 우리가 직접 해제해야 합니다.
+            GlobalFree(hGlobal);
+        }
+
+        // 8. 클립보드를 닫습니다.
+        CloseClipboard();
+    }
+
+    std::wstring GetClipboardText()
+    {
+        // 1. 클립보드에 유니코드 텍스트 형식이 있는지 확인합니다.
+        if (!IsClipboardFormatAvailable(CF_UNICODETEXT))
+        {
+            return L""; // 없으면 빈 문자열 반환
+        }
+
+        // 2. 클립보드를 엽니다.
+        if (!OpenClipboard(nullptr))
+        {
+            return L""; // 열 수 없으면 실패
+        }
+
+        // 3. 클립보드에서 데이터 핸들을 가져옵니다.
+        HANDLE hData = GetClipboardData(CF_UNICODETEXT);
+        if (hData == NULL)
+        {
+            CloseClipboard();
+            return L"";
+        }
+
+        // 4. 메모리 핸들을 잠그고 읽기 전용 포인터를 얻습니다.
+        const wchar_t* pszData = static_cast<const wchar_t*>(GlobalLock(hData));
+        if (pszData == NULL)
+        {
+            CloseClipboard();
+            return L"";
+        }
+
+        // 5. 데이터를 std::wstring으로 복사합니다.
+        std::wstring text(pszData);
+
+        // 6. 메모리 잠금을 해제합니다.
+        GlobalUnlock(hData);
+
+        // 7. 클립보드를 닫습니다.
+        CloseClipboard();
+
+        return text;
+    }
 } // namespace File

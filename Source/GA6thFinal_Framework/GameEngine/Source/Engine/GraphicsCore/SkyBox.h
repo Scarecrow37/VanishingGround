@@ -9,7 +9,7 @@ public:
 
 public:
     void Initialize();
-    void SetTexture(std::string path);
+    void SetTexture(std::wstring_view path);
     void Render(ID3D12GraphicsCommandList* commnadList,UINT rootParameterIndex);
     void ResetResource();
     bool HasTexture() { return _hasTexture; }

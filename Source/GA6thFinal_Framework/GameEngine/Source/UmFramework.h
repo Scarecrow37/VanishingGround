@@ -20,6 +20,19 @@ constexpr bool IS_EDITOR = true;
 constexpr bool IS_EDITOR = false;
 #endif
 
+namespace Global
+{
+    //게임 플레이중 여부를 반환합니다.
+#ifdef _UMEDITOR
+    extern constexpr bool IsPlay();
+#else
+    constexpr bool IsPlay()
+    {
+        return true;
+    }
+#endif
+}
+
 // 프로젝트 설정 파일들 모아두는 폴더
 constexpr const wchar_t* PROJECT_SETTING_PATH = L"ProjectSettings"; 
 // 빌드 설정 파일 모아두는 폴더
@@ -92,18 +105,18 @@ constexpr const char* STR_NULL = "null";
 #include "UmAssimp.h"
 
 #define IMGUI_DEFINE_MATH_OPERATORS
-#include "Engine/Imgui/imgui.h"
-#include "Engine/Imgui/imgui_stdlib.h"
-#include "Engine/Imgui/imgui_impl_win32.h"
-#include "Engine/Imgui/imgui_impl_dx12.h"
-#include "Engine/Imgui/imgui_node_editor.h"
-#include "Engine/Imgui/imgui_internal.h"
+#include "../ImGuiThirdParty/imgui.h"
+#include "../ImGuiThirdParty/imgui_stdlib.h"
+#include "../ImGuiThirdParty/imgui_impl_win32.h"
+#include "../ImGuiThirdParty/imgui_impl_dx12.h"
+#include "../ImGuiThirdParty/imgui_node_editor.h"
+#include "../ImGuiThirdParty/imgui_internal.h"
 
-#include "Engine/Imgui/ImGuizmo.h"
-#include "Engine/Imgui/ImSequencer.h"
-#include "Engine/Imgui/ImZoomSlider.h"
-#include "Engine/Imgui/ImCurveEdit.h"
-#include "Engine/Imgui/GraphEditor.h"
+#include "../ImGuiThirdParty/ImGuizmo.h"
+#include "../ImGuiThirdParty/ImSequencer.h"
+#include "../ImGuiThirdParty/ImZoomSlider.h"
+#include "../ImGuiThirdParty/ImCurveEdit.h"
+#include "../ImGuiThirdParty/GraphEditor.h"
 
 //namespace
 using namespace DirectX;
@@ -123,14 +136,11 @@ using namespace Microsoft::WRL;
 #include "Engine/Utility/SharedResource.h"
 
 //Class Core
-#include "Engine/CommandCore/CommandManager.h"
 #include "Engine/ClassCore/TProperty.hpp"
 #include "Engine/ClassCore/ReflectHelper.h"
 
 //Input Core
-#include "Engine/InputCore/Declare/Exceptions/InputExceptions.h"
-#include "Engine/InputCore/Adapter/Controller/XInput/XInputAdapter.h"
-#include "Engine/InputCore/Devices/Controller/Controller.h"
+#include "../InputModule/InputModule.h"
 
 //Application Core
 #include "Engine/AppModule/Interface/IAppModule.h"
@@ -152,13 +162,14 @@ using namespace Microsoft::WRL;
 
 //Graphics
 #include "Engine/GraphicsCore/GraphicsCore.h"
+#include "Engine/GraphicsCore/ParticleEffectSerializer.h"
+
 
 //Audio Core
-#include "Engine/AudioCore/Declare/Types/AudioTypes.h"
-#include "Engine/AudioCore/Declare/Exceptions/AudioExceptions.h"
-#include "Engine/AudioCore/Handle/AudioHandle.h"
-#include "Engine/AudioCore/Declare/Callback/IncreaseGenerationCallback.h"
-#include "Engine/AudioCore/AudioManager/AudioManager.h"
+#include "../AudioModule/AudioModule.h"
+
+//CommandCore
+#include "Engine/CommandCore/CommandManager.h"
 
 //Engine Core
 #include "Engine/EngineCore/EngineLogger.h"

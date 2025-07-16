@@ -29,7 +29,7 @@ float4 ps_main(PSInput input) : SV_TARGET
     float t = saturate(logH - floor(logH)); // 페이드 비율: 0~1
 
     // 선 색상
-    float3 color = float3(0.7, 0.7, 0.7);
+    float3 color = float3(1.0, 1.0, 1.0);
 
     // LOD 단계별 알파 계산 (보간)
     float alphaLow = (1.0 - t);
@@ -44,6 +44,6 @@ float4 ps_main(PSInput input) : SV_TARGET
     // 거리 페이드
     float dist = distance(cameraData.Position.xz, worldXZ);
     float fade = saturate(1.0 - dist / 1500.0);
-
+    
     return float4(color, finalAlpha * fade);
 }

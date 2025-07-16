@@ -1,10 +1,7 @@
 ﻿#include "pch.h"
 #include "ParticleResolvePass.h"
 #include "ParticleSpritePass.h"
-#include "RenderScene.h"
-#include "RenderTarget.h"
 #include "ParticleRenderTechnique.h"
-#include "UnorderedAccessView.h"
 
  ParticleRenderTechnique::ParticleRenderTechnique() {}
 
@@ -28,20 +25,19 @@
 
 void ParticleRenderTechnique::Execute(ID3D12GraphicsCommandList* commandList)
 {
-    UmParticleManager.ResetRenderCommandObject();
+    //UmParticleManager.ResetRenderCommandObject();
 
-    auto particleCommandList = UmParticleManager.GetRenderCommandList();
+    //auto particleCommandList = UmParticleManager.GetRenderCommandList();
     __super::Execute(commandList);
 
-    particleCommandList->Close();
-    UmDevice.RegisterCommand(particleCommandList, PARTICLE_RENDER_LIST);
+    //particleCommandList->Close();
+    //UmDevice.RegisterCommand(particleCommandList, PARTICLE_RENDER_LIST);
 }
 
 void ParticleRenderTechnique::InitializeSpriteParticlePass()
 {
     std::unique_ptr<ParticleSpritePass> spritepass = std::make_unique<ParticleSpritePass>();
-    spritepass->SetOwnerScene(_ownerScene);
-    spritepass->Initialize();
+    spritepass->Initialize(_ownerScene);
     spritepass->SetAccumulationBuffers(_accumlateBuffer, _revealageBuffer);
     AddRenderPass(std::move(spritepass));
 }
@@ -49,8 +45,7 @@ void ParticleRenderTechnique::InitializeSpriteParticlePass()
 void ParticleRenderTechnique::InitializeParticleResolvePass()
 {
     std::unique_ptr<ParticleResolvePass> resolvepass = std::make_unique<ParticleResolvePass>();
-    resolvepass->SetOwnerScene(_ownerScene);
-    resolvepass->Initialize();
+    resolvepass->Initialize(_ownerScene);
     resolvepass->SetAccumulationBuffers(_accumlateBuffer, _revealageBuffer);
     AddRenderPass(std::move(resolvepass));
 }

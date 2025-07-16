@@ -118,9 +118,20 @@ void EditorModule::OpenPopupBox(const std::string& name, std::function<void()> c
     _popupBoxSystem.OpenPopupBox(name, content);
 }
 
+void EditorModule::OpenPopupBoxEx(const std::string& name, ImVec2 size, int flags, std::function<void()> content) 
+{
+    auto* popup = _popupBoxSystem.OpenPopupBox(name, content);
+    if (popup)
+    {
+        popup->SetFlags(flags);
+        popup->SetSize(size);
+    }
+}
+
 void EditorModule::ResetGuiLayout() 
 {
     _eventQueue.push([this]() {
+        ImGui::ClearIniSettings();
         ImGui::LoadIniSettingsFromMemory(_imGuiIniDataFromIniFile.c_str());
         ImGui::GetIO().IniFilename = nullptr; // 인스턴스가 파괴될 때까지 저장하지 않음
     });
@@ -129,6 +140,7 @@ void EditorModule::ResetGuiLayout()
 void EditorModule::UndoGuiLayout() 
 {
     _eventQueue.push([this]() {
+        ImGui::ClearIniSettings();
         ImGui::LoadIniSettingsFromMemory(_imGuiIniDataFromSetting.c_str());
         ImGui::GetIO().IniFilename = nullptr; // 인스턴스가 파괴될 때까지 저장하지 않음
     });

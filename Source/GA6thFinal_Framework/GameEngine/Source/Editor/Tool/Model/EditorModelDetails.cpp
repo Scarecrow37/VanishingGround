@@ -1,5 +1,7 @@
 ﻿#include "pch.h"
 #include "EditorModelDetails.h"
+#include "EditorModelTool.h"
+#include "Editor/DynamicCamera/EditorDynamicCamera.h"
 #include "Engine/GraphicsCore/FBXConverter.h"
 #include "Engine/GraphicsCore/MeshRenderer.h"
 #include "Engine/GraphicsCore/Model.h"
@@ -9,7 +11,7 @@
 
 EditorModelDetails::EditorModelDetails()
     : _meshRenderer(std::make_unique<MeshRenderer>(MeshRenderType::STATIC, _worldMatrix))
-    , _animator(std::make_shared<Animator>())
+    , _animator()
     , _mainLight(std::make_unique<Light>())
     , _selectedMeshIndex(0)
 {
@@ -127,6 +129,10 @@ void EditorModelDetails::OnStartGui()
     _mainLight->SetActive(&_isLightActive);
 
     UpdateModelTransform();
+
+    auto& system = Global::editorModule->GetDockWindowSystem();
+    auto* modelDock = system.GetDockWindow("ModelDock");
+    _modelTool      = modelDock->GetGui<EditorModelTool>();
 }
 
 void EditorModelDetails::OnEndGui() {}
@@ -150,6 +156,36 @@ void EditorModelDetails::OnFrameRender()
     }
     ImGui::EndHorizontal();
 
+    if (ImGui::TreeNodeEx("Camera Property##details"))
+    {
+        if (_modelTool && _modelTool->GetCamera())
+        {
+            auto& camera = _modelTool->GetCamera();
+            // Speed
+            ImGui::Text("Camera Move Scale: ");
+            float moveScale = camera->GetMoveScale();
+            if (ImGui::SliderFloat("##camera move scale", &moveScale, 0.1f, 1000.f))
+            {
+                camera->SetMoveScale(moveScale);
+            }
+            ImGui::Text("Camera Move Speed: ");
+            float moveSpeed = camera->GetMoveSpeed();
+            if (ImGui::SliderFloat("##camera move speed", &moveSpeed, 0.1f, 100.f))
+            {
+                camera->SetMoveSpeed(moveSpeed);
+            }
+            ImGui::Text("Camera Rotation Speed: ");
+            float rotationSpeed = camera->GetRotationSpeed();
+            if (ImGui::SliderFloat("##camera rotation speed", &rotationSpeed, 0.1f, 50.f))
+            {
+                camera->SetRotationSpeed(rotationSpeed);
+            }
+        }
+        ImGui::TreePop();
+    }
+
+    ImGui::Separator();
+
     if (ImGui::TreeNodeEx("Light Property##details"))
     {
         ImGui::ColorEdit3("Color##Light", (float*)&_color);
@@ -169,11 +205,11 @@ void EditorModelDetails::OnFrameRender()
         if (ImGui::TreeNodeEx("Model##details", ImGuiTreeNodeFlags_DefaultOpen))
         {
             // ReadOnly inputText for file path
-            int flags = ImGuiInputTextFlags_ReadOnly | ImGuiInputTextFlags_AutoSelectAll;
+            int inputFlags = ImGuiInputTextFlags_ReadOnly | ImGuiInputTextFlags_AutoSelectAll;
             std::string filePath  = _filePath.string();
             char* filePathBuffer  = (char*)filePath.c_str();
             size_t filePathLength = filePath.length() + 1;
-            ImGui::InputText("File Path##details", filePathBuffer, filePathLength, flags);
+            ImGui::InputText("File Path##details", filePathBuffer, filePathLength, inputFlags);
             if (ImGui::IsItemHovered())
             {
                 ImGui::SetTooltip(filePath.c_str());
@@ -185,7 +221,7 @@ void EditorModelDetails::OnFrameRender()
                 bool isDirty = false;
                 {
                     ImGui::Text("Position: ");
-                    ImGui::DragFloat3("##position", &_position.x) ? isDirty = true : isDirty;
+                    ImGui::DragFloat3("##position", &_position.x, 0.05f) ? isDirty = true : isDirty;
                     ImGui::SameLine();
                     if (ImGui::Button("Reset##position"))
                     {
@@ -195,7 +231,7 @@ void EditorModelDetails::OnFrameRender()
                 }
                 {
                     ImGui::Text("Rotation: ");
-                    ImGui::DragFloat3("##rotation", &_rotation.x) ? isDirty = true : isDirty;
+                    ImGui::DragFloat3("##rotation", &_rotation.x, 0.05f) ? isDirty = true : isDirty;
                     ImGui::SameLine();
                     if (ImGui::Button("Reset##rotation"))
                     {
@@ -205,7 +241,7 @@ void EditorModelDetails::OnFrameRender()
                 }
                 {
                     ImGui::Text("Scale: ");
-                    ImGui::DragFloat3("##scale", &_scale.x) ? isDirty = true : isDirty;
+                    ImGui::DragFloat3("##scale", &_scale.x, 0.05f) ? isDirty = true : isDirty;
                     ImGui::SameLine();
                     if (ImGui::Button("Reset##scale"))
                     {
@@ -236,7 +272,7 @@ void EditorModelDetails::OnFrameRender()
                     const auto& animationNames = animation->GetAnimations();
                     const char* comboLabel =
                         _currentAnimationIndex == -1 ? "-" : animationNames[_currentAnimationIndex];
-                    if (ImGui::BeginCombo("##Animation", comboLabel))
+                    if (ImGuiHelper::BeginComboInput("##Animation", comboLabel, inputFlags))
                     {
                         for (int i = 0; i < animationNames.size(); ++i)
                         {
@@ -288,7 +324,7 @@ void EditorModelDetails::OnFrameRender()
                     ImGui::Checkbox("Loop", &_isAnimationLooping);
 
                     float min = 0.0f;
-                    float max = _animator->GetCurrentAnimationLastTime();
+                    float max = _animator ? _animator->GetCurrentAnimationLastTime() : 0.0f;
                     ImGui::SliderFloat("Current Animation Frame", &_animationTime, min, max);
                     ImGui::DragFloat("Animation Speed", &_animationSpeed, 0.01f);
                 }
@@ -369,24 +405,34 @@ void EditorModelDetails::ImportModel()
         fbxConverter.ImportModel(path.front(), model);
         _meshRenderer->SetModel(model);
         _meshRenderer->SetActive(&_isModelActive);
-        _animator->Initialize(model->GetAnimation(), model->GetSkeleton());
-        _meshRenderer->SetAnimator(_animator);
         _filePath = path.front();
         _filePath.replace_extension("UmModel");
 
-        _animationIndexMap.clear();
         _currentAnimationIndex = -1;
         _currentAnimationName  = "";
-        auto& animatoion = model->GetAnimation();
-        if (nullptr != animatoion)
+        _animationIndexMap.clear();
+        auto animation = model->GetAnimation();
+        auto skeleton  = model->GetSkeleton();
+        if (animation && skeleton)
         {
-            auto& animations = animatoion->GetAnimations();
+            _animator.reset();
+            _animator = std::make_shared<Animator>();
+            _animator->Initialize(animation, skeleton);
+            _meshRenderer->SetAnimator(_animator);
+            const auto& animations = animation->GetAnimations();
             for (int i = 0; i < animations.size(); ++i)
             {
                 _animationIndexMap[animations[i]] = i;
             }
+            StopCurrentAnimation();
         }
-        StopCurrentAnimation();
+        else
+        {
+            if (_animator)
+            {
+                _animator.reset();
+            }
+        }
     }
 }
 
