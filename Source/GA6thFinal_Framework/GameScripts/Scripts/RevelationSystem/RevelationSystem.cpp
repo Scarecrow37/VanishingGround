@@ -10,8 +10,12 @@ RevelationSystem::~RevelationSystem() = default;
 
 std::shared_ptr<RevelationElement> RevelationSystem::EquipPlayerElement(int slot, const RevelationElement& element)
 {
-    std::shared_ptr<RevelationElement> prevElement = std::move(_playerElementList[slot]);
-    _playerElementList[slot].reset(new RevelationElement(element));
+    std::shared_ptr<RevelationElement> prevElement;
+    if (0 <= slot && slot < _playerElementList.size())
+    {
+        prevElement = std::move(_playerElementList[slot]);
+        _playerElementList[slot].reset(new RevelationElement(element));
+    }
     return prevElement;
 }
 
