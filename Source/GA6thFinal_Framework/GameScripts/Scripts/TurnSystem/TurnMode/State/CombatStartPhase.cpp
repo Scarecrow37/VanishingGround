@@ -6,6 +6,8 @@
 #include <TurnSystem/TurnActor/Character/Player/Player.h>
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
 #include <TurnSystem/TurnAction/TurnAction.h>
+#include <RevelationSystem/RevelationSystem.h>
+#include <WeaponSystem/WeaponSystem.h>
 
 REGISTER_CLASS(FSMStateFactory, CombatStartPhase)
 
@@ -72,6 +74,7 @@ void CombatStartPhase::OnStart()
 void CombatStartPhase::OnEnter() 
 {
     _turnMode->ResetRoundCount();
+    AddVaildActions();
     ResetCharacterStats();
 
     UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"배틀 시작...3");
@@ -110,4 +113,35 @@ void CombatStartPhase::NotifyCombatStart()
     { 
          action.OnCombatStart();
     });
+}
+
+
+void CombatStartPhase::AddVaildActions()
+{
+    //계시 액션들
+    RevelationSystem* revelationSystem = RevelationSystem::GetInstance();
+    if (revelationSystem)
+    {
+        for (auto& element : revelationSystem->GetPlayerElementList())
+        {
+            if (nullptr != element)
+            {
+                if (element->IsAction())
+                {
+                    TurnAction& action = element->GetAction();
+                    _turnMode->AddTurnAction(&action);
+                }
+            }
+        }
+    }
+
+    //무기 액션들
+    if (_weaponSystem)
+    {
+        for (auto& item : _weaponSystem->GetEquipWeapons())
+        {
+
+        }
+    }
+
 }
