@@ -7,7 +7,7 @@ namespace Global
     {
         if constexpr (Application::IsEditor())
         {
-            return Global::editorModule->PlayMode.IsPlay();
+            return ESceneManager::Engine::IsPlayMode(UmSceneManager);
         }
         else
         {
