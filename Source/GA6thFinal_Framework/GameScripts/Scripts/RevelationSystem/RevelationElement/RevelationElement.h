@@ -79,7 +79,7 @@ public:
     //사용할 이미지 리소스 경로입니다.
     PROPERTY(ImagePath)
 
-    void SetName(const std::string& name) { ReflectFields->Name = name; }
+    void SetName(std::string_view name) { ReflectFields->Name = name; }
     GETTER_ONLY(const std::string&, Name) { return ReflectFields->Name; }
     //계시 이름
     PROPERTY(Name)
