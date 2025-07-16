@@ -4,24 +4,8 @@ class EditorPopupBox
 {
     using PopupBoxFunc = std::function<void()>;
 public:
-    EditorPopupBox(std::string_view name, ImGuiWindowFlags flags,
-                   std::function<void()> content) 
-        : _name(name)
-        , _flags(flags)
-        , _initSize(ImVec2(-FLT_MAX, FLT_MAX))
-        , _content(content)
-        , _isOpen(true)
-        , _isStart(false)
-    {
-        ImGui::OpenPopup(name.data(), flags);
-    }
-    EditorPopupBox(std::string_view name, std::function<void()> content) 
-        : _name(name)
-        , _flags(ImGuiWindowFlags_AlwaysAutoResize)
-        , _initSize(ImVec2(-FLT_MAX, FLT_MAX))
-        , _content(content), _isOpen(true), _isStart(false)
-    {
-    }
+    EditorPopupBox(std::string_view name, ImGuiWindowFlags flags, std::function<void()> content);
+    EditorPopupBox(std::string_view name, std::function<void()> content);
     ~EditorPopupBox() = default;
 
     inline void                 SetFlags(ImGuiWindowFlags flags) { _flags = flags; }
