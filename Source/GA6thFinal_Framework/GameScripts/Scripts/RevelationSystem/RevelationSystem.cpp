@@ -250,7 +250,7 @@ void RevelationSystem::ActionDatasToActions()
         if (element.IsAction())
         {
             auto& action = element.GetAction();
-            std::string data = ReflectFields->RevelationActionDatas[key];
+            std::string& data = ReflectFields->RevelationActionDatas[key];
             action.DeserializedReflectFields(data);
         }
     }
@@ -283,12 +283,12 @@ void RevelationSystem::PlayerElementDatasToPlayerElements()
     _playerElementList.resize(ReflectFields->MaxRevelations);
     for (size_t i = 0; i < ReflectFields->PlayerElementDatas.size(); i++)
     {
-        std::string_view data = ReflectFields->PlayerElementDatas[i];
+        const std::string& data = ReflectFields->PlayerElementDatas[i];
         if (i < _playerElementList.size())
         {
             if (data != STR_NULL)
             {
-                auto findIter = _elementsTable.find(data.data());
+                auto findIter = _elementsTable.find(data);
                 if (findIter != _elementsTable.end())
                 {
                     if (_playerElementList[i])
