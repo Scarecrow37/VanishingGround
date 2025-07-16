@@ -39,7 +39,7 @@ void ImageElement::Reset()
     try
     {
         _renderer = std::make_unique<SpriteRenderer>(_worldMatrix, SpriteType::MODE_2D);
-        _renderer->RegisterRenderQueue();
+        _renderer->RegisterComponent();
         _renderer->SetActive(&EnableInHierarchy);
     }
     catch (...)
