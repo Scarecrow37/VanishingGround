@@ -10,10 +10,10 @@ TokenApplyAction::TokenApplyAction()
 
 }
 
-std::string_view TokenApplyAction::GetActionInfo()
+const std::string& TokenApplyAction::GetActionInfo()
 {
-    constexpr const char8_t* info = u8"대상에게 출혈III 2개 부여";
-    return (const char*)info;
+    static const std::string info = (const char*)u8"대상에게 출혈III 2개 부여";
+    return info;
 }
 
 void TokenApplyAction::ImGuiDrawActionEditor() 
@@ -21,8 +21,9 @@ void TokenApplyAction::ImGuiDrawActionEditor()
 
 }
 
-std::string_view TokenApplyAction::GetActionName()
+const std::string& TokenApplyAction::GetActionName()
 {
-    return (const char*)u8"대상에게 토큰 부여";
+    static const std::string name = (const char*)u8"대상에게 토큰 부여";
+    return name;
 }
 

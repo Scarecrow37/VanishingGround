@@ -14,7 +14,7 @@ protected:
     REFLECT_FIELDS_END(TokenApplyAction)
 
 public:
-    std::string_view GetActionInfo() override;
+    const std::string& GetActionInfo() override;
     void             ImGuiDrawActionEditor() override;
-    std::string_view GetActionName() override;
+    const std::string& GetActionName() override;
 };
