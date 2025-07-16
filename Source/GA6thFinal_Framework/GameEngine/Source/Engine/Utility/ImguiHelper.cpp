@@ -42,8 +42,8 @@ namespace ImGuiHelper
 
         ImGui::PushID(id);
 
-        const ImGuiID popupID       = ImGui::GetID("##ComboPopup");
-        const ImGuiID buttonID      = ImGui::GetID("##ArrowButton");
+        const char*   popupLabel    = "##ComboPopup";
+        const char*   buttonLabel   = "##DownArrow";
         const float   arrowSize     = (comboFlags & ImGuiComboFlags_NoArrowButton) ? 0.0f : ImGui::GetFrameHeight();
         const ImVec2  labelSize     = ImGui::CalcTextSize(preview_value, NULL, true);
         const float   previewWidth  = ((comboFlags & ImGuiComboFlags_WidthFitPreview) && (preview_value != NULL)) ? ImGui::CalcTextSize(preview_value, NULL, true).x : 0.0f;
@@ -57,15 +57,15 @@ namespace ImGuiHelper
         ImGui::InputText(label, buffer, bufferSize, inputTextFlags);
         ImGui::SameLine();
         ImGui::SetCursorPosX(cursor.x + w);
-        bool isPopupOpen = ImGui::IsPopupOpen("##ComboPopup", ImGuiPopupFlags_None);
-        bool isPressed   = ImGui::ArrowButton("##down", ImGuiDir_Down);
+        bool isPopupOpen = ImGui::IsPopupOpen(popupLabel, ImGuiPopupFlags_None);
+        bool isPressed   = ImGui::ArrowButton(buttonLabel, ImGuiDir_Down);
         if (true == isPressed && false == isPopupOpen)
         {
-            ImGui::OpenPopupEx(popupID, ImGuiPopupFlags_None);
+            ImGui::OpenPopup(popupLabel, ImGuiPopupFlags_None);
             isPopupOpen = true;
         }
         ImGui::PopID();
-        return ImGui::BeginComboPopup(popupID, bb, comboFlags);
+        return ImGui::BeginComboPopup(ImGui::GetID(popupLabel), bb, comboFlags);
     }
 } // namespace ImGuiHelper
 
