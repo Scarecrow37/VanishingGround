@@ -13,6 +13,7 @@ public:
 
 protected:
     void Reset() override;
+    void Awake() override;
     void Update() override;
     void OnDrawDebug() override;
 
@@ -34,6 +35,10 @@ private:
 
     REFLECT_FIELDS_BEGIN(MeshComponent)
     std::string Guid;
+    std::string CurrentAnimationKey = "";
+    float       AnimationSpeed     = 1.0f;
+    bool        IsAnimationPlaying = false;
+    bool        IsAnimationLooping = true;
     REFLECT_FIELDS_END(SkeletalMeshRenderer)
 
     /////////////////////////////////////////////////////////////
@@ -48,17 +53,13 @@ public:
     void PauseAnimation();
     void ResumeAnimation();
 
-    inline const std::string& GetCurrentAnimationName()     const { return _currentAnimationKey; }
     inline float              GetCurrentAnimationTime()     const { return _animationTime; }
-    inline float              GetCurrentAnimationSpeed()    const { return _animationSpeed; }
-    inline bool               IsAnimationPlaying()          const { return _isAnimationPlaying; }
-    inline bool               IsAnimationLooping()          const { return _isAnimationLooping; }
+    inline const std::string& GetCurrentAnimationName()     const { return ReflectFields->CurrentAnimationKey; }
+    inline float              GetCurrentAnimationSpeed()    const { return ReflectFields->AnimationSpeed; }
+    inline bool               IsAnimationPlaying()          const { return ReflectFields->IsAnimationPlaying; }
+    inline bool               IsAnimationLooping()          const { return ReflectFields->IsAnimationLooping; }
 
 private:
-    float       _animationSpeed      = 1.0f;
-    float       _animationTime       = 0.0f;
-    bool        _isAnimationPlaying  = false;
-    bool        _isAnimationLooping  = true;
-    std::string _currentAnimationKey = "";
+    float _animationTime = 0.0f;
 
 };
