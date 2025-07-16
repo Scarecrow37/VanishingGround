@@ -12,6 +12,10 @@ namespace ImGuiHelper
         CENTER,
     };
 
+    bool BeginComboInput(const char* label, const char* preview_value,
+                         ImGuiInputTextFlags inputTextFlags = ImGuiInputTextFlags_ReadOnly,
+                         ImGuiComboFlags     comboFlags     = ImGuiComboFlags_None);
+
     /*
     호버링시 둘팁을 여는 텍스트를 생성
     desc = 툴팁에 나타날 텍스트

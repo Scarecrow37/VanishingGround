@@ -30,15 +30,18 @@ class Token : public ReflectSerializer, public IToken
 public:
     Token();
     virtual ~Token();
-    REFLECT_PROPERTY(Order, MaxStackCount)
+    REFLECT_PROPERTY(IconGuid, Order, MaxStackCount)
 
+    GETTER(std::string_view, IconGuid) { return ReflectFields->IconGuid; }
+    SETTER(std::string_view, IconGuid) { ReflectFields->IconGuid = value; }
+    PROPERTY(IconGuid)
     GETTER(int, Order) { return ReflectFields->Order; }
     SETTER(int, Order) { SetTokenOrder(value); }
     PROPERTY(Order)
     GETTER(int, MaxStackCount) { return ReflectFields->MaxStackCount; }
     SETTER(int, MaxStackCount) { SetMaxStackCount(value); }
     PROPERTY(MaxStackCount)
-
+    
     virtual void ShowReflectFieldView() = 0;
 
 public: // 콜백에 대한 자세한 주석은 ITriggerType.h를 참고하세요.
@@ -69,6 +72,8 @@ protected:
     int Order = 0;
     // 토큰의 최대 스택 수
     int MaxStackCount = 99;
+    // 토큰 아이콘
+    std::string IconGuid = "";
     REFLECT_FIELDS_END(Token)
 
     std::function<void(int)> _dirtyOrderCallback = nullptr; // 우선순위가 변경되었을 때 호출되는 콜백 함수
