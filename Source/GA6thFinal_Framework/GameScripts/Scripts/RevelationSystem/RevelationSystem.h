@@ -1,8 +1,8 @@
 ﻿#pragma once
-#include "RevelationAction/Base/RevelationActionBase.h"
 #include "RevelationElement/RevelationElement.h"
 
-class RevelationSystem : public Component, public FactoryConstructor<RevelationActionBase>
+class TurnAction;
+class RevelationSystem : public Component
 {
     USING_PROPERTY(RevelationSystem)      
     using ActionDataType = std::unordered_map<std::string, std::string>;
@@ -45,12 +45,7 @@ public:
     /// <returns></returns>
     const std::vector<RevelationElement*>& GetRoundElementList() { return _roundElementList; }
 
-public:
-    const std::unordered_map<std::string, std::function<RevelationActionBase* ()>>& GetActionFactory()
-    {
-        return _actionConstructors;
-    }
-     
+public:     
     /// <summary>
     /// 새로운 Element를 테이블에 추가합니다.
     /// </summary>
@@ -192,11 +187,7 @@ private:
 
 private:
     std::unordered_map<std::string, RevelationElement>                      _elementsTable;         //계시 테이블
-    std::unordered_map<std::string, std::function<RevelationActionBase*()>> _actionConstructors;    //Action 이름으과 한쌍인 Action 생성자
     ImVec2                                                                  _tableEditorCenterPos{};
-
-private:
-    void ResetActions();
 
 private:
     std::vector<std::unique_ptr<RevelationElement>> _playerElementList;       // 플레이어가 사용중인 계시 (인벤토리)

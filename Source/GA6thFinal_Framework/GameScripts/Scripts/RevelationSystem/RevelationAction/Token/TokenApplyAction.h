@@ -1,8 +1,7 @@
 ﻿#pragma once
-#include "../Base/RevelationActionBase.h"
-#include <DamageSystem/Interface/IDamageAction.h>
+#include <TurnSystem/TurnAction/TurnActionFactory.h>
 
-class TokenApplyAction : public RevelationActionBase
+class TokenApplyAction : public TurnAction
 {
     USING_PROPERTY(TokenApplyAction)
 public:
@@ -11,17 +10,11 @@ public:
     REFLECT_PROPERTY()
 
 protected:
-    REFLECT_FIELDS_BEGIN(RevelationActionBase)
-    
+    REFLECT_FIELDS_BEGIN(TurnAction)
     REFLECT_FIELDS_END(TokenApplyAction)
 
-
 public:
-    // RevelationActionBase을(를) 통해 상속됨
     std::string_view GetActionInfo() override;
     void             ImGuiDrawActionEditor() override;
-
-    // IDamageAction을(를) 통해 상속됨
-    void Execute(CharacterBase* attacker, CharacterBase* target) override;
-
+    std::string_view GetActionName() override;
 };

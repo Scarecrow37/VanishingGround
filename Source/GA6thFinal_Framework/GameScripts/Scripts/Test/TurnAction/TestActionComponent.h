@@ -14,6 +14,11 @@ public:
     void OnRoundEnd() override;
     void OnTurnStart(CharacterBase* destination) override;
     void OnTurnEnd(CharacterBase* destination) override;
+
+    // TurnAction을(를) 통해 상속됨
+    std::string_view GetActionName() override;
+    std::string_view GetActionInfo() override;
+    void             ImGuiDrawActionEditor() override;
 };
 
 

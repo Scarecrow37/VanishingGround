@@ -1,12 +1,11 @@
 ﻿#include "pchScripts.h"
 #include "TokenApplyAction.h"
 #include <RevelationSystem/RevelationSystem.h>
+#include <TurnSystem/TurnAction/TurnActionFactory.h>
 
-REGISTER_REVELATION_CLASS(TokenApplyAction)
+REGISTER_TURN_ACTION(TokenApplyAction)
 
 TokenApplyAction::TokenApplyAction() 
-    : 
-    RevelationActionBase(u8"대상에게 토큰 부여")
 {
 
 }
@@ -22,7 +21,8 @@ void TokenApplyAction::ImGuiDrawActionEditor()
 
 }
 
-void TokenApplyAction::Execute(CharacterBase* attacker, CharacterBase* target) 
+std::string_view TokenApplyAction::GetActionName()
 {
-
+    return (const char*)u8"대상에게 토큰 부여";
 }
+

@@ -1,6 +1,5 @@
 ﻿#pragma once
-#include "../RevelationAction/Base/RevelationActionBase.h"
-#include "DamageSystem/Interface/IDamageAction.h"
+class TurnAction;
 
 // 연격 조건
 enum class RevelationConditionType
@@ -41,6 +40,8 @@ enum class RevelationGrade
     //소멸
     EXTINCTION
 };
+
+ class CharacterBase;
 
 /*
 * 계시의 정보를 가지고있는 class 입니다.
@@ -84,7 +85,7 @@ public:
     PROPERTY(Name)
 
     /*해당 계시의 액션을 반환합니다.*/
-    RevelationActionBase* GetAction() { return _action.get(); }
+    TurnAction* GetAction() { return _action.get(); }
 
     /*계시 발동 조건 여부를 검사합니다.*/
     bool Evaluate(CharacterBase* attacker, CharacterBase* target); 
@@ -101,7 +102,7 @@ protected:
     std::string             ActionName      = STR_NULL; 
     REFLECT_FIELDS_END(RevelationElement)
 
-    std::unique_ptr<RevelationActionBase> _action;
+    std::unique_ptr<TurnAction> _action;
 
     /// <summary>
     /// <para>  ImGuiDrawPropertys() 호출 이후 콜되는 이벤트 함수입니다. </para>
@@ -147,7 +148,7 @@ private:
 
 private:
     using DatasType = reflect_fields_struct;
-    void DeepCopyAction(const RevelationActionBase& action);
+    void DeepCopyAction(const TurnAction& action);
     RevelationElement& CopyElement(const RevelationElement& rhs)
     {
         if (this == &rhs)

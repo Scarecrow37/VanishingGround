@@ -3,6 +3,7 @@
 #include <RevelationSystem/RevelationSystem.h>
 #include <TurnSystem/TurnActor/Character/Player/Player.h>
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
+#include <TurnSystem/TurnAction/TurnActionFactory.h>
 
 bool RevelationElement::Evaluate(CharacterBase* attacker, CharacterBase* target)
 {
@@ -51,7 +52,7 @@ void RevelationElement::ImGuiDrawPropertysEvent()
 
         if (ImGui::BeginCombo("##Action", selectName.data()))
         {
-            for (auto& [key, func] : system->GetActionFactory())
+            for (auto& [key, func] : TurnActionFactory::GetActionFactory())
             {
                 if (ImGui::Selectable(key.data()))
                 {
@@ -89,7 +90,7 @@ void RevelationElement::SerializedReflectEvent()
 void RevelationElement::DeserializedReflectEvent() 
 {
     RevelationSystem* system        = RevelationSystem::GetInstance();
-    const auto&       actionFactory = system->GetActionFactory();
+    const auto&       actionFactory = TurnActionFactory::GetActionFactory();
     auto              iter          = actionFactory.find(ReflectFields->ActionName.data());
 
     if (system)
@@ -101,10 +102,10 @@ void RevelationElement::DeserializedReflectEvent()
     }
 }
 
-void RevelationElement::DeepCopyAction(const RevelationActionBase& action) 
+void RevelationElement::DeepCopyAction(const TurnAction& action)
 {
     RevelationSystem* system        = RevelationSystem::GetInstance();
-    const auto&       actionFactory = system->GetActionFactory();
+    const auto&       actionFactory = TurnActionFactory::GetActionFactory();
     std::string_view  actionName    = action.Name;
     auto              iter          = actionFactory.find(actionName.data());
 
@@ -113,8 +114,8 @@ void RevelationElement::DeepCopyAction(const RevelationActionBase& action)
         if (iter != actionFactory.end())
         {
             _action.reset(iter->second());
-            RevelationActionBase& rhs  = const_cast<RevelationActionBase&>(action);
-            std::string           data = rhs.SerializedReflectFields();
+            TurnAction& rhs  = const_cast<TurnAction&>(action);
+            std::string data = rhs.SerializedReflectFields();
             _action->DeserializedReflectFields(data);
         }
     }

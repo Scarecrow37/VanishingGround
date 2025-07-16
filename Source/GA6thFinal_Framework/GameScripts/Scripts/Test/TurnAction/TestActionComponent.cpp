@@ -39,3 +39,18 @@ void TestAction::OnTurnEnd(CharacterBase* destination)
 {
     UmLogger.Log(LogLevel::LEVEL_TRACE, u8"턴 종료");
 }
+
+std::string_view TestAction::GetActionName()
+{
+    return (const char*)u8"테스트 액션";
+}
+
+std::string_view TestAction::GetActionInfo()
+{
+    return (const char*)u8"테스트 액션 정보";
+}
+
+void TestAction::ImGuiDrawActionEditor() 
+{
+    ImGui::Text((const char*)u8"테스트 액션");
+}

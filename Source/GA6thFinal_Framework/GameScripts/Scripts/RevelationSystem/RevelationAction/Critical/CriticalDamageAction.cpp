@@ -2,11 +2,9 @@
 #include "CriticalDamageAction.h"
 #include <RevelationSystem/RevelationSystem.h>
 
-REGISTER_REVELATION_CLASS(CriticalDamageAction)
+REGISTER_TURN_ACTION(CriticalDamageAction)
 
 CriticalDamageAction::CriticalDamageAction() 
-    :
-    RevelationActionBase(u8"치명타 데미지 증가") 
 {
     UpdateActionInfo();
 }
@@ -82,14 +80,6 @@ void CriticalDamageAction::UpdateActionInfo()
                               ReflectFields->AdditionalDamage * 100.f, "%");
 }
 
-void CriticalDamageAction::Execute(CharacterBase* attacker, CharacterBase* target) 
-{
-    if (Evaluate(ReflectFields->Condition, attacker, target))
-    {
-
-    }
-}
-
 bool CriticalDamageAction::Evaluate(CriticalDamageCondition condition, CharacterBase* attacker, CharacterBase* target)
 {
     switch (condition)
@@ -101,4 +91,9 @@ bool CriticalDamageAction::Evaluate(CriticalDamageCondition condition, Character
     default:
         return false;
     }
+}
+
+std::string_view CriticalDamageAction::GetActionName()
+{
+    return (const char*)u8"치명타 데미지 증가";
 }

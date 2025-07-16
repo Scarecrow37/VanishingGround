@@ -1,5 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "RevelationSystem.h"
+#include <TurnSystem/TurnAction/TurnActionFactory.h>
 RevelationSystem::RevelationSystem() 
 {
     MaxRevelations.SetInputAutoEvent([]() { ImGuiHelper::HoveredToolTip(u8"최대 계시 수용량"); });
@@ -431,27 +432,6 @@ void RevelationSystem::ImGuiDrawPropertysEvent()
 void RevelationSystem::Reset()
 {
     static_instance = this;
-    ResetActions();
-}
-
-void RevelationSystem::ResetActions() 
-{
-    _actionConstructors.clear();
-    std::unique_ptr<RevelationActionBase> actionTemp;
-
-    const auto& construtors = GetInstanceConstructors();
-    for (auto& [key, func] : construtors)
-    {
-        actionTemp.reset(func());
-        std::string_view name = actionTemp->Name;
-        auto             findIter = construtors.find(name.data());
-        if (findIter != construtors.end())
-        {
-            std::string message = std::format("{} {}", (const char*)u8"이름이 같은 Revelation Action이 존재합니다.", typeid(*actionTemp).name());
-            UmLogger.Log(LogLevel::LEVEL_WARNING, message);
-        }
-        _actionConstructors[name.data()] = func;
-    }
 }
 
 void RevelationSystem::ImGuiDrawPlayerElementEditor() 
