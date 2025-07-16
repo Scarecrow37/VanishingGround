@@ -14,7 +14,7 @@ CriticalDamageAction::~CriticalDamageAction()
 
 }
 
-std::string_view CriticalDamageAction::GetActionInfo()
+const std::string& CriticalDamageAction::GetActionInfo()
 { 
     return _actionInfo;
 }
@@ -93,7 +93,8 @@ bool CriticalDamageAction::Evaluate(CriticalDamageCondition condition, Character
     }
 }
 
-std::string_view CriticalDamageAction::GetActionName()
+const std::string& CriticalDamageAction::GetActionName()
 {
-    return (const char*)u8"치명타 데미지 증가";
+    static const std::string name = (const char*)u8"치명타 데미지 증가";
+    return name;
 }

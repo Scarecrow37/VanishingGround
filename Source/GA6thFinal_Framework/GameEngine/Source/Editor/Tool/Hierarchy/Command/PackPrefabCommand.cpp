@@ -12,7 +12,7 @@ Command::Hierarchy::PackPrefabCommand::PackPrefabCommand(std::weak_ptr<GameObjec
     _prevGuid = path.ToGuid();
 }
 
-void Command::Hierarchy::PackPrefabCommand::Execute() 
+bool Command::Hierarchy::PackPrefabCommand::Execute()
 {
     if (false == _targetObject.expired())
     {
@@ -28,7 +28,9 @@ void Command::Hierarchy::PackPrefabCommand::Execute()
             UmGameObjectFactory.UnpackPrefab(pTarget.get());
             pTarget->GetScene().IsDirty = true;
         }
+        return true;
     }
+    return false;
 }
 
 void Command::Hierarchy::PackPrefabCommand::Undo() 

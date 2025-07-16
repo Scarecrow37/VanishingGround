@@ -32,7 +32,7 @@ public:
     /// <param name="slot :">장착할 슬롯</param>
     /// <param name="element :">장비 정보</param>
     /// <returns>기존 장착된 장비. 없으면 nullptr</returns>
-    std::unique_ptr<RevelationElement> EquipPlayerElement(int slot, const RevelationElement& element);
+    std::shared_ptr<RevelationElement> EquipPlayerElement(int slot, const RevelationElement& element);
 
     /// <summary>
     /// 이번 라운드 활성화 계시를 랜덤으로 뽑습니다.
@@ -43,7 +43,7 @@ public:
     /// 이번 라운드에 활성화된 계시 항목을 반환합니다.
     /// </summary>
     /// <returns></returns>
-    const std::vector<RevelationElement*>& GetRoundElementList() { return _roundElementList; }
+    const std::vector<std::shared_ptr<RevelationElement>>& GetRoundElementList() { return _roundElementList; }
 
 public:     
     /// <summary>
@@ -128,8 +128,7 @@ public:
         {
             for (int i = ReflectFields->MaxRevelations - 1; i < _playerElementList.size(); i++)
             {
-                RevelationElement* element = _playerElementList[i].get();
-                std::erase(_roundElementList, element);
+                std::erase(_roundElementList, _playerElementList[i]);
             }
         }
         _playerElementList.resize(ReflectFields->MaxRevelations);
@@ -190,8 +189,8 @@ private:
     ImVec2                                                                  _tableEditorCenterPos{};
 
 private:
-    std::vector<std::unique_ptr<RevelationElement>> _playerElementList;       // 플레이어가 사용중인 계시 (인벤토리)
-    std::vector<RevelationElement*>                 _roundElementList;        //이번 라운드에 효과가 발동된 계시 (뽑힌 계시)
+    std::vector<std::shared_ptr<RevelationElement>> _playerElementList;       // 플레이어가 사용중인 계시 (인벤토리)
+    std::vector<std::shared_ptr<RevelationElement>> _roundElementList;        // 이번 라운드에 효과가 발동된 계시 (뽑힌 계시)
     std::unordered_map<std::string, unsigned int>   _elementTotalAppearances; // 계시가 뽑힌 횟수
     unsigned int                                    _totalRollCount = 0;      //계시를 굴린 횟수
 

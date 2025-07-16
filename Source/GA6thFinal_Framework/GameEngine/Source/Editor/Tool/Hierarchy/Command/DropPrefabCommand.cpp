@@ -9,10 +9,12 @@ Command::Hierarchy::DropPrefabCommand::DropPrefabCommand(const File::Guid& guid)
 
 }
 
-void Command::Hierarchy::DropPrefabCommand::Execute() 
+bool Command::Hierarchy::DropPrefabCommand::Execute()
 {
     _newObject = UmGameObjectFactory.DeserializeToGuid(_guid);
     UmSceneManager.GetMainScene()->IsDirty = true;
+
+    return true;
 }
 
 void Command::Hierarchy::DropPrefabCommand::Undo() 

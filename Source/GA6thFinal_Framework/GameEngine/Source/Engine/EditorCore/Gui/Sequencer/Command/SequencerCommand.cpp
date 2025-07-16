@@ -20,12 +20,17 @@ namespace Command
             : UmCommand("ChangeMinFrame"), _timelineSystem(system), _prevFrame(frame), _tempFrame(-FLT_MAX)
         {
         }
-        void ChangeMinFrame::Execute()
+        bool ChangeMinFrame::Execute()
         {
             auto system = _timelineSystem.lock();
             if (nullptr == system || _tempFrame == -FLT_MAX)
-                return;
+            {
+                return false;
+            }
+
             system->SetMinFrame(_tempFrame);
+
+            return true;
         }
         void ChangeMinFrame::Undo()
         {
@@ -43,12 +48,17 @@ namespace Command
             : UmCommand("ChangeMaxFrame"), _timelineSystem(system), _prevFrame(frame), _tempFrame(-FLT_MAX)
         {
         }
-        void ChangeMaxFrame::Execute()
+        bool ChangeMaxFrame::Execute()
         {
             auto system = _timelineSystem.lock();
             if (nullptr == system || _tempFrame == -FLT_MAX)
-                return;
+            {
+                return false;
+            }
+
             system->SetMaxFrame(_tempFrame);
+
+            return true;
         }
         void ChangeMaxFrame::Undo()
         {
@@ -67,16 +77,21 @@ namespace Command
               _notifyData({UINT_MAX, time, label, typeNameID})
         {
         }
-        void AddNotify::Execute()
+        bool AddNotify::Execute()
         {
             auto system = _timelineSystem.lock();
             if (nullptr == system)
-                return;
+            {
+                return false;
+            }
+               
             _notify = system->AddNotify(_notifyData.Label, _notifyData.TypeNameID, _notifyData.Time, _notifyData.ID);
             if (UINT_MAX == _notifyData.ID)
             {
                 _notifyData.ID = _notify->ID;
             }
+
+            return true;
         }
         void AddNotify::Undo() 
         {
@@ -93,18 +108,25 @@ namespace Command
             : UmCommand("RemoveNotify"), _timelineSystem(system), _notify(notify), _notifyData(notify)
         {
         }
-        void RemoveNotify::Execute() 
+        bool RemoveNotify::Execute() 
         {
             auto system = _timelineSystem.lock();
             if (nullptr == system || nullptr == _notify)
-                return;
+            {
+                return false;
+            }
+
             system->RemoveNotifyFromID(_notifyData.ID);
+
+            return true;
         }
         void RemoveNotify::Undo() 
         {
             auto system = _timelineSystem.lock();
             if (nullptr == system)
+            {
                 return;
+            }
             _notify = system->AddNotify(_notifyData.Label, _notifyData.TypeNameID, _notifyData.Time, _notifyData.ID);
         }
 
@@ -118,11 +140,14 @@ namespace Command
               _changedData({notify->ID, changeTime, changelabel, changeTypeNameID})
         {
         }
-        void ChangeNotify::Execute() 
+        bool ChangeNotify::Execute() 
         {
             auto system = _timelineSystem.lock();
-            if (nullptr == system || _notify == nullptr)
-                return;
+            if (nullptr == system || nullptr == _notify)
+            {
+                return false;
+            }
+
             if (_previousData.Label != _changedData.Label)
             {
                 _notify->Label = _changedData.Label;
@@ -135,6 +160,7 @@ namespace Command
             {
                 _notify->SetNotifyEvent(_changedData.TypeNameID);
             }
+            return true;
         }
         void ChangeNotify::Undo() 
         {

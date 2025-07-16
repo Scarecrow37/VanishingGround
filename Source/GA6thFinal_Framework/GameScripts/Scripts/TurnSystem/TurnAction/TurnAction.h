@@ -33,10 +33,10 @@ public:
 
 public:
     /*Action의 이름을 반환해야합니다.*/
-    virtual std::string_view GetActionName() = 0;
+    virtual const std::string& GetActionName() = 0;
 
     /*Action의 효과를 정의하는 내용을 반환해야합니다.*/
-    virtual std::string_view GetActionInfo() = 0;
+    virtual const std::string& GetActionInfo() = 0;
 
     /*편집을 위한 ImGui 함수를 구현해야합니다.*/
     virtual void ImGuiDrawActionEditor() = 0;
@@ -78,7 +78,7 @@ public:
 public:
     REFLECT_PROPERTY(Name)
 
-    GETTER_ONLY(std::string_view, Name) { return GetActionName(); }
+    GETTER_ONLY(const std::string&, Name) { return GetActionName(); }
     // 계시 이름
     PROPERTY(Name)
 

@@ -21,12 +21,9 @@ public:
             {
                 std::unique_ptr<TurnAction> temp;
                 temp.reset(makeFunc());
-                std::string_view name = temp->GetActionName();
-                if (factory.find(name.data()) == factory.end())
-                {
-                    factory[name.data()] = makeFunc;
-                }
-                else
+                const std::string& name = temp->GetActionName();
+                auto [iter, result] = factory.try_emplace(name, makeFunc);
+                if (false == result)
                 {
                     auto msg = std::format("{}{}", (const char*)u8"이미 존재하는 액션 이름입니다.", name);
                     UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
