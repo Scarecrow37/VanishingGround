@@ -8,9 +8,9 @@ RevelationSystem::RevelationSystem()
 }
 RevelationSystem::~RevelationSystem() = default;
 
-std::unique_ptr<RevelationElement> RevelationSystem::EquipPlayerElement(int slot, const RevelationElement& element)
+std::shared_ptr<RevelationElement> RevelationSystem::EquipPlayerElement(int slot, const RevelationElement& element)
 {
-    std::unique_ptr<RevelationElement> prevElement = std::move(_playerElementList[slot]);
+    std::shared_ptr<RevelationElement> prevElement = std::move(_playerElementList[slot]);
     _playerElementList[slot].reset(new RevelationElement(element));
     return prevElement;
 }
@@ -24,7 +24,7 @@ void RevelationSystem::RollRoundElement()
     {
         if (element)
         {
-            _roundElementList.push_back(element.get());
+            _roundElementList.push_back(element);
         }
     }
 
@@ -40,20 +40,20 @@ void RevelationSystem::RollRoundElement()
     //뽑힌 횟수 계산
     for (auto& element : _roundElementList)
     {
-        std::string_view name = element->Name;
-        _elementTotalAppearances[name.data()]++;
+        const std::string& name = element->Name;
+        _elementTotalAppearances[name]++;
     }
     _totalRollCount += (int)_roundElementList.size();
 }
 
-bool RevelationSystem::InsertElement(const RevelationElement& element) 
+bool RevelationSystem::InsertElement(const RevelationElement& element)
 {
-    std::string_view key      = element.Name;
-    bool             result   = false;
-    auto             findIter = _elementsTable.find(key.data());
+    const std::string& key      = element.Name;
+    bool               result   = false;
+    auto               findIter = _elementsTable.find(key);
     if (findIter == _elementsTable.end())
     {
-        RevelationElement& myElement = _elementsTable[key.data()];
+        RevelationElement& myElement = _elementsTable[key];
         myElement                    = element;
         result                       = true;
     }
@@ -190,7 +190,7 @@ void RevelationSystem::DrawImGuiElementTableEditor()
                 element.SetName(_imguiEvent.RenameBuffer);
                 if (InsertElement(element))
                 {
-                    std::string_view key = _imguiEvent.SelectElement->Name;
+                    const std::string& key = _imguiEvent.SelectElement->Name;
                     EraseElement(key);
                 }
                 _imguiEvent.SelectElement = nullptr;
@@ -230,9 +230,10 @@ void RevelationSystem::ActionsToActionDatas()
     ReflectFields->RevelationActionDatas.clear();
     for (auto& [key, element] : _elementsTable)
     {
-        if (auto action = element.GetAction())
+        if (element.IsAction())
         {
-            std::string data = action->SerializedReflectFields();
+            auto& action = element.GetAction();
+            std::string data = action.SerializedReflectFields();
             ReflectFields->RevelationActionDatas[key] = data;
         }
     }
@@ -242,10 +243,11 @@ void RevelationSystem::ActionDatasToActions()
 {
     for (auto& [key, element] : _elementsTable)
     {
-        if (auto action = element.GetAction())
+        if (element.IsAction())
         {
+            auto& action = element.GetAction();
             std::string data = ReflectFields->RevelationActionDatas[key];
-            action->DeserializedReflectFields(data);
+            action.DeserializedReflectFields(data);
         }
     }
 }
@@ -267,7 +269,7 @@ void RevelationSystem::ElementDatasToElements()
     {
         RevelationElement element;
         element.DeserializedReflectFields(data);
-        std::string_view key = element.Name;
+        const std::string& key = element.Name;
         InsertElement(element);
     }
 }
@@ -307,8 +309,8 @@ void RevelationSystem::PlayerElementsToPlayerElementDatas()
     {
         if (playerElement)
         {
-            std::string_view name = playerElement->Name;
-            ReflectFields->PlayerElementDatas.emplace_back(name.data());
+            const std::string& name = playerElement->Name;
+            ReflectFields->PlayerElementDatas.emplace_back(name);
         }
         else
         {
@@ -440,7 +442,7 @@ void RevelationSystem::ImGuiDrawPlayerElementEditor()
     if (ImGui::TreeNodeEx("Player Elements", ImGuiTreeNodeFlags_DefaultOpen))
     {
         TreeToolTip();
-        std::unique_ptr<RevelationElement>* eraseSelect = nullptr;
+        std::shared_ptr<RevelationElement>* eraseSelect = nullptr;
         for (auto& element : _playerElementList)
         {
             ImGui::PushID(&element);
@@ -449,7 +451,7 @@ void RevelationSystem::ImGuiDrawPlayerElementEditor()
             if (false == elementEmpty)
             {
                 ImGui::PushStyleColor(ImGuiCol_Text, element->GetGradeColor());
-                name = element->Name;
+                name = (const std::string&)element->Name;
             }
             if (ImGui::BeginCombo("##5794D456-E0A6-4F6C-844B-07D94A6401C6", name.data()))
             {
@@ -491,7 +493,7 @@ void RevelationSystem::ImGuiDrawPlayerElementEditor()
         }
         if (eraseSelect)
         {
-            std::erase(_roundElementList, eraseSelect->get());
+            std::erase(_roundElementList, *eraseSelect);
             eraseSelect->reset();
             eraseSelect = nullptr;          
         }
@@ -520,7 +522,7 @@ void RevelationSystem::ImGuiDrawRoundElementList()
         RollButton();
         for (auto& element : _roundElementList)
         {
-            std::string_view name = element->Name;
+            std::string_view name = (const std::string&)element->Name;
             ImGui::PushStyleColor(ImGuiCol_Text, element->GetGradeColor());
             ImGui::Text(name.data());
             ImGui::Separator();
