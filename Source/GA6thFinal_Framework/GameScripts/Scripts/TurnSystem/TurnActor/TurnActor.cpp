@@ -70,3 +70,7 @@ void TurnActor::OnKill(CharacterBase* destination) {}
 void TurnActor::OnTokenAdded(int tokenID) {}
 
 void TurnActor::OnTokenRemoved(int tokenID) {}
+
+void TurnActor::OnQTEStart() {}
+
+void TurnActor::OnQTEEnd() {}

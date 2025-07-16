@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "UmFramework.h"
+#include "../TurnAction/TurnAction.h"
 
 class FiniteStateMachine;
 class TurnActor;
@@ -12,10 +13,16 @@ class Player;
 class TurnMode : public Component
 {
     USING_PROPERTY(TurnMode)
+    inline static TurnMode* static_instance = nullptr;
 public:
-    REFLECT_PROPERTY(
-        RoundCount
-    )
+    static TurnMode* GetInstance() 
+    { 
+        if (nullptr == static_instance)
+        {
+            UmLogger.Log(LogLevel::LEVEL_WARNING, u8"Turn Mode가 존재하지 않습니다.");
+        }
+        return static_instance;
+    }
 
 public:
     TurnMode();
@@ -65,6 +72,10 @@ public:
     int GetPendingActorCount() const { return (int)_turnList.size(); }
 
 public:
+    REFLECT_PROPERTY(
+        RoundCount
+    )
+
     GETTER_ONLY(int, RoundCount) { return _roundCount; }
     PROPERTY(RoundCount)
 
@@ -123,6 +134,50 @@ private:
     } _systemConditions;
 
 public:
+    /// <summary>
+    /// 실제 활성화된 Action들 순회하면서 함수를 실행시킵니다.
+    /// </summary>
+    /// <returns></returns>
+    void ApplyActions(const std::function<void(TurnAction& action)>& func) 
+    {
+        std::erase_if(_turnActions, [&func](const auto& pair) 
+        {
+            bool result = true;
+            auto& [isDestroy, action] = pair;
+            if (isDestroy)
+            {
+                result = *isDestroy;
+                if (false == result)
+                {
+                    func(*action);
+                }
+            }
+            return result;
+        });
+    };
+
+    /// <summary>
+    /// 턴 라이프 사이클에 액션을 추가합니다.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="action :">해당 객체 포인터</param>
+    /// <returns></returns>
+    template <typename T>
+    T* AddTurnAction(T* action)
+    {
+        static_assert(std::is_base_of_v<TurnAction, T>, "T is not derived from TurnAction.");
+        auto& [isDestroy, newAction] = _turnActions.emplace_back();
+        isDestroy.reset(new bool{false});
+        TurnAction* baseAction = static_cast<TurnAction*>(action);
+        baseAction->_isDestroy = isDestroy.get();
+        newAction              = baseAction;
+        return action;
+    }
+
+private:
+    std::vector<std::pair<std::unique_ptr<bool>, TurnAction*>> _turnActions;
+
+public:
     GETTER_ONLY(const SystemStates&, States) { return _systemStates; }
     /// <summary>
     /// TurnMode FSM의 State 객체들 입니다.
@@ -136,11 +191,15 @@ public:
     PROPERTY(Conditions)
 
 protected:
+    void Reset() override;
+
+
     /// <summary>
     /// <para> 이 함수는 항상 Start 함수 전에 호출되며 프리팹이 인스턴스화 된 직후에 호출됩니다.                </para>
     /// <para> 게임 오브젝트의 Active가 false 상태인 경우 Awake 함수는 true가 될때까지 호출되지 않습니다.      </para>
     /// </summary>
-    virtual void Awake();
+    virtual void Awake() override;
 
     virtual void ImGuiDrawPropertysEvent() override;
+
 };

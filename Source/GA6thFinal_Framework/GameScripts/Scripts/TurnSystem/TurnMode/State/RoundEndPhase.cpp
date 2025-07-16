@@ -46,19 +46,11 @@ void RoundEndPhase::NotifyRoundEnd()
         auto* combatStartPhase = _turnMode->States->CombatStartPhase;
         if (combatStartPhase)
         {
-            Player* player = combatStartPhase->GetPlayer();
-            if (player)
+            for (auto& character : combatStartPhase->GetCharacters())
             {
-                player->OnRoundEnd();
+                character->OnRoundEnd();
             }
-            const auto& enemies = combatStartPhase->GetEnemies();
-            for (const auto& enemy : enemies)
-            {
-                if (enemy)
-                {
-                    enemy->OnRoundEnd();
-                }
-            }
+            _turnMode->ApplyActions([](TurnAction& action) { action.OnRoundEnd(); });
         }
     }
 }

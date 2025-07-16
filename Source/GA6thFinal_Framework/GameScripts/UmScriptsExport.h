@@ -101,3 +101,6 @@ UMREAL_COMPONENT(DamageSystem)
 
 #include "Scripts/Token/TokenSystem.h"
 UMREAL_COMPONENT(TokenSystem)
+
+#include "Scripts/Test/TurnAction/TestActionComponent.h"
+UMREAL_COMPONENT(TestActionComponent)
