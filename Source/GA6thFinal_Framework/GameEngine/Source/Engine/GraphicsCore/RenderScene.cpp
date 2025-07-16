@@ -238,11 +238,13 @@ void RenderScene::UpdateUI()
         auto     size = component->GetSize();
         XMMATRIX world = component->GetWorldMatrix();
         XMMATRIX scale = XMMatrixIdentity();
-        
+        XMMATRIX translation = XMMatrixIdentity();
+
         switch (component->GetType())
         {
         case SpriteType::MODE_2D:
             scale = XMMatrixScaling((float)size.cx, (float)-size.cy, 1.f);
+            translation = XMMatrixTranslation(size.cx * 0.5f, size.cy * 0.5f, 0.f);
             break;
         case SpriteType::MODE_3D:
         {
@@ -261,7 +263,7 @@ void RenderScene::UpdateUI()
         }
         }
         
-        world = XMMatrixTranspose(scale * world);
+        world = XMMatrixTranspose(scale * world * translation);
         _uiMatrices.push_back(world);
 
         UIMaterial material{.ID = texture->GetID(), .Alpha = 1.f};
