@@ -46,6 +46,7 @@ private:
     /////////////////////////////////////////////////////////////
 public:
     void SetCurrentAnimation(std::string_view animKey);
+    void SetAnimationLoop(bool looping);
     void SetAnimationFrame(float frame);
     void SetAnimationSpeed(float speed);
     void StopAnimation();

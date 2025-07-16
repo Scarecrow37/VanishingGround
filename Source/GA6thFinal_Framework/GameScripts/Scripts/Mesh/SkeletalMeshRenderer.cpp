@@ -190,6 +190,11 @@ void SkeletalMeshRenderer::SetCurrentAnimation(std::string_view animKey)
     }
 }
 
+void SkeletalMeshRenderer::SetAnimationLoop(bool looping) 
+{
+    ReflectFields->IsAnimationLooping = looping;
+}
+
 void SkeletalMeshRenderer::SetAnimationFrame(float frame) 
 {
     auto animator = Renderer->GetAnimator();
