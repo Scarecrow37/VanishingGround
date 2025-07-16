@@ -68,12 +68,12 @@ public:
 
 protected:
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
+    // 토큰 아이콘 Guid
+    std::string IconGuid = "";
     // 토큰의 실행 우선 순위
     int Order = 0;
     // 토큰의 최대 스택 수
     int MaxStackCount = 99;
-    // 토큰 아이콘
-    std::string IconGuid = "";
     REFLECT_FIELDS_END(Token)
 
     std::function<void(int)> _dirtyOrderCallback = nullptr; // 우선순위가 변경되었을 때 호출되는 콜백 함수

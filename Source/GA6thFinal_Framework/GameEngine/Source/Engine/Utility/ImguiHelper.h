@@ -12,6 +12,14 @@ namespace ImGuiHelper
         CENTER,
     };
 
+    /// <summary>
+    /// Preview 렉트를 인풋 텍스트 기반으로 하는 콤보
+    /// </summary>
+    /// <param name="label"></param>
+    /// <param name="preview_value"></param>
+    /// <param name="inputTextFlags"></param>
+    /// <param name="comboFlags"></param>
+    /// <returns></returns>
     bool BeginComboInput(const char* label, const char* preview_value,
                          ImGuiInputTextFlags inputTextFlags = ImGuiInputTextFlags_ReadOnly,
                          ImGuiComboFlags     comboFlags     = ImGuiComboFlags_None);

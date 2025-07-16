@@ -932,8 +932,9 @@ bool EditorSceneTool::ManipulateCommand::Execute()
         object->transform->Rotation = _curr.Rotation;
         object->transform->Scale    = _curr.Scale;
         object->GetScene().IsDirty = true;
+        return true;
     }
-    return true;
+    return false;
 }
 
 void EditorSceneTool::ManipulateCommand::Undo() 
