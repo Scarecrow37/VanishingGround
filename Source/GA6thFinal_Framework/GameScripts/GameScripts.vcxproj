@@ -298,8 +298,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Scripts\RevelationSystem\RevelationAction\Base\RevelationActionBase.h" />
     <ClInclude Include="Scripts\RevelationSystem\RevelationAction\Critical\CriticalDamageAction.h" />
+    <ClInclude Include="Scripts\RevelationSystem\RevelationAction\Token\TokenApplyAction.h" />
     <ClInclude Include="Scripts\RevelationSystem\RevelationElement\RevelationElement.h" />
     <ClInclude Include="Scripts\RevelationSystem\RevelationSystem.h" />
     <ClInclude Include="Scripts\Test\Text\TestText.h" />
@@ -321,6 +321,7 @@
     <ClInclude Include="pchScripts.h" />
     <ClInclude Include="Scripts\Stats\Player\PlayerStats.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnActionFactory.h" />
     <ClInclude Include="Scripts\WeaponSystem\WeaponTable\WeaponTableComponent.h" />
     <ClInclude Include="Scripts\Stats\Weapon\WeaponStats.h" />
     <ClInclude Include="Scripts\Test\Component\TestComponent.h" />
@@ -394,7 +395,9 @@
     <ClInclude Include="Scripts\Test\TurnAction\TestActionComponent.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Scripts\DamageSystem\DamageSystem.cpp" />
     <ClCompile Include="Scripts\RevelationSystem\RevelationAction\Critical\CriticalDamageAction.cpp" />
+    <ClCompile Include="Scripts\RevelationSystem\RevelationAction\Token\TokenApplyAction.cpp" />
     <ClCompile Include="Scripts\RevelationSystem\RevelationElement\RevelationElement.cpp" />
     <ClCompile Include="Scripts\RevelationSystem\RevelationSystem.cpp" />
     <ClCompile Include="Scripts\Test\Text\TestText.cpp" />

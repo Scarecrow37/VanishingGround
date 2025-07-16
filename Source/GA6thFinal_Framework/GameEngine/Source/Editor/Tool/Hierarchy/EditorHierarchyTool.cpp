@@ -557,7 +557,7 @@ void EditorHierarchyTool::OnFrameRender()
     ImVec2 size = ImGui::GetContentRegionAvail();
     size.y -= 25;
     ImGui::BeginChild("##E8DA04FA-E996-4718-8E2F-3138772C5A32", size);
-
+    HierarchyRightClickEvent();
     const auto& scenes = engineCore->SceneManager.GetLoadedScenes();
     if (false == scenes.empty())
     {
