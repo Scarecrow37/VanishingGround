@@ -35,8 +35,8 @@ protected:
     CriticalDamageCondition Condition = CriticalDamageCondition::ALWAYS; // 조건
     REFLECT_FIELDS_END(CriticalDamageAction)
 
-    std::string_view GetActionName() override;
-    std::string_view GetActionInfo() override;
+    const std::string& GetActionName() override;
+    const std::string& GetActionInfo() override;
     void ImGuiDrawActionEditor() override;
     void DeserializedReflectEvent() override;
 
