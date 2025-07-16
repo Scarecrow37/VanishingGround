@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-namespace Impoerter
+namespace Importer
 {
     class SpriteFontImporter 
         : public File::FileEventSubscriber

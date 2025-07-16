@@ -51,5 +51,5 @@ private:
     std::mutex          _mutex;
     std::queue<Event>   _eventQueue; // 이벤트 큐
 
-    Impoerter::SpriteFontImporter _spriteFontImporter; // 스프라이트 폰트 임포터
+    Importer::SpriteFontImporter _spriteFontImporter; // 스프라이트 폰트 임포터
 };

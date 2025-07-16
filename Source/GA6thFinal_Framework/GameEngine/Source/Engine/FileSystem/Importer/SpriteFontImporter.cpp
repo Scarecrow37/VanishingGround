@@ -2,13 +2,13 @@
 #include "SpriteFontImporter.h"
 #include "Editor/Tool/AssetBrowser/EditorAssetBrowserTool.h"
 
-bool Impoerter::SpriteFontImporter::Initialize()
+bool Importer::SpriteFontImporter::Initialize()
 {
     UmFileSystem.RegisterFileEventSubscriber(this, {".ttf", ".otf"});
     return true;
 }
 
-void Impoerter::SpriteFontImporter::OnRequestedDragDrop(const File::Path& path) 
+void Importer::SpriteFontImporter::OnRequestedDragDrop(const File::Path& path)
 {
     File::Path extension = path.extension();
     if (true == IsTriggerExtension(extension))
@@ -30,12 +30,12 @@ void Impoerter::SpriteFontImporter::OnRequestedDragDrop(const File::Path& path)
 }
 
 #define IMGUI_TEXT_BLOCK(text, offset)\
-ImGui::Text("Font Size");\
-ImGui::SameLine(offset);\
+ImGui::Text(text);                                                                                                 \
+    ImGui::SameLine(offset);\
 ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);\
 ImGui::SameLine();
 
-void Impoerter::SpriteFontImporter::DrawImGuiImportSetting() 
+void Importer::SpriteFontImporter::DrawImGuiImportSetting()
 {
     std::string path = _importPath.string();
     ImGui::BeginDisabled();
