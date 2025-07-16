@@ -675,6 +675,15 @@
     <ClInclude Include="Source\Engine\GraphicsCore\TextDrawPass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\LightMapBaker.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\CommandController.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\CommandSet.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\pch.cpp">
@@ -1221,6 +1230,15 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\TextDrawPass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\LightMapBaker.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\CommandController.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\CommandSet.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

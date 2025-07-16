@@ -728,7 +728,7 @@ void ParticleManager::DispatchParticleCompute(float deltaTime)
     _computeCommandList->ResourceBarrier(1, &computeOutputBarrior);
 
     _computeCommandList->Close();
-    UmDevice.RegisterCommand(_computeCommandList.Get(), COMPUTE_LIST);
+    UmCommandController.ExecuteCommand(CommandQueueType::COMPUTE_QUEUE, _computeCommandList.Get());
 
     // 7. 커맨드 리스트 종료 및 실행
 }

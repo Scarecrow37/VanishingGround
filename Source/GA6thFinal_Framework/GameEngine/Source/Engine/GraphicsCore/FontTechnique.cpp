@@ -43,7 +43,7 @@ void FontTechnique::Initialize(ID3D12GraphicsCommandList* commandList)
 
             spriteBatch = std::make_unique<SpriteBatch>(device.GetDevice(), resourceUpload, psd);
 
-            auto uploadFinish = resourceUpload.End(device.GetCommandQueue());
+            auto uploadFinish = resourceUpload.End(UmCommandController.GetCommandQueue(CommandQueueType::GRAPHICS_QUEUE));
             uploadFinish.wait();
         }
         catch (std::exception& e)

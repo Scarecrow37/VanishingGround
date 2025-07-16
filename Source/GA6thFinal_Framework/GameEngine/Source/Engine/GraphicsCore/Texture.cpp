@@ -57,7 +57,7 @@ void Texture::LoadResource(const std::filesystem::path& filePath)
 	}	
 	FAILED_CHECK_MESSAGE(hr, L"Texture::LoadResource Failed");
 
-    resUpload.End(UmDevice.GetCommandQueue());
+    resUpload.End(UmCommandController.GetCommandQueue(CommandQueueType::GRAPHICS_QUEUE));
 
 	CreateShaderResourceView();
 }

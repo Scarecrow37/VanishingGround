@@ -20,6 +20,7 @@ public:
     MultiRenderTargetManager MultiRenderTargetManager;
     ParticleManager          ParticleManager;
     DXResourceManager        DXResourceManager;
+    CommandController        CommandController;
     DebugDrawCore            DebugDrawCore;
 
 public:

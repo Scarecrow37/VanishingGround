@@ -18,9 +18,11 @@
 #include "AnimationCore.h"
 #include "LightCore.h"
 #include "Renderer.h"
+#include "CommandSet.h"
 
 #include "DXResourceManager.h"
 #include "MultiRenderTargetManager.h"
 #include "ParticleManager.h"
 #include "ResourceManager.h"
 #include "ViewManager.h"
+#include "CommandController.h"

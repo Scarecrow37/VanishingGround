@@ -32,14 +32,12 @@ void Device::SetUpDevice(HWND hwnd, UINT width, UINT height, FeatureLevel featur
     default:
         break;
     }
-
+    
     CreateDeviceAndSwapChain(hwnd, d3dFeature);
 }
 
 void Device::Initialize()
 {
-    _commandLists.resize(COMMAND_LIST_END);
-
     UmViewManager.AddDescriptorHeap(ViewManager::Type::RENDER_TARGET, SWAPCHAIN_BUFFER_COUNT, _renderTargetHandles);
 
     ResizeSwapChain();
@@ -48,9 +46,6 @@ void Device::Initialize()
 void Device::Finalize()
 {
     _uploadResources.clear();
-    _graphicsFences.clear();
-    _lastGraphicsFenceValues.clear();
-    CloseHandle(_fenceEvent);
 }
 
 void Device::OnResize(UINT width, UINT height)
@@ -62,47 +57,21 @@ void Device::OnResize(UINT width, UINT height)
 
 void Device::GPUSync()
 {
-    const UINT64 fence = _graphicsFenceValue;
+    auto& commandController = UmCommandController;
 
-    // Fence 값 갱신
-    _commandQueue->Signal(_graphicsFence.Get(), fence);
-
-    _graphicsFenceValue++;
-
-    // GPU 의 현재 Fence 값 확인.
-    if (_graphicsFence->GetCompletedValue() < fence)
-    {
-        // 이벤트 설정 : GPU 의 펜스 값이 fence 와 동일해지면 이벤트가 발생됨.
-        _graphicsFence->SetEventOnCompletion(fence, _fenceEvent);
-
-        // 대기...
-        ::WaitForSingleObject(_fenceEvent, INFINITE);
-    }
+    UINT64 fence = commandController.SignalCommandQueue(CommandQueueType::GRAPHICS_QUEUE);
+    commandController.WaitForCommandQueue(CommandQueueType::GRAPHICS_QUEUE, fence);
 }
 
-void Device::FullGpuSync()
+void Device::FullGPUSync()
 {
-    UINT64 fence = _computeFenceValue;
+    auto& commandController = UmCommandController;
 
-    _computeCommandQueue->Signal(_computeFence.Get(), fence);
-    _computeFenceValue++;
-    
-    if (_computeFence->GetCompletedValue() < fence)
-    {
-        _computeFence->SetEventOnCompletion(fence, _fenceEvent);
-        ::WaitForSingleObject(_fenceEvent, INFINITE);
-    }
+    UINT64 fence = commandController.SignalCommandQueue(CommandQueueType::COMPUTE_QUEUE);    
+    commandController.WaitForCommandQueue(CommandQueueType::COMPUTE_QUEUE, fence);
 
-    fence = _graphicsFenceValue;
-
-    _commandQueue->Signal(_graphicsFence.Get(), fence);
-    _graphicsFenceValue++;
-
-    if (_graphicsFence->GetCompletedValue() < fence)
-    {
-        _graphicsFence->SetEventOnCompletion(fence, _fenceEvent);
-        ::WaitForSingleObject(_fenceEvent, INFINITE);
-    }
+    fence = commandController.SignalCommandQueue(CommandQueueType::GRAPHICS_QUEUE);
+    commandController.WaitForCommandQueue(CommandQueueType::GRAPHICS_QUEUE, fence);     
 }
 
 void Device::UploadResource(ComPtr<ID3D12Resource> uploadResource) 
@@ -131,6 +100,9 @@ void Device::ResetCommands()
 
     _imguiCommandAllocator->Reset();
     _imguiCommandList->Reset(_imguiCommandAllocator.Get(), nullptr);
+
+    auto& commandController = UmCommandController;
+    commandController.ResetCommand(CommandQueueType::GRAPHICS_QUEUE);
 }
 
 void Device::ResetComputeCommands()
@@ -148,25 +120,20 @@ void Device::Execute()
     _commandList->Close();
     _imguiCommandList->Close();
 
-    RegisterCommand(_computeCommandList.Get(), COMPUTE_LIST);
-    RegisterCommand(_commandList.Get(), RENDER_LIST);
-    RegisterCommand(_imguiCommandList.Get(),IMGUI_RENDER_LIST);
+    auto& commandController = UmCommandController;
 
-    // [1] Compute (Compute Queue)
-    ExecuteCommand(COMPUTE_LIST);
-    SignalComputeQueue(COMPUTE_FENCE);
+    // Execute Compute Commands
+    commandController.ExecuteCommand(CommandQueueType::COMPUTE_QUEUE, _computeCommandList.Get());
    
-    // [2] 렌더 전 동기화
-    _commandQueue->Wait(_graphicsFences[COMPUTE_FENCE].Get(), _lastGraphicsFenceValues[COMPUTE_FENCE]);
+    // Wait for Compute Commands to finish
+    UINT64 computeFence = commandController.SignalCommandQueue(CommandQueueType::COMPUTE_QUEUE);
+    commandController.WaitCommandQueue(CommandQueueType::GRAPHICS_QUEUE, CommandQueueType::COMPUTE_QUEUE, computeFence);
 
-    // [3] Render (Graphics Queue)
-    ExecuteCommand(RENDER_LIST);
+    // Draw Graphics Commands
+    commandController.ExecuteCommand(CommandQueueType::GRAPHICS_QUEUE, _commandList.Get());
 
-    // [4] DebugDraw (Graphics Queue)
-    ExecuteCommand(DEBUG_RENDER_LIST);
-
-    // [5] ImGui (Graphics Queue)
-    ExecuteCommand(IMGUI_RENDER_LIST);
+    // Draw ImGui Commands
+    commandController.ExecuteCommand(CommandQueueType::GRAPHICS_QUEUE, _imguiCommandList.Get());
 }
 
 void Device::UpdateBuffer(ComPtr<ID3D12Resource>& buffer, void* data, UINT size)
@@ -210,7 +177,8 @@ void Device::ClearBackBuffer(UINT flag, XMVECTOR color, float depth, UINT stenci
 
 void Device::Flip()
 {
-    _graphicsMemory->Commit(_commandQueue.Get());
+    ID3D12CommandQueue* commandQueue = UmCommandController.GetCommandQueue(CommandQueueType::GRAPHICS_QUEUE);
+    _graphicsMemory->Commit(commandQueue);
 
     _swapChain->Present(0, 0);
     GPUSync();
@@ -325,28 +293,6 @@ void Device::CreateCommandList(ComPtr<ID3D12CommandAllocator>& allocator, ComPtr
     commandList->Close();
 }
 
-void Device::RegisterCommand(ID3D12CommandList* commandList, CommandListType type)
-{
-    _commandLists[type].push_back(commandList);
-}
-
-void Device::ExecuteCommand(CommandListType type)
-{
-    switch (type)
-    {
-    case CommandListType::DEBUG_RENDER_LIST:
-    case CommandListType::IMGUI_RENDER_LIST:
-    case CommandListType::RENDER_LIST:
-        _commandQueue->ExecuteCommandLists(static_cast<UINT>(_commandLists[type].size()), _commandLists[type].data());
-        break;
-    case CommandListType::COMPUTE_LIST:
-        _computeCommandQueue->ExecuteCommandLists(static_cast<UINT>(_commandLists[type].size()), _commandLists[type].data());
-        break;
-    }
-
-    _commandLists[type].clear();
-}
-
 void Device::ResizeSwapChain()
 {
     if (!_onResize)
@@ -360,10 +306,10 @@ void Device::ResizeSwapChain()
 
     _commandList->Close();
 
-    RegisterCommand(_commandList.Get(), RENDER_LIST);
-    ExecuteCommand(RENDER_LIST);
+    auto& commandController = UmCommandController;
+    commandController.ExecuteCommand(CommandQueueType::GRAPHICS_QUEUE, _commandList.Get());
     
-    FullGpuSync();
+    FullGPUSync();
 
     _mainViewport.TopLeftX = 0;
     _mainViewport.TopLeftY = 0;
@@ -391,6 +337,8 @@ void Device::CreateDeviceAndSwapChain(HWND hwnd, D3D_FEATURE_LEVEL feature)
     hr = D3D12CreateDevice(0, feature, IID_PPV_ARGS(&_device));
     FAILED_CHECK_MESSAGE(hr, L"Device::CreateDeviceAndSwapChain D3D12CreateDevice Failed");
 
+    UmCommandController.Initialize();
+
     _rtvDescriptorSize       = _device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
     _dsvDescriptorSize       = _device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
     _cbvSrvUavDescriptorSize = _device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
@@ -408,9 +356,13 @@ void Device::CreateDeviceAndSwapChain(HWND hwnd, D3D_FEATURE_LEVEL feature)
     _4xMSAAQuality = msQualityLevels.NumQualityLevels;
     GRAPHICS_ASSERT(_4xMSAAQuality > 0, L"Unexpected MSAA quality level");
 
-    CreateCommandQueue();
-    CreateComputeCommandObject();
-    CreateSyncObject();
+    CreateCommandList(_commandAllocator, _commandList, CommandType::DIRECT);
+    CreateCommandList(_imguiCommandAllocator, _imguiCommandList, CommandType::DIRECT);
+    CreateCommandList(_computeCommandAllocator, _computeCommandList, CommandType::COMPUTE);
+
+    _commandList->SetName(L"GraphicsCmdList");
+    _imguiCommandList->SetName(L"ImGuiCmdList");
+    _computeCommandList->SetName(L"ComputeCmdList");
 
     _swapChain.Reset();
     DXGI_SWAP_CHAIN_DESC1 sd{};
@@ -424,8 +376,10 @@ void Device::CreateDeviceAndSwapChain(HWND hwnd, D3D_FEATURE_LEVEL feature)
     sd.BufferCount        = SWAPCHAIN_BUFFER_COUNT;
     sd.SwapEffect         = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 
+    ID3D12CommandQueue* commandQueue = UmCommandController.GetCommandQueue(CommandQueueType::GRAPHICS_QUEUE);
+
     ComPtr<IDXGISwapChain1> swapChain;
-    hr = _dxgiFactory->CreateSwapChainForHwnd(_commandQueue.Get(), hwnd, &sd, nullptr, nullptr, &swapChain);
+    hr = _dxgiFactory->CreateSwapChainForHwnd(commandQueue, hwnd, &sd, nullptr, nullptr, &swapChain);
     FAILED_CHECK_MESSAGE(hr, L"Device::CreateDeviceAndSwapChain _dxgiFactory->CreateSwapChainForHwnd Failed");
 
     hr = swapChain->QueryInterface(IID_PPV_ARGS(&_swapChain));
@@ -434,72 +388,6 @@ void Device::CreateDeviceAndSwapChain(HWND hwnd, D3D_FEATURE_LEVEL feature)
 
     _graphicsMemory = std::make_unique<GraphicsMemory>(_device.Get());
     //_graphicsMemory->Allocate()
-}
-
-void Device::CreateComputeCommandObject()
-{
-    CreateCommandList(_computeCommandAllocator, _computeCommandList, CommandType::COMPUTE);
-    D3D12_COMMAND_QUEUE_DESC desc
-    {
-        .Type     = D3D12_COMMAND_LIST_TYPE_COMPUTE,
-        .Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL,
-        .Flags    = D3D12_COMMAND_QUEUE_FLAG_NONE,
-        .NodeMask = 0,
-    };
-
-    HRESULT hr = S_OK;
-    hr         = _device->CreateCommandQueue(&desc, IID_PPV_ARGS(&_computeCommandQueue));
-    FAILED_CHECK_MESSAGE(hr, L"Device::CreateComputeCommandObject _device->CreateCommandQueue Failed");
-}
-
-void Device::CreateCommandQueue()
-{
-    D3D12_COMMAND_QUEUE_DESC desc
-    {
-        .Type     = D3D12_COMMAND_LIST_TYPE_DIRECT,
-        .Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL,
-        .Flags    = D3D12_COMMAND_QUEUE_FLAG_NONE,
-        .NodeMask = 0,
-    };
-
-    HRESULT hr = S_OK;
-
-    hr = _device->CreateCommandQueue(&desc, IID_PPV_ARGS(&_commandQueue));
-    FAILED_CHECK_MESSAGE(hr, L"Device::CreateCommandQueue _device->CreateCommandQueue Failed");
-
-    CreateCommandList(_commandAllocator, _commandList, CommandType::DIRECT);
-    CreateCommandList(_imguiCommandAllocator, _imguiCommandList, CommandType::DIRECT);
-
-    _commandQueue->SetName(L"GraphicsQueue");
-    _commandList->SetName(L"GraphicsCmdList");
-    _imguiCommandList->SetName(L"imguiCmdList");
-}
-
-void Device::CreateSyncObject()
-{
-    HRESULT hr = S_OK;
-    hr         = _device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&_graphicsFence));
-    FAILED_CHECK_MESSAGE(hr, L"Device::CreateSyncObject _device->CreateFence Failed");
-
-    hr = _device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&_computeFence));
-    FAILED_CHECK_MESSAGE(hr, L"Device::CreateSyncObject _device->CreateFence Failed");
-
-    _graphicsFenceValue = 1;
-    _computeFenceValue = 1;
-
-    _fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-    GRAPHICS_ASSERT(nullptr != _fenceEvent, L"Device::CreateSyncObject CreateEvent Failed");
-
-    _graphicsFences.resize(FENCE_END);
-    _lastGraphicsFenceValues.resize(FENCE_END);
-    _fenceValues.resize(FENCE_END);
-
-    for (UINT i = 0; i < FENCE_END; ++i)
-    {
-        hr = _device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&_graphicsFences[i]));
-        FAILED_CHECK_MESSAGE(hr, L"Device::CreateSyncObject _device->CreateFence Failed");
-        _fenceValues[i] = 1;
-    }
 }
 
 void Device::CreateBackBuffer()
@@ -552,40 +440,4 @@ void Device::CreateBuffer(UINT size, ComPtr<ID3D12Resource>& buffer)
     HRESULT hr = S_OK;
     hr = _device->CreateCommittedResource(&hp, D3D12_HEAP_FLAG_NONE, &rd, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&buffer));
     FAILED_CHECK_MESSAGE(hr, L"Device::CreateBuffer _device->CreateCommittedResource Failed");
-}
-
-void Device::WaitComputeFence(int fenceSlot)
-{
-    UINT64 fenceValue = _lastGraphicsFenceValues[fenceSlot];
-    _computeCommandQueue->Wait(_graphicsFences[fenceSlot].Get(), fenceValue);
-
-    //if (_graphicsFences[fenceSlot]->GetCompletedValue() < fenceValue)
-    //{
-    //    _graphicsFences[fenceSlot]->SetEventOnCompletion(fenceValue, _fenceEvent);
-    //    WaitForSingleObject(_fenceEvent, INFINITE);
-    //}
-}
-
-
-void Device::WaitGraphicsFence(int fenceSlot)
-{
-    UINT64 fenceValue = _lastGraphicsFenceValues[fenceSlot];
-    _commandQueue->Wait(_graphicsFences[fenceSlot].Get(), fenceValue);
-    //if (_graphicsFences[fenceSlot]->GetCompletedValue() < fenceValue)
-    //{
-    //    _graphicsFences[fenceSlot]->SetEventOnCompletion(fenceValue, _fenceEvent);
-    //    WaitForSingleObject(_fenceEvent, INFINITE);
-    //}
-}
-
-void Device::SignalComputeQueue(int fenceSlot)
-{
-    _lastGraphicsFenceValues[fenceSlot]++;
-    _computeCommandQueue->Signal(_graphicsFences[fenceSlot].Get(), _lastGraphicsFenceValues[fenceSlot]);
-}
-
-void Device::SignalGraphicsQueue(int fenceSlot)
-{
-    _lastGraphicsFenceValues[fenceSlot]++;
-    _commandQueue->Signal(_graphicsFences[fenceSlot].Get(), _lastGraphicsFenceValues[fenceSlot]);
 }

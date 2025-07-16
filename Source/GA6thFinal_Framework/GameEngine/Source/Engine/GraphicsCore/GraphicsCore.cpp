@@ -3,10 +3,10 @@
 
 void GraphicsCore::Initialize(HWND hwnd, UINT width, UINT height, FeatureLevel feature)
 {
-    Device.SetUpDevice(hwnd, width, height, feature);
+    Device.SetUpDevice(hwnd, width, height, feature);    
     ViewManager.Initialize();
     Device.Initialize(); 
-    Device.ResetCommands();
+    Device.ResetCommands();    
     ParticleManager.Initialize(MAX_PARTICLE);
     Renderer.Initialize();
 
@@ -16,8 +16,8 @@ void GraphicsCore::Initialize(HWND hwnd, UINT width, UINT height, FeatureLevel f
     auto imguiCommandList = Device.GetImguiCommandList();
     imguiCommandList->Close();
 
-    Device.RegisterCommand(commandList,RENDER_LIST);
-    Device.ExecuteCommand(RENDER_LIST);
+    UmCommandController.ExecuteCommand(CommandQueueType::GRAPHICS_QUEUE, commandList);
+;
     Device.GPUSync();
 
     Device.ResetCommands();

@@ -301,10 +301,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Source\Editor\Tool\Model\EditorAnimationNotifyTool.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\CommandController.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\CommandSet.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\ConstantBufferView.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\FontRenderer.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\FontTechnique.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\Headers.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\LightMapBaker.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\TextDrawPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\UI25DPass.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\UIPassBase.h" />
@@ -493,9 +496,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Editor\Tool\Model\EditorAnimationNotifyTool.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\CommandController.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\CommandSet.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\ConstantBufferView.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\FontRenderer.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\FontTechnique.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\LightMapBaker.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\TextDrawPass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\UI25DPass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\UIPassBase.cpp" />

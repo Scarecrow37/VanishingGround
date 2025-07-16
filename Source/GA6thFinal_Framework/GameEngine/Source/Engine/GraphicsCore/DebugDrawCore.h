@@ -56,7 +56,6 @@ private:
     std::unordered_map<std::string_view, std::vector<DrawData>> _drawDatas;
     std::unique_ptr<PrimitiveBatch<VertexPositionColor>>        _primitiveBatch;
     std::unique_ptr<BasicEffect>                                _basicEffect;
-    ComPtr<ID3D12GraphicsCommandList>                           _commandList;
-    ComPtr<ID3D12CommandAllocator>                              _commandAllocator;
+    CommandSet                                                  _commandSet;
     RenderTarget*                                               _renderTarget;
 };

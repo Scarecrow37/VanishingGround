@@ -19,7 +19,7 @@ void Font::LoadResource(const std::filesystem::path& filePath)
     resourceUpload.Begin();
 
     _font = std::make_unique<DirectX::DX12::SpriteFont>(device, resourceUpload, filePath.c_str(), _handle.CPU, _handle.GPU);
-    auto uploadFinish = resourceUpload.End(UmDevice.GetCommandQueue());
+    auto uploadFinish = resourceUpload.End(UmCommandController.GetCommandQueue(CommandQueueType::GRAPHICS_QUEUE));
 
     uploadFinish.wait();
 

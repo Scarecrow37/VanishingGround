@@ -8,8 +8,6 @@ public:
 
 public:
     ID3D12Device*                      GetDevice() const { return _device.Get(); }
-    ID3D12CommandQueue*                GetCommandQueue() const { return _commandQueue.Get(); }
-    ID3D12CommandQueue*                GetComputeCommandQueue() const { return _computeCommandQueue.Get(); }
     ID3D12GraphicsCommandList*         GetCommandList() const { return _commandList.Get(); }
     ID3D12GraphicsCommandList*         GetImguiCommandList() const { return _imguiCommandList.Get(); }
     ID3D12GraphicsCommandList*         GetComputeCommandList() const { return _computeCommandList.Get(); }
@@ -31,7 +29,7 @@ public:
 public:
     void OnResize(UINT width, UINT height);
     void GPUSync();
-    void FullGpuSync();
+    void FullGPUSync();
 
     void UploadResource(ComPtr<ID3D12Resource> uploadResource);
     void SetBackBuffer();
@@ -53,38 +51,18 @@ public:
     void CreateConstantBuffer(void* data, UINT size, ComPtr<ID3D12Resource>& buffer);
     void CreateDefaultBuffer(UINT size, ComPtr<ID3D12Resource>& buffer);
     void CreateCommandList(ComPtr<ID3D12CommandAllocator>& allocator, ComPtr<ID3D12GraphicsCommandList>& commandList, CommandType type);
-    void RegisterCommand(ID3D12CommandList* commandList, CommandListType type);
-    void ExecuteCommand(CommandListType type);
 
 private:
     void ResizeSwapChain();
     void CreateDeviceAndSwapChain(HWND hwnd, D3D_FEATURE_LEVEL feature);
-    void CreateComputeCommandObject();
-    void CreateCommandQueue();
-    void CreateSyncObject();
     void CreateBackBuffer();
     void CreateBuffer(UINT size, ComPtr<ID3D12Resource>& buffer);
-
-    void WaitComputeFence(int fenceSlot);
-    void WaitGraphicsFence(int fenceSlot);
-    void SignalComputeQueue(int fenceSlot);
-    void SignalGraphicsQueue(int fenceSlot);
 
 private:
     std::unique_ptr<GraphicsMemory> _graphicsMemory;
     ComPtr<ID3D12Device>            _device;
     ComPtr<IDXGIFactory4>           _dxgiFactory;
     ComPtr<IDXGISwapChain4>         _swapChain;
-    ComPtr<ID3D12CommandQueue>      _commandQueue;
-    ComPtr<ID3D12Fence>             _graphicsFence;
-    ComPtr<ID3D12Fence>             _computeFence;
-    UINT64                          _graphicsFenceValue = 0;
-    UINT64                          _computeFenceValue  = 0;
-    HANDLE                          _fenceEvent;
-
-    std::vector<ComPtr<ID3D12Fence>> _graphicsFences;
-    std::vector<UINT64>              _lastGraphicsFenceValues;
-    std::vector<UINT64>              _fenceValues;
 
     ComPtr<ID3D12Resource>                   _swapChainBuffer[SWAPCHAIN_BUFFER_COUNT];
     UINT                                     _renderTargetIndex;
@@ -106,7 +84,7 @@ private:
     DXGI_MODE_DESC                               _mode;
     DXGI_MODE_DESC                               _newMode;
     bool                                         _onResize = true;
-    std::vector<std::vector<ID3D12CommandList*>> _commandLists;
+
 
     // TODO : temp 나중에 commandList manager생기고 삭제하기? 수정하기?
     ComPtr<ID3D12GraphicsCommandList> _commandList;
@@ -115,10 +93,9 @@ private:
     ComPtr<ID3D12CommandAllocator>    _imguiCommandAllocator;
 
     // compute 관련 command 객체들
-    ComPtr<ID3D12CommandQueue>        _computeCommandQueue;
     ComPtr<ID3D12GraphicsCommandList> _computeCommandList;
     ComPtr<ID3D12CommandAllocator>    _computeCommandAllocator;
 
     // UploadBuffer 생명주기를 관리 할 UploadBuffer container
-    std::vector<ComPtr<ID3D12Resource>> _uploadResources;
+    std::list<ComPtr<ID3D12Resource>> _uploadResources;
 };

@@ -56,14 +56,11 @@ void DebugDrawCore::Initialize()
         MessageBoxA(nullptr, e.what(), "BasicEffect 생성 실패", MB_OK);
     }
 
-    UmDevice.CreateCommandList(_commandAllocator, _commandList, CommandType::DIRECT);
+    _commandSet = UmCommandController.AddCommandSet(CommandType::DIRECT, CommandQueueType::GRAPHICS_QUEUE, L"DebugDrawCore");
 }
 
 void DebugDrawCore::Render()
 {
-    _commandAllocator->Reset();
-    _commandList->Reset(_commandAllocator.Get(), nullptr);    
-
     for (const auto& [sceneName, datas] : _drawDatas)
     {
         auto  renderScene = UmRenderer.GetRenderScene(sceneName);
@@ -73,8 +70,8 @@ void DebugDrawCore::Render()
         _basicEffect->SetProjection(camera->GetProjectionMatrix());
 
         auto renderTarget = UmMultiRenderTargetManager.GetRenderTarget(renderScene->_finalTargetName);
-        renderTarget->TransitionResource(_commandList.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET);
-        renderScene->_depthStencilView->TransitionResource(_commandList.Get(), D3D12_RESOURCE_STATE_DEPTH_WRITE);
+        renderTarget->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_RENDER_TARGET);
+        renderScene->_depthStencilView->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 
         auto&          mode = renderTarget->GetMode();
         D3D12_VIEWPORT viewPort{.TopLeftX = 0.f,
@@ -85,13 +82,13 @@ void DebugDrawCore::Render()
                                 .MaxDepth = 1.f};
         D3D12_RECT     scissorRect{
                 .left = 0, .top = 0, .right = static_cast<LONG>(mode.Width), .bottom = static_cast<LONG>(mode.Height)};
-        
-        _commandList->OMSetRenderTargets(1, &renderTarget->GetRTVHandle(), NULL, &renderScene->_depthStencilView->GetDSVHandle());
-        _commandList->RSSetViewports(1, &viewPort);
-        _commandList->RSSetScissorRects(1, &scissorRect);
 
-        _basicEffect->Apply(_commandList.Get());
-        _primitiveBatch->Begin(_commandList.Get());
+        _commandSet->OMSetRenderTargets(1, &renderTarget->GetRTVHandle(), NULL, &renderScene->_depthStencilView->GetDSVHandle());
+        _commandSet->RSSetViewports(1, &viewPort);
+        _commandSet->RSSetScissorRects(1, &scissorRect);
+
+        _basicEffect->Apply(_commandSet);
+        _primitiveBatch->Begin(_commandSet);
 
         for (const auto& data : datas)
         {
@@ -133,11 +130,10 @@ void DebugDrawCore::Render()
         _primitiveBatch->End();
         _drawDatas[sceneName].clear();
 
-        renderTarget->TransitionResource(_commandList.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-        renderScene->_depthStencilView->TransitionResource(_commandList.Get(), D3D12_RESOURCE_STATE_PRESENT);
+        renderTarget->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+        renderScene->_depthStencilView->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_PRESENT);
     }
     _drawDatas.clear();
 
-    _commandList->Close();
-    UmDevice.RegisterCommand(_commandList.Get(), CommandListType::DEBUG_RENDER_LIST);
+    _commandSet.ExecuteCommand(CommandQueueType::GRAPHICS_QUEUE);
 }
