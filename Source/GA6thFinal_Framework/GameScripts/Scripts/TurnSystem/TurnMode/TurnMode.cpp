@@ -30,7 +30,11 @@
 
 //Character
 #include "TurnSystem/TurnActor/Character/Player/Player.h"
+#include <Stats/Player/PlayerStatsComponent.h>
+#include <Stats/Player/PlayerStats.h>
 #include "TurnSystem/TurnActor/Character/Enemy/Enemy.h"
+#include <Stats/Enemy/EnemyStatsComponent.h>
+#include <Stats/Enemy/EnemyStats.h>
 
 TurnMode::TurnMode() 
     : 
@@ -291,5 +295,39 @@ void TurnMode::ImGuiDrawPropertysEvent()
             ImGui::EndTable();
         }
         ImGui::TreePop();
+    }
+}
+
+void TurnMode::Battle::operator()(Player& attacker, Enemy& target) 
+{
+    TurnMode*             turnMode             = TurnMode::GetInstance();
+    WeaponSystem*         weaponSystem         = WeaponSystem::GetInstance();
+    PlayerStatsComponent* playerStatsComponent = attacker.GetPlayerStats();
+    EnemyStatsComponent*  enemyStatsComponent  = target.GetEnemyStats();
+    if (turnMode && weaponSystem && playerStatsComponent && enemyStatsComponent)
+    {
+        PlayerStats playerStats(playerStatsComponent->GetStats());
+        WeaponStats weaponStats(weaponSystem->GetCurrentWeaponStats());
+        EnemyStats  enemyStats(enemyStatsComponent->GetStats());
+        turnMode->ApplyActions([&](TurnAction& action) {
+            action.OnPlayerBatteStart(attacker, playerStats, weaponStats, target, enemyStats);
+        });
+
+
+    }
+}
+
+void TurnMode::Battle::operator()(Enemy& attacker, Player& target) 
+{
+    TurnMode*             turnMode             = TurnMode::GetInstance();
+    EnemyStatsComponent*  enemyStatsComponent  = attacker.GetEnemyStats();
+    PlayerStatsComponent* playerStatsComponent = target.GetPlayerStats();
+    if (turnMode && playerStatsComponent && enemyStatsComponent)
+    {
+        EnemyStats  enemyStats(enemyStatsComponent->GetStats());
+        PlayerStats playerStats(playerStatsComponent->GetStats());
+        turnMode->ApplyActions(
+            [&](TurnAction& action) { action.OnEnemyBattleStart(attacker, enemyStats, target, playerStats); });
+
     }
 }
