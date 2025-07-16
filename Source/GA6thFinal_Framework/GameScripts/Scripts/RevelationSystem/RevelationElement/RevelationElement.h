@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "../RevelationAction/Base/RevelationActionBase.h"
+class TurnAction;
 
 // 연격 조건
 enum class RevelationConditionType
@@ -41,6 +41,8 @@ enum class RevelationGrade
     EXTINCTION
 };
 
+ class CharacterBase;
+
 /*
 * 계시의 정보를 가지고있는 class 입니다.
 */
@@ -78,11 +80,18 @@ public:
     PROPERTY(ImagePath)
 
     void SetName(std::string_view name) { ReflectFields->Name = name; }
-    GETTER_ONLY(std::string_view, Name) { return ReflectFields->Name; }
+    GETTER_ONLY(const std::string&, Name) { return ReflectFields->Name; }
     //계시 이름
     PROPERTY(Name)
 
-    RevelationActionBase* GetAction() { return _action.get(); }
+    /*액션 존재 여부를 반환합니다.*/
+    bool IsAction() const { return _action != nullptr; }
+
+    /*해당 계시의 액션을 반환합니다. IsAction()을 확인해야합니다.*/
+    TurnAction& GetAction() { return *_action; }
+
+    /*계시 발동 조건 여부를 검사합니다.*/
+    bool Evaluate(CharacterBase& attacker, CharacterBase& target); 
 
 protected:
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
@@ -96,7 +105,7 @@ protected:
     std::string             ActionName      = STR_NULL; 
     REFLECT_FIELDS_END(RevelationElement)
 
-    std::unique_ptr<RevelationActionBase> _action;
+    std::unique_ptr<TurnAction> _action;
 
     /// <summary>
     /// <para>  ImGuiDrawPropertys() 호출 이후 콜되는 이벤트 함수입니다. </para>
@@ -142,7 +151,7 @@ private:
 
 private:
     using DatasType = reflect_fields_struct;
-    void DeepCopyAction(const RevelationActionBase& action);
+    void DeepCopyAction(const TurnAction& action);
     RevelationElement& CopyElement(const RevelationElement& rhs)
     {
         if (this == &rhs)
