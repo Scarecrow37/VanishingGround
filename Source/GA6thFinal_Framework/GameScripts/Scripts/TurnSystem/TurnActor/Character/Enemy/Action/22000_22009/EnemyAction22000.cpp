@@ -13,8 +13,8 @@ namespace EnemyAction
         {
             // 플레이어에게 출혈 토큰을 추가합니다.
             auto& system = player->GetTokenInventory();
-            system.AddTokenStackFromID(TokenObject::Bleed1::ID, 2);
-            system.AddTokenStackFromID(TokenObject::Bleed2::ID, 2);
+            system.AddTokenStackFromID(TokenObject::Bleed::ID, 2);
+            system.AddTokenStackFromID(TokenObject::Bleed::ID, 2);
             system.AddTokenStackFromID(TokenObject::Poison2::ID, 2);
         }
         return true;
