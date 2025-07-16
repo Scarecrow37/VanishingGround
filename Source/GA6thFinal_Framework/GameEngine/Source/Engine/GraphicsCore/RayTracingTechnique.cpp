@@ -1,7 +1,7 @@
 ﻿#include "pch.h"
 #include "RayTracingTechnique.h"
 #include "DXRDrawStaticMeshPass.h"
-#include "GBufferPass.h"
+#include "DXRGBufferPass.h"
 
 RayTracingTechnique::RayTracingTechnique() {}
 
@@ -9,7 +9,7 @@ RayTracingTechnique::~RayTracingTechnique() {}
 
 void RayTracingTechnique::Initialize(ID3D12GraphicsCommandList* commandList) 
 {
-    InitGbufferPass();
+    InitDXRGbufferPass();
     InitDXRDrawStaticMeshPass();
 }
 
@@ -27,9 +27,9 @@ void RayTracingTechnique::InitDXRDrawStaticMeshPass()
     AddRenderPass(std::move(pass));
 }
 
-void RayTracingTechnique::InitGbufferPass() 
+void RayTracingTechnique::InitDXRGbufferPass()
 {
-    std::unique_ptr<GBufferPass> pass = std::make_unique<GBufferPass>();
+    std::unique_ptr<DXRGBufferPass> pass = std::make_unique<DXRGBufferPass>();
     pass->Initialize(_ownerScene);
     AddRenderPass(std::move(pass));
 }

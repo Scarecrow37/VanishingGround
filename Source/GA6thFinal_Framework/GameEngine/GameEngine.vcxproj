@@ -300,6 +300,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Engine\GraphicsCore\DXRGBufferPass.h" />
     <ClInclude Include="Source\Editor\Tool\Model\EditorAnimationNotifyTool.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\ConstantBufferView.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\FontRenderer.h" />
@@ -512,6 +513,7 @@
     <ClInclude Include="Source\Engine\TimelineCore\TimelineSystem.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Engine\GraphicsCore\DXRGBufferPass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\RTPipeline.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\RTPipelineBuilder.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\ShaderConfig.cpp" />

@@ -12,7 +12,7 @@ public:
     void Execute(ID3D12GraphicsCommandList* commandList) override;
 private:
     void InitDXRDrawStaticMeshPass();
-    void InitGbufferPass();
+    void InitDXRGbufferPass();
 
 private:
 

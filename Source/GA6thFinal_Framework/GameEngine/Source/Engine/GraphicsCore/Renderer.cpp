@@ -211,7 +211,14 @@ void Renderer::Initialize()
     scene = std::make_unique<RenderScene>("Game");
     scene->InitializeRenderScene();
     scene->AddRenderTechnique(std::make_unique<SkyBoxRenderTechnique>());
-    scene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
+    if (_isRaytracing)
+    {
+        scene->AddRenderTechnique(std::make_unique<RayTracingTechnique>());
+    }
+    else
+    {
+        scene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
+    }
     scene->AddRenderTechnique(std::make_unique<ParticleRenderTechnique>());
     scene->AddRenderTechnique(std::make_unique<BloomTechnique>());
     scene->AddRenderTechnique(std::make_unique<BlendTechnique>());
@@ -247,7 +254,14 @@ void Renderer::Initialize()
         // Model Viewer Scene
         scene = std::make_unique<RenderScene>("ModelViewer");
         scene->InitializeRenderScene();
-        scene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
+        if (_isRaytracing)
+        {
+            scene->AddRenderTechnique(std::make_unique<RayTracingTechnique>());
+        }
+        else
+        {
+            scene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
+        }
         scene->AddRenderTechnique(std::make_unique<BlendTechnique>());
         _renderScenes["ModelViewer"] = std::move(scene);
         

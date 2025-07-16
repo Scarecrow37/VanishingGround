@@ -188,6 +188,7 @@
     <ClCompile Include="Source\Engine\GraphicsCore\UI3DPass.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\UITechnique.cpp" />
     <ClCompile Include="Source\Engine\TimelineCore\TimelineSystem.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsCore\DXRGBufferPass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Editor\Tool\Model\EditorAnimationNotifyTool.h" />
@@ -400,6 +401,7 @@
     <ClInclude Include="ThirdParty\include\UmDirectxtk12.h" />
     <ClInclude Include="ThirdParty\include\UmYaml-cpp.h" />
     <ClInclude Include="Source\Engine\TimelineCore\TimelineSystem.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\DXRGBufferPass.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\pch.cpp">
