@@ -294,7 +294,7 @@ void TokenInventory::RemoveTokenFromID(int tokenID)
     }
 }
 
-bool TokenInventory::HasToken(int tokenID) const
+bool TokenInventory::HasTokenFromID(int tokenID) const
 {
     auto it = _tokenTable.find(tokenID);
     if (it != _tokenTable.end())

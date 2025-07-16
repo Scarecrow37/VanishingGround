@@ -100,18 +100,17 @@ public:
 
     /// <summary>
     /// <para>해당 토큰의 ID로 해당 토큰의 카운트가 0이 아닌지 확인합니다.</para>
-    /// <para>FindVaildTokenFromID보다 빠르게 동작합니다.</para>
     /// </summary>
     /// <param name="tokenID">해당 토큰의 ID</param>
     /// <returns></returns>
-    bool HasToken(int tokenID) const;
+    bool HasTokenFromID(int tokenID) const;
 
     /// <summary>
     /// 토큰 ID로 해당 토큰의 스택 카운트를 반환합니다.
     /// </summary>
     /// <param name="tokenID"></param>
     /// <returns></returns>
-    int  GetTokenStackFromID(int tokenID) const;
+    int GetTokenStackFromID(int tokenID) const;
 
     /// <summary>
     /// 유효한 토큰의 개수를 반환합니다.

@@ -8,6 +8,8 @@ class CharacterBase abstract : public TurnActor
     USING_PROPERTY(CharacterBase)
 public:
     inline static constexpr const char* TAG = "Character";
+    CharacterBase();
+    virtual ~CharacterBase();
 
 public:
     REFLECT_PROPERTY(
@@ -25,9 +27,8 @@ public:
     GETTER_ONLY(int, MaxMP) { return GetMaxMP(); }
     PROPERTY(MaxMP)
     
-    int SetChainCount(int value) { return _chainCount = std::clamp(value, 0, 99); }
+    // 현재 연격 수
     GETTER_ONLY(int, ChainCount) { return _chainCount; }
-    //현재 연격 수
     PROPERTY(ChainCount)
 
     GETTER_ONLY(int, HP) { return _hp; }
@@ -36,17 +37,6 @@ public:
     GETTER_ONLY(int, MaxChainRoundCount) { return GetMaxChainRoundCount(); }
     PROPERTY(MaxChainRoundCount)
 
-    //체인 라운드 카운트를 계산합니다.
-    int DecrementChainRoundCount() 
-    { 
-        _chainRoundCount = std::clamp(_chainRoundCount - 1, 0, GetMaxChainRoundCount());
-        if (_chainRoundCount == 0)
-        {
-            _chainCount = 0;
-            _chainRoundCount = GetMaxChainRoundCount();
-        }
-        return _chainRoundCount;
-    }
     GETTER_ONLY(int, ChainRoundCount) { return _chainRoundCount; }
     PROPERTY(ChainRoundCount)
 
@@ -58,12 +48,16 @@ private:
 public:
     virtual void Revive() override;
     virtual void Dead() override;
+    virtual void TakeDamage(int damage);
 
-    inline TokenInventory& GetTokenInventory() { return _tokenInventory; }
+    // 연격 수를 설정합니다.
+    int SetChainCount(int value) { return _chainCount = std::clamp(value, 0, 99); }
 
-public:
-    CharacterBase();
-    virtual ~CharacterBase();
+    // 체인 라운드 카운트를 계산합니다.
+    int DecrementChainRoundCount();
+
+    // 토큰 인벤토리를 반환합니다.
+    TokenInventory& GetTokenInventory() { return _tokenInventory; }
 
 protected:
     virtual CharacterStats* GetCharacterStats() = 0;
