@@ -42,6 +42,11 @@ void Enemy::Dead()
     Base::Dead();
 }
 
+void Enemy::TakeDamage(int damage) 
+{
+
+}
+
 void Enemy::Awake()
 {
     Base::Awake();

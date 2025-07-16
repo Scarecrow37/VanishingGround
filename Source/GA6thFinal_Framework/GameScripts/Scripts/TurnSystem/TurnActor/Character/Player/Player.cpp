@@ -116,6 +116,8 @@ void Player::Dead()
     UmLogger.Message(LogLevel::LEVEL_DEBUG, (const char*)u8"플레이어 사망!!!");
 }
 
+void Player::TakeDamage(int damage) {}
+
 
 void Player::ImGuiDrawPropertysEvent()
 {

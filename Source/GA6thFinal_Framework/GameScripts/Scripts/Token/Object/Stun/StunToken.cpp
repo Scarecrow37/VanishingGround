@@ -10,4 +10,8 @@ namespace TokenObject
     {
         // TODO: Actor 턴을 넘긴다? 이걸 여기서? 아니면 Actor코드에서?
     }
+    void StunResistance::OnTurnStart(CharacterBase* owner) 
+    {
+
+    }
 } // namespace TokenObject

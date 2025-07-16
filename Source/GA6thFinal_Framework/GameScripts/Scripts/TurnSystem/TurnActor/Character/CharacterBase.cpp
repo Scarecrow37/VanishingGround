@@ -66,6 +66,18 @@ void CharacterBase::Dead()
     _tokenInventory.NotifyDead();
 }
 
+int CharacterBase::DecrementChainRoundCount()
+{
+    _chainRoundCount = std::clamp(_chainRoundCount - 1, 0, GetMaxChainRoundCount());
+    if (_chainRoundCount == 0)
+    {
+        _chainCount      = 0;
+        _chainRoundCount = GetMaxChainRoundCount();
+    }
+    return _chainRoundCount;
+}
+
+
 void CharacterBase::OnCombatStart() 
 {
     _tokenInventory.NotifyCombatStart();

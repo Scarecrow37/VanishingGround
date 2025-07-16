@@ -3,10 +3,10 @@
 
 namespace TokenObject
 {
-    class Bleed1 : public Token
+    class Bleed : public Token
     {
         TOKEN_DATA(16000, "출혈")
-        TOKEN_CONSTRUCTOR(Bleed1, 50, 3)
+        TOKEN_CONSTRUCTOR(Bleed, 50, 3)
         REFLECT_PROPERTY(
             ReflectFields->TickDamage,
             ReflectFields->TransitionCount
@@ -19,6 +19,6 @@ namespace TokenObject
         REFLECT_FIELDS_BEGIN(Token)
         int TickDamage      = 10; // 매 턴마다 적용되는 데미지
         int TransitionCount = 4;  // 다음 출혈로 전이되는 조건 수
-        REFLECT_FIELDS_END(Bleed1)
+        REFLECT_FIELDS_END(Bleed)
     };
 }
