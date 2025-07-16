@@ -94,9 +94,33 @@ void CharacterBase::Dead()
 {
     Base::Dead();
     _hp = 0;
-
-    _tokenInventory.NotifyDead();
 }
+
+void CharacterBase::TakeDamage(int damage) 
+{
+    _hp -= damage;
+    _hp = std::clamp(_hp, 0, (int)MaxHP);
+    GameObject& owner = gameObject;
+    std::string msg =
+        std::format("{}{} {}{}", 
+            owner.ToString(),
+            (const char*)u8"이(가)",
+            damage,
+            (const char*)u8"의 피해를 입었습니다.");
+    UmLogger.Log(LogLevel::LEVEL_DEBUG, msg);
+}
+
+int CharacterBase::DecrementChainRoundCount()
+{
+    _chainRoundCount = std::clamp(_chainRoundCount - 1, 0, GetMaxChainRoundCount());
+    if (_chainRoundCount == 0)
+    {
+        _chainCount      = 0;
+        _chainRoundCount = GetMaxChainRoundCount();
+    }
+    return _chainRoundCount;
+}
+
 
 void CharacterBase::OnCombatStart() 
 {

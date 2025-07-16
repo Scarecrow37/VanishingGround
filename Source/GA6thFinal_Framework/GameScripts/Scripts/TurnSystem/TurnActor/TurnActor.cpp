@@ -31,6 +31,7 @@ void TurnActor::Dead()
     {
         _currState = STATE::Dead;
     }
+    OnDead();
 }
 
 void TurnActor::EndTurn() 
