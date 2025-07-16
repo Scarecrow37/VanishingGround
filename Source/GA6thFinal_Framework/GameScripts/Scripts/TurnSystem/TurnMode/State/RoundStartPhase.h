@@ -25,6 +25,8 @@ protected:
     void OnExit() override;
     void OnUpdate() override;
 
+    void NotifyRoundStart();
+
 private:
     bool _isPhaseEnd;
 };

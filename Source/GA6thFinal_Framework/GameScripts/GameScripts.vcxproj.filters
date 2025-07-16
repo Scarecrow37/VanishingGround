@@ -249,7 +249,7 @@
     <ClInclude Include="Scripts\TurnSystem\TurnMode\State\GameOverState.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Scripts\Token\Object\Bleed\Bleed1Token.h">
+    <ClInclude Include="Scripts\Token\Object\Bleed\BleedToken.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Scripts\Token\Interface\IToken.h">
@@ -258,7 +258,7 @@
     <ClInclude Include="Scripts\Token\Token.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Scripts\Token\TokenSystem.h">
+    <ClInclude Include="Scripts\Token\TokenManager.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Scripts\WeaponSystem\WeaponSystem.h">
@@ -292,6 +292,18 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Scripts\UI\Base\EditablePlacementUIComponent\EditablePlacementUIComponent.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\Token\Object\Poison\PoisonToken.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\Token\Object\Stun\StunToken.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\Token\Object\Shock\ShockToken.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\Token\TokenSystem.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -503,7 +515,7 @@
     <ClCompile Include="Scripts\TurnSystem\TurnMode\State\GameOverState.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\Token\Object\Bleed\Bleed1Token.cpp">
+    <ClCompile Include="Scripts\Token\Object\Bleed\BleedToken.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Scripts\Token\Interface\IToken.cpp">
@@ -512,7 +524,7 @@
     <ClCompile Include="Scripts\Token\Token.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\Token\TokenSystem.cpp">
+    <ClCompile Include="Scripts\Token\TokenManager.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Scripts\WeaponSystem\WeaponSystem.cpp">
@@ -543,6 +555,18 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Scripts\UI\Base\EditablePlacementUIComponent\EditablePlacementUIComponent.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\Token\Object\Poison\PoisonToken.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\Token\Object\Stun\StunToken.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\Token\Object\Shock\ShockToken.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\Token\TokenSystem.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

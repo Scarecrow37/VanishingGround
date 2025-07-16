@@ -39,7 +39,13 @@ TurnMode::TurnMode()
 {
 
 }
-TurnMode::~TurnMode() = default;
+TurnMode::~TurnMode()
+{
+    if (static_instance == this)
+    {
+        static_instance = nullptr;
+    }
+}
 
 void TurnMode::MakeTurnList() 
 {
@@ -57,7 +63,6 @@ void TurnMode::MakeTurnList()
                 {
                     _turnList.emplace_back(i, player);
                 }
-                player->OnRoundStart();
             }
         }
     }
@@ -72,7 +77,6 @@ void TurnMode::MakeTurnList()
             if (nullptr != enemy)
             {
                 _turnList.emplace_back(-1, enemy);
-                enemy->OnRoundStart();
             }
         }
     }
@@ -201,7 +205,12 @@ int TurnMode::GetRealRoundSpeed(const std::pair<int, TurnActor*>& turnActor)
     return roundSpeed;
 }
 
-void TurnMode::Awake() 
+void TurnMode::Reset() 
+{
+    static_instance = this;
+}
+
+void TurnMode::Awake()
 {
     BuildTurnModeFSM();
 }

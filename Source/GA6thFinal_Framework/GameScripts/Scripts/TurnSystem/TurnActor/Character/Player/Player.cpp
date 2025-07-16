@@ -3,7 +3,7 @@
 #include "Stats/Player/PlayerStats.h"
 #include "Stats/Player/PlayerStatsComponent.h"
 #include "GameCore/FSM/FiniteStateMachine.h"
-#include <Stats/WeaponTable/WeaponTableComponent.h>
+#include <WeaponSystem/WeaponTable/WeaponTableComponent.h>
 #include <WeaponSystem/WeaponSystem.h>
 
 //Condition
@@ -119,7 +119,7 @@ void Player::Dead()
 
 void Player::ImGuiDrawPropertysEvent()
 {
-   
+    Base::ImGuiDrawPropertysEvent();
 }
 
 CharacterStats* Player::GetCharacterStats()
@@ -196,6 +196,11 @@ void Player::OnRoundStart()
 void Player::OnRoundEnd()
 {
     Base::OnRoundEnd();
+}
+
+void Player::OnEachTurnStart(CharacterBase* destination) 
+{
+    Base::OnEachTurnStart(destination);
 }
 
 void Player::OnTurnStart()

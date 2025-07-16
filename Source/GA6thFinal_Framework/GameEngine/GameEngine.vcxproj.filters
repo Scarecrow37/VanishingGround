@@ -297,9 +297,6 @@
     <ClInclude Include="Source\Engine\GraphicsCore\Quad.h">
       <Filter>GraphicsCore\Mesh\Geometry</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\FontManager.h">
-      <Filter>GraphicsCore\Manager</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\GraphicsCore\MultiRenderTargetManager.h">
       <Filter>GraphicsCore\Manager</Filter>
     </ClInclude>
@@ -669,6 +666,15 @@
     <ClInclude Include="Source\Engine\GraphicsCore\UI25DPass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\FontRenderer.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\FontTechnique.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicsCore\TextDrawPass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\pch.cpp">
@@ -835,9 +841,6 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\Quad.cpp">
       <Filter>GraphicsCore\Mesh\Geometry</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\FontManager.cpp">
-      <Filter>GraphicsCore\Manager</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\MultiRenderTargetManager.cpp">
       <Filter>GraphicsCore\Manager</Filter>
@@ -1209,6 +1212,18 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\UI25DPass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\FontRenderer.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\FontTechnique.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\TextDrawPass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\UmFramework.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

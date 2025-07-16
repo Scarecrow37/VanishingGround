@@ -8,6 +8,7 @@
 #include "RenderTechnique.h"
 #include "SkyBox.h"
 #include "SpriteRenderer.h"
+#include "FontRenderer.h"
 
 RenderScene::RenderScene(std::string_view name)
     : _skyBox{std::make_unique<SkyBox>()}
@@ -24,7 +25,7 @@ D3D12_GPU_DESCRIPTOR_HANDLE RenderScene::GetFinalImage()
     return finalTarget->GetSRVHandle();
 }
 
-void RenderScene::SetSkyBox(std::string_view path)
+void RenderScene::SetSkyBox(std::wstring_view path)
 {
     _skyBox->SetTexture(path.data());
 }
@@ -83,6 +84,23 @@ void RenderScene::RegisterOnRenderQueue(SpriteRenderer* component)
     component->_isDestroyeds.push_back(_uiRenderQueue.back().first.get());
 }
 
+void RenderScene::RegisterOnRenderQueue(FontRenderer* component)
+{
+    if (nullptr == component)
+        return;
+
+    auto iter = std::find_if(_fontRenderQueue.begin(), _fontRenderQueue.end(), [](const auto& pair) { return !pair.first.get(); });
+
+    if (iter != _fontRenderQueue.end())
+    {
+        GRAPHICS_ASSERT(false, L"RenderScene::RegisterRenderQueue : Already registered component.");
+        return;
+    }
+
+    _fontRenderQueue.emplace_back(std::make_unique<bool>(false), component);
+    component->_isDestroyeds.push_back(_fontRenderQueue.back().first.get());
+}
+
 void RenderScene::AddRenderTechnique(std::unique_ptr<RenderTechnique> technique)
 {
     ID3D12GraphicsCommandList* commandList = UmDevice.GetCommandList();
@@ -96,6 +114,7 @@ void RenderScene::UpdateRenderScene()
     UpdateGlobal();
     UpdateObject();
     UpdateUI();
+    UpdateFont();
 
     ID3D12GraphicsCommandList* commandList = UmDevice.GetCommandList();
 
@@ -108,15 +127,23 @@ void RenderScene::UpdateRenderScene()
 
 void RenderScene::Execute(ID3D12GraphicsCommandList* commandList)
 {
-    auto descriptorHeap = UmViewManager.GetShaderResourceHeap();
+    auto& graphics       = Global::engineCore->Graphics;
+    auto  descriptorHeap = graphics.ViewManager.GetShaderResourceHeap();
     commandList->SetDescriptorHeaps(1, &descriptorHeap);
 
     _accumulationBuffer->TransitionResource(commandList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
     _accumulationBuffer->ClearUnorderedAccessView(commandList);
 
-    auto meshRenderTarget = UmMultiRenderTargetManager.GetRenderTarget(_meshRenderTargetName);
+    auto meshRenderTarget = graphics.MultiRenderTargetManager.GetRenderTarget(_meshRenderTargetName);
     meshRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
     meshRenderTarget->ClearRenderTarget(commandList);
+
+    const auto& gBuffers = graphics.MultiRenderTargetManager.GetRenderTargetGroup("GBuffer");
+    for (auto& buffer : gBuffers)
+    {
+        buffer->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
+        buffer->ClearRenderTarget(commandList);
+    }
 
     _depthStencilView->TransitionResource(commandList, D3D12_RESOURCE_STATE_DEPTH_WRITE);
     _depthStencilView->ClearDepthStencilView(commandList);
@@ -127,6 +154,7 @@ void RenderScene::Execute(ID3D12GraphicsCommandList* commandList)
     }
 
     _depthStencilView->TransitionResource(commandList, D3D12_RESOURCE_STATE_PRESENT);
+
 }
 
 void RenderScene::ResetSkyBox()
@@ -269,6 +297,12 @@ void RenderScene::UpdateUI()
         UIMaterial material{.ID = texture->GetID(), .Alpha = 1.f};
         _uiMaterials.push_back(material);
     }
+}
+
+void RenderScene::UpdateFont()
+{
+    auto first = std::remove_if(_fontRenderQueue.begin(), _fontRenderQueue.end(), [](const auto& pair) { return *pair.first; });
+    _fontRenderQueue.erase(first, _fontRenderQueue.end());
 }
 
 void RenderScene::CreateRenderTarget()

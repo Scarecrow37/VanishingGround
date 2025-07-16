@@ -7,6 +7,7 @@ class MeshComponent;
 class LightComponent;
 class CameraComponent;
 class Model;
+class Font;
 namespace Command::EditorScene
 {
     class NewGameObjectCommand;
@@ -14,6 +15,7 @@ namespace Command::EditorScene
     class AddComponentCommand;
     class DestroyComponentCommand;
     class DuplicateCommand;
+    class PasteObjectCommand;
 };
 
 //참고 
@@ -309,6 +311,13 @@ public:
         /// </summary>
         /// <returns></returns>
         static ESceneManager::InputSystem& GetInputSystem();
+
+        /// <summary>
+        /// 현재 플레이 모드 여부를 반환합니다.
+        /// </summary>
+        /// <param name="sceneManager"></param>
+        /// <returns></returns>
+        static constexpr bool IsPlayMode(ESceneManager& sceneManager) { return sceneManager._isPlay; }
     };
 
 public:
@@ -451,10 +460,15 @@ public:
         /// <param name="func :">리소스 로드후 호출되는 콜백 함수</param>
         void RequestTextureResource(const Component* component, const File::Guid& guid, const std::function<void()> func);
 
-    private:
-        void UpdateModelResource();
-        void UpdateTextureResource();
+        /// <summary>
+        /// Font 리소스 로드를 요청합니다.
+        /// </summary>
+        /// <param name="component :">대상 컴포넌트</param>
+        /// <param name="guid :">로드할 리소스의 guid</param>
+        /// <param name="func :">리소스 로드후 호출되는 콜백 함수</param>
+        void RequestFontResource(const Component* component, const File::Guid& guid, const std::function<void()> func);
 
+    private:
         template <typename T>
         struct RenderResource
         {
@@ -465,7 +479,10 @@ public:
         };
         RenderResource<Model>   _models;
         RenderResource<Texture> _textures;
+        RenderResource<Font>    _fonts;
 
+        template <typename T>
+        void UpdateRenderResource(RenderResource<T>& resource);
     };
     /// <summary>
     /// 씬 리소스 관리를 위한 맴버입니다.
@@ -730,6 +747,7 @@ public:
     friend class Command::EditorScene::AddComponentCommand;
     friend class Command::EditorScene::DestroyComponentCommand;
     friend class Command::EditorScene::DuplicateCommand;
+    friend class Command::EditorScene::PasteObjectCommand;
 };
 
 inline auto ESceneManager::GetRootGameObjectsByPath(std::string_view path) 

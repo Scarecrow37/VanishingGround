@@ -20,6 +20,19 @@ constexpr bool IS_EDITOR = true;
 constexpr bool IS_EDITOR = false;
 #endif
 
+namespace Global
+{
+    //게임 플레이중 여부를 반환합니다.
+#ifdef _UMEDITOR
+    extern constexpr bool IsPlay();
+#else
+    constexpr bool IsPlay()
+    {
+        return true;
+    }
+#endif
+}
+
 // 프로젝트 설정 파일들 모아두는 폴더
 constexpr const wchar_t* PROJECT_SETTING_PATH = L"ProjectSettings"; 
 // 빌드 설정 파일 모아두는 폴더
@@ -123,7 +136,6 @@ using namespace Microsoft::WRL;
 #include "Engine/Utility/SharedResource.h"
 
 //Class Core
-#include "Engine/CommandCore/CommandManager.h"
 #include "Engine/ClassCore/TProperty.hpp"
 #include "Engine/ClassCore/ReflectHelper.h"
 
@@ -158,6 +170,9 @@ using namespace Microsoft::WRL;
 
 //User Interface Module
 #include "../UserInterfaceModule/UserInterfaceModule.h"
+
+//CommandCore
+#include "Engine/CommandCore/CommandManager.h"
 
 //Engine Core
 #include "Engine/EngineCore/EngineLogger.h"

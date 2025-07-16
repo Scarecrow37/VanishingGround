@@ -26,6 +26,10 @@ public:
 	virtual ~Animator();
 
 public:
+    void RegisterComponent(std::string_view sceneName) override;
+    void RegisterComponent() override;
+
+public:
 	const Matrix* GetAnimationTransform() const { return _animationTransforms.data(); }
     const Matrix* FindBoneMatrix(const char* boneName) const;
     float         GetCurrentAnimationLastTime(unsigned int ID = 0) const;
