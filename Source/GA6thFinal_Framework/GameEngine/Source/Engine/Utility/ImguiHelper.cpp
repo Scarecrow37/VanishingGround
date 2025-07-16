@@ -44,6 +44,7 @@ namespace ImGuiHelper
 
         const char*   popupLabel    = "##ComboPopup";
         const char*   buttonLabel   = "##DownArrow";
+        const ImGuiID popupID       = ImGui::GetID(popupLabel);
         const float   arrowSize     = (comboFlags & ImGuiComboFlags_NoArrowButton) ? 0.0f : ImGui::GetFrameHeight();
         const ImVec2  labelSize     = ImGui::CalcTextSize(preview_value, NULL, true);
         const float   previewWidth  = ((comboFlags & ImGuiComboFlags_WidthFitPreview) && (preview_value != NULL)) ? ImGui::CalcTextSize(preview_value, NULL, true).x : 0.0f;
@@ -65,7 +66,7 @@ namespace ImGuiHelper
             isPopupOpen = true;
         }
         ImGui::PopID();
-        return ImGui::BeginComboPopup(ImGui::GetID(popupLabel), bb, comboFlags);
+        return ImGui::BeginComboPopup(popupID, bb, comboFlags);
     }
 } // namespace ImGuiHelper
 
