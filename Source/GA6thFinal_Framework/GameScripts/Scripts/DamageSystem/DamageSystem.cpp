@@ -1,7 +1,12 @@
 ﻿#include "pchScripts.h"
 #include "DamageSystem.h"
+#include <Stats/Player/PlayerStats.h>
+#include <Stats/Enemy/EnemyStats.h>
+#include <Stats/Weapon/WeaponStats.h>
 
-void DamageSystem::Reset() 
+int DamageSystem::CaculateDamage(const PlayerStats& attacker, const WeaponStats& attackerWeapon, const EnemyStats& target)
 {
-    static_instance = this;
+    int result = 0;
+    result = attackerWeapon.CriticalDamage;
+    return result;
 }
