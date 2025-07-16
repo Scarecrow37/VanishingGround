@@ -139,6 +139,10 @@ PlayerStatsComponent* Player::GetPlayerStats()
     if (nullptr == _playerStats)
     {
         _playerStats = GetComponent<PlayerStatsComponent>();
+        if (nullptr == _playerStats)
+        {
+            UmLogger.Log(LogLevel::LEVEL_WARNING, u8"플레이어 스텟이 존재하지 않습니다.");
+        }
     }  
     return _playerStats;
 }

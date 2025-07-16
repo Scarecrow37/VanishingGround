@@ -37,7 +37,6 @@ public:
 
 private:
     EnemyStatsComponent* _enemyStats = nullptr;
-    EnemyStatsComponent* GetEnemyStats();
 
 protected:
     class FiniteStateMachine* _finiteStateMachine = nullptr;
@@ -60,6 +59,9 @@ public:
 
     FiniteStateMachine& GetFSM() { return *_finiteStateMachine; }
     const EnemyStates&  GetFSMStates() { return _fsmStates; }
+
+    /*Enemy의 Stats을 반환합니다.*/
+    EnemyStatsComponent* GetEnemyStats();
 
 protected:
     /// <summary>

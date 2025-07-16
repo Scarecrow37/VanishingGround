@@ -91,6 +91,10 @@ EnemyStatsComponent* Enemy::GetEnemyStats()
     if (nullptr == _enemyStats)
     {
         _enemyStats = GetComponent<EnemyStatsComponent>();
+        if (nullptr == _enemyStats)
+        {
+            UmLogger.Log(LogLevel::LEVEL_WARNING, u8"Enemy Stats 컴포넌트가 존재하지 않습니다.");
+        }
     }
     return _enemyStats;
 }
