@@ -262,7 +262,6 @@ Command::EditorScene::PasteObjectCommand::~PasteObjectCommand()
 
 bool Command::EditorScene::PasteObjectCommand::Execute() 
 {
-    _loadSuccess = false;
     if (false == _yamlData.empty())
     {
         if (true == _destObjects.empty())
@@ -330,13 +329,14 @@ bool Command::EditorScene::PasteObjectCommand::Execute()
 
 void Command::EditorScene::PasteObjectCommand::Undo() 
 {
-    if (true == _loadSuccess && false == _yamlData.empty())
+    if (false == _yamlData.empty())
     {
         auto& rootObject               = _destObjects.front();
         rootObject->GetScene().IsDirty = true;
 
         int instanceID         = rootObject->GetInstanceID();
         _active                = rootObject->ActiveSelf;
+        _ownerSceneName        = rootObject->GetOwnerSceneName();
         rootObject->ActiveSelf = false;
         UmSceneManager.AddDestroyObjectQueue(rootObject.get());
         if (EditorHierarchyTool::GetFocusObject().lock() == rootObject)
