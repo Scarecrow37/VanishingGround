@@ -16,7 +16,7 @@ namespace Command
             File::Guid                _guid;
 
             // UmCommand을(를) 통해 상속됨
-            void Execute() override;
+            bool Execute() override;
             void Undo() override;
         };
     } // namespace Hierarchy

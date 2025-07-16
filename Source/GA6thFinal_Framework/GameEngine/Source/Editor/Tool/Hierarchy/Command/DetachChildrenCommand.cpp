@@ -8,7 +8,7 @@ Command::Hierarchy::DetachChildrenCommand::DetachChildrenCommand(std::weak_ptr<G
     
 }
 
-void Command::Hierarchy::DetachChildrenCommand::Execute() 
+bool Command::Hierarchy::DetachChildrenCommand::Execute()
 {
     if (auto targetObject = _targetObject.lock())
     {
@@ -23,7 +23,9 @@ void Command::Hierarchy::DetachChildrenCommand::Execute()
             targetObject->transform->DetachChildren();
             targetObject->GetScene().IsDirty = true;
         }
-    }      
+        return true;
+    }
+    return false;
 }
 
 void Command::Hierarchy::DetachChildrenCommand::Undo() 
