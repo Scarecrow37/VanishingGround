@@ -14,5 +14,19 @@ protected:
     REFLECT_FIELDS_BEGIN(CharacterStats)
     int Speed = 0;
     REFLECT_FIELDS_END(EnemyStats)
+        
+public:
+    EnemyStats& CopyStats(const EnemyStats& rhs)
+    {
+        if (this != &rhs)
+        {
+            reflect_fields_struct& myFields  = *this->ReflectFields;
+            reflect_fields_struct& rhsFields = *this->ReflectFields;
+            myFields                         = rhsFields;
+        }
+        return *this;
+    }
+    EnemyStats(const EnemyStats& rhs) { CopyStats(rhs); }
+    EnemyStats& operator=(const EnemyStats& rhs) { return CopyStats(rhs); }
 
 };
