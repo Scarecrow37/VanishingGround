@@ -293,6 +293,6 @@ void EnemyPlayTurnState::LogCurrentAction()
 {
     int actionID = _aiModel.GetCurrentActionID();
     GameObject* gameObject = &GetFSM().gameObject;
-    std::string message = std::format("{} {}", gameObject->ToString(), GetActionName(actionID));
+    std::string message    = std::format("{} {}", gameObject->ToString(), GetActionName(actionID));
     UmLogger.Message(LogLevel::LEVEL_DEBUG, message);
 }
