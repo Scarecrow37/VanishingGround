@@ -120,8 +120,7 @@ float3 CalculateAttribeNoraml(in BuiltInTriangleIntersectionAttributes attribs,u
     float3 worldNormal = normalize(mul((float3x3) ObjectToWorld3x4(), localN));
     float3 worldTangent = normalize(mul((float3x3) ObjectToWorld3x4(), localT));
     float3 worldBitangent = normalize(mul((float3x3) ObjectToWorld3x4(), localB));
-    
-    float3 normal = CalculateNormal(normalMapSample.xyz, worldTangent, worldBitangent, worldNormal);
+    float3 normal = CalculateNormal(normalMapSample, worldTangent, worldBitangent, worldNormal);
     
     return normal;
 }
@@ -183,7 +182,7 @@ void RayGen()
     payload.recursionDepth = 0;
 
     TraceRay(RtScene,
-             RAY_FLAG_NONE, 0xFF,
+             RAY_FLAG_CULL_BACK_FACING_TRIANGLES, 0xFF,
              0, 1, 0, // hitGroup/miss/callable
              ray, payload);
 
@@ -195,11 +194,12 @@ void Miss(inout RayPayload payload)
 {
     float3 dir = normalize(WorldRayDirection());
     float3 sky = evnTexture.SampleLevel(samLinear_wrap, dir,0).rgb;
+    sky = saturate(sky);
     sky = GammaToLinearSpace(sky)*10.f;
     payload.color = float4(sky, 1.f);
 }
 
-static const uint MAX_RECURSION_DEPTH = 3;
+static const uint MAX_RECURSION_DEPTH = 1;
 
 [shader("closesthit")]
 void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttributes attribs)
@@ -220,7 +220,7 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
     uint indexID = index_buffer_id[instanceID];
     
     float3 hitPosition = HitWorldPosition();
-    float3 normal = CalculateAttribeNoraml(attribs,normalID,indexID,vertexID);
+    float3 normal = normalize(CalculateAttribeNoraml(attribs, normalID, indexID, vertexID));
     float3 view = normalize(WorldRayOrigin() - hitPosition);
     uint baseIndex = PrimitiveIndex() * 3;
     uint3 indices = uint3(Indices[indexID][baseIndex], 
@@ -276,6 +276,8 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
     }
     ///* 환경광 / IBL  */
     float3 envDiffuse = evnTexture.SampleLevel(samLinear_wrap, normal, 0).rgb;
+    envDiffuse = saturate(envDiffuse);
+    envDiffuse = GammaToLinearSpace(envDiffuse) * 10;
     float3 ambientLighting = envDiffuse * albedo * 1;
 
     /* 반사(거울) – FresnelSchlick 사용 */
@@ -286,7 +288,7 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
         float3 reflectionDirection = reflect(-view, normal);
 
         RayDesc reflectionRay;
-        reflectionRay.Origin = hitPosition + reflectionDirection * Epsilon;
+        reflectionRay.Origin = hitPosition; //+reflectionDirection * Epsilon;
         reflectionRay.Direction = reflectionDirection;
         reflectionRay.TMin = 0.01;
         reflectionRay.TMax = 10000;
@@ -295,7 +297,7 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
         reflectionPayload.recursionDepth = payload.recursionDepth+ 1;
 
         TraceRay(RtScene,
-                 RAY_FLAG_NONE, // Flags
+                 RAY_FLAG_CULL_BACK_FACING_TRIANGLES, // Flags
                  0xFF, // Instance mask
                  0, 1, 0, // SBT record indices (Hit / Miss / Callable)
                  reflectionRay, reflectionPayload);
@@ -317,5 +319,6 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
           ambientLighting + // 환경광 
           directLighting + // 직접광  
           reflectionLighting; // 반사광 
+    
     payload.color = float4(finalcolor, 1.f);
 }
