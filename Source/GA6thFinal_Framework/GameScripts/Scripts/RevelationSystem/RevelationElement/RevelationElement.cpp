@@ -5,10 +5,10 @@
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
 #include <TurnSystem/TurnAction/TurnActionFactory.h>
 
-bool RevelationElement::Evaluate(CharacterBase* attacker, CharacterBase* target)
+bool RevelationElement::Evaluate(CharacterBase& attacker, CharacterBase& target)
 {
     bool result = false;
-    int chainCount = target->ChainCount;
+    int chainCount = target.ChainCount;
     RevelationConditionType condition  = ReflectFields->Condition;
     switch (condition)
     {
@@ -79,7 +79,7 @@ void RevelationElement::SerializedReflectEvent()
 {
     if (_action)
     {
-        ReflectFields->ActionName = (std::string_view)_action->Name;
+        ReflectFields->ActionName = _action->Name;
     }    
     else
     {
@@ -104,10 +104,10 @@ void RevelationElement::DeserializedReflectEvent()
 
 void RevelationElement::DeepCopyAction(const TurnAction& action)
 {
-    RevelationSystem* system        = RevelationSystem::GetInstance();
-    const auto&       actionFactory = TurnActionFactory::GetActionFactory();
-    std::string_view  actionName    = action.Name;
-    auto              iter          = actionFactory.find(actionName.data());
+    RevelationSystem*  system        = RevelationSystem::GetInstance();
+    const auto&        actionFactory = TurnActionFactory::GetActionFactory();
+    const std::string& actionName    = action.Name;
+    auto               iter          = actionFactory.find(actionName);
 
     if (system)
     {

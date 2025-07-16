@@ -79,16 +79,19 @@ public:
     //사용할 이미지 리소스 경로입니다.
     PROPERTY(ImagePath)
 
-    void SetName(std::string_view name) { ReflectFields->Name = name; }
-    GETTER_ONLY(std::string_view, Name) { return ReflectFields->Name; }
+    void SetName(const std::string& name) { ReflectFields->Name = name; }
+    GETTER_ONLY(const std::string&, Name) { return ReflectFields->Name; }
     //계시 이름
     PROPERTY(Name)
 
-    /*해당 계시의 액션을 반환합니다.*/
-    TurnAction* GetAction() { return _action.get(); }
+    /*액션 존재 여부를 반환합니다.*/
+    bool IsAction() const { return _action != nullptr; }
+
+    /*해당 계시의 액션을 반환합니다. IsAction()을 확인해야합니다.*/
+    TurnAction& GetAction() { return *_action; }
 
     /*계시 발동 조건 여부를 검사합니다.*/
-    bool Evaluate(CharacterBase* attacker, CharacterBase* target); 
+    bool Evaluate(CharacterBase& attacker, CharacterBase& target); 
 
 protected:
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
