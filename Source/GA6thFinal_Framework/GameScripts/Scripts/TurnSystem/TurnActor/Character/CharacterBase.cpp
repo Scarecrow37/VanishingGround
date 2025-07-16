@@ -60,10 +60,16 @@ void CharacterBase::Revive()
 
 void CharacterBase::Dead()
 {
+    //_tokenInventory.NotifyDead();
+
     Base::Dead();
     _hp = 0;
+}
 
-    _tokenInventory.NotifyDead();
+void CharacterBase::TakeDamage(int damage) 
+{
+    _hp -= damage;
+    _hp = std::clamp(_hp, 0, (int)MaxHP);
 }
 
 int CharacterBase::DecrementChainRoundCount()

@@ -29,6 +29,6 @@ namespace TokenObject
         TOKEN_DATA(16008, "기절 저항")
         TOKEN_CONSTRUCTOR(StunResistance, 40, 1)
     private:
-        void OnTurnStart(CharacterBase* owner) override;
+        void OnTokenRemoved(CharacterBase* owner, int tokenID) override;        
     };
 } // namespace TokenObject
