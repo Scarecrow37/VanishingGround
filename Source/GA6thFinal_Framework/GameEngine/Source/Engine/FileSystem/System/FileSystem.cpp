@@ -414,6 +414,15 @@ void EFileSystem::RequestPasteFile(const File::Path& path)
     }
 }
 
+void EFileSystem::RequestDragDropFile(const File::Path& path) 
+{
+    const EventSubscriberSet& subscriberSet = GetEventSubscribers(path.extension());
+    for (auto& subscriber : subscriberSet)
+    {
+        subscriber->OnRequestedDragDrop(path);
+    }
+}
+
 void EFileSystem::DrawGuiSettingEditor() 
 {
     if (ImGui::BeginMenuBar())

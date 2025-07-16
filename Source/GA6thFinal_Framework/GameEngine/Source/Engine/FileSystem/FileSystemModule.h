@@ -34,14 +34,13 @@ public:
     void PreUnInitialize() override;
     void ModuleUnInitialize() override;
 
-    void OnRequestedSave() override;
-    void OnRequestedLoad() override;
-
-public:
-
     void Update();
 
 private:
+    void OnRequestedSave() override;
+    void OnRequestedLoad() override;
+    void OnRequestedDragDrop(const File::Path& path) override;
+
     void RecieveFileEvent(const Event& data);
     void DispatchFileEvent();
 

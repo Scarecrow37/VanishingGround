@@ -13,5 +13,6 @@ namespace Impoerter
         bool Initialize();
 
     private:
+        void OnRequestedDragDrop(const File::Path& path) override;
     };
 }
