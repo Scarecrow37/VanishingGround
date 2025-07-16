@@ -56,7 +56,6 @@ public:
     const PlayerStates& GetFSMStates() { return _fsmStates; }
 
 public:
-    // CharacterBase을(를) 통해 상속됨
     virtual int GetSpeed() override;
     virtual int GetRandomSpeed() override;
     CharacterStats* GetCharacterStats() override;
