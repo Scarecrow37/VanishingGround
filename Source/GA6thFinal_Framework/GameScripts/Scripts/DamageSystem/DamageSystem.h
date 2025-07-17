@@ -9,5 +9,5 @@ struct WeaponStats;
 class DamageSystem : public Component
 {
 public:
-    static int CaculateDamage(const PlayerStats& attacker, const WeaponStats& attackerWeapon, const EnemyStats& target);
+    static int CalculateDamage(const PlayerStats& attacker, const WeaponStats& attackerWeapon, const EnemyStats& target);
 };
