@@ -35,7 +35,7 @@ public:
     /// <summary>
     /// 이 액션의 life cycle이 활성화 되어있는지 확인합니다.
     /// </summary>
-    bool IsVaildAction() { return _isDestroy != nullptr; }
+    bool IsValidAction() { return _isDestroy != nullptr; }
 
 public:
     /*Action의 이름을 반환해야합니다.*/

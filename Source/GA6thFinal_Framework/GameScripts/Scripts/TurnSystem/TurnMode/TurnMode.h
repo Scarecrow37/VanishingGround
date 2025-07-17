@@ -187,7 +187,7 @@ public:
         bool result = false;
         if (nullptr != action)
         {
-            if (false == action->IsVaildAction())
+            if (false == action->IsValidAction())
             {
                 auto& [isDestroy, newAction] = _turnActions.emplace_back();
                 isDestroy.reset(new bool{false});
