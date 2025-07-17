@@ -15,6 +15,6 @@ protected:
 
 public:
     const std::string& GetActionInfo() override;
-    void             ImGuiDrawActionEditor() override;
+    void               ImGuiDrawActionEditor() override;
     const std::string& GetActionName() override;
 };

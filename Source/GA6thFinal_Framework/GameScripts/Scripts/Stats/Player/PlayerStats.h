@@ -4,6 +4,9 @@
 struct PlayerStats : public CharacterStats
 {
     USING_PROPERTY(PlayerStats)
+    PlayerStats() = default;
+    ~PlayerStats() override = default;
+
     REFLECT_PROPERTY(Shield)
 
     SETTER(int, Shield) { ReflectFields->Shield = std::clamp(value, 1, 999); }

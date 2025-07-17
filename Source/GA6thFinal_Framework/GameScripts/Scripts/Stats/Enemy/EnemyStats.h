@@ -3,6 +3,9 @@
 
 struct EnemyStats : public CharacterStats
 {
+    EnemyStats() = default;
+    ~EnemyStats() override = default;
+
     USING_PROPERTY(EnemyStats)
     REFLECT_PROPERTY(Speed)
 
