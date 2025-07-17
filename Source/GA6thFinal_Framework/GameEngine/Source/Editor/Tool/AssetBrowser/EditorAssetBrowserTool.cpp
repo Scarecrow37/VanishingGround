@@ -521,23 +521,29 @@ void EditorAssetBrowserTool::ContentsFrameEventAction(spFolderContext context)
         float compactFactor = 0.1f;
         ImGuiHelper::PushStyleCompactToItem(compactFactor);
 
-        if (ImGui::BeginPopup("ContentsFramePopup"))
+        if (File::NULL_PATH != curPath)
         {
-            if (ImGui::BeginMenu("Create"))
+            if (ImGui::BeginPopup("ContentsFramePopup"))
             {
-                if (ImGui::MenuItem("Folder"))
+                if (ImGui::MenuItem("Open"))
                 {
-                    File::CreateFolderEx(curPath / "New Folder", true);
+                    File::OpenFile(curPath);
                 }
-                ImGui::EndMenu();
+                if (ImGui::BeginMenu("Create"))
+                {
+                    if (ImGui::MenuItem("Folder"))
+                    {
+                        File::CreateFolderEx(curPath / "New Folder", true);
+                    }
+                    ImGui::EndMenu();
+                }
+                if (ImGui::MenuItem("Copy Path"))
+                {
+                    File::CopyPathToClipBoard(curPath);
+                }
+                ImGui::EndPopup();
             }
-            if (ImGui::MenuItem("Copy Path"))
-            {
-                File::CopyPathToClipBoard(curPath);
-            }
-            ImGui::EndPopup();
         }
-
         ImGuiHelper::PopStyleCompact();
     }
 }
