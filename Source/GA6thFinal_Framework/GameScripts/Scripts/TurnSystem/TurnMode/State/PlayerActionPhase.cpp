@@ -3,6 +3,10 @@
 #include "TurnSystem/TurnMode/TurnMode.h"
 #include "TurnSystem/TurnActor/TurnActor.h"
 
+#include <TurnSystem/TurnMode/State/CombatStartPhase.h>
+#include <TurnSystem/TurnActor/Character/Player/Player.h>
+#include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
+
 REGISTER_CLASS(FSMStateFactory, PlayerActionPhase)
 
 PlayerActionPhase::PlayerActionPhase() 
@@ -24,8 +28,23 @@ void PlayerActionPhase::OnStart()
 
 void PlayerActionPhase::OnEnter() 
 {
-    TurnActor* player = _turnMode->GetCurrTurnActor();
-    player->PlayTurn();
+    TurnActor* actor = _turnMode->GetCurrTurnActor();
+    actor->PlayTurn();
+
+    if (_turnMode)
+    {
+        actor->OnTurnStart();
+        auto* combatStartPhase = _turnMode->States->CombatStartPhase;
+        if (combatStartPhase)
+        {
+            CharacterBase* character = static_cast<CharacterBase*>(actor);
+            for (auto& cha : combatStartPhase->GetCharacters())
+            {
+                cha->OnEachTurnStart(character);
+            }
+            _turnMode->ApplyActions([character](TurnAction& action) { action.OnTurnStart(character); });
+        }
+    }
 }
 
 void PlayerActionPhase::OnExit() {}

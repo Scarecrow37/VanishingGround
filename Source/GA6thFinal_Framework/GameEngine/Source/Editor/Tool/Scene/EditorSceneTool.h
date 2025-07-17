@@ -96,7 +96,7 @@ public:
         ManipulateCommand::Transform _prev;
         ManipulateCommand::Transform _curr;
 
-        void Execute() override;
+        bool Execute() override;
         void Undo() override;
     };
     

@@ -1,14 +1,34 @@
 ﻿#pragma once
 #include <Token/Token.h>
-
-class StunToken : public Token
+namespace TokenObject
 {
-    USING_PROPERTY(StunToken)
-    TOKEN_DATA(16007, "기절")
-private:
-    void OnTurnStart(CharacterBase* owner) override;
+    /// <summary>
+    /// <para>기절 토큰:</para>
+    /// <para>기절 토큰을 보유한 대상은 본인의 턴 시작 시 턴을 스킵한다.</para>
+    /// <para>기절 최대치는 1로, 중첩되지 않는다.</para>
+    /// </summary>
+    class Stun : public Token
+    {
+        TOKEN_DATA(16007, "기절")
+        TOKEN_CONSTRUCTOR(Stun, 55, 1)
+    private:
+        void OnTurnStart(CharacterBase* owner) override;
 
-private:
-    REFLECT_FIELDS_BEGIN(Token)
-    REFLECT_FIELDS_END(StunToken)
-};
+    private:
+        REFLECT_FIELDS_BEGIN(Token)
+        REFLECT_FIELDS_END(Stun)
+    };
+
+    /// <summary>
+    /// <para>기절 저항 토큰:</para>
+    /// <para>기절 저항 토큰이 0이 되면, 기절 저항 토큰을 없애고 기절 토큰을 획득합니다.</para>
+    /// <para>기절 부여 키워드를 가진 효과를 받으면 기절 저항 토큰이 감소합니다.</para>
+    /// </summary>
+    class StunResistance : public Token
+    {
+        TOKEN_DATA(16008, "기절 저항")
+        TOKEN_CONSTRUCTOR(StunResistance, 40, 1)
+    private:
+        void OnTokenRemoved(CharacterBase* owner, int tokenID) override;        
+    };
+} // namespace TokenObject

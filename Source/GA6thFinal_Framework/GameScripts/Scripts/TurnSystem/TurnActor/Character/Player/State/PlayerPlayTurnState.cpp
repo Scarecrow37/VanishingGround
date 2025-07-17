@@ -31,16 +31,12 @@ void PlayerPlayTurnState::OnStart()
 
 void PlayerPlayTurnState::OnEnter() 
 {
-    auto& player = GetPlayer();
-    player.GetTokenSystem().NotifyTurnStart();
+
 }
 
 void PlayerPlayTurnState::OnExit() 
 {
     _isStart = false;
-
-    auto& player = GetPlayer();
-    player.GetTokenSystem().NotifyTurnEnd();
 }
 
 void PlayerPlayTurnState::OnUpdate() 
@@ -106,12 +102,12 @@ void PlayerPlayTurnState::OnUpdate()
                                  std::format("{}{}{}", u8"플레이어가 "_c_str, selectName.data(), u8"을 공격!"_c_str));
 
                 GetPlayer().EndTurn();
-                selectTarget->Dead();
+                //selectTarget->Dead();
                 selectTarget = nullptr;
             }
             if (ImGui::Button("Kill"))
             {
-                GetPlayer().Dead();
+                GetPlayer().TakeDamage(std::numeric_limits<int>::max());
             }
         }
         else

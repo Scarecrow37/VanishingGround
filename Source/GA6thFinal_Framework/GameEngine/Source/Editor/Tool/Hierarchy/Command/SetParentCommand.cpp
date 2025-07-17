@@ -43,7 +43,7 @@ Command::Hierarchy::SetParentCommand::SetParentCommand(
 
 }
 
-void Command::Hierarchy::SetParentCommand::Execute() 
+bool Command::Hierarchy::SetParentCommand::Execute()
 {
     if (false == _targetObject.expired())
     {
@@ -65,7 +65,9 @@ void Command::Hierarchy::SetParentCommand::Execute()
                 target->GetScene().IsDirty = true;
             }
         }
+        return true;
     }
+    return false;
 }
 
 void Command::Hierarchy::SetParentCommand::Undo() 

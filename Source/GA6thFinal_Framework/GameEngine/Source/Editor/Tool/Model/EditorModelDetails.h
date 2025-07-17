@@ -5,7 +5,11 @@ class Animator;
 class Animation;
 class MeshRenderer;
 class FBXConverter;
-class EditorModelDetails : public EditorTool
+class EditorModelTool;
+
+class EditorModelDetails 
+    : public EditorTool
+    , public File::FileEventSubscriber
 {
     using AnimTable = std::unordered_map<std::string, unsigned int>;
     friend class EditorModelTool;
@@ -35,41 +39,46 @@ private:
     void UpdateModelTransform();
 
 private:
-    virtual void OnTickGui() override;
-    virtual void OnStartGui() override;
-    virtual void OnEndGui() override;
+     void OnTickGui() override;
+     void OnStartGui() override;
+     void OnEndGui() override;
 
 private:
     /* Begin 호출 전에 호출 */
-    virtual void OnPreFrameBegin() override;
+    void OnPreFrameBegin() override;
 
     /* Begin 호출 직후 호출 */
-    virtual void OnPostFrameBegin() override;
+    void OnPostFrameBegin() override;
 
     /* Begin 호출 후 클리핑 테스트를 통과한 후 호출 */
-    virtual void OnFrameRender() override;
-    virtual void OnFrameClipped() override;
+    void OnFrameRender() override;
+    void OnFrameClipped() override;
 
     /* End 호출 후에 호출 */
-    virtual void OnFrameEnd() override;
+    void OnFrameEnd() override;
 
     /* 프레임이 포커싱 될 때 호출 (OnPostFrameBegin 후에 호출) */
-    virtual void OnFrameFocusEnter() override;
-    virtual void OnFrameFocusStay() override;
-    virtual void OnFrameFocusExit() override;
+    void OnFrameFocusEnter() override;
+    void OnFrameFocusStay() override;
+    void OnFrameFocusExit() override;
 
     /* Popup창 호출 성공 시 호출 (OnPreFrameBegin 전에 호출) */
-    virtual void OnFramePopupOpened() override;
+    void OnFramePopupOpened() override;
+
+    void OnRequestedDragDrop(const File::Path& path) override;
    
 private:
     static FBXConverter& GetFBXConverter();
 
 private:
-    void ImportModel();
+    bool ImportModelWithDialog();
+    void ImportModel(const File::Path& path);
     void ExportModel();
     void SaveModel();
 
 private:
+    EditorModelTool*                _modelTool = nullptr;
+        
     Matrix                          _worldMatrix;
     Vector3                         _position = Vector3::Zero;
     Vector3                         _rotation = Vector3::Zero;

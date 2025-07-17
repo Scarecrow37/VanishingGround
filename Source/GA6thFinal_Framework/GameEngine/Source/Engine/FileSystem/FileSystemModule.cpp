@@ -22,7 +22,8 @@ void FileSystemModule::ModuleInitialize()
     {
         HWND hwnd = UmApplication.GetHwnd();
         DragAcceptFiles(hwnd, TRUE);
-        const MessageHandler msgHandler(FileSystemWinProc, 0);
+        // 파일 시스템 관련 메세지는 시스템을 정리하거나 로드하는 과정이므로 항상 최후순위로 미룬다.
+        const MessageHandler msgHandler(FileSystemWinProc, 999);
         UmApplication.AddMessageHandler(msgHandler);
 
         UmFileSystem.ObserverSetUp([this](const Event& event) { RecieveFileEvent(event); });
@@ -30,6 +31,8 @@ void FileSystemModule::ModuleInitialize()
 
     auto accessExt = {".txt", ".png", ".dds", ".hdr", ".UmAnimNotifySet"};
     UmFileSystem.RegisterFileEventSubscriber(this, accessExt);
+
+    _spriteFontImporter.Initialize();
 }
 
 void FileSystemModule::PreUnInitialize() 
@@ -57,6 +60,10 @@ void FileSystemModule::OnRequestedLoad()
     auto& path = UmFileSystem.GetProjectSettingPath();
     auto  name = File::PROJECT_SETTING_FILENAME;
     UmFileSystem.LoadSetting(path / name);
+}
+
+void FileSystemModule::OnRequestedDragDrop(const File::Path& path) 
+{
 }
 
 void FileSystemModule::Update() 
@@ -133,13 +140,14 @@ void FileSystemModule::ProcessDropFile(const HDROP hDrop)
         // 각 파일의 절대경로를 얻음
         wchar_t targetPath[MAX_PATH];
         DragQueryFile(hDrop, i, targetPath, MAX_PATH);
+        File::Path path = targetPath;
+        UmFileSystem.RequestDragDropFile(path);
 
-        File::Path project = targetPath;
-        File::Path extension = project.extension();
+        File::Path extension = path.extension();
         if (File::PROJECT_EXTENSION == extension)
         {
             UmFileSystem.SaveProjectWithMessageBox();
-            UmFileSystem.LoadProjectWithMessageBox(targetPath);
+            UmFileSystem.LoadProjectWithMessageBox(path);
         }
     }
     // 메모리 해제
@@ -165,6 +173,7 @@ bool FileSystemModule::FileSystemWinProc(HWND hwnd, UINT msg, WPARAM wParam, LPA
         case WM_DROPFILES:
         {
             ProcessDropFile((HDROP)wParam);
+            return true;
             break;
         }
     }

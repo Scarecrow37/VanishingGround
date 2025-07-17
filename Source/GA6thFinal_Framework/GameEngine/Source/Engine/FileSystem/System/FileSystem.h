@@ -108,6 +108,7 @@ public:
     void RequestOpenFile(const File::Path& path);
     void RequestCopyFile(const File::Path& path);
     void RequestPasteFile(const File::Path& path);
+    void RequestDragDropFile(const File::Path& path);
 
     void DrawGuiSettingEditor();
 
