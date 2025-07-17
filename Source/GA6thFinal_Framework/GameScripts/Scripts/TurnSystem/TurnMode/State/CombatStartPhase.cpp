@@ -74,7 +74,7 @@ void CombatStartPhase::OnStart()
 void CombatStartPhase::OnEnter() 
 {
     _turnMode->ResetRoundCount();
-    AddVaildActions();
+    AddValidActions();
     ResetCharacterStats();
 
     UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"배틀 시작...3");
@@ -116,7 +116,7 @@ void CombatStartPhase::NotifyCombatStart()
 }
 
 
-void CombatStartPhase::AddVaildActions()
+void CombatStartPhase::AddValidActions()
 {
     //계시 액션들
     RevelationSystem* revelationSystem = RevelationSystem::GetInstance();

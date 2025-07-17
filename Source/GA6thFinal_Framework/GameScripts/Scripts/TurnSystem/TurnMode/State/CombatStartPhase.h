@@ -40,7 +40,7 @@ protected:
     void NotifyCombatStart();
 
     /*사용하는 모든 액션들 라이프 사이클에 등록*/
-    void AddVaildActions();
+    void AddValidActions();
 
 private:
     bool                        _phaseEnd;
