@@ -115,7 +115,7 @@ void EditorModule::Update()
 
 void EditorModule::OpenPopupBox(const std::string& name, std::function<void()> content) 
 {
-    _popupBoxSystem.OpenPopupBox(name, content);
+    auto* popup = _popupBoxSystem.OpenPopupBox(name, content);
 }
 
 void EditorModule::OpenPopupBoxEx(const std::string& name, ImVec2 size, int flags, std::function<void()> content) 

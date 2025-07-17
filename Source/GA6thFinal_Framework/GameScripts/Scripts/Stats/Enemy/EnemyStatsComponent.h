@@ -12,7 +12,7 @@ public:
     EnemyStatsComponent();
     virtual ~EnemyStatsComponent();
 
-    EnemyStats* GetStats() { return _stats; }
+    EnemyStats& GetStats() { return *_stats; }
 
 protected:
     REFLECT_FIELDS_BEGIN(TurnActorStatsComponent)

@@ -61,6 +61,7 @@ static void ShowNewProjectPopup()
 
 void EditorMenuProjectRoot::OnMenu() 
 {
+    bool isProjectLoaded = UmFileSystem.IsLoadedProject();
     if (ImGui::BeginMenu("Project"))
     {
         if (ImGui::MenuItem("New Project", nullptr))
@@ -78,6 +79,10 @@ void EditorMenuProjectRoot::OnMenu()
             {
                 UmFileSystem.LoadProject(out.front());
             }
+        }
+        if (false == isProjectLoaded)
+        {
+            ImGui::BeginDisabled();
         }
         if (ImGui::MenuItem("Save Project", nullptr))
         {
@@ -98,6 +103,10 @@ void EditorMenuProjectRoot::OnMenu()
                     UmFileSystem.LoadProject(directory / projectName);
                 }
             }
+        }
+        if (false == isProjectLoaded)
+        {
+            ImGui::EndDisabled();
         }
         ImGui::EndMenu();
     }

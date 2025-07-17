@@ -72,6 +72,24 @@ public:
     int GetPendingActorCount() const { return (int)_turnList.size(); }
 
 public:
+    struct Battle
+    {
+        /// <summary>
+        /// 플레이어로 공격을 수행합니다.
+        /// </summary>
+        /// <param name="attacker :">공격자</param>
+        /// <param name="target :">대상</param>
+        void operator()(Player& attacker, Enemy& target);
+
+        /// <summary>
+        /// 적으로 공격을 수행합니다.
+        /// </summary>
+        /// <param name="attacker :">공격자</param>
+        /// <param name="target :">대상</param>
+        void operator()(Enemy& attacker, Player& target);
+    };
+
+public:
     REFLECT_PROPERTY(
         RoundCount
     )
@@ -163,15 +181,23 @@ public:
     /// <param name="action :">해당 객체 포인터</param>
     /// <returns></returns>
     template <typename T>
-    T* AddTurnAction(T* action)
+    bool AddTurnAction(T* action)
     {
         static_assert(std::is_base_of_v<TurnAction, T>, "T is not derived from TurnAction.");
-        auto& [isDestroy, newAction] = _turnActions.emplace_back();
-        isDestroy.reset(new bool{false});
-        TurnAction* baseAction = static_cast<TurnAction*>(action);
-        baseAction->_isDestroy = isDestroy.get();
-        newAction              = baseAction;
-        return action;
+        bool result = false;
+        if (nullptr != action)
+        {
+            if (false == action->IsValidAction())
+            {
+                auto& [isDestroy, newAction] = _turnActions.emplace_back();
+                isDestroy.reset(new bool{false});
+                TurnAction* baseAction = static_cast<TurnAction*>(action);
+                baseAction->_isDestroy = isDestroy.get();
+                newAction              = baseAction;
+                result                 = true;
+            }
+        }
+        return result;
     }
 
 private:
