@@ -862,11 +862,25 @@ void EditorAssetBrowserTool::ShowCopyFilePopupBox()
     {
         if (true == fs::exists(targetPath))
         {
+            bool isDirectory = fs::is_directory(targetPath);
+            if (isDirectory)
+            {
+                check = false;
+            }
             std::string targetPathStr = targetPath.generic_string();
             ImGui::PushID(++idSeed);
+            if (isDirectory)
+            {   // 디렉터리는 허용하지 않음
+                ImGui::BeginDisabled();
+            }
             ImGui::Checkbox("##CheckCopy", &check);
-            ImVec2 childAvail = ImGui::GetContentRegionAvail();
+            if (isDirectory)
+            {
+                ImGui::EndDisabled();
+            }
             ImGui::SameLine();
+
+            ImVec2 childAvail = ImGui::GetContentRegionAvail();
             ImGui::SetNextItemWidth(childAvail.x);
             int flags = ImGuiInputTextFlags_ReadOnly | ImGuiInputTextFlags_AutoSelectAll;
             if (true == check)
@@ -879,7 +893,7 @@ void EditorAssetBrowserTool::ShowCopyFilePopupBox()
             }
             ImGui::InputText("##CopyFilePath", &targetPathStr, flags);
             ImGui::PopStyleColor();
-            ImGuiHelper::HoveredToolTip(targetPathStr);
+            ImGuiHelper::HoveredToolTip(isDirectory ? (const char*)u8"폴더 복사는 허용하지 않습니다." : targetPathStr);
             ImGui::PopID();
         }
     }
@@ -899,6 +913,7 @@ void EditorAssetBrowserTool::ShowCopyFilePopupBox()
     {
         File::ShowOpenFolderDialog(NULL, L"경로 선택", _destPath.c_str(), _destPath);
     }
+    ImGui::Separator();
     if (ImGui::Button("Copy"))
     {
         for (const auto& [check, targetPath] : _dragDropPaths)
