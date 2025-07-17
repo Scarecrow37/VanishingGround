@@ -310,7 +310,7 @@ void TurnMode::Battle::operator()(Player& attacker, Enemy& target)
         WeaponStats weaponStats(weaponSystem->GetCurrentWeaponStats());
         EnemyStats  enemyStats(enemyStatsComponent->GetStats());
         turnMode->ApplyActions([&](TurnAction& action) {
-            action.OnPlayerBatteStart(attacker, playerStats, weaponStats, target, enemyStats);
+            action.OnPlayerBattleStart(attacker, playerStats, weaponStats, target, enemyStats);
         });
 
 

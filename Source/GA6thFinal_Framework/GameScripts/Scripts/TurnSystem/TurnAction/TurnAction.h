@@ -71,7 +71,7 @@ public:
     /// <param name="weaponStats :">실제 데미지 계산에 사용될 스텟</param>
     /// <param name="target :">공격 당하는 적 컴포넌트</param>
     /// <param name="targetStats :">실제 데미지 계산에 사용될 스텟</param>
-    virtual void OnPlayerBatteStart(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats, Enemy& target, EnemyStats& targetStats) {}
+    virtual void OnPlayerBattleStart(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats, Enemy& target, EnemyStats& targetStats) {}
 
     /// <summary>
     /// 적이 배틀데미지 계산 직전에 호출됩니다.
