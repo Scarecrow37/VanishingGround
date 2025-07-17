@@ -62,6 +62,9 @@ public:
     // 토큰 인벤토리를 반환합니다.
     TokenInventory& GetTokenInventory() { return _tokenInventory; }
 
+    // 스켈레탈 메쉬 렌더러를 반환합니다.
+    SkeletalMeshRenderer* GetSkeletalMeshRenderer() const { return _skeletalMeshRenderer; }
+
 protected:
     virtual CharacterStats* GetCharacterStats() = 0;
 

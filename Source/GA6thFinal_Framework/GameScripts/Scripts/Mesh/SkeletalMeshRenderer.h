@@ -53,12 +53,14 @@ public:
     void PlayAnimation();
     void PauseAnimation();
     void ResumeAnimation();
+    bool IsAnimationEnd();
 
     inline float              GetCurrentAnimationTime()     const { return _animationTime; }
     inline const std::string& GetCurrentAnimationName()     const { return ReflectFields->CurrentAnimationKey; }
     inline float              GetCurrentAnimationSpeed()    const { return ReflectFields->AnimationSpeed; }
     inline bool               IsAnimationPlaying()          const { return ReflectFields->IsAnimationPlaying; }
     inline bool               IsAnimationLooping()          const { return ReflectFields->IsAnimationLooping; }
+    
 
 private:
     float _animationTime = 0.0f;

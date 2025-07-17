@@ -238,6 +238,19 @@ void SkeletalMeshRenderer::ResumeAnimation()
     ReflectFields->IsAnimationPlaying = true;
 }
 
+bool SkeletalMeshRenderer::IsAnimationEnd()
+{
+    if (HasModel() && HasAnimator())
+    {
+        auto animator = Renderer->GetAnimator();
+        if (animator)
+        {
+            return animator->IsEnd();
+        }
+    }
+    return false;
+}
+
 void SkeletalMeshRenderer::LoadModel()
 {
     if (Renderer)

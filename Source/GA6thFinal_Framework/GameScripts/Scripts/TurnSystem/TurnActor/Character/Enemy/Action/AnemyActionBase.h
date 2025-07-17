@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 class Enemy;
+class SkeletalMeshRenderer;
 
 namespace EnemyAction
 {
@@ -20,5 +21,6 @@ namespace EnemyAction
 
     protected:
         Enemy* _owner = nullptr;
+        SkeletalMeshRenderer* _renderer = nullptr;
     };
 } // namespace Enemy

@@ -100,6 +100,23 @@ bool Animator::IsLoop() const
     return _isLoop;
 }
 
+bool Animator::IsEnd() const
+{
+    size_t count = 0;
+    for (size_t i = 0; i < _maxSplit; i++)
+    {
+        if (_controllers[i].PlayTime >= _controllers[i].LastTime)
+        {
+            ++count;
+        }
+    }
+    if (count == _maxSplit)
+    {
+        return true;
+    }
+    return false;
+}
+
 void Animator::SetAnimationTime(float time) 
 {
     for (unsigned int i = 0; i < _maxSplit; i++)

@@ -37,6 +37,7 @@ public:
     float         GetCurrentAnimationSpeed(unsigned int ID = 0) const;
     bool          IsPaused() const;
     bool          IsLoop() const;
+    bool          IsEnd() const;
 
     void          SetAnimationTime(float time);
     void          SetAnimationTime(float time, unsigned int ID);
