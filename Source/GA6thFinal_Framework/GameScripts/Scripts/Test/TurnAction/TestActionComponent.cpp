@@ -42,12 +42,14 @@ void TestAction::OnTurnEnd(CharacterBase* destination)
 
 const std::string& TestAction::GetActionName()
 {
-    return (const char*)u8"테스트 액션";
+    static const std::string name = (const char*)u8"테스트 액션";
+    return name;
 }
 
 const std::string& TestAction::GetActionInfo()
 {
-    return (const char*)u8"테스트 액션 정보";
+    static const std::string info = (const char*)u8"테스트 액션 정보";
+    return info;
 }
 
 void TestAction::ImGuiDrawActionEditor() 
