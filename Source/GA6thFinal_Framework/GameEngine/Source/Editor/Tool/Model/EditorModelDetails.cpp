@@ -146,14 +146,9 @@ void EditorModelDetails::OnPostFrameBegin() {}
 void EditorModelDetails::OnFrameRender()
 {
     ImGui::BeginHorizontal("model");
-    std::vector<std::pair<LPCWSTR, LPCWSTR>> filters = {{L"Model Files (*.fbx;*.UmModel)", L"*.fbx; *.UmModel\0\0"}};
     if (ImGui::Button("Import", ImVec2(100, 50)))
-    {   // FBX or binary Load
-        File::Path importPath;
-        if (File::ShowOpenFileDialog(NULL, L"Import Model", L"", filters, importPath))
-        {
-            ImportModel(importPath);
-        }
+    {
+        ImportModelWithDialog();
     }
 
     if (ImGui::Button("Export", ImVec2(100, 50)))
