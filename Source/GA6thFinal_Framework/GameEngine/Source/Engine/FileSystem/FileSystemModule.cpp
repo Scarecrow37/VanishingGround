@@ -22,7 +22,8 @@ void FileSystemModule::ModuleInitialize()
     {
         HWND hwnd = UmApplication.GetHwnd();
         DragAcceptFiles(hwnd, TRUE);
-        const MessageHandler msgHandler(FileSystemWinProc, 0);
+        // 파일 시스템 관련 메세지는 시스템을 정리하거나 로드하는 과정이므로 항상 최후순위로 미룬다.
+        const MessageHandler msgHandler(FileSystemWinProc, 999);
         UmApplication.AddMessageHandler(msgHandler);
 
         UmFileSystem.ObserverSetUp([this](const Event& event) { RecieveFileEvent(event); });
@@ -172,6 +173,7 @@ bool FileSystemModule::FileSystemWinProc(HWND hwnd, UINT msg, WPARAM wParam, LPA
         case WM_DROPFILES:
         {
             ProcessDropFile((HDROP)wParam);
+            return true;
             break;
         }
     }
