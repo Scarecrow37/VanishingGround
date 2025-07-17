@@ -4,8 +4,7 @@
 #include "Command/DetachChildrenCommand.h"
 #include "Command/PackPrefabCommand.h"
 #include "Command/DropPrefabCommand.h"
-#include "Engine/GraphicsCore/Light.h"
-#include <Engine/GraphicsCore/MeshRenderer.h>
+
 #include "UmScripts.h"
 
 using namespace u8_literals;

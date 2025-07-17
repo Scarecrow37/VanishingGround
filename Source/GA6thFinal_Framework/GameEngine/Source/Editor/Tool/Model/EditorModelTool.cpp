@@ -16,8 +16,8 @@ void EditorModelTool::OnTickGui()
 
 void EditorModelTool::OnStartGui()
 {
-    std::shared_ptr<Camera> camera = UmRenderer.GetCamera("ModelViewer");
-    GRAPHICS_ASSERT(nullptr != camera, L"Camera is nullptr");
+    std::shared_ptr<Camera> camera = UmGraphics.GetCamera("ModelViewer");
+    assert(nullptr != camera && L"Camera is nullptr");
     _camera->SetTarget(camera);
     _camera->SetPosition(Vector3(0.f, 0.f, -5.f));
     SIZE size = UmCore->App.GetClientSize();
@@ -57,7 +57,7 @@ void EditorModelTool::OnPostFrameBegin()
 
 void EditorModelTool::OnFrameRender()
 {
-    auto handle = UmRenderer.GetRenderSceneImage("ModelViewer");
+    auto handle = UmGraphics.GetRenderSceneImage("ModelViewer");
 
     ImVec2 size = ImGui::GetContentRegionAvail();
 

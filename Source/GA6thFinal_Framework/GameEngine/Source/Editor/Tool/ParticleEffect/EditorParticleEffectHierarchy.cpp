@@ -1,7 +1,6 @@
 ﻿#include "pch.h"
 #include "EditorParticleEffectHierarchy.h"
-#include "Engine/GraphicsCore/ParticleEffect.h"
-#include "Engine/GraphicsCore/ParticleEmitter.h"
+
  EditorParticleEffectHierarchy::EditorParticleEffectHierarchy() 
  {
      SetLabel("Hierarchy##particleeffect");
@@ -37,10 +36,10 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
     bool            isnewbuttonpressed = ImGui::Button("New", {180, 50});
      if (true == isnewbuttonpressed)
     {
-         auto newEffect = UmParticleManager.RegisterEffect();
+         auto newEffect = UmParticleManager->RegisterEffect();
          newEffect->SetLifetime(10.f);
          newEffect->SetEffectName("newEffect");
-        UmParticleManager.SetCurrentEditorEffect(newEffect);
+        UmParticleManager->SetCurrentEditorEffect(newEffect);
         _editorParticleEffectDetails->SetCurrentEffect(newEffect);
         _curEffect = newEffect;
     }
@@ -57,13 +56,13 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
         if (File::ShowOpenFileDialog(owner, title, L"", {{L"\0", L"*.vfx*\0"}}, false, out))
         {
             auto effect = UmParticleSerializer.Deserialize(out.front());
-            UmParticleManager.SetCurrentEditorEffect(effect);
+            UmParticleManager->SetCurrentEditorEffect(effect);
             _editorParticleEffectDetails->SetCurrentEffect(effect);
             _curEffect = effect;
         }
     }
 
-    ParticleEffect* effect = UmParticleManager.GetCurrentEditorEffect();
+    ParticleEffect* effect = UmParticleManager->GetCurrentEditorEffect();
     if (nullptr != effect)
     {
         bool isSaveButtonPressed = ImGui::Button("Save", {180, 50});
@@ -86,26 +85,25 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
     bool isrefreshbutton = ImGui::Button("refresh", {100, 30});
     if (true == isrefreshbutton)
     {
-        UmParticleManager.RefreshEditor();
+        UmParticleManager->RefreshEditor();
 
     }
 
     ImGui::SameLine();
-    
-    bool isAutorefresh = UmParticleManager.GetAutoRefresh();
+
+    bool isAutorefresh = UmParticleManager->GetAutoRefresh();
     ImGui::Checkbox("Auto Refresh", &isAutorefresh);
-    UmParticleManager.SetAutoRefresh(isAutorefresh);
+    UmParticleManager->SetAutoRefresh(isAutorefresh);
 
-    float deltaScale = UmParticleManager.GetDeltaScale();
+    float deltaScale = UmParticleManager->GetDeltaScale();
     ImGui::SliderFloat("Time Speed",&deltaScale, 0.f,2.f);
-    UmParticleManager.SetDeltaScale(deltaScale);
+    UmParticleManager->SetDeltaScale(deltaScale);
 
 
 
 
 
-
-    ImGui::Text("current particle count : %d",UmParticleManager.GetTotalCount());
+    ImGui::Text("current particle count : %d", UmParticleManager->GetTotalCount());
     ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal, 2.f);
     if (nullptr == effect)
     {
@@ -176,7 +174,7 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
     if (true == isAddButtonPressed)
     {
         auto emitter =
-            UmParticleManager.RegisterEmitter(_curEffect, 100000, 1000, 20, locationType, {0, 0, 0}, particleType);
+            UmParticleManager->RegisterEmitter(_curEffect, 100000, 1000, 20, locationType, {0, 0, 0}, particleType);
     }
     bool isSomeoneChanged   = false;
     ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal,2.f);
@@ -227,7 +225,7 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
                         {
                             effect->RemoveEmitter(emitter);
                             _editorParticleEffectDetails->SetCurrentEmitter(nullptr);
-                            UmParticleManager.RefreshEditor();
+                            UmParticleManager->RefreshEditor();
                         }
                     }
                 }
@@ -285,7 +283,7 @@ void EditorParticleEffectHierarchy::Deserialize(const std::string& filepath)
     float lifetime = 0.f;
     is.read(reinterpret_cast<char*>(&lifetime), sizeof(lifetime));
 
-    auto newEffect = UmParticleManager.RegisterEffect();
+    auto newEffect = UmParticleManager->RegisterEffect();
     newEffect->SetLifetime(lifetime);
     newEffect->SetEffectName(effectname);
 
@@ -369,7 +367,7 @@ void EditorParticleEffectHierarchy::Deserialize(const std::string& filepath)
         }
         {
             auto emitter =
-                UmParticleManager.RegisterEmitter(newEffect, maxParticles, emissionRate, emitterLifetime, locationType,
+                UmParticleManager->RegisterEmitter(newEffect, maxParticles, emissionRate, emitterLifetime, locationType,
                                                   locatorFactor, particleType, modelTexturePath);
             emitter->SetEmitterName(emitterName);
             emitter->SetEmitterPosition(emitterPosition);

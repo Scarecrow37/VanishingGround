@@ -1,11 +1,6 @@
 ﻿#include "pch.h"
 #include "EditorModelDetails.h"
-#include "Engine/GraphicsCore/FBXConverter.h"
-#include "Engine/GraphicsCore/MeshRenderer.h"
-#include "Engine/GraphicsCore/Model.h"
-#include "Engine/GraphicsCore/Animation.h"
-#include "Engine/GraphicsCore/Animator.h"
-#include "Engine/GraphicsCore/Light.h"
+#include "../../../../../GraphicsEngine/FBXConverter.h"
 
 EditorModelDetails::EditorModelDetails()
     : _meshRenderer(std::make_unique<MeshRenderer>(MeshRenderType::STATIC, _worldMatrix))
@@ -115,8 +110,8 @@ void EditorModelDetails::OnTickGui()
 
 void EditorModelDetails::OnStartGui()
 {
-    UmRenderer.RegisterRenderQueue("ModelViewer", _meshRenderer.get());
-    UmLightCore.RegisterLight("ModelViewer", _mainLight.get());
+    UmGraphics.RegisterComponent("ModelViewer", _meshRenderer.get());
+    UmGraphics.RegisterComponent("ModelViewer", _mainLight.get());
 
     _color = Vector3(1.f);
     _ambient = Vector3(1.f);
@@ -234,8 +229,7 @@ void EditorModelDetails::OnFrameRender()
                 else
                 {
                     const auto& animationNames = animation->GetAnimations();
-                    const char* comboLabel =
-                        _currentAnimationIndex == -1 ? "-" : animationNames[_currentAnimationIndex];
+                    const char* comboLabel = _currentAnimationIndex == -1 ? "-" : animationNames[_currentAnimationIndex];
                     if (ImGui::BeginCombo("##Animation", comboLabel))
                     {
                         for (int i = 0; i < animationNames.size(); ++i)
