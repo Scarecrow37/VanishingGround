@@ -1517,24 +1517,25 @@ void ESceneManager::EraseSceneGUID(std::string_view sceneName, const File::Guid 
 template <typename T>
 void ESceneManager::SceneResourceManager::UpdateRenderResource(RenderResource<T>& resource)
 {
-    std::tuple<std::weak_ptr<Component>, File::Guid, std::function<void()>> curr;
+    std::tuple<std::weak_ptr<Component>, File::Path, std::function<void()>> curr;
     while (false == resource.ResourceLoadQueue.empty())
     {
         if (true == resource.ResourceLoadQueue.try_pop(curr))
         {
-            auto& [weakPtr, guid, func] = curr;
+            auto& [weakPtr, path, func] = curr;
             if (std::shared_ptr<Component> component = weakPtr.lock())
             {
-                File::Path path = guid.ToPath();
-                if (false == path.IsNull())
+                if (true == std::filesystem::exists(path))
                 {
                     if (component->_gameObject->IsValid())
                     {
-                        auto findIter = resource.RenderResource.find(guid);
+                        path = std::filesystem::absolute(path);
+                        path = path.generic_string();
+                        auto findIter = resource.RenderResource.find(path);
                         if (findIter == resource.RenderResource.end())
                         {
                             auto newResource = UmResourceManager.LoadResource<T>(path.string());                       
-                            resource.RenderResource[guid] = newResource;
+                            resource.RenderResource[path] = newResource;
                         }
                         func();
                     }
@@ -1542,7 +1543,7 @@ void ESceneManager::SceneResourceManager::UpdateRenderResource(RenderResource<T>
                 else
                 {
                     UmLogger.Log(LogLevel::LEVEL_WARNING,
-                                 std::format("{}{}", guid.string(), (const char*)u8"는 존재하지 않는 리소스입니다."));
+                                 std::format("{}{}", path.string(), (const char*)u8"는 존재하지 않는 리소스입니다."));
                 }
             }
         }
@@ -1556,20 +1557,38 @@ void ESceneManager::SceneResourceManager::Engine::Update(SceneResourceManager& m
     manager.UpdateRenderResource(manager._fonts);
 }
 
-void ESceneManager::SceneResourceManager::RequestModelResource(const Component* component, const File::Guid& guid, const std::function<void()> func)
+void ESceneManager::SceneResourceManager::RequestModelResource(const Component* component, const File::Guid& guid,
+                                                               const std::function<void()> func)
 {
     if (component->gameObject->IsValid())
     {
         File::Path path = UmFileSystem.GetPathFromGuid(guid);
         if (false == path.IsNull())
         {
-            auto pair = std::make_tuple(component->GetWeakPtr(), guid, func);
-            _models.ResourceLoadQueue.push(pair);
+            RequestModelResource(component, path, func);
         }
         else
         {
             UmLogger.Log(LogLevel::LEVEL_WARNING,
                          std::format("{}{}", guid.string(), u8"는 존재하지 않는 리소스입니다."_c_str));
+        }
+    }
+}
+
+void ESceneManager::SceneResourceManager::RequestModelResource(const Component* component, const File::Path& path,
+                                                               const std::function<void()> func)
+{
+    if (component->gameObject->IsValid())
+    {
+        if (true == std::filesystem::exists(path))
+        {
+            auto tuple = std::make_tuple(component->GetWeakPtr(), path, func);
+            _models.ResourceLoadQueue.push(tuple);
+        }
+        else
+        {
+            UmLogger.Log(LogLevel::LEVEL_WARNING,
+                         std::format("{}{}", path.string(), u8"는 존재하지 않는 리소스입니다."_c_str));
         }
     }
 }
@@ -1581,13 +1600,33 @@ void ESceneManager::SceneResourceManager::RequestTextureResource(const Component
         File::Path path = UmFileSystem.GetPathFromGuid(guid);
         if (false == path.IsNull())
         {
-            auto pair = std::make_tuple(component->GetWeakPtr(), guid, func);
-            _textures.ResourceLoadQueue.push(pair);
+            RequestTextureResource(component, path, func);
         }
         else
         {
             UmLogger.Log(LogLevel::LEVEL_WARNING,
                          std::format("{}{}", guid.string(), u8"는 존재하지 않는 리소스입니다."_c_str));
+        }
+    }
+}
+
+void ESceneManager::SceneResourceManager::RequestTextureResource(const Component* component, const File::Path& path,
+                                                                 const std::function<void()> func)
+{
+    if (component->gameObject->IsValid())
+    {
+        if (component->gameObject->IsValid())
+        {
+            if (true == std::filesystem::exists(path))
+            {
+                auto tuple = std::make_tuple(component->GetWeakPtr(), path, func);
+                _textures.ResourceLoadQueue.push(tuple);
+            }
+            else
+            {
+                UmLogger.Log(LogLevel::LEVEL_WARNING,
+                             std::format("{}{}", path.string(), u8"는 존재하지 않는 리소스입니다."_c_str));
+            }
         }
     }
 }
@@ -1600,13 +1639,33 @@ void ESceneManager::SceneResourceManager::RequestFontResource(const Component* c
         File::Path path = UmFileSystem.GetPathFromGuid(guid);
         if (false == path.IsNull())
         {
-            auto pair = std::make_tuple(component->GetWeakPtr(), guid, func);
-            _fonts.ResourceLoadQueue.push(pair);
+            RequestFontResource(component, path, func);
         }
         else
         {
             UmLogger.Log(LogLevel::LEVEL_WARNING,
                          std::format("{}{}", guid.string(), u8"는 존재하지 않는 리소스입니다."_c_str));
+        }
+    }
+}
+
+void ESceneManager::SceneResourceManager::RequestFontResource(const Component* component, const File::Path& path,
+                                                              const std::function<void()> func)
+{
+    if (component->gameObject->IsValid())
+    {
+        if (component->gameObject->IsValid())
+        {
+            if (true == std::filesystem::exists(path))
+            {
+                auto tuple = std::make_tuple(component->GetWeakPtr(), path, func);
+                _fonts.ResourceLoadQueue.push(tuple);
+            }
+            else
+            {
+                UmLogger.Log(LogLevel::LEVEL_WARNING,
+                             std::format("{}{}", path.string(), u8"는 존재하지 않는 리소스입니다."_c_str));
+            }
         }
     }
 }

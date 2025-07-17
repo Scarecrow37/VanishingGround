@@ -14,6 +14,12 @@ public:
 		std::weak_ptr<Resource> resource       = _resources[filePath];
         std::shared_ptr<T>      sharedResource = std::static_pointer_cast<T>(resource.lock());
 
+        if (true == std::filesystem::exists(filePath))
+        {
+            filePath = std::filesystem::absolute(filePath);
+            filePath = filePath.generic_string();
+        }
+
 		if (resource.expired())
 		{
             sharedResource = std::make_shared<T>();
