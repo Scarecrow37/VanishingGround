@@ -40,7 +40,7 @@ EditorSceneTool::~EditorSceneTool()
 
 }
 
-void EditorSceneTool::SetManipulateObject(std::weak_ptr<GameObject>& object) 
+void EditorSceneTool::SetManipulateObject(const std::weak_ptr<GameObject>& object) 
 {
     pSceneTool->_manipulateObject = object;
 }
@@ -669,6 +669,10 @@ void EditorSceneTool::RayPicker()
                     {
                         break;
                     }
+                }
+                if (false == intersects)
+                {
+                    EditorInspectorTool::ResetFocusObject();
                 }
             }
         }

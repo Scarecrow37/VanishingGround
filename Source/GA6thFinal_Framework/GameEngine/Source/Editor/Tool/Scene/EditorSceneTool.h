@@ -12,7 +12,7 @@ public:
     EditorSceneTool();
     virtual ~EditorSceneTool();
 
-    static void SetManipulateObject(std::weak_ptr<GameObject>& object);
+    static void SetManipulateObject(const std::weak_ptr<GameObject>& object);
 
 public:
     const Matrix& GetCameraMatrix();
