@@ -80,12 +80,49 @@ void ESceneManager::Engine::RegisterFileEvents()
 
 void ESceneManager::Engine::CleanupSceneManager()
 {
+    //실제 활성화 오브젝트
     engineCore->SceneManager._runtimeObjects.clear();
     engineCore->SceneManager._runtimeObjectsUnorderedMap.clear();
+
+    //태그 맵
+    engineCore->SceneManager._runtimeObjectsTagMap.clear();
+
+    //파괴 큐
+    engineCore->SceneManager._destroyObjectsQueue.first.clear();
+    engineCore->SceneManager._destroyObjectsQueue.second.clear();
+    engineCore->SceneManager._destroyComponentsQueue.first.clear();
+    engineCore->SceneManager._destroyComponentsQueue.second.clear();
+    
+    //추가 큐
     engineCore->SceneManager._addGameObjectsQueue.clear();
     engineCore->SceneManager._addComponentsQueue.clear();
+
+    //초기화 큐
     engineCore->SceneManager._waitAwakeVec.clear();
     engineCore->SceneManager._waitStartVec.clear();
+
+    // OnEnable 큐
+    auto& [enableSet, enableVec, enableValue] = engineCore->SceneManager._onEnableQueue;
+    enableSet.clear();
+    enableVec.clear();
+    enableValue.clear();
+
+    // OnDisable 큐
+    auto& [disableSet, disableVec, disableValue] = engineCore->SceneManager._onDisableQueue;
+    disableSet.clear();
+    disableVec.clear();
+    disableValue.clear();
+
+    //하이러키 Update 큐
+    auto& [enableUpdateSet, enableUpdateQueue] = engineCore->SceneManager._updateEnableQueue;
+    enableUpdateSet.clear();
+    enableUpdateQueue.clear();
+    auto& [disableUpdateSet, disableUpdateQueue] = engineCore->SceneManager._updateDisableQueue;
+    disableUpdateSet.clear();
+    disableUpdateQueue.clear();
+
+    //Render component들
+    engineCore->SceneManager._runtimeMeshComponents.clear();
 }
 
 void ESceneManager::Engine::SceneUpdate()
@@ -1493,9 +1530,11 @@ void ESceneManager::SceneResourceManager::UpdateRenderResource(RenderResource<T>
                 {
                     if (component->_gameObject->IsValid())
                     {
-                        if (resource.RenderResource.find(guid) == resource.RenderResource.end())
+                        auto findIter = resource.RenderResource.find(guid);
+                        if (findIter == resource.RenderResource.end())
                         {
-                            resource.RenderResource[guid] = UmResourceManager.LoadResource<T>(path.string());
+                            auto newResource = UmResourceManager.LoadResource<T>(path.string());                       
+                            resource.RenderResource[guid] = newResource;
                         }
                         func();
                     }
