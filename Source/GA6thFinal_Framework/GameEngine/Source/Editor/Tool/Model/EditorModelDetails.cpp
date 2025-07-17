@@ -208,14 +208,15 @@ void EditorModelDetails::OnFrameRender()
             // ReadOnly inputText for file path
             int inputFlags = ImGuiInputTextFlags_ReadOnly | ImGuiInputTextFlags_AutoSelectAll;
             std::string filePath  = _filePath.string();
-            char* filePathBuffer  = (char*)filePath.c_str();
-            size_t filePathLength = filePath.length() + 1;
-            ImGui::InputText("File Path##details", filePathBuffer, filePathLength, inputFlags);
+            ImGui::InputText("File Path##details", &filePath, inputFlags);
             if (ImGui::IsItemHovered())
             {
                 ImGui::SetTooltip(filePath.c_str());
             }
             ImGui::Separator();
+
+            ImGui::Text("Type: %s", type == MeshRenderType::STATIC ? "Static" : "Skeletal");
+            ImGui::Text("Mesh Count: %d", model->GetMeshes().size());
 
             if (ImGui::TreeNodeEx("Transform##details", ImGuiTreeNodeFlags_DefaultOpen))
             {
