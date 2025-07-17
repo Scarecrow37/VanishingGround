@@ -53,9 +53,10 @@ protected:
 public:
     /*Enemy의 턴을 종료합니다.*/
     virtual void EndTurn() override;
-
     /*Enemy를 Dead 상태로 만듭니다.*/
     virtual void Dead() override;
+    /*Enemy에게 피격을 가합니다.*/
+    virtual void TakeDamage(int damage) override;
 
     FiniteStateMachine& GetFSM() { return *_finiteStateMachine; }
     const EnemyStates&  GetFSMStates() { return _fsmStates; }

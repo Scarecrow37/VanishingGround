@@ -12,10 +12,26 @@ EditorAssetBrowserTool::EditorAssetBrowserTool()
     _selectedContext->SetThis(_selectedContext);
 
     _showType = List;
+
+    _staticInstance = this;
 }
 
 EditorAssetBrowserTool::~EditorAssetBrowserTool() 
 {
+    if (this == _staticInstance)
+    {
+        _staticInstance = nullptr;
+    }
+}
+
+EditorAssetBrowserTool* EditorAssetBrowserTool::GetInstance()
+{
+    return _staticInstance;
+}
+
+const File::Path& EditorAssetBrowserTool::GetCurrentFocusFolderPath() const
+{
+    return _currFocusFolderPath;
 }
 
 void EditorAssetBrowserTool::OnStartGui()

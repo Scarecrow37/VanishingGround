@@ -30,6 +30,8 @@ void FileSystemModule::ModuleInitialize()
 
     auto accessExt = {".txt", ".png", ".dds", ".hdr", ".UmAnimNotifySet"};
     UmFileSystem.RegisterFileEventSubscriber(this, accessExt);
+
+    _spriteFontImporter.Initialize();
 }
 
 void FileSystemModule::PreUnInitialize() 
@@ -57,6 +59,10 @@ void FileSystemModule::OnRequestedLoad()
     auto& path = UmFileSystem.GetProjectSettingPath();
     auto  name = File::PROJECT_SETTING_FILENAME;
     UmFileSystem.LoadSetting(path / name);
+}
+
+void FileSystemModule::OnRequestedDragDrop(const File::Path& path) 
+{
 }
 
 void FileSystemModule::Update() 
@@ -133,13 +139,14 @@ void FileSystemModule::ProcessDropFile(const HDROP hDrop)
         // 각 파일의 절대경로를 얻음
         wchar_t targetPath[MAX_PATH];
         DragQueryFile(hDrop, i, targetPath, MAX_PATH);
+        File::Path path = targetPath;
+        UmFileSystem.RequestDragDropFile(path);
 
-        File::Path project = targetPath;
-        File::Path extension = project.extension();
+        File::Path extension = path.extension();
         if (File::PROJECT_EXTENSION == extension)
         {
             UmFileSystem.SaveProjectWithMessageBox();
-            UmFileSystem.LoadProjectWithMessageBox(targetPath);
+            UmFileSystem.LoadProjectWithMessageBox(path);
         }
     }
     // 메모리 해제
