@@ -107,7 +107,7 @@ void PlayerPlayTurnState::OnUpdate()
             }
             if (ImGui::Button("Kill"))
             {
-                //GetPlayer().Dead();
+                GetPlayer().TakeDamage(std::numeric_limits<int>::max());
             }
         }
         else
