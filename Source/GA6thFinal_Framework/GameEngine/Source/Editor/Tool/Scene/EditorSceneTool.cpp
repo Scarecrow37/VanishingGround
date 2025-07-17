@@ -202,39 +202,43 @@ void EditorSceneTool::SetCamera()
 
 void EditorSceneTool::UpdateKeyboardShortcuts()
 {
-    if (false == ImGui::IsKeyDown(ImGuiKey_MouseRight))
+    if (true == _isDrawedManipulate)
     {
-        if (ImGui::IsKeyPressed(ImGuiKey_W, false))
-            _drawManipulateDesc.Operation = ImGuizmo::TRANSLATE;
-        if (ImGui::IsKeyPressed(ImGuiKey_E, false))
-            _drawManipulateDesc.Operation = ImGuizmo::ROTATE;
-        if (ImGui::IsKeyPressed(ImGuiKey_R, false))
-            _drawManipulateDesc.Operation = ImGuizmo::SCALE;
-        if (ImGui::IsKeyPressed(ImGuiKey_T, false))
-            _drawManipulateDesc.Operation = ImGuizmo::UNIVERSAL;
-
-        if (ImGui::IsKeyPressed(ImGuiKey_X, false))
+        if (false == ImGui::IsKeyDown(ImGuiKey_MouseRight))
         {
-            if (_drawManipulateDesc.Mode == ImGuizmo::MODE::LOCAL)
-            {
-                _drawManipulateDesc.Mode = ImGuizmo::MODE::WORLD;
-            }
-            else
-            {
-                _drawManipulateDesc.Mode = ImGuizmo::MODE::LOCAL;
-            }
-        }      
+            if (ImGui::IsKeyPressed(ImGuiKey_W, false))
+                _drawManipulateDesc.Operation = ImGuizmo::TRANSLATE;
+            if (ImGui::IsKeyPressed(ImGuiKey_E, false))
+                _drawManipulateDesc.Operation = ImGuizmo::ROTATE;
+            if (ImGui::IsKeyPressed(ImGuiKey_R, false))
+                _drawManipulateDesc.Operation = ImGuizmo::SCALE;
+            if (ImGui::IsKeyPressed(ImGuiKey_T, false))
+                _drawManipulateDesc.Operation = ImGuizmo::UNIVERSAL;
 
-        if (ImGui::IsKeyPressed(ImGuiKey_F, false))
-        {
-            auto wPtrFocused = EditorHierarchyTool::GetFocusObject();
-            SetCameraToObject(wPtrFocused);
-        }
-    }  
+            if (ImGui::IsKeyPressed(ImGuiKey_X, false))
+            {
+                if (_drawManipulateDesc.Mode == ImGuizmo::MODE::LOCAL)
+                {
+                    _drawManipulateDesc.Mode = ImGuizmo::MODE::WORLD;
+                }
+                else
+                {
+                    _drawManipulateDesc.Mode = ImGuizmo::MODE::LOCAL;
+                }
+            }
+
+            if (ImGui::IsKeyPressed(ImGuiKey_F, false))
+            {
+                auto wPtrFocused = EditorHierarchyTool::GetFocusObject();
+                SetCameraToObject(wPtrFocused);
+            }
+        }  
+    }
 }
 
 void EditorSceneTool::DrawManipulate() 
 {
+    _isDrawedManipulate = false;
     if (false == _manipulateObject.expired())
     {
         auto pObject = _manipulateObject.lock();
@@ -339,9 +343,10 @@ void EditorSceneTool::DrawManipulate()
                         UmCommandManager.Do<Command::EditorScene::DuplicateCommand>(pObject.get());
                     }
                 }
+                _isDrawedManipulate = true;
             }
         }
-    }   
+    }
 }
 
 void EditorSceneTool::DrawSceneView() 

@@ -67,6 +67,7 @@ private:
     std::weak_ptr<GameObject> _manipulateObject;
     ImGuiHelper::DrawManipulateDesc _drawManipulateDesc; 
     bool _isUseManipulate = false;
+    bool _isDrawedManipulate = false;
     bool _isMovedManipulate = false;
     bool _isUsingStart = false; 
     bool _isUsingEnd = false; 
