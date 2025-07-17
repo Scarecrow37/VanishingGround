@@ -34,8 +34,6 @@ UMREAL_COMPONENT(StaticMeshRenderer)
 #include "Scripts/Mesh/SkeletalMeshRenderer.h"
 UMREAL_COMPONENT(SkeletalMeshRenderer)
 
-//#include "Scripts\Graphics/SkeletalMeshRenderer.h"
-//UMREAL_COMPONENT(SkeletalMeshRenderer)
 
 #include "Scripts/GameCore/FSM/FiniteStateMachine.h"
 UMREAL_COMPONENT(FiniteStateMachine)
@@ -80,11 +78,14 @@ UMREAL_COMPONENT(InputTestComponent)
 #include "Scripts\Timeline/AnimationEventListener.h"
 UMREAL_COMPONENT(AnimationEventListener)
 
-#include "Scripts\Stats/WeaponTable/WeaponTableComponent.h"
+#include "Scripts\WeaponSystem/WeaponTable/WeaponTableComponent.h"
 UMREAL_COMPONENT(WeaponTableComponent)
 
 #include "Scripts\Test/DevTools/FPSCounter.h"
 UMREAL_COMPONENT(FPSCounter)
+
+#include "Scripts\Particle/ParticleComponent.h"
+UMREAL_COMPONENT(ParticleComponent)
 
 #include "Scripts\Test/UI/TestUI.h"
 UMREAL_COMPONENT(TestUI)
@@ -94,3 +95,12 @@ UMREAL_COMPONENT(WeaponSystem)
 
 #include "Scripts\Test/Text/TestText.h"
 UMREAL_COMPONENT(TestText)
+
+#include "Scripts\RevelationSystem/RevelationSystem.h"
+UMREAL_COMPONENT(RevelationSystem)
+
+#include "Scripts/Token/TokenSystem.h"
+UMREAL_COMPONENT(TokenSystem)
+
+#include "Scripts/Test/TurnAction/TestActionComponent.h"
+UMREAL_COMPONENT(TestActionComponent)

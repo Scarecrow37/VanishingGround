@@ -17,19 +17,23 @@ void ParticleSpritePass::Initialize(RenderScene* ownerScene)
 
     _textureIDBuffer = std::make_unique<StructuredBuffer>();
     _textureIDBuffer->Initialize(sizeof(int), 100);
+
+
+
+
 }
 
 void ParticleSpritePass::Begin(ID3D12GraphicsCommandList* commandList)
 {
-    auto customDepthTarget = Global::multiRenderTargetManager->GetRenderTarget("CustomDepth");
+    auto customDepthTarget  = UmMultiRenderTargetManager.GetRenderTarget("CustomDepth");
     customDepthTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
-    _ownerScene->_depthStencilView->TransitionResource(commandList, D3D12_RESOURCE_STATE_DEPTH_READ);
+   // _ownerScene->_depthStencilView->TransitionResource(commandList, D3D12_RESOURCE_STATE_DEPTH_READ);
 
     _accumlateBuffer->ClearUnorderedAccessView(commandList);
     _revealageBuffer->ClearUnorderedAccessView(commandList);
 
-    commandList->OMSetRenderTargets(1, &customDepthTarget->GetRTVHandle(), FALSE, &_ownerScene->_depthStencilView->GetDSVHandle());
+    commandList->OMSetRenderTargets(1, &customDepthTarget->GetRTVHandle(), FALSE, nullptr);
     commandList->RSSetViewports(1, &customDepthTarget->GetViewPort());
     commandList->RSSetScissorRects(1, &customDepthTarget->GetScissorRect());
 
@@ -53,6 +57,18 @@ void ParticleSpritePass::Draw(ID3D12GraphicsCommandList* commandList)
 {        
     commandList->SetPipelineState(_pipelineState.Get());
     commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
+    auto depthStencilBuffer = UmMultiRenderTargetManager.GetRenderTarget("Depth");
+
+    const auto&     mode          = UmDevice.GetMode();
+    PostProcessData postProcessData{.TexelSize = {1.f / (float)mode.Width, 1.f / (float)mode.Height}};
+    commandList->SetGraphicsRoot32BitConstants(_shader->GetRootParameterIndex("bit32_5_postProcessData"), 5,
+                                               &postProcessData, 0);
+
+
+    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("depthbuffer"),
+                                                depthStencilBuffer->GetSRVHandle());
+
+
     commandList->SetGraphicsRootShaderResourceView(_shader->GetRootParameterIndex("texID"), _textureIDBuffer->GetGPUVirtualAddress());
 
     commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("gAccumTex"), _accumlateBuffer->GetUAVHandle());
@@ -97,23 +113,20 @@ void ParticleSpritePass::InitializePSO()
     D3D12_GRAPHICS_PIPELINE_STATE_DESC psodesc;
     
     ZeroMemory(&psodesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
-    psodesc.RasterizerState                        = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-    psodesc.RasterizerState.CullMode               = D3D12_CULL_MODE_NONE;
-    psodesc.BlendState                             = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-    //psodesc.BlendState                             = blendDesc;
-    psodesc.DepthStencilState                      = CommonStates::DepthRead;
-    //psodesc.DSVFormat                              = DXGI_FORMAT_D24_UNORM_S8_UINT;
-
-    psodesc.SampleMask                             = UINT_MAX;
-    psodesc.PrimitiveTopologyType                  = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-    psodesc.InputLayout                            = _shader->GetInputLayout();
-    psodesc.NumRenderTargets                       = 1;
-    psodesc.RTVFormats[0]                          = DXGI_FORMAT_R32_UINT;
-    psodesc.DSVFormat                              = DXGI_FORMAT_D24_UNORM_S8_UINT;
-    psodesc.pRootSignature                         = _shader->GetRootSignature();
-    psodesc.SampleDesc                             = {1, 0};
-    psodesc.VS = _shader->GetShaderByteCode(ShaderBuilder::Type::VS);
-    psodesc.PS = _shader->GetShaderByteCode(ShaderBuilder::Type::PS);
+    psodesc.RasterizerState               = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+    psodesc.RasterizerState.CullMode      = D3D12_CULL_MODE_NONE;
+    psodesc.BlendState                    = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+    psodesc.DepthStencilState             = CommonStates::DepthDefault;
+    psodesc.DepthStencilState.DepthEnable = false;
+    psodesc.SampleMask                    = UINT_MAX;
+    psodesc.PrimitiveTopologyType         = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+    psodesc.InputLayout                   = _shader->GetInputLayout();
+    psodesc.NumRenderTargets              = 1;
+    psodesc.RTVFormats[0]                 = DXGI_FORMAT_R32_UINT;
+    psodesc.pRootSignature                = _shader->GetRootSignature();
+    psodesc.SampleDesc                    = {1, 0};
+    psodesc.VS                            = _shader->GetShaderByteCode(ShaderBuilder::Type::VS);
+    psodesc.PS                            = _shader->GetShaderByteCode(ShaderBuilder::Type::PS);
     
     HRESULT hr = S_OK;
     hr         = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(&_pipelineState));

@@ -89,9 +89,14 @@ void EditorSceneTool::OnFrameEnd()
 {
 }
 
+void EditorSceneTool::OnFrameFocusEnter() 
+{
+}
+
 void EditorSceneTool::OnFrameFocusStay()
 {
     _camera->Update();
+
     UpdateKeyboardShortcuts();
 }
     
@@ -550,24 +555,31 @@ void EditorSceneTool::RayPicker()
                 {
                     if (meshComponent->Enable && meshComponent->gameObject->ActiveInHierarchy)
                     {
-                        auto& meshes = meshComponent->Renderer->GetModel()->GetMeshes();
-                        for (auto& baseMesh : meshes)
+                        if (meshComponent->Renderer)
                         {
-                            const BoundingOrientedBox& obb = baseMesh->GetBoundingBox();
-                            BoundingOrientedBox        obbWorld;
-                            const Matrix& worldMatrix = meshComponent->gameObject->transform->GetWorldMatrix();
-                            obb.Transform(obbWorld, worldMatrix);
-
-                            float dist = 0.f;
-                            intersects = obbWorld.Intersects(rayPos, rayDir, dist);
-                            if (true == intersects)
+                            auto& model = meshComponent->Renderer->GetModel(); 
+                            if (model)
                             {
-                                std::weak_ptr old = EditorHierarchyTool::GetFocusObject();
-                                UmCommandManager.Do<Command::Hierarchy::FocusCommand>(
-                                    old, meshComponent->gameObject->GetWeakPtr());
-                                break;
+                                auto& meshes = model->GetMeshes();
+                                for (auto& baseMesh : meshes)
+                                {
+                                    const BoundingOrientedBox& obb = baseMesh->GetBoundingBox();
+                                    BoundingOrientedBox        obbWorld;
+                                    const Matrix& worldMatrix = meshComponent->gameObject->transform->GetWorldMatrix();
+                                    obb.Transform(obbWorld, worldMatrix);
+
+                                    float dist = 0.f;
+                                    intersects = obbWorld.Intersects(rayPos, rayDir, dist);
+                                    if (true == intersects)
+                                    {
+                                        std::weak_ptr old = EditorHierarchyTool::GetFocusObject();
+                                        UmCommandManager.Do<Command::Hierarchy::FocusCommand>(
+                                            old, meshComponent->gameObject->GetWeakPtr());
+                                        break;
+                                    }
+                                }
                             }
-                        }
+                        }                     
                     }                       
                     
                     if (true == intersects)
@@ -581,12 +593,12 @@ void EditorSceneTool::RayPicker()
 }
 
 template <typename Func>
-static void AutoVertexForeach(char* vertexBuff, unsigned int stride, unsigned int size, Func func)
+static void AutoVertexForeach(char* vertexBuff, unsigned int stride, unsigned int size, Func func, int maxForeachCount = 1000)
 {
     if (stride == sizeof(StaticMeshVertex))
     {
         StaticMeshVertex* vertexes = reinterpret_cast<StaticMeshVertex*>(vertexBuff);
-        for (size_t i = 0; i < size; ++i)
+        for (size_t i = 0; i < size && i < maxForeachCount; ++i)
         {
             StaticMeshVertex& vertex = vertexes[i];
             func(vertex);
@@ -595,7 +607,7 @@ static void AutoVertexForeach(char* vertexBuff, unsigned int stride, unsigned in
     else if (stride == sizeof(SkeletalMeshVertex))
     {
         SkeletalMeshVertex* vertexes = reinterpret_cast<SkeletalMeshVertex*>(vertexBuff);
-        for (size_t i = 0; i < size; ++i)
+        for (size_t i = 0; i < size && i < maxForeachCount; ++i)
         {
             SkeletalMeshVertex& vertex = vertexes[i];
             func(vertex);
@@ -645,54 +657,63 @@ void EditorSceneTool::VertexSnap()
                     {
                         if (nullptr != manipulateMesh->Renderer)
                         {
-                            const auto& manipulateMeshes = manipulateMesh->Renderer->GetModel()->GetMeshes();
-                            for (auto& manipulateMesh : manipulateMeshes)
+                            const auto& manipulateModel = manipulateMesh->Renderer->GetModel();
+                            if (manipulateModel)
                             {
-                                manipulateMesh->GetBoundingBox().Transform(manipulateObbWorld, manipulateMatrix);
-                                for (auto& weak : meshComponents)
+                                const auto& manipulateMeshes = manipulateModel->GetMeshes();
+                                for (auto& manipulateMesh : manipulateMeshes)
                                 {
-                                    if (false == weak.expired())
+                                    manipulateMesh->GetBoundingBox().Transform(manipulateObbWorld, manipulateMatrix);
+                                    for (auto& weak : meshComponents)
                                     {
-                                        auto meshComponent = weak.lock();
-                                        if (manipulateObject.get() == &meshComponent->gameObject)
+                                        if (false == weak.expired())
                                         {
-                                            continue;
-                                        }
-                                        if (false == meshComponent->Enable || false == meshComponent->gameObject->ActiveInHierarchy)
-                                        {
-                                            continue;
-                                        }
-
-                                        if (nullptr != meshComponent->Renderer)
-                                        {
-                                            const Matrix& meshMatrix = meshComponent->gameObject->transform->GetWorldMatrix();
-                                            BoundingOrientedBox meshObbWorld;
-                                            const auto& meshes = meshComponent->Renderer->GetModel()->GetMeshes();
-                                            for (auto& mesh : meshes)
+                                            auto meshComponent = weak.lock();
+                                            if (manipulateObject.get() == &meshComponent->gameObject)
                                             {
-                                                mesh->GetBoundingBox().Transform(meshObbWorld, meshMatrix);
-                                                intersects = meshObbWorld.Intersects(manipulateObbWorld);
+                                                continue;
+                                            }
+                                            if (false == meshComponent->Enable ||
+                                                false == meshComponent->gameObject->ActiveInHierarchy)
+                                            {
+                                                continue;
+                                            }
 
-                                                if (true == intersects)
+                                            if (nullptr != meshComponent->Renderer)
+                                            {
+                                                const Matrix& meshMatrix =
+                                                    meshComponent->gameObject->transform->GetWorldMatrix();
+                                                BoundingOrientedBox meshObbWorld;
+                                                const auto&         model = meshComponent->Renderer->GetModel();
+                                                if (model)
                                                 {
-                                                    _weakClosestMeshComponent = weak;
-                                                    _closestBaseMesh          = mesh.get();
-                                                    _manipulateBaseMesh       = manipulateMesh.get();
-                                                    break;
+                                                    const auto& meshes = model->GetMeshes();
+                                                    for (auto& mesh : meshes)
+                                                    {
+                                                        mesh->GetBoundingBox().Transform(meshObbWorld, meshMatrix);
+                                                        intersects = meshObbWorld.Intersects(manipulateObbWorld);
+
+                                                        if (true == intersects)
+                                                        {
+                                                            _weakClosestMeshComponent = weak;
+                                                            _closestBaseMesh          = mesh.get();
+                                                            _manipulateBaseMesh       = manipulateMesh.get();
+                                                            break;
+                                                        }
+                                                    }
                                                 }
                                             }
+
+                                            if (true == intersects)
+                                                break;
                                         }
-
-                                        if (true == intersects)
-                                            break;
                                     }
+
+                                    if (true == intersects)
+                                        break;
                                 }
-
-                                if (true == intersects)
-                                    break;
-                            }
+                            }                      
                         }
-
                         if (true == intersects)
                             break;
                     }
@@ -717,15 +738,19 @@ void EditorSceneTool::VertexSnap()
                     {
                         if (nullptr != meshComponent->Renderer)
                         {
-                            const auto& meshes = meshComponent->Renderer->GetModel()->GetMeshes();
-                            for (auto& mesh : meshes)
+                            const auto& model = meshComponent->Renderer->GetModel();
+                            if (model)
                             {
-                                mesh->GetBoundingBox().Transform(manipulateObbWorld,
-                                                                 manipulateTransform.GetWorldMatrix());
-                                intersects = closestObbWorld.Intersects(manipulateObbWorld);
-                                if (true == intersects)
+                                const auto& meshes = model->GetMeshes();
+                                for (auto& mesh : meshes)
                                 {
-                                    break;
+                                    mesh->GetBoundingBox().Transform(manipulateObbWorld,
+                                                                     manipulateTransform.GetWorldMatrix());
+                                    intersects = closestObbWorld.Intersects(manipulateObbWorld);
+                                    if (true == intersects)
+                                    {
+                                        break;
+                                    }
                                 }
                             }
                         }
@@ -921,7 +946,7 @@ EditorSceneTool::ManipulateCommand::ManipulateCommand(
 
 EditorSceneTool::ManipulateCommand::~ManipulateCommand() = default;
 
-void EditorSceneTool::ManipulateCommand::Execute() 
+bool EditorSceneTool::ManipulateCommand::Execute() 
 {
     if (false == _target.expired())
     {
@@ -930,7 +955,9 @@ void EditorSceneTool::ManipulateCommand::Execute()
         object->transform->Rotation = _curr.Rotation;
         object->transform->Scale    = _curr.Scale;
         object->GetScene().IsDirty = true;
+        return true;
     }
+    return false;
 }
 
 void EditorSceneTool::ManipulateCommand::Undo() 

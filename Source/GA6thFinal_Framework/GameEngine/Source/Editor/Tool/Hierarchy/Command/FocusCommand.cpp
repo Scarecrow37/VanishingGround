@@ -1,11 +1,13 @@
 ﻿#include "FocusCommand.h"
 
 Command::Hierarchy::FocusCommand::~FocusCommand() = default;
-void Command::Hierarchy::FocusCommand::Execute()
+bool Command::Hierarchy::FocusCommand::Execute()
 {
     Super::Execute();
     EditorHierarchyTool::SetFocusObject(_newFocused);
     EditorSceneTool::SetManipulateObject(_newFocused);
+
+    return true;
 }
 
 void Command::Hierarchy::FocusCommand::Undo()

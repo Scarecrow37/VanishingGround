@@ -306,6 +306,9 @@
     <ClInclude Include="Source\Engine\AppModule\GraphicsModule.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\FileSystem\Importer\SpriteFontImporter.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\pch.cpp">
@@ -588,6 +591,12 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\AppModule\GraphicsModule.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\UmFramework.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\FileSystem\Importer\SpriteFontImporter.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

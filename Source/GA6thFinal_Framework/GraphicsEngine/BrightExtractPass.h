@@ -4,7 +4,7 @@
 class BrightExtractPass : public RenderPass
 {
 public:
-    BrightExtractPass();
+ BrightExtractPass();
     virtual ~BrightExtractPass();
 
 public:

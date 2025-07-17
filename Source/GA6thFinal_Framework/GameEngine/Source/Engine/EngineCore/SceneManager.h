@@ -15,6 +15,7 @@ namespace Command::EditorScene
     class AddComponentCommand;
     class DestroyComponentCommand;
     class DuplicateCommand;
+    class PasteObjectCommand;
 };
 
 //참고 
@@ -310,6 +311,13 @@ public:
         /// </summary>
         /// <returns></returns>
         static ESceneManager::InputSystem& GetInputSystem();
+
+        /// <summary>
+        /// 현재 플레이 모드 여부를 반환합니다.
+        /// </summary>
+        /// <param name="sceneManager"></param>
+        /// <returns></returns>
+        static constexpr bool IsPlayMode(ESceneManager& sceneManager) { return sceneManager._isPlay; }
     };
 
 public:
@@ -443,6 +451,7 @@ public:
         /// <param name="guid :">로드할 리소스의 guid</param>
         /// <param name="func :">리소스 로드후 호출되는 콜백 함수</param>
         void RequestModelResource(const Component* component, const File::Guid& guid, const std::function<void()> func);
+        void RequestModelResource(const Component* component, const File::Path& path, const std::function<void()> func);
         
         /// <summary>
         /// Texture 리소스 로드를 요청합니다.
@@ -451,6 +460,7 @@ public:
         /// <param name="guid :">로드할 리소스의 guid</param>
         /// <param name="func :">리소스 로드후 호출되는 콜백 함수</param>
         void RequestTextureResource(const Component* component, const File::Guid& guid, const std::function<void()> func);
+        void RequestTextureResource(const Component* component, const File::Path& path, const std::function<void()> func);
 
         /// <summary>
         /// Font 리소스 로드를 요청합니다.
@@ -459,15 +469,16 @@ public:
         /// <param name="guid :">로드할 리소스의 guid</param>
         /// <param name="func :">리소스 로드후 호출되는 콜백 함수</param>
         void RequestFontResource(const Component* component, const File::Guid& guid, const std::function<void()> func);
+        void RequestFontResource(const Component* component, const File::Path& path, const std::function<void()> func);
 
     private:
         template <typename T>
         struct RenderResource
         {
-            using ResourceQueue =  Concurrency::concurrent_queue<std::tuple<std::weak_ptr<Component>, File::Guid, std::function<void()>>>;
+            using ResourceQueue =  Concurrency::concurrent_queue<std::tuple<std::weak_ptr<Component>, File::Path, std::function<void()>>>;
 
             ResourceQueue                                      ResourceLoadQueue;
-            std::unordered_map<File::Guid, std::shared_ptr<T>> RenderResource;
+            std::unordered_map<File::Path, std::shared_ptr<T>> RenderResource;
         };
         RenderResource<Model>   _models;
         RenderResource<Texture> _textures;
@@ -739,6 +750,7 @@ public:
     friend class Command::EditorScene::AddComponentCommand;
     friend class Command::EditorScene::DestroyComponentCommand;
     friend class Command::EditorScene::DuplicateCommand;
+    friend class Command::EditorScene::PasteObjectCommand;
 };
 
 inline auto ESceneManager::GetRootGameObjectsByPath(std::string_view path) 

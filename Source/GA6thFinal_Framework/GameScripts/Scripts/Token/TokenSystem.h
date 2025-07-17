@@ -3,156 +3,90 @@
 #include <Token/Object/Bleed/BleedToken.h>
 #include <Token/Object/Poison/PoisonToken.h>
 
-class TokenSystem
+// @brief 토큰을 등록하는 매크로입니다. 이걸 사용하지 않으면 토큰이 System에 등록되지 않습니다.
+// @brief Include :
+// @brief <Token/TokenSystem.h> 혹은 <Token/TokenInventory.h> 을 포함해야합니다.
+#define REGISTER_TOKEN(CLASS)                                                   \
+    namespace TokenRegister                                                     \
+    {                                                                           \
+        namespace CLASS##Register                                               \
+        {                                                                       \
+            static bool IsRegister = TokenSystem::RegisterToken<CLASS>();       \
+        }                                                                       \
+    }   
+
+class IToken;
+class Token;
+
+class TokenSystem : public Component
 {
-public:
-    TokenSystem(CharacterBase* owner);
-    ~TokenSystem() = default;
+    USING_PROPERTY(TokenSystem)
+    inline static TokenSystem* _staticInstance;
 
 public:
-    /// <summary>
-    /// 테이블의 토큰을 모두 제거합니다.
-    /// </summary>
-    void Clear();
-
-    /// <summary>
-    /// 전투가 시작될 때 호출됩니다. 모든 토큰에 해당 이벤트를 알려줍니다.
-    /// </summary>
-    void NotifyCombatStart();
-
-    /// <summary>
-    /// 라운드가 시작될 때 호출됩니다. 모든 토큰에 해당 이벤트를 알려줍니다.
-    /// </summary>
-    void NotifyRoundStart();
-
-    /// <summary>
-    /// 라운드가 끝날 때 호출됩니다. 모든 토큰에 해당 이벤트를 알려줍니다.
-    /// </summary>
-    void NotifyRoundEnd();
-
-    /// <summary>
-    /// 턴이 시작될 때 호출됩니다. 모든 토큰에 해당 이벤트를 알려줍니다.
-    /// </summary>
-    void NotifyTurnStart();  
-
-    /// <summary>
-    /// 턴이 끝날 때 호출됩니다. 모든 토큰에 해당 이벤트를 알려줍니다.
-    /// </summary>
-    void NotifyTurnEnd(); 
-
-    /// <summary>
-    /// CharacterBase가 Hit 당했을 때 호출됩니다. 모든 토큰에 해당 이벤트를 알려줍니다.
-    /// </summary>
-    void NotifyHit();
-
-    /// <summary>
-    /// CharacterBase가 사망했을 때 호출됩니다. 모든 토큰에 해당 이벤트를 알려줍니다.
-    /// </summary>
-    void NotifyDead();
-
-    /// <summary>
-    /// CharacterBase가 대상을 처치 시 호출됩니다.
-    /// </summary>
-    /// <param name="destination">처치된 대상</param>
-    void NotifyKill(CharacterBase* destination);
-
-    /// <summary>
-    /// CharacterBase가 토큰을 얻었을 때 호출됩니다.
-    /// </summary>
-    void NotifyTokenAdded(int tokenID);
-
-    /// <summary>
-    /// CharacterBase가 토큰을 잃었을 때 호출됩니다.
-    /// </summary>
-    void NotifyTokenRemoved(int tokenID);
-
-public:
-    /// <summary>
-    /// 토큰 스택을 카운트만큼 추가합니다. 
-    /// </summary>
-    /// <param name="tokenID">해당 토큰의 ID</param>
-    /// <param name="count">제거할 카운트 수</param>
-    void AddTokenStackFromID(int tokenID, UINT16 count = 1);
-
-    /// <summary>
-    /// <para>토큰 스택을 카운트만큼 설정합니다.</para>
-    /// </summary>
-    /// <param name="tokenID">해당 토큰의 ID</param>
-    /// <param name="count">제거할 카운트 수</param>
-    void SetTokenStackFromID(int tokenID, UINT16 count);
-
-    /// <summary>
-    /// <para>토큰 스택을 카운트만큼 제거합니다.</para>
-    /// </summary>
-    /// <param name="tokenID">해당 토큰의 ID</param>
-    /// <param name="count">제거할 카운트 수</param>
-    void RemoveTokenStackFromID(int tokenID, UINT16 count = 1);
-
-    /// <summary>
-    /// 해당 토큰의 ID로 토큰을 찾아 반환합니다. 만약 해당 토큰이 존재하지 않으면 nullptr을 반환합니다.
-    /// </summary>
-    /// <param name="tokenID">해당 토큰의 ID</param>
-    /// <returns></returns>
-    IToken* FindTokenFromID(int tokenID);
-
-    /// <summary>
-    /// 토큰을 제거합니다. 토큰이 존재하지 않으면 아무런 동작도 하지 않습니다.
-    /// </summary>
-    /// <param name="tokenID">해당 토큰의 ID</param>
-    void RemoveTokenFromID(int tokenID);
-
-    bool HasToken(int tokenID) const;
-
-    bool IsEmpty() const;
+    TokenSystem();
+    ~TokenSystem();
+    inline static TokenSystem* GetInstance() { return _staticInstance; }
 
 private:
-    /// <summary>
-    /// 토큰 테이블에 모든 인스턴스를 초기화합니다.
-    /// </summary>
+    void Reset() override; 
+    void OnDestroy() override;
+
+    void OnDrawDebug() override;
+
+    void SerializedReflectEvent() override;
+    void DeserializedReflectEvent() override;
+    void ImGuiDrawPropertysEvent() override;
+
+private:
     void InitTokenInstance();
 
-    /// <summary>
-    /// 토큰 리스트를 정렬합니다. (내림차순)
-    /// </summary>
-    void SortByOrder();
+    void ImGuiDrawDataTable();
+    void ImGuiDrawMenuBar();
 
-    /// <summary>
-    /// 해당 토큰에 대한 업데이트를 수행합니다.
-    /// </summary>
-    /// <param name="token"></param>
-    void UpdateToken(int tokenID);
-
-    Token* FindTokenEx(int tokenID);
-    Token* FindTokenEx(std::string_view tokenName);
-
-    /// <summary>
-    /// 유효한 토큰인지 확인합니다. (ex. 스택 카운트가 0이 아닌지 등)
-    /// </summary>
-    /// <param name="tokenID">해당 토큰의 ID</param>
-    bool CheckValidTokenFromID(int tokenID);
-
+public:
     /// <summary>
     /// 토큰 ID를 통해 토큰 인스턴스를 생성합니다.
     /// </summary>
     /// <param name="tokenID">생성할 토큰의 ID</param>
     /// <returns>생성된 토큰의 주소 값</returns>
-    Token* CreateTokenInstanceFromID(int tokenID);
+    static bool CreateTokenInstanceFromID(int tokenID, Token** ppToken);
 
     /// <summary>
     /// 토큰 Name을 통해 토큰 인스턴스를 생성합니다.
     /// </summary>
     /// <param name="tokenName">생성할 토큰의 Name</param>
     /// <returns>생성된 토큰의 주소 값</returns>
-    Token* CreateTokenInstanceFromName(std::string_view tokenName);
+    static bool CreateTokenInstanceFromName(std::string_view tokenName, Token** ppToken);
 
-    int GetTokenIDFromName(std::string_view tokenName) const;
-    const std::string& GetTokenNameFromID(int tokenID) const;
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="tokenID"></param>
+    /// <returns></returns>
+    static const std::string& GetTokenNameFromID(int tokenID);
 
-private:
-    CharacterBase* _owner;
-    std::vector<Token*>             _tokenInstances;    // 토큰 인스턴스 리스트
-    std::unordered_map<int, Token*> _tokenTable;        // 모든 토큰 테이블 (스택 카운트가 0인 토큰도 포함)
-    std::unordered_map<int, Token*> _validTokenTable;   // 유효한 토큰 테이블 (스택 카운트가 0이 아닌 토큰만 포함)
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="tokenName"></param>
+    /// <returns></returns>
+    static int GetTokenIDFromName(std::string_view tokenName);
+
+    /// <summary>
+    /// 토큰 이름과 ID를 매핑한 테이블입니다.
+    /// </summary>
+    static inline const std::unordered_map<std::string, int>& GetTokenNameToIDTable() { return _tokenNameToIDTable; }
+
+    /// <summary>
+    /// 토큰 ID와 테이블을 매핑한 테이블입니다.
+    /// </summary>
+    static inline const std::unordered_map<int, std::string>& GetTokenIDToNameTable() { return _tokenIDToNameTable; }
+
+    /// <summary>
+    /// 정렬되어있는 토큰 리스트입니다.
+    /// </summary>
+    static inline const std::vector<Token*>&  GetTokenInstances() { return _tokenInstances; }
 
 public:
     /// <summary>
@@ -163,23 +97,41 @@ public:
     template <typename T>
     static bool RegisterToken();
 
+    static Token* GetTokenFromID(int tokenID);
+    static Token* GetTokenFromName(std::string_view name);
+
 private:
+    /// <summary>
+    /// 토큰 리스트를 정렬합니다. (오름차순)
+    /// </summary>
+    static void SortByOrder();
+
+private:
+    bool _isOpenEditor = false;
+    Token* _selectedToken = nullptr;
+    REFLECT_FIELDS_BEGIN(Component)
+    std::unordered_map<int, std::string> TokenSerializeData;
+    REFLECT_FIELDS_END(TokenSystem)
+
     // Runtime token type information
-    inline static std::unordered_map<int, std::function<Token*()>> _tokenIDFactoryTable;
-    inline static std::unordered_map<std::string, std::function<Token*()>> _tokenNameFactoryTable;
-    inline static std::unordered_map<std::string, int> _tokenNameToIDTable;
-    inline static std::unordered_map<int, std::string> _tokenIDToNameTable;
+    inline static std::vector<Token*>                                       _tokenInstances;
+    inline static std::unordered_map<int, Token*>                           _tokenIDTable; 
+    inline static std::unordered_map<std::string, Token*>                   _tokenNameTable; 
+    inline static std::unordered_map<int, std::function<Token*()>>          _tokenIDFactoryTable;
+    inline static std::unordered_map<std::string, std::function<Token*()>>  _tokenNameFactoryTable;
+    inline static std::unordered_map<std::string, int>                      _tokenNameToIDTable;
+    inline static std::unordered_map<int, std::string>                      _tokenIDToNameTable;
 };
 
 template <typename T>
-inline static bool TokenSystem::RegisterToken()
+inline bool TokenSystem::RegisterToken()
 {
     static_assert(std::is_base_of_v<Token, T>, "T must be derived from Token");
     std::function<Token*()> factoryFunc = []() { return new T(); };
-    int ID = T::ID;
-    std::string name = (const char*)T::NAME;
-    auto idIter = _tokenIDFactoryTable.find(ID);
-    auto nameIter = _tokenNameFactoryTable.find(name);
+    int                     ID          = T::ID;
+    std::string             name        = (const char*)T::NAME;
+    auto                    idIter      = _tokenIDFactoryTable.find(ID);
+    auto                    nameIter    = _tokenNameFactoryTable.find(name);
     if (idIter == _tokenIDFactoryTable.end())
     {
         _tokenIDFactoryTable[ID] = factoryFunc;
@@ -199,6 +151,6 @@ inline static bool TokenSystem::RegisterToken()
         return false;
     }
     _tokenNameToIDTable[name] = ID;
-    _tokenIDToNameTable[ID]      = name;
+    _tokenIDToNameTable[ID]   = name;
     return true;
 }

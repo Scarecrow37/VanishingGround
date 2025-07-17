@@ -31,6 +31,7 @@ void TurnActor::Dead()
     {
         _currState = STATE::Dead;
     }
+    OnDead();
 }
 
 void TurnActor::EndTurn() 
@@ -55,6 +56,8 @@ void TurnActor::OnRoundStart()
 
 void TurnActor::OnRoundEnd() {}
 
+void TurnActor::OnEachTurnStart(CharacterBase* destination) {}
+
 void TurnActor::OnTurnStart() {}
 
 void TurnActor::OnTurnEnd() {}
@@ -68,3 +71,7 @@ void TurnActor::OnKill(CharacterBase* destination) {}
 void TurnActor::OnTokenAdded(int tokenID) {}
 
 void TurnActor::OnTokenRemoved(int tokenID) {}
+
+void TurnActor::OnQTEStart() {}
+
+void TurnActor::OnQTEEnd() {}

@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "Particle.h"
 #include "ParticleHelper.h"
-
+#include "ParticleEffectSerializer.h"
 class ParticleManager
 {
 public:
@@ -11,6 +11,7 @@ public:
 
     void                   Initialize(UINT maxParticles);
     class ParticleEffect*  RegisterEffect();
+    class ParticleEffect*  RegisterEffectOnEditor();
 
 
     /// <summary>
@@ -24,7 +25,7 @@ public:
     /// <param name="locationFactor"></param>
     /// <param name="particleType"></param>
     /// <returns></returns>
-    class ParticleEmitter* RegisterEmitter(class ParticleEffect* effect, SIZE_T maxParticles = 100000,
+    class ParticleEmitter* RegisterEmitter(class ParticleEffect* effect, SIZE_T maxParticles = 10000,
                                            float emissionRate = 1000.f, float emitterLifetime = 150.f,
                                            LocationShape locatorShape   = LocationShape::SPHERE,
                                            Vector3       locationFactor = Vector3(1, 1, 1),
@@ -36,17 +37,50 @@ public:
     void                   UpdateEditorLifeCycle();
     void                   RefreshEditor();
     class ParticleEffect*  GetCurrentEditorEffect() { return _editorCurrentEffect; }
+    void                   TurnOffEditorMode();
+    void                   SetCurrentRenderScene(class RenderScene* renderScene);
+
+
     UMPARTICLE_PROPERTY(bool, _isAutoRefresh, AutoRefresh, false);
 
 
-    UINT                                  GetTotalCount() const { return _totalCount; }
-    UINT                                  GetMaxCount() const { return _maxParticles; }
-    std::vector<Texture*> GetActiveAlbedos() const { return _activeEmitterAlbedos; }
-    ID3D12Resource*                       GetComputeOutputResource() { return _particleOutputBuffer.Get(); }
-    ID3D12GraphicsCommandList*            GetRenderCommandList() { return _renderCommandList.Get(); }
-    std::vector<class ParticleEffect*>&   GetEffectList() { return _pariticleEffects; }
+    UINT                                  GetTotalCount() const 
+    { 
+        if ("Game" == _currentRenderscene->_name || "Editor" == _currentRenderscene->_name)
+            return _totalCount;
+        else if ("ParticleEditor" == _currentRenderscene->_name)
+            return _editorCount;
+        else
+            return 0;
+    }
 
-    void                                  ResetRenderCommandObject();
+    UINT                                  GetMaxCount() const { return _maxParticles; }
+    std::vector<Texture*> GetActiveAlbedos() const
+    {
+        if ("Game" == _currentRenderscene->_name || "Editor" == _currentRenderscene->_name)
+            return _activeEmitterAlbedos;
+        else // ("ParticleEditor" == _currentRenderscene->_name)
+            return _activeEditorAlbedos;
+    }
+
+    ID3D12Resource*                       GetComputeOutputResource() 
+    {
+        if ("Editor" == _currentRenderscene->_name)
+            return _particleOutputBuffer.Get();
+
+        else if ("Game" == _currentRenderscene->_name)
+            return _gameViewOutputBuffer.Get();
+
+        else if ("ParticleEditor" == _currentRenderscene->_name)
+            return _editorOutputBuffer.Get();
+        else
+            return nullptr;
+    }
+    ID3D12GraphicsCommandList*            GetRenderCommandList() { return _renderCommandList.Get(); }
+    std::vector<class ParticleEffect*>&   GetEffectList() { return _particleEffects; }
+
+public:
+    ParticleEffectSerializer ParticleSerializer;
 
 public:
     void SetCamera(std::string_view viewName);
@@ -55,8 +89,6 @@ public:
 
 private:
     void InitializeComputeCommandObject();
-    void IntializeGraphicsCommandObject();
-
     void InitializeParticleComputeShader();
     void InitializeParticleComputeRootSignature();
     void InitializeParticleComputePSO();
@@ -77,10 +109,14 @@ private:
 
     void DispatchParticleCompute(float deltaTime);
     void UpdateParticleResources(float deltaTime);
-
     void CopyFromUploadBuffer();
 
-    class RenderScene*      _currentRenderscene;
+    void DispatchParticleComputeEditorMode(float deltaTime);
+    void UpdateParticleResourcesEditorMode(float deltaTime);
+    void CopyFromUploadBufferEditorMode();
+
+
+    class RenderScene*      _currentRenderscene = nullptr;
     std::shared_ptr<Camera> _camera;
     float                   lastFrameTime = 0;
 
@@ -107,12 +143,23 @@ private:
     ComPtr<ID3D12Resource> _particleInputBuffer;  // 입력 파티클 데이터 (SRV - t0)
     ComPtr<ID3D12Resource> _emitterInfoBuffer;    // 에미터 정보 (SRV - t1)
     ComPtr<ID3D12Resource> _particleOutputBuffer; // 출력 파티클 데이터 (UAV - u0)
-    ComPtr<ID3D12Resource> _sortedOutputBuffer; // 출력 파티클 데이터 (UAV - u0)
     ComPtr<ID3D12Resource> _mvpConstantBuffer;    // MVP 상수 버퍼 (CBV - b0)
-
-    // 업로드 버퍼
     ComPtr<ID3D12Resource> _particleInputUploadBuffer;
     ComPtr<ID3D12Resource> _emitterInfoUploadBuffer;
+
+    ComPtr<ID3D12Resource> _editorParticleInputBuffer; // 입력 파티클 데이터 (SRV - t0)
+    ComPtr<ID3D12Resource> _editorEmitterInfoBuffer;   // 에미터 정보 (SRV - t1)
+    ComPtr<ID3D12Resource> _editorOutputBuffer;        // 출력 파티클 데이터 (UAV - u0)
+    ComPtr<ID3D12Resource> _editorMvpConstantBuffer;   // MVP 상수 버퍼 (CBV - b0)
+    ComPtr<ID3D12Resource> _editorParticleInputUploadBuffer;
+    ComPtr<ID3D12Resource> _editorEmitterInfoUploadBuffer;
+
+    ComPtr<ID3D12Resource> _gameViewOutputBuffer;        // 출력 파티클 데이터 (UAV - u0)
+    ComPtr<ID3D12Resource> _gameViewMvpConstantBuffer;   // MVP 상수 버퍼 (CBV - b0)
+
+
+
+
 
     void RefreshCurrentEditorEffect();
     bool _editorRefreshFlag = false;
@@ -134,14 +181,25 @@ private:
     class ParticleEffect* _editorCurrentEffectInstance = nullptr;
 
     std::vector<class ParticleEffect*>    _activePariticleEffects;
-    std::vector<class ParticleEffect*>    _pariticleEffects;
+    std::vector<class ParticleEffect*>    _particleEffects;
+
+
+
 
     std::vector<class Particle>           _totalParticles;
+    std::vector<class Particle>           _editorTotalParticles;
+    
     std::vector<EmitterInfo>              _emitterMatrix;
+    std::vector<EmitterInfo>              _editorEmitterMatrix;
+
     std::vector<Texture*> _activeEmitterAlbedos;
+    std::vector<Texture*> _activeEditorAlbedos;
+
+
     std::vector<Texture*> _activeEmitterNormals;
 
     UINT _totalCount = 0;
+    UINT _editorCount = 0;
 
 
     float _elapsedTimer = 0.f;

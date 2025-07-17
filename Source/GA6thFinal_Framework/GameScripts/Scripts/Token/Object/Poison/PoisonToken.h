@@ -1,41 +1,44 @@
 ﻿#pragma once
 #include <Token/Token.h>
-
-class Poison1Token : public Token
+namespace TokenObject
 {
-    USING_PROPERTY(Poison1Token)
-    TOKEN_DATA(16003, "중독Ⅰ")
-private:
-    void OnTurnStart(CharacterBase* owner) override;
+    class Poison1 : public Token
+    {
+        TOKEN_DATA(16003, "중독Ⅰ")
+        TOKEN_CONSTRUCTOR(Poison1, 50, 3)
+        REFLECT_PROPERTY()
+    private:
+        void OnEachTurnStart(CharacterBase* owner, CharacterBase * destination) override;
 
-private:
-    REFLECT_FIELDS_BEGIN(Token)
-    UINT16 TickDamage = 15;
-    REFLECT_FIELDS_END(Poison1Token)
-};
+    private:
+        REFLECT_FIELDS_BEGIN(Token)
+        int TickDamage = 15;
+        REFLECT_FIELDS_END(Poison1)
+    };
 
-class Poison2Token : public Token
-{
-    USING_PROPERTY(Poison2Token)
-    TOKEN_DATA(16004, "중독Ⅱ")
-private:
-    void OnTurnStart(CharacterBase* owner) override;
+    class Poison2 : public Token
+    {
+        TOKEN_DATA(16004, "중독Ⅱ")
+        TOKEN_CONSTRUCTOR(Poison2, 50, 3)
+    private:
+        void OnEachTurnStart(CharacterBase* owner, CharacterBase * destination) override;
 
-private:
-    REFLECT_FIELDS_BEGIN(Token)
-    UINT16 TickDamage = 30;
-    REFLECT_FIELDS_END(Poison2Token)
-};
+    private:
+        REFLECT_FIELDS_BEGIN(Token)
+        int TickDamage = 30;
+        REFLECT_FIELDS_END(Poison2)
+    };
 
-class Poison3Token : public Token
-{
-    USING_PROPERTY(Poison3Token)
-    TOKEN_DATA(16005, "중독Ⅲ")
-private:
-    void OnTurnStart(CharacterBase* owner) override;
+    class Poison3 : public Token
+    {
+        TOKEN_DATA(16005, "중독Ⅲ")
+        TOKEN_CONSTRUCTOR(Poison3, 50, 3)
+    private:
+        void OnEachTurnStart(CharacterBase* owner, CharacterBase * destination) override;
 
-private:
-    REFLECT_FIELDS_BEGIN(Token)
-    UINT16 TickDamage = 60;
-    REFLECT_FIELDS_END(Poison3Token)
-};
+    private:
+        REFLECT_FIELDS_BEGIN(Token)
+        int TickDamage = 60;
+        REFLECT_FIELDS_END(Poison3)
+    };
+} // namespace TokenObject

@@ -1,41 +1,24 @@
 ﻿#pragma once
 #include <Token/Token.h>
 
-class Bleed1Token : public Token
+namespace TokenObject
 {
-    USING_PROPERTY(Bleed1Token)
-    TOKEN_DATA(16000, "출혈Ⅰ")
-private:
-    void OnTurnStart(CharacterBase* owner) override;
+    class Bleed : public Token
+    {
+        TOKEN_DATA(16000, "출혈")
+        TOKEN_CONSTRUCTOR(Bleed, 50, 3)
+        REFLECT_PROPERTY(
+            ReflectFields->TickDamage,
+            ReflectFields->TransitionCount
+        )
 
-private:
-    REFLECT_FIELDS_BEGIN(Token)
-    UINT16 TickDamage = 10;
-    REFLECT_FIELDS_END(Bleed1Token)
-};
+    private:
+        void OnRoundStart(CharacterBase* owner) override;
 
-class Bleed2Token : public Token
-{
-    USING_PROPERTY(Bleed2Token)
-    TOKEN_DATA(16001, "출혈Ⅱ")
-private:
-    void OnTurnStart(CharacterBase* owner) override;
-
-private:
-    REFLECT_FIELDS_BEGIN(Token)
-    UINT16 TickDamage = 20;
-    REFLECT_FIELDS_END(Bleed2Token)
-};
-
-class Bleed3Token : public Token
-{
-    USING_PROPERTY(Bleed3Token)
-    TOKEN_DATA(16002, "출혈Ⅲ")
-private:
-    void OnTurnStart(CharacterBase* owner) override;
-
-private:
-    REFLECT_FIELDS_BEGIN(Token)
-    UINT16 TickDamage = 40;
-    REFLECT_FIELDS_END(Bleed3Token)
-};
+    public:
+        REFLECT_FIELDS_BEGIN(Token)
+        int TickDamage      = 10; // 매 턴마다 적용되는 데미지
+        int TransitionCount = 4;  // 다음 출혈로 전이되는 조건 수
+        REFLECT_FIELDS_END(Bleed)
+    };
+}

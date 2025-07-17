@@ -464,34 +464,69 @@ void EditorHierarchyTool::HierarchyRightClickEvent() const
 
 void EditorHierarchyTool::KeyboardEvent() 
 {
-    if (Global::editorModule->IsFocusAreaEmpty() && _dockWindow->IsFocusFrame())
+    if (Global::editorModule->IsFocusAreaEmpty())
     {
-        bool holdCtrl = ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftCtrl);
-        if (holdCtrl)
+        if (_dockWindow->IsFocusFrame())
         {
-            if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_S, false))
+            bool holdCtrl = ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftCtrl);
+            if (holdCtrl)
             {
-                Scene* scene = UmSceneManager.GetMainScene();
-                if (scene)
+                if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_S, false))
                 {
-                    std::filesystem::path writePath = (std::string)scene->Path;
-                    writePath = std::filesystem::relative(writePath, UmFileSystem.GetAssetPath()).parent_path();
-                    UmSceneManager.WriteSceneToFile(*scene, writePath.string(), true);
+                    Scene* scene = UmSceneManager.GetMainScene();
+                    if (scene)
+                    {
+                        std::filesystem::path writePath = (std::string)scene->Path;
+                        writePath = std::filesystem::relative(writePath, UmFileSystem.GetAssetPath()).parent_path();
+                        UmSceneManager.WriteSceneToFile(*scene, writePath.string(), true);
+                    }
+                }
+            }
+
+            if (this->IsFocusFrame() || _editorSceneTool->IsFocusFrame() || _editorFindTool->IsFocusFrame())
+            {
+                if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_Delete, false))
+                {
+                    if (false == static_hierarchyFocusObjWeak.expired())
+                    {
+                        auto object                = static_hierarchyFocusObjWeak.lock();
+                        object->GetScene().IsDirty = true;
+                        UmCommandManager.Do<Command::EditorScene::DestroyGameObjectCommand>(object.get());
+                    }
                 }
             }
         }
 
-        if (this->IsFocusFrame() || _editorSceneTool->IsFocusFrame() || _editorFindTool->IsFocusFrame())
+        if (this->IsFocusFrame())
         {
-            if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_Delete, false))
+            bool holdCtrl = ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftCtrl);
+            if (holdCtrl)
             {
-                if (false == static_hierarchyFocusObjWeak.expired())
+                if (ImGui::IsKeyPressed(ImGuiKey_C, false))
                 {
-                    auto object                = static_hierarchyFocusObjWeak.lock();
-                    object->GetScene().IsDirty = true;
-                    UmCommandManager.Do<Command::EditorScene::DestroyGameObjectCommand>(object.get());
-                }             
-            }              
+                    const auto& weakObject = GetFocusObject();
+                    if (auto object = weakObject.lock())
+                    {
+                        YAML::Node yamlNode = UmGameObjectFactory.SerializeToYaml(object.get(), true);
+                        YAML::Emitter emitter;
+                        emitter << yamlNode;
+                        if (emitter.good())
+                        {
+                            std::wstring yamlDataWstring = U8ToWString(emitter.c_str());
+                            File::SetClipboardText(yamlDataWstring);
+                        }
+                    }         
+                }
+                if (ImGui::IsKeyPressed(ImGuiKey_V, false))
+                {
+                    std::wstring clipboardText = File::GetClipboardText();
+                    if (false == clipboardText.empty())
+                    {
+                        UmCommandManager.Do<Command::EditorScene::PasteObjectCommand>(clipboardText);
+                    }
+                }
+            }
+
         }
     }
 }
@@ -518,6 +553,10 @@ void EditorHierarchyTool::OnFrameRender()
     HierarchyDropEvent();
     KeyboardEvent();
 
+    ImVec2 size = ImGui::GetContentRegionAvail();
+    size.y -= 25;
+    ImGui::BeginChild("##E8DA04FA-E996-4718-8E2F-3138772C5A32", size);
+    HierarchyRightClickEvent();
     const auto& scenes = engineCore->SceneManager.GetLoadedScenes();
     if (false == scenes.empty())
     {
@@ -624,6 +663,8 @@ void EditorHierarchyTool::OnFrameRender()
             }
         }
     }
+
+    ImGui::EndChild();
 }
 
 void EditorHierarchyTool::OnFrameEnd() 

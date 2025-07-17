@@ -5,6 +5,8 @@
 class EmitLocator
 {
 public:
+    EmitLocator() = default;
+    virtual ~EmitLocator() = default;
     void            RandomInitialize();
     virtual Vector3 EmitLocate() = 0;
     Vector3         GetFactor() const { return _factor; }
@@ -50,14 +52,16 @@ public:
 class MeshSurfaceLocator : public EmitLocator
 {
 public:
+    ~MeshSurfaceLocator();
     Vector3 EmitLocate();
-    void    SetVertices(const std::vector<Vector3>& vertices) { _vertices = vertices; }
-    void    LerpVertices();
+    void    LoadVerticesFromModel(File::Path modelPath);
+    File::Path GetModelPath() const { return _targetModelPath; }
 
 private:
-
-    std::vector<Vector3> _vertices;
-
+    File::Path                   _targetModelPath;
+    std::shared_ptr<class Model> _targetModel;
+    std::vector<UINT>            _vertexCountPerMesh;
+    UINT                         _totalVertexCount = 0;
 };
 
 /// <summary>
@@ -193,7 +197,7 @@ protected:
     UMPARTICLE_PROPERTY(bool, _activeFlag, ActiveFlag, true);
     UMPARTICLE_PROPERTY(float, _emitterAge, EmitterAge, 0.f);
     UMPARTICLE_PROPERTY(float, _emitterLifetime, EmitterLifetime, 5.f);
-    UMPARTICLE_PROPERTY(SIZE_T, _maxParticles, MaxParticles, 10000);
+    UMPARTICLE_PROPERTY(SIZE_T, _maxParticles, MaxParticles, 100000);
     UMPARTICLE_PROPERTY(float, _emissionRate, EmissionRate, 5000.f);
     UMPARTICLE_PROPERTY(float, _startDelay, StartDelay, 0.f);
     UMPARTICLE_PROPERTY(bool, _spawnBurstFlag, SpawnBurstFlag, false);
@@ -246,6 +250,7 @@ protected :
 
     //x = drag radius y = drag force
     UMPARTICLE_PROPERTY_REF(Vector4, _dragForce, DragForce, Vector4(0, 0, 0, 0));
+    UMPARTICLE_PROPERTY_REF(Vector4, _vortexForce, VortexForce, Vector4(0.1f, 0.1f, 0.1f, 0));
 
     UMPARTICLE_PROPERTY(bool, _endFlag, EndFlag, false);
 

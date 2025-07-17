@@ -44,6 +44,12 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
  void EditorParticleEffectDetails::OnPostFrameBegin()
  {
 
+     if (nullptr == UmParticleManager.GetCurrentEditorEffect())
+     {
+         _curEffect = nullptr;
+         return;
+     }
+
      if (nullptr != _curEmitter && nullptr == _curEffect)
          ShowEmitterDetails();
      if (nullptr == _curEmitter && nullptr != _curEffect)
@@ -247,6 +253,19 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
              {
                  locationFactor[2] = locationFactor[0] - 0.1f;
              }
+         }
+         if (LocationShape::MESH_SURFACE == _curEmitter->_locationType)
+         {
+             ImGui::Text("Emitter Shape Factor");
+             ImGui::Text("X");
+             ImGui::SameLine();
+             ImGui::SliderFloat("##Emitter Shape Factor x", &(locationFactor[0]), -10, 10);
+             ImGui::Text("Y");
+             ImGui::SameLine();
+             ImGui::SliderFloat("##Emitter Shape Factor y", &(locationFactor[1]), -10, 10);
+             ImGui::Text("Z");
+             ImGui::SameLine();
+             ImGui::SliderFloat("##Emitter Shape Factor z", &(locationFactor[2]), -10, 10);
          }
          Vector3 temp = _curEmitter->_emitLocator->GetFactor();
          if (locationFactor[0] != temp.x || locationFactor[1] != temp.y || locationFactor[2] != temp.z)
@@ -562,6 +581,23 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
                  isSomethingChanged = result;
          _curEmitter->SetDragForce(force);
      }
+
+     // vortex
+     {
+         Vector4 force = _curEmitter->GetVortexForce();
+         ImGui::Text("Vortex Force");
+         ImGui::SameLine();
+         bool result = ImGui::SliderFloat4("##Vortex Force", (float*)&force, -1000, 1000);
+         if (false == isSomethingChanged)
+             if (true == result)
+                 isSomethingChanged = result;
+         if (force.Length() <= 0)
+             force = {0.1f, 0.1f, 0.1f};
+         _curEmitter->SetVortexForce(force);
+     }
+
+
+
 
      if (true == isSomethingChanged)
      {
