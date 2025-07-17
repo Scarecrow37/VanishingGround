@@ -70,7 +70,7 @@ CharacterStats* Enemy::GetCharacterStats()
     EnemyStatsComponent* statsComponent = GetEnemyStats();
     if (nullptr != statsComponent)
     {
-        stats = statsComponent->GetStats();
+        stats = &statsComponent->GetStats();
     }
     return stats;
 }
@@ -81,7 +81,7 @@ int Enemy::GetSpeed()
     EnemyStatsComponent* stats = GetEnemyStats();
     if (nullptr != stats)
     {
-        speed = stats->GetStats()->Speed;
+        speed = stats->GetStats().Speed;
     }
     return speed;
 }

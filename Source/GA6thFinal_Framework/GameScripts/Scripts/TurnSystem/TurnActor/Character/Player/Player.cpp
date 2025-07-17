@@ -128,7 +128,7 @@ CharacterStats* Player::GetCharacterStats()
     PlayerStatsComponent* playerStatsComponent = GetPlayerStats();
     if (nullptr != playerStatsComponent)
     {
-        stats = playerStatsComponent->GetStats();
+        stats = &playerStatsComponent->GetStats();
     }
     return stats;
 }
@@ -153,7 +153,7 @@ int Player::GetShield()
     PlayerStatsComponent* playerStats = GetPlayerStats();
     if (playerStats)
     {
-        shield = playerStats->GetStats()->Shield;
+        shield = playerStats->GetStats().Shield;
     }
     return shield;
 }
