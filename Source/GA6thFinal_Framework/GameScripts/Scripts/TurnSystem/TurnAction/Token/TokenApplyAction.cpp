@@ -2,23 +2,43 @@
 #include "TokenApplyAction.h"
 #include <RevelationSystem/RevelationSystem.h>
 #include <TurnSystem/TurnAction/TurnActionFactory.h>
+#include <Token/TokenSystem.h>
 
 REGISTER_TURN_ACTION(TokenApplyAction)
 
 TokenApplyAction::TokenApplyAction() 
 {
-
+    UpdateActionInfo();
 }
 
 const std::string& TokenApplyAction::GetActionInfo()
 {
-    static const std::string info = (const char*)u8"대상에게 출혈III 2개 부여";
-    return info;
+    return _actionInfo;
 }
 
 void TokenApplyAction::ImGuiDrawActionEditor() 
 {
-
+    std::string_view prevValue = TokenSystem::GetTokenNameFromID(ReflectFields->TokenID);
+    if (prevValue.empty())
+    {
+        prevValue = STR_NULL;
+    }
+    if (ImGui::BeginCombo("Token ID##A72AE710-2115-4E9C-BC03-9709C4100F04", prevValue.data()))
+    {
+        bool selectable = false;
+        for (auto& token : TokenSystem::GetTokenInstances())
+        {
+            const char* name = token->GetTokenName();
+            int         id   = token->GetTokenID();
+            selectable = ReflectFields->TokenID == id ? true : false;
+            if (ImGui::Selectable(name, selectable))
+            {
+                TokenID = id;
+            }
+        }
+        ImGui::EndCombo();
+    }
+    ReflectHelper::ImGuiDraw::Private::InputAuto(TokenCount, UmCore->ImGuiDrawPropertysSetting);
 }
 
 const std::string& TokenApplyAction::GetActionName()
@@ -27,3 +47,17 @@ const std::string& TokenApplyAction::GetActionName()
     return name;
 }
 
+void TokenApplyAction::DeserializedReflectEvent() 
+{
+    UpdateActionInfo();
+}
+
+void TokenApplyAction::UpdateActionInfo() 
+{
+    std::string_view tokenName = TokenSystem::GetTokenNameFromID(ReflectFields->TokenID);
+    if (true == tokenName.empty())
+    {
+        tokenName = STR_NULL;
+    }
+    _actionInfo = std::format("{}{}{}{}", tokenName, (const char*)u8"토큰 ", ReflectFields->TokenCount, (const char*)u8"개 부여");
+}
