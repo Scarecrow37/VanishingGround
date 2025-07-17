@@ -240,7 +240,9 @@ void EditorSceneTool::DrawManipulate()
         auto pObject = _manipulateObject.lock();
         if (pObject->IsValid())
         {
+            const ImGuiIO& io    = ImGui::GetIO();
             bool isLeftShiftHold = ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftShift);
+            bool isMouseMoved    = (io.MouseDelta.x != 0.0f || io.MouseDelta.y != 0.0f);
 
             Matrix  worldMatrix   = pObject->transform->GetWorldMatrix();
             Matrix* pObjectMatrix = &worldMatrix;
@@ -255,6 +257,12 @@ void EditorSceneTool::DrawManipulate()
             _isUseManipulate = ImGuiHelper::DrawManipulate(pDynamicCamera, pObjectMatrix, _drawManipulateDesc);
             _isUsing         = ImGuizmo::IsUsing();
             _isOver          = ImGuizmo::IsOver();
+
+            // 마우스를 움직인 경우에만 Moved 플래그 설정
+            if (true == _isUsing && true == isMouseMoved)
+            {
+                _isMovedManipulate = true;
+            }
 
             if (isLeftShiftHold)    
             {
@@ -297,19 +305,24 @@ void EditorSceneTool::DrawManipulate()
                 {
                     if (true == _isUsing)
                     {
-                        _isUsingStart          = true;
+                        _isUsingStart = true;
                         prevTransform.Position = pObject->transform->Position;
                         prevTransform.Rotation = pObject->transform->Rotation;
                         prevTransform.Scale    = pObject->transform->Scale;
                     }
                     else
                     {
+                        // 이동한 경우에만 커맨드를 실행
+                        if (true == _isMovedManipulate)
+                        {
+                            ManipulateCommand::Transform currTransform;
+                            currTransform.Position = pObject->transform->Position;
+                            currTransform.Rotation = pObject->transform->Rotation;
+                            currTransform.Scale    = pObject->transform->Scale;
+                            UmCommandManager.Do<ManipulateCommand>(pObject, currTransform, prevTransform);
+                            _isMovedManipulate = false;
+                        }
                         _isUsingEnd = true;
-                        ManipulateCommand::Transform currTransform;
-                        currTransform.Position = pObject->transform->Position;
-                        currTransform.Rotation = pObject->transform->Rotation;
-                        currTransform.Scale    = pObject->transform->Scale;
-                        UmCommandManager.Do<ManipulateCommand>(pObject, currTransform, prevTransform);
                     }
                 }
                 else
