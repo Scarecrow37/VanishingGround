@@ -242,26 +242,28 @@ void AccelerationStructureManager::BuildOrUpdateTLAS(ID3D12Device5* device, ID3D
         }
         inst.push_back(desc);
     }
-
+    
+    const UINT instCount    = static_cast<UINT>(inst.size());
     const UINT instByteSize = static_cast<UINT>(inst.size() * sizeof(D3D12_RAYTRACING_INSTANCE_DESC));
-    if (instByteSize == 0)
-        return;
-    if (!_instanceUpload || _instanceUpload->GetDesc().Width < instByteSize)
+    if (instCount > 0)
     {
-        UmDevice.CreateUploadBuffer(instByteSize, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_GENERIC_READ,
-                                    _instanceUpload);
-    }
+        if (!_instanceUpload || _instanceUpload->GetDesc().Width < instByteSize)
+        {
+            UmDevice.CreateUploadBuffer(instByteSize, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_GENERIC_READ,
+                                        _instanceUpload);
+        }
 
-    void* data = nullptr;
-    _instanceUpload->Map(0, nullptr, &data);
-    memcpy(data, inst.data(), instByteSize);
-    _instanceUpload->Unmap(0, nullptr);
+        void* data = nullptr;
+        _instanceUpload->Map(0, nullptr, &data);
+        memcpy(data, inst.data(), instByteSize);
+        _instanceUpload->Unmap(0, nullptr);
+    }
 
     D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS inputs{};
     inputs.Type          = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL;
     inputs.DescsLayout   = D3D12_ELEMENTS_LAYOUT_ARRAY;
-    inputs.NumDescs      = static_cast<UINT>(inst.size());
-    inputs.InstanceDescs = _instanceUpload->GetGPUVirtualAddress();
+    inputs.NumDescs      = instCount;
+    inputs.InstanceDescs = (instCount>0)?_instanceUpload->GetGPUVirtualAddress() : 0;
     inputs.Flags         = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_BUILD;
 
     D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO info;

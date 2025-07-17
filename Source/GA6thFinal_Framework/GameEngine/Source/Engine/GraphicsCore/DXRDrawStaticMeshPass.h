@@ -24,6 +24,7 @@ private:
     void WriteCommand();
 
 private:
+    bool                               _init = false;
     ComPtr<ID3D12StateObject> _pso;
     ComPtr<ID3D12RootSignature> _globalRootsignature;
     ComPtr<ID3D12Resource>      _shaderTable;

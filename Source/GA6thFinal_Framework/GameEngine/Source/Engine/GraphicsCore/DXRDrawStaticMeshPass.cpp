@@ -83,7 +83,7 @@ void DXRDrawStaticMeshPass::CreateStateObject()
     ExportAssociation missRootAssociation(&RTPipeline::MissShader, 1, &(subobjects[missRootIndex]));
     subobjects[index++] = missRootAssociation.subObject; // 7
 
-    // payload size float4+uint
+    // payload size float4 + uint + float3
     ShaderConfig shaderConfig(sizeof(float) * 2, sizeof(float) * (4 + 1));
     subobjects[index] = shaderConfig.subObject; // 8
 
@@ -97,7 +97,7 @@ void DXRDrawStaticMeshPass::CreateStateObject()
 
     GlobalRootSignature root(RTPipeline::CreateGlobalRootDesc().desc);
     _globalRootsignature = root.rootSignature;
-    subobjects[index++]  = root.subObject; // 11
+    subobjects[index++]  = root.subObject; // 11z
 
     D3D12_STATE_OBJECT_DESC desc;
     desc.NumSubobjects = index;
@@ -124,7 +124,12 @@ void DXRDrawStaticMeshPass::CreateShaderTable()
     const UINT recordCount = 3;
     const UINT tableSize   = _shaderTableEntrySize * recordCount;
     // 1) 업로드 버퍼 생성
-    UmDevice.CreateUploadBuffer(tableSize, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_GENERIC_READ, _shaderTable);
+    if (!_init)
+    {
+        UmDevice.CreateUploadBuffer(tableSize, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_GENERIC_READ,
+                                    _shaderTable);
+        _init = true;
+    } 
     // 2) Shader Identifier 가져오기
     ComPtr<ID3D12StateObjectProperties> props;
     _pso->QueryInterface(IID_PPV_ARGS(props.GetAddressOf()));

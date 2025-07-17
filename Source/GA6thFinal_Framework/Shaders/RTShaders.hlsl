@@ -274,19 +274,19 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
         directLighting += CalculateSpot(Ls, normal, view, albedo, metal, rough, hitPosition);
         //if (TraceShadow(hitPosition, L, dist - 0.01) == false)
     }
-    ///* 환경광 / IBL  */
+    /* 환경광 / IBL  */
     float3 envDiffuse = evnTexture.SampleLevel(samLinear_wrap, normal, 0).rgb;
     envDiffuse = saturate(envDiffuse);
     envDiffuse = GammaToLinearSpace(envDiffuse) * 10;
-    float3 ambientLighting = envDiffuse * albedo * 1;
+    float3 iblalbedo = albedo * rough;
+    float3 ambientLighting = iblalbedo * envDiffuse;
 
     /* 반사(거울) – FresnelSchlick 사용 */
     float3 reflectionLighting = 0.0;
-
     if (payload.recursionDepth< MAX_RECURSION_DEPTH)
     {
         float3 reflectionDirection = reflect(-view, normal);
-
+        
         RayDesc reflectionRay;
         reflectionRay.Origin = hitPosition; //+reflectionDirection * Epsilon;
         reflectionRay.Direction = reflectionDirection;
@@ -301,7 +301,7 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
                  0xFF, // Instance mask
                  0, 1, 0, // SBT record indices (Hit / Miss / Callable)
                  reflectionRay, reflectionPayload);
-
+ 
         /* helper 함수 ‘FresnelSchlick’ 적용 */
         float3 baseReflectance =
             lerp(float3(Fdielectric, Fdielectric, Fdielectric), // 0.04 기본값
@@ -311,11 +311,12 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
             FresnelSchlick(saturate(dot(normal, view)), baseReflectance);
 
         reflectionLighting = reflectionPayload.color.rgb * fresnelFactor;
+        //if (TraceShadow(hitPosition, L, 10000) == false)
     }
 
     /* 최종 색 결과 ------------------------------------------------------- */
     float3 finalcolor =
-          emissive+
+          emissive +
           ambientLighting + // 환경광 
           directLighting + // 직접광  
           reflectionLighting; // 반사광 

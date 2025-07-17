@@ -18,13 +18,13 @@
 #include "FontTechnique.h"
 #include "PBRLitTechnique.h"
 #include "ParticleRenderTechnique.h"
-#include "EditorDrawTechnique.h"
 #include "RayTracingTechnique.h"
 #include "SkyBoxRenderTechnique.h"
 #include "UITechnique.h"
 
 Renderer::Renderer()
 {
+    _isRaytracing = true;
 }
 
 Renderer::~Renderer() {}
