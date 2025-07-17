@@ -60,7 +60,6 @@ void EditorSceneTool::SetCameraToObject(std::weak_ptr<GameObject> destination)
             _isFocusedCamera = true;
             _focusedCameraTargetPosition = pObject->transform->Position;
             _focusedCameraStartPosition  = _camera->GetPivotPosition();
-            _camera->LookTo(_focusedCameraTargetPosition);
         }
     }
 }

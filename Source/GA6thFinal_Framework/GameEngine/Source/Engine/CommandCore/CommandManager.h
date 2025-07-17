@@ -34,8 +34,8 @@ public:
     inline const std::shared_ptr<UmCommand>& GetCommandFromUndoStack(int index) const { return _undoStack[index]; }
     inline const std::shared_ptr<UmCommand>& GetCommandFromRedoStack(int index) const { return _redoStack[index]; }
 
-    inline int GetUndoStackSize() const { return static_cast<int>(_undoStack.size()); }
-    inline int GetRedoStackSize() const { return static_cast<int>(_redoStack.size()); }
+    inline size_t GetUndoStackSize() const { return _undoStack.size(); }
+    inline size_t GetRedoStackSize() const { return _redoStack.size(); }
 
     inline const auto UndoStackBegin() const { return _undoStack.begin(); }
     inline const auto UndoStackEnd() const { return _undoStack.end(); }
