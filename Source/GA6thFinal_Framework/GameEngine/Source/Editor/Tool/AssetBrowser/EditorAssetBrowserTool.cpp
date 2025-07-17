@@ -29,14 +29,15 @@ EditorAssetBrowserTool* EditorAssetBrowserTool::GetInstance()
     return _staticInstance;
 }
 
-const File::Path& EditorAssetBrowserTool::GetCurrentFocusFolderPath() const
+void EditorAssetBrowserTool::OnTickGui() 
 {
-    return _currFocusFolderPath;
 }
 
 void EditorAssetBrowserTool::OnStartGui()
 {
     _currFocusFolderContext = UmFileSystem.GetContext<File::FolderContext>(File::Path(UmFileSystem.GetRootPath()));
+    const MessageHandler msgHandler(WinProc, 0);
+    UmApplication.AddMessageHandler(msgHandler);
 }
 
 void EditorAssetBrowserTool::OnPreFrameBegin()
@@ -49,6 +50,15 @@ void EditorAssetBrowserTool::OnPreFrameBegin()
         _currFocusFolderPath    = sp->GetPath();
         _nextFocusFolderContext.reset();
     }
+    _windowRect = ImRect();
+}
+
+void EditorAssetBrowserTool::OnPostFrameBegin() 
+{
+    ImVec2 contentMin = ImGui::GetWindowContentRegionMin(); // 보통 (0, 0)
+    ImVec2 contentMax = ImGui::GetWindowContentRegionMax(); // 보통 (width, height)
+    ImVec2 pos        = ImGui::GetWindowPos();
+    _windowRect       = ImRect(pos + contentMin, pos + contentMax);
 }
 
 void EditorAssetBrowserTool::OnFrameRender()
@@ -92,10 +102,6 @@ void EditorAssetBrowserTool::OnFrameEnd()
             func();
     }
     _eventFunc.clear();
-}
-
-void EditorAssetBrowserTool::OnTickGui() 
-{
 }
 
 void EditorAssetBrowserTool::OnFrameFocusEnter() 
@@ -521,23 +527,29 @@ void EditorAssetBrowserTool::ContentsFrameEventAction(spFolderContext context)
         float compactFactor = 0.1f;
         ImGuiHelper::PushStyleCompactToItem(compactFactor);
 
-        if (ImGui::BeginPopup("ContentsFramePopup"))
+        if (File::NULL_PATH != curPath)
         {
-            if (ImGui::BeginMenu("Create"))
+            if (ImGui::BeginPopup("ContentsFramePopup"))
             {
-                if (ImGui::MenuItem("Folder"))
+                if (ImGui::MenuItem("Open"))
                 {
-                    File::CreateFolderEx(curPath / "New Folder", true);
+                    File::OpenFile(curPath);
                 }
-                ImGui::EndMenu();
+                if (ImGui::BeginMenu("Create"))
+                {
+                    if (ImGui::MenuItem("Folder"))
+                    {
+                        File::CreateFolderEx(curPath / "New Folder", true);
+                    }
+                    ImGui::EndMenu();
+                }
+                if (ImGui::MenuItem("Copy Path"))
+                {
+                    File::CopyPathToClipBoard(curPath);
+                }
+                ImGui::EndPopup();
             }
-            if (ImGui::MenuItem("Copy Path"))
-            {
-                File::CopyPathToClipBoard(curPath);
-            }
-            ImGui::EndPopup();
         }
-
         ImGuiHelper::PopStyleCompact();
     }
 }
@@ -839,6 +851,92 @@ void EditorAssetBrowserTool::ShowSameFilePopupBox()
     }
 }
 
+void EditorAssetBrowserTool::ShowCopyFilePopupBox() 
+{
+    int idSeed = 0;
+    int flags = ImGuiChildFlags_Border;
+    float  height = ImGui::GetTextLineHeightWithSpacing() * _dragDropPaths.size() + 10.0f;
+    ImGui::Text("Copy From: ");
+    ImGui::BeginChild("##AssetBrowserCopyPopup", ImVec2(500.0f, height), flags);
+    for (auto& [check, targetPath] : _dragDropPaths)
+    {
+        if (true == fs::exists(targetPath))
+        {
+            bool isDirectory = fs::is_directory(targetPath);
+            if (isDirectory)
+            {
+                check = false;
+            }
+            std::string targetPathStr = targetPath.generic_string();
+            ImGui::PushID(++idSeed);
+            if (isDirectory)
+            {   // 디렉터리는 허용하지 않음
+                ImGui::BeginDisabled();
+            }
+            ImGui::Checkbox("##CheckCopy", &check);
+            if (isDirectory)
+            {
+                ImGui::EndDisabled();
+            }
+            ImGui::SameLine();
+
+            ImVec2 childAvail = ImGui::GetContentRegionAvail();
+            ImGui::SetNextItemWidth(childAvail.x);
+            int flags = ImGuiInputTextFlags_ReadOnly | ImGuiInputTextFlags_AutoSelectAll;
+            if (true == check)
+            {
+                ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.1f, 0.2f, 0.1f, 1.0f));
+            }
+            else
+            {
+                ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.2f, 0.1f, 0.1f, 1.0f));
+            }
+            ImGui::InputText("##CopyFilePath", &targetPathStr, flags);
+            ImGui::PopStyleColor();
+            ImGuiHelper::HoveredToolTip(isDirectory ? (const char*)u8"폴더 복사는 허용하지 않습니다." : targetPathStr);
+            ImGui::PopID();
+        }
+    }
+    ImGui::EndChild();
+    ImGui::Text("Copy To :");
+    ImGui::BeginDisabled();
+    std::string curPath = _destPath.string();
+    ImGui::InputText("##import path", &curPath, ImGuiInputTextFlags_ReadOnly); // 임포트할 폰트 경로를 표시합니다.
+    if (ImGui::BeginItemTooltip())                                          // 호버링 시 툴팁으로 경로를 표시합니다.
+    {
+        ImGui::Text(curPath.c_str());
+        ImGui::EndTooltip();
+    }
+    ImGui::EndDisabled();
+    ImGui::SameLine();
+    if (ImGui::Button(EditorIcon::ICON_FOLDER_OPEN)) // 경로 선택 버튼
+    {
+        File::ShowOpenFolderDialog(NULL, L"경로 선택", _destPath.c_str(), _destPath);
+    }
+    ImGui::Separator();
+    if (ImGui::Button("Copy"))
+    {
+        for (const auto& [check, targetPath] : _dragDropPaths)
+        {
+            if (check)
+            {
+                File::Path from = targetPath;
+                File::Path to   = _destPath / from.filename();
+                to   = File::GenerateUniquePath(to); // 중복된 파일 이름이 있을 경우, 고유한 이름으로 변경
+                from = from.generic_wstring();
+                to   = to.generic_wstring();
+                File::CopyFileFromTo(from, to);
+            }
+        }
+        ImGui::CloseCurrentPopup();
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Cancel"))
+    {
+        ImGui::CloseCurrentPopup();
+    }
+}
+
 void EditorAssetBrowserTool::ProcessEnterAction(spContext context)
 {
     if (nullptr != context)
@@ -966,6 +1064,58 @@ void EditorAssetBrowserTool::SetFocusFromRedoPath()
         }
         _directoryRedoStack.pop_back();
     }
+}
+
+void EditorAssetBrowserTool::ProcessDropFile(const HDROP hDrop) 
+{
+    if (_staticInstance)
+    {
+        // 드롭된 파일의 개수
+        UINT fileCount = DragQueryFile(hDrop, 0xFFFFFFFF, NULL, 0);
+        _dragDropPaths.clear();
+        for (UINT i = 0; i < fileCount; ++i)
+        {
+            // 각 파일의 절대경로를 얻음
+            wchar_t targetPath[MAX_PATH];
+            DragQueryFile(hDrop, i, targetPath, MAX_PATH);
+            _dragDropPaths.push_back({true, targetPath});
+        }
+        if (Global::editorModule)
+        {
+            _destPath = GetCurrentFocusFolderPath();
+            Global::editorModule->OpenPopupBox("CopyFile", [this]() { ShowCopyFilePopupBox(); });
+        }
+    }
+    DragFinish(hDrop);
+}
+
+bool EditorAssetBrowserTool::WinProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+    if (_staticInstance)
+    {
+        bool isProjectLoaded = UmFileSystem.IsLoadedProject();
+        if (true == isProjectLoaded)
+        {
+            switch (msg)
+            {
+                case WM_DROPFILES: 
+                {
+                    HDROP hDrop = (HDROP)wParam;
+                    if (true == _staticInstance->IsFocusFrame())
+                    {
+                        const File::Path& curPath = _staticInstance->GetCurrentFocusFolderPath();
+                        if (true == fs::exists(curPath))
+                        {
+                            _staticInstance->ProcessDropFile(hDrop);
+                            return true;
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+    }
+    return false;
 }
 
 void EditorAssetObject::OnInspectorEnter() 

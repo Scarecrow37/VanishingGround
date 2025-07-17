@@ -178,6 +178,26 @@ namespace File
     }
 
     bool File::ShowOpenFileDialog(HWND owner, LPCWSTR title, LPCWSTR initialDir,
+                                  std::vector<std::pair<LPCWSTR, LPCWSTR>> filters, OUT std::vector<File::Path>& out)
+    {
+        bool result = ShowOpenFileDialog(owner, title, initialDir, filters, true, out);
+        return result;
+    }
+
+    bool File::ShowOpenFileDialog(HWND owner, LPCWSTR title, LPCWSTR initialDir,
+                                  std::vector<std::pair<LPCWSTR, LPCWSTR>> filters,
+                                  OUT File::Path& out)
+    {
+        std::vector<File::Path> outPath;
+        bool result = ShowOpenFileDialog(owner, title, initialDir, filters, false, outPath);
+        if (true == result)
+        {
+            out = outPath.front();
+        }
+        return result;
+    }
+
+    bool File::ShowOpenFileDialog(HWND owner, LPCWSTR title, LPCWSTR initialDir,
                                   std::vector<std::pair<LPCWSTR, LPCWSTR>> filters, bool allowMultiSelect,
                                   OUT std::vector<File::Path>& out)
     {
