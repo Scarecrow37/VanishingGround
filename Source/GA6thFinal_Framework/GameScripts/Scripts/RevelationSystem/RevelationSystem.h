@@ -45,6 +45,12 @@ public:
     /// <returns></returns>
     const std::vector<std::shared_ptr<RevelationElement>>& GetRoundElementList() { return _roundElementList; }
 
+    /// <summary>
+    /// 플레이어가 사용중인 element 항목을 반환합니다.
+    /// </summary>
+    /// <returns></returns>
+    const std::vector<std::shared_ptr<RevelationElement>>& GetPlayerElementList() { return _playerElementList; }
+
 public:     
     /// <summary>
     /// 새로운 Element를 테이블에 추가합니다.

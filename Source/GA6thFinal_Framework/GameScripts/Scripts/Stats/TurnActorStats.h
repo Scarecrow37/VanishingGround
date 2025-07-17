@@ -7,7 +7,7 @@ class TurnActorStats : public ReflectSerializer
 public:
     REFLECT_PROPERTY()
     TurnActorStats() = default;
-    virtual ~TurnActorStats() = default;
+    ~TurnActorStats() override = default;
 
 protected:
     REFLECT_FIELDS_BEGIN(ReflectSerializer)

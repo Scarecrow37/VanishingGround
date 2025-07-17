@@ -4,6 +4,9 @@
 struct CharacterStats : public TurnActorStats
 {
     USING_PROPERTY(CharacterStats)
+    CharacterStats() = default;
+    ~CharacterStats() override = default;
+
     REFLECT_PROPERTY(MaxHP, MaxMP, MaxChainRoundCount)
 
     SETTER(int, MaxHP) { ReflectFields->MaxHP = std::clamp(value, 1, 99999); }

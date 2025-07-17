@@ -81,7 +81,7 @@ CharacterStats* Enemy::GetCharacterStats()
     EnemyStatsComponent* statsComponent = GetEnemyStats();
     if (nullptr != statsComponent)
     {
-        stats = statsComponent->GetStats();
+        stats = &statsComponent->GetStats();
     }
     return stats;
 }
@@ -92,7 +92,7 @@ int Enemy::GetSpeed()
     EnemyStatsComponent* stats = GetEnemyStats();
     if (nullptr != stats)
     {
-        speed = stats->GetStats()->Speed;
+        speed = stats->GetStats().Speed;
     }
     return speed;
 }
@@ -102,6 +102,10 @@ EnemyStatsComponent* Enemy::GetEnemyStats()
     if (nullptr == _enemyStats)
     {
         _enemyStats = GetComponent<EnemyStatsComponent>();
+        if (nullptr == _enemyStats)
+        {
+            UmLogger.Log(LogLevel::LEVEL_WARNING, u8"Enemy Stats 컴포넌트가 존재하지 않습니다.");
+        }
     }
     return _enemyStats;
 }
