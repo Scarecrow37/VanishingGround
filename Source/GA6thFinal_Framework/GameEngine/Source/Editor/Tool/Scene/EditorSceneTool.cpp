@@ -538,6 +538,50 @@ void EditorSceneTool::DrawSceneView()
         ImGui::SameLine();
     }
     ImageButtonToggleSetting();
+    if (_camera)
+    {
+        float moveSpeed     = _camera->GetMoveSpeed();
+        float rotationSpeed = _camera->GetRotationSpeed();
+        int   pushCount     = 0;
+        // 조작중인 경우 알파를 낮춤
+        if (_camera && true == _camera->IsManipulated())
+        {
+            ImGuiStyle& style   = ImGui::GetStyle();
+            ImVec4      bgCol   = style.Colors[ImGuiCol_FrameBg];
+            ImVec4      textCol = style.Colors[ImGuiCol_Text];
+            bgCol.w *= 0.3f;
+            textCol.w *= 0.3f;
+            ImGui::PushStyleColor(ImGuiCol_FrameBg, bgCol);
+            ++pushCount;
+            ImGui::PushStyleColor(ImGuiCol_Text, textCol);
+            ++pushCount;
+        }
+        ImGui::SetNextItemWidth(150.0f);
+        int flags = ImGuiSliderFlags_AlwaysClamp;
+        ImGui::SliderFloat("Camera Move Speed##move speed",
+            &moveSpeed,
+            _camera->GetMinMoveSpeed(), 
+            _camera->GetMaxMoveSpeed(), 
+            "%.2f", 
+            flags
+        );
+        ImGui::SetNextItemWidth(150.0f);
+        ImGui::SliderFloat("Camera Rotation Speed##rotation speed",
+            &rotationSpeed, 
+            _camera->GetMinRotationSpeed(),
+            _camera->GetMaxRotationSpeed(),
+            "%.2f",
+            flags
+        );
+        ImGui::PopStyleColor(pushCount);
+        // 우클릭 + 마우스 휠 시 카메라 이동속도 높이기
+        if (ImGui::IsKeyDown(ImGuiKey_MouseRight))
+        {
+            moveSpeed *= 1.0f + (ImGui::GetIO().MouseWheel * 0.05f);
+        }
+        _camera->SetMoveSpeed(moveSpeed);
+        _camera->SetRotationSpeed(rotationSpeed);
+    }
 }
 
 void EditorSceneTool::RayPicker() 
