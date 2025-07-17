@@ -17,7 +17,6 @@ void EditorDynamicCamera::SetTarget(std::shared_ptr<Camera> camera)
 void EditorDynamicCamera::Update()
 {
     ImGuiIO& io = ImGui::GetIO();
-    const Matrix& matrix = _camera->GetWorldMatrix();
     const Vector3 forward = Vector3::Transform(Vector3(0.0f, 0.0f, 1.0f), _rotation);
     bool isLeftAlt = ImGui::IsKeyDown(ImGuiKey_LeftAlt);
     bool isRightClick = ImGui::IsKeyDown(ImGuiKey_MouseRight);

@@ -16,11 +16,28 @@ static EditorSceneTool* staticEditorScenTool = nullptr;
 
 void EditorHierarchyTool::TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>& focusObject,  GameObject*& outClickNode)
 {
-    auto TreeClickEvent = [&node, &outClickNode]() {
-        bool result = ImGui::IsMouseReleased(ImGuiMouseButton_Left) && ImGui::IsItemHovered();
-        if (result)
+    EditorSceneTool* sceneTool = _editorSceneTool;
+    auto TreeClickEvent = [&node, &outClickNode, &sceneTool]() {
+        bool isHovered = ImGui::IsItemHovered();
+        bool isDoubleClicked = ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left);
+        bool isReleased      = ImGui::IsMouseReleased(ImGuiMouseButton_Left);
+
+        bool result = false;
+        if (isHovered)
         {
-            outClickNode = &node.gameObject;
+            if (isDoubleClicked)
+            {
+                if (sceneTool)
+                {
+                    sceneTool->SetCameraToObject(node.gameObject->GetWeakPtr());
+                }
+                result = true;
+            }
+            else if (isReleased)
+            {
+                outClickNode = &node.gameObject;
+                result = true;
+            }
         }
         return result;
     };

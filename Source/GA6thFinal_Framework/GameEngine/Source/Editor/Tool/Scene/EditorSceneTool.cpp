@@ -50,6 +50,44 @@ const Matrix& EditorSceneTool::GetCameraMatrix()
     return _camera->GetCamera()->GetWorldMatrix();
 }
 
+void EditorSceneTool::SetCameraToObject(std::weak_ptr<GameObject> destination) 
+{
+    if (false == destination.expired())
+    {
+        auto pObject = destination.lock();
+        if (pObject->IsValid() && _camera)
+        {
+            _isFocusedCamera = true;
+            _focusedCameraTargetPosition = pObject->transform->Position;
+            _focusedCameraStartPosition  = _camera->GetPivotPosition();
+            _camera->LookTo(_focusedCameraTargetPosition);
+        }
+    }
+}
+
+void EditorSceneTool::OnTickGui()
+{
+    if (_isFocusedCamera && _camera)
+    {
+        const float lerpT = _focusedLerpScale;
+        Vector3& current  = _focusedCameraStartPosition;
+        Vector3& target   = _focusedCameraTargetPosition;
+
+        current = ImLerp(current, target, lerpT);
+
+        // 거리가 충분히 가까워지면 카메라를 고정합니다.
+        Vector3 delta = target - current;
+        float   deltaLength = delta.Length();
+        if (deltaLength <= 1.0f)
+        {
+            current          = target;
+            _isFocusedCamera = false;
+        }
+        _camera->SetPivotPosition(current);
+        _camera->Update();
+    }
+}
+
 void EditorSceneTool::OnStartGui()
 {
     std::shared_ptr<Camera> camera = UmRenderer.GetCamera("Editor");
@@ -190,7 +228,8 @@ void EditorSceneTool::UpdateKeyboardShortcuts()
 
         if (ImGui::IsKeyPressed(ImGuiKey_F, false))
         {
-            SetCameraToFocusObject();
+            auto wPtrFocused = EditorHierarchyTool::GetFocusObject();
+            SetCameraToObject(wPtrFocused);
         }
     }  
 }
@@ -487,15 +526,6 @@ void EditorSceneTool::DrawSceneView()
         ImGui::SameLine();
     }
     ImageButtonToggleSetting();
-}
-
-void EditorSceneTool::SetCameraToFocusObject() 
-{
-    if (false == EditorHierarchyTool::GetFocusObject().expired())
-    {
-        auto focusObject = EditorHierarchyTool::GetFocusObject().lock();
-        _camera->SetPosition(focusObject->transform->Position);
-    }
 }
 
 void EditorSceneTool::RayPicker() 

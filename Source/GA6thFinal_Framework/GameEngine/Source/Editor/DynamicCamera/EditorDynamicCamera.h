@@ -17,11 +17,9 @@ public:
     void SetRotationSpeed(const float speed) { _rotationSpeed = speed; }
     float GetRotationSpeed() const { return _rotationSpeed; }
 
-    void SetPosition(const Vector3& position) 
-    { 
-        _position = position; 
-        _pivotPosition = position;
-    }
+   
+    void SetPosition(const Vector3& position) {  _position = position;  _pivotPosition = position; }
+    void SetPivotPosition(const Vector3& position) { _pivotPosition = position; }
     const Vector3& GetPosition() { return _position; }
     const Vector3& GetPivotPosition() { return _pivotPosition; }
 
