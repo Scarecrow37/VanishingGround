@@ -38,6 +38,12 @@ public:
     WeaponStats EquipWeapon(int slot, const WeaponStats& weaponStats);
 
     /// <summary>
+    /// 플레이어가 장착중인 무기 항목을 전부 반환합니다.
+    /// </summary>
+    /// <returns></returns>
+    const std::array<WeaponStats, EQUIP_WEAPONS_SIZE>& GetEquipWeapons() { return _equipWeapons; }
+
+    /// <summary>
     /// 현재 사용할 무기를 선택합니다.
     /// 속도, 데미지, 타격 횟수 등이 해당 슬롯에 무기로 설정됩니다.
     /// </summary>
