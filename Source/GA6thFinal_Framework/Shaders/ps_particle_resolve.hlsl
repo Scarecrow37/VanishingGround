@@ -1,12 +1,4 @@
-// ps_particle_resolve.hlsl
 #include "CommonData.hlsli"
-//struct Resolution
-//{
-//    uint Width;
-//    uint Height;
-//};
-//ConstantBuffer<Resolution> bit32_2_resolution;
-
 
 Texture2D<float4> gAccumTex;
 Texture2D<float> gRevealTex;
@@ -23,8 +15,7 @@ float4 ps_main(PSInput input) : SV_Target
 
     float4 accum = gAccumTex.Sample(samLinear_border, uv);
     float reveal = gRevealTex.Sample(samLinear_border, uv).r;
-    float3 color = accum.rgb / max(accum.a, 1e-6);
-    reveal = reveal * accum.a * accum.a;
-    return float4(color, reveal);
+    float3 color = accum.rgb / max(saturate(accum.a), 1e-6);
+    return float4(color, saturate(reveal));
 
 }

@@ -84,6 +84,9 @@ UMREAL_COMPONENT(WeaponTableComponent)
 #include "Scripts\Test/DevTools/FPSCounter.h"
 UMREAL_COMPONENT(FPSCounter)
 
+#include "Scripts\Particle/ParticleComponent.h"
+UMREAL_COMPONENT(ParticleComponent)
+
 #include "Scripts\Test/UI/TestUI.h"
 UMREAL_COMPONENT(TestUI)
 

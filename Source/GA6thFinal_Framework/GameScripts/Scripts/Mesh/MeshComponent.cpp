@@ -1,6 +1,5 @@
 ﻿#include "pchScripts.h"
 #include "MeshComponent.h"
-#include <Engine/GraphicsCore/Animator.h>
 
 MeshComponent::MeshComponent() 
     : 
@@ -37,9 +36,14 @@ void MeshComponent::MakeMeshRenderer(MeshRenderType renderType, const Matrix& wo
     if (nullptr == _pMeshRenderer)
     {
         _pMeshRenderer.reset(new MeshRenderer(renderType, world));
-        _pMeshRenderer->RegisterComponent();
         _pMeshRenderer->SetActive(&EnableInHierarchy);
         _pMeshRenderer->OnCustomDepth(PostProcess::BLOOM);
+        UmGraphics.RegisterComponent("Game", _pMeshRenderer.get());
+
+        if constexpr (IS_EDITOR)
+        {
+            UmGraphics.RegisterComponent("Editor", _pMeshRenderer.get());
+        }
     } 
     else
     {

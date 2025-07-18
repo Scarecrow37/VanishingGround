@@ -18,8 +18,8 @@
 
 void EditorParticleEffectViewer::OnStartGui()
 {
-    std::shared_ptr<Camera> camera = UmRenderer.GetCamera("ParticleEditor");
-    GRAPHICS_ASSERT(nullptr != camera, L"Camera is nullptr");
+    std::shared_ptr<Camera> camera = UmGraphics.GetCamera("ParticleEditor");
+    assert(nullptr != camera && L"Camera is nullptr");
     _camera->SetTarget(camera);
     _camera->SetPosition(Vector3(0.f, 10.f, -30.f));
     SIZE size = UmCore->App.GetClientSize();
@@ -68,7 +68,6 @@ void EditorParticleEffectViewer::OnFrameEnd()
 
 void EditorParticleEffectViewer::OnFrameFocusEnter()
 {
-
 }
 
 void EditorParticleEffectViewer::OnFrameFocusStay()
@@ -82,7 +81,7 @@ void EditorParticleEffectViewer::OnFrameFocusExit()
 
 void EditorParticleEffectViewer::OnFrameRender()
 {
-    auto handle = UmRenderer.GetRenderSceneImage("ParticleEditor");
+    auto handle = UmGraphics.GetRenderSceneImage("ParticleEditor");
 
     ImVec2 size = ImGui::GetContentRegionAvail();
     ImVec2 img_pos = ImGui::GetCursorScreenPos();

@@ -9,6 +9,7 @@ struct VSInput
     float3 tangent      : TANGENT;
     float3 biTangent    : BINORMAL;
     float2 uv           : TEXCOORD;
+    float2 lightUV      : TEXCOORD1;
 };
 
 struct VSOutput

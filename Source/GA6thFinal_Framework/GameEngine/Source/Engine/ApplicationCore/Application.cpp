@@ -43,6 +43,7 @@ Application::Application()
     AddModule<EngineCoresModule>();
     _imguiDX12Module = AddModule<ImGuiDX12Module>();
     _filesystemModule = AddModule<FileSystemModule>();
+    AddModule<GraphicsModule>();
 }
 
 bool Application::AppMessageHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -56,7 +57,7 @@ bool Application::AppMessageHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
             app._clientSize.cy = HIWORD(lParam);
             if (app._clientSize.cx > 0.f && app._clientSize.cy > 0.f)
             {
-                UmDevice.OnResize(app._clientSize.cx, app._clientSize.cy);
+                UmCore->Graphics.OnResize(app._clientSize.cx, app._clientSize.cy);
             }      
             return true;
         }        

@@ -7,7 +7,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)GameEngine\;$(SolutionDir)GameEngine\Source\;$(SolutionDir)GameEngine\ThirdParty\;$(SolutionDir)GameEngine\ThirdParty\include\;$(SolutionDir)GameScripts\Scripts\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)GameEngine\;$(SolutionDir)GameEngine\Source\;$(SolutionDir)GameEngine\ThirdParty\;$(SolutionDir)GameEngine\ThirdParty\include\;$(SolutionDir)GameScripts\Scripts\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>YAML_CPP_STATIC_DEFINE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
