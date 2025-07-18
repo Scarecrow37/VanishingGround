@@ -7,7 +7,7 @@
 
 DXRGBufferPass::~DXRGBufferPass() {}
 
-void DXRGBufferPass::Initialize(RenderScene* ownerScene)
+void DXRGBufferPass::Initialize(RenderScene* ownerScene, ID3D12GraphicsCommandList* commandList)
 {
     static bool isInitialized = false;
     if (!isInitialized)
@@ -43,8 +43,7 @@ void DXRGBufferPass::Initialize(RenderScene* ownerScene)
         isInitialized = true;
     }
 
-    const auto&                gBufferGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("GBuffer");
-    ID3D12GraphicsCommandList* commandList  = Global::device->GetCommandList();
+    const auto& gBufferGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("GBuffer");
 
     for (UINT i = 0; i < DXRGBuffer::DXRGBUFFER_END; i++)
     {
@@ -52,7 +51,7 @@ void DXRGBufferPass::Initialize(RenderScene* ownerScene)
         _gBufferHandles[i] = gBufferGroup[i]->GetRTVHandle();
     }
 
-    __super::Initialize(ownerScene);
+    __super::Initialize(ownerScene, commandList);
     InitShaderAndPSO();
 }
 

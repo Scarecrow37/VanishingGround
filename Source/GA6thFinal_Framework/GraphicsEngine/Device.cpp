@@ -401,7 +401,6 @@ void Device::ResizeSwapChain()
     CreateBackBuffer();
 
     _commandList->Close();
-
     Global::commandController->ExecuteCommand(CommandQueueType::GRAPHICS_QUEUE, _commandList.Get());
     
     FullGPUSync();

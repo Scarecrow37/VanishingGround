@@ -7,7 +7,7 @@ public:
     virtual ~RenderPass();
 
 public:
-    virtual void Initialize(RenderScene* ownerScene);
+    virtual void Initialize(RenderScene* ownerScene, ID3D12GraphicsCommandList* commandList);
     virtual void Begin(ID3D12GraphicsCommandList* commandList) {};
     virtual void Draw(ID3D12GraphicsCommandList* commandList) {};
     virtual void End(ID3D12GraphicsCommandList* commandList) {};

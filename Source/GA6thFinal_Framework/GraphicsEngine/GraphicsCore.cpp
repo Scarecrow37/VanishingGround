@@ -179,8 +179,8 @@ void GraphicsCore::Update(const float deltaTime)
 
 void GraphicsCore::Render()
 {
-    _debugDrawCore->Render();
     _renderer->Render();
+    _debugDrawCore->Render();
 }
 
 void GraphicsCore::Finalize()

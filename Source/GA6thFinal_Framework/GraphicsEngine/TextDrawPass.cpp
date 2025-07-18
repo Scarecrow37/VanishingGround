@@ -11,9 +11,9 @@ TextDrawPass::~TextDrawPass()
 {
 }
 
-void TextDrawPass::Initialize(RenderScene* ownerScene)
+void TextDrawPass::Initialize(RenderScene* ownerScene, ID3D12GraphicsCommandList* commandList)
 {
-    __super::Initialize(ownerScene);
+    __super::Initialize(ownerScene, commandList);
 }
 
 void TextDrawPass::Begin(ID3D12GraphicsCommandList* commandList)

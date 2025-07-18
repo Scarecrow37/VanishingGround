@@ -5,9 +5,9 @@ OutLinePass::OutLinePass() {}
 
 OutLinePass::~OutLinePass() {}
 
-void OutLinePass::Initialize(RenderScene* ownerScene)
+void OutLinePass::Initialize(RenderScene* ownerScene, ID3D12GraphicsCommandList* commandList)
 {
-    __super::Initialize(ownerScene);
+    __super::Initialize(ownerScene, commandList);
 
     _shader = std::make_unique<ShaderBuilder>();
     _shader->BeginBuild();

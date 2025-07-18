@@ -272,14 +272,12 @@ void Renderer::Update()
 
 void Renderer::Render()
 {
-    ID3D12GraphicsCommandList* commandList = Global::device->GetCommandList();
-
     for (auto& renderScene : _renderScenes)
     {
-        renderScene.second->Execute(commandList);
-    }
-    
-    RenderToBackBuffer();    
+        renderScene.second->Execute();
+    }   
+
+    RenderToBackBuffer();
 }
 
 void Renderer::Flip()

@@ -17,9 +17,9 @@
 
 DXRDrawStaticMeshPass::~DXRDrawStaticMeshPass() {}
 
-void DXRDrawStaticMeshPass::Initialize(RenderScene* ownerScene)
+void DXRDrawStaticMeshPass::Initialize(RenderScene* ownerScene, ID3D12GraphicsCommandList* commandList)
 {
-    __super::Initialize(ownerScene);
+    __super::Initialize(ownerScene, commandList);
     CreateStateObject();
     CreateShaderResource();
 }

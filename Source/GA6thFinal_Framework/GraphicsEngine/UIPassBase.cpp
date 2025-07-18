@@ -13,9 +13,9 @@ UIPassBase::~UIPassBase()
 {
 }
 
-void UIPassBase::Initialize(RenderScene* ownerScene)
+void UIPassBase::Initialize(RenderScene* ownerScene, ID3D12GraphicsCommandList* commandList)
 {
-    __super::Initialize(ownerScene);
+    __super::Initialize(ownerScene, commandList);
 
     _instanceIDBuffer = std::make_unique<StructuredBuffer>();
     _instanceIDBuffer->Initialize(sizeof(UINT), 1000);
