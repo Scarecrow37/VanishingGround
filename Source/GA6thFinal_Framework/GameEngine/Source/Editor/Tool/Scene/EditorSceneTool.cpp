@@ -548,8 +548,8 @@ void EditorSceneTool::DrawSceneView()
         float moveSpeed     = _camera->GetMoveSpeed();
         float rotationSpeed = _camera->GetRotationSpeed();
         int   pushCount     = 0;
-        // 조작중인 경우 알파를 낮춤
-        if (_camera && true == _camera->IsManipulated())
+        // 움직인 경우에만 알파를 낮춤
+        if (_camera && true == _camera->IsMoved())
         {
             ImGuiStyle& style   = ImGui::GetStyle();
             ImVec4      bgCol   = style.Colors[ImGuiCol_FrameBg];

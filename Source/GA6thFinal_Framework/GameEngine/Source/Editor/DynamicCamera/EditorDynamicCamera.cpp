@@ -7,6 +7,13 @@ EditorDynamicCamera::EditorDynamicCamera()
     _rotationSpeed(5.f), 
     _pivot(0.f),
     _isManipulated(false),
+    _isMoved(false),
+    _isRotated(false),
+    _camera(nullptr),
+    _position(Vector3::Zero),
+    _rotation(Quaternion::Identity),
+    _pivotPosition(Vector3::Zero),
+
     _minmaxMoveSpeed(0.1f, 1000.f),
     _minmaxRotationSpeed(0.1f, 50.f)
 {}
@@ -18,6 +25,10 @@ void EditorDynamicCamera::SetTarget(std::shared_ptr<Camera> camera)
 
 void EditorDynamicCamera::Update()
 {
+    _isMoved = false;
+    _isRotated = false;
+    _isManipulated = false;
+
     ImGuiIO&      io           = ImGui::GetIO();
     const Vector3 forward      = Vector3::Transform(Vector3(0.0f, 0.0f, 1.0f), _rotation);
     bool          isLeftAlt    = ImGui::IsKeyDown(ImGuiKey_LeftAlt);
@@ -26,15 +37,15 @@ void EditorDynamicCamera::Update()
 
     if (isRightClick)
     {
-        _isManipulated = UpdateMove();
-        _isManipulated |= UpdateRotate();
+        _isMoved = UpdateMove();
+        _isRotated     = UpdateRotate();
         _pivotPosition = _position - forward * _pivot;
     }
     else
     {
         if (isLeftAlt && isLeftClick)
         {
-            _isManipulated = UpdateRotate();
+            _isRotated = UpdateRotate();
         }
 
         if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_MouseWheelY))
@@ -42,12 +53,14 @@ void EditorDynamicCamera::Update()
             float wheel = io.MouseWheel;
             _pivot += wheel * _moveSpeed * 0.2f;
             _pivot = std::min(_pivot, 0.f);
-            _isManipulated = true;
+            _isMoved = true;
         }
         _position = _pivotPosition + forward * _pivot;
     }
     _camera->SetPosition(_position);
     _camera->SetRotation(_rotation);
+
+    _isManipulated = _isMoved || _isRotated;
 }
 
 bool EditorDynamicCamera::UpdateMove()

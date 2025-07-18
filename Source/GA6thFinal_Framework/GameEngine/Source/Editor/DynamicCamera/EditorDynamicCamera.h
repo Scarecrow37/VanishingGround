@@ -30,6 +30,8 @@ public:
     float GetPivot() const { return _pivot; }
 
     bool IsManipulated() const { return _isManipulated; }
+    bool IsMoved() const { return _isMoved; }
+    bool IsRotated() const { return _isRotated; }
 
     void SetMinMoveSpeed(float min) { _minmaxMoveSpeed.first = min; }  
     void SetMinRotationSpeed(float min) { _minmaxRotationSpeed.first = min; }
@@ -61,5 +63,7 @@ private:
     Vector3                 _pivotPosition;
     float                   _pivot;
 
+    bool                    _isMoved;
+    bool                    _isRotated;
     bool                    _isManipulated;
 };
