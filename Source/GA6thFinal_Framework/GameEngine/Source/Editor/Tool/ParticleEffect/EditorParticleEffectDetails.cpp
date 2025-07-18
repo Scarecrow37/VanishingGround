@@ -173,7 +173,6 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
                  {
                      static_cast<RibbonModule*>(_curEmitter->_particleRenderModule)
                          ->ChangeAlbedoTexture(out.front().wstring());
-                     (out.front().wstring());
                      isSomethingChanged = true;
                  }
              }
@@ -319,6 +318,17 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
              if (true == result)
                  isSomethingChanged = result;
          _curEmitter->SetEmitterPosition({emitterPos[0], emitterPos[1], emitterPos[2]});
+     }
+     // use world space
+     {
+         bool useWorldSpace = _curEmitter->GetUseWorldSpace();
+         ImGui::Text("Use World Space");
+         ImGui::SameLine();
+         bool result = ImGui::Checkbox("##Use World Space", &useWorldSpace);
+         if (false == isSomethingChanged)
+             if (true == result)
+                 isSomethingChanged = result;
+         _curEmitter->SetUseWorldSpace(useWorldSpace);
      }
      // emitter rotation
      {

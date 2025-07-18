@@ -157,6 +157,8 @@ public:
     ParticleType          _particleType;
     ParticleRenderModule* _particleRenderModule;
 
+    UMPARTICLE_PROPERTY(bool, _useWorldSpace, UseWorldSpace, true);
+
     /// <summary>
     /// location shape type
     /// determine which shape to emit particle in

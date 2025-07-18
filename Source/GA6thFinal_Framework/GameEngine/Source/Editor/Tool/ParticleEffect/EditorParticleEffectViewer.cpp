@@ -21,7 +21,7 @@ void EditorParticleEffectViewer::OnStartGui()
     std::shared_ptr<Camera> camera = UmRenderer.GetCamera("ParticleEditor");
     GRAPHICS_ASSERT(nullptr != camera, L"Camera is nullptr");
     _camera->SetTarget(camera);
-    _camera->SetPosition(Vector3(0.f, 10.f, -30.f));
+    _camera->SetPosition(Vector3(0.f, 20.f, -30.f));
     SIZE size = UmCore->App.GetClientSize();
     camera->SetupPerspective(45.f, (float)size.cx / (float)size.cy, 0.1f, 1000.f);
 

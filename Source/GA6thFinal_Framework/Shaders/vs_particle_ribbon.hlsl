@@ -30,56 +30,39 @@ struct VSOutput
 
 VSOutput vs_main(VSInput input)
 {
-    //VSOutput output = (VSOutput) 0;
-    //ParticleOutput instanceInfo = particleInfo[input.vertexID];
-    
-    
-    //float4 pos = float4(input.position.xyz, 1.f);
-    
-    //output.position = mul(, instanceInfo.FinalMatrix);
-    
-    
-    //output.color = instanceInfo.Color;
-    //output.emitterIndex = instanceInfo.EmitterIndex;
-    
 
-    //output.uv = input.uv;
-    //output.depth = output.position.z / output.position.w;
-    //return output;
     VSOutput o = (VSOutput) 0;
     int totalcount = bit32_1_ribbonVertexCount.count / 2;
     
-    uint particleIndex = ribbonIndices[input.vertexID];
-    uint particleIndexnext = ribbonIndices[input.vertexID + 2];
+    uint particleIndex = ribbonIndices[input.vertexID/2];
+    uint particleIndexnext = ribbonIndices[min(input.vertexID / 2 + 2,totalcount)];
     
     int isTop = input.vertexID % 2; // Even: top, Odd: bottom
     isTop *= -2;
     isTop += 1;
     
     ParticleOutput p = particleInfo[particleIndex];
-    ParticleOutput np = particleInfo[particleIndex];
+    ParticleOutput np = particleInfo[particleIndexnext];
 
     float4 currentvertex = float4(0, isTop , 0, 1);
     float3 offsetDir = normalize(p.position.xyz);
-    float3 centerWorldPos = float3(p.FinalMatrix[3].xyz);
-    float3 centerWorldPosnext = float3(np.FinalMatrix[3].xyz);
+    float3 centerWorldPos = float3(p.paddings);
+    float3 centerWorldPosnext = float3(np.paddings);
     
     float3 progressDir = normalize(centerWorldPosnext - centerWorldPos);
-    float3 offsetvector = cross(offsetDir, progressDir);
+    float3 offsetvector = cross(offsetDir, max(progressDir, float3(1, 0, 0)));
     float ribbonHalfWidth = p.FrameInfo.x;
     
-    float4 newpos = float4(offsetvector * ribbonHalfWidth, 1);
+    float4 newpos = float4(offsetvector * ribbonHalfWidth *isTop, 1);
     o.position = mul(newpos, p.FinalMatrix);
-
-    o.uv = float2((uint) (input.vertexID / 2) / (totalcount - 1), (1 - isTop) * 0.5f); // 필요 시 u좌표는 셰이더에서 계산
+    uint ratio = input.vertexID / 2;
+    float u = float(ratio) / float(totalcount - 1);
+    o.uv = float2(p.FrameInfo.z, (1 + isTop) * 0.5f); // 필요 시 u좌표는 셰이더에서 계산
+    
     o.color = p.Color;
     
     o.depth = o.position.z / o.position.w;
-
     
     return o;
-    
-    
-    
     
 }

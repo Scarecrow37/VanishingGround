@@ -168,7 +168,7 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
         }
         locationType = (LocationShape)shapeIdx;
     }
-
+    ImGui::EndGroup();
     if (LocationShape::MESH_SURFACE == locationType)
     {
         currentmeshsurfacepath = std::filesystem::absolute(currentmeshsurfacepath);
@@ -188,11 +188,10 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
         }
         currentmeshsurfacepath = std::filesystem::absolute(currentmeshsurfacepath);
     }
-    ImGui::EndGroup();
-    ImGui::SameLine();
 
 
-    bool isAddButtonPressed = ImGui::Button("Add new Emitter", {180, ImGui::GetFrameHeight() * 2.f});
+
+    bool isAddButtonPressed = ImGui::Button("Add new Emitter", {250, 30});
     if (true == isAddButtonPressed)
     {
         auto emitter =

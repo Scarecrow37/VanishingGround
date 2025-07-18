@@ -391,15 +391,32 @@ void ParticleEmitter::AwakeParticle(UINT index)
     location.y      = tempPos.y + offset.y * _particleDistributionOffset.y;
     location.z      = tempPos.z + offset.z * _particleDistributionOffset.z;
 
+    if (_useWorldSpace)
+    {
+		location = Vector4::Transform(location, _worldMatrix);
+	}
+
     _particlePool[index]->SetPosition(location);
     ScaleVelocity({location.x, location.y, location.z});
 
-    _particlePool[index]->SetVelocity(_velocity);
+    Vector3 finalVelocity = _velocity;
+    if (!_useWorldSpace)
+    {
+        // If simulating in local space, the calculated velocity is also local.
+        // Transform it to world space to apply emitter's rotation and scale.
+        finalVelocity = Vector3::TransformNormal(_velocity, _worldMatrix);
+    }
+    _particlePool[index]->SetVelocity(finalVelocity);
+
     _particlePool[index]->SetAge(0.f);
     _particlePool[index]->SetMass(_particleMass);
-    auto spritemodule = static_cast<SpriteModule*>(_particleRenderModule);
-    Vector4 frameInfo    = {spritemodule->GetFrameDuration(), 0, 0, 0};
-    _particlePool[index]->SetFrameinfo(frameInfo);
+
+    if (ParticleType::SPRITE == _particleType)
+    {
+        auto    spritemodule = static_cast<SpriteModule*>(_particleRenderModule);
+        Vector4 frameInfo    = {spritemodule->GetFrameDuration(), 0, 0, 0};
+        _particlePool[index]->SetFrameinfo(frameInfo);
+    }
 
 }
 
@@ -411,11 +428,11 @@ void ParticleEmitter::UpdateParticleLifeCycle(float deltaTime)
         _particlePool[i]->SetAge(_particlePool[i]->GetAge() + deltaTime);
         if (_particlePool[i]->GetAge() >= _particleLifetime)
         {
-            _activeParticleCount--;
-            std::swap(_particlePool[i], _particlePool[_activeParticleCount]);
-            _inactiveParticleIndices.push(_activeParticleCount);
+                _activeParticleCount--;
+                std::swap(_particlePool[i], _particlePool[_activeParticleCount]);
+                _inactiveParticleIndices.push(_activeParticleCount);
+            }
         }
-    }
     if (true == _endFlag)
         return;
 
@@ -447,13 +464,29 @@ void ParticleEmitter::UpdateParticleLifeCycle(float deltaTime)
         newParticles--;
     }
 
-
-    SpriteModule* spritemodule = static_cast<SpriteModule*>(_particleRenderModule);
-    if (true == spritemodule->GetTextureChangeFlag())
+    if (ParticleType::SPRITE == _particleType)
     {
-        spritemodule->SetTextureChangeFlag(false);
-        spritemodule->LoadAlbedoTexture(spritemodule->GetNewAlbedoTexturePath());
+        SpriteModule* spritemodule = static_cast<SpriteModule*>(_particleRenderModule);
+        if (true == spritemodule->GetTextureChangeFlag())
+        {
+            spritemodule->SetTextureChangeFlag(false);
+            spritemodule->LoadAlbedoTexture(spritemodule->GetNewAlbedoTexturePath());
+            UmParticleManager.RefreshEditor();
+        }
     }
+
+    if (ParticleType::RIBBON == _particleType)
+    {
+        RibbonModule* ribbonmodule = static_cast<RibbonModule*>(_particleRenderModule);
+        if (true == ribbonmodule->GetTextureChangeFlag())
+        {
+            ribbonmodule->SetTextureChangeFlag(false);
+            ribbonmodule->LoadAlbedoTexture(ribbonmodule->GetNewAlbedoTexturePath());
+            UmParticleManager.RefreshEditor();
+
+        }
+    }
+
 
 }
 
@@ -582,11 +615,23 @@ void ParticleEmitter::ScaleVelocity(Vector3 pos)
 
 void ParticleEmitter::ScaleVelFromPoint(Vector3 pos) 
 {
-    Vector3 worldpos = {_worldMatrix._41, _worldMatrix._42, _worldMatrix._43};
-    Vector3 temp     = pos;
-    //Vector3 temp      = pos - _emitterPosition;
-    temp.Normalize();
-    _velocity = temp * _velocityFactor.x;
+    Vector3 emitterCenter;
+    if (_useWorldSpace)
+    {
+        // In world space simulation, 'pos' is the particle's world position.
+        // We need the emitter's world position to calculate the direction.
+        emitterCenter = Vector3(_worldMatrix._41, _worldMatrix._42, _worldMatrix._43);
+    }
+    else
+    {
+        // In local space simulation, 'pos' is the particle's local position.
+        // The emitter's center is the origin of the local space.
+        emitterCenter = Vector3::Zero;
+    }
+
+    Vector3 direction = pos - emitterCenter;
+    direction.Normalize();
+    _velocity = direction * _velocityFactor.x;
 }
 
 void ParticleEmitter::ScaleVelInCone(Vector3 pos) 

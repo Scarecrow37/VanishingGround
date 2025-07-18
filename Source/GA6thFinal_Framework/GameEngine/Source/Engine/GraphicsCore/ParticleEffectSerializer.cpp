@@ -100,6 +100,13 @@ void ParticleEffectSerializer::Serialize(ParticleEffect* effect, File::Path dest
         os.write(reinterpret_cast<const char*>(&nameLen), sizeof(nameLen));
         os.write(emittername.c_str(), nameLen);
 
+        //worldspaceflag
+        {
+            auto temp = emitter->GetUseWorldSpace();
+            os.write(reinterpret_cast<const char*>(&temp), sizeof(temp));
+
+        }
+
         // emitter position
         {
             auto temp = emitter->GetEmitterPosition();
@@ -363,7 +370,8 @@ ParticleEffect* ParticleEffectSerializer::Deserialize(File::Path filepath,bool i
         std::string         modelpath;
         Vector4             startnormal;
         Vector4             endnormal;
-
+        bool                useWorldSpace;
+        is.read(reinterpret_cast<char*>(&useWorldSpace), sizeof(useWorldSpace));
         is.read(reinterpret_cast<char*>(&emitterPosition), sizeof(emitterPosition));
         is.read(reinterpret_cast<char*>(&emitterRotationE), sizeof(emitterRotationE));
         is.read(reinterpret_cast<char*>(&emitterRotationQ), sizeof(emitterRotationQ));
@@ -436,6 +444,7 @@ ParticleEffect* ParticleEffectSerializer::Deserialize(File::Path filepath,bool i
                 static_cast<MeshSurfaceLocator*>(emitter->_emitLocator)->LoadVerticesFromModel(File::Path(modelpath));
             }
             emitter->SetEmitterName(emitterName);
+            emitter->SetUseWorldSpace(useWorldSpace);
             emitter->SetEmitterPosition(emitterPosition);
             emitter->SetEmitterRotationE(emitterRotationE);
             emitter->SetEmitterRotationQ(emitterRotationQ);
@@ -526,7 +535,10 @@ void ParticleEffectSerializer::PreDeserialize(File::Path filepath)
         Vector4           vortexForce;
         ParticleType      particleType;
         std::string       modelpath;
+        bool              useworldspace;
 
+
+        is.read(reinterpret_cast<char*>(&useworldspace), sizeof(useworldspace));
         is.read(reinterpret_cast<char*>(&emitterPosition), sizeof(emitterPosition));
         is.read(reinterpret_cast<char*>(&emitterRotationE), sizeof(emitterRotationE));
         is.read(reinterpret_cast<char*>(&emitterRotationQ), sizeof(emitterRotationQ));

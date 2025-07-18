@@ -69,7 +69,7 @@ struct EmitterInfo
     Vector4 endScale;
     Vector4 startColor;
     Vector4 endColor;
-    Vector4 lifetime;
+    Vector4 lifetime; // x: particle lifetime, y: useWorldSpace (1.0f for true, 0.0f for false)
     Vector4 startNormal;
     Vector4 endNormal;
 };

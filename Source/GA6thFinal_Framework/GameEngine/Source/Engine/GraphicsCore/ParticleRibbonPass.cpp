@@ -126,12 +126,22 @@ void ParticleRibbonPass::Draw(ID3D12GraphicsCommandList* commandList)
         UINT count = _ribbonIndices[i].size();
         if (0 >= count)
             continue;
+        
+        UINT verticesToDraw = 0;
+        if (count >= 2) // 최소한 2개의 인덱스가 있어야 다음 파티클 인덱스에 접근 가능 (input.vertexID + 2)
+        {
+            verticesToDraw = count - 2; 
+        }
+        
+        if (verticesToDraw == 0) // 그릴 세그먼트가 없음
+            continue;
+
         commandList->SetGraphicsRoot32BitConstants(_shader->GetRootParameterIndex("bit32_1_ribbonVertexCount"), 1, &count, 0);
 
         commandList->SetGraphicsRootShaderResourceView(_shader->GetRootParameterIndex("ribbonIndices"),
                                                        _ribbonIndexBuffer[i]->GetGPUVirtualAddress());
 
-        commandList->DrawInstanced(static_cast<UINT>(_ribbonIndices[i].size()), 1, 0, 0);
+        commandList->DrawInstanced(verticesToDraw, 1, 0, 0);
     }
 
 

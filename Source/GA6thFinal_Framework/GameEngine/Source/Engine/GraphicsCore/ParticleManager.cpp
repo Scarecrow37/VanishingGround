@@ -134,7 +134,7 @@ void ParticleManager::Update(const float deltaTime)
 
 
         _computeCommandList->SetPipelineState(_computeSpritePSO.Get());
-        _computeCommandList->SetComputeRootSignature(_computeRibbonRootSignature.Get());
+        _computeCommandList->SetComputeRootSignature(_computeSpriteRootSignature.Get());
         DispatchParticleCompute(delta);
         DispatchParticleComputeEditorMode(delta);
 
@@ -669,14 +669,17 @@ void ParticleManager::CopyActiveParticles()
                     {
                         _activeEmitterAlbedos.push_back(
                             static_cast<SpriteModule*>(emitter->_particleRenderModule)->GetAlbedoTexture());
-                        _emitterMatrix.push_back({emitter->GetWorldMatrix().Transpose(), emitter->GetDragPoint(),
+
+                        Matrix worldMatrix = emitter->GetUseWorldSpace() ? Matrix::Identity : emitter->GetWorldMatrix().Transpose();
+
+                        _emitterMatrix.push_back({worldMatrix, emitter->GetDragPoint(),
                                                   emitter->GetDragForce(), emitter->GetVortexForce(),
                                                   emitter->GetStartScale(), emitter->GetEndScale(),
                                                   Vector4(emitter->GetStartColor().x, emitter->GetStartColor().y,
                                                           emitter->GetStartColor().z, emitter->GetStartOpacity()),
                                                   Vector4(emitter->GetEndColor().x, emitter->GetEndColor().y,
                                                           emitter->GetEndColor().z, emitter->GetEndOpacity()),
-                             Vector4(emitter->GetParticleLifetime(), 0, 0, 0), Vector4(0, 0, 0, 0), Vector4(0,0,0,0)}
+                             Vector4(emitter->GetParticleLifetime(), emitter->GetUseWorldSpace() ? 1.0f : 0.0f, 0, 0), Vector4(0, 0, 0, 0), Vector4(0,0,0,0)}
                             );
                         auto& particlePool = emitter->GetParticlePool();
                         for (UINT i = 0; i < emitter->GetActiveParticleCount(); i++)
@@ -692,7 +695,10 @@ void ParticleManager::CopyActiveParticles()
                     {
                         _ribbonActiveEmitterAlbedos.push_back(
                             static_cast<RibbonModule*>(emitter->_particleRenderModule)->GetAlbedoTexture());
-                        _ribbonEmitterMatrix.push_back({emitter->GetWorldMatrix().Transpose(), emitter->GetDragPoint(),
+
+						Matrix worldMatrix = emitter->GetUseWorldSpace() ? Matrix::Identity : emitter->GetWorldMatrix().Transpose();
+
+                        _ribbonEmitterMatrix.push_back({worldMatrix, emitter->GetDragPoint(),
                                                   emitter->GetDragForce(), emitter->GetVortexForce(),
                                                   emitter->GetStartScale(), emitter->GetEndScale(),
                                                   Vector4(emitter->GetStartColor().x, emitter->GetStartColor().y,
@@ -701,8 +707,7 @@ void ParticleManager::CopyActiveParticles()
                                                           emitter->GetEndColor().z, emitter->GetEndOpacity()),
                                                   Vector4(emitter->GetParticleLifetime(), 0, 0, 0),
                              static_cast<RibbonModule*>(emitter->_particleRenderModule)->GetStartNormal(),
-                             static_cast<RibbonModule*>(emitter->_particleRenderModule)->GetEndNormal()
-                            }
+                             static_cast<RibbonModule*>(emitter->_particleRenderModule)->GetEndNormal()}
 
                             );
 
@@ -1002,7 +1007,10 @@ void ParticleManager::CopyActiveParticlesEditorMode()
             {
                 _activeEditorAlbedos.push_back(
                     static_cast<SpriteModule*>(emitter->_particleRenderModule)->GetAlbedoTexture());
-                EmitterInfo emitterinfo = {emitter->GetWorldMatrix().Transpose(),
+
+				Matrix worldMatrix = emitter->GetUseWorldSpace() ? Matrix::Identity : emitter->GetWorldMatrix().Transpose();
+
+                EmitterInfo emitterinfo = {worldMatrix,
                                            emitter->GetDragPoint(),
                                            emitter->GetDragForce(),
                                            emitter->GetVortexForce(),
@@ -1012,7 +1020,7 @@ void ParticleManager::CopyActiveParticlesEditorMode()
                                                    emitter->GetStartColor().z, emitter->GetStartOpacity()),
                                            Vector4(emitter->GetEndColor().x, emitter->GetEndColor().y,
                                                    emitter->GetEndColor().z, emitter->GetEndOpacity()),
-                                           Vector4(emitter->GetParticleLifetime(), 0, 0, 0),
+                                           Vector4(emitter->GetParticleLifetime(), emitter->GetUseWorldSpace() ? 1.0f : 0.0f, 0, 0),
                                            Vector4(0, 0, 0, 0),
                                            Vector4(0, 0, 0, 0)};
                 _editorEmitterMatrix.push_back(emitterinfo);
@@ -1030,7 +1038,10 @@ void ParticleManager::CopyActiveParticlesEditorMode()
             {
                 _ribbonActiveEditorAlbedos.push_back(
                     static_cast<RibbonModule*>(emitter->_particleRenderModule)->GetAlbedoTexture());
-                EmitterInfo emitterinfo = {emitter->GetWorldMatrix().Transpose(),
+
+				Matrix worldMatrix = emitter->GetUseWorldSpace() ? Matrix::Identity : emitter->GetWorldMatrix().Transpose();
+
+                EmitterInfo emitterinfo = {worldMatrix,
                                            emitter->GetDragPoint(),
                                            emitter->GetDragForce(),
                                            emitter->GetVortexForce(),
@@ -1040,7 +1051,7 @@ void ParticleManager::CopyActiveParticlesEditorMode()
                                                    emitter->GetStartColor().z, emitter->GetStartOpacity()),
                                            Vector4(emitter->GetEndColor().x, emitter->GetEndColor().y,
                                                    emitter->GetEndColor().z, emitter->GetEndOpacity()),
-                                           Vector4(emitter->GetParticleLifetime(), 0, 0, 0),
+                                           Vector4(emitter->GetParticleLifetime(), emitter->GetUseWorldSpace() ? 1.0f : 0.0f, 0, 0),
                                            static_cast<RibbonModule*>(emitter->_particleRenderModule)->GetStartNormal(),
                                            static_cast<RibbonModule*>(emitter->_particleRenderModule)->GetEndNormal()};
                 _ribbonEditorEmitterMatrix.push_back(emitterinfo);
