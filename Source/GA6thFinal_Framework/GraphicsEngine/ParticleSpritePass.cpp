@@ -5,9 +5,9 @@ ParticleSpritePass::ParticleSpritePass() {}
 
 ParticleSpritePass::~ParticleSpritePass() {}
 
-void ParticleSpritePass::Initialize(RenderScene* ownerScene)
+void ParticleSpritePass::Initialize(RenderScene* ownerScene, ID3D12GraphicsCommandList* commandList)
 {
-    __super::Initialize(ownerScene);
+    __super::Initialize(ownerScene, commandList);
     
     InitializeShader();
     InitializePSO();

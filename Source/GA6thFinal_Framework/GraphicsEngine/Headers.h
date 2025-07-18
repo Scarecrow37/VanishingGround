@@ -28,5 +28,6 @@
 #include "ResourceManager.h"
 #include "ViewManager.h"
 #include "CommandController.h"
+#include "AccelerationStructureManager.h"
 
 #include "DebugDrawCore.h"

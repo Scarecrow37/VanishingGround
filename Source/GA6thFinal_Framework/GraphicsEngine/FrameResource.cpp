@@ -10,6 +10,13 @@ void FrameResource::SetFrameResource(UINT index, UINT rootParametorIndex, ID3D12
     commandList->SetGraphicsRootShaderResourceView(rootParametorIndex, _structuredBuffers[index]->GetGPUVirtualAddress());
 }
 
+void FrameResource::SetRayTracingFrameResource(UINT index, UINT rootParametorIndex,
+                                               ID3D12GraphicsCommandList* commandList)
+{
+    commandList->SetComputeRootShaderResourceView(rootParametorIndex,
+                                                   _structuredBuffers[index]->GetGPUVirtualAddress());
+}
+
 void FrameResource::AddFrameResource(UINT stride, UINT numObject)
 {
     std::unique_ptr<StructuredBuffer> buffer = std::make_unique<StructuredBuffer>();

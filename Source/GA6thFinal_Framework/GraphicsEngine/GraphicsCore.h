@@ -19,6 +19,7 @@ public:
 public:
     void SetCamera(std::string_view renderSceneName, std::shared_ptr<Camera> camera);
     void SetSkyBox(std::string_view renderSceneName, std::wstring_view filePath);
+    void SetCurrentScene(std::string_view sceneName);
 
 public:
     void AddRenderScene(std::string_view sceneName, RenderTechniqueFlag flag);

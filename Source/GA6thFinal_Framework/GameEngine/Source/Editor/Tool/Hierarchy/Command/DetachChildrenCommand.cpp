@@ -22,8 +22,8 @@ bool Command::Hierarchy::DetachChildrenCommand::Execute()
             }
             targetObject->transform->DetachChildren();
             targetObject->GetScene().IsDirty = true;
+            return true;
         }
-        return true;
     }
     return false;
 }

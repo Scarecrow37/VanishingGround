@@ -9,9 +9,9 @@ UI2DPass::UI2DPass(const std::vector<UINT>& instanceIDs)
 
 UI2DPass::~UI2DPass() {}
 
-void UI2DPass::Initialize(RenderScene* ownerScene)
+void UI2DPass::Initialize(RenderScene* ownerScene, ID3D12GraphicsCommandList* commandList)
 {
-    __super::Initialize(ownerScene);
+    __super::Initialize(ownerScene, commandList);
 
     _cameraData.View = XMMatrixTranspose(XMMatrixLookAtLH({0.f, 0.f, -1.f}, {0.f, 0.f, 1.f}, {0.f, 1.f, 0.f}));
 

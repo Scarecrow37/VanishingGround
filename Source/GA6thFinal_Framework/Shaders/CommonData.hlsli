@@ -6,7 +6,7 @@
 #include "CommonSamplers.hlsli"
 
 ConstantBuffer<CameraData> cameraData : register(b0);
-ConstantBuffer<LightData>  lightData : register(b1);
+ConstantBuffer<LightData>  lightData : register(b1);    
 ConstantBuffer<NumLight>   bit32_3_numLight : register(b2);
 ConstantBuffer<ObjectData> bit32_3_objectData : register(b3);
 ConstantBuffer<PostProcessData> bit32_5_postProcessData : register(b4);

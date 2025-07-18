@@ -298,6 +298,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Scripts\Token\Enums\TokenEnums.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Critical\CriticalDamageAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Token\TokenApplyAction.h" />
     <ClInclude Include="Scripts\RevelationSystem\RevelationElement\RevelationElement.h" />

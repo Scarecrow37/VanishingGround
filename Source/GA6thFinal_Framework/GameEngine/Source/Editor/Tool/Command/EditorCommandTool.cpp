@@ -57,12 +57,13 @@ void EditorCommandTool::OnFrameRender()
     }
     ImGui::Separator();
 
-    int         total = 0;
-    int         curr  = 0;
+    _prevCommandStackSize = _currCommandStackSize;
+    size_t total = 0;
+    size_t curr  = 0;
     std::string icon  = EditorIcon::UnicodeToUTF8(0xf044);
 
     ImGuiChildFlags flags = ImGuiChildFlags_Border;
-    ImGui::BeginChild("FolderHierarchyFrame", ImVec2(0, 0), flags);
+    ImGui::BeginChild("##CommandToolChildFrame", ImVec2(0, 0), flags);
     {
         auto undoBegin = manager.UndoStackBegin();
         auto undoEnd   = manager.UndoStackEnd();
@@ -80,7 +81,7 @@ void EditorCommandTool::OnFrameRender()
                 ImGui::PushID(command.get());
                 if (ImGui::Selectable(name.c_str(), true))
                 {
-                    int queueSize     = manager.GetUndoStackSize();
+                    size_t queueSize  = manager.GetUndoStackSize();
                     _requestUndoCount = queueSize - curr;
                 }
                 ImGui::PopID();
@@ -116,6 +117,12 @@ void EditorCommandTool::OnFrameRender()
                 ImGui::PopStyleColor(2);
             }
         }
+        // 커맨드가 갱신되었으면 스크롤을 내린다.
+        _currCommandStackSize = total;
+        if (_currCommandStackSize != _prevCommandStackSize)
+        {
+            ImGui::SetScrollHereY(1.0f);
+        }
     }
     ImGui::EndChild();
 }
@@ -132,7 +139,7 @@ void EditorCommandTool::OnFrameFocusExit() {}
 
 void EditorCommandTool::OnFramePopupOpened() {}
 
-ImVec4 EditorCommandTool::GetSelectableColor(int index, ImVec4 color)
+ImVec4 EditorCommandTool::GetSelectableColor(size_t index, ImVec4 color)
 {
     // 빼거나 더할 값
     ImVec4 blend = ImVec4(0.1f, 0.1f, 0.1f, 0.0f);

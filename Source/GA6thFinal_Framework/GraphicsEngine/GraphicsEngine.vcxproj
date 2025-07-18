@@ -300,6 +300,7 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\Release\*.*" "$(SolutionDir)GameEngine\
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AccelerationStructureManager.h" />
     <ClInclude Include="Animation.h" />
     <ClInclude Include="AnimationCore.h" />
     <ClInclude Include="Animator.h" />
@@ -324,10 +325,15 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\Release\*.*" "$(SolutionDir)GameEngine\
     <ClInclude Include="DepthStencilView.h" />
     <ClInclude Include="Device.h" />
     <ClInclude Include="DownScalePass.h" />
+    <ClInclude Include="dxcapi.use.h" />
+    <ClInclude Include="DxilLibrary.h" />
+    <ClInclude Include="DXRDrawStaticMeshPass.h" />
     <ClInclude Include="DXResourceManager.h" />
+    <ClInclude Include="DXRGBufferPass.h" />
     <ClInclude Include="EditorDrawTechnique.h" />
     <ClInclude Include="EndlessGridPass.h" />
     <ClInclude Include="Enums.h" />
+    <ClInclude Include="ExportAssociation.h" />
     <ClInclude Include="Externs.h" />
     <ClInclude Include="FBXConverter.h" />
     <ClInclude Include="Font.h" />
@@ -338,14 +344,17 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\Release\*.*" "$(SolutionDir)GameEngine\
     <ClInclude Include="GeometryGenerator.h" />
     <ClInclude Include="GeometryShader.h" />
     <ClInclude Include="GeoSphere.h" />
+    <ClInclude Include="GlobalRootSignature.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="GraphicsBase.h" />
     <ClInclude Include="GraphicsCore.h" />
     <ClInclude Include="Grid.h" />
     <ClInclude Include="Headers.h" />
+    <ClInclude Include="HItProgram.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="LightCore.h" />
     <ClInclude Include="LightMapBaker.h" />
+    <ClInclude Include="LocalRootSignature.h" />
     <ClInclude Include="MeshRenderer.h" />
     <ClInclude Include="MeshShader.h" />
     <ClInclude Include="Model.h" />
@@ -362,8 +371,10 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\Release\*.*" "$(SolutionDir)GameEngine\
     <ClInclude Include="ParticleSpritePass.h" />
     <ClInclude Include="PBRLitTechnique.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="PipelineConfig.h" />
     <ClInclude Include="PixelShader.h" />
     <ClInclude Include="Quad.h" />
+    <ClInclude Include="RayTracingTechnique.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="RenderPass.h" />
     <ClInclude Include="RenderScene.h" />
@@ -372,8 +383,11 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\Release\*.*" "$(SolutionDir)GameEngine\
     <ClInclude Include="Resource.h" />
     <ClInclude Include="ResourceBase.h" />
     <ClInclude Include="ResourceManager.h" />
+    <ClInclude Include="RTPipeline.h" />
+    <ClInclude Include="RTPipelineBuilder.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderBuilder.h" />
+    <ClInclude Include="ShaderConfig.h" />
     <ClInclude Include="SharedResource.h" />
     <ClInclude Include="Skeleton.h" />
     <ClInclude Include="SkyBox.h" />
@@ -397,6 +411,7 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\Release\*.*" "$(SolutionDir)GameEngine\
     <ClInclude Include="ViewManager.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AccelerationStructureManager.cpp" />
     <ClCompile Include="Animation.cpp" />
     <ClCompile Include="AnimationCore.cpp" />
     <ClCompile Include="Animator.cpp" />
@@ -420,9 +435,14 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\Release\*.*" "$(SolutionDir)GameEngine\
     <ClCompile Include="DepthStencilView.cpp" />
     <ClCompile Include="Device.cpp" />
     <ClCompile Include="DownScalePass.cpp" />
+    <ClCompile Include="dxcapi.use.cpp" />
+    <ClCompile Include="DxilLibrary.cpp" />
+    <ClCompile Include="DXRDrawStaticMeshPass.cpp" />
     <ClCompile Include="DXResourceManager.cpp" />
+    <ClCompile Include="DXRGBufferPass.cpp" />
     <ClCompile Include="EditorDrawTechnique.cpp" />
     <ClCompile Include="EndlessGridPass.cpp" />
+    <ClCompile Include="ExportAssociation.cpp" />
     <ClCompile Include="FBXConverter.cpp" />
     <ClCompile Include="Font.cpp" />
     <ClCompile Include="FontRenderer.cpp" />
@@ -432,13 +452,16 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\Release\*.*" "$(SolutionDir)GameEngine\
     <ClCompile Include="GeometryGenerator.cpp" />
     <ClCompile Include="GeometryShader.cpp" />
     <ClCompile Include="GeoSphere.cpp" />
+    <ClCompile Include="GlobalRootSignature.cpp" />
     <ClCompile Include="GraphicsBase.cpp" />
     <ClCompile Include="GraphicsCore.cpp" />
     <ClCompile Include="GraphicsEngine.cpp" />
     <ClCompile Include="Grid.cpp" />
+    <ClCompile Include="HItProgram.cpp" />
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="LightCore.cpp" />
     <ClCompile Include="LightMapBaker.cpp" />
+    <ClCompile Include="LocalRootSignature.cpp" />
     <ClCompile Include="MeshRenderer.cpp" />
     <ClCompile Include="MeshShader.cpp" />
     <ClCompile Include="Model.cpp" />
@@ -463,8 +486,10 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\Release\*.*" "$(SolutionDir)GameEngine\
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="PipelineConfig.cpp" />
     <ClCompile Include="PixelShader.cpp" />
     <ClCompile Include="Quad.cpp" />
+    <ClCompile Include="RayTracingTechnique.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="RenderPass.cpp" />
     <ClCompile Include="RenderScene.cpp" />
@@ -472,8 +497,11 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\Release\*.*" "$(SolutionDir)GameEngine\
     <ClCompile Include="RenderTechnique.cpp" />
     <ClCompile Include="ResourceBase.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
+    <ClCompile Include="RTPipeline.cpp" />
+    <ClCompile Include="RTPipelineBuilder.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShaderBuilder.cpp" />
+    <ClCompile Include="ShaderConfig.cpp" />
     <ClCompile Include="SharedResource.cpp" />
     <ClCompile Include="Skeleton.cpp" />
     <ClCompile Include="SkyBox.cpp" />

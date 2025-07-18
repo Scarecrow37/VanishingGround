@@ -36,6 +36,8 @@ void EditorDebugTool::OnPostFrameBegin()
 
 void EditorDebugTool::OnFrameRender()
 {
+    const ImGuiIO& io = ImGui::GetIO();
+
     ImGui::InputDouble("Time scale", &engineCore->Time.TimeScale);
 
     ImGui::Text("Time : %f", engineCore->Time.Time());
@@ -55,6 +57,8 @@ void EditorDebugTool::OnFrameRender()
     ImGui::Text("FixedUnscaledDeltaTime %f", engineCore->Time.FixedUnscaledDeltaTime());
 
     ImGui::InputDouble("maximumDeltaTime", &engineCore->Time.MaximumDeltaTime);
+
+    ImGui::Text("Mouse Delta: (%.3f, %.3f)", io.MouseDelta.x, io.MouseDelta.y);
 }
 
 void EditorDebugTool::OnFrameEnd()

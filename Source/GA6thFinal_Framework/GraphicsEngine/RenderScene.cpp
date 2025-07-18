@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "RenderScene.h"
 #include "Animator.h"
+#include "DepthStencilView.h"
 #include "FrameResource.h"
 #include "Light.h"
 #include "MeshRenderer.h"
@@ -9,6 +10,7 @@
 #include "SkyBox.h"
 #include "SpriteRenderer.h"
 #include "FontRenderer.h"
+#include "AccelerationStructureManager.h"
 
 RenderScene::RenderScene(std::string_view name)
     : _skyBox{std::make_unique<SkyBox>()}
@@ -32,6 +34,8 @@ void RenderScene::SetSkyBox(std::wstring_view path)
 
 void RenderScene::InitializeRenderScene()
 {
+    Global::commandController->AddCommandSet(CommandType::DIRECT, std::filesystem::path(_name).c_str(), _commandSet);
+
     CreateCamera();
     CreateRenderTarget();
     CreateDepthStencil();
@@ -45,9 +49,15 @@ void RenderScene::InitializeRenderScene()
 
     _accumulationBuffer = MakeSharedResource<UnorderedAccessView>();
     _accumulationBuffer->Initialize(mode);
-    _accumulationBuffer->TransitionResource(Global::device->GetCommandList(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    _accumulationBuffer->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
     Global::dxResourceManager->AddResource(_accumulationBuffer);
+
+    if (Global::renderer->_isRaytracing)
+    { 
+        _accelerationStructureManager = std::make_unique<AccelerationStructureManager>();
+        _accelerationStructureManager->Initialize(10000);
+    }
 }
 
 void RenderScene::RegisterOnRenderQueue(MeshRenderer* component)
@@ -103,9 +113,8 @@ void RenderScene::RegisterOnRenderQueue(FontRenderer* component)
 
 void RenderScene::AddRenderTechnique(std::unique_ptr<RenderTechnique> technique)
 {
-    auto commandList = Global::device->GetCommandList();
     technique->SetOwnerScene(this);
-    technique->Initialize(commandList);
+    technique->Initialize(_commandSet);
     _techniques.push_back(std::move(technique));
 }
 
@@ -116,44 +125,46 @@ void RenderScene::UpdateRenderScene()
     UpdateUI();
     UpdateFont();
 
-    auto commandList = Global::device->GetCommandList();
-
-    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, FrameResourceType::TRANSFORM, _worldMatrices.data(), (UINT)_worldMatrices.size());
-    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, FrameResourceType::BONE_MATRICES, _boneMatrices.data(), (UINT)_boneMatrices.size());
-    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, FrameResourceType::MATERIAL, _materialIDs.data(), (UINT)_materialIDs.size());
-    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, FrameResourceType::UI_TRANSFORM, _uiMatrices.data(), (UINT)_uiMatrices.size());
-    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, FrameResourceType::UI_MATERIAL, _uiMaterials.data(), (UINT)_uiMaterials.size());
+    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::TRANSFORM, _worldMatrices.data(), (UINT)_worldMatrices.size());
+    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::BONE_MATRICES, _boneMatrices.data(), (UINT)_boneMatrices.size());
+    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::MATERIAL, _materialIDs.data(), (UINT)_materialIDs.size());
+    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::UI_TRANSFORM, _uiMatrices.data(), (UINT)_uiMatrices.size());
+    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::UI_MATERIAL, _uiMaterials.data(), (UINT)_uiMaterials.size());
+    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::STATIC_MESH_INSTANCE_ID, _staticMeshInstanceIDs.data(), (UINT)_staticMeshInstanceIDs.size());
+    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::SKELETAL_MESH_INSTANCE_ID, _skeletalMeshInstanceIDs.data(), (UINT)_skeletalMeshInstanceIDs.size());
 }
 
-void RenderScene::Execute(ID3D12GraphicsCommandList* commandList)
+void RenderScene::Execute()
 {
     auto  descriptorHeap = Global::viewManager->GetShaderResourceHeap();
-    commandList->SetDescriptorHeaps(1, &descriptorHeap);
+    _commandSet->SetDescriptorHeaps(1, &descriptorHeap);
 
-    _accumulationBuffer->TransitionResource(commandList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-    _accumulationBuffer->ClearUnorderedAccessView(commandList);
+    _accumulationBuffer->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+    _accumulationBuffer->ClearUnorderedAccessView(_commandSet);
 
     auto meshRenderTarget = Global::multiRenderTargetManager->GetRenderTarget(_meshRenderTargetName);
-    meshRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    meshRenderTarget->ClearRenderTarget(commandList);
+    meshRenderTarget->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    meshRenderTarget->ClearRenderTarget(_commandSet);
 
     const auto& gBuffers = Global::multiRenderTargetManager->GetRenderTargetGroup("GBuffer");
     for (auto& buffer : gBuffers)
     {
-        buffer->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
-        buffer->ClearRenderTarget(commandList);
+        buffer->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_RENDER_TARGET);
+        buffer->ClearRenderTarget(_commandSet);
     }
 
-    _depthStencilView->TransitionResource(commandList, D3D12_RESOURCE_STATE_DEPTH_WRITE);
-    _depthStencilView->ClearDepthStencilView(commandList);
+    _depthStencilView->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+    _depthStencilView->ClearDepthStencilView(_commandSet);
 
     for (auto& tech : _techniques)
     {
-        tech->Execute(commandList);
+        tech->Execute(_commandSet);
     }
 
-    _depthStencilView->TransitionResource(commandList, D3D12_RESOURCE_STATE_PRESENT);
+    _depthStencilView->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_PRESENT);
 
+    _commandSet->Close();
+    Global::commandController->ExecuteCommand(CommandQueueType::GRAPHICS_QUEUE, _commandSet);
 }
 
 void RenderScene::ResetSkyBox()
@@ -172,7 +183,13 @@ void RenderScene::UpdateGlobal()
                           .ProejctionInverse = XMMatrixTranspose(_camera->GetProjectionInverseMatrix()),
                           .Position          = Vector4(_camera->GetPosition())};
 
+    CameraData RaycameraData{.View           = _camera->GetViewMatrix(),
+                          .Projection        = _camera->GetProjectionMatrix(),
+                          .ViewInverse       = _camera->GetWorldMatrix(),
+                          .ProejctionInverse = _camera->GetProjectionInverseMatrix(),
+                          .Position          = Vector4(_camera->GetPosition())};
     auto& lights = Global::lightCore->GetLights(_name.c_str());
+       
 
     _numLight = {};
     for (auto& [isDestroy, light] : lights)
@@ -195,6 +212,7 @@ void RenderScene::UpdateGlobal()
     }
 
     _cameraBuffer->UpdateBuffer(&cameraData);
+    _RaycameraBuffer->UpdateBuffer(&RaycameraData);
     _lightBuffer->UpdateBuffer(_lightDatas.data());
 }
 
@@ -206,6 +224,9 @@ void RenderScene::UpdateObject()
     _worldMatrices.clear();
     _boneMatrices.clear();
     _materialIDs.clear();
+    _staticMeshInstanceIDs.clear();
+    _skeletalMeshInstanceIDs.clear();
+    UINT instanceID = 0;
     for (auto& [isDestroy, component] : _meshRenderQueue)
     {
         if (!component->IsActive())
@@ -230,7 +251,6 @@ void RenderScene::UpdateObject()
         }
 
         UINT size = (UINT)meshes.size();
-
         for (UINT i = 0; i < size; i++)
         {
             _worldMatrices.push_back(world);
@@ -242,6 +262,42 @@ void RenderScene::UpdateObject()
                 materialID.ID[j] = textures[i][j]->GetID();
             }
             _materialIDs.push_back(materialID);
+            if (MeshRenderType::STATIC == type)
+            {
+                _staticMeshInstanceIDs.push_back(instanceID);
+            }
+            else if (MeshRenderType::SKELETAL == type)
+            {
+                _skeletalMeshInstanceIDs.push_back(instanceID);
+            }
+            instanceID++;
+        }
+    }
+    ClassifyMesh();
+}
+
+void RenderScene::ClassifyMesh()
+{
+    _staticMesh.clear();
+    _skeletalMesh.clear();
+    for (auto& [isDestroy,component] : _meshRenderQueue)
+    {
+        if (!component->IsActive())
+            continue;
+        const auto& model = component->GetModel();
+        if (!model)
+            continue;
+
+        switch (component->GetType())
+        {
+        case MeshRenderType::STATIC:
+            _staticMesh.push_back(component);
+            break;
+        case MeshRenderType::SKELETAL:
+            _skeletalMesh.push_back(component);
+            break;
+        default:
+            break;
         }
     }
 }
@@ -305,7 +361,6 @@ void RenderScene::UpdateFont()
 void RenderScene::CreateRenderTarget()
 {
     auto                          mode                     = Global::device->GetMode();
-    auto                          commandList              = Global::device->GetCommandList();
     auto&                         multiRenderTargetManager = Global::multiRenderTargetManager;
     SharedResource<RenderTarget>  renderTarget;
     mode.Format           = DXGI_FORMAT_R32G32B32A32_FLOAT;
@@ -313,14 +368,14 @@ void RenderScene::CreateRenderTarget()
     _meshRenderTargetName = _name + "_MeshRenderTarget";
     renderTarget          = MakeSharedResource<RenderTarget>();
     renderTarget->Initialize(mode, 0.247f);
-    renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    renderTarget->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
     multiRenderTargetManager->AddRenderTarget(_meshRenderTargetName, renderTarget);
 
     _finalTargetName = _name + "_FinalTarget";
     renderTarget     = MakeSharedResource<RenderTarget>();
     renderTarget->Initialize(mode, 0.247f);
-    renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    renderTarget->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
     multiRenderTargetManager->AddRenderTarget(_finalTargetName, renderTarget);
 }
@@ -359,10 +414,26 @@ void RenderScene::CreateFrameResource()
 
         // UI Material
         _frameResources[i]->AddFrameResource(sizeof(XMMATRIX), MAX_OBJECTS);
+
+        // Vertex Buffer ID
+        _frameResources[i]->AddFrameResource(sizeof(VertexBufferID), MAX_OBJECTS);
+
+        // Index Buffer ID
+        _frameResources[i]->AddFrameResource(sizeof(IndexBufferID), MAX_OBJECTS);
+
+        // Static Mesh Instance ID
+        _frameResources[i]->AddFrameResource(sizeof(StaticMeshInstanceID), MAX_OBJECTS);
+        
+        // Skeletal Mesh Instance ID
+        _frameResources[i]->AddFrameResource(sizeof(SkeletalMeshInstanceID), MAX_OBJECTS);
     }
 
     _cameraBuffer = std::make_unique<ConstantBufferView>();
-    _cameraBuffer->Initialize(sizeof(CameraData));
+    UINT alignedSize =(sizeof(CameraData) + 255) & ~255;
+    _cameraBuffer->Initialize(alignedSize);
+
+    _RaycameraBuffer = std::make_unique<ConstantBufferView>();
+    _RaycameraBuffer->Initialize(alignedSize);
 
     _lightBuffer = std::make_unique<ConstantBufferView>();
     _lightBuffer->Initialize(sizeof(LightData) * MAX_LIGHT);

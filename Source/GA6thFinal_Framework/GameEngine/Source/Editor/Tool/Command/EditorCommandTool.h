@@ -34,11 +34,14 @@ private:
     virtual void OnFramePopupOpened();
 
 private:
-    ImVec4 GetSelectableColor(int index, ImVec4 color);
+    ImVec4 GetSelectableColor(size_t index, ImVec4 color);
 
 private:
-    int _requestUndoCount = 0;
-    int _requestRedoCount  = 0;
+    size_t _requestUndoCount = 0;
+    size_t _requestRedoCount  = 0;
+
+    size_t _prevCommandStackSize = 0;
+    size_t _currCommandStackSize = 0;
 
     ImVec4 _tableDefaultColor = ImVec4(0.4f, 0.4f, 0.4f, 0.8f);
     ImVec4 _tableHoveredColor = ImVec4(0.6f, 0.6f, 0.6f, 0.8f);

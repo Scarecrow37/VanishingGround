@@ -12,9 +12,9 @@ public:
     void Execute(ID3D12GraphicsCommandList* commandList) override;
 
 private:
-    void InitializeSpriteParticlePass();
-    void InitializeRibbonParticlePass();
-    void InitializeParticleResolvePass();
+    void InitializeSpriteParticlePass(ID3D12GraphicsCommandList* commandList);
+    void InitializeRibbonParticlePass(ID3D12GraphicsCommandList* commandList);
+    void InitializeParticleResolvePass(ID3D12GraphicsCommandList* commandList);
 
     void CreateWBOITResources();  // 리소스 생성
     void ReleaseWBOITResources(); // 필요 시 자원 해제

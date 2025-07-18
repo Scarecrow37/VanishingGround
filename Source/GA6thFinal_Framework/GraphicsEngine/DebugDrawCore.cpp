@@ -56,7 +56,7 @@ void DebugDrawCore::Initialize()
         MessageBoxA(nullptr, e.what(), "BasicEffect 생성 실패", MB_OK);
     }
 
-    _commandSet = Global::commandController->AddCommandSet(CommandType::DIRECT, CommandQueueType::GRAPHICS_QUEUE, L"DebugDrawCore");
+    Global::commandController->AddCommandSet(CommandType::DIRECT, L"DebugDrawCore", _commandSet);
 }
 
 void DebugDrawCore::Render()

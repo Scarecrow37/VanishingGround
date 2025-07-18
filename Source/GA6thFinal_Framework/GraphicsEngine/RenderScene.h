@@ -8,6 +8,7 @@ class MeshRenderer;
 class SkyBox;
 class SpriteRenderer;
 class FontRenderer;
+class AccelerationStructureManager;
 class RenderScene
 {
 public:
@@ -32,9 +33,8 @@ public:
 
 public:
     void UpdateRenderScene();
-    void RenderOnBackBuffer(ID3D12GraphicsCommandList* commandList);
-    void RenderOnEditor(ID3D12GraphicsCommandList* commandList);
-    void Execute(ID3D12GraphicsCommandList* commandList);
+    void ClassifyMesh();
+    void Execute();
 
 public:
     void ResetSkyBox();
@@ -52,6 +52,8 @@ private:
     void CreateCamera();
 
 public:
+    std::unique_ptr<AccelerationStructureManager> _accelerationStructureManager;
+
     std::string _name;
     std::string _meshRenderTargetName;
     std::string _finalTargetName;
@@ -61,6 +63,12 @@ public:
     std::vector<std::pair<std::unique_ptr<bool>, SpriteRenderer*>> _uiRenderQueue;
     std::vector<std::pair<std::unique_ptr<bool>, FontRenderer*>>   _fontRenderQueue;
 
+    CommandSet _commandSet;
+
+    // mesh 분리
+    std::vector<MeshRenderer*> _staticMesh;
+    std::vector<MeshRenderer*> _skeletalMesh;
+
     // Frame Resource
     std::vector<std::unique_ptr<FrameResource>> _frameResources;
     std::vector<LightData>                      _lightDatas;
@@ -69,6 +77,8 @@ public:
     std::vector<MaterialID>                     _materialIDs;
     std::vector<XMMATRIX>                       _uiMatrices;
     std::vector<UIMaterial>                     _uiMaterials;
+    std::vector<StaticMeshInstanceID>           _staticMeshInstanceIDs;
+    std::vector<SkeletalMeshInstanceID>         _skeletalMeshInstanceIDs;
     std::shared_ptr<Camera>                     _camera;
     NumLight                                    _numLight;
 
@@ -79,6 +89,7 @@ public:
 
     // Buffers
     std::unique_ptr<ConstantBufferView> _cameraBuffer;
+    std::unique_ptr<ConstantBufferView> _RaycameraBuffer;
     std::unique_ptr<ConstantBufferView> _lightBuffer;
     ComPtr<ID3D12PipelineState>         _framePSO;
 

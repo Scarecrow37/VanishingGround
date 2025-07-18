@@ -18,9 +18,11 @@ enum class MeshRenderType { STATIC, SKELETAL, };
 
 enum GBuffer { BASECOLOR, NORMAL, ORM, EMISSIVE, WORLDPOSITION, DEPTH, CUSTOMDEPTH, GBUFFER_END };
 
+enum DXRGBuffer { DXRNORMAL, DXRWORLDPOSITION, DXRDEPTH, DXRCUSTOMDEPTH, DXRGBUFFER_END };
 enum CommandQueueType { GRAPHICS_QUEUE, COMPUTE_QUEUE, COPY_QUEUE, COMMAND_QUEUE_END };
 
-enum FrameResourceType { TRANSFORM, BONE_MATRICES, MATERIAL, UI_TRANSFORM, UI_MATERIAL, FRAME_TYPE_END };
+enum FrameResourceType { TRANSFORM, BONE_MATRICES, MATERIAL, UI_TRANSFORM, UI_MATERIAL, VERTEX_BUFFER_ID, INDEX_BUFFER_ID, STATIC_MESH_INSTANCE_ID, SKELETAL_MESH_INSTANCE_ID, FRAME_TYPE_END };
+
 
 enum SpriteType { MODE_2D, MODE_25D, MODE_3D, SPRITE_TYPE_END };
 
@@ -40,9 +42,16 @@ enum RenderTechniqueFlag : unsigned long long
     FONT_TECH        = 1 << 4,
     EDITOR_DRAW_TECH = 1 << 5,
     PARTICLE_TECH    = 1 << 6,
+    RAY_TRACING_TECH = 1 << 7,
 };
 
 inline RenderTechniqueFlag operator|(RenderTechniqueFlag lhs, RenderTechniqueFlag rhs)
 {
     return static_cast<RenderTechniqueFlag>(static_cast<unsigned long long>(lhs) | static_cast<unsigned long long>(rhs));
+}
+
+inline RenderTechniqueFlag& operator|=(RenderTechniqueFlag& lhs, RenderTechniqueFlag rhs)
+{
+    lhs = lhs | rhs;
+    return lhs;
 }

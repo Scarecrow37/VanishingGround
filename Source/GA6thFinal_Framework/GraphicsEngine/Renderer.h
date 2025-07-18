@@ -27,6 +27,7 @@ public:
 
 public:
     void SetCamera(std::string_view renderSceneName, std::shared_ptr<Camera> camera);
+    void SetCurrentScene(std::string_view sceneName);
 
 public:
     void AddRenderScene(std::string_view sceneName, RenderTechniqueFlag flag);
@@ -44,6 +45,9 @@ public:
     void Flip();
 
 private:
+    void RenderToBackBuffer();
+
+private:
     void CreateDefaultResource();
     void CreateDefaultGeometry();
     void CreateDefaultTexture();
@@ -52,4 +56,13 @@ private:
 private:
     std::unordered_map<std::string, std::unique_ptr<RenderScene>> _renderScenes;
     std::list<std::shared_ptr<Resource>>                          _defaultResource;
+    std::string_view                                              _currentSceneName;
+
+    // Scene To BackBuffer
+    ComPtr<ID3D12PipelineState>                                   _pipelineState;
+    std::unique_ptr<ShaderBuilder>                                _shader;
+    BaseMesh*                                                     _frameQuad;
+
+public:
+    bool _isRaytracing = false;
 };
