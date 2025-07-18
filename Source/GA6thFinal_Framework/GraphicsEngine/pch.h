@@ -27,6 +27,13 @@
 #include "directxtk12/SimpleMath.h"
 #include "directxtk12/SpriteBatch.h"
 #include "directxtk12/SpriteFont.h"
+#include "DirectXTex.h"
+
+#include <d3dcompiler.h>
+#include <dbghelp.h>
+#include <dxcapi.h>
+#include <dxgi1_4.h>
+#include <dxgi1_6.h>
 
 #include "DirectXTex.h"
 
