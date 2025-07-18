@@ -31,7 +31,7 @@ class Token : public ReflectSerializer, public IToken
 public:
     Token();
     virtual ~Token();
-    REFLECT_PROPERTY(IconGuid, Order, MaxStackCount)
+    REFLECT_PROPERTY(IconGuid, Order, Tag, MaxStackCount)
 
     GETTER(std::string_view, IconGuid) { return ReflectFields->IconGuid; }
     SETTER(std::string_view, IconGuid) { ReflectFields->IconGuid = value; }
@@ -39,6 +39,9 @@ public:
     GETTER(int, Order) { return ReflectFields->Order; }
     SETTER(int, Order) { SetTokenOrder(value); }
     PROPERTY(Order)
+    GETTER(TokenTag, Tag) { return ReflectFields->Tag; }
+    SETTER(TokenTag, Tag) { ReflectFields->Tag = value; }
+    PROPERTY(Tag)
     GETTER(int, MaxStackCount) { return ReflectFields->MaxStackCount; }
     SETTER(int, MaxStackCount) { SetMaxStackCount(value); }
     PROPERTY(MaxStackCount)

@@ -53,19 +53,20 @@ private:
     void ImGuiDrawMenuBar();
 
 public:
-    /// <summary>
-    /// 토큰 ID를 통해 토큰 인스턴스를 생성합니다.
-    /// </summary>
-    /// <param name="tokenID">생성할 토큰의 ID</param>
-    /// <returns>생성된 토큰의 주소 값</returns>
-    static bool CreateTokenInstanceFromID(int tokenID, Token** ppToken);
 
     /// <summary>
-    /// 토큰 Name을 통해 토큰 인스턴스를 생성합니다.
+    /// TokenInstance를 ID로 가져옵니다.
     /// </summary>
-    /// <param name="tokenName">생성할 토큰의 Name</param>
-    /// <returns>생성된 토큰의 주소 값</returns>
-    static bool CreateTokenInstanceFromName(std::string_view tokenName, Token** ppToken);
+    /// <param name="tokenID">Token의 ID값</param>
+    /// <returns>해당 ID에 맞는 IToken 인스턴스 포인터</returns>
+    static IToken* GetTokenFromID(int tokenID);
+
+    /// <summary>
+    /// TokenInstance를 이름으로 가져옵니다.
+    /// </summary>
+    /// <param name="name">Token의 Name값</param>
+    /// <returns>해당 Name에 맞는 IToken 인스턴스 포인터</returns>
+    static IToken* GetTokenFromName(std::string_view name);
 
     /// <summary>
     /// 토큰 이름을 통해 토큰 ID를 가져옵니다.
@@ -100,20 +101,6 @@ public:
     template <typename T>
     static bool RegisterTokenFactory();
 
-    /// <summary>
-    /// TokenInstance를 ID로 가져옵니다.
-    /// </summary>
-    /// <param name="tokenID">Token의 ID값</param>
-    /// <returns>해당 ID에 맞는 IToken 인스턴스 포인터</returns>
-    static IToken* GetTokenFromID(int tokenID);
-
-    /// <summary>
-    /// TokenInstance를 이름으로 가져옵니다.
-    /// </summary>
-    /// <param name="name">Token의 Name값</param>
-    /// <returns>해당 Name에 맞는 IToken 인스턴스 포인터</returns>
-    static IToken* GetTokenFromName(std::string_view name);
-
 private:    
     /////////////////////////////////////////////////////////////
     // !!! Internal only !!!
@@ -124,6 +111,10 @@ private:
     static Token* GetTokenFromNameEx(std::string_view name);
     /// <summary> 토큰 리스트를 정렬합니다.(오름차순) </summary>
     static void SortByOrder();
+    /// <summary>토큰 ID를 통해 토큰 인스턴스를 생성합니다.</summary>
+    static bool CreateTokenInstanceFromID(int tokenID, Token** ppToken);
+    /// <summary>토큰 Name을 통해 토큰 인스턴스를 생성합니다.</summary>
+    static bool CreateTokenInstanceFromName(std::string_view tokenName, Token** ppToken);
 
 private:
     bool    _isOpenEditor = false;
