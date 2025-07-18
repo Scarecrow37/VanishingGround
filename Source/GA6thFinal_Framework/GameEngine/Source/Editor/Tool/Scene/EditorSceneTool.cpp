@@ -127,10 +127,6 @@ void EditorSceneTool::OnFrameEnd()
 {
 }
 
-void EditorSceneTool::OnFrameFocusEnter() 
-{
-}
-
 void EditorSceneTool::OnFrameFocusStay()
 {
     _camera->Update();
