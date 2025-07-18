@@ -122,6 +122,7 @@ void EditorSceneTool::OnFrameRender()
     DrawManipulate();
     RayPicker();
     VertexSnap();
+    UpdateKeyboardFrameRender();
 }
 
 void EditorSceneTool::OnFrameEnd()
@@ -131,7 +132,7 @@ void EditorSceneTool::OnFrameEnd()
 void EditorSceneTool::OnFrameFocusStay()
 {
     _camera->Update();
-    UpdateKeyboardShortcuts();
+    UpdateKeyboardFrameFocus();
 }
     
 void EditorSceneTool::DragDropEvent() 
@@ -200,7 +201,7 @@ void EditorSceneTool::SetCamera()
         ReflectFields->CameraFarZ);
 }
 
-void EditorSceneTool::UpdateKeyboardShortcuts()
+void EditorSceneTool::UpdateKeyboardFrameFocus()
 {
     if (true == _isDrawedManipulate)
     {
@@ -226,20 +227,26 @@ void EditorSceneTool::UpdateKeyboardShortcuts()
                     _drawManipulateDesc.Mode = ImGuizmo::MODE::LOCAL;
                 }
             }
-
-            if (ImGui::IsKeyPressed(ImGuiKey_F, false))
-            {
-                auto wPtrFocused = EditorHierarchyTool::GetFocusObject();
-                SetCameraToObject(wPtrFocused);
-            }
         }  
+    }
+}
+
+void EditorSceneTool::UpdateKeyboardFrameRender() 
+{
+    if (_isDrawedManipulate)
+    {
+        if (ImGui::IsKeyPressed(ImGuiKey_F, false))
+        {
+            auto wPtrFocused = EditorHierarchyTool::GetFocusObject();
+            SetCameraToObject(wPtrFocused);
+        }
     }
 }
 
 void EditorSceneTool::DrawManipulate() 
 {
-    _isDrawedManipulate = false;
-    if (false == _manipulateObject.expired())
+    _isDrawedManipulate = false == _manipulateObject.expired();
+    if (true == _isDrawedManipulate)
     {
         auto pObject = _manipulateObject.lock();
         if (pObject->IsValid())
@@ -343,7 +350,6 @@ void EditorSceneTool::DrawManipulate()
                         UmCommandManager.Do<Command::EditorScene::DuplicateCommand>(pObject.get());
                     }
                 }
-                _isDrawedManipulate = true;
             }
         }
     }
@@ -543,13 +549,13 @@ void EditorSceneTool::DrawSceneView()
         ImGui::SameLine();
     }
     ImageButtonToggleSetting();
-    if (_camera)
+    if (_camera && showSettings)
     {
         float moveSpeed     = _camera->GetMoveSpeed();
         float rotationSpeed = _camera->GetRotationSpeed();
         int   pushCount     = 0;
         // 움직인 경우에만 알파를 낮춤
-        if (_camera && true == _camera->IsMoved())
+        if (true == ImGui::IsKeyDown(ImGuiKey_MouseRight) && IsFocusFrame())
         {
             ImGuiStyle& style   = ImGui::GetStyle();
             ImVec4      bgCol   = style.Colors[ImGuiCol_FrameBg];
@@ -586,6 +592,7 @@ void EditorSceneTool::DrawSceneView()
         }
         _camera->SetMoveSpeed(moveSpeed);
         _camera->SetRotationSpeed(rotationSpeed);
+        UpdateReflectFields();
     }
 }
 

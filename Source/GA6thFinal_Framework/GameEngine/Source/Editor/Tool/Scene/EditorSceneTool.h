@@ -37,7 +37,8 @@ private:
     void OnFrameFocusStay() override;
 
 private:
-    void UpdateKeyboardShortcuts();
+    void UpdateKeyboardFrameFocus();
+    void UpdateKeyboardFrameRender();
     void DragDropEvent();
     void SetMoveFlag();
     void SetCamera();

@@ -66,15 +66,18 @@ void EditorHierarchyTool::TransformTreeNode(Transform& node, const std::shared_p
                 Transform* prevParent = data->pTransform->Parent;
                 auto targetObject = data->pTransform->gameObject->GetWeakPtr();
                 auto currObject   = node.gameObject->GetWeakPtr();
-                if (nullptr != prevParent)
+                if (prevParent != data->pTransform)
                 {
-                    auto prevObject = prevParent->gameObject->GetWeakPtr();
-                    UmCommandManager.Do<Command::Hierarchy::SetParentCommand>(targetObject, prevObject, currObject);
-                }
-                else
-                {
-                    UmCommandManager.Do<Command::Hierarchy::SetParentCommand>(targetObject, nullptr, currObject);
-                }            
+                    if (nullptr != prevParent)
+                    {
+                        auto prevObject = prevParent->gameObject->GetWeakPtr();
+                        UmCommandManager.Do<Command::Hierarchy::SetParentCommand>(targetObject, prevObject, currObject);
+                    }
+                    else
+                    {
+                        UmCommandManager.Do<Command::Hierarchy::SetParentCommand>(targetObject, nullptr, currObject);
+                    }  
+                } 
             }
             ImGui::EndDragDropTarget();
         }
