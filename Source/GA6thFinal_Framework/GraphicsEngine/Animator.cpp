@@ -266,13 +266,13 @@ void Animator::Update(const float deltaTime)
 	}
 }
 
-void Animator::ChangeAnimation(const char* animation)
+void Animator::ChangeAnimation(const char* animation, bool blending)
 {
 	for (unsigned int i = 0; i < _maxSplit; i++)
-		ChangeAnimation(animation, i);
+		ChangeAnimation(animation, i, blending);
 }
 
-void Animator::ChangeAnimation(const char* animation, const unsigned int ID)
+void Animator::ChangeAnimation(const char* animation, const unsigned int ID, bool blending)
 {
 	auto iter = _animation->_animations.find(animation);
 	if (iter == _animation->_animations.end())
@@ -281,14 +281,17 @@ void Animator::ChangeAnimation(const char* animation, const unsigned int ID)
 	if (!strcmp(_controllers[ID].Animation.data(), animation))
 		return;
 
-	_isBlending = true;
-	_blends[ID].BlendTime = 0.f;
-	_blends[ID].IsBlending = true;
+	_isBlending = blending;
+    if (true == _isBlending)
+    {
+        _blends[ID].BlendTime  = 0.f;
+        _blends[ID].IsBlending = true;
 
-	_prevControllers[ID] = _controllers[ID];
-	_controllers[ID].Animation = iter->first;
-	_controllers[ID].PlayTime = 0.f;
-	_controllers[ID].LastTime = iter->second.LastTime;
+        _prevControllers[ID] = _controllers[ID];
+    }
+    _controllers[ID].Animation = iter->first;
+    _controllers[ID].PlayTime  = 0.f;
+    _controllers[ID].LastTime  = iter->second.LastTime;
 }
 
 void Animator::SyncPartialAnimation(unsigned int parentID, unsigned int childID)

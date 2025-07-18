@@ -181,7 +181,7 @@ void SkeletalMeshRenderer::SetCurrentAnimation(std::string_view animKey)
         const auto& animator       = Renderer->GetAnimator();
         const auto& animation      = model->GetAnimation();
         const auto& animationNames = animation->GetAnimations();
-        animator->ChangeAnimation(ReflectFields->CurrentAnimationKey.c_str());
+        animator->ChangeAnimation(ReflectFields->CurrentAnimationKey.c_str(), false);
         SetAnimationFrame(0.0f);
     }
 }
