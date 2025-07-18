@@ -5,11 +5,6 @@
 #define NOMINMAX
 #include <algorithm>
 #include <array>
-#include <d3dcompiler.h>
-#include <dbghelp.h>
-#include <dxgi1_4.h>
-#include <dxgi1_6.h>
-#include <dxcapi.h>
 #include <filesystem>
 #include <fstream>
 #include <memory>
@@ -26,13 +21,20 @@
 #include <windows.h>
 #include <wrl.h>
 
-#include "DirectXTex.h"
+#include "directx/d3dcommon.h"
 #include "directx/d3dx12.h"
 #include "directxtk12/DebugDraw.h"
 #include "directxtk12/ResourceUploadBatch.h"
 #include "directxtk12/SimpleMath.h"
 #include "directxtk12/SpriteBatch.h"
 #include "directxtk12/SpriteFont.h"
+#include "DirectXTex.h"
+
+#include <d3dcompiler.h>
+#include <dbghelp.h>
+#include <dxcapi.h>
+#include <dxgi1_4.h>
+#include <dxgi1_6.h>
 
 #ifdef _DEBUG
 #pragma comment(lib, "DirectXTex_d.lib")
