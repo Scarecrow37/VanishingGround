@@ -20,22 +20,22 @@ public:
     }
 
     void Undo();
-    void Undo(UINT cnt);
+    void Undo(size_t cnt);
     bool Undo(CommandQueue::const_iterator itr);
 
     void Redo();
-    void Redo(UINT cnt);
+    void Redo(size_t cnt);
     bool Redo(CommandQueue::const_iterator itr);
 
     void Clear();
 
     void SetMaxCommandSize(size_t size);
 
-    inline const std::shared_ptr<UmCommand>& GetCommandFromUndoStack(int index) const { return _undoStack[index]; }
-    inline const std::shared_ptr<UmCommand>& GetCommandFromRedoStack(int index) const { return _redoStack[index]; }
+    inline const std::shared_ptr<UmCommand>& GetCommandFromUndoStack(size_t index) const { return _undoStack[index]; }
+    inline const std::shared_ptr<UmCommand>& GetCommandFromRedoStack(size_t index) const { return _redoStack[index]; }
 
-    inline int GetUndoStackSize() const { return static_cast<int>(_undoStack.size()); }
-    inline int GetRedoStackSize() const { return static_cast<int>(_redoStack.size()); }
+    inline size_t GetUndoStackSize() const { return _undoStack.size(); }
+    inline size_t GetRedoStackSize() const { return _redoStack.size(); }
 
     inline const auto UndoStackBegin() const { return _undoStack.begin(); }
     inline const auto UndoStackEnd() const { return _undoStack.end(); }
