@@ -2,6 +2,7 @@
 #include "Particle.h"
 #include "ParticleEmitter.h"
 #include "Model.h"
+/////////////////////////////////////////////////
 void EmitLocator::RandomInitialize() 
 {
     _randomGenerator = std::mt19937(_randomizer());
@@ -9,24 +10,10 @@ void EmitLocator::RandomInitialize()
     _randomVal       = std::bind(_randomRange, _randomGenerator);
 }
 
-DirectX::SimpleMath::Vector3 SphereLocator::EmitLocate()
-{
-  
-   // 방향 벡터 생성 (단위 구면에서 균등 분포)
-    Vector3 direction;
-    do
-    {
-        direction = {_randomVal(), _randomVal(), _randomVal()};
-    } while (direction.LengthSquared() > 1.0f);
-    direction.Normalize();
-
-    // 균등한 반지름 분포 (r³이 균등)
-    float u      = (_randomVal() + 1.0f) * 0.5f; // [0,1] 범위로 변환
-    float radius = pow(u, 1.0f / 3.0f);
-
-    Vector3 location = direction * radius;
-    return {location.x * _factor.x, location.y * _factor.y, location.z * _factor.z};
-}
+ MeshSurfaceLocator::~MeshSurfaceLocator() 
+ {
+     _targetModel = nullptr;
+ }
 
 DirectX::SimpleMath::Vector3 CubeLocator::EmitLocate() 
 {
@@ -91,10 +78,24 @@ DirectX::SimpleMath::Vector3 TorusLocator::EmitLocate()
     return location;
 }
 
- MeshSurfaceLocator::~MeshSurfaceLocator() 
- {
-     _targetModel = nullptr;
- }
+DirectX::SimpleMath::Vector3 SphereLocator::EmitLocate()
+{
+  
+   // 방향 벡터 생성 (단위 구면에서 균등 분포)
+    Vector3 direction;
+    do
+    {
+        direction = {_randomVal(), _randomVal(), _randomVal()};
+    } while (direction.LengthSquared() > 1.0f);
+    direction.Normalize();
+
+    // 균등한 반지름 분포 (r³이 균등)
+    float u      = (_randomVal() + 1.0f) * 0.5f; // [0,1] 범위로 변환
+    float radius = pow(u, 1.0f / 3.0f);
+
+    Vector3 location = direction * radius;
+    return {location.x * _factor.x, location.y * _factor.y, location.z * _factor.z};
+}
 
 DirectX::SimpleMath::Vector3 MeshSurfaceLocator::EmitLocate() 
 {
@@ -132,25 +133,40 @@ DirectX::SimpleMath::Vector3 MeshSurfaceLocator::EmitLocate()
         return {0, 0, 0};
 }
 
-void MeshSurfaceLocator::LoadVerticesFromModel(const std::filesystem::path& modelPath)
+void MeshSurfaceLocator::SetModelPath(std::wstring_view filepath) 
 {
-    _targetModelPath = modelPath;
+    _targetModelPath = filepath;
+}
 
-    _targetModel = Global::resourceManager->LoadResource<Model>(modelPath.string());
+void MeshSurfaceLocator::LoadVerticesFromModel(std::shared_ptr<class Model> model) 
+{
+    _targetModel = std::move(model);
     _vertexCountPerMesh.clear();
     for (auto& mesh : _targetModel->GetMeshes())
     {
         char* tempvertex;
-        UINT    stride;
-        UINT    size;
-        mesh->GetVertexInfo(tempvertex,stride, size);
+        UINT  stride;
+        UINT  size;
+        mesh->GetVertexInfo(tempvertex, stride, size);
         _vertexCountPerMesh.push_back(size);
         _totalVertexCount += size;
-
     }
-
-
 }
+
+void SpriteModule::Initialize()
+{
+    
+}
+
+void RibbonModule::Initialize() 
+{
+}
+
+
+ SpriteModule::~SpriteModule() 
+ {
+     _albedoTexture = nullptr;
+ }
 
 void SpriteModule::SetFrameInfo(Vector4 frameInfo) 
 {
@@ -165,46 +181,15 @@ void SpriteModule::SetFrameInfo(int widthCount, int heightCount, int startIndex,
     CalculateFrameInfos();
 }
 
-void SpriteModule::LoadAlbedoTexture(std::wstring filePath) 
-{
-    _albedoTexture = Global::resourceManager->LoadResource<Texture>(filePath);
-}
-
-void SpriteModule::ChangeAlbedoTexture(std::wstring filePath) 
-{
-    _isAlbedoTextureChanged = true;
-    _newAlbedoTexturePath = filePath;
-}
-
-void SpriteModule::LoadNormalTexture(std::wstring filePath) 
-{
-    _albedoTexture = Global::resourceManager->LoadResource<Texture>(filePath);
-    _modelAndTexturePath = filePath;
-}
 
 DirectX::SimpleMath::Vector4 SpriteModule::GetInitialFrameInfo() const 
 {
     return _initialFrameInfo;
 }
 
-Texture* SpriteModule::GetAlbedoTexture() const
-{
-    return _albedoTexture.get();
-}
-
 Texture* SpriteModule::GetNormalTexture() const 
 {
     return _normalTexture.get();
-}
-
- SpriteModule::~SpriteModule() 
- {
-     _albedoTexture = nullptr;
- }
-
-void SpriteModule::Initialize()
-{
-    LoadAlbedoTexture(_modelAndTexturePath);
 }
 
 void SpriteModule::CalculateFrameInfos() 
@@ -227,26 +212,37 @@ void SpriteModule::CalculateFrameInfos()
 }
 
 
-/////////////////////////////////////////////////
 RibbonModule::~RibbonModule() 
 {
     _albedoTexture = nullptr;
 }
 
-void RibbonModule::Initialize() 
+void SpriteModule::SetAlbedoTexture(std::shared_ptr<class Texture> texture) 
 {
-    LoadAlbedoTexture(_modelAndTexturePath);
+    _albedoTexture = std::move(texture);
 }
 
-void RibbonModule::LoadAlbedoTexture(std::wstring filePath) 
+void RibbonModule::SetAlbedoTexture(std::shared_ptr<class Texture> texture) 
 {
-    _albedoTexture = UmResourceManager.LoadResource<Texture>(filePath);
+    _albedoTexture = std::move(texture);
 }
 
-void RibbonModule::ChangeAlbedoTexture(std::wstring filePath) 
+void SpriteModule::ChangeAlbedoTexture(std::wstring_view filePath)
+{
+    _isAlbedoTextureChanged = true;
+    _modelAndTexturePath = filePath;
+}
+
+
+void RibbonModule::ChangeAlbedoTexture(std::wstring_view filePath)
 {
     _isAlbedoTextureChanged = true;
     _newAlbedoTexturePath   = filePath;
+}
+
+Texture* SpriteModule::GetAlbedoTexture() const
+{
+    return _albedoTexture.get();
 }
 
 Texture* RibbonModule::GetAlbedoTexture() const 
@@ -313,12 +309,23 @@ Texture* RibbonModule::GetAlbedoTexture() const
 
 
  }
+ void ParticleEmitter::SetLocatorFactor(const Vector3& factor) 
+{
+    _emitLocator->SetFactor(factor);
+}
+
+void ParticleEmitter::SetVelocityType(VelocityScaleType velType) 
+{
+    _velocityType = velType;
+}
+
+
 void ParticleEmitter::Initialize(SIZE_T maxParticles /*= 100000*/, float emissionRate /*= 500.f*/,
                                  float         emitterLifetime /*= 5.f*/,
                                  LocationShape locatorShape /*= LocationShape::SPHERE*/,
                                  Vector3       locationFactor /*= Vector3(1,1,1)*/,
                                   ParticleType  particleType /*= ParticleType::SPRITE*/,
-                                  std::wstring  meshspritePath /*= L""*/)
+                                  std::wstring_view  meshspritePath /*= L""*/)
  {
     _emitterLifetime = emitterLifetime;
     _particleType = particleType;
@@ -337,8 +344,9 @@ void ParticleEmitter::Initialize(SIZE_T maxParticles /*= 100000*/, float emissio
         _particleRenderModule = new SpriteModule();
         break;
     }
+
     _particleRenderModule->SetModelAndTexturePath(meshspritePath);
-    _particleRenderModule->Initialize();
+    //_particleRenderModule->Initialize();
 
 
     _locationType = locatorShape;
@@ -381,44 +389,45 @@ void ParticleEmitter::Initialize(SIZE_T maxParticles /*= 100000*/, float emissio
 }
 
 
-void ParticleEmitter::AwakeParticle(UINT index) 
+void ParticleEmitter::Update(float deltaTime) 
 {
-    Vector3 offset = {_emitLocator->_randomVal(), _emitLocator->_randomVal(), _emitLocator->_randomVal()};
-
-    Vector4 location = {1, 1, 1, 1};
-    Vector3 tempPos = _emitLocator->EmitLocate();
-    location.x      = tempPos.x + offset.x * _particleDistributionOffset.x;
-    location.y      = tempPos.y + offset.y * _particleDistributionOffset.y;
-    location.z      = tempPos.z + offset.z * _particleDistributionOffset.z;
-
-    if (_useWorldSpace)
+    if (false == _delayFlag)
     {
-		location = Vector4::Transform(location, _worldMatrix);
-	}
 
-    _particlePool[index]->SetPosition(location);
-    ScaleVelocity({location.x, location.y, location.z});
-
-    Vector3 finalVelocity = _velocity;
-    if (!_useWorldSpace)
-    {
-        // If simulating in local space, the calculated velocity is also local.
-        // Transform it to world space to apply emitter's rotation and scale.
-        finalVelocity = Vector3::TransformNormal(_velocity, _worldMatrix);
-    }
-    _particlePool[index]->SetVelocity(finalVelocity);
-
-    _particlePool[index]->SetAge(0.f);
-    _particlePool[index]->SetMass(_particleMass);
-
-    if (ParticleType::SPRITE == _particleType)
-    {
-        auto    spritemodule = static_cast<SpriteModule*>(_particleRenderModule);
-        Vector4 frameInfo    = {spritemodule->GetFrameDuration(), 0, 0, 0};
-        _particlePool[index]->SetFrameinfo(frameInfo);
+        _delayTimer += deltaTime;
+        if (_delayTimer >= _startDelay)
+        {
+            _activeFlag = true;
+            _delayFlag  = true;
+        }
+        else
+        {
+            _activeFlag = false;
+            return;
+        }
     }
 
+
+
+
+    _emitterAge += deltaTime;
+    if (_emitterAge >= _emitterLifetime-_particleLifetime)
+    {
+        _endFlag = true;
+        //return;
+    }
+    if (_emitterAge >= _emitterLifetime)
+    {
+        _emitterAge = 0;
+        _activeFlag = false;
+        return;
+    }
+
+    _translationMatrix = Matrix::CreateTranslation(_emitterPosition);
+    _rotationMatrix    = Matrix::CreateFromQuaternion(_emitterRotationQ);
+    _worldMatrix       = _rotationMatrix * _translationMatrix * _effectWorldMatrix;
 }
+
 
 void ParticleEmitter::UpdateParticleLifeCycle(float deltaTime) 
 {
@@ -470,9 +479,10 @@ void ParticleEmitter::UpdateParticleLifeCycle(float deltaTime)
         if (true == spritemodule->GetTextureChangeFlag())
         {
             spritemodule->SetTextureChangeFlag(false);
-            spritemodule->LoadAlbedoTexture(spritemodule->GetNewAlbedoTexturePath());
-            UmParticleManager.RefreshEditor();
-        }
+            spritemodule->SetAlbedoTexture(
+                Global::resourceManager->LoadResource<Texture>(spritemodule->GetNewAlbedoTexturePath()));
+            Global::particleManager->RefreshEditor();
+        }        
     }
 
     if (ParticleType::RIBBON == _particleType)
@@ -481,8 +491,9 @@ void ParticleEmitter::UpdateParticleLifeCycle(float deltaTime)
         if (true == ribbonmodule->GetTextureChangeFlag())
         {
             ribbonmodule->SetTextureChangeFlag(false);
-            ribbonmodule->LoadAlbedoTexture(ribbonmodule->GetNewAlbedoTexturePath());
-            UmParticleManager.RefreshEditor();
+            ribbonmodule->SetAlbedoTexture(
+                Global::resourceManager->LoadResource<Texture>(ribbonmodule->GetNewAlbedoTexturePath()));
+            Global::particleManager->RefreshEditor();
 
         }
     }
@@ -510,57 +521,6 @@ void ParticleEmitter::Reset()
     }
 }
 
-void ParticleEmitter::Update(float deltaTime) 
-{
-    if (false == _delayFlag)
-    {
-
-        _delayTimer += deltaTime;
-        if (_delayTimer >= _startDelay)
-        {
-            _activeFlag = true;
-            _delayFlag  = true;
-        }
-        else
-        {
-            _activeFlag = false;
-            return;
-        }
-    }
-
-
-
-
-    _emitterAge += deltaTime;
-    if (_emitterAge >= _emitterLifetime-_particleLifetime)
-    {
-        _endFlag = true;
-        //return;
-    }
-    if (_emitterAge >= _emitterLifetime)
-    {
-        _emitterAge = 0;
-        _activeFlag = false;
-        return;
-    }
-
-    _translationMatrix = Matrix::CreateTranslation(_emitterPosition);
-    _rotationMatrix    = Matrix::CreateFromQuaternion(_emitterRotationQ);
-    _worldMatrix       = _rotationMatrix * _translationMatrix * _effectWorldMatrix;
-}
-
-
- void ParticleEmitter::SetLocatorFactor(const Vector3& factor) 
-{
-    _emitLocator->SetFactor(factor);
-}
-
-void ParticleEmitter::SetVelocityType(VelocityScaleType velType) 
-{
-    _velocityType = velType;
-}
-
-
 void ParticleEmitter::InitializeLocator(LocationShape locatorShape , Vector3 factor) 
 {
     switch (locatorShape)
@@ -587,6 +547,45 @@ void ParticleEmitter::InitializeLocator(LocationShape locatorShape , Vector3 fac
     }
     _emitLocator->SetFactor(factor);
     _emitLocator->RandomInitialize();
+
+}
+
+void ParticleEmitter::AwakeParticle(UINT index) 
+{
+    Vector3 offset = {_emitLocator->_randomVal(), _emitLocator->_randomVal(), _emitLocator->_randomVal()};
+
+    Vector4 location = {1, 1, 1, 1};
+    Vector3 tempPos = _emitLocator->EmitLocate();
+    location.x      = tempPos.x + offset.x * _particleDistributionOffset.x;
+    location.y      = tempPos.y + offset.y * _particleDistributionOffset.y;
+    location.z      = tempPos.z + offset.z * _particleDistributionOffset.z;
+
+    if (_useWorldSpace)
+    {
+		location = Vector4::Transform(location, _worldMatrix);
+	}
+
+    _particlePool[index]->SetPosition(location);
+    ScaleVelocity({location.x, location.y, location.z});
+
+    Vector3 finalVelocity = _velocity;
+    if (!_useWorldSpace)
+    {
+        // If simulating in local space, the calculated velocity is also local.
+        // Transform it to world space to apply emitter's rotation and scale.
+        finalVelocity = Vector3::TransformNormal(_velocity, _worldMatrix);
+    }
+    _particlePool[index]->SetVelocity(finalVelocity);
+
+    _particlePool[index]->SetAge(0.f);
+    _particlePool[index]->SetMass(_particleMass);
+
+    if (ParticleType::SPRITE == _particleType)
+    {
+        auto    spritemodule = static_cast<SpriteModule*>(_particleRenderModule);
+        Vector4 frameInfo    = {spritemodule->GetFrameDuration(), 0, 0, 0};
+        _particlePool[index]->SetFrameinfo(frameInfo);
+    }
 
 }
 

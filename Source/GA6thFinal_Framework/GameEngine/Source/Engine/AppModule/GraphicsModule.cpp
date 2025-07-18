@@ -14,10 +14,10 @@ GraphicsModule::~GraphicsModule()
 void GraphicsModule::PreInitialize()
 {
     _rendererFileEvent = std::make_unique<RendererFileEvent>();
-    UmFileSystem.RegisterFileEventSubscriber(_rendererFileEvent.get(), {".png", ".dds", ".fbx", ".hdr", ".UmModel", ".sfont"});
+    UmFileSystem.RegisterFileEventSubscriber(_rendererFileEvent.get(),
+                                             {".png", ".dds", ".fbx", ".hdr", ".UmModel", ".sfont", ".jpg"});
 
-    _particleSerializer = std::make_unique<ParticleEffectSerializer>();
-    UmFileSystem.RegisterFileEventSubscriber(_particleSerializer.get(), {".vfx"});
+    UmFileSystem.RegisterFileEventSubscriber(&UmParticleSerializer, {".vfx"});
 
     RenderTechniqueFlag flag = RenderTechniqueFlag::SKY_BOX_TECH | RenderTechniqueFlag::PBR_TECH | RenderTechniqueFlag::PARTICLE_TECH |
                                RenderTechniqueFlag::BLOOM_TECH | RenderTechniqueFlag::UI_TECH | RenderTechniqueFlag::FONT_TECH;

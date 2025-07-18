@@ -35,13 +35,6 @@
 #include <dxgi1_4.h>
 #include <dxgi1_6.h>
 
-#include "DirectXTex.h"
-
-#include <d3dcompiler.h>
-#include <dbghelp.h>
-#include <dxgi1_4.h>
-#include <dxgi1_6.h>
-
 #ifdef _DEBUG
 #pragma comment(lib, "DirectXTex_d.lib")
 #pragma comment(lib, "DirectXTK12_d.lib")

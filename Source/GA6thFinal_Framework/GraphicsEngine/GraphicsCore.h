@@ -32,6 +32,8 @@ public:
     void LoadResource(std::wstring_view filePath, MeshRenderer* component);
     void LoadResource(std::wstring_view filePath, SpriteRenderer* component);
     void LoadResource(std::wstring_view filePath, FontRenderer* component);
+    void LoadTextureResource(std::wstring_view filePath, class ParticleEmitter* component);
+    void LoadModelResource(std::wstring_view filePath, class ParticleEmitter* component);
 
 public:
     void Initialize(HWND hwnd, UINT width, UINT height, FeatureLevel feature, bool isEditorMode);

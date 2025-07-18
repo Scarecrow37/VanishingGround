@@ -3,6 +3,7 @@
 #include "MeshRenderer.h"
 #include "SpriteRenderer.h"
 #include "FontRenderer.h"
+#include "ParticleEmitter.h"
 #include "Font.h"
 
 namespace Global
@@ -113,6 +114,25 @@ void GraphicsCore::LoadResource(std::wstring_view filePath, SpriteRenderer* comp
 void GraphicsCore::LoadResource(std::wstring_view filePath, FontRenderer* component)
 {
     component->SetFont(_resourceManager->LoadResource<Font>(filePath));
+}
+
+void GraphicsCore::LoadTextureResource(std::wstring_view filePath, ParticleEmitter* component) 
+{
+    if (ParticleType::SPRITE == component->_particleType)
+    {
+        static_cast<SpriteModule*>(component->_particleRenderModule)
+            ->SetAlbedoTexture(_resourceManager->LoadResource<Texture>(filePath.data()));
+    }
+    if (ParticleType::RIBBON == component->_particleType)
+    {
+        static_cast<RibbonModule*>(component->_particleRenderModule)
+            ->SetAlbedoTexture(_resourceManager->LoadResource<Texture>(filePath.data()));
+    }
+}
+
+void GraphicsCore::LoadModelResource(std::wstring_view filePath, ParticleEmitter* component)
+{
+    static_cast<MeshSurfaceLocator*>(component->_emitLocator)->LoadVerticesFromModel(_resourceManager->LoadResource<Model>(filePath.data()));
 }
 
 void GraphicsCore::Initialize(HWND hwnd, UINT width, UINT height, FeatureLevel feature, bool isEditorMode)

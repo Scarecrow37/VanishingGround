@@ -1,5 +1,4 @@
 ﻿#pragma once
-
 class ParticleEffectSerializer : public File::FileEventSubscriber
 {
 public:

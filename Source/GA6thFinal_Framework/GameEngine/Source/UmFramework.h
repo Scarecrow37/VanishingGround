@@ -152,6 +152,7 @@ using namespace Microsoft::WRL;
 #include "Engine/CommandCore/CommandManager.h"
 
 //Engine Core
+#include "Engine/GraphicsCore/ParticleEffectSerializer.h"
 #include "Engine/EngineCore/EngineLogger.h"
 #include "Engine/EngineCore/TimeSystem.h"
 #include "Engine/EngineCore/GameObjectFactory.h"
@@ -219,6 +220,7 @@ using namespace Microsoft::WRL;
 #include "Editor/Tool/ParticleEffect/EditorParticleEffectDetails.h"
 #include "Editor/Tool/ParticleEffect/EditorParticleEffectViewer.h"
 #include "Editor/Tool/ParticleEffect/EditorParticleEffectHierarchy.h"
+
 
 // Editor Menu
 #include "Editor/Menu/Project/EditorProjectMenu.h"

@@ -19,6 +19,7 @@ public:
     ECommandManager CommandManager;
     EFactoryRegister FactoryRegister;
     Audio::System AudioManager;
+    ParticleEffectSerializer ParticleSerializer;
 
     ReflectHelper::ImGuiDraw::InputAutoSetting ImGuiDrawPropertysSetting;
 private:

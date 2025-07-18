@@ -38,21 +38,21 @@ void ParticleRibbonPass::Initialize(RenderScene* ownerScene)
 
 void ParticleRibbonPass::Begin(ID3D12GraphicsCommandList* commandList) 
 {
-    auto customDepthTarget = UmMultiRenderTargetManager.GetRenderTarget("CustomDepth");
+    auto customDepthTarget = Global::multiRenderTargetManager->GetRenderTarget("CustomDepth");
     customDepthTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
     commandList->OMSetRenderTargets(1, &customDepthTarget->GetRTVHandle(), FALSE, nullptr);
     commandList->RSSetViewports(1, &customDepthTarget->GetViewPort());
     commandList->RSSetScissorRects(1, &customDepthTarget->GetScissorRect());
 
-    ComPtr<ID3D12Resource> resource = UmParticleManager.GetComputeOutputResource();
+    ComPtr<ID3D12Resource> resource = Global::particleManager->GetComputeOutputResource();
 
     auto computeOutputBarrior = CD3DX12_RESOURCE_BARRIER::Transition(resource.Get(), D3D12_RESOURCE_STATE_COMMON,
                                                                      D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
 
     commandList->ResourceBarrier(1, &computeOutputBarrior);
 
-    auto albedoTextures = UmParticleManager.GetActiveRibbonAlbedos();
+    auto albedoTextures = Global::particleManager->GetActiveRibbonAlbedos();
     std::fill(_albedoTextureIDs.begin(), _albedoTextureIDs.end(), -1);
     for (int i = 0; i < albedoTextures.size(); ++i)
     {
@@ -62,10 +62,10 @@ void ParticleRibbonPass::Begin(ID3D12GraphicsCommandList* commandList)
     _textureIDBuffer->CopyStructuredBuffer(commandList, _albedoTextureIDs.data(),
                                            static_cast<UINT>(albedoTextures.size()));
 
-    if (0 < UmParticleManager.GetRibbonCount())
+    if (0 < Global::particleManager->GetRibbonCount())
     {
 
-        auto totalribbonemitterindices = UmParticleManager.GetRibbonEmitterIndices();
+        auto totalribbonemitterindices = Global::particleManager->GetRibbonEmitterIndices();
         for (int i = 0; i < totalribbonemitterindices.size(); i++)
         {
             auto size = totalribbonemitterindices[i].size();
@@ -87,13 +87,13 @@ void ParticleRibbonPass::Begin(ID3D12GraphicsCommandList* commandList)
 void ParticleRibbonPass::Draw(ID3D12GraphicsCommandList* commandList) 
 {
 
-    if (0 >= UmParticleManager.GetRibbonCount())
+    if (0 >= Global::particleManager->GetRibbonCount())
         return;
     commandList->SetPipelineState(_pipelineState.Get());
     commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
-    auto depthStencilBuffer = UmMultiRenderTargetManager.GetRenderTarget("Depth");
+    auto depthStencilBuffer = Global::multiRenderTargetManager->GetRenderTarget("Depth");
 
-    const auto&     mode = UmDevice.GetMode();
+    const auto&     mode = Global::device->GetMode();
     PostProcessData postProcessData{.TexelSize = {1.f / (float)mode.Width, 1.f / (float)mode.Height}};
     commandList->SetGraphicsRoot32BitConstants(_shader->GetRootParameterIndex("bit32_5_postProcessData"), 5,
                                                &postProcessData, 0);
@@ -109,12 +109,12 @@ void ParticleRibbonPass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("gRevealTex"),
                                                 _revealageBuffer->GetUAVHandle());
 
-    auto outputResource = UmParticleManager.GetRibbonOutputResource();
+    auto outputResource = Global::particleManager->GetRibbonOutputResource();
     commandList->SetGraphicsRootShaderResourceView(_shader->GetRootParameterIndex("particleInfo"),
                                                    outputResource->GetGPUVirtualAddress());
 
     D3D12_GPU_DESCRIPTOR_HANDLE descHeapPtr =
-        UmViewManager.GetShaderResourceHeap()->GetGPUDescriptorHandleForHeapStart();
+        Global::viewManager->GetShaderResourceHeap()->GetGPUDescriptorHandleForHeapStart();
 
     commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("textures"), descHeapPtr);
 
@@ -128,12 +128,7 @@ void ParticleRibbonPass::Draw(ID3D12GraphicsCommandList* commandList)
             continue;
         
         UINT verticesToDraw = 0;
-        if (count >= 2) // 최소한 2개의 인덱스가 있어야 다음 파티클 인덱스에 접근 가능 (input.vertexID + 2)
-        {
-            verticesToDraw = count - 2; 
-        }
-        
-        if (verticesToDraw == 0) // 그릴 세그먼트가 없음
+        if (count == 2) // 최소한 2개의 인덱스가 있어야 다음 파티클 인덱스에 접근 가능 (input.vertexID + 2)
             continue;
 
         commandList->SetGraphicsRoot32BitConstants(_shader->GetRootParameterIndex("bit32_1_ribbonVertexCount"), 1, &count, 0);
@@ -151,7 +146,7 @@ void ParticleRibbonPass::Draw(ID3D12GraphicsCommandList* commandList)
 
 void ParticleRibbonPass::End(ID3D12GraphicsCommandList* commandList) 
 {
-    ComPtr<ID3D12Resource> resource             = UmParticleManager.GetComputeOutputResource();
+    ComPtr<ID3D12Resource> resource             = Global::particleManager->GetComputeOutputResource();
     auto                   computeOutputBarrior = CD3DX12_RESOURCE_BARRIER::Transition(
         resource.Get(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COMMON);
 
@@ -173,7 +168,7 @@ void ParticleRibbonPass::InitializeShader()
 
 void ParticleRibbonPass::InitializePSO()
 { // static two side.
-    ComPtr<ID3D12Device>               device = UmDevice.GetDevice();
+    ComPtr<ID3D12Device>               device = Global::device->GetDevice();
     D3D12_GRAPHICS_PIPELINE_STATE_DESC psodesc;
 
     ZeroMemory(&psodesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));

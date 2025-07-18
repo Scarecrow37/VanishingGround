@@ -62,7 +62,7 @@ ParticleEmitter* ParticleManager::RegisterEmitter(class ParticleEffect* effect, 
                                                   LocationShape locatorShape /*= LocationShape::SPHERE*/,
                                                   Vector3       locationFactor /*= Vector3(1, 1, 1)*/,
                                                   ParticleType  particleType /*= ParticleType::SPRITE*/,
-                                  std::wstring  meshspritePath /*= L""*/)
+                                  std::wstring_view  meshspritePath /*= L""*/)
 {
     auto newEmitter =
         effect->AddEmitter(maxParticles, emissionRate, emitterLifetime, locatorShape, locationFactor, particleType,meshspritePath);

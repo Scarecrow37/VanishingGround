@@ -25,12 +25,11 @@ public:
     /// <param name="locationFactor"></param>
     /// <param name="particleType"></param>
     /// <returns></returns>
-    class ParticleEmitter* RegisterEmitter(class ParticleEffect* effect, SIZE_T maxParticles = 10000,
-                                           float emissionRate = 1000.f, float emitterLifetime = 150.f,
-                                           LocationShape locatorShape   = LocationShape::SPHERE,
-                                           Vector3       locationFactor = Vector3(1, 1, 1),
-                                           ParticleType  particleType   = ParticleType::SPRITE,
-                                          std::wstring  meshspritePath = L"../../../Resource/Assets/ParticleTexture/defaultSmoke.jpg");
+    class ParticleEmitter* RegisterEmitter(
+        class ParticleEffect* effect, SIZE_T maxParticles = 10000, float emissionRate = 1000.f,
+        float emitterLifetime = 150.f, LocationShape locatorShape = LocationShape::SPHERE,
+        Vector3 locationFactor = Vector3(1, 1, 1), ParticleType particleType = ParticleType::SPRITE,
+        std::wstring_view meshspritePath = L"../../../Resource/Assets/ParticleTexture/defaultSmoke.jpg");
     void                   DeleteEffect(class ParticleEffect* effect);
     void                   Update(const float deltaTime);
     void                   UpdateEffectLifeCycle();
@@ -53,17 +52,8 @@ public:
     std::vector<Texture*>          GetActiveRibbonAlbedos() const;
     ID3D12Resource*                GetRibbonOutputResource();
 
-
-
-
-
-
-    ID3D12GraphicsCommandList*            GetRenderCommandList() { return _renderCommandList.Get(); }
     std::vector<class ParticleEffect*>&   GetEffectList() { return _particleEffects; }
 
-    ID3D12Resource*                     GetComputeOutputResource();
-    ID3D12GraphicsCommandList*          GetRenderCommandList() { return _renderCommandList.Get(); }
-    std::vector<class ParticleEffect*>& GetEffectList() { return _particleEffects; }
 
 public:
     void SetCamera(std::string_view viewName);

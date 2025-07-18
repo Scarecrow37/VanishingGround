@@ -117,21 +117,18 @@ enum class VelocityScaleType
 
 struct SceneParticleResource
 {
-    ComPtr<ID3D12Resource> _ParticleInput;
-    ComPtr<ID3D12Resource> _EmitterInfo;
-    ComPtr<ID3D12Resource> _ParticleInputUpload;
-    ComPtr<ID3D12Resource> _EmitterInfoUpload;
-    ComPtr<ID3D12Resource> _MvpConstants;
-    ComPtr<ID3D12Resource> _SimulationOutput;
-    ComPtr<ID3D12Resource> _RibbonParticleInput;
-    ComPtr<ID3D12Resource> _RibbonEmitterInfo;
-    ComPtr<ID3D12Resource> _RibbonParticleInputUpload;
-    ComPtr<ID3D12Resource> _RibbonEmitterInfoUpload;
-    ComPtr<ID3D12Resource> _RibbonMvpConstants;
-    ComPtr<ID3D12Resource> _RibbonSimulationOutput;
+    ComPtr<ID3D12Resource> ParticleInput;
+    ComPtr<ID3D12Resource> EmitterInfo;
+    ComPtr<ID3D12Resource> ParticleInputUpload;
+    ComPtr<ID3D12Resource> EmitterInfoUpload;
+    ComPtr<ID3D12Resource> SimulationOutput;
 
+    ComPtr<ID3D12Resource> RibbonParticleInput;
+    ComPtr<ID3D12Resource> RibbonEmitterInfo;
+    ComPtr<ID3D12Resource> RibbonParticleInputUpload;
+    ComPtr<ID3D12Resource> RibbonEmitterInfoUpload;
+    ComPtr<ID3D12Resource> RibbonSimulationOutput;
 
-
-
+    std ::unordered_map<std::string, ComPtr<ID3D12Resource>> MvpConstants;
 };
 

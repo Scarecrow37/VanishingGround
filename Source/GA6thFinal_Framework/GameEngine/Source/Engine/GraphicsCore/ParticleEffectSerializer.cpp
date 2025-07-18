@@ -1,78 +1,33 @@
 ﻿#include "pch.h"
 #include "ParticleEffectSerializer.h"
 
-void ParticleEffectSerializer::OnFileRegistered(const File::Path& path)
-{
-    
-}
+void ParticleEffectSerializer::OnFileRegistered(const File::Path& path) {}
 
-void ParticleEffectSerializer::OnFileUnregistered(const File::Path& path)
-{
-    
-}
+void ParticleEffectSerializer::OnFileUnregistered(const File::Path& path) {}
 
-void ParticleEffectSerializer::OnFileModified(const File::Path& path)
-{
-    
-}
+void ParticleEffectSerializer::OnFileModified(const File::Path& path) {}
 
+void ParticleEffectSerializer::OnFileRemoved(const File::Path& path) {}
 
-void ParticleEffectSerializer::OnFileRemoved(const File::Path& path)
-{
-    
-}
+void ParticleEffectSerializer::OnFileRenamed(const File::Path& oldPath, const File::Path& newPath) {}
 
+void ParticleEffectSerializer::OnFileMoved(const File::Path& oldPath, const File::Path& newPath) {}
 
-void ParticleEffectSerializer::OnFileRenamed(const File::Path& oldPath, const File::Path& newPath)
-{
-    
-}
+void ParticleEffectSerializer::OnRequestedSave() {}
 
+void ParticleEffectSerializer::OnPostRequestedSave() {}
 
-void ParticleEffectSerializer::OnFileMoved(const File::Path& oldPath, const File::Path& newPath)
-{
-    
-}
+void ParticleEffectSerializer::OnRequestedLoad() {}
 
-void ParticleEffectSerializer::OnRequestedSave()
-{
-    
-}
+void ParticleEffectSerializer::OnPostRequestedLoad() {}
 
-void ParticleEffectSerializer::OnPostRequestedSave()
-{
-    
-}
+void ParticleEffectSerializer::OnRequestedInspect(const File::Path& path) {}
 
-void ParticleEffectSerializer::OnRequestedLoad()
-{
-    
-}
+void ParticleEffectSerializer::OnRequestedOpen(const File::Path& path) {}
 
-void ParticleEffectSerializer::OnPostRequestedLoad()
-{
-    
-}
+void ParticleEffectSerializer::OnRequestedCopy(const File::Path& path) {}
 
-void ParticleEffectSerializer::OnRequestedInspect(const File::Path& path)
-{
-    
-}
-
-void ParticleEffectSerializer::OnRequestedOpen(const File::Path& path)
-{
-    
-}
-
-void ParticleEffectSerializer::OnRequestedCopy(const File::Path& path)
-{
-    
-}
-
-void ParticleEffectSerializer::OnRequestedPaste(const File::Path& path)
-{
-    
-}
+void ParticleEffectSerializer::OnRequestedPaste(const File::Path& path) {}
 
 void ParticleEffectSerializer::Serialize(ParticleEffect* effect, File::Path destPath)
 {
@@ -271,7 +226,7 @@ void ParticleEffectSerializer::Serialize(ParticleEffect* effect, File::Path dest
 
         // render module file path
         {
-            const std::wstring modeltexturepath = emitter->_particleRenderModule->GetModelAndTexturePath();
+            const std::wstring_view modeltexturepath = emitter->_particleRenderModule->GetModelAndTexturePath();
             int                sizeNeeded =
                 WideCharToMultiByte(CP_UTF8, 0, modeltexturepath.data(), static_cast<int>(modeltexturepath.size()),
                                     nullptr, 0, nullptr, nullptr);
@@ -376,10 +331,6 @@ ParticleEffect* ParticleEffectSerializer::Deserialize(File::Path filepath,bool i
         is.read(reinterpret_cast<char*>(&locationType), sizeof(locationType));
         if (LocationShape::MESH_SURFACE == locationType)
         {
-            /*       File::Path modelPath = File::NULL_PATH;
-                   SIZE_T     nameLen   = modelPath.string().size();
-                   os.write(reinterpret_cast<const char*>(&nameLen), sizeof(nameLen));
-                   os.write(modelPath.string().c_str(), nameLen);*/
 
 
             SIZE_T nameLen = 0;
@@ -436,10 +387,19 @@ ParticleEffect* ParticleEffectSerializer::Deserialize(File::Path filepath,bool i
         {
             auto emitter =
                 UmParticleManager->RegisterEmitter(newEffect, static_cast<SIZE_T>(maxParticles), emissionRate, emitterLifetime, locationType,
-                                                  locatorFactor, particleType, modelTexturePath);
-            if (LocationShape::MESH_SURFACE == locationType)
+                                                  locatorFactor, particleType, std::wstring_view(modelTexturePath));
+            if (isEditor)
             {
-                static_cast<MeshSurfaceLocator*>(emitter->_emitLocator)->LoadVerticesFromModel(File::Path(modelpath));
+                File::Path absolutePath = emitter->_particleRenderModule->GetModelAndTexturePath();
+                absolutePath            = std::filesystem::absolute(absolutePath).generic_string();
+                UmGraphics.LoadTextureResource(std::wstring_view(absolutePath.wstring()), emitter);
+                if (LocationShape::MESH_SURFACE == emitter->_locationType)
+                {
+                    MeshSurfaceLocator* locator      = static_cast<MeshSurfaceLocator*>(emitter->_emitLocator);
+                    File::Path          absolutePath = locator->GetModelPath();
+                    absolutePath                     = std::filesystem::absolute(absolutePath).generic_string();
+                    UmGraphics.LoadModelResource(std::wstring_view(absolutePath.wstring()), emitter);
+                }
             }
             emitter->SetEmitterName(emitterName);
             emitter->SetUseWorldSpace(useWorldSpace);

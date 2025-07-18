@@ -40,7 +40,7 @@ public:
                                 LocationShape locatorShape   = LocationShape::SPHERE,
                                 Vector3       locationFactor = Vector3(1, 1, 1),
                                 ParticleType  particleType   = ParticleType::SPRITE,
-                                std::wstring  meshspritePath = L"");
+                                std::wstring_view meshspritePath = L"");
     void             RemoveEmitter(ParticleEmitter* target); 
     class ParticleEmitter*              GetEmitter(size_t emitterIndex);
     std::vector<class ParticleEmitter*> GetEmitterList() { return _particleEmitters; }
