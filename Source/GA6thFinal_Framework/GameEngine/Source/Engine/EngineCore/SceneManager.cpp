@@ -1546,7 +1546,7 @@ void ESceneManager::SceneResourceManager::UpdateRenderResource(RenderResource<T>
                         auto findIter = resource.RenderResource.find(path);
                         if (findIter == resource.RenderResource.end())
                         {
-                            auto newResource = UmResourceManager.LoadResource<T>(path.string());                       
+                            auto newResource = UmResourceManager->LoadResource<T>(path.string());                       
                             resource.RenderResource[path] = newResource;
                         }
                         func();

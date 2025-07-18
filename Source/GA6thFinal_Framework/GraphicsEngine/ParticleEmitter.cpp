@@ -132,11 +132,11 @@ DirectX::SimpleMath::Vector3 MeshSurfaceLocator::EmitLocate()
         return {0, 0, 0};
 }
 
-void MeshSurfaceLocator::LoadVerticesFromModel(File::Path modelPath)
+void MeshSurfaceLocator::LoadVerticesFromModel(const std::filesystem::path& modelPath)
 {
     _targetModelPath = modelPath;
 
-    _targetModel = UmResourceManager.LoadResource<Model>(modelPath.string());
+    _targetModel = Global::resourceManager->LoadResource<Model>(modelPath.string());
     _vertexCountPerMesh.clear();
     for (auto& mesh : _targetModel->GetMeshes())
     {

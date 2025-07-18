@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "Particle.h"
 #include "ParticleHelper.h"
-#include "ParticleEffectSerializer.h"
+
 class ParticleManager
 {
 public:
@@ -44,43 +44,14 @@ public:
     UMPARTICLE_PROPERTY(bool, _isAutoRefresh, AutoRefresh, false);
 
 
-    UINT                                  GetTotalCount() const 
-    { 
-        if ("Game" == _currentRenderscene->_name || "Editor" == _currentRenderscene->_name)
-            return _totalCount;
-        else if ("ParticleEditor" == _currentRenderscene->_name)
-            return _editorCount;
-        else
-            return 0;
-    }
+    UINT GetTotalCount() const;
 
-    UINT                                  GetMaxCount() const { return _maxParticles; }
-    std::vector<Texture*> GetActiveAlbedos() const
-    {
-        if ("Game" == _currentRenderscene->_name || "Editor" == _currentRenderscene->_name)
-            return _activeEmitterAlbedos;
-        else // ("ParticleEditor" == _currentRenderscene->_name)
-            return _activeEditorAlbedos;
-    }
+    UINT                  GetMaxCount() const { return _maxParticles; }
+    std::vector<Texture*> GetActiveAlbedos() const;
 
-    ID3D12Resource*                       GetComputeOutputResource() 
-    {
-        if ("Editor" == _currentRenderscene->_name)
-            return _particleOutputBuffer.Get();
-
-        else if ("Game" == _currentRenderscene->_name)
-            return _gameViewOutputBuffer.Get();
-
-        else if ("ParticleEditor" == _currentRenderscene->_name)
-            return _editorOutputBuffer.Get();
-        else
-            return nullptr;
-    }
-    ID3D12GraphicsCommandList*            GetRenderCommandList() { return _renderCommandList.Get(); }
-    std::vector<class ParticleEffect*>&   GetEffectList() { return _particleEffects; }
-
-public:
-    ParticleEffectSerializer ParticleSerializer;
+    ID3D12Resource*                     GetComputeOutputResource();
+    ID3D12GraphicsCommandList*          GetRenderCommandList() { return _renderCommandList.Get(); }
+    std::vector<class ParticleEffect*>& GetEffectList() { return _particleEffects; }
 
 public:
     void SetCamera(std::string_view viewName);

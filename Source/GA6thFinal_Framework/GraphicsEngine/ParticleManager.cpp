@@ -1,8 +1,7 @@
 ﻿#include "pch.h"
+#include "ParticleManager.h"
 #include "ParticleEmitter.h"
 #include "ParticleEffect.h"
-#include "ParticleEffectSerializer.h"
-#include "ParticleManager.h"
 
 ParticleManager::ParticleManager() {}
 
@@ -35,11 +34,9 @@ void ParticleManager::Initialize(UINT maxParticles)
     InitializeParticleComputeShader();
     InitializeParticleComputeRootSignature();
     InitializeParticleComputePSO();
-    InitializeDescriptorHeap();
-
-    UmFileSystem.RegisterFileEventSubscriber(&ParticleSerializer, {".vfx"});
-
+    InitializeDescriptorHeap();   
 }
+
 ParticleEffect* ParticleManager::RegisterEffect()
 {
     auto newEffect = new ParticleEffect();
@@ -133,7 +130,7 @@ void ParticleManager::Update(const float deltaTime)
         if (nullptr == _editorCurrentEffect)
         {
             _computeCommandList->Close();
-            UmDevice.RegisterCommand(_computeCommandList.Get(), COMPUTE_LIST);
+            Global::commandController->ExecuteCommand(COMPUTE_QUEUE, _computeCommandList.Get());
             return;
         }
         _editorCurrentEffect->Update(delta);
@@ -141,7 +138,7 @@ void ParticleManager::Update(const float deltaTime)
         DispatchParticleComputeEditorMode(delta);
 
         _computeCommandList->Close();
-        UmDevice.RegisterCommand(_computeCommandList.Get(), COMPUTE_LIST);
+        Global::commandController->ExecuteCommand(COMPUTE_QUEUE, _computeCommandList.Get());
 
         if (true == _editorCurrentEffect->GetActiveFlag())
         {
@@ -207,6 +204,38 @@ void ParticleManager::RefreshEditor()
 void ParticleManager::SetCurrentRenderScene(RenderScene* renderScene) 
 {
     _currentRenderscene = renderScene;
+}
+
+UINT ParticleManager::GetTotalCount() const
+{
+    if ("Game" == _currentRenderscene->_name || "Editor" == _currentRenderscene->_name)
+        return _totalCount;
+    else if ("ParticleEditor" == _currentRenderscene->_name)
+        return _editorCount;
+    else
+        return 0;
+}
+
+std::vector<Texture*> ParticleManager::GetActiveAlbedos() const
+{
+    if ("Game" == _currentRenderscene->_name || "Editor" == _currentRenderscene->_name)
+        return _activeEmitterAlbedos;
+    else // ("ParticleEditor" == _currentRenderscene->_name)
+        return _activeEditorAlbedos;
+}
+
+ID3D12Resource* ParticleManager::GetComputeOutputResource()
+{
+    if ("Editor" == _currentRenderscene->_name)
+        return _particleOutputBuffer.Get();
+
+    else if ("Game" == _currentRenderscene->_name)
+        return _gameViewOutputBuffer.Get();
+
+    else if ("ParticleEditor" == _currentRenderscene->_name)
+        return _editorOutputBuffer.Get();
+    else
+        return nullptr;
 }
 
 
@@ -632,7 +661,9 @@ void ParticleManager::DispatchParticleCompute(float deltaTime)
 
     // upload buffer -> default buf
     CopyFromUploadBuffer();
-    if (IS_EDITOR)
+
+    // TODO:: JJW 이제 그래픽스 엔진은 에디터를 모름
+    //if (IS_EDITOR)
     {
         CD3DX12_RESOURCE_BARRIER computeOutputBarrior = CD3DX12_RESOURCE_BARRIER::Transition(
             _particleOutputBuffer.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);

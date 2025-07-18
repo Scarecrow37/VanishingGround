@@ -25,7 +25,7 @@ void ParticleSpritePass::Initialize(RenderScene* ownerScene)
 
 void ParticleSpritePass::Begin(ID3D12GraphicsCommandList* commandList)
 {
-    auto customDepthTarget  = UmMultiRenderTargetManager.GetRenderTarget("CustomDepth");
+    auto customDepthTarget  = Global::multiRenderTargetManager->GetRenderTarget("CustomDepth");
     customDepthTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
    // _ownerScene->_depthStencilView->TransitionResource(commandList, D3D12_RESOURCE_STATE_DEPTH_READ);
@@ -57,9 +57,9 @@ void ParticleSpritePass::Draw(ID3D12GraphicsCommandList* commandList)
 {        
     commandList->SetPipelineState(_pipelineState.Get());
     commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
-    auto depthStencilBuffer = UmMultiRenderTargetManager.GetRenderTarget("Depth");
+    auto depthStencilBuffer = Global::multiRenderTargetManager->GetRenderTarget("Depth");
 
-    const auto&     mode          = UmDevice.GetMode();
+    const auto&     mode          = Global::device->GetMode();
     PostProcessData postProcessData{.TexelSize = {1.f / (float)mode.Width, 1.f / (float)mode.Height}};
     commandList->SetGraphicsRoot32BitConstants(_shader->GetRootParameterIndex("bit32_5_postProcessData"), 5,
                                                &postProcessData, 0);

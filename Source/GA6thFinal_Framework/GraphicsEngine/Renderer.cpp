@@ -211,7 +211,6 @@ void Renderer::ResetSkyBox(std::string_view sceneName)
 void Renderer::Initialize()
 {
     CreateDefaultResource();
-    }
 }
 
 void Renderer::Update()

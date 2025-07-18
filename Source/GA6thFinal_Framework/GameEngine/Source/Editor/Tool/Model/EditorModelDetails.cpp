@@ -2,6 +2,7 @@
 #include "EditorModelDetails.h"
 #include "EditorModelTool.h"
 #include "Editor/DynamicCamera/EditorDynamicCamera.h"
+#include "GraphicsEngine/FBXConverter.h"
 
 EditorModelDetails::EditorModelDetails()
     : _meshRenderer(std::make_unique<MeshRenderer>(MeshRenderType::STATIC, _worldMatrix))

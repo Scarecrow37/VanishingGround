@@ -10,21 +10,15 @@ public:
 public:
 	template<typename T> requires (std::is_base_of_v<Resource, T>)
 	std::shared_ptr<T> LoadResource(std::filesystem::path filePath)
-	{
-        std::filesystem::path absolute = std::filesystem::absolute(filePath);
-        if (std::filesystem::exists(absolute))
-        {
-            filePath = absolute;
-        }
-      
-		std::weak_ptr<Resource> resource       = _resources[filePath];
-        std::shared_ptr<T>      sharedResource = std::static_pointer_cast<T>(resource.lock());
-
+	{      
         if (true == std::filesystem::exists(filePath))
         {
             filePath = std::filesystem::absolute(filePath);
             filePath = filePath.generic_string();
         }
+
+		std::weak_ptr<Resource> resource       = _resources[filePath];
+        std::shared_ptr<T>      sharedResource = std::static_pointer_cast<T>(resource.lock());
 
 		if (resource.expired())
 		{

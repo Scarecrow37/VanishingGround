@@ -54,11 +54,11 @@ class MeshSurfaceLocator : public EmitLocator
 public:
     ~MeshSurfaceLocator();
     Vector3 EmitLocate();
-    void    LoadVerticesFromModel(File::Path modelPath);
-    File::Path GetModelPath() const { return _targetModelPath; }
+    void    LoadVerticesFromModel(const std::filesystem::path& modelPath);
+    std::filesystem::path GetModelPath() const { return _targetModelPath; }
 
 private:
-    File::Path                   _targetModelPath;
+    std::filesystem::path        _targetModelPath;
     std::shared_ptr<class Model> _targetModel;
     std::vector<UINT>            _vertexCountPerMesh;
     UINT                         _totalVertexCount = 0;

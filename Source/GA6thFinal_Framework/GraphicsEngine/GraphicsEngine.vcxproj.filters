@@ -270,9 +270,6 @@
     <ClInclude Include="ParticleEffect.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="ParticleEffectSerializer.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="ParticleEmitter.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -540,9 +537,6 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="ParticleEffect.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="ParticleEffectSerializer.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="ParticleEmitter.cpp">
