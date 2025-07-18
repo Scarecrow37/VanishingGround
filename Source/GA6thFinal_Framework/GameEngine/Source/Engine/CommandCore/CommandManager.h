@@ -20,11 +20,11 @@ public:
     }
 
     void Undo();
-    void Undo(UINT cnt);
+    void Undo(size_t cnt);
     bool Undo(CommandQueue::const_iterator itr);
 
     void Redo();
-    void Redo(UINT cnt);
+    void Redo(size_t cnt);
     bool Redo(CommandQueue::const_iterator itr);
 
     void Clear();

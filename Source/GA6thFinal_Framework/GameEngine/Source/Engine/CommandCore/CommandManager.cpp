@@ -15,9 +15,9 @@ void ECommandManager::Undo()
     ClampCommandStack();
 }
 
-void ECommandManager::Undo(UINT cnt)
+void ECommandManager::Undo(size_t cnt)
 {
-    for (UINT i = 0; i < cnt; ++i)
+    for (size_t i = 0; i < cnt; ++i)
     {
         if (true == _undoStack.empty())
         {
@@ -59,9 +59,9 @@ void ECommandManager::Redo()
     ClampCommandStack();
 }
 
-void ECommandManager::Redo(UINT cnt)
+void ECommandManager::Redo(size_t cnt)
 {
-    for (UINT i = 0; i < cnt; ++i)
+    for (size_t i = 0; i < cnt; ++i)
     {
         if (true == _redoStack.empty())
         {

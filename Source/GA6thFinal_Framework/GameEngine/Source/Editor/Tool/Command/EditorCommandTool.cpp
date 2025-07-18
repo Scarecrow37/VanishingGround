@@ -139,7 +139,7 @@ void EditorCommandTool::OnFrameFocusExit() {}
 
 void EditorCommandTool::OnFramePopupOpened() {}
 
-ImVec4 EditorCommandTool::GetSelectableColor(int index, ImVec4 color)
+ImVec4 EditorCommandTool::GetSelectableColor(size_t index, ImVec4 color)
 {
     // 빼거나 더할 값
     ImVec4 blend = ImVec4(0.1f, 0.1f, 0.1f, 0.0f);

@@ -40,7 +40,7 @@ EditorSceneTool::~EditorSceneTool()
 
 }
 
-void EditorSceneTool::SetManipulateObject(const std::weak_ptr<GameObject>& object) 
+void EditorSceneTool::SetManipulateObject(std::weak_ptr<GameObject> object) 
 {
     pSceneTool->_manipulateObject = object;
 }

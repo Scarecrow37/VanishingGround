@@ -34,11 +34,11 @@ private:
     virtual void OnFramePopupOpened();
 
 private:
-    ImVec4 GetSelectableColor(int index, ImVec4 color);
+    ImVec4 GetSelectableColor(size_t index, ImVec4 color);
 
 private:
-    int _requestUndoCount = 0;
-    int _requestRedoCount  = 0;
+    size_t _requestUndoCount = 0;
+    size_t _requestRedoCount  = 0;
 
     size_t _prevCommandStackSize = 0;
     size_t _currCommandStackSize = 0;

@@ -12,9 +12,9 @@ public:
 
 public:
     void SetTarget(std::shared_ptr<Camera> camera);
-    void SetMoveSpeed(const float speed) { _moveSpeed = std::clamp(speed, _minmaxMoveSpeed.first, _minmaxMoveSpeed.second);; }
+    void SetMoveSpeed(const float speed) { _moveSpeed = std::clamp(speed, _minmaxMoveSpeed.first, _minmaxMoveSpeed.second); }
     float GetMoveSpeed() const { return _moveSpeed; }
-    void SetRotationSpeed(const float speed) { _rotationSpeed = std::clamp(speed, _minmaxRotationSpeed.first, _minmaxRotationSpeed.second);; }
+    void SetRotationSpeed(const float speed) { _rotationSpeed = std::clamp(speed, _minmaxRotationSpeed.first, _minmaxRotationSpeed.second); }
     float GetRotationSpeed() const { return _rotationSpeed; }
 
     void SetPosition(const Vector3& position) {  _position = position;  _pivotPosition = position; }
