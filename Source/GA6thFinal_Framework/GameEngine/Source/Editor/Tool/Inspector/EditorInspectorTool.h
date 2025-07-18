@@ -23,6 +23,7 @@ public:
 
     static bool IsFocusObject(std::weak_ptr<IEditorObject> obj);
     static bool SetFocusObject(std::weak_ptr<IEditorObject> obj);
+    static void ResetFocusObject();
     static std::weak_ptr<IEditorObject> GetFocusObject();
 
 private:

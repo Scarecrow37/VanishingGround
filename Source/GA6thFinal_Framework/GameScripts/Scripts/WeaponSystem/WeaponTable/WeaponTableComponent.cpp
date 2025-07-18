@@ -238,24 +238,31 @@ void WeaponTableComponent::ImGuiTableEditor()
             ImGui::PushStyleColor(ImGuiCol_Text, GetWeaponTypeColor(weapon.Type));
             ImGui::PushID(itemID++);
             {
+                static ReflectHelper::ImGuiDraw::InputAutoSetting setting = []() 
+                {
+                    ReflectHelper::ImGuiDraw::InputAutoSetting setting;
+                    setting._float.format = "%.1f";
+                    setting.ShowName = false;
+                    return setting;
+                }();
                 ImGui::TableNextRow();
                 ImGui::TableSetColumnIndex(0);
-                ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.Name, UmCore->ImGuiDrawPropertysSetting);
+                ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.Name, setting);
                 RightClickContext();
                 ImGui::TableSetColumnIndex(1);
-                ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.Type, UmCore->ImGuiDrawPropertysSetting);
+                ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.Type, setting);
                 RightClickContext();
                 ImGui::TableSetColumnIndex(2);
-                ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.HitDamage, UmCore->ImGuiDrawPropertysSetting);
+                ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.HitDamage, setting);
                 RightClickContext();
                 ImGui::TableSetColumnIndex(3);
-                ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.CriticalDamage, UmCore->ImGuiDrawPropertysSetting);
+                ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.CriticalDamage, setting);
                 RightClickContext();
                 ImGui::TableSetColumnIndex(4);
-                ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.Speed, UmCore->ImGuiDrawPropertysSetting);
+                ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.Speed, setting);
                 RightClickContext();
                 ImGui::TableSetColumnIndex(5);
-                ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.AttackCount, UmCore->ImGuiDrawPropertysSetting);
+                ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.AttackCount, setting);
                 RightClickContext();
             }
             ImGui::PopID();

@@ -5,8 +5,6 @@
 #include "Editor/DynamicCamera/EditorDynamicCamera.h"
 #include "EditorSceneTool.h"
 #include "UmScripts.h"
-#include "Engine/GraphicsCore/Model.h"
-#include "Engine/GraphicsCore/BaseMesh.h"
 
 using namespace u8_literals;
 
@@ -40,7 +38,7 @@ EditorSceneTool::~EditorSceneTool()
 
 }
 
-void EditorSceneTool::SetManipulateObject(std::weak_ptr<GameObject>& object) 
+void EditorSceneTool::SetManipulateObject(std::weak_ptr<GameObject> object) 
 {
     pSceneTool->_manipulateObject = object;
 }
@@ -50,10 +48,47 @@ const Matrix& EditorSceneTool::GetCameraMatrix()
     return _camera->GetCamera()->GetWorldMatrix();
 }
 
+void EditorSceneTool::SetCameraToObject(std::weak_ptr<GameObject> destination) 
+{
+    if (false == destination.expired())
+    {
+        auto pObject = destination.lock();
+        if (pObject->IsValid() && _camera)
+        {
+            _isFocusedCamera = true;
+            _focusedCameraTargetPosition = pObject->transform->Position;
+            _focusedCameraStartPosition  = _camera->GetPivotPosition();
+        }
+    }
+}
+
+void EditorSceneTool::OnTickGui()
+{
+    if (_isFocusedCamera && _camera)
+    {
+        const float lerpT = _focusedLerpScale;
+        Vector3& current  = _focusedCameraStartPosition;
+        Vector3& target   = _focusedCameraTargetPosition;
+
+        current = ImLerp(current, target, lerpT);
+
+        // 거리가 충분히 가까워지면 카메라를 고정합니다.
+        Vector3 delta = target - current;
+        float   deltaLength = delta.Length();
+        if (deltaLength <= 1.0f)
+        {
+            current          = target;
+            _isFocusedCamera = false;
+        }
+        _camera->SetPivotPosition(current);
+        _camera->Update();
+    }
+}
+
 void EditorSceneTool::OnStartGui()
 {
-    std::shared_ptr<Camera> camera = UmRenderer.GetCamera("Editor");
-    GRAPHICS_ASSERT(nullptr != camera, L"Camera is nullptr");
+    std::shared_ptr<Camera> camera = UmGraphics.GetCamera("Editor");
+    assert(nullptr != camera && L"Camera is nullptr");
 
     _camera->SetTarget(camera);
     _dockWindow = GetOwnerDockWindow();
@@ -85,6 +120,7 @@ void EditorSceneTool::OnFrameRender()
     DrawManipulate();
     RayPicker();
     VertexSnap();
+    UpdateKeyboardFrameRender();
 }
 
 void EditorSceneTool::OnFrameEnd()
@@ -94,7 +130,7 @@ void EditorSceneTool::OnFrameEnd()
 void EditorSceneTool::OnFrameFocusStay()
 {
     _camera->Update();
-    UpdateKeyboardShortcuts();
+    UpdateKeyboardFrameFocus();
 }
     
 void EditorSceneTool::DragDropEvent() 
@@ -163,46 +199,59 @@ void EditorSceneTool::SetCamera()
         ReflectFields->CameraFarZ);
 }
 
-void EditorSceneTool::UpdateKeyboardShortcuts()
+void EditorSceneTool::UpdateKeyboardFrameFocus()
 {
-    if (false == ImGui::IsKeyDown(ImGuiKey_MouseRight))
+    if (true == _isDrawedManipulate)
     {
-        if (ImGui::IsKeyPressed(ImGuiKey_W, false))
-            _drawManipulateDesc.Operation = ImGuizmo::TRANSLATE;
-        if (ImGui::IsKeyPressed(ImGuiKey_E, false))
-            _drawManipulateDesc.Operation = ImGuizmo::ROTATE;
-        if (ImGui::IsKeyPressed(ImGuiKey_R, false))
-            _drawManipulateDesc.Operation = ImGuizmo::SCALE;
-        if (ImGui::IsKeyPressed(ImGuiKey_T, false))
-            _drawManipulateDesc.Operation = ImGuizmo::UNIVERSAL;
-
-        if (ImGui::IsKeyPressed(ImGuiKey_X, false))
+        if (false == ImGui::IsKeyDown(ImGuiKey_MouseRight))
         {
-            if (_drawManipulateDesc.Mode == ImGuizmo::MODE::LOCAL)
-            {
-                _drawManipulateDesc.Mode = ImGuizmo::MODE::WORLD;
-            }
-            else
-            {
-                _drawManipulateDesc.Mode = ImGuizmo::MODE::LOCAL;
-            }
-        }      
+            if (ImGui::IsKeyPressed(ImGuiKey_W, false))
+                _drawManipulateDesc.Operation = ImGuizmo::TRANSLATE;
+            if (ImGui::IsKeyPressed(ImGuiKey_E, false))
+                _drawManipulateDesc.Operation = ImGuizmo::ROTATE;
+            if (ImGui::IsKeyPressed(ImGuiKey_R, false))
+                _drawManipulateDesc.Operation = ImGuizmo::SCALE;
+            if (ImGui::IsKeyPressed(ImGuiKey_T, false))
+                _drawManipulateDesc.Operation = ImGuizmo::UNIVERSAL;
 
+            if (ImGui::IsKeyPressed(ImGuiKey_X, false))
+            {
+                if (_drawManipulateDesc.Mode == ImGuizmo::MODE::LOCAL)
+                {
+                    _drawManipulateDesc.Mode = ImGuizmo::MODE::WORLD;
+                }
+                else
+                {
+                    _drawManipulateDesc.Mode = ImGuizmo::MODE::LOCAL;
+                }
+            }
+        }  
+    }
+}
+
+void EditorSceneTool::UpdateKeyboardFrameRender() 
+{
+    if (_isDrawedManipulate)
+    {
         if (ImGui::IsKeyPressed(ImGuiKey_F, false))
         {
-            SetCameraToFocusObject();
+            auto wPtrFocused = EditorHierarchyTool::GetFocusObject();
+            SetCameraToObject(wPtrFocused);
         }
-    }  
+    }
 }
 
 void EditorSceneTool::DrawManipulate() 
 {
-    if (false == _manipulateObject.expired())
+    _isDrawedManipulate = false == _manipulateObject.expired();
+    if (true == _isDrawedManipulate)
     {
         auto pObject = _manipulateObject.lock();
         if (pObject->IsValid())
         {
+            const ImGuiIO& io    = ImGui::GetIO();
             bool isLeftShiftHold = ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftShift);
+            bool isMouseMoved    = (io.MouseDelta.x != 0.0f || io.MouseDelta.y != 0.0f);
 
             Matrix  worldMatrix   = pObject->transform->GetWorldMatrix();
             Matrix* pObjectMatrix = &worldMatrix;
@@ -217,6 +266,12 @@ void EditorSceneTool::DrawManipulate()
             _isUseManipulate = ImGuiHelper::DrawManipulate(pDynamicCamera, pObjectMatrix, _drawManipulateDesc);
             _isUsing         = ImGuizmo::IsUsing();
             _isOver          = ImGuizmo::IsOver();
+
+            // 마우스를 움직인 경우에만 Moved 플래그 설정
+            if (true == _isUsing && true == isMouseMoved)
+            {
+                _isMovedManipulate = true;
+            }
 
             if (isLeftShiftHold)    
             {
@@ -259,19 +314,24 @@ void EditorSceneTool::DrawManipulate()
                 {
                     if (true == _isUsing)
                     {
-                        _isUsingStart          = true;
+                        _isUsingStart = true;
                         prevTransform.Position = pObject->transform->Position;
                         prevTransform.Rotation = pObject->transform->Rotation;
                         prevTransform.Scale    = pObject->transform->Scale;
                     }
                     else
                     {
+                        // 이동한 경우에만 커맨드를 실행
+                        if (true == _isMovedManipulate)
+                        {
+                            ManipulateCommand::Transform currTransform;
+                            currTransform.Position = pObject->transform->Position;
+                            currTransform.Rotation = pObject->transform->Rotation;
+                            currTransform.Scale    = pObject->transform->Scale;
+                            UmCommandManager.Do<ManipulateCommand>(pObject, currTransform, prevTransform);
+                            _isMovedManipulate = false;
+                        }
                         _isUsingEnd = true;
-                        ManipulateCommand::Transform currTransform;
-                        currTransform.Position = pObject->transform->Position;
-                        currTransform.Rotation = pObject->transform->Rotation;
-                        currTransform.Scale    = pObject->transform->Scale;
-                        UmCommandManager.Do<ManipulateCommand>(pObject, currTransform, prevTransform);
                     }
                 }
                 else
@@ -290,12 +350,12 @@ void EditorSceneTool::DrawManipulate()
                 }
             }
         }
-    }   
+    }
 }
 
 void EditorSceneTool::DrawSceneView() 
 {
-    D3D12_GPU_DESCRIPTOR_HANDLE handle = UmRenderer.GetRenderSceneImage("Editor");
+    D3D12_GPU_DESCRIPTOR_HANDLE handle = UmGraphics.GetRenderSceneImage("Editor");
     ImGui::Image((ImTextureID)handle.ptr, {_sceneClientWidth, _sceneClientHeight});  
 
     constexpr ImVec2 iconButtonSize = ImVec2(64.0f, 64.0f);
@@ -303,31 +363,31 @@ void EditorSceneTool::DrawSceneView()
     ImVec2 moveIconPos = _window->ContentRegionRect.Min;
     ImGui::SetCursorScreenPos(ImVec2(moveIconPos.x + damp.x, moveIconPos.y + damp.y));
     
-    static std::shared_ptr<Texture> moveIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/Move.png");
+    static std::shared_ptr<Texture> moveIconTexture = UmResourceManager->LoadResource<Texture>(L"../GameEngine/Icon/Editor/Move.png");
     static D3D12_GPU_DESCRIPTOR_HANDLE moveIconHandle = moveIconTexture->GetGPUHandle();
 
-    static std::shared_ptr<Texture> rotationIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/Rotate.png");
+    static std::shared_ptr<Texture> rotationIconTexture = UmResourceManager->LoadResource<Texture>(L"../GameEngine/Icon/Editor/Rotate.png");
     static D3D12_GPU_DESCRIPTOR_HANDLE rotationIconHandle = rotationIconTexture->GetGPUHandle();
 
-    static std::shared_ptr<Texture> scaleIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/Scale.png");
+    static std::shared_ptr<Texture> scaleIconTexture = UmResourceManager->LoadResource<Texture>(L"../GameEngine/Icon/Editor/Scale.png");
     static D3D12_GPU_DESCRIPTOR_HANDLE scaleIconHandle = scaleIconTexture->GetGPUHandle();
 
-    static std::shared_ptr<Texture> transformIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/Transform.png");
+    static std::shared_ptr<Texture> transformIconTexture = UmResourceManager->LoadResource<Texture>(L"../GameEngine/Icon/Editor/Transform.png");
     static D3D12_GPU_DESCRIPTOR_HANDLE transformIconHandle = transformIconTexture->GetGPUHandle();
 
-    static std::shared_ptr<Texture> worldIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/World.png");
+    static std::shared_ptr<Texture> worldIconTexture = UmResourceManager->LoadResource<Texture>(L"../GameEngine/Icon/Editor/World.png");
     static D3D12_GPU_DESCRIPTOR_HANDLE worldIconHandle = worldIconTexture->GetGPUHandle();
 
-    static std::shared_ptr<Texture> localIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/Local.png");
+    static std::shared_ptr<Texture> localIconTexture = UmResourceManager->LoadResource<Texture>(L"../GameEngine/Icon/Editor/Local.png");
     static D3D12_GPU_DESCRIPTOR_HANDLE localIconHandle = localIconTexture->GetGPUHandle();
 
-    static std::shared_ptr<Texture> gridSnapIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/GridSnap.png");
+    static std::shared_ptr<Texture> gridSnapIconTexture = UmResourceManager->LoadResource<Texture>(L"../GameEngine/Icon/Editor/GridSnap.png");
     static D3D12_GPU_DESCRIPTOR_HANDLE gridSnapIconHandle = gridSnapIconTexture->GetGPUHandle();
 
-    static std::shared_ptr<Texture> toggleLeftTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/ToggleLeft.png");
+    static std::shared_ptr<Texture> toggleLeftTexture = UmResourceManager->LoadResource<Texture>(L"../GameEngine/Icon/Editor/ToggleLeft.png");
     static D3D12_GPU_DESCRIPTOR_HANDLE toggleLeftHandle = toggleLeftTexture->GetGPUHandle();
 
-    static std::shared_ptr<Texture> toggleRightTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/ToggleRight.png");
+    static std::shared_ptr<Texture> toggleRightTexture = UmResourceManager->LoadResource<Texture>(L"../GameEngine/Icon/Editor/ToggleRight.png");
     static D3D12_GPU_DESCRIPTOR_HANDLE toggleRightHandle = toggleRightTexture->GetGPUHandle();
 
     auto ImageButtonOperation = [&](ImGuizmo::OPERATION op) 
@@ -487,14 +547,50 @@ void EditorSceneTool::DrawSceneView()
         ImGui::SameLine();
     }
     ImageButtonToggleSetting();
-}
-
-void EditorSceneTool::SetCameraToFocusObject() 
-{
-    if (false == EditorHierarchyTool::GetFocusObject().expired())
+    if (_camera && showSettings)
     {
-        auto focusObject = EditorHierarchyTool::GetFocusObject().lock();
-        _camera->SetPosition(focusObject->transform->Position);
+        float moveSpeed     = _camera->GetMoveSpeed();
+        float rotationSpeed = _camera->GetRotationSpeed();
+        int   pushCount     = 0;
+        // 움직인 경우에만 알파를 낮춤
+        if (true == ImGui::IsKeyDown(ImGuiKey_MouseRight) && IsFocusFrame())
+        {
+            ImGuiStyle& style   = ImGui::GetStyle();
+            ImVec4      bgCol   = style.Colors[ImGuiCol_FrameBg];
+            ImVec4      textCol = style.Colors[ImGuiCol_Text];
+            bgCol.w *= 0.3f;
+            textCol.w *= 0.3f;
+            ImGui::PushStyleColor(ImGuiCol_FrameBg, bgCol);
+            ++pushCount;
+            ImGui::PushStyleColor(ImGuiCol_Text, textCol);
+            ++pushCount;
+        }
+        ImGui::SetNextItemWidth(150.0f);
+        int flags = ImGuiSliderFlags_AlwaysClamp;
+        ImGui::SliderFloat("Camera Move Speed##move speed",
+            &moveSpeed,
+            _camera->GetMinMoveSpeed(), 
+            _camera->GetMaxMoveSpeed(), 
+            "%.2f", 
+            flags
+        );
+        ImGui::SetNextItemWidth(150.0f);
+        ImGui::SliderFloat("Camera Rotation Speed##rotation speed",
+            &rotationSpeed, 
+            _camera->GetMinRotationSpeed(),
+            _camera->GetMaxRotationSpeed(),
+            "%.2f",
+            flags
+        );
+        ImGui::PopStyleColor(pushCount);
+        // 우클릭 + 마우스 휠 시 카메라 이동속도 높이기
+        if (ImGui::IsKeyDown(ImGuiKey_MouseRight))
+        {
+            moveSpeed *= 1.0f + (ImGui::GetIO().MouseWheel * 0.05f);
+        }
+        _camera->SetMoveSpeed(moveSpeed);
+        _camera->SetRotationSpeed(rotationSpeed);
+        UpdateReflectFields();
     }
 }
 
@@ -552,24 +648,31 @@ void EditorSceneTool::RayPicker()
                 {
                     if (meshComponent->Enable && meshComponent->gameObject->ActiveInHierarchy)
                     {
-                        auto& meshes = meshComponent->Renderer->GetModel()->GetMeshes();
-                        for (auto& baseMesh : meshes)
+                        if (meshComponent->Renderer)
                         {
-                            const BoundingOrientedBox& obb = baseMesh->GetBoundingBox();
-                            BoundingOrientedBox        obbWorld;
-                            const Matrix& worldMatrix = meshComponent->gameObject->transform->GetWorldMatrix();
-                            obb.Transform(obbWorld, worldMatrix);
-
-                            float dist = 0.f;
-                            intersects = obbWorld.Intersects(rayPos, rayDir, dist);
-                            if (true == intersects)
+                            auto& model = meshComponent->Renderer->GetModel(); 
+                            if (model)
                             {
-                                std::weak_ptr old = EditorHierarchyTool::GetFocusObject();
-                                UmCommandManager.Do<Command::Hierarchy::FocusCommand>(
-                                    old, meshComponent->gameObject->GetWeakPtr());
-                                break;
+                                auto& meshes = model->GetMeshes();
+                                for (auto& baseMesh : meshes)
+                                {
+                                    const BoundingOrientedBox& obb = baseMesh->GetBoundingBox();
+                                    BoundingOrientedBox        obbWorld;
+                                    const Matrix& worldMatrix = meshComponent->gameObject->transform->GetWorldMatrix();
+                                    obb.Transform(obbWorld, worldMatrix);
+
+                                    float dist = 0.f;
+                                    intersects = obbWorld.Intersects(rayPos, rayDir, dist);
+                                    if (true == intersects)
+                                    {
+                                        std::weak_ptr old = EditorHierarchyTool::GetFocusObject();
+                                        UmCommandManager.Do<Command::Hierarchy::FocusCommand>(
+                                            old, meshComponent->gameObject->GetWeakPtr());
+                                        break;
+                                    }
+                                }
                             }
-                        }
+                        }                     
                     }                       
                     
                     if (true == intersects)
@@ -577,18 +680,22 @@ void EditorSceneTool::RayPicker()
                         break;
                     }
                 }
+                if (false == intersects)
+                {
+                    EditorInspectorTool::ResetFocusObject();
+                }
             }
         }
     }
 }
 
 template <typename Func>
-static void AutoVertexForeach(char* vertexBuff, unsigned int stride, unsigned int size, Func func)
+static void AutoVertexForeach(char* vertexBuff, unsigned int stride, unsigned int size, Func func, int maxForeachCount = 1000)
 {
     if (stride == sizeof(StaticMeshVertex))
     {
         StaticMeshVertex* vertexes = reinterpret_cast<StaticMeshVertex*>(vertexBuff);
-        for (size_t i = 0; i < size; ++i)
+        for (size_t i = 0; i < size && i < maxForeachCount; ++i)
         {
             StaticMeshVertex& vertex = vertexes[i];
             func(vertex);
@@ -597,7 +704,7 @@ static void AutoVertexForeach(char* vertexBuff, unsigned int stride, unsigned in
     else if (stride == sizeof(SkeletalMeshVertex))
     {
         SkeletalMeshVertex* vertexes = reinterpret_cast<SkeletalMeshVertex*>(vertexBuff);
-        for (size_t i = 0; i < size; ++i)
+        for (size_t i = 0; i < size && i < maxForeachCount; ++i)
         {
             SkeletalMeshVertex& vertex = vertexes[i];
             func(vertex);
@@ -647,54 +754,63 @@ void EditorSceneTool::VertexSnap()
                     {
                         if (nullptr != manipulateMesh->Renderer)
                         {
-                            const auto& manipulateMeshes = manipulateMesh->Renderer->GetModel()->GetMeshes();
-                            for (auto& manipulateMesh : manipulateMeshes)
+                            const auto& manipulateModel = manipulateMesh->Renderer->GetModel();
+                            if (manipulateModel)
                             {
-                                manipulateMesh->GetBoundingBox().Transform(manipulateObbWorld, manipulateMatrix);
-                                for (auto& weak : meshComponents)
+                                const auto& manipulateMeshes = manipulateModel->GetMeshes();
+                                for (auto& manipulateMesh : manipulateMeshes)
                                 {
-                                    if (false == weak.expired())
+                                    manipulateMesh->GetBoundingBox().Transform(manipulateObbWorld, manipulateMatrix);
+                                    for (auto& weak : meshComponents)
                                     {
-                                        auto meshComponent = weak.lock();
-                                        if (manipulateObject.get() == &meshComponent->gameObject)
+                                        if (false == weak.expired())
                                         {
-                                            continue;
-                                        }
-                                        if (false == meshComponent->Enable || false == meshComponent->gameObject->ActiveInHierarchy)
-                                        {
-                                            continue;
-                                        }
-
-                                        if (nullptr != meshComponent->Renderer)
-                                        {
-                                            const Matrix& meshMatrix = meshComponent->gameObject->transform->GetWorldMatrix();
-                                            BoundingOrientedBox meshObbWorld;
-                                            const auto& meshes = meshComponent->Renderer->GetModel()->GetMeshes();
-                                            for (auto& mesh : meshes)
+                                            auto meshComponent = weak.lock();
+                                            if (manipulateObject.get() == &meshComponent->gameObject)
                                             {
-                                                mesh->GetBoundingBox().Transform(meshObbWorld, meshMatrix);
-                                                intersects = meshObbWorld.Intersects(manipulateObbWorld);
+                                                continue;
+                                            }
+                                            if (false == meshComponent->Enable ||
+                                                false == meshComponent->gameObject->ActiveInHierarchy)
+                                            {
+                                                continue;
+                                            }
 
-                                                if (true == intersects)
+                                            if (nullptr != meshComponent->Renderer)
+                                            {
+                                                const Matrix& meshMatrix =
+                                                    meshComponent->gameObject->transform->GetWorldMatrix();
+                                                BoundingOrientedBox meshObbWorld;
+                                                const auto&         model = meshComponent->Renderer->GetModel();
+                                                if (model)
                                                 {
-                                                    _weakClosestMeshComponent = weak;
-                                                    _closestBaseMesh          = mesh.get();
-                                                    _manipulateBaseMesh       = manipulateMesh.get();
-                                                    break;
+                                                    const auto& meshes = model->GetMeshes();
+                                                    for (auto& mesh : meshes)
+                                                    {
+                                                        mesh->GetBoundingBox().Transform(meshObbWorld, meshMatrix);
+                                                        intersects = meshObbWorld.Intersects(manipulateObbWorld);
+
+                                                        if (true == intersects)
+                                                        {
+                                                            _weakClosestMeshComponent = weak;
+                                                            _closestBaseMesh          = mesh.get();
+                                                            _manipulateBaseMesh       = manipulateMesh.get();
+                                                            break;
+                                                        }
+                                                    }
                                                 }
                                             }
+
+                                            if (true == intersects)
+                                                break;
                                         }
-
-                                        if (true == intersects)
-                                            break;
                                     }
+
+                                    if (true == intersects)
+                                        break;
                                 }
-
-                                if (true == intersects)
-                                    break;
-                            }
+                            }                      
                         }
-
                         if (true == intersects)
                             break;
                     }
@@ -719,15 +835,19 @@ void EditorSceneTool::VertexSnap()
                     {
                         if (nullptr != meshComponent->Renderer)
                         {
-                            const auto& meshes = meshComponent->Renderer->GetModel()->GetMeshes();
-                            for (auto& mesh : meshes)
+                            const auto& model = meshComponent->Renderer->GetModel();
+                            if (model)
                             {
-                                mesh->GetBoundingBox().Transform(manipulateObbWorld,
-                                                                 manipulateTransform.GetWorldMatrix());
-                                intersects = closestObbWorld.Intersects(manipulateObbWorld);
-                                if (true == intersects)
+                                const auto& meshes = model->GetMeshes();
+                                for (auto& mesh : meshes)
                                 {
-                                    break;
+                                    mesh->GetBoundingBox().Transform(manipulateObbWorld,
+                                                                     manipulateTransform.GetWorldMatrix());
+                                    intersects = closestObbWorld.Intersects(manipulateObbWorld);
+                                    if (true == intersects)
+                                    {
+                                        break;
+                                    }
                                 }
                             }
                         }

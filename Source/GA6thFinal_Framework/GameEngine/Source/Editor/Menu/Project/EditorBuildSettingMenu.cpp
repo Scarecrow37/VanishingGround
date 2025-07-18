@@ -33,15 +33,23 @@ void EditorBuildSettingMenu::OnMenu()
 {
     EditorModule& editorModule = *Global::editorModule;
     EComponentFactory& componentFactory = UmComponentFactory;
-
+    bool isProjectLoaded = UmFileSystem.IsLoadedProject();
     if (ImGui::BeginMenu("Project"))
     {
         if (ImGui::BeginMenu("Build"))
         {
+            if (false == isProjectLoaded)
+            {
+                ImGui::BeginDisabled();
+            }
             if (ImGui::MenuItem("Build Project"))
             {
                 isPopup = true;
                 isShow  = false; 
+            }
+            if (false == isProjectLoaded)
+            {
+                ImGui::EndDisabled();
             }
             if (ImGui::MenuItem("Build Script"))
             {

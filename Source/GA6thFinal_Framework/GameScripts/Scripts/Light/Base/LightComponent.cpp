@@ -7,8 +7,12 @@ LightComponent::LightComponent()
     _light(std::make_unique<Light>()),
     Lighting(*_light)
 {
-    Lighting.RegisterComponent();
     Lighting.SetActive(&EnableInHierarchy);
+    UmGraphics.RegisterComponent("Game", _light.get());
+    if constexpr (IS_EDITOR)
+    {
+        UmGraphics.RegisterComponent("Editor", _light.get());
+    }
 }
 
 LightComponent::~LightComponent() 

@@ -84,6 +84,9 @@ UMREAL_COMPONENT(WeaponTableComponent)
 #include "Scripts\Test/DevTools/FPSCounter.h"
 UMREAL_COMPONENT(FPSCounter)
 
+#include "Scripts\Particle/ParticleComponent.h"
+UMREAL_COMPONENT(ParticleComponent)
+
 #include "Scripts\Test/UI/TestUI.h"
 UMREAL_COMPONENT(TestUI)
 
@@ -95,9 +98,6 @@ UMREAL_COMPONENT(TestText)
 
 #include "Scripts\RevelationSystem/RevelationSystem.h"
 UMREAL_COMPONENT(RevelationSystem)
-
-#include "Scripts/DamageSystem/DamageSystem.h"
-UMREAL_COMPONENT(DamageSystem)
 
 #include "Scripts/Token/TokenSystem.h"
 UMREAL_COMPONENT(TokenSystem)

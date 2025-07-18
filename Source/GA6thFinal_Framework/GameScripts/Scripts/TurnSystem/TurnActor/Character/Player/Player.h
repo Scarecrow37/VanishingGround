@@ -30,7 +30,6 @@ protected:
 
 private:
     class PlayerStatsComponent* _playerStats = nullptr;
-    PlayerStatsComponent* GetPlayerStats();
     int GetShield();
 
 private:
@@ -58,10 +57,15 @@ public:
     const PlayerStates& GetFSMStates() { return _fsmStates; }
 
 public:
-    // CharacterBase을(를) 통해 상속됨
     virtual int GetSpeed() override;
     virtual int GetRandomSpeed() override;
     CharacterStats* GetCharacterStats() override;
+
+    /// <summary>
+    /// 플레이어 스텟 컴포넌트를 반환합니다. 존재하지 않으면 nullptr 입니다.
+    /// </summary>
+    /// <returns></returns>
+    PlayerStatsComponent* GetPlayerStats();
 
 protected:
     /// <summary>
