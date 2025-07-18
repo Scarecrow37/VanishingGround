@@ -82,16 +82,6 @@ public:
     static int GetTokenIDFromName(std::string_view tokenName);
 
     /// <summary>
-    /// 토큰 이름과 ID를 매핑한 테이블입니다.
-    /// </summary>
-    static inline const std::unordered_map<std::string, int>& GetTokenNameToIDTable() { return _tokenNameToIDTable; }
-
-    /// <summary>
-    /// 토큰 ID와 테이블을 매핑한 테이블입니다.
-    /// </summary>
-    static inline const std::unordered_map<int, std::string>& GetTokenIDToNameTable() { return _tokenIDToNameTable; }
-
-    /// <summary>
     /// 정렬되어있는 토큰 리스트입니다.
     /// </summary>
     static inline const std::vector<Token*>&  GetTokenInstances() { return _tokenInstances; }

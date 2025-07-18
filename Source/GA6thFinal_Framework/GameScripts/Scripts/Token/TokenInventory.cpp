@@ -384,10 +384,13 @@ void TokenInventory::InitTokenInstance()
 {
     // 테이블에 존재하는 토큰을 모두 초기화합니다.
     _tokenTable.clear();
-    auto& table = TokenSystem::GetTokenIDToNameTable();
-    for (const auto& [tokenID, tokenName] : table)
+    auto& tokenVector = TokenSystem::GetTokenInstances();
+    for (const auto& token : tokenVector)
     {
-        _tokenTable[tokenID] = 0;
+        if (token)
+        {
+            _tokenTable[token->GetTokenID()] = 0;
+        }
     }
 }
 
