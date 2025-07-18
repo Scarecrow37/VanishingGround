@@ -40,6 +40,6 @@ void CameraComponent::OnDrawDebugSelected()
     BoundingFrustum frustum;
     BoundingFrustum::CreateFromMatrix(frustum, _camera->GetProjectionMatrix());
     frustum.Transform(frustum, _camera->GetWorldMatrix());
-    UmDebugDrawCore.Draw("Editor", frustum, DEBUG_COLOR);
+    UmGraphics.DebugDraw("Editor", frustum, DEBUG_COLOR);
 }
 

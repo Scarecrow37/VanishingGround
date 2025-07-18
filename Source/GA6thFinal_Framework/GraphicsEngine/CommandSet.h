@@ -1,0 +1,24 @@
+﻿#pragma once
+
+class CommandSet
+{
+    friend class CommandController;
+
+public:
+    CommandSet()  = default;
+    ~CommandSet() = default;
+
+    ID3D12GraphicsCommandList* operator->() const { return _commandList.Get(); }
+    operator ID3D12GraphicsCommandList*() const { return _commandList.Get(); }
+
+public:
+    void Initialize(CommandType type, std::wstring_view resourceName);
+    void ExecuteCommand(CommandQueueType type = CommandQueueType::GRAPHICS_QUEUE);
+
+private:
+    void Reset();
+
+private:
+    ComPtr<ID3D12CommandAllocator>    _commandAllocator;
+    ComPtr<ID3D12GraphicsCommandList> _commandList;
+};

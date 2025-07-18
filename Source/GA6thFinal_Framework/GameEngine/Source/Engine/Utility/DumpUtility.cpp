@@ -1,4 +1,5 @@
 ﻿#include "pch.h"
+#include <minidumpapiset.h>
 
 void CreateMiniDump(_EXCEPTION_POINTERS* pExceptionPointers, int MINIDUMP_TYPE)
 {

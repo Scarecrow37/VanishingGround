@@ -5,8 +5,6 @@
 #include "Editor/DynamicCamera/EditorDynamicCamera.h"
 #include "EditorSceneTool.h"
 #include "UmScripts.h"
-#include "Engine/GraphicsCore/Model.h"
-#include "Engine/GraphicsCore/BaseMesh.h"
 
 using namespace u8_literals;
 
@@ -89,8 +87,8 @@ void EditorSceneTool::OnTickGui()
 
 void EditorSceneTool::OnStartGui()
 {
-    std::shared_ptr<Camera> camera = UmRenderer.GetCamera("Editor");
-    GRAPHICS_ASSERT(nullptr != camera, L"Camera is nullptr");
+    std::shared_ptr<Camera> camera = UmGraphics.GetCamera("Editor");
+    assert(nullptr != camera && L"Camera is nullptr");
 
     _camera->SetTarget(camera);
     _dockWindow = GetOwnerDockWindow();
@@ -357,7 +355,7 @@ void EditorSceneTool::DrawManipulate()
 
 void EditorSceneTool::DrawSceneView() 
 {
-    D3D12_GPU_DESCRIPTOR_HANDLE handle = UmRenderer.GetRenderSceneImage("Editor");
+    D3D12_GPU_DESCRIPTOR_HANDLE handle = UmGraphics.GetRenderSceneImage("Editor");
     ImGui::Image((ImTextureID)handle.ptr, {_sceneClientWidth, _sceneClientHeight});  
 
     constexpr ImVec2 iconButtonSize = ImVec2(64.0f, 64.0f);
@@ -365,31 +363,31 @@ void EditorSceneTool::DrawSceneView()
     ImVec2 moveIconPos = _window->ContentRegionRect.Min;
     ImGui::SetCursorScreenPos(ImVec2(moveIconPos.x + damp.x, moveIconPos.y + damp.y));
     
-    static std::shared_ptr<Texture> moveIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/Move.png");
+    static std::shared_ptr<Texture> moveIconTexture = UmResourceManager->LoadResource<Texture>(L"../GameEngine/Icon/Editor/Move.png");
     static D3D12_GPU_DESCRIPTOR_HANDLE moveIconHandle = moveIconTexture->GetGPUHandle();
 
-    static std::shared_ptr<Texture> rotationIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/Rotate.png");
+    static std::shared_ptr<Texture> rotationIconTexture = UmResourceManager->LoadResource<Texture>(L"../GameEngine/Icon/Editor/Rotate.png");
     static D3D12_GPU_DESCRIPTOR_HANDLE rotationIconHandle = rotationIconTexture->GetGPUHandle();
 
-    static std::shared_ptr<Texture> scaleIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/Scale.png");
+    static std::shared_ptr<Texture> scaleIconTexture = UmResourceManager->LoadResource<Texture>(L"../GameEngine/Icon/Editor/Scale.png");
     static D3D12_GPU_DESCRIPTOR_HANDLE scaleIconHandle = scaleIconTexture->GetGPUHandle();
 
-    static std::shared_ptr<Texture> transformIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/Transform.png");
+    static std::shared_ptr<Texture> transformIconTexture = UmResourceManager->LoadResource<Texture>(L"../GameEngine/Icon/Editor/Transform.png");
     static D3D12_GPU_DESCRIPTOR_HANDLE transformIconHandle = transformIconTexture->GetGPUHandle();
 
-    static std::shared_ptr<Texture> worldIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/World.png");
+    static std::shared_ptr<Texture> worldIconTexture = UmResourceManager->LoadResource<Texture>(L"../GameEngine/Icon/Editor/World.png");
     static D3D12_GPU_DESCRIPTOR_HANDLE worldIconHandle = worldIconTexture->GetGPUHandle();
 
-    static std::shared_ptr<Texture> localIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/Local.png");
+    static std::shared_ptr<Texture> localIconTexture = UmResourceManager->LoadResource<Texture>(L"../GameEngine/Icon/Editor/Local.png");
     static D3D12_GPU_DESCRIPTOR_HANDLE localIconHandle = localIconTexture->GetGPUHandle();
 
-    static std::shared_ptr<Texture> gridSnapIconTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/GridSnap.png");
+    static std::shared_ptr<Texture> gridSnapIconTexture = UmResourceManager->LoadResource<Texture>(L"../GameEngine/Icon/Editor/GridSnap.png");
     static D3D12_GPU_DESCRIPTOR_HANDLE gridSnapIconHandle = gridSnapIconTexture->GetGPUHandle();
 
-    static std::shared_ptr<Texture> toggleLeftTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/ToggleLeft.png");
+    static std::shared_ptr<Texture> toggleLeftTexture = UmResourceManager->LoadResource<Texture>(L"../GameEngine/Icon/Editor/ToggleLeft.png");
     static D3D12_GPU_DESCRIPTOR_HANDLE toggleLeftHandle = toggleLeftTexture->GetGPUHandle();
 
-    static std::shared_ptr<Texture> toggleRightTexture = UmResourceManager.LoadResource<Texture>(L"../GameEngine/Icon/Editor/ToggleRight.png");
+    static std::shared_ptr<Texture> toggleRightTexture = UmResourceManager->LoadResource<Texture>(L"../GameEngine/Icon/Editor/ToggleRight.png");
     static D3D12_GPU_DESCRIPTOR_HANDLE toggleRightHandle = toggleRightTexture->GetGPUHandle();
 
     auto ImageButtonOperation = [&](ImGuizmo::OPERATION op) 

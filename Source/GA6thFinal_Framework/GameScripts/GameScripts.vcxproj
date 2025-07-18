@@ -226,7 +226,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <AdditionalLibraryDirectories>$(SolutionDir)GameEngine\bin\$(Configuration)\;$(SolutionDir)GameEngine\ThirdParty\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>GameEngine.lib;InputModule.lib;AudioModule.lib;ImGuiThirdParty.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>GraphicsEngine.lib;GameEngine.lib;InputModule.lib;AudioModule.lib;ImGuiThirdParty.lib;XAtlasThirdParty.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">
@@ -246,7 +246,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <AdditionalLibraryDirectories>$(SolutionDir)GameEngine\bin\$(Configuration)\;$(SolutionDir)GameEngine\ThirdParty\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>GameEngine.lib;InputModule.lib;AudioModule.lib;ImGuiThirdParty.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>GraphicsEngine.lib;GameEngine.lib;InputModule.lib;AudioModule.lib;ImGuiThirdParty.lib;XAtlasThirdParty.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -270,7 +270,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <AdditionalLibraryDirectories>$(SolutionDir)GameEngine\bin\$(Configuration)\;$(SolutionDir)GameEngine\ThirdParty\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>GameEngine.lib;InputModule.lib;AudioModule.lib;ImGuiThirdParty.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>GraphicsEngine.lib;GameEngine.lib;InputModule.lib;AudioModule.lib;ImGuiThirdParty.lib;XAtlasThirdParty.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">
@@ -294,7 +294,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <AdditionalLibraryDirectories>$(SolutionDir)GameEngine\bin\$(Configuration)\;$(SolutionDir)GameEngine\ThirdParty\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>GameEngine.lib;InputModule.lib;AudioModule.lib;ImGuiThirdParty.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>GraphicsEngine.lib;GameEngine.lib;InputModule.lib;AudioModule.lib;ImGuiThirdParty.lib;XAtlasThirdParty.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -316,6 +316,7 @@
     <ClInclude Include="Scripts\Mesh\SkeletalMeshRenderer.h" />
     <ClInclude Include="Scripts\Mesh\StaticMeshRenderer.h" />
     <ClInclude Include="Scripts\Light\Base\LightComponent.h" />
+    <ClInclude Include="Scripts\Particle\ParticleComponent.h" />
     <ClInclude Include="Scripts\Stats\TurnActorStats.h" />
     <ClInclude Include="Scripts\Stats\TurnActorStatsComponent.h" />
     <ClInclude Include="Scripts\Stats\Enemy\EnemyStats.h" />
@@ -424,6 +425,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Scripts\Particle\ParticleComponent.cpp" />
     <ClCompile Include="Scripts\WeaponSystem\WeaponTable\WeaponTableComponent.cpp" />
     <ClCompile Include="Scripts\Stats\Weapon\WeaponStats.cpp" />
     <ClCompile Include="Scripts\Test\Component\TestComponent.cpp" />
