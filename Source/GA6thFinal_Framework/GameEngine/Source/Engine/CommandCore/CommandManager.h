@@ -31,8 +31,8 @@ public:
 
     void SetMaxCommandSize(size_t size);
 
-    inline const std::shared_ptr<UmCommand>& GetCommandFromUndoStack(int index) const { return _undoStack[index]; }
-    inline const std::shared_ptr<UmCommand>& GetCommandFromRedoStack(int index) const { return _redoStack[index]; }
+    inline const std::shared_ptr<UmCommand>& GetCommandFromUndoStack(size_t index) const { return _undoStack[index]; }
+    inline const std::shared_ptr<UmCommand>& GetCommandFromRedoStack(size_t index) const { return _redoStack[index]; }
 
     inline size_t GetUndoStackSize() const { return _undoStack.size(); }
     inline size_t GetRedoStackSize() const { return _redoStack.size(); }
