@@ -8,10 +8,10 @@ public
     ref class MakeSpriteFontCLI
     {
     public:
-        static int Run(const std::vector<std::string>& options);
+        static int Run(const std::vector<std::wstring>& options);
     };
 
-    extern "C" inline __declspec(dllexport) int MakeSpriteFont(const std::vector<std::string>& options)
+    extern "C" inline __declspec(dllexport) int MakeSpriteFont(const std::vector<std::wstring>& options)
     {
         return MakeSpriteFontCLI::Run(options);
     }
