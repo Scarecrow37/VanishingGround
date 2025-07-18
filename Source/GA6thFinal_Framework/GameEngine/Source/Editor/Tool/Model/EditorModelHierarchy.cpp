@@ -1,8 +1,5 @@
 ﻿#include "pch.h"
 #include "EditorModelHierarchy.h"
-#include "Engine/GraphicsCore/BaseMesh.h"
-#include "Engine/GraphicsCore/MeshRenderer.h"
-#include "Engine/GraphicsCore/Model.h"
 
 EditorModelHierarchy::EditorModelHierarchy() : _editorModelDetails(nullptr), _selectedMesh(nullptr)
 {

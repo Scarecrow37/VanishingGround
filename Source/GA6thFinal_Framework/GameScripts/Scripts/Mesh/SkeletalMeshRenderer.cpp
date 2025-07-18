@@ -1,10 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "SkeletalMeshRenderer.h"
 
-#include "Engine/GraphicsCore/Model.h"
-#include "Engine/GraphicsCore/Animation.h"
-#include "Engine/GraphicsCore/Animator.h"
-
 SkeletalMeshRenderer::SkeletalMeshRenderer() 
 {
     FilePath.SetInputAutoEvent([this]() 
@@ -252,7 +248,7 @@ void SkeletalMeshRenderer::LoadModel()
         if (path != File::NULL_PATH)
         {
             std::wstring modelPath = U8ToWString(path);
-            Renderer->LoadModel(modelPath);
+            UmGraphics.LoadResource(modelPath, Renderer.get());
             auto& animation = Renderer->GetModel()->GetAnimation();
             auto& skeleton  = Renderer->GetModel()->GetSkeleton();
             if (animation != nullptr && skeleton != nullptr)
@@ -260,7 +256,7 @@ void SkeletalMeshRenderer::LoadModel()
                 std::shared_ptr<Animator> animator(new Animator);
                 animator->Initialize(animation, skeleton);
                 animator->SetActive(&EnableInHierarchy);
-                animator->RegisterComponent();
+                UmGraphics.RegisterComponent(animator.get());
                 Renderer->SetAnimator(animator);
             }
         }

@@ -267,16 +267,7 @@
     <ClInclude Include="Scripts\Token\Object\Stun\StunToken.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Scripts\Token\Object\Shock\ShockToken.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Scripts\Token\TokenSystem.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\RevelationSystem\RevelationAction\Critical\CriticalDamageAction.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\RevelationSystem\RevelationAction\Token\TokenApplyAction.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Scripts\RevelationSystem\RevelationElement\RevelationElement.h">
@@ -301,6 +292,15 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Scripts\Test\TurnAction\TestActionComponent.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Critical\CriticalDamageAction.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Token\TokenApplyAction.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\Token\Enums\TokenEnums.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -524,19 +524,10 @@
     <ClCompile Include="Scripts\Token\Object\Stun\StunToken.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\Token\Object\Shock\ShockToken.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Scripts\Token\TokenSystem.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Scripts\DamageSystem\DamageSystem.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\RevelationSystem\RevelationAction\Critical\CriticalDamageAction.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\RevelationSystem\RevelationAction\Token\TokenApplyAction.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Scripts\RevelationSystem\RevelationElement\RevelationElement.cpp">
@@ -555,6 +546,12 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Scripts\Test\TurnAction\TestActionComponent.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Critical\CriticalDamageAction.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Token\TokenApplyAction.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

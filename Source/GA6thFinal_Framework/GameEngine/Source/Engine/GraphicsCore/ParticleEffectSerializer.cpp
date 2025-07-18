@@ -1,7 +1,78 @@
 ﻿#include "pch.h"
-#include "ParticleEmitter.h"
-#include "ParticleEffect.h"
 #include "ParticleEffectSerializer.h"
+
+void ParticleEffectSerializer::OnFileRegistered(const File::Path& path)
+{
+    
+}
+
+void ParticleEffectSerializer::OnFileUnregistered(const File::Path& path)
+{
+    
+}
+
+void ParticleEffectSerializer::OnFileModified(const File::Path& path)
+{
+    
+}
+
+
+void ParticleEffectSerializer::OnFileRemoved(const File::Path& path)
+{
+    
+}
+
+
+void ParticleEffectSerializer::OnFileRenamed(const File::Path& oldPath, const File::Path& newPath)
+{
+    
+}
+
+
+void ParticleEffectSerializer::OnFileMoved(const File::Path& oldPath, const File::Path& newPath)
+{
+    
+}
+
+void ParticleEffectSerializer::OnRequestedSave()
+{
+    
+}
+
+void ParticleEffectSerializer::OnPostRequestedSave()
+{
+    
+}
+
+void ParticleEffectSerializer::OnRequestedLoad()
+{
+    
+}
+
+void ParticleEffectSerializer::OnPostRequestedLoad()
+{
+    
+}
+
+void ParticleEffectSerializer::OnRequestedInspect(const File::Path& path)
+{
+    
+}
+
+void ParticleEffectSerializer::OnRequestedOpen(const File::Path& path)
+{
+    
+}
+
+void ParticleEffectSerializer::OnRequestedCopy(const File::Path& path)
+{
+    
+}
+
+void ParticleEffectSerializer::OnRequestedPaste(const File::Path& path)
+{
+    
+}
 
 void ParticleEffectSerializer::Serialize(ParticleEffect* effect, File::Path destPath)
 {
@@ -49,6 +120,15 @@ void ParticleEffectSerializer::Serialize(ParticleEffect* effect, File::Path dest
         {
             auto temp = emitter->_locationType;
             os.write(reinterpret_cast<const char*>(&temp), sizeof(temp));
+            if (LocationShape::MESH_SURFACE == emitter->_locationType)
+            {
+                auto meshlocator = static_cast<MeshSurfaceLocator*>(emitter->_emitLocator);
+                File::Path modelPath = meshlocator->GetModelPath();
+                SIZE_T          nameLen     = modelPath.string().size();
+                os.write(reinterpret_cast<const char*>(&nameLen), sizeof(nameLen));
+                os.write(modelPath.string().c_str(), nameLen);
+            }
+
         }
         // location factor
         {
@@ -82,7 +162,7 @@ void ParticleEffectSerializer::Serialize(ParticleEffect* effect, File::Path dest
 
         // max particles
         {
-            float maxParticles = emitter->GetMaxParticles();
+            float maxParticles = static_cast<float>(emitter->GetMaxParticles());
             os.write(reinterpret_cast<const char*>(&maxParticles), sizeof(maxParticles));
         }
 
@@ -169,6 +249,13 @@ void ParticleEffectSerializer::Serialize(ParticleEffect* effect, File::Path dest
             Vector4 dragforce = emitter->GetDragForce();
             os.write(reinterpret_cast<const char*>(&dragforce), sizeof(dragforce));
         }
+        // drag force
+        {
+            Vector4 vortex = emitter->GetVortexForce();
+            os.write(reinterpret_cast<const char*>(&vortex), sizeof(vortex));
+        }
+
+
         // render type
         {
             auto rendertype = emitter->_particleType;
@@ -200,7 +287,7 @@ void ParticleEffectSerializer::Serialize(ParticleEffect* effect, File::Path dest
     os.close();
 }
 
-ParticleEffect* ParticleEffectSerializer::Deserialize(File::Path filepath)
+ParticleEffect* ParticleEffectSerializer::Deserialize(File::Path filepath,bool isEditor)
 {
     std::ifstream is(filepath.string(), std::ios::binary);
     if (!is.is_open())
@@ -215,9 +302,164 @@ ParticleEffect* ParticleEffectSerializer::Deserialize(File::Path filepath)
     float lifetime = 0.f;
     is.read(reinterpret_cast<char*>(&lifetime), sizeof(lifetime));
 
-    auto newEffect = UmParticleManager.RegisterEffect();
+    ParticleEffect* newEffect = nullptr; 
+    if (true == isEditor)
+        newEffect = UmParticleManager->RegisterEffectOnEditor();
+    else
+        newEffect = UmParticleManager->RegisterEffect();
     newEffect->SetLifetime(lifetime);
     newEffect->SetEffectName(effectname);
+
+    uint32_t emitterCount = 0;
+    is.read(reinterpret_cast<char*>(&emitterCount), sizeof(emitterCount));
+
+    for (uint32_t i = 0; i < emitterCount; ++i)
+    {
+
+        uint32_t nameLen = 0;
+        is.read(reinterpret_cast<char*>(&nameLen), sizeof(nameLen));
+        std::string emitterName(nameLen, '\0');
+        is.read(&emitterName[0], nameLen);
+
+        Vector3           emitterPosition;
+        Vector3           emitterRotationE;
+        Quaternion        emitterRotationQ;
+        LocationShape     locationType;
+        Vector3           locatorFactor;
+        VelocityScaleType velocityType;
+        Vector3           velocityFactor;
+        float             emitterLifetime;
+        float             particleLifetime;
+        float               maxParticles;
+        float             emissionRate;
+        float             startDelay;
+        float             spawnBurstFlag;
+        float             spawnBurstCount;
+        Vector3           startColor;
+        float             startOpacity;
+        Vector3           endColor;
+        float             endOpacity;
+        Vector4           startScale;
+        Vector4           endScale;
+        float             particleMass;
+        Vector3           distributionOffset;
+        Vector4           dragPoint;
+        Vector4           dragForce;
+        Vector4           vortexForce;
+        ParticleType      particleType;
+        std::string         modelpath;
+
+        is.read(reinterpret_cast<char*>(&emitterPosition), sizeof(emitterPosition));
+        is.read(reinterpret_cast<char*>(&emitterRotationE), sizeof(emitterRotationE));
+        is.read(reinterpret_cast<char*>(&emitterRotationQ), sizeof(emitterRotationQ));
+        is.read(reinterpret_cast<char*>(&locationType), sizeof(locationType));
+        if (LocationShape::MESH_SURFACE == locationType)
+        {
+            /*       File::Path modelPath = File::NULL_PATH;
+                   SIZE_T     nameLen   = modelPath.string().size();
+                   os.write(reinterpret_cast<const char*>(&nameLen), sizeof(nameLen));
+                   os.write(modelPath.string().c_str(), nameLen);*/
+
+
+            SIZE_T nameLen = 0;
+            is.read(reinterpret_cast<char*>(&nameLen), sizeof(nameLen));
+            modelpath = std::string(nameLen, '\0');
+            is.read(&modelpath[0], nameLen);
+        }
+
+
+        is.read(reinterpret_cast<char*>(&locatorFactor), sizeof(locatorFactor));
+        is.read(reinterpret_cast<char*>(&velocityType), sizeof(velocityType));
+        is.read(reinterpret_cast<char*>(&velocityFactor), sizeof(velocityFactor));
+        is.read(reinterpret_cast<char*>(&emitterLifetime), sizeof(emitterLifetime));
+        is.read(reinterpret_cast<char*>(&particleLifetime), sizeof(particleLifetime));
+        is.read(reinterpret_cast<char*>(&maxParticles), sizeof(maxParticles));
+        is.read(reinterpret_cast<char*>(&emissionRate), sizeof(emissionRate));
+        is.read(reinterpret_cast<char*>(&startDelay), sizeof(startDelay));
+        is.read(reinterpret_cast<char*>(&spawnBurstFlag), sizeof(spawnBurstFlag));
+        is.read(reinterpret_cast<char*>(&spawnBurstCount), sizeof(spawnBurstCount));
+        is.read(reinterpret_cast<char*>(&startColor), sizeof(startColor));
+        is.read(reinterpret_cast<char*>(&startOpacity), sizeof(startOpacity));
+        is.read(reinterpret_cast<char*>(&endColor), sizeof(endColor));
+        is.read(reinterpret_cast<char*>(&endOpacity), sizeof(endOpacity));
+        is.read(reinterpret_cast<char*>(&startScale), sizeof(startScale));
+        is.read(reinterpret_cast<char*>(&endScale), sizeof(endScale));
+        is.read(reinterpret_cast<char*>(&particleMass), sizeof(particleMass));
+        is.read(reinterpret_cast<char*>(&distributionOffset), sizeof(distributionOffset));
+        is.read(reinterpret_cast<char*>(&dragPoint), sizeof(dragPoint));
+        is.read(reinterpret_cast<char*>(&dragForce), sizeof(dragForce));
+        is.read(reinterpret_cast<char*>(&vortexForce), sizeof(vortexForce));
+        is.read(reinterpret_cast<char*>(&particleType), sizeof(particleType));
+
+        // texture path
+        uint32_t pathnameLen = 0;
+        is.read(reinterpret_cast<char*>(&pathnameLen), sizeof(pathnameLen));
+        std::string utf8Path(pathnameLen, '\0');
+        is.read(&utf8Path[0], pathnameLen);
+        int wideSize = MultiByteToWideChar(CP_UTF8, 0, utf8Path.data(), static_cast<int>(utf8Path.size()), nullptr, 0);
+        std::wstring modelTexturePath(wideSize, L'\0');
+        MultiByteToWideChar(CP_UTF8, 0, utf8Path.data(), static_cast<int>(utf8Path.size()), modelTexturePath.data(),
+                            wideSize);
+
+        Vector4 frameInfo{};
+        if (particleType == ParticleType::SPRITE)
+        {
+            is.read(reinterpret_cast<char*>(&frameInfo), sizeof(frameInfo));
+        }
+        {
+            auto emitter =
+                UmParticleManager->RegisterEmitter(newEffect, static_cast<SIZE_T>(maxParticles), emissionRate, emitterLifetime, locationType,
+                                                  locatorFactor, particleType, modelTexturePath);
+            if (LocationShape::MESH_SURFACE == locationType)
+            {
+                static_cast<MeshSurfaceLocator*>(emitter->_emitLocator)->LoadVerticesFromModel(File::Path(modelpath));
+            }
+            emitter->SetEmitterName(emitterName);
+            emitter->SetEmitterPosition(emitterPosition);
+            emitter->SetEmitterRotationE(emitterRotationE);
+            emitter->SetEmitterRotationQ(emitterRotationQ);
+            emitter->SetVelocityType(velocityType);
+            emitter->SetVelocityFactor(velocityFactor);
+            emitter->SetParticleLifetime(particleLifetime);
+            emitter->SetStartDelay(startDelay);
+            emitter->SetSpawnBurstFlag(spawnBurstFlag);
+            emitter->SetSpawnBurstCount(spawnBurstCount);
+            emitter->SetStartColor(startColor);
+            emitter->SetStartOpacity(startOpacity);
+            emitter->SetEndColor(endColor);
+            emitter->SetEndOpacity(endOpacity);
+            emitter->SetStartScale(startScale);
+            emitter->SetEndScale(endScale);
+            emitter->SetParticleMass(particleMass);
+            emitter->SetParticleDistributionOffset(distributionOffset);
+            emitter->SetDragPoint(dragPoint);
+            emitter->SetDragForce(dragForce);
+            emitter->SetVortexForce(vortexForce);
+        }
+    }
+
+    is.close();
+    return newEffect;
+
+}
+
+void ParticleEffectSerializer::PreDeserialize(File::Path filepath)
+{
+    UsedTexturePaths.clear();
+    UsedModelPaths.clear();
+
+     std::ifstream is(filepath.string(), std::ios::binary);
+    if (!is.is_open())
+        return;
+
+    uint32_t nameLen = 0;
+    is.read(reinterpret_cast<char*>(&nameLen), sizeof(nameLen));
+    std::string effectname(nameLen, '\0');
+    is.read(&effectname[0], nameLen);
+
+    // lifetime
+    float lifetime = 0.f;
+    is.read(reinterpret_cast<char*>(&lifetime), sizeof(lifetime));
 
     uint32_t emitterCount = 0;
     is.read(reinterpret_cast<char*>(&emitterCount), sizeof(emitterCount));
@@ -254,12 +496,26 @@ ParticleEffect* ParticleEffectSerializer::Deserialize(File::Path filepath)
         Vector3           distributionOffset;
         Vector4           dragPoint;
         Vector4           dragForce;
+        Vector4           vortexForce;
         ParticleType      particleType;
+        std::string       modelpath;
 
         is.read(reinterpret_cast<char*>(&emitterPosition), sizeof(emitterPosition));
         is.read(reinterpret_cast<char*>(&emitterRotationE), sizeof(emitterRotationE));
         is.read(reinterpret_cast<char*>(&emitterRotationQ), sizeof(emitterRotationQ));
         is.read(reinterpret_cast<char*>(&locationType), sizeof(locationType));
+        if (LocationShape::MESH_SURFACE == locationType)
+        {
+            SIZE_T nameLen = 0;
+            is.read(reinterpret_cast<char*>(&nameLen), sizeof(nameLen));
+            modelpath = std::string(nameLen, '\0');
+            is.read(&modelpath[0], nameLen);
+            UsedModelPaths.push_back(File::Path(modelpath));
+        
+        }
+
+
+
         is.read(reinterpret_cast<char*>(&locatorFactor), sizeof(locatorFactor));
         is.read(reinterpret_cast<char*>(&velocityType), sizeof(velocityType));
         is.read(reinterpret_cast<char*>(&velocityFactor), sizeof(velocityFactor));
@@ -280,6 +536,7 @@ ParticleEffect* ParticleEffectSerializer::Deserialize(File::Path filepath)
         is.read(reinterpret_cast<char*>(&distributionOffset), sizeof(distributionOffset));
         is.read(reinterpret_cast<char*>(&dragPoint), sizeof(dragPoint));
         is.read(reinterpret_cast<char*>(&dragForce), sizeof(dragForce));
+        is.read(reinterpret_cast<char*>(&vortexForce), sizeof(vortexForce));
         is.read(reinterpret_cast<char*>(&particleType), sizeof(particleType));
 
         // texture path
@@ -287,6 +544,7 @@ ParticleEffect* ParticleEffectSerializer::Deserialize(File::Path filepath)
         is.read(reinterpret_cast<char*>(&pathnameLen), sizeof(pathnameLen));
         std::string utf8Path(pathnameLen, '\0');
         is.read(&utf8Path[0], pathnameLen);
+
         int wideSize = MultiByteToWideChar(CP_UTF8, 0, utf8Path.data(), static_cast<int>(utf8Path.size()), nullptr, 0);
         std::wstring modelTexturePath(wideSize, L'\0');
         MultiByteToWideChar(CP_UTF8, 0, utf8Path.data(), static_cast<int>(utf8Path.size()), modelTexturePath.data(),
@@ -297,34 +555,15 @@ ParticleEffect* ParticleEffectSerializer::Deserialize(File::Path filepath)
         {
             is.read(reinterpret_cast<char*>(&frameInfo), sizeof(frameInfo));
         }
-        {
-            auto emitter =
-                UmParticleManager.RegisterEmitter(newEffect, maxParticles, emissionRate, emitterLifetime, locationType,
-                                                  locatorFactor, particleType, modelTexturePath);
-            emitter->SetEmitterName(emitterName);
-            emitter->SetEmitterPosition(emitterPosition);
-            emitter->SetEmitterRotationE(emitterRotationE);
-            emitter->SetEmitterRotationQ(emitterRotationQ);
-            emitter->SetVelocityType(velocityType);
-            emitter->SetVelocityFactor(velocityFactor);
-            emitter->SetParticleLifetime(particleLifetime);
-            emitter->SetStartDelay(startDelay);
-            emitter->SetSpawnBurstFlag(spawnBurstFlag);
-            emitter->SetSpawnBurstCount(spawnBurstCount);
-            emitter->SetStartColor(startColor);
-            emitter->SetStartOpacity(startOpacity);
-            emitter->SetEndColor(endColor);
-            emitter->SetEndOpacity(endOpacity);
-            emitter->SetStartScale(startScale);
-            emitter->SetEndScale(endScale);
-            emitter->SetParticleMass(particleMass);
-            emitter->SetParticleDistributionOffset(distributionOffset);
-            emitter->SetDragPoint(dragPoint);
-            emitter->SetDragForce(dragForce);
-        }
+
+        UsedTexturePaths.push_back(utf8Path);
+
+
     }
 
     is.close();
-    return newEffect;
+
+
+
 
 }

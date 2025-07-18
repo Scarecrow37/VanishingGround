@@ -34,13 +34,12 @@ protected:
     /// <summary>
     /// 프레임이 포커싱 상태에 진입되었을 때 1회 호출됩니다.
     /// </summary>
-    virtual void OnFrameFocusEnter() override {}
+    virtual void OnFrameFocusEnter() override;
 
     /// <summary>
     /// 프레임이 포커싱 상태에 있는 동안 매 프레임마다 호출됩니다.
     /// </summary>
     virtual void OnFrameFocusStay() override {}
-
     /// <summary>
     /// 프레임이 포커싱 상태에서 벗어났을 때 1회 호출됩니다.
     /// </summary>

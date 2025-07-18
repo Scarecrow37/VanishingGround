@@ -2,12 +2,7 @@
 #include "EditorModelDetails.h"
 #include "EditorModelTool.h"
 #include "Editor/DynamicCamera/EditorDynamicCamera.h"
-#include "Engine/GraphicsCore/FBXConverter.h"
-#include "Engine/GraphicsCore/MeshRenderer.h"
-#include "Engine/GraphicsCore/Model.h"
-#include "Engine/GraphicsCore/Animation.h"
-#include "Engine/GraphicsCore/Animator.h"
-#include "Engine/GraphicsCore/Light.h"
+#include "GraphicsEngine/FBXConverter.h"
 
 EditorModelDetails::EditorModelDetails()
     : _meshRenderer(std::make_unique<MeshRenderer>(MeshRenderType::STATIC, _worldMatrix))
@@ -117,8 +112,8 @@ void EditorModelDetails::OnTickGui()
 
 void EditorModelDetails::OnStartGui()
 {
-    UmRenderer.RegisterRenderQueue("ModelViewer", _meshRenderer.get());
-    UmLightCore.RegisterLight("ModelViewer", _mainLight.get());
+    UmGraphics.RegisterComponent("ModelViewer", _meshRenderer.get());
+    UmGraphics.RegisterComponent("ModelViewer", _mainLight.get());
 
     _color = Vector3(1.f);
     _ambient = Vector3(1.f);

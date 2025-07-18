@@ -1,9 +1,6 @@
 ﻿#include "pch.h"
-#include "Engine/GraphicsCore/Model.h"
-#include "Engine/GraphicsCore/Light.h"
-#include "Engine/GraphicsCore/Animator.h"
-#include <Engine/GraphicsCore/Font.h>
 #include "UmScripts.h"
+
 using namespace Global;
 using namespace u8_literals;
 
@@ -1148,13 +1145,22 @@ void ESceneManager::SetRendererSkyBox(Scene* scene)
             File::Path path = scene->_skyBox.ToPath();
             if (false == path.IsNull())
             {
-                UmRenderer.SetSkyBox(path.wstring());
+                UmGraphics.SetSkyBox("Game", path.c_str());
+
+                if constexpr (IS_EDITOR)
+                {
+                    UmGraphics.SetSkyBox("Editor", path.c_str());
+                }
             }
         }
     }
     else
     {
-        UmRenderer.ResetSkyBox();
+        UmGraphics.ResetSkyBox("Game");
+        if constexpr (IS_EDITOR)
+        {
+            UmGraphics.ResetSkyBox("Editor");
+        }
     }
 }
 
@@ -1276,7 +1282,13 @@ bool ESceneManager::SetSkyBox(const File::Path& path)
     }
 
     Engine::SetSceneSkyBoxGuid(*mainScene, guid);
-    UmRenderer.SetSkyBox(path.wstring());
+    UmGraphics.SetSkyBox("Game", path.c_str());
+
+    if constexpr (IS_EDITOR)
+    {
+        UmGraphics.SetSkyBox("Editor", path.c_str());
+    }
+
     mainScene->IsDirty = true;
 
     return true;
@@ -1592,7 +1604,7 @@ void ESceneManager::SceneResourceManager::UpdateRenderResource(RenderResource<T>
                         auto findIter = resource.RenderResource.find(path);
                         if (findIter == resource.RenderResource.end())
                         {
-                            auto newResource = UmResourceManager.LoadResource<T>(path.string());                       
+                            auto newResource = UmResourceManager->LoadResource<T>(path.string());                       
                             resource.RenderResource[path] = newResource;
                         }
                         func();

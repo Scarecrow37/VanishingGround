@@ -13,96 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="헤더 파일\imgui">
-      <UniqueIdentifier>{486340dd-7678-478d-9f14-4bf39a9d426c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="소스 파일\imgui">
-      <UniqueIdentifier>{9f4da9ab-ce48-4179-ac8c-0d31af6f01e0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GraphicsCore">
-      <UniqueIdentifier>{7ee76fe4-b5c3-4628-be71-cb1e070427af}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GraphicsCore\Mesh">
-      <UniqueIdentifier>{507098b5-2d2e-4d2f-8362-337252a3091e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GraphicsCore\Resource">
-      <UniqueIdentifier>{bdfe6f32-dff4-4937-b704-842a8d4b8fb2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GraphicsCore\Manager">
-      <UniqueIdentifier>{09a21ef3-ad3d-402d-9971-9643a6232f1f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GraphicsCore\Mesh\Geometry">
-      <UniqueIdentifier>{5e602853-f0cc-418d-b1a2-520e825cbb17}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GraphicsCore\Camera">
-      <UniqueIdentifier>{026c3fa8-67ae-4474-b607-f2549b0a5daa}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GraphicsCore\Headers">
-      <UniqueIdentifier>{cb5020ed-6b69-48bc-9084-1dd626dc60d7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GraphicsCore\Device">
-      <UniqueIdentifier>{a585e09c-c565-4a08-8f0b-42dac91ce98f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GraphicsCore\FBXImporter">
-      <UniqueIdentifier>{ccfbddb1-8952-4c6d-a33c-4a7c05ae6581}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GraphicsCore\Font">
-      <UniqueIdentifier>{0721e0cf-8e7c-4922-9926-38eb0513b6f8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GraphicsCore\FrameResource">
-      <UniqueIdentifier>{4cefd1b9-bda8-4c4d-aaf0-30cfc83fcf9c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GraphicsCore\FX">
-      <UniqueIdentifier>{488fd3c4-b8c0-46c1-af6b-bbc2223243c9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GraphicsCore\RenderTarget">
-      <UniqueIdentifier>{df1afd56-b568-44be-8cca-f234f362ab94}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GraphicsCore\Renderer">
-      <UniqueIdentifier>{efcc3221-3a70-478c-a67b-5bbb11f8706e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GraphicsCore\Shader">
-      <UniqueIdentifier>{9278a8f9-45d5-41a1-b3c4-12fb4088616f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GraphicsCore\ImGui">
-      <UniqueIdentifier>{d750d661-0287-4a20-87de-8ea281d76872}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GraphicsCore\Skeleton">
-      <UniqueIdentifier>{735deb03-881f-4282-8293-e48808ceb724}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GraphicsCore\Resource\Texture">
-      <UniqueIdentifier>{e613624d-48ce-49f7-b1fc-e308b8d9ba3b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GraphicsCore\Resource\Model">
-      <UniqueIdentifier>{23a11d16-627e-4103-bbc0-56e1b23c28f8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GraphicsCore\Resource\Animation">
-      <UniqueIdentifier>{10d76cf7-ce92-4ebc-b14e-43b6bccafc1a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GraphicsCore\VIBuffer">
-      <UniqueIdentifier>{76ef463e-5622-4f1d-a307-537e80137e5c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GraphicsCore\StructuredBuffer">
-      <UniqueIdentifier>{baa45bd7-71fc-4ad4-9e7a-d3a2107318c3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GraphicsCore\Module">
-      <UniqueIdentifier>{a63d94b8-ab29-418c-9b51-30ec5e81ea26}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GraphicsCore\Animator">
-      <UniqueIdentifier>{80ba6ad3-2eb0-450c-92d5-8aac33e067f8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GraphicsCore\Material">
-      <UniqueIdentifier>{cc2e0fd2-4be0-475a-989a-1b89bb9ef427}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GraphicsCore\Resource\ShaderBlob">
-      <UniqueIdentifier>{269d6efd-b9fd-480e-903e-d56777bc8493}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GraphicsCore\ParticleCore">
-      <UniqueIdentifier>{88169691-a9c9-44bd-a7f0-a33433907f77}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GraphicsCore\ParticleCore\Particle">
-      <UniqueIdentifier>{c099d55e-cbf9-48fc-886f-6812ccfc7f06}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\pch.h">
@@ -243,111 +153,6 @@
     <ClInclude Include="Source\Engine\Utility\EditorHelper.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\GraphicsCore.h">
-      <Filter>GraphicsCore</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\Animation.h">
-      <Filter>GraphicsCore\Resource\Animation</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\BaseMesh.h">
-      <Filter>GraphicsCore\Mesh</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\Box.h">
-      <Filter>GraphicsCore\Mesh\Geometry</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\Camera.h">
-      <Filter>GraphicsCore\Camera</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\Cylinder.h">
-      <Filter>GraphicsCore\Mesh\Geometry</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\Defines.h">
-      <Filter>GraphicsCore\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\Enums.h">
-      <Filter>GraphicsCore\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\Externs.h">
-      <Filter>GraphicsCore\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\Structs.h">
-      <Filter>GraphicsCore\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\Device.h">
-      <Filter>GraphicsCore\Device</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\Font.h">
-      <Filter>GraphicsCore\Font</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\FrameResource.h">
-      <Filter>GraphicsCore\FrameResource</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\GeometryGenerator.h">
-      <Filter>GraphicsCore\Mesh\Geometry</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\GeoSphere.h">
-      <Filter>GraphicsCore\Mesh\Geometry</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\Grid.h">
-      <Filter>GraphicsCore\Mesh\Geometry</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\Model.h">
-      <Filter>GraphicsCore\Resource\Model</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\Quad.h">
-      <Filter>GraphicsCore\Mesh\Geometry</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\MultiRenderTargetManager.h">
-      <Filter>GraphicsCore\Manager</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\ResourceManager.h">
-      <Filter>GraphicsCore\Manager</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\ViewManager.h">
-      <Filter>GraphicsCore\Manager</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\Resource.h">
-      <Filter>GraphicsCore\Resource</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\RenderTarget.h">
-      <Filter>GraphicsCore\RenderTarget</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\Renderer.h">
-      <Filter>GraphicsCore\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\ShaderBuilder.h">
-      <Filter>GraphicsCore\Shader</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\AppModule\ImGuiDX12Module.h">
-      <Filter>GraphicsCore\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\Skeleton.h">
-      <Filter>GraphicsCore\Skeleton</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\Sphere.h">
-      <Filter>GraphicsCore\Mesh\Geometry</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\Texture.h">
-      <Filter>GraphicsCore\Resource\Texture</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\StructuredBuffer.h">
-      <Filter>GraphicsCore\StructuredBuffer</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\VIBuffer.h">
-      <Filter>GraphicsCore\VIBuffer</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\GraphicsModule.h">
-      <Filter>GraphicsCore\Module</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\RenderScene.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\RenderPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\RenderTechnique.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Editor\DragDropTypes\DragDropAsset.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -358,18 +163,6 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Editor\Menu\Project\EditorBuildSettingMenu.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\Animator.h">
-      <Filter>GraphicsCore\Animator</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\PBRLitTechnique.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\GBufferPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\DeferredPBRLitPass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\GameCore\Component\MissingComponent.h">
@@ -393,24 +186,6 @@
     <ClInclude Include="Source\Engine\FileSystem\Type\FileSystemSetting.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\Shader.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\VertexShader.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\ComputeShader.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\GeometryShader.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\MeshShader.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\PixelShader.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Editor\Tool\Model\EditorModelTool.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -418,9 +193,6 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\GraphicsCore\RendererFileEvent.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\d3dUtil.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Editor\Tool\Hierarchy\Command\FocusCommand.h">
@@ -447,9 +219,6 @@
     <ClInclude Include="Source\Engine\EditorCore\Interface\IEditorCycle.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\MeshRenderer.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Editor\Menu\Play\EditorPlayMenu.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -459,13 +228,7 @@
     <ClInclude Include="Source\Editor\Menu\Model\EditorModelMenu.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\FBXConverter.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Editor\Tool\Model\EditorModelHierarchy.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\GraphicsBase.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\ClassCore\Command\InputAutoCommand.h">
@@ -477,28 +240,10 @@
     <ClInclude Include="Source\Engine\EditorCore\System\EditorGuiSystem.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\SkyBox.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\SkyBoxRenderTechnique.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\SkyBoxPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="ThirdParty\include\pugixml\pugiconfig.hpp">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="ThirdParty\include\pugixml\pugixml.hpp">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="ThirdParty\include\UmAssimp.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="ThirdParty\include\UmDirectXTex.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="ThirdParty\include\UmDirectxtk12.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="ThirdParty\include\UmYaml-cpp.h">
@@ -513,67 +258,13 @@
     <ClInclude Include="Source\Editor\Tool\Hierarchy\HierarchyFindTool.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\AnimationCore.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\EngineCore\FactoryRegister.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\LightCore.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\Light.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Utility\Random.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\BloomTechnique.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\BrightExtractPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\UpScalePass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\DownScalePass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\BlurXPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\BlurYPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\BlendTechnique.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Editor\Tool\GameView\EditorGameView.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\ParticleEffect.h">
-      <Filter>GraphicsCore\ParticleCore</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\ParticleEmitter.h">
-      <Filter>GraphicsCore\ParticleCore</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\ParticleManager.h">
-      <Filter>GraphicsCore\ParticleCore</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\Particle.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\ParticleHelper.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\ParticleRenderTechnique.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\ParticleSpritePass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\ParticleResolvePass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectViewer.h">
@@ -583,12 +274,6 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectDetails.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\UnorderedAccessView.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\BlendPass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\TimelineCore\TimelineSystem.h">
@@ -606,79 +291,25 @@
     <ClInclude Include="Source\Engine\EditorCore\Utillity\EditorDragState.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\ResourceBase.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\DepthStencilView.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\DebugDrawCore.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\TimelineCore\AnimationNotifySet.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Editor\Tool\Model\EditorAnimationNotifyTool.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\EditorDrawTechnique.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\EndlessGridPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\OutLinePass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Utility\SharedResource.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\DXResourceManager.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\GameCore\InputReciver\InputReceiver.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\UI2DPass.h">
+    <ClInclude Include="Source\Engine\AppModule\ImGuiDX12Module.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\UI3DPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\UITechnique.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\ConstantBufferView.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\Headers.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\ParticleEffectSerializer.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\SpriteRenderer.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\UIPassBase.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\UI25DPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\FontRenderer.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\FontTechnique.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicsCore\TextDrawPass.h">
+    <ClInclude Include="Source\Engine\AppModule\GraphicsModule.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\FileSystem\Importer\SpriteFontImporter.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Utility\YAMLHelper.h">
+    <ClInclude Include="Source\Engine\GraphicsCore\ParticleEffectSerializer.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -806,96 +437,6 @@
     <ClCompile Include="Source\Engine\Utility\EditorHelper.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\GraphicsCore.cpp">
-      <Filter>GraphicsCore</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\Animation.cpp">
-      <Filter>GraphicsCore\Resource\Animation</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\BaseMesh.cpp">
-      <Filter>GraphicsCore\Mesh</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\Box.cpp">
-      <Filter>GraphicsCore\Mesh\Geometry</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\Camera.cpp">
-      <Filter>GraphicsCore\Camera</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\Cylinder.cpp">
-      <Filter>GraphicsCore\Mesh\Geometry</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\Device.cpp">
-      <Filter>GraphicsCore\Device</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\Font.cpp">
-      <Filter>GraphicsCore\Font</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\FrameResource.cpp">
-      <Filter>GraphicsCore\FrameResource</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\GeometryGenerator.cpp">
-      <Filter>GraphicsCore\Mesh\Geometry</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\GeoSphere.cpp">
-      <Filter>GraphicsCore\Mesh\Geometry</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\Grid.cpp">
-      <Filter>GraphicsCore\Mesh\Geometry</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\Model.cpp">
-      <Filter>GraphicsCore\Resource\Model</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\Quad.cpp">
-      <Filter>GraphicsCore\Mesh\Geometry</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\MultiRenderTargetManager.cpp">
-      <Filter>GraphicsCore\Manager</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\ResourceManager.cpp">
-      <Filter>GraphicsCore\Manager</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\ViewManager.cpp">
-      <Filter>GraphicsCore\Manager</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\RenderTarget.cpp">
-      <Filter>GraphicsCore\RenderTarget</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\Renderer.cpp">
-      <Filter>GraphicsCore\Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\ShaderBuilder.cpp">
-      <Filter>GraphicsCore\Shader</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\AppModule\ImGuiDX12Module.cpp">
-      <Filter>GraphicsCore\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\Skeleton.cpp">
-      <Filter>GraphicsCore\Skeleton</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\Sphere.cpp">
-      <Filter>GraphicsCore\Mesh\Geometry</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\Texture.cpp">
-      <Filter>GraphicsCore\Resource\Texture</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\StructuredBuffer.cpp">
-      <Filter>GraphicsCore\StructuredBuffer</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\VIBuffer.cpp">
-      <Filter>GraphicsCore\VIBuffer</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\GraphicsModule.cpp">
-      <Filter>GraphicsCore\Module</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\RenderScene.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\RenderPass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\RenderTechnique.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Editor\DragDropTypes\DragDropAsset.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -909,36 +450,6 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Editor\Menu\Project\EditorBuildSettingMenu.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\Animator.cpp">
-      <Filter>GraphicsCore\Animator</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\PBRLitTechnique.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\GBufferPass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\DeferredPBRLitPass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\Shader.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\VertexShader.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\ComputeShader.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\GeometryShader.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\MeshShader.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\PixelShader.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Editor\Tool\Model\EditorModelTool.cpp">
@@ -983,13 +494,7 @@
     <ClCompile Include="Source\Engine\FileSystem\Type\FileSystemSetting.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\d3dUtil.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsCore\RendererFileEvent.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\MeshRenderer.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Editor\Menu\Play\EditorPlayMenu.cpp">
@@ -1001,15 +506,6 @@
     <ClCompile Include="Source\Engine\EditorCore\System\EditorGuiSystem.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\SkyBox.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\SkyBoxRenderTechnique.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\SkyBoxPass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Editor\Menu\Model\EditorModelMenu.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -1017,9 +513,6 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Editor\Tool\Model\EditorModelHierarchy.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\FBXConverter.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="ThirdParty\include\pugixml\pugixml.cpp">
@@ -1049,52 +542,7 @@
     <ClCompile Include="Source\Engine\FileSystem\Event\FileEventSubscriber.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\AnimationCore.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\LightCore.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\Light.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\Utility\Random.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\BloomTechnique.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\BrightExtractPass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\UpScalePass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\DownScalePass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\BlurXPass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\BlurYPass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\BlendTechnique.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\GraphicsBase.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\ParticleEffect.cpp">
-      <Filter>GraphicsCore\ParticleCore</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\ParticleEmitter.cpp">
-      <Filter>GraphicsCore\ParticleCore</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\ParticleManager.cpp">
-      <Filter>GraphicsCore\ParticleCore</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\Particle.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Editor\Menu\Model\EditorModelMenu.cpp">
@@ -1104,18 +552,6 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Editor\Tool\Model\EditorModelHierarchy.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\FBXConverter.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\ParticleRenderTechnique.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\ParticleSpritePass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\ParticleResolvePass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectViewer.cpp">
@@ -1128,18 +564,6 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Editor\Tool\GameView\EditorGameView.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\UnorderedAccessView.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\BlendPass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\ResourceBase.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\DepthStencilView.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\TimelineCore\TimelineSystem.cpp">
@@ -1157,46 +581,7 @@
     <ClCompile Include="Source\Engine\EditorCore\Utillity\EditorDragState.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="ThirdParty\source\DebugDraw.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\DebugDrawCore.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\GameCore\InputReciver\InputReceiver.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\EditorDrawTechnique.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\EndlessGridPass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\OutLinePass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Utility\SharedResource.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\DXResourceManager.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\UI2DPass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\UI3DPass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\UITechnique.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\UI2DPass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\UI3DPass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\UITechnique.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\TimelineCore\AnimationNotifySet.cpp">
@@ -1205,34 +590,19 @@
     <ClCompile Include="Source\Editor\Tool\Model\EditorAnimationNotifyTool.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\ConstantBufferView.cpp">
+    <ClCompile Include="Source\Engine\AppModule\ImGuiDX12Module.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\ParticleEffectSerializer.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\SpriteRenderer.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\UIPassBase.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\UI25DPass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\FontRenderer.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\FontTechnique.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\TextDrawPass.cpp">
+    <ClCompile Include="Source\Engine\AppModule\GraphicsModule.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\UmFramework.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\FileSystem\Importer\SpriteFontImporter.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsCore\ParticleEffectSerializer.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Utility\YAMLHelper.cpp">
