@@ -1339,47 +1339,56 @@ bool ESceneManager::WriteUmSceneFile(Scene& scene, std::string_view sceneName, s
 void ESceneManager::OnFileRegistered(const File::Path& path) 
 {
     File::Guid guid     = path.ToGuid();
-    _sceneDataMap[guid] = YAML::LoadFile(path.string());
-    YAML::Node& node    = _sceneDataMap[guid];
+    const auto& [node, result] = YAMLHelper::SafeLoadFile(path);
+    if (result)
+    {
+        _sceneDataMap[guid] = node;
+        YAML::Node& node    = _sceneDataMap[guid];
 
-    Scene& scene = _scenesMap[guid];
-    scene._guid  = guid;
-    if (node["SkyBox"])
-    {
-        scene._skyBox = node["SkyBox"].as<std::string>();
-    }
-    _scenesFindMap[scene.Name].insert(guid);
-    std::string nodeGuid = node["Guid"].as<std::string>();
-    if (nodeGuid != guid)
-    {
-        node["Guid"] = guid.string();
-        if (node.IsNull() == false)
+        Scene& scene = _scenesMap[guid];
+        scene._guid  = guid;
+        if (node["SkyBox"])
         {
-            std::ofstream ofs(path, std::ios::trunc);
-            if (ofs.is_open())
-            {
-                ofs << node;
-            }
-            ofs.close();
+            scene._skyBox = node["SkyBox"].as<std::string>();
         }
-    }
-    
-    if (_loadFuncEvent)
-    {
-        std::string& loadScene = Application::IsEditor() ? _setting.MainScene : _setting.StartScene;
-        if (scene.isLoaded == false && path.string() == loadScene)
+        _scenesFindMap[scene.Name].insert(guid);
+        std::string nodeGuid = node["Guid"].as<std::string>();
+        if (nodeGuid != guid)
         {
-            if (UmComponentFactory.HasScript() == false)
+            node["Guid"] = guid.string();
+            if (node.IsNull() == false)
             {
-                if (UmComponentFactory.InitalizeComponentFactory() == false)
+                std::ofstream ofs(path, std::ios::trunc);
+                if (ofs.is_open())
                 {
-                    return;
+                    ofs << node;
                 }
+                ofs.close();
             }
-            LoadScene(path.string());
-            _loadFuncEvent();
-            _loadFuncEvent = nullptr;
         }
+
+        if (_loadFuncEvent)
+        {
+            std::string& loadScene = Application::IsEditor() ? _setting.MainScene : _setting.StartScene;
+            if (scene.isLoaded == false && path.string() == loadScene)
+            {
+                if (UmComponentFactory.HasScript() == false)
+                {
+                    if (UmComponentFactory.InitalizeComponentFactory() == false)
+                    {
+                        return;
+                    }
+                }
+                LoadScene(path.string());
+                _loadFuncEvent();
+                _loadFuncEvent = nullptr;
+            }
+        }
+    }
+    else
+    {
+        std::string msg = std::format("{}{} {}",  (const char*)u8"올바르지 않은 UmScene 파일입니다. ", path.string(), result.What());
+        UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
     }
 }
 
@@ -1394,13 +1403,22 @@ void ESceneManager::OnFileUnregistered(const File::Path& path)
 void ESceneManager::OnFileModified(const File::Path& path)
 {
     File::Guid guid = path.ToGuid();
-    _sceneDataMap[guid] = YAML::LoadFile(path.string());
-    const YAML::Node& node = _sceneDataMap[guid];
-    Scene& scene = _scenesMap[guid];
-    scene._guid  = guid;
-    if (node["SkyBox"])
+    const auto& [node, result] = YAMLHelper::SafeLoadFile(path);
+    if (result)
     {
-        scene._skyBox = node["SkyBox"].as<std::string>();
+        _sceneDataMap[guid]     = node;
+        const YAML::Node& node  = _sceneDataMap[guid];
+        Scene&            scene = _scenesMap[guid];
+        scene._guid             = guid;
+        if (node["SkyBox"])
+        {
+            scene._skyBox = node["SkyBox"].as<std::string>();
+        }
+    }
+    else
+    {
+        std::string msg = std::format("{}{} {}",  (const char*)u8"올바르지 않은 UmScene 파일입니다. ", path.string(), result.What());
+        UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
     }
 }
 

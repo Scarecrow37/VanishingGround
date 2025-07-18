@@ -118,10 +118,18 @@ void EGameObjectFactory::ErasePrefabItem(const File::Guid& guid)
 void EGameObjectFactory::OnFileRegistered(const File::Path& path)
 {
     File::Guid guid = path.ToGuid();
-    YAML::Node yamlData = YAML::LoadFile(path.string());
-    _prefabObjectMap[guid] = MakeObjectsGraphToYaml(&yamlData, true);
-    WritePrefabGuid(path, yamlData);
-    ApplyPrefabInstanceChanges(guid, yamlData);
+    auto [yamlData, result] = YAMLHelper::SafeLoadFile(path);
+    if (result)
+    {
+        _prefabObjectMap[guid] = MakeObjectsGraphToYaml(&yamlData, true);
+        WritePrefabGuid(path, yamlData);
+        ApplyPrefabInstanceChanges(guid, yamlData);
+    }
+    else
+    {
+        std::string msg = std::format("{}{} {}", (const char*)u8"올바르지 않은 UmPrefab 파일입니다. ", path.string(), result.What());
+        UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
+    }
 }
 
 void EGameObjectFactory::OnFileUnregistered(const File::Path& path) 
@@ -133,10 +141,18 @@ void EGameObjectFactory::OnFileUnregistered(const File::Path& path)
 void EGameObjectFactory::OnFileModified(const File::Path& path)
 {
     File::Guid guid = path.ToGuid();
-    YAML::Node yamlData = YAML::LoadFile(path.string());
-    _prefabObjectMap[guid] = MakeObjectsGraphToYaml(&yamlData, true);
-    WritePrefabGuid(path, yamlData);
-    ApplyPrefabInstanceChanges(guid, yamlData);
+    auto [yamlData, result] = YAMLHelper::SafeLoadFile(path);
+    if (result)
+    {
+        _prefabObjectMap[guid] = MakeObjectsGraphToYaml(&yamlData, true);
+        WritePrefabGuid(path, yamlData);
+        ApplyPrefabInstanceChanges(guid, yamlData);
+    }
+    else
+    {
+        std::string msg = std::format("{}{} {}",  (const char*)u8"올바르지 않은 UmPrefab 파일입니다. ", path.string(), result.What());
+        UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
+    }
 }
 
 void EGameObjectFactory::OnFileRemoved(const File::Path& path) 
