@@ -40,7 +40,7 @@ EditorSceneTool::~EditorSceneTool()
 
 }
 
-void EditorSceneTool::SetManipulateObject(std::weak_ptr<GameObject>& object) 
+void EditorSceneTool::SetManipulateObject(std::weak_ptr<GameObject> object) 
 {
     pSceneTool->_manipulateObject = object;
 }
@@ -48,6 +48,43 @@ void EditorSceneTool::SetManipulateObject(std::weak_ptr<GameObject>& object)
 const Matrix& EditorSceneTool::GetCameraMatrix()
 {
     return _camera->GetCamera()->GetWorldMatrix();
+}
+
+void EditorSceneTool::SetCameraToObject(std::weak_ptr<GameObject> destination) 
+{
+    if (false == destination.expired())
+    {
+        auto pObject = destination.lock();
+        if (pObject->IsValid() && _camera)
+        {
+            _isFocusedCamera = true;
+            _focusedCameraTargetPosition = pObject->transform->Position;
+            _focusedCameraStartPosition  = _camera->GetPivotPosition();
+        }
+    }
+}
+
+void EditorSceneTool::OnTickGui()
+{
+    if (_isFocusedCamera && _camera)
+    {
+        const float lerpT = _focusedLerpScale;
+        Vector3& current  = _focusedCameraStartPosition;
+        Vector3& target   = _focusedCameraTargetPosition;
+
+        current = ImLerp(current, target, lerpT);
+
+        // 거리가 충분히 가까워지면 카메라를 고정합니다.
+        Vector3 delta = target - current;
+        float   deltaLength = delta.Length();
+        if (deltaLength <= 1.0f)
+        {
+            current          = target;
+            _isFocusedCamera = false;
+        }
+        _camera->SetPivotPosition(current);
+        _camera->Update();
+    }
 }
 
 void EditorSceneTool::OnStartGui()
@@ -85,6 +122,7 @@ void EditorSceneTool::OnFrameRender()
     DrawManipulate();
     RayPicker();
     VertexSnap();
+    UpdateKeyboardFrameRender();
 }
 
 void EditorSceneTool::OnFrameEnd()
@@ -94,7 +132,7 @@ void EditorSceneTool::OnFrameEnd()
 void EditorSceneTool::OnFrameFocusStay()
 {
     _camera->Update();
-    UpdateKeyboardShortcuts();
+    UpdateKeyboardFrameFocus();
 }
     
 void EditorSceneTool::DragDropEvent() 
@@ -163,46 +201,59 @@ void EditorSceneTool::SetCamera()
         ReflectFields->CameraFarZ);
 }
 
-void EditorSceneTool::UpdateKeyboardShortcuts()
+void EditorSceneTool::UpdateKeyboardFrameFocus()
 {
-    if (false == ImGui::IsKeyDown(ImGuiKey_MouseRight))
+    if (true == _isDrawedManipulate)
     {
-        if (ImGui::IsKeyPressed(ImGuiKey_W, false))
-            _drawManipulateDesc.Operation = ImGuizmo::TRANSLATE;
-        if (ImGui::IsKeyPressed(ImGuiKey_E, false))
-            _drawManipulateDesc.Operation = ImGuizmo::ROTATE;
-        if (ImGui::IsKeyPressed(ImGuiKey_R, false))
-            _drawManipulateDesc.Operation = ImGuizmo::SCALE;
-        if (ImGui::IsKeyPressed(ImGuiKey_T, false))
-            _drawManipulateDesc.Operation = ImGuizmo::UNIVERSAL;
-
-        if (ImGui::IsKeyPressed(ImGuiKey_X, false))
+        if (false == ImGui::IsKeyDown(ImGuiKey_MouseRight))
         {
-            if (_drawManipulateDesc.Mode == ImGuizmo::MODE::LOCAL)
-            {
-                _drawManipulateDesc.Mode = ImGuizmo::MODE::WORLD;
-            }
-            else
-            {
-                _drawManipulateDesc.Mode = ImGuizmo::MODE::LOCAL;
-            }
-        }      
+            if (ImGui::IsKeyPressed(ImGuiKey_W, false))
+                _drawManipulateDesc.Operation = ImGuizmo::TRANSLATE;
+            if (ImGui::IsKeyPressed(ImGuiKey_E, false))
+                _drawManipulateDesc.Operation = ImGuizmo::ROTATE;
+            if (ImGui::IsKeyPressed(ImGuiKey_R, false))
+                _drawManipulateDesc.Operation = ImGuizmo::SCALE;
+            if (ImGui::IsKeyPressed(ImGuiKey_T, false))
+                _drawManipulateDesc.Operation = ImGuizmo::UNIVERSAL;
 
+            if (ImGui::IsKeyPressed(ImGuiKey_X, false))
+            {
+                if (_drawManipulateDesc.Mode == ImGuizmo::MODE::LOCAL)
+                {
+                    _drawManipulateDesc.Mode = ImGuizmo::MODE::WORLD;
+                }
+                else
+                {
+                    _drawManipulateDesc.Mode = ImGuizmo::MODE::LOCAL;
+                }
+            }
+        }  
+    }
+}
+
+void EditorSceneTool::UpdateKeyboardFrameRender() 
+{
+    if (_isDrawedManipulate)
+    {
         if (ImGui::IsKeyPressed(ImGuiKey_F, false))
         {
-            SetCameraToFocusObject();
+            auto wPtrFocused = EditorHierarchyTool::GetFocusObject();
+            SetCameraToObject(wPtrFocused);
         }
-    }  
+    }
 }
 
 void EditorSceneTool::DrawManipulate() 
 {
-    if (false == _manipulateObject.expired())
+    _isDrawedManipulate = false == _manipulateObject.expired();
+    if (true == _isDrawedManipulate)
     {
         auto pObject = _manipulateObject.lock();
         if (pObject->IsValid())
         {
+            const ImGuiIO& io    = ImGui::GetIO();
             bool isLeftShiftHold = ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftShift);
+            bool isMouseMoved    = (io.MouseDelta.x != 0.0f || io.MouseDelta.y != 0.0f);
 
             Matrix  worldMatrix   = pObject->transform->GetWorldMatrix();
             Matrix* pObjectMatrix = &worldMatrix;
@@ -217,6 +268,12 @@ void EditorSceneTool::DrawManipulate()
             _isUseManipulate = ImGuiHelper::DrawManipulate(pDynamicCamera, pObjectMatrix, _drawManipulateDesc);
             _isUsing         = ImGuizmo::IsUsing();
             _isOver          = ImGuizmo::IsOver();
+
+            // 마우스를 움직인 경우에만 Moved 플래그 설정
+            if (true == _isUsing && true == isMouseMoved)
+            {
+                _isMovedManipulate = true;
+            }
 
             if (isLeftShiftHold)    
             {
@@ -259,19 +316,24 @@ void EditorSceneTool::DrawManipulate()
                 {
                     if (true == _isUsing)
                     {
-                        _isUsingStart          = true;
+                        _isUsingStart = true;
                         prevTransform.Position = pObject->transform->Position;
                         prevTransform.Rotation = pObject->transform->Rotation;
                         prevTransform.Scale    = pObject->transform->Scale;
                     }
                     else
                     {
+                        // 이동한 경우에만 커맨드를 실행
+                        if (true == _isMovedManipulate)
+                        {
+                            ManipulateCommand::Transform currTransform;
+                            currTransform.Position = pObject->transform->Position;
+                            currTransform.Rotation = pObject->transform->Rotation;
+                            currTransform.Scale    = pObject->transform->Scale;
+                            UmCommandManager.Do<ManipulateCommand>(pObject, currTransform, prevTransform);
+                            _isMovedManipulate = false;
+                        }
                         _isUsingEnd = true;
-                        ManipulateCommand::Transform currTransform;
-                        currTransform.Position = pObject->transform->Position;
-                        currTransform.Rotation = pObject->transform->Rotation;
-                        currTransform.Scale    = pObject->transform->Scale;
-                        UmCommandManager.Do<ManipulateCommand>(pObject, currTransform, prevTransform);
                     }
                 }
                 else
@@ -290,7 +352,7 @@ void EditorSceneTool::DrawManipulate()
                 }
             }
         }
-    }   
+    }
 }
 
 void EditorSceneTool::DrawSceneView() 
@@ -487,14 +549,50 @@ void EditorSceneTool::DrawSceneView()
         ImGui::SameLine();
     }
     ImageButtonToggleSetting();
-}
-
-void EditorSceneTool::SetCameraToFocusObject() 
-{
-    if (false == EditorHierarchyTool::GetFocusObject().expired())
+    if (_camera && showSettings)
     {
-        auto focusObject = EditorHierarchyTool::GetFocusObject().lock();
-        _camera->SetPosition(focusObject->transform->Position);
+        float moveSpeed     = _camera->GetMoveSpeed();
+        float rotationSpeed = _camera->GetRotationSpeed();
+        int   pushCount     = 0;
+        // 움직인 경우에만 알파를 낮춤
+        if (true == ImGui::IsKeyDown(ImGuiKey_MouseRight) && IsFocusFrame())
+        {
+            ImGuiStyle& style   = ImGui::GetStyle();
+            ImVec4      bgCol   = style.Colors[ImGuiCol_FrameBg];
+            ImVec4      textCol = style.Colors[ImGuiCol_Text];
+            bgCol.w *= 0.3f;
+            textCol.w *= 0.3f;
+            ImGui::PushStyleColor(ImGuiCol_FrameBg, bgCol);
+            ++pushCount;
+            ImGui::PushStyleColor(ImGuiCol_Text, textCol);
+            ++pushCount;
+        }
+        ImGui::SetNextItemWidth(150.0f);
+        int flags = ImGuiSliderFlags_AlwaysClamp;
+        ImGui::SliderFloat("Camera Move Speed##move speed",
+            &moveSpeed,
+            _camera->GetMinMoveSpeed(), 
+            _camera->GetMaxMoveSpeed(), 
+            "%.2f", 
+            flags
+        );
+        ImGui::SetNextItemWidth(150.0f);
+        ImGui::SliderFloat("Camera Rotation Speed##rotation speed",
+            &rotationSpeed, 
+            _camera->GetMinRotationSpeed(),
+            _camera->GetMaxRotationSpeed(),
+            "%.2f",
+            flags
+        );
+        ImGui::PopStyleColor(pushCount);
+        // 우클릭 + 마우스 휠 시 카메라 이동속도 높이기
+        if (ImGui::IsKeyDown(ImGuiKey_MouseRight))
+        {
+            moveSpeed *= 1.0f + (ImGui::GetIO().MouseWheel * 0.05f);
+        }
+        _camera->SetMoveSpeed(moveSpeed);
+        _camera->SetRotationSpeed(rotationSpeed);
+        UpdateReflectFields();
     }
 }
 
@@ -583,6 +681,10 @@ void EditorSceneTool::RayPicker()
                     {
                         break;
                     }
+                }
+                if (false == intersects)
+                {
+                    EditorInspectorTool::ResetFocusObject();
                 }
             }
         }
