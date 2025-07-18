@@ -20,6 +20,19 @@ constexpr bool IS_EDITOR = true;
 constexpr bool IS_EDITOR = false;
 #endif
 
+namespace Global
+{
+    //게임 플레이중 여부를 반환합니다.
+#ifdef _UMEDITOR
+    extern constexpr bool IsPlay();
+#else
+    constexpr bool IsPlay()
+    {
+        return true;
+    }
+#endif
+}
+
 // 프로젝트 설정 파일들 모아두는 폴더
 constexpr const wchar_t* PROJECT_SETTING_PATH = L"ProjectSettings"; 
 // 빌드 설정 파일 모아두는 폴더
@@ -29,28 +42,13 @@ constexpr const wchar_t* ASSET_FOLDER_NAME = L"Assets";
 // 문자열 null을 명시적으로 표시하기 위한 값
 constexpr const char* STR_NULL = "null";
 
-//DirectX12
-#include "directx/d3dcommon.h"
-#include "directx/d3dx12.h"
-#include "UmDirectxtk12.h"
-#include "UmDirectXTex.h"
-#include "DirectXMath.h"
-
 //WINDOW SDK
+#define NOMINMAX
 #include <Windows.h>
-#include <dbghelp.h>
-#include <dxgi1_4.h>
-#include <dxgi1_6.h>
-#include <d3dcompiler.h>
 #include <wrl.h>
 #include <winrt/base.h>
 #include <Xinput.h>
 #include <xaudio2.h>
-
-#pragma comment(lib, "d3d12")
-#pragma comment(lib, "dxgi")
-#pragma comment(lib, "Dbghelp.lib")
-#pragma comment(lib, "d3dcompiler")
 
 //CRT
 #include <tchar.h>
@@ -89,26 +87,27 @@ constexpr const char* STR_NULL = "null";
 //ThirdParty
 #include "pugixml/pugixml.hpp"
 #include "UmYaml-cpp.h"
-#include "UmAssimp.h"
 
+// ImGui
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include "../ImGuiThirdParty/imgui.h"
-#include "../ImGuiThirdParty/imgui_stdlib.h"
-#include "../ImGuiThirdParty/imgui_impl_win32.h"
 #include "../ImGuiThirdParty/imgui_impl_dx12.h"
-#include "../ImGuiThirdParty/imgui_node_editor.h"
+#include "../ImGuiThirdParty/imgui_impl_win32.h"
 #include "../ImGuiThirdParty/imgui_internal.h"
+#include "../ImGuiThirdParty/imgui_node_editor.h"
+#include "../ImGuiThirdParty/imgui_stdlib.h"
 
+#include "../ImGuiThirdParty/GraphEditor.h"
+#include "../ImGuiThirdParty/ImCurveEdit.h"
 #include "../ImGuiThirdParty/ImGuizmo.h"
 #include "../ImGuiThirdParty/ImSequencer.h"
 #include "../ImGuiThirdParty/ImZoomSlider.h"
-#include "../ImGuiThirdParty/ImCurveEdit.h"
-#include "../ImGuiThirdParty/GraphEditor.h"
 
 //namespace
-using namespace DirectX;
-using namespace DirectX::SimpleMath;
 using namespace Microsoft::WRL;
+
+// Graphics
+#include "../GraphicsEngine/Graphics.h"
 
 //Utility
 #include "Engine/Utility/Random.h"
@@ -120,10 +119,8 @@ using namespace Microsoft::WRL;
 #include "Engine/Utility/stlHelper.h"
 #include "Engine/Utility/EditorHelper.h"
 #include "Engine/Utility/Mathf.h"
-#include "Engine/Utility/SharedResource.h"
 
 //Class Core
-#include "Engine/CommandCore/CommandManager.h"
 #include "Engine/ClassCore/TProperty.hpp"
 #include "Engine/ClassCore/ReflectHelper.h"
 
@@ -148,13 +145,11 @@ using namespace Microsoft::WRL;
 #include "Engine/FileSystem/Event/FileEventSubscriber.h"
 #include "Engine/FileSystem/FileSystemModule.h"
 
-//Graphics
-#include "Engine/GraphicsCore/GraphicsCore.h"
-#include "Engine/GraphicsCore/ParticleEffectSerializer.h"
-
-
 //Audio Core
 #include "../AudioModule/AudioModule.h"
+
+//CommandCore
+#include "Engine/CommandCore/CommandManager.h"
 
 //Engine Core
 #include "Engine/EngineCore/EngineLogger.h"
@@ -192,6 +187,7 @@ using namespace Microsoft::WRL;
 //Application Module
 #include "Engine/AppModule/EngineCoresModule.h"
 #include "Engine/AppModule/ImGuiDX12Module.h"
+#include "Engine/AppModule/GraphicsModule.h"
 
 //DragDropTypes
 #include "Editor/DragDropTypes/DragDropTransform.h"

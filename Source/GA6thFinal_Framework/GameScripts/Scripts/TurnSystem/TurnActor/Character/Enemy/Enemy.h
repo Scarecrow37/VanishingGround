@@ -37,7 +37,6 @@ public:
 
 private:
     EnemyStatsComponent* _enemyStats = nullptr;
-    EnemyStatsComponent* GetEnemyStats();
 
 protected:
     class FiniteStateMachine* _finiteStateMachine = nullptr;
@@ -54,12 +53,16 @@ protected:
 public:
     /*Enemy의 턴을 종료합니다.*/
     virtual void EndTurn() override;
-
     /*Enemy를 Dead 상태로 만듭니다.*/
     virtual void Dead() override;
+    /*Enemy에게 피격을 가합니다.*/
+    virtual void TakeDamage(int damage) override;
 
     FiniteStateMachine& GetFSM() { return *_finiteStateMachine; }
     const EnemyStates&  GetFSMStates() { return _fsmStates; }
+
+    /*Enemy의 Stats을 반환합니다.*/
+    EnemyStatsComponent* GetEnemyStats();
 
 protected:
     /// <summary>
@@ -78,6 +81,7 @@ public:
     virtual void OnCombatStart() override;
     virtual void OnRoundStart() override;
     virtual void OnRoundEnd() override;
+    virtual void OnEachTurnStart(CharacterBase* destination) override;
     virtual void OnTurnStart() override;
     virtual void OnTurnEnd() override;
     virtual void OnHit() override;

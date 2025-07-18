@@ -34,8 +34,6 @@ UMREAL_COMPONENT(StaticMeshRenderer)
 #include "Scripts/Mesh/SkeletalMeshRenderer.h"
 UMREAL_COMPONENT(SkeletalMeshRenderer)
 
-//#include "Scripts\Graphics/SkeletalMeshRenderer.h"
-//UMREAL_COMPONENT(SkeletalMeshRenderer)
 
 #include "Scripts/GameCore/FSM/FiniteStateMachine.h"
 UMREAL_COMPONENT(FiniteStateMachine)
@@ -100,3 +98,9 @@ UMREAL_COMPONENT(TestText)
 
 #include "Scripts\RevelationSystem/RevelationSystem.h"
 UMREAL_COMPONENT(RevelationSystem)
+
+#include "Scripts/Token/TokenSystem.h"
+UMREAL_COMPONENT(TokenSystem)
+
+#include "Scripts/Test/TurnAction/TestActionComponent.h"
+UMREAL_COMPONENT(TestActionComponent)

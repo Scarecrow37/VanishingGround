@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "Importer/SpriteFontImporter.h"
 
 namespace File
 {
@@ -33,14 +34,13 @@ public:
     void PreUnInitialize() override;
     void ModuleUnInitialize() override;
 
-    void OnRequestedSave() override;
-    void OnRequestedLoad() override;
-
-public:
-
     void Update();
 
 private:
+    void OnRequestedSave() override;
+    void OnRequestedLoad() override;
+    void OnRequestedDragDrop(const File::Path& path) override;
+
     void RecieveFileEvent(const Event& data);
     void DispatchFileEvent();
 
@@ -50,4 +50,6 @@ private:
 private:
     std::mutex          _mutex;
     std::queue<Event>   _eventQueue; // 이벤트 큐
+
+    Importer::SpriteFontImporter _spriteFontImporter; // 스프라이트 폰트 임포터
 };

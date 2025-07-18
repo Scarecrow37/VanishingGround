@@ -75,7 +75,12 @@ namespace File
         std::vector<std::pair<LPCWSTR, LPCWSTR>>    Filters;
         DWORD                                       Flags;
     };
+
     // 파일 브라우저 열기
+    bool ShowOpenFileDialog(HWND owner, LPCWSTR title, LPCWSTR initialDir,
+                            std::vector<std::pair<LPCWSTR, LPCWSTR>> filters, OUT std::vector<File::Path>& out);
+    bool ShowOpenFileDialog(HWND owner, LPCWSTR title, LPCWSTR initialDir,
+                            std::vector<std::pair<LPCWSTR, LPCWSTR>> filters, OUT File::Path& out);
     bool ShowOpenFileDialog(HWND owner, LPCWSTR title, LPCWSTR initialDir,
                              std::vector<std::pair<LPCWSTR, LPCWSTR>> filters, bool allowMultiSelect, OUT std::vector<File::Path>& out);
     bool ShowSaveFileDialog(HWND owner, LPCWSTR title, LPCWSTR initialDir, LPCWSTR defaultName,
@@ -91,5 +96,11 @@ namespace File
     /// <returns>바탕화면 경로</returns>
     std::wstring_view GetDesktopPath();
 
+    // std::wstring을 클립보드에 복사하는 함수
+    void SetClipboardText(std::wstring_view text);
+
+    // 클립보드에서 std::wstring을 가져오는 함수
+    std::wstring GetClipboardText();
+  
 } // namespace File
 

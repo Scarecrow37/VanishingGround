@@ -1,6 +1,5 @@
 ﻿#include "pchScripts.h"
 #include "TestText.h"
-#include "Engine/GraphicsCore/FontRenderer.h"
 
 TestText::TestText()
 {
@@ -41,8 +40,12 @@ TestText::~TestText()
 void TestText::Reset()
 {
     _fontRenderer = std::make_unique<FontRenderer>();
-    _fontRenderer->RegisterComponent();
     _fontRenderer->SetActive(&EnableInHierarchy);
+    UmGraphics.RegisterComponent("Game", _fontRenderer.get());
+    if constexpr (IS_EDITOR)
+    {
+        UmGraphics.RegisterComponent("Editor", _fontRenderer.get());
+    }
 }
 
 void TestText::ImGuiDrawPropertysEvent()
@@ -96,7 +99,7 @@ void TestText::LoadFont()
         if (path != File::NULL_PATH)
         {
             std::wstring filePath = U8ToWString(path);
-            _fontRenderer->LoadFont(filePath);
+            UmGraphics.LoadResource(filePath, _fontRenderer.get());
 
             _fontRenderer->SetText(U8ToWString(ReflectFields->Text));
             _fontRenderer->SetColor(Vector4(&ReflectFields->Color[0]));

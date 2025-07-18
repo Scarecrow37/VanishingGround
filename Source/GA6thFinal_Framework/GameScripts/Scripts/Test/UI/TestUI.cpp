@@ -1,6 +1,5 @@
 ﻿#include "pchScripts.h"
 #include "TestUI.h"
-#include "Engine/GraphicsCore/SpriteRenderer.h"
 
 TestUI::TestUI()
 {
@@ -38,8 +37,12 @@ TestUI::~TestUI()
 void TestUI::Reset()
 {
     _spriteRenderer = std::make_unique<SpriteRenderer>(transform->GetWorldMatrix(), SpriteType::MODE_2D);
-    _spriteRenderer->RegisterComponent();
     _spriteRenderer->SetActive(&EnableInHierarchy);
+    UmGraphics.RegisterComponent("Game", _spriteRenderer.get());
+    if constexpr (IS_EDITOR)
+    {
+        UmGraphics.RegisterComponent("Editor", _spriteRenderer.get());
+    }
 }
 
 void TestUI::ImGuiDrawPropertysEvent()
@@ -80,7 +83,7 @@ void TestUI::LoadTexture()
         if (path != File::NULL_PATH)
         {
             std::wstring filePath = U8ToWString(path);
-            _spriteRenderer->LoadTexture(filePath);
+            UmGraphics.LoadResource(filePath, _spriteRenderer.get());
             _size = _spriteRenderer->GetSize();
         }
     }

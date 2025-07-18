@@ -34,12 +34,12 @@ void EditorModelMenu::OnMenu()
     {
         if (ImGui::MenuItem(_imoprt.c_str()))
         {
-            _editorModelDetails->ImportModel();
+            _editorModelDetails->ImportModelWithDialog();
         }
 
         if (ImGui::MenuItem(_open.c_str()))
         {
-            _editorModelDetails->ImportModel();
+            _editorModelDetails->ImportModelWithDialog();
         }
 
         if (ImGui::MenuItem(_save.c_str()))

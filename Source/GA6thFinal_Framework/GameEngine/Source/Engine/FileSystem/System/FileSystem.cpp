@@ -414,6 +414,15 @@ void EFileSystem::RequestPasteFile(const File::Path& path)
     }
 }
 
+void EFileSystem::RequestDragDropFile(const File::Path& path) 
+{
+    const EventSubscriberSet& subscriberSet = GetEventSubscribers(path.extension());
+    for (auto& subscriber : subscriberSet)
+    {
+        subscriber->OnRequestedDragDrop(path);
+    }
+}
+
 void EFileSystem::DrawGuiSettingEditor() 
 {
     if (ImGui::BeginMenuBar())
@@ -468,15 +477,15 @@ void EFileSystem::RegisterFileEventSubscriber(FileEventSubscriber* subscriber, c
     if (subscriber == nullptr)
         return;
 
-    for (const auto& ext : exts)
-    {
-        subscriber->_triggerExtTable.insert(ext);
-        _extToSubscriberTable[ext].insert(subscriber);
-    }
     auto itr = _subscriberSet.find(subscriber);
     if (itr == _subscriberSet.end())
     {
         _subscriberSet.insert(subscriber);
+        for (const auto& ext : exts)
+        {
+            subscriber->_triggerExtTable.insert(ext);
+            _extToSubscriberTable[ext].insert(subscriber);
+        }
     }
 }
 

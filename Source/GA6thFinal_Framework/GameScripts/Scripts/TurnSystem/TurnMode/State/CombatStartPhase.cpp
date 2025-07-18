@@ -5,6 +5,9 @@
 #include "TurnSystem/TurnMode/TurnMode.h"
 #include <TurnSystem/TurnActor/Character/Player/Player.h>
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
+#include <TurnSystem/TurnAction/TurnAction.h>
+#include <RevelationSystem/RevelationSystem.h>
+#include <WeaponSystem/WeaponSystem.h>
 
 REGISTER_CLASS(FSMStateFactory, CombatStartPhase)
 
@@ -25,7 +28,7 @@ void CombatStartPhase::ResetCharacterStats()
 {
     _player = nullptr;
     _enemies.clear();
-
+    _characters.clear();
     for (auto& weak : GameObject::FindGameObjectsWithTag(CharacterBase::TAG))
     {
         if (false == weak.expired())
@@ -44,6 +47,7 @@ void CombatStartPhase::ResetCharacterStats()
             {
                 const auto& type = typeid(*character);
                 character->Revive();
+                _characters.push_back(character);
                 if (typeid(Player) == type)
                 {
                     _player = static_cast<Player*>(character);
@@ -70,6 +74,7 @@ void CombatStartPhase::OnStart()
 void CombatStartPhase::OnEnter() 
 {
     _turnMode->ResetRoundCount();
+    AddValidActions();
     ResetCharacterStats();
 
     UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"배틀 시작...3");
@@ -103,4 +108,40 @@ void CombatStartPhase::NotifyCombatStart()
             enemy->OnCombatStart();
         }
     }
+
+    _turnMode->ApplyActions([](TurnAction& action) 
+    { 
+         action.OnCombatStart();
+    });
+}
+
+
+void CombatStartPhase::AddValidActions()
+{
+    //계시 액션들
+    RevelationSystem* revelationSystem = RevelationSystem::GetInstance();
+    if (revelationSystem)
+    {
+        for (auto& element : revelationSystem->GetPlayerElementList())
+        {
+            if (nullptr != element)
+            {
+                if (element->IsAction())
+                {
+                    TurnAction& action = element->GetAction();
+                    _turnMode->AddTurnAction(&action);
+                }
+            }
+        }
+    }
+
+    //무기 액션들
+    if (_weaponSystem)
+    {
+        for (auto& item : _weaponSystem->GetEquipWeapons())
+        {
+
+        }
+    }
+
 }

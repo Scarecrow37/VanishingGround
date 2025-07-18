@@ -38,7 +38,7 @@ ParticleComponent::~ParticleComponent()
     if (_effect)
     {
         _effect->SetActiveFlag(false);
-        UmParticleManager.DeleteEffect(_effect);
+        UmParticleManager->DeleteEffect(_effect);
         _effect = nullptr;
     }
 }
@@ -81,40 +81,40 @@ void ParticleComponent::ImGuiDrawPropertysEvent()
 
 void ParticleComponent::LoadParticle() 
 {
-    if (_effect)
-    {
-        _effect->SetRemoveFlag(true);
-    }
-    UmParticleManager.ParticleSerializer.PreDeserialize(_filepath);
-    const auto& modelpaths = UmParticleManager.ParticleSerializer.GetUsedModelPaths();
-
-    for (int i = 0; i < modelpaths.size(); ++i)
-    {
-        File::Path texPath = modelpaths[i];
-        texPath            = std::filesystem::absolute(texPath);
-        File::Guid guid    = texPath.ToGuid();
-        UmSceneManager.ResourceManager.RequestModelResource(this, guid, []() {});
-    }
-    const auto& paths = UmParticleManager.ParticleSerializer.GetUsedTexturePaths();
-    for (int i = 0; i < paths.size(); ++i)
-    {
-        File::Path texPath = paths[i];
-        texPath            = std::filesystem::absolute(texPath);
-        File::Guid guid    = texPath.ToGuid();
-        if (i < paths.size() - 1)
-            UmSceneManager.ResourceManager.RequestTextureResource(this, guid, []() {});
-        else
-            UmSceneManager.ResourceManager.RequestTextureResource(this, guid, [this]() {
-                _effect = UmParticleManager.ParticleSerializer.Deserialize(_filepath, false);
-                _effect->SetPlayFlag(false);
-                _effect->SetActiveFlag(false);
-                _effect->_position = &_positionVector;
-                _effect->_rotation = &_rotationVector;
-                _effect->_scale    = &_scaleVector;
-                _effect->_parentWorldMatrix = &transform->GetWorldMatrix();
-            });
-    }
-
+    // TODO :: JJW ParticleSerializer
+    //if (_effect)
+    //{
+    //    _effect->SetRemoveFlag(true);
+    //}
+    //UmParticleManager->ParticleSerializer.PreDeserialize(_filepath);
+    //const auto& modelpaths = UmParticleManager->ParticleSerializer.GetUsedModelPaths();
+    //
+    //for (int i = 0; i < modelpaths.size(); ++i)
+    //{
+    //    File::Path texPath = modelpaths[i];
+    //    texPath            = std::filesystem::absolute(texPath);
+    //    File::Guid guid    = texPath.ToGuid();
+    //    UmSceneManager.ResourceManager.RequestModelResource(this, guid, []() {});
+    //}
+    //const auto& paths = UmParticleManager.ParticleSerializer.GetUsedTexturePaths();
+    //for (int i = 0; i < paths.size(); ++i)
+    //{
+    //    File::Path texPath = paths[i];
+    //    texPath            = std::filesystem::absolute(texPath);
+    //    File::Guid guid    = texPath.ToGuid();
+    //    if (i < paths.size() - 1)
+    //        UmSceneManager.ResourceManager.RequestTextureResource(this, guid, []() {});
+    //    else
+    //        UmSceneManager.ResourceManager.RequestTextureResource(this, guid, [this]() {
+    //            _effect = UmParticleManager.ParticleSerializer.Deserialize(_filepath, false);
+    //            _effect->SetPlayFlag(false);
+    //            _effect->SetActiveFlag(false);
+    //            _effect->_position = &_positionVector;
+    //            _effect->_rotation = &_rotationVector;
+    //            _effect->_scale    = &_scaleVector;
+    //            _effect->_parentWorldMatrix = &transform->GetWorldMatrix();
+    //        });
+    //}
 }
 
 void ParticleComponent::PlayEffect() 

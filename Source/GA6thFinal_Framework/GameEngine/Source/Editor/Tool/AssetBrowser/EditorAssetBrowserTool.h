@@ -13,6 +13,7 @@ class EditorAssetObject;
 
 class EditorAssetBrowserTool
     : public EditorTool
+    , public File::FileEventSubscriber
 {
     enum ShowType
     {
@@ -35,17 +36,26 @@ public:
     EditorAssetBrowserTool();
     virtual ~EditorAssetBrowserTool();
 
+    static EditorAssetBrowserTool* GetInstance();
+
 private:
-    virtual void OnStartGui() override;
+    inline static EditorAssetBrowserTool* _staticInstance = nullptr;
 
-    virtual void OnPreFrameBegin() override;
-    virtual void OnFrameRender() override;
-    virtual void OnFrameEnd() override;
+public:
+    inline const File::Path& GetCurrentFocusFolderPath() const { return _currFocusFolderPath; }
+    inline const ImRect&     GetWindowRect() const { return _windowRect; }
 
-    virtual void OnTickGui() override;
-    virtual void OnFrameFocusEnter() override;
-    virtual void OnFrameFocusStay() override;
-    virtual void OnFrameFocusExit() override;
+private:
+    void OnTickGui() override;
+    void OnStartGui() override;
+
+    void OnPreFrameBegin() override;
+    void OnPostFrameBegin() override;
+    void OnFrameRender() override;
+    void OnFrameEnd() override;
+    void OnFrameFocusEnter() override;
+    void OnFrameFocusStay() override;
+    void OnFrameFocusExit() override;
 
 private:
     /* 메뉴바 - 콜럼 사이 어퍼프레임 */
@@ -62,7 +72,7 @@ private:
     void ShowFolderHierarchy();
     void ShowFolderHierarchy(spFolderContext FolderContext);
 
-     /* 콘텐츠 뷰 콜럼 */
+    /* 콘텐츠 뷰 콜럼 */
     void ShowFolderContents();
     void ShowSearchBar(spFolderContext context); // 콘텐츠 뷰 검색 바
     void ContentsFrameEventAction(spFolderContext context); // 콘텐츠 뷰 프레임 이벤트 액션
@@ -82,6 +92,7 @@ private:
     /* 팝업 박스 메서드 */
     void ShowDeletePopupBox(wpContext context);
     void ShowSameFilePopupBox();
+    void ShowCopyFilePopupBox();
 
 private:
     void ProcessEnterAction(spContext context);
@@ -92,6 +103,9 @@ private:
     void SetFocusParentFolder(spContext context);
     void SetFocusFromUndoPath();
     void SetFocusFromRedoPath();
+
+    void ProcessDropFile(const HDROP hDrop);
+    static bool WinProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 private:
     /* 브라우저에서 보여질 유형 (List, Icon) */
@@ -118,6 +132,11 @@ private:
 
     /* Search */
     char _searchBuffer[128] = "";
+
+    /* Drag&Drop */
+    ImRect _windowRect;
+    std::vector<std::pair<bool, File::Path>> _dragDropPaths; // 드래그 앤 드롭된 파일 경로들 (복사 여부, 경로)
+    File::Path _destPath; // 드래그 앤 드롭된 경로의 목적지 경로
 
     // ReflectFields
     REFLECT_FIELDS_BEGIN(EditorTool)
