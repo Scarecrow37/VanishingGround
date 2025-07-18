@@ -5,7 +5,7 @@ namespace TokenObject
     class Poison1 : public Token
     {
         TOKEN_DATA(16003, "중독Ⅰ")
-        TOKEN_CONSTRUCTOR(Poison1, 50, 3)
+        TOKEN_CONSTRUCTOR(Poison1, 50, 3, TokenTag::POISON)
         REFLECT_PROPERTY()
     private:
         void OnEachTurnStart(CharacterBase* owner, CharacterBase * destination) override;
@@ -19,7 +19,7 @@ namespace TokenObject
     class Poison2 : public Token
     {
         TOKEN_DATA(16004, "중독Ⅱ")
-        TOKEN_CONSTRUCTOR(Poison2, 50, 3)
+        TOKEN_CONSTRUCTOR(Poison2, 50, 3, TokenTag::POISON)
     private:
         void OnEachTurnStart(CharacterBase* owner, CharacterBase * destination) override;
 
@@ -32,7 +32,7 @@ namespace TokenObject
     class Poison3 : public Token
     {
         TOKEN_DATA(16005, "중독Ⅲ")
-        TOKEN_CONSTRUCTOR(Poison3, 50, 3)
+        TOKEN_CONSTRUCTOR(Poison3, 50, 3, TokenTag::POISON)
     private:
         void OnEachTurnStart(CharacterBase* owner, CharacterBase * destination) override;
 
