@@ -23,7 +23,6 @@
 
 Renderer::Renderer()
 {
-    _isRaytracing = false;
 }
 
 Renderer::~Renderer() {}
@@ -101,7 +100,9 @@ void Renderer::AddRenderScene(std::string_view sceneName, RenderTechniqueFlag fl
         GRAPHICS_ASSERT(false, L"Renderer::AddRenderScene: No render techniques specified.");
         return;
     }
-
+    if (sceneName == "Game")
+        _isRaytracing                      = flag & RenderTechniqueFlag::RAY_TRACING_TECH ? true : false;
+    
     std::unique_ptr<RenderScene> scene = std::make_unique<RenderScene>(sceneName);
     scene->InitializeRenderScene();
 
@@ -109,6 +110,10 @@ void Renderer::AddRenderScene(std::string_view sceneName, RenderTechniqueFlag fl
     if (RenderTechniqueFlag::SKY_BOX_TECH & flag)
     {
         scene->AddRenderTechnique(std::make_unique<SkyBoxRenderTechnique>());
+    }
+    if (RenderTechniqueFlag::RAY_TRACING_TECH & flag)
+    {
+        scene->AddRenderTechnique(std::make_unique<RayTracingTechnique>());
     }
     if (RenderTechniqueFlag::PBR_TECH & flag)
     {

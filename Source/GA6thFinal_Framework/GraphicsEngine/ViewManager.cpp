@@ -21,9 +21,7 @@ void ViewManager::Initialize()
     ID3D12Device*              device = Global::device->GetDevice();
     D3D12_DESCRIPTOR_HEAP_DESC desc{};
 
-    if (!Global::renderer->_isRaytracing) desc.NumDescriptors = 1000;
-    else desc.NumDescriptors = 5000;
-
+    desc.NumDescriptors = 5000;
     desc.Type           = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
     desc.Flags          = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 

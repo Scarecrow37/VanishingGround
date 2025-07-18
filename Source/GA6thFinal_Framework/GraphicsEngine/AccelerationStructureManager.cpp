@@ -119,8 +119,8 @@ void AccelerationStructureManager::BuildOrUpdateStaticBLAS(ID3D12Device5* device
     geodesc.Type  = D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES;
     geodesc.Flags = D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE;
     geodesc.Triangles.VertexBuffer.StartAddress =
-        viBuf->_vertexBuffer->GetGPUVirtualAddress() + offsetof(Vertex, Position);
-    geodesc.Triangles.VertexBuffer.StrideInBytes = sizeof(Vertex);
+        viBuf->_vertexBuffer->GetGPUVirtualAddress() + offsetof(StaticMeshVertex, Position);
+    geodesc.Triangles.VertexBuffer.StrideInBytes = sizeof(StaticMeshVertex);
     geodesc.Triangles.VertexCount                = viBuf->_vertexCount;
     geodesc.Triangles.VertexFormat               = DXGI_FORMAT_R32G32B32_FLOAT;
     geodesc.Triangles.IndexBuffer                = viBuf->_indexBuffer->GetGPUVirtualAddress();

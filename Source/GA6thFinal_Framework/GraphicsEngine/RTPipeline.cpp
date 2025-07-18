@@ -31,7 +31,7 @@ DxilLibrary RTPipeline::CreateDxilLibrary()
 {
     // compile shader
     const ComPtr<IDxcBlob> rayGenshader  = d3dUtil::CompileShaderLibrary(L"../Shaders/RTShaders.hlsl", L"lib_6_3");
-    const WCHAR*           entryPoints[] = {RayGenShader, MissShader, ClosestHitShader,ShadowAnyHitShader,ShadowMissShader};
+    const WCHAR*           entryPoints[] = {RayGenShader, MissShader, ClosestHitShader/*,ShadowAnyHitShader,ShadowMissShader*/};
     return DxilLibrary(rayGenshader, entryPoints, ARRAYSIZE(entryPoints));
 }
 
@@ -143,7 +143,7 @@ RTPipeline::RootSignatureDesc RTPipeline::CreateHitRootDesc()
     /* ---------- 5 textures[]  (unbounded) ---------- */
     D3D12_DESCRIPTOR_RANGE texRange{};
     texRange.RangeType                         = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-    texRange.NumDescriptors                    = 1000; // 무제한
+    texRange.NumDescriptors                    = -1; // 무제한
     texRange.BaseShaderRegister                = 4006;     // t4005~
     texRange.RegisterSpace                     = 0;
     texRange.OffsetInDescriptorsFromTableStart = 0;

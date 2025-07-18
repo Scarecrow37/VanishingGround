@@ -42,9 +42,16 @@ enum RenderTechniqueFlag : unsigned long long
     FONT_TECH        = 1 << 4,
     EDITOR_DRAW_TECH = 1 << 5,
     PARTICLE_TECH    = 1 << 6,
+    RAY_TRACING_TECH = 1 << 7,
 };
 
 inline RenderTechniqueFlag operator|(RenderTechniqueFlag lhs, RenderTechniqueFlag rhs)
 {
     return static_cast<RenderTechniqueFlag>(static_cast<unsigned long long>(lhs) | static_cast<unsigned long long>(rhs));
+}
+
+inline RenderTechniqueFlag& operator|=(RenderTechniqueFlag& lhs, RenderTechniqueFlag rhs)
+{
+    lhs = lhs | rhs;
+    return lhs;
 }

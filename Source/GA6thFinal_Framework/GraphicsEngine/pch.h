@@ -48,7 +48,7 @@
 #pragma comment(lib, "dxgi")
 #pragma comment(lib, "Dbghelp.lib")
 #pragma comment(lib, "d3dcompiler")
-#pragma comment(lib, "dxcomplier")
+#pragma comment(lib, "dxcompiler")
 #pragma comment(lib, "assimp-vc143-mt.lib")
 
 using namespace DirectX;
