@@ -1,6 +1,4 @@
 ﻿#include "pch.h"
-#include "ParticleEmitter.h"
-#include "ParticleEffect.h"
 #include "ParticleEffectSerializer.h"
 
 void ParticleEffectSerializer::OnFileRegistered(const File::Path& path)
@@ -306,9 +304,9 @@ ParticleEffect* ParticleEffectSerializer::Deserialize(File::Path filepath,bool i
 
     ParticleEffect* newEffect = nullptr; 
     if (true == isEditor)
-        newEffect = UmParticleManager.RegisterEffectOnEditor();
+        newEffect = UmParticleManager->RegisterEffectOnEditor();
     else
-        newEffect = UmParticleManager.RegisterEffect();
+        newEffect = UmParticleManager->RegisterEffect();
     newEffect->SetLifetime(lifetime);
     newEffect->SetEffectName(effectname);
 
@@ -410,7 +408,7 @@ ParticleEffect* ParticleEffectSerializer::Deserialize(File::Path filepath,bool i
         }
         {
             auto emitter =
-                UmParticleManager.RegisterEmitter(newEffect, static_cast<SIZE_T>(maxParticles), emissionRate, emitterLifetime, locationType,
+                UmParticleManager->RegisterEmitter(newEffect, static_cast<SIZE_T>(maxParticles), emissionRate, emitterLifetime, locationType,
                                                   locatorFactor, particleType, modelTexturePath);
             if (LocationShape::MESH_SURFACE == locationType)
             {

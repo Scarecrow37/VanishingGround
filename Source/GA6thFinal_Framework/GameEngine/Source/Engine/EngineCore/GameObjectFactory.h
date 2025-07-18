@@ -174,7 +174,10 @@ private:
    std::vector<std::shared_ptr<GameObject>> MakeObjectsGraphToYaml(YAML::Node* pObjectNode, bool useResource = false, YAML::Node* pSceneObjectNode = nullptr);
 
    void RegisterGameObjects();
-private:
+
+   void ErasePrefabItem(const File::Guid& guid);
+
+   private:
     std::map<std::string, std::function<GameObject* ()>> _NewGameObjectFuncMap;    //생성용 맵
     std::vector<std::string>                             _NewGameObjectKeyVec;     //키 항목 모음
 
@@ -192,6 +195,9 @@ private:
     void OnFileRemoved(const File::Path& path) override;
     void OnFileRenamed(const File::Path& oldPath, const File::Path& newPath) override;
     void OnFileMoved(const File::Path& oldPath, const File::Path& newPath) override;
+
+    void OnRequestedSave() override;
+    void OnRequestedLoad() override;
 
     void OnRequestedOpen(const File::Path& path) override {}
     void OnRequestedCopy(const File::Path& path) override {}

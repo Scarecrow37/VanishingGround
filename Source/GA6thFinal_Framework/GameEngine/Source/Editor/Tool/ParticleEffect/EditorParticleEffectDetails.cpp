@@ -1,6 +1,4 @@
 ﻿#include "pch.h"
-#include "Engine/GraphicsCore/ParticleEmitter.h"
-#include "Engine/GraphicsCore/ParticleEffect.h"
 #include "EditorParticleEffectDetails.h"
 
  EditorParticleEffectDetails::EditorParticleEffectDetails() 
@@ -46,7 +44,7 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
  void EditorParticleEffectDetails::OnPostFrameBegin()
  {
 
-     if (nullptr == UmParticleManager.GetCurrentEditorEffect())
+     if (nullptr == UmParticleManager->GetCurrentEditorEffect())
      {
          _curEffect = nullptr;
          return;
@@ -603,7 +601,7 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
 
      if (true == isSomethingChanged)
      {
-         UmParticleManager.RefreshEditor();
+         UmParticleManager->RefreshEditor();
      }
 
 

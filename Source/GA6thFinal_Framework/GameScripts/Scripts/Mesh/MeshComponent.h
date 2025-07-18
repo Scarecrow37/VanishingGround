@@ -1,6 +1,5 @@
 ﻿#pragma once
 #include "UmFramework.h"
-#include "Engine/GraphicsCore/MeshRenderer.h"
 
 class MeshComponent abstract : public Component
 {

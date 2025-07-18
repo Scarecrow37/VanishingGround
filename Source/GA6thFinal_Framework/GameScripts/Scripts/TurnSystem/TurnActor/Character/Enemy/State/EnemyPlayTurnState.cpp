@@ -40,8 +40,8 @@ void EnemyPlayTurnState::OnEnter()
 
     LogCurrentAction();
 
-    auto& enemy = GetEnemy();
-    enemy.OnTurnStart();
+    //auto& enemy = GetEnemy();
+    //enemy.OnTurnStart();
 
     ProcessAction();
 }
@@ -53,8 +53,8 @@ void EnemyPlayTurnState::OnExit()
     std::string message = std::format("{} {}", gameObject->ToString(), (const char*)u8"턴 종료.");
     UmLogger.Message(LogLevel::LEVEL_TRACE, message);
 
-    auto& enemy = GetEnemy();
-    enemy.OnTurnEnd();
+    //auto& enemy = GetEnemy();
+    //enemy.OnTurnEnd();
 
     // Enemy의 턴이 종료시 액션을 선언.
     _aiModel.Transition();
@@ -169,8 +169,9 @@ void EnemyPlayTurnState::Action22000()
     if (player)
     {
         // 플레이어에게 출혈 토큰을 추가합니다.
-        auto& system = player->GetTokenSystem();
-        system.AddTokenStackFromID(Bleed1Token::ID, 1);
+        auto& system = player->GetTokenInventory();
+        system.AddTokenStackFromID(TokenObject::Bleed::ID, 2);
+        system.AddTokenStackFromID(TokenObject::Poison2::ID, 2);
     }
 }
 
@@ -180,8 +181,8 @@ void EnemyPlayTurnState::Action22001()
     if (player)
     {
         // 플레이어에게 출혈 토큰을 추가합니다.
-        auto& system = player->GetTokenSystem();
-        system.AddTokenStackFromID(Bleed2Token::ID, 1);
+        auto& system = player->GetTokenInventory();
+        system.AddTokenStackFromID(TokenObject::Poison3::ID, 3);
     }
 }
 
@@ -191,8 +192,8 @@ void EnemyPlayTurnState::Action22002()
     if (player)
     {
         // 플레이어에게 출혈 토큰을 추가합니다.
-        auto& system = player->GetTokenSystem();
-        system.AddTokenStackFromID(Bleed2Token::ID, 1);
+        auto& system = player->GetTokenInventory();
+        system.AddTokenStackFromID(TokenObject::Poison1::ID, 4);
     }
 }
 
@@ -206,8 +207,8 @@ void EnemyPlayTurnState::Action22004()
     if (player)
     {
         // 플레이어에게 출혈 토큰을 추가합니다.
-        auto& system = player->GetTokenSystem();
-        system.AddTokenStackFromID(Bleed3Token::ID, 1);
+        auto& system = player->GetTokenInventory();
+        system.AddTokenStackFromID(TokenObject::Bleed::ID, 1);
     }
 }
 
@@ -290,6 +291,6 @@ void EnemyPlayTurnState::LogCurrentAction()
 {
     int actionID = _aiModel.GetCurrentActionID();
     GameObject* gameObject = &GetFSM().gameObject;
-    std::string message = std::format("{} {}", gameObject->ToString(), GetActionName(actionID));
+    std::string message    = std::format("{} {}", gameObject->ToString(), GetActionName(actionID));
     UmLogger.Message(LogLevel::LEVEL_DEBUG, message);
 }

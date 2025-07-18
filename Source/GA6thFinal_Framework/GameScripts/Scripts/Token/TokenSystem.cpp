@@ -1,323 +1,192 @@
 ﻿#include "pchScripts.h"
 #include "TokenSystem.h"
-#include <TurnSystem/TurnActor/Character/CharacterBase.h>
 
-TokenSystem::TokenSystem(CharacterBase* owner) 
-    : _tokenTable(), _owner(owner)
+TokenSystem::TokenSystem() {}
+
+TokenSystem::~TokenSystem()
 {
-    if (nullptr == _owner)
+    if (this == _staticInstance)
     {
-        assert(false && "TokenSystem requires a valid CharacterBase owner.");
+        _staticInstance = nullptr;
     }
-    // 토큰 테이블 초기화
+}
+
+void TokenSystem::Reset()
+{
+    _staticInstance = this;
     InitTokenInstance();
+    SortByOrder();
 }
 
-void TokenSystem::Clear()
-{
-    for (auto& token : _tokenInstances)
-    {
-        if (token && 0 < token->GetStackCount())
-        {
-            token->SetStack(0); // 스택을 0으로 설정하여 토큰을 초기화합니다.
-        }
-    }
-}
-
-void TokenSystem::NotifyCombatStart()
-{
-    for (auto& token : _tokenInstances)
-    {
-        if (token && 0 < token->GetStackCount())
-        {
-            token->OnCombatStart(_owner);
-        }
-    }
-}
-
-void TokenSystem::NotifyRoundStart()
-{
-    for (auto& token : _tokenInstances)
-    {
-        if (token && 0 < token->GetStackCount())
-        {
-            token->OnRoundStart(_owner);
-        }
-    }
-}
-
-void TokenSystem::NotifyRoundEnd()
+void TokenSystem::OnDestroy() 
 {
     for (auto& token : _tokenInstances)
     {
         if (token)
         {
-            token->OnRoundEnd(_owner);
+            delete token; // 토큰 인스턴스 삭제
         }
     }
+    _tokenInstances.clear();
+    _tokenIDTable.clear();
+    _tokenNameTable.clear();
 }
 
-void TokenSystem::NotifyTurnStart()
+void TokenSystem::OnDrawDebug()
 {
-    for (auto& token : _tokenInstances)
+    if (true == _isOpenEditor)
     {
-        if (token && 0 < token->GetStackCount())
+        ImGui::PushID("TokenSystem");
+        ImGui::SetNextWindowSize(ImVec2(800, 600), ImGuiCond_FirstUseEver);
+        ImGui::Begin("TokenDataTable", &_isOpenEditor, ImGuiWindowFlags_MenuBar);
         {
-            token->OnTurnStart(_owner);
+            ImGuiDrawDataTable();
+            ImGuiDrawMenuBar();
         }
+        ImGui::End();
+        ImGui::PopID();
     }
 }
 
-void TokenSystem::NotifyTurnEnd()
+void TokenSystem::SerializedReflectEvent() 
 {
-    for (auto& token : _tokenInstances)
+    // 토큰 인스턴스의 데이터를 직렬화합니다.
+    ReflectFields->TokenSerializeData.clear();
+    for (const auto& [id, token] : _tokenIDTable)
     {
-        if (token && 0 < token->GetStackCount())
+        if (token)
         {
-            token->OnTurnEnd(_owner);
+            ReflectFields->TokenSerializeData[id] = token->SerializedReflectFields();
         }
     }
 }
 
-void TokenSystem::NotifyHit()
+void TokenSystem::DeserializedReflectEvent() 
 {
-    for (auto& token : _tokenInstances)
+    // 토큰 인스턴스의 데이터를 역직렬화합니다.
+    for (const auto& [id, data] : ReflectFields->TokenSerializeData)
     {
-        if (token && 0 < token->GetStackCount())
+        Token* token = GetTokenFromID(id);
+        if (token)
         {
-            token->OnHit(_owner);
+            token->DeserializedReflectFields(data);
         }
     }
+    SortByOrder();
 }
 
-void TokenSystem::NotifyDead()
+void TokenSystem::ImGuiDrawPropertysEvent() 
 {
-    for (auto& token : _tokenInstances)
+    if (ImGui::Button("Open Editor##TokenSystem"))
     {
-        if (token && 0 < token->GetStackCount())
-        {
-            token->OnDead(_owner);
-        }
+        _isOpenEditor = !_isOpenEditor;
     }
-}
-
-void TokenSystem::NotifyKill(CharacterBase* destination)
-{
-    for (auto& token : _tokenInstances)
-    {
-        if (token && 0 < token->GetStackCount())
-        {
-            token->OnKill(_owner, destination);
-        }
-    }
-}
-
-void TokenSystem::NotifyTokenAdded(int tokenID)
-{
-    for (auto& token : _tokenInstances)
-    {
-        if (token && 0 < token->GetStackCount())
-        {
-            token->OnTokenAdded(_owner, tokenID);
-        }
-    }
-}
-
-void TokenSystem::NotifyTokenRemoved(int tokenID)
-{
-    for (auto& token : _tokenInstances)
-    {
-        if (token && 0 < token->GetStackCount())
-        {
-            token->OnTokenRemoved(_owner, tokenID);
-        }
-    }
-}
-
-void TokenSystem::AddTokenStackFromID(int tokenID, UINT16 count /* = 1 */)
-{
-    if (0 == count)
-    {   // 추가할 스택이 0이면 아무것도 하지 않습니다. (이벤트를 호출하지 않기 위해 필요)
-        return;
-    }
-    auto* token = FindTokenEx(tokenID);
-    if (token)
-    {
-        token->AddStack(count);
-        if (_owner)
-        {
-            _owner->OnTokenAdded(tokenID); 
-        }
-    }
-}
-
-void TokenSystem::SetTokenStackFromID(int tokenID, UINT16 count)
-{
-    auto* token = FindTokenEx(tokenID);
-    if (token)
-    {
-        UINT16 curCount = token->GetStackCount();
-        if (curCount == count)
-        {   // 현재 스택과 설정하려는 스택이 같으면 아무것도 하지 않습니다. (이벤트를 호출하지 않기 위해 필요)
-            return;
-        }
-        int delta = static_cast<int>(count) - static_cast<int>(curCount);
-        // 음수면 스택을 줄이는 것, 양수면 스택을 늘리는 것
-        if (delta < 0)
-        {
-            token->RemoveStack(-delta);
-        }
-        else if (delta > 0)
-        {
-            token->AddStack(delta);
-        }
-    }
-}
-
-void TokenSystem::RemoveTokenStackFromID(int tokenID, UINT16 count /* = 1 */)
-{
-    if (0 == count)
-    {   // 제거할 스택이 0이면 아무것도 하지 않습니다. (이벤트를 호출하지 않기 위해 필요)
-        return;
-    }
-    auto* token = FindTokenEx(tokenID);
-    if (token)
-    {
-        token->RemoveStack(count);
-        bool isValid = CheckValidTokenFromID(tokenID);
-        if (_owner)
-        {
-            _owner->OnTokenRemoved(tokenID);
-        }
-    }
-}
-
-IToken* TokenSystem::FindTokenFromID(int tokenID)
-{
-    return FindTokenEx(tokenID);
-}
-
-void TokenSystem::RemoveTokenFromID(int tokenID)
-{
-    auto* token = FindTokenEx(tokenID);
-    if (token)
-    {
-        token->SetStack(0); // 스택을 0으로 설정하여 토큰을 제거합니다.
-    }
-}
-
-bool TokenSystem::HasToken(int tokenID) const
-{
-    auto it = _tokenTable.find(tokenID);
-    if (it != _tokenTable.end())
-    {
-        bool isValid = 0 < it->second->GetStackCount();
-        return isValid;                                
-    }
-    return false;
-}
-
-bool TokenSystem::IsEmpty() const
-{
-    return _validTokenTable.empty();
 }
 
 void TokenSystem::InitTokenInstance()
 {
-    // 테이블에 존재하는 토큰을 모두 초기화합니다.
-    _tokenTable.clear();
-    for (const auto& [tokenID, factory] : _tokenIDFactoryTable)
+    for (const auto& [id, constructor] : _tokenIDFactoryTable)
     {
-        auto* token = factory();
-        if (token)
+        auto it = _tokenIDTable.find(id);
+        if (it == _tokenIDTable.end())
         {
-            _tokenTable[tokenID] = token;
-            token->SetDirtyCountCallback([this](int id) { UpdateToken(id); });
-            token->SetDirtyOrderCallback([this](int id) { SortByOrder(); });
+            Token* newToken = constructor();
+            if (newToken)
+            {
+                newToken->SetDirtyOrderCallback([](int id) { SortByOrder(); });
+                _tokenInstances.push_back(newToken);
+                _tokenIDTable[id]                         = newToken;
+                _tokenNameTable[newToken->GetTokenName()] = newToken;
+            }
         }
     }
 }
 
-void TokenSystem::SortByOrder() 
-{   // 토큰을 Order에 따라 내림차순으로 정렬합니다.
-    std::sort(_tokenInstances.begin(), _tokenInstances.end(),
-              [](Token* a, Token* b) { return a->GetTokenOrder() > b->GetTokenOrder(); 
-        });
-}
-
-void TokenSystem::UpdateToken(int tokenID)
+void TokenSystem::ImGuiDrawDataTable()
 {
-    auto token = FindTokenEx(tokenID);
-    if (token)
+    ImVec2 availableSize = ImGui::GetContentRegionAvail();
+    ImVec2 left          = ImVec2(130.0f, availableSize.y);
+    ImVec2 right         = ImVec2(availableSize.x - left.x, availableSize.y);
+
+     // Left Window
+    ImGui::BeginChild("Left", left, ImGuiChildFlags_Border);
+    if (ImGui::CollapsingHeader("Token List##token", ImGuiTreeNodeFlags_DefaultOpen))
     {
-        UINT16 count = token->GetStackCount();
-        if (0 < count)
+        for (const auto& token : _tokenInstances)
         {
-            _validTokenTable[token->GetTokenID()] = token;  // 유효한 토큰 테이블에 추가
+            if (token)
+            {
+                bool isSelected = (_selectedToken == token);
+                if (ImGui::Selectable(token->GetTokenName(), isSelected))
+                {
+                    _selectedToken = token; // 선택된 토큰을 저장
+                }
+            }
         }
-        else
+    }
+    ImGui::EndChild();
+
+    ImGui::SameLine();
+
+    // Right Window
+    ImGui::BeginChild("Right", right, ImGuiChildFlags_Border);
+    if (_selectedToken)
+    {
+        if (ImGui::CollapsingHeader("Edit Properties##token", ImGuiTreeNodeFlags_DefaultOpen))
         {
-            _validTokenTable.erase(token->GetTokenID());    // 유효한 토큰 테이블에서 제거
+            _selectedToken->ImGuiDrawPropertys();
+        }
+        ImGui::Separator();
+        if (ImGui::CollapsingHeader("Show Property Member##token"))
+        {
+            _selectedToken->ShowReflectFieldView();
         }
     }
+    ImGui::EndChild();
 }
 
-Token* TokenSystem::FindTokenEx(int tokenID)
+void TokenSystem::ImGuiDrawMenuBar() 
 {
-    Token* result = nullptr;
-    auto it = _tokenTable.find(tokenID);
-    if (it != _tokenTable.end())
+    if (ImGui::BeginMenuBar())
     {
-        result = it->second;
+        if (ImGui::BeginMenu("File"))
+        {
+            if (ImGui::MenuItem("Open Editor##TokenSystem"))
+            {
+            }
+            ImGui::Separator();
+            if (ImGui::MenuItem("Reset Token System"))
+            {
+            }
+            ImGui::EndMenu();
+        }
+        ImGui::EndMenuBar();
     }
-    else
-    {
-        result = CreateTokenInstanceFromID(tokenID);
-        _tokenTable[tokenID] = result;
-    }
-    return result;
 }
 
-Token* TokenSystem::FindTokenEx(std::string_view tokenName)
-{
-    int id = GetTokenIDFromName(tokenName);
-    return FindTokenEx(id);
-}
-
-bool TokenSystem::CheckValidTokenFromID(int tokenID)
-{
-    auto* token = FindTokenEx(tokenID);
-    if (token)
-    {
-        UINT16 stackCount = token->GetStackCount();
-        return 0 < stackCount;
-    }
-    return false;
-}
-
-Token* TokenSystem::CreateTokenInstanceFromID(int tokenID)
+bool TokenSystem::CreateTokenInstanceFromID(int tokenID, Token** ppToken)
 {
     auto it = _tokenIDFactoryTable.find(tokenID);
     if (it != _tokenIDFactoryTable.end())
     {
-        auto* instance = it->second();
-        return instance;
+        (*ppToken) = it->second();
+        return true;
     }
-    return nullptr;
+    return false;
 }
 
-Token* TokenSystem::CreateTokenInstanceFromName(std::string_view tokenName)
+bool TokenSystem::CreateTokenInstanceFromName(std::string_view tokenName, Token** ppToken)
 {
     auto it = _tokenNameFactoryTable.find(tokenName.data());
     if (it != _tokenNameFactoryTable.end())
     {
-        auto* instance = it->second();
-        return instance;
+        (*ppToken) = it->second();
+        return true;
     }
-    return nullptr;
+    return false;
 }
 
-int TokenSystem::GetTokenIDFromName(std::string_view tokenName) const
+int TokenSystem::GetTokenIDFromName(std::string_view tokenName)
 {
     auto it = _tokenNameToIDTable.find(tokenName.data());
     if (it != _tokenNameToIDTable.end())
@@ -327,7 +196,37 @@ int TokenSystem::GetTokenIDFromName(std::string_view tokenName) const
     return 0;
 }
 
-const std::string& TokenSystem::GetTokenNameFromID(int tokenID) const
+Token* TokenSystem::GetTokenFromID(int tokenID)
+{
+    auto it = _tokenIDTable.find(tokenID);
+    if (it != _tokenIDTable.end())
+    {
+        return it->second;
+    }
+    return nullptr;
+}
+
+Token* TokenSystem::GetTokenFromName(std::string_view name)
+{
+    auto it = _tokenNameTable.find(name.data());
+    if (it != _tokenNameTable.end())
+    {
+        return it->second;
+    }
+    return nullptr;
+}
+
+void TokenSystem::SortByOrder()
+{ // 토큰을 Order에 따라 오름차순 정렬합니다.
+    std::sort(_tokenInstances.begin(), _tokenInstances.end(),
+              [](Token* a, Token* b) { 
+            int aOrder = a->GetTokenOrder();
+            int bOrder = b->GetTokenOrder();
+            return aOrder < bOrder;
+        });
+}
+
+const std::string& TokenSystem::GetTokenNameFromID(int tokenID)
 {
     auto it = _tokenIDToNameTable.find(tokenID);
     if (it != _tokenIDToNameTable.end())

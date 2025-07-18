@@ -41,7 +41,7 @@ void StaticMeshRenderer::LoadModel()
         if (path != File::NULL_PATH)
         {
             std::wstring modelPath = U8ToWString(path);
-            Renderer->LoadModel(modelPath);
+            UmGraphics.LoadResource(modelPath, Renderer.get());
         } 
     }
 }

@@ -1,7 +1,6 @@
 ﻿#include "pch.h"
-#include "Engine/GraphicsCore/ParticleEffect.h"
-#include "Engine/GraphicsCore/ParticleEmitter.h"
 #include "EditorParticleEffectHierarchy.h"
+
  EditorParticleEffectHierarchy::EditorParticleEffectHierarchy() 
  {
      SetLabel("Hierarchy##particleeffect");
@@ -33,13 +32,13 @@ void EditorParticleEffectHierarchy::OnPreFrameBegin()
 
 void EditorParticleEffectHierarchy::OnPostFrameBegin()
 {
-
-    bool            isnewbuttonpressed = ImGui::Button("New", {180, 50});
-     if (true == isnewbuttonpressed)
+    bool isnewbuttonpressed = ImGui::Button("New", {180, 50});
+    if (true == isnewbuttonpressed)
     {
-         auto newEffect = UmParticleManager.RegisterEffectOnEditor();
-         newEffect->SetLifetime(10.f);
-         newEffect->SetEffectName("newEffect");
+        auto newEffect = UmParticleManager->RegisterEffectOnEditor();
+        newEffect->SetLifetime(10.f);
+        newEffect->SetEffectName("newEffect");
+        UmParticleManager->SetCurrentEditorEffect(newEffect);
         _editorParticleEffectDetails->SetCurrentEffect(newEffect);
         _curEffect = newEffect;
     }
@@ -55,18 +54,19 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
         std::vector<File::Path> out;
         if (File::ShowOpenFileDialog(owner, title, L"", {{L"\0", L"*.vfx*\0"}}, false, out))
         {
-            auto effect = UmParticleManager.ParticleSerializer.Deserialize(out.front(),true);
+            // TODO:: 모듈에 있는 시리얼라이저 가져와야 함
+            /*auto effect = UmParticleManager->ParticleSerializer.Deserialize(out.front(),true);
             for (auto emitter : effect->GetEmitterList())
             {
                 emitter->_particleRenderModule->Initialize();
             }
-            UmParticleManager.SetCurrentEditorEffect(effect);
+            UmParticleManager->SetCurrentEditorEffect(effect);
             _editorParticleEffectDetails->SetCurrentEffect(effect);
-            _curEffect = effect;
+            _curEffect = effect;*/
         }
     }
 
-    ParticleEffect* effect = UmParticleManager.GetCurrentEditorEffect();
+    ParticleEffect* effect = UmParticleManager->GetCurrentEditorEffect();
     if (nullptr != effect)
     {
         bool isSaveButtonPressed = ImGui::Button("Save", {180, 50});
@@ -79,7 +79,8 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
             std::wstring filename;
             if (File::ShowSaveFileDialog(UmApplication.GetHwnd(), L"Save as vfx file", L"", L"Effect.vfx", {}, path))
             {
-                UmParticleManager.ParticleSerializer.Serialize(_curEffect, path);
+                // TODO:: 모듈에 있는 시리얼라이저 가져와야 함
+                //UmParticleManager.ParticleSerializer.Serialize(_curEffect, path);
             }
         }
     }
@@ -89,27 +90,28 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
     bool isrefreshbutton = ImGui::Button("refresh", {100, 30});
     if (true == isrefreshbutton)
     {
-        UmParticleManager.RefreshEditor();
+        UmParticleManager->RefreshEditor();
 
     }
 
     ImGui::SameLine();
-    
-    bool isAutorefresh = UmParticleManager.GetAutoRefresh();
+
+    bool isAutorefresh = UmParticleManager->GetAutoRefresh();
     ImGui::Checkbox("Auto Refresh", &isAutorefresh);
-    UmParticleManager.SetAutoRefresh(isAutorefresh);
+    UmParticleManager->SetAutoRefresh(isAutorefresh);
 
-    float deltaScale = UmParticleManager.GetDeltaScale();
+    float deltaScale = UmParticleManager->GetDeltaScale();
     ImGui::SliderFloat("Time Speed", &deltaScale, 0.f, 2.f);
-    UmParticleManager.SetDeltaScale(deltaScale);
+    UmParticleManager->SetDeltaScale(deltaScale);
 
-    if (nullptr == UmParticleManager.GetCurrentEditorEffect())
+    if (nullptr == UmParticleManager->GetCurrentEditorEffect())
+    if (nullptr == effect)
     {
         _curEffect = nullptr;
         return;
     }
 
-    ImGui::Text("current particle count : %d", UmParticleManager.GetTotalCount());
+    ImGui::Text("current particle count : %d", UmParticleManager->GetTotalCount());
     ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal, 2.f);
 
 
@@ -195,15 +197,14 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
     bool isAddButtonPressed = ImGui::Button("Add new Emitter", {180, ImGui::GetFrameHeight() * 2.f});
     if (true == isAddButtonPressed)
     {
-        auto emitter =
-            UmParticleManager.RegisterEmitter(_curEffect, 100000, 1000, 20, locationType, {0, 0, 0}, particleType);
+        UmParticleManager->RegisterEmitter(_curEffect, 100000, 1000, 20, locationType, {0, 0, 0}, particleType);
         if (LocationShape::MESH_SURFACE == locationType)
         {
-            static_cast<MeshSurfaceLocator*>(emitter->_emitLocator)->LoadVerticesFromModel(currentmeshsurfacepath);
+            // TODO::JJW 에미터를 왜 모름?
+            //static_cast<MeshSurfaceLocator*>(emitter->_emitLocator)->LoadVerticesFromModel(currentmeshsurfacepath);
         }
 
-
-
+        UmParticleManager->RegisterEmitter(_curEffect, 100000, 1000, 20, locationType, {0, 0, 0}, particleType);
     }
     bool isSomeoneChanged   = false;
     ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal,2.f);
@@ -254,7 +255,7 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
                         {
                             effect->RemoveEmitter(emitter);
                             _editorParticleEffectDetails->SetCurrentEmitter(nullptr);
-                            UmParticleManager.RefreshEditor();
+                            UmParticleManager->RefreshEditor();
                         }
                     }
                 }
@@ -291,4 +292,3 @@ void EditorParticleEffectHierarchy::OnFramePopupOpened()
 {
 
 }
-

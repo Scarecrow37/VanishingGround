@@ -92,3 +92,9 @@ namespace Global
 #define UmCommandManager UmCore->CommandManager
 #define UmFactoryRegister UmCore->FactoryRegister
 #define UmAudioManager UmCore->AudioManager
+
+// Graphics
+#define UmParticleSerializer UmCore->ParticleSerializer
+#define UmGraphics UmCore->Graphics
+#define UmParticleManager UmGraphics.GetParticleManager()
+#define UmResourceManager UmGraphics.GetResourceManager()

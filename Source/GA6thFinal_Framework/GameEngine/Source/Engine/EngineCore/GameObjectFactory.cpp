@@ -109,6 +109,12 @@ void EGameObjectFactory::ApplyPrefabInstanceChanges(const File::Guid& guid, YAML
     }
 }
 
+void EGameObjectFactory::ErasePrefabItem(const File::Guid& guid) 
+{
+    _prefabObjectMap.erase(guid);
+    _prefabInstanceList.erase(guid);
+}
+
 void EGameObjectFactory::OnFileRegistered(const File::Path& path)
 {
     File::Guid guid = path.ToGuid();
@@ -121,7 +127,7 @@ void EGameObjectFactory::OnFileRegistered(const File::Path& path)
 void EGameObjectFactory::OnFileUnregistered(const File::Path& path) 
 {
     File::Guid guid = path.ToGuid();
-    _prefabObjectMap.erase(guid);
+    ErasePrefabItem(guid);
 }
 
 void EGameObjectFactory::OnFileModified(const File::Path& path)
@@ -136,7 +142,7 @@ void EGameObjectFactory::OnFileModified(const File::Path& path)
 void EGameObjectFactory::OnFileRemoved(const File::Path& path) 
 {
     File::Guid guid = path.ToGuid();
-    _prefabObjectMap.erase(guid);
+    ErasePrefabItem(guid);
 }
 
 void EGameObjectFactory::OnFileRenamed(const File::Path& oldPath, const File::Path& newPath) 
@@ -147,6 +153,16 @@ void EGameObjectFactory::OnFileRenamed(const File::Path& oldPath, const File::Pa
 void EGameObjectFactory::OnFileMoved(const File::Path& oldPath, const File::Path& newPath) 
 {
 
+}
+
+void EGameObjectFactory::OnRequestedSave() 
+{
+
+}
+
+void EGameObjectFactory::OnRequestedLoad() 
+{
+    _prefabInstanceList.clear();
 }
 
 EGameObjectFactory::EGameObjectFactory()
@@ -352,6 +368,11 @@ std::vector<std::shared_ptr<GameObject>> EGameObjectFactory::MakeObjectsGraphToY
 std::shared_ptr<GameObject> EGameObjectFactory::DeserializeToYaml(YAML::Node* pObjectNode, YAML::Node* sceneObjectNode)
 {
     auto makeList = MakeObjectsGraphToYaml(pObjectNode, false, sceneObjectNode);
+    if (makeList.empty())
+    {
+        return nullptr;
+    }
+
     for (auto& ptr : makeList)
     {
         ESceneManager::Engine::AddGameObjectToLifeCycle(ptr);

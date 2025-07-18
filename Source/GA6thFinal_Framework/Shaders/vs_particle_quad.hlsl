@@ -5,9 +5,6 @@ StructuredBuffer<ParticleOutput> particleInfo;
 struct VSInput
 {
     float4 position : POSITION;
-    float3 normal : NORMAL;
-    float3 tangent : TANGENT;
-    float3 biTangent : BINORMAL;
     float2 uv : TEXCOORD;
     uint InstanceID : SV_InstanceID; // 인스턴스 ID 추가
 

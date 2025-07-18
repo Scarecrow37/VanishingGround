@@ -1,8 +1,6 @@
 ﻿#include "pch.h"
 #include "EditorSequencerTool.h"
 
-#include "Engine/GraphicsCore/Animator.h"
-
 EditorSequencerTool::EditorSequencerTool() 
 {
     SetLabel("Sequencer");
