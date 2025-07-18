@@ -12,6 +12,7 @@ BaseMesh::BaseMesh()
 BaseMesh::~BaseMesh()
 {
     if (_vertices) delete[] _vertices;
+    if (_indices) delete[] _indices;
 }
 
 void BaseMesh::GetVertexInfo(char*& vertices, unsigned int& stride, unsigned int& size)
@@ -29,6 +30,8 @@ void BaseMesh::Initialize(const VIBuffer::Descriptor& descriptor, bool createVer
         _vertexSize   = descriptor.vertexSize / _vertexStride;
         _vertices     = new char[_vertexSize * _vertexStride];
         memcpy(_vertices, descriptor.vertexData, _vertexSize * _vertexStride);
+        _indices = new char[descriptor.indexSize];
+        memcpy(_indices, descriptor.indexData, descriptor.indexSize);
     }
 
 	_viBuffer->Initialize(descriptor);

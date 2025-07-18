@@ -15,6 +15,7 @@
 #include <type_traits>
 #include <typeindex>
 #include <unordered_map>
+#include <unordered_set>
 #include <variant>
 #include <vector>
 #include <windows.h>
@@ -47,6 +48,7 @@
 #pragma comment(lib, "dxgi")
 #pragma comment(lib, "Dbghelp.lib")
 #pragma comment(lib, "d3dcompiler")
+#pragma comment(lib, "dxcompiler")
 #pragma comment(lib, "assimp-vc143-mt.lib")
 
 using namespace DirectX;

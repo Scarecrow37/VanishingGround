@@ -12,6 +12,7 @@ public:
     void SetTexture(std::wstring_view path);
     void Render(ID3D12GraphicsCommandList* commnadList,UINT rootParameterIndex);
     void ResetResource();
+    D3D12_GPU_DESCRIPTOR_HANDLE GetCubeMapSRV() { return _cubeSRVHandles.GPU; }
     bool HasTexture() { return _hasTexture; }
 
 private:

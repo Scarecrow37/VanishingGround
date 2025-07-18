@@ -8,8 +8,10 @@ public:
 
 public:
     ID3D12Device*                      GetDevice() const { return _device.Get(); }
+    ComPtr<ID3D12Device5>      GetDevice5();
     ID3D12GraphicsCommandList*         GetCommandList() const { return _commandList.Get(); }
     ID3D12GraphicsCommandList*         GetComputeCommandList() const { return _computeCommandList.Get(); }
+    ComPtr<ID3D12GraphicsCommandList4>      GetCommandList4();
     const DXGI_MODE_DESC&              GetMode() const { return _mode; }
     UINT                               GetRTVDescriptorSize() { return _rtvDescriptorSize; }
     UINT                               GetCBVSRVUAVDescriptorSize() { return _cbvSrvUavDescriptorSize; }
@@ -50,6 +52,11 @@ public:
     void CreateConstantBuffer(void* data, UINT size, ComPtr<ID3D12Resource>& buffer);
     void CreateDefaultBuffer(UINT size, ComPtr<ID3D12Resource>& buffer);
     void CreateCommandList(ComPtr<ID3D12CommandAllocator>& allocator, ComPtr<ID3D12GraphicsCommandList>& commandList, CommandType type);
+    void CreateDefaultBuffer(UINT size, const D3D12_RESOURCE_FLAGS flags, const D3D12_RESOURCE_STATES initState,
+        ComPtr<ID3D12Resource>& buffer);
+    void CreateUploadBuffer(UINT size, const D3D12_RESOURCE_FLAGS flags, const D3D12_RESOURCE_STATES initState,
+        ComPtr<ID3D12Resource>& buffer);
+    ComPtr<ID3D12RootSignature> CreateRootSignature(const D3D12_ROOT_SIGNATURE_DESC& desc);
 
 private:
     void ResizeSwapChain();
@@ -90,5 +97,10 @@ private:
     ComPtr<ID3D12GraphicsCommandList> _computeCommandList;
 
     // UploadBuffer 생명주기를 관리 할 UploadBuffer container
-    std::list<ComPtr<ID3D12Resource>> _uploadResources;  
+    std::vector<ComPtr<ID3D12Resource>> _uploadResources;
+
+
+/// DXR
+private:
+    void CheckDXRSupport();
 };

@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "RenderScene.h"
 #include "Animator.h"
+#include "DepthStencilView.h"
 #include "FrameResource.h"
 #include "Light.h"
 #include "MeshRenderer.h"
@@ -9,10 +10,9 @@
 #include "SkyBox.h"
 #include "SpriteRenderer.h"
 #include "FontRenderer.h"
+#include "AccelerationStructureManager.h"
 
-RenderScene::RenderScene(std::string_view name)
-    : _skyBox{std::make_unique<SkyBox>()}
-    , _name(name)
+RenderScene::RenderScene(std::string_view name) : _skyBox{std::make_unique<SkyBox>()}, _name(name)
 {
     _lightDatas.resize(MAX_LIGHT);
 }
@@ -48,6 +48,13 @@ void RenderScene::InitializeRenderScene()
     _accumulationBuffer->TransitionResource(Global::device->GetCommandList(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
     Global::dxResourceManager->AddResource(_accumulationBuffer);
+
+
+    if (Global::renderer->_isRaytracing)
+    { 
+        _accelerationStructureManager = std::make_unique<AccelerationStructureManager>();
+        _accelerationStructureManager->Initialize(10000);
+    }
 }
 
 void RenderScene::RegisterOnRenderQueue(MeshRenderer* component)
@@ -123,6 +130,12 @@ void RenderScene::UpdateRenderScene()
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, FrameResourceType::MATERIAL, _materialIDs.data(), (UINT)_materialIDs.size());
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, FrameResourceType::UI_TRANSFORM, _uiMatrices.data(), (UINT)_uiMatrices.size());
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, FrameResourceType::UI_MATERIAL, _uiMaterials.data(), (UINT)_uiMaterials.size());
+    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, FrameResourceType::STATIC_MESH_INSTANCE_ID,
+                                                              _staticMeshInstanceIDs.data(),
+                                                              (UINT)_staticMeshInstanceIDs.size());
+    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, FrameResourceType::SKELETAL_MESH_INSTANCE_ID,
+                                                              _skeletalMeshInstanceIDs.data(),
+                                                              (UINT)_skeletalMeshInstanceIDs.size());
 }
 
 void RenderScene::Execute(ID3D12GraphicsCommandList* commandList)
@@ -172,7 +185,13 @@ void RenderScene::UpdateGlobal()
                           .ProejctionInverse = XMMatrixTranspose(_camera->GetProjectionInverseMatrix()),
                           .Position          = Vector4(_camera->GetPosition())};
 
+    CameraData RaycameraData{.View           = _camera->GetViewMatrix(),
+                          .Projection        = _camera->GetProjectionMatrix(),
+                          .ViewInverse       = _camera->GetWorldMatrix(),
+                          .ProejctionInverse = _camera->GetProjectionInverseMatrix(),
+                          .Position          = Vector4(_camera->GetPosition())};
     auto& lights = Global::lightCore->GetLights(_name.c_str());
+       
 
     _numLight = {};
     for (auto& [isDestroy, light] : lights)
@@ -195,6 +214,7 @@ void RenderScene::UpdateGlobal()
     }
 
     _cameraBuffer->UpdateBuffer(&cameraData);
+    _RaycameraBuffer->UpdateBuffer(&RaycameraData);
     _lightBuffer->UpdateBuffer(_lightDatas.data());
 }
 
@@ -206,6 +226,9 @@ void RenderScene::UpdateObject()
     _worldMatrices.clear();
     _boneMatrices.clear();
     _materialIDs.clear();
+    _staticMeshInstanceIDs.clear();
+    _skeletalMeshInstanceIDs.clear();
+    UINT instanceID = 0;
     for (auto& [isDestroy, component] : _meshRenderQueue)
     {
         if (!component->IsActive())
@@ -230,7 +253,6 @@ void RenderScene::UpdateObject()
         }
 
         UINT size = (UINT)meshes.size();
-
         for (UINT i = 0; i < size; i++)
         {
             _worldMatrices.push_back(world);
@@ -242,6 +264,42 @@ void RenderScene::UpdateObject()
                 materialID.ID[j] = textures[i][j]->GetID();
             }
             _materialIDs.push_back(materialID);
+            if (MeshRenderType::STATIC == type)
+            {
+                _staticMeshInstanceIDs.push_back(instanceID);
+            }
+            else if (MeshRenderType::SKELETAL == type)
+            {
+                _skeletalMeshInstanceIDs.push_back(instanceID);
+            }
+            instanceID++;
+        }
+    }
+    ClassifyMesh();
+}
+
+void RenderScene::ClassifyMesh()
+{
+    _staticMesh.clear();
+    _skeletalMesh.clear();
+    for (auto& [isDestroy,component] : _meshRenderQueue)
+    {
+        if (!component->IsActive())
+            continue;
+        const auto& model = component->GetModel();
+        if (!model)
+            continue;
+
+        switch (component->GetType())
+        {
+        case MeshRenderType::STATIC:
+            _staticMesh.push_back(component);
+            break;
+        case MeshRenderType::SKELETAL:
+            _skeletalMesh.push_back(component);
+            break;
+        default:
+            break;
         }
     }
 }
@@ -359,10 +417,26 @@ void RenderScene::CreateFrameResource()
 
         // UI Material
         _frameResources[i]->AddFrameResource(sizeof(XMMATRIX), MAX_OBJECTS);
+
+        // Vertex Buffer ID
+        _frameResources[i]->AddFrameResource(sizeof(VertexBufferID), MAX_OBJECTS);
+
+        // Index Buffer ID
+        _frameResources[i]->AddFrameResource(sizeof(IndexBufferID), MAX_OBJECTS);
+
+        // Static Mesh Instance ID
+        _frameResources[i]->AddFrameResource(sizeof(StaticMeshInstanceID), MAX_OBJECTS);
+        
+        // Skeletal Mesh Instance ID
+        _frameResources[i]->AddFrameResource(sizeof(SkeletalMeshInstanceID), MAX_OBJECTS);
     }
 
     _cameraBuffer = std::make_unique<ConstantBufferView>();
-    _cameraBuffer->Initialize(sizeof(CameraData));
+    UINT alignedSize =(sizeof(CameraData) + 255) & ~255;
+    _cameraBuffer->Initialize(alignedSize);
+
+    _RaycameraBuffer = std::make_unique<ConstantBufferView>();
+    _RaycameraBuffer->Initialize(alignedSize);
 
     _lightBuffer = std::make_unique<ConstantBufferView>();
     _lightBuffer->Initialize(sizeof(LightData) * MAX_LIGHT);

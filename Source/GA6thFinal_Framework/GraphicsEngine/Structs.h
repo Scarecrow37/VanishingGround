@@ -37,6 +37,12 @@ struct UIMaterial
     float Alpha;
 };
 
+using VertexBufferID = UINT;
+using IndexBufferID = UINT;
+using StaticMeshInstanceID = UINT;
+using SkeletalMeshInstanceID = UINT;
+
+
 struct Material
 {
 #undef OPAQUE
@@ -69,6 +75,15 @@ struct CameraData
     Vector4  Position{0.f, 0.f, 0.f, 1.f};
 };
 
+struct RayCameraData
+{
+    XMMATRIX View;
+    XMMATRIX Projection;
+    XMMATRIX ViewInverse;
+    XMMATRIX ProejctionInverse;
+};
+
+
 struct LightData
 {
     Vector3 Color;
@@ -99,4 +114,12 @@ struct PostProcessData
     Vector2      ScreenSize;
     Vector2      TexelSize;
     unsigned int PostProcessMask;
+};
+
+class UnorderedAccessView;
+struct SkeletalMeshInstance
+{
+    std::shared_ptr<UnorderedAccessView> UAVBuffer;
+    D3D12_VERTEX_BUFFER_VIEW             VertexBufferView;
+    UINT                                 VertexCount = 0;
 };

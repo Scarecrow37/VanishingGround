@@ -23,6 +23,11 @@ void SkyBox::SetTexture(std::wstring_view path)
     TexMetadata  metadata;
 
     HRESULT hr = LoadFromHDRFile(path.data(), &metadata, image);
+    if (FAILED(hr))
+    {
+        _hasTexture = false;
+        return;
+    }
     FAILED_CHECK_MESSAGE(hr, L"SkyBox::SetTexture LoadFromHDRFile Failed");
 
     const Image* img = image.GetImage(0, 0, 0);
@@ -221,7 +226,7 @@ void SkyBox::CreateComputePSO()
     psodesc.CS                            = _shader->GetShaderByteCode(ShaderBuilder::Type::CS);
     psodesc.Flags                         = D3D12_PIPELINE_STATE_FLAG_NONE;
 
-    hr = device->CreateComputePipelineState(&psodesc, IID_PPV_ARGS(&_computePSO));
+    hr = device->CreateComputePipelineState(&psodesc, IID_PPV_ARGS(_computePSO.GetAddressOf()));
     FAILED_CHECK_MESSAGE(hr, L"SkyBox::CreateComputePSO device->CreateComputePipelineState Failed");
 }
 

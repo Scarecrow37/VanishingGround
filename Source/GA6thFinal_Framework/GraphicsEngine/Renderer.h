@@ -52,4 +52,7 @@ private:
 private:
     std::unordered_map<std::string, std::unique_ptr<RenderScene>> _renderScenes;
     std::list<std::shared_ptr<Resource>>                          _defaultResource;
+
+public:
+    bool _isRaytracing = false;
 };

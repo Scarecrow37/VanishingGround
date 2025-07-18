@@ -12,6 +12,7 @@ public:
     std::string_view           GetName() const { return _name; }
     void                       SetName(std::string_view name) { _name = name; }
     void                       GetVertexInfo(char*& vertices, unsigned int& stride, unsigned int& size);
+    VIBuffer*                  GetVIBuffer() { return _viBuffer.get(); }
 
 public:
     void Initialize(const VIBuffer::Descriptor& descriptor, bool createVertexInfo = false);
@@ -23,6 +24,7 @@ private:
     BoundingOrientedBox       _boundingBox;
     std::unique_ptr<VIBuffer> _viBuffer;
     char*                     _vertices;
+    char*                     _indices;
     unsigned int              _vertexStride;
     unsigned int              _vertexSize;
 };

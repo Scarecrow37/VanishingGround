@@ -80,3 +80,41 @@ void UnorderedAccessView::CreateUnorderedAccessView()
 
     device->CreateShaderResourceView(_resource.Get(), &srvDesc, _srvHandle.CPU);
 }
+
+void UnorderedAccessView::InitializeForBuffer(UINT elementSize, UINT elementCount)
+{
+    ID3D12Device* device = Global::device->GetDevice();
+
+    const UINT            bufferSize = elementSize * elementCount;
+    CD3DX12_RESOURCE_DESC desc = CD3DX12_RESOURCE_DESC::Buffer(bufferSize, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+
+    CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_DEFAULT);
+    HRESULT                 hr =
+        device->CreateCommittedResource(&heapProps, D3D12_HEAP_FLAG_NONE, &desc, D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+                                        nullptr, IID_PPV_ARGS(&_resource));
+    FAILED_CHECK_MESSAGE(hr, L"UAV Buffer CreateCommittedResource Failed");
+
+    // UAV
+    D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
+    uavDesc.ViewDimension                    = D3D12_UAV_DIMENSION_BUFFER;
+    uavDesc.Format                           = DXGI_FORMAT_UNKNOWN;
+    uavDesc.Buffer.NumElements               = elementCount;
+    uavDesc.Buffer.StructureByteStride       = elementSize;
+
+    Global::viewManager->AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _uavHandle);
+    device->CreateUnorderedAccessView(_resource.Get(), nullptr, &uavDesc, _uavHandle.CPU);
+
+    // SRV
+    D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+    srvDesc.ViewDimension                   = D3D12_SRV_DIMENSION_BUFFER;
+    srvDesc.Format                          = DXGI_FORMAT_UNKNOWN;
+    srvDesc.Buffer.StructureByteStride      = elementSize;
+    srvDesc.Buffer.NumElements              = elementCount;
+    srvDesc.Shader4ComponentMapping         = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+
+    Global::viewManager->AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _srvHandle);
+    device->CreateShaderResourceView(_resource.Get(), &srvDesc, _srvHandle.CPU);
+
+    _ID           = Global::viewManager->GetNumShaderResourceView() - 1;
+    _currentState = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+}
