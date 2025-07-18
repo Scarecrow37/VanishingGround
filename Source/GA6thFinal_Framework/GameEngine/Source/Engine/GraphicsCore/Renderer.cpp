@@ -24,7 +24,7 @@
 
 Renderer::Renderer()
 {
-    _isRaytracing = true;
+    _isRaytracing = false;
 }
 
 Renderer::~Renderer() {}

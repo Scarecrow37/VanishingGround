@@ -4,10 +4,13 @@
 #include "dxcapi.use.h"
 #include "ShaderBuilder.h"
 
-const WCHAR* RTPipeline::RayGenShader     = L"RayGen";
-const WCHAR* RTPipeline::MissShader       = L"Miss";
-const WCHAR* RTPipeline::ClosestHitShader = L"ClosestHit";
-const WCHAR* RTPipeline::HitGroup         = L"HitGroup";
+const WCHAR* RTPipeline::RayGenShader       = L"RayGen";
+const WCHAR* RTPipeline::MissShader         = L"Miss";
+const WCHAR* RTPipeline::ClosestHitShader   = L"ClosestHit";
+const WCHAR* RTPipeline::HitGroup           = L"HitGroup";
+const WCHAR* RTPipeline::ShadowAnyHitShader = L"ShadowAnyHit";
+const WCHAR* RTPipeline::ShadowMissShader   = L"ShadowMiss";
+const WCHAR* RTPipeline::ShadowHitGroup     = L"ShadowHitGroup";
 
 static dxc::DxcDllSupport gDxcDllHelper;
 
@@ -28,7 +31,7 @@ DxilLibrary RTPipeline::CreateDxilLibrary()
 {
     // compile shader
     const ComPtr<IDxcBlob> rayGenshader  = d3dUtil::CompileShaderLibrary(L"../Shaders/RTShaders.hlsl", L"lib_6_3");
-    const WCHAR*           entryPoints[] = {RayGenShader, MissShader, ClosestHitShader};
+    const WCHAR*           entryPoints[] = {RayGenShader, MissShader, ClosestHitShader,ShadowAnyHitShader,ShadowMissShader};
     return DxilLibrary(rayGenshader, entryPoints, ARRAYSIZE(entryPoints));
 }
 

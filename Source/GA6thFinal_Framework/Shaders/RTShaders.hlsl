@@ -8,6 +8,8 @@
 // mesh갯수나 texture 갯수는 unbounded이기 때문에 이런식으로 사용
 // descriptor heap size == 2000
 #define MAX_MESH 2000
+#define MAX_RECURSION_DEPTH 2
+
 // Retrieve hit world position.
 float3 HitWorldPosition()
 {
@@ -62,12 +64,14 @@ StructuredBuffer<RayVertex> Vertices[MAX_MESH] : register(t6);
 StructuredBuffer<uint> Indices[MAX_MESH] : register(t2006);
 Texture2D textures[] : register(t4006); //chs
 
+// 기본 광선과 반사 광선을 위한 페이로드
 struct RayPayload
 {
     float4 color;
     uint recursionDepth;
 };
 
+// 그림자 광선을 위한 페이로드 (매우 가벼움)
 struct ShadowPayload
 {
     bool hit;
@@ -125,45 +129,39 @@ float3 CalculateAttribeNoraml(in BuiltInTriangleIntersectionAttributes attribs,u
     return normal;
 }
 
-bool TraceShadow(float3 origin,float3 dir,float maxT)
+// 그림자 추적 함수
+bool TraceShadow(float3 origin, float3 dir, float maxT)
 {
     ShadowPayload sp;
-    sp.hit = false;
+    sp.hit = false; // 초기값: 빛이 도달함 (그림자 없음)
     
     RayDesc sray;
-    sray.Origin = origin + dir * 1e-3; // self‑shadow 방지
+    sray.Origin = origin + dir * 1e-3f; // 자기 자신과 충돌 방지 (Self-Shadowing)
     sray.Direction = dir;
     sray.TMin = 0.01;
     sray.TMax = maxT;
 
-    // SBTable slot 1 = shadow miss / any‑hit
-    TraceRay(RtScene,
-             RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH,
-             0xFF, 1, 0, 1, sray, sp);
+    // C++에서 설정한 SBT 레이아웃에 따라 인덱스 지정
+    // HitGroup 0: Primary, 1: Shadow
+    // MissShader 0: Primary, 1: Shadow
+    uint hitGroupIndex = 1;
+    uint missShaderIndex = 1;
 
-    return sp.hit;
+    TraceRay(RtScene,
+             RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH | // 첫 충돌 시 즉시 종료 (성능 최적화)
+             RAY_FLAG_SKIP_CLOSEST_HIT_SHADER,         // ClosestHit 셰이더는 실행 안함
+             0xFF,              // InstanceInclusionMask
+             hitGroupIndex,     // HitGroupIndex: ShadowHitGroup
+             0,                 // MultiplierForGeometryContributionToHitGroupIndex
+             missShaderIndex,   // MissShaderIndex: ShadowMiss
+             sray, sp);
+
+    return sp.hit; // true: 그림자 있음, false: 그림자 없음
 }
 
 [shader("raygeneration")]
 void RayGen()
 {
-    //uint2 launchIndex = DispatchRaysIndex().xy;
-    //float2 dims = float2(DispatchRaysDimensions().xy);
-    //float2 d = (((launchIndex.xy + 0.5f) / dims.xy) * 2.f - 1.f);
-
-    //RayDesc ray;
-    //ray.Origin = mul(cameraData.ViewInverse, float4(0, 0, 0, 1));
-    //float4 target = mul(cameraData.ProjectionInverse, float4(d.x, -d.y, 1, 1));
-    //ray.Direction = mul(cameraData.ViewInverse, float4(target.xyz, 0));
-    //ray.TMin = 0.001;
-    //ray.TMax = 100000;
-    
-    //RayPayload payload;
-    //payload.recursionDepth = 0;
-    //TraceRay(RtScene,
-    //0, 0xFF, 0, 0, 0, ray, payload
-    //);
-    //Output[launchIndex.xy] = LinearToGammaSpace(payload.color.rgb);
     uint2 launchIndex = DispatchRaysIndex().xy;
     float2 dims = float2(DispatchRaysDimensions().xy);
     float2 d = (((launchIndex + 0.5f) / dims) * 2.f - 1.f);
@@ -181,14 +179,18 @@ void RayGen()
     RayPayload payload;
     payload.recursionDepth = 0;
 
+    // Primary Ray 이므로 HitGroup 0, MissShader 0 사용
     TraceRay(RtScene,
              RAY_FLAG_CULL_BACK_FACING_TRIANGLES, 0xFF,
-             0, 1, 0, // hitGroup/miss/callable
+             0, // HitGroupIndex
+             1, // Multiplier
+             0, // MissShaderIndex
              ray, payload);
 
     Output[launchIndex.xy] = float4(payload.color.rgb, 1.f);
 }
 
+// Primary Ray가 아무것도 못 맞췄을 때 호출 (C++의 MissShader)
 [shader("miss")]
 void Miss(inout RayPayload payload)
 {
@@ -199,17 +201,28 @@ void Miss(inout RayPayload payload)
     payload.color = float4(sky, 1.f);
 }
 
-static const uint MAX_RECURSION_DEPTH = 1;
+// Shadow Ray가 아무것도 못 맞췄을 때 호출 (C++의 ShadowMissShader)
+[shader("miss")]
+void ShadowMiss(inout ShadowPayload payload)
+{
+    // 아무것도 안함. payload.hit는 초기값 false를 유지.
+    // 즉, 빛이 도달했음을 의미.
+}
+
+// Shadow Ray가 무언가 맞췄을 때 호출 (C++의 ShadowAnyHitShader)
+[shader("anyhit")]
+void ShadowAnyHit(inout ShadowPayload payload, in BuiltInTriangleIntersectionAttributes attribs)
+{
+    // 그림자가 있다는 뜻이므로 hit=true로 설정하고 즉시 탐색 종료.
+    payload.hit = true;
+    AcceptHitAndEndSearch();
+}
+
 
 [shader("closesthit")]
 void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttributes attribs)
 {
     uint instanceID = InstanceID();
-    //if (InstanceID()==6)
-    //    payload.color = 1;
-    //else
-    //    payload.color = 0;
-    
     uint staticMeshInstanceID = meshInstanceID[instanceID];
     uint diffuseID = material[staticMeshInstanceID].ID[DIFFUSE];
     uint normalID = material[staticMeshInstanceID].ID[NORMAL];
@@ -249,8 +262,11 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
     {
         DirectionalLight Ld = lightData.Directional[i];
         float3 L = normalize(-Ld.Direction);
-        directLighting += CalculateDirectional(Ld, normal, view, albedo, metal, rough);
-        //if (TraceShadow(hitPosition, L, 10000) == false)
+        // TraceShadow가 false를 반환하면 (그림자가 없으면) 조명을 더함
+        if (TraceShadow(hitPosition, L, 10000) == false)
+        {
+            directLighting += CalculateDirectional(Ld, normal, view, albedo, metal, rough);
+        }
     }
 
     // Point
@@ -260,8 +276,10 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
         float3 toL = Lp.Position - hitPosition;
         float dist = length(toL);
         float3 L = toL / dist;
-        directLighting += CalculatePoint(Lp, normal, view, albedo, metal, rough, hitPosition);
-        //if (TraceShadow(hitPosition, L, dist - 0.01) == false)
+        if (TraceShadow(hitPosition, L, dist - 0.01) == false)
+        {
+            directLighting += CalculatePoint(Lp, normal, view, albedo, metal, rough, hitPosition);
+        }
     }
 
     // Spot
@@ -271,9 +289,12 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
         float3 toL = Ls.Position - hitPosition;
         float dist = length(toL);
         float3 L = toL / dist;
-        directLighting += CalculateSpot(Ls, normal, view, albedo, metal, rough, hitPosition);
-        //if (TraceShadow(hitPosition, L, dist - 0.01) == false)
+        if (TraceShadow(hitPosition, L, dist - 0.01) == false)
+        {
+            directLighting += CalculateSpot(Ls, normal, view, albedo, metal, rough, hitPosition);
+        }
     }
+    
     /* 환경광 / IBL  */
     float3 envDiffuse = evnTexture.SampleLevel(samLinear_wrap, normal, 0).rgb;
     envDiffuse = saturate(envDiffuse);
@@ -283,43 +304,44 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
 
     /* 반사(거울) – FresnelSchlick 사용 */
     float3 reflectionLighting = 0.0;
-    if (payload.recursionDepth< MAX_RECURSION_DEPTH)
+    if (payload.recursionDepth < MAX_RECURSION_DEPTH)
     {
         float3 reflectionDirection = reflect(-view, normal);
         
         RayDesc reflectionRay;
-        reflectionRay.Origin = hitPosition; //+reflectionDirection * Epsilon;
+        reflectionRay.Origin = hitPosition;
         reflectionRay.Direction = reflectionDirection;
         reflectionRay.TMin = 0.01;
         reflectionRay.TMax = 10000;
 
         RayPayload reflectionPayload;
-        reflectionPayload.recursionDepth = payload.recursionDepth+ 1;
+        reflectionPayload.recursionDepth = payload.recursionDepth + 1;
 
+        // 반사광선은 Primary Ray와 같은 로직을 타므로 HitGroup 0, Miss 0 사용
         TraceRay(RtScene,
-                 RAY_FLAG_CULL_BACK_FACING_TRIANGLES, // Flags
-                 0xFF, // Instance mask
-                 0, 1, 0, // SBT record indices (Hit / Miss / Callable)
+                 RAY_FLAG_CULL_BACK_FACING_TRIANGLES,
+                 0xFF,
+                 0, // HitGroupIndex
+                 1, // Multiplier
+                 0, // MissShaderIndex
                  reflectionRay, reflectionPayload);
  
-        /* helper 함수 ‘FresnelSchlick’ 적용 */
         float3 baseReflectance =
-            lerp(float3(Fdielectric, Fdielectric, Fdielectric), // 0.04 기본값
+            lerp(float3(Fdielectric, Fdielectric, Fdielectric),
                  albedo,metal);
 
         float3 fresnelFactor =
             FresnelSchlick(saturate(dot(normal, view)), baseReflectance);
 
         reflectionLighting = reflectionPayload.color.rgb * fresnelFactor;
-        //if (TraceShadow(hitPosition, L, 10000) == false)
     }
 
     /* 최종 색 결과 ------------------------------------------------------- */
     float3 finalcolor =
           emissive +
-          ambientLighting + // 환경광 
-          directLighting + // 직접광  
-          reflectionLighting; // 반사광 
+          ambientLighting +
+          directLighting +
+          reflectionLighting;
     
     payload.color = float4(finalcolor, 1.f);
 }
