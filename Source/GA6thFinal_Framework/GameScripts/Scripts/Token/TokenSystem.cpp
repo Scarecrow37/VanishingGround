@@ -193,7 +193,7 @@ int TokenSystem::GetTokenIDFromName(std::string_view tokenName)
     {
         return it->second;
     }
-    return 0;
+    return -1;
 }
 
 IToken* TokenSystem::GetTokenFromID(int tokenID)
