@@ -225,7 +225,7 @@ void TokenInventory::AddTokenStackFromID(int tokenID, int count /* = 1 */)
     if (it != _tokenTable.end())
     {
         int    maxStackCount = UINT_MAX;
-        Token* token = TokenSystem::GetTokenFromID(tokenID);
+        IToken* token = TokenSystem::GetTokenFromID(tokenID);
         if (token)
         {
             maxStackCount = token->GetMaxStackCount();

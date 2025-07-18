@@ -66,7 +66,7 @@ void TokenSystem::DeserializedReflectEvent()
     // 토큰 인스턴스의 데이터를 역직렬화합니다.
     for (const auto& [id, data] : ReflectFields->TokenSerializeData)
     {
-        Token* token = GetTokenFromID(id);
+        Token* token = GetTokenFromIDEx(id);
         if (token)
         {
             token->DeserializedReflectFields(data);
@@ -196,7 +196,17 @@ int TokenSystem::GetTokenIDFromName(std::string_view tokenName)
     return 0;
 }
 
-Token* TokenSystem::GetTokenFromID(int tokenID)
+IToken* TokenSystem::GetTokenFromID(int tokenID)
+{
+    return GetTokenFromIDEx(tokenID);
+}
+
+IToken* TokenSystem::GetTokenFromName(std::string_view name)
+{
+    return GetTokenFromNameEx(name);
+}
+
+Token* TokenSystem::GetTokenFromIDEx(int tokenID)
 {
     auto it = _tokenIDTable.find(tokenID);
     if (it != _tokenIDTable.end())
@@ -206,7 +216,7 @@ Token* TokenSystem::GetTokenFromID(int tokenID)
     return nullptr;
 }
 
-Token* TokenSystem::GetTokenFromName(std::string_view name)
+Token* TokenSystem::GetTokenFromNameEx(std::string_view name)
 {
     auto it = _tokenNameTable.find(name.data());
     if (it != _tokenNameTable.end())
@@ -217,9 +227,9 @@ Token* TokenSystem::GetTokenFromName(std::string_view name)
 }
 
 void TokenSystem::SortByOrder()
-{ // 토큰을 Order에 따라 오름차순 정렬합니다.
+{   // 토큰을 Order에 따라 오름차순 정렬합니다.
     std::sort(_tokenInstances.begin(), _tokenInstances.end(),
-              [](Token* a, Token* b) { 
+              [](IToken* a, IToken* b) { 
             int aOrder = a->GetTokenOrder();
             int bOrder = b->GetTokenOrder();
             return aOrder < bOrder;

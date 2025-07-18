@@ -97,8 +97,12 @@ public:
     template <typename T>
     static bool RegisterToken();
 
-    static Token* GetTokenFromID(int tokenID);
-    static Token* GetTokenFromName(std::string_view name);
+    static IToken* GetTokenFromID(int tokenID);
+    static IToken* GetTokenFromName(std::string_view name);
+
+private:
+    static Token* GetTokenFromIDEx(int tokenID);
+    static Token* GetTokenFromNameEx(std::string_view name);
 
 private:
     /// <summary>

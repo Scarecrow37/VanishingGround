@@ -61,7 +61,7 @@ public: // 콜백에 대한 자세한 주석은 ITriggerType.h를 참고하세�
     virtual void OnQTEEnd(CharacterBase* owner) override                                        {};
 
 public:
-    int  GetTokenOrder() const;
+    int  GetTokenOrder() const override;
     int  GetMaxStackCount() const override;
     TokenTag GetTag() const override;
     void SetTokenOrder(int order);
