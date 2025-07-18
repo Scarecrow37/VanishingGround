@@ -332,6 +332,20 @@ int TokenInventory::GetTokenStackFromID(int tokenID) const
     return 0;
 }
 
+int TokenInventory::GetTokenStackFromTag(TokenTag tokenTag) const
+{
+    int         total     = 0;
+    const auto& tagTokens = TokenSystem::GetTokenInstancesFromTag(tokenTag);
+    for (const auto& token : tagTokens)
+    {
+        if (token)
+        {
+            total += GetTokenStackFromID(token->GetTokenID());
+        }
+    }
+    return total;
+}
+
 size_t TokenInventory::GetValidTokenCount() const
 {
     return _vaildTokenVector.size();

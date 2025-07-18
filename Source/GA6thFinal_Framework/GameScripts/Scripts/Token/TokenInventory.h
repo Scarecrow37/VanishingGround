@@ -108,9 +108,9 @@ public:
     /// <summary>
     /// 지정된 태그에 해당하는 토큰이 있는지 확인합니다.
     /// </summary>
-    /// <param name="tag">확인할 TokenTag 값입니다.</param>
+    /// <param name="tokenTag">확인할 TokenTag 값입니다.</param>
     /// <returns>태그에 해당하는 토큰이 있으면 true, 없으면 false를 반환합니다.</returns>
-    bool HasTokenFromTag(TokenTag tag) const;
+    bool HasTokenFromTag(TokenTag tokenTag) const;
 
     /// <summary>
     /// 토큰 ID로 해당 토큰의 스택 카운트를 반환합니다.
@@ -118,6 +118,13 @@ public:
     /// <param name="tokenID"></param>
     /// <returns></returns>
     int GetTokenStackFromID(int tokenID) const;
+
+    /// <summary>
+    /// 주어진 TokenTag에 해당하는 토큰 스택을 반환합니다.
+    /// </summary>
+    /// <param name="tokenTag">토큰 스택을 조회할 TokenTag 값입니다.</param>
+    /// <returns>해당 TokenTag에 연결된 토큰 스택의 정수 값입니다.</returns>
+    int GetTokenStackFromTag(TokenTag tokenTag) const;
 
     /// <summary>
     /// 유효한 토큰의 개수를 반환합니다.
