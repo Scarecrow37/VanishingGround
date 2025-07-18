@@ -578,66 +578,70 @@ void ESceneManager::CreateEmptySceneAndLoad(std::string_view name, std::string_v
 
 void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
 {
-    if (false == UmComponentFactory.HasScript())
+    try
     {
-        UmComponentFactory.InitalizeComponentFactory();
-    }
-
-    Scene* scene = GetSceneByName(sceneName);
-    if (scene == nullptr)
-    {
-        return;
-    }
-
-    if (mode == LoadSceneMode::SINGLE)
-    {
-        for (auto& obj : _runtimeObjects)
+        if (false == UmComponentFactory.HasScript())
         {
-            if (obj)
-            {
-                if (obj->_ownerScene == DONT_DESTROY_ON_LOAD_SCENE_NAME)
-                    continue;
+            UmComponentFactory.InitalizeComponentFactory();
+        }
 
-                GameObject::Destroy(obj.get());
+        Scene* scene = GetSceneByName(sceneName);
+        if (scene == nullptr)
+        {
+            return;
+        }
+
+        if (mode == LoadSceneMode::SINGLE)
+        {
+            for (auto& obj : _runtimeObjects)
+            {
+                if (obj)
+                {
+                    if (obj->_ownerScene == DONT_DESTROY_ON_LOAD_SCENE_NAME)
+                        continue;
+
+                    GameObject::Destroy(obj.get());
+                }
+            }
+
+            if (false == _lodedSceneList.empty())
+            {
+                _prevScene = _setting.MainScene;
+            }
+            _setting.MainScene = scene->Path;
+            _addComponentsQueue.clear();
+            _addGameObjectsQueue.clear();
+            _waitAwakeVec.clear();
+            _waitStartVec.clear();
+            _lodedSceneList.clear();
+            UmCommandManager.Clear();
+            SetRendererSkyBox(scene);
+        }
+        else
+        {
+            Scene* mainScene = GetMainScene();
+            if (mainScene == nullptr)
+            {
+                engineCore->Logger.Log(LogLevel::LEVEL_WARNING, u8"메인 씬을 먼저 로드해주세요."_c_str);
+                return;
+            }
+            if (scene->_isLoaded)
+            {
+                engineCore->Logger.Log(LogLevel::LEVEL_WARNING, u8"이미 로드된 씬은 추가 로드가 불가능합니다."_c_str);
+                return;
             }
         }
 
-        if (false == _lodedSceneList.empty())
-        {
-            _prevScene = _setting.MainScene;
-        }
-        _setting.MainScene = scene->Path;
-        _addComponentsQueue.clear();
-        _addGameObjectsQueue.clear();
-        _waitAwakeVec.clear();
-        _waitStartVec.clear();
-        _lodedSceneList.clear();
-        UmCommandManager.Clear();
-        SetRendererSkyBox(scene);
+        DeserializeToGuid(scene->_guid);
+        scene->_isLoaded = true;
+        scene->_isDirty  = false;
+        _lodedSceneList.push_back(scene);
     }
-    else
+    catch (const std::exception& ex)
     {
-        Scene* mainScene = GetMainScene();
-        if (mainScene == nullptr)
-        {
-            engineCore->Logger.Log(
-                LogLevel::LEVEL_WARNING, 
-                u8"메인 씬을 먼저 로드해주세요."_c_str);
-            return;
-        }
-        if (scene->_isLoaded)
-        {
-            engineCore->Logger.Log(
-                LogLevel::LEVEL_WARNING,
-                u8"이미 로드된 씬은 추가 로드가 불가능합니다."_c_str);
-            return;
-        }
+        std::string msg = std::format("{}{}{}", sceneName, (const char*)u8" 로드 실패. ", ex.what());
+        UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
     }
-
-    DeserializeToGuid(scene->_guid);
-    scene->_isLoaded = true;
-    scene->_isDirty  = false;
-    _lodedSceneList.push_back(scene);
 }
 
 void ESceneManager::UnloadScene(std::string_view sceneName) 
@@ -1342,53 +1346,70 @@ void ESceneManager::OnFileRegistered(const File::Path& path)
     const auto& [node, result] = YAMLHelper::SafeLoadFile(path);
     if (result)
     {
-        _sceneDataMap[guid] = node;
-        YAML::Node& node    = _sceneDataMap[guid];
-
-        Scene& scene = _scenesMap[guid];
-        scene._guid  = guid;
-        if (node["SkyBox"])
+        try
         {
-            scene._skyBox = node["SkyBox"].as<std::string>();
-        }
-        _scenesFindMap[scene.Name].insert(guid);
-        std::string nodeGuid = node["Guid"].as<std::string>();
-        if (nodeGuid != guid)
-        {
-            node["Guid"] = guid.string();
-            if (node.IsNull() == false)
+            _sceneDataMap[guid] = node;
+            YAML::Node& node    = _sceneDataMap[guid];
+            Scene& scene = _scenesMap[guid];
+            scene._guid  = guid;
+            _scenesFindMap[scene.Name].insert(guid);
+            if (node["SkyBox"])
             {
-                std::ofstream ofs(path, std::ios::trunc);
-                if (ofs.is_open())
-                {
-                    ofs << node;
-                }
-                ofs.close();
+                scene._skyBox = node["SkyBox"].as<std::string>();
             }
-        }
-
-        if (_loadFuncEvent)
-        {
-            std::string& loadScene = Application::IsEditor() ? _setting.MainScene : _setting.StartScene;
-            if (scene.isLoaded == false && path.string() == loadScene)
+            std::string nodeGuid = node["Guid"].as<std::string>();
+            if (nodeGuid != guid)
             {
-                if (UmComponentFactory.HasScript() == false)
+                node["Guid"] = guid.string();
+                if (node.IsNull() == false)
                 {
-                    if (UmComponentFactory.InitalizeComponentFactory() == false)
+                    std::ofstream ofs(path, std::ios::trunc);
+                    if (ofs.is_open())
                     {
-                        return;
+                        ofs << node;
                     }
+                    ofs.close();
                 }
-                LoadScene(path.string());
-                _loadFuncEvent();
-                _loadFuncEvent = nullptr;
             }
+
+            if (_loadFuncEvent)
+            {
+                std::string& loadScene = Application::IsEditor() ? _setting.MainScene : _setting.StartScene;
+                if (scene.isLoaded == false && path.string() == loadScene)
+                {
+                    if (UmComponentFactory.HasScript() == false)
+                    {
+                        if (UmComponentFactory.InitalizeComponentFactory() == false)
+                        {
+                            return;
+                        }
+                    }
+                    LoadScene(path.string());
+                    _loadFuncEvent();
+                    _loadFuncEvent = nullptr;
+                }
+            }
+        }
+        catch (const YAML::BadConversion& ex)
+        {
+            std::string msg =
+                std::format("{}{} {}", (const char*)u8"올바르지 않은 UmScene 파일입니다. ", path.string(), ex.what());
+            UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
+            EraseSceneGUID((std::string)_scenesMap[guid].Name, guid);
+        }
+        catch (const YAML::Exception ex)
+        {
+            std::string msg =
+                std::format("{}{} {}", (const char*)u8"올바르지 않은 UmScene 파일입니다. ", path.string(), ex.what());
+            UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
+            EraseSceneGUID((std::string)_scenesMap[guid].Name, guid);
         }
     }
     else
     {
         std::string msg = std::format("{}{} {}",  (const char*)u8"올바르지 않은 UmScene 파일입니다. ", path.string(), result.What());
         UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
+        EraseSceneGUID((std::string)_scenesMap[guid].Name, guid);
     }
 }
 
@@ -1406,19 +1427,37 @@ void ESceneManager::OnFileModified(const File::Path& path)
     const auto& [node, result] = YAMLHelper::SafeLoadFile(path);
     if (result)
     {
-        _sceneDataMap[guid]     = node;
-        const YAML::Node& node  = _sceneDataMap[guid];
-        Scene&            scene = _scenesMap[guid];
-        scene._guid             = guid;
-        if (node["SkyBox"])
+        try
         {
-            scene._skyBox = node["SkyBox"].as<std::string>();
+            _sceneDataMap[guid]     = node;
+            const YAML::Node& node  = _sceneDataMap[guid];
+            Scene&            scene = _scenesMap[guid];
+            scene._guid             = guid;
+            if (node["SkyBox"])
+            {
+                scene._skyBox = node["SkyBox"].as<std::string>();
+            }
+        }
+        catch (const YAML::BadConversion& ex)
+        {
+            std::string msg =
+                std::format("{}{} {}", (const char*)u8"올바르지 않은 UmScene 파일입니다. ", path.string(), ex.what());
+            UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
+            EraseSceneGUID((std::string)_scenesMap[guid].Name, guid);
+        }
+        catch (const YAML::Exception ex)
+        {
+            std::string msg =
+                std::format("{}{} {}", (const char*)u8"올바르지 않은 UmScene 파일입니다. ", path.string(), ex.what());
+            UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
+            EraseSceneGUID((std::string)_scenesMap[guid].Name, guid);
         }
     }
     else
     {
         std::string msg = std::format("{}{} {}",  (const char*)u8"올바르지 않은 UmScene 파일입니다. ", path.string(), result.What());
         UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
+        EraseSceneGUID((std::string)_scenesMap[guid].Name, guid);
     }
 }
 
@@ -1516,20 +1555,23 @@ void ESceneManager::OnPostRequestedLoad()
 
 void ESceneManager::EraseSceneGUID(std::string_view sceneName, const File::Guid guid) 
 {
-    Scene* pScene = &_scenesMap[guid];
-    auto objects = pScene->GetRootGameObjects();
-    for (auto& obj : objects)
+    if (_scenesMap.find(guid) != _scenesMap.end())
     {
-        GameObject::Destroy(obj.get());
+        Scene* pScene  = &_scenesMap[guid];
+        auto   objects = pScene->GetRootGameObjects();
+        for (auto& obj : objects)
+        {
+            GameObject::Destroy(obj.get());
+        }
+        std::erase(_lodedSceneList, pScene);
+        _scenesFindMap[sceneName.data()].erase(guid);
+        if (_scenesFindMap[sceneName.data()].empty() == true)
+        {
+            _scenesFindMap.erase(sceneName.data());
+        }
+        _scenesMap.erase(guid);
+        _sceneDataMap.erase(guid);
     }
-    std::erase(_lodedSceneList, pScene);
-    _scenesFindMap[sceneName.data()].erase(guid);
-    if (_scenesFindMap[sceneName.data()].empty() == true)
-    {
-        _scenesFindMap.erase(sceneName.data());
-    }
-    _scenesMap.erase(guid);
-    _sceneDataMap.erase(guid);
 }
 
 template <typename T>

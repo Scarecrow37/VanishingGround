@@ -121,9 +121,18 @@ void EGameObjectFactory::OnFileRegistered(const File::Path& path)
     auto [yamlData, result] = YAMLHelper::SafeLoadFile(path);
     if (result)
     {
-        _prefabObjectMap[guid] = MakeObjectsGraphToYaml(&yamlData, true);
-        WritePrefabGuid(path, yamlData);
-        ApplyPrefabInstanceChanges(guid, yamlData);
+        try
+        {
+            _prefabObjectMap[guid] = MakeObjectsGraphToYaml(&yamlData, true);
+            WritePrefabGuid(path, yamlData);
+            ApplyPrefabInstanceChanges(guid, yamlData);
+        }
+        catch (const std::exception& ex)
+        {
+             std::string msg = std::format("{}{} {}", (const char*)u8"올바르지 않은 UmPrefab 파일입니다. ", path.string(), ex.what());
+             UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
+             ErasePrefabItem(guid);
+        }
     }
     else
     {
@@ -144,14 +153,26 @@ void EGameObjectFactory::OnFileModified(const File::Path& path)
     auto [yamlData, result] = YAMLHelper::SafeLoadFile(path);
     if (result)
     {
-        _prefabObjectMap[guid] = MakeObjectsGraphToYaml(&yamlData, true);
-        WritePrefabGuid(path, yamlData);
-        ApplyPrefabInstanceChanges(guid, yamlData);
+        try
+        {
+            _prefabObjectMap[guid] = MakeObjectsGraphToYaml(&yamlData, true);
+            WritePrefabGuid(path, yamlData);
+            ApplyPrefabInstanceChanges(guid, yamlData);
+            ErasePrefabItem(guid);
+        }
+        catch (const std::exception& ex)
+        {
+            std::string msg = std::format("{}{} {}", (const char*)u8"올바르지 않은 UmPrefab 파일입니다. ",
+                                          path.string(), ex.what());
+            UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
+            ErasePrefabItem(guid);
+        }
     }
     else
     {
         std::string msg = std::format("{}{} {}",  (const char*)u8"올바르지 않은 UmPrefab 파일입니다. ", path.string(), result.What());
         UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
+        ErasePrefabItem(guid);
     }
 }
 
@@ -368,9 +389,12 @@ std::vector<std::shared_ptr<GameObject>> EGameObjectFactory::MakeObjectsGraphToY
     //리소스는 Active 비활성화
     if (true == useResource)
     {
-        auto& root = makeList.front();
-        root->ReflectFields->_activeSelf = false;
-        GameObject::Engine::UpdateActiveInHierarchy(root.get());
+        if (false == makeList.empty())
+        {
+            auto& root                       = makeList.front();
+            root->ReflectFields->_activeSelf = false;
+            GameObject::Engine::UpdateActiveInHierarchy(root.get());
+        }
     }
 
     //게임 오브젝트의 _activeInHierarchy 계산
