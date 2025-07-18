@@ -106,6 +106,13 @@ public:
     bool HasTokenFromID(int tokenID) const;
 
     /// <summary>
+    /// 지정된 태그에 해당하는 토큰이 있는지 확인합니다.
+    /// </summary>
+    /// <param name="tag">확인할 TokenTag 값입니다.</param>
+    /// <returns>태그에 해당하는 토큰이 있으면 true, 없으면 false를 반환합니다.</returns>
+    bool HasTokenFromTag(TokenTag tag) const;
+
+    /// <summary>
     /// 토큰 ID로 해당 토큰의 스택 카운트를 반환합니다.
     /// </summary>
     /// <param name="tokenID"></param>

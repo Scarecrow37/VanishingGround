@@ -305,6 +305,23 @@ bool TokenInventory::HasTokenFromID(int tokenID) const
     return false;
 }
 
+bool TokenInventory::HasTokenFromTag(TokenTag tag) const
+{
+    const auto& tagTokens = TokenSystem::GetTokenInstancesFromTag(tag);
+    for (const auto& token : tagTokens)
+    {
+        if (token)
+        {
+            int count = GetTokenStackFromID(token->GetTokenID());
+            if (0 < count)
+            {
+                return true; // 해당 태그에 유효한 토큰이 존재합니다.
+            }
+        }
+    }
+    return false;
+}
+
 int TokenInventory::GetTokenStackFromID(int tokenID) const
 {
     auto it = _tokenTable.find(tokenID);

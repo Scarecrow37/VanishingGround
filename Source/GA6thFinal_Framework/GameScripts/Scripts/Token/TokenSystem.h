@@ -11,7 +11,7 @@
     {                                                                           \
         namespace CLASS##Register                                               \
         {                                                                       \
-            static bool IsRegister = TokenSystem::RegisterToken<CLASS>();       \
+            static bool IsRegister = TokenSystem::RegisterTokenFactory<CLASS>();       \
         }                                                                       \
     }   
 
@@ -43,7 +43,12 @@ private:
     void ImGuiDrawPropertysEvent() override;
 
 private:
-    void InitTokenInstance();
+    void RegisterAllTokenInstance();
+    // 테이블에 추가
+    void RegisterTokenInstanceToTable(Token* token);
+    // 테이블에서 제거
+    void UnregisterTokenInstanceToTable(Token* token);
+
     void ImGuiDrawDataTable();
     void ImGuiDrawMenuBar();
 
@@ -91,6 +96,11 @@ public:
     /// </summary>
     static inline const std::vector<Token*>&  GetTokenInstances() { return _tokenInstances; }
 
+    /// <summary>
+    /// 정렬되어있는 토큰 리스트입니다.
+    /// </summary>
+    static inline const std::vector<Token*>& GetTokenInstancesFromTag(TokenTag tag) { return _tokenTagTable[tag]; }
+
 public:
     /// <summary>
     /// 토큰을 등록합니다. 직접 호출하지 않고 define을 통해 등록합니다.
@@ -98,7 +108,7 @@ public:
     /// <typeparam name="T">Token 클래스 타입입니다.</typeparam>
     /// <returns>등록 성공 여부입니다.</returns>
     template <typename T>
-    static bool RegisterToken();
+    static bool RegisterTokenFactory();
 
     /// <summary>
     /// TokenInstance를 ID로 가져옵니다.
@@ -122,7 +132,7 @@ private:
     static Token* GetTokenFromIDEx(int tokenID);
     /// <summary>Token을 이름으로 가져옵니다.</summary>
     static Token* GetTokenFromNameEx(std::string_view name);
-    /// <summary> 토큰 리스트를 정렬합니다. (오름차순) </summary>
+    /// <summary> 토큰 리스트를 정렬합니다.(오름차순) </summary>
     static void SortByOrder();
 
 private:
@@ -144,7 +154,7 @@ private:
 };
 
 template <typename T>
-inline bool TokenSystem::RegisterToken()
+inline bool TokenSystem::RegisterTokenFactory()
 {
     static_assert(std::is_base_of_v<Token, T>, "T must be derived from Token");
     std::function<Token*()> factoryFunc = []() { return new T(); };

@@ -14,7 +14,7 @@ TokenSystem::~TokenSystem()
 void TokenSystem::Reset()
 {
     _staticInstance = this;
-    InitTokenInstance();
+    RegisterAllTokenInstance();
     SortByOrder();
 }
 
@@ -24,12 +24,14 @@ void TokenSystem::OnDestroy()
     {
         if (token)
         {
+            UnregisterTokenInstanceToTable(token); // 토큰 인스턴스를 테이블에서 제거
             delete token; // 토큰 인스턴스 삭제
         }
     }
     _tokenInstances.clear();
     _tokenIDTable.clear();
     _tokenNameTable.clear();
+    _tokenTagTable.clear();
 }
 
 void TokenSystem::OnDrawDebug()
@@ -83,7 +85,7 @@ void TokenSystem::ImGuiDrawPropertysEvent()
     }
 }
 
-void TokenSystem::InitTokenInstance()
+void TokenSystem::RegisterAllTokenInstance()
 {
     for (const auto& [id, constructor] : _tokenIDFactoryTable)
     {
@@ -91,12 +93,44 @@ void TokenSystem::InitTokenInstance()
         if (it == _tokenIDTable.end())
         {
             Token* newToken = constructor();
-            if (newToken)
+            _tokenInstances.push_back(newToken);
+            RegisterTokenInstanceToTable(newToken);
+        }
+    }
+}
+
+void TokenSystem::RegisterTokenInstanceToTable(Token* token)
+{
+    if (token)
+    {
+        int         id   = token->GetTokenID();
+        TokenTag    tag  = token->GetTokenTag();
+        const auto& name = token->GetTokenName();
+        _tokenTagTable[tag].push_back(token);
+        _tokenIDTable[id]     = token;
+        _tokenNameTable[name] = token;
+        token->SetDirtyOrderCallback([](int id) { SortByOrder(); });
+    }
+}
+
+void TokenSystem::UnregisterTokenInstanceToTable(Token* token)
+{
+    if (token)
+    {
+        int         id   = token->GetTokenID();
+        TokenTag    tag  = token->GetTokenTag();
+        const auto& name = token->GetTokenName();
+
+        _tokenIDTable.erase(id);
+        _tokenNameTable.erase(name);
+        auto itr = _tokenTagTable.find(tag);
+        if (itr != _tokenTagTable.end())
+        {
+            auto& tagTokens = itr->second;
+            tagTokens.erase(std::remove(tagTokens.begin(), tagTokens.end(), token), tagTokens.end());
+            if (tagTokens.empty())
             {
-                newToken->SetDirtyOrderCallback([](int id) { SortByOrder(); });
-                _tokenInstances.push_back(newToken);
-                _tokenIDTable[id]                         = newToken;
-                _tokenNameTable[newToken->GetTokenName()] = newToken;
+                _tokenTagTable.erase(itr); // 태그가 비어있으면 제거
             }
         }
     }

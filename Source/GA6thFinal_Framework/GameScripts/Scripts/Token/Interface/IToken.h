@@ -70,5 +70,5 @@ public:
     virtual int         GetTokenID() const          = 0;
     virtual const char* GetTokenName() const        = 0;
     virtual int         GetMaxStackCount() const    = 0;
-    virtual TokenTag    GetTag() const              = 0;
+    virtual TokenTag    GetTokenTag() const         = 0;
 };

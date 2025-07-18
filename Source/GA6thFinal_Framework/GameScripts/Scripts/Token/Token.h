@@ -63,7 +63,7 @@ public: // 콜백에 대한 자세한 주석은 ITriggerType.h를 참고하세�
 public:
     int  GetTokenOrder() const override;
     int  GetMaxStackCount() const override;
-    TokenTag GetTag() const override;
+    TokenTag GetTokenTag() const override;
     void SetTokenOrder(int order);
     void SetMaxStackCount(UINT16 maxStack);
     void SetTag(TokenTag tag) { ReflectFields->Tag = tag; }
