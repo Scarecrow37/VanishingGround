@@ -141,19 +141,26 @@ private:
     ComPtr<ID3D12Resource> _gameViewMvpConstantBuffer;   // MVP 상수 버퍼 (CBV - b0)
 
     ComPtr<ID3D12Resource> _ribbonParticleInputBuffer;  // 입력 파티클 데이터 (SRV - t0)
-    ComPtr<ID3D12Resource> _ribbonEmitterInfoBuffer;    // 에미터 정보 (SRV - t1)
-    ComPtr<ID3D12Resource> _ribbonParticleOutputBuffer; // 출력 파티클 데이터 (UAV - u0)
-    ComPtr<ID3D12Resource> _ribbonMvpConstantBuffer;    // MVP 상수 버퍼 (CBV - b0)
     ComPtr<ID3D12Resource> _ribbonParticleInputUploadBuffer;
+
+    ComPtr<ID3D12Resource> _ribbonEmitterInfoBuffer;    // 에미터 정보 (SRV - t1)
     ComPtr<ID3D12Resource> _ribbonEmitterInfoUploadBuffer;
+
+    ComPtr<ID3D12Resource> _ribbonMvpConstantBuffer;    // MVP 상수 버퍼 (CBV - b0)
+
+    ComPtr<ID3D12Resource> _ribbonParticleOutputBuffer; // 출력 파티클 데이터 (UAV - u0)
+
+    ComPtr<ID3D12Resource> _ribbonGameViewOutputBuffer;      // 출력 파티클 데이터 (UAV - u0)
+    ComPtr<ID3D12Resource> _ribbonGameViewMvpConstantBuffer; // MVP 상수 버퍼 (CBV - b0)
+
+
     ComPtr<ID3D12Resource> _ribbonEditorParticleInputBuffer; // 입력 파티클 데이터 (SRV - t0)
     ComPtr<ID3D12Resource> _ribbonEditorEmitterInfoBuffer;   // 에미터 정보 (SRV - t1)
     ComPtr<ID3D12Resource> _ribbonEditorOutputBuffer;        // 출력 파티클 데이터 (UAV - u0)
     ComPtr<ID3D12Resource> _ribbonEditorMvpConstantBuffer;   // MVP 상수 버퍼 (CBV - b0)
     ComPtr<ID3D12Resource> _ribbonEditorParticleInputUploadBuffer;
     ComPtr<ID3D12Resource> _ribbonEditorEmitterInfoUploadBuffer;
-    ComPtr<ID3D12Resource> _ribbonGameViewOutputBuffer;      // 출력 파티클 데이터 (UAV - u0)
-    ComPtr<ID3D12Resource> _ribbonGameViewMvpConstantBuffer; // MVP 상수 버퍼 (CBV - b0)
+
 
     void RefreshCurrentEditorEffect();
     bool _editorRefreshFlag = false;
@@ -172,6 +179,7 @@ private:
     class ParticleEffect* _editorCurrentEffect = nullptr;
 
     std::vector<class ParticleEffect*>    _particleEffects;
+    std::unordered_map<std::string, std::vector<class ParticleEffect>> _effects;
 
     std::vector<class Particle> _totalParticles;
     std::vector<class Particle> _editorTotalParticles;

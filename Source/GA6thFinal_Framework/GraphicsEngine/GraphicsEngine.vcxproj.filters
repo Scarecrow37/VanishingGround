@@ -297,6 +297,9 @@
     <ClInclude Include="Graphics.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="ParticleRibbonPass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GraphicsEngine.cpp">
@@ -561,6 +564,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="ThirdParty\source\DebugDraw.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleRibbonPass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

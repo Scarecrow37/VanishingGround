@@ -115,5 +115,23 @@ enum class VelocityScaleType
     CUSTOM
 };
 
+struct SceneParticleResource
+{
+    ComPtr<ID3D12Resource> _ParticleInput;
+    ComPtr<ID3D12Resource> _EmitterInfo;
+    ComPtr<ID3D12Resource> _ParticleInputUpload;
+    ComPtr<ID3D12Resource> _EmitterInfoUpload;
+    ComPtr<ID3D12Resource> _MvpConstants;
+    ComPtr<ID3D12Resource> _SimulationOutput;
+    ComPtr<ID3D12Resource> _RibbonParticleInput;
+    ComPtr<ID3D12Resource> _RibbonEmitterInfo;
+    ComPtr<ID3D12Resource> _RibbonParticleInputUpload;
+    ComPtr<ID3D12Resource> _RibbonEmitterInfoUpload;
+    ComPtr<ID3D12Resource> _RibbonMvpConstants;
+    ComPtr<ID3D12Resource> _RibbonSimulationOutput;
 
+
+
+
+};
 

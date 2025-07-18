@@ -141,7 +141,7 @@ void ParticleManager::Update(const float deltaTime)
         DispatchRibbonComputeEditorMode(delta);
 
         _computeCommandList->Close();
-        UmDevice.RegisterCommand(_computeCommandList.Get(), COMPUTE_LIST);
+        Global::commandController->ExecuteCommand(COMPUTE_QUEUE, _computeCommandList.Get());
     }
     
     
@@ -491,7 +491,7 @@ void ParticleManager::InitializeParticleComputeRootSignature()
         FAILED_CHECK_MESSAGE(hr, L"");
 
         ComPtr<ID3D12RootSignature> rootSignature;
-        hr = UmDevice.GetDevice()->CreateRootSignature(0, serializedRootSig->GetBufferPointer(),
+        hr = Global::device->GetDevice()->CreateRootSignature(0, serializedRootSig->GetBufferPointer(),
                                                        serializedRootSig->GetBufferSize(),
                                                        IID_PPV_ARGS(_computeRibbonRootSignature.GetAddressOf()));
         FAILED_CHECK_MESSAGE(hr, L"");
@@ -519,7 +519,7 @@ void ParticleManager::InitializeParticleComputePSO()
         computePSODesc.pRootSignature = _computeRibbonRootSignature.Get();
 
         HRESULT hr;
-        hr = UmDevice.GetDevice()->CreateComputePipelineState(&computePSODesc,
+        hr = Global::device->GetDevice()->CreateComputePipelineState(&computePSODesc,
                                                               IID_PPV_ARGS(_computeRibbonPSO.GetAddressOf()));
         FAILED_CHECK_MESSAGE(hr, L"");
     }
@@ -733,7 +733,7 @@ void ParticleManager::DispatchParticleCompute(float deltaTime)
     if (0 >= _totalCount)
         return;
 
-    if (IS_EDITOR)
+    //if (IS_EDITOR)
     {
         CD3DX12_RESOURCE_BARRIER computeOutputBarrior = CD3DX12_RESOURCE_BARRIER::Transition(
             _particleOutputBuffer.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
@@ -788,7 +788,7 @@ void ParticleManager::DispatchRibbonCompute(float deltaTime)
     if (0 >= _ribbonTotalCount)
         return;
 
-    if (IS_EDITOR)
+   // if (IS_EDITOR)
     {
         CD3DX12_RESOURCE_BARRIER computeOutputBarrior = CD3DX12_RESOURCE_BARRIER::Transition(
             _ribbonParticleOutputBuffer.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
@@ -1232,10 +1232,6 @@ void ParticleManager::CopyFromUploadBufferEditorMode()
 }
 void ParticleManager::RefreshCurrentEditorEffect() 
 {
-    // TODO JJW
-    //if (!Global::isEditorMode)
-    //    return;
-
     _editorCurrentEffect->FlushEmitters();
     _editorCurrentEffect->Reset();
     _editorCurrentEffect->Play();

@@ -608,9 +608,6 @@
     <ClCompile Include="Source\Engine\GraphicsCore\ParticleEffectSerializer.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\GraphicsCore\ParticleRibbonPass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
