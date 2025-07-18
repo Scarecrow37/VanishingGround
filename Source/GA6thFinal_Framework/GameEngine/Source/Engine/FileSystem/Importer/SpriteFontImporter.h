@@ -5,12 +5,13 @@ namespace Importer
     class SpriteFontImporter 
         : public File::FileEventSubscriber
     {
+        typedef int (*MakeSpriteFont)(const std::vector<std::wstring>& options);
     public:
-        SpriteFontImporter()  = default;
-        ~SpriteFontImporter() = default;
+        SpriteFontImporter() = default;
+        ~SpriteFontImporter() override;
 
     public:
-        bool Initialize();
+        void Initialize();
 
     private:
         /// <summary>
@@ -24,10 +25,23 @@ namespace Importer
         /// </summary>
         void DrawImGuiImportSetting();
 
+
+        /// <summary>
+        /// 폰트를 가져옵니다.
+        /// </summary>
+        void ImportFont();
+
     private:
+        HMODULE _moduleHandle;
+        MakeSpriteFont _makeSpriteFont;
+        std::vector<std::wstring> _options;
+
+        File::Path _sourcePath;
         File::Path _importPath; // 임포트할 폰트의 대상 경로
 
-        int _fontSize = 32; // 폰트 크기
-        ImColor _fontColor = ImColor(255, 255, 255, 255); 
+        char _defaultCharacter = 0;
+        int _fontSize = 23; // 폰트 크기
+        bool _isBold   = false; // 볼드체 여부
+        bool _isItalic = false; // 이탤릭체 여부
     };
 }
