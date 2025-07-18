@@ -1222,10 +1222,8 @@ bool ESceneManager::DeserializeToYaml(YAML::Node* _sceneNode)
             std::shared_ptr<GameObject> newObject = UmGameObjectFactory.DeserializeToSceneObject(object);
             if (nullptr == newObject)
             {
-                UmLogger.Log(LogLevel::LEVEL_FATAL, u8"메모리 할당 실패."_c_str);
-                __debugbreak();
-                UmApplication.Quit();
-                return false;
+                UmLogger.Log(LogLevel::LEVEL_WARNING, u8"오브젝트 역직렬화 실패. 씬 파일에 누락된 오브젝트가 존재합니다."_c_str);
+                continue;
             }
 
             Transform::ForeachDFS(newObject->_transform, [&Guid](Transform* curr) 

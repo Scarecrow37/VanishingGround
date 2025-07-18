@@ -433,16 +433,13 @@ std::shared_ptr<GameObject> EGameObjectFactory::DeserializeToGuid(const File::Gu
         }
     }
 
-    auto iter = _prefabObjectMap.find(guid);
-    if (iter == _prefabObjectMap.end())
+    auto prefabIter = _prefabObjectMap.find(guid);
+    if (prefabIter == _prefabObjectMap.end())
     {
-        auto tempObject = NewGameObject(typeid(GameObject).name(), "GameObject");
-        std::vector<std::weak_ptr<GameObject>>& instanceList = _prefabInstanceList[guid];
-        instanceList.emplace_back(tempObject);
-        tempObject->_prefabGuid = guid;
-        return tempObject;
+        UmLogger.Log(LogLevel::LEVEL_WARNING, u8"존재하지 않은 프리팹 입니다.."_c_str);
+        return nullptr;
     }
-    YAML::Node yamlData = SerializeToYaml(iter->second[0].get());
+    YAML::Node yamlData = SerializeToYaml(prefabIter->second[0].get());
     auto pObject = DeserializeToYaml(&yamlData, sceneNode);
     return pObject;
 }
@@ -634,19 +631,18 @@ void EGameObjectFactory::ResetGameObject(
     if (mainScene != nullptr)
     {
         ownerObject->_ownerScene = mainScene->Path;
+        ownerObject->ReflectFields->_name       = name;
+        ownerObject->ReflectFields->_isStatic   = false;
+        ownerObject->ReflectFields->_activeSelf = true;
+
+        // 인스턴스 아이디 부여
+        int instanceID           = InstanceID.CreateInstanceID();
+        ownerObject->_instanceID = instanceID;
     }
     else
     {
-        UmLogger.Log(LogLevel::LEVEL_FATAL, u8"씬이 로드되지 않았습니다."_c_str);
-        __debugbreak();
+        UmLogger.Log(LogLevel::LEVEL_WARNING, u8"씬이 로드되지 않았습니다."_c_str);
     }   
-    ownerObject->ReflectFields->_name = name;
-    ownerObject->ReflectFields->_isStatic = false;
-    ownerObject->ReflectFields->_activeSelf = true;
-  
-    //인스턴스 아이디 부여
-    int instanceID = InstanceID.CreateInstanceID();
-    ownerObject->_instanceID = instanceID;
 }
 
 YAML::Node EGameObjectFactory::MakeYamlToGameObject(GameObject* gameObject)
