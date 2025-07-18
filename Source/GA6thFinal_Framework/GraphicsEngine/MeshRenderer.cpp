@@ -27,26 +27,26 @@ void MeshRenderer::SetModel(std::shared_ptr<Model> model)
     if (model->GetAnimation())
     {
         _type              = MeshRenderType::SKELETAL;
-        const auto& meshes = _model->GetMeshes();
-        _skeletaMesheInstances.resize(meshes.size());
-        for (size_t i = 0; i < meshes.size(); ++i)
-        {
-            const auto& viBuffer    = meshes[i]->GetVIBuffer();
-            const UINT  vertexCount = viBuffer->_vertexCount;
-            const UINT  stride      = sizeof(SkeletalMeshVertex);
+        //const auto& meshes = _model->GetMeshes();
+        //_skeletaMesheInstances.resize(meshes.size());
+        //for (size_t i = 0; i < meshes.size(); ++i)
+        //{
+        //    const auto& viBuffer    = meshes[i]->GetVIBuffer();
+        //    const UINT  vertexCount = viBuffer->_vertexCount;
+        //    const UINT  stride      = sizeof(SkeletalMeshVertex);
 
-            auto instance         = std::make_shared<SkeletalMeshInstance>();
-            instance->VertexCount = vertexCount;
+        //    auto instance         = std::make_shared<SkeletalMeshInstance>();
+        //    instance->VertexCount = vertexCount;
 
-            instance->UAVBuffer = std::make_shared<UnorderedAccessView>();
-            instance->UAVBuffer->InitializeForBuffer(stride, vertexCount);
+        //    instance->UAVBuffer = std::make_shared<UnorderedAccessView>();
+        //    instance->UAVBuffer->InitializeForBuffer(stride, vertexCount);
 
-            instance->VertexBufferView.BufferLocation = instance->UAVBuffer->GetGPUVirtualAddress();
-            instance->VertexBufferView.SizeInBytes    = stride * vertexCount;
-            instance->VertexBufferView.StrideInBytes  = stride;
+        //    instance->VertexBufferView.BufferLocation = instance->UAVBuffer->GetGPUVirtualAddress();
+        //    instance->VertexBufferView.SizeInBytes    = stride * vertexCount;
+        //    instance->VertexBufferView.StrideInBytes  = stride;
 
-            _skeletaMesheInstances[i] = instance;
-        }
+        //    _skeletaMesheInstances[i] = instance;
+        //}
     }
     else
         _type = MeshRenderType::STATIC;

@@ -525,7 +525,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Source\Engine\Utility\DumpUtility.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\VertexShader.cpp" />
     <ClCompile Include="Source\UmFramework.cpp" />
     <ClCompile Include="Source\Engine\FileSystem\Importer\SpriteFontImporter.cpp" />
     <ClCompile Include="ThirdParty\include\pugixml\pugixml.cpp">

@@ -247,14 +247,14 @@ void FBXConverter::LoadMesh(aiNode* node,
         }
     }
 
-    if (_isStaticMesh)
+    /*if (_isStaticMesh)
     {
         GenerateLightmapUV(_staticVertices.back(), _indices.back(), sizeof(StaticMeshVertex));
     }
     else
     {
         GenerateLightmapUV(_skeletalVertices.back(), _indices.back(), sizeof(SkeletalMeshVertex));
-    }    
+    }    */
 
     if (!_isStaticMesh)
     {
