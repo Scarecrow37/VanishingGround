@@ -101,21 +101,13 @@ void Device::FullGPUSync()
 {
     auto& commandController = Global::commandController;
 
-    UINT64 fence = commandController->SignalCommandQueue(CommandQueueType::COMPUTE_QUEUE);
-    commandController->WaitForCommandQueue(CommandQueueType::COMPUTE_QUEUE, fence);
-
-    fence = commandController->SignalCommandQueue(CommandQueueType::GRAPHICS_QUEUE);
+    UINT64 fence = commandController->SignalCommandQueue(CommandQueueType::GRAPHICS_QUEUE);
     commandController->WaitForCommandQueue(CommandQueueType::GRAPHICS_QUEUE, fence);
 }
 
 void Device::UploadResource(ComPtr<ID3D12Resource> uploadResource) 
 {
     _uploadResources.push_back(uploadResource);
-}
-
-void Device::SetBackBuffer()
-{
-    _commandList->OMSetRenderTargets(1, &_renderTargetHandles[_renderTargetIndex], FALSE, nullptr);
 }
 
 void Device::ResolveBackBuffer(ComPtr<ID3D12Resource> source)
@@ -421,7 +413,7 @@ void Device::ResizeSwapChain()
     _mainViewport.MinDepth = 0.0f;
     _mainViewport.MaxDepth = 1.0f;
 
-    _mainrRect = {0, 0, static_cast<long>(_newMode.Width), static_cast<long>(_newMode.Height)};
+    _mainScissorRect = {0, 0, static_cast<long>(_newMode.Width), static_cast<long>(_newMode.Height)};
 
     DXGI_MODE_DESC prevMode = _mode;
     _mode                   = _newMode;

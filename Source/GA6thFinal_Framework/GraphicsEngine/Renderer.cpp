@@ -21,9 +21,7 @@
 #include "SkyBoxRenderTechnique.h"
 #include "UITechnique.h"
 
-Renderer::Renderer()
-{
-}
+Renderer::Renderer() {}
 
 Renderer::~Renderer() {}
 
@@ -83,6 +81,18 @@ void Renderer::SetCamera(std::string_view renderSceneName, std::shared_ptr<Camer
 
     auto& scene = iter->second;
     scene->SetCamera(camera);
+}
+
+void Renderer::SetCurrentScene(std::string_view sceneName)
+{
+    auto iter = _renderScenes.find(sceneName.data());
+    if (iter == _renderScenes.end())
+    {
+        std::wstring msg = L"Renderer::SetCurrentScene: RenderSceneName '" + std::wstring(sceneName.begin(), sceneName.end()) + L"' is not registered.";
+        GRAPHICS_ASSERT(false, msg.c_str());
+    }
+
+    _currentSceneName = sceneName;
 }
 
 void Renderer::AddRenderScene(std::string_view sceneName, RenderTechniqueFlag flag)
@@ -218,6 +228,36 @@ void Renderer::ResetSkyBox(std::string_view sceneName)
 void Renderer::Initialize()
 {
     CreateDefaultResource();
+
+    _shader = std::make_unique<ShaderBuilder>();
+
+    _shader->BeginBuild();
+    _shader->SetShader(L"../Shaders/vs_quad.hlsl", ShaderBuilder::Type::VS);
+    _shader->SetShader(L"../Shaders/ps_to_backbuffer.hlsl", ShaderBuilder::Type::PS);
+    _shader->EndBuild(ShaderBuilder::BindType::DIRECT);
+
+    ID3D12Device*                      device = Global::device->GetDevice();
+    D3D12_GRAPHICS_PIPELINE_STATE_DESC psodesc{};
+    psodesc.RasterizerState               = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+    psodesc.BlendState                    = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+    psodesc.DepthStencilState             = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+    psodesc.DepthStencilState.DepthEnable = FALSE;
+    psodesc.SampleMask                    = UINT_MAX;
+    psodesc.PrimitiveTopologyType         = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+    psodesc.InputLayout                   = _shader->GetInputLayout();
+    psodesc.NumRenderTargets              = 1;
+    psodesc.RTVFormats[0]                 = Global::device->GetBackBufferFormat();
+    psodesc.pRootSignature                = _shader->GetRootSignature();
+    psodesc.SampleDesc                    = {1, 0};
+    psodesc.VS                            = _shader->GetShaderByteCode(ShaderBuilder::Type::VS);
+    psodesc.PS                            = _shader->GetShaderByteCode(ShaderBuilder::Type::PS);
+
+    HRESULT hr = S_OK;
+    hr         = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(&_pipelineState));
+    FAILED_CHECK_MESSAGE(hr, L"Renderer::Initialize device->CreateGraphicsPipelineState Failed");
+
+    auto quadModel = Global::resourceManager->LoadResource<Model>(L"Quad");
+    _frameQuad     = quadModel->GetMeshes().front().get();
 }
 
 void Renderer::Update()
@@ -239,7 +279,7 @@ void Renderer::Render()
         renderScene.second->Execute(commandList);
     }
     
-    Global::device->SetBackBuffer();
+    RenderToBackBuffer();    
 }
 
 void Renderer::Flip()
@@ -248,6 +288,39 @@ void Renderer::Flip()
     Global::device->Flip();
     Global::device->ResetCommands();
     Global::device->ResetComputeCommands();
+}
+
+void Renderer::RenderToBackBuffer()
+{
+    if (_currentSceneName.empty())
+    {
+        return;
+    }
+
+    auto iter = _renderScenes.find(_currentSceneName.data());
+    if (iter == _renderScenes.end())
+    {
+        GRAPHICS_ASSERT(false, L"Renderer::DrawCurrentSceneToBackBuffer: Current scene not found.");
+        return;
+    }
+
+    auto& scene = iter->second;    
+
+    auto commandList = Global::device->GetCommandList();
+    auto backBuffer  = Global::device->GetBackBufferHandle();
+
+    commandList->OMSetRenderTargets(1, &backBuffer, false, nullptr);
+    commandList->RSSetViewports(1, &Global::device->GetMainViewport());
+    commandList->RSSetScissorRects(1, &Global::device->GetMainScissorRect());
+
+    commandList->SetPipelineState(_pipelineState.Get());
+    commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
+
+    auto descriptorHeap = Global::viewManager->GetShaderResourceHeap();
+    commandList->SetDescriptorHeaps(1, &descriptorHeap);
+    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("screenTexture"), scene->GetFinalImage());
+
+    _frameQuad->Render(commandList);
 }
 
 void Renderer::CreateDefaultResource()

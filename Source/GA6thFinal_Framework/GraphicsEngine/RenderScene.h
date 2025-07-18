@@ -34,8 +34,6 @@ public:
 public:
     void UpdateRenderScene();
     void ClassifyMesh();
-    void RenderOnBackBuffer(ID3D12GraphicsCommandList* commandList);
-    void RenderOnEditor(ID3D12GraphicsCommandList* commandList);
     void Execute(ID3D12GraphicsCommandList* commandList);
 
 public:

@@ -12,7 +12,9 @@
 #include "FontRenderer.h"
 #include "AccelerationStructureManager.h"
 
-RenderScene::RenderScene(std::string_view name) : _skyBox{std::make_unique<SkyBox>()}, _name(name)
+RenderScene::RenderScene(std::string_view name)
+    : _skyBox{std::make_unique<SkyBox>()}
+    , _name(name)
 {
     _lightDatas.resize(MAX_LIGHT);
 }
@@ -130,12 +132,8 @@ void RenderScene::UpdateRenderScene()
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, FrameResourceType::MATERIAL, _materialIDs.data(), (UINT)_materialIDs.size());
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, FrameResourceType::UI_TRANSFORM, _uiMatrices.data(), (UINT)_uiMatrices.size());
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, FrameResourceType::UI_MATERIAL, _uiMaterials.data(), (UINT)_uiMaterials.size());
-    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, FrameResourceType::STATIC_MESH_INSTANCE_ID,
-                                                              _staticMeshInstanceIDs.data(),
-                                                              (UINT)_staticMeshInstanceIDs.size());
-    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, FrameResourceType::SKELETAL_MESH_INSTANCE_ID,
-                                                              _skeletalMeshInstanceIDs.data(),
-                                                              (UINT)_skeletalMeshInstanceIDs.size());
+    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, FrameResourceType::STATIC_MESH_INSTANCE_ID, _staticMeshInstanceIDs.data(), (UINT)_staticMeshInstanceIDs.size());
+    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, FrameResourceType::SKELETAL_MESH_INSTANCE_ID, _skeletalMeshInstanceIDs.data(), (UINT)_skeletalMeshInstanceIDs.size());
 }
 
 void RenderScene::Execute(ID3D12GraphicsCommandList* commandList)

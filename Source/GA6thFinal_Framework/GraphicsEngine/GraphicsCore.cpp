@@ -70,6 +70,11 @@ void GraphicsCore::SetSkyBox(std::string_view renderSceneName, std::wstring_view
     _renderer->SetSkyBox(renderSceneName, filePath);
 }
 
+void GraphicsCore::SetCurrentScene(std::string_view sceneName)
+{
+    _renderer->SetCurrentScene(sceneName);
+}
+
 void GraphicsCore::AddRenderScene(std::string_view sceneName, RenderTechniqueFlag flag)
 {
     _renderer->AddRenderScene(sceneName, flag);
