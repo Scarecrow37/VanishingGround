@@ -4,8 +4,8 @@
 
 void VIBuffer::Initialize(const VIBuffer::Descriptor& descriptor)
 {
-    ID3D12Device* device = UmDevice.GetDevice();
-    UmDevice.CreateVertexBuffer(descriptor.vertexData, 
+    ID3D12Device* device = Global::device->GetDevice();
+    Global::device->CreateVertexBuffer(descriptor.vertexData, 
 								descriptor.vertexSize, 
 								descriptor.vertexStride, 
 								_vertexBuffer,
@@ -20,12 +20,12 @@ void VIBuffer::Initialize(const VIBuffer::Descriptor& descriptor)
 	_indexCount = descriptor.indexCount;
     _vertexCount = descriptor.vertexSize/descriptor.vertexStride;
 
-    if (UmRenderer._isRaytracing)
+    if (Global::renderer->_isRaytracing)
     {
-        _vertexBufferID = UmViewManager.GetNumVertexBuffer();
-        _indexBufferID  = UmViewManager.GetNumIndexBuffer();
-        UmViewManager.AddDescriptorHeap(ViewManager::Type::VERTEX_BUFFER_SHADER_RESOURCE, _vertexBufferSrv);
-        UmViewManager.AddDescriptorHeap(ViewManager::Type::INDEX_BUFFER_SHADER_RESOURCE, _indexBufferSrv);
+        _vertexBufferID = Global::viewManager->GetNumVertexBuffer();
+        _indexBufferID  = Global::viewManager->GetNumIndexBuffer();
+        Global::viewManager->AddDescriptorHeap(ViewManager::Type::VERTEX_BUFFER_SHADER_RESOURCE, _vertexBufferSrv);
+        Global::viewManager->AddDescriptorHeap(ViewManager::Type::INDEX_BUFFER_SHADER_RESOURCE, _indexBufferSrv);
 
 
         D3D12_SHADER_RESOURCE_VIEW_DESC srvd{};
@@ -76,11 +76,11 @@ void VIBuffer::MakeAccelerationBuffer(ID3D12Device5* device, ID3D12GraphicsComma
     device->GetRaytracingAccelerationStructurePrebuildInfo(&inputs, &preBuildInfo);
 
     // scratch(임시 빌드 공간)
-    UmDevice.CreateDefaultBuffer(static_cast<UINT> (preBuildInfo.ScratchDataSizeInBytes),
+    Global::device->CreateDefaultBuffer(static_cast<UINT> (preBuildInfo.ScratchDataSizeInBytes),
                                  D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
                                  D3D12_RESOURCE_STATE_UNORDERED_ACCESS, outBuffer->pScratch);
     // result(blas 저장 공간)
-    UmDevice.CreateDefaultBuffer(static_cast<UINT>(preBuildInfo.ResultDataMaxSizeInBytes),
+    Global::device->CreateDefaultBuffer(static_cast<UINT>(preBuildInfo.ResultDataMaxSizeInBytes),
                                  D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
                                  D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE, outBuffer->pResult);
     D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC asDesc{};

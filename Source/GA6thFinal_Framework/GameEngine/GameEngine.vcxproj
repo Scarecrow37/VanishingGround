@@ -308,7 +308,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Engine\GraphicsCore\DXRGBufferPass.h" />
     <ClInclude Include="Source\Editor\Tool\Model\EditorAnimationNotifyTool.h" />
     <ClInclude Include="Source\Engine\AppModule\GraphicsModule.h" />
     <ClInclude Include="Source\Engine\AppModule\ImGuiDX12Module.h" />
@@ -410,19 +409,6 @@
     <ClInclude Include="Source\Engine\TimelineCore\TimelineSystem.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Engine\GraphicsCore\DXRGBufferPass.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\RTPipeline.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\RTPipelineBuilder.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\ShaderConfig.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\PipelineConfig.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\LocalRootSignature.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\HItProgram.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\GlobalRootSignature.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\ExportAssociation.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\DxilLibrary.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\DXRDrawStaticMeshPass.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\RayTracingTechnique.cpp" />
-    <ClCompile Include="Source\Engine\GraphicsCore\AccelerationStructureManager.cpp" />
     <ClCompile Include="Source\Editor\Tool\Model\EditorAnimationNotifyTool.cpp" />
     <ClCompile Include="Source\Engine\AppModule\GraphicsModule.cpp" />
     <ClCompile Include="Source\Engine\AppModule\ImGuiDX12Module.cpp" />

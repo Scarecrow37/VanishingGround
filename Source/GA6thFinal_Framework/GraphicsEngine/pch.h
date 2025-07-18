@@ -9,6 +9,7 @@
 #include <dbghelp.h>
 #include <dxgi1_4.h>
 #include <dxgi1_6.h>
+#include <dxcapi.h>
 #include <filesystem>
 #include <fstream>
 #include <memory>
@@ -19,6 +20,7 @@
 #include <type_traits>
 #include <typeindex>
 #include <unordered_map>
+#include <unordered_set>
 #include <variant>
 #include <vector>
 #include <windows.h>
@@ -44,6 +46,7 @@
 #pragma comment(lib, "dxgi")
 #pragma comment(lib, "Dbghelp.lib")
 #pragma comment(lib, "d3dcompiler")
+#pragma comment(lib, "dxcomplier")
 #pragma comment(lib, "assimp-vc143-mt.lib")
 
 using namespace DirectX;

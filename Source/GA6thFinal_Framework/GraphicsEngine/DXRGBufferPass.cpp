@@ -12,8 +12,8 @@ void DXRGBufferPass::Initialize(RenderScene* ownerScene)
     static bool isInitialized = false;
     if (!isInitialized)
     {
-        auto  mode                = UmDevice.GetMode();
-        auto& renderTargetManager = UmMultiRenderTargetManager;
+        auto  mode                = Global::device->GetMode();
+        auto& renderTargetManager = Global::multiRenderTargetManager;
 
         std::initializer_list<std::string_view> renderTargetNames = {
             "Normal", "WorldPosition", "Depth", "CustomDepth"};
@@ -25,26 +25,26 @@ void DXRGBufferPass::Initialize(RenderScene* ownerScene)
             renderTarget = MakeSharedResource<RenderTarget>();
             mode.Format  = DXGI_FORMAT_R32G32B32A32_FLOAT;
             renderTarget->Initialize(mode, 0.247f);
-            renderTargetManager.AddRenderTarget(*(first + i), renderTarget);
+            renderTargetManager->AddRenderTarget(*(first + i), renderTarget);
         }
 
         renderTarget = MakeSharedResource<RenderTarget>();
         mode.Format  = DXGI_FORMAT_R32_FLOAT;
         renderTarget->Initialize(mode, 1.f);
-        renderTargetManager.AddRenderTarget(*(first + DXRGBuffer::DXRDEPTH), renderTarget);
+        renderTargetManager->AddRenderTarget(*(first + DXRGBuffer::DXRDEPTH), renderTarget);
 
         renderTarget = MakeSharedResource<RenderTarget>();
         mode.Format  = DXGI_FORMAT_R32_UINT;
         renderTarget->Initialize(mode, 0.f);
-        renderTargetManager.AddRenderTarget(*(first + DXRGBuffer::DXRCUSTOMDEPTH), renderTarget);
+        renderTargetManager->AddRenderTarget(*(first + DXRGBuffer::DXRCUSTOMDEPTH), renderTarget);
 
-        renderTargetManager.AddRenderTargetGroup("GBuffer", renderTargetNames);
+        renderTargetManager->AddRenderTargetGroup("GBuffer", renderTargetNames);
 
         isInitialized = true;
     }
 
-    const auto&                gBufferGroup = UmMultiRenderTargetManager.GetRenderTargetGroup("GBuffer");
-    ID3D12GraphicsCommandList* commandList  = UmDevice.GetCommandList();
+    const auto&                gBufferGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("GBuffer");
+    ID3D12GraphicsCommandList* commandList  = Global::device->GetCommandList();
 
     for (UINT i = 0; i < DXRGBuffer::DXRGBUFFER_END; i++)
     {
@@ -58,7 +58,7 @@ void DXRGBufferPass::Initialize(RenderScene* ownerScene)
 
 void DXRGBufferPass::Begin(ID3D12GraphicsCommandList* commandList)
 {
-    const auto& gBufferGroup = UmMultiRenderTargetManager.GetRenderTargetGroup("GBuffer");
+    const auto& gBufferGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("GBuffer");
 
     commandList->OMSetRenderTargets(DXRGBuffer::DXRGBUFFER_END, _gBufferHandles.data(), FALSE,
                                     &_ownerScene->_depthStencilView->GetDSVHandle());
@@ -115,8 +115,8 @@ void DXRGBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
         }
     }
 
-    UINT  currentBackBufferIndex = UmDevice.GetCurrentBackBufferIndex();
-    auto  resource               = UmViewManager.GetShaderResourceHeap()->GetGPUDescriptorHandleForHeapStart();
+    UINT  currentBackBufferIndex = Global::device->GetCurrentBackBufferIndex();
+    auto  resource               = Global::viewManager->GetShaderResourceHeap()->GetGPUDescriptorHandleForHeapStart();
     auto  cameraData             = _ownerScene->_cameraBuffer->GetGPUVirtualAddress();
     auto& frameResource          = _ownerScene->_frameResources[currentBackBufferIndex];
 
@@ -173,7 +173,7 @@ void DXRGBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
 
 void DXRGBufferPass::End(ID3D12GraphicsCommandList* commandList)
 {
-    const auto& gBufferGroup = UmMultiRenderTargetManager.GetRenderTargetGroup("GBuffer");
+    const auto& gBufferGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("GBuffer");
 
     for (auto& gBuffer : gBufferGroup)
     {
@@ -200,7 +200,7 @@ void DXRGBufferPass::InitShaderAndPSO()
     skeletalMeshShaderBuilder->EndBuild();
     _shaders.push_back(std::move(skeletalMeshShaderBuilder));
 
-    ID3D12Device*                      device = UmDevice.GetDevice();
+    ID3D12Device*                      device = Global::device->GetDevice();
     D3D12_GRAPHICS_PIPELINE_STATE_DESC psodesc{};
     HRESULT                            hr = S_OK;
     ComPtr<ID3D12PipelineState>        staticTwoSidedPSO;

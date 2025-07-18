@@ -50,7 +50,7 @@ void RenderScene::InitializeRenderScene()
     Global::dxResourceManager->AddResource(_accumulationBuffer);
 
 
-    if (UmRenderer._isRaytracing)
+    if (Global::renderer->_isRaytracing)
     { 
         _accelerationStructureManager = std::make_unique<AccelerationStructureManager>();
         _accelerationStructureManager->Initialize(10000);

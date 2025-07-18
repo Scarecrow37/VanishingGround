@@ -8,7 +8,7 @@
 
 void AccelerationStructureManager::Initialize(UINT maxInstance)
 {
-    ComPtr<ID3D12Device5> device = UmDevice.GetDevice5();
+    ComPtr<ID3D12Device5> device = Global::device->GetDevice5();
     _maxInstanceCount            = maxInstance;
     _topLevelBuffers             = std::make_shared<AccelerationStructureBuffers>();
 
@@ -23,22 +23,22 @@ void AccelerationStructureManager::Initialize(UINT maxInstance)
     D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO prebuildInfo{};
     device->GetRaytracingAccelerationStructurePrebuildInfo(&inputs, &prebuildInfo);
 
-    UmDevice.CreateDefaultBuffer(static_cast<UINT>(prebuildInfo.ScratchDataSizeInBytes),
+    Global::device->CreateDefaultBuffer(static_cast<UINT>(prebuildInfo.ScratchDataSizeInBytes),
                                  D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COMMON,
                                  _topLevelBuffers->pScratch);
-    UmDevice.CreateDefaultBuffer(static_cast<UINT>(prebuildInfo.ResultDataMaxSizeInBytes),
+    Global::device->CreateDefaultBuffer(static_cast<UINT>(prebuildInfo.ResultDataMaxSizeInBytes),
                                  D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
                                  D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE, _topLevelBuffers->pResult);
-    UmDevice.CreateUploadBuffer(static_cast<UINT>(prebuildInfo.ScratchDataSizeInBytes), D3D12_RESOURCE_FLAG_NONE,
+    Global::device->CreateUploadBuffer(static_cast<UINT>(prebuildInfo.ScratchDataSizeInBytes), D3D12_RESOURCE_FLAG_NONE,
                                 D3D12_RESOURCE_STATE_GENERIC_READ, _topLevelBuffers->pInstanceDesc);
-    UmViewManager.AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _topLevelBuffersSRV);
+    Global::viewManager->AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _topLevelBuffersSRV);
 
     D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc          = {};
     srvDesc.ViewDimension                            = D3D12_SRV_DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE;
     srvDesc.Shader4ComponentMapping                  = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
     srvDesc.RaytracingAccelerationStructure.Location = _topLevelBuffers->pResult->GetGPUVirtualAddress();
 
-    UmDevice.GetDevice()->CreateShaderResourceView(nullptr, &srvDesc, _topLevelBuffersSRV.CPU);
+    Global::device->GetDevice()->CreateShaderResourceView(nullptr, &srvDesc, _topLevelBuffersSRV.CPU);
 }
 
 void AccelerationStructureManager::BeginFrame()
@@ -65,8 +65,8 @@ void AccelerationStructureManager::SubmitInstance(const MeshRenderer* renderer)
 
 void AccelerationStructureManager::EndFrame()
 {
-    ComPtr<ID3D12Device5>              device  = UmDevice.GetDevice5();
-    ComPtr<ID3D12GraphicsCommandList4> cmdList = UmDevice.GetCommandList4();
+    ComPtr<ID3D12Device5>              device  = Global::device->GetDevice5();
+    ComPtr<ID3D12GraphicsCommandList4> cmdList = Global::device->GetCommandList4();
     for (auto& inst : _pendingInstances)
     {
         if (AsBuildClass::STATICBLAS == inst.BuildClass)
@@ -137,10 +137,10 @@ void AccelerationStructureManager::BuildOrUpdateStaticBLAS(ID3D12Device5* device
     device->GetRaytracingAccelerationStructurePrebuildInfo(&inputs, &info);
 
     cache.buf = std::make_shared<AccelerationStructureBuffers>();
-    UmDevice.CreateDefaultBuffer(static_cast<UINT>(info.ScratchDataSizeInBytes),
+    Global::device->CreateDefaultBuffer(static_cast<UINT>(info.ScratchDataSizeInBytes),
                                  D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COMMON,
                                  cache.buf->pScratch);
-    UmDevice.CreateDefaultBuffer(static_cast<UINT>(info.ResultDataMaxSizeInBytes),
+    Global::device->CreateDefaultBuffer(static_cast<UINT>(info.ResultDataMaxSizeInBytes),
                                  D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
                                  D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE, cache.buf->pResult);
 
@@ -195,11 +195,11 @@ void AccelerationStructureManager::BuildDynamicBLAS(ID3D12Device5* device, ID3D1
     // if (firstBuild)
     //{
     //     outBuf = std::make_shared<AccelerationStructureBuffers>();
-    //     UmDevice.CreateDefaultBuffer(static_cast<UINT>(info.ScratchDataSizeInBytes),
+    //     Global::device->CreateDefaultBuffer(static_cast<UINT>(info.ScratchDataSizeInBytes),
     //                                  D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
     //                                  D3D12_RESOURCE_STATE_UNORDERED_ACCESS, outBuf->pScratch);
 
-    //    UmDevice.CreateDefaultBuffer(static_cast<UINT>(info.ResultDataMaxSizeInBytes),
+    //    Global::device->CreateDefaultBuffer(static_cast<UINT>(info.ResultDataMaxSizeInBytes),
     //                                 D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
     //                                 D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE, outBuf->pResult);
     //}
@@ -249,7 +249,7 @@ void AccelerationStructureManager::BuildOrUpdateTLAS(ID3D12Device5* device, ID3D
     {
         if (!_instanceUpload || _instanceUpload->GetDesc().Width < instByteSize)
         {
-            UmDevice.CreateUploadBuffer(instByteSize, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_GENERIC_READ,
+            Global::device->CreateUploadBuffer(instByteSize, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_GENERIC_READ,
                                         _instanceUpload);
         }
 
@@ -272,11 +272,11 @@ void AccelerationStructureManager::BuildOrUpdateTLAS(ID3D12Device5* device, ID3D
     if (_topLevelBuffers->pScratch->GetDesc().Width < info.ScratchDataSizeInBytes)
     {
         // 기존 버퍼 크기가 부족하기에 새로 만들어줌
-        UmDevice.CreateDefaultBuffer(static_cast<UINT>(info.ScratchDataSizeInBytes),
+        Global::device->CreateDefaultBuffer(static_cast<UINT>(info.ScratchDataSizeInBytes),
                                      D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COMMON,
                                      _topLevelBuffers->pScratch);
 
-        UmDevice.CreateDefaultBuffer(static_cast<UINT>(info.ResultDataMaxSizeInBytes),
+        Global::device->CreateDefaultBuffer(static_cast<UINT>(info.ResultDataMaxSizeInBytes),
                                      D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
                                      D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE, _topLevelBuffers->pResult);
 
@@ -285,7 +285,7 @@ void AccelerationStructureManager::BuildOrUpdateTLAS(ID3D12Device5* device, ID3D
         srvDesc.Shader4ComponentMapping                  = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
         srvDesc.RaytracingAccelerationStructure.Location = _topLevelBuffers->pResult->GetGPUVirtualAddress();
 
-        UmDevice.GetDevice()->CreateShaderResourceView(nullptr, &srvDesc, _topLevelBuffersSRV.CPU);
+        Global::device->GetDevice()->CreateShaderResourceView(nullptr, &srvDesc, _topLevelBuffersSRV.CPU);
     }
     D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC desc{};
     desc.Inputs                           = inputs;

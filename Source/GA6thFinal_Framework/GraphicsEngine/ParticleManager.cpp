@@ -466,7 +466,7 @@ void ParticleManager::InitializeParticleComputeRootSignature()
         //FAILED_CHECK_MESSAGE(hr, L"");
 
         //ComPtr<ID3D12RootSignature> rootSignature;
-        //hr = UmDevice.GetDevice()->CreateRootSignature(0, serializedRootSig->GetBufferPointer(),
+        //hr = Global::device->GetDevice()->CreateRootSignature(0, serializedRootSig->GetBufferPointer(),
         //                                               serializedRootSig->GetBufferSize(),
         //                                               IID_PPV_ARGS(_computeMeshRootSignature.GetAddressOf()));
         //FAILED_CHECK_MESSAGE(hr, L"");
@@ -494,7 +494,7 @@ void ParticleManager::InitializeParticleComputePSO()
         //computePSODesc.pRootSignature = _computeSpriteRootSignature.Get();
 
         //HRESULT hr;
-        //hr = UmDevice.GetDevice()->CreateComputePipelineState(&computePSODesc,
+        //hr = Global::device->GetDevice()->CreateComputePipelineState(&computePSODesc,
         //                                                      IID_PPV_ARGS(_computeAxialSpritePSO.GetAddressOf()));
         //FAILED_CHECK_MESSAGE(hr, L"");
     }
@@ -506,7 +506,7 @@ void ParticleManager::InitializeParticleComputePSO()
         //computePSODesc.pRootSignature = _computeMeshRootSignature.Get();
 
         //HRESULT hr;
-        //hr = UmDevice.GetDevice()->CreateComputePipelineState(&computePSODesc,
+        //hr = Global::device->GetDevice()->CreateComputePipelineState(&computePSODesc,
         //                                                      IID_PPV_ARGS(_computeMeshPSO.GetAddressOf()));
         //FAILED_CHECK_MESSAGE(hr, L"");
     }
@@ -750,7 +750,7 @@ void ParticleManager::UpdateParticleResources(float deltaTime)
         //{
         //    mvpConstants.ViewMatrix       = Matrix::Identity;
         //    mvpConstants.ViewRotInvMatrix = Matrix::Identity;
-        //    auto& mode                    = UmDevice.GetMode();
+        //    auto& mode                    = Global::device->GetMode();
         //    mvpConstants.ProjMatrix = Matrix::CreateOrthographic(1920.f, 1080.f,0.1f, 1000.f).Transpose();
 
         //    mvpConstants.CameraPos =
@@ -796,7 +796,7 @@ void ParticleManager::UpdateParticleResources(float deltaTime)
         {
             mvpConstants.ViewMatrix       = Matrix::Identity;
             mvpConstants.ViewRotInvMatrix = Matrix::Identity;
-            auto& mode                    = UmDevice.GetMode();
+            auto& mode                    = Global::device->GetMode();
             mvpConstants.ProjMatrix       = Matrix::CreateOrthographic(1920.f, 1080.f, 0.1f, 1000.f).Transpose();
 
             mvpConstants.CameraPos =
@@ -957,7 +957,7 @@ void ParticleManager::UpdateParticleResourcesEditorMode(float deltaTime)
     //{
     //    mvpConstants.ViewMatrix       = Matrix::Identity;
     //    mvpConstants.ViewRotInvMatrix = Matrix::Identity;
-    //    auto& mode                    = UmDevice.GetMode();
+    //    auto& mode                    = Global::device->GetMode();
     //    mvpConstants.ProjMatrix       = Matrix::CreateOrthographic(1920.f, 1080.f, 0.1f, 1000.f).Transpose();
 
     //    mvpConstants.CameraPos =

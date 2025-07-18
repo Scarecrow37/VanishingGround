@@ -64,7 +64,7 @@ void Device::SetUpDevice(HWND hwnd, UINT width, UINT height, FeatureLevel featur
     }
     
     CreateDeviceAndSwapChain(hwnd, d3dFeature);
-    if (UmRenderer._isRaytracing)
+    if (Global::renderer->_isRaytracing)
     {
         CheckDXRSupport();
     }
@@ -395,28 +395,6 @@ ComPtr<ID3D12RootSignature> Device::CreateRootSignature(const D3D12_ROOT_SIGNATU
                                       IID_PPV_ARGS(pRootSig.GetAddressOf()));
     FAILED_CHECK_MESSAGE(hr, L"Deivce::CreateRootSignature _device->CreateRootSignautre Failed");
     return pRootSig;
-}
-
-void Device::RegisterCommand(ID3D12CommandList* commandList, CommandListType type)
-{
-    _commandLists[type].push_back(commandList);
-}
-
-void Device::ExecuteCommand(CommandListType type)
-{
-    switch (type)
-    {
-    case CommandListType::DEBUG_RENDER_LIST:
-    case CommandListType::IMGUI_RENDER_LIST:
-    case CommandListType::RENDER_LIST:
-        _commandQueue->ExecuteCommandLists(static_cast<UINT>(_commandLists[type].size()), _commandLists[type].data());
-        break;
-    case CommandListType::COMPUTE_LIST:
-        _computeCommandQueue->ExecuteCommandLists(static_cast<UINT>(_commandLists[type].size()), _commandLists[type].data());
-        break;
-    }
-
-    _commandLists[type].clear();
 }
 
 void Device::ResizeSwapChain()

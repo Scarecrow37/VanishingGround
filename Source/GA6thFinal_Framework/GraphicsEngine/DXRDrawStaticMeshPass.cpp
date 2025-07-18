@@ -44,8 +44,8 @@ void DXRDrawStaticMeshPass::Draw(ID3D12GraphicsCommandList* commandList)
 
 void DXRDrawStaticMeshPass::End(ID3D12GraphicsCommandList* commandList)
 {
-    UINT  currentBackBufferIndex = UmDevice.GetCurrentBackBufferIndex();
-    auto  resource               = UmViewManager.GetShaderResourceHeap()->GetGPUDescriptorHandleForHeapStart();
+    UINT  currentBackBufferIndex = Global::device->GetCurrentBackBufferIndex();
+    auto  resource               = Global::viewManager->GetShaderResourceHeap()->GetGPUDescriptorHandleForHeapStart();
     auto  cameraData             = _ownerScene->_cameraBuffer->GetGPUVirtualAddress();
     auto& frameResource          = _ownerScene->_frameResources[currentBackBufferIndex];
     WriteCommand();
@@ -104,7 +104,7 @@ void DXRDrawStaticMeshPass::End(ID3D12GraphicsCommandList* commandList)
 //    desc.pSubobjects   = subobjects.data();
 //    desc.Type          = D3D12_STATE_OBJECT_TYPE_RAYTRACING_PIPELINE;
 //
-//    ComPtr<ID3D12Device5> device5 = UmDevice.GetDevice5();
+//    ComPtr<ID3D12Device5> device5 = Global::device->GetDevice5();
 //    HRESULT               hr      = device5->CreateStateObject(&desc, IID_PPV_ARGS(_pso.GetAddressOf()));
 //    FAILED_CHECK_MESSAGE(hr, L"DXRDrawStaticMeshPass::CreateStateObject() failed Create RT Pipeline stateObject ");
 //}
@@ -182,7 +182,7 @@ void DXRDrawStaticMeshPass::CreateStateObject()
     desc.NumSubobjects            = index; // 최종 index 값은 15
     desc.pSubobjects              = subobjects.data();
     desc.Type                     = D3D12_STATE_OBJECT_TYPE_RAYTRACING_PIPELINE;
-    ComPtr<ID3D12Device5> device5 = UmDevice.GetDevice5();
+    ComPtr<ID3D12Device5> device5 = Global::device->GetDevice5();
     HRESULT               hr      = device5->CreateStateObject(&desc, IID_PPV_ARGS(_pso.GetAddressOf()));
     FAILED_CHECK_MESSAGE(hr, L"DXRDrawStaticMeshPass::CreateStateObject() failed Create RT Pipeline stateObject ");
 }
@@ -205,7 +205,7 @@ void DXRDrawStaticMeshPass::CreateShaderTable()
     // 1) 업로드 버퍼 생성
     if (!_init)
     {
-        UmDevice.CreateUploadBuffer(tableSize, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_GENERIC_READ,
+        Global::device->CreateUploadBuffer(tableSize, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_GENERIC_READ,
                                     _shaderTable);
         _init = true;
     }
@@ -250,12 +250,12 @@ void DXRDrawStaticMeshPass::CreateShaderTable()
         // SRV t4 evnTexture
         *reinterpret_cast<UINT64*>(p + bytesId + (1 * bytesArgs)) = _ownerScene->_skyBox->GetCubeMapSRV().ptr;
         // SRV t5 Vertices
-        *reinterpret_cast<UINT64*>(p + bytesId + (2 * bytesArgs)) = UmViewManager.GetVertexBufferSrvPtr();
+        *reinterpret_cast<UINT64*>(p + bytesId + (2 * bytesArgs)) = Global::viewManager->GetVertexBufferSrvPtr();
         // SRV t2005 Indices
-        *reinterpret_cast<UINT64*>(p + bytesId + (3 * bytesArgs)) = UmViewManager.GetIndexBufferSrvPtr();
+        *reinterpret_cast<UINT64*>(p + bytesId + (3 * bytesArgs)) = Global::viewManager->GetIndexBufferSrvPtr();
         // SRV t4005~ textures
         *reinterpret_cast<UINT64*>(p + bytesId + (4 * bytesArgs)) =
-            UmViewManager.GetShaderResourceHeap()->GetGPUDescriptorHandleForHeapStart().ptr;
+            Global::viewManager->GetShaderResourceHeap()->GetGPUDescriptorHandleForHeapStart().ptr;
     }
     /* ── 4‑5) Hit Group ─────────────────────────────────────────────── */
     {
@@ -267,12 +267,12 @@ void DXRDrawStaticMeshPass::CreateShaderTable()
 
 void DXRDrawStaticMeshPass::CreateShaderResource()
 {
-    ID3D12GraphicsCommandList* cmdlist = UmDevice.GetCommandList();
+    ID3D12GraphicsCommandList* cmdlist = Global::device->GetCommandList();
     _outputResourceUAV                 = MakeSharedResource<UnorderedAccessView>();
-    DXGI_MODE_DESC mode                = UmDevice.GetMode();
+    DXGI_MODE_DESC mode                = Global::device->GetMode();
     mode.Format                        = DXGI_FORMAT_R32G32B32A32_FLOAT;
     _outputResourceUAV->Initialize(mode);
-    UmDXResourceManager.AddResource(_outputResourceUAV);
+    Global::dxResourceManager->AddResource(_outputResourceUAV);
     _outputResourceUAV->TransitionResource(cmdlist, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 }
 
@@ -308,7 +308,7 @@ void DXRDrawStaticMeshPass::UpdateStaticMeshVIBufferID(ID3D12GraphicsCommandList
 
 void DXRDrawStaticMeshPass::WriteCommand()
 {
-    ComPtr<ID3D12GraphicsCommandList4> cmdList4 = UmDevice.GetCommandList4();
+    ComPtr<ID3D12GraphicsCommandList4> cmdList4 = Global::device->GetCommandList4();
     _outputResourceUAV->TransitionResource(cmdList4.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
     D3D12_DISPATCH_RAYS_DESC rayTraceDesc{};
