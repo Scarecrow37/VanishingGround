@@ -8,7 +8,7 @@ class PlayerStatsComponent : public TurnActorStatsComponent
 public:
     REFLECT_PROPERTY()
 
-    PlayerStats* GetStats() { return _stats; }    
+    PlayerStats& GetStats() { return *_stats; }    
 public:
     PlayerStatsComponent();
     virtual ~PlayerStatsComponent();

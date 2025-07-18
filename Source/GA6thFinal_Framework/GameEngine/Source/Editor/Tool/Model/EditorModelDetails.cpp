@@ -133,6 +133,8 @@ void EditorModelDetails::OnStartGui()
     auto& system = Global::editorModule->GetDockWindowSystem();
     auto* modelDock = system.GetDockWindow("ModelDock");
     _modelTool      = modelDock->GetGui<EditorModelTool>();
+
+    UmFileSystem.RegisterFileEventSubscriber(this, {".fbx", ".UmModel"});
 }
 
 void EditorModelDetails::OnEndGui() {}
@@ -146,8 +148,7 @@ void EditorModelDetails::OnFrameRender()
     ImGui::BeginHorizontal("model");
     if (ImGui::Button("Import", ImVec2(100, 50)))
     {
-        // FBX or binary Load
-        ImportModel();
+        ImportModelWithDialog();
     }
 
     if (ImGui::Button("Export", ImVec2(100, 50)))
@@ -207,14 +208,15 @@ void EditorModelDetails::OnFrameRender()
             // ReadOnly inputText for file path
             int inputFlags = ImGuiInputTextFlags_ReadOnly | ImGuiInputTextFlags_AutoSelectAll;
             std::string filePath  = _filePath.string();
-            char* filePathBuffer  = (char*)filePath.c_str();
-            size_t filePathLength = filePath.length() + 1;
-            ImGui::InputText("File Path##details", filePathBuffer, filePathLength, inputFlags);
+            ImGui::InputText("File Path##details", &filePath, inputFlags);
             if (ImGui::IsItemHovered())
             {
                 ImGui::SetTooltip(filePath.c_str());
             }
             ImGui::Separator();
+
+            ImGui::Text("Type: %s", type == MeshRenderType::STATIC ? "Static" : "Skeletal");
+            ImGui::Text("Mesh Count: %d", model->GetMeshes().size());
 
             if (ImGui::TreeNodeEx("Transform##details", ImGuiTreeNodeFlags_DefaultOpen))
             {
@@ -386,52 +388,63 @@ void EditorModelDetails::OnFrameFocusExit() {}
 
 void EditorModelDetails::OnFramePopupOpened() {}
 
+void EditorModelDetails::OnRequestedDragDrop(const File::Path& path) 
+{
+    ImportModel(path);
+}
+
 FBXConverter& EditorModelDetails::GetFBXConverter()
 {
     static FBXConverter fbxConverter;
     return fbxConverter;
 }
 
-void EditorModelDetails::ImportModel()
+bool EditorModelDetails::ImportModelWithDialog()
 {
-    std::vector<File::Path> path;
-
-    if (File::ShowOpenFileDialog(UmApplication.GetHwnd(), L"Import Model", L"",
-                                 {{L"Model Files (*.fbx;*.UmModel)", L"*.fbx; *.UmModel\0\0"}}, false, path))
+    std::vector<std::pair<LPCWSTR, LPCWSTR>> filters = {{L"Model Files (*.fbx;*.UmModel)", L"*.fbx; *.UmModel\0\0"}};
+    File::Path importPath;
+    bool result = File::ShowOpenFileDialog(NULL, L"Import Model", L"", filters, importPath);
+    if (result)
     {
-        std::shared_ptr<Model> model = std::make_shared<Model>();
+        ImportModel(importPath);
+    }
+    return result;
+}
 
-        FBXConverter& fbxConverter = GetFBXConverter();
-        fbxConverter.ImportModel(path.front(), model);
-        _meshRenderer->SetModel(model);
-        _meshRenderer->SetActive(&_isModelActive);
-        _filePath = path.front();
-        _filePath.replace_extension("UmModel");
+void EditorModelDetails::ImportModel(const File::Path& path)
+{
+    std::shared_ptr<Model> model = std::make_shared<Model>();
 
-        _currentAnimationIndex = -1;
-        _currentAnimationName  = "";
-        _animationIndexMap.clear();
-        auto animation = model->GetAnimation();
-        auto skeleton  = model->GetSkeleton();
-        if (animation && skeleton)
+    FBXConverter& fbxConverter = GetFBXConverter();
+    fbxConverter.ImportModel(path, model);
+    _meshRenderer->SetModel(model);
+    _meshRenderer->SetActive(&_isModelActive);
+    _filePath = path;
+    _filePath.replace_extension("UmModel");
+
+    _currentAnimationIndex = -1;
+    _currentAnimationName  = "";
+    _animationIndexMap.clear();
+    auto animation = model->GetAnimation();
+    auto skeleton  = model->GetSkeleton();
+    if (animation && skeleton)
+    {
+        _animator.reset();
+        _animator = std::make_shared<Animator>();
+        _animator->Initialize(animation, skeleton);
+        _meshRenderer->SetAnimator(_animator);
+        const auto& animations = animation->GetAnimations();
+        for (int i = 0; i < animations.size(); ++i)
+        {
+            _animationIndexMap[animations[i]] = i;
+        }
+        StopCurrentAnimation();
+    }
+    else
+    {
+        if (_animator)
         {
             _animator.reset();
-            _animator = std::make_shared<Animator>();
-            _animator->Initialize(animation, skeleton);
-            _meshRenderer->SetAnimator(_animator);
-            const auto& animations = animation->GetAnimations();
-            for (int i = 0; i < animations.size(); ++i)
-            {
-                _animationIndexMap[animations[i]] = i;
-            }
-            StopCurrentAnimation();
-        }
-        else
-        {
-            if (_animator)
-            {
-                _animator.reset();
-            }
         }
     }
 }

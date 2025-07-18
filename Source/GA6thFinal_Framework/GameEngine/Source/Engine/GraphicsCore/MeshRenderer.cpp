@@ -51,9 +51,9 @@ void MeshRenderer::LoadModel(std::wstring_view filePath)
 {
     _model = UmResourceManager.LoadResource<Model>(filePath);
 
-    if (MeshRenderType::SKELETAL == _type)
-    {
-        _animator = std::make_shared<Animator>();
-        _animator->Initialize(_model->GetAnimation(), _model->GetSkeleton());
-    }
+    //if (MeshRenderType::SKELETAL == _type)
+    //{
+    //    _animator = std::make_shared<Animator>();
+    //    _animator->Initialize(_model->GetAnimation(), _model->GetSkeleton());
+    //}
 }

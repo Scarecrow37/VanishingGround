@@ -42,6 +42,17 @@ void Enemy::Dead()
     Base::Dead();
 }
 
+void Enemy::TakeDamage(int damage) 
+{
+    // TODO: 피격 애니메이션 재생
+    // 예외 사항 - 피격 애니메이션 재생 종료 후 원래 애니메이션으로 돌아가야함.
+
+
+    // 혹시나 그럴 일 없겠지만 중간에 계산할 연산이 또 있다면 재연산
+    int takeDamage = damage;
+    Base::TakeDamage(takeDamage);
+}
+
 void Enemy::Awake()
 {
     Base::Awake();
@@ -70,7 +81,7 @@ CharacterStats* Enemy::GetCharacterStats()
     EnemyStatsComponent* statsComponent = GetEnemyStats();
     if (nullptr != statsComponent)
     {
-        stats = statsComponent->GetStats();
+        stats = &statsComponent->GetStats();
     }
     return stats;
 }
@@ -81,7 +92,7 @@ int Enemy::GetSpeed()
     EnemyStatsComponent* stats = GetEnemyStats();
     if (nullptr != stats)
     {
-        speed = stats->GetStats()->Speed;
+        speed = stats->GetStats().Speed;
     }
     return speed;
 }
@@ -91,6 +102,10 @@ EnemyStatsComponent* Enemy::GetEnemyStats()
     if (nullptr == _enemyStats)
     {
         _enemyStats = GetComponent<EnemyStatsComponent>();
+        if (nullptr == _enemyStats)
+        {
+            UmLogger.Log(LogLevel::LEVEL_WARNING, u8"Enemy Stats 컴포넌트가 존재하지 않습니다.");
+        }
     }
     return _enemyStats;
 }

@@ -298,8 +298,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Scripts\RevelationSystem\RevelationAction\Critical\CriticalDamageAction.h" />
-    <ClInclude Include="Scripts\RevelationSystem\RevelationAction\Token\TokenApplyAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Critical\CriticalDamageAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Token\TokenApplyAction.h" />
     <ClInclude Include="Scripts\RevelationSystem\RevelationElement\RevelationElement.h" />
     <ClInclude Include="Scripts\RevelationSystem\RevelationSystem.h" />
     <ClInclude Include="Scripts\Test\Text\TestText.h" />
@@ -380,7 +380,6 @@
     <ClInclude Include="Scripts\UI\Panels\GridPanel.h" />
     <ClInclude Include="Scripts\UI\UIRoot\UIRoot.h" />
     <ClInclude Include="Scripts\Token\Object\Stun\StunToken.h" />
-    <ClInclude Include="Scripts\Token\Object\Shock\ShockToken.h" />
     <ClInclude Include="UmScriptCore.h" />
     <ClInclude Include="UmScriptsExport.h" />
     <ClInclude Include="Scripts\Mesh\MeshComponent.h" />
@@ -405,8 +404,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scripts\DamageSystem\DamageSystem.cpp" />
-    <ClCompile Include="Scripts\RevelationSystem\RevelationAction\Critical\CriticalDamageAction.cpp" />
-    <ClCompile Include="Scripts\RevelationSystem\RevelationAction\Token\TokenApplyAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Critical\CriticalDamageAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Token\TokenApplyAction.cpp" />
     <ClCompile Include="Scripts\RevelationSystem\RevelationElement\RevelationElement.cpp" />
     <ClCompile Include="Scripts\RevelationSystem\RevelationSystem.cpp" />
     <ClCompile Include="Scripts\Test\Text\TestText.cpp" />
@@ -488,7 +487,6 @@
     <ClCompile Include="Scripts\UI\Panels\GridPanel.cpp" />
     <ClCompile Include="Scripts\UI\UIRoot\UIRoot.cpp" />
     <ClCompile Include="Scripts\Token\Object\Stun\StunToken.cpp" />
-    <ClCompile Include="Scripts\Token\Object\Shock\ShockToken.cpp" />
     <ClCompile Include="Scripts\Token\TokenSystem.cpp" />
     <ClCompile Include="UmScriptCore.cpp" />
     <ClCompile Include="UmScriptsExport.cpp" />

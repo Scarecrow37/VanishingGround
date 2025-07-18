@@ -116,6 +116,16 @@ void Player::Dead()
     UmLogger.Message(LogLevel::LEVEL_DEBUG, (const char*)u8"플레이어 사망!!!");
 }
 
+void Player::TakeDamage(int damage)
+{  
+    // TODO: 피격 애니메이션 재생
+    // 예외 사항 - 피격 애니메이션 재생 종료 후 원래 애니메이션으로 돌아가야함.
+
+    // 혹시나 그럴 일 없겠지만 중간에 계산할 연산이 또 있다면 재연산
+    int takeDamage = damage;
+    Base::TakeDamage(takeDamage);
+}
+
 
 void Player::ImGuiDrawPropertysEvent()
 {
@@ -128,7 +138,7 @@ CharacterStats* Player::GetCharacterStats()
     PlayerStatsComponent* playerStatsComponent = GetPlayerStats();
     if (nullptr != playerStatsComponent)
     {
-        stats = playerStatsComponent->GetStats();
+        stats = &playerStatsComponent->GetStats();
     }
     return stats;
 }
@@ -139,6 +149,10 @@ PlayerStatsComponent* Player::GetPlayerStats()
     if (nullptr == _playerStats)
     {
         _playerStats = GetComponent<PlayerStatsComponent>();
+        if (nullptr == _playerStats)
+        {
+            UmLogger.Log(LogLevel::LEVEL_WARNING, u8"플레이어 스텟이 존재하지 않습니다.");
+        }
     }  
     return _playerStats;
 }
@@ -149,7 +163,7 @@ int Player::GetShield()
     PlayerStatsComponent* playerStats = GetPlayerStats();
     if (playerStats)
     {
-        shield = playerStats->GetStats()->Shield;
+        shield = playerStats->GetStats().Shield;
     }
     return shield;
 }

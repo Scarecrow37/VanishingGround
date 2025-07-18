@@ -108,8 +108,10 @@ void TokenSystem::ImGuiDrawDataTable()
     ImVec2 left          = ImVec2(130.0f, availableSize.y);
     ImVec2 right         = ImVec2(availableSize.x - left.x, availableSize.y);
 
-    {   // Left Window
-        ImGui::BeginChild("Left", left, ImGuiChildFlags_Border);
+     // Left Window
+    ImGui::BeginChild("Left", left, ImGuiChildFlags_Border);
+    if (ImGui::CollapsingHeader("Token List##token", ImGuiTreeNodeFlags_DefaultOpen))
+    {
         for (const auto& token : _tokenInstances)
         {
             if (token)
@@ -121,19 +123,26 @@ void TokenSystem::ImGuiDrawDataTable()
                 }
             }
         }
-        ImGui::EndChild();
     }
+    ImGui::EndChild();
+
     ImGui::SameLine();
-    {   // Right Window
-        ImGui::BeginChild("Right", right, ImGuiChildFlags_Border);
-        if (_selectedToken)
+
+    // Right Window
+    ImGui::BeginChild("Right", right, ImGuiChildFlags_Border);
+    if (_selectedToken)
+    {
+        if (ImGui::CollapsingHeader("Edit Properties##token", ImGuiTreeNodeFlags_DefaultOpen))
         {
             _selectedToken->ImGuiDrawPropertys();
-            ImGui::Separator();
+        }
+        ImGui::Separator();
+        if (ImGui::CollapsingHeader("Show Property Member##token"))
+        {
             _selectedToken->ShowReflectFieldView();
         }
-        ImGui::EndChild();
     }
+    ImGui::EndChild();
 }
 
 void TokenSystem::ImGuiDrawMenuBar() 
