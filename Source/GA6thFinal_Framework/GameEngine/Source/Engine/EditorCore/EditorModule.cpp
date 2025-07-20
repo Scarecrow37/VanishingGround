@@ -64,21 +64,24 @@ bool EditorModule::LoadSetting(const File::Path& path)
     File::Path generic = path.generic_string();
     if (true == std::filesystem::exists(generic))
     {
-        YAML::Node node = YAML::LoadFile(generic.string());
-        if (false == node.IsNull())
+        auto [node, result] = YAMLHelper::SafeLoadFile(generic);
+        if (result)
         {
-            if (node["debug"])
-                _isDebug = node["debug"].as<bool>();
+            if (false == node.IsNull())
+            {
+                if (node["debug"])
+                    _isDebug = node["debug"].as<bool>();
 
-            if (node["imGuiIniData"])
-                _imGuiIniDataFromSetting = node["imGuiIniData"].as<std::string>();
+                if (node["imGuiIniData"])
+                    _imGuiIniDataFromSetting = node["imGuiIniData"].as<std::string>();
 
-            if (node["GuiToolData"])
-                _guiSystem.LoadGuiSettingFromMemory(node["GuiToolData"]);
+                if (node["GuiToolData"])
+                    _guiSystem.LoadGuiSettingFromMemory(node["GuiToolData"]);
 
-            UndoGuiLayout();
+                UndoGuiLayout();
 
-            return true;
+                return true;
+            }
         }
     }
     SaveSetting(generic);
