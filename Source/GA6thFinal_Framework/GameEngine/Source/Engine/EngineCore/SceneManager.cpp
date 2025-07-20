@@ -1359,24 +1359,24 @@ void ESceneManager::OnFileRegistered(const File::Path& path)
         try
         {
             _sceneDataMap[guid] = node;
-            YAML::Node& node    = _sceneDataMap[guid];
+            YAML::Node& sceneNode = _sceneDataMap[guid];
             Scene& scene = _scenesMap[guid];
             scene._guid  = guid;
             _scenesFindMap[scene.Name].insert(guid);
-            if (node["SkyBox"])
+            if (sceneNode["SkyBox"])
             {
-                scene._skyBox = node["SkyBox"].as<std::string>();
+                scene._skyBox = sceneNode["SkyBox"].as<std::string>();
             }
-            std::string nodeGuid = node["Guid"].as<std::string>();
+            std::string nodeGuid = sceneNode["Guid"].as<std::string>();
             if (nodeGuid != guid)
             {
-                node["Guid"] = guid.string();
+                sceneNode["Guid"] = guid.string();
                 if (node.IsNull() == false)
                 {
                     std::ofstream ofs(path, std::ios::trunc);
                     if (ofs.is_open())
                     {
-                        ofs << node;
+                        ofs << sceneNode;
                     }
                     ofs.close();
                 }
@@ -1407,7 +1407,7 @@ void ESceneManager::OnFileRegistered(const File::Path& path)
             UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
             EraseSceneGUID((std::string)_scenesMap[guid].Name, guid);
         }
-        catch (const YAML::Exception ex)
+        catch (const YAML::Exception& ex)
         {
             std::string msg =
                 std::format("{}{} {}", (const char*)u8"올바르지 않은 UmScene 파일입니다. ", path.string(), ex.what());
@@ -1455,7 +1455,7 @@ void ESceneManager::OnFileModified(const File::Path& path)
             UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
             EraseSceneGUID((std::string)_scenesMap[guid].Name, guid);
         }
-        catch (const YAML::Exception ex)
+        catch (const YAML::Exception& ex)
         {
             std::string msg =
                 std::format("{}{} {}", (const char*)u8"올바르지 않은 UmScene 파일입니다. ", path.string(), ex.what());
