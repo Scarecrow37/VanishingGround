@@ -158,7 +158,6 @@ void EGameObjectFactory::OnFileModified(const File::Path& path)
             _prefabObjectMap[guid] = MakeObjectsGraphToYaml(&yamlData, true);
             WritePrefabGuid(path, yamlData);
             ApplyPrefabInstanceChanges(guid, yamlData);
-            ErasePrefabItem(guid);
         }
         catch (const std::exception& ex)
         {
