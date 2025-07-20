@@ -176,6 +176,31 @@ void TokenCondition::DeserializedReflectEvent()
 
 void TokenCondition::UpdateConditionInfo() 
 {  
+    std::string_view who;
+    Target target = ReflectFields->Target;
+    switch (target)
+    {
+    default:
+    case TokenCondition::Target::NONE:
+        who = STR_NULL;
+        break;
+    case TokenCondition::Target::SELF:
+        who = u8"자신의 "_c_str;
+        break;
+    case TokenCondition::Target::PLAYER:
+        who = u8"플레이어의 "_c_str;
+        break;
+    case TokenCondition::Target::ENEMY:
+        who = u8"공격 대상의 "_c_str;
+        break;
+    case TokenCondition::Target::ALL_ENEMIES:
+        who = u8"모든 적의 "_c_str;
+        break;
+    case TokenCondition::Target::ALL:
+        who = u8"모든 캐릭터의 "_c_str;
+        break;
+    }
+
     const std::string& tokenName = TokenSystem::GetTokenNameFromID(ReflectFields->TokenType);
     std::string_view   token     = STR_NULL;
     if (false == tokenName.empty())
@@ -201,5 +226,5 @@ void TokenCondition::UpdateConditionInfo()
         break;
     }
 
-    _conditionInfo = std::format("{}{}{}{}{}", token, (const char*)u8"토큰이 ", value, (const char*)u8"개 ", operName);
+    _conditionInfo = std::format("{}{}{}{}{}{}", who, token, (const char*)u8"토큰이 ", value, (const char*)u8"개 ", operName);
 }

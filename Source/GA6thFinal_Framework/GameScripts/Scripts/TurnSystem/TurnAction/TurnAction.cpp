@@ -43,7 +43,11 @@ void TurnAction::ImguiDrawConditionEditor()
 {
     for (auto& condition : _conditions)
     {
-        if (ImGui::TreeNode(condition->GetConditionInfo().c_str()))
+        static std::string id;
+        id.clear();
+        id = condition->GetConditionInfo();
+        id += "###20327F79-EFF5-486D-A05A-2D27A6387683";
+        if (ImGui::TreeNode(id.c_str()))
         {
             condition->DrawImguiEditor();
             ImGui::TreePop();
