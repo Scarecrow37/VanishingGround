@@ -9,7 +9,11 @@ namespace YAMLHelper
     {
         LoadResult() = default;
         LoadResult(const LoadResult&) = default;
-        LoadResult(std::string_view what, bool result) { _what = what; }
+        LoadResult(std::string_view what, bool result) 
+        { 
+            _what = what; 
+            _result = result;
+        }
         ~LoadResult() = default;
 
         const std::string& What() const { return _what; }
