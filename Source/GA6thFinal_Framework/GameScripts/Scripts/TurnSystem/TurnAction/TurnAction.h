@@ -1,6 +1,9 @@
 ﻿#pragma once
 #include "UmFrameWork.h"
-#include <Interface/ITriggerType.h>
+#include "Condition/TurnActionCondition.h"
+
+// Condition 클래스 등록을 위한 레지스터
+#define REGISTER_TURN_ACTION_CONDITION(CLASS) REGISTER_CLASS(TurnAction, CLASS)
 
 class CharacterBase;
 class Player;
@@ -10,7 +13,7 @@ struct EnemyStats;
 struct WeaponStats;
 
 //턴 라이프 사이클 사용을 위한 Base 클래스입니다.
-class TurnAction abstract : public ReflectSerializer
+class TurnAction abstract : public ReflectSerializer, public FactoryConstructor<TurnActionCondition>
 {
     USING_PROPERTY(TurnAction)
     friend class TurnMode;
@@ -36,6 +39,35 @@ public:
     /// 이 액션의 life cycle이 활성화 되어있는지 확인합니다.
     /// </summary>
     bool IsValidAction() { return _isDestroy != nullptr; }
+
+    /// <summary>
+    /// 등록된 Condition 객체들의 조건을 평가합니다.
+    /// </summary>
+    /// <returns></returns>
+    bool EvaluateConditions();
+
+    /// <summary>
+    /// Condition 객체를 등록합니다.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    template<typename T>
+    void AddCondition()
+    {
+        static_assert(std::is_base_of_v<TurnActionCondition, T>, "This type does not derive from TurnActionCondition.");
+        auto& map = GetInstanceConstructors();
+        std::string key = typeid(T).name();
+        auto findIter = map.find(key);
+        if (findIter != map.end())
+        {   
+            T* condition = findIter->second();
+            _conditions.emplace_back(condition);
+        }
+        else
+        {
+            std::string msg = std::format("{}{}", key, (const char*)u8"는 등록되지 않은 Condition 클래스 입니다.");
+            UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
+        }
+    }
 
 public:
     /*Action의 이름을 반환해야합니다.*/
@@ -90,10 +122,29 @@ public:
     PROPERTY(Name)
 
 protected:
+    /// <summary>
+    /// 조건 직렬화 데이터 타입 <typeid().name(), JSON>
+    /// </summary>
+    using ConditionDataType = std::pair<std::string, std::string>;
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
+    std::vector<ConditionDataType> _conditionDatas;
     REFLECT_FIELDS_END(TurnAction)
+
+    void SerializedReflectEvent() override;
+    void DeserializedReflectEvent() override;
+
+    /// <summary>
+    /// 조건 수정용 Imgui 에디터를 드로우 합니다.
+    /// </summary>
+    void ImguiDrawConditionEditor();
 
 private:
     bool* _isDestroy = nullptr;
+    std::vector<std::unique_ptr<TurnActionCondition>> _conditions;
+
+private:
+    void ConditionsToReflectDatas();
+    void ReflectDatasToConditions();
+    void SortConditions();
 
 };
