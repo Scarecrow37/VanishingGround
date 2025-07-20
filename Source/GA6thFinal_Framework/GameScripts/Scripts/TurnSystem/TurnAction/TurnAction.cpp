@@ -41,19 +41,42 @@ void TurnAction::DeserializedReflectEvent()
 
 void TurnAction::ImguiDrawConditionEditor() 
 {
+    TurnActionCondition* eraseTemp = nullptr;
     for (auto& condition : _conditions)
     {
+        auto RightClick = [&]() 
+        {
+            if (ImGui::BeginPopupContextItem())
+            {
+                if (ImGui::MenuItem((const char*)u8"삭제"))
+                {
+                    eraseTemp = condition.get();
+                }
+                ImGui::EndPopup();
+            }
+        };
+
         static std::string id;
         id.clear();
         id = condition->GetConditionInfo();
         id += "###20327F79-EFF5-486D-A05A-2D27A6387683";
         if (ImGui::TreeNode(id.c_str()))
         {
+            RightClick();
             condition->DrawImguiEditor();
             ImGui::TreePop();
         }
+        else
+        {
+            RightClick();
+        }
     }
-    
+
+    if (eraseTemp != nullptr)
+    {
+        std::erase_if(_conditions, [eraseTemp](auto& unique) { return unique.get() == eraseTemp; });
+    }
+
     static std::string_view selectValue = STR_NULL;
     if (ImGui::BeginCombo("##963EABCA-C1CE-414C-8B4C-9E9D3FFBD398", selectValue.data()))
     {
