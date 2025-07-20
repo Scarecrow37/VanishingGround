@@ -1,0 +1,205 @@
+﻿#include "pchScripts.h"
+#include "TokenCondition.h"
+#include <Token/TokenSystem.h>
+#include <TurnSystem/TurnMode/TurnMode.h>
+#include <TurnSystem/TurnMode/State/CombatStartPhase.h>
+#include <TurnSystem/TurnActor/Character/Player/Player.h>
+#include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
+
+REGISTER_TURN_ACTION_CONDITION(TokenCondition)
+using namespace u8_literals;
+
+TokenCondition::TokenCondition() 
+{
+    UpdateConditionInfo();
+}
+
+bool TokenCondition::Evaluate()
+{
+    Operator oper = ReflectFields->Operator;
+    bool result = false;
+    if (TurnMode* turnMode = TurnMode::GetInstance())
+    {
+        CombatStartPhase* combatStartPhase = turnMode->States->CombatStartPhase;
+        if (combatStartPhase)
+        {
+            static std::vector<CharacterBase*> targetList;
+            targetList.clear();
+            Target target = ReflectFields->Target;
+            switch (target)
+            {
+            default:
+            case TokenCondition::Target::NONE:
+                return false;
+            case TokenCondition::Target::SELF:
+                {
+                    const auto& self = TurnMode::Battle::GetLastAttacker().lock();
+                    if (self)
+                    {
+                        targetList.push_back(self.get());
+                    }
+                    break;
+                }
+            case TokenCondition::Target::PLAYER:
+                {
+                    Player* player = combatStartPhase->GetPlayer();
+                    if (player)
+                    {
+                        targetList.push_back(player);
+                    }
+                    break;
+                }
+            case TokenCondition::Target::ENEMY:
+                {
+                    const auto& enemy = TurnMode::Battle::GetLastTarget().lock();
+                    if (enemy)
+                    {
+                        targetList.push_back(enemy.get());
+                    }
+                    break;
+                }
+            case TokenCondition::Target::ALL_ENEMIES:
+                {
+                    auto& enemys = combatStartPhase->GetEnemies();
+                    for (auto& enemy : enemys)
+                    {
+                        targetList.push_back(enemy);
+                    }
+                    break;
+                }
+            case TokenCondition::Target::ALL:
+                {
+                    auto& characters = combatStartPhase->GetCharacters();
+                    for (auto& character : characters)
+                    {
+                        targetList.push_back(character);
+                    }
+                    break;
+                }
+            }
+
+            if (false == targetList.empty())
+            {
+                result = true;
+                int tokenID = ReflectFields->TokenType;
+                int value   = ReflectFields->Value;
+                for (auto& target : targetList)
+                {                  
+                    int targetTokenCount = target->GetTokenInventory().GetTokenStackFromID(tokenID);
+                    switch (oper)
+                    {
+                    default:
+                        return false;
+                        break;
+                    case TokenCondition::Operator::GREATER_EQUAL:
+                        result &= targetTokenCount >= value;
+                        break;
+                    case TokenCondition::Operator::LESS_EQUAL:
+                        result &= targetTokenCount <= value;
+                        break;
+                    case TokenCondition::Operator::EQUAL:
+                        result &= targetTokenCount == value;
+                        break;
+                    }
+
+                    if (false == result)
+                    {
+                        return result;
+                    }
+                }
+            }
+        }
+    }  
+    return result;
+}
+
+void TokenCondition::DrawImguiEditor() 
+{
+    if (ImGui::BeginTable("Token Condition##2796DA0B-FCA1-4074-9420-6F9D289C256B", 6,
+                          ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+    {
+        static ReflectHelper::ImGuiDraw::InputAutoSetting setting = []() 
+        {
+            ReflectHelper::ImGuiDraw::InputAutoSetting setting;
+            setting.ShowName = false;
+            return setting;
+        }();
+
+        bool isEdit = false;
+        ImGui::TableSetupColumn("Order");
+        ImGui::TableSetupColumn("Logical Operator");
+        ImGui::TableSetupColumn("Target");
+        ImGui::TableSetupColumn("Token Type");
+        ImGui::TableSetupColumn("Operator");
+        ImGui::TableSetupColumn("Value");
+        ImGui::TableHeadersRow();
+
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        isEdit |= ReflectHelper::ImGuiDraw::Private::InputAuto(Order, setting);
+        ImGui::TableSetColumnIndex(1);
+        isEdit |= ReflectHelper::ImGuiDraw::Private::InputAuto(LogicOperator, setting);
+        const auto& view = rfl::to_view(*ReflectFields);
+        int index = 0;
+        view.apply([&](const auto& field) 
+        {
+            if (2 <= index)
+            {
+                ImGui::TableSetColumnIndex(index);
+                isEdit |= ReflectHelper::ImGuiDraw::Private::InputAuto(field, setting);
+            }
+            index++;
+        });
+        ImGui::EndTable();
+
+        if (isEdit)
+        {
+            UpdateConditionInfo();
+        }
+    }
+}
+
+const std::string& TokenCondition::GetConditionInfo()
+{
+    return _conditionInfo;
+}
+
+void TokenCondition::SerializedReflectEvent() 
+{
+    UpdateConditionInfo();
+}
+
+void TokenCondition::DeserializedReflectEvent() 
+{
+    UpdateConditionInfo();
+}
+
+void TokenCondition::UpdateConditionInfo() 
+{  
+    const std::string& tokenName = TokenSystem::GetTokenNameFromID(ReflectFields->TokenType);
+    std::string_view   token     = STR_NULL;
+    if (false == tokenName.empty())
+    {
+        token = tokenName;
+    }
+    int value = ReflectFields->Value;
+    Operator oper = ReflectFields->Operator;
+    std::string_view operName;
+    switch (oper)
+    {
+    case TokenCondition::Operator::GREATER_EQUAL:
+        operName = (const char*)u8"이상";
+        break;
+    case TokenCondition::Operator::LESS_EQUAL:
+        operName = (const char*)u8"이하";
+        break;
+    case TokenCondition::Operator::EQUAL:
+        operName = (const char*)u8"이면";
+        break;
+    default:
+        operName = STR_NULL;
+        break;
+    }
+
+    _conditionInfo = std::format("{}{}{}{}{}", token, (const char*)u8"토큰이 ", value, (const char*)u8"개 ", operName);
+}
