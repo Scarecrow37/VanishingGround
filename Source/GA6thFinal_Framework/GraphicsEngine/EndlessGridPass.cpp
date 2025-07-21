@@ -13,7 +13,7 @@ void EndlessGridPass::Initialize(RenderScene* ownerScene, ID3D12GraphicsCommandL
     _shader->BeginBuild();
     _shader->SetShader(L"../Shaders/vs_grid.hlsl", ShaderBuilder::Type::VS);
     _shader->SetShader(L"../Shaders/ps_grid.hlsl", ShaderBuilder::Type::PS);
-    _shader->EndBuild(ShaderBuilder::BindType::DIRECT);
+    _shader->EndBuild();
 
     ID3D12Device* device = Global::device->GetDevice();
 

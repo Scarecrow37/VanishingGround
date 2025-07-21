@@ -34,7 +34,7 @@ void GraphicsModule::PreInitialize()
                RenderTechniqueFlag::UI_TECH | RenderTechniqueFlag::FONT_TECH;
         UmGraphics.AddRenderScene("Editor", flag);
 
-        flag = lightingFlag;
+        flag = RenderTechniqueFlag::SKY_BOX_TECH | lightingFlag;
         UmGraphics.AddRenderScene("ModelViewer", flag);
 
         flag = RenderTechniqueFlag::PARTICLE_TECH | RenderTechniqueFlag::EDITOR_DRAW_TECH | RenderTechniqueFlag::BLOOM_TECH;

@@ -128,7 +128,7 @@ float3 CalculateAttribeNoraml(in BuiltInTriangleIntersectionAttributes attribs,u
 bool TraceShadow(float3 origin,float3 dir,float maxT)
 {
     ShadowPayload sp;
-    sp.hit = false;
+    sp.hit = true;
     
     RayDesc sray;
     sray.Origin = origin + dir * 1e-3; // self‑shadow 방지
@@ -136,9 +136,9 @@ bool TraceShadow(float3 origin,float3 dir,float maxT)
     sray.TMin = 0.01;
     sray.TMax = maxT;
 
-    // SBTable slot 1 = shadow miss / any‑hit
+    // SBTable slot 1 = shadow miss
     TraceRay(RtScene,
-             RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH,
+             RAY_FLAG_CULL_BACK_FACING_TRIANGLES,
              0xFF, 1, 0, 1, sray, sp);
 
     return sp.hit;
@@ -147,23 +147,6 @@ bool TraceShadow(float3 origin,float3 dir,float maxT)
 [shader("raygeneration")]
 void RayGen()
 {
-    //uint2 launchIndex = DispatchRaysIndex().xy;
-    //float2 dims = float2(DispatchRaysDimensions().xy);
-    //float2 d = (((launchIndex.xy + 0.5f) / dims.xy) * 2.f - 1.f);
-
-    //RayDesc ray;
-    //ray.Origin = mul(cameraData.ViewInverse, float4(0, 0, 0, 1));
-    //float4 target = mul(cameraData.ProjectionInverse, float4(d.x, -d.y, 1, 1));
-    //ray.Direction = mul(cameraData.ViewInverse, float4(target.xyz, 0));
-    //ray.TMin = 0.001;
-    //ray.TMax = 100000;
-    
-    //RayPayload payload;
-    //payload.recursionDepth = 0;
-    //TraceRay(RtScene,
-    //0, 0xFF, 0, 0, 0, ray, payload
-    //);
-    //Output[launchIndex.xy] = LinearToGammaSpace(payload.color.rgb);
     uint2 launchIndex = DispatchRaysIndex().xy;
     float2 dims = float2(DispatchRaysDimensions().xy);
     float2 d = (((launchIndex + 0.5f) / dims) * 2.f - 1.f);
@@ -183,7 +166,7 @@ void RayGen()
 
     TraceRay(RtScene,
              RAY_FLAG_CULL_BACK_FACING_TRIANGLES, 0xFF,
-             0, 1, 0, // hitGroup/miss/callable
+             0, 0, 0, // hitGroup/miss/callable
              ray, payload);
 
     Output[launchIndex.xy] = float4(payload.color.rgb, 1.f);
@@ -199,16 +182,18 @@ void Miss(inout RayPayload payload)
     payload.color = float4(sky, 1.f);
 }
 
+[shader("miss")]
+void ShadowMiss(inout ShadowPayload payload)
+{
+    payload.hit = false; // 그림자 미스는 hit가 false
+}
+
 static const uint MAX_RECURSION_DEPTH = 1;
 
 [shader("closesthit")]
 void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttributes attribs)
 {
     uint instanceID = InstanceID();
-    //if (InstanceID()==6)
-    //    payload.color = 1;
-    //else
-    //    payload.color = 0;
     
     uint staticMeshInstanceID = meshInstanceID[instanceID];
     uint diffuseID = material[staticMeshInstanceID].ID[DIFFUSE];
@@ -249,8 +234,8 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
     {
         DirectionalLight Ld = lightData.Directional[i];
         float3 L = normalize(-Ld.Direction);
-        directLighting += CalculateDirectional(Ld, normal, view, albedo, metal, rough);
-        //if (TraceShadow(hitPosition, L, 10000) == false)
+        if (TraceShadow(hitPosition, L, 10000) == false)
+            directLighting += CalculateDirectional(Ld, normal, view, albedo, metal, rough);
     }
 
     // Point
@@ -260,8 +245,8 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
         float3 toL = Lp.Position - hitPosition;
         float dist = length(toL);
         float3 L = toL / dist;
-        directLighting += CalculatePoint(Lp, normal, view, albedo, metal, rough, hitPosition);
-        //if (TraceShadow(hitPosition, L, dist - 0.01) == false)
+        if (TraceShadow(hitPosition, L, dist - 0.01) == false)
+            directLighting += CalculatePoint(Lp, normal, view, albedo, metal, rough, hitPosition);
     }
 
     // Spot
@@ -271,8 +256,8 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
         float3 toL = Ls.Position - hitPosition;
         float dist = length(toL);
         float3 L = toL / dist;
-        directLighting += CalculateSpot(Ls, normal, view, albedo, metal, rough, hitPosition);
-        //if (TraceShadow(hitPosition, L, dist - 0.01) == false)
+        if (TraceShadow(hitPosition, L, dist - 0.01) == false)
+            directLighting += CalculateSpot(Ls, normal, view, albedo, metal, rough, hitPosition);
     }
     /* 환경광 / IBL  */
     float3 envDiffuse = evnTexture.SampleLevel(samLinear_wrap, normal, 0).rgb;

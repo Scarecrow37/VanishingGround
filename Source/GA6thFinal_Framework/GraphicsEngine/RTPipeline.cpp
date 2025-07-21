@@ -31,7 +31,7 @@ DxilLibrary RTPipeline::CreateDxilLibrary()
 {
     // compile shader
     const ComPtr<IDxcBlob> rayGenshader  = d3dUtil::CompileShaderLibrary(L"../Shaders/RTShaders.hlsl", L"lib_6_3");
-    const WCHAR*           entryPoints[] = {RayGenShader, MissShader, ClosestHitShader/*,ShadowAnyHitShader,ShadowMissShader*/};
+    const WCHAR*           entryPoints[] = {RayGenShader, MissShader, ClosestHitShader,ShadowMissShader};
     return DxilLibrary(rayGenshader, entryPoints, ARRAYSIZE(entryPoints));
 }
 

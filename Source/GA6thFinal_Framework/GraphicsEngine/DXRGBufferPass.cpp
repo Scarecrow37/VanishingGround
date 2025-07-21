@@ -215,7 +215,7 @@ void DXRGBufferPass::InitShaderAndPSO()
     psodesc.RTVFormats[DXRGBuffer::DXRWORLDPOSITION] = DXGI_FORMAT_R32G32B32A32_FLOAT;
     psodesc.RTVFormats[DXRGBuffer::DXRDEPTH]         = DXGI_FORMAT_R32_FLOAT;
     psodesc.RTVFormats[DXRGBuffer::DXRCUSTOMDEPTH]   = DXGI_FORMAT_R32_UINT;
-    psodesc.DSVFormat                          = DXGI_FORMAT_D24_UNORM_S8_UINT;
+    psodesc.DSVFormat                          = _ownerScene->_depthStencilView->GetFormat();
     psodesc.pRootSignature                     = _shaders[STATIC]->GetRootSignature();
     psodesc.SampleDesc                         = {1, 0};
     psodesc.VS                                 = _shaders[STATIC]->GetShaderByteCode(ShaderBuilder::Type::VS);
