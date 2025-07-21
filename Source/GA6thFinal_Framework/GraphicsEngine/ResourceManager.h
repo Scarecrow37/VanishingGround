@@ -35,8 +35,6 @@ public:
     void AddResource(std::filesystem::path filePath, std::shared_ptr<T> resource)
     {
         _resources[typeid(T)][filePath] = resource;
-        //auto resources = _resources[typeid(T)];
-        //resources.try_emplace(filePath, resource);
     }
 
 private:
