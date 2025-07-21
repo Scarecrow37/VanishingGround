@@ -68,6 +68,10 @@ void TextElement::OnPlacementChange()
 {
     EditablePlacementUIComponent::OnPlacementChange();
     UpdatePosition();
+    if (ReflectFields->IsFitContent)
+    {
+        FitContent();
+    }
 }
 
 void TextElement::LoadFont() const
@@ -133,5 +137,15 @@ void TextElement::UpdateScale() const
     if (nullptr != _renderer)
     {
         _renderer->SetScale(Vector2(ReflectFields->FontSize, ReflectFields->FontSize));
+    }
+}
+
+void TextElement::FitContent()
+{
+    if (nullptr != _renderer)
+    {
+        XMFLOAT2 size;
+        XMStoreFloat2(&size, _renderer->GetStringSize());
+        ReflectFields->Basefields.get().Basefields.get().Size = SIZE{static_cast<LONG>(size.x), static_cast<LONG>(size.y)};
     }
 }

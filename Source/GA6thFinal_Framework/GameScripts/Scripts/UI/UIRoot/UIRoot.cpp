@@ -21,7 +21,7 @@ void UIRoot::OnAttachChild(GameObject* childGameObject)
 
 UIRootSlot::UIRootSlot() = default;
 
-void UIRootSlot::PassPlacement() const
+void UIRootSlot::OnSetPlacement()
 {
-    PanelSlotComponent::PassPlacement(ReflectFields->Basefields.get().Point, ReflectFields->Basefields.get().Size);
+    PanelSlotComponent::PassScopedPlacement(ReflectFields->Basefields.get().Point, ReflectFields->Basefields.get().Size);
 }

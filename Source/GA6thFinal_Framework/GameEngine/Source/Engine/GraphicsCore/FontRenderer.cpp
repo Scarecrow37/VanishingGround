@@ -26,6 +26,18 @@ void FontRenderer::SetText(std::wstring_view text)
     _text = text;
 }
 
+XMVECTOR FontRenderer::GetStringSize() const
+{
+    if (_font)
+    {
+        if (const auto font = _font->GetFont())
+        {
+            return font->MeasureString(_text.c_str());
+        }
+    }
+    return XMVectorZero();
+}
+
 void FontRenderer::LoadFont(std::wstring_view filePath)
 {
     _font = UmResourceManager.LoadResource<Font>(filePath);

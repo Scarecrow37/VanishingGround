@@ -22,6 +22,8 @@ public:
     void SetRotation(float rotation) { _rotation = rotation; }
     void SetText(std::wstring_view text);
 
+    XMVECTOR GetStringSize() const;
+
 public:
     void LoadFont(std::wstring_view filePath);
 

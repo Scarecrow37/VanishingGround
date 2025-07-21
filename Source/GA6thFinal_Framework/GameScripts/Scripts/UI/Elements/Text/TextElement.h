@@ -15,7 +15,7 @@ public:
     ~TextElement() override;
 
 public:
-    REFLECT_PROPERTY(FilePath, Text, Color, FontSize)
+    REFLECT_PROPERTY(FilePath, Text, Color, FontSize, IsFitContent)
 
     GETTER_ONLY(std::string, FilePath) { return _guidRef.ToPath().string(); }
     PROPERTY(FilePath)
@@ -25,6 +25,8 @@ public:
     {
         ReflectFields->Text = value;
         UpdateText();
+        if (ReflectFields->IsFitContent)
+            FitContent();
     }
     PROPERTY(Text)
 
@@ -44,6 +46,15 @@ public:
     }
     PROPERTY(FontSize)
 
+    GETTER(bool, IsFitContent) { return ReflectFields->IsFitContent; }
+    SETTER(bool, IsFitContent)
+    {
+        ReflectFields->IsFitContent = value;
+        if (ReflectFields->IsFitContent)
+            FitContent();
+    }
+    PROPERTY(IsFitContent)
+
 protected:
     void Reset() override;
     void DeserializedReflectEvent() override;
@@ -59,12 +70,15 @@ private:
     void UpdatePosition() const;
     void UpdateScale() const;
 
+    void FitContent();
+
 protected:
     REFLECT_FIELDS_BEGIN(EditablePlacementUIComponent)
     std::string          Guid;
     std::string          Text     = "Hello Um!";
     std::array<float, 4> Color    = {0.0f, 0.0f, 0.0f, 1.0f};
     float                FontSize = 1.0f;
+    bool                 IsFitContent = false;
     REFLECT_FIELDS_END(TextElement)
 
 private:

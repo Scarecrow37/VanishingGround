@@ -24,5 +24,5 @@ class UIRootSlot : public PanelSlotComponent
 public:
     UIRootSlot();
 
-    void PassPlacement() const override;
+    void OnSetPlacement() override;
 };
