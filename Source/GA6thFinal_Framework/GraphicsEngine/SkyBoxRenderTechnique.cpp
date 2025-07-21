@@ -8,7 +8,9 @@ SkyBoxRenderTechnique::~SkyBoxRenderTechnique() {}
 
 void SkyBoxRenderTechnique::Initialize(ID3D12GraphicsCommandList* commandList) 
 {
-    std::unique_ptr<SkyBoxPass> pass = std::make_unique<SkyBoxPass>();
+    std::unique_ptr<RenderPass> pass;
+
+    pass = std::make_unique<SkyBoxPass>();
     pass->Initialize(_ownerScene, commandList);
     AddRenderPass(std::move(pass));
 }

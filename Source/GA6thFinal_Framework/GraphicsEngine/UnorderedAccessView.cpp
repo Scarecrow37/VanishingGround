@@ -57,8 +57,8 @@ void UnorderedAccessView::CreateUnorderedAccessView()
     case D3D12_UAV_DIMENSION_TEXTURE2DARRAY:
         uavDesc.Texture2DArray.MipSlice        = 0;
         uavDesc.Texture2DArray.FirstArraySlice = 0;
-        uavDesc.Texture2DArray.ArraySize  = _desc.DepthOrArraySize;
-        uavDesc.Texture2DArray.PlaneSlice = 0;
+        uavDesc.Texture2DArray.ArraySize       = _desc.DepthOrArraySize;
+        uavDesc.Texture2DArray.PlaneSlice      = 0;
         break;
     }
 

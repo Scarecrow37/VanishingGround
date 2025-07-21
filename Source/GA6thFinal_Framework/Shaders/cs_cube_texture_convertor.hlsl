@@ -1,6 +1,7 @@
 #include "CommonData.hlsli"
-Texture2D<float4> EquirectangularMap;
-RWTexture2DArray<float4> CubeMap;
+
+Texture2D<float4> equirectangularMap;
+RWTexture2DArray<float4> cubeMap;
 
 struct CubeMapInfo
 {
@@ -48,7 +49,7 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
     uv.x = atan2(dir.z, dir.x) / (2.0f * 3.14159265f) + 0.5f;
     uv.y = asin(clamp(dir.y, -1.0f, 1.0f)) / 3.14159265f + 0.5f;
 
-    float4 color = EquirectangularMap.SampleLevel(samLinear_clamp, uv, 0.0f);
+    float4 color = equirectangularMap.SampleLevel(samLinear_clamp, uv, 0.0f);
 
-    CubeMap[int3(x, y, faceIndex)] = color;
+    cubeMap[int3(x, y, faceIndex)] = color;
 }
