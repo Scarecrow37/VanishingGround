@@ -92,6 +92,10 @@ void Importer::SpriteFontImporter::DrawImGuiImportSetting()
         // Source Path
         std::string sourcePath = _sourcePath.string();
         IMGUI_SEPARATOR_TEXT("Source Path", separatorOffset)
+        {
+            const float availX = ImGui::GetContentRegionAvail().x;
+            ImGui::SetNextItemWidth(availX);
+        }
         ImGui::BeginDisabled();
         ImGui::InputText("##Source path", &sourcePath, ImGuiInputTextFlags_ReadOnly);
         if (ImGui::BeginItemTooltip())
@@ -104,6 +108,10 @@ void Importer::SpriteFontImporter::DrawImGuiImportSetting()
         // File Name
         std::string fileName = _sourcePath.filename().string();
         IMGUI_SEPARATOR_TEXT("File Name", separatorOffset)
+        {
+            const float availX = ImGui::GetContentRegionAvail().x;
+            ImGui::SetNextItemWidth(availX);
+        }
         ImGui::BeginDisabled();
         ImGui::InputText("##File name", &fileName, ImGuiInputTextFlags_ReadOnly);
         ImGui::EndDisabled();
@@ -120,6 +128,10 @@ void Importer::SpriteFontImporter::DrawImGuiImportSetting()
 
         // Default Character
         IMGUI_SEPARATOR_TEXT("Default Character", separatorOffset);
+        {
+            const float availX = ImGui::GetContentRegionAvail().x;
+            ImGui::SetNextItemWidth(availX);
+        }
         ImGui::InputText("##Default Character", _defaultCharacter, 2);
         if (ImGui::BeginItemTooltip())
         {
@@ -131,6 +143,10 @@ void Importer::SpriteFontImporter::DrawImGuiImportSetting()
 
         // Font Size
         IMGUI_SEPARATOR_TEXT("Font Size", separatorOffset);
+        {
+            const float availX = ImGui::GetContentRegionAvail().x;
+            ImGui::SetNextItemWidth(availX);
+        }
         ImGui::DragInt("##font size", &_fontSize, 1.0f);
         _fontSize = std::max(1, _fontSize); // Clamp
 
@@ -151,14 +167,23 @@ void Importer::SpriteFontImporter::DrawImGuiImportSetting()
         // Spacing
         // Line Spacing
         IMGUI_SEPARATOR_TEXT("Line Spacing", separatorOffset);
+        {
+            const float availX = ImGui::GetContentRegionAvail().x;
+            ImGui::SetNextItemWidth(availX);
+        }
         ImGui::InputInt("##Line Spacing", &_lineSpacing);
         if (ImGui::BeginItemTooltip())
         {
             ImGui::Text(reinterpret_cast<const char*>(u8"음수는 보다 좁게, 양수는 보다 넓어집니다."));
             ImGui::EndTooltip();
         }
+
         // Character Spacing
         IMGUI_SEPARATOR_TEXT("Character Spacing", separatorOffset);
+        {
+            const float availX = ImGui::GetContentRegionAvail().x;
+            ImGui::SetNextItemWidth(availX);
+        }
         ImGui::InputInt("##Character Spacing", &_characterSpacing);
         if (ImGui::BeginItemTooltip())
         {
