@@ -238,7 +238,7 @@ void Renderer::Initialize()
     _shader->BeginBuild();
     _shader->SetShader(L"../Shaders/vs_quad.hlsl", ShaderBuilder::Type::VS);
     _shader->SetShader(L"../Shaders/ps_to_backbuffer.hlsl", ShaderBuilder::Type::PS);
-    _shader->EndBuild(ShaderBuilder::BindType::DIRECT);
+    _shader->EndBuild();
 
     ID3D12Device*                      device = Global::device->GetDevice();
     D3D12_GRAPHICS_PIPELINE_STATE_DESC psodesc{};

@@ -12,7 +12,7 @@ void LightMapBaker::Initialize(RenderScene* ownerScene)
     _shader = std::make_unique<ShaderBuilder>();
     _shader->BeginBuild();
     _shader->SetShader(L"../Shaders/cs_light_map_baking.hlsl", ShaderBuilder::Type::CS);
-    _shader->EndBuild(ShaderBuilder::BindType::DIRECT);
+    _shader->EndBuild();
 
     ID3D12Device*                     device = Global::device->GetDevice();
     D3D12_COMPUTE_PIPELINE_STATE_DESC psodesc{.pRootSignature = _shader->GetRootSignature(),

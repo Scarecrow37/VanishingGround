@@ -22,13 +22,12 @@ public:
 
 public:
     void BeginBuild();
-    void EndBuild(BindType type = BindType::TABLE);
+    void EndBuild(BindType type = BindType::DIRECT);
     void SetShader(std::wstring_view filePath, ShaderBuilder::Type type);
 
 private:
     void CreateRootSignatureTable();
     void CreateRootSignatureDirect();
-    void CreateRootSignature_ver0();
     void CreateInputLayout(ComPtr<ID3D12ShaderReflection> shaderReflection, const D3D12_SHADER_DESC& shaderDesc);
     D3D12_STATIC_SAMPLER_DESC FindStaticSampler(std::string_view tag);
 

@@ -539,8 +539,6 @@ void Device::CreateBuffer(UINT size, ComPtr<ID3D12Resource>& buffer)
     FAILED_CHECK_MESSAGE(hr, L"Device::CreateBuffer _device->CreateCommittedResource Failed");
 }
 
-
-
 void Device::CheckDXRSupport() 
 {
     D3D12_FEATURE_DATA_D3D12_OPTIONS5 options5{};

@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "DebugDrawCore.h"
+#include <d3d11on12.h>
 
 DebugDrawCore::DebugDrawCore() {}
 
@@ -42,7 +43,7 @@ void XM_CALLCONV DebugDrawCore::DrawSpotLight(std::string_view sceneName, FXMVEC
 
 void DebugDrawCore::Initialize()
 {
-    RenderTargetState              rtState(DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_D24_UNORM_S8_UINT);
+    RenderTargetState              rtState(DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_D32_FLOAT);
     EffectPipelineStateDescription pd(&VertexPositionColor::InputLayout, CommonStates::AlphaBlend, CommonStates::DepthRead, CommonStates::CullNone, rtState, D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE);
 
     _primitiveBatch = std::make_unique<PrimitiveBatch<VertexPositionColor>>(Global::device->GetDevice());
@@ -61,6 +62,8 @@ void DebugDrawCore::Initialize()
 
 void DebugDrawCore::Render()
 {
+    //D3D11On12CreateDevice()
+
     for (const auto& [sceneName, datas] : _drawDatas)
     {
         auto  renderScene = Global::renderer->GetRenderScene(sceneName);
@@ -71,7 +74,7 @@ void DebugDrawCore::Render()
 
         auto renderTarget = Global::multiRenderTargetManager->GetRenderTarget(renderScene->_finalTargetName);
         renderTarget->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_RENDER_TARGET);
-        renderScene->_depthStencilView->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+        renderScene->_depthStencilView->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_DEPTH_READ);
 
         auto&          resolution = renderTarget->GetResolution();
         D3D12_VIEWPORT viewPort{.TopLeftX = 0.f,

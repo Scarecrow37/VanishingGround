@@ -388,7 +388,7 @@ void RenderScene::CreateDepthStencil()
     _depthStencilView = MakeSharedResource<DepthStencilView>();
 
     auto mode = Global::device->GetMode();
-    mode.Format = DXGI_FORMAT_R24G8_TYPELESS;
+    mode.Format = DXGI_FORMAT_D32_FLOAT;
     auto desc   = CD3DX12_RESOURCE_DESC::Tex2D(mode.Format, mode.Width, mode.Height, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
     _depthStencilView->Initialize(desc);
 

@@ -60,16 +60,14 @@ void ShaderBuilder::EndBuild(BindType type)
 	}
 
     if (hasShader)
-    {
+    {        
         switch (type)
         {
-        case ShaderBuilder::BindType::TABLE:
-		    CreateRootSignatureTable();
+        case BindType::TABLE:
+            CreateRootSignatureTable();
             break;
-        case ShaderBuilder::BindType::DIRECT:
+        case BindType::DIRECT:
             CreateRootSignatureDirect();
-            break;
-        default:
             break;
         }
     }
@@ -107,176 +105,6 @@ void ShaderBuilder::SetShader(std::wstring_view filePath, ShaderBuilder::Type ty
 }
 
 void ShaderBuilder::CreateRootSignatureTable()
-{
-	HRESULT hr = S_OK;
-
-	std::vector<D3D12_ROOT_PARAMETER> rootParameters;
-	std::vector<D3D12_DESCRIPTOR_RANGE> resourceRanges;
-	std::vector<D3D12_STATIC_SAMPLER_DESC> samplers;
-
-	resourceRanges.reserve(32);
-
-	for (int i = 0; i < (int)Type::END; i++)
-	{
-        if (nullptr == _shaders[i])
-            continue;
-
-		ComPtr<ID3D12ShaderReflection> shaderReflection;
-		D3D12_SHADER_VISIBILITY visibility = D3D12_SHADER_VISIBILITY_ALL;
-
-		switch ((Type)i)
-		{
-		case Type::VS:
-			visibility = D3D12_SHADER_VISIBILITY_VERTEX;
-			break;
-		case Type::PS:
-			visibility = D3D12_SHADER_VISIBILITY_PIXEL;
-			break;
-		case Type::CS:
-			visibility = D3D12_SHADER_VISIBILITY_ALL;
-			break;
-		}		
-
-		hr = D3DReflect(_shaders[i]->GetBufferPointer(), _shaders[i]->GetBufferSize(), IID_PPV_ARGS(&shaderReflection));
-        FAILED_CHECK_MESSAGE(hr, L"ShaderBuilder::CreateRootSignature D3DReflect Failed");
-
-		D3D12_SHADER_DESC shaderDesc;
-		shaderReflection->GetDesc(&shaderDesc);
-
-		if ((int)Type::VS == i)
-		{
-			CreateInputLayout(shaderReflection, shaderDesc);
-		}
-
-		// 바인딩된 리소스 개수만큼 반복 (CBV, SRV, UAV, Sampler 등)
-		for (UINT j = 0; j < shaderDesc.BoundResources; j++)
-		{
-			D3D12_SHADER_INPUT_BIND_DESC bindDesc;
-			shaderReflection->GetResourceBindingDesc(j, &bindDesc);			
-			
-			D3D12_DESCRIPTOR_RANGE descriptorRange = {};
-			descriptorRange.NumDescriptors = 1;
-			descriptorRange.BaseShaderRegister = bindDesc.BindPoint;
-			descriptorRange.RegisterSpace = bindDesc.Space;
-			descriptorRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-
-			if (bindDesc.Type == D3D_SIT_CBUFFER) // 상수 버퍼 (CBV)
-			{
-				std::string_view name = bindDesc.Name;
-				D3D12_ROOT_PARAMETER rootParam = {};
-				if (name.find("bit32") != std::string::npos)
-				{
-                    size_t first = name.find_first_of("_");
-                    size_t end   = name.find_first_of("_", ++first);
-                    std::string_view numValues = name.substr(first, end - first);
-                                        
-					rootParam.ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
-                    rootParam.Constants.Num32BitValues = std::stoi(numValues.data());
-					rootParam.Constants.ShaderRegister = bindDesc.BindPoint;
-                    rootParam.Constants.RegisterSpace  = bindDesc.Space;
-					rootParam.ShaderVisibility = visibility;
-				}
-				else
-				{
-					rootParam.ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-					rootParam.Descriptor.ShaderRegister = bindDesc.BindPoint;
-					rootParam.Descriptor.RegisterSpace = 0;
-					rootParam.ShaderVisibility = visibility;
-				}
-				rootParameters.push_back(rootParam);
-			}
-            else if (bindDesc.Type == D3D_SIT_STRUCTURED)
-            {
-                D3D12_ROOT_PARAMETER rootParam      = {};
-                rootParam.ParameterType             = D3D12_ROOT_PARAMETER_TYPE_SRV;
-                rootParam.ShaderVisibility          = visibility;
-                rootParam.Descriptor.ShaderRegister = bindDesc.BindPoint;
-                rootParam.Descriptor.RegisterSpace  = bindDesc.Space;
-                rootParameters.push_back(rootParam);
-            }
-			else if (bindDesc.Type == D3D_SIT_TEXTURE ||	// 텍스처 (SRV)
-				bindDesc.Type == D3D_SIT_BYTEADDRESS)	// ByteAddressBuffer (SRV)
-			{
-				std::string_view name = bindDesc.Name;
-				if (name.find("textures") != std::string::npos)
-				{
-					descriptorRange.NumDescriptors = -1;
-				}
-
-				descriptorRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-				resourceRanges.push_back(descriptorRange);
-
-				D3D12_ROOT_PARAMETER rootParam = {};
-				rootParam.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;				
-				rootParam.DescriptorTable.NumDescriptorRanges = 1;
-				rootParam.DescriptorTable.pDescriptorRanges = &resourceRanges.back();
-				rootParam.ShaderVisibility = visibility;
-
-				rootParameters.push_back(rootParam);
-			}
-			else if (bindDesc.Type == D3D_SIT_UAV_RWTYPED ||	// RWTexture (UAV)
-				bindDesc.Type == D3D_SIT_UAV_RWSTRUCTURED ||	// RWStructuredBuffer (UAV)
-				bindDesc.Type == D3D_SIT_UAV_RWBYTEADDRESS)		// RWByteAddressBuffer (UAV)
-			{
-				descriptorRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
-				resourceRanges.push_back(descriptorRange);
-
-				D3D12_ROOT_PARAMETER rootParam = {};
-				rootParam.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-				rootParam.DescriptorTable.NumDescriptorRanges = 1;
-				rootParam.DescriptorTable.pDescriptorRanges = &resourceRanges.back();
-				rootParam.ShaderVisibility = visibility;
-				rootParameters.push_back(rootParam);
-			}
-			else if (bindDesc.Type == D3D_SIT_SAMPLER)
-			{
-				samplers.push_back(_staticSamplers[bindDesc.Name]);
-			}
-
-			auto iter = _rootParameterIndex.find(bindDesc.Name);
-            if (iter != _rootParameterIndex.end())
-			{
-				rootParameters[iter->second].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-				rootParameters.pop_back();
-			}
-			else
-			{
-                _rootParameterIndex[bindDesc.Name] = static_cast<UINT>(rootParameters.size() - 1);
-			}
-		}
-	}
-
-	// Root Signature 생성
-	D3D12_ROOT_SIGNATURE_DESC rootSigDesc = {};
-	rootSigDesc.NumParameters = static_cast<UINT>(rootParameters.size());
-	rootSigDesc.pParameters = rootParameters.data();
-	rootSigDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
-	rootSigDesc.NumStaticSamplers = static_cast<UINT>(samplers.size());
-	rootSigDesc.pStaticSamplers = samplers.data();
-
-	// Root Signature 직렬화
-	ComPtr<ID3DBlob> serializedRootSignature;
-	ComPtr<ID3DBlob> errorBlob;
-	hr = D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1, &serializedRootSignature, &errorBlob);
-	//FAILED_CHECK_BREAK(hr);
-
-	if (nullptr != errorBlob)
-	{
-		std::filesystem::path errorMessage = static_cast<const char*>(errorBlob->GetBufferPointer());
-        GRAPHICS_ASSERT(FAILED(hr), errorMessage.c_str());
-	}
-
-	// Root Signature 생성
-	ID3D12Device* device = Global::device->GetDevice();
-	hr = device->CreateRootSignature(0,
-									 serializedRootSignature->GetBufferPointer(),
-									 serializedRootSignature->GetBufferSize(),
-									 IID_PPV_ARGS(&_rootSignature));
-
-	FAILED_CHECK_MESSAGE(hr, L"ShaderBuilder::CreateRootSignature device->CreateRootSignature Failed");
-}
-
-void ShaderBuilder::CreateRootSignatureDirect()
 {
     HRESULT hr = S_OK;
 
@@ -358,8 +186,13 @@ void ShaderBuilder::CreateRootSignatureDirect()
             else if (bindDesc.Type == D3D_SIT_TEXTURE ||   // 텍스처 (SRV)
                      bindDesc.Type == D3D_SIT_STRUCTURED ||
                      bindDesc.Type == D3D_SIT_BYTEADDRESS) // ByteAddressBuffer (SRV)
-            {                
-                descriptorRange.NumDescriptors = 1;
+            {
+                std::string_view name = bindDesc.Name;
+                if (name.find("textures") != std::string::npos)
+                {
+                    descriptorRange.NumDescriptors = -1;
+                }                               
+
                 descriptorRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
                 resourceRanges.push_back(descriptorRange);
 
@@ -431,143 +264,180 @@ void ShaderBuilder::CreateRootSignatureDirect()
     FAILED_CHECK_MESSAGE(hr, L"ShaderBuilder::CreateRootSignature device->CreateRootSignature Failed");
 }
 
-void ShaderBuilder::CreateRootSignature_ver0()
+void ShaderBuilder::CreateRootSignatureDirect()
 {
-	//// 24-04-07 연속된 리소스 바인딩을 위한 Root Signature 생성
-	//HRESULT hr = S_OK;
+    HRESULT hr = S_OK;
 
-	//std::vector<D3D12_ROOT_PARAMETER> rootParameters;
-	//std::vector<std::vector<D3D12_DESCRIPTOR_RANGE>> srvRanges;
-	//std::vector<std::vector<D3D12_DESCRIPTOR_RANGE>> uavRanges;
-	//std::vector<D3D12_STATIC_SAMPLER_DESC> samplers;
+    std::vector<D3D12_ROOT_PARAMETER>      rootParameters;
+    std::vector<D3D12_DESCRIPTOR_RANGE>    resourceRanges;
+    std::vector<D3D12_STATIC_SAMPLER_DESC> samplers;
 
-	//srvRanges.resize((int)Type::END);
-	//uavRanges.resize((int)Type::END);
+    resourceRanges.reserve(32);
 
-	//for (int i = 0; i < (int)Type::END; i++)
-	//{
-	//	ComPtr<ID3D12ShaderReflection> shaderReflection;
-	//	D3D12_SHADER_VISIBILITY visibility = D3D12_SHADER_VISIBILITY_ALL;
+    for (int i = 0; i < (int)Type::END; i++)
+    {
+        if (nullptr == _shaders[i])
+            continue;
 
-	//	switch ((Type)i)
-	//	{
-	//	case Type::VS:
-	//		visibility = D3D12_SHADER_VISIBILITY_VERTEX;
-	//		break;
-	//	case Type::PS:
-	//		visibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	//		break;
-	//	case Type::CS:
-	//		visibility = D3D12_SHADER_VISIBILITY_ALL;
-	//		break;
-	//	}
+        ComPtr<ID3D12ShaderReflection> shaderReflection;
+        D3D12_SHADER_VISIBILITY        visibility = D3D12_SHADER_VISIBILITY_ALL;
 
-	//	if (nullptr == _shaders[i]) continue;
+        switch ((Type)i)
+        {
+        case Type::VS:
+            visibility = D3D12_SHADER_VISIBILITY_VERTEX;
+            break;
+        case Type::PS:
+            visibility = D3D12_SHADER_VISIBILITY_PIXEL;
+            break;
+        case Type::CS:
+            visibility = D3D12_SHADER_VISIBILITY_ALL;
+            break;
+        }
 
-	//	hr = D3DReflect(_shaders[i]->GetBufferPointer(), _shaders[i]->GetBufferSize(), IID_PPV_ARGS(&shaderReflection));
-	//	FAILED_CHECK_BREAK(hr);
+        hr = D3DReflect(_shaders[i]->GetBufferPointer(), _shaders[i]->GetBufferSize(), IID_PPV_ARGS(&shaderReflection));
+        FAILED_CHECK_MESSAGE(hr, L"ShaderBuilder::CreateRootSignature D3DReflect Failed");
 
-	//	D3D12_SHADER_DESC shaderDesc;
-	//	shaderReflection->GetDesc(&shaderDesc);
+        D3D12_SHADER_DESC shaderDesc;
+        shaderReflection->GetDesc(&shaderDesc);
 
-	//	if ((int)Type::VS == i)
-	//	{
-	//		CreateInputLayout(shaderReflection, shaderDesc);
-	//	}
+        if ((int)Type::VS == i)
+        {
+            CreateInputLayout(shaderReflection, shaderDesc);
+        }
 
-	//	bool hasSRV = false;
-	//	bool hasUAV = false;
+        // 바인딩된 리소스 개수만큼 반복 (CBV, SRV, UAV, Sampler 등)
+        for (UINT j = 0; j < shaderDesc.BoundResources; j++)
+        {
+            D3D12_SHADER_INPUT_BIND_DESC bindDesc;
+            shaderReflection->GetResourceBindingDesc(j, &bindDesc);
 
-	//	// 바인딩된 리소스 개수만큼 반복 (CBV, SRV, UAV, Sampler 등)
-	//	for (UINT j = 0; j < shaderDesc.BoundResources; j++)
-	//	{
-	//		D3D12_SHADER_INPUT_BIND_DESC bindDesc;
-	//		shaderReflection->GetResourceBindingDesc(j, &bindDesc);
+            D3D12_DESCRIPTOR_RANGE descriptorRange            = {};
+            descriptorRange.NumDescriptors                    = 1;
+            descriptorRange.BaseShaderRegister                = bindDesc.BindPoint;
+            descriptorRange.RegisterSpace                     = bindDesc.Space;
+            descriptorRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	//		D3D12_DESCRIPTOR_RANGE descriptorRange = {};
-	//		descriptorRange.NumDescriptors = 1;
-	//		descriptorRange.BaseShaderRegister = bindDesc.BindPoint;
-	//		descriptorRange.RegisterSpace = bindDesc.Space;
-	//		descriptorRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+            if (bindDesc.Type == D3D_SIT_CBUFFER) // 상수 버퍼 (CBV)
+            {
+                std::string_view     name      = bindDesc.Name;
+                D3D12_ROOT_PARAMETER rootParam = {};
+                if (name.find("bit32") != std::string::npos)
+                {
+                    size_t           first     = name.find_first_of("_");
+                    size_t           end       = name.find_first_of("_", ++first);
+                    std::string_view numValues = name.substr(first, end - first);
 
-	//		if (bindDesc.Type == D3D_SIT_CBUFFER) // 상수 버퍼 (CBV)
-	//		{
-	//			D3D12_ROOT_PARAMETER rootParam = {};
-	//			rootParam.ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	//			rootParam.Descriptor.ShaderRegister = bindDesc.BindPoint;
-	//			rootParam.Descriptor.RegisterSpace = 0;
-	//			rootParam.ShaderVisibility = visibility;
-	//			rootParameters.push_back(rootParam);
-	//		}
-	//		else if (bindDesc.Type == D3D_SIT_TEXTURE ||	// 텍스처 (SRV)
-	//			bindDesc.Type == D3D_SIT_STRUCTURED ||	// Structured Buffer (SRV)
-	//			bindDesc.Type == D3D_SIT_BYTEADDRESS)	// ByteAddressBuffer (SRV)
-	//		{
-	//			hasSRV = true;
-	//			descriptorRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	//			srvRanges[i].push_back(descriptorRange);
-	//		}
-	//		else if (bindDesc.Type == D3D_SIT_UAV_RWTYPED ||		// RWTexture (UAV)
-	//			bindDesc.Type == D3D_SIT_UAV_RWSTRUCTURED ||	// RWStructuredBuffer (UAV)
-	//			bindDesc.Type == D3D_SIT_UAV_RWBYTEADDRESS)	// RWByteAddressBuffer (UAV)
-	//		{
-	//			hasUAV = true;
-	//			descriptorRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
-	//			uavRanges[i].push_back(descriptorRange);
-	//		}
-	//		else if (bindDesc.Type == D3D_SIT_SAMPLER)
-	//		{
-	//			samplers.push_back(_staticSamplers[bindDesc.Name]);
-	//		}
-	//	}
+                    rootParam.ParameterType            = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
+                    rootParam.Constants.Num32BitValues = std::stoi(numValues.data());
+                    rootParam.Constants.ShaderRegister = bindDesc.BindPoint;
+                    rootParam.Constants.RegisterSpace  = bindDesc.Space;
+                    rootParam.ShaderVisibility         = visibility;
+                }
+                else
+                {
+                    rootParam.ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
+                    rootParam.Descriptor.ShaderRegister = bindDesc.BindPoint;
+                    rootParam.Descriptor.RegisterSpace  = 0;
+                    rootParam.ShaderVisibility          = visibility;
+                }
+                rootParameters.push_back(rootParam);
+            }
+            else if (bindDesc.Type == D3D_SIT_STRUCTURED ||
+                     bindDesc.Type == D3D_SIT_BYTEADDRESS)
+            {
+                D3D12_ROOT_PARAMETER rootParam      = {};
+                rootParam.ParameterType             = D3D12_ROOT_PARAMETER_TYPE_SRV;
+                rootParam.ShaderVisibility          = visibility;
+                rootParam.Descriptor.ShaderRegister = bindDesc.BindPoint;
+                rootParam.Descriptor.RegisterSpace  = bindDesc.Space;
+                rootParameters.push_back(rootParam);
+            }
+            else if (bindDesc.Type == D3D_SIT_TEXTURE)
+            {
+                std::string_view name = bindDesc.Name;
+                if (name.find("textures") != std::string::npos)
+                {
+                    descriptorRange.NumDescriptors = -1;
+                }
 
-	//	// **SRV Descriptor Table 추가 (텍스처 및 Structured Buffer)**
-	//	if (hasSRV)
-	//	{
-	//		D3D12_ROOT_PARAMETER srvRootParam = {};
-	//		srvRootParam.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	//		srvRootParam.DescriptorTable.NumDescriptorRanges = static_cast<UINT>(srvRanges[i].size());
-	//		srvRootParam.DescriptorTable.pDescriptorRanges = srvRanges[i].data();
-	//		srvRootParam.ShaderVisibility = visibility;
-	//		rootParameters.push_back(srvRootParam);
-	//	}
+                descriptorRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+                resourceRanges.push_back(descriptorRange);
 
-	//	// **UAV Descriptor Table 추가 (RWTexture 및 RWStructuredBuffer)**
-	//	if (hasUAV)
-	//	{
-	//		D3D12_ROOT_PARAMETER uavRootParam = {};
-	//		uavRootParam.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	//		uavRootParam.DescriptorTable.NumDescriptorRanges = static_cast<UINT>(uavRanges[i].size());
-	//		uavRootParam.DescriptorTable.pDescriptorRanges = uavRanges[i].data();
-	//		uavRootParam.ShaderVisibility = visibility;
-	//		rootParameters.push_back(uavRootParam);
-	//	}
-	//}
+                D3D12_ROOT_PARAMETER rootParam                = {};
+                rootParam.ParameterType                       = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+                rootParam.DescriptorTable.NumDescriptorRanges = 1;
+                rootParam.DescriptorTable.pDescriptorRanges   = &resourceRanges.back();
+                rootParam.ShaderVisibility                    = visibility;
 
-	//// Root Signature 생성
-	//D3D12_ROOT_SIGNATURE_DESC rootSigDesc = {};
-	//rootSigDesc.NumParameters = static_cast<UINT>(rootParameters.size());
-	//rootSigDesc.pParameters = rootParameters.data();
-	//rootSigDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
-	//rootSigDesc.NumStaticSamplers = static_cast<UINT>(samplers.size());
-	//rootSigDesc.pStaticSamplers = samplers.data();
+                rootParameters.push_back(rootParam);
+            }
+            else if (bindDesc.Type == D3D_SIT_UAV_RWSTRUCTURED ||
+                     bindDesc.Type == D3D_SIT_UAV_RWBYTEADDRESS)
+            {
+                D3D12_ROOT_PARAMETER rootParam      = {};
+                rootParam.ParameterType             = D3D12_ROOT_PARAMETER_TYPE_UAV;
+                rootParam.ShaderVisibility          = visibility;
+                rootParam.Descriptor.ShaderRegister = bindDesc.BindPoint;
+                rootParam.Descriptor.RegisterSpace  = bindDesc.Space;
+                rootParameters.push_back(rootParam);
+            }
+            else if (bindDesc.Type == D3D_SIT_UAV_RWTYPED)
+            {
+                descriptorRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
+                resourceRanges.push_back(descriptorRange);
 
-	//// Root Signature 직렬화
-	//ComPtr<ID3DBlob> serializedRootSignature;
-	//ComPtr<ID3DBlob> errorBlob;
-	//hr = D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1, &serializedRootSignature, &errorBlob);
+                D3D12_ROOT_PARAMETER rootParam                = {};
+                rootParam.ParameterType                       = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+                rootParam.DescriptorTable.NumDescriptorRanges = 1;
+                rootParam.DescriptorTable.pDescriptorRanges   = &resourceRanges.back();
+                rootParam.ShaderVisibility                    = visibility;
+                rootParameters.push_back(rootParam);
+            }
+            else if (bindDesc.Type == D3D_SIT_SAMPLER)
+            {
+                samplers.push_back(_staticSamplers[bindDesc.Name]);
+            }
 
-	//std::filesystem::path errorMessage = static_cast<const char*>(errorBlob->GetBufferPointer());
- //   GRAPHICS_ASSERT(FAILED(hr), errorMessage.c_str());
+            auto iter = _rootParameterIndex.find(bindDesc.Name);
+            if (iter != _rootParameterIndex.end())
+            {
+                rootParameters[iter->second].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+                rootParameters.pop_back();
+            }
+            else
+            {
+                _rootParameterIndex[bindDesc.Name] = static_cast<UINT>(rootParameters.size() - 1);
+            }
+        }
+    }
 
-	//// Root Signature 생성
-	//ID3D12Device* device = Global::device->GetDevice();
-	//hr = device->CreateRootSignature(0,
-	//	serializedRootSignature->GetBufferPointer(),
-	//	serializedRootSignature->GetBufferSize(),
-	//	IID_PPV_ARGS(&_rootSignature));
+    // Root Signature 생성
+    D3D12_ROOT_SIGNATURE_DESC rootSigDesc = {};
+    rootSigDesc.NumParameters             = static_cast<UINT>(rootParameters.size());
+    rootSigDesc.pParameters               = rootParameters.data();
+    rootSigDesc.Flags                     = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+    rootSigDesc.NumStaticSamplers         = static_cast<UINT>(samplers.size());
+    rootSigDesc.pStaticSamplers           = samplers.data();
 
-	//FAILED_CHECK_BREAK(hr);
+    // Root Signature 직렬화
+    ComPtr<ID3DBlob> serializedRootSignature;
+    ComPtr<ID3DBlob> errorBlob;
+    hr = D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1, &serializedRootSignature, &errorBlob);
+    // FAILED_CHECK_BREAK(hr);
+
+    if (nullptr != errorBlob)
+    {
+        std::filesystem::path errorMessage = static_cast<const char*>(errorBlob->GetBufferPointer());
+        GRAPHICS_ASSERT(FAILED(hr), errorMessage.c_str());
+    }
+
+    // Root Signature 생성
+    ID3D12Device* device = Global::device->GetDevice();
+    hr                   = device->CreateRootSignature(0, serializedRootSignature->GetBufferPointer(),
+                                                       serializedRootSignature->GetBufferSize(), IID_PPV_ARGS(&_rootSignature));
+
+    FAILED_CHECK_MESSAGE(hr, L"ShaderBuilder::CreateRootSignature device->CreateRootSignature Failed");
 }
 
 void ShaderBuilder::CreateInputLayout(ComPtr<ID3D12ShaderReflection> shaderReflection,
@@ -638,20 +508,20 @@ void ShaderBuilder::CreateInputLayout(ComPtr<ID3D12ShaderReflection> shaderRefle
 void ShaderBuilder::CreateStaticSampler(D3D12_FILTER filter, D3D12_TEXTURE_ADDRESS_MODE addressMode,
                                         UINT shaderRegister, D3D12_STATIC_SAMPLER_DESC& desc)
 {
-	D3D12_STATIC_SAMPLER_DESC samplerDesc = {};
-	samplerDesc.Filter = filter;
-	samplerDesc.AddressU = addressMode;
-	samplerDesc.AddressV = addressMode;
-	samplerDesc.AddressW = addressMode;
-	samplerDesc.MipLODBias = 0.0f;
-	samplerDesc.MaxAnisotropy = (filter == D3D12_FILTER_ANISOTROPIC) ? 8 : 0;
-	samplerDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
-	samplerDesc.BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE;
-	samplerDesc.MinLOD = 0.0f;
-	samplerDesc.MaxLOD = D3D12_FLOAT32_MAX;
-	samplerDesc.ShaderRegister = shaderRegister;
-	samplerDesc.RegisterSpace = 0;
-	samplerDesc.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-    samplerDesc.BorderColor               = D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE ;
-	desc = samplerDesc;
+    D3D12_STATIC_SAMPLER_DESC samplerDesc = {};
+    samplerDesc.Filter                    = filter;
+    samplerDesc.AddressU                  = addressMode;
+    samplerDesc.AddressV                  = addressMode;
+    samplerDesc.AddressW                  = addressMode;
+    samplerDesc.MipLODBias                = 0.0f;
+    samplerDesc.MaxAnisotropy             = (filter == D3D12_FILTER_ANISOTROPIC) ? 8 : 0;
+    samplerDesc.ComparisonFunc            = D3D12_COMPARISON_FUNC_ALWAYS;
+    samplerDesc.BorderColor               = D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE;
+    samplerDesc.MinLOD                    = 0.0f;
+    samplerDesc.MaxLOD                    = D3D12_FLOAT32_MAX;
+    samplerDesc.ShaderRegister            = shaderRegister;
+    samplerDesc.RegisterSpace             = 0;
+    samplerDesc.ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
+    samplerDesc.BorderColor               = D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE;
+    desc                                  = samplerDesc;
 }
