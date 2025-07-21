@@ -69,6 +69,7 @@ void PlayerPlayTurnState::OnUpdate()
         break;
     case PlayerPlayTurnState::InputState::ACTION_SELECTION:
         UpdateAttackButtonHeld(dt);
+        UpdateActionSelectionUI(dt);
         break;
     case PlayerPlayTurnState::InputState::QUICK_TIME_EVENT:
         UpdateQuickTimeEventUI(dt);
@@ -92,6 +93,7 @@ void PlayerPlayTurnState::UpdateAttackButtonHeld(float dt)
             {
                 const WeaponStats& weapon = weaponSystem->GetCurrentWeaponStats();
                 _attackRemaining = weapon.AttackCount;
+                _setImguiPosCenter = true;
             }
         }
     }
@@ -120,7 +122,7 @@ void PlayerPlayTurnState::UpdateActionSelectionUI(float dt)
     ImGui::Begin("Player Turn##9A48EE30-CB5F-48AC-9740-DDF8118AAC49");
     {
         ImGui::Text((const char*)u8"A를 눌러 공격 진입");
-        float t = _attackButtonHeldWaitTime / _attackButtonHeldTime;
+        float t = _attackButtonHeldTime / _attackButtonHeldWaitTime;
         ImGui::ProgressBar(t);
     }
     ImGui::End();
