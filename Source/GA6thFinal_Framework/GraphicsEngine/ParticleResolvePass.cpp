@@ -5,9 +5,9 @@ ParticleResolvePass::ParticleResolvePass() {}
 
 ParticleResolvePass::~ParticleResolvePass() {}
 
-void ParticleResolvePass::Initialize(RenderScene* ownerScene)
+void ParticleResolvePass::Initialize(RenderScene* ownerScene, ID3D12GraphicsCommandList* commandList)
 {
-    __super::Initialize(ownerScene);
+    __super::Initialize(ownerScene, commandList);
     InitializeShader();
     InitializePSO();
 }

@@ -5,9 +5,9 @@ BlendPass::BlendPass() {}
 
 BlendPass::~BlendPass() {}
 
-void BlendPass::Initialize(RenderScene* ownerScene)
+void BlendPass::Initialize(RenderScene* ownerScene, ID3D12GraphicsCommandList* commandList)
 {
-    __super::Initialize(ownerScene);
+    __super::Initialize(ownerScene, commandList);
 
     _shader = std::make_unique<ShaderBuilder>();
     _shader->BeginBuild();

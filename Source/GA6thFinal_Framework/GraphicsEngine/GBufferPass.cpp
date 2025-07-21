@@ -7,13 +7,15 @@
 
 GBufferPass::~GBufferPass() {}
 
-void GBufferPass::Initialize(RenderScene* ownerScene)
+void GBufferPass::Initialize(RenderScene* ownerScene, ID3D12GraphicsCommandList* commandList)
 {
     static bool isInitialized = false;
     if (!isInitialized)
     {
         auto  mode                = Global::device->GetMode();
         auto& renderTargetManager = Global::multiRenderTargetManager;
+
+        auto desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, mode.Width, mode.Height, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
 
         std::initializer_list<std::string_view> renderTargetNames = {
             "BaseColor", "Normal", "ORM", "Emissive", "WorldPosition", "Depth", "CustomDepth"};
@@ -23,19 +25,18 @@ void GBufferPass::Initialize(RenderScene* ownerScene)
         for (UINT i = 0; i <= GBuffer::WORLDPOSITION; ++i)
         {
             renderTarget = MakeSharedResource<RenderTarget>();
-            mode.Format  = DXGI_FORMAT_R32G32B32A32_FLOAT;
-            renderTarget->Initialize(mode, 0.247f);
+            renderTarget->Initialize(desc, 0.247f);
             renderTargetManager->AddRenderTarget(*(first + i), renderTarget);
         }
 
         renderTarget = MakeSharedResource<RenderTarget>();
-        mode.Format  = DXGI_FORMAT_R32_FLOAT;
-        renderTarget->Initialize(mode, 1.f);
+        desc.Format  = DXGI_FORMAT_R32_FLOAT;
+        renderTarget->Initialize(desc, 1.f);
         renderTargetManager->AddRenderTarget(*(first + GBuffer::DEPTH), renderTarget);
 
         renderTarget = MakeSharedResource<RenderTarget>();
-        mode.Format  = DXGI_FORMAT_R32_UINT;
-        renderTarget->Initialize(mode, 0.f);
+        desc.Format  = DXGI_FORMAT_R32_UINT;
+        renderTarget->Initialize(desc, 0.f);
         renderTargetManager->AddRenderTarget(*(first + GBuffer::CUSTOMDEPTH), renderTarget);
 
         renderTargetManager->AddRenderTargetGroup("GBuffer", renderTargetNames);        
@@ -43,8 +44,7 @@ void GBufferPass::Initialize(RenderScene* ownerScene)
         isInitialized = true;
     }
 
-    const auto&                gBufferGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("GBuffer");
-    ID3D12GraphicsCommandList* commandList  = Global::device->GetCommandList();
+    const auto& gBufferGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("GBuffer");
 
     for (UINT i = 0; i < GBuffer::GBUFFER_END; i++)
     {
@@ -52,7 +52,7 @@ void GBufferPass::Initialize(RenderScene* ownerScene)
         _gBufferHandles[i] = gBufferGroup[i]->GetRTVHandle();
     }
 
-    __super::Initialize(ownerScene);
+    __super::Initialize(ownerScene, commandList);
     InitShaderAndPSO();
 }
 

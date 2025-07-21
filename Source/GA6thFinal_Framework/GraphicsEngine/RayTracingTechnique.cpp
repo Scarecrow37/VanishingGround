@@ -9,8 +9,8 @@ RayTracingTechnique::~RayTracingTechnique() {}
 
 void RayTracingTechnique::Initialize(ID3D12GraphicsCommandList* commandList) 
 {
-    InitDXRGbufferPass();
-    InitDXRDrawStaticMeshPass();
+    InitDXRGbufferPass(commandList);
+    InitDXRDrawStaticMeshPass(commandList);
 }
 
 void RayTracingTechnique::Execute(ID3D12GraphicsCommandList* commandList) 
@@ -20,16 +20,16 @@ void RayTracingTechnique::Execute(ID3D12GraphicsCommandList* commandList)
     __super::Execute(commandList);
 }
 
-void RayTracingTechnique::InitDXRDrawStaticMeshPass() 
+void RayTracingTechnique::InitDXRDrawStaticMeshPass(ID3D12GraphicsCommandList* commandList)
 {
     std::unique_ptr<DXRDrawStaticMeshPass> pass = std::make_unique<DXRDrawStaticMeshPass>();
-    pass->Initialize(_ownerScene);
+    pass->Initialize(_ownerScene, commandList);
     AddRenderPass(std::move(pass));
 }
 
-void RayTracingTechnique::InitDXRGbufferPass()
+void RayTracingTechnique::InitDXRGbufferPass(ID3D12GraphicsCommandList* commandList)
 {
     std::unique_ptr<DXRGBufferPass> pass = std::make_unique<DXRGBufferPass>();
-    pass->Initialize(_ownerScene);
+    pass->Initialize(_ownerScene, commandList);
     AddRenderPass(std::move(pass));
 }

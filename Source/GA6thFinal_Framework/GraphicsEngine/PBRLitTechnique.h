@@ -12,6 +12,6 @@ public:
     void Execute(ID3D12GraphicsCommandList* commandList) override;
 
 private:
-    void InitGBufferPass();
-    void InitDeferredPass();
+    void InitGBufferPass(ID3D12GraphicsCommandList* commandList);
+    void InitDeferredPass(ID3D12GraphicsCommandList* commandList);
 };

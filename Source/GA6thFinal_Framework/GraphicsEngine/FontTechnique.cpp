@@ -53,7 +53,7 @@ void FontTechnique::Initialize(ID3D12GraphicsCommandList* commandList)
 
     std::unique_ptr<RenderPass> pass;
     pass = std::make_unique<TextDrawPass>(spriteBatch.get());
-    pass->Initialize(_ownerScene);
+    pass->Initialize(_ownerScene, commandList);
     AddRenderPass(std::move(pass));
 }
 

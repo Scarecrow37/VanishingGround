@@ -58,12 +58,12 @@ void CommandController::Initialize()
     _fenceValue[COPY_QUEUE]     = 0;
 }
 
-CommandSet CommandController::AddCommandSet(CommandType command, CommandQueueType queue, std::wstring_view resourceName)
+void CommandController::AddCommandSet(CommandType command, std::wstring_view resourceName, CommandSet& out)
 {
     CommandSet commandSet;
     commandSet.Initialize(command, resourceName);
-    _commandSets[queue].emplace_back(std::move(commandSet));
-    return _commandSets[queue].back();
+    _commandSets.emplace_back(std::move(commandSet));
+    out = _commandSets.back();
 }
 
 void CommandController::WaitForCommandQueue(CommandQueueType type, UINT64 fenceValue)
@@ -82,13 +82,12 @@ void CommandController::WaitCommandQueue(CommandQueueType queue, CommandQueueTyp
 
 void CommandController::ExecuteCommand(CommandQueueType type, ID3D12CommandList* commandList)
 {
-    ID3D12CommandList* commandLists[] = { commandList };
-    _commandQueue[type]->ExecuteCommandLists(_countof(commandLists), commandLists);
+    _commandQueue[type]->ExecuteCommandLists(1, &commandList);
 }
 
 void CommandController::ResetCommand(CommandQueueType type)
 {
-    for (auto& commandSet : _commandSets[type])
+    for (auto& commandSet : _commandSets)
     {
         commandSet.Reset();
     }
