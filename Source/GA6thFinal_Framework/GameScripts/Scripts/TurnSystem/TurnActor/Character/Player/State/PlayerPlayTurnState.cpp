@@ -243,7 +243,7 @@ void PlayerPlayTurnState::UpdateAttackEventUI(float dt)
                         Enemy* enemy = enemys.at(targetIndex);
                         if (enemy)
                         {
-                            UmTime.Invoke(&GetFSM(), delay, [&]() { TurnMode::Battle()(player, *enemy); });                         
+                            UmTime.Invoke(&GetFSM(), delay, [&player, enemy]() { TurnMode::Battle()(player, *enemy); });                         
                             delay += 0.5f;
                         }
                     }
