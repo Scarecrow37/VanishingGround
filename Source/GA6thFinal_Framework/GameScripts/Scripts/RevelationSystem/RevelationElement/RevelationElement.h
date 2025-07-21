@@ -55,30 +55,13 @@ public:
    
 public:
     REFLECT_PROPERTY(
-        ImagePath, 
-        Name, 
+        Name,
         ReflectFields->Condition, 
         ReflectFields->ConditionValueA,
         ReflectFields->ConditionValueB,
         ReflectFields->Keyword, 
         ReflectFields->Grade)
     
-    GETTER_ONLY(std::string, ImagePath)
-    {   
-        File::Guid guid = ReflectFields->ImageGuid;
-        File::Path path = guid.ToPath();
-        if (true == path.IsNull())
-        {
-            return STR_NULL;
-        }
-        else
-        {
-            return path.string();
-        }        
-    }
-    //사용할 이미지 리소스 경로입니다.
-    PROPERTY(ImagePath)
-
     void SetName(std::string_view name) { ReflectFields->Name = name; }
     GETTER_ONLY(const std::string&, Name) { return ReflectFields->Name; }
     //계시 이름
@@ -95,7 +78,6 @@ public:
 
 protected:
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
-    std::string             ImageGuid       = "";
     std::string             Name            = STR_NULL;
     RevelationConditionType Condition       = RevelationConditionType::GREATER_THAN_OR_EQUAL; // 조건
     int                     ConditionValueA = 5;                                              // 조건값 A
