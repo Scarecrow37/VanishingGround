@@ -35,6 +35,20 @@ public:
     std::shared_ptr<RevelationElement> EquipPlayerElement(int slot, const RevelationElement& element);
 
     /// <summary>
+    /// 플레이어의 계시를 인벤토리에서 제거합니다.
+    /// </summary>
+    /// <param name="slot"></param>
+    /// <returns></returns>
+    std::shared_ptr<RevelationElement> RemovePlayerElement(int slot);
+
+    /// <summary>
+    /// 플레이어의 인벤토리 제일 뒤쪽에 계시를 추가합니다.
+    /// </summary>
+    /// <param name="element"></param>
+    /// <returns></returns>
+    const std::shared_ptr<RevelationElement>& PushBackPlayerElement(const RevelationElement& element);
+   
+    /// <summary>
     /// 이번 라운드 활성화 계시를 랜덤으로 뽑습니다.
     /// </summary>
     void RollRoundElement();
@@ -123,29 +137,13 @@ private:
 
 public:
     REFLECT_PROPERTY(
-        MaxRevelations, 
         RevelationsPerRound)
-
-    GETTER(int, MaxRevelations) { return ReflectFields->MaxRevelations; }
-    SETTER(int, MaxRevelations) 
-    { 
-        ReflectFields->MaxRevelations = std::max(value, 1); 
-        if (ReflectFields->MaxRevelations < _playerElementList.size())
-        {
-            for (int i = ReflectFields->MaxRevelations - 1; i < _playerElementList.size(); i++)
-            {
-                std::erase(_roundElementList, _playerElementList[i]);
-            }
-        }
-        _playerElementList.resize(ReflectFields->MaxRevelations);
-    }
-    // 최대 계시 수용량
-    PROPERTY(MaxRevelations)
 
     GETTER(int, RevelationsPerRound) { return ReflectFields->RevelationsPerRound; }
     SETTER(int, RevelationsPerRound) 
     { 
-        ReflectFields->RevelationsPerRound = std::max(value, 1);
+        int playerRevelationsCount = std::max(1, (int)_playerElementList.size());
+        ReflectFields->RevelationsPerRound = std::clamp(value, 1, playerRevelationsCount);
     }
     // 라운드당 뽑는 계시 개수
     PROPERTY(RevelationsPerRound)
@@ -154,7 +152,6 @@ protected:
     REFLECT_FIELDS_BEGIN(Component)
     ActionDataType  RevelationActionDatas;
     ElementDataType RevelationElementDatas;
-    int             MaxRevelations = 10;    //최대 계시 수용량
     int             RevelationsPerRound = 3;// 라운드당 계시
     ElementDataType PlayerElementDatas;
     REFLECT_FIELDS_END(RevelationSystem)
