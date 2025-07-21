@@ -237,17 +237,20 @@ void PlayerPlayTurnState::UpdateAttackEventUI(float dt)
                 const auto& enemys = combatStartPhase->GetEnemies();
                 for (auto& target : _attackTargets)
                 {
-                    int   targetIndex = static_cast<int>(target);
-                    auto& enemy       = enemys[targetIndex];
-                    if (enemy)
+                    int targetIndex = static_cast<int>(target);
+                    try
                     {
-                        UmTime.Invoke(&GetFSM(), delay, 
-                        [&]() 
-                        { 
-                            TurnMode::Battle()(player, *enemy);
-                        });
+                        Enemy* enemy = enemys.at(targetIndex);
+                        if (enemy)
+                        {
+                            UmTime.Invoke(&GetFSM(), delay, [&]() { TurnMode::Battle()(player, *enemy); });                         
+                            delay += 0.5f;
+                        }
                     }
-                    delay += 0.5f;
+                    catch (const std::exception&)
+                    {
+                        UmLogger.Log(LogLevel::LEVEL_WARNING, u8"유효하지 않은 enemy Index 입니다.");
+                    }
                 }
                 _attackTargets.clear();
                 _inputState = InputState::NONE;
