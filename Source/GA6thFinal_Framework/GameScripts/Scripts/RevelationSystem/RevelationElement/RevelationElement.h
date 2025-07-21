@@ -74,7 +74,7 @@ public:
     TurnAction& GetAction() { return *_action; }
 
     /*계시 발동 조건 여부를 검사합니다.*/
-    bool Evaluate(CharacterBase& attacker, CharacterBase& target); 
+    bool Evaluate(); 
 
 protected:
     REFLECT_FIELDS_BEGIN(ReflectSerializer)

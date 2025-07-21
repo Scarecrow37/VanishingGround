@@ -1,36 +1,48 @@
 ﻿#include "pchScripts.h"
 #include "RevelationElement.h"
 #include <RevelationSystem/RevelationSystem.h>
+
+#include <TurnSystem/TurnMode/TurnMode.h>
 #include <TurnSystem/TurnActor/Character/Player/Player.h>
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
 #include <TurnSystem/TurnAction/TurnActionFactory.h>
 
 using namespace u8_literals;
 
-bool RevelationElement::Evaluate(CharacterBase& attacker, CharacterBase& target)
+bool RevelationElement::Evaluate()
 {
-    bool result = false;
-    int chainCount = target.ChainCount;
-    RevelationConditionType condition  = ReflectFields->Condition;
-    switch (condition)
+    auto attacker = TurnMode::Battle::GetLastAttacker().lock();
+    auto target   = TurnMode::Battle::GetLastTarget().lock();
+    bool result   = false;
+    if (attacker && target)
     {
-    case RevelationConditionType::GREATER_THAN_OR_EQUAL:
-        result = chainCount >= ReflectFields->ConditionValueA;
-        break;
-    case RevelationConditionType::LESS_THAN_OR_EQUAL:
-        result = chainCount <= ReflectFields->ConditionValueA;
-        break;
-    case RevelationConditionType::BETWEEN_INCLUSIVE:
-        result = ReflectFields->ConditionValueA <= chainCount && chainCount <= ReflectFields->ConditionValueA;
-        break;
-    case RevelationConditionType::EQUAL:
-        result = chainCount == ReflectFields->ConditionValueA;
-        break;
-    case RevelationConditionType::MULTIPLE_OF:
-        result = chainCount % ReflectFields->ConditionValueA == 0;
-        break;
-    default:
-        break;
+        int                     chainCount = target->ChainCount;
+        RevelationConditionType condition  = ReflectFields->Condition;
+        switch (condition)
+        {
+        case RevelationConditionType::GREATER_THAN_OR_EQUAL:
+            result = chainCount >= ReflectFields->ConditionValueA;
+            break;
+        case RevelationConditionType::LESS_THAN_OR_EQUAL:
+            result = chainCount <= ReflectFields->ConditionValueA;
+            break;
+        case RevelationConditionType::BETWEEN_INCLUSIVE:
+            result = ReflectFields->ConditionValueA <= chainCount && chainCount <= ReflectFields->ConditionValueA;
+            break;
+        case RevelationConditionType::EQUAL:
+            result = chainCount == ReflectFields->ConditionValueA;
+            break;
+        case RevelationConditionType::MULTIPLE_OF:
+            result = chainCount % ReflectFields->ConditionValueA == 0;
+            break;
+        default:
+            break;
+        }
+
+        if (result && _action)
+        {
+            result &= _action->EvaluateConditions();
+        }
     }
     return result;
 }
