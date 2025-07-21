@@ -1783,37 +1783,10 @@ void ESceneManager::InputSystem::UpdateInput()
                 {
                     UpdateTracker(flag);
                 }
-            }
-
-            for (int buttonIndex = 0; buttonIndex < _receivers.size(); ++buttonIndex)
-            {
-                auto& buttons = _receivers[buttonIndex];
-                for (int actionIndex = 0; actionIndex < buttons.size(); ++actionIndex)
-                {
-                    Action action  = (Action)actionIndex;
-                    auto&  actions = buttons[actionIndex];
-                    for (auto& [component, event] : actions)
-                    {
-                        Action& actionTracker = _actionTracker[buttonIndex];
-                        if (action == actionTracker)
-                        {
-                            event(_inputController);                       
-                        }
-
-                        switch (actionTracker)
-                        {
-                        case Action::PRESSED:
-                            actionTracker = Action::HELD;
-                            break;
-                        case Action::RELEASED:
-                            actionTracker = Action::IDLE;
-                        default:
-                            break;
-                        }
-
-                    }
-                }
-            }
+            }        
+            
+            UpdateAnalogButtons();
+            std::memset(_actionChecker.data(), 0, std::size(_actionChecker)); //중복 액션 방지용 기록 배열 초기화.
         }
         catch (const Input::DeviceNotConnectedException& exception)
         {
@@ -1834,10 +1807,14 @@ void ESceneManager::InputSystem::UpdateInput()
 
 void ESceneManager::InputSystem::UpdateTracker(Input::Controller::Button button)
 {
-    int index = std::countr_zero((unsigned int)button); 
-    Action& action = _actionTracker[index];
+    int   buttonIndex = std::countr_zero((unsigned int)button);
+    bool& checker     = _actionChecker[buttonIndex];
+    if (checker)
+    {
+        return;
+    }
+    Action& action = _actionTracker[buttonIndex];
     bool    isDown = false;
-
     switch (button)
     {
     case Input::Controller::Button::DPAD_UP:
@@ -1881,7 +1858,7 @@ void ESceneManager::InputSystem::UpdateTracker(Input::Controller::Button button)
             break;
         case ESceneManager::InputSystem::Action::RELEASED:
         case ESceneManager::InputSystem::Action::IDLE:
-            action = Action::PRESSED;
+            action = Action::PRESSED;         
             break;
         default:
             break;
@@ -1903,4 +1880,20 @@ void ESceneManager::InputSystem::UpdateTracker(Input::Controller::Button button)
         }
     }
 
+    int   actionIndex = static_cast<int>(action);
+    auto& receivers = _receivers[buttonIndex][actionIndex];
+    for (auto& [instance, event] : receivers)
+    {
+        event(_inputController);
+        checker = true;
+    }
+}
+
+void ESceneManager::InputSystem::UpdateAnalogButtons() 
+{
+    // 아날로그 버튼들은 항상 갱신 필요
+    UpdateTracker(Input::Controller::Button::LEFT_TRIGGER);
+    UpdateTracker(Input::Controller::Button::RIGHT_TRIGGER);
+    UpdateTracker(Input::Controller::Button::LEFT_THUMB_STICK);
+    UpdateTracker(Input::Controller::Button::RIGHT_THUMB_STICK);
 }
