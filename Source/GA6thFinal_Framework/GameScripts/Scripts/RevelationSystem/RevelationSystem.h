@@ -191,8 +191,8 @@ private:
     inline static RevelationSystem* static_instance = nullptr;
 
 private:
-    std::unordered_map<std::string, RevelationElement>                      _elementsTable;         //계시 테이블
-    ImVec2                                                                  _tableEditorCenterPos{};
+    std::map<std::string, RevelationElement> _elementsTable; // 계시 테이블
+    ImVec2                                   _tableEditorCenterPos{};
 
 private:
     std::vector<std::shared_ptr<RevelationElement>> _playerElementList;       // 플레이어가 사용중인 계시 (인벤토리)

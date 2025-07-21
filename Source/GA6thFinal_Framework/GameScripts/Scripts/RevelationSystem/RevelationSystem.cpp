@@ -93,11 +93,10 @@ static ReflectHelper::ImGuiDraw::InputAutoSetting InitSetting()
 
 void RevelationSystem::DrawImGuiElementTableEditor() 
 {
-    if (ImGui::BeginTable("Revelation Stats", 8, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+    if (ImGui::BeginTable("Revelation Stats", 7, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
     {                      
         static ReflectHelper::ImGuiDraw::InputAutoSetting tableSetting = InitSetting();
 
-        ImGui::TableSetupColumn("ImageGuid");
         ImGui::TableSetupColumn("Name");
         ImGui::TableSetupColumn("Condition");
         ImGui::TableSetupColumn("ConditionValueA");
