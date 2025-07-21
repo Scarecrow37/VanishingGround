@@ -1,16 +1,16 @@
 ﻿#include "pch.h"
 #include "RenderTarget.h"
 
-void RenderTarget::Initialize(DXGI_MODE_DESC mode, FLOAT clearColor)
+void RenderTarget::Initialize(const D3D12_RESOURCE_DESC& desc, FLOAT clearColor)
 {
     _clearValue = {clearColor, clearColor, clearColor, 1.f};
 
-    _mode = mode;
+    _desc = desc;
 
     _currentState = D3D12_RESOURCE_STATE_RENDER_TARGET;
 
-    _viewPort = {.Width = (FLOAT)mode.Width, .Height = (FLOAT)mode.Height, .MinDepth = 0.f, .MaxDepth = 1.f};
-    _scissorRect = {.right = (LONG)mode.Width, .bottom = (LONG)mode.Height};
+    _viewPort = {.Width = (FLOAT)desc.Width, .Height = (FLOAT)desc.Height, .MinDepth = 0.f, .MaxDepth = 1.f};
+    _scissorRect = {.right = (LONG)desc.Width, .bottom = (LONG)desc.Height};
 
     Global::viewManager->AddDescriptorHeap(ViewManager::Type::RENDER_TARGET, _rtvHandle);
     CreateRenderTargetView();
@@ -21,27 +21,16 @@ void RenderTarget::Initialize(DXGI_MODE_DESC mode, FLOAT clearColor)
 }
 
 void RenderTarget::CreateRenderTargetView()
-{
-    D3D12_RESOURCE_DESC desc{.Dimension        = D3D12_RESOURCE_DIMENSION_TEXTURE2D,
-                             .Width            = _mode.Width,
-                             .Height           = _mode.Height,
-                             .DepthOrArraySize = 1,
-                             .MipLevels        = 1,
-                             .Format           = _mode.Format,
-                             .SampleDesc{.Count   = Global::device->GetMSAAState() ? (UINT)4 : (UINT)1,
-                                         .Quality = Global::device->GetMSAAState() ? Global::device->GetMSAAQuality() - 1 : (UINT)0},
-                             .Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN,
-                             .Flags  = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET};
-
+{    
     CD3DX12_HEAP_PROPERTIES property(D3D12_HEAP_TYPE_DEFAULT);
 
-    D3D12_CLEAR_VALUE clearValue{.Format = _mode.Format,
+    D3D12_CLEAR_VALUE clearValue{.Format = _desc.Format,
                                  .Color  = {_clearValue.x, _clearValue.y, _clearValue.z, _clearValue.w}};
 
     ID3D12Device* device = Global::device->GetDevice();
     HRESULT       hr     = S_OK;
 
-    hr = device->CreateCommittedResource(&property, D3D12_HEAP_FLAG_NONE, &desc, D3D12_RESOURCE_STATE_RENDER_TARGET,
+    hr = device->CreateCommittedResource(&property, D3D12_HEAP_FLAG_NONE, &_desc, D3D12_RESOURCE_STATE_RENDER_TARGET,
                                          &clearValue, IID_PPV_ARGS(&_resource));
     FAILED_CHECK_MESSAGE(hr, L"RenderTarget::Initialize CreateCommittedResource Failed");
     
@@ -51,7 +40,7 @@ void RenderTarget::CreateRenderTargetView()
 void RenderTarget::CreateShaderResourceView()
 {   
     D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-    srvDesc.Format                          = _mode.Format;
+    srvDesc.Format                          = _desc.Format;
     srvDesc.ViewDimension                   = D3D12_SRV_DIMENSION_TEXTURE2D;
     srvDesc.Texture2D.MostDetailedMip       = 0;
     srvDesc.Texture2D.MipLevels             = 1;
@@ -65,14 +54,12 @@ void RenderTarget::ClearRenderTarget(ID3D12GraphicsCommandList* commandList)
     commandList->ClearRenderTargetView(_rtvHandle, _clearValue, 0, nullptr);
 }
 
-void RenderTarget::ResizeResource(DXGI_MODE_DESC mode)
+void RenderTarget::ResizeResource(Resolution resolution)
 {
-    _mode = mode;
-
     _currentState = D3D12_RESOURCE_STATE_RENDER_TARGET;
 
-    _viewPort    = {.Width = (FLOAT)mode.Width, .Height = (FLOAT)mode.Height, .MinDepth = 0.f, .MaxDepth = 1.f};
-    _scissorRect = {.right = (LONG)mode.Width, .bottom = (LONG)mode.Height};
+    _viewPort    = {.Width = (FLOAT)resolution.Width, .Height = (FLOAT)resolution.Height, .MinDepth = 0.f, .MaxDepth = 1.f};
+    _scissorRect = {.right = (LONG)resolution.Width, .bottom = (LONG)resolution.Height};
 
     CreateRenderTargetView();
     CreateShaderResourceView();

@@ -5,9 +5,9 @@ DownScalePass::DownScalePass() {}
 
 DownScalePass::~DownScalePass() {}
 
-void DownScalePass::Initialize(RenderScene* ownerScene)
+void DownScalePass::Initialize(RenderScene* ownerScene, ID3D12GraphicsCommandList* commandList)
 {
-    __super::Initialize(ownerScene);
+    __super::Initialize(ownerScene, commandList);
 
     _shader = std::make_unique<ShaderBuilder>();
     _shader->BeginBuild();

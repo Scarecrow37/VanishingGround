@@ -10,10 +10,30 @@ void SkyBox::Initialize()
 {
     _box->InitializeInverted(1000.f, 1000.f, 1000.f, 0);
     HRESULT hr = S_OK;
-    
-    
+        
     FAILED_CHECK_MESSAGE(hr, L"SkyBox::Initialize device->CreateDescriptorHeap Failed");
     CreateComputePSO();
+
+    _cubeMap = std::make_unique<UnorderedAccessView>();
+    _irradianceMap = std::make_unique<UnorderedAccessView>();
+    _prefilteredMap = std::make_unique<UnorderedAccessView>();
+    _brdfLUT = std::make_unique<UnorderedAccessView>();
+    
+    auto desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, 512, 512, 6, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+    _cubeMap->Initialize(desc, D3D12_UAV_DIMENSION_TEXTURE2DARRAY);
+
+    desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, 32, 32, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+    _irradianceMap->Initialize(desc, D3D12_UAV_DIMENSION_TEXTURE2DARRAY);
+
+    desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, 256, 256, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+    _prefilteredMap->Initialize(desc, D3D12_UAV_DIMENSION_TEXTURE2DARRAY);
+    
+    desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, 512, 512, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+    _brdfLUT->Initialize(desc, D3D12_UAV_DIMENSION_TEXTURE2D);
+
+    Global::viewManager->AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _hdrSRVHandles);
+    Global::viewManager->AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _cubeSRVHandles);
+    Global::viewManager->AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _cubeUAVHandles);
 }
 
 void SkyBox::SetTexture(std::wstring_view path)
@@ -34,12 +54,12 @@ void SkyBox::SetTexture(std::wstring_view path)
 
     size_t                     imageSize    = img->slicePitch;
     ID3D12Device*              pDevice      = Global::device->GetDevice();
-    ID3D12GraphicsCommandList* pCommandList = Global::device->GetCommandList();
+    ID3D12GraphicsCommandList* commandList = Global::device->GetCommandList();
 
     // DirectXTex에서 가져온 포맷 사용 (보통 R32G32B32A32_FLOAT)
     _skyboxhdrTexture = CreateTexture2D(pDevice, static_cast<int>(metadata.width), static_cast<int>(metadata.height), metadata.format);
 
-    UploadToTexture2D(pDevice, pCommandList, _skyboxhdrTexture.Get(), img->pixels, imageSize);
+    UploadToTexture2D(pDevice, commandList, _skyboxhdrTexture.Get(), img->pixels, imageSize);
 
     // Create SRV
     CreateHDRSRV(_skyboxhdrTexture.Get());
@@ -51,12 +71,12 @@ void SkyBox::SetTexture(std::wstring_view path)
     CreateSRV(_skyboxCubeMap.Get());
     SetPipelineState();
 
-    // Dispatch compute shader per face (0~5)
-    for (UINT face = 0; face < 6; ++face)
-    {
-        BindResources(cubeSize, face);
-        pCommandList->Dispatch((cubeSize + 15) / 16, (cubeSize + 15) / 16, 1);
-    }
+    commandList->SetComputeRootSignature(_shader->GetRootSignature());
+    commandList->SetComputeRootDescriptorTable(_shader->GetRootParameterIndex("EquirectangularMap"), _hdrSRVHandles.GPU);
+    commandList->SetComputeRootDescriptorTable(_shader->GetRootParameterIndex("CubeMap"), _cubeUAVHandles.GPU);
+    commandList->SetComputeRoot32BitConstants(_shader->GetRootParameterIndex("bit32_1_cubeMapInfo"), 1, &cubeSize, 0);
+
+    commandList->Dispatch((cubeSize + 15) / 16, (cubeSize + 15) / 16, 6);
 
     _hasTexture = true;
 }
@@ -71,10 +91,6 @@ void SkyBox::ResetResource()
 {
     _skyboxCubeMap.Reset();
     _skyboxhdrTexture.Reset();
-    for (auto& it : _cbs)
-    {
-        it.Reset();
-    }
     _hasTexture = false;
 }
 
@@ -181,8 +197,7 @@ void SkyBox::CreateHDRSRV(ID3D12Resource* resource)
     srvDesc.Format                  = resource->GetDesc().Format;
     srvDesc.ViewDimension           = D3D12_SRV_DIMENSION_TEXTURE2D;
     srvDesc.Texture2D.MipLevels     = 1;
-
-    Global::viewManager->AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _hdrSRVHandles);
+    
     Global::device->GetDevice() ->CreateShaderResourceView(resource, &srvDesc, _hdrSRVHandles.CPU);
 }
 
@@ -193,8 +208,7 @@ void SkyBox::CreateSRV(ID3D12Resource* resource)
     srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
     srvDesc.TextureCube.MostDetailedMip = 0;
     srvDesc.TextureCube.MipLevels       = 1;
-
-    Global::viewManager->AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _cubeSRVHandles);
+    
     Global::device->GetDevice()->CreateShaderResourceView(resource, &srvDesc, _cubeSRVHandles.CPU);
 }
 
@@ -208,7 +222,6 @@ void SkyBox::CreateUAV(ID3D12Resource* resource)
     uavDesc.Texture2DArray.PlaneSlice      = 0;
     uavDesc.Texture2DArray.ArraySize       = 6;
 
-    Global::viewManager->AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _cubeUAVHandles);
     Global::device->GetDevice()->CreateUnorderedAccessView(resource, nullptr, &uavDesc, _cubeUAVHandles.CPU);
 }
 
@@ -228,31 +241,6 @@ void SkyBox::CreateComputePSO()
 
     hr = device->CreateComputePipelineState(&psodesc, IID_PPV_ARGS(_computePSO.GetAddressOf()));
     FAILED_CHECK_MESSAGE(hr, L"SkyBox::CreateComputePSO device->CreateComputePipelineState Failed");
-}
-
-void SkyBox::BindResources(UINT cubeSize, UINT faceIndex) 
-{
-    ID3D12GraphicsCommandList* cmdList = Global::device->GetCommandList();
-
-    struct CubeConvertConstants
-    {
-        UINT FaceIndex;
-        UINT CubeSize;
-        UINT Padding[2]; // 16바이트 정렬
-    };
-
-    CubeConvertConstants cb{};
-    cb.FaceIndex = faceIndex;
-    cb.CubeSize  = cubeSize;
-
-    ComPtr<ID3D12Resource> _cb;
-    Global::device->CreateConstantBuffer(&cb, sizeof(CubeConvertConstants), _cb);
-
-    cmdList->SetComputeRootSignature(_shader->GetRootSignature());
-    cmdList->SetComputeRootDescriptorTable(_shader->GetRootParameterIndex("EquirectangularMap"), _hdrSRVHandles.GPU);
-    cmdList->SetComputeRootDescriptorTable(_shader->GetRootParameterIndex("CubeMap"), _cubeUAVHandles.GPU);
-    cmdList->SetComputeRootConstantBufferView(_shader->GetRootParameterIndex("CubeMapInfo"), _cb->GetGPUVirtualAddress());
-    _cbs.push_back(_cb);
 }
 
 void SkyBox::SetPipelineState() 

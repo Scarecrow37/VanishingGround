@@ -9,12 +9,12 @@ public:
 
 public:
     const D3D12_CPU_DESCRIPTOR_HANDLE& GetDSVHandle() const { return _handle; }
-    const DXGI_FORMAT                  GetFormat() const { return _mode.Format; }
+    const DXGI_FORMAT                  GetFormat() const { return _desc.Format; }
 
 public:
-    void Initialize(DXGI_MODE_DESC mode);
+    void Initialize(const D3D12_RESOURCE_DESC& desc);
     void ClearDepthStencilView(ID3D12GraphicsCommandList* commandList);
-    virtual void ResizeResource(DXGI_MODE_DESC mode) override;
+    void ResizeResource(Resolution mode) override;
 
 private:
     void CreateDepthStencilView();

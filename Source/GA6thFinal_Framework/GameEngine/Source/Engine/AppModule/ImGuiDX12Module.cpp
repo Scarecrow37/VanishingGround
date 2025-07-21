@@ -102,7 +102,6 @@ void ImGuiDX12Module::ImguiEnd()
     auto backBuffer = UmGraphics.GetBackBufferHandle();
     commandList->OMSetRenderTargets(1, &backBuffer, FALSE, nullptr);
     ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandList);
-    //commandList->ExecuteCommand(CommandQueueType::GRAPHICS_QUEUE);
 
     if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
     {

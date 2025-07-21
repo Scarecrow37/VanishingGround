@@ -3,9 +3,9 @@
 
 DeferredPBRLitPass::~DeferredPBRLitPass() {}
 
-void DeferredPBRLitPass::Initialize(RenderScene* ownerScene)
+void DeferredPBRLitPass::Initialize(RenderScene* ownerScene, ID3D12GraphicsCommandList* commandList)
 {
-    __super::Initialize(ownerScene);
+    __super::Initialize(ownerScene, commandList);
 
     InitShaderAndPSO();
 }
