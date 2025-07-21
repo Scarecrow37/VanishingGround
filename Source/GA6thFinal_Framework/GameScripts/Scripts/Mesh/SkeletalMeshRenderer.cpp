@@ -172,7 +172,7 @@ void SkeletalMeshRenderer::UpdateAnimation()
     }
 }
 
-void SkeletalMeshRenderer::SetCurrentAnimation(std::string_view animKey)
+void SkeletalMeshRenderer::SetCurrentAnimation(std::string_view animKey, bool loop)
 {
     ReflectFields->CurrentAnimationKey = animKey.data();
     if (HasModel() && HasAnimator())
@@ -183,6 +183,7 @@ void SkeletalMeshRenderer::SetCurrentAnimation(std::string_view animKey)
         const auto& animationNames = animation->GetAnimations();
         animator->ChangeAnimation(ReflectFields->CurrentAnimationKey.c_str(), false);
         SetAnimationFrame(0.0f);
+        SetAnimationLoop(loop);
     }
 }
 

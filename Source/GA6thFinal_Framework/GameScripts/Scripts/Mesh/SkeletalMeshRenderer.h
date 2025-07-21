@@ -45,14 +45,39 @@ private:
     /// Animation
     /////////////////////////////////////////////////////////////
 public:
-    void SetCurrentAnimation(std::string_view animKey);
-    void SetAnimationLoop(bool looping);
+    /// <summary>
+    /// 현재 애니메이션을 바꿉니다.
+    /// </summary>
+    /// <param name="animKey">애니메이션 키</param>
+    /// <param name="loop">루프 여부. 기본 값은 true입니다.</param>
+    void SetCurrentAnimation(std::string_view animKey, bool loop = true);
+
+    /// <summary>애니메이션의 루프 여부를 설정합니다.</summary>
+    /// <param name="loop">애니메이션 루프 여부</param>
+    void SetAnimationLoop(bool loop);
+
+    /// <summary>애니메이션의 프레임을 설정합니다.</summary>
+    /// <param name="frame">애니메이션 프레임 수</param>
     void SetAnimationFrame(float frame);
+
+    /// <summary>애니메이션의 스피드를 설정합니다.</summary>
+    /// <param name="frame">애니메이션 스피드</param>
     void SetAnimationSpeed(float speed);
+
+    /// <summary>애니메이션을 0프레임으로 맞춘 후 멈춥니다.</summary>
     void StopAnimation();
+
+    /// <summary>애니메이션을 0프레임으로 맞춘 후 재생합니다.</summary>
     void PlayAnimation();
+
+    /// <summary>애니메이션을 멈춥니다.</summary>
     void PauseAnimation();
+
+    /// <summary>애니메이션을 재생합니다.</summary>
     void ResumeAnimation();
+
+    /// <summary>애니메이션의 종료 여부를 반환합니다.</summary>
+    /// <returns>애니메이션 종료 여부. 루프 시에는 항상 false를 반환합니다.</returns>
     bool IsAnimationEnd();
 
     inline float              GetCurrentAnimationTime()     const { return _animationTime; }

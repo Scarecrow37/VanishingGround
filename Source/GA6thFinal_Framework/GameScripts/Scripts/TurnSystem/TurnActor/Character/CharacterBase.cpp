@@ -194,3 +194,12 @@ void CharacterBase::ImGuiDrawPropertysEvent()
     ImGui::Separator();
     _tokenInventory.DrawImGuiDebugData();
 }
+
+void CharacterBase::PlayAnimation(AnimationType type, bool loop)
+{
+    if (_skeletalMeshRenderer)
+    {
+        const char* animKey = GetAnimationName(type);
+        _skeletalMeshRenderer->SetCurrentAnimation(animKey, loop);
+    }
+}

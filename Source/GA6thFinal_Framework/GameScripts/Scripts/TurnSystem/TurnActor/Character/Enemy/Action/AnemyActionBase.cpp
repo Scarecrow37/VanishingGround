@@ -3,4 +3,4 @@
 
 namespace EnemyAction
 {
-}
+} // namespace EnemyAction

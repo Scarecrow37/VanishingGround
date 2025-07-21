@@ -103,4 +103,21 @@ public:
     virtual void OnTokenRemoved(int tokenID) override;
 
     virtual void ImGuiDrawPropertysEvent() override;
+
+    
+    // 애니메이션 리팩터링 전 임시 메서드
+    enum AnimationType
+    {
+        IDLE,
+        HIT,
+        DEATH,
+        ATTACK_1,
+        ATTACK_2,
+        ATTACK_READY,
+        ATTACK_LOOP,
+        ATTACK_END,
+        SIZE,
+    };
+    virtual const char* GetAnimationName(AnimationType type) = 0;
+    void PlayAnimation(AnimationType type);
 };

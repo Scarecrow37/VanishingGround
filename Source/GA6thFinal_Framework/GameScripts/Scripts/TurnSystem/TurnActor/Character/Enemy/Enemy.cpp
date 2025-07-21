@@ -193,3 +193,57 @@ void Enemy::OnTokenRemoved(int tokenID)
 {
     Base::OnTokenRemoved(tokenID);
 }
+
+#define ANIM_NAME(enumType, name)\
+case enumType :\
+return name;\
+break;
+
+const char* Enemy::GetAnimationName(AnimationType type)
+{
+    EnemyType enemyType = Type;
+    switch (enemyType)
+    {
+        // A
+        case EnemyType::MONSTER_A:
+        {
+            switch (type)
+            {
+                ANIM_NAME(IDLE, "")
+
+            default:
+                break;
+            }
+            break;
+        }
+        // B
+        case EnemyType::MONSTER_B: 
+        {
+            switch (type)
+            {
+                ANIM_NAME(IDLE,     "Enemy02_Anim_Idle01")
+                ANIM_NAME(HIT,      "Enemy02_Anim_GetHit")
+                ANIM_NAME(ATTACK_1, "Enemy02_Anim_Attack01")
+            default:
+                break;
+            }
+            break;
+        }
+        // C
+        case EnemyType::MONSTER_C: 
+        {
+            switch (type)
+            {
+            default:
+                break;
+            }
+            break;
+        }
+        default: 
+        {
+            break;
+        }
+           
+    }
+    return "";
+}
