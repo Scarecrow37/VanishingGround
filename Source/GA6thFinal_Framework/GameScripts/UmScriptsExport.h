@@ -34,7 +34,6 @@ UMREAL_COMPONENT(StaticMeshRenderer)
 #include "Scripts/Mesh/SkeletalMeshRenderer.h"
 UMREAL_COMPONENT(SkeletalMeshRenderer)
 
-
 #include "Scripts/GameCore/FSM/FiniteStateMachine.h"
 UMREAL_COMPONENT(FiniteStateMachine)
 
@@ -100,9 +99,13 @@ UMREAL_COMPONENT(ImageElement)
 #include "Scripts/UI/Elements/Text/TextElement.h"
 UMREAL_COMPONENT(TextElement)
 
-#include "Scripts\UI/Panels/GridPanel.h"
+#include "Scripts/UI/Panels/Grid/GridPanel.h"
 UMREAL_COMPONENT(GridPanel)
 UMREAL_COMPONENT(GridPanelSlot)
+
+#include "Scripts/UI/Panels/Anchor/AnchorPanel.h"
+UMREAL_COMPONENT(AnchorPanel)
+UMREAL_COMPONENT(AnchorPanelSlot)
 
 #include "Scripts\WeaponSystem/WeaponSystem.h"
 UMREAL_COMPONENT(WeaponSystem)
