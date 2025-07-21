@@ -1892,8 +1892,20 @@ void ESceneManager::InputSystem::UpdateTracker(Input::Controller::Button button)
 void ESceneManager::InputSystem::UpdateAnalogButtons() 
 {
     // 아날로그 버튼들은 항상 갱신 필요
-    UpdateTracker(Input::Controller::Button::LEFT_TRIGGER);
-    UpdateTracker(Input::Controller::Button::RIGHT_TRIGGER);
-    UpdateTracker(Input::Controller::Button::LEFT_THUMB_STICK);
-    UpdateTracker(Input::Controller::Button::RIGHT_THUMB_STICK);
+    constexpr int leftTriggerIndex  = std::countr_zero((unsigned int)Input::Controller::Button::LEFT_TRIGGER);
+    constexpr int rightTriggerIndex = std::countr_zero((unsigned int)Input::Controller::Button::RIGHT_TRIGGER);
+    constexpr int leftThumbIndex    = std::countr_zero((unsigned int)Input::Controller::Button::LEFT_THUMB_STICK);
+    constexpr int rightThumbIndex   = std::countr_zero((unsigned int)Input::Controller::Button::RIGHT_THUMB_STICK);
+
+    if (_actionTracker[leftTriggerIndex] == Action::HELD)
+        UpdateTracker(Input::Controller::Button::LEFT_TRIGGER);
+
+    if (_actionTracker[rightTriggerIndex] == Action::HELD)
+        UpdateTracker(Input::Controller::Button::RIGHT_TRIGGER);
+
+    if (_actionTracker[leftThumbIndex] == Action::HELD)
+        UpdateTracker(Input::Controller::Button::LEFT_THUMB_STICK);
+
+    if (_actionTracker[rightThumbIndex] == Action::HELD)
+        UpdateTracker(Input::Controller::Button::RIGHT_THUMB_STICK);
 }
