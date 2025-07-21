@@ -11,8 +11,8 @@ public:
     void Initialize(ID3D12GraphicsCommandList* commandList) override;
     void Execute(ID3D12GraphicsCommandList* commandList) override;
 private:
-    void InitDXRDrawStaticMeshPass();
-    void InitDXRGbufferPass();
+    void InitDXRDrawStaticMeshPass(ID3D12GraphicsCommandList* commandList);
+    void InitDXRGbufferPass(ID3D12GraphicsCommandList* commandList);
 
 private:
 

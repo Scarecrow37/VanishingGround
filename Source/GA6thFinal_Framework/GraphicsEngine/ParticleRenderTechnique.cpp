@@ -19,8 +19,8 @@
     }        
 
     CreateWBOITResources();
-    InitializeSpriteParticlePass();
-    InitializeParticleResolvePass();
+    InitializeSpriteParticlePass(commandList);
+    InitializeParticleResolvePass(commandList);
 }
 
 void ParticleRenderTechnique::Execute(ID3D12GraphicsCommandList* commandList)
@@ -29,18 +29,18 @@ void ParticleRenderTechnique::Execute(ID3D12GraphicsCommandList* commandList)
     __super::Execute(commandList);
 }
 
-void ParticleRenderTechnique::InitializeSpriteParticlePass()
+void ParticleRenderTechnique::InitializeSpriteParticlePass(ID3D12GraphicsCommandList* commandList)
 {
     std::unique_ptr<ParticleSpritePass> spritepass = std::make_unique<ParticleSpritePass>();
-    spritepass->Initialize(_ownerScene);
+    spritepass->Initialize(_ownerScene, commandList);
     spritepass->SetAccumulationBuffers(_accumlateBuffer, _revealageBuffer);
     AddRenderPass(std::move(spritepass));
 }
 
-void ParticleRenderTechnique::InitializeParticleResolvePass()
+void ParticleRenderTechnique::InitializeParticleResolvePass(ID3D12GraphicsCommandList* commandList)
 {
     std::unique_ptr<ParticleResolvePass> resolvepass = std::make_unique<ParticleResolvePass>();
-    resolvepass->Initialize(_ownerScene);
+    resolvepass->Initialize(_ownerScene, commandList);
     resolvepass->SetAccumulationBuffers(_accumlateBuffer, _revealageBuffer);
     AddRenderPass(std::move(resolvepass));
 }
@@ -55,13 +55,16 @@ void ParticleRenderTechnique::CreateWBOITResources()
 
     DXGI_MODE_DESC mode = Global::device->GetMode();
     mode.Format         = DXGI_FORMAT_R16G16B16A16_FLOAT;
-    _accumlateBuffer->Initialize(mode);
+    auto desc = CD3DX12_RESOURCE_DESC::Tex2D(mode.Format, mode.Width, mode.Height, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+    _accumlateBuffer->Initialize(desc);
 
     mode.Format = DXGI_FORMAT_R16_FLOAT;
-    _revealageBuffer->Initialize(mode);
+    desc        = CD3DX12_RESOURCE_DESC::Tex2D(mode.Format, mode.Width, mode.Height, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+    _revealageBuffer->Initialize(desc);
     _accumlateBuffer->SetName(L"particle accum");
     _revealageBuffer->SetName(L"particle reveal");
-
 }
 
-void ParticleRenderTechnique::ReleaseWBOITResources() {}
+void ParticleRenderTechnique::ReleaseWBOITResources()
+{
+}

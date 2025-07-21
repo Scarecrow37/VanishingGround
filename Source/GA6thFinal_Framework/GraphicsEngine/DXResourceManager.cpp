@@ -14,14 +14,14 @@ void DXResourceManager::ResizeResource(DXGI_MODE_DESC prevMode)
     {
         for (auto& resource : resources)
         {
-            auto mode = resource->GetMode();
+            auto resolution = resource->GetResolution();
 
-            if (mode.Width == prevMode.Width && mode.Height == prevMode.Height)
+            if (resolution.Width == prevMode.Width && resolution.Height == prevMode.Height)
             {
-                mode.Width  = newMode.Width;
-                mode.Height = newMode.Height;
+                resolution.Width  = newMode.Width;
+                resolution.Height = newMode.Height;
 
-                resource->ResizeResource(mode);
+                resource->ResizeResource(resolution);
             }
         }
     }

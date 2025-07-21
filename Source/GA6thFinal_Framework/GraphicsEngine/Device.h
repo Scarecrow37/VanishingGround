@@ -8,10 +8,10 @@ public:
 
 public:
     ID3D12Device*                      GetDevice() const { return _device.Get(); }
-    ComPtr<ID3D12Device5>      GetDevice5();
+    ComPtr<ID3D12Device5>              GetDevice5();
     ID3D12GraphicsCommandList*         GetCommandList() const { return _commandList.Get(); }
     ID3D12GraphicsCommandList*         GetComputeCommandList() const { return _computeCommandList.Get(); }
-    ComPtr<ID3D12GraphicsCommandList4>      GetCommandList4();
+    ComPtr<ID3D12GraphicsCommandList4> GetCommandList4();
     const DXGI_MODE_DESC&              GetMode() const { return _mode; }
     UINT                               GetRTVDescriptorSize() { return _rtvDescriptorSize; }
     UINT                               GetCBVSRVUAVDescriptorSize() { return _cbvSrvUavDescriptorSize; }
@@ -21,6 +21,8 @@ public:
     UINT                               GetMSAAQuality() { return _4xMSAAQuality; }
     UINT                               GetCurrentBackBufferIndex() { return _renderTargetIndex; }
     const D3D12_CPU_DESCRIPTOR_HANDLE& GetBackBufferHandle() const { return _renderTargetHandles[_renderTargetIndex]; }
+    const D3D12_VIEWPORT&              GetMainViewport() const { return _mainViewport; }
+    const D3D12_RECT&                  GetMainScissorRect() const { return _mainScissorRect; }
 
 public:
     void SetUpDevice(HWND hwnd, UINT width, UINT height, FeatureLevel feature);
@@ -33,7 +35,6 @@ public:
     void FullGPUSync();
 
     void UploadResource(ComPtr<ID3D12Resource> uploadResource);
-    void SetBackBuffer();
     void ResolveBackBuffer(ComPtr<ID3D12Resource> source);
 
     void ResetCommands();
@@ -43,19 +44,15 @@ public:
 
 public:
     void UpdateBuffer(ComPtr<ID3D12Resource>& buffer, void* data, UINT size);
-
     void ClearBackBuffer(UINT flag, XMVECTOR color, float depth = 1.0f, UINT stencil = 0);
     void Flip();
-
     void CreateVertexBuffer(void* data, UINT size, UINT stride, ComPtr<ID3D12Resource>& buffer, D3D12_VERTEX_BUFFER_VIEW& view);
     void CreateIndexBuffer(void* data, UINT size, DXGI_FORMAT format, ComPtr<ID3D12Resource>& buffer, D3D12_INDEX_BUFFER_VIEW& view);
     void CreateConstantBuffer(void* data, UINT size, ComPtr<ID3D12Resource>& buffer);
     void CreateDefaultBuffer(UINT size, ComPtr<ID3D12Resource>& buffer);
     void CreateCommandList(ComPtr<ID3D12CommandAllocator>& allocator, ComPtr<ID3D12GraphicsCommandList>& commandList, CommandType type);
-    void CreateDefaultBuffer(UINT size, const D3D12_RESOURCE_FLAGS flags, const D3D12_RESOURCE_STATES initState,
-        ComPtr<ID3D12Resource>& buffer);
-    void CreateUploadBuffer(UINT size, const D3D12_RESOURCE_FLAGS flags, const D3D12_RESOURCE_STATES initState,
-        ComPtr<ID3D12Resource>& buffer);
+    void CreateDefaultBuffer(UINT size, const D3D12_RESOURCE_FLAGS flags, const D3D12_RESOURCE_STATES initState, ComPtr<ID3D12Resource>& buffer);
+    void CreateUploadBuffer(UINT size, const D3D12_RESOURCE_FLAGS flags, const D3D12_RESOURCE_STATES initState, ComPtr<ID3D12Resource>& buffer);
     ComPtr<ID3D12RootSignature> CreateRootSignature(const D3D12_ROOT_SIGNATURE_DESC& desc);
 
 private:
@@ -75,7 +72,7 @@ private:
     std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _renderTargetHandles;
 
     D3D12_VIEWPORT _mainViewport;
-    D3D12_RECT     _mainrRect;
+    D3D12_RECT     _mainScissorRect;
 
     bool _4xMSAAState = false; // 4X MSAA enabled
 
@@ -87,10 +84,11 @@ private:
     D3D_DRIVER_TYPE _d3dDriverType    = D3D_DRIVER_TYPE_HARDWARE;
     DXGI_FORMAT     _backBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
 
-    DXGI_MODE_DESC                               _mode;
-    DXGI_MODE_DESC                               _newMode;
-    bool                                         _onResize = true;
-   
+    DXGI_MODE_DESC _mode;
+    DXGI_MODE_DESC _newMode;
+
+    bool           _onResize = true;
+
     ComPtr<ID3D12CommandAllocator>    _commandAllocator;
     ComPtr<ID3D12GraphicsCommandList> _commandList;
     ComPtr<ID3D12CommandAllocator>    _computeCommandAllocator;
@@ -99,8 +97,7 @@ private:
     // UploadBuffer 생명주기를 관리 할 UploadBuffer container
     std::vector<ComPtr<ID3D12Resource>> _uploadResources;
 
-
-/// DXR
+    /// DXR
 private:
     void CheckDXRSupport();
 };

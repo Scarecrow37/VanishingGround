@@ -5,7 +5,7 @@ RenderPass::RenderPass() {}
 
 RenderPass::~RenderPass() {}
 
-void RenderPass::Initialize(RenderScene* ownerScene)
+void RenderPass::Initialize(RenderScene* ownerScene, ID3D12GraphicsCommandList* commandList)
 {
     _ownerScene     = ownerScene;
 

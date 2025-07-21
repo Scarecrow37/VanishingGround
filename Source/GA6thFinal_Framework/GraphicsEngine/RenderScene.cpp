@@ -12,7 +12,9 @@
 #include "FontRenderer.h"
 #include "AccelerationStructureManager.h"
 
-RenderScene::RenderScene(std::string_view name) : _skyBox{std::make_unique<SkyBox>()}, _name(name)
+RenderScene::RenderScene(std::string_view name)
+    : _skyBox{std::make_unique<SkyBox>()}
+    , _name(name)
 {
     _lightDatas.resize(MAX_LIGHT);
 }
@@ -32,6 +34,8 @@ void RenderScene::SetSkyBox(std::wstring_view path)
 
 void RenderScene::InitializeRenderScene()
 {
+    Global::commandController->AddCommandSet(CommandType::DIRECT, std::filesystem::path(_name).c_str(), _commandSet);
+
     CreateCamera();
     CreateRenderTarget();
     CreateDepthStencil();
@@ -44,11 +48,12 @@ void RenderScene::InitializeRenderScene()
     mode.Format         = DXGI_FORMAT_R32G32B32A32_FLOAT;
 
     _accumulationBuffer = MakeSharedResource<UnorderedAccessView>();
-    _accumulationBuffer->Initialize(mode);
-    _accumulationBuffer->TransitionResource(Global::device->GetCommandList(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+
+    auto desc = CD3DX12_RESOURCE_DESC::Tex2D(mode.Format, mode.Width, mode.Height, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+    _accumulationBuffer->Initialize(desc);
+    _accumulationBuffer->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
     Global::dxResourceManager->AddResource(_accumulationBuffer);
-
 
     if (Global::renderer->_isRaytracing)
     { 
@@ -110,9 +115,8 @@ void RenderScene::RegisterOnRenderQueue(FontRenderer* component)
 
 void RenderScene::AddRenderTechnique(std::unique_ptr<RenderTechnique> technique)
 {
-    auto commandList = Global::device->GetCommandList();
     technique->SetOwnerScene(this);
-    technique->Initialize(commandList);
+    technique->Initialize(_commandSet);
     _techniques.push_back(std::move(technique));
 }
 
@@ -123,50 +127,46 @@ void RenderScene::UpdateRenderScene()
     UpdateUI();
     UpdateFont();
 
-    auto commandList = Global::device->GetCommandList();
-
-    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, FrameResourceType::TRANSFORM, _worldMatrices.data(), (UINT)_worldMatrices.size());
-    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, FrameResourceType::BONE_MATRICES, _boneMatrices.data(), (UINT)_boneMatrices.size());
-    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, FrameResourceType::MATERIAL, _materialIDs.data(), (UINT)_materialIDs.size());
-    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, FrameResourceType::UI_TRANSFORM, _uiMatrices.data(), (UINT)_uiMatrices.size());
-    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, FrameResourceType::UI_MATERIAL, _uiMaterials.data(), (UINT)_uiMaterials.size());
-    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, FrameResourceType::STATIC_MESH_INSTANCE_ID,
-                                                              _staticMeshInstanceIDs.data(),
-                                                              (UINT)_staticMeshInstanceIDs.size());
-    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(commandList, FrameResourceType::SKELETAL_MESH_INSTANCE_ID,
-                                                              _skeletalMeshInstanceIDs.data(),
-                                                              (UINT)_skeletalMeshInstanceIDs.size());
+    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::TRANSFORM, _worldMatrices.data(), (UINT)_worldMatrices.size());
+    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::BONE_MATRICES, _boneMatrices.data(), (UINT)_boneMatrices.size());
+    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::MATERIAL, _materialIDs.data(), (UINT)_materialIDs.size());
+    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::UI_TRANSFORM, _uiMatrices.data(), (UINT)_uiMatrices.size());
+    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::UI_MATERIAL, _uiMaterials.data(), (UINT)_uiMaterials.size());
+    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::STATIC_MESH_INSTANCE_ID, _staticMeshInstanceIDs.data(), (UINT)_staticMeshInstanceIDs.size());
+    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::SKELETAL_MESH_INSTANCE_ID, _skeletalMeshInstanceIDs.data(), (UINT)_skeletalMeshInstanceIDs.size());
 }
 
-void RenderScene::Execute(ID3D12GraphicsCommandList* commandList)
+void RenderScene::Execute()
 {
     auto  descriptorHeap = Global::viewManager->GetShaderResourceHeap();
-    commandList->SetDescriptorHeaps(1, &descriptorHeap);
+    _commandSet->SetDescriptorHeaps(1, &descriptorHeap);
 
-    _accumulationBuffer->TransitionResource(commandList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-    _accumulationBuffer->ClearUnorderedAccessView(commandList);
+    _accumulationBuffer->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+    _accumulationBuffer->ClearUnorderedAccessView(_commandSet);
 
     auto meshRenderTarget = Global::multiRenderTargetManager->GetRenderTarget(_meshRenderTargetName);
-    meshRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    meshRenderTarget->ClearRenderTarget(commandList);
+    meshRenderTarget->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    meshRenderTarget->ClearRenderTarget(_commandSet);
 
     const auto& gBuffers = Global::multiRenderTargetManager->GetRenderTargetGroup("GBuffer");
     for (auto& buffer : gBuffers)
     {
-        buffer->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
-        buffer->ClearRenderTarget(commandList);
+        buffer->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_RENDER_TARGET);
+        buffer->ClearRenderTarget(_commandSet);
     }
 
-    _depthStencilView->TransitionResource(commandList, D3D12_RESOURCE_STATE_DEPTH_WRITE);
-    _depthStencilView->ClearDepthStencilView(commandList);
+    _depthStencilView->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+    _depthStencilView->ClearDepthStencilView(_commandSet);
 
     for (auto& tech : _techniques)
     {
-        tech->Execute(commandList);
+        tech->Execute(_commandSet);
     }
 
-    _depthStencilView->TransitionResource(commandList, D3D12_RESOURCE_STATE_PRESENT);
+    _depthStencilView->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_PRESENT);
 
+    _commandSet->Close();
+    Global::commandController->ExecuteCommand(CommandQueueType::GRAPHICS_QUEUE, _commandSet);
 }
 
 void RenderScene::ResetSkyBox()
@@ -363,22 +363,22 @@ void RenderScene::UpdateFont()
 void RenderScene::CreateRenderTarget()
 {
     auto                          mode                     = Global::device->GetMode();
-    auto                          commandList              = Global::device->GetCommandList();
     auto&                         multiRenderTargetManager = Global::multiRenderTargetManager;
     SharedResource<RenderTarget>  renderTarget;
-    mode.Format           = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    mode.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    auto desc = CD3DX12_RESOURCE_DESC::Tex2D(mode.Format, mode.Width, mode.Height, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
 
     _meshRenderTargetName = _name + "_MeshRenderTarget";
     renderTarget          = MakeSharedResource<RenderTarget>();
-    renderTarget->Initialize(mode, 0.247f);
-    renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    renderTarget->Initialize(desc, 0.247f);
+    renderTarget->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
     multiRenderTargetManager->AddRenderTarget(_meshRenderTargetName, renderTarget);
 
     _finalTargetName = _name + "_FinalTarget";
     renderTarget     = MakeSharedResource<RenderTarget>();
-    renderTarget->Initialize(mode, 0.247f);
-    renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    renderTarget->Initialize(desc, 0.247f);
+    renderTarget->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
     multiRenderTargetManager->AddRenderTarget(_finalTargetName, renderTarget);
 }
@@ -389,7 +389,8 @@ void RenderScene::CreateDepthStencil()
 
     auto mode = Global::device->GetMode();
     mode.Format = DXGI_FORMAT_R24G8_TYPELESS;
-    _depthStencilView->Initialize(mode);
+    auto desc   = CD3DX12_RESOURCE_DESC::Tex2D(mode.Format, mode.Width, mode.Height, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
+    _depthStencilView->Initialize(desc);
 
     Global::dxResourceManager->AddResource(_depthStencilView);
 }

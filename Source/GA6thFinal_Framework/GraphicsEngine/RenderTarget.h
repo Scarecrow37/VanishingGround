@@ -16,9 +16,9 @@ public:
     const D3D12_RECT&                  GetScissorRect() const { return _scissorRect; }
 
 public:
-    void Initialize(DXGI_MODE_DESC mode, FLOAT clearColor);
+    void Initialize(const D3D12_RESOURCE_DESC& desc, FLOAT clearColor);
     void ClearRenderTarget(ID3D12GraphicsCommandList* commandList);
-    virtual void ResizeResource(DXGI_MODE_DESC mode) override;
+    void ResizeResource(Resolution resolution) override;
 
 private:
     void CreateRenderTargetView();

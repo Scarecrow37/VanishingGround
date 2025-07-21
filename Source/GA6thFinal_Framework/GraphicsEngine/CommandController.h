@@ -11,7 +11,7 @@ public:
 
 public:
     void Initialize();
-    CommandSet AddCommandSet(CommandType command, CommandQueueType queue, std::wstring_view resourceName);
+    void AddCommandSet(CommandType command, std::wstring_view resourceName, CommandSet& out);
 
 public:
     void WaitForCommandQueue(CommandQueueType type, UINT64 fenceValue);
@@ -24,7 +24,7 @@ public:
     bool   IsCompleteCommandQueue(CommandQueueType queue, UINT64 fenceValue);
 
 private:
-    std::vector<CommandSet>    _commandSets[COMMAND_QUEUE_END];
+    std::vector<CommandSet>    _commandSets;
     ComPtr<ID3D12CommandQueue> _commandQueue[COMMAND_QUEUE_END];
     ComPtr<ID3D12Fence>        _fence[COMMAND_QUEUE_END];
     UINT64                     _fenceValue[COMMAND_QUEUE_END]{0};

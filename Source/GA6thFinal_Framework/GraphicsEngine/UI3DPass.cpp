@@ -9,9 +9,9 @@ UI3DPass::UI3DPass(const std::vector<UINT>& instanceIDs)
 
 UI3DPass::~UI3DPass() {}
 
-void UI3DPass::Initialize(RenderScene* ownerScene)
+void UI3DPass::Initialize(RenderScene* ownerScene, ID3D12GraphicsCommandList* commandList)
 {
-    __super::Initialize(ownerScene);
+    __super::Initialize(ownerScene, commandList);
 
     _shader = std::make_unique<ShaderBuilder>();
     _shader->BeginBuild();

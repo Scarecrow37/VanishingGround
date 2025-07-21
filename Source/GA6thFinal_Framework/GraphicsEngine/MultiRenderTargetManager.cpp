@@ -35,12 +35,13 @@ SharedResource<RenderTarget> MultiRenderTargetManager::GetAvailableRenderTarget(
     return _usedRenderTargets.back();
 }
 
-void MultiRenderTargetManager::InitializeRenderTargetPool(UINT size, DXGI_MODE_DESC mode)
+void MultiRenderTargetManager::InitializeRenderTargetPool(UINT size, const D3D12_RESOURCE_DESC& desc)
 {
     for (UINT i = 0; i < size; ++i)
     {
         SharedResource<RenderTarget> renderTarget = MakeSharedResource<RenderTarget>();
-        renderTarget->Initialize(mode, 0.f);
+
+        renderTarget->Initialize(desc, 0.f);
 
         _renderTargetPool.push_back(renderTarget);
     }

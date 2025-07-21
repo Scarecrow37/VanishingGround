@@ -34,13 +34,6 @@ public:
     template <typename T> requires(std::is_base_of_v<Resource, T>)
     void AddResource(std::filesystem::path filePath, std::shared_ptr<T> resource)
     {
-        auto iter = _resources[typeid(T)].find(filePath);
-        if (iter != _resources[typeid(T)].end())
-        {
-            //ASSERT(false, L"Already register resource");
-            return;
-        }
-
         _resources[typeid(T)][filePath] = resource;
     }
 
