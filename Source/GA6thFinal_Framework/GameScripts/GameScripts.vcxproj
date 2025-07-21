@@ -313,6 +313,8 @@
     <ClInclude Include="Scripts\RevelationSystem\RevelationAction\Critical\CriticalDamageAction.h" />
     <ClInclude Include="Scripts\RevelationSystem\RevelationAction\Token\TokenApplyAction.h" />
     <ClInclude Include="Scripts\Token\Enums\TokenEnums.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\TokenCondition\TokenCondition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\TurnActionCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Critical\CriticalDamageAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Token\TokenApplyAction.h" />
     <ClInclude Include="Scripts\RevelationSystem\RevelationElement\RevelationElement.h" />
@@ -422,6 +424,7 @@
     <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\AnemyActionBase.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22000_22009\EnemyAction22000.cpp" />
     <ClCompile Include="Scripts\DamageSystem\DamageSystem.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\TokenCondition\TokenCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Critical\CriticalDamageAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Token\TokenApplyAction.cpp" />
     <ClCompile Include="Scripts\RevelationSystem\RevelationElement\RevelationElement.cpp" />
@@ -451,6 +454,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Scripts\Particle\ParticleComponent.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\TurnAction.cpp" />
     <ClCompile Include="Scripts\WeaponSystem\WeaponTable\WeaponTableComponent.cpp" />
     <ClCompile Include="Scripts\Stats\Weapon\WeaponStats.cpp" />
     <ClCompile Include="Scripts\Test\Component\TestComponent.cpp" />

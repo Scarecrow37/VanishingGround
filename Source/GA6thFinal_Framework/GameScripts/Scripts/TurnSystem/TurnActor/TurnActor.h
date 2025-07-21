@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "UmFramework.h"
-#include <TurnSystem/TurnAction/TurnAction.h>
+#include <Interface/ITriggerType.h>   
 
 class CharacterBase;
 

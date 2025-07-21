@@ -3,7 +3,6 @@
 #include <TurnSystem/TurnAction/TurnActionFactory.h>
 RevelationSystem::RevelationSystem() 
 {
-    MaxRevelations.SetInputAutoEvent([]() { ImGuiHelper::HoveredToolTip(u8"최대 계시 수용량"); });
     RevelationsPerRound.SetInputAutoEvent([]() { ImGuiHelper::HoveredToolTip(u8"라운드당 뽑는 계시 개수"); });
 }
 RevelationSystem::~RevelationSystem() = default;
@@ -19,7 +18,23 @@ std::shared_ptr<RevelationElement> RevelationSystem::EquipPlayerElement(int slot
     return prevElement;
 }
 
-void RevelationSystem::RollRoundElement() 
+std::shared_ptr<RevelationElement> RevelationSystem::RemovePlayerElement(int slot)
+{
+    std::shared_ptr<RevelationElement> prevElement;
+    if (0 <= slot && slot < _playerElementList.size())
+    {
+        prevElement = std::move(_playerElementList[slot]);
+        _playerElementList.erase(_playerElementList.begin() + slot);
+    }
+    return prevElement;
+}
+
+const std::shared_ptr<RevelationElement>& RevelationSystem::PushBackPlayerElement(const RevelationElement& element)
+{
+    return _playerElementList.emplace_back(new RevelationElement(element));
+}
+
+void RevelationSystem::RollRoundElement()
 {
     _roundElementList.clear();
 
@@ -93,11 +108,10 @@ static ReflectHelper::ImGuiDraw::InputAutoSetting InitSetting()
 
 void RevelationSystem::DrawImGuiElementTableEditor() 
 {
-    if (ImGui::BeginTable("Revelation Stats", 8, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+    if (ImGui::BeginTable("Revelation Stats", 7, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
     {                      
         static ReflectHelper::ImGuiDraw::InputAutoSetting tableSetting = InitSetting();
 
-        ImGui::TableSetupColumn("ImageGuid");
         ImGui::TableSetupColumn("Name");
         ImGui::TableSetupColumn("Condition");
         ImGui::TableSetupColumn("ConditionValueA");
@@ -280,8 +294,9 @@ void RevelationSystem::ElementDatasToElements()
 
 void RevelationSystem::PlayerElementDatasToPlayerElements() 
 {
-    _playerElementList.resize(ReflectFields->MaxRevelations);
-    for (size_t i = 0; i < ReflectFields->PlayerElementDatas.size(); i++)
+    size_t elementSize = ReflectFields->PlayerElementDatas.size();
+    _playerElementList.resize(elementSize);
+    for (size_t i = 0; i < elementSize; i++)
     {
         const std::string& data = ReflectFields->PlayerElementDatas[i];
         if (i < _playerElementList.size())
@@ -447,6 +462,8 @@ void RevelationSystem::ImGuiDrawPlayerElementEditor()
     {
         TreeToolTip();
         std::shared_ptr<RevelationElement>* eraseSelect = nullptr;
+        int eraseSlot = -1;
+        int currentSlot = 0;
         for (auto& element : _playerElementList)
         {
             ImGui::PushID(&element);
@@ -459,12 +476,9 @@ void RevelationSystem::ImGuiDrawPlayerElementEditor()
             }
             if (ImGui::BeginCombo("##5794D456-E0A6-4F6C-844B-07D94A6401C6", name.data()))
             {
-                if (ImGui::Selectable(STR_NULL))
-                {
-                    eraseSelect = &element;
-                }
                 for (auto& [key, tableElement] : _elementsTable)
                 {
+                    ImGui::PushStyleColor(ImGuiCol_Text, tableElement.GetGradeColor());
                     if (ImGui::Selectable(key.data()))
                     {
                         if (element)
@@ -476,8 +490,15 @@ void RevelationSystem::ImGuiDrawPlayerElementEditor()
                             element.reset(new RevelationElement(tableElement));
                         }          
                     }
+                    ImGui::PopStyleColor();
                 }
                 ImGui::EndCombo();
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Remove"))
+            {
+                eraseSelect = &element;
+                eraseSlot   = currentSlot;
             }
             if (name != STR_NULL)
             {
@@ -494,12 +515,21 @@ void RevelationSystem::ImGuiDrawPlayerElementEditor()
                 ImGui::PopStyleColor();
             }     
             ImGui::PopID();
+            currentSlot++;
         }
         if (eraseSelect)
         {
             std::erase(_roundElementList, *eraseSelect);
-            eraseSelect->reset();
+            RemovePlayerElement(eraseSlot);
             eraseSelect = nullptr;          
+        }
+        if (ImGui::Button("Add Element"))
+        {
+            auto begin = _elementsTable.begin();
+            if (begin != _elementsTable.end())
+            {
+                PushBackPlayerElement(begin->second);
+            }
         }
         ImGui::TreePop();
     }

@@ -97,8 +97,7 @@ bool EditorInspectorTool::SetFocusObject(std::weak_ptr<IEditorObject> obj)
 
 void EditorInspectorTool::ResetFocusObject() 
 {
-    _nextFocused = std::weak_ptr<IEditorObject>();
-    _isFocusChanged = true;
+    SetFocusObject(std::weak_ptr<IEditorObject>());
     EditorHierarchyTool::SetFocusObject(std::weak_ptr<GameObject>()); // HierarchyTool의 포커스도 초기화
     EditorSceneTool::SetManipulateObject(std::weak_ptr<GameObject>()); // SceneTool의 조작 오브젝트도 초기화
 }

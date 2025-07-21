@@ -1,0 +1,34 @@
+﻿#pragma once
+#include "UmFramework.h"
+
+//턴 액션 조건 재사용을 위한 Base 클래스
+class TurnActionCondition : public ReflectSerializer
+{
+    USING_PROPERTY(TurnActionCondition)
+public:
+    TurnActionCondition() = default;
+    ~TurnActionCondition() override = default;
+
+    /// <summary>
+    /// 조건 검사 함수
+    /// </summary>
+    /// <returns></returns>
+    virtual bool Evaluate() = 0;
+
+    /// <summary>
+    /// 에디터용 ImGui Draw를 요청합니다. 
+    /// </summary>
+    virtual void DrawImguiEditor() = 0;
+
+    /// <summary>
+    /// Condition을 설명하는 문자열 반환합니다.
+    /// </summary>
+    virtual const std::string& GetConditionInfo() const = 0;
+
+protected:
+    REFLECT_FIELDS_BEGIN(ReflectSerializer)
+    REFLECT_FIELDS_END(TurnActionCondition)
+
+private:
+
+};
