@@ -559,9 +559,9 @@ bool EGameObjectFactory::UnpackPrefab(GameObject* targetObject)
                     }
                     return isExpired || isUnpackObject; 
                 });
-            targetObject->_prefabGuid = STR_NULL;
-            return true;
         }
+        targetObject->_prefabGuid = STR_NULL;
+        return true;
     }
     return false;
 }
