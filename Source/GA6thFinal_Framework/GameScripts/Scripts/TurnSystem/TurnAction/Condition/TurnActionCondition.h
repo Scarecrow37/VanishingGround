@@ -6,13 +6,6 @@ class TurnActionCondition : public ReflectSerializer
 {
     USING_PROPERTY(TurnActionCondition)
 public:
-    //2개 이상의 조건끼리의 연산을 정의합니다.
-    enum class LogicalOperator
-    {
-        AND,
-        OR
-    };
-
     TurnActionCondition() = default;
     ~TurnActionCondition() override = default;
 
@@ -30,22 +23,10 @@ public:
     /// <summary>
     /// Condition을 설명하는 문자열 반환합니다.
     /// </summary>
-    virtual const std::string& GetConditionInfo() = 0;
-
-    GETTER(int, Order) { return ReflectFields->Order; }
-    SETTER(int, Order) { ReflectFields->Order = value; }
-    PROPERTY(Order)
-
-    GETTER(TurnActionCondition::LogicalOperator, LogicOperator) { return ReflectFields->LogicOperator; }
-    SETTER(TurnActionCondition::LogicalOperator, LogicOperator) { ReflectFields->LogicOperator = value; }
-    PROPERTY(LogicOperator)
+    virtual const std::string& GetConditionInfo() const = 0;
 
 protected:
-    REFLECT_PROPERTY(Order, LogicOperator)
-
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
-    int                                  Order         = 0;
-    TurnActionCondition::LogicalOperator LogicOperator = LogicalOperator::AND;
     REFLECT_FIELDS_END(TurnActionCondition)
 
 private:

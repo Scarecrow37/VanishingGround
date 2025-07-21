@@ -32,7 +32,7 @@ public:
 
     bool Evaluate() override;
     void DrawImguiEditor() override;
-    const std::string& GetConditionInfo() override;
+    const std::string& GetConditionInfo() const override;
 
 protected:
     REFLECT_PROPERTY()

@@ -1,32 +1,75 @@
 ﻿#include "pchScripts.h"
 #include "TurnAction.h"
 
+using namespace u8_literals;
+
 bool TurnAction::EvaluateConditions()
-{
-    SortConditions();
-    bool result = true;
+{  
+    if (true == _conditions.empty())
+    {
+        return true;
+    }
+
+    ConditionOperator oper   = LogicOperator;
+    bool              result = oper == ConditionOperator::AND ? true : false;
     for (auto& condition : _conditions)
     {
-        TurnActionCondition::LogicalOperator oper = condition->LogicOperator;
         switch (oper)
         {
-        case TurnActionCondition::LogicalOperator::AND:
+        case ConditionOperator::AND:
             result &= condition->Evaluate();
+            if (result == false)
+            {
+                return false;
+            }
             break;
-        case TurnActionCondition::LogicalOperator::OR:
+        case ConditionOperator::OR:
             result |= condition->Evaluate();
+            if (result == true)
+            {
+                return true;
+            }
             break;
         default:
-            result = false;
-            break;
-        }
-
-        if (result == false)
-        {
+            return false;
             break;
         }
     }
     return result;
+}
+
+const std::string& TurnAction::GetConditionsInfo() const
+{
+    ConditionOperator logic = LogicOperator;
+    static std::string info;
+    info.clear();
+    auto& conditions = GetConditions();
+    int   lastIndex  = (int)conditions.size() - 1;
+    for (int i = 0; i < conditions.size(); ++i)
+    {
+        auto& condition = conditions[i];
+        info += condition->GetConditionInfo();
+        if (i != lastIndex)
+        {
+            std::string_view oper;
+            switch (logic)
+            {
+            case ConditionOperator::AND:
+                oper = u8"이고"_c_str;
+                break;
+            case ConditionOperator::OR:
+                oper = u8"이거나"_c_str;
+                break;
+            }
+            info += oper;
+        }
+        else
+        {
+            info += u8"이면"_c_str;
+        }
+        info += "\n";
+    }
+    return info;
 }
 
 void TurnAction::SerializedReflectEvent() 
@@ -41,67 +84,72 @@ void TurnAction::DeserializedReflectEvent()
 
 void TurnAction::ImguiDrawConditionEditor() 
 {
-    TurnActionCondition* eraseTemp = nullptr;
-    for (auto& condition : _conditions)
+    ImGui::PushID(this);
     {
-        auto RightClick = [&]() 
+        TurnActionCondition* eraseTemp = nullptr;
+        for (auto& condition : _conditions)
         {
-            if (ImGui::BeginPopupContextItem())
-            {
-                if (ImGui::MenuItem((const char*)u8"삭제"))
+            auto RightClick = [&]() {
+                if (ImGui::BeginPopupContextItem())
                 {
-                    eraseTemp = condition.get();
+                    if (ImGui::MenuItem((const char*)u8"삭제"))
+                    {
+                        eraseTemp = condition.get();
+                    }
+                    ImGui::EndPopup();
                 }
-                ImGui::EndPopup();
-            }
-        };
+            };
 
-        static std::string id;
-        id.clear();
-        id = condition->GetConditionInfo();
-        id += "###20327F79-EFF5-486D-A05A-2D27A6387683";
-        if (ImGui::TreeNode(id.c_str()))
-        {
-            RightClick();
-            condition->DrawImguiEditor();
-            ImGui::TreePop();
-        }
-        else
-        {
-            RightClick();
-        }
-    }
-
-    if (eraseTemp != nullptr)
-    {
-        std::erase_if(_conditions, [eraseTemp](auto& unique) { return unique.get() == eraseTemp; });
-    }
-
-    static std::string_view selectValue = STR_NULL;
-    if (ImGui::BeginCombo("##963EABCA-C1CE-414C-8B4C-9E9D3FFBD398", selectValue.data()))
-    {
-        for (auto& [key, func] : GetInstanceConstructors())
-        {
-            if (ImGui::Selectable(key.c_str(), key == selectValue))
+            static std::string id;
+            id.clear();
+            id = condition->GetConditionInfo();
+            id += "###20327F79-EFF5-486D-A05A-2D27A6387683";
+            ImGui::PushID(&condition);
+            if (ImGui::TreeNode(id.c_str()))
             {
-                selectValue = key;
+                RightClick();
+                condition->DrawImguiEditor();
+                ImGui::TreePop();
             }
-        }
-        ImGui::EndCombo();
-    }
-
-    if (selectValue != STR_NULL)
-    {
-        ImGui::SameLine();
-        if (ImGui::Button((const char*)u8"조건 추가하기"))
-        {
-            TurnActionCondition* condition = NewInstanceWithKey(selectValue);
-            if (condition)
+            else
             {
-                _conditions.emplace_back(condition);
+                RightClick();
+            }
+            ImGui::PopID();
+        }
+
+        if (eraseTemp != nullptr)
+        {
+            std::erase_if(_conditions, [eraseTemp](auto& unique) { return unique.get() == eraseTemp; });
+        }
+
+        static std::string_view selectValue = STR_NULL;
+        if (ImGui::BeginCombo("##963EABCA-C1CE-414C-8B4C-9E9D3FFBD398", selectValue.data()))
+        {
+            for (auto& [key, func] : GetInstanceConstructors())
+            {
+                if (ImGui::Selectable(key.c_str(), key == selectValue))
+                {
+                    selectValue = key;
+                }
+            }
+            ImGui::EndCombo();
+        }
+
+        if (selectValue != STR_NULL)
+        {
+            ImGui::SameLine();
+            if (ImGui::Button((const char*)u8"조건 추가하기"))
+            {
+                TurnActionCondition* condition = NewInstanceWithKey(selectValue);
+                if (condition)
+                {
+                    _conditions.emplace_back(condition);
+                }
             }
         }
     }
+    ImGui::PopID();
 }
 
 void TurnAction::ConditionsToReflectDatas() 
@@ -131,13 +179,3 @@ void TurnAction::ReflectDatasToConditions()
     }
 }
 
-void TurnAction::SortConditions() 
-{
-    std::ranges::sort(_conditions, 
-    [](std::unique_ptr<TurnActionCondition>& conditionA, std::unique_ptr<TurnActionCondition>& conditionB) 
-    {
-        int orderA = conditionA->Order;
-        int orderB = conditionB->Order;
-        return orderA < orderB;
-    });
-}

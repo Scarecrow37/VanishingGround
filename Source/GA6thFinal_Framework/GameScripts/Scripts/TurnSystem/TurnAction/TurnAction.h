@@ -18,6 +18,13 @@ class TurnAction abstract : public ReflectSerializer, public FactoryConstructor<
     USING_PROPERTY(TurnAction)
     friend class TurnMode;
 public:
+    // 2개 이상의 조건끼리의 연산을 정의합니다.
+    enum class ConditionOperator
+    {
+        AND,
+        OR
+    };
+
     TurnAction() = default;
     virtual ~TurnAction()
     { 
@@ -69,6 +76,18 @@ public:
         }
     }
 
+    /// <summary>
+    /// 현재 추가된 Condition들을 반환합니다.
+    /// </summary>
+    /// <returns></returns>
+    const std::vector<std::unique_ptr<TurnActionCondition>>& GetConditions() const { return _conditions; }
+
+    /// <summary>
+    /// Condition들의 정보를 설명하는 문자열을 반환합니다.
+    /// </summary>
+    /// <returns></returns>
+    const std::string& GetConditionsInfo() const;
+
 public:
     /*Action의 이름을 반환해야합니다.*/
     virtual const std::string& GetActionName() = 0;
@@ -115,11 +134,15 @@ public:
     virtual void OnEnemyBattleStart(Enemy& attacker, EnemyStats& attackerStats, Player& target, PlayerStats& targetStats) {}
 
 public:
-    REFLECT_PROPERTY(Name)
+    REFLECT_PROPERTY(Name, LogicOperator)
 
     GETTER_ONLY(const std::string&, Name) { return GetActionName(); }
     // 계시 이름
     PROPERTY(Name)
+
+    GETTER(ConditionOperator, LogicOperator) { return ReflectFields->LogicOperator; }
+    SETTER(ConditionOperator, LogicOperator) { ReflectFields->LogicOperator = value; }
+    PROPERTY(LogicOperator)
 
 protected:
     /// <summary>
@@ -128,6 +151,7 @@ protected:
     using ConditionDataType = std::pair<std::string, std::string>;
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
     std::vector<ConditionDataType> _conditionDatas;
+    ConditionOperator LogicOperator = ConditionOperator::AND;
     REFLECT_FIELDS_END(TurnAction)
 
     void SerializedReflectEvent() override;
@@ -145,6 +169,5 @@ private:
 private:
     void ConditionsToReflectDatas();
     void ReflectDatasToConditions();
-    void SortConditions();
 
 };

@@ -28,13 +28,8 @@ void CriticalDamageAction::ImGuiDrawActionEditor()
         setting._float.format = "%.1f";
         return setting;
     }();
-
-    ImGui::Begin("Action Editor##963EABCA-C1CE-414C-8B4C-9E9D3FFBD398");
-    {
-        ImGuiDrawPropertys(setting);
-        ImguiDrawConditionEditor();
-    }
-    ImGui::End();
+    ImGuiDrawPropertys(setting);
+    ImguiDrawConditionEditor();
 }
 
 void CriticalDamageAction::DeserializedReflectEvent() 

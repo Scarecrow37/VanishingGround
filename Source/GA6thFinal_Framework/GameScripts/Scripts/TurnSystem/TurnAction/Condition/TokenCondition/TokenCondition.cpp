@@ -115,7 +115,7 @@ bool TokenCondition::Evaluate()
 
 void TokenCondition::DrawImguiEditor() 
 {
-    if (ImGui::BeginTable("Token Condition##2796DA0B-FCA1-4074-9420-6F9D289C256B", 6,
+    if (ImGui::BeginTable("Token Condition##2796DA0B-FCA1-4074-9420-6F9D289C256B", 4,
                           ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
     {
         static ReflectHelper::ImGuiDraw::InputAutoSetting setting = []() 
@@ -126,8 +126,6 @@ void TokenCondition::DrawImguiEditor()
         }();
 
         bool isEdit = false;
-        ImGui::TableSetupColumn("Order");
-        ImGui::TableSetupColumn("Logical Operator");
         ImGui::TableSetupColumn("Target");
         ImGui::TableSetupColumn("Token Type");
         ImGui::TableSetupColumn("Operator");
@@ -135,19 +133,12 @@ void TokenCondition::DrawImguiEditor()
         ImGui::TableHeadersRow();
 
         ImGui::TableNextRow();
-        ImGui::TableSetColumnIndex(0);
-        isEdit |= ReflectHelper::ImGuiDraw::Private::InputAuto(Order, setting);
-        ImGui::TableSetColumnIndex(1);
-        isEdit |= ReflectHelper::ImGuiDraw::Private::InputAuto(LogicOperator, setting);
         const auto& view = rfl::to_view(*ReflectFields);
         int index = 0;
         view.apply([&](const auto& field) 
         {
-            if (2 <= index)
-            {
-                ImGui::TableSetColumnIndex(index);
-                isEdit |= ReflectHelper::ImGuiDraw::Private::InputAuto(field, setting);
-            }
+            ImGui::TableSetColumnIndex(index);
+            isEdit |= ReflectHelper::ImGuiDraw::Private::InputAuto(field, setting);     
             index++;
         });
         ImGui::EndTable();
@@ -159,7 +150,7 @@ void TokenCondition::DrawImguiEditor()
     }
 }
 
-const std::string& TokenCondition::GetConditionInfo()
+const std::string& TokenCondition::GetConditionInfo() const
 {
     return _conditionInfo;
 }
@@ -182,7 +173,7 @@ void TokenCondition::UpdateConditionInfo()
     {
     default:
     case TokenCondition::Target::NONE:
-        who = STR_NULL;
+        who = u8"NULL의 "_c_str;
         break;
     case TokenCondition::Target::SELF:
         who = u8"자신의 "_c_str;
