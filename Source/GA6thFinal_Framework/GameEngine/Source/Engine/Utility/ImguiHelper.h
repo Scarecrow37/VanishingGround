@@ -110,7 +110,7 @@ namespace ImGuiHelper
         {
             startX = ImGui::GetCursorPosX();
             startX += ImGui::CalcTextSize(text).x;
-            startX += +ImGui::GetStyle().ItemSpacing.x;
+            startX += ImGui::GetStyle().ItemSpacing.x;
         }
         ImGui::SameLine(startX);
         ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
