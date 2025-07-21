@@ -115,6 +115,6 @@ public:
         SIZE,
     };
     virtual const char* GetAnimationName(AnimationType type) = 0;
-    void SetAnimation(AnimationType type, bool loop = true);
+    void SetAnimation(AnimationType type, bool loop = true, bool blend = true);
     bool IsAnimationEnd();
 };

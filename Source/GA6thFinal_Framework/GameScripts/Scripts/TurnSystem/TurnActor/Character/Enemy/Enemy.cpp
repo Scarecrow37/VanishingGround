@@ -69,12 +69,12 @@ void Enemy::Awake()
 
 void Enemy::Update() 
 {
-    bool isMyTurn = IsMyTurn;
-    if (isMyTurn)
-    {
-        Vector3 delta = Vector3(0, 1080, 0) * Mathf::Deg2Rad * UmTime.DeltaTime();
-        gameObject->transform->Rotation *= Quaternion::CreateFromYawPitchRoll(delta);
-    }
+    //bool isMyTurn = IsMyTurn;
+    //if (isMyTurn)
+    //{
+    //    Vector3 delta = Vector3(0, 1080, 0) * Mathf::Deg2Rad * UmTime.DeltaTime();
+    //    gameObject->transform->Rotation *= Quaternion::CreateFromYawPitchRoll(delta);
+    //}
 }
 
 CharacterStats* Enemy::GetCharacterStats()

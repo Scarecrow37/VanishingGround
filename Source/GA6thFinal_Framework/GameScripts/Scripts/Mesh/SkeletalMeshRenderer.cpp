@@ -37,7 +37,7 @@ void SkeletalMeshRenderer::Reset()
 
 void SkeletalMeshRenderer::Awake() 
 {
-    SetCurrentAnimation(GetCurrentAnimationName());
+    SetCurrentAnimation(GetCurrentAnimationName(), IsAnimationLooping(), false);
     PlayAnimation();
 }
 
@@ -172,7 +172,7 @@ void SkeletalMeshRenderer::UpdateAnimation()
     }
 }
 
-void SkeletalMeshRenderer::SetCurrentAnimation(std::string_view animKey, bool loop)
+void SkeletalMeshRenderer::SetCurrentAnimation(std::string_view animKey, bool loop, bool blend)
 {
     ReflectFields->CurrentAnimationKey = animKey.data();
     if (HasModel() && HasAnimator())
@@ -181,13 +181,13 @@ void SkeletalMeshRenderer::SetCurrentAnimation(std::string_view animKey, bool lo
         const auto& animator       = Renderer->GetAnimator();
         const auto& animation      = model->GetAnimation();
         const auto& animationNames = animation->GetAnimations();
-        animator->ChangeAnimation(ReflectFields->CurrentAnimationKey.c_str(), false);
+        animator->ChangeAnimation(ReflectFields->CurrentAnimationKey.c_str(), blend);
         SetAnimationFrame(0.0f);
         SetAnimationLoop(loop);
     }
 }
 
-void SkeletalMeshRenderer::SetAnimationLoop(bool loop) 
+void SkeletalMeshRenderer::SetAnimationLoop(bool loop)
 {
     ReflectFields->IsAnimationLooping = loop;
 }

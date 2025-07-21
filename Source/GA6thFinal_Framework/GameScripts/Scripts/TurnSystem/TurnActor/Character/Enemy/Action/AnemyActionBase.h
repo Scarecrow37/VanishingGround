@@ -2,6 +2,7 @@
 
 class Enemy;
 class SkeletalMeshRenderer;
+class CharacterBase;
 
 namespace EnemyAction
 {
@@ -11,13 +12,17 @@ namespace EnemyAction
     class ActionBase
     {
     public:
-        ActionBase(Enemy* _owner) : _owner(_owner) {}
+        ActionBase(Enemy* owner);
         virtual ~ActionBase() = default;
 
     public:
         virtual void OnActionEnter()    = 0;
         virtual bool OnActionUpdate()   = 0;
         virtual void OnActionExit()     = 0;
+
+    protected:
+        void SetAnimation(int animType, bool loop = true, bool blend = true);
+        bool isAnimationEnd();
 
     protected:
         Enemy* _owner = nullptr;

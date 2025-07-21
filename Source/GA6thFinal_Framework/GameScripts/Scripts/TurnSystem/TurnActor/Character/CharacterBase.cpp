@@ -198,7 +198,7 @@ void CharacterBase::ImGuiDrawPropertysEvent()
     _tokenInventory.DrawImGuiDebugData();
 }
 
-void CharacterBase::SetAnimation(AnimationType type, bool loop)
+void CharacterBase::SetAnimation(AnimationType type, bool loop, bool blend)
 {
     if (_skeletalMeshRenderer)
     {

@@ -50,7 +50,7 @@ public:
     /// </summary>
     /// <param name="animKey">애니메이션 키</param>
     /// <param name="loop">루프 여부. 기본 값은 true입니다.</param>
-    void SetCurrentAnimation(std::string_view animKey, bool loop = true);
+    void SetCurrentAnimation(std::string_view animKey, bool loop = true, bool blend = true);
 
     /// <summary>애니메이션의 루프 여부를 설정합니다.</summary>
     /// <param name="loop">애니메이션 루프 여부</param>
