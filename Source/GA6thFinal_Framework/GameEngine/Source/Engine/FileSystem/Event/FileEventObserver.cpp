@@ -3,6 +3,8 @@
 
 namespace File
 {
+    constexpr int WAITING_TIME = 50;
+
     FileEventObserver::FileEventObserver() 
         : _isStart(false), _isObserving(false), _request(false),
           _recievedBytes({}), _bytesReturned(0), _hDirectory(NULL),
@@ -28,10 +30,16 @@ namespace File
     bool FileEventObserver::Start()
     {
         if (false == fs::exists(_path))
+        {
+            File::OutputLog(L"FileEventObserver Start failed: Path does not exist");
             return false;
-
+        }
+        
         if (nullptr == _eventCallback)
+        {
+            File::OutputLog(L"FileEventObserver Start failed: Callback function is not set");
             return false;
+        }
 
         Stop();
 
@@ -40,7 +48,7 @@ namespace File
             _isStart = true;
             SetHandles();
             SetThread();
-            OutputLog(L"FileEventObserver thread is Start");
+            File::OutputLog(L"FileEventObserver Start Successed");
             return true;
         }
         return false;
@@ -304,7 +312,7 @@ namespace File
             }
 
             // 변경이 감지되어 이벤트를 처리 중이면
-            if (TRUE == GetOverlappedResultEx(_hDirectory, &_overlapped, &bytes, 100, FALSE))
+            if (TRUE == GetOverlappedResultEx(_hDirectory, &_overlapped, &bytes, WAITING_TIME, FALSE))
             {
                 // IO작업이 진행중이면 기다림
                 if (ERROR_IO_INCOMPLETE == GetLastError())

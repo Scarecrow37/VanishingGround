@@ -11,6 +11,7 @@ namespace File
     constexpr const char* UNDEFINED_EXTENSION       = ".UmUndefined";
     constexpr const char* PROJECT_EXTENSION         = ".UmProject";
     constexpr const char* PROJECT_SETTING_FILENAME  = "FileSystem.UmSetting";
+    constexpr const char* META_EXTENSION            = ".UmMeta";
 } // namespace File
 
 class EFileSystem
@@ -42,7 +43,7 @@ public:
 public:
     inline int                  GetDebugLevel()         const { return _setting.DebugLevel; }
     inline const std::string&   GetProjectName()        const { return _projectName; }
-    inline const std::string&   GetMetaExt()            const { return _setting.MetaExt; }
+    inline const char*          GetMetaExt()            const { return File::META_EXTENSION; }
     inline const File::Path&    GetOriginPath()         const { return _originPath; }
     inline const File::Path&    GetRootPath()           const { return _rootPath; }
     inline const File::Path&    GetAssetPath()          const { return _assetPath; }
