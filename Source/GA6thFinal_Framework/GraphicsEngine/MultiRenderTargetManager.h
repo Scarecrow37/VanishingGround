@@ -13,7 +13,7 @@ public:
     const std::list<SharedResource<RenderTarget>>&   GetUsedRenderTargets() const { return _usedRenderTargets; }
 
 public:
-    void InitializeRenderTargetPool(UINT size, DXGI_MODE_DESC mode);
+    void InitializeRenderTargetPool(UINT size, const D3D12_RESOURCE_DESC& desc);
     void AddRenderTarget(std::string_view name, SharedResource<RenderTarget> renderTarget);
     void AddRenderTargetGroup(std::string_view groupName, std::string_view renderTargetName);
     void AddRenderTargetGroup(std::string_view groupName, std::initializer_list<std::string_view> renderTargetNames);

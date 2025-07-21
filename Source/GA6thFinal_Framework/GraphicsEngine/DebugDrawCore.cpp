@@ -56,7 +56,7 @@ void DebugDrawCore::Initialize()
         MessageBoxA(nullptr, e.what(), "BasicEffect 생성 실패", MB_OK);
     }
 
-    _commandSet = Global::commandController->AddCommandSet(CommandType::DIRECT, CommandQueueType::GRAPHICS_QUEUE, L"DebugDrawCore");
+    Global::commandController->AddCommandSet(CommandType::DIRECT, L"DebugDrawCore", _commandSet);
 }
 
 void DebugDrawCore::Render()
@@ -73,15 +73,15 @@ void DebugDrawCore::Render()
         renderTarget->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_RENDER_TARGET);
         renderScene->_depthStencilView->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 
-        auto&          mode = renderTarget->GetMode();
+        auto&          resolution = renderTarget->GetResolution();
         D3D12_VIEWPORT viewPort{.TopLeftX = 0.f,
                                 .TopLeftY = 0.f,
-                                .Width    = static_cast<FLOAT>(mode.Width),
-                                .Height   = static_cast<FLOAT>(mode.Height),                                
+                                .Width    = static_cast<FLOAT>(resolution.Width),
+                                .Height   = static_cast<FLOAT>(resolution.Height),
                                 .MinDepth = 0.f,
                                 .MaxDepth = 1.f};
         D3D12_RECT     scissorRect{
-                .left = 0, .top = 0, .right = static_cast<LONG>(mode.Width), .bottom = static_cast<LONG>(mode.Height)};
+                .left = 0, .top = 0, .right = static_cast<LONG>(resolution.Width), .bottom = static_cast<LONG>(resolution.Height)};
 
         _commandSet->OMSetRenderTargets(1, &renderTarget->GetRTVHandle(), NULL, &renderScene->_depthStencilView->GetDSVHandle());
         _commandSet->RSSetViewports(1, &viewPort);

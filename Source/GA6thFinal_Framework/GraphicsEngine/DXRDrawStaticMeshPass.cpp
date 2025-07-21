@@ -17,9 +17,9 @@
 
 DXRDrawStaticMeshPass::~DXRDrawStaticMeshPass() {}
 
-void DXRDrawStaticMeshPass::Initialize(RenderScene* ownerScene)
+void DXRDrawStaticMeshPass::Initialize(RenderScene* ownerScene, ID3D12GraphicsCommandList* commandList)
 {
-    __super::Initialize(ownerScene);
+    __super::Initialize(ownerScene, commandList);
     CreateStateObject();
     CreateShaderResource();
 }
@@ -270,8 +270,10 @@ void DXRDrawStaticMeshPass::CreateShaderResource()
     ID3D12GraphicsCommandList* cmdlist = Global::device->GetCommandList();
     _outputResourceUAV                 = MakeSharedResource<UnorderedAccessView>();
     DXGI_MODE_DESC mode                = Global::device->GetMode();
-    mode.Format                        = DXGI_FORMAT_R32G32B32A32_FLOAT;
-    _outputResourceUAV->Initialize(mode);
+
+    auto desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, mode.Width, mode.Height, 1, 1, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+
+    _outputResourceUAV->Initialize(desc);
     Global::dxResourceManager->AddResource(_outputResourceUAV);
     _outputResourceUAV->TransitionResource(cmdlist, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 }
@@ -312,10 +314,10 @@ void DXRDrawStaticMeshPass::WriteCommand()
     _outputResourceUAV->TransitionResource(cmdList4.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
     D3D12_DISPATCH_RAYS_DESC rayTraceDesc{};
-    DXGI_MODE_DESC           mode = _outputResourceUAV->GetMode();
-    rayTraceDesc.Width            = mode.Width;
-    rayTraceDesc.Height           = mode.Height;
-    rayTraceDesc.Depth            = 1;
+    Resolution               resolution = _outputResourceUAV->GetResolution();
+    rayTraceDesc.Width                  = resolution.Width;
+    rayTraceDesc.Height                 = resolution.Height;
+    rayTraceDesc.Depth                  = 1;
 
     // raygen 1개
     rayTraceDesc.RayGenerationShaderRecord.StartAddress =

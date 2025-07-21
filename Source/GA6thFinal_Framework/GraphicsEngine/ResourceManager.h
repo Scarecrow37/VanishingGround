@@ -17,7 +17,7 @@ public:
             filePath = filePath.generic_string();
         }
 
-		std::weak_ptr<Resource> resource       = _resources[filePath];
+		std::weak_ptr<Resource> resource       = _resources[typeid(T)][filePath];
         std::shared_ptr<T>      sharedResource = std::static_pointer_cast<T>(resource.lock());
 
 		if (resource.expired())
@@ -25,7 +25,7 @@ public:
             sharedResource = std::make_shared<T>();
             sharedResource->LoadResource(filePath);
 
-            _resources[filePath] = sharedResource;
+            _resources[typeid(T)][filePath] = sharedResource;
 		}
 
 		return sharedResource;
@@ -34,17 +34,10 @@ public:
     template <typename T> requires(std::is_base_of_v<Resource, T>)
     void AddResource(std::filesystem::path filePath, std::shared_ptr<T> resource)
     {
-        auto iter = _resources.find(filePath);
-        if (iter != _resources.end())
-        {
-            //ASSERT(false, L"Already register resource");
-            return;
-        }
-
-        _resources[filePath] = resource;
+        _resources[typeid(T)][filePath] = resource;
     }
 
 private:
-    std::unordered_map<std::wstring, std::weak_ptr<Resource>> _resources;
+    std::unordered_map<std::type_index, std::unordered_map<std::wstring, std::weak_ptr<Resource>>> _resources;
 };
 

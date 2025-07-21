@@ -40,6 +40,10 @@ void GraphicsModule::PreInitialize()
         flag = RenderTechniqueFlag::PARTICLE_TECH | RenderTechniqueFlag::EDITOR_DRAW_TECH | RenderTechniqueFlag::BLOOM_TECH;
         UmGraphics.AddRenderScene("ParticleEditor", flag);
     }
+    else
+    {
+        UmGraphics.SetCurrentScene("Game");
+    }
 }
 
 void GraphicsModule::ModuleInitialize()

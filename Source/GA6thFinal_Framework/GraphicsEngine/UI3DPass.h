@@ -8,6 +8,6 @@ public:
     virtual ~UI3DPass();
 
 public:
-    void Initialize(RenderScene* ownerScene) override;
+    void Initialize(RenderScene* ownerScene, ID3D12GraphicsCommandList* commandList) override;
     void Draw(ID3D12GraphicsCommandList* commandList) override;
 };

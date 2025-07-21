@@ -5,9 +5,9 @@ BlurYPass::BlurYPass() {}
 
 BlurYPass::~BlurYPass() {}
 
-void BlurYPass::Initialize(RenderScene* ownerScene)
+void BlurYPass::Initialize(RenderScene* ownerScene, ID3D12GraphicsCommandList* commandList)
 {
-    __super::Initialize(ownerScene);
+    __super::Initialize(ownerScene, commandList);
 
     _shader = std::make_unique<ShaderBuilder>();
     _shader->BeginBuild();
