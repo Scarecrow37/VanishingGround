@@ -13,24 +13,25 @@ public:
     ImageElement& operator=(ImageElement&&)      = delete;
     ~ImageElement() override;
 
+public:
     REFLECT_PROPERTY(FilePath)
     GETTER_ONLY(std::string, FilePath) { return _guidRef.ToPath().string(); }
     PROPERTY(FilePath)
+
+protected:
+    void Reset() override;
+    void DeserializedReflectEvent() override;
+    void OnPlacementChange() override;
+
+private:
+    void LoadTexture() const;
+    void UpdateWorldMatrix();
 
 protected:
     REFLECT_FIELDS_BEGIN(EditablePlacementUIComponent)
     std::string Guid;
     REFLECT_FIELDS_END(ImageElement)
 
-    void Reset() override;
-
-    void DeserializedReflectEvent() override;
-
-    void OnPlacementChange() override;
-
-private:
-    void LoadTexture() const;
-    void UpdateWorldMatrix();
 
     std::unique_ptr<SpriteRenderer> _renderer;
     File::GuidRef                   _guidRef;
