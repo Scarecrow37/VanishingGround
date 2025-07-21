@@ -7,6 +7,7 @@
 
 #include <TurnSystem/TurnMode/TurnMode.h>
 #include <TurnSystem/TurnMode/State/CombatStartPhase.h>
+#include <Mesh/SkeletalMeshRenderer.h>
 
 using namespace u8_literals;
 
@@ -34,7 +35,6 @@ void PlayerPlayTurnState::OnAwake()
 
 void PlayerPlayTurnState::OnStart() 
 {
-    _isAttacking = false;
 }
 
 void PlayerPlayTurnState::OnEnter() 
@@ -43,12 +43,13 @@ void PlayerPlayTurnState::OnEnter()
     _setImguiPosCenter = true;
     _attackRemaining   = 0;
 
+    auto& player = GetPlayer();
+    player.SetAnimation(CharacterBase::ATTACK_READY);
 }
 
 void PlayerPlayTurnState::OnExit() 
 {
     _inputState = InputState::NONE;
-    _isAttacking = false;
 }
 
 
@@ -80,9 +81,6 @@ void PlayerPlayTurnState::OnUpdate()
         UpdateQuickTimeEventUI(dt);
         break;
     }
-
-    Vector3 delta = Vector3(0, 1080, 0) * Mathf::Deg2Rad * dt;
-    GetFSM().gameObject->transform->Rotation *= Quaternion::CreateFromYawPitchRoll(delta);
 }
 
 void PlayerPlayTurnState::UpdateAttackButtonHeld(float dt) 
@@ -157,23 +155,43 @@ void PlayerPlayTurnState::UpdateQuickTimeEventUI(float dt)
     }
     ImGui::End();
 
-    if (_isAttacking)
+    if (true == CheckAttackEnd())
     {
-        Player& player = GetPlayer();
-        if (true == player.IsAnimationEnd())
-        {
-            player.EndTurn();
-        }
+        auto& player = GetPlayer();
+        player.EndTurn();
     }
 }
 
 void PlayerPlayTurnState::TestAttack(Enemy* dest, int damage)
 {
     Player& player = GetPlayer();
-    player.SetAnimation(CharacterBase::ATTACK_1, false);
-    _isAttacking = true;
+    player.SetAnimation(CharacterBase::ATTACK_LOOP, false);
     if (dest)
     {
         dest->TakeDamage(damage);
     }
+}
+
+bool PlayerPlayTurnState::CheckAttackEnd()
+{
+    auto& player   = GetPlayer();
+    auto  renderer = player.GetSkeletalMeshRenderer();
+    if (renderer)
+    {
+        const char* currAnim = renderer->GetCurrentAnimationName().c_str();
+        const char* attackLoopAnim = player.GetAnimationName(CharacterBase::ATTACK_LOOP);
+        const char* attackEndAnim  = player.GetAnimationName(CharacterBase::ATTACK_END);
+        if (0 != strcmp(currAnim, attackLoopAnim))
+        {
+            player.SetAnimation(CharacterBase::ATTACK_END, false);
+        }
+        if (0 == strcmp(currAnim, attackEndAnim))
+        {
+            if (true == player.IsAnimationEnd())
+            {
+                return true;
+            }
+        }
+    }
+    return false;
 }

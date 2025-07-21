@@ -1,9 +1,11 @@
 ﻿#pragma once
 #include "Base/PlayerStateBase.h"
 
+class Enemy;
+
 /*
-* 플레이어의 턴이 시작된 상태입니다.
-*/
+ * 플레이어의 턴이 시작된 상태입니다.
+ */
 class PlayerPlayTurnState : public PlayerStateBase, public InputReceiver
 {
 public:
@@ -29,6 +31,7 @@ protected:
     void OnUpdate() override;
 
     void TestAttack(Enemy* dest, int damage);
+    bool CheckAttackEnd();
 
 private:
     void UpdateAttackButtonHeld(float dt);
@@ -45,5 +48,4 @@ private:
     float      _attackButtonHeldTime;
     float      _attackButtonHeldWaitTime;
     int        _attackRemaining;
-    bool       _isAttacking = false;
 };
