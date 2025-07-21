@@ -3,6 +3,8 @@
 #include <GameCore/FSM/FiniteStateMachine.h>
 #include <TurnSystem/TurnActor/Character/Player/Player.h>
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
+#include <TurnSystem/TurnMode/TurnMode.h>
+#include <TurnSystem/TurnMode/State/CombatStartPhase.h>
 #include <WeaponSystem/WeaponSystem.h>
 
 using namespace u8_literals;
@@ -16,6 +18,7 @@ PlayerPlayTurnState::PlayerPlayTurnState()
     _isDownAttackButton       = false;
     _attackButtonHeldTime     = 0.f;
     _attackButtonHeldWaitTime = 1.5f;
+    _attackRemaining          = 0;
 }
 
 PlayerPlayTurnState::~PlayerPlayTurnState() 
@@ -25,8 +28,17 @@ PlayerPlayTurnState::~PlayerPlayTurnState()
 
 void PlayerPlayTurnState::OnAwake() 
 {
-    BindInputAction(ControllerButton::A, Action::PRESSED, &GetFSM(), this, &PlayerPlayTurnState::PressedAButton);
-    BindInputAction(ControllerButton::A, Action::RELEASED, &GetFSM(), this, &PlayerPlayTurnState::ReleasedAButton);
+    BindInputAction(ControllerButton::A, Action::PRESSED, &GetFSM(), this, &PlayerPlayTurnState::PressedButtonA);
+    BindInputAction(ControllerButton::A, Action::RELEASED, &GetFSM(), this, &PlayerPlayTurnState::ReleasedButtonA);
+
+    BindInputAction(ControllerButton::B, Action::PRESSED, &GetFSM(), this, &PlayerPlayTurnState::PressedButtonB);
+    BindInputAction(ControllerButton::B, Action::RELEASED, &GetFSM(), this, &PlayerPlayTurnState::ReleasedButtonB);
+
+    BindInputAction(ControllerButton::X, Action::PRESSED, &GetFSM(), this, &PlayerPlayTurnState::PressedButtonX);
+    BindInputAction(ControllerButton::X, Action::RELEASED, &GetFSM(), this, &PlayerPlayTurnState::ReleasedButtonX);
+
+    BindInputAction(ControllerButton::Y, Action::PRESSED, &GetFSM(), this, &PlayerPlayTurnState::PressedButtonY);
+    BindInputAction(ControllerButton::Y, Action::RELEASED, &GetFSM(), this, &PlayerPlayTurnState::ReleasedButtonY);
 }
 
 void PlayerPlayTurnState::OnStart() 
@@ -37,9 +49,9 @@ void PlayerPlayTurnState::OnStart()
 void PlayerPlayTurnState::OnEnter() 
 {
     _inputState = InputState::ACTION_SELECTION;
+    _isDownAttackButton = false;
     _setImguiPosCenter = true;
     _attackRemaining   = 0;
-
 }
 
 void PlayerPlayTurnState::OnExit() 
@@ -74,6 +86,9 @@ void PlayerPlayTurnState::OnUpdate()
     case PlayerPlayTurnState::InputState::QUICK_TIME_EVENT:
         UpdateQuickTimeEventUI(dt);
         break;
+    case PlayerPlayTurnState::InputState::ATTACK_EVENT:
+        UpdateAttackEventUI(dt);
+        break;
     }
 
     Vector3 delta = Vector3(0, 1080, 0) * Mathf::Deg2Rad * dt;
@@ -94,12 +109,13 @@ void PlayerPlayTurnState::UpdateAttackButtonHeld(float dt)
                 const WeaponStats& weapon = weaponSystem->GetCurrentWeaponStats();
                 _attackRemaining = weapon.AttackCount;
                 _setImguiPosCenter = true;
+                _attackTargets.clear();
             }
         }
     }
 }
 
-void PlayerPlayTurnState::PressedAButton(const Input::Controller& controller)
+void PlayerPlayTurnState::PressedButtonA(const Input::Controller& controller)
 {
     if (_inputState == InputState::ACTION_SELECTION)
     {
@@ -108,7 +124,7 @@ void PlayerPlayTurnState::PressedAButton(const Input::Controller& controller)
 
 }
 
-void PlayerPlayTurnState::ReleasedAButton(const Input::Controller& controller) 
+void PlayerPlayTurnState::ReleasedButtonA(const Input::Controller& controller) 
 {
     if (_inputState == InputState::ACTION_SELECTION)
     {
@@ -117,11 +133,45 @@ void PlayerPlayTurnState::ReleasedAButton(const Input::Controller& controller)
     }
 }
 
+void PlayerPlayTurnState::PressedButtonX(const Input::Controller& controller) 
+{
+    PushAttackTarget(AttackTarget::LEFT);
+}
+
+void PlayerPlayTurnState::ReleasedButtonX(const Input::Controller& controller) 
+{
+
+}
+
+void PlayerPlayTurnState::PressedButtonY(const Input::Controller& controller) 
+{
+    PushAttackTarget(AttackTarget::MIDDLE);
+}
+
+void PlayerPlayTurnState::ReleasedButtonY(const Input::Controller& controller) 
+{
+
+}
+
+void PlayerPlayTurnState::PressedButtonB(const Input::Controller& controller) 
+{
+    PushAttackTarget(AttackTarget::RIGHT);
+}
+
+void PlayerPlayTurnState::ReleasedButtonB(const Input::Controller& controller) 
+{
+
+}
+
 void PlayerPlayTurnState::UpdateActionSelectionUI(float dt) 
 {
     ImGui::Begin("Player Turn##9A48EE30-CB5F-48AC-9740-DDF8118AAC49");
     {
-        ImGui::Text((const char*)u8"A를 눌러 공격 진입");
+        if (ImGui::Button((const char*)u8"A를 눌러 공격 진입"))
+        {
+            _attackButtonHeldTime = _attackButtonHeldWaitTime;
+            _isDownAttackButton   = true;
+        }
         float t = _attackButtonHeldTime / _attackButtonHeldWaitTime;
         ImGui::ProgressBar(t);
     }
@@ -142,8 +192,26 @@ void PlayerPlayTurnState::UpdateQuickTimeEventUI(float dt)
             ImGui::EndDisabled();
             ImGui::Separator();
 
+            ImGui::Text((const char*)u8"X, Y, B를 눌러 공격하세요.");
             ImGui::Text((const char*)u8"남은 공격 횟수 : %d", _attackRemaining);
+            constexpr auto targets = rfl::get_enumerator_array<AttackTarget>();
+            for (auto& [name, value] : targets)
+            {
+                if (ImGui::Button(name.data()))
+                {
+                    PushAttackTarget(value);
+                }
+            }
 
+            for (auto& target : _attackTargets)
+            {
+                ImGui::Text(rfl::enum_to_string(target).c_str());
+            }
+
+            if (_attackRemaining == 0)
+            {
+                _inputState = InputState::ATTACK_EVENT;
+            }
         }
         else
         {
@@ -151,4 +219,58 @@ void PlayerPlayTurnState::UpdateQuickTimeEventUI(float dt)
         }
     }
     ImGui::End();
+}
+
+void PlayerPlayTurnState::UpdateAttackEventUI(float dt)
+{
+    ImGui::Begin("Player Turn##9A48EE30-CB5F-48AC-9740-DDF8118AAC49");
+    {
+        TurnMode* turnMode = TurnMode::GetInstance();
+        if (turnMode)
+        {
+            auto& combatStartPhase = turnMode->States->CombatStartPhase;
+            if (combatStartPhase)
+            {
+                float delay = 0.5f;
+                Player& player = GetPlayer();
+                const auto& enemys = combatStartPhase->GetEnemies();
+                for (auto& target : _attackTargets)
+                {
+                    int   targetIndex = static_cast<int>(target);
+                    auto& enemy       = enemys[targetIndex];
+                    if (enemy)
+                    {
+                        UmTime.Invoke(&GetFSM(), delay, 
+                        [&]() 
+                        { 
+                            TurnMode::Battle()(player, *enemy);
+                        });
+                    }
+                    delay += 0.5f;
+                }
+                _attackTargets.clear();
+                _inputState = InputState::NONE;
+                UmTime.Invoke(&GetFSM(), delay, 
+                [&]() 
+                { 
+                    player.EndTurn(); 
+                });
+            }
+        }
+    }
+    ImGui::End();
+}
+
+bool PlayerPlayTurnState::IsAttackable() const
+{
+    return _inputState == InputState::QUICK_TIME_EVENT && 0 < _attackRemaining;
+}
+
+void PlayerPlayTurnState::PushAttackTarget(AttackTarget target) 
+{
+    if (IsAttackable())
+    {
+        _attackTargets.push_back(target);
+        --_attackRemaining;
+    }
 }
