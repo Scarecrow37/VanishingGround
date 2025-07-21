@@ -265,6 +265,7 @@ const char* Player::GetAnimationName(AnimationType type)
         ANIM_NAME(ATTACK_READY, "rig|Player_Anim_Attack_Ready")
         ANIM_NAME(ATTACK_LOOP,  "rig|Player_Anim_Attack")
         ANIM_NAME(ATTACK_END,   "rig|Player_Anim_Attack_End")
+        ANIM_NAME(ATTACK_1,     "rig|attack full")
         ANIM_NAME(DEATH,        "rig|Player_Anim_Death")
 
         default:

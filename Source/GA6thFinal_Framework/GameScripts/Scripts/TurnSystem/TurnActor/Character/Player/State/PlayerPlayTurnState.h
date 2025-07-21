@@ -17,6 +17,9 @@ protected:
     void OnExit() override;
     void OnUpdate() override;
 
+    void TestAttack(Enemy* dest, int damage);
+
 private:
     bool _isStart = false;
+    bool _isAttacking = false;
 };

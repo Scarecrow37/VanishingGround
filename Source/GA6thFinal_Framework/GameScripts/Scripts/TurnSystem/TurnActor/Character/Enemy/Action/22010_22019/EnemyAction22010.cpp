@@ -9,11 +9,7 @@ namespace EnemyAction
     {
         if (_owner)
         {
-            _renderer = _owner->GetSkeletalMeshRenderer();
-            if (_renderer)
-            {
-                _renderer->SetCurrentAnimation("Idle");
-            }
+            _owner->SetAnimation(CharacterBase::ATTACK_1, false);
         }
     }
 
@@ -32,6 +28,7 @@ namespace EnemyAction
             }
             return false;
         }
+        // owner와 renderer 둘 중 하나라도 없다면 스킵
         return true;
     }
 

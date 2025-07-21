@@ -108,6 +108,9 @@ void CharacterBase::TakeDamage(int damage)
             damage,
             (const char*)u8"의 피해를 입었습니다.");
     UmLogger.Log(LogLevel::LEVEL_DEBUG, msg);
+
+    // TestAnim
+    SetAnimation(HIT, false);
 }
 
 int CharacterBase::DecrementChainRoundCount()
@@ -195,11 +198,20 @@ void CharacterBase::ImGuiDrawPropertysEvent()
     _tokenInventory.DrawImGuiDebugData();
 }
 
-void CharacterBase::PlayAnimation(AnimationType type, bool loop)
+void CharacterBase::SetAnimation(AnimationType type, bool loop)
 {
     if (_skeletalMeshRenderer)
     {
         const char* animKey = GetAnimationName(type);
         _skeletalMeshRenderer->SetCurrentAnimation(animKey, loop);
     }
+}
+
+bool CharacterBase::IsAnimationEnd()
+{
+    if (_skeletalMeshRenderer)
+    {
+        return _skeletalMeshRenderer->IsAnimationEnd();
+    }
+    return true;
 }

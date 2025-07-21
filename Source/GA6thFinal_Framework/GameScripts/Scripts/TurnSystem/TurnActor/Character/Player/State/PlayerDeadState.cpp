@@ -29,6 +29,7 @@ void PlayerDeadState::OnEnter()
 {
     Player& player = GetPlayer();
     player.Dead();
+    player.SetAnimation(CharacterBase::DEATH, false);
 }
 
 void PlayerDeadState::OnExit() 

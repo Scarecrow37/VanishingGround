@@ -187,9 +187,9 @@ void SkeletalMeshRenderer::SetCurrentAnimation(std::string_view animKey, bool lo
     }
 }
 
-void SkeletalMeshRenderer::SetAnimationLoop(bool looping) 
+void SkeletalMeshRenderer::SetAnimationLoop(bool loop) 
 {
-    ReflectFields->IsAnimationLooping = looping;
+    ReflectFields->IsAnimationLooping = loop;
 }
 
 void SkeletalMeshRenderer::SetAnimationFrame(float frame) 

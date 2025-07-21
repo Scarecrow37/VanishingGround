@@ -204,45 +204,64 @@ const char* Enemy::GetAnimationName(AnimationType type)
     EnemyType enemyType = Type;
     switch (enemyType)
     {
-        // A
-        case EnemyType::MONSTER_A:
-        {
-            switch (type)
+            // A
+            case EnemyType::MONSTER_A:
             {
-                ANIM_NAME(IDLE, "")
-
-            default:
+                switch (type)
+                {
+                    ANIM_NAME(IDLE, "")
+                    ANIM_NAME(HIT, "")
+                    ANIM_NAME(DEATH, "")
+                    ANIM_NAME(ATTACK_1, "")
+                    ANIM_NAME(ATTACK_2, "")
+                    ANIM_NAME(ATTACK_READY, "")
+                    ANIM_NAME(ATTACK_LOOP, "")
+                    ANIM_NAME(ATTACK_END, "")
+                default:
+                    break;
+                }
                 break;
             }
-            break;
-        }
-        // B
-        case EnemyType::MONSTER_B: 
-        {
-            switch (type)
+            // B
+            case EnemyType::MONSTER_B: 
             {
-                ANIM_NAME(IDLE,     "Enemy02_Anim_Idle01")
-                ANIM_NAME(HIT,      "Enemy02_Anim_GetHit")
-                ANIM_NAME(ATTACK_1, "Enemy02_Anim_Attack01")
-            default:
+                switch (type)
+                {
+                    ANIM_NAME(IDLE,     "Enemy02_Anim_Idle01")
+                    ANIM_NAME(HIT,      "Enemy02_Anim_GetHit")
+                    ANIM_NAME(DEATH,    "")
+                    ANIM_NAME(ATTACK_1, "Enemy02_Anim_Attack01")
+                    ANIM_NAME(ATTACK_2, "")
+                    ANIM_NAME(ATTACK_READY, "")
+                    ANIM_NAME(ATTACK_LOOP, "")
+                    ANIM_NAME(ATTACK_END, "")
+                default:
+                    break;
+                }
                 break;
             }
-            break;
-        }
-        // C
-        case EnemyType::MONSTER_C: 
-        {
-            switch (type)
+            // C
+            case EnemyType::MONSTER_C: 
             {
-            default:
+                switch (type)
+                {
+                    ANIM_NAME(IDLE, "")
+                    ANIM_NAME(HIT, "")
+                    ANIM_NAME(DEATH, "")
+                    ANIM_NAME(ATTACK_1, "")
+                    ANIM_NAME(ATTACK_2, "")
+                    ANIM_NAME(ATTACK_READY, "")
+                    ANIM_NAME(ATTACK_LOOP, "")
+                    ANIM_NAME(ATTACK_END, "")
+                default:
+                    break;
+                }
                 break;
             }
-            break;
-        }
-        default: 
-        {
-            break;
-        }
+            default: 
+            {
+                break;
+            }
            
     }
     return "";

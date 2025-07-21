@@ -21,7 +21,11 @@ void EnemyWaitTurnState::OnAwake() {}
 
 void EnemyWaitTurnState::OnStart() {}
 
-void EnemyWaitTurnState::OnEnter() {}
+void EnemyWaitTurnState::OnEnter() 
+{
+    auto& enemy = GetEnemy();
+    enemy.SetAnimation(CharacterBase::IDLE);
+}
 
 void EnemyWaitTurnState::OnExit() {}
 

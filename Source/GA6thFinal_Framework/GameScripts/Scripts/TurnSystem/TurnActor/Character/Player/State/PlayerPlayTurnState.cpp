@@ -27,17 +27,20 @@ void PlayerPlayTurnState::OnAwake()
 void PlayerPlayTurnState::OnStart() 
 {
     _isStart = true;
+    _isAttacking = false;
 }
 
 void PlayerPlayTurnState::OnEnter() 
 {
-
 }
 
 void PlayerPlayTurnState::OnExit() 
 {
     _isStart = false;
+    _isAttacking = false;
 }
+#include <TurnSystem/TurnMode/TurnMode.h>
+#include <TurnSystem/TurnMode/State/CombatStartPhase.h>
 
 void PlayerPlayTurnState::OnUpdate() 
 {
@@ -64,23 +67,29 @@ void PlayerPlayTurnState::OnUpdate()
 
         if (ImGui::BeginCombo("Target Enemy##9A48EE30-CB5F-48AC-9740-DDF8118AAC49", selectName.data()))
         {
-            auto enemies = GameObject::FindGameObjectsWithTag(Enemy::TAG);
-            for (auto& weak : enemies)
+            auto* turnMode = TurnMode::GetInstance();
+            if (turnMode)
             {
-                if (false == weak.expired())
+                auto* combatState = turnMode->States->CombatStartPhase;
+                if (combatState)
                 {
-                    auto enemy = weak.lock();
-                    if (enemy->IsValid())
+                    auto& enemies = combatState->GetEnemies();
+                    for (auto& enemy : enemies)
                     {
-                        auto enemyComponent = enemy->GetComponent<Enemy>();
-                        if (nullptr != enemyComponent)
+                        if (enemy)
                         {
-                            TurnActor::STATE state = enemyComponent->GetActorState();
+                            TurnActor::STATE state = enemy->GetActorState();
                             if (state != TurnActor::STATE::Dead)
                             {
-                                if (ImGui::Selectable(enemy->ToString().data()))
+                                std::string_view name = enemy->gameObject->ToString();
+                                if (ImGui::Selectable(name.data()))
                                 {
-                                    selectTarget = enemyComponent;
+                                    selectTarget = enemy;
+                                }
+                                // 비어있으면 첫 번째 적을 select
+                                if (nullptr == selectTarget)
+                                {
+                                    selectTarget = enemy;
                                 }
                             }
                         }
@@ -101,8 +110,7 @@ void PlayerPlayTurnState::OnUpdate()
                 UmLogger.Message(LogLevel::LEVEL_DEBUG,
                                  std::format("{}{}{}", u8"플레이어가 "_c_str, selectName.data(), u8"을 공격!"_c_str));
 
-                GetPlayer().EndTurn();
-                //selectTarget->Dead();
+                TestAttack(selectTarget, 30);
                 selectTarget = nullptr;
             }
             if (ImGui::Button("Kill"))
@@ -117,6 +125,25 @@ void PlayerPlayTurnState::OnUpdate()
     }
     ImGui::End();
 
-    Vector3 delta = Vector3(0, 1080, 0) * Mathf::Deg2Rad * UmTime.DeltaTime();
-    GetFSM().gameObject->transform->Rotation *= Quaternion::CreateFromYawPitchRoll(delta);
+    if (_isAttacking)
+    {
+        Player& player = GetPlayer();
+        if (true == player.IsAnimationEnd())
+        {
+            player.EndTurn();
+        }
+    }
+    //Vector3 delta = Vector3(0, 1080, 0) * Mathf::Deg2Rad * UmTime.DeltaTime();
+    //GetFSM().gameObject->transform->Rotation *= Quaternion::CreateFromYawPitchRoll(delta);
+}
+
+void PlayerPlayTurnState::TestAttack(Enemy* dest, int damage)
+{
+    Player& player = GetPlayer();
+    player.SetAnimation(CharacterBase::ATTACK_1, false);
+    _isAttacking = true;
+    if (dest)
+    {
+        dest->TakeDamage(damage);
+    }
 }

@@ -15,6 +15,7 @@ void EnemyDeadState::OnEnter()
     UmLogger.Message(LogLevel::LEVEL_TRACE, message);
     Enemy& enemy = GetEnemy();
     enemy.Dead();
+    enemy.SetAnimation(CharacterBase::DEATH, false);
 }
 
 void EnemyDeadState::OnExit() {}
