@@ -56,7 +56,8 @@ void EditorSceneTool::SetCameraToObject(std::weak_ptr<GameObject> destination)
         if (pObject->IsValid() && _camera)
         {
             _isFocusedCamera = true;
-            _focusedCameraTargetPosition = pObject->transform->Position;
+            const Matrix& world = pObject->transform->GetWorldMatrix();
+            _focusedCameraTargetPosition = world.Translation();
             _focusedCameraStartPosition  = _camera->GetPivotPosition();
         }
     }
