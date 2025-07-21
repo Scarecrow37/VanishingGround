@@ -1,17 +1,73 @@
 ﻿#pragma once
-#include "../../Base/UIComponent/UIComponent.h"
+#include "Engine/GraphicsCore/FontRenderer.h"
+#include "UI/Base/EditablePlacementUIComponent/EditablePlacementUIComponent.h"
 
-class TextElement : public UIComponent
+class TextElement : public EditablePlacementUIComponent
 {
     USING_PROPERTY(TextElement)
+
 public:
-    REFLECT_PROPERTY(Content)
-    GETTER(std::string, Content) { return ReflectFields->Content; }
-    SETTER(std::string, Content) { ReflectFields->Content = value; }
-    PROPERTY(Content)
+    TextElement();
+    TextElement(const TextElement&)            = delete;
+    TextElement& operator=(const TextElement&) = delete;
+    TextElement(TextElement&&)                 = delete;
+    TextElement& operator=(TextElement&&)      = delete;
+    ~TextElement() override;
+
+public:
+    REFLECT_PROPERTY(FilePath, Text, Color, FontSize)
+
+    GETTER_ONLY(std::string, FilePath) { return _guidRef.ToPath().string(); }
+    PROPERTY(FilePath)
+
+    GETTER(std::string, Text) { return ReflectFields->Text; }
+    SETTER(std::string, Text)
+    {
+        ReflectFields->Text = value;
+        UpdateText();
+    }
+    PROPERTY(Text)
+
+    GETTER(DirectX::SimpleMath::Color, Color) { return DirectX::SimpleMath::Color(&ReflectFields->Color[0]); }
+    SETTER(DirectX::SimpleMath::Color, Color)
+    {
+        std::memcpy(&ReflectFields->Color[0], &value.x, sizeof(ReflectFields->Color));
+        UpdateColor();
+    }
+    PROPERTY(Color)
+
+    GETTER(float, FontSize) { return ReflectFields->FontSize; }
+    SETTER(float, FontSize)
+    {
+        ReflectFields->FontSize = std::max(0.0f, value);
+        UpdateScale();
+    }
+    PROPERTY(FontSize)
 
 protected:
-    REFLECT_FIELDS_BEGIN(UIComponent)
-    std::string Content;
+    void Reset() override;
+    void DeserializedReflectEvent() override;
+    void OnPlacementChange() override;
+
+private:
+    void LoadFont() const;
+    void PassProperty() const;
+    void UpdateAll() const;
+
+    void UpdateText() const;
+    void UpdateColor() const;
+    void UpdatePosition() const;
+    void UpdateScale() const;
+
+protected:
+    REFLECT_FIELDS_BEGIN(EditablePlacementUIComponent)
+    std::string          Guid;
+    std::string          Text     = "Hello Um!";
+    std::array<float, 4> Color    = {0.0f, 0.0f, 0.0f, 1.0f};
+    float                FontSize = 1.0f;
     REFLECT_FIELDS_END(TextElement)
+
+private:
+    std::unique_ptr<FontRenderer> _renderer;
+    File::GuidRef                 _guidRef;
 };
