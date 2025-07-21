@@ -136,11 +136,7 @@ namespace File
     {
         return _fileGuid == NULL_GUID;
     }
-    /// <summary>
-    ///
-    /// </summary>
-    /// <param name="node"></param>
-    /// <returns></returns>
+
     bool MetaData::Write(YAML::Node& node) const
     {
         return true;
@@ -150,11 +146,7 @@ namespace File
     {
         return true;
     }
-    /// <summary>
-    ///
-    /// </summary>
-    /// <param name="node"></param>
-    /// <returns></returns>
+
     bool ProjectData::Write(YAML::Node& node) const
     {
         return true;
