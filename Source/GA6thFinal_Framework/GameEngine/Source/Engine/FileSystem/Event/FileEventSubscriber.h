@@ -17,36 +17,36 @@ namespace File
 
     public:
         /// <summary>FileContext가 등록된 후에 호출됩니다.</summary>
-        virtual void OnFileRegistered(const File::Path& path)                   {}
+        virtual void OnFileRegistered(const File::Path& path) override                  {}
         /// <summary>FileContext가 등록 해제되기 전에 호출됩니다.</summary>
-        virtual void OnFileUnregistered(const File::Path& path)                 {}
+        virtual void OnFileUnregistered(const File::Path& path) override                {}
         /// <summary>File이 수정되었을 때 호출됩니다.</summary>
-        virtual void OnFileModified(const Path& path)                           {}
+        virtual void OnFileModified(const Path& path) override                          {}
         /// <summary>File이 삭제되었을 때 호출됩니다.</summary>
-        virtual void OnFileRemoved(const Path& path)                            {}
+        virtual void OnFileRemoved(const Path& path) override                           {}
         /// <summary>File이 리네이밍되었을 때 호출됩니다.</summary>
-        virtual void OnFileRenamed(const Path& oldPath, const Path& newPath)    {}
-        /// <summary>File이 이동되었을 때 호출됩니다.</summary>
-        virtual void OnFileMoved(const Path& oldPath, const Path& newPath)      {}
+        virtual void OnFileRenamed(const Path& oldPath, const Path& newPath) override   {}
+        /// <summary>File이 이동되었을 때 호출됩니다.</summary>override
+        virtual void OnFileMoved(const Path& oldPath, const Path& newPath) override     {}
         
         /// <summary>프로젝트 세이브를 하기 전에 처리할 동작을 구현 (확장자가 상관 없는 공통 이벤트).</summary>
-        virtual void OnRequestedSave()                                          {}
+        virtual void OnRequestedSave()                                                  {}
         /// <summary>프로젝트 세이브를 한 후에 처리할 동작을 구현 (확장자가 상관 없는 공통 이벤트).</summary>
-        virtual void OnPostRequestedSave()                                      {}
+        virtual void OnPostRequestedSave()                                              {}
         /// <summary>프로젝트 로드를 하기 전에 처리할 동작을 구현 (확장자가 상관 없는 공통 이벤트).</summary>
-        virtual void OnRequestedLoad()                                          {}
+        virtual void OnRequestedLoad()                                                  {}
         /// <summary>프로젝트 로드를 한 후에 처리할 동작을 구현 (확장자가 상관 없는 공통 이벤트).</summary>
-        virtual void OnPostRequestedLoad()                                      {}
+        virtual void OnPostRequestedLoad()                                              {}
         /// <summary>인스펙터에 출력 요청을 처리할 동작을 구현</summary>
-        virtual void OnRequestedInspect(const File::Path& path)                 {}
+        virtual void OnRequestedInspect(const File::Path& path)                         {}
         /// <summary>파일을 여는 요청을 처리할 동작을 구현</summary>
-        virtual void OnRequestedOpen(const File::Path& path)                    {}
+        virtual void OnRequestedOpen(const File::Path& path)                            {}
         /// <summary>파일을 복사했을 때 처리할 동작을 구현</summary>
-        virtual void OnRequestedCopy(const File::Path& path)                    {}
+        virtual void OnRequestedCopy(const File::Path& path)                            {}
         /// <summary>파일을 붙여넣었을 때 처리할 동작을 구현</summary>
-        virtual void OnRequestedPaste(const File::Path& path)                   {}
+        virtual void OnRequestedPaste(const File::Path& path)                           {}
         /// <summary>파일을 드래그 드랍했을 때 처리할 동작을 구현</summary>
-        virtual void OnRequestedDragDrop(const File::Path& path)                {}
+        virtual void OnRequestedDragDrop(const File::Path& path)                        {}
 
     public:
         /// <summary>
