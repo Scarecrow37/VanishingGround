@@ -64,8 +64,9 @@ void ParticleRibbonPass::Begin(ID3D12GraphicsCommandList* commandList)
 
     if (0 < Global::particleManager->GetRibbonCount(_ownerScene->_name))
     {
-
+        _ribbonIndices.clear();
         auto totalribbonemitterindices = Global::particleManager->GetRibbonEmitterIndices(_ownerScene->_name);
+        _ribbonIndices.resize(totalribbonemitterindices.size());
         for (int i = 0; i < totalribbonemitterindices.size(); i++)
         {
             std::sort(totalribbonemitterindices[i].begin(), totalribbonemitterindices[i].end(),
