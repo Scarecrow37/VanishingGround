@@ -7,10 +7,10 @@ void PanelSlotComponent::SetPlacement(const POINT point, const SIZE size)
 {
     ReflectFields->Basefields.get().Point = point;
     ReflectFields->Basefields.get().Size  = size;
-    PassPlacement();
+    OnSetPlacement();
 }
 
-void PanelSlotComponent::PassPlacement(const POINT point, const SIZE size) const
+void PanelSlotComponent::PassScopedPlacement(const POINT point, const SIZE size) const
 {
     for (int i = 0; i < gameObject->GetComponentCount(); ++i)
     {

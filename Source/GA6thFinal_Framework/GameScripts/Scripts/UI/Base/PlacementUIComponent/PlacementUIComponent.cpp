@@ -7,7 +7,7 @@ void PlacementUIComponent::SetScopePlacement(const POINT point, const SIZE size)
 {
     ReflectFields->ScopePoint = point;
     ReflectFields->ScopeSize  = size;
-    ResetPlacement();
+    OnPlacementChange();
 }
 
 void PlacementUIComponent::ResetPlacement()
