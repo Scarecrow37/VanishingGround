@@ -45,14 +45,14 @@ void ParticleRibbonPass::Begin(ID3D12GraphicsCommandList* commandList)
     commandList->RSSetViewports(1, &customDepthTarget->GetViewPort());
     commandList->RSSetScissorRects(1, &customDepthTarget->GetScissorRect());
 
-    ComPtr<ID3D12Resource> resource = Global::particleManager->GetComputeOutputResource();
+    ComPtr<ID3D12Resource> resource = Global::particleManager->GetComputeOutputResource(_ownerScene->_name);
 
     auto computeOutputBarrior = CD3DX12_RESOURCE_BARRIER::Transition(resource.Get(), D3D12_RESOURCE_STATE_COMMON,
                                                                      D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
 
     commandList->ResourceBarrier(1, &computeOutputBarrior);
 
-    auto albedoTextures = Global::particleManager->GetActiveRibbonAlbedos();
+    auto albedoTextures = Global::particleManager->GetActiveRibbonAlbedos(_ownerScene->_name);
     std::fill(_albedoTextureIDs.begin(), _albedoTextureIDs.end(), -1);
     for (int i = 0; i < albedoTextures.size(); ++i)
     {
@@ -62,10 +62,10 @@ void ParticleRibbonPass::Begin(ID3D12GraphicsCommandList* commandList)
     _textureIDBuffer->CopyStructuredBuffer(commandList, _albedoTextureIDs.data(),
                                            static_cast<UINT>(albedoTextures.size()));
 
-    if (0 < Global::particleManager->GetRibbonCount())
+    if (0 < Global::particleManager->GetRibbonCount(_ownerScene->_name))
     {
 
-        auto totalribbonemitterindices = Global::particleManager->GetRibbonEmitterIndices();
+        auto totalribbonemitterindices = Global::particleManager->GetRibbonEmitterIndices(_ownerScene->_name);
         for (int i = 0; i < totalribbonemitterindices.size(); i++)
         {
             std::sort(totalribbonemitterindices[i].begin(), totalribbonemitterindices[i].end(),
@@ -91,7 +91,7 @@ void ParticleRibbonPass::Begin(ID3D12GraphicsCommandList* commandList)
 void ParticleRibbonPass::Draw(ID3D12GraphicsCommandList* commandList) 
 {
 
-    if (0 >= Global::particleManager->GetRibbonCount())
+    if (0 >= Global::particleManager->GetRibbonCount(_ownerScene->_name))
         return;
     commandList->SetPipelineState(_pipelineState.Get());
     commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
@@ -113,7 +113,7 @@ void ParticleRibbonPass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("gRevealTex"),
                                                 _revealageBuffer->GetUAVHandle());
 
-    auto outputResource = Global::particleManager->GetRibbonOutputResource();
+    auto outputResource = Global::particleManager->GetRibbonOutputResource(_ownerScene->_name);
     commandList->SetGraphicsRootShaderResourceView(_shader->GetRootParameterIndex("particleInfo"),
                                                    outputResource->GetGPUVirtualAddress());
 
@@ -128,7 +128,7 @@ void ParticleRibbonPass::Draw(ID3D12GraphicsCommandList* commandList)
 
     for (int i = 0; i < _ribbonIndices.size(); ++i)
     {
-        UINT ribbonSegmentCount = _ribbonIndices[i].size();
+        UINT ribbonSegmentCount = static_cast<UINT>(_ribbonIndices[i].size());
         if (2 >= ribbonSegmentCount)
             continue;
 
@@ -151,7 +151,7 @@ void ParticleRibbonPass::Draw(ID3D12GraphicsCommandList* commandList)
 
 void ParticleRibbonPass::End(ID3D12GraphicsCommandList* commandList) 
 {
-    ComPtr<ID3D12Resource> resource             = Global::particleManager->GetComputeOutputResource();
+    ComPtr<ID3D12Resource> resource             = Global::particleManager->GetComputeOutputResource(_ownerScene->_name);
     auto                   computeOutputBarrior = CD3DX12_RESOURCE_BARRIER::Transition(
         resource.Get(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COMMON);
 

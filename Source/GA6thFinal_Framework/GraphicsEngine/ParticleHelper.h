@@ -115,25 +115,55 @@ enum class VelocityScaleType
     CUSTOM
 };
 
-struct SceneParticleResource
-{
-    ComPtr<ID3D12Resource> ParticleInput;
-    ComPtr<ID3D12Resource> EmitterInfo;
-    ComPtr<ID3D12Resource> ParticleInputUpload;
-    ComPtr<ID3D12Resource> EmitterInfoUpload;
-    ComPtr<ID3D12Resource> SimulationOutput;
-
-    ComPtr<ID3D12Resource> RibbonParticleInput;
-    ComPtr<ID3D12Resource> RibbonEmitterInfo;
-    ComPtr<ID3D12Resource> RibbonParticleInputUpload;
-    ComPtr<ID3D12Resource> RibbonEmitterInfoUpload;
-    ComPtr<ID3D12Resource> RibbonSimulationOutput;
-
-    std ::unordered_map<std::string, ComPtr<ID3D12Resource>> MvpConstants;
-};
-
-   struct ribbonIndex
+struct ribbonIndex
 {
     UINT  index = -1;
     float ratio = 0;
 };
+
+
+struct ParticleUpdateResource
+{
+    std::string _name;
+
+    std::vector<class ParticleEffect*>     _sceneEffects;
+
+    std::vector<class Particle>           _totalParticles;
+    std::vector<EmitterInfo>              _emitterMatrix;
+    std::vector<Texture*>                 _activeEmitterAlbedos;
+    UINT                                  _totalCount = 0;
+
+    std::vector<class Particle>           _ribbonTotalParticles;
+    std::vector<EmitterInfo>              _ribbonEmitterMatrix;
+    std::vector<Texture*>                 _ribbonActiveEmitterAlbedos;
+    std::vector<std::vector<ribbonIndex>> _ribbonIndices;
+    UINT                                  _ribbonTotalCount = 0;
+
+    ComPtr<ID3D12Resource> _particleInput;
+    ComPtr<ID3D12Resource> _emitterInfo;
+    ComPtr<ID3D12Resource> _particleInputUpload;
+    ComPtr<ID3D12Resource> _emitterInfoUpload;
+    ComPtr<ID3D12Resource> _ribbonParticleInput;
+    ComPtr<ID3D12Resource> _ribbonEmitterInfo;
+    ComPtr<ID3D12Resource> _ribbonParticleInputUpload;
+    ComPtr<ID3D12Resource> _ribbonEmitterInfoUpload;
+
+};
+
+struct ParticleRenderResource
+{
+    std::string            _name;
+    ComPtr<ID3D12Resource> _simulationOutput;
+    ComPtr<ID3D12Resource> _ribbonSimulationOutput;
+    ComPtr<ID3D12Resource> _mvpConstant;
+};
+
+struct ParticleSceneResource
+{
+    std::string                       _name;
+    ComPtr<ID3D12GraphicsCommandList> _commandList;
+    ComPtr<ID3D12CommandAllocator>    _commandAllocator;
+    ParticleUpdateResource*           _updateResource;
+    ParticleRenderResource*           _renderResource;
+};
+

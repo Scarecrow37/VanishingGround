@@ -55,7 +55,7 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
         if (File::ShowOpenFileDialog(owner, title, L"", {{L"\0", L"*.vfx*\0"}}, false, out))
         {
             // TODO:: 모듈에 있는 시리얼라이저 가져와야 함
-            auto effect = UmParticleSerializer.Deserialize(out.front(), true);
+            auto effect = UmParticleSerializer.Deserialize(out.front(), true, "ParticleEditor");
             for (auto emitter : effect->GetEmitterList())
             {
                 emitter->_particleRenderModule->Initialize();
@@ -111,7 +111,8 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
         return;
     }
 
-    ImGui::Text("current particle count : %d", UmParticleManager->GetTotalCount());
+    ImGui::Text("current particle count : %d", UmParticleManager->GetTotalCount("ParticleEditor") +
+                                                   UmParticleManager->GetRibbonCount("ParticleEditor"));
     ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal, 2.f);
 
 

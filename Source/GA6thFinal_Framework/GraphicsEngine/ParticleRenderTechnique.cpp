@@ -27,7 +27,7 @@
 
 void ParticleRenderTechnique::Execute(ID3D12GraphicsCommandList* commandList)
 {
-    Global::particleManager->SetCurrentRenderScene(_ownerScene);
+    //Global::particleManager->SetCurrentRenderScene(_ownerScene);
     __super::Execute(commandList);
 }
 

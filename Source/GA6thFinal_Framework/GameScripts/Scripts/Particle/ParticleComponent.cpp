@@ -104,7 +104,7 @@ void ParticleComponent::LoadParticle()
         if (i == paths.size() - 1)
             UmSceneManager.ResourceManager.RequestTextureResource(this, guid, [this]() 
                 {
-                _effect = UmParticleSerializer.Deserialize(_filepath, false);
+                _effect = UmParticleSerializer.Deserialize(_filepath, false, "Game");
                 for (auto& emitter : _effect->GetEmitterList())
                 {
                     File::Path absolutePath = emitter->_particleRenderModule->GetModelAndTexturePath();

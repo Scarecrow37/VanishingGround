@@ -170,8 +170,8 @@ void GraphicsCore::Initialize(HWND hwnd, UINT width, UINT height, FeatureLevel f
     _viewManager->Initialize();
     _device->Initialize();
     _device->ResetCommands();
-    _particleManager->Initialize(MAX_PARTICLE);
     _renderer->Initialize();
+    _particleManager->Initialize(MAX_PARTICLE);
 
     auto commandList = _device->GetCommandList();
     commandList->Close();

@@ -34,13 +34,13 @@ void ParticleSpritePass::Begin(ID3D12GraphicsCommandList* commandList)
     commandList->RSSetViewports(1, &customDepthTarget->GetViewPort());
     commandList->RSSetScissorRects(1, &customDepthTarget->GetScissorRect());
 
-    ComPtr<ID3D12Resource> resource = Global::particleManager->GetComputeOutputResource();
+    ComPtr<ID3D12Resource> resource = Global::particleManager->GetComputeOutputResource(_ownerScene->_name);
 
     auto computeOutputBarrior = CD3DX12_RESOURCE_BARRIER::Transition(resource.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
 
     commandList->ResourceBarrier(1, &computeOutputBarrior);
 
-    auto albedoTextures = Global::particleManager->GetActiveAlbedos();
+    auto albedoTextures = Global::particleManager->GetActiveAlbedos(_ownerScene->_name);
     std::fill(_albedoTextureIDs.begin(), _albedoTextureIDs.end(), -1);
     for (int i = 0; i < albedoTextures.size(); ++i)
     {
@@ -71,20 +71,26 @@ void ParticleSpritePass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("gAccumTex"), _accumlateBuffer->GetUAVHandle());
     commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("gRevealTex"), _revealageBuffer->GetUAVHandle());
 
-    auto outputResource = Global::particleManager->GetComputeOutputResource();
+    auto outputResource = Global::particleManager->GetComputeOutputResource(_ownerScene->_name);
     commandList->SetGraphicsRootShaderResourceView(_shader->GetRootParameterIndex("particleInfo"), outputResource->GetGPUVirtualAddress());
 
     D3D12_GPU_DESCRIPTOR_HANDLE descHeapPtr = Global::viewManager->GetShaderResourceHeap()->GetGPUDescriptorHandleForHeapStart();
 
     commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("textures"), descHeapPtr);
 
-    UINT totalCount = Global::particleManager->GetTotalCount();
+    
+        // 그래픽스 큐는 해당 Fence값에 도달할 때() 까지 대기
+    // (일단 이렇게 하는데 이건 해당 컴퓨트 큐의 영향을 받는 명령어 직전에 호출해주는게 제일 좋음)
+    UINT64 fence = Global::particleManager->GetComputeFenceValue(_ownerScene->_name);
+    Global::commandController->WaitCommandQueue(GRAPHICS_QUEUE, COMPUTE_QUEUE, fence);
+
+    UINT totalCount = Global::particleManager->GetTotalCount(_ownerScene->_name);
     _ownerScene->_frameQuad->Render(commandList, totalCount);
 }
 
 void ParticleSpritePass::End(ID3D12GraphicsCommandList* commandList)
 {
-    ComPtr<ID3D12Resource> resource             = Global::particleManager->GetComputeOutputResource();
+    ComPtr<ID3D12Resource> resource             = Global::particleManager->GetComputeOutputResource(_ownerScene->_name);
     auto computeOutputBarrior = CD3DX12_RESOURCE_BARRIER::Transition(resource.Get(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COMMON);
 
     commandList->ResourceBarrier(1, &computeOutputBarrior);

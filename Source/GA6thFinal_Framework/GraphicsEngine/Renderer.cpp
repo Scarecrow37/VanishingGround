@@ -132,6 +132,10 @@ void Renderer::AddRenderScene(std::string_view sceneName, RenderTechniqueFlag fl
     if (RenderTechniqueFlag::PARTICLE_TECH & flag)
     {
         scene->AddRenderTechnique(std::make_unique<ParticleRenderTechnique>());
+        if ("Editor" == sceneName)
+            Global::particleManager->AddSceneResource(sceneName, "Game");
+        else
+            Global::particleManager->AddSceneResource(sceneName);
     }
     if (RenderTechniqueFlag::EDITOR_DRAW_TECH & flag)
     {
