@@ -92,6 +92,8 @@ void EditorSceneTool::OnStartGui()
 
     _camera->SetTarget(camera);
     _dockWindow = GetOwnerDockWindow();
+    _editorHierarchyTool = _dockWindow->GetGui<EditorHierarchyTool>();
+
 }
 
 void EditorSceneTool::OnPreFrameBegin()
@@ -233,10 +235,13 @@ void EditorSceneTool::UpdateKeyboardFrameRender()
 {
     if (_isDrawedManipulate)
     {
-        if (ImGui::IsKeyPressed(ImGuiKey_F, false))
+        if (_editorHierarchyTool->IsFocusFrame() || IsFocusFrame())
         {
-            auto wPtrFocused = EditorHierarchyTool::GetFocusObject();
-            SetCameraToObject(wPtrFocused);
+            if (ImGui::IsKeyPressed(ImGuiKey_F, false))
+            {
+                auto& wPtrFocused = EditorHierarchyTool::GetFocusObject();
+                SetCameraToObject(wPtrFocused);
+            }
         }
     }
 }
