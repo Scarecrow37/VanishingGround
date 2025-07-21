@@ -13,19 +13,23 @@ namespace MakeSpriteFont
     public class PrivateFontCollectionImporter : TrueTypeImporter
     {
         // Attempts to instantiate the requested GDI+ font object.
+        
+        private FontFamily _fontFamily;
+
         protected override Font CreateFont(CommandLineOptions options)
         {
             PrivateFontCollection fontCollection = new PrivateFontCollection();
             fontCollection.AddFontFile(options.SourceFont);
-            FontFamily fontFamily = fontCollection.Families.FirstOrDefault();
-            if (fontFamily == null)
+            _fontFamily = fontCollection.Families.FirstOrDefault();
+            if (_fontFamily == null)
             {
                 throw new Exception(string.Format("Unable to load font from '{0}'.", options.SourceFont));
             }
 
-            Font font = new Font(fontFamily, PointsToPixels(options.FontSize), options.FontStyle, GraphicsUnit.Pixel);
+            Font font = new Font(_fontFamily, PointsToPixels(options.FontSize), options.FontStyle, GraphicsUnit.Pixel);
 
-            string fontName = Path.GetFileNameWithoutExtension(options.SourceFont);
+            //string fontName = Path.GetFileNameWithoutExtension(options.SourceFont);
+            string fontName = _fontFamily.Name;
 
             try
             {
