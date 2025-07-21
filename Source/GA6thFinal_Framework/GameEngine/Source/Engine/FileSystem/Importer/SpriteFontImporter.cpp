@@ -11,7 +11,7 @@ Importer::SpriteFontImporter::~SpriteFontImporter()
 void Importer::SpriteFontImporter::Initialize()
 {
     // ttf와 otf, spritefont확장자를 가진 파일에 대하여 이벤트를 받습니다.
-    UmFileSystem.RegisterFileEventSubscriber(this, {".ttf", ".otf", ".spritefont"});
+    UmFileSystem.RegisterFileEventSubscriber(this, {".ttf", ".otf", ".UmFont", ".bmp"});
 
     // MakeSpriteFont DLL 로드
     _moduleHandle = LoadLibrary(L"MakeSpriteFontCLI.dll");
@@ -49,7 +49,7 @@ void Importer::SpriteFontImporter::OnRequestedDragDrop(const File::Path& path)
                 // 팝업 박스 플래그
                 int flags = ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse;
                 // 팝업 박스 사이즈
-                ImVec2 size = ImVec2(300, 400);
+                ImVec2 size = ImVec2(500, 550);
                 // 임포트 세팅 팝업 박스를 엽니다.
                 editor->OpenPopupBoxEx("SpriteFont Import", size, flags, [this]() { DrawImGuiImportSetting(); });
             }
@@ -87,7 +87,7 @@ void Importer::SpriteFontImporter::DrawImGuiImportSetting()
     ///////////////////////////////////////////////////////
     if (ImGui::CollapsingHeader("Import Settings##sprite font importer", ImGuiTreeNodeFlags_DefaultOpen))
     {
-        constexpr float separatorOffset = 130.0f; // 옵션 텍스트들의 일정한 패딩을 위한 오프셋
+        constexpr float separatorOffset = 140.0f; // 옵션 텍스트들의 일정한 패딩을 위한 오프셋
 
         // Source Path
         std::string sourcePath = _sourcePath.string();
@@ -110,14 +110,24 @@ void Importer::SpriteFontImporter::DrawImGuiImportSetting()
         ImGui::TextColored(ImVec4{1.0f, 0.0f, 0.0f, 1.0f},
                            reinterpret_cast<const char*>(u8"파일 이름은 폰트 이름과 동일해야 합니다."));
 
+        // Texture Size
+        IMGUI_SEPARATOR_TEXT("Sprite Texture Size", separatorOffset)
+        ImGui::Text("1024");
+        ImGui::SameLine();
+        ImGui::Text(" x ");
+        ImGui::SameLine();
+        ImGui::Text("1024");
+
         // Default Character
         IMGUI_SEPARATOR_TEXT("Default Character", separatorOffset);
-        ImGui::InputText("##Default Character", &_defaultCharacter, 1);
+        ImGui::InputText("##Default Character", _defaultCharacter, 2);
         if (ImGui::BeginItemTooltip())
         {
             ImGui::Text(reinterpret_cast<const char*>(u8"생성된 폰트에 문자가 없을 경우 대신 출력될 문자"));
             ImGui::EndTooltip();
         }
+        _defaultCharacter[0] =
+            static_cast<char>(std::max(static_cast<char>(0), _defaultCharacter[0])); // 음수는 허용하지 않음
 
         // Font Size
         IMGUI_SEPARATOR_TEXT("Font Size", separatorOffset);
@@ -125,9 +135,47 @@ void Importer::SpriteFontImporter::DrawImGuiImportSetting()
         _fontSize = std::max(1, _fontSize); // Clamp
 
         // Font Styles
+        // Bold
+        IMGUI_SEPARATOR_TEXT("Bold", separatorOffset);
+        ImGui::Checkbox("##Bold", &_isBold);
+        // Italic
+        IMGUI_SEPARATOR_TEXT("Italic", separatorOffset);
+        ImGui::Checkbox("##Italic", &_isItalic);
+        // StrikeThrough
+        IMGUI_SEPARATOR_TEXT("Strikeout", separatorOffset);
+        ImGui::Checkbox("##Strikeout", &_isStrikeout);
+        // Underline
+        IMGUI_SEPARATOR_TEXT("Underline", separatorOffset);
+        ImGui::Checkbox("##Underline", &_isUnderline);
 
+        // Spacing
+        // Line Spacing
+        IMGUI_SEPARATOR_TEXT("Line Spacing", separatorOffset);
+        ImGui::InputInt("##Line Spacing", &_lineSpacing);
+        if (ImGui::BeginItemTooltip())
+        {
+            ImGui::Text(reinterpret_cast<const char*>(u8"음수는 보다 좁게, 양수는 보다 넓어집니다."));
+            ImGui::EndTooltip();
+        }
+        // Character Spacing
+        IMGUI_SEPARATOR_TEXT("Character Spacing", separatorOffset);
+        ImGui::InputInt("##Character Spacing", &_characterSpacing);
+        if (ImGui::BeginItemTooltip())
+        {
+            ImGui::Text(reinterpret_cast<const char*>(u8"음수는 보다 좁게, 양수는 보다 넓어집니다."));
+            ImGui::EndTooltip();
+        }
 
+        // Sharp Mode
+        IMGUI_SEPARATOR_TEXT("Sharp Mode", separatorOffset);
+        ImGui::Checkbox("##Sharp Mode", &_isSharp);
+        if (ImGui::BeginItemTooltip())
+        {
+            ImGui::Text(reinterpret_cast<const char*>(u8"선명한 안티애일리어싱을 사용합니다."));
+            ImGui::EndTooltip();
+        }
 
+        ImGui::Separator();
 
         if (ImGui::Button("Import"))
         {
@@ -139,6 +187,15 @@ void Importer::SpriteFontImporter::DrawImGuiImportSetting()
             {
                 UmLogger.Log(LogLevel::LEVEL_ERROR, exception.what());
             }
+            Reset();
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::SameLine();
+        ImGui::Spacing();
+        ImGui::SameLine();
+        if (ImGui::Button("Cancel"))
+        {
+            Reset();
             ImGui::CloseCurrentPopup();
         }
     }
@@ -155,7 +212,9 @@ void Importer::SpriteFontImporter::ImportFont()
     _options.push_back(_sourcePath.wstring());
 
     // option2. Output
-    const std::wstring outputFileName = _sourcePath.filename().replace_extension(".spritefont").wstring();
+    File::Path         fileName       = _sourcePath.filename();
+    File::Path         outputFile     = fileName.replace_extension(".UmFont");
+    const std::wstring outputFileName = outputFile.wstring();
     _options.push_back(std::wstring(_importPath.wstring() + L'/' + outputFileName));
 
     // option3. CharacterRegion
@@ -165,16 +224,78 @@ void Importer::SpriteFontImporter::ImportFont()
     _options.push_back(koRegion);
 
     // option4. DefaultCharacter
+    if (_defaultCharacter[0] != INITIAL_DEFAULT_CHARACTER)
+    {
+        const std::wstring defaultChar = L"/DefaultCharacter:" + std::to_wstring(_defaultCharacter[0]);
+        _options.push_back(defaultChar);
+    }
 
+    // option5. FontSize
+    if (_fontSize != INITIAL_FONT_SIZE)
+    {
+        const std::wstring fontSize = L"/FontSize:" + std::to_wstring(_fontSize);
+        _options.push_back(fontSize);
+    }
 
-    // option4. FontSize
-    const std::wstring fontSize = L"/FontSize:" + std::to_wstring(_fontSize);
-    _options.push_back(fontSize);
+    // option6. FontStyle
+    std::wstring fontStyle(L"/FontStyle:Regular");
+    if (_isBold)
+        fontStyle += L",Bold";
+    if (_isItalic)
+        fontStyle += L",Italic";
+    if (_isUnderline)
+        fontStyle += L",Underline";
+    if (_isStrikeout)
+        fontStyle += L",Strikeout";
+    _options.push_back(fontStyle);
 
-    // option5. FontStyle
+    // option7. LineSpacing
+    if (_lineSpacing != INITIAL_LINE_SPACING)
+    {
+        const std::wstring lineSpacing = L"/LineSpacing:" + std::to_wstring(_lineSpacing);
+        _options.push_back(lineSpacing);
+    }
 
+    // option8. CharacterSpacing
+    if (_characterSpacing != INITIAL_CHARACTER_SPACING)
+    {
+        const std::wstring characterSpacing = L"/CharacterSpacing:" + std::to_wstring(_characterSpacing);
+        _options.push_back(characterSpacing);
+    }
 
+    // option9. SharpMode
+    if (_isSharp)
+    {
+        _options.push_back(L"/Sharp");
+    }
+
+    // option10. Fast Pack
+    _options.push_back(L"/FastPack");
+
+#ifdef _DEBUG
+    // option11. DebugOutputSpriteSheet
+    File::Path   debugFile     = fileName.replace_extension(L".bmp");
+    std::wstring debugFileName = debugFile.wstring();
+    std::wstring debugOutputSpriteSheetOption =
+        std::wstring(L"/DebugOutputSpriteSheet:" + _importPath.wstring() + L'/' + debugFileName);
+
+    _options.push_back(debugOutputSpriteSheetOption);
+#endif
 
     if (int result = _makeSpriteFont(_options); 0 != result)
         throw std::exception("Failed to import sprite font. MakeSpriteFont returned non-zero result.");
+}
+
+void Importer::SpriteFontImporter::Reset()
+{
+    _defaultCharacter[0] = INITIAL_DEFAULT_CHARACTER;
+    _defaultCharacter[1] = '\0'; // 문자열 종료 문자
+    _fontSize            = INITIAL_FONT_SIZE;
+    _isBold              = false;
+    _isItalic            = false;
+    _isUnderline         = false;
+    _isStrikeout         = false;
+    _lineSpacing         = INITIAL_LINE_SPACING;
+    _characterSpacing    = INITIAL_CHARACTER_SPACING;
+    _isSharp             = false;
 }
