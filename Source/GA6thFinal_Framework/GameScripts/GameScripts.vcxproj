@@ -322,6 +322,7 @@
     <ClInclude Include="Scripts\Stats\Player\PlayerStats.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnActionFactory.h" />
+    <ClInclude Include="Scripts\UI\Panels\Anchor\AnchorPanel.h" />
     <ClInclude Include="Scripts\WeaponSystem\WeaponTable\WeaponTableComponent.h" />
     <ClInclude Include="Scripts\Stats\Weapon\WeaponStats.h" />
     <ClInclude Include="Scripts\Test\Component\TestComponent.h" />
@@ -377,7 +378,7 @@
     <ClInclude Include="Scripts\UI\Elements\Dummy\DummyElement.h" />
     <ClInclude Include="Scripts\UI\Elements\Image\ImageElement.h" />
     <ClInclude Include="Scripts\UI\Elements\Text\TextElement.h" />
-    <ClInclude Include="Scripts\UI\Panels\GridPanel.h" />
+    <ClInclude Include="Scripts\UI\Panels\Grid\GridPanel.h" />
     <ClInclude Include="Scripts\UI\UIRoot\UIRoot.h" />
     <ClInclude Include="Scripts\Token\Object\Stun\StunToken.h" />
     <ClInclude Include="UmScriptCore.h" />
@@ -432,6 +433,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Scripts\UI\Panels\Anchor\AnchorPanel.cpp" />
     <ClCompile Include="Scripts\WeaponSystem\WeaponTable\WeaponTableComponent.cpp" />
     <ClCompile Include="Scripts\Stats\Weapon\WeaponStats.cpp" />
     <ClCompile Include="Scripts\Test\Component\TestComponent.cpp" />
@@ -484,7 +486,7 @@
     <ClCompile Include="Scripts\UI\Elements\Dummy\DummyElement.cpp" />
     <ClCompile Include="Scripts\UI\Elements\Image\ImageElement.cpp" />
     <ClCompile Include="Scripts\UI\Elements\Text\TextElement.cpp" />
-    <ClCompile Include="Scripts\UI\Panels\GridPanel.cpp" />
+    <ClCompile Include="Scripts\UI\Panels\Grid\GridPanel.cpp" />
     <ClCompile Include="Scripts\UI\UIRoot\UIRoot.cpp" />
     <ClCompile Include="Scripts\Token\Object\Stun\StunToken.cpp" />
     <ClCompile Include="Scripts\Token\TokenSystem.cpp" />
