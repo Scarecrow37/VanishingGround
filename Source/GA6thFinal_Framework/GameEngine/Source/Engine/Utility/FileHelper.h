@@ -22,10 +22,10 @@ namespace File
         MOVED,    // 이동
     };
 
-    static void OutputLog(const std::wstring& msg)
+    static inline void OutputLog(std::wstring_view msg)
     {
 #ifdef _DEBUG
-        std::wstring debugMsg = L"FileSystem: " + msg + L'\n';
+        std::wstring debugMsg = std::format(L"FileSystem: {}\n", msg);
         /* 해당 함수는 스레드 세이프 함. */
         OutputDebugString(debugMsg.c_str());
 #endif
