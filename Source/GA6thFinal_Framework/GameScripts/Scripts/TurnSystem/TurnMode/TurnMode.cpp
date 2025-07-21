@@ -3,6 +3,7 @@
 #include "GameCore/FSM/FiniteStateMachine.h"
 #include "TurnSystem/TurnActor/TurnActor.h"
 #include <WeaponSystem/WeaponSystem.h>
+#include <DamageSystem/DamageSystem.h>
 
 //Condition
 #include "GameCore/FSM/AlwaysTransitionCondition.h"
@@ -129,6 +130,16 @@ TurnActor* TurnMode::PopTurnList()
         _currTurnActor = nullptr;
     }
     return _currTurnActor;
+}
+
+int TurnMode::GetPendingActorCount()
+{ 
+    std::erase_if(_turnList, [](const std::pair<int, TurnActor*>& pair) 
+    { 
+        const auto& [order, actor] = pair;
+        return TurnActor::STATE::Dead == actor->GetActorState();
+    });
+    return (int)_turnList.size();
 }
 
 void TurnMode::BuildTurnModeFSM() 
@@ -313,7 +324,8 @@ void TurnMode::Battle::operator()(Player& attacker, Enemy& target)
             action.OnPlayerBattleStart(attacker, playerStats, weaponStats, target, enemyStats);
         });
 
-
+        int damage = DamageSystem::CalculateDamage(playerStats, weaponStats, enemyStats);
+        target.TakeDamage(damage);
     }
 }
 

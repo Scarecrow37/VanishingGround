@@ -209,7 +209,7 @@ void GBufferPass::InitShaderAndPSO()
     psodesc.RTVFormats[GBuffer::WORLDPOSITION] = DXGI_FORMAT_R32G32B32A32_FLOAT;
     psodesc.RTVFormats[GBuffer::DEPTH]         = DXGI_FORMAT_R32_FLOAT;
     psodesc.RTVFormats[GBuffer::CUSTOMDEPTH]   = DXGI_FORMAT_R32_UINT;
-    psodesc.DSVFormat                          = DXGI_FORMAT_D24_UNORM_S8_UINT;
+    psodesc.DSVFormat                          = _ownerScene->_depthStencilView->GetFormat();
     psodesc.pRootSignature                     = _shaders[STATIC]->GetRootSignature();
     psodesc.SampleDesc                         = {1, 0};
     psodesc.VS                                 = _shaders[STATIC]->GetShaderByteCode(ShaderBuilder::Type::VS);

@@ -10,9 +10,7 @@ CheckTurnEmpty::~CheckTurnEmpty() {}
 
 void CheckTurnEmpty::OnAwake() 
 {
-    Order = -1;
 }
-
 
 void CheckTurnEmpty::OnStart() 
 {

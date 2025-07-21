@@ -18,6 +18,16 @@ public:
         ACTION_SELECTION,
         //QTE 선택 상태
         QUICK_TIME_EVENT,
+        //QTE 연출 상태
+        ATTACK_EVENT
+    };
+
+    //플레이어가 공격할 적 위치
+    enum class AttackTarget
+    {
+        LEFT = 0,
+        MIDDLE = 1,
+        RIGHT = 2
     };
 
     PlayerPlayTurnState();
@@ -35,11 +45,24 @@ protected:
 
 private:
     void UpdateAttackButtonHeld(float dt);
-    void PressedAButton(const Input::Controller& controller);
-    void ReleasedAButton(const Input::Controller& controller);
+    void PressedButtonA(const Input::Controller& controller);
+    void ReleasedButtonA(const Input::Controller& controller);
+    
+    void PressedButtonX(const Input::Controller& controller);
+    void ReleasedButtonX(const Input::Controller& controller);
+
+    void PressedButtonY(const Input::Controller& controller);
+    void ReleasedButtonY(const Input::Controller& controller);
+
+    void PressedButtonB(const Input::Controller& controller);
+    void ReleasedButtonB(const Input::Controller& controller);
     
     void UpdateActionSelectionUI(float dt);
     void UpdateQuickTimeEventUI(float dt);
+    void UpdateAttackEventUI(float dt);
+
+    bool IsAttackable() const;
+    void PushAttackTarget(AttackTarget target);
 
 private:
     bool       _setImguiPosCenter;
@@ -48,4 +71,5 @@ private:
     float      _attackButtonHeldTime;
     float      _attackButtonHeldWaitTime;
     int        _attackRemaining;
+    std::vector<AttackTarget> _attackTargets;
 };
