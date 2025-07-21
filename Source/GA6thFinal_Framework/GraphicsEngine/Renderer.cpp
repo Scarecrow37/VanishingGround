@@ -457,21 +457,22 @@ void Renderer::CreateDefaultRenderTarget()
     std::initializer_list<std::string_view> defaultRenderTargets = {"1024x1024", "512x512", "256x256", "128x128", "64x64", "32x32", "16x16", "8x8", "4x4", "2x2", "1x1"};
     SharedResource<RenderTarget> renderTarget;
     auto&                        multiRenderTargetManager = Global::multiRenderTargetManager;
-    DXGI_MODE_DESC               mode{.Width = 1024, .Height = 1024, .Format = DXGI_FORMAT_R32G32B32A32_FLOAT};
+    auto desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, 1024, 1024, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
 
     for (auto& defaultRenderTarget : defaultRenderTargets)
     {
         renderTarget = MakeSharedResource<RenderTarget>();
-        renderTarget->Initialize(mode, 0.f);
+        renderTarget->Initialize(desc, 0.f);
 
-        mode.Width >>= 1;
-        mode.Height >>= 1;
+        desc.Width >>= 1;
+        desc.Height >>= 1;
 
         multiRenderTargetManager->AddRenderTarget(defaultRenderTarget, renderTarget);
         multiRenderTargetManager->AddRenderTargetGroup("Mipmap", defaultRenderTarget.data());
     }
 
-    mode = Global::device->GetMode();
-    mode.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-    multiRenderTargetManager->InitializeRenderTargetPool(4, mode);
+    auto mode = Global::device->GetMode();
+    desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    desc        = CD3DX12_RESOURCE_DESC::Tex2D(desc.Format, mode.Width, mode.Height, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
+    multiRenderTargetManager->InitializeRenderTargetPool(4, desc);
 }

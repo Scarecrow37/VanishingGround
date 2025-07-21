@@ -48,7 +48,9 @@ void RenderScene::InitializeRenderScene()
     mode.Format         = DXGI_FORMAT_R32G32B32A32_FLOAT;
 
     _accumulationBuffer = MakeSharedResource<UnorderedAccessView>();
-    _accumulationBuffer->Initialize(mode);
+
+    auto desc = CD3DX12_RESOURCE_DESC::Tex2D(mode.Format, mode.Width, mode.Height, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+    _accumulationBuffer->Initialize(desc);
     _accumulationBuffer->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
     Global::dxResourceManager->AddResource(_accumulationBuffer);
@@ -363,18 +365,19 @@ void RenderScene::CreateRenderTarget()
     auto                          mode                     = Global::device->GetMode();
     auto&                         multiRenderTargetManager = Global::multiRenderTargetManager;
     SharedResource<RenderTarget>  renderTarget;
-    mode.Format           = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    mode.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    auto desc = CD3DX12_RESOURCE_DESC::Tex2D(mode.Format, mode.Width, mode.Height, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
 
     _meshRenderTargetName = _name + "_MeshRenderTarget";
     renderTarget          = MakeSharedResource<RenderTarget>();
-    renderTarget->Initialize(mode, 0.247f);
+    renderTarget->Initialize(desc, 0.247f);
     renderTarget->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
     multiRenderTargetManager->AddRenderTarget(_meshRenderTargetName, renderTarget);
 
     _finalTargetName = _name + "_FinalTarget";
     renderTarget     = MakeSharedResource<RenderTarget>();
-    renderTarget->Initialize(mode, 0.247f);
+    renderTarget->Initialize(desc, 0.247f);
     renderTarget->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
     multiRenderTargetManager->AddRenderTarget(_finalTargetName, renderTarget);
@@ -386,7 +389,8 @@ void RenderScene::CreateDepthStencil()
 
     auto mode = Global::device->GetMode();
     mode.Format = DXGI_FORMAT_R24G8_TYPELESS;
-    _depthStencilView->Initialize(mode);
+    auto desc   = CD3DX12_RESOURCE_DESC::Tex2D(mode.Format, mode.Width, mode.Height, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
+    _depthStencilView->Initialize(desc);
 
     Global::dxResourceManager->AddResource(_depthStencilView);
 }

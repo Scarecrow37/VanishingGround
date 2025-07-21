@@ -67,10 +67,12 @@ void ParticleRenderTechnique::CreateWBOITResources()
 
     DXGI_MODE_DESC mode = Global::device->GetMode();
     mode.Format         = DXGI_FORMAT_R16G16B16A16_FLOAT;
-    _accumlateBuffer->Initialize(mode);
+    auto desc = CD3DX12_RESOURCE_DESC::Tex2D(mode.Format, mode.Width, mode.Height, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+    _accumlateBuffer->Initialize(desc);
 
     mode.Format = DXGI_FORMAT_R16_FLOAT;
-    _revealageBuffer->Initialize(mode);
+    desc        = CD3DX12_RESOURCE_DESC::Tex2D(mode.Format, mode.Width, mode.Height, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+    _revealageBuffer->Initialize(desc);
     _accumlateBuffer->SetName(L"particle accum");
     _revealageBuffer->SetName(L"particle reveal");
 }

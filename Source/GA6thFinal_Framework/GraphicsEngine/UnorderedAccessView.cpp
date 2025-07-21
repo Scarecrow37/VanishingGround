@@ -1,14 +1,16 @@
 ﻿#include "pch.h"
 #include "UnorderedAccessView.h"
 
-void UnorderedAccessView::Initialize(DXGI_MODE_DESC mode)
+void UnorderedAccessView::Initialize(const D3D12_RESOURCE_DESC& desc, D3D12_UAV_DIMENSION uavDimension, D3D12_SRV_DIMENSION srvDimension)
 {
     Global::viewManager->AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _uavHandle);
     Global::viewManager->AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _srvHandle);
     _ID = Global::viewManager->GetNumShaderResourceView() - 1;
 
+    _desc = desc;
+    _srvDimension = srvDimension;
+    _uavDimension = uavDimension;
     _currentState = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
-    _mode         = mode;
 
     CreateUnorderedAccessView();
 }
@@ -25,10 +27,11 @@ void UnorderedAccessView::ResourceBarrier(ID3D12GraphicsCommandList* commandList
     commandList->ResourceBarrier(1, &br);
 }
 
-void UnorderedAccessView::ResizeResource(DXGI_MODE_DESC mode)
+void UnorderedAccessView::ResizeResource(Resolution resolution)
 {
     _currentState = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
-    _mode = mode;
+    _desc.Width = resolution.Width;
+    _desc.Height = resolution.Height;
 
     CreateUnorderedAccessView();
 }
@@ -37,26 +40,25 @@ void UnorderedAccessView::CreateUnorderedAccessView()
 {
     ID3D12Device* device = Global::device->GetDevice();
 
-    D3D12_RESOURCE_DESC desc = {};
-    desc.Dimension           = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-    desc.Width               = _mode.Width;
-    desc.Height              = _mode.Height;
-    desc.DepthOrArraySize    = 1;
-    desc.MipLevels           = 1;
-    desc.Format              = _mode.Format;
-    desc.SampleDesc.Count    = 1;
-    desc.Layout              = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-    desc.Flags               = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
-
     CD3DX12_HEAP_PROPERTIES heapProperties(D3D12_HEAP_TYPE_DEFAULT);
     HRESULT                 hr = S_OK;
-    hr                         = device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &desc,
+    hr                         = device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &_desc,
                                                                  D3D12_RESOURCE_STATE_UNORDERED_ACCESS, nullptr, IID_PPV_ARGS(&_resource));
     FAILED_CHECK_MESSAGE(hr, L"UnorderedAccessView::Initialize CreateCommittedResource Failed");
 
     D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
-    uavDesc.Format                           = _mode.Format;
-    uavDesc.ViewDimension                    = D3D12_UAV_DIMENSION_TEXTURE2D;
+    uavDesc.Format                           = _desc.Format;
+    uavDesc.ViewDimension                    = _uavDimension;
+
+    switch (_uavDimension)
+    {
+    case D3D12_UAV_DIMENSION_TEXTURE2DARRAY:
+        uavDesc.Texture2DArray.MipSlice        = 0;
+        uavDesc.Texture2DArray.FirstArraySlice = 0;
+        uavDesc.Texture2DArray.ArraySize  = _desc.DepthOrArraySize;
+        uavDesc.Texture2DArray.PlaneSlice = 0;
+        break;
+    }
 
     device->CreateUnorderedAccessView(_resource.Get(), nullptr, &uavDesc, _uavHandle.CPU);
 
@@ -73,8 +75,8 @@ void UnorderedAccessView::CreateUnorderedAccessView()
     device->CreateUnorderedAccessView(_resource.Get(), nullptr, &uavDesc, _uavCPUHandle);
 
     D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-    srvDesc.Format                          = _mode.Format;
-    srvDesc.ViewDimension                   = D3D12_SRV_DIMENSION_TEXTURE2D;
+    srvDesc.Format                          = _desc.Format;
+    srvDesc.ViewDimension                   = _srvDimension;
     srvDesc.Texture2D.MipLevels             = 1;
     srvDesc.Shader4ComponentMapping         = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 

@@ -13,11 +13,11 @@ public:
     const UINT                         GetID() const { return _ID; }
 
 public:
-    void Initialize(DXGI_MODE_DESC mode);
+    void Initialize(const D3D12_RESOURCE_DESC& desc, D3D12_UAV_DIMENSION uavDimension = D3D12_UAV_DIMENSION_TEXTURE2D, D3D12_SRV_DIMENSION srvDimension = D3D12_SRV_DIMENSION_TEXTURE2D);
     void InitializeForBuffer(UINT elementSize, UINT elementCount);
     void ClearUnorderedAccessView(ID3D12GraphicsCommandList* commandList);
     void ResourceBarrier(ID3D12GraphicsCommandList* commandList);    
-    void ResizeResource(DXGI_MODE_DESC mode) override;
+    void ResizeResource(Resolution resolution) override;
 
 private:
     void CreateUnorderedAccessView();
@@ -28,4 +28,6 @@ private:
     D3D12_CPU_DESCRIPTOR_HANDLE  _uavCPUHandle;
     ComPtr<ID3D12DescriptorHeap> _cpuDescriptorHeap;
     UINT                         _ID{0};
+    D3D12_UAV_DIMENSION          _uavDimension{D3D12_UAV_DIMENSION_UNKNOWN};
+    D3D12_SRV_DIMENSION          _srvDimension{D3D12_SRV_DIMENSION_UNKNOWN};
 };
