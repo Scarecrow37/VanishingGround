@@ -318,6 +318,12 @@ public:
         /// <param name="sceneManager"></param>
         /// <returns></returns>
         static constexpr bool IsPlayMode(ESceneManager& sceneManager) { return sceneManager._isPlay; }
+
+        /// <summary>
+        /// 런타임에 생성된 메시 컴포넌트를 push합니다. 메시 컴포넌트 생성자에서만 사용합니다.
+        /// </summary>
+        /// <param name="component"></param>
+        static void PushRuntimeMeshComponent(MeshComponent* component);
     };
 
 public:

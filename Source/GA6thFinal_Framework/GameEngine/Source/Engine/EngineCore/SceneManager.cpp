@@ -543,6 +543,16 @@ ESceneManager::InputSystem& ESceneManager::Engine::GetInputSystem()
     return UmSceneManager._inputSystem;
 }
 
+void ESceneManager::Engine::PushRuntimeMeshComponent(MeshComponent* component) 
+{
+    if (component->_gameObject->IsValid())
+    {
+        const auto&                  componentWeak = component->GetWeakPtr().lock();
+        std::weak_ptr<MeshComponent> weak          = std::static_pointer_cast<MeshComponent>(componentWeak);
+        UmSceneManager._runtimeMeshComponents.push_back(weak);
+    }
+}
+
 void ESceneManager::CreateEmptySceneAndLoad(std::string_view name, std::string_view outPath, const std::function<void()>& loadEvent) 
 {
     if (UmComponentFactory.HasScript() == false)
@@ -1036,11 +1046,6 @@ void ESceneManager::ObjectsAddRuntime()
             CameraComponent* camera = static_cast<CameraComponent*>(component.get());
             std::shared_ptr<Camera> newCamera(new Camera);
             camera->SetTarget(newCamera);
-        }
-        else if (component->_type == Component::TYPE::RENDER)
-        {
-            auto sptrComponent = component->GetWeakPtr().lock();
-            UmSceneManager._runtimeMeshComponents.push_back(std::static_pointer_cast<MeshComponent>(sptrComponent));
         }
         component->UpdateEnableInHierarchy();
     }

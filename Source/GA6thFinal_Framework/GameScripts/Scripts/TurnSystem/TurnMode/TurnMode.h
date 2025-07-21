@@ -55,7 +55,7 @@ public:
     void SortTurnList();
 
     /// <summary>
-    /// 가장 우선순위가 높은 TurnActor를 List에서 지우고 턴을 실행합니다.
+    /// 가장 우선순위가 높은 TurnActor를 List에서 지우고 CurrTurnActor 로 설정합니다.
     /// </summary>
     /// <returns></returns>
     TurnActor* PopTurnList();
@@ -69,7 +69,7 @@ public:
     /// 턴 대기중인 Actor의 개수를 반환합니다.
     /// </summary>
     /// <returns></returns>
-    int GetPendingActorCount() const { return (int)_turnList.size(); }
+    int GetPendingActorCount();
 
 public:
     struct Battle
