@@ -21,7 +21,7 @@ private:
     void CreateShaderResource();
     void UpdateStaticMeshVIBufferID(ID3D12GraphicsCommandList* commandList);
 
-    void WriteCommand();
+    void WriteCommand(ID3D12GraphicsCommandList* cmdList);
 
 private:
     bool                               _init = false;

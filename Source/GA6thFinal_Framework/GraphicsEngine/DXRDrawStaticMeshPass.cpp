@@ -48,7 +48,7 @@ void DXRDrawStaticMeshPass::End(ID3D12GraphicsCommandList* commandList)
     auto  resource               = Global::viewManager->GetShaderResourceHeap()->GetGPUDescriptorHandleForHeapStart();
     auto  cameraData             = _ownerScene->_cameraBuffer->GetGPUVirtualAddress();
     auto& frameResource          = _ownerScene->_frameResources[currentBackBufferIndex];
-    WriteCommand();
+    WriteCommand(commandList);
 }
 
  void DXRDrawStaticMeshPass::CreateStateObject()
@@ -271,7 +271,7 @@ void DXRDrawStaticMeshPass::CreateShaderResource()
     _outputResourceUAV                 = MakeSharedResource<UnorderedAccessView>();
     DXGI_MODE_DESC mode                = Global::device->GetMode();
 
-    auto desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, mode.Width, mode.Height, 1, 1, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+    auto desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, mode.Width, mode.Height, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
 
     _outputResourceUAV->Initialize(desc);
     Global::dxResourceManager->AddResource(_outputResourceUAV);
@@ -308,9 +308,12 @@ void DXRDrawStaticMeshPass::UpdateStaticMeshVIBufferID(ID3D12GraphicsCommandList
         static_cast<UINT>(_indexBufferIDs.size()));
 }
 
-void DXRDrawStaticMeshPass::WriteCommand()
+void DXRDrawStaticMeshPass::WriteCommand(ID3D12GraphicsCommandList* cmdList)
 {
-    ComPtr<ID3D12GraphicsCommandList4> cmdList4 = Global::device->GetCommandList4();
+    ComPtr<ID3D12GraphicsCommandList4> cmdList4;
+    HRESULT hr = cmdList->QueryInterface(IID_PPV_ARGS(cmdList4.GetAddressOf()));
+    FAILED_CHECK_MESSAGE(
+        hr, L"DXRDrawStaticMeshPass::WriteCommand() failed to QueryInterface for ID3D12GraphicsCommandList4");
     _outputResourceUAV->TransitionResource(cmdList4.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
     D3D12_DISPATCH_RAYS_DESC rayTraceDesc{};
