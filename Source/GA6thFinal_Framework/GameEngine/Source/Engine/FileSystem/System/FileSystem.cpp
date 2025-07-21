@@ -463,16 +463,10 @@ void EFileSystem::DrawGuiSettingEditor()
         }
         ImGui::EndMenuBar();
     }
-
-    ImGui::Text("Debug Level: ");
-    ImGui::DragInt("##DragDebuglevel", &_setting.DebugLevel, 0, 3);
-
-    static char metaExt[128] = "";
-    strcpy_s(metaExt, _setting.MetaExt.c_str());
-    ImGui::Text("Meta Extension: ");
-    if (ImGui::InputText("##InputMetaExt", metaExt, IM_ARRAYSIZE(metaExt)))
+    if (ImGui::CollapsingHeader("Debug##CollapsingHeader"))
     {
-        _setting.MetaExt = metaExt;
+        ImGuiHelper::TextWithVerticalSeparator("Debug Level");
+        ImGui::SliderInt("##Debug Level", &_setting.DebugLevel, 0, 3);
     }
 }
 
