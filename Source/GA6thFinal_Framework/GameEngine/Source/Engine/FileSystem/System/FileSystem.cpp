@@ -40,19 +40,19 @@ bool EFileSystem::CreateProject(const File::Path& path)
 
     if (true == isExists)
     {
-        OutputLog(L"failed to EFileSystem::CreateProject. already exists to project.");
+        OutputLog(L"Failed to EFileSystem::CreateProject. Already exists to project.");
         return false;
     }
 
     if (false == isValid)
     {
-        OutputLog(L"failed to EFileSystem::CreateProject. file is unvaild extension.");
+        OutputLog(L"Failed to EFileSystem::CreateProject. File is unvaild extension.");
         return false;
     }
 
     if (false == _projectData.Create(path, false))
     {
-        OutputLog(L"failed to EFileSystem::CreateProject. failed to create project file.");
+        OutputLog(L"Failed to EFileSystem::CreateProject. Failed to create project file.");
         return false;
     }
 
@@ -90,15 +90,15 @@ bool EFileSystem::LoadProject(const File::Path& path)
 
     if (false == result.first)
     {
-        std::wstring msg    = result.second;
-        std::wstring title  = L"Error";
+        const std::wstring& msg  = result.second;
+        const std::wstring title = L"Project load failed";
         int result = MessageBox(
             GetFocus(),                 // 부모 창 핸들 (NULL로 하면 독립적 메시지 박스)
             msg.c_str(),                // 메시지 텍스트
             title.c_str(),              // 메시지 박스 제목
             MB_OK | MB_ICONWARNING      // 스타일: 예/아니오 버튼 + 질문 아이콘
         );
-
+        File::OutputLog(msg);
         return false;
     }
 
@@ -134,10 +134,15 @@ bool EFileSystem::LoadProject(const File::Path& path)
 bool EFileSystem::SaveProject()
 {
     if (true == _rootPath.empty())
+    {
+        OutputLog(L"Failed to EFileSystem::SaveProject. Root path is empty.");
         return false;
+    }
+        
 
     if (false == fs::exists(_rootPath))
     {
+        OutputLog(L"Failed to EFileSystem::SaveProject. Root path is Invalid.");
         return false;
     }
 
