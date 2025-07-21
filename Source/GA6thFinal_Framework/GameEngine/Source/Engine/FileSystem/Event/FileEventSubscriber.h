@@ -26,7 +26,7 @@ namespace File
         virtual void OnFileRemoved(const Path& path) override                           {}
         /// <summary>File이 리네이밍되었을 때 호출됩니다.</summary>
         virtual void OnFileRenamed(const Path& oldPath, const Path& newPath) override   {}
-        /// <summary>File이 이동되었을 때 호출됩니다.</summary>override
+        /// <summary>File이 이동되었을 때 호출됩니다.</summary>
         virtual void OnFileMoved(const Path& oldPath, const Path& newPath) override     {}
         
         /// <summary>프로젝트 세이브를 하기 전에 처리할 동작을 구현 (확장자가 상관 없는 공통 이벤트).</summary>
