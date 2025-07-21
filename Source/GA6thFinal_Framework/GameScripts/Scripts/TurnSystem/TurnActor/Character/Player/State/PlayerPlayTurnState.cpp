@@ -48,10 +48,11 @@ void PlayerPlayTurnState::OnStart()
 
 void PlayerPlayTurnState::OnEnter() 
 {
-    _inputState = InputState::ACTION_SELECTION;
-    _isDownAttackButton = false;
-    _setImguiPosCenter = true;
-    _attackRemaining   = 0;
+    _inputState           = InputState::ACTION_SELECTION;
+    _isDownAttackButton   = false;
+    _setImguiPosCenter    = true;
+    _attackButtonHeldTime = 0;
+    _attackRemaining      = 0;
 }
 
 void PlayerPlayTurnState::OnExit() 
