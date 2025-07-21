@@ -19,7 +19,7 @@ void UI25DPass::Initialize(RenderScene* ownerScene, ID3D12GraphicsCommandList* c
     _shader->BeginBuild();
     _shader->SetShader(L"../Shaders/vs_ui_fr.hlsl", ShaderBuilder::Type::VS);
     _shader->SetShader(L"../Shaders/ps_ui.hlsl", ShaderBuilder::Type::PS);
-    _shader->EndBuild(ShaderBuilder::BindType::TABLE);
+    _shader->EndBuild();
 
     ID3D12Device* device = Global::device->GetDevice();
 

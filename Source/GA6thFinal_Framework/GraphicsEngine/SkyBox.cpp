@@ -2,7 +2,16 @@
 #include "SkyBox.h"
 #include "Box.h"
 
-SkyBox::SkyBox() : _box{std::make_unique<Box>()}, _hasTexture{false} {}
+constexpr UINT CUBE_MAP_SIZE        = 512;
+constexpr UINT IRRADIANCE_MAP_SIZE  = 32;
+constexpr UINT PREFILTERED_MAP_SIZE = 256;
+constexpr UINT BRDF_LUT_SIZE        = 512;
+
+SkyBox::SkyBox()
+    : _box{std::make_unique<Box>()}
+    , _hasTexture{false}
+{
+}
 
 SkyBox::~SkyBox() {}
 
@@ -12,28 +21,26 @@ void SkyBox::Initialize()
     HRESULT hr = S_OK;
         
     FAILED_CHECK_MESSAGE(hr, L"SkyBox::Initialize device->CreateDescriptorHeap Failed");
-    CreateComputePSO();
+    CreatePipelineState();
 
-    _cubeMap = std::make_unique<UnorderedAccessView>();
-    _irradianceMap = std::make_unique<UnorderedAccessView>();
+    _cubeMap        = std::make_unique<UnorderedAccessView>();
+    _irradianceMap  = std::make_unique<UnorderedAccessView>();
     _prefilteredMap = std::make_unique<UnorderedAccessView>();
-    _brdfLUT = std::make_unique<UnorderedAccessView>();
+    _brdfLUT        = std::make_unique<UnorderedAccessView>();
     
-    auto desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, 512, 512, 6, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
-    _cubeMap->Initialize(desc, D3D12_UAV_DIMENSION_TEXTURE2DARRAY);
+    auto desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, CUBE_MAP_SIZE, CUBE_MAP_SIZE, 6, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+    _cubeMap->Initialize(desc, D3D12_UAV_DIMENSION_TEXTURE2DARRAY, D3D12_SRV_DIMENSION_TEXTURECUBE);
 
-    desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, 32, 32, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+    desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, IRRADIANCE_MAP_SIZE, IRRADIANCE_MAP_SIZE, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
     _irradianceMap->Initialize(desc, D3D12_UAV_DIMENSION_TEXTURE2DARRAY);
 
-    desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, 256, 256, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+    desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, PREFILTERED_MAP_SIZE, PREFILTERED_MAP_SIZE, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
     _prefilteredMap->Initialize(desc, D3D12_UAV_DIMENSION_TEXTURE2DARRAY);
     
-    desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, 512, 512, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+    desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, BRDF_LUT_SIZE, BRDF_LUT_SIZE, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
     _brdfLUT->Initialize(desc, D3D12_UAV_DIMENSION_TEXTURE2D);
 
     Global::viewManager->AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _hdrSRVHandles);
-    Global::viewManager->AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _cubeSRVHandles);
-    Global::viewManager->AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _cubeUAVHandles);
 }
 
 void SkyBox::SetTexture(std::wstring_view path)
@@ -61,35 +68,53 @@ void SkyBox::SetTexture(std::wstring_view path)
 
     UploadToTexture2D(pDevice, commandList, _skyboxhdrTexture.Get(), img->pixels, imageSize);
 
-    // Create SRV
     CreateHDRSRV(_skyboxhdrTexture.Get());
 
-    // Create CubeMap texture (UAV)
-    const UINT cubeSize = 512;
-    _skyboxCubeMap      = CreateCubeMap(pDevice, cubeSize, DXGI_FORMAT_R32G32B32A32_FLOAT);
-    CreateUAV(_skyboxCubeMap.Get());
-    CreateSRV(_skyboxCubeMap.Get());
-    SetPipelineState();
+    // CubeMap 생성
+    commandList->SetPipelineState(_pipelineState[CUBE_MAP].Get());
+    commandList->SetComputeRootSignature(_shader[CUBE_MAP]->GetRootSignature());
 
-    commandList->SetComputeRootSignature(_shader->GetRootSignature());
-    commandList->SetComputeRootDescriptorTable(_shader->GetRootParameterIndex("EquirectangularMap"), _hdrSRVHandles.GPU);
-    commandList->SetComputeRootDescriptorTable(_shader->GetRootParameterIndex("CubeMap"), _cubeUAVHandles.GPU);
-    commandList->SetComputeRoot32BitConstants(_shader->GetRootParameterIndex("bit32_1_cubeMapInfo"), 1, &cubeSize, 0);
+    auto descriptorHeap = Global::viewManager->GetShaderResourceHeap();
+    commandList->SetDescriptorHeaps(1, &descriptorHeap);
 
-    commandList->Dispatch((cubeSize + 15) / 16, (cubeSize + 15) / 16, 6);
+    commandList->SetComputeRootSignature(_shader[CUBE_MAP]->GetRootSignature());
+    commandList->SetComputeRootDescriptorTable(_shader[CUBE_MAP]->GetRootParameterIndex("equirectangularMap"), _hdrSRVHandles.GPU);
+    commandList->SetComputeRootDescriptorTable(_shader[CUBE_MAP]->GetRootParameterIndex("cubeMap"), _cubeMap->GetUAVHandle());
+    commandList->SetComputeRoot32BitConstants(_shader[CUBE_MAP]->GetRootParameterIndex("bit32_1_cubeMapInfo"), 1, &CUBE_MAP_SIZE, 0);
+    commandList->Dispatch((CUBE_MAP_SIZE + 15) / 16, (CUBE_MAP_SIZE + 15) / 16, 6);
+    //4e
+    //_cubeMap->ResourceBarrier(commandList);
+
+    //// IrradianceMap 생성
+    //commandList->SetPipelineState(_pipelineState[IRRADIANCE_MAP].Get());
+    //commandList->SetComputeRootSignature(_shader[IRRADIANCE_MAP]->GetRootSignature());
+    //commandList->SetComputeRootDescriptorTable(_shader[IRRADIANCE_MAP]->GetRootParameterIndex("environmentMap"), _cubeMap->GetSRVHandle());
+    //commandList->SetComputeRootDescriptorTable(_shader[IRRADIANCE_MAP]->GetRootParameterIndex("irradianceMap"), _irradianceMap->GetUAVHandle());
+    //commandList->SetComputeRoot32BitConstants(_shader[CUBE_MAP]->GetRootParameterIndex("bit32_1_cubeMapInfo"), 1, &CUBE_MAP_SIZE, 0);
+    //commandList->Dispatch((IRRADIANCE_MAP_SIZE + 15) / 16, (IRRADIANCE_MAP_SIZE + 15) / 16, 1);
+
+    //// PrefilteredMap 생성
+    //commandList->SetPipelineState(_pipelineState[PREFILTERED_MAP].Get());
+    //commandList->SetComputeRootSignature(_shader[PREFILTERED_MAP]->GetRootSignature());
+    //commandList->SetComputeRootDescriptorTable(_shader[PREFILTERED_MAP]->GetRootParameterIndex("environmentMap"), _cubeMap->GetSRVHandle());
+    //commandList->SetComputeRootDescriptorTable(_shader[PREFILTERED_MAP]->GetRootParameterIndex("prefilteredMap"), _prefilteredMap->GetUAVHandle());
+    //commandList->SetComputeRoot32BitConstants(_shader[CUBE_MAP]->GetRootParameterIndex("bit32_1_cubeMapInfo"), 1, &CUBE_MAP_SIZE, 0);
+
+    //float preFilterParams[2] = {CUBE_MAP_SIZE, 0.0f};
+    //commandList->SetComputeRoot32BitConstants(_shader[PREFILTERED_MAP]->GetRootParameterIndex("bit32_2_preFilter"), 2, preFilterParams, 0);
+    //commandList->Dispatch((PREFILTERED_MAP_SIZE + 15) / 16, (PREFILTERED_MAP_SIZE + 15) / 16, 1);
 
     _hasTexture = true;
 }
 
 void SkyBox::Render(ID3D12GraphicsCommandList* commnadList, UINT rootParameterIndex)
 {
-    commnadList->SetGraphicsRootDescriptorTable(rootParameterIndex, _cubeSRVHandles.GPU);
+    commnadList->SetGraphicsRootDescriptorTable(rootParameterIndex, _cubeMap->GetSRVHandle());
     _box->Render(commnadList);
 }
 
 void SkyBox::ResetResource() 
 {
-    _skyboxCubeMap.Reset();
     _skyboxhdrTexture.Reset();
     _hasTexture = false;
 }
@@ -198,57 +223,59 @@ void SkyBox::CreateHDRSRV(ID3D12Resource* resource)
     srvDesc.ViewDimension           = D3D12_SRV_DIMENSION_TEXTURE2D;
     srvDesc.Texture2D.MipLevels     = 1;
     
-    Global::device->GetDevice() ->CreateShaderResourceView(resource, &srvDesc, _hdrSRVHandles.CPU);
+    Global::device->GetDevice()->CreateShaderResourceView(resource, &srvDesc, _hdrSRVHandles.CPU);
 }
 
-void SkyBox::CreateSRV(ID3D12Resource* resource)
-{
-    D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
-    srvDesc.Shader4ComponentMapping    = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING; 
-    srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
-    srvDesc.TextureCube.MostDetailedMip = 0;
-    srvDesc.TextureCube.MipLevels       = 1;
-    
-    Global::device->GetDevice()->CreateShaderResourceView(resource, &srvDesc, _cubeSRVHandles.CPU);
-}
-
-void SkyBox::CreateUAV(ID3D12Resource* resource)
-{
-    D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc{};
-    uavDesc.Format        = resource->GetDesc().Format;
-    uavDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2DARRAY;
-    uavDesc.Texture2DArray.MipSlice = 0;
-    uavDesc.Texture2DArray.FirstArraySlice = 0;
-    uavDesc.Texture2DArray.PlaneSlice      = 0;
-    uavDesc.Texture2DArray.ArraySize       = 6;
-
-    Global::device->GetDevice()->CreateUnorderedAccessView(resource, nullptr, &uavDesc, _cubeUAVHandles.CPU);
-}
-
-void SkyBox::CreateComputePSO()
-{
-    _shader = std::make_unique<ShaderBuilder>();
-    _shader->BeginBuild();
-    _shader->SetShader(L"../Shaders/cs_cube_texture_convertor.hlsl",ShaderBuilder::Type::CS);
-    _shader->EndBuild();
-
-    ID3D12Device*               device = Global::device->GetDevice();
+void SkyBox::CreatePipelineState()
+{    
+    ID3D12Device*                     device = Global::device->GetDevice();
+    HRESULT                           hr     = S_OK;
     D3D12_COMPUTE_PIPELINE_STATE_DESC psodesc{};
-    HRESULT                            hr = S_OK;
-    psodesc.pRootSignature                = _shader->GetRootSignature();
-    psodesc.CS                            = _shader->GetShaderByteCode(ShaderBuilder::Type::CS);
-    psodesc.Flags                         = D3D12_PIPELINE_STATE_FLAG_NONE;
 
-    hr = device->CreateComputePipelineState(&psodesc, IID_PPV_ARGS(_computePSO.GetAddressOf()));
+    _shader[CUBE_MAP] = std::make_unique<ShaderBuilder>();
+    _shader[CUBE_MAP]->BeginBuild();
+    _shader[CUBE_MAP]->SetShader(L"../Shaders/cs_cube_texture_convertor.hlsl", ShaderBuilder::Type::CS);
+    _shader[CUBE_MAP]->EndBuild();
+
+    psodesc.pRootSignature = _shader[CUBE_MAP]->GetRootSignature();
+    psodesc.CS             = _shader[CUBE_MAP]->GetShaderByteCode(ShaderBuilder::Type::CS);
+    psodesc.Flags          = D3D12_PIPELINE_STATE_FLAG_NONE;
+
+    hr = device->CreateComputePipelineState(&psodesc, IID_PPV_ARGS(&_pipelineState[CUBE_MAP]));
     FAILED_CHECK_MESSAGE(hr, L"SkyBox::CreateComputePSO device->CreateComputePipelineState Failed");
-}
 
-void SkyBox::SetPipelineState() 
-{
-    ID3D12GraphicsCommandList* cmdList = Global::device->GetCommandList();
-    cmdList->SetPipelineState(_computePSO.Get());
-    cmdList->SetComputeRootSignature(_shader->GetRootSignature());
+    _shader[IRRADIANCE_MAP] = std::make_unique<ShaderBuilder>();
+    _shader[IRRADIANCE_MAP]->BeginBuild();
+    _shader[IRRADIANCE_MAP]->SetShader(L"../Shaders/cs_irradiance_map.hlsl", ShaderBuilder::Type::CS);
+    _shader[IRRADIANCE_MAP]->EndBuild();
 
-    auto descriptorHeap = Global::viewManager->GetShaderResourceHeap();
-    cmdList->SetDescriptorHeaps(1, &descriptorHeap);
+    psodesc.pRootSignature = _shader[IRRADIANCE_MAP]->GetRootSignature();
+    psodesc.CS             = _shader[IRRADIANCE_MAP]->GetShaderByteCode(ShaderBuilder::Type::CS);
+    psodesc.Flags          = D3D12_PIPELINE_STATE_FLAG_NONE;
+
+    hr = device->CreateComputePipelineState(&psodesc, IID_PPV_ARGS(&_pipelineState[IRRADIANCE_MAP]));
+    FAILED_CHECK_MESSAGE(hr, L"SkyBox::CreateComputePSO device->CreateComputePipelineState Failed");
+
+    _shader[PREFILTERED_MAP] = std::make_unique<ShaderBuilder>();
+    _shader[PREFILTERED_MAP]->BeginBuild();
+    _shader[PREFILTERED_MAP]->SetShader(L"../Shaders/cs_prefiltered_map.hlsl", ShaderBuilder::Type::CS);
+    _shader[PREFILTERED_MAP]->EndBuild();
+    psodesc.pRootSignature = _shader[PREFILTERED_MAP]->GetRootSignature();
+    psodesc.CS             = _shader[PREFILTERED_MAP]->GetShaderByteCode(ShaderBuilder::Type::CS);
+    psodesc.Flags          = D3D12_PIPELINE_STATE_FLAG_NONE;
+
+    hr = device->CreateComputePipelineState(&psodesc, IID_PPV_ARGS(&_pipelineState[PREFILTERED_MAP]));
+    FAILED_CHECK_MESSAGE(hr, L"SkyBox::CreateComputePSO device->CreateComputePipelineState Failed");
+
+    /*_shader[BRDF_LUT] = std::make_unique<ShaderBuilder>();
+    _shader[BRDF_LUT]->BeginBuild();
+    _shader[BRDF_LUT]->SetShader(L"../Shaders/cs_brdf_lut.hlsl", ShaderBuilder::Type::CS);
+    _shader[BRDF_LUT]->EndBuild(ShaderBuilder::BindType::DIRECT);
+
+    psodesc.pRootSignature = _shader[BRDF_LUT]->GetRootSignature();
+    psodesc.CS             = _shader[BRDF_LUT]->GetShaderByteCode(ShaderBuilder::Type::CS);
+    psodesc.Flags          = D3D12_PIPELINE_STATE_FLAG_NONE;
+
+    hr = device->CreateComputePipelineState(&psodesc, IID_PPV_ARGS(&_pipelineState[BRDF_LUT]));
+    FAILED_CHECK_MESSAGE(hr, L"SkyBox::CreateComputePSO device->CreateComputePipelineState Failed");*/
 }

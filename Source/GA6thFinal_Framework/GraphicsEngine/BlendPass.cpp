@@ -13,7 +13,7 @@ void BlendPass::Initialize(RenderScene* ownerScene, ID3D12GraphicsCommandList* c
     _shader->BeginBuild();
     _shader->SetShader(L"../Shaders/vs_quad.hlsl", ShaderBuilder::Type::VS);
     _shader->SetShader(L"../Shaders/ps_blend.hlsl", ShaderBuilder::Type::PS);
-    _shader->EndBuild(ShaderBuilder::BindType::DIRECT);
+    _shader->EndBuild();
 
     ID3D12Device* device = Global::device->GetDevice();
    
