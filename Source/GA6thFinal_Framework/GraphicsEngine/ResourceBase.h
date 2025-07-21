@@ -9,15 +9,16 @@ public:
 public:
     ID3D12Resource*           GetResource() const { return _resource.Get(); }
     D3D12_GPU_VIRTUAL_ADDRESS GetGPUVirtualAddress() const { return _resource->GetGPUVirtualAddress(); }
-    const DXGI_MODE_DESC&     GetMode() const { return _mode; }
+    const Resolution&         GetResolution() const { return _resolution; }
 
 public:
     void         TransitionResource(ID3D12GraphicsCommandList* commandList, D3D12_RESOURCE_STATES after);
     void         SetName(std::wstring_view name);
-    virtual void ResizeResource(DXGI_MODE_DESC mode) {}
+    virtual void ResizeResource(Resolution resolution) {}
 
 protected:
-    DXGI_MODE_DESC         _mode;
+    D3D12_RESOURCE_DESC    _desc{};
     ComPtr<ID3D12Resource> _resource;
     D3D12_RESOURCE_STATES  _currentState;
+    Resolution             _resolution;
 };

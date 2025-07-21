@@ -18,13 +18,11 @@ public:
 private:
     ComPtr<ID3D12Resource> CreateTexture2D(ID3D12Device* device, int w, int h, DXGI_FORMAT format);
     ComPtr<ID3D12Resource> CreateCubeMap(ID3D12Device* device, UINT size, DXGI_FORMAT format);
-    void UploadToTexture2D(ID3D12Device* device, ID3D12GraphicsCommandList* commandList, ID3D12Resource* texture,
-                           const void* data, size_t dataSize);
+    void UploadToTexture2D(ID3D12Device* device, ID3D12GraphicsCommandList* commandList, ID3D12Resource* texture, const void* data, size_t dataSize);
     void CreateHDRSRV(ID3D12Resource* resource);
     void CreateSRV(ID3D12Resource* resource);
     void CreateUAV(ID3D12Resource* resource);
     void CreateComputePSO();
-    void BindResources(UINT cubeSize, UINT faceIndex);
     void SetPipelineState();
 
 private:
@@ -37,8 +35,12 @@ private:
     DescriptorHandles                   _cubeSRVHandles;
     DescriptorHandles                   _cubeUAVHandles;
 
+    std::unique_ptr<UnorderedAccessView> _cubeMap;
+    std::unique_ptr<UnorderedAccessView> _irradianceMap;
+    std::unique_ptr<UnorderedAccessView> _prefilteredMap;
+    std::unique_ptr<UnorderedAccessView> _brdfLUT;
+
     ComPtr<ID3D12PipelineState>         _computePSO;
-    std::vector<ComPtr<ID3D12Resource>> _cbs;
 
     bool _hasTexture;
 };

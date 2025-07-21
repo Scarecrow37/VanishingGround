@@ -123,3 +123,9 @@ struct SkeletalMeshInstance
     D3D12_VERTEX_BUFFER_VIEW             VertexBufferView;
     UINT                                 VertexCount = 0;
 };
+
+struct Resolution
+{
+    UINT Width;
+    UINT Height;
+};

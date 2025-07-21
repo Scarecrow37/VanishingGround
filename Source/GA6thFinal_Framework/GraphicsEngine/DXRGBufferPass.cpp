@@ -15,27 +15,27 @@ void DXRGBufferPass::Initialize(RenderScene* ownerScene, ID3D12GraphicsCommandLi
         auto  mode                = Global::device->GetMode();
         auto& renderTargetManager = Global::multiRenderTargetManager;
 
-        std::initializer_list<std::string_view> renderTargetNames = {
-            "Normal", "WorldPosition", "Depth", "CustomDepth"};
+        auto desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, mode.Width, mode.Height, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
+
+        std::initializer_list<std::string_view> renderTargetNames = {"Normal", "WorldPosition", "Depth", "CustomDepth"};
         auto first = renderTargetNames.begin();
 
         SharedResource<RenderTarget> renderTarget;
         for (UINT i = 0; i <= DXRGBuffer::DXRWORLDPOSITION; ++i)
-        {
+        {            
             renderTarget = MakeSharedResource<RenderTarget>();
-            mode.Format  = DXGI_FORMAT_R32G32B32A32_FLOAT;
-            renderTarget->Initialize(mode, 0.247f);
+            renderTarget->Initialize(desc, 0.247f);
             renderTargetManager->AddRenderTarget(*(first + i), renderTarget);
         }
 
         renderTarget = MakeSharedResource<RenderTarget>();
-        mode.Format  = DXGI_FORMAT_R32_FLOAT;
-        renderTarget->Initialize(mode, 1.f);
+        desc.Format  = DXGI_FORMAT_R32_FLOAT;
+        renderTarget->Initialize(desc, 1.f);
         renderTargetManager->AddRenderTarget(*(first + DXRGBuffer::DXRDEPTH), renderTarget);
 
         renderTarget = MakeSharedResource<RenderTarget>();
-        mode.Format  = DXGI_FORMAT_R32_UINT;
-        renderTarget->Initialize(mode, 0.f);
+        desc.Format  = DXGI_FORMAT_R32_UINT;
+        renderTarget->Initialize(desc, 0.f);
         renderTargetManager->AddRenderTarget(*(first + DXRGBuffer::DXRCUSTOMDEPTH), renderTarget);
 
         renderTargetManager->AddRenderTargetGroup("GBuffer", renderTargetNames);
@@ -59,8 +59,7 @@ void DXRGBufferPass::Begin(ID3D12GraphicsCommandList* commandList)
 {
     const auto& gBufferGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("GBuffer");
 
-    commandList->OMSetRenderTargets(DXRGBuffer::DXRGBUFFER_END, _gBufferHandles.data(), FALSE,
-                                    &_ownerScene->_depthStencilView->GetDSVHandle());
+    commandList->OMSetRenderTargets(DXRGBuffer::DXRGBUFFER_END, _gBufferHandles.data(), FALSE, &_ownerScene->_depthStencilView->GetDSVHandle());
     commandList->RSSetViewports(1, &gBufferGroup[0]->GetViewPort());
     commandList->RSSetScissorRects(1, &gBufferGroup[0]->GetScissorRect());
 }
