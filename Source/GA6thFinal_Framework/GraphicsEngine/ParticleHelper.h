@@ -132,3 +132,8 @@ struct SceneParticleResource
     std ::unordered_map<std::string, ComPtr<ID3D12Resource>> MvpConstants;
 };
 
+   struct ribbonIndex
+{
+    UINT  index = -1;
+    float ratio = 0;
+};

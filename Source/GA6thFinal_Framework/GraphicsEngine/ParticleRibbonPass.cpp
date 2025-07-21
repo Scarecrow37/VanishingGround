@@ -12,9 +12,9 @@ void ParticleRibbonPass::SetAccumulationBuffers(SharedResource<UnorderedAccessVi
     _revealageBuffer = alpha;
 }
 
-void ParticleRibbonPass::Initialize(RenderScene* ownerScene) 
+void ParticleRibbonPass::Initialize(RenderScene* ownerScene, ID3D12GraphicsCommandList* commandList)
 {
-    __super::Initialize(ownerScene);
+    __super::Initialize(ownerScene,commandList);
 
     InitializeShader();
     InitializePSO();
@@ -68,12 +68,16 @@ void ParticleRibbonPass::Begin(ID3D12GraphicsCommandList* commandList)
         auto totalribbonemitterindices = Global::particleManager->GetRibbonEmitterIndices();
         for (int i = 0; i < totalribbonemitterindices.size(); i++)
         {
+            std::sort(totalribbonemitterindices[i].begin(), totalribbonemitterindices[i].end(),
+                      [](const ribbonIndex& a, const ribbonIndex& b) -> bool { return a.ratio < b.ratio; });
+
+
             auto size = totalribbonemitterindices[i].size();
             _ribbonIndices[i].resize(size);
             std::fill(_ribbonIndices[i].begin(), _ribbonIndices[i].end(), -1);
             for (int j = 0; j < size; j++)
             {
-                _ribbonIndices[i][j] = totalribbonemitterindices[i][j];
+                _ribbonIndices[i][j] = totalribbonemitterindices[i][j].index;
             }
             _ribbonIndexBuffer[i]->CopyStructuredBuffer(commandList, _ribbonIndices[i].data(),
                                                         static_cast<UINT>(totalribbonemitterindices[i].size()));
@@ -119,24 +123,25 @@ void ParticleRibbonPass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("textures"), descHeapPtr);
 
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-    // IASetVertexBuffers() 생략
+    D3D12_VERTEX_BUFFER_VIEW nullView{};
+    commandList->IASetVertexBuffers(0, 1, &nullView);
 
     for (int i = 0; i < _ribbonIndices.size(); ++i)
     {
-        UINT count = _ribbonIndices[i].size();
-        if (0 >= count)
-            continue;
-        
-        UINT verticesToDraw = 0;
-        if (count == 2) // 최소한 2개의 인덱스가 있어야 다음 파티클 인덱스에 접근 가능 (input.vertexID + 2)
+        UINT ribbonSegmentCount = _ribbonIndices[i].size();
+        if (2 >= ribbonSegmentCount)
             continue;
 
-        commandList->SetGraphicsRoot32BitConstants(_shader->GetRootParameterIndex("bit32_1_ribbonVertexCount"), 1, &count, 0);
+        UINT vertexCount = (ribbonSegmentCount - 1) * 2;
+        if (vertexCount == 0)
+            continue;
+        
+        commandList->SetGraphicsRoot32BitConstants(_shader->GetRootParameterIndex("bit32_1_ribbonVertexCount"), 1, &vertexCount, 0);
 
         commandList->SetGraphicsRootShaderResourceView(_shader->GetRootParameterIndex("ribbonIndices"),
                                                        _ribbonIndexBuffer[i]->GetGPUVirtualAddress());
 
-        commandList->DrawInstanced(verticesToDraw, 1, 0, 0);
+        commandList->DrawInstanced(vertexCount, 1, 0, 0);
     }
 
 
@@ -179,7 +184,7 @@ void ParticleRibbonPass::InitializePSO()
     psodesc.DepthStencilState.DepthEnable = false;
     psodesc.SampleMask                    = UINT_MAX;
     psodesc.PrimitiveTopologyType         = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-    psodesc.InputLayout                   = _shader->GetInputLayout();
+    psodesc.InputLayout                   = { nullptr, 0 };
     psodesc.NumRenderTargets              = 1;
     psodesc.RTVFormats[0]                 = DXGI_FORMAT_R32_UINT;
     psodesc.pRootSignature                = _shader->GetRootSignature();

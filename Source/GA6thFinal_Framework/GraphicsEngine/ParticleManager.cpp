@@ -260,7 +260,7 @@ UINT ParticleManager::GetRibbonCount() const
         return _ribbonEditorCount;
 }
 
-std::vector<std::vector<UINT>> ParticleManager::GetRibbonEmitterIndices() const 
+std::vector<std::vector<ribbonIndex>> ParticleManager::GetRibbonEmitterIndices() const 
 {
     if ("Game" == _currentRenderscene->_name || "Editor" == _currentRenderscene->_name)
         return _ribbonIndices;
@@ -709,15 +709,17 @@ void ParticleManager::CopyActiveParticles()
                             );
 
                         auto& particlePool = emitter->GetParticlePool();
-                        std::vector<UINT> emitterIndices;
+                        std::vector<ribbonIndex> emitterIndices;
                         for (UINT i = 0; i < emitter->GetActiveParticleCount(); i++)
                         {
                             auto& particle = *particlePool[i];
                             particle.SetEmitterIndex(ribbonEmitterIndex);
                             _ribbonTotalParticles.push_back(particle);
                             _ribbonTotalParticles.push_back(particle);
-                            emitterIndices.push_back(ribbonparticleIndex++);
-                            emitterIndices.push_back(ribbonparticleIndex++);
+                            emitterIndices.push_back(
+                                {ribbonparticleIndex++, particle.GetAge() / emitter->GetParticleLifetime()});
+                            emitterIndices.push_back(
+                                {ribbonparticleIndex++, particle.GetAge() / emitter->GetParticleLifetime()});
                             _ribbonTotalCount += 2;
                         }
                         _ribbonIndices.push_back(emitterIndices);
@@ -1053,7 +1055,7 @@ void ParticleManager::CopyActiveParticlesEditorMode()
                                            static_cast<RibbonModule*>(emitter->_particleRenderModule)->GetEndNormal()};
                 _ribbonEditorEmitterMatrix.push_back(emitterinfo);
                 auto& particlePool = emitter->GetParticlePool();
-                std::vector<UINT> emitterIndices;
+                std::vector<ribbonIndex> emitterIndices;
 
                 for (UINT i = 0; i < emitter->GetActiveParticleCount(); i++)
                 {
@@ -1061,8 +1063,10 @@ void ParticleManager::CopyActiveParticlesEditorMode()
                     particle.SetEmitterIndex(ribbonEmitterIndex);
                     _ribbonEditorTotalParticles.push_back(particle);
                     _ribbonEditorTotalParticles.push_back(particle);
-                    emitterIndices.push_back(ribbonparticleIndex++);
-                    emitterIndices.push_back(ribbonparticleIndex++);
+                    emitterIndices.push_back(
+                        {ribbonparticleIndex++, particle.GetAge() / emitter->GetParticleLifetime()});
+                    emitterIndices.push_back(
+                        {ribbonparticleIndex++, particle.GetAge() / emitter->GetParticleLifetime()});
                     _ribbonEditorCount+=2;
                 }
                 _ribbonEditorIndices.push_back(emitterIndices);

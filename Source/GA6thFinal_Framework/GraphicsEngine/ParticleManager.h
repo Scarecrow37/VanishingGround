@@ -48,7 +48,7 @@ public:
     ID3D12Resource*       GetComputeOutputResource();
 
     UINT                           GetRibbonCount() const;
-    std::vector<std::vector<UINT>> GetRibbonEmitterIndices() const;
+    std::vector<std::vector<ribbonIndex>> GetRibbonEmitterIndices() const;
     std::vector<Texture*>          GetActiveRibbonAlbedos() const;
     ID3D12Resource*                GetRibbonOutputResource();
 
@@ -184,8 +184,11 @@ private:
     std::vector<EmitterInfo>    _ribbonEditorEmitterMatrix;
     std::vector<Texture*>       _ribbonActiveEmitterAlbedos;
     std::vector<Texture*>       _ribbonActiveEditorAlbedos;
-    std::vector<std::vector<UINT>> _ribbonIndices;
-    std::vector<std::vector<UINT>> _ribbonEditorIndices;
+    
+ 
+
+    std::vector<std::vector<ribbonIndex>> _ribbonIndices;
+    std::vector<std::vector<ribbonIndex>> _ribbonEditorIndices;
 
 
 

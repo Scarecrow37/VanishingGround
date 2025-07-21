@@ -21,7 +21,7 @@
 
     CreateWBOITResources();
     InitializeSpriteParticlePass(commandList);
-    InitializeRibbonParticlePass(commandList)
+    InitializeRibbonParticlePass(commandList);
     InitializeParticleResolvePass(commandList);
 }
 
@@ -39,17 +39,17 @@ void ParticleRenderTechnique::InitializeSpriteParticlePass(ID3D12GraphicsCommand
     AddRenderPass(std::move(spritepass));
 }
 
-void ParticleRenderTechnique::InitializeRibbonParticlePass() 
+void ParticleRenderTechnique::InitializeRibbonParticlePass(ID3D12GraphicsCommandList* commandList)
 {
     std::unique_ptr<ParticleRibbonPass> ribbonpass = std::make_unique<ParticleRibbonPass>();
-    ribbonpass->Initialize(_ownerScene);
+    ribbonpass->Initialize(_ownerScene,commandList);
     ribbonpass->SetAccumulationBuffers(_accumlateBuffer, _revealageBuffer);
     AddRenderPass(std::move(ribbonpass));
 
 
 }
 
-void ParticleRenderTechnique::InitializeParticleResolvePass()
+void ParticleRenderTechnique::InitializeParticleResolvePass(ID3D12GraphicsCommandList* commandList)
 {
     std::unique_ptr<ParticleResolvePass> resolvepass = std::make_unique<ParticleResolvePass>();
     resolvepass->Initialize(_ownerScene, commandList);
