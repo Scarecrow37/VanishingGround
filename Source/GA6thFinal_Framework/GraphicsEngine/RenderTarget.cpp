@@ -11,6 +11,7 @@ void RenderTarget::Initialize(const D3D12_RESOURCE_DESC& desc, FLOAT clearColor)
 
     _viewPort = {.Width = (FLOAT)desc.Width, .Height = (FLOAT)desc.Height, .MinDepth = 0.f, .MaxDepth = 1.f};
     _scissorRect = {.right = (LONG)desc.Width, .bottom = (LONG)desc.Height};
+    _resolution  = {(UINT)desc.Width, (UINT)desc.Height};
 
     Global::viewManager->AddDescriptorHeap(ViewManager::Type::RENDER_TARGET, _rtvHandle);
     CreateRenderTargetView();
@@ -60,6 +61,7 @@ void RenderTarget::ResizeResource(Resolution resolution)
 
     _viewPort    = {.Width = (FLOAT)resolution.Width, .Height = (FLOAT)resolution.Height, .MinDepth = 0.f, .MaxDepth = 1.f};
     _scissorRect = {.right = (LONG)resolution.Width, .bottom = (LONG)resolution.Height};
+    _resolution  = resolution;
 
     CreateRenderTargetView();
     CreateShaderResourceView();
