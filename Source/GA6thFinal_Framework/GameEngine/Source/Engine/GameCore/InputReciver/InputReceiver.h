@@ -16,6 +16,10 @@ public:
     bool BindInputAction(ControllerButton button, Action action, T* instance, void (T::*func)(const Input::Controller&),
                     std::source_location = std::source_location::current());
 
+    template <typename T>
+    bool BindInputAction(ControllerButton button, Action action, Component* owner, T* instance, void (T::*func)(const Input::Controller&),
+                    std::source_location = std::source_location::current());
+
 private:
     struct ControllerSetKey
     {
@@ -74,6 +78,55 @@ inline bool InputReceiver::BindInputAction(ControllerButton button, Action actio
                     }
                 );
             }  
+        }
+        else
+        {
+            UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"이미 바인딩된 액션입니다.", location);
+        }
+    }
+    return result;
+}
+
+/// <summary>
+/// <para> Input 이벤트를 바인딩합니다.                                                          </para>
+/// <para> 바인딩할 함수는 매개변수로 (const Input::Controller&amp;)를 반드시 전달받아야 합니다.   </para>
+/// <para> *마지막 인자는 기본값을 사용해야 로그가 정상적으로 남겨집니다.                           </para>
+/// </summary>
+/// <param name="button :">사용할 버튼입니다.</param>
+/// <param name="action :">사용할 액션입니다.</param>
+/// <param name="owner :">InputReceiver의 생명주기를 관리하는 컴포넌트를 전달해야 합니다.</param>
+/// <param name="instance :">InputReciver의 this 포인터</param>
+/// <param name="func :">바인딩할 맴버 함수</param>
+/// <returns></returns>
+template <typename T>
+inline bool InputReceiver::BindInputAction(ControllerButton button, Action action, Component* owner, T* instance,
+                                           void (T::*func)(const Input::Controller&), std::source_location location)
+{
+    static_assert(std::is_base_of_v<InputReceiver, T>, "T must be derived from InputReceiver.");
+    bool result = false;
+    if (owner->gameObject->IsValid())
+    {
+        ControllerSetKey key{};
+        key.Button            = button;
+        key.Action            = action;
+        auto [iter, isInsert] = _controllerSet.insert(key);
+        result                = isInsert;
+        if (result)
+        {
+            auto& inputSystem = ESceneManager::Engine::GetInputSystem();
+            int   buttonIndex = (int)button;
+            int   actionIndex = (int)action;
+            if (owner->gameObject->IsValid())
+            {
+                inputSystem._receivers[buttonIndex][actionIndex].emplace_back(
+                    instance, [owner, instance, func](const Input::Controller& controller) 
+                    {
+                        if (owner->EnableInHierarchy)
+                        {
+                            std::invoke(func, instance, controller);
+                        }
+                    });
+            }
         }
         else
         {

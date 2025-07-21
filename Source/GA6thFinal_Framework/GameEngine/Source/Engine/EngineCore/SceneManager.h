@@ -540,6 +540,7 @@ public:
         Input::Controller                               _inputController{&_inputAdapter};
         bool                                            _isConnect = false;
         std::array<Action, CONTROLLER_BUTTON_COUNT>     _actionTracker{Action::IDLE,};
+        std::array<bool, CONTROLLER_BUTTON_COUNT>       _actionChecker{false,};
 
         std::array<std::array<std::vector<std::pair<InputReceiver*, std::function<void(const Input::Controller&)>>>, 
             ACTION_COUNT>,
@@ -548,7 +549,7 @@ public:
 
     private:
         void UpdateTracker(Input::Controller::Button button);
-
+        void UpdateAnalogButtons();
     };
 
 private:
