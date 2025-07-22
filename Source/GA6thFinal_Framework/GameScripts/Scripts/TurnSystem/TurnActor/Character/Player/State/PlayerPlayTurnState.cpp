@@ -206,7 +206,15 @@ void PlayerPlayTurnState::UpdateQuickTimeEventUI(float dt)
                     PushAttackTarget(value);
                 }
             }
-
+            ImGui::Separator();
+            if (ImGui::Button((const char*)u8"[테스트] 자해"))
+            {
+                player.TakeDamage(10);
+            }
+            if (ImGui::Button((const char*)u8"[테스트] 자살"))
+            {
+                player.Dead();
+            }
             for (auto& target : _attackTargets)
             {
                 ImGui::Text(rfl::enum_to_string(target).c_str());

@@ -201,7 +201,7 @@ void SkeletalMeshRenderer::ClearOverrideAnimations()
         if (false == _isBuildingOverrideAnimation)
         {
             animator->ChangeAnimation(animData->AnimationName.c_str(), animData->IsBlending);
-            SetCurrentAnimationFrame(animData->Duration);
+            animator->SetAnimationTime(animData->Duration);
         }
     }
 }
@@ -220,7 +220,7 @@ void SkeletalMeshRenderer::EndBuildOverrideAnimation()
         if (animator && animData)
         {
             animator->ChangeAnimation(animData->AnimationName.c_str(), animData->IsBlending);
-            SetCurrentAnimationFrame(animData->Duration);
+            animator->SetAnimationTime(animData->Duration);
         }
         _isBuildingOverrideAnimation = false;
     }
@@ -242,7 +242,7 @@ void SkeletalMeshRenderer::PushOverrideAnimation(std::string_view animKey, bool 
             if (false == _isBuildingOverrideAnimation)
             {
                 animator->ChangeAnimation(animData->AnimationName.c_str(), animData->IsBlending);
-                SetCurrentAnimationFrame(animData->Duration);
+                animator->SetAnimationTime(animData->Duration);
             }
         }
     }
@@ -260,7 +260,7 @@ void SkeletalMeshRenderer::PopOverrideAnimation()
             if (false == _isBuildingOverrideAnimation)
             {
                 animator->ChangeAnimation(animData->AnimationName.c_str(), animData->IsBlending);
-                SetCurrentAnimationFrame(animData->Duration);
+                animator->SetAnimationTime(animData->Duration);
             }
         }
     }
