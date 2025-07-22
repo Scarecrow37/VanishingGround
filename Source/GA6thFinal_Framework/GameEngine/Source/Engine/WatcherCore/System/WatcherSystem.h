@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-namespace MVVM
+namespace Watcher
 {
     class System
     {
@@ -40,7 +40,7 @@ namespace MVVM
             std::shared_ptr<T> viewModel;
             try
             {
-               viewModel = Registry<T>::Get(key);
+                viewModel = Registry<T>::Get(key);
             }
             catch (std::out_of_range&)
             {

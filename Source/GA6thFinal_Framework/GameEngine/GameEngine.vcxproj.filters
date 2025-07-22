@@ -678,7 +678,7 @@
     <ClInclude Include="Source\Engine\FileSystem\Importer\SpriteFontImporter.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Watcher\System\WatcherSystem.h">
+    <ClInclude Include="Source\Engine\WatcherCore\System\WatcherSystem.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1235,7 +1235,7 @@
     <ClCompile Include="Source\Engine\FileSystem\Importer\SpriteFontImporter.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Watcher\System\WhatcherSystem.cpp">
+    <ClCompile Include="Source\Engine\WatcherCore\System\WatcherSystem.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

@@ -130,16 +130,16 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(SolutionDir)GameEngine\ThirdParty\bin\$(Configuration)</OutDir>
+    <OutDir>$(SolutionDir)GameEngine\ThirdParty\bin\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">
-    <OutDir>$(SolutionDir)GameEngine\ThirdParty\bin\$(Configuration)</OutDir>
+    <OutDir>$(SolutionDir)GameEngine\ThirdParty\bin\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(SolutionDir)GameEngine\ThirdParty\bin\$(Configuration)</OutDir>
+    <OutDir>$(SolutionDir)GameEngine\ThirdParty\bin\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">
-    <OutDir>$(SolutionDir)GameEngine\ThirdParty\bin\$(Configuration)</OutDir>
+    <OutDir>$(SolutionDir)GameEngine\ThirdParty\bin\$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
