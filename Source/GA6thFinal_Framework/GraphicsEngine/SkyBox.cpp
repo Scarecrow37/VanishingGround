@@ -145,73 +145,10 @@ void SkyBox::Initialize()
     Global::viewManager->AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _hdrSRVHandles);
 }
 
-void SkyBox::Render(ID3D12GraphicsCommandList* commnadList, UINT rootParameterIndex)
+void SkyBox::Render(ID3D12GraphicsCommandList* commandList, UINT rootParameterIndex)
 {
-    //if (_hasTexture)
-    //{
-    //    auto commandList = Global::device->GetCommandList();
-
-    //    // BRDF LUT 생성
-    //    commandList->SetPipelineState(_pipelineState[BRDF_LUT].Get());
-    //    commandList->SetComputeRootSignature(_shader[BRDF_LUT]->GetRootSignature());
-    //    commandList->SetComputeRootDescriptorTable(_shader[BRDF_LUT]->GetRootParameterIndex("brdfLUT"),
-    //                                               _brdfLUT->GetUAVHandle());
-
-    //    // 타일 크기 설정 (예: 64x64 픽셀 단위로 작업을 나눔)
-    //    UINT tileWidth  = 32;
-    //    UINT tileHeight = 32;
-    //    UINT groupSize  = 8; // 셰이더의 [numthreads(8, 8, 1)] 에 맞춤
-
-    //    for (UINT y = 0; y < BRDF_LUT_SIZE; y += tileHeight)
-    //    {
-    //        for (UINT x = 0; x < BRDF_LUT_SIZE; x += tileWidth)
-    //        {
-    //            // 타일 크기에 맞춰 디스패치
-    //            UINT dispatchX = (tileWidth + groupSize - 1) / groupSize;
-    //            UINT dispatchY = (tileHeight + groupSize - 1) / groupSize;
-
-    //            UINT offset[2] = {x, y};
-    //            commandList->SetComputeRoot32BitConstants(
-    //                _shader[BRDF_LUT]->GetRootParameterIndex("bit32_2_brdfConstants"), 2, offset, 0);
-    //            commandList->Dispatch(dispatchX, dispatchY, 1);
-    //        }
-    //    }
-    //    // commandList->Dispatch((BRDF_LUT_SIZE + 15) / 16, (BRDF_LUT_SIZE + 15) / 16, 1);
-
-    //    auto descriptorHeap = Global::viewManager->GetShaderResourceHeap();
-    //    commandList->SetDescriptorHeaps(1, &descriptorHeap);
-
-    //    // IrradianceMap 생성
-    //    commandList->SetPipelineState(_pipelineState[IRRADIANCE_MAP].Get());
-    //    commandList->SetComputeRootSignature(_shader[IRRADIANCE_MAP]->GetRootSignature());
-    //    commandList->SetComputeRootDescriptorTable(_shader[IRRADIANCE_MAP]->GetRootParameterIndex("environmentMap"),
-    //                                               _cubeMap->GetSRVHandle());
-    //    commandList->SetComputeRootDescriptorTable(_shader[IRRADIANCE_MAP]->GetRootParameterIndex("irradianceMap"),
-    //                                               _irradianceMap->GetUAVHandle());
-    //    commandList->Dispatch((IRRADIANCE_MAP_SIZE + 15) / 16, (IRRADIANCE_MAP_SIZE + 15) / 16, 6);
-
-    //    // PrefilteredMap 생성
-
-    //    commandList->SetPipelineState(_pipelineState[PREFILTERED_MAP].Get());
-    //    commandList->SetComputeRootSignature(_shader[PREFILTERED_MAP]->GetRootSignature());
-    //    commandList->SetComputeRootDescriptorTable(_shader[PREFILTERED_MAP]->GetRootParameterIndex("environmentMap"),
-    //                                               _cubeMap->GetSRVHandle());
-    //    commandList->SetComputeRootDescriptorTable(_shader[PREFILTERED_MAP]->GetRootParameterIndex("prefilteredMap"),
-    //                                               _prefilteredMap->GetUAVHandle());
-
-    //    const auto& desc               = _prefilteredMap->GetResourceDesc();
-    //    float       preFilterParams[2] = {CUBE_MAP_SIZE, 0.0f};
-    //    for (UINT16 i = 0; i < desc.MipLevels; i++)
-    //    {
-    //        preFilterParams[1] = static_cast<float>(i) / static_cast<float>(desc.MipLevels - 1);
-    //        commandList->SetComputeRoot32BitConstants(
-    //            _shader[PREFILTERED_MAP]->GetRootParameterIndex("bit32_2_preFilter"), 2, preFilterParams, 0);
-    //        commandList->Dispatch((PREFILTERED_MAP_SIZE + 15) / 16, (PREFILTERED_MAP_SIZE + 15) / 16, 6);
-    //    }
-    //}
-
-    commnadList->SetGraphicsRootDescriptorTable(rootParameterIndex, _cubeMap->GetSRVHandle());
-    _box->Render(commnadList);
+    commandList->SetGraphicsRootDescriptorTable(rootParameterIndex, _cubeMap->GetSRVHandle());
+    _box->Render(commandList);
 }
 
 void SkyBox::ResetResource() 
