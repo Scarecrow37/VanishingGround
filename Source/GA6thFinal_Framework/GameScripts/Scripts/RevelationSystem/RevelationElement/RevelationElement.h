@@ -1,14 +1,6 @@
 ﻿#pragma once
 #include <TurnSystem/TurnAction/TurnAction.h>
 
-enum class RevelationKeyword
-{
-    //조건 참일시 발동
-    DEFAULT,
-    //라운드당 한번만 발동 가능
-    ROUND_ONCE
-};
-
 enum class RevelationGrade
 {
     //일반
@@ -26,23 +18,25 @@ enum class RevelationGrade
 /*
 * 계시의 정보를 가지고있는 class 입니다.
 */
-class RevelationElement : public TurnAction
+class RevelationElement : public ReflectSerializer
 {
+    friend class RevelationSystem;
     USING_PROPERTY(RevelationElement)
 public:
     RevelationElement() = default;
     ~RevelationElement() override = default; 
    
 public:
-    REFLECT_PROPERTY(
-        Name,
-        ReflectFields->Keyword, 
-        ReflectFields->Grade)
+    REFLECT_PROPERTY()
     
-    void SetName(std::string_view name) { ReflectFields->Name = name; }
-    GETTER_ONLY(const std::string&, Name) { return ReflectFields->Name; }
+    void SetName(std::string_view elementName) { ReflectFields->ElementName = elementName; }
+    GETTER_ONLY(const std::string&, ElementName) { return ReflectFields->ElementName; }
     //계시 이름
-    PROPERTY(Name)
+    PROPERTY(ElementName)
+
+    SETTER(RevelationGrade, Grade) { ReflectFields->Grade = value; }
+    GETTER(RevelationGrade, Grade) { return ReflectFields->Grade; }
+    PROPERTY(Grade)
 
     /*액션 존재 여부를 반환합니다.*/
     bool IsAction() const { return _action != nullptr; }
@@ -50,15 +44,11 @@ public:
     /*해당 계시의 액션을 반환합니다. IsAction()을 확인해야합니다.*/
     TurnAction& GetAction() { return *_action; }
 
-    /*이번 라운드 발동 여부를 반환합니다.*/
-    bool IsUsedThisRound() const { return _isUsedThisRound; }
-
 protected:
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
-    std::string             Name            = STR_NULL;
-    RevelationKeyword       Keyword         = RevelationKeyword::DEFAULT;                     // 키워드
-    RevelationGrade         Grade           = RevelationGrade::COMMON;                        // 등급
-    std::string             ActionName      = STR_NULL; 
+    std::string     ElementName = STR_NULL;
+    RevelationGrade Grade       = RevelationGrade::COMMON;
+    std::string     ActionName  = STR_NULL; 
     REFLECT_FIELDS_END(RevelationElement)
 
     std::unique_ptr<TurnAction> _action;
@@ -72,17 +62,6 @@ protected:
     void DeserializedReflectEvent() override;
 
 public:
-    /// <summary>
-    /// ImGui 에디터를 위한 Table 인덱스를 설정합니다.
-    /// </summary>
-    void SetImGuiTableIndex()
-    {
-        if (nullptr != ImGui::GetCurrentTable())
-        {
-            ImGui::TableSetColumnIndex(_imguiDrawIndex++);
-        }
-    }
-
     ImU32 GetGradeColor() 
     { 
         RevelationGrade garde = ReflectFields->Grade;
@@ -102,9 +81,7 @@ public:
     }
 
 private:
-    int  _imguiDrawIndex = 0;
     bool _showActionEditor = false;
-    bool _isUsedThisRound = false;
 
 private:
     using DatasType = reflect_fields_struct;
@@ -131,12 +108,5 @@ public:
     {
         return CopyElement(rhs);
     }
-
-private:
-    const std::string& GetActionName() override;
-    const std::string& GetActionInfo() override;
-    void               ImGuiDrawActionEditor() override;
-    void OnPlayerBattleStart(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats, Enemy& target,
-                             EnemyStats& targetStats) override;
 
 };
