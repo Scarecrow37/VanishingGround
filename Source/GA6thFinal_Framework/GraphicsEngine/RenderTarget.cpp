@@ -36,6 +36,7 @@ void RenderTarget::CreateRenderTargetView()
     FAILED_CHECK_MESSAGE(hr, L"RenderTarget::Initialize CreateCommittedResource Failed");
     
     device->CreateRenderTargetView(_resource.Get(), nullptr, _rtvHandle);
+    _desc = _resource->GetDesc();
 }
 
 void RenderTarget::CreateShaderResourceView()

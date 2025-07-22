@@ -59,8 +59,8 @@ void ParticleSpritePass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
     auto depthStencilBuffer = Global::multiRenderTargetManager->GetRenderTarget("Depth");
 
-    const auto&     mode          = Global::device->GetMode();
-    PostProcessData postProcessData{.TexelSize = {1.f / (float)mode.Width, 1.f / (float)mode.Height}};
+    const auto&     resolution = Global::device->GetResolution();
+    PostProcessData postProcessData{.TexelSize = {1.f / (float)resolution.Width, 1.f / (float)resolution.Height}};
     commandList->SetGraphicsRoot32BitConstants(_shader->GetRootParameterIndex("bit32_5_postProcessData"), 5,
                                                &postProcessData, 0);
 

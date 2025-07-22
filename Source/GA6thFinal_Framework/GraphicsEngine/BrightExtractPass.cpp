@@ -49,8 +49,8 @@ void BrightExtractPass::Begin(ID3D12GraphicsCommandList* commandList)
 
 void BrightExtractPass::Draw(ID3D12GraphicsCommandList* commandList)
 {
-    const auto&           mode     = Global::device->GetMode();
-    PostProcessData postProcessData{.ScreenSize      = {(float)mode.Width, (float)mode.Height},
+    const auto&     resolution = Global::device->GetResolution();
+    PostProcessData postProcessData{.ScreenSize      = {(float)resolution.Width, (float)resolution.Height},
                                     .PostProcessMask = PostProcess::BLOOM};
 
     auto customDepthTarget = Global::multiRenderTargetManager->GetRenderTarget("CustomDepth");
