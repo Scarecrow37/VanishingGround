@@ -121,6 +121,7 @@ using namespace Microsoft::WRL;
 #include "Engine/Utility/Mathf.h"
 
 //Class Core
+#include "Engine/ClassCore/Delegate.hpp"
 #include "Engine/ClassCore/TProperty.hpp"
 #include "Engine/ClassCore/ReflectHelper.h"
 
