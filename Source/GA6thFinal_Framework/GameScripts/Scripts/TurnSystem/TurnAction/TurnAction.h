@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include "UmFrameWork.h"
 #include "Condition/TurnActionCondition.h"
 
 // Condition 클래스 등록을 위한 레지스터
@@ -133,32 +132,6 @@ public:
     /// <param name="targetStats :">실제 계산에 사용되는 플레이어 스텟</param>
     virtual void OnEnemyBattleStart(Enemy& attacker, EnemyStats& attackerStats, Player& target, PlayerStats& targetStats) {}
 
-    using FunctionHandle = uint64_t;
-    /// <summary>
-    /// Evaluate에서 사용할 선행 조건들입니다. 에디터에서는 편집이 불가능한 조건 함수들입니다.
-    /// </summary>
-    /// <param name="func :">조건 함수</param>
-    /// <returns>추가된 함수의 Handle입니다. 삭제할때 사용합니다.</returns>
-    FunctionHandle AddConditionFunction(const std::function<bool()>& func);
-
-    /// <summary>
-    /// 등록된 조건 함수를 제거합니다.
-    /// </summary>
-    /// <param name="id :">조건 함수 Handle ID</param>
-    /// <returns></returns>
-    bool RemoveConditionFunction(FunctionHandle id);
-
-    /// <summary>
-    /// 조건 함수들을 Clear합니다.
-    /// </summary>
-    void ClearConditionFunction();
-
-    /// <summary>
-    /// 조건 함수들의 연산자를 설정합니다.
-    /// </summary>
-    /// <param name="oper"></param>
-    void SetConditionFunctionOperator(ConditionOperator oper) { _condtionFunctionOperator = oper; }
-
 public:
     REFLECT_PROPERTY(Name, LogicOperator)
 
@@ -196,11 +169,4 @@ private:
     void ConditionsToReflectDatas();
     void ReflectDatasToConditions();
     
-private:
-    bool EvaluateConditionFunctions();
-
-    std::vector<std::pair<FunctionHandle, std::function<bool()>>> _evaluateListeners;
-    std::map<FunctionHandle, size_t>                              _handleToIndexMap;
-    FunctionHandle                                                _nextId = 1; 
-    ConditionOperator                                             _condtionFunctionOperator = ConditionOperator::AND;
 };
