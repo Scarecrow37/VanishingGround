@@ -25,6 +25,11 @@ public:
     /// </summary>
     virtual const std::string& GetConditionInfo() const = 0;
 
+    /// <summary>
+    /// Owner Action의 EvaluateConditions가 계산된 이후 결과를 알려주는 이벤트입니다.
+    /// </summary>
+    virtual void OnEvaluateConditions(bool result) {}
+
 protected:
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
     REFLECT_FIELDS_END(TurnActionCondition)
