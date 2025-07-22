@@ -28,6 +28,7 @@ public:
 public:
 	const Matrix* GetAnimationTransform() const { return _animationTransforms.data(); }
     const Matrix* FindBoneMatrix(const char* boneName) const;
+    float         GetAnimationLastTime(const char* animation) const;
     float         GetCurrentAnimationLastTime(unsigned int ID = 0) const;
     float         GetCurrentAnimationPlayTime(unsigned int ID = 0) const;
     float         GetCurrentAnimationSpeed(unsigned int ID = 0) const;

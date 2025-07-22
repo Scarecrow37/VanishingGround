@@ -43,13 +43,6 @@ void Player::Awake()
     {
         UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"Player Stats를 추가해주세요");
     }
-    SkeletalMeshRenderer* renderer = GetSkeletalMeshRenderer();
-    if (renderer)
-    {
-        const char* idleAnimKey = GetAnimationName(CharacterBase::IDLE);
-        renderer->SetMainAnimation(idleAnimKey, true);
-        renderer->SetMainAnimationLoop(true);
-    }
 }
 
 void Player::Update() 

@@ -52,6 +52,16 @@ float Animator::GetCurrentAnimationLastTime(unsigned int ID) const
     return 0.0f;
 }
 
+float Animator::GetAnimationLastTime(const char* animation) const
+{
+    auto iter = _animation->_animations.find(animation);
+    if (iter != _animation->_animations.end())
+    {
+        return iter->second.LastTime;
+    }
+    return 0.0f;
+}
+
 float Animator::GetCurrentAnimationPlayTime(unsigned int ID) const
 {
     if (ID >= _controllers.size())

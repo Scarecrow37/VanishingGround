@@ -89,7 +89,7 @@ void SkeletalMeshRenderer::ImGuiDrawPropertysEvent()
             AnimationData* curAnimData = GetLastAnimationDataEx();
             if (animator && curAnimData)
             {
-                if (ImGui::TreeNodeEx("Animation##details"))
+                if (ImGui::TreeNodeEx("Current Animation##details"))
                 {
                     const auto& animationNames = animation->GetAnimations();
                     const char* comboLabel     = curAnimData->AnimationName.empty() ? "-" : curAnimData->AnimationName.c_str();
@@ -157,6 +157,9 @@ void SkeletalMeshRenderer::ImGuiDrawPropertysEvent()
                     ImGui::TreePop();
                 }
             }
+            ImGui::Separator();
+            ImGuiHelper::TextWithVerticalSeparator("Animation Speed Scale");
+            ImGui::DragFloat("##Animation Speed Scale", &ReflectFields->AnimationSpeedScale, 0.01f, 0.0f);
         }
         else
         {
@@ -391,7 +394,7 @@ void SkeletalMeshRenderer::SetAnimation(AnimationData* animData, std::string_vie
         if (false == _isBuildingOverrideAnimation)
         {
             animator->ChangeAnimation(animData->AnimationName.c_str(), blend);
-            SetCurrentAnimationFrame(0.0f);
+            SetCurrentAnimationFrame(animData->Duration);
         }
     }
 }
@@ -410,9 +413,8 @@ void SkeletalMeshRenderer::SetAnimationFrame(AnimationData* animData, float fram
     const auto&  animator = Renderer->GetAnimator();
     if (animator && animData)
     {
-        const float maxFrame = Renderer->GetAnimator()->GetCurrentAnimationLastTime();
-        animData->Duration   = std::clamp(frame, 0.0f, maxFrame);
-        animator->SetAnimationTime(animData->Duration);
+        const float maxFrame = animator->GetAnimationLastTime(animData->AnimationName.data());
+        animData->Duration = std::clamp(frame, 0.0f, maxFrame);
     }
 }
 
@@ -422,7 +424,6 @@ void SkeletalMeshRenderer::SetAnimationSpeed(AnimationData* animData, float spee
     if (animator && animData)
     {
         animData->Speed = std::max(speed, 0.0f);
-        animator->SetAnimationSpeed(animData->Speed);
     }
 }
 

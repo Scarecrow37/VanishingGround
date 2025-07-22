@@ -327,6 +327,7 @@ void PlayerPlayTurnState::SetAttackEndAnimation()
         renderer->BeginBuildOverrideAnimation();
         renderer->ClearOverrideAnimations();
         player.SetMainAnimation(CharacterBase::IDLE);
+        renderer->SetMainAnimationFrame(0.0f);
         player.PushOverrideAnimation(CharacterBase::ATTACK_END, false, true,
                                      [](const AnimationData& data) { return data.IsEnd; });
         renderer->EndBuildOverrideAnimation();
