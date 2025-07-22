@@ -327,7 +327,8 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\Release\*.*" "$(SolutionDir)GameEngine\
     <ClInclude Include="DownScalePass.h" />
     <ClInclude Include="dxcapi.use.h" />
     <ClInclude Include="DxilLibrary.h" />
-    <ClInclude Include="DXRDrawStaticMeshPass.h" />
+    <ClInclude Include="DXRComputeSkeletalMeshPass.h" />
+    <ClInclude Include="DXRDrawPass.h" />
     <ClInclude Include="DXResourceManager.h" />
     <ClInclude Include="DXRGBufferPass.h" />
     <ClInclude Include="EditorDrawTechnique.h" />
@@ -436,7 +437,8 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\Release\*.*" "$(SolutionDir)GameEngine\
     <ClCompile Include="DownScalePass.cpp" />
     <ClCompile Include="dxcapi.use.cpp" />
     <ClCompile Include="DxilLibrary.cpp" />
-    <ClCompile Include="DXRDrawStaticMeshPass.cpp" />
+    <ClCompile Include="DXRComputeSkeletalMeshPass.cpp" />
+    <ClCompile Include="DXRDrawPass.cpp" />
     <ClCompile Include="DXResourceManager.cpp" />
     <ClCompile Include="DXRGBufferPass.cpp" />
     <ClCompile Include="EditorDrawTechnique.cpp" />

@@ -306,7 +306,7 @@
     <ClInclude Include="DxilLibrary.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="DXRDrawStaticMeshPass.h">
+    <ClInclude Include="DXRDrawPass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="DXRGBufferPass.h">
@@ -337,6 +337,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="ShaderConfig.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="DXRComputeSkeletalMeshPass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -614,7 +617,7 @@
     <ClCompile Include="DxilLibrary.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="DXRDrawStaticMeshPass.cpp">
+    <ClCompile Include="DXRDrawPass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="DXRGBufferPass.cpp">
@@ -645,6 +648,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="ShaderConfig.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="DXRComputeSkeletalMeshPass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

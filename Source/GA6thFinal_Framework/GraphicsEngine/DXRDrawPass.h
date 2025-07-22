@@ -3,11 +3,11 @@
 
 class RTPipelineBuilder;
 
-class DXRDrawStaticMeshPass : public RenderPass
+class DXRDrawPass : public RenderPass
 {
 public:
-    DXRDrawStaticMeshPass() = default;
-    virtual ~DXRDrawStaticMeshPass();
+    DXRDrawPass() = default;
+    virtual ~DXRDrawPass();
 
 public:
     void Initialize(RenderScene* ownerScene, ID3D12GraphicsCommandList* commandList) override;
