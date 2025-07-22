@@ -15,14 +15,15 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
 {
     uint x = DTid.x;
     uint y = DTid.y;
-    uint faceIndex = DTid.z;
+
     if (x >= bit32_1_cubeMapInfo.resolution || y >= bit32_1_cubeMapInfo.resolution)
         return;
+    
     float u = (2.f * (float(x) + 0.5f) / bit32_1_cubeMapInfo.resolution) - 1.f;
     float v = (2.f * (float(y) + 0.5f) / bit32_1_cubeMapInfo.resolution) - 1.f;
 
     float3 dir;
-    switch (faceIndex)
+    switch (DTid.z)
     {
         case 0:
             dir = normalize(float3(1.0f, v, -u));
@@ -51,5 +52,5 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
 
     float4 color = equirectangularMap.SampleLevel(samLinear_clamp, uv, 0.0f);
 
-    cubeMap[int3(x, y, faceIndex)] = color;
+    cubeMap[DTid] = color;
 }

@@ -3,7 +3,7 @@
 #include "Box.h"
 
 constexpr UINT CUBE_MAP_SIZE        = 512;
-constexpr UINT IRRADIANCE_MAP_SIZE  = 32;
+constexpr UINT IRRADIANCE_MAP_SIZE  = 128;
 constexpr UINT PREFILTERED_MAP_SIZE = 256;
 constexpr UINT BRDF_LUT_SIZE        = 512;
 
@@ -14,34 +14,6 @@ SkyBox::SkyBox()
 }
 
 SkyBox::~SkyBox() {}
-
-void SkyBox::Initialize()
-{
-    _box->InitializeInverted(1000.f, 1000.f, 1000.f, 0);
-    HRESULT hr = S_OK;
-        
-    FAILED_CHECK_MESSAGE(hr, L"SkyBox::Initialize device->CreateDescriptorHeap Failed");
-    CreatePipelineState();
-
-    _cubeMap        = std::make_unique<UnorderedAccessView>();
-    _irradianceMap  = std::make_unique<UnorderedAccessView>();
-    _prefilteredMap = std::make_unique<UnorderedAccessView>();
-    _brdfLUT        = std::make_unique<UnorderedAccessView>();
-    
-    auto desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, CUBE_MAP_SIZE, CUBE_MAP_SIZE, 6, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
-    _cubeMap->Initialize(desc, D3D12_UAV_DIMENSION_TEXTURE2DARRAY, D3D12_SRV_DIMENSION_TEXTURECUBE);
-
-    desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, IRRADIANCE_MAP_SIZE, IRRADIANCE_MAP_SIZE, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
-    _irradianceMap->Initialize(desc, D3D12_UAV_DIMENSION_TEXTURE2DARRAY);
-
-    desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, PREFILTERED_MAP_SIZE, PREFILTERED_MAP_SIZE, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
-    _prefilteredMap->Initialize(desc, D3D12_UAV_DIMENSION_TEXTURE2DARRAY);
-    
-    desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, BRDF_LUT_SIZE, BRDF_LUT_SIZE, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
-    _brdfLUT->Initialize(desc, D3D12_UAV_DIMENSION_TEXTURE2D);
-
-    Global::viewManager->AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _hdrSRVHandles);
-}
 
 void SkyBox::SetTexture(std::wstring_view path)
 {
@@ -61,7 +33,7 @@ void SkyBox::SetTexture(std::wstring_view path)
 
     size_t                     imageSize    = img->slicePitch;
     ID3D12Device*              pDevice      = Global::device->GetDevice();
-    ID3D12GraphicsCommandList* commandList = Global::device->GetCommandList();
+    ID3D12GraphicsCommandList* commandList  = Global::device->GetCommandList();
 
     // DirectXTex에서 가져온 포맷 사용 (보통 R32G32B32A32_FLOAT)
     _skyboxhdrTexture = CreateTexture2D(pDevice, static_cast<int>(metadata.width), static_cast<int>(metadata.height), metadata.format);
@@ -82,33 +54,162 @@ void SkyBox::SetTexture(std::wstring_view path)
     commandList->SetComputeRootDescriptorTable(_shader[CUBE_MAP]->GetRootParameterIndex("cubeMap"), _cubeMap->GetUAVHandle());
     commandList->SetComputeRoot32BitConstants(_shader[CUBE_MAP]->GetRootParameterIndex("bit32_1_cubeMapInfo"), 1, &CUBE_MAP_SIZE, 0);
     commandList->Dispatch((CUBE_MAP_SIZE + 15) / 16, (CUBE_MAP_SIZE + 15) / 16, 6);
-    //4e
-    //_cubeMap->ResourceBarrier(commandList);
+    
+    _cubeMap->ResourceBarrier(commandList);
+    _cubeMap->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
-    //// IrradianceMap 생성
-    //commandList->SetPipelineState(_pipelineState[IRRADIANCE_MAP].Get());
-    //commandList->SetComputeRootSignature(_shader[IRRADIANCE_MAP]->GetRootSignature());
-    //commandList->SetComputeRootDescriptorTable(_shader[IRRADIANCE_MAP]->GetRootParameterIndex("environmentMap"), _cubeMap->GetSRVHandle());
-    //commandList->SetComputeRootDescriptorTable(_shader[IRRADIANCE_MAP]->GetRootParameterIndex("irradianceMap"), _irradianceMap->GetUAVHandle());
-    //commandList->SetComputeRoot32BitConstants(_shader[CUBE_MAP]->GetRootParameterIndex("bit32_1_cubeMapInfo"), 1, &CUBE_MAP_SIZE, 0);
-    //commandList->Dispatch((IRRADIANCE_MAP_SIZE + 15) / 16, (IRRADIANCE_MAP_SIZE + 15) / 16, 1);
+    // BRDF LUT 생성
+    commandList->SetPipelineState(_pipelineState[BRDF_LUT].Get());
+    commandList->SetComputeRootSignature(_shader[BRDF_LUT]->GetRootSignature());
+    commandList->SetComputeRootDescriptorTable(_shader[BRDF_LUT]->GetRootParameterIndex("brdfLUT"), _brdfLUT->GetUAVHandle());
 
-    //// PrefilteredMap 생성
-    //commandList->SetPipelineState(_pipelineState[PREFILTERED_MAP].Get());
-    //commandList->SetComputeRootSignature(_shader[PREFILTERED_MAP]->GetRootSignature());
-    //commandList->SetComputeRootDescriptorTable(_shader[PREFILTERED_MAP]->GetRootParameterIndex("environmentMap"), _cubeMap->GetSRVHandle());
-    //commandList->SetComputeRootDescriptorTable(_shader[PREFILTERED_MAP]->GetRootParameterIndex("prefilteredMap"), _prefilteredMap->GetUAVHandle());
-    //commandList->SetComputeRoot32BitConstants(_shader[CUBE_MAP]->GetRootParameterIndex("bit32_1_cubeMapInfo"), 1, &CUBE_MAP_SIZE, 0);
+    // 타일 크기 설정 (예: 64x64 픽셀 단위로 작업을 나눔)
+    UINT tileWidth  = 32;
+    UINT tileHeight = 32;
+    UINT groupSize = 8; // 셰이더의 [numthreads(8, 8, 1)] 에 맞춤
 
-    //float preFilterParams[2] = {CUBE_MAP_SIZE, 0.0f};
-    //commandList->SetComputeRoot32BitConstants(_shader[PREFILTERED_MAP]->GetRootParameterIndex("bit32_2_preFilter"), 2, preFilterParams, 0);
-    //commandList->Dispatch((PREFILTERED_MAP_SIZE + 15) / 16, (PREFILTERED_MAP_SIZE + 15) / 16, 1);
+    for (UINT y = 0; y < BRDF_LUT_SIZE; y += tileHeight)
+    {
+        for (UINT x = 0; x < BRDF_LUT_SIZE; x += tileWidth)
+        {
+            // 타일 크기에 맞춰 디스패치
+            UINT dispatchX = (tileWidth + groupSize - 1) / groupSize;
+            UINT dispatchY = (tileHeight + groupSize - 1) / groupSize;
+            
+            UINT offset[2] = {x, y};
+            commandList->SetComputeRoot32BitConstants(_shader[BRDF_LUT]->GetRootParameterIndex("bit32_2_brdfConstants"), 2, offset, 0);
+            commandList->Dispatch(dispatchX, dispatchY, 1);
+        }
+    }
+    // commandList->Dispatch((BRDF_LUT_SIZE + 15) / 16, (BRDF_LUT_SIZE + 15) / 16, 1);
+
+    // IrradianceMap 생성
+    commandList->SetPipelineState(_pipelineState[IRRADIANCE_MAP].Get());
+    commandList->SetComputeRootSignature(_shader[IRRADIANCE_MAP]->GetRootSignature());
+    commandList->SetComputeRootDescriptorTable(_shader[IRRADIANCE_MAP]->GetRootParameterIndex("environmentMap"), _cubeMap->GetSRVHandle());
+    commandList->SetComputeRootDescriptorTable(_shader[IRRADIANCE_MAP]->GetRootParameterIndex("irradianceMap"), _irradianceMap->GetUAVHandle());
+    commandList->Dispatch((IRRADIANCE_MAP_SIZE + 15) / 16, (IRRADIANCE_MAP_SIZE + 15) / 16, 6);
+
+    // PrefilteredMap 생성
+    commandList->SetPipelineState(_pipelineState[PREFILTERED_MAP].Get());
+    commandList->SetComputeRootSignature(_shader[PREFILTERED_MAP]->GetRootSignature());
+    commandList->SetComputeRootDescriptorTable(_shader[PREFILTERED_MAP]->GetRootParameterIndex("environmentMap"), _cubeMap->GetSRVHandle());
+    commandList->SetComputeRootDescriptorTable(_shader[PREFILTERED_MAP]->GetRootParameterIndex("prefilteredMap"), _prefilteredMap->GetUAVHandle());
+
+    const auto& desc = _prefilteredMap->GetResourceDesc();
+    float preFilterParams[2] = {CUBE_MAP_SIZE, 0.0f};
+    
+    for (UINT16 i = 0; i < desc.MipLevels; i++)
+    {
+        preFilterParams[1] = static_cast<float>(i) / static_cast<float>(desc.MipLevels - 1);
+
+        commandList->SetComputeRoot32BitConstants(_shader[PREFILTERED_MAP]->GetRootParameterIndex("bit32_2_preFilter"), 2, preFilterParams, 0);
+        commandList->SetComputeRootDescriptorTable(_shader[PREFILTERED_MAP]->GetRootParameterIndex("prefilteredMap"), _prefilteredMap->GetUAVHandle(i));
+
+        UINT mipWidth  = PREFILTERED_MAP_SIZE >> i;
+        UINT mipHeight = PREFILTERED_MAP_SIZE >> i;
+        UINT dispatchX = (mipWidth + 15) / 16;
+        UINT dispatchY = (mipHeight + 15) / 16;
+
+        commandList->Dispatch(dispatchX, dispatchY, 6);
+    }
 
     _hasTexture = true;
 }
 
+void SkyBox::Initialize()
+{
+    _box->InitializeInverted(1000.f, 1000.f, 1000.f, 0);
+    HRESULT hr = S_OK;
+
+    FAILED_CHECK_MESSAGE(hr, L"SkyBox::Initialize device->CreateDescriptorHeap Failed");
+    CreatePipelineState();
+
+    _cubeMap        = std::make_unique<UnorderedAccessView>();
+    _irradianceMap  = std::make_unique<UnorderedAccessView>();
+    _prefilteredMap = std::make_unique<UnorderedAccessView>();
+    _brdfLUT        = std::make_unique<UnorderedAccessView>();
+
+    auto desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, CUBE_MAP_SIZE, CUBE_MAP_SIZE, 6, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+    _cubeMap->Initialize(desc, D3D12_UAV_DIMENSION_TEXTURE2DARRAY, D3D12_SRV_DIMENSION_TEXTURECUBE);
+
+    desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, IRRADIANCE_MAP_SIZE, IRRADIANCE_MAP_SIZE, 6, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+    _irradianceMap->Initialize(desc, D3D12_UAV_DIMENSION_TEXTURE2DARRAY, D3D12_SRV_DIMENSION_TEXTURECUBE);
+
+    desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, PREFILTERED_MAP_SIZE, PREFILTERED_MAP_SIZE, 6, 0, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+    _prefilteredMap->Initialize(desc, D3D12_UAV_DIMENSION_TEXTURE2DARRAY, D3D12_SRV_DIMENSION_TEXTURECUBE);
+
+    desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, BRDF_LUT_SIZE, BRDF_LUT_SIZE, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+    _brdfLUT->Initialize(desc, D3D12_UAV_DIMENSION_TEXTURE2D);
+
+    Global::viewManager->AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _hdrSRVHandles);
+}
+
 void SkyBox::Render(ID3D12GraphicsCommandList* commnadList, UINT rootParameterIndex)
 {
+    //if (_hasTexture)
+    //{
+    //    auto commandList = Global::device->GetCommandList();
+
+    //    // BRDF LUT 생성
+    //    commandList->SetPipelineState(_pipelineState[BRDF_LUT].Get());
+    //    commandList->SetComputeRootSignature(_shader[BRDF_LUT]->GetRootSignature());
+    //    commandList->SetComputeRootDescriptorTable(_shader[BRDF_LUT]->GetRootParameterIndex("brdfLUT"),
+    //                                               _brdfLUT->GetUAVHandle());
+
+    //    // 타일 크기 설정 (예: 64x64 픽셀 단위로 작업을 나눔)
+    //    UINT tileWidth  = 32;
+    //    UINT tileHeight = 32;
+    //    UINT groupSize  = 8; // 셰이더의 [numthreads(8, 8, 1)] 에 맞춤
+
+    //    for (UINT y = 0; y < BRDF_LUT_SIZE; y += tileHeight)
+    //    {
+    //        for (UINT x = 0; x < BRDF_LUT_SIZE; x += tileWidth)
+    //        {
+    //            // 타일 크기에 맞춰 디스패치
+    //            UINT dispatchX = (tileWidth + groupSize - 1) / groupSize;
+    //            UINT dispatchY = (tileHeight + groupSize - 1) / groupSize;
+
+    //            UINT offset[2] = {x, y};
+    //            commandList->SetComputeRoot32BitConstants(
+    //                _shader[BRDF_LUT]->GetRootParameterIndex("bit32_2_brdfConstants"), 2, offset, 0);
+    //            commandList->Dispatch(dispatchX, dispatchY, 1);
+    //        }
+    //    }
+    //    // commandList->Dispatch((BRDF_LUT_SIZE + 15) / 16, (BRDF_LUT_SIZE + 15) / 16, 1);
+
+    //    auto descriptorHeap = Global::viewManager->GetShaderResourceHeap();
+    //    commandList->SetDescriptorHeaps(1, &descriptorHeap);
+
+    //    // IrradianceMap 생성
+    //    commandList->SetPipelineState(_pipelineState[IRRADIANCE_MAP].Get());
+    //    commandList->SetComputeRootSignature(_shader[IRRADIANCE_MAP]->GetRootSignature());
+    //    commandList->SetComputeRootDescriptorTable(_shader[IRRADIANCE_MAP]->GetRootParameterIndex("environmentMap"),
+    //                                               _cubeMap->GetSRVHandle());
+    //    commandList->SetComputeRootDescriptorTable(_shader[IRRADIANCE_MAP]->GetRootParameterIndex("irradianceMap"),
+    //                                               _irradianceMap->GetUAVHandle());
+    //    commandList->Dispatch((IRRADIANCE_MAP_SIZE + 15) / 16, (IRRADIANCE_MAP_SIZE + 15) / 16, 6);
+
+    //    // PrefilteredMap 생성
+
+    //    commandList->SetPipelineState(_pipelineState[PREFILTERED_MAP].Get());
+    //    commandList->SetComputeRootSignature(_shader[PREFILTERED_MAP]->GetRootSignature());
+    //    commandList->SetComputeRootDescriptorTable(_shader[PREFILTERED_MAP]->GetRootParameterIndex("environmentMap"),
+    //                                               _cubeMap->GetSRVHandle());
+    //    commandList->SetComputeRootDescriptorTable(_shader[PREFILTERED_MAP]->GetRootParameterIndex("prefilteredMap"),
+    //                                               _prefilteredMap->GetUAVHandle());
+
+    //    const auto& desc               = _prefilteredMap->GetResourceDesc();
+    //    float       preFilterParams[2] = {CUBE_MAP_SIZE, 0.0f};
+    //    for (UINT16 i = 0; i < desc.MipLevels; i++)
+    //    {
+    //        preFilterParams[1] = static_cast<float>(i) / static_cast<float>(desc.MipLevels - 1);
+    //        commandList->SetComputeRoot32BitConstants(
+    //            _shader[PREFILTERED_MAP]->GetRootParameterIndex("bit32_2_preFilter"), 2, preFilterParams, 0);
+    //        commandList->Dispatch((PREFILTERED_MAP_SIZE + 15) / 16, (PREFILTERED_MAP_SIZE + 15) / 16, 6);
+    //    }
+    //}
+
     commnadList->SetGraphicsRootDescriptorTable(rootParameterIndex, _cubeMap->GetSRVHandle());
     _box->Render(commnadList);
 }
@@ -267,15 +368,15 @@ void SkyBox::CreatePipelineState()
     hr = device->CreateComputePipelineState(&psodesc, IID_PPV_ARGS(&_pipelineState[PREFILTERED_MAP]));
     FAILED_CHECK_MESSAGE(hr, L"SkyBox::CreateComputePSO device->CreateComputePipelineState Failed");
 
-    /*_shader[BRDF_LUT] = std::make_unique<ShaderBuilder>();
+    _shader[BRDF_LUT] = std::make_unique<ShaderBuilder>();
     _shader[BRDF_LUT]->BeginBuild();
     _shader[BRDF_LUT]->SetShader(L"../Shaders/cs_brdf_lut.hlsl", ShaderBuilder::Type::CS);
-    _shader[BRDF_LUT]->EndBuild(ShaderBuilder::BindType::DIRECT);
+    _shader[BRDF_LUT]->EndBuild();
 
     psodesc.pRootSignature = _shader[BRDF_LUT]->GetRootSignature();
     psodesc.CS             = _shader[BRDF_LUT]->GetShaderByteCode(ShaderBuilder::Type::CS);
     psodesc.Flags          = D3D12_PIPELINE_STATE_FLAG_NONE;
 
     hr = device->CreateComputePipelineState(&psodesc, IID_PPV_ARGS(&_pipelineState[BRDF_LUT]));
-    FAILED_CHECK_MESSAGE(hr, L"SkyBox::CreateComputePSO device->CreateComputePipelineState Failed");*/
+    FAILED_CHECK_MESSAGE(hr, L"SkyBox::CreateComputePSO device->CreateComputePipelineState Failed");
 }

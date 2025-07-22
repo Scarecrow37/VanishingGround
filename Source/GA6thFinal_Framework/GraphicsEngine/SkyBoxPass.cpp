@@ -12,7 +12,6 @@ void SkyBoxPass::Initialize(RenderScene* ownerScene, ID3D12GraphicsCommandList* 
 
     _skyBox = _ownerScene->GetSkyBox();
     InitShaderAndPSO();
-    _skyBox->Initialize();
 }
 
 void SkyBoxPass::Begin(ID3D12GraphicsCommandList* commandList) 
