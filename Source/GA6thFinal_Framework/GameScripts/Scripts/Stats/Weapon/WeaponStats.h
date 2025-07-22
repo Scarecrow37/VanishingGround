@@ -36,7 +36,13 @@ struct WeaponStats : public TurnActorStats
 
     GETTER(int, AttackCount) { return ReflectFields->AttackCount; }
     SETTER(int, AttackCount) { ReflectFields->AttackCount = value; }
+    //연격 횟수
     PROPERTY(AttackCount)
+
+    GETTER(int, AttackPerChain) { return ReflectFields->AttackPerChain; }
+    SETTER(int, AttackPerChain) { ReflectFields->AttackPerChain = value; }
+    //공격 당 연격 부여량
+    PROPERTY(AttackPerChain)
 
     /*랜덤 속도를 갱신합니다.*/
     int RollRandomSpeed();
@@ -54,6 +60,7 @@ protected:
     float       CriticalDamageMultiplier = 1.5f;
     int         Speed = 0;
     int         AttackCount = 1;
+    int         AttackPerChain = 1;
     REFLECT_FIELDS_END(WeaponStats)
     int _randomSpeed = 0;
 
