@@ -21,7 +21,7 @@ public:
 
 public:
     void Initialize();
-    void Render(ID3D12GraphicsCommandList* commnadList,UINT rootParameterIndex);
+    void Render(ID3D12GraphicsCommandList* commandList, UINT rootParameterIndex);
     void ResetResource();
 
 private:
