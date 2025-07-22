@@ -7,6 +7,7 @@
 #include <TurnSystem/TurnMode/State/CombatStartPhase.h>
 #include <TurnSystem/TurnMode/TurnMode.h>
 
+REGISTER_TURN_ACTION_CONDITION(ChainCondition)
 using namespace u8_literals;
 
 ChainCondition::ChainCondition() 
