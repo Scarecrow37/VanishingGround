@@ -13,16 +13,15 @@ void UnorderedAccessView::Initialize(const D3D12_RESOURCE_DESC& desc, D3D12_UAV_
     }
 
     _uavCPUHandles.resize(mipLevelCount);
-    _srvHandles.resize(mipLevelCount);
     _uavHandles.resize(mipLevelCount);
-    _IDs.resize(mipLevelCount);
 
     for (UINT i = 0; i < mipLevelCount; i++)
     {
         Global::viewManager->AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _uavHandles[i]);
-        Global::viewManager->AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _srvHandles[i]);
-        _IDs[i] = Global::viewManager->GetNumShaderResourceView() - 1;
     }
+
+    Global::viewManager->AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _srvHandle);
+    _ID = Global::viewManager->GetNumShaderResourceView() - 1;
 
     _desc = desc;
     _srvDimension = srvDimension;
@@ -69,20 +68,18 @@ void UnorderedAccessView::CreateUnorderedAccessView()
 
     D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
     uavDesc.Format                           = _desc.Format;
-    uavDesc.ViewDimension                    = _uavDimension;
-
-    switch (_uavDimension)
-    {
-    case D3D12_UAV_DIMENSION_TEXTURE2DARRAY:
-        uavDesc.Texture2DArray.MipSlice        = 0;
-        uavDesc.Texture2DArray.FirstArraySlice = 0;
-        uavDesc.Texture2DArray.ArraySize       = _desc.DepthOrArraySize;
-        uavDesc.Texture2DArray.PlaneSlice      = 0;
-        break;
-    }
+    uavDesc.ViewDimension                    = _uavDimension;    
 
     for (UINT16 i = 0; i < _desc.MipLevels; i++)
     {
+        if (_uavDimension == D3D12_UAV_DIMENSION_TEXTURE2DARRAY)
+        {
+            uavDesc.Texture2DArray.MipSlice        = i;
+            uavDesc.Texture2DArray.FirstArraySlice = 0;
+            uavDesc.Texture2DArray.ArraySize       = _desc.DepthOrArraySize;
+            uavDesc.Texture2DArray.PlaneSlice      = 0;
+        }
+
         device->CreateUnorderedAccessView(_resource.Get(), nullptr, &uavDesc, _uavHandles[i].CPU);
     }
 
@@ -95,20 +92,22 @@ void UnorderedAccessView::CreateUnorderedAccessView()
     hr = device->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&_cpuDescriptorHeap));
     FAILED_CHECK_MESSAGE(hr, L"UnorderedAccessView::Initialize CreateDescriptorHeap Failed");
 
-    D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-    srvDesc.Format                          = _desc.Format;
-    srvDesc.ViewDimension                   = _srvDimension;
-    srvDesc.Texture2D.MipLevels             = 1;
-    srvDesc.Shader4ComponentMapping         = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-
     auto cpuHeap = _cpuDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
     for (UINT16 i = 0; i < _desc.MipLevels; i++)
     {
         _uavCPUHandles[i] = cpuHeap;
         cpuHeap.ptr += device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
         device->CreateUnorderedAccessView(_resource.Get(), nullptr, &uavDesc, _uavCPUHandles[i]);
-        device->CreateShaderResourceView(_resource.Get(), &srvDesc, _srvHandles[i].CPU);
     }
+
+    D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+    srvDesc.Format                          = _desc.Format;
+    srvDesc.ViewDimension                   = _srvDimension;    
+    srvDesc.Shader4ComponentMapping         = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+    srvDesc.Texture1D.MostDetailedMip       = 0;
+    srvDesc.Texture2D.MipLevels             = _desc.MipLevels;
+
+    device->CreateShaderResourceView(_resource.Get(), &srvDesc, _srvHandle.CPU);
 }
 
 void UnorderedAccessView::InitializeForBuffer(UINT elementSize, UINT elementCount)
@@ -141,9 +140,9 @@ void UnorderedAccessView::InitializeForBuffer(UINT elementSize, UINT elementCoun
     srvDesc.Buffer.NumElements              = elementCount;
     srvDesc.Shader4ComponentMapping         = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
-    Global::viewManager->AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _srvHandles[0]);
-    device->CreateShaderResourceView(_resource.Get(), &srvDesc, _srvHandles[0].CPU);
+    Global::viewManager->AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _srvHandle);
+    device->CreateShaderResourceView(_resource.Get(), &srvDesc, _srvHandle.CPU);
 
-    _IDs[0]       = Global::viewManager->GetNumShaderResourceView() - 1;
+    _ID           = Global::viewManager->GetNumShaderResourceView() - 1;
     _currentState = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
 }
