@@ -3,6 +3,18 @@
 
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
 
+#include <TurnSystem/TurnActor/Character/Enemy/Action/22000_22009/EnemyAction22000.h>
+#include <TurnSystem/TurnActor/Character/Enemy/Action/22000_22009/EnemyAction22001.h>
+#include <TurnSystem/TurnActor/Character/Enemy/Action/22000_22009/EnemyAction22002.h>
+#include <TurnSystem/TurnActor/Character/Enemy/Action/22000_22009/EnemyAction22003.h>
+#include <TurnSystem/TurnActor/Character/Enemy/Action/22000_22009/EnemyAction22004.h>
+
+#include <TurnSystem/TurnActor/Character/Enemy/Action/22010_22019/EnemyAction22010.h>
+#include <TurnSystem/TurnActor/Character/Enemy/Action/22010_22019/EnemyAction22011.h>
+#include <TurnSystem/TurnActor/Character/Enemy/Action/22010_22019/EnemyAction22012.h>
+#include <TurnSystem/TurnActor/Character/Enemy/Action/22010_22019/EnemyAction22013.h>
+#include <TurnSystem/TurnActor/Character/Enemy/Action/22010_22019/EnemyAction22014.h>
+
 REGISTER_CLASS(FSMStateFactory, EnemyPlayTurnState)
 
 // switch문 안에 있어야함
@@ -11,12 +23,6 @@ REGISTER_CLASS(FSMStateFactory, EnemyPlayTurnState)
 case index:                         \
 BuildAIModel##index();              \
 break;
-
-// switch문 안에 있어야함
-// AI 모델 ID값에 해당하는 AI 모델을 셋업
-#define BUILD_ACTION(index)         \
-_actionTable[index] = std::bind(&EnemyPlayTurnState::Action##index, this); \
-
 
 void EnemyPlayTurnState::OnAwake() 
 {
@@ -39,11 +45,6 @@ void EnemyPlayTurnState::OnEnter()
     UmTime.Invoke(&GetFSM(), 2.f, [=]() { GetEnemy().EndTurn(); });
 
     LogCurrentAction();
-
-    //auto& enemy = GetEnemy();
-    //enemy.OnTurnStart();
-
-    ProcessAction();
 }
 
 void EnemyPlayTurnState::OnExit() 
@@ -53,9 +54,6 @@ void EnemyPlayTurnState::OnExit()
     std::string message = std::format("{} {}", gameObject->ToString(), (const char*)u8"턴 종료.");
     UmLogger.Message(LogLevel::LEVEL_TRACE, message);
 
-    //auto& enemy = GetEnemy();
-    //enemy.OnTurnEnd();
-
     // Enemy의 턴이 종료시 액션을 선언.
     _aiModel.Transition();
     _aiModel.Refresh();
@@ -63,17 +61,54 @@ void EnemyPlayTurnState::OnExit()
     
 void EnemyPlayTurnState::OnUpdate()
 {
-    //ProcessAction();
+    Enemy& enemy  = GetEnemy();
+    bool result = ExcuteAction();
+    if (true == result)
+    {
+        enemy.EndTurn();
+    }
 }
 
-void EnemyPlayTurnState::ProcessAction() 
+void EnemyPlayTurnState::ClearAction() 
 {
+    _currentAction  = nullptr;
+    _previousAction = nullptr;
+    _actionTable.clear();
+}
+
+bool EnemyPlayTurnState::ExcuteAction()
+{
+    bool result = true;
+    _previousAction = _currentAction;
+
     int  actionID = _aiModel.GetCurrentActionID();
     auto actionIt = _actionTable.find(actionID);
     if (actionIt != _actionTable.end())
     {
-        actionIt->second(); // 액션 실행
+        _currentAction = actionIt->second.get();
     }
+    else
+    {
+        _currentAction = nullptr;
+    }
+
+    if (_currentAction != _previousAction)
+    {
+        if (_previousAction)
+        {
+            _previousAction->OnActionExit();
+        }
+        if (_currentAction)
+        {
+            _currentAction->OnActionEnter();
+        }
+    }
+    if (_currentAction)
+    {
+        result = _currentAction->OnActionUpdate();
+    }
+
+    return result;
 }
 
 void EnemyPlayTurnState::SetAIModel(EnemyType type)
@@ -111,9 +146,16 @@ void EnemyPlayTurnState::SetAIModel(EnemyType type)
     }
 }
 
+// switch문 안에 있어야함
+// AI 모델 ID값에 해당하는 AI 모델을 셋업
+#define BUILD_ACTION(index)         \
+_actionTable[index] = std::make_unique<EnemyAction::Action##index>(&enemy); \
+
 void EnemyPlayTurnState::SetActions(EnemyType type) 
 {
-    _actionTable.clear();
+    Enemy& enemy = GetEnemy();
+    ClearAction();
+    
     switch (type)
     {
     case EnemyType::MONSTER_A: {
@@ -162,56 +204,6 @@ void EnemyPlayTurnState::BuildAIModel23001()
     _aiModel.SetCurrentNode("#1");
 }
 
-#include <TurnSystem/TurnActor/Character/Player/Player.h>
-void EnemyPlayTurnState::Action22000()
-{
-    auto player = Player::GetInstance();
-    if (player)
-    {
-        // 플레이어에게 출혈 토큰을 추가합니다.
-        auto& system = player->GetTokenInventory();
-        system.AddTokenStackFromID(TokenObject::Bleed::ID, 2);
-        system.AddTokenStackFromID(TokenObject::Poison2::ID, 2);
-    }
-}
-
-void EnemyPlayTurnState::Action22001()
-{
-    auto player = Player::GetInstance();
-    if (player)
-    {
-        // 플레이어에게 출혈 토큰을 추가합니다.
-        auto& system = player->GetTokenInventory();
-        system.AddTokenStackFromID(TokenObject::Poison3::ID, 3);
-    }
-}
-
-void EnemyPlayTurnState::Action22002()
-{
-    auto player = Player::GetInstance();
-    if (player)
-    {
-        // 플레이어에게 출혈 토큰을 추가합니다.
-        auto& system = player->GetTokenInventory();
-        system.AddTokenStackFromID(TokenObject::Poison1::ID, 4);
-    }
-}
-
-void EnemyPlayTurnState::Action22003()
-{
-}
-
-void EnemyPlayTurnState::Action22004()
-{
-    auto player = Player::GetInstance();
-    if (player)
-    {
-        // 플레이어에게 출혈 토큰을 추가합니다.
-        auto& system = player->GetTokenInventory();
-        system.AddTokenStackFromID(TokenObject::Bleed::ID, 1);
-    }
-}
-
 void EnemyPlayTurnState::BuildAIModel23010() 
 {
     _aiModel.PushActionNode("#1", "#2", {{50.0f, 22010}, {50.0f, 22011}}); // Action 22010, 22011
@@ -234,26 +226,6 @@ void EnemyPlayTurnState::BuildAIModel23011()
     _aiModel.SetCurrentNode("#1");
 }
 
-void EnemyPlayTurnState::Action22010()
-{
-}
-
-void EnemyPlayTurnState::Action22011()
-{
-}
-
-void EnemyPlayTurnState::Action22012()
-{
-}
-
-void EnemyPlayTurnState::Action22013()
-{
-}
-
-void EnemyPlayTurnState::Action22014()
-{
-}
-
 bool EnemyPlayTurnState::IsPlayerBleeding()
 {
     // TODO: 실제 출혈 상태를 확인하는 로직을 구현해야 합니다.
@@ -270,7 +242,7 @@ std::string_view EnemyPlayTurnState::GetActionName(int actionID) const
     static std::string actionName;
     switch (actionID)
     {
-        GET_ACTION_NAME(0, u8"유효하지 않은 액션 ID")
+        GET_ACTION_NAME(0,     u8"유효하지 않은 액션 ID")
         GET_ACTION_NAME(22000, u8"찢어 발기기")
         GET_ACTION_NAME(22001, u8"기습")
         GET_ACTION_NAME(22002, u8"확인 사살")

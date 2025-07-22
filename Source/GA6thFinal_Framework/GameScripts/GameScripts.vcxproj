@@ -298,6 +298,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Scripts\Animation\Structs\AnimationStructs.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22000_22009\EnemyAction22001.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22000_22009\EnemyAction22002.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22000_22009\EnemyAction22003.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22000_22009\EnemyAction22004.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22010_22019\EnemyAction22010.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22010_22019\EnemyAction22011.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22010_22019\EnemyAction22012.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22010_22019\EnemyAction22013.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22010_22019\EnemyAction22014.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\AnemyActionBase.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22000_22009\EnemyAction22000.h" />
+    <ClInclude Include="Scripts\RevelationSystem\RevelationAction\Base\RevelationActionBase.h" />
+    <ClInclude Include="Scripts\RevelationSystem\RevelationAction\Critical\CriticalDamageAction.h" />
+    <ClInclude Include="Scripts\RevelationSystem\RevelationAction\Token\TokenApplyAction.h" />
     <ClInclude Include="Scripts\Token\Enums\TokenEnums.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\ChainCondition\ChainCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\RoundOnceCondition\RoundOnceCondition.h" />
@@ -400,6 +415,17 @@
     <ClInclude Include="Scripts\Test\TurnAction\TestActionComponent.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22000_22009\EnemyAction22001.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22000_22009\EnemyAction22002.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22000_22009\EnemyAction22003.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22000_22009\EnemyAction22004.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22010_22019\EnemyAction22010.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22010_22019\EnemyAction22011.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22010_22019\EnemyAction22012.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22010_22019\EnemyAction22013.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22010_22019\EnemyAction22014.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\AnemyActionBase.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22000_22009\EnemyAction22000.cpp" />
     <ClCompile Include="Scripts\DamageSystem\DamageSystem.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\ChainCondition\ChainCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\RoundOnceCondition\RoundOnceCondition.cpp" />

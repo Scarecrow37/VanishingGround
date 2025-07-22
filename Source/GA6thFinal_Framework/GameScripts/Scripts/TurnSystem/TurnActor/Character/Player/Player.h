@@ -108,4 +108,7 @@ public:
     virtual void OnKill(CharacterBase* destination) override;
     virtual void OnTokenAdded(int tokenID) override;
     virtual void OnTokenRemoved(int tokenID) override;
+
+    // 애니메이션 리팩터링 전 임시 메서드
+    const char* GetAnimationName(AnimationType type) override;
 };

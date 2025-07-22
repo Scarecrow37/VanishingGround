@@ -3,6 +3,10 @@
 #include "../Enum/EnemyEnum.h"
 #include "../AI/EnemyAI.h"
 
+namespace EnemyAction
+{
+    class ActionBase;
+}
 class EnemyAI;
 
 /*
@@ -10,6 +14,7 @@ class EnemyAI;
 */
 class EnemyPlayTurnState : public EnemyStateBase
 {
+    using Action = EnemyAction::ActionBase;
 private:
     // EnemyStateBase을(를) 통해 상속됨
     void OnAwake() override;
@@ -19,10 +24,25 @@ private:
     void OnUpdate() override;
 
 private:
-    void ProcessAction();
+    /// <summary>
+    /// Action 테이블을 초기화합니다.
+    /// </summary>
+    void ClearAction();
 
-private:
+    /// <summary>
+    /// AI 모델이 정의한 액션을 실행합니다. 액션이 종료되면 true가 반환됩니다.
+    /// </summary>
+    bool ExcuteAction();
+
+    /// <summary>
+    /// EnemyType에 맞는 AIModel을 셋업합니다.
+    /// </summary>
+    /// <param name="type"></param>
     void SetAIModel(EnemyType type);
+    /// <summary>
+    /// EnemyType에 액션 함수를 바인드합니다.
+    /// </summary>
+    /// <param name="type"></param>
     void SetActions(EnemyType type);
 
     ///////////////////////////////////
@@ -32,34 +52,12 @@ private:
     void BuildAIModel23000();
     void BuildAIModel23001();
 
-    // 찢어 발기기(구현 X)
-    void Action22000(); 
-    // 기습(구현 X)
-    void Action22001();
-    // 확인 사살(구현 X)
-    void Action22002(); 
-    // 연기(?) 베기(구현 X)
-    void Action22003(); 
-    // 피의 의식(구현 X)
-    void Action22004(); 
-
     ///////////////////////////////////
     // MonsterB
     ///////////////////////////////////
 
     void BuildAIModel23010();
     void BuildAIModel23011();
-
-    // 두려움의 중얼거림(구현 X)
-    void Action22010(); 
-    // 떨리는 중얼거림(구현 X)
-    void Action22011(); 
-    // 절망(구현 X)
-    void Action22012(); 
-    // 소멸의 찬가(구현 X)
-    void Action22013(); 
-    // 웅크리기(구현 X)
-    void Action22014();
 
     //================================
     // Condition
@@ -79,7 +77,9 @@ private:
 
 private:
     EnemyAI _aiModel;
-    std::unordered_map<int, std::function<void()>> _actionTable;
+    Action* _previousAction = nullptr;
+    Action* _currentAction  = nullptr;
+    std::unordered_map<int, std::unique_ptr<Action>> _actionTable;
 
     REFLECT_FIELDS_BEGIN(EnemyStateBase)
     REFLECT_FIELDS_END(EnemyPlayTurnState)

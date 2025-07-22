@@ -1,6 +1,15 @@
 ﻿#include "pchScripts.h"
 #include "EnemyAI.h"
 
+EnemyAI::EnemyAI()
+{
+}
+
+EnemyAI::~EnemyAI() 
+{
+    Clear();
+}
+
 EnemyAI::ActionNode::ActionNode(std::string_view label, std::string_view nextNode,
                                 const std::initializer_list<ActionData>& actions)
     : Node(label), _nextNode(nextNode)
@@ -87,7 +96,7 @@ bool EnemyAI::ConditionNode::IsActionNode() const
     return false;
 }
 
-void EnemyAI::Clear() 
+void EnemyAI::Clear()
 {
     for (auto& [id, node] : _nodeTable)
     {
