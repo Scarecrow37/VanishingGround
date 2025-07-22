@@ -394,7 +394,7 @@ void Device::ResizeSwapChain()
     if (!_onResize)
         return;
 
-    GRAPHICS_ASSERT(_device || _swapChain, L"");    
+    GRAPHICS_ASSERT(_device || _swapChain, L"");
 
     _commandList->Reset(_commandAllocator.Get(), nullptr);
 
@@ -416,7 +416,7 @@ void Device::ResizeSwapChain()
 
     DXGI_MODE_DESC prevMode = _mode;
     _mode                   = _newMode;
-    Global::dxResourceManager->ResizeResource(prevMode);
+    //Global::dxResourceManager->ResizeResource(prevMode);
 
     _onResize  = false;
 }

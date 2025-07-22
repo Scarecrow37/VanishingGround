@@ -59,6 +59,9 @@ void RenderTarget::ResizeResource(Resolution resolution)
 {
     _currentState = D3D12_RESOURCE_STATE_RENDER_TARGET;
 
+    _desc.Width = resolution.Width;
+    _desc.Height = resolution.Height;
+
     _viewPort    = {.Width = (FLOAT)resolution.Width, .Height = (FLOAT)resolution.Height, .MinDepth = 0.f, .MaxDepth = 1.f};
     _scissorRect = {.right = (LONG)resolution.Width, .bottom = (LONG)resolution.Height};
     _resolution  = resolution;
