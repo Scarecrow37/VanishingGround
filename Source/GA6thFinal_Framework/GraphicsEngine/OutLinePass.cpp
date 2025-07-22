@@ -44,8 +44,8 @@ void OutLinePass::Begin(ID3D12GraphicsCommandList* commandList)
 
 void OutLinePass::Draw(ID3D12GraphicsCommandList* commandList)
 {
-    const auto&     mode = Global::device->GetMode();
-    PostProcessData postProcessData{.ScreenSize      = {(float)mode.Width, (float)mode.Height},
+    const auto&     resoultion = Global::device->GetResolution();
+    PostProcessData postProcessData{.ScreenSize      = {(float)resoultion.Width, (float)resoultion.Height},
                                     .PostProcessMask = PostProcess::OUTLINE};
     postProcessData.TexelSize = 1.f / postProcessData.ScreenSize;
 
