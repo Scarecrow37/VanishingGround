@@ -186,12 +186,15 @@ private:
 public:
     TurnAction& CopyAction(const TurnAction& rhs)
     {
+        if (this == &rhs) // Self-assignment check
+            return *this;
+
         TurnAction& rhsAction  = const_cast<TurnAction&>(rhs);
         std::string data = rhsAction.SerializedReflectFields();
         DeserializedReflectFields(data);
         return *this;
     }
-    TurnAction(const TurnAction& rhs) { CopyAction(rhs); }
+    explicit TurnAction(const TurnAction& rhs) { CopyAction(rhs); }
     TurnAction& operator=(const TurnAction& rhs) { return CopyAction(rhs); }
 
 };
