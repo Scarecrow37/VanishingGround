@@ -5,6 +5,12 @@ using namespace u8_literals;
 
 bool TurnAction::EvaluateConditions()
 {  
+    bool functionResult = EvaluateConditionFunctions();
+    if (false == functionResult)
+    {
+        return false;
+    }
+
     if (true == _conditions.empty())
     {
         return true;
@@ -12,30 +18,31 @@ bool TurnAction::EvaluateConditions()
 
     ConditionOperator oper   = LogicOperator;
     bool              result = oper == ConditionOperator::AND ? true : false;
-    for (auto& condition : _conditions)
+    switch (oper)
     {
-        switch (oper)
+    case ConditionOperator::AND:
+        for (auto& condition : _conditions)
         {
-        case ConditionOperator::AND:
             result &= condition->Evaluate();
             if (result == false)
             {
                 return false;
             }
-            break;
-        case ConditionOperator::OR:
+        }
+        return result;
+    case ConditionOperator::OR:
+        for (auto& condition : _conditions)
+        {
             result |= condition->Evaluate();
             if (result == true)
             {
                 return true;
             }
-            break;
-        default:
-            return false;
-            break;
         }
-    }
-    return result;
+        return result;
+    default:
+        return false;
+    }   
 }
 
 const std::string& TurnAction::GetConditionsInfo() const
@@ -72,7 +79,53 @@ const std::string& TurnAction::GetConditionsInfo() const
     return info;
 }
 
-void TurnAction::SerializedReflectEvent() 
+TurnAction::FunctionHandle TurnAction::AddConditionFunction(const std::function<bool()>& func)
+{
+    FunctionHandle id = _nextId++;
+    _evaluateListeners.emplace_back(id, func);
+    _handleToIndexMap[id] = _evaluateListeners.size() - 1;
+    return id;
+}
+
+bool TurnAction::RemoveConditionFunction(FunctionHandle id)
+{
+    // 1. Find the vector index corresponding to the handle from the map (O(log N))
+    auto it = _handleToIndexMap.find(id);
+    if (it == _handleToIndexMap.end())
+    {
+        return false;
+    }
+    size_t indexOfListenerToRemove = it->second;
+
+    // 2. Swap the element to be removed with the last element in the vector
+    //    (This is an O(1) operation for vectors)
+    size_t lastIndex = _evaluateListeners.size() - 1;
+    if (indexOfListenerToRemove != lastIndex)
+    {
+        // Swap with the last element
+        std::swap(_evaluateListeners[indexOfListenerToRemove], _evaluateListeners[lastIndex]);
+
+        // Update the index mapping for the element that was moved
+        FunctionHandle handleOfMovedListener     = _evaluateListeners[indexOfListenerToRemove].first;
+        _handleToIndexMap[handleOfMovedListener] = indexOfListenerToRemove;
+    }
+
+    // 3. Remove the last element from the vector (now the one we wanted to delete)
+    _evaluateListeners.pop_back();
+
+    // 4. Remove the original handle from the map
+    _handleToIndexMap.erase(it);
+
+    return true;
+}
+
+void TurnAction::ClearConditionFunction() 
+{
+    _evaluateListeners.clear();
+    _handleToIndexMap.clear();
+}
+
+void TurnAction::SerializedReflectEvent()
 {
     ConditionsToReflectDatas();
 }
@@ -176,6 +229,36 @@ void TurnAction::ReflectDatasToConditions()
             condition->DeserializedReflectFields(data);
             _conditions.emplace_back(condition);
         }     
+    }
+}
+
+bool TurnAction::EvaluateConditionFunctions()
+{
+    bool result = _condtionFunctionOperator == ConditionOperator::AND ? true : false;
+    switch (_condtionFunctionOperator)
+    {
+    case TurnAction::ConditionOperator::AND:
+        for (auto& [id, func] : _evaluateListeners)
+        {
+            result &= func();
+            if (result == false)
+            {
+                return false;
+            }
+        }
+        return result;
+    case TurnAction::ConditionOperator::OR:
+        for (auto& [id, func] : _evaluateListeners)
+        {
+            result |= func();
+            if (result == true)
+            {
+                return true;
+            }
+        }
+        return result;
+    default:
+        return false;
     }
 }
 
