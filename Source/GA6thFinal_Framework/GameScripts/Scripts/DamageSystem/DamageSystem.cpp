@@ -7,7 +7,9 @@
 int DamageSystem::CalculateDamage(const PlayerInfo& attacker, const EnemyInfo& target)
 {
     int result = 0;
-    result     = attacker._weaponStats.CriticalDamage;
+    int hitDamage = attacker._weaponStats.HitDamage;
+    float criticalDamageMultiplier = attacker._weaponStats.CriticalDamageMultiplier;
+    result = static_cast<int>(std::round(hitDamage * criticalDamageMultiplier));
     return result;
 }
 
