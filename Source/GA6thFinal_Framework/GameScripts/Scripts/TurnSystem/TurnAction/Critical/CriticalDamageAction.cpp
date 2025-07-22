@@ -45,6 +45,6 @@ void CriticalDamageAction::UpdateActionInfo()
 
 const std::string& CriticalDamageAction::GetActionName()
 {
-    static const std::string name = (const char*)u8"치명타 데미지 증가";
+    static const std::string name = (const char*)u8"공격시 치명타 데미지 증가";
     return name;
 }
