@@ -44,8 +44,8 @@ void BlurYPass::Begin(ID3D12GraphicsCommandList* commandList)
 
 void BlurYPass::Draw(ID3D12GraphicsCommandList* commandList)
 {
-    const auto&     mode = Global::device->GetMode();
-    PostProcessData postProcessData{.TexelSize = {1.f / (float)mode.Width, 1.f / (float)mode.Height}};
+    const auto&     resolution = Global::device->GetResolution();
+    PostProcessData postProcessData{.TexelSize = {1.f / (float)resolution.Width, 1.f / (float)resolution.Height}};
 
     auto&       multiRenderTargetManager = Global::multiRenderTargetManager;
     const auto& usedRenderTargets        = multiRenderTargetManager->GetUsedRenderTargets();

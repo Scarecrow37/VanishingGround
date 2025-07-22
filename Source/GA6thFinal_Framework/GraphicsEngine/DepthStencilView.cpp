@@ -45,4 +45,5 @@ void DepthStencilView::CreateDepthStencilView()
         .Format = _desc.Format, .ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D, .Flags = D3D12_DSV_FLAG_NONE};
 
     device->GetDevice()->CreateDepthStencilView(_resource.Get(), &dsvDesc, _handle);
+    _desc = _resource->GetDesc();
 }
