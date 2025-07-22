@@ -109,8 +109,19 @@ void CharacterBase::TakeDamage(int damage)
             (const char*)u8"의 피해를 입었습니다.");
     UmLogger.Log(LogLevel::LEVEL_DEBUG, msg);
 
-    // TestAnim
-    SetAnimation(HIT, false);
+    if (_skeletalMeshRenderer)
+    {
+        const char* currentAnimName = _skeletalMeshRenderer->GetCurrentAnimationName().c_str();
+        const char* hitAnimName     = GetAnimationName(CharacterBase::HIT);
+        if (0 == strcmp(currentAnimName, hitAnimName))
+        {
+            PopOverrideAnimation(true); // Hit 애니메이션이 재생 중이면 Pop
+        }
+    }
+    PushOverrideAnimation(CharacterBase::HIT, false, true,
+                          [](const AnimationData& data) { // 자동 Pop조건
+                              return data.IsEnd;
+                          });
 }
 
 int CharacterBase::DecrementChainRoundCount()
@@ -198,12 +209,31 @@ void CharacterBase::ImGuiDrawPropertysEvent()
     _tokenInventory.DrawImGuiDebugData();
 }
 
-void CharacterBase::SetAnimation(AnimationType type, bool loop, bool blend)
+void CharacterBase::SetMainAnimation(AnimationType type, bool loop, bool blend)
 {
     if (_skeletalMeshRenderer)
     {
         const char* animKey = GetAnimationName(type);
-        _skeletalMeshRenderer->SetCurrentAnimation(animKey, loop);
+        _skeletalMeshRenderer->SetMainAnimation(animKey, blend);
+        _skeletalMeshRenderer->SetMainAnimationLoop(loop);
+    }
+}
+
+void CharacterBase::PushOverrideAnimation(AnimationType type, bool loop, bool blend,
+                                          std::function<bool(const AnimationData&)> popCondition)
+{
+    if (_skeletalMeshRenderer)
+    {
+        const char* animKey = GetAnimationName(type);
+        _skeletalMeshRenderer->PushOverrideAnimation(animKey, loop, blend, popCondition);
+    }
+}
+
+void CharacterBase::PopOverrideAnimation(bool blend)
+{
+    if (_skeletalMeshRenderer)
+    {
+        _skeletalMeshRenderer->PopOverrideAnimation(blend);
     }
 }
 
@@ -211,7 +241,8 @@ bool CharacterBase::IsAnimationEnd()
 {
     if (_skeletalMeshRenderer)
     {
-        return _skeletalMeshRenderer->IsAnimationEnd();
+        const auto& data = _skeletalMeshRenderer->GetLastAnimationData();
+        return data.IsEnd;
     }
     return true;
 }

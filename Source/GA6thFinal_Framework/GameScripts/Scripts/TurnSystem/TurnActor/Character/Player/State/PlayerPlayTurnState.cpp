@@ -58,7 +58,7 @@ void PlayerPlayTurnState::OnEnter()
     _attackRemaining      = 0;
 
     auto& player = GetPlayer();
-    player.SetAnimation(CharacterBase::ATTACK_READY);
+    player.SetMainAnimation(CharacterBase::IDLE);
 }
 
 void PlayerPlayTurnState::OnExit() 
@@ -98,6 +98,13 @@ void PlayerPlayTurnState::OnUpdate()
         UpdateAttackEventUI(dt);
         break;
     }
+
+    if (true == CheckAttackEnd())
+    {
+        auto& player = GetPlayer();
+        player.EndTurn();
+        player.SetMainAnimation(CharacterBase::IDLE);
+    }
 }
 
 void PlayerPlayTurnState::UpdateAttackButtonHeld(float dt) 
@@ -116,6 +123,8 @@ void PlayerPlayTurnState::UpdateAttackButtonHeld(float dt)
                 _setImguiPosCenter = true;
                 _attackTargets.clear();
             }
+            Player& player = GetPlayer();
+            player.SetMainAnimation(CharacterBase::ATTACK_READY, false);
         }
     }
 }
@@ -216,6 +225,8 @@ void PlayerPlayTurnState::UpdateQuickTimeEventUI(float dt)
             if (_attackRemaining == 0)
             {
                 _inputState = InputState::ATTACK_EVENT;
+                Player& player = GetPlayer();
+                player.SetMainAnimation(CharacterBase::ATTACK_LOOP, false);
             }
         }
         else
@@ -224,12 +235,6 @@ void PlayerPlayTurnState::UpdateQuickTimeEventUI(float dt)
         }
     }
     ImGui::End();
-
-    if (true == CheckAttackEnd())
-    {
-        auto& player = GetPlayer();
-        player.EndTurn();
-    }
 }
 
 void PlayerPlayTurnState::UpdateAttackEventUI(float dt)
@@ -267,7 +272,7 @@ void PlayerPlayTurnState::UpdateAttackEventUI(float dt)
                 UmTime.Invoke(&GetFSM(), delay, 
                 [&]() 
                 { 
-                    player.EndTurn(); 
+                    player.SetMainAnimation(CharacterBase::ATTACK_END, false);
                 });
             }
         }
@@ -275,13 +280,17 @@ void PlayerPlayTurnState::UpdateAttackEventUI(float dt)
     ImGui::End();
 }
 
-void PlayerPlayTurnState::TestAttack(Enemy* dest, int damage)
+bool PlayerPlayTurnState::IsAttackable() const
 {
-    Player& player = GetPlayer();
-    player.SetAnimation(CharacterBase::ATTACK_LOOP, false);
-    if (dest)
+    return _inputState == InputState::QUICK_TIME_EVENT && 0 < _attackRemaining;
+}
+
+void PlayerPlayTurnState::PushAttackTarget(AttackTarget target)
+{
+    if (IsAttackable())
     {
-        dest->TakeDamage(damage);
+        _attackTargets.push_back(target);
+        --_attackRemaining;
     }
 }
 
@@ -292,12 +301,7 @@ bool PlayerPlayTurnState::CheckAttackEnd()
     if (renderer)
     {
         const char* currAnim = renderer->GetCurrentAnimationName().c_str();
-        const char* attackLoopAnim = player.GetAnimationName(CharacterBase::ATTACK_LOOP);
         const char* attackEndAnim = player.GetAnimationName(CharacterBase::ATTACK_END);
-        if (0 != strcmp(currAnim, attackLoopAnim))
-        {
-            player.SetAnimation(CharacterBase::ATTACK_END, false);
-        }
         if (0 == strcmp(currAnim, attackEndAnim))
         {
             if (true == player.IsAnimationEnd())

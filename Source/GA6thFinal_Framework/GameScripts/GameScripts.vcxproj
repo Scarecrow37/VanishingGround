@@ -298,6 +298,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Scripts\Animation\Structs\AnimationStructs.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22000_22009\EnemyAction22001.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22000_22009\EnemyAction22002.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22000_22009\EnemyAction22003.h" />

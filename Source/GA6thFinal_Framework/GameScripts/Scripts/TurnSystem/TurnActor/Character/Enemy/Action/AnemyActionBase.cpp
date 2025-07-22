@@ -14,23 +14,39 @@ namespace EnemyAction
         }
     }
 
-    void ActionBase::SetAnimation(int animType, bool loop, bool blend) 
+    void ActionBase::SetMainAnimation(int animType, bool loop, bool blend) 
     {
         if (_owner && _renderer)
         {
-            _owner->SetAnimation((CharacterBase::AnimationType)animType, loop, blend);
+            _owner->SetMainAnimation((CharacterBase::AnimationType)animType, loop, blend);
         }
     }
 
-    bool ActionBase::isAnimationEnd()
+    void ActionBase::PushOverrideAnimation(int animType, bool loop, bool blend,
+                                   std::function<bool(const AnimationData&)> popCondition)
+    {
+        if (_owner && _renderer)
+        {
+            _owner->PushOverrideAnimation((CharacterBase::AnimationType)animType, loop, blend, popCondition);
+        }
+    }
+
+    void ActionBase::PopOverrideAnimation(bool blend)
+    {
+        if (_owner && _renderer)
+        {
+            _owner->PopOverrideAnimation(blend);
+        }
+    }
+
+    bool ActionBase::IsAnimationEnd()
     {
         if (_owner && _renderer)
         {
             SkeletalMeshRenderer* renderer = _owner->GetSkeletalMeshRenderer();
             if (renderer)
             {
-                bool isAnimationEnd = renderer->IsAnimationEnd();
-                if (true == isAnimationEnd)
+                if (true == renderer->GetLastAnimationData().IsEnd)
                 {
                     return true;
                 }

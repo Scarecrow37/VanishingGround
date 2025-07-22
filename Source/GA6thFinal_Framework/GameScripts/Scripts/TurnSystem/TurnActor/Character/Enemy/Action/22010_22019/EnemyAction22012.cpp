@@ -7,11 +7,11 @@ namespace EnemyAction
 {
     void Action22012::OnActionEnter() 
     {
-        SetAnimation(CharacterBase::ATTACK_1, false);
+        SetMainAnimation(CharacterBase::ATTACK_1, false);
     }
     bool Action22012::OnActionUpdate() 
     {
-        return isAnimationEnd();
+        return IsAnimationEnd();
     }
     void Action22012::OnActionExit() 
     {

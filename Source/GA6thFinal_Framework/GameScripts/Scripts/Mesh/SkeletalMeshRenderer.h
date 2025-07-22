@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "MeshComponent.h"
+#include "Animation/Structs/AnimationStructs.h"
 
 class SkeletalMeshRenderer : public MeshComponent
 {
@@ -24,6 +25,12 @@ protected:
 private:
     void LoadModel();
     void UpdateAnimation();
+    AnimationData* GetLastAnimationDataEx();
+    
+    void SetAnimation(AnimationData* animData, std::string_view animKey, bool blend);
+    void SetAnimationLoop(AnimationData* animData, bool loop);
+    void SetAnimationFrame(AnimationData* animData,float frame);
+    void SetAnimationSpeed(AnimationData* animData,float speed);
 
 public:
     REFLECT_PROPERTY(FilePath)
@@ -34,11 +41,11 @@ private:
     File::GuidRef _guidRef;
 
     REFLECT_FIELDS_BEGIN(MeshComponent)
-    std::string Guid;
-    std::string CurrentAnimationKey = "";
-    float       AnimationSpeed     = 1.0f;
-    bool        IsAnimationPlaying = false;
-    bool        IsAnimationLooping = true;
+    std::string Guid                    = "";
+    std::string MainAnimationKey        = "";
+    bool        MainAnimationLooping    = true;
+    bool        MainAnimationSpeed      = true;
+    float       AnimationSpeedScale     = 1.0f;
     REFLECT_FIELDS_END(SkeletalMeshRenderer)
 
     /////////////////////////////////////////////////////////////
@@ -46,48 +53,66 @@ private:
     /////////////////////////////////////////////////////////////
 public:
     /// <summary>
+    /// 애니메이션 오버라이드를 삽입합니다.
+    /// </summary>
+    /// <param name="animKey"></param>
+    /// <param name="loop"></param>
+    /// <param name="blend"></param>
+    /// <param name="popCondition"></param>
+    void PushOverrideAnimation(std::string_view animKey, bool loop = true, bool blend = true,
+                               std::function<bool(const AnimationData&)> popCondition = nullptr);
+
+    /// <summary>
+    /// 애니메이션 오버라이드를 뺍니다
+    /// </summary>
+    /// <param name="blend"></param>
+    void PopOverrideAnimation(bool blend = true);
+
+    /// <summary>
     /// 현재 애니메이션을 바꿉니다.
     /// </summary>
     /// <param name="animKey">애니메이션 키</param>
     /// <param name="loop">루프 여부. 기본 값은 true입니다.</param>
-    void SetCurrentAnimation(std::string_view animKey, bool loop = true, bool blend = true);
+    void SetCurrentAnimation(std::string_view animKey, bool blend = true);
+    void SetMainAnimation(std::string_view animKey, bool blend = true);
 
     /// <summary>애니메이션의 루프 여부를 설정합니다.</summary>
     /// <param name="loop">애니메이션 루프 여부</param>
-    void SetAnimationLoop(bool loop);
+    void SetCurrentAnimationLoop(bool loop);
+    void SetMainAnimationLoop(bool loop);
 
     /// <summary>애니메이션의 프레임을 설정합니다.</summary>
     /// <param name="frame">애니메이션 프레임 수</param>
-    void SetAnimationFrame(float frame);
+    void SetCurrentAnimationFrame(float frame);
+    void SetMainAnimationFrame(float frame);
 
     /// <summary>애니메이션의 스피드를 설정합니다.</summary>
     /// <param name="frame">애니메이션 스피드</param>
-    void SetAnimationSpeed(float speed);
+    void SetCurrentAnimationSpeed(float speed);
+    void SetMainAnimationSpeed(float speed);
 
     /// <summary>애니메이션을 0프레임으로 맞춘 후 멈춥니다.</summary>
-    void StopAnimation();
+    void StopCurrentAnimation();
 
     /// <summary>애니메이션을 0프레임으로 맞춘 후 재생합니다.</summary>
-    void PlayAnimation();
+    void PlayCurrentAnimation();
 
     /// <summary>애니메이션을 멈춥니다.</summary>
-    void PauseAnimation();
+    void PauseCurrentAnimation();
 
     /// <summary>애니메이션을 재생합니다.</summary>
-    void ResumeAnimation();
+    void ResumeCurrentAnimation();
 
-    /// <summary>애니메이션의 종료 여부를 반환합니다.</summary>
-    /// <returns>애니메이션 종료 여부. 루프 시에는 항상 false를 반환합니다.</returns>
-    bool IsAnimationEnd();
+    const AnimationData& GetMainAnimationData() const;
+    const AnimationData& GetLastAnimationData() const;
 
-    inline float              GetCurrentAnimationTime()     const { return _animationTime; }
-    inline const std::string& GetCurrentAnimationName()     const { return ReflectFields->CurrentAnimationKey; }
-    inline float              GetCurrentAnimationSpeed()    const { return ReflectFields->AnimationSpeed; }
-    inline bool               IsAnimationPlaying()          const { return ReflectFields->IsAnimationPlaying; }
-    inline bool               IsAnimationLooping()          const { return ReflectFields->IsAnimationLooping; }
-    
-    // Anim Override 추가?
+    inline const std::string& GetCurrentAnimationName()     const { return GetLastAnimationData().AnimationName; }
+    inline float              GetCurrentAnimationTime()     const { return GetLastAnimationData().Duration; }
+    inline float              GetCurrentAnimationSpeed()    const { return GetLastAnimationData().Speed; }
+    inline bool               IsAnimationLooping()          const { return GetLastAnimationData().IsLooping; }
+    inline bool               IsAnimationPlaying()          const { return GetLastAnimationData().IsPlaying; }
+
 private:
-    float _animationTime = 0.0f;
-
+    AnimationData              _mainAnimationData;
+    std::vector<AnimationData> _overrideAnimationStack; 
 };

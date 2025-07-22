@@ -1,6 +1,7 @@
 ﻿#pragma once
-#include "../TurnActor.h"
+#include "TurnSystem/TurnActor/TurnActor.h"
 #include "Token/TokenInventory.h"
+#include "Animation/Structs/AnimationStructs.h"
 
 struct CharacterStats;
 class SkeletalMeshRenderer;
@@ -115,6 +116,8 @@ public:
         SIZE,
     };
     virtual const char* GetAnimationName(AnimationType type) = 0;
-    void SetAnimation(AnimationType type, bool loop = true, bool blend = true);
+    void SetMainAnimation(AnimationType type, bool loop = true, bool blend = true);
+    void PushOverrideAnimation(AnimationType type, bool loop = true, bool blend = true, std::function<bool(const AnimationData&)> popCondition = nullptr);
+    void PopOverrideAnimation(bool blend = true);
     bool IsAnimationEnd();
 };

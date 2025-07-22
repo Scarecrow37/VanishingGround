@@ -48,8 +48,8 @@ public:
 	void Update(const float deltaTime);
 
 public:
-	void ChangeAnimation(const char* animation, bool blending = true);
-    void ChangeAnimation(const char* animation, unsigned int ID, bool blending = true);
+	bool ChangeAnimation(const char* animation, bool blending = true);
+    bool ChangeAnimation(const char* animation, unsigned int ID, bool blending = true);
 	void SyncPartialAnimation(unsigned int parentID, unsigned int childID);
 	bool IsLastFrame(float interval, unsigned int ID) const;
 	void SetUpSplitBone(unsigned int maxSplit);

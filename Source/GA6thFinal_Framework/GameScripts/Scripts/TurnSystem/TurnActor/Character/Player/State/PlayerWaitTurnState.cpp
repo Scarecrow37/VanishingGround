@@ -34,7 +34,7 @@ void PlayerWaitTurnState::OnStart()
 void PlayerWaitTurnState::OnEnter() 
 {
     auto& player = GetPlayer();
-    player.SetAnimation(CharacterBase::IDLE);
+    player.SetMainAnimation(CharacterBase::IDLE);
 }
 
 void PlayerWaitTurnState::OnExit() 

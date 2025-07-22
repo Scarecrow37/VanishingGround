@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "Animation/Structs/AnimationStructs.h"
 
 class Enemy;
 class SkeletalMeshRenderer;
@@ -21,8 +22,10 @@ namespace EnemyAction
         virtual void OnActionExit()     = 0;
 
     protected:
-        void SetAnimation(int animType, bool loop = true, bool blend = true);
-        bool isAnimationEnd();
+        void SetMainAnimation(int animType, bool loop = true, bool blend = true);
+        void PushOverrideAnimation(int animType, bool loop = true, bool blend = true,  std::function<bool(const AnimationData&)> popCondition = nullptr);
+        void PopOverrideAnimation(bool blend = true);
+        bool IsAnimationEnd();
 
     protected:
         Enemy* _owner = nullptr;

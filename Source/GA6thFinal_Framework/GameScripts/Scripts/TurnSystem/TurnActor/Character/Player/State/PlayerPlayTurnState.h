@@ -40,7 +40,6 @@ protected:
     void OnExit() override;
     void OnUpdate() override;
 
-    void TestAttack(Enemy* dest, int damage);
     bool CheckAttackEnd();
 
 private:

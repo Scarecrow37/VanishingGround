@@ -266,20 +266,27 @@ void Animator::Update(const float deltaTime)
 	}
 }
 
-void Animator::ChangeAnimation(const char* animation, bool blending)
+bool Animator::ChangeAnimation(const char* animation, bool blending)
 {
-	for (unsigned int i = 0; i < _maxSplit; i++)
-		ChangeAnimation(animation, i, blending);
+    int count = 0;
+    for (unsigned int i = 0; i < _maxSplit; i++)
+    {
+        if (ChangeAnimation(animation, i, blending))
+        {
+            ++count;
+        }
+    }
+    return count > 0;
 }
 
-void Animator::ChangeAnimation(const char* animation, const unsigned int ID, bool blending)
+bool Animator::ChangeAnimation(const char* animation, const unsigned int ID, bool blending)
 {
 	auto iter = _animation->_animations.find(animation);
 	if (iter == _animation->_animations.end())
-		return;
+		return false;
 
 	if (!strcmp(_controllers[ID].Animation.data(), animation))
-		return;
+		return false;
 
 	_isBlending = blending;
     if (true == _isBlending)
@@ -292,6 +299,8 @@ void Animator::ChangeAnimation(const char* animation, const unsigned int ID, boo
     _controllers[ID].Animation = iter->first;
     _controllers[ID].PlayTime  = 0.f;
     _controllers[ID].LastTime  = iter->second.LastTime;
+
+    return true;
 }
 
 void Animator::SyncPartialAnimation(unsigned int parentID, unsigned int childID)
