@@ -29,6 +29,4 @@ protected:
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
     REFLECT_FIELDS_END(TurnActionCondition)
 
-private:
-
 };
