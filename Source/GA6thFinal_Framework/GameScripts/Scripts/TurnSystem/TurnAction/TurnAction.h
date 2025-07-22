@@ -183,4 +183,15 @@ private:
     /// <returns></returns>
     bool EvaluateConditionsEx();
     
+public:
+    TurnAction& CopyAction(const TurnAction& rhs)
+    {
+        TurnAction& rhsAction  = const_cast<TurnAction&>(rhs);
+        std::string data = rhsAction.SerializedReflectFields();
+        DeserializedReflectFields(data);
+        return *this;
+    }
+    TurnAction(const TurnAction& rhs) { CopyAction(rhs); }
+    TurnAction& operator=(const TurnAction& rhs) { return CopyAction(rhs); }
+
 };

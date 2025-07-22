@@ -53,9 +53,7 @@ void RevelationElement::DeepCopyAction(const TurnAction& action)
         if (iter != actionFactory.end())
         {
             _action.reset(iter->second());
-            TurnAction& rhs  = const_cast<TurnAction&>(action);
-            std::string data = rhs.SerializedReflectFields();
-            _action->DeserializedReflectFields(data);
+            *_action = action;
         }
     }
 }
