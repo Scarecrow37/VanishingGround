@@ -147,7 +147,7 @@ void SkeletalMeshRenderer::ImGuiDrawPropertysEvent()
                     float cur = animator->GetCurrentAnimationPlayTime();
                     if (ImGui::SliderFloat("Current Animation Frame", &cur, min, max))
                     {
-                        SetCurrentAnimationFrame(cur);
+                        animator->SetAnimationTime(cur);
                     }
                     if (ImGui::DragFloat("Animation Speed", &curAnimData->Speed, 0.01f))
                     {
