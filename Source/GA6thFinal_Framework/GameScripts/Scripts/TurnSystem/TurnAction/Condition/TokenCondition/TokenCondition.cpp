@@ -171,7 +171,6 @@ void TokenCondition::UpdateConditionInfo()
     switch (target)
     {
     default:
-    case TokenCondition::Target::NONE:
         who = u8"NULL의 "_c_str;
         break;
     case TokenCondition::Target::SELF:
