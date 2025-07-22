@@ -10,7 +10,6 @@ CheckTurnEmpty::~CheckTurnEmpty() {}
 
 void CheckTurnEmpty::OnAwake() 
 {
-   
 }
 
 void CheckTurnEmpty::OnStart() 

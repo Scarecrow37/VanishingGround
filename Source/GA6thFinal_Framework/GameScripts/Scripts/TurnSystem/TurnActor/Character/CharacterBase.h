@@ -1,13 +1,17 @@
 ﻿#pragma once
-#include "../TurnActor.h"
+#include "TurnSystem/TurnActor/TurnActor.h"
 #include "Token/TokenInventory.h"
+#include "Animation/Structs/AnimationStructs.h"
 
 struct CharacterStats;
+class SkeletalMeshRenderer;
+
 class CharacterBase abstract : public TurnActor
 {
     USING_PROPERTY(CharacterBase)
 public:
     inline static constexpr const char* TAG = "Character";
+    inline static constexpr const char* MODEL_NAME = "Model";
     CharacterBase();
     virtual ~CharacterBase();
 
@@ -59,6 +63,9 @@ public:
     // 토큰 인벤토리를 반환합니다.
     TokenInventory& GetTokenInventory() { return _tokenInventory; }
 
+    // 스켈레탈 메쉬 렌더러를 반환합니다.
+    SkeletalMeshRenderer* GetSkeletalMeshRenderer() const { return _skeletalMeshRenderer; }
+
 protected:
     virtual CharacterStats* GetCharacterStats() = 0;
 
@@ -72,13 +79,12 @@ private:
     int _chainRoundCount;
 
     TokenInventory _tokenInventory;
+    SkeletalMeshRenderer* _skeletalMeshRenderer = nullptr;
 
 protected:
-    /// <summary>
-    /// <para> 이 함수는 항상 Start 함수 전에 호출되며 프리팹이 인스턴스화 된 직후에 호출됩니다.                </para>
-    /// <para> 게임 오브젝트의 Active가 false 상태인 경우 Awake 함수는 true가 될때까지 호출되지 않습니다.      </para>
-    /// </summary>
     virtual void Awake() override;
+
+    void InitMeshModel();
 
 public:
     virtual void OnCombatStart() override;
@@ -94,4 +100,27 @@ public:
     virtual void OnTokenRemoved(int tokenID) override;
 
     virtual void ImGuiDrawPropertysEvent() override;
+
+    
+    // 애니메이션 리팩터링 전 임시 메서드
+    enum AnimationType
+    {
+        IDLE,
+        HIT,
+        DEATH,
+        ATTACK_1,
+        ATTACK_2,
+        ATTACK_READY,
+        ATTACK_READY_LOOP,
+        ATTACK,
+        ATTACK_LOOP,
+        ATTACK_END,
+        SIZE,
+    };
+    virtual const char* GetAnimationName(AnimationType type) = 0;
+    void SetMainAnimation(AnimationType type, bool loop = true, bool blend = true);
+    void ClearOverrideAnimations();
+    void PushOverrideAnimation(AnimationType type, bool loop = true, bool blend = true, std::function<bool(const AnimationData&)> popCondition = nullptr);
+    void PopOverrideAnimation();
+    bool IsAnimationEnd();
 };

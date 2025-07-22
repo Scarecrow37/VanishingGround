@@ -28,11 +28,13 @@ public:
 public:
 	const Matrix* GetAnimationTransform() const { return _animationTransforms.data(); }
     const Matrix* FindBoneMatrix(const char* boneName) const;
+    float         GetAnimationLastTime(const char* animation) const;
     float         GetCurrentAnimationLastTime(unsigned int ID = 0) const;
     float         GetCurrentAnimationPlayTime(unsigned int ID = 0) const;
     float         GetCurrentAnimationSpeed(unsigned int ID = 0) const;
     bool          IsPaused() const;
     bool          IsLoop() const;
+    bool          IsEnd() const;
 
     void          SetAnimationTime(float time);
     void          SetAnimationTime(float time, unsigned int ID);
@@ -47,8 +49,8 @@ public:
 	void Update(const float deltaTime);
 
 public:
-	void ChangeAnimation(const char* animation);
-	void ChangeAnimation(const char* animation, unsigned int ID);
+	bool ChangeAnimation(const char* animation, bool blending = true);
+    bool ChangeAnimation(const char* animation, unsigned int ID, bool blending = true);
 	void SyncPartialAnimation(unsigned int parentID, unsigned int childID);
 	bool IsLastFrame(float interval, unsigned int ID) const;
 	void SetUpSplitBone(unsigned int maxSplit);

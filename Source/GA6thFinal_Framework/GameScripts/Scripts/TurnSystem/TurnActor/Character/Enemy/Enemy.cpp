@@ -63,16 +63,12 @@ void Enemy::Awake()
     {
         UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"Enemy Stats를 추가해주세요");
     }
+
+    InitMeshModel();
 }
 
 void Enemy::Update() 
 {
-    bool isMyTurn = IsMyTurn;
-    if (isMyTurn)
-    {
-        Vector3 delta = Vector3(0, 1080, 0) * Mathf::Deg2Rad * UmTime.DeltaTime();
-        gameObject->transform->Rotation *= Quaternion::CreateFromYawPitchRoll(delta);
-    }
 }
 
 CharacterStats* Enemy::GetCharacterStats()
@@ -110,7 +106,7 @@ EnemyStatsComponent* Enemy::GetEnemyStats()
     return _enemyStats;
 }
 
-void Enemy::BuildEnemyFSM() 
+void Enemy::BuildEnemyFSM()
 {
     _finiteStateMachine = GetComponent<FiniteStateMachine>();
     if (nullptr == _finiteStateMachine)
@@ -191,3 +187,76 @@ void Enemy::OnTokenRemoved(int tokenID)
 {
     Base::OnTokenRemoved(tokenID);
 }
+
+#define ANIM_NAME(enumType, name)\
+case enumType :\
+return name;\
+break;
+const char* Enemy::GetAnimationName(AnimationType type)
+{
+    EnemyType enemyType = Type;
+    switch (enemyType)
+    {
+            // A
+            case EnemyType::MONSTER_A:
+            {
+                switch (type)
+                {
+                    ANIM_NAME(IDLE, "")
+                    ANIM_NAME(HIT, "")
+                    ANIM_NAME(DEATH, "")
+                    ANIM_NAME(ATTACK_1, "")
+                    ANIM_NAME(ATTACK_2, "")
+                    ANIM_NAME(ATTACK_READY, "")
+                    ANIM_NAME(ATTACK_LOOP, "")
+                    ANIM_NAME(ATTACK_END, "")
+                default:
+                    break;
+                }
+                break;
+            }
+            // B
+            case EnemyType::MONSTER_B: 
+            {
+                switch (type)
+                {
+                    ANIM_NAME(IDLE,     "Enemy02_Anim_Idle01")
+                    ANIM_NAME(HIT,      "Enemy02_Anim_GetHit")
+                    ANIM_NAME(DEATH,    "")
+                    ANIM_NAME(ATTACK_1, "Enemy02_Anim_Attack01")
+                    ANIM_NAME(ATTACK_2, "")
+                    ANIM_NAME(ATTACK_READY, "")
+                    ANIM_NAME(ATTACK_LOOP, "")
+                    ANIM_NAME(ATTACK_END, "")
+                default:
+                    break;
+                }
+                break;
+            }
+            // C
+            case EnemyType::MONSTER_C: 
+            {
+                switch (type)
+                {
+                    ANIM_NAME(IDLE, "")
+                    ANIM_NAME(HIT, "")
+                    ANIM_NAME(DEATH, "")
+                    ANIM_NAME(ATTACK_1, "")
+                    ANIM_NAME(ATTACK_2, "")
+                    ANIM_NAME(ATTACK_READY, "")
+                    ANIM_NAME(ATTACK_LOOP, "")
+                    ANIM_NAME(ATTACK_END, "")
+                default:
+                    break;
+                }
+                break;
+            }
+            default: 
+            {
+                break;
+            }
+           
+    }
+    return "";
+}
+#undef ANIM_NAME
