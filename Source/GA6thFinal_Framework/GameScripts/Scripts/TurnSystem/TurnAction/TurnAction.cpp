@@ -103,7 +103,7 @@ void TurnAction::ImGuiDrawActionMaker(std::string_view windowID, TurnAction& act
     }
 
     ImGui::SameLine();
-    if (ImGui::Button("Action Editer"))
+    if (ImGui::Button("Action Editor"))
     {
         showActionEditor = !showActionEditor;
     }
