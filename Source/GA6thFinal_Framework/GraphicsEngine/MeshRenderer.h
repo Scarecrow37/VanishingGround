@@ -16,7 +16,7 @@ public:
     const MeshRenderType          GetType() const { return _type; }
     const UINT                    GetCustomDepth() const { return _customDepth; }
     std::shared_ptr<Animator>     GetAnimator() const;
-    std::vector<std::shared_ptr<SkeletalMeshInstance>>& Get_skeletaMesheInstances() {return _skeletaMesheInstances;}
+    std::vector<std::shared_ptr<SkeletalMeshInstance>>& GetSkeletaMesheInstances() {return _skeletaMesheInstances;}
 
 public:
     void SetModel(std::shared_ptr<Model> model);

@@ -5,6 +5,8 @@
 #include "Model.h"
 #include "VIBuffer.h"
 #include "d3dUtil.h"
+#include "Structs.h"
+#include "UnorderedAccessView.h"
 
 void AccelerationStructureManager::Initialize(UINT maxInstance)
 {
@@ -48,7 +50,7 @@ void AccelerationStructureManager::BeginFrame()
     _nextInstanceID = 0;
 }
 
-void AccelerationStructureManager::SubmitInstance(const MeshRenderer* renderer)
+void AccelerationStructureManager::SubmitInstance(MeshRenderer* renderer)
 {
     if (!renderer->GetModel())
         return;
@@ -156,62 +158,65 @@ void AccelerationStructureManager::BuildOrUpdateStaticBLAS(ID3D12Device5* device
 }
 
 void AccelerationStructureManager::BuildDynamicBLAS(ID3D12Device5* device, ID3D12GraphicsCommandList4* cmdList,
-                                                    const MeshRenderer*                            renderer,
+                                                    MeshRenderer*                            renderer,
                                                     std::shared_ptr<AccelerationStructureBuffers>& outBuf)
 {
-    // bool firstBuild = (outBuf == nullptr);
+    const auto& model = renderer->GetModel();
+    if (!model)
+        return;
 
-    //// ── GeometryDesc : 스키닝 결과 VertexBuffer (ComputeShader 등으로 생성) ─
-    // auto                           vb = renderer->GetModel()->GetSkinnedVertexBuffer(); // 구현체에 맞게 호출
-    // D3D12_RAYTRACING_GEOMETRY_DESC g{};
-    // g.Type                                 = D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES;
-    // g.Flags                                = D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE;
-    // g.Triangles.VertexBuffer.StartAddress  = vb.gpuVA;
-    // g.Triangles.VertexBuffer.StrideInBytes = vb.stride;
-    // g.Triangles.VertexCount                = vb.count;
-    // g.Triangles.VertexFormat               = DXGI_FORMAT_R32G32B32_FLOAT;
-    // g.Triangles.IndexBuffer                = vb.idxGpuVA;
-    // g.Triangles.IndexCount                 = vb.idxCount;
-    // g.Triangles.IndexFormat                = DXGI_FORMAT_R32_UINT;
+    const auto& meshes = model->GetMeshes();
+    auto& skeletalInstances = renderer->GetSkeletaMesheInstances();
 
-    // D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS in{};
-    // in.Type           = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL;
-    // in.DescsLayout    = D3D12_ELEMENTS_LAYOUT_ARRAY;
-    // in.NumDescs       = 1;
-    // in.pGeometryDescs = &g;
-    // in.Flags =
-    //     firstBuild
-    //         ? (D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_TRACE |
-    //            D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE)
-    //         : (D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_TRACE |
-    //            D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE |
-    //            D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE); // 업데이트 플래그
-    //                                                                                //
-    //                                                                                :contentReference[oaicite:0]{index=0}
+    for (size_t i = 0; i < meshes.size(); ++i)
+    {
+        const auto& mesh = meshes[i];
+        auto& instance = skeletalInstances[i];
+        VIBuffer*   viBuf = mesh->GetVIBuffer();
 
-    // D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO info{};
-    // device->GetRaytracingAccelerationStructurePrebuildInfo(&in, &info);
+        D3D12_RAYTRACING_GEOMETRY_DESC geodesc{};
+        geodesc.Type = D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES;
+        geodesc.Flags = D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE;
+        geodesc.Triangles.VertexBuffer.StartAddress =
+            instance->UAVBuffer->GetResource()->GetGPUVirtualAddress() + offsetof(StaticMeshVertex, Position);
+        geodesc.Triangles.VertexBuffer.StrideInBytes = sizeof(StaticMeshVertex);
+        geodesc.Triangles.VertexCount = viBuf->_vertexCount;
+        geodesc.Triangles.VertexFormat = DXGI_FORMAT_R32G32B32_FLOAT;
+        geodesc.Triangles.IndexBuffer = viBuf->_indexBuffer->GetGPUVirtualAddress();
+        geodesc.Triangles.IndexCount = viBuf->_indexCount;
+        geodesc.Triangles.IndexFormat = DXGI_FORMAT_R32_UINT;
 
-    // if (firstBuild)
-    //{
-    //     outBuf = std::make_shared<AccelerationStructureBuffers>();
-    //     Global::device->CreateDefaultBuffer(static_cast<UINT>(info.ScratchDataSizeInBytes),
-    //                                  D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
-    //                                  D3D12_RESOURCE_STATE_UNORDERED_ACCESS, outBuf->pScratch);
+        D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS inputs{};
+        inputs.Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL;
+        inputs.DescsLayout = D3D12_ELEMENTS_LAYOUT_ARRAY;
+        inputs.NumDescs = 1;
+        inputs.pGeometryDescs = &geodesc;
+        inputs.Flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_TRACE | D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE;
 
-    //    Global::device->CreateDefaultBuffer(static_cast<UINT>(info.ResultDataMaxSizeInBytes),
-    //                                 D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
-    //                                 D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE, outBuf->pResult);
-    //}
+        D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO info;
+        device->GetRaytracingAccelerationStructurePrebuildInfo(&inputs, &info);
 
-    //// ── Build/Update 명령 ────────────────────────────────
-    // D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC desc{};
-    // desc.Inputs                           = in;
-    // desc.ScratchAccelerationStructureData = outBuf->pScratch->GetGPUVirtualAddress();
-    // desc.DestAccelerationStructureData    = outBuf->pResult->GetGPUVirtualAddress();
-    // desc.SourceAccelerationStructureData  = firstBuild ? 0 : outBuf->pResult->GetGPUVirtualAddress();
+        if (outBuf == nullptr)
+        {
+            outBuf = std::make_shared<AccelerationStructureBuffers>();
+            Global::device->CreateDefaultBuffer(static_cast<UINT>(info.ScratchDataSizeInBytes),
+                                         D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, outBuf->pScratch);
+            Global::device->CreateDefaultBuffer(static_cast<UINT>(info.ResultDataMaxSizeInBytes),
+                                         D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
+                                         D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE, outBuf->pResult);
+        }
 
-    // cmdList->BuildRaytracingAccelerationStructure(&desc, 0, nullptr); // :contentReference[oaicite:1]{index=1}
+        D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC desc{};
+        desc.Inputs = inputs;
+        desc.ScratchAccelerationStructureData = outBuf->pScratch->GetGPUVirtualAddress();
+        desc.DestAccelerationStructureData = outBuf->pResult->GetGPUVirtualAddress();
+        desc.SourceAccelerationStructureData = (outBuf == nullptr) ? 0 : outBuf->pResult->GetGPUVirtualAddress();
+
+        cmdList->BuildRaytracingAccelerationStructure(&desc, 0, nullptr);
+
+        CD3DX12_RESOURCE_BARRIER br = CD3DX12_RESOURCE_BARRIER::UAV(outBuf->pResult.Get());
+        cmdList->ResourceBarrier(1, &br);
+    }
 }
 
 void AccelerationStructureManager::BuildOrUpdateTLAS(ID3D12Device5* device, ID3D12GraphicsCommandList4* cmdList)

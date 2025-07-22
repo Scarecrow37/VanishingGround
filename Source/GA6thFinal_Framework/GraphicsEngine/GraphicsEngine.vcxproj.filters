@@ -342,6 +342,9 @@
     <ClInclude Include="DXRComputeSkeletalMeshPass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="DXRSkeletalMesh.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GraphicsEngine.cpp">
@@ -651,6 +654,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="DXRComputeSkeletalMeshPass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="DXRSkeletalMesh.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

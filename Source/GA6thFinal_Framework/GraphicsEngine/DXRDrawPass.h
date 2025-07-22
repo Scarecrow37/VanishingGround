@@ -1,8 +1,6 @@
 ﻿#pragma once
 #include "RenderPass.h"
 
-class RTPipelineBuilder;
-
 class DXRDrawPass : public RenderPass
 {
 public:

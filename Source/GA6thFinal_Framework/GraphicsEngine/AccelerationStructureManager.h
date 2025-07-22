@@ -7,7 +7,7 @@ enum class AsBuildClass
 };
 struct MeshInstanceDesc
 {
-    const class MeshRenderer* Renderer;
+    class MeshRenderer* Renderer;
     class BaseMesh*              key;
     UINT                      InstanceID;
     UINT                      HitGroupIndex=0;
@@ -22,7 +22,7 @@ public:
 
     // 프레임 단위로 호출
     void BeginFrame();
-    void SubmitInstance(const MeshRenderer* renderer);
+    void SubmitInstance(MeshRenderer* renderer);
     void EndFrame();
 
     // blas 필요없는 static mesh 제거용
@@ -58,7 +58,7 @@ private:
     // ---- 내부 helper ----
     void BuildOrUpdateStaticBLAS(ID3D12Device5* device, ID3D12GraphicsCommandList4* cmdList, BaseMesh* mesh,
                                  BlasCache& cache);
-    void BuildDynamicBLAS(ID3D12Device5* device, ID3D12GraphicsCommandList4* cmdList, const MeshRenderer* renderer,
+    void BuildDynamicBLAS(ID3D12Device5* device, ID3D12GraphicsCommandList4* cmdList, MeshRenderer* renderer,
                           std::shared_ptr<AccelerationStructureBuffers>& outBuf);
     void BuildOrUpdateTLAS(ID3D12Device5* device, ID3D12GraphicsCommandList4* cmdList);
 };
