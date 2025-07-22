@@ -7,7 +7,7 @@ void PlacementUIComponent::SetScopePlacement(const POINT point, const SIZE size)
 {
     ReflectFields->ScopePoint = point;
     ReflectFields->ScopeSize  = size;
-    OnPlacementChange();
+    ResetPlacement();
 }
 
 void PlacementUIComponent::ResetPlacement()
@@ -28,4 +28,15 @@ void PlacementUIComponent::OnDetachParent(GameObject* previousParentGameObject)
     ReflectFields->Point      = newPoint;
     ReflectFields->ScopePoint = POINT{0, 0};
     ReflectFields->ScopeSize  = SIZE{0, 0};
+}
+
+void PlacementUIComponent::ImGuiDrawPropertysEvent()
+{
+    UIComponent::ImGuiDrawPropertysEvent();
+    ImGui::Text("%d x %d", ReflectFields->ScopePoint.x, ReflectFields->ScopePoint.y);
+    ImGui::SameLine();
+    ImGui::Text("Scope Point");
+    ImGui::Text("%d x %d", ReflectFields->ScopeSize.cx, ReflectFields->ScopeSize.cy);
+    ImGui::SameLine();
+    ImGui::Text("Scope Size");
 }

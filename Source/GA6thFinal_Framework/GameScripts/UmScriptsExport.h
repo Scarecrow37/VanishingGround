@@ -121,3 +121,7 @@ UMREAL_COMPONENT(TokenSystem)
 
 #include "Scripts/Test/TurnAction/TestActionComponent.h"
 UMREAL_COMPONENT(TestActionComponent)
+
+#include "Scripts/Test/Model/ModelTest.h"
+UMREAL_COMPONENT(ModelTest)
+UMREAL_COMPONENT(ViewTest)

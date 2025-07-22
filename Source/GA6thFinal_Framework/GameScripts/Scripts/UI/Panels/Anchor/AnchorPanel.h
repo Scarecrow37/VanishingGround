@@ -47,8 +47,6 @@ protected:
 protected:
     REFLECT_FIELDS_BEGIN(PanelSlotComponent)
     AnchorType Anchor = AnchorType::TOP_LEFT;
+    POINT      AnchorPoint;
     REFLECT_FIELDS_END(AnchorPanelSlot)
-
-private:
-    POINT _anchorPoint;
 };

@@ -330,6 +330,9 @@
     <ClInclude Include="Scripts\UI\Panels\Anchor\AnchorPanel.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Scripts\Test\Model\ModelTest.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -609,6 +612,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Scripts\UI\Panels\Anchor\AnchorPanel.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\Test\Model\ModelTest.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

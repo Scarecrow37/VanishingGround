@@ -40,43 +40,43 @@ void AnchorPanelSlot::OnSetPlacement()
     const POINT point         = ReflectFields->Basefields.get().Basefields.get().Point;
     const auto size = ReflectFields->Basefields.get().Basefields.get().Size;
 
-    _anchorPoint              = point;
+    ReflectFields->AnchorPoint = point;
     switch (AnchorType anchor = ReflectFields->Anchor)
     {
     case AnchorType::TOP_LEFT:
         // Nothing to do here, as the point is already at the top left.
         break;
     case AnchorType::TOP_CENTER:
-        _anchorPoint.x += size.cx / 2;
+        ReflectFields->AnchorPoint.x += size.cx / 2;
         break;
     case AnchorType::TOP_RIGHT:
-        _anchorPoint.x += size.cx;
+        ReflectFields->AnchorPoint.x += size.cx;
         break;
     case AnchorType::CENTER_LEFT:
-        _anchorPoint.y += size.cy / 2;
+        ReflectFields->AnchorPoint.y += size.cy / 2;
         break;
     case AnchorType::CENTER:
-        _anchorPoint.x += size.cx / 2;
-        _anchorPoint.y += size.cy / 2;
+        ReflectFields->AnchorPoint.x += size.cx / 2;
+        ReflectFields->AnchorPoint.y += size.cy / 2;
         break;
     case AnchorType::CENTER_RIGHT:
-        _anchorPoint.x += size.cx;
-        _anchorPoint.y += size.cy / 2;
+        ReflectFields->AnchorPoint.x += size.cx;
+        ReflectFields->AnchorPoint.y += size.cy / 2;
         break;
     case AnchorType::BOTTOM_LEFT:
-        _anchorPoint.y += size.cy;
+        ReflectFields->AnchorPoint.y += size.cy;
         break;
     case AnchorType::BOTTOM_CENTER:
-        _anchorPoint.x += size.cx / 2;
-        _anchorPoint.y += size.cy;
+        ReflectFields->AnchorPoint.x += size.cx / 2;
+        ReflectFields->AnchorPoint.y += size.cy;
         break;
     case AnchorType::BOTTOM_RIGHT:
-        _anchorPoint.x += size.cx;
-        _anchorPoint.y += size.cy;
+        ReflectFields->AnchorPoint.x += size.cx;
+        ReflectFields->AnchorPoint.y += size.cy;
         break;
     }
 
-    PassScopedPlacement(_anchorPoint, size);
+    PassScopedPlacement(ReflectFields->AnchorPoint, size);
 }
 
 void AnchorPanelSlot::ImGuiDrawPropertysEvent()
@@ -98,7 +98,7 @@ void AnchorPanelSlot::DrawDebugSelected()
 {
     PanelSlotComponent::DrawDebugSelected();
 
-    auto [anchorX, anchorY] = _anchorPoint;
+    auto [anchorX, anchorY] = ReflectFields->AnchorPoint;
 
     constexpr LONG lineSize = 20;
 

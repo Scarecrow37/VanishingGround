@@ -37,7 +37,7 @@ void EditablePlacementUIComponent::DrawDebugSelected()
 
 void EditablePlacementUIComponent::ImGuiDrawPropertysEvent()
 {
-    UIComponent::ImGuiDrawPropertysEvent();
+    PlacementUIComponent::ImGuiDrawPropertysEvent();
     if (ImGui::Button("Reset Placement"))
     {
         ResetPlacement();

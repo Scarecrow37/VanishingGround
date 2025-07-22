@@ -23,4 +23,6 @@ protected:
     void ResetPlacement();
 
     void OnDetachParent(GameObject* previousParentGameObject) override;
+
+    void ImGuiDrawPropertysEvent() override;
 };

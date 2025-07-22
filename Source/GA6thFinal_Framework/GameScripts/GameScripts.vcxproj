@@ -298,6 +298,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Scripts\Test\Model\ModelTest.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Critical\CriticalDamageAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Token\TokenApplyAction.h" />
     <ClInclude Include="Scripts\RevelationSystem\RevelationElement\RevelationElement.h" />
@@ -405,6 +406,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scripts\DamageSystem\DamageSystem.cpp" />
+    <ClCompile Include="Scripts\Test\Model\ModelTest.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Critical\CriticalDamageAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Token\TokenApplyAction.cpp" />
     <ClCompile Include="Scripts\RevelationSystem\RevelationElement\RevelationElement.cpp" />

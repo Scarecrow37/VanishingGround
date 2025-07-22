@@ -5,15 +5,14 @@ namespace MVVM
     template <typename T, typename U>
     class ViewModel
     {
-        using ObserverToken = typename IModel<T>::Token;
-
     public:
-        explicit ViewModel(IModel<T>& model)
-            : _token(model.AddObserver([this](T value) {
-                  if (_callback)
-                      _callback(Convert(value));
-              }))
+        explicit ViewModel(Model<T>& model)
         {
+            model.AddObserver([this](T value) {
+                SetLastValue(value);
+                Call();
+            });
+            model.Notify();
         }
 
         ViewModel(const ViewModel&)            = default;
@@ -22,13 +21,29 @@ namespace MVVM
         ViewModel& operator=(ViewModel&&)      = default;
         virtual ~ViewModel()                   = default;
 
-        void SetCallback(const std::function<void(U)>& callback) { _callback = callback; }
+        void SetCallback(const std::function<void(U)>& callback)
+        {
+            _callback = callback;
+            Call();
+        }
 
     protected:
-        virtual U Convert(const T& value) { return static_cast<U>(value); }
+        void Call()
+        {
+            if (nullptr != _callback)
+                _callback(Convert(_lastValue));
+        }
+
+        void SetLastValue(T value)
+        {
+            _lastValue = value;
+        }
+
+
+        virtual U Convert(const T& value) = 0;
 
     private:
-        ObserverToken          _token;
         std::function<void(U)> _callback;
+        T                      _lastValue;
     };
 } // namespace MVVM
