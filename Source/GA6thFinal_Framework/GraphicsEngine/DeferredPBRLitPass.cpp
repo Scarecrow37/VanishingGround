@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "DeferredPBRLitPass.h"
+#include "SkyBox.h"
 
 DeferredPBRLitPass::~DeferredPBRLitPass() {}
 
@@ -24,14 +25,23 @@ void DeferredPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->SetPipelineState(_pipelineState.Get());
     commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
 
-    SharedResource<RenderTarget> renderTarget = Global::multiRenderTargetManager->GetRenderTarget("BaseColor");
+    //"BaseColor", "Normal", "ORM", "Emissive", "WorldPosition", "Depth", "CustomDepth"
+    const auto& renderTargetGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("GBuffer");
 
     commandList->SetGraphicsRoot32BitConstants(_shader->GetRootParameterIndex("bit32_3_numLight"), 3, &_ownerScene->_numLight, 0);
     commandList->SetGraphicsRootConstantBufferView(_shader->GetRootParameterIndex("cameraData"), _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
     commandList->SetGraphicsRootConstantBufferView(_shader->GetRootParameterIndex("lightData"), _ownerScene->_lightBuffer->GetGPUVirtualAddress());
-    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("textures"), renderTarget->GetSRVHandle());
+    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("irradianceMap"), _ownerScene->_skyBox->GetIrradianceMapSRV());
+    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("prefilteredMap"), _ownerScene->_skyBox->GetPrefilteredMapSRV());
+    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("brdfLUT"), _ownerScene->_skyBox->GetBrdfLUTSRV());
+    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("baseColorMap"), renderTargetGroup[GBuffer::BASECOLOR]->GetSRVHandle());
+    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("normalMap"), renderTargetGroup[GBuffer::NORMAL]->GetSRVHandle());
+    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("ormMap"), renderTargetGroup[GBuffer::ORM]->GetSRVHandle());
+    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("worldPositionMap"), renderTargetGroup[GBuffer::WORLDPOSITION]->GetSRVHandle());
+    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("depthMap"), renderTargetGroup[GBuffer::DEPTH]->GetSRVHandle());
 
-    //quad draw하기
+    //commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("textures"), renderTarget->GetSRVHandle());
+
     _ownerScene->_frameQuad->Render(commandList);
 }
 

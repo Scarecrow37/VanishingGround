@@ -23,6 +23,7 @@ public:
     const D3D12_CPU_DESCRIPTOR_HANDLE& GetBackBufferHandle() const { return _renderTargetHandles[_renderTargetIndex]; }
     const D3D12_VIEWPORT&              GetMainViewport() const { return _mainViewport; }
     const D3D12_RECT&                  GetMainScissorRect() const { return _mainScissorRect; }
+    const Resolution&                  GetResolution() const { return _resolution; }
 
 public:
     void SetUpDevice(HWND hwnd, UINT width, UINT height, FeatureLevel feature);
@@ -73,6 +74,7 @@ private:
 
     D3D12_VIEWPORT _mainViewport;
     D3D12_RECT     _mainScissorRect;
+    Resolution     _resolution;
 
     bool _4xMSAAState = false; // 4X MSAA enabled
 

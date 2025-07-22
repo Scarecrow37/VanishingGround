@@ -101,11 +101,14 @@ void Transform::SetParent(Transform* p, bool worldPositionStays)
         if (p->gameObject->GetOwnerSceneName() == gameObject->GetOwnerSceneName())
         {
             //부모 관계가 가능한지 검증
-            if (p == this || p->IsDescendantOf(this))
+            if (p != this->_parent)
             {
-                return;
-            }    
-           
+                if (p == this || p->IsDescendantOf(this))
+                {
+                    return;
+                }  
+            }
+        
             ComputeLocalTransform();        
             //부모 적용
             EraseParent();

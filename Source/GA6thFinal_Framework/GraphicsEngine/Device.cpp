@@ -37,6 +37,7 @@ void Device::SetUpDevice(HWND hwnd, UINT width, UINT height, FeatureLevel featur
     _mode.Width  = width;
     _mode.Height = height;
     _newMode     = _mode;
+    _resolution  = {width, height};
 
 #ifdef _DEBUG
     ComPtr<ID3D12Debug> debugController;
@@ -416,7 +417,9 @@ void Device::ResizeSwapChain()
 
     DXGI_MODE_DESC prevMode = _mode;
     _mode                   = _newMode;
-    //Global::dxResourceManager->ResizeResource(prevMode);
+
+    // Global::dxResourceManager->ResizeResource(prevMode);
+    // _resolution = {_newMode.Width, _newMode.Height};
 
     _onResize  = false;
 }
