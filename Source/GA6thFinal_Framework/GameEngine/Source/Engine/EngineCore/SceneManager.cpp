@@ -543,6 +543,16 @@ ESceneManager::InputSystem& ESceneManager::Engine::GetInputSystem()
     return UmSceneManager._inputSystem;
 }
 
+void ESceneManager::Engine::PushRuntimeMeshComponent(MeshComponent* component) 
+{
+    if (component->_gameObject->IsValid())
+    {
+        const auto&                  componentWeak = component->GetWeakPtr().lock();
+        std::weak_ptr<MeshComponent> weak          = std::static_pointer_cast<MeshComponent>(componentWeak);
+        UmSceneManager._runtimeMeshComponents.push_back(weak);
+    }
+}
+
 void ESceneManager::CreateEmptySceneAndLoad(std::string_view name, std::string_view outPath, const std::function<void()>& loadEvent) 
 {
     if (UmComponentFactory.HasScript() == false)
@@ -1036,11 +1046,6 @@ void ESceneManager::ObjectsAddRuntime()
             CameraComponent* camera = static_cast<CameraComponent*>(component.get());
             std::shared_ptr<Camera> newCamera(new Camera);
             camera->SetTarget(newCamera);
-        }
-        else if (component->_type == Component::TYPE::RENDER)
-        {
-            auto sptrComponent = component->GetWeakPtr().lock();
-            UmSceneManager._runtimeMeshComponents.push_back(std::static_pointer_cast<MeshComponent>(sptrComponent));
         }
         component->UpdateEnableInHierarchy();
     }
@@ -1783,37 +1788,10 @@ void ESceneManager::InputSystem::UpdateInput()
                 {
                     UpdateTracker(flag);
                 }
-            }
-
-            for (int buttonIndex = 0; buttonIndex < _receivers.size(); ++buttonIndex)
-            {
-                auto& buttons = _receivers[buttonIndex];
-                for (int actionIndex = 0; actionIndex < buttons.size(); ++actionIndex)
-                {
-                    Action action  = (Action)actionIndex;
-                    auto&  actions = buttons[actionIndex];
-                    for (auto& [component, event] : actions)
-                    {
-                        Action& actionTracker = _actionTracker[buttonIndex];
-                        if (action == actionTracker)
-                        {
-                            event(_inputController);                       
-                        }
-
-                        switch (actionTracker)
-                        {
-                        case Action::PRESSED:
-                            actionTracker = Action::HELD;
-                            break;
-                        case Action::RELEASED:
-                            actionTracker = Action::IDLE;
-                        default:
-                            break;
-                        }
-
-                    }
-                }
-            }
+            }        
+            
+            UpdateAnalogButtons();
+            std::memset(_actionChecker.data(), 0, std::size(_actionChecker)); //중복 액션 방지용 기록 배열 초기화.
         }
         catch (const Input::DeviceNotConnectedException& exception)
         {
@@ -1834,10 +1812,14 @@ void ESceneManager::InputSystem::UpdateInput()
 
 void ESceneManager::InputSystem::UpdateTracker(Input::Controller::Button button)
 {
-    int index = std::countr_zero((unsigned int)button); 
-    Action& action = _actionTracker[index];
+    int   buttonIndex = std::countr_zero((unsigned int)button);
+    bool& checker     = _actionChecker[buttonIndex];
+    if (checker)
+    {
+        return;
+    }
+    Action& action = _actionTracker[buttonIndex];
     bool    isDown = false;
-
     switch (button)
     {
     case Input::Controller::Button::DPAD_UP:
@@ -1881,7 +1863,7 @@ void ESceneManager::InputSystem::UpdateTracker(Input::Controller::Button button)
             break;
         case ESceneManager::InputSystem::Action::RELEASED:
         case ESceneManager::InputSystem::Action::IDLE:
-            action = Action::PRESSED;
+            action = Action::PRESSED;         
             break;
         default:
             break;
@@ -1903,4 +1885,32 @@ void ESceneManager::InputSystem::UpdateTracker(Input::Controller::Button button)
         }
     }
 
+    int   actionIndex = static_cast<int>(action);
+    auto& receivers = _receivers[buttonIndex][actionIndex];
+    for (auto& [instance, event] : receivers)
+    {
+        event(_inputController);
+        checker = true;
+    }
+}
+
+void ESceneManager::InputSystem::UpdateAnalogButtons() 
+{
+    // 아날로그 버튼들은 항상 갱신 필요
+    constexpr int leftTriggerIndex  = std::countr_zero((unsigned int)Input::Controller::Button::LEFT_TRIGGER);
+    constexpr int rightTriggerIndex = std::countr_zero((unsigned int)Input::Controller::Button::RIGHT_TRIGGER);
+    constexpr int leftThumbIndex    = std::countr_zero((unsigned int)Input::Controller::Button::LEFT_THUMB_STICK);
+    constexpr int rightThumbIndex   = std::countr_zero((unsigned int)Input::Controller::Button::RIGHT_THUMB_STICK);
+
+    if (_actionTracker[leftTriggerIndex] == Action::HELD)
+        UpdateTracker(Input::Controller::Button::LEFT_TRIGGER);
+
+    if (_actionTracker[rightTriggerIndex] == Action::HELD)
+        UpdateTracker(Input::Controller::Button::RIGHT_TRIGGER);
+
+    if (_actionTracker[leftThumbIndex] == Action::HELD)
+        UpdateTracker(Input::Controller::Button::LEFT_THUMB_STICK);
+
+    if (_actionTracker[rightThumbIndex] == Action::HELD)
+        UpdateTracker(Input::Controller::Button::RIGHT_THUMB_STICK);
 }

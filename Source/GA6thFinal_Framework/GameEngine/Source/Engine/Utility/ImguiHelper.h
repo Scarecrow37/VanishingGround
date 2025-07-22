@@ -97,6 +97,28 @@ namespace ImGuiHelper
         ImGui::Dummy(ImVec2(0.0f, spacing));
     }
 
+    /// <summary>
+    /// <para>텍스트에 수직 구분선을 적용하여 출력합니다. startX는 구분선의 위치를 조정하는데 사용됩니다.</para>
+    /// <para>기본 값으론 텍스트 크기에 따라 자동으로 계산됩니다.</para>
+    /// </summary>
+    /// <param name="text">출력할 텍스트</param>
+    /// <param name="startX">구분선 위치</param>
+    static void TextWithVerticalSeparator(const char* text, float startX = FLT_MAX)
+    {
+        ImGui::Text(text);
+        if (FLT_MAX == startX)
+        {
+            startX = ImGui::GetCursorPosX();
+            startX += ImGui::CalcTextSize(text).x;
+            startX += ImGui::GetStyle().ItemSpacing.x;
+        }
+        ImGui::SameLine(startX);
+        ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
+        ImGui::SameLine();
+        float availX = ImGui::GetContentRegionAvail().x;
+        ImGui::SetNextItemWidth(availX);
+    }
+
     /*
     토글이 가능한 버튼 (false->true / true->false)
     return: 버튼을 눌렀다 뗄 때

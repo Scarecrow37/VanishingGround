@@ -4,6 +4,7 @@ class GameObject;
 class EditorDynamicCamera;
 class MeshComponent;
 class BaseMesh;
+class EditorHierarchyTool;
 
 class EditorSceneTool
     : public EditorTool
@@ -53,6 +54,8 @@ private:
 private:
     ImGuiWindow* _window = nullptr;
     EditorDockWindow* _dockWindow = nullptr;
+    EditorHierarchyTool* _editorHierarchyTool = nullptr;
+
     bool _isHorverdScene = false;
     std::unique_ptr<EditorDynamicCamera> _camera;
 

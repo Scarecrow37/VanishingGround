@@ -8,7 +8,10 @@ CheckTurnEmpty::CheckTurnEmpty() {}
 
 CheckTurnEmpty::~CheckTurnEmpty() {}
 
-void CheckTurnEmpty::OnAwake() {}
+void CheckTurnEmpty::OnAwake() 
+{
+   
+}
 
 void CheckTurnEmpty::OnStart() 
 {
