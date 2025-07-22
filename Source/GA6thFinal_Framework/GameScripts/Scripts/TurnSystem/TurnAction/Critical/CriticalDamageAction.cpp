@@ -65,7 +65,7 @@ void CriticalDamageAction::OnPlayerBattleStart(Player& attacker, PlayerStats& at
     if (true == EvaluateConditions())
     {
         float       additionalDamage = AdditionalDamage;
-        std::string msg = std::format("{}{}{}", (const char*)u8"플레이어의 치명타 데미지 ", additionalDamage * 100, (const char*)u8"증가");
+        std::string msg = std::format("{}{}{}", (const char*)u8"플레이어의 치명타 데미지 ", additionalDamage * 100, (const char*)u8"% 증가");
         UmLogger.Message(LogLevel::LEVEL_TRACE, msg);
         weaponStats.CriticalDamageMultiplier += additionalDamage;
     }
