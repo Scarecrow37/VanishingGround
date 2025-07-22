@@ -174,6 +174,9 @@ using namespace Microsoft::WRL;
 //CommandCore
 #include "Engine/CommandCore/CommandManager.h"
 
+//Watcher
+#include "Engine/Watcher/System/WatcherSystem.h"
+
 //Engine Core
 #include "Engine/EngineCore/EngineLogger.h"
 #include "Engine/EngineCore/TimeSystem.h"

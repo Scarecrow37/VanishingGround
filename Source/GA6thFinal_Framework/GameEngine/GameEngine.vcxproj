@@ -480,6 +480,7 @@
     <ClInclude Include="Source\Engine\Utility\utfHelper.h" />
     <ClInclude Include="Source\Engine\ApplicationCore\Application.h" />
     <ClInclude Include="Source\Engine\FileSystem\Importer\SpriteFontImporter.h" />
+    <ClInclude Include="Source\Engine\Watcher\System\WatcherSystem.h" />
     <ClInclude Include="ThirdParty\include\pugixml\pugiconfig.hpp" />
     <ClInclude Include="ThirdParty\include\pugixml\pugixml.hpp" />
     <ClInclude Include="Source\UmFramework.h" />
@@ -679,6 +680,7 @@
     <ClCompile Include="Source\Engine\Utility\SharedResource.cpp" />
     <ClCompile Include="Source\Engine\Utility\utfHelper.cpp" />
     <ClCompile Include="Source\Engine\ApplicationCore\Application.cpp" />
+    <ClCompile Include="Source\Engine\Watcher\System\WhatcherSystem.cpp" />
     <ClCompile Include="Source\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">Create</PrecompiledHeader>
