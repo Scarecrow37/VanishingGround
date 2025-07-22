@@ -1,6 +1,7 @@
 ﻿#include "pchScripts.h"
 #include "RevelationSystem.h"
 #include <TurnSystem/TurnAction/TurnActionFactory.h>
+#include <TurnSystem/TurnMode/TurnMode.h>
 RevelationSystem::RevelationSystem() 
 {
     RevelationsPerRound.SetInputAutoEvent([]() { ImGuiHelper::HoveredToolTip(u8"라운드당 뽑는 계시 개수"); });
@@ -36,33 +37,50 @@ const std::shared_ptr<RevelationElement>& RevelationSystem::PushBackPlayerElemen
 
 void RevelationSystem::RollRoundElement()
 {
-    _roundElementList.clear();
+    TurnMode* _turnMode = TurnMode::GetInstance();
 
-    //실제 존재하는 계시만 리스트에 넣는다
-    for (auto& element : _playerElementList)
+    if (_turnMode)
     {
-        if (element)
+        //기존 액션들 비활성화
+        for (auto& element : _roundElementList)
         {
-            _roundElementList.push_back(element);
+            if (element->IsAction())
+            {
+                element->GetAction().SetDestroy();
+            }
         }
+        _roundElementList.clear();
+
+        // 실제 존재하는 계시만 리스트에 넣는다
+        for (auto& element : _playerElementList)
+        {
+            if (element)
+            {
+                _roundElementList.push_back(element);
+            }
+        }
+
+        // 랜덤 셔플
+        std::ranges::shuffle(_roundElementList, Random::GetEngine());
+
+        // 사용 가능한 개수만 남긴다.
+        if (ReflectFields->RevelationsPerRound < _roundElementList.size())
+        {
+            _roundElementList.resize(ReflectFields->RevelationsPerRound);
+        }
+
+        // 뽑힌 횟수 계산 및 액션 활성화
+        for (auto& element : _roundElementList)
+        {
+            const std::string& name = element->Name;
+            _elementTotalAppearances[name]++;
+            if (element->IsAction())
+            {
+                _turnMode->AddTurnAction(&element->GetAction());
+            }
+        }
+        _totalRollCount += (int)_roundElementList.size();
     }
-
-    //랜덤 셔플
-    std::ranges::shuffle(_roundElementList, Random::GetEngine());
-
-    //사용 가능한 개수만 남긴다.
-    if (ReflectFields->RevelationsPerRound < _roundElementList.size())
-    {
-        _roundElementList.resize(ReflectFields->RevelationsPerRound);
-    }  
-
-    //뽑힌 횟수 계산
-    for (auto& element : _roundElementList)
-    {
-        const std::string& name = element->Name;
-        _elementTotalAppearances[name]++;
-    }
-    _totalRollCount += (int)_roundElementList.size();
 }
 
 bool RevelationSystem::InsertElement(const RevelationElement& element)
