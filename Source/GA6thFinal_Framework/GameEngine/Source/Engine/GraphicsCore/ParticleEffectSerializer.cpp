@@ -88,7 +88,7 @@ ParticleEffect* ParticleEffectSerializer::Deserialize(File::Path filepath,bool i
         auto it = _deserializers.find({majorVersion, minorVersion});
         if (it != _deserializers.end())
         {
-            (*it).second(is,isEditor,sceneName);
+            return (*it).second(is,isEditor,sceneName);
         }
     }
    

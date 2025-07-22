@@ -1,5 +1,4 @@
-#include "Compute.hlsli"
-
+#include "CommonData.hlsli"
 struct RibbonVertexCount
 {
     uint count;
@@ -7,6 +6,18 @@ struct RibbonVertexCount
 ConstantBuffer<RibbonVertexCount> bit32_1_ribbonVertexCount;
 
 StructuredBuffer<uint> ribbonIndices;
+
+
+struct ParticleOutput
+{
+    float4 position; //ribbon -> normal
+    float4x4 FinalMatrix;
+    float4 Color;
+    float4 FrameInfo; // ribbon-> x = ribbon width
+    int EmitterIndex;
+    float3 paddings;
+    
+};
 StructuredBuffer<ParticleOutput> particleInfo;
 
 struct VSInput
@@ -45,12 +56,12 @@ VSOutput vs_main(VSInput input)
     ParticleOutput np = particleInfo[particleIndexnext];
 
     float4 currentvertex = float4(0, isTop , 0, 1);
-    float3 offsetDir = normalize(p.position.xyz);
-    float3 centerWorldPos = float3(p.paddings);
-    float3 centerWorldPosnext = float3(np.paddings);
+    float3 offsetDir = normalize(p.paddings);
+    float3 centerWorldPos = float3(p.position.xyz);
+    float3 centerWorldPosnext = float3(np.position.xyz);
     
-    float3 progressDir = normalize(centerWorldPosnext - centerWorldPos);
-    float3 offsetvector = cross(offsetDir, max(progressDir, float3(1, 0, 0)));
+    float3 progressDir = normalize(lerp(cameraData.Position.xyz, centerWorldPosnext, ceil(centerWorldPosnext - centerWorldPos)) - centerWorldPos);
+    float3 offsetvector = cross(offsetDir, progressDir);
     float ribbonHalfWidth = p.FrameInfo.x;
     
     float4 newpos = float4(offsetvector * ribbonHalfWidth *isTop, 1);

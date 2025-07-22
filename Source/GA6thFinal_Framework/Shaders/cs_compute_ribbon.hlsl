@@ -88,8 +88,8 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
     worldPos.xyz += gravityOffset*input.age;
     float4 viewPos = mul(worldPos, mvp.ViewMatrix);
     
-    output.position = float4(lerp(normalize(emitter.startNormal.xyz), normalize(emitter.endNormal.xyz), ratio), 0);
-    output.paddings = worldPos.xyz;
+    output.position =    worldPos;
+    output.paddings =    lerp(normalize(emitter.startNormal.xyz), normalize(emitter.endNormal.xyz), ratio);
 
     output.EmitterIndex = input.emitterIndex;
     

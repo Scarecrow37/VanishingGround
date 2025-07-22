@@ -106,6 +106,9 @@ void ParticleRibbonPass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("depthbuffer"),
                                                 depthStencilBuffer->GetSRVHandle());
 
+        commandList->SetGraphicsRootConstantBufferView(_shader->GetRootParameterIndex("cameraData"),
+                                                   _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
+
     commandList->SetGraphicsRootShaderResourceView(_shader->GetRootParameterIndex("texID"),
                                                    _textureIDBuffer->GetGPUVirtualAddress());
 
