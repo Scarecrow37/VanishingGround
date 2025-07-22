@@ -76,7 +76,18 @@ void RevelationSystem::RollRoundElement()
             _elementTotalAppearances[name]++;
             if (element->IsAction())
             {
-                _turnMode->AddTurnAction(&element->GetAction());
+                std::weak_ptr<RevelationElement> weakElement = element;
+                TurnAction& action = element->GetAction();
+                action.OnActionActive = [weakElement]() 
+                { 
+                    if (auto element = weakElement.lock())
+                    {
+                        const std::string& name = element->ElementName;
+                        std::string msg  = std::format("{}{}", name, (const char*)u8" 발동.");
+                        UmLogger.Message(LogLevel::LEVEL_DEBUG, msg);
+                    }
+                };
+                _turnMode->AddTurnAction(&action);
             }
         }
         _totalRollCount += (int)_roundElementList.size();
