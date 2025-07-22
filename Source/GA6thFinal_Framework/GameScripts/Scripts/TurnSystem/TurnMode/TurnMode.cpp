@@ -331,7 +331,9 @@ void TurnMode::Battle::operator()(Player& attacker, Enemy& target)
         PlayerInfo playerInfo(attacker, weaponStats, playerStats);
         EnemyInfo  enemyInfo(target, enemyStats);
         int damage = DamageSystem::CalculateDamage(playerInfo, enemyInfo);
+        int chainDamage = DamageSystem::CalculateChainDamage(playerInfo, enemyInfo);
         target.TakeDamage(damage);
+        target.TakeChain(chainDamage);
     }
 }
 
