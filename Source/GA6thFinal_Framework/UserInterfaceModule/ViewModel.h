@@ -1,17 +1,19 @@
 ﻿#pragma once
 
-namespace UI
+namespace MVVM
 {
     template <typename T, typename U>
     class ViewModel
     {
+        using ObserverToken = typename IModel<T>::Token;
+
     public:
-        explicit ViewModel(IModel<T>* model) : _model(model)
+        explicit ViewModel(IModel<T>& model)
+            : _token(model.AddObserver([this](T value) {
+                  if (_callback)
+                      _callback(Convert(value));
+              }))
         {
-            _model->AddObserver([this](T value) {
-                if (_callback)
-                    _callback(Convert(value));
-            });
         }
 
         ViewModel(const ViewModel&)            = default;
@@ -26,7 +28,7 @@ namespace UI
         virtual U Convert(const T& value) { return static_cast<U>(value); }
 
     private:
-        IModel<T>*             _model;
+        ObserverToken          _token;
         std::function<void(U)> _callback;
     };
-} // namespace UI
+} // namespace MVVM
