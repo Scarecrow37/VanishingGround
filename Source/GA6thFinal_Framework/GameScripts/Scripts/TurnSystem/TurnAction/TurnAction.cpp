@@ -116,6 +116,11 @@ bool TurnAction::EvaluateConditions()
    {
         condition->OnEvaluateConditions(result);
    }
+
+   if (result && OnActionActive)
+   {
+       OnActionActive();
+   }
    return result;
 }
 

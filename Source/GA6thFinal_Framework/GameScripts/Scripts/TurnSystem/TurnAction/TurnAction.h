@@ -92,6 +92,9 @@ public:
     /// <returns></returns>
     const std::string& GetConditionsInfo() const;
 
+    /*액션 조건이 true를 평가했을때 호출되는 함수 객체입니다.*/
+    std::function<void()> OnActionActive;
+
 public:
     /*Action의 이름을 반환해야합니다.*/
     virtual const std::string& GetActionName() = 0;
