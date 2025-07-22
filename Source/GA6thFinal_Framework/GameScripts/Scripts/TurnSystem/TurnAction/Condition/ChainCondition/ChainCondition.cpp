@@ -218,5 +218,5 @@ void ChainCondition::UpdateConditionInfo()
         operInfo = STR_NULL;
         break;
     }
-    _conditionInfo = std::format("{}{}{}{}", who, u8" 연격이 "_c_str, operInfo);
+    _conditionInfo = std::format("{}{}{}", who, u8" 연격이 "_c_str, operInfo);
 }
