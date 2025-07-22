@@ -5,6 +5,7 @@
 #include "GameCore/FSM/FiniteStateMachine.h"
 #include <WeaponSystem/WeaponTable/WeaponTableComponent.h>
 #include <WeaponSystem/WeaponSystem.h>
+#include <Mesh/SkeletalMeshRenderer.h>
 
 //Condition
 #include "Condition/PlayerStartCondition.h"
@@ -41,6 +42,13 @@ void Player::Awake()
     if (nullptr == GetPlayerStats())
     {
         UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"Player Stats를 추가해주세요");
+    }
+    SkeletalMeshRenderer* renderer = GetSkeletalMeshRenderer();
+    if (renderer)
+    {
+        const char* idleAnimKey = GetAnimationName(CharacterBase::IDLE);
+        renderer->SetMainAnimation(idleAnimKey, true);
+        renderer->SetMainAnimationLoop(true);
     }
 }
 
@@ -260,13 +268,15 @@ const char* Player::GetAnimationName(AnimationType type)
 {
     switch (type)
     {
-        ANIM_NAME(IDLE,         "rig|Player_Anim_Idle")
-        ANIM_NAME(HIT,          "rig|Player_Anim_GetHit")
-        ANIM_NAME(ATTACK_READY, "rig|Player_Anim_Attack_Ready")
-        ANIM_NAME(ATTACK_LOOP,  "rig|Player_Anim_Attack")
-        ANIM_NAME(ATTACK_END,   "rig|Player_Anim_Attack_End")
-        ANIM_NAME(ATTACK_1,     "rig|attack full")
-        ANIM_NAME(DEATH,        "rig|Player_Anim_Death")
+        ANIM_NAME(IDLE,             "rig|Player_Anim_Idle")
+        ANIM_NAME(HIT,              "rig|Player_Anim_GetHit")
+        ANIM_NAME(ATTACK_READY,     "rig|Player_Anim_Attack_Ready")
+        ANIM_NAME(ATTACK_READY_LOOP,"rig|Player_Anim_Attack_Ready_Loop")
+        ANIM_NAME(ATTACK,           "rig|Player_Anim_Attack")
+        ANIM_NAME(ATTACK_LOOP,      "rig|Player_Anim_Attack_Loop")
+        ANIM_NAME(ATTACK_END,       "rig|Player_Anim_Attack_End")
+        ANIM_NAME(ATTACK_1,         "rig|attack full")
+        ANIM_NAME(DEATH,            "rig|Player_Anim_Death")
 
         default:
         {

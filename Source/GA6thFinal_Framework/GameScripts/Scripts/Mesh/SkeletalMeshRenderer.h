@@ -53,6 +53,14 @@ private:
     /////////////////////////////////////////////////////////////
 public:
     /// <summary>
+    /// 애니메이션 오버라이드를 모두 지웁니다.
+    /// </summary>
+    void ClearOverrideAnimations();
+
+    void BeginBuildOverrideAnimation();
+    void EndBuildOverrideAnimation();
+
+    /// <summary>
     /// 애니메이션 오버라이드를 삽입합니다.
     /// </summary>
     /// <param name="animKey"></param>
@@ -65,8 +73,7 @@ public:
     /// <summary>
     /// 애니메이션 오버라이드를 뺍니다
     /// </summary>
-    /// <param name="blend"></param>
-    void PopOverrideAnimation(bool blend = true);
+    void PopOverrideAnimation();
 
     /// <summary>
     /// 현재 애니메이션을 바꿉니다.
@@ -91,6 +98,9 @@ public:
     void SetCurrentAnimationSpeed(float speed);
     void SetMainAnimationSpeed(float speed);
 
+    void SetCurrentAnimationBlend(bool blend);
+    void SetMainAnimationBlend(bool blend);
+
     /// <summary>애니메이션을 0프레임으로 맞춘 후 멈춥니다.</summary>
     void StopCurrentAnimation();
 
@@ -106,6 +116,7 @@ public:
     const AnimationData& GetMainAnimationData() const;
     const AnimationData& GetLastAnimationData() const;
 
+    inline size_t             GetOverrideAnimationCount()   const { return _overrideAnimationStack.size(); }
     inline const std::string& GetCurrentAnimationName()     const { return GetLastAnimationData().AnimationName; }
     inline float              GetCurrentAnimationTime()     const { return GetLastAnimationData().Duration; }
     inline float              GetCurrentAnimationSpeed()    const { return GetLastAnimationData().Speed; }
@@ -115,4 +126,5 @@ public:
 private:
     AnimationData              _mainAnimationData;
     std::vector<AnimationData> _overrideAnimationStack; 
+    bool                       _isBuildingOverrideAnimation = false;
 };

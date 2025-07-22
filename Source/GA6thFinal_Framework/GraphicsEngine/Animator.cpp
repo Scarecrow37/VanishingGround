@@ -288,17 +288,22 @@ bool Animator::ChangeAnimation(const char* animation, const unsigned int ID, boo
 	if (!strcmp(_controllers[ID].Animation.data(), animation))
 		return false;
 
-	_isBlending = blending;
-    if (true == _isBlending)
+	_isBlending = true;
+    if (true == blending)
     {
         _blends[ID].BlendTime  = 0.f;
         _blends[ID].IsBlending = true;
-
         _prevControllers[ID] = _controllers[ID];
     }
     _controllers[ID].Animation = iter->first;
     _controllers[ID].PlayTime  = 0.f;
     _controllers[ID].LastTime  = iter->second.LastTime;
+    if (false == blending)
+    {
+        _blends[ID].BlendTime  = 0.f;
+        _blends[ID].IsBlending = true;
+        _prevControllers[ID]   = _controllers[ID];
+    }
 
     return true;
 }

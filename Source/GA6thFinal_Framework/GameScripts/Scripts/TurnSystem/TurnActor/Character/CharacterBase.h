@@ -111,13 +111,16 @@ public:
         ATTACK_1,
         ATTACK_2,
         ATTACK_READY,
+        ATTACK_READY_LOOP,
+        ATTACK,
         ATTACK_LOOP,
         ATTACK_END,
         SIZE,
     };
     virtual const char* GetAnimationName(AnimationType type) = 0;
     void SetMainAnimation(AnimationType type, bool loop = true, bool blend = true);
+    void ClearOverrideAnimations();
     void PushOverrideAnimation(AnimationType type, bool loop = true, bool blend = true, std::function<bool(const AnimationData&)> popCondition = nullptr);
-    void PopOverrideAnimation(bool blend = true);
+    void PopOverrideAnimation();
     bool IsAnimationEnd();
 };

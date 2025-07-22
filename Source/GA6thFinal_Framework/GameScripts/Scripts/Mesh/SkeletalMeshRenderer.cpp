@@ -188,6 +188,41 @@ void SkeletalMeshRenderer::UpdateAnimation()
     }
 }
 
+void SkeletalMeshRenderer::ClearOverrideAnimations() 
+{
+    const auto& animator = Renderer->GetAnimator();
+    const auto& animData = GetLastAnimationDataEx();
+    _overrideAnimationStack.clear();
+    if (animator && animData)
+    {
+        if (false == _isBuildingOverrideAnimation)
+        {
+            animator->ChangeAnimation(animData->AnimationName.c_str(), animData->IsBlending);
+            SetCurrentAnimationFrame(animData->Duration);
+        }
+    }
+}
+
+void SkeletalMeshRenderer::BeginBuildOverrideAnimation() 
+{
+    _isBuildingOverrideAnimation = true;
+}
+
+void SkeletalMeshRenderer::EndBuildOverrideAnimation() 
+{
+    if (_isBuildingOverrideAnimation)
+    {
+        const auto&    animator = Renderer->GetAnimator();
+        AnimationData* animData = GetLastAnimationDataEx();
+        if (animator && animData)
+        {
+            animator->ChangeAnimation(animData->AnimationName.c_str(), animData->IsBlending);
+            SetCurrentAnimationFrame(animData->Duration);
+        }
+        _isBuildingOverrideAnimation = false;
+    }
+}
+
 void SkeletalMeshRenderer::PushOverrideAnimation(std::string_view animKey, bool loop, bool blend,
                                                  std::function<bool(const AnimationData&)> popCondition)
 {
@@ -199,14 +234,18 @@ void SkeletalMeshRenderer::PushOverrideAnimation(std::string_view animKey, bool 
         if (animData)
         {
             animData->PopCondition = popCondition;
-            animator->ChangeAnimation(animData->AnimationName.c_str(), blend);
-            SetCurrentAnimationLoop(loop);
-            SetCurrentAnimationFrame(0.0f);
+            animData->IsLooping    = loop;
+            animData->IsBlending   = blend;
+            if (false == _isBuildingOverrideAnimation)
+            {
+                animator->ChangeAnimation(animData->AnimationName.c_str(), animData->IsBlending);
+                SetCurrentAnimationFrame(animData->Duration);
+            }
         }
     }
 }
 
-void SkeletalMeshRenderer::PopOverrideAnimation(bool blend) 
+void SkeletalMeshRenderer::PopOverrideAnimation() 
 {
     if (HasModel() && HasAnimator())
     {
@@ -215,10 +254,11 @@ void SkeletalMeshRenderer::PopOverrideAnimation(bool blend)
         AnimationData* animData = GetLastAnimationDataEx();
         if (animData)
         {
-            animator->ChangeAnimation(animData->AnimationName.c_str(), blend);
-            SetCurrentAnimationFrame(animData->Duration);
-            SetCurrentAnimationSpeed(animData->Speed);
-            SetCurrentAnimationLoop(animData->IsLooping);
+            if (false == _isBuildingOverrideAnimation)
+            {
+                animator->ChangeAnimation(animData->AnimationName.c_str(), animData->IsBlending);
+                SetCurrentAnimationFrame(animData->Duration);
+            }
         }
     }
 }
@@ -261,6 +301,24 @@ void SkeletalMeshRenderer::SetCurrentAnimationSpeed(float speed)
 void SkeletalMeshRenderer::SetMainAnimationSpeed(float speed) 
 {
     SetAnimationSpeed(&_mainAnimationData, speed);
+}
+
+void SkeletalMeshRenderer::SetCurrentAnimationBlend(bool blend) 
+{
+    AnimationData* animData = GetLastAnimationDataEx();
+    if (animData)
+    {
+        animData->IsBlending = blend;
+    }
+}
+
+void SkeletalMeshRenderer::SetMainAnimationBlend(bool blend)
+{
+    AnimationData* animData = &_mainAnimationData;
+    if (animData)
+    {
+        animData->IsBlending = blend;
+    }
 }
 
 void SkeletalMeshRenderer::StopCurrentAnimation()
@@ -330,8 +388,11 @@ void SkeletalMeshRenderer::SetAnimation(AnimationData* animData, std::string_vie
     if (animator && animData)
     {
         animData->AnimationName = animKey;
-        animator->ChangeAnimation(animData->AnimationName.c_str(), blend);
-        SetCurrentAnimationFrame(0.0f);
+        if (false == _isBuildingOverrideAnimation)
+        {
+            animator->ChangeAnimation(animData->AnimationName.c_str(), blend);
+            SetCurrentAnimationFrame(0.0f);
+        }
     }
 }
 

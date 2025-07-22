@@ -115,7 +115,7 @@ void CharacterBase::TakeDamage(int damage)
         const char* hitAnimName     = GetAnimationName(CharacterBase::HIT);
         if (0 == strcmp(currentAnimName, hitAnimName))
         {
-            PopOverrideAnimation(true); // Hit 애니메이션이 재생 중이면 Pop
+            PopOverrideAnimation();
         }
     }
     PushOverrideAnimation(CharacterBase::HIT, false, true,
@@ -219,6 +219,14 @@ void CharacterBase::SetMainAnimation(AnimationType type, bool loop, bool blend)
     }
 }
 
+void CharacterBase::ClearOverrideAnimations() 
+{
+    if (_skeletalMeshRenderer)
+    {
+        _skeletalMeshRenderer->ClearOverrideAnimations();
+    }
+}
+
 void CharacterBase::PushOverrideAnimation(AnimationType type, bool loop, bool blend,
                                           std::function<bool(const AnimationData&)> popCondition)
 {
@@ -229,11 +237,11 @@ void CharacterBase::PushOverrideAnimation(AnimationType type, bool loop, bool bl
     }
 }
 
-void CharacterBase::PopOverrideAnimation(bool blend)
+void CharacterBase::PopOverrideAnimation()
 {
     if (_skeletalMeshRenderer)
     {
-        _skeletalMeshRenderer->PopOverrideAnimation(blend);
+        _skeletalMeshRenderer->PopOverrideAnimation();
     }
 }
 

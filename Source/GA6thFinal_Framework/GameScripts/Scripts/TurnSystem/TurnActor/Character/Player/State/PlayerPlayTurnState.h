@@ -40,8 +40,6 @@ protected:
     void OnExit() override;
     void OnUpdate() override;
 
-    bool CheckAttackEnd();
-
 private:
     void UpdateAttackButtonHeld(float dt);
     void PressedButtonA(const Input::Controller& controller);
@@ -62,6 +60,11 @@ private:
 
     bool IsAttackable() const;
     void PushAttackTarget(AttackTarget target);
+
+    // Animation
+    void SetAttackReadyAnimation();
+    void SetAttackAnimation();
+    void SetAttackEndAnimation();
 
 private:
     bool       _setImguiPosCenter;

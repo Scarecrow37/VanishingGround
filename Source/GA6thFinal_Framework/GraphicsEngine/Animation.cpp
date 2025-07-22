@@ -3,6 +3,9 @@
 
 void Animation::LoadAnimation(const aiScene* scene)
 {
+    _animations.clear();
+    _animationNames.clear();
+
 	auto AssimpVec3ToSimpleMathVec3 = [](const aiVector3D& in) { return XMVectorSet(in.x, in.y, in.z, 0.f); };
 	auto AssimpQuatToSimpleMathQuat = [](const aiQuaternion& in) { return XMVectorSet(in.x, in.y, in.z, in.w); };
 
@@ -40,12 +43,15 @@ void Animation::LoadAnimation(const aiScene* scene)
 			}
 
 			animation.BoneTransforms[channel->mNodeName.C_Str()] = track;
-            animation.LastTime = (std::max)({track.Scales.back().first, 
-                                           track.Rotations.back().first,
-                                           track.Positions.back().first, 
-                                           animation.LastTime});
+            
+            // 이전
+            //animation.LastTime = (std::max)({track.Scales.back().first, 
+            //                               track.Rotations.back().first,
+            //                               track.Positions.back().first, 
+            //                               animation.LastTime});
 		}
-        
+        // 이렇게 바꿔도 대나?
+        animation.LastTime = (float)anim->mDuration / (float)anim->mTicksPerSecond;
 		_animations[anim->mName.C_Str()] = animation;
 	}
 

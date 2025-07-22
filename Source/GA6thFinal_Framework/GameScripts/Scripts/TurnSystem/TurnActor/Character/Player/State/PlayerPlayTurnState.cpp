@@ -84,7 +84,6 @@ void PlayerPlayTurnState::OnUpdate()
     float dt = UmTime.DeltaTime();
     switch (_inputState)
     {
-    default:
     case PlayerPlayTurnState::InputState::NONE:
         break;
     case PlayerPlayTurnState::InputState::ACTION_SELECTION:
@@ -97,13 +96,8 @@ void PlayerPlayTurnState::OnUpdate()
     case PlayerPlayTurnState::InputState::ATTACK_EVENT:
         UpdateAttackEventUI(dt);
         break;
-    }
-
-    if (true == CheckAttackEnd())
-    {
-        auto& player = GetPlayer();
-        player.EndTurn();
-        player.SetMainAnimation(CharacterBase::IDLE);
+    default:
+        break;
     }
 }
 
@@ -123,8 +117,7 @@ void PlayerPlayTurnState::UpdateAttackButtonHeld(float dt)
                 _setImguiPosCenter = true;
                 _attackTargets.clear();
             }
-            Player& player = GetPlayer();
-            player.SetMainAnimation(CharacterBase::ATTACK_READY, false);
+            SetAttackReadyAnimation();
         }
     }
 }
@@ -225,8 +218,7 @@ void PlayerPlayTurnState::UpdateQuickTimeEventUI(float dt)
             if (_attackRemaining == 0)
             {
                 _inputState = InputState::ATTACK_EVENT;
-                Player& player = GetPlayer();
-                player.SetMainAnimation(CharacterBase::ATTACK_LOOP, false);
+                SetAttackAnimation();
             }
         }
         else
@@ -272,7 +264,9 @@ void PlayerPlayTurnState::UpdateAttackEventUI(float dt)
                 UmTime.Invoke(&GetFSM(), delay, 
                 [&]() 
                 { 
-                    player.SetMainAnimation(CharacterBase::ATTACK_END, false);
+                    auto& player = GetPlayer();
+                    SetAttackEndAnimation();
+                    player.EndTurn();
                 });
             }
         }
@@ -294,21 +288,47 @@ void PlayerPlayTurnState::PushAttackTarget(AttackTarget target)
     }
 }
 
-bool PlayerPlayTurnState::CheckAttackEnd()
+void PlayerPlayTurnState::SetAttackReadyAnimation()
 {
-    auto& player = GetPlayer();
-    auto  renderer = player.GetSkeletalMeshRenderer();
+    Player& player = GetPlayer();
+    SkeletalMeshRenderer* renderer = player.GetSkeletalMeshRenderer();
     if (renderer)
     {
-        const char* currAnim = renderer->GetCurrentAnimationName().c_str();
-        const char* attackEndAnim = player.GetAnimationName(CharacterBase::ATTACK_END);
-        if (0 == strcmp(currAnim, attackEndAnim))
-        {
-            if (true == player.IsAnimationEnd())
-            {
-                return true;
-            }
-        }
+        renderer->BeginBuildOverrideAnimation();
+        renderer->ClearOverrideAnimations();
+        player.PushOverrideAnimation(CharacterBase::ATTACK_READY_LOOP);
+        player.PushOverrideAnimation(CharacterBase::ATTACK_READY, false, true,
+                                     [](const AnimationData& data) { return data.IsEnd; });
+        renderer->EndBuildOverrideAnimation();
     }
-    return false;
+}
+
+void PlayerPlayTurnState::SetAttackAnimation()
+{
+    Player&               player   = GetPlayer();
+    SkeletalMeshRenderer* renderer = player.GetSkeletalMeshRenderer();
+    if (renderer)
+    {
+        renderer->BeginBuildOverrideAnimation();
+        renderer->ClearOverrideAnimations();
+        player.PushOverrideAnimation(CharacterBase::ATTACK_LOOP);
+        player.PushOverrideAnimation(CharacterBase::ATTACK, false, true,
+                                    [](const AnimationData& data) { return data.IsEnd; });
+        renderer->EndBuildOverrideAnimation();
+    }
+}
+
+void PlayerPlayTurnState::SetAttackEndAnimation() 
+{
+    Player&               player   = GetPlayer();
+    SkeletalMeshRenderer* renderer = player.GetSkeletalMeshRenderer();
+    if (renderer)
+    {
+        renderer->BeginBuildOverrideAnimation();
+        renderer->ClearOverrideAnimations();
+        player.SetMainAnimation(CharacterBase::IDLE);
+        player.PushOverrideAnimation(CharacterBase::ATTACK_END, false, true,
+                                     [](const AnimationData& data) { return data.IsEnd; });
+        renderer->EndBuildOverrideAnimation();
+    }
 }

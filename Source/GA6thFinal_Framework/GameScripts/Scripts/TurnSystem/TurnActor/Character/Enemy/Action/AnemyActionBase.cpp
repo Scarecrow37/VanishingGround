@@ -31,11 +31,11 @@ namespace EnemyAction
         }
     }
 
-    void ActionBase::PopOverrideAnimation(bool blend)
+    void ActionBase::PopOverrideAnimation()
     {
         if (_owner && _renderer)
         {
-            _owner->PopOverrideAnimation(blend);
+            _owner->PopOverrideAnimation();
         }
     }
 
