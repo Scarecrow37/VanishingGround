@@ -124,6 +124,11 @@ void CharacterBase::TakeDamage(int damage)
                           });
 }
 
+void CharacterBase::TakeChain(int chainDamage) 
+{
+    SetChainCount(_chainCount + chainDamage);
+}
+
 int CharacterBase::DecrementChainRoundCount()
 {
     _chainRoundCount = std::clamp(_chainRoundCount - 1, 0, GetMaxChainRoundCount());

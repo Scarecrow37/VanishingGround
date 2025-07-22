@@ -100,9 +100,26 @@ public:
         /// <returns></returns>
         static const std::weak_ptr<CharacterBase>& GetLastTarget() { return lastTarget; }
 
+        /// <summary>
+        /// 마지막으로 공격당한 적을 반환합니다
+        /// </summary>
+        /// <returns></returns>
+        static const std::weak_ptr<CharacterBase>& GetLastTargetEnemy() { return lastTarget; }
+
+        /// <summary>
+        /// 마지막으로 공격당한 적을 기록하는 변수를 초기화합니다. 전투 시작시 초기화됩니다.
+        /// </summary>
+        inline static void ResetLastCharacter()
+        {
+            lastAttacker    = std::weak_ptr<CharacterBase>();
+            lastTarget      = std::weak_ptr<CharacterBase>();
+            lastTargetEnemy = std::weak_ptr<Enemy>();
+        }
+
     private:
         inline static std::weak_ptr<CharacterBase> lastAttacker;
         inline static std::weak_ptr<CharacterBase> lastTarget;
+        inline static std::weak_ptr<Enemy>         lastTargetEnemy;
     };
 
 public:
