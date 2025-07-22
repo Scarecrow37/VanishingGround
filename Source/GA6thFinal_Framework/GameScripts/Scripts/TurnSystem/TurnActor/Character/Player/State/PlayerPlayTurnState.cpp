@@ -6,9 +6,6 @@
 #include <TurnSystem/TurnMode/TurnMode.h>
 #include <TurnSystem/TurnMode/State/CombatStartPhase.h>
 #include <WeaponSystem/WeaponSystem.h>
-
-#include <TurnSystem/TurnMode/TurnMode.h>
-#include <TurnSystem/TurnMode/State/CombatStartPhase.h>
 #include <Mesh/SkeletalMeshRenderer.h>
 
 using namespace u8_literals;

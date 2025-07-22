@@ -278,3 +278,4 @@ const char* Player::GetAnimationName(AnimationType type)
         }
     }
 }
+#undef ANIM_NAME

@@ -44,13 +44,11 @@ void Animation::LoadAnimation(const aiScene* scene)
 
 			animation.BoneTransforms[channel->mNodeName.C_Str()] = track;
             
-            // 이전
             //animation.LastTime = (std::max)({track.Scales.back().first, 
             //                               track.Rotations.back().first,
             //                               track.Positions.back().first, 
             //                               animation.LastTime});
 		}
-        // 이렇게 바꿔도 대나?
         animation.LastTime = (float)anim->mDuration / (float)anim->mTicksPerSecond;
 		_animations[anim->mName.C_Str()] = animation;
 	}

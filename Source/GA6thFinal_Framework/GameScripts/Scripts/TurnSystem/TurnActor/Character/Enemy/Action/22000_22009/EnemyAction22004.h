@@ -7,7 +7,8 @@ namespace EnemyAction
     /// 피의 의식
     /// </summary>
     class Action22004 : public ActionBase
-    { public:
+    { 
+    public:
         using ActionBase::ActionBase;
     private:
         void OnActionEnter() override;

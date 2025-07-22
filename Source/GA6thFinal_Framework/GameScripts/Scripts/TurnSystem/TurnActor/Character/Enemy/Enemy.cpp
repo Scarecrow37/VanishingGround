@@ -192,7 +192,6 @@ void Enemy::OnTokenRemoved(int tokenID)
 case enumType :\
 return name;\
 break;
-
 const char* Enemy::GetAnimationName(AnimationType type)
 {
     EnemyType enemyType = Type;
@@ -260,3 +259,4 @@ const char* Enemy::GetAnimationName(AnimationType type)
     }
     return "";
 }
+#undef ANIM_NAME
