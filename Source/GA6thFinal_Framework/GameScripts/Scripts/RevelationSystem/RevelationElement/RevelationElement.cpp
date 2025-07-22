@@ -9,44 +9,6 @@
 
 using namespace u8_literals;
 
-bool RevelationElement::Evaluate()
-{
-    auto attacker = TurnMode::Battle::GetLastAttacker().lock();
-    auto target   = TurnMode::Battle::GetLastTarget().lock();
-    bool result   = false;
-    if (attacker && target)
-    {
-        int                     chainCount = target->ChainCount;
-        RevelationConditionType condition  = ReflectFields->Condition;
-        switch (condition)
-        {
-        case RevelationConditionType::GREATER_THAN_OR_EQUAL:
-            result = chainCount >= ReflectFields->ConditionValueA;
-            break;
-        case RevelationConditionType::LESS_THAN_OR_EQUAL:
-            result = chainCount <= ReflectFields->ConditionValueA;
-            break;
-        case RevelationConditionType::BETWEEN_INCLUSIVE:
-            result = ReflectFields->ConditionValueA <= chainCount && chainCount <= ReflectFields->ConditionValueA;
-            break;
-        case RevelationConditionType::EQUAL:
-            result = chainCount == ReflectFields->ConditionValueA;
-            break;
-        case RevelationConditionType::MULTIPLE_OF:
-            result = chainCount % ReflectFields->ConditionValueA == 0;
-            break;
-        default:
-            break;
-        }
-
-        if (result && _action)
-        {
-            result &= _action->EvaluateConditions();
-        }
-    }
-    return result;
-}
-
 void RevelationElement::ImGuiDrawPropertysEvent()
 {
     RevelationSystem* system = RevelationSystem::GetInstance();
@@ -151,5 +113,31 @@ void RevelationElement::DeepCopyAction(const TurnAction& action)
             std::string data = rhs.SerializedReflectFields();
             _action->DeserializedReflectFields(data);
         }
+    }
+}
+
+const std::string& RevelationElement::GetActionName()
+{
+    const static std::string actionName = u8"계시"_c_str;
+    return actionName;
+}
+
+const std::string& RevelationElement::GetActionInfo()
+{
+    const static std::string actionInfo = u8"계시"_c_str;
+    return actionInfo;
+}
+
+void RevelationElement::ImGuiDrawActionEditor() 
+{
+
+}
+
+void RevelationElement::OnPlayerBattleStart(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats,
+                                            Enemy& target, EnemyStats& targetStats)
+{
+    if (IsAction())
+    {
+        _action->OnPlayerBattleStart(attacker, attackerStats, weaponStats, target, targetStats);
     }
 }

@@ -1,25 +1,5 @@
 ﻿#pragma once
-class TurnAction;
-
-// 연격 조건
-enum class RevelationConditionType
-{
-    // 연격 ≥ A : A 이상
-    GREATER_THAN_OR_EQUAL,
-
-    // 연격 ≤ A : A 이하
-    LESS_THAN_OR_EQUAL,
-
-    // 연격 A~B : A와 B 사이 (양쪽 포함)
-    BETWEEN_INCLUSIVE,
-
-    // 연격 = A : A와 정확히 같음
-    EQUAL,
-
-    // A의 배수
-    MULTIPLE_OF
-};
-
+#include <TurnSystem/TurnAction/TurnAction.h>
 
 enum class RevelationKeyword
 {
@@ -46,7 +26,7 @@ enum class RevelationGrade
 /*
 * 계시의 정보를 가지고있는 class 입니다.
 */
-class RevelationElement : public ReflectSerializer
+class RevelationElement : public TurnAction
 {
     USING_PROPERTY(RevelationElement)
 public:
@@ -56,9 +36,6 @@ public:
 public:
     REFLECT_PROPERTY(
         Name,
-        ReflectFields->Condition, 
-        ReflectFields->ConditionValueA,
-        ReflectFields->ConditionValueB,
         ReflectFields->Keyword, 
         ReflectFields->Grade)
     
@@ -73,15 +50,12 @@ public:
     /*해당 계시의 액션을 반환합니다. IsAction()을 확인해야합니다.*/
     TurnAction& GetAction() { return *_action; }
 
-    /*계시 발동 조건 여부를 검사합니다.*/
-    bool Evaluate(); 
+    /*이번 라운드 발동 여부를 반환합니다.*/
+    bool IsUsedThisRound() const { return _isUsedThisRound; }
 
 protected:
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
     std::string             Name            = STR_NULL;
-    RevelationConditionType Condition       = RevelationConditionType::GREATER_THAN_OR_EQUAL; // 조건
-    int                     ConditionValueA = 5;                                              // 조건값 A
-    int                     ConditionValueB = 5;                                              // 조건값 B
     RevelationKeyword       Keyword         = RevelationKeyword::DEFAULT;                     // 키워드
     RevelationGrade         Grade           = RevelationGrade::COMMON;                        // 등급
     std::string             ActionName      = STR_NULL; 
@@ -130,6 +104,7 @@ public:
 private:
     int  _imguiDrawIndex = 0;
     bool _showActionEditor = false;
+    bool _isUsedThisRound = false;
 
 private:
     using DatasType = reflect_fields_struct;
@@ -156,5 +131,12 @@ public:
     {
         return CopyElement(rhs);
     }
+
+private:
+    const std::string& GetActionName() override;
+    const std::string& GetActionInfo() override;
+    void               ImGuiDrawActionEditor() override;
+    void OnPlayerBattleStart(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats, Enemy& target,
+                             EnemyStats& targetStats) override;
 
 };
