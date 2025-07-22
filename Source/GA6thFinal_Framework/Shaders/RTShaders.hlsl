@@ -58,9 +58,13 @@ StructuredBuffer<uint> index_buffer_id : register(t2); //chs
 StructuredBuffer<Material> material : register(t3); //chs//-> texture id.??=
 StructuredBuffer<uint> meshInstanceID : register(t4);
 TextureCube evnTexture : register(t5); //chs
-StructuredBuffer<RayVertex> Vertices[MAX_MESH] : register(t6);
-StructuredBuffer<uint> Indices[MAX_MESH] : register(t2006);
-Texture2D textures[] : register(t4006); //chs
+TextureCube irradianceTexture : register(t6); //chs
+TextureCube prefilteredMap : register(t7); //chs
+Texture2D brdfLUT : register(t8); //chs
+
+StructuredBuffer<RayVertex> Vertices[MAX_MESH] : register(t9);
+StructuredBuffer<uint> Indices[MAX_MESH] : register(t2009);
+Texture2D textures[] : register(t4009); //chs
 
 struct RayPayload
 {
@@ -260,11 +264,7 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
             directLighting += CalculateSpot(Ls, normal, view, albedo, metal, rough, hitPosition);
     }
     /* 환경광 / IBL  */
-    float3 envDiffuse = evnTexture.SampleLevel(samLinear_wrap, normal, 0).rgb;
-    envDiffuse = saturate(envDiffuse);
-    envDiffuse = GammaToLinearSpace(envDiffuse) * 10;
-    float3 iblalbedo = albedo * rough;
-    float3 ambientLighting = iblalbedo * envDiffuse;
+    float3 ambientLighting = CalculateIBL(normal, view,irradianceTexture,prefilteredMap,brdfLUT,albedo,rough,metal);
 
     /* 반사(거울) – FresnelSchlick 사용 */
     float3 reflectionLighting = 0.0;

@@ -121,7 +121,7 @@ void DXRDrawPass::CreateShaderTable()
 
     const UINT raygenSize     = d3dUtil::AlignTo(bytesId + 2 * bytesArgs, 32);
     const UINT missSize       = d3dUtil::AlignTo(bytesId + bytesArgs, 32);
-    const UINT hitSize        = d3dUtil::AlignTo(bytesId + 6 * bytesArgs, 32);
+    const UINT hitSize        = d3dUtil::AlignTo(bytesId + 7 * bytesArgs, 32);
     const UINT shadowMissSize = d3dUtil::AlignTo(bytesId, 32);
     _shaderTableEntrySize     = d3dUtil::AlignTo(std::max({raygenSize, missSize, hitSize, shadowMissSize}),
                                                  D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT);
@@ -173,14 +173,18 @@ void DXRDrawPass::CreateShaderTable()
         memcpy(p, ID_HIT, bytesId);
         // SRV t0 rtScene
         *reinterpret_cast<UINT64*>(p + bytesId) = _ownerScene->_accelerationStructureManager->GetTopLevelSRV().GPU.ptr;
-        // SRV t4 evnTexture
-        *reinterpret_cast<UINT64*>(p + bytesId + (1 * bytesArgs)) = _ownerScene->_skyBox->GetCubeMapSRV().ptr;
-        // SRV t5 Vertices
-        *reinterpret_cast<UINT64*>(p + bytesId + (2 * bytesArgs)) = Global::viewManager->GetVertexBufferSrvPtr();
-        // SRV t2005 Indices
-        *reinterpret_cast<UINT64*>(p + bytesId + (3 * bytesArgs)) = Global::viewManager->GetIndexBufferSrvPtr();
-        // SRV t4005~ textures
-        *reinterpret_cast<UINT64*>(p + bytesId + (4 * bytesArgs)) =
+        // SRV t5 irradiance
+        *reinterpret_cast<UINT64*>(p + bytesId + (1 * bytesArgs)) = _ownerScene->_skyBox->GetIrradianceMapSRV().ptr;
+        // SRV t6 prefiltered
+        *reinterpret_cast<UINT64*>(p + bytesId + (2 * bytesArgs)) = _ownerScene->_skyBox->GetPrefilteredMapSRV().ptr;
+        // SRV t7 brdfLUT
+        *reinterpret_cast<UINT64*>(p + bytesId + (3 * bytesArgs)) = _ownerScene->_skyBox->GetBrdfLUTSRV().ptr;
+        // SRV t8 VerticesS
+        *reinterpret_cast<UINT64*>(p + bytesId + (4 * bytesArgs)) = Global::viewManager->GetVertexBufferSrvPtr();
+        // SRV t2008 Indices
+        *reinterpret_cast<UINT64*>(p + bytesId + (5 * bytesArgs)) = Global::viewManager->GetIndexBufferSrvPtr();
+        // SRV t4008~ textures
+        *reinterpret_cast<UINT64*>(p + bytesId + (6 * bytesArgs)) =
             Global::viewManager->GetShaderResourceHeap()->GetGPUDescriptorHandleForHeapStart().ptr;
     }
     ///* ── 4‑5) Hit Group ─────────────────────────────────────────────── */

@@ -85,7 +85,7 @@ float4 ps_main(PSInput input) : SV_Target0
         diffuse += CalculateSpot(light, normal, V, albedo, metallic, roughness, fragPos);
     }
 
-    float3 ambient = CalculateIBL(input.uv, normal, V, irradianceMap, prefilteredMap, brdfLUT, albedo, roughness, metallic);
+    float3 ambient = CalculateIBL(normal, V, irradianceMap, prefilteredMap, brdfLUT, albedo, roughness, metallic);
 
     float3 color = diffuse + ambient;
 
