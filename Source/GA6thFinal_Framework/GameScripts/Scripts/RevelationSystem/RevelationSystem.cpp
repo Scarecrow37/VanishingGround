@@ -72,7 +72,7 @@ void RevelationSystem::RollRoundElement()
         // 뽑힌 횟수 계산 및 액션 활성화
         for (auto& element : _roundElementList)
         {
-            const std::string& name = element->Name;
+            const std::string& name = element->ElementName;
             _elementTotalAppearances[name]++;
             if (element->IsAction())
             {
@@ -85,7 +85,7 @@ void RevelationSystem::RollRoundElement()
 
 bool RevelationSystem::InsertElement(const RevelationElement& element)
 {
-    const std::string& key      = element.Name;
+    const std::string& key      = element.ElementName;
     bool               result   = false;
     auto               findIter = _elementsTable.find(key);
     if (findIter == _elementsTable.end())
@@ -126,15 +126,11 @@ static ReflectHelper::ImGuiDraw::InputAutoSetting InitSetting()
 
 void RevelationSystem::DrawImGuiElementTableEditor() 
 {
-    if (ImGui::BeginTable("Revelation Stats", 7, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+    if (ImGui::BeginTable("Revelation Stats", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
     {                      
         static ReflectHelper::ImGuiDraw::InputAutoSetting tableSetting = InitSetting();
 
         ImGui::TableSetupColumn("Name");
-        ImGui::TableSetupColumn("Condition");
-        ImGui::TableSetupColumn("ConditionValueA");
-        ImGui::TableSetupColumn("ConditionValueB");
-        ImGui::TableSetupColumn("Keyword");
         ImGui::TableSetupColumn("Grade");
         ImGui::TableSetupColumn("Action");
         ImGui::TableHeadersRow();
@@ -163,14 +159,20 @@ void RevelationSystem::DrawImGuiElementTableEditor()
             ImGui::PushStyleColor(ImGuiCol_Text, element.GetGradeColor());
             ImGui::PushID(itemID++);
             {
-                ImGui::TableNextRow();
-                element.SetImGuiTableIndex();
-                tableSetting.InputEndEvent = [&](bool edit, std::string_view name) 
+                ReflectHelper::ImGuiDraw::InputAutoSetting setting = []() 
                 {
-                    element.SetImGuiTableIndex();
-                    RightClickContext();
-                };
-                element.ImGuiDrawPropertys(tableSetting);
+                    ReflectHelper::ImGuiDraw::InputAutoSetting setting;
+                    setting.ShowName = false;
+                    return setting;
+                }();
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+                ReflectHelper::ImGuiDraw::Private::InputAuto(element.ElementName, setting);
+                ImGui::TableSetColumnIndex(1);
+                ReflectHelper::ImGuiDraw::Private::InputAuto(element.Grade, setting);
+                RightClickContext();
+                ImGui::TableSetColumnIndex(2);
+                TurnAction::ImGuiDrawActionMaker(key, element._action, element._showActionEditor);
             }
             ImGui::PopID();
             ImGui::PopStyleColor(1);
@@ -226,7 +228,7 @@ void RevelationSystem::DrawImGuiElementTableEditor()
                 element.SetName(_imguiEvent.RenameBuffer);
                 if (InsertElement(element))
                 {
-                    const std::string& key = _imguiEvent.SelectElement->Name;
+                    const std::string& key = _imguiEvent.SelectElement->ElementName;
                     EraseElement(key);
                 }
                 _imguiEvent.SelectElement = nullptr;
@@ -305,7 +307,7 @@ void RevelationSystem::ElementDatasToElements()
     {
         RevelationElement element;
         element.DeserializedReflectFields(data);
-        const std::string& key = element.Name;
+        const std::string& key = element.ElementName;
         InsertElement(element);
     }
 }
@@ -346,7 +348,7 @@ void RevelationSystem::PlayerElementsToPlayerElementDatas()
     {
         if (playerElement)
         {
-            const std::string& name = playerElement->Name;
+            const std::string& name = playerElement->ElementName;
             ReflectFields->PlayerElementDatas.emplace_back(name);
         }
         else
@@ -490,7 +492,7 @@ void RevelationSystem::ImGuiDrawPlayerElementEditor()
             if (false == elementEmpty)
             {
                 ImGui::PushStyleColor(ImGuiCol_Text, element->GetGradeColor());
-                name = (const std::string&)element->Name;
+                name = (const std::string&)element->ElementName;
             }
             if (ImGui::BeginCombo("##5794D456-E0A6-4F6C-844B-07D94A6401C6", name.data()))
             {
@@ -574,7 +576,7 @@ void RevelationSystem::ImGuiDrawRoundElementList()
         RollButton();
         for (auto& element : _roundElementList)
         {
-            std::string_view name = (const std::string&)element->Name;
+            std::string_view name = (const std::string&)element->ElementName;
             ImGui::PushStyleColor(ImGuiCol_Text, element->GetGradeColor());
             ImGui::Text(name.data());
             ImGui::Separator();

@@ -1,42 +1,122 @@
 ﻿#include "pchScripts.h"
 #include "TurnAction.h"
+#include <RevelationSystem/RevelationSystem.h>
+#include <TurnSystem/TurnAction/TurnActionFactory.h>
 
 using namespace u8_literals;
 
-bool TurnAction::EvaluateConditions()
-{  
-    if (true == _conditions.empty())
+namespace
+{
+    template<typename T>
+    void ImGuiDrawActionMakerEx(std::string_view windowID, T& action, bool& showActionEditor)
     {
-        return true;
+        std::string_view selectName = STR_NULL;
+        if (action)
+        {
+            selectName = action->GetActionInfo();
+        }
+
+        if (ImGui::BeginCombo("##Action", selectName.data()))
+        {
+            for (auto& [key, func] : TurnActionFactory::GetActionFactory())
+            {
+                if (ImGui::Selectable(key.data()))
+                {
+                    action.reset(func());
+                }
+            }
+            ImGui::EndCombo();
+        }
+        else
+        {
+            static std::string toolTip;
+            toolTip.clear();
+            if (action)
+            {
+                toolTip = action->GetConditionsInfo();
+            }
+            toolTip += selectName;
+            ImGuiHelper::HoveredToolTip(toolTip);
+        }
+
+        if (action)
+        {
+            if (showActionEditor)
+            {
+                static std::string id;
+                id.clear();
+                id = "Action Editor###";
+                id += windowID;
+                ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+                ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+                ImGui::Begin(id.c_str(), &showActionEditor);
+                {
+                    action->ImGuiDrawActionEditor();
+                }
+                ImGui::End();
+            }
+
+            ImGui::SameLine();
+            if (ImGui::Button("Action Editer"))
+            {
+                showActionEditor = !showActionEditor;
+            }
+        }    
+    }
+}
+
+void TurnAction::ImGuiDrawActionMaker(std::string_view windowID, std::unique_ptr<TurnAction>& action,
+                                      bool& showActionEditor)
+{
+    ImGuiDrawActionMakerEx(windowID, action, showActionEditor);
+}
+
+void TurnAction::ImGuiDrawActionMaker(std::string_view windowID, std::shared_ptr<TurnAction>& action,
+                                      bool& showActionEditor)
+{
+    ImGuiDrawActionMakerEx(windowID, action, showActionEditor);
+}
+
+void TurnAction::ImGuiDrawActionMaker(std::string_view windowID, TurnAction& action, bool& showActionEditor) 
+{
+    static std::string actionName;
+    actionName = action.ActionName;;
+    ImGui::InputText(windowID.data(), &actionName, ImGuiInputTextFlags_ReadOnly);
+    static std::string toolTip;
+    toolTip.clear();
+    toolTip = action.GetConditionsInfo();
+    ImGuiHelper::HoveredToolTip(toolTip);
+
+    if (showActionEditor)
+    {
+        static std::string id;
+        id.clear();
+        id = "Action Editor###";
+        id += windowID;
+        ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+        ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+        ImGui::Begin(id.c_str(), &showActionEditor);
+        {
+            action.ImGuiDrawActionEditor();
+        }
+        ImGui::End();
     }
 
-    ConditionOperator oper   = LogicOperator;
-    bool              result = oper == ConditionOperator::AND ? true : false;
-    switch (oper)
+    ImGui::SameLine();
+    if (ImGui::Button("Action Editer"))
     {
-    case ConditionOperator::AND:
-        for (auto& condition : _conditions)
-        {
-            result &= condition->Evaluate();
-            if (result == false)
-            {
-                return false;
-            }
-        }
-        return result;
-    case ConditionOperator::OR:
-        for (auto& condition : _conditions)
-        {
-            result |= condition->Evaluate();
-            if (result == true)
-            {
-                return true;
-            }
-        }
-        return result;
-    default:
-        return false;
-    }   
+        showActionEditor = !showActionEditor;
+    }
+}
+
+bool TurnAction::EvaluateConditions()
+{  
+   bool result = EvaluateConditionsEx();
+   for (auto& condition : _conditions)
+   {
+        condition->OnEvaluateConditions(result);
+   }
+   return result;
 }
 
 const std::string& TurnAction::GetConditionsInfo() const
@@ -138,16 +218,13 @@ void TurnAction::ImguiDrawConditionEditor()
             ImGui::EndCombo();
         }
 
-        if (selectValue != STR_NULL)
+        ImGui::SameLine();
+        if (ImGui::Button((const char*)u8"조건 추가하기") && selectValue != STR_NULL)
         {
-            ImGui::SameLine();
-            if (ImGui::Button((const char*)u8"조건 추가하기"))
+            TurnActionCondition* condition = NewInstanceWithKey(selectValue);
+            if (condition)
             {
-                TurnActionCondition* condition = NewInstanceWithKey(selectValue);
-                if (condition)
-                {
-                    _conditions.emplace_back(condition);
-                }
+                _conditions.emplace_back(condition);
             }
         }
     }
@@ -178,6 +255,42 @@ void TurnAction::ReflectDatasToConditions()
             condition->DeserializedReflectFields(data);
             _conditions.emplace_back(condition);
         }     
+    }
+}
+
+bool TurnAction::EvaluateConditionsEx()
+{
+    if (true == _conditions.empty())
+    {
+        return true;
+    }
+
+    ConditionOperator oper   = LogicOperator;
+    bool              result = oper == ConditionOperator::AND ? true : false;
+    switch (oper)
+    {
+    case ConditionOperator::AND:
+        for (auto& condition : _conditions)
+        {
+            result &= condition->Evaluate();
+            if (result == false)
+            {
+                return false;
+            }
+        }
+        return result;
+    case ConditionOperator::OR:
+        for (auto& condition : _conditions)
+        {
+            result |= condition->Evaluate();
+            if (result == true)
+            {
+                return true;
+            }
+        }
+        return result;
+    default:
+        return false;
     }
 }
 

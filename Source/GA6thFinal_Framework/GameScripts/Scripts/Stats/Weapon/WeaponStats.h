@@ -11,7 +11,7 @@ struct WeaponStats : public TurnActorStats
         WARHAMMER // 대형 망치
     };
     
-    REFLECT_PROPERTY(Name, Type, HitDamage, CriticalDamage, Speed, AttackCount, RandomSpeed)
+    REFLECT_PROPERTY(Name, Type, HitDamage, CriticalDamageMultiplier, Speed, AttackCount, RandomSpeed)
 
     GETTER_ONLY(std::string_view, Name) { return ReflectFields->Name; }
     void SetName(std::string_view name) { ReflectFields->Name = name; }
@@ -25,9 +25,10 @@ struct WeaponStats : public TurnActorStats
     SETTER(int, HitDamage) { ReflectFields->HitDamage = value; }
     PROPERTY(HitDamage)
 
-    GETTER(int, CriticalDamage) { return ReflectFields->CriticalDamage; }
-    SETTER(int, CriticalDamage) { ReflectFields->CriticalDamage = value; }
-    PROPERTY(CriticalDamage)
+    GETTER(float, CriticalDamageMultiplier) { return ReflectFields->CriticalDamageMultiplier; }
+    SETTER(float, CriticalDamageMultiplier) { ReflectFields->CriticalDamageMultiplier = value; }
+    //크리티컬 데미지 비율
+    PROPERTY(CriticalDamageMultiplier)
 
     GETTER(int, Speed) { return ReflectFields->Speed; }
     SETTER(int, Speed) { ReflectFields->Speed = value; }
@@ -50,7 +51,7 @@ protected:
     std::string Name = "Default Sword";
     WeaponType  Type = WeaponType::SWORD;
     int         HitDamage = 1;
-    int         CriticalDamage = 2;
+    float       CriticalDamageMultiplier = 1.5f;
     int         Speed = 0;
     int         AttackCount = 1;
     REFLECT_FIELDS_END(WeaponStats)
