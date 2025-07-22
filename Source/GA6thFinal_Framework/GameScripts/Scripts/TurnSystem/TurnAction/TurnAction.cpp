@@ -57,7 +57,7 @@ namespace
             }
 
             ImGui::SameLine();
-            if (ImGui::Button("Action Editer"))
+            if (ImGui::Button("Action Editor"))
             {
                 showActionEditor = !showActionEditor;
             }
