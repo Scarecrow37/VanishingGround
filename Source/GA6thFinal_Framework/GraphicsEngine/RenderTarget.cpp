@@ -36,6 +36,7 @@ void RenderTarget::CreateRenderTargetView()
     FAILED_CHECK_MESSAGE(hr, L"RenderTarget::Initialize CreateCommittedResource Failed");
     
     device->CreateRenderTargetView(_resource.Get(), nullptr, _rtvHandle);
+    _desc = _resource->GetDesc();
 }
 
 void RenderTarget::CreateShaderResourceView()
@@ -58,6 +59,9 @@ void RenderTarget::ClearRenderTarget(ID3D12GraphicsCommandList* commandList)
 void RenderTarget::ResizeResource(Resolution resolution)
 {
     _currentState = D3D12_RESOURCE_STATE_RENDER_TARGET;
+
+    _desc.Width = resolution.Width;
+    _desc.Height = resolution.Height;
 
     _viewPort    = {.Width = (FLOAT)resolution.Width, .Height = (FLOAT)resolution.Height, .MinDepth = 0.f, .MaxDepth = 1.f};
     _scissorRect = {.right = (LONG)resolution.Width, .bottom = (LONG)resolution.Height};

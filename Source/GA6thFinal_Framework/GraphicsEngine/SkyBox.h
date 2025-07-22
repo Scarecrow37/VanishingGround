@@ -10,12 +10,19 @@ public:
     ~SkyBox();
 
 public:
-    void Initialize();
-    void SetTexture(std::wstring_view path);
-    void Render(ID3D12GraphicsCommandList* commnadList,UINT rootParameterIndex);
-    void ResetResource();
     const D3D12_GPU_DESCRIPTOR_HANDLE GetCubeMapSRV() const { return _cubeMap->GetSRVHandle(); }
+    const D3D12_GPU_DESCRIPTOR_HANDLE GetIrradianceMapSRV() const { return _irradianceMap->GetSRVHandle(); }
+    const D3D12_GPU_DESCRIPTOR_HANDLE GetPrefilteredMapSRV() const { return _prefilteredMap->GetSRVHandle(); }
+    const D3D12_GPU_DESCRIPTOR_HANDLE GetBrdfLUTSRV() const { return _brdfLUT->GetSRVHandle(); }
     bool HasTexture() { return _hasTexture; }
+
+public:
+    void SetTexture(std::wstring_view path);
+
+public:
+    void Initialize();
+    void Render(ID3D12GraphicsCommandList* commandList, UINT rootParameterIndex);
+    void ResetResource();
 
 private:
     ComPtr<ID3D12Resource> CreateTexture2D(ID3D12Device* device, int w, int h, DXGI_FORMAT format);

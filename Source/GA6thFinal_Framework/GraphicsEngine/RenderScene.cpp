@@ -13,8 +13,7 @@
 #include "AccelerationStructureManager.h"
 
 RenderScene::RenderScene(std::string_view name)
-    : _skyBox{std::make_unique<SkyBox>()}
-    , _name(name)
+    : _name(name)
 {
     _lightDatas.resize(MAX_LIGHT);
 }
@@ -40,6 +39,9 @@ void RenderScene::InitializeRenderScene()
     CreateRenderTarget();
     CreateDepthStencil();
     CreateFrameResource();
+
+    _skyBox = std::make_unique<SkyBox>();
+    _skyBox->Initialize();
 
     _frameQuad = std::make_unique<Quad>();
     _frameQuad->Initialize(-1.f, 1.f, 2.f, 2.f, 0.f);

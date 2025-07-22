@@ -52,12 +52,16 @@ float3 GetDirectionForCubeFace(uint2 pixelCoords, uint faceIndex, float cubeSize
 // Low-discrepancy 시퀀스 (Hammersley)
 float2 Hammersley(uint i, uint N)
 {
+    // i의 비트를 역순으로 뒤집는 연산
     uint bits = (i << 16u) | (i >> 16u);
     bits = ((bits & 0x55555555u) << 1u) | ((bits & 0xAAAAAAAAu) >> 1u);
     bits = ((bits & 0x33333333u) << 2u) | ((bits & 0xCCCCCCCCu) >> 2u);
     bits = ((bits & 0x0F0F0F0Fu) << 4u) | ((bits & 0xF0F0F0F0u) >> 4u);
     bits = ((bits & 0x00FF00FFu) << 8u) | ((bits & 0xFF00FF00u) >> 8u);
-    return float2(float(i) / float(N), float(bits) / 0x100000000UL);
+
+    // ULL 접미사 대신 float 리터럴을 사용하도록 수정
+    // 0x100000000ULL -> 4294967296.0f
+    return float2(float(i) / float(N), float(bits) / 4294967296.0f);
 }
 
 // GGX 중요도 샘플링을 위한 반구 샘플 벡터 생성
@@ -117,7 +121,8 @@ void cs_main(uint3 dispatchThreadID : SV_DispatchThreadID)
             float lod = 0.5 * log2(mipSolidAngle / solidAngle);
             // --- 수정 끝 ---
             
-            prefilteredColor += environmentMap.SampleLevel(samLinear_clamp, L, lod).rgb * NdotL;
+            float3 color = clamp(environmentMap.SampleLevel(samLinear_clamp, L, lod).rgb, 0.f, 100.f);
+            prefilteredColor += color * NdotL;
             totalWeight += NdotL;
         }
     }
