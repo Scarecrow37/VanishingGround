@@ -6,11 +6,16 @@
 
 int DamageSystem::CalculateDamage(const PlayerInfo& attacker, const EnemyInfo& target)
 {
-    int result = 0;
     int hitDamage = attacker._weaponStats.HitDamage;
     float criticalDamageMultiplier = attacker._weaponStats.CriticalDamageMultiplier;
-    result = static_cast<int>(std::round(hitDamage * criticalDamageMultiplier));
-    return result;
+    hitDamage = static_cast<int>(std::round(hitDamage * criticalDamageMultiplier));
+    return hitDamage;
+}
+
+int DamageSystem::CalculateChainDamage(const PlayerInfo& attacker, const EnemyInfo& target)
+{
+    int chainDamage = attacker._weaponStats.AttackPerChain;
+    return chainDamage;
 }
 
 int DamageSystem::CalculateDamage(const EnemyInfo& attacker, const PlayerInfo& target)

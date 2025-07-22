@@ -53,6 +53,7 @@ public:
     virtual void Revive() override;
     virtual void Dead() override;
     virtual void TakeDamage(int damage);
+    virtual void TakeChain(int chainDamage);
 
     // 연격 수를 설정합니다.
     int SetChainCount(int value) { return _chainCount = std::clamp(value, 0, 99); }
