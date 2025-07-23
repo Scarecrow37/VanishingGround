@@ -188,17 +188,19 @@ void RevelationSystem::DrawImGuiElementTableEditor()
                     ImGui::InputText("##name", &_imguiEvent.RenameBuffer);
                     if (ImGui::IsItemDeactivatedAfterEdit())
                     {
-                        if (_imguiEvent.RenameBuffer != originName)
+                        RevelationElement tempElement;
+                        tempElement = element;
+                        tempElement.SetName(_imguiEvent.RenameBuffer);
+                        _imguiEvent.RenameFunc = [this, OrigninName = originName, TempElement = tempElement]()
                         {
-                            RevelationElement tempElement;
-                            tempElement = element;
-                            tempElement.SetName(_imguiEvent.RenameBuffer);
-                            if (InsertElement(tempElement))
+                            if (_imguiEvent.RenameBuffer != OrigninName)
                             {
-                                const std::string& key = element.ElementName;
-                                EraseElement(key);
+                                if (InsertElement(TempElement))
+                                {
+                                    EraseElement(OrigninName);
+                                }
                             }
-                        }
+                        };
                     }
                     RightClickContext();
                 }
@@ -219,6 +221,13 @@ void RevelationSystem::DrawImGuiElementTableEditor()
             ImGui::PopID();
             ImGui::PopStyleColor(1);
         }
+
+        if (_imguiEvent.RenameFunc)
+        {
+            _imguiEvent.RenameFunc();
+            _imguiEvent.RenameFunc = nullptr;
+        }
+
         ImGui::EndTable();
     }
 
