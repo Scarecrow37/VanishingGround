@@ -829,6 +829,7 @@ void ESceneManager::ObjectsLateUpdate()
 
 void ESceneManager::ObjectsMatrixUpdate()
 {
+    static std::unordered_set<Transform*> updateCheckSet;
     if (nullptr != _mainCamera)
     {
         if (true == _mainCamera->IsDirty())
@@ -836,16 +837,25 @@ void ESceneManager::ObjectsMatrixUpdate()
             _mainCamera->UpdatePerspective();
         }
         
-        Transform* root = _mainCamera->gameObject->transform->Root;
-        Transform& transform = root ? *root : _mainCamera->gameObject->transform;
-        if (true == transform._hasChanged)
+        Transform* curr = &_mainCamera->transform;
+        while (nullptr != curr)
         {
-            transform.UpdateMatrix();
-            _mainCamera->UpdateView();
+            if (true == curr->_hasChanged)
+            {
+                Transform* root = curr;
+                if (nullptr != curr->_root)
+                {
+                    root = curr->_root;
+                }
+                updateCheckSet.insert(root);
+                curr->UpdateMatrix();
+                _mainCamera->UpdateView();
+                break;
+            }
+            curr = curr->_parent;
         }
     }
 
-    static std::unordered_set<Transform*> updateCheckSet;
     for (auto& obj : _runtimeObjects)
     {
         if (nullptr != obj && obj->_transform._hasChanged == true)
