@@ -125,7 +125,7 @@ using namespace Microsoft::WRL;
 #include "Engine/ClassCore/TProperty.hpp"
 #include "Engine/ClassCore/ReflectHelper.h"
 
-//Input Core
+//Input Module
 #include "../InputModule/InputModule.h"
 
 //Application Core
@@ -149,8 +149,14 @@ using namespace Microsoft::WRL;
 //Audio Core
 #include "../AudioModule/AudioModule.h"
 
+//User Interface Module
+#include "../UserInterfaceModule/UserInterfaceModule.h"
+
 //CommandCore
 #include "Engine/CommandCore/CommandManager.h"
+
+//Watcher
+#include "Engine/WatcherCore/System/WatcherSystem.h"
 
 //Engine Core
 #include "Engine/EngineCore/EngineLogger.h"
