@@ -75,12 +75,14 @@ void EGameObjectFactory::ApplyPrefabInstanceChanges(const File::Guid& guid, YAML
                 auto prefabObjects = MakeObjectsGraphToYaml(&yaml, true, &myYaml);
                 if (false == prefabObjects.empty())
                 {
+                    std::vector<std::pair<GameObject*, GameObject*>> swapObjects;
+                    swapObjects.reserve(prefabObjects.size());
                     int i = 0;
                     Transform::ForeachBFS(gameObject->_transform, [&](Transform* curr) 
                     {
                         if (i < prefabObjects.size())
                         {
-                            ESceneManager::Engine::SwapPrefabInstance(&curr->gameObject, prefabObjects[i].get());
+                            swapObjects.emplace_back(&curr->gameObject, prefabObjects[i].get());
                             i++;
                         }
                         else
@@ -88,6 +90,11 @@ void EGameObjectFactory::ApplyPrefabInstanceChanges(const File::Guid& guid, YAML
                             GameObject::Destroy(curr->gameObject);
                         }
                     });
+
+                    for (auto& [originObject, prefabObject] : swapObjects)
+                    {
+                        ESceneManager::Engine::SwapPrefabInstance(originObject, prefabObject);
+                    }
 
                     if (i < prefabObjects.size())
                     {
