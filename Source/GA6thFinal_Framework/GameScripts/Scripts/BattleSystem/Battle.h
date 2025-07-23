@@ -26,12 +26,12 @@ public:
     using EnemyTargetFlag = int;
     using EnemyTargetBitset = std::bitset<3>;
     //모든 플래그를 순회하기 위한 string_view, flag 값 배열입니다.
-    inline constexpr static std::array<std::pair<std::string_view, EnemyTargetFlag_>, 4> ENEMY_TARGET_FLAGS = 
-    {{
+    inline constexpr static std::pair<const char*, EnemyTargetFlag_> ENEMY_TARGET_FLAGS[]
+    {
         {"LEFT", ENEMY_TARGET_FLAG_LEFT},
         {"MIDDLE", ENEMY_TARGET_FLAG_MIDDLE},
         {"RIGHT", ENEMY_TARGET_FLAG_RIGHT}
-    }};
+    };
 
     inline constexpr static std::string_view EnemyTargetFlagToString(EnemyTargetFlag_ flag)
     {
