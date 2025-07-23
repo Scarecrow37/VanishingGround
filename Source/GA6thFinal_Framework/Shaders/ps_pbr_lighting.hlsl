@@ -33,7 +33,6 @@ float4 ps_main(PSInput input) : SV_Target0
     float3 albedo = baseColorMap.Sample(samLinear_wrap, input.uv).rgb;
     clip(1.f - Epsilon - depth);
     albedo = GammaToLinearSpace(albedo);
-    //pow(albedo, 2.2);
 
     float3 normal = normalMap.Sample(samLinear_wrap, input.uv).rgb;
 
@@ -50,7 +49,6 @@ float4 ps_main(PSInput input) : SV_Target0
     //float3 albedo = textures[BASECOLOR].Sample(samLinear_wrap, input.uv).rgb;
     //clip(1.f - Epsilon - depth);
     //albedo = GammaToLinearSpace(albedo);
-    ////pow(albedo, 2.2);
     
     //float3 normal = textures[NORMAL].Sample(samLinear_wrap, input.uv).rgb;
    
@@ -63,31 +61,32 @@ float4 ps_main(PSInput input) : SV_Target0
     //float3 fragPos = textures[WORLDPOSITION].Sample(samLinear_wrap, input.uv).xyz;
     //float3 V = normalize(viewPos - fragPos);
     
-    float3 diffuse = float3(0, 0, 0);
+    float3 directLighting = float3(0, 0, 0);
+    float3 ambientLighting = 0;
+    float3 ambient = CalculateIBL(input.uv, normal, V, irradianceMap, prefilteredMap, brdfLUT, albedo, roughness, metallic);
         
     //Directional Lights
     for (uint i = 0; i < numLight.Directional; i++)
     {
         DirectionalLight light = lightData.Directional[i];
-        diffuse += CalculateDirectional(light, normal, V, albedo, metallic, roughness);
+        directLighting += CalculateDirectional(light, normal, V, albedo, metallic, roughness);
+        ambientLighting += ambient * light.Ambient;
     }
     //Point Lights
     for (uint j = 0; j < numLight.Point; j++)
     {
         PointLight light = lightData.Point[j];                
-        diffuse += CalculatePoint(light, normal, V, albedo, metallic, roughness, fragPos);
+        directLighting += CalculatePoint(light, normal, V, albedo, metallic, roughness, fragPos);
     }
     
     //Spot Lights
     for (uint k = 0; k < numLight.Spot; k++)
     {
         SpotLight light = lightData.Spot[k];
-        diffuse += CalculateSpot(light, normal, V, albedo, metallic, roughness, fragPos);
+        directLighting += CalculateSpot(light, normal, V, albedo, metallic, roughness, fragPos);
     }
 
-    float3 ambient = CalculateIBL(input.uv, normal, V, irradianceMap, prefilteredMap, brdfLUT, albedo, roughness, metallic);
-
-    float3 color = diffuse + ambient;
+    float3 color = directLighting + ambientLighting;
 
     return float4(color, 1.0);
 }
