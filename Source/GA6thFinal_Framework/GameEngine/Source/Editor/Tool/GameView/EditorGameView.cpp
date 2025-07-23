@@ -9,12 +9,16 @@ EditorGameView::EditorGameView()
 
 EditorGameView::~EditorGameView() {}
 
+void EditorGameView::OnFrameFocusEnter() 
+{
+}
+
 void EditorGameView::OnFrameRender() 
 {
     CameraComponent* camera = ESceneManager::Engine::GetMainCamera();
     if (camera && camera->gameObject->IsValid())    
     {
-        auto gpuHandle = UmRenderer.GetRenderSceneImage("Game");
+        auto   gpuHandle  = UmGraphics.GetRenderSceneImage("Game");
         ImVec2 contentMin = ImGui::GetWindowContentRegionMin();
         ImVec2 contentMax = ImGui::GetWindowContentRegionMax();
 

@@ -1,34 +1,48 @@
 ﻿#include "pchScripts.h"
 #include "RevelationElement.h"
 #include <RevelationSystem/RevelationSystem.h>
+
+#include <TurnSystem/TurnMode/TurnMode.h>
 #include <TurnSystem/TurnActor/Character/Player/Player.h>
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
 #include <TurnSystem/TurnAction/TurnActionFactory.h>
 
-bool RevelationElement::Evaluate(CharacterBase& attacker, CharacterBase& target)
+using namespace u8_literals;
+
+bool RevelationElement::Evaluate()
 {
-    bool result = false;
-    int chainCount = target.ChainCount;
-    RevelationConditionType condition  = ReflectFields->Condition;
-    switch (condition)
+    auto attacker = TurnMode::Battle::GetLastAttacker().lock();
+    auto target   = TurnMode::Battle::GetLastTarget().lock();
+    bool result   = false;
+    if (attacker && target)
     {
-    case RevelationConditionType::GREATER_THAN_OR_EQUAL:
-        result = chainCount >= ReflectFields->ConditionValueA;
-        break;
-    case RevelationConditionType::LESS_THAN_OR_EQUAL:
-        result = chainCount <= ReflectFields->ConditionValueA;
-        break;
-    case RevelationConditionType::BETWEEN_INCLUSIVE:
-        result = ReflectFields->ConditionValueA <= chainCount && chainCount <= ReflectFields->ConditionValueA;
-        break;
-    case RevelationConditionType::EQUAL:
-        result = chainCount == ReflectFields->ConditionValueA;
-        break;
-    case RevelationConditionType::MULTIPLE_OF:
-        result = chainCount % ReflectFields->ConditionValueA == 0;
-        break;
-    default:
-        break;
+        int                     chainCount = target->ChainCount;
+        RevelationConditionType condition  = ReflectFields->Condition;
+        switch (condition)
+        {
+        case RevelationConditionType::GREATER_THAN_OR_EQUAL:
+            result = chainCount >= ReflectFields->ConditionValueA;
+            break;
+        case RevelationConditionType::LESS_THAN_OR_EQUAL:
+            result = chainCount <= ReflectFields->ConditionValueA;
+            break;
+        case RevelationConditionType::BETWEEN_INCLUSIVE:
+            result = ReflectFields->ConditionValueA <= chainCount && chainCount <= ReflectFields->ConditionValueA;
+            break;
+        case RevelationConditionType::EQUAL:
+            result = chainCount == ReflectFields->ConditionValueA;
+            break;
+        case RevelationConditionType::MULTIPLE_OF:
+            result = chainCount % ReflectFields->ConditionValueA == 0;
+            break;
+        default:
+            break;
+        }
+
+        if (result && _action)
+        {
+            result &= _action->EvaluateConditions();
+        }
     }
     return result;
 }
@@ -44,12 +58,6 @@ void RevelationElement::ImGuiDrawPropertysEvent()
             selectName = _action->GetActionInfo();
         }
 
-        if (_action)
-        {
-            ImGui::Checkbox("Edit", &_showActionEditor);
-            ImGui::SameLine();
-        }
-
         if (ImGui::BeginCombo("##Action", selectName.data()))
         {
             for (auto& [key, func] : TurnActionFactory::GetActionFactory())
@@ -63,13 +71,38 @@ void RevelationElement::ImGuiDrawPropertysEvent()
         }
         else
         {
-            ImGuiHelper::HoveredToolTip(selectName.data());
+            static std::string toolTip;
+            toolTip.clear();
+            if (_action)
+            {
+                toolTip = _action->GetConditionsInfo();
+            }
+            toolTip += selectName;
+            ImGuiHelper::HoveredToolTip(toolTip);
         }
 
         if (_action)
         {
             if (_showActionEditor)
-                _action->ImGuiDrawActionEditor();
+            {
+                static std::string id;
+                id.clear();
+                id = "Action Editor###";
+                id += ReflectFields->Name;
+                ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+                ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+                ImGui::Begin(id.c_str(), &_showActionEditor);
+                {
+                    _action->ImGuiDrawActionEditor();
+                }
+                ImGui::End();
+            }        
+
+            ImGui::SameLine();
+            if (ImGui::Button("Action Editer"))
+            {
+                _showActionEditor = !_showActionEditor;
+            }
         }
     }
     _imguiDrawIndex = 0;

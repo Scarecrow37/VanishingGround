@@ -2,12 +2,7 @@
 #include "EditorModelDetails.h"
 #include "EditorModelTool.h"
 #include "Editor/DynamicCamera/EditorDynamicCamera.h"
-#include "Engine/GraphicsCore/FBXConverter.h"
-#include "Engine/GraphicsCore/MeshRenderer.h"
-#include "Engine/GraphicsCore/Model.h"
-#include "Engine/GraphicsCore/Animation.h"
-#include "Engine/GraphicsCore/Animator.h"
-#include "Engine/GraphicsCore/Light.h"
+#include "GraphicsEngine/FBXConverter.h"
 
 EditorModelDetails::EditorModelDetails()
     : _meshRenderer(std::make_unique<MeshRenderer>(MeshRenderType::STATIC, _worldMatrix))
@@ -117,8 +112,8 @@ void EditorModelDetails::OnTickGui()
 
 void EditorModelDetails::OnStartGui()
 {
-    UmRenderer.RegisterRenderQueue("ModelViewer", _meshRenderer.get());
-    UmLightCore.RegisterLight("ModelViewer", _mainLight.get());
+    UmGraphics.RegisterComponent("ModelViewer", _meshRenderer.get());
+    UmGraphics.RegisterComponent("ModelViewer", _mainLight.get());
 
     _color = Vector3(1.f);
     _ambient = Vector3(1.f);
@@ -162,13 +157,6 @@ void EditorModelDetails::OnFrameRender()
         if (_modelTool && _modelTool->GetCamera())
         {
             auto& camera = _modelTool->GetCamera();
-            // Speed
-            ImGui::Text("Camera Move Scale: ");
-            float moveScale = camera->GetMoveScale();
-            if (ImGui::SliderFloat("##camera move scale", &moveScale, 0.1f, 1000.f))
-            {
-                camera->SetMoveScale(moveScale);
-            }
             ImGui::Text("Camera Move Speed: ");
             float moveSpeed = camera->GetMoveSpeed();
             if (ImGui::SliderFloat("##camera move speed", &moveSpeed, 0.1f, 100.f))

@@ -284,14 +284,11 @@
     </ClInclude>
     <ClInclude Include="Scripts\UI\Base\PlacementUIComponent\PlacementUIComponent.h">
       <Filter>헤더 파일</Filter>
-    </ClInclude>
+    </ClInclude>    
     <ClInclude Include="Scripts\UI\Base\EditablePlacementUIComponent\EditablePlacementUIComponent.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Scripts\Token\Object\Poison\PoisonToken.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\Token\Object\Stun\StunToken.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Scripts\Token\TokenSystem.h">
@@ -325,6 +322,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Token\TokenApplyAction.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\Token\Enums\TokenEnums.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Scripts\UI\Panels\Anchor\AnchorPanel.h">
@@ -575,16 +575,10 @@
     <ClCompile Include="Scripts\UI\Base\EditablePlacementUIComponent\EditablePlacementUIComponent.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\Token\Object\Poison\PoisonToken.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\Token\Object\Stun\StunToken.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Scripts\Token\TokenSystem.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\DamageSystem\DamageSystem.cpp">
+    <ClCompile Include="Scripts\Token\Object\Stun\StunToken.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Scripts\RevelationSystem\RevelationElement\RevelationElement.cpp">

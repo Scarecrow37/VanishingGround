@@ -8,6 +8,7 @@ struct VSInput
     float3 tangent       : TANGENT;
     float3 biTangent     : BINORMAL;
     float2 uv            : TEXCOORD;
+    float2 lightUV       : TEXCOORD1;
     uint4  blendIndices  : BLENDINDICES;
     float4 blendWeights  : BLENDWEIGHT;
 };

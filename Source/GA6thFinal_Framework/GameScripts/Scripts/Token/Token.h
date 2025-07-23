@@ -16,11 +16,12 @@ void ShowReflectFieldView() override {                                          
     });                                                                         \
 }
 
-#define TOKEN_CONSTRUCTOR(className, order, maxStack)                           \
+#define TOKEN_CONSTRUCTOR(className, order, maxStack, tag)                      \
  USING_PROPERTY(className)                                                      \
     className() {                                                               \
     SetTokenOrder(order);                                                       \
     SetMaxStackCount(maxStack);                                                 \
+    SetTag(tag);                                                                \
     }
 
 class Token : public ReflectSerializer, public IToken
@@ -30,7 +31,7 @@ class Token : public ReflectSerializer, public IToken
 public:
     Token();
     virtual ~Token();
-    REFLECT_PROPERTY(IconGuid, Order, MaxStackCount)
+    REFLECT_PROPERTY(IconGuid, Order, Tag, MaxStackCount)
 
     GETTER(std::string_view, IconGuid) { return ReflectFields->IconGuid; }
     SETTER(std::string_view, IconGuid) { ReflectFields->IconGuid = value; }
@@ -38,6 +39,9 @@ public:
     GETTER(int, Order) { return ReflectFields->Order; }
     SETTER(int, Order) { SetTokenOrder(value); }
     PROPERTY(Order)
+    GETTER(TokenTag, Tag) { return ReflectFields->Tag; }
+    SETTER(TokenTag, Tag) { ReflectFields->Tag = value; }
+    PROPERTY(Tag)
     GETTER(int, MaxStackCount) { return ReflectFields->MaxStackCount; }
     SETTER(int, MaxStackCount) { SetMaxStackCount(value); }
     PROPERTY(MaxStackCount)
@@ -60,10 +64,12 @@ public: // 콜백에 대한 자세한 주석은 ITriggerType.h를 참고하세�
     virtual void OnQTEEnd(CharacterBase* owner) override                                        {};
 
 public:
+    int  GetTokenOrder() const override;
     int  GetMaxStackCount() const override;
-    int  GetTokenOrder() const;
-    void SetMaxStackCount(UINT16 maxStack);
+    TokenTag GetTokenTag() const override;
     void SetTokenOrder(int order);
+    void SetMaxStackCount(UINT16 maxStack);
+    void SetTag(TokenTag tag) { ReflectFields->Tag = tag; }
     void SetDirtyOrderCallback(std::function<void(int)> callback);
 
 protected:
@@ -74,6 +80,8 @@ protected:
     int Order = 0;
     // 토큰의 최대 스택 수
     int MaxStackCount = 99;
+    // 토큰의 태그 (예: BLEED, POISON 등)
+    TokenTag Tag = TokenTag::NONE;
     REFLECT_FIELDS_END(Token)
 
     std::function<void(int)> _dirtyOrderCallback = nullptr; // 우선순위가 변경되었을 때 호출되는 콜백 함수

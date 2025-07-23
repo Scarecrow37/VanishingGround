@@ -28,6 +28,11 @@ public:
             _rotation   = rhs._rotation;
             _eulerAngle = rhs._eulerAngle;
             _scale      = rhs._scale;
+
+            if (nullptr != rhs._parent)
+            {
+                SetParent(rhs._parent, false);
+            }
         }
         return *this;
     }

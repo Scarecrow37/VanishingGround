@@ -4,9 +4,8 @@
 #include "Command/PackPrefabCommand.h"
 #include "Command/SetParentCommand.h"
 #include "Editor/Tool/Scene/Command/EditorSceneCommands.h"
-#include "Engine/GraphicsCore/Light.h"
+
 #include "UmScripts.h"
-#include <Engine/GraphicsCore/MeshRenderer.h>
 
 using namespace u8_literals;
 using namespace Global;
@@ -17,11 +16,28 @@ static EditorSceneTool* staticEditorScenTool = nullptr;
 void EditorHierarchyTool::TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>& focusObject,
                                             GameObject*& outClickNode)
 {
-    auto TreeClickEvent = [&node, &outClickNode]() {
-        bool result = ImGui::IsMouseReleased(ImGuiMouseButton_Left) && ImGui::IsItemHovered();
-        if (result)
+    EditorSceneTool* sceneTool = _editorSceneTool;
+    auto TreeClickEvent = [&node, &outClickNode, &sceneTool]() {
+        bool isHovered = ImGui::IsItemHovered();
+        bool isDoubleClicked = ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left);
+        bool isReleased      = ImGui::IsMouseReleased(ImGuiMouseButton_Left);
+
+        bool result = false;
+        if (isHovered)
         {
-            outClickNode = &node.gameObject;
+            if (isDoubleClicked)
+            {
+                if (sceneTool)
+                {
+                    sceneTool->SetCameraToObject(node.gameObject->GetWeakPtr());
+                }
+                result = true;
+            }
+            else if (isReleased)
+            {
+                outClickNode = &node.gameObject;
+                result = true;
+            }
         }
         return result;
     };
@@ -475,6 +491,7 @@ void EditorHierarchyTool::HierarchyDropEvent()
     ImRect rect  = _window->Rect();
     if (ImGui::BeginDragDropTargetCustom(rect, _window->ID))
     {
+        // 에셋에 대한 드래그 앤 드롭 이벤트 처리
         if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
         {
             DragDropAsset::Data*          data      = (DragDropAsset::Data*)payload->Data;
@@ -492,6 +509,27 @@ void EditorHierarchyTool::HierarchyDropEvent()
                 {
                     UmSceneManager.LoadScene(path.string(), LoadSceneMode::ADDITIVE);
                 }
+            }
+        }
+        // Transform에 대한 드래그 앤 드롭 이벤트 처리
+        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(DragDropTransform::KEY))
+        {
+            DragDropTransform::Data* data = (DragDropTransform::Data*)payload->Data;
+            // 데이터 Null 확인
+            if (data && data->pTransform)
+            {
+                // 1. Hierarchy 프레임에 드롭한 것은 Root로 설정하겠다는 것
+                Transform* current = data->pTransform;
+                Transform* parent  = data->pTransform->Parent;
+                // 때문에 부모가 없으면 커맨드를 실행할 필요가 없음.
+                if (current && parent)
+                {
+                    std::weak_ptr<GameObject> currentWeak, parentWeak;
+                    currentWeak = current->gameObject->GetWeakPtr();
+                    parentWeak  = parent->gameObject->GetWeakPtr();
+                    UmCommandManager.Do<Command::Hierarchy::SetParentCommand>(currentWeak, parentWeak, nullptr);
+                }
+                
             }
         }
         ImGui::EndDragDropTarget();

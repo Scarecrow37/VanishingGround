@@ -1,6 +1,5 @@
 ﻿#include "pchScripts.h"
 #include "PointLight.h"
-#include "Engine/GraphicsCore/Light.h"
 
 PointLight::PointLight()
 {
@@ -38,5 +37,5 @@ void PointLight::OnDrawDebugSelected()
     BoundingSphere sphere;
     sphere.Center = transform->Position;
     sphere.Radius = ReflectFields->Range;
-    UmDebugDrawCore.Draw("Editor", sphere, LightComponent::DEBUG_COLOR);
+    UmGraphics.DebugDraw("Editor", sphere, LightComponent::DEBUG_COLOR);
 }
