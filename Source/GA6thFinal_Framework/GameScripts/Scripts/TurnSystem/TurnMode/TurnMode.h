@@ -104,7 +104,7 @@ public:
         /// 마지막으로 공격당한 적을 반환합니다
         /// </summary>
         /// <returns></returns>
-        static const std::weak_ptr<CharacterBase>& GetLastTargetEnemy() { return lastTarget; }
+        static const std::weak_ptr<Enemy>& GetLastTargetEnemy() { return lastTargetEnemy; }
 
         /// <summary>
         /// 마지막으로 공격당한 적을 기록하는 변수를 초기화합니다. 전투 시작시 초기화됩니다.
