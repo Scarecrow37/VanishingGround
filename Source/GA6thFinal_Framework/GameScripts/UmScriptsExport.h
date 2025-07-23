@@ -86,9 +86,6 @@ UMREAL_COMPONENT(FPSCounter)
 #include "Scripts\Particle/ParticleComponent.h"
 UMREAL_COMPONENT(ParticleComponent)
 
-#include "Scripts\Test/UI/TestUI.h"
-UMREAL_COMPONENT(TestUI)
-
 #include "Scripts/UI/UIRoot/UIRoot.h"
 UMREAL_COMPONENT(UIRoot)
 UMREAL_COMPONENT(UIRootSlot)
@@ -112,9 +109,6 @@ UMREAL_COMPONENT(AnchorPanelSlot)
 
 #include "Scripts\WeaponSystem/WeaponSystem.h"
 UMREAL_COMPONENT(WeaponSystem)
-
-#include "Scripts\Test/Text/TestText.h"
-UMREAL_COMPONENT(TestText)
 
 #include "Scripts\RevelationSystem/RevelationSystem.h"
 UMREAL_COMPONENT(RevelationSystem)
