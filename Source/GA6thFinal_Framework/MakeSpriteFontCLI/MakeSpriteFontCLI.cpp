@@ -7,9 +7,10 @@ using namespace System::Collections::Generic;
 array<String ^> ^ ToManagedStringArray(const std::vector<std::wstring>& vec)
 {
     array<String ^> ^ arr = gcnew array<String ^>(static_cast<int>(vec.size()));
-    for (int i = 0; i < vec.size(); ++i)
+    int index = 0;
+    for (const auto& str : vec)
     {
-        arr[i] = gcnew String(vec[i].c_str());
+        arr[index++] = gcnew String(str.c_str());
     }
     return arr;
 }
