@@ -26,31 +26,35 @@ bool ChainCondition::Evaluate()
             static std::vector<CharacterBase*> targetList;
             targetList.clear();
             Target target = ReflectFields->Target;
+            auto   lastAttaker = TurnMode::Battle::GetLastAttacker().lock();
+            auto   lastTarget  = TurnMode::Battle::GetLastTarget().lock();
+            auto   lastTargetEnemy = TurnMode::Battle::GetLastTargetEnemy().lock();
             switch (target)
             {
             default:
                 return false;
             case Target::SELF: {
-                const auto& self = TurnMode::Battle::GetLastAttacker().lock();
+                const auto& self = lastAttaker;
                 if (self)
                 {
                     targetList.push_back(self.get());
                 }
                 break;
             }
-            case Target::PLAYER: {
+            case Target::PLAYER: 
+            {
                 Player* player = combatStartPhase->GetPlayer();
-                if (player)
+                if (player == lastTarget.get())
                 {
                     targetList.push_back(player);
                 }
                 break;
             }
-            case Target::ENEMY: {
-                const auto& enemy = TurnMode::Battle::GetLastTargetEnemy().lock();
-                if (enemy)
+            case Target::ENEMY: 
+            {
+                if (lastTarget.get() == lastTargetEnemy.get())
                 {
-                    targetList.push_back(enemy.get());
+                    targetList.push_back(lastTarget.get());
                 }
                 break;
             }
