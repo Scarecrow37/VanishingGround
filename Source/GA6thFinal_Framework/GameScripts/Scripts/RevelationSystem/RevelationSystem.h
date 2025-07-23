@@ -124,7 +124,6 @@ private:
 
     struct ImGuiEvent
     {
-        std::string           RenameBuffer;
         std::function<void()> RenameFunc;
 
         RevelationElement* SelectElement     = nullptr;

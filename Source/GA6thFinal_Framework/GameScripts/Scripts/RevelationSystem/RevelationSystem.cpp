@@ -147,6 +147,7 @@ void RevelationSystem::DrawImGuiElementTableEditor()
         ImGui::TableSetupColumn("Action");
         ImGui::TableHeadersRow();
 
+        int itemID = 0;
         for (auto& [key, element] : _elementsTable)
         {
             auto RightClickContext = [&]() {
@@ -161,7 +162,6 @@ void RevelationSystem::DrawImGuiElementTableEditor()
                 }
             };
 
-            int itemID = 0;
             ImGui::PushStyleColor(ImGuiCol_Text, element.GetGradeColor());
             ImGui::PushID(itemID++);
             {
@@ -183,24 +183,28 @@ void RevelationSystem::DrawImGuiElementTableEditor()
                 //Name
                 ImGui::TableSetColumnIndex(1);            
                 {
+                    static std::string renameBuffer;
                     const std::string originName = element.ElementName;
-                    _imguiEvent.RenameBuffer = originName;
-                    ImGui::InputText("##name", &_imguiEvent.RenameBuffer);
-                    if (ImGui::IsItemDeactivatedAfterEdit())
+                    renameBuffer = originName;
+                    bool input = ImGui::InputText("##name", &renameBuffer);
+                    if (input)
                     {
-                        RevelationElement tempElement;
-                        tempElement = element;
-                        tempElement.SetName(_imguiEvent.RenameBuffer);
-                        _imguiEvent.RenameFunc = [this, OrigninName = originName, TempElement = tempElement]()
+                        if (ImGui::IsItemDeactivatedAfterEdit())
                         {
-                            if (_imguiEvent.RenameBuffer != OrigninName)
+                            RevelationElement tempElement;
+                            tempElement = element;
+                            tempElement.SetName(renameBuffer);
+                            _imguiEvent.RenameFunc = [this, renameBuffer = renameBuffer, originName, tempElement]() 
                             {
-                                if (InsertElement(TempElement))
+                                if (renameBuffer != originName)
                                 {
-                                    EraseElement(OrigninName);
+                                    if (InsertElement(tempElement))
+                                    {
+                                        EraseElement(originName);
+                                    }
                                 }
-                            }
-                        };
+                            };
+                        }
                     }
                     RightClickContext();
                 }
