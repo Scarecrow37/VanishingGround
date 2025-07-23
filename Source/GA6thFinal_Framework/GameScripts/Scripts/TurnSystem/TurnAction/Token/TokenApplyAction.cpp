@@ -66,7 +66,7 @@ void TokenApplyAction::OnPlayerBattleStart(Player& attacker, PlayerStats& attack
 {
     if (EvaluateConditions())
     {
-        target.GetTokenInventory().AddTokenStackFromID(TokenID, 3);
+        target.GetTokenInventory().AddTokenStackFromID(TokenID, ReflectFields->TokenCount);
     }
 }
 
@@ -75,7 +75,7 @@ void TokenApplyAction::OnEnemyBattleStart(Enemy& attacker, EnemyStats& attackerS
 {
     if (EvaluateConditions())
     {
-        target.GetTokenInventory().AddTokenStackFromID(TokenID, 3);
+        target.GetTokenInventory().AddTokenStackFromID(TokenID, ReflectFields->TokenCount);
     }
 }
 
