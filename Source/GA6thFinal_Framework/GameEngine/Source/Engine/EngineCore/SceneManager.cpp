@@ -1061,12 +1061,9 @@ void ESceneManager::ObjectsAddRuntime()
             _waitAwakeVec.push_back(component);
             _waitStartVec.push_back(component);
         }
-
         if (component->_type == Component::TYPE::CAMERA)
         {
-            CameraComponent* camera = static_cast<CameraComponent*>(component.get());
-            std::shared_ptr<Camera> newCamera(new Camera);
-            camera->SetTarget(newCamera);
+            component->gameObject->_transform._hasChanged = true;
         }
         component->UpdateEnableInHierarchy();
     }
@@ -1643,7 +1640,7 @@ void ESceneManager::SceneResourceManager::UpdateRenderResource(RenderResource<T>
                 else
                 {
                     std::string_view componentName = component->ClassName();
-                    std::string_view objectName    = component->gameObject->Name;
+                    const std::string& objectName    = component->gameObject->Name;
                     std::string      msg =
                         std::format("{}{}{} {}", path.string(), (const char*)u8"는 존재하지 않는 리소스입니다. ",
                                     objectName, componentName);
@@ -1675,7 +1672,7 @@ void ESceneManager::SceneResourceManager::RequestModelResource(const Component* 
         else
         {
             std::string_view componentName = component->ClassName();
-            std::string_view objectName    = component->gameObject->Name;
+            const std::string& objectName    = component->gameObject->Name;
             std::string msg = std::format("{}{}{} {}", guid.string(), (const char*)u8"는 존재하지 않는 리소스입니다. ",
                                           objectName, componentName);
             UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
@@ -1696,7 +1693,7 @@ void ESceneManager::SceneResourceManager::RequestModelResource(const Component* 
         else
         {
             std::string_view componentName = component->ClassName();
-            std::string_view objectName    = component->gameObject->Name;
+            const std::string& objectName    = component->gameObject->Name;
             std::string msg = std::format("{}{}{} {}", path.string(), (const char*)u8"는 존재하지 않는 리소스입니다. ",
                                           objectName, componentName);
             UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
@@ -1716,7 +1713,7 @@ void ESceneManager::SceneResourceManager::RequestTextureResource(const Component
         else
         {
             std::string_view componentName = component->ClassName();
-            std::string_view objectName    = component->gameObject->Name;
+            const std::string& objectName    = component->gameObject->Name;
             std::string msg = std::format("{}{}{} {}", guid.string(), (const char*)u8"는 존재하지 않는 리소스입니다. ",
                                           objectName, componentName);
             UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
@@ -1737,7 +1734,7 @@ void ESceneManager::SceneResourceManager::RequestTextureResource(const Component
         else
         {
             std::string_view componentName = component->ClassName();
-            std::string_view objectName    = component->gameObject->Name;
+            const std::string& objectName    = component->gameObject->Name;
             std::string msg = std::format("{}{}{} {}", path.string(), (const char*)u8"는 존재하지 않는 리소스입니다. ",
                                           objectName, componentName);
             UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
@@ -1758,7 +1755,7 @@ void ESceneManager::SceneResourceManager::RequestFontResource(const Component* c
         else
         {
             std::string_view componentName = component->ClassName();
-            std::string_view objectName    = component->gameObject->Name;
+            const std::string& objectName    = component->gameObject->Name;
             std::string msg = std::format("{}{}{} {}", guid.string(), (const char*)u8"는 존재하지 않는 리소스입니다. ",
                                           objectName, componentName);
             UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
@@ -1779,7 +1776,7 @@ void ESceneManager::SceneResourceManager::RequestFontResource(const Component* c
         else
         {
             std::string_view componentName = component->ClassName();
-            std::string_view objectName    = component->gameObject->Name;
+            const std::string& objectName    = component->gameObject->Name;
             std::string msg = std::format("{}{}{} {}", path.string(), (const char*)u8"는 존재하지 않는 리소스입니다. ",
                                           objectName, componentName);
             UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
