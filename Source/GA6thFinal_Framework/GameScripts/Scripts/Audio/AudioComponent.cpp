@@ -85,6 +85,6 @@ void AudioComponent::LoadAudio()
     }
     else
     {
-        UmLogger.Log(LogLevel::LEVEL_ERROR, reinterpret_cast<const char*>(u8"Audio Guid가 유효하지 않습니다."));
+        UmLogger.Log(LogLevel::LEVEL_ERROR, u8"Audio Guid가 유효하지 않습니다.");
     }
 }
