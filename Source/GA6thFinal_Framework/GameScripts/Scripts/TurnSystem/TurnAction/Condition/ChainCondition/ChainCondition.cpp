@@ -44,7 +44,7 @@ bool ChainCondition::Evaluate()
             case Target::PLAYER: 
             {
                 Player* player = combatStartPhase->GetPlayer();
-                if (player == lastTarget.get())
+                if (player && player == lastTarget.get())
                 {
                     targetList.push_back(player);
                 }
@@ -52,7 +52,7 @@ bool ChainCondition::Evaluate()
             }
             case Target::ENEMY: 
             {
-                if (lastTarget.get() == lastTargetEnemy.get())
+                if (lastTarget && lastTarget.get() == lastTargetEnemy.get())
                 {
                     targetList.push_back(lastTarget.get());
                 }
