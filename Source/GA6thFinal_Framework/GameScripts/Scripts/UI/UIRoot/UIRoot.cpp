@@ -42,7 +42,8 @@ void UIRoot::OnPlacementChange()
     {
         const Transform* child      = transform->GetChild(i);
         GameObject&      gameObject = child->gameObject;
-        for (int j = 0; j < gameObject.GetComponentCount(); ++j)
+        const int componentCount    = gameObject.GetComponentCount();
+        for (int j = 0; j < componentCount; ++j)
         {
             if (UIRootSlot* slot = gameObject.GetComponentAtIndex<UIRootSlot>(j))
             {
