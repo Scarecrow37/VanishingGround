@@ -1723,8 +1723,7 @@ void ESceneManager::SceneResourceManager::RequestTextureResource(const Component
 {
     if (component->gameObject->IsValid())
     {
-        if (component->gameObject->IsValid())
-        {
+
             if (true == std::filesystem::exists(path))
             {
                 auto tuple = std::make_tuple(component->GetWeakPtr(), path, func);
@@ -1739,7 +1738,6 @@ void ESceneManager::SceneResourceManager::RequestTextureResource(const Component
                                 objectName, componentName);
                 UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
             }
-        }
     }
 }
 

@@ -349,6 +349,17 @@ private:
     /// </summary>
     void UpdateMatrix();
 
+    /// <summary>
+    /// UI 컴포넌트들의 Detach 이벤트 함수를 호출합니다.
+    /// </summary>
+    /// <param name="target"></param>
+    static void CallUIDetachParent(Transform* target, Transform* prevParent);
+
+    /// <summary>
+    /// UI 컴포넌트들의 Attach 이벤트 함수를 호출합니다.
+    /// </summary>
+    /// <param name="target"></param>
+    static void CallUIAttachChild(Transform* target, Transform* newChild);
 
 };
 

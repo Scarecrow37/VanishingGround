@@ -529,3 +529,10 @@ imgui.ini
 # Additional Folder
 lib
 bin
+
+# cs
+*.metagen
+*.dll
+*.lib
+*.exp
+*.pdb

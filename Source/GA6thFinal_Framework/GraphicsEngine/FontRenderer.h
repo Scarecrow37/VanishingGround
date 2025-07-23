@@ -19,6 +19,8 @@ public:
     void SetText(std::wstring_view text);
     void SetFont(std::shared_ptr<Font> font);
 
+    XMVECTOR GetStringSize() const;
+
 private:
     void Draw(SpriteBatch* spriteBatch);
 

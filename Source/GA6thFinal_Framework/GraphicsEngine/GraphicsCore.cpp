@@ -30,12 +30,12 @@ ResourceManager* GraphicsCore::GetResourceManager() const
     return _resourceManager;
 }
 
-std::shared_ptr<Camera> GraphicsCore::GetCamera(std::string_view cameraName) const
+std::shared_ptr<Camera> GraphicsCore::GetCamera(const std::string_view cameraName) const
 {
     return _renderer->GetCamera(cameraName);
 }
 
-D3D12_GPU_DESCRIPTOR_HANDLE GraphicsCore::GetRenderSceneImage(std::string_view renderSceneName) const
+D3D12_GPU_DESCRIPTOR_HANDLE GraphicsCore::GetRenderSceneImage(const std::string_view renderSceneName) const
 {
     return _renderer->GetRenderSceneImage(renderSceneName);
 }
@@ -60,67 +60,67 @@ ID3D12GraphicsCommandList* GraphicsCore::GetCommandList() const
     return _device->GetCommandList();
 }
 
-void GraphicsCore::SetCamera(std::string_view renderSceneName, std::shared_ptr<Camera> camera)
+void GraphicsCore::SetCamera(const std::string_view renderSceneName, std::shared_ptr<Camera> camera) const
 {
     _renderer->SetCamera(renderSceneName, camera);
 }
 
-void GraphicsCore::SetSkyBox(std::string_view renderSceneName, std::wstring_view filePath)
+void GraphicsCore::SetSkyBox(const std::string_view renderSceneName, const std::wstring_view filePath) const
 {
     _renderer->SetSkyBox(renderSceneName, filePath);
 }
 
-void GraphicsCore::SetCurrentScene(std::string_view sceneName)
+void GraphicsCore::SetCurrentScene(const std::string_view sceneName) const
 {
     _renderer->SetCurrentScene(sceneName);
 }
 
-void GraphicsCore::AddRenderScene(std::string_view sceneName, RenderTechniqueFlag flag)
+void GraphicsCore::AddRenderScene(const std::string_view sceneName, const RenderTechniqueFlag flag) const
 {
     _renderer->AddRenderScene(sceneName, flag);
 }
 
-void GraphicsCore::RegisterComponent(Animator* component)
+void GraphicsCore::RegisterComponent(Animator* component) const
 {
     _animationCore->RegisterAnimator(component);
 }
 
-void GraphicsCore::RegisterComponent(std::string_view renderSceneName, MeshRenderer* component)
+void GraphicsCore::RegisterComponent(const std::string_view renderSceneName, MeshRenderer* component) const
 {
     _renderer->RegisterRenderQueue(renderSceneName, component);
 }
 
-void GraphicsCore::RegisterComponent(std::string_view renderSceneName, SpriteRenderer* component)
+void GraphicsCore::RegisterComponent(const std::string_view renderSceneName, SpriteRenderer* component) const
 {
     _renderer->RegisterRenderQueue(renderSceneName, component);
 }
 
-void GraphicsCore::RegisterComponent(std::string_view renderSceneName, FontRenderer* component)
+void GraphicsCore::RegisterComponent(const std::string_view renderSceneName, FontRenderer* component) const
 {
     _renderer->RegisterRenderQueue(renderSceneName, component);
 }
 
-void GraphicsCore::RegisterComponent(std::string_view renderSceneName, Light* component)
+void GraphicsCore::RegisterComponent(const std::string_view renderSceneName, Light* component) const
 {
     _lightCore->RegisterLight(renderSceneName, component);
 }
 
-void GraphicsCore::LoadResource(std::wstring_view filePath, MeshRenderer* component)
+void GraphicsCore::LoadResource(const std::wstring_view filePath, MeshRenderer* component) const
 {    
     component->SetModel(_resourceManager->LoadResource<Model>(filePath));    
 }
 
-void GraphicsCore::LoadResource(std::wstring_view filePath, SpriteRenderer* component)
+void GraphicsCore::LoadResource(const std::wstring_view filePath, SpriteRenderer* component) const
 {
     component->SetTexture(_resourceManager->LoadResource<Texture>(filePath));
 }
 
-void GraphicsCore::LoadResource(std::wstring_view filePath, FontRenderer* component)
+void GraphicsCore::LoadResource(const std::wstring_view filePath, FontRenderer* component) const
 {
     component->SetFont(_resourceManager->LoadResource<Font>(filePath));
 }
 
-void GraphicsCore::Initialize(HWND hwnd, UINT width, UINT height, FeatureLevel feature, bool isEditorMode)
+void GraphicsCore::Initialize(const HWND hwnd, const UINT width, const UINT height, const FeatureLevel feature, bool isEditorMode)
 {
     _device                   = new Device;
     _renderer                 = new Renderer;
@@ -165,25 +165,25 @@ void GraphicsCore::Initialize(HWND hwnd, UINT width, UINT height, FeatureLevel f
     _debugDrawCore->Initialize();
 }
 
-void GraphicsCore::UpdateAnimation(const float deltaTime)
+void GraphicsCore::UpdateAnimation(const float deltaTime) const
 {
     _animationCore->Update(deltaTime);
 }
 
-void GraphicsCore::Update(const float deltaTime)
+void GraphicsCore::Update(const float deltaTime) const
 {
     _particleManager->Update(deltaTime);
     _lightCore->Update(deltaTime);
     _renderer->Update();
 }
 
-void GraphicsCore::Render()
+void GraphicsCore::Render() const
 {
     _renderer->Render();
     _debugDrawCore->Render();
 }
 
-void GraphicsCore::Finalize()
+void GraphicsCore::Finalize() const
 {
     _device->Finalize();
 
@@ -200,52 +200,67 @@ void GraphicsCore::Finalize()
     delete _device;
 }
 
-void GraphicsCore::Flip()
+void GraphicsCore::Flip() const
 {
     _renderer->Flip();
 }
 
-void GraphicsCore::ResetSkyBox(std::string_view sceneName)
+void GraphicsCore::ResetSkyBox(const std::string_view sceneName) const
 {
     _renderer->ResetSkyBox(sceneName);
 }
 
-void GraphicsCore::OnResize(UINT width, UINT height)
+void GraphicsCore::OnResize(const UINT width, const UINT height) const
 {
     _device->OnResize(width, height);
 }
 
-void XM_CALLCONV GraphicsCore::DebugDraw(std::string_view sceneName, const BoundingSphere& sphere, FXMVECTOR color)
+void XM_CALLCONV GraphicsCore::DebugDraw3D(const std::string_view sceneName, const BoundingSphere& sphere, FXMVECTOR color) const
 {
     _debugDrawCore->Draw(sceneName, sphere, color);
 }
 
-void XM_CALLCONV GraphicsCore::DebugDraw(std::string_view sceneName, const BoundingBox& box, FXMVECTOR color)
+void XM_CALLCONV GraphicsCore::DebugDraw3D(const std::string_view sceneName, const BoundingBox& box, FXMVECTOR color) const
 {
     _debugDrawCore->Draw(sceneName, box, color);
 }
 
-void XM_CALLCONV GraphicsCore::DebugDraw(std::string_view sceneName, const BoundingOrientedBox& obb, FXMVECTOR color)
+void XM_CALLCONV GraphicsCore::DebugDraw3D(const std::string_view sceneName, const BoundingOrientedBox& obb, FXMVECTOR color) const
 {
     _debugDrawCore->Draw(sceneName, obb, color);
 }
 
-void XM_CALLCONV GraphicsCore::DebugDraw(std::string_view sceneName, const BoundingFrustum& frustum, FXMVECTOR color)
+void XM_CALLCONV GraphicsCore::DebugDraw3D(const std::string_view sceneName, const BoundingFrustum& frustum, FXMVECTOR color) const
 {
     _debugDrawCore->Draw(sceneName, frustum, color);
 }
 
-void XM_CALLCONV GraphicsCore::DebugDraw(std::string_view sceneName, FXMVECTOR origin, FXMVECTOR majorAxis, FXMVECTOR minorAxis, GXMVECTOR color)
+void XM_CALLCONV GraphicsCore::DebugDraw3D(const std::string_view sceneName, FXMVECTOR origin, FXMVECTOR majorAxis,
+                                           FXMVECTOR minorAxis, GXMVECTOR color) const
 {
     _debugDrawCore->DrawRing(sceneName, origin, majorAxis, minorAxis, color);
 }
 
-void XM_CALLCONV GraphicsCore::DebugDraw(std::string_view sceneName, FXMVECTOR origin, FXMVECTOR direction, bool normalize, FXMVECTOR color)
+void XM_CALLCONV GraphicsCore::DebugDraw3D(const std::string_view sceneName, FXMVECTOR origin, FXMVECTOR direction,
+                                           const bool normalize, FXMVECTOR color) const
 {
     _debugDrawCore->DrawRay(sceneName, origin, direction, normalize, color);
 }
 
-void XM_CALLCONV GraphicsCore::DebugDraw(std::string_view sceneName, FXMVECTOR position, FXMVECTOR direction, float range, float innerCone, float outerCone, FXMVECTOR color)
+void XM_CALLCONV GraphicsCore::DebugDraw3D(const std::string_view sceneName, FXMVECTOR position, FXMVECTOR direction,
+                                           const float range, const float innerCone, const float outerCone, FXMVECTOR color) const
 {
     _debugDrawCore->DrawSpotLight(sceneName, position, direction, range, innerCone, outerCone, color);
+}
+
+void XM_CALLCONV GraphicsCore::DebugDraw2D(const std::string_view sceneName, FXMVECTOR pointA, FXMVECTOR pointB,
+                                           FXMVECTOR pointC, GXMVECTOR pointD, HXMVECTOR color) const
+{
+    _debugDrawCore->DrawQuad(sceneName, pointA, pointB, pointC, pointD, color);
+}
+
+void XM_CALLCONV GraphicsCore::DebugDraw2D(const std::string_view sceneName, FXMVECTOR pointA, FXMVECTOR pointB,
+                                           FXMVECTOR color) const
+{
+    _debugDrawCore->DrawLine(sceneName, pointA, pointB, color);
 }
