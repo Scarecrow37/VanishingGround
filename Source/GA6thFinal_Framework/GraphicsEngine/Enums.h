@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-constexpr UINT MAX_BONE_MATRIX        = 256;
+constexpr UINT MAX_BONE_MATRIX        = 128;
 constexpr UINT SWAPCHAIN_BUFFER_COUNT = 4;
 constexpr UINT MAX_DIRECTIONAL_LIGHT  = 4;
 constexpr UINT MAX_POINT_LIGHT        = 32;

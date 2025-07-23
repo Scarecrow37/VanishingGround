@@ -23,16 +23,22 @@ public:
 public:
     void SetModel(std::shared_ptr<Model> model);
     void SetAnimator(std::shared_ptr<Animator> animator);
+    void SetMaterial(const UINT meshIndex, const Material& material);
+    void SetMasterMaterial(const UINT meshIndex, const Material& material);
+
+public:
     void OnCustomDepth(UINT customDepth);
     void OnCustomDepth(UINT customDepth, UINT meshID) { _customDepths[meshID] |= customDepth; }
     void OffCustomDepth(UINT customDepth);
     void OffCustomDepth(UINT customDepth, UINT meshID) { _customDepths[meshID] &= ~customDepth; }
 
 private:
+    std::vector<Material>                              _materials;
+    std::vector<UINT>                                  _customDepths;
+    std::vector<std::shared_ptr<SkeletalMeshInstance>> _skeletaMesheInstances;
+
     std::shared_ptr<Model>                             _model;
     std::shared_ptr<Animator>                          _animator;
     GraphicsTransform                                  _transform;
     MeshType                                           _type;
-    std::vector<UINT>                                  _customDepths;
-    std::vector<std::shared_ptr<SkeletalMeshInstance>> _skeletaMesheInstances;
 };

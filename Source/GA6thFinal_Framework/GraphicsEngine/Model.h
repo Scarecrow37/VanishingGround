@@ -22,6 +22,9 @@ public:
     const size_t                                              GetMeshCount() const { return _meshes.size(); }
 
 public:
+    void SetMaterial(const UINT meshIndex, const Material& material);
+
+public:
     void AddMesh(std::unique_ptr<BaseMesh> mesh);
     void InitMaterials(UINT materialCount);
     void BindTexture(const UINT meshIndex, std::shared_ptr<Texture> texture);

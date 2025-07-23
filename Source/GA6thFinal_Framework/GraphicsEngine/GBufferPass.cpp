@@ -119,14 +119,14 @@ void GBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
     DrawMeshes(commandList, STATIC_MESH, STATIC_TWO_SIDED);
 
     // Skeletal One Sided back
-    commandList->SetPipelineState(_psos[SKELETAL_CULL_FRONT].Get());
+    commandList->SetPipelineState(_psos[SKELETAL_CULL_BACK].Get());
     commandList->SetGraphicsRootSignature(_shaders[SKELETAL_MESH]->GetRootSignature());
     commandList->SetGraphicsRootConstantBufferView(_shaders[SKELETAL_MESH]->GetRootParameterIndex("cameraData"), cameraData);
 
     frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _shaders[SKELETAL_MESH]->GetRootParameterIndex("worldMatrices"), commandList);
     frameResource->SetFrameResource(FrameResourceType::BONE_MATRICES, _shaders[SKELETAL_MESH]->GetRootParameterIndex("boneMatrices"), commandList);
     frameResource->SetFrameResource(FrameResourceType::MATERIAL, _shaders[SKELETAL_MESH]->GetRootParameterIndex("material"), commandList);
-    DrawMeshes(commandList, SKELETAL_MESH, SKELETAL_CULL_FRONT);
+    DrawMeshes(commandList, SKELETAL_MESH, SKELETAL_CULL_BACK);
 
     // Skeletal One Sided front
     commandList->SetPipelineState(_psos[SKELETAL_CULL_FRONT].Get());

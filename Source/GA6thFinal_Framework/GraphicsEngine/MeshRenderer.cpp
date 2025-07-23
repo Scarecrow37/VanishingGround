@@ -58,6 +58,19 @@ void MeshRenderer::SetAnimator(std::shared_ptr<Animator> animator)
     _animator = animator;
 }
 
+void MeshRenderer::SetMaterial(const UINT meshIndex, const Material& material)
+{
+    if (meshIndex < _materials.size())
+    {
+        _materials[meshIndex] = material;
+    }
+}
+
+void MeshRenderer::SetMasterMaterial(const UINT meshIndex, const Material& material)
+{    
+    _model->SetMaterial(meshIndex, material);
+}
+
 void MeshRenderer::OnCustomDepth(UINT customDepth)
 {
     for (auto& depth : _customDepths)
