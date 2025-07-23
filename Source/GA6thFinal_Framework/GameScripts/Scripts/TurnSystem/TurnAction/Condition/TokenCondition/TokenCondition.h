@@ -14,7 +14,6 @@ public:
     // 대상
     enum class Target
     {
-        NONE,
         SELF,
         PLAYER,
         ENEMY,
@@ -38,7 +37,7 @@ protected:
     REFLECT_PROPERTY()
 
     REFLECT_FIELDS_BEGIN(TurnActionCondition)
-    Target   Target    = Target::NONE;
+    Target   Target    = Target::SELF;
     int      TokenType = 16000;
     Operator Operator  = Operator::GREATER_EQUAL;
     int      Value     = 0;

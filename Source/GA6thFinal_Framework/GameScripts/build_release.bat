@@ -1,6 +1,8 @@
 ﻿@echo off
 chcp 65001
 
+cd /d "%~dp0"
+
 set BASE_PATH=..\GameScripts\bin\Release\
 set "PDB_PATH=%BASE_PATH%GameScripts.pdb"
 set "DLL_PATH=%BASE_PATH%GameScripts.dll"

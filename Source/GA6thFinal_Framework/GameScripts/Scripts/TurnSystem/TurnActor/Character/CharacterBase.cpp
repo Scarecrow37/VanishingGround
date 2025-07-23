@@ -3,6 +3,8 @@
 #include "Stats/CharacterStats.h"
 #include "TurnSystem/TurnMode/TurnMode.h"
 
+#include <Mesh/SkeletalMeshRenderer.h>
+
 int CharacterBase::GetMaxHP()
 {
     int maxHP = 0;
@@ -50,6 +52,36 @@ void CharacterBase::Awake()
 {
     Base::Awake();
     gameObject->AddTag(TAG);
+
+    InitMeshModel();
+}
+
+void CharacterBase::InitMeshModel()
+{
+    auto* modelTransform = transform->Find(MODEL_NAME);
+    if (modelTransform)
+    {
+        GameObject& modelObject = modelTransform->gameObject;
+        _skeletalMeshRenderer   = modelObject.GetComponent<SkeletalMeshRenderer>();
+        if (nullptr == _skeletalMeshRenderer)
+        {
+            std::string msg = std::format("{}{}",
+                modelObject.ToString(),
+                (const char*)u8"의 컴포넌트에 SkeletalMeshRenderer가 없습니다."
+            );
+            UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
+        }
+    }
+    else
+    {
+        std::string msg = std::format("{}{} {}{}",
+            gameObject->ToString(), 
+            (const char*)u8"의 자식 오브젝트에",
+            MODEL_NAME, 
+            (const char*)u8"이(가) 없습니다."
+        );
+        UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
+    }
 }
 
 void CharacterBase::Revive() 
@@ -76,6 +108,25 @@ void CharacterBase::TakeDamage(int damage)
             damage,
             (const char*)u8"의 피해를 입었습니다.");
     UmLogger.Log(LogLevel::LEVEL_DEBUG, msg);
+
+    if (_skeletalMeshRenderer)
+    {
+        const char* currentAnimName = _skeletalMeshRenderer->GetCurrentAnimationName().c_str();
+        const char* hitAnimName     = GetAnimationName(CharacterBase::HIT);
+        if (0 == strcmp(currentAnimName, hitAnimName))
+        {
+            PopOverrideAnimation();
+        }
+    }
+    PushOverrideAnimation(CharacterBase::HIT, false, true,
+                          [](const AnimationData& data) { // 자동 Pop조건
+                              return data.IsEnd;
+                          });
+}
+
+void CharacterBase::TakeChain(int chainDamage) 
+{
+    SetChainCount(_chainCount + chainDamage);
 }
 
 int CharacterBase::DecrementChainRoundCount()
@@ -161,4 +212,50 @@ void CharacterBase::ImGuiDrawPropertysEvent()
 {
     ImGui::Separator();
     _tokenInventory.DrawImGuiDebugData();
+}
+
+void CharacterBase::SetMainAnimation(AnimationType type, bool loop, bool blend)
+{
+    if (_skeletalMeshRenderer)
+    {
+        const char* animKey = GetAnimationName(type);
+        _skeletalMeshRenderer->SetMainAnimation(animKey, blend);
+        _skeletalMeshRenderer->SetMainAnimationLoop(loop);
+    }
+}
+
+void CharacterBase::ClearOverrideAnimations() 
+{
+    if (_skeletalMeshRenderer)
+    {
+        _skeletalMeshRenderer->ClearOverrideAnimations();
+    }
+}
+
+void CharacterBase::PushOverrideAnimation(AnimationType type, bool loop, bool blend,
+                                          std::function<bool(const AnimationData&)> popCondition)
+{
+    if (_skeletalMeshRenderer)
+    {
+        const char* animKey = GetAnimationName(type);
+        _skeletalMeshRenderer->PushOverrideAnimation(animKey, loop, blend, popCondition);
+    }
+}
+
+void CharacterBase::PopOverrideAnimation()
+{
+    if (_skeletalMeshRenderer)
+    {
+        _skeletalMeshRenderer->PopOverrideAnimation();
+    }
+}
+
+bool CharacterBase::IsAnimationEnd()
+{
+    if (_skeletalMeshRenderer)
+    {
+        const auto& data = _skeletalMeshRenderer->GetLastAnimationData();
+        return data.IsEnd;
+    }
+    return true;
 }
