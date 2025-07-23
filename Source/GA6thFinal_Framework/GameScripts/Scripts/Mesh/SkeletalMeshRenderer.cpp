@@ -32,7 +32,7 @@ SkeletalMeshRenderer::~SkeletalMeshRenderer() {}
 
 void SkeletalMeshRenderer::Reset()
 {
-    MakeMeshRenderer(MeshType::SKELETAL_MESH, gameObject->transform->GetWorldMatrix());
+    MakeMeshRenderer(MeshType::SKELETAL_MESH, transform->Position, transform->Scale, transform->Rotation, transform->GetWorldMatrix());
 }
 
 void SkeletalMeshRenderer::Awake() 

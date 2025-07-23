@@ -51,7 +51,7 @@ struct Material
         UNLIT,
         DEFAULTLIT,
         END
-    };
+    } Model;
     enum class BlendMode
     {
         OPAQUE,
@@ -60,9 +60,13 @@ struct Material
         ADDITIVE,
         MODULATE,
         END
-    };
-    ShadingModel Model;
-    BlendMode    Mode;
+    } Mode;
+    enum
+    {
+        CULL_BACK,
+        CULL_FRONT,
+        CULL_NONE
+    } CullMode;
     bool         IsTwoSided;
 };
 
@@ -71,7 +75,7 @@ struct CameraData
     XMMATRIX View;
     XMMATRIX Projection;
     XMMATRIX ViewInverse;
-    XMMATRIX ProejctionInverse;
+    XMMATRIX ProjectionInverse;
     Vector4  Position{0.f, 0.f, 0.f, 1.f};
 };
 
@@ -82,7 +86,6 @@ struct RayCameraData
     XMMATRIX ViewInverse;
     XMMATRIX ProejctionInverse;
 };
-
 
 struct LightData
 {
@@ -135,4 +138,12 @@ struct MeshInfo
     Material        Material;
     class BaseMesh* Mesh;
     UINT            CustomDepth;
+};
+
+struct GraphicsTransform
+{
+    const Vector3&    Position;
+    const Vector3&    Scale;
+    const Quaternion& Rotation;
+    const Matrix&     World;
 };

@@ -31,11 +31,11 @@ bool MeshComponent::HasAnimator() const
     return nullptr != Renderer->GetAnimator();
 }
 
-void MeshComponent::MakeMeshRenderer(MeshType renderType, const Matrix& world)
+void MeshComponent::MakeMeshRenderer(MeshType renderType, const Vector3& position, const Vector3& scale, const Quaternion& rotation, const Matrix& world)
 {
     if (nullptr == _pMeshRenderer)
     {
-        _pMeshRenderer.reset(new MeshRenderer(renderType, world));
+        _pMeshRenderer.reset(new MeshRenderer(renderType, position, scale, rotation, world));
         _pMeshRenderer->SetActive(&EnableInHierarchy);
         _pMeshRenderer->OnCustomDepth(PostProcess::BLOOM);
         UmGraphics.RegisterComponent("Game", _pMeshRenderer.get());

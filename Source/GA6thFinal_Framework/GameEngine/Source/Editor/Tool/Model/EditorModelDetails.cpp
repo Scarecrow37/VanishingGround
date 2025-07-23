@@ -5,11 +5,11 @@
 #include "GraphicsEngine/FBXConverter.h"
 
 EditorModelDetails::EditorModelDetails()
-    : _meshRenderer(std::make_unique<MeshRenderer>(STATIC_MESH, _worldMatrix))
-    , _animator()
+    : _animator()
     , _mainLight(std::make_unique<Light>())
     , _selectedMeshIndex(0)
 {
+    _meshRenderer = std::make_unique<MeshRenderer>(STATIC_MESH, _position, _scale, _quaternion, _worldMatrix);
     SetLabel("Details##model");
     SetDockLayout(ImGuiDir_Right);
 }
@@ -93,6 +93,7 @@ void EditorModelDetails::UpdateModelTransform()
     Matrix matScale     = Matrix::CreateScale(_scale);
     Matrix matRotation  = Matrix::CreateFromYawPitchRoll(_rotation.y, _rotation.x, _rotation.z);
     Matrix matTranslate = Matrix::CreateTranslation(_position);
+    _quaternion         = Quaternion::CreateFromYawPitchRoll(_rotation.y, _rotation.x, _rotation.z);
 
     // 변환 순서: S  R  T
     _worldMatrix = matScale * matRotation * matTranslate;

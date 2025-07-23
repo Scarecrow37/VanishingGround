@@ -21,7 +21,7 @@ void FBXConverter::ImportModel(const std::filesystem::path& filePath, std::share
 {
     Reset();
 
-    _model    = model;
+    _model = model;
 
     if (filePath.extension() == L".fbx")
     {
@@ -389,8 +389,8 @@ void FBXConverter::LoadFromAssimp(const std::filesystem::path& filePath, Model* 
     impoter.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, 0);
 
     unsigned int importFlags = //aiProcessPreset_TargetRealtime_MaxQuality |
-                               //aiProcessPreset_TargetRealtime_Fast | 
-                               aiProcessPreset_TargetRealtime_Quality |
+                               aiProcessPreset_TargetRealtime_Fast | 
+                               //aiProcessPreset_TargetRealtime_Quality |
                                aiProcess_ConvertToLeftHanded;
 
     /*importFlags ^= aiProcess_GenSmoothNormals;

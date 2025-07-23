@@ -184,13 +184,13 @@ void RenderScene::UpdateGlobal()
     CameraData cameraData{.View              = XMMatrixTranspose(_camera->GetViewMatrix()),
                           .Projection        = XMMatrixTranspose(_camera->GetProjectionMatrix()),
                           .ViewInverse       = XMMatrixTranspose(_camera->GetWorldMatrix()),
-                          .ProejctionInverse = XMMatrixTranspose(_camera->GetProjectionInverseMatrix()),
+                          .ProjectionInverse = XMMatrixTranspose(_camera->GetProjectionInverseMatrix()),
                           .Position          = Vector4(_camera->GetPosition())};
 
     CameraData RaycameraData{.View           = _camera->GetViewMatrix(),
                           .Projection        = _camera->GetProjectionMatrix(),
                           .ViewInverse       = _camera->GetWorldMatrix(),
-                          .ProejctionInverse = _camera->GetProjectionInverseMatrix(),
+                          .ProjectionInverse = _camera->GetProjectionInverseMatrix(),
                           .Position          = Vector4(_camera->GetPosition())};
     auto& lights = Global::lightCore->GetLights(_name.c_str());
        
@@ -247,7 +247,7 @@ void RenderScene::UpdateObject()
 
         const auto  type         = component->GetType();
         const auto& meshes       = model->GetMeshes();
-        const auto& materials    = model->GetMaterials();
+        auto&       materials    = model->GetMaterials();
         const auto& textures     = model->GetTextures();
         const auto& customDepths = component->GetCustomDepths();
 
@@ -274,6 +274,18 @@ void RenderScene::UpdateObject()
 
             _worldMatrices.push_back(transposeWorld);
             _boneMatrices.push_back(boneMatrices);
+
+            if (materials[i].IsTwoSided)
+            {
+                materials[i].CullMode = Material::CULL_NONE;
+            }
+            else
+            {
+                const auto& transform = component->GetTransform();
+                float       sign      = transform.Scale.x * transform.Scale.y * transform.Scale.z;
+
+                materials[i].CullMode = sign < 0.f ? Material::CULL_FRONT : Material::CULL_BACK;
+            }
 
             MaterialID materialID{};
             for (UINT j = 0; j < 4; j++)

@@ -3,8 +3,9 @@
 #include "Animator.h"
 #include "Model.h"
 
-MeshRenderer::MeshRenderer(MeshType type, const Matrix& worldMatrix)
-    : _type(type), _worldMatrix(worldMatrix)
+MeshRenderer::MeshRenderer(MeshType type, const Vector3& position, const Vector3& scale, const Quaternion& rotation, const Matrix& world)
+    : _type(type)
+    , _transform{position, scale, rotation, world}
 {
 }
 
