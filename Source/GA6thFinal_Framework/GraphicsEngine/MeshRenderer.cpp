@@ -1,12 +1,10 @@
 ﻿#include "pch.h"
 #include "MeshRenderer.h"
 #include "Animator.h"
-#include "BaseMesh.h"
 #include "Model.h"
-#include "UnorderedAccessView.h"
 
-MeshRenderer::MeshRenderer(MeshRenderType type, const Matrix& worldMatrix)
-    : _type(type), _worldMatrix(worldMatrix), _customDepth(0)
+MeshRenderer::MeshRenderer(MeshType type, const Matrix& worldMatrix)
+    : _type(type), _worldMatrix(worldMatrix)
 {
 }
 
@@ -14,7 +12,7 @@ MeshRenderer::~MeshRenderer() {}
 
 std::shared_ptr<Animator> MeshRenderer::GetAnimator() const
 {
-    if (MeshRenderType::SKELETAL != _type)
+    if (SKELETAL_MESH != _type)
         return nullptr;
 
     return _animator;
@@ -24,9 +22,11 @@ void MeshRenderer::SetModel(std::shared_ptr<Model> model)
 {
     _model = model;
 
+    _customDepths.resize(_model->GetMeshCount(), 0);
+
     if (model->GetAnimation())
     {
-        _type              = MeshRenderType::SKELETAL;
+        _type = SKELETAL_MESH;
         //const auto& meshes = _model->GetMeshes();
         //_skeletaMesheInstances.resize(meshes.size());
         //for (size_t i = 0; i < meshes.size(); ++i)
@@ -49,10 +49,26 @@ void MeshRenderer::SetModel(std::shared_ptr<Model> model)
         //}
     }
     else
-        _type = MeshRenderType::STATIC;
+        _type = STATIC_MESH;
 }
 
 void MeshRenderer::SetAnimator(std::shared_ptr<Animator> animator)
 {
     _animator = animator;
+}
+
+void MeshRenderer::OnCustomDepth(UINT customDepth)
+{
+    for (auto& depth : _customDepths)
+    {
+        depth |= customDepth;
+    }
+}
+
+void MeshRenderer::OffCustomDepth(UINT customDepth)
+{
+    for (auto& depth : _customDepths)
+    {
+        depth &= ~customDepth;
+    }
 }

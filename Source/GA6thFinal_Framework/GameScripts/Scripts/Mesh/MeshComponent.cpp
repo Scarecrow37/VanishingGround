@@ -31,7 +31,7 @@ bool MeshComponent::HasAnimator() const
     return nullptr != Renderer->GetAnimator();
 }
 
-void MeshComponent::MakeMeshRenderer(MeshRenderType renderType, const Matrix& world)
+void MeshComponent::MakeMeshRenderer(MeshType renderType, const Matrix& world)
 {
     if (nullptr == _pMeshRenderer)
     {

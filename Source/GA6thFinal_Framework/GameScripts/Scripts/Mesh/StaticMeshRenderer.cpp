@@ -48,7 +48,7 @@ void StaticMeshRenderer::LoadModel()
 
 void StaticMeshRenderer::Reset()
 {
-    MakeMeshRenderer(MeshRenderType::STATIC, gameObject->transform->GetWorldMatrix());
+    MakeMeshRenderer(MeshType::STATIC_MESH, gameObject->transform->GetWorldMatrix());
 }
 
 void StaticMeshRenderer::SerializedReflectEvent() 

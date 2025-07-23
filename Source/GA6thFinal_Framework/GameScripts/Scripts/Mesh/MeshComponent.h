@@ -31,7 +31,7 @@ public:
     /// </summary>
     /// <param name="renderType"></param>
     /// <param name="world"></param>
-    void MakeMeshRenderer(MeshRenderType renderType, const Matrix& world);
+    void MakeMeshRenderer(MeshType renderType, const Matrix& world);
 
     //meshRenderer 입니다. MakeMeshRenderer를 호출해야만 생성됩니다.
     const std::unique_ptr<MeshRenderer>& Renderer;

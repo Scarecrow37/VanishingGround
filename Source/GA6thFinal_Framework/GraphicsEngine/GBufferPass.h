@@ -3,12 +3,7 @@
 
 class BaseMesh;
 class GBufferPass : public RenderPass
-{
-    enum
-    {
-        STATIC,
-        SKELETAL
-    };
+{    
     enum MeshType
     {
         STATIC_ONE_SIDED,

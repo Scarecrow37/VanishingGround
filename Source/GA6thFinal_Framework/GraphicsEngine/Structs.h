@@ -129,3 +129,10 @@ struct Resolution
     UINT Width;
     UINT Height;
 };
+
+struct MeshInfo
+{
+    Material        Material;
+    class BaseMesh* Mesh;
+    UINT            CustomDepth;
+};

@@ -5,7 +5,7 @@
 #include "GraphicsEngine/FBXConverter.h"
 
 EditorModelDetails::EditorModelDetails()
-    : _meshRenderer(std::make_unique<MeshRenderer>(MeshRenderType::STATIC, _worldMatrix))
+    : _meshRenderer(std::make_unique<MeshRenderer>(STATIC_MESH, _worldMatrix))
     , _animator()
     , _mainLight(std::make_unique<Light>())
     , _selectedMeshIndex(0)
@@ -203,7 +203,7 @@ void EditorModelDetails::OnFrameRender()
             }
             ImGui::Separator();
 
-            ImGui::Text("Type: %s", type == MeshRenderType::STATIC ? "Static" : "Skeletal");
+            ImGui::Text("Type: %s", type == STATIC_MESH ? "Static" : "Skeletal");
             ImGui::Text("Mesh Count: %d", model->GetMeshes().size());
 
             if (ImGui::TreeNodeEx("Transform##details", ImGuiTreeNodeFlags_DefaultOpen))

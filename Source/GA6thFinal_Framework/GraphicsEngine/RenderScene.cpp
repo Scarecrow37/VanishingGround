@@ -225,11 +225,16 @@ void RenderScene::UpdateObject()
     auto first = std::remove_if(_meshRenderQueue.begin(), _meshRenderQueue.end(), [](const auto& pair) { return *pair.first; });
     _meshRenderQueue.erase(first, _meshRenderQueue.end());    
 
+    _activeMeshes[STATIC_MESH].clear();
+    _activeMeshes[SKELETAL_MESH].clear();
     _worldMatrices.clear();
     _boneMatrices.clear();
     _materialIDs.clear();
     _staticMeshInstanceIDs.clear();
     _skeletalMeshInstanceIDs.clear();
+
+    const auto& cameraFrustum = _camera->GetWorldFrustum();
+
     UINT instanceID = 0;
     for (auto& [isDestroy, component] : _meshRenderQueue)
     {
@@ -240,15 +245,17 @@ void RenderScene::UpdateObject()
         if (!model)
             continue;
 
-        const auto  type      = component->GetType();
-        const auto& meshes    = model->GetMeshes();
-        const auto& materials = model->GetMaterials();
-        const auto& textures  = model->GetTextures();
+        const auto  type         = component->GetType();
+        const auto& meshes       = model->GetMeshes();
+        const auto& materials    = model->GetMaterials();
+        const auto& textures     = model->GetTextures();
+        const auto& customDepths = component->GetCustomDepths();
 
-        XMMATRIX     world = XMMatrixTranspose(component->GetWorldMatrix());
+        XMMATRIX     world          = component->GetWorldMatrix();
+        XMMATRIX     transposeWorld = XMMatrixTranspose(world);
         BoneMatrices boneMatrices;
 
-        if (MeshRenderType::SKELETAL == type)
+        if (SKELETAL_MESH == type)
         {
             auto animator = component->GetAnimator();
             if (animator) memcpy(&boneMatrices, animator->GetAnimationTransform(), sizeof(BoneMatrices));
@@ -257,7 +264,15 @@ void RenderScene::UpdateObject()
         UINT size = (UINT)meshes.size();
         for (UINT i = 0; i < size; i++)
         {
-            _worldMatrices.push_back(world);
+            BoundingOrientedBox boundingOrientedBox;
+
+            const auto& meshBoundingBox = meshes[i]->GetBoundingBox();
+            meshBoundingBox.Transform(boundingOrientedBox, world);
+
+            if (!cameraFrustum.Intersects(boundingOrientedBox))
+                continue;
+
+            _worldMatrices.push_back(transposeWorld);
             _boneMatrices.push_back(boneMatrices);
 
             MaterialID materialID{};
@@ -265,18 +280,22 @@ void RenderScene::UpdateObject()
             {
                 materialID.ID[j] = textures[i][j]->GetID();
             }
+
             _materialIDs.push_back(materialID);
-            if (MeshRenderType::STATIC == type)
+            if (STATIC_MESH == type)
             {
                 _staticMeshInstanceIDs.push_back(instanceID);
             }
-            else if (MeshRenderType::SKELETAL == type)
+            else if (SKELETAL_MESH == type)
             {
                 _skeletalMeshInstanceIDs.push_back(instanceID);
             }
-            instanceID++;
+
+            instanceID++;            
+            _activeMeshes[type].emplace_back(materials[i], meshes[i].get(), customDepths[i]);
         }
     }
+
     ClassifyMesh();
 }
 
@@ -294,10 +313,10 @@ void RenderScene::ClassifyMesh()
 
         switch (component->GetType())
         {
-        case MeshRenderType::STATIC:
+        case STATIC_MESH:
             _staticMesh.push_back(component);
             break;
-        case MeshRenderType::SKELETAL:
+        case SKELETAL_MESH:
             _skeletalMesh.push_back(component);
             break;
         default:

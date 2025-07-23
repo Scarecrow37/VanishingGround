@@ -81,13 +81,12 @@ void DXRGBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
         if (!model)
             continue;
 
-        const auto type     = component->GetType();
-        MeshType   meshType = MeshType::END;
-
-        const auto& meshes      = model->GetMeshes();
-        const auto& materials   = model->GetMaterials();
-        UINT        customDepth = component->GetCustomDepth();
-        size_t      size        = meshes.size();
+        const auto  type         = component->GetType();
+        const auto& meshes       = model->GetMeshes();
+        const auto& materials    = model->GetMaterials();
+        const auto& customDepths = component->GetCustomDepths();
+        size_t      size         = meshes.size();
+        MeshType    meshType     = MeshType::END;
 
         for (size_t i = 0; i < size; i++)
         {
@@ -95,21 +94,21 @@ void DXRGBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
 
             switch (type)
             {
-            case MeshRenderType::STATIC:
+            case STATIC_MESH:
                 if (material.IsTwoSided)
                     meshType = STATIC_TWO_SIDED;
                 else
                     meshType = STATIC_ONE_SIDED;
                 break;
 
-            case MeshRenderType::SKELETAL:
+            case SKELETAL_MESH:
                 if (material.IsTwoSided)
                     meshType = SKELETAL_TWO_SIDED;
                 else
                     meshType = SKELETAL_ONE_SIDED;
                 break;
             }
-            _renderDatas[meshType].emplace_back(meshes[i].get(), instanceID++, customDepth);
+            _renderDatas[meshType].emplace_back(meshes[i].get(), instanceID++, customDepths[i]);
         }
     }
 
@@ -124,10 +123,8 @@ void DXRGBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->SetGraphicsRootDescriptorTable(_shaders[STATIC]->GetRootParameterIndex("textures"), resource);
     commandList->SetGraphicsRootConstantBufferView(_shaders[STATIC]->GetRootParameterIndex("cameraData"), cameraData);
 
-    frameResource->SetFrameResource(FrameResourceType::TRANSFORM,
-                                    _shaders[STATIC]->GetRootParameterIndex("worldMatrices"), commandList);
-    frameResource->SetFrameResource(FrameResourceType::MATERIAL, _shaders[STATIC]->GetRootParameterIndex("material"),
-                                    commandList);
+    frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _shaders[STATIC]->GetRootParameterIndex("worldMatrices"), commandList);
+    frameResource->SetFrameResource(FrameResourceType::MATERIAL, _shaders[STATIC]->GetRootParameterIndex("material"), commandList);
     DrawMeshes(commandList, STATIC, STATIC_ONE_SIDED);
 
     // Static Two Sided
@@ -136,10 +133,8 @@ void DXRGBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->SetGraphicsRootDescriptorTable(_shaders[STATIC]->GetRootParameterIndex("textures"), resource);
     commandList->SetGraphicsRootConstantBufferView(_shaders[STATIC]->GetRootParameterIndex("cameraData"), cameraData);
 
-    frameResource->SetFrameResource(FrameResourceType::TRANSFORM,
-                                    _shaders[STATIC]->GetRootParameterIndex("worldMatrices"), commandList);
-    frameResource->SetFrameResource(FrameResourceType::MATERIAL, _shaders[STATIC]->GetRootParameterIndex("material"),
-                                    commandList);
+    frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _shaders[STATIC]->GetRootParameterIndex("worldMatrices"), commandList);
+    frameResource->SetFrameResource(FrameResourceType::MATERIAL, _shaders[STATIC]->GetRootParameterIndex("material"), commandList);
     DrawMeshes(commandList, STATIC, STATIC_TWO_SIDED);
 
     // Skeletal One Sided
@@ -147,12 +142,9 @@ void DXRGBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->SetGraphicsRootSignature(_shaders[SKELETAL]->GetRootSignature());
     commandList->SetGraphicsRootConstantBufferView(_shaders[SKELETAL]->GetRootParameterIndex("cameraData"), cameraData);
 
-    frameResource->SetFrameResource(FrameResourceType::TRANSFORM,
-                                    _shaders[SKELETAL]->GetRootParameterIndex("worldMatrices"), commandList);
-    frameResource->SetFrameResource(FrameResourceType::BONE_MATRICES,
-                                    _shaders[SKELETAL]->GetRootParameterIndex("boneMatrices"), commandList);
-    frameResource->SetFrameResource(FrameResourceType::MATERIAL, _shaders[SKELETAL]->GetRootParameterIndex("material"),
-                                    commandList);
+    frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _shaders[SKELETAL]->GetRootParameterIndex("worldMatrices"), commandList);
+    frameResource->SetFrameResource(FrameResourceType::BONE_MATRICES, _shaders[SKELETAL]->GetRootParameterIndex("boneMatrices"), commandList);
+    frameResource->SetFrameResource(FrameResourceType::MATERIAL, _shaders[SKELETAL]->GetRootParameterIndex("material"), commandList);
     DrawMeshes(commandList, SKELETAL, SKELETAL_ONE_SIDED);
 
     // Skeletal Two Sided
@@ -160,12 +152,9 @@ void DXRGBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->SetGraphicsRootSignature(_shaders[SKELETAL]->GetRootSignature());
     commandList->SetGraphicsRootConstantBufferView(_shaders[SKELETAL]->GetRootParameterIndex("cameraData"), cameraData);
 
-    frameResource->SetFrameResource(FrameResourceType::TRANSFORM,
-                                    _shaders[SKELETAL]->GetRootParameterIndex("worldMatrices"), commandList);
-    frameResource->SetFrameResource(FrameResourceType::BONE_MATRICES,
-                                    _shaders[SKELETAL]->GetRootParameterIndex("boneMatrices"), commandList);
-    frameResource->SetFrameResource(FrameResourceType::MATERIAL, _shaders[SKELETAL]->GetRootParameterIndex("material"),
-                                    commandList);
+    frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _shaders[SKELETAL]->GetRootParameterIndex("worldMatrices"), commandList);
+    frameResource->SetFrameResource(FrameResourceType::BONE_MATRICES, _shaders[SKELETAL]->GetRootParameterIndex("boneMatrices"), commandList);
+    frameResource->SetFrameResource(FrameResourceType::MATERIAL, _shaders[SKELETAL]->GetRootParameterIndex("material"), commandList);
     DrawMeshes(commandList, SKELETAL, SKELETAL_TWO_SIDED);
 }
 
