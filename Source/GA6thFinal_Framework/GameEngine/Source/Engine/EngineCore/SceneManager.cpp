@@ -985,8 +985,6 @@ void ESceneManager::ObjectsDestroy()
 
         NotInitDestroyComponentEraseToWaitVec(destroyComponent);
     }
-    destroyComponentSet.clear();
-    destroyComponentQueue.clear();
 
     //오브젝트 삭제
     auto& [destroyObjectSet, destroyObjectQueue] = _destroyObjectsQueue;
@@ -1018,14 +1016,18 @@ void ESceneManager::ObjectsDestroy()
             pObject.reset();
         }
     }
-    destroyObjectSet.clear();
-    destroyObjectQueue.clear();
 
     //배열 정리
     while (_runtimeObjects.empty() == false && _runtimeObjects.back() == nullptr)
     {
         _runtimeObjects.pop_back();
     }
+
+    //파괴 큐 초기화
+    destroyComponentSet.clear();
+    destroyComponentQueue.clear();
+    destroyObjectSet.clear();
+    destroyObjectQueue.clear();
 }
 
 void ESceneManager::ObjectsAddRuntime()
@@ -1124,11 +1126,14 @@ void ESceneManager::EraseGameObjectMap(std::shared_ptr<GameObject>& pEraseObject
 
 void ESceneManager::AddDestroyComponentQueue(Component* component) 
 {
-    auto& [set, vec]    = engineCore->SceneManager._destroyComponentsQueue;
-    auto [iter, result] = set.insert(component);
-    if (result)
+    if (component->gameObject->IsValid())
     {
-        vec.push_back(component);
+        auto& [set, vec]    = engineCore->SceneManager._destroyComponentsQueue;
+        auto [iter, result] = set.insert(component);
+        if (result)
+        {
+            vec.push_back(component);
+        }
     }
 }
 
@@ -1190,16 +1195,17 @@ void ESceneManager::SetRendererSkyBox(Scene* scene)
 
 void ESceneManager::AddDestroyObjectQueue(GameObject* gameObject) 
 {
-    auto& [set, vec] = engineCore->SceneManager._destroyObjectsQueue;
-    Transform::ForeachDFS(gameObject->_transform, 
-    [&set, &vec](Transform* pTransform) 
+    if (gameObject->IsValid())
     {
-        auto [iter, result] = set.insert(&pTransform->gameObject);
-        if (result)
-        {
-            vec.push_back(&pTransform->gameObject);
-        }
-    });
+        auto& [set, vec] = engineCore->SceneManager._destroyObjectsQueue;
+        Transform::ForeachDFS(gameObject->_transform, [&set, &vec](Transform* pTransform) {
+            auto [iter, result] = set.insert(&pTransform->gameObject);
+            if (result)
+            {
+                vec.push_back(&pTransform->gameObject);
+            }
+        });
+    }
 }
 
 YAML::Node ESceneManager::SerializeToYaml(const Scene& scene)
@@ -1723,21 +1729,19 @@ void ESceneManager::SceneResourceManager::RequestTextureResource(const Component
 {
     if (component->gameObject->IsValid())
     {
-
-            if (true == std::filesystem::exists(path))
-            {
-                auto tuple = std::make_tuple(component->GetWeakPtr(), path, func);
-                _textures.ResourceLoadQueue.push(tuple);
-            }
-            else
-            {
-                std::string_view componentName = component->ClassName();
-                std::string_view objectName    = component->gameObject->Name;
-                std::string      msg =
-                    std::format("{}{}{} {}", path.string(), (const char*)u8"는 존재하지 않는 리소스입니다. ",
-                                objectName, componentName);
-                UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
-            }
+        if (true == std::filesystem::exists(path))
+        {
+            auto tuple = std::make_tuple(component->GetWeakPtr(), path, func);
+            _textures.ResourceLoadQueue.push(tuple);
+        }
+        else
+        {
+            std::string_view componentName = component->ClassName();
+            std::string_view objectName    = component->gameObject->Name;
+            std::string msg = std::format("{}{}{} {}", path.string(), (const char*)u8"는 존재하지 않는 리소스입니다. ",
+                                          objectName, componentName);
+            UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
+        }
     }
 }
 
@@ -1767,22 +1771,18 @@ void ESceneManager::SceneResourceManager::RequestFontResource(const Component* c
 {
     if (component->gameObject->IsValid())
     {
-        if (component->gameObject->IsValid())
+        if (true == std::filesystem::exists(path))
         {
-            if (true == std::filesystem::exists(path))
-            {
-                auto tuple = std::make_tuple(component->GetWeakPtr(), path, func);
-                _fonts.ResourceLoadQueue.push(tuple);
-            }
-            else
-            {
-                std::string_view componentName = component->ClassName();
-                std::string_view objectName    = component->gameObject->Name;
-                std::string      msg =
-                    std::format("{}{}{} {}", path.string(), (const char*)u8"는 존재하지 않는 리소스입니다. ",
-                                objectName, componentName);
-                UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
-            }
+            auto tuple = std::make_tuple(component->GetWeakPtr(), path, func);
+            _fonts.ResourceLoadQueue.push(tuple);
+        }
+        else
+        {
+            std::string_view componentName = component->ClassName();
+            std::string_view objectName    = component->gameObject->Name;
+            std::string msg = std::format("{}{}{} {}", path.string(), (const char*)u8"는 존재하지 않는 리소스입니다. ",
+                                          objectName, componentName);
+            UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
         }
     }
 }
