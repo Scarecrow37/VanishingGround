@@ -65,7 +65,7 @@ std::vector<Enemy*> Battle::GetTargetsFromFlags(EnemyTargetFlag targetFlag)
                         }
                         catch (const std::exception&)
                         {
-                            UmLogger.Log(LogLevel::LEVEL_WARNING, u8"유효하지 않은 nemys 범위입니다.");
+                            UmLogger.Log(LogLevel::LEVEL_WARNING, u8"유효하지 않은 enemies 범위입니다.");
                         }
                     }
                 }
