@@ -148,7 +148,7 @@ void EditorHierarchyTool::TransformTreeNode(Transform& node, const std::shared_p
                 std::string path = object.PrefabPath;
                 if (path.empty() == false)
                 {
-                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.3f, 0.6f, 0.8f, 1.0f)); 
+                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.1f, 0.25f, 0.5f, 1.0f)); 
                     return true;
                 }
                 else
