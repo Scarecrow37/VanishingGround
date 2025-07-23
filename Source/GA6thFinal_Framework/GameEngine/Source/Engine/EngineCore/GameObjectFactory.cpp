@@ -56,7 +56,8 @@ void EGameObjectFactory::ApplyPrefabInstanceChanges(const File::Guid& guid, YAML
         auto& [guid, list] = *findIter;
         std::erase_if(list, [](auto& waek) 
         { 
-            return waek.expired();
+            std::shared_ptr<GameObject> instance = waek.lock();
+            return nullptr == instance || false == instance->IsValid();
         });
 
         if (false == list.empty())
