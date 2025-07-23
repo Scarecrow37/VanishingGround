@@ -115,13 +115,11 @@ void CharacterBase::TakeDamage(int damage)
         const char* hitAnimName     = GetAnimationName(CharacterBase::HIT);
         if (0 == strcmp(currentAnimName, hitAnimName))
         {
-            PopOverrideAnimation();
+            _skeletalMeshRenderer->PopOverrideAnimation();
         }
+        _skeletalMeshRenderer->PushOverrideAnimation(hitAnimName, true,
+            [](const AnimationData& data) { return data.IsEnd; });
     }
-    PushOverrideAnimation(CharacterBase::HIT, false, true,
-                          [](const AnimationData& data) { // 자동 Pop조건
-                              return data.IsEnd;
-                          });
 }
 
 void CharacterBase::TakeChain(int chainDamage) 
@@ -220,7 +218,10 @@ void CharacterBase::SetMainAnimation(AnimationType type, bool loop, bool blend)
     {
         const char* animKey = GetAnimationName(type);
         _skeletalMeshRenderer->SetMainAnimation(animKey, blend);
-        _skeletalMeshRenderer->SetMainAnimationLoop(loop);
+        if (loop)
+        {
+            _skeletalMeshRenderer->SetMainAnimationFlags(ANIMATION_FLAG_USE_LOOP);
+        }
     }
 }
 
@@ -229,24 +230,6 @@ void CharacterBase::ClearOverrideAnimations()
     if (_skeletalMeshRenderer)
     {
         _skeletalMeshRenderer->ClearOverrideAnimations();
-    }
-}
-
-void CharacterBase::PushOverrideAnimation(AnimationType type, bool loop, bool blend,
-                                          std::function<bool(const AnimationData&)> popCondition)
-{
-    if (_skeletalMeshRenderer)
-    {
-        const char* animKey = GetAnimationName(type);
-        _skeletalMeshRenderer->PushOverrideAnimation(animKey, loop, blend, popCondition);
-    }
-}
-
-void CharacterBase::PopOverrideAnimation()
-{
-    if (_skeletalMeshRenderer)
-    {
-        _skeletalMeshRenderer->PopOverrideAnimation();
     }
 }
 

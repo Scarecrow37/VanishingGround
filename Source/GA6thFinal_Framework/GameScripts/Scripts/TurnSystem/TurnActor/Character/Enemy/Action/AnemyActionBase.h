@@ -22,9 +22,9 @@ namespace EnemyAction
         virtual void OnActionExit()     = 0;
 
     protected:
+        void ProcessBattle();
+
         void SetMainAnimation(int animType, bool loop = true, bool blend = true);
-        void PushOverrideAnimation(int animType, bool loop = true, bool blend = true,  std::function<bool(const AnimationData&)> popCondition = nullptr);
-        void PopOverrideAnimation();
         bool IsAnimationEnd();
 
     protected:

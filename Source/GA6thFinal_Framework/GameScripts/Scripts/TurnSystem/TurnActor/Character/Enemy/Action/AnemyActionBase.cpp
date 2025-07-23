@@ -2,6 +2,7 @@
 #include "AnemyActionBase.h"
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
 #include <Mesh/SkeletalMeshRenderer.h>
+#include <TurnSystem/TurnMode/TurnMode.h>
 
 namespace EnemyAction
 {
@@ -14,28 +15,17 @@ namespace EnemyAction
         }
     }
 
-    void ActionBase::SetMainAnimation(int animType, bool loop, bool blend) 
+    void ActionBase::ProcessBattle()
     {
-        if (_owner && _renderer)
+        TurnMode* turnMode = TurnMode::GetInstance();
+        if (turnMode)
         {
-            _owner->SetMainAnimation((CharacterBase::AnimationType)animType, loop, blend);
-        }
-    }
-
-    void ActionBase::PushOverrideAnimation(int animType, bool loop, bool blend,
-                                   std::function<bool(const AnimationData&)> popCondition)
-    {
-        if (_owner && _renderer)
-        {
-            _owner->PushOverrideAnimation((CharacterBase::AnimationType)animType, loop, blend, popCondition);
-        }
-    }
-
-    void ActionBase::PopOverrideAnimation()
-    {
-        if (_owner && _renderer)
-        {
-            _owner->PopOverrideAnimation();
+            Enemy*  enemy  = _owner;
+            Player* player = turnMode->GetPlayer();
+            if (enemy && player)
+            {
+                TurnMode::Battle()(*enemy, *player);
+            }
         }
     }
 

@@ -301,9 +301,17 @@ void PlayerPlayTurnState::SetAttackReadyAnimation()
     {
         renderer->BeginBuildOverrideAnimation();
         renderer->ClearOverrideAnimations();
-        player.PushOverrideAnimation(CharacterBase::ATTACK_READY_LOOP);
-        player.PushOverrideAnimation(CharacterBase::ATTACK_READY, false, true,
-                                     [](const AnimationData& data) { return data.IsEnd; });
+        {
+            const char*   animKey   = player.GetAnimationName(CharacterBase::ATTACK_READY_LOOP);
+            renderer->PushOverrideAnimation(animKey, true);
+            renderer->SetCurrentAnimationFlags(ANIMATION_FLAG_USE_LOOP);
+        }
+        {
+
+            const char*   animKey   = player.GetAnimationName(CharacterBase::ATTACK_READY);
+            renderer->PushOverrideAnimation(animKey, true, [](const AnimationData& data) { return data.IsEnd; });
+            renderer->SetCurrentAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE);
+        }
         renderer->EndBuildOverrideAnimation();
     }
 }
@@ -316,9 +324,16 @@ void PlayerPlayTurnState::SetAttackAnimation()
     {
         renderer->BeginBuildOverrideAnimation();
         renderer->ClearOverrideAnimations();
-        player.PushOverrideAnimation(CharacterBase::ATTACK_LOOP);
-        player.PushOverrideAnimation(CharacterBase::ATTACK, false, true,
-                                    [](const AnimationData& data) { return data.IsEnd; });
+        {
+            const char*   animKey   = player.GetAnimationName(CharacterBase::ATTACK_LOOP);
+            renderer->PushOverrideAnimation(animKey, true);
+            renderer->SetCurrentAnimationFlags(ANIMATION_FLAG_USE_LOOP);
+        }
+        {
+            const char*   animKey   = player.GetAnimationName(CharacterBase::ATTACK);
+            renderer->PushOverrideAnimation(animKey, true, [](const AnimationData& data) { return data.IsEnd; });
+            renderer->SetCurrentAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE);
+        }
         renderer->EndBuildOverrideAnimation();
     }
 }
@@ -331,10 +346,17 @@ void PlayerPlayTurnState::SetAttackEndAnimation()
     {
         renderer->BeginBuildOverrideAnimation();
         renderer->ClearOverrideAnimations();
-        player.SetMainAnimation(CharacterBase::IDLE);
-        renderer->SetMainAnimationFrame(0.0f);
-        player.PushOverrideAnimation(CharacterBase::ATTACK_END, false, true,
-                                     [](const AnimationData& data) { return data.IsEnd; });
+        {
+            const char* animKey = player.GetAnimationName(CharacterBase::IDLE);
+            renderer->SetMainAnimation(animKey);
+            renderer->SetMainAnimationFlags(ANIMATION_FLAG_USE_LOOP);
+        }
+        {
+            AnimationFlags flags  = ANIMATION_FLAG_ALWAYS_UPDATE;
+            const char*   animKey = player.GetAnimationName(CharacterBase::ATTACK_END);
+            renderer->PushOverrideAnimation(animKey, true, [](const AnimationData& data) { return data.IsEnd; });
+            renderer->SetCurrentAnimationFlags(flags);
+        }
         renderer->EndBuildOverrideAnimation();
     }
 }

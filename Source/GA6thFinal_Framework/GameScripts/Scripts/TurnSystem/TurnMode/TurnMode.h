@@ -29,9 +29,11 @@ public:
     virtual ~TurnMode();
 
 public:
-    FiniteStateMachine& GetFSM() { return *_finiteStateMachine; }
+    FiniteStateMachine&                 GetFSM() { return *_finiteStateMachine; }
+    Player*                             GetPlayer();
+    const std::vector<Enemy*>&          GetEnemies();
+    const std::vector<CharacterBase*>&  GetCharactors();
 
-public:
     /// <summary>
     /// 라운드 카운트를 0으로 초기화합니다.
     /// </summary>
