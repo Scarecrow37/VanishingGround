@@ -212,13 +212,10 @@ void SkeletalMeshRenderer::UpdateAnimation(AnimationData* animData)
                 animData->Duration += delta * animFrameScale;
                 if (animData->Duration >= maxFrame)
                 {
-                    _eventQueue.push_back([this, animData]() 
-                    {
-                        std::remove_if(_overrideAnimationStack.begin(), _overrideAnimationStack.end(),
-                                       [animData](const AnimationData& data) 
-                                       {
-                                           return &data == animData;
-                                       });
+                    _eventQueue.push_back([this, name = animData->AnimationName]() {
+                        auto itr = std::remove_if(_overrideAnimationStack.begin(), _overrideAnimationStack.end(),
+                                           [&name](const AnimationData& data) { return data.AnimationName == name; });
+                    _overrideAnimationStack.erase(itr, _overrideAnimationStack.end());
                     });
                 }
             }
@@ -261,7 +258,7 @@ void SkeletalMeshRenderer::EndBuildOverrideAnimation()
     }
 }
 
-const AnimationData& SkeletalMeshRenderer::PushOverrideAnimation(std::string_view animKey, bool blend, std::function<bool(const AnimationData&)> popCondition)
+void SkeletalMeshRenderer::PushOverrideAnimation(std::string_view animKey, bool blend, std::function<bool(const AnimationData&)> popCondition)
 {
     if (HasModel() && HasAnimator())
     {
@@ -279,7 +276,6 @@ const AnimationData& SkeletalMeshRenderer::PushOverrideAnimation(std::string_vie
             }
         }
     }
-    return GetLastAnimationData();
 }
 
 void SkeletalMeshRenderer::PopOverrideAnimation() 
