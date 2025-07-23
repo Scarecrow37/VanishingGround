@@ -177,7 +177,7 @@ void TokenCondition::UpdateConditionInfo()
         who = u8"플레이어의 "_c_str;
         break;
     case TokenCondition::Target::ENEMY:
-        who = u8"공격 대상의 "_c_str;
+        who = u8"적의 "_c_str;
         break;
     case TokenCondition::Target::ALL_ENEMIES:
         who = u8"모든 적의 "_c_str;
