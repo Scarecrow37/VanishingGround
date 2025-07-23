@@ -37,7 +37,8 @@ void UIRoot::ImGuiDrawPropertysEvent()
 void UIRoot::OnPlacementChange()
 {
     PlacementUIComponent::OnPlacementChange();
-    for (int i = 0; i < transform->GetChildCount(); ++i)
+    int childCount = transform->GetChildCount();
+    for (int i = 0; i < childCount; ++i)
     {
         const Transform* child      = transform->GetChild(i);
         GameObject&      gameObject = child->gameObject;
