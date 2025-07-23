@@ -205,7 +205,7 @@ void TokenCondition::UpdateConditionInfo()
         operName = (const char*)u8"이하";
         break;
     case TokenCondition::Operator::EQUAL:
-        operName = (const char*)u8"이면";
+        operName = (const char*)u8"";
         break;
     default:
         operName = STR_NULL;
