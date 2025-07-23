@@ -443,25 +443,34 @@ void ESceneManager::Engine::SwapPrefabInstance(GameObject* original, GameObject*
             if (nullptr != sOrigin)
             {
                 std::shared_ptr<GameObject> sRemake = remake->GetWeakPtr().lock();
+
+                //오브젝트 정보 복사
                 std::swap(sOrigin->_instanceID, sRemake->_instanceID);
                 std::swap(sOrigin->_ownerScene, sRemake->_ownerScene);
-                std::swap(sOrigin, sRemake);
-                std::string objectData = sRemake->SerializedReflectFields();
-                sOrigin->DeserializedReflectFields(objectData);
-                sOrigin->_transform = sRemake->_transform;
-                sceneManager.EraseGameObjectMap(sRemake);
-                sceneManager.InsertGameObjectMap(sOrigin);
-                GameObject::Engine::UpdateActiveInHierarchy(sOrigin.get());
+                std::string objectData = sOrigin->SerializedReflectFields();
+                sRemake->DeserializedReflectFields(objectData);
 
-                for (int i = 0; i < sOrigin->GetComponentCount(); ++i)
+                //트렌스폼 정보 복사
+                sRemake->_transform.CopyTransform(sOrigin->_transform, false);
+                GameObject::Engine::UpdateActiveInHierarchy(sRemake.get());
+
+                //컴포넌트 오버라이드
+                for (int i = 0; i < sRemake->GetComponentCount(); ++i)
                 {
-                    Component* component = sOrigin->GetComponentAtIndex<Component>(i);
-                    if (component)
+                    Component* remakeComponent = sRemake->GetComponentAtIndex<Component>(i);
+                    if (remakeComponent)
                     {
-                        component->_initFlags.SetAwake();
-                        component->_initFlags.SetStart();
+                        remakeComponent->_initFlags.SetAwake();
+                        remakeComponent->_initFlags.SetStart();
+                        Component* originComponent = sOrigin->GetComponentAtIndex<Component>(i);
+                        std::string componentData = originComponent->SerializedReflectFields();
+                        remakeComponent->DeserializedReflectFields(componentData);
                     }
                 }
+
+                std::swap(sOrigin, sRemake);
+                sceneManager.EraseGameObjectMap(sRemake);
+                sceneManager.InsertGameObjectMap(sOrigin);
             }
         }    
     }
