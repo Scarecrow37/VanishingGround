@@ -100,7 +100,14 @@ bool ChainCondition::Evaluate()
                         result &= value1 <= targetChainCount && targetChainCount <= value2;
                         break;
                     case ChainCondition::Operator::MULTIPLE_OF:
-                        result &= targetChainCount % value1 == 0;
+                        if (0 < targetChainCount)
+                        {
+                            result &= targetChainCount % value1 == 0;
+                        }
+                        else
+                        {
+                            result &= false;
+                        }               
                         break;
                     default:
                         return false;
@@ -198,25 +205,25 @@ void ChainCondition::UpdateConditionInfo()
     {
     case ChainCondition::Operator::GREATER_EQUAL:
         operInfo = std::to_string(ReflectFields->Value1);
-        operInfo += u8" 이상이면"_c_str;
+        operInfo += u8" 이상"_c_str;
         break;
     case ChainCondition::Operator::LESS_EQUAL:
         operInfo = std::to_string(ReflectFields->Value1);
-        operInfo += u8" 이하면"_c_str;
+        operInfo += u8" 이하"_c_str;
         break;
     case ChainCondition::Operator::EQUAL:
         operInfo = std::to_string(ReflectFields->Value1);
-        operInfo += u8" 이면"_c_str;
+        operInfo += u8" "_c_str;
         break;
     case ChainCondition::Operator::BETWEEN:
         operInfo = std::to_string(ReflectFields->Value1);
         operInfo += "~";
         operInfo += std::to_string(ReflectFields->Value2);
-        operInfo += u8" 사이면"_c_str;
+        operInfo += u8" 사이"_c_str;
         break;
     case ChainCondition::Operator::MULTIPLE_OF:
         operInfo = std::to_string(ReflectFields->Value1);
-        operInfo += u8" 의 배수면"_c_str;
+        operInfo += u8" 의 배수"_c_str;
         break;
     default:
         operInfo = STR_NULL;
