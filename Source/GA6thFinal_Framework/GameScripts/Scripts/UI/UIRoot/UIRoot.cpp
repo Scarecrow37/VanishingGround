@@ -37,13 +37,13 @@ void UIRoot::ImGuiDrawPropertysEvent()
 void UIRoot::OnPlacementChange()
 {
     PlacementUIComponent::OnPlacementChange();
-    int childCount = transform->GetChildCount();
+    const int childCount = transform->GetChildCount();
     for (int i = 0; i < childCount; ++i)
     {
         const Transform* child      = transform->GetChild(i);
         GameObject&      gameObject = child->gameObject;
-        const int componentCount    = gameObject.GetComponentCount();
-        for (int j = 0; j < componentCount; ++j)
+        const size_t componentCount    = gameObject.GetComponentCount();
+        for (size_t j = 0; j < componentCount; ++j)
         {
             if (UIRootSlot* slot = gameObject.GetComponentAtIndex<UIRootSlot>(j))
             {
@@ -55,11 +55,8 @@ void UIRoot::OnPlacementChange()
 
 void UIRoot::GetSizeFromViewport()
 {
-    if (const ImGuiViewport* viewport = ImGui::GetMainViewport(); viewport != nullptr)
-    {
-        const ImVec2 size                    = viewport->Size;
-        ReflectFields->Basefields.get().Size = SIZE{static_cast<LONG>(size.x), static_cast<LONG>(size.y)};
-    }
+    // 민재가 Viewport 크기 가져오는 함수 안말들어 줘서 Magic Number씀.
+    ReflectFields->Basefields.get().Size = {1920,1080};
 }
 
 UIRootSlot::UIRootSlot() = default;
