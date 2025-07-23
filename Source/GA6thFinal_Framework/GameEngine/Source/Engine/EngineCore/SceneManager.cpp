@@ -1626,8 +1626,13 @@ void ESceneManager::SceneResourceManager::UpdateRenderResource(RenderResource<T>
                 }
                 else
                 {
-                    UmLogger.Log(LogLevel::LEVEL_WARNING,
-                                 std::format("{}{}", path.string(), (const char*)u8"는 존재하지 않는 리소스입니다."));
+                    std::string_view componentName = component->ClassName();
+                    std::string_view objectName    = component->gameObject->Name;
+                    std::string      msg =
+                        std::format("{}{}{} {}", path.string(), (const char*)u8"는 존재하지 않는 리소스입니다. ",
+                                    objectName, componentName);
+                    UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
+                                
                 }
             }
         }
@@ -1653,8 +1658,11 @@ void ESceneManager::SceneResourceManager::RequestModelResource(const Component* 
         }
         else
         {
-            UmLogger.Log(LogLevel::LEVEL_WARNING,
-                         std::format("{}{}", guid.string(), u8"는 존재하지 않는 리소스입니다."_c_str));
+            std::string_view componentName = component->ClassName();
+            std::string_view objectName    = component->gameObject->Name;
+            std::string msg = std::format("{}{}{} {}", guid.string(), (const char*)u8"는 존재하지 않는 리소스입니다. ",
+                                          objectName, componentName);
+            UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
         }
     }
 }
@@ -1671,8 +1679,11 @@ void ESceneManager::SceneResourceManager::RequestModelResource(const Component* 
         }
         else
         {
-            UmLogger.Log(LogLevel::LEVEL_WARNING,
-                         std::format("{}{}", path.string(), u8"는 존재하지 않는 리소스입니다."_c_str));
+            std::string_view componentName = component->ClassName();
+            std::string_view objectName    = component->gameObject->Name;
+            std::string msg = std::format("{}{}{} {}", path.string(), (const char*)u8"는 존재하지 않는 리소스입니다. ",
+                                          objectName, componentName);
+            UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
         }
     }
 }
@@ -1688,8 +1699,11 @@ void ESceneManager::SceneResourceManager::RequestTextureResource(const Component
         }
         else
         {
-            UmLogger.Log(LogLevel::LEVEL_WARNING,
-                         std::format("{}{}", guid.string(), u8"는 존재하지 않는 리소스입니다."_c_str));
+            std::string_view componentName = component->ClassName();
+            std::string_view objectName    = component->gameObject->Name;
+            std::string msg = std::format("{}{}{} {}", guid.string(), (const char*)u8"는 존재하지 않는 리소스입니다. ",
+                                          objectName, componentName);
+            UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
         }
     }
 }
@@ -1708,8 +1722,12 @@ void ESceneManager::SceneResourceManager::RequestTextureResource(const Component
             }
             else
             {
-                UmLogger.Log(LogLevel::LEVEL_WARNING,
-                             std::format("{}{}", path.string(), u8"는 존재하지 않는 리소스입니다."_c_str));
+                std::string_view componentName = component->ClassName();
+                std::string_view objectName    = component->gameObject->Name;
+                std::string      msg =
+                    std::format("{}{}{} {}", path.string(), (const char*)u8"는 존재하지 않는 리소스입니다. ",
+                                objectName, componentName);
+                UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
             }
         }
     }
@@ -1727,8 +1745,11 @@ void ESceneManager::SceneResourceManager::RequestFontResource(const Component* c
         }
         else
         {
-            UmLogger.Log(LogLevel::LEVEL_WARNING,
-                         std::format("{}{}", guid.string(), u8"는 존재하지 않는 리소스입니다."_c_str));
+            std::string_view componentName = component->ClassName();
+            std::string_view objectName    = component->gameObject->Name;
+            std::string msg = std::format("{}{}{} {}", guid.string(), (const char*)u8"는 존재하지 않는 리소스입니다. ",
+                                          objectName, componentName);
+            UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
         }
     }
 }
@@ -1747,8 +1768,12 @@ void ESceneManager::SceneResourceManager::RequestFontResource(const Component* c
             }
             else
             {
-                UmLogger.Log(LogLevel::LEVEL_WARNING,
-                             std::format("{}{}", path.string(), u8"는 존재하지 않는 리소스입니다."_c_str));
+                std::string_view componentName = component->ClassName();
+                std::string_view objectName    = component->gameObject->Name;
+                std::string      msg =
+                    std::format("{}{}{} {}", path.string(), (const char*)u8"는 존재하지 않는 리소스입니다. ",
+                                objectName, componentName);
+                UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
             }
         }
     }
