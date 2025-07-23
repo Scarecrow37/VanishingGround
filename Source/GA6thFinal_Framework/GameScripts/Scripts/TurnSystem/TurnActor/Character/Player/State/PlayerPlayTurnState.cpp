@@ -198,10 +198,9 @@ void PlayerPlayTurnState::UpdateQuickTimeEventUI(float dt)
 
             ImGui::Text((const char*)u8"X, Y, B를 눌러 공격하세요.");
             ImGui::Text((const char*)u8"남은 공격 횟수 : %d", _attackRemaining);
-            constexpr auto targets = Battle::ENEMY_TARGET_FLAGS;
-            for (auto& [name, value] : targets)
+            for (auto& [name, value] : Battle::ENEMY_TARGET_FLAGS)
             {
-                if (ImGui::Button(name.data()))
+                if (ImGui::Button(name))
                 {
                     PushAttackTarget(value);
                 }
