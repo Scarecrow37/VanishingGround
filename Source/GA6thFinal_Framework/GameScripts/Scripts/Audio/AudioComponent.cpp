@@ -51,7 +51,7 @@ void AudioComponent::Stop()
     else
     {
         UmLogger.Log(LogLevel::LEVEL_WARNING,
-                     reinterpret_cast<const char*>(u8"재생 중이지 않거나, 유효하지 않은 Audio Handle입니다."));
+                     u8"재생 중이지 않거나, 유효하지 않은 Audio Handle입니다.");
     }
 }
 
