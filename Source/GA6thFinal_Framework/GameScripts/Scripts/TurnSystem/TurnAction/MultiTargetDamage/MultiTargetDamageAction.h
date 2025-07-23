@@ -5,7 +5,7 @@ class MultiTargetDamageAction : public TurnAction
 {
     USING_PROPERTY(MultiTargetDamageAction)
 public:
-    MultiTargetDamageAction() = default;
+    MultiTargetDamageAction();
     ~MultiTargetDamageAction() override = default;
     REFLECT_PROPERTY()
         

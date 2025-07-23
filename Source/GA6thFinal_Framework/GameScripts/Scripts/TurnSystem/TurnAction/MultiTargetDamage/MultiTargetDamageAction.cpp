@@ -3,6 +3,11 @@
 
 REGISTER_TURN_ACTION(MultiTargetDamageAction)
 
+MultiTargetDamageAction::MultiTargetDamageAction() 
+{
+    UpdateActionInfo();
+}
+
 const std::string& MultiTargetDamageAction::GetActionName()
 {
     static const std::string actionName = (const char*)u8"공격시 모든 적을 공격";
@@ -16,7 +21,7 @@ const std::string& MultiTargetDamageAction::GetActionInfo()
 
 void MultiTargetDamageAction::ImGuiDrawActionEditor() 
 {
-    
+    ImguiDrawConditionEditor();
 }
 
 void MultiTargetDamageAction::OnPlayerBattleTargetSelected(Battle::EnemyTargetFlag& targetFlag) 
