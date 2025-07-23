@@ -124,10 +124,9 @@ private:
 
     struct ImGuiEvent
     {
-        bool               OpenRenamePopup   = false;
-        std::string        RenameBuffer      = STR_NULL;
-        RevelationElement* SelectElement     = nullptr;
+        std::string        RenameBuffer;
 
+        RevelationElement* SelectElement     = nullptr;
         std::string        DeleteTableBuffer = STR_NULL;
         bool               OpenDeletePopup   = false;
     }

@@ -137,10 +137,11 @@ static ReflectHelper::ImGuiDraw::InputAutoSetting InitSetting()
 
 void RevelationSystem::DrawImGuiElementTableEditor() 
 {
-    if (ImGui::BeginTable("Revelation Stats", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+    if (ImGui::BeginTable("Revelation Stats", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
     {                      
         static ReflectHelper::ImGuiDraw::InputAutoSetting tableSetting = InitSetting();
 
+        ImGui::TableSetupColumn("ID");
         ImGui::TableSetupColumn("Name");
         ImGui::TableSetupColumn("Grade");
         ImGui::TableSetupColumn("Action");
@@ -151,12 +152,6 @@ void RevelationSystem::DrawImGuiElementTableEditor()
             auto RightClickContext = [&]() {
                 if (ImGui::BeginPopupContextItem())
                 {
-                    if (ImGui::MenuItem("Rename"))
-                    {
-                        _imguiEvent.RenameBuffer    = key;
-                        _imguiEvent.SelectElement   = &element;
-                        _imguiEvent.OpenRenamePopup = true;
-                    }
                     if (ImGui::MenuItem("Delete"))
                     {
                         _imguiEvent.DeleteTableBuffer = key;
@@ -177,13 +172,49 @@ void RevelationSystem::DrawImGuiElementTableEditor()
                     return setting;
                 }();
                 ImGui::TableNextRow();
-                ImGui::TableSetColumnIndex(0);
-                ReflectHelper::ImGuiDraw::Private::InputAuto(element.ElementName, setting);
-                ImGui::TableSetColumnIndex(1);
-                ReflectHelper::ImGuiDraw::Private::InputAuto(element.Grade, setting);
-                RightClickContext();
+
+                //ID
+                ImGui::TableSetColumnIndex(0);           
+                {
+                    ReflectHelper::ImGuiDraw::Private::InputAuto(element.RevelationID, setting);
+                    RightClickContext();
+                }
+
+                //Name
+                ImGui::TableSetColumnIndex(1);            
+                {
+                    const std::string originName = element.ElementName;
+                    _imguiEvent.RenameBuffer = originName;
+                    ImGui::InputText("##name", &_imguiEvent.RenameBuffer);
+                    if (ImGui::IsItemDeactivatedAfterEdit())
+                    {
+                        if (_imguiEvent.RenameBuffer != originName)
+                        {
+                            RevelationElement tempElement;
+                            tempElement = element;
+                            tempElement.SetName(_imguiEvent.RenameBuffer);
+                            if (InsertElement(tempElement))
+                            {
+                                const std::string& key = element.ElementName;
+                                EraseElement(key);
+                            }
+                        }
+                    }
+                    RightClickContext();
+                }
+
+                //Grade
                 ImGui::TableSetColumnIndex(2);
-                TurnAction::ImGuiDrawActionMaker(key, element._action, element._showActionEditor);
+                {
+                    ReflectHelper::ImGuiDraw::Private::InputAuto(element.Grade, setting);
+                    RightClickContext();
+                }
+
+                //Action
+                ImGui::TableSetColumnIndex(3);
+                {
+                    TurnAction::ImGuiDrawActionMaker(key, element._action, element._showActionEditor);
+                }           
             }
             ImGui::PopID();
             ImGui::PopStyleColor(1);
@@ -215,42 +246,6 @@ void RevelationSystem::DrawImGuiElementTableEditor()
         if (ImGui::Button("Cancel", ImVec2(120, 0)) || ImGui::IsKeyReleased(ImGuiKey_Escape))
         {
             _imguiEvent.DeleteTableBuffer = STR_NULL;
-            ImGui::CloseCurrentPopup();
-        }
-        ImGui::EndPopup();
-    }
-
-    if (_imguiEvent.OpenRenamePopup)
-    {
-        _imguiEvent.OpenRenamePopup = false;
-        ImGui::OpenPopup("Element Table Rename Popup");
-    }
-
-    if (ImGui::BeginPopup("Element Table Rename Popup"))
-    {
-        ImGui::InputText("##Rename", &_imguiEvent.RenameBuffer);
-        ImGui::SameLine();
-        if (ImGui::Button("Rename"))
-        {
-            if (false == _imguiEvent.RenameBuffer.empty())
-            {
-                RevelationElement element;
-                element = *_imguiEvent.SelectElement;
-                element.SetName(_imguiEvent.RenameBuffer);
-                if (InsertElement(element))
-                {
-                    const std::string& key = _imguiEvent.SelectElement->ElementName;
-                    EraseElement(key);
-                }
-                _imguiEvent.SelectElement = nullptr;
-                _imguiEvent.RenameBuffer = STR_NULL;
-                ImGui::CloseCurrentPopup();
-            }
-        }
-        if (ImGui::Button("Cancel", ImVec2(120, 0)))
-        {
-            _imguiEvent.SelectElement = nullptr;
-            _imguiEvent.RenameBuffer = STR_NULL;
             ImGui::CloseCurrentPopup();
         }
         ImGui::EndPopup();
