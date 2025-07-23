@@ -29,13 +29,13 @@ void AudioComponent::Play()
 {
     if (!_audioSource.has_value())
     {
-        UmLogger.Log(LogLevel::LEVEL_WARNING, reinterpret_cast<const char*>(u8"Audio Source가 없습니다."));
+        UmLogger.Log(LogLevel::LEVEL_WARNING, u8"Audio Source가 없습니다.");
         return;
     }
     if (UmAudio.IsValidHandle(_audioHandle))
     {
         UmLogger.Log(LogLevel::LEVEL_WARNING,
-                     reinterpret_cast<const char*>(u8"이미 재생 중인 Audio Handle이 있습니다."));
+                     u8"이미 재생 중인 Audio Handle이 있습니다.");
         return;
     }
     _audioHandle = UmAudio.Play(_audioSource.value());
