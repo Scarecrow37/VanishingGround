@@ -37,7 +37,6 @@ namespace MVVM
 
     private:
         std::vector<Callback> _observers;
-        ;
         T _value;
     };
 } // namespace MVVM
