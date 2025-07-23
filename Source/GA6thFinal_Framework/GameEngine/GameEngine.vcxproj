@@ -311,6 +311,7 @@
     <ClInclude Include="Source\Editor\Tool\Model\EditorAnimationNotifyTool.h" />
     <ClInclude Include="Source\Engine\AppModule\GraphicsModule.h" />
     <ClInclude Include="Source\Engine\AppModule\ImGuiDX12Module.h" />
+    <ClInclude Include="Source\Engine\ClassCore\Delegate.hpp" />
     <ClInclude Include="Source\Engine\GraphicsCore\ParticleEffectSerializer.h" />
     <ClInclude Include="Source\Engine\TimelineCore\AnimationNotifySet.h" />
     <ClInclude Include="Source\Engine\EditorCore\Utillity\EditorDragState.h" />
@@ -573,6 +574,12 @@
     </ProjectReference>
     <ProjectReference Include="..\InputModule\InputModule.vcxproj">
       <Project>{c56311d7-823b-4cea-bc18-4e55f615ad78}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\MakeSpriteFontCLI\MakeSpriteFontCLI.vcxproj">
+      <Project>{8eace495-6c57-a39f-6759-40cc8d98abc9}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\UserInterfaceModule\UserInterfaceModule.vcxproj">
+      <Project>{133fd9da-4bdb-4da1-be06-d61d62371f74}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

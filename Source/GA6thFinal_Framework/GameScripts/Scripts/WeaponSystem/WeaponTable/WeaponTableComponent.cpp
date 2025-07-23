@@ -256,7 +256,8 @@ void WeaponTableComponent::ImGuiTableEditor()
                 ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.HitDamage, setting);
                 RightClickContext();
                 ImGui::TableSetColumnIndex(3);
-                ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.CriticalDamage, setting);
+                ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.CriticalDamageMultiplier, setting);
+                ImGuiHelper::HoveredToolTip(u8"치명타 데미지 비율");
                 RightClickContext();
                 ImGui::TableSetColumnIndex(4);
                 ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.Speed, setting);

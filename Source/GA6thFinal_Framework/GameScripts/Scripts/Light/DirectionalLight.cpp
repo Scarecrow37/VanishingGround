@@ -55,6 +55,6 @@ void DirectionalLight::OnDrawDebugSelected()
     }
     for (int i = 0; i < 8; ++i)
     {
-        UmGraphics.DebugDraw("Editor", rayPositions[i], dir * DEBUG_LINE_LENGTH, false, LightComponent::DEBUG_COLOR);
+        UmGraphics.DebugDraw3D("Editor", rayPositions[i], dir * DEBUG_LINE_LENGTH, false, LightComponent::DEBUG_COLOR);
     }
 }

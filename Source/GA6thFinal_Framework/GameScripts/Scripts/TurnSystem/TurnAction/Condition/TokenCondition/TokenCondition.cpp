@@ -16,7 +16,6 @@ TokenCondition::TokenCondition()
 
 bool TokenCondition::Evaluate()
 {
-    Operator oper = ReflectFields->Operator;
     bool result = false;
     if (TurnMode* turnMode = TurnMode::GetInstance())
     {
@@ -29,7 +28,6 @@ bool TokenCondition::Evaluate()
             switch (target)
             {
             default:
-            case TokenCondition::Target::NONE:
                 return false;
             case TokenCondition::Target::SELF:
                 {
@@ -51,7 +49,7 @@ bool TokenCondition::Evaluate()
                 }
             case TokenCondition::Target::ENEMY:
                 {
-                    const auto& enemy = TurnMode::Battle::GetLastTarget().lock();
+                    const auto& enemy = TurnMode::Battle::GetLastTargetEnemy().lock();
                     if (enemy)
                     {
                         targetList.push_back(enemy.get());
@@ -80,6 +78,7 @@ bool TokenCondition::Evaluate()
 
             if (false == targetList.empty())
             {
+                Operator oper = ReflectFields->Operator;
                 result = true;
                 int tokenID = ReflectFields->TokenType;
                 int value   = ReflectFields->Value;
@@ -172,7 +171,6 @@ void TokenCondition::UpdateConditionInfo()
     switch (target)
     {
     default:
-    case TokenCondition::Target::NONE:
         who = u8"NULL의 "_c_str;
         break;
     case TokenCondition::Target::SELF:

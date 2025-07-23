@@ -315,7 +315,13 @@ void EditorModelDetails::OnFrameRender()
 
                     float min = 0.0f;
                     float max = _animator ? _animator->GetCurrentAnimationLastTime() : 0.0f;
-                    ImGui::SliderFloat("Current Animation Frame", &_animationTime, min, max);
+                    if (ImGui::SliderFloat("Current Animation Frame", &_animationTime, min, max))
+                    {
+                        if (_animator)
+                        {
+                            _animator->SetAnimationTime(_animationTime);
+                        }
+                    }
                     ImGui::DragFloat("Animation Speed", &_animationSpeed, 0.01f);
                 }
                 ImGui::TreePop();

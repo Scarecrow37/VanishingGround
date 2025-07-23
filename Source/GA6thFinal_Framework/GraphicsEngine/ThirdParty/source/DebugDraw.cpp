@@ -271,20 +271,32 @@ void XM_CALLCONV DrawQuad(PrimitiveBatch<VertexPositionColor>* batch,
     GXMVECTOR pointD,
     HXMVECTOR color)
 {
-    VertexPositionColor verts[5];
-    XMStoreFloat3(&verts[0].position, pointA);
-    XMStoreFloat3(&verts[1].position, pointB);
-    XMStoreFloat3(&verts[2].position, pointC);
-    XMStoreFloat3(&verts[3].position, pointD);
-    XMStoreFloat3(&verts[4].position, pointA);
+    VertexPositionColor vertexes[5];
+    XMStoreFloat3(&vertexes[0].position, pointA);
+    XMStoreFloat3(&vertexes[1].position, pointB);
+    XMStoreFloat3(&vertexes[2].position, pointC);
+    XMStoreFloat3(&vertexes[3].position, pointD);
+    XMStoreFloat3(&vertexes[4].position, pointA);
 
-    XMStoreFloat4(&verts[0].color, color);
-    XMStoreFloat4(&verts[1].color, color);
-    XMStoreFloat4(&verts[2].color, color);
-    XMStoreFloat4(&verts[3].color, color);
-    XMStoreFloat4(&verts[4].color, color);
+    XMStoreFloat4(&vertexes[0].color, color);
+    XMStoreFloat4(&vertexes[1].color, color);
+    XMStoreFloat4(&vertexes[2].color, color);
+    XMStoreFloat4(&vertexes[3].color, color);
+    XMStoreFloat4(&vertexes[4].color, color);
 
-    batch->Draw(D3D_PRIMITIVE_TOPOLOGY_LINESTRIP, verts, 5);
+    batch->Draw(D3D_PRIMITIVE_TOPOLOGY_LINESTRIP, vertexes, 5);
+}
+
+void XM_CALLCONV DrawLine(PrimitiveBatch<VertexPositionColor>* batch, FXMVECTOR pointA, FXMVECTOR pointB, FXMVECTOR color)
+{
+    VertexPositionColor vertexes[2];
+    XMStoreFloat3(&vertexes[0].position, pointA);
+    XMStoreFloat3(&vertexes[1].position, pointB);
+
+    XMStoreFloat4(&vertexes[0].color, color);
+    XMStoreFloat4(&vertexes[1].color, color);
+
+    batch->Draw(D3D_PRIMITIVE_TOPOLOGY_LINESTRIP, vertexes, 2);
 }
 
 void XM_CALLCONV DrawSpotLight(DirectX::PrimitiveBatch<DirectX::VertexPositionColor>* batch,

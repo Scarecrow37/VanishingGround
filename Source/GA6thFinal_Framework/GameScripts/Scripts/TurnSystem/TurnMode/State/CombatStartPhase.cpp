@@ -83,6 +83,7 @@ void CombatStartPhase::OnEnter()
     UmTime.Invoke(&GetFSM(), 3.f, [this]() { this->_phaseEnd = true; });
 
     NotifyCombatStart();
+    TurnMode::Battle::ResetLastCharacter();
 }
 
 void CombatStartPhase::OnExit() 
@@ -118,23 +119,6 @@ void CombatStartPhase::NotifyCombatStart()
 
 void CombatStartPhase::AddValidActions()
 {
-    //계시 액션들
-    RevelationSystem* revelationSystem = RevelationSystem::GetInstance();
-    if (revelationSystem)
-    {
-        for (auto& element : revelationSystem->GetPlayerElementList())
-        {
-            if (nullptr != element)
-            {
-                if (element->IsAction())
-                {
-                    TurnAction& action = element->GetAction();
-                    _turnMode->AddTurnAction(&action);
-                }
-            }
-        }
-    }
-
     //무기 액션들
     if (_weaponSystem)
     {

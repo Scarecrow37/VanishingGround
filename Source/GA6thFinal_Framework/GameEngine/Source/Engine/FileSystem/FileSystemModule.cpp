@@ -32,7 +32,14 @@ void FileSystemModule::ModuleInitialize()
     auto accessExt = {".UmAnimNotifySet"};
     UmFileSystem.RegisterFileEventSubscriber(this, accessExt);
 
-    _spriteFontImporter.Initialize();
+    try
+    {
+        _spriteFontImporter.Initialize();
+    }
+    catch (const std::exception& e)
+    {
+        UmLogger.Log(LogLevel::LEVEL_ERROR, e.what());
+    }
 }
 
 void FileSystemModule::PreUnInitialize() 

@@ -1,9 +1,10 @@
 ﻿#pragma once
 
-//엔진 코어들을 모아놓은 관리 클래스
+// 엔진 코어들을 모아놓은 관리 클래스
 class EngineCores
 {
     friend LogLocation::LogLocation(const std::source_location& location);
+
 public:
     EngineCores(Application& app);
     ~EngineCores();
@@ -19,13 +20,15 @@ public:
     ECommandManager CommandManager;
     EFactoryRegister FactoryRegister;
     Audio::System AudioManager;
+    Watcher::System          Watcher;
 
     ReflectHelper::ImGuiDraw::InputAutoSetting ImGuiDrawPropertysSetting;
+
 private:
     LogLocation::EngineLocationInfo LocationInfo;
 };
 
-//안전한 접근 및 DLL에서 엔진 코어를 접근하기 위한 Wrapper 구조체
+// 안전한 접근 및 DLL에서 엔진 코어를 접근하기 위한 Wrapper 구조체
 struct SafeEngineCoresPtr
 {
     struct Engine
@@ -39,38 +42,23 @@ struct SafeEngineCoresPtr
     SafeEngineCoresPtr();
     ~SafeEngineCoresPtr();
 
-    SafeEngineCoresPtr(EngineCores* instance)
-    {
-        _instance.reset(instance);
-    }
-    void operator=(std::shared_ptr<EngineCores> rhs)
-    {
-        _instance = rhs;
-    }
+    SafeEngineCoresPtr(EngineCores* instance) { _instance.reset(instance); }
+    void         operator=(std::shared_ptr<EngineCores> rhs) { _instance = rhs; }
     EngineCores* operator->()
     {
         if (_instance == nullptr)
-        {     
+        {
             assert(!"엔진 코어가 생성되지 않았습니다.");
-#ifndef _DEBUG          
+#ifndef _DEBUG
             __debugbreak();
 #endif
         }
         return _instance.get();
     }
-    operator std::shared_ptr<EngineCores>()
-    {
-        return _instance;
-    }
-    operator bool()
-    {
-        return _instance.operator bool();
-    }
+    operator std::shared_ptr<EngineCores>() { return _instance; }
+    operator bool() { return _instance.operator bool(); }
 
-    EngineCores* get()
-    { 
-        return _instance.get();
-    }
+    EngineCores* get() { return _instance.get(); }
 
 private:
     std::shared_ptr<EngineCores> _instance;
@@ -78,7 +66,7 @@ private:
 
 namespace Global
 {
-    extern SafeEngineCoresPtr engineCore; //스크립트에서 엔진 접근을 위한 전역 변수.
+    extern SafeEngineCoresPtr engineCore; // 스크립트에서 엔진 접근을 위한 전역 변수.
 }
 
 #define UmCore Global::engineCore
@@ -92,6 +80,7 @@ namespace Global
 #define UmCommandManager UmCore->CommandManager
 #define UmFactoryRegister UmCore->FactoryRegister
 #define UmAudioManager UmCore->AudioManager
+#define UmWatcher UmCore->Watcher
 
 // Graphics
 #define UmParticleSerializer UmCore->ParticleSerializer
