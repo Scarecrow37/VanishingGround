@@ -19,7 +19,11 @@ namespace
 
         if (ImGui::BeginCombo("##Action", selectName.data()))
         {
-            std::string_view actionName = action->GetActionName();
+            std::string_view actionName = STR_NULL;
+            if (action)
+            {
+                actionName = action->GetActionName();
+            }
             for (auto& [key, func] : TurnActionFactory::GetActionFactory())
             {
                 bool isSelect = key == actionName;
