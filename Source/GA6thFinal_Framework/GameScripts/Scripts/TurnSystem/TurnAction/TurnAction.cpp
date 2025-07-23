@@ -57,7 +57,7 @@ namespace
             }
 
             ImGui::SameLine();
-            if (ImGui::Button("Action Editer"))
+            if (ImGui::Button("Action Editor"))
             {
                 showActionEditor = !showActionEditor;
             }
@@ -80,7 +80,7 @@ void TurnAction::ImGuiDrawActionMaker(std::string_view windowID, std::shared_ptr
 void TurnAction::ImGuiDrawActionMaker(std::string_view windowID, TurnAction& action, bool& showActionEditor) 
 {
     static std::string actionName;
-    actionName = action.ActionName;;
+    actionName = action.ActionName;
     ImGui::InputText(windowID.data(), &actionName, ImGuiInputTextFlags_ReadOnly);
     static std::string toolTip;
     toolTip.clear();
@@ -103,7 +103,7 @@ void TurnAction::ImGuiDrawActionMaker(std::string_view windowID, TurnAction& act
     }
 
     ImGui::SameLine();
-    if (ImGui::Button("Action Editer"))
+    if (ImGui::Button("Action Editor"))
     {
         showActionEditor = !showActionEditor;
     }
