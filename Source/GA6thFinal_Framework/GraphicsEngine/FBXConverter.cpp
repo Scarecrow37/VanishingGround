@@ -388,13 +388,22 @@ void FBXConverter::LoadFromAssimp(const std::filesystem::path& filePath, Model* 
     Assimp::Importer impoter;
     impoter.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, 0);
 
-    unsigned int importFlags = //aiProcessPreset_TargetRealtime_MaxQuality |
-                               aiProcessPreset_TargetRealtime_Fast | 
+    unsigned int importFlags = aiProcessPreset_TargetRealtime_MaxQuality |
                                //aiProcessPreset_TargetRealtime_Quality |
+                               //aiProcessPreset_TargetRealtime_Fast | 
                                aiProcess_ConvertToLeftHanded;
 
-    /*importFlags ^= aiProcess_GenSmoothNormals;
-    importFlags |= aiProcess_GenNormals;*/
+
+    // aiProcess_FindDegenerates 
+    // * 기능: 면적이 거의 0에 가까운 매우 작은 삼각형이나, 두 개 이상의 정점이 동일한 위치에 있는 "퇴화된(degenerate)" 면을 찾아 적절한 점이나 선으로 변환하거나 제거합니다.
+    // 사용하면 임포트가 이상하게 됨
+
+    // aiProcess_ValidateDataStructure
+    // * 기능: 임포트된 데이터 구조의 유효성을 검사합니다. 예를 들어, 메쉬가 올바르게 구성되어 있는지, 정점과 인덱스가 일치하는지 등을 확인합니다.    
+
+    importFlags ^= aiProcess_FindDegenerates | aiProcess_ValidateDataStructure | aiProcess_GenSmoothNormals; // 사용하지 않는 플레그 제거
+    
+    importFlags |= aiProcess_GenNormals | aiProcess_OptimizeGraph;
 
     const aiScene* scene = impoter.ReadFile(filePath.string(), importFlags);
 
