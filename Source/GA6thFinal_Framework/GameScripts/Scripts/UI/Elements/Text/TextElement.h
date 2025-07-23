@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include "Engine/GraphicsCore/FontRenderer.h"
 #include "UI/Base/EditablePlacementUIComponent/EditablePlacementUIComponent.h"
 
 class TextElement : public EditablePlacementUIComponent

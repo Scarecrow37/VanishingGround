@@ -45,14 +45,15 @@ void XM_CALLCONV DebugDrawCore::DrawSpotLight(std::string_view sceneName, FXMVEC
                                               DebugSpotLight{position, direction, range, innerCone, outerCone});
 }
 
-void DebugDrawCore::Draw(const std::string_view sceneName, const DebugQuad& quad, FXMVECTOR color)
+void DebugDrawCore::DrawQuad(std::string_view sceneName, FXMVECTOR pointA, FXMVECTOR pointB, FXMVECTOR pointC,
+    GXMVECTOR pointD, HXMVECTOR color)
 {
-    _drawDatas[sceneName].first.emplace_back(ShapeType::QUAD, color, quad);
+    _drawDatas[sceneName].first.emplace_back(ShapeType::QUAD, color, DebugQuad{pointA, pointB, pointC, pointD});
 }
 
-void DebugDrawCore::Draw(const std::string_view sceneName, const DebugLine& line, FXMVECTOR color)
+void DebugDrawCore::DrawLine(std::string_view sceneName, FXMVECTOR pointA, FXMVECTOR pointB, FXMVECTOR color)
 {
-    _drawDatas[sceneName].first.emplace_back(ShapeType::LINE, color, line);
+    _drawDatas[sceneName].first.emplace_back(ShapeType::LINE, color, DebugLine{pointA, pointB});
 }
 
 void DebugDrawCore::Initialize()
@@ -83,9 +84,6 @@ void DebugDrawCore::Render()
         auto  renderScene = Global::renderer->GetRenderScene(sceneName);
         auto& camera      = renderScene->_camera;
 
-        _basicEffect->SetView(camera->GetViewMatrix());
-        _basicEffect->SetProjection(camera->GetProjectionMatrix());
-
         auto renderTarget = Global::multiRenderTargetManager->GetRenderTarget(renderScene->_finalTargetName);
         renderTarget->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_RENDER_TARGET);
         renderScene->_depthStencilView->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_DEPTH_READ);
@@ -106,16 +104,14 @@ void DebugDrawCore::Render()
 
         _basicEffect->SetView(XMMatrixLookAtLH({0.f, 0.f, -1.f}, {0.f, 0.f, 1.f}, {0.f, 1.f, 0.f}));
         _basicEffect->SetProjection(
-            XMMatrixOrthographicOffCenterLH(0.f, (float)mode.Width, (float)mode.Height, 0.f, 0.1f, 1000.f));
-        _basicEffect->Apply(_commandList.Get());
-
-        _primitiveBatch->Begin(_commandList.Get());
+            XMMatrixOrthographicOffCenterLH(0.f, (float)resolution.Width, (float)resolution.Height, 0.f, 0.1f, 1000.f));
+        _basicEffect->Apply(_commandSet);
+        _primitiveBatch->Begin(_commandSet);
 
         Draw2D(datas.first);
 
         _primitiveBatch->End();
 
-        auto& camera = renderScene->_camera;
         _basicEffect->SetView(camera->GetViewMatrix());
         _basicEffect->SetProjection(camera->GetProjectionMatrix());
 
@@ -129,13 +125,12 @@ void DebugDrawCore::Render()
         _drawDatas[sceneName].first.clear();
         _drawDatas[sceneName].second.clear();
 
-        renderTarget->TransitionResource(_commandList.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-        renderScene->_depthStencilView->TransitionResource(_commandList.Get(), D3D12_RESOURCE_STATE_PRESENT);
+        renderTarget->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+        renderScene->_depthStencilView->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_PRESENT);
     }
     _drawDatas.clear();
 
-    _commandList->Close();
-    UmDevice.RegisterCommand(_commandList.Get(), CommandListType::DEBUG_RENDER_LIST);
+    _commandSet.ExecuteCommand(GRAPHICS_QUEUE);
 }
 
 void DebugDrawCore::Draw2D(const std::vector<DrawData>& drawData) const
@@ -171,7 +166,7 @@ void DebugDrawCore::Draw3D(const std::vector<DrawData>& drawData) const
 {
     for (const auto& data : drawData)
     {
-        XMVECTOR color = XMLoadFloat4(&data.Color);
+        const XMVECTOR color = XMLoadFloat4(&data.Color);
         switch (data.Type)
         {
         case ShapeType::SPHERE:
@@ -212,14 +207,5 @@ void DebugDrawCore::Draw3D(const std::vector<DrawData>& drawData) const
         default:
             break;
         }
-
-        _primitiveBatch->End();
-        _drawDatas[sceneName].clear();
-
-        renderTarget->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-        renderScene->_depthStencilView->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_PRESENT);
     }
-    _drawDatas.clear();
-
-    _commandSet.ExecuteCommand(CommandQueueType::GRAPHICS_QUEUE);
 }

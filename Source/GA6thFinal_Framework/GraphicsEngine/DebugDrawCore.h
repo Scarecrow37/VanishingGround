@@ -62,13 +62,6 @@ class DebugDrawCore
         XMFLOAT3 PointB;
         XMFLOAT3 PointC;
         XMFLOAT3 PointD;
-        DebugQuad(const POINT point, const SIZE size)
-            : PointA(static_cast<float>(point.x), static_cast<float>(point.y), 0),
-              PointB(static_cast<float>(point.x + size.cx), static_cast<float>(point.y), 0),
-              PointC(static_cast<float>(point.x + size.cx), static_cast<float>(point.y + size.cy), 0),
-              PointD(static_cast<float>(point.x), static_cast<float>(point.y + size.cy), 0)
-        {
-        }
         DebugQuad(FXMVECTOR pointA, FXMVECTOR pointB, FXMVECTOR pointC, GXMVECTOR pointD)
         {
             XMStoreFloat3(&PointA, pointA);
@@ -82,11 +75,6 @@ class DebugDrawCore
     {
         XMFLOAT3 PointA;
         XMFLOAT3 PointB;
-        DebugLine(const POINT pointA, const POINT pointB)
-            : PointA(static_cast<float>(pointA.x), static_cast<float>(pointA.y), 0),
-              PointB(static_cast<float>(pointB.x), static_cast<float>(pointB.y), 0)
-        {
-        }
         DebugLine(FXMVECTOR pointA, FXMVECTOR pointB)
         {
             XMStoreFloat3(&PointA, pointA);
@@ -125,9 +113,9 @@ public:
                              FXMVECTOR color = DirectX::Colors::White);
     void XM_CALLCONV DrawSpotLight(std::string_view sceneName, FXMVECTOR position, FXMVECTOR direction, float range,
                                    float innerCone, float outerCone, FXMVECTOR color = DirectX::Colors::White);
-    void XM_CALLCONV Draw(std::string_view sceneName, const DebugQuad& quad, FXMVECTOR color = DirectX::Colors::White);
-
-    void XM_CALLCONV Draw(std::string_view sceneName, const DebugLine& line, FXMVECTOR color = DirectX::Colors::White);
+    void XM_CALLCONV DrawQuad(std::string_view sceneName, FXMVECTOR pointA, FXMVECTOR pointB, FXMVECTOR pointC,
+                              GXMVECTOR pointD, HXMVECTOR color = DirectX::Colors::White);
+    void XM_CALLCONV DrawLine(std::string_view sceneName, FXMVECTOR pointA, FXMVECTOR pointB, FXMVECTOR color = DirectX::Colors::White);
 
 public:
     void Initialize();

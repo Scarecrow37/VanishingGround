@@ -55,18 +55,25 @@ void UI3DPass::Initialize(RenderScene* ownerScene, ID3D12GraphicsCommandList* co
     FAILED_CHECK_MESSAGE(hr, L"UI3DPass::Initialize device->CreateGraphicsPipelineState Failed");
 }
 
-void UI3DPass::Begin(ID3D12GraphicsCommandList* commandList)
+void UI3DPass::Draw(ID3D12GraphicsCommandList* commandList)
 {
-    const auto& mode = UmDevice.GetMode();
+    commandList->SetPipelineState(_pipelineState.Get());
+    commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
 
     UINT  currentBackBufferIndex = Global::device->GetCurrentBackBufferIndex();
     auto  resource               = Global::viewManager->GetShaderResourceHeap()->GetGPUDescriptorHandleForHeapStart();
     auto& frameResource          = _ownerScene->_frameResources[currentBackBufferIndex];
 
-    frameResource->SetFrameResource(FrameResourceType::UI_TRANSFORM, _shader->GetRootParameterIndex("worldMatrices"), commandList);
-    frameResource->SetFrameResource(FrameResourceType::UI_MATERIAL, _shader->GetRootParameterIndex("material"), commandList);
+    frameResource->SetFrameResource(FrameResourceType::UI_TRANSFORM, _shader->GetRootParameterIndex("worldMatrices"),
+                                    commandList);
+    frameResource->SetFrameResource(FrameResourceType::UI_MATERIAL, _shader->GetRootParameterIndex("material"),
+                                    commandList);
 
-    __super::UpdateBuffer(commandList);
+    commandList->SetGraphicsRootShaderResourceView(_shader->GetRootParameterIndex("IDs"),
+                                                   _instanceIDBuffer->GetGPUVirtualAddress());
+    commandList->SetGraphicsRootConstantBufferView(_shader->GetRootParameterIndex("cameraData"),
+                                                   _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
+    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("textures"), resource);
 
-    __super::Begin(commandList);
+    _halfQuad->Render(commandList, (UINT)_instanceIDs.size());
 }

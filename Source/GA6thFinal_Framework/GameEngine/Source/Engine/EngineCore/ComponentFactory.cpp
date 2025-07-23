@@ -530,7 +530,7 @@ void EComponentFactory::ResetComponent(GameObject* ownerObject, std::shared_ptr<
     component->_gameObject = ownerObject;
     component->_weakPtr = component;
     component->Reset();
-    if (Component::TYPE::RENDER == component->GetType())
+    if (Component::TYPE::MESH == component->GetType())
     {
         MeshComponent* meshComponent = static_cast<MeshComponent*>(component.get());
         ESceneManager::Engine::PushRuntimeMeshComponent(meshComponent);

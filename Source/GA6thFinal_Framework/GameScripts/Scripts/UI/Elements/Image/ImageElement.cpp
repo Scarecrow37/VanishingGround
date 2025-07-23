@@ -1,6 +1,5 @@
 ﻿#include "pchScripts.h"
 #include "ImageElement.h"
-#include "Engine/GraphicsCore/SpriteRenderer.h"
 
 ImageElement::ImageElement()
 {
@@ -39,7 +38,11 @@ void ImageElement::Reset()
     try
     {
         _renderer = std::make_unique<SpriteRenderer>(_worldMatrix, SpriteType::MODE_2D);
-        _renderer->RegisterComponent();
+        UmGraphics.RegisterComponent("Game", _renderer.get());
+        if (IS_EDITOR)
+        {
+            UmGraphics.RegisterComponent("Editor", _renderer.get());
+        }
         _renderer->SetActive(&EnableInHierarchy);
     }
     catch (...)
@@ -80,7 +83,7 @@ void ImageElement::LoadTexture() const
         if (path != File::NULL_PATH)
         {
             const std::wstring filePath = U8ToWString(path);
-            _renderer->LoadTexture(filePath);
+            UmGraphics.LoadResource(filePath, _renderer.get());
         }
     }
 }

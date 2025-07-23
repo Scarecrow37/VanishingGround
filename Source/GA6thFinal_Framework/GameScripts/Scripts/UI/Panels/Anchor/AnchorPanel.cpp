@@ -104,29 +104,37 @@ void AnchorPanelSlot::DrawDebugSelected()
 
     // Top to bottom line
     {
-        POINT start{anchorX, anchorY - lineSize};
-        POINT end{anchorX, anchorY + lineSize};
-        UmDebugDrawCore.Draw("Editor", {start, end}, DirectX::Colors::Yellow);
+        const POINT start{anchorX, anchorY - lineSize};
+        const POINT end{anchorX, anchorY + lineSize};
+        const XMFLOAT2 startVector = {static_cast<float>(start.x), static_cast<float>(start.y)};
+        const XMFLOAT2 endVector   = {static_cast<float>(end.x), static_cast<float>(end.y)};
+        UmGraphics.DebugDraw2D("Editor", XMLoadFloat2(&startVector), XMLoadFloat2(&endVector), DirectX::Colors::Yellow);
     }
 
     // Left to right line
     {
-        POINT start{anchorX - lineSize, anchorY};
-        POINT end{anchorX + lineSize, anchorY};
-        UmDebugDrawCore.Draw("Editor", {start, end}, DirectX::Colors::Yellow);
+        const POINT start{anchorX - lineSize, anchorY};
+        const POINT end{anchorX + lineSize, anchorY};
+        const XMFLOAT2 startVector = {static_cast<float>(start.x), static_cast<float>(start.y)};
+        const XMFLOAT2 endVector   = {static_cast<float>(end.x), static_cast<float>(end.y)};
+        UmGraphics.DebugDraw2D("Editor", XMLoadFloat2(&startVector), XMLoadFloat2(&endVector), DirectX::Colors::Yellow);
     }
 
     // LeftTop to RightBottom line
     {
-        POINT start{anchorX - lineSize, anchorY - lineSize};
-        POINT end{anchorX + lineSize, anchorY + lineSize};
-        UmDebugDrawCore.Draw("Editor", {start, end}, DirectX::Colors::Yellow);
+        const POINT start{anchorX - lineSize, anchorY - lineSize};
+        const POINT end{anchorX + lineSize, anchorY + lineSize};
+        const XMFLOAT2 startVector = {static_cast<float>(start.x), static_cast<float>(start.y)};
+        const XMFLOAT2 endVector   = {static_cast<float>(end.x), static_cast<float>(end.y)};
+        UmGraphics.DebugDraw2D("Editor", XMLoadFloat2(&startVector), XMLoadFloat2(&endVector), DirectX::Colors::Yellow);
     }
 
     // RightTop to LeftBottom line
     {
-        POINT start{anchorX + lineSize, anchorY - lineSize};
-        POINT end{anchorX - lineSize, anchorY + lineSize};
-        UmDebugDrawCore.Draw("Editor", {start, end}, DirectX::Colors::Yellow);
+        const POINT start{anchorX + lineSize, anchorY - lineSize};
+        const POINT end{anchorX - lineSize, anchorY + lineSize};
+        const XMFLOAT2 startVector = {static_cast<float>(start.x), static_cast<float>(start.y)};
+        const XMFLOAT2 endVector   = {static_cast<float>(end.x), static_cast<float>(end.y)};
+        UmGraphics.DebugDraw2D("Editor", XMLoadFloat2(&startVector), XMLoadFloat2(&endVector), DirectX::Colors::Yellow);
     }
 }

@@ -39,7 +39,11 @@ void TextElement::Reset()
     try
     {
         _renderer = std::make_unique<FontRenderer>();
-        _renderer->RegisterComponent();
+        UmGraphics.RegisterComponent("Game", _renderer.get());
+        if (IS_EDITOR)
+        {
+            UmGraphics.RegisterComponent("Editor", _renderer.get());
+        }
         _renderer->SetActive(&EnableInHierarchy);
     }
     catch (...)
@@ -83,7 +87,7 @@ void TextElement::LoadFont() const
         if (path != File::NULL_PATH)
         {
             const std::wstring filePath = U8ToWString(path);
-            _renderer->LoadFont(filePath);
+            UmGraphics.LoadResource(filePath, _renderer.get());
         }
     }
 }

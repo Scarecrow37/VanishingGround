@@ -33,7 +33,9 @@ void GridPanel::DrawDebug()
         end.x = start.x;
         end.y = start.y + size.cy;
 
-        UmDebugDrawCore.Draw("Editor", {start, end}, DirectX::Colors::White);
+        XMFLOAT2 startVector = {static_cast<float>(start.x), static_cast<float>(start.y)};
+        XMFLOAT2 endVector   = {static_cast<float>(end.x), static_cast<float>(end.y)};
+        UmGraphics.DebugDraw2D("Editor", XMLoadFloat2(&startVector), XMLoadFloat2(&endVector), DirectX::Colors::White);
     }
 
     const long stepY = size.cy / static_cast<LONG>(rows);
@@ -45,7 +47,10 @@ void GridPanel::DrawDebug()
         POINT end{};
         end.x = start.x + size.cx;
         end.y = start.y;
-        UmDebugDrawCore.Draw("Editor", {start, end}, DirectX::Colors::White);
+
+         XMFLOAT2 startVector = {static_cast<float>(start.x), static_cast<float>(start.y)};
+        XMFLOAT2 endVector   = {static_cast<float>(end.x), static_cast<float>(end.y)};
+        UmGraphics.DebugDraw2D("Editor", XMLoadFloat2(&startVector), XMLoadFloat2(&endVector), DirectX::Colors::White);
     }
 }
 
@@ -70,15 +75,24 @@ void GridPanel::DrawDebugSelected()
         end.x = start.x;
         end.y = start.y + size.cy;
 
-        UmDebugDrawCore.Draw("Editor", {start, end}, DirectX::Colors::Yellow);
+        XMFLOAT2 startVector = {static_cast<float>(start.x), static_cast<float>(start.y)};
+        XMFLOAT2 endVector   = {static_cast<float>(end.x), static_cast<float>(end.y)};
+        UmGraphics.DebugDraw2D("Editor", XMLoadFloat2(&startVector), XMLoadFloat2(&endVector), DirectX::Colors::Yellow);
 
-        POINT leftStart{start.x - 1, start.y};
-        POINT leftEnd{start.x - 1, end.y};
-        UmDebugDrawCore.Draw("Editor", {leftStart, leftEnd}, DirectX::Colors::Yellow);
 
-        POINT rightStart{end.x + 1, start.y};
-        POINT rightEnd{end.x + 1, end.y};
-        UmDebugDrawCore.Draw("Editor", {rightStart, rightEnd}, DirectX::Colors::Yellow);
+        const POINT leftStart{start.x - 1, start.y};
+        const POINT leftEnd{start.x - 1, end.y};
+        XMFLOAT2 leftStartVector = {static_cast<float>(leftStart.x), static_cast<float>(leftStart.y)};
+        XMFLOAT2 leftEndVector   = {static_cast<float>(leftEnd.x), static_cast<float>(leftEnd.y)};
+        UmGraphics.DebugDraw2D("Editor", XMLoadFloat2(&leftStartVector), XMLoadFloat2(&leftEndVector),
+                               DirectX::Colors::Yellow);
+
+        const POINT rightStart{end.x + 1, start.y};
+        const POINT rightEnd{end.x + 1, end.y};
+        XMFLOAT2 rightStartVector = {static_cast<float>(rightStart.x), static_cast<float>(rightStart.y)};
+        XMFLOAT2 rightEndVector   = {static_cast<float>(rightEnd.x), static_cast<float>(rightEnd.y)};
+        UmGraphics.DebugDraw2D("Editor", XMLoadFloat2(&rightStartVector), XMLoadFloat2(&rightEndVector),
+                               DirectX::Colors::Yellow);
     }
 
     const long stepY = size.cy / static_cast<LONG>(rows);
@@ -90,15 +104,24 @@ void GridPanel::DrawDebugSelected()
         POINT end{};
         end.x = start.x + size.cx;
         end.y = start.y;
-        UmDebugDrawCore.Draw("Editor", {start, end}, DirectX::Colors::Yellow);
 
-        POINT upStart{start.x, start.y - 1};
-        POINT upEnd{end.x, start.y - 1};
-        UmDebugDrawCore.Draw("Editor", {upStart, upEnd}, DirectX::Colors::Yellow);
+        XMFLOAT2 startVector = {static_cast<float>(start.x), static_cast<float>(start.y)};
+        XMFLOAT2 endVector   = {static_cast<float>(end.x), static_cast<float>(end.y)};
+        UmGraphics.DebugDraw2D("Editor", XMLoadFloat2(&startVector), XMLoadFloat2(&endVector), DirectX::Colors::Yellow);
 
-        POINT downStart{start.x, end.y + 1};
-        POINT downEnd{end.x, end.y + 1};
-        UmDebugDrawCore.Draw("Editor", {downStart, downEnd}, DirectX::Colors::Yellow);
+        const POINT upStart{start.x, start.y - 1};
+        const POINT upEnd{end.x, start.y - 1};
+        XMFLOAT2 upStartVector = {static_cast<float>(upStart.x), static_cast<float>(upStart.y)};
+        XMFLOAT2 upEndVector   = {static_cast<float>(upEnd.x), static_cast<float>(upEnd.y)};
+        UmGraphics.DebugDraw2D("Editor", XMLoadFloat2(&upStartVector), XMLoadFloat2(&upEndVector),
+                               DirectX::Colors::Yellow);
+
+        const POINT downStart{start.x, end.y + 1};
+        const POINT downEnd{end.x, end.y + 1};
+        XMFLOAT2 downStartVector = {static_cast<float>(downStart.x), static_cast<float>(downStart.y)};
+        XMFLOAT2 downEndVector   = {static_cast<float>(downEnd.x), static_cast<float>(downEnd.y)};
+        UmGraphics.DebugDraw2D("Editor", XMLoadFloat2(&downStartVector), XMLoadFloat2(&downEndVector),
+                               DirectX::Colors::Yellow);
     }
 }
 
