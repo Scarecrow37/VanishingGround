@@ -139,7 +139,7 @@ void PlayerPlayTurnState::ReleasedButtonA(const Input::Controller& controller)
 
 void PlayerPlayTurnState::PressedButtonX(const Input::Controller& controller) 
 {
-    PushAttackTarget(AttackTarget::LEFT);
+    PushAttackTarget(Battle::ENEMY_TARGET_FLAG_LEFT);
 }
 
 void PlayerPlayTurnState::ReleasedButtonX(const Input::Controller& controller) 
@@ -149,7 +149,7 @@ void PlayerPlayTurnState::ReleasedButtonX(const Input::Controller& controller)
 
 void PlayerPlayTurnState::PressedButtonY(const Input::Controller& controller) 
 {
-    PushAttackTarget(AttackTarget::MIDDLE);
+    PushAttackTarget(Battle::ENEMY_TARGET_FLAG_MIDDLE);
 }
 
 void PlayerPlayTurnState::ReleasedButtonY(const Input::Controller& controller) 
@@ -159,7 +159,7 @@ void PlayerPlayTurnState::ReleasedButtonY(const Input::Controller& controller)
 
 void PlayerPlayTurnState::PressedButtonB(const Input::Controller& controller) 
 {
-    PushAttackTarget(AttackTarget::RIGHT);
+    PushAttackTarget(Battle::ENEMY_TARGET_FLAG_RIGHT);
 }
 
 void PlayerPlayTurnState::ReleasedButtonB(const Input::Controller& controller) 
@@ -198,7 +198,7 @@ void PlayerPlayTurnState::UpdateQuickTimeEventUI(float dt)
 
             ImGui::Text((const char*)u8"X, Y, B를 눌러 공격하세요.");
             ImGui::Text((const char*)u8"남은 공격 횟수 : %d", _attackRemaining);
-            constexpr auto targets = rfl::get_enumerator_array<AttackTarget>();
+            constexpr auto targets = Battle::ENEMY_TARGET_FLAGS;
             for (auto& [name, value] : targets)
             {
                 if (ImGui::Button(name.data()))
@@ -217,7 +217,7 @@ void PlayerPlayTurnState::UpdateQuickTimeEventUI(float dt)
             }
             for (auto& target : _attackTargets)
             {
-                ImGui::Text(rfl::enum_to_string(target).c_str());
+                ImGui::Text(Battle::EnemyTargetFlagToString(target).data());
             }
 
             if (_attackRemaining == 0)
@@ -241,39 +241,22 @@ void PlayerPlayTurnState::UpdateAttackEventUI(float dt)
         TurnMode* turnMode = TurnMode::GetInstance();
         if (turnMode)
         {
-            auto& combatStartPhase = turnMode->States->CombatStartPhase;
-            if (combatStartPhase)
+            float   delay  = 0.5f;
+            Player& player = GetPlayer();
+            for (auto& target : _attackTargets)
             {
-                float delay = 0.5f;
-                Player& player = GetPlayer();
-                const auto& enemys = combatStartPhase->GetEnemies();
-                for (auto& target : _attackTargets)
-                {
-                    int targetIndex = static_cast<int>(target);
-                    try
-                    {
-                        Enemy* enemy = enemys.at(targetIndex);
-                        if (enemy)
-                        {
-                            UmTime.Invoke(&GetFSM(), delay, [&player, enemy]() { TurnMode::Battle()(player, *enemy); });                         
-                            delay += 0.5f;
-                        }
-                    }
-                    catch (const std::exception&)
-                    {
-                        UmLogger.Log(LogLevel::LEVEL_WARNING, u8"유효하지 않은 enemy Index 입니다.");
-                    }
-                }
-                _attackTargets.clear();
-                _inputState = InputState::NONE;
-                UmTime.Invoke(&GetFSM(), delay, 
-                [&]() 
-                { 
-                    auto& player = GetPlayer();
-                    SetAttackEndAnimation();
-                    player.EndTurn();
-                });
+                UmTime.Invoke(&GetFSM(), delay, [&player, target]() { Battle()(player, target); });
+                delay += 0.5f;
             }
+            _attackTargets.clear();
+            _inputState = InputState::NONE;
+            UmTime.Invoke(&GetFSM(), delay, [&]()
+            {
+                auto& player = GetPlayer();
+                SetAttackEndAnimation();
+                player.EndTurn();
+            });
+           
         }
     }
     ImGui::End();
@@ -284,7 +267,7 @@ bool PlayerPlayTurnState::IsAttackable() const
     return _inputState == InputState::QUICK_TIME_EVENT && 0 < _attackRemaining;
 }
 
-void PlayerPlayTurnState::PushAttackTarget(AttackTarget target)
+void PlayerPlayTurnState::PushAttackTarget(Battle::EnemyTargetFlag_ target)
 {
     if (IsAttackable())
     {

@@ -83,7 +83,7 @@ void CombatStartPhase::OnEnter()
     UmTime.Invoke(&GetFSM(), 3.f, [this]() { this->_phaseEnd = true; });
 
     NotifyCombatStart();
-    TurnMode::Battle::ResetLastCharacter();
+    Battle::ResetLastCharacter();
 }
 
 void CombatStartPhase::OnExit() 

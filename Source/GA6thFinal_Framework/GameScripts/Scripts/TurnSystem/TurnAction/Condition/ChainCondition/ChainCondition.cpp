@@ -26,9 +26,9 @@ bool ChainCondition::Evaluate()
             static std::vector<CharacterBase*> targetList;
             targetList.clear();
             Target target = ReflectFields->Target;
-            auto   lastAttaker = TurnMode::Battle::GetLastAttacker().lock();
-            auto   lastTarget  = TurnMode::Battle::GetLastTarget().lock();
-            auto   lastTargetEnemy = TurnMode::Battle::GetLastTargetEnemy().lock();
+            auto   lastAttaker     = Battle::GetLastAttacker().lock();
+            auto   lastTarget      = Battle::GetLastTarget().lock();
+            auto   lastTargetEnemy = Battle::GetLastTargetEnemy().lock();
             switch (target)
             {
             default:
