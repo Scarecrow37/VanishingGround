@@ -71,7 +71,7 @@ void EGameObjectFactory::ApplyPrefabInstanceChanges(const File::Guid& guid, YAML
             }
             for (auto& gameObject : instanceList)
             {
-                YAML::Node myYaml = SerializeToYaml(gameObject.get());
+                YAML::Node myYaml = SerializeToYaml(gameObject.get(), true);
                 auto prefabObjects = MakeObjectsGraphToYaml(&yaml, true, &myYaml);
                 if (false == prefabObjects.empty())
                 {
@@ -487,7 +487,7 @@ void EGameObjectFactory::WriteGameObjectFile(Transform* transform, std::string_v
     }
   
     fs::create_directories(writePath.parent_path());
-    YAML::Node node = UmGameObjectFactory.SerializeToYaml(&transform->gameObject);
+    YAML::Node node = UmGameObjectFactory.SerializeToYaml(&transform->gameObject, true);
     if (node.IsNull() == false)
     {
         std::ofstream ofs(writePath, std::ios::trunc);
