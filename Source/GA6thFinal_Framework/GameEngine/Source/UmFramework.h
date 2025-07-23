@@ -148,6 +148,7 @@ using namespace Microsoft::WRL;
 
 //Audio Core
 #include "../AudioModule/AudioModule.h"
+#include "Engine/AudioCore/AudioModule.h"
 
 //User Interface Module
 #include "../UserInterfaceModule/UserInterfaceModule.h"

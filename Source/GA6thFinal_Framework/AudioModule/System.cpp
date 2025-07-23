@@ -1,6 +1,8 @@
 ﻿#include "pch.h"
 #include "System.h"
 
+#include <ranges>
+
 namespace Audio
 {
     namespace
@@ -136,14 +138,6 @@ namespace Audio
 
     System::System() = default;
 
-    System::~System()
-    {
-        if (_masteringVoice)
-        {
-            _masteringVoice->DestroyVoice();
-            _masteringVoice = nullptr;
-        }
-    }
 
     System::System(System&& other) noexcept
         : _xAudio2(std::move(other._xAudio2)), _masteringVoice(other._masteringVoice)
@@ -161,6 +155,8 @@ namespace Audio
         return *this;
     }
 
+    System::~System() = default;
+
     void System::Initialize()
     {
         constexpr ThrowIfFailed throwIfFailed;
@@ -168,6 +164,29 @@ namespace Audio
         throwIfFailed(XAudio2Create(_xAudio2.put(), 0, XAUDIO2_DEFAULT_PROCESSOR), "Failed to create XAudio2 instance");
 
         throwIfFailed(_xAudio2->CreateMasteringVoice(&_masteringVoice), "Failed to create mastering voice");
+    }
+
+    void System::Finalize()
+    {
+        if (_masteringVoice)
+        {
+            _masteringVoice->DestroyVoice();
+            _masteringVoice = nullptr;
+        }
+
+        for (auto& voiceVector : _sourceVoices | std::views::values)
+        {
+            for (auto& sourceVoice : voiceVector)
+            {
+                if (sourceVoice.Voice)
+                {
+                    sourceVoice.Voice->DestroyVoice();
+                    sourceVoice.Voice = nullptr;
+                }
+            }
+            voiceVector.clear();
+        }
+        _sourceVoices.clear();
     }
 
     Source System::CreateSoundFromWave(const std::filesystem::path& filePath, const bool isLoop)
@@ -253,32 +272,34 @@ namespace Audio
 
         if (notFound) // 없으면 SourceVoice 생성
         {
-            sourceVoices->push_back(SourceVoice{.Generation = 0, .Callback = {}, .Voice = nullptr});
+            sourceVoices->push_back(
+                SourceVoice{
+                    .Generation = 0,
+                    .Callback = Callback([this](const Handle& handle) { if (IsValidHandle(handle)) ReleaseVoice(handle); }),
+                    .Voice = nullptr
+                });
             unusedSourceVoiceIterator = std::prev(sourceVoices->end());
         }
 
-        generation = IncreaseGeneration()(unusedSourceVoiceIterator->Generation);
+        auto& [Generation, Callback, Voice] = *unusedSourceVoiceIterator;
+
+        generation = IncreaseGeneration()(Generation);
         index      = std::distance(sourceVoices->begin(), unusedSourceVoiceIterator);
 
         // Handle 생성
         const Handle handle = {hash, index, generation};
-
         // Callback 갱신
-        SourceVoice& unusedVoice = sourceVoices->at(index);
-        unusedVoice.Callback.SetOnBufferEndCallback([this, handle]() {
-            if (IsValidHandle(handle))
-                ReleaseVoice(handle);
-        });
+        Callback.SetHandle(handle);
 
         // 필요시 IXAudio2SourceVoice 생성
         if (notFound)
         {
-            throwIfFailed(_xAudio2->CreateSourceVoice(&unusedVoice.Voice, &sound._format, 0, XAUDIO2_DEFAULT_FREQ_RATIO,
-                                                      &unusedVoice.Callback),
+            throwIfFailed(_xAudio2->CreateSourceVoice(&Voice, &sound._format, 0, XAUDIO2_DEFAULT_FREQ_RATIO,
+                                                      &Callback),
                           "Failed to create source voice.");
         }
 
-        sourceVoice = unusedVoice.Voice;
+        sourceVoice = Voice;
 
         // Submit 후 시작
         throwIfFailed(sourceVoice->SubmitSourceBuffer(&sound._buffer), "Failed to submit source buffer.");
@@ -315,10 +336,10 @@ namespace Audio
         constexpr ThrowIfFailed      throwIfFailed;
         constexpr IncreaseGeneration increaseGeneration;
 
-        SourceVoice& sourceVoice = _sourceVoices.at(handle._hash).at(handle._index);
-        throwIfFailed(sourceVoice.Voice->FlushSourceBuffers(), "Failed to flush source buffers.");
-
-        increaseGeneration(sourceVoice.Generation);
+        auto& [Generation, Callback, Voice] = _sourceVoices.at(handle._hash).at(handle._index);
+        throwIfFailed(Voice->FlushSourceBuffers(), "Failed to flush source buffers.");
+        Callback.SetHandle(Handle());
+        increaseGeneration(Generation);
     }
 
 } // namespace Audio

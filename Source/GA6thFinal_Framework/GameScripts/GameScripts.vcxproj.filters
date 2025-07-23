@@ -219,9 +219,6 @@
     <ClInclude Include="Scripts\Test\DevTools\FPSCounter.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Scripts\Test\UI\TestUI.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Enum\EnemyEnum.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -284,7 +281,7 @@
     </ClInclude>
     <ClInclude Include="Scripts\UI\Base\PlacementUIComponent\PlacementUIComponent.h">
       <Filter>헤더 파일</Filter>
-    </ClInclude>    
+    </ClInclude>
     <ClInclude Include="Scripts\UI\Base\EditablePlacementUIComponent\EditablePlacementUIComponent.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -298,9 +295,6 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Scripts\RevelationSystem\RevelationSystem.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\Test\Text\TestText.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnAction.h">
@@ -340,6 +334,63 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\RoundOnceCondition\RoundOnceCondition.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\Animation\Structs\AnimationStructs.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22000_22009\EnemyAction22001.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22000_22009\EnemyAction22002.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22000_22009\EnemyAction22003.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22000_22009\EnemyAction22004.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22010_22019\EnemyAction22010.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22010_22019\EnemyAction22011.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22010_22019\EnemyAction22012.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22010_22019\EnemyAction22013.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22010_22019\EnemyAction22014.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\AnemyActionBase.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22000_22009\EnemyAction22000.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\RevelationSystem\RevelationAction\Base\RevelationActionBase.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\RevelationSystem\RevelationAction\Critical\CriticalDamageAction.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\RevelationSystem\RevelationAction\Token\TokenApplyAction.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\Test\Model\ModelTest.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\UI\Panels\Anchor\AnchorPanel.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\Token\Object\Stun\StunToken.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\Audio\AudioComponent.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -524,9 +575,6 @@
     <ClCompile Include="Scripts\Stats\Weapon\WeaponStats.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\Test\UI\TestUI.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Scripts\Test\DevTools\FPSCounter.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -596,9 +644,6 @@
     <ClCompile Include="Scripts\RevelationSystem\RevelationSystem.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\Test\Text\TestText.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Scripts\WeaponSystem\WeaponTable\WeaponTableComponent.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -627,6 +672,54 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\RoundOnceCondition\RoundOnceCondition.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22000_22009\EnemyAction22001.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22000_22009\EnemyAction22002.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22000_22009\EnemyAction22003.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22000_22009\EnemyAction22004.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22010_22019\EnemyAction22010.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22010_22019\EnemyAction22011.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22010_22019\EnemyAction22012.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22010_22019\EnemyAction22013.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22010_22019\EnemyAction22014.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\AnemyActionBase.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22000_22009\EnemyAction22000.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\DamageSystem\DamageSystem.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\Test\Model\ModelTest.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\Token\Object\Poison\PoisonToken.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\UI\Panels\Anchor\AnchorPanel.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\Audio\AudioComponent.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

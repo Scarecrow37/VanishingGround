@@ -1690,18 +1690,15 @@ void ESceneManager::SceneResourceManager::RequestTextureResource(const Component
 {
     if (component->gameObject->IsValid())
     {
-        if (component->gameObject->IsValid())
+        if (true == std::filesystem::exists(path))
         {
-            if (true == std::filesystem::exists(path))
-            {
-                auto tuple = std::make_tuple(component->GetWeakPtr(), path, func);
-                _textures.ResourceLoadQueue.push(tuple);
-            }
-            else
-            {
-                UmLogger.Log(LogLevel::LEVEL_WARNING,
-                             std::format("{}{}", path.string(), u8"는 존재하지 않는 리소스입니다."_c_str));
-            }
+            auto tuple = std::make_tuple(component->GetWeakPtr(), path, func);
+            _textures.ResourceLoadQueue.push(tuple);
+        }
+        else
+        {
+            UmLogger.Log(LogLevel::LEVEL_WARNING,
+                         std::format("{}{}", path.string(), u8"는 존재하지 않는 리소스입니다."_c_str));
         }
     }
 }
@@ -1729,18 +1726,15 @@ void ESceneManager::SceneResourceManager::RequestFontResource(const Component* c
 {
     if (component->gameObject->IsValid())
     {
-        if (component->gameObject->IsValid())
+        if (true == std::filesystem::exists(path))
         {
-            if (true == std::filesystem::exists(path))
-            {
-                auto tuple = std::make_tuple(component->GetWeakPtr(), path, func);
-                _fonts.ResourceLoadQueue.push(tuple);
-            }
-            else
-            {
-                UmLogger.Log(LogLevel::LEVEL_WARNING,
-                             std::format("{}{}", path.string(), u8"는 존재하지 않는 리소스입니다."_c_str));
-            }
+            auto tuple = std::make_tuple(component->GetWeakPtr(), path, func);
+            _fonts.ResourceLoadQueue.push(tuple);
+        }
+        else
+        {
+            UmLogger.Log(LogLevel::LEVEL_WARNING,
+                         std::format("{}{}", path.string(), u8"는 존재하지 않는 리소스입니다."_c_str));
         }
     }
 }
