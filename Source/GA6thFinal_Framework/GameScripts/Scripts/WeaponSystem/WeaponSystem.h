@@ -26,7 +26,7 @@ public:
     /// <summary>
     /// 장착된 무기의 원본 Stats을 인덱스로 반환합니다.
     /// </summary>
-    /// <param name="index"></param>
+    /// <param name="index :">가져올 무기 인덱스</param>
     /// <returns></returns>
     WeaponStats& GetWeaponStatsAtIndex(int index) 
     { 
