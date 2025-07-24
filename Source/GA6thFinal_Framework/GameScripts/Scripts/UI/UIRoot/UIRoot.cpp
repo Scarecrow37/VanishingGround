@@ -12,7 +12,7 @@ void UIRoot::OnAttachChild(GameObject* childGameObject)
 {
     PlacementUIComponent::OnAttachChild(childGameObject);
     UIRootSlot& slot = childGameObject->AddComponent<UIRootSlot>();
-    slot.SetPlacement(ReflectFields->Basefields.get().Point, ReflectFields->Basefields.get().Size);
+    AssignChild(slot);
 }
 
 void UIRoot::OnDetachParent(GameObject* previousParentGameObject)
@@ -37,20 +37,16 @@ void UIRoot::ImGuiDrawPropertysEvent()
 void UIRoot::OnPlacementChange()
 {
     PlacementUIComponent::OnPlacementChange();
-    const int childCount = transform->GetChildCount();
-    for (int i = 0; i < childCount; ++i)
-    {
-        const Transform* child      = transform->GetChild(i);
-        GameObject&      gameObject = child->gameObject;
-        const size_t componentCount    = gameObject.GetComponentCount();
-        for (size_t j = 0; j < componentCount; ++j)
-        {
-            if (UIRootSlot* slot = gameObject.GetComponentAtIndex<UIRootSlot>(j))
-            {
-                slot->SetPlacement(ReflectFields->Basefields.get().Point, ReflectFields->Basefields.get().Size);
-            }
-        }
-    }
+
+    std::vector<UIRootSlot*> slots = FindChildComponents<UIRootSlot>()(transform);
+    std::ranges::for_each(slots, [this](UIRootSlot* slot) { AssignChild(*slot); });
+}
+
+void UIRoot::AssignChild(UIRootSlot& slot) const
+{
+    const POINT point = GetPoint();
+    const SIZE  size  = GetSize();
+    slot.SetScopePlacement(point, size);
 }
 
 void UIRoot::GetSizeFromViewport()
@@ -61,7 +57,11 @@ void UIRoot::GetSizeFromViewport()
 
 UIRootSlot::UIRootSlot() = default;
 
-void UIRootSlot::OnSetPlacement()
+void UIRootSlot::OnPlacementChange()
 {
-    PassScopedPlacement(ReflectFields->Basefields.get().Point, ReflectFields->Basefields.get().Size);
+    PanelSlotComponent::OnPlacementChange();
+
+    const POINT point = GetAbsolutePoint();
+    const SIZE  size  = GetSize();
+    PassScopedPlacement(point, size);
 }
