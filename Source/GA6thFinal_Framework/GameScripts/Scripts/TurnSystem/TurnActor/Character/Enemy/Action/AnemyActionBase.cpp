@@ -24,7 +24,7 @@ namespace EnemyAction
             Player* player = turnMode->GetPlayer();
             if (enemy && player)
             {
-                TurnMode::Battle()(*enemy, *player);
+                //TurnMode::Battle()(*enemy, *player);
             }
         }
     }

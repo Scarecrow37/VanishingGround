@@ -55,7 +55,7 @@ void PlayerPlayTurnState::OnEnter()
     _attackRemaining      = 0;
 
     auto& player = GetPlayer();
-    player.SetMainAnimation(CharacterBase::IDLE);
+    player.SetMainAnimation(CharacterBase::IDLE, ANIMATION_FLAG_USE_LOOP | ANIMATION_FLAG_RESET_FRAME);
 }
 
 void PlayerPlayTurnState::OnExit() 
@@ -331,7 +331,7 @@ void PlayerPlayTurnState::SetAttackEndAnimation()
         {
             const char* animKey = player.GetAnimationName(CharacterBase::IDLE);
             renderer->ChangeMainAnimation(animKey);
-            renderer->ChangeMainAnimationFlags(ANIMATION_FLAG_USE_LOOP);
+            renderer->ChangeMainAnimationFlags(ANIMATION_FLAG_USE_LOOP | ANIMATION_FLAG_RESET_FRAME);
         }
         {
             const char*   animKey = player.GetAnimationName(CharacterBase::ATTACK_END);
