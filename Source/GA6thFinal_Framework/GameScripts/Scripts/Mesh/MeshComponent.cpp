@@ -47,7 +47,7 @@ void MeshComponent::MakeMeshRenderer(MeshRenderType renderType, const Matrix& wo
     } 
     else
     {
-        assert(!"이미 MeshRenderer가 존재합니다.");
+        //assert(!"이미 MeshRenderer가 존재합니다.");
     }
 }
 
