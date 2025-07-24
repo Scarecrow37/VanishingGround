@@ -126,7 +126,7 @@ public:
     /// 플레이어가 사망하면 호출됩니다.
     /// </summary>
     /// <param name="player"></param>
-    virtual void OnPlayeDead(Player& player) {}
+    virtual void OnPlayerDead(Player& player) {}
 
     /// <summary>
     /// 적이 사망하면 호출됩니다.

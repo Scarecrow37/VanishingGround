@@ -117,7 +117,7 @@ void Player::Dead()
     Base::Dead();
     if (auto turnMode = TurnMode::GetInstance())
     {
-        turnMode->ApplyActions([this](TurnAction& action) { action.OnPlayeDead(*this); });
+        turnMode->ApplyActions([this](TurnAction& action) { action.OnPlayerDead(*this); });
     }
 }
 
