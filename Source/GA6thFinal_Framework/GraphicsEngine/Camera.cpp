@@ -13,6 +13,8 @@ void Camera::SetupPerspective(float fovDegree, float aspect, float nearZ, float 
     }
     _projection        = XMMatrixPerspectiveFovLH(XMConvertToRadians(fovDegree), aspect, nearZ, farZ);
     _projectionInverse = XMMatrixInverse(nullptr, _projection);
+
+    BoundingFrustum::CreateFromMatrix(_frustum, _projection);
 }
 
 void Camera::SetupOrthographic(float width, float height, float nearZ, float farZ)
@@ -62,4 +64,6 @@ void Camera::Update()
 {
     _world = XMMatrixRotationQuaternion(_rotation) * XMMatrixTranslationFromVector(_position);
     _view  = XMMatrixInverse(nullptr, _world);
+
+    _frustum.Transform(_worldFrustum, _world);
 }

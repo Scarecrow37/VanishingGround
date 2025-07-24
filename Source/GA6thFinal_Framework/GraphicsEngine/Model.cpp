@@ -11,6 +11,14 @@ Model::~Model()
 {
 }
 
+void Model::SetMaterial(const UINT meshIndex, const Material& material)
+{
+    if (meshIndex < _material.size())
+    {
+        _material[meshIndex] = material;
+    }
+}
+
 void Model::AddMesh(std::unique_ptr<BaseMesh> mesh)
 {
 	_meshes.emplace_back(std::move(mesh));

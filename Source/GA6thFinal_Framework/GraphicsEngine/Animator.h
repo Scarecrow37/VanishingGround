@@ -26,6 +26,11 @@ public:
 	virtual ~Animator();
 
 public:
+    void Initialize(std::wstring_view filePath, std::shared_ptr<Skeleton> skeleton);
+    void Initialize(std::shared_ptr<Animation> animation, std::shared_ptr<Skeleton> skeleton);
+    void Update(const float deltaTime);
+
+public:
 	const Matrix* GetAnimationTransform() const { return _animationTransforms.data(); }
     const Matrix* FindBoneMatrix(const char* boneName) const;
     float         GetAnimationLastTime(const char* animation) const;
@@ -43,10 +48,7 @@ public:
     void          SetPause(bool isPause);
     void          SetLoop(bool isLoop);
 
-public:
-    void Initialize(std::wstring_view filePath, std::shared_ptr<Skeleton> skeleton);
-    void Initialize(std::shared_ptr<Animation> animation, std::shared_ptr<Skeleton> skeleton);
-	void Update(const float deltaTime);
+    const std::vector<const char*>& GetAnimationNames() const;
 
 public:
 	bool ChangeAnimation(const char* animation, bool blending = true);

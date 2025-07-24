@@ -312,7 +312,7 @@
     <ClInclude Include="Scripts\Test\TurnAction\TestActionComponent.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnAction\Critical\CriticalDamageAction.h">
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\AdditionalDamage\AdditionalDamageAction.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Token\TokenApplyAction.h">
@@ -336,7 +336,7 @@
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\RoundOnceCondition\RoundOnceCondition.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Scripts\Animation\Structs\AnimationStructs.h">
+    <ClInclude Include="Scripts\Animation\Structs\AnimationData.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22000_22009\EnemyAction22001.h">
@@ -381,6 +381,9 @@
     <ClInclude Include="Scripts\RevelationSystem\RevelationAction\Token\TokenApplyAction.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Scripts\Animation\AnimationComponent.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
     <ClInclude Include="Scripts\Test\Model\ModelTest.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -393,10 +396,10 @@
     <ClInclude Include="Scripts\Audio\AudioComponent.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Scripts\UI\Wrappers\Padding\PaddingWrapper.h">
+    <ClInclude Include="Scripts\BattleSystem\Battle.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Scripts\UI\Wrappers\Center\CenterWrapper.h">
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\MultiTargetDamage\MultiTargetDamageAction.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -659,7 +662,7 @@
     <ClCompile Include="Scripts\Test\TurnAction\TestActionComponent.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnAction\Critical\CriticalDamageAction.cpp">
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\AdditionalDamage\AdditionalDamageAction.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Token\TokenApplyAction.cpp">
@@ -713,6 +716,12 @@
     <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22000_22009\EnemyAction22000.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Scripts\Animation\AnimationComponent.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\Animation\Structs\AnimationData.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
     <ClCompile Include="Scripts\DamageSystem\DamageSystem.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -728,13 +737,10 @@
     <ClCompile Include="Scripts\Audio\AudioComponent.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\UI\Wrappers\Padding\PaddingWrapper.cpp">
+    <ClCompile Include="Scripts\BattleSystem\Battle.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\UI\Panels\Horizontal\HorizontalPanel.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\UI\Wrappers\Center\CenterWrapper.cpp">
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\MultiTargetDamage\MultiTargetDamageAction.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

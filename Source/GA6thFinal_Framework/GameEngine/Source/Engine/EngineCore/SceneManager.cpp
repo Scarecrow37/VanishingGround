@@ -443,25 +443,35 @@ void ESceneManager::Engine::SwapPrefabInstance(GameObject* original, GameObject*
             if (nullptr != sOrigin)
             {
                 std::shared_ptr<GameObject> sRemake = remake->GetWeakPtr().lock();
+
+                //오브젝트 정보 복사
                 std::swap(sOrigin->_instanceID, sRemake->_instanceID);
                 std::swap(sOrigin->_ownerScene, sRemake->_ownerScene);
-                std::swap(sOrigin, sRemake);
-                std::string objectData = sRemake->SerializedReflectFields();
-                sOrigin->DeserializedReflectFields(objectData);
-                sOrigin->_transform = sRemake->_transform;
-                sceneManager.EraseGameObjectMap(sRemake);
-                sceneManager.InsertGameObjectMap(sOrigin);
-                GameObject::Engine::UpdateActiveInHierarchy(sOrigin.get());
+                std::string objectData = sOrigin->SerializedReflectFields();
+                sRemake->DeserializedReflectFields(objectData);
 
-                for (int i = 0; i < sOrigin->GetComponentCount(); ++i)
+                //트렌스폼 정보 복사
+                sRemake->_transform.CopyTransform(sOrigin->_transform, false);
+                GameObject::Engine::UpdateActiveInHierarchy(sRemake.get());
+
+                //컴포넌트 오버라이드
+                for (int i = 0; i < sRemake->GetComponentCount(); ++i)
                 {
-                    Component* component = sOrigin->GetComponentAtIndex<Component>(i);
-                    if (component)
+                    Component* remakeComponent = sRemake->GetComponentAtIndex<Component>(i);
+                    if (remakeComponent)
                     {
-                        component->_initFlags.SetAwake();
-                        component->_initFlags.SetStart();
+                        remakeComponent->_initFlags.SetAwake();
+                        remakeComponent->_initFlags.SetStart();
+                        Component* originComponent = sOrigin->GetComponentAtIndex<Component>(i);
+                        std::string componentData = originComponent->SerializedReflectFields();
+                        remakeComponent->DeserializedReflectFields(componentData);
+                        remakeComponent->Reset();
                     }
                 }
+
+                std::swap(sOrigin, sRemake);
+                sceneManager.EraseGameObjectMap(sRemake);
+                sceneManager.InsertGameObjectMap(sOrigin);
             }
         }    
     }
@@ -820,6 +830,7 @@ void ESceneManager::ObjectsLateUpdate()
 
 void ESceneManager::ObjectsMatrixUpdate()
 {
+    static std::unordered_set<Transform*> updateCheckSet;
     if (nullptr != _mainCamera)
     {
         if (true == _mainCamera->IsDirty())
@@ -827,16 +838,25 @@ void ESceneManager::ObjectsMatrixUpdate()
             _mainCamera->UpdatePerspective();
         }
         
-        Transform* root = _mainCamera->gameObject->transform->Root;
-        Transform& transform = root ? *root : _mainCamera->gameObject->transform;
-        if (true == transform._hasChanged)
+        Transform* curr = &_mainCamera->transform;
+        while (nullptr != curr)
         {
-            transform.UpdateMatrix();
-            _mainCamera->UpdateView();
+            if (true == curr->_hasChanged)
+            {
+                Transform* root = curr;
+                if (nullptr != curr->_root)
+                {
+                    root = curr->_root;
+                }
+                updateCheckSet.insert(root);
+                curr->UpdateMatrix();
+                _mainCamera->UpdateView();
+                break;
+            }
+            curr = curr->_parent;
         }
     }
 
-    static std::unordered_set<Transform*> updateCheckSet;
     for (auto& obj : _runtimeObjects)
     {
         if (nullptr != obj && obj->_transform._hasChanged == true)
@@ -966,8 +986,6 @@ void ESceneManager::ObjectsDestroy()
 
         NotInitDestroyComponentEraseToWaitVec(destroyComponent);
     }
-    destroyComponentSet.clear();
-    destroyComponentQueue.clear();
 
     //오브젝트 삭제
     auto& [destroyObjectSet, destroyObjectQueue] = _destroyObjectsQueue;
@@ -999,14 +1017,18 @@ void ESceneManager::ObjectsDestroy()
             pObject.reset();
         }
     }
-    destroyObjectSet.clear();
-    destroyObjectQueue.clear();
 
     //배열 정리
     while (_runtimeObjects.empty() == false && _runtimeObjects.back() == nullptr)
     {
         _runtimeObjects.pop_back();
     }
+
+    //파괴 큐 초기화
+    destroyComponentSet.clear();
+    destroyComponentQueue.clear();
+    destroyObjectSet.clear();
+    destroyObjectQueue.clear();
 }
 
 void ESceneManager::ObjectsAddRuntime()
@@ -1034,18 +1056,15 @@ void ESceneManager::ObjectsAddRuntime()
 
     for (auto& component : _addComponentsQueue)
     {
-        component->_gameObject->_components.emplace_back(component);
+        EComponentFactory::Engine::PushBackComponentToObject(component);
         if (_isPlay)
         {
             _waitAwakeVec.push_back(component);
             _waitStartVec.push_back(component);
         }
-
         if (component->_type == Component::TYPE::CAMERA)
         {
-            CameraComponent* camera = static_cast<CameraComponent*>(component.get());
-            std::shared_ptr<Camera> newCamera(new Camera);
-            camera->SetTarget(newCamera);
+            component->gameObject->_transform._hasChanged = true;
         }
         component->UpdateEnableInHierarchy();
     }
@@ -1105,11 +1124,14 @@ void ESceneManager::EraseGameObjectMap(std::shared_ptr<GameObject>& pEraseObject
 
 void ESceneManager::AddDestroyComponentQueue(Component* component) 
 {
-    auto& [set, vec]    = engineCore->SceneManager._destroyComponentsQueue;
-    auto [iter, result] = set.insert(component);
-    if (result)
+    if (component->gameObject->IsValid())
     {
-        vec.push_back(component);
+        auto& [set, vec]    = engineCore->SceneManager._destroyComponentsQueue;
+        auto [iter, result] = set.insert(component);
+        if (result)
+        {
+            vec.push_back(component);
+        }
     }
 }
 
@@ -1171,16 +1193,17 @@ void ESceneManager::SetRendererSkyBox(Scene* scene)
 
 void ESceneManager::AddDestroyObjectQueue(GameObject* gameObject) 
 {
-    auto& [set, vec] = engineCore->SceneManager._destroyObjectsQueue;
-    Transform::ForeachDFS(gameObject->_transform, 
-    [&set, &vec](Transform* pTransform) 
+    if (gameObject->IsValid())
     {
-        auto [iter, result] = set.insert(&pTransform->gameObject);
-        if (result)
-        {
-            vec.push_back(&pTransform->gameObject);
-        }
-    });
+        auto& [set, vec] = engineCore->SceneManager._destroyObjectsQueue;
+        Transform::ForeachDFS(gameObject->_transform, [&set, &vec](Transform* pTransform) {
+            auto [iter, result] = set.insert(&pTransform->gameObject);
+            if (result)
+            {
+                vec.push_back(&pTransform->gameObject);
+            }
+        });
+    }
 }
 
 YAML::Node ESceneManager::SerializeToYaml(const Scene& scene)
@@ -1617,8 +1640,13 @@ void ESceneManager::SceneResourceManager::UpdateRenderResource(RenderResource<T>
                 }
                 else
                 {
-                    UmLogger.Log(LogLevel::LEVEL_WARNING,
-                                 std::format("{}{}", path.string(), (const char*)u8"는 존재하지 않는 리소스입니다."));
+                    std::string_view componentName = component->ClassName();
+                    const std::string& objectName    = component->gameObject->Name;
+                    std::string      msg =
+                        std::format("{}{}{} {}", path.string(), (const char*)u8"는 존재하지 않는 리소스입니다. ",
+                                    objectName, componentName);
+                    UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
+                                
                 }
             }
         }
@@ -1644,8 +1672,11 @@ void ESceneManager::SceneResourceManager::RequestModelResource(const Component* 
         }
         else
         {
-            UmLogger.Log(LogLevel::LEVEL_WARNING,
-                         std::format("{}{}", guid.string(), u8"는 존재하지 않는 리소스입니다."_c_str));
+            std::string_view componentName = component->ClassName();
+            const std::string& objectName    = component->gameObject->Name;
+            std::string msg = std::format("{}{}{} {}", guid.string(), (const char*)u8"는 존재하지 않는 리소스입니다. ",
+                                          objectName, componentName);
+            UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
         }
     }
 }
@@ -1662,8 +1693,11 @@ void ESceneManager::SceneResourceManager::RequestModelResource(const Component* 
         }
         else
         {
-            UmLogger.Log(LogLevel::LEVEL_WARNING,
-                         std::format("{}{}", path.string(), u8"는 존재하지 않는 리소스입니다."_c_str));
+            std::string_view componentName = component->ClassName();
+            const std::string& objectName    = component->gameObject->Name;
+            std::string msg = std::format("{}{}{} {}", path.string(), (const char*)u8"는 존재하지 않는 리소스입니다. ",
+                                          objectName, componentName);
+            UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
         }
     }
 }
@@ -1679,8 +1713,11 @@ void ESceneManager::SceneResourceManager::RequestTextureResource(const Component
         }
         else
         {
-            UmLogger.Log(LogLevel::LEVEL_WARNING,
-                         std::format("{}{}", guid.string(), u8"는 존재하지 않는 리소스입니다."_c_str));
+            std::string_view componentName = component->ClassName();
+            const std::string& objectName    = component->gameObject->Name;
+            std::string msg = std::format("{}{}{} {}", guid.string(), (const char*)u8"는 존재하지 않는 리소스입니다. ",
+                                          objectName, componentName);
+            UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
         }
     }
 }
@@ -1697,8 +1734,11 @@ void ESceneManager::SceneResourceManager::RequestTextureResource(const Component
         }
         else
         {
-            UmLogger.Log(LogLevel::LEVEL_WARNING,
-                         std::format("{}{}", path.string(), u8"는 존재하지 않는 리소스입니다."_c_str));
+            std::string_view componentName = component->ClassName();
+            const std::string& objectName    = component->gameObject->Name;
+            std::string msg = std::format("{}{}{} {}", path.string(), (const char*)u8"는 존재하지 않는 리소스입니다. ",
+                                          objectName, componentName);
+            UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
         }
     }
 }
@@ -1715,8 +1755,11 @@ void ESceneManager::SceneResourceManager::RequestFontResource(const Component* c
         }
         else
         {
-            UmLogger.Log(LogLevel::LEVEL_WARNING,
-                         std::format("{}{}", guid.string(), u8"는 존재하지 않는 리소스입니다."_c_str));
+            std::string_view componentName = component->ClassName();
+            const std::string& objectName    = component->gameObject->Name;
+            std::string msg = std::format("{}{}{} {}", guid.string(), (const char*)u8"는 존재하지 않는 리소스입니다. ",
+                                          objectName, componentName);
+            UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
         }
     }
 }
@@ -1733,8 +1776,11 @@ void ESceneManager::SceneResourceManager::RequestFontResource(const Component* c
         }
         else
         {
-            UmLogger.Log(LogLevel::LEVEL_WARNING,
-                         std::format("{}{}", path.string(), u8"는 존재하지 않는 리소스입니다."_c_str));
+            std::string_view componentName = component->ClassName();
+            const std::string& objectName    = component->gameObject->Name;
+            std::string msg = std::format("{}{}{} {}", path.string(), (const char*)u8"는 존재하지 않는 리소스입니다. ",
+                                          objectName, componentName);
+            UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
         }
     }
 }

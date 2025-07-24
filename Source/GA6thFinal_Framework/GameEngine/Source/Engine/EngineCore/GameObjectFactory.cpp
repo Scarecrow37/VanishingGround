@@ -56,7 +56,8 @@ void EGameObjectFactory::ApplyPrefabInstanceChanges(const File::Guid& guid, YAML
         auto& [guid, list] = *findIter;
         std::erase_if(list, [](auto& waek) 
         { 
-            return waek.expired();
+            std::shared_ptr<GameObject> instance = waek.lock();
+            return nullptr == instance || false == instance->IsValid();
         });
 
         if (false == list.empty())
@@ -71,16 +72,18 @@ void EGameObjectFactory::ApplyPrefabInstanceChanges(const File::Guid& guid, YAML
             }
             for (auto& gameObject : instanceList)
             {
-                YAML::Node myYaml = SerializeToYaml(gameObject.get());
+                YAML::Node myYaml = SerializeToYaml(gameObject.get(), true);
                 auto prefabObjects = MakeObjectsGraphToYaml(&yaml, true, &myYaml);
                 if (false == prefabObjects.empty())
                 {
+                    std::vector<std::pair<GameObject*, GameObject*>> swapObjects;
+                    swapObjects.reserve(prefabObjects.size());
                     int i = 0;
                     Transform::ForeachBFS(gameObject->_transform, [&](Transform* curr) 
                     {
                         if (i < prefabObjects.size())
                         {
-                            ESceneManager::Engine::SwapPrefabInstance(&curr->gameObject, prefabObjects[i].get());
+                            swapObjects.emplace_back(&curr->gameObject, prefabObjects[i].get());
                             i++;
                         }
                         else
@@ -88,6 +91,14 @@ void EGameObjectFactory::ApplyPrefabInstanceChanges(const File::Guid& guid, YAML
                             GameObject::Destroy(curr->gameObject);
                         }
                     });
+
+                    auto& front = swapObjects.front();         
+                    front.second->_ownerScene = front.first->_ownerScene;
+                    front.second->transform->SetParent(front.first->transform->Parent);
+                    for (auto& [originObject, prefabObject] : swapObjects)
+                    {
+                        ESceneManager::Engine::SwapPrefabInstance(originObject, prefabObject);
+                    }
 
                     if (i < prefabObjects.size())
                     {
@@ -480,7 +491,7 @@ void EGameObjectFactory::WriteGameObjectFile(Transform* transform, std::string_v
     }
   
     fs::create_directories(writePath.parent_path());
-    YAML::Node node = UmGameObjectFactory.SerializeToYaml(&transform->gameObject);
+    YAML::Node node = UmGameObjectFactory.SerializeToYaml(&transform->gameObject, true);
     if (node.IsNull() == false)
     {
         std::ofstream ofs(writePath, std::ios::trunc);

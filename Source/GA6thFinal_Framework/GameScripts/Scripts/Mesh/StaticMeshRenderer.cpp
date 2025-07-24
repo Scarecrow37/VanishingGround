@@ -18,7 +18,7 @@ StaticMeshRenderer::StaticMeshRenderer()
                     if (extension == L".fbx" || extension == L".UmModel")
                     {
                         _guidRef            = path.ToGuid();
-                        ReflectFields->Guid = _guidRef.string();
+                        ReflectFields->Basefields.get().Guid = _guidRef.string();
                         UmSceneManager.ResourceManager.RequestModelResource(this, _guidRef, [this]() { LoadModel(); });
                     }
                 }
@@ -42,26 +42,28 @@ void StaticMeshRenderer::LoadModel()
         {
             std::wstring modelPath = U8ToWString(path);
             UmGraphics.LoadResource(modelPath, Renderer.get());
-        } 
+            __super::InitMaterial();
+        }
     }
 }
 
 void StaticMeshRenderer::Reset()
 {
-    MakeMeshRenderer(MeshRenderType::STATIC, gameObject->transform->GetWorldMatrix());
+    MakeMeshRenderer(MeshType::STATIC_MESH, transform->Position, transform->Scale, transform->Rotation,
+                     transform->GetWorldMatrix());
+
+    if (false == _guidRef.IsNull())
+    {
+        UmSceneManager.ResourceManager.RequestModelResource(this, _guidRef, [this]() { LoadModel(); });
+    }
 }
 
 void StaticMeshRenderer::SerializedReflectEvent() 
 {
-
 }
 
 void StaticMeshRenderer::DeserializedReflectEvent() 
 {
-    File::Guid guid = ReflectFields->Guid;
+    File::Guid guid = ReflectFields->Basefields.get().Guid;
     _guidRef = guid;
-    if (false == guid.IsNull())
-    {
-        UmSceneManager.ResourceManager.RequestModelResource(this, _guidRef, [this]() { LoadModel(); });
-    }
 }

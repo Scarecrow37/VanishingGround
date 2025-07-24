@@ -313,11 +313,11 @@ public:
     //  게임 오브젝트에 대해 IsStatic 플래그가 설정되어 있는지 여부.
     PROPERTY(IsStatic);
     
-    GETTER(std::string_view, Name)
+    GETTER(const std::string&, Name)
     {
         return ReflectFields->_name;
     }
-    SETTER(std::string_view, Name)
+    SETTER(const std::string&, Name)
     {
         ESceneManager::Engine::RenameGameObject(this, value);
     }

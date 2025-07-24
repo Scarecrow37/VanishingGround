@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "Condition/TurnActionCondition.h"
+#include <BattleSystem/Battle.h>
 
 // Condition 클래스 등록을 위한 레지스터
 #define REGISTER_TURN_ACTION_CONDITION(CLASS) REGISTER_CLASS(TurnAction, CLASS)
@@ -116,36 +117,90 @@ public:
 
     /// <summary>인자로 넘어온 캐릭터의 턴이 시작되면 호출됩니다..</summary>
     /// <param name="destination">턴이 시작된 대상</param>
-    virtual void OnTurnStart(CharacterBase* destination) {}
+    virtual void OnTurnStart(CharacterBase& destination) {}
 
     /// <summary>인자로 넘어온 캐릭터의 턴이 종료되면 호출됩니다.</summary>
-    virtual void OnTurnEnd(CharacterBase* destination) {}
+    virtual void OnTurnEnd(CharacterBase& destination) {}
 
     /// <summary>
-    /// 플레이어가 배틀 데미지 계산 전에 호출됩니다.
+    /// 플레이어가 사망하면 호출됩니다.
+    /// </summary>
+    /// <param name="player"></param>
+    virtual void OnPlayerDead(Player& player) {}
+
+    /// <summary>
+    /// 적이 사망하면 호출됩니다.
+    /// </summary>
+    /// <param name="enemy"></param>
+    virtual void OnEnemyDead(Enemy& enemy) {}
+
+    /// <summary>
+    /// 플레이어가 공격할 적을 선택한 뒤 호출됩니다.
+    /// </summary>
+    /// <param name="targetFlag"></param>
+    virtual void OnPlayerBattleTargetSelected(Battle::EnemyTargetFlag& targetFlag) {}
+
+
+    /// <summary>
+    /// 플레이어의 연격 데미지 계산 전에 호출됩니다.
+    /// </summary>
+    /// <param name="attacker"></param>
+    /// <param name="attackerStats"></param>
+    /// <param name="weaponStats"></param>
+    /// <param name="target"></param>
+    /// <param name="targetStats"></param>
+    virtual void OnPlayerBattleCaculateChainModifier(Player& attacker, PlayerStats& attackerStats,
+                                                     WeaponStats& weaponStats, Enemy& target, EnemyStats& targetStats)
+    {
+    }
+
+    /// <summary>
+    /// 플레이어의 배틀 데미지 계산 전에 호출됩니다.
     /// </summary>
     /// <param name="attacker :">플레이어 컴포넌트</param>
     /// <param name="attackerStats :">실제 데미지 계산에 사용될 스텟</param>
     /// <param name="weaponStats :">실제 데미지 계산에 사용될 스텟</param>
     /// <param name="target :">공격 당하는 적 컴포넌트</param>
     /// <param name="targetStats :">실제 데미지 계산에 사용될 스텟</param>
-    virtual void OnPlayerBattleStart(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats, Enemy& target, EnemyStats& targetStats) {}
+    virtual void OnPlayerBattleCalculateDamageModifier(Player& attacker, PlayerStats& attackerStats,
+                                                       WeaponStats& weaponStats, Enemy& target, EnemyStats& targetStats)
+    {
+    }
 
     /// <summary>
-    /// 적이 배틀데미지 계산 직전에 호출됩니다.
+    /// 적의 배틀 데미지 계산 직전에 호출됩니다.
     /// </summary>
     /// <param name="attacker :">적 컴포넌트</param>
     /// <param name="attackerStats :">실제 계산에 사용되는 적 스텟</param>
     /// <param name="target :">플레이어 컴포넌트</param>
     /// <param name="targetStats :">실제 계산에 사용되는 플레이어 스텟</param>
-    virtual void OnEnemyBattleStart(Enemy& attacker, EnemyStats& attackerStats, Player& target, PlayerStats& targetStats) {}
+    virtual void OnEnemyBattleCalculateDamageModifier(Enemy& attacker, EnemyStats& attackerStats, Player& target,
+                                                      PlayerStats& targetStats)
+    {
+    }
+
+    /// <summary>
+    /// 적의 연격 데미지 계산 전에 호출됩니다.
+    /// </summary>
+    /// <param name="attacker"></param>
+    /// <param name="attackerStats"></param>
+    /// <param name="weaponStats"></param>
+    /// <param name="target"></param>
+    /// <param name="targetStats"></param>
+    virtual void OnEnemyBattleCalculateChainModifier(Enemy& attacker, EnemyStats& attackerStats, Player& target,
+                                                     PlayerStats& targetStats)
+    {
+    }
 
 public:
-    REFLECT_PROPERTY(ActionName, LogicOperator)
+    REFLECT_PROPERTY(ActionName, ActionInfo, LogicOperator)
 
     GETTER_ONLY(const std::string&, ActionName) { return GetActionName(); }
     // 계시 이름
     PROPERTY(ActionName)
+
+    GETTER_ONLY(const std::string&, ActionInfo) { return GetActionInfo(); }
+    PROPERTY(ActionInfo)
 
     GETTER(ConditionOperator, LogicOperator) { return ReflectFields->LogicOperator; }
     SETTER(ConditionOperator, LogicOperator) { ReflectFields->LogicOperator = value; }

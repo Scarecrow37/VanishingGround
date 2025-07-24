@@ -18,12 +18,43 @@ private:
     virtual void OnFrameEnd() override;
 
 public:
+    /// <summary>
+    /// 포커스가 잠겨 있는지 여부를 반환합니다.
+    /// </summary>
+    /// <returns>포커스가 잠겨 있으면 true, 그렇지 않으면 false를 반환합니다.</returns>
     static bool IsLockFocus() { return _isLockFocus; }
+
+    /// <summary>
+    /// 포커스 잠금 상태를 설정합니다.
+    /// </summary>
+    /// <param name="isLock">포커스를 잠글지 여부를 지정하는 불리언 값입니다. true이면 포커스를 잠그고, false이면 잠금을 해제합니다.</param>
+    /// <returns>포커스 잠금 설정이 성공하면 true, 실패하면 false를 반환합니다.</returns>
     static bool SetLockFocus(bool isLock);
 
+    /// <summary>
+    /// 지정된 객체가 현재 포커스된 객체인지 확인합니다.
+    /// </summary>
+    /// <param name="obj">포커스 여부를 확인할 IEditorObject의 weak_ptr입니다.</param>
+    /// <returns>객체가 포커스된 경우 true, 그렇지 않으면 false를 반환합니다.</returns>
     static bool IsFocusObject(std::weak_ptr<IEditorObject> obj);
-    static bool SetFocusObject(std::weak_ptr<IEditorObject> obj);
+
+    /// <summary>
+    /// 포커스 객체를 설정합니다.
+    /// </summary>
+    /// <param name="obj">포커스로 설정할 IEditorObject의 weak_ptr입니다.</param>
+    /// <param name="breakLock">true로 설정하면 잠금을 해제하고 포커스를 변경합니다. 기본값은 false입니다.</param>
+    /// <returns>포커스 설정에 성공하면 true, 실패하면 false를 반환합니다.</returns>
+    static bool SetFocusObject(std::weak_ptr<IEditorObject> obj, bool breakLock = false);
+
+    /// <summary>
+    /// 포커스 객체를 초기화합니다. 잠금되어 있는 경우 무시됩니다.
+    /// </summary>
     static void ResetFocusObject();
+
+    /// <summary>
+    /// 포커스된 객체를 나타내는 약한 포인터를 반환합니다.
+    /// </summary>
+    /// <returns>포커스된 IEditorObject를 가리키는 std::weak_ptr입니다. 포커스된 객체가 없으면 비어 있을 수 있습니다.</returns>
     static std::weak_ptr<IEditorObject> GetFocusObject();
 
 private:

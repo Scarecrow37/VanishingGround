@@ -31,9 +31,6 @@ public:
     /// <summary>객체가 Hit 당했을 때 호출됩니다.</summary>    
     virtual void OnHit() = 0;
 
-    /// <summary>객체가 사망했을 때 호출됩니다.</summary>   
-    virtual void OnDead() = 0;
-
     /// <summary>객체가 대상을 처치 시 호출됩니다.</summary> 
     /// <param name="destination">처치된 대상</param>
     virtual void OnKill(CharacterBase* destination) = 0;

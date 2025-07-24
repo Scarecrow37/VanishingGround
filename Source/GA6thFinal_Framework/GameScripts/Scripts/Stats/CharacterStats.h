@@ -7,27 +7,46 @@ struct CharacterStats : public TurnActorStats
     CharacterStats() = default;
     ~CharacterStats() override = default;
 
-    REFLECT_PROPERTY(MaxHP, MaxMP, MaxChainRoundCount)
+    REFLECT_PROPERTY(
+        MaxHP, 
+        MaxChainRoundCount)
 
     SETTER(int, MaxHP) { ReflectFields->MaxHP = std::clamp(value, 1, 99999); }
     GETTER(int, MaxHP) { return ReflectFields->MaxHP; }
+    // int 최대 체력
     PROPERTY(MaxHP)
 
-    SETTER(int, MaxMP) { ReflectFields->MaxMP = std::clamp(value, 1, 999); }
-    GETTER(int, MaxMP) { return ReflectFields->MaxMP; }
-    PROPERTY(MaxMP)
-      
+    SETTER(int, CurrentHP) { _currentHP = std::clamp(value, 0, ReflectFields->MaxHP); }
+    GETTER(int, CurrentHP) { return _currentHP; }
+    // int 현재 체력
+    PROPERTY(CurrentHP)
+
+    SETTER(int, CurrentChainCount) { _currentChainCount = std::clamp(value, 0, 99); }
+    GETTER(int, CurrentChainCount) { return _currentChainCount; }
+    // int 현재 연격 수
+    PROPERTY(CurrentChainCount)
+
+    SETTER(int, CurrentChainRoundCount)
+    {
+        _currentChainRoundCount = std::clamp(value, 0, ReflectFields->MaxChainRoundCount);
+    }
+    GETTER(int, CurrentChainRoundCount) { return _currentChainRoundCount; }
+    // int 연격 수 지속 시간
+    PROPERTY(CurrentChainRoundCount)
+
     SETTER(int, MaxChainRoundCount) { ReflectFields->MaxChainRoundCount = std::max(value, 1); }
     GETTER(int, MaxChainRoundCount) { return ReflectFields->MaxChainRoundCount; }
-    //연격 수가 유지되는 라운드 수. 기본값 : 1
+    // int 연격 수가 유지되는 라운드 수. 기본값 : 1
     PROPERTY(MaxChainRoundCount)
 
 protected:
     REFLECT_FIELDS_BEGIN(TurnActorStats)
-    int MaxHP      = 100;
-    int MaxMP      = 100;
-    int MaxChainRoundCount = 1;
+    int MaxHP                  = 100;
+    int MaxChainRoundCount     = 1;
     REFLECT_FIELDS_END(CharacterStats)
 
+    int _currentHP = 100;
+    int _currentChainCount = 0;
+    int _currentChainRoundCount = 0;
 };
 

@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "Base/PlayerStateBase.h"
+#include <BattleSystem/Battle.h>
 
 class Enemy;
 
@@ -20,14 +21,6 @@ public:
         QUICK_TIME_EVENT,
         //QTE 연출 상태
         ATTACK_EVENT
-    };
-
-    //플레이어가 공격할 적 위치
-    enum class AttackTarget
-    {
-        LEFT = 0,
-        MIDDLE = 1,
-        RIGHT = 2
     };
 
     PlayerPlayTurnState();
@@ -59,7 +52,7 @@ private:
     void UpdateAttackEventUI(float dt);
 
     bool IsAttackable() const;
-    void PushAttackTarget(AttackTarget target);
+    void PushAttackTarget(Battle::EnemyTargetFlag_ target);
 
     // Animation
     void SetAttackReadyAnimation();
@@ -73,5 +66,5 @@ private:
     float      _attackButtonHeldTime;
     float      _attackButtonHeldWaitTime;
     int        _attackRemaining;
-    std::vector<AttackTarget> _attackTargets;
+    std::vector<Battle::EnemyTargetFlag_> _attackTargets;
 };

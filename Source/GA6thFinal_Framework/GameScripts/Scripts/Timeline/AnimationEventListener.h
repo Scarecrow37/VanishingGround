@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "UmFramework.h"
 
-class SkeletalMeshRenderer;
+class AnimationComponent;
 
 class AnimationEventListener : public Component
 {
@@ -26,7 +26,7 @@ public:
 
 public:
     bool IsLoadedAnimationNotifySet() const;
-    bool IsLoadedSkeletalMeshRenderer() const;
+    bool IsLoadedAnimationComponent() const;
     void SetAnimationNotifyFromGuid(const File::Guid& guid);
     void SetAnimationNotifyFromPath(const File::Path& path);
 
@@ -37,7 +37,7 @@ protected:
     File::GuidRef         _guidRef;
     File::Path            _filePath;
     AnimationNotifySet    _animationNotifySet;
-    SkeletalMeshRenderer* _skeletalMeshRenderer = nullptr;
+    AnimationComponent*   _animationComponent = nullptr;
 
     REFLECT_FIELDS_BEGIN(Component)
     std::string Guid;
