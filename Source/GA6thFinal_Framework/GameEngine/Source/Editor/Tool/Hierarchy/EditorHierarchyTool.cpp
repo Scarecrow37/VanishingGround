@@ -414,6 +414,7 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
             UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
                 GameObjectKey, GameObject::Helper::GenerateUniqueName("Skeletal Mesh"), &mesh);
             mesh->AddComponent<SkeletalMeshRenderer>();
+            mesh->AddComponent<AnimationComponent>();
         }
         ImGui::EndMenu();
     }
