@@ -13,9 +13,9 @@ public:
 public:
 
 protected:
-    void Reset() override;
     void Awake() override;
     void Update() override;
+    void Reset() override;
     void OnDestroy() override;
     void OnDrawDebug() override;
 
