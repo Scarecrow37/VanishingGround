@@ -95,7 +95,7 @@ public:
     SETTER(unsigned int, ColumnSpan)
     {
         ReflectFields->ColumnSpan = std::clamp(value, MIN_COLUMN_SPAN, ReflectFields->Columns - ReflectFields->Column);
-        OnSetPlacement();
+        OnPlacementChange();
     }
     PROPERTY(ColumnSpan)
 
@@ -103,18 +103,22 @@ public:
     SETTER(unsigned int, RowSpan)
     {
         ReflectFields->RowSpan = std::clamp(value, MIN_ROW_SPAN, ReflectFields->Rows - ReflectFields->Row);
-        OnSetPlacement();
+        OnPlacementChange();
     }
     PROPERTY(RowSpan)
 
 public:
-    void         OnSetPlacement() override;
-    unsigned int GetColumns() const;
-    unsigned int GetRows() const;
-    unsigned int GetColumn() const;
-    unsigned int GetRow() const;
-    POINT        GetCellPoint() const;
-    SIZE         GetCellSize() const;
+    unsigned int           GetColumns() const;
+    unsigned int           GetRows() const;
+    unsigned int           GetColumn() const;
+    unsigned int           GetRow() const;
+    unsigned int           GetColumnSpan() const;
+    unsigned int           GetRowSpan() const;
+    std::pair<POINT, SIZE> GetCellPlacement() const;
+    SIZE                   GetSingleCellSize() const;
+
+protected:
+    void OnPlacementChange() override;
 
 private:
     void SetColumnsAndRows(unsigned int columns, unsigned int rows);

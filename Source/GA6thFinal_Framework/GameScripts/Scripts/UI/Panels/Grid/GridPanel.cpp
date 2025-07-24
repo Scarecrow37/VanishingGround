@@ -26,7 +26,6 @@ void GridPanel::DrawDebug()
     EditablePlacementUIComponent::DrawDebug();
 
     const SublineCallback callback = [](const POINT& start, const POINT& end) {
-
         const XMFLOAT2 startVector = {static_cast<float>(start.x), static_cast<float>(start.y)};
         const XMFLOAT2 endVector   = {static_cast<float>(end.x), static_cast<float>(end.y)};
 
@@ -97,7 +96,7 @@ void GridPanel::AssignChild(GridPanelSlot& slot) const
 
     const POINT absolutePoint = GetAbsolutePoint();
     const SIZE  size          = GetSize();
-    slot.SetPlacement(absolutePoint, size);
+    slot.SetScopePlacement(absolutePoint, size);
 }
 
 void GridPanel::DrawSubline(const SublineCallback& columnSubline, const SublineCallback& rowSubline) const
@@ -131,28 +130,6 @@ void GridPanel::DrawSubline(const SublineCallback& columnSubline, const SublineC
 
 GridPanelSlot::GridPanelSlot() = default;
 
-void GridPanelSlot::OnSetPlacement()
-{
-    /////////////////
-    const unsigned int columns = GetColumns();
-    const unsigned int rows    = GetRows();
-
-    if (columns == 0 || rows == 0)
-        return;
-
-    const auto [pointX, pointY] = ReflectFields->Basefields.get().Basefields.get().Point;
-    const auto [sizeX, sizeY]   = ReflectFields->Basefields.get().Basefields.get().Size;
-    const long stepX            = sizeX / static_cast<LONG>(columns);
-    const long stepY            = sizeY / static_cast<LONG>(rows);
-
-    const POINT scopePoint{.x = pointX + stepX * static_cast<LONG>(ReflectFields->Column),
-                           .y = pointY + stepY * static_cast<LONG>(ReflectFields->Row)};
-    const SIZE  scopeSize{.cx = stepX * static_cast<LONG>(ReflectFields->ColumnSpan),
-                          .cy = stepY * static_cast<LONG>(ReflectFields->RowSpan)};
-
-    PassScopedPlacement(scopePoint, scopeSize);
-}
-
 unsigned int GridPanelSlot::GetColumns() const
 {
     return ReflectFields->Columns;
@@ -173,24 +150,50 @@ unsigned int GridPanelSlot::GetRow() const
     return ReflectFields->Row;
 }
 
-POINT GridPanelSlot::GetCellPoint() const
+unsigned int GridPanelSlot::GetColumnSpan() const
 {
-    const auto [pointX, pointY] = ReflectFields->Basefields.get().Basefields.get().Point;
-    const auto [sizeX, sizeY]   = ReflectFields->Basefields.get().Basefields.get().Size;
-    const long stepX            = sizeX / static_cast<LONG>(columns);
-    const long stepY            = sizeY / static_cast<LONG>(rows);
-
-    const POINT scopePoint{.x = pointX + stepX * static_cast<LONG>(ReflectFields->Column),
-                           .y = pointY + stepY * static_cast<LONG>(ReflectFields->Row)};
-    const SIZE  scopeSize{.cx = stepX * static_cast<LONG>(ReflectFields->ColumnSpan),
-                          .cy = stepY * static_cast<LONG>(ReflectFields->RowSpan)};
-
-    return POINT{};
+    return ReflectFields->ColumnSpan;
 }
 
-SIZE GridPanelSlot::GetCellSize() const
+unsigned int GridPanelSlot::GetRowSpan() const
 {
-    return SIZE{};
+    return ReflectFields->RowSpan;
+}
+
+std::pair<POINT, SIZE> GridPanelSlot::GetCellPlacement() const
+{
+    const auto [pointX, pointY]        = GetAbsolutePoint();
+    const auto [cellWidth, cellHeight] = GetSingleCellSize();
+    const unsigned int column          = GetColumn();
+    const unsigned int row             = GetRow();
+    const unsigned int columnSpan      = GetColumnSpan();
+    const unsigned int rowSpan         = GetRowSpan();
+
+    const POINT cellPoint{.x = pointX + cellWidth * static_cast<LONG>(column),
+                          .y = pointY + cellHeight * static_cast<LONG>(row)};
+    const SIZE cellSize{.cx = cellWidth * static_cast<LONG>(columnSpan), .cy = cellHeight * static_cast<LONG>(rowSpan)};
+
+    return std::make_pair(cellPoint, cellSize);
+}
+
+SIZE GridPanelSlot::GetSingleCellSize() const
+{
+    const auto [tableWidth, tableHeight] = GetSize();
+    const unsigned int columns           = GetColumns();
+    const unsigned int rows              = GetRows();
+
+    const SIZE singleCellSize{.cx = columns == 0 ? tableWidth : tableWidth / static_cast<LONG>(columns),
+                              .cy = rows == 0 ? tableHeight : tableHeight / static_cast<LONG>(rows)};
+
+    return singleCellSize;
+}
+
+void GridPanelSlot::OnPlacementChange()
+{
+    PanelSlotComponent::OnPlacementChange();
+
+    const auto [cellPoint, cellSize] = GetCellPlacement();
+    PassScopedPlacement(cellPoint, cellSize);
 }
 
 void GridPanelSlot::SetColumnsAndRows(const unsigned int columns, const unsigned int rows)
@@ -201,12 +204,12 @@ void GridPanelSlot::SetColumnsAndRows(const unsigned int columns, const unsigned
 
 void GridPanelSlot::SetColumns(const unsigned int columns)
 {
-    ReflectFields->Columns    = std::clamp(columns, GridPanel::MIN_COLUMNS, GridPanel::MAX_COLUMNS);
-    Column     = ReflectFields->Column;
+    ReflectFields->Columns = std::clamp(columns, GridPanel::MIN_COLUMNS, GridPanel::MAX_COLUMNS);
+    Column                 = ReflectFields->Column;
 }
 
 void GridPanelSlot::SetRows(const unsigned int rows)
 {
-    ReflectFields->Rows    = std::clamp(rows, GridPanel::MIN_ROWS, GridPanel::MAX_ROWS);
-    Row     = ReflectFields->Row;
+    ReflectFields->Rows = std::clamp(rows, GridPanel::MIN_ROWS, GridPanel::MAX_ROWS);
+    Row                 = ReflectFields->Row;
 }
