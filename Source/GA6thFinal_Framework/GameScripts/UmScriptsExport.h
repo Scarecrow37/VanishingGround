@@ -122,3 +122,9 @@ UMREAL_COMPONENT(TestActionComponent)
 #include "Scripts/Test/Model/ModelTest.h"
 UMREAL_COMPONENT(ModelTest)
 UMREAL_COMPONENT(ViewTest)
+
+#include "Scripts/Audio/AudioComponent.h"
+UMREAL_COMPONENT(AudioComponent)
+
+#include "Scripts/Animation/AnimationComponent.h"
+UMREAL_COMPONENT(AnimationComponent)

@@ -1,10 +1,11 @@
 ﻿#pragma once
 #include "TurnSystem/TurnActor/TurnActor.h"
 #include "Token/TokenInventory.h"
-#include "Animation/Structs/AnimationStructs.h"
+#include "Animation/Structs/AnimationData.h"
 
 struct CharacterStats;
 class SkeletalMeshRenderer;
+class AnimationComponent;
 
 class CharacterBase abstract : public TurnActor
 {
@@ -62,10 +63,11 @@ public:
     int DecrementChainRoundCount();
 
     // 토큰 인벤토리를 반환합니다.
-    TokenInventory& GetTokenInventory() { return _tokenInventory; }
-
+    TokenInventory&       GetTokenInventory() { return _tokenInventory; }
     // 스켈레탈 메쉬 렌더러를 반환합니다.
     SkeletalMeshRenderer* GetSkeletalMeshRenderer() const { return _skeletalMeshRenderer; }
+    // 애니메이션 컴포넌트를 반환합니다.
+    AnimationComponent*   GetAnimationComponent() const { return _animationComponent; }
 
 protected:
     virtual CharacterStats* GetCharacterStats() = 0;
@@ -81,6 +83,7 @@ private:
 
     TokenInventory _tokenInventory;
     SkeletalMeshRenderer* _skeletalMeshRenderer = nullptr;
+    AnimationComponent*   _animationComponent   = nullptr;
 
 protected:
     virtual void Awake() override;
@@ -111,6 +114,8 @@ public:
         DEATH,
         ATTACK_1,
         ATTACK_2,
+        ATTACK_3,
+        ATTACK_4,
         ATTACK_READY,
         ATTACK_READY_LOOP,
         ATTACK,
@@ -119,9 +124,7 @@ public:
         SIZE,
     };
     virtual const char* GetAnimationName(AnimationType type) = 0;
-    void SetMainAnimation(AnimationType type, bool loop = true, bool blend = true);
+    void SetMainAnimation(AnimationType type, int flags = 0, bool blend = true);
     void ClearOverrideAnimations();
-    void PushOverrideAnimation(AnimationType type, bool loop = true, bool blend = true, std::function<bool(const AnimationData&)> popCondition = nullptr);
-    void PopOverrideAnimation();
     bool IsAnimationEnd();
 };

@@ -124,10 +124,9 @@ private:
 
     struct ImGuiEvent
     {
-        bool               OpenRenamePopup   = false;
-        std::string        RenameBuffer      = STR_NULL;
-        RevelationElement* SelectElement     = nullptr;
+        std::function<void()> RenameFunc;
 
+        RevelationElement* SelectElement     = nullptr;
         std::string        DeleteTableBuffer = STR_NULL;
         bool               OpenDeletePopup   = false;
     }
@@ -181,8 +180,6 @@ protected:
     /// <para>  ImGuiDrawPropertys() 호출 이후 콜되는 이벤트 함수입니다. </para>
     /// </summary>
     void ImGuiDrawPropertysEvent() override;
-
-    void Reset() override;
 
 private:
     inline static RevelationSystem* static_instance = nullptr;

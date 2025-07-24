@@ -146,7 +146,7 @@ void EditorHierarchyTool::TransformTreeNode(Transform& node, const std::shared_p
                 std::string path = object.PrefabPath;
                 if (path.empty() == false)
                 {
-                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.3f, 0.6f, 0.8f, 1.0f));
+                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.1f, 0.25f, 0.5f, 1.0f)); 
                     return true;
                 }
                 else
@@ -280,7 +280,10 @@ void EditorHierarchyTool::SetFocusObject(const std::weak_ptr<GameObject>& object
             if (component->GetType() == Component::TYPE::MESH)
             {
                 MeshComponent* mesh = static_cast<MeshComponent*>(component);
-                mesh->Renderer->OffCustomDepth(PostProcess::OUTLINE);
+                if (mesh->Renderer)
+                {
+                    mesh->Renderer->OffCustomDepth(PostProcess::OUTLINE);
+                }
             }
         }
     }
@@ -296,7 +299,10 @@ void EditorHierarchyTool::SetFocusObject(const std::weak_ptr<GameObject>& object
             if (component->GetType() == Component::TYPE::MESH)
             {
                 MeshComponent* mesh = static_cast<MeshComponent*>(component);
-                mesh->Renderer->OnCustomDepth(PostProcess::OUTLINE);
+                if (mesh->Renderer)
+                {
+                    mesh->Renderer->OnCustomDepth(PostProcess::OUTLINE);
+                }
             }
         }
         static_isOpenFocusObj = true;
@@ -408,6 +414,7 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
             UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
                 GameObjectKey, GameObject::Helper::GenerateUniqueName("Skeletal Mesh"), &mesh);
             mesh->AddComponent<SkeletalMeshRenderer>();
+            mesh->AddComponent<AnimationComponent>();
         }
         ImGui::EndMenu();
     }

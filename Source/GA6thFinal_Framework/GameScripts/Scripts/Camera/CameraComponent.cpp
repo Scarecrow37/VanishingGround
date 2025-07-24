@@ -10,7 +10,7 @@ CameraComponent::CameraComponent()
 }
 CameraComponent::~CameraComponent()
 {
-    if (true == ReflectFields->IsMainCam)
+    if (ESceneManager::Engine::GetMainCamera() == this)
     {
         ResetMainCamera();
     }
@@ -27,6 +27,14 @@ void CameraComponent::ImGuiDrawPropertysEvent()
 
 void CameraComponent::DeserializedReflectEvent() 
 {
+    if (gameObject->IsValid())
+    {
+        if (true == ReflectFields->IsMainCam)
+        {
+            UmGraphics.SetCamera("Game", _camera);
+            ESceneManager::Engine::SetSceneMainCamera(this);
+        }
+    }
     _isDirty = true;
 }
 

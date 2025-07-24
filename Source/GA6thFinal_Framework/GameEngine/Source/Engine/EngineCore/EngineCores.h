@@ -9,18 +9,18 @@ public:
     EngineCores(Application& app);
     ~EngineCores();
 
-    ETimeSystem Time;
-    ESceneManager SceneManager;
+    ETimeSystem        Time;
+    ESceneManager      SceneManager;
     EGameObjectFactory GameObjectFactory;
-    EComponentFactory ComponentFactory;
-    ELogger Logger;
-    EFileSystem FileSystem;
-    Application& App;
-    GraphicsCore Graphics;
-    ECommandManager CommandManager;
-    EFactoryRegister FactoryRegister;
-    Audio::System AudioManager;
-    Watcher::System          Watcher;
+    EComponentFactory  ComponentFactory;
+    ELogger            Logger;
+    EFileSystem        FileSystem;
+    Application&       App;
+    GraphicsCore       Graphics;
+    ECommandManager    CommandManager;
+    EFactoryRegister   FactoryRegister;
+    Audio::System      Audio;
+    Watcher::System    Watcher;
     ParticleEffectSerializer ParticleSerializer;
 
     ReflectHelper::ImGuiDraw::InputAutoSetting ImGuiDrawPropertysSetting;
@@ -80,7 +80,7 @@ namespace Global
 #define UmFileSystem UmCore->FileSystem
 #define UmCommandManager UmCore->CommandManager
 #define UmFactoryRegister UmCore->FactoryRegister
-#define UmAudioManager UmCore->AudioManager
+#define UmAudio UmCore->Audio
 #define UmWatcher UmCore->Watcher
 
 // Graphics

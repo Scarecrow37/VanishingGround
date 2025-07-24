@@ -22,12 +22,11 @@ private:
 public:
     File::GuidRef _guidRef;
 
-    REFLECT_FIELDS_BEGIN(Component)
-    std::string Guid;
+    REFLECT_FIELDS_BEGIN(MeshComponent)
     REFLECT_FIELDS_END(StaticMeshRenderer)
 
 protected:
-    virtual void Reset() override;
     virtual void SerializedReflectEvent() override;
     virtual void DeserializedReflectEvent() override;
+    virtual void Reset() override;
 };

@@ -44,12 +44,12 @@ void Animation::LoadAnimation(const aiScene* scene)
 
 			animation.BoneTransforms[channel->mNodeName.C_Str()] = track;
             
-            //animation.LastTime = (std::max)({track.Scales.back().first, 
-            //                               track.Rotations.back().first,
-            //                               track.Positions.back().first, 
-            //                               animation.LastTime});
+            animation.LastTime = (std::max)({track.Scales.back().first, 
+                                           track.Rotations.back().first,
+                                           track.Positions.back().first, 
+                                           animation.LastTime});
 		}
-        animation.LastTime = (float)anim->mDuration / (float)anim->mTicksPerSecond;
+
 		_animations[anim->mName.C_Str()] = animation;
 	}
 

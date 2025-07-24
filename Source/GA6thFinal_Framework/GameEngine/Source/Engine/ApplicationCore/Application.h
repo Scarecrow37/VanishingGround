@@ -125,6 +125,7 @@ private:
 private:
     class ImGuiDX12Module*  _imguiDX12Module = nullptr;
     class FileSystemModule* _filesystemModule = nullptr;
+    class AudioModule*      _audioModule      = nullptr;
 
 protected:
     /// <summary>

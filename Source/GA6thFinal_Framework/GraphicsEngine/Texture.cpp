@@ -43,7 +43,7 @@ void Texture::LoadResource(const std::filesystem::path& filePath)
 
 	if (filePath.extension() == L".dds")
 	{
-        hr = CreateDDSTextureFromFileEx(device, resUpload, filePath.c_str(), 0, D3D12_RESOURCE_FLAG_NONE, DDS_LOADER_IGNORE_SRGB, &_resource);
+        hr = CreateDDSTextureFromFileEx(device, resUpload, filePath.c_str(), 0, D3D12_RESOURCE_FLAG_NONE, DDS_LOADER_IGNORE_SRGB | DDS_LOADER_MIP_AUTOGEN, &_resource);
         //hr = CreateDDSTextureFromFile(device, resUpload, filePath.c_str(), &_resource, true);
 	}
 	else if (filePath.extension() == L".tga")
@@ -52,7 +52,7 @@ void Texture::LoadResource(const std::filesystem::path& filePath)
 	}
 	else
 	{
-        hr = CreateWICTextureFromFileEx(device, resUpload, filePath.c_str(), 0, D3D12_RESOURCE_FLAG_NONE, WIC_LOADER_IGNORE_SRGB, &_resource);
+        hr = CreateWICTextureFromFileEx(device, resUpload, filePath.c_str(), 0, D3D12_RESOURCE_FLAG_NONE, WIC_LOADER_IGNORE_SRGB | WIC_LOADER_MIP_AUTOGEN, &_resource);
 		//hr = CreateWICTextureFromFile(device, resUpload, filePath.c_str(), &_resource, true);
 	}	
 	FAILED_CHECK_MESSAGE(hr, L"Texture::LoadResource Failed");

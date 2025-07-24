@@ -29,9 +29,11 @@ public:
     virtual ~TurnMode();
 
 public:
-    FiniteStateMachine& GetFSM() { return *_finiteStateMachine; }
+    FiniteStateMachine&                 GetFSM() { return *_finiteStateMachine; }
+    Player*                             GetPlayer();
+    const std::vector<Enemy*>&          GetEnemies();
+    const std::vector<CharacterBase*>&  GetCharacters();
 
-public:
     /// <summary>
     /// 라운드 카운트를 0으로 초기화합니다.
     /// </summary>
@@ -70,57 +72,6 @@ public:
     /// </summary>
     /// <returns></returns>
     int GetPendingActorCount();
-
-public:
-    struct Battle
-    {
-        /// <summary>
-        /// 플레이어로 공격을 수행합니다.
-        /// </summary>
-        /// <param name="attacker :">공격자</param>
-        /// <param name="target :">대상</param>
-        void operator()(Player& attacker, Enemy& target);
-
-        /// <summary>
-        /// 적으로 공격을 수행합니다.
-        /// </summary>
-        /// <param name="attacker :">공격자</param>
-        /// <param name="target :">대상</param>
-        void operator()(Enemy& attacker, Player& target);
-
-        /// <summary>
-        /// 마지막으로 공격한 CharacterBase를 반환합니다.
-        /// </summary>
-        /// <returns></returns>
-        static const std::weak_ptr<CharacterBase>& GetLastAttacker() { return lastAttacker; }
-
-        /// <summary>
-        /// 마지막으로 공격당한 CharacterBase를 반환합니다
-        /// </summary>
-        /// <returns></returns>
-        static const std::weak_ptr<CharacterBase>& GetLastTarget() { return lastTarget; }
-
-        /// <summary>
-        /// 마지막으로 공격당한 적을 반환합니다
-        /// </summary>
-        /// <returns></returns>
-        static const std::weak_ptr<CharacterBase>& GetLastTargetEnemy() { return lastTarget; }
-
-        /// <summary>
-        /// 마지막으로 공격당한 적을 기록하는 변수를 초기화합니다. 전투 시작시 초기화됩니다.
-        /// </summary>
-        inline static void ResetLastCharacter()
-        {
-            lastAttacker    = std::weak_ptr<CharacterBase>();
-            lastTarget      = std::weak_ptr<CharacterBase>();
-            lastTargetEnemy = std::weak_ptr<Enemy>();
-        }
-
-    private:
-        inline static std::weak_ptr<CharacterBase> lastAttacker;
-        inline static std::weak_ptr<CharacterBase> lastTarget;
-        inline static std::weak_ptr<Enemy>         lastTargetEnemy;
-    };
 
 public:
     REFLECT_PROPERTY(

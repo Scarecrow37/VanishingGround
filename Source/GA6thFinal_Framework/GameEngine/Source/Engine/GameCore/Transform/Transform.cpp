@@ -241,7 +241,7 @@ Transform* Transform::Find(std::string_view name) const
         if (Transform* child = GetChild(i))
         {
             GameObject& obj = child->gameObject;
-            if (obj.Name == name)
+            if ((const std::string&)obj.Name == name)
             {
                 return child;
             }     
