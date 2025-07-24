@@ -9,7 +9,8 @@ public:
     const Matrix& GetProjectionInverseMatrix() const { return _projectionInverse; }
     const Vector3 GetPosition() const { return _world.Translation(); }
     const Quaternion& GetRotation() const { return _rotation; }
-        
+    const BoundingFrustum& GetWorldFrustum() const { return _worldFrustum; }
+
 public:
 	void SetupPerspective(float fovDegree, float aspect, float nearZ, float farZ);
     void SetupOrthographic(float width, float height, float nearZ, float farZ);
@@ -25,10 +26,12 @@ public:
 	void Update();
 
 private:
-    Matrix        _world;
-    Matrix        _view;
-    Matrix        _projection;
-    Matrix        _projectionInverse;
-    Vector3       _position;
-    Quaternion    _rotation;
+    Matrix          _world;
+    Matrix          _view;
+    Matrix          _projection;
+    Matrix          _projectionInverse;
+    BoundingFrustum _frustum;
+    BoundingFrustum _worldFrustum;
+    Vector3         _position;
+    Quaternion      _rotation;
 };
