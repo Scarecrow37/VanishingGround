@@ -12,7 +12,8 @@ class ParticleEffect
 
     
     const Matrix* _parentWorldMatrix;
-
+    const Matrix* _boneWorldMatrix;
+    bool          _followBoneFlag = false;
     // flag for play once
     UMPARTICLE_PROPERTY(bool, _playFlag, PlayFlag, false);
     bool _removeFlag = false;

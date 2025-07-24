@@ -142,6 +142,7 @@ void MeshSurfaceLocator::LoadVerticesFromModel(std::shared_ptr<class Model> mode
 {
     _targetModel = std::move(model);
     _vertexCountPerMesh.clear();
+    _totalVertexCount = 0;
     for (auto& mesh : _targetModel->GetMeshes())
     {
         char* tempvertex;

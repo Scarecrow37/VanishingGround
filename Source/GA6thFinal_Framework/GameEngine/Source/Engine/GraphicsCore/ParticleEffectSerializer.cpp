@@ -1006,7 +1006,6 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_1(std::ifstream& is, boo
             auto emitter = UmParticleManager->RegisterEmitter(
                 newEffect, static_cast<SIZE_T>(maxParticles), emissionRate, emitterLifetime, locationType,
                 locatorFactor, particleType, std::wstring_view(modelTexturePath));
-            if (isEditor)
             {
                 File::Path absolutePath = emitter->_particleRenderModule->GetModelAndTexturePath();
                 absolutePath            = std::filesystem::absolute(absolutePath).generic_string();
@@ -1014,7 +1013,7 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_1(std::ifstream& is, boo
                 if (LocationShape::MESH_SURFACE == emitter->_locationType)
                 {
                     MeshSurfaceLocator* locator      = static_cast<MeshSurfaceLocator*>(emitter->_emitLocator);
-                    File::Path          absolutePath = locator->GetModelPath();
+                    File::Path          absolutePath = modelpath;
                     absolutePath                     = std::filesystem::absolute(absolutePath).generic_string();
                     UmGraphics.LoadModelResource(std::wstring_view(absolutePath.wstring()), emitter);
                 }

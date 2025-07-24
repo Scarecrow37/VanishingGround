@@ -58,9 +58,6 @@ void ParticleManager::Initialize(UINT maxParticles)
     InitializeParticleComputeShader();
     InitializeParticleComputeRootSignature();
     InitializeParticleComputePSO();
-    //AddSceneResource("ParticleEditor");
-    //AddSceneResource("Editor");
-    //AddSceneResource("Game");
 
 }
 

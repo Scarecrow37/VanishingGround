@@ -1,6 +1,5 @@
 ﻿#pragma once
 #include "UmFramework.h"
-
 class ParticleComponent : public Component
 {
     USING_PROPERTY(ParticleComponent)
@@ -35,7 +34,10 @@ public:
     PROPERTY(Scale)
 
     GETTER(bool, AttachToBoneMatrix) { return ReflectFields->AttachToBoneMatrix; }
-    SETTER(bool, AttachToBoneMatrix) { ReflectFields->AttachToBoneMatrix = value; }
+    SETTER(bool, AttachToBoneMatrix) { 
+        ReflectFields->AttachToBoneMatrix = value;
+        FollowBoneMatrix();
+    }
     PROPERTY(AttachToBoneMatrix)
 
     GETTER_ONLY(const ParticleEffect*, Effect) { return _effect; }
@@ -71,7 +73,7 @@ private:
     float lifetime   = 0.f;
     bool  isplaying  = false;
     void  LoadParticle();
-
+    bool  isDirty = false;
 
     void FollowBoneMatrix();
 

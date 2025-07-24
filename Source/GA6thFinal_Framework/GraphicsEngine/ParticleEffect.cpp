@@ -70,10 +70,19 @@ void ParticleEffect::Update(float deltaTime)
 
 
     }
-    if (nullptr != _parentWorldMatrix)
-        _worldMatrix = _scaleMatrix * _rotationMatrix * _translationMatrix * *_parentWorldMatrix;
+
+    if (false == _followBoneFlag)
+    {
+
+        if (nullptr != _parentWorldMatrix)
+            _worldMatrix = _scaleMatrix * _rotationMatrix * _translationMatrix * *_parentWorldMatrix;
+        else
+            _worldMatrix = _scaleMatrix * _rotationMatrix * _translationMatrix;
+    }
     else
-        _worldMatrix = _scaleMatrix * _rotationMatrix * _translationMatrix;
+    {
+        _worldMatrix = _scaleMatrix * _rotationMatrix * _translationMatrix *(*_boneWorldMatrix) * *_parentWorldMatrix;
+    }
 
 
     for (auto emitter : _particleEmitters)

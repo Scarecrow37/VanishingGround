@@ -30,7 +30,7 @@ public:
         class ParticleEffect* effect, SIZE_T maxParticles = 10000, float emissionRate = 1000.f,
         float emitterLifetime = 150.f, LocationShape locatorShape = LocationShape::SPHERE,
         Vector3 locationFactor = Vector3(1, 1, 1), ParticleType particleType = ParticleType::SPRITE,
-        std::wstring_view meshspritePath = L"../../../Resource/Assets/ParticleTexture/defaultSmoke.jpg");
+        std::wstring_view meshspritePath = L"../../../Resource/Assets/VFX/ParticleTexture/defaultSmoke.jpg");
     void                   DeleteEffect(class ParticleEffect* effect);
     void                   Update(const float deltaTime);
     void                   UpdateEditorLifeCycle();

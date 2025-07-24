@@ -1,4 +1,6 @@
 ﻿#include "pchScripts.h"
+#include <Mesh/SkeletalMeshRenderer.h>
+
 #include "ParticleComponent.h"
 
 
@@ -45,7 +47,11 @@ ParticleComponent::~ParticleComponent()
 
 void ParticleComponent::Update()
 {
-    
+  /*  if (isDirty)
+    {
+        isDirty = false;
+        FollowBoneMatrix();
+    }*/
 
 
 
@@ -138,11 +144,20 @@ void ParticleComponent::LoadParticle()
 
 void ParticleComponent::FollowBoneMatrix() 
 {
-    //if (auto skelMesh = _gameObject->GetComponent<SkeletalMeshRenderer>() != nullptr)
-    //{
-    //    _effect->_parentWorldMatrix = skelMesh
+    if (true == AttachToBoneMatrix)
+    {
+        SkeletalMeshRenderer* skelMesh = GetComponent<SkeletalMeshRenderer>();
+        if (skelMesh != nullptr)
+        {
+            _effect->_boneWorldMatrix = skelMesh->Renderer->GetAnimator()->FindBoneMatrix("Bone");
+            _effect->_followBoneFlag  = true;
+        }
+    }
+    else
+    {
+        _effect->_followBoneFlag = false;
 
-    //}
+    }
 
 
 }

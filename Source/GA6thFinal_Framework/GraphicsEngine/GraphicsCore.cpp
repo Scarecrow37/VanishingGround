@@ -121,7 +121,7 @@ void GraphicsCore::LoadResource(const std::wstring_view filePath, FontRenderer* 
     component->SetFont(_resourceManager->LoadResource<Font>(filePath));
 }
 
-void GraphicsCore::LoadTextureResource(std::wstring_view filePath, ParticleEmitter* component) 
+void GraphicsCore::LoadTextureResource(std::wstring_view filePath, ParticleEmitter* component) const
 {
     if (ParticleType::SPRITE == component->_particleType)
     {
@@ -134,8 +134,9 @@ void GraphicsCore::LoadTextureResource(std::wstring_view filePath, ParticleEmitt
             ->SetAlbedoTexture(_resourceManager->LoadResource<Texture>(filePath.data()));
     }
 }
-void GraphicsCore::LoadModelResource(std::wstring_view filePath, ParticleEmitter* component)
+void GraphicsCore::LoadModelResource(std::wstring_view filePath, ParticleEmitter* component) const
 {
+    static_cast<MeshSurfaceLocator*>(component->_emitLocator)->SetModelPath(filePath.data());
     static_cast<MeshSurfaceLocator*>(component->_emitLocator)->LoadVerticesFromModel(_resourceManager->LoadResource<Model>(filePath.data()));
 }
 
