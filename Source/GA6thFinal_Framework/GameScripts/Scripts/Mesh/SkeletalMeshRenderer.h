@@ -41,7 +41,6 @@ private:
     File::GuidRef _guidRef;
 
     REFLECT_FIELDS_BEGIN(MeshComponent)
-    std::string Guid                    = "";
     std::string MainAnimationKey        = "";
     bool        MainAnimationLooping    = true;
     bool        MainAnimationSpeed      = true;

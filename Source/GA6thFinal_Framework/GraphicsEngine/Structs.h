@@ -46,18 +46,20 @@ using SkeletalMeshInstanceID = UINT;
 struct Material
 {
 #undef OPAQUE
-    enum ShadingModel
+    enum class ShadingModelType
     {
         UNLIT,
-        DEFAULTLIT
+        DEFAULTLIT,
+        END
     } ShadingModel;
-    enum BlendMode
+    enum class BlendModeType
     {
         OPAQUE,
         MASKED,
-        TRANSLUCENT
+        TRANSLUCENT,
+        END
     } BlendMode;
-    enum class CullMode
+    enum class CullModeType
     {
         CULL_BACK,
         CULL_FRONT,

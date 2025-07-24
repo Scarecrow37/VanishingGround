@@ -342,7 +342,7 @@ void EditorModelDetails::OnFrameRender()
                     ImGui::Text("Blend Mode");
 
                     ImGui::TableNextColumn();
-                    ImGui::Combo("##blendMode", (int*)&material.Mode, blendModeNames, (int)Material::BlendMode::END);
+                    ImGui::Combo("##blendMode", (int*)&material.BlendMode, blendModeNames, (int)Material::BlendModeType::END);
 
                     ImGui::TableNextRow();
                     ImGui::TableNextColumn();
@@ -350,8 +350,7 @@ void EditorModelDetails::OnFrameRender()
                     ImGui::Text("Shading Model");
 
                     ImGui::TableNextColumn();
-                    ImGui::Combo("##shadingModel", (int*)&material.Model, shadingModelNames,
-                                 (int)Material::ShadingModel::END);
+                    ImGui::Combo("##shadingModel", (int*)&material.ShadingModel, shadingModelNames, (int)Material::ShadingModelType::END);
 
                     ImGui::TableNextRow();
                     ImGui::TableNextColumn();

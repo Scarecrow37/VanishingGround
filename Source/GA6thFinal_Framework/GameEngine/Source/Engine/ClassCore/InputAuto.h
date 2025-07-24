@@ -378,18 +378,19 @@ namespace ReflectHelper
 
                     if constexpr (StdHelper::is_std_array_v<OriginType>)
                     {
-                        if (ImGui::TreeNodeEx((const char*)name.data()))
+                        if constexpr (std::ranges::range<decltype(*value)>)
                         {
-                            if constexpr (std::ranges::range<decltype(*value)>)
+                            if (ImGui::TreeNodeEx((const char*)name.data()))
                             {
+
                                 int i = 0;
-                                for (auto& val : *value)
+                                for (auto&& val : *value)
                                 {
                                     isEdit = NotArrayTypeFunc(&val, std::format("[{}]", i).c_str());
                                     i++;
                                 }
+                                ImGui::TreePop();
                             }
-                            ImGui::TreePop();
                         }
                     }
                     else if constexpr (StdHelper::is_std_vector_v<OriginType>)
@@ -399,7 +400,7 @@ namespace ReflectHelper
                             if (ImGui::TreeNodeEx((const char*)name.data()))
                             {
                                 int i = 0;
-                                for (auto& val : *value)
+                                for (auto&& val : *value)
                                 {
                                     isEdit = NotArrayTypeFunc(&val, std::format("[{}]", i).c_str());
                                     i++;

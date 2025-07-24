@@ -51,28 +51,6 @@ void MeshComponent::MakeMeshRenderer(MeshType renderType, const Vector3& positio
     }
 }
 
-void MeshComponent::Reset()
-{
-}
-
-void MeshComponent::SerializedReflectEvent()
-{
-}
-
-void MeshComponent::DeserializedReflectEvent()
-{
-    const auto& model     = Renderer->GetModel();
-    auto&       materials = model->GetMaterials();
-    size_t      meshCount = model->GetMeshCount();
-
-    for (size_t i = 0; i < meshCount; i++)
-    {
-        //materials[i].CullMode = ReflectFields->CullMode[i];
-        materials[i].BlendMode = static_cast<Material::BlendMode>(ReflectFields->BlendMode[i]);
-
-    }
-}
-
 void MeshComponent::ImGuiDrawPropertysEvent()
 {
     ImGui::Separator();
@@ -86,17 +64,20 @@ void MeshComponent::ImGuiDrawPropertysEvent()
         const auto& customDepths = Renderer->GetCustomDepths();
         const auto& meshes       = model->GetMeshes();
         auto&       materials    = model->GetMaterials();
-        size_t      count        = model->GetMeshCount();
+        UINT        count        = (UINT)model->GetMeshCount();
 
-        for (size_t i = 0; i < count; i++)
+        for (UINT i = 0; i < count; i++)
         {
-            ImGui::PushID((int)i);
+            ImGui::PushID(i);
             bool isOpened = ImGui::TreeNodeEx(meshes[i]->GetName().data());
             if (ImGui::IsItemClicked())
             {
+                ReflectFields->CustomDepth[lastSelected] &= ~PostProcess::OUTLINE;
                 Renderer->OffCustomDepth(PostProcess::OUTLINE, lastSelected);
+
+                ReflectFields->CustomDepth[i] |= PostProcess::OUTLINE;
                 Renderer->OnCustomDepth(PostProcess::OUTLINE, i);
-                lastSelected = (UINT)i;
+                lastSelected = i;
             }
             if (isOpened)
             {
@@ -128,6 +109,7 @@ void MeshComponent::ImGuiDrawPropertysEvent()
                         ImGui::TableNextColumn();
                         {
                             ImGui::Checkbox("##IsTwoSided", &materials[i].IsTwoSided);
+                            ReflectFields->IsTwoSided[i] = materials[i].IsTwoSided;
                         }
                         ImGui::TableNextColumn();
                     }
@@ -146,10 +128,12 @@ void MeshComponent::ImGuiDrawPropertysEvent()
                                 ImGuiHelper::TextWithVerticalSeparator("Bloom");
                                 if (ImGui::Checkbox("##Bloom", &isBloom))
                                 {
-                                    isBloom ? Renderer->OnCustomDepth(PostProcess::BLOOM) : 
-                                              Renderer->OffCustomDepth(PostProcess::BLOOM);
+                                    isBloom ? Renderer->OnCustomDepth(PostProcess::BLOOM, i) : 
+                                              Renderer->OffCustomDepth(PostProcess::BLOOM, i);
+
                                 }
 
+                                ReflectFields->CustomDepth[i] = customDepths[i];
                                 ImGui::EndCombo();
                             }
                         }
@@ -168,4 +152,31 @@ void MeshComponent::ImGuiDrawPropertysEvent()
 
         ImGui::TreePop();
     }    
+}
+
+void MeshComponent::InitMaterial()
+{
+    const auto& model     = Renderer->GetModel();
+    auto&       materials = model->GetMaterials();
+    size_t      meshCount = model->GetMeshCount();
+
+    if (ReflectFields->BlendMode.empty())
+    {
+        ReflectFields->BlendMode.resize(meshCount, 0);
+        ReflectFields->CullMode.resize(meshCount, 0);
+        ReflectFields->CustomDepth.resize(meshCount, 0);
+        ReflectFields->IsTwoSided.resize(meshCount, false);
+
+        return;
+    }
+
+    for (size_t i = 0; i < meshCount; i++)
+    {
+        Renderer->OnCustomDepth(ReflectFields->CustomDepth[i], (UINT)i);
+
+        //materials[i].ShadingModel = (Material::ShadingModelType)ReflectFields->ShadingModel[i];
+        materials[i].BlendMode    = (Material::BlendModeType)ReflectFields->BlendMode[i];
+        materials[i].CullMode     = (Material::CullModeType)ReflectFields->CullMode[i];
+        materials[i].IsTwoSided   = ReflectFields->IsTwoSided[i];
+    }
 }
