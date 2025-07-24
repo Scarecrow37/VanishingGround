@@ -11,7 +11,6 @@ public:
         
 protected:
     REFLECT_FIELDS_BEGIN(TurnAction)
-    
     REFLECT_FIELDS_END(MultiTargetDamageAction)
 
 
