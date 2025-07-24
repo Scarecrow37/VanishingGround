@@ -12,7 +12,7 @@ ImageElement::ImageElement()
                 if (const auto context = data->pContext->lock(); nullptr != context)
                 {
                     const auto& path = context->GetPath();
-                    if (const auto extension = path.extension(); extension == L".png" || extension == L"jpeg")
+                    if (const auto extension = path.extension(); extension == L".png" || extension == L".jpeg")
                     {
                         _guidRef            = path.ToGuid();
                         ReflectFields->Guid = _guidRef.string();

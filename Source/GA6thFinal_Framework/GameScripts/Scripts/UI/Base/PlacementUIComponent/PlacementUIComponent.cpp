@@ -31,11 +31,16 @@ POINT PlacementUIComponent::GetAbsolutePoint() const
                  .y = ReflectFields->Point.y + ReflectFields->ScopePoint.y};
 }
 
-void PlacementUIComponent::SetScopePlacement(const POINT point, const SIZE size)
+void PlacementUIComponent::SetScopePlacement(const POINT scopePoint, const SIZE scopeSize)
 {
-    ReflectFields->ScopePoint = point;
-    ReflectFields->ScopeSize  = size;
-    ResetPlacement();
+    const POINT previousPoint = GetScopePoint();
+    const SIZE  previousSize  = GetScopeSize();
+    if (previousPoint != scopePoint || previousSize != scopeSize)
+    {
+        ReflectFields->ScopePoint = scopePoint;
+        ReflectFields->ScopeSize  = scopeSize;
+        ResetPlacement();
+    }
 }
 
 int PlacementUIComponent::SortViewOrder(int startOrder)
@@ -96,8 +101,8 @@ void PlacementUIComponent::RequestViewOrder(const Transform& transform)
     UIRoot* uiRoot = nullptr;
 
     // transform이 루트라면
-    const GameObject& rootObject = transform.gameObject;
-    uiRoot                       = rootObject.GetComponent<UIRoot>();
+    const GameObject& object = transform.gameObject;
+    uiRoot                   = object.GetComponent<UIRoot>();
 
     // transform이 루트가 아니라면
     if (nullptr == uiRoot)

@@ -23,7 +23,7 @@ public:
     SIZE  GetScopeSize() const;
     POINT GetAbsolutePoint() const;
 
-    void SetScopePlacement(POINT point, SIZE size);
+    void SetScopePlacement(POINT scopePoint, SIZE scopeSize);
     int  SortViewOrder(int startOrder);
 
 protected:
