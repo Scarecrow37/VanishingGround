@@ -28,8 +28,12 @@ public:
 public:
     POINT GetPoint() const;
     SIZE  GetSize() const;
-    void SetScopePlacement(POINT point, SIZE size);
-    int  SortViewOrder(int startOrder);
+    POINT GetScopePoint() const;
+    SIZE  GetScopeSize() const;
+    POINT GetAbsolutePoint() const;
+
+    void  SetScopePlacement(POINT point, SIZE size);
+    int   SortViewOrder(int startOrder);
 
 protected:
     REFLECT_FIELDS_BEGIN(UIComponent)

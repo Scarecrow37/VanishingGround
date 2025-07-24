@@ -15,6 +15,22 @@ SIZE PlacementUIComponent::GetSize() const
     return ReflectFields->Size;
 }
 
+POINT PlacementUIComponent::GetScopePoint() const
+{
+    return ReflectFields->ScopePoint;
+}
+
+SIZE PlacementUIComponent::GetScopeSize() const
+{
+    return ReflectFields->ScopeSize;
+}
+
+POINT PlacementUIComponent::GetAbsolutePoint() const
+{
+    return POINT{.x = ReflectFields->Point.x + ReflectFields->ScopePoint.x,
+                 .y = ReflectFields->Point.y + ReflectFields->ScopePoint.y};
+}
+
 void PlacementUIComponent::SetScopePlacement(const POINT point, const SIZE size)
 {
     ReflectFields->ScopePoint = point;
@@ -25,7 +41,7 @@ void PlacementUIComponent::SetScopePlacement(const POINT point, const SIZE size)
 int PlacementUIComponent::SortViewOrder(int startOrder)
 {
     SetViewOrder(startOrder++);
-    const int childCount     = transform->GetChildCount();
+    const int childCount = transform->GetChildCount();
     for (int i = childCount - 1; i >= 0; --i)
     {
         const Transform* child          = transform->GetChild(i);
