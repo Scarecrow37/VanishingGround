@@ -46,6 +46,10 @@ public:
 
 protected:
     void OnPlacementChange() override;
+    void OnAttachChild(GameObject* childGameObject) override;
+
+private:
+    void AssignChild() const;
 
 protected:
     REFLECT_FIELDS_BEGIN(EditablePlacementUIComponent)

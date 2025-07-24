@@ -20,6 +20,19 @@ void PaddingWrapper::OnPlacementChange()
 {
     EditablePlacementUIComponent::OnPlacementChange();
 
+    AssignChild();
+}
+
+void PaddingWrapper::OnAttachChild(GameObject* childGameObject)
+{
+    EditablePlacementUIComponent::OnAttachChild(childGameObject);
+
+    AssignChild();
+}
+
+void PaddingWrapper::AssignChild() const
+{
+    Transform&                         transform  = this->transform;
     std::vector<PlacementUIComponent*> components = FindChildComponents<PlacementUIComponent>()(transform);
     std::ranges::for_each(components, [this](PlacementUIComponent* component) {
         const POINT point = GetPaddedPoint();

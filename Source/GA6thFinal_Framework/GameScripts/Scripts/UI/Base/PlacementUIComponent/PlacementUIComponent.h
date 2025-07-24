@@ -14,18 +14,6 @@ public:
     PlacementUIComponent();
 
 public:
-    REFLECT_PROPERTY(ViewOrder)
-    GETTER(int, ViewOrder)
-    {
-        return ReflectFields->ViewOrder;
-    }
-    SETTER(int, ViewOrder)
-    {
-        SetViewOrder(value);
-    }
-    PROPERTY(ViewOrder)
-
-public:
     POINT GetPoint() const;
     SIZE  GetSize() const;
     POINT GetScopePoint() const;
