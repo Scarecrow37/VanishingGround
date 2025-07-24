@@ -193,11 +193,14 @@ public:
     }
 
 public:
-    REFLECT_PROPERTY(ActionName, LogicOperator)
+    REFLECT_PROPERTY(ActionName, ActionInfo, LogicOperator)
 
     GETTER_ONLY(const std::string&, ActionName) { return GetActionName(); }
     // 계시 이름
     PROPERTY(ActionName)
+
+    GETTER_ONLY(const std::string&, ActionInfo) { return GetActionInfo(); }
+    PROPERTY(ActionInfo)
 
     GETTER(ConditionOperator, LogicOperator) { return ReflectFields->LogicOperator; }
     SETTER(ConditionOperator, LogicOperator) { ReflectFields->LogicOperator = value; }
