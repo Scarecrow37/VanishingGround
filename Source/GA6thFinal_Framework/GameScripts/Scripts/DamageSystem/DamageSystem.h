@@ -42,4 +42,5 @@ public:
     static int CalculateChainDamage(const PlayerInfo& attacker, const EnemyInfo& target);
 
     static int CalculateDamage(const EnemyInfo& attacker, const PlayerInfo& target);
+    static int CalculateChainDamage(const EnemyInfo& attacker, const PlayerInfo& target);
 };
