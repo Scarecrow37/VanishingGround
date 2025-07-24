@@ -390,13 +390,34 @@ Component* EComponentFactory::AddComponentToYamlNow(GameObject* ownerObject, YAM
     std::shared_ptr<Component> component;
     if (component = MakeComponentToYaml(ownerObject, componentNode))
     {
-        component->_gameObject->_components.emplace_back(component); //바로 추가
+        PushBackComponentToObject(component);   
     }
     else
     {
         return nullptr;
     }
     return component.get();
+}
+
+void EComponentFactory::Engine::PushBackComponentToObject(std::shared_ptr<Component>& component) 
+{
+    UmComponentFactory.PushBackComponentToObject(component, true);
+}
+
+void EComponentFactory::PushBackComponentToObject(std::shared_ptr<Component>& component, bool onReset)
+{
+    if (component->_gameObject)
+    {
+        component->_gameObject->_components.emplace_back(component);
+        if (onReset)
+        {
+            component->Reset();
+        }
+    }
+    else
+    {
+        UmLogger.Log(LogLevel::LEVEL_ERROR, u8"초기화 되지 않은 컴포넌트 입니다.");
+    }
 }
 
 void EComponentFactory::InsertComponentToObject(GameObject* object, std::shared_ptr<Component>& component, int index) 
@@ -520,7 +541,6 @@ void EComponentFactory::ResetComponent(GameObject* ownerObject, std::shared_ptr<
     component->_className = (typeid(*component).name() + 6);
     component->_gameObject = ownerObject;
     component->_weakPtr = component;
-    component->Reset();
     if (Component::TYPE::MESH == component->GetType())
     {
         MeshComponent* meshComponent = static_cast<MeshComponent*>(component.get());
