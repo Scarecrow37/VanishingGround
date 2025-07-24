@@ -10,6 +10,7 @@ namespace
     template<typename T>
     void ImGuiDrawActionMakerEx(std::string_view windowID, T& action, bool& showActionEditor)
     {
+        ImGui::PushID(&action);
         std::string_view selectName = STR_NULL;
         if (action)
         {
@@ -18,11 +19,20 @@ namespace
 
         if (ImGui::BeginCombo("##Action", selectName.data()))
         {
+            std::string_view actionName = STR_NULL;
+            if (action)
+            {
+                actionName = action->GetActionName();
+            }
             for (auto& [key, func] : TurnActionFactory::GetActionFactory())
             {
-                if (ImGui::Selectable(key.data()))
+                bool isSelect = key == actionName;
+                if (ImGui::Selectable(key.data(), isSelect))
                 {
-                    action.reset(func());
+                    if (false == isSelect)
+                    {
+                        action.reset(func());
+                    }
                 }
             }
             ImGui::EndCombo();
@@ -61,7 +71,8 @@ namespace
             {
                 showActionEditor = !showActionEditor;
             }
-        }    
+        }  
+        ImGui::PopID();
     }
 }
 
@@ -141,17 +152,17 @@ const std::string& TurnAction::GetConditionsInfo() const
             switch (logic)
             {
             case ConditionOperator::AND:
-                oper = u8"이고"_c_str;
+                oper = u8" 이고"_c_str;
                 break;
             case ConditionOperator::OR:
-                oper = u8"이거나"_c_str;
+                oper = u8" 이거나"_c_str;
                 break;
             }
             info += oper;
         }
         else
         {
-            info += u8"이면"_c_str;
+            info += u8" 이면"_c_str;
         }
         info += "\n";
     }

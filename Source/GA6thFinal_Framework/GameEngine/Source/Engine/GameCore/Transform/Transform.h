@@ -19,8 +19,14 @@ public:
     Transform(GameObject& owner);
     ~Transform();
 
-    Transform& operator=(const Transform& rhs)
-    { 
+    /// <summary>
+    /// Transform 값을 복사합니다.
+    /// </summary>
+    /// <param name="rhs :">복사할 대상</param>
+    /// <param name="copyParent :">부모 복사 여부</param>
+    /// <returns></returns>
+    Transform& CopyTransform(const Transform& rhs, bool copyParent = true)
+    {
         if (this != &rhs)
         {
             _hasChanged = true;
@@ -29,12 +35,17 @@ public:
             _eulerAngle = rhs._eulerAngle;
             _scale      = rhs._scale;
 
-            if (nullptr != rhs._parent)
+            if (copyParent && nullptr != rhs._parent)
             {
                 SetParent(rhs._parent, false);
             }
         }
         return *this;
+    }
+
+    Transform& operator=(const Transform& rhs)
+    { 
+       return CopyTransform(rhs);
     }
 
     GETTER_ONLY(GameObject&, gameObject)
