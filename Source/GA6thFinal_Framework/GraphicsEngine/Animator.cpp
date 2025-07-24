@@ -169,6 +169,16 @@ void Animator::SetLoop(bool isLoop)
     _isLoop = isLoop;
 }
 
+const std::vector<const char*>& Animator::GetAnimationNames() const
+{
+    if (_animation)
+    {
+        return _animation->GetAnimations();
+    }
+    static std::vector<const char*> emptyNames;
+    return emptyNames;
+}
+
 void Animator::Initialize(std::wstring_view filePath, std::shared_ptr<Skeleton> skeleton)
 {
 	_animation = Global::resourceManager->LoadResource<Animation>(filePath);

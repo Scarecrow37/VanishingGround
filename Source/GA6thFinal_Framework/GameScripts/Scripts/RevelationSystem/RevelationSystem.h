@@ -181,8 +181,6 @@ protected:
     /// </summary>
     void ImGuiDrawPropertysEvent() override;
 
-    void Reset() override;
-
 private:
     inline static RevelationSystem* static_instance = nullptr;
 
