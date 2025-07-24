@@ -439,9 +439,11 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
         }
         if (ImGui::BeginMenu("Wrappers"))
         {
-            if (ImGui::MenuItem("Temp"))
+            if (ImGui::MenuItem("Padding Wrapper"))
             {
-                // TODO;
+                UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
+                    GameObjectKey, GameObject::Helper::GenerateUniqueName("Padding Wrapper"), &ui);
+                ui->AddComponent<PaddingWrapper>();
             }
             ImGui::EndMenu();
         }

@@ -99,6 +99,9 @@ UMREAL_COMPONENT(ImageElement)
 #include "Scripts/UI/Elements/Text/TextElement.h"
 UMREAL_COMPONENT(TextElement)
 
+#include "Scripts/UI/Wrappers/Padding/PaddingWrapper.h"
+UMREAL_COMPONENT(PaddingWrapper)
+
 #include "Scripts/UI/Panels/Grid/GridPanel.h"
 UMREAL_COMPONENT(GridPanel)
 UMREAL_COMPONENT(GridPanelSlot)
