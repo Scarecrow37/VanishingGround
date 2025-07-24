@@ -18,7 +18,7 @@ SkeletalMeshRenderer::SkeletalMeshRenderer()
                     if (extension == L".fbx" || extension == L".UmModel")
                     {
                         _guidRef            = path.ToGuid();
-                        ReflectFields->Guid = _guidRef.string();
+                        ReflectFields->Basefields.get().Guid = _guidRef.string();
                         UmSceneManager.ResourceManager.RequestModelResource(this, _guidRef, [this](){ LoadModel(); });
                     }
                 }
@@ -32,7 +32,6 @@ SkeletalMeshRenderer::~SkeletalMeshRenderer() {}
 
 void SkeletalMeshRenderer::Reset()
 {
-    __super::Reset();
     MakeMeshRenderer(MeshType::SKELETAL_MESH, transform->Position, transform->Scale, transform->Rotation, transform->GetWorldMatrix());
 }
 
@@ -55,8 +54,6 @@ void SkeletalMeshRenderer::OnDrawDebug()
 
 void SkeletalMeshRenderer::SerializedReflectEvent() 
 {
-    __super::SerializedReflectEvent();
-
     ReflectFields->MainAnimationKey     = _mainAnimationData.AnimationName;
     ReflectFields->MainAnimationLooping = _mainAnimationData.IsLooping;
     ReflectFields->MainAnimationSpeed   = _mainAnimationData.Speed;
@@ -64,9 +61,7 @@ void SkeletalMeshRenderer::SerializedReflectEvent()
 
 void SkeletalMeshRenderer::DeserializedReflectEvent() 
 {
-    __super::DeserializedReflectEvent();
-
-    File::Guid guid = ReflectFields->Guid;
+    File::Guid guid = ReflectFields->Basefields.get().Guid;
     _guidRef        = guid;
     if (false == guid.IsNull())
     {
@@ -456,6 +451,8 @@ void SkeletalMeshRenderer::LoadModel()
                 animator->SetActive(&EnableInHierarchy);
                 UmGraphics.RegisterComponent(animator.get());
                 Renderer->SetAnimator(animator);
+
+                __super::InitMaterial();
             }
         }
     }

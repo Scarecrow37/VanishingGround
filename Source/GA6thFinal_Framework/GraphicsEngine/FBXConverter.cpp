@@ -425,8 +425,8 @@ void FBXConverter::LoadFromAssimp(const std::filesystem::path& filePath, Model* 
     UINT size = (UINT)_materialIndex.size();
 
     Material material{
-        .ShadingModel = Material::ShadingModel::DEFAULTLIT,
-        .BlendMode    = Material::BlendMode::OPAQUE,
+        .ShadingModel = Material::ShadingModelType::DEFAULTLIT,
+        .BlendMode    = Material::BlendModeType::OPAQUE,
         .IsTwoSided   = false,
     };
 

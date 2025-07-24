@@ -277,14 +277,14 @@ void RenderScene::UpdateObject()
 
             if (materials[i].IsTwoSided)
             {
-                materials[i].CullMode = Material::CullMode::CULL_NONE;
+                materials[i].CullMode = Material::CullModeType::CULL_NONE;
             }
             else
             {
                 const auto& transform = component->GetTransform();
                 float       sign      = transform.Scale.x * transform.Scale.y * transform.Scale.z;
 
-                materials[i].CullMode = sign < 0.f ? Material::CullMode::CULL_FRONT : Material::CullMode::CULL_BACK;
+                materials[i].CullMode = sign < 0.f ? Material::CullModeType::CULL_FRONT : Material::CullModeType::CULL_BACK;
             }
 
             MaterialID materialID{};

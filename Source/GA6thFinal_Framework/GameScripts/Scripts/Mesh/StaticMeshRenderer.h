@@ -22,8 +22,7 @@ private:
 public:
     File::GuidRef _guidRef;
 
-    REFLECT_FIELDS_BEGIN(Component)
-    std::string Guid;
+    REFLECT_FIELDS_BEGIN(MeshComponent)
     REFLECT_FIELDS_END(StaticMeshRenderer)
 
 protected:
