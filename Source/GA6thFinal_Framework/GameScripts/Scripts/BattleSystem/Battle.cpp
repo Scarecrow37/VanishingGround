@@ -94,10 +94,10 @@ void Battle::BattleStart(Player& attacker, Enemy& target)
         PlayerInfo playerInfo(attacker, weaponStats, playerStats);
         EnemyInfo  enemyInfo(target, enemyStats);
 
-        int chainDamage = DamageSystem::CalculateChainDamage(playerInfo, enemyInfo);
         turnMode->ApplyActions([&](TurnAction& action) {
             action.OnPlayerBattleCaculateChainModifier(attacker, playerStats, weaponStats, target, enemyStats);
         });
+        int chainDamage = DamageSystem::CalculateChainDamage(playerInfo, enemyInfo);
         target.TakeChain(chainDamage);
 
         turnMode->ApplyActions([&](TurnAction& action) {
