@@ -36,7 +36,7 @@ namespace EnemyAction
             SkeletalMeshRenderer* renderer = _owner->GetSkeletalMeshRenderer();
             if (renderer)
             {
-                if (true == renderer->GetLastAnimationData().IsEnd)
+                if (true == renderer->GetLastAnimationData().IsEnd())
                 {
                     return true;
                 }

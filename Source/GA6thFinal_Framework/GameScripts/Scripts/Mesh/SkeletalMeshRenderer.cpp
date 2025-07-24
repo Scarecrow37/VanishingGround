@@ -192,7 +192,6 @@ void SkeletalMeshRenderer::UpdateAnimation(AnimationData* animData)
             animator->SetLoop(animData->HasFlag(ANIMATION_FLAG_USE_LOOP));
             animator->SetAnimationSpeed(animFrameScale);
             animData->Duration = animator->GetCurrentAnimationPlayTime();
-            animData->IsEnd    = animator->IsEnd();
 
             if (animData->PopCondition)
             {
@@ -212,9 +211,9 @@ void SkeletalMeshRenderer::UpdateAnimation(AnimationData* animData)
                 animData->Duration += delta * animFrameScale;
                 if (animData->Duration >= maxFrame)
                 {
-                    _eventQueue.push_back([this, name = animData->AnimationName]() {
+                    _eventQueue.push_back([this, animData]() {
                         auto itr = std::remove_if(_overrideAnimationStack.begin(), _overrideAnimationStack.end(),
-                                           [&name](const AnimationData& data) { return data.AnimationName == name; });
+                                           [animData](const AnimationData& data) { return &data == animData; });
                     _overrideAnimationStack.erase(itr, _overrideAnimationStack.end());
                     });
                 }
@@ -267,10 +266,11 @@ void SkeletalMeshRenderer::PushOverrideAnimation(std::string_view animKey, bool 
         AnimationData* animData = GetLastAnimationDataEx();
         if (animData)
         {
+            animData->IsBlending   = blend;
             animData->PopCondition = popCondition;
+            animData->MaxFrame     = animator->GetAnimationLastTime(animData->AnimationName.data());
             if (false == _isBuildingOverrideAnimation)
             {
-                animData->IsBlending = blend;
                 animator->ChangeAnimation(animData->AnimationName.c_str(), animData->IsBlending);
                 animator->SetAnimationTime(animData->Duration);
             }
@@ -392,10 +392,12 @@ void SkeletalMeshRenderer::SetAnimation(AnimationData* animData, std::string_vie
     const auto& animator = Renderer->GetAnimator();
     if (animator && animData)
     {
+        animData->IsBlending    = blend;
         animData->AnimationName = animKey;
+        animData->MaxFrame      = animator->GetAnimationLastTime(animData->AnimationName.data());
         if (false == _isBuildingOverrideAnimation)
         {
-            animator->ChangeAnimation(animData->AnimationName.c_str(), blend);
+            animator->ChangeAnimation(animData->AnimationName.c_str(), animData->IsBlending);
             SetCurrentAnimationFrame(animData->Duration);
         }
     }

@@ -118,7 +118,7 @@ void CharacterBase::TakeDamage(int damage)
             _skeletalMeshRenderer->PopOverrideAnimation();
         }
         _skeletalMeshRenderer->PushOverrideAnimation(hitAnimName, true,
-            [](const AnimationData& data) { return data.IsEnd; });
+            [](const AnimationData& data) { return data.IsEnd(); });
     }
 }
 
@@ -238,7 +238,7 @@ bool CharacterBase::IsAnimationEnd()
     if (_skeletalMeshRenderer)
     {
         const auto& data = _skeletalMeshRenderer->GetLastAnimationData();
-        return data.IsEnd;
+        return data.IsEnd();
     }
     return true;
 }

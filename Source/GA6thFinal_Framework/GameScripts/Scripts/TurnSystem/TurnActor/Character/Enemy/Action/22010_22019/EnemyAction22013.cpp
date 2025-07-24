@@ -12,7 +12,7 @@ namespace EnemyAction
             _renderer->BeginBuildOverrideAnimation();
             {
                 const char*   animKey = _owner->GetAnimationName(CharacterBase::ATTACK_3);
-                _renderer->PushOverrideAnimation(animKey, true, [](const AnimationData& data) { return data.IsEnd; });
+                _renderer->PushOverrideAnimation(animKey, true, [](const AnimationData& data) { return data.IsEnd(); });
                 _renderer->SetCurrentAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE);
             }
             _renderer->EndBuildOverrideAnimation();
