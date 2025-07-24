@@ -39,6 +39,10 @@ void AnimationComponent::OnDrawDebug()
 {
     // 메인 애니메이션만
     UpdateAnimation(_mainAnimationData);
+    if (nullptr == _skeletalMeshRenderer)
+    {
+        _skeletalMeshRenderer = GetComponent<SkeletalMeshRenderer>();
+    }
 }
 
 void AnimationComponent::SerializedReflectEvent()

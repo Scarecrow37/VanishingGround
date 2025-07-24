@@ -33,8 +33,6 @@ void PlayerWaitTurnState::OnStart()
 
 void PlayerWaitTurnState::OnEnter() 
 {
-    auto& player = GetPlayer();
-    player.SetMainAnimation(CharacterBase::IDLE, ANIMATION_FLAG_USE_LOOP | ANIMATION_FLAG_RESET_FRAME);
 }
 
 void PlayerWaitTurnState::OnExit() 
