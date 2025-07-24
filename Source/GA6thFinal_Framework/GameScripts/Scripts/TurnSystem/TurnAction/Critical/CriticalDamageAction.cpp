@@ -58,7 +58,7 @@ const std::string& CriticalDamageAction::GetActionName()
     return name;
 }
 
-void CriticalDamageAction::OnPlayerBattleStart(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats,
+void CriticalDamageAction::OnPlayerBattleCalculateDamageModifier(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats,
                                                Enemy& target, EnemyStats& targetStats)
 {
     if (true == EvaluateConditions())
@@ -70,7 +70,7 @@ void CriticalDamageAction::OnPlayerBattleStart(Player& attacker, PlayerStats& at
     }
 }
 
-void CriticalDamageAction::OnEnemyBattleStart(Enemy& attacker, EnemyStats& attackerStats, Player& target,
+void CriticalDamageAction::OnEnemyBattleCalculateDamageModifier(Enemy& attacker, EnemyStats& attackerStats, Player& target,
                                               PlayerStats& targetStats)
 {
     //적은 치명타가 없음.

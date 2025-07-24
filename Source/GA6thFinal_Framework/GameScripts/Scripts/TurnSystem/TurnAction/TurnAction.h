@@ -128,24 +128,57 @@ public:
     /// <param name="targetFlag"></param>
     virtual void OnPlayerBattleTargetSelected(Battle::EnemyTargetFlag& targetFlag) {}
 
+
     /// <summary>
-    /// 플레이어가 배틀 데미지 계산 전에 호출됩니다.
+    /// 플레이어의 연격 데미지 계산 전에 호출됩니다.
+    /// </summary>
+    /// <param name="attacker"></param>
+    /// <param name="attackerStats"></param>
+    /// <param name="weaponStats"></param>
+    /// <param name="target"></param>
+    /// <param name="targetStats"></param>
+    virtual void OnPlayerBattleCaculateChainModifier(Player& attacker, PlayerStats& attackerStats,
+                                                     WeaponStats& weaponStats, Enemy& target, EnemyStats& targetStats)
+    {
+    }
+
+    /// <summary>
+    /// 플레이어의 배틀 데미지 계산 전에 호출됩니다.
     /// </summary>
     /// <param name="attacker :">플레이어 컴포넌트</param>
     /// <param name="attackerStats :">실제 데미지 계산에 사용될 스텟</param>
     /// <param name="weaponStats :">실제 데미지 계산에 사용될 스텟</param>
     /// <param name="target :">공격 당하는 적 컴포넌트</param>
     /// <param name="targetStats :">실제 데미지 계산에 사용될 스텟</param>
-    virtual void OnPlayerBattleStart(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats, Enemy& target, EnemyStats& targetStats) {}
+    virtual void OnPlayerBattleCalculateDamageModifier(Player& attacker, PlayerStats& attackerStats,
+                                                       WeaponStats& weaponStats, Enemy& target, EnemyStats& targetStats)
+    {
+    }
 
     /// <summary>
-    /// 적이 배틀데미지 계산 직전에 호출됩니다.
+    /// 적의 배틀 데미지 계산 직전에 호출됩니다.
     /// </summary>
     /// <param name="attacker :">적 컴포넌트</param>
     /// <param name="attackerStats :">실제 계산에 사용되는 적 스텟</param>
     /// <param name="target :">플레이어 컴포넌트</param>
     /// <param name="targetStats :">실제 계산에 사용되는 플레이어 스텟</param>
-    virtual void OnEnemyBattleStart(Enemy& attacker, EnemyStats& attackerStats, Player& target, PlayerStats& targetStats) {}
+    virtual void OnEnemyBattleCalculateDamageModifier(Enemy& attacker, EnemyStats& attackerStats, Player& target,
+                                                      PlayerStats& targetStats)
+    {
+    }
+
+    /// <summary>
+    /// 적의 연격 데미지 계산 전에 호출됩니다.
+    /// </summary>
+    /// <param name="attacker"></param>
+    /// <param name="attackerStats"></param>
+    /// <param name="weaponStats"></param>
+    /// <param name="target"></param>
+    /// <param name="targetStats"></param>
+    virtual void OnEnemyBattleCalculateChainModifier(Enemy& attacker, EnemyStats& attackerStats, Player& target,
+                                                     PlayerStats& targetStats)
+    {
+    }
 
 public:
     REFLECT_PROPERTY(ActionName, LogicOperator)

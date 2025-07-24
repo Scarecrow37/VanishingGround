@@ -61,7 +61,7 @@ void TokenApplyAction::DeserializedReflectEvent()
     UpdateActionInfo();
 }
 
-void TokenApplyAction::OnPlayerBattleStart(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats,
+void TokenApplyAction::OnPlayerBattleCalculateDamageModifier(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats,
                                            Enemy& target, EnemyStats& targetStats)
 {
     if (EvaluateConditions())
@@ -70,7 +70,7 @@ void TokenApplyAction::OnPlayerBattleStart(Player& attacker, PlayerStats& attack
     }
 }
 
-void TokenApplyAction::OnEnemyBattleStart(Enemy& attacker, EnemyStats& attackerStats, Player& target,
+void TokenApplyAction::OnEnemyBattleCalculateDamageModifier(Enemy& attacker, EnemyStats& attackerStats, Player& target,
                                           PlayerStats& targetStats)
 {
     if (EvaluateConditions())
