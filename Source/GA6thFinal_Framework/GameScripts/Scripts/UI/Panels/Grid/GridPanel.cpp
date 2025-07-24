@@ -19,19 +19,22 @@ void GridPanel::DrawDebug()
     const unsigned int rows    = Rows;
     const SIZE         size    = Size;
     const POINT        point   = Point;
+    const auto         [scopeX, scopeY]  = ReflectFields->Basefields.get().Basefields.get().ScopePoint;
     if (columns == 0 || rows == 0)
         return;
 
     const long stepX = size.cx / static_cast<LONG>(columns);
     for (unsigned int i = 1; i < columns; ++i)
     {
-        POINT start{};
-        start.x = point.x + stepX * static_cast<LONG>(i);
-        start.y = point.y;
+        const POINT start{
+            .x = scopeX + point.x + stepX * static_cast<LONG>(i),
+            .y = scopeY + point.y
+        };
 
-        POINT end{};
-        end.x = start.x;
-        end.y = start.y + size.cy;
+        const POINT end{
+            .x = start.x,
+            .y = start.y + size.cy
+        };
 
         XMFLOAT2 startVector = {static_cast<float>(start.x), static_cast<float>(start.y)};
         XMFLOAT2 endVector   = {static_cast<float>(end.x), static_cast<float>(end.y)};
@@ -41,12 +44,14 @@ void GridPanel::DrawDebug()
     const long stepY = size.cy / static_cast<LONG>(rows);
     for (unsigned int i = 1; i < rows; ++i)
     {
-        POINT start{};
-        start.x = point.x;
-        start.y = point.y + stepY * static_cast<LONG>(i);
-        POINT end{};
-        end.x = start.x + size.cx;
-        end.y = start.y;
+        const POINT start{
+            .x = scopeX + point.x,
+            .y = scopeY + point.y + stepY * static_cast<LONG>(i)
+        };
+        const POINT end{
+            .x = start.x + size.cx,
+            .y = start.y
+        };
 
          XMFLOAT2 startVector = {static_cast<float>(start.x), static_cast<float>(start.y)};
         XMFLOAT2 endVector   = {static_cast<float>(end.x), static_cast<float>(end.y)};
@@ -61,19 +66,17 @@ void GridPanel::DrawDebugSelected()
     const unsigned int rows    = Rows;
     const SIZE         size    = Size;
     const POINT        point   = Point;
+    const auto [scopeX, scopeY] = ReflectFields->Basefields.get().Basefields.get().ScopePoint;
     if (columns == 0 || rows == 0)
         return;
 
     const long stepX = size.cx / static_cast<LONG>(columns);
     for (unsigned int i = 1; i < columns; ++i)
     {
-        POINT start{};
-        start.x = point.x + stepX * static_cast<LONG>(i);
-        start.y = point.y;
+        const POINT start{.x = scopeX + point.x + stepX * static_cast<LONG>(i), .y = scopeY + point.y};
 
-        POINT end{};
-        end.x = start.x;
-        end.y = start.y + size.cy;
+        const POINT end{.x = start.x, .y = start.y + size.cy};
+
 
         XMFLOAT2 startVector = {static_cast<float>(start.x), static_cast<float>(start.y)};
         XMFLOAT2 endVector   = {static_cast<float>(end.x), static_cast<float>(end.y)};
@@ -98,12 +101,8 @@ void GridPanel::DrawDebugSelected()
     const long stepY = size.cy / static_cast<LONG>(rows);
     for (unsigned int i = 1; i < rows; ++i)
     {
-        POINT start{};
-        start.x = point.x;
-        start.y = point.y + stepY * static_cast<LONG>(i);
-        POINT end{};
-        end.x = start.x + size.cx;
-        end.y = start.y;
+        const POINT start{.x = scopeX + point.x, .y = scopeY + point.y + stepY * static_cast<LONG>(i)};
+        const POINT end{.x = start.x + size.cx, .y = start.y};
 
         XMFLOAT2 startVector = {static_cast<float>(start.x), static_cast<float>(start.y)};
         XMFLOAT2 endVector   = {static_cast<float>(end.x), static_cast<float>(end.y)};
@@ -167,7 +166,7 @@ void GridPanelSlot::OnSetPlacement()
     const SIZE  scopeSize{.cx = stepX * static_cast<LONG>(ReflectFields->ColumnSpan),
                           .cy = stepY * static_cast<LONG>(ReflectFields->RowSpan)};
 
-    PanelSlotComponent::PassScopedPlacement(scopePoint, scopeSize);
+    PassScopedPlacement(scopePoint, scopeSize);
 }
 
 void GridPanelSlot::SetColumnsAndRows(const unsigned int columns, const unsigned int rows)

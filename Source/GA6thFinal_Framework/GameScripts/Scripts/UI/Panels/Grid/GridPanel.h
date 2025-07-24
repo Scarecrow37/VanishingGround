@@ -59,6 +59,7 @@ public:
 
     GridPanelSlot();
 
+public:
     REFLECT_PROPERTY(Column, Row, ColumnSpan, RowSpan)
 
     GETTER(unsigned int, Column) { return ReflectFields->Column; }
@@ -93,6 +94,7 @@ public:
     }
     PROPERTY(RowSpan)
 
+public:
     void OnSetPlacement() override;
 
 protected:
