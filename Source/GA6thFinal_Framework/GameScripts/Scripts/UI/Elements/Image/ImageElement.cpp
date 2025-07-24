@@ -16,8 +16,10 @@ ImageElement::ImageElement()
                     {
                         _guidRef            = path.ToGuid();
                         ReflectFields->Guid = _guidRef.string();
-                        UmSceneManager.ResourceManager.RequestTextureResource(this, _guidRef,
-                                                                              [this]() { LoadTexture(); });
+                        UmSceneManager.ResourceManager.RequestTextureResource(this, _guidRef, [this]() {
+                            LoadTexture();
+                            OnPlacementChange();
+                        });
                     }
                 }
             }

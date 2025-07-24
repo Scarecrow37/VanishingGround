@@ -196,7 +196,7 @@ bool Command::EditorScene::DuplicateCommand::Execute()
         GameObject* sourceRoot = _sourceObjects.front().get();
         _oldFocused = sourceRoot->GetWeakPtr();
         GameObject* destRoot = GameObject::Instantiate(sourceRoot);
-        std::string destName{(std::string_view)destRoot->Name};
+        std::string destName{destRoot->Name};
         size_t pos = destName.rfind(" (");
         if (pos != std::string::npos && destName.back() == ')')
         {
@@ -274,7 +274,7 @@ bool Command::EditorScene::PasteObjectCommand::Execute()
                 if (sourceRoot)
                 {
                     _oldFocused = EditorHierarchyTool::GetFocusObject();
-                    std::string objName(std::string_view(sourceRoot->Name));
+                    std::string objName(sourceRoot->Name);
                     size_t      pos = objName.rfind(" (");
                     if (pos != std::string::npos && objName.back() == ')')
                     {

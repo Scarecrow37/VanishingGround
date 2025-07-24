@@ -40,6 +40,12 @@ public:
 
     void DeserializedReflectEvent() override;
 
+    void OnPlayerBattleStart(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats, Enemy& target,
+                             EnemyStats& targetStats) override;
+
+    void OnEnemyBattleStart(Enemy& attacker, EnemyStats& attackerStats, Player& target,
+                            PlayerStats& targetStats) override;
+
 private:
     void UpdateActionInfo();
     std::string _actionInfo;

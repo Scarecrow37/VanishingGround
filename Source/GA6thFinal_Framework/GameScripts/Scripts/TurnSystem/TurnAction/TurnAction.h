@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "Condition/TurnActionCondition.h"
+#include <BattleSystem/Battle.h>
 
 // Condition 클래스 등록을 위한 레지스터
 #define REGISTER_TURN_ACTION_CONDITION(CLASS) REGISTER_CLASS(TurnAction, CLASS)
@@ -120,6 +121,12 @@ public:
 
     /// <summary>인자로 넘어온 캐릭터의 턴이 종료되면 호출됩니다.</summary>
     virtual void OnTurnEnd(CharacterBase* destination) {}
+
+    /// <summary>
+    /// 플레이어가 공격할 적을 선택한 뒤 호출됩니다.
+    /// </summary>
+    /// <param name="targetFlag"></param>
+    virtual void OnPlayerBattleTargetSelected(Battle::EnemyTargetFlag& targetFlag) {}
 
     /// <summary>
     /// 플레이어가 배틀 데미지 계산 전에 호출됩니다.
