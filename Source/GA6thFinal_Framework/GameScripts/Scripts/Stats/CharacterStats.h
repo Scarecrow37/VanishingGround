@@ -16,7 +16,7 @@ struct CharacterStats : public TurnActorStats
     // int 최대 체력
     PROPERTY(MaxHP)
 
-    SETTER(int, CurrentHP) { _currentHP = std::clamp(value, 1, ReflectFields->MaxHP); }
+    SETTER(int, CurrentHP) { _currentHP = std::clamp(value, 0, ReflectFields->MaxHP); }
     GETTER(int, CurrentHP) { return _currentHP; }
     // int 현재 체력
     PROPERTY(CurrentHP)
