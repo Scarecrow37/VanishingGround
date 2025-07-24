@@ -33,24 +33,23 @@ void CenterWrapper::OnPlacementChange()
 {
     EditablePlacementUIComponent::OnPlacementChange();
 
-    AssignChild();
+    Transform&                         transform  = this->transform;
+    std::vector<PlacementUIComponent*> components = FindChildComponents<PlacementUIComponent>()(transform);
+    std::ranges::for_each(components, [this](PlacementUIComponent* component) { AssignChild(*component); });
 }
 
 void CenterWrapper::OnAttachChild(GameObject* childGameObject)
 {
     EditablePlacementUIComponent::OnAttachChild(childGameObject);
 
-    AssignChild();
+    auto& component = childGameObject->AddComponent<PlacementUIComponent>();
+    AssignChild(component);
 }
 
-void CenterWrapper::AssignChild() const
+void CenterWrapper::AssignChild(PlacementUIComponent& component) const
 {
-    Transform&                         transform  = this->transform;
-    std::vector<PlacementUIComponent*> components = FindChildComponents<PlacementUIComponent>()(transform);
-    std::ranges::for_each(components, [this](PlacementUIComponent* component) {
-        const SIZE  childSize = component->GetSize();
-        const POINT point     = GetCenterPoint(childSize);
-        const SIZE  size      = GetSize();
-        component->SetScopePlacement(point, size);
-    });
+    const SIZE  childSize = component.GetSize();
+    const POINT point     = GetCenterPoint(childSize);
+    const SIZE  size      = GetSize();
+    component.SetScopePlacement(point, size);
 }
