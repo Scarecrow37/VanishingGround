@@ -4,6 +4,7 @@
 #include "TurnSystem/TurnMode/TurnMode.h"
 
 #include <Mesh/SkeletalMeshRenderer.h>
+#include <Animation/AnimationComponent.h>
 
 int CharacterBase::GetMaxHP()
 {
@@ -63,11 +64,20 @@ void CharacterBase::InitMeshModel()
     {
         GameObject& modelObject = modelTransform->gameObject;
         _skeletalMeshRenderer   = modelObject.GetComponent<SkeletalMeshRenderer>();
+        _animationComponent     = modelObject.GetComponent<AnimationComponent>();
         if (nullptr == _skeletalMeshRenderer)
         {
             std::string msg = std::format("{}{}",
                 modelObject.ToString(),
                 (const char*)u8"의 컴포넌트에 SkeletalMeshRenderer가 없습니다."
+            );
+            UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
+        }
+        if (nullptr == _animationComponent)
+        {
+            std::string msg = std::format("{}{}",
+                modelObject.ToString(),
+                (const char*)u8"의 컴포넌트에 AnimationComponent가 없습니다."
             );
             UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
         }
@@ -109,19 +119,18 @@ void CharacterBase::TakeDamage(int damage)
             (const char*)u8"의 피해를 입었습니다.");
     UmLogger.Log(LogLevel::LEVEL_DEBUG, msg);
 
-    if (_skeletalMeshRenderer)
+    if (_animationComponent)
     {
-        const char* currentAnimName = _skeletalMeshRenderer->GetCurrentAnimationName().c_str();
+        const auto& animData        = _animationComponent->GetLastAnimationData();
+        const char* currentAnimName = animData.GetAnimationName().c_str();
         const char* hitAnimName     = GetAnimationName(CharacterBase::HIT);
         if (0 == strcmp(currentAnimName, hitAnimName))
         {
-            PopOverrideAnimation();
+            _animationComponent->PopOverrideAnimation();
         }
+        _animationComponent->PushOverrideAnimation(hitAnimName, true,
+            [](const AnimationData& data) { return data.IsEnd(); });
     }
-    PushOverrideAnimation(CharacterBase::HIT, false, true,
-                          [](const AnimationData& data) { // 자동 Pop조건
-                              return data.IsEnd;
-                          });
 }
 
 void CharacterBase::TakeChain(int chainDamage) 
@@ -214,48 +223,30 @@ void CharacterBase::ImGuiDrawPropertysEvent()
     _tokenInventory.DrawImGuiDebugData();
 }
 
-void CharacterBase::SetMainAnimation(AnimationType type, bool loop, bool blend)
+void CharacterBase::SetMainAnimation(AnimationType type, int flags, bool blend)
 {
-    if (_skeletalMeshRenderer)
+    if (_animationComponent)
     {
         const char* animKey = GetAnimationName(type);
-        _skeletalMeshRenderer->SetMainAnimation(animKey, blend);
-        _skeletalMeshRenderer->SetMainAnimationLoop(loop);
+        _animationComponent->ChangeMainAnimation(animKey, blend);
+        _animationComponent->ChangeMainAnimationFlags(flags);
     }
 }
 
-void CharacterBase::ClearOverrideAnimations() 
+void CharacterBase::ClearOverrideAnimations()
 {
-    if (_skeletalMeshRenderer)
+    if (_animationComponent)
     {
-        _skeletalMeshRenderer->ClearOverrideAnimations();
-    }
-}
-
-void CharacterBase::PushOverrideAnimation(AnimationType type, bool loop, bool blend,
-                                          std::function<bool(const AnimationData&)> popCondition)
-{
-    if (_skeletalMeshRenderer)
-    {
-        const char* animKey = GetAnimationName(type);
-        _skeletalMeshRenderer->PushOverrideAnimation(animKey, loop, blend, popCondition);
-    }
-}
-
-void CharacterBase::PopOverrideAnimation()
-{
-    if (_skeletalMeshRenderer)
-    {
-        _skeletalMeshRenderer->PopOverrideAnimation();
+        _animationComponent->ClearOverrideAnimations();
     }
 }
 
 bool CharacterBase::IsAnimationEnd()
 {
-    if (_skeletalMeshRenderer)
+    if (_animationComponent)
     {
-        const auto& data = _skeletalMeshRenderer->GetLastAnimationData();
-        return data.IsEnd;
+        const auto& data = _animationComponent->GetLastAnimationData();
+        return data.IsEnd();
     }
     return true;
 }

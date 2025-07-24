@@ -1,7 +1,10 @@
 ﻿#include "pchScripts.h"
 #include "TokenSystem.h"
 
-TokenSystem::TokenSystem() {}
+TokenSystem::TokenSystem() 
+{
+    _staticInstance = this;
+}
 
 TokenSystem::~TokenSystem()
 {
@@ -13,7 +16,6 @@ TokenSystem::~TokenSystem()
 
 void TokenSystem::Reset()
 {
-    _staticInstance = this;
     RegisterAllTokenInstance();
     SortByOrder();
 }
