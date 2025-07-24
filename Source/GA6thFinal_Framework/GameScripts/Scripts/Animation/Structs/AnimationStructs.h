@@ -24,6 +24,7 @@ struct AnimationData
     ~AnimationData() = default;
 
     std::string AnimationName   = "";       // 애니메이션 이름
+
     AnimationFlags Flags        = 0;        // 애니메이션 플래그
     bool        IsBlending      = false;    // 블렌딩 여부
     float       Speed           = 1.0f;     // 애니메이션 속도 (배수)
@@ -33,6 +34,7 @@ struct AnimationData
     std::function<bool(const AnimationData&)> PopCondition = nullptr; // return true일 시 Pop
 
     inline bool IsEnd() const { return Duration >= MaxFrame; }
+    inline bool IsSameAnimation(const char* animName) const { return AnimationName == animName; }
 
     inline bool HasFlag(AnimationFlags flag) const {return Flags & flag; }
     inline void SetFlag(AnimationFlags flag) { Flags = flag; }
