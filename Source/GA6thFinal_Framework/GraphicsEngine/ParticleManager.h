@@ -4,6 +4,7 @@
 
 class ParticleManager
 {
+
 public:
     ParticleManager();
     virtual ~ParticleManager();
@@ -12,7 +13,7 @@ public:
     void                   Initialize(UINT maxParticles);
     class ParticleEffect* RegisterEffect(std::string_view sceneName);
     class ParticleEffect*  RegisterEffectOnEditor();
-
+    void                   ChangeTexture();
 
     /// <summary>
     /// Create new ParticleEffect.

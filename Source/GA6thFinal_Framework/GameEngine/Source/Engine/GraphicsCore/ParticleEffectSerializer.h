@@ -1,7 +1,7 @@
 ﻿#pragma once
 constexpr char     MAGIC_NUMBER[] = "UMFX";
 constexpr uint32_t MAJOR_VERSION  = 1;
-constexpr uint32_t MINOR_VERSION  = 0;
+constexpr uint32_t MINOR_VERSION  = 1;
 
 
 class ParticleEffectSerializer : public File::FileEventSubscriber
@@ -48,14 +48,22 @@ public:
     ParticleEffect* Deserialize_1_0(std::ifstream& is, bool isEditor, std::string_view sceneName);
     void            PreDeserialize_1_0(std::ifstream& is);
 
+    
+    void            Serialize_1_1(std::ofstream& os, ParticleEffect* effect, File::Path destPath);
+    ParticleEffect* Deserialize_1_1(std::ifstream& is, bool isEditor, std::string_view sceneName);
+    void            PreDeserialize_1_1(std::ifstream& is);
 
 
-    std::vector<File::Path> GetUsedTexturePaths() { return UsedTexturePaths; }
-    std::vector<File::Path> GetUsedModelPaths() const { return UsedModelPaths; }
+
+
+
+
+    std::set<File::Path> GetUsedTexturePaths() { return UsedTexturePaths; }
+    std::set<File::Path> GetUsedModelPaths() const { return UsedModelPaths; }
 
 private:
-    std::vector<File::Path> UsedTexturePaths;
-    std::vector<File::Path> UsedModelPaths;
+    std::set<File::Path> UsedTexturePaths;
+    std::set<File::Path> UsedModelPaths;
 
 private:
 

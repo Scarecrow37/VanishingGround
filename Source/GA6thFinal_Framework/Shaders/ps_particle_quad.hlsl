@@ -65,7 +65,7 @@ uint ps_main(PSInput input) : SV_Target
     float3 color = input.color.rgb * contrib;
     uint2 pos = uint2(input.position.xy);
     gAccumTex[pos] += float4(color, contrib);
-    gRevealTex[pos] += alpha*0+1;
+    gRevealTex[pos] += alpha;
 
     
     return ceil(alpha - 0.1f);

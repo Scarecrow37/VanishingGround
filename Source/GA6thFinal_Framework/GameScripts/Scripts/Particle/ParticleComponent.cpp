@@ -88,20 +88,23 @@ void ParticleComponent::LoadParticle()
     UmParticleSerializer.PreDeserialize(_filepath);
     const auto& modelpaths = UmParticleSerializer.GetUsedModelPaths();
     
-    for (int i = 0; i < modelpaths.size(); ++i)
+    for (const auto& path : modelpaths)
     {
-        File::Path texPath = modelpaths[i];
+        File::Path texPath = path;
         texPath            = std::filesystem::absolute(texPath).generic_string();
         File::Guid guid    = texPath.ToGuid();
         UmSceneManager.ResourceManager.RequestModelResource(this, guid, []() {});
     }
+
     const auto& paths = UmParticleSerializer.GetUsedTexturePaths();
-    for (int i = 0; i < paths.size(); ++i)
+    size_t count = 0;
+    for (const auto& path : paths)
     {
-        File::Path texPath = paths[i];
+        File::Path texPath = path;
         texPath            = std::filesystem::absolute(texPath).generic_string();
         File::Guid guid    = texPath.ToGuid();
-        if (i == paths.size() - 1)
+        count++;
+        if (count == paths.size())
             UmSceneManager.ResourceManager.RequestTextureResource(this, guid, [this]() 
                 {
                 _effect = UmParticleSerializer.Deserialize(_filepath, false, "Game");
@@ -132,8 +135,21 @@ void ParticleComponent::LoadParticle()
     }
 }
 
+
+void ParticleComponent::FollowBoneMatrix() 
+{
+    //if (auto skelMesh = _gameObject->GetComponent<SkeletalMeshRenderer>() != nullptr)
+    //{
+    //    _effect->_parentWorldMatrix = skelMesh
+
+    //}
+
+
+}
+
 void ParticleComponent::PlayEffect() 
 {
-    _effect->Play();
+    if (nullptr!= _effect)
+        _effect->Play();
 
 }

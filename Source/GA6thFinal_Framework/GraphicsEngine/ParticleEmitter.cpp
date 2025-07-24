@@ -122,7 +122,7 @@ DirectX::SimpleMath::Vector3 MeshSurfaceLocator::EmitLocate()
         auto& mesh = _targetModel->GetMeshes()[meshIdx];
         mesh->GetVertexInfo(vertices, stride, size);
         
-        Vertex* targetVertex = reinterpret_cast<Vertex*>(vertices);
+        StaticMeshVertex* targetVertex = reinterpret_cast<StaticMeshVertex*>(vertices);
         targetVertex += vertexoffset;
 
         return Vector3(targetVertex->Position.x * _factor.x, targetVertex->Position.y * _factor.y,
@@ -231,13 +231,14 @@ void SpriteModule::ChangeAlbedoTexture(std::wstring_view filePath)
 {
     _isAlbedoTextureChanged = true;
     _modelAndTexturePath = filePath;
+    
 }
 
 
 void RibbonModule::ChangeAlbedoTexture(std::wstring_view filePath)
 {
     _isAlbedoTextureChanged = true;
-    _newAlbedoTexturePath   = filePath;
+    _modelAndTexturePath    = filePath;
 }
 
 Texture* SpriteModule::GetAlbedoTexture() const
@@ -473,16 +474,25 @@ void ParticleEmitter::UpdateParticleLifeCycle(float deltaTime)
         newParticles--;
     }
 
-    if (ParticleType::SPRITE == _particleType)
+
+
+
+}
+
+
+void ParticleEmitter::FlushTextureResource() 
+{
+
+        if (ParticleType::SPRITE == _particleType)
     {
         SpriteModule* spritemodule = static_cast<SpriteModule*>(_particleRenderModule);
         if (true == spritemodule->GetTextureChangeFlag())
         {
             spritemodule->SetTextureChangeFlag(false);
             spritemodule->SetAlbedoTexture(
-                Global::resourceManager->LoadResource<Texture>(spritemodule->GetNewAlbedoTexturePath()));
+                Global::resourceManager->LoadResource<Texture>(spritemodule->GetModelAndTexturePath()));
             Global::particleManager->RefreshEditor();
-        }        
+        }
     }
 
     if (ParticleType::RIBBON == _particleType)
@@ -492,15 +502,12 @@ void ParticleEmitter::UpdateParticleLifeCycle(float deltaTime)
         {
             ribbonmodule->SetTextureChangeFlag(false);
             ribbonmodule->SetAlbedoTexture(
-                Global::resourceManager->LoadResource<Texture>(ribbonmodule->GetNewAlbedoTexturePath()));
+                Global::resourceManager->LoadResource<Texture>(ribbonmodule->GetModelAndTexturePath()));
             Global::particleManager->RefreshEditor();
-
         }
     }
 
-
 }
-
 
 void ParticleEmitter::Reset() 
 {
@@ -567,14 +574,8 @@ void ParticleEmitter::AwakeParticle(UINT index)
 
     _particlePool[index]->SetPosition(location);
     ScaleVelocity({location.x, location.y, location.z});
-
     Vector3 finalVelocity = _velocity;
-    if (!_useWorldSpace)
-    {
-        // If simulating in local space, the calculated velocity is also local.
-        // Transform it to world space to apply emitter's rotation and scale.
-        finalVelocity = Vector3::TransformNormal(_velocity, _worldMatrix);
-    }
+    finalVelocity = Vector3::TransformNormal(_velocity, _worldMatrix);
     _particlePool[index]->SetVelocity(finalVelocity);
 
     _particlePool[index]->SetAge(0.f);

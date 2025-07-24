@@ -179,25 +179,44 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
                  float startnormal[3] = {ribbonmodule->GetStartNormal().x, ribbonmodule->GetStartNormal().y,
                                          ribbonmodule->GetStartNormal().z};
                  ImGui::Text("ribbon start facing normal");
-                 bool result = ImGui::SliderFloat3("##ribbon start facing normal", startnormal, -10, 10);
+                 bool result = ImGui::SliderFloat3("##ribbon start facing normal", startnormal, -1, 1);
                  if (false == isSomethingChanged)
                      if (true == result)
                          isSomethingChanged = result;
-                 ribbonmodule->SetStartNormal({startnormal[0], startnormal[1], startnormal[2],0});
+                 Vector3 temp = {startnormal[0], startnormal[1], startnormal[2]};
+                 temp.Normalize();
+
+                 ribbonmodule->SetStartNormal({temp.x,temp.y, temp.z, 0});
              }
 
              {
                  float endnormal[3] = {ribbonmodule->GetEndNormal().x, ribbonmodule->GetEndNormal().y,
                                          ribbonmodule->GetEndNormal().z};
                  ImGui::Text("ribbon end facing normal");
-                 bool result = ImGui::SliderFloat3("##ribbon end facing normal", endnormal, -10, 10);
+                 bool result = ImGui::SliderFloat3("##ribbon end facing normal", endnormal, -1, 1);
                  if (false == isSomethingChanged)
                      if (true == result)
                          isSomethingChanged = result;
-                 ribbonmodule->SetEndNormal({endnormal[0], endnormal[1], endnormal[2],0});
+                 Vector3 temp = {endnormal[0], endnormal[1], endnormal[2]};
+                 temp.Normalize();
+
+                 ribbonmodule->SetEndNormal({temp.x, temp.y, temp.z, 0});
 
              }
 
+             {
+                 float ribbonvector[3] = {ribbonmodule->GetRibbonVector().x, ribbonmodule->GetRibbonVector().y,
+                                          ribbonmodule->GetRibbonVector().z};
+                 ImGui::Text("ribbon vector");
+                 bool result = ImGui::SliderFloat3("##ribbon vector", ribbonvector, -1, 1);
+                 if (false == isSomethingChanged)
+                     if (true == result)
+                         isSomethingChanged = result;
+                 Vector3 temp = {ribbonvector[0], ribbonvector[1], ribbonvector[2]};
+                 temp.Normalize();
+
+                 ribbonmodule->SetRibbonVector({temp.x, temp.y, temp.z, 0});
+             }
 
 
 

@@ -1,22 +1,7 @@
 #include "Compute.hlsli"
-
 StructuredBuffer<ParticleInput> ParticleInputBuffer : register(t0);
 StructuredBuffer<EmitterInfo> EmitterInfoBuffer : register(t1);
 RWStructuredBuffer<ParticleOutput> ParticleOutputBuffer : register(u0);
-
-
-struct MVP
-{
-    float4x4 ViewMatrix;
-    float4x4 ViewRotInvMatrix;
-    float4x4 ProjMatrix;
-    float4 CameraPos;
-    float deltaTime;
-    float4 pad1;
-    float4 pad2;
-    float3 pad3;
-};
-
 ConstantBuffer<MVP> mvp : register(b0);
 
 
@@ -57,7 +42,7 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
     float3 localAxisDir = normalize(vortexAxis);
 
     // Transform the axis to world space to account for the emitter's rotation.
-    float3 worldAxisDir = mul(localAxisDir, (float3x3)emitter.WorldMatrix);
+    float3 worldAxisDir = mul(localAxisDir, (float3x3) emitter.WorldMatrix);
 
     // Select the correct axis direction using lerp to avoid branching.
     // If useWorldSpace is 1.0, worldAxisDir is chosen. If 0.0, localAxisDir is chosen.
@@ -85,11 +70,22 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
     float4x4 scaleMat = CreateScaleMatrix(currentScale);
     
     float4 worldPos = mul(float4(input.position.xyz, 1.0), emitter.WorldMatrix);
-    worldPos.xyz += gravityOffset*input.age;
+    worldPos.xyz += gravityOffset * input.age;
     float4 viewPos = mul(worldPos, mvp.ViewMatrix);
     
-    output.position =    worldPos;
-    output.paddings =    lerp(normalize(emitter.startNormal.xyz), normalize(emitter.endNormal.xyz), ratio);
+    output.position = worldPos;
+
+        
+        
+    float4 ribbonnormal = lerp(emitter.startNormal, emitter.endNormal, ratio);
+    ribbonnormal = mul(ribbonnormal, emitter.OrientedWorldMatrix);
+    float4 ribbonDir = mul(emitter.ribbonVector, emitter.OrientedWorldMatrix);
+    
+    
+    //float4 ribbonnormal = emitter.startNormal;
+    //float4 ribbonup = emitter.endNormal;
+    
+    output.paddings = cross(ribbonDir.xyz, ribbonnormal.xyz);
 
     output.EmitterIndex = input.emitterIndex;
     
@@ -98,8 +94,7 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
         1, 0, 0, 0,
         0, 1, 0, 0,
         0, 0, 1, 0,
-    worldPos.x, worldPos.y, worldPos.z, 1
-);
+    worldPos.x, worldPos.y, worldPos.z, 1);
 
     output.FinalMatrix = scaleMat;
     output.FinalMatrix = mul(output.FinalMatrix, translationMat);

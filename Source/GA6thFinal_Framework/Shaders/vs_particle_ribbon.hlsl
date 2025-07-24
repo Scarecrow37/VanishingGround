@@ -41,39 +41,54 @@ struct VSOutput
 
 VSOutput vs_main(VSInput input)
 {
-
     VSOutput o = (VSOutput) 0;
     int totalcount = bit32_1_ribbonVertexCount.count / 2;
-    
-    uint particleIndex = ribbonIndices[input.vertexID/2];
-    uint particleIndexnext = ribbonIndices[min(input.vertexID / 2 + 2,totalcount)];
-    
-    int isTop = input.vertexID % 2; // Even: top, Odd: bottom
-    isTop *= -2;
-    isTop += 1;
-    
-    ParticleOutput p = particleInfo[particleIndex];
-    ParticleOutput np = particleInfo[particleIndexnext];
 
-    float4 currentvertex = float4(0, isTop , 0, 1);
-    float3 offsetDir = normalize(p.paddings);
-    float3 centerWorldPos = float3(p.position.xyz);
-    float3 centerWorldPosnext = float3(np.position.xyz);
+    //uint current_idx = input.vertexID / 2;
+    //uint next_idx = min(current_idx + 1, totalcount - 1);
+
+    //uint particleIndex = ribbonIndices[current_idx];
+    //uint particleIndexNext = ribbonIndices[next_idx];
+
+    //ParticleOutput p = particleInfo[particleIndex];
+    //ParticleOutput np = particleInfo[particleIndexNext];
+
+    //float3 pos_curr = p.position.xyz;
+    //float3 pos_next = np.position.xyz;
+
+    //float3 progressDir = pos_next - pos_curr;
+    //progressDir = length(progressDir) < 0.00001f ? float3(1,0,0) : progressDir;
+
+    //float3 ribbonUp = normalize(p.paddings);
+    //float3 offsetvector;
+
+    //offsetvector = normalize(cross(normalize(progressDir), ribbonUp));
+    uint current_idx = input.vertexID / 2;
+    uint particleIndex = ribbonIndices[current_idx];
+    ParticleOutput p = particleInfo[particleIndex];
+    float3 pos_curr = p.position.xyz;
+
+
+    float3 offsetvector = normalize(p.paddings);
     
-    float3 progressDir = normalize(lerp(cameraData.Position.xyz, centerWorldPosnext, ceil(centerWorldPosnext - centerWorldPos)) - centerWorldPos);
-    float3 offsetvector = cross(offsetDir, progressDir);
-    float ribbonHalfWidth = p.FrameInfo.x;
-    
-    float4 newpos = float4(offsetvector * ribbonHalfWidth *isTop, 1);
-    o.position = mul(newpos, p.FinalMatrix);
-    uint ratio = input.vertexID / 2;
-    float u = float(ratio) / float(totalcount - 1);
-    o.uv = float2(p.FrameInfo.z, (1 + isTop) * 0.5f); // 필요 시 u좌표는 셰이더에서 계산
-    
+
+    int isTop = (input.vertexID % 2 == 0) ? 1 : -1;
+    float ribbonHalfWidth = p.FrameInfo.x * 0.5f;
+
+    // --- 가장 기본적인 월드 위치 계산 ---
+    float3 final_world_pos = pos_curr + (offsetvector * ribbonHalfWidth * isTop);
+
+    // --- 표준 파이프라인으로 변환 ---
+    float4 viewPos = mul(float4(final_world_pos, 1.0f), cameraData.View);
+    o.position = mul(viewPos, cameraData.Projection);
+
+    // UV 및 나머지 데이터
+    float u = (float)current_idx / (float)(totalcount - 1);
+    float v = 1-(1.0f + isTop) * 0.5f;
+    o.uv = float2(u, v);
+
     o.color = p.Color;
-    
     o.depth = o.position.z / o.position.w;
-    
+
     return o;
-    
 }

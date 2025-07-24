@@ -52,6 +52,10 @@ void ParticleSpritePass::Begin(ID3D12GraphicsCommandList* commandList)
 
 void ParticleSpritePass::Draw(ID3D12GraphicsCommandList* commandList)
 {        
+    if (0 >= Global::particleManager->GetTotalCount(_ownerScene->_name))
+        return;
+
+
     commandList->SetPipelineState(_pipelineState.Get());
     commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
     auto depthStencilBuffer = Global::multiRenderTargetManager->GetRenderTarget("Depth");

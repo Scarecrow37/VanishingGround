@@ -7,19 +7,44 @@ ParticleManager::ParticleManager() {}
 
 ParticleManager::~ParticleManager()
 {
-    for (auto effect : _particleEffects)
+    // _editorCurrentEffect는 _sceneResources가 관리하는 이펙트를 가리키는 관찰 포인터이므로,
+    // 여기서 직접 delete하지 않고 nullptr로 초기화하여 댕글링 포인터 접근을 방지합니다.
+    // 실제 메모리는 아래의 로직에서 해제됩니다.
+    _editorCurrentEffect = nullptr;
+
+    // 1. 모든 고유한 ParticleUpdateResource와 그들이 소유한 ParticleEffect 객체들을 정리합니다.
+    //    _particleUpdateResources 셋을 순회하면 공유된 리소스가 단 한 번만 삭제되는 것을 보장할 수 있습니다.
+    for (ParticleUpdateResource* updateResource : _particleUpdateResources)
     {
-        if (nullptr!= effect)
-            delete effect;
+        if (updateResource)
+        {
+            // 이 업데이트 리소스가 소유한 모든 ParticleEffect 객체를 삭제합니다.
+            for (ParticleEffect* effect : updateResource->_sceneEffects)
+            {
+                if (effect)
+                {
+                    delete effect;
+                }
+            }
+            updateResource->_sceneEffects.clear(); // 포인터 벡터를 비웁니다.
+
+            // 이제 업데이트 리소스 컨테이너 자체를 삭제합니다.
+            delete updateResource;
+        }
     }
-    _particleEffects.clear();
+    _particleUpdateResources.clear(); // 포인터 셋을 비웁니다.
 
-    if (_editorCurrentEffect)
-        delete _editorCurrentEffect;
-
-    _totalParticles.clear();
-    _emitterMatrix.clear();
-    _activeEmitterAlbedos.clear();
+    // 2. 모든 ParticleRenderResource 객체를 정리합니다.
+    //    이 리소스들은 각 ParticleSceneResource가 고유하게 소유합니다.
+    for (auto& pair : _sceneResources)
+    {
+        ParticleSceneResource& sceneResource = pair.second;
+        if (sceneResource._renderResource)
+        {
+            delete sceneResource._renderResource;
+        }
+    }
+    _sceneResources.clear(); // 맵과 그 안의 (포인터가 아닌) 객체들이 소멸됩니다.
 }
 
 void ParticleManager::Initialize(UINT maxParticles)
@@ -73,6 +98,23 @@ class ParticleEffect* ParticleManager::RegisterEffectOnEditor()
     return newEffect;
 }
 
+void ParticleManager::ChangeTexture()
+{
+    for (auto& updateresource : _particleUpdateResources)
+    {
+        for (auto& effect : updateresource->_sceneEffects)
+        {
+            if (true == effect->GetActiveFlag())
+            {
+                for (auto& emitter : effect->GetEmitterList())
+                {
+                    emitter->FlushTextureResource();
+                }
+            }
+        }
+    }
+}
+
 ParticleEmitter* ParticleManager::RegisterEmitter(class ParticleEffect* effect, SIZE_T maxParticles /*= 100000*/,
                                                   float emissionRate /*= 500.f*/, float emitterLifetime /*= 5.f*/,
                                                   LocationShape     locatorShape /*= LocationShape::SPHERE*/,
@@ -106,6 +148,7 @@ void ParticleManager::DeleteEffect(ParticleEffect* target)
 void ParticleManager::Update(const float deltaTime)
 {
     float delta = deltaTime * _deltaScale;
+
     {
         _computeAllocator->Reset();
         _computeCommandList->Reset(_computeAllocator.Get(), nullptr);
@@ -139,7 +182,7 @@ void ParticleManager::Update(const float deltaTime)
                 scene.second._commandList->SetComputeRootSignature(_computeSpriteRootSignature.Get());
                 DispatchSprite(deltaTime, scene.second._name);
                 scene.second._commandList->SetPipelineState(_computeRibbonPSO.Get());
-                _computeCommandList->SetComputeRootSignature(_computeRibbonRootSignature.Get());
+                scene.second._commandList->SetComputeRootSignature(_computeRibbonRootSignature.Get());
                 DispatchRibbon(deltaTime, scene.second._name);
 
                 scene.second._commandList->Close();
@@ -556,53 +599,7 @@ void ParticleManager::InitializeDescriptorHeap()
     _descriptorSize =
         Global::device->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 }
-//void ParticleManager::CreateParticleResources()
-//{
-//    // 1. 파티클 입력 버퍼 (SRV - t0)
-//    UINT particleInputSize = _maxParticles * sizeof(Particle);
-//    CreateStructuredBuffer(_particleInputBuffer, _particleInputUploadBuffer, particleInputSize, sizeof(Particle));
-//    CreateStructuredBuffer(_editorParticleInputBuffer, _editorParticleInputUploadBuffer, particleInputSize,
-//                           sizeof(Particle));
-//    CreateStructuredBuffer(_ribbonParticleInputBuffer, _ribbonParticleInputUploadBuffer, particleInputSize,
-//                           sizeof(Particle));
-//    CreateStructuredBuffer(_ribbonEditorParticleInputBuffer, _ribbonEditorParticleInputUploadBuffer, particleInputSize,
-//                           sizeof(Particle));
-//
-//    // 2. 에미터 정보 버퍼 (SRV - t1)
-//    UINT emitterInfoSize = _maxEmitters * sizeof(EmitterInfo);
-//    CreateStructuredBuffer(_emitterInfoBuffer, _emitterInfoUploadBuffer, emitterInfoSize, sizeof(EmitterInfo));
-//    CreateStructuredBuffer(_editorEmitterInfoBuffer, _editorEmitterInfoUploadBuffer, emitterInfoSize,
-//                           sizeof(EmitterInfo));
-//    CreateStructuredBuffer(_ribbonEmitterInfoBuffer, _ribbonEmitterInfoUploadBuffer, emitterInfoSize,
-//                           sizeof(EmitterInfo));
-//    CreateStructuredBuffer(_ribbonEditorEmitterInfoBuffer, _ribbonEditorEmitterInfoUploadBuffer, emitterInfoSize,
-//                           sizeof(EmitterInfo));
-//
-//    // 3. 파티클 출력 버퍼 (UAV - u0)
-//    UINT particleOutputSize = _maxParticles * sizeof(ParticleOutput);
-//    CreateUAVBuffer(_particleOutputBuffer, particleOutputSize, sizeof(ParticleOutput));
-//    _particleOutputBuffer->SetName(L"particle output");
-//    CreateUAVBuffer(_editorOutputBuffer, particleOutputSize, sizeof(ParticleOutput));
-//    _editorOutputBuffer->SetName(L"editor output");
-//    CreateUAVBuffer(_gameViewOutputBuffer, particleOutputSize, sizeof(ParticleOutput));
-//    _gameViewOutputBuffer->SetName(L"game view output");
-//
-//    CreateUAVBuffer(_ribbonParticleOutputBuffer, particleOutputSize, sizeof(ParticleOutput));
-//    _ribbonParticleOutputBuffer->SetName(L"ribbon output");
-//    CreateUAVBuffer(_ribbonEditorOutputBuffer, particleOutputSize, sizeof(ParticleOutput));
-//    _ribbonEditorOutputBuffer->SetName(L"editor ribbon output");
-//    CreateUAVBuffer(_ribbonGameViewOutputBuffer, particleOutputSize, sizeof(ParticleOutput));
-//    _ribbonGameViewOutputBuffer->SetName(L"game view ribbon output");
-//
-//    // 4. MVP 상수 버퍼 (CBV - b0)
-//    UINT mvpConstantSize = sizeof(MVPConstants); // 256바이트 정렬
-//    CreateConstantBuffer(_mvpConstantBuffer, mvpConstantSize);
-//    CreateConstantBuffer(_editorMvpConstantBuffer, mvpConstantSize);
-//    CreateConstantBuffer(_gameViewMvpConstantBuffer, mvpConstantSize);
-//    CreateConstantBuffer(_ribbonMvpConstantBuffer, mvpConstantSize);
-//    CreateConstantBuffer(_ribbonEditorMvpConstantBuffer, mvpConstantSize);
-//    CreateConstantBuffer(_ribbonGameViewMvpConstantBuffer, mvpConstantSize);
-//}
+
 void ParticleManager::CreateStructuredBuffer(ComPtr<ID3D12Resource>& resource, ComPtr<ID3D12Resource>& uploadResource,
                                              UINT bufferSize, UINT stride)
 {
@@ -660,596 +657,6 @@ void ParticleManager::CreateConstantBuffer(ComPtr<ID3D12Resource>& resource, UIN
                                                              nullptr, IID_PPV_ARGS(&resource)),
         L"");
 }
-//void ParticleManager::CopyActiveParticles()
-//{
-//    _totalParticles.clear();
-//    _emitterMatrix.clear();
-//    _activeEmitterAlbedos.clear();
-//    UINT emitterIndex = 0;
-//    _totalCount       = 0;
-//
-//    _ribbonTotalParticles.clear();
-//    _ribbonEmitterMatrix.clear();
-//    _ribbonActiveEmitterAlbedos.clear();
-//    UINT ribbonEmitterIndex = 0;
-//    _ribbonTotalCount       = 0;
-//    _ribbonIndices.clear();
-//    UINT ribbonparticleIndex = 0;
-//    for (auto effect : _particleEffects)
-//    {
-//        if (true == effect->GetActiveFlag())
-//        {
-//            for (auto emitter : effect->GetEmitterList())
-//            {
-//                if (true == emitter->GetActiveFlag())
-//                {
-//                    if (ParticleType::SPRITE == emitter->_particleType)
-//                    {
-//                        _activeEmitterAlbedos.push_back(
-//                            static_cast<SpriteModule*>(emitter->_particleRenderModule)->GetAlbedoTexture());
-//
-//                        Matrix worldMatrix =
-//                            emitter->GetUseWorldSpace() ? Matrix::Identity : emitter->GetWorldMatrix().Transpose();
-//
-//                        _emitterMatrix.push_back(
-//                            {worldMatrix, emitter->GetDragPoint(), emitter->GetDragForce(), emitter->GetVortexForce(),
-//                             emitter->GetStartScale(), emitter->GetEndScale(),
-//                             Vector4(emitter->GetStartColor().x, emitter->GetStartColor().y, emitter->GetStartColor().z,
-//                                     emitter->GetStartOpacity()),
-//                             Vector4(emitter->GetEndColor().x, emitter->GetEndColor().y, emitter->GetEndColor().z,
-//                                     emitter->GetEndOpacity()),
-//                             Vector4(emitter->GetParticleLifetime(), emitter->GetUseWorldSpace() ? 1.0f : 0.0f, 0, 0),
-//                             Vector4(0, 0, 0, 0), Vector4(0, 0, 0, 0)});
-//                        auto& particlePool = emitter->GetParticlePool();
-//                        for (UINT i = 0; i < emitter->GetActiveParticleCount(); i++)
-//                        {
-//                            auto& particle = *particlePool[i];
-//                            particle.SetEmitterIndex(emitterIndex);
-//                            _totalParticles.push_back(particle);
-//                            _totalCount++;
-//                        }
-//                        emitterIndex++;
-//                    }
-//                    else if (ParticleType::RIBBON == emitter->_particleType)
-//                    {
-//                        _ribbonActiveEmitterAlbedos.push_back(
-//                            static_cast<RibbonModule*>(emitter->_particleRenderModule)->GetAlbedoTexture());
-//
-//                        Matrix worldMatrix =
-//                            emitter->GetUseWorldSpace() ? Matrix::Identity : emitter->GetWorldMatrix().Transpose();
-//
-//                        _ribbonEmitterMatrix.push_back(
-//                            {worldMatrix, emitter->GetDragPoint(), emitter->GetDragForce(), emitter->GetVortexForce(),
-//                             emitter->GetStartScale(), emitter->GetEndScale(),
-//                             Vector4(emitter->GetStartColor().x, emitter->GetStartColor().y, emitter->GetStartColor().z,
-//                                     emitter->GetStartOpacity()),
-//                             Vector4(emitter->GetEndColor().x, emitter->GetEndColor().y, emitter->GetEndColor().z,
-//                                     emitter->GetEndOpacity()),
-//                             Vector4(emitter->GetParticleLifetime(), 0, 0, 0),
-//                             static_cast<RibbonModule*>(emitter->_particleRenderModule)->GetStartNormal(),
-//                             static_cast<RibbonModule*>(emitter->_particleRenderModule)->GetEndNormal()}
-//
-//                        );
-//
-//                        auto&                    particlePool = emitter->GetParticlePool();
-//                        std::vector<ribbonIndex> emitterIndices;
-//                        for (UINT i = 0; i < emitter->GetActiveParticleCount(); i++)
-//                        {
-//                            auto& particle = *particlePool[i];
-//                            particle.SetEmitterIndex(ribbonEmitterIndex);
-//                            _ribbonTotalParticles.push_back(particle);
-//                            _ribbonTotalParticles.push_back(particle);
-//                            emitterIndices.push_back(
-//                                {ribbonparticleIndex++, particle.GetAge() / emitter->GetParticleLifetime()});
-//                            emitterIndices.push_back(
-//                                {ribbonparticleIndex++, particle.GetAge() / emitter->GetParticleLifetime()});
-//                            _ribbonTotalCount += 2;
-//                        }
-//                        _ribbonIndices.push_back(emitterIndices);
-//                        ribbonEmitterIndex++;
-//                    }
-//                }
-//            }
-//        }
-//    }
-//}
-//void ParticleManager::DispatchParticleCompute(float deltaTime)
-//{
-//    if (0 >= _totalCount)
-//        return;
-//
-//    // if (IS_EDITOR)
-//    {
-//        CD3DX12_RESOURCE_BARRIER computeOutputBarrior = CD3DX12_RESOURCE_BARRIER::Transition(
-//            _particleOutputBuffer.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-//        _computeCommandList->ResourceBarrier(1, &computeOutputBarrior);
-//
-//        _computeCommandList->SetComputeRootSignature(_computeSpriteRootSignature.Get());
-//
-//        _computeCommandList->SetComputeRootConstantBufferView(0, _mvpConstantBuffer->GetGPUVirtualAddress());
-//        _computeCommandList->SetComputeRootShaderResourceView(1, _particleInputBuffer->GetGPUVirtualAddress());
-//
-//        _computeCommandList->SetComputeRootShaderResourceView(2, _emitterInfoBuffer->GetGPUVirtualAddress());
-//
-//        _computeCommandList->SetComputeRootUnorderedAccessView(3, _particleOutputBuffer->GetGPUVirtualAddress());
-//
-//        // 6. 디스패치
-//        UINT numThreadGroups = static_cast<UINT>((_totalParticles.size() + 31) / 32); // 32개 스레드 그룹으로 나누기
-//        _computeCommandList->Dispatch(numThreadGroups, 1, 1);
-//
-//        computeOutputBarrior = CD3DX12_RESOURCE_BARRIER::Transition(
-//            _particleOutputBuffer.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COMMON);
-//        _computeCommandList->ResourceBarrier(1, &computeOutputBarrior);
-//    }
-//    {
-//        CD3DX12_RESOURCE_BARRIER computeOutputBarrior = CD3DX12_RESOURCE_BARRIER::Transition(
-//            _gameViewOutputBuffer.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-//        _computeCommandList->ResourceBarrier(1, &computeOutputBarrior);
-//
-//        _computeCommandList->SetComputeRootSignature(_computeSpriteRootSignature.Get());
-//
-//        _computeCommandList->SetComputeRootConstantBufferView(0, _gameViewMvpConstantBuffer->GetGPUVirtualAddress());
-//        _computeCommandList->SetComputeRootShaderResourceView(1, _particleInputBuffer->GetGPUVirtualAddress());
-//
-//        _computeCommandList->SetComputeRootShaderResourceView(2, _emitterInfoBuffer->GetGPUVirtualAddress());
-//
-//        _computeCommandList->SetComputeRootUnorderedAccessView(3, _gameViewOutputBuffer->GetGPUVirtualAddress());
-//
-//        // 6. 디스패치
-//        UINT numThreadGroups = static_cast<UINT>((_totalParticles.size() + 31) / 32); // 32개 스레드 그룹으로 나누기
-//        _computeCommandList->Dispatch(numThreadGroups, 1, 1);
-//
-//        computeOutputBarrior = CD3DX12_RESOURCE_BARRIER::Transition(
-//            _gameViewOutputBuffer.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COMMON);
-//        _computeCommandList->ResourceBarrier(1, &computeOutputBarrior);
-//    }
-//}
-//void ParticleManager::DispatchRibbonCompute(float deltaTime)
-//{
-//    if (0 >= _ribbonTotalCount)
-//        return;
-//
-//    // if (IS_EDITOR)
-//    {
-//        CD3DX12_RESOURCE_BARRIER computeOutputBarrior = CD3DX12_RESOURCE_BARRIER::Transition(
-//            _ribbonParticleOutputBuffer.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-//        _computeCommandList->ResourceBarrier(1, &computeOutputBarrior);
-//
-//        _computeCommandList->SetComputeRootSignature(_computeRibbonRootSignature.Get());
-//
-//        _computeCommandList->SetComputeRootConstantBufferView(0, _mvpConstantBuffer->GetGPUVirtualAddress());
-//        _computeCommandList->SetComputeRootShaderResourceView(1, _ribbonParticleInputBuffer->GetGPUVirtualAddress());
-//        _computeCommandList->SetComputeRootShaderResourceView(2, _ribbonEmitterInfoBuffer->GetGPUVirtualAddress());
-//        _computeCommandList->SetComputeRootUnorderedAccessView(3, _ribbonParticleOutputBuffer->GetGPUVirtualAddress());
-//
-//        // 6. 디스패치
-//        UINT numThreadGroups =
-//            static_cast<UINT>((_ribbonTotalParticles.size() + 31) / 32); // 32개 스레드 그룹으로 나누기
-//        _computeCommandList->Dispatch(numThreadGroups, 1, 1);
-//
-//        computeOutputBarrior = CD3DX12_RESOURCE_BARRIER::Transition(
-//            _ribbonParticleOutputBuffer.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COMMON);
-//        _computeCommandList->ResourceBarrier(1, &computeOutputBarrior);
-//    }
-//
-//    {
-//        CD3DX12_RESOURCE_BARRIER computeOutputBarrior = CD3DX12_RESOURCE_BARRIER::Transition(
-//            _ribbonParticleOutputBuffer.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-//        _computeCommandList->ResourceBarrier(1, &computeOutputBarrior);
-//
-//        _computeCommandList->SetComputeRootSignature(_computeSpriteRootSignature.Get());
-//
-//        _computeCommandList->SetComputeRootConstantBufferView(0, _gameViewMvpConstantBuffer->GetGPUVirtualAddress());
-//        _computeCommandList->SetComputeRootShaderResourceView(1, _ribbonParticleInputBuffer->GetGPUVirtualAddress());
-//
-//        _computeCommandList->SetComputeRootShaderResourceView(2, _ribbonEmitterInfoBuffer->GetGPUVirtualAddress());
-//
-//        _computeCommandList->SetComputeRootUnorderedAccessView(3, _ribbonGameViewOutputBuffer->GetGPUVirtualAddress());
-//
-//        // 6. 디스패치
-//        UINT numThreadGroups =
-//            static_cast<UINT>((_ribbonTotalParticles.size() + 31) / 32); // 32개 스레드 그룹으로 나누기
-//        _computeCommandList->Dispatch(numThreadGroups, 1, 1);
-//
-//        computeOutputBarrior = CD3DX12_RESOURCE_BARRIER::Transition(
-//            _ribbonGameViewOutputBuffer.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COMMON);
-//        _computeCommandList->ResourceBarrier(1, &computeOutputBarrior);
-//    }
-//}
-//void ParticleManager::UpdateParticleResources(float deltaTime)
-//{
-//    // 1. 파티클 입력 버퍼 업데이트
-//    void* mappedData = nullptr;
-//    _particleInputUploadBuffer->Map(0, nullptr, &mappedData);
-//    memcpy(mappedData, _totalParticles.data(), _totalCount * sizeof(Particle));
-//    _particleInputUploadBuffer->Unmap(0, nullptr);
-//
-//    _emitterInfoUploadBuffer->Map(0, nullptr, &mappedData);
-//    memcpy(mappedData, _emitterMatrix.data(), _emitterMatrix.size() * sizeof(EmitterInfo));
-//    _emitterInfoUploadBuffer->Unmap(0, nullptr);
-//
-//    _ribbonParticleInputUploadBuffer->Map(0, nullptr, &mappedData);
-//    memcpy(mappedData, _ribbonTotalParticles.data(), _ribbonTotalCount * sizeof(Particle));
-//    _ribbonParticleInputUploadBuffer->Unmap(0, nullptr);
-//
-//    _ribbonEmitterInfoUploadBuffer->Map(0, nullptr, &mappedData);
-//    memcpy(mappedData, _ribbonEmitterMatrix.data(), _ribbonEmitterMatrix.size() * sizeof(EmitterInfo));
-//    _ribbonEmitterInfoUploadBuffer->Unmap(0, nullptr);
-//
-//    {
-//        SetCamera("Editor");
-//        // 3. MVP 상수 버퍼 업데이트
-//        MVPConstants mvpConstants;
-//        mvpConstants.ViewMatrix = _camera->GetViewMatrix().Transpose();
-//        Matrix viewrotinv       = _camera->GetViewMatrix();
-//
-//        XMFLOAT3X3 rotV;
-//        XMStoreFloat3x3(&rotV, viewrotinv);
-//
-//        // 2) 전치(transpose)하여 역회전 행렬 생성
-//        XMMATRIX Rv  = XMLoadFloat3x3(&rotV);
-//        XMMATRIX RvT = XMMatrixTranspose(Rv);
-//
-//        // 3) SimpleMath::Matrix로 변환하여 반환
-//
-//        XMStoreFloat4x4(&mvpConstants.ViewRotInvMatrix, RvT);
-//
-//        mvpConstants.ViewRotInvMatrix = mvpConstants.ViewRotInvMatrix.Transpose();
-//        mvpConstants.ProjMatrix       = _camera->GetProjectionMatrix().Transpose();
-//
-//        mvpConstants.CameraPos =
-//            Vector4(_camera->GetWorldMatrix()._41, _camera->GetWorldMatrix()._42, _camera->GetWorldMatrix()._43, 1);
-//
-//        mvpConstants.deltaTime = deltaTime;
-//
-//        FAILED_CHECK_MESSAGE(_mvpConstantBuffer->Map(0, nullptr, &mappedData), L"");
-//        memcpy(mappedData, &mvpConstants, sizeof(MVPConstants));
-//        _mvpConstantBuffer->Unmap(0, nullptr);
-//    }
-//    {
-//
-//        SetCamera("Game");
-//        // 3. MVP 상수 버퍼 업데이트
-//        MVPConstants gamveViewMvpConstants;
-//        gamveViewMvpConstants.ViewMatrix = _camera->GetViewMatrix().Transpose();
-//        Matrix viewrotinv                = _camera->GetViewMatrix();
-//
-//        XMFLOAT3X3 rotV;
-//        XMStoreFloat3x3(&rotV, viewrotinv);
-//
-//        // 2) 전치(transpose)하여 역회전 행렬 생성
-//        XMMATRIX Rv  = XMLoadFloat3x3(&rotV);
-//        XMMATRIX RvT = XMMatrixTranspose(Rv);
-//
-//        // 3) SimpleMath::Matrix로 변환하여 반환
-//
-//        XMStoreFloat4x4(&gamveViewMvpConstants.ViewRotInvMatrix, RvT);
-//
-//        gamveViewMvpConstants.ViewRotInvMatrix = gamveViewMvpConstants.ViewRotInvMatrix.Transpose();
-//        gamveViewMvpConstants.ProjMatrix       = _camera->GetProjectionMatrix().Transpose();
-//
-//        gamveViewMvpConstants.CameraPos =
-//            Vector4(_camera->GetWorldMatrix()._41, _camera->GetWorldMatrix()._42, _camera->GetWorldMatrix()._43, 1);
-//
-//        gamveViewMvpConstants.deltaTime = deltaTime;
-//        FAILED_CHECK_MESSAGE(_gameViewMvpConstantBuffer->Map(0, nullptr, &mappedData), L"");
-//        memcpy(mappedData, &gamveViewMvpConstants, sizeof(MVPConstants));
-//        _gameViewMvpConstantBuffer->Unmap(0, nullptr);
-//    }
-//}
-//void ParticleManager::CopyFromUploadBuffer()
-//{
-//    {
-//        CD3DX12_RESOURCE_BARRIER preCopyBarriers[] = {
-//            CD3DX12_RESOURCE_BARRIER::Transition(_particleInputBuffer.Get(), D3D12_RESOURCE_STATE_COMMON,
-//                                                 D3D12_RESOURCE_STATE_COPY_DEST),
-//            CD3DX12_RESOURCE_BARRIER::Transition(_emitterInfoBuffer.Get(), D3D12_RESOURCE_STATE_COMMON,
-//                                                 D3D12_RESOURCE_STATE_COPY_DEST)};
-//        _computeCommandList->ResourceBarrier(_countof(preCopyBarriers), preCopyBarriers);
-//        UINT64 particleDataSize = _totalParticles.size() * sizeof(Particle);
-//        _computeCommandList->CopyBufferRegion(_particleInputBuffer.Get(),       // Dest
-//                                              0,                                // DestOffset
-//                                              _particleInputUploadBuffer.Get(), // Src
-//                                              0,                                // SrcOffset
-//                                              particleDataSize                  // NumBytes
-//        );
-//
-//        UINT64 emitterDataSize = _emitterMatrix.size() * sizeof(EmitterInfo);
-//        _computeCommandList->CopyBufferRegion(_emitterInfoBuffer.Get(), 0, _emitterInfoUploadBuffer.Get(), 0,
-//                                              emitterDataSize);
-//
-//        CD3DX12_RESOURCE_BARRIER postCopyBarriers[] = {
-//            CD3DX12_RESOURCE_BARRIER::Transition(_particleInputBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST,
-//                                                 D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE),
-//            CD3DX12_RESOURCE_BARRIER::Transition(_emitterInfoBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST,
-//                                                 D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE)};
-//        _computeCommandList->ResourceBarrier(_countof(postCopyBarriers), postCopyBarriers);
-//    }
-//
-//    {
-//
-//        CD3DX12_RESOURCE_BARRIER preCopyBarriers[] = {
-//            CD3DX12_RESOURCE_BARRIER::Transition(_ribbonParticleInputBuffer.Get(), D3D12_RESOURCE_STATE_COMMON,
-//                                                 D3D12_RESOURCE_STATE_COPY_DEST),
-//            CD3DX12_RESOURCE_BARRIER::Transition(_ribbonEmitterInfoBuffer.Get(), D3D12_RESOURCE_STATE_COMMON,
-//                                                 D3D12_RESOURCE_STATE_COPY_DEST)};
-//        _computeCommandList->ResourceBarrier(_countof(preCopyBarriers), preCopyBarriers);
-//
-//        UINT64 particleDataSize = _ribbonTotalParticles.size() * sizeof(Particle);
-//        _computeCommandList->CopyBufferRegion(_ribbonParticleInputBuffer.Get(),       // Dest
-//                                              0,                                      // DestOffset
-//                                              _ribbonParticleInputUploadBuffer.Get(), // Src
-//                                              0,                                      // SrcOffset
-//                                              particleDataSize                        // NumBytes
-//        );
-//
-//        UINT64 emitterDataSize = _ribbonEmitterMatrix.size() * sizeof(EmitterInfo);
-//        _computeCommandList->CopyBufferRegion(_ribbonEmitterInfoBuffer.Get(), 0, _ribbonEmitterInfoUploadBuffer.Get(),
-//                                              0, emitterDataSize);
-//
-//        CD3DX12_RESOURCE_BARRIER postCopyBarriers[] = {
-//            CD3DX12_RESOURCE_BARRIER::Transition(_ribbonParticleInputBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST,
-//                                                 D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE),
-//            CD3DX12_RESOURCE_BARRIER::Transition(_ribbonEmitterInfoBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST,
-//                                                 D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE)};
-//        _computeCommandList->ResourceBarrier(_countof(postCopyBarriers), postCopyBarriers);
-//    }
-//}
-//void ParticleManager::CopyActiveParticlesEditorMode()
-//{
-//    _editorTotalParticles.clear();
-//    _editorEmitterMatrix.clear();
-//    _activeEditorAlbedos.clear();
-//    UINT emitterIndex = 0;
-//    _editorCount      = 0;
-//
-//    _ribbonEditorTotalParticles.clear();
-//    _ribbonEditorEmitterMatrix.clear();
-//    _ribbonActiveEditorAlbedos.clear();
-//    UINT ribbonEmitterIndex = 0;
-//    _ribbonEditorCount      = 0;
-//
-//    _ribbonEditorIndices.clear();
-//    UINT ribbonparticleIndex = 0;
-//
-//    if (false == _editorCurrentEffect->GetActiveFlag())
-//        return;
-//    for (auto emitter : _editorCurrentEffect->GetEmitterList())
-//    {
-//        if (true == emitter->GetActiveFlag())
-//        {
-//
-//            if (ParticleType::SPRITE == emitter->_particleType)
-//            {
-//                _activeEditorAlbedos.push_back(
-//                    static_cast<SpriteModule*>(emitter->_particleRenderModule)->GetAlbedoTexture());
-//
-//                Matrix worldMatrix =
-//                    emitter->GetUseWorldSpace() ? Matrix::Identity : emitter->GetWorldMatrix().Transpose();
-//
-//                EmitterInfo emitterinfo = {
-//                    worldMatrix,
-//                    emitter->GetDragPoint(),
-//                    emitter->GetDragForce(),
-//                    emitter->GetVortexForce(),
-//                    emitter->GetStartScale(),
-//                    emitter->GetEndScale(),
-//                    Vector4(emitter->GetStartColor().x, emitter->GetStartColor().y, emitter->GetStartColor().z,
-//                            emitter->GetStartOpacity()),
-//                    Vector4(emitter->GetEndColor().x, emitter->GetEndColor().y, emitter->GetEndColor().z,
-//                            emitter->GetEndOpacity()),
-//                    Vector4(emitter->GetParticleLifetime(), emitter->GetUseWorldSpace() ? 1.0f : 0.0f, 0, 0),
-//                    Vector4(0, 0, 0, 0),
-//                    Vector4(0, 0, 0, 0)};
-//                _editorEmitterMatrix.push_back(emitterinfo);
-//                auto& particlePool = emitter->GetParticlePool();
-//                for (UINT i = 0; i < emitter->GetActiveParticleCount(); i++)
-//                {
-//                    auto& particle = *particlePool[i];
-//                    particle.SetEmitterIndex(emitterIndex);
-//                    _editorTotalParticles.push_back(particle);
-//                    _editorCount++;
-//                }
-//                emitterIndex++;
-//            }
-//            else if (ParticleType::RIBBON == emitter->_particleType)
-//            {
-//                _ribbonActiveEditorAlbedos.push_back(
-//                    static_cast<RibbonModule*>(emitter->_particleRenderModule)->GetAlbedoTexture());
-//
-//                Matrix worldMatrix =
-//                    emitter->GetUseWorldSpace() ? Matrix::Identity : emitter->GetWorldMatrix().Transpose();
-//
-//                EmitterInfo emitterinfo = {
-//                    worldMatrix,
-//                    emitter->GetDragPoint(),
-//                    emitter->GetDragForce(),
-//                    emitter->GetVortexForce(),
-//                    emitter->GetStartScale(),
-//                    emitter->GetEndScale(),
-//                    Vector4(emitter->GetStartColor().x, emitter->GetStartColor().y, emitter->GetStartColor().z,
-//                            emitter->GetStartOpacity()),
-//                    Vector4(emitter->GetEndColor().x, emitter->GetEndColor().y, emitter->GetEndColor().z,
-//                            emitter->GetEndOpacity()),
-//                    Vector4(emitter->GetParticleLifetime(), emitter->GetUseWorldSpace() ? 1.0f : 0.0f, 0, 0),
-//                    static_cast<RibbonModule*>(emitter->_particleRenderModule)->GetStartNormal(),
-//                    static_cast<RibbonModule*>(emitter->_particleRenderModule)->GetEndNormal()};
-//                _ribbonEditorEmitterMatrix.push_back(emitterinfo);
-//                auto&                    particlePool = emitter->GetParticlePool();
-//                std::vector<ribbonIndex> emitterIndices;
-//
-//                for (UINT i = 0; i < emitter->GetActiveParticleCount(); i++)
-//                {
-//                    auto& particle = *particlePool[i];
-//                    particle.SetEmitterIndex(ribbonEmitterIndex);
-//                    _ribbonEditorTotalParticles.push_back(particle);
-//                    _ribbonEditorTotalParticles.push_back(particle);
-//                    emitterIndices.push_back(
-//                        {ribbonparticleIndex++, particle.GetAge() / emitter->GetParticleLifetime()});
-//                    emitterIndices.push_back(
-//                        {ribbonparticleIndex++, particle.GetAge() / emitter->GetParticleLifetime()});
-//                    _ribbonEditorCount += 2;
-//                }
-//                _ribbonEditorIndices.push_back(emitterIndices);
-//                ribbonEmitterIndex++;
-//            }
-//        }
-//    }
-//}
-//
-//
-//
-//void ParticleManager::DispatchParticleComputeEditorMode(float deltaTime)
-//{
-//    if (0 < _editorCount)
-//    {
-//        CD3DX12_RESOURCE_BARRIER computeOutputBarrior = CD3DX12_RESOURCE_BARRIER::Transition(
-//            _editorOutputBuffer.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-//        _computeCommandList->ResourceBarrier(1, &computeOutputBarrior);
-//        _computeCommandList->SetComputeRootSignature(_computeSpriteRootSignature.Get());
-//        _computeCommandList->SetComputeRootConstantBufferView(0, _editorMvpConstantBuffer->GetGPUVirtualAddress());
-//        _computeCommandList->SetComputeRootShaderResourceView(1, _editorParticleInputBuffer->GetGPUVirtualAddress());
-//        _computeCommandList->SetComputeRootShaderResourceView(2, _editorEmitterInfoBuffer->GetGPUVirtualAddress());
-//        _computeCommandList->SetComputeRootUnorderedAccessView(3, _editorOutputBuffer->GetGPUVirtualAddress());
-//        UINT numThreadGroups =
-//            static_cast<UINT>((_editorTotalParticles.size() + 31) / 32); // 32개 스레드 그룹으로 나누기
-//        _computeCommandList->Dispatch(numThreadGroups, 1, 1);
-//        computeOutputBarrior = CD3DX12_RESOURCE_BARRIER::Transition(
-//            _editorOutputBuffer.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COMMON);
-//        _computeCommandList->ResourceBarrier(1, &computeOutputBarrior);
-//    }
-//}
-//void ParticleManager::DispatchRibbonComputeEditorMode(float deltaTime)
-//{
-//    if (0 < _ribbonEditorCount)
-//    {
-//        CD3DX12_RESOURCE_BARRIER computeOutputBarrior = CD3DX12_RESOURCE_BARRIER::Transition(
-//            _ribbonEditorOutputBuffer.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-//        _computeCommandList->ResourceBarrier(1, &computeOutputBarrior);
-//        _computeCommandList->SetComputeRootSignature(_computeRibbonRootSignature.Get());
-//        _computeCommandList->SetComputeRootConstantBufferView(0, _editorMvpConstantBuffer->GetGPUVirtualAddress());
-//        _computeCommandList->SetComputeRootShaderResourceView(1,
-//                                                              _ribbonEditorParticleInputBuffer->GetGPUVirtualAddress());
-//        _computeCommandList->SetComputeRootShaderResourceView(2,
-//                                                              _ribbonEditorEmitterInfoBuffer->GetGPUVirtualAddress());
-//        _computeCommandList->SetComputeRootUnorderedAccessView(3, _ribbonEditorOutputBuffer->GetGPUVirtualAddress());
-//        UINT numThreadGroups =
-//            static_cast<UINT>((_ribbonEditorTotalParticles.size() + 31) / 32); // 32개 스레드 그룹으로 나누기
-//        _computeCommandList->Dispatch(numThreadGroups, 1, 1);
-//        computeOutputBarrior = CD3DX12_RESOURCE_BARRIER::Transition(
-//            _ribbonEditorOutputBuffer.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COMMON);
-//        _computeCommandList->ResourceBarrier(1, &computeOutputBarrior);
-//    }
-//}
-//void ParticleManager::UpdateParticleResourcesEditorMode(float deltaTime)
-//{
-//
-//    // 1. 파티클 입력 버퍼 업데이트
-//    void* mappedData = nullptr;
-//    _editorParticleInputUploadBuffer->Map(0, nullptr, &mappedData);
-//    memcpy(mappedData, _editorTotalParticles.data(), _editorCount * sizeof(Particle));
-//    _editorParticleInputUploadBuffer->Unmap(0, nullptr);
-//
-//    _editorEmitterInfoUploadBuffer->Map(0, nullptr, &mappedData);
-//    memcpy(mappedData, _editorEmitterMatrix.data(), _editorEmitterMatrix.size() * sizeof(EmitterInfo));
-//    _editorEmitterInfoUploadBuffer->Unmap(0, nullptr);
-//
-//    _ribbonEditorParticleInputUploadBuffer->Map(0, nullptr, &mappedData);
-//    memcpy(mappedData, _ribbonEditorTotalParticles.data(), _ribbonEditorCount * sizeof(Particle));
-//    _ribbonEditorParticleInputUploadBuffer->Unmap(0, nullptr);
-//
-//    _ribbonEditorEmitterInfoUploadBuffer->Map(0, nullptr, &mappedData);
-//    memcpy(mappedData, _ribbonEditorEmitterMatrix.data(), _ribbonEditorEmitterMatrix.size() * sizeof(EmitterInfo));
-//    _ribbonEditorEmitterInfoUploadBuffer->Unmap(0, nullptr);
-//
-//    SetCamera("ParticleEditor");
-//    // 3. MVP 상수 버퍼 업데이트
-//    MVPConstants mvpConstants;
-//    mvpConstants.ViewMatrix = _camera->GetViewMatrix().Transpose();
-//    Matrix viewrotinv       = _camera->GetViewMatrix();
-//
-//    XMFLOAT3X3 rotV;
-//    XMStoreFloat3x3(&rotV, viewrotinv);
-//
-//    // 2) 전치(transpose)하여 역회전 행렬 생성
-//    XMMATRIX Rv  = XMLoadFloat3x3(&rotV);
-//    XMMATRIX RvT = XMMatrixTranspose(Rv);
-//
-//    // 3) SimpleMath::Matrix로 변환하여 반환
-//
-//    XMStoreFloat4x4(&mvpConstants.ViewRotInvMatrix, RvT);
-//
-//    mvpConstants.ViewRotInvMatrix = mvpConstants.ViewRotInvMatrix.Transpose();
-//    mvpConstants.ProjMatrix       = _camera->GetProjectionMatrix().Transpose();
-//
-//    mvpConstants.CameraPos =
-//        Vector4(_camera->GetWorldMatrix()._41, _camera->GetWorldMatrix()._42, _camera->GetWorldMatrix()._43, 1);
-//    mvpConstants.deltaTime = deltaTime;
-//
-//    FAILED_CHECK_MESSAGE(_editorMvpConstantBuffer->Map(0, nullptr, &mappedData), L"");
-//    memcpy(mappedData, &mvpConstants, sizeof(MVPConstants));
-//    _editorMvpConstantBuffer->Unmap(0, nullptr);
-//}
-//void ParticleManager::CopyFromUploadBufferEditorMode()
-//{
-//    {
-//        CD3DX12_RESOURCE_BARRIER preCopyBarriers[] = {
-//            CD3DX12_RESOURCE_BARRIER::Transition(_editorParticleInputBuffer.Get(), D3D12_RESOURCE_STATE_COMMON,
-//                                                 D3D12_RESOURCE_STATE_COPY_DEST),
-//            CD3DX12_RESOURCE_BARRIER::Transition(_editorEmitterInfoBuffer.Get(), D3D12_RESOURCE_STATE_COMMON,
-//                                                 D3D12_RESOURCE_STATE_COPY_DEST)};
-//        _computeCommandList->ResourceBarrier(_countof(preCopyBarriers), preCopyBarriers);
-//
-//        UINT64 particleDataSize = _editorTotalParticles.size() * sizeof(Particle);
-//        _computeCommandList->CopyBufferRegion(_editorParticleInputBuffer.Get(),       // Dest
-//                                              0,                                      // DestOffset
-//                                              _editorParticleInputUploadBuffer.Get(), // Src
-//                                              0,                                      // SrcOffset
-//                                              particleDataSize                        // NumBytes
-//        );
-//
-//        UINT64 emitterDataSize = _editorEmitterMatrix.size() * sizeof(EmitterInfo);
-//        _computeCommandList->CopyBufferRegion(_editorEmitterInfoBuffer.Get(), 0, _editorEmitterInfoUploadBuffer.Get(),
-//                                              0, emitterDataSize);
-//
-//        // 3-3. 리소스 상태 전이 (COPY_DEST → SRV)
-//        CD3DX12_RESOURCE_BARRIER postCopyBarriers[] = {
-//            CD3DX12_RESOURCE_BARRIER::Transition(_editorParticleInputBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST,
-//                                                 D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE),
-//            CD3DX12_RESOURCE_BARRIER::Transition(_editorEmitterInfoBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST,
-//                                                 D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE)};
-//        _computeCommandList->ResourceBarrier(_countof(postCopyBarriers), postCopyBarriers);
-//    }
-//
-//    {
-//        CD3DX12_RESOURCE_BARRIER preCopyBarriers[] = {
-//            CD3DX12_RESOURCE_BARRIER::Transition(_ribbonEditorParticleInputBuffer.Get(), D3D12_RESOURCE_STATE_COMMON,
-//                                                 D3D12_RESOURCE_STATE_COPY_DEST),
-//            CD3DX12_RESOURCE_BARRIER::Transition(_ribbonEditorEmitterInfoBuffer.Get(), D3D12_RESOURCE_STATE_COMMON,
-//                                                 D3D12_RESOURCE_STATE_COPY_DEST)};
-//        _computeCommandList->ResourceBarrier(_countof(preCopyBarriers), preCopyBarriers);
-//
-//        UINT64 particleDataSize = _ribbonEditorTotalParticles.size() * sizeof(Particle);
-//        _computeCommandList->CopyBufferRegion(_ribbonEditorParticleInputBuffer.Get(),       // Dest
-//                                              0,                                            // DestOffset
-//                                              _ribbonEditorParticleInputUploadBuffer.Get(), // Src
-//                                              0,                                            // SrcOffset
-//                                              particleDataSize                              // NumBytes
-//        );
-//
-//        UINT64 emitterDataSize = _ribbonEditorEmitterMatrix.size() * sizeof(EmitterInfo);
-//        _computeCommandList->CopyBufferRegion(_ribbonEditorEmitterInfoBuffer.Get(), 0,
-//                                              _ribbonEditorEmitterInfoUploadBuffer.Get(), 0, emitterDataSize);
-//
-//        // 3-3. 리소스 상태 전이 (COPY_DEST → SRV)
-//        CD3DX12_RESOURCE_BARRIER postCopyBarriers[] = {
-//            CD3DX12_RESOURCE_BARRIER::Transition(_ribbonEditorParticleInputBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST,
-//                                                 D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE),
-//            CD3DX12_RESOURCE_BARRIER::Transition(_ribbonEditorEmitterInfoBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST,
-//                                                 D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE)};
-//        _computeCommandList->ResourceBarrier(_countof(postCopyBarriers), postCopyBarriers);
-//    }
-//}
 
 void ParticleManager::AwakeParticles(float deltaTime, ParticleUpdateResource* scene)
 {
@@ -1283,16 +690,17 @@ void ParticleManager::AwakeParticles(float deltaTime, ParticleUpdateResource* sc
 
                         Matrix worldMatrix =
                             emitter->GetUseWorldSpace() ? Matrix::Identity : emitter->GetWorldMatrix().Transpose();
-
+                        Matrix orientMatrix = emitter->GetWorldMatrix().Transpose();
                         scene->_emitterMatrix.push_back(
-                            {worldMatrix, emitter->GetDragPoint(), emitter->GetDragForce(), emitter->GetVortexForce(),
+                            {worldMatrix,orientMatrix, emitter->GetDragPoint(), emitter->GetDragForce(), emitter->GetVortexForce(),
                              emitter->GetStartScale(), emitter->GetEndScale(),
                              Vector4(emitter->GetStartColor().x, emitter->GetStartColor().y, emitter->GetStartColor().z,
                                      emitter->GetStartOpacity()),
                              Vector4(emitter->GetEndColor().x, emitter->GetEndColor().y, emitter->GetEndColor().z,
                                      emitter->GetEndOpacity()),
                              Vector4(emitter->GetParticleLifetime(), emitter->GetUseWorldSpace() ? 1.0f : 0.0f, 0, 0),
-                             Vector4(0, 0, 0, 0), Vector4(0, 0, 0, 0)});
+                             Vector4(0, 0, 0, 0), Vector4(0, 0, 0, 0),  Vector4(0, 0, 0, 0)
+                            });
                         auto& particlePool = emitter->GetParticlePool();
                         for (UINT i = 0; i < emitter->GetActiveParticleCount(); i++)
                         {
@@ -1310,9 +718,10 @@ void ParticleManager::AwakeParticles(float deltaTime, ParticleUpdateResource* sc
 
                         Matrix worldMatrix =
                             emitter->GetUseWorldSpace() ? Matrix::Identity : emitter->GetWorldMatrix().Transpose();
-
+                        Matrix orientMatrix = emitter->GetWorldMatrix().Transpose();
                         scene->_ribbonEmitterMatrix.push_back(
-                            {worldMatrix, emitter->GetDragPoint(), emitter->GetDragForce(), emitter->GetVortexForce(),
+                            {worldMatrix, orientMatrix,emitter->GetDragPoint(), emitter->GetDragForce(),
+                             emitter->GetVortexForce(),
                              emitter->GetStartScale(), emitter->GetEndScale(),
                              Vector4(emitter->GetStartColor().x, emitter->GetStartColor().y, emitter->GetStartColor().z,
                                      emitter->GetStartOpacity()),
@@ -1320,7 +729,9 @@ void ParticleManager::AwakeParticles(float deltaTime, ParticleUpdateResource* sc
                                      emitter->GetEndOpacity()),
                              Vector4(emitter->GetParticleLifetime(), 0, 0, 0),
                              static_cast<RibbonModule*>(emitter->_particleRenderModule)->GetStartNormal(),
-                             static_cast<RibbonModule*>(emitter->_particleRenderModule)->GetEndNormal()}
+                             static_cast<RibbonModule*>(emitter->_particleRenderModule)->GetEndNormal(),
+                            static_cast<RibbonModule*>(emitter->_particleRenderModule)->GetRibbonVector()
+                            }
 
                         );
 
@@ -1425,25 +836,28 @@ void ParticleManager::UpdateAndCopyParticleResource(float deltaTime, ParticleUpd
 {
     //memcpy to upload heap
     {
+            void* mappedData = nullptr;
+        if (0 < scene->_totalCount)
+        {
+            scene->_particleInputUpload->Map(0, nullptr, &mappedData);
+            memcpy(mappedData, scene->_totalParticles.data(), scene->_totalCount * sizeof(Particle));
+            scene->_particleInputUpload->Unmap(0, nullptr);
 
-        // 1. 파티클 입력 버퍼 업데이트
-        void* mappedData = nullptr;
-        scene->_particleInputUpload->Map(0, nullptr, &mappedData);
-        memcpy(mappedData, scene->_totalParticles.data(), scene->_totalCount * sizeof(Particle));
-        scene->_particleInputUpload->Unmap(0, nullptr);
+            scene->_emitterInfoUpload->Map(0, nullptr, &mappedData);
+            memcpy(mappedData, scene->_emitterMatrix.data(), scene->_emitterMatrix.size() * sizeof(EmitterInfo));
+            scene->_emitterInfoUpload->Unmap(0, nullptr);
+        }
+        if (0 < scene->_ribbonTotalCount)
+        {
+            scene->_ribbonParticleInputUpload->Map(0, nullptr, &mappedData);
+            memcpy(mappedData, scene->_ribbonTotalParticles.data(), scene->_ribbonTotalCount * sizeof(Particle));
+            scene->_ribbonParticleInputUpload->Unmap(0, nullptr);
 
-        scene->_emitterInfoUpload->Map(0, nullptr, &mappedData);
-        memcpy(mappedData, scene->_emitterMatrix.data(), scene->_emitterMatrix.size() * sizeof(EmitterInfo));
-        scene->_emitterInfoUpload->Unmap(0, nullptr);
-
-        scene->_ribbonParticleInputUpload->Map(0, nullptr, &mappedData);
-        memcpy(mappedData, scene->_ribbonTotalParticles.data(), scene->_ribbonTotalCount * sizeof(Particle));
-        scene->_ribbonParticleInputUpload->Unmap(0, nullptr);
-
-        scene->_ribbonEmitterInfoUpload->Map(0, nullptr, &mappedData);
-        memcpy(mappedData, scene->_ribbonEmitterMatrix.data(), scene->_ribbonEmitterMatrix.size() * sizeof(EmitterInfo));
-        scene->_ribbonEmitterInfoUpload->Unmap(0, nullptr);
-
+            scene->_ribbonEmitterInfoUpload->Map(0, nullptr, &mappedData);
+            memcpy(mappedData, scene->_ribbonEmitterMatrix.data(),
+                   scene->_ribbonEmitterMatrix.size() * sizeof(EmitterInfo));
+            scene->_ribbonEmitterInfoUpload->Unmap(0, nullptr);
+        }
         
     }
     //copy data from upload to default heap

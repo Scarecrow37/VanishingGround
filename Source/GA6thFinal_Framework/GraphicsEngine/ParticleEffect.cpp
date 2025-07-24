@@ -143,6 +143,8 @@ void ParticleEffect::Reset()
 void ParticleEffect::FlushEmitters()
 {
 
+
+
     for (auto it = _particleEmitters.begin(); it != _particleEmitters.end();)
     {
         if ((*it)->GetRemoveFlag())

@@ -28,6 +28,7 @@ struct ParticleOutput
 struct EmitterInfo
 {
     float4x4 WorldMatrix;
+    float4x4 OrientedWorldMatrix;
     float4 dragPoint;
     float4 dragforce;
     float4 vortexForce;
@@ -38,7 +39,22 @@ struct EmitterInfo
     float4 particlelifetime;
     float4 startNormal;
     float4 endNormal;
+    float4 ribbonVector;
 };
+
+
+struct MVP
+{
+    float4x4 ViewMatrix;
+    float4x4 ViewRotInvMatrix;
+    float4x4 ProjMatrix;
+    float4 CameraPos;
+    float deltaTime;
+    float4 pad1;
+    float4 pad2;
+    float3 pad3;
+};
+
 
 
 // 빌보딩 행렬 계산 함수
@@ -91,6 +107,5 @@ float4x4 CreateScaleMatrix(float4 scale)
     scale.x, 0, 0, 0,
     0, scale.y, 0, 0,
     0, 0, scale.z, 0,
-    0, 0, 0, 1
-);
+    0, 0, 0, 1);
 }

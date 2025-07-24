@@ -144,6 +144,7 @@ protected:
     UMPARTICLE_PROPERTY(bool, _isAlbedoTextureChanged, TextureChangeFlag, false);
     UMPARTICLE_PROPERTY_REF(Vector4, _startNormal, StartNormal, Vector4(0, 0, -1, 0));
     UMPARTICLE_PROPERTY_REF(Vector4, _endNormal, EndNormal, Vector4(0, 0, -1, 0));
+    UMPARTICLE_PROPERTY_REF(Vector4, _ribbonVector, RibbonVector, Vector4(1, 0, 0, 0));
 };
 
 class ParticleEmitter
@@ -186,6 +187,7 @@ public:
                     ParticleType particleType = ParticleType::SPRITE, std::wstring_view meshspritePath = L"");
     void Update(float deltaTime);
     void UpdateParticleLifeCycle(float deltaTime);
+    void FlushTextureResource();
     void Reset();
 
 
@@ -206,6 +208,8 @@ public:
         _emitterRotationE = value; 
         _emitterRotationQ = Quaternion::CreateFromYawPitchRoll(_emitterRotationE);
     }
+
+
 
 
 protected:

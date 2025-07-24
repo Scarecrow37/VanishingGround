@@ -4,23 +4,7 @@ StructuredBuffer<ParticleInput> ParticleInputBuffer : register(t0);
 StructuredBuffer<EmitterInfo> EmitterInfoBuffer : register(t1);
 RWStructuredBuffer<ParticleOutput> ParticleOutputBuffer : register(u0);
 
-
-struct MVP
-{
-    float4x4 ViewMatrix;
-    float4x4 ViewRotInvMatrix;
-    float4x4 ProjMatrix;
-    float4 CameraPos;
-    float deltaTime;
-    float4 pad1;
-    float4 pad2;
-    float3 pad3;
-};
-
 ConstantBuffer<MVP> mvp : register(b0);
-
-
-
 
 
 [numthreads(64, 1, 1)]

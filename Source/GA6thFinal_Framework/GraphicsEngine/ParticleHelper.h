@@ -62,6 +62,7 @@ struct ParticleOutput
 struct EmitterInfo
 {
     Matrix  WorldMatrix;
+    Matrix  OrientedWorldMatrix;
     Vector4 dragPoint;
     Vector4 dragForce;
     Vector4 vortexForce;
@@ -72,6 +73,7 @@ struct EmitterInfo
     Vector4 lifetime; // x: particle lifetime, y: useWorldSpace (1.0f for true, 0.0f for false)
     Vector4 startNormal;
     Vector4 endNormal;
+    Vector4 ribbonVector;
 };
 
 struct __declspec(align(16)) MVPConstants
