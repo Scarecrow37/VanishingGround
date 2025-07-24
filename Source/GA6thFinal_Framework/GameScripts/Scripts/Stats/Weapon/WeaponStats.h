@@ -26,6 +26,7 @@ struct WeaponStats : public TurnActorStats
 
     GETTER_ONLY(std::string_view, Name) { return ReflectFields->Name; }
     void SetName(std::string_view name) { ReflectFields->Name = name; }
+    //string_view 무기 이름
     PROPERTY(Name) 
 
     GETTER(WeaponType, Type) { return ReflectFields->Type; }

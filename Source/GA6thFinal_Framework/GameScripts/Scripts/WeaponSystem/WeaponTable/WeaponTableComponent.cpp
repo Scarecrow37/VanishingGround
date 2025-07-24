@@ -204,16 +204,20 @@ void WeaponTableComponent::ImGuiDrawPropertysEvent()
 
 void WeaponTableComponent::ImGuiTableEditor() 
 {
-    if (ImGui::BeginTable("Weapon Stats", 6, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+    if (ImGui::BeginTable("Weapon Stats", 10, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
     {
-        ImGui::TableSetupColumn("Name");
-        ImGui::TableSetupColumn("Type");
-        ImGui::TableSetupColumn("Hit Damage");
-        ImGui::TableSetupColumn("Critical Damage");
-        ImGui::TableSetupColumn("Speed");
-        ImGui::TableSetupColumn("Attack Count");
-        ImGui::TableHeadersRow();
+        ImGui::TableSetupColumn((const char*)u8"이름");                   // Name,
+        ImGui::TableSetupColumn((const char*)u8"종류");                   // Type,
+        ImGui::TableSetupColumn((const char*)u8"데미지");                 // HitDamage,
+        ImGui::TableSetupColumn((const char*)u8"데미지 배율");            // HitDamageMultiplier,
+        ImGui::TableSetupColumn((const char*)u8"치명타 데미지");          // CriticalDamage,
+        ImGui::TableSetupColumn((const char*)u8"치명타 데미지 배율");     // CriticalDamageMultiplier,
+        ImGui::TableSetupColumn((const char*)u8"속도");                   // Speed,
+        ImGui::TableSetupColumn((const char*)u8"공격 수");                // AttackCount,
+        ImGui::TableSetupColumn((const char*)u8"공격 당 연격 스택");      // AttackPerChain,
+        ImGui::TableSetupColumn((const char*)u8"공격 당 연격 스택 배율"); // AttackPerChainMultiplier,    
 
+        ImGui::TableHeadersRow();   
         for (auto& [key, weapon] : _weaponTable)
         {
             auto RightClickContext = [&]() {
@@ -246,25 +250,26 @@ void WeaponTableComponent::ImGuiTableEditor()
                     return setting;
                 }();
                 ImGui::TableNextRow();
-                ImGui::TableSetColumnIndex(0);
-                ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.Name, setting);
-                RightClickContext();
-                ImGui::TableSetColumnIndex(1);
-                ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.Type, setting);
-                RightClickContext();
-                ImGui::TableSetColumnIndex(2);
-                ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.HitDamage, setting);
-                RightClickContext();
-                ImGui::TableSetColumnIndex(3);
-                ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.CriticalDamageMultiplier, setting);
-                ImGuiHelper::HoveredToolTip(u8"치명타 데미지 비율");
-                RightClickContext();
-                ImGui::TableSetColumnIndex(4);
-                ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.Speed, setting);
-                RightClickContext();
-                ImGui::TableSetColumnIndex(5);
-                ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.AttackCount, setting);
-                RightClickContext();
+                auto DrawColumnProperty = [&RightClickContext](auto& property, int index, std::string_view toolTip = "") 
+                {
+                    ImGui::TableSetColumnIndex(index);
+                    ReflectHelper::ImGuiDraw::Private::InputAuto(property, setting);
+                    if (false == toolTip.empty())
+                    {
+                        ImGuiHelper::HoveredToolTip(toolTip.data());
+                    }
+                    RightClickContext();
+                };
+                DrawColumnProperty(weapon.Name,                     0);
+                DrawColumnProperty(weapon.Type,                     1);
+                DrawColumnProperty(weapon.HitDamage,                2);
+                DrawColumnProperty(weapon.HitDamageMultiplier,      3);
+                DrawColumnProperty(weapon.CriticalDamage,           4);
+                DrawColumnProperty(weapon.CriticalDamageMultiplier, 5);
+                DrawColumnProperty(weapon.Speed,                    6);
+                DrawColumnProperty(weapon.AttackCount,              7);
+                DrawColumnProperty(weapon.AttackPerChain,           8);
+                DrawColumnProperty(weapon.AttackPerChainMultiplier, 9);    
             }
             ImGui::PopID();
             ImGui::PopStyleColor(1);
