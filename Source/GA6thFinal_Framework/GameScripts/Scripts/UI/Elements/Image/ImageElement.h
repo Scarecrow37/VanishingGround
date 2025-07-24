@@ -22,8 +22,10 @@ protected:
     void Reset() override;
     void DeserializedReflectEvent() override;
     void OnPlacementChange() override;
+    float GetZOrder() const override;
 
 private:
+    void OnSetViewOrder() override;
     void LoadTexture() const;
     void UpdateWorldMatrix();
 

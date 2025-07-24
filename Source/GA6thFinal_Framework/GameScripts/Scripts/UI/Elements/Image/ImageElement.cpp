@@ -77,6 +77,17 @@ void ImageElement::OnPlacementChange()
     UpdateWorldMatrix();
 }
 
+float ImageElement::GetZOrder() const
+{
+    return EditablePlacementUIComponent::GetZOrder() * VIEW_ORDER_IMAGE_RATIO;
+}
+
+void ImageElement::OnSetViewOrder()
+{
+    EditablePlacementUIComponent::OnSetViewOrder();
+    UpdateWorldMatrix();
+}
+
 void ImageElement::LoadTexture() const
 {
     if (nullptr != _renderer)

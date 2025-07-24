@@ -79,6 +79,17 @@ void TextElement::OnPlacementChange()
     }
 }
 
+float TextElement::GetZOrder() const
+{
+    return EditablePlacementUIComponent::GetZOrder() * VIEW_ORDER_TEXT_RATIO + VIEW_ORDER_TEXT_OFFSET;
+}
+
+void TextElement::OnSetViewOrder()
+{
+    EditablePlacementUIComponent::OnSetViewOrder();
+    UpdatePosition();
+}
+
 void TextElement::LoadFont() const
 {
 

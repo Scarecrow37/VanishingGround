@@ -58,8 +58,10 @@ protected:
     void Reset() override;
     void DeserializedReflectEvent() override;
     void OnPlacementChange() override;
+    float GetZOrder() const override;
 
 private:
+    void OnSetViewOrder() override;
     void LoadFont() const;
     void PassProperty() const;
     void UpdateAll() const;

@@ -63,7 +63,7 @@ void PlacementUIComponent::SetViewOrder(const int viewOrder)
 
 float PlacementUIComponent::GetZOrder() const
 {
-    return static_cast<float>(ReflectFields->ViewOrder) * VIEW_ORDER_RATIO;
+    return static_cast<float>(ReflectFields->ViewOrder);
 }
 
 void PlacementUIComponent::RequestViewOrder(const Transform& transform)
