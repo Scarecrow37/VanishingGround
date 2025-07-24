@@ -16,7 +16,8 @@ public:
 public:
     REFLECT_PROPERTY(ViewOrder)
     GETTER(int, ViewOrder)
-    { return ReflectFields->ViewOrder;
+    {
+        return ReflectFields->ViewOrder;
     }
     SETTER(int, ViewOrder)
     {
@@ -25,6 +26,8 @@ public:
     PROPERTY(ViewOrder)
 
 public:
+    POINT GetPoint() const;
+    SIZE  GetSize() const;
     void SetScopePlacement(POINT point, SIZE size);
     int  SortViewOrder(int startOrder);
 

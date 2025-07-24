@@ -445,6 +445,12 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
                     GameObjectKey, GameObject::Helper::GenerateUniqueName("Padding Wrapper"), &ui);
                 ui->AddComponent<PaddingWrapper>();
             }
+            if (ImGui::MenuItem("Center Wrapper"))
+            {
+                UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
+                    GameObjectKey, GameObject::Helper::GenerateUniqueName("Center Wrapper"), &ui);
+                ui->AddComponent<CenterWrapper>();
+            }
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Elements"))

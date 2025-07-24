@@ -5,6 +5,16 @@
 
 PlacementUIComponent::PlacementUIComponent() = default;
 
+POINT PlacementUIComponent::GetPoint() const
+{
+    return ReflectFields->Point;
+}
+
+SIZE PlacementUIComponent::GetSize() const
+{
+    return ReflectFields->Size;
+}
+
 void PlacementUIComponent::SetScopePlacement(const POINT point, const SIZE size)
 {
     ReflectFields->ScopePoint = point;
