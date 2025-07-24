@@ -32,7 +32,7 @@ public:
     FiniteStateMachine&                 GetFSM() { return *_finiteStateMachine; }
     Player*                             GetPlayer();
     const std::vector<Enemy*>&          GetEnemies();
-    const std::vector<CharacterBase*>&  GetCharactors();
+    const std::vector<CharacterBase*>&  GetCharacters();
 
     /// <summary>
     /// 라운드 카운트를 0으로 초기화합니다.
