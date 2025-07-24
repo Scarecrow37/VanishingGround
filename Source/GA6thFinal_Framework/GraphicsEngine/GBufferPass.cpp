@@ -173,7 +173,7 @@ void GBufferPass::End(ID3D12GraphicsCommandList* commandList)
 void GBufferPass::InitShaderAndPSO()
 {
     _shaders.reserve(2);
-    _psos.reserve(4);
+    _psos.resize(MeshType::END);
 
     std::unique_ptr<ShaderBuilder> staticMeshShaderBuilder = std::make_unique<ShaderBuilder>();
     staticMeshShaderBuilder->BeginBuild();
@@ -217,7 +217,7 @@ void GBufferPass::InitShaderAndPSO()
 
     hr = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(&staticTwoSidedPSO));
     FAILED_CHECK_MESSAGE(hr, L"GBufferPass::InitShaderAndPSO device->CreateGraphicsPipelineState Failed");
-    _psos.push_back(staticTwoSidedPSO);
+    _psos[STATIC_TWO_SIDED] = staticTwoSidedPSO;
 
     // static one side.
     ComPtr<ID3D12PipelineState> staticOneSidePSO;
@@ -225,7 +225,7 @@ void GBufferPass::InitShaderAndPSO()
 
     hr = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(&staticOneSidePSO));
     FAILED_CHECK_MESSAGE(hr, L"GBufferPass::InitShaderAndPSO device->CreateGraphicsPipelineState Failed");
-    _psos.push_back(staticOneSidePSO);
+    _psos[STATIC_ONE_SIDED] = staticOneSidePSO;
 
     // skeletal two side.
     ComPtr<ID3D12PipelineState> skeletalTwoSidePSO;
@@ -237,14 +237,14 @@ void GBufferPass::InitShaderAndPSO()
 
     hr = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(&skeletalTwoSidePSO));
     FAILED_CHECK_MESSAGE(hr, L"GBufferPass::InitShaderAndPSO device->CreateGraphicsPipelineState Failed");
-    _psos.push_back(skeletalTwoSidePSO);
+    _psos[SKELETAL_TWO_SIDED] = skeletalTwoSidePSO;
 
     // skeletal one side.
     ComPtr<ID3D12PipelineState> skeletalOneSidePSO;
     psodesc.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
     hr                               = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(&skeletalOneSidePSO));
     FAILED_CHECK_MESSAGE(hr, L"GBufferPass::InitShaderAndPSO device->CreateGraphicsPipelineState Failed");
-    _psos.push_back(skeletalOneSidePSO);
+    _psos[SKELETAL_ONE_SIDED] = skeletalOneSidePSO;
 }
 
 void GBufferPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, int shaderType, MeshType meshType)

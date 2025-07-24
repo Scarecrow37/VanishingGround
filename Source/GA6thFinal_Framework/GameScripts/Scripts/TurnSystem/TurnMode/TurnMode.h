@@ -55,7 +55,7 @@ public:
     void SortTurnList();
 
     /// <summary>
-    /// 가장 우선순위가 높은 TurnActor를 List에서 지우고 턴을 실행합니다.
+    /// 가장 우선순위가 높은 TurnActor를 List에서 지우고 CurrTurnActor 로 설정합니다.
     /// </summary>
     /// <returns></returns>
     TurnActor* PopTurnList();
@@ -69,7 +69,7 @@ public:
     /// 턴 대기중인 Actor의 개수를 반환합니다.
     /// </summary>
     /// <returns></returns>
-    int GetPendingActorCount() const { return (int)_turnList.size(); }
+    int GetPendingActorCount();
 
 public:
     struct Battle
@@ -87,6 +87,39 @@ public:
         /// <param name="attacker :">공격자</param>
         /// <param name="target :">대상</param>
         void operator()(Enemy& attacker, Player& target);
+
+        /// <summary>
+        /// 마지막으로 공격한 CharacterBase를 반환합니다.
+        /// </summary>
+        /// <returns></returns>
+        static const std::weak_ptr<CharacterBase>& GetLastAttacker() { return lastAttacker; }
+
+        /// <summary>
+        /// 마지막으로 공격당한 CharacterBase를 반환합니다
+        /// </summary>
+        /// <returns></returns>
+        static const std::weak_ptr<CharacterBase>& GetLastTarget() { return lastTarget; }
+
+        /// <summary>
+        /// 마지막으로 공격당한 적을 반환합니다
+        /// </summary>
+        /// <returns></returns>
+        static const std::weak_ptr<CharacterBase>& GetLastTargetEnemy() { return lastTarget; }
+
+        /// <summary>
+        /// 마지막으로 공격당한 적을 기록하는 변수를 초기화합니다. 전투 시작시 초기화됩니다.
+        /// </summary>
+        inline static void ResetLastCharacter()
+        {
+            lastAttacker    = std::weak_ptr<CharacterBase>();
+            lastTarget      = std::weak_ptr<CharacterBase>();
+            lastTargetEnemy = std::weak_ptr<Enemy>();
+        }
+
+    private:
+        inline static std::weak_ptr<CharacterBase> lastAttacker;
+        inline static std::weak_ptr<CharacterBase> lastTarget;
+        inline static std::weak_ptr<Enemy>         lastTargetEnemy;
     };
 
 public:

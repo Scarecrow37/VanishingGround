@@ -1,15 +1,6 @@
 ﻿#pragma once
 #include <TurnSystem/TurnAction/TurnActionFactory.h>
 
-// 적용 조건
-enum class CriticalDamageCondition
-{
-    // 항상
-    ALWAYS,
-    // 대상 출혈시
-    TARGET_BLEED
-};
-
 class CharacterBase;
 class CriticalDamageAction : public TurnAction
 {
@@ -32,7 +23,6 @@ public:
 protected:
     REFLECT_FIELDS_BEGIN(TurnAction)
     float AdditionalDamage = 0.1f; //치명타 피해 증가량
-    CriticalDamageCondition Condition = CriticalDamageCondition::ALWAYS; // 조건
     REFLECT_FIELDS_END(CriticalDamageAction)
 
     const std::string& GetActionName() override;
@@ -40,11 +30,14 @@ protected:
     void ImGuiDrawActionEditor() override;
     void DeserializedReflectEvent() override;
 
+    void OnPlayerBattleStart (Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats, Enemy& target,
+                             EnemyStats& targetStats) override;
+
+    void OnEnemyBattleStart(Enemy& attacker, EnemyStats& attackerStats, Player& target,
+                           PlayerStats& targetStats) override;
+
 private:
     void UpdateActionInfo();
     std::string _actionInfo; 
-
-    /*조건 여부를 검사합니다.*/
-    bool Evaluate(CriticalDamageCondition condition, CharacterBase* attacker, CharacterBase* target);
 
 };

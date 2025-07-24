@@ -59,10 +59,11 @@ bool Command::Hierarchy::SetParentCommand::Execute()
         else if (false == _currParent.expired())
         {
             auto curr = _currParent.lock();
-            if (&curr->transform != target->transform->Parent)
+            target->transform->SetParent(curr->transform);
+            target->GetScene().IsDirty = true;
+            if (&curr->transform == target->transform->Parent)
             {
-                target->transform->SetParent(curr->transform);
-                target->GetScene().IsDirty = true;
+                return false;
             }
         }
         return true;

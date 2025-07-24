@@ -3,6 +3,10 @@
 class EnemyAI final
 {
 public:
+    EnemyAI();
+    ~EnemyAI();
+
+public:
     struct ActionData
     {
         float Weight;   // 가중치

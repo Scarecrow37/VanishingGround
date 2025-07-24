@@ -1,8 +1,14 @@
-#pragma once
+ï»¿#pragma once
 
-/*¹Ì´Ï ´ıÇÁ »ı¼º ÇÔ¼ö.*/
+/*ë¯¸ë‹ˆ ë¤í”„ ìƒì„± í•¨ìˆ˜.*/
 void CreateMiniDump(_EXCEPTION_POINTERS* pExceptionPointers, int MINIDUMP_TYPE);
 
-/*´ıÇÁ Äİ¹é ÇÔ¼ö.*/
+/*ë¤í”„ ì½œë°± í•¨ìˆ˜.*/
 __callback LONG WINAPI CustomUnhandledExceptionFilter(_In_ _EXCEPTION_POINTERS* pExceptionPointers);
 
+struct GetMessageFromLastError
+{
+    std::string operator()() const;
+    std::string operator()(DWORD errorCode) const;
+    std::string operator()(DWORD* outErrorCode) const;
+};

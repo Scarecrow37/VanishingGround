@@ -28,6 +28,11 @@ public:
             _rotation   = rhs._rotation;
             _eulerAngle = rhs._eulerAngle;
             _scale      = rhs._scale;
+
+            if (nullptr != rhs._parent)
+            {
+                SetParent(rhs._parent, false);
+            }
         }
         return *this;
     }
@@ -333,6 +338,17 @@ private:
     /// </summary>
     void UpdateMatrix();
 
+    /// <summary>
+    /// UI 컴포넌트들의 Detach 이벤트 함수를 호출합니다.
+    /// </summary>
+    /// <param name="target"></param>
+    static void CallUIDetachParent(Transform* target, Transform* prevParent);
+
+    /// <summary>
+    /// UI 컴포넌트들의 Attach 이벤트 함수를 호출합니다.
+    /// </summary>
+    /// <param name="target"></param>
+    static void CallUIAttachChild(Transform* target, Transform* newChild);
 
 };
 

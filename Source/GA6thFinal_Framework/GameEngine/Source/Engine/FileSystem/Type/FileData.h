@@ -37,9 +37,12 @@ namespace File
         inline static const char* FILE_GUID_HEADER = "Guid";
     };
 
-    /*
-    MetaData는 파일의 메타데이터를 만들거나, 불러와서 사용하는 구조체입니다.
-    */
+    
+    /// <summary>
+    /// <para>MetaData:</para>
+    /// <para>해당 클래스는 파일의 메타데이터를 만들거나, 불러와서 사용하는 구조체입니다.</para>
+    /// <para>파일이 생성되면 Meta파일을 생성하며, 해당 파일을 삭제할 땐 Meta파일이 삭제되지 않습니다.</para>
+    /// </summary>
     class MetaData : public FileData
     {
     private:

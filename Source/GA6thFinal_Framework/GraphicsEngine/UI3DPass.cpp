@@ -36,7 +36,7 @@ void UI3DPass::Initialize(RenderScene* ownerScene, ID3D12GraphicsCommandList* co
     rtDesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 
     D3D12_GRAPHICS_PIPELINE_STATE_DESC psodesc = {};
-    psodesc.RasterizerState                    = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+    psodesc.RasterizerState                    = CommonStates::CullNone;
     psodesc.BlendState                         = blendDesc;
     psodesc.DepthStencilState                  = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
     psodesc.DSVFormat                          = _ownerScene->_depthStencilView->GetFormat();
@@ -64,11 +64,15 @@ void UI3DPass::Draw(ID3D12GraphicsCommandList* commandList)
     auto  resource               = Global::viewManager->GetShaderResourceHeap()->GetGPUDescriptorHandleForHeapStart();
     auto& frameResource          = _ownerScene->_frameResources[currentBackBufferIndex];
 
-    frameResource->SetFrameResource(FrameResourceType::UI_TRANSFORM, _shader->GetRootParameterIndex("worldMatrices"), commandList);
-    frameResource->SetFrameResource(FrameResourceType::UI_MATERIAL, _shader->GetRootParameterIndex("material"), commandList);
+    frameResource->SetFrameResource(FrameResourceType::UI_TRANSFORM, _shader->GetRootParameterIndex("worldMatrices"),
+                                    commandList);
+    frameResource->SetFrameResource(FrameResourceType::UI_MATERIAL, _shader->GetRootParameterIndex("material"),
+                                    commandList);
 
-    commandList->SetGraphicsRootShaderResourceView(_shader->GetRootParameterIndex("IDs"), _instanceIDBuffer->GetGPUVirtualAddress());
-    commandList->SetGraphicsRootConstantBufferView(_shader->GetRootParameterIndex("cameraData"), _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
+    commandList->SetGraphicsRootShaderResourceView(_shader->GetRootParameterIndex("IDs"),
+                                                   _instanceIDBuffer->GetGPUVirtualAddress());
+    commandList->SetGraphicsRootConstantBufferView(_shader->GetRootParameterIndex("cameraData"),
+                                                   _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
     commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("textures"), resource);
 
     _halfQuad->Render(commandList, (UINT)_instanceIDs.size());

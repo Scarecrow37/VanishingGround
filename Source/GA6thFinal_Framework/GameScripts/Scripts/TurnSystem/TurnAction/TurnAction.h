@@ -1,6 +1,8 @@
 ﻿#pragma once
-#include "UmFrameWork.h"
-#include <Interface/ITriggerType.h>
+#include "Condition/TurnActionCondition.h"
+
+// Condition 클래스 등록을 위한 레지스터
+#define REGISTER_TURN_ACTION_CONDITION(CLASS) REGISTER_CLASS(TurnAction, CLASS)
 
 class CharacterBase;
 class Player;
@@ -10,11 +12,22 @@ struct EnemyStats;
 struct WeaponStats;
 
 //턴 라이프 사이클 사용을 위한 Base 클래스입니다.
-class TurnAction abstract : public ReflectSerializer
+class TurnAction abstract : public ReflectSerializer, public FactoryConstructor<TurnActionCondition>
 {
     USING_PROPERTY(TurnAction)
     friend class TurnMode;
 public:
+    static void ImGuiDrawActionMaker(std::string_view windowID, std::unique_ptr<TurnAction>& action, bool& showActionEditor);
+    static void ImGuiDrawActionMaker(std::string_view windowID, std::shared_ptr<TurnAction>& action, bool& showActionEditor);
+    static void ImGuiDrawActionMaker(std::string_view windowID, TurnAction& action, bool& showActionEditor);
+
+    // 2개 이상의 조건의 연산을 정의합니다.
+    enum class ConditionOperator
+    {
+        AND,
+        OR
+    };
+
     TurnAction() = default;
     virtual ~TurnAction()
     { 
@@ -29,6 +42,7 @@ public:
         if (_isDestroy)
         {
             *_isDestroy = true;
+            _isDestroy  = nullptr;
         }
     }
 
@@ -36,6 +50,50 @@ public:
     /// 이 액션의 life cycle이 활성화 되어있는지 확인합니다.
     /// </summary>
     bool IsValidAction() { return _isDestroy != nullptr; }
+
+    /// <summary>
+    /// 등록된 Condition 객체들의 조건을 평가합니다.
+    /// </summary>
+    /// <returns></returns>
+    virtual bool EvaluateConditions();
+
+    /// <summary>
+    /// Condition 객체를 등록합니다.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    template<typename T>
+    void AddCondition()
+    {
+        static_assert(std::is_base_of_v<TurnActionCondition, T>, "This type does not derive from TurnActionCondition.");
+        auto& map = GetInstanceConstructors();
+        std::string key = typeid(T).name();
+        auto findIter = map.find(key);
+        if (findIter != map.end())
+        {   
+            T* condition = findIter->second();
+            _conditions.emplace_back(condition);
+        }
+        else
+        {
+            std::string msg = std::format("{}{}", key, (const char*)u8"는 등록되지 않은 Condition 클래스 입니다.");
+            UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
+        }
+    }
+
+    /// <summary>
+    /// 현재 추가된 Condition들을 반환합니다.
+    /// </summary>
+    /// <returns></returns>
+    const std::vector<std::unique_ptr<TurnActionCondition>>& GetConditions() const { return _conditions; }
+
+    /// <summary>
+    /// Condition들의 정보를 설명하는 문자열을 반환합니다.
+    /// </summary>
+    /// <returns></returns>
+    const std::string& GetConditionsInfo() const;
+
+    /*액션 조건이 true를 평가했을때 호출되는 함수 객체입니다.*/
+    std::function<void()> OnActionActive;
 
 public:
     /*Action의 이름을 반환해야합니다.*/
@@ -83,17 +141,60 @@ public:
     virtual void OnEnemyBattleStart(Enemy& attacker, EnemyStats& attackerStats, Player& target, PlayerStats& targetStats) {}
 
 public:
-    REFLECT_PROPERTY(Name)
+    REFLECT_PROPERTY(ActionName, LogicOperator)
 
-    GETTER_ONLY(const std::string&, Name) { return GetActionName(); }
+    GETTER_ONLY(const std::string&, ActionName) { return GetActionName(); }
     // 계시 이름
-    PROPERTY(Name)
+    PROPERTY(ActionName)
+
+    GETTER(ConditionOperator, LogicOperator) { return ReflectFields->LogicOperator; }
+    SETTER(ConditionOperator, LogicOperator) { ReflectFields->LogicOperator = value; }
+    PROPERTY(LogicOperator)
 
 protected:
+    /// <summary>
+    /// 조건 직렬화 데이터 타입 <typeid().name(), JSON>
+    /// </summary>
+    using ConditionDataType = std::pair<std::string, std::string>;
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
+    std::vector<ConditionDataType> _conditionDatas;
+    ConditionOperator LogicOperator = ConditionOperator::AND;
     REFLECT_FIELDS_END(TurnAction)
+
+    void SerializedReflectEvent() override;
+    void DeserializedReflectEvent() override;
+
+    /// <summary>
+    /// 조건 수정용 Imgui 에디터를 드로우 합니다.
+    /// </summary>
+    void ImguiDrawConditionEditor();
 
 private:
     bool* _isDestroy = nullptr;
+    std::vector<std::unique_ptr<TurnActionCondition>> _conditions;
+
+private:
+    void ConditionsToReflectDatas();
+    void ReflectDatasToConditions();
+
+    /// <summary>
+    /// 등록된 Condition 객체들의 조건을 실제로 평가하는 함수입니다.
+    /// </summary>
+    /// <returns></returns>
+    bool EvaluateConditionsEx();
+    
+public:
+    TurnAction& CopyAction(const TurnAction& rhs)
+    {
+        if (this == &rhs) // Self-assignment check
+            return *this;
+
+        TurnAction& rhsAction  = const_cast<TurnAction&>(rhs);
+        std::string data = rhsAction.SerializedReflectFields();
+        DeserializedReflectFields(data);
+        return *this;
+    }
+    explicit TurnAction(const TurnAction& rhs) { CopyAction(rhs); }
+    TurnAction& operator=(const TurnAction& rhs) { return CopyAction(rhs); }
 
 };

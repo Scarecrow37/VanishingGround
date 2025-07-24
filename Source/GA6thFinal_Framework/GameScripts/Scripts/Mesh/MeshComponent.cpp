@@ -3,7 +3,7 @@
 
 MeshComponent::MeshComponent() 
     : 
-    Component(Component::TYPE::RENDER),
+    Component(Component::TYPE::MESH),
     Renderer(_pMeshRenderer)
 {
   
@@ -21,12 +21,12 @@ MeshComponent::~MeshComponent()
     }
 }
 
-bool MeshComponent::HasModel()
+bool MeshComponent::HasModel() const
 {
     return nullptr != Renderer->GetModel();
 }
 
-bool MeshComponent::HasAnimator()
+bool MeshComponent::HasAnimator() const
 {
     return nullptr != Renderer->GetAnimator();
 }

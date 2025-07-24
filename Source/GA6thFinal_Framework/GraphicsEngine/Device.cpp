@@ -37,6 +37,7 @@ void Device::SetUpDevice(HWND hwnd, UINT width, UINT height, FeatureLevel featur
     _mode.Width  = width;
     _mode.Height = height;
     _newMode     = _mode;
+    _resolution  = {width, height};
 
 #ifdef _DEBUG
     ComPtr<ID3D12Debug> debugController;
@@ -389,7 +390,8 @@ ComPtr<ID3D12RootSignature> Device::CreateRootSignature(const D3D12_ROOT_SIGNATU
     hr = S_OK;
     hr = _device->CreateRootSignature(0, pSigBlob->GetBufferPointer(), pSigBlob->GetBufferSize(),
                                       IID_PPV_ARGS(pRootSig.GetAddressOf()));
-    FAILED_CHECK_MESSAGE(hr, L"Deivce::CreateRootSignature _device->CreateRootSignautre Failed");
+    FAILED_CHECK_MESSAGE(hr, L"Device::CreateRootSignature _device->CreateRootSignature Failed");
+
     return pRootSig;
 }
 
@@ -420,7 +422,9 @@ void Device::ResizeSwapChain()
 
     DXGI_MODE_DESC prevMode = _mode;
     _mode                   = _newMode;
-    //Global::dxResourceManager->ResizeResource(prevMode);
+
+    // Global::dxResourceManager->ResizeResource(prevMode);
+    // _resolution = {_newMode.Width, _newMode.Height};
 
     _onResize  = false;
 }

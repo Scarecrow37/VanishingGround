@@ -1,9 +1,9 @@
 ﻿#include "pchScripts.h"
 #include "RevelationSystem.h"
 #include <TurnSystem/TurnAction/TurnActionFactory.h>
+#include <TurnSystem/TurnMode/TurnMode.h>
 RevelationSystem::RevelationSystem() 
 {
-    MaxRevelations.SetInputAutoEvent([]() { ImGuiHelper::HoveredToolTip(u8"최대 계시 수용량"); });
     RevelationsPerRound.SetInputAutoEvent([]() { ImGuiHelper::HoveredToolTip(u8"라운드당 뽑는 계시 개수"); });
 }
 RevelationSystem::~RevelationSystem() = default;
@@ -19,40 +19,84 @@ std::shared_ptr<RevelationElement> RevelationSystem::EquipPlayerElement(int slot
     return prevElement;
 }
 
-void RevelationSystem::RollRoundElement() 
+std::shared_ptr<RevelationElement> RevelationSystem::RemovePlayerElement(int slot)
 {
-    _roundElementList.clear();
-
-    //실제 존재하는 계시만 리스트에 넣는다
-    for (auto& element : _playerElementList)
+    std::shared_ptr<RevelationElement> prevElement;
+    if (0 <= slot && slot < _playerElementList.size())
     {
-        if (element)
+        prevElement = std::move(_playerElementList[slot]);
+        _playerElementList.erase(_playerElementList.begin() + slot);
+    }
+    return prevElement;
+}
+
+const std::shared_ptr<RevelationElement>& RevelationSystem::PushBackPlayerElement(const RevelationElement& element)
+{
+    return _playerElementList.emplace_back(new RevelationElement(element));
+}
+
+void RevelationSystem::RollRoundElement()
+{
+    TurnMode* _turnMode = TurnMode::GetInstance();
+
+    if (_turnMode)
+    {
+        //기존 액션들 비활성화
+        for (auto& element : _roundElementList)
         {
-            _roundElementList.push_back(element);
+            if (element->IsAction())
+            {
+                element->GetAction().SetDestroy();
+            }
         }
+        _roundElementList.clear();
+
+        // 실제 존재하는 계시만 리스트에 넣는다
+        for (auto& element : _playerElementList)
+        {
+            if (element)
+            {
+                _roundElementList.push_back(element);
+            }
+        }
+
+        // 랜덤 셔플
+        std::ranges::shuffle(_roundElementList, Random::GetEngine());
+
+        // 사용 가능한 개수만 남긴다.
+        if (ReflectFields->RevelationsPerRound < _roundElementList.size())
+        {
+            _roundElementList.resize(ReflectFields->RevelationsPerRound);
+        }
+
+        // 뽑힌 횟수 계산 및 액션 활성화
+        for (auto& element : _roundElementList)
+        {
+            const std::string& name = element->ElementName;
+            _elementTotalAppearances[name]++;
+            if (element->IsAction())
+            {
+                std::weak_ptr<RevelationElement> weakElement = element;
+                TurnAction& action = element->GetAction();
+                action.OnActionActive = [weakElement]() 
+                { 
+                    if (auto element = weakElement.lock())
+                    {
+                        const std::string& name = element->ElementName;
+                        std::string msg  = std::format("{}{}", name, (const char*)u8" 발동.");
+                        UmLogger.Message(LogLevel::LEVEL_DEBUG, msg);
+                    }
+                };
+                _turnMode->AddTurnAction(&action);
+            }
+        }
+        _totalRollCount += (int)_roundElementList.size();
     }
-
-    //랜덤 셔플
-    std::ranges::shuffle(_roundElementList, Random::GetEngine());
-
-    //사용 가능한 개수만 남긴다.
-    if (ReflectFields->RevelationsPerRound < _roundElementList.size())
-    {
-        _roundElementList.resize(ReflectFields->RevelationsPerRound);
-    }  
-
-    //뽑힌 횟수 계산
-    for (auto& element : _roundElementList)
-    {
-        const std::string& name = element->Name;
-        _elementTotalAppearances[name]++;
-    }
-    _totalRollCount += (int)_roundElementList.size();
 }
 
 bool RevelationSystem::InsertElement(const RevelationElement& element)
 {
-    const std::string& key      = element.Name;
+    const std::string& key      = element.ElementName;
     bool               result   = false;
     auto               findIter = _elementsTable.find(key);
     if (findIter == _elementsTable.end())
@@ -93,16 +137,11 @@ static ReflectHelper::ImGuiDraw::InputAutoSetting InitSetting()
 
 void RevelationSystem::DrawImGuiElementTableEditor() 
 {
-    if (ImGui::BeginTable("Revelation Stats", 8, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+    if (ImGui::BeginTable("Revelation Stats", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
     {                      
         static ReflectHelper::ImGuiDraw::InputAutoSetting tableSetting = InitSetting();
 
-        ImGui::TableSetupColumn("ImageGuid");
         ImGui::TableSetupColumn("Name");
-        ImGui::TableSetupColumn("Condition");
-        ImGui::TableSetupColumn("ConditionValueA");
-        ImGui::TableSetupColumn("ConditionValueB");
-        ImGui::TableSetupColumn("Keyword");
         ImGui::TableSetupColumn("Grade");
         ImGui::TableSetupColumn("Action");
         ImGui::TableHeadersRow();
@@ -131,14 +170,20 @@ void RevelationSystem::DrawImGuiElementTableEditor()
             ImGui::PushStyleColor(ImGuiCol_Text, element.GetGradeColor());
             ImGui::PushID(itemID++);
             {
-                ImGui::TableNextRow();
-                element.SetImGuiTableIndex();
-                tableSetting.InputEndEvent = [&](bool edit, std::string_view name) 
+                ReflectHelper::ImGuiDraw::InputAutoSetting setting = []() 
                 {
-                    element.SetImGuiTableIndex();
-                    RightClickContext();
-                };
-                element.ImGuiDrawPropertys(tableSetting);
+                    ReflectHelper::ImGuiDraw::InputAutoSetting setting;
+                    setting.ShowName = false;
+                    return setting;
+                }();
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+                ReflectHelper::ImGuiDraw::Private::InputAuto(element.ElementName, setting);
+                ImGui::TableSetColumnIndex(1);
+                ReflectHelper::ImGuiDraw::Private::InputAuto(element.Grade, setting);
+                RightClickContext();
+                ImGui::TableSetColumnIndex(2);
+                TurnAction::ImGuiDrawActionMaker(key, element._action, element._showActionEditor);
             }
             ImGui::PopID();
             ImGui::PopStyleColor(1);
@@ -194,7 +239,7 @@ void RevelationSystem::DrawImGuiElementTableEditor()
                 element.SetName(_imguiEvent.RenameBuffer);
                 if (InsertElement(element))
                 {
-                    const std::string& key = _imguiEvent.SelectElement->Name;
+                    const std::string& key = _imguiEvent.SelectElement->ElementName;
                     EraseElement(key);
                 }
                 _imguiEvent.SelectElement = nullptr;
@@ -273,15 +318,16 @@ void RevelationSystem::ElementDatasToElements()
     {
         RevelationElement element;
         element.DeserializedReflectFields(data);
-        const std::string& key = element.Name;
+        const std::string& key = element.ElementName;
         InsertElement(element);
     }
 }
 
 void RevelationSystem::PlayerElementDatasToPlayerElements() 
 {
-    _playerElementList.resize(ReflectFields->MaxRevelations);
-    for (size_t i = 0; i < ReflectFields->PlayerElementDatas.size(); i++)
+    size_t elementSize = ReflectFields->PlayerElementDatas.size();
+    _playerElementList.resize(elementSize);
+    for (size_t i = 0; i < elementSize; i++)
     {
         const std::string& data = ReflectFields->PlayerElementDatas[i];
         if (i < _playerElementList.size())
@@ -313,7 +359,7 @@ void RevelationSystem::PlayerElementsToPlayerElementDatas()
     {
         if (playerElement)
         {
-            const std::string& name = playerElement->Name;
+            const std::string& name = playerElement->ElementName;
             ReflectFields->PlayerElementDatas.emplace_back(name);
         }
         else
@@ -447,6 +493,8 @@ void RevelationSystem::ImGuiDrawPlayerElementEditor()
     {
         TreeToolTip();
         std::shared_ptr<RevelationElement>* eraseSelect = nullptr;
+        int eraseSlot = -1;
+        int currentSlot = 0;
         for (auto& element : _playerElementList)
         {
             ImGui::PushID(&element);
@@ -455,16 +503,13 @@ void RevelationSystem::ImGuiDrawPlayerElementEditor()
             if (false == elementEmpty)
             {
                 ImGui::PushStyleColor(ImGuiCol_Text, element->GetGradeColor());
-                name = (const std::string&)element->Name;
+                name = (const std::string&)element->ElementName;
             }
             if (ImGui::BeginCombo("##5794D456-E0A6-4F6C-844B-07D94A6401C6", name.data()))
             {
-                if (ImGui::Selectable(STR_NULL))
-                {
-                    eraseSelect = &element;
-                }
                 for (auto& [key, tableElement] : _elementsTable)
                 {
+                    ImGui::PushStyleColor(ImGuiCol_Text, tableElement.GetGradeColor());
                     if (ImGui::Selectable(key.data()))
                     {
                         if (element)
@@ -476,8 +521,15 @@ void RevelationSystem::ImGuiDrawPlayerElementEditor()
                             element.reset(new RevelationElement(tableElement));
                         }          
                     }
+                    ImGui::PopStyleColor();
                 }
                 ImGui::EndCombo();
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Remove"))
+            {
+                eraseSelect = &element;
+                eraseSlot   = currentSlot;
             }
             if (name != STR_NULL)
             {
@@ -494,12 +546,21 @@ void RevelationSystem::ImGuiDrawPlayerElementEditor()
                 ImGui::PopStyleColor();
             }     
             ImGui::PopID();
+            currentSlot++;
         }
         if (eraseSelect)
         {
             std::erase(_roundElementList, *eraseSelect);
-            eraseSelect->reset();
+            RemovePlayerElement(eraseSlot);
             eraseSelect = nullptr;          
+        }
+        if (ImGui::Button("Add Element"))
+        {
+            auto begin = _elementsTable.begin();
+            if (begin != _elementsTable.end())
+            {
+                PushBackPlayerElement(begin->second);
+            }
         }
         ImGui::TreePop();
     }
@@ -526,7 +587,7 @@ void RevelationSystem::ImGuiDrawRoundElementList()
         RollButton();
         for (auto& element : _roundElementList)
         {
-            std::string_view name = (const std::string&)element->Name;
+            std::string_view name = (const std::string&)element->ElementName;
             ImGui::PushStyleColor(ImGuiCol_Text, element->GetGradeColor());
             ImGui::Text(name.data());
             ImGui::Separator();

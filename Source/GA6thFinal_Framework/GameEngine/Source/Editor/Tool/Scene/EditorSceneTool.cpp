@@ -56,7 +56,8 @@ void EditorSceneTool::SetCameraToObject(std::weak_ptr<GameObject> destination)
         if (pObject->IsValid() && _camera)
         {
             _isFocusedCamera = true;
-            _focusedCameraTargetPosition = pObject->transform->Position;
+            const Matrix& world = pObject->transform->GetWorldMatrix();
+            _focusedCameraTargetPosition = world.Translation();
             _focusedCameraStartPosition  = _camera->GetPivotPosition();
         }
     }
@@ -92,6 +93,8 @@ void EditorSceneTool::OnStartGui()
 
     _camera->SetTarget(camera);
     _dockWindow = GetOwnerDockWindow();
+    _editorHierarchyTool = _dockWindow->GetGui<EditorHierarchyTool>();
+
 }
 
 void EditorSceneTool::OnPreFrameBegin()
@@ -233,10 +236,13 @@ void EditorSceneTool::UpdateKeyboardFrameRender()
 {
     if (_isDrawedManipulate)
     {
-        if (ImGui::IsKeyPressed(ImGuiKey_F, false))
+        if (_editorHierarchyTool->IsFocusFrame() || IsFocusFrame())
         {
-            auto wPtrFocused = EditorHierarchyTool::GetFocusObject();
-            SetCameraToObject(wPtrFocused);
+            if (ImGui::IsKeyPressed(ImGuiKey_F, false))
+            {
+                auto& wPtrFocused = EditorHierarchyTool::GetFocusObject();
+                SetCameraToObject(wPtrFocused);
+            }
         }
     }
 }
@@ -496,6 +502,7 @@ void EditorSceneTool::DrawSceneView()
         }
 
         const auto& runtimeObjects = ESceneManager::Engine::GetRuntimeObjects();
+        auto        focusObject    = EditorHierarchyTool::GetFocusObject().lock();
         for (auto& object : runtimeObjects)
         {
             if (object && object->IsValid())
@@ -505,7 +512,10 @@ void EditorSceneTool::DrawSceneView()
                     Component* component = object->GetComponentAtIndex<Component>(i);
                     if (component)
                     {
-                        component->OnDrawDebug();
+                        if (nullptr == focusObject || object != focusObject)
+                        {
+                            component->OnDrawDebug();
+                        }                   
                     }
                 }
             }
@@ -600,7 +610,8 @@ void EditorSceneTool::RayPicker()
         false == _isUsingStart && 
         false == _isUsingEnd)
     {
-        if (IsFocusFrame() && ImGui::IsWindowHovered() && ImGui::IsKeyReleased(ImGuiKey_MouseLeft))
+        bool isLeftAltDown = ImGui::IsKeyDown(ImGuiKey_LeftAlt);
+        if (false == isLeftAltDown && IsFocusFrame() && ImGui::IsWindowHovered() && ImGui::IsKeyReleased(ImGuiKey_MouseLeft))
         {
             ImGuiIO& io = ImGui::GetIO();
             if (io.MousePos.x >= _sceneClienttLeft && io.MousePos.y >= _sceneClientTop &&

@@ -13,8 +13,7 @@
 #include "AccelerationStructureManager.h"
 
 RenderScene::RenderScene(std::string_view name)
-    : _skyBox{std::make_unique<SkyBox>()}
-    , _name(name)
+    : _name(name)
 {
     _lightDatas.resize(MAX_LIGHT);
 }
@@ -40,6 +39,9 @@ void RenderScene::InitializeRenderScene()
     CreateRenderTarget();
     CreateDepthStencil();
     CreateFrameResource();
+
+    _skyBox = std::make_unique<SkyBox>();
+    _skyBox->Initialize();
 
     _frameQuad = std::make_unique<Quad>();
     _frameQuad->Initialize(-1.f, 1.f, 2.f, 2.f, 0.f);
@@ -324,12 +326,14 @@ void RenderScene::UpdateUI()
         auto     size = component->GetSize();
         XMMATRIX world = component->GetWorldMatrix();
         XMMATRIX scale = XMMatrixIdentity();
-        
+        XMMATRIX translation = XMMatrixIdentity();
+
         switch (component->GetType())
         {
         case SpriteType::MODE_2D:
-            scale = XMMatrixScaling((float)size.cx, (float)size.cy, 1.f);
-            break;        
+            scale = XMMatrixScaling((float)size.cx, (float)-size.cy, 1.f);
+            translation = XMMatrixTranslation(size.cx * 0.5f, size.cy * 0.5f, 0.f);
+            break;
         case SpriteType::MODE_3D:
         {
             XMVECTOR s, r, t;
@@ -347,7 +351,7 @@ void RenderScene::UpdateUI()
         }
         }
         
-        world = XMMatrixTranspose(scale * world);
+        world = XMMatrixTranspose(scale * world * translation);
         _uiMatrices.push_back(world);
 
         UIMaterial material{.ID = texture->GetID(), .Alpha = 1.f};

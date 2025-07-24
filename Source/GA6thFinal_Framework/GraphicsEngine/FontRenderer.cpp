@@ -16,6 +16,17 @@ void FontRenderer::SetText(std::wstring_view text)
     _text = text;
 }
 
+XMVECTOR FontRenderer::GetStringSize() const
+{
+    if (_font)
+    {
+        if (const auto font = _font->GetFont())
+        {
+            return font->MeasureString(_text.c_str());
+        }
+    }
+    return XMVectorZero();
+}
 void FontRenderer::SetFont(std::shared_ptr<Font> font)
 {
     _font = std::move(font);

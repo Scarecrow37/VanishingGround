@@ -1,4 +1,5 @@
 ﻿#include "pch.h"
+#include <filesystem>
 
 std::vector<std::string> dllUtility::GetDLLFuntionNameList(HMODULE dllModule)
 {
@@ -37,59 +38,59 @@ std::vector<std::string> dllUtility::GetDLLFuntionNameList(HMODULE dllModule)
 
 bool dllUtility::RunBatchFile(const std::wstring_view BatchFilePath, DWORD* pExitCodeOut)
 {
-    using namespace std::string_literals;
     bool result = false;
-    std::wstring command = BatchFilePath.data();
 
-    STARTUPINFOW  si = { sizeof(STARTUPINFOW) };
-    PROCESS_INFORMATION pi{};
-    if (CreateProcessW(
-        NULL,                           // 애플리케이션 경로 (NULL이면 첫 번째 파라미터가 명령어로 간주됨)
-        (LPWSTR)command.c_str(),        // 명령어 (배치 파일 경로)
-        NULL,                           // 프로세스 보안 속성
-        NULL,                           // 쓰레드 보안 속성
-        FALSE,                          // 자식 프로세스가 부모 프로세스를 상속할지 여부
-        0,                              // 생성 플래그 (예: CREATE_NEW_CONSOLE)
-        NULL,                           // 환경 변수
-        NULL,                           // 현재 작업 디렉토리
-        &si,                            // STARTUPINFO 구조체
-        &pi                             // PROCESS_INFORMATION 구조체
-    )) 
+    SHELLEXECUTEINFOW sei = { sizeof(sei) };
+    sei.fMask = SEE_MASK_NOCLOSEPROCESS;
+    sei.hwnd = NULL;
+    sei.lpVerb = L"runas";
+    sei.lpFile = BatchFilePath.data();
+    sei.lpParameters = L"";
+    sei.nShow = SW_SHOWNORMAL;
+
+    if (ShellExecuteExW(&sei))
     {
-        // 프로세스 종료 대기
-        WaitForSingleObject(pi.hProcess, INFINITE);
-
-        DWORD exitCode;
-        if (GetExitCodeProcess(pi.hProcess, &exitCode)) {
-            if (exitCode == 0) 
+        // Wait for the process to finish
+        if (sei.hProcess != 0)
+        {
+            WaitForSingleObject(sei.hProcess, INFINITE);
+            DWORD exitCode;
+            if (GetExitCodeProcess(sei.hProcess, &exitCode))
             {
-                result = true;
+                if (exitCode == 0)
+                {
+                    result = true;
+                }
+                else
+                {
+                    result = false;
+                }
+                if (pExitCodeOut)
+                {
+                    *pExitCodeOut = exitCode;
+                }
             }
-            else 
+            else
             {
+                if (pExitCodeOut)
+                {
+                    *pExitCodeOut = GetLastError(); // Store the error code on failure
+                }
                 result = false;
             }
-            if (pExitCodeOut)
-            {
-                *pExitCodeOut = exitCode;
-            }
-        }
-        else 
-        {
-            result = false;
-        }
 
-        // 프로세스 핸들 닫기
-        CloseHandle(pi.hProcess);
-        CloseHandle(pi.hThread);
+            // Close the process handle
+            CloseHandle(sei.hProcess);
+        }      
     }
-    else 
+    else
     {
         if (pExitCodeOut)
         {
-            *pExitCodeOut = NULL;
+            // For example, ERROR_CANCELLED (1223) if the user clicks "No" on the UAC prompt
+            *pExitCodeOut = GetLastError();
         }
-        return result;
+        result = false;
     }
     return result;
 }
