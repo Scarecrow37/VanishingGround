@@ -55,11 +55,13 @@ struct FindChildComponents
 {
     std::vector<T*> operator()(Transform& parentTransform)
     {
+        std::vector<T*> components;
         for (int i = 0; i < parentTransform.GetChildCount(); ++i)
         {
             const Transform* child      = parentTransform.GetChild(i);
             GameObject&      gameObject = child->gameObject;
-            return FindComponents<T>()(gameObject);
+            components = FindComponents<T>()(gameObject);
         }
+        return components;
     }
 };
