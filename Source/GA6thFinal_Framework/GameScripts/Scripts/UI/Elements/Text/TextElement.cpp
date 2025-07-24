@@ -80,16 +80,8 @@ float TextElement::GetZOrder() const
     return EditablePlacementUIComponent::GetZOrder() * VIEW_ORDER_TEXT_RATIO + VIEW_ORDER_TEXT_OFFSET;
 }
 
-void TextElement::OnSetViewOrder()
-{
-    EditablePlacementUIComponent::OnSetViewOrder();
-
-    UpdatePosition();
-}
-
 void TextElement::LoadFont() const
 {
-
     if (nullptr != _renderer)
     {
         const std::string path = FilePath;
@@ -99,6 +91,13 @@ void TextElement::LoadFont() const
             UmGraphics.LoadResource(filePath, _renderer.get());
         }
     }
+}
+
+void TextElement::SetViewOrder(const int viewOrder)
+{
+    EditablePlacementUIComponent::SetViewOrder(viewOrder);
+
+    UpdatePosition();
 }
 
 void TextElement::PassProperty() const

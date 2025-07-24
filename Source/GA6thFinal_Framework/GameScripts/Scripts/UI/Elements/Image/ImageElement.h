@@ -23,9 +23,9 @@ protected:
     void  DeserializedReflectEvent() override;
     void  OnPlacementChange() override;
     float GetZOrder() const override;
+    void  SetViewOrder(int viewOrder) override;
 
 private:
-    void OnSetViewOrder() override;
     void LoadTexture() const;
     void UpdateWorldMatrix();
     void RequestResource();

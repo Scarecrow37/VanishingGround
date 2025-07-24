@@ -84,7 +84,6 @@ void PlacementUIComponent::OnDetachParent(GameObject* previousParentGameObject)
 void PlacementUIComponent::SetViewOrder(const int viewOrder)
 {
     ReflectFields->ViewOrder = viewOrder;
-    OnSetViewOrder();
 }
 
 float PlacementUIComponent::GetZOrder() const

@@ -81,9 +81,9 @@ float ImageElement::GetZOrder() const
     return EditablePlacementUIComponent::GetZOrder() * VIEW_ORDER_IMAGE_RATIO;
 }
 
-void ImageElement::OnSetViewOrder()
+void ImageElement::SetViewOrder(const int viewOrder)
 {
-    EditablePlacementUIComponent::OnSetViewOrder();
+    EditablePlacementUIComponent::SetViewOrder(viewOrder);
 
     UpdateWorldMatrix();
 }

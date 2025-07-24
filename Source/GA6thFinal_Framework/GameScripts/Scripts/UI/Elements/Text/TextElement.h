@@ -66,7 +66,7 @@ private:
     void RequestResource() const;
     void LoadFont() const;
 
-    void OnSetViewOrder() override;
+    void SetViewOrder(int viewOrder) override;
 
     void PassProperty() const;
     void FitContent();
