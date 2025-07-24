@@ -1,9 +1,9 @@
 ﻿#include "pch.h"
-#include "Editor/Tool/Scene/Command/EditorSceneCommands.h"
-#include "Command/SetParentCommand.h"
 #include "Command/DetachChildrenCommand.h"
-#include "Command/PackPrefabCommand.h"
 #include "Command/DropPrefabCommand.h"
+#include "Command/PackPrefabCommand.h"
+#include "Command/SetParentCommand.h"
+#include "Editor/Tool/Scene/Command/EditorSceneCommands.h"
 
 #include "UmScripts.h"
 
@@ -13,7 +13,8 @@ using namespace Command::Hierarchy;
 
 static EditorSceneTool* staticEditorScenTool = nullptr;
 
-void EditorHierarchyTool::TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>& focusObject,  GameObject*& outClickNode)
+void EditorHierarchyTool::TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>& focusObject,
+                                            GameObject*& outClickNode)
 {
     EditorSceneTool* sceneTool = _editorSceneTool;
     auto TreeClickEvent = [&node, &outClickNode, &sceneTool]() {
@@ -50,21 +51,18 @@ void EditorHierarchyTool::TransformTreeNode(Transform& node, const std::shared_p
             Data data{};
             data.pTransform = &node;
 
-            ImGui::SetDragDropPayload(key, 
-                                      &data, 
-                                      sizeof(Data));
+            ImGui::SetDragDropPayload(key, &data, sizeof(Data));
             ImGui::EndDragDropSource();
         }
 
         if (ImGui::BeginDragDropTarget())
         {
-            if (const ImGuiPayload* payload = 
-                ImGui::AcceptDragDropPayload(DragDropTransform::KEY))
+            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(DragDropTransform::KEY))
             {
-                DragDropTransform::Data* data = (DragDropTransform::Data*)payload->Data;
-                Transform* prevParent = data->pTransform->Parent;
-                auto targetObject = data->pTransform->gameObject->GetWeakPtr();
-                auto currObject   = node.gameObject->GetWeakPtr();
+                DragDropTransform::Data* data         = (DragDropTransform::Data*)payload->Data;
+                Transform*               prevParent   = data->pTransform->Parent;
+                auto                     targetObject = data->pTransform->gameObject->GetWeakPtr();
+                auto                     currObject   = node.gameObject->GetWeakPtr();
                 if (nullptr != prevParent)
                 {
                     auto prevObject = prevParent->gameObject->GetWeakPtr();
@@ -73,7 +71,7 @@ void EditorHierarchyTool::TransformTreeNode(Transform& node, const std::shared_p
                 else
                 {
                     UmCommandManager.Do<Command::Hierarchy::SetParentCommand>(targetObject, nullptr, currObject);
-                }  
+                }
             }
             ImGui::EndDragDropTarget();
         }
@@ -87,13 +85,13 @@ void EditorHierarchyTool::TransformTreeNode(Transform& node, const std::shared_p
         {
             if (ImGui::MenuItem("Set Root Object"))
             {
-                Transform* prevParent = node.Parent;
-                auto targetObject = node.gameObject->GetWeakPtr();
+                Transform* prevParent   = node.Parent;
+                auto       targetObject = node.gameObject->GetWeakPtr();
                 if (nullptr != prevParent)
                 {
                     auto prevObject = prevParent->gameObject->GetWeakPtr();
                     UmCommandManager.Do<Command::Hierarchy::SetParentCommand>(targetObject, prevObject, nullptr);
-                }   
+                }
             }
             if (ImGui::MenuItem("Detach Children"))
             {
@@ -105,14 +103,14 @@ void EditorHierarchyTool::TransformTreeNode(Transform& node, const std::shared_p
                 UmCommandManager.Do<Command::EditorScene::DestroyGameObjectCommand>(&node.gameObject);
             }
             ImGui::Separator();
-            if(ImGui::BeginMenu("Prefab"))
+            if (ImGui::BeginMenu("Prefab"))
             {
                 if (ImGui::MenuItem("Unpack Prefab"))
                 {
                     UmCommandManager.Do<PackPrefabCommand>(node.gameObject->GetWeakPtr(), "");
                 }
                 ImGui::EndMenu();
-            }   
+            }
             ImGui::Separator();
             if (nullptr == node.Parent)
             {
@@ -126,17 +124,17 @@ void EditorHierarchyTool::TransformTreeNode(Transform& node, const std::shared_p
                     node.Position = pos;
                     node.Rotation = rot;
                 }
-                ImGuiHelper::HoveredToolTip((const char*)u8"이 오브젝트의 위치와 회전을 Scene View의 값으로 설정합니다.");
+                ImGuiHelper::HoveredToolTip(
+                    (const char*)u8"이 오브젝트의 위치와 회전을 Scene View의 값으로 설정합니다.");
             }
             ImGui::EndPopup();
         }
     };
 
-    auto PushFocusStyle = [&node]() 
-    {
+    auto PushFocusStyle = [&node]() {
         if (node.gameObject->ActiveInHierarchy == false)
         {
-            GameObject& object  = node.gameObject;
+            GameObject& object = node.gameObject;
             if (object.IsPrefabInstance() == false)
             {
                 // 회색 계열
@@ -148,19 +146,19 @@ void EditorHierarchyTool::TransformTreeNode(Transform& node, const std::shared_p
                 std::string path = object.PrefabPath;
                 if (path.empty() == false)
                 {
-                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.3f, 0.6f, 0.8f, 1.0f)); 
+                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.1f, 0.25f, 0.5f, 1.0f)); 
                     return true;
                 }
                 else
                 {
-                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.7f, 0.4f, 0.4f, 1.0f)); 
+                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.7f, 0.4f, 0.4f, 1.0f));
                     return true;
-                }       
-            }         
+                }
+            }
         }
         else
         {
-            GameObject& object  = node.gameObject;   
+            GameObject& object = node.gameObject;
             if (object.IsPrefabInstance() == false)
             {
                 // 기본 스타일 사용
@@ -176,32 +174,30 @@ void EditorHierarchyTool::TransformTreeNode(Transform& node, const std::shared_p
                 }
                 else
                 {
-                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.5f, 0.5f, 1.0f)); 
+                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.5f, 0.5f, 1.0f));
                     return true;
-                }       
+                }
             }
         }
         return false;
     };
-    auto PopFocusStyle = [&node](bool isPushStyle) 
-    {
+    auto PopFocusStyle = [&node](bool isPushStyle) {
         if (isPushStyle)
         {
             ImGui::PopStyleColor();
         }
     };
-    auto FocusRectDarw = [&node](GameObject* pFocusObject) 
-    {
+    auto FocusRectDarw = [&node](GameObject* pFocusObject) {
         if (pFocusObject == &node.gameObject)
         {
-            ImVec2 min = ImGui::GetItemRectMin(); 
-            ImVec2 max = ImGui::GetItemRectMax(); 
+            ImVec2 min = ImGui::GetItemRectMin();
+            ImVec2 max = ImGui::GetItemRectMax();
 
-            ImVec2 windowPos  = ImGui::GetWindowPos();  
-            ImVec2 windowSize = ImGui::GetWindowSize(); 
+            ImVec2 windowPos  = ImGui::GetWindowPos();
+            ImVec2 windowSize = ImGui::GetWindowSize();
 
-            min.x = windowPos.x; 
-            max.x = windowPos.x + windowSize.x; 
+            min.x = windowPos.x;
+            max.x = windowPos.x + windowSize.x;
 
             constexpr float dampX = 3.f;
             min.x += dampX;
@@ -217,8 +213,8 @@ void EditorHierarchyTool::TransformTreeNode(Transform& node, const std::shared_p
         bool isPushStyle = PushFocusStyle();
         if (static_isOpenFocusObj)
         {
-            Transform* nodeRoot = node.Root;
-            nodeRoot = nodeRoot ? nodeRoot : &node;
+            Transform* nodeRoot  = node.Root;
+            nodeRoot             = nodeRoot ? nodeRoot : &node;
             Transform* focusRoot = nullptr;
             if (focusObject)
             {
@@ -228,10 +224,10 @@ void EditorHierarchyTool::TransformTreeNode(Transform& node, const std::shared_p
             if (nodeRoot && focusRoot)
             {
                 if (nodeRoot == focusRoot)
-                {              
+                {
                     if (&focusObject->transform != &node)
                     {
-                        ImGui::SetNextItemOpen(true);        
+                        ImGui::SetNextItemOpen(true);
                     }
                     else
                     {
@@ -239,10 +235,10 @@ void EditorHierarchyTool::TransformTreeNode(Transform& node, const std::shared_p
                     }
                 }
             }
-        }     
+        }
 
-        GameObject& gameObject = node.gameObject; 
-        ImGuiTreeNodeFlags treeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
+        GameObject&        gameObject = node.gameObject;
+        ImGuiTreeNodeFlags treeFlags  = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
         if (ImGui::TreeNodeEx(gameObject.ToString().data(), treeFlags))
         {
             FocusRectDarw(focusObject.get());
@@ -273,20 +269,20 @@ void EditorHierarchyTool::TransformTreeNode(Transform& node, const std::shared_p
     }
 }
 
-
-void EditorHierarchyTool::SetFocusObject(const std::weak_ptr<GameObject>& object) 
+void EditorHierarchyTool::SetFocusObject(const std::weak_ptr<GameObject>& object)
 {
     if (false == static_hierarchyFocusObjWeak.expired())
     {
         auto prevFocus = static_hierarchyFocusObjWeak.lock();
         for (int i = 0; i < prevFocus->GetComponentCount(); ++i)
         {
-            MeshComponent* mesh = prevFocus->GetComponentAtIndex<MeshComponent>(i);
-            if (mesh)
+            Component* component = prevFocus->GetComponentAtIndex<Component>(i);
+            if (component->GetType() == Component::TYPE::MESH)
             {
+                MeshComponent* mesh = static_cast<MeshComponent*>(component);
                 mesh->Renderer->OffCustomDepth(PostProcess::OUTLINE);
             }
-        }     
+        }
     }
 
     static_hierarchyFocusObjWeak = object;
@@ -296,12 +292,13 @@ void EditorHierarchyTool::SetFocusObject(const std::weak_ptr<GameObject>& object
         auto focus = static_hierarchyFocusObjWeak.lock();
         for (int i = 0; i < focus->GetComponentCount(); ++i)
         {
-            MeshComponent* mesh = focus->GetComponentAtIndex<MeshComponent>(i);
-            if (mesh)
+            Component* component = focus->GetComponentAtIndex<Component>(i);
+            if (component->GetType() == Component::TYPE::MESH)
             {
+                MeshComponent* mesh = static_cast<MeshComponent*>(component);
                 mesh->Renderer->OnCustomDepth(PostProcess::OUTLINE);
             }
-        }     
+        }
         static_isOpenFocusObj = true;
     }
 }
@@ -320,14 +317,11 @@ EditorHierarchyTool::EditorHierarchyTool()
     SetDockLayout(ImGuiDir_Left);
 }
 
-EditorHierarchyTool::~EditorHierarchyTool()
-{
-
-}
+EditorHierarchyTool::~EditorHierarchyTool() {}
 
 void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
 {
-    static const char* GameObjectKey  = typeid(GameObject).name();
+    static const char* GameObjectKey = typeid(GameObject).name();
     if (ImGui::BeginMenu("Object"))
     {
         static const char* GameObjectName = GameObjectKey + 6;
@@ -341,7 +335,7 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
 
     if (ImGui::BeginMenu("Camera"))
     {
-        GameObject* camera =  nullptr;
+        GameObject* camera = nullptr;
         if (ImGui::MenuItem("Main camera"))
         {
             UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
@@ -378,13 +372,13 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
         {
             UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
                 GameObjectKey, GameObject::Helper::GenerateUniqueName("Directional light"), &light);
-            light->AddComponent<DirectionalLight>();            
+            light->AddComponent<DirectionalLight>();
         }
         if (ImGui::MenuItem("Point light"))
         {
             UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
                 GameObjectKey, GameObject::Helper::GenerateUniqueName("Point light"), &light);
-            light->AddComponent<PointLight>();            
+            light->AddComponent<PointLight>();
         }
         if (ImGui::MenuItem("Spot light"))
         {
@@ -417,43 +411,99 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
         }
         ImGui::EndMenu();
     }
+
+    if (ImGui::BeginMenu("UI"))
+    {
+        GameObject* ui = nullptr;
+        if (ImGui::MenuItem("UI Root"))
+        {
+            UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
+                GameObjectKey, GameObject::Helper::GenerateUniqueName("UI Root"), &ui);
+            ui->AddComponent<UIRoot>();
+        }
+        if (ImGui::BeginMenu("Panels"))
+        {
+            if (ImGui::MenuItem("Grid Panel"))
+            {
+                UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
+                    GameObjectKey, GameObject::Helper::GenerateUniqueName("Grid Panel"), &ui);
+                ui->AddComponent<GridPanel>();
+            }
+            if (ImGui::MenuItem("Anchor Panel"))
+            {
+                UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
+                    GameObjectKey, GameObject::Helper::GenerateUniqueName("Anchor Panel"), &ui);
+                ui->AddComponent<AnchorPanel>();
+            }
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("Wrappers"))
+        {
+            if (ImGui::MenuItem("Temp"))
+            {
+                // TODO;
+            }
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("Elements"))
+        {
+            if (ImGui::MenuItem("Dummy Element"))
+            {
+                UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
+                    GameObjectKey, GameObject::Helper::GenerateUniqueName("Dummy Element"), &ui);
+                ui->AddComponent<DummyElement>();
+            }
+            if (ImGui::MenuItem("Image Element"))
+            {
+                UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
+                    GameObjectKey, GameObject::Helper::GenerateUniqueName("Image Element"), &ui);
+                ui->AddComponent<ImageElement>();
+            }
+            if (ImGui::MenuItem("Text Element"))
+            {
+                UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
+                    GameObjectKey, GameObject::Helper::GenerateUniqueName("Text Element"), &ui);
+                ui->AddComponent<TextElement>();
+            }
+            ImGui::EndMenu();
+        }
+        ImGui::EndMenu();
+        if (ui != nullptr)
+            ui->AddTag("UI");
+    }
 }
 
 void EditorHierarchyTool::OnStartGui()
 {
-    _dockWindow = GetOwnerDockWindow();
-    _editorSceneTool = _dockWindow->GetGui<EditorSceneTool>();
+    _dockWindow          = GetOwnerDockWindow();
+    _editorSceneTool     = _dockWindow->GetGui<EditorSceneTool>();
     staticEditorScenTool = _editorSceneTool;
-    _editorFindTool  = _dockWindow->GetGui<HierarchyFindTool>();
+    _editorFindTool      = _dockWindow->GetGui<HierarchyFindTool>();
 }
 
-void EditorHierarchyTool::OnPreFrameBegin() 
-{
-}
+void EditorHierarchyTool::OnPreFrameBegin() {}
 
-void EditorHierarchyTool::OnPostFrameBegin() 
-{
-}
+void EditorHierarchyTool::OnPostFrameBegin() {}
 
 void EditorHierarchyTool::HierarchyDropEvent()
 {
     namespace fs = std::filesystem;
-    ImRect rect = _window->Rect();
+    ImRect rect  = _window->Rect();
     if (ImGui::BeginDragDropTargetCustom(rect, _window->ID))
     {
         // 에셋에 대한 드래그 앤 드롭 이벤트 처리
         if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
         {
-            DragDropAsset::Data* data = (DragDropAsset::Data*)payload->Data;      
+            DragDropAsset::Data*          data      = (DragDropAsset::Data*)payload->Data;
             std::weak_ptr<File::Context>* wpContext = data->pContext;
             if (false == wpContext->expired())
             {
-                auto context = wpContext->lock();
-                const File::Path& path = context->GetPath();
-                fs::path extension = path.extension();
+                auto              context   = wpContext->lock();
+                const File::Path& path      = context->GetPath();
+                fs::path          extension = path.extension();
                 if (extension == UmGameObjectFactory.PREFAB_EXTENSION)
                 {
-                    UmCommandManager.Do<DropPrefabCommand>(path.ToGuid());                
+                    UmCommandManager.Do<DropPrefabCommand>(path.ToGuid());
                 }
                 else if (extension == UmSceneManager.SCENE_EXTENSION)
                 {
@@ -486,13 +536,11 @@ void EditorHierarchyTool::HierarchyDropEvent()
     }
 }
 
-void EditorHierarchyTool::HierarchyRightClickEvent() const 
+void EditorHierarchyTool::HierarchyRightClickEvent() const
 {
-    if (ImGui::BeginPopupContextWindow("HierarchyRightClickPopup",
-        ImGuiPopupFlags_NoOpenOverItems |
-        ImGuiPopupFlags_MouseButtonRight |
-        ImGuiPopupFlags_NoOpenOverExistingPopup)
-       )
+    if (ImGui::BeginPopupContextWindow("HierarchyRightClickPopup", ImGuiPopupFlags_NoOpenOverItems |
+                                                                       ImGuiPopupFlags_MouseButtonRight |
+                                                                       ImGuiPopupFlags_NoOpenOverExistingPopup))
     {
         ImGui::Text("New GameObject");
         ImGui::Separator();
@@ -501,7 +549,7 @@ void EditorHierarchyTool::HierarchyRightClickEvent() const
     }
 }
 
-void EditorHierarchyTool::KeyboardEvent() 
+void EditorHierarchyTool::KeyboardEvent()
 {
     if (Global::editorModule->IsFocusAreaEmpty())
     {
@@ -570,7 +618,7 @@ void EditorHierarchyTool::KeyboardEvent()
     }
 }
 
-void EditorHierarchyTool::SerializedReflectEvent() 
+void EditorHierarchyTool::SerializedReflectEvent()
 {
     const auto& scenes = engineCore->SceneManager.GetLoadedScenes();
     for (auto& scene : scenes)
@@ -579,15 +627,12 @@ void EditorHierarchyTool::SerializedReflectEvent()
     }
 }
 
-void EditorHierarchyTool::DeserializedReflectEvent() 
-{
-
-}
+void EditorHierarchyTool::DeserializedReflectEvent() {}
 
 void EditorHierarchyTool::OnFrameRender()
 {
     std::shared_ptr<GameObject> focusObject = static_hierarchyFocusObjWeak.lock();
-    _window = ImGui::GetCurrentWindow();
+    _window                                 = ImGui::GetCurrentWindow();
     HierarchyRightClickEvent();
     HierarchyDropEvent();
     KeyboardEvent();
@@ -711,18 +756,11 @@ void EditorHierarchyTool::OnFrameEnd()
     
 }
 
-void EditorHierarchyTool::OnFramePopupOpened() 
-{
-  
-}
+void EditorHierarchyTool::OnFramePopupOpened() {}
 
-void EditorHierarchyTool::OnTickGui() 
+void EditorHierarchyTool::OnTickGui()
 {
     _isPlay = editorModule->PlayMode.IsPlay();
 }
 
-void EditorHierarchyTool::OnFrameFocusStay() 
-{
-
-}
-
+void EditorHierarchyTool::OnFrameFocusStay() {}

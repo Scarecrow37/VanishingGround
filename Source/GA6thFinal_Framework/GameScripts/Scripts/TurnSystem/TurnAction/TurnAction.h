@@ -1,6 +1,6 @@
 ﻿#pragma once
-#include "UmFrameWork.h"
 #include "Condition/TurnActionCondition.h"
+#include <BattleSystem/Battle.h>
 
 // Condition 클래스 등록을 위한 레지스터
 #define REGISTER_TURN_ACTION_CONDITION(CLASS) REGISTER_CLASS(TurnAction, CLASS)
@@ -18,7 +18,11 @@ class TurnAction abstract : public ReflectSerializer, public FactoryConstructor<
     USING_PROPERTY(TurnAction)
     friend class TurnMode;
 public:
-    // 2개 이상의 조건끼리의 연산을 정의합니다.
+    static void ImGuiDrawActionMaker(std::string_view windowID, std::unique_ptr<TurnAction>& action, bool& showActionEditor);
+    static void ImGuiDrawActionMaker(std::string_view windowID, std::shared_ptr<TurnAction>& action, bool& showActionEditor);
+    static void ImGuiDrawActionMaker(std::string_view windowID, TurnAction& action, bool& showActionEditor);
+
+    // 2개 이상의 조건의 연산을 정의합니다.
     enum class ConditionOperator
     {
         AND,
@@ -39,6 +43,7 @@ public:
         if (_isDestroy)
         {
             *_isDestroy = true;
+            _isDestroy  = nullptr;
         }
     }
 
@@ -51,7 +56,7 @@ public:
     /// 등록된 Condition 객체들의 조건을 평가합니다.
     /// </summary>
     /// <returns></returns>
-    bool EvaluateConditions();
+    virtual bool EvaluateConditions();
 
     /// <summary>
     /// Condition 객체를 등록합니다.
@@ -88,6 +93,9 @@ public:
     /// <returns></returns>
     const std::string& GetConditionsInfo() const;
 
+    /*액션 조건이 true를 평가했을때 호출되는 함수 객체입니다.*/
+    std::function<void()> OnActionActive;
+
 public:
     /*Action의 이름을 반환해야합니다.*/
     virtual const std::string& GetActionName() = 0;
@@ -115,6 +123,12 @@ public:
     virtual void OnTurnEnd(CharacterBase* destination) {}
 
     /// <summary>
+    /// 플레이어가 공격할 적을 선택한 뒤 호출됩니다.
+    /// </summary>
+    /// <param name="targetFlag"></param>
+    virtual void OnPlayerBattleTargetSelected(Battle::EnemyTargetFlag& targetFlag) {}
+
+    /// <summary>
     /// 플레이어가 배틀 데미지 계산 전에 호출됩니다.
     /// </summary>
     /// <param name="attacker :">플레이어 컴포넌트</param>
@@ -134,11 +148,11 @@ public:
     virtual void OnEnemyBattleStart(Enemy& attacker, EnemyStats& attackerStats, Player& target, PlayerStats& targetStats) {}
 
 public:
-    REFLECT_PROPERTY(Name, LogicOperator)
+    REFLECT_PROPERTY(ActionName, LogicOperator)
 
-    GETTER_ONLY(const std::string&, Name) { return GetActionName(); }
+    GETTER_ONLY(const std::string&, ActionName) { return GetActionName(); }
     // 계시 이름
-    PROPERTY(Name)
+    PROPERTY(ActionName)
 
     GETTER(ConditionOperator, LogicOperator) { return ReflectFields->LogicOperator; }
     SETTER(ConditionOperator, LogicOperator) { ReflectFields->LogicOperator = value; }
@@ -169,5 +183,25 @@ private:
 private:
     void ConditionsToReflectDatas();
     void ReflectDatasToConditions();
+
+    /// <summary>
+    /// 등록된 Condition 객체들의 조건을 실제로 평가하는 함수입니다.
+    /// </summary>
+    /// <returns></returns>
+    bool EvaluateConditionsEx();
+    
+public:
+    TurnAction& CopyAction(const TurnAction& rhs)
+    {
+        if (this == &rhs) // Self-assignment check
+            return *this;
+
+        TurnAction& rhsAction  = const_cast<TurnAction&>(rhs);
+        std::string data = rhsAction.SerializedReflectFields();
+        DeserializedReflectFields(data);
+        return *this;
+    }
+    explicit TurnAction(const TurnAction& rhs) { CopyAction(rhs); }
+    TurnAction& operator=(const TurnAction& rhs) { return CopyAction(rhs); }
 
 };

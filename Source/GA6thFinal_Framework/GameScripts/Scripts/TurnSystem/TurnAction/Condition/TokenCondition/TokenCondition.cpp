@@ -16,7 +16,6 @@ TokenCondition::TokenCondition()
 
 bool TokenCondition::Evaluate()
 {
-    Operator oper = ReflectFields->Operator;
     bool result = false;
     if (TurnMode* turnMode = TurnMode::GetInstance())
     {
@@ -25,61 +24,58 @@ bool TokenCondition::Evaluate()
         {
             static std::vector<CharacterBase*> targetList;
             targetList.clear();
-            Target target = ReflectFields->Target;
+            Target target          = ReflectFields->Target;
+            auto   lastAttaker     = Battle::GetLastAttacker().lock();
+            auto   lastTarget      = Battle::GetLastTarget().lock();
+            auto   lastTargetEnemy = Battle::GetLastTargetEnemy().lock();
             switch (target)
             {
             default:
-            case TokenCondition::Target::NONE:
                 return false;
-            case TokenCondition::Target::SELF:
+            case Target::SELF: {
+                const auto& self = lastAttaker;
+                if (self)
                 {
-                    const auto& self = TurnMode::Battle::GetLastAttacker().lock();
-                    if (self)
-                    {
-                        targetList.push_back(self.get());
-                    }
-                    break;
+                    targetList.push_back(self.get());
                 }
-            case TokenCondition::Target::PLAYER:
+                break;
+            }
+            case Target::PLAYER: {
+                Player* player = combatStartPhase->GetPlayer();
+                if (player && player == lastTarget.get())
                 {
-                    Player* player = combatStartPhase->GetPlayer();
-                    if (player)
-                    {
-                        targetList.push_back(player);
-                    }
-                    break;
+                    targetList.push_back(player);
                 }
-            case TokenCondition::Target::ENEMY:
+                break;
+            }
+            case Target::ENEMY: {
+                if (lastTarget && lastTarget.get() == lastTargetEnemy.get())
                 {
-                    const auto& enemy = TurnMode::Battle::GetLastTarget().lock();
-                    if (enemy)
-                    {
-                        targetList.push_back(enemy.get());
-                    }
-                    break;
+                    targetList.push_back(lastTarget.get());
                 }
-            case TokenCondition::Target::ALL_ENEMIES:
+                break;
+            }
+            case Target::ALL_ENEMIES: {
+                auto& enemys = combatStartPhase->GetEnemies();
+                for (auto& enemy : enemys)
                 {
-                    auto& enemys = combatStartPhase->GetEnemies();
-                    for (auto& enemy : enemys)
-                    {
-                        targetList.push_back(enemy);
-                    }
-                    break;
+                    targetList.push_back(enemy);
                 }
-            case TokenCondition::Target::ALL:
+                break;
+            }
+            case Target::ALL: {
+                auto& characters = combatStartPhase->GetCharacters();
+                for (auto& character : characters)
                 {
-                    auto& characters = combatStartPhase->GetCharacters();
-                    for (auto& character : characters)
-                    {
-                        targetList.push_back(character);
-                    }
-                    break;
+                    targetList.push_back(character);
                 }
+                break;
+            }
             }
 
             if (false == targetList.empty())
             {
+                Operator oper = ReflectFields->Operator;
                 result = true;
                 int tokenID = ReflectFields->TokenType;
                 int value   = ReflectFields->Value;
@@ -172,7 +168,6 @@ void TokenCondition::UpdateConditionInfo()
     switch (target)
     {
     default:
-    case TokenCondition::Target::NONE:
         who = u8"NULL의 "_c_str;
         break;
     case TokenCondition::Target::SELF:
@@ -182,7 +177,7 @@ void TokenCondition::UpdateConditionInfo()
         who = u8"플레이어의 "_c_str;
         break;
     case TokenCondition::Target::ENEMY:
-        who = u8"공격 대상의 "_c_str;
+        who = u8"적의 "_c_str;
         break;
     case TokenCondition::Target::ALL_ENEMIES:
         who = u8"모든 적의 "_c_str;
@@ -210,7 +205,7 @@ void TokenCondition::UpdateConditionInfo()
         operName = (const char*)u8"이하";
         break;
     case TokenCondition::Operator::EQUAL:
-        operName = (const char*)u8"이면";
+        operName = (const char*)u8"";
         break;
     default:
         operName = STR_NULL;

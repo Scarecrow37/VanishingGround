@@ -1,4 +1,5 @@
 ﻿#include "pch.h"
+#include <UmScripts.h>
 
 Transform::Transform(GameObject& owner)
     :
@@ -49,12 +50,13 @@ void Transform::DetachChildren()
 {
     for (auto& child : _childsList)
     {
-        bool isParent = child->_parent != nullptr;
-        if (isParent)
+        Transform* prevParent = child->_parent;
+        if (nullptr != prevParent)
         {
             child->_root = nullptr;
             child->_parent = nullptr;
             child->SetChildsRootParent(child);
+            CallUIDetachParent(child, prevParent);
         }
     }
     if (_childsList.empty() == false)
@@ -93,8 +95,10 @@ void Transform::SetParent(Transform* p, bool worldPositionStays)
 
     if (p == nullptr)
     {
+        Transform* prevParent = this->Parent; 
         ComputeLocalTransform();
         EraseParent();
+        CallUIDetachParent(this, prevParent);
     }
     else //부모 관계 변경
     {
@@ -108,7 +112,8 @@ void Transform::SetParent(Transform* p, bool worldPositionStays)
                     return;
                 }  
             }
-        
+
+            Transform* prevParent = this->_parent;
             ComputeLocalTransform();        
             //부모 적용
             EraseParent();
@@ -123,6 +128,10 @@ void Transform::SetParent(Transform* p, bool worldPositionStays)
                 p->_childsList.push_back(this);
                 SetChildsRootParent(_root);
             }
+
+            //이벤트 호출
+            CallUIDetachParent(this, prevParent);
+            CallUIAttachChild(p, this);
         }
     }
     _hasChanged = true;
@@ -232,7 +241,7 @@ Transform* Transform::Find(std::string_view name) const
         if (Transform* child = GetChild(i))
         {
             GameObject& obj = child->gameObject;
-            if (obj.Name == name)
+            if ((const std::string&)obj.Name == name)
             {
                 return child;
             }     
@@ -270,4 +279,42 @@ void Transform::UpdateMatrix()
 
         curr->_hasChanged = false;
     });
+}
+
+void Transform::CallUIDetachParent(Transform* target, Transform* prevParent)
+{
+    GameObject& gameObject = target->gameObject;
+    for (size_t i = 0; i < gameObject.GetComponentCount(); ++i)
+    {
+        Component* component = gameObject.GetComponentAtIndex<Component>(i);
+        if (Component::TYPE::UI == component->GetType())
+        {
+            UIComponent* uiComponent = static_cast<UIComponent*>(component);
+            GameObject*  prevObject  = nullptr;
+            if (prevParent)
+            {
+                prevObject = &prevParent->gameObject;
+            }
+            uiComponent->OnDetachParent(prevObject);
+        }
+    }
+}
+
+void Transform::CallUIAttachChild(Transform* target, Transform* newChild)
+{
+    GameObject& gameObject = target->gameObject;
+    for (size_t i = 0; i < gameObject.GetComponentCount(); ++i)
+    {
+        Component* component = gameObject.GetComponentAtIndex<Component>(i);
+        if (Component::TYPE::UI == component->GetType())
+        {
+            UIComponent* uiComponent = static_cast<UIComponent*>(component);
+            GameObject*  newChildObject = nullptr;
+            if (newChild)
+            {
+                newChildObject = &newChild->gameObject;
+            }
+            uiComponent->OnAttachChild(newChildObject);
+        }
+    }
 }

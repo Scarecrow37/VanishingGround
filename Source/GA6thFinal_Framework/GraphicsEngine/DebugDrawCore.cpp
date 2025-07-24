@@ -2,43 +2,58 @@
 #include "DebugDrawCore.h"
 #include <d3d11on12.h>
 
-DebugDrawCore::DebugDrawCore() {}
+DebugDrawCore::DebugDrawCore() = default;
 
-DebugDrawCore::~DebugDrawCore() {}
+DebugDrawCore::~DebugDrawCore() = default;
 
 void XM_CALLCONV DebugDrawCore::Draw(std::string_view sceneName, const BoundingSphere& sphere, FXMVECTOR color)
 {
-    _drawDatas[sceneName].emplace_back(Type::SPHERE, color, sphere);
+    _drawDatas[sceneName].second.emplace_back(ShapeType::SPHERE, color, sphere);
 }
 
 void XM_CALLCONV DebugDrawCore::Draw(std::string_view sceneName, const BoundingBox& box, FXMVECTOR color)
 {
-    _drawDatas[sceneName].emplace_back(Type::BOX, color, box);
+    _drawDatas[sceneName].second.emplace_back(ShapeType::BOX, color, box);
 }
 
 void XM_CALLCONV DebugDrawCore::Draw(std::string_view sceneName, const BoundingOrientedBox& obb, FXMVECTOR color)
-{    
-    _drawDatas[sceneName].emplace_back(Type::OBB, color, obb);
+{
+    _drawDatas[sceneName].second.emplace_back(ShapeType::OBB, color, obb);
 }
 
 void XM_CALLCONV DebugDrawCore::Draw(std::string_view sceneName, const BoundingFrustum& frustum, FXMVECTOR color)
-{    
-    _drawDatas[sceneName].emplace_back(Type::FRUSTUM, color, frustum);
+{
+    _drawDatas[sceneName].second.emplace_back(ShapeType::FRUSTUM, color, frustum);
 }
 
-void XM_CALLCONV DebugDrawCore::DrawRing(std::string_view sceneName, FXMVECTOR origin, FXMVECTOR majorAxis, FXMVECTOR minorAxis, GXMVECTOR color)
+void XM_CALLCONV DebugDrawCore::DrawRing(std::string_view sceneName, FXMVECTOR origin, FXMVECTOR majorAxis,
+                                         FXMVECTOR minorAxis, GXMVECTOR color)
 {
-    _drawDatas[sceneName].emplace_back(Type::RING, color, DebugRing{origin, majorAxis, minorAxis});
+    _drawDatas[sceneName].second.emplace_back(ShapeType::RING, color, DebugRing{origin, majorAxis, minorAxis});
 }
 
-void XM_CALLCONV DebugDrawCore::DrawRay(std::string_view sceneName, FXMVECTOR origin, FXMVECTOR direction, bool normalize, FXMVECTOR color)
+void XM_CALLCONV DebugDrawCore::DrawRay(std::string_view sceneName, FXMVECTOR origin, FXMVECTOR direction,
+                                        bool normalize, FXMVECTOR color)
 {
-    _drawDatas[sceneName].emplace_back(Type::RAY, color, DebugRay{origin, direction, normalize});
+    _drawDatas[sceneName].second.emplace_back(ShapeType::RAY, color, DebugRay{origin, direction, normalize});
 }
 
-void XM_CALLCONV DebugDrawCore::DrawSpotLight(std::string_view sceneName, FXMVECTOR position, FXMVECTOR direction, float range, float innerCone, float outerCone, FXMVECTOR color)
+void XM_CALLCONV DebugDrawCore::DrawSpotLight(std::string_view sceneName, FXMVECTOR position, FXMVECTOR direction,
+                                              float range, float innerCone, float outerCone, FXMVECTOR color)
 {
-    _drawDatas[sceneName].emplace_back(Type::SPOT_LIGHT, color, DebugSpotLight{position, direction, range, innerCone, outerCone});
+    _drawDatas[sceneName].second.emplace_back(ShapeType::SPOT_LIGHT, color,
+                                              DebugSpotLight{position, direction, range, innerCone, outerCone});
+}
+
+void DebugDrawCore::DrawQuad(std::string_view sceneName, FXMVECTOR pointA, FXMVECTOR pointB, FXMVECTOR pointC,
+    GXMVECTOR pointD, HXMVECTOR color)
+{
+    _drawDatas[sceneName].first.emplace_back(ShapeType::QUAD, color, DebugQuad{pointA, pointB, pointC, pointD});
+}
+
+void DebugDrawCore::DrawLine(std::string_view sceneName, FXMVECTOR pointA, FXMVECTOR pointB, FXMVECTOR color)
+{
+    _drawDatas[sceneName].first.emplace_back(ShapeType::LINE, color, DebugLine{pointA, pointB});
 }
 
 void DebugDrawCore::Initialize()
@@ -69,9 +84,6 @@ void DebugDrawCore::Render()
         auto  renderScene = Global::renderer->GetRenderScene(sceneName);
         auto& camera      = renderScene->_camera;
 
-        _basicEffect->SetView(camera->GetViewMatrix());
-        _basicEffect->SetProjection(camera->GetProjectionMatrix());
-
         auto renderTarget = Global::multiRenderTargetManager->GetRenderTarget(renderScene->_finalTargetName);
         renderTarget->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_RENDER_TARGET);
         renderScene->_depthStencilView->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_DEPTH_READ);
@@ -90,53 +102,110 @@ void DebugDrawCore::Render()
         _commandSet->RSSetViewports(1, &viewPort);
         _commandSet->RSSetScissorRects(1, &scissorRect);
 
+        _basicEffect->SetView(XMMatrixLookAtLH({0.f, 0.f, -1.f}, {0.f, 0.f, 1.f}, {0.f, 1.f, 0.f}));
+        _basicEffect->SetProjection(
+            XMMatrixOrthographicOffCenterLH(0.f, (float)resolution.Width, (float)resolution.Height, 0.f, 0.1f, 1000.f));
         _basicEffect->Apply(_commandSet);
         _primitiveBatch->Begin(_commandSet);
 
-        for (const auto& data : datas)
-        {
-            switch (data.Type)
-            {
-            case Type::SPHERE:
-                ::Draw(_primitiveBatch.get(), std::get<BoundingSphere>(data.Shape), data.Color);
-                break;
-            case Type::BOX:
-                ::Draw(_primitiveBatch.get(), std::get<BoundingBox>(data.Shape), data.Color);
-                break;
-            case Type::OBB:
-                ::Draw(_primitiveBatch.get(), std::get<BoundingOrientedBox>(data.Shape), data.Color);
-                break;
-            case Type::FRUSTUM:
-                ::Draw(_primitiveBatch.get(), std::get<BoundingFrustum>(data.Shape), data.Color);
-                break;
-            case Type::RING:
-            {
-                const auto& ring = std::get<DebugRing>(data.Shape);
-                ::DrawRing(_primitiveBatch.get(), ring.Origin, ring.MajorAxis, ring.MinorAxis, data.Color);
-                break;
-            }
-            case Type::RAY:
-            {
-                const auto& ray = std::get<DebugRay>(data.Shape);
-                ::DrawRay(_primitiveBatch.get(), ray.Origin, ray.Direction, ray.Normalize, data.Color);
-                break;
-            }
-            case Type::SPOT_LIGHT:
-            {
-                const auto& spotLight = std::get<DebugSpotLight>(data.Shape);
-                ::DrawSpotLight(_primitiveBatch.get(), spotLight.Position, spotLight.Direction, spotLight.Range, spotLight.InnerCone, spotLight.OuterCone, 24, data.Color);
-                break;
-            }
-            }
-        }
+        Draw2D(datas.first);
 
         _primitiveBatch->End();
-        _drawDatas[sceneName].clear();
+
+        _basicEffect->SetView(camera->GetViewMatrix());
+        _basicEffect->SetProjection(camera->GetProjectionMatrix());
+
+        _basicEffect->Apply(_commandSet);
+        _primitiveBatch->Begin(_commandSet);
+
+        Draw3D(datas.second);
+
+        _primitiveBatch->End();
+
+        _drawDatas[sceneName].first.clear();
+        _drawDatas[sceneName].second.clear();
 
         renderTarget->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
         renderScene->_depthStencilView->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_PRESENT);
     }
     _drawDatas.clear();
 
-    _commandSet.ExecuteCommand(CommandQueueType::GRAPHICS_QUEUE);
+    _commandSet.ExecuteCommand(GRAPHICS_QUEUE);
+}
+
+void DebugDrawCore::Draw2D(const std::vector<DrawData>& drawData) const
+{
+    for (const auto& data : drawData)
+    {
+        const XMVECTOR color = XMLoadFloat4(&data.Color);
+        switch (data.Type)
+        {
+        case ShapeType::QUAD: {
+            const auto&    quad   = std::get<DebugQuad>(data.Shape);
+            const XMVECTOR pointA = XMLoadFloat3(&quad.PointA);
+            const XMVECTOR pointB = XMLoadFloat3(&quad.PointB);
+            const XMVECTOR pointC = XMLoadFloat3(&quad.PointC);
+            const XMVECTOR pointD = XMLoadFloat3(&quad.PointD);
+            ::DrawQuad(_primitiveBatch.get(), pointA, pointB, pointC, pointD, color);
+            break;
+        }
+        case ShapeType::LINE: {
+            const auto&    line   = std::get<DebugLine>(data.Shape);
+            const XMVECTOR pointA = XMLoadFloat3(&line.PointA);
+            const XMVECTOR pointB = XMLoadFloat3(&line.PointB);
+            ::DrawLine(_primitiveBatch.get(), pointA, pointB, color);
+            break;
+        }
+        default:
+            break;
+        }
+    }
+}
+
+void DebugDrawCore::Draw3D(const std::vector<DrawData>& drawData) const
+{
+    for (const auto& data : drawData)
+    {
+        const XMVECTOR color = XMLoadFloat4(&data.Color);
+        switch (data.Type)
+        {
+        case ShapeType::SPHERE:
+            ::Draw(_primitiveBatch.get(), std::get<BoundingSphere>(data.Shape), color);
+            break;
+        case ShapeType::BOX:
+            ::Draw(_primitiveBatch.get(), std::get<BoundingBox>(data.Shape), color);
+            break;
+        case ShapeType::OBB:
+            ::Draw(_primitiveBatch.get(), std::get<BoundingOrientedBox>(data.Shape), color);
+            break;
+        case ShapeType::FRUSTUM:
+            ::Draw(_primitiveBatch.get(), std::get<BoundingFrustum>(data.Shape), color);
+            break;
+        case ShapeType::RING: {
+            const auto&    ring      = std::get<DebugRing>(data.Shape);
+            const XMVECTOR origin    = XMLoadFloat3(&ring.Origin);
+            const XMVECTOR majorAxis = XMLoadFloat3(&ring.MajorAxis);
+            const XMVECTOR minorAxis = XMLoadFloat3(&ring.MinorAxis);
+            ::DrawRing(_primitiveBatch.get(), origin, majorAxis, minorAxis, color);
+            break;
+        }
+        case ShapeType::RAY: {
+            const auto&    ray       = std::get<DebugRay>(data.Shape);
+            const XMVECTOR origin    = XMLoadFloat3(&ray.Origin);
+            const XMVECTOR direction = XMLoadFloat3(&ray.Direction);
+            ::DrawRay(_primitiveBatch.get(), origin, direction, ray.Normalize, color);
+            break;
+        }
+        case ShapeType::SPOT_LIGHT: {
+            const auto&    spotLight = std::get<DebugSpotLight>(data.Shape);
+            const XMVECTOR position  = XMLoadFloat3(&spotLight.Position);
+            const XMVECTOR direction = XMLoadFloat3(&spotLight.Direction);
+            ::DrawSpotLight(_primitiveBatch.get(), position, direction, spotLight.Range, spotLight.InnerCone,
+                            spotLight.OuterCone, 24, color);
+            break;
+        }
+        default:
+            break;
+        }
+    }
 }

@@ -309,37 +309,3 @@ void TurnMode::ImGuiDrawPropertysEvent()
     }
 }
 
-void TurnMode::Battle::operator()(Player& attacker, Enemy& target) 
-{
-    TurnMode*             turnMode             = TurnMode::GetInstance();
-    WeaponSystem*         weaponSystem         = WeaponSystem::GetInstance();
-    PlayerStatsComponent* playerStatsComponent = attacker.GetPlayerStats();
-    EnemyStatsComponent*  enemyStatsComponent  = target.GetEnemyStats();
-    if (turnMode && weaponSystem && playerStatsComponent && enemyStatsComponent)
-    {
-        PlayerStats playerStats(playerStatsComponent->GetStats());
-        WeaponStats weaponStats(weaponSystem->GetCurrentWeaponStats());
-        EnemyStats  enemyStats(enemyStatsComponent->GetStats());
-        turnMode->ApplyActions([&](TurnAction& action) {
-            action.OnPlayerBattleStart(attacker, playerStats, weaponStats, target, enemyStats);
-        });
-
-        int damage = DamageSystem::CalculateDamage(playerStats, weaponStats, enemyStats);
-        target.TakeDamage(damage);
-    }
-}
-
-void TurnMode::Battle::operator()(Enemy& attacker, Player& target) 
-{
-    TurnMode*             turnMode             = TurnMode::GetInstance();
-    EnemyStatsComponent*  enemyStatsComponent  = attacker.GetEnemyStats();
-    PlayerStatsComponent* playerStatsComponent = target.GetPlayerStats();
-    if (turnMode && playerStatsComponent && enemyStatsComponent)
-    {
-        EnemyStats  enemyStats(enemyStatsComponent->GetStats());
-        PlayerStats playerStats(playerStatsComponent->GetStats());
-        turnMode->ApplyActions(
-            [&](TurnAction& action) { action.OnEnemyBattleStart(attacker, enemyStats, target, playerStats); });
-
-    }
-}

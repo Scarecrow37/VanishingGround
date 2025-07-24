@@ -187,13 +187,13 @@ void RenderScene::UpdateGlobal()
     CameraData cameraData{.View              = XMMatrixTranspose(_camera->GetViewMatrix()),
                           .Projection        = XMMatrixTranspose(_camera->GetProjectionMatrix()),
                           .ViewInverse       = XMMatrixTranspose(_camera->GetWorldMatrix()),
-                          .ProejctionInverse = XMMatrixTranspose(_camera->GetProjectionInverseMatrix()),
+                          .ProjectionInverse = XMMatrixTranspose(_camera->GetProjectionInverseMatrix()),
                           .Position          = Vector4(_camera->GetPosition())};
 
     CameraData RaycameraData{.View           = _camera->GetViewMatrix(),
                           .Projection        = _camera->GetProjectionMatrix(),
                           .ViewInverse       = _camera->GetWorldMatrix(),
-                          .ProejctionInverse = _camera->GetProjectionInverseMatrix(),
+                          .ProjectionInverse = _camera->GetProjectionInverseMatrix(),
                           .Position          = Vector4(_camera->GetPosition())};
     auto& lights = Global::lightCore->GetLights(_name.c_str());
        
@@ -228,11 +228,16 @@ void RenderScene::UpdateObject()
     auto first = std::remove_if(_meshRenderQueue.begin(), _meshRenderQueue.end(), [](const auto& pair) { return *pair.first; });
     _meshRenderQueue.erase(first, _meshRenderQueue.end());    
 
+    _activeMeshes[STATIC_MESH].clear();
+    _activeMeshes[SKELETAL_MESH].clear();
     _worldMatrices.clear();
     _boneMatrices.clear();
     _materialIDs.clear();
     _staticMeshInstanceIDs.clear();
     _skeletalMeshInstanceIDs.clear();
+
+    const auto& cameraFrustum = _camera->GetWorldFrustum();
+
     UINT instanceID = 0;
     for (auto& [isDestroy, component] : _meshRenderQueue)
     {
@@ -243,15 +248,17 @@ void RenderScene::UpdateObject()
         if (!model)
             continue;
 
-        const auto  type      = component->GetType();
-        const auto& meshes    = model->GetMeshes();
-        const auto& materials = model->GetMaterials();
-        const auto& textures  = model->GetTextures();
+        const auto  type         = component->GetType();
+        const auto& meshes       = model->GetMeshes();
+        auto&       materials    = model->GetMaterials();
+        const auto& textures     = model->GetTextures();
+        const auto& customDepths = component->GetCustomDepths();
 
-        XMMATRIX     world = XMMatrixTranspose(component->GetWorldMatrix());
+        XMMATRIX     world          = component->GetWorldMatrix();
+        XMMATRIX     transposeWorld = XMMatrixTranspose(world);
         BoneMatrices boneMatrices;
 
-        if (MeshRenderType::SKELETAL == type)
+        if (SKELETAL_MESH == type)
         {
             auto animator = component->GetAnimator();
             if (animator) memcpy(&boneMatrices, animator->GetAnimationTransform(), sizeof(BoneMatrices));
@@ -260,26 +267,50 @@ void RenderScene::UpdateObject()
         UINT size = (UINT)meshes.size();
         for (UINT i = 0; i < size; i++)
         {
-            _worldMatrices.push_back(world);
+            BoundingOrientedBox boundingOrientedBox;
+
+            const auto& meshBoundingBox = meshes[i]->GetBoundingBox();
+            meshBoundingBox.Transform(boundingOrientedBox, world);
+
+            if (!cameraFrustum.Intersects(boundingOrientedBox))
+                continue;
+
+            _worldMatrices.push_back(transposeWorld);
             _boneMatrices.push_back(boneMatrices);
+
+            if (materials[i].IsTwoSided)
+            {
+                materials[i].CullMode = Material::CullMode::CULL_NONE;
+            }
+            else
+            {
+                const auto& transform = component->GetTransform();
+                float       sign      = transform.Scale.x * transform.Scale.y * transform.Scale.z;
+
+                materials[i].CullMode = sign < 0.f ? Material::CullMode::CULL_FRONT : Material::CullMode::CULL_BACK;
+            }
 
             MaterialID materialID{};
             for (UINT j = 0; j < 4; j++)
             {
                 materialID.ID[j] = textures[i][j]->GetID();
             }
+
             _materialIDs.push_back(materialID);
-            if (MeshRenderType::STATIC == type)
+            if (STATIC_MESH == type)
             {
                 _staticMeshInstanceIDs.push_back(instanceID);
             }
-            else if (MeshRenderType::SKELETAL == type)
+            else if (SKELETAL_MESH == type)
             {
                 _skeletalMeshInstanceIDs.push_back(instanceID);
             }
-            instanceID++;
+
+            instanceID++;            
+            _activeMeshes[type].emplace_back(materials[i], meshes[i].get(), customDepths[i]);
         }
     }
+
     ClassifyMesh();
 }
 
@@ -297,10 +328,10 @@ void RenderScene::ClassifyMesh()
 
         switch (component->GetType())
         {
-        case MeshRenderType::STATIC:
+        case STATIC_MESH:
             _staticMesh.push_back(component);
             break;
-        case MeshRenderType::SKELETAL:
+        case SKELETAL_MESH:
             _skeletalMesh.push_back(component);
             break;
         default:
@@ -328,12 +359,14 @@ void RenderScene::UpdateUI()
         auto     size = component->GetSize();
         XMMATRIX world = component->GetWorldMatrix();
         XMMATRIX scale = XMMatrixIdentity();
-        
+        XMMATRIX translation = XMMatrixIdentity();
+
         switch (component->GetType())
         {
         case SpriteType::MODE_2D:
-            scale = XMMatrixScaling((float)size.cx, (float)size.cy, 1.f);
-            break;        
+            scale = XMMatrixScaling((float)size.cx, (float)-size.cy, 1.f);
+            translation = XMMatrixTranslation(size.cx * 0.5f, size.cy * 0.5f, 0.f);
+            break;
         case SpriteType::MODE_3D:
         {
             XMVECTOR s, r, t;
@@ -351,7 +384,7 @@ void RenderScene::UpdateUI()
         }
         }
         
-        world = XMMatrixTranspose(scale * world);
+        world = XMMatrixTranspose(scale * world * translation);
         _uiMatrices.push_back(world);
 
         UIMaterial material{.ID = texture->GetID(), .Alpha = 1.f};

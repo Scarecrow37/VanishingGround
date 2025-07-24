@@ -32,13 +32,15 @@ SkeletalMeshRenderer::~SkeletalMeshRenderer() {}
 
 void SkeletalMeshRenderer::Reset()
 {
-    MakeMeshRenderer(MeshRenderType::SKELETAL, gameObject->transform->GetWorldMatrix());
+    __super::Reset();
+    MakeMeshRenderer(MeshType::SKELETAL_MESH, transform->Position, transform->Scale, transform->Rotation, transform->GetWorldMatrix());
 }
 
 void SkeletalMeshRenderer::Awake() 
 {
-    SetCurrentAnimation(GetCurrentAnimationName());
-    PlayAnimation();
+    SetCurrentAnimation(ReflectFields->MainAnimationKey, false);
+    SetCurrentAnimationLoop(ReflectFields->MainAnimationLooping);
+    SetCurrentAnimationSpeed(ReflectFields->MainAnimationSpeed);
 }
 
 void SkeletalMeshRenderer::Update()
@@ -53,17 +55,28 @@ void SkeletalMeshRenderer::OnDrawDebug()
 
 void SkeletalMeshRenderer::SerializedReflectEvent() 
 {
+    __super::SerializedReflectEvent();
 
+    ReflectFields->MainAnimationKey     = _mainAnimationData.AnimationName;
+    ReflectFields->MainAnimationLooping = _mainAnimationData.IsLooping;
+    ReflectFields->MainAnimationSpeed   = _mainAnimationData.Speed;
 }
 
 void SkeletalMeshRenderer::DeserializedReflectEvent() 
 {
+    __super::DeserializedReflectEvent();
+
     File::Guid guid = ReflectFields->Guid;
     _guidRef        = guid;
     if (false == guid.IsNull())
     {
         UmSceneManager.ResourceManager.RequestModelResource(this, _guidRef, [this]() { LoadModel();});
     }
+    _mainAnimationData.AnimationName = ReflectFields->MainAnimationKey;
+    _mainAnimationData.IsLooping     = ReflectFields->MainAnimationLooping;
+    _mainAnimationData.Speed         = ReflectFields->MainAnimationSpeed;
+    _mainAnimationData.IsPlaying     = true;
+    _mainAnimationData.Duration      = 0.0f;
 }
 
 void SkeletalMeshRenderer::ImGuiDrawPropertysEvent() 
@@ -78,35 +91,36 @@ void SkeletalMeshRenderer::ImGuiDrawPropertysEvent()
             const auto& animation      = model->GetAnimation();
             const auto& animationNames = animation->GetAnimations();
             
-            if (nullptr != animator)
+            AnimationData* curAnimData = GetLastAnimationDataEx();
+            if (animator && curAnimData)
             {
-                if (ImGui::TreeNodeEx("Animation##details"))
+                if (ImGui::TreeNodeEx("Current Animation##details"))
                 {
                     const auto& animationNames = animation->GetAnimations();
-                    const char* comboLabel     = ReflectFields->CurrentAnimationKey.empty() ? "-" : ReflectFields->CurrentAnimationKey.c_str();
+                    const char* comboLabel     = curAnimData->AnimationName.empty() ? "-" : curAnimData->AnimationName.c_str();
                     if (ImGui::BeginCombo("##Animation", comboLabel))
                     {
                         for (int i = 0; i < animationNames.size(); ++i)
                         {
-                            bool isSelected = (ReflectFields->CurrentAnimationKey == animationNames[i]);
+                            bool isSelected = (curAnimData->AnimationName == animationNames[i]);
                             if (ImGui::Selectable(animationNames[i], isSelected))
                             {
-                                ReflectFields->CurrentAnimationKey = animationNames[i];
+                                curAnimData->AnimationName = animationNames[i];
                                 SetCurrentAnimation(animationNames[i]);
                             }
                         }
                         ImGui::EndCombo();
                     }
-                    if (true == ReflectFields->CurrentAnimationKey.empty())
+                    if (true == curAnimData->AnimationName.empty())
                     {
                         ImGui::BeginDisabled();
                     }
                     {
-                        bool usePushStyleColor = ReflectFields->IsAnimationPlaying;
+                        bool usePushStyleColor = curAnimData->IsPlaying;
                         if (true == usePushStyleColor)
                             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.2f, 0.8f, 0.2f, 1.0f));
                         if (ImGui::Button(EditorIcon::ICON_PLAY))
-                            ReflectFields->IsAnimationPlaying = !ReflectFields->IsAnimationPlaying;
+                            curAnimData->IsPlaying = !curAnimData->IsPlaying;
                         if (true == usePushStyleColor)
                             ImGui::PopStyleColor();
                         if (ImGui::IsItemHovered())
@@ -115,39 +129,42 @@ void SkeletalMeshRenderer::ImGuiDrawPropertysEvent()
                         ImGui::SameLine();
 
                         if (ImGui::Button(EditorIcon::ICON_PAUSE))
-                            PauseAnimation();
+                            PauseCurrentAnimation();
                         if (ImGui::IsItemHovered())
                             ImGui::SetTooltip("Pause");
 
                         ImGui::SameLine();
 
                         if (ImGui::Button(EditorIcon::ICON_STOP))
-                            StopAnimation();
+                            StopCurrentAnimation();
                         if (ImGui::IsItemHovered())
                             ImGui::SetTooltip("Stop");
                     }
-                    if (true == ReflectFields->CurrentAnimationKey.empty())
+                    if (true == curAnimData->AnimationName.empty())
                     {
                         ImGui::EndDisabled();
                     }
 
-                    ImGui::Checkbox("Loop", &ReflectFields->IsAnimationLooping);
+                    ImGui::Checkbox("Loop", &curAnimData->IsLooping);
 
                     float min = 0.0f;
                     float max = animator->GetCurrentAnimationLastTime();
                     float cur = animator->GetCurrentAnimationPlayTime();
                     if (ImGui::SliderFloat("Current Animation Frame", &cur, min, max))
                     {
-                        SetAnimationFrame(cur);
+                        animator->SetAnimationTime(cur);
                     }
-                    if (ImGui::DragFloat("Animation Speed", &ReflectFields->AnimationSpeed, 0.01f))
+                    if (ImGui::DragFloat("Animation Speed", &curAnimData->Speed, 0.01f))
                     {
-                        SetAnimationSpeed(ReflectFields->AnimationSpeed);
+                        SetCurrentAnimationSpeed(curAnimData->Speed);
                     }
 
                     ImGui::TreePop();
                 }
             }
+            ImGui::Separator();
+            ImGuiHelper::TextWithVerticalSeparator("Animation Speed Scale");
+            ImGui::DragFloat("##Animation Speed Scale", &ReflectFields->AnimationSpeedScale, 0.01f, 0.0f);
         }
         else
         {
@@ -158,80 +175,261 @@ void SkeletalMeshRenderer::ImGuiDrawPropertysEvent()
 
 void SkeletalMeshRenderer::UpdateAnimation() 
 {
+    auto animator = Renderer->GetAnimator();
+    auto animData = GetLastAnimationDataEx();
+    if (animator && animData)
+    {
+        animator->SetPause(!animData->IsPlaying);
+        animator->SetLoop(animData->IsLooping);
+        animator->SetAnimationSpeed(animData->Speed * ReflectFields->AnimationSpeedScale);
+        animData->Duration = animator->GetCurrentAnimationPlayTime();
+        animData->IsEnd    = animator->IsEnd();
+
+        if (animData->PopCondition)
+        {
+            bool result = animData->PopCondition(*animData);
+            if (result)
+            {
+                PopOverrideAnimation();
+            }
+        }
+    }
+}
+
+void SkeletalMeshRenderer::ClearOverrideAnimations() 
+{
+    const auto& animator = Renderer->GetAnimator();
+    const auto& animData = GetLastAnimationDataEx();
+    _overrideAnimationStack.clear();
+    if (animator && animData)
+    {
+        if (false == _isBuildingOverrideAnimation)
+        {
+            animator->ChangeAnimation(animData->AnimationName.c_str(), animData->IsBlending);
+            animator->SetAnimationTime(animData->Duration);
+        }
+    }
+}
+
+void SkeletalMeshRenderer::BeginBuildOverrideAnimation() 
+{
+    _isBuildingOverrideAnimation = true;
+}
+
+void SkeletalMeshRenderer::EndBuildOverrideAnimation() 
+{
+    if (_isBuildingOverrideAnimation)
+    {
+        const auto&    animator = Renderer->GetAnimator();
+        AnimationData* animData = GetLastAnimationDataEx();
+        if (animator && animData)
+        {
+            animator->ChangeAnimation(animData->AnimationName.c_str(), animData->IsBlending);
+            animator->SetAnimationTime(animData->Duration);
+        }
+        _isBuildingOverrideAnimation = false;
+    }
+}
+
+void SkeletalMeshRenderer::PushOverrideAnimation(std::string_view animKey, bool loop, bool blend,
+                                                 std::function<bool(const AnimationData&)> popCondition)
+{
     if (HasModel() && HasAnimator())
     {
-        auto animator = Renderer->GetAnimator();
-        animator->SetPause(!ReflectFields->IsAnimationPlaying);
-        animator->SetLoop(ReflectFields->IsAnimationLooping);
-        animator->SetAnimationSpeed(ReflectFields->AnimationSpeed);
-        _animationTime = animator->GetCurrentAnimationPlayTime();
-    }
-    else
-    {
-        _animationTime = 0.0f;
+        const auto& animator = Renderer->GetAnimator();
+        _overrideAnimationStack.emplace_back(animKey, loop);
+        AnimationData* animData = GetLastAnimationDataEx();
+        if (animData)
+        {
+            animData->PopCondition = popCondition;
+            animData->IsLooping    = loop;
+            animData->IsBlending   = blend;
+            if (false == _isBuildingOverrideAnimation)
+            {
+                animator->ChangeAnimation(animData->AnimationName.c_str(), animData->IsBlending);
+                animator->SetAnimationTime(animData->Duration);
+            }
+        }
     }
 }
 
-void SkeletalMeshRenderer::SetCurrentAnimation(std::string_view animKey)
+void SkeletalMeshRenderer::PopOverrideAnimation() 
 {
-    ReflectFields->CurrentAnimationKey = animKey.data();
     if (HasModel() && HasAnimator())
     {
-        const auto& model          = Renderer->GetModel();
-        const auto& animator       = Renderer->GetAnimator();
-        const auto& animation      = model->GetAnimation();
-        const auto& animationNames = animation->GetAnimations();
-        animator->ChangeAnimation(ReflectFields->CurrentAnimationKey.c_str());
-        SetAnimationFrame(0.0f);
+        const auto& animator = Renderer->GetAnimator();
+        _overrideAnimationStack.pop_back();
+        AnimationData* animData = GetLastAnimationDataEx();
+        if (animData)
+        {
+            if (false == _isBuildingOverrideAnimation)
+            {
+                animator->ChangeAnimation(animData->AnimationName.c_str(), animData->IsBlending);
+                animator->SetAnimationTime(animData->Duration);
+            }
+        }
     }
 }
 
-void SkeletalMeshRenderer::SetAnimationLoop(bool looping) 
+void SkeletalMeshRenderer::SetCurrentAnimation(std::string_view animKey, bool blend)
 {
-    ReflectFields->IsAnimationLooping = looping;
+    SetAnimation(GetLastAnimationDataEx(), animKey, blend);
 }
 
-void SkeletalMeshRenderer::SetAnimationFrame(float frame) 
+void SkeletalMeshRenderer::SetMainAnimation(std::string_view animKey, bool blend) 
 {
-    auto animator = Renderer->GetAnimator();
-    if (nullptr != animator)
+    SetAnimation(&_mainAnimationData, animKey, blend);
+}
+
+void SkeletalMeshRenderer::SetCurrentAnimationLoop(bool loop)
+{
+    SetAnimationLoop(GetLastAnimationDataEx(), loop);
+}
+
+void SkeletalMeshRenderer::SetMainAnimationLoop(bool loop) 
+{
+    SetAnimationLoop(&_mainAnimationData, loop);
+}
+
+void SkeletalMeshRenderer::SetCurrentAnimationFrame(float frame)
+{
+    SetAnimationFrame(GetLastAnimationDataEx(), frame);
+}
+
+void SkeletalMeshRenderer::SetMainAnimationFrame(float frame) 
+{
+    SetAnimationFrame(&_mainAnimationData, frame);
+}
+
+void SkeletalMeshRenderer::SetCurrentAnimationSpeed(float speed)
+{
+    SetAnimationSpeed(GetLastAnimationDataEx(), speed);
+}
+
+void SkeletalMeshRenderer::SetMainAnimationSpeed(float speed) 
+{
+    SetAnimationSpeed(&_mainAnimationData, speed);
+}
+
+void SkeletalMeshRenderer::SetCurrentAnimationBlend(bool blend) 
+{
+    AnimationData* animData = GetLastAnimationDataEx();
+    if (animData)
     {
-        const float maxFrame = Renderer->GetAnimator()->GetCurrentAnimationLastTime();
-        _animationTime = std::clamp(frame, 0.0f, maxFrame);
-        animator->SetAnimationTime(_animationTime);
+        animData->IsBlending = blend;
     }
 }
 
-void SkeletalMeshRenderer::SetAnimationSpeed(float speed) 
+void SkeletalMeshRenderer::SetMainAnimationBlend(bool blend)
 {
-    auto animator = Renderer->GetAnimator();
-    if (nullptr != animator)
+    AnimationData* animData = &_mainAnimationData;
+    if (animData)
     {
-        ReflectFields->AnimationSpeed = std::clamp(speed, 0.0f, 100.0f);
-        animator->SetAnimationSpeed(ReflectFields->AnimationSpeed);
+        animData->IsBlending = blend;
     }
 }
 
-void SkeletalMeshRenderer::StopAnimation()
+void SkeletalMeshRenderer::StopCurrentAnimation()
 {
-    SetAnimationFrame(0.0f);
-    ReflectFields->IsAnimationPlaying = false;
+    AnimationData* animData = GetLastAnimationDataEx();
+    if (animData)
+    {
+        animData->IsPlaying = false;
+        SetCurrentAnimationFrame(0.0f);
+    }
 }
 
-void SkeletalMeshRenderer::PlayAnimation()
+void SkeletalMeshRenderer::PlayCurrentAnimation()
 {
-    SetAnimationFrame(0.0f);
-    ReflectFields->IsAnimationPlaying = true;
+    AnimationData* animData = GetLastAnimationDataEx();
+    if (animData)
+    {
+        animData->IsPlaying = true;
+        SetCurrentAnimationFrame(0.0f);
+    }
 }
 
-void SkeletalMeshRenderer::PauseAnimation() 
+void SkeletalMeshRenderer::PauseCurrentAnimation()
 {
-    ReflectFields->IsAnimationPlaying = false;
+    AnimationData* animData = GetLastAnimationDataEx();
+    if (animData)
+    {
+        animData->IsPlaying = false;
+    }
 }
 
-void SkeletalMeshRenderer::ResumeAnimation() 
+void SkeletalMeshRenderer::ResumeCurrentAnimation()
 {
-    ReflectFields->IsAnimationPlaying = true;
+    AnimationData* animData = GetLastAnimationDataEx();
+    if (animData)
+    {
+        animData->IsPlaying = true;
+    }
+}
+
+const AnimationData& SkeletalMeshRenderer::GetMainAnimationData() const
+{
+    return _mainAnimationData;
+}
+
+const AnimationData& SkeletalMeshRenderer::GetLastAnimationData() const
+{
+    if (false == _overrideAnimationStack.empty())
+    {
+        return _overrideAnimationStack.back();
+    }
+    return _mainAnimationData;
+}
+
+AnimationData* SkeletalMeshRenderer::GetLastAnimationDataEx()
+{
+    if (false == _overrideAnimationStack.empty())
+    {
+        return &_overrideAnimationStack.back();
+    }
+    return &_mainAnimationData;
+}
+
+void SkeletalMeshRenderer::SetAnimation(AnimationData* animData, std::string_view animKey, bool blend) 
+{
+    const auto& animator = Renderer->GetAnimator();
+    if (animator && animData)
+    {
+        animData->AnimationName = animKey;
+        if (false == _isBuildingOverrideAnimation)
+        {
+            animator->ChangeAnimation(animData->AnimationName.c_str(), blend);
+            SetCurrentAnimationFrame(animData->Duration);
+        }
+    }
+}
+
+void SkeletalMeshRenderer::SetAnimationLoop(AnimationData* animData, bool loop)
+{
+    const auto& animator = Renderer->GetAnimator();
+    if (animator && animData)
+    {
+        animData->IsLooping = loop;
+    }
+}
+
+void SkeletalMeshRenderer::SetAnimationFrame(AnimationData* animData, float frame)
+{
+    const auto&  animator = Renderer->GetAnimator();
+    if (animator && animData)
+    {
+        const float maxFrame = animator->GetAnimationLastTime(animData->AnimationName.data());
+        animData->Duration = std::clamp(frame, 0.0f, maxFrame);
+    }
+}
+
+void SkeletalMeshRenderer::SetAnimationSpeed(AnimationData* animData, float speed)
+{
+    const auto& animator = Renderer->GetAnimator();
+    if (animator && animData)
+    {
+        animData->Speed = std::max(speed, 0.0f);
+    }
 }
 
 void SkeletalMeshRenderer::LoadModel()

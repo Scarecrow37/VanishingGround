@@ -38,7 +38,7 @@ void UI25DPass::Initialize(RenderScene* ownerScene, ID3D12GraphicsCommandList* c
     rtDesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 
     D3D12_GRAPHICS_PIPELINE_STATE_DESC psodesc = {};
-    psodesc.RasterizerState                    = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+    psodesc.RasterizerState                    = CommonStates::CullNone;
     psodesc.BlendState                         = blendDesc;
     psodesc.DepthStencilState                  = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
     psodesc.DSVFormat                          = _ownerScene->_depthStencilView->GetFormat();

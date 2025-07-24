@@ -396,7 +396,8 @@ ComPtr<ID3D12RootSignature> Device::CreateRootSignature(const D3D12_ROOT_SIGNATU
     hr = S_OK;
     hr = _device->CreateRootSignature(0, pSigBlob->GetBufferPointer(), pSigBlob->GetBufferSize(),
                                       IID_PPV_ARGS(pRootSig.GetAddressOf()));
-    FAILED_CHECK_MESSAGE(hr, L"Deivce::CreateRootSignature _device->CreateRootSignautre Failed");
+    FAILED_CHECK_MESSAGE(hr, L"Device::CreateRootSignature _device->CreateRootSignature Failed");
+
     return pRootSig;
 }
 

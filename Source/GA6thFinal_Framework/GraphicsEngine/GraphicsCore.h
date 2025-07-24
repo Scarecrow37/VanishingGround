@@ -17,41 +17,44 @@ public:
     ID3D12GraphicsCommandList*  GetCommandList() const;
 
 public:
-    void SetCamera(std::string_view renderSceneName, std::shared_ptr<Camera> camera);
-    void SetSkyBox(std::string_view renderSceneName, std::wstring_view filePath);
-    void SetCurrentScene(std::string_view sceneName);
+    void SetCamera(std::string_view renderSceneName, std::shared_ptr<Camera> camera) const;
+    void SetSkyBox(std::string_view renderSceneName, std::wstring_view filePath) const;
+    void SetCurrentScene(std::string_view sceneName) const;
 
 public:
-    void AddRenderScene(std::string_view sceneName, RenderTechniqueFlag flag);
-    void RegisterComponent(Animator* component);
-    void RegisterComponent(std::string_view renderSceneName, MeshRenderer* component);
-    void RegisterComponent(std::string_view renderSceneName, SpriteRenderer* component);
-    void RegisterComponent(std::string_view renderSceneName, FontRenderer* component);
-    void RegisterComponent(std::string_view renderSceneName, Light* component);
+    void AddRenderScene(std::string_view sceneName, RenderTechniqueFlag flag) const;
+    void RegisterComponent(Animator* component) const;
+    void RegisterComponent(std::string_view renderSceneName, MeshRenderer* component) const;
+    void RegisterComponent(std::string_view renderSceneName, SpriteRenderer* component) const;
+    void RegisterComponent(std::string_view renderSceneName, FontRenderer* component) const;
+    void RegisterComponent(std::string_view renderSceneName, Light* component) const;
 
 public:
-    void LoadResource(std::wstring_view filePath, MeshRenderer* component);
-    void LoadResource(std::wstring_view filePath, SpriteRenderer* component);
-    void LoadResource(std::wstring_view filePath, FontRenderer* component);
+    void LoadResource(std::wstring_view filePath, MeshRenderer* component) const;
+    void LoadResource(std::wstring_view filePath, SpriteRenderer* component) const;
+    void LoadResource(std::wstring_view filePath, FontRenderer* component) const;
 
 public:
     void Initialize(HWND hwnd, UINT width, UINT height, FeatureLevel feature, bool isEditorMode);
-    void UpdateAnimation(const float deltaTime);
-    void Update(const float deltaTime);
-    void Render();
-    void Flip();
-    void Finalize();
+    void UpdateAnimation(const float deltaTime) const;
+    void Update(const float deltaTime) const;
+    void Render() const;
+    void Flip() const;
+    void Finalize() const;
 
 public:
-    void             ResetSkyBox(std::string_view sceneName);
-    void             OnResize(UINT width, UINT height);
-    void XM_CALLCONV DebugDraw(std::string_view sceneName, const BoundingSphere& sphere, FXMVECTOR color = DirectX::Colors::White);
-    void XM_CALLCONV DebugDraw(std::string_view sceneName, const BoundingBox& box, FXMVECTOR color = DirectX::Colors::White);
-    void XM_CALLCONV DebugDraw(std::string_view sceneName, const BoundingOrientedBox& obb, FXMVECTOR color = DirectX::Colors::White);
-    void XM_CALLCONV DebugDraw(std::string_view sceneName, const BoundingFrustum& frustum, FXMVECTOR color = DirectX::Colors::White);  
-    void XM_CALLCONV DebugDraw(std::string_view sceneName, FXMVECTOR origin, FXMVECTOR majorAxis, FXMVECTOR minorAxis, GXMVECTOR color = DirectX::Colors::White);
-    void XM_CALLCONV DebugDraw(std::string_view sceneName, FXMVECTOR origin, FXMVECTOR direction, bool normalize = true, FXMVECTOR color = DirectX::Colors::White);
-    void XM_CALLCONV DebugDraw(std::string_view sceneName, FXMVECTOR position, FXMVECTOR direction, float range, float innerCone, float outerCone, FXMVECTOR color = DirectX::Colors::White);
+    void             ResetSkyBox(std::string_view sceneName) const;
+    void             OnResize(UINT width, UINT height) const;
+    void XM_CALLCONV DebugDraw3D(std::string_view sceneName, const BoundingSphere& sphere, FXMVECTOR color = DirectX::Colors::White) const;
+    void XM_CALLCONV DebugDraw3D(std::string_view sceneName, const BoundingOrientedBox& obb, FXMVECTOR color = DirectX::Colors::White) const;
+    void XM_CALLCONV DebugDraw3D(std::string_view sceneName, const BoundingFrustum& frustum, FXMVECTOR color = DirectX::Colors::White) const;  
+    void XM_CALLCONV DebugDraw3D(std::string_view sceneName, const BoundingBox& box, FXMVECTOR color = DirectX::Colors::White) const;
+    void XM_CALLCONV DebugDraw3D(std::string_view sceneName, FXMVECTOR origin, FXMVECTOR majorAxis, FXMVECTOR minorAxis, GXMVECTOR color = DirectX::Colors::White) const;
+    void XM_CALLCONV DebugDraw3D(std::string_view sceneName, FXMVECTOR origin, FXMVECTOR direction, bool normalize = true, FXMVECTOR color = DirectX::Colors::White) const;
+    void XM_CALLCONV DebugDraw3D(std::string_view sceneName, FXMVECTOR position, FXMVECTOR direction, float range, float innerCone, float outerCone, FXMVECTOR color = DirectX::Colors::White) const;
+    void XM_CALLCONV DebugDraw2D(std::string_view sceneName, FXMVECTOR pointA, FXMVECTOR pointB, FXMVECTOR pointC, GXMVECTOR pointD, HXMVECTOR color = DirectX::Colors::White) const;
+    void XM_CALLCONV DebugDraw2D(std::string_view sceneName, FXMVECTOR pointA, FXMVECTOR pointB, FXMVECTOR color = DirectX::Colors::White) const;
+
 
 private:
     class Device*                   _device;

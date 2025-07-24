@@ -72,40 +72,6 @@ public:
     int GetPendingActorCount();
 
 public:
-    struct Battle
-    {
-        /// <summary>
-        /// 플레이어로 공격을 수행합니다.
-        /// </summary>
-        /// <param name="attacker :">공격자</param>
-        /// <param name="target :">대상</param>
-        void operator()(Player& attacker, Enemy& target);
-
-        /// <summary>
-        /// 적으로 공격을 수행합니다.
-        /// </summary>
-        /// <param name="attacker :">공격자</param>
-        /// <param name="target :">대상</param>
-        void operator()(Enemy& attacker, Player& target);
-
-        /// <summary>
-        /// 마지막으로 공격한 CharacterBase를 반환합니다.
-        /// </summary>
-        /// <returns></returns>
-        static const std::weak_ptr<CharacterBase>& GetLastAttacker() { return lastAttacker; }
-
-        /// <summary>
-        /// 마지막으로 공격당한 CharacterBase를 반환합니다
-        /// </summary>
-        /// <returns></returns>
-        static const std::weak_ptr<CharacterBase>& GetLastTarget() { return lastTarget; }
-
-    private:
-        inline static std::weak_ptr<CharacterBase> lastAttacker;
-        inline static std::weak_ptr<CharacterBase> lastTarget;
-    };
-
-public:
     REFLECT_PROPERTY(
         RoundCount
     )

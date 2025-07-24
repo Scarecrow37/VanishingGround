@@ -61,7 +61,7 @@ void AccelerationStructureManager::SubmitInstance(MeshRenderer* renderer)
             {renderer, key.get(), _nextInstanceID++,
              0, // hitGroup
              D3D12_RAYTRACING_INSTANCE_FLAG_NONE,
-             renderer->GetType() == MeshRenderType::SKELETAL ? AsBuildClass::SKELETALBLAS : AsBuildClass::STATICBLAS});
+             renderer->GetType() == SKELETAL_MESH ? AsBuildClass::SKELETALBLAS : AsBuildClass::STATICBLAS});
     }
 }
 

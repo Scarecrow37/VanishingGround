@@ -5,11 +5,11 @@
 #include "GraphicsEngine/FBXConverter.h"
 
 EditorModelDetails::EditorModelDetails()
-    : _meshRenderer(std::make_unique<MeshRenderer>(MeshRenderType::STATIC, _worldMatrix))
-    , _animator()
+    : _animator()
     , _mainLight(std::make_unique<Light>())
     , _selectedMeshIndex(0)
 {
+    _meshRenderer = std::make_unique<MeshRenderer>(STATIC_MESH, _position, _scale, _quaternion, _worldMatrix);
     SetLabel("Details##model");
     SetDockLayout(ImGuiDir_Right);
 }
@@ -93,6 +93,7 @@ void EditorModelDetails::UpdateModelTransform()
     Matrix matScale     = Matrix::CreateScale(_scale);
     Matrix matRotation  = Matrix::CreateFromYawPitchRoll(_rotation.y, _rotation.x, _rotation.z);
     Matrix matTranslate = Matrix::CreateTranslation(_position);
+    _quaternion         = Quaternion::CreateFromYawPitchRoll(_rotation.y, _rotation.x, _rotation.z);
 
     // 변환 순서: S  R  T
     _worldMatrix = matScale * matRotation * matTranslate;
@@ -203,7 +204,7 @@ void EditorModelDetails::OnFrameRender()
             }
             ImGui::Separator();
 
-            ImGui::Text("Type: %s", type == MeshRenderType::STATIC ? "Static" : "Skeletal");
+            ImGui::Text("Type: %s", type == STATIC_MESH ? "Static" : "Skeletal");
             ImGui::Text("Mesh Count: %d", model->GetMeshes().size());
 
             if (ImGui::TreeNodeEx("Transform##details", ImGuiTreeNodeFlags_DefaultOpen))
@@ -315,7 +316,13 @@ void EditorModelDetails::OnFrameRender()
 
                     float min = 0.0f;
                     float max = _animator ? _animator->GetCurrentAnimationLastTime() : 0.0f;
-                    ImGui::SliderFloat("Current Animation Frame", &_animationTime, min, max);
+                    if (ImGui::SliderFloat("Current Animation Frame", &_animationTime, min, max))
+                    {
+                        if (_animator)
+                        {
+                            _animator->SetAnimationTime(_animationTime);
+                        }
+                    }
                     ImGui::DragFloat("Animation Speed", &_animationSpeed, 0.01f);
                 }
                 ImGui::TreePop();

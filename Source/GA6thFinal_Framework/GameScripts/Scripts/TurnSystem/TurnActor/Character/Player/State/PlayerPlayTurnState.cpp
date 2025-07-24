@@ -6,6 +6,7 @@
 #include <TurnSystem/TurnMode/TurnMode.h>
 #include <TurnSystem/TurnMode/State/CombatStartPhase.h>
 #include <WeaponSystem/WeaponSystem.h>
+#include <Mesh/SkeletalMeshRenderer.h>
 
 using namespace u8_literals;
 
@@ -43,7 +44,6 @@ void PlayerPlayTurnState::OnAwake()
 
 void PlayerPlayTurnState::OnStart() 
 {
-    
 }
 
 void PlayerPlayTurnState::OnEnter() 
@@ -53,12 +53,16 @@ void PlayerPlayTurnState::OnEnter()
     _setImguiPosCenter    = true;
     _attackButtonHeldTime = 0;
     _attackRemaining      = 0;
+
+    auto& player = GetPlayer();
+    player.SetMainAnimation(CharacterBase::IDLE);
 }
 
 void PlayerPlayTurnState::OnExit() 
 {
     _inputState = InputState::NONE;
 }
+
 
 void PlayerPlayTurnState::OnUpdate() 
 {
@@ -77,7 +81,6 @@ void PlayerPlayTurnState::OnUpdate()
     float dt = UmTime.DeltaTime();
     switch (_inputState)
     {
-    default:
     case PlayerPlayTurnState::InputState::NONE:
         break;
     case PlayerPlayTurnState::InputState::ACTION_SELECTION:
@@ -90,10 +93,9 @@ void PlayerPlayTurnState::OnUpdate()
     case PlayerPlayTurnState::InputState::ATTACK_EVENT:
         UpdateAttackEventUI(dt);
         break;
+    default:
+        break;
     }
-
-    Vector3 delta = Vector3(0, 1080, 0) * Mathf::Deg2Rad * dt;
-    GetFSM().gameObject->transform->Rotation *= Quaternion::CreateFromYawPitchRoll(delta);
 }
 
 void PlayerPlayTurnState::UpdateAttackButtonHeld(float dt) 
@@ -112,6 +114,7 @@ void PlayerPlayTurnState::UpdateAttackButtonHeld(float dt)
                 _setImguiPosCenter = true;
                 _attackTargets.clear();
             }
+            SetAttackReadyAnimation();
         }
     }
 }
@@ -136,7 +139,7 @@ void PlayerPlayTurnState::ReleasedButtonA(const Input::Controller& controller)
 
 void PlayerPlayTurnState::PressedButtonX(const Input::Controller& controller) 
 {
-    PushAttackTarget(AttackTarget::LEFT);
+    PushAttackTarget(Battle::ENEMY_TARGET_FLAG_LEFT);
 }
 
 void PlayerPlayTurnState::ReleasedButtonX(const Input::Controller& controller) 
@@ -146,7 +149,7 @@ void PlayerPlayTurnState::ReleasedButtonX(const Input::Controller& controller)
 
 void PlayerPlayTurnState::PressedButtonY(const Input::Controller& controller) 
 {
-    PushAttackTarget(AttackTarget::MIDDLE);
+    PushAttackTarget(Battle::ENEMY_TARGET_FLAG_MIDDLE);
 }
 
 void PlayerPlayTurnState::ReleasedButtonY(const Input::Controller& controller) 
@@ -156,7 +159,7 @@ void PlayerPlayTurnState::ReleasedButtonY(const Input::Controller& controller)
 
 void PlayerPlayTurnState::PressedButtonB(const Input::Controller& controller) 
 {
-    PushAttackTarget(AttackTarget::RIGHT);
+    PushAttackTarget(Battle::ENEMY_TARGET_FLAG_RIGHT);
 }
 
 void PlayerPlayTurnState::ReleasedButtonB(const Input::Controller& controller) 
@@ -195,23 +198,31 @@ void PlayerPlayTurnState::UpdateQuickTimeEventUI(float dt)
 
             ImGui::Text((const char*)u8"X, Y, B를 눌러 공격하세요.");
             ImGui::Text((const char*)u8"남은 공격 횟수 : %d", _attackRemaining);
-            constexpr auto targets = rfl::get_enumerator_array<AttackTarget>();
-            for (auto& [name, value] : targets)
+            for (auto& [name, value] : Battle::ENEMY_TARGET_FLAGS)
             {
-                if (ImGui::Button(name.data()))
+                if (ImGui::Button(name))
                 {
                     PushAttackTarget(value);
                 }
             }
-
+            ImGui::Separator();
+            if (ImGui::Button((const char*)u8"[테스트] 자해"))
+            {
+                player.TakeDamage(10);
+            }
+            if (ImGui::Button((const char*)u8"[테스트] 자살"))
+            {
+                player.Dead();
+            }
             for (auto& target : _attackTargets)
             {
-                ImGui::Text(rfl::enum_to_string(target).c_str());
+                ImGui::Text(Battle::EnemyTargetFlagToString(target).data());
             }
 
             if (_attackRemaining == 0)
             {
                 _inputState = InputState::ATTACK_EVENT;
+                SetAttackAnimation();
             }
         }
         else
@@ -229,37 +240,22 @@ void PlayerPlayTurnState::UpdateAttackEventUI(float dt)
         TurnMode* turnMode = TurnMode::GetInstance();
         if (turnMode)
         {
-            auto& combatStartPhase = turnMode->States->CombatStartPhase;
-            if (combatStartPhase)
+            float   delay  = 0.5f;
+            Player& player = GetPlayer();
+            for (auto& target : _attackTargets)
             {
-                float delay = 0.5f;
-                Player& player = GetPlayer();
-                const auto& enemys = combatStartPhase->GetEnemies();
-                for (auto& target : _attackTargets)
-                {
-                    int targetIndex = static_cast<int>(target);
-                    try
-                    {
-                        Enemy* enemy = enemys.at(targetIndex);
-                        if (enemy)
-                        {
-                            UmTime.Invoke(&GetFSM(), delay, [&player, enemy]() { TurnMode::Battle()(player, *enemy); });                         
-                            delay += 0.5f;
-                        }
-                    }
-                    catch (const std::exception&)
-                    {
-                        UmLogger.Log(LogLevel::LEVEL_WARNING, u8"유효하지 않은 enemy Index 입니다.");
-                    }
-                }
-                _attackTargets.clear();
-                _inputState = InputState::NONE;
-                UmTime.Invoke(&GetFSM(), delay, 
-                [&]() 
-                { 
-                    player.EndTurn(); 
-                });
+                UmTime.Invoke(&GetFSM(), delay, [&player, target]() { Battle()(player, target); });
+                delay += 0.5f;
             }
+            _attackTargets.clear();
+            _inputState = InputState::NONE;
+            UmTime.Invoke(&GetFSM(), delay, [&]()
+            {
+                auto& player = GetPlayer();
+                SetAttackEndAnimation();
+                player.EndTurn();
+            });
+           
         }
     }
     ImGui::End();
@@ -270,11 +266,57 @@ bool PlayerPlayTurnState::IsAttackable() const
     return _inputState == InputState::QUICK_TIME_EVENT && 0 < _attackRemaining;
 }
 
-void PlayerPlayTurnState::PushAttackTarget(AttackTarget target) 
+void PlayerPlayTurnState::PushAttackTarget(Battle::EnemyTargetFlag_ target)
 {
     if (IsAttackable())
     {
         _attackTargets.push_back(target);
         --_attackRemaining;
+    }
+}
+
+void PlayerPlayTurnState::SetAttackReadyAnimation()
+{
+    Player& player = GetPlayer();
+    SkeletalMeshRenderer* renderer = player.GetSkeletalMeshRenderer();
+    if (renderer)
+    {
+        renderer->BeginBuildOverrideAnimation();
+        renderer->ClearOverrideAnimations();
+        player.PushOverrideAnimation(CharacterBase::ATTACK_READY_LOOP);
+        player.PushOverrideAnimation(CharacterBase::ATTACK_READY, false, true,
+                                     [](const AnimationData& data) { return data.IsEnd; });
+        renderer->EndBuildOverrideAnimation();
+    }
+}
+
+void PlayerPlayTurnState::SetAttackAnimation()
+{
+    Player&               player   = GetPlayer();
+    SkeletalMeshRenderer* renderer = player.GetSkeletalMeshRenderer();
+    if (renderer)
+    {
+        renderer->BeginBuildOverrideAnimation();
+        renderer->ClearOverrideAnimations();
+        player.PushOverrideAnimation(CharacterBase::ATTACK_LOOP);
+        player.PushOverrideAnimation(CharacterBase::ATTACK, false, true,
+                                    [](const AnimationData& data) { return data.IsEnd; });
+        renderer->EndBuildOverrideAnimation();
+    }
+}
+
+void PlayerPlayTurnState::SetAttackEndAnimation() 
+{
+    Player&               player   = GetPlayer();
+    SkeletalMeshRenderer* renderer = player.GetSkeletalMeshRenderer();
+    if (renderer)
+    {
+        renderer->BeginBuildOverrideAnimation();
+        renderer->ClearOverrideAnimations();
+        player.SetMainAnimation(CharacterBase::IDLE);
+        renderer->SetMainAnimationFrame(0.0f);
+        player.PushOverrideAnimation(CharacterBase::ATTACK_END, false, true,
+                                     [](const AnimationData& data) { return data.IsEnd; });
+        renderer->EndBuildOverrideAnimation();
     }
 }
