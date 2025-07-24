@@ -34,24 +34,32 @@ protected:
 };
 
 template <typename T>
-struct FindChildComponents
+struct FindComponents
 {
-    std::vector<T*> operator()(Transform& transform)
+    std::vector<T*> operator()(const GameObject& gameObject)
     {
         std::vector<T*> components;
-
-        for (int i = 0; i < transform.GetChildCount(); ++i)
+        for (int i = 0; i < gameObject.GetComponentCount(); ++i)
         {
-            const Transform* child      = transform.GetChild(i);
-            GameObject&      gameObject = child->gameObject;
-            for (int j = 0; j < gameObject.GetComponentCount(); ++j)
+            if (T* component = gameObject.GetComponentAtIndex<T>(i))
             {
-                if (T* component = gameObject.GetComponentAtIndex<T>(j))
-                {
-                    components.push_back(component);
-                }
+                components.push_back(component);
             }
         }
         return components;
+    }
+};
+
+template <typename T>
+struct FindChildComponents
+{
+    std::vector<T*> operator()(Transform& parentTransform)
+    {
+        for (int i = 0; i < parentTransform.GetChildCount(); ++i)
+        {
+            const Transform* child      = parentTransform.GetChild(i);
+            GameObject&      gameObject = child->gameObject;
+            return FindComponents<T>()(gameObject);
+        }
     }
 };

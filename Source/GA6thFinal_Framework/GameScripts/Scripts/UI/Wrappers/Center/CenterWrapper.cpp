@@ -42,8 +42,8 @@ void CenterWrapper::OnAttachChild(GameObject* childGameObject)
 {
     EditablePlacementUIComponent::OnAttachChild(childGameObject);
 
-    auto& component = childGameObject->AddComponent<PlacementUIComponent>();
-    AssignChild(component);
+    std::vector<PlacementUIComponent*> components = FindComponents<PlacementUIComponent>()(*childGameObject);
+    std::ranges::for_each(components, [this](PlacementUIComponent* component) { AssignChild(*component); });
 }
 
 void CenterWrapper::AssignChild(PlacementUIComponent& component) const

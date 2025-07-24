@@ -49,7 +49,7 @@ protected:
     void OnAttachChild(GameObject* childGameObject) override;
 
 private:
-    void AssignChild() const;
+    void AssignChild(PlacementUIComponent& component) const;
 
 protected:
     REFLECT_FIELDS_BEGIN(EditablePlacementUIComponent)

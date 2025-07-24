@@ -20,23 +20,22 @@ void PaddingWrapper::OnPlacementChange()
 {
     EditablePlacementUIComponent::OnPlacementChange();
 
-    AssignChild();
+    Transform&                         transform  = this->transform;
+    std::vector<PlacementUIComponent*> components = FindChildComponents<PlacementUIComponent>()(transform);
+    std::ranges::for_each(components, [this](PlacementUIComponent* component) { AssignChild(*component); });
 }
 
 void PaddingWrapper::OnAttachChild(GameObject* childGameObject)
 {
     EditablePlacementUIComponent::OnAttachChild(childGameObject);
 
-    AssignChild();
+    std::vector<PlacementUIComponent*> components = FindComponents<PlacementUIComponent>()(*childGameObject);
+    std::ranges::for_each(components, [this](PlacementUIComponent* component) { AssignChild(*component); });
 }
 
-void PaddingWrapper::AssignChild() const
+void PaddingWrapper::AssignChild(PlacementUIComponent& component) const
 {
-    Transform&                         transform  = this->transform;
-    std::vector<PlacementUIComponent*> components = FindChildComponents<PlacementUIComponent>()(transform);
-    std::ranges::for_each(components, [this](PlacementUIComponent* component) {
-        const POINT point = GetPaddedPoint();
-        const SIZE  size  = GetPaddedSize();
-        component->SetScopePlacement(point, size);
-    });
+    const POINT point = GetPaddedPoint();
+    const SIZE  size  = GetPaddedSize();
+    component.SetScopePlacement(point, size);
 }
