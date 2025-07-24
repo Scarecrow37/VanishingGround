@@ -44,6 +44,7 @@ void TextElement::Reset()
             UmGraphics.RegisterComponent("Editor", _renderer.get());
         }
         _renderer->SetActive(&EnableInHierarchy);
+        RequestResource();
     }
     catch (...)
     {
@@ -60,7 +61,6 @@ void TextElement::DeserializedReflectEvent()
     if (const auto path = guid.ToPath(); !path.IsNull())
     {
         _guidRef = path.ToGuid();
-        RequestResource();
     }
 }
 
