@@ -10,6 +10,9 @@ protected:
     static constexpr float VIEW_ORDER_TEXT_RATIO  = 0.0001f;
     static constexpr float VIEW_ORDER_TEXT_OFFSET = VIEW_ORDER_TEXT_RATIO / VIEW_ORDER_IMAGE_RATIO;
 
+private:
+    static void RequestViewOrder(const Transform& transform);
+
 public:
     PlacementUIComponent();
 
@@ -32,9 +35,6 @@ protected:
     virtual float GetZOrder() const;
     virtual void  OnPlacementChange() {}
     virtual void  SetViewOrder(int viewOrder);
-
-private:
-    static void RequestViewOrder(const Transform& transform);
 
 protected:
     REFLECT_FIELDS_BEGIN(UIComponent)

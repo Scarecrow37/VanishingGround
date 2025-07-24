@@ -95,9 +95,11 @@ void PlacementUIComponent::RequestViewOrder(const Transform& transform)
 {
     UIRoot* uiRoot = nullptr;
 
+    // transform이 루트라면
     const GameObject& rootObject = transform.gameObject;
     uiRoot                       = rootObject.GetComponent<UIRoot>();
 
+    // transform이 루트가 아니라면
     if (nullptr == uiRoot)
     {
         if (const Transform* root = transform.Root; nullptr != root)
