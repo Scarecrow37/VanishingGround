@@ -70,11 +70,11 @@ void SkeletalMeshRenderer::DeserializedReflectEvent()
 
 void SkeletalMeshRenderer::ImGuiDrawPropertysEvent() 
 {
-    ImGui::Separator();
     if (nullptr != Renderer)
     {
         if (nullptr == Renderer->GetModel())
         {
+            ImGui::Separator();
             ImGui::Text("NULL Model");
         }
     }

@@ -22,7 +22,7 @@ public:
     static bool SetLockFocus(bool isLock);
 
     static bool IsFocusObject(std::weak_ptr<IEditorObject> obj);
-    static bool SetFocusObject(std::weak_ptr<IEditorObject> obj);
+    static bool SetFocusObject(std::weak_ptr<IEditorObject> obj, bool breakLock = false);
     static void ResetFocusObject();
     static std::weak_ptr<IEditorObject> GetFocusObject();
 
