@@ -50,19 +50,19 @@ PSOutput WriteGuBuffer(PSInput input)
     uint emissiveID = material[objectData.ID].ID[EMISSIVE];
     
     // 0. baseColor
-    output.baseColor = textures[diffuseID].Sample(samLinear_wrap, input.uv);
+    output.baseColor = textures[diffuseID].Sample(samAnistropic_wrap, input.uv);
     //output.baseColor.rgb = pow(output.baseColor.rgb, 2.2);
     // 1. normal
-    float3 normal = textures[normalID].Sample(samLinear_wrap, input.uv).xyz;
+    float3 normal = textures[normalID].Sample(samAnistropic_wrap, input.uv).xyz;
     normal = CalculateNormal(normal, input.tangent, input.biTangent, input.normal);
     output.normal = float4(normal, 1.f);
     //2. ORM
-    float ao = textures[ORMID].Sample(samLinear_wrap, input.uv).r;
-    float roughness = textures[ORMID].Sample(samLinear_wrap, input.uv).g;
-    float metallic = textures[ORMID].Sample(samLinear_wrap, input.uv).b;
+    float ao = textures[ORMID].Sample(samAnistropic_wrap, input.uv).r;
+    float roughness = textures[ORMID].Sample(samAnistropic_wrap, input.uv).g;
+    float metallic = textures[ORMID].Sample(samAnistropic_wrap, input.uv).b;
     output.orm = float4(ao, roughness, metallic, 1.f);
     //3. emissive
-    output.emissive = textures[emissiveID].Sample(samLinear_wrap, input.uv);
+    output.emissive = textures[emissiveID].Sample(samAnistropic_wrap, input.uv);
     //4. worldPosition
     output.worldPosition = input.worldPosition;
     //5. depth
