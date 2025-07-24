@@ -60,7 +60,12 @@ void StaticMeshRenderer::DeserializedReflectEvent()
 {
     File::Guid guid = ReflectFields->Basefields.get().Guid;
     _guidRef = guid;
-    if (false == guid.IsNull())
+}
+
+void StaticMeshRenderer::Reset() 
+{
+    MakeMeshRenderer(MeshRenderType::STATIC, gameObject->transform->GetWorldMatrix());
+    if (false == _guidRef.IsNull())
     {
         UmSceneManager.ResourceManager.RequestModelResource(this, _guidRef, [this]() { LoadModel(); });
     }
