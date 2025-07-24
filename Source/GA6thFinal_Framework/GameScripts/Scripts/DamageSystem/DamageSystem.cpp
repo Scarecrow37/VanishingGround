@@ -24,3 +24,8 @@ int DamageSystem::CalculateDamage(const EnemyInfo& attacker, const PlayerInfo& t
     result = 10;
     return result;
 }
+
+int DamageSystem::CalculateChainDamage(const EnemyInfo& attacker, const PlayerInfo& target)
+{
+    return 1;
+}
