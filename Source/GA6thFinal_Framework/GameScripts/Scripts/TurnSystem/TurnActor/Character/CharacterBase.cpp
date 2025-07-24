@@ -196,8 +196,8 @@ int CharacterBase::DecrementChainRoundCount()
         {
             stats->CurrentChainCount = 0;
             stats->CurrentChainRoundCount = stats->MaxChainRoundCount;
-        }
-        stats->CurrentChainRoundCount;
+        }     
+        return stats->CurrentChainRoundCount;
     }
     return 0;
 }
