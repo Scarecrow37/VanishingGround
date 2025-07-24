@@ -134,6 +134,9 @@ void CharacterBase::Dead()
 
 void CharacterBase::TakeDamage(int damage) 
 {
+    if (TurnActor::STATE::Dead == GetActorState())
+        return;
+
     CharacterStats* stats = GetCharacterStats();
     if (stats)
     {
@@ -160,6 +163,9 @@ void CharacterBase::TakeDamage(int damage)
 
 void CharacterBase::TakeChain(int chainDamage) 
 {
+    if (TurnActor::STATE::Dead == GetActorState())
+        return;
+
     CharacterStats* stats = GetCharacterStats();
     if (stats)
     {
