@@ -117,10 +117,22 @@ public:
 
     /// <summary>인자로 넘어온 캐릭터의 턴이 시작되면 호출됩니다..</summary>
     /// <param name="destination">턴이 시작된 대상</param>
-    virtual void OnTurnStart(CharacterBase* destination) {}
+    virtual void OnTurnStart(CharacterBase& destination) {}
 
     /// <summary>인자로 넘어온 캐릭터의 턴이 종료되면 호출됩니다.</summary>
-    virtual void OnTurnEnd(CharacterBase* destination) {}
+    virtual void OnTurnEnd(CharacterBase& destination) {}
+
+    /// <summary>
+    /// 플레이어가 사망하면 호출됩니다.
+    /// </summary>
+    /// <param name="player"></param>
+    virtual void OnPlayeDead(Player& player) {}
+
+    /// <summary>
+    /// 적이 사망하면 호출됩니다.
+    /// </summary>
+    /// <param name="enemy"></param>
+    virtual void OnEnemyDead(Enemy& enemy) {}
 
     /// <summary>
     /// 플레이어가 공격할 적을 선택한 뒤 호출됩니다.
