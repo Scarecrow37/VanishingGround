@@ -24,7 +24,7 @@ CombatStartPhase::~CombatStartPhase()
 
 }
 
-void CombatStartPhase::ResetCharacterStats() 
+void CombatStartPhase::ResetCharacterStats()
 {
     _player = nullptr;
     _enemies.clear();

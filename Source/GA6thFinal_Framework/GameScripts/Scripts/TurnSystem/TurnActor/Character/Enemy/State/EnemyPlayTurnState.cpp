@@ -55,8 +55,9 @@ void EnemyPlayTurnState::OnExit()
     UmLogger.Message(LogLevel::LEVEL_TRACE, message);
 
     // Enemy의 턴이 종료시 액션을 선언.
-    _aiModel.Transition();
-    _aiModel.Refresh();
+    EnemyAI& aiModel = GetEnemy().GetAIModel();
+    aiModel.Transition();
+    aiModel.Refresh();
 }
     
 void EnemyPlayTurnState::OnUpdate()
@@ -79,9 +80,11 @@ void EnemyPlayTurnState::ClearAction()
 bool EnemyPlayTurnState::ExcuteAction()
 {
     bool result = true;
-    _previousAction = _currentAction;
+    EnemyAI& aiModel = GetEnemy().GetAIModel();
 
-    int  actionID = _aiModel.GetCurrentActionID();
+    _previousAction = _currentAction;
+    
+    int  actionID = aiModel.GetCurrentActionID();
     auto actionIt = _actionTable.find(actionID);
     if (actionIt != _actionTable.end())
     {
@@ -113,7 +116,8 @@ bool EnemyPlayTurnState::ExcuteAction()
 
 void EnemyPlayTurnState::SetAIModel(EnemyType type)
 {
-    _aiModel.Clear();
+    EnemyAI& aiModel = GetEnemy().GetAIModel();
+    aiModel.Clear();
     switch (type)
     {
     case EnemyType::MONSTER_A: {
@@ -184,46 +188,50 @@ void EnemyPlayTurnState::SetActions(EnemyType type)
 
 void EnemyPlayTurnState::BuildAIModel23000() 
 {
-    _aiModel.PushActionNode("#1", "#2", 22000); // Action 22000
-    _aiModel.PushActionNode("#3", "#2", 22001); // Action 22001
-    _aiModel.PushActionNode("#4", "#1", 22002); // Action 22002
-    _aiModel.PushConditionNode("#2", "#3", "#4", std::bind(&EnemyPlayTurnState::IsPlayerBleeding, this)); // 조건 노드
+    EnemyAI& aiModel = GetEnemy().GetAIModel();
+    aiModel.PushActionNode("#1", "#2", 22000);  // Action 22000
+    aiModel.PushActionNode("#3", "#2", 22001);  // Action 22001
+    aiModel.PushActionNode("#4", "#1", 22002);  // Action 22002
+    aiModel.PushConditionNode("#2", "#3", "#4", std::bind(&EnemyPlayTurnState::IsPlayerBleeding, this)); // 조건 노드
 
     // Entry 노드 설정
-    _aiModel.SetCurrentNode("#1");
+    aiModel.SetCurrentNode("#1");
 }
 
 void EnemyPlayTurnState::BuildAIModel23001() 
 {
-    _aiModel.PushActionNode("#1", "#2", 22004); // Action 22004
-    _aiModel.PushActionNode("#2", "#3", {{50.0f, 22003}, {50.0f, 22000}}); // Action 22003, 22000
-    _aiModel.PushActionNode("#3", "#4", 22002); // Action 22002
-    _aiModel.PushActionNode("#4", "#1", {{50.0f, 22000}, {50.0f, 22002}}); // Action 22000, 22002
+    EnemyAI& aiModel = GetEnemy().GetAIModel();
+    aiModel.PushActionNode("#1", "#2", 22004); // Action 22004
+    aiModel.PushActionNode("#2", "#3", {{50.0f, 22003}, {50.0f, 22000}}); // Action 22003, 22000
+    aiModel.PushActionNode("#3", "#4", 22002); // Action 22002
+    aiModel.PushActionNode("#4", "#1", {{50.0f, 22000}, {50.0f, 22002}}); // Action 22000, 22002
 
     // Entry 노드 설정
-    _aiModel.SetCurrentNode("#1");
+    aiModel.SetCurrentNode("#1");
 }
 
 void EnemyPlayTurnState::BuildAIModel23010() 
 {
-    _aiModel.PushActionNode("#1", "#2", {{50.0f, 22010}, {50.0f, 22011}}); // Action 22010, 22011
-    _aiModel.PushActionNode("#2", "#3", {{50.0f, 22010}, {50.0f, 22011}}); // Action 22010, 22011
-    _aiModel.PushActionNode("#3", "#4", 22013); // Action 22013
-    _aiModel.PushActionNode("#4", "#3", {{15.0f, 22010}, {15.0f, 22011}, {70.0f, 22012}}); // Action 22010, 22011, 22012
+    EnemyAI& aiModel = GetEnemy().GetAIModel();
+    aiModel.PushActionNode("#1", "#2", {{50.0f, 22010}, {50.0f, 22011}}); // Action 22010, 22011
+    aiModel.PushActionNode("#2", "#3", {{50.0f, 22010}, {50.0f, 22011}}); // Action 22010, 22011
+    aiModel.PushActionNode("#3", "#4", 22013); // Action 22013
+    aiModel.PushActionNode("#4", "#3", {{15.0f, 22010}, {15.0f, 22011}, {70.0f, 22012}}); // Action 22010, 22011, 22012
 
     // Entry 노드 설정
-    _aiModel.SetCurrentNode("#1"); 
+    aiModel.SetCurrentNode("#1");
 }
 
 void EnemyPlayTurnState::BuildAIModel23011() 
 {
-    _aiModel.PushActionNode("#1", "#2", 22014); // Action 22014
-    _aiModel.PushActionNode("#2", "#3", {{25.0f, 22010}, {25.0f, 22011}, {50.0f, 22014}}); // Action 22010, 22011, 22014
-    _aiModel.PushActionNode("#3", "#4", 22013); // Action 22013
-    _aiModel.PushActionNode("#4", "#3", {{30.0f, 22011}, {70.0f, 22012}}); // Action 22011, 22012
+    EnemyAI& aiModel = GetEnemy().GetAIModel();
+    aiModel.PushActionNode("#1", "#2", 22014); // Action 22014
+    aiModel.PushActionNode("#2", "#3", {{25.0f, 22010}, {25.0f, 22011}, {50.0f, 22014}}); // Action 22010, 22011, 22014
+    aiModel.PushActionNode("#3", "#4", 22013); // Action 22013
+    aiModel.PushActionNode("#4", "#3", {{30.0f, 22011}, {70.0f, 22012}}); // Action 22011, 22012
 
     // Entry 노드 설정
-    _aiModel.SetCurrentNode("#1");
+    aiModel.SetCurrentNode("#1");
 }
 
 bool EnemyPlayTurnState::IsPlayerBleeding()
@@ -261,7 +269,8 @@ std::string_view EnemyPlayTurnState::GetActionName(int actionID) const
 
 void EnemyPlayTurnState::LogCurrentAction()
 {
-    int actionID = _aiModel.GetCurrentActionID();
+    EnemyAI& aiModel = GetEnemy().GetAIModel();
+    int actionID = aiModel.GetCurrentActionID();
     GameObject* gameObject = &GetFSM().gameObject;
     std::string message    = std::format("{} {}", gameObject->ToString(), GetActionName(actionID));
     UmLogger.Message(LogLevel::LEVEL_DEBUG, message);

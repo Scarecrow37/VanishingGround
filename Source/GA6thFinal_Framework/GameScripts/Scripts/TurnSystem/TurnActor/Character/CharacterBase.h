@@ -42,16 +42,21 @@ public:
     //int 남은 연격 수 유지 시간
     PROPERTY(ChainRoundCount)
 
+    GETTER_ONLY(int, StunResistance) { return GetStunResistance(); }
+    PROPERTY(StunResistance)
+
 private:
     int GetMaxHP();
     int GetHP();
     int GetChainCount();
     int GetChainRoundCount();
     int GetMaxChainRoundCount();
+    int GetStunResistance();
 
 public:
     virtual CharacterStats* GetCharacterStats() = 0;
 
+    virtual void ClearState() override;
     virtual void Revive() override;
     virtual void Dead() override;
     virtual void TakeDamage(int damage);

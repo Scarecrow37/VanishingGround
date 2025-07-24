@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "../CharacterBase.h"
 #include "Enum/EnemyEnum.h"
+#include "AI/EnemyAI.h"
 
 class EnemyStatsComponent;
 class FSMState;
@@ -36,6 +37,7 @@ public:
     virtual int GetSpeed() override;
 
 private:
+    EnemyAI _aiModel;
     EnemyStatsComponent* _enemyStats = nullptr;
 
 protected:
@@ -58,8 +60,9 @@ public:
     /*Enemy에게 피격을 가합니다.*/
     virtual void TakeDamage(int damage) override;
 
-    FiniteStateMachine& GetFSM() { return *_finiteStateMachine; }
-    const EnemyStates&  GetFSMStates() { return _fsmStates; }
+    inline EnemyAI&            GetAIModel() { return _aiModel; }
+    inline FiniteStateMachine& GetFSM() { return *_finiteStateMachine; }
+    inline const EnemyStates&  GetFSMStates() { return _fsmStates; }
 
     /*Enemy의 Stats을 반환합니다.*/
     EnemyStatsComponent* GetEnemyStats();

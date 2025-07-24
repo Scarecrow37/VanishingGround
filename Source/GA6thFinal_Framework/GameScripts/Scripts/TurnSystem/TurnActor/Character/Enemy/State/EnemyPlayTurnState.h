@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "Base/EnemyStateBase.h"
 #include "../Enum/EnemyEnum.h"
-#include "../AI/EnemyAI.h"
+
 
 namespace EnemyAction
 {
@@ -76,7 +76,6 @@ private:
     void LogCurrentAction();
 
 private:
-    EnemyAI _aiModel;
     Action* _previousAction = nullptr;
     Action* _currentAction  = nullptr;
     std::unordered_map<int, std::unique_ptr<Action>> _actionTable;

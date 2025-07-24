@@ -9,11 +9,19 @@ TurnActor::TurnActor()
 }
 TurnActor::~TurnActor() = default;
 
+void TurnActor::ClearState() 
+{
+}
+
 void TurnActor::PlayTurn() 
 {
     if (_currState == STATE::Wait)
     {
         _currState = STATE::Play;
+    }
+    else if (_currState == STATE::Skip)
+    {
+        _currState = STATE::Wait;
     }
 }
 
@@ -35,10 +43,6 @@ void TurnActor::Dead()
 
 void TurnActor::EndTurn() 
 {
-    if (_currState == STATE::Play)
-    {
-        _currState = STATE::Wait;
-    }
 }
 
 void TurnActor::Awake() 

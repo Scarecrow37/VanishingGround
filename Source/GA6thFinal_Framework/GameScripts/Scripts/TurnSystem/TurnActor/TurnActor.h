@@ -24,6 +24,8 @@ public:
         Wait,
         // 액터가 턴을 진행중인 상태입니다.
         Play,
+        // 액터가 턴을 스킵하는 상태입니다.
+        Skip,
     };
 
 public:
@@ -39,6 +41,11 @@ public:
     virtual ~TurnActor();
 
 public:
+    /// <summary>
+    /// 액터를 초기 상태로 되돌립니다.
+    /// </summary>
+    virtual void ClearState();
+
     /// <summary>
     /// 현재 엑터의 상태를 반환합니다.
     /// </summary>
