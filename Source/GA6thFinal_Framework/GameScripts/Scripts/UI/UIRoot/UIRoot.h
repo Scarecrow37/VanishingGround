@@ -14,6 +14,12 @@ protected:
     REFLECT_FIELDS_END(UIRoot)
 
     void OnAttachChild(GameObject* childGameObject) override;
+    void OnDetachParent(GameObject* previousParentGameObject) override;
+    void ImGuiDrawPropertysEvent() override;
+    void OnPlacementChange() override;
+
+private:
+    void GetSizeFromViewport();
 };
 
 class UIRootSlot : public PanelSlotComponent

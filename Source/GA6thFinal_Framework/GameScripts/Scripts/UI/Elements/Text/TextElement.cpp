@@ -18,6 +18,7 @@ TextElement::TextElement()
                         ReflectFields->Guid = _guidRef.string();
                         UmSceneManager.ResourceManager.RequestFontResource(this, _guidRef, [this]() {
                             LoadFont();
+                            PassProperty();
                         });
                     }
                 }

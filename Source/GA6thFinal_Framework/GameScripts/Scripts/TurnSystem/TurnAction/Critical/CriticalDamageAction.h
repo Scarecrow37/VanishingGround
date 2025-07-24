@@ -30,7 +30,7 @@ protected:
     void ImGuiDrawActionEditor() override;
     void DeserializedReflectEvent() override;
 
-    void OnPlayerBattleStart (Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats, Enemy& target,
+    void OnPlayerBattleStart(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats, Enemy& target,
                              EnemyStats& targetStats) override;
 
     void OnEnemyBattleStart(Enemy& attacker, EnemyStats& attackerStats, Player& target,

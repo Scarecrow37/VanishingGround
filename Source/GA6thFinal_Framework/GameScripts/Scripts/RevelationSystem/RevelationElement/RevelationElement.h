@@ -38,6 +38,10 @@ public:
     GETTER(RevelationGrade, Grade) { return ReflectFields->Grade; }
     PROPERTY(Grade)
 
+    GETTER(int, RevelationID) { return ReflectFields->ID; }
+    SETTER(int, RevelationID) { ReflectFields->ID = std::clamp(value, 0, std::numeric_limits<int>::max()); }
+    PROPERTY(RevelationID)
+
     /*액션 존재 여부를 반환합니다.*/
     bool IsAction() const { return _action != nullptr; }
 
@@ -46,6 +50,7 @@ public:
 
 protected:
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
+    int             ID          = 0;
     std::string     ElementName = STR_NULL;
     RevelationGrade Grade       = RevelationGrade::COMMON;
     std::string     ActionName  = STR_NULL; 
