@@ -72,7 +72,7 @@ void AdditionalDamageAction::OnPlayerBattleCalculateDamageModifier(Player& attac
         int   additionalDamage                   = AdditionalDamage;
         float additionalDamageMultiplier         = AdditionalDamageMultiplier;
         int   additionalCriticalDamage           = AdditionalCriticalDamage;
-        int   additionalCriticalDamageMultiplier = AdditionalCriticalDamageMultiplier;
+        float additionalCriticalDamageMultiplier = AdditionalCriticalDamageMultiplier;
 
         std::string msg = std::format("[{}{} / x{}] [{}{} / x{}]{}", 
             (const char*)u8"플레이어의 데미지 ", additionalDamage,additionalDamageMultiplier, 
