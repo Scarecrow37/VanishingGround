@@ -43,6 +43,7 @@ Application::Application()
     AddModule<EngineCoresModule>();
     _imguiDX12Module = AddModule<ImGuiDX12Module>();
     _filesystemModule = AddModule<FileSystemModule>();
+    _audioModule      = AddModule<AudioModule>();
     AddModule<GraphicsModule>();
 }
 

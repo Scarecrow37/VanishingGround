@@ -39,6 +39,9 @@ void XM_CALLCONV DrawQuad(DirectX::PrimitiveBatch<DirectX::VertexPositionColor>*
                           DirectX::FXMVECTOR pointB, DirectX::FXMVECTOR pointC, DirectX::GXMVECTOR pointD,
                           DirectX::HXMVECTOR color = DirectX::Colors::White);
 
+void XM_CALLCONV DrawLine(DirectX::PrimitiveBatch<DirectX::VertexPositionColor>* batch, DirectX::FXMVECTOR pointA,
+                          DirectX::FXMVECTOR pointB, DirectX::FXMVECTOR color = DirectX::Colors::White);
+
 void XM_CALLCONV DrawSpotLight(DirectX::PrimitiveBatch<DirectX::VertexPositionColor>* batch,
                                DirectX::FXMVECTOR position, DirectX::FXMVECTOR direction, float range, float innerCone,
                                float outerCone, size_t numSegments = 24,

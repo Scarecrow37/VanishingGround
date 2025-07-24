@@ -75,3 +75,27 @@ __callback LONG WINAPI CustomUnhandledExceptionFilter(_In_ _EXCEPTION_POINTERS* 
 #endif
     return EXCEPTION_EXECUTE_HANDLER;
 }
+
+std::string GetMessageFromLastError::operator()() const {
+    const DWORD errorCode = GetLastError();
+    return operator()(errorCode);
+}
+
+std::string GetMessageFromLastError::operator()(const DWORD errorCode) const
+{
+    LPVOID lpMsgBuf;
+    FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr,
+                  errorCode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), reinterpret_cast<LPWSTR>(&lpMsgBuf), 0,
+                  nullptr);
+    const std::wstring errorMessage(static_cast<LPWSTR>(lpMsgBuf));
+    LocalFree(lpMsgBuf);
+    return WStringToU8(errorMessage);
+}
+
+std::string GetMessageFromLastError::operator()(DWORD* outErrorCode) const
+{
+    const DWORD errorCode = GetLastError();
+    if (nullptr != outErrorCode)
+        *outErrorCode = errorCode;
+    return operator()(errorCode);
+}

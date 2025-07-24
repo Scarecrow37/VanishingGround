@@ -34,7 +34,6 @@ void CriticalDamageAction::ImGuiDrawActionEditor()
         setting._float.format = "%.1f";
         return setting;
     }();
-    ImGui::Separator();
     ImGui::Text("Action");
     ImGuiDrawPropertys(setting);
     ImGui::Separator();

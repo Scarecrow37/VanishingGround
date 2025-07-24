@@ -185,15 +185,6 @@ bool EComponentFactory::InitalizeComponentFactory()
             {
                 newComponent->DeserializedReflectFields(reflectData); // 데이터 복구
             }          
-            if (Component::TYPE::CAMERA == newComponent->_type)
-            {
-                CameraComponent* camera = static_cast<CameraComponent*>(newComponent.get());
-                if (camera->GetCamera() == nullptr)
-                {
-                    std::shared_ptr<Camera> newCamera{new Camera};
-                    camera->SetTarget(newCamera);
-                }
-            }
             newComponent->UpdateEnableInHierarchy();
         }     
     }
@@ -530,10 +521,16 @@ void EComponentFactory::ResetComponent(GameObject* ownerObject, std::shared_ptr<
     component->_gameObject = ownerObject;
     component->_weakPtr = component;
     component->Reset();
-    if (Component::TYPE::RENDER == component->GetType())
+    if (Component::TYPE::MESH == component->GetType())
     {
         MeshComponent* meshComponent = static_cast<MeshComponent*>(component.get());
         ESceneManager::Engine::PushRuntimeMeshComponent(meshComponent);
+    }
+    else if (component->_type == Component::TYPE::CAMERA)
+    {
+        CameraComponent* camera = static_cast<CameraComponent*>(component.get());
+        std::shared_ptr<Camera> newCamera(new Camera);
+        camera->SetTarget(newCamera);
     }
     //end
 }
