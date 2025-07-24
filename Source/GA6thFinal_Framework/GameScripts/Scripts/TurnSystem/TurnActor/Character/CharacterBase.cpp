@@ -129,6 +129,7 @@ void CharacterBase::Dead()
     {
         stats->CurrentHP = 0;
     }
+    _tokenInventory.NotifyDead();
 }
 
 void CharacterBase::TakeDamage(int damage) 
@@ -237,12 +238,6 @@ void CharacterBase::OnHit()
 {
     Base::OnHit();
     _tokenInventory.NotifyHit();
-}
-
-void CharacterBase::OnDead() 
-{
-    Base::OnDead();
-    _tokenInventory.NotifyDead();
 }
 
 void CharacterBase::OnKill(CharacterBase* destination) 
