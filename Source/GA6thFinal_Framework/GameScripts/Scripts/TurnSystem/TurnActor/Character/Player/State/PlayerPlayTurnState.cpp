@@ -6,7 +6,7 @@
 #include <TurnSystem/TurnMode/TurnMode.h>
 #include <TurnSystem/TurnMode/State/CombatStartPhase.h>
 #include <WeaponSystem/WeaponSystem.h>
-#include <Mesh/SkeletalMeshRenderer.h>
+#include <Animation/AnimationComponent.h>
 
 using namespace u8_literals;
 
@@ -296,21 +296,21 @@ void PlayerPlayTurnState::PushAttackTarget(AttackTarget target)
 void PlayerPlayTurnState::SetAttackReadyAnimation()
 {
     Player& player = GetPlayer();
-    SkeletalMeshRenderer* renderer = player.GetSkeletalMeshRenderer();
+    auto* renderer = player.GetAnimationComponent();
     if (renderer)
     {
         renderer->BeginBuildOverrideAnimation();
         renderer->ClearOverrideAnimations();
         {
-            const char*   animKey   = player.GetAnimationName(CharacterBase::ATTACK_READY_LOOP);
+            const char* animKey = player.GetAnimationName(CharacterBase::ATTACK_READY_LOOP);
             renderer->PushOverrideAnimation(animKey, true);
-            renderer->SetCurrentAnimationFlags(ANIMATION_FLAG_USE_LOOP);
+            renderer->ChangeCurrentAnimationFlags(ANIMATION_FLAG_USE_LOOP);
         }
         {
 
-            const char*   animKey   = player.GetAnimationName(CharacterBase::ATTACK_READY);
+            const char* animKey = player.GetAnimationName(CharacterBase::ATTACK_READY);
             renderer->PushOverrideAnimation(animKey, true, [](const AnimationData& data) { return data.IsEnd(); });
-            renderer->SetCurrentAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE);
+            renderer->ChangeCurrentAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE);
         }
         renderer->EndBuildOverrideAnimation();
     }
@@ -318,21 +318,21 @@ void PlayerPlayTurnState::SetAttackReadyAnimation()
 
 void PlayerPlayTurnState::SetAttackAnimation()
 {
-    Player&               player   = GetPlayer();
-    SkeletalMeshRenderer* renderer = player.GetSkeletalMeshRenderer();
+    Player& player   = GetPlayer();
+    auto*   renderer = player.GetAnimationComponent();
     if (renderer)
     {
         renderer->BeginBuildOverrideAnimation();
         renderer->ClearOverrideAnimations();
         {
-            const char*   animKey   = player.GetAnimationName(CharacterBase::ATTACK_LOOP);
+            const char* animKey = player.GetAnimationName(CharacterBase::ATTACK_LOOP);
             renderer->PushOverrideAnimation(animKey, true);
-            renderer->SetCurrentAnimationFlags(ANIMATION_FLAG_USE_LOOP);
+            renderer->ChangeCurrentAnimationFlags(ANIMATION_FLAG_USE_LOOP);
         }
         {
-            const char*   animKey   = player.GetAnimationName(CharacterBase::ATTACK);
+            const char* animKey = player.GetAnimationName(CharacterBase::ATTACK);
             renderer->PushOverrideAnimation(animKey, true, [](const AnimationData& data) { return data.IsEnd(); });
-            renderer->SetCurrentAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE);
+            renderer->ChangeCurrentAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE);
         }
         renderer->EndBuildOverrideAnimation();
     }
@@ -340,22 +340,21 @@ void PlayerPlayTurnState::SetAttackAnimation()
 
 void PlayerPlayTurnState::SetAttackEndAnimation() 
 {
-    Player&               player   = GetPlayer();
-    SkeletalMeshRenderer* renderer = player.GetSkeletalMeshRenderer();
+    Player& player   = GetPlayer();
+    auto*   renderer = player.GetAnimationComponent();
     if (renderer)
     {
         renderer->BeginBuildOverrideAnimation();
         renderer->ClearOverrideAnimations();
         {
             const char* animKey = player.GetAnimationName(CharacterBase::IDLE);
-            renderer->SetMainAnimation(animKey);
-            renderer->SetMainAnimationFlags(ANIMATION_FLAG_USE_LOOP);
+            renderer->ChangeMainAnimation(animKey);
+            renderer->ChangeMainAnimationFlags(ANIMATION_FLAG_USE_LOOP);
         }
         {
-            AnimationFlags flags  = ANIMATION_FLAG_ALWAYS_UPDATE;
             const char*   animKey = player.GetAnimationName(CharacterBase::ATTACK_END);
             renderer->PushOverrideAnimation(animKey, true, [](const AnimationData& data) { return data.IsEnd(); });
-            renderer->SetCurrentAnimationFlags(flags);
+            renderer->ChangeCurrentAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE);
         }
         renderer->EndBuildOverrideAnimation();
     }

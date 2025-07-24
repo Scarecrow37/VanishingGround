@@ -1,8 +1,9 @@
 ﻿#pragma once
-#include "Animation/Structs/AnimationStructs.h"
+#include "Animation/Structs/AnimationData.h"
 
 class Enemy;
 class SkeletalMeshRenderer;
+class AnimationComponent;
 class CharacterBase;
 
 namespace EnemyAction
@@ -24,11 +25,9 @@ namespace EnemyAction
     protected:
         void ProcessBattle();
 
-        void SetMainAnimation(int animType, bool loop = true, bool blend = true);
-        bool IsAnimationEnd();
-
     protected:
         Enemy* _owner = nullptr;
-        SkeletalMeshRenderer* _renderer = nullptr;
+        AnimationComponent* _animator = nullptr;
+
     };
 } // namespace Enemy
