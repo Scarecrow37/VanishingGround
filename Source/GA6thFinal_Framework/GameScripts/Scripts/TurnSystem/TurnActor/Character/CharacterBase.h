@@ -41,9 +41,6 @@ public:
     //int 남은 연격 수 유지 시간
     PROPERTY(ChainRoundCount)
 
-protected:
-    virtual CharacterStats* GetCharacterStats() = 0;
-
 private:
     int GetMaxHP();
     int GetHP();
@@ -52,6 +49,8 @@ private:
     int GetMaxChainRoundCount();
 
 public:
+    virtual CharacterStats* GetCharacterStats() = 0;
+
     virtual void Revive() override;
     virtual void Dead() override;
     virtual void TakeDamage(int damage);
