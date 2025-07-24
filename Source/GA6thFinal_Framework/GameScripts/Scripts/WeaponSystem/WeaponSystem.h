@@ -24,10 +24,33 @@ public:
     PROPERTY(CurrentWeaponSlot)
 
     /// <summary>
+    /// 장착된 무기의 원본 Stats을 인덱스로 반환합니다.
+    /// </summary>
+    /// <param name="index"></param>
+    /// <returns></returns>
+    WeaponStats& GetWeaponStatsAtIndex(int index) 
+    { 
+        static WeaponStats null = []() {
+            WeaponStats nullSword;
+            nullSword.SetName(STR_NULL);
+            return nullSword;
+        }();
+        try
+        {
+            return _equipWeapons.at(index);
+        }
+        catch (const std::exception&)
+        {
+            UmLogger.Log(LogLevel::LEVEL_ERROR, "out of index!");
+        }
+        return null;
+    }
+
+    /// <summary>
     /// 현재 사용중인 무기의 Stats을 반환합니다.
     /// </summary>
     /// <returns></returns>
-    const WeaponStats& GetCurrentWeaponStats() { return _equipWeapons[_currentWeaponSlot]; }
+    WeaponStats& GetCurrentWeaponStats() { return _equipWeapons[_currentWeaponSlot]; }
 
     /// <summary>
     /// 무기를 slot에 장착합니다.
