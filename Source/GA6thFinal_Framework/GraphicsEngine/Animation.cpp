@@ -49,6 +49,7 @@ void Animation::LoadAnimation(const aiScene* scene)
                                            track.Positions.back().first, 
                                            animation.LastTime});
 		}
+
 		_animations[anim->mName.C_Str()] = animation;
 	}
 

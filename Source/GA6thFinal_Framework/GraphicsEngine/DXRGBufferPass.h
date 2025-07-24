@@ -4,16 +4,13 @@
 class BaseMesh;
 class DXRGBufferPass : public RenderPass
 {
-    enum
-    {
-        STATIC,
-        SKELETAL
-    };
     enum MeshType
     {
-        STATIC_ONE_SIDED,
+        STATIC_CULL_BACK,
+        STATIC_CULL_FRONT,
         STATIC_TWO_SIDED,
-        SKELETAL_ONE_SIDED,
+        SKELETAL_CULL_BACK,
+        SKELETAL_CULL_FRONT,
         SKELETAL_TWO_SIDED,
         END
     };

@@ -35,6 +35,5 @@ public:
 private:
     File::GuidRef _guidRef;
     REFLECT_FIELDS_BEGIN(MeshComponent)
-    std::string Guid = "";
     REFLECT_FIELDS_END(SkeletalMeshRenderer)
 };

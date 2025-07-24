@@ -31,12 +31,24 @@ public:
     /// </summary>
     /// <param name="renderType"></param>
     /// <param name="world"></param>
-    void MakeMeshRenderer(MeshRenderType renderType, const Matrix& world);
+    void MakeMeshRenderer(MeshType renderType, const Vector3& position, const Vector3& scale, const Quaternion& rotation, const Matrix& world);
 
     //meshRenderer 입니다. MakeMeshRenderer를 호출해야만 생성됩니다.
     const std::unique_ptr<MeshRenderer>& Renderer;
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)
+    std::string               Guid;
+    std::vector<unsigned int> ShadingModel;
+    std::vector<unsigned int> BlendMode;
+    std::vector<unsigned int> CullMode;
+    std::vector<unsigned int> CustomDepth;
+    std::vector<bool>         IsTwoSided;
     REFLECT_FIELDS_END(MeshComponent)
+
+protected:
+    void ImGuiDrawPropertysEvent() override;
+
+protected:
+    void InitMaterial();
 };
