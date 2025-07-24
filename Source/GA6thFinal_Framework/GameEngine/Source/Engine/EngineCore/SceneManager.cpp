@@ -1055,7 +1055,7 @@ void ESceneManager::ObjectsAddRuntime()
 
     for (auto& component : _addComponentsQueue)
     {
-        EComponentFactory::Engine::PushBackComponentToObject(component, true);
+        EComponentFactory::Engine::PushBackComponentToObject(component);
         if (_isPlay)
         {
             _waitAwakeVec.push_back(component);
