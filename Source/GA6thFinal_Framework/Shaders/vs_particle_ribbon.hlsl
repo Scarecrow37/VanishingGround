@@ -44,25 +44,6 @@ VSOutput vs_main(VSInput input)
     VSOutput o = (VSOutput) 0;
     int totalcount = bit32_1_ribbonVertexCount.count / 2;
 
-    //uint current_idx = input.vertexID / 2;
-    //uint next_idx = min(current_idx + 1, totalcount - 1);
-
-    //uint particleIndex = ribbonIndices[current_idx];
-    //uint particleIndexNext = ribbonIndices[next_idx];
-
-    //ParticleOutput p = particleInfo[particleIndex];
-    //ParticleOutput np = particleInfo[particleIndexNext];
-
-    //float3 pos_curr = p.position.xyz;
-    //float3 pos_next = np.position.xyz;
-
-    //float3 progressDir = pos_next - pos_curr;
-    //progressDir = length(progressDir) < 0.00001f ? float3(1,0,0) : progressDir;
-
-    //float3 ribbonUp = normalize(p.paddings);
-    //float3 offsetvector;
-
-    //offsetvector = normalize(cross(normalize(progressDir), ribbonUp));
     uint current_idx = input.vertexID / 2;
     uint particleIndex = ribbonIndices[current_idx];
     ParticleOutput p = particleInfo[particleIndex];

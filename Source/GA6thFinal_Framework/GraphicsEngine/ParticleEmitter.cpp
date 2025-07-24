@@ -348,8 +348,6 @@ void ParticleEmitter::Initialize(SIZE_T maxParticles /*= 100000*/, float emissio
     }
 
     _particleRenderModule->SetModelAndTexturePath(meshspritePath);
-    //_particleRenderModule->Initialize();
-
 
     _locationType = locatorShape;
     switch (_locationType)

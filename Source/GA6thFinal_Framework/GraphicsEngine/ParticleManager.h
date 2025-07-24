@@ -79,24 +79,6 @@ private:
     void CreateUAVBuffer(ComPtr<ID3D12Resource>& resource, UINT bufferSize, UINT stride);
     void CreateConstantBuffer(ComPtr<ID3D12Resource>& resource, UINT bufferSize);
 
-
-    //void CopyActiveParticles();
-    //void CopyActiveParticlesEditorMode();
-
-    //void DispatchParticleCompute(float deltaTime);
-    //void DispatchRibbonCompute(float deltaTime);
-
-    //void UpdateParticleResources(float deltaTime);
-    //void CopyFromUploadBuffer();
-
-    //void DispatchParticleComputeEditorMode(float deltaTime);
-    //void DispatchRibbonComputeEditorMode(float deltaTime);
-    //void UpdateParticleResourcesEditorMode(float deltaTime);
-    //void CopyFromUploadBufferEditorMode();
-
-    //
-    
-
     void AwakeParticles(float deltaTime, ParticleUpdateResource* targetScene);
     void DispatchSprite(float deltaTime, std::string sceneName);
     void DispatchRibbon(float deltaTime, std::string sceneName);
@@ -129,51 +111,9 @@ private:
     ComPtr<ID3D12DescriptorHeap> _cbvSrvUavHeap;
     UINT                         _descriptorSize;
 
-    //// 리소스 버퍼
-    //ComPtr<ID3D12Resource> _particleInputBuffer;  // 입력 파티클 데이터 (SRV - t0)
-    //ComPtr<ID3D12Resource> _emitterInfoBuffer;    // 에미터 정보 (SRV - t1)
-    //ComPtr<ID3D12Resource> _particleOutputBuffer; // 출력 파티클 데이터 (UAV - u0)
-    //ComPtr<ID3D12Resource> _mvpConstantBuffer;    // MVP 상수 버퍼 (CBV - b0)
-    //ComPtr<ID3D12Resource> _particleInputUploadBuffer;
-    //ComPtr<ID3D12Resource> _emitterInfoUploadBuffer;
-    //ComPtr<ID3D12Resource> _editorParticleInputBuffer; // 입력 파티클 데이터 (SRV - t0)
-    //ComPtr<ID3D12Resource> _editorEmitterInfoBuffer;   // 에미터 정보 (SRV - t1)
-    //ComPtr<ID3D12Resource> _editorOutputBuffer;        // 출력 파티클 데이터 (UAV - u0)
-    //ComPtr<ID3D12Resource> _editorMvpConstantBuffer;   // MVP 상수 버퍼 (CBV - b0)
-    //ComPtr<ID3D12Resource> _editorParticleInputUploadBuffer;
-    //ComPtr<ID3D12Resource> _editorEmitterInfoUploadBuffer;
-    //ComPtr<ID3D12Resource> _gameViewOutputBuffer;        // 출력 파티클 데이터 (UAV - u0)
-    //ComPtr<ID3D12Resource> _gameViewMvpConstantBuffer;   // MVP 상수 버퍼 (CBV - b0)
-
-    //ComPtr<ID3D12Resource> _ribbonParticleInputBuffer;  // 입력 파티클 데이터 (SRV - t0)
-    //ComPtr<ID3D12Resource> _ribbonParticleInputUploadBuffer;
-
-    //ComPtr<ID3D12Resource> _ribbonEmitterInfoBuffer;    // 에미터 정보 (SRV - t1)
-    //ComPtr<ID3D12Resource> _ribbonEmitterInfoUploadBuffer;
-
-    //ComPtr<ID3D12Resource> _ribbonMvpConstantBuffer;    // MVP 상수 버퍼 (CBV - b0)
-
-    //ComPtr<ID3D12Resource> _ribbonParticleOutputBuffer; // 출력 파티클 데이터 (UAV - u0)
-
-    //ComPtr<ID3D12Resource> _ribbonGameViewOutputBuffer;      // 출력 파티클 데이터 (UAV - u0)
-    //ComPtr<ID3D12Resource> _ribbonGameViewMvpConstantBuffer; // MVP 상수 버퍼 (CBV - b0)
-
-
-    //ComPtr<ID3D12Resource> _ribbonEditorParticleInputBuffer; // 입력 파티클 데이터 (SRV - t0)
-    //ComPtr<ID3D12Resource> _ribbonEditorEmitterInfoBuffer;   // 에미터 정보 (SRV - t1)
-    //ComPtr<ID3D12Resource> _ribbonEditorOutputBuffer;        // 출력 파티클 데이터 (UAV - u0)
-    //ComPtr<ID3D12Resource> _ribbonEditorMvpConstantBuffer;   // MVP 상수 버퍼 (CBV - b0)
-    //ComPtr<ID3D12Resource> _ribbonEditorParticleInputUploadBuffer;
-    //ComPtr<ID3D12Resource> _ribbonEditorEmitterInfoUploadBuffer;
-
-
 
     void RefreshCurrentEditorEffect();
     bool _editorRefreshFlag = false;
-
-
-
-
 
 private:
     UINT _currentBufferIndex;
