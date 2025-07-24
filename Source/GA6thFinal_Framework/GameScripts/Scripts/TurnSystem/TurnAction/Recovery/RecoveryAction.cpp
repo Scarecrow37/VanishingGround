@@ -6,11 +6,13 @@
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
 #include <Stats/CharacterStats.h>
 
+REGISTER_TURN_ACTION(RecoveryAction)
+
 using namespace u8_literals;
 
 RecoveryAction::RecoveryAction() 
 {
-
+    UpdateActionInfo();
 }
 
 const std::string& RecoveryAction::GetActionName()
@@ -112,6 +114,11 @@ void RecoveryAction::OnEnemyDead(Enemy& enemy)
     }
 }
 
+void RecoveryAction::DeserializedReflectEvent() 
+{
+    UpdateActionInfo();
+}
+
 void RecoveryAction::UpdateActionInfo()
 {
     TriggerType trigger = Trigger;
@@ -149,7 +156,9 @@ void RecoveryAction::UpdateActionInfo()
     }
     _actionInfo = triggerName;
     _actionInfo += targetName;
+    _actionInfo += (const char*)u8" 체력";
+    _actionInfo += " ";
     std::string recoveryHP = std::to_string(ReflectFields->RecoveryHP);
     _actionInfo += recoveryHP;
-    _actionInfo += (const char*)u8"의 체력 회복";
+    _actionInfo += (const char*)u8" 회복";
 }

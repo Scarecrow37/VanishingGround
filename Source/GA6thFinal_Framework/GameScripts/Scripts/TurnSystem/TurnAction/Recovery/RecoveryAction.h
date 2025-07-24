@@ -61,6 +61,7 @@ private:
     const std::string& GetActionInfo() override;
     void               ImGuiDrawActionEditor() override;
     void               OnEnemyDead(Enemy& enemy) override;
+    void               DeserializedReflectEvent() override;
     void               UpdateActionInfo();
     std::string        _actionInfo;
 };
