@@ -8,8 +8,11 @@ void GridPanel::OnAttachChild(GameObject* childGameObject)
     EditablePlacementUIComponent::OnAttachChild(childGameObject);
     auto& slot = childGameObject->AddComponent<GridPanelSlot>();
     slot.SetColumnsAndRows(ReflectFields->Columns, ReflectFields->Rows);
-    slot.SetPlacement(ReflectFields->Basefields.get().Basefields.get().Point,
-                      ReflectFields->Basefields.get().Basefields.get().Size);
+    POINT point = ReflectFields->Basefields.get().Basefields.get().Point;
+    auto [x, y] = ReflectFields->Basefields.get().Basefields.get().ScopePoint;
+    point.x += x;
+    point.y += y;
+    slot.SetPlacement(point, ReflectFields->Basefields.get().Basefields.get().Size);
 }
 
 void GridPanel::DrawDebug()
