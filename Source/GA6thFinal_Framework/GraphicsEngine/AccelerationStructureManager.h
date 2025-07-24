@@ -23,11 +23,11 @@ public:
     // 프레임 단위로 호출
     void BeginFrame();
     void SubmitInstance(MeshRenderer* renderer);
-    void EndFrame();
+    void EndFrame(ID3D12GraphicsCommandList4* cmdList);
 
     // blas 필요없는 static mesh 제거용
     void RemoveUnUsedStaticMeshes(const std::vector<MeshRenderer*>& liveStatics);
-    
+    void ProcessGarbage();
     // getter
     const AccelerationStructureBuffers& GetTopLevel() const { return *_topLevelBuffers; }
     const DescriptorHandles&            GetTopLevelSRV() const { return _topLevelBuffersSRV; }

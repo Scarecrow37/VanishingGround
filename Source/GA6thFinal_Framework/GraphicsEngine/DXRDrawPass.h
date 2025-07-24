@@ -31,4 +31,6 @@ private:
 
     std::vector<VertexBufferID> _vertexBufferIDs;
     std::vector<IndexBufferID>  _indexBufferIDs;
+    ComPtr<ID3D12GraphicsCommandList> _commandList;
+    ComPtr<ID3D12CommandAllocator>    _commandAllocator;
 };

@@ -14,6 +14,7 @@
 #include "ShaderConfig.h"
 #include "SkyBox.h"
 #include "d3dUtil.h"
+#include "CommandSet.h"
 
 DXRDrawPass::~DXRDrawPass() {}
 
@@ -26,9 +27,7 @@ void DXRDrawPass::Initialize(RenderScene* ownerScene, ID3D12GraphicsCommandList*
 
 void DXRDrawPass::Begin(ID3D12GraphicsCommandList* commandList)
 {
-    CreateShaderTable();
     UINT currentBackBufferIndex = _ownerScene->_currentFrameIndex;
-    _ownerScene->_accelerationStructureManager->RemoveUnUsedStaticMeshes(_ownerScene->_staticMesh);
     UpdateStaticMeshVIBufferID(commandList);
 }
 
@@ -38,16 +37,33 @@ void DXRDrawPass::Draw(ID3D12GraphicsCommandList* commandList)
     {
         _ownerScene->_accelerationStructureManager->SubmitInstance(renderer);
     }
+ /*   auto                              commandlist  = Global::device->GetCommandList();
+    ComPtr<ID3D12GraphicsCommandList4> commandList4;
+    HRESULT                            hr = commandlist->QueryInterface(IID_PPV_ARGS(commandList4.GetAddressOf()));
+    FAILED_CHECK_MESSAGE(hr, L"DXRDrawPass::Draw() failed to get ID3D12GraphicsCommandList4 interface");*/
 
-    _ownerScene->_accelerationStructureManager->EndFrame();
+    ComPtr<ID3D12GraphicsCommandList4> commandList4;
+    auto                               computeList = Global::device->GetComputeCommandList();
+    HRESULT                            hr = computeList->QueryInterface(IID_PPV_ARGS(commandList4.GetAddressOf()));
+    FAILED_CHECK_MESSAGE(hr, L"DXRDrawPass::Draw() failed to get ID3D12GraphicsCommandList4 interface");
+    
+
+
+    _ownerScene->_accelerationStructureManager->EndFrame(commandList4.Get());    
+
+    computeList->Close();
+    Global::commandController->ExecuteCommand(CommandQueueType::COMPUTE_QUEUE, computeList);
+    Global::device->_computeCommandList->Reset(Global::device->_computeCommandAllocator.Get(), nullptr);
+
+    //commandlist->Close();
+    //Global::commandController->ExecuteCommand(CommandQueueType::GRAPHICS_QUEUE, commandlist);
+    //
+    //Global::device->ResetGraphicsCommnad();
+    CreateShaderTable();
 }
 
 void DXRDrawPass::End(ID3D12GraphicsCommandList* commandList)
 {
-    UINT  currentBackBufferIndex = Global::device->GetCurrentBackBufferIndex();
-    auto  resource               = Global::viewManager->GetShaderResourceHeap()->GetGPUDescriptorHandleForHeapStart();
-    auto  cameraData             = _ownerScene->_cameraBuffer->GetGPUVirtualAddress();
-    auto& frameResource          = _ownerScene->_frameResources[currentBackBufferIndex];
     WriteCommand(commandList);
 }
 

@@ -65,27 +65,36 @@ void AccelerationStructureManager::SubmitInstance(MeshRenderer* renderer)
     }
 }
 
-void AccelerationStructureManager::EndFrame()
+void AccelerationStructureManager::EndFrame(ID3D12GraphicsCommandList4* cmdList)
 {
     ComPtr<ID3D12Device5>              device  = Global::device->GetDevice5();
-    ComPtr<ID3D12GraphicsCommandList4> cmdList = Global::device->GetCommandList4();
+    
     for (auto& inst : _pendingInstances)
     {
         if (AsBuildClass::STATICBLAS == inst.BuildClass)
         {
             auto& mesh  = inst.key;
             auto& cache = _staticBlasMap[mesh];
-                BuildOrUpdateStaticBLAS(device.Get(), cmdList.Get(), mesh, cache);
+            //auto                               commandlist = Global::device->GetCommandList();
+            //ComPtr<ID3D12GraphicsCommandList4> commandList4;
+            //HRESULT hr = commandlist->QueryInterface(IID_PPV_ARGS(commandList4.GetAddressOf()));
+            //FAILED_CHECK_MESSAGE(hr, L"DXRDrawPass::Draw() failed to get ID3D12GraphicsCommandList4 interface");
+
+            BuildOrUpdateStaticBLAS(device.Get(), cmdList, mesh, cache);
+    /*        commandlist->Close();
+            Global::commandController->ExecuteCommand(CommandQueueType::GRAPHICS_QUEUE, commandlist);
+
+            Global::device->ResetGraphicsCommnad();*/
         }
         else
         {
             std::shared_ptr<AccelerationStructureBuffers> buf;
-            BuildDynamicBLAS(device.Get(), cmdList.Get(), inst.Renderer, buf);
+            BuildDynamicBLAS(device.Get(), cmdList, inst.Renderer, buf);
             _dynamicBlas.push_back(buf);
         }
     }
 
-    BuildOrUpdateTLAS(device.Get(), cmdList.Get());
+    BuildOrUpdateTLAS(device.Get(), cmdList);
 }
 
 void AccelerationStructureManager::RemoveUnUsedStaticMeshes(const std::vector<MeshRenderer*>& liveStatics)
@@ -105,7 +114,9 @@ void AccelerationStructureManager::RemoveUnUsedStaticMeshes(const std::vector<Me
         if (live.contains(iter->first))
             ++iter;
         else
+        {
             iter = _staticBlasMap.erase(iter);
+        }
     }
 }
 
@@ -252,12 +263,12 @@ void AccelerationStructureManager::BuildOrUpdateTLAS(ID3D12Device5* device, ID3D
     const UINT instByteSize = static_cast<UINT>(inst.size() * sizeof(D3D12_RAYTRACING_INSTANCE_DESC));
     if (instCount > 0)
     {
+        // Upload 버퍼 크기 확인 및 재할당
         if (!_instanceUpload || _instanceUpload->GetDesc().Width < instByteSize)
         {
-            Global::device->CreateUploadBuffer(instByteSize, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_GENERIC_READ,
-                                        _instanceUpload);
+            Global::device->CreateUploadBuffer(instByteSize, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_GENERIC_READ, _instanceUpload);
         }
-
+        // CPU 데이터를 Upload 버퍼에 복사
         void* data = nullptr;
         _instanceUpload->Map(0, nullptr, &data);
         memcpy(data, inst.data(), instByteSize);
@@ -268,7 +279,7 @@ void AccelerationStructureManager::BuildOrUpdateTLAS(ID3D12Device5* device, ID3D
     inputs.Type          = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL;
     inputs.DescsLayout   = D3D12_ELEMENTS_LAYOUT_ARRAY;
     inputs.NumDescs      = instCount;
-    inputs.InstanceDescs = (instCount>0)?_instanceUpload->GetGPUVirtualAddress() : 0;
+    inputs.InstanceDescs = (instCount > 0) ? _instanceUpload->GetGPUVirtualAddress() : 0;
     inputs.Flags         = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_BUILD;
 
     D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO info;

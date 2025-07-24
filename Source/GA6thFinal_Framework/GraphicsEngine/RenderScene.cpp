@@ -128,7 +128,10 @@ void RenderScene::UpdateRenderScene()
     UpdateObject();
     UpdateUI();
     UpdateFont();
-
+    if (Global::renderer->_isRaytracing)
+    {
+        _accelerationStructureManager->RemoveUnUsedStaticMeshes(_staticMesh);
+    }
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::TRANSFORM, _worldMatrices.data(), (UINT)_worldMatrices.size());
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::BONE_MATRICES, _boneMatrices.data(), (UINT)_boneMatrices.size());
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::MATERIAL, _materialIDs.data(), (UINT)_materialIDs.size());
