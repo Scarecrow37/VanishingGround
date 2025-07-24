@@ -19,6 +19,8 @@ namespace
 
         if (ImGui::BeginCombo("##Action", selectName.data()))
         {
+            static ImGuiTextFilter filter;
+            filter.Draw("Filter");
             std::string_view actionName = STR_NULL;
             if (action)
             {
@@ -26,12 +28,15 @@ namespace
             }
             for (auto& [key, func] : TurnActionFactory::GetActionFactory())
             {
-                bool isSelect = key == actionName;
-                if (ImGui::Selectable(key.data(), isSelect))
+                if (filter.PassFilter(key.data()))
                 {
-                    if (false == isSelect)
+                    bool isSelect = key == actionName;
+                    if (ImGui::Selectable(key.data(), isSelect))
                     {
-                        action.reset(func());
+                        if (false == isSelect)
+                        {
+                            action.reset(func());
+                        }
                     }
                 }
             }

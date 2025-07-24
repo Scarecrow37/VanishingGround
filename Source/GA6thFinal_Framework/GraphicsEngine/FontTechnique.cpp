@@ -59,8 +59,8 @@ void FontTechnique::Initialize(ID3D12GraphicsCommandList* commandList)
 
 void FontTechnique::Execute(ID3D12GraphicsCommandList* commandList)
 {
-    const auto&    mode = Global::device->GetMode();
-    D3D12_VIEWPORT viewport{.Width = (float)mode.Width, .Height = (float)mode.Height, .MaxDepth = 1.f};
+    const auto&    resolution = Global::device->GetResolution();
+    D3D12_VIEWPORT viewport{.Width = (float)resolution.Width, .Height = (float)resolution.Height, .MaxDepth = 1.f};
     spriteBatch->SetViewport(viewport);
 
     spriteBatch->Begin(commandList);

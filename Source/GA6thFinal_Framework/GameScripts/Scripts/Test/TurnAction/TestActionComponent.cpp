@@ -30,12 +30,12 @@ void TestAction::OnRoundEnd()
     UmLogger.Log(LogLevel::LEVEL_TRACE, u8"라운드 종료");
 }
 
-void TestAction::OnTurnStart(CharacterBase* destination)
+void TestAction::OnTurnStart(CharacterBase& destination)
 {
     UmLogger.Log(LogLevel::LEVEL_TRACE, u8"턴 시작");
 }
 
-void TestAction::OnTurnEnd(CharacterBase* destination)
+void TestAction::OnTurnEnd(CharacterBase& destination)
 {
     UmLogger.Log(LogLevel::LEVEL_TRACE, u8"턴 종료");
 }

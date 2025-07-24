@@ -46,24 +46,26 @@ using SkeletalMeshInstanceID = UINT;
 struct Material
 {
 #undef OPAQUE
-    enum class ShadingModel
+    enum class ShadingModelType
     {
         UNLIT,
         DEFAULTLIT,
         END
-    };
-    enum class BlendMode
+    } ShadingModel;
+    enum class BlendModeType
     {
         OPAQUE,
         MASKED,
         TRANSLUCENT,
-        ADDITIVE,
-        MODULATE,
         END
-    };
-    ShadingModel Model;
-    BlendMode    Mode;
-    bool         IsTwoSided;
+    } BlendMode;
+    enum class CullModeType
+    {
+        CULL_BACK,
+        CULL_FRONT,
+        CULL_NONE
+    } CullMode;
+    bool IsTwoSided;
 };
 
 struct CameraData
@@ -71,7 +73,7 @@ struct CameraData
     XMMATRIX View;
     XMMATRIX Projection;
     XMMATRIX ViewInverse;
-    XMMATRIX ProejctionInverse;
+    XMMATRIX ProjectionInverse;
     Vector4  Position{0.f, 0.f, 0.f, 1.f};
 };
 
@@ -82,7 +84,6 @@ struct RayCameraData
     XMMATRIX ViewInverse;
     XMMATRIX ProejctionInverse;
 };
-
 
 struct LightData
 {
@@ -128,4 +129,19 @@ struct Resolution
 {
     UINT Width;
     UINT Height;
+};
+
+struct MeshInfo
+{
+    Material        Material;
+    class BaseMesh* Mesh;
+    UINT            CustomDepth;
+};
+
+struct GraphicsTransform
+{
+    const Vector3&    Position;
+    const Vector3&    Scale;
+    const Quaternion& Rotation;
+    const Matrix&     World;
 };

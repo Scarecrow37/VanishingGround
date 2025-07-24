@@ -90,16 +90,21 @@ void Battle::BattleStart(Player& attacker, Enemy& target)
         PlayerStats playerStats(playerStatsComponent->GetStats());
         WeaponStats weaponStats(weaponSystem->GetCurrentWeaponStats());
         EnemyStats  enemyStats(enemyStatsComponent->GetStats());
-        turnMode->ApplyActions([&](TurnAction& action) {
-            action.OnPlayerBattleStart(attacker, playerStats, weaponStats, target, enemyStats);
-        });
 
         PlayerInfo playerInfo(attacker, weaponStats, playerStats);
         EnemyInfo  enemyInfo(target, enemyStats);
-        int        damage      = DamageSystem::CalculateDamage(playerInfo, enemyInfo);
-        int        chainDamage = DamageSystem::CalculateChainDamage(playerInfo, enemyInfo);
-        target.TakeDamage(damage);
+
+        turnMode->ApplyActions([&](TurnAction& action) {
+            action.OnPlayerBattleCaculateChainModifier(attacker, playerStats, weaponStats, target, enemyStats);
+        });
+        int chainDamage = DamageSystem::CalculateChainDamage(playerInfo, enemyInfo);
         target.TakeChain(chainDamage);
+
+        turnMode->ApplyActions([&](TurnAction& action) {
+            action.OnPlayerBattleCalculateDamageModifier(attacker, playerStats, weaponStats, target, enemyStats);
+        });
+        int damage = DamageSystem::CalculateDamage(playerInfo, enemyInfo);
+        target.TakeDamage(damage);
     }
 }
 
@@ -116,12 +121,18 @@ void Battle::BattleStart(Enemy& attacker, Player& target)
 
         EnemyStats  enemyStats(enemyStatsComponent->GetStats());
         PlayerStats playerStats(playerStatsComponent->GetStats());
-        turnMode->ApplyActions(
-            [&](TurnAction& action) { action.OnEnemyBattleStart(attacker, enemyStats, target, playerStats); });
-
         EnemyInfo  enemyInfo(attacker, enemyStats);
         PlayerInfo playerInfo(target, weaponSystem->GetCurrentWeaponStats(), playerStats);
-        int        damage = DamageSystem::CalculateDamage(enemyInfo, playerInfo);
+
+        int chainDamage = DamageSystem::CalculateChainDamage(enemyInfo, playerInfo);
+        turnMode->ApplyActions([&](TurnAction& action) {
+            action.OnEnemyBattleCalculateChainModifier(attacker, enemyStats, target, playerStats);
+        });
+        target.TakeChain(chainDamage);
+
+        turnMode->ApplyActions(
+            [&](TurnAction& action) { action.OnEnemyBattleCalculateDamageModifier(attacker, enemyStats, target, playerStats); });
+        int damage = DamageSystem::CalculateDamage(enemyInfo, playerInfo);
         target.TakeDamage(damage);
     }
 }
