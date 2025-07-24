@@ -19,7 +19,6 @@ public:
     REFLECT_PROPERTY(
         HP,
         MaxHP, 
-        MaxMP, 
         ChainCount, 
         ChainRoundCount,
         MaxChainRoundCount
@@ -27,26 +26,29 @@ public:
 
     GETTER_ONLY(int, MaxHP) { return GetMaxHP(); }
     PROPERTY(MaxHP)
-
-    GETTER_ONLY(int, MaxMP) { return GetMaxMP(); }
-    PROPERTY(MaxMP)
-    
-    // 현재 연격 수
-    GETTER_ONLY(int, ChainCount) { return _chainCount; }
+  
+    GETTER_ONLY(int, ChainCount) { return GetChainCount(); }
+    //int 현재 연격 수
     PROPERTY(ChainCount)
 
-    GETTER_ONLY(int, HP) { return _hp; }
+    GETTER_ONLY(int, HP) { return GetHP(); }
     PROPERTY(HP)
 
     GETTER_ONLY(int, MaxChainRoundCount) { return GetMaxChainRoundCount(); }
     PROPERTY(MaxChainRoundCount)
 
-    GETTER_ONLY(int, ChainRoundCount) { return _chainRoundCount; }
+    GETTER_ONLY(int, ChainRoundCount) { return GetChainRoundCount(); }
+    //int 남은 연격 수 유지 시간
     PROPERTY(ChainRoundCount)
+
+protected:
+    virtual CharacterStats* GetCharacterStats() = 0;
 
 private:
     int GetMaxHP();
-    int GetMaxMP();
+    int GetHP();
+    int GetChainCount();
+    int GetChainRoundCount();
     int GetMaxChainRoundCount();
 
 public:
@@ -56,7 +58,7 @@ public:
     virtual void TakeChain(int chainDamage);
 
     // 연격 수를 설정합니다.
-    int SetChainCount(int value) { return _chainCount = std::clamp(value, 0, 99); }
+    int SetChainCount(int value);
 
     // 체인 라운드 카운트를 계산합니다.
     int DecrementChainRoundCount();
@@ -68,17 +70,10 @@ public:
     SkeletalMeshRenderer* GetSkeletalMeshRenderer() const { return _skeletalMeshRenderer; }
 
 protected:
-    virtual CharacterStats* GetCharacterStats() = 0;
-
-protected:
     REFLECT_FIELDS_BEGIN(TurnActor)
     REFLECT_FIELDS_END(CharacterBase)
 
 private:
-    int _hp;
-    int _chainCount;
-    int _chainRoundCount;
-
     TokenInventory _tokenInventory;
     SkeletalMeshRenderer* _skeletalMeshRenderer = nullptr;
 
