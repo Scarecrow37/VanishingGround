@@ -133,8 +133,10 @@ GridPanelSlot::GridPanelSlot() = default;
 
 void GridPanelSlot::OnSetPlacement()
 {
-    const unsigned int columns = ReflectFields->Columns;
-    const unsigned int rows    = ReflectFields->Rows;
+    /////////////////
+    const unsigned int columns = GetColumns();
+    const unsigned int rows    = GetRows();
+
     if (columns == 0 || rows == 0)
         return;
 
@@ -149,6 +151,44 @@ void GridPanelSlot::OnSetPlacement()
                           .cy = stepY * static_cast<LONG>(ReflectFields->RowSpan)};
 
     PassScopedPlacement(scopePoint, scopeSize);
+}
+
+unsigned int GridPanelSlot::GetColumns() const
+{
+    return ReflectFields->Columns;
+}
+
+unsigned int GridPanelSlot::GetRows() const
+{
+    return ReflectFields->Rows;
+}
+
+unsigned int GridPanelSlot::GetColumn() const
+{
+    return ReflectFields->Column;
+}
+
+unsigned int GridPanelSlot::GetRow() const
+{
+    return ReflectFields->Row;
+}
+
+POINT GridPanelSlot::GetCellPoint() const
+{
+    const auto [pointX, pointY] = ReflectFields->Basefields.get().Basefields.get().Point;
+    const auto [sizeX, sizeY]   = ReflectFields->Basefields.get().Basefields.get().Size;
+    const long stepX            = sizeX / static_cast<LONG>(columns);
+    const long stepY            = sizeY / static_cast<LONG>(rows);
+
+    const POINT scopePoint{.x = pointX + stepX * static_cast<LONG>(ReflectFields->Column),
+                           .y = pointY + stepY * static_cast<LONG>(ReflectFields->Row)};
+    const SIZE  scopeSize{.cx = stepX * static_cast<LONG>(ReflectFields->ColumnSpan),
+                          .cy = stepY * static_cast<LONG>(ReflectFields->RowSpan)};
+}
+
+SIZE GridPanelSlot::GetCellSize() const
+{
+    
 }
 
 void GridPanelSlot::SetColumnsAndRows(const unsigned int columns, const unsigned int rows)

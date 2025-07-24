@@ -108,7 +108,13 @@ public:
     PROPERTY(RowSpan)
 
 public:
-    void OnSetPlacement() override;
+    void         OnSetPlacement() override;
+    unsigned int GetColumns() const;
+    unsigned int GetRows() const;
+    unsigned int GetColumn() const;
+    unsigned int GetRow() const;
+    POINT        GetCellPoint() const;
+    SIZE         GetCellSize() const;
 
 private:
     void SetColumnsAndRows(unsigned int columns, unsigned int rows);

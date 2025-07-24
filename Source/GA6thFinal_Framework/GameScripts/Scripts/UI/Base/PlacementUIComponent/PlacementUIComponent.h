@@ -24,13 +24,13 @@ public:
     int   SortViewOrder(int startOrder);
 
 protected:
-    virtual void OnPlacementChange() {};
     void ResetPlacement();
     void ImGuiDrawPropertysEvent() override;
     void OnAttachChild(GameObject* childGameObject) override;
     void OnDetachParent(GameObject* previousParentGameObject) override;
     virtual float GetZOrder() const;
-    virtual void OnSetViewOrder() {};
+    virtual void OnSetViewOrder() {}
+    virtual void OnPlacementChange() {}
 
 private:
     void SetViewOrder(int viewOrder);
