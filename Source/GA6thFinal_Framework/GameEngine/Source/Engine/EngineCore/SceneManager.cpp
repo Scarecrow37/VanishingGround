@@ -451,7 +451,6 @@ void ESceneManager::Engine::SwapPrefabInstance(GameObject* original, GameObject*
                 sRemake->DeserializedReflectFields(objectData);
 
                 //트렌스폼 정보 복사
-                sRemake->_transform.SetParent(sOrigin->_transform._parent);
                 sRemake->_transform.CopyTransform(sOrigin->_transform, false);
                 GameObject::Engine::UpdateActiveInHierarchy(sRemake.get());
 
