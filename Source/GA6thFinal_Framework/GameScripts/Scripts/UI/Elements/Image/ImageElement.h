@@ -7,7 +7,7 @@ class ImageElement : public EditablePlacementUIComponent
 
 public:
     ImageElement();
-    ImageElement(const ImageElement&) = delete;
+    ImageElement(const ImageElement&)            = delete;
     ImageElement& operator=(const ImageElement&) = delete;
     ImageElement(ImageElement&&)                 = delete;
     ImageElement& operator=(ImageElement&&)      = delete;
@@ -19,22 +19,23 @@ public:
     PROPERTY(FilePath)
 
 protected:
-    void Reset() override;
-    void DeserializedReflectEvent() override;
-    void OnPlacementChange() override;
+    void  Reset() override;
+    void  DeserializedReflectEvent() override;
+    void  OnPlacementChange() override;
     float GetZOrder() const override;
 
 private:
     void OnSetViewOrder() override;
     void LoadTexture() const;
     void UpdateWorldMatrix();
+    void RequestResource();
 
 protected:
     REFLECT_FIELDS_BEGIN(EditablePlacementUIComponent)
     std::string Guid;
     REFLECT_FIELDS_END(ImageElement)
 
-
+private:
     std::unique_ptr<SpriteRenderer> _renderer;
     File::GuidRef                   _guidRef;
     Matrix                          _worldMatrix;

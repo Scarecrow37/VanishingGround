@@ -16,10 +16,7 @@ ImageElement::ImageElement()
                     {
                         _guidRef            = path.ToGuid();
                         ReflectFields->Guid = _guidRef.string();
-                        UmSceneManager.ResourceManager.RequestTextureResource(this, _guidRef, [this]() {
-                            LoadTexture();
-                            OnPlacementChange();
-                        });
+                        RequestResource();
                     }
                 }
             }
@@ -37,6 +34,7 @@ ImageElement::~ImageElement()
 void ImageElement::Reset()
 {
     UIComponent::Reset();
+
     try
     {
         _renderer = std::make_unique<SpriteRenderer>(_worldMatrix, SpriteType::MODE_2D);
@@ -62,18 +60,19 @@ void ImageElement::DeserializedReflectEvent()
     if (const auto path = guid.ToPath(); !path.IsNull())
     {
         _guidRef = path.ToGuid();
-        UmSceneManager.ResourceManager.RequestTextureResource(this, _guidRef, [this]() {
-            LoadTexture();
-            OnPlacementChange();
-        });
+        RequestResource();
     }
 }
 
 void ImageElement::OnPlacementChange()
 {
     EditablePlacementUIComponent::OnPlacementChange();
+
     if (nullptr != _renderer)
-        _renderer->SetSize(ReflectFields->Basefields.get().Basefields.get().Size);
+    {
+        const SIZE size = GetSize();
+        _renderer->SetSize(size);
+    }
     UpdateWorldMatrix();
 }
 
@@ -85,6 +84,7 @@ float ImageElement::GetZOrder() const
 void ImageElement::OnSetViewOrder()
 {
     EditablePlacementUIComponent::OnSetViewOrder();
+
     UpdateWorldMatrix();
 }
 
@@ -103,13 +103,18 @@ void ImageElement::LoadTexture() const
 
 void ImageElement::UpdateWorldMatrix()
 {
-    const auto [pointX, pointY] = ReflectFields->Basefields.get().Basefields.get().Point;
-    const auto [scopeX, scopeY] = ReflectFields->Basefields.get().Basefields.get().ScopePoint;
-    const POINT absolutePoint{.x = pointX + scopeX, .y = pointY + scopeY};
-    const auto [width, height] = ReflectFields->Basefields.get().Basefields.get().Size;
-    float         zOrder       = GetZOrder();
-    const Vector3 position{static_cast<float>(absolutePoint.x), static_cast<float>(absolutePoint.y), zOrder};
-    const Vector3 scale{static_cast<float>(width), static_cast<float>(height), 1.0f};
+    const auto& [x, y]          = GetAbsolutePoint();
+    const float zOrder          = GetZOrder();
 
-    _worldMatrix = /*Matrix::CreateScale(scale) * */ Matrix::CreateTranslation(position);
+    const Vector3 position{static_cast<float>(x), static_cast<float>(y), zOrder};
+
+    _worldMatrix = Matrix::CreateTranslation(position);
+}
+
+void ImageElement::RequestResource()
+{
+    UmSceneManager.ResourceManager.RequestTextureResource(this, _guidRef, [this]() {
+        LoadTexture();
+        OnPlacementChange();
+    });
 }
