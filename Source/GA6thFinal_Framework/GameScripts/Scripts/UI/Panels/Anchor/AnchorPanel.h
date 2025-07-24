@@ -9,6 +9,8 @@ public:
     AnchorPanel();
 
     void OnAttachChild(GameObject* childGameObject) override;
+
+protected:
     void OnPlacementChange() override;
 
 protected:
