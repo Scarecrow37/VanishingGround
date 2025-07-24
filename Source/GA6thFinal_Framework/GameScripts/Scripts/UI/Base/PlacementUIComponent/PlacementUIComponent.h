@@ -36,6 +36,19 @@ public:
     int   SortViewOrder(int startOrder);
 
 protected:
+    virtual void OnPlacementChange() {};
+    void ResetPlacement();
+    void ImGuiDrawPropertysEvent() override;
+    void OnAttachChild(GameObject* childGameObject) override;
+    void OnDetachParent(GameObject* previousParentGameObject) override;
+    virtual float GetZOrder() const;
+    virtual void OnSetViewOrder() {};
+
+private:
+    void SetViewOrder(int viewOrder);
+    static void RequestViewOrder(const Transform& transform);
+
+protected:
     REFLECT_FIELDS_BEGIN(UIComponent)
     POINT Point = {0, 0};
     SIZE  Size  = {200, 100};
@@ -44,18 +57,4 @@ protected:
     int   ViewOrder = 0;
     REFLECT_FIELDS_END(PlacementUIComponent)
 
-    virtual void OnPlacementChange() {};
-    void ResetPlacement();
-    void ImGuiDrawPropertysEvent() override;
-    void OnAttachChild(GameObject* childGameObject) override;
-    void OnDetachParent(GameObject* previousParentGameObject) override;
-
-    virtual float GetZOrder() const;
-
-    virtual void OnSetViewOrder() {};
-
-private:
-    void SetViewOrder(int viewOrder);
-
-    static void RequestViewOrder(const Transform& transform);
 };

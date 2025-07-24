@@ -40,6 +40,10 @@ public:
     }
     PROPERTY(Bottom)
 
+public:
+    POINT GetPaddedPoint() const;
+    SIZE  GetPaddedSize() const;
+
 protected:
     void OnPlacementChange() override;
 

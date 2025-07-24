@@ -1,28 +1,29 @@
 ﻿#include "pchScripts.h"
 #include "PaddingWrapper.h"
 
+POINT PaddingWrapper::GetPaddedPoint() const
+{
+    const auto [x, y] = GetAbsolutePoint();
+    const POINT paddedPoint{.x = x + ReflectFields->PadLeft, .y = y + ReflectFields->PadTop};
+    return paddedPoint;
+}
+
+SIZE PaddingWrapper::GetPaddedSize() const
+{
+    const auto [width, height] = GetSize();
+    const SIZE paddedSize{.cx = width - (ReflectFields->PadLeft + ReflectFields->PadRight),
+                          .cy = height - (ReflectFields->PadTop + ReflectFields->PadBottom)};
+    return paddedSize;
+}
+
 void PaddingWrapper::OnPlacementChange()
 {
     EditablePlacementUIComponent::OnPlacementChange();
-    for (int i = 0; i < transform->GetChildCount(); ++i)
-    {
-        const Transform* child      = transform->GetChild(i);
-        GameObject&      gameObject = child->gameObject;
-        for (int j = 0; j < gameObject.GetComponentCount(); ++j)
-        {
-            if (PlacementUIComponent* component = gameObject.GetComponentAtIndex<PlacementUIComponent>(j))
-            {
-                POINT point = ReflectFields->Basefields.get().Basefields.get().Point;
-                auto [scopeX, scopeY] = ReflectFields->Basefields.get().Basefields.get().ScopePoint;
-                point.x += scopeX;
-                point.y += scopeY;
-                point.x += ReflectFields->PadLeft;
-                point.y += ReflectFields->PadTop;
-                SIZE size = ReflectFields->Basefields.get().Basefields.get().Size;
-                size.cx -= (ReflectFields->PadLeft + ReflectFields->PadRight);
-                size.cy -= (ReflectFields->PadTop + ReflectFields->PadBottom);
-                component->SetScopePlacement(point, size);
-            }
-        }
-    }
+
+    std::vector<PlacementUIComponent*> components = FindChildComponents<PlacementUIComponent>()(transform);
+    std::ranges::for_each(components, [this](PlacementUIComponent* component) {
+        const POINT point = GetPaddedPoint();
+        const SIZE  size  = GetPaddedSize();
+        component->SetScopePlacement(point, size);
+    });
 }

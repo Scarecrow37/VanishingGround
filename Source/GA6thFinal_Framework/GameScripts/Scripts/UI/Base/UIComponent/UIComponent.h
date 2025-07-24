@@ -32,3 +32,26 @@ protected:
 
     virtual void DrawDebugSelected() {};
 };
+
+struct FindChildComponents
+{
+    template <typename T>
+    std::vector<T*> operator()(Transform* transform)
+    {
+        std::vector<T*> components;
+
+        for (int i = 0; i < transform->GetChildCount(); ++i)
+        {
+            const Transform* child      = transform->GetChild(i);
+            GameObject&      gameObject = child->gameObject;
+            for (int j = 0; j < gameObject.GetComponentCount(); ++j)
+            {
+                if (T* component = gameObject.GetComponentAtIndex<T>(j))
+                {
+                    components.push_back(component);
+                }
+            }
+        }
+        return components;
+    }
+};
