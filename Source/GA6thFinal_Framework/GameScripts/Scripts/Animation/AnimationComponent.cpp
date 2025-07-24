@@ -29,20 +29,11 @@ void AnimationComponent::Update()
         }
         _eventQueue.clear();
     }
-    else
-    {
-        _skeletalMeshRenderer = GetComponent<SkeletalMeshRenderer>();
-    }
 }
 
 void AnimationComponent::OnDrawDebug()
-{
-    // 메인 애니메이션만
+{   // 메인 애니메이션만
     UpdateAnimation(_mainAnimationData);
-    if (nullptr == _skeletalMeshRenderer)
-    {
-        _skeletalMeshRenderer = GetComponent<SkeletalMeshRenderer>();
-    }
 }
 
 void AnimationComponent::SerializedReflectEvent()
@@ -442,3 +433,7 @@ void AnimationComponent::PauseCurrentAnimation()
     animData.AddFlag(ANIMATION_FLAG_PAUSE);
 }
 
+void AnimationComponent::SetSkeletalMeshRenderer(SkeletalMeshRenderer* renderer)
+{
+    _skeletalMeshRenderer = renderer;
+}

@@ -1,5 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "SkeletalMeshRenderer.h"
+#include <Animation/AnimationComponent.h>
 
 SkeletalMeshRenderer::SkeletalMeshRenderer() 
 {
@@ -33,6 +34,11 @@ SkeletalMeshRenderer::~SkeletalMeshRenderer() {}
 void SkeletalMeshRenderer::Reset()
 {
     MakeMeshRenderer(MeshRenderType::SKELETAL, gameObject->transform->GetWorldMatrix());
+    AnimationComponent* animator = GetComponent<AnimationComponent>();
+    if (animator)
+    {
+        animator->SetSkeletalMeshRenderer(this);
+    } 
 }
 
 void SkeletalMeshRenderer::Awake() 

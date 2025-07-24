@@ -27,11 +27,11 @@ private:
     Model*          GetModel() const;
     Animator*       GetAnimator() const;
 
-    void UpdateAnimation(AnimationData& animData);
-    void SetAnimationEx(AnimationData& animData);
-    void ChangeAnimationEx(AnimationData& animData, std::string_view animKey, bool blend);
-    void ChangeAnimationFrameEx(AnimationData& animData, float frame);
-    void ChangeAnimationFlagsEx(AnimationData& animData, int flags);
+    void            UpdateAnimation(AnimationData& animData);
+    void            SetAnimationEx(AnimationData& animData);
+    void            ChangeAnimationEx(AnimationData& animData, std::string_view animKey, bool blend);
+    void            ChangeAnimationFrameEx(AnimationData& animData, float frame);
+    void            ChangeAnimationFlagsEx(AnimationData& animData, int flags);
 
 public:
     /// <summary>
@@ -93,10 +93,11 @@ public:
     /// <summary>애니메이션을 일시 정지합니다.</summary>
     void PauseCurrentAnimation();
 
+    void SetSkeletalMeshRenderer(SkeletalMeshRenderer* renderer);
+
 private:
     SkeletalMeshRenderer*      _skeletalMeshRenderer = nullptr;
     EventQueue                 _eventQueue;
-
     AnimationData              _mainAnimationData;
     std::vector<AnimationData> _overrideAnimationStack; 
     bool                       _isBuildingOverrideAnimation = false;
