@@ -175,20 +175,21 @@ unsigned int GridPanelSlot::GetRow() const
 
 POINT GridPanelSlot::GetCellPoint() const
 {
-    const auto [pointX, pointY] = ReflectFields->Basefields.get().Basefields.get().Point;
-    const auto [sizeX, sizeY]   = ReflectFields->Basefields.get().Basefields.get().Size;
-    const long stepX            = sizeX / static_cast<LONG>(columns);
-    const long stepY            = sizeY / static_cast<LONG>(rows);
+    //const auto [pointX, pointY] = ReflectFields->Basefields.get().Basefields.get().Point;
+    //const auto [sizeX, sizeY]   = ReflectFields->Basefields.get().Basefields.get().Size;
+    //const long stepX            = sizeX / static_cast<LONG>(columns);
+    //const long stepY            = sizeY / static_cast<LONG>(rows);
 
-    const POINT scopePoint{.x = pointX + stepX * static_cast<LONG>(ReflectFields->Column),
-                           .y = pointY + stepY * static_cast<LONG>(ReflectFields->Row)};
-    const SIZE  scopeSize{.cx = stepX * static_cast<LONG>(ReflectFields->ColumnSpan),
-                          .cy = stepY * static_cast<LONG>(ReflectFields->RowSpan)};
+    //const POINT scopePoint{.x = pointX + stepX * static_cast<LONG>(ReflectFields->Column),
+    //                       .y = pointY + stepY * static_cast<LONG>(ReflectFields->Row)};
+    //const SIZE  scopeSize{.cx = stepX * static_cast<LONG>(ReflectFields->ColumnSpan),
+    //                      .cy = stepY * static_cast<LONG>(ReflectFields->RowSpan)};
+    return POINT{};
 }
 
 SIZE GridPanelSlot::GetCellSize() const
 {
-    
+    return SIZE{};
 }
 
 void GridPanelSlot::SetColumnsAndRows(const unsigned int columns, const unsigned int rows)

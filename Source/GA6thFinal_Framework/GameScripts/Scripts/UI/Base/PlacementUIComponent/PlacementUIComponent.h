@@ -7,7 +7,7 @@ class PlacementUIComponent : public UIComponent
 
 protected:
     static constexpr float VIEW_ORDER_IMAGE_RATIO = 0.1f;
-    static constexpr float VIEW_ORDER_TEXT_RATIO = 0.0001f;
+    static constexpr float VIEW_ORDER_TEXT_RATIO  = 0.0001f;
     static constexpr float VIEW_ORDER_TEXT_OFFSET = VIEW_ORDER_TEXT_RATIO / VIEW_ORDER_IMAGE_RATIO;
 
 public:
@@ -20,17 +20,18 @@ public:
     SIZE  GetScopeSize() const;
     POINT GetAbsolutePoint() const;
 
-    void  SetScopePlacement(POINT point, SIZE size);
-    int   SortViewOrder(int startOrder);
+    void SetScopePlacement(POINT point, SIZE size);
+    int  SortViewOrder(int startOrder);
 
 protected:
     void ResetPlacement();
     void ImGuiDrawPropertysEvent() override;
     void OnAttachChild(GameObject* childGameObject) override;
     void OnDetachParent(GameObject* previousParentGameObject) override;
+
     virtual float GetZOrder() const;
-    virtual void OnPlacementChange() {}
-    virtual void SetViewOrder(int viewOrder);
+    virtual void  OnPlacementChange() {}
+    virtual void  SetViewOrder(int viewOrder);
 
 private:
     static void RequestViewOrder(const Transform& transform);
@@ -43,5 +44,4 @@ protected:
     SIZE  ScopeSize;
     int   ViewOrder = 0;
     REFLECT_FIELDS_END(PlacementUIComponent)
-
 };
