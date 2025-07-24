@@ -1,10 +1,11 @@
 #include "Compute.hlsli"
-
 StructuredBuffer<ParticleInput> ParticleInputBuffer : register(t0);
 StructuredBuffer<EmitterInfo> EmitterInfoBuffer : register(t1);
 RWStructuredBuffer<ParticleOutput> ParticleOutputBuffer : register(u0);
-
 ConstantBuffer<MVP> mvp : register(b0);
+
+
+
 
 
 [numthreads(64, 1, 1)]
@@ -41,7 +42,7 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
     float3 localAxisDir = normalize(vortexAxis);
 
     // Transform the axis to world space to account for the emitter's rotation.
-    float3 worldAxisDir = mul(localAxisDir, (float3x3)emitter.WorldMatrix);
+    float3 worldAxisDir = mul(localAxisDir, (float3x3) emitter.WorldMatrix);
 
     // Select the correct axis direction using lerp to avoid branching.
     // If useWorldSpace is 1.0, worldAxisDir is chosen. If 0.0, localAxisDir is chosen.
@@ -56,15 +57,7 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
     float3 posAfterVortex = input.position.xyz + vortexDisplacement;
     float3 dragPos = (input.velocity / max(dragCoefficient, 0.01f)) * (1 - decay);
     
-    
-    
-    
-    
     input.position.xyz += dragPos + vortexDisplacement;
-    
-    
-    
-    
     
 
         // 6. 색상 보간
@@ -73,16 +66,26 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
     output.Color = float4(outputColor, outputOpacity);
    
     // 4. 스케일 적용
-    float4x4 scaleMat = CreateScaleMatrix(
-        lerp(float4(emitter.startScale.xy, 1, 1), float4(emitter.endScale.xy, 1, 1), ratio)
-    );
+    float4 currentScale = lerp(float4(emitter.startScale.xy, 1, 1), float4(emitter.endScale.xy, 1, 1), ratio);
+    float4x4 scaleMat = CreateScaleMatrix(currentScale);
     
     float4 worldPos = mul(float4(input.position.xyz, 1.0), emitter.WorldMatrix);
-    worldPos.xyz += gravityOffset*input.age;
+    worldPos.xyz += gravityOffset * input.age;
     float4 viewPos = mul(worldPos, mvp.ViewMatrix);
     
-    output.position = viewPos;
-    output.paddings = (float3) 0;
+    output.position = worldPos;
+
+        
+        
+    float4 ribbonnormal = lerp(emitter.startNormal, emitter.endNormal, ratio);
+    ribbonnormal = mul(ribbonnormal, emitter.OrientedWorldMatrix);
+    float4 ribbonDir = mul(emitter.ribbonVector, emitter.OrientedWorldMatrix);
+    
+    
+    //float4 ribbonnormal = emitter.startNormal;
+    //float4 ribbonup = emitter.endNormal;
+    
+    output.paddings = cross(ribbonDir.xyz, ribbonnormal.xyz);
 
     output.EmitterIndex = input.emitterIndex;
     
@@ -91,20 +94,16 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
         1, 0, 0, 0,
         0, 1, 0, 0,
         0, 0, 1, 0,
-    worldPos.x, worldPos.y, worldPos.z, 1
-);
+    worldPos.x, worldPos.y, worldPos.z, 1);
 
     output.FinalMatrix = scaleMat;
-    output.FinalMatrix = mul(output.FinalMatrix, mvp.ViewRotInvMatrix);
-    //output.FinalMatrix = mul(output.FinalMatrix, worldinvrot);
     output.FinalMatrix = mul(output.FinalMatrix, translationMat);
     output.FinalMatrix = mul(output.FinalMatrix, mvp.ViewMatrix);
     output.FinalMatrix = mul(output.FinalMatrix, mvp.ProjMatrix);
-    
-    
 
-    // 7. 프레임 애니메이션
-    output.FrameInfo = UpdateAnimation(input.frameinfo, mvp.deltaTime);
-    // 결과 저장
+    output.FrameInfo = float4(currentScale.x, currentScale.y, ratio, 0);
+    
+    
+    
     ParticleOutputBuffer[idx] = output;
 }

@@ -153,6 +153,8 @@ void Device::Execute()
 
     // Draw Graphics Commands
     commandController->ExecuteCommand(CommandQueueType::GRAPHICS_QUEUE, _commandList.Get());
+
+
 }
 
 void Device::UpdateBuffer(ComPtr<ID3D12Resource>& buffer, void* data, UINT size)
@@ -192,6 +194,8 @@ void Device::Flip()
     _swapChain->Present(0, 0);
     GPUSync();
     ResizeSwapChain();
+
+    Global::particleManager->ChangeTexture();
 
     _uploadResources.clear();
 

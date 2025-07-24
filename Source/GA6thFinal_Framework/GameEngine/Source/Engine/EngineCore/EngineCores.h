@@ -21,6 +21,7 @@ public:
     EFactoryRegister   FactoryRegister;
     Audio::System      Audio;
     Watcher::System    Watcher;
+    ParticleEffectSerializer ParticleSerializer;
 
     ReflectHelper::ImGuiDraw::InputAutoSetting ImGuiDrawPropertysSetting;
 

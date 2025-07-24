@@ -1,4 +1,6 @@
 ﻿#include "pchScripts.h"
+#include <Mesh/SkeletalMeshRenderer.h>
+
 #include "ParticleComponent.h"
 
 
@@ -45,7 +47,11 @@ ParticleComponent::~ParticleComponent()
 
 void ParticleComponent::Update()
 {
-    
+  /*  if (isDirty)
+    {
+        isDirty = false;
+        FollowBoneMatrix();
+    }*/
 
 
 
@@ -81,44 +87,84 @@ void ParticleComponent::ImGuiDrawPropertysEvent()
 
 void ParticleComponent::LoadParticle() 
 {
-    // TODO :: JJW ParticleSerializer
-    //if (_effect)
-    //{
-    //    _effect->SetRemoveFlag(true);
-    //}
-    //UmParticleManager->ParticleSerializer.PreDeserialize(_filepath);
-    //const auto& modelpaths = UmParticleManager->ParticleSerializer.GetUsedModelPaths();
-    //
-    //for (int i = 0; i < modelpaths.size(); ++i)
-    //{
-    //    File::Path texPath = modelpaths[i];
-    //    texPath            = std::filesystem::absolute(texPath);
-    //    File::Guid guid    = texPath.ToGuid();
-    //    UmSceneManager.ResourceManager.RequestModelResource(this, guid, []() {});
-    //}
-    //const auto& paths = UmParticleManager.ParticleSerializer.GetUsedTexturePaths();
-    //for (int i = 0; i < paths.size(); ++i)
-    //{
-    //    File::Path texPath = paths[i];
-    //    texPath            = std::filesystem::absolute(texPath);
-    //    File::Guid guid    = texPath.ToGuid();
-    //    if (i < paths.size() - 1)
-    //        UmSceneManager.ResourceManager.RequestTextureResource(this, guid, []() {});
-    //    else
-    //        UmSceneManager.ResourceManager.RequestTextureResource(this, guid, [this]() {
-    //            _effect = UmParticleManager.ParticleSerializer.Deserialize(_filepath, false);
-    //            _effect->SetPlayFlag(false);
-    //            _effect->SetActiveFlag(false);
-    //            _effect->_position = &_positionVector;
-    //            _effect->_rotation = &_rotationVector;
-    //            _effect->_scale    = &_scaleVector;
-    //            _effect->_parentWorldMatrix = &transform->GetWorldMatrix();
-    //        });
-    //}
+    if (_effect)
+    {
+        _effect->SetRemoveFlag(true);
+    }
+    UmParticleSerializer.PreDeserialize(_filepath);
+    const auto& modelpaths = UmParticleSerializer.GetUsedModelPaths();
+    
+    for (const auto& path : modelpaths)
+    {
+        File::Path texPath = path;
+        texPath            = std::filesystem::absolute(texPath).generic_string();
+        File::Guid guid    = texPath.ToGuid();
+        UmSceneManager.ResourceManager.RequestModelResource(this, guid, []() {});
+    }
+
+    const auto& paths = UmParticleSerializer.GetUsedTexturePaths();
+    size_t count = 0;
+    for (const auto& path : paths)
+    {
+        File::Path texPath = path;
+        texPath            = std::filesystem::absolute(texPath).generic_string();
+        File::Guid guid    = texPath.ToGuid();
+        count++;
+        if (count == paths.size())
+            UmSceneManager.ResourceManager.RequestTextureResource(this, guid, [this]() 
+                {
+                _effect = UmParticleSerializer.Deserialize(_filepath, false, "Game");
+                for (auto& emitter : _effect->GetEmitterList())
+                {
+                    File::Path absolutePath = emitter->_particleRenderModule->GetModelAndTexturePath();
+                    absolutePath            = std::filesystem::absolute(absolutePath).generic_string();
+                    UmGraphics.LoadTextureResource(std::wstring_view(absolutePath.wstring()), emitter);
+
+                    if (LocationShape::MESH_SURFACE == emitter->_locationType)
+                    {
+                        MeshSurfaceLocator* locator      = static_cast<MeshSurfaceLocator*>(emitter->_emitLocator);
+                        File::Path absolutePath = locator->GetModelPath();
+                        absolutePath            = std::filesystem::absolute(absolutePath).generic_string();
+                        UmGraphics.LoadModelResource(std::wstring_view(absolutePath.wstring()), emitter);
+                    }
+
+                }
+                _effect->SetPlayFlag(false);
+                _effect->SetActiveFlag(false);
+                _effect->_position = &_positionVector;
+                _effect->_rotation = &_rotationVector;
+                _effect->_scale    = &_scaleVector;
+                _effect->_parentWorldMatrix = &transform->GetWorldMatrix();
+            });
+        else
+            UmSceneManager.ResourceManager.RequestTextureResource(this, guid, []() {});
+    }
+}
+
+
+void ParticleComponent::FollowBoneMatrix() 
+{
+    if (true == AttachToBoneMatrix)
+    {
+        SkeletalMeshRenderer* skelMesh = GetComponent<SkeletalMeshRenderer>();
+        if (skelMesh != nullptr)
+        {
+            _effect->_boneWorldMatrix = skelMesh->Renderer->GetAnimator()->FindBoneMatrix("Bone");
+            _effect->_followBoneFlag  = true;
+        }
+    }
+    else
+    {
+        _effect->_followBoneFlag = false;
+
+    }
+
+
 }
 
 void ParticleComponent::PlayEffect() 
 {
-    _effect->Play();
+    if (nullptr!= _effect)
+        _effect->Play();
 
 }
