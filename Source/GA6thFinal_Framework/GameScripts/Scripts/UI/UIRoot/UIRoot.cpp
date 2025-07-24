@@ -10,7 +10,7 @@ UIRoot::UIRoot()
 
 void UIRoot::OnAttachChild(GameObject* childGameObject)
 {
-    UIComponent::OnAttachChild(childGameObject);
+    PlacementUIComponent::OnAttachChild(childGameObject);
     UIRootSlot& slot = childGameObject->AddComponent<UIRootSlot>();
     slot.SetPlacement(ReflectFields->Basefields.get().Point, ReflectFields->Basefields.get().Size);
 }
@@ -63,5 +63,5 @@ UIRootSlot::UIRootSlot() = default;
 
 void UIRootSlot::OnSetPlacement()
 {
-    PanelSlotComponent::PassScopedPlacement(ReflectFields->Basefields.get().Point, ReflectFields->Basefields.get().Size);
+    PassScopedPlacement(ReflectFields->Basefields.get().Point, ReflectFields->Basefields.get().Size);
 }

@@ -96,7 +96,8 @@ void ImageElement::UpdateWorldMatrix()
     const auto [scopeX, scopeY] = ReflectFields->Basefields.get().Basefields.get().ScopePoint;
     const POINT absolutePoint{.x = pointX + scopeX, .y = pointY + scopeY};
     const auto [width, height] = ReflectFields->Basefields.get().Basefields.get().Size;
-    const Vector3 position{static_cast<float>(absolutePoint.x), static_cast<float>(absolutePoint.y), 0.0f};
+    float         zOrder       = GetZOrder();
+    const Vector3 position{static_cast<float>(absolutePoint.x), static_cast<float>(absolutePoint.y), zOrder};
     const Vector3 scale{static_cast<float>(width), static_cast<float>(height), 1.0f};
 
     _worldMatrix = /*Matrix::CreateScale(scale) * */ Matrix::CreateTranslation(position);

@@ -133,7 +133,8 @@ void TextElement::UpdatePosition() const
     {
         const auto&   [x, y] = ReflectFields->Basefields.get().Basefields.get().Point;
         const auto& [scopeX, scopeY] = ReflectFields->Basefields.get().Basefields.get().ScopePoint;
-        _renderer->SetPosition(Vector3(static_cast<float>(x + scopeX), static_cast<float>(y + scopeY), 0));
+        float zOrder                 = GetZOrder();
+        _renderer->SetPosition(Vector3(static_cast<float>(x + scopeX), static_cast<float>(y + scopeY), zOrder));
     }
 }
 
