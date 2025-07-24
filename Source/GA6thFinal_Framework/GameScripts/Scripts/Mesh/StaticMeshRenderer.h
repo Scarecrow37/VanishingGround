@@ -27,7 +27,7 @@ public:
     REFLECT_FIELDS_END(StaticMeshRenderer)
 
 protected:
-    virtual void Reset() override;
     virtual void SerializedReflectEvent() override;
     virtual void DeserializedReflectEvent() override;
+    virtual void Reset() override;
 };

@@ -24,7 +24,7 @@ public:
     virtual ~Animation() = default;
 
 public:
-    const std::vector<const char*>& GetAnimations() { return _animationNames; }
+    const std::vector<const char*>& GetAnimations() const { return _animationNames; }
 
 public:
     void LoadAnimation(const struct aiScene* scene);

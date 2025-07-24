@@ -6,7 +6,7 @@
 #include <TurnSystem/TurnMode/TurnMode.h>
 #include <TurnSystem/TurnMode/State/CombatStartPhase.h>
 #include <WeaponSystem/WeaponSystem.h>
-#include <Mesh/SkeletalMeshRenderer.h>
+#include <Animation/AnimationComponent.h>
 
 using namespace u8_literals;
 
@@ -55,7 +55,7 @@ void PlayerPlayTurnState::OnEnter()
     _attackRemaining      = 0;
 
     auto& player = GetPlayer();
-    player.SetMainAnimation(CharacterBase::IDLE);
+    player.SetMainAnimation(CharacterBase::IDLE, ANIMATION_FLAG_USE_LOOP | ANIMATION_FLAG_RESET_FRAME);
 }
 
 void PlayerPlayTurnState::OnExit() 
@@ -278,45 +278,66 @@ void PlayerPlayTurnState::PushAttackTarget(Battle::EnemyTargetFlag_ target)
 void PlayerPlayTurnState::SetAttackReadyAnimation()
 {
     Player& player = GetPlayer();
-    SkeletalMeshRenderer* renderer = player.GetSkeletalMeshRenderer();
+    auto* renderer = player.GetAnimationComponent();
     if (renderer)
     {
         renderer->BeginBuildOverrideAnimation();
         renderer->ClearOverrideAnimations();
-        player.PushOverrideAnimation(CharacterBase::ATTACK_READY_LOOP);
-        player.PushOverrideAnimation(CharacterBase::ATTACK_READY, false, true,
-                                     [](const AnimationData& data) { return data.IsEnd; });
+        {
+            const char* animKey = player.GetAnimationName(CharacterBase::ATTACK_READY_LOOP);
+            renderer->PushOverrideAnimation(animKey, true);
+            renderer->ChangeCurrentAnimationFlags(ANIMATION_FLAG_USE_LOOP);
+        }
+        {
+
+            const char* animKey = player.GetAnimationName(CharacterBase::ATTACK_READY);
+            renderer->PushOverrideAnimation(animKey, true, [](const AnimationData& data) { return data.IsEnd(); });
+            renderer->ChangeCurrentAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE);
+        }
         renderer->EndBuildOverrideAnimation();
     }
 }
 
 void PlayerPlayTurnState::SetAttackAnimation()
 {
-    Player&               player   = GetPlayer();
-    SkeletalMeshRenderer* renderer = player.GetSkeletalMeshRenderer();
+    Player& player   = GetPlayer();
+    auto*   renderer = player.GetAnimationComponent();
     if (renderer)
     {
         renderer->BeginBuildOverrideAnimation();
         renderer->ClearOverrideAnimations();
-        player.PushOverrideAnimation(CharacterBase::ATTACK_LOOP);
-        player.PushOverrideAnimation(CharacterBase::ATTACK, false, true,
-                                    [](const AnimationData& data) { return data.IsEnd; });
+        {
+            const char* animKey = player.GetAnimationName(CharacterBase::ATTACK_LOOP);
+            renderer->PushOverrideAnimation(animKey, true);
+            renderer->ChangeCurrentAnimationFlags(ANIMATION_FLAG_USE_LOOP);
+        }
+        {
+            const char* animKey = player.GetAnimationName(CharacterBase::ATTACK);
+            renderer->PushOverrideAnimation(animKey, true, [](const AnimationData& data) { return data.IsEnd(); });
+            renderer->ChangeCurrentAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE);
+        }
         renderer->EndBuildOverrideAnimation();
     }
 }
 
 void PlayerPlayTurnState::SetAttackEndAnimation() 
 {
-    Player&               player   = GetPlayer();
-    SkeletalMeshRenderer* renderer = player.GetSkeletalMeshRenderer();
+    Player& player   = GetPlayer();
+    auto*   renderer = player.GetAnimationComponent();
     if (renderer)
     {
         renderer->BeginBuildOverrideAnimation();
         renderer->ClearOverrideAnimations();
-        player.SetMainAnimation(CharacterBase::IDLE);
-        renderer->SetMainAnimationFrame(0.0f);
-        player.PushOverrideAnimation(CharacterBase::ATTACK_END, false, true,
-                                     [](const AnimationData& data) { return data.IsEnd; });
+        {
+            const char* animKey = player.GetAnimationName(CharacterBase::IDLE);
+            renderer->ChangeMainAnimation(animKey);
+            renderer->ChangeMainAnimationFlags(ANIMATION_FLAG_USE_LOOP | ANIMATION_FLAG_RESET_FRAME);
+        }
+        {
+            const char*   animKey = player.GetAnimationName(CharacterBase::ATTACK_END);
+            renderer->PushOverrideAnimation(animKey, true, [](const AnimationData& data) { return data.IsEnd(); });
+            renderer->ChangeCurrentAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE);
+        }
         renderer->EndBuildOverrideAnimation();
     }
 }
