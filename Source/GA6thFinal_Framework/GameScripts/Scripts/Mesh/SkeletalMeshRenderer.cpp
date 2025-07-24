@@ -36,6 +36,7 @@ SkeletalMeshRenderer::~SkeletalMeshRenderer()
 void SkeletalMeshRenderer::Reset()
 {
     MakeMeshRenderer(MeshType::SKELETAL_MESH, transform->Position, transform->Scale, transform->Rotation, transform->GetWorldMatrix());
+
     if (false == _guidRef.IsNull())
     {
         UmSceneManager.ResourceManager.RequestModelResource(this, _guidRef, [this]() { LoadModel(); });

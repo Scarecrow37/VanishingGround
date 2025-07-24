@@ -57,8 +57,9 @@ void MeshComponent::ImGuiDrawPropertysEvent()
 
     if (ImGui::TreeNodeEx("Materials##MeshComponent"))
     {
-        static UINT lastSelected = 0;
-        int inputFlags = ImGuiInputTextFlags_ReadOnly | ImGuiInputTextFlags_AutoSelectAll;
+        static UINT*         lastCustomDepth = 0;
+        static MeshRenderer* lastRenderer = nullptr;
+        static UINT          lastSelected = 0;
 
         const auto& model        = Renderer->GetModel();
         const auto& customDepths = Renderer->GetCustomDepths();
@@ -72,12 +73,19 @@ void MeshComponent::ImGuiDrawPropertysEvent()
             bool isOpened = ImGui::TreeNodeEx(meshes[i]->GetName().data());
             if (ImGui::IsItemClicked())
             {
-                ReflectFields->CustomDepth[lastSelected] &= ~PostProcess::OUTLINE;
-                Renderer->OffCustomDepth(PostProcess::OUTLINE, lastSelected);
+                if (lastRenderer)
+                {
+                    (*lastCustomDepth) &= ~PostProcess::OUTLINE;
+                    lastRenderer->OffCustomDepth(PostProcess::OUTLINE, lastSelected);
+                }
 
                 ReflectFields->CustomDepth[i] |= PostProcess::OUTLINE;
                 Renderer->OnCustomDepth(PostProcess::OUTLINE, i);
+                
+                // 마지막 선택한 값 기억
                 lastSelected = i;
+                lastRenderer = Renderer.get();
+                lastCustomDepth = &ReflectFields->CustomDepth[i];
             }
             if (isOpened)
             {

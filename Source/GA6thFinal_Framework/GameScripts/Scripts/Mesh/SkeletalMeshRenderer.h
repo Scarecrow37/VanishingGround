@@ -35,7 +35,5 @@ public:
 private:
     File::GuidRef _guidRef;
     REFLECT_FIELDS_BEGIN(MeshComponent)
-    std::string Guid = "";
-    float       AnimationSpeedScale     = 1.0f;
     REFLECT_FIELDS_END(SkeletalMeshRenderer)
 };

@@ -49,7 +49,13 @@ void StaticMeshRenderer::LoadModel()
 
 void StaticMeshRenderer::Reset()
 {
-    MakeMeshRenderer(MeshType::STATIC_MESH, transform->Position, transform->Scale, transform->Rotation, transform->GetWorldMatrix());
+    MakeMeshRenderer(MeshType::STATIC_MESH, transform->Position, transform->Scale, transform->Rotation,
+                     transform->GetWorldMatrix());
+
+    if (false == _guidRef.IsNull())
+    {
+        UmSceneManager.ResourceManager.RequestModelResource(this, _guidRef, [this]() { LoadModel(); });
+    }
 }
 
 void StaticMeshRenderer::SerializedReflectEvent() 
@@ -60,13 +66,4 @@ void StaticMeshRenderer::DeserializedReflectEvent()
 {
     File::Guid guid = ReflectFields->Basefields.get().Guid;
     _guidRef = guid;
-}
-
-void StaticMeshRenderer::Reset() 
-{
-    MakeMeshRenderer(MeshRenderType::STATIC, gameObject->transform->GetWorldMatrix());
-    if (false == _guidRef.IsNull())
-    {
-        UmSceneManager.ResourceManager.RequestModelResource(this, _guidRef, [this]() { LoadModel(); });
-    }
 }
