@@ -8,7 +8,7 @@ class PanelSlotComponent : public PlacementUIComponent
 public:
     PanelSlotComponent();
 
-    void         PassScopedPlacement(POINT point, SIZE size) const;
+    void PassScopedPlacement(POINT point, SIZE size) const;
 
 protected:
     REFLECT_FIELDS_BEGIN(PlacementUIComponent)
