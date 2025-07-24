@@ -46,28 +46,24 @@ using SkeletalMeshInstanceID = UINT;
 struct Material
 {
 #undef OPAQUE
-    enum class ShadingModel
+    enum ShadingModel
     {
         UNLIT,
-        DEFAULTLIT,
-        END
-    } Model;
-    enum class BlendMode
+        DEFAULTLIT
+    } ShadingModel;
+    enum BlendMode
     {
         OPAQUE,
         MASKED,
-        TRANSLUCENT,
-        ADDITIVE,
-        MODULATE,
-        END
-    } Mode;
-    enum
+        TRANSLUCENT
+    } BlendMode;
+    enum class CullMode
     {
         CULL_BACK,
         CULL_FRONT,
         CULL_NONE
     } CullMode;
-    bool         IsTwoSided;
+    bool IsTwoSided;
 };
 
 struct CameraData

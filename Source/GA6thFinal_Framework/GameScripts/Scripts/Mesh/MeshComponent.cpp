@@ -51,3 +51,121 @@ void MeshComponent::MakeMeshRenderer(MeshType renderType, const Vector3& positio
     }
 }
 
+void MeshComponent::Reset()
+{
+}
+
+void MeshComponent::SerializedReflectEvent()
+{
+}
+
+void MeshComponent::DeserializedReflectEvent()
+{
+    const auto& model     = Renderer->GetModel();
+    auto&       materials = model->GetMaterials();
+    size_t      meshCount = model->GetMeshCount();
+
+    for (size_t i = 0; i < meshCount; i++)
+    {
+        //materials[i].CullMode = ReflectFields->CullMode[i];
+        materials[i].BlendMode = static_cast<Material::BlendMode>(ReflectFields->BlendMode[i]);
+
+    }
+}
+
+void MeshComponent::ImGuiDrawPropertysEvent()
+{
+    ImGui::Separator();
+
+    if (ImGui::TreeNodeEx("Materials##MeshComponent"))
+    {
+        static UINT lastSelected = 0;
+        int inputFlags = ImGuiInputTextFlags_ReadOnly | ImGuiInputTextFlags_AutoSelectAll;
+
+        const auto& model        = Renderer->GetModel();
+        const auto& customDepths = Renderer->GetCustomDepths();
+        const auto& meshes       = model->GetMeshes();
+        auto&       materials    = model->GetMaterials();
+        size_t      count        = model->GetMeshCount();
+
+        for (size_t i = 0; i < count; i++)
+        {
+            ImGui::PushID((int)i);
+            bool isOpened = ImGui::TreeNodeEx(meshes[i]->GetName().data());
+            if (ImGui::IsItemClicked())
+            {
+                Renderer->OffCustomDepth(PostProcess::OUTLINE, lastSelected);
+                Renderer->OnCustomDepth(PostProcess::OUTLINE, i);
+                lastSelected = (UINT)i;
+            }
+            if (isOpened)
+            {
+                ImGuiTableFlags flags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_Sortable;
+                if (ImGui::BeginTable("##MeshComponent", 2, ImGuiTableFlags_Borders))
+                {
+                    //ImGui::TableNextRow();
+                    //{
+                    //    ImGui::TableNextColumn();
+                    //    {
+                    //        ImGui::Text("Shading Model");
+                    //    }
+                    //    ImGui::TableNextColumn();
+                    //    {
+                    //        static const char* names[] = {"Unlit", "Default Lit"};
+                    //        if (ImGui::Combo("##ShadingModel", (int*)&_materials[i].Mode, names, 2))
+                    //        {
+                    //            //_materials[i].CullMode;
+                    //        }
+                    //    }
+                    //    ImGui::TableNextColumn();
+                    //}
+                    ImGui::TableNextRow();
+                    {
+                        ImGui::TableNextColumn();
+                        {
+                            ImGui::Text("Is Two Sided(Shared)");
+                        }
+                        ImGui::TableNextColumn();
+                        {
+                            ImGui::Checkbox("##IsTwoSided", &materials[i].IsTwoSided);
+                        }
+                        ImGui::TableNextColumn();
+                    }
+
+                    ImGui::TableNextRow();
+                    {
+                        ImGui::TableNextColumn();
+                        {
+                            ImGui::Text("CustomDepth");
+                        }
+                        ImGui::TableNextColumn();
+                        {
+                            if (ImGui::BeginCombo("##CustomDepth", "Drop Down List"))
+                            {
+                                bool isBloom = customDepths[i] & PostProcess::BLOOM ? true : false;
+                                ImGuiHelper::TextWithVerticalSeparator("Bloom");
+                                if (ImGui::Checkbox("##Bloom", &isBloom))
+                                {
+                                    isBloom ? Renderer->OnCustomDepth(PostProcess::BLOOM) : 
+                                              Renderer->OffCustomDepth(PostProcess::BLOOM);
+                                }
+
+                                ImGui::EndCombo();
+                            }
+                        }
+                    }
+                    ImGui::EndTable();
+                }
+                ImGui::TreePop();
+            }
+
+            ImGui::PopID();
+        }
+
+        if (ImGui::Button("Apply##MeshComponent", ImVec2(100, 50)))
+        {
+        }
+
+        ImGui::TreePop();
+    }    
+}

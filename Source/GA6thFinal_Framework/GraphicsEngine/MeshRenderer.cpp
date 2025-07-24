@@ -79,10 +79,30 @@ void MeshRenderer::OnCustomDepth(UINT customDepth)
     }
 }
 
+void MeshRenderer::OnCustomDepth(UINT customDepth, UINT meshID)
+{
+    if (meshID >= _customDepths.size())
+    {
+        return;
+    }
+
+    _customDepths[meshID] |= customDepth;
+}
+
 void MeshRenderer::OffCustomDepth(UINT customDepth)
 {
     for (auto& depth : _customDepths)
     {
         depth &= ~customDepth;
     }
+}
+
+void MeshRenderer::OffCustomDepth(UINT customDepth, UINT meshID)
+{
+    if (meshID >= _customDepths.size())
+    {
+        return;
+    }
+
+    _customDepths[meshID] &= ~customDepth;
 }

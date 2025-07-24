@@ -79,7 +79,7 @@ void GBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
         for (auto& [material, mesh, customDepth] : _ownerScene->_activeMeshes[i])
         {
             // cull_back, cull_front, cull_none
-            meshType = MeshType(i * 3 + material.CullMode);
+            meshType = MeshType(i * 3 + (int)material.CullMode);
             _renderDatas[meshType].emplace_back(mesh, instanceID++, customDepth);
         }
     }

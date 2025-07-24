@@ -42,22 +42,25 @@ void StaticMeshRenderer::LoadModel()
         {
             std::wstring modelPath = U8ToWString(path);
             UmGraphics.LoadResource(modelPath, Renderer.get());
-        } 
+        }
     }
 }
 
 void StaticMeshRenderer::Reset()
 {
+    __super::Reset();
     MakeMeshRenderer(MeshType::STATIC_MESH, transform->Position, transform->Scale, transform->Rotation, transform->GetWorldMatrix());
 }
 
 void StaticMeshRenderer::SerializedReflectEvent() 
 {
-
+    __super::SerializedReflectEvent();
 }
 
 void StaticMeshRenderer::DeserializedReflectEvent() 
 {
+    __super::DeserializedReflectEvent();
+
     File::Guid guid = ReflectFields->Guid;
     _guidRef = guid;
     if (false == guid.IsNull())

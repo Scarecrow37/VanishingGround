@@ -28,9 +28,9 @@ public:
 
 public:
     void OnCustomDepth(UINT customDepth);
-    void OnCustomDepth(UINT customDepth, UINT meshID) { _customDepths[meshID] |= customDepth; }
+    void OnCustomDepth(UINT customDepth, UINT meshID);    
     void OffCustomDepth(UINT customDepth);
-    void OffCustomDepth(UINT customDepth, UINT meshID) { _customDepths[meshID] &= ~customDepth; }
+    void OffCustomDepth(UINT customDepth, UINT meshID);
 
 private:
     std::vector<Material>                              _materials;

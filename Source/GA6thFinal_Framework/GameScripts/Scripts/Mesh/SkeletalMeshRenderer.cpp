@@ -32,6 +32,7 @@ SkeletalMeshRenderer::~SkeletalMeshRenderer() {}
 
 void SkeletalMeshRenderer::Reset()
 {
+    __super::Reset();
     MakeMeshRenderer(MeshType::SKELETAL_MESH, transform->Position, transform->Scale, transform->Rotation, transform->GetWorldMatrix());
 }
 
@@ -54,6 +55,8 @@ void SkeletalMeshRenderer::OnDrawDebug()
 
 void SkeletalMeshRenderer::SerializedReflectEvent() 
 {
+    __super::SerializedReflectEvent();
+
     ReflectFields->MainAnimationKey     = _mainAnimationData.AnimationName;
     ReflectFields->MainAnimationLooping = _mainAnimationData.IsLooping;
     ReflectFields->MainAnimationSpeed   = _mainAnimationData.Speed;
@@ -61,6 +64,8 @@ void SkeletalMeshRenderer::SerializedReflectEvent()
 
 void SkeletalMeshRenderer::DeserializedReflectEvent() 
 {
+    __super::DeserializedReflectEvent();
+
     File::Guid guid = ReflectFields->Guid;
     _guidRef        = guid;
     if (false == guid.IsNull())

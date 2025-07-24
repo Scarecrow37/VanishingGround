@@ -38,5 +38,15 @@ public:
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)
+    std::vector<unsigned int> ShadingModel;
+    std::vector<unsigned int> BlendMode;
+    std::vector<unsigned int> CullMode;
+    std::vector<bool>         IsTwoSided;
     REFLECT_FIELDS_END(MeshComponent)
+
+protected:
+    void Reset() override;
+    void SerializedReflectEvent() override;
+    void DeserializedReflectEvent() override;
+    void ImGuiDrawPropertysEvent() override;
 };
