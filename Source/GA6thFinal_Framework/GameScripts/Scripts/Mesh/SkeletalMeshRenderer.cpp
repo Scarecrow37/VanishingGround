@@ -29,16 +29,17 @@ SkeletalMeshRenderer::SkeletalMeshRenderer()
     });
 }
 
-SkeletalMeshRenderer::~SkeletalMeshRenderer() {}
+SkeletalMeshRenderer::~SkeletalMeshRenderer() 
+{
+}
 
 void SkeletalMeshRenderer::Reset()
 {
     MakeMeshRenderer(MeshRenderType::SKELETAL, gameObject->transform->GetWorldMatrix());
-    AnimationComponent* animator = GetComponent<AnimationComponent>();
-    if (animator)
+    if (false == _guidRef.IsNull())
     {
-        animator->SetSkeletalMeshRenderer(this);
-    } 
+        UmSceneManager.ResourceManager.RequestModelResource(this, _guidRef, [this]() { LoadModel(); });
+    }
 }
 
 void SkeletalMeshRenderer::Awake() 
@@ -46,6 +47,10 @@ void SkeletalMeshRenderer::Awake()
 }
 
 void SkeletalMeshRenderer::Update()
+{
+}
+
+void SkeletalMeshRenderer::OnDestroy() 
 {
 }
 
@@ -61,10 +66,6 @@ void SkeletalMeshRenderer::DeserializedReflectEvent()
 {
     File::Guid guid = ReflectFields->Guid;
     _guidRef        = guid;
-    if (false == guid.IsNull())
-    {
-        UmSceneManager.ResourceManager.RequestModelResource(this, _guidRef, [this]() { LoadModel();});
-    }
 }
 
 void SkeletalMeshRenderer::ImGuiDrawPropertysEvent() 
@@ -104,6 +105,17 @@ void SkeletalMeshRenderer::LoadModel()
                 UmGraphics.RegisterComponent(animator.get());
                 Renderer->SetAnimator(animator);
             }
+            OnChangedModel();
         }
+    }
+}
+
+void SkeletalMeshRenderer::OnChangedModel() 
+{
+    AnimationComponent* animationComponent = GetComponent<AnimationComponent>();
+    if (Renderer && animationComponent)
+    {
+        const auto& animator = Renderer->GetAnimator();
+        animationComponent->SetAnimator(animator);
     }
 }

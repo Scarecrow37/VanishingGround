@@ -4,7 +4,7 @@
 
 void AnimationComponent::Reset() 
 {
-    _skeletalMeshRenderer = GetComponent<SkeletalMeshRenderer>();
+    SetAnimator(GetComponent<SkeletalMeshRenderer>());
 }
 
 void AnimationComponent::Awake()
@@ -13,9 +13,16 @@ void AnimationComponent::Awake()
     ChangeMainAnimationFlags(ReflectFields->MainAnimationFlags);
 }
 
+void AnimationComponent::OnDestroy()
+{
+    UpdateNullAnimator();
+}
+
 void AnimationComponent::Update() 
 {
-    if (_skeletalMeshRenderer)
+    // 애니메이터가 해당 객체만 사용 중이라면 reset합니다.
+    UpdateNullAnimator();
+    if (_animator)
     {
         for (auto& animData : _overrideAnimationStack)
         {
@@ -32,7 +39,10 @@ void AnimationComponent::Update()
 }
 
 void AnimationComponent::OnDrawDebug()
-{   // 메인 애니메이션만
+{  
+    // 애니메이터가 해당 객체만 사용 중이라면 reset합니다.
+    UpdateNullAnimator();
+    // 메인 애니메이션만
     UpdateAnimation(_mainAnimationData);
 }
 
@@ -52,22 +62,18 @@ void AnimationComponent::DeserializedReflectEvent()
 
 void AnimationComponent::ImGuiDrawPropertysEvent()
 {
-    if (nullptr == _skeletalMeshRenderer)
+    UpdateNullAnimator();
+    if (nullptr == _animator)
     {
-        ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "SkeletalMeshRenderer is NULL");
+        ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Animator is NULL");
     }
-
-    Model*    model    = GetModel();
-    Animator* animator = GetAnimator();
-    if (model && animator)
+    ImGui::Text("animator: use_count %d", (int)_animator.use_count());
+    if (_animator)
     {
-       
-        const auto&    animation      = model->GetAnimation();
-        const auto&    animationNames = animation->GetAnimations();
+        const auto&    animationNames = _animator->GetAnimationNames();
         AnimationData& curAnimData    = GetLastAnimationDataEx();
         if (ImGui::TreeNodeEx("Current Animation##details"))
         {
-            const auto& animationNames = animation->GetAnimations();
             const char* comboLabel     = curAnimData.AnimationName.empty() ? "-" : curAnimData.AnimationName.c_str();
             if (ImGui::BeginCombo("##Animation", comboLabel))
             {
@@ -123,11 +129,11 @@ void AnimationComponent::ImGuiDrawPropertysEvent()
             }
 
             float min = 0.0f;
-            float max = animator->GetCurrentAnimationLastTime();
-            float cur = animator->GetCurrentAnimationPlayTime();
+            float max = _animator->GetCurrentAnimationLastTime();
+            float cur = _animator->GetCurrentAnimationPlayTime();
             if (ImGui::SliderFloat("Current Animation Frame", &cur, min, max))
             {
-                animator->SetAnimationTime(cur);
+                _animator->SetAnimationTime(cur);
             }
             if (ImGui::DragFloat("Animation Speed", &curAnimData.Speed, 0.01f))
             {
@@ -151,90 +157,46 @@ AnimationData& AnimationComponent::GetLastAnimationDataEx()
     return _mainAnimationData;
 }
 
-MeshRenderer* AnimationComponent::GetRenderer() const
-{
-    if (_skeletalMeshRenderer)
-    {
-        return _skeletalMeshRenderer->Renderer.get();
-    }
-    else
-    {
-        return nullptr;
-    }
-}
-
-Model* AnimationComponent::GetModel() const
-{
-    MeshRenderer* renderer = GetRenderer();
-    if (renderer)
-    {
-        auto model = renderer->GetModel();
-        if (model)
-        {
-            return model.get();
-        }
-    }
-    return nullptr;
-}
-
-Animator* AnimationComponent::GetAnimator() const
-{
-    MeshRenderer* renderer = GetRenderer();
-    if (renderer)
-    {
-        auto animator = renderer->GetAnimator();
-        if (animator)
-        {
-            return animator.get();
-        }
-    }
-    return nullptr;
-}
-
 void AnimationComponent::UpdateAnimation(AnimationData& animData)
 {
-    if (_skeletalMeshRenderer)
+    if (_animator)
     {
-        auto animator   = GetAnimator();
         bool isLastData = GetLastAnimationDataEx().IsSameData(animData);
-        if (animator)
+        float animFrameScale = animData.Speed * ReflectFields->AnimationSpeedScale;
+        if (isLastData)
         {
-            float animFrameScale = animData.Speed * ReflectFields->AnimationSpeedScale;
-            if (isLastData)
+            _animator->SetPause(animData.HasFlag(ANIMATION_FLAG_PAUSE));
+            _animator->SetLoop(animData.HasFlag(ANIMATION_FLAG_USE_LOOP));
+            _animator->SetAnimationSpeed(animFrameScale);
+            animData.ElapsedFrame = _animator->GetCurrentAnimationPlayTime();
+        }
+        else
+        {
+            if (animData.HasFlag(ANIMATION_FLAG_ALWAYS_UPDATE))
             {
-                animator->SetPause(animData.HasFlag(ANIMATION_FLAG_PAUSE));
-                animator->SetLoop(animData.HasFlag(ANIMATION_FLAG_USE_LOOP));
-                animator->SetAnimationSpeed(animFrameScale);
-                animData.ElapsedFrame = animator->GetCurrentAnimationPlayTime();
-            }
-            else
-            {
-                if (animData.HasFlag(ANIMATION_FLAG_ALWAYS_UPDATE))
+                float maxFrame = _animator->GetAnimationLastTime(animData.AnimationName.data());
+                float delta    = UmTime.DeltaTime();
+                animData.ElapsedFrame += delta * animFrameScale;
+                if (animData.ElapsedFrame >= maxFrame)
                 {
-                    float maxFrame = animator->GetAnimationLastTime(animData.AnimationName.data());
-                    float delta    = UmTime.DeltaTime();
-                    animData.ElapsedFrame += delta * animFrameScale;
-                    if (animData.ElapsedFrame >= maxFrame)
-                    {
-                        animData.ElapsedFrame = maxFrame;
+                    animData.ElapsedFrame = maxFrame;
 
-                        UINT id = animData.ID;
-                        _eventQueue.push_back([this, id]() {
-                            auto beginItr = _overrideAnimationStack.begin();
-                            auto endItr   = _overrideAnimationStack.end();
-                            auto itr      = std::remove_if(beginItr, endItr, [id](const AnimationData& data) { return data.IsSameID(id); });
-                            _overrideAnimationStack.erase(itr, endItr);
-                        });
-                    }
+                    UINT id = animData.ID;
+                    _eventQueue.push_back([this, id]() {
+                        auto beginItr = _overrideAnimationStack.begin();
+                        auto endItr   = _overrideAnimationStack.end();
+                        auto itr      = std::remove_if(beginItr, endItr, [id](const AnimationData& data) { return data.IsSameID(id); });
+                        _overrideAnimationStack.erase(itr, endItr);
+                    });
                 }
             }
-            if (animData.PopCondition)
+        }
+        if (animData.PopCondition)
+        {
+            bool result = animData.PopCondition(animData);
+            if (result)
             {
-                bool result = animData.PopCondition(animData);
-                if (result)
-                {
-                    PopOverrideAnimation();
-                }
+                PopOverrideAnimation();
             }
         }
     }
@@ -242,30 +204,28 @@ void AnimationComponent::UpdateAnimation(AnimationData& animData)
 
 void AnimationComponent::SetAnimationEx(AnimationData& animData) 
 {
-    Animator* animator = GetAnimator();
-    if (animator)
+    if (_animator)
     {
         bool isLastData = GetLastAnimationDataEx().IsSameData(animData);
         if (true == isLastData && false == _isBuildingOverrideAnimation)
         {
-            animator->ChangeAnimation(animData.AnimationName.c_str(), animData.IsBlending);
+            _animator->ChangeAnimation(animData.AnimationName.c_str(), animData.IsBlending);
             if (animData.HasFlag(ANIMATION_FLAG_RESET_FRAME))
             {
                 animData.ElapsedFrame = 0.0f;
             }
-            animator->SetAnimationTime(animData.ElapsedFrame);
+            _animator->SetAnimationTime(animData.ElapsedFrame);
         }
     }
 }
 
 void AnimationComponent::ChangeAnimationEx(AnimationData& animData, std::string_view animKey, bool blend)
 {
-    Animator* animator = GetAnimator();
-    if (animator)
+    if (_animator)
     {
         animData.IsBlending    = blend;
         animData.AnimationName = animKey;
-        animData.MaxFrame      = animator->GetAnimationLastTime(animData.AnimationName.data());
+        animData.MaxFrame      = _animator->GetAnimationLastTime(animData.AnimationName.data());
         bool isLastData        = GetLastAnimationDataEx().IsSameData(animData);
         if (true == isLastData && false == _isBuildingOverrideAnimation)
         {
@@ -276,22 +236,20 @@ void AnimationComponent::ChangeAnimationEx(AnimationData& animData, std::string_
 
 void AnimationComponent::ChangeAnimationFrameEx(AnimationData& animData, float frame)
 {
-    Animator* animator = GetAnimator();
-    if (animator)
+    if (_animator)
     {
         animData.ElapsedFrame = std::clamp(frame, 0.0f, animData.MaxFrame);
         bool isLastData       = GetLastAnimationDataEx().IsSameData(animData);
         if (true == isLastData && false == _isBuildingOverrideAnimation)
         {
-            animator->SetAnimationTime(animData.ElapsedFrame);
+            _animator->SetAnimationTime(animData.ElapsedFrame);
         }
     }
 }
 
 void AnimationComponent::ChangeAnimationFlagsEx(AnimationData& animData, int flags)
 {
-    Animator* animator = GetAnimator();
-    if (animator)
+    if (_animator)
     {
         animData.Flags = flags;
     }
@@ -338,14 +296,13 @@ void AnimationComponent::EndBuildOverrideAnimation()
 
 void AnimationComponent::PushOverrideAnimation(std::string_view animKey, bool blend, std::function<bool(const AnimationData&)> popCondition)
 {
-    Animator* animator = GetAnimator();
-    if (animator)
+    if (_animator)
     {
         _overrideAnimationStack.emplace_back(animKey);
         AnimationData& animData = GetLastAnimationDataEx();
         animData.IsBlending     = blend;
         animData.PopCondition   = popCondition;
-        animData.MaxFrame       = animator->GetAnimationLastTime(animData.AnimationName.data());
+        animData.MaxFrame       = _animator->GetAnimationLastTime(animData.AnimationName.data());
         if (false == _isBuildingOverrideAnimation)
         {
             SetAnimationEx(animData);
@@ -433,7 +390,28 @@ void AnimationComponent::PauseCurrentAnimation()
     animData.AddFlag(ANIMATION_FLAG_PAUSE);
 }
 
-void AnimationComponent::SetSkeletalMeshRenderer(SkeletalMeshRenderer* renderer)
+void AnimationComponent::SetAnimator(SkeletalMeshRenderer* renderer)
 {
-    _skeletalMeshRenderer = renderer;
+    if (renderer && renderer->Renderer)
+    {
+        _animator = renderer->Renderer->GetAnimator();
+    }
+}
+
+void AnimationComponent::SetAnimator(std::shared_ptr<Animator> animator)
+{
+    if (_animator != animator)
+    {
+        _animator = animator;
+        ClearOverrideAnimations();
+    }
+}
+
+void AnimationComponent::UpdateNullAnimator() 
+{
+    if (1 >= _animator.use_count())
+    {
+        _animator.reset();
+        ClearOverrideAnimations();
+    }
 }

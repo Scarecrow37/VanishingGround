@@ -16,6 +16,7 @@ protected:
     void Reset() override;
     void Awake() override;
     void Update() override;
+    void OnDestroy() override;
     void OnDrawDebug() override;
 
     void SerializedReflectEvent() override;
@@ -24,6 +25,7 @@ protected:
 
 private:
     void LoadModel();
+    void OnChangedModel();
 
 public:
     REFLECT_PROPERTY(FilePath)

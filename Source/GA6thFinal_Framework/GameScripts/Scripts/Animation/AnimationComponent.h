@@ -14,6 +14,7 @@ class AnimationComponent : public Component
 public:
     void Reset() override;
     void Awake() override;
+    void OnDestroy() override;  
     void Update() override;
     void OnDrawDebug() override;
 
@@ -23,9 +24,6 @@ public:
 
 private:
     AnimationData&  GetLastAnimationDataEx();
-    MeshRenderer*   GetRenderer() const;
-    Model*          GetModel() const;
-    Animator*       GetAnimator() const;
 
     void            UpdateAnimation(AnimationData& animData);
     void            SetAnimationEx(AnimationData& animData);
@@ -93,10 +91,12 @@ public:
     /// <summary>애니메이션을 일시 정지합니다.</summary>
     void PauseCurrentAnimation();
 
-    void SetSkeletalMeshRenderer(SkeletalMeshRenderer* renderer);
+    void SetAnimator(SkeletalMeshRenderer* renderer);
+    void SetAnimator(std::shared_ptr<Animator> animator);
+    void UpdateNullAnimator();
 
 private:
-    SkeletalMeshRenderer*      _skeletalMeshRenderer = nullptr;
+    std::shared_ptr<Animator>  _animator;
     EventQueue                 _eventQueue;
     AnimationData              _mainAnimationData;
     std::vector<AnimationData> _overrideAnimationStack; 
