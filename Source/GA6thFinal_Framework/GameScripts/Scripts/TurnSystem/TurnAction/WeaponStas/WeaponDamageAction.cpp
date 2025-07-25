@@ -100,6 +100,7 @@ void WeaponDamageAction::UpdateActionInfo()
     {
     case TriggerType::QTE_END:
         triggerInfo = u8"QTE 종료시"_c_str;
+        break;
     default:
         break;
     }
