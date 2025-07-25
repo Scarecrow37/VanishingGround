@@ -91,21 +91,19 @@ void ParticleEffect::Update(float deltaTime)
         emitter->Update(deltaTime);
     }
     {
+
         for (auto emitter : _particleEmitters)
         {
             if (true == emitter->GetActiveFlag())
                 return;
         }
-        if (true == _isEnding)
+        _activeFlag = false;
+        _playFlag   = false;
+        _isEnding   = false;
+        if (true == _isPlaying)
         {
-            _activeFlag = false;
-            _playFlag   = false;
-            _isEnding   = false;
-            if (true == _isPlaying)
-            {
-                _isPlaying = false;
-                _age       = 0;
-            }
+            _isPlaying = false;
+            _age       = 0;
         }
     }
 
@@ -157,6 +155,12 @@ void ParticleEffect::Play()
         _activeFlag = true;
         _isEnding   = false;
         _age        = 0;
+        for (auto& emitter : _particleEmitters)
+        {
+            emitter->Reset();
+            emitter->SetActiveFlag(true);
+        }
+
     }
 }
 
@@ -166,6 +170,7 @@ void ParticleEffect::Stop()
     {
 
         _isEnding = true;
+        _isPlaying = false;
         for (auto& emitter : _particleEmitters)
         {
             emitter->SetEndFlag(true);
