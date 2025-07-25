@@ -3,171 +3,197 @@
 
 GridPanel::GridPanel() = default;
 
+unsigned int GridPanel::GetColumns() const
+{
+    return ReflectFields->Columns;
+}
+
+unsigned int GridPanel::GetRows() const
+{
+    return ReflectFields->Rows;
+}
+
 void GridPanel::OnAttachChild(GameObject* childGameObject)
 {
     EditablePlacementUIComponent::OnAttachChild(childGameObject);
+
     auto& slot = childGameObject->AddComponent<GridPanelSlot>();
-    slot.SetColumnsAndRows(ReflectFields->Columns, ReflectFields->Rows);
-    slot.SetPlacement(ReflectFields->Basefields.get().Basefields.get().Point,
-                      ReflectFields->Basefields.get().Basefields.get().Size);
+    AssignChild(slot);
 }
 
 void GridPanel::DrawDebug()
 {
     EditablePlacementUIComponent::DrawDebug();
-    const unsigned int columns = Columns;
-    const unsigned int rows    = Rows;
-    const SIZE         size    = Size;
-    const POINT        point   = Point;
-    if (columns == 0 || rows == 0)
-        return;
 
-    const long stepX = size.cx / static_cast<LONG>(columns);
-    for (unsigned int i = 1; i < columns; ++i)
-    {
-        POINT start{};
-        start.x = point.x + stepX * static_cast<LONG>(i);
-        start.y = point.y;
+    const SublineCallback callback = [](const POINT& start, const POINT& end) {
+        const XMFLOAT2 startVector = {static_cast<float>(start.x), static_cast<float>(start.y)};
+        const XMFLOAT2 endVector   = {static_cast<float>(end.x), static_cast<float>(end.y)};
 
-        POINT end{};
-        end.x = start.x;
-        end.y = start.y + size.cy;
+        UmGraphics.DebugDraw2D("Editor", XMLoadFloat2(&startVector), XMLoadFloat2(&endVector), Colors::White);
+    };
 
-        XMFLOAT2 startVector = {static_cast<float>(start.x), static_cast<float>(start.y)};
-        XMFLOAT2 endVector   = {static_cast<float>(end.x), static_cast<float>(end.y)};
-        UmGraphics.DebugDraw2D("Editor", XMLoadFloat2(&startVector), XMLoadFloat2(&endVector), DirectX::Colors::White);
-    }
-
-    const long stepY = size.cy / static_cast<LONG>(rows);
-    for (unsigned int i = 1; i < rows; ++i)
-    {
-        POINT start{};
-        start.x = point.x;
-        start.y = point.y + stepY * static_cast<LONG>(i);
-        POINT end{};
-        end.x = start.x + size.cx;
-        end.y = start.y;
-
-         XMFLOAT2 startVector = {static_cast<float>(start.x), static_cast<float>(start.y)};
-        XMFLOAT2 endVector   = {static_cast<float>(end.x), static_cast<float>(end.y)};
-        UmGraphics.DebugDraw2D("Editor", XMLoadFloat2(&startVector), XMLoadFloat2(&endVector), DirectX::Colors::White);
-    }
+    DrawSubline(callback, callback);
 }
 
 void GridPanel::DrawDebugSelected()
 {
     EditablePlacementUIComponent::DrawDebugSelected();
-    const unsigned int columns = Columns;
-    const unsigned int rows    = Rows;
-    const SIZE         size    = Size;
-    const POINT        point   = Point;
-    if (columns == 0 || rows == 0)
-        return;
 
-    const long stepX = size.cx / static_cast<LONG>(columns);
-    for (unsigned int i = 1; i < columns; ++i)
-    {
-        POINT start{};
-        start.x = point.x + stepX * static_cast<LONG>(i);
-        start.y = point.y;
+    const SublineCallback column = [](const POINT& start, const POINT& end) {
+        const XMFLOAT2 startVector = {static_cast<float>(start.x), static_cast<float>(start.y)};
+        const XMFLOAT2 endVector   = {static_cast<float>(end.x), static_cast<float>(end.y)};
+        UmGraphics.DebugDraw2D("Editor", XMLoadFloat2(&startVector), XMLoadFloat2(&endVector), Colors::Yellow);
 
-        POINT end{};
-        end.x = start.x;
-        end.y = start.y + size.cy;
+        const POINT    leftStart{start.x - 1, start.y};
+        const POINT    leftEnd{start.x - 1, end.y};
+        const XMFLOAT2 leftStartVector = {static_cast<float>(leftStart.x), static_cast<float>(leftStart.y)};
+        const XMFLOAT2 leftEndVector   = {static_cast<float>(leftEnd.x), static_cast<float>(leftEnd.y)};
+        UmGraphics.DebugDraw2D("Editor", XMLoadFloat2(&leftStartVector), XMLoadFloat2(&leftEndVector), Colors::Yellow);
 
-        XMFLOAT2 startVector = {static_cast<float>(start.x), static_cast<float>(start.y)};
-        XMFLOAT2 endVector   = {static_cast<float>(end.x), static_cast<float>(end.y)};
-        UmGraphics.DebugDraw2D("Editor", XMLoadFloat2(&startVector), XMLoadFloat2(&endVector), DirectX::Colors::Yellow);
-
-
-        const POINT leftStart{start.x - 1, start.y};
-        const POINT leftEnd{start.x - 1, end.y};
-        XMFLOAT2 leftStartVector = {static_cast<float>(leftStart.x), static_cast<float>(leftStart.y)};
-        XMFLOAT2 leftEndVector   = {static_cast<float>(leftEnd.x), static_cast<float>(leftEnd.y)};
-        UmGraphics.DebugDraw2D("Editor", XMLoadFloat2(&leftStartVector), XMLoadFloat2(&leftEndVector),
-                               DirectX::Colors::Yellow);
-
-        const POINT rightStart{end.x + 1, start.y};
-        const POINT rightEnd{end.x + 1, end.y};
-        XMFLOAT2 rightStartVector = {static_cast<float>(rightStart.x), static_cast<float>(rightStart.y)};
-        XMFLOAT2 rightEndVector   = {static_cast<float>(rightEnd.x), static_cast<float>(rightEnd.y)};
+        const POINT    rightStart{end.x + 1, start.y};
+        const POINT    rightEnd{end.x + 1, end.y};
+        const XMFLOAT2 rightStartVector = {static_cast<float>(rightStart.x), static_cast<float>(rightStart.y)};
+        const XMFLOAT2 rightEndVector   = {static_cast<float>(rightEnd.x), static_cast<float>(rightEnd.y)};
         UmGraphics.DebugDraw2D("Editor", XMLoadFloat2(&rightStartVector), XMLoadFloat2(&rightEndVector),
-                               DirectX::Colors::Yellow);
-    }
+                               Colors::Yellow);
+    };
 
-    const long stepY = size.cy / static_cast<LONG>(rows);
-    for (unsigned int i = 1; i < rows; ++i)
-    {
-        POINT start{};
-        start.x = point.x;
-        start.y = point.y + stepY * static_cast<LONG>(i);
-        POINT end{};
-        end.x = start.x + size.cx;
-        end.y = start.y;
+    const SublineCallback row = [](const POINT& start, const POINT& end) {
+        const XMFLOAT2 startVector = {static_cast<float>(start.x), static_cast<float>(start.y)};
+        const XMFLOAT2 endVector   = {static_cast<float>(end.x), static_cast<float>(end.y)};
+        UmGraphics.DebugDraw2D("Editor", XMLoadFloat2(&startVector), XMLoadFloat2(&endVector), Colors::Yellow);
 
-        XMFLOAT2 startVector = {static_cast<float>(start.x), static_cast<float>(start.y)};
-        XMFLOAT2 endVector   = {static_cast<float>(end.x), static_cast<float>(end.y)};
-        UmGraphics.DebugDraw2D("Editor", XMLoadFloat2(&startVector), XMLoadFloat2(&endVector), DirectX::Colors::Yellow);
+        const POINT    upStart{start.x, start.y - 1};
+        const POINT    upEnd{end.x, start.y - 1};
+        const XMFLOAT2 upStartVector = {static_cast<float>(upStart.x), static_cast<float>(upStart.y)};
+        const XMFLOAT2 upEndVector   = {static_cast<float>(upEnd.x), static_cast<float>(upEnd.y)};
+        UmGraphics.DebugDraw2D("Editor", XMLoadFloat2(&upStartVector), XMLoadFloat2(&upEndVector), Colors::Yellow);
 
-        const POINT upStart{start.x, start.y - 1};
-        const POINT upEnd{end.x, start.y - 1};
-        XMFLOAT2 upStartVector = {static_cast<float>(upStart.x), static_cast<float>(upStart.y)};
-        XMFLOAT2 upEndVector   = {static_cast<float>(upEnd.x), static_cast<float>(upEnd.y)};
-        UmGraphics.DebugDraw2D("Editor", XMLoadFloat2(&upStartVector), XMLoadFloat2(&upEndVector),
-                               DirectX::Colors::Yellow);
+        const POINT    downStart{start.x, end.y + 1};
+        const POINT    downEnd{end.x, end.y + 1};
+        const XMFLOAT2 downStartVector = {static_cast<float>(downStart.x), static_cast<float>(downStart.y)};
+        const XMFLOAT2 downEndVector   = {static_cast<float>(downEnd.x), static_cast<float>(downEnd.y)};
+        UmGraphics.DebugDraw2D("Editor", XMLoadFloat2(&downStartVector), XMLoadFloat2(&downEndVector), Colors::Yellow);
+    };
 
-        const POINT downStart{start.x, end.y + 1};
-        const POINT downEnd{end.x, end.y + 1};
-        XMFLOAT2 downStartVector = {static_cast<float>(downStart.x), static_cast<float>(downStart.y)};
-        XMFLOAT2 downEndVector   = {static_cast<float>(downEnd.x), static_cast<float>(downEnd.y)};
-        UmGraphics.DebugDraw2D("Editor", XMLoadFloat2(&downStartVector), XMLoadFloat2(&downEndVector),
-                               DirectX::Colors::Yellow);
-    }
+    DrawSubline(column, row);
 }
 
 void GridPanel::OnPlacementChange()
 {
     EditablePlacementUIComponent::OnPlacementChange();
-    for (int i = 0; i < transform->GetChildCount(); ++i)
+
+    Transform&                  transform = this->transform;
+    std::vector<GridPanelSlot*> slots     = FindChildComponents<GridPanelSlot>()(transform);
+    std::ranges::for_each(slots, [this](GridPanelSlot* slot) { AssignChild(*slot); });
+}
+
+void GridPanel::AssignChild(GridPanelSlot& slot) const
+{
+    const unsigned int columns = GetColumns();
+    const unsigned int rows    = GetRows();
+    slot.SetColumnsAndRows(columns, rows);
+
+    const POINT absolutePoint = GetAbsolutePoint();
+    const SIZE  size          = GetSize();
+    slot.SetScopePlacement(absolutePoint, size);
+}
+
+void GridPanel::DrawSubline(const SublineCallback& columnSubline, const SublineCallback& rowSubline) const
+{
+    const unsigned int columns = Columns;
+    const unsigned int rows    = Rows;
+    if (columns == 0 || rows == 0)
+        return;
+
+    const auto [absoluteX, absoluteY] = GetAbsolutePoint();
+    const SIZE size                   = Size;
+
+    const long stepX = size.cx / static_cast<LONG>(columns);
+    for (unsigned int i = 1; i < columns; ++i)
     {
-        const Transform* child = transform->GetChild(i);
-        GameObject& gameObject = child->gameObject;
-        for (int j = 0; j < gameObject.GetComponentCount(); ++j)
-        {
-            if (GridPanelSlot* slot = gameObject.GetComponentAtIndex<GridPanelSlot>(j))
-            {
-                slot->SetColumnsAndRows(ReflectFields->Columns, ReflectFields->Rows);
-                POINT point  = ReflectFields->Basefields.get().Basefields.get().Point;
-                auto  [x, y] = ReflectFields->Basefields.get().Basefields.get().ScopePoint;
-                point.x += x;
-                point.y += y;
-                slot->SetPlacement(point,
-                                  ReflectFields->Basefields.get().Basefields.get().Size);
-            }
-        }
+        const POINT start{.x = absoluteX + stepX * static_cast<LONG>(i), .y = absoluteY};
+        const POINT end{.x = start.x, .y = start.y + size.cy};
+
+        columnSubline(start, end);
+    }
+
+    const long stepY = size.cy / static_cast<LONG>(rows);
+    for (unsigned int i = 1; i < rows; ++i)
+    {
+        const POINT start{.x = absoluteX, .y = absoluteY + stepY * static_cast<LONG>(i)};
+        const POINT end{.x = start.x + size.cx, .y = start.y};
+
+        rowSubline(start, end);
     }
 }
 
 GridPanelSlot::GridPanelSlot() = default;
 
-void GridPanelSlot::OnSetPlacement()
+unsigned int GridPanelSlot::GetColumns() const
 {
-    const unsigned int columns = ReflectFields->Columns;
-    const unsigned int rows    = ReflectFields->Rows;
-    if (columns == 0 || rows == 0)
-        return;
+    return ReflectFields->Columns;
+}
 
-    const auto [pointX, pointY] = ReflectFields->Basefields.get().Basefields.get().Point;
-    const auto [sizeX, sizeY]   = ReflectFields->Basefields.get().Basefields.get().Size;
-    const long stepX            = sizeX / static_cast<LONG>(columns);
-    const long stepY            = sizeY / static_cast<LONG>(rows);
+unsigned int GridPanelSlot::GetRows() const
+{
+    return ReflectFields->Rows;
+}
 
-    const POINT scopePoint{.x = pointX + stepX * static_cast<LONG>(ReflectFields->Column),
-                           .y = pointY + stepY * static_cast<LONG>(ReflectFields->Row)};
-    const SIZE  scopeSize{.cx = stepX * static_cast<LONG>(ReflectFields->ColumnSpan),
-                          .cy = stepY * static_cast<LONG>(ReflectFields->RowSpan)};
+unsigned int GridPanelSlot::GetColumn() const
+{
+    return ReflectFields->Column;
+}
 
-    PanelSlotComponent::PassScopedPlacement(scopePoint, scopeSize);
+unsigned int GridPanelSlot::GetRow() const
+{
+    return ReflectFields->Row;
+}
+
+unsigned int GridPanelSlot::GetColumnSpan() const
+{
+    return ReflectFields->ColumnSpan;
+}
+
+unsigned int GridPanelSlot::GetRowSpan() const
+{
+    return ReflectFields->RowSpan;
+}
+
+std::pair<POINT, SIZE> GridPanelSlot::GetCellPlacement() const
+{
+    const auto [pointX, pointY]        = GetAbsolutePoint();
+    const auto [cellWidth, cellHeight] = GetSingleCellSize();
+    const unsigned int column          = GetColumn();
+    const unsigned int row             = GetRow();
+    const unsigned int columnSpan      = GetColumnSpan();
+    const unsigned int rowSpan         = GetRowSpan();
+
+    const POINT cellPoint{.x = pointX + cellWidth * static_cast<LONG>(column),
+                          .y = pointY + cellHeight * static_cast<LONG>(row)};
+    const SIZE cellSize{.cx = cellWidth * static_cast<LONG>(columnSpan), .cy = cellHeight * static_cast<LONG>(rowSpan)};
+
+    return std::make_pair(cellPoint, cellSize);
+}
+
+SIZE GridPanelSlot::GetSingleCellSize() const
+{
+    const auto [tableWidth, tableHeight] = GetSize();
+    const unsigned int columns           = GetColumns();
+    const unsigned int rows              = GetRows();
+
+    const SIZE singleCellSize{.cx = columns == 0 ? tableWidth : tableWidth / static_cast<LONG>(columns),
+                              .cy = rows == 0 ? tableHeight : tableHeight / static_cast<LONG>(rows)};
+
+    return singleCellSize;
+}
+
+void GridPanelSlot::OnPlacementChange()
+{
+    PanelSlotComponent::OnPlacementChange();
+
+    const auto [cellPoint, cellSize] = GetCellPlacement();
+    PassScopedPlacement(cellPoint, cellSize);
 }
 
 void GridPanelSlot::SetColumnsAndRows(const unsigned int columns, const unsigned int rows)
@@ -178,12 +204,12 @@ void GridPanelSlot::SetColumnsAndRows(const unsigned int columns, const unsigned
 
 void GridPanelSlot::SetColumns(const unsigned int columns)
 {
-    ReflectFields->Columns    = std::clamp(columns, GridPanel::MIN_COLUMNS, GridPanel::MAX_COLUMNS);
-    Column     = ReflectFields->Column;
+    ReflectFields->Columns = std::clamp(columns, GridPanel::MIN_COLUMNS, GridPanel::MAX_COLUMNS);
+    Column                 = ReflectFields->Column;
 }
 
 void GridPanelSlot::SetRows(const unsigned int rows)
 {
-    ReflectFields->Rows    = std::clamp(rows, GridPanel::MIN_ROWS, GridPanel::MAX_ROWS);
-    Row     = ReflectFields->Row;
+    ReflectFields->Rows = std::clamp(rows, GridPanel::MIN_ROWS, GridPanel::MAX_ROWS);
+    Row                 = ReflectFields->Row;
 }
