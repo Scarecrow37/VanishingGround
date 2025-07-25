@@ -54,11 +54,14 @@ class MeshSurfaceLocator : public EmitLocator
 public:
     ~MeshSurfaceLocator();
     Vector3 EmitLocate();
-    void    LoadVerticesFromModel(const std::filesystem::path& modelPath);
+    void                  SetModelPath(std::wstring_view filepath);
+    void    LoadVerticesFromModel(std::shared_ptr<class Model> model);
     std::filesystem::path GetModelPath() const { return _targetModelPath; }
+    
+
 
 private:
-    std::filesystem::path        _targetModelPath;
+    std::wstring                 _targetModelPath = L"";
     std::shared_ptr<class Model> _targetModel;
     std::vector<UINT>            _vertexCountPerMesh;
     UINT                         _totalVertexCount = 0;
@@ -75,9 +78,11 @@ class ParticleRenderModule
 public:
     virtual ~ParticleRenderModule() {};
     virtual void Initialize() {};
-    UMPARTICLE_PROPERTY_REF(std::wstring, _modelAndTexturePath, ModelAndTexturePath, L"");
+    void              SetModelAndTexturePath(std::wstring_view value) { _modelAndTexturePath = value.data(); }
+    std::wstring_view GetModelAndTexturePath() { return std::wstring_view(_modelAndTexturePath); }
 
-
+protected:
+    std::wstring _modelAndTexturePath = L"";
 
 };
 
@@ -89,9 +94,10 @@ public:
     void           Initialize() override;
     void           SetFrameInfo(Vector4 frameInfo);
     void           SetFrameInfo(int widthCount, int heightCount, int startIndex, int totalCount);
-    void           LoadAlbedoTexture(std::wstring filePath);
-    void           ChangeAlbedoTexture(std::wstring filePath);
-    void           LoadNormalTexture(std::wstring filePath);
+    void           LoadAlbedoTexture(std::wstring_view filePath);
+    void           ChangeAlbedoTexture(std::wstring_view filePath);
+    void           SetAlbedoTexture(std::shared_ptr<class Texture> texture);
+
 
     Vector4        GetInitialFrameInfo() const;
     class Texture* GetAlbedoTexture() const;
@@ -106,7 +112,7 @@ protected:
     std::shared_ptr<class Texture> _albedoTexture;
     std::shared_ptr<class Texture> _normalTexture;
     std::vector<Vector4>           _preCalculatedFrameInfos;
-    UMPARTICLE_PROPERTY_REF(std::wstring, _newAlbedoTexturePath, NewAlbedoTexturePath, L"");
+    UMPARTICLE_PROPERTY(std::wstring, _newAlbedoTexturePath, NewAlbedoTexturePath, L"");
     UMPARTICLE_PROPERTY(bool, _isAlbedoTextureChanged, TextureChangeFlag, false);
     UMPARTICLE_PROPERTY(float, _frameDuration, FrameDuration, 1 / 24.f);
 
@@ -120,9 +126,25 @@ public:
 };
 class RibbonModule : public ParticleRenderModule
 {
-
 public:
-    void Initialize() override {};
+    virtual ~RibbonModule();
+
+    void Initialize() override;
+    void LoadAlbedoTexture(std::wstring_view filePath);
+    void SetAlbedoTexture(std::shared_ptr<class Texture> texture);
+    void ChangeAlbedoTexture(std::wstring_view filePath);
+
+    class Texture* GetAlbedoTexture() const;
+
+protected:
+
+    std::shared_ptr<class Texture> _albedoTexture;
+    std::shared_ptr<class Texture> _normalTexture;
+    UMPARTICLE_PROPERTY_REF(std::wstring, _newAlbedoTexturePath, NewAlbedoTexturePath, L"");
+    UMPARTICLE_PROPERTY(bool, _isAlbedoTextureChanged, TextureChangeFlag, false);
+    UMPARTICLE_PROPERTY_REF(Vector4, _startNormal, StartNormal, Vector4(0, 0, -1, 0));
+    UMPARTICLE_PROPERTY_REF(Vector4, _endNormal, EndNormal, Vector4(0, 0, -1, 0));
+    UMPARTICLE_PROPERTY_REF(Vector4, _ribbonVector, RibbonVector, Vector4(1, 0, 0, 0));
 };
 
 class ParticleEmitter
@@ -143,6 +165,8 @@ public:
     ParticleType          _particleType;
     ParticleRenderModule* _particleRenderModule;
 
+    UMPARTICLE_PROPERTY(bool, _useWorldSpace, UseWorldSpace, true);
+
     /// <summary>
     /// location shape type
     /// determine which shape to emit particle in
@@ -160,9 +184,10 @@ public:
 
     void Initialize(SIZE_T maxParticles = 100000, float emissionRate = 500.f, float emitterLifetime = 5.f,
                     LocationShape locatorShape = LocationShape::SPHERE, Vector3 locationFactor = Vector3(1, 1, 1),
-                    ParticleType particleType = ParticleType::SPRITE, std::wstring meshspritePath = L"");
+                    ParticleType particleType = ParticleType::SPRITE, std::wstring_view meshspritePath = L"");
     void Update(float deltaTime);
     void UpdateParticleLifeCycle(float deltaTime);
+    void FlushTextureResource();
     void Reset();
 
 
@@ -183,6 +208,8 @@ public:
         _emitterRotationE = value; 
         _emitterRotationQ = Quaternion::CreateFromYawPitchRoll(_emitterRotationE);
     }
+
+
 
 
 protected:

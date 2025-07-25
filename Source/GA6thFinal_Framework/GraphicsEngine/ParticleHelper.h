@@ -51,16 +51,18 @@ public:                                                                         
 
 struct ParticleOutput
 {
-    Matrix FinalMatrix;
-    Vector4   Color;
-    Vector4   FrameInfo;
-    int      EmitterIndex;
-    //Vector3   paddings;
+    Vector4 position; // ribbon -> normal
+    Matrix  FinalMatrix;
+    Vector4 Color;
+    Vector4 FrameInfo;
+    int     EmitterIndex;
+    Vector3   paddings;
 };
 
 struct EmitterInfo
 {
-    Matrix WorldMatrix;
+    Matrix  WorldMatrix;
+    Matrix  OrientedWorldMatrix;
     Vector4 dragPoint;
     Vector4 dragForce;
     Vector4 vortexForce;
@@ -68,8 +70,10 @@ struct EmitterInfo
     Vector4 endScale;
     Vector4 startColor;
     Vector4 endColor;
-    Vector4 lifetime;
-
+    Vector4 lifetime; // x: particle lifetime, y: useWorldSpace (1.0f for true, 0.0f for false)
+    Vector4 startNormal;
+    Vector4 endNormal;
+    Vector4 ribbonVector;
 };
 
 struct __declspec(align(16)) MVPConstants
@@ -113,5 +117,55 @@ enum class VelocityScaleType
     CUSTOM
 };
 
+struct ribbonIndex
+{
+    UINT  index = -1;
+    float ratio = 0;
+};
 
+
+struct ParticleUpdateResource
+{
+    std::string _name;
+
+    std::vector<class ParticleEffect*>     _sceneEffects;
+
+    std::vector<class Particle>           _totalParticles;
+    std::vector<EmitterInfo>              _emitterMatrix;
+    std::vector<Texture*>                 _activeEmitterAlbedos;
+    UINT                                  _totalCount = 0;
+
+    std::vector<class Particle>           _ribbonTotalParticles;
+    std::vector<EmitterInfo>              _ribbonEmitterMatrix;
+    std::vector<Texture*>                 _ribbonActiveEmitterAlbedos;
+    std::vector<std::vector<ribbonIndex>> _ribbonIndices;
+    UINT                                  _ribbonTotalCount = 0;
+
+    ComPtr<ID3D12Resource> _particleInput;
+    ComPtr<ID3D12Resource> _emitterInfo;
+    ComPtr<ID3D12Resource> _particleInputUpload;
+    ComPtr<ID3D12Resource> _emitterInfoUpload;
+    ComPtr<ID3D12Resource> _ribbonParticleInput;
+    ComPtr<ID3D12Resource> _ribbonEmitterInfo;
+    ComPtr<ID3D12Resource> _ribbonParticleInputUpload;
+    ComPtr<ID3D12Resource> _ribbonEmitterInfoUpload;
+
+};
+
+struct ParticleRenderResource
+{
+    std::string            _name;
+    ComPtr<ID3D12Resource> _simulationOutput;
+    ComPtr<ID3D12Resource> _ribbonSimulationOutput;
+    ComPtr<ID3D12Resource> _mvpConstant;
+};
+
+struct ParticleSceneResource
+{
+    std::string                       _name;
+    ComPtr<ID3D12GraphicsCommandList> _commandList;
+    ComPtr<ID3D12CommandAllocator>    _commandAllocator;
+    ParticleUpdateResource*           _updateResource;
+    ParticleRenderResource*           _renderResource;
+};
 
