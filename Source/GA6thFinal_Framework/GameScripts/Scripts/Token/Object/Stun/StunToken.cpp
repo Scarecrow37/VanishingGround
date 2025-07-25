@@ -10,7 +10,11 @@ namespace TokenObject
 
     void Stun::OnTurnStart(CharacterBase* owner)
     {
-        // TODO: Actor 턴을 넘긴다. Actor의 턴 넘기기 플래그를 켠다?
+        if (owner)
+        {
+            // 기절 토큰이 부여된 경우, 자신의 턴을 넘김
+            owner->SetNextTurnSkip();
+        }
     }
     void StunResistance::OnTokenRemoved(CharacterBase* owner, int tokenID) 
     {

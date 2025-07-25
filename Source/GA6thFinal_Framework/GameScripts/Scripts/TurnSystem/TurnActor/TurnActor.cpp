@@ -41,6 +41,11 @@ void TurnActor::Dead()
     }
 }
 
+void TurnActor::SetNextTurnSkip()
+{
+    _currState = STATE::Skip;
+}
+
 void TurnActor::EndTurn() 
 {
 }

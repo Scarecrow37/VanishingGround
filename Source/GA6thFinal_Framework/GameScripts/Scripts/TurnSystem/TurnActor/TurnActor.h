@@ -69,6 +69,8 @@ public:
     /// </summary>
     virtual void Dead();
 
+    void SetNextTurnSkip();
+
 public:
     virtual int GetSpeed() = 0;
     virtual int GetRandomSpeed() { return _randomSpeed; }
