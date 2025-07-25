@@ -384,7 +384,11 @@ void EditorModelDetails::OnFramePopupOpened() {}
 
 void EditorModelDetails::OnRequestedDragDrop(const File::Path& path) 
 {
-    ImportModel(path);
+    auto dock = GetOwnerDockWindow();
+    if (dock && dock->IsFocusFrame())
+    {
+        ImportModel(path);
+    }
 }
 
 FBXConverter& EditorModelDetails::GetFBXConverter()

@@ -116,6 +116,40 @@ namespace File
         }
         return false;
     }
+
+    bool CopyStrToClipBoard(std::string_view str)
+    {
+        // 클립보드 열고 비우기
+        if (TRUE == OpenClipboard(nullptr) && TRUE == EmptyClipboard())
+        {
+            if (TRUE == EmptyClipboard())
+            {
+                auto size = (str.size() + 1) * sizeof(char);
+
+                // 사용자 정의 포맷 등록 (고유 문자열 사용)
+                UINT format = RegisterClipboardFormatA("MyApp_CustomDataFormat");
+
+                // 글로벌 메모리 할당
+                HGLOBAL hGlob = GlobalAlloc(GMEM_MOVEABLE, size);
+                if (NULL == hGlob)
+                {
+                    CloseClipboard();
+                    return false;
+                }
+
+                void* pData = GlobalLock(hGlob);
+                memcpy(pData, str.data(), size);
+                GlobalUnlock(hGlob);
+
+                // CF_TEXT는 ANSI지만, UTF-8도 보통 잘 작동함
+                SetClipboardData(CF_TEXT, hGlob);
+
+                CloseClipboard();
+            }
+        }
+        return false;
+    }
+
     bool CopyPathToClipBoard(const File::Path& path)
     {
         // 클립보드 열고 비우기

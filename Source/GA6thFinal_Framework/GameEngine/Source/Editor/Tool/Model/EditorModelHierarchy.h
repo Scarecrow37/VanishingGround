@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 class BaseMesh;
+class EditorModelInspector;
 class EditorModelHierarchy : public EditorTool
 {
 public:
@@ -34,11 +35,12 @@ private:
     /* Popup창 호출 성공 시 호출 (OnPreFrameBegin 전에 호출) */
     virtual void OnFramePopupOpened() override;
 
-private:
-    void ImportFBX(const std::filesystem::path& path);
-    void ExportFBX();
+    void ShowMeshList();
+    void ShowBoneList();
+    void ShowBone(Bone* bone);
 
 private:
-    EditorModelDetails* _editorModelDetails;
-    BaseMesh*           _selectedMesh;
+    EditorModelDetails*     _editorModelDetails;
+    EditorModelInspector*   _editorModelInspector;
+    BaseMesh*               _selectedMesh;
 };

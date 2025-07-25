@@ -321,6 +321,9 @@
     <ClInclude Include="Source\Engine\AudioCore\AudioModule.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Editor\Tool\Model\EditorModelInspector.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\pch.cpp">
@@ -618,6 +621,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\AudioCore\AudioModule.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\Model\EditorModelInspector.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

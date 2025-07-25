@@ -53,7 +53,9 @@ namespace File
     bool CopyFileFromTo(const File::Path& from, File::Path to);
 
     /* 클립보드에 문자열을 복사해주는 함수 */
+    bool CopyStrToClipBoard(std::string_view str);
     bool CopyPathToClipBoard(const File::Path& path);
+
     /* 해당 경로에 중복 파일이 있을 경우 중복 방지 인덱스를 붙여서 리턴 */
     File::Path GenerateUniquePath(const File::Path& path, int maxIndex = 999);
 
