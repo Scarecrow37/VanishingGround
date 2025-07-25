@@ -11,7 +11,6 @@ void EnemyDeadCondition::OnStart() {}
 
 bool EnemyDeadCondition::Evaluate()
 {
-    int  hp = GetEnemy().HP;
-    bool isDead = 0 >= hp;
-    return isDead;
+    TurnActor::STATE state = GetEnemy().GetActorState();
+    return state == TurnActor::STATE::Dead;
 }
