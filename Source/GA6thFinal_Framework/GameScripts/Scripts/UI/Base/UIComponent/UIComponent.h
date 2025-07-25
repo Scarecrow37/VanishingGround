@@ -59,7 +59,8 @@ struct FindChildComponents
         {
             const Transform* child      = parentTransform.GetChild(i);
             GameObject&      gameObject = child->gameObject;
-            components = FindComponents<T>()(gameObject);
+            std::vector<T*> childComponents = FindComponents<T>()(gameObject);
+            components.insert(components.end(), childComponents.begin(), childComponents.end());
         }
         return components;
     }
