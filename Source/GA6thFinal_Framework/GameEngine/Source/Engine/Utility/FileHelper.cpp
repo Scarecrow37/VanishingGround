@@ -145,6 +145,7 @@ namespace File
                 SetClipboardData(CF_TEXT, hGlob);
 
                 CloseClipboard();
+                return true;
             }
         }
         return false;
