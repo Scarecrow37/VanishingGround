@@ -16,41 +16,39 @@ TokenCondition::TokenCondition()
 
 bool TokenCondition::Evaluate()
 {
-    bool result = false;
-    static std::vector<CharacterBase*> targetList;
+    std::vector<CharacterBase*> targetList;
     GetTargetList(targetList);
-    if (false == targetList.empty())
-    {
-        Operator oper = ReflectFields->Operator;
-        result        = true;
-        int tokenID   = ReflectFields->TokenType;
-        int value     = ReflectFields->Value;
-        for (auto& target : targetList)
-        {
-            int targetTokenCount = target->GetTokenInventory().GetTokenStackFromID(tokenID);
-            switch (oper)
-            {
-            default:
-                return false;
-                break;
-            case TokenCondition::Operator::GREATER_EQUAL:
-                result &= targetTokenCount >= value;
-                break;
-            case TokenCondition::Operator::LESS_EQUAL:
-                result &= targetTokenCount <= value;
-                break;
-            case TokenCondition::Operator::EQUAL:
-                result &= targetTokenCount == value;
-                break;
-            }
 
-            if (false == result)
-            {
-                return result;
-            }
+    if (targetList.empty())
+    {
+        return false;
+    }
+
+    Operator oper    = ReflectFields->Operator;
+    int      tokenID = ReflectFields->TokenType;
+    int      value   = ReflectFields->Value;
+
+    auto CheckOperation = [&](int tokenCount) 
+    {
+        switch (oper)
+        {
+            case Operator::GREATER_EQUAL: return tokenCount >= value;
+            case Operator::LESS_EQUAL:    return tokenCount <= value;
+            case Operator::EQUAL:         return tokenCount == value;
+            default:                      return false;
         }
-    }       
-    return result;
+    };
+
+    for (const auto& target : targetList)
+    {
+        int targetTokenCount = target->GetTokenInventory().GetTokenStackFromID(tokenID);
+        if (false == CheckOperation(targetTokenCount))
+        {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 void TokenCondition::DrawImguiEditor() 
