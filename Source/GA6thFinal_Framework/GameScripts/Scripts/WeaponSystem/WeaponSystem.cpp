@@ -75,7 +75,7 @@ void WeaponSystem::SetCurrentWeaponSlot(int slot)
         return;
     }
     TurnMode* turnMode = TurnMode::GetInstance();
-    bool      isPlay = Global::IsPlay();
+    auto isPlay = Global::IsPlay();
     if (isPlay && turnMode)
     {
         WeaponElement& curr = _equipWeapons[_currentWeaponSlot];
