@@ -48,11 +48,13 @@ void AdditionalDamageAction::DeserializedReflectEvent()
 
 void AdditionalDamageAction::UpdateActionInfo() 
 {
-    _actionInfo = std::format("[{} + {} / x {}]", (const char*)u8"피해", 
+    _actionInfo = (const char*)u8"공격시 ";
+
+    _actionInfo += std::format("[{} +{}, x{}]", (const char*)u8"피해", 
         ReflectFields->AdditionalDamage,
         ReflectFields->AdditionalDamageMultiplier);
 
-    _actionInfo += std::format(" [{} + {} / x {}]", (const char*)u8"치명타 피해", 
+    _actionInfo += std::format(" [{} +{}, x{}]", (const char*)u8"치명타 피해", 
         ReflectFields->AdditionalCriticalDamage,
         ReflectFields->AdditionalCriticalDamageMultiplier);
 }
@@ -74,7 +76,7 @@ void AdditionalDamageAction::OnPlayerBattleCalculateDamageModifier(Player& attac
         int   additionalCriticalDamage           = AdditionalCriticalDamage;
         float additionalCriticalDamageMultiplier = AdditionalCriticalDamageMultiplier;
 
-        std::string msg = std::format("[{}{} / x{}] [{}{} / x{}]{}", 
+        std::string msg = std::format("[{} +{}, x{}] [{} +{}, x{}]{}", 
             (const char*)u8"플레이어의 데미지 ", additionalDamage,additionalDamageMultiplier, 
             (const char*)u8"플레이어의 치명타 데미지 ",additionalCriticalDamage, additionalCriticalDamageMultiplier, 
             (const char*)u8" 증가");
@@ -85,10 +87,4 @@ void AdditionalDamageAction::OnPlayerBattleCalculateDamageModifier(Player& attac
         weaponStats.CriticalDamage += additionalCriticalDamage;
         weaponStats.CriticalDamageMultiplier *= additionalCriticalDamageMultiplier;
     }
-}
-
-void AdditionalDamageAction::OnEnemyBattleCalculateDamageModifier(Enemy& attacker, EnemyStats& attackerStats, Player& target,
-                                              PlayerStats& targetStats)
-{
-    //적은 치명타가 없음.
 }

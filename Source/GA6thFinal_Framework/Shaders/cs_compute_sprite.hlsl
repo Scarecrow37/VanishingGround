@@ -4,23 +4,7 @@ StructuredBuffer<ParticleInput> ParticleInputBuffer : register(t0);
 StructuredBuffer<EmitterInfo> EmitterInfoBuffer : register(t1);
 RWStructuredBuffer<ParticleOutput> ParticleOutputBuffer : register(u0);
 
-
-struct MVP
-{
-    float4x4 ViewMatrix;
-    float4x4 ViewRotInvMatrix;
-    float4x4 ProjMatrix;
-    float4 CameraPos;
-    float deltaTime;
-    float4 pad1;
-    float4 pad2;
-    float3 pad3;
-};
-
 ConstantBuffer<MVP> mvp : register(b0);
-
-
-
 
 
 [numthreads(64, 1, 1)]
@@ -43,15 +27,30 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
     float decay = exp(-dragCoefficient * input.age);
 
     
-    float3 r = input.position.xyz;
-    
-    float3 vortexAxis = emitter.vortexForce.xyz; // 방향 + 세기 포함
-    float vortexAttenuation = emitter.vortexForce.w; // 거리 감쇠 계수
+    // Get the useWorldSpace flag (1.0f for true, 0.0f for false)
+    float useWorldSpace = emitter.particlelifetime.y;
+
+    // Calculate the rotation center. It's the emitter's world position if in world space, otherwise it's (0,0,0).
+    float3 emitterCenter = emitter.WorldMatrix[3].xyz * useWorldSpace;
+
+    // Calculate the vector from the rotation center to the particle.
+    float3 r = input.position.xyz - emitterCenter;
+
+    // Get the base vortex axis and normalize it.
+    float3 vortexAxis = emitter.vortexForce.xyz;
+    float3 localAxisDir = normalize(vortexAxis);
+
+    // Transform the axis to world space to account for the emitter's rotation.
+    float3 worldAxisDir = mul(localAxisDir, (float3x3)emitter.WorldMatrix);
+
+    // Select the correct axis direction using lerp to avoid branching.
+    // If useWorldSpace is 1.0, worldAxisDir is chosen. If 0.0, localAxisDir is chosen.
+    float3 axisDir = lerp(localAxisDir, worldAxisDir, useWorldSpace);
+
+    // Calculate vortex strength and velocity.
+    float vortexAttenuation = emitter.vortexForce.w;
     float vortexStrength = length(vortexAxis);
-    float strength = vortexStrength / (1.0 + vortexAttenuation * length(r) );
-    float3 axisDir = normalize(vortexAxis);
-    
-    
+    float strength = vortexStrength / (1.0 + vortexAttenuation * length(r));
     float3 vortexVelocity = cross(axisDir, r) * strength;
     float3 vortexDisplacement = vortexVelocity * input.age;
     float3 posAfterVortex = input.position.xyz + vortexDisplacement;
@@ -62,6 +61,7 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
     
     
     input.position.xyz += dragPos + vortexDisplacement;
+    
     
     
     

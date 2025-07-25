@@ -9,9 +9,9 @@ WeaponTableComponent::~WeaponTableComponent()
     }
 }
 
-const WeaponStats* WeaponTableComponent::GetWeaponToName(std::string_view name)
+const WeaponElement* WeaponTableComponent::GetWeaponToName(std::string_view name)
 {
-    WeaponStats* result = nullptr;
+    WeaponElement* result   = nullptr;
     auto findIter = _weaponTable.find(name.data());
     if (findIter != _weaponTable.end())
     {
@@ -39,26 +39,26 @@ bool WeaponTableComponent::LoadWeaponTable(std::string_view data)
         _weaponTable.clear();
         for (auto& weapon : ReflectFields->_tableDatas)
         {
-            WeaponStats stats;
-            stats.DeserializedReflectFields(weapon);
-            InsertWeapon(stats);
+            WeaponElement element;
+            element.DeserializedReflectFields(weapon);
+            InsertWeapon(element);
         }
     } 
     return result;
 }
 
-bool WeaponTableComponent::RenameWeapon(WeaponStats& weapon, std::string_view newName)
+bool WeaponTableComponent::RenameWeapon(WeaponElement& weapon, const std::string& newName)
 {
     bool result = false;
-    auto findIter = _weaponTable.find(newName.data());
+    auto findIter = _weaponTable.find(newName);
     if (findIter == _weaponTable.end())
     {
-        WeaponStats& newWeapon = _weaponTable[newName.data()];
-        newWeapon.DeserializedReflectFields(weapon.SerializedReflectFields()); 
-        newWeapon.SetName(newName); // 이름 변경
+        WeaponElement& newWeapon = _weaponTable[newName];
+        newWeapon = weapon; 
+        newWeapon.Stats.SetName(newName); // 이름 변경
 
-        std::string_view prevName = weapon.Name;
-        _weaponTable.erase(prevName.data());    //기존 삭제
+        const std::string& prevName = weapon.Stats.Name;
+        _weaponTable.erase(prevName);    //기존 삭제
         result = true;
     }
     else
@@ -68,15 +68,15 @@ bool WeaponTableComponent::RenameWeapon(WeaponStats& weapon, std::string_view ne
     return result;
 }
 
-bool WeaponTableComponent::InsertWeapon(WeaponStats& weapon)
+bool WeaponTableComponent::InsertWeapon(WeaponElement& weapon)
 {
     bool result = false;
-    std::string_view name = weapon.Name;
-    auto             findIter = _weaponTable.find(name.data());
+    const std::string& name = weapon.Stats.Name;
+    auto             findIter = _weaponTable.find(name);
     if (findIter == _weaponTable.end())
     {
-        WeaponStats& newWeapon = _weaponTable[name.data()];
-        newWeapon.DeserializedReflectFields(weapon.SerializedReflectFields());
+        WeaponElement& newWeapon = _weaponTable[name];
+        newWeapon = weapon;
         result = true;
     }
     else
@@ -86,14 +86,14 @@ bool WeaponTableComponent::InsertWeapon(WeaponStats& weapon)
     return result;
 }
 
-bool WeaponTableComponent::EraseWeapon(WeaponStats& weapon)
+bool WeaponTableComponent::EraseWeapon(WeaponElement& weapon)
 {
-    bool             result   = false;
-    std::string_view name     = weapon.Name;
-    auto             findIter = _weaponTable.find(name.data());
+    bool               result   = false;
+    const std::string& name     = weapon.Stats.Name;
+    auto               findIter = _weaponTable.find(name);
     if (findIter != _weaponTable.end())
     {
-        _weaponTable.erase(name.data());
+        _weaponTable.erase(name);
         result = true;
     }
     else
@@ -125,10 +125,10 @@ void WeaponTableComponent::ImGuiDrawPropertysEvent()
     {
         ImGuiViewport* viewPort = ImGui::GetMainViewport();
         ImVec2         center   = viewPort->GetCenter();
-        ImVec2         size     = viewPort->Size;
+        ImVec2         size     = viewPort->Size * 0.75f;
         ImGui::SetNextWindowPos(center, ImGuiCond_Once, ImVec2(0.5f, 0.5f));
         ImGui::SetNextWindowSize(size, ImGuiCond_FirstUseEver);
-        ImGui::Begin("Weapon Table Editor##A65EBAA8-31D3-410C-A0AB-512CD9402EA0",
+        ImGui::Begin("Weapon Table Editor##6A2AE1D2-0061-488B-9629-FBB94B054B0C",
                      &_imguiEvent.ShowTableEditor, ImGuiWindowFlags_MenuBar);
 
         if (ImGui::BeginMenuBar())
@@ -204,31 +204,27 @@ void WeaponTableComponent::ImGuiDrawPropertysEvent()
 
 void WeaponTableComponent::ImGuiTableEditor() 
 {
-    if (ImGui::BeginTable("Weapon Stats", 10, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+    if (ImGui::BeginTable("Weapon Stats", 7, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
     {
         ImGui::TableSetupColumn((const char*)u8"이름");                   // Name,
         ImGui::TableSetupColumn((const char*)u8"종류");                   // Type,
         ImGui::TableSetupColumn((const char*)u8"데미지");                 // HitDamage,
-        ImGui::TableSetupColumn((const char*)u8"데미지 배율");            // HitDamageMultiplier,
+        //ImGui::TableSetupColumn((const char*)u8"데미지 배율");            // HitDamageMultiplier,
         ImGui::TableSetupColumn((const char*)u8"치명타 데미지");          // CriticalDamage,
-        ImGui::TableSetupColumn((const char*)u8"치명타 데미지 배율");     // CriticalDamageMultiplier,
-        ImGui::TableSetupColumn((const char*)u8"속도");                   // Speed,
+        //ImGui::TableSetupColumn((const char*)u8"치명타 데미지 배율");     // CriticalDamageMultiplier,
         ImGui::TableSetupColumn((const char*)u8"공격 수");                // AttackCount,
-        ImGui::TableSetupColumn((const char*)u8"공격 당 연격 스택");      // AttackPerChain,
-        ImGui::TableSetupColumn((const char*)u8"공격 당 연격 스택 배율"); // AttackPerChainMultiplier,    
+        ImGui::TableSetupColumn((const char*)u8"속도");                   // Speed,
+        //ImGui::TableSetupColumn((const char*)u8"공격 당 연격 스택");      // AttackPerChain,
+        //ImGui::TableSetupColumn((const char*)u8"공격 당 연격 스택 배율"); // AttackPerChainMultiplier,
+        ImGui::TableSetupColumn((const char*)u8"Action");                 // Action   
 
         ImGui::TableHeadersRow();   
+        int itemID = 0;
         for (auto& [key, weapon] : _weaponTable)
         {
             auto RightClickContext = [&]() {
                 if (ImGui::BeginPopupContextItem())
                 {
-                    if (ImGui::MenuItem("Rename"))
-                    {
-                        _imguiEvent.RenameBuffer    = key;
-                        _imguiEvent.SelectWeapon    = &weapon;
-                        _imguiEvent.OpenRenamePopup = true;
-                    }
                     if (ImGui::MenuItem("Delete"))
                     {
                         _imguiEvent.DeleteTableBuffer = key;
@@ -237,9 +233,7 @@ void WeaponTableComponent::ImGuiTableEditor()
                     ImGui::EndPopup();
                 }
             };
-
-            int itemID = 0;
-            ImGui::PushStyleColor(ImGuiCol_Text, GetWeaponTypeColor(weapon.Type));
+            ImGui::PushStyleColor(ImGuiCol_Text, GetWeaponTypeColor(weapon.Stats.Type));
             ImGui::PushID(itemID++);
             {
                 static ReflectHelper::ImGuiDraw::InputAutoSetting setting = []() 
@@ -260,21 +254,54 @@ void WeaponTableComponent::ImGuiTableEditor()
                     }
                     RightClickContext();
                 };
-                DrawColumnProperty(weapon.Name,                     0);
-                DrawColumnProperty(weapon.Type,                     1);
-                DrawColumnProperty(weapon.HitDamage,                2);
-                DrawColumnProperty(weapon.HitDamageMultiplier,      3);
-                DrawColumnProperty(weapon.CriticalDamage,           4);
-                DrawColumnProperty(weapon.CriticalDamageMultiplier, 5);
-                DrawColumnProperty(weapon.Speed,                    6);
-                DrawColumnProperty(weapon.AttackCount,              7);
-                DrawColumnProperty(weapon.AttackPerChain,           8);
-                DrawColumnProperty(weapon.AttackPerChainMultiplier, 9);    
+                ImGui::TableSetColumnIndex(0);
+                {
+                    static std::string renameBuffer;
+                    const std::string  originName = weapon.Stats.Name;
+                    renameBuffer                  = originName;
+                    bool input                    = ImGui::InputText("##name", &renameBuffer);
+                    if (input)
+                    {
+                        if (ImGui::IsItemDeactivatedAfterEdit())
+                        {
+                            if (renameBuffer != originName)
+                            {
+                                _imguiEvent.SelectWeapon = &weapon;
+                                _imguiEvent.RenameFunc   = [this, renameBuffer = renameBuffer,
+                                                          slectWeapon = _imguiEvent.SelectWeapon]() 
+                                {
+                                    RenameWeapon(*slectWeapon, renameBuffer);
+                                };
+                                _imguiEvent.SelectWeapon = nullptr;
+                            };
+                        }
+                    }
+                    RightClickContext();
+                };
+                DrawColumnProperty(weapon.Stats.Type, 1);
+                DrawColumnProperty(weapon.Stats.HitDamage, 2);
+                // DrawColumnProperty(weapon.Stats.HitDamageMultiplier,      3);
+                DrawColumnProperty(weapon.Stats.CriticalDamage, 3);
+                // DrawColumnProperty(weapon.Stats.CriticalDamageMultiplier, 5);
+                DrawColumnProperty(weapon.Stats.AttackCount, 4);
+                DrawColumnProperty(weapon.Stats.Speed, 5);
+                // DrawColumnProperty(weapon.Stats.AttackPerChain,           8);
+                // DrawColumnProperty(weapon.Stats.AttackPerChainMultiplier, 9);    
+                ImGui::TableSetColumnIndex(6);
+                {
+                    TurnAction::ImGuiDrawActionMaker(key, weapon._action, weapon._showActionEditor);
+                }              
             }
             ImGui::PopID();
             ImGui::PopStyleColor(1);
         }
         ImGui::EndTable();
+
+        if (_imguiEvent.RenameFunc)
+        {
+            _imguiEvent.RenameFunc();
+            _imguiEvent.RenameFunc = nullptr;
+        }
     } 
 
     if (_imguiEvent.OpenDeletePopup)
@@ -305,35 +332,6 @@ void WeaponTableComponent::ImGuiTableEditor()
         ImGui::EndPopup();
     }
 
-    if (_imguiEvent.OpenRenamePopup)
-    {
-        _imguiEvent.OpenRenamePopup = false;
-        ImGui::OpenPopup("Weapon Table Rename Popup");
-    }
-
-    if (ImGui::BeginPopup("Weapon Table Rename Popup"))
-    {
-        ImGui::InputText("##Rename", &_imguiEvent.RenameBuffer);
-        ImGui::SameLine();
-        if (ImGui::Button("Rename"))
-        {
-            if (false == _imguiEvent.RenameBuffer.empty())
-            {
-                RenameWeapon(*_imguiEvent.SelectWeapon, _imguiEvent.RenameBuffer);
-                _imguiEvent.SelectWeapon = nullptr;
-                _imguiEvent.RenameBuffer = STR_NULL;
-                ImGui::CloseCurrentPopup();
-            }
-        }
-        if (ImGui::Button("Cancel", ImVec2(120, 0)))
-        {
-            _imguiEvent.SelectWeapon = nullptr;
-            _imguiEvent.RenameBuffer = STR_NULL;
-            ImGui::CloseCurrentPopup();
-        }
-        ImGui::EndPopup();
-    }
-
     static std::string newWeaponName;
     ImGui::InputText("##New Weapon", &newWeaponName);
     ImGui::SameLine();
@@ -341,9 +339,9 @@ void WeaponTableComponent::ImGuiTableEditor()
     {
         if (false == newWeaponName.empty())
         {
-            WeaponStats stats;
-            stats.SetName(newWeaponName);
-            bool result = InsertWeapon(stats);
+            WeaponElement element;
+            element.Stats.SetName(newWeaponName);
+            bool result = InsertWeapon(element);
             if (true == result)
             {
                 newWeaponName.clear();
@@ -366,8 +364,8 @@ void WeaponTableComponent::DeserializedReflectEvent()
     _weaponTable.clear();
     for (auto& weapon : ReflectFields->_tableDatas)
     {
-        WeaponStats stats;
-        stats.DeserializedReflectFields(weapon);
-        InsertWeapon(stats);
+        WeaponElement element;
+        element.DeserializedReflectFields(weapon);
+        InsertWeapon(element);
     }
 }

@@ -187,6 +187,7 @@ void PlayerPlayTurnState::UpdateQuickTimeEventUI(float dt)
     ImGui::Begin("Player Turn##9A48EE30-CB5F-48AC-9740-DDF8118AAC49");
     {
         WeaponSystem* weaponSystem = WeaponSystem::GetInstance();
+        TurnMode*     turnMode     = TurnMode::GetInstance();
         if (weaponSystem)
         {
             Player&      player = GetPlayer();
@@ -222,6 +223,10 @@ void PlayerPlayTurnState::UpdateQuickTimeEventUI(float dt)
             if (_attackRemaining == 0)
             {
                 _inputState = InputState::ATTACK_EVENT;
+                if (turnMode)
+                {
+                    turnMode->ApplyActions([&player](TurnAction& action) { action.OnPlayerQTEResult(player); });
+                }
                 SetAttackAnimation();
             }
         }

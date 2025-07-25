@@ -13,6 +13,7 @@ public:
 
 private:
     void InitializeSpriteParticlePass(ID3D12GraphicsCommandList* commandList);
+    void InitializeRibbonParticlePass(ID3D12GraphicsCommandList* commandList);
     void InitializeParticleResolvePass(ID3D12GraphicsCommandList* commandList);
 
     void CreateWBOITResources();  // 리소스 생성

@@ -46,6 +46,6 @@ private:
     bool       ctrlOflag              = true;
     bool       ctrlSflag              = true;
 
-    Vector3 defaultpos = Vector3(0,10,0);
+    Vector3 defaultpos = Vector3(0,0,0);
 
 };

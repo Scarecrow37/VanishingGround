@@ -17,112 +17,40 @@ ChainCondition::ChainCondition()
 
 bool ChainCondition::Evaluate()
 {
-    bool result = false;
-    if (TurnMode* turnMode = TurnMode::GetInstance())
+    std::vector<CharacterBase*> targetList;
+    GetTargetList(targetList);
+
+    if (targetList.empty())
     {
-        CombatStartPhase* combatStartPhase = turnMode->States->CombatStartPhase;
-        if (combatStartPhase)
+        return false;
+    }
+
+    Operator oper = ReflectFields->Operator;
+    int      value1 = ReflectFields->Value1;
+    int      value2 = ReflectFields->Value2;
+
+    auto CheckOperation = [&](int chainCount) 
+    {
+        switch (oper)
         {
-            static std::vector<CharacterBase*> targetList;
-            targetList.clear();
-            Target target = ReflectFields->Target;
-            auto   lastAttaker     = Battle::GetLastAttacker().lock();
-            auto   lastTarget      = Battle::GetLastTarget().lock();
-            auto   lastTargetEnemy = Battle::GetLastTargetEnemy().lock();
-            switch (target)
-            {
-            default:
-                return false;
-            case Target::SELF: {
-                const auto& self = lastAttaker;
-                if (self)
-                {
-                    targetList.push_back(self.get());
-                }
-                break;
-            }
-            case Target::PLAYER: 
-            {
-                Player* player = combatStartPhase->GetPlayer();
-                if (player && player == lastTarget.get())
-                {
-                    targetList.push_back(player);
-                }
-                break;
-            }
-            case Target::ENEMY: 
-            {
-                if (lastTarget && lastTarget.get() == lastTargetEnemy.get())
-                {
-                    targetList.push_back(lastTarget.get());
-                }
-                break;
-            }
-            case Target::ALL_ENEMIES: {
-                auto& enemys = combatStartPhase->GetEnemies();
-                for (auto& enemy : enemys)
-                {
-                    targetList.push_back(enemy);
-                }
-                break;
-            }
-            case Target::ALL: {
-                auto& characters = combatStartPhase->GetCharacters();
-                for (auto& character : characters)
-                {
-                    targetList.push_back(character);
-                }
-                break;
-            }
-            }
+            case Operator::GREATER_EQUAL: return chainCount >= value1;
+            case Operator::LESS_EQUAL:    return chainCount <= value1;
+            case Operator::EQUAL:         return chainCount == value1;
+            case Operator::BETWEEN:       return value1 <= chainCount && chainCount <= value2;
+            case Operator::MULTIPLE_OF:   return (0 < chainCount) && (chainCount % value1 == 0);
+            default:                      return false;
+        }
+    };
 
-            if (false == targetList.empty())
-            {
-                Operator oper = ReflectFields->Operator;
-                result      = true;
-                int value1   = ReflectFields->Value1;
-                int value2   = ReflectFields->Value2;
-                for (auto& target : targetList)
-                {
-                    int targetChainCount = target->ChainCount;
-                    switch (oper)
-                    {
-                    case ChainCondition::Operator::GREATER_EQUAL:
-                        result &= targetChainCount >= value1;
-                        break;
-                    case ChainCondition::Operator::LESS_EQUAL:
-                        result &= targetChainCount <= value1;
-                        break;
-                    case ChainCondition::Operator::EQUAL:
-                        result &= targetChainCount == value1;
-                        break;
-                    case ChainCondition::Operator::BETWEEN:
-                        result &= value1 <= targetChainCount && targetChainCount <= value2;
-                        break;
-                    case ChainCondition::Operator::MULTIPLE_OF:
-                        if (0 < targetChainCount)
-                        {
-                            result &= targetChainCount % value1 == 0;
-                        }
-                        else
-                        {
-                            result &= false;
-                        }               
-                        break;
-                    default:
-                        return false;
-                        break;
-                    }
-
-                    if (false == result)
-                    {
-                        return result;
-                    }
-                }
-            }
+    for (const auto& target : targetList)
+    {
+        if (false == CheckOperation(target->ChainCount))
+        {
+            return false;
         }
     }
-    return result;
+
+    return true;
 }
 
 void ChainCondition::DrawImguiEditor() 
@@ -231,3 +159,65 @@ void ChainCondition::UpdateConditionInfo()
     }
     _conditionInfo = std::format("{}{}{}", who, u8" 연격이 "_c_str, operInfo);
 }
+
+void ChainCondition::GetTargetList(std::vector<class CharacterBase*>& targetList)
+{
+    targetList.clear();
+    if (TurnMode* turnMode = TurnMode::GetInstance())
+    {
+        CombatStartPhase* combatStartPhase = turnMode->States->CombatStartPhase;
+        if (combatStartPhase)
+        {
+            Target target          = ReflectFields->Target;
+            auto   lastAttaker     = Battle::GetLastAttacker().lock();
+            auto   lastTarget      = Battle::GetLastTarget().lock();
+            auto   lastTargetEnemy = Battle::GetLastTargetEnemy().lock();
+            switch (target)
+            {
+            default:
+                return;
+            case Target::SELF: {
+                const auto& self = lastAttaker;
+                if (self)
+                {
+                    targetList.push_back(self.get());
+                }
+                break;
+            }
+            case Target::PLAYER: {
+                Player* player = combatStartPhase->GetPlayer();
+                if (player)
+                {
+                    targetList.push_back(player);
+                }
+                break;
+            }
+            case Target::ENEMY: {
+                if (lastTarget && lastTarget.get() == lastTargetEnemy.get())
+                {
+                    targetList.push_back(lastTarget.get());
+                }
+                break;
+            }
+            case Target::ALL_ENEMIES: {
+                auto& enemys = combatStartPhase->GetEnemies();
+                for (auto& enemy : enemys)
+                {
+                    targetList.push_back(enemy);
+                }
+                break;
+            }
+            case Target::ALL: {
+                auto& characters = combatStartPhase->GetCharacters();
+                for (auto& character : characters)
+                {
+                    targetList.push_back(character);
+                }
+                break;
+            }
+            }
+        }      
+    }
+}
+
+
