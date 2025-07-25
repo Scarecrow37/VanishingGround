@@ -28,4 +28,15 @@ void EnemyDeadState::OnEnter()
 
 void EnemyDeadState::OnExit() {}
 
-void EnemyDeadState::OnUpdate() {}
+void EnemyDeadState::OnUpdate() 
+{
+    Enemy& enemy = GetEnemy();
+    AnimationComponent* animator = enemy.GetAnimationComponent();
+    if (animator)
+    {
+        if (animator->GetMainAnimationData().IsEnd())
+        {
+            enemy.gameObject->SetActive(false);
+        }
+    }
+}

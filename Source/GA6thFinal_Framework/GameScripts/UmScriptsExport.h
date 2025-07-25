@@ -134,3 +134,6 @@ UMREAL_COMPONENT(AudioComponent)
 
 #include "Scripts/Animation/AnimationComponent.h"
 UMREAL_COMPONENT(AnimationComponent)
+
+#include "Scripts/Test/DevTools/LogOutput.h"
+UMREAL_COMPONENT(LogOutput)

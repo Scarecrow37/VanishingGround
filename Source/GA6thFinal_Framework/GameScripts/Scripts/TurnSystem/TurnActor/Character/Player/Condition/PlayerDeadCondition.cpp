@@ -19,7 +19,6 @@ void PlayerDeadCondition::OnStart()
 
 bool PlayerDeadCondition::Evaluate()
 {
-    int hp = GetPlayer().HP;
-    bool isDead = 0 >= hp;
-    return isDead;
+    TurnActor::STATE state = GetPlayer().GetActorState();
+    return state == TurnActor::STATE::Dead;
 }
