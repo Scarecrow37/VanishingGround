@@ -70,10 +70,19 @@ void ParticleEffect::Update(float deltaTime)
 
 
     }
-    if (nullptr != _parentWorldMatrix)
-        _worldMatrix = _scaleMatrix * _rotationMatrix * _translationMatrix * *_parentWorldMatrix;
+
+    if (false == _followBoneFlag)
+    {
+
+        if (nullptr != _parentWorldMatrix)
+            _worldMatrix = _scaleMatrix * _rotationMatrix * _translationMatrix * *_parentWorldMatrix;
+        else
+            _worldMatrix = _scaleMatrix * _rotationMatrix * _translationMatrix;
+    }
     else
-        _worldMatrix = _scaleMatrix * _rotationMatrix * _translationMatrix;
+    {
+        _worldMatrix = _scaleMatrix * _rotationMatrix * _translationMatrix *(*_boneWorldMatrix) * *_parentWorldMatrix;
+    }
 
 
     for (auto emitter : _particleEmitters)
@@ -89,7 +98,7 @@ ParticleEmitter* ParticleEffect::AddEmitter(SIZE_T maxParticles /*= 100000*/, fl
                                 float emitterLifetime /*= 5.f*/, LocationShape locatorShape /*= LocationShape::SPHERE*/,
                                             Vector3       locationFactor /*= Vector3(1, 1, 1)*/,
                                             ParticleType  particleType /*= ParticleType::SPRITE*/,
-                                            std::wstring  meshspritePath /*= L""*/)
+                                            std::wstring_view meshspritePath /*= L""*/)
 {
     auto newEmitter = new ParticleEmitter();
     newEmitter->Initialize(maxParticles, emissionRate, emitterLifetime, locatorShape, locationFactor,particleType,meshspritePath);
@@ -142,6 +151,8 @@ void ParticleEffect::Reset()
 
 void ParticleEffect::FlushEmitters()
 {
+
+
 
     for (auto it = _particleEmitters.begin(); it != _particleEmitters.end();)
     {

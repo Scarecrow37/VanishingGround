@@ -14,6 +14,5 @@ public:
     void ModuleUnInitialize() override;
 
 private:
-    std::unique_ptr<class RendererFileEvent>        _rendererFileEvent;
-    std::unique_ptr<class ParticleEffectSerializer> _particleSerializer;
+    std::unique_ptr<class RendererFileEvent> _rendererFileEvent;
 };

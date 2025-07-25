@@ -12,7 +12,8 @@ class ParticleEffect
 
     
     const Matrix* _parentWorldMatrix;
-
+    const Matrix* _boneWorldMatrix;
+    bool          _followBoneFlag = false;
     // flag for play once
     UMPARTICLE_PROPERTY(bool, _playFlag, PlayFlag, false);
     bool _removeFlag = false;
@@ -40,7 +41,7 @@ public:
                                 LocationShape locatorShape   = LocationShape::SPHERE,
                                 Vector3       locationFactor = Vector3(1, 1, 1),
                                 ParticleType  particleType   = ParticleType::SPRITE,
-                                std::wstring  meshspritePath = L"");
+                                std::wstring_view meshspritePath = L"");
     void             RemoveEmitter(ParticleEmitter* target); 
     class ParticleEmitter*              GetEmitter(size_t emitterIndex);
     std::vector<class ParticleEmitter*> GetEmitterList() { return _particleEmitters; }

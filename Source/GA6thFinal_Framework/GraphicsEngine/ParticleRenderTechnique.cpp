@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "ParticleResolvePass.h"
 #include "ParticleSpritePass.h"
+#include "ParticleRibbonPass.h"
 #include "ParticleRenderTechnique.h"
 
  ParticleRenderTechnique::ParticleRenderTechnique() {}
@@ -20,12 +21,13 @@
 
     CreateWBOITResources();
     InitializeSpriteParticlePass(commandList);
+    InitializeRibbonParticlePass(commandList);
     InitializeParticleResolvePass(commandList);
 }
 
 void ParticleRenderTechnique::Execute(ID3D12GraphicsCommandList* commandList)
 {
-    Global::particleManager->SetCurrentRenderScene(_ownerScene);
+    //Global::particleManager->SetCurrentRenderScene(_ownerScene);
     __super::Execute(commandList);
 }
 
@@ -35,6 +37,16 @@ void ParticleRenderTechnique::InitializeSpriteParticlePass(ID3D12GraphicsCommand
     spritepass->Initialize(_ownerScene, commandList);
     spritepass->SetAccumulationBuffers(_accumlateBuffer, _revealageBuffer);
     AddRenderPass(std::move(spritepass));
+}
+
+void ParticleRenderTechnique::InitializeRibbonParticlePass(ID3D12GraphicsCommandList* commandList)
+{
+    std::unique_ptr<ParticleRibbonPass> ribbonpass = std::make_unique<ParticleRibbonPass>();
+    ribbonpass->Initialize(_ownerScene,commandList);
+    ribbonpass->SetAccumulationBuffers(_accumlateBuffer, _revealageBuffer);
+    AddRenderPass(std::move(ribbonpass));
+
+
 }
 
 void ParticleRenderTechnique::InitializeParticleResolvePass(ID3D12GraphicsCommandList* commandList)
