@@ -339,6 +339,9 @@
     <ClInclude Include="ShaderConfig.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="ShadowMapPass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GraphicsEngine.cpp">
@@ -645,6 +648,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="ShaderConfig.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="ShadowMapPass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
