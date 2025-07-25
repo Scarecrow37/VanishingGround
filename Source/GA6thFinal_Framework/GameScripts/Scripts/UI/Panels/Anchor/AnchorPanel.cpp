@@ -44,7 +44,7 @@ void AnchorPanelSlot::OnPlacementChange()
     UpdateAnchorPoint();
     const POINT anchorPoint = GetAnchorPoint();
     const SIZE  size        = GetSize();
-    PassScopedPlacement(anchorPoint, size);
+    PassScopedPlacementToSibling(anchorPoint, size);
 }
 
 void AnchorPanelSlot::ImGuiDrawPropertysEvent()

@@ -57,25 +57,22 @@ public:
 protected:
     void  Reset() override;
     void  DeserializedReflectEvent() override;
-
     void  OnPlacementChange() override;
-
     float GetZOrder() const override;
 
 private:
-    void RequestResource() const;
-    void LoadFont() const;
-
     void SetViewOrder(int viewOrder) override;
 
+    void RequestResource() const;
+    void LoadFont() const;
     void PassProperty() const;
-    void FitContent();
-
     void UpdateAll() const;
     void UpdateText() const;
     void UpdateColor() const;
     void UpdatePosition() const;
     void UpdateScale() const;
+
+    void FitContent();
 
 protected:
     REFLECT_FIELDS_BEGIN(EditablePlacementUIComponent)
@@ -89,4 +86,5 @@ protected:
 private:
     std::unique_ptr<FontRenderer> _renderer;
     File::GuidRef                 _guidRef;
+
 };

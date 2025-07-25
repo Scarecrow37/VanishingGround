@@ -2,6 +2,13 @@
 #include "CenterWrapper.h"
 
 
+void CenterWrapper::OnChildPlacementChange(PlacementUIComponent* changedComponent)
+{
+    EditablePlacementUIComponent::OnChildPlacementChange(changedComponent);
+
+    AssignChild(*changedComponent);
+}
+
 POINT CenterWrapper::GetCenterPoint(const SIZE childSize) const
 {
     const auto [absoluteX, absoluteY] = GetAbsolutePoint();

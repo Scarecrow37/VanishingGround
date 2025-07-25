@@ -8,11 +8,14 @@ class PanelSlotComponent : public PlacementUIComponent
 public:
     PanelSlotComponent();
 
-    void PassScopedPlacement(POINT point, SIZE size) const;
+public:
+    void PassScopedPlacementToSibling(POINT point, SIZE size) const;
+
+protected:
+    void OnDetachParent(GameObject* previousParentGameObject) override;
 
 protected:
     REFLECT_FIELDS_BEGIN(PlacementUIComponent)
     REFLECT_FIELDS_END(PanelSlotComponent)
 
-    void OnDetachParent(GameObject* previousParentGameObject) override;
 };

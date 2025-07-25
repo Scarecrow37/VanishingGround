@@ -23,18 +23,21 @@ public:
     SIZE  GetScopeSize() const;
     POINT GetAbsolutePoint() const;
 
-    void SetScopePlacement(POINT scopePoint, SIZE scopeSize);
+    void SetScopePlacement(POINT scopePoint, SIZE scopeSize); // 내림
     int  SortViewOrder(int startOrder);
 
 protected:
-    void ResetPlacement();
     void ImGuiDrawPropertysEvent() override;
     void OnAttachChild(GameObject* childGameObject) override;
     void OnDetachParent(GameObject* previousParentGameObject) override;
 
-    virtual float GetZOrder() const;
+    virtual void OnChildPlacementChange(PlacementUIComponent* changedComponent){} // 올라옴
     virtual void  OnPlacementChange() {}
+    virtual float GetZOrder() const;
+    virtual void  SpreadPlacementToParent(); // 올림
     virtual void  SetViewOrder(int viewOrder);
+
+    void ResetPlacement();
 
 protected:
     REFLECT_FIELDS_BEGIN(UIComponent)
@@ -44,4 +47,5 @@ protected:
     SIZE  ScopeSize;
     int   ViewOrder = 0;
     REFLECT_FIELDS_END(PlacementUIComponent)
+
 };

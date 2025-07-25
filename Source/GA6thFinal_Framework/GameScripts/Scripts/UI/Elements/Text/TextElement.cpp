@@ -161,7 +161,13 @@ void TextElement::FitContent()
         XMFLOAT2 size;
         XMStoreFloat2(&size, _renderer->GetStringSize());
         const SIZE newSize{.cx = static_cast<LONG>(size.x), .cy = static_cast<LONG>(size.y)};
-        ReflectFields->Basefields.get().Basefields.get().Size = newSize;
+        const SIZE previousSize                               = GetSize();
+        if (newSize != previousSize)
+        {
+            ReflectFields->Basefields.get().Basefields.get().Size = newSize;
+            OnPlacementChange();
+            SpreadPlacementToParent();
+        }
     }
 }
 

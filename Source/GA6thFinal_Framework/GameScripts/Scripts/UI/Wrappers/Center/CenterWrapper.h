@@ -36,6 +36,8 @@ public:
     PROPERTY(Vertical)
 
 public:
+    void OnChildPlacementChange(PlacementUIComponent* changedComponent) override;
+
     POINT GetCenterPoint(SIZE childSize) const;
     bool  IsCenterHorizontal() const;
     bool  IsCenterVertical() const;
@@ -51,4 +53,5 @@ protected:
     REFLECT_FIELDS_BEGIN(EditablePlacementUIComponent)
     CenterType CenterType = CENTER_HORIZONTAL | CENTER_VERTICAL;
     REFLECT_FIELDS_END(CenterWrapper)
+
 };

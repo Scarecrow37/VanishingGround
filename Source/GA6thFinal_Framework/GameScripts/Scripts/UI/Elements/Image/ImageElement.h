@@ -39,4 +39,5 @@ private:
     std::unique_ptr<SpriteRenderer> _renderer;
     File::GuidRef                   _guidRef;
     Matrix                          _worldMatrix;
+
 };

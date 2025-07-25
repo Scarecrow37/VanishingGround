@@ -96,6 +96,17 @@ float PlacementUIComponent::GetZOrder() const
     return static_cast<float>(ReflectFields->ViewOrder);
 }
 
+void PlacementUIComponent::SpreadPlacementToParent()
+{
+    if (const Transform* parentTransform = transform->Parent; nullptr != parentTransform)
+    {
+        const GameObject&                  parentGameObject = parentTransform->gameObject;
+        std::vector<PlacementUIComponent*> components       = FindComponents<PlacementUIComponent>()(parentGameObject);
+        std::ranges::for_each(components,
+                              [this](PlacementUIComponent* component) { component->OnChildPlacementChange(this); });
+    }
+}
+
 void PlacementUIComponent::RequestViewOrder(const Transform& transform)
 {
     UIRoot* uiRoot = nullptr;
