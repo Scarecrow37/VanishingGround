@@ -70,12 +70,12 @@ namespace File
 
     struct FileDialogDesc
     {
-        HWND                                        Owner;
-        LPCWSTR                                     Title;
-        LPCWSTR                                     InitialDirectory;
-        LPCWSTR                                     DefaultFileName;
+        HWND                                        Owner = NULL;
+        LPCWSTR                                     Title = L"";
+        LPCWSTR                                     InitialDirectory = L"";
+        LPCWSTR                                     DefaultFileName  = L"";
         std::vector<std::pair<LPCWSTR, LPCWSTR>>    Filters;
-        DWORD                                       Flags;
+        DWORD                                       Flags = 0;
     };
 
     // 파일 브라우저 열기
