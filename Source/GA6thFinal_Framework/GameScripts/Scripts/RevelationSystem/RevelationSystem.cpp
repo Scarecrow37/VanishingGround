@@ -195,16 +195,16 @@ void RevelationSystem::DrawImGuiElementTableEditor()
                             RevelationElement tempElement;
                             tempElement = element;
                             tempElement.SetName(renameBuffer);
-                            _imguiEvent.RenameFunc = [this, renameBuffer = renameBuffer, originName, tempElement]() 
+                            if (renameBuffer != originName)
                             {
-                                if (renameBuffer != originName)
+                                _imguiEvent.RenameFunc = [this, originName, tempElement]() 
                                 {
                                     if (InsertElement(tempElement))
                                     {
                                         EraseElement(originName);
                                     }
-                                }
-                            };
+                                };
+                            }
                         }
                     }
                     RightClickContext();
@@ -403,10 +403,10 @@ void RevelationSystem::ImGuiDrawPropertysEvent()
     {
         ImGuiViewport* viewPort = ImGui::GetMainViewport();
         ImVec2         center   = viewPort->GetCenter();
-        ImVec2         size     = viewPort->Size;
+        ImVec2         size     = viewPort->Size * 0.75f;
         ImGui::SetNextWindowPos(center, ImGuiCond_Once, ImVec2(0.5f, 0.5f));
         ImGui::SetNextWindowSize(size, ImGuiCond_FirstUseEver);
-        ImGui::Begin("Revelation Table Editor##93BDE7E1-62AF-49F4-8FCD-3115FC907146", &_tableEditorOpen,
+        ImGui::Begin("Revelation Table Editor##47D7303C-9D99-4725-8B99-CC5CC6A2C374", &_tableEditorOpen,
                      ImGuiWindowFlags_MenuBar);
         {
             ImVec2 currentWindowPos  = ImGui::GetWindowPos();
