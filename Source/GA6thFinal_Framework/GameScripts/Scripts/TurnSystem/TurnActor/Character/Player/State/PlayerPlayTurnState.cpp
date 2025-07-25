@@ -214,6 +214,10 @@ void PlayerPlayTurnState::UpdateQuickTimeEventUI(float dt)
             {
                 player.Dead();
             }
+            if (ImGui::Button((const char*)u8"[테스트] 턴 종료"))
+            {
+                _attackRemaining = 0;
+            }
             for (auto& target : _attackTargets)
             {
                 ImGui::Text(Battle::EnemyTargetFlagToString(target).data());
