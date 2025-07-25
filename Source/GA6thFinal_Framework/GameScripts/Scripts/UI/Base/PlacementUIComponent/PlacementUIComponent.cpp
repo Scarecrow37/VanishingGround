@@ -27,8 +27,12 @@ SIZE PlacementUIComponent::GetScopeSize() const
 
 POINT PlacementUIComponent::GetAbsolutePoint() const
 {
-    return POINT{.x = ReflectFields->Point.x + ReflectFields->ScopePoint.x,
-                 .y = ReflectFields->Point.y + ReflectFields->ScopePoint.y};
+    return GetScopePoint() + GetPoint();
+}
+
+SIZE PlacementUIComponent::GetContentSize() const
+{
+    return GetSize();
 }
 
 void PlacementUIComponent::SetScopePlacement(const POINT scopePoint, const SIZE scopeSize)
@@ -101,7 +105,7 @@ void PlacementUIComponent::SpreadPlacementToParent()
     if (const Transform* parentTransform = transform->Parent; nullptr != parentTransform)
     {
         const GameObject&                  parentGameObject = parentTransform->gameObject;
-        std::vector<PlacementUIComponent*> components       = FindComponents<PlacementUIComponent>()(parentGameObject);
+        std::vector<PlacementUIComponent*> components       = parentGameObject.GetComponents<PlacementUIComponent>();
         std::ranges::for_each(components,
                               [this](PlacementUIComponent* component) { component->OnChildPlacementChange(this); });
     }

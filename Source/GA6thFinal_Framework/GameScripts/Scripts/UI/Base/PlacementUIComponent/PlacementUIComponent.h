@@ -17,6 +17,8 @@ public:
     PlacementUIComponent();
 
 public:
+    virtual SIZE GetContentSize() const;
+
     POINT GetPoint() const;
     SIZE  GetSize() const;
     POINT GetScopePoint() const;

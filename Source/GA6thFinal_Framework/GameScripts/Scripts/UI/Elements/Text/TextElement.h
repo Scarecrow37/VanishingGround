@@ -24,6 +24,7 @@ public:
     {
         ReflectFields->Text = value;
         UpdateText();
+        UpdateContentSize();
         if (ReflectFields->IsFitContent)
             FitContent();
     }
@@ -54,9 +55,11 @@ public:
     }
     PROPERTY(IsFitContent)
 
+public:
+    SIZE GetContentSize() const override;
+
 protected:
     void  Reset() override;
-    void  DeserializedReflectEvent() override;
     void  OnPlacementChange() override;
     float GetZOrder() const override;
 
@@ -71,6 +74,7 @@ private:
     void UpdateColor() const;
     void UpdatePosition() const;
     void UpdateScale() const;
+    void UpdateContentSize();
 
     void FitContent();
 
@@ -81,6 +85,7 @@ protected:
     std::array<float, 4> Color        = {0.0f, 0.0f, 0.0f, 1.0f};
     float                FontScale    = 1.0f;
     bool                 IsFitContent = false;
+    SIZE                 ContentSize  = SIZE{};
     REFLECT_FIELDS_END(TextElement)
 
 private:

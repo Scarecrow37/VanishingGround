@@ -6,6 +6,7 @@ AnchorPanel::AnchorPanel() = default;
 void AnchorPanel::OnAttachChild(GameObject* childGameObject)
 {
     EditablePlacementUIComponent::OnAttachChild(childGameObject);
+
     auto& slot = childGameObject->AddComponent<AnchorPanelSlot>();
     AssignChild(slot);
 }

@@ -31,6 +31,11 @@ TextElement::~TextElement()
         _renderer->SetDestroy();
 }
 
+SIZE TextElement::GetContentSize() const
+{
+    return ReflectFields->ContentSize;
+}
+
 void TextElement::Reset()
 {
     EditablePlacementUIComponent::Reset();
@@ -44,7 +49,13 @@ void TextElement::Reset()
             UmGraphics.RegisterComponent("Editor", _renderer.get());
         }
         _renderer->SetActive(&EnableInHierarchy);
-        RequestResource();
+
+        const File::Guid guid = ReflectFields->Guid;
+        if (const auto path = guid.ToPath(); !path.IsNull())
+        {
+            _guidRef = path.ToGuid();
+            RequestResource();
+        }
     }
     catch (...)
     {
@@ -53,25 +64,15 @@ void TextElement::Reset()
     }
 }
 
-void TextElement::DeserializedReflectEvent()
-{
-    EditablePlacementUIComponent::DeserializedReflectEvent();
-
-    const File::Guid guid = ReflectFields->Guid;
-    if (const auto path = guid.ToPath(); !path.IsNull())
-    {
-        _guidRef = path.ToGuid();
-    }
-}
-
 void TextElement::OnPlacementChange()
 {
     EditablePlacementUIComponent::OnPlacementChange();
 
     UpdatePosition();
-    if (ReflectFields->IsFitContent)
+
+    if (IsFitContent)
     {
-        FitContent();
+        FitContent();   
     }
 }
 
@@ -154,20 +155,29 @@ void TextElement::UpdateScale() const
     }
 }
 
-void TextElement::FitContent()
+void TextElement::UpdateContentSize()
 {
     if (nullptr != _renderer)
     {
         XMFLOAT2 size;
         XMStoreFloat2(&size, _renderer->GetStringSize());
-        const SIZE newSize{.cx = static_cast<LONG>(size.x), .cy = static_cast<LONG>(size.y)};
-        const SIZE previousSize                               = GetSize();
-        if (newSize != previousSize)
-        {
-            ReflectFields->Basefields.get().Basefields.get().Size = newSize;
-            OnPlacementChange();
-            SpreadPlacementToParent();
-        }
+        ReflectFields->ContentSize = SIZE{.cx = static_cast<LONG>(size.x), .cy = static_cast<LONG>(size.y)};
+    }
+    else
+    {
+        ReflectFields->ContentSize = SIZE{0, 0};
+    }
+}
+
+void TextElement::FitContent()
+{
+    const SIZE contentSize = GetContentSize();
+    const SIZE previousSize = GetSize();
+
+    if (contentSize != previousSize)
+    {
+        Size = contentSize;
+        SpreadPlacementToParent();
     }
 }
 

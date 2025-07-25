@@ -5,7 +5,7 @@ PanelSlotComponent::PanelSlotComponent() = default;
 
 void PanelSlotComponent::PassScopedPlacementToSibling(const POINT point, const SIZE size) const
 {
-    std::vector<PlacementUIComponent*> components = FindComponents<PlacementUIComponent>()(gameObject);
+    std::vector<PlacementUIComponent*> components = gameObject->GetComponents<PlacementUIComponent>();
     std::ranges::for_each(
         components | 
         std::views::filter([this](const PlacementUIComponent* component) { return component != this; })

@@ -35,23 +35,6 @@ protected:
 };
 
 template <typename T>
-struct FindComponents
-{
-    std::vector<T*> operator()(const GameObject& gameObject)
-    {
-        std::vector<T*> components;
-        for (int i = 0; i < gameObject.GetComponentCount(); ++i)
-        {
-            if (T* component = gameObject.GetComponentAtIndex<T>(i))
-            {
-                components.push_back(component);
-            }
-        }
-        return components;
-    }
-};
-
-template <typename T>
 struct FindChildComponents
 {
     std::vector<T*> operator()(Transform& parentTransform)
@@ -59,9 +42,10 @@ struct FindChildComponents
         std::vector<T*> components;
         for (int i = 0; i < parentTransform.GetChildCount(); ++i)
         {
-            const Transform* child      = parentTransform.GetChild(i);
-            GameObject&      gameObject = child->gameObject;
-            components = FindComponents<T>()(gameObject);
+            const Transform* child           = parentTransform.GetChild(i);
+            GameObject&      gameObject      = child->gameObject;
+            std::vector<T*>  childComponents = gameObject.GetComponents<T>();
+            std::move(childComponents.begin(), childComponents.end(), std::back_inserter(components));
         }
         return components;
     }
