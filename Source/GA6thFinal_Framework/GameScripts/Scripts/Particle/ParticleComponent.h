@@ -1,11 +1,11 @@
 ﻿#pragma once
 #include "UmFramework.h"
-
 class ParticleComponent : public Component
 {
     USING_PROPERTY(ParticleComponent)
 public:
-    REFLECT_PROPERTY(FilePath, Position, Rotation, Scale)
+
+    REFLECT_PROPERTY(FilePath, Position, Rotation, Scale, AttachToBoneMatrix)
     GETTER_ONLY(std::string, FilePath) { return _filepath.string(); }
     PROPERTY(FilePath)
 
@@ -33,6 +33,12 @@ public:
     }
     PROPERTY(Scale)
 
+    GETTER(bool, AttachToBoneMatrix) { return ReflectFields->AttachToBoneMatrix; }
+    SETTER(bool, AttachToBoneMatrix) { 
+        ReflectFields->AttachToBoneMatrix = value;
+        FollowBoneMatrix();
+    }
+    PROPERTY(AttachToBoneMatrix)
 
     GETTER_ONLY(const ParticleEffect*, Effect) { return _effect; }
     PROPERTY(Effect)
@@ -49,10 +55,11 @@ public:
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)
-    std::string Guid;
-    std::array<float, 3>        PositionArray;
-    std::array<float, 3>        RotationArray;
-    std::array<float, 3>        ScaleArray;
+    std::string          Guid;
+    std::array<float, 3> PositionArray;
+    std::array<float, 3> RotationArray;
+    std::array<float, 3> ScaleArray;
+    bool                 AttachToBoneMatrix = false;
     REFLECT_FIELDS_END(ParticleComponent)
 
     ParticleEffect* _effect;
@@ -66,9 +73,11 @@ private:
     float lifetime   = 0.f;
     bool  isplaying  = false;
     void  LoadParticle();
+    bool  isDirty = false;
+
+    void FollowBoneMatrix();
 
     Vector3 _positionVector{0.f, .0f, 0.f};
     Vector3 _rotationVector{0.f, 0.f, 0.f};
     Vector3 _scaleVector{1.f, 1.f, 1.f};
-
 };

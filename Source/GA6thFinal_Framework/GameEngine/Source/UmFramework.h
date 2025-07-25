@@ -83,6 +83,7 @@ constexpr const char* STR_NULL = "null";
 #include <string_view>
 #include <concurrent_queue.h>
 #include <random>
+#include <algorithm>
 
 //ThirdParty
 #include "pugixml/pugixml.hpp"
@@ -160,6 +161,7 @@ using namespace Microsoft::WRL;
 #include "Engine/WatcherCore/System/WatcherSystem.h"
 
 //Engine Core
+#include "Engine/GraphicsCore/ParticleEffectSerializer.h"
 #include "Engine/EngineCore/EngineLogger.h"
 #include "Engine/EngineCore/TimeSystem.h"
 #include "Engine/EngineCore/GameObjectFactory.h"
@@ -227,6 +229,7 @@ using namespace Microsoft::WRL;
 #include "Editor/Tool/ParticleEffect/EditorParticleEffectDetails.h"
 #include "Editor/Tool/ParticleEffect/EditorParticleEffectViewer.h"
 #include "Editor/Tool/ParticleEffect/EditorParticleEffectHierarchy.h"
+
 
 // Editor Menu
 #include "Editor/Menu/Project/EditorProjectMenu.h"

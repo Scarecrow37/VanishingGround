@@ -1146,7 +1146,7 @@ void EditorAssetObject::OnInspectorExit()
 {
 }
 
-void EditorAssetObject::SetContext(std::weak_ptr<File::Context> context) 
+void EditorAssetObject::SetContext(std::weak_ptr<File::Context> context)
 {
     _selectedAsset = context;
 

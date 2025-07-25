@@ -339,7 +339,7 @@
     <ClInclude Include="ShaderConfig.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="ShadowMapPass.h">
+    <ClInclude Include="ParticleRibbonPass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -650,7 +650,7 @@
     <ClCompile Include="ShaderConfig.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="ShadowMapPass.cpp">
+    <ClCompile Include="ParticleRibbonPass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

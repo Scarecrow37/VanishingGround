@@ -1,6 +1,5 @@
 ﻿#pragma once
-#include "UmFramework.h"
-#include <Stats/Weapon/WeaponStats.h>
+#include <WeaponSystem/WeaponElement/WeaponElement.h>
 
 class WeaponTableComponent : public Component
 {
@@ -42,36 +41,34 @@ public:
     /// </summary>
     /// <param name="name :">찾을 무기 이름</param>
     /// <returns>찾은 무기 Stats 정보</returns>
-    const WeaponStats* GetWeaponToName(std::string_view name);
+    const WeaponElement* GetWeaponToName(std::string_view name);
 
     /// <summary>
     /// 이름을 key로 사용하는 WeaponTable을 반환합니다.
     /// </summary>
     /// <returns></returns>
-    const std::map<std::string, WeaponStats>& GetWeaponTable() { return _weaponTable; }
+    const std::map<std::string, WeaponElement>& GetWeaponTable() { return _weaponTable; }
 
     std::string SaveWeaponTable();
     bool        LoadWeaponTable(std::string_view data);
 
 private:
-    bool RenameWeapon(WeaponStats& weapon, std::string_view newName);
-    bool InsertWeapon(WeaponStats& weapon);
-    bool EraseWeapon(WeaponStats& weapon);
+    bool RenameWeapon(WeaponElement& weapon, const std::string& newName);
+    bool InsertWeapon(WeaponElement& weapon);
+    bool EraseWeapon(WeaponElement& weapon);
 
 private:
-    std::map<std::string, WeaponStats> _weaponTable;
+    std::map<std::string, WeaponElement> _weaponTable;
 
 private:
     struct ImguiEvent
     {
         bool ShowTableEditor = false;
 
-        std::string DeleteTableBuffer = STR_NULL;
-        bool        OpenDeletePopup   = false;
-
-        WeaponStats* SelectWeapon = nullptr;
-        std::string  RenameBuffer;
-        bool         OpenRenamePopup = false;
+        std::string           DeleteTableBuffer = STR_NULL;
+        bool                  OpenDeletePopup   = false;
+        WeaponElement*        SelectWeapon      = nullptr;
+        std::function<void()> RenameFunc;
     } 
     _imguiEvent;
 

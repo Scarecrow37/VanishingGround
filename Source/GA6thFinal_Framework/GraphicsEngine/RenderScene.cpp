@@ -169,6 +169,7 @@ void RenderScene::Execute()
 
     _commandSet->Close();
     Global::commandController->ExecuteCommand(CommandQueueType::GRAPHICS_QUEUE, _commandSet);
+
 }
 
 void RenderScene::ResetSkyBox()
