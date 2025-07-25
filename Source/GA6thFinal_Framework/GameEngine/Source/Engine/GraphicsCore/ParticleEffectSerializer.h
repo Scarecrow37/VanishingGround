@@ -1,10 +1,28 @@
 ﻿#pragma once
+constexpr char     MAGIC_NUMBER[] = "UMFX";
+constexpr uint32_t MAJOR_VERSION  = 1;
+constexpr uint32_t MINOR_VERSION  = 1;
+
 
 class ParticleEffectSerializer : public File::FileEventSubscriber
 {
+private:
+    using Serializer = std::function<void(std::ofstream& , ParticleEffect* , File::Path )>;
+    using Deserializer = std::function<ParticleEffect*(std::ifstream&, bool, std::string_view)>;
+    using Predeserializer = std::function<void(std::ifstream&)>;
+    using VersionSet = std::pair<uint32_t, uint32_t>;
+
+    std::map<VersionSet, Serializer> _serializers;
+    std::map<VersionSet, Deserializer>              _deserializers;
+    std::map<VersionSet, Predeserializer> _preDeserializers;
+
+    void RegisterDeserializers();
+
 public:
-    ParticleEffectSerializer() {};
-    virtual ~ParticleEffectSerializer() {}
+    ParticleEffectSerializer();
+    virtual ~ParticleEffectSerializer() {}; 
+                                                   
+
 
     void OnFileRegistered(const File::Path& path) override;
     void OnFileUnregistered(const File::Path& path) override;
@@ -22,13 +40,33 @@ public:
     void OnFileMoved(const File::Path& oldPath, const File::Path& newPath) override;
 
 public:
-    void                    Serialize(class ParticleEffect* effect, File::Path destPath);
-    class ParticleEffect*   Deserialize(File::Path filePath, bool isEditor);
-    void                    PreDeserialize(File::Path filePath);
-    std::vector<File::Path> GetUsedTexturePaths() { return UsedTexturePaths; }
-    std::vector<File::Path> GetUsedModelPaths() const { return UsedModelPaths; }
+    void            Serialize(class ParticleEffect* effect, File::Path destPath);
+    ParticleEffect* Deserialize(File::Path filepath, bool isEditor, std::string_view sceneName);
+    void            PreDeserialize(File::Path filePath);
+
+    void            Serialize_1_0(std::ofstream& os, ParticleEffect* effect, File::Path destPath);
+    ParticleEffect* Deserialize_1_0(std::ifstream& is, bool isEditor, std::string_view sceneName);
+    void            PreDeserialize_1_0(std::ifstream& is);
+
+    
+    void            Serialize_1_1(std::ofstream& os, ParticleEffect* effect, File::Path destPath);
+    ParticleEffect* Deserialize_1_1(std::ifstream& is, bool isEditor, std::string_view sceneName);
+    void            PreDeserialize_1_1(std::ifstream& is);
+
+
+
+
+
+
+    std::set<File::Path> GetUsedTexturePaths() { return UsedTexturePaths; }
+    std::set<File::Path> GetUsedModelPaths() const { return UsedModelPaths; }
 
 private:
-    std::vector<File::Path> UsedTexturePaths;
-    std::vector<File::Path> UsedModelPaths;
+    std::set<File::Path> UsedTexturePaths;
+    std::set<File::Path> UsedModelPaths;
+
+private:
+
+
+
 };
