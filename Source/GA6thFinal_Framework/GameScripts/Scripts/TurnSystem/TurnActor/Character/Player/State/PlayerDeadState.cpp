@@ -2,7 +2,7 @@
 #include "PlayerDeadState.h"
 #include <GameCore/FSM/Factory/FSMStateFactory.h>
 #include <TurnSystem/TurnActor/Character/Player/Player.h>
-#include <Mesh/SkeletalMeshRenderer.h>
+#include <Animation/AnimationComponent.h>
 
 REGISTER_CLASS(FSMStateFactory, PlayerDeadState)
 
@@ -28,15 +28,16 @@ void PlayerDeadState::OnStart()
 
 void PlayerDeadState::OnEnter() 
 {
+    UmLogger.Message(LogLevel::LEVEL_DEBUG, (const char*)u8"플레이어 사망!!!");
     Player& player = GetPlayer();
     player.Dead();
-    SkeletalMeshRenderer* renderer = player.GetSkeletalMeshRenderer();
-    if (renderer)
+    AnimationComponent* animator = player.GetAnimationComponent();
+    if (animator)
     {
-        renderer->BeginBuildOverrideAnimation();
-        renderer->ClearOverrideAnimations();
-        player.SetMainAnimation(CharacterBase::DEATH, false);
-        renderer->EndBuildOverrideAnimation();
+        animator->BeginBuildOverrideAnimation();
+        animator->ClearOverrideAnimations();
+        player.SetMainAnimation(CharacterBase::DEATH, ANIMATION_FLAG_NONE);
+        animator->EndBuildOverrideAnimation();
     }
 }
 

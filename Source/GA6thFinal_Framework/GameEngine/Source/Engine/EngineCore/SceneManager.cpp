@@ -465,6 +465,7 @@ void ESceneManager::Engine::SwapPrefabInstance(GameObject* original, GameObject*
                         Component* originComponent = sOrigin->GetComponentAtIndex<Component>(i);
                         std::string componentData = originComponent->SerializedReflectFields();
                         remakeComponent->DeserializedReflectFields(componentData);
+                        remakeComponent->Reset();
                     }
                 }
 
@@ -1055,7 +1056,7 @@ void ESceneManager::ObjectsAddRuntime()
 
     for (auto& component : _addComponentsQueue)
     {
-        component->_gameObject->_components.emplace_back(component);
+        EComponentFactory::Engine::PushBackComponentToObject(component);
         if (_isPlay)
         {
             _waitAwakeVec.push_back(component);

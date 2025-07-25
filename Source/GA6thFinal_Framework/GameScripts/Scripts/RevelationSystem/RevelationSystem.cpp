@@ -4,6 +4,7 @@
 #include <TurnSystem/TurnMode/TurnMode.h>
 RevelationSystem::RevelationSystem() 
 {
+    static_instance = this;
     RevelationsPerRound.SetInputAutoEvent([]() { ImGuiHelper::HoveredToolTip(u8"라운드당 뽑는 계시 개수"); });
 }
 RevelationSystem::~RevelationSystem() = default;
@@ -487,11 +488,6 @@ void RevelationSystem::ImGuiDrawPropertysEvent()
 
     ImGuiDrawPlayerElementEditor();
     ImGuiDrawRoundElementList();
-}
-
-void RevelationSystem::Reset()
-{
-    static_instance = this;
 }
 
 void RevelationSystem::ImGuiDrawPlayerElementEditor() 

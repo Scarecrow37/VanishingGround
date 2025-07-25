@@ -12,6 +12,11 @@ void TurnActorStatsComponent::SerializedReflectEvent()
 
 void TurnActorStatsComponent::DeserializedReflectEvent() 
 {
+    if (nullptr == _stats)
+    {
+        TurnActorStats* newStats = NewTurnActorStats();
+        _stats.reset(newStats);
+    }
     _stats->DeserializedReflectFields(ReflectFields->StatsData);
 }
 
@@ -22,6 +27,9 @@ void TurnActorStatsComponent::ImGuiDrawPropertysEvent()
 
 void TurnActorStatsComponent::Reset()
 {
-    TurnActorStats* newStats = NewTurnActorStats();
-    _stats.reset(newStats);
+    if (nullptr == _stats)
+    {
+        TurnActorStats* newStats = NewTurnActorStats();
+        _stats.reset(newStats);
+    }
 }

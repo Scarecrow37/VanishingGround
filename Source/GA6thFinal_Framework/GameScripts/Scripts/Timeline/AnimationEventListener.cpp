@@ -1,6 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "AnimationEventListener.h"
-#include <Scripts/Mesh/SkeletalMeshRenderer.h>
+#include <Animation/AnimationComponent.h>
 
 AnimationEventListener::AnimationEventListener()
 {
@@ -32,17 +32,18 @@ AnimationEventListener::~AnimationEventListener()
 
 void AnimationEventListener::Start()
 {
-    _skeletalMeshRenderer = GetComponent<SkeletalMeshRenderer>();
+    _animationComponent = GetComponent<AnimationComponent>();
 }
 
 void AnimationEventListener::Update() 
 {
-    if (true == IsLoadedSkeletalMeshRenderer() &&
+    if (true == IsLoadedAnimationComponent() &&
         true == IsLoadedAnimationNotifySet())
     {
-        const auto& src = _skeletalMeshRenderer->GetCurrentAnimationName();
+        const AnimationData& animData = _animationComponent->GetLastAnimationData();
+        const auto& src = animData.GetAnimationName();
         const auto& dst = _animationNotifySet.GetActiveTimelineName();
-        float srcTime   = _skeletalMeshRenderer->GetCurrentAnimationTime();
+        float srcTime   = animData.GetAnimationElapsedFrame();
         bool isDirty    = (src != dst);
         if (true == isDirty)
         {
@@ -77,9 +78,9 @@ bool AnimationEventListener::IsLoadedAnimationNotifySet() const
     return _animationNotifySet.IsLoadedFile();
 }
 
-bool AnimationEventListener::IsLoadedSkeletalMeshRenderer() const
+bool AnimationEventListener::IsLoadedAnimationComponent() const
 {
-    return nullptr != _skeletalMeshRenderer;
+    return nullptr != _animationComponent;
 }
 
 void AnimationEventListener::SetAnimationNotifyFromGuid(const File::Guid& guid)

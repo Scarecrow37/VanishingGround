@@ -3,6 +3,7 @@
 #include "Stats/Enemy/EnemyStats.h"
 #include "Stats/Enemy/EnemyStatsComponent.h"
 #include <GameCore/FSM/FiniteStateMachine.h>
+#include <TurnSystem/TurnMode/TurnMode.h>
 
 //Condition
 #include "Condition/EnemyStartCondition.h"
@@ -40,6 +41,10 @@ void Enemy::Revive()
 void Enemy::Dead()
 {
     Base::Dead();
+    if (auto turnMode = TurnMode::GetInstance())
+    {
+        turnMode->ApplyActions([this](TurnAction& action) { action.OnEnemyDead(*this); });
+    }
 }
 
 void Enemy::TakeDamage(int damage) 
@@ -168,11 +173,6 @@ void Enemy::OnHit()
     Base::OnHit();
 }
 
-void Enemy::OnDead()
-{
-    Base::OnDead();
-}
-
 void Enemy::OnKill(CharacterBase* destination)
 {
     Base::OnKill(destination);
@@ -207,6 +207,8 @@ const char* Enemy::GetAnimationName(AnimationType type)
                     ANIM_NAME(DEATH, "")
                     ANIM_NAME(ATTACK_1, "")
                     ANIM_NAME(ATTACK_2, "")
+                    ANIM_NAME(ATTACK_3, "")
+                    ANIM_NAME(ATTACK_4, "")
                     ANIM_NAME(ATTACK_READY, "")
                     ANIM_NAME(ATTACK_LOOP, "")
                     ANIM_NAME(ATTACK_END, "")
@@ -220,11 +222,13 @@ const char* Enemy::GetAnimationName(AnimationType type)
             {
                 switch (type)
                 {
-                    ANIM_NAME(IDLE,     "Enemy02_Anim_Idle01")
-                    ANIM_NAME(HIT,      "Enemy02_Anim_GetHit")
-                    ANIM_NAME(DEATH,    "")
-                    ANIM_NAME(ATTACK_1, "Enemy02_Anim_Attack01")
+                    ANIM_NAME(IDLE,     "Armature|Enemy02_Anim_Idle01")
+                    ANIM_NAME(HIT,      "Armature|Enemy02_Anim_GetHit")
+                    ANIM_NAME(DEATH,    "Armature|Enemy02_Anim_Death")
+                    ANIM_NAME(ATTACK_1, "Armature|Enemy02_Anim_Attack01")
                     ANIM_NAME(ATTACK_2, "")
+                    ANIM_NAME(ATTACK_3, "")
+                    ANIM_NAME(ATTACK_4, "Armature|Enemy02_Anim_Attack03")
                     ANIM_NAME(ATTACK_READY, "")
                     ANIM_NAME(ATTACK_LOOP, "")
                     ANIM_NAME(ATTACK_END, "")
@@ -243,6 +247,8 @@ const char* Enemy::GetAnimationName(AnimationType type)
                     ANIM_NAME(DEATH, "")
                     ANIM_NAME(ATTACK_1, "")
                     ANIM_NAME(ATTACK_2, "")
+                    ANIM_NAME(ATTACK_3, "")
+                    ANIM_NAME(ATTACK_4, "")
                     ANIM_NAME(ATTACK_READY, "")
                     ANIM_NAME(ATTACK_LOOP, "")
                     ANIM_NAME(ATTACK_END, "")

@@ -42,6 +42,14 @@ public:
         static constexpr const wchar_t* BUILD_BATCH_PATH = BUILD_BATCH_RELEASE_PATH;
 #endif
 #endif  
+        /// <summary>
+        /// 컴포넌트를 오브젝트에 Push Back 합니다.
+        /// 초기화된 컴포넌트만 추가 가능합니다.
+        /// Reset 함수를 호출합니다.
+        /// </summary>
+        /// <param name="component :">추가할 컴포넌트</param>
+        /// <param name="onReset :">Reset 함수 호출 여부</param>
+        static void PushBackComponentToObject(std::shared_ptr<Component>& component);
     };
 
 private:
@@ -147,6 +155,14 @@ public:
     /// </summary>
     /// <returns></returns>
     Component* AddComponentToYamlNow(GameObject* ownerObject, YAML::Node* componentNode);
+
+    /// <summary>
+    /// 컴포넌트를 오브젝트에 Push Back 합니다.
+    /// 초기화된 컴포넌트만 추가 가능합니다.
+    /// </summary>
+    /// <param name="component :">추가할 컴포넌트</param>
+    /// <param name="onReset :">Reset 함수 호출 여부</param>
+    void PushBackComponentToObject(std::shared_ptr<Component>& component, bool onReset = true);
 
     /// <summary>
     /// 컴포넌트를 오브젝트에 바로 추가합니다.

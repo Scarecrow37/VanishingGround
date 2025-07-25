@@ -99,6 +99,12 @@ UMREAL_COMPONENT(ImageElement)
 #include "Scripts/UI/Elements/Text/TextElement.h"
 UMREAL_COMPONENT(TextElement)
 
+#include "Scripts/UI/Wrappers/Padding/PaddingWrapper.h"
+UMREAL_COMPONENT(PaddingWrapper)
+
+#include "Scripts/UI/Wrappers/Center/CenterWrapper.h"
+UMREAL_COMPONENT(CenterWrapper)
+
 #include "Scripts/UI/Panels/Grid/GridPanel.h"
 UMREAL_COMPONENT(GridPanel)
 UMREAL_COMPONENT(GridPanelSlot)
@@ -125,3 +131,6 @@ UMREAL_COMPONENT(ViewTest)
 
 #include "Scripts/Audio/AudioComponent.h"
 UMREAL_COMPONENT(AudioComponent)
+
+#include "Scripts/Animation/AnimationComponent.h"
+UMREAL_COMPONENT(AnimationComponent)

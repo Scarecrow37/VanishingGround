@@ -5,11 +5,11 @@
 #include "GraphicsEngine/FBXConverter.h"
 
 EditorModelDetails::EditorModelDetails()
-    : _meshRenderer(std::make_unique<MeshRenderer>(MeshRenderType::STATIC, _worldMatrix))
-    , _animator()
+    : _animator()
     , _mainLight(std::make_unique<Light>())
     , _selectedMeshIndex(0)
 {
+    _meshRenderer = std::make_unique<MeshRenderer>(STATIC_MESH, _position, _scale, _quaternion, _worldMatrix);
     SetLabel("Details##model");
     SetDockLayout(ImGuiDir_Right);
 }
@@ -93,6 +93,7 @@ void EditorModelDetails::UpdateModelTransform()
     Matrix matScale     = Matrix::CreateScale(_scale);
     Matrix matRotation  = Matrix::CreateFromYawPitchRoll(_rotation.y, _rotation.x, _rotation.z);
     Matrix matTranslate = Matrix::CreateTranslation(_position);
+    _quaternion         = Quaternion::CreateFromYawPitchRoll(_rotation.y, _rotation.x, _rotation.z);
 
     // 변환 순서: S  R  T
     _worldMatrix = matScale * matRotation * matTranslate;
@@ -203,7 +204,7 @@ void EditorModelDetails::OnFrameRender()
             }
             ImGui::Separator();
 
-            ImGui::Text("Type: %s", type == MeshRenderType::STATIC ? "Static" : "Skeletal");
+            ImGui::Text("Type: %s", type == STATIC_MESH ? "Static" : "Skeletal");
             ImGui::Text("Mesh Count: %d", model->GetMeshes().size());
 
             if (ImGui::TreeNodeEx("Transform##details", ImGuiTreeNodeFlags_DefaultOpen))
@@ -341,7 +342,7 @@ void EditorModelDetails::OnFrameRender()
                     ImGui::Text("Blend Mode");
 
                     ImGui::TableNextColumn();
-                    ImGui::Combo("##blendMode", (int*)&material.Mode, blendModeNames, (int)Material::BlendMode::END);
+                    ImGui::Combo("##blendMode", (int*)&material.BlendMode, blendModeNames, (int)Material::BlendModeType::END);
 
                     ImGui::TableNextRow();
                     ImGui::TableNextColumn();
@@ -349,8 +350,7 @@ void EditorModelDetails::OnFrameRender()
                     ImGui::Text("Shading Model");
 
                     ImGui::TableNextColumn();
-                    ImGui::Combo("##shadingModel", (int*)&material.Model, shadingModelNames,
-                                 (int)Material::ShadingModel::END);
+                    ImGui::Combo("##shadingModel", (int*)&material.ShadingModel, shadingModelNames, (int)Material::ShadingModelType::END);
 
                     ImGui::TableNextRow();
                     ImGui::TableNextColumn();

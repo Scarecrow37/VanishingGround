@@ -16,10 +16,7 @@ TextElement::TextElement()
                     {
                         _guidRef            = path.ToGuid();
                         ReflectFields->Guid = _guidRef.string();
-                        UmSceneManager.ResourceManager.RequestFontResource(this, _guidRef, [this]() {
-                            LoadFont();
-                            PassProperty();
-                        });
+                        RequestResource();
                     }
                 }
             }
@@ -37,6 +34,7 @@ TextElement::~TextElement()
 void TextElement::Reset()
 {
     EditablePlacementUIComponent::Reset();
+
     try
     {
         _renderer = std::make_unique<FontRenderer>();
@@ -46,6 +44,7 @@ void TextElement::Reset()
             UmGraphics.RegisterComponent("Editor", _renderer.get());
         }
         _renderer->SetActive(&EnableInHierarchy);
+        RequestResource();
     }
     catch (...)
     {
@@ -62,16 +61,13 @@ void TextElement::DeserializedReflectEvent()
     if (const auto path = guid.ToPath(); !path.IsNull())
     {
         _guidRef = path.ToGuid();
-        UmSceneManager.ResourceManager.RequestFontResource(this, _guidRef, [this]() {
-            LoadFont();
-            PassProperty();
-        });
     }
 }
 
 void TextElement::OnPlacementChange()
 {
     EditablePlacementUIComponent::OnPlacementChange();
+
     UpdatePosition();
     if (ReflectFields->IsFitContent)
     {
@@ -79,9 +75,13 @@ void TextElement::OnPlacementChange()
     }
 }
 
+float TextElement::GetZOrder() const
+{
+    return EditablePlacementUIComponent::GetZOrder() * VIEW_ORDER_TEXT_RATIO + VIEW_ORDER_TEXT_OFFSET;
+}
+
 void TextElement::LoadFont() const
 {
-
     if (nullptr != _renderer)
     {
         const std::string path = FilePath;
@@ -91,6 +91,13 @@ void TextElement::LoadFont() const
             UmGraphics.LoadResource(filePath, _renderer.get());
         }
     }
+}
+
+void TextElement::SetViewOrder(const int viewOrder)
+{
+    EditablePlacementUIComponent::SetViewOrder(viewOrder);
+
+    UpdatePosition();
 }
 
 void TextElement::PassProperty() const
@@ -131,9 +138,10 @@ void TextElement::UpdatePosition() const
 {
     if (nullptr != _renderer)
     {
-        const auto&   [x, y] = ReflectFields->Basefields.get().Basefields.get().Point;
-        const auto& [scopeX, scopeY] = ReflectFields->Basefields.get().Basefields.get().ScopePoint;
-        _renderer->SetPosition(Vector3(static_cast<float>(x + scopeX), static_cast<float>(y + scopeY), 0));
+        const auto& [x, y]   = GetAbsolutePoint();
+        const float   zOrder = GetZOrder();
+        const Vector3 position{static_cast<float>(x), static_cast<float>(y), zOrder};
+        _renderer->SetPosition(position);
     }
 }
 
@@ -141,7 +149,8 @@ void TextElement::UpdateScale() const
 {
     if (nullptr != _renderer)
     {
-        _renderer->SetScale(Vector2(ReflectFields->FontSize, ReflectFields->FontSize));
+        const Vector2 scale{ReflectFields->FontScale, ReflectFields->FontScale};
+        _renderer->SetScale(scale);
     }
 }
 
@@ -151,6 +160,15 @@ void TextElement::FitContent()
     {
         XMFLOAT2 size;
         XMStoreFloat2(&size, _renderer->GetStringSize());
-        ReflectFields->Basefields.get().Basefields.get().Size = SIZE{static_cast<LONG>(size.x), static_cast<LONG>(size.y)};
+        const SIZE newSize{.cx = static_cast<LONG>(size.x), .cy = static_cast<LONG>(size.y)};
+        ReflectFields->Basefields.get().Basefields.get().Size = newSize;
     }
+}
+
+void TextElement::RequestResource() const
+{
+    UmSceneManager.ResourceManager.RequestFontResource(this, _guidRef, [this]() {
+        LoadFont();
+        PassProperty();
+    });
 }

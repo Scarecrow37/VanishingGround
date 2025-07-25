@@ -280,7 +280,10 @@ void EditorHierarchyTool::SetFocusObject(const std::weak_ptr<GameObject>& object
             if (component->GetType() == Component::TYPE::MESH)
             {
                 MeshComponent* mesh = static_cast<MeshComponent*>(component);
-                mesh->Renderer->OffCustomDepth(PostProcess::OUTLINE);
+                if (mesh->Renderer)
+                {
+                    mesh->Renderer->OffCustomDepth(PostProcess::OUTLINE);
+                }
             }
         }
     }
@@ -296,7 +299,10 @@ void EditorHierarchyTool::SetFocusObject(const std::weak_ptr<GameObject>& object
             if (component->GetType() == Component::TYPE::MESH)
             {
                 MeshComponent* mesh = static_cast<MeshComponent*>(component);
-                mesh->Renderer->OnCustomDepth(PostProcess::OUTLINE);
+                if (mesh->Renderer)
+                {
+                    mesh->Renderer->OnCustomDepth(PostProcess::OUTLINE);
+                }
             }
         }
         static_isOpenFocusObj = true;
@@ -408,6 +414,7 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
             UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
                 GameObjectKey, GameObject::Helper::GenerateUniqueName("Skeletal Mesh"), &mesh);
             mesh->AddComponent<SkeletalMeshRenderer>();
+            mesh->AddComponent<AnimationComponent>();
         }
         ImGui::EndMenu();
     }
@@ -439,9 +446,17 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
         }
         if (ImGui::BeginMenu("Wrappers"))
         {
-            if (ImGui::MenuItem("Temp"))
+            if (ImGui::MenuItem("Padding Wrapper"))
             {
-                // TODO;
+                UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
+                    GameObjectKey, GameObject::Helper::GenerateUniqueName("Padding Wrapper"), &ui);
+                ui->AddComponent<PaddingWrapper>();
+            }
+            if (ImGui::MenuItem("Center Wrapper"))
+            {
+                UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
+                    GameObjectKey, GameObject::Helper::GenerateUniqueName("Center Wrapper"), &ui);
+                ui->AddComponent<CenterWrapper>();
             }
             ImGui::EndMenu();
         }

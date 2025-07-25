@@ -52,6 +52,35 @@ TurnMode::~TurnMode()
     }
 }
 
+Player* TurnMode::GetPlayer()
+{
+    if (_systemStates.CombatStartPhase)
+    {
+        return _systemStates.CombatStartPhase->GetPlayer();
+    }
+    return nullptr;
+}
+
+const std::vector<Enemy*>& TurnMode::GetEnemies()
+{
+    if (_systemStates.CombatStartPhase)
+    {
+        return _systemStates.CombatStartPhase->GetEnemies();
+    }
+    static std::vector<Enemy*> emptyEnemies;
+    return emptyEnemies;
+}
+
+const std::vector<CharacterBase*>& TurnMode::GetCharacters()
+{
+    if (_systemStates.CombatStartPhase)
+    {
+        return _systemStates.CombatStartPhase->GetCharacters();
+    }
+    static std::vector<CharacterBase*> emptyCharacters;
+    return emptyCharacters;
+}
+
 void TurnMode::MakeTurnList() 
 {
     _turnList.clear();

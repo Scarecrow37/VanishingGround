@@ -19,6 +19,10 @@ public:
     std::vector<Material>&                                    GetMaterials() { return _material; }
     const std::shared_ptr<Animation>                          GetAnimation() const { return _animation; }
     const std::shared_ptr<Skeleton>                           GetSkeleton() const { return _skeleton; }
+    const size_t                                              GetMeshCount() const { return _meshes.size(); }
+
+public:
+    void SetMaterial(const UINT meshIndex, const Material& material);
 
 public:
     void AddMesh(std::unique_ptr<BaseMesh> mesh);
