@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include <Stats/Weapon/WeaponStats.h>
+#include "WeaponElement/WeaponElement.h"
 
 /*
 *Player의 무기를 관리하는 시스템입니다.
@@ -24,10 +24,33 @@ public:
     PROPERTY(CurrentWeaponSlot)
 
     /// <summary>
+    /// 장착된 무기의 원본 Stats을 인덱스로 반환합니다.
+    /// </summary>
+    /// <param name="index :">가져올 무기 인덱스</param>
+    /// <returns></returns>
+    WeaponStats& GetWeaponStatsAtIndex(int index) 
+    { 
+        static WeaponStats null = []() {
+            WeaponStats nullSword;
+            nullSword.SetName(STR_NULL);
+            return nullSword;
+        }();
+        try
+        {
+            return _equipWeapons.at(index).Stats;
+        }
+        catch (const std::exception&)
+        {
+            UmLogger.Log(LogLevel::LEVEL_ERROR, "out of index!");
+        }
+        return null;
+    }
+
+    /// <summary>
     /// 현재 사용중인 무기의 Stats을 반환합니다.
     /// </summary>
     /// <returns></returns>
-    const WeaponStats& GetCurrentWeaponStats() { return _equipWeapons[_currentWeaponSlot]; }
+    WeaponStats& GetCurrentWeaponStats() { return _equipWeapons[_currentWeaponSlot].Stats; }
 
     /// <summary>
     /// 무기를 slot에 장착합니다.
@@ -35,13 +58,13 @@ public:
     /// 잘못된 slot을 접근시 WeaponStats는 0 damege 무기를 반환합니다.
     /// </summary>
     /// <param name="slot :">장착할 슬롯</param>
-    WeaponStats EquipWeapon(int slot, const WeaponStats& weaponStats);
+    WeaponElement EquipWeapon(int slot, const WeaponElement& weapon);
 
     /// <summary>
     /// 플레이어가 장착중인 무기 항목을 전부 반환합니다.
     /// </summary>
     /// <returns></returns>
-    const std::array<WeaponStats, EQUIP_WEAPONS_SIZE>& GetEquipWeapons() { return _equipWeapons; }
+    const std::array<WeaponElement, EQUIP_WEAPONS_SIZE>& GetEquipWeapons() { return _equipWeapons; }
 
     /// <summary>
     /// 현재 사용할 무기를 선택합니다.
@@ -67,13 +90,14 @@ protected:
     REFLECT_FIELDS_END(WeaponSystem)
 
     void Reset() override;
+    void Awake() override;
 
 private:
     /*현재 사용중인 무기 슬롯*/
     int _currentWeaponSlot = 0;
 
     /*장착된 무기들*/
-    std::array<WeaponStats, EQUIP_WEAPONS_SIZE> _equipWeapons;
+    std::array<WeaponElement, EQUIP_WEAPONS_SIZE> _equipWeapons;
 
     /*이번 라운드의 Weapon Speed의 순서 (속도 기준 내림차순)*/
 
@@ -83,5 +107,8 @@ private:
     void SerializedReflectEvent() override;
     void DeserializedReflectEvent() override;
     void ImGuiDrawPropertysEvent() override;
+
+public:
+
 
 };

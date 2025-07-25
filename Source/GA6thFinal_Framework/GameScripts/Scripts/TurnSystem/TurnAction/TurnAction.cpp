@@ -26,6 +26,13 @@ namespace
             {
                 actionName = action->GetActionName();
             }
+            if (action != nullptr)
+            {
+                if (ImGui::Selectable("null"))
+                {
+                    action.reset();
+                }
+            }
             for (auto& [key, func] : TurnActionFactory::GetActionFactory())
             {
                 if (filter.PassFilter(key.data()))
@@ -72,7 +79,7 @@ namespace
             }
 
             ImGui::SameLine();
-            if (ImGui::Button("Action Editor"))
+            if (ImGui::Button("Edit"))
             {
                 showActionEditor = !showActionEditor;
             }
