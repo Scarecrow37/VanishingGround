@@ -1,5 +1,4 @@
 ﻿#pragma once
-#pragma once
 #include <TurnSystem/TurnAction/TurnAction.h>
 
 // 체력을 확인하는 조건 클래스입니다.
