@@ -11,6 +11,8 @@
 
 REGISTER_CLASS(FSMStateFactory, CombatStartPhase)
 
+static constexpr int EXPECTED_ENEMY_COUNT = 3;
+
 CombatStartPhase::CombatStartPhase()
     : 
     _phaseEnd(false), 
@@ -134,7 +136,7 @@ void CombatStartPhase::AddValidActions()
 
 void CombatStartPhase::SortEnemies() 
 {
-    if (_enemies.size() != 3)
+    if (_enemies.size() != EXPECTED_ENEMY_COUNT)
     {
         UmLogger.Log(LogLevel::LEVEL_WARNING, u8"적이 3명이 아닙니다.");
         return;
