@@ -45,6 +45,7 @@ public:
 
 
     void PlayEffect();
+    void StopEffect();
 
 public:
     ParticleComponent();
@@ -59,13 +60,16 @@ protected:
     std::array<float, 3> PositionArray;
     std::array<float, 3> RotationArray;
     std::array<float, 3> ScaleArray;
-    bool                 AttachToBoneMatrix = false;
+    bool                 AttachToBoneMatrix;
     REFLECT_FIELDS_END(ParticleComponent)
 
     ParticleEffect* _effect;
     void            Update() override;
+    void            SerializedReflectEvent() override;
     void            DeserializedReflectEvent() override;
     void            ImGuiDrawPropertysEvent() override;
+
+
 
 private:
     bool  _isPlaying = false;
