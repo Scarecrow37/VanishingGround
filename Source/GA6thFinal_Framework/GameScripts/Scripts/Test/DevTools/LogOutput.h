@@ -38,9 +38,9 @@ public:
 
     SETTER(Color, InfoColor)
     {
-        std::memcpy(ReflectFields->LogColorTable[LogLevel::LEVEL_DEBUG].data(), &value.x, sizeof(Color));
+        std::memcpy(ReflectFields->LogColorTable[LogLevel::LEVEL_INFO].data(), &value.x, sizeof(Color));
     }
-    GETTER(Color, InfoColor) { return Color(ReflectFields->LogColorTable[LogLevel::LEVEL_DEBUG].data()); }
+    GETTER(Color, InfoColor) { return Color(ReflectFields->LogColorTable[LogLevel::LEVEL_INFO].data()); }
     PROPERTY(InfoColor)
 
     SETTER(Color, WarningColor)
