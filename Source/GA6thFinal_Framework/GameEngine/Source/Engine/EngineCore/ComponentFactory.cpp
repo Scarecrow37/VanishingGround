@@ -184,6 +184,7 @@ bool EComponentFactory::InitalizeComponentFactory()
             if (reflectData.empty() == false)
             {
                 newComponent->DeserializedReflectFields(reflectData); // 데이터 복구
+                newComponent->Reset();
             }          
             newComponent->UpdateEnableInHierarchy();
         }     

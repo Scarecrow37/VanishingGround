@@ -388,6 +388,7 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\Release\*.*" "$(SolutionDir)GameEngine\
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderBuilder.h" />
     <ClInclude Include="ShaderConfig.h" />
+    <ClInclude Include="ShadowMapPass.h" />
     <ClInclude Include="SharedResource.h" />
     <ClInclude Include="Skeleton.h" />
     <ClInclude Include="SkyBox.h" />
@@ -502,6 +503,7 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\Release\*.*" "$(SolutionDir)GameEngine\
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShaderBuilder.cpp" />
     <ClCompile Include="ShaderConfig.cpp" />
+    <ClCompile Include="ShadowMapPass.cpp" />
     <ClCompile Include="SharedResource.cpp" />
     <ClCompile Include="Skeleton.cpp" />
     <ClCompile Include="SkyBox.cpp" />

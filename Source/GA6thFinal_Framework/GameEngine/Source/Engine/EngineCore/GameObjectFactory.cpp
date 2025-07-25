@@ -92,6 +92,9 @@ void EGameObjectFactory::ApplyPrefabInstanceChanges(const File::Guid& guid, YAML
                         }
                     });
 
+                    auto& front = swapObjects.front();         
+                    front.second->_ownerScene = front.first->_ownerScene;
+                    front.second->transform->SetParent(front.first->transform->Parent);
                     for (auto& [originObject, prefabObject] : swapObjects)
                     {
                         ESceneManager::Engine::SwapPrefabInstance(originObject, prefabObject);

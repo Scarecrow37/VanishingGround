@@ -28,6 +28,7 @@ void PlayerDeadState::OnStart()
 
 void PlayerDeadState::OnEnter() 
 {
+    UmLogger.Message(LogLevel::LEVEL_DEBUG, (const char*)u8"플레이어 사망!!!");
     Player& player = GetPlayer();
     player.Dead();
     AnimationComponent* animator = player.GetAnimationComponent();

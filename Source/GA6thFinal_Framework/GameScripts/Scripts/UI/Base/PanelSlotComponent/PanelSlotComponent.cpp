@@ -3,23 +3,13 @@
 
 PanelSlotComponent::PanelSlotComponent() = default;
 
-void PanelSlotComponent::SetPlacement(const POINT point, const SIZE size)
-{
-    ReflectFields->Basefields.get().Point = point;
-    ReflectFields->Basefields.get().Size  = size;
-    OnSetPlacement();
-}
-
 void PanelSlotComponent::PassScopedPlacement(const POINT point, const SIZE size) const
 {
-    for (int i = 0; i < gameObject->GetComponentCount(); ++i)
-    {
-        if (PlacementUIComponent* areaComponent = gameObject->GetComponentAtIndex<PlacementUIComponent>(i))
-        {
-            areaComponent->SetScopePlacement(point, size);
-            break;
-        }
-    }
+    std::vector<PlacementUIComponent*> components = FindComponents<PlacementUIComponent>()(gameObject);
+    std::ranges::for_each(
+        components | 
+        std::views::filter([this](const PlacementUIComponent* component) { return component != this; })
+        , [point, size](PlacementUIComponent* component) { component->SetScopePlacement(point, size); });
 }
 
 void PanelSlotComponent::OnDetachParent(GameObject* previousParentGameObject)

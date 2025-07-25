@@ -3,6 +3,7 @@
 #include "Stats/Enemy/EnemyStats.h"
 #include "Stats/Enemy/EnemyStatsComponent.h"
 #include <GameCore/FSM/FiniteStateMachine.h>
+#include <TurnSystem/TurnMode/TurnMode.h>
 
 //Condition
 #include "Condition/EnemyStartCondition.h"
@@ -40,6 +41,10 @@ void Enemy::Revive()
 void Enemy::Dead()
 {
     Base::Dead();
+    if (auto turnMode = TurnMode::GetInstance())
+    {
+        turnMode->ApplyActions([this](TurnAction& action) { action.OnEnemyDead(*this); });
+    }
 }
 
 void Enemy::TakeDamage(int damage) 
@@ -166,11 +171,6 @@ void Enemy::OnTurnEnd()
 void Enemy::OnHit()
 {
     Base::OnHit();
-}
-
-void Enemy::OnDead()
-{
-    Base::OnDead();
 }
 
 void Enemy::OnKill(CharacterBase* destination)

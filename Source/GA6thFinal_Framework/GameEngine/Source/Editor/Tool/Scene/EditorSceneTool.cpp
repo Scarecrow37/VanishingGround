@@ -561,6 +561,7 @@ void EditorSceneTool::DrawSceneView()
     {
         float moveSpeed     = _camera->GetMoveSpeed();
         float rotationSpeed = _camera->GetRotationSpeed();
+        float pivotDistance = _camera->GetPivot();
         int   pushCount     = 0;
         // 움직인 경우에만 알파를 낮춤
         if (true == ImGui::IsKeyDown(ImGuiKey_MouseRight) && IsFocusFrame())
@@ -592,6 +593,13 @@ void EditorSceneTool::DrawSceneView()
             "%.2f",
             flags
         );
+        ImGui::SetNextItemWidth(150.0f);
+        ImGui::DragFloat("Camera Pivot Distance##pivot distance",
+            &pivotDistance,
+            1.0f,
+            -100000.0f,
+            100000.0f
+        );
         ImGui::PopStyleColor(pushCount);
         // 우클릭 + 마우스 휠 시 카메라 이동속도 높이기
         if (ImGui::IsKeyDown(ImGuiKey_MouseRight))
@@ -600,6 +608,7 @@ void EditorSceneTool::DrawSceneView()
         }
         _camera->SetMoveSpeed(moveSpeed);
         _camera->SetRotationSpeed(rotationSpeed);
+        _camera->SetPivot(pivotDistance);
         UpdateReflectFields();
     }
 }

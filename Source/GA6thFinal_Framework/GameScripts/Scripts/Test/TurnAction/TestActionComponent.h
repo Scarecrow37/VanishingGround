@@ -12,8 +12,8 @@ public:
     void OnCombatStart() override;
     void OnRoundStart() override;
     void OnRoundEnd() override;
-    void OnTurnStart(CharacterBase* destination) override;
-    void OnTurnEnd(CharacterBase* destination) override;
+    void OnTurnStart(CharacterBase& destination) override;
+    void OnTurnEnd(CharacterBase& destination) override;
 
     // TurnAction을(를) 통해 상속됨
     const std::string& GetActionName() override;

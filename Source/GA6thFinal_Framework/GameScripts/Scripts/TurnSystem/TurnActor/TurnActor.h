@@ -125,7 +125,6 @@ public:
     void OnTurnStart() override;
     void OnTurnEnd() override;
     void OnHit() override;
-    void OnDead() override;
     void OnKill(CharacterBase* destination) override;
     void OnTokenAdded(int tokenID) override;
     void OnTokenRemoved(int tokenID) override;
