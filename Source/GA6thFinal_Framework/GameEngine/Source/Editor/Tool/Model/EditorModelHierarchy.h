@@ -3,7 +3,7 @@
 class Model;
 class MeshRenderer;
 class BaseMesh;
-class Skeletorn;
+class Skeleton;
 struct Bone;
 class EditorModelTool;
 

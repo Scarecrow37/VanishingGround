@@ -120,7 +120,7 @@ namespace File
     bool CopyStrToClipBoard(std::string_view str)
     {
         // 클립보드 열고 비우기
-        if (TRUE == OpenClipboard(nullptr) && TRUE == EmptyClipboard())
+        if (TRUE == OpenClipboard(nullptr))
         {
             if (TRUE == EmptyClipboard())
             {
