@@ -1,7 +1,12 @@
 ﻿#pragma once
 
+class Model;
+class MeshRenderer;
 class BaseMesh;
-class EditorModelInspector;
+class Skeletorn;
+struct Bone;
+class EditorModelTool;
+
 class EditorModelHierarchy : public EditorTool
 {
 public:
@@ -41,6 +46,6 @@ private:
 
 private:
     EditorModelDetails*     _editorModelDetails;
-    EditorModelInspector*   _editorModelInspector;
-    BaseMesh*               _selectedMesh;
+    BaseMesh*               _selectedMesh = nullptr;
+    Bone*                   _selectedBone = nullptr;
 };

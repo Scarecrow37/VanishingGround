@@ -1,6 +1,8 @@
 ﻿#include "pch.h"
 #include "EditorModelHierarchy.h"
+#include "GraphicsEngine/FBXConverter.h"
 #include "GraphicsEngine/Skeleton.h"
+
 
 EditorModelHierarchy::EditorModelHierarchy() : _editorModelDetails(nullptr), _selectedMesh(nullptr)
 {
@@ -121,8 +123,13 @@ void EditorModelHierarchy::ShowBone(Bone* parent)
     {
         ImGui::PushID(parent);
         int  flags  = ImGuiTreeNodeFlags_None;
-        bool opened = ImGui::TreeNodeEx(parent->Name.c_str(), ImGuiTreeNodeFlags_DefaultOpen);
+        flags = (parent == _selectedBone) ? flags | ImGuiTreeNodeFlags_Selected : flags;
+        bool opened = ImGui::TreeNodeEx(parent->Name.c_str(), flags);
 
+        if (ImGui::IsItemClicked(ImGuiMouseButton_Left))
+        {
+            _selectedBone = parent;
+        }
         if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
         {
             ImGui::OpenPopup("BoneContextMenu");
