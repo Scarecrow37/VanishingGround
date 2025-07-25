@@ -1,7 +1,7 @@
 ﻿#pragma once
 constexpr char     MAGIC_NUMBER[] = "UMFX";
 constexpr uint32_t MAJOR_VERSION  = 1;
-constexpr uint32_t MINOR_VERSION  = 1;
+constexpr uint32_t MINOR_VERSION  = 2;
 
 
 class ParticleEffectSerializer : public File::FileEventSubscriber
@@ -40,6 +40,8 @@ public:
     void OnFileMoved(const File::Path& oldPath, const File::Path& newPath) override;
 
 public:
+
+    //versions
     void            Serialize(class ParticleEffect* effect, File::Path destPath);
     ParticleEffect* Deserialize(File::Path filepath, bool isEditor, std::string_view sceneName);
     void            PreDeserialize(File::Path filePath);
@@ -53,6 +55,9 @@ public:
     ParticleEffect* Deserialize_1_1(std::ifstream& is, bool isEditor, std::string_view sceneName);
     void            PreDeserialize_1_1(std::ifstream& is);
 
+    void            Serialize_1_2(std::ofstream& os, ParticleEffect* effect, File::Path destPath);
+    ParticleEffect* Deserialize_1_2(std::ifstream& is, bool isEditor, std::string_view sceneName);
+    void            PreDeserialize_1_2(std::ifstream& is);
 
 
 

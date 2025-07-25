@@ -47,16 +47,34 @@ ParticleComponent::~ParticleComponent()
 
 void ParticleComponent::Update()
 {
-  /*  if (isDirty)
-    {
-        isDirty = false;
-        FollowBoneMatrix();
-    }*/
 
 
 
 
 }
+
+void ParticleComponent::SerializedReflectEvent()
+{
+    ReflectFields->PositionArray[0] = Position->x;
+    ReflectFields->PositionArray[1] = Position->y;
+    ReflectFields->PositionArray[2] = Position->z;
+
+    ReflectFields->RotationArray[0] = Rotation->x;
+    ReflectFields->RotationArray[1] = Rotation->y;
+    ReflectFields->RotationArray[2] = Rotation->z;
+
+    ReflectFields->ScaleArray[0] = Scale->x;
+    ReflectFields->ScaleArray[1] = Scale->y;
+    ReflectFields->ScaleArray[2] = Scale->z;
+
+    //ReflectFields->AttachToBoneMatrix = _effect->_followBoneFlag;
+
+    ReflectFields->Guid = _guidRef.string();
+
+
+}
+
+
 
 void ParticleComponent::DeserializedReflectEvent()
 {
@@ -70,7 +88,6 @@ void ParticleComponent::DeserializedReflectEvent()
     Position = Vector3(ReflectFields->PositionArray[0], ReflectFields->PositionArray[1], ReflectFields->PositionArray[2]);
     Rotation = Vector3(ReflectFields->RotationArray[0], ReflectFields->RotationArray[1], ReflectFields->RotationArray[2]);
     Scale = Vector3(ReflectFields->ScaleArray[0], ReflectFields->ScaleArray[1], ReflectFields->ScaleArray[2]);
-
 }
 
 void ParticleComponent::ImGuiDrawPropertysEvent() 
@@ -83,7 +100,15 @@ void ParticleComponent::ImGuiDrawPropertysEvent()
         }
         
     }
+    if (ImGui::Button("Stop"))
+    {
+        if (IS_EDITOR)
+        {
+            StopEffect();
+        }
+    }
 }
+
 
 void ParticleComponent::LoadParticle() 
 {
@@ -135,6 +160,9 @@ void ParticleComponent::LoadParticle()
                 _effect->_rotation = &_rotationVector;
                 _effect->_scale    = &_scaleVector;
                 _effect->_parentWorldMatrix = &transform->GetWorldMatrix();
+                //
+
+
             });
         else
             UmSceneManager.ResourceManager.RequestTextureResource(this, guid, []() {});
@@ -162,9 +190,22 @@ void ParticleComponent::FollowBoneMatrix()
 
 }
 
+void ParticleComponent::StopEffect()
+{
+    if (nullptr != _effect)
+    {
+        _effect->Stop();
+    }
+}
+
 void ParticleComponent::PlayEffect() 
 {
-    if (nullptr!= _effect)
+    if (nullptr != _effect)
+    {
+
+        FollowBoneMatrix();
         _effect->Play();
+    }
+
 
 }
