@@ -190,7 +190,7 @@ void CombatStartPhase::SortEnemies()
 
         // 외적 수행 판별
         float crossY = playerToCenter.Cross(playerToOther).y;
-        if (crossY > 0)
+        if (crossY < 0)
         {
             leftEnemy  = otherEnemies[0];
             rightEnemy = otherEnemies[1];
