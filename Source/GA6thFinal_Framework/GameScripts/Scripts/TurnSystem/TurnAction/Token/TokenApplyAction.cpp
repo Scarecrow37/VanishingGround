@@ -61,21 +61,31 @@ void TokenApplyAction::DeserializedReflectEvent()
     UpdateActionInfo();
 }
 
-void TokenApplyAction::OnPlayerBattleStart(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats,
+void TokenApplyAction::OnPlayerBattleCalculateDamageModifier(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats,
                                            Enemy& target, EnemyStats& targetStats)
 {
     if (EvaluateConditions())
     {
         target.GetTokenInventory().AddTokenStackFromID(TokenID, ReflectFields->TokenCount);
+        std::string msg(target.gameObject->ToString());
+        msg += (const char*)u8"에게 ";
+        msg += std::format("{}{}{}{}", TokenSystem::GetTokenNameFromID(ReflectFields->TokenID), (const char*)u8"토큰 ",
+                           ReflectFields->TokenCount, (const char*)u8"개 부여");
+        UmLogger.Message(LogLevel::LEVEL_TRACE, msg);
     }
 }
 
-void TokenApplyAction::OnEnemyBattleStart(Enemy& attacker, EnemyStats& attackerStats, Player& target,
+void TokenApplyAction::OnEnemyBattleCalculateDamageModifier(Enemy& attacker, EnemyStats& attackerStats, Player& target,
                                           PlayerStats& targetStats)
 {
     if (EvaluateConditions())
     {
-        target.GetTokenInventory().AddTokenStackFromID(TokenID, ReflectFields->TokenCount);
+        target.GetTokenInventory().AddTokenStackFromID(TokenID, ReflectFields->TokenCount);       
+        std::string msg(target.gameObject->ToString());
+        msg += (const char*)u8"에게 ";
+        msg += std::format("{}{}{}{}", TokenSystem::GetTokenNameFromID(ReflectFields->TokenID),
+                                           (const char*)u8"토큰 ", ReflectFields->TokenCount, (const char*)u8"개 부여");
+        UmLogger.Message(LogLevel::LEVEL_TRACE, msg);
     }
 }
 

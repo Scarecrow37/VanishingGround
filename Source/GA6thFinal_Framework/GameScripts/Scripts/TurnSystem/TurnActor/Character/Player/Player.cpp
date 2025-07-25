@@ -6,6 +6,7 @@
 #include <WeaponSystem/WeaponTable/WeaponTableComponent.h>
 #include <WeaponSystem/WeaponSystem.h>
 #include <Mesh/SkeletalMeshRenderer.h>
+#include <TurnSystem/TurnMode/TurnMode.h>
 
 //Condition
 #include "Condition/PlayerStartCondition.h"
@@ -95,7 +96,7 @@ void Player::PlayTurn()
     WeaponSystem* system = WeaponSystem::GetInstance();
     if (system)
     {
-        std::string_view weaponName = system->GetCurrentWeaponStats().Name;
+        const std::string& weaponName = system->GetCurrentWeaponStats().Name;
         std::string      message    = std::format("{}{}{}", (const char*)u8"Player 턴 시작. ", "Weapon : ", weaponName);
         UmLogger.Message(LogLevel::LEVEL_TRACE, message);
     }
@@ -114,7 +115,10 @@ void Player::EndTurn()
 void Player::Dead()
 {
     Base::Dead();
-    UmLogger.Message(LogLevel::LEVEL_DEBUG, (const char*)u8"플레이어 사망!!!");
+    if (auto turnMode = TurnMode::GetInstance())
+    {
+        turnMode->ApplyActions([this](TurnAction& action) { action.OnPlayerDead(*this); });
+    }
 }
 
 void Player::TakeDamage(int damage)
@@ -231,11 +235,6 @@ void Player::OnTurnEnd()
 void Player::OnHit()
 {
     Base::OnHit();
-}
-
-void Player::OnDead()
-{
-    Base::OnDead();
 }
 
 void Player::OnKill(CharacterBase* destination)

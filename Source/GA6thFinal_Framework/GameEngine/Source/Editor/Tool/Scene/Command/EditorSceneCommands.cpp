@@ -35,7 +35,7 @@ bool Command::EditorScene::DestroyGameObjectCommand::Execute()
     if (EditorInspectorTool::GetFocusObject().lock() == rootObject)
     {
         std::weak_ptr<GameObject> empty;
-        EditorInspectorTool::SetFocusObject(empty);
+        EditorInspectorTool::SetFocusObject(empty, true);
         _isFocus = true;
     }
 

@@ -163,7 +163,6 @@ void GameApplication::BuildModelDock()
     _modelDock->RegisterGui<EditorModelDetails>();
     _modelDock->RegisterGui<EditorModelHierarchy>();
     _modelDock->RegisterGui<EditorAnimationNotifyTool>();
-    _modelDock->RegisterGui<EditorSequencerTool>();
 
     // Menu
     _modelDock->RegisterGui<EditorModelMenu>();

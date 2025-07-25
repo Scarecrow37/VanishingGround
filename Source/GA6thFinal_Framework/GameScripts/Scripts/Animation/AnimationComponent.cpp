@@ -39,11 +39,7 @@ void AnimationComponent::Update()
 }
 
 void AnimationComponent::OnDrawDebug()
-{  
-    // 애니메이터가 해당 객체만 사용 중이라면 reset합니다.
-    UpdateNullAnimator();
-    // 메인 애니메이션만
-    UpdateAnimation(_mainAnimationData);
+{
 }
 
 void AnimationComponent::SerializedReflectEvent()
@@ -62,12 +58,11 @@ void AnimationComponent::DeserializedReflectEvent()
 
 void AnimationComponent::ImGuiDrawPropertysEvent()
 {
-    UpdateNullAnimator();
+    //ImGui::Text("animator: use_count %d", (int)_animator.use_count());
     if (nullptr == _animator)
     {
         ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Animator is NULL");
     }
-    ImGui::Text("animator: use_count %d", (int)_animator.use_count());
     if (_animator)
     {
         const auto&    animationNames = _animator->GetAnimationNames();
@@ -138,9 +133,13 @@ void AnimationComponent::ImGuiDrawPropertysEvent()
             if (ImGui::DragFloat("Animation Speed", &curAnimData.Speed, 0.01f))
             {
             }
-
             ImGui::TreePop();
         }
+
+        // 애니메이터가 해당 객체만 사용 중이라면 reset합니다.
+        UpdateNullAnimator();
+        // 메인 애니메이션만
+        UpdateAnimation(_mainAnimationData);
 
         ImGui::Separator();
         ImGuiHelper::TextWithVerticalSeparator("Animation Speed Scale");
