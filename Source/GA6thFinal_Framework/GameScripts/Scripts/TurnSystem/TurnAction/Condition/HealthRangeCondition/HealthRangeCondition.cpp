@@ -9,6 +9,11 @@
 
 REGISTER_TURN_ACTION_CONDITION(HealthRangeCondition)
 
+HealthRangeCondition::HealthRangeCondition() 
+{
+    UpdateConditionInfo();
+}
+
 bool HealthRangeCondition::Evaluate()
 {
     std::vector<CharacterBase*> targetList;
@@ -24,7 +29,7 @@ bool HealthRangeCondition::Evaluate()
     float    value1 = ReflectFields->value1;
     float    value2 = ReflectFields->value2;
 
-    auto CheckOperation = [&](float currentHP, float v1, float v2) 
+    auto CheckOperation = [&](int currentHP, int v1, int v2) 
     {
         switch (oper)
         {
@@ -44,16 +49,16 @@ bool HealthRangeCondition::Evaluate()
             continue; 
         }
 
-        float hp = stats->CurrentHP;
-        float v1 = value1;
-        float v2 = value2;
+        int hp = stats->CurrentHP;
+        int v1 = (int)std::round(value1);
+        int v2 = (int)std::round(value2);
 
         if (Unit::PERCENT == unit)
         {
-            v1 = stats->MaxHP * value1;
+            v1 = (int)std::round(stats->MaxHP * value1);
             if (oper == Operator::BETWEEN)
             {
-                v2 = stats->MaxHP * value2;
+                v2 = (int)std::round(stats->MaxHP * value2);
             }
         }
 
@@ -107,11 +112,15 @@ void HealthRangeCondition::DrawImguiEditor()
     }
 }
 
+void HealthRangeCondition::DeserializedReflectEvent() 
+{
+    UpdateConditionInfo();
+}
+
 const std::string& HealthRangeCondition::GetConditionInfo() const
 {
     return _conditionInfo;
 }
-
 
 void HealthRangeCondition::GetTargetList(std::vector<class CharacterBase*>& targetList)
 {
@@ -199,7 +208,7 @@ void HealthRangeCondition::UpdateConditionInfo()
         break;
     }
     _conditionInfo = who;
-    _conditionInfo += u8" 체력이"_c_str;
+    _conditionInfo += u8" 체력이 "_c_str;
 
     Operator oper = ReflectFields->Operator;
     std::string value1;

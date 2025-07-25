@@ -95,7 +95,7 @@ const std::string& TokenCondition::GetConditionInfo() const
 
 void TokenCondition::SerializedReflectEvent() 
 {
-    UpdateConditionInfo();
+   
 }
 
 void TokenCondition::DeserializedReflectEvent() 

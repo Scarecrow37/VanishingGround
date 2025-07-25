@@ -31,12 +31,13 @@ public:
         PERCENT,
     };
 
-    HealthRangeCondition() = default;
+    HealthRangeCondition();
     ~HealthRangeCondition() override = default;
 
 protected:
     bool Evaluate() override;
     void DrawImguiEditor() override;
+    void DeserializedReflectEvent() override;
     const std::string& GetConditionInfo() const override;
 
     REFLECT_FIELDS_BEGIN(TurnActionCondition)
