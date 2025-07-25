@@ -411,6 +411,8 @@
     <ClInclude Include="Source\Engine\Utility\DumpUtility.h" />
     <ClInclude Include="ThirdParty\include\UmYaml-cpp.h" />
     <ClInclude Include="Source\Engine\TimelineCore\TimelineSystem.h" />
+    <ClInclude Include="Source\Engine\TimelineCore\Context\TimelineEventContext.h" />
+    <ClInclude Include="Source\Engine\TimelineCore\Track\TimelineEventTrack.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Editor\Tool\Model\EditorModelInspector.cpp" />
@@ -565,6 +567,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Source\Engine\TimelineCore\TimelineSystem.cpp" />
+    <ClCompile Include="Source\Engine\TimelineCore\Context\TimelineEventContext.cpp" />
+    <ClCompile Include="Source\Engine\TimelineCore\Track\TimelineEventTrack.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

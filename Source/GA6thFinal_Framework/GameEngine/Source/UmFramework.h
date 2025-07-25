@@ -204,6 +204,8 @@ using namespace Microsoft::WRL;
 #include "Editor/DragDropTypes/DragDropAsset.h"
 
 //Timeline System
+#include "Engine/TimelineCore/Context/TimelineEventContext.h"
+#include "Engine/TimelineCore/Track/TimelineTrack.h"
 #include "Engine/TimelineCore/TimelineSystem.h"
 #include "Engine/TimelineCore/AnimationNotifySet.h"
 
