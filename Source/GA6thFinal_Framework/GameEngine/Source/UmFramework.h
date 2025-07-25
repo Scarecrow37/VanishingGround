@@ -83,6 +83,7 @@ constexpr const char* STR_NULL = "null";
 #include <string_view>
 #include <concurrent_queue.h>
 #include <random>
+#include <algorithm>
 
 //ThirdParty
 #include "pugixml/pugixml.hpp"
