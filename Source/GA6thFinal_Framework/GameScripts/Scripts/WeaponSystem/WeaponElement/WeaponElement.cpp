@@ -36,7 +36,7 @@ void WeaponElement::ImGuiDrawPropertysEvent()
     {
         static std::string name;
         name = _action->ActionName;
-        ImGui::InputText("##CAEE12AA-CE07-4816-951D-242031D9186B", &name, ImGuiInputTextFlags_ReadOnly);
+        ImGui::InputText("Action##CAEE12AA-CE07-4816-951D-242031D9186B", &name, ImGuiInputTextFlags_ReadOnly);
         ImGuiHelper::HoveredToolTip((const std::string&)_action->ActionInfo);
     }
 }
