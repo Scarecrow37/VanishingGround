@@ -28,7 +28,10 @@ const std::string& RecoveryAction::GetActionInfo()
 
 void RecoveryAction::ImGuiDrawActionEditor() 
 {
+    ImGui::Text("Action");
     ImGuiDrawPropertys();
+    ImGui::Separator();
+    ImGui::Text("Condition");
     ImguiDrawConditionEditor();
 }
 

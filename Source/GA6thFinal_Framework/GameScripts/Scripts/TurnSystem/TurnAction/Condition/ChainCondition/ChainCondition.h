@@ -47,5 +47,6 @@ protected:
 private:
     std::string _conditionInfo;
     void        UpdateConditionInfo();
+    void        GetTargetList(std::vector<class CharacterBase*>& targetList);
 
 };

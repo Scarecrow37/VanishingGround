@@ -136,6 +136,7 @@ struct MeshInfo
     Material        Material;
     class BaseMesh* Mesh;
     UINT            CustomDepth;
+    UINT            InstanceID;
 };
 
 struct GraphicsTransform
