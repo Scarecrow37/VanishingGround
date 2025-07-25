@@ -85,6 +85,10 @@ bool EComponentFactory::InitalizeComponentFactory()
             std::filesystem::remove(prevPath, ec);
             if (ec) 
             {
+                std::string msg = ec.message();
+                msg += ", ";
+                msg += std::to_string(ec.value());
+                UmLogger.Log(LogLevel::LEVEL_FATAL, msg);
                 __debugbreak(); //삭제 실패
             }
         }
@@ -95,6 +99,10 @@ bool EComponentFactory::InitalizeComponentFactory()
             std::filesystem::remove(prevPath, ec);
             if (ec)
             {
+                std::string msg = ec.message();
+                msg += ", ";
+                msg += std::to_string(ec.value());
+                UmLogger.Log(LogLevel::LEVEL_FATAL, msg);
                 __debugbreak(); //삭제 실패
             }
         }

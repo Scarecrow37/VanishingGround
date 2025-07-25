@@ -99,12 +99,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_02BC8FB4F5534901B0DEA0CF173ED688"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_02BEB382E71A4D2EBAAD047000F1CAAC"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -531,12 +525,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_103424C2BC3B4E1EA8DA6532427C7EB9"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_10422EC0550A4635885167E215AFD72F"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -658,12 +646,6 @@
         "Entry"
         {
         "MsmKey" = "8:_13F47DC91D034CF5B17C43847B2E7BD6"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_13F895745B7D4D44A34E36AE70FC3C76"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1539,12 +1521,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_29E157D19BB84FC1A901528C5F9E07D9"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_2A16CB4806E54A22A0D83C43F8B01197"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -2025,12 +2001,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_38C8D73FA3E0496BAA95F402DF5B656C"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_38D49718307842D6B76213B6F3185E59"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -2074,12 +2044,6 @@
         "Entry"
         {
         "MsmKey" = "8:_39A7DD4C794D4D7ABBCFF61C188EF574"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_39A89721E57E47C3BBE3A55CF111FF43"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -2817,12 +2781,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_4BCE235DFD2546019E6B07253BE8322D"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_4C4354AF66FD4E1B9393FCDA19EC3724"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -2854,12 +2812,6 @@
         "Entry"
         {
         "MsmKey" = "8:_4CD5F8B446394188931EFA5C9EA67EE3"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_4D1AF272BE264142AAC454FEAAF5D69B"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -3423,12 +3375,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_5C0DED2D0AF240E5A8AAD23CB48609C7"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_5C12F184B667487EBB5B4E2DA2A0DEA0"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -3705,12 +3651,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_641D4B34DE6241FF851A7DF61E4A7FEC"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_644E0DC217E246F18AB9DC65A3808432"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -3862,12 +3802,6 @@
         "Entry"
         {
         "MsmKey" = "8:_686CE3E293B6444CA691460968B11881"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_6877D333244C4730A2F1DC2E2DBBD504"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -4239,12 +4173,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_74C2C5E148394C48A3D9B5995F9FABF5"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_74E0AF6A9D6A4AEF8C525C9400672E5A"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -4373,12 +4301,6 @@
         {
         "MsmKey" = "8:_77AE925D4E3F4577BFAFBE36F8342BB0"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_77B648897C103A9AAF05A3AF41427F8C"
-        "OwnerKey" = "8:_DB36E67858C24907B0D9A54AAF8AB346"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -4869,12 +4791,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_8384950FE3B5436A990850F63822118F"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_8398B9DE5527409FB69DB1D1A646C92E"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -5151,6 +5067,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_8AEE4BF73C31DD61487B114A8B2CDD4E"
+        "OwnerKey" = "8:_DE078C203B4840D293EDF296240C7A6D"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_8B217180B8014353BCA5B59FECC2375E"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -5337,12 +5259,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_90C64B4BCDEF461294171642E8573E75"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_90E17F816CA24D7D8987B8A75F644013"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -5362,12 +5278,6 @@
         "Entry"
         {
         "MsmKey" = "8:_9152B58457E0459EA2B85856F855C643"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_91922AD16F714410A766518F7565FA61"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -5572,12 +5482,6 @@
         "Entry"
         {
         "MsmKey" = "8:_95C408FCBCD34D2087E5B7B01CE3AFFF"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_9654B533976D4E5FB9379C321BEBDC92"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -6231,12 +6135,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_AAB800080729407AA50B3E2BA5CE5A71"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_AAF22FE537EE4C259836CEB9C436FE68"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -6316,12 +6214,6 @@
         "Entry"
         {
         "MsmKey" = "8:_AC9153B6D5C14228AEEB61CB8245DF99"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_ACA11F8456684F5D9199565EAFBDCEDF"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -6436,12 +6328,6 @@
         "Entry"
         {
         "MsmKey" = "8:_AFCD02162C7B48E89BDC783F61DC78A7"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_AFE3F90AA9014B8AB7E988CD125C83FB"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -6609,6 +6495,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_B49F183CB5E74346BE15168031987C2F"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_B4B9A598D5514695BF4841186E859B1E"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -6621,19 +6513,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_B4DB2ED0ECFD422AB7F29CAF4E4211D6"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_B53C1448FA034E4D93803FA0B824B5A4"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_B54336D03078488A9F8C9589E2D0AD5A"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -6736,12 +6616,6 @@
         "Entry"
         {
         "MsmKey" = "8:_B89040AC1F1147ED98C525CDB44D84D9"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_B8B92F0C4F6F4E39BA16B56FE205ADBE"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -7144,12 +7018,6 @@
         "Entry"
         {
         "MsmKey" = "8:_C322351FEE914B78A4AE2A8A25F4F569"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_C32BDB16BC87403A88E5D0B947C0B9D5"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -7707,12 +7575,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_D10BAF01B5A7408BA59947681BBDAB27"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_D1267610151D4CF1A8519718B4AF18B6"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -8181,12 +8043,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_DB36E67858C24907B0D9A54AAF8AB346"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_DBD0FE71E8774C39A8942D26942BD3A4"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -8248,6 +8104,12 @@
         "Entry"
         {
         "MsmKey" = "8:_DDB8380602384684B149989FEEE509B6"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_DE078C203B4840D293EDF296240C7A6D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -8523,12 +8385,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_E5238C47072E4627823DA7DC5C4F5E09"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_E5AF5ECA5E9440AAA5BA409D2FA7A54B"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -8679,12 +8535,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_EA3158645ED14209A880E5AD9C8F2B07"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_EA3DAEDB9CC1481B8CD5A2F1BE7D53CC"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -8823,12 +8673,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_ECB57D4DB3614EC4B066D751E5F6A1BB"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_ECB9715FD3CA4D4EABFD8F517CA7BA5A"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -8854,12 +8698,6 @@
         "Entry"
         {
         "MsmKey" = "8:_EDA23A572B4C44DE8C1A11C8B30E2462"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_EDE67AD76C9645A58A38F7E05D856172"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -9010,12 +8848,6 @@
         "Entry"
         {
         "MsmKey" = "8:_F27FC9CEE8C7412D959B0A979CE675FB"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_F288803D5B61437994494EF2C642DC64"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -9225,7 +9057,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_FA10371A8DEB4591BE38B37C13379604"
+        "MsmKey" = "8:_FA1ECDD830D54010A269DFEB856CECAB"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -9394,31 +9226,31 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_90C64B4BCDEF461294171642E8573E75"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_8355BF9DFD0F4EC8B1318C3F564691A9"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_DE078C203B4840D293EDF296240C7A6D"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_8AEE4BF73C31DD61487B114A8B2CDD4E"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_FA1ECDD830D54010A269DFEB856CECAB"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_7842E9480FFF44F5934C6AA50E101A34"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_DB36E67858C24907B0D9A54AAF8AB346"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_77B648897C103A9AAF05A3AF41427F8C"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -9856,26 +9688,6 @@
             "TargetName" = "8:MakeSpriteFontCLI.lastbuildstate"
             "Tag" = "8:"
             "Folder" = "8:_D6268645610542BE9C6B6C58652CE1F9"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_02BC8FB4F5534901B0DEA0CF173ED688"
-            {
-            "SourcePath" = "8:..\\AudioModule\\x64\\ReleaseEditor\\AudioModule.tlog\\CL.write.1.tlog"
-            "TargetName" = "8:CL.write.1.tlog"
-            "Tag" = "8:"
-            "Folder" = "8:_59A7A856CD404979865C5B4B824FAE77"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -11310,26 +11122,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_103424C2BC3B4E1EA8DA6532427C7EB9"
-            {
-            "SourcePath" = "8:..\\bin-ReleaseEditor\\MakeSpriteFontCLI.lib"
-            "TargetName" = "8:MakeSpriteFontCLI.lib"
-            "Tag" = "8:"
-            "Folder" = "8:_C9F999A467504237A1A8D969B48D3969"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_10422EC0550A4635885167E215AFD72F"
             {
             "SourcePath" = "8:..\\GraphicsEngine\\DXResourceManager.cpp"
@@ -11736,26 +11528,6 @@
             "TargetName" = "8:drawing.cpp"
             "Tag" = "8:"
             "Folder" = "8:_6EBE571AC8A44D51BEF3552DA3E048D6"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_13F895745B7D4D44A34E36AE70FC3C76"
-            {
-            "SourcePath" = "8:ReleaseEditor\\setup.exe"
-            "TargetName" = "8:setup.exe"
-            "Tag" = "8:"
-            "Folder" = "8:_63ED50D1709A485E8B93210B8C08E538"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -14670,26 +14442,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_29E157D19BB84FC1A901528C5F9E07D9"
-            {
-            "SourcePath" = "8:..\\AudioModule\\x64\\ReleaseEditor\\Exceptions.obj"
-            "TargetName" = "8:Exceptions.obj"
-            "Tag" = "8:"
-            "Folder" = "8:_CF0AA89CD0EB456B9109CC7638C657EC"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2A16CB4806E54A22A0D83C43F8B01197"
             {
             "SourcePath" = "8:..\\GraphicsEngine\\Light.h"
@@ -16270,26 +16022,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_38C8D73FA3E0496BAA95F402DF5B656C"
-            {
-            "SourcePath" = "8:..\\bin-ReleaseEditor\\MakeSpriteFontCLI.pdb"
-            "TargetName" = "8:MakeSpriteFontCLI.pdb"
-            "Tag" = "8:"
-            "Folder" = "8:_C9F999A467504237A1A8D969B48D3969"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_38D49718307842D6B76213B6F3185E59"
             {
             "SourcePath" = "8:..\\GameEngine\\ThirdParty\\include\\rfl\\parsing\\Parser_duration.hpp"
@@ -16436,26 +16168,6 @@
             "TargetName" = "8:Random.h"
             "Tag" = "8:"
             "Folder" = "8:_2B39FD9D67B64392A5D49DA99D40716C"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_39A89721E57E47C3BBE3A55CF111FF43"
-            {
-            "SourcePath" = "8:..\\AudioModule\\x64\\ReleaseEditor\\AudioModule.pch"
-            "TargetName" = "8:AudioModule.pch"
-            "Tag" = "8:"
-            "Folder" = "8:_CF0AA89CD0EB456B9109CC7638C657EC"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -18910,26 +18622,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4BCE235DFD2546019E6B07253BE8322D"
-            {
-            "SourcePath" = "8:..\\AudioModule\\x64\\ReleaseEditor\\Source.obj"
-            "TargetName" = "8:Source.obj"
-            "Tag" = "8:"
-            "Folder" = "8:_CF0AA89CD0EB456B9109CC7638C657EC"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4C4354AF66FD4E1B9393FCDA19EC3724"
             {
             "SourcePath" = "8:..\\GameScripts\\Scripts\\TurnSystem\\TurnMode\\Condition\\CheckTurnEndCondition.h"
@@ -19036,26 +18728,6 @@
             "TargetName" = "8:EngineCores.h"
             "Tag" = "8:"
             "Folder" = "8:_0971177DCB6246ECA4253247867913E7"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4D1AF272BE264142AAC454FEAAF5D69B"
-            {
-            "SourcePath" = "8:..\\AudioModule\\x64\\ReleaseEditor\\AudioModule.tlog\\Lib-link.read.1.tlog"
-            "TargetName" = "8:Lib-link.read.1.tlog"
-            "Tag" = "8:"
-            "Folder" = "8:_59A7A856CD404979865C5B4B824FAE77"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -20930,26 +20602,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5C0DED2D0AF240E5A8AAD23CB48609C7"
-            {
-            "SourcePath" = "8:..\\AudioModule\\x64\\ReleaseEditor\\AudioModule.log"
-            "TargetName" = "8:AudioModule.log"
-            "Tag" = "8:"
-            "Folder" = "8:_CF0AA89CD0EB456B9109CC7638C657EC"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5C12F184B667487EBB5B4E2DA2A0DEA0"
             {
             "SourcePath" = "8:..\\GameEngine\\ThirdParty\\include\\rfl\\internal\\flattened_tuple_t.hpp"
@@ -21870,26 +21522,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_641D4B34DE6241FF851A7DF61E4A7FEC"
-            {
-            "SourcePath" = "8:InstallBuilder.bat"
-            "TargetName" = "8:InstallBuilder.bat"
-            "Tag" = "8:"
-            "Folder" = "8:_9B15FC65BA2048478BE398D7C7DABB3B"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_644E0DC217E246F18AB9DC65A3808432"
             {
             "SourcePath" = "8:..\\MakeSpriteFontCLI\\pch.cpp"
@@ -22396,26 +22028,6 @@
             "TargetName" = "8:LineSplitter.h"
             "Tag" = "8:"
             "Folder" = "8:_290571AFDFEB4E3292889B6493D6CCF5"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6877D333244C4730A2F1DC2E2DBBD504"
-            {
-            "SourcePath" = "8:..\\bin-ReleaseEditor\\MakeSpriteFontCLI.dll.metagen"
-            "TargetName" = "8:MakeSpriteFontCLI.dll.metagen"
-            "Tag" = "8:"
-            "Folder" = "8:_C9F999A467504237A1A8D969B48D3969"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -23650,26 +23262,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_74C2C5E148394C48A3D9B5995F9FABF5"
-            {
-            "SourcePath" = "8:..\\AudioModule\\x64\\ReleaseEditor\\AudioModule.tlog\\CL.command.1.tlog"
-            "TargetName" = "8:CL.command.1.tlog"
-            "Tag" = "8:"
-            "Folder" = "8:_59A7A856CD404979865C5B4B824FAE77"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_74E0AF6A9D6A4AEF8C525C9400672E5A"
             {
             "SourcePath" = "8:..\\GameEngine\\ThirdParty\\include\\rfl\\capnproto.hpp"
@@ -24108,32 +23700,6 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_77B648897C103A9AAF05A3AF41427F8C"
-            {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:MakeSpriteFont, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL"
-                "ScatterAssemblies"
-                {
-                }
-            "SourcePath" = "8:MakeSpriteFont.dll"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_C9F999A467504237A1A8D969B48D3969"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_77DE7BF40CF74EF6B93D5C528A0074C2"
@@ -25778,26 +25344,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8384950FE3B5436A990850F63822118F"
-            {
-            "SourcePath" = "8:..\\AudioModule\\x64\\ReleaseEditor\\AudioModule.tlog\\Lib.command.1.tlog"
-            "TargetName" = "8:Lib.command.1.tlog"
-            "Tag" = "8:"
-            "Folder" = "8:_59A7A856CD404979865C5B4B824FAE77"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8398B9DE5527409FB69DB1D1A646C92E"
             {
             "SourcePath" = "8:..\\GameEngine\\ThirdParty\\include\\rfl\\Binary.hpp"
@@ -26718,6 +26264,37 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_8AEE4BF73C31DD61487B114A8B2CDD4E"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:MakeSpriteFont, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_8AEE4BF73C31DD61487B114A8B2CDD4E"
+                    {
+                    "Name" = "8:MakeSpriteFont.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:MakeSpriteFont.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_C9F999A467504237A1A8D969B48D3969"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:TRUE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8B217180B8014353BCA5B59FECC2375E"
             {
             "SourcePath" = "8:..\\ImGuiThirdParty\\imgui_demo.cpp"
@@ -27338,32 +26915,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_90C64B4BCDEF461294171642E8573E75"
-            {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:MakeSpriteFont, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL"
-                "ScatterAssemblies"
-                {
-                }
-            "SourcePath" = "8:..\\bin-ReleaseEditor\\MakeSpriteFont.dll"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_C9F999A467504237A1A8D969B48D3969"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_90E17F816CA24D7D8987B8A75F644013"
             {
             "SourcePath" = "8:..\\GameEngine\\ThirdParty\\include\\rfl\\parsing\\CustomParser.hpp"
@@ -27430,26 +26981,6 @@
             "TargetName" = "8:RTShaders.hlsl"
             "Tag" = "8:"
             "Folder" = "8:_F7589B390B3841809A2C9E7459C30C9D"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_91922AD16F714410A766518F7565FA61"
-            {
-            "SourcePath" = "8:..\\AudioModule\\x64\\ReleaseEditor\\Types.obj"
-            "TargetName" = "8:Types.obj"
-            "Tag" = "8:"
-            "Folder" = "8:_CF0AA89CD0EB456B9109CC7638C657EC"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -28130,26 +27661,6 @@
             "TargetName" = "8:tup_to_ptr_tuple.hpp"
             "Tag" = "8:"
             "Folder" = "8:_80BFFE0C45814BC193700E7179329958"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9654B533976D4E5FB9379C321BEBDC92"
-            {
-            "SourcePath" = "8:..\\AudioModule\\x64\\ReleaseEditor\\System.obj"
-            "TargetName" = "8:System.obj"
-            "Tag" = "8:"
-            "Folder" = "8:_CF0AA89CD0EB456B9109CC7638C657EC"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -28969,7 +28480,7 @@
             "SourcePath" = "8:..\\ProjectVG\\Font Awesome 6 Free-Regular-400.ttf"
             "TargetName" = "8:Font Awesome 6 Free-Regular-400.ttf"
             "Tag" = "8:"
-            "Folder" = "8:_BD2E1CD9422443CCA80ED661C5E62B99"
+            "Folder" = "8:_C9F999A467504237A1A8D969B48D3969"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -30324,26 +29835,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_AAB800080729407AA50B3E2BA5CE5A71"
-            {
-            "SourcePath" = "8:..\\bin-ReleaseEditor\\MakeSpriteFontCLI.exp"
-            "TargetName" = "8:MakeSpriteFontCLI.exp"
-            "Tag" = "8:"
-            "Folder" = "8:_C9F999A467504237A1A8D969B48D3969"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_AAF22FE537EE4C259836CEB9C436FE68"
             {
             "SourcePath" = "8:..\\GraphicsEngine\\BloomTechnique.h"
@@ -30610,26 +30101,6 @@
             "TargetName" = "8:EnemyAction22000.h"
             "Tag" = "8:"
             "Folder" = "8:_8D66E44AAF804663BB0E9FA2A11648B1"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_ACA11F8456684F5D9199565EAFBDCEDF"
-            {
-            "SourcePath" = "8:..\\AudioModule\\x64\\ReleaseEditor\\AudioModule.tlog\\AudioModule.lastbuildstate"
-            "TargetName" = "8:AudioModule.lastbuildstate"
-            "Tag" = "8:"
-            "Folder" = "8:_59A7A856CD404979865C5B4B824FAE77"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -31010,26 +30481,6 @@
             "TargetName" = "8:WeaponElement.h"
             "Tag" = "8:"
             "Folder" = "8:_C4112B45251D4C93A0231827E8BA2A7A"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_AFE3F90AA9014B8AB7E988CD125C83FB"
-            {
-            "SourcePath" = "8:..\\AudioModule\\x64\\ReleaseEditor\\AudioModule.tlog\\Cl.items.tlog"
-            "TargetName" = "8:Cl.items.tlog"
-            "Tag" = "8:"
-            "Folder" = "8:_59A7A856CD404979865C5B4B824FAE77"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -31584,6 +31035,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B49F183CB5E74346BE15168031987C2F"
+            {
+            "SourcePath" = "8:MakeSpriteFontCLI.dll.metagen"
+            "TargetName" = "8:MakeSpriteFontCLI.dll.metagen"
+            "Tag" = "8:"
+            "Folder" = "8:_C9F999A467504237A1A8D969B48D3969"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B4B9A598D5514695BF4841186E859B1E"
             {
             "SourcePath" = "8:..\\GameEngine\\ThirdParty\\include\\rfl\\internal\\is_extra_fields.hpp"
@@ -31624,52 +31095,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B4DB2ED0ECFD422AB7F29CAF4E4211D6"
-            {
-            "SourcePath" = "8:ReleaseEditor\\Installer.msi"
-            "TargetName" = "8:Installer.msi"
-            "Tag" = "8:"
-            "Folder" = "8:_63ED50D1709A485E8B93210B8C08E538"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B53C1448FA034E4D93803FA0B824B5A4"
             {
             "SourcePath" = "8:..\\GameEngine\\Source\\Engine\\FileSystem\\Type\\FileInformation.h"
             "TargetName" = "8:FileInformation.h"
             "Tag" = "8:"
             "Folder" = "8:_45C6B2BC61C04EC19D2A8D842C0B7724"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B54336D03078488A9F8C9589E2D0AD5A"
-            {
-            "SourcePath" = "8:..\\AudioModule\\x64\\ReleaseEditor\\pch.obj"
-            "TargetName" = "8:pch.obj"
-            "Tag" = "8:"
-            "Folder" = "8:_CF0AA89CD0EB456B9109CC7638C657EC"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -32010,26 +31441,6 @@
             "TargetName" = "8:crude_json.cpp"
             "Tag" = "8:"
             "Folder" = "8:_D18DBCB724A247CC88DBE742CE5EF7EB"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B8B92F0C4F6F4E39BA16B56FE205ADBE"
-            {
-            "SourcePath" = "8:..\\AudioModule\\x64\\ReleaseEditor\\Handle.obj"
-            "TargetName" = "8:Handle.obj"
-            "Tag" = "8:"
-            "Folder" = "8:_CF0AA89CD0EB456B9109CC7638C657EC"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -33370,26 +32781,6 @@
             "TargetName" = "8:assimp-vc143-mt.dll"
             "Tag" = "8:"
             "Folder" = "8:_3698BB59CFCA4A408CB2B86CE5050C6E"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C32BDB16BC87403A88E5D0B947C0B9D5"
-            {
-            "SourcePath" = "8:..\\AudioModule\\x64\\ReleaseEditor\\AudioModule.tlog\\CL.read.1.tlog"
-            "TargetName" = "8:CL.read.1.tlog"
-            "Tag" = "8:"
-            "Folder" = "8:_59A7A856CD404979865C5B4B824FAE77"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -35244,26 +34635,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D10BAF01B5A7408BA59947681BBDAB27"
-            {
-            "SourcePath" = "8:..\\bin-ReleaseEditor\\MakeSpriteFont.pdb"
-            "TargetName" = "8:MakeSpriteFont.pdb"
-            "Tag" = "8:"
-            "Folder" = "8:_C9F999A467504237A1A8D969B48D3969"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D1267610151D4CF1A8519718B4AF18B6"
             {
             "SourcePath" = "8:..\\GameScripts\\Scripts\\Light\\Base\\LightComponent.cpp"
@@ -36824,32 +36195,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_DB36E67858C24907B0D9A54AAF8AB346"
-            {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:MakeSpriteFontCLI, Version=1.0.9337.38815, Culture=neutral, processorArchitecture=AMD64"
-                "ScatterAssemblies"
-                {
-                }
-            "SourcePath" = "8:..\\bin-ReleaseEditor\\MakeSpriteFontCLI.dll"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_C9F999A467504237A1A8D969B48D3969"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DBD0FE71E8774C39A8942D26942BD3A4"
             {
             "SourcePath" = "8:..\\GameEngine\\GameEngine.vcxproj"
@@ -37056,6 +36401,37 @@
             "TargetName" = "8:memory.h"
             "Tag" = "8:"
             "Folder" = "8:_BB3B1C0A50F242D3A5E30C46EA0C5BC3"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_DE078C203B4840D293EDF296240C7A6D"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:MakeSpriteFontCLI, Version=1.0.9337.38815, Culture=neutral, processorArchitecture=AMD64"
+                "ScatterAssemblies"
+                {
+                    "_DE078C203B4840D293EDF296240C7A6D"
+                    {
+                    "Name" = "8:MakeSpriteFontCLI.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:MakeSpriteFontCLI.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_C9F999A467504237A1A8D969B48D3969"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -37970,26 +37346,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E5238C47072E4627823DA7DC5C4F5E09"
-            {
-            "SourcePath" = "8:..\\AudioModule\\x64\\ReleaseEditor\\AudioModule.tlog\\Lib-link.write.1.tlog"
-            "TargetName" = "8:Lib-link.write.1.tlog"
-            "Tag" = "8:"
-            "Folder" = "8:_59A7A856CD404979865C5B4B824FAE77"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E5AF5ECA5E9440AAA5BA409D2FA7A54B"
             {
             "SourcePath" = "8:..\\GameScripts\\Scripts\\TurnSystem\\TurnActor\\Character\\Player\\State\\PlayerPlayTurnState.cpp"
@@ -38490,26 +37846,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_EA3158645ED14209A880E5AD9C8F2B07"
-            {
-            "SourcePath" = "8:vs_BuildTools.exe"
-            "TargetName" = "8:vs_BuildTools.exe"
-            "Tag" = "8:"
-            "Folder" = "8:_9B15FC65BA2048478BE398D7C7DABB3B"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_EA3DAEDB9CC1481B8CD5A2F1BE7D53CC"
             {
             "SourcePath" = "8:..\\GameEngine\\ThirdParty\\include\\yaml-cpp\\node\\detail\\impl.h"
@@ -38970,26 +38306,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_ECB57D4DB3614EC4B066D751E5F6A1BB"
-            {
-            "SourcePath" = "8:..\\AudioModule\\x64\\ReleaseEditor\\AudioModule.lib.recipe"
-            "TargetName" = "8:AudioModule.lib.recipe"
-            "Tag" = "8:"
-            "Folder" = "8:_CF0AA89CD0EB456B9109CC7638C657EC"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_ECB9715FD3CA4D4EABFD8F517CA7BA5A"
             {
             "SourcePath" = "8:..\\GraphicsEngine\\ThirdParty\\include\\assimp\\DefaultIOSystem.h"
@@ -39076,26 +38392,6 @@
             "TargetName" = "8:Model.cpp"
             "Tag" = "8:"
             "Folder" = "8:_5F19D5B7C40344F991B6C95227390AA6"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_EDE67AD76C9645A58A38F7E05D856172"
-            {
-            "SourcePath" = "8:umreal.ico"
-            "TargetName" = "8:umreal.ico"
-            "Tag" = "8:"
-            "Folder" = "8:_9B15FC65BA2048478BE398D7C7DABB3B"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -39596,26 +38892,6 @@
             "TargetName" = "8:Camera.cpp"
             "Tag" = "8:"
             "Folder" = "8:_5F19D5B7C40344F991B6C95227390AA6"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F288803D5B61437994494EF2C642DC64"
-            {
-            "SourcePath" = "8:Installer.vdproj"
-            "TargetName" = "8:Installer.vdproj"
-            "Tag" = "8:"
-            "Folder" = "8:_9B15FC65BA2048478BE398D7C7DABB3B"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -40310,12 +39586,23 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FA10371A8DEB4591BE38B37C13379604"
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_FA1ECDD830D54010A269DFEB856CECAB"
             {
-            "SourcePath" = "8:..\\AudioModule\\x64\\ReleaseEditor\\Callback.obj"
-            "TargetName" = "8:Callback.obj"
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:MakeSpriteFont, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_FA1ECDD830D54010A269DFEB856CECAB"
+                    {
+                    "Name" = "8:MakeSpriteFont.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:MakeSpriteFont.dll"
+            "TargetName" = "8:"
             "Tag" = "8:"
-            "Folder" = "8:_CF0AA89CD0EB456B9109CC7638C657EC"
+            "Folder" = "8:_C9F999A467504237A1A8D969B48D3969"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -42294,61 +41581,6 @@
                             }
                         }
                     }
-                    "{9EF0B969-E518-4E46-987F-47570745A589}:_9B15FC65BA2048478BE398D7C7DABB3B"
-                    {
-                    "Name" = "8:Installer"
-                    "AlwaysCreate" = "11:FALSE"
-                    "Condition" = "8:"
-                    "Transitive" = "11:FALSE"
-                    "Property" = "8:_677669E5B0274A83887C1B1E272FC112"
-                        "Folders"
-                        {
-                            "{9EF0B969-E518-4E46-987F-47570745A589}:_0AA7286A3CD74F4CA757B5EA31126312"
-                            {
-                            "Name" = "8:Debug"
-                            "AlwaysCreate" = "11:FALSE"
-                            "Condition" = "8:"
-                            "Transitive" = "11:FALSE"
-                            "Property" = "8:_BCBC5C0DAB7B4FC39BC96AEFBFFC182D"
-                                "Folders"
-                                {
-                                }
-                            }
-                            "{9EF0B969-E518-4E46-987F-47570745A589}:_63ED50D1709A485E8B93210B8C08E538"
-                            {
-                            "Name" = "8:ReleaseEditor"
-                            "AlwaysCreate" = "11:FALSE"
-                            "Condition" = "8:"
-                            "Transitive" = "11:FALSE"
-                            "Property" = "8:_0851CB2064D744578F603A8859159C84"
-                                "Folders"
-                                {
-                                }
-                            }
-                            "{9EF0B969-E518-4E46-987F-47570745A589}:_B761FB851005442F9C5B73325D79A691"
-                            {
-                            "Name" = "8:DebugEditor"
-                            "AlwaysCreate" = "11:FALSE"
-                            "Condition" = "8:"
-                            "Transitive" = "11:FALSE"
-                            "Property" = "8:_411C4F4CC36840DC878CCEA15900EC04"
-                                "Folders"
-                                {
-                                }
-                            }
-                            "{9EF0B969-E518-4E46-987F-47570745A589}:_D127B8AED6B74A1E96547EA90E16991C"
-                            {
-                            "Name" = "8:Release"
-                            "AlwaysCreate" = "11:FALSE"
-                            "Condition" = "8:"
-                            "Transitive" = "11:FALSE"
-                            "Property" = "8:_44587E3EE9CA4B1F8D69C50520A4EC0F"
-                                "Folders"
-                                {
-                                }
-                            }
-                        }
-                    }
                     "{9EF0B969-E518-4E46-987F-47570745A589}:_B88326856815403A8AFF8EF396290A11"
                     {
                     "Name" = "8:XAtlasThirdParty"
@@ -43425,39 +42657,6 @@
                     "Property" = "8:_1001DA9AD6E14BA6BBA8E80B00BC83F5"
                         "Folders"
                         {
-                            "{9EF0B969-E518-4E46-987F-47570745A589}:_A867174628154A3B93A22DF1A17C9AA3"
-                            {
-                            "Name" = "8:x64"
-                            "AlwaysCreate" = "11:FALSE"
-                            "Condition" = "8:"
-                            "Transitive" = "11:FALSE"
-                            "Property" = "8:_F104FE1550E04E7DA81668A5A0994EE9"
-                                "Folders"
-                                {
-                                    "{9EF0B969-E518-4E46-987F-47570745A589}:_CF0AA89CD0EB456B9109CC7638C657EC"
-                                    {
-                                    "Name" = "8:ReleaseEditor"
-                                    "AlwaysCreate" = "11:FALSE"
-                                    "Condition" = "8:"
-                                    "Transitive" = "11:FALSE"
-                                    "Property" = "8:_2BDC00005C5D473BB55C6064B55BE727"
-                                        "Folders"
-                                        {
-                                            "{9EF0B969-E518-4E46-987F-47570745A589}:_59A7A856CD404979865C5B4B824FAE77"
-                                            {
-                                            "Name" = "8:AudioModule.tlog"
-                                            "AlwaysCreate" = "11:FALSE"
-                                            "Condition" = "8:"
-                                            "Transitive" = "11:FALSE"
-                                            "Property" = "8:_ECF449775F764A43853FA8F24CE5E241"
-                                                "Folders"
-                                                {
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
                         }
                     }
                     "{9EF0B969-E518-4E46-987F-47570745A589}:_C9F999A467504237A1A8D969B48D3969"
@@ -43545,7 +42744,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Umreal Engine"
         "ProductCode" = "8:{04F52857-F8F9-42B7-B55E-52B68EA1DA9D}"
-        "PackageCode" = "8:{6BDBE032-CB9B-4A0C-B8BD-C972625297C6}"
+        "PackageCode" = "8:{046DB80F-B0BA-4D20-AB7B-496BF4ACE526}"
         "UpgradeCode" = "8:{43C62E9B-CAB0-4C45-9035-CFD2A4296D61}"
         "AspNetVersion" = "8:"
         "RestartWWWService" = "11:FALSE"
