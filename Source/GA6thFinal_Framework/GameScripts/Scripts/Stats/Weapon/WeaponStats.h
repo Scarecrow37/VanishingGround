@@ -24,8 +24,8 @@ struct WeaponStats : public TurnActorStats
         AttackPerChainMultiplier,
         RandomSpeed)
 
-    GETTER_ONLY(std::string_view, Name) { return ReflectFields->Name; }
-    void SetName(std::string_view name) { ReflectFields->Name = name; }
+    GETTER_ONLY(const std::string&, Name) { return ReflectFields->Name; }
+    void SetName(const std::string& name) { ReflectFields->Name = name; }
     //string_view 무기 이름
     PROPERTY(Name) 
 

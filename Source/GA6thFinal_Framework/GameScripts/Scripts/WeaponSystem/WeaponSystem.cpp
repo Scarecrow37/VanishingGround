@@ -1,6 +1,7 @@
 ﻿#include "pchScripts.h"
 #include "WeaponSystem.h"
 #include <WeaponSystem/WeaponTable/WeaponTableComponent.h>
+#include <TurnSystem/TurnMode/TurnMode.h>
 
 WeaponSystem::WeaponSystem() = default;
 WeaponSystem::~WeaponSystem()
@@ -14,6 +15,11 @@ WeaponSystem::~WeaponSystem()
 void WeaponSystem::Reset() 
 {
     static_instance = this;
+}
+
+void WeaponSystem::Awake() 
+{
+
 }
 
 void WeaponSystem::SerializedReflectEvent()
@@ -41,31 +47,58 @@ void WeaponSystem::RollRandomSpeed()
 {
     for (auto& weapons : _equipWeapons)
     {
-        weapons.RollRandomSpeed();
+        weapons.Stats.RollRandomSpeed();
     }
 }
 
-WeaponStats WeaponSystem::EquipWeapon(int slot, const WeaponStats& weaponStats)
+WeaponElement WeaponSystem::EquipWeapon(int slot, const WeaponElement& weapon)
 {
-    WeaponStats originWeapon;
+    WeaponElement originWeapon;
     if (0 <= slot && slot < _equipWeapons.size())
     {
         originWeapon = _equipWeapons[slot];
-        _equipWeapons[slot] = weaponStats;
+        _equipWeapons[slot] = weapon;
     }
     return originWeapon;
 }
 
 void WeaponSystem::SetCurrentWeaponSlot(int slot)
 {
-    slot               = std::clamp(slot, 0, (int)EQUIP_WEAPONS_SIZE - 1);
+    if (slot == _currentWeaponSlot)
+    {
+        return;
+    }
+
+    if (slot < 0 || slot >= _equipWeapons.size())
+    {
+        UmLogger.Log(LogLevel::LEVEL_DEBUG, "out of index");
+        return;
+    }
+    TurnMode* turnMode = TurnMode::GetInstance();
+    bool      isPlay = Global::IsPlay();
+    if (isPlay && turnMode)
+    {
+        WeaponElement& curr = _equipWeapons[_currentWeaponSlot];
+        WeaponElement& next = _equipWeapons[slot];
+        if (curr._action)
+        {
+            curr._action->SetDestroy();
+        }
+        if (next._action)
+        {
+            turnMode->AddTurnAction(next._action.get());
+            std::string msg = next.Stats.Name;
+            msg += (const char*)u8" 효과 발동";
+            next._action->OnActionActive = [msg]() { UmLogger.Message(LogLevel::LEVEL_DEBUG, msg); };
+        }       
+    }
     _currentWeaponSlot = slot;
 }
 
 int WeaponSystem::GetRoundSpeedToSlot(int slot)
 {
-    int speed      = _equipWeapons[slot].Speed;
-    int roundSpeed = _equipWeapons[slot].RandomSpeed;
+    int speed      = _equipWeapons[slot].Stats.Speed;
+    int roundSpeed = _equipWeapons[slot].Stats.RandomSpeed;
     return speed + roundSpeed;
 }
 
@@ -73,7 +106,7 @@ void WeaponSystem::ImguiEquipWeapons()
 {
     if (ImGui::TreeNodeEx("Weapons", ImGuiTreeNodeFlags_DefaultOpen))
     {
-        static const WeaponStats* changeWeaponSelect = nullptr;
+        static const WeaponElement* changeWeaponSelect = nullptr;
         auto                      RightClickContext  = [&](int id) {
             if (ImGui::BeginPopupContextItem())
             {
@@ -84,15 +117,14 @@ void WeaponSystem::ImguiEquipWeapons()
                     {
                         static ImGuiTextFilter filter;
                         filter.Draw("filter");
-                        for (auto& [name, stats] : weaponTable->GetWeaponTable())
+                        for (auto& [name, element] : weaponTable->GetWeaponTable())
                         {
                             if (filter.PassFilter(name.c_str()))
                             {
-                                ImGui::PushStyleColor(ImGuiCol_Text,
-                                                                            WeaponTableComponent::GetWeaponTypeColor(stats.Type));
+                                ImGui::PushStyleColor(ImGuiCol_Text, WeaponTableComponent::GetWeaponTypeColor(element.Stats.Type));
                                 if (ImGui::Selectable(name.c_str()))
                                 {
-                                    changeWeaponSelect = &stats;
+                                    changeWeaponSelect = &element;
                                 }
                                 ImGui::PopStyleColor(1);
                             }
@@ -107,9 +139,9 @@ void WeaponSystem::ImguiEquipWeapons()
         int itemID = 0;
         for (auto& weapon : _equipWeapons)
         {
-            ImGui::PushStyleColor(ImGuiCol_Text, WeaponTableComponent::GetWeaponTypeColor(weapon.Type));
+            ImGui::PushStyleColor(ImGuiCol_Text, WeaponTableComponent::GetWeaponTypeColor(weapon.Stats.Type));
             ImGui::PushID(itemID++);
-            std::string_view weaponName = weapon.Name;
+            const std::string& weaponName = weapon.Stats.Name;
             if (ImGui::TreeNodeEx(weaponName.data(), ImGuiTreeNodeFlags_OpenOnArrow))
             {
                 RightClickContext(itemID);
