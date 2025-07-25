@@ -17,95 +17,39 @@ TokenCondition::TokenCondition()
 bool TokenCondition::Evaluate()
 {
     bool result = false;
-    if (TurnMode* turnMode = TurnMode::GetInstance())
+    static std::vector<CharacterBase*> targetList;
+    GetTargetList(targetList);
+    if (false == targetList.empty())
     {
-        CombatStartPhase* combatStartPhase = turnMode->States->CombatStartPhase;
-        if (combatStartPhase)
+        Operator oper = ReflectFields->Operator;
+        result        = true;
+        int tokenID   = ReflectFields->TokenType;
+        int value     = ReflectFields->Value;
+        for (auto& target : targetList)
         {
-            static std::vector<CharacterBase*> targetList;
-            targetList.clear();
-            Target target          = ReflectFields->Target;
-            auto   lastAttaker     = Battle::GetLastAttacker().lock();
-            auto   lastTarget      = Battle::GetLastTarget().lock();
-            auto   lastTargetEnemy = Battle::GetLastTargetEnemy().lock();
-            switch (target)
+            int targetTokenCount = target->GetTokenInventory().GetTokenStackFromID(tokenID);
+            switch (oper)
             {
             default:
                 return false;
-            case Target::SELF: {
-                const auto& self = lastAttaker;
-                if (self)
-                {
-                    targetList.push_back(self.get());
-                }
                 break;
-            }
-            case Target::PLAYER: {
-                Player* player = combatStartPhase->GetPlayer();
-                if (player && player == lastTarget.get())
-                {
-                    targetList.push_back(player);
-                }
+            case TokenCondition::Operator::GREATER_EQUAL:
+                result &= targetTokenCount >= value;
                 break;
-            }
-            case Target::ENEMY: {
-                if (lastTarget && lastTarget.get() == lastTargetEnemy.get())
-                {
-                    targetList.push_back(lastTarget.get());
-                }
+            case TokenCondition::Operator::LESS_EQUAL:
+                result &= targetTokenCount <= value;
                 break;
-            }
-            case Target::ALL_ENEMIES: {
-                auto& enemys = combatStartPhase->GetEnemies();
-                for (auto& enemy : enemys)
-                {
-                    targetList.push_back(enemy);
-                }
+            case TokenCondition::Operator::EQUAL:
+                result &= targetTokenCount == value;
                 break;
-            }
-            case Target::ALL: {
-                auto& characters = combatStartPhase->GetCharacters();
-                for (auto& character : characters)
-                {
-                    targetList.push_back(character);
-                }
-                break;
-            }
             }
 
-            if (false == targetList.empty())
+            if (false == result)
             {
-                Operator oper = ReflectFields->Operator;
-                result = true;
-                int tokenID = ReflectFields->TokenType;
-                int value   = ReflectFields->Value;
-                for (auto& target : targetList)
-                {                  
-                    int targetTokenCount = target->GetTokenInventory().GetTokenStackFromID(tokenID);
-                    switch (oper)
-                    {
-                    default:
-                        return false;
-                        break;
-                    case TokenCondition::Operator::GREATER_EQUAL:
-                        result &= targetTokenCount >= value;
-                        break;
-                    case TokenCondition::Operator::LESS_EQUAL:
-                        result &= targetTokenCount <= value;
-                        break;
-                    case TokenCondition::Operator::EQUAL:
-                        result &= targetTokenCount == value;
-                        break;
-                    }
-
-                    if (false == result)
-                    {
-                        return result;
-                    }
-                }
+                return result;
             }
         }
-    }  
+    }       
     return result;
 }
 
@@ -213,4 +157,64 @@ void TokenCondition::UpdateConditionInfo()
     }
 
     _conditionInfo = std::format("{}{}{}{}{}{}", who, token, (const char*)u8"토큰이 ", value, (const char*)u8"개 ", operName);
+}
+
+void TokenCondition::GetTargetList(std::vector<class CharacterBase*>& targetList)
+{
+    targetList.clear();
+    if (TurnMode* turnMode = TurnMode::GetInstance())
+    {
+        CombatStartPhase* combatStartPhase = turnMode->States->CombatStartPhase;
+        if (combatStartPhase)
+        {
+            Target target          = ReflectFields->Target;
+            auto   lastAttaker     = Battle::GetLastAttacker().lock();
+            auto   lastTarget      = Battle::GetLastTarget().lock();
+            auto   lastTargetEnemy = Battle::GetLastTargetEnemy().lock();
+            switch (target)
+            {
+            default:
+                return;
+            case Target::SELF: {
+                const auto& self = lastAttaker;
+                if (self)
+                {
+                    targetList.push_back(self.get());
+                }
+                break;
+            }
+            case Target::PLAYER: {
+                Player* player = combatStartPhase->GetPlayer();
+                if (player)
+                {
+                    targetList.push_back(player);
+                }
+                break;
+            }
+            case Target::ENEMY: {
+                if (lastTarget && lastTarget.get() == lastTargetEnemy.get())
+                {
+                    targetList.push_back(lastTarget.get());
+                }
+                break;
+            }
+            case Target::ALL_ENEMIES: {
+                auto& enemys = combatStartPhase->GetEnemies();
+                for (auto& enemy : enemys)
+                {
+                    targetList.push_back(enemy);
+                }
+                break;
+            }
+            case Target::ALL: {
+                auto& characters = combatStartPhase->GetCharacters();
+                for (auto& character : characters)
+                {
+                    targetList.push_back(character);
+                }
+                break;
+            }
+            }
+        }
+    }
 }

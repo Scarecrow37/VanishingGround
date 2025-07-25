@@ -177,12 +177,12 @@ void ChainCondition::UpdateConditionInfo()
 
 void ChainCondition::GetTargetList(std::vector<class CharacterBase*>& targetList)
 {
+    targetList.clear();
     if (TurnMode* turnMode = TurnMode::GetInstance())
     {
         CombatStartPhase* combatStartPhase = turnMode->States->CombatStartPhase;
         if (combatStartPhase)
         {
-            targetList.clear();
             Target target          = ReflectFields->Target;
             auto   lastAttaker     = Battle::GetLastAttacker().lock();
             auto   lastTarget      = Battle::GetLastTarget().lock();
