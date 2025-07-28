@@ -56,6 +56,13 @@ void FPSCounter::ShowFPS()
         ImGui::Text("FixedUnscaledDeltaTime %f", time.FixedUnscaledDeltaTime());
 
         ImGui::InputDouble("maximumDeltaTime", &time.MaximumDeltaTime);
+
+        if (ImGui::Button("Reload Scene"))
+        {
+            const std::string& name = UmSceneManager.GetMainScene()->Name;
+            UmSceneManager.LoadScene(name);
+        }
+
         ImGui::End();
     }
 }

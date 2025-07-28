@@ -1,6 +1,5 @@
 ﻿#include "pchScripts.h"
 #include "DirectionalLight.h"
-#include "Engine/GraphicsCore/Light.h"
 
 DirectionalLight::DirectionalLight()
 {
@@ -56,8 +55,6 @@ void DirectionalLight::OnDrawDebugSelected()
     }
     for (int i = 0; i < 8; ++i)
     {
-        UmDebugDrawCore.DrawRay("Editor", rayPositions[i], dir * DEBUG_LINE_LENGTH, false, LightComponent::DEBUG_COLOR);
+        UmGraphics.DebugDraw3D("Editor", rayPositions[i], dir * DEBUG_LINE_LENGTH, false, LightComponent::DEBUG_COLOR);
     }
 }
-
-

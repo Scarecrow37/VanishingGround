@@ -34,7 +34,6 @@ UMREAL_COMPONENT(StaticMeshRenderer)
 #include "Scripts/Mesh/SkeletalMeshRenderer.h"
 UMREAL_COMPONENT(SkeletalMeshRenderer)
 
-
 #include "Scripts/GameCore/FSM/FiniteStateMachine.h"
 UMREAL_COMPONENT(FiniteStateMachine)
 
@@ -84,14 +83,42 @@ UMREAL_COMPONENT(WeaponTableComponent)
 #include "Scripts\Test/DevTools/FPSCounter.h"
 UMREAL_COMPONENT(FPSCounter)
 
-#include "Scripts\Test/UI/TestUI.h"
-UMREAL_COMPONENT(TestUI)
+#include "Scripts\Particle/ParticleComponent.h"
+UMREAL_COMPONENT(ParticleComponent)
+
+#include "Scripts/UI/UIRoot/UIRoot.h"
+UMREAL_COMPONENT(UIRoot)
+UMREAL_COMPONENT(UIRootSlot)
+
+#include "Scripts/UI/Elements/Dummy/DummyElement.h"
+UMREAL_COMPONENT(DummyElement)
+
+#include "Scripts/UI/Elements/Image/ImageElement.h"
+UMREAL_COMPONENT(ImageElement)
+
+#include "Scripts/UI/Elements/Text/TextElement.h"
+UMREAL_COMPONENT(TextElement)
+
+#include "Scripts/UI/Wrappers/Padding/PaddingWrapper.h"
+UMREAL_COMPONENT(PaddingWrapper)
+
+#include "Scripts/UI/Wrappers/Center/CenterWrapper.h"
+UMREAL_COMPONENT(CenterWrapper)
+
+#include "Scripts/UI/Panels/Grid/GridPanel.h"
+UMREAL_COMPONENT(GridPanel)
+UMREAL_COMPONENT(GridPanelSlot)
+
+#include "Scripts/UI/Panels/Anchor/AnchorPanel.h"
+UMREAL_COMPONENT(AnchorPanel)
+UMREAL_COMPONENT(AnchorPanelSlot)
+
+#include "Scripts/UI/Panels/Horizontal/HorizontalPanel.h"
+UMREAL_COMPONENT(HorizontalPanel)
+UMREAL_COMPONENT(HorizontalPanelSlot)
 
 #include "Scripts\WeaponSystem/WeaponSystem.h"
 UMREAL_COMPONENT(WeaponSystem)
-
-#include "Scripts\Test/Text/TestText.h"
-UMREAL_COMPONENT(TestText)
 
 #include "Scripts\RevelationSystem/RevelationSystem.h"
 UMREAL_COMPONENT(RevelationSystem)
@@ -101,3 +128,16 @@ UMREAL_COMPONENT(TokenSystem)
 
 #include "Scripts/Test/TurnAction/TestActionComponent.h"
 UMREAL_COMPONENT(TestActionComponent)
+
+#include "Scripts/Test/Model/ModelTest.h"
+UMREAL_COMPONENT(ModelTest)
+UMREAL_COMPONENT(ViewTest)
+
+#include "Scripts/Audio/AudioComponent.h"
+UMREAL_COMPONENT(AudioComponent)
+
+#include "Scripts/Animation/AnimationComponent.h"
+UMREAL_COMPONENT(AnimationComponent)
+
+#include "Scripts/Test/DevTools/LogOutput.h"
+UMREAL_COMPONENT(LogOutput)

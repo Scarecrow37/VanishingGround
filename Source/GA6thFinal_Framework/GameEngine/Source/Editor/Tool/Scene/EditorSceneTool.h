@@ -4,6 +4,7 @@ class GameObject;
 class EditorDynamicCamera;
 class MeshComponent;
 class BaseMesh;
+class EditorHierarchyTool;
 
 class EditorSceneTool
     : public EditorTool
@@ -12,35 +13,38 @@ public:
     EditorSceneTool();
     virtual ~EditorSceneTool();
 
-    static void SetManipulateObject(std::weak_ptr<GameObject>& object);
+    static void SetManipulateObject(std::weak_ptr<GameObject> object);
 
 public:
     const Matrix& GetCameraMatrix();
+    void SetCameraToObject(std::weak_ptr<GameObject> destination);
 
 private:
     inline static EditorSceneTool* pSceneTool = nullptr;
 
 private:
-    virtual void OnStartGui() override;
+    void OnTickGui() override;
 
-    virtual void OnPreFrameBegin() override;
+    void OnStartGui() override;
 
-    virtual void OnPostFrameBegin() override;
+    void OnPreFrameBegin() override;
 
-    virtual void OnFrameRender() override;
+    void OnPostFrameBegin() override;
 
-    virtual void OnFrameEnd() override;
+    void OnFrameRender() override;
 
-    virtual void OnFrameFocusStay() override;
+    void OnFrameEnd() override;
+
+    void OnFrameFocusStay() override;
 
 private:
-    void UpdateKeyboardShortcuts();
+    void UpdateKeyboardFrameFocus();
+    void UpdateKeyboardFrameRender();
     void DragDropEvent();
     void SetMoveFlag();
     void SetCamera();
     void DrawManipulate();
     void DrawSceneView();
-    void SetCameraToFocusObject();
     void RayPicker();
     void VertexSnap();
 
@@ -50,8 +54,9 @@ private:
 private:
     ImGuiWindow* _window = nullptr;
     EditorDockWindow* _dockWindow = nullptr;
-    bool _isHorverdScene = false;
+    EditorHierarchyTool* _editorHierarchyTool = nullptr;
 
+    bool _isHorverdScene = false;
     std::unique_ptr<EditorDynamicCamera> _camera;
 
     //clientSize
@@ -66,6 +71,8 @@ private:
     std::weak_ptr<GameObject> _manipulateObject;
     ImGuiHelper::DrawManipulateDesc _drawManipulateDesc; 
     bool _isUseManipulate = false;
+    bool _isDrawedManipulate = false;
+    bool _isMovedManipulate = false;
     bool _isUsingStart = false; 
     bool _isUsingEnd = false; 
     bool _isUsing = false;
@@ -76,6 +83,13 @@ private:
     BaseMesh* _manipulateBaseMesh = nullptr;
     BaseMesh* _closestBaseMesh = nullptr;
     bool      _isSnapping = false;
+
+    // Camera Focused
+    bool    _isFocusedCamera                = false;
+    Vector3 _focusedCameraTargetPosition    = Vector3::Zero;
+    Vector3 _focusedCameraStartPosition     = Vector3::Zero;
+    float   _focusedLerpScale               = 0.1f;
+
 public:
     class ManipulateCommand : public UmCommand
     {

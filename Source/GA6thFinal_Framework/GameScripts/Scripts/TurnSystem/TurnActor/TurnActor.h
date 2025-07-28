@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "UmFramework.h"
-#include <TurnSystem/TurnAction/TurnAction.h>
+#include <Interface/ITriggerType.h>   
 
 class CharacterBase;
 
@@ -118,17 +118,16 @@ protected:
     virtual void Awake();
 
 public:
-    virtual void OnCombatStart();
-    virtual void OnRoundStart();
-    virtual void OnRoundEnd();
-    virtual void OnEachTurnStart(CharacterBase* destination);
-    virtual void OnTurnStart();
-    virtual void OnTurnEnd();
-    virtual void OnHit();
-    virtual void OnDead();
-    virtual void OnKill(CharacterBase* destination);
-    virtual void OnTokenAdded(int tokenID);
-    virtual void OnTokenRemoved(int tokenID);
+    void OnCombatStart() override;
+    void OnRoundStart() override;
+    void OnRoundEnd() override;
+    void OnEachTurnStart(CharacterBase* destination) override;
+    void OnTurnStart() override;
+    void OnTurnEnd() override;
+    void OnHit() override;
+    void OnKill(CharacterBase* destination) override;
+    void OnTokenAdded(int tokenID) override;
+    void OnTokenRemoved(int tokenID) override;
     void OnQTEStart() override;
     void OnQTEEnd() override;
 };

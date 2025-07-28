@@ -10,7 +10,7 @@ CameraComponent::CameraComponent()
 }
 CameraComponent::~CameraComponent()
 {
-    if (true == ReflectFields->IsMainCam)
+    if (ESceneManager::Engine::GetMainCamera() == this)
     {
         ResetMainCamera();
     }
@@ -27,6 +27,14 @@ void CameraComponent::ImGuiDrawPropertysEvent()
 
 void CameraComponent::DeserializedReflectEvent() 
 {
+    if (gameObject->IsValid())
+    {
+        if (true == ReflectFields->IsMainCam)
+        {
+            UmGraphics.SetCamera("Game", _camera);
+            ESceneManager::Engine::SetSceneMainCamera(this);
+        }
+    }
     _isDirty = true;
 }
 
@@ -40,6 +48,6 @@ void CameraComponent::OnDrawDebugSelected()
     BoundingFrustum frustum;
     BoundingFrustum::CreateFromMatrix(frustum, _camera->GetProjectionMatrix());
     frustum.Transform(frustum, _camera->GetWorldMatrix());
-    UmDebugDrawCore.Draw("Editor", frustum, DEBUG_COLOR);
+    UmGraphics.DebugDraw3D("Editor", frustum, DEBUG_COLOR);
 }
 

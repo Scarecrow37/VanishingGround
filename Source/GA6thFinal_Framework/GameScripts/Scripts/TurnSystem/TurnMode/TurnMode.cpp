@@ -3,6 +3,7 @@
 #include "GameCore/FSM/FiniteStateMachine.h"
 #include "TurnSystem/TurnActor/TurnActor.h"
 #include <WeaponSystem/WeaponSystem.h>
+#include <DamageSystem/DamageSystem.h>
 
 //Condition
 #include "GameCore/FSM/AlwaysTransitionCondition.h"
@@ -49,6 +50,35 @@ TurnMode::~TurnMode()
     {
         static_instance = nullptr;
     }
+}
+
+Player* TurnMode::GetPlayer()
+{
+    if (_systemStates.CombatStartPhase)
+    {
+        return _systemStates.CombatStartPhase->GetPlayer();
+    }
+    return nullptr;
+}
+
+const std::vector<Enemy*>& TurnMode::GetEnemies()
+{
+    if (_systemStates.CombatStartPhase)
+    {
+        return _systemStates.CombatStartPhase->GetEnemies();
+    }
+    static std::vector<Enemy*> emptyEnemies;
+    return emptyEnemies;
+}
+
+const std::vector<CharacterBase*>& TurnMode::GetCharacters()
+{
+    if (_systemStates.CombatStartPhase)
+    {
+        return _systemStates.CombatStartPhase->GetCharacters();
+    }
+    static std::vector<CharacterBase*> emptyCharacters;
+    return emptyCharacters;
 }
 
 void TurnMode::MakeTurnList() 
@@ -129,6 +159,16 @@ TurnActor* TurnMode::PopTurnList()
         _currTurnActor = nullptr;
     }
     return _currTurnActor;
+}
+
+int TurnMode::GetPendingActorCount()
+{ 
+    std::erase_if(_turnList, [](const std::pair<int, TurnActor*>& pair) 
+    { 
+        const auto& [order, actor] = pair;
+        return TurnActor::STATE::Dead == actor->GetActorState();
+    });
+    return (int)_turnList.size();
 }
 
 void TurnMode::BuildTurnModeFSM() 
@@ -298,36 +338,3 @@ void TurnMode::ImGuiDrawPropertysEvent()
     }
 }
 
-void TurnMode::Battle::operator()(Player& attacker, Enemy& target) 
-{
-    TurnMode*             turnMode             = TurnMode::GetInstance();
-    WeaponSystem*         weaponSystem         = WeaponSystem::GetInstance();
-    PlayerStatsComponent* playerStatsComponent = attacker.GetPlayerStats();
-    EnemyStatsComponent*  enemyStatsComponent  = target.GetEnemyStats();
-    if (turnMode && weaponSystem && playerStatsComponent && enemyStatsComponent)
-    {
-        PlayerStats playerStats(playerStatsComponent->GetStats());
-        WeaponStats weaponStats(weaponSystem->GetCurrentWeaponStats());
-        EnemyStats  enemyStats(enemyStatsComponent->GetStats());
-        turnMode->ApplyActions([&](TurnAction& action) {
-            action.OnPlayerBattleStart(attacker, playerStats, weaponStats, target, enemyStats);
-        });
-
-
-    }
-}
-
-void TurnMode::Battle::operator()(Enemy& attacker, Player& target) 
-{
-    TurnMode*             turnMode             = TurnMode::GetInstance();
-    EnemyStatsComponent*  enemyStatsComponent  = attacker.GetEnemyStats();
-    PlayerStatsComponent* playerStatsComponent = target.GetPlayerStats();
-    if (turnMode && playerStatsComponent && enemyStatsComponent)
-    {
-        EnemyStats  enemyStats(enemyStatsComponent->GetStats());
-        PlayerStats playerStats(playerStatsComponent->GetStats());
-        turnMode->ApplyActions(
-            [&](TurnAction& action) { action.OnEnemyBattleStart(attacker, enemyStats, target, playerStats); });
-
-    }
-}

@@ -225,7 +225,7 @@ void TokenInventory::AddTokenStackFromID(int tokenID, int count /* = 1 */)
     if (it != _tokenTable.end())
     {
         int    maxStackCount = UINT_MAX;
-        Token* token = TokenSystem::GetTokenFromID(tokenID);
+        IToken* token = TokenSystem::GetTokenFromID(tokenID);
         if (token)
         {
             maxStackCount = token->GetMaxStackCount();
@@ -305,6 +305,23 @@ bool TokenInventory::HasTokenFromID(int tokenID) const
     return false;
 }
 
+bool TokenInventory::HasTokenFromTag(TokenTag tag) const
+{
+    const auto& tagTokens = TokenSystem::GetTokenInstancesFromTag(tag);
+    for (const auto& token : tagTokens)
+    {
+        if (token)
+        {
+            int count = GetTokenStackFromID(token->GetTokenID());
+            if (0 < count)
+            {
+                return true; // 해당 태그에 유효한 토큰이 존재합니다.
+            }
+        }
+    }
+    return false;
+}
+
 int TokenInventory::GetTokenStackFromID(int tokenID) const
 {
     auto it = _tokenTable.find(tokenID);
@@ -313,6 +330,20 @@ int TokenInventory::GetTokenStackFromID(int tokenID) const
         return it->second;
     }
     return 0;
+}
+
+int TokenInventory::GetTokenStackFromTag(TokenTag tokenTag) const
+{
+    int         total     = 0;
+    const auto& tagTokens = TokenSystem::GetTokenInstancesFromTag(tokenTag);
+    for (const auto& token : tagTokens)
+    {
+        if (token)
+        {
+            total += GetTokenStackFromID(token->GetTokenID());
+        }
+    }
+    return total;
 }
 
 size_t TokenInventory::GetValidTokenCount() const
@@ -367,10 +398,13 @@ void TokenInventory::InitTokenInstance()
 {
     // 테이블에 존재하는 토큰을 모두 초기화합니다.
     _tokenTable.clear();
-    auto& table = TokenSystem::GetTokenIDToNameTable();
-    for (const auto& [tokenID, tokenName] : table)
+    auto& tokenVector = TokenSystem::GetTokenInstances();
+    for (const auto& token : tokenVector)
     {
-        _tokenTable[tokenID] = 0;
+        if (token)
+        {
+            _tokenTable[token->GetTokenID()] = 0;
+        }
     }
 }
 

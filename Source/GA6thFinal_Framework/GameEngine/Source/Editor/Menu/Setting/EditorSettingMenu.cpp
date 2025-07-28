@@ -60,6 +60,9 @@ void EditorMenuFileSystemSetting::OnTickGui()
     if (true == _isOpenGui)
     {
         ImGuiWindowFlags flags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_MenuBar;
+
+        ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowSizeConstraints(ImVec2(200, 200), ImVec2(600, 600));
         ImGui::Begin("FileSystemSetting", &_isOpenGui, flags);
         UmFileSystem.DrawGuiSettingEditor();
         ImGui::End();

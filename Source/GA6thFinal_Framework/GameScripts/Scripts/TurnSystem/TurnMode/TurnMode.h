@@ -29,9 +29,11 @@ public:
     virtual ~TurnMode();
 
 public:
-    FiniteStateMachine& GetFSM() { return *_finiteStateMachine; }
+    FiniteStateMachine&                 GetFSM() { return *_finiteStateMachine; }
+    Player*                             GetPlayer();
+    const std::vector<Enemy*>&          GetEnemies();
+    const std::vector<CharacterBase*>&  GetCharacters();
 
-public:
     /// <summary>
     /// 라운드 카운트를 0으로 초기화합니다.
     /// </summary>
@@ -55,7 +57,7 @@ public:
     void SortTurnList();
 
     /// <summary>
-    /// 가장 우선순위가 높은 TurnActor를 List에서 지우고 턴을 실행합니다.
+    /// 가장 우선순위가 높은 TurnActor를 List에서 지우고 CurrTurnActor 로 설정합니다.
     /// </summary>
     /// <returns></returns>
     TurnActor* PopTurnList();
@@ -69,25 +71,7 @@ public:
     /// 턴 대기중인 Actor의 개수를 반환합니다.
     /// </summary>
     /// <returns></returns>
-    int GetPendingActorCount() const { return (int)_turnList.size(); }
-
-public:
-    struct Battle
-    {
-        /// <summary>
-        /// 플레이어로 공격을 수행합니다.
-        /// </summary>
-        /// <param name="attacker :">공격자</param>
-        /// <param name="target :">대상</param>
-        void operator()(Player& attacker, Enemy& target);
-
-        /// <summary>
-        /// 적으로 공격을 수행합니다.
-        /// </summary>
-        /// <param name="attacker :">공격자</param>
-        /// <param name="target :">대상</param>
-        void operator()(Enemy& attacker, Player& target);
-    };
+    int GetPendingActorCount();
 
 public:
     REFLECT_PROPERTY(

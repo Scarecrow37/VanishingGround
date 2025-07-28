@@ -1,6 +1,7 @@
 ﻿#include "pchScripts.h"
 #include "EnemyDeadState.h"
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
+#include <Animation/AnimationComponent.h>
 
 REGISTER_CLASS(FSMStateFactory, EnemyDeadState)
 
@@ -15,8 +16,27 @@ void EnemyDeadState::OnEnter()
     UmLogger.Message(LogLevel::LEVEL_TRACE, message);
     Enemy& enemy = GetEnemy();
     enemy.Dead();
+    AnimationComponent* animator = enemy.GetAnimationComponent();
+    if (animator)
+    {
+        animator->BeginBuildOverrideAnimation();
+        animator->ClearOverrideAnimations();
+        enemy.SetMainAnimation(CharacterBase::DEATH, ANIMATION_FLAG_NONE);
+        animator->EndBuildOverrideAnimation();
+    }
 }
 
 void EnemyDeadState::OnExit() {}
 
-void EnemyDeadState::OnUpdate() {}
+void EnemyDeadState::OnUpdate() 
+{
+    Enemy& enemy = GetEnemy();
+    AnimationComponent* animator = enemy.GetAnimationComponent();
+    if (animator)
+    {
+        if (animator->GetMainAnimationData().IsEnd())
+        {
+            enemy.gameObject->SetActive(false);
+        }
+    }
+}

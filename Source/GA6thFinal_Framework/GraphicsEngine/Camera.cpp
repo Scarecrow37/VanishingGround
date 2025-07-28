@@ -1,0 +1,69 @@
+﻿#include "pch.h"
+#include "Camera.h"
+
+void Camera::SetupPerspective(float fovDegree, float aspect, float nearZ, float farZ)
+{
+    if (std::isnan(aspect))
+    {
+        aspect = 0.1f;
+    }
+    else
+    {
+        aspect = std::max(aspect, 0.1f);
+    }
+    _projection        = XMMatrixPerspectiveFovLH(XMConvertToRadians(fovDegree), aspect, nearZ, farZ);
+    _projectionInverse = XMMatrixInverse(nullptr, _projection);
+
+    BoundingFrustum::CreateFromMatrix(_frustum, _projection);
+}
+
+void Camera::SetupOrthographic(float width, float height, float nearZ, float farZ)
+{
+    _projection        = XMMatrixOrthographicLH(width, height, nearZ, farZ);
+    _projectionInverse = XMMatrixInverse(nullptr, _projection);
+}
+
+void Camera::SetWorldMatrix(const Matrix& worldMatrix) 
+{
+    Matrix matrix = worldMatrix;
+    Vector3 scale;
+    matrix.Decompose(scale, _rotation, _position);
+}
+
+void Camera::SetRotation(const Vector3& rotation)
+{
+    _rotation = Quaternion::CreateFromYawPitchRoll(rotation);
+}
+
+void Camera::SetRotation(const Quaternion& rotation) 
+{
+    _rotation = rotation;
+}
+
+void Camera::SetPosition(const Vector3& position)
+{
+	_position = position;
+}
+
+void Camera::AddRotation(const Vector3& rotation)
+{
+    _rotation *= Quaternion::CreateFromYawPitchRoll(rotation);
+}
+
+void Camera::AddRotation(const Quaternion& rotation) 
+{
+    _rotation *= rotation;
+}
+
+void Camera::AddPosition(const Vector3& position)
+{
+	_position += position;
+}
+
+void Camera::Update()
+{
+    _world = XMMatrixRotationQuaternion(_rotation) * XMMatrixTranslationFromVector(_position);
+    _view  = XMMatrixInverse(nullptr, _world);
+
+    _frustum.Transform(_worldFrustum, _world);
+}

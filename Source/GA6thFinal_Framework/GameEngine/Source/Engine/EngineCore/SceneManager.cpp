@@ -1,9 +1,6 @@
 ﻿#include "pch.h"
-#include "Engine/GraphicsCore/Model.h"
-#include "Engine/GraphicsCore/Light.h"
-#include "Engine/GraphicsCore/Animator.h"
-#include <Engine/GraphicsCore/Font.h>
 #include "UmScripts.h"
+
 using namespace Global;
 using namespace u8_literals;
 
@@ -446,25 +443,35 @@ void ESceneManager::Engine::SwapPrefabInstance(GameObject* original, GameObject*
             if (nullptr != sOrigin)
             {
                 std::shared_ptr<GameObject> sRemake = remake->GetWeakPtr().lock();
+
+                //오브젝트 정보 복사
                 std::swap(sOrigin->_instanceID, sRemake->_instanceID);
                 std::swap(sOrigin->_ownerScene, sRemake->_ownerScene);
-                std::swap(sOrigin, sRemake);
-                std::string objectData = sRemake->SerializedReflectFields();
-                sOrigin->DeserializedReflectFields(objectData);
-                sOrigin->_transform = sRemake->_transform;
-                sceneManager.EraseGameObjectMap(sRemake);
-                sceneManager.InsertGameObjectMap(sOrigin);
-                GameObject::Engine::UpdateActiveInHierarchy(sOrigin.get());
+                std::string objectData = sOrigin->SerializedReflectFields();
+                sRemake->DeserializedReflectFields(objectData);
 
-                for (int i = 0; i < sOrigin->GetComponentCount(); ++i)
+                //트렌스폼 정보 복사
+                sRemake->_transform.CopyTransform(sOrigin->_transform, false);
+                GameObject::Engine::UpdateActiveInHierarchy(sRemake.get());
+
+                //컴포넌트 오버라이드
+                for (int i = 0; i < sRemake->GetComponentCount(); ++i)
                 {
-                    Component* component = sOrigin->GetComponentAtIndex<Component>(i);
-                    if (component)
+                    Component* remakeComponent = sRemake->GetComponentAtIndex<Component>(i);
+                    if (remakeComponent)
                     {
-                        component->_initFlags.SetAwake();
-                        component->_initFlags.SetStart();
+                        remakeComponent->_initFlags.SetAwake();
+                        remakeComponent->_initFlags.SetStart();
+                        Component* originComponent = sOrigin->GetComponentAtIndex<Component>(i);
+                        std::string componentData = originComponent->SerializedReflectFields();
+                        remakeComponent->DeserializedReflectFields(componentData);
+                        remakeComponent->Reset();
                     }
                 }
+
+                std::swap(sOrigin, sRemake);
+                sceneManager.EraseGameObjectMap(sRemake);
+                sceneManager.InsertGameObjectMap(sOrigin);
             }
         }    
     }
@@ -546,6 +553,16 @@ ESceneManager::InputSystem& ESceneManager::Engine::GetInputSystem()
     return UmSceneManager._inputSystem;
 }
 
+void ESceneManager::Engine::PushRuntimeMeshComponent(MeshComponent* component) 
+{
+    if (component->_gameObject->IsValid())
+    {
+        const auto&                  componentWeak = component->GetWeakPtr().lock();
+        std::weak_ptr<MeshComponent> weak          = std::static_pointer_cast<MeshComponent>(componentWeak);
+        UmSceneManager._runtimeMeshComponents.push_back(weak);
+    }
+}
+
 void ESceneManager::CreateEmptySceneAndLoad(std::string_view name, std::string_view outPath, const std::function<void()>& loadEvent) 
 {
     if (UmComponentFactory.HasScript() == false)
@@ -578,66 +595,70 @@ void ESceneManager::CreateEmptySceneAndLoad(std::string_view name, std::string_v
 
 void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
 {
-    if (false == UmComponentFactory.HasScript())
+    try
     {
-        UmComponentFactory.InitalizeComponentFactory();
-    }
-
-    Scene* scene = GetSceneByName(sceneName);
-    if (scene == nullptr)
-    {
-        return;
-    }
-
-    if (mode == LoadSceneMode::SINGLE)
-    {
-        for (auto& obj : _runtimeObjects)
+        if (false == UmComponentFactory.HasScript())
         {
-            if (obj)
-            {
-                if (obj->_ownerScene == DONT_DESTROY_ON_LOAD_SCENE_NAME)
-                    continue;
+            UmComponentFactory.InitalizeComponentFactory();
+        }
 
-                GameObject::Destroy(obj.get());
+        Scene* scene = GetSceneByName(sceneName);
+        if (scene == nullptr)
+        {
+            return;
+        }
+
+        if (mode == LoadSceneMode::SINGLE)
+        {
+            for (auto& obj : _runtimeObjects)
+            {
+                if (obj)
+                {
+                    if (obj->_ownerScene == DONT_DESTROY_ON_LOAD_SCENE_NAME)
+                        continue;
+
+                    GameObject::Destroy(obj.get());
+                }
+            }
+
+            if (false == _lodedSceneList.empty())
+            {
+                _prevScene = _setting.MainScene;
+            }
+            _setting.MainScene = scene->Path;
+            _addComponentsQueue.clear();
+            _addGameObjectsQueue.clear();
+            _waitAwakeVec.clear();
+            _waitStartVec.clear();
+            _lodedSceneList.clear();
+            UmCommandManager.Clear();
+            SetRendererSkyBox(scene);
+        }
+        else
+        {
+            Scene* mainScene = GetMainScene();
+            if (mainScene == nullptr)
+            {
+                engineCore->Logger.Log(LogLevel::LEVEL_WARNING, u8"메인 씬을 먼저 로드해주세요."_c_str);
+                return;
+            }
+            if (scene->_isLoaded)
+            {
+                engineCore->Logger.Log(LogLevel::LEVEL_WARNING, u8"이미 로드된 씬은 추가 로드가 불가능합니다."_c_str);
+                return;
             }
         }
 
-        if (false == _lodedSceneList.empty())
-        {
-            _prevScene = _setting.MainScene;
-        }
-        _setting.MainScene = scene->Path;
-        _addComponentsQueue.clear();
-        _addGameObjectsQueue.clear();
-        _waitAwakeVec.clear();
-        _waitStartVec.clear();
-        _lodedSceneList.clear();
-        UmCommandManager.Clear();
-        SetRendererSkyBox(scene);
+        DeserializeToGuid(scene->_guid);
+        scene->_isLoaded = true;
+        scene->_isDirty  = false;
+        _lodedSceneList.push_back(scene);
     }
-    else
+    catch (const std::exception& ex)
     {
-        Scene* mainScene = GetMainScene();
-        if (mainScene == nullptr)
-        {
-            engineCore->Logger.Log(
-                LogLevel::LEVEL_WARNING, 
-                u8"메인 씬을 먼저 로드해주세요."_c_str);
-            return;
-        }
-        if (scene->_isLoaded)
-        {
-            engineCore->Logger.Log(
-                LogLevel::LEVEL_WARNING,
-                u8"이미 로드된 씬은 추가 로드가 불가능합니다."_c_str);
-            return;
-        }
+        std::string msg = std::format("{}{}{}", sceneName, (const char*)u8" 로드 실패. ", ex.what());
+        UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
     }
-
-    DeserializeToGuid(scene->_guid);
-    scene->_isLoaded = true;
-    scene->_isDirty  = false;
-    _lodedSceneList.push_back(scene);
 }
 
 void ESceneManager::UnloadScene(std::string_view sceneName) 
@@ -809,6 +830,7 @@ void ESceneManager::ObjectsLateUpdate()
 
 void ESceneManager::ObjectsMatrixUpdate()
 {
+    static std::unordered_set<Transform*> updateCheckSet;
     if (nullptr != _mainCamera)
     {
         if (true == _mainCamera->IsDirty())
@@ -816,16 +838,25 @@ void ESceneManager::ObjectsMatrixUpdate()
             _mainCamera->UpdatePerspective();
         }
         
-        Transform* root = _mainCamera->gameObject->transform->Root;
-        Transform& transform = root ? *root : _mainCamera->gameObject->transform;
-        if (true == transform._hasChanged)
+        Transform* curr = &_mainCamera->transform;
+        while (nullptr != curr)
         {
-            transform.UpdateMatrix();
-            _mainCamera->UpdateView();
+            if (true == curr->_hasChanged)
+            {
+                Transform* root = curr;
+                if (nullptr != curr->_root)
+                {
+                    root = curr->_root;
+                }
+                updateCheckSet.insert(root);
+                curr->UpdateMatrix();
+                _mainCamera->UpdateView();
+                break;
+            }
+            curr = curr->_parent;
         }
     }
 
-    static std::unordered_set<Transform*> updateCheckSet;
     for (auto& obj : _runtimeObjects)
     {
         if (nullptr != obj && obj->_transform._hasChanged == true)
@@ -955,8 +986,6 @@ void ESceneManager::ObjectsDestroy()
 
         NotInitDestroyComponentEraseToWaitVec(destroyComponent);
     }
-    destroyComponentSet.clear();
-    destroyComponentQueue.clear();
 
     //오브젝트 삭제
     auto& [destroyObjectSet, destroyObjectQueue] = _destroyObjectsQueue;
@@ -988,14 +1017,18 @@ void ESceneManager::ObjectsDestroy()
             pObject.reset();
         }
     }
-    destroyObjectSet.clear();
-    destroyObjectQueue.clear();
 
     //배열 정리
     while (_runtimeObjects.empty() == false && _runtimeObjects.back() == nullptr)
     {
         _runtimeObjects.pop_back();
     }
+
+    //파괴 큐 초기화
+    destroyComponentSet.clear();
+    destroyComponentQueue.clear();
+    destroyObjectSet.clear();
+    destroyObjectQueue.clear();
 }
 
 void ESceneManager::ObjectsAddRuntime()
@@ -1023,23 +1056,15 @@ void ESceneManager::ObjectsAddRuntime()
 
     for (auto& component : _addComponentsQueue)
     {
-        component->_gameObject->_components.emplace_back(component);
+        EComponentFactory::Engine::PushBackComponentToObject(component);
         if (_isPlay)
         {
             _waitAwakeVec.push_back(component);
             _waitStartVec.push_back(component);
         }
-
         if (component->_type == Component::TYPE::CAMERA)
         {
-            CameraComponent* camera = static_cast<CameraComponent*>(component.get());
-            std::shared_ptr<Camera> newCamera(new Camera);
-            camera->SetTarget(newCamera);
-        }
-        else if (component->_type == Component::TYPE::RENDER)
-        {
-            auto sptrComponent = component->GetWeakPtr().lock();
-            UmSceneManager._runtimeMeshComponents.push_back(std::static_pointer_cast<MeshComponent>(sptrComponent));
+            component->gameObject->_transform._hasChanged = true;
         }
         component->UpdateEnableInHierarchy();
     }
@@ -1099,11 +1124,14 @@ void ESceneManager::EraseGameObjectMap(std::shared_ptr<GameObject>& pEraseObject
 
 void ESceneManager::AddDestroyComponentQueue(Component* component) 
 {
-    auto& [set, vec]    = engineCore->SceneManager._destroyComponentsQueue;
-    auto [iter, result] = set.insert(component);
-    if (result)
+    if (component->gameObject->IsValid())
     {
-        vec.push_back(component);
+        auto& [set, vec]    = engineCore->SceneManager._destroyComponentsQueue;
+        auto [iter, result] = set.insert(component);
+        if (result)
+        {
+            vec.push_back(component);
+        }
     }
 }
 
@@ -1144,28 +1172,38 @@ void ESceneManager::SetRendererSkyBox(Scene* scene)
             File::Path path = scene->_skyBox.ToPath();
             if (false == path.IsNull())
             {
-                UmRenderer.SetSkyBox(path.wstring());
+                UmGraphics.SetSkyBox("Game", path.c_str());
+
+                if constexpr (IS_EDITOR)
+                {
+                    UmGraphics.SetSkyBox("Editor", path.c_str());
+                }
             }
         }
     }
     else
     {
-        UmRenderer.ResetSkyBox();
+        UmGraphics.ResetSkyBox("Game");
+        if constexpr (IS_EDITOR)
+        {
+            UmGraphics.ResetSkyBox("Editor");
+        }
     }
 }
 
 void ESceneManager::AddDestroyObjectQueue(GameObject* gameObject) 
 {
-    auto& [set, vec] = engineCore->SceneManager._destroyObjectsQueue;
-    Transform::ForeachDFS(gameObject->_transform, 
-    [&set, &vec](Transform* pTransform) 
+    if (gameObject->IsValid())
     {
-        auto [iter, result] = set.insert(&pTransform->gameObject);
-        if (result)
-        {
-            vec.push_back(&pTransform->gameObject);
-        }
-    });
+        auto& [set, vec] = engineCore->SceneManager._destroyObjectsQueue;
+        Transform::ForeachDFS(gameObject->_transform, [&set, &vec](Transform* pTransform) {
+            auto [iter, result] = set.insert(&pTransform->gameObject);
+            if (result)
+            {
+                vec.push_back(&pTransform->gameObject);
+            }
+        });
+    }
 }
 
 YAML::Node ESceneManager::SerializeToYaml(const Scene& scene)
@@ -1218,10 +1256,8 @@ bool ESceneManager::DeserializeToYaml(YAML::Node* _sceneNode)
             std::shared_ptr<GameObject> newObject = UmGameObjectFactory.DeserializeToSceneObject(object);
             if (nullptr == newObject)
             {
-                UmLogger.Log(LogLevel::LEVEL_FATAL, u8"메모리 할당 실패."_c_str);
-                __debugbreak();
-                UmApplication.Quit();
-                return false;
+                UmLogger.Log(LogLevel::LEVEL_WARNING, u8"오브젝트 역직렬화 실패. 씬 파일에 누락된 오브젝트가 존재합니다."_c_str);
+                continue;
             }
 
             Transform::ForeachDFS(newObject->_transform, [&Guid](Transform* curr) 
@@ -1274,7 +1310,13 @@ bool ESceneManager::SetSkyBox(const File::Path& path)
     }
 
     Engine::SetSceneSkyBoxGuid(*mainScene, guid);
-    UmRenderer.SetSkyBox(path.wstring());
+    UmGraphics.SetSkyBox("Game", path.c_str());
+
+    if constexpr (IS_EDITOR)
+    {
+        UmGraphics.SetSkyBox("Editor", path.c_str());
+    }
+
     mainScene->IsDirty = true;
 
     return true;
@@ -1339,47 +1381,73 @@ bool ESceneManager::WriteUmSceneFile(Scene& scene, std::string_view sceneName, s
 void ESceneManager::OnFileRegistered(const File::Path& path) 
 {
     File::Guid guid     = path.ToGuid();
-    _sceneDataMap[guid] = YAML::LoadFile(path.string());
-    YAML::Node& node    = _sceneDataMap[guid];
-
-    Scene& scene = _scenesMap[guid];
-    scene._guid  = guid;
-    if (node["SkyBox"])
+    const auto& [node, result] = YAMLHelper::SafeLoadFile(path);
+    if (result)
     {
-        scene._skyBox = node["SkyBox"].as<std::string>();
-    }
-    _scenesFindMap[scene.Name].insert(guid);
-    std::string nodeGuid = node["Guid"].as<std::string>();
-    if (nodeGuid != guid)
-    {
-        node["Guid"] = guid.string();
-        if (node.IsNull() == false)
+        try
         {
-            std::ofstream ofs(path, std::ios::trunc);
-            if (ofs.is_open())
+            _sceneDataMap[guid] = node;
+            YAML::Node& sceneNode = _sceneDataMap[guid];
+            Scene& scene = _scenesMap[guid];
+            scene._guid  = guid;
+            _scenesFindMap[scene.Name].insert(guid);
+            if (sceneNode["SkyBox"])
             {
-                ofs << node;
+                scene._skyBox = sceneNode["SkyBox"].as<std::string>();
             }
-            ofs.close();
-        }
-    }
-    
-    if (_loadFuncEvent)
-    {
-        std::string& loadScene = Application::IsEditor() ? _setting.MainScene : _setting.StartScene;
-        if (scene.isLoaded == false && path.string() == loadScene)
-        {
-            if (UmComponentFactory.HasScript() == false)
+            std::string nodeGuid = sceneNode["Guid"].as<std::string>();
+            if (nodeGuid != guid)
             {
-                if (UmComponentFactory.InitalizeComponentFactory() == false)
+                sceneNode["Guid"] = guid.string();
+                if (node.IsNull() == false)
                 {
-                    return;
+                    std::ofstream ofs(path, std::ios::trunc);
+                    if (ofs.is_open())
+                    {
+                        ofs << sceneNode;
+                    }
+                    ofs.close();
                 }
             }
-            LoadScene(path.string());
-            _loadFuncEvent();
-            _loadFuncEvent = nullptr;
+
+            if (_loadFuncEvent)
+            {
+                std::string& loadScene = Application::IsEditor() ? _setting.MainScene : _setting.StartScene;
+                if (scene.isLoaded == false && path.string() == loadScene)
+                {
+                    if (UmComponentFactory.HasScript() == false)
+                    {
+                        if (UmComponentFactory.InitalizeComponentFactory() == false)
+                        {
+                            return;
+                        }
+                    }
+                    LoadScene(path.string());
+                    _loadFuncEvent();
+                    _loadFuncEvent = nullptr;
+                }
+            }
         }
+        catch (const YAML::BadConversion& ex)
+        {
+            std::string msg =
+                std::format("{}{} {}", (const char*)u8"올바르지 않은 UmScene 파일입니다. ", path.string(), ex.what());
+            UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
+            EraseSceneGUID((std::string)_scenesMap[guid].Name, guid);
+        }
+        catch (const YAML::Exception& ex)
+        {
+            std::string msg =
+                std::format("{}{} {}", (const char*)u8"올바르지 않은 UmScene 파일입니다. ", path.string(), ex.what());
+            UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
+            EraseSceneGUID((std::string)_scenesMap[guid].Name, guid);
+        }
+    }
+    else
+    {
+        std::string msg = std::format("{}{} {}",  (const char*)u8"올바르지 않은 UmScene 파일입니다. ", path.string(), result.What());
+        UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
+        EraseSceneGUID((std::string)_scenesMap[guid].Name, guid);
     }
 }
 
@@ -1394,13 +1462,40 @@ void ESceneManager::OnFileUnregistered(const File::Path& path)
 void ESceneManager::OnFileModified(const File::Path& path)
 {
     File::Guid guid = path.ToGuid();
-    _sceneDataMap[guid] = YAML::LoadFile(path.string());
-    const YAML::Node& node = _sceneDataMap[guid];
-    Scene& scene = _scenesMap[guid];
-    scene._guid  = guid;
-    if (node["SkyBox"])
+    const auto& [node, result] = YAMLHelper::SafeLoadFile(path);
+    if (result)
     {
-        scene._skyBox = node["SkyBox"].as<std::string>();
+        try
+        {
+            _sceneDataMap[guid]     = node;
+            const YAML::Node& node  = _sceneDataMap[guid];
+            Scene&            scene = _scenesMap[guid];
+            scene._guid             = guid;
+            if (node["SkyBox"])
+            {
+                scene._skyBox = node["SkyBox"].as<std::string>();
+            }
+        }
+        catch (const YAML::BadConversion& ex)
+        {
+            std::string msg =
+                std::format("{}{} {}", (const char*)u8"올바르지 않은 UmScene 파일입니다. ", path.string(), ex.what());
+            UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
+            EraseSceneGUID((std::string)_scenesMap[guid].Name, guid);
+        }
+        catch (const YAML::Exception& ex)
+        {
+            std::string msg =
+                std::format("{}{} {}", (const char*)u8"올바르지 않은 UmScene 파일입니다. ", path.string(), ex.what());
+            UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
+            EraseSceneGUID((std::string)_scenesMap[guid].Name, guid);
+        }
+    }
+    else
+    {
+        std::string msg = std::format("{}{} {}",  (const char*)u8"올바르지 않은 UmScene 파일입니다. ", path.string(), result.What());
+        UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
+        EraseSceneGUID((std::string)_scenesMap[guid].Name, guid);
     }
 }
 
@@ -1498,20 +1593,23 @@ void ESceneManager::OnPostRequestedLoad()
 
 void ESceneManager::EraseSceneGUID(std::string_view sceneName, const File::Guid guid) 
 {
-    Scene* pScene = &_scenesMap[guid];
-    auto objects = pScene->GetRootGameObjects();
-    for (auto& obj : objects)
+    if (_scenesMap.find(guid) != _scenesMap.end())
     {
-        GameObject::Destroy(obj.get());
+        Scene* pScene  = &_scenesMap[guid];
+        auto   objects = pScene->GetRootGameObjects();
+        for (auto& obj : objects)
+        {
+            GameObject::Destroy(obj.get());
+        }
+        std::erase(_lodedSceneList, pScene);
+        _scenesFindMap[sceneName.data()].erase(guid);
+        if (_scenesFindMap[sceneName.data()].empty() == true)
+        {
+            _scenesFindMap.erase(sceneName.data());
+        }
+        _scenesMap.erase(guid);
+        _sceneDataMap.erase(guid);
     }
-    std::erase(_lodedSceneList, pScene);
-    _scenesFindMap[sceneName.data()].erase(guid);
-    if (_scenesFindMap[sceneName.data()].empty() == true)
-    {
-        _scenesFindMap.erase(sceneName.data());
-    }
-    _scenesMap.erase(guid);
-    _sceneDataMap.erase(guid);
 }
 
 template <typename T>
@@ -1534,7 +1632,7 @@ void ESceneManager::SceneResourceManager::UpdateRenderResource(RenderResource<T>
                         auto findIter = resource.RenderResource.find(path);
                         if (findIter == resource.RenderResource.end())
                         {
-                            auto newResource = UmResourceManager.LoadResource<T>(path.string());                       
+                            auto newResource = UmResourceManager->LoadResource<T>(path.string());                       
                             resource.RenderResource[path] = newResource;
                         }
                         func();
@@ -1542,8 +1640,13 @@ void ESceneManager::SceneResourceManager::UpdateRenderResource(RenderResource<T>
                 }
                 else
                 {
-                    UmLogger.Log(LogLevel::LEVEL_WARNING,
-                                 std::format("{}{}", path.string(), (const char*)u8"는 존재하지 않는 리소스입니다."));
+                    std::string_view componentName = component->ClassName();
+                    const std::string& objectName    = component->gameObject->Name;
+                    std::string      msg =
+                        std::format("{}{}{} {}", path.string(), (const char*)u8"는 존재하지 않는 리소스입니다. ",
+                                    objectName, componentName);
+                    UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
+                                
                 }
             }
         }
@@ -1569,8 +1672,11 @@ void ESceneManager::SceneResourceManager::RequestModelResource(const Component* 
         }
         else
         {
-            UmLogger.Log(LogLevel::LEVEL_WARNING,
-                         std::format("{}{}", guid.string(), u8"는 존재하지 않는 리소스입니다."_c_str));
+            std::string_view componentName = component->ClassName();
+            const std::string& objectName    = component->gameObject->Name;
+            std::string msg = std::format("{}{}{} {}", guid.string(), (const char*)u8"는 존재하지 않는 리소스입니다. ",
+                                          objectName, componentName);
+            UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
         }
     }
 }
@@ -1587,8 +1693,11 @@ void ESceneManager::SceneResourceManager::RequestModelResource(const Component* 
         }
         else
         {
-            UmLogger.Log(LogLevel::LEVEL_WARNING,
-                         std::format("{}{}", path.string(), u8"는 존재하지 않는 리소스입니다."_c_str));
+            std::string_view componentName = component->ClassName();
+            const std::string& objectName    = component->gameObject->Name;
+            std::string msg = std::format("{}{}{} {}", path.string(), (const char*)u8"는 존재하지 않는 리소스입니다. ",
+                                          objectName, componentName);
+            UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
         }
     }
 }
@@ -1604,8 +1713,11 @@ void ESceneManager::SceneResourceManager::RequestTextureResource(const Component
         }
         else
         {
-            UmLogger.Log(LogLevel::LEVEL_WARNING,
-                         std::format("{}{}", guid.string(), u8"는 존재하지 않는 리소스입니다."_c_str));
+            std::string_view componentName = component->ClassName();
+            const std::string& objectName    = component->gameObject->Name;
+            std::string msg = std::format("{}{}{} {}", guid.string(), (const char*)u8"는 존재하지 않는 리소스입니다. ",
+                                          objectName, componentName);
+            UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
         }
     }
 }
@@ -1615,18 +1727,18 @@ void ESceneManager::SceneResourceManager::RequestTextureResource(const Component
 {
     if (component->gameObject->IsValid())
     {
-        if (component->gameObject->IsValid())
+        if (true == std::filesystem::exists(path))
         {
-            if (true == std::filesystem::exists(path))
-            {
-                auto tuple = std::make_tuple(component->GetWeakPtr(), path, func);
-                _textures.ResourceLoadQueue.push(tuple);
-            }
-            else
-            {
-                UmLogger.Log(LogLevel::LEVEL_WARNING,
-                             std::format("{}{}", path.string(), u8"는 존재하지 않는 리소스입니다."_c_str));
-            }
+            auto tuple = std::make_tuple(component->GetWeakPtr(), path, func);
+            _textures.ResourceLoadQueue.push(tuple);
+        }
+        else
+        {
+            std::string_view componentName = component->ClassName();
+            const std::string& objectName    = component->gameObject->Name;
+            std::string msg = std::format("{}{}{} {}", path.string(), (const char*)u8"는 존재하지 않는 리소스입니다. ",
+                                          objectName, componentName);
+            UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
         }
     }
 }
@@ -1643,8 +1755,11 @@ void ESceneManager::SceneResourceManager::RequestFontResource(const Component* c
         }
         else
         {
-            UmLogger.Log(LogLevel::LEVEL_WARNING,
-                         std::format("{}{}", guid.string(), u8"는 존재하지 않는 리소스입니다."_c_str));
+            std::string_view componentName = component->ClassName();
+            const std::string& objectName    = component->gameObject->Name;
+            std::string msg = std::format("{}{}{} {}", guid.string(), (const char*)u8"는 존재하지 않는 리소스입니다. ",
+                                          objectName, componentName);
+            UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
         }
     }
 }
@@ -1654,18 +1769,18 @@ void ESceneManager::SceneResourceManager::RequestFontResource(const Component* c
 {
     if (component->gameObject->IsValid())
     {
-        if (component->gameObject->IsValid())
+        if (true == std::filesystem::exists(path))
         {
-            if (true == std::filesystem::exists(path))
-            {
-                auto tuple = std::make_tuple(component->GetWeakPtr(), path, func);
-                _fonts.ResourceLoadQueue.push(tuple);
-            }
-            else
-            {
-                UmLogger.Log(LogLevel::LEVEL_WARNING,
-                             std::format("{}{}", path.string(), u8"는 존재하지 않는 리소스입니다."_c_str));
-            }
+            auto tuple = std::make_tuple(component->GetWeakPtr(), path, func);
+            _fonts.ResourceLoadQueue.push(tuple);
+        }
+        else
+        {
+            std::string_view componentName = component->ClassName();
+            const std::string& objectName    = component->gameObject->Name;
+            std::string msg = std::format("{}{}{} {}", path.string(), (const char*)u8"는 존재하지 않는 리소스입니다. ",
+                                          objectName, componentName);
+            UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
         }
     }
 }
@@ -1713,37 +1828,10 @@ void ESceneManager::InputSystem::UpdateInput()
                 {
                     UpdateTracker(flag);
                 }
-            }
-
-            for (int buttonIndex = 0; buttonIndex < _receivers.size(); ++buttonIndex)
-            {
-                auto& buttons = _receivers[buttonIndex];
-                for (int actionIndex = 0; actionIndex < buttons.size(); ++actionIndex)
-                {
-                    Action action  = (Action)actionIndex;
-                    auto&  actions = buttons[actionIndex];
-                    for (auto& [component, event] : actions)
-                    {
-                        Action& actionTracker = _actionTracker[buttonIndex];
-                        if (action == actionTracker)
-                        {
-                            event(_inputController);                       
-                        }
-
-                        switch (actionTracker)
-                        {
-                        case Action::PRESSED:
-                            actionTracker = Action::HELD;
-                            break;
-                        case Action::RELEASED:
-                            actionTracker = Action::IDLE;
-                        default:
-                            break;
-                        }
-
-                    }
-                }
-            }
+            }        
+            
+            UpdateAnalogButtons();
+            std::memset(_actionChecker.data(), 0, std::size(_actionChecker)); //중복 액션 방지용 기록 배열 초기화.
         }
         catch (const Input::DeviceNotConnectedException& exception)
         {
@@ -1764,10 +1852,14 @@ void ESceneManager::InputSystem::UpdateInput()
 
 void ESceneManager::InputSystem::UpdateTracker(Input::Controller::Button button)
 {
-    int index = std::countr_zero((unsigned int)button); 
-    Action& action = _actionTracker[index];
+    int   buttonIndex = std::countr_zero((unsigned int)button);
+    bool& checker     = _actionChecker[buttonIndex];
+    if (checker)
+    {
+        return;
+    }
+    Action& action = _actionTracker[buttonIndex];
     bool    isDown = false;
-
     switch (button)
     {
     case Input::Controller::Button::DPAD_UP:
@@ -1811,7 +1903,7 @@ void ESceneManager::InputSystem::UpdateTracker(Input::Controller::Button button)
             break;
         case ESceneManager::InputSystem::Action::RELEASED:
         case ESceneManager::InputSystem::Action::IDLE:
-            action = Action::PRESSED;
+            action = Action::PRESSED;         
             break;
         default:
             break;
@@ -1833,4 +1925,32 @@ void ESceneManager::InputSystem::UpdateTracker(Input::Controller::Button button)
         }
     }
 
+    int   actionIndex = static_cast<int>(action);
+    auto& receivers = _receivers[buttonIndex][actionIndex];
+    for (auto& [instance, event] : receivers)
+    {
+        event(_inputController);
+        checker = true;
+    }
+}
+
+void ESceneManager::InputSystem::UpdateAnalogButtons() 
+{
+    // 아날로그 버튼들은 항상 갱신 필요
+    constexpr int leftTriggerIndex  = std::countr_zero((unsigned int)Input::Controller::Button::LEFT_TRIGGER);
+    constexpr int rightTriggerIndex = std::countr_zero((unsigned int)Input::Controller::Button::RIGHT_TRIGGER);
+    constexpr int leftThumbIndex    = std::countr_zero((unsigned int)Input::Controller::Button::LEFT_THUMB_STICK);
+    constexpr int rightThumbIndex   = std::countr_zero((unsigned int)Input::Controller::Button::RIGHT_THUMB_STICK);
+
+    if (_actionTracker[leftTriggerIndex] == Action::HELD)
+        UpdateTracker(Input::Controller::Button::LEFT_TRIGGER);
+
+    if (_actionTracker[rightTriggerIndex] == Action::HELD)
+        UpdateTracker(Input::Controller::Button::RIGHT_TRIGGER);
+
+    if (_actionTracker[leftThumbIndex] == Action::HELD)
+        UpdateTracker(Input::Controller::Button::LEFT_THUMB_STICK);
+
+    if (_actionTracker[rightThumbIndex] == Action::HELD)
+        UpdateTracker(Input::Controller::Button::RIGHT_THUMB_STICK);
 }

@@ -223,6 +223,40 @@ namespace ReflectHelper
                             }
                         }
                     }
+                    else if constexpr (isProperty && std::is_same_v<remove_view_type, SIZE>)
+                    {
+                        SIZE input = val;
+                        isEdit     = ImGui::DragInt2(name, reinterpret_cast<int*>(&input.cx));
+
+                        if constexpr (isProperty == false || isSetter == true)
+                        {
+                            if (isEdit)
+                            {
+                                val = input;
+                            }
+                            if (ImGui::IsItemDeactivatedAfterEdit())
+                            {
+                                result = true;
+                            }
+                        }
+                    }
+                    else if constexpr (isProperty && std::is_same_v<remove_view_type, POINT>)
+                    {
+                        POINT input = val;
+                        isEdit     = ImGui::DragInt2(name, reinterpret_cast<int*>(&input.x));
+
+                        if constexpr (isProperty == false || isSetter == true)
+                        {
+                            if (isEdit)
+                            {
+                                val = input;
+                            }
+                            if (ImGui::IsItemDeactivatedAfterEdit())
+                            {
+                                result = true;
+                            }
+                        }
+                    }
                     else if constexpr (isProperty && std::is_same_v<remove_view_type, DirectX::SimpleMath::Color>)
                     {
                         DirectX::SimpleMath::Color input = val;
@@ -344,18 +378,19 @@ namespace ReflectHelper
 
                     if constexpr (StdHelper::is_std_array_v<OriginType>)
                     {
-                        if (ImGui::TreeNodeEx((const char*)name.data()))
+                        if constexpr (std::ranges::range<decltype(*value)>)
                         {
-                            if constexpr (std::ranges::range<decltype(*value)>)
+                            if (ImGui::TreeNodeEx((const char*)name.data()))
                             {
+
                                 int i = 0;
-                                for (auto& val : *value)
+                                for (auto&& val : *value)
                                 {
                                     isEdit = NotArrayTypeFunc(&val, std::format("[{}]", i).c_str());
                                     i++;
                                 }
+                                ImGui::TreePop();
                             }
-                            ImGui::TreePop();
                         }
                     }
                     else if constexpr (StdHelper::is_std_vector_v<OriginType>)
@@ -365,7 +400,7 @@ namespace ReflectHelper
                             if (ImGui::TreeNodeEx((const char*)name.data()))
                             {
                                 int i = 0;
-                                for (auto& val : *value)
+                                for (auto&& val : *value)
                                 {
                                     isEdit = NotArrayTypeFunc(&val, std::format("[{}]", i).c_str());
                                     i++;

@@ -1,39 +1,23 @@
 struct ParticleInput
 {
-
     float4 position;
     float4 frameinfo; // duration, elapsedTime, currentIndex, isLoop
-    float4 startScale;
-    float4 endScale;
-    
-    float3 color;
-    float  opacity;
-    float3 startColor;
-    float  startopacity;
-    float3 endColor;
-    float  endopacity;
-
-    
     float3 axis;
     float age;
-    
     float3 velocity;
-    int emitterIndex;
-    
-    float4 scale;
-    float lifetime;
     float mass;
-    float2 paddings;
+    int emitterIndex;
+    float3 paddings;
 };
 
 
 
 struct ParticleOutput
 {
-    float4 position;
+    float4 position; //ribbon -> normal
     float4x4 FinalMatrix;
     float4 Color;
-    float4 FrameInfo;
+    float4 FrameInfo; // ribbon-> x = ribbon width
     int EmitterIndex;
     float3 paddings;
     
@@ -44,10 +28,33 @@ struct ParticleOutput
 struct EmitterInfo
 {
     float4x4 WorldMatrix;
+    float4x4 OrientedWorldMatrix;
     float4 dragPoint;
     float4 dragforce;
-
+    float4 vortexForce;
+    float4 startScale;
+    float4 endScale;
+    float4 startColor;
+    float4 endColor;
+    float4 particlelifetime;
+    float4 startNormal;
+    float4 endNormal;
+    float4 ribbonVector;
 };
+
+
+struct MVP
+{
+    float4x4 ViewMatrix;
+    float4x4 ViewRotInvMatrix;
+    float4x4 ProjMatrix;
+    float4 CameraPos;
+    float deltaTime;
+    float4 pad1;
+    float4 pad2;
+    float3 pad3;
+};
+
 
 
 // 빌보딩 행렬 계산 함수
@@ -100,6 +107,5 @@ float4x4 CreateScaleMatrix(float4 scale)
     scale.x, 0, 0, 0,
     0, scale.y, 0, 0,
     0, 0, scale.z, 0,
-    0, 0, 0, 1
-);
+    0, 0, 0, 1);
 }

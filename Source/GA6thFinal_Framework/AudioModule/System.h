@@ -12,8 +12,6 @@ namespace Audio
     /// </summary>
     class System
     {
-        friend class EngineCores;
-
         struct SourceVoice
         {
             Generation           Generation;
@@ -21,20 +19,22 @@ namespace Audio
             IXAudio2SourceVoice* Voice;
         };
 
-        System();
 
     public:
-        ~System();
+        System();
         System(const System&)            = delete;
         System& operator=(const System&) = delete;
         System(System&& other) noexcept;
         System& operator=(System&& other) noexcept;
+        ~System();
 
         /// <summary>
         /// 초기화 작업을 수행합니다. 최초 1회 호출되어야 합니다.
         /// 호출하기 전 CoInitializeEx()가 MTA로 호출되어야 합니다.
         /// </summary>
         void Initialize();
+
+        void Finalize();
 
         /// <summary>
         /// 지정된 파일 경로에서 웨이브 파일로부터 사운드 소스를 생성합니다.
@@ -67,7 +67,7 @@ namespace Audio
     private:
         void ReleaseVoice(const Handle& handle);
 
-        winrt::com_ptr<IXAudio2> _xAudio2;
+        IXAudio2* _xAudio2;
         IXAudio2MasteringVoice*  _masteringVoice = nullptr;
 
         std::unordered_map<WaveFormatHash, std::vector<SourceVoice>> _sourceVoices;

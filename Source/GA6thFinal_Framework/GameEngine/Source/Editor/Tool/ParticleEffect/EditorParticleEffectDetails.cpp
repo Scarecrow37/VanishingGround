@@ -1,6 +1,4 @@
 ﻿#include "pch.h"
-#include "Engine/GraphicsCore/ParticleEmitter.h"
-#include "Engine/GraphicsCore/ParticleEffect.h"
 #include "EditorParticleEffectDetails.h"
 
  EditorParticleEffectDetails::EditorParticleEffectDetails() 
@@ -45,6 +43,12 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
 
  void EditorParticleEffectDetails::OnPostFrameBegin()
  {
+
+     if (nullptr == UmParticleManager->GetCurrentEditorEffect())
+     {
+         _curEffect = nullptr;
+         return;
+     }
 
      if (nullptr != _curEmitter && nullptr == _curEffect)
          ShowEmitterDetails();
@@ -155,7 +159,7 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
              ImGui::SameLine();
              // ImGui::Button("Sprite Texture Image", {180,50});
              D3D12_GPU_DESCRIPTOR_HANDLE gpuhandle =
-                 static_cast<SpriteModule*>(_curEmitter->_particleRenderModule)->GetAlbedoTexture()->GetGPUHandle();
+                 static_cast<RibbonModule*>(_curEmitter->_particleRenderModule)->GetAlbedoTexture()->GetGPUHandle();
              bool isTextureLoadButtonPressed = ImGui::ImageButton((ImTextureID)gpuhandle.ptr, {100, 100});
 
              if (true == isTextureLoadButtonPressed)
@@ -165,12 +169,59 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
                  std::vector<File::Path> out;
                  if (File::ShowOpenFileDialog(owner, title, L"", {{L"이미지 파일\0", L"*.jpg*\0"}}, false, out))
                  {
-                     /*   static_cast<RibbonModule*>(_curEmitter->_particleRenderModule)
-                            ->ChangeAlbedoTexture(out.front().wstring());
-                        (out.front().wstring());*/
+                     static_cast<RibbonModule*>(_curEmitter->_particleRenderModule)
+                         ->ChangeAlbedoTexture(out.front().wstring());
                      isSomethingChanged = true;
                  }
              }
+             RibbonModule* ribbonmodule   = static_cast<RibbonModule*>(_curEmitter->_particleRenderModule);
+             {
+                 float startnormal[3] = {ribbonmodule->GetStartNormal().x, ribbonmodule->GetStartNormal().y,
+                                         ribbonmodule->GetStartNormal().z};
+                 ImGui::Text("ribbon start facing normal");
+                 bool result = ImGui::SliderFloat3("##ribbon start facing normal", startnormal, -1, 1);
+                 if (false == isSomethingChanged)
+                     if (true == result)
+                         isSomethingChanged = result;
+                 Vector3 temp = {startnormal[0], startnormal[1], startnormal[2]};
+                 temp.Normalize();
+
+                 ribbonmodule->SetStartNormal({temp.x,temp.y, temp.z, 0});
+             }
+
+             {
+                 float endnormal[3] = {ribbonmodule->GetEndNormal().x, ribbonmodule->GetEndNormal().y,
+                                         ribbonmodule->GetEndNormal().z};
+                 ImGui::Text("ribbon end facing normal");
+                 bool result = ImGui::SliderFloat3("##ribbon end facing normal", endnormal, -1, 1);
+                 if (false == isSomethingChanged)
+                     if (true == result)
+                         isSomethingChanged = result;
+                 Vector3 temp = {endnormal[0], endnormal[1], endnormal[2]};
+                 temp.Normalize();
+
+                 ribbonmodule->SetEndNormal({temp.x, temp.y, temp.z, 0});
+
+             }
+
+             {
+                 float ribbonvector[3] = {ribbonmodule->GetRibbonVector().x, ribbonmodule->GetRibbonVector().y,
+                                          ribbonmodule->GetRibbonVector().z};
+                 ImGui::Text("ribbon vector");
+                 bool result = ImGui::SliderFloat3("##ribbon vector", ribbonvector, -1, 1);
+                 if (false == isSomethingChanged)
+                     if (true == result)
+                         isSomethingChanged = result;
+                 Vector3 temp = {ribbonvector[0], ribbonvector[1], ribbonvector[2]};
+                 temp.Normalize();
+
+                 ribbonmodule->SetRibbonVector({temp.x, temp.y, temp.z, 0});
+             }
+
+
+
+
+
          }
      }
      ImGui::Text("");
@@ -250,6 +301,19 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
                  locationFactor[2] = locationFactor[0] - 0.1f;
              }
          }
+         if (LocationShape::MESH_SURFACE == _curEmitter->_locationType)
+         {
+             ImGui::Text("Emitter Shape Factor");
+             ImGui::Text("X");
+             ImGui::SameLine();
+             ImGui::SliderFloat("##Emitter Shape Factor x", &(locationFactor[0]), -10, 10);
+             ImGui::Text("Y");
+             ImGui::SameLine();
+             ImGui::SliderFloat("##Emitter Shape Factor y", &(locationFactor[1]), -10, 10);
+             ImGui::Text("Z");
+             ImGui::SameLine();
+             ImGui::SliderFloat("##Emitter Shape Factor z", &(locationFactor[2]), -10, 10);
+         }
          Vector3 temp = _curEmitter->_emitLocator->GetFactor();
          if (locationFactor[0] != temp.x || locationFactor[1] != temp.y || locationFactor[2] != temp.z)
              isSomethingChanged = true;
@@ -271,6 +335,17 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
              if (true == result)
                  isSomethingChanged = result;
          _curEmitter->SetEmitterPosition({emitterPos[0], emitterPos[1], emitterPos[2]});
+     }
+     // use world space
+     {
+         bool useWorldSpace = _curEmitter->GetUseWorldSpace();
+         ImGui::Text("Use World Space");
+         ImGui::SameLine();
+         bool result = ImGui::Checkbox("##Use World Space", &useWorldSpace);
+         if (false == isSomethingChanged)
+             if (true == result)
+                 isSomethingChanged = result;
+         _curEmitter->SetUseWorldSpace(useWorldSpace);
      }
      // emitter rotation
      {
@@ -530,6 +605,33 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
              endscale.z = endScale[2];
              _curEmitter->SetEndScale(endscale);
          }
+         if (ParticleType::RIBBON == _curEmitter->_particleType)
+         {
+
+             Vector4 startscale    = _curEmitter->GetStartScale();
+             float   startScale[2] = {startscale.x, startscale.y};
+             ImGui::Text("Start Scale");
+             ImGui::SameLine();
+             bool result = ImGui::InputFloat2("##Start Scale", (float*)&startScale);
+             if (false == isSomethingChanged)
+                 if (true == result)
+                     isSomethingChanged = result;
+             startscale.x = startScale[0];
+             startscale.y = startScale[1];
+             _curEmitter->SetStartScale(startscale);
+
+             Vector4 endscale    = _curEmitter->GetEndScale();
+             float   endScale[2] = {endscale.x, endscale.y};
+             ImGui::Text("End Scale");
+             ImGui::SameLine();
+             result = ImGui::InputFloat2("##End Scale", (float*)&endScale);
+             if (false == isSomethingChanged)
+                 if (true == result)
+                     isSomethingChanged = result;
+             endscale.x = endScale[0];
+             endscale.y = endScale[1];
+             _curEmitter->SetEndScale(endscale);
+         }
      }
      ImGui::Text("");
      //mass & distribution
@@ -565,9 +667,26 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
          _curEmitter->SetDragForce(force);
      }
 
+     // vortex
+     {
+         Vector4 force = _curEmitter->GetVortexForce();
+         ImGui::Text("Vortex Force");
+         ImGui::SameLine();
+         bool result = ImGui::SliderFloat4("##Vortex Force", (float*)&force, -1000, 1000);
+         if (false == isSomethingChanged)
+             if (true == result)
+                 isSomethingChanged = result;
+         if (force.Length() <= 0)
+             force = {0.1f, 0.1f, 0.1f};
+         _curEmitter->SetVortexForce(force);
+     }
+
+
+
+
      if (true == isSomethingChanged)
      {
-         UmParticleManager.RefreshEditor();
+         UmParticleManager->RefreshEditor();
      }
 
 

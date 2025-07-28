@@ -22,10 +22,10 @@ namespace File
         MOVED,    // 이동
     };
 
-    static void OutputLog(const std::wstring& msg)
+    static inline void OutputLog(std::wstring_view msg)
     {
 #ifdef _DEBUG
-        std::wstring debugMsg = L"FileSystem: " + msg + L'\n';
+        std::wstring debugMsg = std::format(L"FileSystem: {}\n", msg);
         /* 해당 함수는 스레드 세이프 함. */
         OutputDebugString(debugMsg.c_str());
 #endif
@@ -53,7 +53,9 @@ namespace File
     bool CopyFileFromTo(const File::Path& from, File::Path to);
 
     /* 클립보드에 문자열을 복사해주는 함수 */
+    bool CopyStrToClipBoard(std::string_view str);
     bool CopyPathToClipBoard(const File::Path& path);
+
     /* 해당 경로에 중복 파일이 있을 경우 중복 방지 인덱스를 붙여서 리턴 */
     File::Path GenerateUniquePath(const File::Path& path, int maxIndex = 999);
 
@@ -68,12 +70,12 @@ namespace File
 
     struct FileDialogDesc
     {
-        HWND                                        Owner;
-        LPCWSTR                                     Title;
-        LPCWSTR                                     InitialDirectory;
-        LPCWSTR                                     DefaultFileName;
+        HWND                                        Owner = NULL;
+        LPCWSTR                                     Title = L"";
+        LPCWSTR                                     InitialDirectory = L"";
+        LPCWSTR                                     DefaultFileName  = L"";
         std::vector<std::pair<LPCWSTR, LPCWSTR>>    Filters;
-        DWORD                                       Flags;
+        DWORD                                       Flags = 0;
     };
 
     // 파일 브라우저 열기

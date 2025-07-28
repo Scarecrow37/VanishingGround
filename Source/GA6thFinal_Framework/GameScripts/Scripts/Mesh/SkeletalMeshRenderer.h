@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "MeshComponent.h"
+#include "Animation/Structs/AnimationData.h"
 
 class SkeletalMeshRenderer : public MeshComponent
 {
@@ -12,9 +13,10 @@ public:
 public:
 
 protected:
-    void Reset() override;
     void Awake() override;
     void Update() override;
+    void Reset() override;
+    void OnDestroy() override;
     void OnDrawDebug() override;
 
     void SerializedReflectEvent() override;
@@ -23,7 +25,7 @@ protected:
 
 private:
     void LoadModel();
-    void UpdateAnimation();
+    void OnChangedModel();
 
 public:
     REFLECT_PROPERTY(FilePath)
@@ -32,35 +34,6 @@ public:
 
 private:
     File::GuidRef _guidRef;
-
     REFLECT_FIELDS_BEGIN(MeshComponent)
-    std::string Guid;
-    std::string CurrentAnimationKey = "";
-    float       AnimationSpeed     = 1.0f;
-    bool        IsAnimationPlaying = false;
-    bool        IsAnimationLooping = true;
     REFLECT_FIELDS_END(SkeletalMeshRenderer)
-
-    /////////////////////////////////////////////////////////////
-    /// Animation
-    /////////////////////////////////////////////////////////////
-public:
-    void SetCurrentAnimation(std::string_view animKey);
-    void SetAnimationLoop(bool looping);
-    void SetAnimationFrame(float frame);
-    void SetAnimationSpeed(float speed);
-    void StopAnimation();
-    void PlayAnimation();
-    void PauseAnimation();
-    void ResumeAnimation();
-
-    inline float              GetCurrentAnimationTime()     const { return _animationTime; }
-    inline const std::string& GetCurrentAnimationName()     const { return ReflectFields->CurrentAnimationKey; }
-    inline float              GetCurrentAnimationSpeed()    const { return ReflectFields->AnimationSpeed; }
-    inline bool               IsAnimationPlaying()          const { return ReflectFields->IsAnimationPlaying; }
-    inline bool               IsAnimationLooping()          const { return ReflectFields->IsAnimationLooping; }
-
-private:
-    float _animationTime = 0.0f;
-
 };

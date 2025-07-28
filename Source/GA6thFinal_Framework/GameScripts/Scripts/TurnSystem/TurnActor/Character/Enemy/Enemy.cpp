@@ -3,6 +3,7 @@
 #include "Stats/Enemy/EnemyStats.h"
 #include "Stats/Enemy/EnemyStatsComponent.h"
 #include <GameCore/FSM/FiniteStateMachine.h>
+#include <TurnSystem/TurnMode/TurnMode.h>
 
 //Condition
 #include "Condition/EnemyStartCondition.h"
@@ -40,6 +41,10 @@ void Enemy::Revive()
 void Enemy::Dead()
 {
     Base::Dead();
+    if (auto turnMode = TurnMode::GetInstance())
+    {
+        turnMode->ApplyActions([this](TurnAction& action) { action.OnEnemyDead(*this); });
+    }
 }
 
 void Enemy::TakeDamage(int damage) 
@@ -63,16 +68,12 @@ void Enemy::Awake()
     {
         UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"Enemy Stats를 추가해주세요");
     }
+
+    InitMeshModel();
 }
 
 void Enemy::Update() 
 {
-    bool isMyTurn = IsMyTurn;
-    if (isMyTurn)
-    {
-        Vector3 delta = Vector3(0, 1080, 0) * Mathf::Deg2Rad * UmTime.DeltaTime();
-        gameObject->transform->Rotation *= Quaternion::CreateFromYawPitchRoll(delta);
-    }
 }
 
 CharacterStats* Enemy::GetCharacterStats()
@@ -110,7 +111,7 @@ EnemyStatsComponent* Enemy::GetEnemyStats()
     return _enemyStats;
 }
 
-void Enemy::BuildEnemyFSM() 
+void Enemy::BuildEnemyFSM()
 {
     _finiteStateMachine = GetComponent<FiniteStateMachine>();
     if (nullptr == _finiteStateMachine)
@@ -172,11 +173,6 @@ void Enemy::OnHit()
     Base::OnHit();
 }
 
-void Enemy::OnDead()
-{
-    Base::OnDead();
-}
-
 void Enemy::OnKill(CharacterBase* destination)
 {
     Base::OnKill(destination);
@@ -191,3 +187,82 @@ void Enemy::OnTokenRemoved(int tokenID)
 {
     Base::OnTokenRemoved(tokenID);
 }
+
+#define ANIM_NAME(enumType, name)\
+case enumType :\
+return name;\
+break;
+const char* Enemy::GetAnimationName(AnimationType type)
+{
+    EnemyType enemyType = Type;
+    switch (enemyType)
+    {
+            // A
+            case EnemyType::MONSTER_A:
+            {
+                switch (type)
+                {
+                    ANIM_NAME(IDLE, "")
+                    ANIM_NAME(HIT, "")
+                    ANIM_NAME(DEATH, "")
+                    ANIM_NAME(ATTACK_1, "")
+                    ANIM_NAME(ATTACK_2, "")
+                    ANIM_NAME(ATTACK_3, "")
+                    ANIM_NAME(ATTACK_4, "")
+                    ANIM_NAME(ATTACK_READY, "")
+                    ANIM_NAME(ATTACK_LOOP, "")
+                    ANIM_NAME(ATTACK_END, "")
+                default:
+                    break;
+                }
+                break;
+            }
+            // B
+            case EnemyType::MONSTER_B: 
+            {
+                switch (type)
+                {
+                    ANIM_NAME(IDLE,     "Armature|Enemy02_Anim_Idle01")
+                    ANIM_NAME(HIT,      "Armature|Enemy02_Anim_GetHit")
+                    ANIM_NAME(DEATH,    "Armature|Enemy02_Anim_Death")
+                    ANIM_NAME(ATTACK_1, "Armature|Enemy02_Anim_Attack01")
+                    ANIM_NAME(ATTACK_2, "")
+                    ANIM_NAME(ATTACK_3, "")
+                    ANIM_NAME(ATTACK_4, "Armature|Enemy02_Anim_Attack03")
+                    ANIM_NAME(ATTACK_READY, "")
+                    ANIM_NAME(ATTACK_LOOP, "")
+                    ANIM_NAME(ATTACK_END, "")
+                default:
+                    break;
+                }
+                break;
+            }
+            // C
+            case EnemyType::MONSTER_C: 
+            {
+                switch (type)
+                {
+                    ANIM_NAME(IDLE, "")
+                    ANIM_NAME(HIT, "")
+                    ANIM_NAME(DEATH, "")
+                    ANIM_NAME(ATTACK_1, "")
+                    ANIM_NAME(ATTACK_2, "")
+                    ANIM_NAME(ATTACK_3, "")
+                    ANIM_NAME(ATTACK_4, "")
+                    ANIM_NAME(ATTACK_READY, "")
+                    ANIM_NAME(ATTACK_LOOP, "")
+                    ANIM_NAME(ATTACK_END, "")
+                default:
+                    break;
+                }
+                break;
+            }
+            default: 
+            {
+                break;
+            }
+           
+    }
+    return "";
+}
+#undef ANIM_NAME

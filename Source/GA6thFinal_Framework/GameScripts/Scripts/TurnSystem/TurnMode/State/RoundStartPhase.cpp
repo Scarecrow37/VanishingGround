@@ -4,6 +4,7 @@
 #include <WeaponSystem/WeaponSystem.h>
 #include <TurnSystem/TurnMode/State/CombatStartPhase.h>
 #include <TurnSystem/TurnActor/Character/CharacterBase.h>
+#include <RevelationSystem/RevelationSystem.h>
 
 REGISTER_CLASS(FSMStateFactory, RoundStartPhase)
 
@@ -27,19 +28,38 @@ void RoundStartPhase::OnEnter()
 {
     _isPhaseEnd = false;
 
-    _weaponSystem->RollRandomSpeed();
+    if (_weaponSystem)
+    {
+        _weaponSystem->RollRandomSpeed();
+    }
     int currRound = _turnMode->AddRoundCount();
 
     std::string message = std::format("{}{}", currRound, (const char*)u8"라운드 시작!!!!===========================================================");
     UmLogger.Message(LogLevel::LEVEL_DEBUG, message);
 
     _turnMode->MakeTurnList();
-    UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"턴 리스트 생성.");
-
     _turnMode->SortTurnList();
-    UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"턴 정렬 완료.");
+
+    if (_revelationSystem)
+    {
+        _revelationSystem->RollRoundElement();
+    }
 
     NotifyRoundStart();
+
+    //캐릭터 사망 확인
+    CombatStartPhase* combatStartPhase = _turnMode->States->CombatStartPhase;
+    if (combatStartPhase)
+    {
+        for (auto& character : combatStartPhase->GetCharacters())
+        {
+            int hp = character->HP;
+            if (hp <= 0)
+            {
+                character->Dead();
+            }
+        }
+    }
     _isPhaseEnd = true;
 }
 

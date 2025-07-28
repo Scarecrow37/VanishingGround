@@ -1,6 +1,8 @@
 @echo off
 chcp 65001
 
+cd /d "%~dp0"
+
 :: Visual Studio 환경 설정
 call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsall.bat" x64
 

@@ -29,10 +29,17 @@ void FileSystemModule::ModuleInitialize()
         UmFileSystem.ObserverSetUp([this](const Event& event) { RecieveFileEvent(event); });
     }
 
-    auto accessExt = {".txt", ".png", ".dds", ".hdr", ".UmAnimNotifySet"};
+    auto accessExt = {".UmAnimNotifySet"};
     UmFileSystem.RegisterFileEventSubscriber(this, accessExt);
 
-    _spriteFontImporter.Initialize();
+    try
+    {
+        _spriteFontImporter.Initialize();
+    }
+    catch (const std::exception& e)
+    {
+        UmLogger.Log(LogLevel::LEVEL_ERROR, e.what());
+    }
 }
 
 void FileSystemModule::PreUnInitialize() 

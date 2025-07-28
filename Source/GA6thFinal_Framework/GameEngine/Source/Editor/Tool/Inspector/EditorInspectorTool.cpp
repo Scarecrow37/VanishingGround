@@ -40,6 +40,11 @@ void EditorInspectorTool::OnPostFrameBegin()
     {
         _rowPtrNextFocused = nullptr;
     }
+
+    if (nullptr == _rowPtrCurrFocused)
+    {
+        _isLockFocus = false;
+    }
 }
 
 #define SAFE_CALL(ptr, func) if (nullptr != ptr) ptr->func; // nullptr 체크용
@@ -84,15 +89,28 @@ bool EditorInspectorTool::IsFocusObject(std::weak_ptr<IEditorObject> obj)
     return false;
 }
 
-bool EditorInspectorTool::SetFocusObject(std::weak_ptr<IEditorObject> obj)
+bool EditorInspectorTool::SetFocusObject(std::weak_ptr<IEditorObject> obj, bool breakLock)
 {
-    if (false == _isLockFocus)
+    if (false == _isLockFocus || true == breakLock)
     {
         _nextFocused = obj;
         _isFocusChanged = true;
+        if (true == breakLock)
+        {
+            _isLockFocus = false;
+        }
         return true;
     }
     return false;
+}
+
+void EditorInspectorTool::ResetFocusObject() 
+{
+    if (true == SetFocusObject(std::weak_ptr<IEditorObject>()))
+    {
+        EditorHierarchyTool::SetFocusObject(std::weak_ptr<GameObject>());  // HierarchyTool의 포커스도 초기화
+        EditorSceneTool::SetManipulateObject(std::weak_ptr<GameObject>()); // SceneTool의 조작 오브젝트도 초기화
+    }
 }
 
 std::weak_ptr<IEditorObject> EditorInspectorTool::GetFocusObject()

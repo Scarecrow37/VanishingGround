@@ -10,7 +10,7 @@ namespace TokenObject
     class Stun : public Token
     {
         TOKEN_DATA(16007, "기절")
-        TOKEN_CONSTRUCTOR(Stun, 55, 1)
+        TOKEN_CONSTRUCTOR(Stun, 55, 1, TokenTag::STUN)
     private:
         void OnTurnStart(CharacterBase* owner) override;
 
@@ -27,7 +27,7 @@ namespace TokenObject
     class StunResistance : public Token
     {
         TOKEN_DATA(16008, "기절 저항")
-        TOKEN_CONSTRUCTOR(StunResistance, 40, 1)
+        TOKEN_CONSTRUCTOR(StunResistance, 40, 1, TokenTag::STUN)
     private:
         void OnTokenRemoved(CharacterBase* owner, int tokenID) override;        
     };
