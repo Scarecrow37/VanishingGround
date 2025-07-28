@@ -301,9 +301,12 @@
     <ClInclude Include="Scripts\Animation\Structs\AnimationStructs.h" />
     <ClInclude Include="Scripts\Audio\AudioComponent.h" />
     <ClInclude Include="Scripts\BattleSystem\Battle.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\MultiTargetDamage\MultiTargetDamageAction.h" />
     <ClInclude Include="Scripts\Animation\AnimationComponent.h" />
     <ClInclude Include="Scripts\Animation\Structs\AnimationData.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Recovery\RecoveryAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\WeaponStas\WeaponDamageAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22000_22009\EnemyAction22001.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22000_22009\EnemyAction22002.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22000_22009\EnemyAction22003.h" />
@@ -324,7 +327,7 @@
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\TokenCondition\TokenCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\TurnActionCondition.h" />
     <ClInclude Include="Scripts\Test\Model\ModelTest.h" />
-    <ClInclude Include="Scripts\TurnSystem\TurnAction\Critical\CriticalDamageAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\AdditionalDamage\AdditionalDamageAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Token\TokenApplyAction.h" />
     <ClInclude Include="Scripts\RevelationSystem\RevelationElement\RevelationElement.h" />
     <ClInclude Include="Scripts\RevelationSystem\RevelationSystem.h" />
@@ -349,6 +352,9 @@
     <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnActionFactory.h" />
     <ClInclude Include="Scripts\UI\Panels\Anchor\AnchorPanel.h" />
+    <ClInclude Include="Scripts\UI\Wrappers\Center\CenterWrapper.h" />
+    <ClInclude Include="Scripts\UI\Wrappers\Padding\PaddingWrapper.h" />
+    <ClInclude Include="Scripts\WeaponSystem\WeaponElement\WeaponElement.h" />
     <ClInclude Include="Scripts\WeaponSystem\WeaponTable\WeaponTableComponent.h" />
     <ClInclude Include="Scripts\Stats\Weapon\WeaponStats.h" />
     <ClInclude Include="Scripts\Test\Component\TestComponent.h" />
@@ -431,9 +437,12 @@
   <ItemGroup>
     <ClCompile Include="Scripts\Audio\AudioComponent.cpp" />
     <ClCompile Include="Scripts\BattleSystem\Battle.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\MultiTargetDamage\MultiTargetDamageAction.cpp" />
     <ClCompile Include="Scripts\Animation\AnimationComponent.cpp" />
     <ClCompile Include="Scripts\Animation\Structs\AnimationData.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Recovery\RecoveryAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\WeaponStas\WeaponDamageAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22000_22009\EnemyAction22001.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22000_22009\EnemyAction22002.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22000_22009\EnemyAction22003.cpp" />
@@ -450,7 +459,7 @@
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\RoundOnceCondition\RoundOnceCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\TokenCondition\TokenCondition.cpp" />
     <ClCompile Include="Scripts\Test\Model\ModelTest.cpp" />
-    <ClCompile Include="Scripts\TurnSystem\TurnAction\Critical\CriticalDamageAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\AdditionalDamage\AdditionalDamageAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Token\TokenApplyAction.cpp" />
     <ClCompile Include="Scripts\RevelationSystem\RevelationElement\RevelationElement.cpp" />
     <ClCompile Include="Scripts\RevelationSystem\RevelationSystem.cpp" />
@@ -480,6 +489,10 @@
     <ClCompile Include="Scripts\Particle\ParticleComponent.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\TurnAction.cpp" />
     <ClCompile Include="Scripts\UI\Panels\Anchor\AnchorPanel.cpp" />
+    <ClCompile Include="Scripts\UI\Panels\Horizontal\HorizontalPanel.cpp" />
+    <ClCompile Include="Scripts\UI\Wrappers\Center\CenterWrapper.cpp" />
+    <ClCompile Include="Scripts\UI\Wrappers\Padding\PaddingWrapper.cpp" />
+    <ClCompile Include="Scripts\WeaponSystem\WeaponElement\WeaponElement.cpp" />
     <ClCompile Include="Scripts\WeaponSystem\WeaponTable\WeaponTableComponent.cpp" />
     <ClCompile Include="Scripts\Stats\Weapon\WeaponStats.cpp" />
     <ClCompile Include="Scripts\Test\Component\TestComponent.cpp" />

@@ -465,6 +465,7 @@ void ESceneManager::Engine::SwapPrefabInstance(GameObject* original, GameObject*
                         Component* originComponent = sOrigin->GetComponentAtIndex<Component>(i);
                         std::string componentData = originComponent->SerializedReflectFields();
                         remakeComponent->DeserializedReflectFields(componentData);
+                        remakeComponent->Reset();
                     }
                 }
 

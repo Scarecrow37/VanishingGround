@@ -172,6 +172,7 @@ void RenderScene::Execute()
 
     _commandSet->Close();
     Global::commandController->ExecuteCommand(CommandQueueType::GRAPHICS_QUEUE, _commandSet);
+
 }
 
 void RenderScene::ResetSkyBox()
@@ -306,8 +307,7 @@ void RenderScene::UpdateObject()
                 _skeletalMeshInstanceIDs.push_back(instanceID);
             }
 
-            instanceID++;            
-            _activeMeshes[type].emplace_back(materials[i], meshes[i].get(), customDepths[i]);
+            _activeMeshes[type].emplace_back(materials[i], meshes[i].get(), customDepths[i], instanceID++);
         }
     }
 

@@ -70,16 +70,41 @@ void ParticleEffect::Update(float deltaTime)
 
 
     }
-    if (nullptr != _parentWorldMatrix)
-        _worldMatrix = _scaleMatrix * _rotationMatrix * _translationMatrix * *_parentWorldMatrix;
+
+    if (false == _followBoneFlag)
+    {
+
+        if (nullptr != _parentWorldMatrix)
+            _worldMatrix = _scaleMatrix * _rotationMatrix * _translationMatrix * *_parentWorldMatrix;
+        else
+            _worldMatrix = _scaleMatrix * _rotationMatrix * _translationMatrix;
+    }
     else
-        _worldMatrix = _scaleMatrix * _rotationMatrix * _translationMatrix;
+    {
+        _worldMatrix = _scaleMatrix * _rotationMatrix * _translationMatrix *(*_boneWorldMatrix) * *_parentWorldMatrix;
+    }
 
 
     for (auto emitter : _particleEmitters)
     {
         emitter->SetEffectWorldMatrix(_worldMatrix);
         emitter->Update(deltaTime);
+    }
+    {
+
+        for (auto emitter : _particleEmitters)
+        {
+            if (true == emitter->GetActiveFlag())
+                return;
+        }
+        _activeFlag = false;
+        _playFlag   = false;
+        _isEnding   = false;
+        if (true == _isPlaying)
+        {
+            _isPlaying = false;
+            _age       = 0;
+        }
     }
 
 
@@ -89,7 +114,7 @@ ParticleEmitter* ParticleEffect::AddEmitter(SIZE_T maxParticles /*= 100000*/, fl
                                 float emitterLifetime /*= 5.f*/, LocationShape locatorShape /*= LocationShape::SPHERE*/,
                                             Vector3       locationFactor /*= Vector3(1, 1, 1)*/,
                                             ParticleType  particleType /*= ParticleType::SPRITE*/,
-                                            std::wstring  meshspritePath /*= L""*/)
+                                            std::wstring_view meshspritePath /*= L""*/)
 {
     auto newEmitter = new ParticleEmitter();
     newEmitter->Initialize(maxParticles, emissionRate, emitterLifetime, locatorShape, locationFactor,particleType,meshspritePath);
@@ -125,8 +150,31 @@ void ParticleEffect::Play()
 {
     if (false == _isPlaying)
     {
-        _playFlag = true;
-        _isPlaying = true;
+        _playFlag   = true;
+        _isPlaying  = true;
+        _activeFlag = true;
+        _isEnding   = false;
+        _age        = 0;
+        for (auto& emitter : _particleEmitters)
+        {
+            emitter->Reset();
+            emitter->SetActiveFlag(true);
+        }
+
+    }
+}
+
+void ParticleEffect::Stop() 
+{
+    if (false == _isEnding)
+    {
+
+        _isEnding = true;
+        _isPlaying = false;
+        for (auto& emitter : _particleEmitters)
+        {
+            emitter->SetEndFlag(true);
+        }
     }
 }
 
@@ -142,7 +190,6 @@ void ParticleEffect::Reset()
 
 void ParticleEffect::FlushEmitters()
 {
-
     for (auto it = _particleEmitters.begin(); it != _particleEmitters.end();)
     {
         if ((*it)->GetRemoveFlag())

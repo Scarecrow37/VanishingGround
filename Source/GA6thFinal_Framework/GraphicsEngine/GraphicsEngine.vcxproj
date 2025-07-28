@@ -369,6 +369,7 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\Release\*.*" "$(SolutionDir)GameEngine\
     <ClInclude Include="ParticleManager.h" />
     <ClInclude Include="ParticleRenderTechnique.h" />
     <ClInclude Include="ParticleResolvePass.h" />
+    <ClInclude Include="ParticleRibbonPass.h" />
     <ClInclude Include="ParticleSpritePass.h" />
     <ClInclude Include="PBRLitTechnique.h" />
     <ClInclude Include="pch.h" />
@@ -389,6 +390,7 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\Release\*.*" "$(SolutionDir)GameEngine\
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderBuilder.h" />
     <ClInclude Include="ShaderConfig.h" />
+    <ClInclude Include="ShadowMapPass.h" />
     <ClInclude Include="SharedResource.h" />
     <ClInclude Include="Skeleton.h" />
     <ClInclude Include="SkyBox.h" />
@@ -476,6 +478,7 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\Release\*.*" "$(SolutionDir)GameEngine\
     <ClCompile Include="ParticleManager.cpp" />
     <ClCompile Include="ParticleRenderTechnique.cpp" />
     <ClCompile Include="ParticleResolvePass.cpp" />
+    <ClCompile Include="ParticleRibbonPass.cpp" />
     <ClCompile Include="ParticleSpritePass.cpp" />
     <ClCompile Include="PBRLitTechnique.cpp" />
     <ClCompile Include="pch.cpp">
@@ -504,6 +507,7 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\Release\*.*" "$(SolutionDir)GameEngine\
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShaderBuilder.cpp" />
     <ClCompile Include="ShaderConfig.cpp" />
+    <ClCompile Include="ShadowMapPass.cpp" />
     <ClCompile Include="SharedResource.cpp" />
     <ClCompile Include="Skeleton.cpp" />
     <ClCompile Include="SkyBox.cpp" />

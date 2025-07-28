@@ -14,10 +14,10 @@ GraphicsModule::~GraphicsModule()
 void GraphicsModule::PreInitialize()
 {
     _rendererFileEvent = std::make_unique<RendererFileEvent>();
-    UmFileSystem.RegisterFileEventSubscriber(_rendererFileEvent.get(), {".png", ".dds", ".fbx", ".hdr", ".UmModel", ".sfont"});
+    UmFileSystem.RegisterFileEventSubscriber(_rendererFileEvent.get(),
+                                             {".png", ".dds", ".fbx", ".hdr", ".UmModel", ".sfont", ".jpg"});
 
-    _particleSerializer = std::make_unique<ParticleEffectSerializer>();
-    UmFileSystem.RegisterFileEventSubscriber(_particleSerializer.get(), {".vfx"});
+    UmFileSystem.RegisterFileEventSubscriber(&UmParticleSerializer, {".vfx"});
 
     RenderTechniqueFlag lightingFlag = RenderTechniqueFlag::NONE;
     lightingFlag = _israytracing ? RenderTechniqueFlag::RAY_TRACING_TECH : RenderTechniqueFlag::PBR_TECH;
@@ -31,7 +31,7 @@ void GraphicsModule::PreInitialize()
     {
 
         flag = RenderTechniqueFlag::SKY_BOX_TECH | lightingFlag | RenderTechniqueFlag::EDITOR_DRAW_TECH |
-               RenderTechniqueFlag::UI_TECH | RenderTechniqueFlag::FONT_TECH;
+               RenderTechniqueFlag::PARTICLE_TECH | RenderTechniqueFlag::UI_TECH | RenderTechniqueFlag::FONT_TECH;
         UmGraphics.AddRenderScene("Editor", flag);
 
         flag = RenderTechniqueFlag::SKY_BOX_TECH | lightingFlag;

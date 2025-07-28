@@ -2,6 +2,8 @@
 #include "UI/Base/PlacementUIComponent/PlacementUIComponent.h"
 #include "UI/Base/PanelSlotComponent/PanelSlotComponent.h"
 
+class UIRootSlot;
+
 class UIRoot : public PlacementUIComponent
 {
     USING_PROPERTY(UIRoot)
@@ -19,6 +21,7 @@ protected:
     void OnPlacementChange() override;
 
 private:
+    void AssignChild(UIRootSlot& slot) const;
     void GetSizeFromViewport();
 };
 
@@ -30,5 +33,6 @@ class UIRootSlot : public PanelSlotComponent
 public:
     UIRootSlot();
 
-    void OnSetPlacement() override;
+protected:
+    void OnPlacementChange() override;
 };

@@ -339,6 +339,9 @@
     <ClInclude Include="ShaderConfig.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="ParticleRibbonPass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
     <ClInclude Include="DXRComputeSkeletalMeshPass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -651,6 +654,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="ShaderConfig.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleRibbonPass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="DXRComputeSkeletalMeshPass.cpp">

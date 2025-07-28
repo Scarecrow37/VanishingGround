@@ -2,6 +2,8 @@
 #include "UI/Base/EditablePlacementUIComponent/EditablePlacementUIComponent.h"
 #include "UI/Base/PanelSlotComponent/PanelSlotComponent.h"
 
+class AnchorPanelSlot;
+
 class AnchorPanel : public EditablePlacementUIComponent
 {
     USING_PROPERTY(AnchorPanel)
@@ -9,7 +11,12 @@ public:
     AnchorPanel();
 
     void OnAttachChild(GameObject* childGameObject) override;
+
+protected:
     void OnPlacementChange() override;
+
+private:
+    void AssignChild(AnchorPanelSlot& slot) const;
 
 protected:
     REFLECT_FIELDS_BEGIN(EditablePlacementUIComponent)
@@ -37,12 +44,16 @@ public:
 
 public:
     AnchorPanelSlot();
-
-    void OnSetPlacement() override;
+    AnchorType GetAnchorType() const;
+    POINT      GetAnchorPoint() const;
 
 protected:
+    void OnPlacementChange() override;
     void ImGuiDrawPropertysEvent() override;
     void DrawDebugSelected() override;
+
+private:
+    void UpdateAnchorPoint();
 
 protected:
     REFLECT_FIELDS_BEGIN(PanelSlotComponent)

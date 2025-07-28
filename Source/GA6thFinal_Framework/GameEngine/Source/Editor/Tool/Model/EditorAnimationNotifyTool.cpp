@@ -4,7 +4,7 @@
 EditorAnimationNotifyTool::EditorAnimationNotifyTool() 
 {
     SetLabel("Sequencer##model");
-    SetDockLayout(ImGuiDir_Right);
+    SetDockLayout(ImGuiDir_Down);
     SetImGuiWindowFlag(ImGuiWindowFlags_MenuBar);
 
     _sequencer = new EditorSequencer();

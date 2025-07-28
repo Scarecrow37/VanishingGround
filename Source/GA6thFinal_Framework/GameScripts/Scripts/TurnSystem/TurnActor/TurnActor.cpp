@@ -31,7 +31,6 @@ void TurnActor::Dead()
     {
         _currState = STATE::Dead;
     }
-    OnDead();
 }
 
 void TurnActor::EndTurn() 
@@ -63,8 +62,6 @@ void TurnActor::OnTurnStart() {}
 void TurnActor::OnTurnEnd() {}
 
 void TurnActor::OnHit() {}
-
-void TurnActor::OnDead() {}
 
 void TurnActor::OnKill(CharacterBase* destination) {}
 

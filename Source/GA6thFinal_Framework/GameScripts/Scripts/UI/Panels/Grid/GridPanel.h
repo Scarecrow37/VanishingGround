@@ -2,17 +2,24 @@
 #include "UI/Base/EditablePlacementUIComponent/EditablePlacementUIComponent.h"
 #include "UI/Base/PanelSlotComponent/PanelSlotComponent.h"
 
+class GridPanelSlot;
+
 class GridPanel : public EditablePlacementUIComponent
 {
     USING_PROPERTY(GridPanel)
+
+    using SublineCallback = std::function<void(const POINT& start, const POINT& end)>;
+
 public:
     static constexpr unsigned int MIN_COLUMNS = 1;
     static constexpr unsigned int MIN_ROWS    = 1;
     static constexpr unsigned int MAX_COLUMNS = 64;
     static constexpr unsigned int MAX_ROWS    = 64;
 
+public:
     GridPanel();
 
+public:
     REFLECT_PROPERTY(Columns, Rows)
 
     GETTER(unsigned int, Columns) { return ReflectFields->Columns; }
@@ -31,19 +38,25 @@ public:
     }
     PROPERTY(Rows)
 
+public:
+    unsigned int GetColumns() const;
+    unsigned int GetRows() const;
+
+protected:
+    void OnAttachChild(GameObject* childGameObject) override;
+    void DrawDebug() override;
+    void DrawDebugSelected() override;
+    void OnPlacementChange() override;
+
+private:
+    void AssignChild(GridPanelSlot& slot) const;
+    void DrawSubline(const SublineCallback& columnSubline, const SublineCallback& rowSubline) const;
+
 protected:
     REFLECT_FIELDS_BEGIN(EditablePlacementUIComponent)
     unsigned int Columns = MIN_COLUMNS;
     unsigned int Rows    = MIN_ROWS;
     REFLECT_FIELDS_END(GridPanel)
-
-    void OnAttachChild(GameObject* childGameObject) override;
-
-    void DrawDebug() override;
-
-    void DrawDebugSelected() override;
-
-    void OnPlacementChange() override;
 };
 
 class GridPanelSlot : public PanelSlotComponent
@@ -59,6 +72,7 @@ public:
 
     GridPanelSlot();
 
+public:
     REFLECT_PROPERTY(Column, Row, ColumnSpan, RowSpan)
 
     GETTER(unsigned int, Column) { return ReflectFields->Column; }
@@ -81,7 +95,7 @@ public:
     SETTER(unsigned int, ColumnSpan)
     {
         ReflectFields->ColumnSpan = std::clamp(value, MIN_COLUMN_SPAN, ReflectFields->Columns - ReflectFields->Column);
-        OnSetPlacement();
+        OnPlacementChange();
     }
     PROPERTY(ColumnSpan)
 
@@ -89,11 +103,27 @@ public:
     SETTER(unsigned int, RowSpan)
     {
         ReflectFields->RowSpan = std::clamp(value, MIN_ROW_SPAN, ReflectFields->Rows - ReflectFields->Row);
-        OnSetPlacement();
+        OnPlacementChange();
     }
     PROPERTY(RowSpan)
 
-    void OnSetPlacement() override;
+public:
+    unsigned int           GetColumns() const;
+    unsigned int           GetRows() const;
+    unsigned int           GetColumn() const;
+    unsigned int           GetRow() const;
+    unsigned int           GetColumnSpan() const;
+    unsigned int           GetRowSpan() const;
+    std::pair<POINT, SIZE> GetCellPlacement() const;
+    SIZE                   GetSingleCellSize() const;
+
+protected:
+    void OnPlacementChange() override;
+
+private:
+    void SetColumnsAndRows(unsigned int columns, unsigned int rows);
+    void SetColumns(unsigned int columns);
+    void SetRows(unsigned int rows);
 
 protected:
     REFLECT_FIELDS_BEGIN(PanelSlotComponent)
@@ -104,9 +134,4 @@ protected:
     unsigned int ColumnSpan = MIN_COLUMN_SPAN;
     unsigned int RowSpan    = MIN_ROW_SPAN;
     REFLECT_FIELDS_END(GridPanelSlot)
-
-private:
-    void SetColumnsAndRows(unsigned int columns, unsigned int rows);
-    void SetColumns(unsigned int columns);
-    void SetRows(unsigned int rows);
 };
