@@ -8,7 +8,7 @@ void HorizontalPanel::OnAttachChild(GameObject* childGameObject)
 {
     EditablePlacementUIComponent::OnAttachChild(childGameObject);
 
-    [[maybe_unused]] auto& slot = childGameObject->AddComponent<HorizontalPanelSlot>();
+   [[maybe_unused]] auto& slot = childGameObject->AddComponent<HorizontalPanelSlot>();
     OnPlacementChange();
 }
 
