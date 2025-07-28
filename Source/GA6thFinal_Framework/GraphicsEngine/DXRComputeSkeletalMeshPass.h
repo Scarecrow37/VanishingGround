@@ -13,7 +13,7 @@ public:
     void Draw(ID3D12GraphicsCommandList* commandList) override;
     void End(ID3D12GraphicsCommandList* commandList) override;
 
-    void Dispatch(ID3D12GraphicsCommandList* commandList, class MeshRenderer* renderer);
+    void Dispatch(ID3D12GraphicsCommandList* commandList, MeshInfo meshInfo);
 
 private:
     void InitShaderAndPSO();

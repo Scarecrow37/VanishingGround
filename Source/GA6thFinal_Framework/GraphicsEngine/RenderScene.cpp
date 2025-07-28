@@ -130,7 +130,7 @@ void RenderScene::UpdateRenderScene()
     UpdateFont();
     if (Global::renderer->_isRaytracing)
     {
-        _accelerationStructureManager->RemoveUnUsedStaticMeshes(_staticMesh);
+        _accelerationStructureManager->RemoveUnUsedStaticMeshes(_activeMeshes[STATIC_MESH]);
     }
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::TRANSFORM, _worldMatrices.data(), (UINT)_worldMatrices.size());
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::BONE_MATRICES, _boneMatrices.data(), (UINT)_boneMatrices.size());
@@ -226,8 +226,9 @@ void RenderScene::UpdateGlobal()
 
 void RenderScene::UpdateObject()
 {
-    auto first = std::remove_if(_meshRenderQueue.begin(), _meshRenderQueue.end(), [](const auto& pair) { return *pair.first; });
-    _meshRenderQueue.erase(first, _meshRenderQueue.end());    
+    auto first =
+        std::remove_if(_meshRenderQueue.begin(), _meshRenderQueue.end(), [](const auto& pair) { return *pair.first; });
+    _meshRenderQueue.erase(first, _meshRenderQueue.end());
 
     _activeMeshes[STATIC_MESH].clear();
     _activeMeshes[SKELETAL_MESH].clear();
@@ -262,7 +263,8 @@ void RenderScene::UpdateObject()
         if (SKELETAL_MESH == type)
         {
             auto animator = component->GetAnimator();
-            if (animator) memcpy(&boneMatrices, animator->GetAnimationTransform(), sizeof(BoneMatrices));
+            if (animator)
+                memcpy(&boneMatrices, animator->GetAnimationTransform(), sizeof(BoneMatrices));
         }
 
         UINT size = (UINT)meshes.size();
@@ -288,7 +290,8 @@ void RenderScene::UpdateObject()
                 const auto& transform = component->GetTransform();
                 float       sign      = transform.Scale.x * transform.Scale.y * transform.Scale.z;
 
-                materials[i].CullMode = sign < 0.f ? Material::CullModeType::CULL_FRONT : Material::CullModeType::CULL_BACK;
+                materials[i].CullMode =
+                    sign < 0.f ? Material::CullModeType::CULL_FRONT : Material::CullModeType::CULL_BACK;
             }
 
             MaterialID materialID{};
@@ -307,35 +310,8 @@ void RenderScene::UpdateObject()
                 _skeletalMeshInstanceIDs.push_back(instanceID);
             }
 
-            _activeMeshes[type].emplace_back(materials[i], meshes[i].get(), customDepths[i], instanceID++);
-        }
-    }
-
-    ClassifyMesh();
-}
-
-void RenderScene::ClassifyMesh()
-{
-    _staticMesh.clear();
-    _skeletalMesh.clear();
-    for (auto& [isDestroy,component] : _meshRenderQueue)
-    {
-        if (!component->IsActive())
-            continue;
-        const auto& model = component->GetModel();
-        if (!model)
-            continue;
-
-        switch (component->GetType())
-        {
-        case STATIC_MESH:
-            _staticMesh.push_back(component);
-            break;
-        case SKELETAL_MESH:
-            _skeletalMesh.push_back(component);
-            break;
-        default:
-            break;
+            _activeMeshes[type].emplace_back(materials[i], meshes[i].get(), customDepths[i], instanceID++,
+                                             &_worldMatrices[instanceID]);
         }
     }
 }

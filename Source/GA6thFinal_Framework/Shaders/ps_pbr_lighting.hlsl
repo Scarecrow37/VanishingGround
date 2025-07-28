@@ -63,7 +63,7 @@ float4 ps_main(PSInput input) : SV_Target0
     
     float3 directLighting = float3(0, 0, 0);
     float3 ambientLighting = 0;
-    float3 ambient = CalculateIBL(input.uv, normal, V, irradianceMap, prefilteredMap, brdfLUT, albedo, roughness, metallic) * ao;
+    float3 ambient = CalculateIBL(normal, V, irradianceMap, prefilteredMap, brdfLUT, albedo, roughness, metallic) * ao;
         
     //Directional Lights
     for (uint i = 0; i < numLight.Directional; i++)
@@ -86,9 +86,8 @@ float4 ps_main(PSInput input) : SV_Target0
         directLighting += CalculateSpot(light, normal, V, albedo, metallic, roughness, fragPos);
     }
 
-    float3 ambient = CalculateIBL(normal, V, irradianceMap, prefilteredMap, brdfLUT, albedo, roughness, metallic);
 
-    float3 color = diffuse + ambient;
+    float3 color = directLighting + ambientLighting;
 
     return float4(color, 1.0);
 }

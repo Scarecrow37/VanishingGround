@@ -18,7 +18,6 @@ public:
     const UINT                    GetCustomDepth(UINT meshID) const { return _customDepths[meshID]; }
     const std::vector<UINT>&      GetCustomDepths() const { return _customDepths; }
     std::shared_ptr<Animator>     GetAnimator() const;
-    std::vector<std::shared_ptr<SkeletalMeshInstance>>& GetSkeletaMesheInstances() {return _skeletaMesheInstances;}
 
 public:
     void SetModel(std::shared_ptr<Model> model);
@@ -35,7 +34,6 @@ public:
 private:
     std::vector<Material>                              _materials;
     std::vector<UINT>                                  _customDepths;
-    std::vector<std::shared_ptr<SkeletalMeshInstance>> _skeletaMesheInstances;
 
     std::shared_ptr<Model>                             _model;
     std::shared_ptr<Animator>                          _animator;

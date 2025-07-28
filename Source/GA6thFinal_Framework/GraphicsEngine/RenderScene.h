@@ -33,7 +33,6 @@ public:
 
 public:
     void UpdateRenderScene();
-    void ClassifyMesh();
     void Execute();
 
 public:
@@ -65,10 +64,6 @@ public:
     std::vector<std::pair<std::unique_ptr<bool>, FontRenderer*>>   _fontRenderQueue;
 
     CommandSet _commandSet;
-
-    // mesh 분리
-    std::vector<MeshRenderer*> _staticMesh;
-    std::vector<MeshRenderer*> _skeletalMesh;
 
     // Frame Resource
     std::vector<std::unique_ptr<FrameResource>> _frameResources;

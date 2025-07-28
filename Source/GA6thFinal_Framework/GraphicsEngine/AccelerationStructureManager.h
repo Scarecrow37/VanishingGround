@@ -7,12 +7,12 @@ enum class AsBuildClass
 };
 struct MeshInstanceDesc
 {
-    class MeshRenderer* Renderer;
     class BaseMesh*              key;
     UINT                      InstanceID;
     UINT                      HitGroupIndex=0;
     D3D12_RAYTRACING_INSTANCE_FLAGS Flags;
     AsBuildClass                    BuildClass;
+    XMMATRIX*                       TransposeWorldMatrix;
 };
 
 class AccelerationStructureManager
@@ -22,11 +22,11 @@ public:
 
     // 프레임 단위로 호출
     void BeginFrame();
-    void SubmitInstance(MeshRenderer* renderer);
+    void SubmitStaticInstance(MeshInfo& renderer);
     void EndFrame(ID3D12GraphicsCommandList4* cmdList);
 
     // blas 필요없는 static mesh 제거용
-    void RemoveUnUsedStaticMeshes(const std::vector<MeshRenderer*>& liveStatics);
+    void RemoveUnUsedStaticMeshes(const std::vector<MeshInfo>& liveStatics);
     void ProcessGarbage();
     // getter
     const AccelerationStructureBuffers& GetTopLevel() const { return *_topLevelBuffers; }

@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "DXRDrawPass.h"
+#include "CommandSet.h"
 #include "ExportAssociation.h"
 #include "FrameResource.h"
 #include "GlobalRootSignature.h"
@@ -14,7 +15,6 @@
 #include "ShaderConfig.h"
 #include "SkyBox.h"
 #include "d3dUtil.h"
-#include "CommandSet.h"
 
 DXRDrawPass::~DXRDrawPass() {}
 
@@ -33,32 +33,21 @@ void DXRDrawPass::Begin(ID3D12GraphicsCommandList* commandList)
 
 void DXRDrawPass::Draw(ID3D12GraphicsCommandList* commandList)
 {
-    for (auto* renderer : _ownerScene->_staticMesh)
+    for (auto& mesh : _ownerScene->_activeMeshes[STATIC_MESH])
     {
-        _ownerScene->_accelerationStructureManager->SubmitInstance(renderer);
+        _ownerScene->_accelerationStructureManager->SubmitStaticInstance(mesh);
     }
- /*   auto                              commandlist  = Global::device->GetCommandList();
+    auto                               commandlist = Global::device->GetCommandList();
     ComPtr<ID3D12GraphicsCommandList4> commandList4;
-    HRESULT                            hr = commandlist->QueryInterface(IID_PPV_ARGS(commandList4.GetAddressOf()));
-    FAILED_CHECK_MESSAGE(hr, L"DXRDrawPass::Draw() failed to get ID3D12GraphicsCommandList4 interface");*/
 
-    ComPtr<ID3D12GraphicsCommandList4> commandList4;
-    auto                               computeList = Global::device->GetComputeCommandList();
-    HRESULT                            hr = computeList->QueryInterface(IID_PPV_ARGS(commandList4.GetAddressOf()));
+    HRESULT hr = commandlist->QueryInterface(IID_PPV_ARGS(commandList4.GetAddressOf()));
     FAILED_CHECK_MESSAGE(hr, L"DXRDrawPass::Draw() failed to get ID3D12GraphicsCommandList4 interface");
-    
 
+    _ownerScene->_accelerationStructureManager->EndFrame(commandList4.Get());
+    commandlist->Close();
+    Global::commandController->ExecuteCommand(CommandQueueType::GRAPHICS_QUEUE, commandlist);
 
-    _ownerScene->_accelerationStructureManager->EndFrame(commandList4.Get());    
-
-    computeList->Close();
-    Global::commandController->ExecuteCommand(CommandQueueType::COMPUTE_QUEUE, computeList);
-    Global::device->_computeCommandList->Reset(Global::device->_computeCommandAllocator.Get(), nullptr);
-
-    //commandlist->Close();
-    //Global::commandController->ExecuteCommand(CommandQueueType::GRAPHICS_QUEUE, commandlist);
-    //
-    //Global::device->ResetGraphicsCommnad();
+    Global::device->ResetGraphicsCommnad();
     CreateShaderTable();
 }
 
@@ -229,21 +218,14 @@ void DXRDrawPass::UpdateStaticMeshVIBufferID(ID3D12GraphicsCommandList* commandL
 {
     _vertexBufferIDs.clear();
     _indexBufferIDs.clear();
-    for (auto& component : _ownerScene->_staticMesh)
+    for (auto& meshInfo : _ownerScene->_activeMeshes[STATIC_MESH])
     {
-        const auto& model  = component->GetModel();
-        const auto& meshes = model->GetMeshes();
+        const auto& vibuffer       = meshInfo.Mesh->GetVIBuffer();
+        UINT        vertexBufferID = vibuffer->_vertexBufferID;
+        UINT        indexbufferID  = vibuffer->_indexBufferID;
 
-        UINT size = static_cast<UINT>(meshes.size());
-        for (UINT i = 0; i < size; ++i)
-        {
-            const auto& vibuffer       = meshes[i]->GetVIBuffer();
-            UINT        vertexBufferID = vibuffer->_vertexBufferID;
-            UINT        indexbufferID  = vibuffer->_indexBufferID;
-
-            _vertexBufferIDs.push_back(vertexBufferID);
-            _indexBufferIDs.push_back(indexbufferID);
-        }
+        _vertexBufferIDs.push_back(vertexBufferID);
+        _indexBufferIDs.push_back(indexbufferID);
     }
     UINT currentFrameIndex = _ownerScene->_currentFrameIndex;
     _ownerScene->_frameResources[currentFrameIndex]->CopyStructuredBuffer(

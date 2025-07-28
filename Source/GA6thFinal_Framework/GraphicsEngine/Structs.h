@@ -117,14 +117,6 @@ struct PostProcessData
     unsigned int PostProcessMask;
 };
 
-class UnorderedAccessView;
-struct SkeletalMeshInstance
-{
-    std::shared_ptr<UnorderedAccessView> UAVBuffer;
-    D3D12_VERTEX_BUFFER_VIEW             VertexBufferView;
-    UINT                                 VertexCount = 0;
-};
-
 struct Resolution
 {
     UINT Width;
@@ -137,6 +129,7 @@ struct MeshInfo
     class BaseMesh* Mesh;
     UINT            CustomDepth;
     UINT            InstanceID;
+    XMMATRIX*        TransposeWorldMatrix;
 };
 
 struct GraphicsTransform
