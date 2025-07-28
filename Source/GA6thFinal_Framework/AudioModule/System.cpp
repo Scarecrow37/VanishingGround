@@ -161,7 +161,7 @@ namespace Audio
     {
         constexpr ThrowIfFailed throwIfFailed;
 
-        throwIfFailed(XAudio2Create(_xAudio2.put(), 0, XAUDIO2_DEFAULT_PROCESSOR), "Failed to create XAudio2 instance");
+        throwIfFailed(XAudio2Create(&_xAudio2, 0, XAUDIO2_DEFAULT_PROCESSOR), "Failed to create XAudio2 instance");
 
         throwIfFailed(_xAudio2->CreateMasteringVoice(&_masteringVoice), "Failed to create mastering voice");
     }
@@ -187,6 +187,7 @@ namespace Audio
             voiceVector.clear();
         }
         _sourceVoices.clear();
+        _xAudio2->Release();
     }
 
     Source System::CreateSoundFromWave(const std::filesystem::path& filePath, const bool isLoop)
