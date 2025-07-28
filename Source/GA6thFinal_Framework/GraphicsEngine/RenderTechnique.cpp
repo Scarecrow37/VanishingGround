@@ -12,12 +12,20 @@ void RenderTechnique::AddRenderPass(std::unique_ptr<RenderPass> pass)
     _renderPasses.push_back(std::move(pass));
 }
 
-void RenderTechnique::Execute(ID3D12GraphicsCommandList* commadList)
+void RenderTechnique::Update(ID3D12GraphicsCommandList* commandList)
 {
     for (auto& pass : _renderPasses)
     {
-        pass->Begin(commadList);
-        pass->Draw(commadList);
-        pass->End(commadList);
+        pass->Update(commandList);
+    }
+}
+
+void RenderTechnique::Execute(ID3D12GraphicsCommandList* commandList)
+{
+    for (auto& pass : _renderPasses)
+    {
+        pass->Begin(commandList);
+        pass->Draw(commandList);
+        pass->End(commandList);
     }
 }

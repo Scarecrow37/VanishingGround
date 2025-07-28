@@ -68,7 +68,7 @@ void UnorderedAccessView::CreateUnorderedAccessView()
 
     D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
     uavDesc.Format                           = _desc.Format;
-    uavDesc.ViewDimension                    = _uavDimension;    
+    uavDesc.ViewDimension                    = _uavDimension;
 
     for (UINT16 i = 0; i < _desc.MipLevels; i++)
     {

@@ -5,9 +5,9 @@ BlendPass::BlendPass() {}
 
 BlendPass::~BlendPass() {}
 
-void BlendPass::Initialize(RenderScene* ownerScene, ID3D12GraphicsCommandList* commandList)
+void BlendPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList)
 {
-    __super::Initialize(ownerScene, commandList);
+    __super::Initialize(ownerScene, ownerTechnique, commandList);
 
     _shader = std::make_unique<ShaderBuilder>();
     _shader->BeginBuild();
@@ -18,19 +18,19 @@ void BlendPass::Initialize(RenderScene* ownerScene, ID3D12GraphicsCommandList* c
     ID3D12Device* device = Global::device->GetDevice();
    
     D3D12_GRAPHICS_PIPELINE_STATE_DESC psodesc = {};
-    psodesc.RasterizerState               = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-    psodesc.BlendState                    = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-    psodesc.DepthStencilState             = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-    psodesc.DepthStencilState.DepthEnable = FALSE;
-    psodesc.SampleMask                    = UINT_MAX;
-    psodesc.PrimitiveTopologyType         = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-    psodesc.InputLayout                   = _shader->GetInputLayout();
-    psodesc.RTVFormats[0] = DXGI_FORMAT_R32G32B32A32_FLOAT;    
-    psodesc.NumRenderTargets              = 1;
-    psodesc.pRootSignature                = _shader->GetRootSignature();
-    psodesc.SampleDesc                    = {1, 0};
-    psodesc.VS                            = _shader->GetShaderByteCode(ShaderBuilder::Type::VS);
-    psodesc.PS                            = _shader->GetShaderByteCode(ShaderBuilder::Type::PS);
+    psodesc.RasterizerState                    = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+    psodesc.BlendState                         = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+    psodesc.DepthStencilState                  = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+    psodesc.DepthStencilState.DepthEnable      = FALSE;
+    psodesc.SampleMask                         = UINT_MAX;
+    psodesc.PrimitiveTopologyType              = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+    psodesc.InputLayout                        = _shader->GetInputLayout();
+    psodesc.RTVFormats[0]                      = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    psodesc.NumRenderTargets                   = 1;
+    psodesc.pRootSignature                     = _shader->GetRootSignature();
+    psodesc.SampleDesc                         = {1, 0};
+    psodesc.VS                                 = _shader->GetShaderByteCode(ShaderBuilder::Type::VS);
+    psodesc.PS                                 = _shader->GetShaderByteCode(ShaderBuilder::Type::PS);
 
     HRESULT hr = S_OK;
     hr         = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(&_pipelineState));

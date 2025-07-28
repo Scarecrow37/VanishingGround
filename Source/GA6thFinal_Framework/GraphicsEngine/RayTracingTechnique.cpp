@@ -23,13 +23,13 @@ void RayTracingTechnique::Execute(ID3D12GraphicsCommandList* commandList)
 void RayTracingTechnique::InitDXRDrawStaticMeshPass(ID3D12GraphicsCommandList* commandList)
 {
     std::unique_ptr<DXRDrawStaticMeshPass> pass = std::make_unique<DXRDrawStaticMeshPass>();
-    pass->Initialize(_ownerScene, commandList);
+    pass->Initialize(_ownerScene, this, commandList);
     AddRenderPass(std::move(pass));
 }
 
 void RayTracingTechnique::InitDXRGbufferPass(ID3D12GraphicsCommandList* commandList)
 {
     std::unique_ptr<DXRGBufferPass> pass = std::make_unique<DXRGBufferPass>();
-    pass->Initialize(_ownerScene, commandList);
+    pass->Initialize(_ownerScene, this, commandList);
     AddRenderPass(std::move(pass));
 }

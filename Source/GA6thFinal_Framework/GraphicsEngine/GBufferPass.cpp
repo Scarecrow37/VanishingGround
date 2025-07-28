@@ -7,7 +7,7 @@
 
 GBufferPass::~GBufferPass() {}
 
-void GBufferPass::Initialize(RenderScene* ownerScene, ID3D12GraphicsCommandList* commandList)
+void GBufferPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList)
 {
     static bool isInitialized = false;
     if (!isInitialized)
@@ -52,8 +52,38 @@ void GBufferPass::Initialize(RenderScene* ownerScene, ID3D12GraphicsCommandList*
         _gBufferHandles[i] = gBufferGroup[i]->GetRTVHandle();
     }
 
-    __super::Initialize(ownerScene, commandList);
+    __super::Initialize(ownerScene, ownerTechnique, commandList);
     InitShaderAndPSO();
+}
+
+void GBufferPass::Update(ID3D12GraphicsCommandList* commadList)
+{    
+    for (auto& data : _renderDatas)
+    {
+        data.clear();
+    }
+
+    MeshType meshType = END;
+    for (int i = 0; i < MESH_TYPE_END; i++)
+    {
+        for (auto& [material, mesh, customDepth, instanceID] : _ownerScene->_activeMeshes[i])
+        {
+            const auto& cameraFrustum = _ownerScene->_camera->GetWorldFrustum();
+            
+            BoundingOrientedBox boundingOrientedBox;
+            const auto& meshBoundingBox = mesh->GetBoundingBox();
+            meshBoundingBox.Transform(boundingOrientedBox, XMMatrixTranspose(_ownerScene->_worldMatrices[instanceID]));
+
+            if (!cameraFrustum.Intersects(boundingOrientedBox))
+            {
+                continue;
+            }
+
+            // cull_back, cull_front, cull_none
+            meshType = MeshType(i * 3 + (int)material.CullMode);
+            _renderDatas[meshType].emplace_back(mesh, instanceID, customDepth);
+        }
+    }
 }
 
 void GBufferPass::Begin(ID3D12GraphicsCommandList* commandList)
@@ -66,23 +96,7 @@ void GBufferPass::Begin(ID3D12GraphicsCommandList* commandList)
 }
 
 void GBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
-{
-    for (auto& data : _renderDatas)
-    {
-        data.clear();
-    }
-
-    MeshType meshType   = END;
-    for (int i = 0; i < MESH_TYPE_END; i++)
-    {
-        for (auto& [material, mesh, customDepth, instanceID] : _ownerScene->_activeMeshes[i])
-        {
-            // cull_back, cull_front, cull_none
-            meshType = MeshType(i * 3 + (int)material.CullMode);
-            _renderDatas[meshType].emplace_back(mesh, instanceID, customDepth);
-        }
-    }
-
+{    
     UINT  currentBackBufferIndex = Global::device->GetCurrentBackBufferIndex();
     auto  resource               = Global::viewManager->GetShaderResourceHeap()->GetGPUDescriptorHandleForHeapStart();
     auto  cameraData             = _ownerScene->_cameraBuffer->GetGPUVirtualAddress();
@@ -99,27 +113,18 @@ void GBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
     DrawMeshes(commandList, STATIC_MESH, STATIC_CULL_BACK);
 
     commandList->SetPipelineState(_psos[STATIC_CULL_FRONT].Get());
-    commandList->SetGraphicsRootSignature(_shaders[STATIC_MESH]->GetRootSignature());
-    commandList->SetGraphicsRootDescriptorTable(_shaders[STATIC_MESH]->GetRootParameterIndex("textures"), resource);
-    commandList->SetGraphicsRootConstantBufferView(_shaders[STATIC_MESH]->GetRootParameterIndex("cameraData"), cameraData);
-
-    frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _shaders[STATIC_MESH]->GetRootParameterIndex("worldMatrices"), commandList);
-    frameResource->SetFrameResource(FrameResourceType::MATERIAL, _shaders[STATIC_MESH]->GetRootParameterIndex("material"), commandList);
+    commandList->SetGraphicsRootSignature(_shaders[STATIC_MESH]->GetRootSignature());    
     DrawMeshes(commandList, STATIC_MESH, STATIC_CULL_FRONT);
 
     // Static Two Sided
     commandList->SetPipelineState(_psos[STATIC_TWO_SIDED].Get());
     commandList->SetGraphicsRootSignature(_shaders[STATIC_MESH]->GetRootSignature());
-    commandList->SetGraphicsRootDescriptorTable(_shaders[STATIC_MESH]->GetRootParameterIndex("textures"), resource);
-    commandList->SetGraphicsRootConstantBufferView(_shaders[STATIC_MESH]->GetRootParameterIndex("cameraData"), cameraData);
-
-    frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _shaders[STATIC_MESH]->GetRootParameterIndex("worldMatrices"), commandList);
-    frameResource->SetFrameResource(FrameResourceType::MATERIAL, _shaders[STATIC_MESH]->GetRootParameterIndex("material"), commandList);
     DrawMeshes(commandList, STATIC_MESH, STATIC_TWO_SIDED);
 
     // Skeletal One Sided back
     commandList->SetPipelineState(_psos[SKELETAL_CULL_BACK].Get());
     commandList->SetGraphicsRootSignature(_shaders[SKELETAL_MESH]->GetRootSignature());
+    commandList->SetGraphicsRootDescriptorTable(_shaders[SKELETAL_MESH]->GetRootParameterIndex("textures"), resource);
     commandList->SetGraphicsRootConstantBufferView(_shaders[SKELETAL_MESH]->GetRootParameterIndex("cameraData"), cameraData);
 
     frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _shaders[SKELETAL_MESH]->GetRootParameterIndex("worldMatrices"), commandList);
@@ -130,21 +135,11 @@ void GBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
     // Skeletal One Sided front
     commandList->SetPipelineState(_psos[SKELETAL_CULL_FRONT].Get());
     commandList->SetGraphicsRootSignature(_shaders[SKELETAL_MESH]->GetRootSignature());
-    commandList->SetGraphicsRootConstantBufferView(_shaders[SKELETAL_MESH]->GetRootParameterIndex("cameraData"), cameraData);
-
-    frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _shaders[SKELETAL_MESH]->GetRootParameterIndex("worldMatrices"), commandList);
-    frameResource->SetFrameResource(FrameResourceType::BONE_MATRICES, _shaders[SKELETAL_MESH]->GetRootParameterIndex("boneMatrices"), commandList);
-    frameResource->SetFrameResource(FrameResourceType::MATERIAL, _shaders[SKELETAL_MESH]->GetRootParameterIndex("material"), commandList);
     DrawMeshes(commandList, SKELETAL_MESH, SKELETAL_CULL_FRONT);
 
     // Skeletal Two Sided
     commandList->SetPipelineState(_psos[SKELETAL_TWO_SIDED].Get());
-    commandList->SetGraphicsRootSignature(_shaders[SKELETAL_MESH]->GetRootSignature());
-    commandList->SetGraphicsRootConstantBufferView(_shaders[SKELETAL_MESH]->GetRootParameterIndex("cameraData"), cameraData);
-
-    frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _shaders[SKELETAL_MESH]->GetRootParameterIndex("worldMatrices"), commandList);
-    frameResource->SetFrameResource(FrameResourceType::BONE_MATRICES, _shaders[SKELETAL_MESH]->GetRootParameterIndex("boneMatrices"), commandList);
-    frameResource->SetFrameResource(FrameResourceType::MATERIAL, _shaders[SKELETAL_MESH]->GetRootParameterIndex("material"), commandList);
+    commandList->SetGraphicsRootSignature(_shaders[SKELETAL_MESH]->GetRootSignature());    
     DrawMeshes(commandList, SKELETAL_MESH, SKELETAL_TWO_SIDED);
 }
 

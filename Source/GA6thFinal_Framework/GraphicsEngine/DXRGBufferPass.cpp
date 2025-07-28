@@ -7,7 +7,7 @@
 
 DXRGBufferPass::~DXRGBufferPass() {}
 
-void DXRGBufferPass::Initialize(RenderScene* ownerScene, ID3D12GraphicsCommandList* commandList)
+void DXRGBufferPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList)
 {
     static bool isInitialized = false;
     if (!isInitialized)
@@ -51,7 +51,7 @@ void DXRGBufferPass::Initialize(RenderScene* ownerScene, ID3D12GraphicsCommandLi
         _gBufferHandles[i] = gBufferGroup[i]->GetRTVHandle();
     }
 
-    __super::Initialize(ownerScene, commandList);
+    __super::Initialize(ownerScene, ownerTechnique, commandList);
     InitShaderAndPSO();
 }
 
