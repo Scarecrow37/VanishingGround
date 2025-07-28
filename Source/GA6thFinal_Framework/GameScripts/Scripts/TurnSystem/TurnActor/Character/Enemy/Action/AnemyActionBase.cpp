@@ -28,7 +28,6 @@ namespace EnemyAction
 
     void ActionBase::RequireActionExit()
     {
-        _isActionEnd = false;
         OnActionExit();
     }
 
