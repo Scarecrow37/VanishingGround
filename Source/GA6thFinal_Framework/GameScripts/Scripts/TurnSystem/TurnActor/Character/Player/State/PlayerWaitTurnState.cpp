@@ -33,7 +33,6 @@ void PlayerWaitTurnState::OnStart()
 
 void PlayerWaitTurnState::OnEnter() 
 {
-
 }
 
 void PlayerWaitTurnState::OnExit() 

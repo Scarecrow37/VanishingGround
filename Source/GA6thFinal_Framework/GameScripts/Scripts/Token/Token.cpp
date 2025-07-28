@@ -10,6 +10,11 @@ int Token::GetMaxStackCount() const
     return ReflectFields->MaxStackCount;
 }
 
+TokenTag Token::GetTokenTag() const
+{
+    return ReflectFields->Tag;
+}
+
 int Token::GetTokenOrder() const
 {
     return ReflectFields->Order;

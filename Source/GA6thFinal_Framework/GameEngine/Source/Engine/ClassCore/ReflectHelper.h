@@ -4,6 +4,7 @@
 #include "rfl.hpp"
 #include "rfl/json.hpp"
 #include "rfl/yaml.hpp"
+#include "Engine/Utility/YAMLHelper.h"
 
 //전방 선언
 namespace ReflectHelper
@@ -349,6 +350,51 @@ namespace ReflectHelper
             if (result)
             {
                 obj = result.value();
+            }
+            else
+            {
+                yyjson_doc* doc = yyjson_read(data.data(), data.size(), 0);
+                if (doc)
+                {
+                    yyjson_val* root = yyjson_doc_get_root(doc);
+                    if (root)
+                    {
+                        const auto view = rfl::to_view(obj);
+                        view.apply([&](auto& field) {
+                            using FieldTpye     = std::remove_cvref_t<decltype(*field.value())>;
+                            auto        name    = field.name();
+                            auto&       value   = *field.value();
+                            yyjson_val* jsonVal = yyjson_obj_get(root, name.data());
+                            if (jsonVal)
+                            {
+                                if constexpr (std::is_signed_v<FieldTpye>)
+                                {
+                                    value = yyjson_get_sint(jsonVal);
+                                }
+                                else if constexpr (std::is_unsigned_v<FieldTpye>)
+                                {
+                                    if constexpr (std::is_same_v<bool, FieldTpye>)
+                                    {
+                                        value = yyjson_get_bool(jsonVal);
+                                    }
+                                    else
+                                    {
+                                        value = yyjson_get_uint(jsonVal);
+                                    }
+                                }                                                          
+                                else if constexpr (std::is_floating_point_v<FieldTpye>)
+                                {
+                                    value = yyjson_get_real(jsonVal);
+                                }
+                                else if constexpr (std::is_same_v<FieldTpye, std::string>)
+                                {
+                                    value = yyjson_get_str(jsonVal);
+                                }
+                            }
+                        });
+                    }
+                }
+                yyjson_doc_free(doc);
             }
             return result;
         }

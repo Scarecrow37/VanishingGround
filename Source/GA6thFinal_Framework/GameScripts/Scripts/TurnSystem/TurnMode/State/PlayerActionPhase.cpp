@@ -42,7 +42,7 @@ void PlayerActionPhase::OnEnter()
             {
                 cha->OnEachTurnStart(character);
             }
-            _turnMode->ApplyActions([character](TurnAction& action) { action.OnTurnStart(character); });
+            _turnMode->ApplyActions([character](TurnAction& action) { action.OnTurnStart(*character); });
         }
     }
 }

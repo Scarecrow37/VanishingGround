@@ -1,0 +1,114 @@
+﻿#include "pchScripts.h"
+#include "ImageElement.h"
+
+ImageElement::ImageElement()
+{
+    FilePath.SetInputAutoEvent([this]() {
+        if (ImGui::BeginDragDropTarget())
+        {
+            if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
+            {
+                const DragDropAsset::Data* data = static_cast<DragDropAsset::Data*>(payLoad->Data);
+                if (const auto context = data->pContext->lock(); nullptr != context)
+                {
+                    const auto& path = context->GetPath();
+                    if (const auto extension = path.extension(); extension == L".png" || extension == L".jpeg")
+                    {
+                        _guidRef            = path.ToGuid();
+                        ReflectFields->Guid = _guidRef.string();
+                        RequestResource();
+                    }
+                }
+            }
+            ImGui::EndDragDropTarget();
+        }
+    });
+}
+
+ImageElement::~ImageElement()
+{
+    if (_renderer)
+        _renderer->SetDestroy();
+}
+
+void ImageElement::Reset()
+{
+    UIComponent::Reset();
+
+    try
+    {
+        _renderer = std::make_unique<SpriteRenderer>(_worldMatrix, SpriteType::MODE_2D);
+        UmGraphics.RegisterComponent("Game", _renderer.get());
+        if (IS_EDITOR)
+        {
+            UmGraphics.RegisterComponent("Editor", _renderer.get());
+        }
+        _renderer->SetActive(&EnableInHierarchy);
+        const File::Guid guid = ReflectFields->Guid;
+        if (const auto path = guid.ToPath(); !path.IsNull())
+        {
+            _guidRef = path.ToGuid();
+            RequestResource();
+        }
+    }
+    catch (...)
+    {
+        UmLogger.Log(LogLevel::LEVEL_ERROR, u8"SpriteRenderer 생성에 실패했습니다.");
+        throw;
+    }
+}
+
+void ImageElement::OnPlacementChange()
+{
+    EditablePlacementUIComponent::OnPlacementChange();
+
+    if (nullptr != _renderer)
+    {
+        const SIZE size = GetSize();
+        _renderer->SetSize(size);
+    }
+    UpdateWorldMatrix();
+}
+
+float ImageElement::GetZOrder() const
+{
+    return EditablePlacementUIComponent::GetZOrder() * VIEW_ORDER_IMAGE_RATIO;
+}
+
+void ImageElement::SetViewOrder(const int viewOrder)
+{
+    EditablePlacementUIComponent::SetViewOrder(viewOrder);
+
+    UpdateWorldMatrix();
+}
+
+void ImageElement::LoadTexture() const
+{
+    if (nullptr != _renderer)
+    {
+        const std::string path = FilePath;
+        if (path != File::NULL_PATH)
+        {
+            const std::wstring filePath = U8ToWString(path);
+            UmGraphics.LoadResource(filePath, _renderer.get());
+        }
+    }
+}
+
+void ImageElement::UpdateWorldMatrix()
+{
+    const auto& [x, y]          = GetAbsolutePoint();
+    const float zOrder          = GetZOrder();
+
+    const Vector3 position{static_cast<float>(x), static_cast<float>(y), zOrder};
+
+    _worldMatrix = Matrix::CreateTranslation(position);
+}
+
+void ImageElement::RequestResource()
+{
+    UmSceneManager.ResourceManager.RequestTextureResource(this, _guidRef, [this]() {
+        LoadTexture();
+        OnPlacementChange();
+    });
+}

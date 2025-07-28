@@ -1,6 +1,5 @@
 ﻿#pragma once
 #include "UmFramework.h"
-#include "Engine/GraphicsCore/MeshRenderer.h"
 
 class MeshComponent abstract : public Component
 {
@@ -19,25 +18,37 @@ public:
     /// 렌더러가 Model을 가지고 있는지 확인합니다
     /// </summary>
     /// <returns>Model이 등록되어 있으면 true, 아니면 false를 반환합니다.</returns>
-    bool HasModel();
+    bool HasModel() const;
 
     /// <summary>
     /// 렌더러가 Animator를 가지고 있는지 확인합니다
     /// </summary>
     /// <returns>Animator가 등록되어 있으면 true, 아니면 false를 반환합니다.</returns>
-    bool HasAnimator();
+    bool HasAnimator() const;
 
     /// <summary>
     /// 메시 렌더러를 생성합니다. 이미 존재하면 생성하지 않습니다.
     /// </summary>
     /// <param name="renderType"></param>
     /// <param name="world"></param>
-    void MakeMeshRenderer(MeshRenderType renderType, const Matrix& world);
+    void MakeMeshRenderer(MeshType renderType, const Vector3& position, const Vector3& scale, const Quaternion& rotation, const Matrix& world);
 
     //meshRenderer 입니다. MakeMeshRenderer를 호출해야만 생성됩니다.
     const std::unique_ptr<MeshRenderer>& Renderer;
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)
+    std::string               Guid;
+    std::vector<unsigned int> ShadingModel;
+    std::vector<unsigned int> BlendMode;
+    std::vector<unsigned int> CullMode;
+    std::vector<unsigned int> CustomDepth;
+    std::vector<bool>         IsTwoSided;
     REFLECT_FIELDS_END(MeshComponent)
+
+protected:
+    void ImGuiDrawPropertysEvent() override;
+
+protected:
+    void InitMaterial();
 };

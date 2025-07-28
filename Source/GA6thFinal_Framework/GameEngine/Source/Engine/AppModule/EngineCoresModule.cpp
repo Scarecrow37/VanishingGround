@@ -7,9 +7,9 @@ void EngineCoresModule::PreInitialize()
     SafeEngineCoresPtr::Engine::CreateEngineCores();
     ESceneManager::Engine::RegisterFileEvents();
     EGameObjectFactory::Engine::RegisterFileEvents();
-
+    
     const SIZE& clientSize = UmApplication.GetClientSize();
-    engineCore->Graphics.Initialize(engineCore->App.GetHwnd(), clientSize.cx, clientSize.cy, FeatureLevel::LEVEL_12_0);
+    UmGraphics.Initialize(engineCore->App.GetHwnd(), clientSize.cx, clientSize.cy, FeatureLevel::LEVEL_12_0, IS_EDITOR);
 }
 
 void EngineCoresModule::ModuleUnInitialize()
@@ -21,6 +21,6 @@ void EngineCoresModule::ModuleUnInitialize()
     ESceneManager::Engine::CleanupSceneManager();
     ETimeSystem::Engine::CleanUpInvokeFuntions();
     engineCore->ComponentFactory.UninitalizeComponentFactory();
-    engineCore->Graphics.Device.Finalize();
+    UmGraphics.Finalize();
     SafeEngineCoresPtr::Engine::DestroyEngineCores();
 }

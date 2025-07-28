@@ -82,6 +82,7 @@ private:
     Matrix                          _worldMatrix;
     Vector3                         _position = Vector3::Zero;
     Vector3                         _rotation = Vector3::Zero;
+    Quaternion                      _quaternion = Quaternion::Identity;
     Vector3                         _scale = Vector3::One;
 
     std::filesystem::path           _filePath;

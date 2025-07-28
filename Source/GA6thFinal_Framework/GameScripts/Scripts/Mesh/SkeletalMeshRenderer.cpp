@@ -1,9 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "SkeletalMeshRenderer.h"
-
-#include "Engine/GraphicsCore/Model.h"
-#include "Engine/GraphicsCore/Animation.h"
-#include "Engine/GraphicsCore/Animator.h"
+#include <Animation/AnimationComponent.h>
 
 SkeletalMeshRenderer::SkeletalMeshRenderer() 
 {
@@ -22,7 +19,7 @@ SkeletalMeshRenderer::SkeletalMeshRenderer()
                     if (extension == L".fbx" || extension == L".UmModel")
                     {
                         _guidRef            = path.ToGuid();
-                        ReflectFields->Guid = _guidRef.string();
+                        ReflectFields->Basefields.get().Guid = _guidRef.string();
                         UmSceneManager.ResourceManager.RequestModelResource(this, _guidRef, [this](){ LoadModel(); });
                     }
                 }
@@ -32,210 +29,56 @@ SkeletalMeshRenderer::SkeletalMeshRenderer()
     });
 }
 
-SkeletalMeshRenderer::~SkeletalMeshRenderer() {}
+SkeletalMeshRenderer::~SkeletalMeshRenderer() 
+{
+}
 
 void SkeletalMeshRenderer::Reset()
 {
-    MakeMeshRenderer(MeshRenderType::SKELETAL, gameObject->transform->GetWorldMatrix());
+    MakeMeshRenderer(MeshType::SKELETAL_MESH, transform->Position, transform->Scale, transform->Rotation, transform->GetWorldMatrix());
+
+    if (false == _guidRef.IsNull())
+    {
+        UmSceneManager.ResourceManager.RequestModelResource(this, _guidRef, [this]() { LoadModel(); });
+    }
 }
 
 void SkeletalMeshRenderer::Awake() 
 {
-    SetCurrentAnimation(GetCurrentAnimationName());
-    PlayAnimation();
 }
 
 void SkeletalMeshRenderer::Update()
 {
-    UpdateAnimation();
+}
+
+void SkeletalMeshRenderer::OnDestroy() 
+{
 }
 
 void SkeletalMeshRenderer::OnDrawDebug() 
 {
-    UpdateAnimation();
 }
 
 void SkeletalMeshRenderer::SerializedReflectEvent() 
 {
-
 }
 
 void SkeletalMeshRenderer::DeserializedReflectEvent() 
 {
-    File::Guid guid = ReflectFields->Guid;
+    File::Guid guid = ReflectFields->Basefields.get().Guid;
     _guidRef        = guid;
-    if (false == guid.IsNull())
-    {
-        UmSceneManager.ResourceManager.RequestModelResource(this, _guidRef, [this]() { LoadModel();});
-    }
 }
 
 void SkeletalMeshRenderer::ImGuiDrawPropertysEvent() 
 {
-    ImGui::Separator();
     if (nullptr != Renderer)
     {
-        const auto& model = Renderer->GetModel();
-        const auto& animator = Renderer->GetAnimator();
-        if (nullptr != model)
+        if (nullptr == Renderer->GetModel())
         {
-            const auto& animation      = model->GetAnimation();
-            const auto& animationNames = animation->GetAnimations();
-            
-            if (nullptr != animator)
-            {
-                if (ImGui::TreeNodeEx("Animation##details"))
-                {
-                    const auto& animationNames = animation->GetAnimations();
-                    const char* comboLabel     = ReflectFields->CurrentAnimationKey.empty() ? "-" : ReflectFields->CurrentAnimationKey.c_str();
-                    if (ImGui::BeginCombo("##Animation", comboLabel))
-                    {
-                        for (int i = 0; i < animationNames.size(); ++i)
-                        {
-                            bool isSelected = (ReflectFields->CurrentAnimationKey == animationNames[i]);
-                            if (ImGui::Selectable(animationNames[i], isSelected))
-                            {
-                                ReflectFields->CurrentAnimationKey = animationNames[i];
-                                SetCurrentAnimation(animationNames[i]);
-                            }
-                        }
-                        ImGui::EndCombo();
-                    }
-                    if (true == ReflectFields->CurrentAnimationKey.empty())
-                    {
-                        ImGui::BeginDisabled();
-                    }
-                    {
-                        bool usePushStyleColor = ReflectFields->IsAnimationPlaying;
-                        if (true == usePushStyleColor)
-                            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.2f, 0.8f, 0.2f, 1.0f));
-                        if (ImGui::Button(EditorIcon::ICON_PLAY))
-                            ReflectFields->IsAnimationPlaying = !ReflectFields->IsAnimationPlaying;
-                        if (true == usePushStyleColor)
-                            ImGui::PopStyleColor();
-                        if (ImGui::IsItemHovered())
-                            ImGui::SetTooltip("Play");
-
-                        ImGui::SameLine();
-
-                        if (ImGui::Button(EditorIcon::ICON_PAUSE))
-                            PauseAnimation();
-                        if (ImGui::IsItemHovered())
-                            ImGui::SetTooltip("Pause");
-
-                        ImGui::SameLine();
-
-                        if (ImGui::Button(EditorIcon::ICON_STOP))
-                            StopAnimation();
-                        if (ImGui::IsItemHovered())
-                            ImGui::SetTooltip("Stop");
-                    }
-                    if (true == ReflectFields->CurrentAnimationKey.empty())
-                    {
-                        ImGui::EndDisabled();
-                    }
-
-                    ImGui::Checkbox("Loop", &ReflectFields->IsAnimationLooping);
-
-                    float min = 0.0f;
-                    float max = animator->GetCurrentAnimationLastTime();
-                    float cur = animator->GetCurrentAnimationPlayTime();
-                    if (ImGui::SliderFloat("Current Animation Frame", &cur, min, max))
-                    {
-                        SetAnimationFrame(cur);
-                    }
-                    if (ImGui::DragFloat("Animation Speed", &ReflectFields->AnimationSpeed, 0.01f))
-                    {
-                        SetAnimationSpeed(ReflectFields->AnimationSpeed);
-                    }
-
-                    ImGui::TreePop();
-                }
-            }
-        }
-        else
-        {
+            ImGui::Separator();
             ImGui::Text("NULL Model");
         }
     }
-}
-
-void SkeletalMeshRenderer::UpdateAnimation() 
-{
-    if (HasModel() && HasAnimator())
-    {
-        auto animator = Renderer->GetAnimator();
-        animator->SetPause(!ReflectFields->IsAnimationPlaying);
-        animator->SetLoop(ReflectFields->IsAnimationLooping);
-        animator->SetAnimationSpeed(ReflectFields->AnimationSpeed);
-        _animationTime = animator->GetCurrentAnimationPlayTime();
-    }
-    else
-    {
-        _animationTime = 0.0f;
-    }
-}
-
-void SkeletalMeshRenderer::SetCurrentAnimation(std::string_view animKey)
-{
-    ReflectFields->CurrentAnimationKey = animKey.data();
-    if (HasModel() && HasAnimator())
-    {
-        const auto& model          = Renderer->GetModel();
-        const auto& animator       = Renderer->GetAnimator();
-        const auto& animation      = model->GetAnimation();
-        const auto& animationNames = animation->GetAnimations();
-        animator->ChangeAnimation(ReflectFields->CurrentAnimationKey.c_str());
-        SetAnimationFrame(0.0f);
-    }
-}
-
-void SkeletalMeshRenderer::SetAnimationLoop(bool looping) 
-{
-    ReflectFields->IsAnimationLooping = looping;
-}
-
-void SkeletalMeshRenderer::SetAnimationFrame(float frame) 
-{
-    auto animator = Renderer->GetAnimator();
-    if (nullptr != animator)
-    {
-        const float maxFrame = Renderer->GetAnimator()->GetCurrentAnimationLastTime();
-        _animationTime = std::clamp(frame, 0.0f, maxFrame);
-        animator->SetAnimationTime(_animationTime);
-    }
-}
-
-void SkeletalMeshRenderer::SetAnimationSpeed(float speed) 
-{
-    auto animator = Renderer->GetAnimator();
-    if (nullptr != animator)
-    {
-        ReflectFields->AnimationSpeed = std::clamp(speed, 0.0f, 100.0f);
-        animator->SetAnimationSpeed(ReflectFields->AnimationSpeed);
-    }
-}
-
-void SkeletalMeshRenderer::StopAnimation()
-{
-    SetAnimationFrame(0.0f);
-    ReflectFields->IsAnimationPlaying = false;
-}
-
-void SkeletalMeshRenderer::PlayAnimation()
-{
-    SetAnimationFrame(0.0f);
-    ReflectFields->IsAnimationPlaying = true;
-}
-
-void SkeletalMeshRenderer::PauseAnimation() 
-{
-    ReflectFields->IsAnimationPlaying = false;
-}
-
-void SkeletalMeshRenderer::ResumeAnimation() 
-{
-    ReflectFields->IsAnimationPlaying = true;
 }
 
 void SkeletalMeshRenderer::LoadModel()
@@ -252,7 +95,7 @@ void SkeletalMeshRenderer::LoadModel()
         if (path != File::NULL_PATH)
         {
             std::wstring modelPath = U8ToWString(path);
-            Renderer->LoadModel(modelPath);
+            UmGraphics.LoadResource(modelPath, Renderer.get());
             auto& animation = Renderer->GetModel()->GetAnimation();
             auto& skeleton  = Renderer->GetModel()->GetSkeleton();
             if (animation != nullptr && skeleton != nullptr)
@@ -260,9 +103,22 @@ void SkeletalMeshRenderer::LoadModel()
                 std::shared_ptr<Animator> animator(new Animator);
                 animator->Initialize(animation, skeleton);
                 animator->SetActive(&EnableInHierarchy);
-                animator->RegisterComponent();
+                UmGraphics.RegisterComponent(animator.get());
                 Renderer->SetAnimator(animator);
+
+                __super::InitMaterial();
             }
+            OnChangedModel();
         }
+    }
+}
+
+void SkeletalMeshRenderer::OnChangedModel() 
+{
+    AnimationComponent* animationComponent = GetComponent<AnimationComponent>();
+    if (Renderer && animationComponent)
+    {
+        const auto& animator = Renderer->GetAnimator();
+        animationComponent->SetAnimator(animator);
     }
 }

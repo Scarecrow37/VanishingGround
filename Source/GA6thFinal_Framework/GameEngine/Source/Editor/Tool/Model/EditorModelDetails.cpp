@@ -2,19 +2,14 @@
 #include "EditorModelDetails.h"
 #include "EditorModelTool.h"
 #include "Editor/DynamicCamera/EditorDynamicCamera.h"
-#include "Engine/GraphicsCore/FBXConverter.h"
-#include "Engine/GraphicsCore/MeshRenderer.h"
-#include "Engine/GraphicsCore/Model.h"
-#include "Engine/GraphicsCore/Animation.h"
-#include "Engine/GraphicsCore/Animator.h"
-#include "Engine/GraphicsCore/Light.h"
+#include "GraphicsEngine/FBXConverter.h"
 
 EditorModelDetails::EditorModelDetails()
-    : _meshRenderer(std::make_unique<MeshRenderer>(MeshRenderType::STATIC, _worldMatrix))
-    , _animator()
+    : _animator()
     , _mainLight(std::make_unique<Light>())
     , _selectedMeshIndex(0)
 {
+    _meshRenderer = std::make_unique<MeshRenderer>(STATIC_MESH, _position, _scale, _quaternion, _worldMatrix);
     SetLabel("Details##model");
     SetDockLayout(ImGuiDir_Right);
 }
@@ -98,6 +93,7 @@ void EditorModelDetails::UpdateModelTransform()
     Matrix matScale     = Matrix::CreateScale(_scale);
     Matrix matRotation  = Matrix::CreateFromYawPitchRoll(_rotation.y, _rotation.x, _rotation.z);
     Matrix matTranslate = Matrix::CreateTranslation(_position);
+    _quaternion         = Quaternion::CreateFromYawPitchRoll(_rotation.y, _rotation.x, _rotation.z);
 
     // 변환 순서: S  R  T
     _worldMatrix = matScale * matRotation * matTranslate;
@@ -117,8 +113,8 @@ void EditorModelDetails::OnTickGui()
 
 void EditorModelDetails::OnStartGui()
 {
-    UmRenderer.RegisterRenderQueue("ModelViewer", _meshRenderer.get());
-    UmLightCore.RegisterLight("ModelViewer", _mainLight.get());
+    UmGraphics.RegisterComponent("ModelViewer", _meshRenderer.get());
+    UmGraphics.RegisterComponent("ModelViewer", _mainLight.get());
 
     _color = Vector3(1.f);
     _ambient = Vector3(1.f);
@@ -162,13 +158,6 @@ void EditorModelDetails::OnFrameRender()
         if (_modelTool && _modelTool->GetCamera())
         {
             auto& camera = _modelTool->GetCamera();
-            // Speed
-            ImGui::Text("Camera Move Scale: ");
-            float moveScale = camera->GetMoveScale();
-            if (ImGui::SliderFloat("##camera move scale", &moveScale, 0.1f, 1000.f))
-            {
-                camera->SetMoveScale(moveScale);
-            }
             ImGui::Text("Camera Move Speed: ");
             float moveSpeed = camera->GetMoveSpeed();
             if (ImGui::SliderFloat("##camera move speed", &moveSpeed, 0.1f, 100.f))
@@ -215,7 +204,7 @@ void EditorModelDetails::OnFrameRender()
             }
             ImGui::Separator();
 
-            ImGui::Text("Type: %s", type == MeshRenderType::STATIC ? "Static" : "Skeletal");
+            ImGui::Text("Type: %s", type == STATIC_MESH ? "Static" : "Skeletal");
             ImGui::Text("Mesh Count: %d", model->GetMeshes().size());
 
             if (ImGui::TreeNodeEx("Transform##details", ImGuiTreeNodeFlags_DefaultOpen))
@@ -327,7 +316,13 @@ void EditorModelDetails::OnFrameRender()
 
                     float min = 0.0f;
                     float max = _animator ? _animator->GetCurrentAnimationLastTime() : 0.0f;
-                    ImGui::SliderFloat("Current Animation Frame", &_animationTime, min, max);
+                    if (ImGui::SliderFloat("Current Animation Frame", &_animationTime, min, max))
+                    {
+                        if (_animator)
+                        {
+                            _animator->SetAnimationTime(_animationTime);
+                        }
+                    }
                     ImGui::DragFloat("Animation Speed", &_animationSpeed, 0.01f);
                 }
                 ImGui::TreePop();
@@ -347,7 +342,7 @@ void EditorModelDetails::OnFrameRender()
                     ImGui::Text("Blend Mode");
 
                     ImGui::TableNextColumn();
-                    ImGui::Combo("##blendMode", (int*)&material.Mode, blendModeNames, (int)Material::BlendMode::END);
+                    ImGui::Combo("##blendMode", (int*)&material.BlendMode, blendModeNames, (int)Material::BlendModeType::END);
 
                     ImGui::TableNextRow();
                     ImGui::TableNextColumn();
@@ -355,8 +350,7 @@ void EditorModelDetails::OnFrameRender()
                     ImGui::Text("Shading Model");
 
                     ImGui::TableNextColumn();
-                    ImGui::Combo("##shadingModel", (int*)&material.Model, shadingModelNames,
-                                 (int)Material::ShadingModel::END);
+                    ImGui::Combo("##shadingModel", (int*)&material.ShadingModel, shadingModelNames, (int)Material::ShadingModelType::END);
 
                     ImGui::TableNextRow();
                     ImGui::TableNextColumn();
@@ -390,7 +384,11 @@ void EditorModelDetails::OnFramePopupOpened() {}
 
 void EditorModelDetails::OnRequestedDragDrop(const File::Path& path) 
 {
-    ImportModel(path);
+    auto dock = GetOwnerDockWindow();
+    if (dock && dock->IsFocusFrame())
+    {
+        ImportModel(path);
+    }
 }
 
 FBXConverter& EditorModelDetails::GetFBXConverter()

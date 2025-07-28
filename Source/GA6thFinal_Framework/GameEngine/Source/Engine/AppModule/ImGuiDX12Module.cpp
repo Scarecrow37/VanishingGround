@@ -4,7 +4,64 @@
 
 void ImGuiDX12Module::PreInitialize()
 {
-    UmRenderer.InitializeImgui();
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
+    // io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;   // IF using Docking Branch
+    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // Enable Multi-Viewport / Platform Windows
+
+    // When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular
+    // ones.
+    ImGuiStyle& style = ImGui::GetStyle();
+    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+    {
+        style.WindowRounding              = 0.0f;
+        style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+    }
+
+    // 폰트 경로는 실제 폰트 파일로 바꿔주세요
+    ImFontConfig fontConfig;
+    fontConfig.OversampleH = 3;
+    fontConfig.OversampleV = 3;
+    fontConfig.PixelSnapH  = true;
+
+    // 유니코드 범위 설정 (한글 + 로마 숫자 포함)
+    static const ImWchar customRanges[] = {
+        0x0020, 0x00FF, // 기본 라틴
+        0x1100, 0x11FF, // 한글 자모
+        0x3130, 0x318F, // 한글 자모 (호환)
+        0xAC00, 0xD7AF, // 한글 완성형
+        0x2160, 0x2188, // 로마 숫자!!!
+        0,              // 종료
+    };
+    ImFont* mainFont = io.Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\malgun.ttf", 20.0f, &fontConfig, customRanges);
+
+    std::string fontFileName = "Font Awesome 6 Free-Regular-400.ttf";
+    auto        fontPath     = UmFileSystem.GetRootPath();
+    fontPath /= fontFileName;
+
+    if (true == std::filesystem::exists(fontPath.generic_string()))
+    {
+        const ImWchar icons_ranges[] = {0xf000, 0xf3ff, 0}; // FontAwesome 유니코드 범위
+        ImFontConfig  config;
+
+        config.MergeMode  = true;
+        config.PixelSnapH = true;
+
+        ImFontAtlas* atlas    = io.Fonts;
+        ImFont*      iconFont = atlas->AddFontFromFileTTF(fontPath.string().c_str(), 15.0f, &config, icons_ranges);
+    }
+    io.Fonts->Build();
+       
+    auto device         = UmGraphics.GetDevice();
+    auto descriptorHeap = UmGraphics.GetShaderResourceDescriptorHeap();
+    auto cpuHandle      = descriptorHeap->GetCPUDescriptorHandleForHeapStart();
+    auto gpuHandle      = descriptorHeap->GetGPUDescriptorHandleForHeapStart();
+
+    ImGui_ImplWin32_Init(UmApplication.GetHwnd());
+    ImGui_ImplDX12_Init(device, static_cast<int>(SWAPCHAIN_BUFFER_COUNT), DXGI_FORMAT_R8G8B8A8_UNORM, descriptorHeap, cpuHandle, gpuHandle);
 }
 
 void ImGuiDX12Module::ModuleInitialize()
@@ -14,17 +71,41 @@ void ImGuiDX12Module::ModuleInitialize()
 
 void ImGuiDX12Module::PreUnInitialize()
 {
-    UmRenderer.PreUnInitializeImgui();
+    ImGui_ImplDX12_Shutdown();
+    ImGui_ImplWin32_Shutdown();
+    ImGui::DestroyContext();
 }
 
-void ImGuiDX12Module::ModuleUnInitialize() {}
+void ImGuiDX12Module::ModuleUnInitialize()
+{
+}
 
 void ImGuiDX12Module::ImguiBegin()
 {
-    UmRenderer.ImguiBegin();
+    ImGui_ImplDX12_NewFrame();
+    ImGui_ImplWin32_NewFrame();
+    ImGui::NewFrame();
+    ImGuizmo::BeginFrame();
 }
 
 void ImGuiDX12Module::ImguiEnd()
 {
-    UmRenderer.ImguiEnd();
+    ImGuiIO& io = ImGui::GetIO();
+
+    ImGui::Render();
+    
+    ID3D12DescriptorHeap*      descriptorHeaps[] = {UmGraphics.GetShaderResourceDescriptorHeap()};
+    ID3D12GraphicsCommandList* commandList       = UmGraphics.GetCommandList();
+
+    commandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+
+    auto backBuffer = UmGraphics.GetBackBufferHandle();
+    commandList->OMSetRenderTargets(1, &backBuffer, FALSE, nullptr);
+    ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandList);
+
+    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+    {
+        ImGui::UpdatePlatformWindows();
+        ImGui::RenderPlatformWindowsDefault(nullptr, nullptr);
+    }
 }

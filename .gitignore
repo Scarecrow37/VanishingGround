@@ -525,3 +525,14 @@ update_repo.bat
 imgui.ini
 !Source/GA6thFinal_Framework/GameEngine/ThirdParty/
 !Source/GA6thFinal_Framework/GameEngine/ThirdParty/**/*
+
+# Additional Folder
+lib
+bin
+
+# cs
+*.metagen
+*.dll
+*.lib
+*.exp
+*.pdb

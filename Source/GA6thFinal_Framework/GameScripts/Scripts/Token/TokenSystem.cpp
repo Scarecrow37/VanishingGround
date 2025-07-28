@@ -1,7 +1,10 @@
 ﻿#include "pchScripts.h"
 #include "TokenSystem.h"
 
-TokenSystem::TokenSystem() {}
+TokenSystem::TokenSystem() 
+{
+    _staticInstance = this;
+}
 
 TokenSystem::~TokenSystem()
 {
@@ -13,8 +16,7 @@ TokenSystem::~TokenSystem()
 
 void TokenSystem::Reset()
 {
-    _staticInstance = this;
-    InitTokenInstance();
+    RegisterAllTokenInstance();
     SortByOrder();
 }
 
@@ -24,12 +26,14 @@ void TokenSystem::OnDestroy()
     {
         if (token)
         {
+            UnregisterTokenInstanceToTable(token); // 토큰 인스턴스를 테이블에서 제거
             delete token; // 토큰 인스턴스 삭제
         }
     }
     _tokenInstances.clear();
     _tokenIDTable.clear();
     _tokenNameTable.clear();
+    _tokenTagTable.clear();
 }
 
 void TokenSystem::OnDrawDebug()
@@ -66,7 +70,7 @@ void TokenSystem::DeserializedReflectEvent()
     // 토큰 인스턴스의 데이터를 역직렬화합니다.
     for (const auto& [id, data] : ReflectFields->TokenSerializeData)
     {
-        Token* token = GetTokenFromID(id);
+        Token* token = GetTokenFromIDEx(id);
         if (token)
         {
             token->DeserializedReflectFields(data);
@@ -83,7 +87,7 @@ void TokenSystem::ImGuiDrawPropertysEvent()
     }
 }
 
-void TokenSystem::InitTokenInstance()
+void TokenSystem::RegisterAllTokenInstance()
 {
     for (const auto& [id, constructor] : _tokenIDFactoryTable)
     {
@@ -91,12 +95,44 @@ void TokenSystem::InitTokenInstance()
         if (it == _tokenIDTable.end())
         {
             Token* newToken = constructor();
-            if (newToken)
+            _tokenInstances.push_back(newToken);
+            RegisterTokenInstanceToTable(newToken);
+        }
+    }
+}
+
+void TokenSystem::RegisterTokenInstanceToTable(Token* token)
+{
+    if (token)
+    {
+        int         id   = token->GetTokenID();
+        TokenTag    tag  = token->GetTokenTag();
+        const auto& name = token->GetTokenName();
+        _tokenTagTable[tag].push_back(token);
+        _tokenIDTable[id]     = token;
+        _tokenNameTable[name] = token;
+        token->SetDirtyOrderCallback([](int id) { SortByOrder(); });
+    }
+}
+
+void TokenSystem::UnregisterTokenInstanceToTable(Token* token)
+{
+    if (token)
+    {
+        int         id   = token->GetTokenID();
+        TokenTag    tag  = token->GetTokenTag();
+        const auto& name = token->GetTokenName();
+
+        _tokenIDTable.erase(id);
+        _tokenNameTable.erase(name);
+        auto itr = _tokenTagTable.find(tag);
+        if (itr != _tokenTagTable.end())
+        {
+            auto& tagTokens = itr->second;
+            tagTokens.erase(std::remove(tagTokens.begin(), tagTokens.end(), token), tagTokens.end());
+            if (tagTokens.empty())
             {
-                newToken->SetDirtyOrderCallback([](int id) { SortByOrder(); });
-                _tokenInstances.push_back(newToken);
-                _tokenIDTable[id]                         = newToken;
-                _tokenNameTable[newToken->GetTokenName()] = newToken;
+                _tokenTagTable.erase(itr); // 태그가 비어있으면 제거
             }
         }
     }
@@ -193,10 +229,20 @@ int TokenSystem::GetTokenIDFromName(std::string_view tokenName)
     {
         return it->second;
     }
-    return 0;
+    return -1;
 }
 
-Token* TokenSystem::GetTokenFromID(int tokenID)
+IToken* TokenSystem::GetTokenFromID(int tokenID)
+{
+    return GetTokenFromIDEx(tokenID);
+}
+
+IToken* TokenSystem::GetTokenFromName(std::string_view name)
+{
+    return GetTokenFromNameEx(name);
+}
+
+Token* TokenSystem::GetTokenFromIDEx(int tokenID)
 {
     auto it = _tokenIDTable.find(tokenID);
     if (it != _tokenIDTable.end())
@@ -206,7 +252,7 @@ Token* TokenSystem::GetTokenFromID(int tokenID)
     return nullptr;
 }
 
-Token* TokenSystem::GetTokenFromName(std::string_view name)
+Token* TokenSystem::GetTokenFromNameEx(std::string_view name)
 {
     auto it = _tokenNameTable.find(name.data());
     if (it != _tokenNameTable.end())
@@ -217,9 +263,9 @@ Token* TokenSystem::GetTokenFromName(std::string_view name)
 }
 
 void TokenSystem::SortByOrder()
-{ // 토큰을 Order에 따라 오름차순 정렬합니다.
+{   // 토큰을 Order에 따라 오름차순 정렬합니다.
     std::sort(_tokenInstances.begin(), _tokenInstances.end(),
-              [](Token* a, Token* b) { 
+              [](IToken* a, IToken* b) { 
             int aOrder = a->GetTokenOrder();
             int bOrder = b->GetTokenOrder();
             return aOrder < bOrder;
