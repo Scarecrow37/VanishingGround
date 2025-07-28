@@ -15,11 +15,11 @@ void TurnActor::ClearState()
 
 void TurnActor::PlayTurn() 
 {
+    // Wait 상태일 때만
     if (_currState == STATE::Wait)
     {
         if (HasTurnActorFlags(TurnActorFlags::FLAGS_TURN_SKIP))
         {
-            _currState = STATE::Wait; // 턴 스킵 플래그가 있으면 턴을 스킵합니다.
             RemoveTurnActorFlags(TurnActorFlags::FLAGS_TURN_SKIP); // 턴 스킵 플래그 제거
 
             std::string_view name = gameObject->ToString();
@@ -28,6 +28,8 @@ void TurnActor::PlayTurn()
                 , (const char*)u8"가 기절로 인하여"
                 , (const char*)u8" 턴을 스킵합니다.");
             UmLogger.Message(LogLevel::LEVEL_DEBUG, message);
+
+            _currState = STATE::Wait; // 턴 스킵 플래그가 있으면 턴을 스킵합니다.
         }
         else
         {
@@ -54,7 +56,10 @@ void TurnActor::Dead()
 
 void TurnActor::EndTurn() 
 {
-    _currState = STATE::Wait;
+    if (_currState == STATE::Play)
+    {
+        _currState = STATE::Wait;
+    }
 }
 
 void TurnActor::Awake() 
