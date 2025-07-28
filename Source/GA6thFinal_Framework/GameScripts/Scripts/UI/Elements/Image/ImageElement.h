@@ -20,7 +20,6 @@ public:
 
 protected:
     void  Reset() override;
-    void  DeserializedReflectEvent() override;
     void  OnPlacementChange() override;
     float GetZOrder() const override;
     void  SetViewOrder(int viewOrder) override;
@@ -39,4 +38,5 @@ private:
     std::unique_ptr<SpriteRenderer> _renderer;
     File::GuidRef                   _guidRef;
     Matrix                          _worldMatrix;
+
 };

@@ -113,6 +113,10 @@ UMREAL_COMPONENT(GridPanelSlot)
 UMREAL_COMPONENT(AnchorPanel)
 UMREAL_COMPONENT(AnchorPanelSlot)
 
+#include "Scripts/UI/Panels/Horizontal/HorizontalPanel.h"
+UMREAL_COMPONENT(HorizontalPanel)
+UMREAL_COMPONENT(HorizontalPanelSlot)
+
 #include "Scripts\WeaponSystem/WeaponSystem.h"
 UMREAL_COMPONENT(WeaponSystem)
 
@@ -134,3 +138,6 @@ UMREAL_COMPONENT(AudioComponent)
 
 #include "Scripts/Animation/AnimationComponent.h"
 UMREAL_COMPONENT(AnimationComponent)
+
+#include "Scripts/Test/DevTools/LogOutput.h"
+UMREAL_COMPONENT(LogOutput)

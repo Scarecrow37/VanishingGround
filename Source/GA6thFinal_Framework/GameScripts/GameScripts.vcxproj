@@ -353,6 +353,7 @@
     <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnActionFactory.h" />
     <ClInclude Include="Scripts\UI\Panels\Anchor\AnchorPanel.h" />
+    <ClInclude Include="Scripts\UI\Panels\Horizontal\HorizontalPanel.h" />
     <ClInclude Include="Scripts\UI\Wrappers\Center\CenterWrapper.h" />
     <ClInclude Include="Scripts\UI\Wrappers\Padding\PaddingWrapper.h" />
     <ClInclude Include="Scripts\WeaponSystem\WeaponElement\WeaponElement.h" />
@@ -434,6 +435,7 @@
     <ClInclude Include="Scripts\Test\DevTools\FPSCounter.h" />
     <ClInclude Include="Scripts\WeaponSystem\WeaponSystem.h" />
     <ClInclude Include="Scripts\Test\TurnAction\TestActionComponent.h" />
+    <ClInclude Include="Scripts\Test\DevTools\LogOutput.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scripts\Audio\AudioComponent.cpp" />
@@ -576,6 +578,7 @@
     <ClCompile Include="Scripts\Test\DevTools\FPSCounter.cpp" />
     <ClCompile Include="Scripts\WeaponSystem\WeaponSystem.cpp" />
     <ClCompile Include="Scripts\Test\TurnAction\TestActionComponent.cpp" />
+    <ClCompile Include="Scripts\Test\DevTools\LogOutput.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

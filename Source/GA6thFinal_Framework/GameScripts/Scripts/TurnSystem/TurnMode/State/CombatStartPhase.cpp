@@ -11,6 +11,8 @@
 
 REGISTER_CLASS(FSMStateFactory, CombatStartPhase)
 
+static constexpr int EXPECTED_ENEMY_COUNT = 3;
+
 CombatStartPhase::CombatStartPhase()
     : 
     _phaseEnd(false), 
@@ -29,6 +31,7 @@ void CombatStartPhase::ResetCharacterStats()
     _player = nullptr;
     _enemies.clear();
     _characters.clear();
+    // 씬에 존재하는 모든 캐릭터 추가
     for (auto& weak : GameObject::FindGameObjectsWithTag(CharacterBase::TAG))
     {
         if (false == weak.expired())
@@ -83,6 +86,7 @@ void CombatStartPhase::OnEnter()
     _turnMode->ResetRoundCount();
     AddValidActions();
     ResetCharacterStats();
+    SortEnemies();
 
     UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"배틀 시작...3");
     UmTime.Invoke(&GetFSM(), 1.f, [this]() { UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"배틀 시작...2"); });
@@ -129,5 +133,79 @@ void CombatStartPhase::AddValidActions()
         {
 
         }
+    }
+}
+
+void CombatStartPhase::SortEnemies() 
+{
+    if (_enemies.size() != EXPECTED_ENEMY_COUNT)
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, u8"적이 3명이 아닙니다.");
+        return;
+    }
+
+    // 무게 중심 계산하기
+    Vector3 centroid;
+    for (auto& enemy : _enemies)
+    {
+        centroid += enemy->transform->Position;
+    }
+    centroid /= (float)_enemies.size();
+
+    //플레이어 -> 무게중심 방향 백터
+    Vector3 referDir = centroid - _player->transform->Position;
+    referDir.Normalize();
+
+    // 가장 작은 각도를 이루는 적 찾기 (가운데 적 찾기)
+    Enemy* centerEnemy = nullptr;
+    float  maxDot      = -2.f;
+    for (auto& enemy : _enemies)
+    {
+        // 플레이어 -> 적 방향 백터
+        Vector3 toEnemyDir = enemy->transform->Position - _player->transform->Position;
+        toEnemyDir.Normalize();
+
+        // 두 방향 백터 내적해서 시야각 계산
+        float dot = referDir.Dot(toEnemyDir);
+        if (dot > maxDot)
+        {
+            maxDot = dot;
+            centerEnemy = enemy;
+        }        
+    }
+
+    if (centerEnemy)
+    {
+        // 가운데 적 기준 왼쪽, 오른쪽 찾기
+        std::vector<Enemy*> otherEnemies;
+        otherEnemies.reserve(2);
+        for (auto& enemy : _enemies)
+        {
+            if (centerEnemy != enemy)
+            {
+                otherEnemies.push_back(enemy);
+            }
+        }
+
+        Enemy*  leftEnemy      = nullptr;
+        Enemy*  rightEnemy     = nullptr;
+        Vector3 playerToCenter = centerEnemy->transform->Position - _player->transform->Position;
+        Vector3 playerToOther  = otherEnemies[0]->transform->Position - _player->transform->Position;
+
+        // 외적 수행 판별
+        float crossY = playerToCenter.Cross(playerToOther).y;
+        if (crossY < 0)
+        {
+            leftEnemy  = otherEnemies[0];
+            rightEnemy = otherEnemies[1];
+        }
+        else
+        {
+            leftEnemy  = otherEnemies[1];
+            rightEnemy = otherEnemies[0];
+        }
+        _enemies[0] = leftEnemy;
+        _enemies[1] = centerEnemy;
+        _enemies[2] = rightEnemy;
     }
 }

@@ -9,9 +9,6 @@ public:
     UIComponent();
 
 protected:
-    REFLECT_FIELDS_BEGIN(Component)
-    REFLECT_FIELDS_END(UIComponent)
-
     /// <summary>
     /// 이 컴포넌트를 소유한 게임 오브젝트에 다른 자식 게임 오브젝트가 추가되었을 때 호출됩니다.
     /// </summary>
@@ -30,23 +27,11 @@ protected:
 private:
     void OnDrawDebug() override;
     void OnDrawDebugSelected() override;
-};
 
-template <typename T>
-struct FindComponents
-{
-    std::vector<T*> operator()(const GameObject& gameObject)
-    {
-        std::vector<T*> components;
-        for (int i = 0; i < gameObject.GetComponentCount(); ++i)
-        {
-            if (T* component = gameObject.GetComponentAtIndex<T>(i))
-            {
-                components.push_back(component);
-            }
-        }
-        return components;
-    }
+protected:
+    REFLECT_FIELDS_BEGIN(Component)
+    REFLECT_FIELDS_END(UIComponent)
+
 };
 
 template <typename T>
@@ -57,10 +42,10 @@ struct FindChildComponents
         std::vector<T*> components;
         for (int i = 0; i < parentTransform.GetChildCount(); ++i)
         {
-            const Transform* child      = parentTransform.GetChild(i);
-            GameObject&      gameObject = child->gameObject;
-            std::vector<T*> childComponents = FindComponents<T>()(gameObject);
-            components.insert(components.end(), childComponents.begin(), childComponents.end());
+            const Transform* child           = parentTransform.GetChild(i);
+            GameObject&      gameObject      = child->gameObject;
+            std::vector<T*>  childComponents = gameObject.GetComponents<T>();
+            std::move(childComponents.begin(), childComponents.end(), std::back_inserter(components));
         }
         return components;
     }
