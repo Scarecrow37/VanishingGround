@@ -20,17 +20,20 @@ void EnemyActionSystem::SerializedReflectEvent()
 {
     for (auto& [id, data] : _enemyActionTable)
     {
-        ReflectFields->ActionTableSerialData.push_back(data.SerializedReflectFields());
+        if (data)
+        {
+            ReflectFields->ActionSerializeDataTable[id] = data->SerializedReflectFields();
+        }
     }
 }
 
 void EnemyActionSystem::DeserializedReflectEvent() 
 {
-    for (const auto& str : ReflectFields->ActionTableSerialData)
+    for (const auto& [id, str] : ReflectFields->ActionSerializeDataTable)
     {
-        EnemyActionData data;
-        data.DeserializedReflectFields(str);
-        _enemyActionTable.emplace(data.ActionID, std::move(data));
+        EnemyAction::ActionData* data = new EnemyAction::ActionData;
+        data->DeserializedReflectFields(str);
+        _enemyActionTable[id] = data;
     }
 }
 
@@ -41,12 +44,12 @@ void EnemyActionSystem::ImGuiDrawPropertysEvent()
     }
 }
 
-const EnemyActionData& EnemyActionSystem::GetEnemyActionDataFromID(int actionID)
+const EnemyAction::ActionData* EnemyActionSystem::GetEnemyActionDataFromID(int actionID)
 {
     auto itr = _enemyActionTable.find(actionID);
     if (itr != _enemyActionTable.end())
     {
         return itr->second;
     }
-    return GetEmptyData();
+    return nullptr;
 }

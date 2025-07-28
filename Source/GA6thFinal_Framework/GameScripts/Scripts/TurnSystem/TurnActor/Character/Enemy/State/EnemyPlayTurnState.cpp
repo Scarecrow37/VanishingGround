@@ -62,11 +62,6 @@ void EnemyPlayTurnState::OnExit()
     {
         _currentAction->RequireActionExit();
     }
-
-    // Enemy의 턴이 종료시 액션을 선언.
-    EnemyAI& aiModel = GetEnemy().GetAIModel();
-    aiModel.Transition();
-    aiModel.Refresh();
 }
     
 void EnemyPlayTurnState::OnUpdate()

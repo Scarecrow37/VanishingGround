@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <EnemyAction/ActionData/EnemyActionData.h>
 
 class Enemy;
 class SkeletalMeshRenderer;
@@ -7,9 +8,6 @@ class CharacterBase;
 
 namespace EnemyAction
 {
-    /// <summary>
-    /// 찢어 발기기
-    /// </summary>
     class ActionBase
     {
     public:
@@ -26,16 +24,17 @@ namespace EnemyAction
 
     private:
         virtual void OnActionEnter()    = 0;
-        virtual void OnActionUpdate() = 0;
+        virtual void OnActionUpdate()   = 0;
         virtual void OnActionExit()     = 0;
 
     protected:
-        void ProcessBattle();
+        void ProcessBattle(int damage, float damageScale = 1.0f);
 
     protected:
         Enemy*              _owner = nullptr;
         AnimationComponent* _animator = nullptr;
         bool                _isActionEnd = false;
 
+        EnemyAction::ActionData _actionData;
     };
 } // namespace Enemy

@@ -4,6 +4,9 @@
 #include <Animation/AnimationComponent.h>
 #include <TurnSystem/TurnMode/TurnMode.h>
 #include <BattleSystem/Battle.h>
+#include <Stats/Enemy/EnemyStatsComponent.h>
+#include <Stats/Enemy/EnemyStats.h>
+
 namespace EnemyAction
 {
     ActionBase::ActionBase(Enemy* owner) 
@@ -31,7 +34,7 @@ namespace EnemyAction
         OnActionExit();
     }
 
-    void ActionBase::ProcessBattle()
+    void ActionBase::ProcessBattle(int damage, float damageScale)
     {
         TurnMode* turnMode = TurnMode::GetInstance();
         if (turnMode)
@@ -40,6 +43,13 @@ namespace EnemyAction
             Player* player = turnMode->GetPlayer();
             if (enemy && player)
             {
+                auto* statComponent = enemy->GetEnemyStats();
+                if (statComponent)
+                {
+                    auto& stat = statComponent->GetStats();
+                    stat.Damage = damage;
+                    stat.DamageMultiplier = damageScale;
+                }
                 Battle()(*enemy, *player);
             }
         }

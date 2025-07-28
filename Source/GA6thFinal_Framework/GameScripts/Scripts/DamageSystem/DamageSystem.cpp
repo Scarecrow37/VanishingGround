@@ -23,14 +23,10 @@ int DamageSystem::CalculateChainDamage(const PlayerInfo& attacker, const EnemyIn
 
 int DamageSystem::CalculateDamage(const EnemyInfo& attacker, const PlayerInfo& target)
 {
-    int   resultDamage = 10;
-    //auto* enemyActionSystem = EnemyActionSystem::GetInstance();
-    //if (enemyActionSystem)
-    //{
-    //    const auto& actionData = enemyActionSystem->GetEnemyActionDataFromID(attacker._enemyActionID);
-    //    resultDamage = actionData.BaseDamage;
-    //}
-    return resultDamage;
+    int   hitDamage                = attacker._enemyStats.Damage;
+    float criticalDamageMultiplier = attacker._enemyStats.DamageMultiplier;
+    hitDamage                      = static_cast<int>(std::round(hitDamage * criticalDamageMultiplier));
+    return hitDamage;
 }
 
 int DamageSystem::CalculateChainDamage(const EnemyInfo& attacker, const PlayerInfo& target)

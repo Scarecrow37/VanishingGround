@@ -1,14 +1,11 @@
 ﻿#include "pchScripts.h"
 #include "EnemyActionData.h"
 
-void EnemyActionData::SerializedReflectEvent() 
+namespace EnemyAction
 {
-}
+    void ActionData::SerializedReflectEvent() {}
 
-void EnemyActionData::DeserializedReflectEvent() 
-{
-}
+    void ActionData::DeserializedReflectEvent() {}
 
-void EnemyActionData::ImGuiDrawPropertysEvent() 
-{
+    void ActionData::ImGuiDrawPropertysEvent() {}
 }

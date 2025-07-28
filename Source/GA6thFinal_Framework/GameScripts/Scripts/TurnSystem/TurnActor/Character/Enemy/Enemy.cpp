@@ -166,6 +166,9 @@ void Enemy::OnTurnStart()
 void Enemy::OnTurnEnd()
 {
     Base::OnTurnEnd();
+    // Enemy의 턴이 종료시 액션을 선언.
+    _aiModel.Transition();
+    _aiModel.Refresh();
 }
 
 void Enemy::OnHit()

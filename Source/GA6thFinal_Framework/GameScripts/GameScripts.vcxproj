@@ -444,6 +444,7 @@
     <ClInclude Include="Scripts\Test\DevTools\LogOutput.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Scripts\EnemyAction\Factory\EnemyActionFactory.cpp" />
     <ClCompile Include="Scripts\EnemyAction\ActionData\EnemyActionData.cpp" />
     <ClCompile Include="Scripts\Audio\AudioComponent.cpp" />
     <ClCompile Include="Scripts\BattleSystem\Battle.cpp" />

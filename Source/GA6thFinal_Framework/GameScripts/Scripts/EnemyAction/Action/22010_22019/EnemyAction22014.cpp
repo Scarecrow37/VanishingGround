@@ -19,7 +19,6 @@ namespace EnemyAction
             }
             _animator->EndBuildOverrideAnimation();
         }
-        ProcessBattle();
     }
     void Action22014::OnActionUpdate() 
     {
