@@ -41,5 +41,20 @@ if %BUILD_RESULT% neq 0 (
 	pause
 ) else (
     echo 빌드 성공!
+	echo PDB 파일 삭제: %NEW_PDB_PATH%
+    if exist "%NEW_PDB_PATH%" (
+        del /f /q "%NEW_PDB_PATH%"
+        echo 삭제 완료
+    ) else (
+        echo PDB 파일이 존재하지 않습니다
+    )
+
+    echo DLL 파일 삭제: %NEW_DLL_PATH%
+    if exist "%NEW_DLL_PATH%" (
+        del /f /q "%NEW_DLL_PATH%"
+        echo 삭제 완료
+    ) else (
+        echo DLL 파일이 존재하지 않습니다
+    )
 )
 exit /b %BUILD_RESULT%
