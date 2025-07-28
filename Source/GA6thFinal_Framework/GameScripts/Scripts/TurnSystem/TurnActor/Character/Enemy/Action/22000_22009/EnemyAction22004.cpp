@@ -7,16 +7,8 @@ namespace EnemyAction
     void Action22004::OnActionEnter() 
     {
     }
-    bool Action22004::OnActionUpdate() 
+    void EnemyAction::Action22004::OnActionUpdate() 
     {
-        auto player = Player::GetInstance();
-        if (player)
-        {
-            // 플레이어에게 출혈 토큰을 추가합니다.
-            auto& system = player->GetTokenInventory();
-            system.AddTokenStackFromID(TokenObject::Bleed::ID, 2);
-        }
-        return true;
     }
     void Action22004::OnActionExit() 
     {

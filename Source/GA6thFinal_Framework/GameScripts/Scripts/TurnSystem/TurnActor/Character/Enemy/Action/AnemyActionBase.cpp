@@ -15,6 +15,22 @@ namespace EnemyAction
         }
     }
 
+    void ActionBase::RequireActionEnter()
+    {
+        _isActionEnd = false;
+        OnActionEnter();
+    }
+
+    void ActionBase::RequireActionUpdate()
+    {
+        OnActionUpdate();
+    }
+
+    void ActionBase::RequireActionExit()
+    {
+        OnActionExit();
+    }
+
     void ActionBase::ProcessBattle()
     {
         TurnMode* turnMode = TurnMode::GetInstance();

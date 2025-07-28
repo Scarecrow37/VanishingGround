@@ -12,20 +12,18 @@ namespace EnemyAction
             _animator->BeginBuildOverrideAnimation();
             {
                 const char* animKey = _owner->GetAnimationName(CharacterBase::ATTACK_1);
+                _animator->ClearOverrideAnimations();
                 _animator->PushOverrideAnimation(animKey, true, [](const AnimationData& data) { return data.IsEnd(); });
+                _animator->SetCurrentAnimationPopCallback([this]() { SetActionEnd(); });
                 _animator->ChangeCurrentAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE);
             }
             _animator->EndBuildOverrideAnimation();
         }
         ProcessBattle();
     }
-    bool Action22010::OnActionUpdate()
+
+    void EnemyAction::Action22010::OnActionUpdate()
     {
-        if (_animator)
-        {
-            return 0 == _animator->GetOverrideAnimationCount();
-        }
-        return true;
     }
 
     void Action22010::OnActionExit() 

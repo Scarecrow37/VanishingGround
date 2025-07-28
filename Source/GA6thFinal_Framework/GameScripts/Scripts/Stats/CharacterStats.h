@@ -9,7 +9,9 @@ struct CharacterStats : public TurnActorStats
 
     REFLECT_PROPERTY(
         MaxHP, 
-        MaxChainRoundCount)
+        MaxChainRoundCount,
+        StunResistance
+    )
 
     SETTER(int, MaxHP) { ReflectFields->MaxHP = std::clamp(value, 1, 99999); }
     GETTER(int, MaxHP) { return ReflectFields->MaxHP; }

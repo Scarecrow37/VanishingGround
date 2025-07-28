@@ -59,6 +59,13 @@ void CombatStartPhase::ResetCharacterStats()
             }
         }
     }
+    for (auto& character : _characters)
+    {
+        if (character)
+        {
+            character->ClearState();
+        }
+    }
 }
 
 void CombatStartPhase::OnAwake() 
@@ -98,15 +105,11 @@ void CombatStartPhase::OnUpdate()
 
 void CombatStartPhase::NotifyCombatStart() 
 {
-    if (_player)
+    for (auto& character : _characters)
     {
-        _player->OnCombatStart();
-    }
-    for (auto& enemy : _enemies)
-    {
-        if (enemy)
+        if (character)
         {
-            enemy->OnCombatStart();
+            character->OnCombatStart();
         }
     }
 
@@ -127,5 +130,4 @@ void CombatStartPhase::AddValidActions()
 
         }
     }
-
 }

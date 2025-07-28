@@ -224,19 +224,19 @@ void TokenInventory::AddTokenStackFromID(int tokenID, int count /* = 1 */)
     auto it = _tokenTable.find(tokenID);
     if (it != _tokenTable.end())
     {
-        int    maxStackCount = UINT_MAX;
+        int maxStackCount = UINT_MAX;
         IToken* token = TokenSystem::GetTokenFromID(tokenID);
-        if (token)
+        if (token && token->CanAdd(_owner))
         {
-            maxStackCount = token->GetMaxStackCount();
-        }
-        int& stackCount = it->second;
-        stackCount += count;
-        stackCount = std::min(maxStackCount, stackCount);
-        UpdateToken(tokenID);
-        if (_owner)
-        {
-            _owner->OnTokenAdded(tokenID);
+            maxStackCount   = token->GetMaxStackCount();
+            int& stackCount = it->second;
+            stackCount += count;
+            stackCount = std::min(maxStackCount, stackCount);
+            UpdateToken(tokenID);
+            if (_owner)
+            {
+                _owner->OnTokenAdded(tokenID);
+            }
         }
     }
 }
@@ -269,13 +269,17 @@ void TokenInventory::RemoveTokenStackFromID(int tokenID, int count /* = 1 */)
     auto it = _tokenTable.find(tokenID);
     if (it != _tokenTable.end())
     {
-        int& stackCount = it->second;
-        stackCount -= count;
-        stackCount = std::max(0, stackCount);
-        UpdateToken(tokenID);
-        if (_owner)
+        IToken* token = TokenSystem::GetTokenFromID(tokenID);
+        if (token && token->CanRemove(_owner))
         {
-            _owner->OnTokenRemoved(tokenID);
+            int& stackCount = it->second;
+            stackCount -= count;
+            stackCount = std::max(0, stackCount);
+            UpdateToken(tokenID);
+            if (_owner)
+            {
+                _owner->OnTokenRemoved(tokenID);
+            }
         }
     }
 }
@@ -391,6 +395,29 @@ void TokenInventory::DrawImGuiDebugData()
         }
         ImGui::EndChild();
         ImGui::TreePop();
+    }
+
+    static int id = 0;
+    const std::string& tokenName = TokenSystem::GetInstance()->GetTokenNameFromID(id);
+    ImGuiHelper::TextWithVerticalSeparator("Add Token Stack", id);
+    if (ImGui::BeginCombo("##AddTokenStack", tokenName.c_str()))
+    {
+        const auto& instances = TokenSystem::GetTokenInstances();
+        for (const auto& token : instances)
+        {
+            if (token)
+            {
+                if (ImGui::Selectable(token->GetTokenName(), false))
+                {
+                    id = token->GetTokenID();
+                }
+            }
+        }
+        ImGui::EndCombo();
+    }
+    if (ImGui::Button("Add Token Stack"))
+    {
+        AddTokenStackFromID(id, 1); // 스택을 1개 추가합니다.
     }
 }
 

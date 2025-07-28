@@ -12,6 +12,7 @@ namespace TokenObject
         TOKEN_DATA(16007, "기절")
         TOKEN_CONSTRUCTOR(Stun, 55, 1, TokenTag::STUN)
     private:
+        bool CanAdd(CharacterBase* owner) const override;
         void OnTurnStart(CharacterBase* owner) override;
 
     private:
@@ -28,7 +29,6 @@ namespace TokenObject
     {
         TOKEN_DATA(16008, "기절 저항")
         TOKEN_CONSTRUCTOR(StunResistance, 40, 1, TokenTag::STUN)
-    private:
-        void OnTokenRemoved(CharacterBase* owner, int tokenID) override;        
+    private:     
     };
 } // namespace TokenObject

@@ -140,8 +140,7 @@ TurnActor* TurnMode::PopTurnList()
         auto& [slot, actor] = actorSlot;
         _currTurnActor      = actor;
         _turnList.pop_front();
-        if (_currTurnActor->State == TurnActor::STATE::Wait ||
-            _currTurnActor->State == TurnActor::STATE::Skip )
+        if (_currTurnActor->State == TurnActor::STATE::Wait)
         {
             if (true == IsPlayerActorSlot(actorSlot))
             {

@@ -99,16 +99,17 @@ bool EnemyPlayTurnState::ExcuteAction()
     {
         if (_previousAction)
         {
-            _previousAction->OnActionExit();
+            _previousAction->RequireActionExit();
         }
         if (_currentAction)
         {
-            _currentAction->OnActionEnter();
+            _currentAction->RequireActionEnter();
         }
     }
     if (_currentAction)
     {
-        result = _currentAction->OnActionUpdate();
+        _currentAction->RequireActionUpdate();
+        result = _currentAction->IsActionEnd();
     }
 
     return result;

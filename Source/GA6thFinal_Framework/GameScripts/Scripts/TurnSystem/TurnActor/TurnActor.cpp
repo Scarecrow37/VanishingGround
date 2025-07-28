@@ -17,11 +17,22 @@ void TurnActor::PlayTurn()
 {
     if (_currState == STATE::Wait)
     {
-        _currState = STATE::Play;
-    }
-    else if (_currState == STATE::Skip)
-    {
-        _currState = STATE::Wait;
+        if (HasTurnActorFlags(TurnActorFlags::FLAGS_TURN_SKIP))
+        {
+            _currState = STATE::Wait; // 턴 스킵 플래그가 있으면 턴을 스킵합니다.
+            RemoveTurnActorFlags(TurnActorFlags::FLAGS_TURN_SKIP); // 턴 스킵 플래그 제거
+
+            std::string_view name = gameObject->ToString();
+            std::string message = std::format("{}{}{}"
+                , name.data()
+                , (const char*)u8"가 기절로 인하여"
+                , (const char*)u8" 턴을 스킵합니다.");
+            UmLogger.Message(LogLevel::LEVEL_DEBUG, message);
+        }
+        else
+        {
+            _currState = STATE::Play;
+        }
     }
 }
 
@@ -41,13 +52,9 @@ void TurnActor::Dead()
     }
 }
 
-void TurnActor::SetNextTurnSkip()
-{
-    _currState = STATE::Skip;
-}
-
 void TurnActor::EndTurn() 
 {
+    _currState = STATE::Wait;
 }
 
 void TurnActor::Awake() 
