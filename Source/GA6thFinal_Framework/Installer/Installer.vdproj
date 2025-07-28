@@ -1863,6 +1863,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_33EF3DFD7DFF4D88A5ADCDC7D29BE6FA"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_340B7898A8D94645827B2BD973E16B0A"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -6957,6 +6963,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_C1D962F9D13194724E3994DF19539B24"
+        "OwnerKey" = "8:_34827D7217BB430F95717DCC59951861"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_C1DC3FDFBC6E49589B89679014D39D82"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -9232,6 +9244,12 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_FA1ECDD830D54010A269DFEB856CECAB"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_DE078C203B4840D293EDF296240C7A6D"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -9239,12 +9257,6 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_8AEE4BF73C31DD61487B114A8B2CDD4E"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_FA1ECDD830D54010A269DFEB856CECAB"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -9399,6 +9411,34 @@
     {
         "CustomAction"
         {
+            "{4AA51A2D-7D85-4A59-BA75-B0809FC8B380}:_1B53155D983741068A1F4852E03AB611"
+            {
+            "Name" = "8:InstallerCusomAction.exe"
+            "Condition" = "8:REMOVE=\"ALL\""
+            "Object" = "8:_33EF3DFD7DFF4D88A5ADCDC7D29BE6FA"
+            "FileType" = "3:2"
+            "InstallAction" = "3:4"
+            "Arguments" = "8:/Uninstall \"[TARGETDIR]\""
+            "EntryPoint" = "8:"
+            "Sequence" = "3:1"
+            "Identifier" = "8:_7C927A35_35D9_412A_9884_FAC4C52F2E38"
+            "InstallerClass" = "11:FALSE"
+            "CustomActionData" = "8:"
+            }
+            "{4AA51A2D-7D85-4A59-BA75-B0809FC8B380}:_5BB5BBA745A54E0EB838885C205CD852"
+            {
+            "Name" = "8:InstallerCusomAction.exe"
+            "Condition" = "8:UPGRADEFOUND"
+            "Object" = "8:_33EF3DFD7DFF4D88A5ADCDC7D29BE6FA"
+            "FileType" = "3:2"
+            "InstallAction" = "3:1"
+            "Arguments" = "8:/Install \"[TARGETDIR]\""
+            "EntryPoint" = "8:"
+            "Sequence" = "3:1"
+            "Identifier" = "8:_EDC516EC_FED9_4958_9CD9_A2308096A39C"
+            "InstallerClass" = "11:FALSE"
+            "CustomActionData" = "8:"
+            }
         }
         "DefaultFeature"
         {
@@ -15568,6 +15608,26 @@
             "TargetName" = "8:GraphicsModule.cpp"
             "Tag" = "8:"
             "Folder" = "8:_2096DB40BDB64EA4B34A278A0E8FECD6"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_33EF3DFD7DFF4D88A5ADCDC7D29BE6FA"
+            {
+            "SourcePath" = "8:Action\\Release\\InstallerCusomAction.exe"
+            "TargetName" = "8:InstallerCusomAction.exe"
+            "Tag" = "8:"
+            "Folder" = "8:_8F40E98B052A4546870F24792BFD6B45"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -32575,6 +32635,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C1D962F9D13194724E3994DF19539B24"
+            {
+            "SourcePath" = "8:InstallerCusomAction.exe"
+            "TargetName" = "8:InstallerCusomAction.exe"
+            "Tag" = "8:"
+            "Folder" = "8:_C9F999A467504237A1A8D969B48D3969"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:TRUE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C1DC3FDFBC6E49589B89679014D39D82"
             {
             "SourcePath" = "8:..\\GraphicsEngine\\ThirdParty\\include\\directxtk12\\CommonStates.h"
@@ -42744,7 +42824,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Umreal Engine"
         "ProductCode" = "8:{04F52857-F8F9-42B7-B55E-52B68EA1DA9D}"
-        "PackageCode" = "8:{046DB80F-B0BA-4D20-AB7B-496BF4ACE526}"
+        "PackageCode" = "8:{6C1EC61B-2C34-415C-9074-C75192FD3C72}"
         "UpgradeCode" = "8:{43C62E9B-CAB0-4C45-9035-CFD2A4296D61}"
         "AspNetVersion" = "8:"
         "RestartWWWService" = "11:FALSE"
