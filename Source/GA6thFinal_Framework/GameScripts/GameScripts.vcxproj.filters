@@ -390,38 +390,6 @@
     <ClInclude Include="Scripts\TurnSystem\TurnAction\WeaponStas\WeaponDamageAction.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Scripts\EnemyActionSystem\Action\22000_22009\EnemyAction22001.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\EnemyActionSystem\Action\22000_22009\EnemyAction22002.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\EnemyActionSystem\Action\22000_22009\EnemyAction22003.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\EnemyActionSystem\Action\22000_22009\EnemyAction22004.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\EnemyActionSystem\Action\22010_22019\EnemyAction22010.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\EnemyActionSystem\Action\22010_22019\EnemyAction22011.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\EnemyActionSystem\Action\22010_22019\EnemyAction22012.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\EnemyActionSystem\Action\22010_22019\EnemyAction22013.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\EnemyActionSystem\Action\22010_22019\EnemyAction22014.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\EnemyActionSystem\EnemyActionBase.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\EnemyActionSystem\Action\22000_22009\EnemyAction22000.h">
-      <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Scripts\UI\Panels\Horizontal\HorizontalPanel.h">
       <Filter>헤더 파일</Filter>
@@ -436,6 +404,18 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Scripts\Test\DevTools\LogOutput.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\EnemyAction\ActionData\EnemyActionData.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\EnemyAction\Factory\EnemyActionFactory.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\EnemyAction\System\EnemyActionSystem.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\EnemyAction\EnemyActionBase.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22000.h">
@@ -468,16 +448,31 @@
     <ClInclude Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22014.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Scripts\EnemyAction\ActionData\EnemyActionData.h">
+    <ClInclude Include="Scripts\Animation\Structs\AnimationStructs.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Scripts\EnemyAction\Factory\EnemyActionFactory.h">
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Scripts\EnemyAction\System\EnemyActionSystem.h">
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Recovery\RecoveryAction.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Scripts\EnemyAction\EnemyActionBase.h">
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\WeaponStas\WeaponDamageAction.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\UI\Panels\Horizontal\HorizontalPanel.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\UI\Wrappers\Center\CenterWrapper.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\UI\Wrappers\Padding\PaddingWrapper.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\WeaponSystem\WeaponElement\WeaponElement.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts\Test\DevTools\LogOutput.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -806,39 +801,6 @@
     <ClCompile Include="Scripts\TurnSystem\TurnAction\WeaponStas\WeaponDamageAction.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\EnemyActionSystem\Action\22000_22009\EnemyAction22001.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\EnemyActionSystem\Action\22000_22009\EnemyAction22002.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\EnemyActionSystem\Action\22000_22009\EnemyAction22003.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\EnemyActionSystem\Action\22000_22009\EnemyAction22004.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\EnemyActionSystem\Action\22010_22019\EnemyAction22010.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\EnemyActionSystem\Action\22010_22019\EnemyAction22011.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\EnemyActionSystem\Action\22010_22019\EnemyAction22012.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\EnemyActionSystem\Action\22010_22019\EnemyAction22013.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\EnemyActionSystem\Action\22010_22019\EnemyAction22014.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\EnemyActionSystem\EnemyActionBase.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\EnemyActionSystem\Action\22000_22009\EnemyAction22000.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Scripts\UI\Panels\Horizontal\HorizontalPanel.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -852,6 +814,15 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Scripts\Test\DevTools\LogOutput.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\EnemyAction\ActionData\EnemyActionData.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\EnemyAction\System\EnemyActionSystem.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\EnemyAction\EnemyActionBase.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22000.cpp">
@@ -884,13 +855,28 @@
     <ClCompile Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22014.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\EnemyAction\ActionData\EnemyActionData.cpp">
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\EnemyAction\System\EnemyActionSystem.cpp">
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Recovery\RecoveryAction.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\EnemyAction\EnemyActionBase.cpp">
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\WeaponStas\WeaponDamageAction.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\UI\Panels\Horizontal\HorizontalPanel.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\UI\Wrappers\Center\CenterWrapper.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\UI\Wrappers\Padding\PaddingWrapper.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\WeaponSystem\WeaponElement\WeaponElement.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts\Test\DevTools\LogOutput.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
