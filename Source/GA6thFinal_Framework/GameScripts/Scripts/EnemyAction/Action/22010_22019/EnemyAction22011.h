@@ -1,13 +1,13 @@
 ﻿#pragma once
-#include <TurnSystem/TurnActor/Character/Enemy/Action/AnemyActionBase.h>
+#include <EnemyAction/EnemyActionBase.h>
 
 namespace EnemyAction
 {
     /// <summary>
-    /// 피의 의식
+    /// 떨리는 중얼거림
     /// </summary>
-    class Action22004 : public ActionBase
-    { 
+    class Action22011 : public ActionBase
+    {
     public:
         using ActionBase::ActionBase;
     private:

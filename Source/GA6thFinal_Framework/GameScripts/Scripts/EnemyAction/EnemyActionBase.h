@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include "Animation/Structs/AnimationData.h"
 
 class Enemy;
 class SkeletalMeshRenderer;

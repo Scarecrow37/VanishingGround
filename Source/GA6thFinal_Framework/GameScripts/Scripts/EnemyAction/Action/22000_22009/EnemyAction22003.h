@@ -1,14 +1,13 @@
 ﻿#pragma once
-#include <TurnSystem/TurnActor/Character/Enemy/Action/AnemyActionBase.h>
+#include <EnemyAction/EnemyActionBase.h>
 
 namespace EnemyAction
 {
     /// <summary>
-    /// 절망
+    /// 찢어 발기기
     /// </summary>
-    class Action22012 : public ActionBase
-    {
-    public:
+    class Action22003 : public ActionBase
+    { public:
         using ActionBase::ActionBase;
     private:
         void OnActionEnter() override;

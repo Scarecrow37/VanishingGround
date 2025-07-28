@@ -3,6 +3,7 @@
 #include <Stats/Player/PlayerStats.h>
 #include <Stats/Enemy/EnemyStats.h>
 #include <Stats/Weapon/WeaponStats.h>
+#include <EnemyAction/System/EnemyActionSystem.h>
 
 int DamageSystem::CalculateDamage(const PlayerInfo& attacker, const EnemyInfo& target)
 {
@@ -22,9 +23,14 @@ int DamageSystem::CalculateChainDamage(const PlayerInfo& attacker, const EnemyIn
 
 int DamageSystem::CalculateDamage(const EnemyInfo& attacker, const PlayerInfo& target)
 {
-    int result = 0;
-    result = 10;
-    return result;
+    int   resultDamage = 10;
+    //auto* enemyActionSystem = EnemyActionSystem::GetInstance();
+    //if (enemyActionSystem)
+    //{
+    //    const auto& actionData = enemyActionSystem->GetEnemyActionDataFromID(attacker._enemyActionID);
+    //    resultDamage = actionData.BaseDamage;
+    //}
+    return resultDamage;
 }
 
 int DamageSystem::CalculateChainDamage(const EnemyInfo& attacker, const PlayerInfo& target)
