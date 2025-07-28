@@ -8,7 +8,6 @@
 #include <functional>
 
 #include <xaudio2.h>
-#include <winrt/base.h>
 
 #include "Exceptions.h"
 #include "Types.h"
