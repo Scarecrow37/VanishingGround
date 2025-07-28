@@ -11,7 +11,7 @@ namespace EnemyAction
         {
             _animator->BeginBuildOverrideAnimation();
             {
-                const char* animKey = _owner->GetAnimationName(CharacterBase::ATTACK_3);
+                const char* animKey = _owner->GetAnimationName(CharacterBase::ATTACK_1);
                 _animator->ClearOverrideAnimations();
                 _animator->PushOverrideAnimation(animKey, true, [](const AnimationData& data) { return data.IsEnd(); });
                 _animator->SetCurrentAnimationPopCallback([this]() { SetActionEnd(); });

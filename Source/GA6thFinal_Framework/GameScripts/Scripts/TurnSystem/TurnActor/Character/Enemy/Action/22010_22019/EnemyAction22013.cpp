@@ -23,12 +23,12 @@ namespace EnemyAction
     }
     void Action22013::OnActionUpdate() 
     {
+    }
+    void Action22013::OnActionExit() 
+    {
         if (_owner)
         {
             _owner->Dead();
         }
-    }
-    void Action22013::OnActionExit() 
-    {
     }
 } // namespace EnemyAction

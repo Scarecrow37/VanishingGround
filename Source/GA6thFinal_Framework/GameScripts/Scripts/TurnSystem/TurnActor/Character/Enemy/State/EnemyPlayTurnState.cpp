@@ -42,9 +42,13 @@ void EnemyPlayTurnState::OnEnter()
     std::string message = std::format("{} {}", gameObject->ToString(), (const char*)u8"턴 시작.");
     UmLogger.Message(LogLevel::LEVEL_TRACE, message);
 
-    UmTime.Invoke(&GetFSM(), 2.f, [=]() { GetEnemy().EndTurn(); });
-
+    RequireCurrentAction();
+    if (_currentAction)
+    {
+        _currentAction->RequireActionEnter();
+    }
     LogCurrentAction();
+
 }
 
 void EnemyPlayTurnState::OnExit() 
@@ -54,6 +58,11 @@ void EnemyPlayTurnState::OnExit()
     std::string message = std::format("{} {}", gameObject->ToString(), (const char*)u8"턴 종료.");
     UmLogger.Message(LogLevel::LEVEL_TRACE, message);
 
+    if (_currentAction)
+    {
+        _currentAction->RequireActionExit();
+    }
+
     // Enemy의 턴이 종료시 액션을 선언.
     EnemyAI& aiModel = GetEnemy().GetAIModel();
     aiModel.Transition();
@@ -62,8 +71,14 @@ void EnemyPlayTurnState::OnExit()
     
 void EnemyPlayTurnState::OnUpdate()
 {
-    Enemy& enemy  = GetEnemy();
-    bool result = ExcuteAction();
+    bool     result  = true;
+    Enemy&   enemy   = GetEnemy();
+    EnemyAI& aiModel = GetEnemy().GetAIModel();
+    if (_currentAction)
+    {
+        _currentAction->RequireActionUpdate();
+        result = _currentAction->IsActionEnd();
+    }
     if (true == result)
     {
         enemy.EndTurn();
@@ -73,46 +88,7 @@ void EnemyPlayTurnState::OnUpdate()
 void EnemyPlayTurnState::ClearAction() 
 {
     _currentAction  = nullptr;
-    _previousAction = nullptr;
     _actionTable.clear();
-}
-
-bool EnemyPlayTurnState::ExcuteAction()
-{
-    bool result = true;
-    EnemyAI& aiModel = GetEnemy().GetAIModel();
-
-    _previousAction = _currentAction;
-    
-    int  actionID = aiModel.GetCurrentActionID();
-    auto actionIt = _actionTable.find(actionID);
-    if (actionIt != _actionTable.end())
-    {
-        _currentAction = actionIt->second.get();
-    }
-    else
-    {
-        _currentAction = nullptr;
-    }
-
-    if (_currentAction != _previousAction)
-    {
-        if (_previousAction)
-        {
-            _previousAction->RequireActionExit();
-        }
-        if (_currentAction)
-        {
-            _currentAction->RequireActionEnter();
-        }
-    }
-    if (_currentAction)
-    {
-        _currentAction->RequireActionUpdate();
-        result = _currentAction->IsActionEnd();
-    }
-
-    return result;
 }
 
 void EnemyPlayTurnState::SetAIModel(EnemyType type)
@@ -275,4 +251,19 @@ void EnemyPlayTurnState::LogCurrentAction()
     GameObject* gameObject = &GetFSM().gameObject;
     std::string message    = std::format("{} {}", gameObject->ToString(), GetActionName(actionID));
     UmLogger.Message(LogLevel::LEVEL_DEBUG, message);
+}
+
+void EnemyPlayTurnState::RequireCurrentAction() 
+{
+    EnemyAI& aiModel = GetEnemy().GetAIModel();
+    int  actionID = aiModel.GetCurrentActionID();
+    auto actionIt = _actionTable.find(actionID);
+    if (actionIt != _actionTable.end())
+    {
+        _currentAction = actionIt->second.get();
+    }
+    else
+    {
+        _currentAction = nullptr;
+    }
 }

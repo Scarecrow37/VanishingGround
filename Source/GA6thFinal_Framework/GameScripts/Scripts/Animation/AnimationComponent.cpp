@@ -195,7 +195,12 @@ void AnimationComponent::UpdateAnimation(AnimationData& animData)
             bool result = animData.PopCondition(animData);
             if (result)
             {
+                if (animData.OnPopCallback)
+                {
+                    animData.OnPopCallback();
+                }
                 PopOverrideAnimation();
+                
             }
         }
     }

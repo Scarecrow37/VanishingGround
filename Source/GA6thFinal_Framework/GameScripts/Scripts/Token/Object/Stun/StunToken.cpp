@@ -3,6 +3,7 @@
 
 #include <TurnSystem/TurnActor/Character/CharacterBase.h>
 #include <Token/TokenInventory.h>
+#include <Stats/CharacterStats.h>
 namespace TokenObject
 {
     REGISTER_TOKEN(Stun)
@@ -38,6 +39,11 @@ namespace TokenObject
             auto& tokenInventory = owner->GetTokenInventory();
             tokenInventory.RemoveTokenFromID(ID); // 기절 토큰 제거
             owner->SetTurnActorFlags(TurnActor::FLAGS_TURN_SKIP); // 턴 스킵 플래그 설정
+            auto* stats = owner->GetCharacterStats();
+            if (stats)
+            {
+                tokenInventory.AddTokenStackFromID(TokenObject::StunResistance::ID, stats->StunResistance);
+            }
         }
     }
 } // namespace TokenObject

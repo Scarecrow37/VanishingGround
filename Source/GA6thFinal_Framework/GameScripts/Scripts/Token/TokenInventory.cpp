@@ -363,7 +363,7 @@ bool TokenInventory::IsEmpty() const
 void TokenInventory::DrawImGuiDebugData() 
 {
     // ValidTokenStack
-    ImGui::BeginChild("ValidTokenStack", ImVec2(0, 0), ImGuiChildFlags_AutoResizeY);
+    ImGui::BeginChild("ValidTokenStack", ImVec2(0, 0), ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeY);
     const auto& instances = TokenSystem::GetTokenInstances();
     for (size_t i = 0; i < _vaildTokenVector.size(); ++i)
     {
@@ -375,49 +375,65 @@ void TokenInventory::DrawImGuiDebugData()
         {
             // 선택된 토큰에 대한 추가 작업이 필요하면 여기에 작성
         }
-        ImGui::Separator();
+        if (i < _vaildTokenVector.size() - 1)
+        {
+            ImGui::Separator();
+        }
     }
     ImGui::EndChild();
     
-    if (ImGui::TreeNodeEx("TokenInstances"))
+    if (ImGui::TreeNodeEx("Token Debug##token inventory"))
     {
-        ImGui::Text("Token Count: %zu", _vaildTokenVector.size());
-        ImGui::Text("Total Tokens: %zu", instances.size());
-        ImGui::BeginChild("TokenList", ImVec2(0, 200), true);
-        for (const auto& token : instances)
+        if (ImGui::TreeNodeEx("Token Instances##token inventory"))
         {
-            if (token)
+            ImGui::Text("Token Count: %zu", _vaildTokenVector.size());
+            ImGui::Text("Total Tokens: %zu", instances.size());
+            ImGui::BeginChild("TokenList", ImVec2(0, 200), true);
+            for (const auto& token : instances)
             {
-                if (ImGui::Selectable(token->GetTokenName(), false))
+                if (token)
                 {
+                    if (ImGui::Selectable(token->GetTokenName(), false))
+                    {
+                    }
                 }
             }
+            ImGui::EndChild();
+            ImGui::TreePop();
         }
-        ImGui::EndChild();
-        ImGui::TreePop();
-    }
 
-    static int id = 0;
-    const std::string& tokenName = TokenSystem::GetInstance()->GetTokenNameFromID(id);
-    ImGuiHelper::TextWithVerticalSeparator("Add Token Stack", id);
-    if (ImGui::BeginCombo("##AddTokenStack", tokenName.c_str()))
-    {
-        const auto& instances = TokenSystem::GetTokenInstances();
-        for (const auto& token : instances)
+        static int id = 0;
+        const std::string& tokenName = TokenSystem::GetInstance()->GetTokenNameFromID(id);
+        if (ImGui::TreeNodeEx("Add or Remove Token##token inventory"))
         {
-            if (token)
+            if (ImGui::BeginCombo("##Add or Remove TokenStack", tokenName.c_str()))
             {
-                if (ImGui::Selectable(token->GetTokenName(), false))
+                const auto& instances = TokenSystem::GetTokenInstances();
+                for (const auto& token : instances)
                 {
-                    id = token->GetTokenID();
+                    if (token)
+                    {
+                        if (ImGui::Selectable(token->GetTokenName(), false))
+                        {
+                            id = token->GetTokenID();
+                        }
+                    }
                 }
+                ImGui::EndCombo();
             }
+            if (ImGui::Button("Add"))
+            {
+                AddTokenStackFromID(id, 1); // 스택을 1개 추가합니다.
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Remove"))
+            {
+                RemoveTokenStackFromID(id, 1); // 스택을 1개 제거합니다.
+            }
+            ImGui::TreePop();
         }
-        ImGui::EndCombo();
-    }
-    if (ImGui::Button("Add Token Stack"))
-    {
-        AddTokenStackFromID(id, 1); // 스택을 1개 추가합니다.
+
+        ImGui::TreePop();
     }
 }
 
