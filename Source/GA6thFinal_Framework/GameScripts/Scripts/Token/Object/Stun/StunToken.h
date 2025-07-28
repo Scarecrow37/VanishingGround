@@ -28,7 +28,7 @@ namespace TokenObject
     class StunResistance : public Token
     {
         TOKEN_DATA(16008, "기절 저항")
-        TOKEN_CONSTRUCTOR(StunResistance, 40, 1, TokenTag::STUN)
+        TOKEN_CONSTRUCTOR(StunResistance, 40, 99, TokenTag::STUN)
     private:     
     };
 } // namespace TokenObject

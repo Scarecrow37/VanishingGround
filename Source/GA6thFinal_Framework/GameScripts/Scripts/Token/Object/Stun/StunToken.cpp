@@ -18,7 +18,7 @@ namespace TokenObject
             if (hasStunResistance)
             {
                 // 기절 저항을 1 깎는다.
-                tokenInventory.RemoveTokenFromID(TokenObject::StunResistance::ID);
+                tokenInventory.RemoveTokenStackFromID(TokenObject::StunResistance::ID);
                 // 기절 저항이 있다면 기절 토큰을 추가하지 않는다.
                 return false;
             }
@@ -42,6 +42,9 @@ namespace TokenObject
             auto* stats = owner->GetCharacterStats();
             if (stats)
             {
+                // 스턴 저항 수치 갱신은 올림 계산
+                float stunResistance  = std::ceilf((float)stats->StunResistance * stats->StunResistanceMultiplier);
+                stats->StunResistance = static_cast<int>(stunResistance);
                 tokenInventory.AddTokenStackFromID(TokenObject::StunResistance::ID, stats->StunResistance);
             }
         }
