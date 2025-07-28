@@ -56,7 +56,10 @@ void TurnActor::Dead()
 
 void TurnActor::EndTurn() 
 {
-    _currState = STATE::Wait;
+    if (_currState == STATE::Play)
+    {
+        _currState = STATE::Wait;
+    }
 }
 
 void TurnActor::Awake() 
