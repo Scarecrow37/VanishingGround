@@ -464,6 +464,12 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
                     GameObjectKey, GameObject::Helper::GenerateUniqueName("Center Wrapper"), &ui);
                 ui->AddComponent<CenterWrapper>();
             }
+            if (ImGui::MenuItem("Ratio Wrapper"))
+            {
+                UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
+                    GameObjectKey, GameObject::Helper::GenerateUniqueName("Ratio Wrapper"), &ui);
+                ui->AddComponent<RatioWrapper>();
+            }
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Elements"))
