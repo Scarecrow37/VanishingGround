@@ -8,8 +8,6 @@ class GridPanel : public EditablePlacementUIComponent
 {
     USING_PROPERTY(GridPanel)
 
-    using SublineCallback = std::function<void(const POINT& start, const POINT& end)>;
-
 public:
     static constexpr unsigned int MIN_COLUMNS = 1;
     static constexpr unsigned int MIN_ROWS    = 1;
@@ -50,13 +48,14 @@ protected:
 
 private:
     void AssignChild(GridPanelSlot& slot) const;
-    void DrawSubline(const SublineCallback& columnSubline, const SublineCallback& rowSubline) const;
+    void DrawSubline(const LineCallback& columnSubline, const LineCallback& rowSubline) const;
 
 protected:
     REFLECT_FIELDS_BEGIN(EditablePlacementUIComponent)
     unsigned int Columns = MIN_COLUMNS;
     unsigned int Rows    = MIN_ROWS;
     REFLECT_FIELDS_END(GridPanel)
+
 };
 
 class GridPanelSlot : public PanelSlotComponent
@@ -70,6 +69,7 @@ public:
     static constexpr unsigned int MIN_COLUMN_SPAN = 1;
     static constexpr unsigned int MIN_ROW_SPAN    = 1;
 
+public:
     GridPanelSlot();
 
 public:

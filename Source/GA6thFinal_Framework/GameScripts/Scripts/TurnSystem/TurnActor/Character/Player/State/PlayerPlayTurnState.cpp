@@ -187,6 +187,7 @@ void PlayerPlayTurnState::UpdateQuickTimeEventUI(float dt)
     ImGui::Begin("Player Turn##9A48EE30-CB5F-48AC-9740-DDF8118AAC49");
     {
         WeaponSystem* weaponSystem = WeaponSystem::GetInstance();
+        TurnMode*     turnMode     = TurnMode::GetInstance();
         if (weaponSystem)
         {
             Player&      player = GetPlayer();
@@ -226,6 +227,10 @@ void PlayerPlayTurnState::UpdateQuickTimeEventUI(float dt)
             if (_attackRemaining == 0)
             {
                 _inputState = InputState::ATTACK_EVENT;
+                if (turnMode)
+                {
+                    turnMode->ApplyActions([&player](TurnAction& action) { action.OnPlayerQTEResult(player); });
+                }
                 SetAttackAnimation();
             }
         }
@@ -257,7 +262,6 @@ void PlayerPlayTurnState::UpdateAttackEventUI(float dt)
             {
                 auto& player = GetPlayer();
                 SetAttackEndAnimation();
-                player.EndTurn();
             });
            
         }
@@ -341,6 +345,11 @@ void PlayerPlayTurnState::SetAttackEndAnimation()
             const char*   animKey = player.GetAnimationName(CharacterBase::ATTACK_END);
             renderer->PushOverrideAnimation(animKey, true, [](const AnimationData& data) { return data.IsEnd(); });
             renderer->ChangeCurrentAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE);
+            renderer->SetCurrentAnimationPopCallback([this]() {
+                // 애니메이션이 끝날 시 턴 종료
+                auto& player = GetPlayer();
+                player.EndTurn();
+                });
         }
         renderer->EndBuildOverrideAnimation();
     }

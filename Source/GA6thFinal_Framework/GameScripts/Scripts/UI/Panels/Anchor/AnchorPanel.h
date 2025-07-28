@@ -10,6 +10,7 @@ class AnchorPanel : public EditablePlacementUIComponent
 public:
     AnchorPanel();
 
+public:
     void OnAttachChild(GameObject* childGameObject) override;
 
 protected:
@@ -44,6 +45,8 @@ public:
 
 public:
     AnchorPanelSlot();
+
+public:
     AnchorType GetAnchorType() const;
     POINT      GetAnchorPoint() const;
 
@@ -60,4 +63,5 @@ protected:
     AnchorType Anchor = AnchorType::TOP_LEFT;
     POINT      AnchorPoint;
     REFLECT_FIELDS_END(AnchorPanelSlot)
+
 };

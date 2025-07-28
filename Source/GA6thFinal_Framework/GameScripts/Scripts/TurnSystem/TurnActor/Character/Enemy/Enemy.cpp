@@ -166,6 +166,9 @@ void Enemy::OnTurnStart()
 void Enemy::OnTurnEnd()
 {
     Base::OnTurnEnd();
+    // Enemy의 턴이 종료시 액션을 선언.
+    _aiModel.Transition();
+    _aiModel.Refresh();
 }
 
 void Enemy::OnHit()
@@ -227,8 +230,8 @@ const char* Enemy::GetAnimationName(AnimationType type)
                     ANIM_NAME(DEATH,    "Armature|Enemy02_Anim_Death")
                     ANIM_NAME(ATTACK_1, "Armature|Enemy02_Anim_Attack01")
                     ANIM_NAME(ATTACK_2, "")
-                    ANIM_NAME(ATTACK_3, "")
-                    ANIM_NAME(ATTACK_4, "Armature|Enemy02_Anim_Attack03")
+                    ANIM_NAME(ATTACK_3, "Armature|Enemy02_Anim_Attack03")
+                    ANIM_NAME(ATTACK_4, "")
                     ANIM_NAME(ATTACK_READY, "")
                     ANIM_NAME(ATTACK_LOOP, "")
                     ANIM_NAME(ATTACK_END, "")

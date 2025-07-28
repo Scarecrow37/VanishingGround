@@ -22,7 +22,8 @@ public:
         MaxHP, 
         ChainCount, 
         ChainRoundCount,
-        MaxChainRoundCount
+        MaxChainRoundCount,
+        StunResistance
         )
 
     GETTER_ONLY(int, MaxHP) { return GetMaxHP(); }

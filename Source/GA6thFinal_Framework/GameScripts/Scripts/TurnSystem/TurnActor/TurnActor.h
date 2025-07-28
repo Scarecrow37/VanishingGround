@@ -24,8 +24,12 @@ public:
         Wait,
         // 액터가 턴을 진행중인 상태입니다.
         Play,
-        // 액터가 턴을 스킵하는 상태입니다.
-        Skip,
+    };
+
+    enum TurnActorFlags
+    {
+        NONE = 0,
+        FLAGS_TURN_SKIP = 1 << 1,   // 턴 스킵 여부
     };
 
 public:
@@ -58,6 +62,11 @@ public:
     virtual void PlayTurn();
 
     /// <summary>
+    /// 턴 종료를 요청합니다. OnTurnEnd를 호출합니다.
+    /// </summary>
+    virtual void EndTurn();
+
+    /// <summary>
     /// Actor의 상태를 초기화합니다. (부활)
     /// OnRevive를 호출합니다.
     /// </summary>
@@ -69,17 +78,15 @@ public:
     /// </summary>
     virtual void Dead();
 
-    void SetNextTurnSkip();
+    inline void SetTurnActorFlags(int flags) { _flags = flags; }
+    inline void AddTurnActorFlags(int flags) { _flags |= flags; }
+    inline void RemoveTurnActorFlags(int flags) { _flags &= ~flags; }
+    inline int  GetTurnActorFlags() const { return _flags; }
+    inline bool HasTurnActorFlags(int flags) const { return _flags & flags; }
 
 public:
     virtual int GetSpeed() = 0;
     virtual int GetRandomSpeed() { return _randomSpeed; }
-
-protected:
-    /// <summary>
-    /// 턴 종료를 요청합니다. OnTurnEnd를 호출합니다.
-    /// </summary>
-    virtual void EndTurn();
 
 public:
     GETTER_ONLY(int, RandomSpeed) { return _randomSpeed; }
@@ -116,8 +123,9 @@ protected:
     REFLECT_FIELDS_END(TurnActor)
 
 private:
-    int _randomSpeed = 0;
-    STATE _currState;
+    int     _randomSpeed = 0;
+    STATE   _currState;
+    int     _flags = TurnActorFlags::NONE; // TurnActor의 플래그
 
 protected:
     /// <summary>

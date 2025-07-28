@@ -25,7 +25,7 @@ void GridPanel::DrawDebug()
 {
     EditablePlacementUIComponent::DrawDebug();
 
-    const SublineCallback callback = [](const POINT& start, const POINT& end) {
+    const LineCallback callback = [](const POINT& start, const POINT& end) {
         const XMFLOAT2 startVector = {static_cast<float>(start.x), static_cast<float>(start.y)};
         const XMFLOAT2 endVector   = {static_cast<float>(end.x), static_cast<float>(end.y)};
 
@@ -39,7 +39,7 @@ void GridPanel::DrawDebugSelected()
 {
     EditablePlacementUIComponent::DrawDebugSelected();
 
-    const SublineCallback column = [](const POINT& start, const POINT& end) {
+    const LineCallback column = [](const POINT& start, const POINT& end) {
         const XMFLOAT2 startVector = {static_cast<float>(start.x), static_cast<float>(start.y)};
         const XMFLOAT2 endVector   = {static_cast<float>(end.x), static_cast<float>(end.y)};
         UmGraphics.DebugDraw2D("Editor", XMLoadFloat2(&startVector), XMLoadFloat2(&endVector), Colors::Yellow);
@@ -58,7 +58,7 @@ void GridPanel::DrawDebugSelected()
                                Colors::Yellow);
     };
 
-    const SublineCallback row = [](const POINT& start, const POINT& end) {
+    const LineCallback row = [](const POINT& start, const POINT& end) {
         const XMFLOAT2 startVector = {static_cast<float>(start.x), static_cast<float>(start.y)};
         const XMFLOAT2 endVector   = {static_cast<float>(end.x), static_cast<float>(end.y)};
         UmGraphics.DebugDraw2D("Editor", XMLoadFloat2(&startVector), XMLoadFloat2(&endVector), Colors::Yellow);
@@ -99,7 +99,7 @@ void GridPanel::AssignChild(GridPanelSlot& slot) const
     slot.SetScopePlacement(absolutePoint, size);
 }
 
-void GridPanel::DrawSubline(const SublineCallback& columnSubline, const SublineCallback& rowSubline) const
+void GridPanel::DrawSubline(const LineCallback& columnSubline, const LineCallback& rowSubline) const
 {
     const unsigned int columns = Columns;
     const unsigned int rows    = Rows;
@@ -193,7 +193,7 @@ void GridPanelSlot::OnPlacementChange()
     PanelSlotComponent::OnPlacementChange();
 
     const auto [cellPoint, cellSize] = GetCellPlacement();
-    PassScopedPlacement(cellPoint, cellSize);
+    PassScopedPlacementToSibling(cellPoint, cellSize);
 }
 
 void GridPanelSlot::SetColumnsAndRows(const unsigned int columns, const unsigned int rows)

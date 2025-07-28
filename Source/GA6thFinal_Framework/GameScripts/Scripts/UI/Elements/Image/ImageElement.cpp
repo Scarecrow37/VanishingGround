@@ -44,23 +44,17 @@ void ImageElement::Reset()
             UmGraphics.RegisterComponent("Editor", _renderer.get());
         }
         _renderer->SetActive(&EnableInHierarchy);
-        RequestResource();
+        const File::Guid guid = ReflectFields->Guid;
+        if (const auto path = guid.ToPath(); !path.IsNull())
+        {
+            _guidRef = path.ToGuid();
+            RequestResource();
+        }
     }
     catch (...)
     {
         UmLogger.Log(LogLevel::LEVEL_ERROR, u8"SpriteRenderer 생성에 실패했습니다.");
         throw;
-    }
-}
-
-void ImageElement::DeserializedReflectEvent()
-{
-    UIComponent::DeserializedReflectEvent();
-
-    const File::Guid guid = ReflectFields->Guid;
-    if (const auto path = guid.ToPath(); !path.IsNull())
-    {
-        _guidRef = path.ToGuid();
     }
 }
 

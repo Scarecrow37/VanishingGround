@@ -49,6 +49,7 @@ public:
     void UpdateParticleLifeCycle(float deltaTime);
 
     void Play();
+    void Stop();
     void Reset();
 
 
@@ -64,7 +65,7 @@ protected:
     Matrix                             _worldMatrix;
     std::vector<class ParticleEmitter*> _particleEmitters;
     bool                                _isPlaying = false;
-
+    bool                                _isEnding  = false;
 
     int namingIndex = 0;
     int emitterNamingIndex = 0;

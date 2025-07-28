@@ -67,7 +67,7 @@ namespace Audio
     private:
         void ReleaseVoice(const Handle& handle);
 
-        winrt::com_ptr<IXAudio2> _xAudio2;
+        IXAudio2* _xAudio2;
         IXAudio2MasteringVoice*  _masteringVoice = nullptr;
 
         std::unordered_map<WaveFormatHash, std::vector<SourceVoice>> _sourceVoices;

@@ -3,34 +3,49 @@
 
 #include <TurnSystem/TurnActor/Character/CharacterBase.h>
 #include <Token/TokenInventory.h>
+#include <Stats/CharacterStats.h>
 namespace TokenObject
 {
     REGISTER_TOKEN(Stun)
     REGISTER_TOKEN(StunResistance)
 
+    bool Stun::CanAdd(CharacterBase* owner) const 
+    {
+        if (owner)
+        {
+            auto& tokenInventory = owner->GetTokenInventory();
+            bool  hasStunResistance = tokenInventory.HasTokenFromID(TokenObject::StunResistance::ID);
+            if (hasStunResistance)
+            {
+                // 기절 저항을 1 깎는다.
+                tokenInventory.RemoveTokenStackFromID(TokenObject::StunResistance::ID);
+                // 기절 저항이 있다면 기절 토큰을 추가하지 않는다.
+                return false;
+            }
+            else
+            {
+                // 기절 저항이 없다면 기절 토큰을 추가한다.
+                return true;
+            }
+        }
+        return false;
+    }
+
     void Stun::OnTurnStart(CharacterBase* owner)
     {
         if (owner)
         {
-            // 기절 토큰이 부여된 경우, 자신의 턴을 넘김
-            owner->SetNextTurnSkip();
-        }
-    }
-    void StunResistance::OnTokenRemoved(CharacterBase* owner, int tokenID) 
-    {
-        // 기절의 조건은 기절 저항 토큰이 제거되어 0이 되었을 때.
-        if (owner)
-        {
-            // 토큰이 제거 될 경우, 자신 토큰이 없는지 확인한 후 없다면 기절 토큰 부여
-            bool isSelf = (ID == tokenID);
-            if (isSelf)
+            // 기절 상태인 경우, 턴을 넘김
+            auto& tokenInventory = owner->GetTokenInventory();
+            tokenInventory.RemoveTokenFromID(ID); // 기절 토큰 제거
+            owner->SetTurnActorFlags(TurnActor::FLAGS_TURN_SKIP); // 턴 스킵 플래그 설정
+            auto* stats = owner->GetCharacterStats();
+            if (stats)
             {
-                auto& tokenInventory = owner->GetTokenInventory();
-                bool hasSelf = tokenInventory.HasTokenFromID(TokenObject::StunResistance::ID);
-                if (false == hasSelf)
-                {
-                    tokenInventory.AddTokenStackFromID(TokenObject::Stun::ID);
-                }
+                // 스턴 저항 수치 갱신은 올림 계산
+                float stunResistance  = std::ceilf((float)stats->StunResistance * stats->StunResistanceMultiplier);
+                stats->StunResistance = static_cast<int>(stunResistance);
+                tokenInventory.AddTokenStackFromID(TokenObject::StunResistance::ID, stats->StunResistance);
             }
         }
     }

@@ -3,6 +3,7 @@
 #include <Stats/Player/PlayerStats.h>
 #include <Stats/Enemy/EnemyStats.h>
 #include <Stats/Weapon/WeaponStats.h>
+#include <EnemyAction/System/EnemyActionSystem.h>
 
 int DamageSystem::CalculateDamage(const PlayerInfo& attacker, const EnemyInfo& target)
 {
@@ -22,9 +23,10 @@ int DamageSystem::CalculateChainDamage(const PlayerInfo& attacker, const EnemyIn
 
 int DamageSystem::CalculateDamage(const EnemyInfo& attacker, const PlayerInfo& target)
 {
-    int result = 0;
-    result = 10;
-    return result;
+    int   hitDamage                = attacker._enemyStats.Damage;
+    float criticalDamageMultiplier = attacker._enemyStats.DamageMultiplier;
+    hitDamage                      = static_cast<int>(std::round(hitDamage * criticalDamageMultiplier));
+    return hitDamage;
 }
 
 int DamageSystem::CalculateChainDamage(const EnemyInfo& attacker, const PlayerInfo& target)
