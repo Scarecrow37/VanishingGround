@@ -3,7 +3,7 @@
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
 #include <Animation/AnimationComponent.h>
 #include <TurnSystem/TurnMode/TurnMode.h>
-
+#include <BattleSystem/Battle.h>
 namespace EnemyAction
 {
     ActionBase::ActionBase(Enemy* owner) 
@@ -40,7 +40,7 @@ namespace EnemyAction
             Player* player = turnMode->GetPlayer();
             if (enemy && player)
             {
-                //TurnMode::Battle()(*enemy, *player);
+                Battle()(*enemy, *player);
             }
         }
     }
