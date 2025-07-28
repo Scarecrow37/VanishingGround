@@ -448,6 +448,12 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
                     GameObjectKey, GameObject::Helper::GenerateUniqueName("Horizontal Panel"), &ui);
                 ui->AddComponent<HorizontalPanel>();
             }
+            if (ImGui::MenuItem("Description Panel"))
+            {
+                UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
+                    GameObjectKey, GameObject::Helper::GenerateUniqueName("Description Panel"), &ui);
+                ui->AddComponent<DescriptionPanel>();
+            }
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Wrappers"))

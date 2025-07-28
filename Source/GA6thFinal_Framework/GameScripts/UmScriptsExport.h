@@ -120,6 +120,9 @@ UMREAL_COMPONENT(AnchorPanelSlot)
 UMREAL_COMPONENT(HorizontalPanel)
 UMREAL_COMPONENT(HorizontalPanelSlot)
 
+#include "Scripts/UI/Panels/Description/DescriptionPanel.h"
+UMREAL_COMPONENT(DescriptionPanel)
+
 #include "Scripts\WeaponSystem/WeaponSystem.h"
 UMREAL_COMPONENT(WeaponSystem)
 
