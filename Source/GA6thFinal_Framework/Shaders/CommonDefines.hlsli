@@ -9,5 +9,6 @@
 #define objectData bit32_3_objectData
 #define numLight bit32_3_numLight
 #define postProcessData bit32_5_postProcessData
+#define shadowData bit32_4_objectData2
 
 #endif

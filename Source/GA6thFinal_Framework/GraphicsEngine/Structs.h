@@ -97,6 +97,12 @@ struct LightData
     float   float_3;
 };
 
+struct CascadeData
+{
+    Matrix ShadowVP[MAX_CASCADES];
+    float  CascadeSplits[MAX_CASCADES];
+};
+
 struct NumLight
 {
     unsigned int Directional;

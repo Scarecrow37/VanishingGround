@@ -102,44 +102,41 @@ void GBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
     auto  cameraData             = _ownerScene->_cameraBuffer->GetGPUVirtualAddress();
     auto& frameResource          = _ownerScene->_frameResources[currentBackBufferIndex];
 
-    // Static One Sided
-    commandList->SetPipelineState(_psos[STATIC_CULL_BACK].Get());
+    // Static
     commandList->SetGraphicsRootSignature(_shaders[STATIC_MESH]->GetRootSignature());
+
     commandList->SetGraphicsRootDescriptorTable(_shaders[STATIC_MESH]->GetRootParameterIndex("textures"), resource);
     commandList->SetGraphicsRootConstantBufferView(_shaders[STATIC_MESH]->GetRootParameterIndex("cameraData"), cameraData);
-
     frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _shaders[STATIC_MESH]->GetRootParameterIndex("worldMatrices"), commandList);
     frameResource->SetFrameResource(FrameResourceType::MATERIAL, _shaders[STATIC_MESH]->GetRootParameterIndex("material"), commandList);
+
+    commandList->SetPipelineState(_psos[STATIC_CULL_BACK].Get());
     DrawMeshes(commandList, STATIC_MESH, STATIC_CULL_BACK);
 
-    commandList->SetPipelineState(_psos[STATIC_CULL_FRONT].Get());
-    commandList->SetGraphicsRootSignature(_shaders[STATIC_MESH]->GetRootSignature());    
+    commandList->SetPipelineState(_psos[STATIC_CULL_FRONT].Get());    
     DrawMeshes(commandList, STATIC_MESH, STATIC_CULL_FRONT);
 
-    // Static Two Sided
-    commandList->SetPipelineState(_psos[STATIC_TWO_SIDED].Get());
-    commandList->SetGraphicsRootSignature(_shaders[STATIC_MESH]->GetRootSignature());
+    commandList->SetPipelineState(_psos[STATIC_TWO_SIDED].Get());    
     DrawMeshes(commandList, STATIC_MESH, STATIC_TWO_SIDED);
 
-    // Skeletal One Sided back
-    commandList->SetPipelineState(_psos[SKELETAL_CULL_BACK].Get());
+    // Skeletal
     commandList->SetGraphicsRootSignature(_shaders[SKELETAL_MESH]->GetRootSignature());
+
     commandList->SetGraphicsRootDescriptorTable(_shaders[SKELETAL_MESH]->GetRootParameterIndex("textures"), resource);
     commandList->SetGraphicsRootConstantBufferView(_shaders[SKELETAL_MESH]->GetRootParameterIndex("cameraData"), cameraData);
-
     frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _shaders[SKELETAL_MESH]->GetRootParameterIndex("worldMatrices"), commandList);
     frameResource->SetFrameResource(FrameResourceType::BONE_MATRICES, _shaders[SKELETAL_MESH]->GetRootParameterIndex("boneMatrices"), commandList);
     frameResource->SetFrameResource(FrameResourceType::MATERIAL, _shaders[SKELETAL_MESH]->GetRootParameterIndex("material"), commandList);
+
+    commandList->SetPipelineState(_psos[SKELETAL_CULL_BACK].Get());
     DrawMeshes(commandList, SKELETAL_MESH, SKELETAL_CULL_BACK);
 
     // Skeletal One Sided front
     commandList->SetPipelineState(_psos[SKELETAL_CULL_FRONT].Get());
-    commandList->SetGraphicsRootSignature(_shaders[SKELETAL_MESH]->GetRootSignature());
     DrawMeshes(commandList, SKELETAL_MESH, SKELETAL_CULL_FRONT);
 
     // Skeletal Two Sided
     commandList->SetPipelineState(_psos[SKELETAL_TWO_SIDED].Get());
-    commandList->SetGraphicsRootSignature(_shaders[SKELETAL_MESH]->GetRootSignature());    
     DrawMeshes(commandList, SKELETAL_MESH, SKELETAL_TWO_SIDED);
 }
 
