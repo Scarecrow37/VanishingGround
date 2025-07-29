@@ -43,6 +43,8 @@ namespace EnemyAction
         std::string ActionName = ""; // 액션 이름
         std::string AnimationName;   // 액션 애니메이션
         int         BaseDamage = 0;  // 기본 데미지
+        std::string EventTrackSerializedData;
         REFLECT_FIELDS_END(ActionData)
+        Timeline::EventTrack _eventTrack; // 액션에 대한 타임라인 이벤트 트랙
     };
 } // namespace EnemyAction

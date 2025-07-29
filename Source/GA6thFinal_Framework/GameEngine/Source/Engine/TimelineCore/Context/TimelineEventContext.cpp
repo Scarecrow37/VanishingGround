@@ -3,20 +3,25 @@
 
 namespace Timeline
 {
-    EventContextBase::EventContextBase(UINT id)
-        : ReflectSerializer()
+    void EventContext::SetEvent(std::string_view typeNameID) 
     {
-        ReflectFields->TimeData       = 0.0f;
-        ReflectFields->NotifyID       = id;
-        ReflectFields->EventNameData  = "";
-        ReflectFields->SerializedData = "";
+        ReflectFields->EventNameData = typeNameID;
+        RequireEvent(typeNameID);
     }
-    EventContextBase::~EventContextBase()
+    void EventContext::SetTime(float time) 
     {
-        // Do nothing
+        ReflectFields->TimeData = time;
     }
-    bool EventContextBase::IsValidID() const
+    bool EventContext::IsValidID() const
     {
-        return ReflectFields->NotifyID != UINT_MAX;
+        return ReflectFields->ContextID != UINT_MAX;
+    }
+    bool EventContext::IsSameEvent(const EventContext* other) const
+    {
+        if (other)
+        {
+            return ReflectFields->EventNameData == other->ReflectFields->EventNameData;
+        }
+        return false;
     }
 }

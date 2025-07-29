@@ -189,16 +189,16 @@ public:
     std::vector<InteractionData> _interactionList;
 
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
-    float ZoomScale     = 1.0f;   // View에 대한 줌 스케일
-    float UnitSize      = 100.0f; // Frame을 표시할 때 사용하는 단위 크기 (1 Frame당 픽셀 크기)
-    float LerpFactor    = 0.1f;  // View 보간 스케일 (0.0f ~ 1.0f)
+    float ZoomScale             = 1.0f;     // View에 대한 줌 스케일
+    float UnitSize              = 100.0f;   // Frame을 표시할 때 사용하는 단위 크기 (1 Frame당 픽셀 크기)
+    float LerpFactor            = 0.1f;     // View 보간 스케일 (0.0f ~ 1.0f)
 
-    std::string SerializedData        = "";                           // 직렬화된 데이터
+    std::string SerializedData  = "";       // 직렬화된 데이터
 
     /* Color (0 = default, 1 = hovered, 2 = pressed 3 = seleted) */
     // Sequencer 상단 배경색
     std::array<ImU32, 3> UpperBgColor = {IM_COL32(20, 20, 20, 255), 0, 0};    
-     // Sequencer 하단 배경색 (유효하지 않은 경우)
+    // Sequencer 하단 배경색 (유효하지 않은 경우)
     std::array<ImU32, 3> LowerInvaildBgColor = {IM_COL32(30, 30, 30, 255), 0, 0};   
     // Sequencer 하단 배경색 (유효한 경우)                                            
     std::array<ImU32, 3> LowerVaildBgColor = {IM_COL32(50, 50, 50, 255), 0, 0};    
@@ -217,4 +217,10 @@ public:
     // 유효하지 않은 대상에 대한 색상                                                 
     std::array<ImU32, 3> InvalidColor = {IM_COL32(255, 0, 0, 100), 0, 0 };     
     REFLECT_FIELDS_END(EditorSequencer)
+
+    class Drawer
+    {
+    public:
+        //static void 
+    };
 };

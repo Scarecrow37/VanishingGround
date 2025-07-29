@@ -374,16 +374,16 @@ void EditorSequencer::DrawCanvas()
     }
 
     // Draw Notify
-    const auto&                     notifyList = system->GetTimelineNotifyList();
+    const auto& notifyList = system->GetTimelineNotifyList();
     std::unordered_map<int, size_t> paddingGroup; // groupIndex -> 현재 레이어 수
     for (size_t i = 0; i < notifyList.size(); ++i)
     {
-        auto* notify = notifyList[i];
-        float time   = notify->Time;
-        float unit = (float)GetLineUnit();
-        int   groupIndex = static_cast<int>(std::floor(time / unit));
+        auto* notify    = notifyList[i];
+        float time      = notify->Time;
+        float unit      = (float)GetLineUnit();
+        int groupIndex  = static_cast<int>(std::floor(time / unit));
         // 현재 그룹에서 사용될 패딩 레이어
-        float layer = (float)paddingGroup[groupIndex]++;
+        float layer     = (float)paddingGroup[groupIndex]++;
 
         float  lenght   = 7.0f;
         float  paddingY = 40.0f + layer * 25.0f; 

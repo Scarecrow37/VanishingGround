@@ -369,16 +369,16 @@
     <ClInclude Include="Scripts\TurnSystem\TurnAction\MultiTargetDamage\MultiTargetDamageAction.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Scripts\EnemyActionSystem\Factory\EnemyActionFactory.h">
+    <ClInclude Include="Scripts\EnemyAction\Factory\EnemyActionFactory.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Scripts\EnemyActionSystem\ActionData\EnemyActionData.h">
+    <ClInclude Include="Scripts\EnemyAction\ActionData\EnemyActionData.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Scripts\Animation\Structs\AnimationStructs.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Scripts\EnemyActionSystem\System\EnemyActionSystem.h">
+    <ClInclude Include="Scripts\EnemyAction\System\EnemyActionSystem.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.h">
@@ -490,7 +490,7 @@
     <ClInclude Include="Scripts\WeaponSystem\WeaponElement\WeaponElement.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Scripts\EnemyActionSystem\EnemyActionSystem.h">
+    <ClInclude Include="Scripts\EnemyAction\EnemyActionSystem.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Scripts\Timeline\Timeline.h">
@@ -810,13 +810,13 @@
     <ClCompile Include="Scripts\TurnSystem\TurnAction\MultiTargetDamage\MultiTargetDamageAction.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\EnemyActionSystem\Factory\EnemyActionFactory.cpp">
+    <ClCompile Include="Scripts\EnemyAction\Factory\EnemyActionFactory.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\EnemyActionSystem\ActionData\EnemyActionData.cpp">
+    <ClCompile Include="Scripts\EnemyAction\ActionData\EnemyActionData.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\EnemyActionSystem\System\EnemyActionSystem.cpp">
+    <ClCompile Include="Scripts\EnemyAction\System\EnemyActionSystem.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.cpp">
@@ -921,7 +921,7 @@
     <ClCompile Include="Scripts\WeaponSystem\WeaponElement\WeaponElement.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts\EnemyActionSystem\EnemyActionSystem.cpp">
+    <ClCompile Include="Scripts\EnemyAction\EnemyActionSystem.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Scripts\Timeline\Timeline.cpp">
