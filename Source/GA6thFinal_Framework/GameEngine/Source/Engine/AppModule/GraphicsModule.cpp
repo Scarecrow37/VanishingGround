@@ -2,7 +2,9 @@
 #include "GraphicsModule.h"
 #include "Engine/GraphicsCore/RendererFileEvent.h"
 #include "Engine/GraphicsCore/ParticleEffectSerializer.h"
+
 bool _israytracing = false;
+
 GraphicsModule::GraphicsModule()
 {
 }
@@ -29,7 +31,6 @@ void GraphicsModule::PreInitialize()
 
     if constexpr (IS_EDITOR)
     {
-
         flag = RenderTechniqueFlag::SKY_BOX_TECH | lightingFlag | RenderTechniqueFlag::EDITOR_DRAW_TECH |
                RenderTechniqueFlag::PARTICLE_TECH | RenderTechniqueFlag::UI_TECH | RenderTechniqueFlag::FONT_TECH;
         UmGraphics.AddRenderScene("Editor", flag);
