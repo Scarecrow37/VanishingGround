@@ -32,7 +32,7 @@ public:
     DescriptionPanel();
 
 public:
-    REFLECT_PROPERTY(FontPath, Description, CopyPath)
+    REFLECT_PROPERTY(FontPath, Description)
 
     GETTER_ONLY(std::string, FontPath) { return _guidRef.ToPath().string(); }
     PROPERTY(FontPath)
@@ -44,10 +44,6 @@ public:
         UpdateContent();
     }
     PROPERTY(Description)
-
-    GETTER(std::string, CopyPath) { return _copyGuidRef.string(); }
-    SETTER(std::string, CopyPath) {}
-    PROPERTY(CopyPath)
 
 protected:
     void DeserializedReflectEvent() override;
@@ -63,5 +59,4 @@ protected:
 
 private:
     File::GuidRef _guidRef;
-    File::GuidRef _copyGuidRef;
 };

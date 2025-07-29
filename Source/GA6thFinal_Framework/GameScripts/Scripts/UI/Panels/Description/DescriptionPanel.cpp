@@ -61,7 +61,7 @@ struct ParseData
 
         for (const pugi::xml_node description = doc.child("Description"); auto node : description.children())
         {
-            if (!std::strcmp(node.name(), "Text"))
+            if (std::strcmp(node.name(), "Text") == 0)
             {
                 std::string textContent = node.child_value();
                 Color       color       = HexToColor()(node.attribute("color").as_string("#000000"));
@@ -70,9 +70,23 @@ struct ParseData
                 ElementData    elementData{.Type = ElementType::TEXT, .Data = attributes};
                 elements.push_back(elementData);
             }
-            if (!std::strcmp(node.name(), "Image"))
+            else if (std::strcmp(node.name(), "Image") == 0)
             {
-                File::GuidRef   guidRef = File::GuidRef(node.attribute("guid").as_string());
+                File::GuidRef guidRef;
+                if (auto guidAttribute = node.attribute("guid"); !guidAttribute.empty())
+                {
+                    guidRef = File::GuidRef(node.attribute("guid").as_string());
+                }
+                else if (auto pathAttribute = node.attribute("path"); !pathAttribute.empty())
+                {
+                    File::Path path = File::Path(pathAttribute.as_string());
+                    guidRef         = path.ToGuid();
+                }
+                else
+                {
+                    UmLogger.Log(LogLevel::LEVEL_WARNING, "Image element missing 'guid' or 'path' attribute.");
+                    continue; // Skip this element if no valid guid or path is provided
+                }
                 ImageAttributes attributes{.Guid = guidRef};
                 ElementData     elementData{.Type = ElementType::IMAGE, .Data = attributes};
                 elements.push_back(elementData);
@@ -106,7 +120,7 @@ DescriptionPanel::DescriptionPanel()
         }
     });
 
-    CopyPath.SetInputAutoEvent([this]() {
+    Description.SetInputAutoEvent([this]() {
         if (ImGui::BeginDragDropTarget())
         {
             if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
@@ -117,7 +131,9 @@ DescriptionPanel::DescriptionPanel()
                     const auto& path = context->GetPath();
                     if (const auto extension = path.extension(); extension == L".png")
                     {
-                        _copyGuidRef = path.ToGuid();
+                        const std::string newDescription = ReflectFields->Description + path.ToGuid().string();
+                        ReflectFields->Description = newDescription;
+                        UpdateContent();
                     }
                 }
             }
