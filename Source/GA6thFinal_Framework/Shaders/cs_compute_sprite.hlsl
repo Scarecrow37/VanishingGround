@@ -7,6 +7,29 @@ RWStructuredBuffer<ParticleOutput> ParticleOutputBuffer : register(u0);
 ConstantBuffer<MVP> mvp : register(b0);
 
 
+
+
+float4x4 GetBillBoardRotationMatrix(float3 particleAxis, float3 particleWorldPos)
+{
+    if (length(particleAxis) < 0.001)
+    {
+        return mvp.ViewRotInvMatrix;
+    }
+    else
+    {
+        float3 viewVec = normalize(mvp.CameraPos.xyz - particleWorldPos);
+        float3 rightVec = normalize(cross(viewVec, particleAxis));
+        float3 upVec = normalize(cross(particleAxis, rightVec));
+        float4x4 axialbilboard = float4x4(
+               rightVec.x, rightVec.y, rightVec.z, 0,
+               upVec.x, upVec.y, upVec.z, 0,
+               particleAxis.x, particleAxis.y, particleAxis.z, 0,
+               0, 0, 0, 1
+           );
+        return axialbilboard;
+    }
+}
+
 [numthreads(64, 1, 1)]
 void cs_main(uint3 DTid : SV_DispatchThreadID)
 {
@@ -58,9 +81,9 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
     
     
     
+    float3 finalVelocity = dragPos + vortexDisplacement;
     
-    
-    input.position.xyz += dragPos + vortexDisplacement;
+    input.position.xyz += finalVelocity;
     
     
     
@@ -73,9 +96,9 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
     output.Color = float4(outputColor, outputOpacity);
    
     // 4. 스케일 적용
-    float4x4 scaleMat = CreateScaleMatrix(
-        lerp(float4(emitter.startScale.xy, 1, 1), float4(emitter.endScale.xy, 1, 1), ratio)
-    );
+    float axisfactor = lerp(1, length(finalVelocity), step(0.001f, length(input.axis)));
+    float4 scalefactor = lerp(float4(emitter.startScale.xy, 1, 1), float4(emitter.endScale.xy, 1, 1), ratio) * axisfactor;
+    float4x4 scaleMat = CreateScaleMatrix(scalefactor);
     
     float4 worldPos = mul(float4(input.position.xyz, 1.0), emitter.WorldMatrix);
     worldPos.xyz += gravityOffset*input.age;
@@ -95,8 +118,17 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
 );
 
     output.FinalMatrix = scaleMat;
-    output.FinalMatrix = mul(output.FinalMatrix, mvp.ViewRotInvMatrix);
-    //output.FinalMatrix = mul(output.FinalMatrix, worldinvrot);
+    float4 worldAxis = float4(input.axis, 1);
+    worldAxis = mul(worldAxis, emitter.OrientedWorldMatrix);
+    
+    float4x4 rotation = GetBillBoardRotationMatrix(worldAxis.xyz, worldPos.xyz);
+    
+    
+    
+    
+    
+    output.FinalMatrix = mul(output.FinalMatrix, rotation);
+    
     output.FinalMatrix = mul(output.FinalMatrix, translationMat);
     output.FinalMatrix = mul(output.FinalMatrix, mvp.ViewMatrix);
     output.FinalMatrix = mul(output.FinalMatrix, mvp.ProjMatrix);

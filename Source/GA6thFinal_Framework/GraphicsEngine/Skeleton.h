@@ -25,11 +25,17 @@ public:
     void SetUpSplitBone(const unsigned int maxSplit);
     void SplitBone(const unsigned int ID, const char* boneName);
     void MakeParent(const char* parent, const char* child);
+    std::vector<std::string> GetBoneNameList() const;;
+
+
 
 private:
     bool LoadSkeleton(Bone& bone, aiNode* paiNode, std::unordered_map<std::string, std::pair<unsigned int, Matrix>>& boneInfo);
+    void BoneNameTraverse(const Bone& parentBone);
 
 private:
     Bone               _rootBone;
     std::vector<Bone*> _bones;
+    std::vector<std::string> _boneNames;
+
 };

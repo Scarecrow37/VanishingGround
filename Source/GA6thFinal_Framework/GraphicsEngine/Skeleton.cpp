@@ -3,9 +3,11 @@
 
 void Skeleton::Initialize(const aiScene* paiScene, std::unordered_map<std::string, std::pair<unsigned int, Matrix>>& boneInfoTable)
 {
+    _boneNames.clear();
 	LoadSkeleton(_rootBone, paiScene->mRootNode, boneInfoTable);
 	_bones.push_back(&_rootBone);
 
+    BoneNameTraverse(_rootBone);
 	/*std::queue<Bone*> bfs;
 	bfs.push(&_rootBone);
 
@@ -85,6 +87,11 @@ void Skeleton::MakeParent(const char* parent, const char* child)
 	//std::erase_if(pChild->parent->children, [pChild](const Bone& child) { return pChild->name == child.name; });
 }
 
+std::vector<std::string> Skeleton::GetBoneNameList() const 
+{
+    return _boneNames;
+}
+
 bool Skeleton::LoadSkeleton(Bone& bone, aiNode* paiNode, std::unordered_map<std::string, std::pair<unsigned int, Matrix>>& boneInfoTable)
 {
 	if (boneInfoTable.find(paiNode->mName.C_Str()) != boneInfoTable.end())
@@ -117,4 +124,13 @@ bool Skeleton::LoadSkeleton(Bone& bone, aiNode* paiNode, std::unordered_map<std:
 	}
 
 	return false;
+}
+
+void Skeleton::BoneNameTraverse(const Bone& parentBone) 
+{
+    _boneNames.push_back(parentBone.Name);
+    for (const auto& bone : parentBone.Children)
+    {
+        BoneNameTraverse(bone);
+    }
 }

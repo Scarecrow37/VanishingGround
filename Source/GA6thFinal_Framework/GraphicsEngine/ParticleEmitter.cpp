@@ -580,6 +580,14 @@ void ParticleEmitter::AwakeParticle(UINT index)
     _particlePool[index]->SetAge(0.f);
     _particlePool[index]->SetMass(_particleMass);
 
+
+
+    if (true == GetScaleByVelocityFlag())
+        _particlePool[index]->SetAxis(finalVelocity);
+    else
+        _particlePool[index]->SetAxis(_particleAxis);
+
+
     if (ParticleType::SPRITE == _particleType)
     {
         auto    spritemodule = static_cast<SpriteModule*>(_particleRenderModule);

@@ -547,10 +547,39 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
          _curEmitter->SetEndOpacity(EndAlpha);
      }
      ImGui::Text("");
+     
+     
      //scale
      {
+         //axis
          if (ParticleType::SPRITE == _curEmitter->_particleType)
          {
+
+             {
+                 bool scaleVelFlag = _curEmitter->GetScaleByVelocityFlag();
+                 ImGui::Text("Scale by Velocity");
+                 ImGui::SameLine();
+                 bool result = ImGui::Checkbox("##Scale by Velocity", &scaleVelFlag);
+                 if (false == isSomethingChanged)
+                     if (true == result)
+                         isSomethingChanged = result;
+                 _curEmitter->SetScaleByVelocityFlag(scaleVelFlag);
+
+                 if (false == scaleVelFlag)
+                 {
+                     Vector3 temp               = _curEmitter->GetParticleAxis();
+                     temp.Normalize();
+                     float   axis[3] = {temp.x, temp.y, temp.z};
+                     ImGui::Text("Particle Axis");
+                     ImGui::SameLine();
+                     bool result = ImGui::SliderFloat3("##Particle Axis", axis, -1, 1);
+                     if (false == isSomethingChanged)
+                         if (true == result)
+                             isSomethingChanged = result;
+                     _curEmitter->SetParticleAxis({axis[0], axis[1], axis[2]});
+                 }
+             }
+
 
              Vector4 startscale    = _curEmitter->GetStartScale();
              float   startScale[2] = {startscale.x, startscale.y};
@@ -633,6 +662,9 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
              _curEmitter->SetEndScale(endscale);
          }
      }
+
+
+
      ImGui::Text("");
      //mass & distribution
      {
