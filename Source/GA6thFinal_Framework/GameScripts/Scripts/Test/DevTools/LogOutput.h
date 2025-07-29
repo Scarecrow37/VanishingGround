@@ -72,6 +72,11 @@ protected:
     void Update() override;
 
 private:
-    void ShowLog();
+    void DrawShowLog();
+    void DrawLogSetting();
+    void UpdateKeboread();
+
+    bool  _isShowLog;
+    bool  _isShowSetting;
 
 };
