@@ -21,7 +21,7 @@ bool CheckTurnEndCondition::Evaluate()
     TurnActor* currActor = _turnMode->GetCurrTurnActor();
     if (currActor)
     {
-        return TurnActor::STATE::Wait == currActor->State;
+        return TurnActor::STATE::Play != currActor->State;
     }
     return false;
 }

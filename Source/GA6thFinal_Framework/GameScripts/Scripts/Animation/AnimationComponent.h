@@ -25,11 +25,12 @@ public:
 private:
     AnimationData&  GetLastAnimationDataEx();
 
-    void            UpdateAnimation(AnimationData& animData);
-    void            SetAnimationEx(AnimationData& animData);
-    void            ChangeAnimationEx(AnimationData& animData, std::string_view animKey, bool blend);
-    void            ChangeAnimationFrameEx(AnimationData& animData, float frame);
-    void            ChangeAnimationFlagsEx(AnimationData& animData, int flags);
+    void UpdateAnimation(AnimationData& animData);
+    void SetAnimationEx(AnimationData& animData);
+    void ChangeAnimationEx(AnimationData& animData, std::string_view animKey, bool blend);
+    void ChangeAnimationFrameEx(AnimationData& animData, float frame);
+    void ChangeAnimationFlagsEx(AnimationData& animData, int flags);
+    void SetAnimationPopCallbackEx(AnimationData& animData, std::function<void()> callback);
 
 public:
     /// <summary>
@@ -74,6 +75,9 @@ public:
     /// <param name="flags">애니메이션 플래그</param>
     void ChangeCurrentAnimationFlags(int flags);
     void ChangeMainAnimationFlags(int flags);
+
+    void SetCurrentAnimationPopCallback(std::function<void()> callback);
+    void SetMainAnimationPopCallback(std::function<void()> callback);
 
     const AnimationData& GetMainAnimationData() const;
     const AnimationData& GetLastAnimationData() const;

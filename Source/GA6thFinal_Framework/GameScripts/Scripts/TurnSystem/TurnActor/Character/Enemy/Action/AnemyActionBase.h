@@ -18,16 +18,25 @@ namespace EnemyAction
         virtual ~ActionBase() = default;
 
     public:
+        void RequireActionEnter();
+        void RequireActionUpdate();
+        void RequireActionExit();
+
+        inline void SetActionEnd() { _isActionEnd = true; }
+        inline bool IsActionEnd() const { return _isActionEnd; }
+
+    private:
         virtual void OnActionEnter()    = 0;
-        virtual bool OnActionUpdate()   = 0;
+        virtual void OnActionUpdate() = 0;
         virtual void OnActionExit()     = 0;
 
     protected:
         void ProcessBattle();
 
     protected:
-        Enemy* _owner = nullptr;
+        Enemy*              _owner = nullptr;
         AnimationComponent* _animator = nullptr;
+        bool                _isActionEnd = false;
 
     };
 } // namespace Enemy

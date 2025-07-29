@@ -47,6 +47,7 @@ private:
     float           MaxFrame        = 0.0f;     // 애니메이션 최대 프레임 (초 단위로 변환된 값)
 
     std::function<bool(const AnimationData&)> PopCondition = nullptr; // return true일 시 Pop
+    std::function<void()>                     OnPopCallback = nullptr; // Pop 시 호출할 콜백 함수
 
     inline void SetFlag(AnimationFlags flag) { Flags = flag; }
     inline void AddFlag(AnimationFlags flag) { Flags |= flag; }

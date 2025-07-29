@@ -215,6 +215,10 @@ void PlayerPlayTurnState::UpdateQuickTimeEventUI(float dt)
             {
                 player.Dead();
             }
+            if (ImGui::Button((const char*)u8"[테스트] 턴 종료"))
+            {
+                _attackRemaining = 0;
+            }
             for (auto& target : _attackTargets)
             {
                 ImGui::Text(Battle::EnemyTargetFlagToString(target).data());
@@ -258,7 +262,6 @@ void PlayerPlayTurnState::UpdateAttackEventUI(float dt)
             {
                 auto& player = GetPlayer();
                 SetAttackEndAnimation();
-                player.EndTurn();
             });
            
         }
@@ -342,6 +345,11 @@ void PlayerPlayTurnState::SetAttackEndAnimation()
             const char*   animKey = player.GetAnimationName(CharacterBase::ATTACK_END);
             renderer->PushOverrideAnimation(animKey, true, [](const AnimationData& data) { return data.IsEnd(); });
             renderer->ChangeCurrentAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE);
+            renderer->SetCurrentAnimationPopCallback([this]() {
+                // 애니메이션이 끝날 시 턴 종료
+                auto& player = GetPlayer();
+                player.EndTurn();
+                });
         }
         renderer->EndBuildOverrideAnimation();
     }

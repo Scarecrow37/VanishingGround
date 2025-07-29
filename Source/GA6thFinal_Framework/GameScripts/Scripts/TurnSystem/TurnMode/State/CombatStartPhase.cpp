@@ -26,7 +26,7 @@ CombatStartPhase::~CombatStartPhase()
 
 }
 
-void CombatStartPhase::ResetCharacterStats() 
+void CombatStartPhase::ResetCharacterStats()
 {
     _player = nullptr;
     _enemies.clear();
@@ -60,6 +60,13 @@ void CombatStartPhase::ResetCharacterStats()
                     _enemies.push_back(static_cast<Enemy*>(character));
                 }
             }
+        }
+    }
+    for (auto& character : _characters)
+    {
+        if (character)
+        {
+            character->ClearState();
         }
     }
 }
@@ -102,15 +109,11 @@ void CombatStartPhase::OnUpdate()
 
 void CombatStartPhase::NotifyCombatStart() 
 {
-    if (_player)
+    for (auto& character : _characters)
     {
-        _player->OnCombatStart();
-    }
-    for (auto& enemy : _enemies)
-    {
-        if (enemy)
+        if (character)
         {
-            enemy->OnCombatStart();
+            character->OnCombatStart();
         }
     }
 
@@ -131,7 +134,6 @@ void CombatStartPhase::AddValidActions()
 
         }
     }
-
 }
 
 void CombatStartPhase::SortEnemies() 
