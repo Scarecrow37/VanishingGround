@@ -72,71 +72,7 @@ void Transform::DetachChildren()
 
 void Transform::SetParent(Transform* p, bool worldPositionStays)
 {
-    auto ComputeLocalTransform = [this, p, worldPositionStays]() 
-    {
-        // World PositionStays 조건
-        if (worldPositionStays)
-        {
-            const Matrix& myWorldMatrix = this->GetWorldMatrix();
-            Matrix        myLocalMatrix;
-            if (p)
-            {
-                const Matrix& parentWorldMatrix = p->GetWorldMatrix();
-                Matrix parentInverseMatrix  = parentWorldMatrix.Invert();
-                myLocalMatrix = myWorldMatrix * parentInverseMatrix ;
-            }
-            else
-            {
-                myLocalMatrix = myWorldMatrix;
-            }
-            myLocalMatrix.Decompose(_scale, _rotation, _position);
-        }
-    };
-
-    if (p == nullptr)
-    {
-        Transform* prevParent = this->Parent; 
-        ComputeLocalTransform();
-        EraseParent();
-        CallUIDetachParent(this, prevParent);
-    }
-    else //부모 관계 변경
-    {
-        if (p->gameObject->GetOwnerSceneName() == gameObject->GetOwnerSceneName())
-        {
-            //부모 관계가 가능한지 검증
-            if (p != this->_parent)
-            {
-                if (p == this || p->IsDescendantOf(this))
-                {
-                    return;
-                }  
-            }
-
-            Transform* prevParent = this->_parent;
-            ComputeLocalTransform();        
-            //부모 적용
-            EraseParent();
-            {
-                _parent = p;
-
-                if (p->_root)
-                    _root = p->_root;
-                else
-                    _root = _parent;
-
-                p->_childsList.push_back(this);
-                SetChildsRootParent(_root);
-            }
-
-            //이벤트 호출
-            CallUIDetachParent(this, prevParent);
-            CallUIAttachChild(p, this);
-        }
-    }
-    _hasChanged = true;
-    UpdateMatrix();
-    GameObject::Engine::UpdateActiveInHierarchy(&_gameObject);
+    SetParentEx(p, worldPositionStays, true);
 }
 
 void Transform::SetParent(Transform& p, bool worldPositionStays)
@@ -279,6 +215,80 @@ void Transform::UpdateMatrix()
 
         curr->_hasChanged = false;
     });
+}
+
+void Transform::SetParentEx(Transform* p, bool worldPositionStays, bool callEvent) 
+{
+    auto ComputeLocalTransform = [this, p, worldPositionStays]() {
+        // World PositionStays 조건
+        if (worldPositionStays)
+        {
+            const Matrix& myWorldMatrix = this->GetWorldMatrix();
+            Matrix        myLocalMatrix;
+            if (p)
+            {
+                const Matrix& parentWorldMatrix   = p->GetWorldMatrix();
+                Matrix        parentInverseMatrix = parentWorldMatrix.Invert();
+                myLocalMatrix                     = myWorldMatrix * parentInverseMatrix;
+            }
+            else
+            {
+                myLocalMatrix = myWorldMatrix;
+            }
+            myLocalMatrix.Decompose(_scale, _rotation, _position);
+        }
+    };
+
+    if (p == nullptr)
+    {
+        Transform* prevParent = this->Parent;
+        ComputeLocalTransform();
+        EraseParent();
+        if (callEvent)
+        {
+            CallUIDetachParent(this, prevParent);
+        }
+    }
+    else // 부모 관계 변경
+    {
+        if (p->gameObject->GetOwnerSceneName() == gameObject->GetOwnerSceneName())
+        {
+            // 부모 관계가 가능한지 검증
+            if (p != this->_parent)
+            {
+                if (p == this || p->IsDescendantOf(this))
+                {
+                    return;
+                }
+            }
+
+            Transform* prevParent = this->_parent;
+            ComputeLocalTransform();
+            // 부모 적용
+            EraseParent();
+            {
+                _parent = p;
+
+                if (p->_root)
+                    _root = p->_root;
+                else
+                    _root = _parent;
+
+                p->_childsList.push_back(this);
+                SetChildsRootParent(_root);
+            }
+
+            if (callEvent)
+            {
+                // 이벤트 호출
+                CallUIDetachParent(this, prevParent);
+                CallUIAttachChild(p, this);
+            }
+        }
+    }
+    _hasChanged = true;
+    UpdateMatrix();
+    GameObject::Engine::UpdateActiveInHierarchy(&_gameObject);
 }
 
 void Transform::CallUIDetachParent(Transform* target, Transform* prevParent)
