@@ -107,6 +107,7 @@ void EGameObjectFactory::ApplyPrefabInstanceChanges(const File::Guid& guid, YAML
                     //소멸자 지연 호출
                     originInstances.clear();
 
+                    //프리팹과 구조가 다른 없는 오브젝트 추가
                     i++;
                     if (i < prefabObjects.size())
                     {
