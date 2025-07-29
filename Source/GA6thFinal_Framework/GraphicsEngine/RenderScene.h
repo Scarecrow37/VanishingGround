@@ -30,6 +30,7 @@ public:
     void RegisterOnRenderQueue(SpriteRenderer* component);
     void RegisterOnRenderQueue(FontRenderer* component);
     void AddRenderTechnique(std::unique_ptr<RenderTechnique> technique);
+    void AddDebugData();
 
 public:
     void UpdateRenderScene();

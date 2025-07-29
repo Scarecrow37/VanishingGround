@@ -31,3 +31,4 @@
 #include "AccelerationStructureManager.h"
 
 #include "DebugDrawCore.h"
+#include "DebugDatas.h"

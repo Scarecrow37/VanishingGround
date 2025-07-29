@@ -122,6 +122,14 @@ void RenderScene::AddRenderTechnique(std::unique_ptr<RenderTechnique> technique)
     _techniques.push_back(std::move(technique));
 }
 
+void RenderScene::AddDebugData()
+{
+    for (auto& technique : _techniques)
+    {
+        technique->AddDebugData(_name);
+    }
+}
+
 void RenderScene::UpdateRenderScene()
 {
     UpdateGlobal();

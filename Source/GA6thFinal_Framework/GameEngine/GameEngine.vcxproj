@@ -308,6 +308,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Editor\Tool\Debug\EditorDebugPassView.h" />
     <ClInclude Include="Source\Editor\Tool\Model\EditorModelInspector.h" />
     <ClInclude Include="Source\Editor\Tool\Model\EditorAnimationNotifyTool.h" />
     <ClInclude Include="Source\Engine\AppModule\GraphicsModule.h" />
@@ -413,6 +414,7 @@
     <ClInclude Include="Source\Engine\TimelineCore\TimelineSystem.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Editor\Tool\Debug\EditorDebugPassView.cpp" />
     <ClCompile Include="Source\Editor\Tool\Model\EditorModelInspector.cpp" />
     <ClCompile Include="Source\Editor\Tool\Model\EditorAnimationNotifyTool.cpp" />
     <ClCompile Include="Source\Engine\AppModule\GraphicsModule.cpp" />

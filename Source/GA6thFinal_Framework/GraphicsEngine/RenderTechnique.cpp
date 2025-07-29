@@ -12,6 +12,14 @@ void RenderTechnique::AddRenderPass(std::unique_ptr<RenderPass> pass)
     _renderPasses.push_back(std::move(pass));
 }
 
+void RenderTechnique::AddDebugData(std::string_view sceneName)
+{
+    for (auto& pass : _renderPasses)
+    {
+        pass->AddDebugData(sceneName);
+    }
+}
+
 void RenderTechnique::Update(ID3D12GraphicsCommandList* commandList)
 {
     for (auto& pass : _renderPasses)

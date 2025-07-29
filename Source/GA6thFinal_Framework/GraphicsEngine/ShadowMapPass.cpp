@@ -11,7 +11,12 @@ void ShadowMapPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTe
     __super::Initialize(ownerScene, ownerTechnique, commandList);
 
     CreateShadowMapResource();
-    CreateShaderAndPSO();
+    CreateShaderAndPSO();    
+}
+
+void ShadowMapPass::AddDebugData(std::string_view sceneName)
+{
+    Global::debugDatas->AddDebugData(sceneName, "ShadowMapPass", "ShadowMap", _shadowMapSRV.GPU);
 }
 
 void ShadowMapPass::Update(ID3D12GraphicsCommandList* commandList)

@@ -45,4 +45,6 @@ using namespace DirectX::SimpleMath;
 #include "ParticleManager.h"
 #include "ResourceManager.h"
 
+#include "DebugDatas.h"
+
 #include "GraphicsCore.h"

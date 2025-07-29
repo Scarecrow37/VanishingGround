@@ -319,6 +319,7 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\Release\*.*" "$(SolutionDir)GameEngine\
     <ClInclude Include="ConstantBufferView.h" />
     <ClInclude Include="Cylinder.h" />
     <ClInclude Include="d3dUtil.h" />
+    <ClInclude Include="DebugDatas.h" />
     <ClInclude Include="DebugDrawCore.h" />
     <ClInclude Include="DeferredPBRLitPass.h" />
     <ClInclude Include="Defines.h" />
@@ -433,6 +434,7 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\Release\*.*" "$(SolutionDir)GameEngine\
     <ClCompile Include="ConstantBufferView.cpp" />
     <ClCompile Include="Cylinder.cpp" />
     <ClCompile Include="d3dUtil.cpp" />
+    <ClCompile Include="DebugDatas.cpp" />
     <ClCompile Include="DebugDrawCore.cpp" />
     <ClCompile Include="DeferredPBRLitPass.cpp" />
     <ClCompile Include="DepthStencilView.cpp" />

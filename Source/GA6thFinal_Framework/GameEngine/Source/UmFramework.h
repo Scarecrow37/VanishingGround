@@ -212,6 +212,7 @@ using namespace Microsoft::WRL;
 
 //Editor Tools
 #include "Editor/Tool/Debug/EditorDebugTool.h"
+#include "Editor/Tool/Debug/EditorDebugPassView.h"
 #include "Editor/Tool/AssetBrowser/EditorAssetBrowserTool.h"
 #include "Editor/Tool/Inspector/EditorInspectorTool.h"
 #include "Editor/Tool/Hierarchy/EditorHierarchyTool.h"

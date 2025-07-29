@@ -12,6 +12,7 @@ public:
 public:
     void         AddRenderPass(std::unique_ptr<RenderPass> pass);
     void         SetOwnerScene(RenderScene* scene) { _ownerScene = scene; }
+    void         AddDebugData(std::string_view sceneName);
     virtual void Initialize(ID3D12GraphicsCommandList* commandList) = 0;
     virtual void Update(ID3D12GraphicsCommandList* commandList);
     virtual void Execute(ID3D12GraphicsCommandList* commandList);
