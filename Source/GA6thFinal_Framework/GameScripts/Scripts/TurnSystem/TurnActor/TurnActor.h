@@ -57,6 +57,11 @@ public:
     TurnActor::STATE GetActorState() const { return _currState; }
 
     /// <summary>
+    /// TurnActor의 상태를 갱신합니다. Flag등에 따라 상태가 바뀝니다.
+    /// </summary>
+    virtual void UpdatePostTurnState();
+
+    /// <summary>
     /// TurnActor의 턴을 시작합니다. OnTurnStart를 호출합니다.
     /// </summary>
     virtual void PlayTurn();

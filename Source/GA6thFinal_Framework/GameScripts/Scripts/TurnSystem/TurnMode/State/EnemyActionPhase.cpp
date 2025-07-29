@@ -27,6 +27,7 @@ void EnemyActionPhase::OnEnter()
         TurnActor* actor = _turnMode->GetCurrTurnActor();
         if (actor)
         {
+            actor->PlayTurn();
             actor->OnTurnStart();
             CombatStartPhase* combatStartPhase = _turnMode->States->CombatStartPhase;
             if (combatStartPhase)
@@ -38,9 +39,9 @@ void EnemyActionPhase::OnEnter()
                 }
                 _turnMode->ApplyActions([character](TurnAction& action) { action.OnTurnStart(*character); });
             }
+            actor->UpdatePostTurnState();
         }
         // 액터의 턴 State를 상태 플래그를 확인하여 바꿉니다.
-        actor->PlayTurn();
     }
 }
 
