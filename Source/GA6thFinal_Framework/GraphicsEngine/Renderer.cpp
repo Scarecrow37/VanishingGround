@@ -161,9 +161,7 @@ void Renderer::AddRenderScene(std::string_view sceneName, RenderTechniqueFlag fl
         scene->AddRenderTechnique(std::make_unique<FontTechnique>());
     }
 
-#ifdef _DEBUG
     scene->AddRenderPassDatas();
-#endif
 
     _renderScenes.try_emplace(sceneName.data(), std::move(scene));
 }

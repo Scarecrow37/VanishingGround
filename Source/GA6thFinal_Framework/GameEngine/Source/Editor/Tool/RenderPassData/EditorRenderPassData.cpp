@@ -20,6 +20,15 @@ void SerializeShadowProperty(std::ostream& os, const ShadowPassProperty& prop)
     os << "        SplitFactor = " << prop.SplitFactor << "\n";
 }
 
+// BloomPassProperty를 문자열로 변환
+void SerializeBloomProperty(std::ostream& os, const BloomPassProperty& prop)
+{
+    os << "        Type = BloomPassProperty\n";
+    os << "        Threshold = " << prop.Threshold << "\n";
+    os << "        Intensity = " << prop.Intensity << "\n";
+    // os << "        Radius = " << prop.Radius << "\n"; // 필요시 추가
+}
+
 // 문자열에서 ShadowPassProperty를 복원
 void DeserializeShadowProperty(std::istream& is, ShadowPassProperty& prop)
 {
@@ -31,6 +40,20 @@ void DeserializeShadowProperty(std::istream& is, ShadowPassProperty& prop)
         if (key == "NearPlane") ss >> prop.NearPlane;
         else if (key == "FarPlane") ss >> prop.FarPlane;
         else if (key == "SplitFactor") ss >> prop.SplitFactor;
+    }
+}
+
+// 문자열에서 BloomPassProperty를 복원
+void DeserializeBloomProperty(std::istream& is, BloomPassProperty& prop)
+{
+    std::string line, key, equals;
+    while (std::getline(is, line) && line.find('}') == std::string::npos)
+    {
+        std::stringstream ss(line);
+        ss >> key >> equals;
+        if (key == "Threshold") ss >> prop.Threshold;
+        else if (key == "Intensity") ss >> prop.Intensity;
+        // else if (key == "Radius") ss >> prop.Radius; // 필요시 추가
     }
 }
 
@@ -61,7 +84,10 @@ void SaveData(const std::string& filePath)
             {
                 SerializeShadowProperty(outFile, std::any_cast<const ShadowPassProperty&>(property));
             }
-            // else if (property.type() == typeid(AnotherProperty)) { ... } // 다른 타입 추가
+            else if (property.type() == typeid(BloomPassProperty))
+            {
+                SerializeBloomProperty(outFile, std::any_cast<const BloomPassProperty&>(property));
+            }
 
             outFile << "    }\n";
         }
@@ -115,13 +141,17 @@ void LoadData(const std::string& filePath)
                         {
                             DeserializeShadowProperty(inFile, std::any_cast<ShadowPassProperty&>(property));
                         }
-                        // else if (name == "AnotherProperty") { ... }
+                        else if (name == "BloomPassProperty" && property.type() == typeid(BloomPassProperty))
+                        {
+                            DeserializeBloomProperty(inFile, std::any_cast<BloomPassProperty&>(property));
+                        }
                     }
                 }
             }
         }
     }
 }
+
 void EditShadowProperty(std::any& property)
 {
     auto& shadowProps = std::any_cast<ShadowPassProperty&>(property);
@@ -129,6 +159,14 @@ void EditShadowProperty(std::any& property)
     ImGui::DragFloat("Near Plane", &shadowProps.NearPlane, 0.01f, 0.01f, 100.0f);
     ImGui::DragFloat("Far Plane", &shadowProps.FarPlane, 0.1f, 0.1f, 1000.0f);
     ImGui::DragFloat("Split Factor", &shadowProps.SplitFactor, 0.01f, 0.01f, 1.0f);
+}
+
+void EditBloomProperty(std::any& property)
+{
+    auto& bloomProps = std::any_cast<BloomPassProperty&>(property);
+    ImGui::DragFloat("Threshold", &bloomProps.Threshold, 0.01f, 0.0f, 100.0f);
+    ImGui::DragFloat("Intensity", &bloomProps.Intensity, 0.01f, 0.0f, 100.0f);
+    //ImGui::DragFloat("Blur Radius", &bloomProps.Radius, 0.01f, 0.0f, 10.0f);
 }
 
 void EditorRenderPassData::OnFrameRender()
@@ -150,6 +188,10 @@ void EditorRenderPassData::OnFrameRender()
                         if (property.type() == typeid(ShadowPassProperty))
                         {                            
                             EditShadowProperty(property);
+                        }
+                        else if (property.type() == typeid(BloomPassProperty))
+                        {
+                            EditBloomProperty(property);
                         }
 
                         ImGui::TreePop();

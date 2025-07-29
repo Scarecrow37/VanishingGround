@@ -98,3 +98,10 @@ struct ShadowPassProperty
     float FarPlane;
     float SplitFactor;
 };
+
+struct BloomPassProperty
+{
+    float Threshold;
+    float Intensity;
+    float Radius;
+};

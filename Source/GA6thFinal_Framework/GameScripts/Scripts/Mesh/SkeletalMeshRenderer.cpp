@@ -40,7 +40,7 @@ void SkeletalMeshRenderer::Reset()
     if (false == _guidRef.IsNull())
     {
         UmSceneManager.ResourceManager.RequestModelResource(this, _guidRef, [this]() { LoadModel(); });
-    }
+    } 
 }
 
 void SkeletalMeshRenderer::Awake() 
@@ -71,6 +71,8 @@ void SkeletalMeshRenderer::DeserializedReflectEvent()
 
 void SkeletalMeshRenderer::ImGuiDrawPropertysEvent() 
 {
+    __super::ImGuiDrawPropertysEvent();
+
     if (nullptr != Renderer)
     {
         if (nullptr == Renderer->GetModel())
@@ -105,7 +107,7 @@ void SkeletalMeshRenderer::LoadModel()
                 animator->SetActive(&EnableInHierarchy);
                 UmGraphics.RegisterComponent(animator.get());
                 Renderer->SetAnimator(animator);
-
+                Renderer->OnCustomDepth(PostProcess::BLOOM);
                 __super::InitMaterial();
             }
             OnChangedModel();

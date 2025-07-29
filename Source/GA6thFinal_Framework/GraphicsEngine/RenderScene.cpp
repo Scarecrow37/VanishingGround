@@ -290,6 +290,7 @@ void RenderScene::UpdateObject()
         const auto& textures     = model->GetTextures();
 
         XMMATRIX     world = XMMatrixTranspose(component->GetWorldMatrix());
+        float        determinant = XMMatrixDeterminant(world).m128_f32[0];
         BoneMatrices boneMatrices;
 
         if (SKELETAL_MESH == type)
@@ -310,10 +311,7 @@ void RenderScene::UpdateObject()
             }
             else
             {
-                const auto& transform = component->GetTransform();
-                float       sign      = transform.Scale.x * transform.Scale.y * transform.Scale.z;
-
-                materials[i].CullMode = sign < 0.f ? Material::CullModeType::CULL_FRONT : Material::CullModeType::CULL_BACK;
+                materials[i].CullMode = determinant < 0.f ? Material::CullModeType::CULL_FRONT : Material::CullModeType::CULL_BACK;
             }
 
             MaterialID materialID{};
