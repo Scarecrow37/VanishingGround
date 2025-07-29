@@ -107,6 +107,7 @@ void EGameObjectFactory::ApplyPrefabInstanceChanges(const File::Guid& guid, YAML
                     //소멸자 지연 호출
                     originInstances.clear();
 
+                    i++;
                     if (i < prefabObjects.size())
                     {
                         std::string_view ownerScene = prefabObjects[i - 1]->_ownerScene;
