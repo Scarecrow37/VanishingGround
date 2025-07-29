@@ -59,6 +59,17 @@ int CharacterBase::GetMaxChainRoundCount()
     return maxChainCount;
 }
 
+int CharacterBase::GetStunResistance()
+{
+    int stunResistance = 1;
+    CharacterStats* stats = GetCharacterStats();
+    if (nullptr != stats)
+    {
+        stunResistance = stats->StunResistance;
+    }
+    return stunResistance;
+}
+
 CharacterBase::CharacterBase() : 
     _tokenInventory(this)
 {
@@ -111,7 +122,26 @@ void CharacterBase::InitMeshModel()
     }
 }
 
-void CharacterBase::Revive() 
+void CharacterBase::ClearState() 
+{
+    Base::ClearState();
+    _tokenInventory.Clear();
+    CharacterStats* stats = GetCharacterStats();
+    if (stats)
+    {
+        stats->CurrentHP                = MaxHP;
+        stats->CurrentChainCount        = 0;
+        stats->CurrentChainRoundCount   = MaxChainRoundCount;
+        _tokenInventory.AddTokenStackFromID(16008, stats->StunResistance);
+    }
+    if (_animationComponent)
+    {
+        _animationComponent->ClearOverrideAnimations();
+        SetMainAnimation(CharacterBase::IDLE, true, true);
+    }
+}
+
+void CharacterBase::Revive()
 {
     Base::Revive();
     CharacterStats* stats = GetCharacterStats();
