@@ -19,6 +19,7 @@ public:
     std::shared_ptr<Camera>     GetCamera() const { return _camera; }
     D3D12_GPU_DESCRIPTOR_HANDLE GetFinalImage();
     SkyBox*                     GetSkyBox() { return _skyBox.get(); };
+    const std::any&             GetRenderPassProperty(std::string_view passName) const;
 
 public:
     void SetCamera(std::shared_ptr<Camera> camera) { _camera = camera; }
@@ -30,7 +31,7 @@ public:
     void RegisterOnRenderQueue(SpriteRenderer* component);
     void RegisterOnRenderQueue(FontRenderer* component);
     void AddRenderTechnique(std::unique_ptr<RenderTechnique> technique);
-    void AddDebugData();
+    void AddRenderPassDatas();
 
 public:
     void UpdateRenderScene();

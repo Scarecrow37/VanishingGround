@@ -12,11 +12,11 @@ void RenderTechnique::AddRenderPass(std::unique_ptr<RenderPass> pass)
     _renderPasses.push_back(std::move(pass));
 }
 
-void RenderTechnique::AddDebugData(std::string_view sceneName)
+void RenderTechnique::AddRenderPassDatas(std::string_view sceneName)
 {
     for (auto& pass : _renderPasses)
     {
-        pass->AddDebugData(sceneName);
+        pass->AddRenderPassDatas(sceneName);
     }
 }
 

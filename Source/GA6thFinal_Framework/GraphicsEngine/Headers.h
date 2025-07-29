@@ -29,6 +29,6 @@
 #include "ViewManager.h"
 #include "CommandController.h"
 #include "AccelerationStructureManager.h"
+#include "RenderPassDatas.h"
 
 #include "DebugDrawCore.h"
-#include "DebugDatas.h"

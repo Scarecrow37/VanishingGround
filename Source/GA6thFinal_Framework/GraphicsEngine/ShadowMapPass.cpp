@@ -14,9 +14,27 @@ void ShadowMapPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTe
     CreateShaderAndPSO();    
 }
 
-void ShadowMapPass::AddDebugData(std::string_view sceneName)
+void ShadowMapPass::AddRenderPassDatas(std::string_view sceneName)
 {
-    Global::debugDatas->AddDebugData(sceneName, "ShadowMapPass", "ShadowMap", _shadowMapSRV.GPU);
+    auto device = Global::device->GetDevice();
+
+    D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+    for (int i = 0; i < MAX_CASCADES; i++)
+    {
+        Global::viewManager->AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _debugHandles[i]);
+
+        srvDesc.Format                         = DXGI_FORMAT_R32_FLOAT;
+        srvDesc.ViewDimension                  = D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
+        srvDesc.Shader4ComponentMapping        = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+        srvDesc.Texture2DArray.FirstArraySlice = i;
+        srvDesc.Texture2DArray.MipLevels       = 1;
+        srvDesc.Texture2DArray.ArraySize       = 1;
+
+        device->CreateShaderResourceView(_shadowMap.Get(), &srvDesc, _debugHandles[i].CPU);
+        Global::renderPassDatas->AddRenderPassDatas(sceneName, "ShadowMapPass", "ShadowMap", _debugHandles[i].GPU);
+
+        Global::renderPassDatas->AddRenderPassProperty(sceneName, "ShadowMapPass", ShadowPassProperty({0.1f, 200.f, 0.75f}));
+    }
 }
 
 void ShadowMapPass::Update(ID3D12GraphicsCommandList* commandList)
@@ -45,21 +63,12 @@ void ShadowMapPass::Update(ID3D12GraphicsCommandList* commandList)
     }
 
     MeshType meshType = END;
+    const auto& camera   = _ownerScene->_camera;
+    float       nearZ    = camera->GetNearZ();
     for (int i = 0; i < MESH_TYPE_END; i++)
     {
         for (auto& [material, mesh, customDepth, instanceID] : _ownerScene->_activeMeshes[i])
         {
-            /*const auto& cameraFrustum = _ownerScene->_camera->GetWorldFrustum();
-
-            BoundingOrientedBox boundingOrientedBox;
-            const auto&         meshBoundingBox = mesh->GetBoundingBox();
-            meshBoundingBox.Transform(boundingOrientedBox, XMMatrixTranspose(_ownerScene->_worldMatrices[instanceID]));
-
-            if (!cameraFrustum.Intersects(boundingOrientedBox))
-            {
-                continue;
-            }*/
-
             // cull_back, cull_front, cull_none
             meshType = MeshType(i * 3 + (int)material.CullMode);
             _renderDatas[meshType].emplace_back(mesh, instanceID, customDepth);
@@ -271,10 +280,12 @@ void ShadowMapPass::UpdateCascades(const Vector3& lightDirection)
 
     auto& camera = _ownerScene->_camera;
 
+    const auto& shadowMapProps = std::any_cast<ShadowPassProperty>(_ownerScene->GetRenderPassProperty("ShadowMapPass"));
+
     // 1. 캐스케이드 분할 거리 계산
-    float nearZ  = camera->GetNearZ();
-    float farZ   = camera->GetFarZ();
-    float lambda = 0.75f;
+    float nearZ  = shadowMapProps.NearPlane;
+    float farZ   = shadowMapProps.FarPlane;
+    float lambda = shadowMapProps.SplitFactor;
 
     for (int i = 0; i < MAX_CASCADES; i++)
     {
@@ -321,7 +332,6 @@ void ShadowMapPass::UpdateCascades(const Vector3& lightDirection)
 
         // 4. 라이트 공간 Orthographic Projection
         XMMATRIX lightProj = XMMatrixOrthographicLH(radius * 2, radius * 2, 0.0f, radius * 2 + 200.0f);
-
         XMStoreFloat4x4(&_cascadeData.ShadowVP[c], XMMatrixTranspose(lightView * lightProj));
     }
 

@@ -26,6 +26,11 @@ D3D12_GPU_DESCRIPTOR_HANDLE RenderScene::GetFinalImage()
     return finalTarget->GetSRVHandle();
 }
 
+const std::any& RenderScene::GetRenderPassProperty(std::string_view passName) const
+{
+    return Global::renderPassDatas->GetRenderPassProperty(_name, passName);
+}
+
 void RenderScene::SetSkyBox(std::wstring_view path)
 {
     _skyBox->SetTexture(path);
@@ -122,11 +127,11 @@ void RenderScene::AddRenderTechnique(std::unique_ptr<RenderTechnique> technique)
     _techniques.push_back(std::move(technique));
 }
 
-void RenderScene::AddDebugData()
+void RenderScene::AddRenderPassDatas()
 {
     for (auto& technique : _techniques)
     {
-        technique->AddDebugData(_name);
+        technique->AddRenderPassDatas(_name);
     }
 }
 

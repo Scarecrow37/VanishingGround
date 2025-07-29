@@ -162,7 +162,7 @@ void Renderer::AddRenderScene(std::string_view sceneName, RenderTechniqueFlag fl
     }
 
 #ifdef _DEBUG
-    scene->AddDebugData();
+    scene->AddRenderPassDatas();
 #endif
 
     _renderScenes.try_emplace(sceneName.data(), std::move(scene));

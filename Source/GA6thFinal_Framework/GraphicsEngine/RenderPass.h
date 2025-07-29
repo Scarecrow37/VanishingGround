@@ -8,7 +8,7 @@ public:
 
 public:
     virtual void Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList);
-    virtual void AddDebugData(std::string_view sceneName) {};
+    virtual void AddRenderPassDatas(std::string_view sceneName) {};
     virtual void Update(ID3D12GraphicsCommandList* commadList) {};
     virtual void Begin(ID3D12GraphicsCommandList* commandList) {};
     virtual void Draw(ID3D12GraphicsCommandList* commandList) {};

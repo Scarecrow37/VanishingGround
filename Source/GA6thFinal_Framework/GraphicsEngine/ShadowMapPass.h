@@ -30,7 +30,7 @@ public:
 
 public:
     void Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList) override;
-    void AddDebugData(std::string_view sceneName) override;
+    void AddRenderPassDatas(std::string_view sceneName) override;
     void Update(ID3D12GraphicsCommandList* commandList) override;
     void Begin(ID3D12GraphicsCommandList* commandList) override;
     void Draw(ID3D12GraphicsCommandList* commandList) override;
@@ -61,4 +61,7 @@ private:
     D3D12_VIEWPORT _viewport;
     D3D12_RECT     _scissorRect;
     UINT           _shadowMapSize = 2048; // 그림자 맵 해상도
+
+    // 디버그용
+    DescriptorHandles _debugHandles[MAX_CASCADES];
 };

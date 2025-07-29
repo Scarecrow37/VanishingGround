@@ -15,7 +15,7 @@ public:
     ID3D12Device*               GetDevice() const;
     D3D12_CPU_DESCRIPTOR_HANDLE GetBackBufferHandle() const;
     ID3D12GraphicsCommandList*  GetCommandList() const;
-    const std::unordered_map<std::string, PassDatas>& GetDebugDataImages() const;
+    RenderPassProperties&       GetRenderPassProperties() const;
 
 public:
     void SetCamera(std::string_view renderSceneName, std::shared_ptr<Camera> camera) const;
@@ -71,5 +71,5 @@ private:
     class LightCore*                _lightCore;
     class ParticleManager*          _particleManager;
     class DebugDrawCore*            _debugDrawCore;
-    class DebugDatas*               _debugDatas;
+    class RenderPassDatas*          _renderPassDatas;
 };

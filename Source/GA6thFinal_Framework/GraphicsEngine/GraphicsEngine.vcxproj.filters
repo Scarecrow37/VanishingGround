@@ -366,7 +366,7 @@
     <ClInclude Include="Graphics_Enums.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="DebugDatas.h">
+    <ClInclude Include="RenderPassDatas.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -683,7 +683,7 @@
     <ClCompile Include="ShadowMapPass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="DebugDatas.cpp">
+    <ClCompile Include="RenderPassDatas.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

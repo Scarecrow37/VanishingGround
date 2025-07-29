@@ -21,6 +21,7 @@
 #include <windows.h>
 #include <wrl.h>
 #include <set>
+#include <any>
 
 #include "directx/d3dcommon.h"
 #include "directx/d3dx12.h"

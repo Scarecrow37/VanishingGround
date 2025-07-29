@@ -212,7 +212,6 @@ using namespace Microsoft::WRL;
 
 //Editor Tools
 #include "Editor/Tool/Debug/EditorDebugTool.h"
-#include "Editor/Tool/Debug/EditorDebugPassView.h"
 #include "Editor/Tool/AssetBrowser/EditorAssetBrowserTool.h"
 #include "Editor/Tool/Inspector/EditorInspectorTool.h"
 #include "Editor/Tool/Hierarchy/EditorHierarchyTool.h"
@@ -226,6 +225,7 @@ using namespace Microsoft::WRL;
 #include "Editor/Tool/Model/EditorAnimationNotifyTool.h"
 #include "Editor/Tool/Command/EditorCommandTool.h"
 #include "Editor/Tool/Sequencer/EditorSequencerTool.h"
+#include "Editor/Tool/RenderPassData/EditorRenderPassData.h"
 
 #include "Editor/Tool/ParticleEffect/EditorParticleEffectDetails.h"
 #include "Editor/Tool/ParticleEffect/EditorParticleEffectViewer.h"
