@@ -43,6 +43,11 @@ POINT AnchorPanelSlot::GetOffsetPoint() const
     return ReflectFields->OffsetPoint;
 }
 
+SIZE AnchorPanelSlot::GetSiblingSize() const
+{
+    return ReflectFields->SiblingSize;
+}
+
 void AnchorPanelSlot::OnPlacementChange()
 {
     PanelSlotComponent::OnPlacementChange();
@@ -51,7 +56,7 @@ void AnchorPanelSlot::OnPlacementChange()
     UpdateOffsetPoint();
     const POINT anchorPoint = GetAnchorPoint();
     const POINT offsetPoint = GetOffsetPoint();
-    const SIZE  size        = GetSize();
+    const SIZE  size        = GetSiblingSize();
     PassScopedPlacementToSibling(anchorPoint - offsetPoint, size);
 }
 
@@ -180,4 +185,5 @@ void AnchorPanelSlot::UpdateOffsetPoint()
     const LONG offsetY = static_cast<LONG>(std::lerp(0, static_cast<float>(siblingHeight), pivotY));
 
     ReflectFields->OffsetPoint = POINT{offsetX, offsetY};
+    ReflectFields->SiblingSize = SIZE{siblingWidth, siblingHeight};
 }

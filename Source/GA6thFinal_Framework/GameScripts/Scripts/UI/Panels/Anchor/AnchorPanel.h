@@ -65,6 +65,7 @@ public:
     AnchorType GetAnchorType() const;
     POINT      GetAnchorPoint() const;
     POINT      GetOffsetPoint() const;
+    SIZE       GetSiblingSize() const;
 
 protected:
     void OnPlacementChange() override;
@@ -82,6 +83,7 @@ protected:
     float      PivotX = 0.0f;
     float      PivotY = 0.0f;
     POINT      OffsetPoint;
+    SIZE       SiblingSize;
     REFLECT_FIELDS_END(AnchorPanelSlot)
 
 };
