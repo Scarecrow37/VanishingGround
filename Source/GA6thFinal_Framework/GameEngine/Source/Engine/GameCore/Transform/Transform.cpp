@@ -17,7 +17,7 @@ Transform::Transform(GameObject& owner)
 }
 Transform::~Transform()
 {
-    //DetachChildren();
+    DetachChildrenEx(false);
     EraseParent(true);
 }
 
@@ -48,27 +48,7 @@ std::weak_ptr<GameObject> Transform::GetWeakPtr()
 
 void Transform::DetachChildren()
 {
-    for (auto& child : _childsList)
-    {
-        Transform* prevParent = child->_parent;
-        if (nullptr != prevParent)
-        {
-            child->_root = nullptr;
-            child->_parent = nullptr;
-            child->SetChildsRootParent(child);
-            CallUIDetachParent(child, prevParent);
-        }
-    }
-
-    if (_childsList.empty() == false)
-    {
-        std::erase_if(
-            _childsList,
-            [](Transform* child)
-            { 
-                return child->_parent == nullptr;
-            }); 
-    }
+    DetachChildrenEx(true);
 }
 
 void Transform::SetParent(Transform* p, bool worldPositionStays)
@@ -289,6 +269,30 @@ void Transform::SetParentEx(Transform* p, bool worldPositionStays, bool callEven
     _hasChanged = true;
     UpdateMatrix();
     GameObject::Engine::UpdateActiveInHierarchy(&_gameObject);
+}
+
+void Transform::DetachChildrenEx(bool callEvent) 
+{
+    for (auto& child : _childsList)
+    {
+        Transform* prevParent = child->_parent;
+        if (nullptr != prevParent)
+        {
+            child->_root   = nullptr;
+            child->_parent = nullptr;
+            child->SetChildsRootParent(child);
+
+            if (callEvent)
+            {
+                CallUIDetachParent(child, prevParent);
+            }
+        }
+    }
+
+    if (_childsList.empty() == false)
+    {
+        std::erase_if(_childsList, [](Transform* child) { return child->_parent == nullptr; });
+    }
 }
 
 void Transform::CallUIDetachParent(Transform* target, Transform* prevParent)

@@ -356,6 +356,12 @@ private:
     void SetParentEx(Transform* p, bool worldPositionStays, bool callEvent);
 
     /// <summary>
+    /// 내부에서 사용되는 DetachChild 함수
+    /// </summary>
+    /// <param name="callEvent"></param>
+    void DetachChildrenEx(bool callEvent);
+
+    /// <summary>
     /// UI 컴포넌트들의 Detach 이벤트 함수를 호출합니다.
     /// </summary>
     /// <param name="target"></param>
