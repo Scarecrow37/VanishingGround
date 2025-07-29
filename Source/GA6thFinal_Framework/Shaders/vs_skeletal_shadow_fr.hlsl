@@ -27,9 +27,9 @@ VSOutput vs_main(VSInput input)
     uint cascadeIndex = shadowData.CascadeIndex;
 
     matrix boneTransform = mul(input.blendWeights.x, boneMatrices[instanceID * shadowData.Offset + input.blendIndices.x]);
-    boneTransform += mul(input.blendWeights.y, boneMatrices[instanceID * shadowData.Offset + input.blendIndices.y]);
-    boneTransform += mul(input.blendWeights.z, boneMatrices[instanceID * shadowData.Offset + input.blendIndices.z]);
-    boneTransform += mul(input.blendWeights.w, boneMatrices[instanceID * shadowData.Offset + input.blendIndices.w]);
+    boneTransform       += mul(input.blendWeights.y, boneMatrices[instanceID * shadowData.Offset + input.blendIndices.y]);
+    boneTransform       += mul(input.blendWeights.z, boneMatrices[instanceID * shadowData.Offset + input.blendIndices.z]);
+    boneTransform       += mul(input.blendWeights.w, boneMatrices[instanceID * shadowData.Offset + input.blendIndices.w]);
 
     matrix worldTransform = mul(boneTransform, worldMatrices[instanceID]);
 

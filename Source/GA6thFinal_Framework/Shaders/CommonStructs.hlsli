@@ -73,9 +73,6 @@ struct ObjectData
 
 struct ObjectData2 : ObjectData
 {
-    uint ID;
-    uint Offset;
-    uint CustomDepth;
     uint CascadeIndex;
 };
 
