@@ -10,7 +10,7 @@ struct HexToColor
 {
     Color operator()(const std::string& hex) const
     {
-        static constexpr std::regex HEX_COLOR_REGEX(R"(^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{8})$)");
+        static const std::regex HEX_COLOR_REGEX(R"(^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{8})$)");
 
         if (!std::regex_match(hex, HEX_COLOR_REGEX))
             return {0.0f, 0.0f, 0.0f, 1.0f}; // Invalid hex format
