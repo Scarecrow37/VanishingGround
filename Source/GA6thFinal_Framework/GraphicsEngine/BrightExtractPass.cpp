@@ -5,9 +5,9 @@ BrightExtractPass::BrightExtractPass() {}
 
 BrightExtractPass::~BrightExtractPass() {}
 
-void BrightExtractPass::Initialize(RenderScene* ownerScene, ID3D12GraphicsCommandList* commandList)
+void BrightExtractPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList)
 {
-    __super::Initialize(ownerScene, commandList);
+    __super::Initialize(ownerScene, ownerTechnique, commandList);
 
     _shader = std::make_unique<ShaderBuilder>();
     _shader->BeginBuild();

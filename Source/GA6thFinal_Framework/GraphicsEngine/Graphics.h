@@ -22,8 +22,8 @@
 using namespace DirectX;
 using namespace DirectX::SimpleMath;
 
-#include "Enums.h"
-#include "Structs.h"
+#include "Graphics_Enums.h"
+#include "Graphics_Structs.h"
 
 #include "Texture.h"
 #include "Light.h"
@@ -44,5 +44,7 @@ using namespace DirectX::SimpleMath;
 
 #include "ParticleManager.h"
 #include "ResourceManager.h"
+
+#include "RenderPassDatas.h"
 
 #include "GraphicsCore.h"

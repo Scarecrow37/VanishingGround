@@ -19,7 +19,8 @@ namespace Global
     LightCore*                lightCore;
     ParticleManager*          particleManager;
     DebugDrawCore*            debugDrawCore;
-}
+    RenderPassDatas*          renderPassDatas;
+};
 
 ParticleManager* GraphicsCore::GetParticleManager() const
 {
@@ -59,6 +60,11 @@ D3D12_CPU_DESCRIPTOR_HANDLE GraphicsCore::GetBackBufferHandle() const
 ID3D12GraphicsCommandList* GraphicsCore::GetCommandList() const
 {
     return _device->GetCommandList();
+}
+
+RenderPassProperties& GraphicsCore::GetRenderPassProperties() const
+{
+    return _renderPassDatas->GetRenderPassProperties();
 }
 
 void GraphicsCore::SetCamera(const std::string_view renderSceneName, std::shared_ptr<Camera> camera) const
@@ -153,6 +159,7 @@ void GraphicsCore::Initialize(const HWND hwnd, const UINT width, const UINT heig
     _dxResourceManager        = new DXResourceManager;
     _commandController        = new CommandController;
     _debugDrawCore            = new DebugDrawCore;
+    _renderPassDatas          = new RenderPassDatas;
 
     Global::device                   = _device;
     Global::renderer                 = _renderer;
@@ -165,6 +172,7 @@ void GraphicsCore::Initialize(const HWND hwnd, const UINT width, const UINT heig
     Global::dxResourceManager        = _dxResourceManager;
     Global::commandController        = _commandController;
     Global::debugDrawCore            = _debugDrawCore;
+    Global::renderPassDatas          = _renderPassDatas;
 
     _device->SetUpDevice(hwnd, width, height, feature);
     _viewManager->Initialize();

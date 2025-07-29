@@ -26,6 +26,11 @@ D3D12_GPU_DESCRIPTOR_HANDLE RenderScene::GetFinalImage()
     return finalTarget->GetSRVHandle();
 }
 
+const std::any& RenderScene::GetRenderPassProperty(std::string_view passName) const
+{
+    return Global::renderPassDatas->GetRenderPassProperty(_name, passName);
+}
+
 void RenderScene::SetSkyBox(std::wstring_view path)
 {
     _skyBox->SetTexture(path);
@@ -122,6 +127,14 @@ void RenderScene::AddRenderTechnique(std::unique_ptr<RenderTechnique> technique)
     _techniques.push_back(std::move(technique));
 }
 
+void RenderScene::AddRenderPassDatas()
+{
+    for (auto& technique : _techniques)
+    {
+        technique->AddRenderPassDatas(_name);
+    }
+}
+
 void RenderScene::UpdateRenderScene()
 {
     UpdateGlobal();
@@ -136,6 +149,11 @@ void RenderScene::UpdateRenderScene()
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::UI_MATERIAL, _uiMaterials.data(), (UINT)_uiMaterials.size());
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::STATIC_MESH_INSTANCE_ID, _staticMeshInstanceIDs.data(), (UINT)_staticMeshInstanceIDs.size());
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::SKELETAL_MESH_INSTANCE_ID, _skeletalMeshInstanceIDs.data(), (UINT)_skeletalMeshInstanceIDs.size());
+
+    for (auto& technique : _techniques)
+    {
+        technique->Update(_commandSet);
+    }
 }
 
 void RenderScene::Execute()
@@ -205,12 +223,18 @@ void RenderScene::UpdateGlobal()
         switch (light->_type)
         {
         case Light::Type::DIRECTIONAL:
+            if (_numLight.Directional >= MAX_DIRECTIONAL_LIGHT)
+                continue;
             _lightDatas[_numLight.Directional++] = light->_data;
             break;
         case Light::Type::POINT:
+            if (_numLight.Point >= MAX_POINT_LIGHT)
+                continue;
             _lightDatas[MAX_DIRECTIONAL_LIGHT + _numLight.Point++] = light->_data;
             break;
         case Light::Type::SPOT:
+            if (_numLight.Spot >= MAX_SPOT_LIGHT)
+                continue;
             _lightDatas[MAX_DIRECTIONAL_LIGHT + MAX_POINT_LIGHT + _numLight.Spot++] = light->_data;
             break;
         }
@@ -234,7 +258,20 @@ void RenderScene::UpdateObject()
     _staticMeshInstanceIDs.clear();
     _skeletalMeshInstanceIDs.clear();
 
-    const auto& cameraFrustum = _camera->GetWorldFrustum();
+    int   mainLight    = 0;
+    float maxIntensity = 0.0f;
+
+    for (int i = 0; i < MAX_DIRECTIONAL_LIGHT; i++)
+    {
+        if (maxIntensity < _lightDatas[i].Intensity)
+        {
+            maxIntensity = _lightDatas[i].Intensity;
+            mainLight    = i;
+        }
+    }
+
+    Vector3 lightDirection = (_lightDatas[mainLight].float3_1);
+    lightDirection.Normalize();
 
     UINT instanceID = 0;
     for (auto& [isDestroy, component] : _meshRenderQueue)
@@ -247,13 +284,12 @@ void RenderScene::UpdateObject()
             continue;
 
         const auto  type         = component->GetType();
+        const auto& customDepths = component->GetCustomDepths();
         const auto& meshes       = model->GetMeshes();
         auto&       materials    = model->GetMaterials();
         const auto& textures     = model->GetTextures();
-        const auto& customDepths = component->GetCustomDepths();
 
-        XMMATRIX     world          = component->GetWorldMatrix();
-        XMMATRIX     transposeWorld = XMMatrixTranspose(world);
+        XMMATRIX     world = XMMatrixTranspose(component->GetWorldMatrix());
         BoneMatrices boneMatrices;
 
         if (SKELETAL_MESH == type)
@@ -264,16 +300,8 @@ void RenderScene::UpdateObject()
 
         UINT size = (UINT)meshes.size();
         for (UINT i = 0; i < size; i++)
-        {
-            BoundingOrientedBox boundingOrientedBox;
-
-            const auto& meshBoundingBox = meshes[i]->GetBoundingBox();
-            meshBoundingBox.Transform(boundingOrientedBox, world);
-
-            if (!cameraFrustum.Intersects(boundingOrientedBox))
-                continue;
-
-            _worldMatrices.push_back(transposeWorld);
+        {            
+            _worldMatrices.push_back(world);
             _boneMatrices.push_back(boneMatrices);
 
             if (materials[i].IsTwoSided)

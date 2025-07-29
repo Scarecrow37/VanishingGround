@@ -31,9 +31,16 @@ ImageElement::~ImageElement()
         _renderer->SetDestroy();
 }
 
+void ImageElement::SetImage(const File::GuidRef& guidRef)
+{
+    _guidRef = guidRef;
+    ReflectFields->Guid = _guidRef.string();
+    RequestResource();
+}
+
 void ImageElement::Reset()
 {
-    UIComponent::Reset();
+    EditablePlacementUIComponent::Reset();
 
     try
     {
@@ -44,6 +51,7 @@ void ImageElement::Reset()
             UmGraphics.RegisterComponent("Editor", _renderer.get());
         }
         _renderer->SetActive(&EnableInHierarchy);
+
         RequestResource();
     }
     catch (...)
@@ -55,7 +63,7 @@ void ImageElement::Reset()
 
 void ImageElement::DeserializedReflectEvent()
 {
-    UIComponent::DeserializedReflectEvent();
+    EditablePlacementUIComponent::DeserializedReflectEvent();
 
     const File::Guid guid = ReflectFields->Guid;
     if (const auto path = guid.ToPath(); !path.IsNull())

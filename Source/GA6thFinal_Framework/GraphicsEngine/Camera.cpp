@@ -1,9 +1,19 @@
 ﻿#include "pch.h"
 #include "Camera.h"
 
+BoundingFrustum Camera::GetSplitFrustum(float nearZ, float farZ) const
+{
+    BoundingFrustum frustum;
+    frustum.CreateFromMatrix(frustum, _projectionInverse);
+    frustum.Near = nearZ;
+    frustum.Far  = farZ;
+
+    return frustum;
+}
+
 void Camera::SetupPerspective(float fovDegree, float aspect, float nearZ, float farZ)
 {
-    if (std::isnan(aspect))
+    if (std::isnan(aspect) || std::isinf(aspect))
     {
         aspect = 0.1f;
     }
@@ -13,6 +23,8 @@ void Camera::SetupPerspective(float fovDegree, float aspect, float nearZ, float 
     }
     _projection        = XMMatrixPerspectiveFovLH(XMConvertToRadians(fovDegree), aspect, nearZ, farZ);
     _projectionInverse = XMMatrixInverse(nullptr, _projection);
+    _nearZ             = nearZ;
+    _farZ              = farZ;
 
     BoundingFrustum::CreateFromMatrix(_frustum, _projection);
 }
@@ -21,6 +33,8 @@ void Camera::SetupOrthographic(float width, float height, float nearZ, float far
 {
     _projection        = XMMatrixOrthographicLH(width, height, nearZ, farZ);
     _projectionInverse = XMMatrixInverse(nullptr, _projection);
+    _nearZ             = nearZ;
+    _farZ              = farZ;
 }
 
 void Camera::SetWorldMatrix(const Matrix& worldMatrix) 

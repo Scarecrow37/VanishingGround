@@ -13,4 +13,5 @@ namespace Global
     extern LightCore*                lightCore;
     extern ParticleManager*          particleManager;
     extern DebugDrawCore*            debugDrawCore;
+    extern RenderPassDatas*          renderPassDatas;
 }
