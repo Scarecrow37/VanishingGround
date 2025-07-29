@@ -33,6 +33,7 @@ void PlayerActionPhase::OnEnter()
         TurnActor* actor = _turnMode->GetCurrTurnActor();
         if (actor)
         {
+            actor->PlayTurn();
             actor->OnTurnStart();
             auto* combatStartPhase = _turnMode->States->CombatStartPhase;
             if (combatStartPhase)
@@ -44,8 +45,8 @@ void PlayerActionPhase::OnEnter()
                 }
                 _turnMode->ApplyActions([character](TurnAction& action) { action.OnTurnStart(*character); });
             }
+            actor->UpdatePostTurnState();
         }
-        actor->PlayTurn();
     }
 }
 
