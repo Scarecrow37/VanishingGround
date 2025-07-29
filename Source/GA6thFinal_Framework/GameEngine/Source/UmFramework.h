@@ -46,7 +46,6 @@ constexpr const char* STR_NULL = "null";
 #define NOMINMAX
 #include <Windows.h>
 #include <wrl.h>
-#include <winrt/base.h>
 #include <Xinput.h>
 #include <xaudio2.h>
 
@@ -65,6 +64,7 @@ constexpr const char* STR_NULL = "null";
 #include <vector>
 #include <type_traits>
 #include <functional> 
+#include <map>
 #include <unordered_map>
 #include <unordered_set>
 #include <source_location>
