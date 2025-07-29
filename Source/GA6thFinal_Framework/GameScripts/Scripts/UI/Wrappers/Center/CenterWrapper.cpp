@@ -2,6 +2,13 @@
 #include "CenterWrapper.h"
 
 
+void CenterWrapper::OnChildPlacementChange(PlacementUIComponent* changedComponent)
+{
+    EditablePlacementUIComponent::OnChildPlacementChange(changedComponent);
+
+    AssignChild(*changedComponent);
+}
+
 POINT CenterWrapper::GetCenterPoint(const SIZE childSize) const
 {
     const auto [absoluteX, absoluteY] = GetAbsolutePoint();
@@ -42,14 +49,16 @@ void CenterWrapper::OnAttachChild(GameObject* childGameObject)
 {
     EditablePlacementUIComponent::OnAttachChild(childGameObject);
 
-    std::vector<PlacementUIComponent*> components = FindComponents<PlacementUIComponent>()(*childGameObject);
+    std::vector<PlacementUIComponent*> components = childGameObject->GetComponents<PlacementUIComponent>();
     std::ranges::for_each(components, [this](PlacementUIComponent* component) { AssignChild(*component); });
 }
 
 void CenterWrapper::AssignChild(PlacementUIComponent& component) const
 {
-    const SIZE  childSize = component.GetSize();
-    const POINT point     = GetCenterPoint(childSize);
-    const SIZE  size      = GetSize();
-    component.SetScopePlacement(point, size);
+    const SIZE  childSize      = component.GetSize();
+    const POINT point          = GetCenterPoint(childSize);
+    const auto [width, height] = GetSize();
+    const SIZE scopeSize{.cx = IsCenterHorizontal() ? childSize.cx : width,
+                         .cy = IsCenterVertical() ? childSize.cy : height};
+    component.SetScopePlacement(point, scopeSize);
 }

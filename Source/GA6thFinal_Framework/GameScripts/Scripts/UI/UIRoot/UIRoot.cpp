@@ -63,5 +63,5 @@ void UIRootSlot::OnPlacementChange()
 
     const POINT point = GetAbsolutePoint();
     const SIZE  size  = GetSize();
-    PassScopedPlacement(point, size);
+    PassScopedPlacementToSibling(point, size);
 }

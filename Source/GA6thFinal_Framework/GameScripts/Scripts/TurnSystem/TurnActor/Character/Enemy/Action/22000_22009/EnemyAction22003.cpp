@@ -7,9 +7,8 @@ namespace EnemyAction
     void Action22003::OnActionEnter() 
     {
     }
-    bool Action22003::OnActionUpdate() 
+    void EnemyAction::Action22003::OnActionUpdate() 
     {
-        return true;
     }
     void Action22003::OnActionExit() 
     {

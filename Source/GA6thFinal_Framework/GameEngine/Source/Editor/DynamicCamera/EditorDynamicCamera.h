@@ -26,7 +26,7 @@ public:
     void SetRotation(const Quaternion& rotation) { _rotation = rotation; }
     const Quaternion& GetRotation() { return _rotation; }
 
-    void SetPivot(float value) { _pivot = value; }
+    void SetPivot(float value) { _pivot = std::min(value, 0.f); }
     float GetPivot() const { return _pivot; }
 
     bool IsManipulated() const { return _isManipulated; }

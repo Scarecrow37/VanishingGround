@@ -47,4 +47,8 @@ private:
     Player*                     _player;
     std::vector<Enemy*>         _enemies;
     std::vector<CharacterBase*> _characters;
+
+private:
+    /*적 배열을 Left, Middle, Right 순으로 정렬합니다.*/
+    void SortEnemies();
 };

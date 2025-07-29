@@ -29,7 +29,7 @@ void PaddingWrapper::OnAttachChild(GameObject* childGameObject)
 {
     EditablePlacementUIComponent::OnAttachChild(childGameObject);
 
-    std::vector<PlacementUIComponent*> components = FindComponents<PlacementUIComponent>()(*childGameObject);
+    std::vector<PlacementUIComponent*> components = childGameObject->GetComponents<PlacementUIComponent>();
     std::ranges::for_each(components, [this](PlacementUIComponent* component) { AssignChild(*component); });
 }
 

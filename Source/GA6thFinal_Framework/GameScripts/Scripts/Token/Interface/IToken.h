@@ -66,9 +66,12 @@ private: // ITriggerType을(를) 통해 상속됨.
     virtual void OnQTEEnd(CharacterBase* source) = 0;
 
 public:
-    virtual int         GetTokenOrder() const       = 0;
-    virtual int         GetTokenID() const          = 0;
-    virtual const char* GetTokenName() const        = 0;
-    virtual int         GetMaxStackCount() const    = 0;
-    virtual TokenTag    GetTokenTag() const         = 0;
+    virtual bool        CanAdd(CharacterBase* owner) const      = 0;
+    virtual bool        CanRemove(CharacterBase* owner) const   = 0;
+
+    virtual int         GetTokenOrder() const                   = 0;
+    virtual int         GetTokenID() const                      = 0;
+    virtual const char* GetTokenName() const                    = 0;
+    virtual int         GetMaxStackCount() const                = 0;
+    virtual TokenTag    GetTokenTag() const                     = 0;
 };

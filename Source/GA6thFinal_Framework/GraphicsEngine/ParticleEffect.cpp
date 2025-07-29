@@ -90,6 +90,22 @@ void ParticleEffect::Update(float deltaTime)
         emitter->SetEffectWorldMatrix(_worldMatrix);
         emitter->Update(deltaTime);
     }
+    {
+
+        for (auto emitter : _particleEmitters)
+        {
+            if (true == emitter->GetActiveFlag())
+                return;
+        }
+        _activeFlag = false;
+        _playFlag   = false;
+        _isEnding   = false;
+        if (true == _isPlaying)
+        {
+            _isPlaying = false;
+            _age       = 0;
+        }
+    }
 
 
 }
@@ -134,8 +150,31 @@ void ParticleEffect::Play()
 {
     if (false == _isPlaying)
     {
-        _playFlag = true;
-        _isPlaying = true;
+        _playFlag   = true;
+        _isPlaying  = true;
+        _activeFlag = true;
+        _isEnding   = false;
+        _age        = 0;
+        for (auto& emitter : _particleEmitters)
+        {
+            emitter->Reset();
+            emitter->SetActiveFlag(true);
+        }
+
+    }
+}
+
+void ParticleEffect::Stop() 
+{
+    if (false == _isEnding)
+    {
+
+        _isEnding = true;
+        _isPlaying = false;
+        for (auto& emitter : _particleEmitters)
+        {
+            emitter->SetEndFlag(true);
+        }
     }
 }
 
@@ -151,9 +190,6 @@ void ParticleEffect::Reset()
 
 void ParticleEffect::FlushEmitters()
 {
-
-
-
     for (auto it = _particleEmitters.begin(); it != _particleEmitters.end();)
     {
         if ((*it)->GetRemoveFlag())

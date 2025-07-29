@@ -442,6 +442,18 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
                     GameObjectKey, GameObject::Helper::GenerateUniqueName("Anchor Panel"), &ui);
                 ui->AddComponent<AnchorPanel>();
             }
+            if (ImGui::MenuItem("Horizontal Panel"))
+            {
+                UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
+                    GameObjectKey, GameObject::Helper::GenerateUniqueName("Horizontal Panel"), &ui);
+                ui->AddComponent<HorizontalPanel>();
+            }
+            if (ImGui::MenuItem("Description Panel"))
+            {
+                UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
+                    GameObjectKey, GameObject::Helper::GenerateUniqueName("Description Panel"), &ui);
+                ui->AddComponent<DescriptionPanel>();
+            }
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Wrappers"))
@@ -457,6 +469,12 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
                 UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
                     GameObjectKey, GameObject::Helper::GenerateUniqueName("Center Wrapper"), &ui);
                 ui->AddComponent<CenterWrapper>();
+            }
+            if (ImGui::MenuItem("Ratio Wrapper"))
+            {
+                UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
+                    GameObjectKey, GameObject::Helper::GenerateUniqueName("Ratio Wrapper"), &ui);
+                ui->AddComponent<RatioWrapper>();
             }
             ImGui::EndMenu();
         }

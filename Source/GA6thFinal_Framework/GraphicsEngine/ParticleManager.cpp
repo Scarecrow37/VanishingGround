@@ -110,6 +110,9 @@ void ParticleManager::ChangeTexture()
             }
         }
     }
+    if (true == _editorRefreshFlag)
+        RefreshCurrentEditorEffect();
+
 }
 
 ParticleEmitter* ParticleManager::RegisterEmitter(class ParticleEffect* effect, SIZE_T maxParticles /*= 100000*/,
@@ -204,8 +207,7 @@ void ParticleManager::Update(const float deltaTime)
         if (false == _editorCurrentEffect->GetActiveFlag() && true == _isAutoRefresh)
             RefreshEditor();
 
-        if (true == _editorRefreshFlag)
-            RefreshCurrentEditorEffect();
+
     }
 }
 

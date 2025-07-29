@@ -31,6 +31,18 @@ TextElement::~TextElement()
         _renderer->SetDestroy();
 }
 
+SIZE TextElement::GetContentSize() const
+{
+    return ReflectFields->ContentSize;
+}
+
+void TextElement::SetFont(const File::GuidRef& guidRef)
+{
+    _guidRef = guidRef;
+    ReflectFields->Guid = _guidRef.string();
+    RequestResource();
+}
+
 void TextElement::Reset()
 {
     EditablePlacementUIComponent::Reset();
@@ -44,6 +56,7 @@ void TextElement::Reset()
             UmGraphics.RegisterComponent("Editor", _renderer.get());
         }
         _renderer->SetActive(&EnableInHierarchy);
+
         RequestResource();
     }
     catch (...)
@@ -69,9 +82,10 @@ void TextElement::OnPlacementChange()
     EditablePlacementUIComponent::OnPlacementChange();
 
     UpdatePosition();
-    if (ReflectFields->IsFitContent)
+
+    if (IsFitContent)
     {
-        FitContent();
+        FitContent();   
     }
 }
 
@@ -100,7 +114,7 @@ void TextElement::SetViewOrder(const int viewOrder)
     UpdatePosition();
 }
 
-void TextElement::PassProperty() const
+void TextElement::PassProperty()
 {
     if (nullptr != _renderer)
     {
@@ -110,12 +124,15 @@ void TextElement::PassProperty() const
     UpdateAll();
 }
 
-void TextElement::UpdateAll() const
+void TextElement::UpdateAll()
 {
     UpdateText();
     UpdateColor();
     UpdatePosition();
     UpdateScale();
+    UpdateContentSize();
+    if (ReflectFields->IsFitContent)
+        FitContent();
 }
 
 void TextElement::UpdateText() const
@@ -154,18 +171,33 @@ void TextElement::UpdateScale() const
     }
 }
 
-void TextElement::FitContent()
+void TextElement::UpdateContentSize()
 {
     if (nullptr != _renderer)
     {
         XMFLOAT2 size;
         XMStoreFloat2(&size, _renderer->GetStringSize());
-        const SIZE newSize{.cx = static_cast<LONG>(size.x), .cy = static_cast<LONG>(size.y)};
-        ReflectFields->Basefields.get().Basefields.get().Size = newSize;
+        ReflectFields->ContentSize = SIZE{.cx = static_cast<LONG>(size.x), .cy = static_cast<LONG>(size.y)};
+    }
+    else
+    {
+        ReflectFields->ContentSize = SIZE{0, 0};
     }
 }
 
-void TextElement::RequestResource() const
+void TextElement::FitContent()
+{
+    const SIZE contentSize = GetContentSize();
+    const SIZE previousSize = GetSize();
+
+    if (contentSize != previousSize)
+    {
+        Size = contentSize;
+        SpreadPlacementToParent();
+    }
+}
+
+void TextElement::RequestResource()
 {
     UmSceneManager.ResourceManager.RequestFontResource(this, _guidRef, [this]() {
         LoadFont();
