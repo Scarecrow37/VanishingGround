@@ -105,6 +105,9 @@ UMREAL_COMPONENT(PaddingWrapper)
 #include "Scripts/UI/Wrappers/Center/CenterWrapper.h"
 UMREAL_COMPONENT(CenterWrapper)
 
+#include "Scripts/UI/Wrappers/Ratio/RatioWrapper.h"
+UMREAL_COMPONENT(RatioWrapper)
+
 #include "Scripts/UI/Panels/Grid/GridPanel.h"
 UMREAL_COMPONENT(GridPanel)
 UMREAL_COMPONENT(GridPanelSlot)
@@ -116,6 +119,9 @@ UMREAL_COMPONENT(AnchorPanelSlot)
 #include "Scripts/UI/Panels/Horizontal/HorizontalPanel.h"
 UMREAL_COMPONENT(HorizontalPanel)
 UMREAL_COMPONENT(HorizontalPanelSlot)
+
+#include "Scripts/UI/Panels/Description/DescriptionPanel.h"
+UMREAL_COMPONENT(DescriptionPanel)
 
 #include "Scripts\WeaponSystem/WeaponSystem.h"
 UMREAL_COMPONENT(WeaponSystem)

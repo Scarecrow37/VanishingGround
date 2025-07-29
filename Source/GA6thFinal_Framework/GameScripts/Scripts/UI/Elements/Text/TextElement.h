@@ -57,19 +57,21 @@ public:
 
 public:
     SIZE GetContentSize() const override;
+    void SetFont(const File::GuidRef& guidRef);
 
 protected:
     void  Reset() override;
+    void  DeserializedReflectEvent() override;
     void  OnPlacementChange() override;
     float GetZOrder() const override;
 
 private:
     void SetViewOrder(int viewOrder) override;
 
-    void RequestResource() const;
+    void RequestResource();
     void LoadFont() const;
-    void PassProperty() const;
-    void UpdateAll() const;
+    void PassProperty();
+    void UpdateAll();
     void UpdateText() const;
     void UpdateColor() const;
     void UpdatePosition() const;
