@@ -167,6 +167,7 @@ void ESceneManager::Engine::AddGameObjectToLifeCycle(std::shared_ptr<GameObject>
 void ESceneManager::Engine::AddComponentToLifeCycle(std::shared_ptr<Component> component)
 {
     Global::engineCore->SceneManager._addComponentsQueue.push_back(component);
+    EComponentFactory::Engine::PushBackComponentToObject(component);
 }
 
 void ESceneManager::Engine::SetGameObjectActive(GameObject* pObject, bool value)
@@ -431,9 +432,10 @@ void ESceneManager::Engine::LoadStartScene()
     }
 }
 
-void ESceneManager::Engine::SwapPrefabInstance(GameObject* original, GameObject* remake)
+std::shared_ptr<GameObject> ESceneManager::Engine::SwapPrefabInstance(GameObject* original, GameObject* remake)
 {
     ESceneManager& sceneManager = UmSceneManager;
+    std::shared_ptr<GameObject> originObject; 
     if (original->IsValid())
     {
         int index = original->GetInstanceID();
@@ -442,6 +444,7 @@ void ESceneManager::Engine::SwapPrefabInstance(GameObject* original, GameObject*
             std::shared_ptr<GameObject>& sOrigin = sceneManager._runtimeObjects[index];
             if (nullptr != sOrigin)
             {
+                originObject = sOrigin;
                 std::shared_ptr<GameObject> sRemake = remake->GetWeakPtr().lock();
 
                 //오브젝트 정보 복사
@@ -463,9 +466,12 @@ void ESceneManager::Engine::SwapPrefabInstance(GameObject* original, GameObject*
                         remakeComponent->_initFlags.SetAwake();
                         remakeComponent->_initFlags.SetStart();
                         Component* originComponent = sOrigin->GetComponentAtIndex<Component>(i);
-                        std::string componentData = originComponent->SerializedReflectFields();
-                        remakeComponent->DeserializedReflectFields(componentData);
-                        remakeComponent->Reset();
+                        if (originComponent)
+                        {
+                            std::string componentData = originComponent->SerializedReflectFields();
+                            remakeComponent->DeserializedReflectFields(componentData);
+                            remakeComponent->Reset();
+                        }
                     }
                 }
 
@@ -475,6 +481,7 @@ void ESceneManager::Engine::SwapPrefabInstance(GameObject* original, GameObject*
             }
         }    
     }
+    return originObject;
 }
 
 void ESceneManager::Engine::SetSceneSkyBoxGuid(Scene& scene, const File::Guid& skyBox)
@@ -1056,7 +1063,6 @@ void ESceneManager::ObjectsAddRuntime()
 
     for (auto& component : _addComponentsQueue)
     {
-        EComponentFactory::Engine::PushBackComponentToObject(component);
         if (_isPlay)
         {
             _waitAwakeVec.push_back(component);
