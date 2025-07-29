@@ -1,5 +1,10 @@
 ﻿#pragma once
 
+using VertexBufferID         = UINT;
+using IndexBufferID          = UINT;
+using StaticMeshInstanceID   = UINT;
+using SkeletalMeshInstanceID = UINT;
+
 struct Vertex
 {
     Vector4 Position;
@@ -52,18 +57,11 @@ struct DescriptorHandles
     D3D12_GPU_DESCRIPTOR_HANDLE GPU;
 };
 
-class UnorderedAccessView;
 struct SkeletalMeshInstance
 {
-    std::shared_ptr<UnorderedAccessView> UAVBuffer;
-    D3D12_VERTEX_BUFFER_VIEW             VertexBufferView;
-    UINT                                 VertexCount = 0;
-};
-
-struct Resolution
-{
-    UINT Width;
-    UINT Height;
+    std::shared_ptr<class UnorderedAccessView> UAVBuffer;
+    D3D12_VERTEX_BUFFER_VIEW                   VertexBufferView;
+    UINT                                       VertexCount = 0;
 };
 
 struct MeshInfo
@@ -94,7 +92,9 @@ struct GraphicsTransform
     const Matrix&     World;
 };
 
-using VertexBufferID         = UINT;
-using IndexBufferID          = UINT;
-using StaticMeshInstanceID   = UINT;
-using SkeletalMeshInstanceID = UINT;
+struct ShadowPassProperty
+{
+    float NearPlane;
+    float FarPlane;
+    float SplitFactor;
+};
