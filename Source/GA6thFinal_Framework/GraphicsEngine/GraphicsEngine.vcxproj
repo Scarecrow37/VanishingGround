@@ -348,6 +348,8 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\Release\*.*" "$(SolutionDir)GameEngine\
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="GraphicsBase.h" />
     <ClInclude Include="GraphicsCore.h" />
+    <ClInclude Include="Graphics_Enums.h" />
+    <ClInclude Include="Graphics_Structs.h" />
     <ClInclude Include="Grid.h" />
     <ClInclude Include="Headers.h" />
     <ClInclude Include="HItProgram.h" />
