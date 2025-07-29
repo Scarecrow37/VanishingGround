@@ -141,12 +141,19 @@ void DescriptionPanel::UpdateContent()
 {
     Transform& transform = this->transform;
 
-    for (int i = 0; i < transform.GetChildCount(); ++i)
+    const int childCount = transform.GetChildCount();
+    std::vector<GameObject*> children;
+    for (int i = 0; i < childCount; ++i)
     {
-        const Transform* childTransform  = transform.GetChild(i);
+        const Transform* childTransform = transform.GetChild(i);
         GameObject&      childGameObject = childTransform->gameObject;
-        GameObject::Destroy(childGameObject);
+        children.push_back(&childGameObject);
     }
+    for (GameObject* child : children)
+    {
+        GameObject::Destroy(child);
+    }
+    children.clear();
 
     const std::string text = ReflectFields->Description;
 
