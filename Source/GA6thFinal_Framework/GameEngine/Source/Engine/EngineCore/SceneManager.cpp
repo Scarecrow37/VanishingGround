@@ -1231,10 +1231,16 @@ YAML::Node ESceneManager::SerializeToYaml(const Scene& scene)
     }
 
     auto rootObjects = scene.GetRootGameObjects();
+    int count = 0;
     for (auto& object : rootObjects)
     {
         YAML::Node objectNode = UmGameObjectFactory.SerializeToYaml(object.get(), true);
         sceneNode["GameObjects"].push_back(objectNode);
+        ++count;
+    }
+    if (count == 0)
+    {
+        sceneNode.reset();
     }
     return sceneNode;
 }
@@ -1602,6 +1608,11 @@ void ESceneManager::EraseSceneGUID(std::string_view sceneName, const File::Guid 
     if (_scenesMap.find(guid) != _scenesMap.end())
     {
         Scene* pScene  = &_scenesMap[guid];
+        pScene->_isLoaded = false;
+        if (_setting.MainScene == sceneName)
+        {
+            _setting.MainScene = STR_NULL;
+        }
         auto   objects = pScene->GetRootGameObjects();
         for (auto& obj : objects)
         {
