@@ -17,8 +17,8 @@ Transform::Transform(GameObject& owner)
 }
 Transform::~Transform()
 {
-    DetachChildren();
-    EraseParent();
+    //DetachChildren();
+    EraseParent(true);
 }
 
 int Transform::GetChildCount()
@@ -59,6 +59,7 @@ void Transform::DetachChildren()
             CallUIDetachParent(child, prevParent);
         }
     }
+
     if (_childsList.empty() == false)
     {
         std::erase_if(
@@ -112,10 +113,10 @@ Transform* Transform::GetChild(int index) const
     return child;
 }
 
-void Transform::EraseParent()
+void Transform::EraseParent(bool callEvent)
 {
-    bool isParent = this->_parent != nullptr;
-    if (isParent)
+    Transform* prevParent = this->_parent;
+    if (prevParent)
     {
         if (!_parent->_childsList.empty())
         {
@@ -124,6 +125,11 @@ void Transform::EraseParent()
         _root = nullptr;
         _parent = nullptr;
         SetChildsRootParent(this);
+    }
+
+    if (callEvent)
+    {
+        CallUIDetachParent(this, prevParent);
     }
 }
 
@@ -243,11 +249,7 @@ void Transform::SetParentEx(Transform* p, bool worldPositionStays, bool callEven
     {
         Transform* prevParent = this->Parent;
         ComputeLocalTransform();
-        EraseParent();
-        if (callEvent)
-        {
-            CallUIDetachParent(this, prevParent);
-        }
+        EraseParent(callEvent);
     }
     else // 부모 관계 변경
     {
@@ -265,7 +267,7 @@ void Transform::SetParentEx(Transform* p, bool worldPositionStays, bool callEven
             Transform* prevParent = this->_parent;
             ComputeLocalTransform();
             // 부모 적용
-            EraseParent();
+            EraseParent(callEvent);
             {
                 _parent = p;
 
@@ -280,8 +282,6 @@ void Transform::SetParentEx(Transform* p, bool worldPositionStays, bool callEven
 
             if (callEvent)
             {
-                // 이벤트 호출
-                CallUIDetachParent(this, prevParent);
                 CallUIAttachChild(p, this);
             }
         }

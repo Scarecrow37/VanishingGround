@@ -301,7 +301,7 @@ private:
     /// <summary>
     /// 부모를 지웁니다.
     /// </summary>
-    void EraseParent();
+    void EraseParent(bool callEvent);
 
     /// <summary>
     /// 대상의 모든 자식을 순회하면서 root를 변경합니다.
