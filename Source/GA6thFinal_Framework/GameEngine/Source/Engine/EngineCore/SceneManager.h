@@ -717,7 +717,8 @@ protected:
         Scene& scene, 
         std::string_view sceneName, 
         std::string_view outPath,
-        bool isOverride = false);
+        bool isOverride = false,
+        bool isEmptyScene = false);
 
     // FileEventSubscriber을(를) 통해 상속됨
     virtual void OnFileRegistered(const File::Path& path) override;

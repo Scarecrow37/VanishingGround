@@ -1231,16 +1231,10 @@ YAML::Node ESceneManager::SerializeToYaml(const Scene& scene)
     }
 
     auto rootObjects = scene.GetRootGameObjects();
-    int count = 0;
     for (auto& object : rootObjects)
     {
         YAML::Node objectNode = UmGameObjectFactory.SerializeToYaml(object.get(), true);
         sceneNode["GameObjects"].push_back(objectNode);
-        ++count;
-    }
-    if (count == 0)
-    {
-        sceneNode.reset();
     }
     return sceneNode;
 }
@@ -1304,7 +1298,7 @@ void ESceneManager::WriteEmptySceneToFile(std::string_view name, std::string_vie
 {
     namespace fs = std::filesystem;
     Scene scene;
-    bool result = WriteUmSceneFile(scene, name, outPath, isOverride);
+    bool result = WriteUmSceneFile(scene, name, outPath, isOverride, true);
 }
 
 bool ESceneManager::SetSkyBox(const File::Path& path)
@@ -1344,7 +1338,7 @@ const std::vector<std::weak_ptr<MeshComponent>>& ESceneManager::GetMeshComponent
     return _runtimeMeshComponents;
 }
 
-bool ESceneManager::WriteUmSceneFile(Scene& scene, std::string_view sceneName, std::string_view outPath, bool isOverride)
+bool ESceneManager::WriteUmSceneFile(Scene& scene, std::string_view sceneName, std::string_view outPath, bool isOverride, bool isEmptyScene)
 {
 #ifdef _UMEDITOR
     if (true == editorModule->PlayMode.IsPlay())
@@ -1372,7 +1366,8 @@ bool ESceneManager::WriteUmSceneFile(Scene& scene, std::string_view sceneName, s
     }
     fs::create_directories(writePath.parent_path());
     YAML::Node node = SerializeToYaml(scene);
-    if (node.IsNull() == false)
+    bool isEmptyOk = isEmptyScene ? true : (bool)node["GameObjects"]; 
+    if (node.IsNull() == false && isEmptyOk)
     {
         std::ofstream ofs(writePath, std::ios::trunc);
         if (ofs.is_open())
