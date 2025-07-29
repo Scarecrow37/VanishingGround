@@ -17,8 +17,8 @@ Transform::Transform(GameObject& owner)
 }
 Transform::~Transform()
 {
-    DetachChildren();
-    EraseParent();
+    DetachChildrenEx(false);
+    EraseParent(true);
 }
 
 int Transform::GetChildCount()
@@ -48,95 +48,12 @@ std::weak_ptr<GameObject> Transform::GetWeakPtr()
 
 void Transform::DetachChildren()
 {
-    for (auto& child : _childsList)
-    {
-        Transform* prevParent = child->_parent;
-        if (nullptr != prevParent)
-        {
-            child->_root = nullptr;
-            child->_parent = nullptr;
-            child->SetChildsRootParent(child);
-            CallUIDetachParent(child, prevParent);
-        }
-    }
-    if (_childsList.empty() == false)
-    {
-        std::erase_if(
-            _childsList,
-            [](Transform* child)
-            { 
-                return child->_parent == nullptr;
-            }); 
-    }
+    DetachChildrenEx(true);
 }
 
 void Transform::SetParent(Transform* p, bool worldPositionStays)
 {
-    auto ComputeLocalTransform = [this, p, worldPositionStays]() 
-    {
-        // World PositionStays 조건
-        if (worldPositionStays)
-        {
-            const Matrix& myWorldMatrix = this->GetWorldMatrix();
-            Matrix        myLocalMatrix;
-            if (p)
-            {
-                const Matrix& parentWorldMatrix = p->GetWorldMatrix();
-                Matrix parentInverseMatrix  = parentWorldMatrix.Invert();
-                myLocalMatrix = myWorldMatrix * parentInverseMatrix ;
-            }
-            else
-            {
-                myLocalMatrix = myWorldMatrix;
-            }
-            myLocalMatrix.Decompose(_scale, _rotation, _position);
-        }
-    };
-
-    if (p == nullptr)
-    {
-        Transform* prevParent = this->Parent; 
-        ComputeLocalTransform();
-        EraseParent();
-        CallUIDetachParent(this, prevParent);
-    }
-    else //부모 관계 변경
-    {
-        if (p->gameObject->GetOwnerSceneName() == gameObject->GetOwnerSceneName())
-        {
-            //부모 관계가 가능한지 검증
-            if (p != this->_parent)
-            {
-                if (p == this || p->IsDescendantOf(this))
-                {
-                    return;
-                }  
-            }
-
-            Transform* prevParent = this->_parent;
-            ComputeLocalTransform();        
-            //부모 적용
-            EraseParent();
-            {
-                _parent = p;
-
-                if (p->_root)
-                    _root = p->_root;
-                else
-                    _root = _parent;
-
-                p->_childsList.push_back(this);
-                SetChildsRootParent(_root);
-            }
-
-            //이벤트 호출
-            CallUIDetachParent(this, prevParent);
-            CallUIAttachChild(p, this);
-        }
-    }
-    _hasChanged = true;
-    UpdateMatrix();
-    GameObject::Engine::UpdateActiveInHierarchy(&_gameObject);
+    SetParentEx(p, worldPositionStays, true);
 }
 
 void Transform::SetParent(Transform& p, bool worldPositionStays)
@@ -176,10 +93,10 @@ Transform* Transform::GetChild(int index) const
     return child;
 }
 
-void Transform::EraseParent()
+void Transform::EraseParent(bool callEvent)
 {
-    bool isParent = this->_parent != nullptr;
-    if (isParent)
+    Transform* prevParent = this->_parent;
+    if (prevParent)
     {
         if (!_parent->_childsList.empty())
         {
@@ -188,6 +105,11 @@ void Transform::EraseParent()
         _root = nullptr;
         _parent = nullptr;
         SetChildsRootParent(this);
+    }
+
+    if (callEvent)
+    {
+        CallUIDetachParent(this, prevParent);
     }
 }
 
@@ -281,21 +203,116 @@ void Transform::UpdateMatrix()
     });
 }
 
+void Transform::SetParentEx(Transform* p, bool worldPositionStays, bool callEvent) 
+{
+    auto ComputeLocalTransform = [this, p, worldPositionStays]() {
+        // World PositionStays 조건
+        if (worldPositionStays)
+        {
+            const Matrix& myWorldMatrix = this->GetWorldMatrix();
+            Matrix        myLocalMatrix;
+            if (p)
+            {
+                const Matrix& parentWorldMatrix   = p->GetWorldMatrix();
+                Matrix        parentInverseMatrix = parentWorldMatrix.Invert();
+                myLocalMatrix                     = myWorldMatrix * parentInverseMatrix;
+            }
+            else
+            {
+                myLocalMatrix = myWorldMatrix;
+            }
+            myLocalMatrix.Decompose(_scale, _rotation, _position);
+        }
+    };
+
+    if (p == nullptr)
+    {
+        Transform* prevParent = this->Parent;
+        ComputeLocalTransform();
+        EraseParent(callEvent);
+    }
+    else // 부모 관계 변경
+    {
+        if (p->gameObject->GetOwnerSceneName() == gameObject->GetOwnerSceneName())
+        {
+            // 부모 관계가 가능한지 검증
+            if (p != this->_parent)
+            {
+                if (p == this || p->IsDescendantOf(this))
+                {
+                    return;
+                }
+            }
+
+            Transform* prevParent = this->_parent;
+            ComputeLocalTransform();
+            // 부모 적용
+            EraseParent(callEvent);
+            {
+                _parent = p;
+
+                if (p->_root)
+                    _root = p->_root;
+                else
+                    _root = _parent;
+
+                p->_childsList.push_back(this);
+                SetChildsRootParent(_root);
+            }
+
+            if (callEvent)
+            {
+                CallUIAttachChild(p, this);
+            }
+        }
+    }
+    _hasChanged = true;
+    UpdateMatrix();
+    GameObject::Engine::UpdateActiveInHierarchy(&_gameObject);
+}
+
+void Transform::DetachChildrenEx(bool callEvent) 
+{
+    for (auto& child : _childsList)
+    {
+        Transform* prevParent = child->_parent;
+        if (nullptr != prevParent)
+        {
+            child->_root   = nullptr;
+            child->_parent = nullptr;
+            child->SetChildsRootParent(child);
+
+            if (callEvent)
+            {
+                CallUIDetachParent(child, prevParent);
+            }
+        }
+    }
+
+    if (_childsList.empty() == false)
+    {
+        std::erase_if(_childsList, [](Transform* child) { return child->_parent == nullptr; });
+    }
+}
+
 void Transform::CallUIDetachParent(Transform* target, Transform* prevParent)
 {
     GameObject& gameObject = target->gameObject;
-    for (size_t i = 0; i < gameObject.GetComponentCount(); ++i)
+    if (gameObject.IsValid())
     {
-        Component* component = gameObject.GetComponentAtIndex<Component>(i);
-        if (Component::TYPE::UI == component->GetType())
+        for (size_t i = 0; i < gameObject.GetComponentCount(); ++i)
         {
-            UIComponent* uiComponent = static_cast<UIComponent*>(component);
-            GameObject*  prevObject  = nullptr;
-            if (prevParent)
+            Component* component = gameObject.GetComponentAtIndex<Component>(i);
+            if (Component::TYPE::UI == component->GetType())
             {
-                prevObject = &prevParent->gameObject;
+                UIComponent* uiComponent = static_cast<UIComponent*>(component);
+                GameObject*  prevObject  = nullptr;
+                if (prevParent)
+                {
+                    prevObject = &prevParent->gameObject;
+                }
+                uiComponent->OnDetachParent(prevObject);
             }
-            uiComponent->OnDetachParent(prevObject);
         }
     }
 }
@@ -303,18 +320,21 @@ void Transform::CallUIDetachParent(Transform* target, Transform* prevParent)
 void Transform::CallUIAttachChild(Transform* target, Transform* newChild)
 {
     GameObject& gameObject = target->gameObject;
-    for (size_t i = 0; i < gameObject.GetComponentCount(); ++i)
+    if (gameObject.IsValid())
     {
-        Component* component = gameObject.GetComponentAtIndex<Component>(i);
-        if (Component::TYPE::UI == component->GetType())
+        for (size_t i = 0; i < gameObject.GetComponentCount(); ++i)
         {
-            UIComponent* uiComponent = static_cast<UIComponent*>(component);
-            GameObject*  newChildObject = nullptr;
-            if (newChild)
+            Component* component = gameObject.GetComponentAtIndex<Component>(i);
+            if (Component::TYPE::UI == component->GetType())
             {
-                newChildObject = &newChild->gameObject;
+                UIComponent* uiComponent    = static_cast<UIComponent*>(component);
+                GameObject*  newChildObject = nullptr;
+                if (newChild)
+                {
+                    newChildObject = &newChild->gameObject;
+                }
+                uiComponent->OnAttachChild(newChildObject);
             }
-            uiComponent->OnAttachChild(newChildObject);
         }
     }
 }

@@ -54,6 +54,8 @@ GameObject::~GameObject()
     if (0 <= _instanceID)
     {
         UmGameObjectFactory.InstanceID.ReturnInstanceID(_instanceID);
+        _instanceID = -1;
+        _ownerScene = STR_NULL;
     }
 
     if (0 < ReflectFields->_tags.size())
@@ -550,7 +552,14 @@ void GameObject::Engine::UpdateActiveInHierarchy(GameObject* obj)
         bool currActive = parentActiveInHierarchy && curr->ReflectFields->_activeSelf && curr->IsValid();
         if (prevActive != currActive)
         {
-            curr->_activeInHierarchy = currActive;
+            if (curr->IsValid())
+            {
+                curr->_activeInHierarchy = currActive;
+            }
+            else
+            {
+                curr->_activeInHierarchy = false;
+            }
             for (auto& component : curr->_components)
             {
                 component->UpdateEnableInHierarchy();

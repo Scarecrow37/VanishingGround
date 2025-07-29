@@ -5,6 +5,7 @@ using namespace DirectX::SimpleMath;
 class Transform : public ReflectSerializer
 {
     friend class ESceneManager;
+    friend class EGameObjectFactory;
     USING_PROPERTY(Transform);
     inline static std::vector<Transform*> trStack; //순회용 stack (Foreach에서 씀)
     inline static std::queue<Transform*> trQueue; //순회용 queue (Foreach에서 씀)
@@ -300,7 +301,7 @@ private:
     /// <summary>
     /// 부모를 지웁니다.
     /// </summary>
-    void EraseParent();
+    void EraseParent(bool callEvent);
 
     /// <summary>
     /// 대상의 모든 자식을 순회하면서 root를 변경합니다.
@@ -348,6 +349,17 @@ private:
     /// 월드 행렬을 계산합니다.
     /// </summary>
     void UpdateMatrix();
+
+    /// <summary>
+    /// 내부에서 사용되는 SetParent 함수
+    /// </summary>
+    void SetParentEx(Transform* p, bool worldPositionStays, bool callEvent);
+
+    /// <summary>
+    /// 내부에서 사용되는 DetachChild 함수
+    /// </summary>
+    /// <param name="callEvent"></param>
+    void DetachChildrenEx(bool callEvent);
 
     /// <summary>
     /// UI 컴포넌트들의 Detach 이벤트 함수를 호출합니다.
