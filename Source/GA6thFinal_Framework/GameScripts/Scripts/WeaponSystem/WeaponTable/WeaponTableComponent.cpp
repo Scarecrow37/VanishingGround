@@ -57,7 +57,7 @@ bool WeaponTableComponent::RenameWeapon(WeaponElement& weapon, const std::string
         newWeapon = weapon; 
         newWeapon.Stats.SetName(newName); // 이름 변경
 
-        const std::string& prevName = weapon.Stats.Name;
+        const std::string& prevName = weapon.Stats.WeaponName;
         _weaponTable.erase(prevName);    //기존 삭제
         result = true;
     }
@@ -71,7 +71,7 @@ bool WeaponTableComponent::RenameWeapon(WeaponElement& weapon, const std::string
 bool WeaponTableComponent::InsertWeapon(WeaponElement& weapon)
 {
     bool result = false;
-    const std::string& name = weapon.Stats.Name;
+    const std::string& name     = weapon.Stats.WeaponName;
     auto             findIter = _weaponTable.find(name);
     if (findIter == _weaponTable.end())
     {
@@ -89,7 +89,7 @@ bool WeaponTableComponent::InsertWeapon(WeaponElement& weapon)
 bool WeaponTableComponent::EraseWeapon(WeaponElement& weapon)
 {
     bool               result   = false;
-    const std::string& name     = weapon.Stats.Name;
+    const std::string& name     = weapon.Stats.WeaponName;
     auto               findIter = _weaponTable.find(name);
     if (findIter != _weaponTable.end())
     {
@@ -204,8 +204,9 @@ void WeaponTableComponent::ImGuiDrawPropertysEvent()
 
 void WeaponTableComponent::ImGuiTableEditor() 
 {
-    if (ImGui::BeginTable("Weapon Stats", 7, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+    if (ImGui::BeginTable("Weapon Stats", 8, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
     {
+        ImGui::TableSetupColumn((const char*)u8"ID");                   // Name,
         ImGui::TableSetupColumn((const char*)u8"이름");                   // Name,
         ImGui::TableSetupColumn((const char*)u8"종류");                   // Type,
         ImGui::TableSetupColumn((const char*)u8"데미지");                 // HitDamage,
@@ -254,10 +255,12 @@ void WeaponTableComponent::ImGuiTableEditor()
                     }
                     RightClickContext();
                 };
-                ImGui::TableSetColumnIndex(0);
+
+                DrawColumnProperty(weapon.Stats.WeaponID, 0);
+                ImGui::TableSetColumnIndex(1);
                 {
                     static std::string renameBuffer;
-                    const std::string  originName = weapon.Stats.Name;
+                    const std::string  originName = weapon.Stats.WeaponName;
                     renameBuffer                  = originName;
                     bool input                    = ImGui::InputText("##name", &renameBuffer);
                     if (input)
@@ -278,16 +281,16 @@ void WeaponTableComponent::ImGuiTableEditor()
                     }
                     RightClickContext();
                 };
-                DrawColumnProperty(weapon.Stats.Type, 1);
-                DrawColumnProperty(weapon.Stats.HitDamage, 2);
+                DrawColumnProperty(weapon.Stats.Type, 2);
+                DrawColumnProperty(weapon.Stats.HitDamage, 3);
                 // DrawColumnProperty(weapon.Stats.HitDamageMultiplier,      3);
-                DrawColumnProperty(weapon.Stats.CriticalDamage, 3);
+                DrawColumnProperty(weapon.Stats.CriticalDamage, 4);
                 // DrawColumnProperty(weapon.Stats.CriticalDamageMultiplier, 5);
-                DrawColumnProperty(weapon.Stats.AttackCount, 4);
-                DrawColumnProperty(weapon.Stats.Speed, 5);
+                DrawColumnProperty(weapon.Stats.AttackCount, 5);
+                DrawColumnProperty(weapon.Stats.Speed, 6);
                 // DrawColumnProperty(weapon.Stats.AttackPerChain,           8);
                 // DrawColumnProperty(weapon.Stats.AttackPerChainMultiplier, 9);    
-                ImGui::TableSetColumnIndex(6);
+                ImGui::TableSetColumnIndex(7);
                 {
                     TurnAction::ImGuiDrawActionMaker(key, weapon._action, weapon._showActionEditor);
                 }              
