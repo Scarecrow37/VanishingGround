@@ -55,6 +55,10 @@ private:
         bool                  OpenDeletePopup   = false;
         WeaponElement*        SelectWeapon      = nullptr;
         std::function<void()> RenameFunc;
+
+        bool ShowExeclParser = false;
+        std::unique_ptr<OpenXLSX::XLDocument> ExeclDoc;
+        std::vector<std::string> SheetNames;
     } 
     _imguiEvent;
 
@@ -69,7 +73,6 @@ protected:
     /// </summary>
     virtual void ImGuiDrawPropertysEvent() override;
 
-    void ImGuiTableEditor();
 
     /// <summary>
     /// <para> 직렬화 직전 자동으로 호출되는 이벤트 함수입니다. </para>
@@ -82,5 +85,14 @@ protected:
     /// <para> 직접 override 해서 사용합니다.                     </para>
     /// </summary>
     virtual void DeserializedReflectEvent() override;
+
+private:
+    /*테이블 편집기 ImGuiDraw 함수*/
+    void ImGuiTableEditor();
+
+    /*엑셀 파서 ImGuiDraw 함수*/
+    void ImGuiDrawExcelParser();
+    /*엑셀 파서 ImGuiMenubar 함수*/
+    void ImGuiDrawExcelParserMenuBar();
 
 };

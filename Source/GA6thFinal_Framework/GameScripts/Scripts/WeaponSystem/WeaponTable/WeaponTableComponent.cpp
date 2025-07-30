@@ -194,10 +194,11 @@ void WeaponTableComponent::ImGuiDrawPropertysEvent()
                 }
                 gameObject->GetScene().IsDirty = true;
             }
+            ImGui::MenuItem("Excel Parcer", "", &_imguiEvent.ShowExeclParser);
             ImGui::EndMenuBar();
         }
         ImGuiTableEditor();
-
+        ImGuiDrawExcelParser();
         ImGui::End();
     }
 }
@@ -359,6 +360,62 @@ void WeaponTableComponent::ImGuiTableEditor()
         }
     }
 }
+
+void WeaponTableComponent::ImGuiDrawExcelParser() 
+{
+    if (_imguiEvent.ShowExeclParser)
+    {
+        ImGui::Begin("Excel Parser##12487AA8-BA7A-43E8-90A6-EBC10DAE14FC", &_imguiEvent.ShowExeclParser,
+                     ImGuiWindowFlags_MenuBar);
+        {
+            ImGuiDrawExcelParserMenuBar();
+            for (auto& name : _imguiEvent.SheetNames)
+            {
+                ImGui::Text(name.c_str());
+            }
+        }
+        ImGui::End();
+    }
+
+    if (_imguiEvent.ExeclDoc && _imguiEvent.ShowExeclParser == false)
+    {
+        if (_imguiEvent.ExeclDoc->isOpen())
+        {
+            _imguiEvent.ExeclDoc->close();
+        }
+        _imguiEvent.ExeclDoc.reset();
+    }
+}
+
+void WeaponTableComponent::ImGuiDrawExcelParserMenuBar() 
+{
+    if (ImGui::BeginMenuBar())
+    {
+        if (ImGui::MenuItem("Load Excel Table"))
+        {
+            std::wstring_view       desktopPath = File::GetDesktopPath();
+            std::vector<File::Path> out;
+            if (File::ShowOpenFileDialog(NULL, L"로드할 파일을 선택하세요.", desktopPath.data(),
+                                         {{L"무기 테이블 파일\0", L"*.xlsm\0"}}, false, out))
+            {
+                if (false == out.empty())
+                {
+                    _imguiEvent.ExeclDoc.reset(new OpenXLSX::XLDocument);
+                    _imguiEvent.ExeclDoc->open(out.front().generic_string());
+                    auto& doc = *_imguiEvent.ExeclDoc;
+                    if (doc.isOpen())
+                    {
+                        auto workBook          = doc.workbook();
+                        _imguiEvent.SheetNames = workBook.sheetNames();
+                    }
+                    gameObject->GetScene().IsDirty = true;
+                }
+            }
+        }
+        ImGui::EndMenuBar();
+    }
+}
+
 
 void WeaponTableComponent::SerializedReflectEvent() 
 {
