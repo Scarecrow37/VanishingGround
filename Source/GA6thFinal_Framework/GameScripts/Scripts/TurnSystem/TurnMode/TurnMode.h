@@ -57,10 +57,16 @@ public:
     void SortTurnList();
 
     /// <summary>
-    /// 가장 우선순위가 높은 TurnActor를 List에서 지우고 CurrTurnActor 로 설정합니다.
+    /// 가장 우선순위가 높은 TurnActor를 CurrTurnActor 로 설정합니다.
     /// </summary>
-    /// <returns></returns>
-    TurnActor* PopTurnList();
+    /// <returns>현재 CurrentTurnActor를 반환합니다.</returns>
+    TurnActor* StartFrontTurnActor();
+
+
+    /// <summary>
+    /// TurnList의 첫번째 Actor를 제거하고 현재 턴 Actor를 nullptr로 설정합니다.
+    /// </summary>
+    void FinishCurrentTurn();
 
     /// <summary>
     /// 현재 턴 실행중인 Actor를 반환합니다.

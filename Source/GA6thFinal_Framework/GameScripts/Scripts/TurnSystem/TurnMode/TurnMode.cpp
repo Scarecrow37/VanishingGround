@@ -131,15 +131,20 @@ void TurnMode::SortTurnList()
     }
 }
 
-TurnActor* TurnMode::PopTurnList()
+TurnActor* TurnMode::StartFrontTurnActor()
 {
-    _currTurnActor = nullptr;
+    if (_currTurnActor)
+    {
+        UmLogger.Log(
+            LogLevel::LEVEL_ERROR,
+            u8"현재 턴이 끝나지 않았습니다. TurnMode::StartFrontTurnActor()를 호출하기 전에 FinishCurrentTurn()을 호출하세요.");
+        return _currTurnActor;
+    }
     while (false == _turnList.empty())
     {
         auto& actorSlot = _turnList.front();
         auto& [slot, actor] = actorSlot;
         _currTurnActor      = actor;
-        _turnList.pop_front();
         if (_currTurnActor->State == TurnActor::STATE::Wait)
         {
             if (true == IsPlayerActorSlot(actorSlot))
@@ -159,6 +164,12 @@ TurnActor* TurnMode::PopTurnList()
         _currTurnActor = nullptr;
     }
     return _currTurnActor;
+}
+
+void TurnMode::FinishCurrentTurn()
+{
+    _turnList.pop_front();
+    _currTurnActor = nullptr;
 }
 
 int TurnMode::GetPendingActorCount()
