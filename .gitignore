@@ -534,6 +534,10 @@ ProjectSettings/
 BuildSettings/
 update_repo.bat
 imgui.ini
-!Source/GA6thFinal_Framework/GameEngine/ThirdParty/
-!Source/GA6thFinal_Framework/GameEngine/ThirdParty/**/*.lib
-!Source/GA6thFinal_Framework/GameEngine/ThirdParty/**/*.dll
+!Source/GA6thFinal_Framework/GameEngine/Source/Editor/Tool/Debug/
+!Source/GA6thFinal_Framework/GameEngine/Source/Editor/Tool/Log/
+!Source/GA6thFinal_Framework/GameEngine/ThirdParty/include/
+!Source/GA6thFinal_Framework/GameEngine/ThirdParty/lib/
+!Source/GA6thFinal_Framework/GameEngine/ThirdParty/lib/*.lib
+!Source/GA6thFinal_Framework/GameEngine/ThirdParty/bin/
+!Source/GA6thFinal_Framework/GameEngine/ThirdParty/bin/*.dll
