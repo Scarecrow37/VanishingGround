@@ -517,15 +517,6 @@ FodyWeavers.xsd
 
 # End of https://www.toptal.com/developers/gitignore/api/windows,c++,c,visualstudio,git,tortoisegit,svn
 
-# Project
-Resource/
-ProjectSettings/
-BuildSettings/
-update_repo.bat
-imgui.ini
-!Source/GA6thFinal_Framework/GameEngine/ThirdParty/
-!Source/GA6thFinal_Framework/GameEngine/ThirdParty/**/*
-
 # Additional Folder
 lib
 bin
@@ -536,3 +527,13 @@ bin
 *.lib
 *.exp
 *.pdb
+
+# Project
+Resource/
+ProjectSettings/
+BuildSettings/
+update_repo.bat
+imgui.ini
+!Source/GA6thFinal_Framework/GameEngine/ThirdParty/
+!Source/GA6thFinal_Framework/GameEngine/ThirdParty/**/*.lib
+!Source/GA6thFinal_Framework/GameEngine/ThirdParty/**/*.dll
