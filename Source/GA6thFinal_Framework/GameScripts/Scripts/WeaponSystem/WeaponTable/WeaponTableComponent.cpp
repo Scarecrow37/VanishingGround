@@ -377,13 +377,13 @@ void WeaponTableComponent::ImGuiDrawExcelParser()
         ImGui::End();
     }
 
-    if (_imguiEvent.ExeclDoc && _imguiEvent.ShowExcelParser == false)
+    if (_imguiEvent.ExcelDoc && _imguiEvent.ShowExcelParser == false)
     {
-        if (_imguiEvent.ExeclDoc->isOpen())
+        if (_imguiEvent.ExcelDoc->isOpen())
         {
-            _imguiEvent.ExeclDoc->close();
+            _imguiEvent.ExcelDoc->close();
         }
-        _imguiEvent.ExeclDoc.reset();
+        _imguiEvent.ExcelDoc.reset();
     }
 }
 
@@ -400,9 +400,9 @@ void WeaponTableComponent::ImGuiDrawExcelParserMenuBar()
             {
                 if (false == out.empty())
                 {
-                    _imguiEvent.ExeclDoc.reset(new OpenXLSX::XLDocument);
-                    _imguiEvent.ExeclDoc->open(out.front().generic_string());
-                    auto& doc = *_imguiEvent.ExeclDoc;
+                    _imguiEvent.ExcelDoc.reset(new OpenXLSX::XLDocument);
+                    _imguiEvent.ExcelDoc->open(out.front().generic_string());
+                    auto& doc = *_imguiEvent.ExcelDoc;
                     if (doc.isOpen())
                     {
                         auto workBook          = doc.workbook();

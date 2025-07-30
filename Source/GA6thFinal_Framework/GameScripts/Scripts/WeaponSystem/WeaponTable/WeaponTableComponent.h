@@ -57,7 +57,7 @@ private:
         std::function<void()> RenameFunc;
 
         bool ShowExcelParser = false;
-        std::unique_ptr<OpenXLSX::XLDocument> ExeclDoc;
+        std::unique_ptr<OpenXLSX::XLDocument> ExcelDoc;
         std::vector<std::string> SheetNames;
     } 
     _imguiEvent;
