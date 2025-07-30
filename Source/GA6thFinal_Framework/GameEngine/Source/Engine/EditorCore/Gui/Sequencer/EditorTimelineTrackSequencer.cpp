@@ -731,7 +731,7 @@ namespace Timeline
             bool isDraggable = false == dragHandler.IsDragging() || dragHandler.IsDraggingOnly(id);
             bool canDrag     = editor->HasFlags(FLAGS_ALLOW_DRAG_CONTEXT) && isDraggable;
             int state = EditorDragState::DRAG_STATE_NONE;
-            if (true == isSelected)
+            if (true == canDrag && true == isSelected)
             {
                 state = dragHandler.BeginDragState(id, rect, indicatePos);
             }

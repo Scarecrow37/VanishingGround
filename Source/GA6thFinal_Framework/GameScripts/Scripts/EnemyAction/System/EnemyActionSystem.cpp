@@ -86,25 +86,10 @@ Timeline::SequencerEditor& EnemyActionSystem::GetSequencerEditor()
     {
         // 콜백 처리
         auto& callback = sequencerEditor.GetCallback();
-        sequencerEditor.AddFlags(Timeline::SequencerEditor::FLAGS_ALLOW_ALL_INPUT);
-        sequencerEditor.AddFlags(Timeline::SequencerEditor::FLAGS_ALLOW_ALL_INPUT);
+        //sequencerEditor.AddFlags(Timeline::SequencerEditor::FLAGS_ALLOW_ALL_INPUT);
+        //sequencerEditor.AddFlags(Timeline::SequencerEditor::FLAGS_USE_DEBUG_MODE);
+        sequencerEditor.AddFlags(Timeline::SequencerEditor::FLAGS_ALLOW_POPUP_LOWER_CANVAS_MENU);
         isInitialized = true;
-
-        callback.LowerFramePopup = [this](Timeline::EventTrack* track)
-        {
-            if (track)
-            {
-                const auto& list = Timeline::EventTrack::GetInstanceConstructors();
-                for (const auto& [key, func] : list)
-                {
-                    if (ImGui::Selectable(key.c_str() + 6))
-                    {
-                        float frame = sequencerEditor.GetMouseCursorFrame();
-                        track->AddEventEx("Event", key, frame);
-                    }
-                }
-            }
-        };
     }
     return sequencerEditor;
 }
@@ -116,6 +101,22 @@ void EnemyActionSystem::ShowEditor()
     if (_isShowEditor)
     {
         ImGui::Begin("Enemy Action Editor", &_isShowEditor, ImGuiWindowFlags_NoMove);
+
+        ImRect tabRect  = ImGuiHelper::GetWindowTabBarRect();
+        ImVec2 mousePos = ImGui::GetMousePos();
+
+        int state = _dragHandler.BeginDragState("WindowTab", tabRect, mousePos, ImGuiMouseButton_Left);
+        switch (state)
+        {
+            case EditorDragState::DRAG_STATE_DRAGGING:
+            {
+                ImVec2 newPos = tabRect.Min + ImGui::GetIO().MouseDelta;
+                ImGui::SetWindowPos(newPos);
+                break;
+            }
+            default:
+                break;
+        }
 
         ImVec2 availableSize = ImGui::GetContentRegionAvail();
         ImVec2 left          = ImVec2(200.0f, availableSize.y);

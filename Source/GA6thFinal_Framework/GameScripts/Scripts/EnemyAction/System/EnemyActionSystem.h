@@ -38,6 +38,7 @@ private:
 
     bool _isShowEditor = false;     // 에디터 모드 여부
     int  _selectedActionID = 0;     // 선택된 액션 ID
+    EditorDragState _dragHandler;
 };
 
 // 스킬 ID, 이름, 타입, 이벤트 트랙

@@ -82,6 +82,12 @@ namespace ImGuiHelper
     }
 
     /// <summary>
+    /// 윈도우의 탭바 영역을 반환합니다.
+    /// </summary>
+    /// <returns></returns>
+    ImRect GetWindowTabBarRect();
+
+    /// <summary>
     /// 여백있는 구분선
     /// </summary>
     /// <param name="upPadding">위 여백</param>

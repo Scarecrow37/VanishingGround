@@ -68,6 +68,13 @@ namespace ImGuiHelper
         ImGui::PopID();
         return ImGui::BeginComboPopup(popupID, bb, comboFlags);
     }
+    ImRect GetWindowTabBarRect()
+    {
+        ImGuiWindow* window = ImGui::GetCurrentWindow();
+        float titleBarHeight = window->TitleBarHeight;
+        ImRect tabRect = ImRect(window->Pos, window->Pos + ImVec2(window->Size.x, titleBarHeight));
+        return tabRect;
+    }
     void Separator(float upPadding, float downPadding)
     {
         ImGui::Dummy(ImVec2(0.0f, upPadding));
