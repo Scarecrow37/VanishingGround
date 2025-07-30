@@ -165,8 +165,13 @@ void CharacterBase::Dead()
 void CharacterBase::TakeDamage(int damage) 
 {
     if (TurnActor::STATE::Dead == GetActorState())
+    {
+        GameObject& owner = gameObject;
+        std::string msg = std::format("{}{}", owner.ToString(), (const char*)u8" 대한 공격 빗나감.");
+        UmLogger.Message(LogLevel::LEVEL_DEBUG, msg);
         return;
-
+    }
+       
     CharacterStats* stats = GetCharacterStats();
     if (stats)
     {

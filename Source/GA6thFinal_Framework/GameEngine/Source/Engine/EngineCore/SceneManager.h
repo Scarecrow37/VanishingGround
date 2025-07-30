@@ -253,7 +253,7 @@ public:
         /// <summary>
         /// 프리팹 인스턴스를 Swap 합니다. Reset만 호출되며 인스턴스 아이디는 유지됩니다.
         /// </summary>
-        static void SwapPrefabInstance(GameObject* original, GameObject* remake);
+        static std::shared_ptr<GameObject> SwapPrefabInstance(GameObject* original, GameObject* remake);
 
         /// <summary>
         /// 씬의 스카이박스를 설정합니다.
@@ -390,8 +390,8 @@ public:
     /// </summary>
     /// <returns>Main Scene</returns>
     Scene* GetMainScene()
-    {
-        return GetSceneByName(_setting.MainScene);
+    { 
+         return GetSceneByName(_setting.MainScene);
     }
 
     /// <summary>
@@ -667,8 +667,8 @@ private:
     std::string _prevScene = STR_NULL;
     struct
     {
-       //현재 Single로 로드된 씬 이름입니다. NewGameObject를 하면 이 씬에 오브젝트가 생성됩니다.
-       std::string MainScene = STR_NULL;
+        // 현재 Single로 로드된 씬 이름입니다. NewGameObject를 하면 이 씬에 오브젝트가 생성됩니다.
+        std::string MainScene = STR_NULL;
 
        //에디터가 아닌 상태에서 처음으로 로드할 씬
        std::string StartScene = STR_NULL;
@@ -717,7 +717,8 @@ protected:
         Scene& scene, 
         std::string_view sceneName, 
         std::string_view outPath,
-        bool isOverride = false);
+        bool isOverride = false,
+        bool isEmptyScene = false);
 
     // FileEventSubscriber을(를) 통해 상속됨
     virtual void OnFileRegistered(const File::Path& path) override;

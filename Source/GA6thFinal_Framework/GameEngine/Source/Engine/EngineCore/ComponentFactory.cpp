@@ -239,6 +239,11 @@ YAML::Node EComponentFactory::SerializeToYaml(Component* component)
 
 bool EComponentFactory::ParsingYamlToOverrideFlags(Component* component, const YAML::Node& componentNode) 
 {
+    if (nullptr == component)
+    {
+        __debugbreak();
+    }
+
     bool result = false;
     int SerializedVersion = 0;
     const YAML::Node& node = componentNode;

@@ -167,6 +167,7 @@ void ESceneManager::Engine::AddGameObjectToLifeCycle(std::shared_ptr<GameObject>
 void ESceneManager::Engine::AddComponentToLifeCycle(std::shared_ptr<Component> component)
 {
     Global::engineCore->SceneManager._addComponentsQueue.push_back(component);
+    EComponentFactory::Engine::PushBackComponentToObject(component);
 }
 
 void ESceneManager::Engine::SetGameObjectActive(GameObject* pObject, bool value)
@@ -431,9 +432,10 @@ void ESceneManager::Engine::LoadStartScene()
     }
 }
 
-void ESceneManager::Engine::SwapPrefabInstance(GameObject* original, GameObject* remake)
+std::shared_ptr<GameObject> ESceneManager::Engine::SwapPrefabInstance(GameObject* original, GameObject* remake)
 {
     ESceneManager& sceneManager = UmSceneManager;
+    std::shared_ptr<GameObject> originObject; 
     if (original->IsValid())
     {
         int index = original->GetInstanceID();
@@ -442,6 +444,7 @@ void ESceneManager::Engine::SwapPrefabInstance(GameObject* original, GameObject*
             std::shared_ptr<GameObject>& sOrigin = sceneManager._runtimeObjects[index];
             if (nullptr != sOrigin)
             {
+                originObject = sOrigin;
                 std::shared_ptr<GameObject> sRemake = remake->GetWeakPtr().lock();
 
                 //오브젝트 정보 복사
@@ -463,9 +466,12 @@ void ESceneManager::Engine::SwapPrefabInstance(GameObject* original, GameObject*
                         remakeComponent->_initFlags.SetAwake();
                         remakeComponent->_initFlags.SetStart();
                         Component* originComponent = sOrigin->GetComponentAtIndex<Component>(i);
-                        std::string componentData = originComponent->SerializedReflectFields();
-                        remakeComponent->DeserializedReflectFields(componentData);
-                        remakeComponent->Reset();
+                        if (originComponent)
+                        {
+                            std::string componentData = originComponent->SerializedReflectFields();
+                            remakeComponent->DeserializedReflectFields(componentData);
+                            remakeComponent->Reset();
+                        }
                     }
                 }
 
@@ -475,6 +481,7 @@ void ESceneManager::Engine::SwapPrefabInstance(GameObject* original, GameObject*
             }
         }    
     }
+    return originObject;
 }
 
 void ESceneManager::Engine::SetSceneSkyBoxGuid(Scene& scene, const File::Guid& skyBox)
@@ -1056,7 +1063,6 @@ void ESceneManager::ObjectsAddRuntime()
 
     for (auto& component : _addComponentsQueue)
     {
-        EComponentFactory::Engine::PushBackComponentToObject(component);
         if (_isPlay)
         {
             _waitAwakeVec.push_back(component);
@@ -1292,7 +1298,7 @@ void ESceneManager::WriteEmptySceneToFile(std::string_view name, std::string_vie
 {
     namespace fs = std::filesystem;
     Scene scene;
-    bool result = WriteUmSceneFile(scene, name, outPath, isOverride);
+    bool result = WriteUmSceneFile(scene, name, outPath, isOverride, true);
 }
 
 bool ESceneManager::SetSkyBox(const File::Path& path)
@@ -1332,7 +1338,7 @@ const std::vector<std::weak_ptr<MeshComponent>>& ESceneManager::GetMeshComponent
     return _runtimeMeshComponents;
 }
 
-bool ESceneManager::WriteUmSceneFile(Scene& scene, std::string_view sceneName, std::string_view outPath, bool isOverride)
+bool ESceneManager::WriteUmSceneFile(Scene& scene, std::string_view sceneName, std::string_view outPath, bool isOverride, bool isEmptyScene)
 {
 #ifdef _UMEDITOR
     if (true == editorModule->PlayMode.IsPlay())
@@ -1360,7 +1366,8 @@ bool ESceneManager::WriteUmSceneFile(Scene& scene, std::string_view sceneName, s
     }
     fs::create_directories(writePath.parent_path());
     YAML::Node node = SerializeToYaml(scene);
-    if (node.IsNull() == false)
+    bool isEmptyOk = isEmptyScene ? true : (bool)node["GameObjects"]; 
+    if (node.IsNull() == false && isEmptyOk)
     {
         std::ofstream ofs(writePath, std::ios::trunc);
         if (ofs.is_open())
@@ -1596,6 +1603,11 @@ void ESceneManager::EraseSceneGUID(std::string_view sceneName, const File::Guid 
     if (_scenesMap.find(guid) != _scenesMap.end())
     {
         Scene* pScene  = &_scenesMap[guid];
+        pScene->_isLoaded = false;
+        if (_setting.MainScene == sceneName)
+        {
+            _setting.MainScene = STR_NULL;
+        }
         auto   objects = pScene->GetRootGameObjects();
         for (auto& obj : objects)
         {
