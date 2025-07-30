@@ -373,36 +373,80 @@ private:
     /// <param name="target"></param>
     static void CallUIAttachChild(Transform* target, Transform* newChild);
 
+    /// <summary>
+    /// object의 vaild 여부 체크합니다.
+    /// </summary>
+    /// <param name="target"></param>
+    /// <returns></returns>
+    static bool CheckVaildTransform(Transform* target);
+
+    /// <summary>
+    /// Tansform를 DFS로 root부터 모든 자식들을 순회하면서 함수를 호출해줍니다.
+    /// </summary>
+    /// <typeparam name="Func">실행할 함수</typeparam>
+    /// <param name="root :">DFS 시작할 루트</param>
+    /// <param name="func : 실행할 함수"></param>
+    template <typename Func>
+    inline static void ForeachExDFS(Transform& root, bool checkVaild, Func func);
+
+    /// <summary>
+    /// Tansform를 BFS로 root부터 모든 자식들을 순회하면서 함수를 호출해줍니다.
+    /// </summary>
+    /// <typeparam name="Func">실행할 함수</typeparam>
+    /// <param name="root">BFS 시작할 루트</param>
+    /// <param name="func">실행할 함수</param>
+    template <typename Func>
+    inline static void ForeachExBFS(Transform& root, bool checkVaild, Func func);
 };
 
 template <typename Func>
 inline void Transform::ForeachDFS(Transform& root, Func func)
+{
+    ForeachExDFS(root, true, func);
+}
+
+template <typename Func>
+inline void Transform::ForeachBFS(Transform& root, Func func)
+{
+    ForeachExBFS(root, true, func);
+}
+
+template <typename Func>
+inline void Transform::ForeachExDFS(Transform& root, bool checkVaild, Func func)
 {
     trStack.push_back(&root);
     while (trStack.empty() == false)
     {
         Transform* currTr = trStack.back();
         trStack.pop_back();
-        func(currTr);
-        for (auto& _transform : currTr->_childsList)
+        bool vaild = checkVaild ? CheckVaildTransform(currTr) : true;
+        if (vaild)
         {
-            trStack.push_back(_transform);
+            func(currTr);
+            for (auto& _transform : currTr->_childsList)
+            {
+                trStack.push_back(_transform);
+            }
         }
     }
 }
 
 template <typename Func>
-inline void Transform::ForeachBFS(Transform& root, Func func)
+inline void Transform::ForeachExBFS(Transform& root, bool checkVaild, Func func)
 {
     trQueue.push(&root);
     while (trQueue.empty() == false)
     {
         Transform* currTr = trQueue.front();
         trQueue.pop();
-        func(currTr);
-        for (auto& _transform : currTr->_childsList)
+        bool vaild = checkVaild ? CheckVaildTransform(currTr) : true;
+        if (vaild)
         {
-            trQueue.push(_transform);
+            func(currTr);
+            for (auto& _transform : currTr->_childsList)
+            {
+                trQueue.push(_transform);
+            }
         }
     }
 }

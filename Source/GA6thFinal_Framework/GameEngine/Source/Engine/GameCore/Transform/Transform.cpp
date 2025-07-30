@@ -344,3 +344,12 @@ void Transform::CallUIAttachChild(Transform* target, Transform* newChild)
         }
     } 
 }
+
+bool Transform::CheckVaildTransform(Transform* target)
+{
+    if (target)
+    {
+        return target->_gameObject.IsValid();
+    }
+    return false;
+}
