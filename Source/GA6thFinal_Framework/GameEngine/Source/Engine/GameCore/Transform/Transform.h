@@ -176,7 +176,7 @@ public:
     }
 
     /// <summary>
-    /// Tansform를 DFS로 root부터 모든 자식들을 순회하면서 함수를 호출해줍니다.
+    /// Transform를 DFS로 root부터 모든 자식들을 순회하면서 함수를 호출해줍니다.
     /// </summary>
     /// <typeparam name="Func">실행할 함수</typeparam>
     /// <param name="root :">DFS 시작할 루트</param>
@@ -186,7 +186,7 @@ public:
 
 
     /// <summary>
-    /// Tansform를 BFS로 root부터 모든 자식들을 순회하면서 함수를 호출해줍니다.
+    /// Transform를 BFS로 root부터 모든 자식들을 순회하면서 함수를 호출해줍니다.
     /// </summary>
     /// <typeparam name="Func">실행할 함수</typeparam>
     /// <param name="root">BFS 시작할 루트</param>
@@ -381,7 +381,7 @@ private:
     static bool CheckValidTransform(Transform* target);
 
     /// <summary>
-    /// Tansform를 DFS로 root부터 모든 자식들을 순회하면서 함수를 호출해줍니다.
+    /// Transform를 DFS로 root부터 모든 자식들을 순회하면서 함수를 호출해줍니다.
     /// </summary>
     /// <typeparam name="Func">실행할 함수</typeparam>
     /// <param name="root :">DFS 시작할 루트</param>
@@ -390,7 +390,7 @@ private:
     inline static void ForeachExDFS(Transform& root, bool checkValid, Func func);
 
     /// <summary>
-    /// Tansform를 BFS로 root부터 모든 자식들을 순회하면서 함수를 호출해줍니다.
+    /// Transform를 BFS로 root부터 모든 자식들을 순회하면서 함수를 호출해줍니다.
     /// </summary>
     /// <typeparam name="Func">실행할 함수</typeparam>
     /// <param name="root">BFS 시작할 루트</param>
