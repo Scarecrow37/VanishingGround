@@ -84,34 +84,36 @@ void EGameObjectFactory::ApplyPrefabInstanceChanges(const File::Guid& guid, YAML
                         if (i < prefabObjects.size())
                         {
                             swapObjects.emplace_back(&curr->gameObject, prefabObjects[i].get());
-                            i++;
                         }
                         else
                         {
                             GameObject::Destroy(curr->gameObject);
                         }
+                        i++;
                     });
 
-                    //최상위 오브젝트 Transform 설정
-                    auto& [frontOrigin, frontPrefab] = swapObjects.front();                             
-                    frontPrefab->_ownerScene = frontOrigin->_ownerScene;
-                    frontPrefab->transform->SetParentEx(frontOrigin->transform->Parent, false, false);
-
-                    //Swap 이루어진 오브젝트들
-                    std::vector<std::shared_ptr<GameObject>> originInstances;
-                    originInstances.reserve(swapObjects.size());
-                    for (auto& [originObject, prefabObject] : swapObjects)
+                    if (false == swapObjects.empty())
                     {
-                        originInstances.emplace_back(ESceneManager::Engine::SwapPrefabInstance(originObject, prefabObject));
-                    }
-                    //소멸자 지연 호출
-                    originInstances.clear();
+                        // 최상위 오브젝트 Transform 설정
+                        auto& [frontOrigin, frontPrefab] = swapObjects.front();
+                        frontPrefab->_ownerScene         = frontOrigin->_ownerScene;
+                        frontPrefab->transform->SetParentEx(frontOrigin->transform->Parent, false, false);
 
+                        // Swap 이루어진 오브젝트들
+                        std::vector<std::shared_ptr<GameObject>> originInstances;
+                        originInstances.reserve(swapObjects.size());
+                        for (auto& [originObject, prefabObject] : swapObjects)
+                        {
+                            originInstances.emplace_back(ESceneManager::Engine::SwapPrefabInstance(originObject, prefabObject));
+                        }
+                        // 소멸자 지연 호출
+                        originInstances.clear();
+                    }
+                   
                     //프리팹과 구조가 다른 없는 오브젝트 추가
-                    i++;
                     if (i < prefabObjects.size())
                     {
-                        std::string_view ownerScene = prefabObjects[i - 1]->_ownerScene;
+                        std::string_view ownerScene = prefabObjects[0]->_ownerScene;
                         for (; i < prefabObjects.size(); i++)
                         {
                             auto& curr        = prefabObjects[i];
@@ -256,34 +258,31 @@ YAML::Node EGameObjectFactory::SerializeToYaml(GameObject* gameObject, bool only
     std::map<Transform*, int> transformParentLevelMap;
     int parentIndex = 0;
     bool isPrefabInstance = gameObject->IsPrefabInstance();
-    Transform::ForeachBFS(
+    Transform::ForeachExBFS(
     gameObject->_transform, 
+    onlyVaildObject,
     [&](Transform* curr) 
     {
-        if (false == onlyVaildObject || true == curr->gameObject->IsValid())
+        // 오브젝트 직렬화
+        YAML::Node objectNode = MakeYamlToGameObject(&curr->gameObject);
+
+        // 컴포넌트들 직렬화
+        for (auto& component : curr->gameObject->_components)
         {
-            // 오브젝트 직렬화
-            YAML::Node objectNode = MakeYamlToGameObject(&curr->gameObject);
-
-            // 컴포넌트들 직렬화
-            for (auto& component : curr->gameObject->_components)
-            {
-                YAML::Node componentNode = UmComponentFactory.SerializeToYaml(component.get());
-                objectNode["Components"].push_back(componentNode);
-            }
-
-            // Transform 직렬화
-            transformParentLevelMap[curr]   = parentIndex;
-            YAML::Node transformNode        = objectNode["Transform"].as<YAML::Node>();
-            transformNode["TransformIndex"] = parentIndex;
-            if (curr->Parent != nullptr)
-            {
-                transformNode["ParentIndex"] = transformParentLevelMap[curr->Parent];
-            }
-            ++parentIndex;
-            nodes.push_back(objectNode);
+            YAML::Node componentNode = UmComponentFactory.SerializeToYaml(component.get());
+            objectNode["Components"].push_back(componentNode);
         }
 
+        // Transform 직렬화
+        transformParentLevelMap[curr]   = parentIndex;
+        YAML::Node transformNode        = objectNode["Transform"].as<YAML::Node>();
+        transformNode["TransformIndex"] = parentIndex;
+        if (curr->Parent != nullptr)
+        {
+            transformNode["ParentIndex"] = transformParentLevelMap[curr->Parent];
+        }
+        ++parentIndex;
+        nodes.push_back(objectNode);     
     });
     return nodes;
 }
