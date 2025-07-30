@@ -34,6 +34,8 @@
 #include <Stats/Player/PlayerStatsComponent.h>
 #include <Stats/Player/PlayerStats.h>
 #include "TurnSystem/TurnActor/Character/Enemy/Enemy.h"
+#include "ViewModels/TurnQueue/TurnQueueViewModel.h"
+
 #include <Stats/Enemy/EnemyStatsComponent.h>
 #include <Stats/Enemy/EnemyStats.h>
 
@@ -266,6 +268,7 @@ int TurnMode::GetRealRoundSpeed(const std::pair<int, TurnActor*>& turnActor)
 void TurnMode::Reset() 
 {
     static_instance = this;
+    UmWatcher.Register<TurnQueueViewModel>("Turn Queue", _turnList);
 }
 
 void TurnMode::Awake()

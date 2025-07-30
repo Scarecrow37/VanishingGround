@@ -79,6 +79,13 @@ public:
     /// <returns></returns>
     int GetPendingActorCount();
 
+    /*slot 값을 통해 플레이어 엑터인지 확인합니다.*/
+    static bool IsPlayerActorSlot(const std::pair<int, TurnActor*>& turnActor)
+    {
+        auto& [slot, actor] = turnActor;
+        return 0 <= slot;
+    }
+
 public:
     REFLECT_PROPERTY(
         RoundCount
@@ -94,12 +101,6 @@ protected:
 private:
     void BuildTurnModeFSM();
 
-    /*slot 값을 통해 플레이어 엑터인지 확인합니다.*/
-    bool IsPlayerActorSlot(const std::pair<int, TurnActor*>& turnActor)
-    {
-        auto& [slot, actor] = turnActor;
-        return 0 <= slot;
-    }
 
     /*slot 값을 통해 실제 RoundSpeed를 반환합니다.*/
     int GetRealRoundSpeed(const std::pair<int, TurnActor*>& turnActor);
