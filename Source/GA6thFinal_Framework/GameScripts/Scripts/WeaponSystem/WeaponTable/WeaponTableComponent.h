@@ -9,20 +9,6 @@ class WeaponTableComponent : public Component
 public:
     inline static constexpr char TAG[] = "WeaponTable";
     static WeaponTableComponent* GetInstance() { return static_instance; }
-    static ImVec4                GetWeaponTypeColor(WeaponStats::WeaponType type)
-    {
-        constexpr std::array<ImVec4, 3> typeColorTable;
-        switch (type)
-        {
-        case WeaponStats::WeaponType::SWORD:
-            return ImVec4(1.0f, 0.7f, 0.2f, 1.0f); // 밝은 황금빛 오렌지
-        case WeaponStats::WeaponType::DAGGER:
-            return ImVec4(0.8f, 0.5f, 0.2f, 1.0f); // 견고한 갈색
-        case WeaponStats::WeaponType::WARHAMMER:
-            return ImVec4(0.2f, 0.9f, 0.9f, 1.0f); // 선명한 시안
-        }
-        return ImVec4(0.6f, 0.6f, 0.6f, 1.0f); // 기본 회색 (다른 타입 또는 알 수 없는 타입)
-    };
 
 public:
     WeaponTableComponent();

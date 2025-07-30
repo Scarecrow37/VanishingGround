@@ -204,11 +204,12 @@ void WeaponTableComponent::ImGuiDrawPropertysEvent()
 
 void WeaponTableComponent::ImGuiTableEditor() 
 {
-    if (ImGui::BeginTable("Weapon Stats", 8, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+    if (ImGui::BeginTable("Weapon Stats", 9, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
     {
-        ImGui::TableSetupColumn((const char*)u8"ID");                   // Name,
+        ImGui::TableSetupColumn((const char*)u8"ID");                   // ID,
         ImGui::TableSetupColumn((const char*)u8"이름");                   // Name,
         ImGui::TableSetupColumn((const char*)u8"종류");                   // Type,
+        ImGui::TableSetupColumn((const char*)u8"등급");                   // Grade,
         ImGui::TableSetupColumn((const char*)u8"데미지");                 // HitDamage,
         //ImGui::TableSetupColumn((const char*)u8"데미지 배율");            // HitDamageMultiplier,
         ImGui::TableSetupColumn((const char*)u8"치명타 데미지");          // CriticalDamage,
@@ -234,7 +235,6 @@ void WeaponTableComponent::ImGuiTableEditor()
                     ImGui::EndPopup();
                 }
             };
-            ImGui::PushStyleColor(ImGuiCol_Text, GetWeaponTypeColor(weapon.Stats.Type));
             ImGui::PushID(itemID++);
             {
                 static ReflectHelper::ImGuiDraw::InputAutoSetting setting = []() 
@@ -281,22 +281,29 @@ void WeaponTableComponent::ImGuiTableEditor()
                     }
                     RightClickContext();
                 };
+
+                ImGui::PushStyleColor(ImGuiCol_Text, WeaponStats::GetTypeToColor(weapon.Stats.Type));
                 DrawColumnProperty(weapon.Stats.Type, 2);
-                DrawColumnProperty(weapon.Stats.HitDamage, 3);
+                ImGui::PopStyleColor();
+
+                ImGui::PushStyleColor(ImGuiCol_Text, WeaponStats::GetGradeToColor(weapon.Stats.Grade));
+                DrawColumnProperty(weapon.Stats.Grade, 3);
+                ImGui::PopStyleColor();
+
+                DrawColumnProperty(weapon.Stats.HitDamage, 4);
                 // DrawColumnProperty(weapon.Stats.HitDamageMultiplier,      3);
-                DrawColumnProperty(weapon.Stats.CriticalDamage, 4);
+                DrawColumnProperty(weapon.Stats.CriticalDamage, 5);
                 // DrawColumnProperty(weapon.Stats.CriticalDamageMultiplier, 5);
-                DrawColumnProperty(weapon.Stats.AttackCount, 5);
-                DrawColumnProperty(weapon.Stats.Speed, 6);
+                DrawColumnProperty(weapon.Stats.AttackCount, 6);
+                DrawColumnProperty(weapon.Stats.Speed, 7);
                 // DrawColumnProperty(weapon.Stats.AttackPerChain,           8);
                 // DrawColumnProperty(weapon.Stats.AttackPerChainMultiplier, 9);    
-                ImGui::TableSetColumnIndex(7);
+                ImGui::TableSetColumnIndex(8);
                 {
                     TurnAction::ImGuiDrawActionMaker(key, weapon._action, weapon._showActionEditor);
                 }              
             }
             ImGui::PopID();
-            ImGui::PopStyleColor(1);
         }
         ImGui::EndTable();
 

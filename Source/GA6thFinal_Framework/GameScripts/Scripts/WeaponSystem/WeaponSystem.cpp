@@ -151,7 +151,7 @@ void WeaponSystem::ImguiEquipWeapons()
                         {
                             if (filter.PassFilter(name.c_str()))
                             {
-                                ImGui::PushStyleColor(ImGuiCol_Text, WeaponTableComponent::GetWeaponTypeColor(element.Stats.Type));
+                                ImGui::PushStyleColor(ImGuiCol_Text, WeaponStats::GetGradeToColor(element.Stats.Grade));
                                 if (ImGui::Selectable(name.c_str()))
                                 {
                                     changeWeaponSelect = &element;
@@ -173,7 +173,7 @@ void WeaponSystem::ImguiEquipWeapons()
         int itemID = 0;
         for (auto& weapon : _equipWeapons)
         {
-            ImGui::PushStyleColor(ImGuiCol_Text, WeaponTableComponent::GetWeaponTypeColor(weapon.Stats.Type));
+            ImGui::PushStyleColor(ImGuiCol_Text, WeaponStats::GetGradeToColor(weapon.Stats.Grade));
             ImGui::PushID(itemID++);
             const std::string& weaponName = weapon.Stats.WeaponName;
             if (ImGui::TreeNodeEx(weaponName.data(), ImGuiTreeNodeFlags_OpenOnArrow))
