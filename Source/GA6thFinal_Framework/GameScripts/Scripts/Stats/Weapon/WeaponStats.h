@@ -12,7 +12,8 @@ struct WeaponStats : public TurnActorStats
     };
     
     REFLECT_PROPERTY(
-        Name, 
+        WeaponID, 
+        WeaponName, 
         Type, 
         HitDamage, 
         HitDamageMultiplier, 
@@ -24,10 +25,14 @@ struct WeaponStats : public TurnActorStats
         AttackPerChainMultiplier,
         RandomSpeed)
 
-    GETTER_ONLY(const std::string&, Name) { return ReflectFields->Name; }
-    void SetName(const std::string& name) { ReflectFields->Name = name; }
+    SETTER(int, WeaponID) { ReflectFields->WeaponID = std::max(value, 0); }
+    GETTER(int, WeaponID) { return ReflectFields->WeaponID; }
+    PROPERTY(WeaponID)
+
+    GETTER_ONLY(const std::string&, WeaponName) { return ReflectFields->Name; }
+    void SetName(const std::string& weaponName) { ReflectFields->Name = weaponName; }
     //string_view 무기 이름
-    PROPERTY(Name) 
+    PROPERTY(WeaponName) 
 
     GETTER(WeaponType, Type) { return ReflectFields->Type; }
     SETTER(WeaponType, Type) { ReflectFields->Type = value; }
@@ -84,6 +89,7 @@ struct WeaponStats : public TurnActorStats
 
 protected:
     REFLECT_FIELDS_BEGIN(TurnActorStats)
+    int         WeaponID = 0;
     std::string Name = "Default Sword";
     WeaponType  Type = WeaponType::SWORD;
     int         HitDamage = 1;
