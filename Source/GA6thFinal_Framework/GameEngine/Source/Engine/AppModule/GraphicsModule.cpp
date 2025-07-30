@@ -31,6 +31,7 @@ void GraphicsModule::PreInitialize()
 
     if constexpr (IS_EDITOR)
     {
+        flag |= RenderTechniqueFlag::EDITOR_DRAW_TECH;
         UmGraphics.AddRenderScene("Editor", flag);
 
         flag = RenderTechniqueFlag::SKY_BOX_TECH | lightingFlag;

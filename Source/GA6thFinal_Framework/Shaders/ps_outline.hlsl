@@ -7,53 +7,45 @@ struct PS_INPUT
     float2 uv : TEXCOORD;
 };
 
-Texture2D<float4> worldTexture;
+Texture2D<float4> depthTexture;
+Texture2D<float4> normalTexture;
 Texture2D<uint> customDepthTexture;
 RWTexture2D<float4> accumulation;
 
 void ps_main(PS_INPUT input)
 {   
-    float3 world = worldTexture.Sample(samLinear_wrap, input.uv).xyz;
-    float3 viewPosition = mul((float3x3) cameraData.View, world);
+    PostProcessData data = postProcessData;
     
-    float edge = 0.0;    
-    float viewDepthThreshold = 1;
+    float centerDepth = depthTexture.Sample(samPoint_clamp, input.uv).r;
+    float3 centerNormal = normalize(normalTexture.Sample(samPoint_clamp, input.uv).xyz); // [-1, 1] 범위로 복원
+    
+    float depthEdge = 0.0;
+    float normalEdge = 0.0;
+    
+    float2 offsets[4] =
+    {
+        float2(0, data.TexelSize.y),
+        float2(0, -data.TexelSize.y),
+        float2(data.TexelSize.x, 0),
+        float2(-data.TexelSize.x, 0)
+    };
     
     [unroll]
-    for (int dist = 1; dist <= 2; ++dist)
+    for (int i = 0; i < 4; ++i)
     {
-        float2 offsets[8] =
-        {
-            float2(postProcessData.TexelSize.x, 0) * dist,
-            float2(-postProcessData.TexelSize.x, 0) * dist,
-            float2(0, postProcessData.TexelSize.y) * dist,
-            float2(0, -postProcessData.TexelSize.y) * dist,
-            float2(postProcessData.TexelSize.x, postProcessData.TexelSize.y) * dist,
-            float2(-postProcessData.TexelSize.x, postProcessData.TexelSize.y) * dist,
-            float2(postProcessData.TexelSize.x, -postProcessData.TexelSize.y) * dist,
-            float2(-postProcessData.TexelSize.x, -postProcessData.TexelSize.y) * dist
-        };
+        float2 neighborUV = input.uv + offsets[i];
+    
+        float neighborDepth = depthTexture.Sample(samPoint_clamp, neighborUV).r;
+        float3 neighborNormal = normalize(normalTexture.Sample(samPoint_clamp, neighborUV).xyz);
 
-        [unroll]
-        for (int i = 0; i < 8; ++i)
-        {
-            float2 neighborUV = input.uv + offsets[i];
-
-            float3 neighborWorld = worldTexture.Sample(samLinear_wrap, neighborUV);
-            float3 neighborViewPos = mul(cameraData.View, float4(neighborWorld, 1.0)).xyz;
-
-            float depthDiff = abs(viewPosition.z - neighborViewPos.z);
-
-            if (depthDiff > viewDepthThreshold)
-            {
-                edge = 1.0;
-                break;
-            }
-        }
-
-        if (edge > 0.0)
-            break;
+        depthEdge += abs(centerDepth - neighborDepth);
+        normalEdge += 1.0 - saturate(dot(centerNormal, neighborNormal));
     }
+        
+    float finalDepthEdge = step(0.01, depthEdge);
+    float finalNormalEdge = step(0.9, 1.0 - normalEdge);
+    
+    float outlineFactor = saturate(finalDepthEdge + finalNormalEdge);     
 
-    accumulation[(uint2) input.position.xy] += float4(float3(10, 5, 0) * edge.xxx, 1.0) * CalculatePostProcessMask(customDepthTexture, input.uv); // 외곽선은 흰색, 배경은 검정   
+    accumulation[(uint2) input.position.xy] += float4(float3(10, 5, 0) * (1 - outlineFactor.xxx), 1.0) * CalculatePostProcessMask(customDepthTexture, input.uv); // 외곽선은 흰색, 배경은 검정   
 }

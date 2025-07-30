@@ -44,20 +44,22 @@ void OutLinePass::Begin(ID3D12GraphicsCommandList* commandList)
 
 void OutLinePass::Draw(ID3D12GraphicsCommandList* commandList)
 {
-    const auto&     resoultion = Global::device->GetResolution();
+    const auto& resoultion = Global::device->GetResolution();
+
     PostProcessData postProcessData{.ScreenSize      = {(float)resoultion.Width, (float)resoultion.Height},
                                     .PostProcessMask = PostProcess::OUTLINE};
     postProcessData.TexelSize = 1.f / postProcessData.ScreenSize;
 
-    auto worldTarget       = Global::multiRenderTargetManager->GetRenderTarget("WorldPosition");
+    auto normal            = Global::multiRenderTargetManager->GetRenderTarget("Normal");
+    auto depth             = Global::multiRenderTargetManager->GetRenderTarget("Depth");
     auto customDepthTarget = Global::multiRenderTargetManager->GetRenderTarget("CustomDepth");
 
     commandList->SetPipelineState(_pipelineState.Get());
     commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
-    
-    commandList->SetGraphicsRootConstantBufferView(_shader->GetRootParameterIndex("cameraData"), _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
+        
     commandList->SetGraphicsRoot32BitConstants(_shader->GetRootParameterIndex("bit32_5_postProcessData"), 5, &postProcessData, 0);
-    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("worldTexture"), worldTarget->GetSRVHandle());
+    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("depthTexture"), depth->GetSRVHandle());
+    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("normalTexture"), normal->GetSRVHandle());
     commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("customDepthTexture"), customDepthTarget->GetSRVHandle());
     commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("accumulation"), _ownerScene->_accumulationBuffer->GetUAVHandle());
 
