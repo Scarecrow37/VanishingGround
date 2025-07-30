@@ -103,5 +103,13 @@ struct BloomPassProperty
 {
     float Threshold;
     float Intensity;
-    float Radius;
+    float BloomKnee;
+};
+
+struct ToneMappingProperty
+{
+    Vector3 WhiteBalance;
+    float   Exposure;
+    float   Saturation;
+    float   Contrast;
 };

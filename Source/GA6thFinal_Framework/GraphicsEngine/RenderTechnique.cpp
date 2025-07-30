@@ -2,10 +2,7 @@
 #include "RenderTechnique.h"
 #include "RenderPass.h"
 
-RenderTechnique::RenderTechnique()
-{
-    _renderPasses.reserve(10);
-}
+RenderTechnique::RenderTechnique() = default;
 
 void RenderTechnique::AddRenderPass(std::unique_ptr<RenderPass> pass)
 {

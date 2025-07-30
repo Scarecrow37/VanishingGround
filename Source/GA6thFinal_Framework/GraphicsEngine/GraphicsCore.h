@@ -72,4 +72,5 @@ private:
     class ParticleManager*          _particleManager;
     class DebugDrawCore*            _debugDrawCore;
     class RenderPassDatas*          _renderPassDatas;
+    class ModuleManager*            _moduleManager;
 };

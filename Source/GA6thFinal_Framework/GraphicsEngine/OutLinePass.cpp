@@ -38,7 +38,7 @@ void OutLinePass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTech
 void OutLinePass::Begin(ID3D12GraphicsCommandList* commandList)
 {
     commandList->OMSetRenderTargets(0, nullptr, FALSE, nullptr);
-    commandList->RSSetViewports(1, &_meshRenderTarget->GetViewPort());
+    commandList->RSSetViewports(1, &_meshRenderTarget->GetViewport());
     commandList->RSSetScissorRects(1, &_meshRenderTarget->GetScissorRect());
 }
 

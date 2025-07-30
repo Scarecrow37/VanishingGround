@@ -30,12 +30,12 @@ protected:
     }
 
 protected:
-    RenderScene* _ownerScene{nullptr};
-    RenderTechnique* _ownerTechnique{nullptr};
-
+    SharedResource<RenderTarget>   _meshRenderTarget;
+    SharedResource<RenderTarget>   _finalRenderTarget;
+    RenderScene*                   _ownerScene{nullptr};
+    RenderTechnique*               _ownerTechnique{nullptr};
+    RenderTarget*                  _sharedRenderTarget{nullptr};
     std::unique_ptr<ShaderBuilder> _shader;
     ComPtr<ID3D12PipelineState>    _pipelineState;
 
-    SharedResource<RenderTarget> _meshRenderTarget;
-    SharedResource<RenderTarget> _finalRenderTarget;
 };

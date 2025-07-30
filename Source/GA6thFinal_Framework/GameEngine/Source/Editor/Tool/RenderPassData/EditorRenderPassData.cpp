@@ -26,7 +26,17 @@ void SerializeBloomProperty(std::ostream& os, const BloomPassProperty& prop)
     os << "        Type = BloomPassProperty\n";
     os << "        Threshold = " << prop.Threshold << "\n";
     os << "        Intensity = " << prop.Intensity << "\n";
-    // os << "        Radius = " << prop.Radius << "\n"; // 필요시 추가
+    os << "        BloomKnee = " << prop.BloomKnee << "\n";
+}
+
+// ToneMappingProperty를 문자열로 변환
+void SerializeToneMappingProperty(std::ostream& os, const ToneMappingProperty& prop)
+{
+    os << "        Type = ToneMappingProperty\n";
+    os << "        Exposure = " << prop.Exposure << "\n";
+    os << "        Saturation = " << prop.Saturation << "\n";
+    os << "        Contrast = " << prop.Contrast << "\n";
+    os << "        WhiteBalance = " << prop.WhiteBalance.x << " " << prop.WhiteBalance.y << " " << prop.WhiteBalance.z << "\n";
 }
 
 // 문자열에서 ShadowPassProperty를 복원
@@ -53,7 +63,26 @@ void DeserializeBloomProperty(std::istream& is, BloomPassProperty& prop)
         ss >> key >> equals;
         if (key == "Threshold") ss >> prop.Threshold;
         else if (key == "Intensity") ss >> prop.Intensity;
-        // else if (key == "Radius") ss >> prop.Radius; // 필요시 추가
+        else if (key == "BloomKnee") ss >> prop.BloomKnee;
+    }
+}
+
+// 문자열에서 ToneMappingProperty를 복원
+void DeserializeToneMappingProperty(std::istream& is, ToneMappingProperty& prop)
+{
+    std::string line, key, equals;
+    while (std::getline(is, line) && line.find('}') == std::string::npos)
+    {
+        std::stringstream ss(line);
+        ss >> key >> equals;
+        if (key == "Exposure") ss >> prop.Exposure;
+        else if (key == "Saturation") ss >> prop.Saturation;
+        else if (key == "Contrast") ss >> prop.Contrast;
+        else if (key == "WhiteBalance")
+        {
+            // WhiteBalance는 Vector3로 가정
+            ss >> prop.WhiteBalance.x >> prop.WhiteBalance.y >> prop.WhiteBalance.z;
+        }
     }
 }
 
@@ -87,6 +116,10 @@ void SaveData(const std::string& filePath)
             else if (property.type() == typeid(BloomPassProperty))
             {
                 SerializeBloomProperty(outFile, std::any_cast<const BloomPassProperty&>(property));
+            }
+            else if (property.type() == typeid(ToneMappingProperty))
+            {
+                SerializeToneMappingProperty(outFile, std::any_cast<const ToneMappingProperty&>(property));
             }
 
             outFile << "    }\n";
@@ -145,6 +178,10 @@ void LoadData(const std::string& filePath)
                         {
                             DeserializeBloomProperty(inFile, std::any_cast<BloomPassProperty&>(property));
                         }
+                        else if (name == "ToneMappingProperty" && property.type() == typeid(ToneMappingProperty))
+                        {
+                            DeserializeToneMappingProperty(inFile, std::any_cast<ToneMappingProperty&>(property));
+                        }
                     }
                 }
             }
@@ -166,7 +203,16 @@ void EditBloomProperty(std::any& property)
     auto& bloomProps = std::any_cast<BloomPassProperty&>(property);
     ImGui::DragFloat("Threshold", &bloomProps.Threshold, 0.01f, 0.0f, 100.0f);
     ImGui::DragFloat("Intensity", &bloomProps.Intensity, 0.01f, 0.0f, 100.0f);
-    //ImGui::DragFloat("Blur Radius", &bloomProps.Radius, 0.01f, 0.0f, 10.0f);
+    ImGui::DragFloat("Bloom Knee", &bloomProps.BloomKnee, 0.01f, 0.0f, 100.0f);
+}
+
+void EditToneMappingProperty(std::any& property)
+{
+    auto& toneMappingProps = std::any_cast<ToneMappingProperty&>(property);
+    ImGui::DragFloat("Exposure", &toneMappingProps.Exposure, 0.01f, -10.f, 10.0f);
+    ImGui::DragFloat("Saturation", &toneMappingProps.Saturation, 0.01f, 0.0f, 2.0f);
+    ImGui::DragFloat("Contrast", &toneMappingProps.Contrast, 0.01f, 0.0f, 2.0f);
+    ImGui::ColorEdit3("White Balance", &toneMappingProps.WhiteBalance.x, ImGuiColorEditFlags_Float);
 }
 
 void EditorRenderPassData::OnFrameRender()
@@ -192,6 +238,10 @@ void EditorRenderPassData::OnFrameRender()
                         else if (property.type() == typeid(BloomPassProperty))
                         {
                             EditBloomProperty(property);
+                        }
+                        else if (property.type() == typeid(ToneMappingProperty))
+                        {
+                            EditToneMappingProperty(property);
                         }
 
                         ImGui::TreePop();

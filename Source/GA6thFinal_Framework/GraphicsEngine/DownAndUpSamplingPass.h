@@ -1,11 +1,13 @@
 ﻿#pragma once
 #include "RenderPass.h"
 
-class BrightExtractPass : public RenderPass
+class DownAndUpSamplingPass : public RenderPass
 {
+    enum { DOWN_SAMPLING, UP_SAMPLING, SAMPLING_END};
+
 public:
-    BrightExtractPass();
-    virtual ~BrightExtractPass();
+    DownAndUpSamplingPass();
+    virtual ~DownAndUpSamplingPass();
 
 public:
     void Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList) override;
@@ -15,6 +17,11 @@ public:
     void End(ID3D12GraphicsCommandList* commandList) override;
 
 private:
+    std::vector<D3D12_GPU_DESCRIPTOR_HANDLE>  _activeSRVs;
+    SharedResource<RenderTarget>              _pingpongTarget[2];
+    ComPtr<ID3D12PipelineState>               _pipelineStates[SAMPLING_END];
+    std::unique_ptr<ShaderBuilder>            _shaders[SAMPLING_END];
+
     ComPtr<ID3D12Resource> _finalTexture;
     DescriptorHandles      _finalHandle;
 };

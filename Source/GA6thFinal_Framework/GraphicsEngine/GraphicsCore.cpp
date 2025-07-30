@@ -20,6 +20,7 @@ namespace Global
     ParticleManager*          particleManager;
     DebugDrawCore*            debugDrawCore;
     RenderPassDatas*          renderPassDatas;
+    ModuleManager*            moduleManager;
 };
 
 ParticleManager* GraphicsCore::GetParticleManager() const
@@ -160,6 +161,7 @@ void GraphicsCore::Initialize(const HWND hwnd, const UINT width, const UINT heig
     _commandController        = new CommandController;
     _debugDrawCore            = new DebugDrawCore;
     _renderPassDatas          = new RenderPassDatas;
+    _moduleManager            = new ModuleManager;
 
     Global::device                   = _device;
     Global::renderer                 = _renderer;
@@ -173,6 +175,7 @@ void GraphicsCore::Initialize(const HWND hwnd, const UINT width, const UINT heig
     Global::commandController        = _commandController;
     Global::debugDrawCore            = _debugDrawCore;
     Global::renderPassDatas          = _renderPassDatas;
+    Global::moduleManager            = _moduleManager;
 
     _device->SetUpDevice(hwnd, width, height, feature);
     _viewManager->Initialize();
@@ -180,6 +183,7 @@ void GraphicsCore::Initialize(const HWND hwnd, const UINT width, const UINT heig
     _device->ResetCommands();
     _particleManager->Initialize(MAX_PARTICLE);
     _renderer->Initialize();
+    _moduleManager->Initialize();
 
     auto commandList = _device->GetCommandList();
     commandList->Close();
@@ -215,6 +219,8 @@ void GraphicsCore::Finalize() const
 {
     _device->Finalize();
 
+    delete _moduleManager;
+    delete _renderPassDatas;
     delete _debugDrawCore;
     delete _commandController;
     delete _dxResourceManager;

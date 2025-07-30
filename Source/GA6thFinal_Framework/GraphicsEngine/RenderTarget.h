@@ -12,7 +12,7 @@ public:
     const D3D12_GPU_DESCRIPTOR_HANDLE& GetSRVHandle() const { return _srvHandle.GPU; }
     const UINT                         GetID() const { return _ID; }
     const float&                       GetClearColor() const { return _clearValue.x; }
-    const D3D12_VIEWPORT&              GetViewPort(UINT mipLevel = 0) const { return _viewPorts[mipLevel]; }
+    const D3D12_VIEWPORT&              GetViewport(UINT mipLevel = 0) const { return _viewPorts[mipLevel]; }
     const D3D12_RECT&                  GetScissorRect(UINT mipLevel = 0) const { return _scissorRects[mipLevel]; }
 
 public:

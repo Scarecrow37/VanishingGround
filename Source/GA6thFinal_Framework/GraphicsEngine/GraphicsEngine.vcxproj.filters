@@ -120,9 +120,6 @@
     <ClInclude Include="UnorderedAccessView.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="UpScalePass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="VertexShader.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -150,10 +147,7 @@
     <ClInclude Include="BloomTechnique.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="BlurXPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="BlurYPass.h">
+    <ClInclude Include="Module\GaussianBlurModule.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Box.h">
@@ -198,7 +192,7 @@
     <ClInclude Include="Device.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="DownScalePass.h">
+    <ClInclude Include="DownAndUpSamplingPass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="DXResourceManager.h">
@@ -369,6 +363,15 @@
     <ClInclude Include="RenderPassDatas.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Module\RenderModule.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Module\AccumulationModule.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Module\ModuleManager.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GraphicsEngine.cpp">
@@ -455,9 +458,6 @@
     <ClCompile Include="UnorderedAccessView.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="UpScalePass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="VertexShader.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -488,10 +488,7 @@
     <ClCompile Include="BloomTechnique.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="BlurXPass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="BlurYPass.cpp">
+    <ClCompile Include="Module\GaussianBlurModule.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Box.cpp">
@@ -533,7 +530,7 @@
     <ClCompile Include="Device.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="DownScalePass.cpp">
+    <ClCompile Include="DownAndUpSamplingPass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="DXResourceManager.cpp">
@@ -686,6 +683,12 @@
     <ClCompile Include="RenderPassDatas.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Module\AccumulationModule.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Module\ModuleManager.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Shaders\CommonData.hlsli">
@@ -762,16 +765,13 @@
     <FxCompile Include="..\Shaders\ps_blend.hlsl">
       <Filter>Shaders\ps</Filter>
     </FxCompile>
-    <FxCompile Include="..\Shaders\ps_blur_x.hlsl">
+    <FxCompile Include="..\Shaders\ps_gaussianblur_x.hlsl">
       <Filter>Shaders\ps</Filter>
     </FxCompile>
-    <FxCompile Include="..\Shaders\ps_blur_y.hlsl">
+    <FxCompile Include="..\Shaders\ps_accumulation.hlsl">
       <Filter>Shaders\ps</Filter>
     </FxCompile>
     <FxCompile Include="..\Shaders\ps_bright_extract.hlsl">
-      <Filter>Shaders\ps</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\ps_down_scale.hlsl">
       <Filter>Shaders\ps</Filter>
     </FxCompile>
     <FxCompile Include="..\Shaders\ps_dxrgbuffer.hlsl">
@@ -802,9 +802,6 @@
       <Filter>Shaders\ps</Filter>
     </FxCompile>
     <FxCompile Include="..\Shaders\ps_ui.hlsl">
-      <Filter>Shaders\ps</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\ps_up_scale.hlsl">
       <Filter>Shaders\ps</Filter>
     </FxCompile>
     <FxCompile Include="..\Shaders\vs.hlsl">
@@ -842,6 +839,15 @@
     </FxCompile>
     <FxCompile Include="..\Shaders\vs_ui_fr.hlsl">
       <Filter>Shaders\vs</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ps_down_sample.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ps_up_sample.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ps_gaussianblur_y.hlsl">
+      <Filter>Shaders\ps</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

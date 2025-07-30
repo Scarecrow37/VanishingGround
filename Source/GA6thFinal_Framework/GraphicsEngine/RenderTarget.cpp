@@ -9,14 +9,18 @@ void RenderTarget::Initialize(const D3D12_RESOURCE_DESC& desc, FLOAT clearColor)
 
     _currentState = D3D12_RESOURCE_STATE_RENDER_TARGET;
 
-    _resolution  = {(UINT)desc.Width, (UINT)desc.Height};
+    _resolution = {(UINT)desc.Width, (UINT)desc.Height};
 
-    UINT maxValue      = std::max((UINT)desc.Width, desc.Height);
     UINT mipLevelCount = 1;
-    while (maxValue > 0)
+
+    if (_desc.MipLevels != 1)
     {
-        maxValue /= 2;
-        mipLevelCount++;
+        UINT maxValue = std::max((UINT)desc.Width, desc.Height);
+        while (maxValue > 0)
+        {
+            maxValue /= 2;
+            mipLevelCount++;
+        }
     }
 
     _rtvHandles.resize(mipLevelCount);
