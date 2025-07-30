@@ -378,7 +378,7 @@ private:
     /// </summary>
     /// <param name="target"></param>
     /// <returns></returns>
-    static bool CheckVaildTransform(Transform* target);
+    static bool CheckValidTransform(Transform* target);
 
     /// <summary>
     /// Tansform를 DFS로 root부터 모든 자식들을 순회하면서 함수를 호출해줍니다.
@@ -387,7 +387,7 @@ private:
     /// <param name="root :">DFS 시작할 루트</param>
     /// <param name="func : 실행할 함수"></param>
     template <typename Func>
-    inline static void ForeachExDFS(Transform& root, bool checkVaild, Func func);
+    inline static void ForeachExDFS(Transform& root, bool checkValid, Func func);
 
     /// <summary>
     /// Tansform를 BFS로 root부터 모든 자식들을 순회하면서 함수를 호출해줍니다.
@@ -396,7 +396,7 @@ private:
     /// <param name="root">BFS 시작할 루트</param>
     /// <param name="func">실행할 함수</param>
     template <typename Func>
-    inline static void ForeachExBFS(Transform& root, bool checkVaild, Func func);
+    inline static void ForeachExBFS(Transform& root, bool checkValid, Func func);
 };
 
 template <typename Func>
@@ -412,14 +412,14 @@ inline void Transform::ForeachBFS(Transform& root, Func func)
 }
 
 template <typename Func>
-inline void Transform::ForeachExDFS(Transform& root, bool checkVaild, Func func)
+inline void Transform::ForeachExDFS(Transform& root, bool checkValid, Func func)
 {
     trStack.push_back(&root);
     while (trStack.empty() == false)
     {
         Transform* currTr = trStack.back();
         trStack.pop_back();
-        bool vaild = checkVaild ? CheckVaildTransform(currTr) : true;
+        bool vaild = checkValid ? CheckValidTransform(currTr) : true;
         if (vaild)
         {
             func(currTr);
@@ -432,14 +432,14 @@ inline void Transform::ForeachExDFS(Transform& root, bool checkVaild, Func func)
 }
 
 template <typename Func>
-inline void Transform::ForeachExBFS(Transform& root, bool checkVaild, Func func)
+inline void Transform::ForeachExBFS(Transform& root, bool checkValid, Func func)
 {
     trQueue.push(&root);
     while (trQueue.empty() == false)
     {
         Transform* currTr = trQueue.front();
         trQueue.pop();
-        bool vaild = checkVaild ? CheckVaildTransform(currTr) : true;
+        bool vaild = checkValid ? CheckValidTransform(currTr) : true;
         if (vaild)
         {
             func(currTr);

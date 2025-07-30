@@ -345,7 +345,7 @@ void Transform::CallUIAttachChild(Transform* target, Transform* newChild)
     } 
 }
 
-bool Transform::CheckVaildTransform(Transform* target)
+bool Transform::CheckValidTransform(Transform* target)
 {
     if (target)
     {
