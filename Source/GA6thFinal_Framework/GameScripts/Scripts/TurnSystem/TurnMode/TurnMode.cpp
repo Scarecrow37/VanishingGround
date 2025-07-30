@@ -120,12 +120,10 @@ void TurnMode::SortTurnList()
 {
     if (false == _turnList.empty())
     {
-        std::shuffle(_turnList.begin(), _turnList.end(), Random::GetEngine());
-        std::sort(_turnList.begin(), _turnList.end(),
-        [this](std::pair<int, TurnActor*>& turnSlotA, std::pair<int, TurnActor*>& turnSlotB) 
-        {
-            int speedA = GetRealRoundSpeed(turnSlotA);
-            int speedB = GetRealRoundSpeed(turnSlotB);
+        _turnList.shuffle(Random::GetEngine());
+        _turnList.sort([this](const std::pair<int, TurnActor*>& turnSlotA, const std::pair<int, TurnActor*>& turnSlotB) {
+            const int speedA = GetRealRoundSpeed(turnSlotA);
+            const int speedB = GetRealRoundSpeed(turnSlotB);
             return speedA > speedB;
         });
     }
@@ -140,29 +138,34 @@ TurnActor* TurnMode::StartFrontTurnActor()
             u8"현재 턴이 끝나지 않았습니다. TurnMode::StartFrontTurnActor()를 호출하기 전에 FinishCurrentTurn()을 호출하세요.");
         return _currTurnActor;
     }
-    while (false == _turnList.empty())
+
+    auto firstWaitActorIterator = _turnList.cbegin();
+    for (const auto endIterator = _turnList.cend(); firstWaitActorIterator != endIterator; ++firstWaitActorIterator)
     {
-        auto& actorSlot = _turnList.front();
-        auto& [slot, actor] = actorSlot;
-        _currTurnActor      = actor;
-        if (_currTurnActor->State == TurnActor::STATE::Wait)
+        if (auto& [slot, actor] = *firstWaitActorIterator; actor->State == TurnActor::STATE::Wait)
         {
-            if (true == IsPlayerActorSlot(actorSlot))
+            if (WeaponSystem* weaponSystem = WeaponSystem::GetInstance())
             {
-                WeaponSystem* weaponSystem = WeaponSystem::GetInstance();
-                if (weaponSystem)
-                {
-                    weaponSystem->SetCurrentWeaponSlot(slot);
-                }
-                else
-                {
-                    UmLogger.Log(LogLevel::LEVEL_WARNING, u8"Weapon System이 존재하지 않습니다.");
-                }        
+                weaponSystem->SetCurrentWeaponSlot(slot);
+            }
+            else
+            {
+                UmLogger.Log(LogLevel::LEVEL_WARNING, u8"Weapon System이 존재하지 않습니다.");
             }
             break;
         }
-        _currTurnActor = nullptr;
     }
+
+    if (firstWaitActorIterator != _turnList.cbegin())
+    {
+        _turnList.erase(_turnList.cbegin(), firstWaitActorIterator);
+    }
+
+    if (false == _turnList.empty())
+    {
+        _turnList.ModifyFront([this](auto& actorSlot) { _currTurnActor = actorSlot.second; });
+    }
+
     return _currTurnActor;
 }
 
@@ -173,13 +176,13 @@ void TurnMode::FinishCurrentTurn()
 }
 
 int TurnMode::GetPendingActorCount()
-{ 
-    std::erase_if(_turnList, [](const std::pair<int, TurnActor*>& pair) 
+{
+    _turnList.erase_if([](const std::pair<int, TurnActor*>& pair) 
     { 
         const auto& [order, actor] = pair;
         return TurnActor::STATE::Dead == actor->GetActorState();
     });
-    return (int)_turnList.size();
+    return static_cast<int>(_turnList.size());
 }
 
 void TurnMode::BuildTurnModeFSM() 
@@ -322,7 +325,8 @@ void TurnMode::ImGuiDrawPropertysEvent()
             ImGui::TableSetupColumn("State");
             ImGui::TableSetupColumn("Round Speed");
             ImGui::TableHeadersRow();
-            for (auto& turnSlot : _turnList)
+            const auto& turnList = _turnList;
+            for (auto& turnSlot : turnList)
             {
                 auto& [slot, actor] = turnSlot;
                 ImGui::PushID(actor);
