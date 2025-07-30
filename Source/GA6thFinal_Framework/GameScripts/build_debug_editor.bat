@@ -19,6 +19,22 @@ set "NEW_DLL_PATH=%BASE_PATH%%NEW_DLL_NAME%"
 @echo NEW_PDB_PATH : %NEW_PDB_PATH%
 @echo NEW_DLL_PATH : %NEW_DLL_PATH%
 
+echo PDB 파일 삭제: %NEW_PDB_PATH%
+if exist "%NEW_PDB_PATH%" (
+    del /f /q "%NEW_PDB_PATH%"
+    echo 삭제 완료
+) else (
+    echo 이전 PDB 파일이 존재하지 않습니다
+)
+
+echo DLL 파일 삭제: %NEW_DLL_PATH%
+if exist "%NEW_DLL_PATH%" (
+    del /f /q "%NEW_DLL_PATH%"
+    echo 삭제 완료
+) else (
+    echo 이전 DLL 파일이 존재하지 않습니다
+)
+
 if exist "%PDB_PATH%" (
 	ren "%PDB_PATH%" "%NEW_PDB_NAME%"
 )
@@ -41,20 +57,5 @@ if %BUILD_RESULT% neq 0 (
 	pause
 ) else (
     echo 빌드 성공!
-	echo PDB 파일 삭제: %NEW_PDB_PATH%
-    if exist "%NEW_PDB_PATH%" (
-        del /f /q "%NEW_PDB_PATH%"
-        echo 삭제 완료
-    ) else (
-        echo PDB 파일이 존재하지 않습니다
-    )
-
-    echo DLL 파일 삭제: %NEW_DLL_PATH%
-    if exist "%NEW_DLL_PATH%" (
-        del /f /q "%NEW_DLL_PATH%"
-        echo 삭제 완료
-    ) else (
-        echo DLL 파일이 존재하지 않습니다
-    )
 )
 exit /b %BUILD_RESULT%

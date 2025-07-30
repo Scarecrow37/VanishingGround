@@ -8,7 +8,7 @@ class GraphicsBase
 
 public:
     GraphicsBase()          = default;
-    virtual ~GraphicsBase() = default;
+    virtual ~GraphicsBase();
 
 public:
     bool IsActive() const { return _isActive ? *_isActive : false; }
