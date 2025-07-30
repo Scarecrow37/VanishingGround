@@ -194,7 +194,7 @@ void WeaponTableComponent::ImGuiDrawPropertysEvent()
                 }
                 gameObject->GetScene().IsDirty = true;
             }
-            ImGui::MenuItem("Excel Parcer", "", &_imguiEvent.ShowExeclParser);
+            ImGui::MenuItem("Excel Parser", "", &_imguiEvent.ShowExcelParser);
             ImGui::EndMenuBar();
         }
         ImGuiTableEditor();
@@ -363,9 +363,9 @@ void WeaponTableComponent::ImGuiTableEditor()
 
 void WeaponTableComponent::ImGuiDrawExcelParser() 
 {
-    if (_imguiEvent.ShowExeclParser)
+    if (_imguiEvent.ShowExcelParser)
     {
-        ImGui::Begin("Excel Parser##12487AA8-BA7A-43E8-90A6-EBC10DAE14FC", &_imguiEvent.ShowExeclParser,
+        ImGui::Begin("Excel Parser##12487AA8-BA7A-43E8-90A6-EBC10DAE14FC", &_imguiEvent.ShowExcelParser,
                      ImGuiWindowFlags_MenuBar);
         {
             ImGuiDrawExcelParserMenuBar();
@@ -377,7 +377,7 @@ void WeaponTableComponent::ImGuiDrawExcelParser()
         ImGui::End();
     }
 
-    if (_imguiEvent.ExeclDoc && _imguiEvent.ShowExeclParser == false)
+    if (_imguiEvent.ExeclDoc && _imguiEvent.ShowExcelParser == false)
     {
         if (_imguiEvent.ExeclDoc->isOpen())
         {

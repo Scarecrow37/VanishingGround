@@ -56,7 +56,7 @@ private:
         WeaponElement*        SelectWeapon      = nullptr;
         std::function<void()> RenameFunc;
 
-        bool ShowExeclParser = false;
+        bool ShowExcelParser = false;
         std::unique_ptr<OpenXLSX::XLDocument> ExeclDoc;
         std::vector<std::string> SheetNames;
     } 
