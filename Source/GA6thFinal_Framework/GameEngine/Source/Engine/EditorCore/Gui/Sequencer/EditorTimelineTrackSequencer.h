@@ -17,14 +17,26 @@ namespace Timeline
             FLAGS_ALLOW_DRAG_MIN_MAX_LINE       = 1 << 10, // Min/Max 프레임 라인 조정을 잠그는 기능
             FLAGS_ALLOW_DRAG_CURSOR_LINE        = 1 << 11, // 현재 커서 라인 조정을 잠그는 기능
             FLAGS_ALLOW_DRAG_CURRENT_LINE       = 1 << 12, // 현재 프레임 라인 조정을 잠그는 기능
-            FLAGS_ALLOW_POPUP_CONTEXT_MENU      = 1 << 13, // Context 메뉴 허용 여부
+            FLAGS_ALLOW_DRAG_CONTEXT            = 1 << 13, // 현재 프레임 라인 조정을 잠그는 기능
+
+            FLAGS_ALLOW_POPUP_CONTEXT_MENU      = 1 << 14, // Context 메뉴 허용 여부
+            FLAGS_ALLOW_POPUP_LOWER_CANVAS_MENU = 1 << 15, // Context 메뉴 허용 여부
+            FLAGS_ALLOW_POPUP_UPPER_CANVAS_MENU = 1 << 16, // Context 메뉴 허용 여부
 
             FLAGS_HIDE_MIN_MAX_LINE             = 1 << 20, // Min/Max 프레임 라인 숨김 여부
             FLAGS_HIDE_CURSOR_LINE              = 1 << 21, // 커서 프레임 라인 숨김 여부
             FLAGS_HIDE_CURRENT_LINE             = 1 << 22, // 현재 프레임 라인 숨김 여부
+            FLAGS_HIDE_CONTEXT                  = 1 << 23, // 컨텍스트 숨김 여부
+            FLAGS_HIDE_CONTEXT_LINE             = 1 << 24, // 컨텍스트 라인 숨김 여부
 
             // 모든 입력 허용
-            FLAGS_ALLOW_ALL_INPUT = FLAGS_ALLOW_POPUP_CONTEXT_MENU | FLAGS_ALLOW_DRAG_MIN_MAX_LINE | FLAGS_ALLOW_DRAG_CURSOR_LINE | FLAGS_ALLOW_DRAG_CURRENT_LINE, 
+            FLAGS_ALLOW_ALL_INPUT = FLAGS_ALLOW_POPUP_CONTEXT_MENU | 
+                                    FLAGS_ALLOW_DRAG_MIN_MAX_LINE | 
+                                    FLAGS_ALLOW_DRAG_CURSOR_LINE | 
+                                    FLAGS_ALLOW_DRAG_CURRENT_LINE |
+                                    FLAGS_ALLOW_DRAG_CONTEXT |      
+                                    FLAGS_ALLOW_POPUP_LOWER_CANVAS_MENU |      
+                                    FLAGS_ALLOW_POPUP_UPPER_CANVAS_MENU,      
         };
 
         enum Align

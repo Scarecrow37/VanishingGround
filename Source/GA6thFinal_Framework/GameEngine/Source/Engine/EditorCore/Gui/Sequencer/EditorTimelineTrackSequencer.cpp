@@ -314,11 +314,17 @@ namespace Timeline
         {
             if (isLowerContain)
             {
-                ImGui::OpenPopup(lowerPopupID);
+                if (HasFlags(FLAGS_ALLOW_POPUP_LOWER_CANVAS_MENU))
+                {
+                    ImGui::OpenPopup(lowerPopupID);
+                }
             }
             if (isUpperContain)
             {
-                ImGui::OpenPopup(upperPopupID);
+                if (HasFlags(FLAGS_ALLOW_POPUP_UPPER_CANVAS_MENU))
+                {
+                    ImGui::OpenPopup(upperPopupID);
+                }
             }
         }
 
@@ -579,47 +585,49 @@ namespace Timeline
         {
             return;
         }
-        if (false == editor->HasFlags(FLAGS_HIDE_MIN_MAX_LINE) && track)
+        if (true == editor->HasFlags(FLAGS_HIDE_MIN_MAX_LINE))
         {
-            ImVec2& indicatePos = editor->_indicatePos;
-            ImRect& rect        = editor->_canvasValidRectLower;
-            auto&   dragHandler = editor->_dragHandler;
-            ImVec2  start       = isMinLine ? ImVec2(rect.Min.x, rect.Min.y) : ImVec2(rect.Max.x, rect.Min.y);
-            ImVec2  end         = ImVec2(start.x, rect.Max.y);
-            ImRect  dragRect    = ImRect(start + ImVec2(-2.0f, 0.0f), end + ImVec2(2.0f, 0.0f));
-
-            bool isDraggable = false == dragHandler.IsDragging() || dragHandler.IsDraggingOnly(id);
-            bool canDrag     = editor->HasFlags(FLAGS_ALLOW_DRAG_MIN_MAX_LINE) && isDraggable;
-
-            int dragState = EditorDragState::DRAG_STATE_NONE;
-            if (true == canDrag)
-            {
-                dragState = dragHandler.BeginDragState(id, dragRect, indicatePos);
-            }
-            switch (dragState)
-            {
-                case EditorDragState::DRAG_STATE_NONE: {
-                    editor->_interactionList.emplace_back(start, end);
-                    break;
-                }
-                case EditorDragState::DRAG_STATE_START: {
-                    float frame = isMinLine ? track->GetMinFrame() : track->GetMaxFrame();
-                    isMinLine ? editor->ChangeMinFrame(frame) : editor->ChangeMaxFrame(frame);
-                    break;
-                }
-                case EditorDragState::DRAG_STATE_DRAGGING: {
-                    float mouseFrame = editor->_mouseFrame;
-                    isMinLine ? track->SetMinFrame(mouseFrame) : track->SetMaxFrame(mouseFrame);
-                    break;
-                }
-                default:
-                    break;
-            }
-
-            int interacted = editor->GetInteractionState(dragRect);
-            ImGuiDir direction  = isMinLine ? ImGuiDir_Right : ImGuiDir_Left;
-            DrawMinMaxLines(editor, drawList, start, end, interacted, direction);
+            return;
         }
+
+        ImVec2& indicatePos = editor->_indicatePos;
+        ImRect& rect        = editor->_canvasValidRectLower;
+        auto&   dragHandler = editor->_dragHandler;
+        ImVec2  start       = isMinLine ? ImVec2(rect.Min.x, rect.Min.y) : ImVec2(rect.Max.x, rect.Min.y);
+        ImVec2  end         = ImVec2(start.x, rect.Max.y);
+        ImRect  dragRect    = ImRect(start + ImVec2(-2.0f, 0.0f), end + ImVec2(2.0f, 0.0f));
+
+        bool isDraggable = false == dragHandler.IsDragging() || dragHandler.IsDraggingOnly(id);
+        bool canDrag     = editor->HasFlags(FLAGS_ALLOW_DRAG_MIN_MAX_LINE) && isDraggable;
+
+        int dragState = EditorDragState::DRAG_STATE_NONE;
+        if (true == canDrag)
+        {
+            dragState = dragHandler.BeginDragState(id, dragRect, indicatePos);
+        }
+        switch (dragState)
+        {
+            case EditorDragState::DRAG_STATE_NONE: {
+                editor->_interactionList.emplace_back(start, end);
+                break;
+            }
+            case EditorDragState::DRAG_STATE_START: {
+                float frame = isMinLine ? track->GetMinFrame() : track->GetMaxFrame();
+                isMinLine ? editor->ChangeMinFrame(frame) : editor->ChangeMaxFrame(frame);
+                break;
+            }
+            case EditorDragState::DRAG_STATE_DRAGGING: {
+                float mouseFrame = editor->_mouseFrame;
+                isMinLine ? track->SetMinFrame(mouseFrame) : track->SetMaxFrame(mouseFrame);
+                break;
+            }
+            default:
+                break;
+        }
+
+        int      interacted = editor->GetInteractionState(dragRect);
+        ImGuiDir direction  = isMinLine ? ImGuiDir_Right : ImGuiDir_Left;
+        DrawMinMaxLines(editor, drawList, start, end, interacted, direction);
     }
     void SequencerEditor::Helper::ProcessCurrentFrameLine(SequencerEditor* editor, ImDrawList* drawList,
                                                    std::shared_ptr<EventTrack> track)
@@ -628,8 +636,12 @@ namespace Timeline
         {
             return;
         }
-        const char* id         = "StampBar";
+        if (false == editor->HasFlags(FLAGS_HIDE_CURRENT_LINE))
+        {
+            return;
+        }
 
+        const char* id        = "StampBar";
         auto&   dragHandler   = editor->_dragHandler;
         ImRect& canvas        = editor->_canvasRectLower;
         float   curFrame      = editor->GetCurrentFrame(); // current frame in the timeline
@@ -683,6 +695,10 @@ namespace Timeline
         {
             return;
         }
+        if (true == editor->HasFlags(FLAGS_HIDE_CONTEXT))
+        {
+            return;
+        }
         const auto& contextList = track->GetEventContextQueue();
         std::unordered_map<int, size_t> paddingGroup; // groupIndex -> 현재 레이어 수
         for (size_t i = 0; i < contextList.size(); ++i)
@@ -712,7 +728,9 @@ namespace Timeline
             bool isSelected = (id == editor->_seletedContextID);
 
             /// Process Context Dragging
-            int  state      = EditorDragState::DRAG_STATE_NONE;
+            bool isDraggable = false == dragHandler.IsDragging() || dragHandler.IsDraggingOnly(id);
+            bool canDrag     = editor->HasFlags(FLAGS_ALLOW_DRAG_CONTEXT) && isDraggable;
+            int state = EditorDragState::DRAG_STATE_NONE;
             if (true == isSelected)
             {
                 state = dragHandler.BeginDragState(id, rect, indicatePos);
@@ -781,7 +799,10 @@ namespace Timeline
             ImGui::PopID();
 
             /// Draw Context
-            DrawContext(editor, drawList, context, groupIndex, rect, offset);
+            if (false == editor->HasFlags(FLAGS_HIDE_CONTEXT))
+            {
+                DrawContext(editor, drawList, context, groupIndex, rect, offset);
+            }
         }
     }
     void SequencerEditor::Helper::ProcessInteraction(SequencerEditor* editor) 
@@ -912,9 +933,13 @@ namespace Timeline
         float  linePerFrame = (float)editor->GetLineUnit();
         bool   isSelected   = (id == editor->_seletedContextID);
         ImU32  color        = isSelected ? editor->ReflectFields->ContextColor[3] : IM_COL32(80, 80, 80, 100);
-        ImVec2 start        = offset + ImVec2((float)groupIndex * unitSize, 0.0f);
-        ImVec2 end          = offset + ImVec2(((float)groupIndex + linePerFrame) * unitSize, 0.0f);
-        drawList->AddLine(start, end, color, 1.0f);
+        
+        if (false == editor->HasFlags(FLAGS_HIDE_CONTEXT_LINE))
+        {
+            ImVec2 start = offset + ImVec2((float)groupIndex * unitSize, 0.0f);
+            ImVec2 end   = offset + ImVec2(((float)groupIndex + linePerFrame) * unitSize, 0.0f);
+            drawList->AddLine(start, end, color, 1.0f);
+        }
 
         // mainRect
         float  halfWidth = rect.GetWidth() * 0.5f;
