@@ -44,8 +44,8 @@ private:
     void AddNotify(std::string_view notifyName, std::string_view animKey, std::string_view typeNameID, float time = FLT_MAX);
     
 
-    bool ShowNotifyList(std::shared_ptr<TimelineSystem> system);
-    void ShowNotifyEditTab(std::shared_ptr<TimelineSystem> system, UINT notifyID);
+    bool ShowNotifyList(std::shared_ptr<Timeline::EventTrack> track);
+    void ShowNotifyEditTab(std::shared_ptr<Timeline::EventTrack> track, UINT contextID);
 
     void ShowAvailableTimeline();
 
@@ -56,7 +56,7 @@ private:
 
 private:
     EditorModelDetails* _modelDetails = nullptr;
-    EditorSequencer* _sequencer = nullptr;
+    Timeline::SequencerEditor* _sequencer = nullptr;
     AnimationNotifySet _animationNotifySet;
     std::queue<std::function<void()>> _eventQueue;
 

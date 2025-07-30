@@ -1,8 +1,7 @@
 ﻿#pragma once
 #include <EnemyAction/EnemyActionBase.h>
 
-class EnemyActionSystem 
-    : public Component 
+class EnemyActionSystem  : public Component 
 {
 public:
     USING_PROPERTY(EnemyActionSystem)
@@ -18,13 +17,27 @@ private:
     void ImGuiDrawPropertysEvent() override;
 
 public:
-    const EnemyAction::ActionData* GetEnemyActionDataFromID(int actionID);
+    EnemyAction::ActionData* GetEnemyActionDataFromID(int actionID);
+    EnemyAction::ActionData* AddEnemyActionDataFromID(int actionID);
 
 private:
     REFLECT_FIELDS_BEGIN(Component)
     std::unordered_map<int, std::string> ActionSerializeDataTable;
     REFLECT_FIELDS_END(EnemyActionSystem)
-    std::unordered_map<int, EnemyAction::ActionData*> _enemyActionTable; // Action ID와 이름을 매핑하는 테이블
+    std::map<int, EnemyAction::ActionData*> _enemyActionTable; // Action ID와 이름을 매핑하는 테이블
+
+    ////////////////////////////////////////////////
+    // Editor Only
+    ////////////////////////////////////////////////
+
+    Timeline::SequencerEditor& GetSequencerEditor();
+    void                       ShowEditor();
+    void                       LeftGuiFrame(ImVec2 size);
+    void                       RightGuiFrame(ImVec2 size);
+    bool                       ChangeActionID(int oldID, int newID);
+
+    bool _isShowEditor = false;     // 에디터 모드 여부
+    int  _selectedActionID = 0;     // 선택된 액션 ID
 };
 
-// 스킬 ID, 이름, 타입, 
+// 스킬 ID, 이름, 타입, 이벤트 트랙

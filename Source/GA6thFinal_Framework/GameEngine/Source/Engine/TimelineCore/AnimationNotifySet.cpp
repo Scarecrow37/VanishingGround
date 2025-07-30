@@ -83,7 +83,7 @@ bool AnimationNotifySet::SetActiveTimeline(std::string_view animKey)
     return false;
 }
 
-std::shared_ptr<TimelineSystem> AnimationNotifySet::GetActiveTimeline() const
+std::shared_ptr<Timeline::EventTrack> AnimationNotifySet::GetActiveTimeline() const
 {
     return _activeTimeline.second;
 }
@@ -91,7 +91,6 @@ std::shared_ptr<TimelineSystem> AnimationNotifySet::GetActiveTimeline() const
 const std::string& AnimationNotifySet::GetActiveTimelineName() const
 {
     return _activeTimeline.first;
-    // TODO: 여기에 return 문을 삽입합니다.
 }
 
 bool AnimationNotifySet::AddTimeline(std::string_view animKey, bool active)
@@ -99,7 +98,7 @@ bool AnimationNotifySet::AddTimeline(std::string_view animKey, bool active)
     bool hasTimeline = HasTimeline(animKey);
     if (false == hasTimeline)
     {
-        _timelineTable[animKey.data()] = std::make_shared<TimelineSystem>();
+        _timelineTable[animKey.data()] = std::make_shared<Timeline::EventTrack>();
         if (true == active)
         {
             SetActiveTimeline(animKey); // 활성화된 타임라인 설정
@@ -158,7 +157,7 @@ bool AnimationNotifySet::HasTimeline(std::string_view animKey) const
     return false;
 }
 
-std::shared_ptr<TimelineSystem> AnimationNotifySet::GetTimeline(std::string_view animKey) const
+std::shared_ptr<Timeline::EventTrack> AnimationNotifySet::GetTimeline(std::string_view animKey) const
 {
     auto it = _timelineTable.find(animKey.data());
     if (it != _timelineTable.end())
@@ -168,7 +167,7 @@ std::shared_ptr<TimelineSystem> AnimationNotifySet::GetTimeline(std::string_view
     return nullptr;
 }
 
-const std::map<std::string, std::shared_ptr<TimelineSystem>>& AnimationNotifySet::GetTimelineTable() const
+const std::map<std::string, std::shared_ptr<Timeline::EventTrack>>& AnimationNotifySet::GetTimelineTable() const
 {
     return _timelineTable;
 }
@@ -195,7 +194,7 @@ void AnimationNotifySet::DeserializedReflectEvent()
     ClearTimeline();
     for (const auto& [animKey, serializedData] : ReflectFields->SerializeData)
     {
-        auto timeline = std::make_shared<TimelineSystem>();
+        auto timeline = std::make_shared<Timeline::EventTrack>();
         timeline->DeserializedReflectFields(serializedData);
         _timelineTable[animKey] = timeline;
     }

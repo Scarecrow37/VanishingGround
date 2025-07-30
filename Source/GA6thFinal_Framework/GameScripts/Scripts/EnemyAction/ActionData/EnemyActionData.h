@@ -1,19 +1,26 @@
 ﻿#pragma once
 
+namespace Timeline
+{
+    class EventTrack;
+    class EventContext;
+} // namespace Timeline
+
 namespace EnemyAction
 {
     class ActionData : public ReflectSerializer
     {
     public:
         USING_PROPERTY(ActionData)
-        ActionData(int actionID, std::string_view actionName, std::string_view animationName, int baseDamage)
+        ActionData(int actionID, std::string_view actionName, std::string_view animationName, int baseDamage) 
+            : EventTrack(std::make_shared<Timeline::EventTrack>())
         {
             ReflectFields->ActionID      = actionID;
             ReflectFields->ActionName    = actionName;
             ReflectFields->AnimationName = animationName;
             ReflectFields->BaseDamage    = baseDamage;
         }
-        ActionData()           = default;
+        ActionData() : EventTrack(std::make_shared<Timeline::EventTrack>()) {}
         ~ActionData() override = default;
         ActionData(const ActionData& other) { *ReflectFields = *other.ReflectFields; }
         ActionData(ActionData&& other) noexcept { *ReflectFields = std::move(*other.ReflectFields); }
@@ -26,16 +33,22 @@ namespace EnemyAction
         void ImGuiDrawPropertysEvent() override;
 
     public:
-        REFLECT_PROPERTY(ActionID, ActionName, AnimationName, BaseDamage)
+        REFLECT_PROPERTY()
 
-        GETTER_ONLY(int, ActionID) { return ReflectFields->ActionID; }
+        SETTER(int, ActionID) { ReflectFields->ActionID = value; }
+        GETTER(int, ActionID) { return ReflectFields->ActionID; }
         PROPERTY(ActionID)
-        GETTER_ONLY(std::string, ActionName) { return ReflectFields->ActionName; }
+        SETTER(std::string_view, ActionName) { ReflectFields->ActionName = value; }
+        GETTER(std::string_view, ActionName) { return ReflectFields->ActionName; }
         PROPERTY(ActionName)
-        GETTER_ONLY(std::string, AnimationName) { return ReflectFields->AnimationName; }
+        SETTER(std::string_view, AnimationName) { ReflectFields->AnimationName = value; }
+        GETTER(std::string_view, AnimationName) { return ReflectFields->AnimationName; }
         PROPERTY(AnimationName)
-        GETTER_ONLY(int, BaseDamage) { return ReflectFields->BaseDamage; }
+        SETTER(int, BaseDamage) { ReflectFields->BaseDamage = value; }
+        GETTER(int, BaseDamage) { return ReflectFields->BaseDamage; }
         PROPERTY(BaseDamage)
+
+        std::shared_ptr<Timeline::EventTrack> EventTrack; // 액션에 대한 타임라인 이벤트 트랙
 
     private:
         REFLECT_FIELDS_BEGIN(ReflectSerializer)
@@ -45,6 +58,15 @@ namespace EnemyAction
         int         BaseDamage = 0;  // 기본 데미지
         std::string EventTrackSerializedData;
         REFLECT_FIELDS_END(ActionData)
-        Timeline::EventTrack _eventTrack; // 액션에 대한 타임라인 이벤트 트랙
+        
     };
 } // namespace EnemyAction
+
+class TimelineEvent : public Timeline::EventContext
+{
+public:
+    TimelineEvent();
+
+private:
+    void RequireEvent(std::string_view typeNameID) override {}
+};

@@ -327,8 +327,6 @@
     <ClInclude Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectViewer.h" />
     <ClInclude Include="Source\Engine\GameCore\InputReciver\InputReceiver.h" />
     <ClInclude Include="Source\Engine\EditorCore\Gui\Sequencer\Command\SequencerCommand.h" />
-    <ClInclude Include="Source\Engine\EditorCore\Gui\Sequencer\EditorSequencer.h" />
-    <ClInclude Include="Source\Editor\Tool\Sequencer\EditorSequencerTool.h" />
     <ClInclude Include="Source\Editor\Menu\Model\EditorModelMenu.h" />
     <ClInclude Include="Source\Editor\Tool\GameView\EditorGameView.h" />
     <ClInclude Include="Source\Editor\Tool\Hierarchy\HierarchyFindTool.h" />
@@ -415,7 +413,6 @@
     <ClInclude Include="Source\pch.h" />
     <ClInclude Include="Source\Engine\Utility\DumpUtility.h" />
     <ClInclude Include="ThirdParty\include\UmYaml-cpp.h" />
-    <ClInclude Include="Source\Engine\TimelineCore\TimelineSystem.h" />
     <ClInclude Include="Source\Engine\TimelineCore\Context\TimelineEventContext.h" />
     <ClInclude Include="Source\Engine\TimelineCore\Track\TimelineEventTrack.h" />
   </ItemGroup>
@@ -434,8 +431,6 @@
     <ClCompile Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectViewer.cpp" />
     <ClCompile Include="Source\Engine\GameCore\InputReciver\InputReceiver.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\Gui\Sequencer\Command\SequencerCommand.cpp" />
-    <ClCompile Include="Source\Engine\EditorCore\Gui\Sequencer\EditorSequencer.cpp" />
-    <ClCompile Include="Source\Editor\Tool\Sequencer\EditorSequencerTool.cpp" />
     <ClCompile Include="Source\Editor\Menu\Model\EditorModelMenu.cpp" />
     <ClCompile Include="Source\Editor\Tool\GameView\EditorGameView.cpp" />
     <ClCompile Include="Source\Editor\Tool\Hierarchy\HierarchyFindTool.cpp" />
@@ -572,7 +567,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Source\Engine\TimelineCore\TimelineSystem.cpp" />
     <ClCompile Include="Source\Engine\TimelineCore\Context\TimelineEventContext.cpp" />
     <ClCompile Include="Source\Engine\TimelineCore\Track\TimelineEventTrack.cpp" />
   </ItemGroup>

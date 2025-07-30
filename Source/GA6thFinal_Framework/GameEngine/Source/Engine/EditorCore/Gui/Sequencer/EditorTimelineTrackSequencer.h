@@ -9,11 +9,22 @@ namespace Timeline
     public:
         enum Flags
         {
-            FLAGS_NONE                      = 0,
-            FLAGS_USE_DEBUG_MODE            = 1 << 0, // 디버그 모드
-            FLAGS_USE_SNAP_MODE             = 1 << 1, // Snap 기능 사용 여부
-            FLAGS_ALLOW_DRAG_MIN_MAX_FRAME  = 1 << 2, // Min/Max 프레임 조정을 잠그는 기능
-            FLAGS_ALLOW_DRAG_FRAME_LINE     = 1 << 3, // 프레임 라인 조정을 잠그는 기능
+            FLAGS_NONE                          = 0,
+
+            FLAGS_USE_DEBUG_MODE                = 1 << 0,  // 디버그 모드
+            FLAGS_USE_SNAP_MODE                 = 1 << 1,  // Snap 기능 사용 여부
+
+            FLAGS_ALLOW_DRAG_MIN_MAX_LINE       = 1 << 10, // Min/Max 프레임 라인 조정을 잠그는 기능
+            FLAGS_ALLOW_DRAG_CURSOR_LINE        = 1 << 11, // 현재 커서 라인 조정을 잠그는 기능
+            FLAGS_ALLOW_DRAG_CURRENT_LINE       = 1 << 12, // 현재 프레임 라인 조정을 잠그는 기능
+            FLAGS_ALLOW_POPUP_CONTEXT_MENU      = 1 << 13, // Context 메뉴 허용 여부
+
+            FLAGS_HIDE_MIN_MAX_LINE             = 1 << 20, // Min/Max 프레임 라인 숨김 여부
+            FLAGS_HIDE_CURSOR_LINE              = 1 << 21, // 커서 프레임 라인 숨김 여부
+            FLAGS_HIDE_CURRENT_LINE             = 1 << 22, // 현재 프레임 라인 숨김 여부
+
+            // 모든 입력 허용
+            FLAGS_ALLOW_ALL_INPUT = FLAGS_ALLOW_POPUP_CONTEXT_MENU | FLAGS_ALLOW_DRAG_MIN_MAX_LINE | FLAGS_ALLOW_DRAG_CURSOR_LINE | FLAGS_ALLOW_DRAG_CURRENT_LINE, 
         };
 
         enum Align
@@ -30,12 +41,12 @@ namespace Timeline
             ImVec2 End;
         };
 
-        // 팝업 콜백 함수
+        // 팝업 콜백 함수 (로우 포인터를 인자로 넘겨도 safe함)
         struct Callback
         {
-            std::function<void()> LowerFramePopup;
-            std::function<void()> UpperFramePopup;
-            std::function<void(const EventContext&)> ContextPopup;
+            std::function<void(Timeline::EventTrack*)> LowerFramePopup;
+            std::function<void(Timeline::EventTrack*)> UpperFramePopup;
+            std::function<void(Timeline::EventTrack*, const EventContext&)> ContextPopup;
         };
 
     public:
@@ -47,7 +58,6 @@ namespace Timeline
         /// <para>Sequencer용 Gui를 렌더링합니다.</para>
         /// <para>따로 Frame을 열지 않고 렌더링합니다.</para>
         /// </summary>
-        /// <param name="debug">디버깅 정보를 출력할지 여부</param>
         void Show();
 
         void ShowDebugData();
@@ -56,9 +66,15 @@ namespace Timeline
         /// Sequencer에서 사용할 TimelineSystem을 설정합니다.
         /// </summary>
         /// <param name="system">해당 System에 대한 shared_ptr입니다.</param>
-        void SetSystem(std::shared_ptr<EventTrack> system);
+        void SetEventTrack(std::weak_ptr<EventTrack> system);
 
         inline Callback& GetCallback() { return _callback; }
+
+        /// <summary>
+        /// 시퀀서 에디터가 차지할 크기를 설정합니다. 각 원소가 0일 시 자동으로 크기를 조정합니다.
+        /// </summary>
+        /// <param name="size">설정할 시퀀서의 크기.</param>
+        inline void SetSequencerSize(const ImVec2& size) { _sequencerSize = size; }
 
         /// <summary>
         /// Sequencer의 Gui영역을 반환합니다.
@@ -80,43 +96,28 @@ namespace Timeline
 
         inline ImVec2 GetViewPosition() const { return _viewPos; }
         inline void   AddViewPositionDelay(const ImVec2& pos) { _targetViewPos += pos; }
-        inline void   AddViewPosition(const ImVec2& pos)
-        {
-            _viewPos += pos;
-            _targetViewPos += pos;
-        }
-        inline void SetViewPositionDelay(const ImVec2& pos) { _targetViewPos = pos; }
-        inline void SetViewPosition(const ImVec2& pos)
-        {
-            _viewPos       = pos;
-            _targetViewPos = pos;
-        }
-        inline void SetViewPositionFromID(UINT id, Align align = ALIGN_LEFT)
-        {
-            SetViewPositionDelay(GetContextPosition(id) + GetAlginOffsetFromRect(_canvasRectLower, align));
-        }
+        inline void   AddViewPosition(const ImVec2& pos) { _viewPos += pos; _targetViewPos += pos; }
+        inline void   SetViewPositionDelay(const ImVec2& pos) { _targetViewPos = pos; }
+        inline void   SetViewPosition(const ImVec2& pos) { _viewPos = pos; _targetViewPos = pos; }
+        inline void   SetViewPositionFromID(UINT id, Align align = ALIGN_LEFT) { SetViewPositionDelay(GetContextPosition(id) + GetAlginOffsetFromRect(_canvasRectLower, align)); }
 
-        inline float GetViewScale() const { return _viewScale; }
-        inline void  SetViewScaleDelay(float scale) { _targetViewScale = scale; }
-        inline void  SetViewScale(float scale)
-        {
-            _viewScale       = scale;
-            _targetViewScale = scale;
-        }
-        inline void AddViewScaleDelay(float scale) { _targetViewScale += scale; }
-        inline void AddViewScale(float scale)
-        {
-            _viewScale += scale;
-            _targetViewScale += scale;
-        }
+        inline float  GetViewScale() const { return _viewScale; }
+        inline void   SetViewScaleDelay(float scale) { _targetViewScale = scale; }
+        inline void   SetViewScale(float scale) { _viewScale = scale; _targetViewScale = scale; }
+        inline void   AddViewScaleDelay(float scale) { _targetViewScale += scale; }
+        inline void   AddViewScale(float scale) { _viewScale += scale; _targetViewScale += scale; }
 
-        inline void SetSelectedContextID(UINT id = 0) { _seletedContextID = id; }
-        inline UINT GetSelectedContextID() const { return _seletedContextID; }
+        inline void   SetSelectedContextID(UINT id = 0) { _seletedContextID = id; }
+        inline UINT   GetSelectedContextID() const { return _seletedContextID; }
 
-        inline void AddFlags(int flags) { _flags |= flags; }
-        inline void RemoveFlags(int flags) { _flags &= ~flags; }
-        inline void ToggleFlags(int flags) { _flags ^= flags; }
-        inline bool HasFlags(int flags) const { return (_flags & flags) != 0; }
+        inline float  GetMouseCursorFrame() const { return _mouseFrame; }
+        inline float  GetSnapCursorFrame() const { return _indicateFrame; }
+        inline float  GetIndicateCursorFrame() const { return _indicateFrame; }
+                      
+        inline void   AddFlags(UINT flags) { _flags |= flags; }
+        inline void   RemoveFlags(UINT flags) { _flags &= ~flags; }
+        inline void   ToggleFlags(UINT flags) { _flags ^= flags; }
+        inline bool   HasFlags(UINT flags) const { return (_flags & flags) != 0; }
 
     private:
         bool    Begin();
@@ -124,7 +125,7 @@ namespace Timeline
         void    DrawToolBar();
         void    DrawCanvas();
 
-        void    UpdateViewPosition();
+        void    RefreshTransform();
 
         bool    WheelZooming();
         bool    CanvasDragging();
@@ -138,11 +139,6 @@ namespace Timeline
 
         ImVec2  PositionToCanvasSapce(const ImVec2& pos) const;
         ImVec2  GetContextPosition(UINT id) const;
-
-        void    PathLines(ImDrawList* drawList, ImVec2* points, size_t pointCount) const;
-        void    DrawToContext(ImDrawList* drawList, EventContext* notify, const ImRect& mainRect);
-        void    DragToContext(EventContext* notify, const ImRect& mainRect);
-        void    InputToContext(EventContext* notify, const ImRect& mainRect);
 
         int     GetLineUnit() const;
         float   GetAlignFactor(Align align) const;
@@ -173,10 +169,13 @@ namespace Timeline
         /// Sequencer Transform Data
         /////////////////////////////////////////////////////////////////////////////
 
+        ImVec2 _sequencerSize;          // Sequencer의 전체 크기 (캔버스 크기)
+
         ImRect _frameRect;              // Sequencer의 전체 프레임 영역
         ImRect _canvasRect;             // Sequencer의 캔버스 전체 영역
         ImRect _canvasRectUpper;        // Sequencer의 캔버스 상단 영역 (타임라인 표시 영역)
         ImRect _canvasRectLower;        // Sequencer의 캔버스 하단 영역 (타임라인 표시 영역)
+        ImRect _canvasValidRectLower;   // Sequencer의 캔버스 유효 영역 (하단 영역이 유효한 경우)
         float  _canvasUpperHeight;      // Sequencer의 캔버스 상단 영역 높이 (하단 영역은 나머지)
 
         ImVec2 _viewPos;                // 현재 뷰의 위치 (캔버스 내에서의 위치가 아님)
@@ -239,7 +238,43 @@ namespace Timeline
         std::array<ImU32, 4> ContextColor = {IM_COL32(0, 255, 255, 200), IM_COL32(0, 255, 255, 150),
                                             IM_COL32(0, 255, 255, 255), IM_COL32(255, 127, 39, 255)};
         // 유효하지 않은 대상에 대한 색상
-        std::array<ImU32, 3> InvalidColor = {IM_COL32(255, 0, 0, 100), 0, 0};
+        std::array<ImU32, 3> InvalidColor = {IM_COL32(200, 50, 50, 100), 0, 0};
         REFLECT_FIELDS_END(SequencerEditor)
+
+        class Helper
+        {
+        public:
+            static void ProcessUnitLines(SequencerEditor* editor, ImDrawList* drawList);
+            static void ProcessMinMaxLine(SequencerEditor* editor, ImDrawList* drawList, std::shared_ptr<EventTrack> track, const char* id, bool isMinLine);
+            static void ProcessCurrentFrameLine(SequencerEditor* editor, ImDrawList* drawList, std::shared_ptr<EventTrack> track);
+            static void ProcessContexts(SequencerEditor* editor, ImDrawList* drawList, std::shared_ptr<EventTrack> track);
+            static void ProcessInteraction(SequencerEditor* editor);
+            static void ProcessFollowLine(SequencerEditor* editor, ImDrawList* drawList);
+
+        public:
+            /// <summary>캔버스 상단 영역을 그립니다.</summary>
+            static void DrawCanvasUpperRect(SequencerEditor* editor, ImDrawList* drawList);
+
+            /// <summary>캔버스 하단 영역을 그립니다.</summary>
+            static void DrawCanvasLowerRect(SequencerEditor* editor, ImDrawList* drawList);
+
+            /// <summary>단위 형식의 라인을 그립니다.</summary>
+            static void DrawUnitLines(SequencerEditor* editor, ImDrawList* drawList, int frame, const ImVec2& start, const ImVec2& middle, const ImVec2& end);
+
+            /// <summary>Min-Max 형식의 라인을 그립니다.</summary>
+            static void DrawMinMaxLines(SequencerEditor* editor, ImDrawList* drawList, const ImVec2& start, const ImVec2& end, int interactState, ImGuiDir direction, float directionHeight = 0.7f);
+
+            /// <summary>현재 프레임의 라인을 그립니다.</summary>
+            static void DrawCurrentFrameLine(SequencerEditor* editor, ImDrawList* drawList, const ImVec2& start, const ImVec2& end, const ImRect& rect, int interactState);
+
+            /// <summary>Context의 영역 및 구분 선을 그립니다.</summary>
+            static void DrawContext(SequencerEditor* editor, ImDrawList* drawList, EventContext* context, int groupIndex, const ImRect& rect, const ImVec2& offset);
+
+            /// <summary>커서 프레임 라인을 그립니다.</summary>
+            static void DrawFollowLine(SequencerEditor* editor, ImDrawList* drawList);
+
+        public:
+            static void PathLines(ImDrawList* drawList, ImVec2* points, size_t pointCount);
+        };
     };
 }

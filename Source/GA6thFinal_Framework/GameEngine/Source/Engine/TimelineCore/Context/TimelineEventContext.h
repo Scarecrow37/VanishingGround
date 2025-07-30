@@ -4,6 +4,7 @@ namespace Timeline
 {
     class EventContext : public ReflectSerializer
     {
+        friend class EventTrack;
     public:
         USING_PROPERTY(EventContext)
         EventContext()          = default;
@@ -21,24 +22,23 @@ namespace Timeline
         GETTER_ONLY(float, Time) { return ReflectFields->TimeData; }
         PROPERTY(Time)
 
-        const std::string& GetLabel()       const { return ReflectFields->Label; }
-        const std::string& GetEventName()   const { return ReflectFields->EventNameData; }
-        float              GetTime()        const { return ReflectFields->TimeData; }
-
-    public:
-        virtual void OnNotify() = 0;
+        inline const std::string& GetLabel()       const { return ReflectFields->Label; }
+        inline const std::string& GetEventName()   const { return ReflectFields->EventNameData; }
+        inline float              GetTime()        const { return ReflectFields->TimeData; }
 
         void SetEvent(std::string_view typeNameID);
         void SetTime(float time);
         bool IsValidID() const;
         bool IsSameEvent(const EventContext* other) const;
 
+        virtual void OnNotify() {};
+
     protected:
         /// <summary>
         /// typeID를 통해 이벤트를 생성해야하는 인터페이스 함수입니다.
         /// </summary>
         /// <param name="typeNameID">해당 이벤트의 typenameID</param>
-        virtual void RequireEvent(std::string_view typeNameID)  = 0;
+        virtual void RequireEvent(std::string_view typeNameID) {};
 
     protected:
         REFLECT_FIELDS_BEGIN(ReflectSerializer)

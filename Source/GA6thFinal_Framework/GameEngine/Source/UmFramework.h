@@ -179,7 +179,6 @@ using namespace Microsoft::WRL;
 #include "Engine/EditorCore/Gui/Menu/EditorMenu.h"
 #include "Engine/EditorCore/Gui/PopupBox/EditorPopupBox.h"
 #include "Engine/EditorCore/Gui/DockWindow/EditorDockWindow.h"
-#include "Engine/EditorCore/Gui/Sequencer/EditorSequencer.h"
 #include "Engine/EditorCore/Gui/Sequencer/EditorTimelineTrackSequencer.h"
 #include "Engine/EditorCore/System/EditorPopupBoxSystem.h"
 #include "Engine/EditorCore/System/EditorGuiSystem.h"
@@ -207,8 +206,6 @@ using namespace Microsoft::WRL;
 //Timeline System
 #include "Engine/TimelineCore/Context/TimelineEventContext.h"
 #include "Engine/TimelineCore/Track/TimelineEventTrack.h"
-
-#include "Engine/TimelineCore/TimelineSystem.h"
 #include "Engine/TimelineCore/AnimationNotifySet.h"
 
 //컴포넌트는 접근 안하는 헤더들
@@ -228,7 +225,6 @@ using namespace Microsoft::WRL;
 #include "Editor/Tool/Model/EditorModelHierarchy.h"
 #include "Editor/Tool/Model/EditorAnimationNotifyTool.h"
 #include "Editor/Tool/Command/EditorCommandTool.h"
-#include "Editor/Tool/Sequencer/EditorSequencerTool.h"
 
 #include "Editor/Tool/ParticleEffect/EditorParticleEffectDetails.h"
 #include "Editor/Tool/ParticleEffect/EditorParticleEffectViewer.h"

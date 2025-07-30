@@ -1,183 +1,184 @@
 ﻿#include "pch.h"
 #include "SequencerCommand.h"
+#include "Engine/TimelineCore/Context/TimelineEventContext.h"
 
 namespace Command
 {
     namespace Sequencer
     {
-        NotifyData::NotifyData(UINT id, float time, std::string_view label, std::string_view typeNameID)
+        ContextData::ContextData(UINT id, float time, std::string_view label, std::string_view typeNameID)
             : ID(id), Time(time), Label(label), TypeNameID(typeNameID)
         {
         }
-        NotifyData::NotifyData(TimelineNotify* notify)
-            : ID(notify->ID), Time(notify->Time), Label(notify->Label), TypeNameID(notify->EventName)
+        ContextData::ContextData(Timeline::EventContext* context)
+            : ID(context->ID), Time(context->Time), Label(context->Label), TypeNameID(context->EventName)
         {
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         /// 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        ChangeMinFrame::ChangeMinFrame(std::weak_ptr<TimelineSystem> system, float frame)
-            : UmCommand("ChangeMinFrame"), _timelineSystem(system), _prevFrame(frame), _tempFrame(-FLT_MAX)
+        ChangeMinFrame::ChangeMinFrame(std::weak_ptr<Timeline::EventTrack> track, float frame)
+            : UmCommand("ChangeMinFrame"), _eventTrack(track), _prevFrame(frame), _tempFrame(-FLT_MAX)
         {
         }
         bool ChangeMinFrame::Execute()
         {
-            auto system = _timelineSystem.lock();
-            if (nullptr == system || _tempFrame == -FLT_MAX)
+            auto track = _eventTrack.lock();
+            if (nullptr == track || _tempFrame == -FLT_MAX)
             {
                 return false;
             }
 
-            system->SetMinFrame(_tempFrame);
+            track->SetMinFrame(_tempFrame);
 
             return true;
         }
         void ChangeMinFrame::Undo()
         {
-            auto system = _timelineSystem.lock();
-            if (nullptr == system)
+            auto track = _eventTrack.lock();
+            if (nullptr == track)
                 return;
-            _tempFrame = system->GetMinFrame();
-            system->SetMinFrame(_prevFrame);
+            _tempFrame = track->GetMinFrame();
+            track->SetMinFrame(_prevFrame);
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        ChangeMaxFrame::ChangeMaxFrame(std::weak_ptr<TimelineSystem> system, float frame)
-            : UmCommand("ChangeMaxFrame"), _timelineSystem(system), _prevFrame(frame), _tempFrame(-FLT_MAX)
+        ChangeMaxFrame::ChangeMaxFrame(std::weak_ptr<Timeline::EventTrack> track, float frame)
+            : UmCommand("ChangeMaxFrame"), _eventTrack(track), _prevFrame(frame), _tempFrame(-FLT_MAX)
         {
         }
         bool ChangeMaxFrame::Execute()
         {
-            auto system = _timelineSystem.lock();
-            if (nullptr == system || _tempFrame == -FLT_MAX)
+            auto track = _eventTrack.lock();
+            if (nullptr == track || _tempFrame == -FLT_MAX)
             {
                 return false;
             }
 
-            system->SetMaxFrame(_tempFrame);
+            track->SetMaxFrame(_tempFrame);
 
             return true;
         }
         void ChangeMaxFrame::Undo()
         {
-            auto system = _timelineSystem.lock();
-            if (nullptr == system)
+            auto track = _eventTrack.lock();
+            if (nullptr == track)
                 return;
-            _tempFrame = system->GetMaxFrame();
-            system->SetMaxFrame(_prevFrame);
+            _tempFrame = track->GetMaxFrame();
+            track->SetMaxFrame(_prevFrame);
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        AddNotify::AddNotify(std::weak_ptr<TimelineSystem> system, float time, std::string_view label, std::string_view typeNameID)
-            : UmCommand("AddNotify"), _timelineSystem(system), _notify(nullptr),
-              _notifyData({UINT_MAX, time, label, typeNameID})
+        AddContext::AddContext(std::weak_ptr<Timeline::EventTrack> track, float time, std::string_view label, std::string_view typeNameID)
+            : UmCommand("AddContext"), _eventTrack(track), _context(nullptr),
+              _contextData({UINT_MAX, time, label, typeNameID})
         {
         }
-        bool AddNotify::Execute()
+        bool AddContext::Execute()
         {
-            auto system = _timelineSystem.lock();
-            if (nullptr == system)
+            auto track = _eventTrack.lock();
+            if (nullptr == track)
             {
                 return false;
             }
                
-            _notify = system->AddNotify(_notifyData.Label, _notifyData.TypeNameID, _notifyData.Time, _notifyData.ID);
-            if (UINT_MAX == _notifyData.ID)
+            _context = track->AddEventEx(_contextData.Label, _contextData.TypeNameID, _contextData.Time, _contextData.ID);
+            if (UINT_MAX == _contextData.ID)
             {
-                _notifyData.ID = _notify->ID;
+                _contextData.ID = _context->ID;
             }
 
             return true;
         }
-        void AddNotify::Undo() 
+        void AddContext::Undo() 
         {
-            auto system = _timelineSystem.lock();
-            if (nullptr == system)
+            auto track = _eventTrack.lock();
+            if (nullptr == track)
                 return;
-            system->RemoveNotifyFromID(_notifyData.ID);
+            track->RemoveContextFromID(_contextData.ID);
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        RemoveNotify::RemoveNotify(std::weak_ptr<TimelineSystem> system, TimelineNotify* notify)
-            : UmCommand("RemoveNotify"), _timelineSystem(system), _notify(notify), _notifyData(notify)
+        RemoveContext::RemoveContext(std::weak_ptr<Timeline::EventTrack> track, Timeline::EventContext* context)
+            : UmCommand("RemoveContext"), _eventTrack(track), _context(context), _contextData(context)
         {
         }
-        bool RemoveNotify::Execute() 
+        bool RemoveContext::Execute() 
         {
-            auto system = _timelineSystem.lock();
-            if (nullptr == system || nullptr == _notify)
+            auto track = _eventTrack.lock();
+            if (nullptr == track || nullptr == _context)
             {
                 return false;
             }
 
-            system->RemoveNotifyFromID(_notifyData.ID);
+            track->RemoveContextFromID(_contextData.ID);
 
             return true;
         }
-        void RemoveNotify::Undo() 
+        void RemoveContext::Undo() 
         {
-            auto system = _timelineSystem.lock();
-            if (nullptr == system)
+            auto track = _eventTrack.lock();
+            if (nullptr == track)
             {
                 return;
             }
-            _notify = system->AddNotify(_notifyData.Label, _notifyData.TypeNameID, _notifyData.Time, _notifyData.ID);
+            _context = track->AddEventEx(_contextData.Label, _contextData.TypeNameID, _contextData.Time, _contextData.ID);
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        ChangeNotify::ChangeNotify(std::weak_ptr<TimelineSystem> system, TimelineNotify* notify, float changeTime,
+        ChangeContext::ChangeContext(std::weak_ptr<Timeline::EventTrack> track, Timeline::EventContext* context, float changeTime,
                                    std::string_view changelabel, std::string_view changeTypeNameID)
-            : UmCommand("ChangeNotify"), _timelineSystem(system), _notify(notify),
-              _previousData({notify->ID, notify->Time, notify->Label, notify->EventName}),
-              _changedData({notify->ID, changeTime, changelabel, changeTypeNameID})
+            : UmCommand("ChangeContext"), _eventTrack(track), _context(context),
+              _previousData({context->ID, context->Time, context->Label, context->EventName}),
+              _changedData({context->ID, changeTime, changelabel, changeTypeNameID})
         {
         }
-        bool ChangeNotify::Execute() 
+        bool ChangeContext::Execute() 
         {
-            auto system = _timelineSystem.lock();
-            if (nullptr == system || nullptr == _notify)
+            auto track = _eventTrack.lock();
+            if (nullptr == track || nullptr == _context)
             {
                 return false;
             }
 
             if (_previousData.Label != _changedData.Label)
             {
-                _notify->Label = _changedData.Label;
+                _context->Label = _changedData.Label;
             }
             if (_previousData.Time != _changedData.Time)
             {
-                _notify->SetNotifyTime(_changedData.Time);
+                _context->SetTime(_changedData.Time);
             }
             if (_previousData.TypeNameID != _changedData.TypeNameID)
             {
-                _notify->SetNotifyEvent(_changedData.TypeNameID);
+                _context->SetEvent(_changedData.TypeNameID);
             }
             return true;
         }
-        void ChangeNotify::Undo() 
+        void ChangeContext::Undo() 
         {
-            auto system = _timelineSystem.lock();
-            if (nullptr == system || _notify == nullptr)
+            auto track = _eventTrack.lock();
+            if (nullptr == track || _context == nullptr)
                 return;
             if (_previousData.Label != _changedData.Label)
             {
-                _notify->Label = _previousData.Label;
+                _context->Label = _previousData.Label;
             }
             if (_previousData.Time != _changedData.Time)
             {
-                _notify->SetNotifyTime(_previousData.Time);
+                _context->SetTime(_previousData.Time);
             }
             if (_previousData.TypeNameID != _changedData.TypeNameID)
             {
-                _notify->SetNotifyEvent(_previousData.TypeNameID);
+                _context->SetEvent(_previousData.TypeNameID);
             }
         }
     } // namespace Sequencer

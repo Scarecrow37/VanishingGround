@@ -7,7 +7,7 @@ namespace Timeline
     {
         _currFrame = 0.0f;
         _prevFrame = 0.0f;
-        _isActie   = true;
+        _isActive  = true;
         _isPlaying = false;
         ClearContext();
     }
@@ -79,12 +79,12 @@ namespace Timeline
     {
         _currFrame = 0.0f;
         _prevFrame = 0.0f;
-        _isActie   = true;
+        _isActive  = true;
         _isPlaying = false;
     }
     void EventTrack::SetActive(bool active)
     {
-        _isActie = active;
+        _isActive = active;
     }
     void EventTrack::Play()
     {
@@ -115,7 +115,8 @@ namespace Timeline
         EventContext* context = NewInstanceWithKey(typenameID);
         context->SetEvent(typenameID);
         context->SetTime(time);
-        context->Label = label;
+        context->ReflectFields->Label = label;
+        context->ReflectFields->ContextID = uniqueID;
         _contextQueue.push_back(context);
         _contextTable[uniqueID] = context;
         Sort();
@@ -196,7 +197,7 @@ namespace Timeline
         ReflectFields->MaxFrame = maxFrame;
         _currFrame = ImClamp(_currFrame, ReflectFields->MinFrame, ReflectFields->MaxFrame);
     }
-    void EventTrack::SetCurrentFrame(float frame, bool pass = false) 
+    void EventTrack::SetCurrentFrame(float frame, bool pass) 
     {
         _currFrame = frame < GetMinFrame() ? GetMinFrame() : frame;
         if (true == pass || false == IsActive())

@@ -81,21 +81,13 @@ namespace ImGuiHelper
         }
     }
 
-    /*
-    여백있는 구분선
-    */
-    static void Separator(float upPadding, float downPadding)
-    {
-        ImGui::Dummy(ImVec2(0.0f, upPadding));
-        ImGui::Separator();
-        ImGui::Dummy(ImVec2(0.0f, downPadding));
-    }
-    static void Separator(float spacing = 5.0f)
-    {
-        ImGui::Dummy(ImVec2(0.0f, spacing));
-        ImGui::Separator();
-        ImGui::Dummy(ImVec2(0.0f, spacing));
-    }
+    /// <summary>
+    /// 여백있는 구분선
+    /// </summary>
+    /// <param name="upPadding">위 여백</param>
+    /// <param name="downPadding">아래 여백</param>
+    void Separator(float upPadding, float downPadding);
+    void Separator(float spacing = 5.0f);
 
     /// <summary>
     /// <para>텍스트에 수직 구분선을 적용하여 출력합니다. startX는 구분선의 위치를 조정하는데 사용됩니다.</para>
@@ -103,21 +95,9 @@ namespace ImGuiHelper
     /// </summary>
     /// <param name="text">출력할 텍스트</param>
     /// <param name="startX">구분선 위치</param>
-    static void TextWithVerticalSeparator(const char* text, float startX = FLT_MAX)
-    {
-        ImGui::Text(text);
-        if (FLT_MAX == startX)
-        {
-            startX = ImGui::GetCursorPosX();
-            startX += ImGui::CalcTextSize(text).x;
-            startX += ImGui::GetStyle().ItemSpacing.x;
-        }
-        ImGui::SameLine(startX);
-        ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
-        ImGui::SameLine();
-        float availX = ImGui::GetContentRegionAvail().x;
-        ImGui::SetNextItemWidth(availX);
-    }
+    void TextWithVerticalSeparator(const char* text, float startX = FLT_MAX);
+
+    void TextWithVerticalSeparatorEx(const char* text, float startX = FLT_MAX);
 
     /*
     토글이 가능한 버튼 (false->true / true->false)

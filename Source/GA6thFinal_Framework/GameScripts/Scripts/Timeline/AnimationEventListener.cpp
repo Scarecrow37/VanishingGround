@@ -128,10 +128,10 @@ void AnimationEventListener::DrawGuiNotifiesTable()
         ImGui::EndCombo();
     }
 
-    std::shared_ptr<TimelineSystem> timeline;
-    timeline = _animationNotifySet.GetActiveTimeline();
+    std::shared_ptr<Timeline::EventTrack> eventTrack;
+    eventTrack = _animationNotifySet.GetActiveTimeline();
 
-    if (nullptr == timeline)
+    if (nullptr == eventTrack)
     {
         ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
         ImGui::Text("Timeline not found.");
@@ -139,14 +139,14 @@ void AnimationEventListener::DrawGuiNotifiesTable()
     }
     else
     {
-        auto notifyList = timeline->GetTimelineNotifyList();
+        auto contextQueue = eventTrack->GetEventContextQueue();
         if (ImGui::BeginTable("NotifieTable##Details", 2, ImGuiTableFlags_BordersInnerH | ImGuiTableFlags_RowBg))
         {
             ImGui::TableSetupColumn("Time", ImGuiTableColumnFlags_WidthStretch, 0.15f);
             ImGui::TableSetupColumn("Label", ImGuiTableColumnFlags_WidthStretch, 0.85f);
             ImGui::TableHeadersRow();
 
-            for (const auto& notify : notifyList)
+            for (const auto& notify : contextQueue)
             {
                 if (notify != nullptr)
                 {

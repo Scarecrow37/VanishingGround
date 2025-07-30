@@ -68,6 +68,37 @@ namespace ImGuiHelper
         ImGui::PopID();
         return ImGui::BeginComboPopup(popupID, bb, comboFlags);
     }
+    void Separator(float upPadding, float downPadding)
+    {
+        ImGui::Dummy(ImVec2(0.0f, upPadding));
+        ImGui::Separator();
+        ImGui::Dummy(ImVec2(0.0f, downPadding));
+    }
+    void Separator(float spacing) 
+    {
+        ImGui::Dummy(ImVec2(0.0f, spacing));
+        ImGui::Separator();
+        ImGui::Dummy(ImVec2(0.0f, spacing));
+    }
+    void TextWithVerticalSeparator(const char* text, float startX)
+    {
+        TextWithVerticalSeparatorEx(text, startX);
+        float availX = ImGui::GetContentRegionAvail().x;
+        ImGui::SetNextItemWidth(availX);
+    }
+    void TextWithVerticalSeparatorEx(const char* text, float startX) 
+    {
+        ImGui::Text(text);
+        if (FLT_MAX == startX)
+        {
+            startX = ImGui::GetCursorPosX();
+            startX += ImGui::CalcTextSize(text).x;
+            startX += ImGui::GetStyle().ItemSpacing.x;
+        }
+        ImGui::SameLine(startX);
+        ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
+        ImGui::SameLine();
+    }
 } // namespace ImGuiHelper
 
 bool ImGuiHelper::DrawManipulate(

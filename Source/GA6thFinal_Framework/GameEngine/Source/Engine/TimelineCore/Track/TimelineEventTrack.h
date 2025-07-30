@@ -63,10 +63,10 @@ namespace Timeline
         inline float    GetPreviousFrame() const { return _prevFrame; }
         inline float    GetMaxFrame() const { return ReflectFields->MaxFrame; }
         inline float    GetMinFrame() const { return ReflectFields->MinFrame; }
-        inline bool     IsActive() const { return _isActie; }
+        inline bool     IsActive() const { return _isActive; }
         inline bool     IsPlaying() const { return _isPlaying; }
-        inline bool     IsVaildFrame(float frame) const { return frame >= GetMinFrame() && frame <= GetMaxFrame(); }
-        inline bool     IsDirty() { _currFrame != _prevFrame; }
+        inline bool     IsValidFrame(float frame) const { return frame >= GetMinFrame() && frame <= GetMaxFrame(); }
+        inline bool     IsDirty() { return _currFrame != _prevFrame; }
         inline size_t   GetEventContextCount() const { return _contextQueue.size(); }
         inline const std::vector<EventContext*>& GetEventContextQueue() const { return _contextQueue; }
 
@@ -77,7 +77,7 @@ namespace Timeline
     private:
         float _currFrame;
         float _prevFrame;
-        bool  _isActie;
+        bool  _isActive;
         bool  _isPlaying;
 
         ContextQueue _contextQueue; 

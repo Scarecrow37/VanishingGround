@@ -141,3 +141,6 @@ UMREAL_COMPONENT(AnimationComponent)
 
 #include "Scripts/Test/DevTools/LogOutput.h"
 UMREAL_COMPONENT(LogOutput)
+
+#include "Scripts/EnemyAction/System/EnemyActionSystem.h"
+UMREAL_COMPONENT(EnemyActionSystem)
