@@ -43,7 +43,7 @@ void GraphicsModule::PreInitialize()
     else
     {
         UmGraphics.SetCurrentScene("Game");
-    }
+    }    
 }
 
 void GraphicsModule::ModuleInitialize()
