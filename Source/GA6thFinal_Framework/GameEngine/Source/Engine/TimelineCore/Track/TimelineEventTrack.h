@@ -1,8 +1,9 @@
 ﻿#pragma once
 
-class EventContext;
+
 namespace Timeline
 {
+    class EventContext;
     enum Flag
     {
         EVENT_TRCK_FLAGS_NONE            = 0,
@@ -69,6 +70,9 @@ namespace Timeline
         inline bool     IsDirty() { return _currFrame != _prevFrame; }
         inline size_t   GetEventContextCount() const { return _contextQueue.size(); }
         inline const std::vector<EventContext*>& GetEventContextQueue() const { return _contextQueue; }
+
+        inline void SetPreNotifyCallback(std::function<bool(const EventContext*)> callback) { _preNotifyCallback = callback; }
+        inline void SetPostNotifyCallback(std::function<bool(const EventContext*)> callback) { _postNotifyCallback = callback; }
 
     private:
         void            RequestNotify(float startTime, float endTime);

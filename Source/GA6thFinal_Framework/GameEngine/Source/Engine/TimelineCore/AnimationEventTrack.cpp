@@ -1,26 +1,26 @@
 ﻿#include "pch.h"
-#include "AnimationNotifySet.h"
+#include "AnimationEventTrack.h"
 
 using namespace std::filesystem;
 
-void AnimationNotifySet::Clear()
+void AnimationEventTrack::Clear()
 {
     _filePath = File::NULL_PATH;
-    ClearTimeline();
+    ClearEventTrack();
 }
 
-void AnimationNotifySet::ClearTimeline()
+void AnimationEventTrack::ClearEventTrack()
 {
     _timelineTable.clear();
-    _activeTimeline = {"", nullptr};
+    _activeEventTrack = {"", nullptr};
 }
 
-bool AnimationNotifySet::IsLoadedFile() const
+bool AnimationEventTrack::IsLoadedFile() const
 {
     return false == _filePath.IsNull();
 }
 
-bool AnimationNotifySet::NewFile(const File::Path& filePath)
+bool AnimationEventTrack::NewFile(const File::Path& filePath)
 {
     Clear();
     std::ofstream fout(filePath);
@@ -32,7 +32,7 @@ bool AnimationNotifySet::NewFile(const File::Path& filePath)
     return false;
 }
 
-bool AnimationNotifySet::SaveFile(const File::Path& filePath, bool overwrite)
+bool AnimationEventTrack::SaveFile(const File::Path& filePath, bool overwrite)
 {
     if (false == overwrite && false == exists(filePath))
     {
@@ -42,7 +42,7 @@ bool AnimationNotifySet::SaveFile(const File::Path& filePath, bool overwrite)
     if (true == fout.is_open())
     {
         YAML::Node  node;
-        node["TimelineTable"] = SerializedReflectFields();
+        node["EventTrackTable"] = SerializedReflectFields();
         fout << node;
         fout.close();
         _filePath = filePath;
@@ -51,7 +51,7 @@ bool AnimationNotifySet::SaveFile(const File::Path& filePath, bool overwrite)
     return false;
 }
 
-bool AnimationNotifySet::LoadFile(const File::Path& filePath)
+bool AnimationEventTrack::LoadFile(const File::Path& filePath)
 {
     Clear();
     if (false == exists(filePath))
@@ -63,45 +63,45 @@ bool AnimationNotifySet::LoadFile(const File::Path& filePath)
     {
         return false;
     }
-    if (node["TimelineTable"])
+    if (node["EventTrackTable"])
     {
-        std::string SerialData = node["TimelineTable"].as<std::string>();
+        std::string SerialData = node["EventTrackTable"].as<std::string>();
         DeserializedReflectFields(SerialData);
         _filePath = filePath;
     }
     return true;
 }
 
-bool AnimationNotifySet::SetActiveTimeline(std::string_view animKey)
+bool AnimationEventTrack::SetActiveEventTrack(std::string_view animKey)
 {
-    auto timeline = GetTimeline(animKey);
-    if (nullptr != timeline && _activeTimeline.second != timeline)
+    auto timeline = GetEventTrack(animKey);
+    if (nullptr != timeline && _activeEventTrack.second != timeline)
     {
-        _activeTimeline = {animKey.data(), timeline};
+        _activeEventTrack = {animKey.data(), timeline};
         return true;
     }
     return false;
 }
 
-std::shared_ptr<Timeline::EventTrack> AnimationNotifySet::GetActiveTimeline() const
+std::shared_ptr<Timeline::EventTrack> AnimationEventTrack::GetActiveEventTrack() const
 {
-    return _activeTimeline.second;
+    return _activeEventTrack.second;
 }
 
-const std::string& AnimationNotifySet::GetActiveTimelineName() const
+const std::string& AnimationEventTrack::GetActiveEventTrackName() const
 {
-    return _activeTimeline.first;
+    return _activeEventTrack.first;
 }
 
-bool AnimationNotifySet::AddTimeline(std::string_view animKey, bool active)
+bool AnimationEventTrack::AddEventTrack(std::string_view animKey, bool active)
 {
-    bool hasTimeline = HasTimeline(animKey);
-    if (false == hasTimeline)
+    bool hasEventTrack = HasEventTrack(animKey);
+    if (false == hasEventTrack)
     {
         _timelineTable[animKey.data()] = std::make_shared<Timeline::EventTrack>();
         if (true == active)
         {
-            SetActiveTimeline(animKey); // 활성화된 타임라인 설정
+            SetActiveEventTrack(animKey); // 활성화된 타임라인 설정
         }
         return true;
     }
@@ -111,12 +111,12 @@ bool AnimationNotifySet::AddTimeline(std::string_view animKey, bool active)
     }
 }
 
-bool AnimationNotifySet::ChangeTimelineName(std::string_view oldAnimKey, std::string_view newAnimKey)
+bool AnimationEventTrack::ChangeEventTrackName(std::string_view oldAnimKey, std::string_view newAnimKey)
 {
     auto it = _timelineTable.find(oldAnimKey.data());
     if (it != _timelineTable.end())
     {
-        if (HasTimeline(newAnimKey))
+        if (HasEventTrack(newAnimKey))
         {
             return false; // 새 이름으로 타임라인이 이미 존재하는 경우
         }
@@ -128,15 +128,15 @@ bool AnimationNotifySet::ChangeTimelineName(std::string_view oldAnimKey, std::st
     return false;
 }
 
-bool AnimationNotifySet::RemoveTimeline(std::string_view animKey)
+bool AnimationEventTrack::RemoveEventTrack(std::string_view animKey)
 {
     auto it = _timelineTable.find(animKey.data());
     if (it != _timelineTable.end())
     {
-        if (nullptr != it->second && it->second == _activeTimeline.second)
+        if (nullptr != it->second && it->second == _activeEventTrack.second)
         {
-            _activeTimeline.first  = "";      // 현재 활성화된 타임라인이 제거되는 경우
-            _activeTimeline.second = nullptr; // 현재 활성화된 타임라인이 제거되는 경우
+            _activeEventTrack.first  = "";      // 현재 활성화된 타임라인이 제거되는 경우
+            _activeEventTrack.second = nullptr; // 현재 활성화된 타임라인이 제거되는 경우
         }
         _timelineTable.erase(it);
         return true;
@@ -147,7 +147,7 @@ bool AnimationNotifySet::RemoveTimeline(std::string_view animKey)
     }
 }
 
-bool AnimationNotifySet::HasTimeline(std::string_view animKey) const
+bool AnimationEventTrack::HasEventTrack(std::string_view animKey) const
 {
     auto it = _timelineTable.find(animKey.data());
     if (it != _timelineTable.end())
@@ -157,7 +157,7 @@ bool AnimationNotifySet::HasTimeline(std::string_view animKey) const
     return false;
 }
 
-std::shared_ptr<Timeline::EventTrack> AnimationNotifySet::GetTimeline(std::string_view animKey) const
+std::shared_ptr<Timeline::EventTrack> AnimationEventTrack::GetEventTrack(std::string_view animKey) const
 {
     auto it = _timelineTable.find(animKey.data());
     if (it != _timelineTable.end())
@@ -167,17 +167,17 @@ std::shared_ptr<Timeline::EventTrack> AnimationNotifySet::GetTimeline(std::strin
     return nullptr;
 }
 
-const std::map<std::string, std::shared_ptr<Timeline::EventTrack>>& AnimationNotifySet::GetTimelineTable() const
+const std::map<std::string, std::shared_ptr<Timeline::EventTrack>>& AnimationEventTrack::GetEventTrackTable() const
 {
     return _timelineTable;
 }
 
-const File::Path& AnimationNotifySet::GetFilePath() const
+const File::Path& AnimationEventTrack::GetFilePath() const
 {
     return _filePath;
 }
 
-void AnimationNotifySet::SerializedReflectEvent()
+void AnimationEventTrack::SerializedReflectEvent()
 {
     ReflectFields->SerializeData.clear();
     for (const auto& [animKey, timeline] : _timelineTable)
@@ -189,9 +189,9 @@ void AnimationNotifySet::SerializedReflectEvent()
     }
 }
 
-void AnimationNotifySet::DeserializedReflectEvent() 
+void AnimationEventTrack::DeserializedReflectEvent() 
 {
-    ClearTimeline();
+    ClearEventTrack();
     for (const auto& [animKey, serializedData] : ReflectFields->SerializeData)
     {
         auto timeline = std::make_shared<Timeline::EventTrack>();

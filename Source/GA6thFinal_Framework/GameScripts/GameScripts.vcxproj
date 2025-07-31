@@ -437,7 +437,6 @@
     <ClInclude Include="Scripts\Stats\Player\PlayerStatsComponent.h" />
     <ClInclude Include="Scripts\Stats\Enemy\EnemyStatsComponent.h" />
     <ClInclude Include="Scripts\Test\Input\InputTestComponent.h" />
-    <ClInclude Include="Scripts\Timeline\AnimationEventListener.h" />
     <ClInclude Include="Scripts\Test\DevTools\FPSCounter.h" />
     <ClInclude Include="Scripts\WeaponSystem\WeaponSystem.h" />
     <ClInclude Include="Scripts\Test\TurnAction\TestActionComponent.h" />
@@ -582,7 +581,6 @@
     <ClCompile Include="Scripts\Stats\Player\PlayerStatsComponent.cpp" />
     <ClCompile Include="Scripts\Stats\Enemy\EnemyStatsComponent.cpp" />
     <ClCompile Include="Scripts\Test\Input\InputTestComponent.cpp" />
-    <ClCompile Include="Scripts\Timeline\AnimationEventListener.cpp" />
     <ClCompile Include="Scripts\Test\DevTools\FPSCounter.cpp" />
     <ClCompile Include="Scripts\WeaponSystem\WeaponSystem.cpp" />
     <ClCompile Include="Scripts\Test\TurnAction\TestActionComponent.cpp" />

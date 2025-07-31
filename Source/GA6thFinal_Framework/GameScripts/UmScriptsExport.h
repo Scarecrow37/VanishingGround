@@ -74,9 +74,6 @@ UMREAL_COMPONENT(EnemyStatsComponent)
 #include "Scripts\Test/Input/InputTestComponent.h"
 UMREAL_COMPONENT(InputTestComponent)
 
-#include "Scripts\Timeline/AnimationEventListener.h"
-UMREAL_COMPONENT(AnimationEventListener)
-
 #include "Scripts\WeaponSystem/WeaponTable/WeaponTableComponent.h"
 UMREAL_COMPONENT(WeaponTableComponent)
 

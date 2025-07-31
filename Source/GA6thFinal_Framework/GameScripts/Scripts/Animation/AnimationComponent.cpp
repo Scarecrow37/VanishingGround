@@ -47,6 +47,8 @@ void AnimationComponent::SerializedReflectEvent()
     ReflectFields->MainAnimationKey   = _mainAnimationData.AnimationName;
     ReflectFields->MainAnimationFlags = _mainAnimationData.Flags;
     ReflectFields->MainAnimationSpeed = _mainAnimationData.Speed;
+
+    ReflectFields->AnimEventTrackGuid = _guidRef.string();
 }
 
 void AnimationComponent::DeserializedReflectEvent()
@@ -54,6 +56,7 @@ void AnimationComponent::DeserializedReflectEvent()
     _mainAnimationData.AnimationName = ReflectFields->MainAnimationKey;
     _mainAnimationData.Flags         = ReflectFields->MainAnimationFlags;
     _mainAnimationData.Speed         = ReflectFields->MainAnimationSpeed;
+    SetAnimationEventTrackFromGuid(ReflectFields->AnimEventTrackGuid);
 }
 
 void AnimationComponent::ImGuiDrawPropertysEvent()
@@ -133,6 +136,10 @@ void AnimationComponent::ImGuiDrawPropertysEvent()
             if (ImGui::DragFloat("Animation Speed", &curAnimData.Speed, 0.01f))
             {
             }
+
+            ImGui::Separator();
+            ImGuiHelper::TextWithVerticalSeparator("Global Animation Speed Scale");
+            ImGui::DragFloat("##Global Animation Speed Scale", &ReflectFields->AnimationSpeedScale, 0.01f, 0.0f);
             ImGui::TreePop();
         }
 
@@ -141,9 +148,44 @@ void AnimationComponent::ImGuiDrawPropertysEvent()
         // 메인 애니메이션만
         UpdateAnimation(_mainAnimationData);
 
+        ImGui::BeginDisabled();
+        std::string path = _filePath.string();
+        ImGuiHelper::TextWithVerticalSeparator("Animation Event Track");
+        ImGui::InputText("##path", &path, ImGuiInputTextFlags_ReadOnly);
+        ImGui::EndDisabled();
+        ImGuiHelper::HoveredToolTip(path.c_str());
+        if (ImGui::BeginDragDropTarget())
+        {
+            if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
+            {
+                DragDropAsset::Data* data    = (DragDropAsset::Data*)payLoad->Data;
+                auto                 context = data->pContext->lock();
+                if (nullptr != context)
+                {
+                    const auto& path      = context->GetPath();
+                    const auto  extension = path.extension();
+                    if (extension == AnimationEventTrack::EXTENSION)
+                    {
+                        SetAnimationEventTrackFromPath(path);
+                    }
+                }
+            }
+            ImGui::EndDragDropTarget();
+        }
         ImGui::Separator();
-        ImGuiHelper::TextWithVerticalSeparator("Animation Speed Scale");
-        ImGui::DragFloat("##Animation Speed Scale", &ReflectFields->AnimationSpeedScale, 0.01f, 0.0f);
+        if (_eventTrack.IsLoadedFile())
+        {
+            if (ImGui::TreeNodeEx("Animation Event Track##details"))
+            {
+
+            }
+        }
+        else
+        {
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+            ImGui::Text("animation event track is not loaded.");
+            ImGui::PopStyleColor();
+        }
     }
 }
 
@@ -160,6 +202,7 @@ void AnimationComponent::UpdateAnimation(AnimationData& animData)
 {
     if (_animator)
     {
+        bool isDirty = false;
         bool isLastData = GetLastAnimationDataEx().IsSameData(animData);
         float animFrameScale = animData.Speed * ReflectFields->AnimationSpeedScale;
         if (isLastData)
@@ -168,39 +211,49 @@ void AnimationComponent::UpdateAnimation(AnimationData& animData)
             _animator->SetLoop(animData.HasFlag(ANIMATION_FLAG_USE_LOOP));
             _animator->SetAnimationSpeed(animFrameScale);
             animData.ElapsedFrame = _animator->GetCurrentAnimationPlayTime();
+            isDirty = true;
         }
-        else
+        else if (animData.HasFlag(ANIMATION_FLAG_ALWAYS_UPDATE))
         {
-            if (animData.HasFlag(ANIMATION_FLAG_ALWAYS_UPDATE))
+            float maxFrame = _animator->GetAnimationLastTime(animData.AnimationName.data());
+            float delta    = UmTime.DeltaTime();
+            animData.ElapsedFrame += delta * animFrameScale;
+            if (animData.ElapsedFrame >= maxFrame)
             {
-                float maxFrame = _animator->GetAnimationLastTime(animData.AnimationName.data());
-                float delta    = UmTime.DeltaTime();
-                animData.ElapsedFrame += delta * animFrameScale;
-                if (animData.ElapsedFrame >= maxFrame)
-                {
-                    animData.ElapsedFrame = maxFrame;
+                animData.ElapsedFrame = maxFrame;
 
-                    UINT id = animData.ID;
-                    _eventQueue.push_back([this, id]() {
-                        auto beginItr = _overrideAnimationStack.begin();
-                        auto endItr   = _overrideAnimationStack.end();
-                        auto itr      = std::remove_if(beginItr, endItr, [id](const AnimationData& data) { return data.IsSameID(id); });
-                        _overrideAnimationStack.erase(itr, endItr);
-                    });
-                }
+                UINT id = animData.ID;
+                _eventQueue.push_back([this, id]() {
+                    auto beginItr = _overrideAnimationStack.begin();
+                    auto endItr   = _overrideAnimationStack.end();
+                    auto itr =
+                        std::remove_if(beginItr, endItr, [id](const AnimationData& data) { return data.IsSameID(id); });
+                    _overrideAnimationStack.erase(itr, endItr);
+                });
             }
+            isDirty = true;
         }
-        if (animData.PopCondition)
+        if (true == isDirty)
         {
-            bool result = animData.PopCondition(animData);
-            if (result)
+            auto eventTrack = _eventTrack.GetEventTrack(animData.AnimationName);
+            if (eventTrack)
             {
-                if (animData.OnPopCallback)
+                eventTrack->SetPreNotifyCallback(_preEventCallback);
+                eventTrack->SetPostNotifyCallback(_postEventCallback);
+                eventTrack->SetCurrentFrame(animData.ElapsedFrame);
+                eventTrack->Update();
+            }
+            if (animData.PopCondition)
+            {
+                bool result = animData.PopCondition(animData);
+                if (result)
                 {
-                    animData.OnPopCallback();
+                    if (animData.OnPopCallback)
+                    {
+                        animData.OnPopCallback();
+                    }
+                    PopOverrideAnimation();
                 }
-                PopOverrideAnimation();
-                
             }
         }
     }
@@ -436,4 +489,20 @@ void AnimationComponent::UpdateNullAnimator()
         _animator.reset();
         ClearOverrideAnimations();
     }
+}
+
+void AnimationComponent::SetAnimationEventTrackFromPath(const File::Path& path) 
+{
+    _guidRef  = path;
+    _filePath = path;
+    _eventTrack.LoadFile(_filePath);
+    ReflectFields->AnimEventTrackGuid = _guidRef.string();
+}
+
+void AnimationComponent::SetAnimationEventTrackFromGuid(const File::Guid& guid) 
+{
+    _guidRef  = guid;
+    _filePath = guid;
+    _eventTrack.LoadFile(_filePath);
+    ReflectFields->AnimEventTrackGuid = _guidRef.string();
 }

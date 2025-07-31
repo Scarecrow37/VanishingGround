@@ -334,19 +334,18 @@ namespace Timeline
             ImGui::Separator();
             if (ImGui::BeginMenu("Mode"))
             {
-                bool isDebugMode = HasFlags(FLAGS_USE_DEBUG_MODE);
-                if (ImGui::MenuItem("Debug", "", isDebugMode))
+                if (ImGui::MenuItem("Debug", "", HasFlags(FLAGS_USE_DEBUG_MODE)))
                 {
                     ToggleFlags(FLAGS_USE_DEBUG_MODE);
                 }
 
-                bool isSnapMode = HasFlags(FLAGS_USE_SNAP_MODE);
-                if (ImGui::MenuItem("Snap", "", isSnapMode))
+                if (ImGui::MenuItem("Snap", "", HasFlags(FLAGS_USE_SNAP_MODE)))
                 {
                     ToggleFlags(FLAGS_USE_SNAP_MODE);
                 }
                 ImGui::EndMenu();
             }
+            // Custom Callback
             if (track && _callback.LowerFramePopup)
             {
                 ImGui::Separator();
@@ -359,6 +358,7 @@ namespace Timeline
         {
             ImGuiHelper::AlignedText("Canvas Menu", ImGuiHelper::CENTER, 0.8f);
             ImGui::Separator();
+            // Custom Callback
             if (track && _callback.UpperFramePopup)
             {
                 ImGui::Separator();
@@ -636,7 +636,7 @@ namespace Timeline
         {
             return;
         }
-        if (false == editor->HasFlags(FLAGS_HIDE_CURRENT_LINE))
+        if (true == editor->HasFlags(FLAGS_HIDE_CURRENT_LINE))
         {
             return;
         }
@@ -789,6 +789,7 @@ namespace Timeline
                 {
                     editor->RemoveContext(context);
                 }
+                // Custom Callback
                 if (track && editor->_callback.ContextPopup)
                 {
                     ImGui::Separator();
@@ -797,12 +798,8 @@ namespace Timeline
                 ImGui::EndPopup();
             }
             ImGui::PopID();
-
             /// Draw Context
-            if (false == editor->HasFlags(FLAGS_HIDE_CONTEXT))
-            {
-                DrawContext(editor, drawList, context, groupIndex, rect, offset);
-            }
+            DrawContext(editor, drawList, context, groupIndex, rect, offset);
         }
     }
     void SequencerEditor::Helper::ProcessInteraction(SequencerEditor* editor) 
@@ -857,9 +854,13 @@ namespace Timeline
         {
             return;
         }
+        if (true == editor->HasFlags(FLAGS_HIDE_CURSOR_LINE))
+        {
+            return;
+        }
         ImVec2 mousePos = editor->_mousePos;
         bool isContain  = editor->_canvasRect.Contains(mousePos);
-        if (false == editor->HasFlags(FLAGS_HIDE_CURSOR_LINE) && true == isContain)
+        if (true == isContain)
         {
             DrawFollowLine(editor, drawList);
         }
@@ -932,7 +933,7 @@ namespace Timeline
         float  unitSize     = editor->_unitToScaledSize;
         float  linePerFrame = (float)editor->GetLineUnit();
         bool   isSelected   = (id == editor->_seletedContextID);
-        ImU32  color        = isSelected ? editor->ReflectFields->ContextColor[3] : IM_COL32(80, 80, 80, 100);
+        ImU32  color        = isSelected ? editor->ReflectFields->ContextColor[3] :editor->ReflectFields->ContextColor[0];
         
         if (false == editor->HasFlags(FLAGS_HIDE_CONTEXT_LINE))
         {

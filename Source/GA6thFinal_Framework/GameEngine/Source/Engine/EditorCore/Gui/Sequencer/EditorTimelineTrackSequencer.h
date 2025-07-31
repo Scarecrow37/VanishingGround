@@ -247,8 +247,8 @@ namespace Timeline
         std::array<ImU32, 3> CurFrameLineColor = {IM_COL32(255, 150, 150, 200), IM_COL32(230, 120, 120, 200),
                                                   IM_COL32(200, 100, 100, 200)};
         // Context 색상
-        std::array<ImU32, 4> ContextColor = {IM_COL32(0, 255, 255, 200), IM_COL32(0, 255, 255, 150),
-                                            IM_COL32(0, 255, 255, 255), IM_COL32(255, 127, 39, 255)};
+        std::array<ImU32, 4> ContextColor = {IM_COL32(0, 200, 200, 200), IM_COL32(0, 200, 200, 100),
+                                             IM_COL32(0, 200, 200, 200), IM_COL32(255, 127, 39, 255)};
         // 유효하지 않은 대상에 대한 색상
         std::array<ImU32, 3> InvalidColor = {IM_COL32(200, 50, 50, 100), 0, 0};
         REFLECT_FIELDS_END(SequencerEditor)

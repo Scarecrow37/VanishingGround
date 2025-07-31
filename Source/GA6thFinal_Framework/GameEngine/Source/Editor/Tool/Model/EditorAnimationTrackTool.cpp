@@ -1,16 +1,14 @@
 ﻿#include "pch.h"
-#include "EditorAnimationNotifyTool.h"
+#include "EditorAnimationTrackTool.h"
 
-EditorAnimationNotifyTool::EditorAnimationNotifyTool() 
+EditorAnimationTrackTool::EditorAnimationTrackTool()
 {
     SetLabel("Sequencer##model");
     SetDockLayout(ImGuiDir_Down);
     SetImGuiWindowFlag(ImGuiWindowFlags_MenuBar);
-
-    _sequencer = new Timeline::SequencerEditor();
 }
 
-EditorAnimationNotifyTool::~EditorAnimationNotifyTool() 
+EditorAnimationTrackTool::~EditorAnimationTrackTool()
 {
     if (nullptr != _sequencer)
     {
@@ -19,7 +17,7 @@ EditorAnimationNotifyTool::~EditorAnimationNotifyTool()
     }
 }
 
-void EditorAnimationNotifyTool::OnTickGui() 
+void EditorAnimationTrackTool::OnTickGui() 
 {
     if (nullptr == _modelDetails)
     {
@@ -32,18 +30,33 @@ void EditorAnimationNotifyTool::OnTickGui()
     }
 }
 
-void EditorAnimationNotifyTool::OnStartGui() 
+void EditorAnimationTrackTool::OnStartGui() 
 {
     GetModelDetailsToolInDock();
+    _sequencer = new Timeline::SequencerEditor();
+    _sequencer->AddFlags(Timeline::SequencerEditor::FLAGS_ALLOW_ALL_INPUT);
+    _sequencer->GetCallback().LowerFramePopup = 
+        [this](Timeline::EventTrack* track) 
+        { 
+            if (ImGui::MenuItem("Add Empty Event")) 
+            {
+                auto track = _animationEventTrack.GetActiveEventTrack();
+                if (track && _sequencer)
+                {
+                    float currentFrame = _sequencer->GetMouseCursorFrame();
+                    track->AddEvent<Timeline::EventContext>("New Event", currentFrame);
+                }
+            } 
+        };
 }
 
-void EditorAnimationNotifyTool::OnEndGui() {}
+void EditorAnimationTrackTool::OnEndGui() {}
 
-void EditorAnimationNotifyTool::OnPreFrameBegin() {}
+void EditorAnimationTrackTool::OnPreFrameBegin() {}
 
-void EditorAnimationNotifyTool::OnPostFrameBegin() {}
+void EditorAnimationTrackTool::OnPostFrameBegin() {}
 
-void EditorAnimationNotifyTool::OnFrameRender() 
+void EditorAnimationTrackTool::OnFrameRender() 
 {
     UpdateTimeline();
 
@@ -58,32 +71,32 @@ void EditorAnimationNotifyTool::OnFrameRender()
     }
 }
 
-void EditorAnimationNotifyTool::OnFrameEnd() {}
+void EditorAnimationTrackTool::OnFrameEnd() {}
 
-void EditorAnimationNotifyTool::OnFrameFocusEnter() {}
+void EditorAnimationTrackTool::OnFrameFocusEnter() {}
 
-void EditorAnimationNotifyTool::OnFrameFocusStay() {}
+void EditorAnimationTrackTool::OnFrameFocusStay() {}
 
-void EditorAnimationNotifyTool::OnFrameFocusExit() {}
+void EditorAnimationTrackTool::OnFrameFocusExit() {}
 
-void EditorAnimationNotifyTool::OnFramePopupOpened() {}
+void EditorAnimationTrackTool::OnFramePopupOpened() {}
 
-void EditorAnimationNotifyTool::SerializedReflectEvent() {}
+void EditorAnimationTrackTool::SerializedReflectEvent() {}
 
-void EditorAnimationNotifyTool::DeserializedReflectEvent() {}
+void EditorAnimationTrackTool::DeserializedReflectEvent() {}
 
-void EditorAnimationNotifyTool::GetModelDetailsToolInDock()
+void EditorAnimationTrackTool::GetModelDetailsToolInDock()
 {
     const auto* dock = GetOwnerDockWindow();
     _modelDetails = dock->GetGui<EditorModelDetails>();
 }
 
-void EditorAnimationNotifyTool::UpdateTimeline() 
+void EditorAnimationTrackTool::UpdateTimeline() 
 {
     auto curDetailAnim = _modelDetails->GetCurrentAnimationName();
-    auto curNotifyAnim = _animationNotifySet.GetActiveTimelineName();
+    auto curTrackAnim = _animationEventTrack.GetActiveEventTrackName();
 
-    bool isSameAnim = !curDetailAnim.empty() && !curNotifyAnim.empty() && (curDetailAnim == curNotifyAnim);
+    bool isSameAnim = !curDetailAnim.empty() && !curTrackAnim.empty() && (curDetailAnim == curTrackAnim);
 
     auto model    = _modelDetails->GetModel();
     auto animator = _modelDetails->GetAnimator();
@@ -91,7 +104,7 @@ void EditorAnimationNotifyTool::UpdateTimeline()
     {
         if (model && animator)
         {
-            auto timeline = _animationNotifySet.GetActiveTimeline();
+            auto timeline = _animationEventTrack.GetActiveEventTrack();
             if (nullptr != timeline)
             {
                 timeline->SetMinFrame(0.0f);
@@ -108,7 +121,7 @@ void EditorAnimationNotifyTool::UpdateTimeline()
     }
 }
 
-void EditorAnimationNotifyTool::DrawMenuBar()
+void EditorAnimationTrackTool::DrawMenuBar()
 {
     if (ImGui::BeginMenuBar())
     {
@@ -124,14 +137,14 @@ void EditorAnimationNotifyTool::DrawMenuBar()
             }
             if (ImGui::MenuItem("Save File"))
             {
-                const File::Path& filePath = _animationNotifySet.GetFilePath();
+                const File::Path& filePath = _animationEventTrack.GetFilePath();
                 if (true == filePath.IsNull())
                 {
                     SaveFileWithDialog();
                 }
                 else
                 {
-                    _animationNotifySet.SaveFile(filePath);
+                    _animationEventTrack.SaveFile(filePath);
                 }
             }
             ImGui::EndMenu();
@@ -151,16 +164,16 @@ void EditorAnimationNotifyTool::DrawMenuBar()
     }
 }
 
-void EditorAnimationNotifyTool::DrawTimelines() 
+void EditorAnimationTrackTool::DrawTimelines() 
 {
     ImVec2 availSize  = ImGui::GetContentRegionAvail();
     ImVec2 canvasSize = ImVec2(200.0f, availSize.y);
     ImGui::BeginChild("SequencerTimelines", canvasSize, true);
 
-    if (true == IsLoadNotifySet())
+    if (true == IsLoadAsset())
     {
-        const auto& table = _animationNotifySet.GetTimelineTable();
-        ImGui::Text("Timeline Count: %d", table.size());
+        const auto& table = _animationEventTrack.GetEventTrackTable();
+        ImGui::Text("Event Count: %d", table.size());
         ImGui::Separator();
 
         auto model = _modelDetails->GetModel();
@@ -173,39 +186,36 @@ void EditorAnimationNotifyTool::DrawTimelines()
                 for (auto& anim : animations)
                 {
                     auto& curDetailAnim = GetCurrentDetailAnimName();
-                    auto& curNotifyAnim = GetCurrentNotifyAnimName();
+                    auto& curTrackAnim = GetCurrentEventTrackmName();
                     bool  isPlaying     = !curDetailAnim.empty() && curDetailAnim == anim;
-                    bool  isSeleted     = !curNotifyAnim.empty() && curNotifyAnim == anim;
+                    bool  isSeleted     = !curTrackAnim.empty() && curTrackAnim == anim;
 
                     ImGui::PushID(anim);
                     // Check timeline to anim in set
-                    auto timeline = _animationNotifySet.GetTimeline(anim);
+                    auto track = _animationEventTrack.GetEventTrack(anim);
                     std::function<void()> selectablefunc = nullptr;
                     std::string           selectableLabel;
-                    if (nullptr != timeline)
+                    ImU32                 textColor;
+                    if (nullptr != track)
                     {
+                        textColor = isPlaying ? IM_COL32(100, 255, 100, 255) : IM_COL32(255, 255, 255, 255);
                         selectableLabel = std::format("{}  {}", EditorIcon::ICON_BELL_ON, anim);
-                        if (true == isPlaying)
-                        {
-                            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(100, 255, 100, 255));
-                        }
-                        else
-                        {
-                            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 255, 255, 255));
-                        }
                     }
                     else
                     {
-                        ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 100, 100, 255));
+                        textColor = IM_COL32(255, 100, 100, 255);
                         selectableLabel = std::format("{}  {}", EditorIcon::ICON_BELL_OFF, anim);
                     }
-
+                    ImGui::PushStyleColor(ImGuiCol_Text, textColor);
                     if (ImGui::Selectable(selectableLabel.c_str(), isSeleted))
                     {
                         SetTimelineFromAnimation(anim);
-                        if (selectablefunc) 
+                        if (selectablefunc)
+                        {
                             selectablefunc();
+                        }
                     }
+                    ImGui::PopStyleColor();
 
                     if (true == isPlaying)
                     {
@@ -215,21 +225,20 @@ void EditorAnimationNotifyTool::DrawTimelines()
                         ImGuiHelper::LoadingSpinner(size.y * 0.5f, ImColor(100, 255, 100, 255));
                         ImGui::SetCursorPos(old);
                     }
-                    ImGui::PopStyleColor();
 
                     // Context
                     if (ImGui::BeginPopupContextItem("TimelineContextMenu"))
                     {
-                        if (nullptr != timeline)
+                        if (nullptr != track)
                         {
-                            if (ImGui::BeginMenu("Add Notify"))
+                            if (ImGui::BeginMenu("Add Track"))
                             {
                                 auto& table = Timeline::EventTrack::GetInstanceConstructors();
                                 for (const auto& [key, func] : table)
                                 {
                                     if (ImGui::MenuItem(key.c_str() + 6))
                                     {
-                                        AddNotify(key.c_str() + 6, anim, key);
+                                        AddEvent(key.c_str() + 6, anim, key);
                                     }
                                 }
                                 ImGui::EndMenu();
@@ -257,13 +266,13 @@ void EditorAnimationNotifyTool::DrawTimelines()
     }
     else
     {
-        ImGui::Text("Not loaded Animation Notify Set file");
-        ImGui::Text("Please load or create a new Animation Notify Set.");
+        ImGui::Text("Not loaded Animation Track Set file");
+        ImGui::Text("Please load or create a new Animation Track Set.");
     }
     ImGui::EndChild();
 }
 
-void EditorAnimationNotifyTool::DrawCanvas() 
+void EditorAnimationTrackTool::DrawCanvas() 
 {
     ImVec2 availSize  = ImGui::GetContentRegionAvail();
     ImVec2 canvasSize = ImVec2(availSize.x - 400, availSize.y);
@@ -272,12 +281,12 @@ void EditorAnimationNotifyTool::DrawCanvas()
     ImGui::EndChild();
 }
 
-void EditorAnimationNotifyTool::DrawDetails() 
+void EditorAnimationTrackTool::DrawDetails() 
 {
     ImVec2 canvasSize = ImGui::GetContentRegionAvail();
     ImGui::BeginChild("DetailFrame", canvasSize, true);
     static char pathBuffer[128] = "";
-    const auto& path = _animationNotifySet.GetFilePath();
+    const auto& path = _animationEventTrack.GetFilePath();
     std::string pathStr = path.generic_string();
     strcpy_s(pathBuffer, pathStr.c_str());
     ImGui::InputText("##path_input", pathBuffer, IM_ARRAYSIZE(pathBuffer), ImGuiInputTextFlags_ReadOnly);
@@ -293,7 +302,7 @@ void EditorAnimationNotifyTool::DrawDetails()
         NewFileWithDialog();
     }
     if (ImGui::IsItemHovered())
-        ImGui::SetTooltip("New AnimationNotify Set");
+        ImGui::SetTooltip("New AnimationTrack Set");
 
     ImGui::SameLine();
     if (ImGui::Button(EditorIcon::ICON_FOLDER_OPEN, ImVec2(size.y, size.y)))
@@ -301,36 +310,36 @@ void EditorAnimationNotifyTool::DrawDetails()
         LoadFileWithDialog();
     }
     if (ImGui::IsItemHovered()) 
-        ImGui::SetTooltip("Open AnimationNotify Set");
+        ImGui::SetTooltip("Open AnimationTrack Set");
 
     ImGui::SameLine();
     if (ImGui::Button(EditorIcon::ICON_FILE_SAVE, ImVec2(size.y, size.y)))
     {
-        const File::Path& filePath = _animationNotifySet.GetFilePath();
+        const File::Path& filePath = _animationEventTrack.GetFilePath();
         if (true == filePath.IsNull())
         {
             SaveFileWithDialog();
         }
         else
         {
-            _animationNotifySet.SaveFile(filePath);
+            _animationEventTrack.SaveFile(filePath);
         }
     }
     if (ImGui::IsItemHovered())
-        ImGui::SetTooltip("Save AnimationNotify Set");
+        ImGui::SetTooltip("Save AnimationTrack Set");
 
-    auto curTimeline = _animationNotifySet.GetActiveTimeline();
-    if (ImGui::BeginTabBar("##AnimationNotifyTabs"))
+    auto curTimeline = _animationEventTrack.GetActiveEventTrack();
+    if (ImGui::BeginTabBar("##AnimationTrackTabs"))
     {
         if (ImGui::BeginTabItem(_tabLabel[0].c_str()))
         {
-            ShowNotifyList(curTimeline);
+            ShowEventTrackList(curTimeline);
             ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem(_tabLabel[1].c_str()))
         {
             UINT selected = _sequencer->GetSelectedContextID();
-            ShowNotifyEditTab(curTimeline, selected);
+            ShowEventTrackEditTab(curTimeline, selected);
             ImGui::EndTabItem();
         }
         ImGui::EndTabBar();
@@ -338,16 +347,16 @@ void EditorAnimationNotifyTool::DrawDetails()
     ImGui::EndChild();
 }
 
-bool EditorAnimationNotifyTool::NewFileWithDialog()
+bool EditorAnimationTrackTool::NewFileWithDialog()
 {
     File::Path out;
-    LPCWSTR    title        = L"New AnimationNotify File";
+    LPCWSTR    title        = L"New AnimationTrack File";
     LPCWSTR    initialDir   = L"";
-    LPCWSTR    defaultName  = AnimationNotifySet::DEFAULT_NAME.c_str();
+    LPCWSTR    defaultName  = AnimationEventTrack::DEFAULT_NAME.c_str();
 
     if (File::ShowSaveFileDialog(UmApplication.GetHwnd(), title, initialDir, defaultName, {}, out))
     {
-        _animationNotifySet.NewFile(out);
+        _animationEventTrack.NewFile(out);
         return true;
     }
     else
@@ -356,17 +365,17 @@ bool EditorAnimationNotifyTool::NewFileWithDialog()
     }
 }
 
-bool EditorAnimationNotifyTool::LoadFileWithDialog()
+bool EditorAnimationTrackTool::LoadFileWithDialog()
 {
     std::vector<File::Path> out;
     HWND    owner   = UmApplication.GetHwnd();
-    LPCWSTR title   = L"Open AnimationNotify File";
-    std::vector<std::pair<LPCWSTR, LPCWSTR>> filters = {{L"AnimationNotify File\0", L"*.UmAnimNotifySet*\0"},
+    LPCWSTR title   = L"Open AnimationTrack File";
+    std::vector<std::pair<LPCWSTR, LPCWSTR>> filters = {{L"Animation Track File\0", L"*.UmAnimEvent*\0"},
                                                         {L"All File\0", L"*.*\0"}};
     
     if (File::ShowOpenFileDialog(owner, title, L"", filters, false, out))
     {
-        _animationNotifySet.LoadFile(out.front());
+        _animationEventTrack.LoadFile(out.front());
         return true;
     }
     else
@@ -375,15 +384,15 @@ bool EditorAnimationNotifyTool::LoadFileWithDialog()
     }
 }
 
-bool EditorAnimationNotifyTool::SaveFileWithDialog() 
+bool EditorAnimationTrackTool::SaveFileWithDialog() 
 {
     File::Path returnPath;
-    LPCWSTR    title       = L"Save AnimationNotify File";
+    LPCWSTR    title       = L"Save AnimationTrack File";
     LPCWSTR    initialDir  = L"";
-    LPCWSTR    defaultName = AnimationNotifySet::DEFAULT_NAME.c_str();
+    LPCWSTR    defaultName = AnimationEventTrack::DEFAULT_NAME.c_str();
     if (File::ShowSaveFileDialog(UmApplication.GetHwnd(), title, initialDir, defaultName, {}, returnPath))
     {
-        _animationNotifySet.SaveFile(returnPath);
+        _animationEventTrack.SaveFile(returnPath);
         return true;
     }
     else
@@ -392,26 +401,26 @@ bool EditorAnimationNotifyTool::SaveFileWithDialog()
     }
 }
 
-void EditorAnimationNotifyTool::SetTimelineFromAnimation(std::string_view animKey) 
+void EditorAnimationTrackTool::SetTimelineFromAnimation(std::string_view animKey) 
 {
     std::string strKey(animKey);
     _eventQueue.push([this, strKey]() {
         if (nullptr == _sequencer) return;
-        if (false == IsLoadNotifySet()) return;
-        _animationNotifySet.SetActiveTimeline(strKey);
-        auto track = _animationNotifySet.GetActiveTimeline();
+        if (false == IsLoadAsset()) return;
+        _animationEventTrack.SetActiveEventTrack(strKey);
+        auto track = _animationEventTrack.GetActiveEventTrack();
         _sequencer->SetEventTrack(track);
     });
 }
 
-void EditorAnimationNotifyTool::AddTimelineFromAnimation(std::string_view animKey)
+void EditorAnimationTrackTool::AddTimelineFromAnimation(std::string_view animKey)
 {
     std::string strKey(animKey);
     _eventQueue.push([this, strKey]() {
         if (nullptr == _sequencer) return;
-        if (false == IsLoadNotifySet()) return;
-        _animationNotifySet.AddTimeline(strKey, true);
-        auto track = _animationNotifySet.GetActiveTimeline();
+        if (false == IsLoadAsset()) return;
+        _animationEventTrack.AddEventTrack(strKey, true);
+        auto track = _animationEventTrack.GetActiveEventTrack();
         if (nullptr != track)
         {
             auto animator = _modelDetails->GetAnimator();
@@ -426,13 +435,13 @@ void EditorAnimationNotifyTool::AddTimelineFromAnimation(std::string_view animKe
     });
 }
 
-void EditorAnimationNotifyTool::AddNotify(std::string_view notifyName, std::string_view animKey, std::string_view typeNameID, float time) 
+void EditorAnimationTrackTool::AddEvent(std::string_view label, std::string_view animKey, std::string_view typeNameID, float time) 
 {
     std::string strKey(animKey);
-    std::string strName(notifyName);
+    std::string strName(label);
     _eventQueue.push([this, strName, strKey, typeNameID, time]() {
-        if (false == IsLoadNotifySet()) return;
-        auto timeline = _animationNotifySet.GetTimeline(strKey);
+        if (false == IsLoadAsset()) return;
+        auto timeline = _animationEventTrack.GetEventTrack(strKey);
         if (nullptr == _sequencer || nullptr == timeline) return;
         float notifyTime = time;
         if (time < 0.0f || time > timeline->GetMaxFrame())
@@ -443,17 +452,17 @@ void EditorAnimationNotifyTool::AddNotify(std::string_view notifyName, std::stri
     });
 }
 
-void EditorAnimationNotifyTool::RemoveTimelineFromAnimation(std::string_view animKey)
+void EditorAnimationTrackTool::RemoveTimelineFromAnimation(std::string_view animKey)
 {
     _eventQueue.push([this, animKey]()  {
-        if (false == IsLoadNotifySet()) return;
+        if (false == IsLoadAsset()) return;
         if (nullptr == _sequencer) return;
-        _animationNotifySet.RemoveTimeline(animKey);
+        _animationEventTrack.RemoveEventTrack(animKey);
         _sequencer->SetEventTrack(std::weak_ptr<Timeline::EventTrack>());
     });
 }
 
-bool EditorAnimationNotifyTool::ShowNotifyList(std::shared_ptr<Timeline::EventTrack> track)
+bool EditorAnimationTrackTool::ShowEventTrackList(std::shared_ptr<Timeline::EventTrack> track)
 {
     bool itemClicked = false;
     if (nullptr == track)
@@ -507,21 +516,21 @@ bool EditorAnimationNotifyTool::ShowNotifyList(std::shared_ptr<Timeline::EventTr
         }
         ImGui::EndTable();
 
-        if (ImGui::Selectable("+ Add Notify##Details"))
+        if (ImGui::Selectable("+ Add Track##Details"))
         {
-            ImGui::OpenPopup("##AddNotifyPopup");
+            ImGui::OpenPopup("##AddTrackPopup");
         }
         static char notifyBuf[64] = "\0";
         ImVec2 popupSize = ImVec2(200.0f, 200.0f);
         ImGui::SetNextWindowSizeConstraints(popupSize, popupSize);
         
-        if (ImGui::BeginPopup("##AddNotifyPopup"))
+        if (ImGui::BeginPopup("##AddTrackPopup"))
         {
             ImVec2 availSize = ImGui::GetContentRegionAvail();
             ImGui::SetNextItemWidth(availSize.x);
-            ImGui::InputTextWithHint("##NotifyLabel", "Label Name...", notifyBuf, sizeof(notifyBuf));
-            ImGui::BeginChild("##NotifyList", ImVec2(availSize.x, availSize.y - 30.0f), true);
-            const auto& animation = GetCurrentNotifyAnimName();
+            ImGui::InputTextWithHint("##TrackLabel", "Label Name...", notifyBuf, sizeof(notifyBuf));
+            ImGui::BeginChild("##TrackList", ImVec2(availSize.x, availSize.y - 30.0f), true);
+            const auto& animation = GetCurrentEventTrackmName();
             auto&       table     = Timeline::EventTrack::GetInstanceConstructors();
             for (const auto& [key, func] : table)
             {
@@ -531,7 +540,7 @@ bool EditorAnimationNotifyTool::ShowNotifyList(std::shared_ptr<Timeline::EventTr
                 {
                     std::string label(notifyBuf);
                     if (label.empty()) label = key.c_str() + 6;
-                    AddNotify(label, animation, key);
+                    AddEvent(label, animation, key);
                     ImGui::CloseCurrentPopup();
                 }
                 if (ImGui::IsItemHovered())
@@ -550,7 +559,7 @@ bool EditorAnimationNotifyTool::ShowNotifyList(std::shared_ptr<Timeline::EventTr
     return itemClicked;
 }
 
-void EditorAnimationNotifyTool::ShowNotifyEditTab(std::shared_ptr<Timeline::EventTrack> track, UINT contextID)
+void EditorAnimationTrackTool::ShowEventTrackEditTab(std::shared_ptr<Timeline::EventTrack> track, UINT contextID)
 {
     if (nullptr == track)
     {
@@ -570,7 +579,7 @@ void EditorAnimationNotifyTool::ShowNotifyEditTab(std::shared_ptr<Timeline::Even
             strcpy_s(buf, label.data());
             ImGui::Text("Label: ");
             ImGui::Indent();
-            if (ImGui::InputText("##NotifyLabel", buf, sizeof(buf)))
+            if (ImGui::InputText("##TrackLabel", buf, sizeof(buf)))
             {
                 context->Label = buf;
             }
@@ -607,13 +616,13 @@ void EditorAnimationNotifyTool::ShowNotifyEditTab(std::shared_ptr<Timeline::Even
         if (0 == contextID)
             ImGui::Text("No context selected.");
         else
-            ImGui::Text("Notify with ID %d not found.", contextID);
+            ImGui::Text("Track with ID %d not found.", contextID);
     }
 }
 
-void EditorAnimationNotifyTool::ShowAvailableTimeline() 
+void EditorAnimationTrackTool::ShowAvailableTimeline() 
 {
-    auto curTimeline = _animationNotifySet.GetActiveTimelineName();
+    auto curTimeline = _animationEventTrack.GetActiveEventTrackName();
     if (false == curTimeline.empty())
     {
         ImGui::Text("No timeline available.");
@@ -628,17 +637,17 @@ void EditorAnimationNotifyTool::ShowAvailableTimeline()
     }
 }
 
-const std::string& EditorAnimationNotifyTool::GetCurrentDetailAnimName()
+const std::string& EditorAnimationTrackTool::GetCurrentDetailAnimName()
 {
     return _modelDetails->GetCurrentAnimationName();
 }
 
-const std::string& EditorAnimationNotifyTool::GetCurrentNotifyAnimName()
+const std::string& EditorAnimationTrackTool::GetCurrentEventTrackmName()
 {
-   return _animationNotifySet.GetActiveTimelineName();
+    return _animationEventTrack.GetActiveEventTrackName();
 }
 
-bool EditorAnimationNotifyTool::IsLoadNotifySet() const
+bool EditorAnimationTrackTool::IsLoadAsset() const
 {
-    return !_animationNotifySet.GetFilePath().IsNull();
+    return !_animationEventTrack.GetFilePath().IsNull();
 }

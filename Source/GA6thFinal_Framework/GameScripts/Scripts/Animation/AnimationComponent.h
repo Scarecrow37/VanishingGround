@@ -6,6 +6,12 @@ class MeshRenderer;
 class Model;
 class Animator;
 
+namespace Timeline
+{
+    class EventContext;
+    class EventTrack;
+} // namespace Timeline
+
 class AnimationComponent : public Component
 {
     USING_PROPERTY(AnimationComponent)
@@ -99,6 +105,12 @@ public:
     void SetAnimator(std::shared_ptr<Animator> animator);
     void UpdateNullAnimator();
 
+    void SetAnimationEventTrackFromPath(const File::Path& path);
+    void SetAnimationEventTrackFromGuid(const File::Guid& guid);
+    void SetAnimationPreEventCallback(std::function<bool(const Timeline::EventContext*)> callback) { _preEventCallback = callback; }
+    void SetAnimationPostEventCallback(std::function<bool(const Timeline::EventContext*)> callback) { _postEventCallback = callback; }
+    inline AnimationEventTrack& GetEventTrack() { return _eventTrack; }
+
 private:
     std::shared_ptr<Animator>  _animator;
     EventQueue                 _eventQueue;
@@ -110,5 +122,17 @@ private:
     std::string MainAnimationKey    = "";
     int         MainAnimationFlags  = ANIMATION_FLAG_NONE;
     bool        MainAnimationSpeed  = true;
+    std::string AnimEventTrackGuid  = "";
     REFLECT_FIELDS_END(AnimationComponent)
+
+    ///////////////////////////////////////////////////////////////////////
+    /// EventTrack
+    ///////////////////////////////////////////////////////////////////////
+
+    File::GuidRef       _guidRef;
+    File::Path          _filePath;
+    AnimationEventTrack _eventTrack;
+    std::function<bool(const Timeline::EventContext*)> _preEventCallback;  // Event Callback Function
+    std::function<bool(const Timeline::EventContext*)> _postEventCallback; // Event Callback Function
+
 };

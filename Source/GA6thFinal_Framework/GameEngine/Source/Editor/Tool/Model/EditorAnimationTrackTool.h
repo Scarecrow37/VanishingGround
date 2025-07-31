@@ -1,10 +1,10 @@
 ﻿#pragma once
 
-class EditorAnimationNotifyTool : public EditorTool
+class EditorAnimationTrackTool : public EditorTool
 {
 public:
-    EditorAnimationNotifyTool();
-    virtual ~EditorAnimationNotifyTool();
+    EditorAnimationTrackTool();
+    virtual ~EditorAnimationTrackTool();
 
 private:
     void OnTickGui() override;
@@ -41,23 +41,23 @@ private:
     void SetTimelineFromAnimation(std::string_view animKey);
     void AddTimelineFromAnimation(std::string_view animKey);
     void RemoveTimelineFromAnimation(std::string_view animKey);
-    void AddNotify(std::string_view notifyName, std::string_view animKey, std::string_view typeNameID, float time = FLT_MAX);
+    void AddEvent(std::string_view label, std::string_view animKey, std::string_view typeNameID, float time = FLT_MAX);
     
 
-    bool ShowNotifyList(std::shared_ptr<Timeline::EventTrack> track);
-    void ShowNotifyEditTab(std::shared_ptr<Timeline::EventTrack> track, UINT contextID);
+    bool ShowEventTrackList(std::shared_ptr<Timeline::EventTrack> track);
+    void ShowEventTrackEditTab(std::shared_ptr<Timeline::EventTrack> track, UINT contextID);
 
     void ShowAvailableTimeline();
 
     const std::string& GetCurrentDetailAnimName();
-    const std::string& GetCurrentNotifyAnimName();
+    const std::string& GetCurrentEventTrackmName();
 
-    bool IsLoadNotifySet() const;
+    bool IsLoadAsset() const;
 
 private:
     EditorModelDetails* _modelDetails = nullptr;
     Timeline::SequencerEditor* _sequencer = nullptr;
-    AnimationNotifySet _animationNotifySet;
+    AnimationEventTrack _animationEventTrack;
     std::queue<std::function<void()>> _eventQueue;
 
     // DetailFrame

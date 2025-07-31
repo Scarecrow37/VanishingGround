@@ -113,6 +113,10 @@ namespace Timeline
             return it->second;
         }
         EventContext* context = NewInstanceWithKey(typenameID);
+        if (nullptr == context)
+        {
+            context = new EventContext();
+        }
         context->SetEvent(typenameID);
         context->SetTime(time);
         context->ReflectFields->Label = label;
@@ -263,6 +267,10 @@ namespace Timeline
         for (const auto& [typeName, data] : ReflectFields->SerializedDataList)
         {
             EventContext* context = NewInstanceWithKey(typeName);
+            if (nullptr == context)
+            {
+                context = new EventContext();
+            }
             context->DeserializedReflectFields(data);
             _contextQueue.push_back(context);
             _contextTable[context->ID] = context;

@@ -314,13 +314,13 @@
   <ItemGroup>
     <ClInclude Include="Source\Engine\EditorCore\Gui\Sequencer\EditorTimelineTrackSequencer.h" />
     <ClInclude Include="Source\Editor\Tool\Model\EditorModelInspector.h" />
-    <ClInclude Include="Source\Editor\Tool\Model\EditorAnimationNotifyTool.h" />
+    <ClInclude Include="Source\Editor\Tool\Model\EditorAnimationTrackTool.h" />
     <ClInclude Include="Source\Engine\AppModule\GraphicsModule.h" />
     <ClInclude Include="Source\Engine\AppModule\ImGuiDX12Module.h" />
     <ClInclude Include="Source\Engine\AudioCore\AudioModule.h" />
     <ClInclude Include="Source\Engine\ClassCore\Delegate.hpp" />
     <ClInclude Include="Source\Engine\GraphicsCore\ParticleEffectSerializer.h" />
-    <ClInclude Include="Source\Engine\TimelineCore\AnimationNotifySet.h" />
+    <ClInclude Include="Source\Engine\TimelineCore\AnimationEventTrack.h" />
     <ClInclude Include="Source\Engine\EditorCore\Utillity\EditorDragState.h" />
     <ClInclude Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectDetails.h" />
     <ClInclude Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectHierarchy.h" />
@@ -419,12 +419,12 @@
   <ItemGroup>
     <ClCompile Include="Source\Engine\EditorCore\Gui\Sequencer\EditorTimelineTrackSequencer.cpp" />
     <ClCompile Include="Source\Editor\Tool\Model\EditorModelInspector.cpp" />
-    <ClCompile Include="Source\Editor\Tool\Model\EditorAnimationNotifyTool.cpp" />
+    <ClCompile Include="Source\Editor\Tool\Model\EditorAnimationTrackTool.cpp" />
     <ClCompile Include="Source\Engine\AppModule\GraphicsModule.cpp" />
     <ClCompile Include="Source\Engine\AppModule\ImGuiDX12Module.cpp" />
     <ClCompile Include="Source\Engine\AudioCore\AudioModule.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\ParticleEffectSerializer.cpp" />
-    <ClCompile Include="Source\Engine\TimelineCore\AnimationNotifySet.cpp" />
+    <ClCompile Include="Source\Engine\TimelineCore\AnimationEventTrack.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\Utillity\EditorDragState.cpp" />
     <ClCompile Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectDetails.cpp" />
     <ClCompile Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectHierarchy.cpp" />

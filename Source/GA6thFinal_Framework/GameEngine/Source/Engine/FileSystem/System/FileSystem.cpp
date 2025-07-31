@@ -161,7 +161,7 @@ bool EFileSystem::SaveAsProject(const File::Path& to)
         return false;
 
     std::wstring msg    = L"현재 프로젝트를 저장하고 다른 이름으로 저장합니다.";
-    std::wstring title  = L"Save As Project";
+    std::wstring title  = L"다른 이름으로 저장";
 
     int result = MessageBox(
         GetFocus(),               // 부모 창 핸들 (NULL로 하면 독립적 메시지 박스)
@@ -209,7 +209,7 @@ int EFileSystem::SaveProjectWithMessageBox()
         return false;
 
     std::wstring msg    = L"현재 프로젝트를 저장하시겠습니까?"; 
-    std::wstring title  = L"Save Project";
+    std::wstring title  = L"프로젝트 저장";
     HWND         hwnd   = UmApplication.GetHwnd();
     UINT         style  = MB_YESNOCANCEL | MB_DEFBUTTON1; // 기본 버튼을 YES로 설정
 
