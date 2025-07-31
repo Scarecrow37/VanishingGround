@@ -34,7 +34,7 @@ namespace File
         File::Path _filePath = NULL_PATH; // 파일 경로
         File::Guid _fileGuid = NULL_GUID; // 파일 ID
 
-        inline static const char* FILE_GUID_HEADER = "Guid";
+        static constexpr const char* FILE_GUID_HEADER = "Guid";
     };
 
     
@@ -45,9 +45,16 @@ namespace File
     /// </summary>
     class MetaData : public FileData
     {
+    public:
+
     private:
         virtual bool Write(YAML::Node& node) const override;
         virtual bool Read(YAML::Node& node) const override;
+
+    private:
+        int _assetID; // 에셋 ID
+        
+        static constexpr const char* ASSET_ID_HEADER = "Guid";
     };
 
     class ProjectData : public FileData
