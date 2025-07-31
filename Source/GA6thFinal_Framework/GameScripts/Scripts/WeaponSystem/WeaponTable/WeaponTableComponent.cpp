@@ -437,32 +437,35 @@ void WeaponTableComponent::ImGuiDrawExcelParser()
                     {                    
                         unsigned int rowCount    = workSheet.rowCount();
                         unsigned int rowStart    = keyRaw + 1;
-                        unsigned int columnCount = workSheet.columnCount();
-                        _imguiEvent.SheetDatas.clear();
-                        _imguiEvent.SheetDatas.reserve(columnCount);
-                        for (unsigned int column = 1; column <= columnCount; ++column)
+                        if (rowStart <= rowCount)
                         {
-                            auto keyValue = workSheet.cell(keyRaw, column);
-                            if (keyValue)
+                            unsigned int columnCount = workSheet.columnCount();
+                            _imguiEvent.SheetDatas.clear();
+                            _imguiEvent.SheetDatas.reserve(columnCount);
+                            for (unsigned int column = 1; column <= columnCount; ++column)
                             {
-                                std::string key = keyValue.getString();
-                                if (false == key.empty())
+                                auto keyValue = workSheet.cell(keyRaw, column);
+                                if (keyValue)
                                 {
-                                    std::vector<std::string> datas(size_t(rowCount - rowStart + 1));        
-                                    UmLogger.Message(LogLevel::LEVEL_TRACE, key);
-                                    for (unsigned int row = rowStart; row <= rowCount; ++row)
+                                    std::string key = keyValue.getString();
+                                    if (false == key.empty())
                                     {
-                                        auto dataValue = workSheet.cell(row, column);
-                                        if (dataValue)
+                                        std::vector<std::string> datas(size_t(rowCount - rowStart + 1));
+                                        UmLogger.Message(LogLevel::LEVEL_TRACE, key);
+                                        for (unsigned int row = rowStart; row <= rowCount; ++row)
                                         {
-                                            unsigned int index = row - rowStart;
-                                            datas[index]       = dataValue.getString();
+                                            auto dataValue = workSheet.cell(row, column);
+                                            if (dataValue)
+                                            {
+                                                unsigned int index = row - rowStart;
+                                                datas[index]       = dataValue.getString();
+                                            }
                                         }
+                                        _imguiEvent.SheetDatas.emplace_back(key, datas);
                                     }
-                                    _imguiEvent.SheetDatas.emplace_back(key, datas);
                                 }
-                            }
-                        }                          
+                            }          
+                        }                                      
                     }                  
                 }
             }
