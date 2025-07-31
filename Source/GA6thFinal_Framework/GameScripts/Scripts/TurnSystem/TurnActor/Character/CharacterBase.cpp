@@ -147,7 +147,8 @@ void CharacterBase::ClearState()
     if (_animationComponent)
     {
         _animationComponent->ClearOverrideAnimations();
-        SetMainAnimation(CharacterBase::IDLE, true, true);
+        _animationComponent->ChangeMainAnimation("Idle", true);
+        _animationComponent->ChangeMainAnimationFlags(ANIMATION_FLAG_USE_LOOP | ANIMATION_FLAG_RESET_FRAME);
     }
 }
 
@@ -317,32 +318,4 @@ void CharacterBase::ImGuiDrawPropertysEvent()
 {
     ImGui::Separator();
     _tokenInventory.DrawImGuiDebugData();
-}
-
-void CharacterBase::SetMainAnimation(AnimationType type, int flags, bool blend)
-{
-    if (_animationComponent)
-    {
-        const char* animKey = GetAnimationName(type);
-        _animationComponent->ChangeMainAnimation(animKey, blend);
-        _animationComponent->ChangeMainAnimationFlags(flags);
-    }
-}
-
-void CharacterBase::ClearOverrideAnimations()
-{
-    if (_animationComponent)
-    {
-        _animationComponent->ClearOverrideAnimations();
-    }
-}
-
-bool CharacterBase::IsAnimationEnd()
-{
-    if (_animationComponent)
-    {
-        const auto& data = _animationComponent->GetLastAnimationData();
-        return data.IsEnd();
-    }
-    return true;
 }

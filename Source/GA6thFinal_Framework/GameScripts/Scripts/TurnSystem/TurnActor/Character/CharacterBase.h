@@ -105,27 +105,4 @@ public:
     virtual void OnNotifiedAnimationEvent(const Timeline::EventContext* context);
 
     virtual void ImGuiDrawPropertysEvent() override;
-
-    
-    // 애니메이션 리팩터링 전 임시 메서드
-    enum AnimationType
-    {
-        IDLE,
-        HIT,
-        DEATH,
-        ATTACK_1,
-        ATTACK_2,
-        ATTACK_3,
-        ATTACK_4,
-        ATTACK_READY,
-        ATTACK_READY_LOOP,
-        ATTACK,
-        ATTACK_LOOP,
-        ATTACK_END,
-        SIZE,
-    };
-    virtual const char* GetAnimationName(AnimationType type) = 0;
-    void SetMainAnimation(AnimationType type, int flags = 0, bool blend = true);
-    void ClearOverrideAnimations();
-    bool IsAnimationEnd();
 };

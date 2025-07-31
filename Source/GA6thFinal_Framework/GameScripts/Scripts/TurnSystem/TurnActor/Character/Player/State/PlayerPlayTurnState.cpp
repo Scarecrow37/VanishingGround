@@ -53,9 +53,6 @@ void PlayerPlayTurnState::OnEnter()
     _setImguiPosCenter    = true;
     _attackButtonHeldTime = 0;
     _attackRemaining      = 0;
-
-    auto& player = GetPlayer();
-    player.SetMainAnimation(CharacterBase::IDLE, ANIMATION_FLAG_USE_LOOP | ANIMATION_FLAG_RESET_FRAME);
 }
 
 void PlayerPlayTurnState::OnExit() 
