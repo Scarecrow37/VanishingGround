@@ -52,6 +52,9 @@ TurnMode::~TurnMode()
     {
         static_instance = nullptr;
     }
+
+    _turnList.Reset();
+    UmWatcher.Unregister<TurnQueueViewModel>("Turn Queue");
 }
 
 Player* TurnMode::GetPlayer()
@@ -268,11 +271,19 @@ int TurnMode::GetRealRoundSpeed(const std::pair<int, TurnActor*>& turnActor)
 void TurnMode::Reset() 
 {
     static_instance = this;
-    UmWatcher.Register<TurnQueueViewModel>("Turn Queue", _turnList);
 }
 
 void TurnMode::Awake()
 {
+    try
+    {
+        UmWatcher.Register<TurnQueueViewModel>("Turn Queue", _turnList);
+    }
+    catch (const std::exception& e)
+    {
+        UmLogger.Log(LogLevel::LEVEL_ERROR, e.what());
+    }
+
     BuildTurnModeFSM();
 }
 

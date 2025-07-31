@@ -6,11 +6,11 @@ namespace MVVM
     class ViewModel
     {
     public:
-        explicit ViewModel(Model<T>& model)
+        explicit ViewModel(Model<T>& model) : _callback(nullptr)
         {
             model.AddObserver([this](T value) {
-                SetLastValue(value);
-                Call();
+                if (nullptr != _callback)
+                    _callback(Convert(value));
             });
             model.Notify();
         }
@@ -24,26 +24,13 @@ namespace MVVM
         void SetCallback(const std::function<void(U)>& callback)
         {
             _callback = callback;
-            Call();
         }
 
     protected:
-        void Call()
-        {
-            if (nullptr != _callback)
-                _callback(Convert(_lastValue));
-        }
-
-        void SetLastValue(T value)
-        {
-            _lastValue = value;
-        }
-
 
         virtual U Convert(const T& value) = 0;
 
     private:
         std::function<void(U)> _callback;
-        T                      _lastValue;
     };
 } // namespace MVVM

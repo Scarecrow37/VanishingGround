@@ -16,6 +16,8 @@ namespace MVVM
 
         void AddObserver(const Callback& observer) { _observers.push_back(observer); }
 
+        void Reset() { _observers.clear(); }
+
         void Notify() const
         {
             for (const auto& observer : _observers)

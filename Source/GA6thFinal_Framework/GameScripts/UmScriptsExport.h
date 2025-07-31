@@ -123,6 +123,9 @@ UMREAL_COMPONENT(HorizontalPanelSlot)
 #include "Scripts/UI/Panels/Description/DescriptionPanel.h"
 UMREAL_COMPONENT(DescriptionPanel)
 
+#include "Scripts/UI/Views/TurnQueue/TurnQueueView.h"
+UMREAL_COMPONENT(TurnQueueView)
+
 #include "Scripts\WeaponSystem/WeaponSystem.h"
 UMREAL_COMPONENT(WeaponSystem)
 

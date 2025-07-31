@@ -40,18 +40,18 @@ struct GetPortraitGuid
         return portraitGuid;
     }
 
-    File::GuidRef operator()(const WeaponStats::WeaponType weaponType) const
+    File::GuidRef operator()(const WeaponType weaponType) const
     {
         File::GuidRef portraitGuid;
         switch (weaponType)
         {
-        case WeaponStats::WeaponType::SWORD:
+        case WeaponType::SWORD:
             portraitGuid = File::GuidRef("561e71d2-52cb-40be-8d83-6eded3ab68a6");
             break;
-        case WeaponStats::WeaponType::DAGGER:
+        case WeaponType::DAGGER:
             portraitGuid = File::GuidRef("9589c123-388a-4112-9fc3-4299510c8416");
             break;
-        case WeaponStats::WeaponType::WARHAMMER:
+        case WeaponType::WARHAMMER:
             portraitGuid = File::GuidRef("9d24f28c-c523-4606-a8a4-aaaabd41bbdc");
             break;
         }
@@ -77,7 +77,7 @@ std::vector<TurnUIData> TurnQueueViewModel::Convert(const std::deque<std::pair<i
             WeaponSystem* weaponSystem = WeaponSystem::GetInstance();
             const int           slotIndex    = slotAndActor.first;
             WeaponStats& stats = weaponSystem->GetWeaponStatsAtIndex(slotIndex);
-            WeaponStats::WeaponType weaponType   = stats.Type;
+            WeaponType weaponType   = stats.Type;
             File::GuidRef           frameGuid    = GetPlayerFrameGuid()();
             File::GuidRef           portraitGuid = GetPortraitGuid()(weaponType);
             TurnUIData data{.ActorPortrait = portraitGuid, .Frame = frameGuid};
