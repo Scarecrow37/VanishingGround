@@ -11,7 +11,7 @@ namespace TokenObject
 
     bool Stun::CanAdd(CharacterBase* owner) const 
     {
-        if (owner)
+        if (owner && owner->State != TurnActor::STATE::Dead)
         {
             auto& tokenInventory = owner->GetTokenInventory();
             bool  hasStunResistance = tokenInventory.HasTokenFromID(TokenObject::StunResistance::ID);
@@ -33,7 +33,7 @@ namespace TokenObject
 
     void Stun::OnTurnStart(CharacterBase* owner)
     {
-        if (owner)
+        if (owner && owner->State != TurnActor::STATE::Dead)
         {
             // 기절 상태인 경우, 턴을 넘김
             auto& tokenInventory = owner->GetTokenInventory();
