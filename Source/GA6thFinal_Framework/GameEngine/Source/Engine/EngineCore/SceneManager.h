@@ -63,7 +63,7 @@ public:
     { 
         return _guid.ToPath().stem().string();
     }
-    // get : 이 씬의 이름을 반환합니다.
+    // std::string : 이 씬의 이름을 반환합니다.
     PROPERTY(Name)
 
     GETTER_ONLY(std::string, Path)
@@ -581,10 +581,11 @@ private:
     void ObjectsFixedUpdate();       //FixedUpdate를 호출합니다.
     void ObjectsUpdate();            //Update 를 호출합니다.
     void ObjectsLateUpdate();        //LateUpdate를 호출합니다.
-    void ObjectsMatrixUpdate();      //오브젝트들의 행렬을 업데이트합니다.
     void ObjectsApplicationQuit();   //OnApplicationQuit를 호출합니다.
     void ObjectsOnDisable();         //OnDisable 예정인 컴포넌트들의 OnDisable 함수를 호출해줍니다.
     void ObjectsDestroy();           //Destroy 예정인 컴포넌트들의 OnDestroy 함수를 호출 한 뒤 파괴합니다.
+    void ObjectsMatrixUpdate();      //오브젝트들의 행렬을 업데이트합니다.
+    void ObjectsAddLoadScene();      //다음에 로드할 씬의 오브젝트들을 추가합니다.
 
 private:
     /*게임오브젝트의 Life cycle 수행 여부를 확인하는 함수*/
@@ -684,6 +685,9 @@ private:
 
     //로드된 씬 항목
     std::vector<Scene*> _lodedSceneList;
+
+    //다음에 로드할 씬
+    File::Guid _nextSceneGuid;
 
 protected:
     /// <summary>

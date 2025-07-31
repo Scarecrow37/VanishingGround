@@ -305,6 +305,7 @@
     <ClInclude Include="Scripts\Animation\Structs\AnimationStructs.h" />
     <ClInclude Include="Scripts\Audio\AudioComponent.h" />
     <ClInclude Include="Scripts\BattleSystem\Battle.h" />
+    <ClInclude Include="Scripts\ColorUtils\ColorUtils.h" />
     <ClInclude Include="Scripts\EnemyActionSystem\EnemyActionSystem.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\MultiTargetDamage\MultiTargetDamageAction.h" />
@@ -448,6 +449,7 @@
   <ItemGroup>
     <ClCompile Include="Scripts\Audio\AudioComponent.cpp" />
     <ClCompile Include="Scripts\BattleSystem\Battle.cpp" />
+    <ClCompile Include="Scripts\ColorUtils\ColorUtils.cpp" />
     <ClCompile Include="Scripts\EnemyActionSystem\EnemyActionSystem.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\MultiTargetDamage\MultiTargetDamageAction.cpp" />

@@ -148,6 +148,7 @@ void ESceneManager::SceneUpdate()
     ObjectsOnDisable();
     ObjectsDestroy();
     ObjectsMatrixUpdate();
+    ObjectsAddLoadScene();
 }
 
 void ESceneManager::Engine::AddGameObjectToLifeCycle(std::shared_ptr<GameObject> gameObject)
@@ -602,70 +603,62 @@ void ESceneManager::CreateEmptySceneAndLoad(std::string_view name, std::string_v
 
 void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
 {
-    try
+    if (false == UmComponentFactory.HasScript())
     {
-        if (false == UmComponentFactory.HasScript())
+        UmComponentFactory.InitalizeComponentFactory();
+    }
+
+    Scene* scene = GetSceneByName(sceneName);
+    if (scene == nullptr)
+    {
+        return;
+    }
+
+    if (mode == LoadSceneMode::SINGLE)
+    {
+        for (auto& obj : _runtimeObjects)
         {
-            UmComponentFactory.InitalizeComponentFactory();
+            if (obj)
+            {
+                if (obj->_ownerScene == DONT_DESTROY_ON_LOAD_SCENE_NAME)
+                    continue;
+
+                GameObject::Destroy(obj.get());
+            }
         }
 
-        Scene* scene = GetSceneByName(sceneName);
-        if (scene == nullptr)
+        if (false == _lodedSceneList.empty())
         {
+            _prevScene = _setting.MainScene;
+            for (auto& scene : _lodedSceneList)
+            {
+                scene->_isLoaded = false;
+            }
+        }
+        _setting.MainScene = scene->Path;
+        _addComponentsQueue.clear();
+        _addGameObjectsQueue.clear();
+        _waitAwakeVec.clear();
+        _waitStartVec.clear();
+        _lodedSceneList.clear();
+        UmCommandManager.Clear();
+        SetRendererSkyBox(scene);
+    }
+    else
+    {
+        Scene* mainScene = GetMainScene();
+        if (mainScene == nullptr)
+        {
+            engineCore->Logger.Log(LogLevel::LEVEL_WARNING, u8"메인 씬을 먼저 로드해주세요."_c_str);
             return;
         }
-
-        if (mode == LoadSceneMode::SINGLE)
+        if (scene->_isLoaded)
         {
-            for (auto& obj : _runtimeObjects)
-            {
-                if (obj)
-                {
-                    if (obj->_ownerScene == DONT_DESTROY_ON_LOAD_SCENE_NAME)
-                        continue;
-
-                    GameObject::Destroy(obj.get());
-                }
-            }
-
-            if (false == _lodedSceneList.empty())
-            {
-                _prevScene = _setting.MainScene;
-            }
-            _setting.MainScene = scene->Path;
-            _addComponentsQueue.clear();
-            _addGameObjectsQueue.clear();
-            _waitAwakeVec.clear();
-            _waitStartVec.clear();
-            _lodedSceneList.clear();
-            UmCommandManager.Clear();
-            SetRendererSkyBox(scene);
+            engineCore->Logger.Log(LogLevel::LEVEL_WARNING, u8"이미 로드된 씬은 추가 로드가 불가능합니다."_c_str);
+            return;
         }
-        else
-        {
-            Scene* mainScene = GetMainScene();
-            if (mainScene == nullptr)
-            {
-                engineCore->Logger.Log(LogLevel::LEVEL_WARNING, u8"메인 씬을 먼저 로드해주세요."_c_str);
-                return;
-            }
-            if (scene->_isLoaded)
-            {
-                engineCore->Logger.Log(LogLevel::LEVEL_WARNING, u8"이미 로드된 씬은 추가 로드가 불가능합니다."_c_str);
-                return;
-            }
-        }
-
-        DeserializeToGuid(scene->_guid);
-        scene->_isLoaded = true;
-        scene->_isDirty  = false;
-        _lodedSceneList.push_back(scene);
     }
-    catch (const YAML::Exception& ex)
-    {
-        std::string msg = std::format("{}{}{}", sceneName, (const char*)u8" 로드 실패. ", ex.what());
-        UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
-    }
+    _nextSceneGuid = scene->_guid;
 }
 
 void ESceneManager::UnloadScene(std::string_view sceneName) 
@@ -876,6 +869,32 @@ void ESceneManager::ObjectsMatrixUpdate()
                 root->UpdateMatrix();
             }
         }
+    }
+}
+
+void ESceneManager::ObjectsAddLoadScene() 
+{
+    if (false == _nextSceneGuid.empty())
+    {
+        auto sceneIter = _scenesMap.find(_nextSceneGuid);
+        if (sceneIter != _scenesMap.end())
+        {
+            Scene* scene = &sceneIter->second;
+            try
+            {
+                DeserializeToGuid(_nextSceneGuid);
+                scene->_isLoaded = true;
+                scene->_isDirty  = false;
+                _lodedSceneList.push_back(scene);
+            }
+            catch (const std::exception& ex)
+            {
+                std::string sceneName = scene->Name;
+                std::string msg       = std::format("{}{}{}", sceneName, (const char*)u8" 로드 실패. ", ex.what());
+                UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
+            }
+        }
+        _nextSceneGuid.clear();
     }
 }
 

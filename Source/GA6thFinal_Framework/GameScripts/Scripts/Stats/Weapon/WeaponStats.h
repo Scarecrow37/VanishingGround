@@ -1,19 +1,63 @@
 ﻿#pragma once
 #include <Stats/TurnActorStats.h>
+#include <ColorUtils/ColorUtils.h>
+
+enum class WeaponType
+{
+    SWORD,    // 검
+    DAGGER,   // 단검
+    WARHAMMER // 대형 망치
+};
+
+enum class WeaponGrade
+{
+    COMMON,
+    RARE,
+    BIZARRE,
+    LEGENDARY,
+};
 
 struct WeaponStats : public TurnActorStats
 {
-    USING_PROPERTY(WeaponStats)
-    enum class WeaponType
+    inline static constexpr ImVec4 GetTypeToColor(WeaponType type)
     {
-        SWORD,    // 검
-        DAGGER,   // 단검
-        WARHAMMER // 대형 망치
-    };
+        switch (type)
+        {
+        case WeaponType::SWORD:
+            return {1.f, 0.f, 0.f, 1.f}; // 빨강
+        case WeaponType::DAGGER:
+            return {0.44f, 0.68f, 0.44f, 1.f}; // 초록
+        case WeaponType::WARHAMMER:
+            return {1.f, 0.85f, 0.4f, 1.f}; // 노랑
+        default:
+            return {0.5f, 0.5f, 0.5f, 1.f}; // 기본 회색
+        }
+    }
+
+    inline static constexpr ImVec4 GetGradeToColor(WeaponGrade grade)
+    {
+        switch (grade)
+        {
+        case WeaponGrade::COMMON:
+            return {1.f, 1.f, 1.f, 1.f}; // 흰색
+        case WeaponGrade::RARE:
+            return {0.27f, 0.447f, 0.77f, 1.f}; // 파랑
+        case WeaponGrade::BIZARRE:
+            return {1.f, 0.f, 1.f, 1.f}; // 보라
+        case WeaponGrade::LEGENDARY:
+            return {1.f, 0.85f, 0.4f, 1.f}; // 노랑
+        default:
+            return {0.5f, 0.5f, 0.5f, 1.f}; // 기본 회색
+        }
+    }
+
+    USING_PROPERTY(WeaponStats)
     
     REFLECT_PROPERTY(
-        Name, 
+        WeaponID, 
+        WeaponName, 
         Type, 
+        Grade,
         HitDamage, 
         HitDamageMultiplier, 
         CriticalDamage,
@@ -24,15 +68,24 @@ struct WeaponStats : public TurnActorStats
         AttackPerChainMultiplier,
         RandomSpeed)
 
-    GETTER_ONLY(const std::string&, Name) { return ReflectFields->Name; }
-    void SetName(const std::string& name) { ReflectFields->Name = name; }
+    SETTER(int, WeaponID) { ReflectFields->WeaponID = std::max(value, 0); }
+    GETTER(int, WeaponID) { return ReflectFields->WeaponID; }
+    PROPERTY(WeaponID)
+
+    GETTER_ONLY(const std::string&, WeaponName) { return ReflectFields->Name; }
+    void SetName(const std::string& weaponName) { ReflectFields->Name = weaponName; }
     //string_view 무기 이름
-    PROPERTY(Name) 
+    PROPERTY(WeaponName) 
 
     GETTER(WeaponType, Type) { return ReflectFields->Type; }
     SETTER(WeaponType, Type) { ReflectFields->Type = value; }
     //WeaponType 무기 타입. 
     PROPERTY(Type)
+
+    SETTER(WeaponGrade, Grade) { ReflectFields->Grade = value; }
+    GETTER(WeaponGrade, Grade) { return ReflectFields->Grade; }
+    //무기 등급
+    PROPERTY(Grade)
 
     GETTER(int, HitDamage) { return ReflectFields->HitDamage; }
     SETTER(int, HitDamage) { ReflectFields->HitDamage = value; }
@@ -84,8 +137,10 @@ struct WeaponStats : public TurnActorStats
 
 protected:
     REFLECT_FIELDS_BEGIN(TurnActorStats)
+    int         WeaponID = 0;
     std::string Name = "Default Sword";
     WeaponType  Type = WeaponType::SWORD;
+    WeaponGrade Grade = WeaponGrade::COMMON;
     int         HitDamage = 1;
     float       HitDamageMultiplier = 1.f;
     int         CriticalDamage = 2;
