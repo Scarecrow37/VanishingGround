@@ -13,14 +13,13 @@ namespace EnemyAction
     public:
         USING_PROPERTY(ActionData)
         ActionData(int actionID, std::string_view actionName, std::string_view animationName, int baseDamage) 
-            : EventTrack(std::make_shared<Timeline::EventTrack>())
         {
             ReflectFields->ActionID      = actionID;
             ReflectFields->ActionName    = actionName;
             ReflectFields->AnimationName = animationName;
             ReflectFields->BaseDamage    = baseDamage;
         }
-        ActionData() : EventTrack(std::make_shared<Timeline::EventTrack>()) {}
+        ActionData() = default;
         ~ActionData() override = default;
         ActionData(const ActionData& other) { *ReflectFields = *other.ReflectFields; }
         ActionData(ActionData&& other) noexcept { *ReflectFields = std::move(*other.ReflectFields); }
@@ -47,8 +46,6 @@ namespace EnemyAction
         SETTER(int, BaseDamage) { ReflectFields->BaseDamage = value; }
         GETTER(int, BaseDamage) { return ReflectFields->BaseDamage; }
         PROPERTY(BaseDamage)
-
-        std::shared_ptr<Timeline::EventTrack> EventTrack; // 액션에 대한 타임라인 이벤트 트랙
 
     private:
         REFLECT_FIELDS_BEGIN(ReflectSerializer)

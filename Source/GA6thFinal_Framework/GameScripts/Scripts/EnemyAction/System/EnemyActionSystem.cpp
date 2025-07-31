@@ -146,9 +146,9 @@ void EnemyActionSystem::LeftGuiFrame(ImVec2 size)
                 if (ImGui::Selectable(label.c_str(), isSelected))
                 {
                     _selectedActionID = id; // 선택된 액션 ID를 저장
-                    auto& sequenceEditor = GetSequencerEditor();
-                    sequenceEditor.SetEventTrack(data->EventTrack);
-                    data->EventTrack->SetMaxFrame(2.0f); // 기본 최대 프레임 설정
+                    //auto& sequenceEditor = GetSequencerEditor();
+                    //sequenceEditor.SetEventTrack(data->EventTrack);
+                    //data->EventTrack->SetMaxFrame(2.0f); // 기본 최대 프레임 설정
                 }
             }
         }

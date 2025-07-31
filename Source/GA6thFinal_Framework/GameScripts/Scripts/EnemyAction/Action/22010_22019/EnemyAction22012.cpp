@@ -46,7 +46,13 @@ namespace EnemyAction
         const std::string& label = context->GetLabel();
         if ("Attack_1" == label || "Attack_2" == label)
         {
-            ProcessBattle(1);
+            TurnMode* turnMode = TurnMode::GetInstance();
+            if (turnMode)
+            {
+                turnMode->AddTurnAction(_tokenAction);
+                ProcessBattle(1);
+                _tokenAction->SetDestroy();
+            }
         }
     }
 } // namespace EnemyAction
