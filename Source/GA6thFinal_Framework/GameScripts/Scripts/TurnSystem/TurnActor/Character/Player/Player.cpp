@@ -96,7 +96,7 @@ void Player::PlayTurn()
     WeaponSystem* system = WeaponSystem::GetInstance();
     if (system)
     {
-        const std::string& weaponName = system->GetCurrentWeaponStats().Name;
+        const std::string& weaponName = system->GetCurrentWeaponStats().WeaponName;
         std::string      message    = std::format("{}{}{}", (const char*)u8"Player 턴 시작. ", "Weapon : ", weaponName);
         UmLogger.Message(LogLevel::LEVEL_TRACE, message);
     }
