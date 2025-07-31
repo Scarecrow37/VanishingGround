@@ -1,5 +1,8 @@
 ﻿#include "pchScripts.h"
 #include "WeaponTableComponent.h"
+
+using namespace u8_literals;
+
 WeaponTableComponent::WeaponTableComponent() = default;
 WeaponTableComponent::~WeaponTableComponent()
 {
@@ -116,6 +119,7 @@ void WeaponTableComponent::Awake()
 
 void WeaponTableComponent::ImGuiDrawPropertysEvent()
 {
+#ifdef _UMEDITOR
     if (ImGui::Button("Table Editor"))
     {
         _imguiEvent.ShowTableEditor = true;
@@ -201,10 +205,12 @@ void WeaponTableComponent::ImGuiDrawPropertysEvent()
         ImGuiDrawExcelParser();
         ImGui::End();
     }
+#endif
 }
 
 void WeaponTableComponent::ImGuiTableEditor() 
 {
+#ifdef _UMEDITOR
     if (ImGui::BeginTable("Weapon Stats", 9, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
     {
         ImGui::TableSetupColumn((const char*)u8"ID");                   // ID,
@@ -359,20 +365,108 @@ void WeaponTableComponent::ImGuiTableEditor()
             }
         }
     }
+#endif
 }
 
 void WeaponTableComponent::ImGuiDrawExcelParser() 
 {
+#ifdef _UMEDITOR
     if (_imguiEvent.ShowExcelParser)
     {
         ImGui::Begin("Excel Parser##12487AA8-BA7A-43E8-90A6-EBC10DAE14FC", &_imguiEvent.ShowExcelParser,
                      ImGuiWindowFlags_MenuBar);
         {
+            ImGui::PushID(this);
             ImGuiDrawExcelParserMenuBar();
-            for (auto& name : _imguiEvent.SheetNames)
+            if (false == _imguiEvent.SheetDatas.empty())
             {
-                ImGui::Text(name.c_str());
+                if (ImGui::BeginTable("##{F610B720-D520-4E60-B367-694D2F95486B}", (int)_imguiEvent.SheetDatas.size(), ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+                {
+                    //key 먼저 그리기            
+                    ImGui::TableNextRow();     
+                    for (unsigned int column = 0; column < _imguiEvent.SheetDatas.size(); ++column)
+                    {
+                        const std::string& key = _imguiEvent.SheetDatas[column].first;
+                        //UmLogger.Message(LogLevel::LEVEL_TRACE, key);
+                        ImGui::TableSetColumnIndex(column);
+                        ImGui::Text(key.c_str());
+                    }
+
+                    //데이터 크리기
+                    unsigned int rowSize = (unsigned int)_imguiEvent.SheetDatas[0].second.size();
+                    for (unsigned int row = 0; row < rowSize; ++row)
+                    {
+                        ImGui::TableNextRow();
+                        for (unsigned int column = 0; column < _imguiEvent.SheetDatas.size(); ++column)
+                        {
+                            auto& [key, datas] = _imguiEvent.SheetDatas[column];
+                            ImGui::TableSetColumnIndex(column);
+                            auto& data = datas[row];
+                            ImGui::Text(data.c_str());
+                        }
+                    }
+                    ImGui::EndTable();
+                }
             }
+            else if (true == _imguiEvent.SheetNames.empty())
+            {
+                ImGui::Text((const char*)u8"엑셀 파일을 로드해주세요.");
+            }
+            else
+            {
+                ImGui::Text(u8"파싱할 시트를 선택하세요."_c_str);
+                if (ImGui::BeginCombo("##{A4CAA356-B858-4BFF-85E8-52E3B270A7D2}", _imguiEvent.SelectSheetName.c_str()))
+                {
+                    for (auto& name : _imguiEvent.SheetNames)
+                    {
+                        if (ImGui::Selectable(name.c_str(), _imguiEvent.SelectSheetName == name))
+                        {
+                            _imguiEvent.SelectSheetName = name;
+                        }
+                    }
+                    ImGui::EndCombo();
+                }
+                if (ImGui::Button("Ok") && false == _imguiEvent.SelectSheetName.empty())
+                {
+                    auto& doc = *_imguiEvent.ExcelDoc;
+                    auto  workBook = doc.workbook();
+                    auto  workSheet = workBook.worksheet(_imguiEvent.SelectSheetName.c_str());
+
+                    auto [keyRaw, keyColum] = OpenXLSXHelper::FindRowColumnToData(workSheet, u8"이름"_c_str);
+                    if (OpenXLSXHelper::IsFindSuccess(keyRaw, keyColum))
+                    {                    
+                        unsigned int rowCount    = workSheet.rowCount();
+                        unsigned int rowStart    = keyRaw + 1;
+                        unsigned int columnCount = workSheet.columnCount();
+                        _imguiEvent.SheetDatas.clear();
+                        _imguiEvent.SheetDatas.reserve(columnCount);
+                        for (unsigned int column = 1; column <= columnCount; ++column)
+                        {
+                            auto keyValue = workSheet.cell(keyRaw, column);
+                            if (keyValue)
+                            {
+                                std::string key = keyValue.getString();
+                                if (false == key.empty())
+                                {
+                                    std::vector<std::string> datas(size_t(rowCount - rowStart + 1));        
+                                    UmLogger.Message(LogLevel::LEVEL_TRACE, key);
+                                    for (unsigned int row = rowStart; row <= rowCount; ++row)
+                                    {
+                                        auto dataValue = workSheet.cell(row, column);
+                                        if (dataValue)
+                                        {
+                                            unsigned int index = row - rowStart;
+                                            datas[index]       = dataValue.getString();
+                                        }
+                                    }
+                                    _imguiEvent.SheetDatas.emplace_back(key, datas);
+                                }
+                            }
+                        }                          
+                    }                  
+                }
+            }
+            ImGui::PopID();
         }
         ImGui::End();
     }
@@ -384,11 +478,16 @@ void WeaponTableComponent::ImGuiDrawExcelParser()
             _imguiEvent.ExcelDoc->close();
         }
         _imguiEvent.ExcelDoc.reset();
+        _imguiEvent.SheetNames.clear();
+        _imguiEvent.SelectSheetName.clear();
+        _imguiEvent.SheetDatas.clear();
     }
+#endif
 }
 
 void WeaponTableComponent::ImGuiDrawExcelParserMenuBar() 
 {
+#ifdef _UMEDITOR
     if (ImGui::BeginMenuBar())
     {
         if (ImGui::MenuItem("Load Excel Table"))
@@ -400,7 +499,13 @@ void WeaponTableComponent::ImGuiDrawExcelParserMenuBar()
             {
                 if (false == out.empty())
                 {
-                    _imguiEvent.ExcelDoc.reset(new OpenXLSX::XLDocument);
+                    if (nullptr == _imguiEvent.ExcelDoc)
+                    {
+                        _imguiEvent.ExcelDoc.reset(new OpenXLSX::XLDocument);
+                    }
+                    _imguiEvent.SheetNames.clear();
+                    _imguiEvent.SelectSheetName.clear();
+                    _imguiEvent.SheetDatas.clear();
                     _imguiEvent.ExcelDoc->open(out.front().generic_string());
                     auto& doc = *_imguiEvent.ExcelDoc;
                     if (doc.isOpen())
@@ -414,6 +519,7 @@ void WeaponTableComponent::ImGuiDrawExcelParserMenuBar()
         }
         ImGui::EndMenuBar();
     }
+#endif
 }
 
 
