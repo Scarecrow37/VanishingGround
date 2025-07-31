@@ -35,24 +35,31 @@ struct GetPortraitGuid
         case EnemyType::MONSTER_B:
             [[fallthrough]];
         case EnemyType::MONSTER_C:
-            portraitGuid = File::GuidRef("c5af3e41-5d64-4baf-beda-348cbc262b56");
+            portraitGuid = File::GuidRef("dfe97341-a308-4c16-a772-bf27a8dc8692");
         }
         return portraitGuid;
     }
 
-    File::GuidRef operator()(const WeaponType weaponType) const
+    File::GuidRef operator()(const int weaponId) const
     {
         File::GuidRef portraitGuid;
-        switch (weaponType)
+        switch (weaponId)
         {
-        case WeaponType::SWORD:
-            portraitGuid = File::GuidRef("561e71d2-52cb-40be-8d83-6eded3ab68a6");
+        case 1: // 녹슨자의 검
+            portraitGuid = File::GuidRef("d8c48715-62dc-4e6f-b72b-d0454417a30f");
             break;
-        case WeaponType::DAGGER:
-            portraitGuid = File::GuidRef("9589c123-388a-4112-9fc3-4299510c8416");
+        case 2: // 돌격 대장의 망치
+            portraitGuid = File::GuidRef("1400cdb7-d00b-42cd-84bb-c3a23eb1f6a8");
             break;
-        case WeaponType::WARHAMMER:
-            portraitGuid = File::GuidRef("9d24f28c-c523-4606-a8a4-aaaabd41bbdc");
+        case 3: // 돌파자의 장검
+            portraitGuid = File::GuidRef("cb4204c9-583c-4e59-b310-fe649ba6c6f6");
+            break;
+        case 4: // 제물의 단검
+            portraitGuid = File::GuidRef("e051b13f-3bbe-4bfb-adc2-338f88e8a8fe");
+            break;
+        default:
+            UmLogger.Log(LogLevel::LEVEL_WARNING, "Unknown weapon ID: " + std::to_string(weaponId));
+            portraitGuid = File::NULL_GUID; // Default to SWORD
             break;
         }
         return portraitGuid;
@@ -77,9 +84,9 @@ std::vector<TurnUIData> TurnQueueViewModel::Convert(const std::deque<std::pair<i
             WeaponSystem* weaponSystem = WeaponSystem::GetInstance();
             const int           slotIndex    = slotAndActor.first;
             WeaponStats& stats = weaponSystem->GetWeaponStatsAtIndex(slotIndex);
-            WeaponType weaponType   = stats.Type;
+            int weaponId   = stats.WeaponID;
             File::GuidRef           frameGuid    = GetPlayerFrameGuid()();
-            File::GuidRef           portraitGuid = GetPortraitGuid()(weaponType);
+            File::GuidRef       portraitGuid = GetPortraitGuid()(weaponId);
             TurnUIData data{.ActorPortrait = portraitGuid, .Frame = frameGuid};
             _turnQueueData.push_back(data);
         }

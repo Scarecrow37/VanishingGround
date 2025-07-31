@@ -30,6 +30,7 @@ protected:
 
 private:
     void LoadTexture() const;
+    void LoadTexture(const File::GuidRef& guid) const;
     void UpdateWorldMatrix();
     void RequestResource();
 

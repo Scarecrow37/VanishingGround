@@ -98,9 +98,14 @@ void ImageElement::SetViewOrder(const int viewOrder)
 
 void ImageElement::LoadTexture() const
 {
+    LoadTexture(_guidRef);
+}
+
+void ImageElement::LoadTexture(const File::GuidRef& guid) const
+{
     if (nullptr != _renderer)
     {
-        const std::string path = FilePath;
+        const std::string path = guid.ToPath().string();
         if (path != File::NULL_PATH)
         {
             const std::wstring filePath = U8ToWString(path);
@@ -111,8 +116,8 @@ void ImageElement::LoadTexture() const
 
 void ImageElement::UpdateWorldMatrix()
 {
-    const auto& [x, y]          = GetAbsolutePoint();
-    const float zOrder          = GetZOrder();
+    const auto& [x, y] = GetAbsolutePoint();
+    const float zOrder = GetZOrder();
 
     const Vector3 position{static_cast<float>(x), static_cast<float>(y), zOrder};
 
@@ -121,8 +126,9 @@ void ImageElement::UpdateWorldMatrix()
 
 void ImageElement::RequestResource()
 {
-    UmSceneManager.ResourceManager.RequestTextureResource(this, _guidRef, [this]() {
-        LoadTexture();
+    File::GuidRef requestedGuid = _guidRef;
+    UmSceneManager.ResourceManager.RequestTextureResource(this, _guidRef, [this, requestedGuid]() {
+        LoadTexture(requestedGuid);
         OnPlacementChange();
     });
 }
