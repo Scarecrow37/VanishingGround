@@ -630,6 +630,10 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
         if (false == _lodedSceneList.empty())
         {
             _prevScene = _setting.MainScene;
+            for (auto& scene : _lodedSceneList)
+            {
+                scene->_isLoaded = false;
+            }
         }
         _setting.MainScene = scene->Path;
         _addComponentsQueue.clear();
