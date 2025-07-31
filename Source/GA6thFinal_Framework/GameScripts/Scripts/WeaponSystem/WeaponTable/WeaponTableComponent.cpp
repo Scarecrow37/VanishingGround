@@ -451,7 +451,7 @@ void WeaponTableComponent::ImGuiDrawExcelParser()
                                     if (false == key.empty())
                                     {
                                         std::vector<std::string> datas(size_t(rowCount - rowStart + 1));
-                                        UmLogger.Message(LogLevel::LEVEL_TRACE, key);
+                                        //UmLogger.Message(LogLevel::LEVEL_TRACE, key);
                                         for (unsigned int row = rowStart; row <= rowCount; ++row)
                                         {
                                             auto dataValue = workSheet.cell(row, column);
