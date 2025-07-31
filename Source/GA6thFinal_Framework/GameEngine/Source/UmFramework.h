@@ -120,6 +120,7 @@ using namespace Microsoft::WRL;
 #include "Engine/Utility/stlHelper.h"
 #include "Engine/Utility/EditorHelper.h"
 #include "Engine/Utility/Mathf.h"
+#include "Engine/Utility/OpenXLSXHelper.h"
 
 //Class Core
 #include "Engine/ClassCore/Delegate.hpp"

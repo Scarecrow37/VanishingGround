@@ -386,6 +386,7 @@
     <ClInclude Include="Source\Engine\Utility\FileHelper.h" />
     <ClInclude Include="Source\Engine\Utility\LogLevel.h" />
     <ClInclude Include="Source\Engine\Utility\Mathf.h" />
+    <ClInclude Include="Source\Engine\Utility\OpenXLSXHelper.h" />
     <ClInclude Include="Source\Engine\Utility\Random.h" />
     <ClInclude Include="Source\Engine\Utility\stlHelper.h" />
     <ClInclude Include="Source\Engine\ClassCore\ReflectHelper.h" />
@@ -408,6 +409,40 @@
     <ClInclude Include="Source\Engine\ApplicationCore\Application.h" />
     <ClInclude Include="Source\Engine\FileSystem\Importer\SpriteFontImporter.h" />
     <ClInclude Include="Source\Engine\Utility\YAMLHelper.h" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\IZipArchive.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\OpenXLSX-Exports.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLCell.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLCellIterator.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLCellRange.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLCellReference.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLCellValue.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLColor.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLColumn.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLCommandQuery.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLComments.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLConstants.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLContentTypes.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLDateTime.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLDocument.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLDrawing.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLException.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLFormula.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLIterator.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLMergeCells.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLProperties.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLRelationships.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLRow.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLRowData.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLSharedStrings.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLSheet.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLStyles.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLTables.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLWorkbook.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLXmlData.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLXmlFile.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLXmlParser.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLZipArchive.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\OpenXLSX.hpp" />
     <ClInclude Include="ThirdParty\include\pugixml\pugiconfig.hpp" />
     <ClInclude Include="ThirdParty\include\pugixml\pugixml.hpp" />
     <ClInclude Include="Source\UmFramework.h" />
@@ -538,12 +573,6 @@
     <ClCompile Include="Source\Engine\Utility\DumpUtility.cpp" />
     <ClCompile Include="Source\UmFramework.cpp" />
     <ClCompile Include="Source\Engine\FileSystem\Importer\SpriteFontImporter.cpp" />
-    <ClCompile Include="ThirdParty\include\pugixml\pugixml.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="ThirdParty\include\reflectcpp.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">NotUsing</PrecompiledHeader>
