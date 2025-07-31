@@ -1,10 +1,28 @@
 ﻿#include "pchScripts.h"
 #include "EnemyAction22010.h"
-#include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
 #include <Animation/AnimationComponent.h>
-
+#include <TurnSystem/TurnMode/TurnMode.h>
+#include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
+#include <TurnSystem/TurnAction/Token/TokenApplyAction.h>
+#include <Token/Object/Bleed/BleedToken.h>
 namespace EnemyAction
 {
+    Action22010::Action22010(Enemy* owner) 
+        : ActionBase(owner)
+    {
+        tokenAction = new TokenApplyAction();
+        tokenAction->TokenID = TokenObject::Bleed::ID;
+        tokenAction->TokenCount = 1;
+    }
+    Action22010::~Action22010() 
+    {
+        if (tokenAction)
+        {
+            delete tokenAction;
+            tokenAction = nullptr;
+        }
+    }
+
     void Action22010::OnActionEnter() 
     {
         if (_animator)
@@ -19,7 +37,6 @@ namespace EnemyAction
             }
             _animator->EndBuildOverrideAnimation();
         }
-        ProcessBattle(4);
     }
 
     void EnemyAction::Action22010::OnActionUpdate()
@@ -28,5 +45,20 @@ namespace EnemyAction
 
     void Action22010::OnActionExit() 
     {
+    }
+
+    void Action22010::OnAnimationEvent(const Timeline::EventContext* context) 
+    {
+        const std::string& label = context->GetLabel();
+        if ("Attack" == label)
+        {
+            TurnMode* turnMode = TurnMode::GetInstance();
+            if (turnMode)
+            {
+                turnMode->AddTurnAction(tokenAction);
+                ProcessBattle(5);
+                tokenAction->SetDestroy();
+            }
+        }
     }
 } // namespace EnemyAction

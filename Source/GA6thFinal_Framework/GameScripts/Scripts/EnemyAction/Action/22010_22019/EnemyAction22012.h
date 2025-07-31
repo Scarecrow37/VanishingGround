@@ -15,6 +15,8 @@ namespace EnemyAction
         void OnActionUpdate() override;
         void OnActionExit() override;
 
+        void OnAnimationEvent(const Timeline::EventContext* context) override;
+
     private:
     };
 } // namespace EnemyAction

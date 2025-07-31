@@ -952,20 +952,22 @@ namespace Timeline
 
         PathLines(drawList, points, 4);
         drawList->PathFillConvex(color);
-
-        // labelRect
-        ImVec2 textSize   = ImGui::CalcTextSize(label.data());
-        ImVec2 textOffset = ImVec2(textSize.x, textSize.y * 0.5f) * 1.2f;
-        ImRect labelRect = ImRect(center + ImVec2(0.0f, -textOffset.y), center + textOffset);
-        drawList->AddRectFilled(labelRect.Min, labelRect.Max, color);
-        if (true == isSelected)
+        if (false == editor->HasFlags(FLAGS_HIDE_CONTEXT_LEBEL))
         {
-            ImVec2 outlineOffset = ImVec2(1.0f, 1.0f);
-            drawList->AddRect(labelRect.Min - outlineOffset, labelRect.Max + outlineOffset,
-                              color, 2.0f, ImDrawFlags_RoundCornersAll, 3.0f);
+            // labelRect
+            ImVec2 textSize   = ImGui::CalcTextSize(label.data());
+            ImVec2 textOffset = ImVec2(textSize.x, textSize.y * 0.5f) * 1.2f;
+            ImRect labelRect  = ImRect(center + ImVec2(0.0f, -textOffset.y), center + textOffset);
+            drawList->AddRectFilled(labelRect.Min, labelRect.Max, color);
+            if (true == isSelected)
+            {
+                ImVec2 outlineOffset = ImVec2(1.0f, 1.0f);
+                drawList->AddRect(labelRect.Min - outlineOffset, labelRect.Max + outlineOffset, color, 2.0f,
+                                  ImDrawFlags_RoundCornersAll, 3.0f);
+            }
+            ImVec2 textPoint = labelRect.Min + (ImVec2(textOffset.x - textSize.x, 0.0f) * 0.5f);
+            drawList->AddText(textPoint, IM_COL32(0, 0, 0, 255), label.data());
         }
-        ImVec2 textPoint = labelRect.Min + (ImVec2(textOffset.x - textSize.x, 0.0f) * 0.5f);
-        drawList->AddText(textPoint, IM_COL32(0, 0, 0, 255), label.data());
     }
     void SequencerEditor::Helper::DrawFollowLine(SequencerEditor* editor, ImDrawList* drawList) 
     {

@@ -108,8 +108,13 @@ public:
     void SetAnimationEventTrackFromPath(const File::Path& path);
     void SetAnimationEventTrackFromGuid(const File::Guid& guid);
     void SetAnimationPreEventCallback(std::function<bool(const Timeline::EventContext*)> callback) { _preEventCallback = callback; }
-    void SetAnimationPostEventCallback(std::function<bool(const Timeline::EventContext*)> callback) { _postEventCallback = callback; }
+    void SetAnimationPostEventCallback(std::function<void(const Timeline::EventContext*)> callback) { _postEventCallback = callback; }
     inline AnimationEventTrack& GetEventTrack() { return _eventTrack; }
+
+    void AddAnimationMapping(std::string_view key, std::string_view animKey)
+    {
+        ReflectFields->AnimationKeyMap[key.data()] = animKey;
+    }
 
 private:
     std::shared_ptr<Animator>  _animator;
@@ -123,6 +128,7 @@ private:
     int         MainAnimationFlags  = ANIMATION_FLAG_NONE;
     bool        MainAnimationSpeed  = true;
     std::string AnimEventTrackGuid  = "";
+    std::unordered_map<std::string, std::string> AnimationKeyMap;
     REFLECT_FIELDS_END(AnimationComponent)
 
     ///////////////////////////////////////////////////////////////////////
@@ -133,6 +139,6 @@ private:
     File::Path          _filePath;
     AnimationEventTrack _eventTrack;
     std::function<bool(const Timeline::EventContext*)> _preEventCallback;  // Event Callback Function
-    std::function<bool(const Timeline::EventContext*)> _postEventCallback; // Event Callback Function
+    std::function<void(const Timeline::EventContext*)> _postEventCallback; // Event Callback Function
 
 };

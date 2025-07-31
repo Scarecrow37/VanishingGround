@@ -11,7 +11,7 @@ namespace Command
         {
         }
         ContextData::ContextData(Timeline::EventContext* context)
-            : ID(context->ID), Time(context->Time), Label(context->Label), TypeNameID(context->EventName)
+            : ID(context->ID), Time(context->Time), Label(context->Label), TypeNameID(context->EventType)
         {
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -137,7 +137,7 @@ namespace Command
         ChangeContext::ChangeContext(std::weak_ptr<Timeline::EventTrack> track, Timeline::EventContext* context, float changeTime,
                                    std::string_view changelabel, std::string_view changeTypeNameID)
             : UmCommand("ChangeContext"), _eventTrack(track), _context(context),
-              _previousData({context->ID, context->Time, context->Label, context->EventName}),
+              _previousData({context->ID, context->Time, context->Label, context->EventType}),
               _changedData({context->ID, changeTime, changelabel, changeTypeNameID})
         {
         }

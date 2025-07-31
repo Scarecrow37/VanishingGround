@@ -83,6 +83,7 @@ void CharacterBase::Awake()
     gameObject->AddTag(TAG);
 
     InitMeshModel();
+    InitAnimationCallback();
 }
 
 void CharacterBase::InitMeshModel()
@@ -120,6 +121,15 @@ void CharacterBase::InitMeshModel()
         );
         UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
     }
+}
+
+void CharacterBase::InitAnimationCallback() 
+{
+    _animationComponent->SetAnimationPostEventCallback(
+        [this](const Timeline::EventContext* context) 
+        {
+            OnNotifiedAnimationEvent(context);
+        });
 }
 
 void CharacterBase::ClearState() 
@@ -297,6 +307,10 @@ void CharacterBase::OnTokenRemoved(int tokenID)
 {
     Base::OnTokenRemoved(tokenID);
     _tokenInventory.NotifyTokenRemoved(tokenID);
+}
+
+void CharacterBase::OnNotifiedAnimationEvent(const Timeline::EventContext* context) 
+{
 }
 
 void CharacterBase::ImGuiDrawPropertysEvent() 

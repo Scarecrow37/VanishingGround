@@ -40,3 +40,7 @@ void EnemyDeadState::OnUpdate()
         }
     }
 }
+
+void EnemyDeadState::OnNotifiedAnimationEvent(const Timeline::EventContext* context) 
+{
+}

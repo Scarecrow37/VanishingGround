@@ -19,7 +19,6 @@ namespace EnemyAction
             }
             _animator->EndBuildOverrideAnimation();
         }
-        ProcessBattle(25);
     }
     void Action22013::OnActionUpdate() 
     {
@@ -29,6 +28,14 @@ namespace EnemyAction
         if (_owner)
         {
             _owner->Dead();
+        }
+    }
+    void Action22013::OnAnimationEvent(const Timeline::EventContext* context) 
+    {   
+        const std::string& label = context->GetLabel();
+        if ("Attack" == label)
+        {
+            ProcessBattle(30);
         }
     }
 } // namespace EnemyAction

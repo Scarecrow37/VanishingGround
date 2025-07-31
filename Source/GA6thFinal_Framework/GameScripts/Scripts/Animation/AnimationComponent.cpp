@@ -177,7 +177,7 @@ void AnimationComponent::ImGuiDrawPropertysEvent()
         {
             if (ImGui::TreeNodeEx("Animation Event Track##details"))
             {
-
+                ImGui::TreePop();
             }
         }
         else
@@ -266,7 +266,16 @@ void AnimationComponent::SetAnimationEx(AnimationData& animData)
         bool isLastData = GetLastAnimationDataEx().IsSameData(animData);
         if (true == isLastData && false == _isBuildingOverrideAnimation)
         {
-            _animator->ChangeAnimation(animData.AnimationName.c_str(), animData.IsBlending);
+            std::string animKey;
+            if (HasAnimationMappingKey(animData.AnimationName))
+            {
+                animKey = GetAnimationNameFromKey(animData.AnimationName);
+            }
+            else
+            {
+                animKey = animData.AnimationName;
+            }
+            _animator->ChangeAnimation(animKey.c_str(), animData.IsBlending);
             if (animData.HasFlag(ANIMATION_FLAG_RESET_FRAME))
             {
                 animData.ElapsedFrame = 0.0f;
@@ -505,4 +514,41 @@ void AnimationComponent::SetAnimationEventTrackFromGuid(const File::Guid& guid)
     _filePath = guid;
     _eventTrack.LoadFile(_filePath);
     ReflectFields->AnimEventTrackGuid = _guidRef.string();
+}
+
+void AnimationComponent::AddAnimationMappingKey(std::string_view key, std::string_view animKey)
+{
+    if (false == HasAnimationMappingKey(key))
+    {
+        ReflectFields->AnimationKeyMap[key.data()] = animKey;
+    }
+}
+
+void AnimationComponent::RemoveAnimationMappingKey(std::string_view key) 
+{
+    if (true == HasAnimationMappingKey(key))
+    {
+        ReflectFields->AnimationKeyMap.erase(key.data());
+    }
+}
+
+bool AnimationComponent::HasAnimationMappingKey(std::string_view key) const
+{
+    auto it = ReflectFields->AnimationKeyMap.find(key.data());
+    if (it != ReflectFields->AnimationKeyMap.end())
+    {
+        return true;
+    }
+    return false;
+}
+
+const std::string& AnimationComponent::GetAnimationNameFromKey(std::string_view key) const
+{
+    auto it = ReflectFields->AnimationKeyMap.find(key.data());
+    if (it != ReflectFields->AnimationKeyMap.end())
+    {
+        return it->second;
+    }
+    static std::string emptyString;
+    return emptyString; // 기본적으로 키를 그대로 반환
 }

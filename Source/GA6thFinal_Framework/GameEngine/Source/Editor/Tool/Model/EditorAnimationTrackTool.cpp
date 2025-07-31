@@ -38,15 +38,7 @@ void EditorAnimationTrackTool::OnStartGui()
     _sequencer->GetCallback().LowerFramePopup = 
         [this](Timeline::EventTrack* track) 
         { 
-            if (ImGui::MenuItem("Add Empty Event")) 
-            {
-                auto track = _animationEventTrack.GetActiveEventTrack();
-                if (track && _sequencer)
-                {
-                    float currentFrame = _sequencer->GetMouseCursorFrame();
-                    track->AddEvent<Timeline::EventContext>("New Event", currentFrame);
-                }
-            } 
+            LowerFramePopup();
         };
 }
 
@@ -104,14 +96,14 @@ void EditorAnimationTrackTool::UpdateTimeline()
     {
         if (model && animator)
         {
-            auto timeline = _animationEventTrack.GetActiveEventTrack();
-            if (nullptr != timeline)
+            auto eventTrack = _animationEventTrack.GetActiveEventTrack();
+            if (nullptr != eventTrack)
             {
-                timeline->SetMinFrame(0.0f);
-                timeline->SetMaxFrame(animator->GetCurrentAnimationLastTime());
-                timeline->SetCurrentFrame(animator->GetCurrentAnimationPlayTime());
+                eventTrack->SetMinFrame(0.0f);
+                eventTrack->SetMaxFrame(animator->GetCurrentAnimationLastTime());
+                eventTrack->SetCurrentFrame(animator->GetCurrentAnimationPlayTime());
                 _sequencer->RemoveFlags(Timeline::SequencerEditor::FLAGS_ALLOW_DRAG_CURRENT_LINE);
-                timeline->Update();
+                eventTrack->Update();
             }
         }
     }
@@ -168,7 +160,7 @@ void EditorAnimationTrackTool::DrawTimelines()
 {
     ImVec2 availSize  = ImGui::GetContentRegionAvail();
     ImVec2 canvasSize = ImVec2(200.0f, availSize.y);
-    ImGui::BeginChild("SequencerTimelines", canvasSize, true);
+    ImGui::BeginChild("SequencerEventTracks", canvasSize, true);
 
     if (true == IsLoadAsset())
     {
@@ -186,14 +178,13 @@ void EditorAnimationTrackTool::DrawTimelines()
                 for (auto& anim : animations)
                 {
                     auto& curDetailAnim = GetCurrentDetailAnimName();
-                    auto& curTrackAnim = GetCurrentEventTrackmName();
+                    auto& curTrackAnim  = GetCurrentEventTrackmName();
                     bool  isPlaying     = !curDetailAnim.empty() && curDetailAnim == anim;
                     bool  isSeleted     = !curTrackAnim.empty() && curTrackAnim == anim;
 
                     ImGui::PushID(anim);
                     // Check timeline to anim in set
                     auto track = _animationEventTrack.GetEventTrack(anim);
-                    std::function<void()> selectablefunc = nullptr;
                     std::string           selectableLabel;
                     ImU32                 textColor;
                     if (nullptr != track)
@@ -209,10 +200,10 @@ void EditorAnimationTrackTool::DrawTimelines()
                     ImGui::PushStyleColor(ImGuiCol_Text, textColor);
                     if (ImGui::Selectable(selectableLabel.c_str(), isSeleted))
                     {
-                        SetTimelineFromAnimation(anim);
-                        if (selectablefunc)
+                        SetEventTrackFromAnimation(anim);
+                        if (_modelDetails)
                         {
-                            selectablefunc();
+                            _modelDetails->ChangeAnimation(anim);
                         }
                     }
                     ImGui::PopStyleColor();
@@ -227,32 +218,20 @@ void EditorAnimationTrackTool::DrawTimelines()
                     }
 
                     // Context
-                    if (ImGui::BeginPopupContextItem("TimelineContextMenu"))
+                    if (ImGui::BeginPopupContextItem("EventTrackContextMenu"))
                     {
                         if (nullptr != track)
                         {
-                            if (ImGui::BeginMenu("Add Track"))
+                            if (ImGui::MenuItem("Remove Event Track"))
                             {
-                                auto& table = Timeline::EventTrack::GetInstanceConstructors();
-                                for (const auto& [key, func] : table)
-                                {
-                                    if (ImGui::MenuItem(key.c_str() + 6))
-                                    {
-                                        AddEvent(key.c_str() + 6, anim, key);
-                                    }
-                                }
-                                ImGui::EndMenu();
-                            }
-                            if (ImGui::MenuItem("Remove Timeline"))
-                            {
-                                RemoveTimelineFromAnimation(anim);
+                                RemoveEventTrackFromAnimation(anim);
                             }
                         }
                         else
                         {
-                            if (ImGui::MenuItem("Add Timeline"))
+                            if (ImGui::MenuItem("Add Event Track"))
                             {
-                                AddTimelineFromAnimation(anim);
+                                AddEventTrackFromAnimation(anim);
                             }
                         }
 
@@ -285,11 +264,9 @@ void EditorAnimationTrackTool::DrawDetails()
 {
     ImVec2 canvasSize = ImGui::GetContentRegionAvail();
     ImGui::BeginChild("DetailFrame", canvasSize, true);
-    static char pathBuffer[128] = "";
     const auto& path = _animationEventTrack.GetFilePath();
     std::string pathStr = path.generic_string();
-    strcpy_s(pathBuffer, pathStr.c_str());
-    ImGui::InputText("##path_input", pathBuffer, IM_ARRAYSIZE(pathBuffer), ImGuiInputTextFlags_ReadOnly);
+    ImGui::InputText("##path_input", &pathStr, ImGuiInputTextFlags_ReadOnly);
     ImVec2 size = ImGui::GetItemRectSize();
     if (ImGui::BeginItemTooltip())
     {
@@ -401,7 +378,7 @@ bool EditorAnimationTrackTool::SaveFileWithDialog()
     }
 }
 
-void EditorAnimationTrackTool::SetTimelineFromAnimation(std::string_view animKey) 
+void EditorAnimationTrackTool::SetEventTrackFromAnimation(std::string_view animKey)
 {
     std::string strKey(animKey);
     _eventQueue.push([this, strKey]() {
@@ -413,7 +390,7 @@ void EditorAnimationTrackTool::SetTimelineFromAnimation(std::string_view animKey
     });
 }
 
-void EditorAnimationTrackTool::AddTimelineFromAnimation(std::string_view animKey)
+void EditorAnimationTrackTool::AddEventTrackFromAnimation(std::string_view animKey)
 {
     std::string strKey(animKey);
     _eventQueue.push([this, strKey]() {
@@ -452,7 +429,7 @@ void EditorAnimationTrackTool::AddEvent(std::string_view label, std::string_view
     });
 }
 
-void EditorAnimationTrackTool::RemoveTimelineFromAnimation(std::string_view animKey)
+void EditorAnimationTrackTool::RemoveEventTrackFromAnimation(std::string_view animKey)
 {
     _eventQueue.push([this, animKey]()  {
         if (false == IsLoadAsset()) return;
@@ -467,7 +444,7 @@ bool EditorAnimationTrackTool::ShowEventTrackList(std::shared_ptr<Timeline::Even
     bool itemClicked = false;
     if (nullptr == track)
     {
-        ShowAvailableTimeline();
+        ShowAvailableEventTracks();
         return itemClicked;
     }
     auto contextQueue = track->GetEventContextQueue();
@@ -531,7 +508,7 @@ bool EditorAnimationTrackTool::ShowEventTrackList(std::shared_ptr<Timeline::Even
             ImGui::InputTextWithHint("##TrackLabel", "Label Name...", notifyBuf, sizeof(notifyBuf));
             ImGui::BeginChild("##TrackList", ImVec2(availSize.x, availSize.y - 30.0f), true);
             const auto& animation = GetCurrentEventTrackmName();
-            auto&       table     = Timeline::EventTrack::GetInstanceConstructors();
+            const auto& table     = Timeline::EventTrack::GetInstanceConstructors();
             for (const auto& [key, func] : table)
             {
                 ImGui::Text(EditorIcon::ICON_BELL_ON);
@@ -563,7 +540,7 @@ void EditorAnimationTrackTool::ShowEventTrackEditTab(std::shared_ptr<Timeline::E
 {
     if (nullptr == track)
     {
-        ShowAvailableTimeline();
+        ShowAvailableEventTracks();
         return;
     }
     auto context = track->GetContextFromID(contextID);
@@ -574,28 +551,35 @@ void EditorAnimationTrackTool::ShowEventTrackEditTab(std::shared_ptr<Timeline::E
         std::string_view label = context->Label;
         float            time  = context->Time;
         UINT             id    = context->ID;
+        ImVec2           availSize  = ImGui::GetContentRegionAvail();
+        float            labelWidth = availSize.x * 0.2f;
         {
-            char buf[64];
+            char buf[128];
             strcpy_s(buf, label.data());
-            ImGui::Text("Label: ");
-            ImGui::Indent();
+            ImGuiHelper::TextWithVerticalSeparator("Label", labelWidth);
             if (ImGui::InputText("##TrackLabel", buf, sizeof(buf)))
             {
                 context->Label = buf;
             }
-            ImGui::Unindent();
+            ImGuiHelper::TextWithVerticalSeparator("Time", labelWidth);
+            if (ImGui::InputFloat("##TrackTime", &time, 0, 0))
+            {
+                float minFrame = track->GetMinFrame();
+                float maxFrame = track->GetMaxFrame();
+                time = ImClamp(time, minFrame, maxFrame);
+                track->ChangeContextTime(contextID, time);
+            }
         }
         ImGui::Separator();
         {
-            ImGui::Text("Event: ");
-            ImGui::Indent();
-            std::string_view eventName = context->EventName;
+            ImGuiHelper::TextWithVerticalSeparator("Event", labelWidth);
+            std::string_view eventTypeName = context->EventType;
             auto table = Timeline::EventTrack::GetInstanceConstructors();
-            if (ImGui::BeginCombo("##EventName", eventName.data() + 6))
+            if (ImGui::BeginCombo("##EventName", eventTypeName.data() + 6))
             {
                 for (const auto& [key, func] : table)
                 {
-                    std::string curEvent(eventName);
+                    std::string curEvent(eventTypeName);
                     bool isSelected = (curEvent == key);
                     const char* label = key.c_str() + 6;
                     if (ImGui::Selectable(label, isSelected))
@@ -605,7 +589,6 @@ void EditorAnimationTrackTool::ShowEventTrackEditTab(std::shared_ptr<Timeline::E
                 }
                 ImGui::EndCombo();
             }
-            ImGui::Unindent();
         }
 
         ImGui::PopID();
@@ -620,20 +603,33 @@ void EditorAnimationTrackTool::ShowEventTrackEditTab(std::shared_ptr<Timeline::E
     }
 }
 
-void EditorAnimationTrackTool::ShowAvailableTimeline() 
+void EditorAnimationTrackTool::ShowAvailableEventTracks()
 {
     auto curTimeline = _animationEventTrack.GetActiveEventTrackName();
     if (false == curTimeline.empty())
     {
-        ImGui::Text("No timeline available.");
-        if (ImGui::Button("+ Add Timeline"))
+        ImGui::Text("No event track available.");
+        if (ImGui::Button("+ Add Event Track"))
         {
-            AddTimelineFromAnimation(curTimeline);
+            AddEventTrackFromAnimation(curTimeline);
         }
     }
     else
     {
         ImGui::Text("No current animation selected.");
+    }
+}
+
+void EditorAnimationTrackTool::LowerFramePopup() 
+{
+    if (ImGui::MenuItem("Add Empty Event"))
+    {
+        auto track = _animationEventTrack.GetActiveEventTrack();
+        if (track && _sequencer)
+        {
+            float currentFrame = _sequencer->GetMouseCursorFrame();
+            track->AddEvent<Timeline::EventContext>("New Event", currentFrame);
+        }
     }
 }
 

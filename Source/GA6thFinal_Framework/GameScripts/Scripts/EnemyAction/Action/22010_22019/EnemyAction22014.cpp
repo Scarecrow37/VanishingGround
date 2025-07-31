@@ -26,4 +26,7 @@ namespace EnemyAction
     void Action22014::OnActionExit() 
     {
     }
+    void Action22014::OnAnimationEvent(const Timeline::EventContext* context) 
+    {
+    }
 } // namespace EnemyAction

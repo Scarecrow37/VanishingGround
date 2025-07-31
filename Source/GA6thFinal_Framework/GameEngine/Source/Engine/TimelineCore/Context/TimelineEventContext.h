@@ -10,21 +10,21 @@ namespace Timeline
         EventContext()          = default;
         virtual ~EventContext() = default;
 
-        REFLECT_PROPERTY(ID, Label, EventName, Time)
+        REFLECT_PROPERTY(ID, Label, EventType, Time)
 
         GETTER_ONLY(UINT, ID) { return ReflectFields->ContextID; }
         PROPERTY(ID)
         GETTER(std::string_view, Label) { return ReflectFields->Label; }
         SETTER(std::string_view, Label) { ReflectFields->Label = value; }
         PROPERTY(Label)
-        GETTER_ONLY(std::string_view, EventName) { return ReflectFields->EventNameData.c_str(); }
-        PROPERTY(EventName)
-        GETTER_ONLY(float, Time) { return ReflectFields->TimeData; }
+        GETTER_ONLY(std::string_view, EventType) { return ReflectFields->EventType.c_str(); }
+        PROPERTY(EventType)
+        GETTER_ONLY(float, Time) { return ReflectFields->Time; }
         PROPERTY(Time)
 
-        inline const std::string& GetLabel()       const { return ReflectFields->Label; }
-        inline const std::string& GetEventName()   const { return ReflectFields->EventNameData; }
-        inline float              GetTime()        const { return ReflectFields->TimeData; }
+        inline const std::string& GetLabel()        const { return ReflectFields->Label; }
+        inline const std::string& GetEventType()    const { return ReflectFields->EventType; }
+        inline float              GetTime()         const { return ReflectFields->Time; }
 
         void SetEvent(std::string_view typeNameID);
         void SetTime(float time);
@@ -42,11 +42,11 @@ namespace Timeline
 
     protected:
         REFLECT_FIELDS_BEGIN(ReflectSerializer)
-        UINT        ContextID      = UINT_MAX;
-        float       TimeData       = 0.0f;
-        std::string Label          = "";
-        std::string EventNameData  = "";
-        std::string SerializedData = "";
+        UINT        ContextID       = UINT_MAX;
+        float       Time            = 0.0f;
+        std::string Label           = "";
+        std::string EventType       = "";
+        std::string SerializedData  = "";
         REFLECT_FIELDS_END(EventContext)
     };
 } // namespace Timeline

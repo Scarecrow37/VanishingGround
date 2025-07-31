@@ -5,12 +5,12 @@ namespace Timeline
 {
     void EventContext::SetEvent(std::string_view typeNameID) 
     {
-        ReflectFields->EventNameData = typeNameID;
+        ReflectFields->EventType = typeNameID;
         RequireEvent(typeNameID);
     }
     void EventContext::SetTime(float time) 
     {
-        ReflectFields->TimeData = time;
+        ReflectFields->Time = time;
     }
     bool EventContext::IsValidID() const
     {
@@ -20,7 +20,7 @@ namespace Timeline
     {
         if (other)
         {
-            return ReflectFields->EventNameData == other->ReflectFields->EventNameData;
+            return ReflectFields->EventType == other->ReflectFields->EventType;
         }
         return false;
     }

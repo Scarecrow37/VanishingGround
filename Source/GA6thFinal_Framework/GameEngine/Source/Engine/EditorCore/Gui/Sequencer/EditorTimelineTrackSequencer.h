@@ -28,6 +28,7 @@ namespace Timeline
             FLAGS_HIDE_CURRENT_LINE             = 1 << 22, // 현재 프레임 라인 숨김 여부
             FLAGS_HIDE_CONTEXT                  = 1 << 23, // 컨텍스트 숨김 여부
             FLAGS_HIDE_CONTEXT_LINE             = 1 << 24, // 컨텍스트 라인 숨김 여부
+            FLAGS_HIDE_CONTEXT_LEBEL            = 1 << 25, // 컨텍스트 라인 숨김 여부
 
             // 모든 입력 허용
             FLAGS_ALLOW_ALL_INPUT = FLAGS_ALLOW_POPUP_CONTEXT_MENU | 

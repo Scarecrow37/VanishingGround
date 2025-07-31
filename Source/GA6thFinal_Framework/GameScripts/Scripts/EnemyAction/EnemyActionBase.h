@@ -15,9 +15,11 @@ namespace EnemyAction
         virtual ~ActionBase() = default;
 
     public:
-        void RequireActionEnter();
-        void RequireActionUpdate();
-        void RequireActionExit();
+        void RequestActionEnter();
+        void RequestActionUpdate();
+        void RequestActionExit();
+
+        virtual void OnAnimationEvent(const Timeline::EventContext* context) {}
 
         inline void SetActionEnd() { _isActionEnd = true; }
         inline bool IsActionEnd() const { return _isActionEnd; }

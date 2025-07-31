@@ -19,12 +19,19 @@ namespace EnemyAction
             }
             _animator->EndBuildOverrideAnimation();
         }
-        ProcessBattle(5);
     }
     void EnemyAction::Action22011::OnActionUpdate() 
     {
     }
     void Action22011::OnActionExit() 
     {
+    }
+    void Action22011::OnAnimationEvent(const Timeline::EventContext* context) 
+    {
+        const std::string& label = context->GetLabel();
+        if ("Attack" == label)
+        {
+            ProcessBattle(4);
+        }
     }
 } // namespace EnemyAction

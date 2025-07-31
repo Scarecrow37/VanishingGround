@@ -38,16 +38,18 @@ private:
     bool LoadFileWithDialog();
     bool SaveFileWithDialog();
 
-    void SetTimelineFromAnimation(std::string_view animKey);
-    void AddTimelineFromAnimation(std::string_view animKey);
-    void RemoveTimelineFromAnimation(std::string_view animKey);
+    void SetEventTrackFromAnimation(std::string_view animKey);
+    void AddEventTrackFromAnimation(std::string_view animKey);
+    void RemoveEventTrackFromAnimation(std::string_view animKey);
     void AddEvent(std::string_view label, std::string_view animKey, std::string_view typeNameID, float time = FLT_MAX);
     
 
     bool ShowEventTrackList(std::shared_ptr<Timeline::EventTrack> track);
     void ShowEventTrackEditTab(std::shared_ptr<Timeline::EventTrack> track, UINT contextID);
 
-    void ShowAvailableTimeline();
+    void ShowAvailableEventTracks();
+
+    void LowerFramePopup();
 
     const std::string& GetCurrentDetailAnimName();
     const std::string& GetCurrentEventTrackmName();
@@ -61,5 +63,5 @@ private:
     std::queue<std::function<void()>> _eventQueue;
 
     // DetailFrame
-    std::string _tabLabel[2]    = {"List", "Edit"};
+    std::string _tabLabel[2] = {"List", "Edit"};
 };

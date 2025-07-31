@@ -256,7 +256,7 @@ namespace Timeline
             if (nullptr != context)
             {
                 std::pair<EventTypeName, std::string> data;
-                data = {context->GetEventName(), context->SerializedReflectFields()};
+                data = {context->GetEventType(), context->SerializedReflectFields()};
                 ReflectFields->SerializedDataList.push_back(data);
             }
         }

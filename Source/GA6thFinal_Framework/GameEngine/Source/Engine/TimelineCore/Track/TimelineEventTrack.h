@@ -72,7 +72,7 @@ namespace Timeline
         inline const std::vector<EventContext*>& GetEventContextQueue() const { return _contextQueue; }
 
         inline void SetPreNotifyCallback(std::function<bool(const EventContext*)> callback) { _preNotifyCallback = callback; }
-        inline void SetPostNotifyCallback(std::function<bool(const EventContext*)> callback) { _postNotifyCallback = callback; }
+        inline void SetPostNotifyCallback(std::function<void(const EventContext*)> callback) { _postNotifyCallback = callback; }
 
     private:
         void            RequestNotify(float startTime, float endTime);
@@ -88,7 +88,7 @@ namespace Timeline
         ContextTable _contextTable;
 
         std::function<bool(const EventContext*)> _preNotifyCallback; // Notify Callback Function
-        std::function<bool(const EventContext*)> _postNotifyCallback; // Notify Callback Function
+        std::function<void(const EventContext*)> _postNotifyCallback; // Notify Callback Function
 
         REFLECT_FIELDS_BEGIN(ReflectSerializer)
         float                    MinFrame = 0.0f;

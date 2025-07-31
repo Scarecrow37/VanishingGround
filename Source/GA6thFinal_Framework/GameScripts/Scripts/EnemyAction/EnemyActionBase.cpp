@@ -18,21 +18,22 @@ namespace EnemyAction
         }
     }
 
-    void ActionBase::RequireActionEnter()
+    void ActionBase::RequestActionEnter()
     {
         _isActionEnd = false;
         OnActionEnter();
     }
 
-    void ActionBase::RequireActionUpdate()
+    void ActionBase::RequestActionUpdate()
     {
         OnActionUpdate();
     }
 
-    void ActionBase::RequireActionExit()
+    void ActionBase::RequestActionExit()
     {
         OnActionExit();
     }
+
 
     void ActionBase::ProcessBattle(int damage, float damageScale)
     {

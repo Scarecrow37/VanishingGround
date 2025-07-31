@@ -191,6 +191,22 @@ void Enemy::OnTokenRemoved(int tokenID)
     Base::OnTokenRemoved(tokenID);
 }
 
+void Enemy::OnNotifiedAnimationEvent(const Timeline::EventContext* context) 
+{
+    if (_fsmStates.WaitTurn && STATE::Wait == State)
+    {
+        _fsmStates.WaitTurn->OnNotifiedAnimationEvent(context);
+    }
+    if (_fsmStates.PlayTurn && STATE::Play == State)
+    {
+        _fsmStates.PlayTurn->OnNotifiedAnimationEvent(context);
+    }
+    if (_fsmStates.Dead && STATE::Dead == State)
+    {
+        _fsmStates.Dead->OnNotifiedAnimationEvent(context);
+    }
+}
+
 #define ANIM_NAME(enumType, name)\
 case enumType :\
 return name;\

@@ -45,7 +45,7 @@ void EnemyPlayTurnState::OnEnter()
     RequireCurrentAction();
     if (_currentAction)
     {
-        _currentAction->RequireActionEnter();
+        _currentAction->RequestActionEnter();
     }
     LogCurrentAction();
 
@@ -60,7 +60,7 @@ void EnemyPlayTurnState::OnExit()
 
     if (_currentAction)
     {
-        _currentAction->RequireActionExit();
+        _currentAction->RequestActionExit();
     }
 }
     
@@ -71,12 +71,20 @@ void EnemyPlayTurnState::OnUpdate()
     EnemyAI& aiModel = GetEnemy().GetAIModel();
     if (_currentAction)
     {
-        _currentAction->RequireActionUpdate();
+        _currentAction->RequestActionUpdate();
         result = _currentAction->IsActionEnd();
     }
     if (true == result)
     {
         enemy.EndTurn();
+    }
+}
+
+void EnemyPlayTurnState::OnNotifiedAnimationEvent(const Timeline::EventContext* context) 
+{
+    if (_currentAction)
+    {
+        _currentAction->OnAnimationEvent(context);
     }
 }
 
