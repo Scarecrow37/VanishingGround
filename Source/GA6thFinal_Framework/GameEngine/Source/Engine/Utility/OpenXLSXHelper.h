@@ -27,7 +27,7 @@ namespace OpenXLSXHelper
     /// </summary>
     inline bool IsFindSuccess(const std::pair<Row, Column>& findValue)
     {
-        bool result = findValue.first != FAIL_COLUMN || findValue.second != FAIL_ROW;
+        bool result = findValue.first != FAIL_COLUMN && findValue.second != FAIL_ROW;
         return result;
     }
 
