@@ -29,7 +29,7 @@ public:
     void ImGuiDrawPropertysEvent() override;
 
 private:
-    AnimationData&  GetLastAnimationDataEx();
+    AnimationData& GetLastAnimationDataEx();
 
     void UpdateAnimation(AnimationData& animData);
     void SetAnimationEx(AnimationData& animData);
@@ -37,6 +37,11 @@ private:
     void ChangeAnimationFrameEx(AnimationData& animData, float frame);
     void ChangeAnimationFlagsEx(AnimationData& animData, int flags);
     void SetAnimationPopCallbackEx(AnimationData& animData, std::function<void()> callback);
+    void GetAnimationNameEx(std::string_view key, std::string& str) const;
+
+    //void ShowImGuiAnimationController();
+    //void ShowImGuiAnimationEventTrack();
+    //void ShowImGuiAnimationKeyMapping();
 
 public:
     /// <summary>
@@ -111,10 +116,10 @@ public:
     void SetAnimationPostEventCallback(std::function<void(const Timeline::EventContext*)> callback) { _postEventCallback = callback; }
     inline AnimationEventTrack& GetEventTrack() { return _eventTrack; }
 
-    void AddAnimationMapping(std::string_view key, std::string_view animKey)
-    {
-        ReflectFields->AnimationKeyMap[key.data()] = animKey;
-    }
+    void AddAnimationMappingKey(std::string_view key, std::string_view animKey);
+    void RemoveAnimationMappingKey(std::string_view key);
+    bool HasAnimationMappingKey(std::string_view key) const;
+    const std::string& GetAnimationNameFromKey(std::string_view key) const;
 
 private:
     std::shared_ptr<Animator>  _animator;
@@ -128,7 +133,7 @@ private:
     int         MainAnimationFlags  = ANIMATION_FLAG_NONE;
     bool        MainAnimationSpeed  = true;
     std::string AnimEventTrackGuid  = "";
-    std::unordered_map<std::string, std::string> AnimationKeyMap;
+    std::map<std::string, std::string> AnimationKeyMap;
     REFLECT_FIELDS_END(AnimationComponent)
 
     ///////////////////////////////////////////////////////////////////////
@@ -140,5 +145,7 @@ private:
     AnimationEventTrack _eventTrack;
     std::function<bool(const Timeline::EventContext*)> _preEventCallback;  // Event Callback Function
     std::function<void(const Timeline::EventContext*)> _postEventCallback; // Event Callback Function
+    std::string _selectedEventTrack;
+    std::vector<std::function<void()>> _delayProcess;
 
 };

@@ -21,7 +21,7 @@ namespace EnemyAction
         void OnAnimationEvent(const Timeline::EventContext* context) override;
 
     private:
-
-        TokenApplyAction* tokenAction;
+        // 출혈 부여용 액션
+        TokenApplyAction* _tokenAction;
     };
 } // namespace EnemyAction

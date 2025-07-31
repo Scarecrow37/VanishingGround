@@ -8,18 +8,17 @@
 namespace EnemyAction
 {
     Action22010::Action22010(Enemy* owner) 
-        : ActionBase(owner)
+        : ActionBase(owner), _tokenAction(new TokenApplyAction)
     {
-        tokenAction = new TokenApplyAction();
-        tokenAction->TokenID = TokenObject::Bleed::ID;
-        tokenAction->TokenCount = 1;
+        _tokenAction->TokenID = TokenObject::Bleed::ID;
+        _tokenAction->TokenCount = 1;
     }
     Action22010::~Action22010() 
     {
-        if (tokenAction)
+        if (_tokenAction)
         {
-            delete tokenAction;
-            tokenAction = nullptr;
+            delete _tokenAction;
+            _tokenAction = nullptr;
         }
     }
 
@@ -29,9 +28,8 @@ namespace EnemyAction
         {
             _animator->BeginBuildOverrideAnimation();
             {
-                const char* animKey = _owner->GetAnimationName(CharacterBase::ATTACK_1);
                 _animator->ClearOverrideAnimations();
-                _animator->PushOverrideAnimation(animKey, true, [](const AnimationData& data) { return data.IsEnd(); });
+                _animator->PushOverrideAnimation("Attack0", true, [](const AnimationData& data) { return data.IsEnd(); });
                 _animator->SetCurrentAnimationPopCallback([this]() { SetActionEnd(); });
                 _animator->ChangeCurrentAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE);
             }
@@ -50,14 +48,14 @@ namespace EnemyAction
     void Action22010::OnAnimationEvent(const Timeline::EventContext* context) 
     {
         const std::string& label = context->GetLabel();
-        if ("Attack" == label)
+        if ("Attack_1" == label)
         {
             TurnMode* turnMode = TurnMode::GetInstance();
             if (turnMode)
             {
-                turnMode->AddTurnAction(tokenAction);
+                turnMode->AddTurnAction(_tokenAction);
                 ProcessBattle(5);
-                tokenAction->SetDestroy();
+                _tokenAction->SetDestroy();
             }
         }
     }

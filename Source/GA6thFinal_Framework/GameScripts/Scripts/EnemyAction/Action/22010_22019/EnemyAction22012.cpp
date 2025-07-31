@@ -1,19 +1,34 @@
 ﻿#include "pchScripts.h"
 #include "EnemyAction22012.h"
-#include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
 #include <Animation/AnimationComponent.h>
-
+#include <TurnSystem/TurnMode/TurnMode.h>
+#include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
+#include <TurnSystem/TurnAction/Token/TokenApplyAction.h>
+#include <Token/Object/Stun/StunToken.h>
 namespace EnemyAction
 {
+    Action22012::Action22012(Enemy* owner) 
+        : ActionBase(owner), _tokenAction(new TokenApplyAction)
+    {
+        _tokenAction->TokenID    = TokenObject::Stun::ID;
+        _tokenAction->TokenCount = 1;
+    }
+    Action22012::~Action22012() 
+    {
+        if (_tokenAction)
+        {
+            delete _tokenAction;
+            _tokenAction = nullptr;
+        }
+    }
     void Action22012::OnActionEnter() 
     {
         if (_animator)
         {
             _animator->BeginBuildOverrideAnimation();
             {
-                const char* animKey = _owner->GetAnimationName(CharacterBase::ATTACK_1);
                 _animator->ClearOverrideAnimations();
-                _animator->PushOverrideAnimation(animKey, true, [](const AnimationData& data) { return data.IsEnd(); });
+                _animator->PushOverrideAnimation("Attack0", true, [](const AnimationData& data) { return data.IsEnd(); });
                 _animator->SetCurrentAnimationPopCallback([this]() { SetActionEnd(); });
                 _animator->ChangeCurrentAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE);
             }
@@ -29,7 +44,7 @@ namespace EnemyAction
     void Action22012::OnAnimationEvent(const Timeline::EventContext* context)
     {
         const std::string& label = context->GetLabel();
-        if ("Attack" == label)
+        if ("Attack_1" == label || "Attack_2" == label)
         {
             ProcessBattle(1);
         }

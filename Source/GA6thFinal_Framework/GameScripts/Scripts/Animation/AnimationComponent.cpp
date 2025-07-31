@@ -61,7 +61,7 @@ void AnimationComponent::DeserializedReflectEvent()
 
 void AnimationComponent::ImGuiDrawPropertysEvent()
 {
-    //ImGui::Text("animator: use_count %d", (int)_animator.use_count());
+    // ImGui::Text("animator: use_count %d", (int)_animator.use_count());
     if (nullptr == _animator)
     {
         ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Animator is NULL");
@@ -72,7 +72,7 @@ void AnimationComponent::ImGuiDrawPropertysEvent()
         AnimationData& curAnimData    = GetLastAnimationDataEx();
         if (ImGui::TreeNodeEx("Current Animation##details"))
         {
-            const char* comboLabel     = curAnimData.AnimationName.empty() ? "-" : curAnimData.AnimationName.c_str();
+            const char* comboLabel = curAnimData.AnimationName.empty() ? "-" : curAnimData.AnimationName.c_str();
             if (ImGui::BeginCombo("##Animation", comboLabel))
             {
                 for (int i = 0; i < animationNames.size(); ++i)
@@ -129,11 +129,13 @@ void AnimationComponent::ImGuiDrawPropertysEvent()
             float min = 0.0f;
             float max = _animator->GetCurrentAnimationLastTime();
             float cur = _animator->GetCurrentAnimationPlayTime();
-            if (ImGui::SliderFloat("Current Animation Frame", &cur, min, max))
+            ImGuiHelper::TextWithVerticalSeparator("Animation Frame");
+            if (ImGui::SliderFloat("##Current Animation Frame", &cur, min, max))
             {
                 _animator->SetAnimationTime(cur);
             }
-            if (ImGui::DragFloat("Animation Speed", &curAnimData.Speed, 0.01f))
+            ImGuiHelper::TextWithVerticalSeparator("Animation Speed");
+            if (ImGui::DragFloat("##Animation Speed", &curAnimData.Speed, 0.01f))
             {
             }
 
@@ -143,49 +145,188 @@ void AnimationComponent::ImGuiDrawPropertysEvent()
             ImGui::TreePop();
         }
 
+        if (ImGui::TreeNodeEx("Animation Event Track##details"))
+        {
+            ImGui::BeginDisabled();
+            std::string path = _filePath.string();
+            ImGuiHelper::TextWithVerticalSeparator("Event Track Asset");
+            ImGui::InputText("##path", &path, ImGuiInputTextFlags_ReadOnly);
+            ImGui::EndDisabled();
+            ImGuiHelper::HoveredToolTip(path.c_str());
+            if (ImGui::BeginDragDropTarget())
+            {
+                if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
+                {
+                    DragDropAsset::Data* data    = (DragDropAsset::Data*)payLoad->Data;
+                    auto                 context = data->pContext->lock();
+                    if (nullptr != context)
+                    {
+                        const auto& path      = context->GetPath();
+                        const auto  extension = path.extension();
+                        if (extension == AnimationEventTrack::EXTENSION)
+                        {
+                            SetAnimationEventTrackFromPath(path);
+                        }
+                    }
+                }
+                ImGui::EndDragDropTarget();
+            }
+            ImGui::Separator();
+            if (_eventTrack.IsLoadedFile())
+            {
+                ImGuiHelper::TextWithVerticalSeparator("Event Track List");
+                if (ImGui::BeginCombo("##Animation", _selectedEventTrack.c_str()))
+                {
+                    for (int i = 0; i < animationNames.size(); ++i)
+                    {
+                        bool isSelected = (curAnimData.AnimationName == animationNames[i]);
+                        if (ImGui::Selectable(animationNames[i], isSelected))
+                        {
+                            _selectedEventTrack = animationNames[i];
+                        }
+                    }
+                    ImGui::EndCombo();
+                }
+                auto eventTrack = _eventTrack.GetEventTrack(_selectedEventTrack);
+                if (eventTrack)
+                {
+                    const auto& contextQueue = eventTrack->GetEventContextQueue();
+                    if (ImGui::BeginTable("ContextTable", 2, ImGuiTableFlags_BordersInnerH | ImGuiTableFlags_RowBg))
+                    {
+                        ImGui::TableSetupColumn("Time", ImGuiTableColumnFlags_WidthStretch, 0.15f);
+                        ImGui::TableSetupColumn("Label", ImGuiTableColumnFlags_WidthStretch, 0.85f);
+                        ImGui::TableHeadersRow();
+
+                        for (const auto& context : contextQueue)
+                        {
+                            if (context != nullptr)
+                            {
+                                UINT             ID    = context->ID;
+                                float            time  = context->Time;
+                                std::string_view label = context->Label;
+
+                                ImGui::PushID(context);
+                                ImGui::TableNextRow();
+                                ImGui::TableSetColumnIndex(0);
+                                std::string timeStr = std::format("{:.3f}", time);
+                                ImGui::Selectable(timeStr.c_str());
+                                ImGui::TableSetColumnIndex(1);
+                                ImGui::Selectable(label.data());
+                                ImGui::PopID();
+                            }
+                        }
+                        ImGui::EndTable();
+                    }
+                }
+                else
+                {
+                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+                    ImGui::Text("animation event track is not found.");
+                    ImGui::PopStyleColor();
+                }
+            }
+            else
+            {
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+                ImGui::Text("animation event track is not loaded.");
+                ImGui::PopStyleColor();
+            }
+            ImGui::TreePop();
+        }
+
+        if (ImGui::TreeNodeEx("Animation Mapping Keys##details"))
+        {
+            auto addMapping = [this](std::string& anim) {
+                const auto& animationNames = _animator->GetAnimationNames();
+                AnimationData& curAnimData = GetLastAnimationDataEx();
+                ImVec2 availSize = ImGui::GetContentRegionAvail();
+                ImGui::SetNextItemWidth(availSize.x - 60.0f);
+                if (ImGuiHelper::BeginComboInput("##AnimName", &anim))
+                {
+                    for (int i = 0; i < animationNames.size(); ++i)
+                    {
+                        bool isSelected = (curAnimData.AnimationName == animationNames[i]);
+                        if (ImGui::Selectable(animationNames[i], isSelected))
+                        {
+                            anim = animationNames[i];
+                        }
+                    }
+                    ImGui::EndCombo();
+                }
+            };
+            if (ImGui::BeginTable("NotifieTable##Details", 2, ImGuiTableFlags_BordersInnerH | ImGuiTableFlags_RowBg))
+            {
+                ImGui::TableSetupColumn("Key", ImGuiTableColumnFlags_WidthStretch, 0.3f);
+                ImGui::TableSetupColumn("Animation Name", ImGuiTableColumnFlags_WidthStretch, 0.7f);
+                ImGui::TableHeadersRow();
+
+                int seed = 0;
+                for (auto& [key, anim] : ReflectFields->AnimationKeyMap)
+                {
+                    bool isSelected = (anim == curAnimData.AnimationName);
+                    ImGui::PushID(seed);
+
+                    ImGui::TableNextRow();
+                    ImGui::TableSetColumnIndex(0);
+                    {
+                        ImVec2 availSize = ImGui::GetContentRegionAvail();
+                        ImGui::Selectable(key.c_str(), isSelected, 0, availSize);
+                        ImGui::Text(key.c_str());
+                        ImGuiHelper::HoveredToolTip(key.c_str());
+                    }
+
+                    ImGui::TableSetColumnIndex(1);
+                    {
+                        addMapping(anim);
+                        float height = ImGui::GetItemRectSize().y;
+                        ImGuiHelper::HoveredToolTip(anim.c_str());
+                        ImGui::SameLine();
+                        if (ImGui::Button("-", ImVec2(height,height)))
+                        {
+                            _delayProcess.push_back([this, key]() { RemoveAnimationMappingKey(key); });
+                        }
+                    }
+                    ImGui::PopID();
+                    ++seed;
+                }
+                ImGui::PushID(seed);
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+                static std::string newKey;
+                static std::string newKeyFromAnim;
+                ImVec2 availSize = ImGui::GetContentRegionAvail();
+                ImGui::SetNextItemWidth(availSize.x);
+                ImGui::InputTextWithHint("##NewKey", "New Key...", &newKey);
+
+                ImGui::TableSetColumnIndex(1);
+                addMapping(newKeyFromAnim);
+                float height = ImGui::GetItemRectSize().y;
+                ImGuiHelper::HoveredToolTip(newKeyFromAnim.c_str());
+                ImGui::SameLine();
+                if (ImGui::Button("+", ImVec2(height, height)))
+                {
+                    _delayProcess.push_back([this]() {
+                        AddAnimationMappingKey(newKey, newKeyFromAnim);
+                        newKey.clear();
+                        newKeyFromAnim.clear();
+                    });
+                }
+                ImGui::PopID();
+                ImGui::EndTable();
+            }
+            ImGui::TreePop();
+        }
+
+        for (auto& process : _delayProcess)
+        {
+            process();
+        }
+        _delayProcess.clear();
+
         // 애니메이터가 해당 객체만 사용 중이라면 reset합니다.
         UpdateNullAnimator();
         // 메인 애니메이션만
         UpdateAnimation(_mainAnimationData);
-
-        ImGui::BeginDisabled();
-        std::string path = _filePath.string();
-        ImGuiHelper::TextWithVerticalSeparator("Animation Event Track");
-        ImGui::InputText("##path", &path, ImGuiInputTextFlags_ReadOnly);
-        ImGui::EndDisabled();
-        ImGuiHelper::HoveredToolTip(path.c_str());
-        if (ImGui::BeginDragDropTarget())
-        {
-            if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
-            {
-                DragDropAsset::Data* data    = (DragDropAsset::Data*)payLoad->Data;
-                auto                 context = data->pContext->lock();
-                if (nullptr != context)
-                {
-                    const auto& path      = context->GetPath();
-                    const auto  extension = path.extension();
-                    if (extension == AnimationEventTrack::EXTENSION)
-                    {
-                        SetAnimationEventTrackFromPath(path);
-                    }
-                }
-            }
-            ImGui::EndDragDropTarget();
-        }
-        ImGui::Separator();
-        if (_eventTrack.IsLoadedFile())
-        {
-            if (ImGui::TreeNodeEx("Animation Event Track##details"))
-            {
-                ImGui::TreePop();
-            }
-        }
-        else
-        {
-            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
-            ImGui::Text("animation event track is not loaded.");
-            ImGui::PopStyleColor();
-        }
     }
 }
 
@@ -266,16 +407,7 @@ void AnimationComponent::SetAnimationEx(AnimationData& animData)
         bool isLastData = GetLastAnimationDataEx().IsSameData(animData);
         if (true == isLastData && false == _isBuildingOverrideAnimation)
         {
-            std::string animKey;
-            if (HasAnimationMappingKey(animData.AnimationName))
-            {
-                animKey = GetAnimationNameFromKey(animData.AnimationName);
-            }
-            else
-            {
-                animKey = animData.AnimationName;
-            }
-            _animator->ChangeAnimation(animKey.c_str(), animData.IsBlending);
+            _animator->ChangeAnimation(animData.AnimationName.c_str(), animData.IsBlending);
             if (animData.HasFlag(ANIMATION_FLAG_RESET_FRAME))
             {
                 animData.ElapsedFrame = 0.0f;
@@ -289,9 +421,9 @@ void AnimationComponent::ChangeAnimationEx(AnimationData& animData, std::string_
 {
     if (_animator)
     {
+        GetAnimationNameEx(animKey, animData.AnimationName);
         animData.IsBlending    = blend;
-        animData.AnimationName = animKey;
-        animData.MaxFrame      = _animator->GetAnimationLastTime(animData.AnimationName.data());
+        animData.MaxFrame      = _animator->GetAnimationLastTime(animData.AnimationName.c_str());
         bool isLastData        = GetLastAnimationDataEx().IsSameData(animData);
         if (true == isLastData && false == _isBuildingOverrideAnimation)
         {
@@ -326,6 +458,15 @@ void AnimationComponent::SetAnimationPopCallbackEx(AnimationData& animData, std:
     if (_animator)
     {
         animData.OnPopCallback = callback;
+    }
+}
+
+void AnimationComponent::GetAnimationNameEx(std::string_view key, std::string& str) const
+{
+    bool hasKey = HasAnimationMappingKey(key);
+    if (hasKey)
+    {
+        str = GetAnimationNameFromKey(key);
     }
 }
 
@@ -372,7 +513,9 @@ void AnimationComponent::PushOverrideAnimation(std::string_view animKey, bool bl
 {
     if (_animator)
     {
-        _overrideAnimationStack.emplace_back(animKey);
+        std::string animName(animKey);
+        GetAnimationNameEx(animKey, animName);
+        _overrideAnimationStack.emplace_back(animName);
         AnimationData& animData = GetLastAnimationDataEx();
         animData.IsBlending     = blend;
         animData.PopCondition   = popCondition;

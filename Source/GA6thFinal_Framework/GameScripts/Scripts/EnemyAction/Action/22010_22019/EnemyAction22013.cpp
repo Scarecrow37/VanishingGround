@@ -11,9 +11,8 @@ namespace EnemyAction
         {
             _animator->BeginBuildOverrideAnimation();
             {
-                const char* animKey = _owner->GetAnimationName(CharacterBase::ATTACK_3);
                 _animator->ClearOverrideAnimations();
-                _animator->PushOverrideAnimation(animKey, true, [](const AnimationData& data) { return data.IsEnd(); });
+                _animator->PushOverrideAnimation("Attack1", true, [](const AnimationData& data) { return data.IsEnd(); });
                 _animator->SetCurrentAnimationPopCallback([this]() { SetActionEnd(); });
                 _animator->ChangeCurrentAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE);
             }
@@ -25,10 +24,6 @@ namespace EnemyAction
     }
     void Action22013::OnActionExit() 
     {
-        if (_owner)
-        {
-            _owner->Dead();
-        }
     }
     void Action22013::OnAnimationEvent(const Timeline::EventContext* context) 
     {   
@@ -36,6 +31,10 @@ namespace EnemyAction
         if ("Attack" == label)
         {
             ProcessBattle(30);
+            if (_owner)
+            {
+                _owner->Dead();
+            }
         }
     }
 } // namespace EnemyAction

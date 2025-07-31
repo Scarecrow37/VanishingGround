@@ -125,11 +125,11 @@ void CharacterBase::InitMeshModel()
 
 void CharacterBase::InitAnimationCallback() 
 {
-    _animationComponent->SetAnimationPostEventCallback(
-        [this](const Timeline::EventContext* context) 
-        {
-            OnNotifiedAnimationEvent(context);
-        });
+    if (_animationComponent)
+    {
+        _animationComponent->SetAnimationPostEventCallback(
+            [this](const Timeline::EventContext* context) { OnNotifiedAnimationEvent(context); });
+    }
 }
 
 void CharacterBase::ClearState() 
@@ -194,14 +194,14 @@ void CharacterBase::TakeDamage(int damage)
     }
     if (_animationComponent)
     {
-        const auto& animData        = _animationComponent->GetLastAnimationData();
-        const char* currentAnimName = animData.GetAnimationName().c_str();
-        const char* hitAnimName     = GetAnimationName(CharacterBase::HIT);
-        if (0 == strcmp(currentAnimName, hitAnimName))
+        const auto& animData    = _animationComponent->GetLastAnimationData();
+        const char* hitAnimName = _animationComponent->GetAnimationNameFromKey("Hit").c_str();
+        const char* curAnimName = animData.GetAnimationName().c_str();
+        if (0 == strcmp(curAnimName, hitAnimName))
         {
             _animationComponent->PopOverrideAnimation();
         }
-        _animationComponent->PushOverrideAnimation(hitAnimName, true,
+        _animationComponent->PushOverrideAnimation("Hit", true,
             [](const AnimationData& data) { return data.IsEnd(); });
     }
 }

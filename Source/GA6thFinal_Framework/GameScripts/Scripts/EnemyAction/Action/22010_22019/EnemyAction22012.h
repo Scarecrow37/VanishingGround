@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include <EnemyAction/EnemyActionBase.h>
 
+class TokenApplyAction;
+
 namespace EnemyAction
 {
     /// <summary>
@@ -9,7 +11,8 @@ namespace EnemyAction
     class Action22012 : public ActionBase
     {
     public:
-        using ActionBase::ActionBase;
+        Action22012(Enemy* owner);
+        virtual ~Action22012();
     private:
         void OnActionEnter() override;
         void OnActionUpdate() override;
@@ -18,5 +21,7 @@ namespace EnemyAction
         void OnAnimationEvent(const Timeline::EventContext* context) override;
 
     private:
+        // 기절 부여용 액션
+        TokenApplyAction* _tokenAction;
     };
 } // namespace EnemyAction
