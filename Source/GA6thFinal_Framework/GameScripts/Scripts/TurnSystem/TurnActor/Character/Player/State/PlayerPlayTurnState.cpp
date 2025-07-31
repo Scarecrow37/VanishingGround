@@ -73,8 +73,6 @@ void PlayerPlayTurnState::OnUpdate()
                                           viewport->Pos.y + (viewport->Size.y - 500.0f) * 0.5f);
 
         ImGui::SetNextWindowPos(centerPos);
-        ImGui::SetNextWindowSize(ImVec2(500, 500));
-
         _setImguiPosCenter = false;
     }
 
@@ -169,7 +167,9 @@ void PlayerPlayTurnState::ReleasedButtonB(const Input::Controller& controller)
 
 void PlayerPlayTurnState::UpdateActionSelectionUI(float dt) 
 {
-    ImGui::Begin("Player Turn##9A48EE30-CB5F-48AC-9740-DDF8118AAC49");
+    ImGuiWindowFlags flags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar;
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.1f, 0.1f, 0.1f, 0.5f));
+    ImGui::Begin("Player Turn##9A48EE30-CB5F-48AC-9740-DDF8118AAC49", nullptr, flags);
     {
         if (ImGui::Button((const char*)u8"A를 눌러 공격 진입"))
         {
@@ -180,11 +180,14 @@ void PlayerPlayTurnState::UpdateActionSelectionUI(float dt)
         ImGui::ProgressBar(t);
     }
     ImGui::End();
+    ImGui::PopStyleColor();
 }
 
 void PlayerPlayTurnState::UpdateQuickTimeEventUI(float dt)
 {
-    ImGui::Begin("Player Turn##9A48EE30-CB5F-48AC-9740-DDF8118AAC49");
+    ImGuiWindowFlags flags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar;
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.1f, 0.1f, 0.1f, 0.5f));
+    ImGui::Begin("Player Turn##9A48EE30-CB5F-48AC-9740-DDF8118AAC49", nullptr, flags);
     {
         WeaponSystem* weaponSystem = WeaponSystem::GetInstance();
         TurnMode*     turnMode     = TurnMode::GetInstance();
@@ -193,28 +196,41 @@ void PlayerPlayTurnState::UpdateQuickTimeEventUI(float dt)
             Player&      player = GetPlayer();
             WeaponStats& weapon = const_cast<WeaponStats&>(weaponSystem->GetCurrentWeaponStats());
             ImGui::BeginDisabled();
-            weapon.ImGuiDrawPropertys();
+            ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.Name, UmCore->ImGuiDrawPropertysSetting);
+            ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.Type, UmCore->ImGuiDrawPropertysSetting);
+            ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.HitDamage, UmCore->ImGuiDrawPropertysSetting);
+            ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.CriticalDamage, UmCore->ImGuiDrawPropertysSetting);
             ImGui::EndDisabled();
             ImGui::Separator();
 
             ImGui::Text((const char*)u8"X, Y, B를 눌러 공격하세요.");
             ImGui::Text((const char*)u8"남은 공격 횟수 : %d", _attackRemaining);
+            int index = 0;
             for (auto& [name, value] : Battle::ENEMY_TARGET_FLAGS)
             {
                 if (ImGui::Button(name))
                 {
                     PushAttackTarget(value);
+                }      
+                constexpr int lastIndex = std::size(Battle::ENEMY_TARGET_FLAGS) - 1;
+                if (index < lastIndex)
+                {
+                    ImGui::SameLine();
                 }
+                index++;
             }
+
             ImGui::Separator();
             if (ImGui::Button((const char*)u8"[테스트] 자해"))
             {
                 player.TakeDamage(10);
             }
+            ImGui::SameLine();
             if (ImGui::Button((const char*)u8"[테스트] 자살"))
             {
                 player.Dead();
             }
+            ImGui::SameLine();
             if (ImGui::Button((const char*)u8"[테스트] 턴 종료"))
             {
                 _attackRemaining = 0;
@@ -240,6 +256,7 @@ void PlayerPlayTurnState::UpdateQuickTimeEventUI(float dt)
         }
     }
     ImGui::End();
+    ImGui::PopStyleColor();
 }
 
 void PlayerPlayTurnState::UpdateAttackEventUI(float dt)

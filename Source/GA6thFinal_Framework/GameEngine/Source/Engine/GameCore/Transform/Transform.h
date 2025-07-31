@@ -5,6 +5,7 @@ using namespace DirectX::SimpleMath;
 class Transform : public ReflectSerializer
 {
     friend class ESceneManager;
+    friend class EGameObjectFactory;
     USING_PROPERTY(Transform);
     inline static std::vector<Transform*> trStack; //순회용 stack (Foreach에서 씀)
     inline static std::queue<Transform*> trQueue; //순회용 queue (Foreach에서 씀)
@@ -175,7 +176,7 @@ public:
     }
 
     /// <summary>
-    /// Tansform를 DFS로 root부터 모든 자식들을 순회하면서 함수를 호출해줍니다.
+    /// Transform를 DFS로 root부터 모든 자식들을 순회하면서 함수를 호출해줍니다.
     /// </summary>
     /// <typeparam name="Func">실행할 함수</typeparam>
     /// <param name="root :">DFS 시작할 루트</param>
@@ -185,7 +186,7 @@ public:
 
 
     /// <summary>
-    /// Tansform를 BFS로 root부터 모든 자식들을 순회하면서 함수를 호출해줍니다.
+    /// Transform를 BFS로 root부터 모든 자식들을 순회하면서 함수를 호출해줍니다.
     /// </summary>
     /// <typeparam name="Func">실행할 함수</typeparam>
     /// <param name="root">BFS 시작할 루트</param>
@@ -300,7 +301,7 @@ private:
     /// <summary>
     /// 부모를 지웁니다.
     /// </summary>
-    void EraseParent();
+    void EraseParent(bool callEvent);
 
     /// <summary>
     /// 대상의 모든 자식을 순회하면서 root를 변경합니다.
@@ -350,6 +351,17 @@ private:
     void UpdateMatrix();
 
     /// <summary>
+    /// 내부에서 사용되는 SetParent 함수
+    /// </summary>
+    void SetParentEx(Transform* p, bool worldPositionStays, bool callEvent);
+
+    /// <summary>
+    /// 내부에서 사용되는 DetachChild 함수
+    /// </summary>
+    /// <param name="callEvent"></param>
+    void DetachChildrenEx(bool callEvent);
+
+    /// <summary>
     /// UI 컴포넌트들의 Detach 이벤트 함수를 호출합니다.
     /// </summary>
     /// <param name="target"></param>
@@ -361,36 +373,80 @@ private:
     /// <param name="target"></param>
     static void CallUIAttachChild(Transform* target, Transform* newChild);
 
+    /// <summary>
+    /// object의 vaild 여부 체크합니다.
+    /// </summary>
+    /// <param name="target"></param>
+    /// <returns></returns>
+    static bool CheckValidTransform(Transform* target);
+
+    /// <summary>
+    /// Transform를 DFS로 root부터 모든 자식들을 순회하면서 함수를 호출해줍니다.
+    /// </summary>
+    /// <typeparam name="Func">실행할 함수</typeparam>
+    /// <param name="root :">DFS 시작할 루트</param>
+    /// <param name="func : 실행할 함수"></param>
+    template <typename Func>
+    inline static void ForeachExDFS(Transform& root, bool checkValid, Func func);
+
+    /// <summary>
+    /// Transform를 BFS로 root부터 모든 자식들을 순회하면서 함수를 호출해줍니다.
+    /// </summary>
+    /// <typeparam name="Func">실행할 함수</typeparam>
+    /// <param name="root">BFS 시작할 루트</param>
+    /// <param name="func">실행할 함수</param>
+    template <typename Func>
+    inline static void ForeachExBFS(Transform& root, bool checkValid, Func func);
 };
 
 template <typename Func>
 inline void Transform::ForeachDFS(Transform& root, Func func)
+{
+    ForeachExDFS(root, true, func);
+}
+
+template <typename Func>
+inline void Transform::ForeachBFS(Transform& root, Func func)
+{
+    ForeachExBFS(root, true, func);
+}
+
+template <typename Func>
+inline void Transform::ForeachExDFS(Transform& root, bool checkValid, Func func)
 {
     trStack.push_back(&root);
     while (trStack.empty() == false)
     {
         Transform* currTr = trStack.back();
         trStack.pop_back();
-        func(currTr);
-        for (auto& _transform : currTr->_childsList)
+        bool vaild = checkValid ? CheckValidTransform(currTr) : true;
+        if (vaild)
         {
-            trStack.push_back(_transform);
+            func(currTr);
+            for (auto& _transform : currTr->_childsList)
+            {
+                trStack.push_back(_transform);
+            }
         }
     }
 }
 
 template <typename Func>
-inline void Transform::ForeachBFS(Transform& root, Func func)
+inline void Transform::ForeachExBFS(Transform& root, bool checkValid, Func func)
 {
     trQueue.push(&root);
     while (trQueue.empty() == false)
     {
         Transform* currTr = trQueue.front();
         trQueue.pop();
-        func(currTr);
-        for (auto& _transform : currTr->_childsList)
+        bool vaild = checkValid ? CheckValidTransform(currTr) : true;
+        if (vaild)
         {
-            trQueue.push(_transform);
+            func(currTr);
+            for (auto& _transform : currTr->_childsList)
+            {
+                trQueue.push(_transform);
+            }
         }
     }
 }
