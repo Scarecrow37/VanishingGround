@@ -559,4 +559,32 @@ namespace File
 
         return text;
     }
+    std::time_t GetFileLastWriteTime(const fs::directory_entry& entry)
+    {
+        auto ftime = fs::last_write_time(entry);
+        auto sctp  = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
+            ftime - fs::file_time_type::clock::now() + std::chrono::system_clock::now());
+        std::time_t cftime = std::chrono::system_clock::to_time_t(sctp);
+        return cftime;
+    }
+    bool Compare::CompareByType(const fs::directory_entry& a, const fs::directory_entry& b) const
+    {
+        bool aIsDir = a.is_directory();
+        bool bIsDir = b.is_directory();
+        return aIsDir > bIsDir;
+    }
+
+    bool Compare::CompareByName(const fs::directory_entry& a, const fs::directory_entry& b) const
+    {
+        std::string aName = a.path().filename().string();
+        std::string bName = b.path().filename().string();
+        return aName < bName;
+    }
+
+    bool Compare::CompareByDate(const fs::directory_entry& a, const fs::directory_entry& b) const
+    {
+        auto timeA = fs::last_write_time(a);
+        auto timeB = fs::last_write_time(b);
+        return timeA > timeB; // 최신순
+    }
 } // namespace File

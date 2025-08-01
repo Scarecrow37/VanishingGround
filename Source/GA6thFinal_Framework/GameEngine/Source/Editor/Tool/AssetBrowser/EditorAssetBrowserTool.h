@@ -15,16 +15,36 @@ class EditorAssetBrowserTool
     : public EditorTool
     , public File::FileEventSubscriber
 {
+    using FileEntry = std::filesystem::directory_entry;
+    using FileTime  = std::filesystem::file_time_type;
+
     enum ShowType
     {
-        List,
-        Icon,
+        SHOW_TYPE_LIST,
+        SHOW_TYPE_ICON,
     };
     enum Flags
     {
-        FLAG_IS_RENAME = 0,     // 리네임 중인지 여부
+        FLAG_SHOW_META          = 1,     // 메타 파일 표시 여부
+        FLAG_SIZE,
+    };
+    struct AssetData
+    {
+        AssetData(FileEntry entry);
+        AssetData()  = default;
+        ~AssetData() = default;
 
-        FALG_SIZE,
+        void Refesh(FileEntry entry);
+
+        FileEntry   Entry;              // 파일 엔트리
+        bool        IsDirectory;        // 디렉토리인지 여부
+        std::string FileName;           // 파일 이름
+        std::string ViewName;           // 뷰에 표시될 이름
+        std::time_t LastWriteTime;      // 마지막 수정 시간
+        int         Order = 0;          // 정렬 순서 
+
+        // icon
+        std::shared_ptr<Texture> PreviewIconTexture; // 아이콘 텍스처
     };
     using wpContext = std::weak_ptr<File::Context>;
     using spContext = std::shared_ptr<File::Context>;
@@ -42,7 +62,7 @@ private:
     inline static EditorAssetBrowserTool* _staticInstance = nullptr;
 
 public:
-    inline const File::Path& GetCurrentFocusFolderPath() const { return _currFocusFolderPath; }
+    inline const File::Path& GetCurrentFocusFolderPath() const { return _focusFolderPath; }
     inline const ImRect&     GetWindowRect() const { return _windowRect; }
 
 private:
@@ -70,37 +90,24 @@ private:
 
     /* 폴더 계층 뷰 콜럼 */
     void ShowFolderHierarchy();
-    void ShowFolderHierarchy(spFolderContext FolderContext);
+    void ShowFolderHierarchyTree(const File::Path& directory);
 
     /* 콘텐츠 뷰 콜럼 */
-    void ShowFolderContents();
-    void ShowSearchBar(spFolderContext context); // 콘텐츠 뷰 검색 바
-    void ContentsFrameEventAction(spFolderContext context); // 콘텐츠 뷰 프레임 이벤트 액션
+    void ShowFolderEntries();
+    void ShowFolderEntryToList(AssetData& asset);  
+    void ShowFolderEntryToIcon(AssetData& asset);  
+    void ShowFolderEntryPopup(AssetData& asset);
+    void ProcessFolderEntryDragDrop(AssetData& asset);
+    void UpdateFolderEntryInput();
 
-    void ShowContentsToList(); // 콘텐츠 뷰 출력 타입 - 리스트
-    void ShowContentsToIcon(); // 콘텐츠 뷰 출력 타입 - 아이콘
-
-    void ShowItemToList(spContext context, const char* mode = ""); // 콘텐츠 뷰 아이템 출력 - 리스트 
-    void ShowItemToIcon(spContext context, const char* mode = ""); // 콘텐츠 뷰 아이템 출력 - 아이콘 
-
-    void ItemInputText(spContext context);  // 콘텐츠 뷰 이름 변경 인풋 텍스트
-
-    void ItemEventAction(spContext context, const char* mode = "");    // 콘텐츠 뷰 아이템 이벤트 액션
-    void ItemInputAction(spContext context, const char* mode = "");    // 콘텐츠 뷰 아이템 인풋 액션
-    void ItemPopupAction(spContext context, const char* mode = "");    // 콘텐츠 뷰 아이템 팝업 액션
+    void ShowSearchBar(spFolderContext context);   
 
     /* 팝업 박스 메서드 */
-    void ShowDeletePopupBox(wpContext context);
+    void ShowDeletePopupBox(const File::Path& path);
     void ShowSameFilePopupBox();
     void ShowCopyFilePopupBox();
 
 private:
-    void ProcessEnterAction(spContext context);
-    void ProcessMoveAction(wpContext srcContext, wpFolderContext dstContext);
-
-    void SetFocusInspector(wpContext context);
-    bool SetFocusFolder(wpFolderContext context); // 선택된 폴더 or 파일 포커싱
-    void SetFocusParentFolder(spContext context);
     void SetFocusFromUndoPath();
     void SetFocusFromRedoPath();
 
@@ -108,27 +115,52 @@ private:
     static bool WinProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 private:
-    /* 브라우저에서 보여질 유형 (List, Icon) */
-    ShowType _showType;
-    /* 현재 포커싱 폴더 */
-    File::Path      _currFocusFolderPath;
-    wpFolderContext _currFocusFolderContext;
-    wpFolderContext _nextFocusFolderContext;
-    /* 현재 선택된 폴더 or 파일 */
-    std::shared_ptr<EditorAssetObject> _selectedContext;
-    /* 이름 바꾸기 모드 여부 */
-    std::bitset<FALG_SIZE> browserFlags;
+    AssetData* GetAssetData(const File::Path& path);
+    void RefreshState();
+    void RefreshFocusFolderEntries();
+    void SetFocusFolderPath(const File::Path& path);
+    void SetFocusEntryPath(const File::Path& path);
+ 
+    // 최신 개발
+    int         _folderCount    = 0;        // 폴더 개수
+    float       _zoomScale      = 1.0f;     // 콘텐츠 뷰 줌 스케일
+    float       _updateTime     = 0.0f;     // 콘텐츠 뷰 업데이트 시간
+    bool        _needRefresh    = false;    // 콘텐츠 뷰 새로고침 필요 여부
+    File::Path  _copyBuffer     = "";       // 복사 버퍼
+    File::Path  _focusFolderPath;           // 현재 포커싱 중인 폴더
+    File::Path  _focusEntryPath;            // 현재 포커싱 중인 파일
+    
+    std::bitset<FLAG_SIZE> _flags;          // 플래그 비트셋 (예: 메타 파일 표시 여부 등)
 
+    std::unordered_map<File::Path, AssetData> _focusFolderAssetDataMap;
+    std::vector<AssetData*> _focusFolderAssetDataList;  // 현재 포커싱 폴더의 파일 목록
+
+    std::vector<std::function<void()>> _delayEvent;     // 후처리 이벤트 
+
+    static constexpr ImVec2 ICON_WIDGET_SIZE = ImVec2(100.0f, 100.0f); // 아이콘 위젯 크기
+    static constexpr const char* POPUP_ID    = "##popup";
+
+    struct RenameController
+    {
+        bool IsActive() const { return IsRenaming; } // 이름 변경 모드인지 확인
+        void StartRename(const File::Path& destFilePath); // 이름 변경 시작
+        void CancelRename(); // 이름 변경 취소
+        const File::Path& ExecuteRename(const File::Path& destFolder);
+        
+        bool        IsRenaming   = false;   // 이름 변경 모드 여부
+        File::Path  Return       = "";      // 이름 변경 대상 이름
+        File::Path  DestPath     = "";      // 이름 변경 대상 이름
+        std::string DestName     = "";      // 이름 변경 대상 이름
+        std::string RenameBuffer = "";      // 이름 변경 버퍼
+
+    };
+    RenameController _rename; // 이름 변경 컨트롤러
+
+private:
     /* Undo, Redo 스택 */ 
     int                    _maxUndoStack = 20; // Undo Stack 최대 개수
     std::deque<File::Path> _directoryUndoStack;
     std::deque<File::Path> _directoryRedoStack;
-
-    /* Copy&Paste */
-    File::Path _copyPath;
-    
-    /* EventProcessing */
-    std::vector<std::function<void()>> _eventFunc; 
 
     /* Search */
     char _searchBuffer[128] = "";
@@ -142,7 +174,34 @@ private:
     REFLECT_FIELDS_BEGIN(EditorTool)
     float ColumWidth  = 250.f;
     float ColumHeight = 0.0f;
+    int   SortFlags   = File::Compare::FLAGS_SORT_BY_TYPE | File::Compare::FLAGS_SORT_BY_NAME;
+    int   ShowType    = SHOW_TYPE_LIST;
     REFLECT_FIELDS_END(EditorAssetBrowserTool)
+
+    class Compare
+    {
+    public:
+        enum SortFlags
+        {
+            FLAGS_SORT_BY_NONE = 0,      // 정렬 없음
+            FLAGS_SORT_BY_TYPE = 1 << 1, // 유형별 정렬
+            FLAGS_SORT_BY_NAME = 1 << 2, // 이름순 정렬
+            FLAGS_SORT_BY_DATE = 1 << 3, // 날짜순 정렬
+        };
+
+    public:
+        Compare(int sortFlags = 0) : flags(sortFlags) {}
+        ~Compare() = default;
+        bool operator()(const AssetData* a, const AssetData* b) const;
+
+    private:
+        bool CompareByType(const AssetData* a, const AssetData* b) const;
+        bool CompareByName(const AssetData* a, const AssetData* b) const;
+        bool CompareByDate(const AssetData* a, const AssetData* b) const;
+
+    private:
+        int flags = 0; // 정렬 플래그 (예: 이름순, 날짜순 등)
+    };
 };
 
 class EditorAssetObject : public IEditorObject

@@ -79,6 +79,10 @@ public:
                 if (std::filesystem::is_regular_file(path))
                     return std::static_pointer_cast<T>(context.lock());
             }
+            else 
+            {
+                return context.lock();
+            }
         }
         return std::weak_ptr<T>();
     }
@@ -99,6 +103,10 @@ public:
             {
                 if (std::filesystem::is_regular_file(path))
                     return std::static_pointer_cast<T>(context.lock());
+            }
+            else 
+            {
+                return context.lock();
             }
         }
         return std::weak_ptr<T>();

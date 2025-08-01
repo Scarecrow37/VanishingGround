@@ -9,16 +9,12 @@ AnimationEventListener::AnimationEventListener()
         {
             if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
             {
-                DragDropAsset::Data* data    = (DragDropAsset::Data*)payLoad->Data;
-                auto                 context = data->pContext->lock();
-                if (nullptr != context)
+                DragDropAsset::Data* data = static_cast<DragDropAsset::Data*>(payLoad->Data);
+                File::Path path = data->GetPath();
+                const auto extension = path.extension();
+                if (extension == AnimationNotifySet::EXTENSION)
                 {
-                    const auto& path      = context->GetPath();
-                    const auto  extension = path.extension();
-                    if (extension == AnimationNotifySet::EXTENSION)
-                    {
-                        SetAnimationNotifyFromPath(path);
-                    }
+                    SetAnimationNotifyFromPath(path);
                 }
             }
             ImGui::EndDragDropTarget();

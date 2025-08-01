@@ -13,7 +13,7 @@ namespace File
 
     protected:
         virtual bool Write(YAML::Node& node) const = 0;
-        virtual bool Read(YAML::Node& node) const  = 0;
+        virtual bool Read(YAML::Node& node)  = 0;
 
     public:
         bool FileCreate(bool isHidden = false) const;
@@ -27,8 +27,8 @@ namespace File
         bool IsNull() const;
 
     public:
-        inline const auto& GetGuid() const { return _fileGuid; }
-        inline const auto& GetPath() const { return _filePath; }
+        inline const File::Path& GetPath() const { return _filePath; }
+        inline const File::Guid& GetGuid() const { return _fileGuid; }
 
     protected:
         File::Path _filePath = NULL_PATH; // 파일 경로
@@ -49,19 +49,27 @@ namespace File
 
     private:
         virtual bool Write(YAML::Node& node) const override;
-        virtual bool Read(YAML::Node& node) const override;
+        virtual bool Read(YAML::Node& node) override;
+
+    public:
+        inline int GetAssetID() const { return _assetID; }
 
     private:
         int _assetID; // 에셋 ID
         
-        static constexpr const char* ASSET_ID_HEADER = "Guid";
+        static constexpr const char* ASSET_ID_HEADER = "AssetID";
     };
 
+    /// <summary>
+    /// <para>ProjectData:</para>
+    /// <para>해당 클래스는 프로젝트에 대한 Guid 및 관련 설정을 관리하는 구조체입니다.</para>
+    /// <para>프로젝트의 고유한 ID를 관리하며, 프로젝트 설정 등을 관리할 수 있습니다.</para>
+    /// </summary>
     class ProjectData : public FileData
     {
     private:
         virtual bool Write(YAML::Node& node) const override;
-        virtual bool Read(YAML::Node& node) const override;
+        virtual bool Read(YAML::Node& node) override;
     };
 
 }

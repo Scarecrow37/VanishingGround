@@ -226,6 +226,44 @@ namespace ImGuiHelper
         return !window->SkipItems;
     }
 
+    class StyleBuilder
+    {
+    public:
+        StyleBuilder() = default;
+        ~StyleBuilder() { PopStyle(); }
+
+    public:
+        template <typename T>
+        void PushStyleVar(int idx, const T& color)
+        {
+            ImGui::PushStyleVar(idx, color);
+            ++_pushStyleVarCount;
+        }
+        template <typename T>
+        void PushStyleColor(int idx, const T& color)
+        {
+            ImGui::PushStyleColor(idx, color);
+            ++_pushStyleColCount;
+        }
+        void PopStyle()
+        {
+            if (_pushStyleVarCount > 0)
+            {
+                ImGui::PopStyleVar(_pushStyleVarCount);
+                _pushStyleVarCount = 0;
+            }
+            if (_pushStyleColCount > 0)
+            {
+                ImGui::PopStyleColor(_pushStyleColCount);
+                _pushStyleColCount = 0;
+            }
+        }
+
+    private:
+        int _pushStyleVarCount = 0;
+        int _pushStyleColCount = 0;
+    };
+
     class DragDrop
     {
         using EventID = const char*;

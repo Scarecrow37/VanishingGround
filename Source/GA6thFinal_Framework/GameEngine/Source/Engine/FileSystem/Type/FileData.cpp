@@ -140,6 +140,7 @@ namespace File
     bool MetaData::Write(YAML::Node& node) const
     {
         node[ASSET_ID_HEADER] = _assetID;
+        return true;
     }
 
     bool MetaData::Read(YAML::Node& node)
