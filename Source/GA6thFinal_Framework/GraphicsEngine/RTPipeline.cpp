@@ -237,17 +237,24 @@ RTPipeline::RootSignatureDesc RTPipeline::CreateGlobalRootDesc()
 
     r.staticSampler.resize(7);
     ShaderBuilder builder;
-    builder.CreateStaticSampler(D3D12_FILTER_MIN_MAG_MIP_POINT, D3D12_TEXTURE_ADDRESS_MODE_WRAP, 0, r.staticSampler[0]);
-    builder.CreateStaticSampler(D3D12_FILTER_MIN_MAG_MIP_POINT, D3D12_TEXTURE_ADDRESS_MODE_CLAMP, 1,
+    builder.CreateStaticSampler(D3D12_FILTER_MIN_MAG_MIP_POINT, D3D12_TEXTURE_ADDRESS_MODE_WRAP,
+                                D3D12_COMPARISON_FUNC_ALWAYS, 0, r.staticSampler[0]);
+    builder.CreateStaticSampler(D3D12_FILTER_MIN_MAG_MIP_POINT, D3D12_TEXTURE_ADDRESS_MODE_CLAMP,
+                                D3D12_COMPARISON_FUNC_ALWAYS, 1,
                                 r.staticSampler[1]);
-    builder.CreateStaticSampler(D3D12_FILTER_MIN_MAG_MIP_LINEAR, D3D12_TEXTURE_ADDRESS_MODE_WRAP, 2,
+    builder.CreateStaticSampler(D3D12_FILTER_MIN_MAG_MIP_LINEAR, D3D12_TEXTURE_ADDRESS_MODE_WRAP,
+                                D3D12_COMPARISON_FUNC_ALWAYS, 2,
                                 r.staticSampler[2]);
-    builder.CreateStaticSampler(D3D12_FILTER_MIN_MAG_MIP_LINEAR, D3D12_TEXTURE_ADDRESS_MODE_CLAMP, 3,
+    builder.CreateStaticSampler(D3D12_FILTER_MIN_MAG_MIP_LINEAR, D3D12_TEXTURE_ADDRESS_MODE_CLAMP,
+                                D3D12_COMPARISON_FUNC_ALWAYS, 3,
                                 r.staticSampler[3]);
-    builder.CreateStaticSampler(D3D12_FILTER_MIN_MAG_MIP_LINEAR, D3D12_TEXTURE_ADDRESS_MODE_BORDER, 4,
+    builder.CreateStaticSampler(D3D12_FILTER_MIN_MAG_MIP_LINEAR, D3D12_TEXTURE_ADDRESS_MODE_BORDER,
+                                D3D12_COMPARISON_FUNC_ALWAYS, 4,
                                 r.staticSampler[4]);
-    builder.CreateStaticSampler(D3D12_FILTER_ANISOTROPIC, D3D12_TEXTURE_ADDRESS_MODE_WRAP, 5, r.staticSampler[5]);
-    builder.CreateStaticSampler(D3D12_FILTER_ANISOTROPIC, D3D12_TEXTURE_ADDRESS_MODE_CLAMP, 6, r.staticSampler[6]);
+    builder.CreateStaticSampler(D3D12_FILTER_ANISOTROPIC, D3D12_TEXTURE_ADDRESS_MODE_WRAP,
+                                D3D12_COMPARISON_FUNC_ALWAYS, 5, r.staticSampler[5]);
+    builder.CreateStaticSampler(D3D12_FILTER_ANISOTROPIC, D3D12_TEXTURE_ADDRESS_MODE_CLAMP,
+                                D3D12_COMPARISON_FUNC_ALWAYS, 6, r.staticSampler[6]);
     r.desc = MakeRootSigDesc(r.rootParams, r.staticSampler, D3D12_ROOT_SIGNATURE_FLAG_NONE);
     return r;
 }

@@ -1,6 +1,12 @@
 ﻿#include "pch.h"
 #include "Renderer.h"
 
+// Shader
+#include "VertexShader.h"
+#include "PixelShader.h"
+#include "ComputeShader.h"
+#include "GeometryShader.h"
+
 // Geometry
 #include "Box.h"
 #include "Cylinder.h"
@@ -332,6 +338,7 @@ void Renderer::CreateDefaultResource()
     CreateDefaultGeometry();
     CreateDefaultTexture();
     CreateDefaultRenderTarget();
+    CreateDefaultShader();
 }
 
 void Renderer::CreateDefaultGeometry()
@@ -490,4 +497,37 @@ void Renderer::CreateDefaultRenderTarget()
     desc.Width = resolution.Width;
     desc.Height = resolution.Height;
     Global::multiRenderTargetManager->InitializeRenderTargetPool(4, desc);
+}
+
+void Renderer::CreateDefaultShader()
+{
+    // L"../Shaders 폴더를 탐색 후 모든 쉐이더 파일을 미리 컴파일
+    std::filesystem::path shaderDir = L"../Shaders";
+
+    for (const auto& entry : std::filesystem::recursive_directory_iterator(shaderDir))
+    {
+        if (entry.is_regular_file() && entry.path().extension() == L".hlsl")
+        {
+            std::wstring_view shaderPath = entry.path().c_str();
+
+            if (shaderPath.find(L"vs_") != std::wstring_view::npos)
+            {
+                _defaultResource.push_back(Global::resourceManager->LoadResource<VertexShader>(shaderPath));
+            }
+            else if (shaderPath.find(L"ps_") != std::wstring_view::npos)
+            {
+                _defaultResource.push_back(Global::resourceManager->LoadResource<PixelShader>(shaderPath));
+            }
+            else if (shaderPath.find(L"cs_") != std::wstring_view::npos)
+            {
+                _defaultResource.push_back(Global::resourceManager->LoadResource<ComputeShader>(shaderPath));
+            }
+            else if (shaderPath.find(L"gs_") != std::wstring_view::npos)
+            {
+                _defaultResource.push_back(Global::resourceManager->LoadResource<GeometryShader>(shaderPath));
+            }
+
+            Global::shaderPathMappings[entry.path().filename()] = shaderPath;
+        }
+    }
 }

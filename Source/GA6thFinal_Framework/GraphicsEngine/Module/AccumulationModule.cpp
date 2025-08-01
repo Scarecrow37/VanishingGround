@@ -30,6 +30,7 @@ void AccumulationModule::Initialize()
     psodesc.VS                                 = _shader->GetShaderByteCode(ShaderBuilder::Type::VS);
     psodesc.PS                                 = _shader->GetShaderByteCode(ShaderBuilder::Type::PS);
 
+
     hr = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(&_pipelineState));
     FAILED_CHECK_MESSAGE(hr, L"AccumulationModule::Initialize device->CreateGraphicsPipelineState Failed");
 

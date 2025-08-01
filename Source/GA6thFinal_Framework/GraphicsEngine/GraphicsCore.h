@@ -73,4 +73,5 @@ private:
     class DebugDrawCore*            _debugDrawCore;
     class RenderPassDatas*          _renderPassDatas;
     class ModuleManager*            _moduleManager;
+    class PipelineStateManager*     _pipelineStateManager;
 };

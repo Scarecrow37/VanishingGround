@@ -62,12 +62,12 @@ using namespace Microsoft::WRL;
 #include "assimp/postprocess.h"
 #include "assimp/scene.h"
 
+#include "ShaderTypes.generated.h"
 #include "Defines.h"
 #include "Enums.h"
 #include "Structs.h"
-
+#include "Utility.h"
 #include "Headers.h"
-#include "RenderTechnique.h"
 #include "Externs.h"
 
 #include "GraphicsCore.h"

@@ -32,5 +32,8 @@
 #include "ViewManager.h"
 #include "AccelerationStructureManager.h"
 #include "Module/ModuleManager.h"
+#include "PipelineStateManager.h"
 
 #include "DebugDrawCore.h"
+#include "RenderTechnique.h"
+#include "FX.h"

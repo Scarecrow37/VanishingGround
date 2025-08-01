@@ -53,21 +53,8 @@ void GBufferPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTech
     }
 
     __super::Initialize(ownerScene, ownerTechnique, commandList);
+
     InitShaderAndPSO();
-}
-
-void GBufferPass::AddRenderPassDatas(std::string_view sceneName)
-{
-    /*const auto& gBufferGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("GBuffer");
-
-    std::initializer_list<std::string_view> gBufferNames = {"BaseColor", "Normal", "ORM", "Emissive", "WorldPosition"};
-
-    for (int i = 0; i < 5; i++)
-    {
-        _gbuffer[i] = MakeSharedResource<RenderTarget>();        
-        _gbuffer[i]->Initialize(gBufferGroup[i]->GetResourceDesc(), 0.247f);
-        Global::renderPassDatas->AddRenderPassImage(sceneName, "GBufferPass", *(gBufferNames.begin() + i), _gbuffer[i]->GetSRVHandle());
-    }*/
 }
 
 void GBufferPass::Update(ID3D12GraphicsCommandList* commadList)
@@ -162,17 +149,6 @@ void GBufferPass::End(ID3D12GraphicsCommandList* commandList)
     {
         gBuffer->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     }
-
-    /*for (int i = 0; i < 5;i++)
-    {
-        _gbuffer[i]->TransitionResource(commandList, D3D12_RESOURCE_STATE_COPY_DEST);
-        gBufferGroup[i]->TransitionResource(commandList, D3D12_RESOURCE_STATE_COPY_SOURCE);
-
-        commandList->CopyResource(_gbuffer[i]->GetResource(), gBufferGroup[i]->GetResource());
-
-        _gbuffer[i]->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-        gBufferGroup[i]->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-    }*/
 }
 
 void GBufferPass::InitShaderAndPSO()
@@ -199,28 +175,28 @@ void GBufferPass::InitShaderAndPSO()
     HRESULT                            hr = S_OK;
     ComPtr<ID3D12PipelineState>        pipelineState;
 
-    psodesc.RasterizerState                    = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-    psodesc.BlendState                         = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-    psodesc.DepthStencilState                  = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-    psodesc.SampleMask                         = UINT_MAX;
-    psodesc.PrimitiveTopologyType              = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-    psodesc.InputLayout                        = _shaders[STATIC_MESH]->GetInputLayout();
-    psodesc.NumRenderTargets                   = GBuffer::GBUFFER_END;
-    psodesc.RTVFormats[GBuffer::BASECOLOR]     = DXGI_FORMAT_R32G32B32A32_FLOAT;
-    psodesc.RTVFormats[GBuffer::NORMAL]        = DXGI_FORMAT_R32G32B32A32_FLOAT;
-    psodesc.RTVFormats[GBuffer::ORM]           = DXGI_FORMAT_R32G32B32A32_FLOAT;
-    psodesc.RTVFormats[GBuffer::EMISSIVE]      = DXGI_FORMAT_R32G32B32A32_FLOAT;
-    psodesc.RTVFormats[GBuffer::DEPTH]         = DXGI_FORMAT_R32_FLOAT;
-    psodesc.RTVFormats[GBuffer::CUSTOMDEPTH]   = DXGI_FORMAT_R32_UINT;
-    psodesc.DSVFormat                          = _ownerScene->_depthStencilView->GetFormat();
-    psodesc.pRootSignature                     = _shaders[STATIC_MESH]->GetRootSignature();
-    psodesc.SampleDesc                         = {1, 0};
-    psodesc.VS                                 = _shaders[STATIC_MESH]->GetShaderByteCode(ShaderBuilder::Type::VS);
-    psodesc.PS                                 = _shaders[STATIC_MESH]->GetShaderByteCode(ShaderBuilder::Type::PS);
+    psodesc.RasterizerState                  = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+    psodesc.BlendState                       = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+    psodesc.DepthStencilState                = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+    psodesc.SampleMask                       = UINT_MAX;
+    psodesc.PrimitiveTopologyType            = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+    psodesc.InputLayout                      = _shaders[STATIC_MESH]->GetInputLayout();
+    psodesc.NumRenderTargets                 = GBuffer::GBUFFER_END;
+    psodesc.RTVFormats[GBuffer::BASECOLOR]   = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    psodesc.RTVFormats[GBuffer::NORMAL]      = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    psodesc.RTVFormats[GBuffer::ORM]         = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    psodesc.RTVFormats[GBuffer::EMISSIVE]    = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    psodesc.RTVFormats[GBuffer::DEPTH]       = DXGI_FORMAT_R32_FLOAT;
+    psodesc.RTVFormats[GBuffer::CUSTOMDEPTH] = DXGI_FORMAT_R32_UINT;
+    psodesc.DSVFormat                        = _ownerScene->_depthStencilView->GetFormat();
+    psodesc.pRootSignature                   = _shaders[STATIC_MESH]->GetRootSignature();
+    psodesc.SampleDesc                       = {1, 0};
+    psodesc.VS                               = _shaders[STATIC_MESH]->GetShaderByteCode(ShaderBuilder::Type::VS);
+    psodesc.PS                               = _shaders[STATIC_MESH]->GetShaderByteCode(ShaderBuilder::Type::PS);
 
     // static one side back.
     psodesc.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
-    hr = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(&pipelineState));
+    hr                               = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(&pipelineState));
     FAILED_CHECK_MESSAGE(hr, L"GBufferPass::InitShaderAndPSO device->CreateGraphicsPipelineState Failed");
     _psos[STATIC_CULL_BACK] = pipelineState;
 
@@ -232,15 +208,15 @@ void GBufferPass::InitShaderAndPSO()
 
     // static two side.
     psodesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
-    hr                               = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(&pipelineState));    
+    hr                               = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(&pipelineState));
     FAILED_CHECK_MESSAGE(hr, L"GBufferPass::InitShaderAndPSO device->CreateGraphicsPipelineState Failed");
     _psos[STATIC_TWO_SIDED] = pipelineState;
 
     // Skeletal Mesh PSO
-    psodesc.InputLayout              = _shaders[SKELETAL_MESH]->GetInputLayout();
-    psodesc.pRootSignature           = _shaders[SKELETAL_MESH]->GetRootSignature();
-    psodesc.VS                       = _shaders[SKELETAL_MESH]->GetShaderByteCode(ShaderBuilder::Type::VS);
-    psodesc.PS                       = _shaders[SKELETAL_MESH]->GetShaderByteCode(ShaderBuilder::Type::PS);
+    psodesc.InputLayout    = _shaders[SKELETAL_MESH]->GetInputLayout();
+    psodesc.pRootSignature = _shaders[SKELETAL_MESH]->GetRootSignature();
+    psodesc.VS             = _shaders[SKELETAL_MESH]->GetShaderByteCode(ShaderBuilder::Type::VS);
+    psodesc.PS             = _shaders[SKELETAL_MESH]->GetShaderByteCode(ShaderBuilder::Type::PS);
 
     // skeletal one side back.
     psodesc.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;

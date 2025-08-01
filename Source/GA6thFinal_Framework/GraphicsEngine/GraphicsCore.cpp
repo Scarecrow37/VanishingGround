@@ -8,19 +8,21 @@
 
 namespace Global
 {
-    Device*                   device;
-    Renderer*                 renderer;
-    CommandController*        commandController;
-    DXResourceManager*        dxResourceManager;
-    MultiRenderTargetManager* multiRenderTargetManager;
-    ResourceManager*          resourceManager;
-    ViewManager*              viewManager;
-    AnimationCore*            animationCore;
-    LightCore*                lightCore;
-    ParticleManager*          particleManager;
-    DebugDrawCore*            debugDrawCore;
-    RenderPassDatas*          renderPassDatas;
-    ModuleManager*            moduleManager;
+    Device*                                        device;
+    Renderer*                                      renderer;
+    CommandController*                             commandController;
+    DXResourceManager*                             dxResourceManager;
+    MultiRenderTargetManager*                      multiRenderTargetManager;
+    ResourceManager*                               resourceManager;
+    ViewManager*                                   viewManager;
+    AnimationCore*                                 animationCore;
+    LightCore*                                     lightCore;
+    ParticleManager*                               particleManager;
+    DebugDrawCore*                                 debugDrawCore;
+    RenderPassDatas*                               renderPassDatas;
+    ModuleManager*                                 moduleManager;
+    PipelineStateManager*                          pipelineStateManager;
+    std::unordered_map<std::wstring, std::wstring> shaderPathMappings;
 };
 
 ParticleManager* GraphicsCore::GetParticleManager() const
@@ -162,6 +164,7 @@ void GraphicsCore::Initialize(const HWND hwnd, const UINT width, const UINT heig
     _debugDrawCore            = new DebugDrawCore;
     _renderPassDatas          = new RenderPassDatas;
     _moduleManager            = new ModuleManager;
+    _pipelineStateManager     = new PipelineStateManager;
 
     Global::device                   = _device;
     Global::renderer                 = _renderer;
@@ -176,6 +179,7 @@ void GraphicsCore::Initialize(const HWND hwnd, const UINT width, const UINT heig
     Global::debugDrawCore            = _debugDrawCore;
     Global::renderPassDatas          = _renderPassDatas;
     Global::moduleManager            = _moduleManager;
+    Global::pipelineStateManager     = _pipelineStateManager;
 
     _device->SetUpDevice(hwnd, width, height, feature);
     _viewManager->Initialize();
@@ -219,6 +223,7 @@ void GraphicsCore::Finalize() const
 {
     _device->Finalize();
 
+    delete _pipelineStateManager;
     delete _moduleManager;
     delete _renderPassDatas;
     delete _debugDrawCore;
