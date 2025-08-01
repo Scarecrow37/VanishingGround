@@ -39,10 +39,6 @@ private:
     void SetAnimationPopCallbackEx(AnimationData& animData, std::function<void()> callback);
     void GetAnimationNameEx(std::string_view key, std::string& str) const;
 
-    //void ShowImGuiAnimationController();
-    //void ShowImGuiAnimationEventTrack();
-    //void ShowImGuiAnimationKeyMapping();
-
 public:
     /// <summary>
     /// 애니메이션 오버라이드를 모두 지웁니다.
