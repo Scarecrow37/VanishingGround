@@ -560,6 +560,7 @@ void GameObject::Engine::UpdateActiveInHierarchy(GameObject* obj)
             {
                 curr->_activeInHierarchy = false;
             }
+
             for (auto& component : curr->_components)
             {
                 component->UpdateEnableInHierarchy();
