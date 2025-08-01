@@ -67,11 +67,11 @@ void ShadowMapPass::Update(ID3D12GraphicsCommandList* commandList)
     float       nearZ    = camera->GetNearZ();
     for (int i = 0; i < MESH_TYPE_END; i++)
     {
-        for (auto& [material, mesh, customDepth, instanceID] : _ownerScene->_activeMeshes[i])
+        for (auto& meshInfo: _ownerScene->_activeMeshes[i])
         {
             // cull_back, cull_front, cull_none
-            meshType = MeshType(i * 3 + (int)material.CullMode);
-            _renderDatas[meshType].emplace_back(mesh, instanceID, customDepth);
+            meshType = MeshType(i * 3 + (int)meshInfo.Material.CullMode);
+            _renderDatas[meshType].emplace_back(meshInfo.Mesh, meshInfo.InstanceID, meshInfo.CustomDepth);
         }
     }
 }

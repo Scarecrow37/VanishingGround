@@ -2,8 +2,7 @@
 
 using VertexBufferID         = UINT;
 using IndexBufferID          = UINT;
-using StaticMeshInstanceID   = UINT;
-using SkeletalMeshInstanceID = UINT;
+using MeshInstanceID   = UINT;
 
 struct Vertex
 {
@@ -63,13 +62,15 @@ struct SkeletalMeshInstance
     D3D12_VERTEX_BUFFER_VIEW                   VertexBufferView;
     UINT                                       VertexCount = 0;
 };
-
+class DXRSkeletalMesh;
 struct MeshInfo
 {
     Material        Material;
     class BaseMesh* Mesh;
     UINT            CustomDepth;
     UINT            InstanceID;
+    XMMATRIX*        TransposeWorldMatrix;
+    DXRSkeletalMesh* SkinnedInstance;
 };
 
 struct LightData

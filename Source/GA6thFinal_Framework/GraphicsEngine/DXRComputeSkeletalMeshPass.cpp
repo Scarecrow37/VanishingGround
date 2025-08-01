@@ -1,19 +1,20 @@
 ﻿#include "pch.h"
 #include "DXRComputeSkeletalMeshPass.h"
-#include "ShaderBuilder.h"
+#include "BaseMesh.h"
+#include "DXRSkeletalMesh.h"
+#include "FrameResource.h"
 #include "MeshRenderer.h"
 #include "Model.h"
-#include "BaseMesh.h"
-#include "Structs.h"
 #include "RenderScene.h"
-#include "FrameResource.h"
-#include "DXRSkeletalMesh.h"
+#include "ShaderBuilder.h"
+#include "Structs.h"
 
 DXRComputeSkeletalMeshPass::~DXRComputeSkeletalMeshPass() {}
 
-void DXRComputeSkeletalMeshPass::Initialize(RenderScene* ownerScene, ID3D12GraphicsCommandList* commandList)
+void DXRComputeSkeletalMeshPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique,
+                                            ID3D12GraphicsCommandList* commandList)
 {
-    __super::Initialize(ownerScene, commandList);
+    __super::Initialize(ownerScene, ownerTechnique, commandList);
     InitShaderAndPSO();
 }
 
@@ -25,26 +26,23 @@ void DXRComputeSkeletalMeshPass::Begin(ID3D12GraphicsCommandList* commandList)
 
 void DXRComputeSkeletalMeshPass::Draw(ID3D12GraphicsCommandList* commandList)
 {
-    //auto computeCmdList = Global::device->GetComputeCommandList();
+    // auto computeCmdList = Global::device->GetComputeCommandList();
     for (auto& meshInfo : _ownerScene->_activeMeshes[SKELETAL_MESH])
     {
         Dispatch(commandList, meshInfo);
     }
 }
 
-void DXRComputeSkeletalMeshPass::End(ID3D12GraphicsCommandList* commandList) 
-{
-
-}
+void DXRComputeSkeletalMeshPass::End(ID3D12GraphicsCommandList* commandList) {}
 
 void DXRComputeSkeletalMeshPass::Dispatch(ID3D12GraphicsCommandList* commandList, MeshInfo meshInfo)
 {
     auto& skeletalInstances = meshInfo.SkinnedInstance;
 
-    ID3D12Resource* resource      = skeletalInstances->GetUpdateVertexBuffer();
-    VIBuffer*       vibuffer      = skeletalInstances->GetVIBuffer();
+    ID3D12Resource* resource = skeletalInstances->GetUpdateVertexBuffer();
+    VIBuffer*       vibuffer = skeletalInstances->GetVIBuffer();
     auto            br = CD3DX12_RESOURCE_BARRIER::Transition(resource, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
-                                                                         D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+                                                              D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
     auto&           frameResource = _ownerScene->_frameResources[_ownerScene->_currentFrameIndex];
     commandList->ResourceBarrier(1, &br);
     commandList->SetComputeRootUnorderedAccessView(_shader->GetRootParameterIndex("skinnedVertices"),
@@ -73,9 +71,9 @@ void DXRComputeSkeletalMeshPass::InitShaderAndPSO()
     _shader->EndBuild();
 
     D3D12_COMPUTE_PIPELINE_STATE_DESC psoDesc = {};
-    psoDesc.pRootSignature = _shader->GetRootSignature();
-    psoDesc.CS = _shader->GetShaderByteCode(ShaderBuilder::Type::CS);
-    psoDesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+    psoDesc.pRootSignature                    = _shader->GetRootSignature();
+    psoDesc.CS                                = _shader->GetShaderByteCode(ShaderBuilder::Type::CS);
+    psoDesc.Flags                             = D3D12_PIPELINE_STATE_FLAG_NONE;
 
     HRESULT hr = Global::device->GetDevice()->CreateComputePipelineState(&psoDesc, IID_PPV_ARGS(_pso.GetAddressOf()));
     FAILED_CHECK_MESSAGE(hr, L"DXRComputeSkeletalMeshPass::InitShaderAndPSO CreateComputePipelineState failed");

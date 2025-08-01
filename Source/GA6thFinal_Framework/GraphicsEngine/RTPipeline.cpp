@@ -231,13 +231,13 @@ RTPipeline::RootSignatureDesc RTPipeline::CreateGlobalRootDesc()
     r.rootParams[0].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
     // b1 light data
     r.rootParams[1].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
-    r.rootParams[1].Descriptor.ShaderRegister = 1;
+    r.rootParams[1].Descriptor.ShaderRegister = 2;
     r.rootParams[1].Descriptor.RegisterSpace  = 0;
     r.rootParams[1].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
     // b2 bit32_3_numLight
     r.rootParams[2].ParameterType            = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
     r.rootParams[2].Constants.Num32BitValues = 3;
-    r.rootParams[2].Constants.ShaderRegister = 2;
+    r.rootParams[2].Constants.ShaderRegister = 3;
     r.rootParams[2].Constants.RegisterSpace  = 0;
     r.rootParams[2].ShaderVisibility         = D3D12_SHADER_VISIBILITY_ALL;
 

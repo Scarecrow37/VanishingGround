@@ -19,7 +19,8 @@
 
 DXRDrawPass::~DXRDrawPass() {}
 
-void DXRDrawStaticMeshPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList)
+void DXRDrawPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique,
+                             ID3D12GraphicsCommandList* commandList)
 {
     __super::Initialize(ownerScene, ownerTechnique, commandList);
     CreateStateObject();
