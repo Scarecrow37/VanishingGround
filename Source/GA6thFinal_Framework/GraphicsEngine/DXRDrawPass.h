@@ -17,7 +17,7 @@ private:
     void CreateStateObject();
     void CreateShaderTable();
     void CreateShaderResource();
-    void UpdateStaticMeshVIBufferID(ID3D12GraphicsCommandList* commandList);
+    void UpdateFrameResource(ID3D12GraphicsCommandList* commandList);
 
     void WriteCommand(ID3D12GraphicsCommandList* cmdList);
 
@@ -31,6 +31,7 @@ private:
 
     std::vector<VertexBufferID> _vertexBufferIDs;
     std::vector<IndexBufferID>  _indexBufferIDs;
+    std::vector<MeshInstanceID>       _meshInstanceIDs;
     ComPtr<ID3D12GraphicsCommandList> _commandList;
     ComPtr<ID3D12CommandAllocator>    _commandAllocator;
 };

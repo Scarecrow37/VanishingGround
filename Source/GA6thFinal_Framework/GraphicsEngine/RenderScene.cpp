@@ -130,15 +130,13 @@ void RenderScene::UpdateRenderScene()
     UpdateFont();
     if (Global::renderer->_isRaytracing)
     {
-        _accelerationStructureManager->RemoveUnUsedStaticMeshes(_activeMeshes[STATIC_MESH]);
+        _accelerationStructureManager->RemoveUnUsedStaticMeshes(_activeMeshes[STATIC_MESH], _activeMeshes[SKELETAL_MESH]);
     }
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::TRANSFORM, _worldMatrices.data(), (UINT)_worldMatrices.size());
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::BONE_MATRICES, _boneMatrices.data(), (UINT)_boneMatrices.size());
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::MATERIAL, _materialIDs.data(), (UINT)_materialIDs.size());
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::UI_TRANSFORM, _uiMatrices.data(), (UINT)_uiMatrices.size());
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::UI_MATERIAL, _uiMaterials.data(), (UINT)_uiMaterials.size());
-    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::STATIC_MESH_INSTANCE_ID, _staticMeshInstanceIDs.data(), (UINT)_staticMeshInstanceIDs.size());
-    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::SKELETAL_MESH_INSTANCE_ID, _skeletalMeshInstanceIDs.data(), (UINT)_skeletalMeshInstanceIDs.size());
 }
 
 void RenderScene::Execute()
@@ -266,17 +264,17 @@ void RenderScene::UpdateObject()
             if (animator)
                 memcpy(&boneMatrices, animator->GetAnimationTransform(), sizeof(BoneMatrices));
         }
-
+        auto& skinnedBuffers = component->GetDXRSkeletalMeshes();
         UINT size = (UINT)meshes.size();
         for (UINT i = 0; i < size; i++)
         {
-            BoundingOrientedBox boundingOrientedBox;
+       /*     BoundingOrientedBox boundingOrientedBox;
 
             const auto& meshBoundingBox = meshes[i]->GetBoundingBox();
             meshBoundingBox.Transform(boundingOrientedBox, world);
 
             if (!cameraFrustum.Intersects(boundingOrientedBox))
-                continue;
+                continue;*/
 
             _worldMatrices.push_back(transposeWorld);
             _boneMatrices.push_back(boneMatrices);
@@ -304,14 +302,15 @@ void RenderScene::UpdateObject()
             if (STATIC_MESH == type)
             {
                 _staticMeshInstanceIDs.push_back(instanceID);
+                _activeMeshes[type].emplace_back(materials[i], meshes[i].get(), customDepths[i], instanceID++,
+                                                 &_worldMatrices[instanceID], nullptr);
             }
             else if (SKELETAL_MESH == type)
             {
                 _skeletalMeshInstanceIDs.push_back(instanceID);
+                _activeMeshes[type].emplace_back(materials[i], meshes[i].get(), customDepths[i], instanceID++,
+                                                 &_worldMatrices[instanceID], skinnedBuffers[i].get());
             }
-
-            _activeMeshes[type].emplace_back(materials[i], meshes[i].get(), customDepths[i], instanceID++,
-                                             &_worldMatrices[instanceID]);
         }
     }
 }
@@ -439,11 +438,8 @@ void RenderScene::CreateFrameResource()
         // Index Buffer ID
         _frameResources[i]->AddFrameResource(sizeof(IndexBufferID), MAX_OBJECTS);
 
-        // Static Mesh Instance ID
-        _frameResources[i]->AddFrameResource(sizeof(StaticMeshInstanceID), MAX_OBJECTS);
-        
-        // Skeletal Mesh Instance ID
-        _frameResources[i]->AddFrameResource(sizeof(SkeletalMeshInstanceID), MAX_OBJECTS);
+        //  Mesh Instance ID
+        _frameResources[i]->AddFrameResource(sizeof(MeshInstanceID), MAX_OBJECTS);
     }
 
     _cameraBuffer = std::make_unique<ConstantBufferView>();

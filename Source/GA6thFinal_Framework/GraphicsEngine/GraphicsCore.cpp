@@ -76,6 +76,20 @@ void GraphicsCore::SetCurrentScene(const std::string_view sceneName) const
     _renderer->SetCurrentScene(sceneName);
 }
 
+void GraphicsCore::SyncGlobalVariable()
+{
+    Global::device                   = _device;
+    Global::renderer                 = _renderer;
+    Global::animationCore            = _animationCore;
+    Global::lightCore                = _lightCore;
+    Global::viewManager              = _viewManager;
+    Global::resourceManager          = _resourceManager;
+    Global::multiRenderTargetManager = _multiRenderTargetManager;
+    Global::particleManager          = _particleManager;
+    Global::dxResourceManager        = _dxResourceManager;
+    Global::commandController        = _commandController;
+}
+
 void GraphicsCore::AddRenderScene(const std::string_view sceneName, const RenderTechniqueFlag flag) const
 {
     _renderer->AddRenderScene(sceneName, flag);
@@ -195,6 +209,11 @@ void GraphicsCore::Update(const float deltaTime) const
     _particleManager->Update(deltaTime);
     _lightCore->Update(deltaTime);
     _renderer->Update();
+
+    //const float  fps     = 1.f / deltaTime;
+    //HWND         hwnd    = GetActiveWindow();
+    //std::wstring fpsText = L"FPS: " + std::to_wstring(static_cast<int>(fps));
+    //SetWindowTextW(hwnd, fpsText.c_str());
 }
 
 void GraphicsCore::Render() const

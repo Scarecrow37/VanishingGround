@@ -14,7 +14,7 @@ void RenderTechnique::AddRenderPass(std::unique_ptr<RenderPass> pass)
 
 void RenderTechnique::Execute(ID3D12GraphicsCommandList* commadList)
 {
-    for (auto& pass : _renderPasses)
+    for (auto& pass : _renderPasses) 
     {
         pass->Begin(commadList);
         pass->Draw(commadList);

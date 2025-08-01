@@ -157,7 +157,31 @@ inline float3 CalculateIBL(float3 N, float3 V, TextureCube irradianceMap, Textur
     float3 diffuseIBL = kD * albedo * irradiance;
     float3 specularIBL = (F0 * brdf.x + brdf.y) * preFilteredColor;   
 
+    
     return diffuseIBL + specularIBL;
 }
+float ComputeDynamicMipLevel(float distance, float maxMipLevel)
+{
+    float mipFromDistance = log2(distance + 1e-3);
+    return clamp(mipFromDistance, 0.0, maxMipLevel);
+}
 
+// miplevel clam함수
+uint SafeMipLevel(float requestedMip, Texture2D tex)
+{
+    // 0 레벨에서 해상도(width, height)와 전체 mipLevels 수를 얻는다
+    uint width, height, mipLevels;
+    tex.GetDimensions(0, width, height, mipLevels);
+
+    // floor 후 uint 변환하고, (mipLevels - 1) 과 비교해 clamp
+    uint mip = min((uint) floor(requestedMip), mipLevels - 1);
+    return mip;
+}
+
+float4 SampleCalculateMipLevel(Texture2D tex, SamplerState sam, float2 uv, float mipLevel)
+{
+    uint safeMip = SafeMipLevel(mipLevel, tex);
+    
+    return tex.SampleLevel(sam, uv, safeMip);
+}
 #endif

@@ -21,4 +21,5 @@ private:
 private:
     std::unique_ptr<class ShaderBuilder> _shader;
     ComPtr<ID3D12PipelineState>          _pso;
+    std::vector<VertexBufferID>          _vertexBufferIDs;
 };

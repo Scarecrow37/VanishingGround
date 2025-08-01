@@ -14,6 +14,7 @@ RayTracingTechnique::~RayTracingTechnique() {}
 void RayTracingTechnique::Initialize(ID3D12GraphicsCommandList* commandList) 
 {
     InitDXRGbufferPass(commandList);
+    InitDXRComputeSkeletalMeshPass(commandList);
     InitDXRDrawMeshPass(commandList);
 }
 

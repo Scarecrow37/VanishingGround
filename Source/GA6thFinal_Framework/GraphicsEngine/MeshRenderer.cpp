@@ -2,6 +2,7 @@
 #include "MeshRenderer.h"
 #include "Animator.h"
 #include "Model.h"
+#include "DXRSkeletalMesh.h"
 
 MeshRenderer::MeshRenderer(MeshType type, const Vector3& position, const Vector3& scale, const Quaternion& rotation, const Matrix& world)
     : _type(type)
@@ -28,6 +29,14 @@ void MeshRenderer::SetModel(std::shared_ptr<Model> model)
     if (model->GetAnimation())
     {
         _type = SKELETAL_MESH;
+        auto& meshes = _model->GetMeshes();
+
+        for (auto& mesh : meshes)
+        {
+            auto dxrMesh = std::make_shared<DXRSkeletalMesh>(mesh->GetVIBuffer());
+            dxrMesh->Initialize(mesh->GetVIBuffer()->_vertexCount, sizeof(StaticMeshVertex));
+            _dxrSkeletalMeshes.push_back(dxrMesh);
+        }
     }
     else
         _type = STATIC_MESH;

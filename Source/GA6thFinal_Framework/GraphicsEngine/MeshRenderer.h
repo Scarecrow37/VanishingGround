@@ -1,9 +1,10 @@
 ﻿#pragma once
 #include "GraphicsBase.h"
 
-struct SkeletalMeshInstance;
 class Model;
 class Animator;
+class DXRSkeletalMesh;
+
 class MeshRenderer : public GraphicsBase
 {
 public:
@@ -18,6 +19,7 @@ public:
     const UINT                    GetCustomDepth(UINT meshID) const { return _customDepths[meshID]; }
     const std::vector<UINT>&      GetCustomDepths() const { return _customDepths; }
     std::shared_ptr<Animator>     GetAnimator() const;
+    const std::vector<std::shared_ptr<DXRSkeletalMesh>> GetDXRSkeletalMeshes() const { return _dxrSkeletalMeshes; }
 
 public:
     void SetModel(std::shared_ptr<Model> model);
@@ -34,7 +36,7 @@ public:
 private:
     std::vector<Material>                              _materials;
     std::vector<UINT>                                  _customDepths;
-
+    std::vector<std::shared_ptr<DXRSkeletalMesh>>      _dxrSkeletalMeshes;
     std::shared_ptr<Model>                             _model;
     std::shared_ptr<Animator>                          _animator;
     GraphicsTransform                                  _transform;

@@ -39,8 +39,7 @@ struct UIMaterial
 
 using VertexBufferID = UINT;
 using IndexBufferID = UINT;
-using StaticMeshInstanceID = UINT;
-using SkeletalMeshInstanceID = UINT;
+using MeshInstanceID = UINT;
 
 
 struct Material
@@ -123,13 +122,15 @@ struct Resolution
     UINT Height;
 };
 
+class DXRSkeletalMesh;
 struct MeshInfo
 {
     Material        Material;
     class BaseMesh* Mesh;
     UINT            CustomDepth;
     UINT            InstanceID;
-    XMMATRIX*        TransposeWorldMatrix;
+    XMMATRIX*       TransposeWorldMatrix;
+    DXRSkeletalMesh* SkinnedInstance;
 };
 
 struct GraphicsTransform

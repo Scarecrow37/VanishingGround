@@ -73,8 +73,8 @@ public:
     std::vector<MaterialID>                     _materialIDs;
     std::vector<XMMATRIX>                       _uiMatrices;
     std::vector<UIMaterial>                     _uiMaterials;
-    std::vector<StaticMeshInstanceID>           _staticMeshInstanceIDs;
-    std::vector<SkeletalMeshInstanceID>         _skeletalMeshInstanceIDs;
+    std::vector<MeshInstanceID>                 _staticMeshInstanceIDs;
+    std::vector<MeshInstanceID>                 _skeletalMeshInstanceIDs;
     std::shared_ptr<Camera>                     _camera;
     NumLight                                    _numLight;
 

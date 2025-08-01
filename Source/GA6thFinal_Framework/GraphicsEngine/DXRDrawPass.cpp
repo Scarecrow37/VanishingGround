@@ -15,6 +15,7 @@
 #include "ShaderConfig.h"
 #include "SkyBox.h"
 #include "d3dUtil.h"
+#include "DXRSkeletalMesh.h"
 
 DXRDrawPass::~DXRDrawPass() {}
 
@@ -28,7 +29,7 @@ void DXRDrawPass::Initialize(RenderScene* ownerScene, ID3D12GraphicsCommandList*
 void DXRDrawPass::Begin(ID3D12GraphicsCommandList* commandList)
 {
     UINT currentBackBufferIndex = _ownerScene->_currentFrameIndex;
-    UpdateStaticMeshVIBufferID(commandList);
+    UpdateFrameResource(commandList);
 }
 
 void DXRDrawPass::Draw(ID3D12GraphicsCommandList* commandList)
@@ -36,6 +37,10 @@ void DXRDrawPass::Draw(ID3D12GraphicsCommandList* commandList)
     for (auto& mesh : _ownerScene->_activeMeshes[STATIC_MESH])
     {
         _ownerScene->_accelerationStructureManager->SubmitStaticInstance(mesh);
+    }
+    for (auto& mesh : _ownerScene->_activeMeshes[SKELETAL_MESH])
+    {
+        _ownerScene->_accelerationStructureManager->SubmitSkeletalInstance(mesh);
     }
     auto                               commandlist = Global::device->GetCommandList();
     ComPtr<ID3D12GraphicsCommandList4> commandList4;
@@ -214,8 +219,26 @@ void DXRDrawPass::CreateShaderResource()
     _outputResourceUAV->TransitionResource(cmdlist, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 }
 
-void DXRDrawPass::UpdateStaticMeshVIBufferID(ID3D12GraphicsCommandList* commandList)
+void DXRDrawPass::UpdateFrameResource(ID3D12GraphicsCommandList* commandList)
 {
+    // Update Instance ID
+    _meshInstanceIDs.clear();
+    UINT staticMeshCount = static_cast<UINT>(_ownerScene->_staticMeshInstanceIDs.size());
+    for (UINT i = 0; i < staticMeshCount; ++i)
+    {
+        _meshInstanceIDs.push_back(_ownerScene->_staticMeshInstanceIDs[i]);
+    }
+    UINT skeletalMeshCount = static_cast<UINT>(_ownerScene->_skeletalMeshInstanceIDs.size());
+    for (UINT i = 0; i < skeletalMeshCount; ++i)
+    {
+        _meshInstanceIDs.push_back(_ownerScene->_skeletalMeshInstanceIDs[i]);
+    }
+    UINT currentFrameIndex = _ownerScene->_currentFrameIndex;
+    _ownerScene->_frameResources[currentFrameIndex]->CopyStructuredBuffer(
+        commandList, FrameResourceType::MESH_INSTANCE_ID, _meshInstanceIDs.data(),
+        static_cast<UINT>(_meshInstanceIDs.size()));
+
+    // Update VIBUffer ID
     _vertexBufferIDs.clear();
     _indexBufferIDs.clear();
     for (auto& meshInfo : _ownerScene->_activeMeshes[STATIC_MESH])
@@ -227,7 +250,16 @@ void DXRDrawPass::UpdateStaticMeshVIBufferID(ID3D12GraphicsCommandList* commandL
         _vertexBufferIDs.push_back(vertexBufferID);
         _indexBufferIDs.push_back(indexbufferID);
     }
-    UINT currentFrameIndex = _ownerScene->_currentFrameIndex;
+    for (auto& meshInfo : _ownerScene->_activeMeshes[SKELETAL_MESH])
+    {
+        const auto& instance = meshInfo.SkinnedInstance;
+        const auto& vibuffer       = meshInfo.Mesh->GetVIBuffer();
+        UINT        vertexBufferID = instance->GetID();
+        UINT        indexbufferID  = vibuffer->_indexBufferID;
+
+        _vertexBufferIDs.push_back(vertexBufferID);
+        _indexBufferIDs.push_back(indexbufferID);
+    }
     _ownerScene->_frameResources[currentFrameIndex]->CopyStructuredBuffer(
         commandList, FrameResourceType::VERTEX_BUFFER_ID, _vertexBufferIDs.data(),
         static_cast<UINT>(_vertexBufferIDs.size()));
@@ -277,10 +309,10 @@ void DXRDrawPass::WriteCommand(ID3D12GraphicsCommandList* cmdList)
     cmdList4->SetComputeRootConstantBufferView(0, cameraData);
     cmdList4->SetComputeRootConstantBufferView(1, lightData);
     cmdList4->SetComputeRoot32BitConstants(2, 3, &_ownerScene->_numLight, 0);
-    frameResource->SetRayTracingFrameResource(FrameResourceType::VERTEX_BUFFER_ID, 3, cmdList4.Get());
-    frameResource->SetRayTracingFrameResource(FrameResourceType::INDEX_BUFFER_ID, 4, cmdList4.Get());
-    frameResource->SetRayTracingFrameResource(FrameResourceType::MATERIAL, 5, cmdList4.Get());
-    frameResource->SetRayTracingFrameResource(FrameResourceType::STATIC_MESH_INSTANCE_ID, 6, cmdList4.Get());
+    frameResource->SetComputeFrameResource(FrameResourceType::VERTEX_BUFFER_ID, 3, cmdList4.Get());
+    frameResource->SetComputeFrameResource(FrameResourceType::INDEX_BUFFER_ID, 4, cmdList4.Get());
+    frameResource->SetComputeFrameResource(FrameResourceType::MATERIAL, 5, cmdList4.Get());
+    frameResource->SetComputeFrameResource(FrameResourceType::MESH_INSTANCE_ID, 6, cmdList4.Get());
 
     cmdList4->SetPipelineState1(_pso.Get());
     cmdList4->DispatchRays(&rayTraceDesc);
