@@ -641,7 +641,7 @@ private:
 
     //오브젝트 추가 대기열 
     std::vector<std::shared_ptr<GameObject>> _addGameObjectsQueue;
-    std::vector<std::shared_ptr<Component>> _addComponentsQueue;
+    std::vector<std::pair<std::weak_ptr<GameObject>, std::shared_ptr<Component>>> _addComponentsQueue;
 
     //오브젝트 삭제 대기열
     std::pair<std::unordered_set<GameObject*>, std::vector<GameObject*>> _destroyObjectsQueue;

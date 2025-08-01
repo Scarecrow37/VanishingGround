@@ -167,7 +167,7 @@ void ESceneManager::Engine::AddGameObjectToLifeCycle(std::shared_ptr<GameObject>
 
 void ESceneManager::Engine::AddComponentToLifeCycle(std::shared_ptr<Component> component)
 {
-    Global::engineCore->SceneManager._addComponentsQueue.push_back(component);
+    Global::engineCore->SceneManager._addComponentsQueue.emplace_back(component->_gameObject->GetWeakPtr(), component);
     EComponentFactory::Engine::PushBackComponentToObject(component);
 }
 
@@ -1078,21 +1078,25 @@ void ESceneManager::ObjectsAddRuntime()
         _runtimeObjects[id] = gameObject;
         GameObject::Engine::UpdateActiveInHierarchy(gameObject.get());     
     }
-    _addGameObjectsQueue.clear();
 
-    for (auto& component : _addComponentsQueue)
+    for (auto& [owner, component] : _addComponentsQueue)
     {
-        if (_isPlay)
+        if (owner.expired() == false)
         {
-            _waitAwakeVec.push_back(component);
-            _waitStartVec.push_back(component);
+            if (_isPlay)
+            {
+                _waitAwakeVec.push_back(component);
+                _waitStartVec.push_back(component);
+            }
+            if (component->_type == Component::TYPE::CAMERA)
+            {
+                component->gameObject->_transform._hasChanged = true;
+            }
+            component->UpdateEnableInHierarchy();
         }
-        if (component->_type == Component::TYPE::CAMERA)
-        {
-            component->gameObject->_transform._hasChanged = true;
-        }
-        component->UpdateEnableInHierarchy();
     }
+
+    _addGameObjectsQueue.clear();
     _addComponentsQueue.clear();
 }
 
@@ -1686,9 +1690,13 @@ void ESceneManager::SceneResourceManager::UpdateRenderResource(RenderResource<T>
 
 void ESceneManager::SceneResourceManager::Engine::Update(SceneResourceManager& manager)
 {
-    manager.UpdateRenderResource(manager._models);
-    manager.UpdateRenderResource(manager._textures);
-    manager.UpdateRenderResource(manager._fonts);
+    ESceneManager& sceneManager = UmSceneManager;
+    if (true == sceneManager._addComponentsQueue.empty())
+    {
+        manager.UpdateRenderResource(manager._models);
+        manager.UpdateRenderResource(manager._textures);
+        manager.UpdateRenderResource(manager._fonts);
+    }
 }
 
 void ESceneManager::SceneResourceManager::RequestModelResource(const Component* component, const File::Guid& guid,
