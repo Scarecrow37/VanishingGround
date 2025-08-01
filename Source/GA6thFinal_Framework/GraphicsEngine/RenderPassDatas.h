@@ -14,7 +14,7 @@ public:
     const std::any&         GetRenderPassProperty(std::string_view sceneName, std::string_view passName) const;
 
 public:
-    void AddRenderPassDatas(std::string_view sceneName, std::string_view passName, std::string_view dataName, D3D12_GPU_DESCRIPTOR_HANDLE handle)
+    void AddRenderPassImage(std::string_view sceneName, std::string_view passName, std::string_view dataName, D3D12_GPU_DESCRIPTOR_HANDLE handle)
     {
         auto& [property, handles] = _renderPassProperties[sceneName.data()][passName.data()];
         handles[dataName.data()].push_back(handle);

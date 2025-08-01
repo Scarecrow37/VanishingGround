@@ -31,6 +31,11 @@ const std::any& RenderScene::GetRenderPassProperty(std::string_view passName) co
     return Global::renderPassDatas->GetRenderPassProperty(_name, passName);
 }
 
+SharedResource<RenderTarget> RenderScene::GetSharedRenderTarget() const
+{
+    return _sharedRenderTarget[_currentFrameIndex];
+}
+
 void RenderScene::SetSkyBox(std::wstring_view path)
 {
     _skyBox->SetTexture(path);
@@ -211,8 +216,7 @@ void RenderScene::UpdateGlobal()
                           .ViewInverse       = _camera->GetWorldMatrix(),
                           .ProjectionInverse = _camera->GetProjectionInverseMatrix(),
                           .Position          = Vector4(_camera->GetPosition())};
-    auto& lights = Global::lightCore->GetLights(_name.c_str());
-       
+    auto& lights = Global::lightCore->GetLights(_name.c_str());       
 
     _numLight = {};
     for (auto& [isDestroy, light] : lights)
@@ -290,6 +294,7 @@ void RenderScene::UpdateObject()
         const auto& textures     = model->GetTextures();
 
         XMMATRIX     world = XMMatrixTranspose(component->GetWorldMatrix());
+        float        determinant = XMMatrixDeterminant(world).m128_f32[0];
         BoneMatrices boneMatrices;
 
         if (SKELETAL_MESH == type)
@@ -310,10 +315,7 @@ void RenderScene::UpdateObject()
             }
             else
             {
-                const auto& transform = component->GetTransform();
-                float       sign      = transform.Scale.x * transform.Scale.y * transform.Scale.z;
-
-                materials[i].CullMode = sign < 0.f ? Material::CullModeType::CULL_FRONT : Material::CullModeType::CULL_BACK;
+                materials[i].CullMode = determinant < 0.f ? Material::CullModeType::CULL_FRONT : Material::CullModeType::CULL_BACK;
             }
 
             MaterialID materialID{};
@@ -425,25 +427,31 @@ void RenderScene::UpdateFont()
 
 void RenderScene::CreateRenderTarget()
 {
-    auto                          mode                     = Global::device->GetMode();
-    auto&                         multiRenderTargetManager = Global::multiRenderTargetManager;
-    SharedResource<RenderTarget>  renderTarget;
-    mode.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-    auto desc = CD3DX12_RESOURCE_DESC::Tex2D(mode.Format, mode.Width, mode.Height, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
+    auto                         resolution = Global::device->GetResolution();
+    SharedResource<RenderTarget> renderTarget;
+    auto desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, resolution.Width, resolution.Height, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
 
     _meshRenderTargetName = _name + "_MeshRenderTarget";
     renderTarget          = MakeSharedResource<RenderTarget>();
     renderTarget->Initialize(desc, 0.247f);
     renderTarget->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
-    multiRenderTargetManager->AddRenderTarget(_meshRenderTargetName, renderTarget);
+    Global::multiRenderTargetManager->AddRenderTarget(_meshRenderTargetName, renderTarget);
 
     _finalTargetName = _name + "_FinalTarget";
     renderTarget     = MakeSharedResource<RenderTarget>();
     renderTarget->Initialize(desc, 0.247f);
     renderTarget->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
-    multiRenderTargetManager->AddRenderTarget(_finalTargetName, renderTarget);
+    Global::multiRenderTargetManager->AddRenderTarget(_finalTargetName, renderTarget);
+
+    _sharedRenderTarget.resize(SWAPCHAIN_BUFFER_COUNT);
+    for (auto& target : _sharedRenderTarget)
+    {
+        target = MakeSharedResource<RenderTarget>();
+        target->Initialize(desc, 0.247f);
+        target->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    }
 }
 
 void RenderScene::CreateDepthStencil()

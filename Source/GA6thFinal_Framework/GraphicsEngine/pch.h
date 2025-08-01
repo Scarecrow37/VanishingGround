@@ -22,6 +22,7 @@
 #include <wrl.h>
 #include <set>
 #include <any>
+#include <format>
 
 #include "directx/d3dcommon.h"
 #include "directx/d3dx12.h"

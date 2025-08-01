@@ -16,10 +16,11 @@ public:
     ~RenderScene();
 
 public:
-    std::shared_ptr<Camera>     GetCamera() const { return _camera; }
-    D3D12_GPU_DESCRIPTOR_HANDLE GetFinalImage();
-    SkyBox*                     GetSkyBox() { return _skyBox.get(); };
-    const std::any&             GetRenderPassProperty(std::string_view passName) const;
+    std::shared_ptr<Camera>      GetCamera() const { return _camera; }
+    D3D12_GPU_DESCRIPTOR_HANDLE  GetFinalImage();
+    SkyBox*                      GetSkyBox() { return _skyBox.get(); };
+    const std::any&              GetRenderPassProperty(std::string_view passName) const;
+    SharedResource<RenderTarget> GetSharedRenderTarget() const;
 
 public:
     void SetCamera(std::shared_ptr<Camera> camera) { _camera = camera; }
@@ -73,7 +74,7 @@ public:
     std::vector<MeshRenderer*> _skeletalMesh;
 
     // Frame Resource
-    std::vector<std::unique_ptr<FrameResource>> _frameResources;
+    std::vector<std::unique_ptr<FrameResource>> _frameResources;    
     std::vector<LightData>                      _lightDatas;
     std::vector<XMMATRIX>                       _worldMatrices;
     std::vector<BoneMatrices>                   _boneMatrices;
@@ -97,4 +98,7 @@ public:
     ComPtr<ID3D12PipelineState>         _framePSO;
 
     UINT _currentFrameIndex = 0;
+
+private:
+    std::vector<SharedResource<RenderTarget>> _sharedRenderTarget;
 };

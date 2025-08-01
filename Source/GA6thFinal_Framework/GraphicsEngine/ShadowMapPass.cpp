@@ -31,7 +31,7 @@ void ShadowMapPass::AddRenderPassDatas(std::string_view sceneName)
         srvDesc.Texture2DArray.ArraySize       = 1;
 
         device->CreateShaderResourceView(_shadowMap.Get(), &srvDesc, _debugHandles[i].CPU);
-        Global::renderPassDatas->AddRenderPassDatas(sceneName, "ShadowMapPass", "ShadowMap", _debugHandles[i].GPU);
+        Global::renderPassDatas->AddRenderPassImage(sceneName, "ShadowMapPass", "ShadowMap", _debugHandles[i].GPU);
 
         Global::renderPassDatas->AddRenderPassProperty(sceneName, "ShadowMapPass", ShadowPassProperty({0.1f, 200.f, 0.75f}));
     }

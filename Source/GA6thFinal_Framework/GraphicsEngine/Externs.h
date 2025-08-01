@@ -14,4 +14,5 @@ namespace Global
     extern ParticleManager*          particleManager;
     extern DebugDrawCore*            debugDrawCore;
     extern RenderPassDatas*          renderPassDatas;
+    extern ModuleManager*            moduleManager;
 }

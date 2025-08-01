@@ -1,9 +1,9 @@
 ﻿#include "pch.h"
 #include "EditorRenderPassData.h"
+#include "Engine/GraphicsCore/RenderPassDataHelper.h"
 
 EditorRenderPassData::EditorRenderPassData()
 {
-    //SetVisible(false);
     SetLabel("RenderPassData");
     SetDockLayout(ImGuiDir_Right);
 }
@@ -21,9 +21,27 @@ void EditShadowProperty(std::any& property)
     ImGui::DragFloat("Split Factor", &shadowProps.SplitFactor, 0.01f, 0.01f, 1.0f);
 }
 
+void EditBloomProperty(std::any& property)
+{
+    auto& bloomProps = std::any_cast<BloomPassProperty&>(property);
+    ImGui::DragFloat("Threshold", &bloomProps.Threshold, 0.01f, 0.0f, 100.0f);
+    ImGui::DragFloat("Intensity", &bloomProps.Intensity, 0.01f, 0.0f, 100.0f);
+    ImGui::DragFloat("Bloom Knee", &bloomProps.BloomKnee, 0.01f, 0.0f, 100.0f);
+}
+
+void EditToneMappingProperty(std::any& property)
+{
+    auto& toneMappingProps = std::any_cast<ToneMappingProperty&>(property);
+    ImGui::DragFloat("Exposure", &toneMappingProps.Exposure, 0.01f, -10.f, 10.0f);
+    ImGui::DragFloat("Saturation", &toneMappingProps.Saturation, 0.01f, 0.0f, 2.0f);
+    ImGui::DragFloat("Contrast", &toneMappingProps.Contrast, 0.01f, 0.0f, 2.0f);
+    ImGui::ColorEdit3("White Balance", &toneMappingProps.WhiteBalance.x, ImGuiColorEditFlags_Float);
+}
+
 void EditorRenderPassData::OnFrameRender()
 {
     auto& renderPassProperties = UmGraphics.GetRenderPassProperties();
+
     for (auto& [sceneName, properties] : renderPassProperties)
     {
         if (ImGui::TreeNodeEx(sceneName.c_str()))
@@ -39,6 +57,14 @@ void EditorRenderPassData::OnFrameRender()
                         if (property.type() == typeid(ShadowPassProperty))
                         {                            
                             EditShadowProperty(property);
+                        }
+                        else if (property.type() == typeid(BloomPassProperty))
+                        {
+                            EditBloomProperty(property);
+                        }
+                        else if (property.type() == typeid(ToneMappingProperty))
+                        {
+                            EditToneMappingProperty(property);
                         }
 
                         ImGui::TreePop();
@@ -64,6 +90,34 @@ void EditorRenderPassData::OnFrameRender()
                 }
             }
             ImGui::TreePop();
+        }
+    }
+    if (ImGui::Button("SaveData"))
+    {
+        std::vector<std::pair<LPCWSTR, LPCWSTR>> filters = {{L"Save Files (*.inl)", L"*.inl\0\0"}};
+        File::Path exportPath;
+        bool result = File::ShowSaveFileDialog(NULL, L"Export Render Pass Data", L"", L"data.inl", filters, exportPath);
+        if (result)
+        {
+            SaveRenderPassData(exportPath.string());
+
+            auto filePath = UmFileSystem.GetBuildSettingPath();
+            if (!filePath.empty())
+            {
+                filePath /= "GraphicsSetting.inl";
+                SaveRenderPassData(filePath.string());
+            }
+        }
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("LoadData"))
+    {
+        std::vector<std::pair<LPCWSTR, LPCWSTR>> filters = {{L"Load Files (*.inl)", L"*.inl\0\0"}};
+        File::Path importPath;
+        bool result = File::ShowOpenFileDialog(NULL, L"Import Render Pass Data", L"", filters, importPath);
+        if (result)
+        {
+            LoadRenderPassData(importPath.string());
         }
     }
 }

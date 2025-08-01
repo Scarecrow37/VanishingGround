@@ -60,7 +60,7 @@ void DXRGBufferPass::Begin(ID3D12GraphicsCommandList* commandList)
     const auto& gBufferGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("GBuffer");
 
     commandList->OMSetRenderTargets(DXRGBuffer::DXRGBUFFER_END, _gBufferHandles.data(), FALSE, &_ownerScene->_depthStencilView->GetDSVHandle());
-    commandList->RSSetViewports(1, &gBufferGroup[0]->GetViewPort());
+    commandList->RSSetViewports(1, &gBufferGroup[0]->GetViewport());
     commandList->RSSetScissorRects(1, &gBufferGroup[0]->GetScissorRect());
 }
 

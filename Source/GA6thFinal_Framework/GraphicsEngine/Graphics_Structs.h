@@ -98,3 +98,18 @@ struct ShadowPassProperty
     float FarPlane;
     float SplitFactor;
 };
+
+struct BloomPassProperty
+{
+    float Threshold;
+    float Intensity;
+    float BloomKnee;
+};
+
+struct ToneMappingProperty
+{
+    Vector3 WhiteBalance;
+    float   Exposure;
+    float   Saturation;
+    float   Contrast;
+};
